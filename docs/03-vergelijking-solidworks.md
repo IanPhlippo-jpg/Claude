@@ -76,3 +76,23 @@ voor een eigen check door de gebruiker:
 De aanpassingen zijn daarom gebaseerd op de schermafbeeldingen en teksten uit de handleiding-equivalenten
 (SOLIDWORKS 2025 Quick Start / 2023 Tutorial, hoofdstuk "Overview of SOLIDWORKS and the User Interface") en de
 officiële help. Als een video een afwijking laat zien, graag het tijdstip en de video doorgeven; dan pas ik het aan.
+
+## Derde ronde: afstemming op de YouTube-video's
+
+Gebruiker gaf twee video's op: *SOLIDWORKS 2026 Beginner Tutorial* (Design Forge, `jhaPTx056vI`) en
+*What's New in SOLIDWORKS 2026 – Top 10* (Hawk Ridge Systems, `7XTMxQEkgko`). YouTube-pagina's en ondertitels zijn vanuit deze
+omgeving geblokkeerd (bot-check, HTTP 429), maar de **storyboard-frames** (160×90-voorbeelden over de hele looptijd) en de
+thumbnails konden wel worden opgehaald. Daaruit en uit de voorbeeldhoofdstukken is overgenomen:
+
+| Waargenomen in de video's | Aanpassing |
+|---|---|
+| Vrijwel wit grafisch venster met zachte grijze gradient | `--bg-viewport: #ffffff` → `#dfe3e8` |
+| Gesloten schetscontouren lichtgrijs gearceerd (*Shaded Sketch Contours*) | Contour-detectie (`src/core/sketch/contours.ts`, halfkant-wandeling incl. bogen en losse uitlopers) + arcering in de viewport; knop in de Sketch-tab |
+| Titelregel "SOLIDWORKS Design ›" met uitklapbaar menu, menu-bar-toolbar met ▾-pijlen, login/help/venster-knoppen | Menu bar herbouwd: "PhlippoCAD Design ›", menu's verschijnen bij hover (pin houdt ze vast), Open▾/Save▾/Undo▾/Select▾/Options▾, login, Help▾, —/☐/✕ |
+| CommandManager met Engelse commandonamen, sketch-entiteiten als 2×6 iconenraster met fly-outs, tabs Features · Sketch · Markup · Evaluate · MBD Dimensions · Add-Ins | CommandManager herbouwd met dezelfde indeling en namen; tab-strip lichtgrijs met witte actieve tab |
+| Smalle witte FeatureManager met tab-iconen (tree, PropertyManager, ConfigurationManager, DimXpert, DisplayManager), Solid Bodies-map | Tab-iconen uitgebreid, "Solid Bodies" toegevoegd, kleuraccenten op vlak-/origin-/schets-iconen |
+| "Model \| Motion Study 1"-tabs onder het grafische venster | Toegevoegd |
+| Welcome-dialoog met Home/Recent/Learn/Alerts, grote Part/Assembly/Drawing/Open-tegels | Herbouwd |
+| Volledig Engelse UI (commandonamen zoals in het origineel) | Alle UI-teksten naar Engels; documentatie blijft Nederlands |
+
+Screenshots staan in `docs/screenshots/`.

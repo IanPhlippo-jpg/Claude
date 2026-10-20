@@ -1,6 +1,9 @@
 # Phlippo CAD
 
-Parametrische 3D-CAD-webapplicatie voor werktuigbouwkundig ontwerp (TypeScript, React, three.js).
+Parametrische 3D-CAD-webapplicatie voor werktuigbouwkundig ontwerp (TypeScript, React, three.js), met een interface die het
+bekende desktop-CAD-pakket volgt (CommandManager, FeatureManager, PropertyManager, Heads-up View toolbar, Confirmation Corner).
+
+![Schets](docs/screenshots/03-sketch-dimension.png)
 
 ```
 npm install

@@ -8,7 +8,7 @@ const STATUS_TEXT: Record<string, string> = {
   full: 'Fully Defined',
   over: 'Over Defined',
   conflict: 'Over Defined (conflict)',
-  invalid: 'Ongeldige relatie',
+  invalid: 'Invalid relation',
 };
 
 const UNIT_LABEL: Record<UnitSystem, string> = { MKS: 'MKS (meter, kilogram, second)', CGS: 'CGS (centimeter, gram, second)', MMGS: 'MMGS (millimeter, gram, second)', IPS: 'IPS (inch, pound, second)' };
@@ -26,7 +26,7 @@ export function StatusBar({ hint }: { hint: string }) {
           {msg.level !== 'info' && <Icon.Warning size={13} />} {msg.text}
         </span>
       ) : (
-        <span className="k-muted">{hint || (st.planePick ? 'Selecteer een vlak voor de schets' : 'Gereed')}</span>
+        <span className="k-muted">{hint || (st.planePick ? 'Select a plane on which to create the sketch.' : st.activeSketchId ? '' : 'Ready')}</span>
       )}
       <span className="grow" />
       {st.cursor && st.activeSketchId && (
@@ -51,7 +51,7 @@ export function StatusBar({ hint }: { hint: string }) {
             items={[
               ...(['MKS', 'CGS', 'MMGS', 'IPS'] as UnitSystem[]).map((u) => ({ label: `${st.unitSystem === u ? '✓ ' : ''}${UNIT_LABEL[u]}`, onSelect: () => st.setUnitSystem(u) })),
               { separator: true },
-              { label: 'Documenteenheden bewerken…', onSelect: () => st.setDialog('options') },
+              { label: 'Edit Document Units…', onSelect: () => st.setDialog('options') },
             ]}
           />
         )}

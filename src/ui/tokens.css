@@ -19,8 +19,8 @@
   --bg-hover: rgba(0, 120, 215, 0.08);
   --bg-active: rgba(0, 120, 215, 0.16);
   --bg-selected: #cce4f7;
-  --bg-viewport: #f4f6f9;
-  --bg-viewport-2: #c9ced6;
+  --bg-viewport: #ffffff;
+  --bg-viewport-2: #dfe3e8;
   --border: #d9d9d9;
   --border-strong: #adadad;
   --text: #1a1a1a;
@@ -51,6 +51,7 @@
   --sk-relation-bg: rgba(255, 255, 255, 0.92);
   --sk-relation-box: #cfeadb;
   --sk-plane: #4f7fc8;
+  --sk-contour: rgba(90, 96, 104, 0.28);
   --icon: #4b5563;
 }
 
@@ -94,5 +95,6 @@
   --sk-origin-part: #60a5fa;
   --sk-origin-sketch: #ff5c5c;
   --sk-plane: #6aa6ff;
+  --sk-contour: rgba(200, 210, 220, 0.22);
   --icon: #c3c9d2;
 }

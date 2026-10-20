@@ -177,7 +177,7 @@ export class ToolController {
       }
       case 'point': {
         const { p, snap: sn } = this.applySnap(ctx, info.p, null);
-        ctx.commit('Punt', (s) => {
+        ctx.commit('Point', (s) => {
           const [s1, e] = addPoint(s, p);
           return this.inferredRelations(s1, sn, e.p);
         });
@@ -196,7 +196,7 @@ export class ToolController {
         const rot = Math.atan2(p.y - c.y, p.x - c.x);
         const cSnap = this.snapHits[0];
         const sides = this.polygonSides;
-        ctx.commit('Polygoon', (s) => {
+        ctx.commit('Polygon', (s) => {
           const [s1, lines] = addPolygon(s, c, r, sides, rot);
           const circleId = s1.entityOrder[s1.entityOrder.length - 1];
           const circle = s1.entities[circleId] as { center: Id };
@@ -222,7 +222,7 @@ export class ToolController {
         const horizontal = Math.abs(a.y - p.y) < 1e-9 && Math.abs(a.x - p.x) > 1e-9;
         const vertical = Math.abs(a.x - p.x) < 1e-9 && Math.abs(a.y - p.y) > 1e-9;
         let createdEnd: Id | null = null;
-        ctx.commit('Lijn', (s) => {
+        ctx.commit('Line', (s) => {
           let [s1, l] = addLine(s, prevEnd ?? a, p, construction);
           createdEnd = l.p2;
           if (!prevEnd) s1 = this.inferredRelations(s1, startSnap, l.p1);
@@ -255,7 +255,7 @@ export class ToolController {
         if (!corners) return;
         const startSnap = this.snapHits[0];
         const center = this.tool === 'centerRectangle';
-        ctx.commit('Rechthoek', (s) => {
+        ctx.commit('Rectangle', (s) => {
           let [s1, l1] = addLine(s, corners[0], corners[1]);
           let l2, l3, l4;
           [s1, l2] = addLine(s1, l1.p2, corners[2]);
@@ -291,7 +291,7 @@ export class ToolController {
         const r = dist(c, p);
         if (r < 1e-9) return;
         const cSnap = this.snapHits[0];
-        ctx.commit('Cirkel', (s) => {
+        ctx.commit('Circle', (s) => {
           const [s1, e] = addCircle(s, c, r);
           let s2 = this.inferredRelations(s1, cSnap, e.center);
           if (sn?.pointId) s2 = addConstraint(s2, 'pointOnEntity', [sn.pointId, e.id])[0];
@@ -308,13 +308,13 @@ export class ToolController {
         if (this.pts.length < 3) return;
         const arc = this.arcFrom3(this.pts[0], this.pts[1], this.pts[2]);
         if (!arc) {
-          ctx.message('Punten zijn collineair; kies een ander derde punt.');
+          ctx.message('Points are collinear; pick another third point.');
           this.pts.pop();
           this.snapHits.pop();
           return;
         }
         const [s0, s1] = this.snapHits;
-        ctx.commit('Boog', (s) => {
+        ctx.commit('Arc', (s) => {
           const [sk, e] = addArc(s, arc.center, this.pts[0], this.pts[1], arc.ccw);
           let s2 = this.inferredRelations(sk, s0, e.start);
           s2 = this.inferredRelations(s2, s1, e.end);
@@ -338,7 +338,7 @@ export class ToolController {
         const b = { x: c.x + r * Math.cos(ang), y: c.y + r * Math.sin(ang) };
         const ccw = this.ccwFromCursor(c, a, b0);
         const [cSnap, aSnap] = this.snapHits;
-        ctx.commit('Boog', (s) => {
+        ctx.commit('Arc', (s) => {
           const [sk, e] = addArc(s, c, a, b, ccw);
           let s2 = this.inferredRelations(sk, cSnap, e.center);
           s2 = this.inferredRelations(s2, aSnap, e.start);
@@ -359,7 +359,7 @@ export class ToolController {
           const label = info.p;
           const placing = d;
           let createdId: Id | null = null;
-          ctx.commit('Maat', (s) => {
+          ctx.commit('Dimension', (s) => {
             const [s1, c] = addConstraint(s, placing.kind, placing.refs, { value: placing.value, labelOffset: label });
             createdId = c.id;
             return s1;
@@ -482,7 +482,7 @@ export class ToolController {
     const cur = this.cursor;
     const sn = this.curSnap;
     const cp = cur ? (sn ? sn.point : ctx.snapGrid ? { x: Math.round(cur.x / ctx.gridSize) * ctx.gridSize, y: Math.round(cur.y / ctx.gridSize) * ctx.gridSize } : cur) : null;
-    if (sn) out.hint = { endpoint: 'Eindpunt', midpoint: 'Middelpunt', center: 'Centrum', on: 'Op entiteit', horizontal: 'Horizontaal', vertical: 'Verticaal', origin: 'Oorsprong', quadrant: 'Kwadrant' }[sn.kind];
+    if (sn) out.hint = { endpoint: 'Endpoint', midpoint: 'Midpoint', center: 'Center', on: 'On entity', horizontal: 'Horizontal', vertical: 'Vertical', origin: 'Origin', quadrant: 'Quadrant' }[sn.kind];
     if (this.boxStart && this.boxEnd) out.box = { a: this.boxStart, b: this.boxEnd };
     if (!cp) return out;
     switch (this.tool) {
@@ -499,7 +499,7 @@ export class ToolController {
           out.preview.push({ points: poly });
           out.preview.push({ points: [c, cp], dashed: true });
           out.previewPoints.push(c);
-          out.hint = out.hint || `${this.polygonSides} zijden · R = ${r.toFixed(2)}`;
+          out.hint = out.hint || `${this.polygonSides} sides · R = ${r.toFixed(2)}`;
         }
         break;
       case 'centerline':
@@ -559,12 +559,12 @@ export class ToolController {
         if (this.pts.length) {
           out.preview.push({ points: [...this.pts, cp] });
           out.previewPoints.push(...this.pts);
-          out.hint = out.hint || 'Enter of dubbelklik om de spline af te sluiten';
+          out.hint = out.hint || 'Double-click or Esc to finish the spline';
         }
         break;
       case 'dimension':
-        if (this.dimPlacing) out.hint = `Klik om de maat te plaatsen (${this.dimPlacing.value.toFixed(2)})`;
-        else out.hint = 'Selecteer geometrie om te bematen';
+        if (this.dimPlacing) out.hint = `Click to place the dimension (${this.dimPlacing.value.toFixed(2)})`;
+        else out.hint = 'Select entities to dimension';
         break;
       default:
         break;

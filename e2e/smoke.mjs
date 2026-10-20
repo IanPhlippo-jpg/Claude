@@ -17,7 +17,7 @@ await page.screenshot({ path: `${OUT}/01-start.png` });
 
 // Sketch button -> plane pick -> click the front plane in the graphics area
 await page.click('.k-cm-tab:has-text("Sketch")');
-await page.click('.k-cm-big:has-text("Schets") .k-cm-main');
+await page.click('.k-cm-big:has-text("Sketch") .k-cm-main');
 console.log('plane pick status:', (await page.locator('.k-statusbar').textContent()).trim().slice(0, 60));
 await page.screenshot({ path: `${OUT}/01b-planepick.png` });
 const vp = await page.locator('.k-viewport').boundingBox();
@@ -86,7 +86,7 @@ await page.keyboard.press('d');
 
 // dark mode + relations task pane
 await page.keyboard.press('Control+Shift+d');
-await page.click('.k-taskpane-btn[data-tip="Relaties weergeven/verwijderen"]');
+await page.click('.k-taskpane-btn[data-tip="Display/Delete Relations"]');
 await page.waitForTimeout(200);
 await page.screenshot({ path: `${OUT}/03-sketch-dark.png` });
 await page.keyboard.press('Control+Shift+d');
@@ -99,9 +99,9 @@ console.log('view name:', await page.locator('.k-viewname').textContent());
 // orientation dialog (space) and view selector (ctrl+space)
 await page.keyboard.press(' ');
 console.log('orientation dialog:', await page.locator('.k-orientation-dialog').count());
-await page.click('.k-viewgrid-btn:has-text("Voor")');
+await page.click('.k-viewgrid-btn:has-text("Front")');
 await page.waitForTimeout(300);
-console.log('view name after Voor:', await page.locator('.k-viewname').textContent());
+console.log('view name after Front:', await page.locator('.k-viewname').textContent());
 await page.keyboard.press('Control+ ');
 console.log('view selector:', await page.locator('.k-viewselector').count());
 await page.screenshot({ path: `${OUT}/04-viewselector.png` });

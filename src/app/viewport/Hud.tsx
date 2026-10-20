@@ -6,15 +6,15 @@ import { Menu, type MenuItem } from '../../ui/components';
 import type { CadCamera, StandardView } from './camera';
 
 const VIEW_LABEL: Record<string, string> = {
-  front: 'Voor',
-  back: 'Achter',
-  left: 'Links',
-  right: 'Rechts',
-  top: 'Boven',
-  bottom: 'Onder',
-  isometric: 'Isometrisch',
-  dimetric: 'Dimetrisch',
-  trimetric: 'Trimetrisch',
+  front: 'Front',
+  back: 'Back',
+  left: 'Left',
+  right: 'Right',
+  top: 'Top',
+  bottom: 'Bottom',
+  isometric: 'Isometric',
+  dimetric: 'Dimetric',
+  trimetric: 'Trimetric',
   normalTo: 'Normal To',
 };
 export const viewDisplayName = (v: string) => (v ? `*${VIEW_LABEL[v] ?? v}` : '');
@@ -42,17 +42,17 @@ function HudButton({ icon, tip, onClick, active, disabled, menu }: { icon: React
 export function ViewGrid({ camera, onPick }: { camera: CadCamera; onPick?: () => void }) {
   const st = useStore();
   const views: { id: StandardView; label: string }[] = [
-    { id: 'top', label: 'Boven' },
-    { id: 'left', label: 'Links' },
-    { id: 'front', label: 'Voor' },
-    { id: 'right', label: 'Rechts' },
-    { id: 'back', label: 'Achter' },
-    { id: 'bottom', label: 'Onder' },
+    { id: 'top', label: 'Top' },
+    { id: 'left', label: 'Left' },
+    { id: 'front', label: 'Front' },
+    { id: 'right', label: 'Right' },
+    { id: 'back', label: 'Back' },
+    { id: 'bottom', label: 'Bottom' },
   ];
   const axo: { id: StandardView; label: string }[] = [
-    { id: 'isometric', label: 'Isometrisch' },
-    { id: 'dimetric', label: 'Dimetrisch' },
-    { id: 'trimetric', label: 'Trimetrisch' },
+    { id: 'isometric', label: 'Isometric' },
+    { id: 'dimetric', label: 'Dimetric' },
+    { id: 'trimetric', label: 'Trimetric' },
   ];
   const plane = st.activeSketchId ? st.doc.sketches[st.activeSketchId]?.plane ?? 'front' : 'front';
   const pick = (fn: () => void) => () => {
@@ -84,7 +84,7 @@ export function ViewGrid({ camera, onPick }: { camera: CadCamera; onPick?: () =>
       </button>
       <button className="k-viewgrid-btn" disabled>
         <Icon.Palette size={18} />
-        <span>1 / 2 / 4 viewports</span>
+        <span>Viewports</span>
       </button>
     </div>
   );
@@ -140,9 +140,9 @@ export function Hud({ camera, zoomFit, onZoomArea, zoomAreaActive }: { camera: C
       <HudButton icon={<Icon.Fit />} tip="Zoom to Fit (F)" onClick={zoomFit} />
       <HudButton icon={<Icon.ZoomArea />} tip="Zoom to Area" onClick={onZoomArea} active={zoomAreaActive} />
       <HudButton icon={<Icon.Previous />} tip="Previous View (Shift+Ctrl+Z)" onClick={() => camera.previousView()} />
-      <HudButton icon={<Icon.Section />} tip="Section View (fase 2)" disabled />
+      <HudButton icon={<Icon.Section />} tip="Section View (phase 2)" disabled />
       <span className="k-hud-sep" />
-      <HudButton icon={<Icon.Orientation />} tip="View Orientation (Spatie)" menu={() => <ViewGrid camera={camera} />} />
+      <HudButton icon={<Icon.Orientation />} tip="View Orientation (Space)" menu={() => <ViewGrid camera={camera} />} />
       <HudButton
         icon={<Icon.DisplayStyle />}
         tip="Display Style"
@@ -152,28 +152,28 @@ export function Hud({ camera, zoomFit, onZoomArea, zoomAreaActive }: { camera: C
         icon={<Icon.Eye />}
         tip="Hide/Show Items"
         menu={[
-          { label: `${chk(st.show.planes)}Vlakken`, icon: <Icon.Plane />, onSelect: () => st.toggleShow('planes') },
-          { label: `${chk(st.show.origin)}Oorsprong`, icon: <Icon.Origin />, onSelect: () => st.toggleShow('origin') },
-          { label: `${chk(st.show.sketches)}Schetsen`, icon: <Icon.Sketch />, onSelect: () => st.toggleShow('sketches') },
-          { label: `${chk(st.show.relations)}Schetsrelaties`, icon: <Icon.Lock />, onSelect: () => st.toggleShow('relations') },
-          { label: `${chk(st.show.grid)}Raster`, icon: <Icon.Grid />, onSelect: () => st.toggleShow('grid') },
+          { label: `${chk(st.show.planes)}Planes`, icon: <Icon.Plane />, onSelect: () => st.toggleShow('planes') },
+          { label: `${chk(st.show.origin)}Origins`, icon: <Icon.Origin />, onSelect: () => st.toggleShow('origin') },
+          { label: `${chk(st.show.sketches)}Sketches`, icon: <Icon.Sketch />, onSelect: () => st.toggleShow('sketches') },
+          { label: `${chk(st.show.relations)}Sketch Relations`, icon: <Icon.Lock />, onSelect: () => st.toggleShow('relations') },
+          { label: `${chk(st.show.grid)}Grid`, icon: <Icon.Grid />, onSelect: () => st.toggleShow('grid') },
           { separator: true },
-          { label: `${chk(st.show.viewSelector)}View Selector (Ctrl+Spatie)`, icon: <Icon.Orientation />, onSelect: () => st.toggleShow('viewSelector') },
+          { label: `${chk(st.show.viewSelector)}View Selector (Ctrl+Space)`, icon: <Icon.Orientation />, onSelect: () => st.toggleShow('viewSelector') },
         ]}
       />
       <span className="k-hud-sep" />
-      <HudButton icon={<Icon.Appearance />} tip="Edit Appearance (fase 7)" disabled />
-      <HudButton icon={<Icon.Scene />} tip="Apply Scene (fase 7)" disabled />
+      <HudButton icon={<Icon.Appearance />} tip="Edit Appearance (phase 7)" disabled />
+      <HudButton icon={<Icon.Scene />} tip="Apply Scene (phase 7)" disabled />
       <HudButton
         icon={<Icon.ViewSettings />}
         tip="View Settings"
         menu={[
-          { label: 'RealView Graphics (fase 7)', disabled: true },
-          { label: 'Shadows In Shaded Mode (fase 7)', disabled: true },
-          { label: 'Ambient Occlusion (fase 7)', disabled: true },
-          { label: 'Perspective (fase 2)', disabled: true },
+          { label: 'RealView Graphics (phase 7)', disabled: true },
+          { label: 'Shadows In Shaded Mode (phase 7)', disabled: true },
+          { label: 'Ambient Occlusion (phase 7)', disabled: true },
+          { label: 'Perspective (phase 2)', disabled: true },
           { separator: true },
-          { label: `${chk(st.theme === 'dark')}Donker thema`, onSelect: () => st.setTheme(st.theme === 'dark' ? 'light' : 'dark') },
+          { label: `${chk(st.theme === 'dark')}Dark theme`, onSelect: () => st.setTheme(st.theme === 'dark' ? 'light' : 'dark') },
         ]}
       />
     </div>
@@ -189,10 +189,10 @@ export function ConfirmationCorner({ onOk, onCancel, sketch }: { onOk: () => voi
   const at = useStore((s) => s.confirmAtCursor);
   return (
     <div className={`k-confirm ${at ? 'at-cursor' : ''}`} style={at ? { left: at.x + 12, top: at.y + 12, right: 'auto' } : undefined}>
-      <button className="k-confirm-ok k-tip" data-tip={sketch ? 'Schets afsluiten (wijzigingen bewaren)' : 'OK'} onClick={onOk}>
+      <button className="k-confirm-ok k-tip" data-tip={sketch ? 'Exit Sketch (keep changes)' : 'OK'} onClick={onOk}>
         {sketch ? <Icon.Sketch size={20} /> : <Icon.Check size={20} />}
       </button>
-      <button className="k-confirm-cancel k-tip" data-tip={sketch ? 'Schets verlaten zonder wijzigingen' : 'Annuleren'} onClick={onCancel}>
+      <button className="k-confirm-cancel k-tip" data-tip={sketch ? 'Exit Sketch without saving changes' : 'Cancel'} onClick={onCancel}>
         <Icon.Close size={20} />
       </button>
     </div>
@@ -225,15 +225,15 @@ export function ViewSelector({ camera, onClose }: { camera: CadCamera; onClose: 
     <div className="k-viewselector" onClick={(e) => e.target === e.currentTarget && onClose()}>
       <div className="k-vs-stage" style={{ width: S, height: S }}>
         <div className="k-vs-cube" style={{ transform: css, width: S, height: S }}>
-          {face('front', 'VOOR', 'rotateY(0deg)')}
-          {face('back', 'ACHTER', 'rotateY(180deg)')}
-          {face('right', 'RECHTS', 'rotateY(90deg)')}
-          {face('left', 'LINKS', 'rotateY(-90deg)')}
-          {face('top', 'BOVEN', 'rotateX(90deg)')}
-          {face('bottom', 'ONDER', 'rotateX(-90deg)')}
+          {face('front', 'FRONT', 'rotateY(0deg)')}
+          {face('back', 'BACK', 'rotateY(180deg)')}
+          {face('right', 'RIGHT', 'rotateY(90deg)')}
+          {face('left', 'LEFT', 'rotateY(-90deg)')}
+          {face('top', 'TOP', 'rotateX(90deg)')}
+          {face('bottom', 'BOTTOM', 'rotateX(-90deg)')}
         </div>
       </div>
-      <div className="k-vs-hint">Klik een vlak van de kubus · Esc sluit</div>
+      <div className="k-vs-hint">Click a face of the View Selector · Esc closes</div>
     </div>
   );
 }

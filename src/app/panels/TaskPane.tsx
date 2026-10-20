@@ -13,10 +13,10 @@ export function TaskPane() {
   const sketch = useActiveSketch();
   const solve = useActiveSolve();
   const tabs = [
+    { id: 'resources' as const, icon: <Icon.Resources />, tip: 'Phlippo CAD Resources' },
     { id: 'library' as const, icon: <Icon.Library />, tip: 'Design Library' },
-    { id: 'relations' as const, icon: <Icon.Lock />, tip: 'Relaties weergeven/verwijderen' },
+    { id: 'relations' as const, icon: <Icon.Lock />, tip: 'Display/Delete Relations' },
     { id: 'properties' as const, icon: <Icon.Properties />, tip: 'Custom Properties' },
-    { id: 'resources' as const, icon: <Icon.Resources />, tip: 'Resources & tutorials' },
   ];
   return (
     <div className="k-taskpane">
@@ -30,7 +30,7 @@ export function TaskPane() {
           <div className="k-panel-body">
             {st.taskPane === 'library' && (
               <div style={{ padding: 10 }}>
-                <p className="k-muted">Design Library (fase 4/7): standaardonderdelen, materialen en appearances.</p>
+                <p className="k-muted">Design Library (phase 4/7): standard parts, materials and appearances.</p>
                 <ul className="k-list">
                   <li><Icon.Folder /> annotations</li>
                   <li><Icon.Folder /> features</li>
@@ -41,7 +41,7 @@ export function TaskPane() {
             )}
             {st.taskPane === 'relations' &&
               (!sketch ? (
-                <p className="k-muted" style={{ padding: 10 }}>Geen actieve schets.</p>
+                <p className="k-muted" style={{ padding: 10 }}>No active sketch.</p>
               ) : (
                 <ul className="k-list" style={{ padding: 4 }}>
                   {sketch.constraintOrder.map((id) => {
@@ -55,34 +55,34 @@ export function TaskPane() {
                         {k.value !== undefined && <span className="k-muted">{round(k.value)}</span>}
                         <span className="tail">
                           <span className={`status ${status}`}>{status === 'ok' ? 'Satisfied' : status}</span>
-                          <button className="k-btn ghost icon" onClick={(e) => { e.stopPropagation(); st.removeRelation(id); }} title="Verwijderen">
+                          <button className="k-btn ghost icon" onClick={(e) => { e.stopPropagation(); st.removeRelation(id); }} title="Delete">
                             <Icon.Trash size={12} />
                           </button>
                         </span>
                       </li>
                     );
                   })}
-                  {sketch.constraintOrder.length === 0 && <li className="k-muted">Nog geen relaties.</li>}
+                  {sketch.constraintOrder.length === 0 && <li className="k-muted">No relations yet.</li>}
                 </ul>
               ))}
             {st.taskPane === 'properties' && (
               <div style={{ padding: 10 }}>
-                <div className="k-field"><label>Naam</label><input className="k-input" value={st.doc.name} onChange={(e) => st.renameDocument(e.target.value)} onKeyDown={(e) => e.stopPropagation()} /></div>
-                <div className="k-field"><label>Eenheden</label><span>{st.unitSystem}</span></div>
+                <div className="k-field"><label>Name</label><input className="k-input" value={st.doc.name} onChange={(e) => st.renameDocument(e.target.value)} onKeyDown={(e) => e.stopPropagation()} /></div>
+                <div className="k-field"><label>Units</label><span>{st.unitSystem}</span></div>
                 <div className="k-field"><label>Features</label><span>{st.doc.features.length}</span></div>
-                <div className="k-field"><label>Materiaal</label><span className="k-muted">niet opgegeven (fase 7)</span></div>
+                <div className="k-field"><label>Material</label><span className="k-muted">not specified (phase 7)</span></div>
               </div>
             )}
             {st.taskPane === 'resources' && (
               <div style={{ padding: 10 }}>
-                <p><b>Aan de slag</b></p>
+                <p><b>Getting Started</b></p>
                 <ol style={{ paddingLeft: 18, margin: '4px 0 10px' }}>
-                  <li>Klik <b>Schets</b> en kies een vlak.</li>
-                  <li>Teken met <Kbd>L</Kbd>, <Kbd>R</Kbd>, <Kbd>C</Kbd>, <Kbd>A</Kbd>.</li>
-                  <li>Bemaat met <b>Smart Dimension</b> (<Kbd>M</Kbd>).</li>
-                  <li>Sluit de schets af via de Confirmation Corner rechtsboven.</li>
+                  <li>Click <b>Sketch</b> and select a plane.</li>
+                  <li>Draw with <Kbd>L</Kbd>, <Kbd>R</Kbd>, <Kbd>C</Kbd>, <Kbd>A</Kbd>.</li>
+                  <li>Dimension with <b>Smart Dimension</b> (<Kbd>M</Kbd>).</li>
+                  <li>Exit the sketch with the Confirmation Corner (top right).</li>
                 </ol>
-                <p><b>Sneltoetsen</b></p>
+                <p><b>Keyboard shortcuts</b></p>
                 <table className="k-shortcuts">
                   <tbody>
                     {SHORTCUTS.map((s, i) => (

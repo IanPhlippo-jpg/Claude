@@ -15,7 +15,7 @@ export const PLANES: Record<PlaneId, PlaneBasis> = {
   right: { u: new THREE.Vector3(0, 0, -1), v: new THREE.Vector3(0, 1, 0), n: new THREE.Vector3(1, 0, 0) },
 };
 
-export const PLANE_LABELS: Record<PlaneId, string> = { front: 'Voorvlak', top: 'Bovenvlak', right: 'Rechtervlak' };
+export const PLANE_LABELS: Record<PlaneId, string> = { front: 'Front Plane', top: 'Top Plane', right: 'Right Plane' };
 
 export function sketchToWorld(plane: PlaneId, x: number, y: number): THREE.Vector3 {
   const b = PLANES[plane];

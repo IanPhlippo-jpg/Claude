@@ -14,12 +14,12 @@ import { DockPanel } from './Dock';
 export function ManagerPane({ editDimensionId, onEditDone }: { editDimensionId: string | null; onEditDone: () => void }) {
   const st = useStore();
   const [flyout, setFlyout] = useState(false);
-  const commandActive = !!st.activeSketchId && (st.selection.length > 0 || !!st.selectedConstraint || !!editDimensionId || st.tool !== 'select');
+  const commandActive = !!st.activeSketchId && (st.selection.length > 0 || !!st.selectedConstraint || st.tool !== 'select');
   const showProps = st.managerTab === 'properties' || (st.managerTab === 'tree' && commandActive);
 
   if (st.managerCollapsed) {
     return (
-      <button className="k-manager-expand k-tip" data-tip="FeatureManager tonen" onClick={() => st.setManagerCollapsed(false)}>
+      <button className="k-manager-expand k-tip" data-tip="Show FeatureManager" onClick={() => st.setManagerCollapsed(false)}>
         <Icon.ChevronRight size={12} />
       </button>
     );
@@ -28,7 +28,7 @@ export function ManagerPane({ editDimensionId, onEditDone }: { editDimensionId: 
   const tabs: { id: typeof st.managerTab; icon: React.ReactNode; tip: string }[] = [
     { id: 'tree', icon: <Icon.Tree />, tip: 'FeatureManager design tree' },
     { id: 'properties', icon: <Icon.Properties />, tip: 'PropertyManager' },
-    { id: 'configurations', icon: <Icon.Config />, tip: 'ConfigurationManager (fase 3)' },
+    { id: 'configurations', icon: <Icon.Config />, tip: 'ConfigurationManager (phase 3)' },
   ];
 
   return (
@@ -42,8 +42,10 @@ export function ManagerPane({ editDimensionId, onEditDone }: { editDimensionId: 
               {t.icon}
             </button>
           ))}
+          <button className="k-manager-tab k-tip" data-tip="DimXpertManager (phase 5)" disabled><Icon.Dimension /></button>
+          <button className="k-manager-tab k-tip" data-tip="DisplayManager (phase 7)" disabled><Icon.Appearance /></button>
           <span className="grow" />
-          <button className="k-btn ghost icon k-tip" data-tip="FeatureManager verbergen" onClick={() => st.setManagerCollapsed(true)}>
+          <button className="k-btn ghost icon k-tip" data-tip="Hide FeatureManager tree area" onClick={() => st.setManagerCollapsed(true)}>
             <Icon.ChevronRight size={12} style={{ transform: 'rotate(180deg)' }} />
           </button>
         </div>
@@ -51,15 +53,15 @@ export function ManagerPane({ editDimensionId, onEditDone }: { editDimensionId: 
     >
       {st.managerTab === 'configurations' ? (
         <div style={{ padding: 10 }} className="k-muted">
-          <b>{st.doc.name} Configuratie(s)</b>
+          <b>{st.doc.name} Configuration(s)</b>
           <div style={{ marginTop: 6 }}>✓ Default [ {st.doc.name} ]</div>
-          <p>Ontwerptabellen en configuraties volgen in fase 3.</p>
+          <p>Design tables and configurations arrive in phase 3.</p>
         </div>
       ) : showProps ? (
         <>
           <div className={`k-flyout-tree ${flyout ? 'open' : ''}`}>
             <button className="k-flyout-toggle" onClick={() => setFlyout((f) => !f)}>
-              {flyout ? <Icon.ChevronDown size={11} /> : <Icon.ChevronRight size={11} />} <Icon.Part size={13} /> {st.doc.name} <span className="k-muted">(fly-out tree)</span>
+              {flyout ? <Icon.ChevronDown size={11} /> : <Icon.ChevronRight size={11} />} <Icon.Part size={13} /> {st.doc.name} <span className="k-muted">(fly-out FeatureManager)</span>
             </button>
             {flyout && (
               <div className="k-flyout-body">

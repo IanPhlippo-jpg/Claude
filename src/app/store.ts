@@ -23,7 +23,7 @@ export type ToolId =
   | 'dimension'
   | 'trim';
 
-export type RibbonTab = 'sketch' | 'features' | 'assembly' | 'drawing' | 'evaluate';
+export type RibbonTab = 'sketch' | 'features' | 'assembly' | 'drawing' | 'evaluate' | 'markup' | 'mbd' | 'addins';
 export type Theme = 'light' | 'dark';
 export type PanelId = 'manager' | 'relations' | 'shortcuts';
 export type ManagerTab = 'tree' | 'properties' | 'configurations';
@@ -93,6 +93,7 @@ interface State {
   showGrid: boolean;
   snapGrid: boolean;
   gridSize: number;
+  shadedContours: boolean;
 
   // actions
   newDocument(): void;
@@ -125,7 +126,7 @@ interface State {
   pushMessage(text: string, level?: StatusMessage['level']): void;
   setCursor(p: SketchPoint | null): void;
   setRollback(i: number | null): void;
-  toggle(key: 'showRelations' | 'showGrid' | 'snapGrid'): void;
+  toggle(key: 'showRelations' | 'showGrid' | 'snapGrid' | 'shadedContours'): void;
   setManagerTab(t: ManagerTab): void;
   setManagerCollapsed(v: boolean): void;
   setTreeFilter(v: string): void;
@@ -207,7 +208,7 @@ export const useStore = create<State>((set, get) => ({
   reverseWheel: typeof localStorage !== 'undefined' && localStorage.getItem('phlippo.reverseWheel') === 'true',
   unitSystem: 'MMGS',
   lastTool: 'line',
-  viewName: '*Isometrisch',
+  viewName: '*Isometric',
   taskPane: null,
   dialog: typeof localStorage !== 'undefined' && loadAutosave() ? null : 'welcome',
   confirmAtCursor: null,
@@ -222,6 +223,7 @@ export const useStore = create<State>((set, get) => ({
   showGrid: false,
   snapGrid: false,
   gridSize: 10,
+  shadedContours: true,
 
   newDocument() {
     history.clear();
@@ -237,7 +239,7 @@ export const useStore = create<State>((set, get) => ({
   },
   setUnits(units) {
     const { doc } = get();
-    history.push('Eenheden', doc);
+    history.push('Units', doc);
     const d = { ...doc, units };
     set({ doc: d, dirty: true, ...historyFlags() });
     autosave(d);
@@ -249,9 +251,9 @@ export const useStore = create<State>((set, get) => ({
   },
   newSketch(plane) {
     const { doc } = get();
-    history.push('Nieuwe schets', doc);
+    history.push('New sketch', doc);
     const n = doc.features.filter((f) => f.type === 'sketch').length + 1;
-    const sketch = createSketch(newId('sk'), `Schets${n}`, plane);
+    const sketch = createSketch(newId('sk'), `Sketch${n}`, plane);
     const d: Document = {
       ...doc,
       sketches: { ...doc.sketches, [sketch.id]: sketch },
@@ -289,7 +291,7 @@ export const useStore = create<State>((set, get) => ({
     const ents = selection.filter((s) => s.kind === 'entity').map((s) => sk.entities[s.id]).filter(Boolean);
     const axis = ents.find((e) => e.kind === 'line' && e.construction) ?? [...ents].reverse().find((e) => e.kind === 'line');
     if (!axis) {
-      get().pushMessage('Selecteer de te spiegelen entiteiten en een (constructie)lijn als spiegelas.', 'warn');
+      get().pushMessage('Select the entities to mirror and a (construction) line as the mirror axis.', 'warn');
       return;
     }
     const ids = ents.filter((e) => e.id !== axis.id).map((e) => e.id);
@@ -301,7 +303,7 @@ export const useStore = create<State>((set, get) => ({
     const { doc, activeSketchId } = get();
     const f = doc.features.find((x) => x.id === id);
     if (!f) return;
-    history.push('Verwijder feature', doc);
+    history.push('Delete feature', doc);
     const sketches = { ...doc.sketches };
     delete sketches[f.sketchId];
     const d = { ...doc, sketches, features: doc.features.filter((x) => x.id !== id) };
@@ -332,8 +334,8 @@ export const useStore = create<State>((set, get) => ({
     const r = solveAll(d, get().solve, activeSketchId);
     const res = r.solve[activeSketchId];
     set({ doc: r.doc, solve: r.solve, dirty: true, ...historyFlags() });
-    if (res.status === 'conflict') get().pushMessage('Schets is overbepaald: conflicterende relaties (rood).', 'error');
-    else if (res.status === 'over') get().pushMessage('Schets heeft redundante relaties (rood).', 'warn');
+    if (res.status === 'conflict') get().pushMessage('The sketch is over defined: conflicting relations are shown in red.', 'error');
+    else if (res.status === 'over') get().pushMessage('The sketch is over defined: redundant relations are shown in red.', 'warn');
     autosave(r.doc);
   },
   dragPoint(pointId, target, phase) {
@@ -347,7 +349,7 @@ export const useStore = create<State>((set, get) => ({
     const r = solver.solveSync(sketch, { drag: { point: pointId, target }, skipAnalysis: phase !== 'end', maxIterations: 30 });
     const d = { ...doc, sketches: { ...doc.sketches, [activeSketchId]: r.sketch } };
     if (phase === 'end') {
-      if (dragBase) history.push('Slepen', dragBase);
+      if (dragBase) history.push('Drag', dragBase);
       dragBase = null;
       const full = solver.solveSync(r.sketch);
       const d2 = { ...d, sketches: { ...d.sketches, [activeSketchId]: full.sketch } };
@@ -405,7 +407,7 @@ export const useStore = create<State>((set, get) => ({
     }
     const ids = selection.filter((s) => s.kind === 'entity').map((s) => s.id);
     if (!ids.length) return;
-    get().commit('Verwijderen', (s) => {
+    get().commit('Delete', (s) => {
       let out = s;
       for (const id of ids) out = removeEntity(out, id);
       return out;
@@ -413,19 +415,19 @@ export const useStore = create<State>((set, get) => ({
     set({ selection: [] });
   },
   addRelation(kind, refs, extra = {}) {
-    get().commit(`Relatie: ${kind}`, (s) => addConstraint(s, kind, refs, extra)[0]);
+    get().commit(`Add relation: ${kind}`, (s) => addConstraint(s, kind, refs, extra)[0]);
   },
   updateDimension(id, patch) {
-    get().commit('Maat wijzigen', (s) => updateConstraint(s, id, patch));
+    get().commit('Modify dimension', (s) => updateConstraint(s, id, patch));
   },
   removeRelation(id) {
-    get().commit('Relatie verwijderen', (s) => removeConstraint(s, id));
+    get().commit('Delete relation', (s) => removeConstraint(s, id));
     set({ selectedConstraint: null });
   },
   toggleConstructionSelection() {
     const ids = get().selection.filter((s) => s.kind === 'entity').map((s) => s.id);
     if (!ids.length) return;
-    get().commit('Constructie', (s) => toggleConstruction(s, ids));
+    get().commit('Construction geometry', (s) => toggleConstruction(s, ids));
   },
   setTheme(theme) {
     set({ theme });
@@ -466,7 +468,7 @@ export const useStore = create<State>((set, get) => ({
   },
   startPlanePick() {
     set({ planePick: true, tab: 'sketch' });
-    get().pushMessage('Selecteer een vlak waarop je de schets wilt maken.');
+    get().pushMessage('Select a plane on which to create the sketch for the feature.');
   },
   cancelPlanePick() {
     set({ planePick: false, hoverPlane: null });

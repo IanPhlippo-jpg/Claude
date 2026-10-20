@@ -23,6 +23,9 @@ export function App() {
   useEffect(() => {
     document.documentElement.dataset.theme = st.theme;
   }, [st.theme]);
+  useEffect(() => {
+    if (!st.selectedConstraint) setEditDim(null);
+  }, [st.selectedConstraint]);
 
   const handlers = useMemo(
     () => ({
@@ -53,7 +56,7 @@ export function App() {
           <Viewport onEditDimension={onEditDimension} />
           {managerSide === 'float' && manager}
           {st.panels.shortcuts.visible && (
-            <Dialog title="Sneltoetsen" onClose={() => st.setPanel('shortcuts', { visible: false })}>
+            <Dialog title="Keyboard Shortcuts" onClose={() => st.setPanel('shortcuts', { visible: false })}>
               <table className="k-shortcuts">
                 <tbody>
                   {SHORTCUTS.map((s, i) => (
@@ -74,12 +77,12 @@ export function App() {
                 onClose={() => setShortcutBar(false)}
                 style={{ position: 'static', display: 'flex', gap: 2 }}
                 items={[
-                  { label: 'Lijn', icon: <Icon.Line />, onSelect: () => st.setTool('line') },
-                  { label: 'Rechthoek', icon: <Icon.Rect />, onSelect: () => st.setTool('rectangle') },
-                  { label: 'Cirkel', icon: <Icon.Circle />, onSelect: () => st.setTool('circle') },
-                  { label: 'Boog', icon: <Icon.Arc />, onSelect: () => st.setTool('arc3') },
+                  { label: 'Line', icon: <Icon.Line />, onSelect: () => st.setTool('line') },
+                  { label: 'Rectangle', icon: <Icon.Rect />, onSelect: () => st.setTool('rectangle') },
+                  { label: 'Circle', icon: <Icon.Circle />, onSelect: () => st.setTool('circle') },
+                  { label: 'Arc', icon: <Icon.Arc />, onSelect: () => st.setTool('arc3') },
                   { label: 'Spline', icon: <Icon.Spline />, onSelect: () => st.setTool('spline') },
-                  { label: 'Maat', icon: <Icon.Dimension />, onSelect: () => st.setTool('dimension') },
+                  { label: 'Smart Dimension', icon: <Icon.Dimension />, onSelect: () => st.setTool('dimension') },
                   { label: 'Trim', icon: <Icon.Trim />, disabled: true },
                 ]}
               />

@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import type { Entity, Id, Sketch, SketchPoint } from '../../core/sketch/types';
 import { sampleEntity } from '../../core/sketch/geometry';
+import { findContours } from '../../core/sketch/contours';
 import type { SolveResult } from '../../core/solver/solver';
 import { PLANES, sketchToWorld, type PlaneId } from './camera';
 
@@ -20,6 +21,7 @@ export interface SceneColors {
   originPart: string;
   originSketch: string;
   plane: string;
+  contour: string;
 }
 
 export function readColors(el: HTMLElement): SceneColors {
@@ -41,6 +43,7 @@ export function readColors(el: HTMLElement): SceneColors {
     originPart: g('--sk-origin-part'),
     originSketch: g('--sk-origin-sketch'),
     plane: g('--sk-plane'),
+    contour: g('--sk-contour'),
   };
 }
 
@@ -79,6 +82,8 @@ export interface SceneInput {
   showOrigin: boolean;
   /** half-size of the drawn reference planes in world units */
   planeSize: number;
+  /** "Shaded Sketch Contours": fill closed loops with translucent grey */
+  shadedContours: boolean;
 }
 
 /** Owns the three.js scene graph for sketch rendering. */
@@ -206,6 +211,25 @@ export class SketchScene {
     };
 
     for (const o of input.otherSketches) drawSketch(o.sketch, o.plane, true);
+    // shaded sketch contours (drawn first so lines stay on top)
+    if (input.sketch && input.shadedContours) {
+      const { c: cc, a: ca } = rgba(input.colors.contour);
+      for (const contour of findContours(input.sketch)) {
+        if (contour.points.length < 3) continue;
+        const shape = new THREE.Shape(contour.points.map((p) => new THREE.Vector2(p.x, p.y)));
+        const g = new THREE.ShapeGeometry(shape);
+        // map (u,v,0) onto the sketch plane
+        const pos = g.getAttribute('position');
+        for (let i = 0; i < pos.count; i++) {
+          const w = sketchToWorld(input.plane, pos.getX(i), pos.getY(i));
+          pos.setXYZ(i, w.x, w.y, w.z);
+        }
+        pos.needsUpdate = true;
+        const m = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ color: cc, transparent: true, opacity: ca, depthWrite: false, side: THREE.DoubleSide }));
+        m.renderOrder = -1;
+        this.group.add(m);
+      }
+    }
     if (input.sketch) drawSketch(input.sketch, input.plane, false);
 
     // reference planes: translucent quads with an outline

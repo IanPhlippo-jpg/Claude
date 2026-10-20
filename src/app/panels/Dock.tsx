@@ -27,7 +27,7 @@ export function DockPanel({ id, title, children, actions, header }: { id: PanelI
         {!header && <span className="grow" />}
         {actions}
         <div style={{ position: 'relative' }}>
-          <button className="k-btn ghost icon" onClick={() => setMenu(true)} title="Paneelopties">
+          <button className="k-btn ghost icon" onClick={() => setMenu(true)} title="Panel options">
             <Icon.Dots />
           </button>
           {menu && (
@@ -35,16 +35,16 @@ export function DockPanel({ id, title, children, actions, header }: { id: PanelI
               onClose={() => setMenu(false)}
               style={{ right: 0, top: '100%' }}
               items={[
-                { label: 'Dock links', onSelect: () => move('left'), disabled: layout.side === 'left' },
-                { label: 'Dock rechts', onSelect: () => move('right'), disabled: layout.side === 'right' },
-                { label: 'Zwevend', onSelect: () => move('float'), disabled: floating },
+                { label: 'Dock left', onSelect: () => move('left'), disabled: layout.side === 'left' },
+                { label: 'Dock right', onSelect: () => move('right'), disabled: layout.side === 'right' },
+                { label: 'Float', onSelect: () => move('float'), disabled: floating },
                 { separator: true },
-                { label: 'Sluiten', onSelect: () => setPanel(id, { visible: false }) },
+                { label: 'Close', onSelect: () => setPanel(id, { visible: false }) },
               ]}
             />
           )}
         </div>
-        <button className="k-btn ghost icon" onClick={() => setPanel(id, { visible: false })} title="Sluiten">
+        <button className="k-btn ghost icon" onClick={() => setPanel(id, { visible: false })} title="Close">
           <Icon.Close size={12} />
         </button>
       </div>

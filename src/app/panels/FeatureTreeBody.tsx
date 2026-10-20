@@ -3,8 +3,9 @@ import { useStore } from '../store';
 import { Menu, TreeView, type TreeNode } from '../../ui/components';
 import { Icon } from '../../ui/icons';
 import { PLANE_LABELS } from '../viewport/camera';
+void PLANE_LABELS;
 
-const STATUS_LABEL: Record<string, string> = { under: 'onderbepaald', full: '', over: 'overbepaald', conflict: 'conflict', invalid: 'ongeldig' };
+const STATUS_LABEL: Record<string, string> = { under: 'under defined', full: '', over: 'over defined', conflict: 'conflict', invalid: 'invalid' };
 
 /**
  * FeatureManager design tree body: Part ▸ History, Sensors, Annotations, Material,
@@ -26,7 +27,7 @@ export function FeatureTreeBody() {
       const prefix = solve?.status === 'under' ? '(-) ' : solve && solve.status !== 'full' ? '(+) ' : '';
       return {
         id: f.id,
-        icon: <Icon.Sketch />,
+        icon: <Icon.Sketch style={{ color: '#2b6cb0' }} />,
         label:
           renaming?.id === f.id ? (
             <input
@@ -48,12 +49,12 @@ export function FeatureTreeBody() {
           ) : (
             <>
               {prefix}
-              {f.name} <span className="k-muted">({sk ? PLANE_LABELS[sk.plane] : ''})</span>
+              {f.name}{sk ? '' : ''}
             </>
           ),
         active: st.activeSketchId === f.sketchId,
         suppressed: f.suppressed || rolledBack,
-        tail: solve && solve.status !== 'full' ? <span className={`status ${solve.status}`}>{STATUS_LABEL[solve.status]}</span> : null,
+        tail: solve && (solve.status === 'conflict' || solve.status === 'over') ? <span className={`status ${solve.status}`} title={STATUS_LABEL[solve.status]}>!</span> : null,
         onDoubleClick: () => st.editSketch(f.sketchId),
         onClick: () => {
           if (st.activeSketchId !== f.sketchId) st.setSelection([]);
@@ -67,8 +68,8 @@ export function FeatureTreeBody() {
 
   const planeNode = (p: 'front' | 'top' | 'right'): TreeNode => ({
     id: 'plane-' + p,
-    icon: <Icon.Plane />,
     label: <span onMouseEnter={() => st.setHoverPlane(p)} onMouseLeave={() => st.setHoverPlane(null)}>{PLANE_LABELS[p]}</span>,
+    icon: <Icon.Plane style={{ color: '#3b82c4' }} />,
     selected: st.hoverPlane === p,
     onClick: () => {
       if (st.planePick) st.newSketch(p);
@@ -96,11 +97,12 @@ export function FeatureTreeBody() {
         sys('history', <Icon.History />, 'History'),
         sys('sensors', <Icon.Sensor />, 'Sensors'),
         sys('annotations', <Icon.Annotation />, 'Annotations'),
-        sys('material', <Icon.Material />, 'Material <niet opgegeven>'),
+        sys('bodies', <Icon.Part />, 'Solid Bodies'),
+        sys('material', <Icon.Material />, 'Material <not specified>'),
         planeNode('front'),
         planeNode('top'),
         planeNode('right'),
-        { id: 'origin', icon: <Icon.Origin />, label: 'Origin', onClick: () => st.toggleShow('origin') },
+        { id: 'origin', icon: <Icon.Origin style={{ color: '#1e4fd8' }} />, label: 'Origin', onClick: () => st.toggleShow('origin') },
         ...featureNodes,
       ],
     },
@@ -110,7 +112,7 @@ export function FeatureTreeBody() {
   const n = st.doc.features.length;
   const pos = st.rollbackIndex ?? n;
   const rowH = 24;
-  const barTop = 4 + rowH * (1 + 8 + pos); // part row + 8 system rows + features before the bar
+  const barTop = 4 + rowH * (1 + 9 + pos); // part row + 9 system rows + features before the bar
 
   return (
     <div
@@ -118,7 +120,7 @@ export function FeatureTreeBody() {
       onPointerMove={(e) => {
         if (!dragRollback.current) return;
         const host = (e.currentTarget as HTMLElement).getBoundingClientRect();
-        const y = e.clientY - host.top - 4 - rowH * 9;
+        const y = e.clientY - host.top - 4 - rowH * 10;
         const idx = Math.max(0, Math.min(n, Math.round(y / rowH)));
         st.setRollback(idx >= n ? null : idx);
       }}
@@ -128,7 +130,7 @@ export function FeatureTreeBody() {
       {n > 0 && (
         <div
           className="k-rollback-bar k-tip"
-          data-tip="Rollback-balk: sleep omhoog om features terug te draaien"
+          data-tip="Rollback bar: drag up to roll back features"
           style={{ top: barTop }}
           onPointerDown={(e) => {
             dragRollback.current = true;
@@ -141,18 +143,18 @@ export function FeatureTreeBody() {
           onClose={() => setMenu(null)}
           style={{ position: 'fixed', left: menu.x, top: menu.y }}
           items={[
-            { label: 'Schets bewerken', icon: <Icon.Sketch />, onSelect: () => st.editSketch(st.doc.features.find((f) => f.id === menu.featureId)!.sketchId) },
+            { label: 'Edit Sketch', icon: <Icon.Sketch />, onSelect: () => st.editSketch(st.doc.features.find((f) => f.id === menu.featureId)!.sketchId) },
             { label: 'Roll to end', onSelect: () => st.setRollback(null) },
             { label: 'Roll to previous', onSelect: () => st.setRollback(Math.max(0, st.doc.features.findIndex((f) => f.id === menu.featureId))) },
             { separator: true },
             {
-              label: 'Hernoemen (F2)',
+              label: 'Rename tree item',
               onSelect: () => {
                 const f = st.doc.features.find((x) => x.id === menu.featureId)!;
                 setRenaming({ id: f.id, value: f.name });
               },
             },
-            { label: 'Verwijderen', icon: <Icon.Trash />, shortcut: 'Del', onSelect: () => st.deleteFeature(menu.featureId) },
+            { label: 'Delete…', icon: <Icon.Trash />, shortcut: 'Del', onSelect: () => st.deleteFeature(menu.featureId) },
           ]}
         />
       )}

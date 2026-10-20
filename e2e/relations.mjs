@@ -11,7 +11,7 @@ await page.reload();
 await page.waitForSelector('.k-viewport');
 await page.click('.k-doctype:has-text("Part")');
 // start a sketch by double-clicking the Front Plane in the FeatureManager
-await page.dblclick('.k-tree-row:has-text("Voorvlak")');
+await page.dblclick('.k-tree-row:has-text("Front Plane")');
 await page.waitForTimeout(500);
 const vp = await page.locator('.k-viewport').boundingBox();
 const cx = vp.x + vp.width / 2, cy = vp.y + vp.height / 2;
@@ -27,7 +27,7 @@ await page.mouse.click(cx + 80, cy);
 await page.keyboard.down('Control');
 await page.mouse.click(cx + 160, cy - 50);
 await page.keyboard.up('Control');
-await page.click('.k-tool.small:has-text("Gelijk")');
+await page.click('.k-tool.small:has-text("Equal")');
 console.log('after equal:', await status());
 
 await page.keyboard.press('m');
@@ -54,7 +54,7 @@ await page.waitForTimeout(100);
 console.log('after undo:', await status());
 
 // polygon
-await page.click('.k-cm-big:has-text("Polygoon") .k-cm-main');
+await page.click('.k-cm-iconbtn[data-tip="Polygon"]');
 await page.mouse.click(cx - 250, cy);
 await page.mouse.click(cx - 200, cy);
 await page.waitForTimeout(100);
@@ -92,7 +92,8 @@ console.log('after drag:', await status());
 await page.keyboard.press('c');
 await page.mouse.click(cx + 150, cy + 250);
 await page.mouse.click(cx + 180, cy + 250);
-await page.click('.k-cm-small:has-text("Centerline")');
+await page.click('.k-cm-iconfly:has(.k-cm-iconbtn[data-tip="Line (L)"]) .k-cm-small-arrow');
+await page.click('.k-menu-item:has-text("Centerline")');
 await page.mouse.click(cx + 250, cy + 170);
 await page.mouse.click(cx + 250, cy + 330);
 await page.keyboard.press('Escape');
@@ -104,13 +105,13 @@ await page.keyboard.up('Control');
 console.log('selection for mirror:', await page.evaluate(() => window.__phlippoStore.getState().selection.length));
 const count = () => page.evaluate(() => { const s = window.__phlippoStore.getState(); return s.doc.sketches[s.activeSketchId].entityOrder.length; });
 const before = await count();
-await page.click('.k-cm-small:has-text("Mirror")');
+await page.click('.k-cm-small:has-text("Mirror Entities")');
 await page.waitForTimeout(100);
 console.log('entities before/after mirror:', before, '/', await count());
 await page.screenshot({ path: `${OUT}/06-relations.png` });
 
 // feature tree: rollback bar exists, tree has system items
-console.log('tree items:', (await page.locator('.k-tree').textContent()).replace(/\s+/g, ' ').slice(0, 120));
+console.log('tree items:', (await page.locator('.k-tree').first().textContent()).replace(/\s+/g, ' ').slice(0, 120));
 console.log('rollback bar:', await page.locator('.k-rollback-bar').count());
 console.log('errors:', errors);
 await browser.close();

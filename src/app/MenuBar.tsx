@@ -21,126 +21,154 @@ export function openFileDialog() {
 }
 
 /**
- * Menu bar: the menu (File, Edit, View, Insert, Tools, Window, Help) with the
- * menu-bar toolbar (New, Open, Save, Print, Undo, Redo, Select, Rebuild, Options, Help)
- * and a search field — mirroring the desktop-CAD layout from the manual.
+ * Menu bar as in the desktop original: logo + product name with a fly-out
+ * menu (File … Help) that appears on hover (or stays with the pin), the
+ * menu-bar toolbar (New, Open▾, Save▾, Print, Undo▾, Redo, Select▾, Rebuild,
+ * File Properties, Options▾), the document title, the command search box,
+ * login, Help and window controls.
  */
 export function MenuBar() {
   const st = useStore();
   const [open, setOpen] = useState<string | null>(null);
+  const [pinned, setPinned] = useState(() => {
+    try {
+      return localStorage.getItem('phlippo.menuPinned') === 'true';
+    } catch {
+      return false;
+    }
+  });
+  const [hover, setHover] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const cam = () => getCamera();
   const inSketch = !!st.activeSketchId;
+  const showMenus = pinned || hover || open !== null;
 
   const menus: Record<string, MenuItem[]> = {
-    Bestand: [
-      { label: 'Nieuw…', icon: <Icon.New />, shortcut: 'Ctrl+N', onSelect: () => st.setDialog('new') },
-      { label: 'Openen…', icon: <Icon.Open />, shortcut: 'Ctrl+O', onSelect: openFileDialog },
-      { label: 'Sluiten', shortcut: 'Ctrl+W', onSelect: () => confirm('Document sluiten? Niet-opgeslagen wijzigingen gaan verloren.') && st.newDocument() },
+    File: [
+      { label: 'New…', icon: <Icon.New />, shortcut: 'Ctrl+N', onSelect: () => st.setDialog('new') },
+      { label: 'Open…', icon: <Icon.Open />, shortcut: 'Ctrl+O', onSelect: openFileDialog },
+      { label: 'Open Recent', onSelect: () => st.setDialog('welcome') },
+      { label: 'Close', shortcut: 'Ctrl+W', onSelect: () => confirm('Close the document? Unsaved changes are lost.') && st.newDocument() },
       { separator: true },
-      { label: 'Opslaan', icon: <Icon.Save />, shortcut: 'Ctrl+S', onSelect: saveDocument },
-      { label: 'Opslaan als…', shortcut: 'Ctrl+Shift+S', onSelect: saveDocument },
+      { label: 'Save', icon: <Icon.Save />, shortcut: 'Ctrl+S', onSelect: saveDocument },
+      { label: 'Save As…', shortcut: 'Ctrl+Shift+S', onSelect: saveDocument },
+      { label: 'Save All', onSelect: saveDocument },
       { separator: true },
-      { label: 'Afdrukken…', icon: <Icon.Print />, shortcut: 'Ctrl+P', onSelect: () => window.print() },
+      { label: 'Print…', icon: <Icon.Print />, shortcut: 'Ctrl+P', onSelect: () => window.print() },
       { separator: true },
-      { label: 'Eigenschappen…', onSelect: () => st.setDialog('options') },
-      { label: 'Autosave wissen', onSelect: () => { localStorage.removeItem('phlippo.autosave'); st.pushMessage('Autosave gewist.'); } },
+      { label: 'Properties…', onSelect: () => st.setDialog('options') },
+      { label: 'Clear autosave', onSelect: () => { localStorage.removeItem('phlippo.autosave'); st.pushMessage('Autosave cleared.'); } },
     ],
-    Bewerken: [
-      { label: `Ongedaan maken${st.undoLabel ? ' ' + st.undoLabel : ''}`, icon: <Icon.Undo />, shortcut: 'Ctrl+Z', disabled: !st.canUndo, onSelect: st.undo },
-      { label: `Opnieuw${st.redoLabel ? ' ' + st.redoLabel : ''}`, icon: <Icon.Redo />, shortcut: 'Ctrl+Y', disabled: !st.canRedo, onSelect: st.redo },
-      { label: 'Herhaal laatste commando', shortcut: 'Enter', disabled: !inSketch, onSelect: st.repeatLastTool },
+    Edit: [
+      { label: `Undo${st.undoLabel ? ' ' + st.undoLabel : ''}`, icon: <Icon.Undo />, shortcut: 'Ctrl+Z', disabled: !st.canUndo, onSelect: st.undo },
+      { label: `Redo${st.redoLabel ? ' ' + st.redoLabel : ''}`, icon: <Icon.Redo />, shortcut: 'Ctrl+Y', disabled: !st.canRedo, onSelect: st.redo },
+      { label: 'Repeat Last Command', shortcut: 'Enter', disabled: !inSketch, onSelect: st.repeatLastTool },
       { separator: true },
-      { label: 'Verwijderen', icon: <Icon.Trash />, shortcut: 'Del', onSelect: st.deleteSelection },
+      { label: 'Delete', icon: <Icon.Trash />, shortcut: 'Del', onSelect: st.deleteSelection },
       { label: 'Rebuild', icon: <Icon.Rebuild />, shortcut: 'Ctrl+B', onSelect: () => st.openDocument(st.doc) },
     ],
-    Beeld: [
-      { label: 'Vorige weergave', icon: <Icon.Previous />, shortcut: 'Shift+Ctrl+Z', onSelect: () => cam().previousView() },
-      { label: 'Zoom to fit', icon: <Icon.Fit />, shortcut: 'F', onSelect: () => (window as unknown as { __phlippoZoomFit?: () => void }).__phlippoZoomFit?.() },
-      { label: 'Oriëntatie…', icon: <Icon.Orientation />, shortcut: 'Spatie', onSelect: () => st.setDialog('orientation') },
+    View: [
+      { label: 'Previous View', icon: <Icon.Previous />, shortcut: 'Shift+Ctrl+Z', onSelect: () => cam().previousView() },
+      { label: 'Zoom to Fit', icon: <Icon.Fit />, shortcut: 'F', onSelect: () => (window as unknown as { __phlippoZoomFit?: () => void }).__phlippoZoomFit?.() },
+      { label: 'Modify ▸ Orientation…', icon: <Icon.Orientation />, shortcut: 'Space', onSelect: () => st.setDialog('orientation') },
       { separator: true },
-      { label: `${st.show.planes ? '✓ ' : ''}Vlakken`, onSelect: () => st.toggleShow('planes') },
-      { label: `${st.show.origin ? '✓ ' : ''}Oorsprong`, onSelect: () => st.toggleShow('origin') },
-      { label: `${st.show.sketches ? '✓ ' : ''}Schetsen`, onSelect: () => st.toggleShow('sketches') },
-      { label: `${st.show.relations ? '✓ ' : ''}Schetsrelaties`, onSelect: () => st.toggleShow('relations') },
-      { label: `${st.show.grid ? '✓ ' : ''}Raster`, onSelect: () => st.toggleShow('grid') },
+      { label: `Hide/Show ▸ ${st.show.planes ? '✓ ' : ''}Planes`, onSelect: () => st.toggleShow('planes') },
+      { label: `Hide/Show ▸ ${st.show.origin ? '✓ ' : ''}Origins`, onSelect: () => st.toggleShow('origin') },
+      { label: `Hide/Show ▸ ${st.show.sketches ? '✓ ' : ''}Sketches`, onSelect: () => st.toggleShow('sketches') },
+      { label: `Hide/Show ▸ ${st.show.relations ? '✓ ' : ''}Sketch Relations`, onSelect: () => st.toggleShow('relations') },
+      { label: `Hide/Show ▸ ${st.show.grid ? '✓ ' : ''}Grid`, onSelect: () => st.toggleShow('grid') },
       { separator: true },
-      { label: 'Gebruikersinterface ▸ Feature tree', onSelect: () => st.setPanel('manager', { visible: !st.panels.manager.visible }) },
-      { label: 'Gebruikersinterface ▸ Task Pane', onSelect: () => st.setTaskPane(st.taskPane ? null : 'resources') },
-      { label: st.theme === 'dark' ? 'Licht thema' : 'Donker thema', icon: st.theme === 'dark' ? <Icon.Sun /> : <Icon.Moon />, shortcut: 'Ctrl+Shift+D', onSelect: () => st.setTheme(st.theme === 'dark' ? 'light' : 'dark') },
+      { label: 'User Interface ▸ FeatureManager Tree Area', onSelect: () => st.setPanel('manager', { visible: !st.panels.manager.visible }) },
+      { label: 'User Interface ▸ Task Pane', onSelect: () => st.setTaskPane(st.taskPane ? null : 'resources') },
+      { label: st.theme === 'dark' ? 'Light theme' : 'Dark theme', icon: st.theme === 'dark' ? <Icon.Sun /> : <Icon.Moon />, shortcut: 'Ctrl+Shift+D', onSelect: () => st.setTheme(st.theme === 'dark' ? 'light' : 'dark') },
     ],
-    Invoegen: [
-      { label: 'Schets', icon: <Icon.Sketch />, onSelect: () => (inSketch ? st.exitSketch() : st.startPlanePick()) },
-      { label: 'Boss/Base ▸ Extrude… (fase 2)', icon: <Icon.Extrude />, disabled: true },
-      { label: 'Cut ▸ Extrude… (fase 2)', icon: <Icon.Cut />, disabled: true },
-      { label: 'Features ▸ Fillet… (fase 2)', icon: <Icon.Arc />, disabled: true },
-      { label: 'Referentiegeometrie ▸ Vlak… (fase 2)', icon: <Icon.Plane />, disabled: true },
+    Insert: [
+      { label: 'Sketch', icon: <Icon.Sketch />, onSelect: () => (inSketch ? st.exitSketch() : st.startPlanePick()) },
+      { label: 'Boss/Base ▸ Extrude… (phase 2)', icon: <Icon.Extrude />, disabled: true },
+      { label: 'Cut ▸ Extrude… (phase 2)', icon: <Icon.Cut />, disabled: true },
+      { label: 'Features ▸ Fillet/Round… (phase 2)', icon: <Icon.Arc />, disabled: true },
+      { label: 'Reference Geometry ▸ Plane… (phase 2)', icon: <Icon.Plane />, disabled: true },
     ],
-    Extra: [
-      { label: 'Schetsentiteiten ▸ Lijn', icon: <Icon.Line />, disabled: !inSketch, onSelect: () => st.setTool('line') },
-      { label: 'Schetsentiteiten ▸ Rechthoek', icon: <Icon.Rect />, disabled: !inSketch, onSelect: () => st.setTool('rectangle') },
-      { label: 'Schetsentiteiten ▸ Cirkel', icon: <Icon.Circle />, disabled: !inSketch, onSelect: () => st.setTool('circle') },
-      { label: 'Maten ▸ Smart Dimension', icon: <Icon.Dimension />, shortcut: 'M', disabled: !inSketch, onSelect: () => st.setTool('dimension') },
-      { label: 'Relaties ▸ Weergeven/verwijderen', icon: <Icon.Lock />, disabled: !inSketch, onSelect: () => st.setTaskPane('relations') },
+    Tools: [
+      { label: 'Sketch Entities ▸ Line', icon: <Icon.Line />, disabled: !inSketch, onSelect: () => st.setTool('line') },
+      { label: 'Sketch Entities ▸ Corner Rectangle', icon: <Icon.Rect />, disabled: !inSketch, onSelect: () => st.setTool('rectangle') },
+      { label: 'Sketch Entities ▸ Circle', icon: <Icon.Circle />, disabled: !inSketch, onSelect: () => st.setTool('circle') },
+      { label: 'Sketch Entities ▸ Polygon', icon: <Icon.Polygon />, disabled: !inSketch, onSelect: () => st.setTool('polygon') },
+      { label: 'Dimensions ▸ Smart', icon: <Icon.Dimension />, shortcut: 'M', disabled: !inSketch, onSelect: () => st.setTool('dimension') },
+      { label: 'Relations ▸ Display/Delete', icon: <Icon.Lock />, disabled: !inSketch, onSelect: () => st.setTaskPane('relations') },
       { separator: true },
-      { label: 'Meten… (fase 7)', icon: <Icon.Measure />, disabled: true },
-      { label: 'Massa-eigenschappen… (fase 7)', icon: <Icon.Mass />, disabled: true },
+      { label: 'Evaluate ▸ Measure… (phase 7)', icon: <Icon.Measure />, disabled: true },
+      { label: 'Evaluate ▸ Mass Properties… (phase 7)', icon: <Icon.Mass />, disabled: true },
       { separator: true },
-      { label: 'Aanpassen ▸ Sneltoetsen', icon: <Icon.Keyboard />, shortcut: '?', onSelect: () => st.setPanel('shortcuts', { visible: true }) },
-      { label: 'Opties…', icon: <Icon.Options />, onSelect: () => st.setDialog('options') },
+      { label: 'Customize ▸ Keyboard', icon: <Icon.Keyboard />, shortcut: '?', onSelect: () => st.setPanel('shortcuts', { visible: true }) },
+      { label: 'Options…', icon: <Icon.Options />, onSelect: () => st.setDialog('options') },
     ],
-    Venster: [
+    Window: [
       { label: `✓ ${st.doc.name}${st.dirty ? ' *' : ''}`, onSelect: () => {} },
       { separator: true },
-      { label: 'Viewport ▸ Eén weergave', onSelect: () => {} },
-      { label: 'Viewport ▸ Twee / vier weergaven (fase 5)', disabled: true },
+      { label: 'Viewport ▸ Single View', onSelect: () => {} },
+      { label: 'Viewport ▸ Two / Four View (phase 5)', disabled: true },
     ],
     Help: [
       { label: 'Phlippo CAD Help', icon: <Icon.Help />, shortcut: '?', onSelect: () => st.setPanel('shortcuts', { visible: true }) },
       { label: 'Tutorials (Task Pane ▸ Resources)', onSelect: () => st.setTaskPane('resources') },
-      { label: 'Welkom…', onSelect: () => st.setDialog('welcome') },
+      { label: 'Welcome to Phlippo CAD…', onSelect: () => st.setDialog('welcome') },
       { separator: true },
-      { label: 'Over Phlippo CAD 0.1', onSelect: () => alert('Phlippo CAD 0.1 — parametrische CAD in de browser.\nFase 1: 2D-schetser met constraint-solver.') },
+      { label: 'About Phlippo CAD 0.1', onSelect: () => alert('Phlippo CAD 0.1 — parametric CAD in the browser.\nPhase 1: 2D sketcher with constraint solver.') },
     ],
   };
 
-  const tb = (icon: React.ReactNode, tip: string, onClick: () => void, disabled = false, active = false) => (
-    <button className={`k-mb-btn k-tip ${active ? 'active' : ''}`} data-tip={tip} onClick={onClick} disabled={disabled}>
+  const tb = (icon: React.ReactNode, tip: string, onClick: () => void, opts: { disabled?: boolean; active?: boolean; caret?: boolean } = {}) => (
+    <button className={`k-mb-btn k-tip ${opts.active ? 'active' : ''}`} data-tip={tip} onClick={onClick} disabled={opts.disabled}>
       {icon}
+      {opts.caret && <Icon.ChevronDown size={8} className="k-mb-caret" />}
     </button>
   );
 
   return (
-    <div className="k-menubar">
-      <div className="k-brand">
-        <Icon.Logo size={20} />
-        <span>Phlippo CAD</span>
+    <div className="k-menubar" onMouseLeave={() => setHover(false)}>
+      <div className="k-brand" onMouseEnter={() => setHover(true)}>
+        <Icon.Logo size={18} />
+        <span>Phlippo<b>CAD</b> Design</span>
+        {!showMenus && <Icon.ChevronRight size={11} className="k-brand-caret" />}
       </div>
-      <div className="k-mb-menus">
-        {Object.keys(menus).map((name) => (
-          <div key={name} style={{ position: 'relative' }}>
-            <button className={`k-mb-menu ${open === name ? 'active' : ''}`} onClick={() => setOpen(open === name ? null : name)} onMouseEnter={() => open && setOpen(name)}>
-              {name}
-            </button>
-            {open === name && <Menu items={menus[name]} onClose={() => setOpen(null)} style={{ top: '100%', left: 0 }} />}
-          </div>
-        ))}
-        <span className="k-mb-pin k-tip" data-tip="Menu vastpinnen"><Icon.Pin size={13} /></span>
-      </div>
-      <div className="k-mb-sep" />
+      {showMenus && (
+        <div className="k-mb-menus" onMouseEnter={() => setHover(true)}>
+          {Object.keys(menus).map((name) => (
+            <div key={name} style={{ position: 'relative' }}>
+              <button className={`k-mb-menu ${open === name ? 'active' : ''}`} onClick={() => setOpen(open === name ? null : name)} onMouseEnter={() => open && setOpen(name)}>
+                {name}
+              </button>
+              {open === name && <Menu items={menus[name]} onClose={() => setOpen(null)} style={{ top: '100%', left: 0 }} />}
+            </div>
+          ))}
+          <button
+            className={`k-mb-pin k-tip ${pinned ? 'active' : ''}`}
+            data-tip={pinned ? 'Unpin menu' : 'Pin menu'}
+            onClick={() => {
+              setPinned(!pinned);
+              try {
+                localStorage.setItem('phlippo.menuPinned', String(!pinned));
+              } catch {
+                /* ignore */
+              }
+            }}
+          >
+            <Icon.Pin size={12} />
+          </button>
+        </div>
+      )}
       <div className="k-mb-tools">
-        {tb(<Icon.New />, 'Nieuw (Ctrl+N)', () => st.setDialog('new'))}
-        {tb(<Icon.Open />, 'Openen (Ctrl+O)', openFileDialog)}
-        {tb(<Icon.Save />, 'Opslaan (Ctrl+S)', saveDocument)}
-        {tb(<Icon.Print />, 'Afdrukken (Ctrl+P)', () => window.print())}
-        <div className="k-mb-sep" />
-        {tb(<Icon.Undo />, st.undoLabel ? `Ongedaan maken: ${st.undoLabel} (Ctrl+Z)` : 'Ongedaan maken (Ctrl+Z)', st.undo, !st.canUndo)}
-        {tb(<Icon.Redo />, st.redoLabel ? `Opnieuw: ${st.redoLabel} (Ctrl+Y)` : 'Opnieuw (Ctrl+Y)', st.redo, !st.canRedo)}
-        <div className="k-mb-sep" />
-        {tb(<Icon.Select />, 'Selecteren (Esc)', () => st.setTool('select'), false, st.tool === 'select' && inSketch)}
+        {tb(<Icon.New />, 'New (Ctrl+N)', () => st.setDialog('new'))}
+        {tb(<Icon.Open />, 'Open (Ctrl+O)', openFileDialog, { caret: true })}
+        {tb(<Icon.Save />, 'Save (Ctrl+S)', saveDocument, { caret: true })}
+        {tb(<Icon.Print />, 'Print (Ctrl+P)', () => window.print())}
+        {tb(<Icon.Undo />, st.undoLabel ? `Undo ${st.undoLabel} (Ctrl+Z)` : 'Undo (Ctrl+Z)', st.undo, { disabled: !st.canUndo, caret: true })}
+        {tb(<Icon.Redo />, st.redoLabel ? `Redo ${st.redoLabel} (Ctrl+Y)` : 'Redo (Ctrl+Y)', st.redo, { disabled: !st.canRedo })}
+        {tb(<Icon.Select />, 'Select (Esc)', () => st.setTool('select'), { active: st.tool === 'select' && inSketch, caret: true })}
         {tb(<Icon.Rebuild />, 'Rebuild (Ctrl+B)', () => st.openDocument(st.doc))}
-        {tb(<Icon.Properties />, 'Bestandseigenschappen', () => st.setDialog('options'))}
-        {tb(<Icon.Options />, 'Opties', () => st.setDialog('options'))}
+        {tb(<Icon.Properties />, 'File Properties', () => st.setDialog('options'))}
+        {tb(<Icon.Options />, 'Options', () => st.setDialog('options'), { caret: true })}
       </div>
       <div className="k-title">
         {st.doc.name}
@@ -148,24 +176,29 @@ export function MenuBar() {
       </div>
       <div className="k-mb-search">
         <Icon.Search size={13} />
-        <input placeholder="Commando's zoeken" onKeyDown={(e) => e.stopPropagation()} onChange={(e) => {
-          const q = e.target.value.toLowerCase();
-          if (q.length > 2) {
-            const all = Object.values(menus).flat().filter((m) => !m.separator && m.label?.toLowerCase().includes(q) && !m.disabled);
-            if (all.length === 1 && e.target.value.endsWith('\n')) all[0].onSelect?.();
-          }
-        }} onKeyUp={(e) => {
-          if (e.key === 'Enter') {
-            const q = (e.target as HTMLInputElement).value.toLowerCase();
-            const hit = Object.values(menus).flat().find((m) => !m.separator && m.label?.toLowerCase().includes(q) && !m.disabled);
-            hit?.onSelect?.();
-            (e.target as HTMLInputElement).value = '';
-            (e.target as HTMLInputElement).blur();
-          }
-        }} />
+        <input
+          placeholder="Search Commands"
+          onKeyDown={(e) => e.stopPropagation()}
+          onKeyUp={(e) => {
+            if (e.key === 'Enter') {
+              const q = (e.target as HTMLInputElement).value.toLowerCase();
+              const hit = Object.values(menus).flat().find((m) => !m.separator && m.label?.toLowerCase().includes(q) && !m.disabled);
+              hit?.onSelect?.();
+              (e.target as HTMLInputElement).value = '';
+              (e.target as HTMLInputElement).blur();
+            }
+          }}
+        />
+        <Icon.ChevronDown size={10} />
       </div>
-      {tb(<Icon.Help />, 'Help (?)', () => st.setPanel('shortcuts', { visible: true }))}
-      {tb(st.theme === 'dark' ? <Icon.Sun /> : <Icon.Moon />, 'Licht/donker (Ctrl+Shift+D)', () => st.setTheme(st.theme === 'dark' ? 'light' : 'dark'))}
+      {tb(<Icon.Component />, 'Login (not available)', () => st.pushMessage('Sign-in is not part of this build.'))}
+      {tb(<Icon.Help />, 'Help (?)', () => st.setPanel('shortcuts', { visible: true }), { caret: true })}
+      {tb(st.theme === 'dark' ? <Icon.Sun /> : <Icon.Moon />, 'Light/dark (Ctrl+Shift+D)', () => st.setTheme(st.theme === 'dark' ? 'light' : 'dark'))}
+      <div className="k-win-controls" aria-hidden>
+        <span>—</span>
+        <span>☐</span>
+        <span>✕</span>
+      </div>
       <input
         id="phlippo-open-file"
         ref={fileRef}
@@ -179,7 +212,7 @@ export function MenuBar() {
             st.openDocument(parseDocument(await f.text()));
             st.setDialog(null);
           } catch (err) {
-            st.pushMessage(`Kan bestand niet openen: ${(err as Error).message}`, 'error');
+            st.pushMessage(`Cannot open file: ${(err as Error).message}`, 'error');
           }
           e.target.value = '';
         }}

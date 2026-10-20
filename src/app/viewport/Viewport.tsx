@@ -138,9 +138,10 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
       planes: planesToDraw,
       showOrigin: st.show.origin,
       planeSize: Math.max(60, camera.scale * Math.min(size.w, size.h) * 0.3),
+      shadedContours: st.shadedContours,
     });
     renderer.render(scene.scene, camera.camera);
-  }, [scene, camera, sketch, plane, solve, st.selection, st.hover, st.show.grid, st.show.origin, otherSketches, planesToDraw, size]);
+  }, [scene, camera, sketch, plane, solve, st.selection, st.hover, st.show.grid, st.show.origin, st.shadedContours, otherSketches, planesToDraw, size]);
 
   useEffect(() => {
     draw();
@@ -223,7 +224,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
       return { x: 0, y: 0 };
     })();
     if (phase === 'end' && (Math.abs(delta.x) > 1e-6 || Math.abs(delta.y) > 1e-6)) {
-      st.commit('Maat verplaatsen', (sk) => updateConstraint(sk, id, { labelOffset: { x: base.x + delta.x, y: base.y + delta.y } }));
+      st.commit('Move dimension', (sk) => updateConstraint(sk, id, { labelOffset: { x: base.x + delta.x, y: base.y + delta.y } }));
     }
   };
 
@@ -406,11 +407,11 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
       return {
         toolbar: [],
         menu: [
-          { label: 'Schets', icon: <Icon.Sketch />, onSelect: st.startPlanePick },
+          { label: 'Sketch', icon: <Icon.Sketch />, onSelect: st.startPlanePick },
           { label: 'Zoom to fit', icon: <Icon.Fit />, shortcut: 'F', onSelect: zoomFit },
-          { label: 'Oriëntatie…', icon: <Icon.Orientation />, shortcut: 'Spatie', onSelect: () => st.setDialog('orientation') },
+          { label: 'View Orientation…', icon: <Icon.Orientation />, shortcut: 'Space', onSelect: () => st.setDialog('orientation') },
           { separator: true },
-          { label: `${st.show.planes ? '✓ ' : ''}Vlakken tonen`, icon: <Icon.Plane />, onSelect: () => st.toggleShow('planes') },
+          { label: `${st.show.planes ? '✓ ' : ''}Show Planes`, icon: <Icon.Plane />, onSelect: () => st.toggleShow('planes') },
         ],
       };
     }
@@ -421,22 +422,22 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
     });
     const hasEnt = st.selection.some((s) => s.kind === 'entity');
     const menu: MenuItem[] = [
-      { label: 'Selecteren', icon: <Icon.Select />, shortcut: 'Esc', onSelect: () => st.setTool('select') },
+      { label: 'Select', icon: <Icon.Select />, shortcut: 'Esc', onSelect: () => st.setTool('select') },
       { label: 'Smart Dimension', icon: <Icon.Dimension />, shortcut: 'M', onSelect: () => st.setTool('dimension') },
       { separator: true },
       ...(hasEnt
         ? [
-            { label: 'Constructie-geometrie', icon: <Icon.Construction />, shortcut: 'X', onSelect: st.toggleConstructionSelection },
-            { label: 'Mirror entities', icon: <Icon.Mirror />, onSelect: st.mirrorSelection },
-            { label: 'Verwijderen', icon: <Icon.Trash />, shortcut: 'Del', onSelect: st.deleteSelection },
+            { label: 'Construction Geometry', icon: <Icon.Construction />, shortcut: 'X', onSelect: st.toggleConstructionSelection },
+            { label: 'Mirror Entities', icon: <Icon.Mirror />, onSelect: st.mirrorSelection },
+            { label: 'Delete', icon: <Icon.Trash />, shortcut: 'Del', onSelect: st.deleteSelection },
             { separator: true },
           ]
         : []),
-      { label: 'Relaties weergeven/verwijderen', icon: <Icon.Lock />, onSelect: () => st.setTaskPane('relations') },
-      { label: 'Schets afsluiten', icon: <Icon.Exit />, onSelect: st.exitSketch },
+      { label: 'Display/Delete Relations', icon: <Icon.Lock />, onSelect: () => st.setTaskPane('relations') },
+      { label: 'Exit Sketch', icon: <Icon.Exit />, onSelect: st.exitSketch },
       { separator: true },
       { label: 'Zoom to fit', icon: <Icon.Fit />, shortcut: 'F', onSelect: zoomFit },
-      { label: 'Normal to', icon: <Icon.Plane />, shortcut: 'Ctrl+8', onSelect: () => camera.normalTo(plane) },
+      { label: 'Normal To', icon: <Icon.Plane />, shortcut: 'Ctrl+8', onSelect: () => camera.normalTo(plane) },
     ];
     return { toolbar, menu };
   };
@@ -526,10 +527,16 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
           </div>
         );
       })()}
+      <div className="k-doctabs">
+        <button className="k-doctab-arrow">‹</button>
+        <button className="k-doctab-arrow">›</button>
+        <button className="k-doctab active">Model</button>
+        <button className="k-doctab">Motion Study 1</button>
+      </div>
       {!sketch && !st.planePick && st.doc.features.length === 0 && (
         <div className="k-viewport-empty">
           <Icon.Logo size={44} />
-          <div>Klik <b>Schets</b> in de CommandManager en kies een vlak, of dubbelklik een vlak in de FeatureManager.</div>
+          <div>Click <b>Sketch</b> in the CommandManager and select a plane, or double-click a plane in the FeatureManager design tree.</div>
         </div>
       )}
     </div>
