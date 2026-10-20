@@ -100,16 +100,28 @@ export function Overlay(props: OverlayProps) {
       })}
       {glyphs.map((g, i) => {
         const p = project(g.at);
-        // stack glyphs that share an anchor
-        const prior = glyphs.slice(0, i).filter((o) => Math.abs(o.at.x - g.at.x) < 1e-9 && Math.abs(o.at.y - g.at.y) < 1e-9).length;
-        const x = p.x + 8 + prior * 16, y = p.y + 8;
+        // stack glyphs that share an anchor: in a row along the entity, offset to its outer side
+        const group = glyphs.filter((o) => Math.abs(o.at.x - g.at.x) < 1e-9 && Math.abs(o.at.y - g.at.y) < 1e-9);
+        const idx = group.indexOf(g);
+        const count = group.length;
+        const S = 15, GAP = 2;
+        // screen-space direction/normal (y flipped)
+        const d = g.dir ?? { x: 1, y: 0 };
+        const n = g.normal ?? { x: 0, y: -1 };
+        const sd = { x: d.x, y: -d.y }, sn = { x: n.x, y: -n.y };
+        const nl = Math.hypot(sn.x, sn.y) || 1;
+        const off = g.isPoint ? 9 : 11;
+        const along = (idx - (count - 1) / 2) * (S + GAP);
+        const cx = p.x + (sn.x / nl) * off + sd.x * along;
+        const cy = p.y + (sn.y / nl) * off + sd.y * along;
+        const x = Math.round(cx - S / 2), y = Math.round(cy - S / 2);
         const Glyph = RelationGlyph[g.kind];
         const color = colorFor(g.constraintId);
-        labelBoxes.push({ id: g.constraintId, x, y, w: 14, h: 14 });
+        labelBoxes.push({ id: g.constraintId, x, y, w: S, h: S });
         return (
           <g key={`${g.constraintId}-${i}`} transform={`translate(${x},${y})`} style={{ cursor: 'pointer', color }} onClick={(e) => { e.stopPropagation(); props.onConstraintClick(g.constraintId); }}>
-            <rect width={14} height={14} rx={2} fill="var(--sk-relation-box)" stroke={color} strokeWidth={0.75} />
-            {Glyph && <g transform="translate(1,1)"><Glyph size={12} /></g>}
+            <rect width={S} height={S} rx={2} fill="var(--sk-relation-box)" stroke={color} strokeWidth={0.75} />
+            {Glyph && <g transform="translate(1.5,1.5)"><Glyph size={12} /></g>}
           </g>
         );
       })}

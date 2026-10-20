@@ -53,6 +53,8 @@ input[type='number']::-webkit-inner-spin-button { opacity: 0.4; }
 .k-panel-header { display: flex; align-items: center; gap: 6px; height: 28px; padding: 0 6px 0 10px; background: var(--bg-header); border-bottom: 1px solid var(--border); font-weight: 600; font-size: 12px; cursor: default; }
 .k-panel-header .grow { flex: 1; }
 .k-panel-body { flex: 1; overflow: auto; min-height: 0; }
+.k-panel-body::-webkit-scrollbar { width: 10px; height: 10px; }
+.k-panel-body::-webkit-scrollbar-thumb { background: var(--border-strong); border: 2px solid var(--bg-panel); border-radius: 6px; }
 .k-panel.floating { position: absolute; width: 320px; max-height: 70vh; box-shadow: var(--shadow-2); z-index: 20; }
 .k-panel.floating .k-panel-header { cursor: move; }
 
@@ -63,7 +65,8 @@ input[type='number']::-webkit-inner-spin-button { opacity: 0.4; }
 
 /* --- form ------------------------------------------------------------------ */
 .k-field { display: grid; grid-template-columns: 1fr 1.3fr; align-items: center; gap: 8px; margin: 4px 0; }
-.k-field label { color: var(--text-muted); }
+.k-field label { color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.k-field > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .k-input { height: 26px; padding: 0 8px; border: 1px solid var(--border); border-radius: var(--radius-s); background: var(--bg-input); width: 100%; outline: none; }
 .k-input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px var(--bg-selected); }
 .k-number { display: flex; align-items: center; gap: 4px; }
@@ -90,7 +93,7 @@ input[type='number']::-webkit-inner-spin-button { opacity: 0.4; }
 .k-tab:disabled { opacity: 0.4; cursor: default; }
 
 /* --- tree --------------------------------------------------------------------- */
-.k-tree { padding: 4px 0; }
+.k-tree { padding: 4px 0; min-width: max-content; }
 .k-tree-row { display: flex; align-items: center; gap: 4px; height: 24px; padding-right: 6px; border-radius: 0; cursor: default; white-space: nowrap; }
 .k-tree-row:hover { background: var(--bg-hover); }
 .k-tree-row.selected { background: var(--bg-selected); }

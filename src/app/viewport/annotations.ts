@@ -21,6 +21,12 @@ export interface GlyphDrawing {
   kind: Constraint['kind'];
   at: SketchPoint;
   entityId?: Id;
+  /** unit direction of the entity at the anchor (lines: along the line); used to stack icons neatly */
+  dir?: SketchPoint;
+  /** outward normal (side on which to place the icons) */
+  normal?: SketchPoint;
+  /** anchor is a point (not a curve) */
+  isPoint?: boolean;
 }
 
 const P = (s: Sketch, id: Id): SketchPoint => (id in s.points ? s.points[id] : s.points[(s.entities[id] as { p: Id }).p]);
@@ -161,20 +167,56 @@ function entityAnchor(s: Sketch, e: Entity): SketchPoint {
   }
 }
 
+function entityFrame(s: Sketch, e: Entity): { dir: SketchPoint; normal: SketchPoint } {
+  switch (e.kind) {
+    case 'line': {
+      const a = s.points[e.p1], b = s.points[e.p2];
+      const d = norm(sub(b, a));
+      // normal pointing "down-right-ish" so icons sit below horizontal lines and right of vertical ones
+      let n = { x: d.y, y: -d.x };
+      if (n.y > 0.01 || (Math.abs(n.y) <= 0.01 && n.x < 0)) n = { x: -n.x, y: -n.y };
+      return { dir: d, normal: n };
+    }
+    case 'circle':
+    case 'arc': {
+      const c = s.points[e.center];
+      const at = entityAnchor(s, e);
+      const n = norm(sub(at, c));
+      return { dir: { x: -n.y, y: n.x }, normal: n };
+    }
+    default:
+      return { dir: { x: 1, y: 0 }, normal: { x: 0, y: -1 } };
+  }
+}
+
 /** Where to draw the relation glyphs (one per constraint per referenced item). */
 export function glyphDrawings(s: Sketch): GlyphDrawing[] {
-  const out: GlyphDrawing[] = [];
+  const raw: GlyphDrawing[] = [];
+  const out = raw;
   for (const cid of s.constraintOrder) {
     const c = s.constraints[cid];
     if (isDimension(c)) continue;
     const targets = c.kind === 'symmetric' ? c.refs.slice(0, 2) : c.kind === 'coincident' ? [c.refs[0]] : c.kind === 'pointOnEntity' || c.kind === 'midpoint' || c.kind === 'fix' ? [c.refs[0]] : c.refs;
     for (const ref of targets) {
-      if (ref in s.points) out.push({ constraintId: cid, kind: c.kind, at: s.points[ref] });
+      if (ref in s.points) out.push({ constraintId: cid, kind: c.kind, at: s.points[ref], isPoint: true, dir: { x: 1, y: 0 }, normal: { x: 1, y: -1 } });
       else {
         const e = s.entities[ref];
-        if (e) out.push({ constraintId: cid, kind: c.kind, at: entityAnchor(s, e), entityId: e.id });
+        if (e) {
+          if (e.kind === 'point') out.push({ constraintId: cid, kind: c.kind, at: s.points[e.p], entityId: e.id, isPoint: true, dir: { x: 1, y: 0 }, normal: { x: 1, y: -1 } });
+          else {
+            const f = entityFrame(s, e);
+            out.push({ constraintId: cid, kind: c.kind, at: entityAnchor(s, e), entityId: e.id, dir: f.dir, normal: f.normal });
+          }
+        }
       }
     }
   }
-  return out;
+  // one icon per relation type per anchor (several Equal relations on a line show a single "=")
+  const seen = new Set<string>();
+  return out.filter((g) => {
+    const key = `${g.kind}@${g.at.x.toFixed(6)},${g.at.y.toFixed(6)}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }

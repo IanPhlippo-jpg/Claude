@@ -34,6 +34,7 @@ export function FeatureTreeBody() {
               className="k-input"
               style={{ height: 20 }}
               autoFocus
+              onFocus={(e) => e.target.select()}
               value={renaming.value}
               onChange={(e) => setRenaming({ id: f.id, value: e.target.value })}
               onBlur={() => {
@@ -75,7 +76,9 @@ export function FeatureTreeBody() {
       if (st.planePick) st.newSketch(p);
       else st.setHoverPlane(p);
     },
-    onDoubleClick: () => st.newSketch(p),
+    onDoubleClick: () => {
+      if (!st.activeSketchId) st.newSketch(p);
+    },
     onContextMenu: (e) => {
       e.preventDefault();
       st.newSketch(p);

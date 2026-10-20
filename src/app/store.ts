@@ -2,11 +2,12 @@ import { create } from 'zustand';
 import { createDocument, type Document, type Units } from '../core/document/types';
 import { History } from '../core/document/history';
 import { autosave, loadAutosave } from '../core/document/persistence';
-import { createSketch, mirrorEntities, newId, removeConstraint, removeEntity, updateConstraint, addConstraint, toggleConstruction } from '../core/sketch/model';
+import { createSketch, mirrorEntities, newId, ownerOfPoint, removeConstraint, removeEntity, updateConstraint, addConstraint, toggleConstruction } from '../core/sketch/model';
 import type { Constraint, ConstraintKind, Id, Sketch, SketchPoint } from '../core/sketch/types';
 import { solveSketch, type SolveResult } from '../core/solver/solver';
 import { SolverClient } from '../core/solver/solverClient';
 import type { SelectionItem } from '../core/sketch/relations';
+import { extractBlock, insertBlock, type Block } from '../core/sketch/blocks';
 
 export type ToolId =
   | 'select'
@@ -31,6 +32,18 @@ export type DisplayStyle = 'wireframe' | 'hiddenVisible' | 'hiddenRemoved' | 'sh
 export type UnitSystem = 'MKS' | 'CGS' | 'MMGS' | 'IPS';
 export type TaskPaneTab = 'library' | 'relations' | 'properties' | 'resources' | null;
 export type DialogId = 'welcome' | 'new' | 'options' | 'orientation' | null;
+
+export interface LibraryItem {
+  id: Id;
+  name: string;
+  block: Block;
+  created: string;
+}
+export interface Library {
+  id: Id;
+  name: string;
+  items: LibraryItem[];
+}
 export type DockSide = 'left' | 'right' | 'float';
 
 export interface PanelLayout {
@@ -82,6 +95,10 @@ interface State {
   modify: { id: Id; x: number; y: number } | null;
   /** cursor system-feedback symbol */
   feedback: string | null;
+  /** Design Library: user libraries with sketch blocks */
+  libraries: Library[];
+  /** item being placed in the active sketch (click to position) */
+  placing: { libraryId: Id; itemId: Id } | null;
   messages: StatusMessage[];
   cursor: SketchPoint | null;
   canUndo: boolean;
@@ -147,6 +164,17 @@ interface State {
   setFeedback(f: string | null): void;
   discardSketch(): void;
   repeatLastTool(): void;
+  createLibrary(name: string): Id;
+  renameLibrary(id: Id, name: string): void;
+  deleteLibrary(id: Id): void;
+  /** add the current selection (or the whole active sketch) as an item */
+  addLibraryItem(libraryId: Id, name: string): boolean;
+  deleteLibraryItem(libraryId: Id, itemId: Id): void;
+  startPlacing(libraryId: Id, itemId: Id): void;
+  placeItem(at: SketchPoint): void;
+  cancelPlacing(): void;
+  importLibrary(json: string): void;
+  exportLibrary(id: Id): string | null;
   mirrorSelection(): void;
 }
 
@@ -173,6 +201,22 @@ function historyFlags() {
 
 const initialDoc = (typeof localStorage !== 'undefined' && loadAutosave()) || createDocument();
 const initialSolve = solveAll(initialDoc, {});
+
+function loadLibraries(): Library[] {
+  try {
+    const raw = localStorage.getItem('phlippo.libraries');
+    return raw ? (JSON.parse(raw) as Library[]) : [];
+  } catch {
+    return [];
+  }
+}
+function saveLibraries(libs: Library[]): void {
+  try {
+    localStorage.setItem('phlippo.libraries', JSON.stringify(libs));
+  } catch {
+    /* ignore */
+  }
+}
 
 function loadTheme(): Theme {
   try {
@@ -217,6 +261,8 @@ export const useStore = create<State>((set, get) => ({
   confirmAtCursor: null,
   modify: null,
   feedback: null,
+  libraries: loadLibraries(),
+  placing: null,
   messages: [],
   cursor: null,
   ...historyFlags(),
@@ -287,6 +333,90 @@ export const useStore = create<State>((set, get) => ({
   },
   repeatLastTool() {
     if (get().activeSketchId) get().setTool(get().lastTool);
+  },
+  createLibrary(name) {
+    const lib: Library = { id: newId('lib'), name: name || 'Library', items: [] };
+    const libraries = [...get().libraries, lib];
+    set({ libraries });
+    saveLibraries(libraries);
+    return lib.id;
+  },
+  renameLibrary(id, name) {
+    const libraries = get().libraries.map((l) => (l.id === id ? { ...l, name } : l));
+    set({ libraries });
+    saveLibraries(libraries);
+  },
+  deleteLibrary(id) {
+    const libraries = get().libraries.filter((l) => l.id !== id);
+    set({ libraries });
+    saveLibraries(libraries);
+  },
+  addLibraryItem(libraryId, name) {
+    const { activeSketchId, doc, selection } = get();
+    if (!activeSketchId) {
+      get().pushMessage('Open a sketch and select the entities to add to the library.', 'warn');
+      return false;
+    }
+    const sk = doc.sketches[activeSketchId];
+    const selIds = selection.filter((s) => s.kind === 'entity').map((s) => s.id);
+    const ids = selIds.length ? selIds : sk.entityOrder;
+    if (!ids.length) {
+      get().pushMessage('The sketch is empty; nothing to add.', 'warn');
+      return false;
+    }
+    const block = extractBlock(sk, ids);
+    const item: LibraryItem = { id: newId('li'), name: name || `Block ${Date.now().toString(36)}`, block, created: new Date().toISOString() };
+    const libraries = get().libraries.map((l) => (l.id === libraryId ? { ...l, items: [...l.items, item] } : l));
+    set({ libraries });
+    saveLibraries(libraries);
+    get().pushMessage(`"${item.name}" added to the library (${ids.length} entities).`);
+    return true;
+  },
+  deleteLibraryItem(libraryId, itemId) {
+    const libraries = get().libraries.map((l) => (l.id === libraryId ? { ...l, items: l.items.filter((i) => i.id !== itemId) } : l));
+    set({ libraries });
+    saveLibraries(libraries);
+  },
+  startPlacing(libraryId, itemId) {
+    if (!get().activeSketchId) {
+      get().pushMessage('Open a sketch first, then insert the library item.', 'warn');
+      return;
+    }
+    set({ placing: { libraryId, itemId }, tool: 'select', selection: [] });
+    get().pushMessage('Click in the graphics area to place the item (Esc cancels).');
+  },
+  placeItem(at) {
+    const { placing, libraries } = get();
+    if (!placing) return;
+    const item = libraries.find((l) => l.id === placing.libraryId)?.items.find((i) => i.id === placing.itemId);
+    if (!item) return;
+    let inserted: Id[] = [];
+    get().commit(`Insert ${item.name}`, (s) => {
+      const [s1, ids] = insertBlock(s, item.block, at);
+      inserted = ids;
+      return s1;
+    });
+    set({ placing: null, selection: inserted.map((id) => ({ kind: 'entity' as const, id })) });
+  },
+  cancelPlacing() {
+    set({ placing: null });
+  },
+  importLibrary(json) {
+    try {
+      const raw = JSON.parse(json) as { format?: string; library?: Library };
+      if (raw.format !== 'phlippo-library' || !raw.library) throw new Error('Not a Phlippo library file');
+      const lib: Library = { ...raw.library, id: newId('lib') };
+      const libraries = [...get().libraries, lib];
+      set({ libraries });
+      saveLibraries(libraries);
+      get().pushMessage(`Library "${lib.name}" imported (${lib.items.length} items).`);
+    } catch (err) {
+      get().pushMessage(`Cannot import library: ${(err as Error).message}`, 'error');
+    }
+  },
+  exportLibrary(id) {
+    const lib = get().libraries.find((l) => l.id === id);
+    return lib ? JSON.stringify({ format: 'phlippo-library', version: 1, library: lib }, null, 2) : null;
   },
   mirrorSelection() {
     const { selection, activeSketchId, doc } = get();
@@ -417,8 +547,12 @@ export const useStore = create<State>((set, get) => ({
       get().removeRelation(selectedConstraint);
       return;
     }
-    const ids = selection.filter((s) => s.kind === 'entity').map((s) => s.id);
-    if (!ids.length) return;
+    const { activeSketchId, doc } = get();
+    const sk = activeSketchId ? doc.sketches[activeSketchId] : null;
+    const ids = new Set(selection.filter((s) => s.kind === 'entity').map((s) => s.id));
+    // a selected point deletes the entity that owns it (as in the original)
+    if (sk) for (const s of selection) if (s.kind === 'point' && s.id !== sk.origin) { const o = ownerOfPoint(sk, s.id); if (o) ids.add(o.id); }
+    if (!ids.size) return;
     get().commit('Delete', (s) => {
       let out = s;
       for (const id of ids) out = removeEntity(out, id);

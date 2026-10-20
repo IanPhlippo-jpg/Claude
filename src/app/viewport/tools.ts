@@ -354,6 +354,10 @@ export class ToolController {
         return;
       }
       case 'dimension': {
+        if (this.dimPlacing && hitTest(ctx.sketch, info.p, ctx.tolerance)) {
+          // clicking another entity extends the selection (e.g. line + line -> angle)
+          this.dimPlacing = null;
+        }
         if (this.dimPlacing) {
           const d = this.dimPlacing;
           const label = info.p;

@@ -177,8 +177,14 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
   }, [camera, sketch, plane, otherSketches]);
 
   useEffect(() => {
-    (window as unknown as { __phlippoZoomFit?: () => void }).__phlippoZoomFit = zoomFit;
-  }, [zoomFit]);
+    const w = window as unknown as { __phlippoZoomFit?: () => void; __phlippoProject?: (p: SketchPoint) => { x: number; y: number } };
+    w.__phlippoZoomFit = zoomFit;
+    w.__phlippoProject = (p) => {
+      const r = hostRef.current?.getBoundingClientRect();
+      const q = camera.worldToPixel(sketchToWorld(plane, p.x, p.y));
+      return { x: q.x + (r?.left ?? 0), y: q.y + (r?.top ?? 0) };
+    };
+  }, [zoomFit, camera, plane]);
 
   // ---- tool context ---------------------------------------------------------
   const ctx = (): ToolContext | null => {
@@ -283,6 +289,10 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
       if (p) st.newSketch(p);
       return;
     }
+    if (st.placing) {
+      st.placeItem(info.p);
+      return;
+    }
     const c = ctx();
     if (!c) return;
     (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
@@ -376,12 +386,15 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
         if (zoomArea.active) setZoomArea({ active: false });
         if (st.show.viewSelector) st.toggleShow('viewSelector');
         if (st.planePick) st.cancelPlanePick();
+        if (st.placing) st.cancelPlacing();
         if (st.modify) st.setModify(null);
         if (ctxMenu) setCtxMenu(null);
         const c = ctx();
         if (!c) return;
-        if (tools.cancel()) e.stopPropagation();
-        else if (st.tool !== 'select') st.setTool('select');
+        if (tools.cancel()) {
+          e.stopPropagation();
+          st.setTool('select');
+        } else if (st.tool !== 'select') st.setTool('select');
         else if (st.selection.length || st.selectedConstraint) st.setSelection([]);
         refreshTool();
       } else if (e.key === 'Enter' && !(e.target instanceof HTMLInputElement)) {

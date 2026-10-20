@@ -262,7 +262,7 @@ export function addPolygon(s: Sketch, center: SketchPoint, radius: number, sides
   let c: CircleEntity;
   [s1, c] = addCircle(s1, center, radius, true);
   for (const id of ids) s1 = addConstraint(s1, 'pointOnEntity', [id, c.id])[0];
-  for (let i = 1; i < sides; i++) s1 = addConstraint(s1, 'equal', [lines[0].id, lines[i].id])[0];
+  for (let i = 0; i < sides - 1; i++) s1 = addConstraint(s1, 'equal', [lines[i].id, lines[i + 1].id])[0];
   return [s1, lines];
 }
 

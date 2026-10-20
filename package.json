@@ -10,7 +10,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc -b",
-    "e2e": "NODE_PATH=./node_modules node e2e/smoke.mjs && NODE_PATH=./node_modules node e2e/relations.mjs"
+    "e2e": "NODE_PATH=./node_modules node e2e/smoke.mjs && NODE_PATH=./node_modules node e2e/relations.mjs && NODE_PATH=./node_modules node e2e/full.mjs"
   },
   "dependencies": {
     "react": "^19.1.0",

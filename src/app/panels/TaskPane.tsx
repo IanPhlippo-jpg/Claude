@@ -1,4 +1,6 @@
+import { useRef, useState } from 'react';
 import { useActiveSketch, useActiveSolve, useStore } from '../store';
+import { Button } from '../../ui/components';
 import { Icon, RelationGlyph } from '../../ui/icons';
 import { relationLabel } from '../../core/sketch/relations';
 import { round, Kbd } from '../../ui/components';
@@ -28,17 +30,7 @@ export function TaskPane() {
             <button className="k-btn ghost icon" onClick={() => st.setTaskPane(null)}><Icon.Close size={12} /></button>
           </div>
           <div className="k-panel-body">
-            {st.taskPane === 'library' && (
-              <div style={{ padding: 10 }}>
-                <p className="k-muted">Design Library (phase 4/7): standard parts, materials and appearances.</p>
-                <ul className="k-list">
-                  <li><Icon.Folder /> annotations</li>
-                  <li><Icon.Folder /> features</li>
-                  <li><Icon.Folder /> parts</li>
-                  <li><Icon.Folder /> materials</li>
-                </ul>
-              </div>
-            )}
+            {st.taskPane === 'library' && <DesignLibrary />}
             {st.taskPane === 'relations' &&
               (!sketch ? (
                 <p className="k-muted" style={{ padding: 10 }}>No active sketch.</p>
@@ -103,5 +95,99 @@ export function TaskPane() {
         ))}
       </div>
     </div>
+  );
+}
+
+
+/**
+ * Design Library: user-created libraries (folders) with sketch blocks.
+ * Add the current selection (or whole sketch), insert into the active sketch,
+ * export/import libraries as .kcadlib JSON files.
+ */
+function DesignLibrary() {
+  const st = useStore();
+  const [open, setOpen] = useState<string | null>(st.libraries[0]?.id ?? null);
+  const [newName, setNewName] = useState('');
+  const [itemName, setItemName] = useState('');
+  const fileRef = useRef<HTMLInputElement>(null);
+  const lib = st.libraries.find((l) => l.id === open) ?? null;
+  const selCount = st.selection.filter((s) => s.kind === 'entity').length;
+  const exportLib = (id: string) => {
+    const json = st.exportLibrary(id);
+    if (!json) return;
+    const blob = new Blob([json], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `${st.libraries.find((l) => l.id === id)?.name ?? 'library'}.kcadlib`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  };
+  return (
+    <div className="k-library">
+      <div className="k-library-toolbar">
+        <input className="k-input" placeholder="New library name" value={newName} onChange={(e) => setNewName(e.target.value)} onKeyDown={(e) => { e.stopPropagation(); if (e.key === 'Enter' && newName.trim()) { setOpen(st.createLibrary(newName.trim())); setNewName(''); } }} />
+        <Button icon={<Icon.Folder />} onClick={() => { if (newName.trim()) { setOpen(st.createLibrary(newName.trim())); setNewName(''); } }} tip="Create library">New</Button>
+        <Button icon={<Icon.Open />} onClick={() => fileRef.current?.click()} tip="Import a .kcadlib file">Import</Button>
+        <input ref={fileRef} type="file" accept=".kcadlib,.json" style={{ display: 'none' }} onChange={async (e) => { const f = e.target.files?.[0]; if (f) st.importLibrary(await f.text()); e.target.value = ''; }} />
+      </div>
+      <div className="k-library-folders">
+        {st.libraries.length === 0 && <p className="k-muted" style={{ padding: '6px 10px' }}>No libraries yet. Create one above, then add sketch blocks to it.</p>}
+        {st.libraries.map((l) => (
+          <div key={l.id} className={`k-library-folder ${open === l.id ? 'open' : ''}`}>
+            <div className="k-library-folder-row" onClick={() => setOpen(open === l.id ? null : l.id)}>
+              {open === l.id ? <Icon.ChevronDown size={11} /> : <Icon.ChevronRight size={11} />}
+              <Icon.Folder />
+              <span className="grow">{l.name} <span className="k-muted">({l.items.length})</span></span>
+              <button className="k-btn ghost icon k-tip" data-tip="Export library" onClick={(e) => { e.stopPropagation(); exportLib(l.id); }}><Icon.Save size={13} /></button>
+              <button className="k-btn ghost icon k-tip" data-tip="Rename" onClick={(e) => { e.stopPropagation(); const n = prompt('Library name', l.name); if (n) st.renameLibrary(l.id, n); }}><Icon.Text size={13} /></button>
+              <button className="k-btn ghost icon k-tip" data-tip="Delete library" onClick={(e) => { e.stopPropagation(); if (confirm(`Delete library "${l.name}"?`)) st.deleteLibrary(l.id); }}><Icon.Trash size={13} /></button>
+            </div>
+            {open === l.id && (
+              <div className="k-library-items">
+                {l.items.length === 0 && <p className="k-muted">Empty. Select entities in a sketch and click "Add to library".</p>}
+                {l.items.map((it) => (
+                  <div key={it.id} className="k-library-item">
+                    <BlockThumb block={it.block} />
+                    <span className="grow">{it.name}<br /><span className="k-muted">{it.block.entities.length} entities · {it.block.constraints.length} relations</span></span>
+                    <Button variant="primary" onClick={() => st.startPlacing(l.id, it.id)} disabled={!st.activeSketchId} tip="Insert into the active sketch (click to place)">Insert</Button>
+                    <button className="k-btn ghost icon k-tip" data-tip="Delete item" onClick={() => st.deleteLibraryItem(l.id, it.id)}><Icon.Trash size={13} /></button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+      {lib && (
+        <div className="k-library-add">
+          <input className="k-input" placeholder="Block name" value={itemName} onChange={(e) => setItemName(e.target.value)} onKeyDown={(e) => e.stopPropagation()} />
+          <Button icon={<Icon.Sketch />} disabled={!st.activeSketchId} onClick={() => { if (st.addLibraryItem(lib.id, itemName.trim() || `Block ${lib.items.length + 1}`)) setItemName(''); }}>
+            {selCount ? `Add selection (${selCount}) to library` : 'Add sketch to library'}
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** tiny preview of a block */
+function BlockThumb({ block }: { block: import('../../core/sketch/blocks').Block }) {
+  const pts = Object.values(block.points);
+  const xs = pts.map((p) => p.x), ys = pts.map((p) => p.y);
+  let minX = Math.min(...xs), maxX = Math.max(...xs), minY = Math.min(...ys), maxY = Math.max(...ys);
+  for (const e of block.entities) if (e.kind === 'circle') { const c = block.points[e.center], r = block.scalars[e.r]; minX = Math.min(minX, c.x - r); maxX = Math.max(maxX, c.x + r); minY = Math.min(minY, c.y - r); maxY = Math.max(maxY, c.y + r); }
+  const w = Math.max(maxX - minX, 1e-6), h = Math.max(maxY - minY, 1e-6);
+  const s = 36 / Math.max(w, h);
+  const X = (x: number) => 4 + (x - minX) * s + (36 - w * s) / 2, Y = (y: number) => 4 + (maxY - y) * s + (36 - h * s) / 2;
+  return (
+    <svg width={44} height={44} className="k-library-thumb">
+      {block.entities.map((e) => {
+        if (e.kind === 'line') { const a = block.points[e.p1], b = block.points[e.p2]; return <line key={e.id} x1={X(a.x)} y1={Y(a.y)} x2={X(b.x)} y2={Y(b.y)} stroke="#2b5fb3" strokeWidth={1} strokeDasharray={e.construction ? '2 2' : undefined} />; }
+        if (e.kind === 'circle') { const c = block.points[e.center]; return <circle key={e.id} cx={X(c.x)} cy={Y(c.y)} r={block.scalars[e.r] * s} fill="none" stroke="#2b5fb3" strokeWidth={1} />; }
+        if (e.kind === 'arc') { const c = block.points[e.center], a = block.points[e.start], b = block.points[e.end]; const r = block.scalars[e.r] * s; return <path key={e.id} d={`M${X(a.x)},${Y(a.y)} A${r},${r} 0 0 ${e.ccw ? 0 : 1} ${X(b.x)},${Y(b.y)}`} fill="none" stroke="#2b5fb3" strokeWidth={1} />; void c; }
+        if (e.kind === 'spline') { const ps = e.points.map((p) => block.points[p]); return <polyline key={e.id} points={ps.map((p) => `${X(p.x)},${Y(p.y)}`).join(' ')} fill="none" stroke="#2b5fb3" strokeWidth={1} />; }
+        const p = block.points[e.p]; return <rect key={e.id} x={X(p.x) - 1.5} y={Y(p.y) - 1.5} width={3} height={3} fill="#2b5fb3" />;
+      })}
+    </svg>
   );
 }

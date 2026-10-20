@@ -113,3 +113,25 @@ Screenshots staan in `docs/screenshots/`.
 
 Vervolg: in een lokale sessie op de pc van de gebruiker kunnen met `yt-dlp` + `ffmpeg` frames op volle resolutie uit
 de video's worden gehaald; daarmee kan de iconenset en de lay-out pixelnauwkeurig worden vergeleken.
+
+## Vijfde ronde: functionele controle, relatie-iconen, Design Library
+
+- **Volledige functionele controle** (`e2e/full.mjs`, 66 controles): elk schetsgereedschap, inference, selectie (klik,
+  Ctrl, venster/kruisend kader), verwijderen via punt of entiteit, undo/redo, constructie, relaties via PropertyManager,
+  Smart Dimension (lengte, diameter, radius, hoek) met Modify-dialoog, driven, maatlabel slepen, dubbelklik, slepen van
+  vrije punten, centerline + Mirror Entities, Display/Delete Relations, contextmenu, Zoom to Area / Previous View /
+  zoomtoetsen, Confirmation Corner, schets opnieuw bewerken, tweede schets op een ander vlak, hernoemen, rollback,
+  verwijderen en undo van features, opslaan/openen (.kcad), nieuw document, opties, thema, FeatureManager inklappen,
+  zwevend paneel, autosave, Design Library. Gevonden en opgelost: dubbelklik op een vlak maakte twee schetsen; Esc liet
+  het gereedschap actief; een geselecteerd punt kon niet verwijderd worden; een tweede klik op een entiteit bij Smart
+  Dimension plaatste de maat in plaats van de selectie uit te breiden (lijn + lijn = hoek); hernoemen plakte tekst
+  achter de bestaande naam.
+- **Relatie-iconen**: één icoon per relatietype per entiteit, loodrecht naast de entiteit geplaatst en netjes op rij;
+  de polygoon gebruikt nu gelijk-relaties tussen opeenvolgende zijden (één "=" per zijde) zoals het origineel.
+- **Tekst**: tree scrollt horizontaal bij lange namen, labels worden afgekort met "…", statusbalk en titel lopen niet
+  meer uit beeld.
+- **Design Library** (Task Pane ▸ Design Library): bibliotheken aanmaken/hernoemen/verwijderen, de selectie of de hele
+  schets als blok toevoegen (inclusief interne relaties), blok invoegen door te klikken in de schets, export/import als
+  `.kcadlib`, opgeslagen in de browser. Kern: `src/core/sketch/blocks.ts` (getest).
+- **Iconen** verder naar de beeldtaal van het origineel: schetsentiteiten in donkergrijs met blauwe eindpunten,
+  Smart Dimension met sparkle, gele accentvlakken op feature-iconen, groene relatie-knop.
