@@ -1,16 +1,16 @@
 import type { Document } from './types';
 
 export const FILE_EXTENSION = '.kcad';
-const AUTOSAVE_KEY = 'kalibr.autosave';
+const AUTOSAVE_KEY = 'phlippo.autosave';
 
 /** Own file format: versioned JSON. */
 export function serializeDocument(doc: Document): string {
-  return JSON.stringify({ format: 'kalibr-cad', ...doc }, null, 2);
+  return JSON.stringify({ format: 'phlippo-cad', ...doc }, null, 2);
 }
 
 export function parseDocument(text: string): Document {
   const raw = JSON.parse(text) as Partial<Document> & { format?: string };
-  if (raw.format !== 'kalibr-cad' || raw.version !== 1) throw new Error('Onbekend bestandsformaat');
+  if (raw.format !== 'phlippo-cad' || raw.version !== 1) throw new Error('Onbekend bestandsformaat');
   const { format: _f, ...doc } = raw;
   void _f;
   return doc as Document;

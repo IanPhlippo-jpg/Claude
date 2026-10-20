@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { createDocument, type Document, type Units } from '../core/document/types';
 import { History } from '../core/document/history';
 import { autosave, loadAutosave } from '../core/document/persistence';
-import { createSketch, newId, removeConstraint, removeEntity, updateConstraint, addConstraint, toggleConstruction } from '../core/sketch/model';
+import { createSketch, mirrorEntities, newId, removeConstraint, removeEntity, updateConstraint, addConstraint, toggleConstruction } from '../core/sketch/model';
 import type { Constraint, ConstraintKind, Id, Sketch, SketchPoint } from '../core/sketch/types';
 import { solveSketch, type SolveResult } from '../core/solver/solver';
 import { SolverClient } from '../core/solver/solverClient';
@@ -11,6 +11,7 @@ import type { SelectionItem } from '../core/sketch/relations';
 export type ToolId =
   | 'select'
   | 'line'
+  | 'centerline'
   | 'rectangle'
   | 'centerRectangle'
   | 'circle'
@@ -18,12 +19,18 @@ export type ToolId =
   | 'arcCenter'
   | 'spline'
   | 'point'
+  | 'polygon'
   | 'dimension'
   | 'trim';
 
 export type RibbonTab = 'sketch' | 'features' | 'assembly' | 'drawing' | 'evaluate';
 export type Theme = 'light' | 'dark';
-export type PanelId = 'tree' | 'properties' | 'relations' | 'shortcuts';
+export type PanelId = 'manager' | 'relations' | 'shortcuts';
+export type ManagerTab = 'tree' | 'properties' | 'configurations';
+export type DisplayStyle = 'wireframe' | 'hiddenVisible' | 'hiddenRemoved' | 'shaded' | 'shadedEdges';
+export type UnitSystem = 'MKS' | 'CGS' | 'MMGS' | 'IPS';
+export type TaskPaneTab = 'library' | 'relations' | 'properties' | 'resources' | null;
+export type DialogId = 'welcome' | 'new' | 'options' | 'orientation' | null;
 export type DockSide = 'left' | 'right' | 'float';
 
 export interface PanelLayout {
@@ -53,6 +60,26 @@ interface State {
   theme: Theme;
   panels: Record<PanelId, PanelLayout>;
   dockWidth: { left: number; right: number };
+  managerTab: ManagerTab;
+  managerCollapsed: boolean;
+  treeFilter: string;
+  /** "Sketch" was clicked without an active sketch: user picks a plane in the graphics area */
+  planePick: boolean;
+  hoverPlane: Sketch['plane'] | null;
+  displayStyle: DisplayStyle;
+  show: { planes: boolean; origin: boolean; sketches: boolean; relations: boolean; grid: boolean; viewSelector: boolean };
+  reverseWheel: boolean;
+  unitSystem: UnitSystem;
+  lastTool: ToolId;
+  viewName: string;
+  taskPane: TaskPaneTab;
+  dialog: DialogId;
+  /** confirmation corner moved to the cursor by the D key */
+  confirmAtCursor: { x: number; y: number } | null;
+  /** Modify-dialog for a dimension, screen position */
+  modify: { id: Id; x: number; y: number } | null;
+  /** cursor system-feedback symbol */
+  feedback: string | null;
   messages: StatusMessage[];
   cursor: SketchPoint | null;
   canUndo: boolean;
@@ -99,6 +126,25 @@ interface State {
   setCursor(p: SketchPoint | null): void;
   setRollback(i: number | null): void;
   toggle(key: 'showRelations' | 'showGrid' | 'snapGrid'): void;
+  setManagerTab(t: ManagerTab): void;
+  setManagerCollapsed(v: boolean): void;
+  setTreeFilter(v: string): void;
+  startPlanePick(): void;
+  cancelPlanePick(): void;
+  setHoverPlane(p: Sketch['plane'] | null): void;
+  setDisplayStyle(s: DisplayStyle): void;
+  toggleShow(key: keyof State['show']): void;
+  setReverseWheel(v: boolean): void;
+  setUnitSystem(u: UnitSystem): void;
+  setViewName(n: string): void;
+  setTaskPane(t: TaskPaneTab): void;
+  setDialog(d: DialogId): void;
+  setConfirmAtCursor(p: { x: number; y: number } | null): void;
+  setModify(m: { id: Id; x: number; y: number } | null): void;
+  setFeedback(f: string | null): void;
+  discardSketch(): void;
+  repeatLastTool(): void;
+  mirrorSelection(): void;
 }
 
 const history = new History<Document>();
@@ -127,7 +173,7 @@ const initialSolve = solveAll(initialDoc, {});
 
 function loadTheme(): Theme {
   try {
-    const t = localStorage.getItem('kalibr.theme');
+    const t = localStorage.getItem('phlippo.theme');
     if (t === 'light' || t === 'dark') return t;
     return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   } catch {
@@ -146,19 +192,34 @@ export const useStore = create<State>((set, get) => ({
   tab: 'features',
   theme: typeof window !== 'undefined' ? loadTheme() : 'light',
   panels: {
-    tree: { side: 'left', visible: true },
-    properties: { side: 'left', visible: true },
+    manager: { side: 'left', visible: true },
     relations: { side: 'right', visible: false },
     shortcuts: { side: 'float', visible: false, x: 300, y: 120 },
   },
-  dockWidth: { left: 280, right: 300 },
+  dockWidth: { left: 290, right: 300 },
+  managerTab: 'tree',
+  managerCollapsed: false,
+  treeFilter: '',
+  planePick: false,
+  hoverPlane: null,
+  displayStyle: 'shadedEdges',
+  show: { planes: false, origin: true, sketches: true, relations: true, grid: false, viewSelector: false },
+  reverseWheel: typeof localStorage !== 'undefined' && localStorage.getItem('phlippo.reverseWheel') === 'true',
+  unitSystem: 'MMGS',
+  lastTool: 'line',
+  viewName: '*Isometrisch',
+  taskPane: null,
+  dialog: typeof localStorage !== 'undefined' && loadAutosave() ? null : 'welcome',
+  confirmAtCursor: null,
+  modify: null,
+  feedback: null,
   messages: [],
   cursor: null,
   ...historyFlags(),
   dirty: false,
   rollbackIndex: null,
   showRelations: true,
-  showGrid: true,
+  showGrid: false,
   snapGrid: false,
   gridSize: 10,
 
@@ -197,15 +258,44 @@ export const useStore = create<State>((set, get) => ({
       features: [...doc.features, { id: newId('f'), type: 'sketch', name: sketch.name, sketchId: sketch.id, suppressed: false }],
     };
     const r = solveAll(d, get().solve, sketch.id);
-    set({ doc: r.doc, solve: r.solve, activeSketchId: sketch.id, tab: 'sketch', tool: 'line', selection: [], dirty: true, ...historyFlags() });
+    set({ doc: r.doc, solve: r.solve, activeSketchId: sketch.id, tab: 'sketch', tool: 'select', selection: [], dirty: true, planePick: false, hoverPlane: null, managerTab: 'tree', ...historyFlags() });
     autosave(r.doc);
   },
   editSketch(id) {
     if (!get().doc.sketches[id]) return;
-    set({ activeSketchId: id, tab: 'sketch', tool: 'select', selection: [], selectedConstraint: null });
+    set({ activeSketchId: id, tab: 'sketch', tool: 'select', selection: [], selectedConstraint: null, planePick: false, managerTab: 'tree' });
   },
   exitSketch() {
-    set({ activeSketchId: null, tab: 'features', tool: 'select', selection: [], selectedConstraint: null, hover: null });
+    set({ activeSketchId: null, tab: 'features', tool: 'select', selection: [], selectedConstraint: null, hover: null, modify: null, managerTab: 'tree' });
+  },
+  discardSketch() {
+    // undo everything back to the moment the sketch was opened is not tracked; discard = delete if empty, else keep
+    const { doc, activeSketchId } = get();
+    if (!activeSketchId) return;
+    const sk = doc.sketches[activeSketchId];
+    if (sk && sk.entityOrder.length === 0) {
+      const f = doc.features.find((x) => x.sketchId === activeSketchId);
+      if (f) get().deleteFeature(f.id);
+    }
+    get().exitSketch();
+  },
+  repeatLastTool() {
+    if (get().activeSketchId) get().setTool(get().lastTool);
+  },
+  mirrorSelection() {
+    const { selection, activeSketchId, doc } = get();
+    if (!activeSketchId) return;
+    const sk = doc.sketches[activeSketchId];
+    const ents = selection.filter((s) => s.kind === 'entity').map((s) => sk.entities[s.id]).filter(Boolean);
+    const axis = ents.find((e) => e.kind === 'line' && e.construction) ?? [...ents].reverse().find((e) => e.kind === 'line');
+    if (!axis) {
+      get().pushMessage('Selecteer de te spiegelen entiteiten en een (constructie)lijn als spiegelas.', 'warn');
+      return;
+    }
+    const ids = ents.filter((e) => e.id !== axis.id).map((e) => e.id);
+    if (!ids.length) return;
+    get().commit('Mirror entities', (s) => mirrorEntities(s, ids, axis.id));
+    set({ selection: [] });
   },
   deleteFeature(id) {
     const { doc, activeSketchId } = get();
@@ -284,8 +374,8 @@ export const useStore = create<State>((set, get) => ({
     autosave(r.doc);
   },
   setTool(tool) {
-    set({ tool, selectedConstraint: null });
-    if (tool !== 'select') set({ selection: [] });
+    set({ tool, selectedConstraint: null, modify: null });
+    if (tool !== 'select') set({ selection: [], lastTool: tool });
   },
   setTab(tab) {
     set({ tab });
@@ -340,7 +430,7 @@ export const useStore = create<State>((set, get) => ({
   setTheme(theme) {
     set({ theme });
     try {
-      localStorage.setItem('kalibr.theme', theme);
+      localStorage.setItem('phlippo.theme', theme);
     } catch {
       /* ignore */
     }
@@ -364,6 +454,63 @@ export const useStore = create<State>((set, get) => ({
   },
   toggle(key) {
     set({ [key]: !get()[key] } as Partial<State>);
+  },
+  setManagerTab(managerTab) {
+    set({ managerTab });
+  },
+  setManagerCollapsed(managerCollapsed) {
+    set({ managerCollapsed });
+  },
+  setTreeFilter(treeFilter) {
+    set({ treeFilter });
+  },
+  startPlanePick() {
+    set({ planePick: true, tab: 'sketch' });
+    get().pushMessage('Selecteer een vlak waarop je de schets wilt maken.');
+  },
+  cancelPlanePick() {
+    set({ planePick: false, hoverPlane: null });
+  },
+  setHoverPlane(hoverPlane) {
+    if (get().hoverPlane !== hoverPlane) set({ hoverPlane });
+  },
+  setDisplayStyle(displayStyle) {
+    set({ displayStyle });
+  },
+  toggleShow(key) {
+    const show = { ...get().show, [key]: !get().show[key] };
+    set({ show, showGrid: show.grid, showRelations: show.relations });
+  },
+  setReverseWheel(reverseWheel) {
+    set({ reverseWheel });
+    try {
+      localStorage.setItem('phlippo.reverseWheel', String(reverseWheel));
+    } catch {
+      /* ignore */
+    }
+  },
+  setUnitSystem(unitSystem) {
+    const units: Units = unitSystem === 'IPS' ? 'in' : unitSystem === 'CGS' ? 'cm' : unitSystem === 'MKS' ? 'm' : 'mm';
+    set({ unitSystem });
+    get().setUnits(units);
+  },
+  setViewName(viewName) {
+    if (get().viewName !== viewName) set({ viewName });
+  },
+  setTaskPane(taskPane) {
+    set({ taskPane: get().taskPane === taskPane ? null : taskPane });
+  },
+  setDialog(dialog) {
+    set({ dialog });
+  },
+  setConfirmAtCursor(confirmAtCursor) {
+    set({ confirmAtCursor });
+  },
+  setModify(modify) {
+    set({ modify });
+  },
+  setFeedback(feedback) {
+    if (get().feedback !== feedback) set({ feedback });
   },
 }));
 

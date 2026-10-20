@@ -104,11 +104,11 @@ export function Overlay(props: OverlayProps) {
         const prior = glyphs.slice(0, i).filter((o) => Math.abs(o.at.x - g.at.x) < 1e-9 && Math.abs(o.at.y - g.at.y) < 1e-9).length;
         const x = p.x + 8 + prior * 16, y = p.y + 8;
         const Glyph = RelationGlyph[g.kind];
-        const color = colorFor(g.constraintId) === 'var(--sk-dimension)' ? 'var(--text-muted)' : colorFor(g.constraintId);
+        const color = colorFor(g.constraintId);
         labelBoxes.push({ id: g.constraintId, x, y, w: 14, h: 14 });
         return (
           <g key={`${g.constraintId}-${i}`} transform={`translate(${x},${y})`} style={{ cursor: 'pointer', color }} onClick={(e) => { e.stopPropagation(); props.onConstraintClick(g.constraintId); }}>
-            <rect width={14} height={14} rx={2} fill="var(--sk-relation-bg)" stroke={color} strokeWidth={0.75} />
+            <rect width={14} height={14} rx={2} fill="var(--sk-relation-box)" stroke={color} strokeWidth={0.75} />
             {Glyph && <g transform="translate(1,1)"><Glyph size={12} /></g>}
           </g>
         );

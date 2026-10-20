@@ -60,12 +60,17 @@
   die dezelfde projectie gebruikt; maatlabels zijn klik- en sleepbaar.
 - View cube (CSS-3D) en oriëntatietriade volgen de camera-quaternion.
 
-### UI-conventies (uit onderzoek, docs/01-research.md)
-- Ribbon met tabs Sketch / Features / Assembly / Drawing / Evaluate.
-- Feature tree links, Property Manager eronder (dockbaar links/rechts/zwevend, breedte sleepbaar).
-- Statusbalk: sketch-status met DOF, cursorcoördinaten, solver-tijd, eenheden.
-- Kleuren: blauw onderbepaald, zwart volledig, rood over/conflict.
-- Sneltoetsen: L/R/C/A/N/P/D, X, Esc, Enter, Del, Ctrl+Z/Y, Ctrl+S/O, F, Ctrl+1…8, spatie, S, ?.
+### UI-conventies (docs/01-research.md en docs/03-vergelijking-solidworks.md)
+- Menu bar (Bestand … Help) met menu-bar-toolbar en zoekveld.
+- CommandManager: grote knoppen met fly-outs, tab-strip eronder (Features · Sketch · Evaluate · Assembly · Drawing), inklap-pin.
+- Manager-paneel links met tabs (design tree / PropertyManager / configuraties), filter, SOLIDWORKS-itemstructuur,
+  sleepbare rollback-balk; PropertyManager vervangt de tree tijdens een commando (fly-out tree).
+- Heads-up View toolbar, Confirmation Corner, triade met viewnaam, Task Pane rechts, statusbalk met
+  "Editing Part/Schets", schetsstatus en eenhedenstelsel-dropdown.
+- Oriëntatie-dialoog (spatie), View Selector-kubus (Ctrl+spatie), Modify-dialoog bij maten, Welcome/Nieuw/Opties-dialogen.
+- Muis: middel = roteren, Ctrl+middel = pannen, Shift+middel = zoomen, wiel = zoomen, rechts = contextmenu.
+- Kleuren: blauw onderbepaald, zwart volledig, rood over/conflict, rode schetsoorsprong, groene relatiekaders.
+- Sneltoetsen: L/R/C/A/N/P/M, X, D, Esc, Enter, Del, Ctrl+Z/Y, Ctrl+N/O/S, F, Z, Ctrl+1…8, spatie, Ctrl+spatie, S, Shift+C, ?.
 
 ## Tests
 
@@ -76,25 +81,25 @@
 | geometrie | `src/core/sketch/geometry.test.ts` | hit-test prioriteit, boogafstand, snapping (midpoint, on, horizontaal), sampling |
 | relaties | `src/core/sketch/relations.test.ts` | contextgevoelige relatielijst, smart dimension-keuze en meting |
 | document | `src/core/document/history.test.ts` | undo/redo, .kcad serialisatie |
-| e2e | `e2e/smoke.mjs`, `e2e/relations.mjs` | tekenen, inference, Smart Dimension, undo/redo, dark mode, autosave; relaties via Property Manager, over-/volledig bepaald, tangent, slepen, spline, kaderselectie |
+| e2e | `e2e/smoke.mjs`, `e2e/relations.mjs` | Welcome-dialoog, vlak kiezen, tekenen, inference, Smart Dimension + Modify-dialoog, undo/redo, contextmenu, Confirmation Corner (D), dark mode, Task Pane, oriëntatie-dialoog, View Selector, autosave; relaties via PropertyManager, over-/volledig bepaald, polygoon, tangent, slepen, centerline + mirror |
 
-Uitvoeren: `npm test` (vitest, 25 tests) · `npm run build && npm run preview` + `npm run e2e`.
+Uitvoeren: `npm test` (vitest, 27 tests) · `npm run build && npm run preview` + `npm run e2e`.
 
 ## Demo (± 2 minuten)
 
-1. Start de app; thema volgt het systeem (schakel met de maan/zon-knop of Ctrl+Shift+D).
-2. **Features ▸ Schets op voorvlak** — de camera draait "normal to", raster en assen verschijnen.
+1. Start de app; de Welcome-dialoog verschijnt: kies **Part**.
+2. **Sketch ▸ Schets** en klik een referentievlak in het grafische venster (of dubbelklik *Voorvlak* in de tree) — de camera draait "normal to".
 3. Druk **R**, klik op de oorsprong (vierkant snap-marker) en een hoek: rechthoek met automatische
    H/V-relaties en coincident op de oorsprong. Statusbalk: *Onderbepaald (2 DOF)*; lijnen blauw.
 4. Selecteer de onderste en rechter lijn (Ctrl) → Property Manager toont *Parallel/Loodrecht/Gelijk/Collineair*; kies **Gelijk**. 1 DOF.
-5. Druk **D**, klik de onderste lijn, klik eronder om te plaatsen, typ `50`, Enter → alles wordt
-   zwart: *Volledig bepaald*.
+5. Druk **M** (Smart Dimension), klik de onderste lijn, klik eronder om te plaatsen; de **Modify**-dialoog verschijnt: typ `50`, Enter → alles wordt
+   zwart: *Fully Defined*.
 6. Voeg nog een lengtemaat toe op de rechter lijn → rood + melding "redundante relaties"; Ctrl+Z.
 7. Teken een cirkel (**C**) en een 3-puntsboog (**A**), selecteer beide → **Tangent**. Sleep het
    cirkelmiddelpunt: de tangentrelatie blijft gelden terwijl je sleept.
 8. Dubbelklik een maatlabel om de waarde te wijzigen; sleep het label om het te verplaatsen.
 9. Open **Relaties** (ribbon) voor de lijst "weergeven/verwijderen".
-10. Schets afsluiten (✓), **Ctrl+7** isometrisch: de schets staat op het voorvlak in 3D.
+10. Schets afsluiten via de **Confirmation Corner** rechtsboven, **Ctrl+7** isometrisch: de schets staat op het voorvlak in 3D.
     Herlaad de pagina: autosave herstelt het document. **Ctrl+S** bewaart een `.kcad`-bestand.
 
 ## Bekende beperkingen (fase 1)

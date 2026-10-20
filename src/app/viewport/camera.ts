@@ -63,6 +63,10 @@ export class CadCamera {
   scale = 0.25;
   width = 1;
   height = 1;
+  /** name of the current standard view; '' after free rotation */
+  viewName = 'isometric';
+  private history: { q: THREE.Quaternion; c: THREE.Vector3; s: number; name: string }[] = [];
+  onViewName: ((name: string) => void) | null = null;
   private anim: { t0: number; dur: number; q0: THREE.Quaternion; q1: THREE.Quaternion; c0: THREE.Vector3; c1: THREE.Vector3; s0: number; s1: number } | null = null;
   onChange: (() => void) | null = null;
 
@@ -126,7 +130,45 @@ export class CadCamera {
     this.update();
   }
 
+  private pushHistory(): void {
+    this.history.push({ q: this.rotation.clone(), c: this.target.clone(), s: this.scale, name: this.viewName });
+    if (this.history.length > 50) this.history.shift();
+  }
+
+  /** Heads-up "Previous View" */
+  previousView(): void {
+    const h = this.history.pop();
+    if (!h) return;
+    this.setViewName(h.name);
+    this.animateTo(h.q, h.c, h.s);
+  }
+
+  private setViewName(n: string): void {
+    this.viewName = n;
+    this.onViewName?.(n);
+  }
+
+  /** zoom so the pixel rectangle fills the viewport */
+  zoomToArea(x0: number, y0: number, x1: number, y1: number): void {
+    const w = Math.abs(x1 - x0), h = Math.abs(y1 - y0);
+    if (w < 4 || h < 4) return;
+    this.pushHistory();
+    const center = this.pixelToRay((x0 + x1) / 2, (y0 + y1) / 2).origin;
+    // keep the camera plane: project centre onto the plane through target
+    const fwd = new THREE.Vector3(0, 0, -1).applyQuaternion(this.rotation);
+    const t = center.clone().sub(this.target).dot(fwd);
+    center.addScaledVector(fwd, -t);
+    const scale = Math.max((w * this.scale) / this.width, (h * this.scale) / this.height);
+    this.animateTo(this.rotation, center, scale);
+  }
+
+  zoomStep(factor: number): void {
+    this.scale = Math.min(50, Math.max(0.001, this.scale * factor));
+    this.update();
+  }
+
   orbit(dxPx: number, dyPx: number): void {
+    if (this.viewName) this.setViewName('');
     const yaw = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), -dxPx * 0.008);
     const right = new THREE.Vector3(1, 0, 0).applyQuaternion(this.rotation);
     const pitch = new THREE.Quaternion().setFromAxisAngle(right, -dyPx * 0.008);
@@ -136,6 +178,8 @@ export class CadCamera {
 
   /** rotate by a fixed step about screen axes (view-cube arrows) */
   rotateStep(axis: 'x' | 'y' | 'z', deg: number): void {
+    this.pushHistory();
+    this.setViewName('');
     const v = axis === 'x' ? new THREE.Vector3(1, 0, 0) : axis === 'y' ? new THREE.Vector3(0, 1, 0) : new THREE.Vector3(0, 0, 1);
     v.applyQuaternion(this.rotation);
     const q = new THREE.Quaternion().setFromAxisAngle(v, (deg * Math.PI) / 180);
@@ -161,15 +205,20 @@ export class CadCamera {
   };
 
   setView(view: StandardView): void {
+    this.pushHistory();
+    this.setViewName(view);
     this.animateTo(VIEW_QUATERNIONS[view], this.target, this.scale);
   }
 
   normalTo(plane: PlaneId): void {
+    this.pushHistory();
+    this.setViewName('normalTo');
     this.animateTo(normalToView(plane), this.target, this.scale);
   }
 
   /** fit a world-space bounding box with margin */
   fit(box: THREE.Box3 | null, margin = 1.25): void {
+    this.pushHistory();
     if (!box || box.isEmpty() || box.getSize(new THREE.Vector3()).length() < 1e-6) {
       this.animateTo(this.rotation, box && !box.isEmpty() ? box.getCenter(new THREE.Vector3()) : new THREE.Vector3(), 0.25);
       return;

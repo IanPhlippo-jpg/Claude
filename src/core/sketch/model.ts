@@ -241,3 +241,98 @@ export function arcAngles(s: Sketch, a: ArcEntity): { start: number; end: number
   if (sweep === 0) sweep = Math.PI * 2;
   return { start, end, sweep };
 }
+
+/** Regular polygon inscribed in a circle (centre, radius, n sides, rotation of first vertex). */
+export function addPolygon(s: Sketch, center: SketchPoint, radius: number, sides: number, rotation = 0): [Sketch, LineEntity[]] {
+  let s1 = s;
+  const ids: Id[] = [];
+  for (let i = 0; i < sides; i++) {
+    const a = rotation + (i / sides) * Math.PI * 2;
+    let id: Id;
+    [s1, id] = addPointParam(s1, { x: center.x + radius * Math.cos(a), y: center.y + radius * Math.sin(a) });
+    ids.push(id);
+  }
+  const lines: LineEntity[] = [];
+  for (let i = 0; i < sides; i++) {
+    let l: LineEntity;
+    [s1, l] = addLine(s1, ids[i], ids[(i + 1) % sides]);
+    lines.push(l);
+  }
+  // construction circle through the vertices keeps the polygon regular
+  let c: CircleEntity;
+  [s1, c] = addCircle(s1, center, radius, true);
+  for (const id of ids) s1 = addConstraint(s1, 'pointOnEntity', [id, c.id])[0];
+  for (let i = 1; i < sides; i++) s1 = addConstraint(s1, 'equal', [lines[0].id, lines[i].id])[0];
+  return [s1, lines];
+}
+
+/** Mirror entities about a line, adding symmetric relations (SOLIDWORKS "Mirror Entities"). */
+export function mirrorEntities(s: Sketch, ids: Id[], axisId: Id): Sketch {
+  const axis = s.entities[axisId];
+  if (!axis || axis.kind !== 'line') return s;
+  const a = s.points[axis.p1], b = s.points[axis.p2];
+  const dx = b.x - a.x, dy = b.y - a.y;
+  const l2 = dx * dx + dy * dy || 1;
+  const reflect = (p: SketchPoint): SketchPoint => {
+    const t = ((p.x - a.x) * dx + (p.y - a.y) * dy) / l2;
+    const fx = a.x + dx * t, fy = a.y + dy * t;
+    return { x: 2 * fx - p.x, y: 2 * fy - p.y };
+  };
+  let s1 = s;
+  const mapped = new Map<Id, Id>();
+  const mirrorPoint = (pid: Id): Id => {
+    const m = mapped.get(pid);
+    if (m) return m;
+    let id: Id;
+    [s1, id] = addPointParam(s1, reflect(s1.points[pid]));
+    mapped.set(pid, id);
+    return id;
+  };
+  for (const id of ids) {
+    const e = s1.entities[id];
+    if (!e || id === axisId) continue;
+    switch (e.kind) {
+      case 'line': {
+        const p1 = mirrorPoint(e.p1), p2 = mirrorPoint(e.p2);
+        let l: LineEntity;
+        [s1, l] = addLine(s1, p1, p2, e.construction);
+        s1 = addConstraint(s1, 'symmetric', [e.id, l.id, axisId])[0];
+        break;
+      }
+      case 'circle': {
+        const cp = mirrorPoint(e.center);
+        let c: CircleEntity;
+        [s1, c] = addCircle(s1, cp, s1.scalars[e.r], e.construction);
+        s1 = addConstraint(s1, 'symmetric', [e.id, c.id, axisId])[0];
+        break;
+      }
+      case 'arc': {
+        const cm = reflect(s1.points[e.center]);
+        const st = mirrorPoint(e.start), en = mirrorPoint(e.end);
+        let ar: ArcEntity;
+        // reflection flips orientation
+        [s1, ar] = addArc(s1, cm, st, en, !e.ccw, e.construction);
+        s1 = addConstraint(s1, 'symmetric', [e.center, ar.center, axisId])[0];
+        s1 = addConstraint(s1, 'symmetric', [e.start, ar.start, axisId])[0];
+        s1 = addConstraint(s1, 'symmetric', [e.end, ar.end, axisId])[0];
+        break;
+      }
+      case 'point': {
+        let p: PointEntity;
+        [s1, p] = addPoint(s1, reflect(s1.points[e.p]), e.construction);
+        s1 = addConstraint(s1, 'symmetric', [e.p, p.p, axisId])[0];
+        break;
+      }
+      case 'spline': {
+        const pts = e.points.map(mirrorPoint);
+        let sp: SplineEntity;
+        [s1, sp] = addSpline(s1, pts, e.construction);
+        e.points.forEach((pid, i) => {
+          s1 = addConstraint(s1, 'symmetric', [pid, sp.points[i], axisId])[0];
+        });
+        break;
+      }
+    }
+  }
+  return s1;
+}

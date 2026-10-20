@@ -1,4 +1,4 @@
-/* Kalibr CAD design tokens — own visual style, light & dark */
+/* Phlippo CAD design tokens — own visual style, light & dark */
 :root {
   --font-ui: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
   --font-mono: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
@@ -11,42 +11,47 @@
   --titlebar-h: 36px;
   --status-h: 26px;
 
-  --bg-app: #e9ecf1;
-  --bg-panel: #f7f8fa;
-  --bg-panel-alt: #eef0f4;
-  --bg-header: #e2e5eb;
+  --bg-app: #f0f0f0;
+  --bg-panel: #ffffff;
+  --bg-panel-alt: #f7f7f7;
+  --bg-header: #f3f3f3;
   --bg-input: #ffffff;
-  --bg-hover: rgba(0, 0, 0, 0.06);
-  --bg-active: rgba(0, 0, 0, 0.1);
-  --bg-selected: rgba(31, 111, 235, 0.14);
-  --bg-viewport: #d9dde3;
-  --bg-viewport-2: #c5cad2;
-  --border: #c9ced6;
-  --border-strong: #a9b0bb;
-  --text: #1b1f26;
-  --text-muted: #5b6472;
-  --text-faint: #8b93a0;
-  --accent: #1f6feb;
-  --accent-strong: #1456c4;
+  --bg-hover: rgba(0, 120, 215, 0.08);
+  --bg-active: rgba(0, 120, 215, 0.16);
+  --bg-selected: #cce4f7;
+  --bg-viewport: #f4f6f9;
+  --bg-viewport-2: #c9ced6;
+  --border: #d9d9d9;
+  --border-strong: #adadad;
+  --text: #1a1a1a;
+  --text-muted: #5c5c5c;
+  --text-faint: #8a8a8a;
+  --accent: #1a73c7;
+  --accent-strong: #0f5ea8;
   --accent-text: #ffffff;
   --warn: #c7760a;
   --danger: #d1343f;
-  --ok: #20884a;
+  --ok: #1f8a3b;
 
-  /* sketch colours (industry convention: blue under, black full, red over) */
-  --sk-under: #1f6feb;
-  --sk-full: #111418;
-  --sk-over: #e5484d;
-  --sk-construction: #7a8290;
-  --sk-selected: #0ea5a4;
-  --sk-hover: #f59e0b;
-  --sk-dimension: #0a7f5a;
-  --sk-grid: rgba(0, 0, 0, 0.08);
-  --sk-grid-major: rgba(0, 0, 0, 0.16);
+  /* sketch colours — desktop-CAD defaults: blue under-defined, black fully defined, red over-defined */
+  --sk-under: #0000ff;
+  --sk-full: #000000;
+  --sk-over: #ff0000;
+  --sk-construction: #6f6f6f;
+  --sk-selected: #19a9ff;
+  --sk-hover: #ff8c00;
+  --sk-dimension: #000000;
+  --sk-grid: rgba(0, 0, 0, 0.07);
+  --sk-grid-major: rgba(0, 0, 0, 0.14);
   --sk-axis-x: #d33b3b;
   --sk-axis-y: #2a9d3a;
   --sk-axis-z: #2d6cdf;
-  --sk-relation-bg: rgba(255, 255, 255, 0.9);
+  --sk-origin-part: #1e4fd8;
+  --sk-origin-sketch: #ff0000;
+  --sk-relation-bg: rgba(255, 255, 255, 0.92);
+  --sk-relation-box: #cfeadb;
+  --sk-plane: #4f7fc8;
+  --icon: #4b5563;
 }
 
 [data-theme='dark'] {
@@ -85,4 +90,9 @@
   --sk-axis-y: #4ade80;
   --sk-axis-z: #60a5fa;
   --sk-relation-bg: rgba(29, 33, 39, 0.9);
+  --sk-relation-box: rgba(30, 80, 50, 0.9);
+  --sk-origin-part: #60a5fa;
+  --sk-origin-sketch: #ff5c5c;
+  --sk-plane: #6aa6ff;
+  --icon: #c3c9d2;
 }

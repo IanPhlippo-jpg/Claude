@@ -17,6 +17,9 @@ export interface SceneColors {
   axisY: string;
   axisZ: string;
   preview: string;
+  originPart: string;
+  originSketch: string;
+  plane: string;
 }
 
 export function readColors(el: HTMLElement): SceneColors {
@@ -35,6 +38,9 @@ export function readColors(el: HTMLElement): SceneColors {
     axisY: g('--sk-axis-y'),
     axisZ: g('--sk-axis-z'),
     preview: g('--accent'),
+    originPart: g('--sk-origin-part'),
+    originSketch: g('--sk-origin-sketch'),
+    plane: g('--sk-plane'),
   };
 }
 
@@ -68,6 +74,11 @@ export interface SceneInput {
   colors: SceneColors;
   /** sketches that are not active: drawn faded */
   otherSketches: { sketch: Sketch; plane: PlaneId }[];
+  /** reference planes to draw (with highlight) */
+  planes: { id: PlaneId; highlight: boolean }[];
+  showOrigin: boolean;
+  /** half-size of the drawn reference planes in world units */
+  planeSize: number;
 }
 
 /** Owns the three.js scene graph for sketch rendering. */
@@ -121,7 +132,8 @@ export class SketchScene {
     };
     if (minor.length) mk(minor, input.colors.grid);
     if (major.length) mk(major, input.colors.gridMajor);
-    // axes of the sketch plane
+    // axes of the sketch plane: only together with the grid (desktop CAD shows just the origin glyph)
+    if (!input.sketch || !input.showGrid) return;
     const axisLen = count * spacing;
     const ax: number[] = [], ay: number[] = [];
     push(ax, b.u.clone().multiplyScalar(-axisLen), b.u.clone().multiplyScalar(axisLen));
@@ -195,6 +207,50 @@ export class SketchScene {
 
     for (const o of input.otherSketches) drawSketch(o.sketch, o.plane, true);
     if (input.sketch) drawSketch(input.sketch, input.plane, false);
+
+    // reference planes: translucent quads with an outline
+    for (const pl of input.planes) {
+      const b = PLANES[pl.id];
+      const s = input.planeSize;
+      const corners = [
+        b.u.clone().multiplyScalar(-s).addScaledVector(b.v, -s * 0.75),
+        b.u.clone().multiplyScalar(s).addScaledVector(b.v, -s * 0.75),
+        b.u.clone().multiplyScalar(s).addScaledVector(b.v, s * 0.75),
+        b.u.clone().multiplyScalar(-s).addScaledVector(b.v, s * 0.75),
+      ];
+      const g = new THREE.BufferGeometry();
+      g.setAttribute('position', new THREE.Float32BufferAttribute(corners.flatMap((c) => [c.x, c.y, c.z]), 3));
+      g.setIndex([0, 1, 2, 0, 2, 3]);
+      const col = pl.highlight ? rgba(input.colors.hover).c : rgba(input.colors.plane).c;
+      const mesh = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: pl.highlight ? 0.22 : 0.08, side: THREE.DoubleSide, depthWrite: false }));
+      this.group.add(mesh);
+      const outline = new THREE.BufferGeometry();
+      outline.setAttribute('position', new THREE.Float32BufferAttribute([...corners, corners[0]].flatMap((c) => [c.x, c.y, c.z]), 3));
+      this.group.add(new THREE.Line(outline, new THREE.LineBasicMaterial({ color: col, transparent: true, opacity: pl.highlight ? 0.9 : 0.5 })));
+    }
+
+    // origin glyph: two short arrows (blue in part mode, red in sketch mode)
+    if (input.showOrigin) {
+      const L = 14 * input.scale;
+      const col = rgba(input.sketch ? input.colors.originSketch : input.colors.originPart).c;
+      const b = PLANES[input.plane];
+      const arr: number[] = [];
+      const seg = (a: THREE.Vector3, c: THREE.Vector3) => arr.push(a.x, a.y, a.z, c.x, c.y, c.z);
+      const o = new THREE.Vector3();
+      const ux = b.u.clone().multiplyScalar(L), uy = b.v.clone().multiplyScalar(L);
+      seg(o, ux);
+      seg(o, uy);
+      const head = 0.3;
+      seg(ux, ux.clone().multiplyScalar(1 - head).addScaledVector(b.v, L * head * 0.5));
+      seg(ux, ux.clone().multiplyScalar(1 - head).addScaledVector(b.v, -L * head * 0.5));
+      seg(uy, uy.clone().multiplyScalar(1 - head).addScaledVector(b.u, L * head * 0.5));
+      seg(uy, uy.clone().multiplyScalar(1 - head).addScaledVector(b.u, -L * head * 0.5));
+      const g = new THREE.BufferGeometry();
+      g.setAttribute('position', new THREE.Float32BufferAttribute(arr, 3));
+      const ls = new THREE.LineSegments(g, new THREE.LineBasicMaterial({ color: col, depthTest: false }));
+      ls.renderOrder = 9;
+      this.group.add(ls);
+    }
 
     // preview geometry (tool in progress)
     const pc = rgba(input.colors.preview).c;

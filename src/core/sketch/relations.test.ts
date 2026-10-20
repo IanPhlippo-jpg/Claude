@@ -39,3 +39,31 @@ describe('relations for selection', () => {
     expect(measure(s, d4)).toBeCloseTo(10);
   });
 });
+
+import { addPolygon, mirrorEntities } from './model';
+import { solveSketch } from '../solver/solver';
+
+describe('polygon and mirror', () => {
+  it('builds a regular hexagon that stays regular when solved', () => {
+    let s = createSketch('s', 'S');
+    let lines;
+    [s, lines] = addPolygon(s, { x: 0, y: 0 }, 10, 6);
+    expect(lines.length).toBe(6);
+    const r = solveSketch(s);
+    expect(r.residual).toBeLessThan(1e-6);
+    expect(r.status).not.toBe('conflict');
+  });
+  it('mirrors a line about an axis with symmetric relations', () => {
+    let s = createSketch('s', 'S');
+    let axis, l;
+    [s, axis] = addLine(s, { x: 0, y: -10 }, { x: 0, y: 10 }, true);
+    [s, l] = addLine(s, { x: 2, y: 1 }, { x: 5, y: 4 });
+    s = mirrorEntities(s, [l.id], axis.id);
+    expect(s.entityOrder.length).toBe(3);
+    const m = s.entities[s.entityOrder[2]] as { p1: string; p2: string };
+    expect(s.points[m.p1].x).toBeCloseTo(-2);
+    expect(s.points[m.p2].x).toBeCloseTo(-5);
+    expect(Object.values(s.constraints).filter((c) => c.kind === 'symmetric').length).toBe(1);
+    expect(solveSketch(s).residual).toBeLessThan(1e-6);
+  });
+});

@@ -1,5 +1,5 @@
 import type { ConstraintKind, Id, Sketch, SketchPoint } from '../../core/sketch/types';
-import { addArc, addCircle, addConstraint, addLine, addPoint, addSpline } from '../../core/sketch/model';
+import { addArc, addCircle, addConstraint, addLine, addPoint, addPolygon, addSpline } from '../../core/sketch/model';
 import { dist, hitTest, snap, type Snap } from '../../core/sketch/geometry';
 import { dimensionForSelection, measure, type SelectionItem } from '../../core/sketch/relations';
 import type { ToolId } from '../store';
@@ -65,6 +65,7 @@ export class ToolController {
   private lastLineEndPt: SketchPoint | null = null;
   private pendingAnnotationDrag: { id: Id; start: SketchPoint } | null = null;
   onAnnotationDrag: ((id: Id, delta: SketchPoint, phase: 'move' | 'end') => void) | null = null;
+  polygonSides = 6;
 
   setTool(t: ToolId): void {
     this.tool = t;
@@ -141,7 +142,7 @@ export class ToolController {
       ctx.setHover(h && !this.dimPlacing ? { kind: h.kind, id: h.id } : null);
       return;
     }
-    const { snap: sn } = this.applySnap(ctx, info.p, this.tool === 'line' || this.tool === 'spline' || this.tool === 'rectangle' ? ref : null);
+    const { snap: sn } = this.applySnap(ctx, info.p, this.tool === 'line' || this.tool === 'centerline' || this.tool === 'spline' || this.tool === 'rectangle' ? ref : null);
     this.curSnap = sn;
     ctx.setHover(null);
   }
@@ -182,7 +183,32 @@ export class ToolController {
         });
         return;
       }
+      case 'polygon': {
+        const { p, snap: sn } = this.applySnap(ctx, info.p, null);
+        if (this.pts.length === 0) {
+          this.pts.push(p);
+          this.snapHits.push(sn);
+          return;
+        }
+        const c = this.pts[0];
+        const r = dist(c, p);
+        if (r < 1e-9) return;
+        const rot = Math.atan2(p.y - c.y, p.x - c.x);
+        const cSnap = this.snapHits[0];
+        const sides = this.polygonSides;
+        ctx.commit('Polygoon', (s) => {
+          const [s1, lines] = addPolygon(s, c, r, sides, rot);
+          const circleId = s1.entityOrder[s1.entityOrder.length - 1];
+          const circle = s1.entities[circleId] as { center: Id };
+          void lines;
+          return this.inferredRelations(s1, cSnap, circle.center);
+        });
+        this.reset();
+        return;
+      }
+      case 'centerline':
       case 'line': {
+        const construction = this.tool === 'centerline';
         const { p, snap: sn } = this.applySnap(ctx, info.p, ref);
         if (this.pts.length === 0) {
           this.pts.push(p);
@@ -197,7 +223,7 @@ export class ToolController {
         const vertical = Math.abs(a.x - p.x) < 1e-9 && Math.abs(a.y - p.y) > 1e-9;
         let createdEnd: Id | null = null;
         ctx.commit('Lijn', (s) => {
-          let [s1, l] = addLine(s, prevEnd ?? a, p);
+          let [s1, l] = addLine(s, prevEnd ?? a, p, construction);
           createdEnd = l.p2;
           if (!prevEnd) s1 = this.inferredRelations(s1, startSnap, l.p1);
           s1 = this.inferredRelations(s1, sn, l.p2);
@@ -398,7 +424,7 @@ export class ToolController {
 
   doubleClick(ctx: ToolContext): void {
     if (this.tool === 'spline' && this.pts.length >= 2) this.finishSpline(ctx);
-    else if (this.tool === 'line') this.reset();
+    else if (this.tool === 'line' || this.tool === 'centerline') this.reset();
   }
 
   /** Enter: finish the current multi-point entity */
@@ -460,10 +486,27 @@ export class ToolController {
     if (this.boxStart && this.boxEnd) out.box = { a: this.boxStart, b: this.boxEnd };
     if (!cp) return out;
     switch (this.tool) {
+      case 'polygon':
+        if (this.pts.length) {
+          const c = this.pts[0];
+          const r = dist(c, cp);
+          const rot = Math.atan2(cp.y - c.y, cp.x - c.x);
+          const poly: SketchPoint[] = [];
+          for (let i = 0; i <= this.polygonSides; i++) {
+            const a = rot + (i / this.polygonSides) * Math.PI * 2;
+            poly.push({ x: c.x + r * Math.cos(a), y: c.y + r * Math.sin(a) });
+          }
+          out.preview.push({ points: poly });
+          out.preview.push({ points: [c, cp], dashed: true });
+          out.previewPoints.push(c);
+          out.hint = out.hint || `${this.polygonSides} zijden · R = ${r.toFixed(2)}`;
+        }
+        break;
+      case 'centerline':
       case 'line':
         if (this.pts.length) {
           const a = this.lastLineEndPt ?? this.pts[0];
-          out.preview.push({ points: [a, cp] });
+          out.preview.push({ points: [a, cp], dashed: this.tool === 'centerline' });
           out.previewPoints.push(a);
           out.hint = out.hint || `L = ${dist(a, cp).toFixed(2)}`;
         }

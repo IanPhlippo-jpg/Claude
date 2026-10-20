@@ -3,11 +3,11 @@
 Datum: 2026-10-20. Bronnen: officiële help van SolidWorks, Onshape en Autodesk Fusion,
 de PlaneGCS-documentatie (FreeCAD-solver), blogs van SolidWorks-resellers.
 Doel: vastleggen welke conventies gebruikers van industriestandaard CAD verwachten,
-zodat de app (werknaam **Kalibr CAD**) herkenbaar aanvoelt zonder merknamen, logo's of iconen te kopiëren.
+zodat de app (werknaam **Phlippo CAD**) herkenbaar aanvoelt zonder merknamen, logo's of iconen te kopiëren.
 
 ## 1. Globale schermindeling (alle drie de pakketten komen overeen)
 
-| Zone | SolidWorks | Onshape | Fusion | Kalibr-beslissing |
+| Zone | SolidWorks | Onshape | Fusion | Phlippo-beslissing |
 |---|---|---|---|---|
 | Boven | Menubalk + CommandManager met tabs (Sketch, Features, Surfaces, Evaluate…) | Feature-/Sketch-/Assembly-toolbar die wisselt met context | Toolbar met tabs (Solid, Surface, Mesh, Sheet Metal…) | Ribbon met tabs **Sketch, Features, Assembly, Drawing, Evaluate**; tab wisselt automatisch mee met context |
 | Links | FeatureManager design tree; PropertyManager vervangt de tree tijdens bewerken (flyout-tree beschikbaar) | Feature list (links), feature-dialog verschijnt boven de lijst | Browser (links), dialoog zweeft rechts | Feature tree links; **Property Manager** schuift over de tree bij bewerken, met inklapbare flyout-tree |
@@ -43,7 +43,7 @@ Dimensies zijn "driving" of "driven" (referentiemaat). Bij overbepaling biedt So
 - FreeCAD/PlaneGCS: primitieven (punt, lijn, cirkel, boog, ellips) met parameters; constraints zijn vergelijkingen in die parameters.
 - Numerieke optimalisatie: DogLeg (standaard), Levenberg-Marquardt (fallback), BFGS; SQP bij tijdelijke (drag-)constraints.
 - Vrijheidsgraden (DOF) = aantal parameters − rang van de Jacobiaan. Redundante constraints = lineair afhankelijke rijen van de Jacobiaan; conflicterende constraints = residu blijft na convergentie > tolerantie.
-- Kalibr-keuze: eigen TypeScript-solver (Levenberg-Marquardt met numerieke/analytische Jacobiaan, rang-analyse via RREF voor DOF, per-parameter "vrij/vast" via nulruimte). Geen LGPL-afhankelijkheid; draait synchroon tijdens slepen en in een web worker voor volledige herberekeningen.
+- Phlippo-keuze: eigen TypeScript-solver (Levenberg-Marquardt met numerieke/analytische Jacobiaan, rang-analyse via RREF voor DOF, per-parameter "vrij/vast" via nulruimte). Geen LGPL-afhankelijkheid; draait synchroon tijdens slepen en in een web worker voor volledige herberekeningen.
 
 ## 4. Navigatie en sneltoetsen (conventies)
 
@@ -51,7 +51,7 @@ Dimensies zijn "driving" of "driven" (referentiemaat). Bij overbepaling biedt So
 - Muis: middelste knop slepen = roteren (SolidWorks) / rechtermuis slepen (Onshape); Ctrl+middel = pannen; wiel = zoom op cursor.
 - SolidWorks: **S** opent contextgevoelige shortcutbalk, **spatie** opent oriëntatiemenu, **Ctrl+1..8** standaardaanzichten (Ctrl+7 isometrisch, Ctrl+8 normal-to), **F** zoom to fit, **Esc** annuleert, **Enter** herhaalt laatste commando.
 - Fusion: L lijn, R rechthoek, C cirkel, D dimensie, X constructie, Q push/pull.
-- Kalibr-set: L lijn, R rechthoek, C cirkel, A boog, N spline, P punt, X constructie-toggle, D smart dimension, Esc annuleren, Ctrl+Z/Ctrl+Y undo/redo, F zoom fit, Ctrl+1..8 aanzichten, spatie oriëntatiemenu, S shortcutbalk, Delete verwijderen, Ctrl+S opslaan.
+- Phlippo-set: L lijn, R rechthoek, C cirkel, A boog, N spline, P punt, X constructie-toggle, D smart dimension, Esc annuleren, Ctrl+Z/Ctrl+Y undo/redo, F zoom fit, Ctrl+1..8 aanzichten, spatie oriëntatiemenu, S shortcutbalk, Delete verwijderen, Ctrl+S opslaan.
 
 ## 5. Feature-modelleren (fase 2, ter voorbereiding)
 

@@ -4,7 +4,7 @@ import { Icon } from '../../ui/icons';
 import { Menu } from '../../ui/components';
 
 /** A dockable panel: header with a menu to dock left/right, float or close. */
-export function DockPanel({ id, title, children, actions }: { id: PanelId; title: string; children: ReactNode; actions?: ReactNode }) {
+export function DockPanel({ id, title, children, actions, header }: { id: PanelId; title: string; children: ReactNode; actions?: ReactNode; header?: ReactNode }) {
   const layout = useStore((s) => s.panels[id]);
   const setPanel = useStore((s) => s.setPanel);
   const [menu, setMenu] = useState(false);
@@ -23,8 +23,8 @@ export function DockPanel({ id, title, children, actions }: { id: PanelId; title
   return (
     <div className={`k-panel ${floating ? 'floating' : ''}`} style={floating ? { left: layout.x, top: layout.y } : undefined}>
       <div className="k-panel-header" onPointerDown={onHeaderDown} onPointerMove={onHeaderMove} onPointerUp={() => (drag.current = null)}>
-        <span>{title}</span>
-        <span className="grow" />
+        {header ?? <span>{title}</span>}
+        {!header && <span className="grow" />}
         {actions}
         <div style={{ position: 'relative' }}>
           <button className="k-btn ghost icon" onClick={() => setMenu(true)} title="Paneelopties">
