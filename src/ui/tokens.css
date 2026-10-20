@@ -1,6 +1,6 @@
 /* Phlippo CAD design tokens — own visual style, light & dark */
 :root {
-  --font-ui: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-ui: 'Segoe UI', 'Noto Sans', 'Open Sans', 'Liberation Sans', Arial, Helvetica, sans-serif;
   --font-mono: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
   --radius-s: 4px;
   --radius-m: 6px;

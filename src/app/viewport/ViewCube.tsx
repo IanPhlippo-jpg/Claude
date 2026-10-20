@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import * as THREE from 'three';
 import type { CadCamera, StandardView } from './camera';
 
@@ -60,9 +60,8 @@ export function ViewCube({ camera }: { camera: CadCamera }) {
   );
 }
 
-/** Orientation triad bottom-left: projected world axes. */
+/** Orientation triad bottom-left: thin coloured axis arrows with small letters, like the original. */
 export function Triad({ camera }: { camera: CadCamera }) {
-  const ref = useRef<SVGSVGElement>(null);
   const [q, setQ] = useState(() => camera.rotation.clone());
   useEffect(() => {
     const prev = camera.onChange;
@@ -76,24 +75,42 @@ export function Triad({ camera }: { camera: CadCamera }) {
   }, [camera]);
   const inv = q.clone().invert();
   const axis = (v: THREE.Vector3) => v.applyQuaternion(inv);
-  const L = 26, c = 34;
+  const L = 28, c = 46;
   const axes: [string, THREE.Vector3, string][] = [
-    ['X', axis(new THREE.Vector3(1, 0, 0)), 'var(--sk-axis-x)'],
-    ['Y', axis(new THREE.Vector3(0, 1, 0)), 'var(--sk-axis-y)'],
-    ['Z', axis(new THREE.Vector3(0, 0, 1)), 'var(--sk-axis-z)'],
+    ['X', axis(new THREE.Vector3(1, 0, 0)), '#d12f2f'],
+    ['Y', axis(new THREE.Vector3(0, 1, 0)), '#2e9a3d'],
+    ['Z', axis(new THREE.Vector3(0, 0, 1)), '#2b64d6'],
   ];
   axes.sort((a, b) => a[1].z - b[1].z);
   return (
-    <svg ref={ref} className="k-triad" width={68} height={68} viewBox="0 0 68 68">
-      {axes.map(([name, v, color]) => (
-        <g key={name}>
-          <line x1={c} y1={c} x2={c + v.x * L} y2={c - v.y * L} stroke={color} strokeWidth={2} strokeLinecap="round" />
-          <circle cx={c + v.x * L * 1.25} cy={c - v.y * L * 1.25} r={6.5} fill={color} />
-          <text x={c + v.x * L * 1.25} y={c - v.y * L * 1.25 + 3.5} fontSize={9} fontWeight={700} textAnchor="middle" fill="#fff">
-            {name}
-          </text>
-        </g>
-      ))}
+    <svg className="k-triad" width={92} height={92} viewBox="0 0 92 92">
+      {axes.map(([name, v, color]) => {
+        if (Math.hypot(v.x, v.y) < 0.12) {
+          // axis points at the viewer: draw a small circle with the letter beside it
+          return (
+            <g key={name}>
+              <circle cx={c} cy={c} r={3.5} fill="none" stroke={color} strokeWidth={1.4} />
+              <text x={c - 9} y={c + 10} fontSize={9} fontFamily="var(--font-ui)" fill={color}>{name}</text>
+            </g>
+          );
+        }
+        const ex = c + v.x * L, ey = c - v.y * L;
+        const len = Math.hypot(ex - c, ey - c) || 1;
+        const ux = (ex - c) / len, uy = (ey - c) / len;
+        const hx = ex - ux * 6, hy = ey - uy * 6;
+        const px = -uy * 2.4, py = ux * 2.4;
+        const lx = c + v.x * (L + 9), ly = c - v.y * (L + 9);
+        return (
+          <g key={name}>
+            <line x1={c} y1={c} x2={hx} y2={hy} stroke={color} strokeWidth={1.4} />
+            <polygon points={`${ex},${ey} ${hx + px},${hy + py} ${hx - px},${hy - py}`} fill={color} />
+            <text x={lx} y={ly + 3} fontSize={9} fontFamily="var(--font-ui)" textAnchor="middle" fill={color}>
+              {name}
+            </text>
+          </g>
+        );
+      })}
+      <circle cx={c} cy={c} r={1.6} fill="#4d5663" />
     </svg>
   );
 }

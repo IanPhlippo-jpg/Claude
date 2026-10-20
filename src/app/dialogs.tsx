@@ -62,7 +62,7 @@ export function WelcomeDialog() {
           <div>
             <h4>Resources</h4>
             <ul className="k-list">
-              <li onClick={() => { st.setDialog(null); st.setTaskPane('resources'); }}><Icon.Resources /> Tutorials and shortcuts</li>
+              <li onClick={() => { st.setDialog(null); st.setTaskPane('resources'); }}><Icon.Resources /> Tutorials</li>
               <li onClick={() => { st.setDialog(null); st.setPanel('shortcuts', { visible: true }); }}><Icon.Keyboard /> Keyboard shortcuts</li>
               <li onClick={() => { st.setDialog(null); st.setDialog('options'); }}><Icon.Options /> Options</li>
             </ul>

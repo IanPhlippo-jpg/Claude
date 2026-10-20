@@ -65,6 +65,8 @@ interface State {
   treeFilter: string;
   /** "Sketch" was clicked without an active sketch: user picks a plane in the graphics area */
   planePick: boolean;
+  /** tool to activate once the plane is picked */
+  pendingTool: ToolId | null;
   hoverPlane: Sketch['plane'] | null;
   displayStyle: DisplayStyle;
   show: { planes: boolean; origin: boolean; sketches: boolean; relations: boolean; grid: boolean; viewSelector: boolean };
@@ -202,6 +204,7 @@ export const useStore = create<State>((set, get) => ({
   managerCollapsed: false,
   treeFilter: '',
   planePick: false,
+  pendingTool: null,
   hoverPlane: null,
   displayStyle: 'shadedEdges',
   show: { planes: false, origin: true, sketches: true, relations: true, grid: false, viewSelector: false },
@@ -260,7 +263,8 @@ export const useStore = create<State>((set, get) => ({
       features: [...doc.features, { id: newId('f'), type: 'sketch', name: sketch.name, sketchId: sketch.id, suppressed: false }],
     };
     const r = solveAll(d, get().solve, sketch.id);
-    set({ doc: r.doc, solve: r.solve, activeSketchId: sketch.id, tab: 'sketch', tool: 'select', selection: [], dirty: true, planePick: false, hoverPlane: null, managerTab: 'tree', ...historyFlags() });
+    const tool = get().pendingTool ?? 'select';
+    set({ doc: r.doc, solve: r.solve, activeSketchId: sketch.id, tab: 'sketch', tool, lastTool: tool !== 'select' ? tool : get().lastTool, selection: [], dirty: true, planePick: false, pendingTool: null, hoverPlane: null, managerTab: 'tree', ...historyFlags() });
     autosave(r.doc);
   },
   editSketch(id) {
@@ -376,6 +380,14 @@ export const useStore = create<State>((set, get) => ({
     autosave(r.doc);
   },
   setTool(tool) {
+    if (!get().activeSketchId) {
+      // like the original: picking a sketch tool first asks for a plane
+      if (tool !== 'select') {
+        set({ pendingTool: tool });
+        get().startPlanePick();
+      }
+      return;
+    }
     set({ tool, selectedConstraint: null, modify: null });
     if (tool !== 'select') set({ selection: [], lastTool: tool });
   },
@@ -471,7 +483,7 @@ export const useStore = create<State>((set, get) => ({
     get().pushMessage('Select a plane on which to create the sketch for the feature.');
   },
   cancelPlanePick() {
-    set({ planePick: false, hoverPlane: null });
+    set({ planePick: false, hoverPlane: null, pendingTool: null });
   },
   setHoverPlane(hoverPlane) {
     if (get().hoverPlane !== hoverPlane) set({ hoverPlane });

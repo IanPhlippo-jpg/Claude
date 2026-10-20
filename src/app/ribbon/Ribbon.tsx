@@ -92,7 +92,7 @@ export function Ribbon() {
   const st = useStore();
   const [collapsed, setCollapsed] = useState(false);
   const inSketch = !!st.activeSketchId;
-  const T = (id: ToolId) => ({ active: st.tool === id && inSketch, disabled: !inSketch, onClick: () => st.setTool(id) });
+  const T = (id: ToolId) => ({ active: (st.tool === id && inSketch) || (st.planePick && st.pendingTool === id), onClick: () => st.setTool(id) });
   const hasSel = st.selection.length > 0;
   const mirrorable = inSketch && st.selection.filter((s) => s.kind === 'entity').length >= 2;
   const soon = (label: string, icon: ReactNode) => <Small label={label} icon={icon} disabled />;

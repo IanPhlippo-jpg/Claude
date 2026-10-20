@@ -3,10 +3,12 @@
 html, body, #root { height: 100%; margin: 0; }
 body {
   font-family: var(--font-ui);
-  font-size: 12.5px;
+  font-size: 12px;
   color: var(--text);
+  line-height: 1.3;
   background: var(--bg-app);
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
   user-select: none;
   overflow: hidden;
 }
@@ -37,6 +39,9 @@ input[type='number']::-webkit-inner-spin-button { opacity: 0.4; }
 }
 .k-tool svg { width: 22px; height: 22px; }
 .k-cm-icon, .k-cm-small svg, .k-mb-btn svg, .k-hud-btn svg, .k-taskpane-btn svg, .k-tree-row > svg { color: var(--icon); }
+.k-cm-big.disabled .k-cm-icon, .k-cm-small:disabled svg, .k-cm-iconbtn:disabled svg, .k-hud-btn:disabled svg, .k-mb-btn:disabled svg { filter: grayscale(1) opacity(0.55); }
+.k-cm-big.disabled { opacity: 1; }
+.k-cm-big.disabled .k-cm-label { color: var(--text-faint); }
 .k-tool:hover { background: var(--bg-hover); }
 .k-tool.active { background: var(--bg-selected); border-color: var(--accent); color: var(--accent); }
 .k-tool:disabled { opacity: 0.4; cursor: default; }
@@ -106,7 +111,8 @@ input[type='number']::-webkit-inner-spin-button { opacity: 0.4; }
 
 /* --- tooltip ------------------------------------------------------------------ */
 .k-tip { position: relative; }
-.k-tip[data-tip]:hover::after { content: attr(data-tip); position: absolute; left: 50%; top: calc(100% + 6px); transform: translateX(-50%); padding: 4px 8px; white-space: pre; background: var(--text); color: var(--bg-panel); font-size: 11px; border-radius: var(--radius-s); z-index: 300; pointer-events: none; }
+.k-tip[data-tip]:hover::after { content: attr(data-tip); position: absolute; left: 0; top: calc(100% + 6px); padding: 4px 8px; white-space: pre; background: #ffffe1; color: #1a1a1a; border: 1px solid #8a8a8a; font-size: 11px; border-radius: 2px; z-index: 300; pointer-events: none; box-shadow: var(--shadow-1); }
+.k-tip.tip-right[data-tip]:hover::after { left: auto; right: 0; }
 
 /* --- misc --------------------------------------------------------------------- */
 .k-kbd { display: inline-block; padding: 1px 5px; border: 1px solid var(--border-strong); border-bottom-width: 2px; border-radius: 3px; font-family: var(--font-mono); font-size: 10.5px; background: var(--bg-panel-alt); }

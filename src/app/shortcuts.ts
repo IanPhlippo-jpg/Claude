@@ -53,7 +53,7 @@ export function useShortcuts(handlers: { save: () => void; open: () => void; sho
       const cam = getCamera();
       const key = e.key.toLowerCase();
       const ctrl = e.ctrlKey || e.metaKey;
-      const setTool = (tool: ToolId) => st.activeSketchId && st.setTool(tool);
+      const setTool = (tool: ToolId) => st.setTool(tool);
       if (ctrl && e.shiftKey && key === 's') {
         e.preventDefault();
         if (!st.activeSketchId) st.startPlanePick();

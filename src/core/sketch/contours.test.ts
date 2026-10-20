@@ -42,6 +42,7 @@ describe('shaded sketch contours', () => {
     const cs = findContours(s);
     expect(cs.length).toBe(1);
     expect(cs[0].area).toBeCloseTo(800, 3);
+    expect(cs[0].points.length).toBe(4); // spur removed from the polygon
   });
   it('closes a slot made of two lines and two arcs', () => {
     let s = createSketch('s', 'S');

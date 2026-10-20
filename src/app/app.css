@@ -31,12 +31,12 @@
 .k-cm-big.disabled { opacity: 0.4; }
 .k-cm-main { display: flex; flex-direction: column; align-items: center; gap: 3px; min-width: 56px; max-width: 74px; padding: 4px 4px 2px; color: var(--text); }
 .k-cm-main:disabled { cursor: default; }
-.k-cm-icon svg { width: 26px; height: 26px; }
-.k-cm-label { font-size: 10.5px; line-height: 1.15; text-align: center; white-space: normal; }
+.k-cm-icon svg { width: 30px; height: 30px; }
+.k-cm-label { font-size: 11px; line-height: 1.15; text-align: center; white-space: normal; color: var(--text); }
 .k-cm-arrow { width: 100%; height: 12px; display: flex; justify-content: center; color: var(--text-faint); }
 .k-cm-arrow:hover { background: var(--bg-active); }
 .k-cm-small { display: flex; align-items: center; gap: 5px; height: 22px; padding: 0 6px; border-radius: var(--radius-s); color: var(--text); font-size: 11px; white-space: nowrap; border: 1px solid transparent; }
-.k-cm-small svg { width: 16px; height: 16px; }
+.k-cm-small svg { width: 18px; height: 18px; }
 .k-cm-small:hover { background: var(--bg-hover); }
 .k-cm-small.active { background: var(--bg-selected); border-color: var(--accent); color: var(--accent); }
 .k-cm-small:disabled { opacity: 0.4; cursor: default; }
@@ -87,7 +87,7 @@
 .k-viewport.tool-select { cursor: default; }
 .k-viewport.picking { cursor: crosshair; }
 .k-viewport-empty { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: var(--text-muted); pointer-events: none; text-align: center; padding: 20px; }
-.k-plane-label { position: absolute; transform: translate(0, -100%); font-size: 11px; color: var(--accent); pointer-events: none; opacity: 0.8; }
+.k-plane-label { position: absolute; transform: translate(4px, -100%); font-size: 11px; font-family: var(--font-ui); color: #4a6a99; pointer-events: none; }
 .k-plane-label.hl { color: var(--warn); font-weight: 600; opacity: 1; }
 .k-zoom-rect { position: absolute; border: 1px dashed var(--accent); background: rgba(31,111,235,0.08); pointer-events: none; }
 .k-feedback { position: absolute; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; background: var(--sk-relation-bg); border: 1px solid var(--border-strong); border-radius: 3px; color: var(--text); pointer-events: none; }
@@ -127,7 +127,7 @@
 /* triad + view name */
 .k-triad-wrap { position: absolute; left: 10px; bottom: 8px; display: flex; align-items: flex-end; gap: 4px; pointer-events: none; }
 .k-triad { pointer-events: none; }
-.k-viewname { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; }
+.k-viewname { font-size: 11px; color: var(--text-muted); margin-bottom: 8px; margin-left: -6px; }
 
 /* context menu */
 .k-ctx { position: absolute; z-index: 60; display: flex; flex-direction: column; gap: 3px; }
@@ -188,7 +188,8 @@
 .k-cm-grid { display: grid; grid-template-rows: repeat(2, 24px); grid-auto-flow: column; gap: 1px 2px; align-self: center; }
 .k-cm-iconfly { display: flex; align-items: center; border-radius: var(--radius-s); border: 1px solid transparent; }
 .k-cm-iconfly.active { background: var(--bg-selected); border-color: var(--accent); }
-.k-cm-iconbtn { width: 24px; height: 22px; display: inline-flex; align-items: center; justify-content: center; border-radius: var(--radius-s); color: var(--icon); }
+.k-cm-iconbtn svg { width: 18px; height: 18px; }
+.k-cm-iconbtn { width: 26px; height: 22px; display: inline-flex; align-items: center; justify-content: center; border-radius: var(--radius-s); color: var(--icon); }
 .k-cm-iconbtn:hover { background: var(--bg-hover); }
 .k-cm-iconbtn:disabled { opacity: 0.35; cursor: default; }
 .k-cm-iconfly.active .k-cm-iconbtn { color: var(--accent); }
@@ -209,4 +210,5 @@
 .k-welcome { grid-template-columns: 2fr 1fr; }
 .k-doctype { width: 110px; }
 .k-welcome { grid-template-columns: 1.6fr 1fr; min-width: 640px; }
-.k-welcome .k-list li { height: auto; min-height: 24px; white-space: nowrap; }
+.k-welcome .k-list li { height: auto; min-height: 24px; white-space: nowrap; overflow: visible; }
+.k-welcome { grid-template-columns: 1.4fr 1fr; min-width: 680px; }

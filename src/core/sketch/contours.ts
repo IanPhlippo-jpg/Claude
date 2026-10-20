@@ -138,8 +138,23 @@ export function findContours(s: Sketch, tol = 1e-6): Contour[] {
       if (cur === start) break;
     }
     if (cur !== start) continue; // open chain, not a loop
-    const pts: SketchPoint[] = [];
+    let pts: SketchPoint[] = [];
     for (const i of face) pts.push(...halves[i].poly.slice(0, -1));
+    // remove spurs (out-and-back runs) so the polygon is simple
+    const same = (a: SketchPoint, b: SketchPoint) => Math.abs(a.x - b.x) < tol && Math.abs(a.y - b.y) < tol;
+    let changed = true;
+    while (changed && pts.length > 3) {
+      changed = false;
+      for (let i = 0; i < pts.length; i++) {
+        const prev = pts[(i - 1 + pts.length) % pts.length], next = pts[(i + 1) % pts.length];
+        if (same(prev, next)) {
+          const j = (i + 1) % pts.length;
+          pts = pts.filter((_, k) => k !== i && k !== j);
+          changed = true;
+          break;
+        }
+      }
+    }
     const area = polygonArea(pts);
     if (area > tol) out.push({ points: pts, area, entityIds: [...new Set(face.map((i) => halves[i].edge.id))] });
   }

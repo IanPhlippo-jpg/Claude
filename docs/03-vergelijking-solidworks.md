@@ -96,3 +96,20 @@ thumbnails konden wel worden opgehaald. Daaruit en uit de voorbeeldhoofdstukken 
 | Volledig Engelse UI (commandonamen zoals in het origineel) | Alle UI-teksten naar Engels; documentatie blijft Nederlands |
 
 Screenshots staan in `docs/screenshots/`.
+
+## Vierde ronde: iconen, triade, tekst
+
+- **Iconenset** volledig opnieuw getekend als gevulde meerkleurige iconen in de stijl van het origineel
+  (blauwe solids, gele schetsvlakken/vlakken, grijze contouren, groen vinkje / rode X): `src/ui/icons.tsx`.
+  Uitgeschakelde commando's worden grijs weergegeven (grayscale-filter) in plaats van vervaagd.
+- **Triade** linksonder: dunne gekleurde assenpijlen met pijlpunt en kleine letters; een as die naar de kijker wijst
+  wordt als cirkeltje getekend (zoals in een Normal To-weergave).
+- **Tekst**: lettertype-stack `Segoe UI` (Windows, zoals het origineel) met fallbacks, 12 px, betere letterweergave;
+  tooltips in Windows-stijl (lichtgeel) die niet meer buiten het scherm vallen; plaatlabels in de vlakkenkeuze in
+  blauwgrijs.
+- Schetstools zijn nu ook zonder actieve schets te kiezen: het programma vraagt dan eerst om een vlak en activeert
+  daarna het gekozen gereedschap (gedrag van het origineel).
+- Gearceerde contouren: uitlopers (losse lijnen aan een hoek) worden uit de contour-polygoon gefilterd.
+
+Vervolg: in een lokale sessie op de pc van de gebruiker kunnen met `yt-dlp` + `ffmpeg` frames op volle resolutie uit
+de video's worden gehaald; daarmee kan de iconenset en de lay-out pixelnauwkeurig worden vergeleken.
