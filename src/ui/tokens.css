@@ -1,0 +1,88 @@
+/* Kalibr CAD design tokens — own visual style, light & dark */
+:root {
+  --font-ui: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
+  --radius-s: 4px;
+  --radius-m: 6px;
+  --radius-l: 10px;
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.12);
+  --shadow-2: 0 4px 16px rgba(0, 0, 0, 0.18);
+  --ribbon-h: 92px;
+  --titlebar-h: 36px;
+  --status-h: 26px;
+
+  --bg-app: #e9ecf1;
+  --bg-panel: #f7f8fa;
+  --bg-panel-alt: #eef0f4;
+  --bg-header: #e2e5eb;
+  --bg-input: #ffffff;
+  --bg-hover: rgba(0, 0, 0, 0.06);
+  --bg-active: rgba(0, 0, 0, 0.1);
+  --bg-selected: rgba(31, 111, 235, 0.14);
+  --bg-viewport: #d9dde3;
+  --bg-viewport-2: #c5cad2;
+  --border: #c9ced6;
+  --border-strong: #a9b0bb;
+  --text: #1b1f26;
+  --text-muted: #5b6472;
+  --text-faint: #8b93a0;
+  --accent: #1f6feb;
+  --accent-strong: #1456c4;
+  --accent-text: #ffffff;
+  --warn: #c7760a;
+  --danger: #d1343f;
+  --ok: #20884a;
+
+  /* sketch colours (industry convention: blue under, black full, red over) */
+  --sk-under: #1f6feb;
+  --sk-full: #111418;
+  --sk-over: #e5484d;
+  --sk-construction: #7a8290;
+  --sk-selected: #0ea5a4;
+  --sk-hover: #f59e0b;
+  --sk-dimension: #0a7f5a;
+  --sk-grid: rgba(0, 0, 0, 0.08);
+  --sk-grid-major: rgba(0, 0, 0, 0.16);
+  --sk-axis-x: #d33b3b;
+  --sk-axis-y: #2a9d3a;
+  --sk-axis-z: #2d6cdf;
+  --sk-relation-bg: rgba(255, 255, 255, 0.9);
+}
+
+[data-theme='dark'] {
+  --bg-app: #15181d;
+  --bg-panel: #1d2127;
+  --bg-panel-alt: #22272e;
+  --bg-header: #262b33;
+  --bg-input: #121519;
+  --bg-hover: rgba(255, 255, 255, 0.06);
+  --bg-active: rgba(255, 255, 255, 0.1);
+  --bg-selected: rgba(88, 150, 255, 0.2);
+  --bg-viewport: #2b3038;
+  --bg-viewport-2: #1e2228;
+  --border: #343a44;
+  --border-strong: #4a5260;
+  --text: #e6e9ee;
+  --text-muted: #9aa3b0;
+  --text-faint: #6b7380;
+  --accent: #5896ff;
+  --accent-strong: #7fb0ff;
+  --accent-text: #0b1220;
+  --warn: #f0a63a;
+  --danger: #ff6b6b;
+  --ok: #4cc27a;
+
+  --sk-under: #6aa6ff;
+  --sk-full: #f2f4f7;
+  --sk-over: #ff6b6b;
+  --sk-construction: #8e97a6;
+  --sk-selected: #2dd4bf;
+  --sk-hover: #fbbf24;
+  --sk-dimension: #4ade80;
+  --sk-grid: rgba(255, 255, 255, 0.07);
+  --sk-grid-major: rgba(255, 255, 255, 0.14);
+  --sk-axis-x: #ff5c5c;
+  --sk-axis-y: #4ade80;
+  --sk-axis-z: #60a5fa;
+  --sk-relation-bg: rgba(29, 33, 39, 0.9);
+}

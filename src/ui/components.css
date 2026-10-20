@@ -1,0 +1,118 @@
+/* --- base ------------------------------------------------------------- */
+* { box-sizing: border-box; }
+html, body, #root { height: 100%; margin: 0; }
+body {
+  font-family: var(--font-ui);
+  font-size: 12.5px;
+  color: var(--text);
+  background: var(--bg-app);
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+  overflow: hidden;
+}
+button, input, select { font: inherit; color: inherit; }
+button { background: none; border: none; padding: 0; cursor: pointer; }
+input[type='number']::-webkit-inner-spin-button { opacity: 0.4; }
+
+/* --- buttons ------------------------------------------------------------ */
+.k-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 26px; padding: 0 10px; border-radius: var(--radius-s);
+  border: 1px solid var(--border); background: var(--bg-panel); color: var(--text);
+  white-space: nowrap;
+}
+.k-btn:hover { background: var(--bg-hover); }
+.k-btn:active { background: var(--bg-active); }
+.k-btn:disabled { opacity: 0.45; cursor: default; }
+.k-btn.primary { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+.k-btn.primary:hover { background: var(--accent-strong); }
+.k-btn.danger { color: var(--danger); }
+.k-btn.ghost { border-color: transparent; background: transparent; }
+.k-btn.icon { width: 26px; padding: 0; justify-content: center; }
+
+.k-tool {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+  min-width: 48px; height: 60px; padding: 4px 6px; border-radius: var(--radius-m);
+  border: 1px solid transparent; color: var(--text); font-size: 11px; line-height: 1.1; text-align: center;
+}
+.k-tool svg { width: 22px; height: 22px; }
+.k-tool:hover { background: var(--bg-hover); }
+.k-tool.active { background: var(--bg-selected); border-color: var(--accent); color: var(--accent); }
+.k-tool:disabled { opacity: 0.4; cursor: default; }
+.k-tool.small { flex-direction: row; height: 26px; min-width: 0; padding: 0 8px; }
+.k-tool.small svg { width: 16px; height: 16px; }
+
+/* --- panel ---------------------------------------------------------------- */
+.k-panel { display: flex; flex-direction: column; background: var(--bg-panel); border: 1px solid var(--border); border-radius: var(--radius-m); overflow: hidden; min-height: 0; }
+.k-panel-header { display: flex; align-items: center; gap: 6px; height: 28px; padding: 0 6px 0 10px; background: var(--bg-header); border-bottom: 1px solid var(--border); font-weight: 600; font-size: 12px; cursor: default; }
+.k-panel-header .grow { flex: 1; }
+.k-panel-body { flex: 1; overflow: auto; min-height: 0; }
+.k-panel.floating { position: absolute; width: 320px; max-height: 70vh; box-shadow: var(--shadow-2); z-index: 20; }
+.k-panel.floating .k-panel-header { cursor: move; }
+
+.k-section { border-bottom: 1px solid var(--border); }
+.k-section-title { display: flex; align-items: center; gap: 6px; padding: 6px 10px; font-weight: 600; font-size: 11.5px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; cursor: pointer; }
+.k-section-title:hover { background: var(--bg-hover); }
+.k-section-body { padding: 6px 10px 10px; }
+
+/* --- form ------------------------------------------------------------------ */
+.k-field { display: grid; grid-template-columns: 1fr 1.3fr; align-items: center; gap: 8px; margin: 4px 0; }
+.k-field label { color: var(--text-muted); }
+.k-input { height: 26px; padding: 0 8px; border: 1px solid var(--border); border-radius: var(--radius-s); background: var(--bg-input); width: 100%; outline: none; }
+.k-input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px var(--bg-selected); }
+.k-number { display: flex; align-items: center; gap: 4px; }
+.k-number .unit { color: var(--text-faint); font-size: 11px; min-width: 20px; }
+.k-toggle { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
+.k-toggle .track { width: 30px; height: 16px; border-radius: 8px; background: var(--border-strong); position: relative; transition: background 0.15s; }
+.k-toggle .track::after { content: ''; position: absolute; top: 2px; left: 2px; width: 12px; height: 12px; border-radius: 50%; background: #fff; transition: left 0.15s; }
+.k-toggle.on .track { background: var(--accent); }
+.k-toggle.on .track::after { left: 16px; }
+
+/* --- menu / dropdown ---------------------------------------------------------- */
+.k-menu { position: absolute; min-width: 180px; padding: 4px; background: var(--bg-panel); border: 1px solid var(--border); border-radius: var(--radius-m); box-shadow: var(--shadow-2); z-index: 100; }
+.k-menu-item { display: flex; align-items: center; gap: 8px; width: 100%; height: 26px; padding: 0 8px; border-radius: var(--radius-s); text-align: left; color: var(--text); }
+.k-menu-item:hover { background: var(--bg-hover); }
+.k-menu-item:disabled { opacity: 0.4; }
+.k-menu-item .shortcut { margin-left: auto; color: var(--text-faint); font-size: 11px; font-family: var(--font-mono); }
+.k-menu-sep { height: 1px; margin: 4px 0; background: var(--border); }
+
+/* --- tabs --------------------------------------------------------------------- */
+.k-tabs { display: flex; gap: 2px; padding: 0 6px; }
+.k-tab { height: 26px; padding: 0 12px; border-radius: var(--radius-s) var(--radius-s) 0 0; color: var(--text-muted); font-weight: 500; border-bottom: 2px solid transparent; }
+.k-tab:hover { color: var(--text); background: var(--bg-hover); }
+.k-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.k-tab:disabled { opacity: 0.4; cursor: default; }
+
+/* --- tree --------------------------------------------------------------------- */
+.k-tree { padding: 4px 0; }
+.k-tree-row { display: flex; align-items: center; gap: 4px; height: 24px; padding-right: 6px; border-radius: 0; cursor: default; white-space: nowrap; }
+.k-tree-row:hover { background: var(--bg-hover); }
+.k-tree-row.selected { background: var(--bg-selected); }
+.k-tree-row.active { font-weight: 600; }
+.k-tree-row.suppressed { opacity: 0.5; }
+.k-tree-row .caret { width: 16px; display: inline-flex; justify-content: center; color: var(--text-faint); }
+.k-tree-row .status { margin-left: auto; font-size: 10px; padding: 1px 5px; border-radius: 3px; }
+.status.under { color: var(--sk-under); background: var(--bg-selected); }
+.status.full { color: var(--ok); }
+.status.over, .status.conflict, .status.invalid { color: var(--danger); }
+
+/* --- dialog ------------------------------------------------------------------- */
+.k-dialog-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; z-index: 200; }
+.k-dialog { background: var(--bg-panel); border: 1px solid var(--border); border-radius: var(--radius-l); box-shadow: var(--shadow-2); min-width: 360px; max-width: 640px; max-height: 80vh; display: flex; flex-direction: column; }
+.k-dialog-title { padding: 12px 16px; font-weight: 600; font-size: 14px; border-bottom: 1px solid var(--border); }
+.k-dialog-body { padding: 14px 16px; overflow: auto; }
+.k-dialog-actions { display: flex; justify-content: flex-end; gap: 8px; padding: 10px 16px; border-top: 1px solid var(--border); }
+
+/* --- tooltip ------------------------------------------------------------------ */
+.k-tip { position: relative; }
+.k-tip[data-tip]:hover::after { content: attr(data-tip); position: absolute; left: 50%; top: calc(100% + 6px); transform: translateX(-50%); padding: 4px 8px; white-space: pre; background: var(--text); color: var(--bg-panel); font-size: 11px; border-radius: var(--radius-s); z-index: 300; pointer-events: none; }
+
+/* --- misc --------------------------------------------------------------------- */
+.k-kbd { display: inline-block; padding: 1px 5px; border: 1px solid var(--border-strong); border-bottom-width: 2px; border-radius: 3px; font-family: var(--font-mono); font-size: 10.5px; background: var(--bg-panel-alt); }
+.k-chip { display: inline-flex; align-items: center; gap: 4px; padding: 2px 6px; border-radius: 3px; background: var(--bg-panel-alt); border: 1px solid var(--border); font-size: 11px; }
+.k-muted { color: var(--text-muted); }
+.k-list { list-style: none; margin: 0; padding: 0; }
+.k-list li { display: flex; align-items: center; gap: 6px; height: 24px; padding: 0 8px; border-radius: var(--radius-s); cursor: default; }
+.k-list li:hover { background: var(--bg-hover); }
+.k-list li.selected { background: var(--bg-selected); }
+.k-list li .tail { margin-left: auto; display: flex; gap: 4px; }
