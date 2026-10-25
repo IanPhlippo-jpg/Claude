@@ -1,0 +1,57 @@
+import { useStore } from '../store';
+import { Section } from '../../ui/components';
+import { Icon } from '../../ui/icons';
+import { FASTENER_NAMES, LENGTHS, METRIC, standardLength, type FastenerType } from '../../core/assembly/fasteners';
+
+/** Smart Fasteners PropertyManager, as the original: Selection (holes), Series Components (groups), Properties (type, size, length). */
+export function FastenerPM() {
+  const st = useStore();
+  const fe = st.fastenerEdit;
+  if (!fe) return null;
+  return (
+    <div className="k-pm" data-testid="fastener-pm">
+      <div className="k-pm-head">
+        <div className="k-pm-title"><Icon.Fasteners /> <b>Smart Fasteners</b><span className="grow" /><span className="k-pm-help" title="Help">?</span></div>
+        <div className="k-pm-buttons">
+          <button className="k-pm-ok k-tip" data-tip="OK" onClick={st.commitSmartFasteners}><Icon.Check /></button>
+          <button className="k-pm-cancel k-tip" data-tip="Cancel" onClick={st.cancelSmartFasteners}><Icon.Close /></button>
+        </div>
+      </div>
+      <Section title="Message">
+        <p className="k-pm-message">Fasteners are added to the Hole Wizard holes; holes on one axis through stacked parts share one fastener. Click OK to add them.</p>
+      </Section>
+      <Section title="Selection">
+        <div className="k-selbox" style={{ minHeight: 40 }} data-testid="fastener-holes">
+          {fe.slots.flatMap((s) => s.holes).map((h, i) => <div key={i} className="k-selbox-row"><Icon.Hole size={12} /> {h.featureName} of {h.componentName}</div>)}
+        </div>
+        <button className="k-btn" style={{ marginTop: 4 }}>Populate All</button>
+      </Section>
+      <Section title="Series Components">
+        <div className="k-selbox" style={{ minHeight: 30 }} data-testid="fastener-groups">
+          {fe.slots.map((s, i) => <div key={i} className="k-selbox-row"><Icon.Fasteners size={12} /> Group{i + 1} ({s.holes.length} hole{s.holes.length === 1 ? '' : 's'}): {FASTENER_NAMES[s.type].split(' ISO')[0]} {s.size} x {s.length}</div>)}
+        </div>
+      </Section>
+      {fe.slots.map((s, i) => (
+        <Section key={i} title={`Properties — Group${i + 1}`}>
+          <div className="k-field"><label>Fastener</label>
+            <select className="k-input" value={s.type} data-testid={`fastener-type-${i}`} onChange={(e) => st.updateFastenerSlot(i, { type: e.target.value as FastenerType })}>
+              {(Object.keys(FASTENER_NAMES) as FastenerType[]).map((t) => <option key={t} value={t}>{FASTENER_NAMES[t]}</option>)}
+            </select>
+          </div>
+          <div className="k-field"><label>Size</label>
+            <select className="k-input" value={s.size} data-testid={`fastener-size-${i}`} onChange={(e) => { const m = METRIC.find((x) => x.size === e.target.value)!; st.updateFastenerSlot(i, { size: m.size, length: fe.autoLength ? standardLength(s.grip + m.d) : s.length }); }}>
+              {METRIC.map((m) => <option key={m.size} value={m.size}>{m.size}</option>)}
+            </select>
+          </div>
+          <div className="k-field"><label>Length</label>
+            <select className="k-input" value={s.length} data-testid={`fastener-length-${i}`} onChange={(e) => st.updateFastenerSlot(i, { length: Number(e.target.value) })}>
+              {LENGTHS.map((l) => <option key={l} value={l}>{l}</option>)}
+            </select>
+          </div>
+          <div className="k-muted" style={{ fontSize: 11 }}>Grip: {s.grip.toFixed(2)}{st.doc.units}</div>
+          <label className="k-check"><input type="checkbox" data-testid="fastener-autolength" checked={fe.autoLength} onChange={(e) => useStore.setState({ fastenerEdit: { ...fe, autoLength: e.target.checked, slots: e.target.checked ? fe.slots.map((x) => ({ ...x, length: standardLength(x.grip + (METRIC.find((m) => m.size === x.size)?.d ?? 0)) })) : fe.slots } })} /> Auto update length</label>
+        </Section>
+      ))}
+    </div>
+  );
+}

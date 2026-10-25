@@ -1,0 +1,103 @@
+{
+  "format": "phlippo-cad",
+  "version": 1,
+  "name": "Vierkantstift",
+  "units": "mm",
+  "sketches": {
+    "s1": {
+      "id": "s1",
+      "name": "Sketch1",
+      "plane": "front",
+      "points": {
+        "origin_s1": {
+          "x": 0,
+          "y": 0
+        },
+        "pmvnnwfu81p": {
+          "x": -4,
+          "y": -4
+        },
+        "pmvnnwfu81q": {
+          "x": 4,
+          "y": -4
+        },
+        "pmvnnwfu81s": {
+          "x": 4,
+          "y": 4
+        },
+        "pmvnnwfu81u": {
+          "x": -4,
+          "y": 4
+        }
+      },
+      "scalars": {},
+      "entities": {
+        "lnmvnnwfu81r": {
+          "id": "lnmvnnwfu81r",
+          "kind": "line",
+          "p1": "pmvnnwfu81p",
+          "p2": "pmvnnwfu81q",
+          "construction": false
+        },
+        "lnmvnnwfu81t": {
+          "id": "lnmvnnwfu81t",
+          "kind": "line",
+          "p1": "pmvnnwfu81q",
+          "p2": "pmvnnwfu81s",
+          "construction": false
+        },
+        "lnmvnnwfu81v": {
+          "id": "lnmvnnwfu81v",
+          "kind": "line",
+          "p1": "pmvnnwfu81s",
+          "p2": "pmvnnwfu81u",
+          "construction": false
+        },
+        "lnmvnnwfu81w": {
+          "id": "lnmvnnwfu81w",
+          "kind": "line",
+          "p1": "pmvnnwfu81u",
+          "p2": "pmvnnwfu81p",
+          "construction": false
+        }
+      },
+      "constraints": {},
+      "entityOrder": [
+        "lnmvnnwfu81r",
+        "lnmvnnwfu81t",
+        "lnmvnnwfu81v",
+        "lnmvnnwfu81w"
+      ],
+      "constraintOrder": [],
+      "origin": "origin_s1"
+    }
+  },
+  "features": [
+    {
+      "id": "ks1",
+      "type": "sketch",
+      "name": "Sketch1",
+      "sketchId": "s1",
+      "suppressed": false
+    },
+    {
+      "id": "f1",
+      "type": "extrude",
+      "name": "Boss-Extrude1",
+      "sketchId": "s1",
+      "suppressed": false,
+      "op": "boss",
+      "end": "blind",
+      "depth": 100,
+      "reverse": false
+    }
+  ],
+  "planes": {},
+  "variables": {},
+  "equations": [],
+  "material": {
+    "name": "Alloy Steel",
+    "density": 7700,
+    "color": "#b8bcc2"
+  }
+}

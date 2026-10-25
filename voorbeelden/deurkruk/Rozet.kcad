@@ -1,0 +1,218 @@
+{
+  "format": "phlippo-cad",
+  "version": 1,
+  "name": "Rozet",
+  "units": "mm",
+  "sketches": {
+    "s1": {
+      "id": "s1",
+      "name": "Sketch1",
+      "plane": "top",
+      "points": {
+        "origin_s1": {
+          "x": 0,
+          "y": 0
+        },
+        "pmvnnwfu8f": {
+          "x": 9,
+          "y": 0
+        },
+        "pmvnnwfu8g": {
+          "x": 26,
+          "y": 0
+        },
+        "pmvnnwfu8i": {
+          "x": 26,
+          "y": -2
+        },
+        "pmvnnwfu8k": {
+          "x": 25,
+          "y": -4.5
+        },
+        "pmvnnwfu8m": {
+          "x": 22.5,
+          "y": -7
+        },
+        "pmvnnwfu8o": {
+          "x": 17,
+          "y": -8.6
+        },
+        "pmvnnwfu8q": {
+          "x": 13,
+          "y": -9
+        },
+        "pmvnnwfu8s": {
+          "x": 9,
+          "y": -9
+        },
+        "pmvnnwfu8v": {
+          "x": 0,
+          "y": 5
+        },
+        "pmvnnwfu8w": {
+          "x": 0,
+          "y": -14
+        }
+      },
+      "scalars": {},
+      "entities": {
+        "lnmvnnwfu8h": {
+          "id": "lnmvnnwfu8h",
+          "kind": "line",
+          "p1": "pmvnnwfu8f",
+          "p2": "pmvnnwfu8g",
+          "construction": false
+        },
+        "lnmvnnwfu8j": {
+          "id": "lnmvnnwfu8j",
+          "kind": "line",
+          "p1": "pmvnnwfu8g",
+          "p2": "pmvnnwfu8i",
+          "construction": false
+        },
+        "lnmvnnwfu8l": {
+          "id": "lnmvnnwfu8l",
+          "kind": "line",
+          "p1": "pmvnnwfu8i",
+          "p2": "pmvnnwfu8k",
+          "construction": false
+        },
+        "lnmvnnwfu8n": {
+          "id": "lnmvnnwfu8n",
+          "kind": "line",
+          "p1": "pmvnnwfu8k",
+          "p2": "pmvnnwfu8m",
+          "construction": false
+        },
+        "lnmvnnwfu8p": {
+          "id": "lnmvnnwfu8p",
+          "kind": "line",
+          "p1": "pmvnnwfu8m",
+          "p2": "pmvnnwfu8o",
+          "construction": false
+        },
+        "lnmvnnwfu8r": {
+          "id": "lnmvnnwfu8r",
+          "kind": "line",
+          "p1": "pmvnnwfu8o",
+          "p2": "pmvnnwfu8q",
+          "construction": false
+        },
+        "lnmvnnwfu8t": {
+          "id": "lnmvnnwfu8t",
+          "kind": "line",
+          "p1": "pmvnnwfu8q",
+          "p2": "pmvnnwfu8s",
+          "construction": false
+        },
+        "lnmvnnwfu8u": {
+          "id": "lnmvnnwfu8u",
+          "kind": "line",
+          "p1": "pmvnnwfu8s",
+          "p2": "pmvnnwfu8f",
+          "construction": false
+        },
+        "lnmvnnwfu8x": {
+          "id": "lnmvnnwfu8x",
+          "kind": "line",
+          "p1": "pmvnnwfu8v",
+          "p2": "pmvnnwfu8w",
+          "construction": true
+        }
+      },
+      "constraints": {},
+      "entityOrder": [
+        "lnmvnnwfu8h",
+        "lnmvnnwfu8j",
+        "lnmvnnwfu8l",
+        "lnmvnnwfu8n",
+        "lnmvnnwfu8p",
+        "lnmvnnwfu8r",
+        "lnmvnnwfu8t",
+        "lnmvnnwfu8u",
+        "lnmvnnwfu8x"
+      ],
+      "constraintOrder": [],
+      "origin": "origin_s1"
+    }
+  },
+  "features": [
+    {
+      "id": "ks1",
+      "type": "sketch",
+      "name": "Sketch1",
+      "sketchId": "s1",
+      "suppressed": false
+    },
+    {
+      "id": "f1",
+      "type": "revolve",
+      "name": "Revolve1",
+      "sketchId": "s1",
+      "suppressed": false,
+      "op": "boss",
+      "axisEntityId": "lnmvnnwfu8x",
+      "angle": 360,
+      "reverse": false
+    },
+    {
+      "id": "f2",
+      "type": "hole",
+      "name": "CSK for M4 Flat Head Socket Screw1",
+      "suppressed": false,
+      "plane": "csk",
+      "points": [
+        {
+          "x": 0,
+          "y": 19
+        },
+        {
+          "x": 0,
+          "y": -19
+        }
+      ],
+      "holeType": "countersink",
+      "diameter": 4.5,
+      "depth": 0,
+      "cbDiameter": 8,
+      "cbDepth": 4.4,
+      "csDiameter": 8.4,
+      "csAngle": 90,
+      "sizeName": "M4"
+    }
+  ],
+  "planes": {
+    "csk": {
+      "id": "csk",
+      "name": "Face<4>",
+      "origin": [
+        0,
+        0,
+        8
+      ],
+      "u": [
+        1,
+        0,
+        0
+      ],
+      "v": [
+        0,
+        1,
+        0
+      ],
+      "n": [
+        0,
+        0,
+        1
+      ],
+      "kind": "face"
+    }
+  },
+  "variables": {},
+  "equations": [],
+  "material": {
+    "name": "AISI 304",
+    "density": 8000,
+    "color": "#c9ccd1"
+  }
+}

@@ -29,6 +29,9 @@ describe('persistence', () => {
     doc.features.push({ id: 'f1', type: 'sketch', name: 'Sketch1', sketchId: 'sk1', suppressed: false });
     const text = serializeDocument(doc);
     const back = parseDocument(text);
+    // a parsed document gets an id when the file had none
+    expect(back.id).toBeTruthy();
+    delete back.id;
     expect(back).toEqual(doc);
     expect(() => parseDocument('{"format":"x"}')).toThrow();
   });

@@ -1,11 +1,11 @@
 import { chromium } from 'playwright';
-const OUT = process.env.E2E_OUT ?? '/tmp/claude-0/-home-user-Claude/72cb6de8-0893-594a-95ed-130ce81e494b/scratchpad/e2e';
-const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome', args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
+const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
+const browser = await chromium.launch(process.platform === 'win32' ? { channel: process.env.PW_CHANNEL ?? 'msedge' } : { ...(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {}), args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
 const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
 const errors = [];
 page.on('pageerror', (e) => errors.push('pageerror: ' + e.message));
 page.on('console', (m) => { if (m.type() === 'error') errors.push('console: ' + m.text()); });
-await page.goto('http://localhost:4173/');
+await page.goto(process.env.E2E_URL ?? 'http://localhost:4173/');
 await page.evaluate(() => localStorage.clear());
 await page.reload();
 await page.waitForSelector('.k-viewport');
@@ -17,7 +17,7 @@ const vp = await page.locator('.k-viewport').boundingBox();
 const cx = vp.x + vp.width / 2, cy = vp.y + vp.height / 2;
 const status = async () => (await page.locator('.k-statusbar .status').first().textContent()).trim();
 
-await page.keyboard.press('r');
+await page.click('.k-cm-iconbtn[data-tip="Corner Rectangle"]');
 await page.mouse.click(cx, cy);
 await page.mouse.click(cx + 160, cy - 100);
 console.log('rect on origin:', await status());
@@ -27,20 +27,20 @@ await page.mouse.click(cx + 80, cy);
 await page.keyboard.down('Control');
 await page.mouse.click(cx + 160, cy - 50);
 await page.keyboard.up('Control');
-await page.click('.k-tool.small:has-text("Equal")');
+await page.click('.k-pm-relbtn:has-text("Equal")');
 console.log('after equal:', await status());
 
-await page.keyboard.press('m');
+await page.click('.k-cm-big:has-text("Smart Dimension") .k-cm-main');
 await page.mouse.click(cx + 80, cy);
 await page.mouse.click(cx + 80, cy + 60);
-const input = page.locator('.k-modify input[type=number]');
+const input = page.locator('.k-modify input.k-num');
 await input.fill('50');
 await input.press('Enter');
 await page.waitForTimeout(100);
 console.log('after length 50:', await status());
 
 await page.keyboard.press('Escape');
-await page.keyboard.press('m');
+await page.click('.k-cm-big:has-text("Smart Dimension") .k-cm-main');
 await page.mouse.click(cx + 200, cy - 100);
 await page.mouse.click(cx + 260, cy - 100);
 await page.waitForTimeout(150);
@@ -61,10 +61,10 @@ await page.waitForTimeout(100);
 console.log('after polygon:', await status());
 
 // circle + arc + tangent
-await page.keyboard.press('c');
+await page.click('.k-cm-iconbtn[data-tip="Circle"]');
 await page.mouse.click(cx + 400, cy);
 await page.mouse.click(cx + 440, cy);
-await page.keyboard.press('a');
+await page.click('.k-cm-iconbtn[data-tip="Arc"]');
 await page.mouse.click(cx + 300, cy + 150);
 await page.mouse.click(cx + 500, cy + 150);
 await page.mouse.click(cx + 400, cy + 220);
@@ -73,8 +73,8 @@ await page.mouse.click(cx + 400, cy + 40);
 await page.keyboard.down('Control');
 await page.mouse.click(cx + 400, cy + 220);
 await page.keyboard.up('Control');
-console.log('relations offered:', await page.locator('.k-tool.small').allTextContents());
-await page.click('.k-tool.small:has-text("Tangent")');
+console.log('relations offered:', await page.locator('.k-pm-relbtn').allTextContents());
+await page.click('.k-pm-relbtn:has-text("Tangent")');
 await page.waitForTimeout(100);
 console.log('after tangent:', await status());
 
@@ -89,7 +89,7 @@ await page.waitForTimeout(100);
 console.log('after drag:', await status());
 
 // centerline + mirror: draw a circle and a vertical centerline, select both, Mirror
-await page.keyboard.press('c');
+await page.click('.k-cm-iconbtn[data-tip="Circle"]');
 await page.mouse.click(cx + 150, cy + 250);
 await page.mouse.click(cx + 180, cy + 250);
 await page.click('.k-cm-iconfly:has(.k-cm-iconbtn[data-tip="Line (L)"]) .k-cm-small-arrow');

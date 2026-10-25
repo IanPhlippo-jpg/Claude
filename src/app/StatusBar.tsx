@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useActiveSolve, useStore, type UnitSystem } from './store';
+import { sketchStatus, useActiveSketch, useActiveSolve, useStore, type UnitSystem } from './store';
 import { Icon } from '../ui/icons';
 import { Menu } from '../ui/components';
 
@@ -16,9 +16,13 @@ const UNIT_LABEL: Record<UnitSystem, string> = { MKS: 'MKS (meter, kilogram, sec
 export function StatusBar({ hint }: { hint: string }) {
   const st = useStore();
   const solve = useActiveSolve();
+  const sketch = useActiveSketch();
   const [units, setUnits] = useState(false);
   const msg = st.messages[st.messages.length - 1];
-  const sketchName = st.activeSketchId ? st.doc.sketches[st.activeSketchId]?.name : null;
+  const sketchName = sketch?.name ?? null;
+  const status = sketchStatus(sketch, solve);
+  const u = st.doc.units;
+  const coord = (v: number) => `${Math.round(v * 100) / 100}${u}`;
   return (
     <div className="k-statusbar">
       {msg ? (
@@ -26,20 +30,24 @@ export function StatusBar({ hint }: { hint: string }) {
           {msg.level !== 'info' && <Icon.Warning size={13} />} {msg.text}
         </span>
       ) : (
-        <span className="k-muted">{hint || (st.planePick ? 'Select a plane on which to create the sketch.' : st.activeSketchId ? '' : 'Ready')}</span>
+        <span className="k-muted">{hint || (st.planePick ? '' : st.activeSketchId ? '' : 'Ready')}</span>
       )}
       <span className="grow" />
-      {st.cursor && st.activeSketchId && (
-        <span className="k-status-cell mono">
-          {st.cursor.x.toFixed(2)}, {st.cursor.y.toFixed(2)} {st.doc.units}
+      {st.cursor && (st.activeSketchId || st.doc.kind === 'drawing') && (
+        <span className="k-status-coords">
+          <span>{coord(st.cursor.x)}</span>
+          <span>{coord(st.cursor.y)}</span>
+          <span>0{u}</span>
         </span>
       )}
-      {solve && st.activeSketchId && (
-        <span className={`k-status-cell status ${solve.status}`} title={`DOF: ${solve.dof} · ${solve.iterations} iteraties · ${solve.timeMs.toFixed(1)} ms`}>
-          {STATUS_TEXT[solve.status]}
+      {status && st.activeSketchId && (
+        <span className={`k-status-cell status ${status}`} title={solve ? `DOF: ${solve.dof} · ${solve.iterations} iterations · ${solve.timeMs.toFixed(1)} ms` : undefined}>
+          {STATUS_TEXT[status]}
         </span>
       )}
-      <span className="k-status-cell">{sketchName ? `Editing ${sketchName}` : 'Editing Part'}</span>
+      {st.doc.kind === 'drawing' && !st.activeSketchId && <span className="k-status-cell status under">Under Defined</span>}
+      <span className="k-status-cell">{!st.hasDocument ? '' : sketchName ? `Editing ${sketchName}` : (st.doc.kind === 'assembly' ? 'Editing Assembly' : st.doc.kind === 'drawing' ? `Editing ${st.doc.sheets?.[0]?.views.find((v) => v.id === st.selectedDrawingViewId)?.name ?? st.doc.sheets?.[0]?.name ?? 'Sheet1'}` : 'Editing Part')}</span>
+      {st.doc.kind === 'drawing' && st.doc.sheets?.[0] && <span className="k-status-cell" data-testid="sheet-scale">{st.doc.sheets[0].scale[0]} : {st.doc.sheets[0].scale[1]}</span>}
       <span className="k-status-cell" style={{ position: 'relative' }}>
         <button className="k-status-units" onClick={() => setUnits(true)}>
           {st.unitSystem} <Icon.ChevronDown size={10} />

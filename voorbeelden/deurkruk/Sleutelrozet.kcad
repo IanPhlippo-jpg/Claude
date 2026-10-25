@@ -1,0 +1,249 @@
+{
+  "format": "phlippo-cad",
+  "version": 1,
+  "name": "Sleutelrozet",
+  "units": "mm",
+  "sketches": {
+    "s1": {
+      "id": "s1",
+      "name": "Sketch1",
+      "plane": "top",
+      "points": {
+        "origin_s1": {
+          "x": 0,
+          "y": 0
+        },
+        "pmvnnwfu8y": {
+          "x": 0,
+          "y": 0
+        },
+        "pmvnnwfu8z": {
+          "x": 20,
+          "y": 0
+        },
+        "pmvnnwfu811": {
+          "x": 20,
+          "y": -2
+        },
+        "pmvnnwfu813": {
+          "x": 18.5,
+          "y": -5
+        },
+        "pmvnnwfu815": {
+          "x": 14,
+          "y": -7.4
+        },
+        "pmvnnwfu817": {
+          "x": 8,
+          "y": -8
+        },
+        "pmvnnwfu819": {
+          "x": 0,
+          "y": -8
+        },
+        "pmvnnwfu81c": {
+          "x": 0,
+          "y": 5
+        },
+        "pmvnnwfu81d": {
+          "x": 0,
+          "y": -13
+        }
+      },
+      "scalars": {},
+      "entities": {
+        "lnmvnnwfu810": {
+          "id": "lnmvnnwfu810",
+          "kind": "line",
+          "p1": "pmvnnwfu8y",
+          "p2": "pmvnnwfu8z",
+          "construction": false
+        },
+        "lnmvnnwfu812": {
+          "id": "lnmvnnwfu812",
+          "kind": "line",
+          "p1": "pmvnnwfu8z",
+          "p2": "pmvnnwfu811",
+          "construction": false
+        },
+        "lnmvnnwfu814": {
+          "id": "lnmvnnwfu814",
+          "kind": "line",
+          "p1": "pmvnnwfu811",
+          "p2": "pmvnnwfu813",
+          "construction": false
+        },
+        "lnmvnnwfu816": {
+          "id": "lnmvnnwfu816",
+          "kind": "line",
+          "p1": "pmvnnwfu813",
+          "p2": "pmvnnwfu815",
+          "construction": false
+        },
+        "lnmvnnwfu818": {
+          "id": "lnmvnnwfu818",
+          "kind": "line",
+          "p1": "pmvnnwfu815",
+          "p2": "pmvnnwfu817",
+          "construction": false
+        },
+        "lnmvnnwfu81a": {
+          "id": "lnmvnnwfu81a",
+          "kind": "line",
+          "p1": "pmvnnwfu817",
+          "p2": "pmvnnwfu819",
+          "construction": false
+        },
+        "lnmvnnwfu81b": {
+          "id": "lnmvnnwfu81b",
+          "kind": "line",
+          "p1": "pmvnnwfu819",
+          "p2": "pmvnnwfu8y",
+          "construction": false
+        },
+        "lnmvnnwfu81e": {
+          "id": "lnmvnnwfu81e",
+          "kind": "line",
+          "p1": "pmvnnwfu81c",
+          "p2": "pmvnnwfu81d",
+          "construction": true
+        }
+      },
+      "constraints": {},
+      "entityOrder": [
+        "lnmvnnwfu810",
+        "lnmvnnwfu812",
+        "lnmvnnwfu814",
+        "lnmvnnwfu816",
+        "lnmvnnwfu818",
+        "lnmvnnwfu81a",
+        "lnmvnnwfu81b",
+        "lnmvnnwfu81e"
+      ],
+      "constraintOrder": [],
+      "origin": "origin_s1"
+    },
+    "s2": {
+      "id": "s2",
+      "name": "Sketch2",
+      "plane": "front",
+      "points": {
+        "origin_s2": {
+          "x": 0,
+          "y": 0
+        },
+        "pmvnnwfu81f": {
+          "x": 0,
+          "y": 3
+        },
+        "pmvnnwfu81g": {
+          "x": 1.4791639160924481,
+          "y": -0.17207725462827472
+        },
+        "pmvnnwfu81h": {
+          "x": -1.4791639160924497,
+          "y": -0.17207725462827383
+        },
+        "pmvnnwfu81k": {
+          "x": -1.6,
+          "y": -8
+        },
+        "pmvnnwfu81m": {
+          "x": 1.6,
+          "y": -8
+        }
+      },
+      "scalars": {
+        "smvnnwfu81i": 3.4999999999999996
+      },
+      "entities": {
+        "armvnnwfu81j": {
+          "id": "armvnnwfu81j",
+          "kind": "arc",
+          "center": "pmvnnwfu81f",
+          "start": "pmvnnwfu81g",
+          "end": "pmvnnwfu81h",
+          "r": "smvnnwfu81i",
+          "ccw": true,
+          "construction": false
+        },
+        "lnmvnnwfu81l": {
+          "id": "lnmvnnwfu81l",
+          "kind": "line",
+          "p1": "pmvnnwfu81h",
+          "p2": "pmvnnwfu81k",
+          "construction": false
+        },
+        "lnmvnnwfu81n": {
+          "id": "lnmvnnwfu81n",
+          "kind": "line",
+          "p1": "pmvnnwfu81k",
+          "p2": "pmvnnwfu81m",
+          "construction": false
+        },
+        "lnmvnnwfu81o": {
+          "id": "lnmvnnwfu81o",
+          "kind": "line",
+          "p1": "pmvnnwfu81m",
+          "p2": "pmvnnwfu81g",
+          "construction": false
+        }
+      },
+      "constraints": {},
+      "entityOrder": [
+        "armvnnwfu81j",
+        "lnmvnnwfu81l",
+        "lnmvnnwfu81n",
+        "lnmvnnwfu81o"
+      ],
+      "constraintOrder": [],
+      "origin": "origin_s2"
+    }
+  },
+  "features": [
+    {
+      "id": "ks1",
+      "type": "sketch",
+      "name": "Sketch1",
+      "sketchId": "s1",
+      "suppressed": false
+    },
+    {
+      "id": "f1",
+      "type": "revolve",
+      "name": "Revolve1",
+      "sketchId": "s1",
+      "suppressed": false,
+      "op": "boss",
+      "axisEntityId": "lnmvnnwfu81e",
+      "angle": 360,
+      "reverse": false
+    },
+    {
+      "id": "ks2",
+      "type": "sketch",
+      "name": "Sketch2",
+      "sketchId": "s2",
+      "suppressed": false
+    },
+    {
+      "id": "f2",
+      "type": "extrude",
+      "name": "Cut-Extrude1",
+      "sketchId": "s2",
+      "suppressed": false,
+      "op": "cut",
+      "end": "throughAll",
+      "depth": 0,
+      "reverse": false
+    }
+  ],
+  "planes": {},
+  "variables": {},
+  "equations": [],
+  "material": {
+    "name": "AISI 304",
+    "density": 8000,
+    "color": "#c9ccd1"
+  }
+}

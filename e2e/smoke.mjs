@@ -1,11 +1,11 @@
 import { chromium } from 'playwright';
-const OUT = process.env.E2E_OUT ?? '/tmp/claude-0/-home-user-Claude/72cb6de8-0893-594a-95ed-130ce81e494b/scratchpad/e2e';
-const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome', args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
+const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
+const browser = await chromium.launch(process.platform === 'win32' ? { channel: process.env.PW_CHANNEL ?? 'msedge' } : { ...(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {}), args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
 const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
 const errors = [];
 page.on('pageerror', (e) => errors.push('pageerror: ' + e.message));
 page.on('console', (m) => { if (m.type() === 'error') errors.push('console: ' + m.text()); });
-await page.goto('http://localhost:4173/');
+await page.goto(process.env.E2E_URL ?? 'http://localhost:4173/');
 await page.evaluate(() => localStorage.clear());
 await page.reload();
 await page.waitForSelector('.k-viewport');
@@ -30,12 +30,12 @@ await page.waitForTimeout(500);
 console.log('editing:', await page.locator('.k-status-cell:has-text("Editing")').textContent());
 
 // draw a rectangle: press R, click two corners
-await page.keyboard.press('r');
+await page.click('.k-cm-iconbtn[data-tip="Corner Rectangle"]');
 await page.mouse.click(cx - 120, cy + 80);
 await page.mouse.move(cx + 120, cy - 60);
 await page.mouse.click(cx + 120, cy - 60);
 await page.waitForTimeout(100);
-await page.keyboard.press('c');
+await page.click('.k-cm-iconbtn[data-tip="Circle"]');
 await page.mouse.click(cx + 250, cy);
 await page.mouse.click(cx + 290, cy);
 await page.keyboard.press('Escape');
@@ -49,12 +49,12 @@ let status = await page.locator('.k-statusbar .status').first().textContent();
 console.log('status after drawing:', status.trim());
 
 // smart dimension (M) -> Modify dialog at the pointer
-await page.keyboard.press('m');
+await page.click('.k-cm-big:has-text("Smart Dimension") .k-cm-main');
 await page.mouse.click(cx, cy + 80);
 await page.mouse.click(cx, cy + 130);
 await page.waitForTimeout(200);
 console.log('modify dialog visible:', await page.locator('.k-modify').count());
-const input = page.locator('.k-modify input[type=number]');
+const input = page.locator('.k-modify input.k-num');
 await input.fill('100');
 await input.press('Enter');
 await page.waitForTimeout(200);
@@ -86,7 +86,7 @@ await page.keyboard.press('d');
 
 // dark mode + relations task pane
 await page.keyboard.press('Control+Shift+d');
-await page.click('.k-taskpane-btn[data-tip="Display/Delete Relations"]');
+await page.click('.k-cm-big:has-text("Display/Delete Relations") .k-cm-main');
 await page.waitForTimeout(200);
 await page.screenshot({ path: `${OUT}/03-sketch-dark.png` });
 await page.keyboard.press('Control+Shift+d');
@@ -113,6 +113,7 @@ await page.screenshot({ path: `${OUT}/04-part-iso.png` });
 // autosave persisted?
 await page.reload();
 await page.waitForSelector('.k-viewport');
+await page.locator('[data-testid="welcome-recent-0"]').click({ timeout: 4000 }).catch(() => {}); // the autosave waits under Recent Documents, as the original
 const treeText = await page.locator('.k-tree').textContent();
 console.log('tree after reload:', treeText.replace(/\s+/g, ' ').trim().slice(0, 160));
 console.log('errors:', errors);

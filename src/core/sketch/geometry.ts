@@ -1,5 +1,6 @@
 import { arcAngles } from './model';
-import type { Entity, Id, Sketch, SketchPoint } from './types';
+import type { EllipseArcEntity, EllipseEntity, Entity, Id, Sketch, SketchPoint } from './types';
+import { textOutlines } from './text';
 
 export type Pt = SketchPoint;
 
@@ -44,7 +45,64 @@ export function sampleCatmullRom(pts: Pt[], seg = 12): Pt[] {
   return out;
 }
 
+/** Single-span Bezier through its control polygon (Style Spline), de Casteljau. */
+export function sampleBezier(ctrl: Pt[], n = 64): Pt[] {
+  if (ctrl.length < 2) return ctrl.slice();
+  const out: Pt[] = [];
+  for (let i = 0; i <= n; i++) {
+    const t = i / n;
+    let q = ctrl.slice();
+    while (q.length > 1) {
+      const r: Pt[] = [];
+      for (let k = 0; k < q.length - 1; k++) r.push({ x: q[k].x + (q[k + 1].x - q[k].x) * t, y: q[k].y + (q[k + 1].y - q[k].y) * t });
+      q = r;
+    }
+    out.push(q[0]);
+  }
+  return out;
+}
+
+/** Rational quadratic Bezier of a Conic: weight of the control point w = rho / (1 - rho). */
+export function sampleConic(a: Pt, c: Pt, b: Pt, rho: number, n = 48): Pt[] {
+  const w = rho / (1 - rho);
+  const out: Pt[] = [];
+  for (let i = 0; i <= n; i++) {
+    const t = i / n, u = 1 - t;
+    const k0 = u * u, k1 = 2 * u * t * w, k2 = t * t;
+    const d = k0 + k1 + k2;
+    out.push({ x: (k0 * a.x + k1 * c.x + k2 * b.x) / d, y: (k0 * a.y + k1 * c.y + k2 * b.y) / d });
+  }
+  return out;
+}
+
+/** Ellipse parameter (eccentric angle) of a point, in the frame of the ellipse. */
+export function ellipseParamOf(c: Pt, a: number, b: number, rot: number, p: Pt): number {
+  const dx = p.x - c.x, dy = p.y - c.y;
+  const x = dx * Math.cos(rot) + dy * Math.sin(rot), y = -dx * Math.sin(rot) + dy * Math.cos(rot);
+  return Math.atan2(y / (b || 1e-9), x / (a || 1e-9));
+}
+
+/** Start parameter and signed sweep of a Partial Ellipse. */
+export function ellipseArcRange(s: Sketch, e: EllipseArcEntity): { c: Pt; a: number; b: number; rot: number; t0: number; sweep: number } {
+  const { c, a, b, rot } = ellipseParams(s, e as unknown as EllipseEntity);
+  const t0 = ellipseParamOf(c, a, b, rot, s.points[e.start]);
+  const t1 = ellipseParamOf(c, a, b, rot, s.points[e.end]);
+  let sw = e.ccw ? t1 - t0 : t0 - t1;
+  while (sw <= 1e-9) sw += Math.PI * 2;
+  return { c, a, b, rot, t0, sweep: e.ccw ? sw : -sw };
+}
+
 /** Polyline approximation of an entity in sketch coordinates. */
+/**
+ * Segments for a full circle of radius r: at least `base`, more for large radii so the chord deviation stays
+ * under 0.02 mm (the original's image quality adapts the tessellation to the size the same way). At most 256.
+ */
+export function circleSegments(r: number, base: number): number {
+  if (!(r > 0.02)) return base;
+  const n = Math.ceil(Math.PI / Math.acos(1 - 0.02 / r));
+  return Math.max(base, Math.min(256, n));
+}
+
 export function sampleEntity(s: Sketch, e: Entity, segments = 48): Pt[] {
   switch (e.kind) {
     case 'point':
@@ -55,8 +113,9 @@ export function sampleEntity(s: Sketch, e: Entity, segments = 48): Pt[] {
       const c = s.points[e.center];
       const r = s.scalars[e.r];
       const out: Pt[] = [];
-      for (let i = 0; i <= segments; i++) {
-        const a = (i / segments) * Math.PI * 2;
+      const nC = circleSegments(r, segments);
+      for (let i = 0; i <= nC; i++) {
+        const a = (i / nC) * Math.PI * 2;
         out.push({ x: c.x + r * Math.cos(a), y: c.y + r * Math.sin(a) });
       }
       return out;
@@ -65,7 +124,7 @@ export function sampleEntity(s: Sketch, e: Entity, segments = 48): Pt[] {
       const c = s.points[e.center];
       const r = s.scalars[e.r];
       const { start, sweep } = arcAngles(s, e);
-      const n = Math.max(4, Math.ceil((segments * sweep) / (Math.PI * 2)));
+      const n = Math.max(4, Math.ceil((circleSegments(r, segments) * sweep) / (Math.PI * 2)));
       const out: Pt[] = [];
       for (let i = 0; i <= n; i++) {
         const a = start + (e.ccw ? 1 : -1) * (sweep * i) / n;
@@ -74,8 +133,60 @@ export function sampleEntity(s: Sketch, e: Entity, segments = 48): Pt[] {
       return out;
     }
     case 'spline':
-      return sampleCatmullRom(e.points.map((p) => s.points[p]));
+      return e.style ? sampleBezier(e.points.map((p) => s.points[p])) : sampleCatmullRom(e.points.map((p) => s.points[p]));
+    case 'conic':
+      return sampleConic(s.points[e.start], s.points[e.control], s.points[e.end], e.rho, segments);
+    case 'ellipseArc': {
+      const { c, a, b, rot, t0, sweep } = ellipseArcRange(s, e);
+      const n = Math.max(8, Math.ceil((segments * Math.abs(sweep)) / (Math.PI * 2)));
+      const out: Pt[] = [];
+      for (let i = 0; i <= n; i++) {
+        const t = t0 + (sweep * i) / n;
+        const x = a * Math.cos(t), y = b * Math.sin(t);
+        out.push({ x: c.x + x * Math.cos(rot) - y * Math.sin(rot), y: c.y + x * Math.sin(rot) + y * Math.cos(rot) });
+      }
+      // the end points exactly on the sketch points (profiles chain through them)
+      out[0] = s.points[e.start];
+      out[out.length - 1] = s.points[e.end];
+      return out;
+    }
+    case 'ellipse': {
+      const { c, a, b, rot } = ellipseParams(s, e);
+      const out: Pt[] = [];
+      for (let i = 0; i <= segments; i++) {
+        const t = (i / segments) * Math.PI * 2;
+        const x = a * Math.cos(t), y = b * Math.sin(t);
+        out.push({ x: c.x + x * Math.cos(rot) - y * Math.sin(rot), y: c.y + x * Math.sin(rot) + y * Math.cos(rot) });
+      }
+      return out;
+    }
+    case 'text': {
+      // the outline of the first glyph loop (all loops: entityLoops)
+      return entityLoops(s, e)[0] ?? [s.points[e.anchor]];
+    }
   }
+}
+
+/** Centre, semi-axes and rotation of an ellipse entity. */
+export function ellipseParams(s: Sketch, e: EllipseEntity): { c: Pt; a: number; b: number; rot: number } {
+  const c = s.points[e.center], m = s.points[e.major];
+  return { c, a: Math.hypot(m.x - c.x, m.y - c.y), b: Math.abs(s.scalars[e.r2]), rot: Math.atan2(m.y - c.y, m.x - c.x) };
+}
+
+/** Closed and open polylines of an entity: one for curves, every glyph outline (and hole) for Sketch Text. */
+export function entityLoops(s: Sketch, e: Entity, segments = 48): Pt[][] {
+  if (e.kind !== 'text') return [sampleEntity(s, e, segments)];
+  const o = s.points[e.anchor];
+  const rot = ((e.angle ?? 0) * Math.PI) / 180;
+  const wf = (e.widthFactor ?? 100) / 100;
+  const out: Pt[][] = [];
+  for (const loop of textOutlines(e.text, e.height, !!e.bold, e.spacing ?? 100)) {
+    out.push(loop.map((p) => {
+      const x = p.x * wf, y = p.y;
+      return { x: o.x + x * Math.cos(rot) - y * Math.sin(rot), y: o.y + x * Math.sin(rot) + y * Math.cos(rot) };
+    }));
+  }
+  return out;
 }
 
 function distToSegment(p: Pt, a: Pt, b: Pt): number {
@@ -106,8 +217,16 @@ export function distanceToEntity(s: Sketch, e: Entity, p: Pt): number {
       if (rel <= sweep) return Math.abs(dist(p, c) - r);
       return Math.min(dist(p, s.points[e.start]), dist(p, s.points[e.end]));
     }
+    case 'ellipse':
+    case 'ellipseArc':
+    case 'conic':
+    case 'text': {
+      let best = Infinity;
+      for (const pts of entityLoops(s, e, 64)) for (let i = 0; i < pts.length - 1; i++) best = Math.min(best, distToSegment(p, pts[i], pts[i + 1]));
+      return best;
+    }
     case 'spline': {
-      const pts = sampleCatmullRom(e.points.map((id) => s.points[id]));
+      const pts = sampleEntity(s, e);
       let best = Infinity;
       for (let i = 0; i < pts.length - 1; i++) best = Math.min(best, distToSegment(p, pts[i], pts[i + 1]));
       return best;
@@ -132,14 +251,14 @@ export function hitTest(s: Sketch, p: Pt, tolerance: number, excludePoints: Set<
   // points
   for (const eid of s.entityOrder) {
     const e = s.entities[eid];
-    const pts = e.kind === 'point' ? [e.p] : e.kind === 'line' ? [e.p1, e.p2] : e.kind === 'circle' ? [e.center] : e.kind === 'arc' ? [e.center, e.start, e.end] : e.points;
+    const pts = e.kind === 'point' ? [e.p] : e.kind === 'line' ? [e.p1, e.p2] : e.kind === 'circle' ? [e.center] : e.kind === 'arc' ? [e.center, e.start, e.end] : e.kind === 'ellipse' ? [e.center, e.major] : e.kind === 'ellipseArc' ? [e.center, e.major, e.start, e.end] : e.kind === 'conic' ? [e.start, e.end, e.control] : e.kind === 'text' ? [e.anchor] : e.equation ? [e.points[0], e.points[e.points.length - 1]] : e.points;
     for (const pid of pts) {
       if (excludePoints.has(pid)) continue;
       const d = dist(p, s.points[pid]);
       if (d <= tolerance) consider({ kind: 'point', id: pid, entityId: eid, distance: d });
     }
   }
-  if (dist(p, s.points[s.origin]) <= tolerance) consider({ kind: 'point', id: s.origin, distance: dist(p, s.points[s.origin]) });
+  if (!excludePoints.has(s.origin) && dist(p, s.points[s.origin]) <= tolerance) consider({ kind: 'point', id: s.origin, distance: dist(p, s.points[s.origin]) });
   if (best) return best;
   for (const eid of s.entityOrder) {
     const e = s.entities[eid];
@@ -226,7 +345,7 @@ export function snap(
 export function sketchBounds(s: Sketch): { min: Pt; max: Pt } | null {
   let min: Pt | null = null, max: Pt | null = null;
   for (const eid of s.entityOrder) {
-    for (const p of sampleEntity(s, s.entities[eid], 16)) {
+    for (const p of entityLoops(s, s.entities[eid], 16).flat()) {
       if (!min || !max) {
         min = { ...p };
         max = { ...p };

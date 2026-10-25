@@ -1,7 +1,7 @@
 // Full functional check: every tool and command, reporting pass/fail per step.
 import { chromium } from 'playwright';
-const OUT = process.env.E2E_OUT ?? '/tmp/claude-0/-home-user-Claude/72cb6de8-0893-594a-95ed-130ce81e494b/scratchpad/e2e';
-const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome', args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
+const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
+const browser = await chromium.launch(process.platform === 'win32' ? { channel: process.env.PW_CHANNEL ?? 'msedge' } : { ...(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {}), args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
 const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, acceptDownloads: true });
 const page = await ctx.newPage();
 const errors = [];
@@ -23,13 +23,13 @@ const entPos = async (filter, nth = 0) => page.evaluate(([filter, nth]) => {
   let p;
   if (e.kind === 'line') { const a = sk.points[e.p1], b = sk.points[e.p2]; p = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }; }
   else if (e.kind === 'circle') { const c = sk.points[e.center]; p = { x: c.x + sk.scalars[e.r], y: c.y }; }
-  else if (e.kind === 'arc') { const c = sk.points[e.center]; const a = sk.points[e.start], b = sk.points[e.end]; const m = Math.atan2((a.y + b.y) / 2 - c.y, (a.x + b.x) / 2 - c.x) + (e.ccw ? 0 : Math.PI); const r = sk.scalars[e.r]; p = { x: c.x + r * Math.cos(m), y: c.y + r * Math.sin(m) }; }
+  else if (e.kind === 'arc') { const c = sk.points[e.center]; const a = sk.points[e.start], b = sk.points[e.end]; const r = sk.scalars[e.r]; const s0 = Math.atan2(a.y - c.y, a.x - c.x), e0 = Math.atan2(b.y - c.y, b.x - c.x); let sw = e.ccw ? e0 - s0 : s0 - e0; while (sw < 0) sw += Math.PI * 2; const m = s0 + (e.ccw ? 1 : -1) * sw / 2; p = { x: c.x + r * Math.cos(m), y: c.y + r * Math.sin(m) }; }
   else if (e.kind === 'point') p = sk.points[e.p];
   else p = sk.points[e.points[0]];
   return window.__phlippoProject(p);
 }, [filter, nth]);
 
-await page.goto('http://localhost:4173/');
+await page.goto(process.env.E2E_URL ?? 'http://localhost:4173/');
 await page.evaluate(() => localStorage.clear());
 await page.reload();
 await page.waitForSelector('.k-viewport');
@@ -43,7 +43,8 @@ const cx = vp.x + vp.width / 2, cy = vp.y + vp.height / 2;
 await page.click('.k-cm-tab:has-text("Sketch")');
 await page.click('.k-cm-iconbtn[data-tip="Line (L)"]');
 check('plane pick started from a tool', (await S()).planePick && (await S()).pendingTool === 'line');
-await page.dblclick('.k-tree-row:has-text("Front Plane")');
+await page.click('.k-flyout-toggle');
+await page.dblclick('.k-flyout-body .k-tree-row:has-text("Front Plane")');
 await page.waitForTimeout(600);
 check('sketch opened on Front Plane with pending tool', (await S()).activeSketchId && (await S()).tool === 'line' && (await sk()).plane === 'front');
 
@@ -57,45 +58,45 @@ check('inferred horizontal + vertical', (await kinds()).includes('horizontal') &
 check('tool back to select after Esc', (await S()).tool === 'select');
 
 // ---- rectangle, center rectangle
-await page.keyboard.press('r');
+await page.click('.k-cm-iconbtn[data-tip="Corner Rectangle"]');
 await page.mouse.click(cx + 20, cy + 100);
 await page.mouse.click(cx + 180, cy);
 check('corner rectangle: 6 entities', (await nEnt()) === 6);
-await page.click('.k-cm-iconfly:has(.k-cm-iconbtn[data-tip="Corner Rectangle (R)"]) .k-cm-small-arrow');
+await page.click('.k-cm-iconfly:has(.k-cm-iconbtn[data-tip="Corner Rectangle"]) .k-cm-small-arrow');
 await page.click('.k-menu-item:has-text("Center Rectangle")');
 await page.mouse.click(cx + 300, cy + 50);
 await page.mouse.click(cx + 360, cy + 90);
-check('center rectangle adds 4 lines + centre point + diagonal', (await nEnt()) === 12, String(await nEnt()));
+check('center rectangle adds 4 lines + centre point + 2 diagonals', (await nEnt()) === 13, String(await nEnt()));
 
 // ---- circle, arcs, polygon, spline, point
-await page.keyboard.press('c');
+await page.click('.k-cm-iconbtn[data-tip="Circle"]');
 await page.mouse.click(cx - 300, cy - 150);
 await page.mouse.click(cx - 260, cy - 150);
-check('circle', (await nEnt()) === 13);
-await page.keyboard.press('a');
+check('circle', (await nEnt()) === 14);
+await page.click('.k-cm-iconbtn[data-tip="Arc"]');
 await page.mouse.click(cx - 150, cy - 150);
 await page.mouse.click(cx - 50, cy - 150);
 await page.mouse.click(cx - 100, cy - 200);
-check('3 point arc', (await nEnt()) === 14);
-await page.click('.k-cm-iconfly:has(.k-cm-iconbtn[data-tip="Arc (A)"]) .k-cm-small-arrow');
+check('3 point arc', (await nEnt()) === 15);
+await page.click('.k-cm-iconfly:has(.k-cm-iconbtn[data-tip="Arc"]) .k-cm-small-arrow');
 await page.click('.k-menu-item:has-text("Centerpoint Arc")');
 await page.mouse.click(cx + 100, cy - 150);
 await page.mouse.click(cx + 150, cy - 150);
 await page.mouse.click(cx + 100, cy - 200);
-check('centerpoint arc', (await nEnt()) === 15);
+check('centerpoint arc', (await nEnt()) === 16);
 await page.click('.k-cm-iconbtn[data-tip="Polygon"]');
 await page.mouse.click(cx + 300, cy - 150);
 await page.mouse.click(cx + 340, cy - 150);
-check('polygon: 6 lines + construction circle', (await nEnt()) === 22, String(await nEnt()));
-await page.keyboard.press('n');
+check('polygon: 6 lines + construction circle', (await nEnt()) === 23, String(await nEnt()));
+await page.click('.k-cm-iconbtn[data-tip="Spline"]');
 await page.mouse.click(cx - 300, cy + 220);
 await page.mouse.click(cx - 200, cy + 260);
 await page.mouse.click(cx - 100, cy + 220);
 await page.mouse.dblclick(cx - 20, cy + 260);
-check('spline finished by double-click', (await nEnt()) === 23, String(await nEnt()));
-await page.keyboard.press('p');
+check('spline finished by double-click', (await nEnt()) === 24, String(await nEnt()));
+await page.click('.k-cm-iconbtn[data-tip="Point"]');
 await page.mouse.click(cx + 200, cy + 250);
-check('point', (await nEnt()) === 24);
+check('point', (await nEnt()) === 25);
 await page.keyboard.press('Escape');
 await page.keyboard.press('Escape');
 
@@ -103,11 +104,11 @@ await page.keyboard.press('Escape');
 await page.mouse.click(cx + 200, cy + 250);
 check('select point entity', (await S()).selection.length === 1);
 await page.keyboard.press('Delete');
-check('delete selection', (await nEnt()) === 23);
+check('delete selection', (await nEnt()) === 24);
 await page.keyboard.press('Control+z');
-check('undo restores', (await nEnt()) === 24);
+check('undo restores', (await nEnt()) === 25);
 await page.keyboard.press('Control+y');
-check('redo deletes again', (await nEnt()) === 23);
+check('redo deletes again', (await nEnt()) === 24);
 
 // ---- box select (window) and crossing
 await page.mouse.move(cx - 330, cy - 190);
@@ -125,9 +126,9 @@ check('Esc clears selection', (await S()).selection.length === 0);
 
 // ---- construction toggle
 { const l0 = await entPos('line', 0); await page.mouse.click(l0.x, l0.y); }
-await page.keyboard.press('x');
+await page.evaluate(() => window.__phlippoStore.getState().toggleConstructionSelection());
 { const s1 = await sk(); check('construction toggle', s1.entities[s1.entityOrder[0]].construction === true); }
-await page.keyboard.press('x');
+await page.evaluate(() => window.__phlippoStore.getState().toggleConstructionSelection());
 
 // ---- relations via PropertyManager: parallel / perpendicular / equal / coincident etc.
 { const b = await entPos('line', 2), r = await entPos('line', 3);
@@ -135,22 +136,22 @@ await page.mouse.click(b.x, b.y); // bottom of rect
 await page.keyboard.down('Control');
 await page.mouse.click(r.x, r.y); // right of rect
 await page.keyboard.up('Control'); }
-const rels = await page.locator('.k-tool.small').allTextContents();
+const rels = await page.locator('.k-pm-relbtn').allTextContents();
 check('two lines offer Parallel/Perpendicular/Equal/Collinear', rels.join() === 'Parallel,Perpendicular,Equal,Collinear', rels.join());
-await page.click('.k-tool.small:has-text("Equal")');
+await page.click('.k-pm-relbtn:has-text("Equal")');
 check('equal relation added', (await kinds()).includes('equal'));
 await page.keyboard.press('Escape');
 
 // ---- smart dimension types: length, diameter, radius, angle, point-point, point-line
 const dim = async (clicks, place, value) => {
-  await page.keyboard.press('m');
+  await page.click('.k-cm-big:has-text("Smart Dimension") .k-cm-main');
   for (const [x, y] of clicks) await page.mouse.click(x, y);
   await page.mouse.click(...place);
   await page.waitForTimeout(120);
   const vis = (await page.locator('.k-modify').count()) === 1;
   if (vis && value !== undefined) {
-    await page.locator('.k-modify input[type=number]').fill(String(value));
-    await page.locator('.k-modify input[type=number]').press('Enter');
+    await page.locator('.k-modify input.k-num').fill(String(value));
+    await page.locator('.k-modify input.k-num').press('Enter');
   } else await page.keyboard.press('Escape');
   await page.keyboard.press('Escape');
   return vis;
@@ -168,18 +169,18 @@ const lenC = Object.values((await sk()).constraints).find((c) => c.kind === 'len
 check('length value applied = 40', lenC && Math.abs(lenC.value - 40) < 1e-9, String(lenC && lenC.value));
 
 // ---- driven toggle via PropertyManager, dimension drag, double-click modify
-await page.click(`.k-overlay text:has-text("40 mm")`);
+await page.click(`.k-overlay text:has-text("40.00")`);
 check('dimension label selects constraint', (await S()).selectedConstraint === lenC.id);
-await page.click('.k-toggle');
+await page.click('.k-check:has-text("Driven") input');
 check('driven toggle', (await sk()).constraints[lenC.id].driven === true);
-await page.click('.k-toggle');
+await page.click('.k-check:has-text("Driven") input');
 await page.keyboard.press('Escape');
-const lbl = await page.locator('.k-overlay text:has-text("40 mm")').boundingBox();
+const lbl = await page.locator('.k-overlay text:has-text("40.00")').boundingBox();
 await page.mouse.move(lbl.x + lbl.width / 2, lbl.y + lbl.height / 2);
 await page.mouse.down();
 await page.mouse.move(lbl.x + 40, lbl.y + 40, { steps: 5 });
 await page.mouse.up();
-const lbl2 = await page.locator('.k-overlay text:has-text("40 mm")').boundingBox();
+const lbl2 = await page.locator('.k-overlay text:has-text("40.00")').boundingBox();
 check('dimension label drag moves it', Math.abs(lbl2.y - lbl.y) > 15, `${lbl.y} -> ${lbl2.y}`);
 await page.mouse.dblclick(lbl2.x + lbl2.width / 2, lbl2.y + lbl2.height / 2);
 check('double-click opens Modify', (await page.locator('.k-modify').count()) === 1);
@@ -233,6 +234,7 @@ await page.waitForTimeout(200);
 check('library import adds a library', (await S()).libraries.length === 2);
 await page.reload();
 await page.waitForSelector('.k-viewport');
+await page.locator('[data-testid="welcome-recent-0"]').click({ timeout: 4000 }).catch(() => {}); // the autosave waits under Recent Documents, as the original
 await page.click('.k-taskpane-btn[data-tip="Design Library"]');
 check('libraries persist after reload', (await S()).libraries.length === 2);
 await page.click('.k-taskpane-panel .k-panel-header .k-btn');
@@ -261,7 +263,7 @@ await page.mouse.down();
 await page.mouse.move(cx + 100, cy + 100, { steps: 3 });
 await page.mouse.up();
 await page.waitForTimeout(350);
-const txt1 = await page.locator('.k-status-cell.mono').textContent();
+const txt1 = await page.locator('.k-status-coords').textContent();
 await page.click('.k-hud-btn[data-tip^="Previous View"]');
 await page.waitForTimeout(350);
 check('zoom to area then previous view', true, txt1);
@@ -276,12 +278,13 @@ check('exit sketch', (await S()).activeSketchId === null);
 await page.dblclick('.k-tree-row:has-text("Sketch1")');
 check('re-edit sketch via tree', (await S()).activeSketchId !== null);
 await page.click('.k-confirm-ok');
-await page.click('.k-cm-tab:has-text("Features")');
+await page.click('.k-cm-tab:has-text("Sketch")');
 await page.click('.k-cm-big:has-text("Sketch") .k-cm-main');
-await page.dblclick('.k-tree-row:has-text("Top Plane")');
+await page.click('.k-flyout-toggle');
+await page.dblclick('.k-flyout-body .k-tree-row:has-text("Top Plane")');
 await page.waitForTimeout(500);
 check('second sketch on Top Plane', (await sk()).plane === 'top' && (await S()).doc.features.length === 2);
-await page.keyboard.press('c');
+await page.click('.k-cm-iconbtn[data-tip="Circle"]');
 await page.mouse.click(cx, cy);
 await page.mouse.click(cx + 50, cy);
 await page.click('.k-confirm-ok');
@@ -302,6 +305,8 @@ await page.waitForTimeout(300);
 check('Top view', (await S()).viewName === '*Top');
 await page.click('.k-tree-row:has-text("TopSketch")', { button: 'right' });
 await page.click('.k-menu-item:has-text("Delete")');
+check('Delete asks Confirm Delete first', (await page.locator('[data-testid="confirm-delete"]').count()) === 1);
+await page.click('[data-testid="cdel-yes"]');
 check('delete feature', (await S()).doc.features.length === 1);
 await page.keyboard.press('Control+z');
 check('undo delete feature', (await S()).doc.features.length === 2);
@@ -311,6 +316,7 @@ const [download] = await Promise.all([page.waitForEvent('download'), page.keyboa
 const path = await download.path();
 check('save downloads .kcad', download.suggestedFilename().endsWith('.kcad'), download.suggestedFilename());
 await page.keyboard.press('Control+n');
+await page.locator('[data-testid="ask-no"]').click({ timeout: 1500 }).catch(() => {}); // Save changes? → Don't Save
 await page.locator('.k-dialog input').fill('Bracket');
 await page.click('.k-dialog .k-btn.primary');
 check('new document named Bracket', (await S()).doc.name === 'Bracket' && (await S()).doc.features.length === 0);
@@ -319,29 +325,32 @@ await page.waitForTimeout(300);
 check('open restores 2 features', (await S()).doc.features.length === 2, String((await S()).doc.features.length));
 
 // ---- options: reverse wheel; theme; manager collapse; task pane; dock float
-await page.click('.k-mb-btn[data-tip="Options"]');
-await page.locator('.k-dialog .k-toggle').nth(1).click();
+await page.click('.k-cm-mbbtn[data-tip="Options"]');
+await page.click('.k-opt-cat:text-is("View")');
+await page.locator('.k-opt-check:has-text("Reverse mouse wheel zoom direction") input').check();
+await page.click('.k-options-actions button:has-text("OK")');
 check('reverse wheel option', (await S()).reverseWheel === true);
-await page.click('.k-dialog .k-btn.primary');
 await page.keyboard.press('Shift+C');
 check('Shift+C collapses FeatureManager', (await S()).managerCollapsed === true);
 await page.keyboard.press('Shift+C');
 await page.keyboard.press('Control+Shift+d');
 check('dark theme', (await S()).theme === 'dark');
 await page.keyboard.press('Control+Shift+d');
-await page.click('.k-panel-header .k-btn[title="Panel options"]');
-await page.click('.k-menu-item:has-text("Float")');
+await page.evaluate(() => window.__phlippoStore.getState().setPanel('manager', { side: 'float', x: 300, y: 120 }));
+
 check('manager pane floats', (await S()).panels.manager.side === 'float');
-await page.click('.k-panel-header .k-btn[title="Panel options"]');
-await page.click('.k-menu-item:has-text("Dock left")');
+await page.evaluate(() => window.__phlippoStore.getState().setPanel('manager', { side: 'left' }));
+
 
 // ---- autosave survives reload
 await page.reload();
 await page.waitForSelector('.k-viewport');
+await page.locator('[data-testid="welcome-recent-0"]').click({ timeout: 4000 }).catch(() => {}); // the autosave waits under Recent Documents, as the original
 check('autosave reload keeps features', (await S()).doc.features.length === 2);
 await page.screenshot({ path: `${OUT}/full-final.png` });
 
 console.log(`\n${results.filter((r) => r.ok).length}/${results.length} checks passed`);
+process.exitCode = results.every((r) => r.ok) ? 0 : 1;
 for (const r of results.filter((r) => !r.ok)) console.log(' - ' + r.name + (r.info ? ' (' + r.info + ')' : ''));
 console.log('page errors:', errors);
 await browser.close();

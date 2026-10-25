@@ -1,3 +1,4 @@
+import { lengthDecimals } from '../prefs';
 import type { Constraint, Entity, Id, Sketch, SketchPoint } from '../../core/sketch/types';
 import { isDimension } from '../../core/sketch/types';
 import { arcAngles } from '../../core/sketch/model';
@@ -14,6 +15,14 @@ export interface DimensionDrawing {
   text: string;
   /** direction of the dimension line (for arrow orientation) */
   dir: SketchPoint;
+  /** radius / diameter: the text sits on the leader that ends at the label point */
+  leader?: boolean;
+  /** tolerance shown stacked after the value (bilateral) or instead of it (limit); basic: a frame around the text */
+  tol?: { upper: string; lower: string; limit?: boolean };
+  basic?: boolean;
+  fontSize?: number;
+  justify?: 'left' | 'center' | 'right';
+  arrowStyle?: 'filled' | 'open' | 'dot' | 'slash';
 }
 
 export interface GlyphDrawing {
@@ -31,13 +40,13 @@ export interface GlyphDrawing {
 
 const P = (s: Sketch, id: Id): SketchPoint => (id in s.points ? s.points[id] : s.points[(s.entities[id] as { p: Id }).p]);
 
-function fmt(v: number, unit: string, kind: Constraint['kind']): string {
-  const n = Math.round(v * 100) / 100;
-  const txt = Number.isInteger(n) ? n.toFixed(0) : n.toFixed(2).replace(/0+$/, '').replace(/\.$/, '');
+/** dimension text as the original shows it: two decimals, no unit ("80.00", "Ø35.00", "R15.00", "90.00°") */
+function fmt(v: number, _unit: string, kind: Constraint['kind'], decimals?: number): string {
+  const txt = v.toFixed(decimals ?? lengthDecimals());
   if (kind === 'angle') return `${txt}°`;
   if (kind === 'radius') return `R${txt}`;
-  if (kind === 'diameter') return `⌀${txt}`;
-  return `${txt} ${unit}`.trim();
+  if (kind === 'diameter') return `Ø${txt}`;
+  return txt;
 }
 
 function norm(v: SketchPoint): SketchPoint {
@@ -45,9 +54,50 @@ function norm(v: SketchPoint): SketchPoint {
   return { x: v.x / l, y: v.y / l };
 }
 
-export function dimensionDrawing(s: Sketch, c: Constraint, unit: string, driven: boolean): DimensionDrawing | null {
-  const value = c.value ?? 0;
-  const text = (driven ? '(' : '') + fmt(value, c.kind === 'angle' ? '' : unit, c.kind) + (driven ? ')' : '');
+/** the scale of a length in the document unit (mm) for Override units */
+const UNIT_SCALE: Record<string, number> = { mm: 1, cm: 0.1, in: 1 / 25.4 };
+
+export function dimensionDrawing(s: Sketch, c: Constraint, unit: string, driven: boolean, linked = false): DimensionDrawing | null {
+  const d = dimensionDrawingBase(s, c, unit, driven, linked);
+  if (!d) return d;
+  const out: DimensionDrawing = { ...d, fontSize: c.fontSize, justify: c.justify, arrowStyle: c.arrowStyle };
+  // tolerance of the original's Tolerance/Precision box
+  const tol = c.tol;
+  const dec = c.precision ?? lengthDecimals();
+  const k = c.kind === 'angle' ? 1 : UNIT_SCALE[c.unitOverride ?? 'mm'] ?? 1;
+  const v = (c.value ?? 0) * k;
+  const plus = (tol?.plus ?? 0) * k, minus = (tol?.minus ?? 0) * k;
+  if (tol && tol.type !== 'none') {
+    if (tol.type === 'basic') out.basic = true;
+    else if (tol.type === 'symmetric') out.text = `${out.text} ±${plus.toFixed(dec)}`;
+    else if (tol.type === 'bilateral') out.tol = { upper: `+${plus.toFixed(dec)}`, lower: `-${minus.toFixed(dec)}` };
+    else if (tol.type === 'limit') { out.tol = { upper: (v + plus).toFixed(dec), lower: (v - minus).toFixed(dec), limit: true }; out.text = ''; }
+    else if (tol.type === 'min') out.text = `${out.text} MIN`;
+    else if (tol.type === 'max') out.text = `${out.text} MAX`;
+  }
+  // Dual Dimension: the value in inches as well, in brackets
+  if (c.dual && c.kind !== 'angle' && out.text) out.text = `${out.text} [${((c.value ?? 0) / 25.4).toFixed(Math.max(2, dec + 1))}]`;
+  // Leaders > arrows outside: the arrows come in from outside the extension lines
+  if (c.arrows === 'outside') {
+    const i = out.lines.findIndex((l) => l.arrowA && l.arrowB);
+    if (i >= 0) {
+      const m = out.lines[i];
+      const dx = m.b.x - m.a.x, dy = m.b.y - m.a.y, L = Math.hypot(dx, dy) || 1;
+      const stub = Math.max(2, L * 0.25);
+      const ux = dx / L, uy = dy / L;
+      out.lines = [...out.lines.slice(0, i), { a: m.a, b: m.b }, { a: m.a, b: { x: m.a.x - ux * stub, y: m.a.y - uy * stub }, arrowA: true }, { a: m.b, b: { x: m.b.x + ux * stub, y: m.b.y + uy * stub }, arrowA: true }, ...out.lines.slice(i + 1)];
+    }
+  }
+  return out;
+}
+
+function dimensionDrawingBase(s: Sketch, c: Constraint, unit: string, driven: boolean, linked = false): DimensionDrawing | null {
+  const k = c.kind === 'angle' ? 1 : UNIT_SCALE[c.unitOverride ?? 'mm'] ?? 1;
+  const value = (c.value ?? 0) * k;
+  // a dimension driven by an equation shows the Σ prefix, as the original
+  const core = fmt(value, c.kind === 'angle' ? '' : unit, c.kind, c.precision);
+  const shown = c.dimText && c.dimText.includes('<DIM>') ? c.dimText.replace('<DIM>', core) : core;
+  const text = (linked ? 'Σ' : '') + (driven ? '(' : '') + shown + (driven ? ')' : '');
   const off = c.labelOffset;
   switch (c.kind) {
     case 'distance':
@@ -75,6 +125,16 @@ export function dimensionDrawing(s: Sketch, c: Constraint, unit: string, driven:
           a = P(s, c.refs[0]);
           b = P(s, c.refs[1]);
         }
+        // Arc Condition: the dimension line ends on the edge of the arc, not its centre
+        const ac = c.arcCondition ?? {};
+        const edgeOf = (centre: SketchPoint, toward: SketchPoint, cond: { entityId: Id; mode: 'min' | 'max' }) => {
+          const r = s.scalars[(s.entities[cond.entityId] as { r: Id }).r] ?? 0;
+          const d = norm(sub(toward, centre));
+          const k = cond.mode === 'max' ? -r : r;
+          return { x: centre.x + d.x * k, y: centre.y + d.y * k };
+        };
+        if (ac[0]) a = edgeOf(a, b, ac[0]);
+        if (ac[1]) b = edgeOf(b, a, ac[1]);
       }
       let dir = norm(sub(b, a));
       if (c.kind === 'hDistance') dir = { x: 1, y: 0 };
@@ -99,7 +159,11 @@ export function dimensionDrawing(s: Sketch, c: Constraint, unit: string, driven:
         { a: b, b: pb },
         { a: pa, b: pb, arrowA: true, arrowB: true },
       ];
-      return { id: c.id, kind: c.kind, lines, label, text, dir: norm(sub(pb, pa)) };
+      // as the original, the text sits centred between the arrows unless it is dragged outside the extension lines
+      const span = Math.hypot(pb.x - pa.x, pb.y - pa.y);
+      const along = span > 1e-9 ? ((label.x - pa.x) * (pb.x - pa.x) + (label.y - pa.y) * (pb.y - pa.y)) / span : 0;
+      const shown = along > 0 && along < span ? { x: (pa.x + pb.x) / 2, y: (pa.y + pb.y) / 2 } : label;
+      return { id: c.id, kind: c.kind, lines, label: shown, text, dir: norm(sub(pb, pa)) };
     }
     case 'radius':
     case 'diameter': {
@@ -110,9 +174,11 @@ export function dimensionDrawing(s: Sketch, c: Constraint, unit: string, driven:
       const d = norm(sub(label, ctr));
       const onCircle = { x: ctr.x + d.x * r, y: ctr.y + d.y * r };
       const lines: DimensionDrawing['lines'] = [];
-      if (c.kind === 'radius') lines.push({ a: ctr, b: onCircle, arrowB: true }, { a: onCircle, b: label });
-      else lines.push({ a: { x: ctr.x - d.x * r, y: ctr.y - d.y * r }, b: onCircle, arrowA: true, arrowB: true }, { a: onCircle, b: label });
-      return { id: c.id, kind: c.kind, lines, label, text, dir: d };
+      // as the original: a leader from the text to the circle with one arrow on the circle; a diameter also runs
+      // on through the centre to the far side of the circle
+      if (c.kind === 'diameter') lines.push({ a: { x: ctr.x - d.x * r, y: ctr.y - d.y * r }, b: onCircle });
+      lines.push({ a: label, b: onCircle, arrowB: true });
+      return { id: c.id, kind: c.kind, lines, label, text, dir: d, leader: true };
     }
     case 'angle': {
       const l1 = s.entities[c.refs[0]] as { p1: Id; p2: Id }, l2 = s.entities[c.refs[1]] as { p1: Id; p2: Id };
@@ -164,6 +230,17 @@ function entityAnchor(s: Sketch, e: Entity): SketchPoint {
       const pts = sampleEntity(s, e);
       return pts[Math.floor(pts.length / 2)];
     }
+    case 'ellipse': {
+      const pts = sampleEntity(s, e, 8);
+      return pts[7];
+    }
+    case 'ellipseArc':
+    case 'conic': {
+      const pts = sampleEntity(s, e, 16);
+      return pts[Math.floor(pts.length / 2)];
+    }
+    case 'text':
+      return s.points[e.anchor];
   }
 }
 
@@ -190,13 +267,82 @@ function entityFrame(s: Sketch, e: Entity): { dir: SketchPoint; normal: SketchPo
 }
 
 /** Where to draw the relation glyphs (one per constraint per referenced item). */
+/**
+ * The sides of polygons drawn with the Polygon tool: closed chains of three or more lines held equal. The original
+ * shows one Polygon relation per side and a single tangent / on-circle relation to the construction circle.
+ */
+function polygonSides(s: Sketch): Set<Id> {
+  const eq = new Map<Id, Set<Id>>();
+  for (const cid of s.constraintOrder) {
+    const c = s.constraints[cid];
+    if (c.kind !== 'equal' || c.refs.length !== 2) continue;
+    const [a, b] = c.refs;
+    if (s.entities[a]?.kind !== 'line' || s.entities[b]?.kind !== 'line') continue;
+    if (!eq.has(a)) eq.set(a, new Set());
+    if (!eq.has(b)) eq.set(b, new Set());
+    eq.get(a)!.add(b);
+    eq.get(b)!.add(a);
+  }
+  const out = new Set<Id>();
+  const seen = new Set<Id>();
+  for (const start of eq.keys()) {
+    if (seen.has(start)) continue;
+    const group: Id[] = [];
+    const stack = [start];
+    while (stack.length) {
+      const id = stack.pop()!;
+      if (seen.has(id)) continue;
+      seen.add(id);
+      group.push(id);
+      for (const n of eq.get(id) ?? []) if (!seen.has(n)) stack.push(n);
+    }
+    if (group.length < 3) continue;
+    // a closed chain: every end point is shared by exactly two of the lines
+    const count = new Map<Id, number>();
+    for (const id of group) {
+      const l = s.entities[id] as { p1: Id; p2: Id };
+      count.set(l.p1, (count.get(l.p1) ?? 0) + 1);
+      count.set(l.p2, (count.get(l.p2) ?? 0) + 1);
+    }
+    if (![...count.values()].every((n) => n === 2)) continue;
+    // and tied to a construction circle (tangent sides or vertices on it), so a plain square stays four Equal relations
+    const ids = new Set(group), pts = new Set(count.keys());
+    const tied = s.constraintOrder.some((k) => {
+      const c = s.constraints[k];
+      const circle = c.refs.find((r) => s.entities[r]?.kind === 'circle' && s.entities[r]?.construction);
+      if (!circle) return false;
+      return (c.kind === 'tangent' && c.refs.some((r) => ids.has(r))) || (c.kind === 'pointOnEntity' && pts.has(c.refs[0]));
+    });
+    if (tied) for (const id of group) out.add(id);
+  }
+  return out;
+}
+
 export function glyphDrawings(s: Sketch): GlyphDrawing[] {
   const raw: GlyphDrawing[] = [];
   const out = raw;
+  const poly = polygonSides(s);
+  const polyPoints = new Set<Id>([...poly].flatMap((id) => { const l = s.entities[id] as { p1: Id; p2: Id }; return [l.p1, l.p2]; }));
+  let polyCircleShown = false;
+  for (const id of poly) {
+    // one Polygon relation per side (it stands for the equal sides of the regular polygon)
+    const e = s.entities[id];
+    const f = entityFrame(s, e);
+    const cid = s.constraintOrder.find((k) => s.constraints[k].kind === 'equal' && s.constraints[k].refs.includes(id));
+    if (cid) out.push({ constraintId: cid, kind: 'polygon' as Constraint['kind'], at: entityAnchor(s, e), entityId: id, dir: f.dir, normal: f.normal });
+  }
   for (const cid of s.constraintOrder) {
     const c = s.constraints[cid];
     if (isDimension(c)) continue;
-    const targets = c.kind === 'symmetric' ? c.refs.slice(0, 2) : c.kind === 'coincident' ? [c.refs[0]] : c.kind === 'pointOnEntity' || c.kind === 'midpoint' || c.kind === 'fix' ? [c.refs[0]] : c.refs;
+    if (poly.size) {
+      if (c.kind === 'equal' && c.refs.every((r) => poly.has(r))) continue;
+      const toCircle = (c.kind === 'tangent' && c.refs.some((r) => poly.has(r))) || (c.kind === 'pointOnEntity' && polyPoints.has(c.refs[0]) && s.entities[c.refs[1]]?.construction);
+      if (toCircle) {
+        if (polyCircleShown) continue;
+        polyCircleShown = true;
+      }
+    }
+    const targets = poly.size && c.kind === 'tangent' && c.refs.some((r) => poly.has(r)) ? c.refs.filter((r) => poly.has(r)) : c.kind === 'symmetric' ? c.refs.slice(0, 2) : c.kind === 'coincident' ? [c.refs[0]] : c.kind === 'pointOnEntity' || c.kind === 'midpoint' || c.kind === 'fix' ? [c.refs[0]] : c.refs;
     for (const ref of targets) {
       if (ref in s.points) out.push({ constraintId: cid, kind: c.kind, at: s.points[ref], isPoint: true, dir: { x: 1, y: 0 }, normal: { x: 1, y: -1 } });
       else {

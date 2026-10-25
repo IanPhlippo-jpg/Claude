@@ -1,8 +1,11 @@
 import type {
   ArcEntity,
   CircleEntity,
+  ConicEntity,
   Constraint,
   ConstraintKind,
+  EllipseArcEntity,
+  EllipseEntity,
   Entity,
   Id,
   LineEntity,
@@ -10,6 +13,7 @@ import type {
   Sketch,
   SketchPoint,
   SplineEntity,
+  TextEntity,
 } from './types';
 
 let counter = 0;
@@ -111,7 +115,7 @@ export function addArc(
   return pushEntity(s2, { id: newId('ar'), kind: 'arc', center: c, start: a, end: b, r: rid, ccw, construction });
 }
 
-export function addSpline(s: Sketch, pts: (SketchPoint | Id)[], construction = false): [Sketch, SplineEntity] {
+export function addSpline(s: Sketch, pts: (SketchPoint | Id)[], construction = false, extra: Pick<SplineEntity, 'style' | 'equation'> = {}): [Sketch, SplineEntity] {
   let s1 = s;
   const ids: Id[] = [];
   for (const p of pts) {
@@ -122,7 +126,52 @@ export function addSpline(s: Sketch, pts: (SketchPoint | Id)[], construction = f
       ids.push(id);
     }
   }
-  return pushEntity(s1, { id: newId('sp'), kind: 'spline', points: ids, construction });
+  return pushEntity(s1, { id: newId('sp'), kind: 'spline', points: ids, construction, ...extra });
+}
+
+/** Ellipse from its centre, the end of the major axis and the minor radius. */
+export function addEllipse(s: Sketch, center: SketchPoint | Id, major: SketchPoint | Id, minor: number, construction = false): [Sketch, EllipseEntity] {
+  let s1 = s;
+  let c: Id, m: Id;
+  if (typeof center === 'string') c = center;
+  else [s1, c] = addPointParam(s1, center);
+  if (typeof major === 'string') m = major;
+  else [s1, m] = addPointParam(s1, major);
+  const [s2, rid] = addScalar(s1, Math.abs(minor));
+  return pushEntity(s2, { id: newId('el'), kind: 'ellipse', center: c, major: m, r2: rid, construction });
+}
+
+/** Partial Ellipse from the ellipse (centre, major axis end, minor radius) and its start and end points. */
+export function addEllipseArc(s: Sketch, center: SketchPoint, major: SketchPoint, minor: number, start: SketchPoint, end: SketchPoint, ccw = true, construction = false): [Sketch, EllipseArcEntity] {
+  let s1 = s;
+  let c: Id, m: Id, a: Id, b: Id;
+  [s1, c] = addPointParam(s1, center);
+  [s1, m] = addPointParam(s1, major);
+  [s1, a] = addPointParam(s1, start);
+  [s1, b] = addPointParam(s1, end);
+  const [s2, rid] = addScalar(s1, Math.abs(minor));
+  return pushEntity(s2, { id: newId('ea'), kind: 'ellipseArc', center: c, major: m, r2: rid, start: a, end: b, ccw, construction });
+}
+
+/** Conic / Parabola from start, end and the top vertex (control point of the rational Bezier). */
+export function addConic(s: Sketch, start: SketchPoint | Id, end: SketchPoint | Id, control: SketchPoint, rho: number, opts: { parabola?: boolean; construction?: boolean } = {}): [Sketch, ConicEntity] {
+  let s1 = s;
+  let a: Id, b: Id, c: Id;
+  if (typeof start === 'string') a = start;
+  else [s1, a] = addPointParam(s1, start);
+  if (typeof end === 'string') b = end;
+  else [s1, b] = addPointParam(s1, end);
+  [s1, c] = addPointParam(s1, control);
+  return pushEntity(s1, { id: newId('cn'), kind: 'conic', start: a, end: b, control: c, rho: Math.min(0.99, Math.max(0.01, rho)), parabola: opts.parabola, construction: !!opts.construction });
+}
+
+/** Sketch Text at an anchor point (lower left). */
+export function addText(s: Sketch, anchor: SketchPoint | Id, text: string, height: number, opts: Partial<Pick<TextEntity, 'bold' | 'angle' | 'widthFactor' | 'spacing'>> = {}): [Sketch, TextEntity] {
+  let s1 = s;
+  let a: Id;
+  if (typeof anchor === 'string') a = anchor;
+  else [s1, a] = addPointParam(s1, anchor);
+  return pushEntity(s1, { id: newId('tx'), kind: 'text', anchor: a, text, height, construction: false, ...opts });
 }
 
 export function addConstraint(
@@ -164,11 +213,19 @@ export function entityPoints(e: Entity): Id[] {
       return [e.center, e.start, e.end];
     case 'spline':
       return e.points;
+    case 'ellipse':
+      return [e.center, e.major];
+    case 'ellipseArc':
+      return [e.center, e.major, e.start, e.end];
+    case 'conic':
+      return [e.start, e.end, e.control];
+    case 'text':
+      return [e.anchor];
   }
 }
 
 export function entityScalars(e: Entity): Id[] {
-  return e.kind === 'circle' || e.kind === 'arc' ? [e.r] : [];
+  return e.kind === 'circle' || e.kind === 'arc' ? [e.r] : e.kind === 'ellipse' || e.kind === 'ellipseArc' ? [e.r2] : [];
 }
 
 export function removeEntity(s: Sketch, id: Id): Sketch {
@@ -242,14 +299,20 @@ export function arcAngles(s: Sketch, a: ArcEntity): { start: number; end: number
   return { start, end, sweep };
 }
 
-/** Regular polygon inscribed in a circle (centre, radius, n sides, rotation of first vertex). */
-export function addPolygon(s: Sketch, center: SketchPoint, radius: number, sides: number, rotation = 0): [Sketch, LineEntity[]] {
+/**
+ * Regular polygon with its construction circle (centre, circle radius, n sides, rotation). Circumscribed: the circle
+ * passes through the vertices and rotation points at the first vertex. Inscribed (the original's default): the circle
+ * touches the sides and rotation points at the middle of the first side.
+ */
+export function addPolygon(s: Sketch, center: SketchPoint, radius: number, sides: number, rotation = 0, inscribed = false): [Sketch, LineEntity[]] {
   let s1 = s;
   const ids: Id[] = [];
+  const R = inscribed ? radius / Math.cos(Math.PI / sides) : radius;
+  const rot0 = inscribed ? rotation - Math.PI / sides : rotation;
   for (let i = 0; i < sides; i++) {
-    const a = rotation + (i / sides) * Math.PI * 2;
+    const a = rot0 + (i / sides) * Math.PI * 2;
     let id: Id;
-    [s1, id] = addPointParam(s1, { x: center.x + radius * Math.cos(a), y: center.y + radius * Math.sin(a) });
+    [s1, id] = addPointParam(s1, { x: center.x + R * Math.cos(a), y: center.y + R * Math.sin(a) });
     ids.push(id);
   }
   const lines: LineEntity[] = [];
@@ -258,10 +321,11 @@ export function addPolygon(s: Sketch, center: SketchPoint, radius: number, sides
     [s1, l] = addLine(s1, ids[i], ids[(i + 1) % sides]);
     lines.push(l);
   }
-  // construction circle through the vertices keeps the polygon regular
+  // the construction circle keeps the polygon regular: through the vertices, or touching every side
   let c: CircleEntity;
   [s1, c] = addCircle(s1, center, radius, true);
-  for (const id of ids) s1 = addConstraint(s1, 'pointOnEntity', [id, c.id])[0];
+  if (inscribed) for (const l of lines) s1 = addConstraint(s1, 'tangent', [l.id, c.id])[0];
+  else for (const id of ids) s1 = addConstraint(s1, 'pointOnEntity', [id, c.id])[0];
   for (let i = 0; i < sides - 1; i++) s1 = addConstraint(s1, 'equal', [lines[i].id, lines[i + 1].id])[0];
   return [s1, lines];
 }

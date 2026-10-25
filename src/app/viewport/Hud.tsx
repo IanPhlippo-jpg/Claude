@@ -82,10 +82,17 @@ export function ViewGrid({ camera, onPick }: { camera: CadCamera; onPick?: () =>
         <Icon.Orientation size={18} />
         <span>View Selector</span>
       </button>
-      <button className="k-viewgrid-btn" disabled>
-        <Icon.Palette size={18} />
-        <span>Viewports</span>
-      </button>
+      {/* Viewports: Single View, Two View (horizontal / vertical), Four View, as the original's flyout */}
+      {([['single', 'Single View'], ['twoH', 'Two View - Horizontal'], ['twoV', 'Two View - Vertical'], ['four', 'Four View']] as const).map(([id, label]) => (
+        <button key={id} className={`k-viewgrid-btn k-tip ${st.viewportLayout === id ? 'active' : ''}`} data-tip={label} data-testid={'viewport-' + id} onClick={pick(() => st.setViewportLayout(id))}>
+          <svg width={18} height={18} viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth={1.2}>
+            <rect x={1.5} y={1.5} width={15} height={15} />
+            {(id === 'twoH' || id === 'four') && <line x1={1.5} y1={9} x2={16.5} y2={9} />}
+            {(id === 'twoV' || id === 'four') && <line x1={9} y1={1.5} x2={9} y2={16.5} />}
+          </svg>
+          <span>{id === 'single' ? 'Single' : id === 'four' ? 'Four' : id === 'twoH' ? 'Two H' : 'Two V'}</span>
+        </button>
+      ))}
     </div>
   );
 }
@@ -135,18 +142,19 @@ export function Hud({ camera, zoomFit, onZoomArea, zoomAreaActive }: { camera: C
     { id: 'shadedEdges', label: 'Shaded With Edges' },
   ];
   const chk = (b: boolean) => (b ? '✓ ' : '');
+  const STYLE_ICON: Record<DisplayStyle, React.ReactNode> = { wireframe: <Icon.StyleWireframe />, hiddenVisible: <Icon.StyleHiddenVisible />, hiddenRemoved: <Icon.StyleHiddenRemoved />, shaded: <Icon.StyleShaded />, shadedEdges: <Icon.StyleShadedEdges /> };
   return (
-    <div className="k-hud">
+    <div className="k-hud" onPointerDown={(e) => e.stopPropagation()} onDoubleClick={(e) => e.stopPropagation()}>
       <HudButton icon={<Icon.Fit />} tip="Zoom to Fit (F)" onClick={zoomFit} />
       <HudButton icon={<Icon.ZoomArea />} tip="Zoom to Area" onClick={onZoomArea} active={zoomAreaActive} />
       <HudButton icon={<Icon.Previous />} tip="Previous View (Shift+Ctrl+Z)" onClick={() => camera.previousView()} />
-      <HudButton icon={<Icon.Section />} tip="Section View (phase 2)" disabled />
+      <HudButton icon={<Icon.Section />} tip="Section View" active={!!st.sectionView || !!st.sectionEdit} onClick={st.startSectionView} />
       <span className="k-hud-sep" />
       <HudButton icon={<Icon.Orientation />} tip="View Orientation (Space)" menu={() => <ViewGrid camera={camera} />} />
       <HudButton
         icon={<Icon.DisplayStyle />}
         tip="Display Style"
-        menu={styles.map((s) => ({ label: `${chk(st.displayStyle === s.id)}${s.label}`, onSelect: () => st.setDisplayStyle(s.id) }))}
+        menu={styles.map((s) => ({ label: `${chk(st.displayStyle === s.id)}${s.label}`, icon: STYLE_ICON[s.id], onSelect: () => st.setDisplayStyle(s.id) }))}
       />
       <HudButton
         icon={<Icon.Eye />}
@@ -162,16 +170,27 @@ export function Hud({ camera, zoomFit, onZoomArea, zoomAreaActive }: { camera: C
         ]}
       />
       <span className="k-hud-sep" />
-      <HudButton icon={<Icon.Appearance />} tip="Edit Appearance (phase 7)" disabled />
-      <HudButton icon={<Icon.Scene />} tip="Apply Scene (phase 7)" disabled />
+      <HudButton icon={<Icon.Appearance />} tip="Edit Appearance" onClick={() => st.setDialog('appearance')} />
+      <HudButton
+        icon={<Icon.Scene />}
+        tip="Apply Scene"
+        menu={[
+          { label: `${chk((st.doc.scene?.background ?? 'gradient') === 'studio')}Backdrop - Studio Room`, icon: <Icon.Scene />, onSelect: () => st.setScene({ background: 'studio' }) },
+          { label: `${chk(st.doc.scene?.background === 'white')}Plain White`, icon: <Icon.Scene />, onSelect: () => st.setScene({ background: 'white' }) },
+          { label: `${chk((st.doc.scene?.background ?? 'gradient') === 'gradient')}Use Document Background (gradient)`, icon: <Icon.Scene />, onSelect: () => st.setScene({ background: 'gradient' }) },
+          { label: `${chk(st.doc.scene?.background === 'color')}Plain Color…`, icon: <Icon.Palette />, onSelect: () => { st.setScene({ background: 'color' }); st.setSceneEdit(true); } },
+          { separator: true },
+          { label: 'Edit Scene…', icon: <Icon.Scene />, onSelect: () => st.setSceneEdit(true) },
+        ]}
+      />
       <HudButton
         icon={<Icon.ViewSettings />}
         tip="View Settings"
         menu={[
-          { label: 'RealView Graphics (phase 7)', disabled: true },
-          { label: 'Shadows In Shaded Mode (phase 7)', disabled: true },
-          { label: 'Ambient Occlusion (phase 7)', disabled: true },
-          { label: 'Perspective (phase 2)', disabled: true },
+          { label: `${chk(st.show.realView)}RealView Graphics`, icon: <Icon.Appearance />, onSelect: () => st.toggleShow('realView') },
+          { label: `${chk(st.show.shadows)}Shadows In Shaded Mode`, icon: <Icon.Scene />, onSelect: () => st.toggleShow('shadows') },
+          { label: `${chk(st.show.ambientOcclusion)}Ambient Occlusion`, icon: <Icon.Scene />, onSelect: () => st.toggleShow('ambientOcclusion') },
+          { label: `${chk(st.show.perspective)}Perspective`, icon: <Icon.Orientation />, onSelect: () => st.toggleShow('perspective') },
           { separator: true },
           { label: `${chk(st.theme === 'dark')}Dark theme`, onSelect: () => st.setTheme(st.theme === 'dark' ? 'light' : 'dark') },
         ]}
@@ -186,6 +205,8 @@ export function Hud({ camera, zoomFit, onZoomArea, zoomAreaActive }: { camera: C
  * green check and a red X. The D key moves it to the pointer.
  */
 export function ConfirmationCorner({ onOk, onCancel, sketch }: { onOk: () => void; onCancel: () => void; sketch: boolean }) {
+  const enabled = useStore((s) => s.prefs['general.confirmationCorner'] !== false);
+  if (!enabled) return null;
   const at = useStore((s) => s.confirmAtCursor);
   return (
     <div className={`k-confirm ${at ? 'at-cursor' : ''}`} style={at ? { left: at.x + 12, top: at.y + 12, right: 'auto' } : undefined}>

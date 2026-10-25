@@ -1,0 +1,20 @@
+// crops of the UI at Ian's DPI (1.5) for sharpness checks -> e2e-out/crop-*.png
+import { chromium } from 'playwright';
+import { readFileSync } from 'node:fs';
+const browser = await chromium.launch({ channel: process.env.PW_CHANNEL ?? 'msedge' });
+const page = await browser.newPage({ viewport: { width: 1280, height: 672 }, deviceScaleFactor: Number(process.env.DPR ?? 1.5), colorScheme: 'light' });
+await page.goto(process.env.E2E_URL ?? 'http://127.0.0.1:4173/');
+await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.theme', 'light'); });
+await page.reload();
+await page.waitForSelector('.k-viewport');
+await page.click('.k-doctype:has-text("Part")');
+const asm = JSON.parse(readFileSync('voorbeelden/deurkruk/Kruk.kcad', 'utf8')); delete asm.format;
+await page.evaluate((d) => window.__phlippoStore.getState().openDocument(d), asm);
+await page.waitForTimeout(2000);
+await page.keyboard.press('Control+7');
+await page.keyboard.press('f');
+await page.mouse.move(5, 660);
+await page.waitForTimeout(1200);
+const shots = { ribbon: { x: 0, y: 30, width: 420, height: 110 }, tree: { x: 0, y: 140, width: 240, height: 200 }, viewport: { x: 420, y: 200, width: 420, height: 260 }, headsup: { x: 580, y: 140, width: 320, height: 30 }, taskpane: { x: 1240, y: 140, width: 40, height: 300 }, status: { x: 0, y: 620, width: 640, height: 52 } };
+for (const [k, clip] of Object.entries(shots)) await page.screenshot({ path: `e2e-out/crop-${k}.png`, clip });
+await browser.close();

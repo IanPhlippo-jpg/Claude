@@ -1,5 +1,5 @@
 import type { Id, Sketch, SketchPoint } from './types';
-import { sampleEntity } from './geometry';
+import { entityLoops, sampleEntity } from './geometry';
 
 /**
  * Closed-contour detection for "shaded sketch contours": builds a planar
@@ -74,13 +74,25 @@ export function findContours(s: Sketch, tol = 1e-6): Contour[] {
   for (const eid of s.entityOrder) {
     const e = s.entities[eid];
     if (e.construction) continue;
-    if (e.kind === 'circle') {
+    if (e.kind === 'circle' || e.kind === 'ellipse') {
       const poly = sampleEntity(s, e, 64).slice(0, -1);
       out.push({ points: poly, area: Math.abs(polygonArea(poly)), entityIds: [eid] });
+    } else if (e.kind === 'text') {
+      // every glyph outline and counter (the hole of an O) is a closed contour; nesting makes the holes
+      for (const loop of entityLoops(s, e)) {
+        const poly = loop.slice(0, -1);
+        if (poly.length >= 3) out.push({ points: poly, area: Math.abs(polygonArea(poly)), entityIds: [eid] });
+      }
     } else if (e.kind === 'line') {
       edges.push({ id: eid, a: dsu.find(e.p1), b: dsu.find(e.p2), poly: [s.points[e.p1], s.points[e.p2]] });
-    } else if (e.kind === 'arc') {
+    } else if (e.kind === 'arc' || e.kind === 'ellipseArc' || e.kind === 'conic') {
       edges.push({ id: eid, a: dsu.find(e.start), b: dsu.find(e.end), poly: sampleEntity(s, e, 64) });
+    } else if (e.kind === 'spline' && e.points.length >= 2) {
+      const a = dsu.find(e.points[0]), b = dsu.find(e.points[e.points.length - 1]);
+      const poly = sampleEntity(s, e, 64);
+      // a spline closed on itself is a contour of its own
+      if (a === b) out.push({ points: poly.slice(0, -1), area: Math.abs(polygonArea(poly.slice(0, -1))), entityIds: [eid] });
+      else edges.push({ id: eid, a, b, poly });
     }
   }
   // half-edges

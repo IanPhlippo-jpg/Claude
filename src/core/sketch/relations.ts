@@ -3,6 +3,8 @@ import type { ConstraintKind, Entity, Id, Sketch } from './types';
 export interface SelectionItem {
   kind: 'point' | 'entity';
   id: Id;
+  /** Shift+click on an arc/circle: dimension to its edge (tangent) instead of its centre */
+  tangent?: boolean;
 }
 
 export interface RelationOption {
@@ -10,6 +12,7 @@ export interface RelationOption {
   label: string;
   refs: Id[];
   internal?: boolean;
+  arcCondition?: Record<number, { entityId: Id; mode: 'min' | 'max' }>;
 }
 
 const LABELS: Record<ConstraintKind, string> = {
@@ -26,6 +29,7 @@ const LABELS: Record<ConstraintKind, string> = {
   midpoint: 'Midpoint',
   symmetric: 'Symmetric',
   fix: 'Fix',
+  pierce: 'Pierce',
   distance: 'Distance',
   hDistance: 'Horizontal distance',
   vDistance: 'Vertical distance',
@@ -140,9 +144,20 @@ export function dimensionForSelection(s: Sketch, sel: SelectionItem[]): Relation
   }
   if (points.length === 0 && ents.length === 2) {
     const [a, b] = ents;
-    if (a.kind === 'line' && isCircular(b)) return { kind: 'distance', label: LABELS.distance, refs: [(b as { center: Id }).center, a.id] };
-    if (b.kind === 'line' && isCircular(a)) return { kind: 'distance', label: LABELS.distance, refs: [(a as { center: Id }).center, b.id] };
-    if (isCircular(a) && isCircular(b)) return { kind: 'distance', label: LABELS.distance, refs: [(a as { center: Id }).center, (b as { center: Id }).center] };
+    const tangentOf = (e: Entity) => sel.find((i) => i.kind === 'entity' && i.id === e.id)?.tangent;
+    const cond = (idx: number, e: Entity): Record<number, { entityId: Id; mode: 'min' | 'max' }> | undefined => (tangentOf(e) ? { [idx]: { entityId: e.id, mode: 'min' } } : undefined);
+    if (a.kind === 'line' && isCircular(b)) return { kind: 'distance', label: LABELS.distance, refs: [(b as { center: Id }).center, a.id], arcCondition: cond(0, b) };
+    if (b.kind === 'line' && isCircular(a)) return { kind: 'distance', label: LABELS.distance, refs: [(a as { center: Id }).center, b.id], arcCondition: cond(0, a) };
+    if (isCircular(a) && isCircular(b)) {
+      const ac = { ...(cond(0, a) ?? {}), ...(cond(1, b) ?? {}) };
+      return { kind: 'distance', label: LABELS.distance, refs: [(a as { center: Id }).center, (b as { center: Id }).center], arcCondition: Object.keys(ac).length ? ac : undefined };
+    }
+  }
+  // a point and an arc/circle: distance to the centre, or to the edge with Shift
+  if (points.length === 1 && ents.length === 1 && isCircular(ents[0])) {
+    const e = ents[0];
+    const t = sel.find((i) => i.kind === 'entity' && i.id === e.id)?.tangent;
+    return { kind: 'distance', label: LABELS.distance, refs: [points[0], (e as { center: Id }).center], arcCondition: t ? { 1: { entityId: e.id, mode: 'min' } } : undefined };
   }
   return null;
 }
@@ -152,14 +167,23 @@ export function measure(s: Sketch, opt: RelationOption): number {
   const P = (id: Id) => (id in s.points ? s.points[id] : s.points[(s.entities[id] as { p: Id }).p]);
   switch (opt.kind) {
     case 'distance': {
+      // Arc Condition: the radius of the arc is taken off (Min) or added (Max) for refs measured to the edge
+      const adj = (d: number) => {
+        for (const [k, ac] of Object.entries(opt.arcCondition ?? {})) {
+          void k;
+          const r = s.scalars[(s.entities[ac.entityId] as { r: Id }).r] ?? 0;
+          d += ac.mode === 'max' ? r : -r;
+        }
+        return Math.max(0, d);
+      };
       const e = s.entities[opt.refs[1]];
       if (e && e.kind === 'line') {
         const p = P(opt.refs[0]), a = s.points[e.p1], b = s.points[e.p2];
         const dx = b.x - a.x, dy = b.y - a.y;
-        return Math.abs(dx * (p.y - a.y) - dy * (p.x - a.x)) / (Math.hypot(dx, dy) || 1);
+        return adj(Math.abs(dx * (p.y - a.y) - dy * (p.x - a.x)) / (Math.hypot(dx, dy) || 1));
       }
       const a = P(opt.refs[0]), b = P(opt.refs[1]);
-      return Math.hypot(a.x - b.x, a.y - b.y);
+      return adj(Math.hypot(a.x - b.x, a.y - b.y));
     }
     case 'hDistance':
       return Math.abs(P(opt.refs[0]).x - P(opt.refs[1]).x);

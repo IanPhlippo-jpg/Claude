@@ -1,0 +1,130 @@
+{
+  "format": "phlippo-cad",
+  "version": 1,
+  "name": "Deur",
+  "units": "mm",
+  "sketches": {
+    "s1": {
+      "id": "s1",
+      "name": "Sketch1",
+      "plane": "front",
+      "points": {
+        "origin_s1": {
+          "x": 0,
+          "y": 0
+        },
+        "pmvnnwfu71": {
+          "x": -70,
+          "y": -330
+        },
+        "pmvnnwfu82": {
+          "x": 230,
+          "y": -330
+        },
+        "pmvnnwfu84": {
+          "x": 230,
+          "y": 270
+        },
+        "pmvnnwfu86": {
+          "x": -70,
+          "y": 270
+        },
+        "pmvnnwfu89": {
+          "x": 0,
+          "y": 0
+        },
+        "pmvnnwfu8c": {
+          "x": 0,
+          "y": -72
+        }
+      },
+      "scalars": {
+        "smvnnwfu8a": 10,
+        "smvnnwfu8d": 9
+      },
+      "entities": {
+        "lnmvnnwfu83": {
+          "id": "lnmvnnwfu83",
+          "kind": "line",
+          "p1": "pmvnnwfu71",
+          "p2": "pmvnnwfu82",
+          "construction": false
+        },
+        "lnmvnnwfu85": {
+          "id": "lnmvnnwfu85",
+          "kind": "line",
+          "p1": "pmvnnwfu82",
+          "p2": "pmvnnwfu84",
+          "construction": false
+        },
+        "lnmvnnwfu87": {
+          "id": "lnmvnnwfu87",
+          "kind": "line",
+          "p1": "pmvnnwfu84",
+          "p2": "pmvnnwfu86",
+          "construction": false
+        },
+        "lnmvnnwfu88": {
+          "id": "lnmvnnwfu88",
+          "kind": "line",
+          "p1": "pmvnnwfu86",
+          "p2": "pmvnnwfu71",
+          "construction": false
+        },
+        "cimvnnwfu8b": {
+          "id": "cimvnnwfu8b",
+          "kind": "circle",
+          "center": "pmvnnwfu89",
+          "r": "smvnnwfu8a",
+          "construction": false
+        },
+        "cimvnnwfu8e": {
+          "id": "cimvnnwfu8e",
+          "kind": "circle",
+          "center": "pmvnnwfu8c",
+          "r": "smvnnwfu8d",
+          "construction": false
+        }
+      },
+      "constraints": {},
+      "entityOrder": [
+        "lnmvnnwfu83",
+        "lnmvnnwfu85",
+        "lnmvnnwfu87",
+        "lnmvnnwfu88",
+        "cimvnnwfu8b",
+        "cimvnnwfu8e"
+      ],
+      "constraintOrder": [],
+      "origin": "origin_s1"
+    }
+  },
+  "features": [
+    {
+      "id": "ks1",
+      "type": "sketch",
+      "name": "Sketch1",
+      "sketchId": "s1",
+      "suppressed": false
+    },
+    {
+      "id": "f1",
+      "type": "extrude",
+      "name": "Boss-Extrude1",
+      "sketchId": "s1",
+      "suppressed": false,
+      "op": "boss",
+      "end": "blind",
+      "depth": 40,
+      "reverse": false
+    }
+  ],
+  "planes": {},
+  "variables": {},
+  "equations": [],
+  "material": {
+    "name": "Oak",
+    "density": 700,
+    "color": "#b98a4e"
+  }
+}

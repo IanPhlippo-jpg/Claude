@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState, type ReactNode, type MouseEvent as RMouseEvent } from 'react';
+import { createPortal } from 'react-dom';
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode, type MouseEvent as RMouseEvent } from 'react';
 import { Icon } from './icons';
 
 /* ---------- Button / ToolButton ---------------------------------------------- */
@@ -74,8 +75,16 @@ export function Menu({ items, onClose, style }: { items: MenuItem[]; onClose: ()
       document.removeEventListener('keydown', onKey);
     };
   }, [onClose]);
-  return (
-    <div className="k-menu" ref={ref} style={style}>
+  // a menu opened inside the CommandManager (which clips its content) is lifted out to the page, at the same place
+  const [fixed, setFixed] = useState<{ left: number; top: number } | null>(null);
+  useLayoutEffect(() => {
+    if (fixed || !ref.current || !ref.current.closest('.k-cm-body, .k-cm')) return;
+    const r = ref.current.getBoundingClientRect();
+    const left = Math.max(4, Math.min(r.left, window.innerWidth - r.width - 4));
+    setFixed({ left, top: r.top });
+  }, [fixed]);
+  const body = (
+    <div className="k-menu" ref={ref} style={fixed ? { ...style, position: 'fixed', left: fixed.left, top: fixed.top, right: 'auto', bottom: 'auto', zIndex: 2000 } : style}>
       {items.map((it, i) =>
         it.separator ? (
           <div key={i} className="k-menu-sep" />
@@ -97,6 +106,7 @@ export function Menu({ items, onClose, style }: { items: MenuItem[]; onClose: ()
       )}
     </div>
   );
+  return fixed ? createPortal(body, document.body) : body;
 }
 
 export function Dropdown({ label, icon, items, variant }: { label?: string; icon?: ReactNode; items: MenuItem[]; variant?: 'ghost' | 'icon' }) {
@@ -159,31 +169,53 @@ export interface TreeNode {
   onClick?: (e: RMouseEvent) => void;
   onDoubleClick?: () => void;
   onContextMenu?: (e: RMouseEvent) => void;
+  /** pointing at the row (the model highlights the feature, as the original) */
+  onHover?: (on: boolean) => void;
+  /** start expanded (default: only the top level) */
+  defaultOpen?: boolean;
+}
+
+/** a selected or active row somewhere below this node */
+function hasSelectedBelow(n: TreeNode): boolean {
+  return !!n.children?.some((c) => c.selected || c.active || hasSelectedBelow(c));
 }
 
 function TreeRow({ node, depth }: { node: TreeNode; depth: number }) {
-  const [open, setOpen] = useState(true);
+  // as the original: the top node is expanded, features and folders start collapsed (▸) until opened
+  const [open, setOpen] = useState(node.defaultOpen ?? depth === 0);
   const hasKids = !!node.children?.length;
+  const selectedBelow = hasKids && hasSelectedBelow(node);
+  useEffect(() => {
+    if (selectedBelow) setOpen(true);
+  }, [selectedBelow]);
   return (
     <>
       <div
         className={`k-tree-row ${node.selected ? 'selected' : ''} ${node.active ? 'active' : ''} ${node.suppressed ? 'suppressed' : ''}`}
-        style={{ paddingLeft: 6 + depth * 14 }}
+        data-id={node.id}
+        data-depth={depth}
+        style={{ paddingLeft: depth === 0 ? 0 : 4 + (depth - 1) * 16 }}
         onClick={node.onClick}
         onDoubleClick={node.onDoubleClick}
         onContextMenu={node.onContextMenu}
+        onMouseEnter={node.onHover ? () => node.onHover!(true) : undefined}
+        onMouseLeave={node.onHover ? () => node.onHover!(false) : undefined}
       >
         <span
           className="caret"
+          data-open={hasKids ? String(open) : undefined}
           onClick={(e) => {
             e.stopPropagation();
             setOpen((o) => !o);
           }}
         >
-          {hasKids ? open ? <Icon.ChevronDown size={11} /> : <Icon.ChevronRight size={11} /> : null}
+          {hasKids && depth > 0 ? <Icon.TreeCaret open={open} /> : null}
         </span>
-        {node.icon}
-        <span>{node.label}</span>
+        {/* as the original: only the icon and name get the hover / selection box, not the whole row */}
+        <span className="k-tree-hl">
+          {node.icon}
+          <span>{node.label}</span>
+        </span>
         {node.tail}
       </div>
       {hasKids && open && node.children!.map((c) => <TreeRow key={c.id} node={c} depth={depth + 1} />)}
@@ -203,6 +235,39 @@ export function TreeView({ nodes }: { nodes: TreeNode[] }) {
 
 /* ---------- Form fields ----------------------------------------------------------- */
 
+/** Value text as the original shows it in a PropertyManager: 10.00mm, 1.00deg, 0.375in; counts without decimals. */
+export function formatValue(v: number, unit?: string): string {
+  if (!Number.isFinite(v)) return '';
+  if (!unit) return String(round(v));
+  if (unit === '°' || unit === 'deg') return `${v.toFixed(2)}deg`;
+  if (unit === 'in') return `${v.toFixed(3)}in`;
+  return `${v.toFixed(2)}${unit}`;
+}
+
+/** Leading number of a typed value ("12,5mm" and "12.5 mm" both give 12.5). */
+const LEN_MM: Record<string, number> = { mm: 1, cm: 10, m: 1000, in: 25.4, '"': 25.4, ft: 304.8, "'": 304.8 };
+/**
+ * A typed value: a finite number with an optional unit (10, 2.5cm, 1in, 30deg), converted to the field's unit
+ * (mm/cm/m/in or deg). Anything else (letters, ∞, several numbers) is NaN and leaves the value as it was.
+ */
+export function parseValue(text: string, unit?: string): number {
+  const t = text.trim().toLowerCase().replace(',', '.');
+  const m = /^([-+]?(?:\d+\.?\d*|\.\d+)(?:e[-+]?\d+)?)\s*([a-z"'°]*)$/.exec(t);
+  if (!m) return NaN;
+  const v = parseFloat(m[1]);
+  if (!Number.isFinite(v)) return NaN;
+  const u = m[2];
+  if (!u || u === unit) return v;
+  if (unit === '°' || unit === 'deg') {
+    if (u === 'deg' || u === '°') return v;
+    if (u === 'rad') return (v * 180) / Math.PI;
+    return NaN;
+  }
+  if (unit && LEN_MM[unit] && LEN_MM[u]) return (v * LEN_MM[u]) / LEN_MM[unit];
+  if (!unit && LEN_MM[u]) return v * LEN_MM[u];
+  return NaN;
+}
+
 export function NumberField({
   value,
   onChange,
@@ -211,6 +276,8 @@ export function NumberField({
   min,
   autoFocus,
   onCommit,
+  disabled,
+  blankWhenDisabled,
 }: {
   value: number;
   onChange: (v: number) => void;
@@ -219,30 +286,77 @@ export function NumberField({
   min?: number;
   autoFocus?: boolean;
   onCommit?: () => void;
+  disabled?: boolean;
+  /** an unavailable value shows an empty grey field (as the draft angle while Draft is off) */
+  blankWhenDisabled?: boolean;
 }) {
-  const [text, setText] = useState(String(round(value)));
-  useEffect(() => setText(String(round(value))), [value]);
+  const [text, setText] = useState(formatValue(value, unit));
+  const focused = useRef(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  // the first value field of a PropertyManager takes the focus without scrolling the panel (its top stays in view)
+  useEffect(() => {
+    if (autoFocus) inputRef.current?.focus({ preventScroll: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  // typed: the user has edited the text since the field got the focus (only then a new outside value is not shown)
+  const typed = useRef(false);
+  useEffect(() => {
+    if (!focused.current || !typed.current) {
+      setText(formatValue(value, unit));
+      // a focused field keeps its selection, so typing still replaces the value
+      if (focused.current) requestAnimationFrame(() => { const el = document.activeElement as HTMLInputElement | null; if (el?.classList.contains('k-num')) el.select(); });
+    }
+  }, [value, unit]);
+  const spin = (dir: 1 | -1) => {
+    let v = round((Number.isFinite(value) ? value : 0) + dir * step, 6);
+    if (min !== undefined) v = Math.max(min, v);
+    onChange(v);
+    setText(formatValue(v, unit));
+  };
   return (
-    <div className="k-number">
+    <div className={`k-number ${disabled ? 'disabled' : ''}`}>
       <input
-        className="k-input"
-        type="number"
-        step={step}
-        min={min}
-        value={text}
-        autoFocus={autoFocus}
-        onFocus={(e) => e.target.select()}
+        className="k-input k-num"
+        type="text"
+        inputMode="decimal"
+        data-unit={unit ?? ''}
+        ref={inputRef}
+        value={disabled && blankWhenDisabled ? '' : text}
+        disabled={disabled}
+        onFocus={(e) => {
+          focused.current = true;
+          typed.current = false;
+          e.target.select();
+        }}
+        onBlur={() => {
+          focused.current = false;
+          typed.current = false;
+          setText(formatValue(value, unit));
+        }}
         onChange={(e) => {
+          typed.current = true;
           setText(e.target.value);
-          const v = parseFloat(e.target.value);
-          if (!Number.isNaN(v)) onChange(v);
+          const v = parseValue(e.target.value, unit);
+          if (Number.isFinite(v)) onChange(min !== undefined ? Math.max(min, v) : v);
         }}
         onKeyDown={(e) => {
-          if (e.key === 'Enter') onCommit?.();
+          if (e.key === 'Enter') {
+            setText(formatValue(value, unit));
+            onCommit?.();
+          } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            spin(1);
+          } else if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            spin(-1);
+          }
           e.stopPropagation();
         }}
       />
-      {unit && <span className="unit">{unit}</span>}
+      <span className="k-spin">
+        <button type="button" tabIndex={-1} disabled={disabled} onMouseDown={(e) => e.preventDefault()} onClick={() => spin(1)} aria-label="Increase"><Icon.ChevronDown size={7} style={{ transform: 'rotate(180deg)' }} /></button>
+        <button type="button" tabIndex={-1} disabled={disabled} onMouseDown={(e) => e.preventDefault()} onClick={() => spin(-1)} aria-label="Decrease"><Icon.ChevronDown size={7} /></button>
+      </span>
     </div>
   );
 }
@@ -256,13 +370,27 @@ export function Toggle({ value, onChange, label }: { value: boolean; onChange: (
   );
 }
 
-export function Section({ title, children, defaultOpen = true }: { title: string; children: ReactNode; defaultOpen?: boolean }) {
+export function Section({ title, children, defaultOpen = true, check, onCheck }: { title: string; children: ReactNode; defaultOpen?: boolean; check?: boolean; onCheck?: (v: boolean) => void }) {
   const [open, setOpen] = useState(defaultOpen);
+  // a PropertyManager that swaps its sections keeps React state by position: reset when the title changes
+  useEffect(() => setOpen(defaultOpen), [title, defaultOpen]);
   return (
-    <div className="k-section">
+    <div className={`k-section ${open ? 'open' : ''}`}>
       <div className="k-section-title" onClick={() => setOpen((o) => !o)}>
-        {open ? <Icon.ChevronDown size={11} /> : <Icon.ChevronRight size={11} />}
-        {title}
+        {check !== undefined && (
+          <input
+            type="checkbox"
+            className="k-section-check"
+            checked={check}
+            onClick={(e) => e.stopPropagation()}
+            onChange={(e) => {
+              onCheck?.(e.target.checked);
+              setOpen(e.target.checked);
+            }}
+          />
+        )}
+        <span className="k-section-name">{title}</span>
+        <span className="k-section-caret">{open ? <Icon.ChevronDown size={12} style={{ transform: 'rotate(180deg)' }} /> : <Icon.ChevronDown size={12} />}</span>
       </div>
       {open && <div className="k-section-body">{children}</div>}
     </div>

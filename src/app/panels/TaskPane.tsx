@@ -1,10 +1,47 @@
 import { useRef, useState } from 'react';
+import { AppearancesPane } from './AppearancesPane';
 import { useActiveSketch, useActiveSolve, useStore } from '../store';
 import { Button } from '../../ui/components';
 import { Icon, RelationGlyph } from '../../ui/icons';
 import { relationLabel } from '../../core/sketch/relations';
 import { round, Kbd } from '../../ui/components';
 import { SHORTCUTS } from '../shortcuts';
+import { openFileDialog, withUnsavedCheck } from '../MenuBar';
+import { listAutosaves, loadAutosaveEntry } from '../../core/document/persistence';
+import { getPref } from '../prefs';
+import { FASTENER_NAMES, fastenerPart, LENGTHS, METRIC, type FastenerType } from '../../core/assembly/fasteners';
+
+/** Design Library ▸ Toolbox (with the Toolbox add-in): ISO screws and bolts made to size, inserted or opened */
+function ToolboxFolder() {
+  const st = useStore();
+  const [open, setOpen] = useState(true);
+  const [type, setType] = useState<FastenerType>('shcs');
+  const [size, setSize] = useState('M6');
+  const [len, setLen] = useState(20);
+  const part = () => fastenerPart(type, size, len);
+  return (
+    <div className={`k-library-folder ${open ? 'open' : ''}`} data-testid="toolbox-folder">
+      <div className="k-library-folder-row" onClick={() => setOpen(!open)}>
+        {open ? <Icon.ChevronDown size={11} /> : <Icon.ChevronRight size={11} />}
+        <Icon.Folder />
+        <span className="grow">Toolbox <span className="k-muted">(ISO)</span></span>
+      </div>
+      {open && (
+        <div className="k-library-items" style={{ padding: 6 }}>
+          <div className="k-field"><label>Bolts and Screws</label><select className="k-input" data-testid="toolbox-type" value={type} onChange={(e) => setType(e.target.value as FastenerType)}>{(Object.keys(FASTENER_NAMES) as FastenerType[]).map((k) => <option key={k} value={k}>{FASTENER_NAMES[k]}</option>)}</select></div>
+          <div className="k-pm-valuerow">
+            <select className="k-input" data-testid="toolbox-size" value={size} onChange={(e) => setSize(e.target.value)}>{METRIC.map((m) => <option key={m.size}>{m.size}</option>)}</select>
+            <select className="k-input" value={len} onChange={(e) => setLen(Number(e.target.value))}>{LENGTHS.map((l) => <option key={l} value={l}>{l}</option>)}</select>
+          </div>
+          <div className="k-pm-valuerow" style={{ marginTop: 4 }}>
+            <Button variant="primary" data-testid="toolbox-insert" disabled={st.doc.kind !== 'assembly'} tip="Insert into the assembly (click to place)" onClick={() => { st.startInsertComponent(); st.setInsertGhost({ part: part(), rotation: [0, 0, 0, 1] }); }}>Insert</Button>
+            <Button tip="Open the part" onClick={() => st.openDocument(part())}>Open</Button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 /**
  * Task Pane: vertical icon strip on the right (Design Library, Relations,
@@ -14,11 +51,20 @@ export function TaskPane() {
   const st = useStore();
   const sketch = useActiveSketch();
   const solve = useActiveSolve();
-  const tabs = [
-    { id: 'resources' as const, icon: <Icon.Resources />, tip: 'Phlippo CAD Resources' },
-    { id: 'library' as const, icon: <Icon.Library />, tip: 'Design Library' },
-    { id: 'relations' as const, icon: <Icon.Lock />, tip: 'Display/Delete Relations' },
-    { id: 'properties' as const, icon: <Icon.Properties />, tip: 'Custom Properties' },
+  // the strip in the order of the original (2026): Resources, Marketplace, Design Library, Forum, File Explorer,
+  // View Palette, Appearances/Scenes/Decals, Custom Properties, Platform, Document Recovery
+  const tabs: { id: Exclude<typeof st.taskPane, null>; icon: React.ReactNode; tip: string; online?: boolean; hidden?: boolean }[] = [
+    { id: 'resources', icon: <Icon.Resources />, tip: 'Phlippo CAD Resources' },
+    { id: 'marketplace', icon: <Icon.TPMarketplace />, tip: 'Marketplace', online: true },
+    { id: 'library', icon: <Icon.Library />, tip: 'Design Library' },
+    { id: 'forum', icon: <Icon.TPForum />, tip: 'Forum', online: true },
+    { id: 'explorer', icon: <Icon.TPExplorer />, tip: 'File Explorer' },
+    { id: 'palette', icon: <Icon.TPPalette />, tip: 'View Palette' },
+    { id: 'appearances', icon: <Icon.TPAppearances />, tip: 'Appearances, Scenes, and Decals' },
+    { id: 'properties', icon: <Icon.Properties />, tip: 'Custom Properties' },
+    { id: 'platform', icon: <Icon.TPPlatform />, tip: 'Platform', online: true },
+    { id: 'recovery', icon: <Icon.TPRecovery />, tip: 'Document Recovery' },
+    { id: 'relations', icon: <Icon.Lock />, tip: 'Display/Delete Relations', hidden: true },
   ];
   return (
     <div className="k-taskpane">
@@ -31,6 +77,13 @@ export function TaskPane() {
           </div>
           <div className="k-panel-body">
             {st.taskPane === 'library' && <DesignLibrary />}
+            {(st.taskPane === 'marketplace' || st.taskPane === 'forum' || st.taskPane === 'platform') && (
+              <p className="k-muted" style={{ padding: 10 }}>This online service is not available in Phlippo CAD (offline application).</p>
+            )}
+            {st.taskPane === 'explorer' && <FileExplorer />}
+            {st.taskPane === 'palette' && <ViewPalette />}
+            {st.taskPane === 'appearances' && <AppearancesPane />}
+            {st.taskPane === 'recovery' && <RecoveryPane />}
             {st.taskPane === 'relations' &&
               (!sketch ? (
                 <p className="k-muted" style={{ padding: 10 }}>No active sketch.</p>
@@ -62,7 +115,8 @@ export function TaskPane() {
                 <div className="k-field"><label>Name</label><input className="k-input" value={st.doc.name} onChange={(e) => st.renameDocument(e.target.value)} onKeyDown={(e) => e.stopPropagation()} /></div>
                 <div className="k-field"><label>Units</label><span>{st.unitSystem}</span></div>
                 <div className="k-field"><label>Features</label><span>{st.doc.features.length}</span></div>
-                <div className="k-field"><label>Material</label><span className="k-muted">not specified (phase 7)</span></div>
+                <div className="k-field"><label>Material</label><span className={st.doc.material ? '' : 'k-muted'}>{st.doc.material?.name ?? '<not specified>'}</span></div>
+                <div className="k-field"><label>Configuration</label><span>{st.doc.activeConfiguration ? (st.doc.configurations ?? []).find((c) => c.id === st.doc.activeConfiguration)?.name : 'Default'}</span></div>
               </div>
             )}
             {st.taskPane === 'resources' && (
@@ -88,8 +142,8 @@ export function TaskPane() {
         </div>
       )}
       <div className="k-taskpane-strip">
-        {tabs.map((t) => (
-          <button key={t.id} className={`k-taskpane-btn k-tip ${st.taskPane === t.id ? 'active' : ''}`} data-tip={t.tip} onClick={() => st.setTaskPane(t.id)}>
+        {tabs.filter((t) => !t.hidden).map((t) => (
+          <button key={t.id} className={`k-taskpane-btn k-tip ${st.taskPane === t.id ? 'active' : ''}`} data-tip={t.tip} data-pane={t.id} onClick={() => st.setTaskPane(st.taskPane === t.id ? null : t.id)}>
             {t.icon}
           </button>
         ))}
@@ -131,6 +185,7 @@ function DesignLibrary() {
         <input ref={fileRef} type="file" accept=".kcadlib,.json" style={{ display: 'none' }} onChange={async (e) => { const f = e.target.files?.[0]; if (f) st.importLibrary(await f.text()); e.target.value = ''; }} />
       </div>
       <div className="k-library-folders">
+        {getPref('addin.toolbox') === true && <ToolboxFolder />}
         {st.libraries.length === 0 && <p className="k-muted" style={{ padding: '6px 10px' }}>No libraries yet. Create one above, then add sketch blocks to it.</p>}
         {st.libraries.map((l) => (
           <div key={l.id} className={`k-library-folder ${open === l.id ? 'open' : ''}`}>
@@ -139,8 +194,8 @@ function DesignLibrary() {
               <Icon.Folder />
               <span className="grow">{l.name} <span className="k-muted">({l.items.length})</span></span>
               <button className="k-btn ghost icon k-tip" data-tip="Export library" onClick={(e) => { e.stopPropagation(); exportLib(l.id); }}><Icon.Save size={13} /></button>
-              <button className="k-btn ghost icon k-tip" data-tip="Rename" onClick={(e) => { e.stopPropagation(); const n = prompt('Library name', l.name); if (n) st.renameLibrary(l.id, n); }}><Icon.Text size={13} /></button>
-              <button className="k-btn ghost icon k-tip" data-tip="Delete library" onClick={(e) => { e.stopPropagation(); if (confirm(`Delete library "${l.name}"?`)) st.deleteLibrary(l.id); }}><Icon.Trash size={13} /></button>
+              <button className="k-btn ghost icon k-tip" data-tip="Rename" onClick={(e) => { e.stopPropagation(); st.setAsk({ title: 'Rename', text: 'Library name', input: l.name, yes: (n) => n && st.renameLibrary(l.id, n) }); }}><Icon.Text size={13} /></button>
+              <button className="k-btn ghost icon k-tip" data-tip="Delete library" onClick={(e) => { e.stopPropagation(); st.setAsk({ title: 'Design Library', text: `Delete library "${l.name}"?`, yes: () => st.deleteLibrary(l.id) }); }}><Icon.Trash size={13} /></button>
             </div>
             {open === l.id && (
               <div className="k-library-items">
@@ -186,8 +241,67 @@ function BlockThumb({ block }: { block: import('../../core/sketch/blocks').Block
         if (e.kind === 'circle') { const c = block.points[e.center]; return <circle key={e.id} cx={X(c.x)} cy={Y(c.y)} r={block.scalars[e.r] * s} fill="none" stroke="#2b5fb3" strokeWidth={1} />; }
         if (e.kind === 'arc') { const c = block.points[e.center], a = block.points[e.start], b = block.points[e.end]; const r = block.scalars[e.r] * s; return <path key={e.id} d={`M${X(a.x)},${Y(a.y)} A${r},${r} 0 0 ${e.ccw ? 0 : 1} ${X(b.x)},${Y(b.y)}`} fill="none" stroke="#2b5fb3" strokeWidth={1} />; void c; }
         if (e.kind === 'spline') { const ps = e.points.map((p) => block.points[p]); return <polyline key={e.id} points={ps.map((p) => `${X(p.x)},${Y(p.y)}`).join(' ')} fill="none" stroke="#2b5fb3" strokeWidth={1} />; }
+        if (e.kind !== 'point') return null;
         const p = block.points[e.p]; return <rect key={e.id} x={X(p.x) - 1.5} y={Y(p.y) - 1.5} width={3} height={3} fill="#2b5fb3" />;
       })}
     </svg>
+  );
+}
+
+/** File Explorer: the open document and opening files from disk */
+function FileExplorer() {
+  const st = useStore();
+  return (
+    <div style={{ padding: 8 }}>
+      <p style={{ margin: '0 0 4px' }}><b>Open in Phlippo CAD</b></p>
+      <ul className="k-list">
+        <li className="selected"><Icon.Part size={14} /> <span>{st.doc.name}{st.doc.kind === 'assembly' ? '.kasm' : st.doc.kind === 'drawing' ? '.kdrw' : '.kcad'}</span>{st.dirty && <span className="k-muted">*</span>}</li>
+      </ul>
+      <p style={{ margin: '10px 0 4px' }}><b>This PC</b></p>
+      <Button onClick={() => openFileDialog()}>Open…</Button>
+    </div>
+  );
+}
+
+/** View Palette: drag-free version — the standard views of the drawing's model, placed with one click */
+function ViewPalette() {
+  const st = useStore();
+  if (st.doc.kind !== 'drawing') return <p className="k-muted" style={{ padding: 10 }}>Open or create a drawing to use the View Palette.</p>;
+  const model = st.doc.sheets?.[0]?.views[0]?.model;
+  return (
+    <div style={{ padding: 8 }}>
+      <p className="k-muted" style={{ margin: '0 0 6px' }}>{model ? `Views of ${model.name}` : 'Insert a Model View first; the palette then shows its standard views.'}</p>
+      {model && (
+        <div className="k-palette-grid">
+          {(['front', 'top', 'right', 'back', 'bottom', 'left', 'isometric'] as const).map((v) => (
+            <button key={v} className="k-btn" onClick={() => st.startStandardThreeViews()}>*{v[0].toUpperCase() + v.slice(1)}</button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** Document Recovery: the auto-recover copy of the last session */
+function RecoveryPane() {
+  const st = useStore();
+  const list = listAutosaves();
+  const open = (key: string) => withUnsavedCheck(() => {
+    const d = loadAutosaveEntry(key);
+    if (!d) return useStore.getState().pushMessage('The recovered document could not be read.', 'error');
+    useStore.getState().openDocument(d);
+  });
+  return (
+    <div style={{ padding: 8 }}>
+      <p className="k-muted" style={{ margin: '0 0 6px' }}>Phlippo CAD keeps an auto-recover copy of every document after each change (the last {5}).</p>
+      {list.length ? (
+        <ul className="k-list" data-testid="recovery-list">
+          {list.map((r) => (
+            <li key={r.key} onClick={() => open(r.key)} title="Open the recovered document"><Icon.TPRecovery size={14} /> <span>{r.name}.kcad</span> <span className="k-muted" style={{ marginLeft: 'auto' }}>{new Date(r.time).toLocaleString()}</span></li>
+          ))}
+        </ul>
+      ) : <p className="k-muted">No recovered documents.</p>}
+      {st.hasDocument && <p className="k-muted" style={{ marginTop: 8 }}>Open: {st.doc.name}{st.dirty ? ' (unsaved changes)' : ''}</p>}
+    </div>
   );
 }

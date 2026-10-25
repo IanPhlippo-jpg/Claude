@@ -1,0 +1,10 @@
+import { _electron as electron } from 'playwright';
+import { writeFileSync } from 'node:fs';
+const app = await electron.launch({ executablePath: process.env.PHLIPPO_EXE, args: [], env: { ...process.env, PHLIPPO_E2E: '1' } });
+const page = await app.firstWindow();
+await page.waitForTimeout(6000);
+const doc = await page.evaluate(() => JSON.stringify(window.__phlippoStore.getState().doc));
+writeFileSync('e2e-out/user-part1.json', doc);
+const sk = await page.evaluate(() => { const d = window.__phlippoStore.getState().doc; return Object.values(d.sketches).map((s) => ({ name: s.name, ents: Object.values(s.entities).map((e) => e.kind + (e.construction ? '(c)' : '')), cons: s.constraintOrder.map((id) => s.constraints[id].kind + (s.constraints[id].value !== undefined ? '=' + s.constraints[id].value : '')) })); });
+console.log(JSON.stringify(sk, null, 1));
+await app.close();

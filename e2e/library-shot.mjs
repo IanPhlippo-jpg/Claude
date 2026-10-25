@@ -1,6 +1,6 @@
 import { chromium } from 'playwright';
 const OUT = process.env.E2E_OUT ?? '/tmp/claude-0/-home-user-Claude/72cb6de8-0893-594a-95ed-130ce81e494b/scratchpad/e2e';
-const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome', args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
+const browser = await chromium.launch({ ...(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {}), args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
 const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
 await page.goto('http://localhost:4173/');
 await page.evaluate(() => localStorage.clear());
@@ -11,8 +11,8 @@ await page.dblclick('.k-tree-row:has-text("Front Plane")');
 await page.waitForTimeout(500);
 const vp = await page.locator('.k-viewport').boundingBox();
 const cx = vp.x + vp.width / 2, cy = vp.y + vp.height / 2;
-await page.keyboard.press('c'); await page.mouse.click(cx - 100, cy); await page.mouse.click(cx - 70, cy);
-await page.keyboard.press('c'); await page.mouse.click(cx - 100, cy); await page.mouse.click(cx - 85, cy);
+await page.click('.k-cm-iconbtn[data-tip="Circle"]'); await page.mouse.click(cx - 100, cy); await page.mouse.click(cx - 70, cy);
+await page.click('.k-cm-iconbtn[data-tip="Circle"]'); await page.mouse.click(cx - 100, cy); await page.mouse.click(cx - 85, cy);
 await page.keyboard.press('Escape');
 await page.mouse.move(cx - 150, cy - 50); await page.mouse.down(); await page.mouse.move(cx - 50, cy + 50, { steps: 3 }); await page.mouse.up();
 await page.click('.k-taskpane-btn[data-tip="Design Library"]');

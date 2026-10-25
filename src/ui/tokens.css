@@ -19,8 +19,14 @@
   --bg-hover: rgba(0, 120, 215, 0.08);
   --bg-active: rgba(0, 120, 215, 0.16);
   --bg-selected: #cce4f7;
+  --tree-sel-bg: #a8cade;
+  --tree-sel-border: #668692;
+  --tree-hover-border: #858585;
   --bg-viewport: #ffffff;
-  --bg-viewport-2: #dfe3e8;
+  --bg-viewport-2: #f1f2f4;
+  /* drawing graphics area: light gradient behind the sheet, as the original */
+  --bg-sheet-1: #ffffff;
+  --bg-sheet-2: #c5c9d5;
   --border: #d9d9d9;
   --border-strong: #adadad;
   --text: #1a1a1a;
@@ -49,9 +55,9 @@
   --sk-origin-part: #1e4fd8;
   --sk-origin-sketch: #ff0000;
   --sk-relation-bg: rgba(255, 255, 255, 0.92);
-  --sk-relation-box: #cfeadb;
-  --sk-plane: #4f7fc8;
-  --sk-contour: rgba(90, 96, 104, 0.28);
+  --sk-relation-box: #33d633;
+  --sk-plane: #6f8fc9;
+  --sk-contour: rgba(0, 0, 0, 0.3);
   --icon: #4b5563;
 }
 
@@ -64,8 +70,13 @@
   --bg-hover: rgba(255, 255, 255, 0.06);
   --bg-active: rgba(255, 255, 255, 0.1);
   --bg-selected: rgba(88, 150, 255, 0.2);
-  --bg-viewport: #2b3038;
-  --bg-viewport-2: #1e2228;
+  --tree-sel-bg: rgba(88, 150, 255, 0.28);
+  --tree-sel-border: #5c86b8;
+  --tree-hover-border: #8a8a8a;
+  --bg-viewport: #303030;
+  --bg-viewport-2: #252525;
+  --bg-sheet-1: #3a3a3a;
+  --bg-sheet-2: #262626;
   --border: #343a44;
   --border-strong: #4a5260;
   --text: #e6e9ee;

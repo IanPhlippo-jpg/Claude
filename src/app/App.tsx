@@ -1,5 +1,8 @@
+import { CheckDialog, RepairSketchDialog, SectionPropertiesDialog } from './evaluateDialogs';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useStore } from './store';
+import { desktop } from './desktop';
+import { openDesktopFile, withUnsavedCheck } from './MenuBar';
 import { MenuBar, openFileDialog, saveDocument } from './MenuBar';
 import { Ribbon } from './ribbon/Ribbon';
 import { DockColumn } from './panels/Dock';
@@ -8,9 +11,25 @@ import { TaskPane } from './panels/TaskPane';
 import { Viewport } from './viewport/Viewport';
 import { StatusBar } from './StatusBar';
 import { SHORTCUTS, useShortcuts } from './shortcuts';
-import { Dialog, Kbd, Menu } from '../ui/components';
-import { Icon } from '../ui/icons';
-import { ModifyDialog, NewDocumentDialog, OptionsDialog, OrientationDialog, WelcomeDialog } from './dialogs';
+import { Dialog, Kbd } from '../ui/components';
+
+import { DesignStudyDialog } from './designStudy';
+import { ViewPane } from './viewport/ViewPane';
+import { GeneralTableDialog, LinearNotePatternDialog, RelativeViewDialog, SpellCheckDialog } from './drawing/DrawingExtras';
+import { PreviewWindow } from './previewWindow';
+import { CommentsDialog, ComponentPreview, MirrorComponentsDialog, PackAndGoDialog, ShareDialog } from './lifecycleDialogs';
+import { AskDialog, ConfirmDeleteDialog, ModifyDialog, NewDocumentDialog, OrientationDialog, WelcomeDialog } from './dialogs';
+import { OptionsDialog } from './options';
+import { MassPropertiesDialog, MeasureDialog } from './evaluate';
+import { EquationsDialog } from './equations';
+import { ModifyConfigurationsDialog } from './configureDialog';
+import { AppearanceDialog } from './appearanceDialog';
+import { BomDialog, InterferenceDialog } from './assemblyDialogs';
+import { FinalRenderDialog } from './renderDialogs';
+import { DrawingSheetView } from './drawing/DrawingSheetView';
+import { ShortcutBar } from './ShortcutBar';
+import { MaterialDialog } from './materialDialog';
+import { SheetFormatDialog, SheetPropertiesDialog } from './drawing/SheetDialogs';
 import '../ui/tokens.css';
 import '../ui/components.css';
 import './app.css';
@@ -23,13 +42,30 @@ export function App() {
   useEffect(() => {
     document.documentElement.dataset.theme = st.theme;
   }, [st.theme]);
+  // desktop shell: a .kcad double-clicked in the file manager, and the window's close button with unsaved changes
+  useEffect(() => {
+    const api = desktop();
+    if (!api) return;
+    const offOpen = api.onOpenFile?.((f) => openDesktopFile(f));
+    const offClose = api.onCloseRequested?.(() => withUnsavedCheck(() => api.close(true)));
+    return () => { offOpen?.(); offClose?.(); };
+  }, []);
+  // browser: leaving the page with unsaved changes asks first
+  useEffect(() => {
+    const onBeforeUnload = (e: BeforeUnloadEvent) => {
+      const s = useStore.getState();
+      if (s.hasDocument && s.dirty && !desktop()) { e.preventDefault(); e.returnValue = ''; }
+    };
+    window.addEventListener('beforeunload', onBeforeUnload);
+    return () => window.removeEventListener('beforeunload', onBeforeUnload);
+  }, []);
   useEffect(() => {
     if (!st.selectedConstraint) setEditDim(null);
   }, [st.selectedConstraint]);
 
   const handlers = useMemo(
     () => ({
-      save: saveDocument,
+      save: () => saveDocument(),
       open: openFileDialog,
       shortcutBar: () => setShortcutBar((o) => !o),
     }),
@@ -53,7 +89,16 @@ export function App() {
       <div className="k-main">
         {managerSide === 'left' && manager && (st.managerCollapsed ? manager : <DockColumn side="left">{manager}</DockColumn>)}
         <div className="k-center">
-          <Viewport onEditDimension={onEditDimension} />
+          {!st.hasDocument ? <div className="k-viewport k-nodoc" data-testid="nodoc" /> : st.doc.kind === 'drawing' ? <DrawingSheetView /> : st.viewportLayout === 'single' ? <Viewport onEditDimension={onEditDimension} /> : (
+            <div className={`k-viewgrid k-viewgrid-${st.viewportLayout}`} data-testid="viewgrid">
+              {st.viewportLayout === 'four' && <ViewPane view="front" />}
+              {st.viewportLayout === 'four' && <ViewPane view="top" />}
+              {st.viewportLayout !== 'twoH' && st.viewportLayout !== 'four' && <ViewPane view="front" />}
+              {st.viewportLayout === 'twoH' && <ViewPane view="top" />}
+              {st.viewportLayout === 'four' && <ViewPane view="right" />}
+              <div className="k-viewgrid-main"><Viewport onEditDimension={onEditDimension} /></div>
+            </div>
+          )}
           {managerSide === 'float' && manager}
           {st.panels.shortcuts.visible && (
             <Dialog title="Keyboard Shortcuts" onClose={() => st.setPanel('shortcuts', { visible: false })}>
@@ -71,32 +116,56 @@ export function App() {
             </Dialog>
           )}
           {st.dialog === 'orientation' && <OrientationDialog />}
-          {shortcutBar && st.activeSketchId && (
+          {st.dialog === 'mass' && <MassPropertiesDialog />}
+          {st.dialog === 'appearance' && <AppearanceDialog />}
+          {st.dialog === 'measure' && <MeasureDialog />}
+          {st.dialog === 'bom' && <BomDialog />}
+          {st.dialog === 'finalRender' && <FinalRenderDialog />}
+          {st.dialog === 'interference' && <InterferenceDialog />}
+          {st.dialog === 'check' && <CheckDialog />}
+          {st.dialog === 'sectionProps' && <SectionPropertiesDialog />}
+          {st.dialog === 'repairSketch' && <RepairSketchDialog />}
+          {st.confirmDelete && <ConfirmDeleteDialog />}
+          {st.dialog === 'designStudy' && <DesignStudyDialog />}
+          {st.dialog === 'previewWindow' && <PreviewWindow />}
+          {st.dialog === 'mirrorComponents' && <MirrorComponentsDialog />}
+          {st.dialog === 'packAndGo' && <PackAndGoDialog />}
+          {st.dialog === 'share' && <ShareDialog />}
+          {st.dialog === 'comments' && <CommentsDialog />}
+          {st.dialog === 'componentPreview' && <ComponentPreview />}
+          {st.dialog === 'relativeView' && <RelativeViewDialog />}
+          {st.dialog === 'spellCheck' && <SpellCheckDialog />}
+          {st.dialog === 'notePattern' && <LinearNotePatternDialog />}
+          {st.dialog === 'generalTable' && <GeneralTableDialog />}
+          {shortcutBar && (
             <div className="k-shortcut-bar">
-              <Menu
-                onClose={() => setShortcutBar(false)}
-                style={{ position: 'static', display: 'flex', gap: 2 }}
-                items={[
-                  { label: 'Line', icon: <Icon.Line />, onSelect: () => st.setTool('line') },
-                  { label: 'Rectangle', icon: <Icon.Rect />, onSelect: () => st.setTool('rectangle') },
-                  { label: 'Circle', icon: <Icon.Circle />, onSelect: () => st.setTool('circle') },
-                  { label: 'Arc', icon: <Icon.Arc />, onSelect: () => st.setTool('arc3') },
-                  { label: 'Spline', icon: <Icon.Spline />, onSelect: () => st.setTool('spline') },
-                  { label: 'Smart Dimension', icon: <Icon.Dimension />, onSelect: () => st.setTool('dimension') },
-                  { label: 'Trim', icon: <Icon.Trim />, disabled: true },
-                ]}
-              />
+              <ShortcutBar onClose={() => setShortcutBar(false)} />
             </div>
           )}
         </div>
         {managerSide === 'right' && manager && <DockColumn side="right">{manager}</DockColumn>}
         <TaskPane />
       </div>
+      {st.doc.kind !== 'drawing' && (
+        <div className="k-doctabs">
+          <button className="k-doctab-arrow">‹</button>
+          <button className="k-doctab-arrow">›</button>
+          <button className={`k-doctab ${st.motionOpen ? '' : 'active'}`} onClick={() => st.setMotionOpen(false)}>Model</button>
+          <button className={`k-doctab ${st.motionOpen ? 'active' : ''}`} data-testid="motion-tab" onClick={() => st.setMotionOpen(true)}>{st.doc.motionStudy?.name ?? 'Motion Study 1'}</button>
+        </div>
+      )}
       <StatusBar hint="" />
       {st.dialog === 'welcome' && <WelcomeDialog />}
       {st.dialog === 'new' && <NewDocumentDialog />}
       {st.dialog === 'options' && <OptionsDialog />}
+      {st.dialog === 'equations' && <EquationsDialog />}
+      {st.dialog === 'configure' && <ModifyConfigurationsDialog />}
+      {st.dialog === 'sheetFormat' && <SheetFormatDialog />}
+      {st.dialog === 'material' && <MaterialDialog />}
+      {st.dialog === 'sheetProperties' && <SheetPropertiesDialog />}
       <ModifyDialog />
+      {/* a question (Save changes?) always lies on top of the other dialogs */}
+      {st.ask && <AskDialog />}
     </div>
   );
 }

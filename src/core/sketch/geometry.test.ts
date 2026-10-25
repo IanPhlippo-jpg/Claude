@@ -48,7 +48,10 @@ describe('geometry', () => {
     let c;
     [s, c] = addCircle(s, { x: 0, y: 0 }, 2);
     const pts = sampleEntity(s, c, 8);
-    expect(pts.length).toBe(9);
-    expect(pts[0].x).toBeCloseTo(pts[8].x, 9);
+    // at least the asked segments, more when the chords would deviate over 0.02 mm (adaptive like the original)
+    expect(pts.length).toBeGreaterThanOrEqual(9);
+    expect(pts[0].x).toBeCloseTo(pts[pts.length - 1].x, 9);
+    const n = pts.length - 1;
+    expect(2 * (1 - Math.cos(Math.PI / n))).toBeLessThanOrEqual(0.02 + 1e-9);
   });
 });

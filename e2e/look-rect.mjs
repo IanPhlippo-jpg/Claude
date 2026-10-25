@@ -1,0 +1,22 @@
+// look-dev: Corner Rectangle just drawn on the Top Plane, like reference frame f_0070 (Rectangle PropertyManager)
+import { chromium } from 'playwright';
+const browser = await chromium.launch({ channel: process.env.PW_CHANNEL ?? 'msedge' });
+const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } });
+await page.goto(process.env.E2E_URL ?? 'http://127.0.0.1:4173/');
+await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.theme', 'light'); });
+await page.reload();
+await page.waitForSelector('.k-viewport');
+await page.click('.k-doctype:has-text("Part")');
+await page.click('.k-tree-row:has-text("Top Plane")');
+await page.click('.k-cm-tab:has-text("Sketch")');
+await page.click('.k-cm-big:has-text("Sketch") .k-cm-main');
+await page.waitForTimeout(500);
+await page.evaluate(() => window.__phlippoStore.getState().setTool('rectangle'));
+await page.waitForTimeout(200);
+const P = (x, y) => page.evaluate(([x, y]) => window.__phlippoProject({ x, y }), [x, y]);
+let p = await P(0, 0); await page.mouse.click(p.x, p.y);
+p = await P(92, 75); await page.mouse.click(p.x, p.y);
+await page.mouse.move(820, 680);
+await page.waitForTimeout(500);
+await page.screenshot({ path: 'e2e-out/look-rect.png' });
+await browser.close();

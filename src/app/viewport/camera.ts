@@ -1,30 +1,59 @@
+import { getPref } from '../prefs';
 import * as THREE from 'three';
 import type { Sketch } from '../../core/sketch/types';
+import type { PlaneDef } from '../../core/document/types';
 
 export type PlaneId = Sketch['plane'];
+export type ReferencePlaneId = 'front' | 'top' | 'right';
+export const REFERENCE_PLANES: ReferencePlaneId[] = ['front', 'top', 'right'];
 
 export interface PlaneBasis {
+  /** origin of the sketch coordinate system in world space */
+  o: THREE.Vector3;
   u: THREE.Vector3;
   v: THREE.Vector3;
   n: THREE.Vector3;
+  name: string;
 }
 
-export const PLANES: Record<PlaneId, PlaneBasis> = {
-  front: { u: new THREE.Vector3(1, 0, 0), v: new THREE.Vector3(0, 1, 0), n: new THREE.Vector3(0, 0, 1) },
-  top: { u: new THREE.Vector3(1, 0, 0), v: new THREE.Vector3(0, 0, -1), n: new THREE.Vector3(0, 1, 0) },
-  right: { u: new THREE.Vector3(0, 0, -1), v: new THREE.Vector3(0, 1, 0), n: new THREE.Vector3(1, 0, 0) },
+const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z);
+
+/** The three reference planes of a part. */
+export const PLANES: Record<ReferencePlaneId, PlaneBasis> = {
+  front: { o: V(0, 0, 0), u: V(1, 0, 0), v: V(0, 1, 0), n: V(0, 0, 1), name: 'Front Plane' },
+  top: { o: V(0, 0, 0), u: V(1, 0, 0), v: V(0, 0, -1), n: V(0, 1, 0), name: 'Top Plane' },
+  right: { o: V(0, 0, 0), u: V(0, 0, -1), v: V(0, 1, 0), n: V(1, 0, 0), name: 'Right Plane' },
 };
 
-export const PLANE_LABELS: Record<PlaneId, string> = { front: 'Front Plane', top: 'Top Plane', right: 'Right Plane' };
+/** Planes created on body faces, registered by the store from Document.planes. */
+const customPlanes = new Map<string, PlaneBasis>();
+
+export function registerPlanes(planes: Record<string, PlaneDef>): void {
+  customPlanes.clear();
+  for (const p of Object.values(planes)) {
+    customPlanes.set(p.id, { o: V(...p.origin), u: V(...p.u), v: V(...p.v), n: V(...p.n), name: p.name });
+  }
+}
+
+export function getPlane(id: PlaneId): PlaneBasis {
+  return (PLANES as Record<string, PlaneBasis>)[id] ?? customPlanes.get(id) ?? PLANES.front;
+}
+
+export function planeLabel(id: PlaneId): string {
+  return getPlane(id).name;
+}
+
+export const PLANE_LABELS: Record<ReferencePlaneId, string> = { front: 'Front Plane', top: 'Top Plane', right: 'Right Plane' };
 
 export function sketchToWorld(plane: PlaneId, x: number, y: number): THREE.Vector3 {
-  const b = PLANES[plane];
-  return new THREE.Vector3().addScaledVector(b.u, x).addScaledVector(b.v, y);
+  const b = getPlane(plane);
+  return b.o.clone().addScaledVector(b.u, x).addScaledVector(b.v, y);
 }
 
 export function worldToSketch(plane: PlaneId, w: THREE.Vector3): { x: number; y: number } {
-  const b = PLANES[plane];
-  return { x: w.dot(b.u), y: w.dot(b.v) };
+  const b = getPlane(plane);
+  const d = w.clone().sub(b.o);
+  return { x: d.dot(b.u), y: d.dot(b.v) };
 }
 
 export type StandardView = 'front' | 'back' | 'top' | 'bottom' | 'left' | 'right' | 'isometric' | 'dimetric' | 'trimetric';
@@ -47,7 +76,7 @@ export const VIEW_QUATERNIONS: Record<StandardView, THREE.Quaternion> = {
 };
 
 export function normalToView(plane: PlaneId): THREE.Quaternion {
-  const b = PLANES[plane];
+  const b = getPlane(plane);
   return Q(b.n, b.v);
 }
 
@@ -57,14 +86,21 @@ export function normalToView(plane: PlaneId): THREE.Quaternion {
  */
 export class CadCamera {
   readonly camera = new THREE.OrthographicCamera(-1, 1, 1, -1, -10000, 10000);
+  /** View Settings ▸ Perspective: a perspective camera with the same framing at the target */
+  readonly pcam = new THREE.PerspectiveCamera(30, 1, 1, 100000);
+  perspective = false;
+  /** the camera the graphics area renders with */
+  get view(): THREE.Camera {
+    return this.perspective ? this.pcam : this.camera;
+  }
   target = new THREE.Vector3();
-  rotation = VIEW_QUATERNIONS.isometric.clone();
+  rotation = VIEW_QUATERNIONS.trimetric.clone();
   /** world units per pixel */
   scale = 0.25;
   width = 1;
   height = 1;
   /** name of the current standard view; '' after free rotation */
-  viewName = 'isometric';
+  viewName = 'trimetric';
   private history: { q: THREE.Quaternion; c: THREE.Vector3; s: number; name: string }[] = [];
   onViewName: ((name: string) => void) | null = null;
   private anim: { t0: number; dur: number; q0: THREE.Quaternion; q1: THREE.Quaternion; c0: THREE.Vector3; c1: THREE.Vector3; s0: number; s1: number } | null = null;
@@ -88,11 +124,37 @@ export class CadCamera {
     this.camera.position.copy(this.target).addScaledVector(back, 1000);
     this.camera.updateProjectionMatrix();
     this.camera.updateMatrixWorld();
+    // the perspective camera sees the same height at the target as the orthographic one
+    const dist = hh / Math.tan((this.pcam.fov * Math.PI) / 360);
+    this.pcam.aspect = this.width / this.height;
+    this.pcam.near = Math.max(0.01, dist / 200);
+    this.pcam.far = dist * 200 + 20000;
+    this.pcam.quaternion.copy(this.rotation);
+    this.pcam.position.copy(this.target).addScaledVector(back, dist);
+    this.pcam.updateProjectionMatrix();
+    this.pcam.updateMatrixWorld();
     this.onChange?.();
+  }
+
+  setPerspective(on: boolean): void {
+    this.perspective = on;
+    this.update();
+  }
+
+  /** the point under a pixel on the plane through the target facing the screen */
+  private pixelOnTargetPlane(px: number, py: number): THREE.Vector3 {
+    const ray = this.pixelToRay(px, py);
+    const fwd = new THREE.Vector3(0, 0, -1).applyQuaternion(this.rotation);
+    const plane = new THREE.Plane().setFromNormalAndCoplanarPoint(fwd, this.target);
+    return ray.intersectPlane(plane, new THREE.Vector3()) ?? ray.origin.clone();
   }
 
   /** screen pixel -> world ray origin + direction */
   pixelToRay(px: number, py: number): THREE.Ray {
+    if (this.perspective) {
+      const far = new THREE.Vector3((px / this.width) * 2 - 1, -(py / this.height) * 2 + 1, 0.5).unproject(this.pcam);
+      return new THREE.Ray(this.pcam.position.clone(), far.sub(this.pcam.position).normalize());
+    }
     const ndc = new THREE.Vector3((px / this.width) * 2 - 1, -(py / this.height) * 2 + 1, -1);
     const origin = ndc.clone().unproject(this.camera);
     const dir = new THREE.Vector3(0, 0, -1).applyQuaternion(this.rotation);
@@ -101,24 +163,24 @@ export class CadCamera {
 
   pixelToPlane(px: number, py: number, plane: PlaneId): { x: number; y: number } | null {
     const ray = this.pixelToRay(px, py);
-    const b = PLANES[plane];
-    const p = new THREE.Plane(b.n, 0);
+    const b = getPlane(plane);
+    const p = new THREE.Plane(b.n, -b.n.dot(b.o));
     const hit = ray.intersectPlane(p, new THREE.Vector3());
     if (!hit) return null;
     return worldToSketch(plane, hit);
   }
 
   worldToPixel(w: THREE.Vector3): { x: number; y: number } {
-    const p = w.clone().project(this.camera);
+    const p = w.clone().project(this.perspective ? this.pcam : this.camera);
     return { x: ((p.x + 1) / 2) * this.width, y: ((1 - p.y) / 2) * this.height };
   }
 
   /** zoom about a pixel position */
   zoomAt(px: number, py: number, factor: number): void {
-    const before = this.pixelToRay(px, py).origin;
+    const before = this.perspective ? this.pixelOnTargetPlane(px, py) : this.pixelToRay(px, py).origin;
     this.scale = Math.min(50, Math.max(0.001, this.scale * factor));
     this.update();
-    const after = this.pixelToRay(px, py).origin;
+    const after = this.perspective ? this.pixelOnTargetPlane(px, py) : this.pixelToRay(px, py).origin;
     this.target.add(before).sub(after);
     this.update();
   }
@@ -153,7 +215,7 @@ export class CadCamera {
     const w = Math.abs(x1 - x0), h = Math.abs(y1 - y0);
     if (w < 4 || h < 4) return;
     this.pushHistory();
-    const center = this.pixelToRay((x0 + x1) / 2, (y0 + y1) / 2).origin;
+    const center = this.perspective ? this.pixelOnTargetPlane((x0 + x1) / 2, (y0 + y1) / 2) : this.pixelToRay((x0 + x1) / 2, (y0 + y1) / 2).origin;
     // keep the camera plane: project centre onto the plane through target
     const fwd = new THREE.Vector3(0, 0, -1).applyQuaternion(this.rotation);
     const t = center.clone().sub(this.target).dot(fwd);
@@ -176,7 +238,16 @@ export class CadCamera {
     this.update();
   }
 
-  /** rotate by a fixed step about screen axes (view-cube arrows) */
+  /** rotate about the axis normal to the screen (Alt + middle mouse) */
+  roll(deg: number): void {
+    if (this.viewName) this.setViewName('');
+    const axis = new THREE.Vector3(0, 0, 1).applyQuaternion(this.rotation);
+    const q = new THREE.Quaternion().setFromAxisAngle(axis, (deg * Math.PI) / 180);
+    this.rotation.premultiply(q).normalize();
+    this.update();
+  }
+
+  /** rotate by a fixed step about screen axes (arrow keys: 15°, Shift 90°, Alt roll) */
   rotateStep(axis: 'x' | 'y' | 'z', deg: number): void {
     this.pushHistory();
     this.setViewName('');
@@ -204,28 +275,35 @@ export class CadCamera {
     else this.anim = null;
   };
 
+  /** set by the viewport: Zoom to Fit (used when the View option "Zoom to fit when changing to standard views" is on) */
+  fitRequest: (() => void) | null = null;
+
   setView(view: StandardView): void {
     this.pushHistory();
     this.setViewName(view);
     this.animateTo(VIEW_QUATERNIONS[view], this.target, this.scale);
+    if (getPref('view.zoomFitStandard')) this.fitRequest?.();
   }
 
   normalTo(plane: PlaneId): void {
     this.pushHistory();
-    this.setViewName('normalTo');
+    // normal to a reference plane is the standard Front/Top/Right view (the original names it so)
+    this.setViewName(plane in PLANES ? plane : 'normalTo');
     this.animateTo(normalToView(plane), this.target, this.scale);
   }
 
   /** fit a world-space bounding box with margin */
   fit(box: THREE.Box3 | null, margin = 1.25): void {
     this.pushHistory();
+    // a fit during a turn (Normal To, a standard view) keeps turning to where that turn ends
+    const rot = this.anim ? this.anim.q1.clone() : this.rotation.clone();
     if (!box || box.isEmpty() || box.getSize(new THREE.Vector3()).length() < 1e-6) {
-      this.animateTo(this.rotation, box && !box.isEmpty() ? box.getCenter(new THREE.Vector3()) : new THREE.Vector3(), 0.25);
+      this.animateTo(rot, box && !box.isEmpty() ? box.getCenter(new THREE.Vector3()) : new THREE.Vector3(), 0.25);
       return;
     }
     const center = box.getCenter(new THREE.Vector3());
     // project box corners to the view plane to get extents
-    const inv = this.rotation.clone().invert();
+    const inv = rot.clone().invert();
     let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
     for (let i = 0; i < 8; i++) {
       const c = new THREE.Vector3(i & 1 ? box.max.x : box.min.x, i & 2 ? box.max.y : box.min.y, i & 4 ? box.max.z : box.min.z).sub(center).applyQuaternion(inv);
@@ -236,6 +314,6 @@ export class CadCamera {
     }
     const w = Math.max(1e-3, maxX - minX), h = Math.max(1e-3, maxY - minY);
     const scale = Math.max((w * margin) / this.width, (h * margin) / this.height, 0.001);
-    this.animateTo(this.rotation, center, scale);
+    this.animateTo(rot, center, scale);
   }
 }

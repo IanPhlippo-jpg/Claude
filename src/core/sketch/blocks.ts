@@ -59,7 +59,7 @@ export function insertBlock(s: Sketch, b: Block, at: SketchPoint): [Sketch, Id[]
     smap.set(id, nid);
     scalars[nid] = v;
   }
-  for (const e of b.entities) emap.set(e.id, newId(e.kind === 'line' ? 'ln' : e.kind === 'circle' ? 'ci' : e.kind === 'arc' ? 'ar' : e.kind === 'spline' ? 'sp' : 'pt'));
+  for (const e of b.entities) emap.set(e.id, newId(e.kind === 'line' ? 'ln' : e.kind === 'circle' ? 'ci' : e.kind === 'arc' ? 'ar' : e.kind === 'spline' ? 'sp' : e.kind === 'ellipse' ? 'el' : e.kind === 'ellipseArc' ? 'ea' : e.kind === 'conic' ? 'cn' : e.kind === 'text' ? 'tx' : 'pt'));
   const P = (id: Id) => pmap.get(id) ?? id;
   const entities = { ...s.entities };
   const entityOrder = [...s.entityOrder];
@@ -81,6 +81,18 @@ export function insertBlock(s: Sketch, b: Block, at: SketchPoint): [Sketch, Id[]
         break;
       case 'spline':
         ne = { ...e, id, points: e.points.map(P) };
+        break;
+      case 'ellipse':
+        ne = { ...e, id, center: P(e.center), major: P(e.major), r2: smap.get(e.r2) ?? e.r2 };
+        break;
+      case 'ellipseArc':
+        ne = { ...e, id, center: P(e.center), major: P(e.major), start: P(e.start), end: P(e.end), r2: smap.get(e.r2) ?? e.r2 };
+        break;
+      case 'conic':
+        ne = { ...e, id, start: P(e.start), end: P(e.end), control: P(e.control) };
+        break;
+      case 'text':
+        ne = { ...e, id, anchor: P(e.anchor) };
         break;
     }
     entities[id] = ne;
