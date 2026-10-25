@@ -1,4 +1,5 @@
 import { deleteFaces } from './deleteface';
+import { circleSegments } from '../sketch/geometry';
 import * as THREE from 'three';
 import { TOL } from './tolerance';
 import { isRoundFeature, isSketchBased, type Document, type ExtrudeFeature, type Feature, type RoundFeature, type SketchBasedFeature, type SolidFeature } from '../document/types';
@@ -9,7 +10,7 @@ import { clipToSurface, csg, extrudeGeometry, flipWinding, meshVolume, mergeGeom
 import { MeshBVH } from 'three-mesh-bvh';
 import type { Region } from './regions';
 import { bodyEdges, matchEdge, subEdgeAt, type BodyEdge } from './edgesets';
-import { applyTools, cornerTools, keepEdgeRadii, roundTools, roundToolsOpts } from './round';
+import { applyTools, cornerTools, keepEdgeRadii, roundTools, roundToolsOpts, vertexChamferTool } from './round';
 import { holeTool, mirrorGeometry, patternInstances, translated } from './pattern';
 import { curveInstances, fillInstances, tableInstances } from './patterns2';
 import { solveSketch } from '../solver/solver';
@@ -83,7 +84,7 @@ export function featureGeometry(doc: Document, f: SketchBasedFeature, extent = T
     const chains = sketchChains(sketch).filter((c) => !c.points.every(onAxis));
     if (!chains.length) return { geometry: null, error: 'The sketch has no lines or arcs to make a thin feature from.' };
     regions = thinRegions(chains, f.thin);
-  } else if (!regions.length) {
+  } else if (!regions.length && !(f.type === 'sweep' && f.profileType === 'circular')) {
     return { geometry: null, error: f.type === 'extrude' && sketchChains(sketch).length ? 'The sketch is an open contour: use Thin Feature or close the profile.' : 'The sketch has no closed contour to build a solid from.' };
   }
   if (f.type === 'extrude') {
@@ -188,7 +189,21 @@ export function featureGeometry(doc: Document, f: SketchBasedFeature, extent = T
     if (!pathSketch) return { geometry: null, error: 'Select a sketch (or a helix) with the path.' };
     const path = helix ? helixPath(pathSketch, resolvePlaneDef(doc, pathSketch.plane), helix as Parameters<typeof helixPath>[2]) : sketchPath(pathSketch, resolvePlaneDef(doc, pathSketch.plane));
     if (!path) return { geometry: null, error: 'The path sketch has no lines, arcs or splines to sweep along.' };
-    const g = sweepGeometry(regions, plane, path);
+    const sweepOpts = { keepNormal: f.orientation === 'keepNormal', twist: f.twist };
+    if (f.profileType === 'circular') {
+      // Circular Profile: a circle of the given diameter on a plane normal to the path at its start
+      const d = f.diameter ?? 5;
+      if (!(d > 0)) return { geometry: null, error: 'The circular profile needs a diameter larger than zero.' };
+      const t0 = path[1].clone().sub(path[0]).normalize();
+      const ref = Math.abs(t0.y) < 0.9 ? new THREE.Vector3(0, 1, 0) : new THREE.Vector3(1, 0, 0);
+      const u0 = ref.clone().cross(t0).normalize(), v0 = t0.clone().cross(u0).normalize();
+      const cplane: PlaneDef = { id: 'sweep-circle', name: 'Profile', origin: [path[0].x, path[0].y, path[0].z], u: [u0.x, u0.y, u0.z], v: [v0.x, v0.y, v0.z], n: [t0.x, t0.y, t0.z] };
+      const n = Math.max(24, circleSegments(d / 2, 48));
+      const outer = Array.from({ length: n }, (_, i) => ({ x: (d / 2) * Math.cos((2 * Math.PI * i) / n), y: (d / 2) * Math.sin((2 * Math.PI * i) / n) }));
+      const gc = sweepGeometry([{ outer, holes: [], area: Math.PI * d * d / 4 }], cplane, path, sweepOpts);
+      return gc ? { geometry: gc } : { geometry: null, error: 'Could not sweep the circular profile along the path.' };
+    }
+    const g = sweepGeometry(regions, plane, path, sweepOpts);
     return g ? { geometry: g } : { geometry: null, error: 'Could not sweep the profile along the path.' };
   }
   if (f.type === 'loft') {
@@ -206,7 +221,15 @@ export function featureGeometry(doc: Document, f: SketchBasedFeature, extent = T
       if (f.guideTangency === 'normal') pts = guideNormalToProfiles(pts, new THREE.Vector3(...plane.n), new THREE.Vector3(...resolvePlaneDef(doc, sketch2.plane).n));
       guides.push(pts);
     }
-    const g = loftGeometry(regions[0], plane, regions2[0], resolvePlaneDef(doc, sketch2.plane), 64, guides, { start: f.startNormal, end: f.endNormal, startDir: f.startType === 'direction' ? f.startDir : undefined, endDir: f.endType === 'direction' ? f.endDir : undefined });
+    // Centerline Parameters: the sketch curve the section centres follow
+    let centerline: THREE.Vector3[] | undefined;
+    if (f.centerline) {
+      const cs = doc.sketches[f.centerline];
+      const pts = cs ? sketchPath(cs, resolvePlaneDef(doc, cs.plane)) : null;
+      if (!pts) return { geometry: null, error: 'The centerline sketch has no lines, arcs or splines.' };
+      centerline = pts;
+    }
+    const g = loftGeometry(regions[0], plane, regions2[0], resolvePlaneDef(doc, sketch2.plane), 64, guides, { centerline, start: f.startNormal, end: f.endNormal, startDir: f.startType === 'direction' ? f.startDir : undefined, endDir: f.endType === 'direction' ? f.endDir : undefined });
     return g ? { geometry: g } : { geometry: null, error: 'Could not loft between the profiles.' };
   }
   // Mid-Plane: half the angle each way; Direction 2: the second angle on the other side
@@ -1841,6 +1864,19 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
     if (isRoundFeature(f)) {
       if (!body) {
         errors[f.id] = 'A fillet or chamfer needs an existing solid body.';
+        continue;
+      }
+      // Chamfer ▸ Vertex: a tetrahedron at the corner, its three distances along the edges that meet there
+      if (f.type === 'chamfer' && f.roundType === 'vertex') {
+        if (!f.vertex) { errors[f.id] = 'Select the vertex to chamfer.'; continue; }
+        const vt = vertexChamferTool(body.geometry, new THREE.Vector3(...f.vertex.point), f.size, f.equalDistance === false ? f.size2 ?? f.size : f.size, f.equalDistance === false ? f.size3 ?? f.size : f.size);
+        if (!vt) { errors[f.id] = 'The vertex is no longer a corner of three edges (dangling reference).'; continue; }
+        try {
+          body.geometry = csg(body.geometry, vt, 'subtract');
+          body.featureIds.push(f.id);
+        } catch (err) {
+          errors[f.id] = `Boolean operation failed: ${(err as Error).message}`;
+        }
         continue;
       }
       // the body that owns the selected edges (the first one where they match)

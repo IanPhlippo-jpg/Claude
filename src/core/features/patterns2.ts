@@ -111,8 +111,36 @@ export function fillPoints(f: PatternFeature, seedCentre: THREE.Vector3): THREE.
   const xs = fl.polygon.map((p) => p[0]), ys = fl.polygon.map((p) => p[1]);
   const minX = Math.min(...xs), maxX = Math.max(...xs), minY = Math.min(...ys), maxY = Math.max(...ys);
   const sp = Math.max(0.1, fl.spacing);
-  const rowH = fl.layout === 'hex' ? (sp * Math.sqrt(3)) / 2 : sp;
   const out: THREE.Vector3[] = [];
+  if (fl.layout === 'circular' || fl.layout === 'polygon') {
+    // rings around the boundary centre: circles, or regular polygons of `sides` sides, `spacing` apart
+    const cx = xs.reduce((a, b) => a + b, 0) / xs.length, cy = ys.reduce((a, b) => a + b, 0) / ys.length;
+    const maxR = Math.hypot(maxX - minX, maxY - minY);
+    const sides = Math.max(3, Math.round(fl.sides ?? 6));
+    for (let ring = 1; ring * sp <= maxR; ring++) {
+      const r = ring * sp;
+      const pts: [number, number][] = [];
+      if (fl.layout === 'circular') {
+        const n = Math.max(1, Math.floor((2 * Math.PI * r) / sp));
+        for (let k = 0; k < n; k++) pts.push([cx + r * Math.cos((2 * Math.PI * k) / n), cy + r * Math.sin((2 * Math.PI * k) / n)]);
+      } else {
+        // `ring` instances per polygon side
+        for (let side = 0; side < sides; side++) {
+          const a0 = (2 * Math.PI * side) / sides, a1 = (2 * Math.PI * (side + 1)) / sides;
+          const A = [cx + r * Math.cos(a0), cy + r * Math.sin(a0)], B = [cx + r * Math.cos(a1), cy + r * Math.sin(a1)];
+          for (let k = 0; k < ring; k++) pts.push([A[0] + ((B[0] - A[0]) * k) / ring, A[1] + ((B[1] - A[1]) * k) / ring]);
+        }
+      }
+      for (const [x, y] of pts) {
+        if (Math.hypot(x - sx, y - sy) < 1e-6) continue;
+        if (!inside(fl.polygon, x, y) || distToPoly(fl.polygon, x, y) < fl.margin) continue;
+        out.push(u.clone().multiplyScalar(x - sx).addScaledVector(v, y - sy));
+        if (out.length > 2000) return out;
+      }
+    }
+    return out;
+  }
+  const rowH = fl.layout === 'hex' ? (sp * Math.sqrt(3)) / 2 : sp;
   const j0 = Math.floor((minY - sy) / rowH) - 1, j1 = Math.ceil((maxY - sy) / rowH) + 1;
   for (let j = j0; j <= j1; j++) {
     const shift = fl.layout === 'hex' && Math.abs(j) % 2 === 1 ? sp / 2 : 0;

@@ -138,7 +138,7 @@ export function FeatureTreeBody() {
   const nodes: TreeNode[] = [
     {
       id: 'part',
-      icon: <Icon.Part />,
+      icon: <span style={{ display: 'inline-flex', gap: 2 }}><Icon.Part /><Icon.ConfigBadge /></span>,
       label: (
         <span>
           {st.doc.name} ({activeConfiguration(st.doc).name}) {`<<${activeConfiguration(st.doc).name}>_Display State 1>`}

@@ -77,6 +77,8 @@ export function dimensionDrawing(s: Sketch, c: Constraint, unit: string, driven:
   }
   // Dual Dimension: the value in inches as well, in brackets
   if (c.dual && c.kind !== 'angle' && out.text) out.text = `${out.text} [${((c.value ?? 0) / 25.4).toFixed(Math.max(2, dec + 1))}]`;
+  // All uppercase: the text (and its unit) in capitals
+  if (c.uppercase) out.text = out.text.toUpperCase();
   // Leaders > arrows outside: the arrows come in from outside the extension lines
   if (c.arrows === 'outside') {
     const i = out.lines.findIndex((l) => l.arrowA && l.arrowB);

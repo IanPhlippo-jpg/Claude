@@ -516,3 +516,18 @@ elease; README en docs/04 bijgewerkt
 - [x] Proces: exitcodes in alle e2e-scripts, regressie telt fouten, CI-workflow, PW_CHROMIUM/PW_CHANNEL, verouderde tests bijgewerkt, e2e/qa1.mjs 26/26 + e2e/qa2.mjs 17/17, unit tests bestandsformaat
 - [x] Build 0.3.2 + volledige regressie (67 scripts groen na 3 testcorrecties: CSP-meta zonder frame-ancestors, Confirm Delete-standaarden) + installer met fuses geïnstalleerd (autosave bewaard, desktop-checks 8/8 en no-hooks 3/3) + schermafbeeldingen (Deurkruk)
 - [ ] Later: code signing, worker/incrementele rebuild, B-rep-proef, vitest-major voor npm audit
+
+## Vervolg 34: resterende SOLIDWORKS-onderdelen uit de playlist-inventaris (2026-10-25)
+- [x] Commit 0.3.2 lokaal
+- [x] Blok V visuele kwaliteit (op verzoek van Ian: "ziet er versimpeld uit"): belichting gemeten op frame f_0118 (bovenvlak 219 / voorvlak 240 / zijvlak 218), randen zwart 1,5 px anti-aliased (LineSegments2), achtergrond #fcfcfc, Features-tab + boom + PM-kop in isometrische iconen (icons3d.tsx), Sketch-tab in lijn-iconen (iconsSketch.tsx), heads-up-iconen, manager-tabs, Part-icoon + configuratiebadge, PM-richtingsiconen en D1-glyph, spinknoppen, Search Commands als donkere tegel, lint-afstanden zoals SW
+- [x] Blok G-A (e2e/ga1.mjs 19/19, e2e/ga2.mjs 16/16; nog niet: Section View offset-modus, PM-titel "Line Properties") kleine PM-/dialoogopties: Line (Additional Parameters, As sketched/Horizontal/Vertical/Angle, Midpoint line), Point (Control Vertex Parameters), Rectangle (Add dimensions, From Corners/Midpoints), Circle (Add dimensions, Diameter), relaties Coradial/Equal Curve Length, Properties-PM Selected Entities, Section View offset/Section by Body, Dimension-PM All uppercase/Dual Dimension, Equations Filter All Fields/Automatic solve order, Chamfer Vertex/Offset Face/Face Face + Chamfer Options, Sweep-opties (Circular/Solid profile, Follow Path/Twist, Merge tangent faces, Align with end faces, Curvature Display), Loft (Next Face, Apply to all, Centerline Parameters, Drag Sketch, Merge tangent faces, Close loft), Fill Pattern indeling (Perforation/Circular/Square/Polygon, Validate Count, Create seed cut), Zebra Stripes
+- [~] Blok G-B rechtsklikmenu's: feature (Comment, Parent/Child, Configure Feature, Add to Favorites, Feature Properties, Go To, Create New Folder, Hide/Show Tree Items), body/cut-list (Body Display, Delete/Keep Body, Add to New Folder, Insert into New Part, Save Selection, Change Transparency, Show Feature History, Save Bodies, Create Bounding Box)
+- [ ] Blok G-C export: Save As STL/3MF/AMF-optiepagina (ASCII/binair, eenheden, resolutie, info vooraf, positieve ruimte, één bestand), Publish to eDrawings-equivalent (HTML-viewer)
+- [ ] Blok G-D Surfaces: Filled, Ruled, Extend, Untrim, Replace Face, Thickened Cut, Cut With Surface + Feature Scope, Surface Flatten
+- [ ] Blok G-E Sheet Metal extra's: Swept Flange, Forming Tool, Sheet Metal Gusset, Tab and Slot, Simple Hole, Vent, Normal Cut, Rip, Insert Bends
+- [ ] Blok G-F Evaluate: Performance Evaluation, Body Compare, Deviation Analysis, Parting Line Analysis, Symmetry Check, Compare Documents, Check Active Document, SimulationXpress-wizard
+- [ ] Blok G-G Customize-dialoog (Toolbars, Shortcut Bars, Commands, Menus, Keyboard, Mouse Gestures, Customization) met echte instellingen
+- [ ] Blok G-H Weldments: Weldment, Structural Member (profielen), Trim/Extend, End Cap, Gusset, Weld Bead, cut list
+- [ ] Blok G-I Material-velden (Compressive Strength, Description, Source, Sustainability, Favorites), MBD Dimensions-tab
+- [ ] Playlist-inventaris afmaken (video's 13–15, 21–24, 26–37) en resterende verschillen wegwerken
+- [ ] Na elk blok tsc + e2e; op het einde volledige regressie, 0.3.3, installer, schermafbeeldingen

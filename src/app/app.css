@@ -25,7 +25,7 @@
 /* --- CommandManager ------------------------------------------------------------- */
 .k-cm { background: var(--bg-panel); border-bottom: 1px solid var(--border); }
 .k-cm-body { display: flex; align-items: stretch; gap: 2px; padding: 2px 4px 0; min-height: 74px; }
-.k-cm-group { display: flex; align-items: flex-start; gap: 2px; padding: 0 4px; border-right: 1px solid var(--border); }
+.k-cm-group { display: flex; align-items: flex-start; gap: 1px; padding: 0 3px; border-right: 1px solid var(--border); }
 .k-cm-group:last-child { border-right: none; }
 .k-cm-col { display: flex; flex-direction: column; gap: 1px; }
 .k-cm-big { position: relative; display: flex; flex-direction: column; align-items: center; border-radius: var(--radius-m); border: 1px solid transparent; }
@@ -71,7 +71,7 @@
 
 /* manager pane */
 .k-manager-tabs { display: flex; align-items: center; gap: 2px; flex: 1; }
-.k-manager-tab { width: 30px; height: 24px; display: inline-flex; align-items: center; justify-content: center; border-radius: 0; color: var(--text-muted); border: 1px solid var(--border); border-right: none; background: #f3f3f3; }
+.k-manager-tab { width: 30px; height: 24px; display: inline-flex; align-items: center; justify-content: center; border-radius: 0; color: var(--text-muted); border: 1px solid var(--border); border-right: none; background: #e8e8e8; }
 .k-manager-tab:last-of-type { border-right: 1px solid var(--border); }
 .k-manager-tab:hover { background: var(--bg-hover); }
 .k-manager-tab.active { color: var(--accent); background: var(--bg-panel); }
@@ -89,6 +89,7 @@
 .k-pm-head { border-bottom: 1px solid var(--border); background: var(--bg-panel); position: sticky; top: 0; z-index: 4; } /* the title with OK / Cancel stays in view when the PropertyManager scrolls, as the original */
 .k-pm-title { display: flex; align-items: center; gap: 6px; padding: 6px 8px 2px; }
 .k-pm-title .grow { flex: 1; }
+.k-pm-title > svg { width: 22px; height: 22px; }
 .k-pm-help { width: 16px; height: 16px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid var(--border-strong); color: var(--text-muted); font-size: 10px; }
 .k-pm-buttons { display: flex; gap: 6px; padding: 2px 8px 6px; }
 .k-pm-ok, .k-pm-cancel { width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; border-radius: 2px; }
@@ -280,7 +281,7 @@
 .k-cm-iconfly { display: flex; align-items: center; border-radius: var(--radius-s); border: 1px solid transparent; }
 .k-cm-iconfly.active { background: var(--bg-selected); border-color: var(--accent); }
 .k-cm-iconbtn svg { width: 18px; height: 18px; }
-.k-cm-iconbtn { width: 26px; height: 22px; display: inline-flex; align-items: center; justify-content: center; border-radius: var(--radius-s); color: var(--icon); }
+.k-cm-iconbtn { width: 28px; height: 24px; display: inline-flex; align-items: center; justify-content: center; border-radius: var(--radius-s); color: var(--icon); }
 .k-cm-iconbtn:hover { background: var(--bg-hover); }
 .k-cm-iconbtn:disabled { opacity: 0.35; cursor: default; }
 .k-cm-iconfly.active .k-cm-iconbtn { color: var(--accent); }
@@ -628,9 +629,9 @@
    tab strip 20 px; the title bar holds the command search (no extra toolbar row) */
 .k-cm-body { height: 82px; min-height: 82px; padding: 1px 2px 0; }
 .k-cm-big { height: 80px; }
-.k-cm-main { min-width: 50px; max-width: 72px; padding: 4px 3px 0; gap: 4px; }
+.k-cm-main { min-width: 44px; max-width: none; padding: 4px 3px 0; gap: 4px; }
 .k-cm-icon svg { width: 26px; height: 26px; }
-.k-cm-label { font-size: 12px; line-height: 13px; max-height: 39px; }
+.k-cm-label { font-size: 12px; line-height: 13px; max-height: 39px; max-width: 58px; min-width: min-content; }
 .k-cm-col { gap: 4px; padding-top: 2px; }
 .k-cm-small { font-size: 12px; height: 22px; gap: 6px; }
 .k-cm-small svg { width: 18px; height: 18px; }
@@ -864,3 +865,10 @@
 .k-gesture-item.left { left: -96px; top: 0; }
 .k-gesture-item.right { left: 96px; top: 0; }
 .k-gesture-item.active { background: #ffd54a; border-color: #c99a15; font-weight: 600; }
+
+/* CommandManager icon sizes as the original: 24 px on big buttons, 20 px in the sketch entity grid */
+.k-cm-iconbtn > svg { width: 20px; height: 20px; }
+
+/* the Search Commands button of the title row: a dark tile with the white magnifier, as the original */
+.k-mb-btn.k-mb-btn-dark { background: #4b5058; color: #fff; border-radius: 3px; width: 24px; height: 20px; }
+.k-mb-btn.k-mb-btn-dark:hover { background: #333841; }

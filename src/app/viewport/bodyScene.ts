@@ -47,6 +47,8 @@ export interface BodySceneInput {
   metallic?: boolean;
   /** View Settings ▸ RealView Graphics: physically based materials with environment reflections */
   realView?: boolean;
+  /** Evaluate ▸ Zebra Stripes: black and white stripes reflected in the surfaces (surface continuity check) */
+  zebra?: boolean;
   /** View Settings ▸ Shadows In Shaded Mode: a soft shadow on a floor below the model */
   shadows?: boolean;
   /** Edit Scene ▸ Floor: reflections, alignment and offset */
@@ -78,7 +80,9 @@ interface BodyEntry {
   /** hidden-line and phantom tangent line sets */
   extra?: THREE.Object3D[];
   /** silhouette lines of the curved surfaces, recomputed when the camera moves */
-  sil?: { se: SmoothEdges; lines: THREE.LineSegments; key: string };
+  sil?: { se: SmoothEdges; lines: THREE.LineSegments; key: string; fat?: LineSegments2 };
+  /** the visible edges as 1.5 px anti-aliased black lines (a GL line is one grey device pixel), as the original */
+  fat?: LineSegments2;
 }
 
 /**
@@ -86,7 +90,8 @@ interface BodyEntry {
  * original's default scene: a key light from the upper left and ambient (the fill is off by default).
  * Calibrated on the reference frames: an isometric box measures top 227, left 223, right 172 (original 228 / 223 / 172).
  */
-export const LIGHTING = { key: { dir: [-0.356, 0.245, 0.901] as [number, number, number], intensity: 2.52 }, fill: { dir: [0.6, -0.3, 0.75] as [number, number, number], intensity: 0 }, ambient: 1.18 };
+/** measured against the video (frame f_0118, BasePlate in Trimetric): top face 219, front 240, right 218 */
+export const LIGHTING = { key: { dir: [-0.2, 0.15, 0.97] as [number, number, number], intensity: 3.0 }, fill: { dir: [0.9, 0.1, 0.4] as [number, number, number], intensity: 0.72 }, ambient: 1.05 };
 
 // test hook: the lighting can be tuned live
 (globalThis as unknown as { __phlippoLighting?: typeof LIGHTING }).__phlippoLighting = LIGHTING;
@@ -111,6 +116,8 @@ export class BodyScene {
   private faceMat = new THREE.MeshPhongMaterial({ color: 0xe8e8ea, specular: 0x222222, shininess: 20, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
   private occluderMat = new THREE.MeshBasicMaterial({ colorWrite: false, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
   private edgeMat = new THREE.LineBasicMaterial({ color: 0x1a1a1a });
+  /** model edges in Shaded With Edges: black, 1.5 px, anti-aliased (measured 22,20,21 in the video) */
+  private edgeMat2 = new LineMaterial({ color: 0x000000, linewidth: 1.5, worldUnits: false, alphaToCoverage: true });
   // the yellow preview of the original: light, slightly green-yellow faces and bright yellow edges (measured on the reference frames)
   private previewMat = new THREE.MeshPhongMaterial({ color: 0xe9f07a, transparent: true, opacity: 0.42, side: THREE.DoubleSide, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
   private previewEdgeMat = new THREE.LineBasicMaterial({ color: 0xd7e43c, transparent: true, opacity: 1 });
@@ -130,7 +137,7 @@ export class BodyScene {
     const m = o as THREE.Mesh;
     m.geometry?.dispose();
     const mats = Array.isArray(m.material) ? m.material : m.material ? [m.material] : [];
-    for (const mat of mats) if (mat !== this.faceMat && mat !== this.edgeMat && mat !== this.occluderMat && mat !== this.previewMat && mat !== this.previewEdgeMat && mat !== this.roundPreviewMat) mat.dispose();
+    for (const mat of mats) if (mat !== this.faceMat && mat !== this.zebraMat && mat !== this.edgeMat && mat !== this.edgeMat2 && mat !== this.occluderMat && mat !== this.previewMat && mat !== this.previewEdgeMat && mat !== this.roundPreviewMat) mat.dispose();
   }
 
   /** everything on the GPU goes when the graphics area unmounts */
@@ -138,6 +145,7 @@ export class BodyScene {
     for (const e of this.entries.values()) {
       this.disposeObject(e.mesh);
       this.disposeObject(e.edges);
+      if (e.fat) this.disposeObject(e.fat);
       for (const x of e.extra ?? []) this.disposeObject(x);
     }
     this.entries.clear();
@@ -158,7 +166,7 @@ export class BodyScene {
     this.floor.geometry.dispose();
     for (const t of this.textures.values()) t.dispose();
     this.textures.clear();
-    for (const m of [this.faceMat, this.occluderMat, this.edgeMat, this.previewMat, this.previewEdgeMat, this.roundPreviewMat]) m.dispose();
+    for (const m of [this.faceMat, this.occluderMat, this.edgeMat, this.edgeMat2, this.previewMat, this.previewEdgeMat, this.roundPreviewMat]) m.dispose();
   }
 
   constructor() {
@@ -275,9 +283,26 @@ export class BodyScene {
   /** floor that only receives the shadow (Shadows In Shaded Mode) */
   private floor = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.ShadowMaterial({ opacity: 0.22 }));
 
-  private rebuildBodies(bodies: Body[], style: DisplayStyle, colors: Record<string, string> = {}, shiny: Set<string> = new Set(), look: { realView: boolean; shadows: boolean; metallic: boolean; base: string; wood?: Set<string>; wooden?: boolean; faceColors?: Record<string, Record<string, string>>; transparent?: Set<string> } = { realView: false, shadows: false, metallic: false, base: '#e8e8ea' }) {
+  /** Zebra Stripes: a matcap with 12 stripes; the stripes follow the view-space normal, as the original's zebra */
+  private zebraMat: THREE.MeshMatcapMaterial | null = null;
+  private zebra(): THREE.MeshMatcapMaterial {
+    if (this.zebraMat) return this.zebraMat;
+    const c = document.createElement('canvas');
+    c.width = 256; c.height = 256;
+    const g = c.getContext('2d')!;
+    for (let i = 0; i < 12; i++) {
+      g.fillStyle = i % 2 ? '#111111' : '#f4f4f4';
+      g.fillRect(0, (i * 256) / 12, 256, 256 / 12 + 1);
+    }
+    const tex = new THREE.CanvasTexture(c);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    this.zebraMat = new THREE.MeshMatcapMaterial({ matcap: tex, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
+    return this.zebraMat;
+  }
+  private rebuildBodies(bodies: Body[], style: DisplayStyle, colors: Record<string, string> = {}, shiny: Set<string> = new Set(), look: { zebra?: boolean; realView: boolean; shadows: boolean; metallic: boolean; base: string; wood?: Set<string>; wooden?: boolean; faceColors?: Record<string, Record<string, string>>; transparent?: Set<string> } = { realView: false, shadows: false, metallic: false, base: '#e8e8ea' }) {
     for (const e of this.entries.values()) {
       this.group.remove(e.mesh, e.edges, ...(e.extra ?? []));
+      if (e.fat) { this.group.remove(e.fat); this.disposeObject(e.fat); }
       // every rebuild makes new geometry (smoothed normals, edge sets) and often cloned materials: all of it goes
       this.disposeObject(e.mesh);
       this.disposeObject(e.edges);
@@ -297,7 +322,8 @@ export class BodyScene {
           (faceMat as THREE.MeshPhongMaterial).specular.set(0x9a9a9a);
         }
       }
-      if (look.realView && style !== 'hiddenRemoved' && style !== 'hiddenVisible') {
+      if (look.zebra && style !== 'hiddenRemoved' && style !== 'hiddenVisible' && style !== 'wireframe') faceMat = this.zebra();
+      else if (look.realView && style !== 'hiddenRemoved' && style !== 'hiddenVisible') {
         // RealView: metal reflects the environment, other materials stay matte
         const metal = shiny.has(b.id) || (look.metallic && !colors[b.id]);
         const wood = look.wood?.has(b.id) || (look.wooden && !colors[b.id]);
@@ -349,6 +375,17 @@ export class BodyScene {
       const edges = new THREE.LineSegments(sets.edges, this.edgeMat);
       edges.visible = style !== 'shaded';
       edges.renderOrder = 2;
+      // Shaded With Edges: the edges as 1.5 px black anti-aliased lines; the GL lines carry the HLR styles
+      let fat: LineSegments2 | undefined;
+      if (style === 'shadedEdges') {
+        const fg = new LineSegmentsGeometry();
+        fg.setPositions(Array.from(sets.edges.getAttribute('position').array as Float32Array));
+        fat = new LineSegments2(fg, this.edgeMat2);
+        fat.renderOrder = 2;
+        fat.frustumCulled = false;
+        fat.name = 'edges';
+        edges.visible = false;
+      }
       const extra: THREE.Object3D[] = [];
       if (style === 'hiddenVisible' || style === 'wireframe') {
         // Hidden Lines Visible: hidden parts solid or dashed (Display option), as the original
@@ -382,9 +419,18 @@ export class BodyScene {
         lines.name = 'silhouette';
         extra.push(lines);
         sil = { se, lines, key: '' };
+        if (fat) {
+          const sf = new LineSegments2(new LineSegmentsGeometry(), this.edgeMat2);
+          sf.renderOrder = 2;
+          sf.frustumCulled = false;
+          sf.name = 'silhouette';
+          extra.push(sf);
+          sil.fat = sf;
+        }
       }
       this.group.add(mesh, edges, ...extra);
-      this.entries.set(b.id, { mesh, edges, triToFace, geometry: g, extra, sil });
+      if (fat) this.group.add(fat);
+      this.entries.set(b.id, { mesh, edges, triToFace, geometry: g, extra, sil, fat });
     }
   }
 
@@ -426,7 +472,7 @@ export class BodyScene {
   updateSilhouettes(camera: THREE.Camera): void {
     const inv = new THREE.Matrix4();
     for (const e of this.entries.values()) {
-      if (!e.sil || !e.edges.visible) continue;
+      if (!e.sil || !(e.edges.visible || e.fat?.visible)) continue;
       const lines = e.sil.lines;
       lines.updateMatrixWorld();
       inv.copy(lines.matrixWorld).invert();
@@ -442,6 +488,14 @@ export class BodyScene {
       const n = silhouette(e.sil.se, view, attr.array as Float32Array);
       attr.needsUpdate = true;
       lines.geometry.setDrawRange(0, n * 2);
+      if (e.sil.fat) {
+        // the fat copy takes the same segments
+        e.sil.fat.geometry.dispose();
+        const fg = new LineSegmentsGeometry();
+        if (n) fg.setPositions(Array.from((attr.array as Float32Array).subarray(0, n * 6)));
+        e.sil.fat.geometry = fg;
+        e.sil.fat.visible = n > 0;
+      }
     }
   }
 
@@ -464,6 +518,8 @@ export class BodyScene {
   onDecalLoaded: (() => void) | null = null;
 
   update(input: BodySceneInput): void {
+    // fat lines need the viewport size in pixels
+    this.edgeMat2.resolution.copy(SketchScene.resolution);
     const wanted = new THREE.Color(input.bodyColor ?? '#e8e8ea');
     if (!this.faceMat.color.equals(wanted)) this.faceMat.color.copy(wanted);
     // RealView: the environment lights the model; the lamps are turned down
@@ -476,12 +532,12 @@ export class BodyScene {
       this.faceMat.shininess = shin;
       this.faceMat.specular.set(input.metallic ? 0x9a9a9a : 0x222222);
     }
-    const key = (input.hiddenBodies ?? []).join(',') + '|' + JSON.stringify(input.bodyColors ?? {}) + '|' + (input.shinyBodies ?? []).join(',') + '|' + (input.realView ? 'rv' : '') + (input.metallic ? 'm' : '') + (input.shadows ? 's' : '') + (input.wooden ? 'w' : '') + (input.bodyColor ?? '') + '|' + (input.woodBodies ?? []).join(',') + '|' + JSON.stringify(input.faceColors ?? {}) + '|' + (input.transparentBodies ?? []).join(',');
+    const key = (input.hiddenBodies ?? []).join(',') + '|' + JSON.stringify(input.bodyColors ?? {}) + '|' + (input.shinyBodies ?? []).join(',') + '|' + (input.realView ? 'rv' : '') + (input.zebra ? 'zb' : '') + (input.metallic ? 'm' : '') + (input.shadows ? 's' : '') + (input.wooden ? 'w' : '') + (input.bodyColor ?? '') + '|' + (input.woodBodies ?? []).join(',') + '|' + JSON.stringify(input.faceColors ?? {}) + '|' + (input.transparentBodies ?? []).join(',');
     if (input.bodies !== this.lastBodies || input.displayStyle !== this.lastStyle || input.replaceBody !== this.lastReplace || key !== this.lastKey) {
       const hidden = new Set(input.hiddenBodies ?? []);
       const visible = input.bodies.filter((b) => !hidden.has(b.id));
       const shown = input.replaceBody && visible.length ? [{ ...visible[0], geometry: input.replaceBody }, ...visible.slice(1)] : visible;
-      this.rebuildBodies(shown, input.displayStyle, input.bodyColors ?? {}, new Set(input.shinyBodies ?? []), { realView: !!input.realView, shadows: !!input.shadows, metallic: !!input.metallic, base: input.bodyColor ?? '#e8e8ea', wood: new Set(input.woodBodies ?? []), wooden: !!input.wooden, faceColors: input.faceColors ?? {}, transparent: new Set(input.transparentBodies ?? []) });
+      this.rebuildBodies(shown, input.displayStyle, input.bodyColors ?? {}, new Set(input.shinyBodies ?? []), { zebra: !!input.zebra, realView: !!input.realView, shadows: !!input.shadows, metallic: !!input.metallic, base: input.bodyColor ?? '#e8e8ea', wood: new Set(input.woodBodies ?? []), wooden: !!input.wooden, faceColors: input.faceColors ?? {}, transparent: new Set(input.transparentBodies ?? []) });
       this.lastBodies = input.bodies;
       this.lastStyle = input.displayStyle;
       this.lastReplace = input.replaceBody;

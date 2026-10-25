@@ -112,7 +112,7 @@ function finish(pos: number[]): THREE.BufferGeometry {
  * taken relative to the path start projected onto the profile plane, so a profile drawn
  * around the path's start point stays centred on the path.
  */
-export function sweepGeometry(regions: Region[], profilePlane: PlaneDef, path: THREE.Vector3[]): THREE.BufferGeometry | null {
+export function sweepGeometry(regions: Region[], profilePlane: PlaneDef, path: THREE.Vector3[], opts: { keepNormal?: boolean; twist?: number } = {}): THREE.BufferGeometry | null {
   if (!regions.length || path.length < 2) return null;
   const pf = frameOf(profilePlane);
   // profile offset: path start in profile-plane coordinates
@@ -134,14 +134,28 @@ export function sweepGeometry(regions: Region[], profilePlane: PlaneDef, path: T
   }
   const frames: { o: THREE.Vector3; u: THREE.Vector3; v: THREE.Vector3 }[] = [];
   let prevT = tangents[0];
+  // Keep normal constant: the profile keeps the orientation of its plane along the whole path
+  if (opts.keepNormal) {
+    u = pf.u.clone();
+    v = pf.v.clone();
+  }
+  // Profile Twist: the profile turns `twist` revolutions about the path from start to end
+  const twistTotal = (opts.twist ?? 0) * Math.PI * 2;
   for (let i = 0; i < path.length; i++) {
     const t = tangents[i];
-    if (i > 0) {
+    if (i > 0 && !opts.keepNormal) {
       const q = new THREE.Quaternion().setFromUnitVectors(prevT, t);
       u = u.clone().applyQuaternion(q);
       v = v.clone().applyQuaternion(q);
     }
-    frames.push({ o: path[i], u: u.clone(), v: v.clone() });
+    let fu = u.clone(), fv = v.clone();
+    if (twistTotal) {
+      const ang = (twistTotal * i) / (path.length - 1);
+      const axis = opts.keepNormal ? pf.n.clone() : t;
+      fu = fu.applyAxisAngle(axis, ang);
+      fv = fv.applyAxisAngle(axis, ang);
+    }
+    frames.push({ o: path[i], u: fu, v: fv });
     prevT = t;
   }
   const pos: number[] = [];
@@ -226,7 +240,7 @@ function centroidOf(pts: THREE.Vector3[]): THREE.Vector3 {
  * Loft between the outer loops of two profiles on their own planes; optional guide curves and
  * Start/End Constraints "Normal To Profile" (the loft leaves / meets the profile perpendicular, tangent length factor).
  */
-export function loftGeometry(a: Region, planeA: PlaneDef, b: Region, planeB: PlaneDef, segments = 64, guides: THREE.Vector3[][] = [], constraints: { start?: number; end?: number; startDir?: [number, number, number]; endDir?: [number, number, number] } = {}): THREE.BufferGeometry | null {
+export function loftGeometry(a: Region, planeA: PlaneDef, b: Region, planeB: PlaneDef, segments = 64, guides: THREE.Vector3[][] = [], constraints: { centerline?: THREE.Vector3[]; start?: number; end?: number; startDir?: [number, number, number]; endDir?: [number, number, number] } = {}): THREE.BufferGeometry | null {
   const fa = frameOf(planeA), fb = frameOf(planeB);
   // consistent orientation: both loops counter-clockwise in their planes
   const ccw = (loop: SketchPoint[]) => (polyArea(loop) < 0 ? loop.slice().reverse() : loop);
@@ -242,7 +256,9 @@ export function loftGeometry(a: Region, planeA: PlaneDef, b: Region, planeB: Pla
   const rbs = rb.map((_, i) => rb[(i + bestShift) % segments]);
   const pos: number[] = [];
   const normalStart = constraints.start !== undefined, normalEnd = constraints.end !== undefined;
-  if (!guides.length && !normalStart && !normalEnd) wallTriangles(ra, rbs, pos);
+  // Centerline Parameters: the section centres follow this curve (by arc length) instead of the straight axis
+  const cl = constraints.centerline && constraints.centerline.length >= 2 ? constraints.centerline : null;
+  if (!guides.length && !normalStart && !normalEnd && !cl) wallTriangles(ra, rbs, pos);
   else {
     // Guide Curves: intermediate sections, each scaled in its plane so that its profile point nearest the
     // guide start runs along the guide (one guide: uniform scale; two: a linear map through both)
@@ -281,9 +297,24 @@ export function loftGeometry(a: Region, planeA: PlaneDef, b: Region, planeB: Pla
       return ra[i].clone().multiplyScalar(2 * t3 - 3 * t2 + 1).addScaledVector(t0, t3 - 2 * t2 + t).addScaledVector(rbs[i], -2 * t3 + 3 * t2).addScaledVector(t1, t3 - t2);
     };
     let prev = ra;
+    const clLen: number[] = [0];
+    if (cl) for (let i = 1; i < cl.length; i++) clLen.push(clLen[i - 1] + cl[i].distanceTo(cl[i - 1]));
+    const clAt = (t: number): THREE.Vector3 => {
+      const s = t * clLen[clLen.length - 1];
+      let i = 0;
+      while (i + 1 < clLen.length - 1 && clLen[i + 1] < s) i++;
+      const f = (s - clLen[i]) / ((clLen[i + 1] - clLen[i]) || 1);
+      return cl![i].clone().lerp(cl![i + 1], f);
+    };
+    // the centerline may run from b to a: take it the way that starts nearest profile a
+    if (cl && cl[0].distanceTo(ca) > cl[cl.length - 1].distanceTo(ca)) cl.reverse();
     for (let k = 1; k <= K; k++) {
       const t = k / K;
       const sec = ra.map((_, i) => pathAt(i, t));
+      if (cl && k < K) {
+        const shift = clAt(t).sub(ca.clone().lerp(cb, t));
+        for (const p of sec) p.add(shift);
+      }
       if (k < K && gs.length) {
         const c = centroidOf(sec);
         const v = gs.map((_, j) => sec[idx[j]].clone().sub(c));

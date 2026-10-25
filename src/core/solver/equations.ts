@@ -309,6 +309,43 @@ export function buildEquations(
           eqCoincident(cid, A.center, B.center);
           break;
         }
+        case 'coradial': {
+          // same centre and the same radius
+          const A = circleLike(s, c.refs[0]), B = circleLike(s, c.refs[1]);
+          eqCoincident(cid, A.center, B.center);
+          const r1 = ix.sc(A.r), r2 = ix.sc(B.r);
+          equations.push({ constraintId: cid, deps: [r1, r2], f: (x) => x[r1] - x[r2] });
+          break;
+        }
+        case 'equalCurveLength': {
+          // the lengths of two curves: a line's length, an arc's radius × sweep, a circle's circumference
+          const curve = (id: string): { deps: number[]; f: (x: number[]) => number } => {
+            const e = entityOf(s, id);
+            if (e.kind === 'line') {
+              const [a, b] = linePts(s, id);
+              return { deps: [...pointDeps(a), ...pointDeps(b)], f: (x) => { const A = pt(x, ix, a), B = pt(x, ix, b); return Math.hypot(B.x - A.x, B.y - A.y); } };
+            }
+            if (e.kind === 'arc') {
+              const ri = ix.sc(e.r);
+              return {
+                deps: [ri, ...pointDeps(e.center), ...pointDeps(e.start), ...pointDeps(e.end)],
+                f: (x) => {
+                  const C = pt(x, ix, e.center), S = pt(x, ix, e.start), E = pt(x, ix, e.end);
+                  const a0 = Math.atan2(S.y - C.y, S.x - C.x), a1 = Math.atan2(E.y - C.y, E.x - C.x);
+                  let sw = e.ccw ? a1 - a0 : a0 - a1;
+                  while (sw < 0) sw += Math.PI * 2;
+                  return x[ri] * sw;
+                },
+              };
+            }
+            const { r } = circleLike(s, id);
+            const ri = ix.sc(r);
+            return { deps: [ri], f: (x) => 2 * Math.PI * x[ri] };
+          };
+          const u = curve(c.refs[0]), w = curve(c.refs[1]);
+          equations.push({ constraintId: cid, deps: [...u.deps, ...w.deps], f: (x) => u.f(x) - w.f(x) });
+          break;
+        }
         case 'collinear': {
           const [a, b] = linePts(s, c.refs[0]), [p, q] = linePts(s, c.refs[1]);
           eqPointOnLine(cid, p, a, b);

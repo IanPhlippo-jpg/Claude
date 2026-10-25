@@ -354,8 +354,8 @@ export function NumberField({
         }}
       />
       <span className="k-spin">
-        <button type="button" tabIndex={-1} disabled={disabled} onMouseDown={(e) => e.preventDefault()} onClick={() => spin(1)} aria-label="Increase"><Icon.ChevronDown size={7} style={{ transform: 'rotate(180deg)' }} /></button>
-        <button type="button" tabIndex={-1} disabled={disabled} onMouseDown={(e) => e.preventDefault()} onClick={() => spin(-1)} aria-label="Decrease"><Icon.ChevronDown size={7} /></button>
+        <button type="button" tabIndex={-1} disabled={disabled} onMouseDown={(e) => e.preventDefault()} onClick={() => spin(1)} aria-label="Increase"><svg width={7} height={4} viewBox="0 0 7 4"><path d="M0 4L3.5 0 7 4z" fill="currentColor" /></svg></button>
+        <button type="button" tabIndex={-1} disabled={disabled} onMouseDown={(e) => e.preventDefault()} onClick={() => spin(-1)} aria-label="Decrease"><svg width={7} height={4} viewBox="0 0 7 4"><path d="M0 0l3.5 4L7 0z" fill="currentColor" /></svg></button>
       </span>
     </div>
   );

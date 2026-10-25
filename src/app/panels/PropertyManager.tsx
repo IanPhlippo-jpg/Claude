@@ -477,7 +477,7 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
         </Section>
         <Section title="Direction 1">
           <div className="k-pm-valuerow">
-            <button className={`k-pm-stylebtn k-tip ${d.flipDir ? 'active' : ''}`} data-tip="Reverse Direction" onClick={() => st.updateFeatureDraft({ flipDir: !d.flipDir })}><Icon.Arrow size={14} /></button>
+            <button className={`k-pm-stylebtn k-tip ${d.flipDir ? 'active' : ''}`} data-tip="Reverse Direction" onClick={() => st.updateFeatureDraft({ flipDir: !d.flipDir })}><Icon.ReverseDir size={16} /></button>
             <select className="k-input" value={d.midPlane ? 'midPlane' : 'blind'} onChange={(e) => st.updateFeatureDraft({ midPlane: e.target.value === 'midPlane' })}>
               <option value="blind">Blind</option>
               <option value="midPlane">Mid Plane</option>
@@ -593,7 +593,7 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
             <Section title="From">{sketchPick}</Section>
             <Section title="Direction 1">
               <div className="k-pm-valuerow">
-                <button className={`k-pm-stylebtn k-tip ${d.reverse ? 'active' : ''}`} data-tip="Reverse Direction" onClick={() => st.updateFeatureDraft({ reverse: !d.reverse })}><Icon.Arrow size={14} /></button>
+                <button className={`k-pm-stylebtn k-tip ${d.reverse ? 'active' : ''}`} data-tip="Reverse Direction" onClick={() => st.updateFeatureDraft({ reverse: !d.reverse })}><Icon.ReverseDir size={16} /></button>
                 <select className="k-input" value={d.midPlane ? 'mid' : 'blind'} onChange={(e) => st.updateFeatureDraft({ midPlane: e.target.value === 'mid' })}><option value="blind">Blind</option><option value="mid">Mid Plane</option></select>
               </div>
               <div className="k-pm-valuerow"><Icon.Dimension size={14} /><NumberField value={d.depth ?? 10} onChange={(v) => st.updateFeatureDraft({ depth: Math.max(0.01, v) })} unit={st.doc.units} step={1} min={0.01} autoFocus /></div>
@@ -769,7 +769,7 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
         </Section>
         <Section title={(d.draftType ?? 'neutral') === 'neutral' ? 'Neutral Plane' : 'Direction of Pull'}>
           <div className="k-pm-valuerow" style={{ alignItems: 'flex-start' }}>
-            <button className={`k-pm-stylebtn k-tip ${d.reverse ? 'active' : ''}`} data-tip="Reverse Direction" onClick={() => st.updateFeatureDraft({ reverse: !d.reverse })}><Icon.Arrow size={14} /></button>
+            <button className={`k-pm-stylebtn k-tip ${d.reverse ? 'active' : ''}`} data-tip="Reverse Direction" onClick={() => st.updateFeatureDraft({ reverse: !d.reverse })}><Icon.ReverseDir size={16} /></button>
             <div className={`k-selbox ${st.draftFocus === 'neutral' ? 'k-selbox-dir' : ''}`} style={{ minHeight: 24, flex: 1 }} onClick={() => st.setDraftFocus('neutral')} data-testid="draft-neutral">
               {d.neutral ? <div className="k-selbox-row">{d.neutral.label}</div> : null}
             </div>
@@ -835,7 +835,7 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
             ))}
           </div>
           <div className="k-pm-valuerow">
-            <button className={`k-pm-stylebtn k-tip ${d.reverse ? 'active' : ''}`} data-tip="Reverse Direction" onClick={() => st.updateFeatureDraft({ reverse: !d.reverse })}><Icon.Arrow size={14} /></button>
+            <button className={`k-pm-stylebtn k-tip ${d.reverse ? 'active' : ''}`} data-tip="Reverse Direction" onClick={() => st.updateFeatureDraft({ reverse: !d.reverse })}><Icon.ReverseDir size={16} /></button>
             <NumberField value={d.angle} onChange={(v) => st.updateFeatureDraft({ angle: Math.max(1, Math.min(179, v)) })} unit="°" step={5} min={1} autoFocus />
           </div>
           <label className="k-check"><input type="checkbox" checked={d.radius === undefined} onChange={(e) => st.updateFeatureDraft({ radius: e.target.checked ? undefined : sm.bendRadius })} /> Use default radius</label>
@@ -871,7 +871,7 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
         </Section>
         <Section title="Jog Offset">
           <div className="k-pm-valuerow">
-            <button className={`k-pm-stylebtn k-tip ${d.reverse ? 'active' : ''}`} data-tip="Reverse Direction" onClick={() => st.updateFeatureDraft({ reverse: !d.reverse })}><Icon.Arrow size={14} /></button>
+            <button className={`k-pm-stylebtn k-tip ${d.reverse ? 'active' : ''}`} data-tip="Reverse Direction" onClick={() => st.updateFeatureDraft({ reverse: !d.reverse })}><Icon.ReverseDir size={16} /></button>
             <select className="k-input" data-testid="jog-end" value={d.offsetEnd ?? 'blind'} onChange={(e) => { st.updateFeatureDraft({ offsetEnd: e.target.value as 'blind' }); useStore.setState({ flangePick: e.target.value === 'upToVertex' ? 'vertex' : null }); }}><option value="blind">Blind</option><option value="upToVertex">Up To Vertex</option></select>
           </div>
           {(d.offsetEnd ?? 'blind') === 'blind'
@@ -1330,7 +1330,7 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
             </div>
           )}
           <div className="k-pm-stylerow" style={{ marginTop: 4 }}>
-            <button className={`k-pm-stylebtn k-tip ${d.flip ? 'active' : ''}`} data-tip="Reverse Direction" onClick={() => st.updateFeatureDraft({ flip: !d.flip })}><Icon.Arrow size={14} /></button>
+            <button className={`k-pm-stylebtn k-tip ${d.flip ? 'active' : ''}`} data-tip="Reverse Direction" onClick={() => st.updateFeatureDraft({ flip: !d.flip })}><Icon.ReverseDir size={16} /></button>
             <button className={`k-pm-stylebtn k-tip ${d.position === 'materialInside' ? 'active' : ''}`} data-tip="Material Inside" onClick={() => st.updateFeatureDraft({ position: 'materialInside' })}><Icon.Sheet size={14} /></button>
             <button className={`k-pm-stylebtn k-tip ${d.position === 'materialOutside' ? 'active' : ''}`} data-tip="Bend Outside" onClick={() => st.updateFeatureDraft({ position: 'materialOutside' })}><Icon.Sheet size={14} /></button>
           </div>
@@ -1414,7 +1414,7 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
         </Section>
         <Section title="Flange Length">
           <div className="k-pm-valuerow">
-            <button className={`k-pm-stylebtn k-tip ${d.flip ? 'active' : ''}`} data-tip="Reverse Direction" onClick={() => st.updateFeatureDraft({ flip: !d.flip })}><Icon.Arrow size={14} /></button>
+            <button className={`k-pm-stylebtn k-tip ${d.flip ? 'active' : ''}`} data-tip="Reverse Direction" onClick={() => st.updateFeatureDraft({ flip: !d.flip })}><Icon.ReverseDir size={16} /></button>
             <select className="k-input" data-testid="flange-lengthend" value={d.lengthEnd ?? 'blind'} onChange={(e) => { st.updateFeatureDraft({ lengthEnd: e.target.value as 'blind' }); useStore.setState({ flangePick: e.target.value === 'upToVertex' ? 'vertex' : null }); }}><option value="blind">Blind</option><option value="upToVertex">Up To Vertex</option></select>
           </div>
           {(d.lengthEnd ?? 'blind') === 'blind'
@@ -1741,7 +1741,7 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
                 {st.doc.features.filter((f) => f.type === 'sketch').map((f) => <option key={f.id} value={(f as { sketchId: string }).sketchId}>{f.name}</option>)}
               </select>
             </div>
-            <div className="k-pm-valuerow"><button className={`k-pm-stylebtn k-tip ${d.curve?.reverse ? 'active' : ''}`} data-tip="Reverse Direction" onClick={() => st.updateFeatureDraft({ curve: { ...d.curve!, reverse: !d.curve?.reverse } })}><Icon.Arrow size={14} /></button></div>
+            <div className="k-pm-valuerow"><button className={`k-pm-stylebtn k-tip ${d.curve?.reverse ? 'active' : ''}`} data-tip="Reverse Direction" onClick={() => st.updateFeatureDraft({ curve: { ...d.curve!, reverse: !d.curve?.reverse } })}><Icon.ReverseDir size={16} /></button></div>
             <div className="k-field"><label>Number of Instances</label><NumberField value={d.curve?.count ?? 4} onChange={(v) => st.updateFeatureDraft({ curve: { ...d.curve!, count: Math.max(1, Math.min(200, Math.round(v))) } })} step={1} min={1} /></div>
             <label className="k-check"><input type="checkbox" checked={!!d.curve?.equal} onChange={(e) => st.updateFeatureDraft({ curve: { ...d.curve!, equal: e.target.checked } })} /> Equal spacing</label>
             {!d.curve?.equal && <div className="k-field"><label>Spacing</label><NumberField value={d.curve?.spacing ?? 20} onChange={(v) => st.updateFeatureDraft({ curve: { ...d.curve!, spacing: Math.max(0.1, v) } })} unit={st.doc.units} step={1} /></div>}
@@ -1783,11 +1783,19 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
             {d.fill && (
               <Section title="Pattern Layout">
                 <div className="k-pm-stylerow">
+                  <button className={`k-pm-stylebtn k-tip ${d.fill.layout === 'circular' ? 'active' : ''}`} data-tip="Circular" data-testid="fill-circular" onClick={() => st.updateFeatureDraft({ fill: { ...d.fill!, layout: 'circular' } })}><Icon.Circle size={14} /></button>
+                  <button className={`k-pm-stylebtn k-tip ${d.fill.layout === 'polygon' ? 'active' : ''}`} data-tip="Polygon" data-testid="fill-polygon" onClick={() => st.updateFeatureDraft({ fill: { ...d.fill!, layout: 'polygon', sides: d.fill!.sides ?? 6 } })}><Icon.Polygon size={14} /></button>
                   <button className={`k-pm-stylebtn k-tip ${d.fill.layout === 'hex' ? 'active' : ''}`} data-tip="Perforation" onClick={() => st.updateFeatureDraft({ fill: { ...d.fill!, layout: 'hex' } })}>⬡</button>
                   <button className={`k-pm-stylebtn k-tip ${d.fill.layout === 'square' ? 'active' : ''}`} data-tip="Square" onClick={() => st.updateFeatureDraft({ fill: { ...d.fill!, layout: 'square' } })}>▦</button>
                 </div>
                 <div className="k-field"><label>Instance Spacing</label><NumberField value={d.fill.spacing} onChange={(v) => st.updateFeatureDraft({ fill: { ...d.fill!, spacing: Math.max(0.5, v) } })} unit={st.doc.units} step={1} /></div>
                 <div className="k-field"><label>Margins</label><NumberField value={d.fill.margin} onChange={(v) => st.updateFeatureDraft({ fill: { ...d.fill!, margin: Math.max(0, v) } })} unit={st.doc.units} step={0.5} /></div>
+                {d.fill.layout === 'polygon' && <div className="k-field"><label>Polygon sides</label><NumberField value={d.fill.sides ?? 6} onChange={(v) => st.updateFeatureDraft({ fill: { ...d.fill!, sides: Math.max(3, Math.round(v)) } })} step={1} min={3} /></div>}
+                <div className="k-pm-stylerow" style={{ marginTop: 4 }}>
+                  <button className="k-btn" data-testid="fill-validate" onClick={() => st.pushMessage(`The pattern makes ${st.rebuild.bodies.length ? (st.rebuild.errors[d.id] ? 0 : (st.doc.features.find((x) => x.id === d.id) ? 'the shown' : 'the previewed')) : 0} instances; see the preview.`, 'info')}>Validate Count</button>
+                  <label className="k-check"><input type="checkbox" data-testid="fill-seedcut" checked={d.fill.seedCut !== undefined} onChange={(e) => st.updateFeatureDraft({ fill: { ...d.fill!, seedCut: e.target.checked ? 3 : undefined } })} /> Create seed cut</label>
+                </div>
+                {d.fill.seedCut !== undefined && <div className="k-pm-valuerow k-tip" data-tip="Seed cut diameter"><Icon.Circle size={14} /><NumberField value={d.fill.seedCut} onChange={(v) => st.updateFeatureDraft({ fill: { ...d.fill!, seedCut: Math.max(0.1, v) } })} unit={st.doc.units} step={0.5} min={0.1} /></div>}
               </Section>
             )}
           </>
@@ -1845,7 +1853,7 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
               <select className="k-input" value={axisId(d.dir1?.axis ?? [1, 0, 0])} onChange={(e) => st.updateFeatureDraft({ dir1: { ...(d.dir1 ?? { spacing: 20, count: 3 }), axis: axisOptions.find((o) => o.id === e.target.value)!.v } })}>
                 {axisOptions.map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}
               </select>
-              <div className="k-pm-valuerow"><button className={`k-pm-stylebtn k-tip ${(d.dir1?.axis[0] ?? 1) + (d.dir1?.axis[1] ?? 0) + (d.dir1?.axis[2] ?? 0) < 0 ? 'active' : ''}`} data-tip="Reverse Direction" onClick={() => st.updateFeatureDraft({ dir1: { ...d.dir1!, axis: d.dir1!.axis.map((x) => -x) as [number, number, number] } })}><Icon.Arrow size={14} /></button><span className="k-muted">Spacing and instances</span></div>
+              <div className="k-pm-valuerow"><button className={`k-pm-stylebtn k-tip ${(d.dir1?.axis[0] ?? 1) + (d.dir1?.axis[1] ?? 0) + (d.dir1?.axis[2] ?? 0) < 0 ? 'active' : ''}`} data-tip="Reverse Direction" onClick={() => st.updateFeatureDraft({ dir1: { ...d.dir1!, axis: d.dir1!.axis.map((x) => -x) as [number, number, number] } })}><Icon.ReverseDir size={16} /></button><span className="k-muted">Spacing and instances</span></div>
               <div className="k-pm-radios">
                 <label className="k-check"><input type="radio" name="lpmode" checked={!d.upTo1} onChange={() => st.updateFeatureDraft({ upTo1: undefined })} /> Spacing and instances</label>
                 <label className="k-check"><input type="radio" name="lpmode" data-testid="lpattern-upto" checked={!!d.upTo1} onChange={() => st.updateFeatureDraft({ upTo1: { plane: 'right', offset: 0 } })} /> Up to reference</label>
@@ -2020,10 +2028,30 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
         )}
         {!isFillet && (
           <Section title="Chamfer Type">
+            {/* Angle Distance, Distance Distance, Vertex, Offset Face, Face Face, as the original */}
             <div className="k-pm-typegrid">
-              <button className={`k-pm-typebtn${d.roundType !== 'angleDistance' ? ' active' : ''}`} title="Distance-Distance" onClick={() => st.updateFeatureDraft({ roundType: undefined })}><Icon.Chamfer size={22} /></button>
               <button className={`k-pm-typebtn${d.roundType === 'angleDistance' ? ' active' : ''}`} title="Angle-Distance" data-testid="chamfer-angle" onClick={() => st.updateFeatureDraft({ roundType: 'angleDistance', angle: d.angle ?? 45 })}><Icon.Chamfer size={22} /></button>
+              <button className={`k-pm-typebtn${!d.roundType || d.roundType === 'constant' ? ' active' : ''}`} title="Distance-Distance" data-testid="chamfer-dd" onClick={() => st.updateFeatureDraft({ roundType: undefined })}><Icon.Chamfer size={22} /></button>
+              <button className={`k-pm-typebtn${d.roundType === 'vertex' ? ' active' : ''}`} title="Vertex" data-testid="chamfer-vertex" onClick={() => st.updateFeatureDraft({ roundType: 'vertex', edges: [] })}><Icon.ChamferVertex size={22} /></button>
+              <button className={`k-pm-typebtn${d.roundType === 'offsetFace' ? ' active' : ''}`} title="Offset Face" data-testid="chamfer-offsetface" onClick={() => st.updateFeatureDraft({ roundType: 'offsetFace', edges: [] })}><Icon.ChamferFace size={22} /></button>
+              <button className={`k-pm-typebtn${d.roundType === 'faceFace' ? ' active' : ''}`} title="Face Face" data-testid="chamfer-faceface" onClick={() => st.updateFeatureDraft({ roundType: 'faceFace', edges: [] })}><Icon.ChamferFace size={22} /></button>
             </div>
+          </Section>
+        )}
+        {!isFillet && d.roundType === 'vertex' && (
+          <Section title="Items To Chamfer">
+            <div className="k-pm-selrow"><Icon.Point size={16} /><div className="k-selbox k-selbox-dir" style={{ minHeight: 24 }} data-testid="chamfer-vertex-box">{d.vertex ? <div className="k-selbox-row"><Icon.Point size={12} /> {d.vertex.label}</div> : <span className="k-muted">Select a vertex (a corner of three edges) in the graphics area.</span>}</div></div>
+            <div className="k-pm-valuerow"><span className="k-muted" style={{ minWidth: 18 }}>D1</span><NumberField value={d.size} onChange={(v) => st.updateFeatureDraft({ size: Math.max(0.01, v) })} unit={st.doc.units} step={1} min={0.01} /></div>
+            <div className="k-pm-valuerow"><span className="k-muted" style={{ minWidth: 18 }}>D2</span><NumberField value={d.equalDistance === false ? d.size2 ?? d.size : d.size} onChange={(v) => st.updateFeatureDraft({ size2: Math.max(0.01, v) })} unit={st.doc.units} step={1} min={0.01} disabled={d.equalDistance !== false} /></div>
+            <div className="k-pm-valuerow"><span className="k-muted" style={{ minWidth: 18 }}>D3</span><NumberField value={d.equalDistance === false ? d.size3 ?? d.size : d.size} onChange={(v) => st.updateFeatureDraft({ size3: Math.max(0.01, v) })} unit={st.doc.units} step={1} min={0.01} disabled={d.equalDistance !== false} /></div>
+            <label className="k-check"><input type="checkbox" data-testid="chamfer-equal" checked={d.equalDistance !== false} onChange={(e) => st.updateFeatureDraft({ equalDistance: e.target.checked ? undefined : false, size2: d.size2 ?? d.size, size3: d.size3 ?? d.size })} /> Equal distance</label>
+          </Section>
+        )}
+        {!isFillet && (d.roundType === 'offsetFace' || d.roundType === 'faceFace') && (
+          <Section title="Items To Chamfer">
+            <div className="k-pm-selrow" title="Face Set 1"><span className="k-pm-tag" style={{ background: '#5aa0e6' }} /><div className="k-selbox" style={{ minHeight: 22 }} data-testid="chamfer-face1">{st.selectedFaces[0] ? <div className="k-selbox-row">Face&lt;1&gt;</div> : <span className="k-muted">Face Set 1</span>}</div></div>
+            <div className="k-pm-selrow" title="Face Set 2"><span className="k-pm-tag" style={{ background: '#c06ad0' }} /><div className="k-selbox" style={{ minHeight: 22 }} data-testid="chamfer-face2">{st.selectedFaces[1] ? <div className="k-selbox-row">Face&lt;2&gt;</div> : <span className="k-muted">Face Set 2</span>}</div></div>
+            <p className="k-muted" style={{ margin: '4px 0 0' }}>{d.roundType === 'offsetFace' ? 'The chamfer is set off from each face by its distance.' : 'The chamfer runs between the two faces along their common edge.'}{d.edges.length ? ` ${d.edges.length} edge(s) found.` : ''}</p>
           </Section>
         )}
         {(d.roundType === 'face' || d.roundType === 'fullRound') && (
@@ -2052,7 +2080,7 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
             </div>
           </Section>
         )}
-        <Section title={isFillet ? 'Items To Fillet' : 'Items To Chamfer'}>
+        {(isFillet || !['vertex', 'offsetFace', 'faceFace'].includes(d.roundType ?? '')) && <Section title={isFillet ? 'Items To Fillet' : 'Items To Chamfer'}>
           {/* the selection box of the original: its picture on the left, light blue while it takes the picks, the last pick highlighted */}
           <div className="k-pm-selrow">
             <Icon.EdgeSelect size={20} />
@@ -2069,7 +2097,7 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
             <label className="k-check"><input type="radio" name="fpreview" checked={d.previewMode === 'partial'} onChange={() => st.updateFeatureDraft({ previewMode: 'partial' })} /> Partial preview</label>
             <label className="k-check"><input type="radio" name="fpreview" data-testid="fillet-nopreview" checked={d.previewMode === 'none'} onChange={() => st.updateFeatureDraft({ previewMode: 'none' })} /> No preview</label>
           </div>
-        </Section>
+        </Section>}
         <Section title={isFillet ? 'Fillet Parameters' : 'Chamfer Parameters'}>
           {isFillet && <select className="k-input" data-testid="fillet-sym" value={d.size2 ? 'asymmetric' : 'symmetric'} onChange={(e) => st.updateFeatureDraft({ size2: e.target.value === 'asymmetric' ? d.size * 1.5 : undefined })} style={{ marginBottom: 4 }}><option value="symmetric">Symmetric</option><option value="asymmetric">Asymmetric</option></select>}
           {d.roundType === 'variable' && isFillet ? (
@@ -2095,6 +2123,18 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
           {isFillet && <div className="k-field" style={{ marginTop: 4 }}><label>Profile:</label><select className="k-input" data-testid="fillet-profile" value={d.profile ?? 'circular'} onChange={(e) => st.updateFeatureDraft({ profile: e.target.value as 'circular', rho: d.rho ?? 0.5 })}><option value="circular">Circular</option><option value="conicRho">Conic Rho</option><option value="conicRadius">Conic Radius</option><option value="curvature">Curvature Continuous</option></select></div>}
           {isFillet && (d.profile === 'conicRho' || d.profile === 'conicRadius') && <div className="k-pm-valuerow"><span className="k-muted" style={{ minWidth: 26 }}>ρ</span><NumberField value={d.rho ?? 0.5} onChange={(v) => st.updateFeatureDraft({ rho: Math.max(0.05, Math.min(0.95, v)) })} step={0.05} /></div>}
         </Section>
+        {!isFillet && (
+          <Section title="Chamfer Options" defaultOpen={false}>
+            <label className="k-check"><input type="checkbox" checked={d.selectThroughFaces !== false} onChange={(e) => st.updateFeatureDraft({ selectThroughFaces: e.target.checked })} /> Select through faces</label>
+            <label className="k-check"><input type="checkbox" data-testid="chamfer-keep" checked={d.keepFeatures !== false} onChange={(e) => st.updateFeatureDraft({ keepFeatures: e.target.checked })} /> Keep features</label>
+            <label className="k-check"><input type="checkbox" checked={d.tangentPropagation !== false} onChange={(e) => st.updateFeatureDraft({ tangentPropagation: e.target.checked })} /> Tangent propagation</label>
+            <div className="k-pm-radios">
+              <label className="k-check"><input type="radio" name="chpreview" checked={(d.previewMode ?? 'full') === 'full'} onChange={() => st.updateFeatureDraft({ previewMode: 'full' })} /> Full preview</label>
+              <label className="k-check"><input type="radio" name="chpreview" checked={d.previewMode === 'partial'} onChange={() => st.updateFeatureDraft({ previewMode: 'partial' })} /> Partial preview</label>
+              <label className="k-check"><input type="radio" name="chpreview" checked={d.previewMode === 'none'} onChange={() => st.updateFeatureDraft({ previewMode: 'none' })} /> No preview</label>
+            </div>
+          </Section>
+        )}
         {isFillet && (
           <>
             <Section title="Partial Edge Parameters" defaultOpen={false}>
@@ -2170,7 +2210,7 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
             </select>
             {d.type === 'extrude' && d.fromOffset !== undefined && (
               <div className="k-pm-valuerow">
-                <button className={`k-pm-stylebtn k-tip ${d.fromReverse ? 'active' : ''}`} data-tip="Reverse Direction" onClick={() => st.updateFeatureDraft({ fromReverse: !d.fromReverse })}><Icon.Arrow size={14} /></button>
+                <button className={`k-pm-stylebtn k-tip ${d.fromReverse ? 'active' : ''}`} data-tip="Reverse Direction" onClick={() => st.updateFeatureDraft({ fromReverse: !d.fromReverse })}><Icon.ReverseDir size={16} /></button>
                 <NumberField value={d.fromOffset} onChange={(v) => st.updateFeatureDraft({ fromOffset: v })} unit={st.doc.units} step={1} />
               </div>
             )}
@@ -2188,6 +2228,56 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
               </select>
             </div>
             <p className="k-muted" style={{ margin: '4px 0 0' }}>The path sketch holds the lines, arcs or splines to sweep along; the profile stays centred on the path start.</p>
+            <div className="k-pm-radios" data-testid="sweep-profile">
+              <label className="k-check"><input type="radio" name="sweepprof" checked={(d.profileType ?? 'sketch') === 'sketch'} onChange={() => st.updateFeatureDraft({ profileType: 'sketch' })} /> Sketch Profile</label>
+              <label className="k-check"><input type="radio" name="sweepprof" checked={d.profileType === 'circular'} onChange={() => st.updateFeatureDraft({ profileType: 'circular', diameter: d.diameter ?? 5, pathSketchId: d.pathSketchId || d.sketchId })} /> Circular Profile</label>
+            </div>
+            {d.profileType === 'circular' && <div className="k-pm-valuerow k-tip" data-tip="Diameter"><Icon.Circle size={14} /><NumberField value={d.diameter ?? 5} onChange={(v) => st.updateFeatureDraft({ diameter: Math.max(0.01, v) })} unit={st.doc.units} step={1} min={0.01} /></div>}
+          </Section>
+        )}
+        {fsketch && d.type === 'sweep' && (
+          <Section title="Guide Curves" defaultOpen={false}>
+            <div className="k-selbox" style={{ minHeight: 30 }} data-testid="sweep-guides">
+              {(d.guides ?? []).length ? (d.guides ?? []).map((gid) => <div key={gid} className="k-selbox-row"><Icon.Spline size={12} /> {st.doc.features.find((f) => f.type === 'sketch' && f.sketchId === gid)?.name ?? gid}<span className="grow" /><button className="k-btn ghost icon" title="Remove" onClick={() => st.updateFeatureDraft({ guides: (d.guides ?? []).filter((x) => x !== gid) })}><Icon.Close size={10} /></button></div>) : <span className="k-muted">Guide curves shape the profile along the path.</span>}
+            </div>
+            <select className="k-input" value="" onChange={(e) => e.target.value && st.updateFeatureDraft({ guides: [...(d.guides ?? []), e.target.value] })}>
+              <option value="">Add a guide curve…</option>
+              {otherSketches.filter((f) => f.sketchId !== d.pathSketchId && !(d.guides ?? []).includes(f.sketchId)).map((f) => <option key={f.id} value={f.sketchId}>{f.name}</option>)}
+            </select>
+            <label className="k-check"><input type="checkbox" checked={!!d.mergeTangent} onChange={(e) => st.updateFeatureDraft({ mergeTangent: e.target.checked })} /> Merge smooth faces</label>
+          </Section>
+        )}
+        {fsketch && d.type === 'sweep' && (
+          <Section title="Options">
+            <div className="k-field"><label>Profile orientation</label>
+              <select className="k-input" data-testid="sweep-orientation" value={d.orientation ?? 'followPath'} onChange={(e) => st.updateFeatureDraft({ orientation: e.target.value as 'followPath' })}>
+                <option value="followPath">Follow Path</option>
+                <option value="keepNormal">Keep normal constant</option>
+              </select>
+            </div>
+            <div className="k-field"><label>Profile Twist</label>
+              <select className="k-input" data-testid="sweep-twist" value={d.twist ? 'value' : 'none'} onChange={(e) => st.updateFeatureDraft({ twist: e.target.value === 'value' ? 1 : undefined })}>
+                <option value="none">None</option>
+                <option value="value">Specify Twist Value</option>
+              </select>
+            </div>
+            {d.twist !== undefined && <div className="k-pm-valuerow k-tip" data-tip="Twist control: revolutions"><Icon.Revolve size={14} /><NumberField value={d.twist} onChange={(v) => st.updateFeatureDraft({ twist: v })} step={0.25} /></div>}
+            <label className="k-check"><input type="checkbox" checked={!!d.mergeTangent} onChange={(e) => st.updateFeatureDraft({ mergeTangent: e.target.checked })} /> Merge tangent faces</label>
+            <label className="k-check"><input type="checkbox" checked={!!d.alignEnd} onChange={(e) => st.updateFeatureDraft({ alignEnd: e.target.checked })} /> Align with end faces</label>
+            <label className="k-check"><input type="checkbox" defaultChecked /> Show preview</label>
+          </Section>
+        )}
+        {fsketch && d.type === 'sweep' && (
+          <Section title="Start and End Tangency" defaultOpen={false}>
+            <div className="k-field"><label>Start tangency type</label><select className="k-input" value={d.startTangency ?? 'none'} onChange={(e) => st.updateFeatureDraft({ startTangency: e.target.value as 'none' })}><option value="none">None</option><option value="pathTangent">Path Tangent</option></select></div>
+            <div className="k-field"><label>End tangency type</label><select className="k-input" value={d.endTangency ?? 'none'} onChange={(e) => st.updateFeatureDraft({ endTangency: e.target.value as 'none' })}><option value="none">None</option><option value="pathTangent">Path Tangent</option></select></div>
+          </Section>
+        )}
+        {fsketch && d.type === 'sweep' && (
+          <Section title="Curvature Display" defaultOpen={false}>
+            <label className="k-check"><input type="checkbox" checked={!!d.curvatureDisplay?.mesh} onChange={(e) => st.updateFeatureDraft({ curvatureDisplay: { ...d.curvatureDisplay, mesh: e.target.checked } })} /> Mesh preview</label>
+            <label className="k-check"><input type="checkbox" checked={!!d.curvatureDisplay?.zebra} onChange={(e) => { st.updateFeatureDraft({ curvatureDisplay: { ...d.curvatureDisplay, zebra: e.target.checked } }); if (e.target.checked !== st.show.zebra) st.toggleShow('zebra'); }} /> Zebra stripes</label>
+            <label className="k-check"><input type="checkbox" checked={!!d.curvatureDisplay?.combs} onChange={(e) => st.updateFeatureDraft({ curvatureDisplay: { ...d.curvatureDisplay, combs: e.target.checked } })} /> Curvature combs</label>
           </Section>
         )}
         {fsketch && d.type === 'loft' && (
@@ -2226,13 +2316,33 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
                   {type === 'direction' && (
                     <div className="k-pm-stylerow">
                       {(['X', 'Y', 'Z'] as const).map((a, i) => <button key={a} className={`k-pm-stylebtn ${Math.abs(dir[i]) > 0.5 ? 'active' : ''}`} onClick={() => { const v: [number, number, number] = [0, 0, 0]; v[i] = 1; set({ [`${k}Dir`]: v }); }}>{a}</button>)}
-                      <button className="k-pm-stylebtn k-tip" data-tip="Reverse Direction" onClick={() => set({ [`${k}Dir`]: dir.map((x) => -x) })}><Icon.Arrow size={14} /></button>
+                      <button className="k-pm-stylebtn k-tip" data-tip="Reverse Direction" onClick={() => set({ [`${k}Dir`]: dir.map((x) => -x) })}><Icon.ReverseDir size={16} /></button>
                     </div>
                   )}
                   {w !== undefined && <div className="k-pm-valuerow k-tip" data-tip="Tangent length"><Icon.Dimension size={14} /><NumberField value={w} onChange={(v) => set({ [`${k}Normal`]: Math.max(0, v) })} step={0.1} min={0} /></div>}
                 </div>
               );
             })}
+          </Section>
+        )}
+        {fsketch && d.type === 'loft' && (
+          <Section title="Centerline Parameters" defaultOpen={!!d.centerline}>
+            <select className="k-input" data-testid="loft-centerline" value={d.centerline ?? ''} onChange={(e) => st.updateFeatureDraft({ centerline: e.target.value || undefined })}>
+              <option value="">No centerline</option>
+              {otherSketches.filter((f) => f.sketchId !== d.sketchId2).map((f) => <option key={f.id} value={f.sketchId}>{f.name}</option>)}
+            </select>
+            <p className="k-muted" style={{ margin: '4px 0 0' }}>The section centres follow the centerline sketch from profile 1 to profile 2.</p>
+          </Section>
+        )}
+        {fsketch && d.type === 'loft' && (
+          <Section title="Options">
+            <label className="k-check"><input type="checkbox" checked={!!d.mergeTangent} onChange={(e) => st.updateFeatureDraft({ mergeTangent: e.target.checked })} /> Merge tangent faces</label>
+            <label className="k-check" title="Needs three or more profiles"><input type="checkbox" disabled checked={!!d.closeLoft} onChange={(e) => st.updateFeatureDraft({ closeLoft: e.target.checked })} /> Close loft</label>
+            <label className="k-check"><input type="checkbox" defaultChecked /> Show preview</label>
+            <div className="k-pm-stylerow" style={{ marginTop: 4 }}>
+              <button className="k-btn" data-testid="loft-dragsketch" onClick={() => { const sid = d.sketchId; st.cancelFeature(); st.editSketch(sid); }}>Drag Sketch</button>
+              <button className="k-btn" onClick={() => st.updateFeatureDraft({ applyToAll: !d.applyToAll, ...(d.applyToAll ? {} : { endNormal: d.startNormal, endType: d.startType, endDir: d.startDir }) })}>{d.applyToAll ? '✓ Apply to all' : 'Apply to all'}</button>
+            </div>
           </Section>
         )}
         {fsketch && d.type === 'loft' && (
@@ -2257,13 +2367,13 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
           <>
             <Section title="Direction 1">
               <div className="k-pm-valuerow">
-                <button className={`k-pm-stylebtn k-tip ${d.reverse ? 'active' : ''}`} data-tip="Reverse Direction" onClick={() => st.updateFeatureDraft({ reverse: !d.reverse })}><Icon.Arrow size={14} /></button>
+                <button className={`k-pm-stylebtn k-tip ${d.reverse ? 'active' : ''}`} data-tip="Reverse Direction" onClick={() => st.updateFeatureDraft({ reverse: !d.reverse })}><Icon.ReverseDir size={16} /></button>
                 <select className="k-input" value={d.end} onChange={(e) => st.updateFeatureDraft({ end: e.target.value as 'blind' })}>
                   {endOptions.map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}
                 </select>
               </div>
               <div className="k-pm-valuerow k-tip" data-tip="Direction of Extrusion: the sketch normal">
-                <Icon.Arrow size={14} />
+                <Icon.DirArrow size={16} />
                 <div className="k-selbox k-selbox-dir" />
               </div>
               {d.end === 'upToVertex' && (
@@ -2293,14 +2403,14 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
               )}
               {d.end === 'blind' || d.end === 'midPlane' ? (
                 <div className="k-pm-valuerow k-tip" data-tip="Depth">
-                  <Icon.Depth size={14} />
+                  <Icon.Depth size={16} />
                   <NumberField value={d.depth} onChange={(v) => st.updateFeatureDraft({ depth: Math.max(0.01, v) })} unit={st.doc.units} step={1} min={0.01} autoFocus />
                 </div>
               ) : null}
               {d.op === 'cut' && <label className="k-check"><input type="checkbox" checked={!!d.flipSide} onChange={(e) => st.updateFeatureDraft({ flipSide: e.target.checked })} /> Flip side to cut</label>}
               {st.rebuild.bodies.length > 0 && d.op === 'boss' && <label className="k-check"><input type="checkbox" checked={d.merge !== false} onChange={(e) => st.updateFeatureDraft({ merge: e.target.checked })} /> Merge result</label>}
               <div className="k-pm-valuerow">
-                <button className={`k-pm-stylebtn k-tip ${d.draft ? 'active' : ''}`} data-tip="Draft On/Off" onClick={() => st.updateFeatureDraft({ draft: d.draft ? undefined : { angle: 1, outward: false } })}><Icon.DraftAngle size={14} /></button>
+                <button className={`k-pm-stylebtn k-tip ${d.draft ? 'active' : ''}`} data-tip="Draft On/Off" onClick={() => st.updateFeatureDraft({ draft: d.draft ? undefined : { angle: 1, outward: false } })}><Icon.Draft size={16} /></button>
                 <NumberField value={d.draft?.angle ?? 1} onChange={(v) => st.updateFeatureDraft({ draft: { angle: Math.max(0, Math.min(89, v)), outward: d.draft?.outward ?? false } })} unit="°" step={1} min={0} disabled={!d.draft} blankWhenDisabled />
               </div>
               <label className="k-check"><input type="checkbox" disabled={!d.draft} checked={!!d.draft?.outward} onChange={(e) => st.updateFeatureDraft({ draft: { angle: d.draft?.angle ?? 1, outward: e.target.checked } })} /> Draft outward</label>
@@ -2390,7 +2500,7 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
             </Section>
             <Section title="Direction 1">
               <div className="k-pm-valuerow">
-                <button className={`k-pm-stylebtn k-tip ${d.reverse ? 'active' : ''}`} data-tip="Reverse Direction" onClick={() => st.updateFeatureDraft({ reverse: !d.reverse })}><Icon.Arrow size={14} /></button>
+                <button className={`k-pm-stylebtn k-tip ${d.reverse ? 'active' : ''}`} data-tip="Reverse Direction" onClick={() => st.updateFeatureDraft({ reverse: !d.reverse })}><Icon.ReverseDir size={16} /></button>
                 <select className="k-input" data-testid="revolve-type" value={d.end ?? 'blind'} onChange={(e) => st.updateFeatureDraft({ end: e.target.value as 'blind', direction2: e.target.value === 'midPlane' ? undefined : d.direction2 })}><option value="blind">Blind</option><option value="midPlane">Mid-Plane</option></select>
               </div>
               <div className="k-pm-valuerow">
@@ -2415,7 +2525,7 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
                     <option value="one">One-Direction</option><option value="mid">Mid-Plane</option><option value="two">Two-Direction</option>
                   </select>
                   <div className="k-pm-valuerow">
-                    <button className={`k-pm-stylebtn k-tip ${d.thin.reverse ? 'active' : ''}`} data-tip="Reverse Direction" onClick={() => st.updateFeatureDraft({ thin: { ...d.thin!, reverse: !d.thin!.reverse } })}><Icon.Arrow size={14} /></button>
+                    <button className={`k-pm-stylebtn k-tip ${d.thin.reverse ? 'active' : ''}`} data-tip="Reverse Direction" onClick={() => st.updateFeatureDraft({ thin: { ...d.thin!, reverse: !d.thin!.reverse } })}><Icon.ReverseDir size={16} /></button>
                     <NumberField value={d.thin.thickness} onChange={(v) => st.updateFeatureDraft({ thin: { ...d.thin!, thickness: Math.max(0.01, v) } })} unit={st.doc.units} step={1} min={0.01} />
                   </div>
                   {d.thin.mode === 'two' && <div className="k-pm-valuerow"><Icon.Dimension size={14} /><NumberField value={d.thin.thickness2 ?? d.thin.thickness} onChange={(v) => st.updateFeatureDraft({ thin: { ...d.thin!, thickness2: Math.max(0.01, v) } })} unit={st.doc.units} step={1} min={0.01} /></div>}
@@ -2604,6 +2714,7 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
               ))}
             </div>
           </Section>
+          <label className="k-check"><input type="checkbox" data-testid="dim-uppercase" checked={!!c.uppercase} onChange={(e) => st.updateDimension(c.id, { uppercase: e.target.checked || undefined })} /> All uppercase</label>
           <Section title="Dual Dimension" defaultOpen={!!c.dual} check={!!c.dual} onCheck={(on) => st.updateDimension(c.id, { dual: on || undefined })}>
             <p className="k-muted" style={{ margin: 0 }}>The value is shown in inches as well, in brackets.</p>
           </Section>
@@ -2757,6 +2868,16 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
         </Section>
       )}
 
+      {!c && st.selection.length === 1 && st.selection[0].kind === 'point' && sketch.points[st.selection[0].id] && (
+        <Section title="Control Vertex Parameters">
+          {(['x', 'y'] as const).map((ax) => (
+            <div key={ax} className="k-pm-valuerow k-tip" data-tip={ax === 'x' ? 'X Coordinate' : 'Y Coordinate'} data-testid={`point-${ax}`}>
+              <span className="k-pm-xy">{ax.toUpperCase()}</span>
+              <NumberField value={round(sketch.points[st.selection[0].id][ax])} onChange={(v) => { const id = st.selection[0].id; st.commit('Point', (k) => ({ ...k, points: { ...k.points, [id]: { ...k.points[id], [ax]: v } } })); }} unit={st.doc.units} step={1} />
+            </div>
+          ))}
+        </Section>
+      )}
       {constraintsOfSelection.length > 0 && !c && (
         <Section title="Existing Relations">
           <ul className="k-list k-pm-relations">
@@ -2996,6 +3117,16 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
         </>
       )}
 
+      {!c && !lastRect && isDraw && (st.tool === 'line' || st.tool === 'centerline') && (
+        <Section title="Orientation">
+          <div className="k-pm-radios" data-testid="line-orientation">
+            {([['sketched', 'As sketched'], ['horizontal', 'Horizontal'], ['vertical', 'Vertical'], ['angle', 'Angle']] as const).map(([id, label]) => (
+              <label key={id} className="k-check"><input type="radio" name="lineori" checked={(st.sketchTool.lineOrientation ?? 'sketched') === id} onChange={() => st.setSketchTool({ lineOrientation: id })} /> {label}</label>
+            ))}
+            {st.sketchTool.lineOrientation === 'angle' && <div className="k-pm-valuerow k-tip" data-tip="Angle" style={{ marginLeft: 18 }}><Icon.MateAngle size={14} /><NumberField value={st.sketchTool.lineAngle ?? 45} onChange={(v) => st.setSketchTool({ lineAngle: v })} unit="°" step={5} /></div>}
+          </div>
+        </Section>
+      )}
       {!c && !lastRect && (selectedEntities.length > 0 || isDraw) && (
         <Section title="Options">
           {selectedEntities.length > 0 && !isDraw ? (
@@ -3004,6 +3135,9 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
             <>
               <label className="k-check"><input type="checkbox" data-testid="tool-construction" checked={st.sketchTool.forConstruction} onChange={(e) => st.setSketchTool({ forConstruction: e.target.checked })} /> For construction</label>
               {st.tool === 'line' && <label className="k-check"><input type="checkbox" data-testid="line-infinite" checked={st.sketchTool.infiniteLength} onChange={(e) => st.setSketchTool({ infiniteLength: e.target.checked })} /> Infinite length</label>}
+              {(st.tool === 'line' || st.tool === 'centerline') && <label className="k-check"><input type="checkbox" data-testid="line-midpoint" checked={!!st.sketchTool.midpointLine} onChange={(e) => st.setSketchTool({ midpointLine: e.target.checked })} /> Midpoint line</label>}
+              {(st.tool === 'line' || st.tool === 'centerline' || isRect || st.tool === 'circle' || st.tool === 'perimeterCircle') && <label className="k-check"><input type="checkbox" data-testid="tool-adddims" checked={!!st.sketchTool.addDimensions} onChange={(e) => st.setSketchTool({ addDimensions: e.target.checked })} /> Add dimensions</label>}
+              {(st.tool === 'circle' || st.tool === 'perimeterCircle') && <label className="k-check"><input type="checkbox" data-testid="circle-diameter" disabled={!st.sketchTool.addDimensions} checked={st.sketchTool.circleDiameter !== false} onChange={(e) => st.setSketchTool({ circleDiameter: e.target.checked })} /> Diameter dimensions</label>}
             </>
           )}
         </Section>
@@ -3050,10 +3184,21 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
           const len = a && b ? Math.hypot(b.x - a.x, b.y - a.y) : null;
           const ang = a && b ? (Math.atan2(b.y - a.y, b.x - a.x) * 180) / Math.PI : null;
           return (
-            <Section title="Parameters">
-              {row('L', len !== null ? round(len) : null, (v) => { if (!l || !a || !b || !len) return; const k2 = v / len; setPt(l.p2, { x: a.x + (b.x - a.x) * k2, y: a.y + (b.y - a.y) * k2 }); })}
-              {row('∠', ang !== null ? round(ang) : null, (v) => { if (!l || !a || !len) return; const t = (v * Math.PI) / 180; setPt(l.p2, { x: a.x + len * Math.cos(t), y: a.y + len * Math.sin(t) }); }, true)}
-            </Section>
+            <>
+              <Section title="Parameters">
+                {row('L', len !== null ? round(len) : null, (v) => { if (!l || !a || !b || !len) return; const k2 = v / len; setPt(l.p2, { x: a.x + (b.x - a.x) * k2, y: a.y + (b.y - a.y) * k2 }); })}
+                {row('∠', ang !== null ? round(ang) : null, (v) => { if (!l || !a || !len) return; const t = (v * Math.PI) / 180; setPt(l.p2, { x: a.x + len * Math.cos(t), y: a.y + len * Math.sin(t) }); }, true)}
+              </Section>
+              {/* Additional Parameters, as the original: start and end point, ΔX and ΔY */}
+              <Section title="Additional Parameters" defaultOpen={false}>
+                {row('x₁', a ? round(a.x) : null, (v) => l && setPt(l.p1, { x: v }))}
+                {row('y₁', a ? round(a.y) : null, (v) => l && setPt(l.p1, { y: v }))}
+                {row('x₂', b ? round(b.x) : null, (v) => l && setPt(l.p2, { x: v }))}
+                {row('y₂', b ? round(b.y) : null, (v) => l && setPt(l.p2, { y: v }))}
+                {row('ΔX', a && b ? round(b.x - a.x) : null, (v) => l && a && setPt(l.p2, { x: a.x + v }))}
+                {row('ΔY', a && b ? round(b.y - a.y) : null, (v) => l && a && setPt(l.p2, { y: a.y + v }))}
+              </Section>
+            </>
           );
         }
         const ce = e && (e.kind === 'circle' || e.kind === 'arc') ? e : null;

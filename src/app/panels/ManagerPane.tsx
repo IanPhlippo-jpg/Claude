@@ -40,9 +40,9 @@ export function ManagerPane({ editDimensionId, onEditDone }: { editDimensionId: 
   }
 
   const tabs: { id: typeof st.managerTab; icon: React.ReactNode; tip: string }[] = [
-    { id: 'tree', icon: <Icon.Tree />, tip: 'FeatureManager design tree' },
-    { id: 'properties', icon: <Icon.Properties />, tip: 'PropertyManager' },
-    { id: 'configurations', icon: <Icon.Config />, tip: 'ConfigurationManager' },
+    { id: 'tree', icon: <Icon.Part />, tip: 'FeatureManager design tree' },
+    { id: 'properties', icon: <Icon.MgrProperty />, tip: 'PropertyManager' },
+    { id: 'configurations', icon: <Icon.MgrConfig />, tip: 'ConfigurationManager' },
   ];
 
   return (
@@ -56,8 +56,8 @@ export function ManagerPane({ editDimensionId, onEditDone }: { editDimensionId: 
               {t.icon}
             </button>
           ))}
-          <button className={`k-manager-tab k-tip ${st.managerTab === 'dimxpert' ? 'active' : ''}`} data-tip="DimXpertManager" data-testid="tab-dimxpert" onClick={() => st.setManagerTab('dimxpert')}><Icon.Dimension /></button>
-          <button className={`k-manager-tab k-tip ${st.managerTab === 'display' ? 'active' : ''}`} data-tip="DisplayManager" data-testid="tab-display" onClick={() => st.setManagerTab('display')}><Icon.Appearance /></button>
+          <button className={`k-manager-tab k-tip ${st.managerTab === 'dimxpert' ? 'active' : ''}`} data-tip="DimXpertManager" data-testid="tab-dimxpert" onClick={() => st.setManagerTab('dimxpert')}><Icon.MgrDimXpert /></button>
+          <button className={`k-manager-tab k-tip ${st.managerTab === 'display' ? 'active' : ''}`} data-tip="DisplayManager" data-testid="tab-display" onClick={() => st.setManagerTab('display')}><Icon.MgrDisplay /></button>
           <span className="grow" />
           <button className="k-btn ghost icon k-tip" data-tip="Hide FeatureManager tree area" onClick={() => st.setManagerCollapsed(true)}>
             <Icon.ChevronRight size={12} />

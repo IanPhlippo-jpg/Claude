@@ -25,6 +25,8 @@ const LABELS: Record<ConstraintKind, string> = {
   tangent: 'Tangent',
   equal: 'Equal',
   concentric: 'Concentric',
+  coradial: 'Coradial',
+  equalCurveLength: 'Equal Curve Length',
   collinear: 'Collinear',
   midpoint: 'Midpoint',
   symmetric: 'Symmetric',
@@ -97,6 +99,7 @@ export function relationsForSelection(s: Sketch, sel: SelectionItem[]): Relation
   }
   if (allPoints.length === 0 && lines.length === 1 && circles.length === 1 && ents.length === 2) {
     push('tangent', [lines[0].id, circles[0].id]);
+    if (circles[0].kind === 'arc') push('equalCurveLength', [lines[0].id, circles[0].id]);
   }
   if (allPoints.length === 0 && circles.length === 2 && ents.length === 2) {
     const a = circles[0], b = circles[1];
@@ -107,6 +110,10 @@ export function relationsForSelection(s: Sketch, sel: SelectionItem[]): Relation
     push('tangent', [a.id, b.id], internal);
     push('equal', [a.id, b.id]);
     push('concentric', [a.id, b.id]);
+    if (a.kind === 'arc' && b.kind === 'arc') {
+      push('coradial', [a.id, b.id]);
+      push('equalCurveLength', [a.id, b.id]);
+    }
   }
   // symmetric: two items + a line (axis) — the axis is the construction line if present, else the last line
   if (sel.length === 3) {

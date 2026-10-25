@@ -570,6 +570,8 @@ export class ToolController {
         const hits = [...this.snapHits];
         ctx.commit('Circle', (s) => {
           let [s1, e] = addCircle(s, arc.center, r);
+          // Add dimensions: a diameter (default) or radius dimension on the new circle
+          if (ctx.sketchTool?.addDimensions) s1 = addConstraint(s1, ctx.sketchTool.circleDiameter !== false ? 'diameter' : 'radius', [e.id], { value: ctx.sketchTool.circleDiameter !== false ? 2 * r : r })[0];
           for (const h of hits) if (h?.pointId) s1 = addConstraint(s1, 'pointOnEntity', [h.pointId, e.id])[0];
           return s1;
         });
@@ -732,13 +734,24 @@ export class ToolController {
       case 'centerline':
       case 'line': {
         const construction = this.tool === 'centerline';
-        const { p, snap: sn } = this.applySnap(ctx, info.p, ref);
+        const { p: p0, snap: sn } = this.applySnap(ctx, info.p, ref);
         if (this.pts.length === 0) {
-          this.pts.push(p);
+          this.pts.push(p0);
           this.snapHits.push(sn);
           return;
         }
         const a = this.pts[this.pts.length - 1];
+        // Orientation (Insert Line PM): Horizontal / Vertical / Angle hold the second point on that direction
+        const ori = ctx.sketchTool?.lineOrientation ?? 'sketched';
+        let p = p0;
+        if (ori === 'horizontal') p = { x: p0.x, y: a.y };
+        else if (ori === 'vertical') p = { x: a.x, y: p0.y };
+        else if (ori === 'angle') {
+          const t = ((ctx.sketchTool?.lineAngle ?? 45) * Math.PI) / 180;
+          const d = (p0.x - a.x) * Math.cos(t) + (p0.y - a.y) * Math.sin(t);
+          p = { x: a.x + d * Math.cos(t), y: a.y + d * Math.sin(t) };
+        }
+        const midpointLine = !!ctx.sketchTool?.midpointLine && this.tool === 'line' && !this.lastLineEnd;
         if (dist(a, p) < 1e-9) return;
         const startSnap = this.snapHits[this.snapHits.length - 1];
         const prevEnd = this.lastLineEnd;
@@ -750,12 +763,23 @@ export class ToolController {
         const far = 1000;
         const ux = (p.x - a.x) / dist(a, p), uy = (p.y - a.y) / dist(a, p);
         ctx.commit('Line', (s) => {
-          let [s1, l] = infinite ? addLine(s, { x: a.x - ux * far, y: a.y - uy * far }, { x: p.x + ux * far, y: p.y + uy * far }, construction) : addLine(s, prevEnd ?? a, p, construction);
+          // Midpoint line: the first click is the middle; a construction point there holds the midpoint relation
+          let [s1, l] = infinite
+            ? addLine(s, { x: a.x - ux * far, y: a.y - uy * far }, { x: p.x + ux * far, y: p.y + uy * far }, construction)
+            : midpointLine
+              ? addLine(s, { x: 2 * a.x - p.x, y: 2 * a.y - p.y }, p, construction)
+              : addLine(s, prevEnd ?? a, p, construction);
           createdEnd = l.p2;
-          if (!prevEnd) s1 = this.inferredRelations(s1, startSnap, l.p1);
+          if (midpointLine) {
+            const [s2, mp] = addPoint(s1, a, true);
+            s1 = addConstraint(s2, 'midpoint', [mp.id, l.id])[0];
+            s1 = this.inferredRelations(s1, startSnap, mp.id);
+          } else if (!prevEnd) s1 = this.inferredRelations(s1, startSnap, l.p1);
           s1 = this.inferredRelations(s1, sn, l.p2);
-          if (!this.noInfer && horizontal && (sn?.kind === 'horizontal' || !sn)) s1 = addConstraint(s1, 'horizontal', [l.id])[0];
-          else if (!this.noInfer && vertical && (sn?.kind === 'vertical' || !sn)) s1 = addConstraint(s1, 'vertical', [l.id])[0];
+          if (!this.noInfer && (horizontal || ori === 'horizontal') && (sn?.kind === 'horizontal' || !sn || ori === 'horizontal')) s1 = addConstraint(s1, 'horizontal', [l.id])[0];
+          else if (!this.noInfer && (vertical || ori === 'vertical') && (sn?.kind === 'vertical' || !sn || ori === 'vertical')) s1 = addConstraint(s1, 'vertical', [l.id])[0];
+          // Add dimensions: the length of the line
+          if (ctx.sketchTool?.addDimensions && !infinite) s1 = addConstraint(s1, 'length', [l.id], { value: dist(a, p) * (midpointLine ? 2 : 1) })[0];
           return s1;
         });
         // chain: continue from end point; snapping to an existing point (or an infinite line) ends the chain
@@ -853,6 +877,11 @@ export class ToolController {
           s1 = addConstraint(s1, 'vertical', [l2.id])[0];
           s1 = addConstraint(s1, 'horizontal', [l3.id])[0];
           s1 = addConstraint(s1, 'vertical', [l4.id])[0];
+          // Add dimensions: width and height
+          if (ctx.sketchTool?.addDimensions) {
+            s1 = addConstraint(s1, 'length', [l1.id], { value: dist(corners[0], corners[1]) })[0];
+            s1 = addConstraint(s1, 'length', [l2.id], { value: dist(corners[1], corners[2]) })[0];
+          }
           const opt = this.rectConstruction;
           if (center) {
             // the centre point at the middle of a construction diagonal (the original draws both diagonals)
@@ -904,7 +933,9 @@ export class ToolController {
         if (r < 1e-9) return;
         const cSnap = this.snapHits[0];
         ctx.commit('Circle', (s) => {
-          const [s1, e] = addCircle(s, c, r);
+          let [s1, e] = addCircle(s, c, r);
+          // Add dimensions: a diameter (default) or radius dimension on the new circle
+          if (ctx.sketchTool?.addDimensions) s1 = addConstraint(s1, ctx.sketchTool.circleDiameter !== false ? 'diameter' : 'radius', [e.id], { value: ctx.sketchTool.circleDiameter !== false ? 2 * r : r })[0];
           let s2 = this.inferredRelations(s1, cSnap, e.center);
           if (sn?.pointId) s2 = addConstraint(s2, 'pointOnEntity', [sn.pointId, e.id])[0];
           return s2;

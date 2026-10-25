@@ -1,4 +1,6 @@
 import type { ReactElement, SVGProps } from 'react';
+import { Icons3D } from './icons3d';
+import { IconsSketch } from './iconsSketch';
 
 /**
  * Phlippo icon set — filled, multi-colour icons in the style of desktop CAD:
@@ -72,20 +74,6 @@ export const Icon = {
       <path d="M5 3l13 10-6 1.5L9 21 5 3z" fill={C.greyD} />
     </svg>
   ),
-  Line: ({ size = 16, ...p }: P) => (
-    <svg {...base(size, p)}>
-      <path d="M5 19L19 5" stroke="#2f3a48" strokeWidth={1.8} />
-      <rect x="3" y="17" width="4" height="4" fill={C.blue} />
-      <rect x="17" y="3" width="4" height="4" fill={C.blue} />
-    </svg>
-  ),
-  Rect: ({ size = 16, ...p }: P) => (
-    <svg {...base(size, p)}>
-      <rect x="4" y="6" width="16" height="12" stroke="#2f3a48" strokeWidth={1.8} />
-      <rect x="2" y="4" width="4" height="4" fill={C.blue} />
-      <rect x="18" y="16" width="4" height="4" fill={C.blue} />
-    </svg>
-  ),
   Rect3Corner: ({ size = 16, ...p }: P) => (
     <svg {...base(size, p)}>
       <path d="M3 12l7-7 11 11-7 7z" stroke="#2f3a48" strokeWidth={1.7} transform="translate(0 -1.5)" />
@@ -110,69 +98,11 @@ export const Icon = {
       <circle cx="12" cy="12" r="2.2" fill={C.blue} />
     </svg>
   ),
-  CenterRect: ({ size = 16, ...p }: P) => (
-    <svg {...base(size, p)}>
-      <rect x="4" y="6" width="16" height="12" stroke="#2f3a48" strokeWidth={1.8} />
-      <path d="M12 9v6M9 12h6" stroke={C.blue} strokeWidth={1.4} />
-      <rect x="18" y="16" width="4" height="4" fill={C.blue} />
-    </svg>
-  ),
-  Circle: ({ size = 16, ...p }: P) => (
-    <svg {...base(size, p)}>
-      <circle cx="12" cy="12" r="8" stroke="#2f3a48" strokeWidth={1.8} />
-      <path d="M12 9.5v5M9.5 12h5" stroke={C.blue} strokeWidth={1.4} />
-    </svg>
-  ),
-  PerimeterCircle: ({ size = 16, ...p }: P) => (
-    <svg {...base(size, p)}>
-      <circle cx="12" cy="12" r="8" stroke="#2f3a48" strokeWidth={1.8} />
-      <rect x="2.6" y="10.6" width="2.8" height="2.8" fill={C.blue} />
-      <rect x="15.6" y="4.6" width="2.8" height="2.8" fill={C.blue} />
-      <rect x="15.6" y="16.6" width="2.8" height="2.8" fill={C.blue} />
-    </svg>
-  ),
   TangentArc: ({ size = 16, ...p }: P) => (
     <svg {...base(size, p)}>
       <path d="M3 18h8" stroke={C.grey} strokeWidth={1.6} />
       <path d="M11 18a6 6 0 0 0 6-6V5" stroke="#2f3a48" strokeWidth={1.8} />
       <rect x="9.6" y="16.6" width="2.8" height="2.8" fill={C.blue} />
-    </svg>
-  ),
-  Arc: ({ size = 16, ...p }: P) => (
-    <svg {...base(size, p)}>
-      <path d="M4 19A12 12 0 0 1 19 4" stroke="#2f3a48" strokeWidth={1.8} />
-      <rect x="2" y="17" width="4" height="4" fill={C.blue} />
-      <rect x="17" y="2" width="4" height="4" fill={C.blue} />
-    </svg>
-  ),
-  ArcCenter: ({ size = 16, ...p }: P) => (
-    <svg {...base(size, p)}>
-      <path d="M5 18A10 10 0 0 1 18 5" stroke="#2f3a48" strokeWidth={1.8} />
-      <path d="M18 18L5 18M18 18V5" stroke={C.grey} strokeWidth={1} strokeDasharray="2 1.5" />
-      <path d="M18 15v6M15 18h6" stroke={C.blue} strokeWidth={1.4} />
-    </svg>
-  ),
-  Spline: ({ size = 16, ...p }: P) => (
-    <svg {...base(size, p)}>
-      <path d="M3 18C7 3 11 21 21 5" stroke="#2f3a48" strokeWidth={1.8} />
-      <rect x="1.5" y="16" width="4" height="4" fill={C.blue} />
-      <rect x="19" y="3" width="4" height="4" fill={C.blue} />
-      <rect x="10" y="10" width="3.5" height="3.5" fill={C.blue} />
-    </svg>
-  ),
-  Point: ({ size = 16, ...p }: P) => (
-    <svg {...base(size, p)}>
-      <path d="M12 3v5M12 16v5M3 12h5M16 12h5" stroke="#2f3a48" strokeWidth={1.4} />
-      <rect x="9.5" y="9.5" width="5" height="5" fill={C.blue} />
-    </svg>
-  ),
-  /** depth of an extrusion (D1): a block with a double arrow along its height */
-  Depth: ({ size = 16, ...p }: P) => (
-    <svg {...base(size, p)}>
-      <path d="M4 9l6-4 7 3v9l-7 4-6-4z" fill={C.blueL} stroke={C.blueD} strokeWidth={1} strokeLinejoin="round" />
-      <path d="M10 5v16M4 9l6 3 7-3M10 12v9" fill="none" stroke={C.blueD} strokeWidth={0.9} />
-      <path d="M20.5 5v14" stroke="#2f3a48" strokeWidth={1.2} />
-      <path d="M20.5 3l-2 3.2h4zM20.5 21l-2-3.2h4z" fill="#2f3a48" />
     </svg>
   ),
   /** draft angle of an extrusion: a tapered block with the angle arc */
@@ -214,36 +144,6 @@ export const Icon = {
     <svg {...base(size, p)}>
       <path d="M3 21V9l6-5h12v17" stroke="#2f3a48" strokeWidth={1.8} />
       <path d="M8 21v-9l4-3h9" stroke={C.blue} strokeWidth={1.8} />
-    </svg>
-  ),
-  Mirror: ({ size = 16, ...p }: P) => (
-    <svg {...base(size, p)}>
-      <path d="M12 2v20" stroke="#2f3a48" strokeWidth={1.2} strokeDasharray="2.5 2" />
-      <path d="M3 18l6-6-6-6z" fill={C.blue} />
-      <path d="M21 18l-6-6 6-6z" fill="none" stroke={C.blue} strokeWidth={1.4} strokeDasharray="2 1.5" />
-    </svg>
-  ),
-  Slot: ({ size = 16, ...p }: P) => (
-    <svg {...base(size, p)}>
-      <rect x="3" y="7" width="18" height="10" rx="5" stroke="#2f3a48" strokeWidth={1.8} />
-      <path d="M8 12h8" stroke={C.blue} strokeWidth={1} strokeDasharray="1.5 1.5" />
-    </svg>
-  ),
-  Ellipse: ({ size = 16, ...p }: P) => (
-    <svg {...base(size, p)}>
-      <ellipse cx="12" cy="12" rx="9" ry="6" stroke="#2f3a48" strokeWidth={1.8} />
-      <path d="M12 10v4M10 12h4" stroke={C.blue} strokeWidth={1.4} />
-    </svg>
-  ),
-  Polygon: ({ size = 16, ...p }: P) => (
-    <svg {...base(size, p)}>
-      <path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z" stroke="#2f3a48" strokeWidth={1.8} />
-      <rect x="10" y="1" width="4" height="4" fill={C.blue} />
-    </svg>
-  ),
-  Text: ({ size = 16, ...p }: P) => (
-    <svg {...base(size, p)}>
-      <path d="M4 20L12 3l8 17M7 14h10" stroke="#2f3a48" strokeWidth={2.2} />
     </svg>
   ),
   Fillet2D: ({ size = 16, ...p }: P) => (
@@ -291,11 +191,6 @@ export const Icon = {
     <svg {...base(size, p)}>
       <circle cx="12" cy="12" r="8" fill="#fff" stroke="#2b2b2b" strokeWidth={1.5} />
       <path d="M12 12V4a8 8 0 0 1 8 8zM12 12v8a8 8 0 0 1-8-8z" fill="#2b2b2b" />
-    </svg>
-  ),
-  Part: ({ size = 16, ...p }: P) => (
-    <svg {...base(size, p)}>
-      <Block x={3} y={6} w={12} h={10} d={6} top={C.yellow} front={C.blue} side={C.blueD} />
     </svg>
   ),
   Check: ({ size = 16, ...p }: P) => (
@@ -361,40 +256,6 @@ export const Icon = {
       <path d="M10 10v7M14 10v7" stroke={C.red} strokeWidth={1.4} />
     </svg>
   ),
-  Fit: ({ size = 16, ...p }: P) => (
-    <svg {...base(size, p)}>
-      <circle cx="10" cy="10" r="6" fill={C.white} stroke={C.greyD} strokeWidth={1.6} />
-      <path d="M14.5 14.5L20 20" stroke={C.greyD} strokeWidth={2.2} />
-      <path d="M7 7l6 6M13 7l-6 6" stroke={C.blue} strokeWidth={1.4} />
-    </svg>
-  ),
-  ZoomArea: ({ size = 16, ...p }: P) => (
-    <svg {...base(size, p)}>
-      <circle cx="10" cy="10" r="6" fill={C.white} stroke={C.greyD} strokeWidth={1.6} />
-      <path d="M14.5 14.5L20 20" stroke={C.greyD} strokeWidth={2.2} />
-      <rect x="7" y="7" width="6" height="6" fill={C.blueL} stroke={C.blue} strokeWidth={1} />
-    </svg>
-  ),
-  Previous: ({ size = 16, ...p }: P) => (
-    <svg {...base(size, p)}>
-      <path d="M9 5L4 10l5 5" stroke={C.blue} strokeWidth={2} />
-      <path d="M4 10h9a5 5 0 0 1 0 10" stroke={C.blue} strokeWidth={2} />
-      <circle cx="16" cy="6" r="3" fill={C.white} stroke={C.greyD} strokeWidth={1.2} />
-    </svg>
-  ),
-  Section: ({ size = 16, ...p }: P) => (
-    <svg {...base(size, p)}>
-      <Block x={3} y={6} w={12} h={10} d={6} />
-      <path d="M2 12h20" stroke={C.red} strokeWidth={1.4} strokeDasharray="2.5 1.5" />
-      <path d="M3 12h12v4H3z" fill={C.red} opacity={0.35} />
-    </svg>
-  ),
-  Orientation: ({ size = 16, ...p }: P) => (
-    <svg {...base(size, p)}>
-      <Block x={4} y={6} w={11} h={10} d={5} top={C.greyL} front={C.white} side={C.greyL} />
-      <path d="M4 11h11v10H4z" fill={C.blueL} stroke={C.blueD} strokeWidth={0.8} />
-    </svg>
-  ),
   /** the five display styles as the original draws them: a cube in wireframe, hidden lines visible/removed, shaded with edges, shaded */
   StyleWireframe: ({ size = 16, ...p }: P) => (
     <svg {...base(size, p)}>
@@ -430,96 +291,11 @@ export const Icon = {
       <path d="M4 10l5-5h11l-5 5z" fill={C.blueL} /><path d="M4 10h11v10H4z" fill={C.blue} /><path d="M15 10l5-5v10l-5 5z" fill={C.blueD} />
     </svg>
   ),
-  DisplayStyle: ({ size = 16, ...p }: P) => (
-    <svg {...base(size, p)}>
-      <Block x={4} y={6} w={11} h={10} d={5} />
-    </svg>
-  ),
-  Eye: ({ size = 16, ...p }: P) => (
-    <svg {...base(size, p)}>
-      <path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z" fill={C.white} stroke={C.greyD} strokeWidth={1.4} />
-      <circle cx="12" cy="12" r="3.5" fill={C.blue} />
-      <circle cx="12" cy="12" r="1.5" fill={C.greyD} />
-    </svg>
-  ),
-  Appearance: ({ size = 16, ...p }: P) => (
-    <svg {...base(size, p)}>
-      <circle cx="12" cy="12" r="9" fill={C.blue} />
-      <path d="M12 3a9 9 0 0 1 0 18z" fill={C.orange} />
-      <circle cx="9" cy="9" r="2.5" fill={C.white} opacity={0.8} />
-    </svg>
-  ),
-  Scene: ({ size = 16, ...p }: P) => (
-    <svg {...base(size, p)}>
-      <rect x="2" y="4" width="20" height="16" rx="1.5" fill={C.blueL} stroke={C.greyD} strokeWidth={1.2} />
-      <path d="M3 19l5.5-7 4 4.5 3-3.5L21 19z" fill={C.green} />
-      <circle cx="16.5" cy="8" r="2" fill={C.yellow} />
-    </svg>
-  ),
-  ViewSettings: ({ size = 16, ...p }: P) => (
-    <svg {...base(size, p)}>
-      <rect x="2" y="4" width="20" height="13" rx="1.5" fill={C.blueL} stroke={C.greyD} strokeWidth={1.4} />
-      <path d="M9 21h6M12 17v4" stroke={C.greyD} strokeWidth={1.6} />
-    </svg>
-  ),
-  Extrude: ({ size = 16, ...p }: P) => (
-    <svg {...base(size, p)}>
-      <path d="M3 18l5-5h12l-5 5z" fill={C.yellow} stroke={C.yellowD} strokeWidth={0.8} />
-      <Block x={5} y={2} w={9} h={9} d={5} />
-      <path d="M21 7V2M21 2l-2 2M21 2l2 2" stroke={C.green} strokeWidth={1.4} />
-    </svg>
-  ),
-  Cut: ({ size = 16, ...p }: P) => (
-    <svg {...base(size, p)}>
-      <Block x={3} y={6} w={13} h={10} d={6} />
-      <path d="M6 11h7v4H6z" fill={C.yellow} stroke={C.yellowD} strokeWidth={0.8} />
-      <path d="M13 11l3-3v4l-3 3z" fill={C.yellowD} />
-      <path d="M9.5 9.5v-6M9.5 3.5l-1.5 1.5M9.5 3.5l1.5 1.5" stroke={C.red} strokeWidth={1.2} />
-    </svg>
-  ),
-  Revolve: ({ size = 16, ...p }: P) => (
-    <svg {...base(size, p)}>
-      <path d="M4 2v20" stroke="#2f3a48" strokeWidth={1} strokeDasharray="2 1.5" />
-      <path d="M8 4c5 0 9 1 9 3s-4 3-9 3" fill={C.blueL} stroke={C.blueD} strokeWidth={0.8} />
-      <path d="M8 10c5 0 9-1 9-3v11c0 2-4 3-9 3z" fill={C.blue} stroke={C.blueD} strokeWidth={0.8} />
-      <path d="M8 4v17" stroke={C.blueD} strokeWidth={0.8} />
-      <path d="M12 3a6 2 0 0 1 6 1" stroke={C.green} strokeWidth={1.4} />
-    </svg>
-  ),
-  Sweep: ({ size = 16, ...p }: P) => (
-    <svg {...base(size, p)}>
-      <path d="M4 19c5 0 4-10 10-10" stroke={C.blue} strokeWidth={4} />
-      <ellipse cx="17" cy="8" rx="3.5" ry="2.2" fill={C.yellow} stroke={C.yellowD} strokeWidth={0.8} />
-    </svg>
-  ),
-  Loft: ({ size = 16, ...p }: P) => (
-    <svg {...base(size, p)}>
-      <path d="M6 5h12l3 14H3z" fill={C.blue} stroke={C.blueD} strokeWidth={0.8} />
-      <ellipse cx="12" cy="5" rx="6" ry="2" fill={C.yellow} stroke={C.yellowD} strokeWidth={0.8} />
-      <ellipse cx="12" cy="19" rx="9" ry="2.5" fill={C.blueL} stroke={C.blueD} strokeWidth={0.8} />
-    </svg>
-  ),
-  Hole: ({ size = 16, ...p }: P) => (
-    <svg {...base(size, p)}>
-      <Block x={3} y={9} w={13} h={8} d={6} />
-      <ellipse cx="11" cy="13" rx="3.5" ry="1.6" fill={C.greyD} />
-      <path d="M19 2v9" stroke={C.greyD} strokeWidth={2.4} />
-      <path d="M16.5 10l2.5 4 2.5-4z" fill={C.greyD} />
-      <path d="M17 4h4M17 6.5h4" stroke={C.white} strokeWidth={0.8} />
-    </svg>
-  ),
   Combine: ({ size = 16, ...p }: P) => (
     <svg {...base(size, p)}>
       <rect x="3" y="3" width="12" height="12" fill={C.blueL} stroke={C.blue} strokeWidth={1.2} />
       <rect x="9" y="9" width="12" height="12" fill={C.yellow} stroke={C.yellowD} strokeWidth={1.2} />
       <rect x="9" y="9" width="6" height="6" fill={C.blueD} opacity={0.6} />
-    </svg>
-  ),
-  Rib: ({ size = 16, ...p }: P) => (
-    <svg {...base(size, p)}>
-      <path d="M3 18h18v3H3z" fill={C.blueL} stroke={C.blue} strokeWidth={1.2} />
-      <path d="M10 18V7l4-3v14" fill={C.yellow} stroke={C.yellowD} strokeWidth={1.2} />
-      <path d="M5 18V9h2v9M17 18V9h2v9" fill={C.blueL} stroke={C.blue} strokeWidth={1.2} />
     </svg>
   ),
   RibSide: ({ size = 16, side = 'both', ...p }: P & { side?: 'first' | 'both' | 'second' }) => (
@@ -533,29 +309,6 @@ export const Icon = {
     <svg {...base(size, p)}>
       <path d="M4 20L10 14h10l-6 6z" fill={C.blueL} stroke={C.blue} strokeWidth={1.2} />
       {dir === 'parallel' ? <path d="M7 17h8M13 15l2 2-2 2" stroke={C.green} strokeWidth={1.5} fill="none" /> : <path d="M12 16V5M10 7l2-2 2 2" stroke={C.green} strokeWidth={1.5} fill="none" />}
-    </svg>
-  ),
-  Shell: ({ size = 16, ...p }: P) => (
-    <svg {...base(size, p)}>
-      <Block x={3} y={6} w={13} h={10} d={6} />
-      <path d="M6 10h7v6H6z" fill={C.yellow} stroke={C.yellowD} strokeWidth={0.6} />
-      <path d="M13 10l3-3v6l-3 3z" fill={C.yellowD} />
-    </svg>
-  ),
-  Pattern: ({ size = 16, ...p }: P) => (
-    <svg {...base(size, p)}>
-      <circle cx="5" cy="12" r="3" fill={C.blue} />
-      <circle cx="12" cy="12" r="3" fill={C.blue} />
-      <circle cx="19" cy="12" r="3" fill={C.blue} />
-      <path d="M3 5h18" stroke="#2f3a48" strokeWidth={1.2} />
-      <path d="M21 5l-3-1.8v3.6z" fill="#2f3a48" />
-    </svg>
-  ),
-  Chamfer: ({ size = 16, ...p }: P) => (
-    <svg {...base(size, p)}>
-      <path d="M3 21V10l7-7h11v18z" fill={C.blue} stroke={C.blueD} strokeWidth={0.8} />
-      <path d="M3 10l7-7" stroke={C.yellow} strokeWidth={2.6} />
-      <path d="M8 8V4" stroke={C.greyD} strokeWidth={1} strokeDasharray="1.5 1" />
     </svg>
   ),
   /** Fillet Type pictures of the original: a white block with the rounded edge in blue */
@@ -902,10 +655,17 @@ export const Icon = {
       <path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1" stroke={C.greyD} strokeWidth={2.2} />
     </svg>
   ),
+  /** a person (the sign-in button of the title row) */
+  User: ({ size = 16, ...p }: P) => (
+    <svg {...base(size, p)}>
+      <circle cx="12" cy="8.5" r="4" fill="#9aa3ad" stroke="#5a6068" strokeWidth={1} />
+      <path d="M4.5 20.5c1-4.5 4-6.5 7.5-6.5s6.5 2 7.5 6.5z" fill="#9aa3ad" stroke="#5a6068" strokeWidth={1} />
+    </svg>
+  ),
   Help: ({ size = 16, ...p }: P) => (
     <svg {...base(size, p)}>
-      <circle cx="12" cy="12" r="9.5" fill={C.blue} />
-      <path d="M9 9.5a3 3 0 1 1 4.5 2.6c-1 .6-1.5 1.2-1.5 2.2M12 17.5v.5" stroke={C.white} strokeWidth={2} />
+      <circle cx="12" cy="12" r="9.5" fill="none" stroke="#5a6068" strokeWidth={1.6} />
+      <path d="M9 9.5a3 3 0 1 1 4.5 2.6c-1 .6-1.5 1.2-1.5 2.2M12 17.5v.5" stroke="#5a6068" strokeWidth={1.9} />
     </svg>
   ),
   Pin: ({ size = 16, ...p }: P) => (
@@ -1110,12 +870,39 @@ export const Icon = {
       <path d="M8 15h8M12 9v6" stroke="#2f7d4f" strokeWidth={2} />
     </svg>
   ),
+  /** Chamfer ▸ Vertex: a corner cut off by a triangle */
+  ChamferVertex: ({ size = 16, ...p }: P) => (
+    <svg {...base(size, p)}>
+      <path d="M4 20V6l8-3 8 3v14z" fill="#e4e6e8" stroke="#3a3f46" strokeWidth={1} />
+      <path d="M4 6l8 3 8-3M12 9v11" stroke="#3a3f46" strokeWidth={1} />
+      <path d="M12 3l4 1.5-2 4.5-4-1.5z" fill="#6fadc8" stroke="#2b5f78" strokeWidth={0.9} />
+    </svg>
+  ),
+  /** Chamfer ▸ Offset Face / Face Face: two faces with the chamfer between them */
+  ChamferFace: ({ size = 16, ...p }: P) => (
+    <svg {...base(size, p)}>
+      <path d="M4 20V6l8-3 8 3v14z" fill="#e4e6e8" stroke="#3a3f46" strokeWidth={1} />
+      <path d="M4 6l8 3 8-3M12 9v11" stroke="#3a3f46" strokeWidth={1} />
+      <path d="M9.5 8l-5.5-2v4l5.5 2.5z" fill="#6fadc8" stroke="#2b5f78" strokeWidth={0.9} />
+      <path d="M14.5 8l5.5-2v4l-5.5 2.5z" fill="#a9d3e2" stroke="#2b5f78" strokeWidth={0.9} />
+    </svg>
+  ),
+  /** Zebra Stripes: a sphere with the reflected stripes */
+  Zebra: ({ size = 16, ...p }: P) => (
+    <svg {...base(size, p)}>
+      <circle cx="12" cy="12" r="9" fill="#f2f2f2" stroke="#3a3f46" strokeWidth={1} />
+      <path d="M4 8.5c5 2 11 2 16 0M3.2 12c6 2.5 11.6 2.5 17.6 0M4.4 15.6c5 2 10.2 2 15.2 0" stroke="#1a1a1a" strokeWidth={2.2} fill="none" />
+    </svg>
+  ),
   Warning: ({ size = 16, ...p }: P) => (
     <svg {...base(size, p)}>
       <path d="M12 3l10 18H2z" fill={C.yellow} stroke={C.yellowD} strokeWidth={1} />
       <path d="M12 9.5v5M12 17.5v.5" stroke={C.greyD} strokeWidth={2} />
     </svg>
   ),
+  // feature icons as isometric solids (icons3d.tsx) and the Sketch tab's line art (iconsSketch.tsx) override the flat ones above
+  ...Icons3D,
+  ...IconsSketch,
 };
 
 /** Small relation glyphs shown in green boxes next to geometry. */
@@ -1169,6 +956,21 @@ export const RelationGlyph: Record<string, (p: P) => ReactElement> = {
   equal: ({ size = 12, ...p }) => (
     <svg {...g(size, p)}>
       <path d="M3 6h10M3 10h10" />
+    </svg>
+  ),
+  // Coradial: two concentric arcs of one radius
+  coradial: ({ size = 12, ...p }) => (
+    <svg {...g(size, p)}>
+      <path d="M3 11a5 5 0 0 1 10 0" />
+      <path d="M5 11a3 3 0 0 1 6 0" />
+      <circle cx="8" cy="11" r="1" fill="currentColor" stroke="none" />
+    </svg>
+  ),
+  // Equal Curve Length: two curves with the equal mark
+  equalCurveLength: ({ size = 12, ...p }) => (
+    <svg {...g(size, p)}>
+      <path d="M2 6c3-4 6 4 9 0M2 12c3-4 6 4 9 0" />
+      <path d="M12.5 7h2M12.5 10h2" />
     </svg>
   ),
   concentric: ({ size = 12, ...p }) => (

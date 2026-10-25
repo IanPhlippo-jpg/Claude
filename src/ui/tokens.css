@@ -22,8 +22,8 @@
   --tree-sel-bg: #a8cade;
   --tree-sel-border: #668692;
   --tree-hover-border: #858585;
-  --bg-viewport: #ffffff;
-  --bg-viewport-2: #f1f2f4;
+  --bg-viewport: #fcfcfc;
+  --bg-viewport-2: #fcfcfc;
   /* drawing graphics area: light gradient behind the sheet, as the original */
   --bg-sheet-1: #ffffff;
   --bg-sheet-2: #c5c9d5;

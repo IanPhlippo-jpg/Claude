@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { bodyEdges } from './edgesets';
 import { circleSegments } from '../sketch/geometry';
 import type { BodyEdge, CreaseSegment } from './edgesets';
 import { csg, mergeGeometries } from './solid';
@@ -425,4 +426,39 @@ export function keepEdgeRadii(edges: BodyEdge[], size: number, faces: { normal: 
     }
     return Math.min(size, limit);
   });
+}
+
+/**
+ * Chamfer ▸ Vertex: the tetrahedron cut off a corner where three straight edges meet, d1 / d2 / d3 along those edges.
+ * The tool's apex sits a little outside the corner so the boolean never shares the corner itself.
+ */
+export function vertexChamferTool(geometry: THREE.BufferGeometry, vertex: THREE.Vector3, d1: number, d2: number, d3: number): THREE.BufferGeometry | null {
+  const edges = bodyEdges(geometry, 'vc').filter((e) => e.straight && !e.closed && e.points.length >= 2);
+  const dirs: THREE.Vector3[] = [];
+  for (const e of edges) {
+    const a = e.points[0], b = e.points[e.points.length - 1];
+    if (a.distanceTo(vertex) < 1e-3) dirs.push(b.clone().sub(a).normalize());
+    else if (b.distanceTo(vertex) < 1e-3) dirs.push(a.clone().sub(b).normalize());
+    if (dirs.length === 3) break;
+  }
+  if (dirs.length < 3) return null;
+  const ds = [d1, d2, d3].map((d) => Math.max(0.01, d));
+  const P = dirs.map((d, i) => vertex.clone().addScaledVector(d, ds[i]));
+  // the apex: the corner pushed outward (away from the three edge directions)
+  const inward = dirs[0].clone().add(dirs[1]).add(dirs[2]).normalize();
+  const apex = vertex.clone().addScaledVector(inward, -Math.max(...ds) * 0.05 - 0.05);
+  const tri = (a: THREE.Vector3, b: THREE.Vector3, c: THREE.Vector3, out: number[]) => out.push(a.x, a.y, a.z, b.x, b.y, b.z, c.x, c.y, c.z);
+  const pos: number[] = [];
+  // outward-facing winding: the face opposite the apex, and the three faces through the apex
+  const n = P[1].clone().sub(P[0]).cross(P[2].clone().sub(P[0]));
+  const flip = n.dot(P[0].clone().sub(apex)) < 0;
+  const [A, B, C] = flip ? [P[0], P[2], P[1]] : [P[0], P[1], P[2]];
+  tri(A, B, C, pos);
+  tri(apex, B, A, pos);
+  tri(apex, C, B, pos);
+  tri(apex, A, C, pos);
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  g.computeVertexNormals();
+  return g;
 }

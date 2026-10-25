@@ -104,6 +104,10 @@ export type ConstraintKind =
   | 'equal'
   | 'concentric'
   | 'collinear'
+  /** two arcs with the same centre and radius */
+  | 'coradial'
+  /** two curves (lines, arcs, circles) of the same length */
+  | 'equalCurveLength'
   | 'midpoint'
   | 'symmetric'
   | 'fix'
@@ -145,6 +149,8 @@ export interface Constraint {
   tol?: { type: 'none' | 'basic' | 'bilateral' | 'limit' | 'symmetric' | 'min' | 'max'; plus?: number; minus?: number };
   precision?: number;
   dual?: boolean;
+  /** Dimension Text ▸ All uppercase */
+  uppercase?: boolean;
   arrows?: 'smart' | 'inside' | 'outside';
   arrowStyle?: 'filled' | 'open' | 'dot' | 'slash';
   unitOverride?: 'mm' | 'cm' | 'in';

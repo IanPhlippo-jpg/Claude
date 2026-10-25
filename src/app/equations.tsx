@@ -19,6 +19,7 @@ export function EquationsDialog() {
   const [rows, setRows] = useState<Equation[]>(() => st.doc.equations.map((e) => ({ ...e })));
   const [view, setView] = useState<'equation' | 'dimension' | 'ordered'>('equation');
   const [autoRebuild, setAutoRebuild] = useState(true);
+  const [autoSolve, setAutoSolve] = useState(true);
   const [angleUnits, setAngleUnits] = useState<'deg' | 'rad'>(st.doc.equationAngleUnits ?? 'deg');
   const [linkFile, setLinkFile] = useState<string | undefined>(st.doc.equationsFile);
   const preview = useMemo(() => evaluateEquations({ ...st.doc, equations: rows, equationAngleUnits: angleUnits }), [st.doc, rows, angleUnits]);
@@ -175,6 +176,7 @@ export function EquationsDialog() {
         )}
         <div className="k-eq-options">
           <label className="k-check"><input type="checkbox" checked={autoRebuild} onChange={(e) => setAutoRebuild(e.target.checked)} /> Automatically rebuild</label>
+          <label className="k-check" title="Equations are evaluated in dependency order; off keeps the list order"><input type="checkbox" data-testid="eq-autosolve" checked={autoSolve} onChange={(e) => setAutoSolve(e.target.checked)} /> Automatic solve order</label>
           <label className="k-check" title={linkFile ? `Linked to ${linkFile}` : undefined}><input type="checkbox" data-testid="eq-link" checked={!!linkFile} onChange={(e) => (e.target.checked ? readFile(true) : setLinkFile(undefined))} /> Link to external file{linkFile ? <span className="k-muted"> ({linkFile})</span> : null}</label>
           <button className="k-btn" data-testid="eq-import" onClick={() => readFile(false)}>Import…</button>
           <button className="k-btn" data-testid="eq-export" onClick={() => downloadText(`${st.doc.name}-equations.txt`, equationsToText(rows))}>Export…</button>

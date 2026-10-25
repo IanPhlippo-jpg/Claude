@@ -169,16 +169,16 @@ export function Ribbon() {
       {menuBlock}
       <Group>
         {st.sketch3dEdit ? (
-          <BigButton label="Exit Sketch" icon={<Icon.Exit />} active onClick={st.commit3DSketch} />
+          <BigButton label="Exit Sketch" icon={<Icon.ExitSketch />} active onClick={st.commit3DSketch} />
         ) : inSketch ? (
-          <BigButton label="Exit Sketch" icon={<Icon.Exit />} active onClick={st.exitSketch} />
+          <BigButton label="Exit Sketch" icon={<Icon.ExitSketch />} active onClick={st.exitSketch} />
         ) : (
           <BigButton label="Sketch" icon={<Icon.Sketch />} shortcut="Ctrl+Shift+S" active={st.planePick} onClick={st.startPlanePick} flyout={[
             { label: 'Sketch', icon: <Icon.Sketch />, onSelect: st.startPlanePick },
             { label: '3D Sketch', icon: <Icon.Sketch />, onSelect: st.start3DSketch },
           ]} />
         )}
-        <BigButton label="Smart Dimension" icon={<Icon.Dimension />} {...T('dimension')} flyout={[
+        <BigButton label="Smart Dimension" icon={<Icon.SmartDimension />} {...T('dimension')} flyout={[
           { label: 'Smart Dimension', icon: <Icon.Dimension />, onSelect: () => st.setTool('dimension') },
           { label: 'Horizontal Dimension', icon: <Icon.Dimension />, onSelect: () => st.setTool('hdim') },
           { label: 'Vertical Dimension', icon: <Icon.Dimension />, onSelect: () => st.setTool('vdim') },
@@ -221,35 +221,35 @@ export function Ribbon() {
             { label: '3 Point Arc', icon: <Icon.Arc />, onSelect: () => st.setTool('arc3') },
           ]} />
           {/* column 4 */}
-          <IconFly icon={<Icon.Fillet2D />} tip="Sketch Fillet" {...T('sketchFillet')} flyout={[{ label: 'Sketch Fillet', icon: <Icon.Fillet2D />, onSelect: () => st.setTool('sketchFillet') }, { label: 'Sketch Chamfer', icon: <Icon.Chamfer />, onSelect: () => st.setTool('sketchChamfer') }]} />
+          <IconFly icon={<Icon.SketchFillet />} tip="Sketch Fillet" {...T('sketchFillet')} flyout={[{ label: 'Sketch Fillet', icon: <Icon.SketchFillet />, onSelect: () => st.setTool('sketchFillet') }, { label: 'Sketch Chamfer', icon: <Icon.SketchChamfer />, onSelect: () => st.setTool('sketchChamfer') }]} />
           <IconFly icon={<Icon.Text />} tip="Text" {...T('text')} />
           <IconFly icon={<Icon.Point />} tip="Point" {...T('point')} />
         </div>
       </Group>
       <Group>
-        <BigButton label="Trim Entities" icon={<Icon.Trim />} {...T('trim')} flyout={[{ label: 'Trim Entities', icon: <Icon.Trim />, onSelect: () => st.setTool('trim') }, { label: 'Extend Entities', icon: <Icon.Arrow />, onSelect: () => st.setTool('extend') }]} />
-        <BigButton label="Convert Entities" icon={<Icon.Convert />} disabled={!inSketch} onClick={st.convertEntities} />
-        <BigButton label="Offset Entities" icon={<Icon.Offset />} {...T('offset')} flyout={[{ label: 'Offset Entities', icon: <Icon.Offset />, onSelect: () => st.setTool('offset') }]} />
-        <BigButton label="Offset On Surface" icon={<Icon.Offset />} active={!!st.offsetSurfEdit} disabled={!st.rebuild.bodies.length} onClick={() => st.setOffsetSurfEdit(st.offsetSurfEdit ? null : { distance: 5, reverse: false })} />
+        <BigButton label="Trim Entities" icon={<Icon.TrimEntities />} {...T('trim')} flyout={[{ label: 'Trim Entities', icon: <Icon.Trim />, onSelect: () => st.setTool('trim') }, { label: 'Extend Entities', icon: <Icon.Arrow />, onSelect: () => st.setTool('extend') }]} />
+        <BigButton label="Convert Entities" icon={<Icon.ConvertEntities />} disabled={!inSketch} onClick={st.convertEntities} />
+        <BigButton label="Offset Entities" icon={<Icon.OffsetEntities />} {...T('offset')} flyout={[{ label: 'Offset Entities', icon: <Icon.Offset />, onSelect: () => st.setTool('offset') }]} />
+        <BigButton label="Offset On Surface" icon={<Icon.OffsetOnSurface />} active={!!st.offsetSurfEdit} disabled={!st.rebuild.bodies.length} onClick={() => st.setOffsetSurfEdit(st.offsetSurfEdit ? null : { distance: 5, reverse: false })} />
         <div className="k-cm-col">
-          <SmallButton label="Mirror Entities" icon={<Icon.Mirror />} disabled={!mirrorable} onClick={() => st.mirrorSelection()} />
-          <SmallButton label="Linear Sketch Pattern" icon={<Icon.Pattern />} {...T('linearSketchPattern')} flyout={[{ label: 'Linear Sketch Pattern', icon: <Icon.Pattern />, onSelect: () => st.setTool('linearSketchPattern') }, { label: 'Circular Sketch Pattern', icon: <Icon.Pattern />, onSelect: () => st.setTool('circularSketchPattern') }]} />
-          <SmallButton label="Move Entities" icon={<Icon.Arrow />} {...T('moveEntities')} flyout={[{ label: 'Move Entities', icon: <Icon.Arrow />, onSelect: () => st.setTool('moveEntities') }, { label: 'Copy Entities', icon: <Icon.Arrow />, onSelect: () => st.setTool('copyEntities') }, { label: 'Rotate Entities', icon: <Icon.Rebuild />, onSelect: () => st.setTool('rotateEntities') }, { label: 'Scale Entities', icon: <Icon.Fit />, onSelect: () => st.setTool('scaleEntities') }]} />
+          <SmallButton label="Mirror Entities" icon={<Icon.MirrorEntities />} disabled={!mirrorable} onClick={() => st.mirrorSelection()} />
+          <SmallButton label="Linear Sketch Pattern" icon={<Icon.SketchPattern />} {...T('linearSketchPattern')} flyout={[{ label: 'Linear Sketch Pattern', icon: <Icon.Pattern />, onSelect: () => st.setTool('linearSketchPattern') }, { label: 'Circular Sketch Pattern', icon: <Icon.Pattern />, onSelect: () => st.setTool('circularSketchPattern') }]} />
+          <SmallButton label="Move Entities" icon={<Icon.MoveEntities />} {...T('moveEntities')} flyout={[{ label: 'Move Entities', icon: <Icon.MoveEntities />, onSelect: () => st.setTool('moveEntities') }, { label: 'Copy Entities', icon: <Icon.MoveEntities />, onSelect: () => st.setTool('copyEntities') }, { label: 'Rotate Entities', icon: <Icon.Rebuild />, onSelect: () => st.setTool('rotateEntities') }, { label: 'Scale Entities', icon: <Icon.Fit />, onSelect: () => st.setTool('scaleEntities') }]} />
         </div>
       </Group>
       <Group>
-        <BigButton label="Display/Delete Relations" icon={<Icon.Lock />} disabled={!inSketch} active={st.taskPane === 'relations'} onClick={() => st.setTaskPane('relations')} flyout={[
+        <BigButton label="Display/Delete Relations" icon={<Icon.DisplayRelations />} disabled={!inSketch} active={st.taskPane === 'relations'} onClick={() => st.setTaskPane('relations')} flyout={[
           { label: 'Display/Delete Relations', icon: <Icon.Lock />, onSelect: () => st.setTaskPane('relations') },
           { label: 'Add Relation', icon: <Icon.Lock />, onSelect: () => st.setManagerTab('properties') },
           { label: 'Fully Define Sketch', icon: <Icon.Lock />, onSelect: () => st.setTool('fullyDefine') },
         ]} />
-        <BigButton label="Repair Sketch" icon={<Icon.Rebuild />} disabled={!inSketch} active={st.dialog === 'repairSketch'} onClick={() => st.setDialog(st.dialog === 'repairSketch' ? null : 'repairSketch')} />
-        <BigButton label="Quick Snaps" icon={<Icon.Grid />} active={st.snapGrid} disabled={!inSketch} onClick={() => st.toggle('snapGrid')} flyout={[{ label: 'Snap to grid', icon: <Icon.Grid />, onSelect: () => st.toggle('snapGrid') }]} />
+        <BigButton label="Repair Sketch" icon={<Icon.RepairSketch />} disabled={!inSketch} active={st.dialog === 'repairSketch'} onClick={() => st.setDialog(st.dialog === 'repairSketch' ? null : 'repairSketch')} />
+        <BigButton label="Quick Snaps" icon={<Icon.QuickSnaps />} active={st.snapGrid} disabled={!inSketch} onClick={() => st.toggle('snapGrid')} flyout={[{ label: 'Snap to grid', icon: <Icon.Grid />, onSelect: () => st.toggle('snapGrid') }]} />
       </Group>
       <Group>
-        <BigButton label="Rapid Sketch" icon={<Icon.Sketch />} active={st.rapidSketch} onClick={st.toggleRapidSketch} />
-        <BigButton label="Instant2D" icon={<Icon.Cursor />} active={st.instant2d} onClick={st.toggleInstant2D} />
-        <BigButton label="Shaded Sketch Contours" icon={<Icon.DisplayStyle />} active={st.shadedContours} disabled={!inSketch} onClick={() => st.toggle('shadedContours')} />
+        <BigButton label="Rapid Sketch" icon={<Icon.RapidSketch />} active={st.rapidSketch} onClick={st.toggleRapidSketch} />
+        <BigButton label="Instant2D" icon={<Icon.Instant2D />} active={st.instant2d} onClick={st.toggleInstant2D} />
+        <BigButton label="Shaded Sketch Contours" icon={<Icon.ShadedContours />} active={st.shadedContours} disabled={!inSketch} onClick={() => st.toggle('shadedContours')} />
       </Group>
     </>
   );
@@ -273,37 +273,37 @@ export function Ribbon() {
         <div className="k-cm-col">
           <SmallButton label="Swept Boss/Base" disabled={noSketch} icon={<Icon.Sweep />} active={st.featureEdit?.draft.type === 'sweep' && st.featureEdit.draft.op === 'boss'} onClick={() => st.startFeature('sweep', 'boss')} />
           <SmallButton label="Lofted Boss/Base" disabled={noSketch || inSk} icon={<Icon.Loft />} active={st.featureEdit?.draft.type === 'loft' && st.featureEdit.draft.op === 'boss'} onClick={() => st.startFeature('loft', 'boss')} />
-          <SmallButton label="Boundary Boss/Base" disabled={noSketch || inSk} icon={<Icon.Loft />} active={st.featureEdit?.draft.type === 'loft' && !!st.featureEdit.draft.boundary && st.featureEdit.draft.op === 'boss'} onClick={() => st.startFeature('loft', 'boss', true)} />
+          <SmallButton label="Boundary Boss/Base" disabled={noSketch || inSk} icon={<Icon.Boundary />} active={st.featureEdit?.draft.type === 'loft' && !!st.featureEdit.draft.boundary && st.featureEdit.draft.op === 'boss'} onClick={() => st.startFeature('loft', 'boss', true)} />
         </div>
       </Group>
       <Group>
         <BigButton label="Extruded Cut" disabled={noBody} icon={<Icon.Cut />} active={st.featureEdit?.draft.type === 'extrude' && st.featureEdit.draft.op === 'cut'} onClick={() => st.startFeature('extrude', 'cut')} />
         <BigButton label="Hole Wizard" disabled={noBody || inSk} icon={<Icon.Hole />} active={st.featureEdit?.draft.type === 'hole' || st.featureEdit?.draft.type === 'thread' || st.featureEdit?.draft.type === 'stud'} onClick={() => st.startHole()} flyout={[{ label: 'Hole Wizard', icon: <Icon.Hole />, onSelect: () => st.startHole() }, { label: 'Advanced Hole', icon: <Icon.Hole />, onSelect: () => st.startHole(true) }, { label: 'Thread', icon: <Icon.Hole />, onSelect: st.startThread }, { label: 'Stud Wizard', icon: <Icon.Hole />, onSelect: st.startStud }]} />
-        <BigButton label="Revolved Cut" disabled={noBody} icon={<Icon.Revolve />} active={st.featureEdit?.draft.type === 'revolve' && st.featureEdit.draft.op === 'cut'} onClick={() => st.startFeature('revolve', 'cut')} />
+        <BigButton label="Revolved Cut" disabled={noBody} icon={<Icon.RevolveCut />} active={st.featureEdit?.draft.type === 'revolve' && st.featureEdit.draft.op === 'cut'} onClick={() => st.startFeature('revolve', 'cut')} />
         <div className="k-cm-col">
-          <SmallButton label="Swept Cut" disabled={noBody || inSk} icon={<Icon.Sweep />} active={st.featureEdit?.draft.type === 'sweep' && st.featureEdit.draft.op === 'cut'} onClick={() => st.startFeature('sweep', 'cut')} />
-          <SmallButton label="Lofted Cut" disabled={noBody || inSk} icon={<Icon.Loft />} active={st.featureEdit?.draft.type === 'loft' && st.featureEdit.draft.op === 'cut'} onClick={() => st.startFeature('loft', 'cut')} />
-          <SmallButton label="Boundary Cut" disabled={noBody || inSk} icon={<Icon.Loft />} active={st.featureEdit?.draft.type === 'loft' && !!st.featureEdit.draft.boundary && st.featureEdit.draft.op === 'cut'} onClick={() => st.startFeature('loft', 'cut', true)} />
+          <SmallButton label="Swept Cut" disabled={noBody || inSk} icon={<Icon.SweepCut />} active={st.featureEdit?.draft.type === 'sweep' && st.featureEdit.draft.op === 'cut'} onClick={() => st.startFeature('sweep', 'cut')} />
+          <SmallButton label="Lofted Cut" disabled={noBody || inSk} icon={<Icon.LoftCut />} active={st.featureEdit?.draft.type === 'loft' && st.featureEdit.draft.op === 'cut'} onClick={() => st.startFeature('loft', 'cut')} />
+          <SmallButton label="Boundary Cut" disabled={noBody || inSk} icon={<Icon.BoundaryCut />} active={st.featureEdit?.draft.type === 'loft' && !!st.featureEdit.draft.boundary && st.featureEdit.draft.op === 'cut'} onClick={() => st.startFeature('loft', 'cut', true)} />
         </div>
       </Group>
       <Group>
-        <BigButton label="Fillet" disabled={noBody || inSk} icon={<Icon.Arc />} active={st.featureEdit?.draft.type === 'fillet'} onClick={() => st.startRound('fillet')} flyout={[{ label: 'Fillet', icon: <Icon.Arc />, onSelect: () => st.startRound('fillet') }, { label: 'Chamfer', icon: <Icon.Chamfer />, onSelect: () => st.startRound('chamfer') }]} />
+        <BigButton label="Fillet" disabled={noBody || inSk} icon={<Icon.Fillet />} active={st.featureEdit?.draft.type === 'fillet'} onClick={() => st.startRound('fillet')} flyout={[{ label: 'Fillet', icon: <Icon.Fillet />, onSelect: () => st.startRound('fillet') }, { label: 'Chamfer', icon: <Icon.Chamfer />, onSelect: () => st.startRound('chamfer') }]} />
         <BigButton label="Linear Pattern" disabled={inSk} icon={<Icon.Pattern />} active={!!st.featureEdit && /Pattern$/.test(st.featureEdit.draft.type)} onClick={() => st.startPattern('linearPattern')} flyout={[{ label: 'Linear Pattern', icon: <Icon.Pattern />, onSelect: () => st.startPattern('linearPattern') }, { label: 'Circular Pattern', icon: <Icon.Pattern />, onSelect: () => st.startPattern('circularPattern') }, { label: 'Curve Driven Pattern', icon: <Icon.Pattern />, onSelect: () => st.startPattern('curvePattern') }, { label: 'Sketch Driven Pattern', icon: <Icon.Pattern />, onSelect: () => st.startPattern('sketchPattern') }, { label: 'Table Driven Pattern', icon: <Icon.Pattern />, onSelect: () => st.startPattern('tablePattern') }, { label: 'Fill Pattern', icon: <Icon.Pattern />, onSelect: () => st.startPattern('fillPattern') }, { label: 'Variable Pattern', icon: <Icon.Pattern />, onSelect: () => st.startPattern('variablePattern') }]} />
         <div className="k-cm-col">
           <SmallButton label="Rib" disabled={noBody} icon={<Icon.Rib />} active={st.featureEdit?.draft.type === 'rib'} onClick={st.startRib} />
-          <SmallButton label="Draft" disabled={noBody || inSk} icon={<Icon.Chamfer />} active={st.featureEdit?.draft.type === 'draft'} onClick={st.startDraft} />
+          <SmallButton label="Draft" disabled={noBody || inSk} icon={<Icon.Draft />} active={st.featureEdit?.draft.type === 'draft'} onClick={st.startDraft} />
           <SmallButton label="Shell" disabled={noBody || inSk} icon={<Icon.Shell />} active={st.featureEdit?.draft.type === 'shell'} onClick={st.startShell} />
         </div>
         <div className="k-cm-col">
-          <SmallButton label="Wrap" disabled={noBody || inSk} icon={<Icon.Revolve />} active={st.featureEdit?.draft.type === 'wrap'} onClick={st.startWrap} />
-          <SmallButton label="Intersect" disabled={noBody || inSk} icon={<Icon.Interference />} active={st.featureEdit?.draft.type === 'intersect'} onClick={st.startIntersect} />
+          <SmallButton label="Wrap" disabled={noBody || inSk} icon={<Icon.Wrap />} active={st.featureEdit?.draft.type === 'wrap'} onClick={st.startWrap} />
+          <SmallButton label="Intersect" disabled={noBody || inSk} icon={<Icon.Intersect />} active={st.featureEdit?.draft.type === 'intersect'} onClick={st.startIntersect} />
           <SmallButton label="Mirror" disabled={noBody || inSk} icon={<Icon.Mirror />} active={st.featureEdit?.draft.type === 'mirror'} onClick={st.startMirror} />
         </div>
       </Group>
       <Group>
-        <BigButton label="Reference Geometry" icon={<Icon.Plane />} active={!!st.planeEdit} onClick={() => st.startPlane()} flyout={[{ label: 'Plane', icon: <Icon.Plane />, onSelect: () => st.startPlane() }, { label: 'Axis', icon: <Icon.Line />, onSelect: () => st.startRefGeom('axis') }, { label: 'Coordinate System', icon: <Icon.Origin />, onSelect: () => st.startRefGeom('csys') }, { label: 'Point', icon: <Icon.Point />, onSelect: () => st.startRefGeom('point') }]} />
-        <BigButton label="Curves" icon={<Icon.Spline />} active={st.featureEdit?.draft.type === 'helix'} onClick={st.startHelix} flyout={[{ label: 'Split Line', icon: <Icon.Line />, onSelect: () => st.startCurveFeature('splitLine') }, { label: 'Projected Curve', icon: <Icon.Spline />, onSelect: () => st.startCurveFeature('projectedCurve') }, { label: 'Helix and Spiral', icon: <Icon.Spline />, onSelect: () => st.startHelix() }]} />
-        <BigButton label="Instant3D" icon={<Icon.Cursor />} active={st.instant3d} onClick={st.toggleInstant3D} />
+        <BigButton label="Reference Geometry" icon={<Icon.RefGeometry />} active={!!st.planeEdit} onClick={() => st.startPlane()} flyout={[{ label: 'Plane', icon: <Icon.Plane />, onSelect: () => st.startPlane() }, { label: 'Axis', icon: <Icon.Line />, onSelect: () => st.startRefGeom('axis') }, { label: 'Coordinate System', icon: <Icon.Origin />, onSelect: () => st.startRefGeom('csys') }, { label: 'Point', icon: <Icon.Point />, onSelect: () => st.startRefGeom('point') }]} />
+        <BigButton label="Curves" icon={<Icon.Curves />} active={st.featureEdit?.draft.type === 'helix'} onClick={st.startHelix} flyout={[{ label: 'Split Line', icon: <Icon.Line />, onSelect: () => st.startCurveFeature('splitLine') }, { label: 'Projected Curve', icon: <Icon.Spline />, onSelect: () => st.startCurveFeature('projectedCurve') }, { label: 'Helix and Spiral', icon: <Icon.Spline />, onSelect: () => st.startHelix() }]} />
+        <BigButton label="Instant3D" icon={<Icon.Instant3D />} active={st.instant3d} onClick={st.toggleInstant3D} />
       </Group>
     </>
   );
@@ -324,6 +324,7 @@ export function Ribbon() {
           <SmallButton label="Check" icon={<Icon.Check />} active={st.dialog === 'check'} onClick={() => st.setDialog(st.dialog === 'check' ? null : 'check')} />
           <SmallButton label="Geometry Analysis" icon={<Icon.Measure />} active={st.analysis?.kind === 'geometry'} onClick={() => st.setAnalysis(st.analysis?.kind === 'geometry' ? null : { kind: 'geometry', shortEdge: 0.5, smallFace: 1, sharpAngle: 30 })} />
           <SmallButton label="Curvature" icon={<Icon.Arc />} active={st.analysis?.kind === 'curvature'} onClick={() => st.setAnalysis(st.analysis?.kind === 'curvature' ? null : { kind: 'curvature' })} />
+          <SmallButton label="Zebra Stripes" icon={<Icon.Zebra />} active={st.show.zebra} onClick={() => st.toggleShow('zebra')} />
         </div>
         <div className="k-cm-col">
           <SmallButton label="Draft Analysis" icon={<Icon.Chamfer />} active={st.analysis?.kind === 'draft'} onClick={() => st.setAnalysis(st.analysis?.kind === 'draft' ? null : { kind: 'draft', pull: [0, 1, 0], pullLabel: 'Y axis', angle: 1 })} />

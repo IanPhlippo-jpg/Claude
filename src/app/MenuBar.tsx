@@ -141,6 +141,7 @@ export function openFileDialog() {
 export function MenuBar() {
   const st = useStore();
   const [open, setOpen] = useState<string | null>(null);
+  const [searchOpen, setSearchOpen] = useState(false);
   const [pinned, setPinned] = useState(() => {
     try {
       return localStorage.getItem('phlippo.menuPinned') === 'true';
@@ -168,7 +169,6 @@ export function MenuBar() {
   // title as the original: "Sketch1 of Part1 *" while sketching, "Part1 *" otherwise
   const sketchName = st.activeSketchId ? st.doc.sketches[st.activeSketchId]?.name : null;
   const sketchTitle = st.hasDocument ? `${sketchName ? `${sketchName} of ` : ''}${st.doc.name}${st.dirty ? ' *' : ''}` : '';
-  const setShortcutBarHint = () => st.pushMessage('Press S for the shortcut bar, ? for all keyboard shortcuts.');
 
   const menus: Record<string, MenuItem[]> = {
     File: [
@@ -308,26 +308,31 @@ export function MenuBar() {
       <div className="k-title">
         {sketchTitle}
       </div>
-      <div className="k-mb-search k-mb-search-title">
-        <Icon.Search size={13} />
-        <input
-          placeholder="Search Commands"
-          onKeyDown={(e) => e.stopPropagation()}
-          onKeyUp={(e) => {
-            if (e.key === 'Enter') {
-              const q = (e.target as HTMLInputElement).value.toLowerCase();
-              const hit = Object.values(menus).flat().find((m) => !m.separator && m.label?.toLowerCase().includes(q) && !m.disabled);
-              hit?.onSelect?.();
-              (e.target as HTMLInputElement).value = '';
-              (e.target as HTMLInputElement).blur();
-            }
-          }}
-        />
-        <Icon.ChevronDown size={10} />
-      </div>
-      {tb(st.theme === 'dark' ? <Icon.Sun /> : <Icon.Moon />, 'Light/dark (Ctrl+Shift+D)', () => st.setTheme(st.theme === 'dark' ? 'light' : 'dark'))}
-      {tb(<Icon.Keyboard />, 'Command window', () => setShortcutBarHint())}
-      {tb(<Icon.Component />, 'Login (not available)', () => st.pushMessage('Sign-in is not part of this build.'))}
+      {searchOpen ? (
+        <div className="k-mb-search k-mb-search-title">
+          <Icon.Search size={13} />
+          <input
+            autoFocus
+            placeholder="Search Commands"
+            onKeyDown={(e) => e.stopPropagation()}
+            onBlur={() => setSearchOpen(false)}
+            onKeyUp={(e) => {
+              if (e.key === 'Escape') setSearchOpen(false);
+              if (e.key === 'Enter') {
+                const q = (e.target as HTMLInputElement).value.toLowerCase();
+                const hit = Object.values(menus).flat().find((m) => !m.separator && m.label?.toLowerCase().includes(q) && !m.disabled);
+                hit?.onSelect?.();
+                (e.target as HTMLInputElement).value = '';
+                setSearchOpen(false);
+              }
+            }}
+          />
+          <Icon.ChevronDown size={10} />
+        </div>
+      ) : (
+        <button className="k-mb-btn k-mb-btn-dark k-tip" data-tip="Search Commands" onClick={() => setSearchOpen(true)}><Icon.Search size={18} /></button>
+      )}
+      {tb(<Icon.User />, 'Sign in (not part of this build)', () => st.pushMessage('Sign-in is not part of this build.'))}
       {tb(<Icon.Help />, 'Help (?)', () => st.setPanel('shortcuts', { visible: true }))}
       <div className="k-win-controls">
         <button className="k-tip" data-tip="Minimize" onClick={() => (api ? api.minimize() : st.pushMessage('Minimizing the window is available in the desktop app; in the browser use the browser window controls.'))}>—</button>

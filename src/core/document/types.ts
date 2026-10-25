@@ -546,7 +546,11 @@ export interface RoundFeature {
   variable?: { start: number; end: number };
   partial?: { start: number; end: number };
   /** Fillet Type / Chamfer Type shown in the PropertyManager */
-  roundType?: 'constant' | 'variable' | 'face' | 'fullRound' | 'angleDistance';
+  roundType?: 'constant' | 'variable' | 'face' | 'fullRound' | 'angleDistance' | 'vertex' | 'offsetFace' | 'faceFace';
+  /** Chamfer ▸ Vertex: the corner and the three distances along its edges (equal distance: D1 for all) */
+  vertex?: { point: [number, number, number]; label: string };
+  size3?: number;
+  equalDistance?: boolean;
   /** Full Round Fillet: the three face sets */
   fullRound?: { side1?: { label: string; normal: [number, number, number]; point: [number, number, number] }; center?: { label: string; normal: [number, number, number]; point: [number, number, number] }; side2?: { label: string; normal: [number, number, number]; point: [number, number, number] } };
   /** chamfer Angle-Distance: the angle (degrees) */
@@ -613,7 +617,7 @@ export interface PatternFeature {
   table?: { x: number; y: number }[];
   csysId?: Id;
   /** Fill Pattern: the fill boundary (outer loop of a planar face, in its plane frame) and the layout */
-  fill?: { origin: [number, number, number]; u: [number, number, number]; v: [number, number, number]; polygon: [number, number][]; spacing: number; margin: number; layout: 'square' | 'hex'; label: string };
+  fill?: { origin: [number, number, number]; u: [number, number, number]; v: [number, number, number]; polygon: [number, number][]; spacing: number; margin: number; layout: 'square' | 'hex' | 'circular' | 'polygon'; label: string; /** Polygon layout: number of sides */ sides?: number; /** Create seed cut: a round cut of this diameter at the boundary centre is the seed */ seedCut?: number };
   /** Variable Pattern: instances at offsets along a direction, each with its own values for seed sketch dimensions */
   variable?: { dir: [number, number, number]; rows: { offset: number; values: Record<Id, number> }[] };
   /** linear > Up to reference: the instances fill the distance from the seed to a plane (minus the offset) */
@@ -725,6 +729,23 @@ export interface SweepFeature {
   op: 'boss' | 'cut';
   merge?: boolean;
   scope?: Id[];
+  /** Profile and Path ▸ Circular Profile: a round profile of this diameter at the path start (no profile sketch needed) */
+  profileType?: 'sketch' | 'circular';
+  diameter?: number;
+  /** Options ▸ Profile orientation: Follow Path (default) or Keep normal constant */
+  orientation?: 'followPath' | 'keepNormal';
+  /** Options ▸ Profile Twist ▸ Specify Twist Value: revolutions over the path */
+  twist?: number;
+  /** Options ▸ Merge tangent faces, Align with end faces, Show preview */
+  mergeTangent?: boolean;
+  alignEnd?: boolean;
+  /** Guide Curves (sketches); the profile scales so its nearest point follows the first guide */
+  guides?: Id[];
+  /** Start and End Tangency: None or Path Tangent */
+  startTangency?: 'none' | 'pathTangent';
+  endTangency?: 'none' | 'pathTangent';
+  /** Curvature Display options (display only) */
+  curvatureDisplay?: { mesh?: boolean; zebra?: boolean; combs?: boolean };
 }
 
 /** Lofted Boss/Base or Cut between two profile sketches. */
@@ -748,6 +769,13 @@ export interface LoftFeature {
   endNormal?: number;
   /** Guide tangency type: None (default) or Normal to profile (the guides leave the profiles at right angles) */
   guideTangency?: 'none' | 'normal';
+  /** Centerline Parameters: a sketch whose curve the section centres follow */
+  centerline?: Id;
+  /** Options: Merge tangent faces, Close loft (needs three or more profiles), Show preview */
+  mergeTangent?: boolean;
+  closeLoft?: boolean;
+  /** Start/End Constraints ▸ Apply to all: the same constraint for every profile */
+  applyToAll?: boolean;
   suppressed: boolean;
   op: 'boss' | 'cut';
   merge?: boolean;

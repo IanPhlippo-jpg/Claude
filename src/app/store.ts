@@ -254,6 +254,14 @@ export interface SketchToolParams {
   keepRelations: boolean;
   circEqual: boolean;
   infiniteLength: boolean;
+  /** Insert Line ▸ Orientation: As sketched / Horizontal / Vertical / Angle (with the angle) */
+  lineOrientation: 'sketched' | 'horizontal' | 'vertical' | 'angle';
+  lineAngle: number;
+  /** Insert Line ▸ Options ▸ Midpoint line: the first click is the middle of the line */
+  midpointLine: boolean;
+  /** Line / Rectangle / Circle ▸ Options ▸ Add dimensions (Circle: diameter instead of radius) */
+  addDimensions: boolean;
+  circleDiameter: boolean;
   filletRadius: number;
   chamferD1: number;
   chamferD2: number;
@@ -554,7 +562,7 @@ interface State {
   /** plane selected in the FeatureManager (click); "Sketch" then opens directly on it, like the original */
   selectedPlane: Sketch['plane'] | null;
   displayStyle: DisplayStyle;
-  show: { planes: boolean; origin: boolean; sketches: boolean; relations: boolean; grid: boolean; viewSelector: boolean; realView: boolean; shadows: boolean; perspective: boolean; ambientOcclusion: boolean };
+  show: { planes: boolean; origin: boolean; sketches: boolean; relations: boolean; grid: boolean; viewSelector: boolean; realView: boolean; shadows: boolean; perspective: boolean; ambientOcclusion: boolean; zebra: boolean };
   reverseWheel: boolean;
   /** Tools > Options (system options + the document's properties) */
   prefs: Record<string, PrefValue>;
@@ -1523,7 +1531,7 @@ export const useStore = create<State>((set, get) => ({
   toggleDetailedPreview() {
     set({ detailedPreview: !get().detailedPreview });
   },
-  sketchTool: { filletKeepCorners: true, offsetChain: true, keepRelations: true, circEqual: true, infiniteLength: false, filletRadius: 5, chamferD1: 5, chamferD2: 5, chamferEqual: true, offsetDistance: 10, offsetReverse: false, offsetConstruction: false, dx: 10, dy: 0, angle: 90, scale: 2, cx: 0, cy: 0, spacing: 20, count: 3, direction: 0, spacing2: 20, count2: 1, direction2: 90, circAngle: 360, circCount: 4, trimMode: 'closest', trimKeep: false, trimIgnore: false, filletDimension: false, chamferMode: 'distance', chamferAngle: 45, offsetBidirectional: false, offsetCapEnds: false, offsetBaseConstruction: false, offsetDimensions: false, forConstruction: false, slotDimensions: false, slotOverall: false, patternDimensions: false, moveMode: 'xy', fromX: 0, fromY: 0, toX: 10, toY: 0 },
+  sketchTool: { filletKeepCorners: true, offsetChain: true, keepRelations: true, circEqual: true, infiniteLength: false, lineOrientation: 'sketched', lineAngle: 45, midpointLine: false, addDimensions: false, circleDiameter: true, filletRadius: 5, chamferD1: 5, chamferD2: 5, chamferEqual: true, offsetDistance: 10, offsetReverse: false, offsetConstruction: false, dx: 10, dy: 0, angle: 90, scale: 2, cx: 0, cy: 0, spacing: 20, count: 3, direction: 0, spacing2: 20, count2: 1, direction2: 90, circAngle: 360, circCount: 4, trimMode: 'closest', trimKeep: false, trimIgnore: false, filletDimension: false, chamferMode: 'distance', chamferAngle: 45, offsetBidirectional: false, offsetCapEnds: false, offsetBaseConstruction: false, offsetDimensions: false, forConstruction: false, slotDimensions: false, slotOverall: false, patternDimensions: false, moveMode: 'xy', fromX: 0, fromY: 0, toX: 10, toY: 0 },
   drawingEdit: null,
   selectedDrawingViewId: null,
   selectedDrawingDimensionId: null,
@@ -1553,7 +1561,7 @@ export const useStore = create<State>((set, get) => ({
   hoverPlane: null,
   selectedPlane: null,
   displayStyle: 'shadedEdges',
-  show: { planes: false, origin: true, sketches: true, relations: true, grid: false, viewSelector: false, realView: false, shadows: false, perspective: false, ambientOcclusion: false },
+  show: { planes: false, origin: true, sketches: true, relations: true, grid: false, viewSelector: false, realView: false, shadows: false, perspective: false, ambientOcclusion: false, zebra: false },
   reverseWheel: typeof localStorage !== 'undefined' && localStorage.getItem('phlippo.reverseWheel') === 'true',
   prefs: typeof localStorage !== 'undefined' ? { ...loadPrefs(), ...(initialDoc.properties ?? {}) } : { ...DEFAULT_PREFS },
   unitSystem: 'MMGS',
@@ -2031,8 +2039,13 @@ export const useStore = create<State>((set, get) => ({
       get().pushMessage('Select a sketch for the feature first.', 'warn');
       return;
     }
-    if (isRoundFeature(fe.draft) && !fe.draft.edges.length) {
-      get().pushMessage('Select at least one edge.', 'warn');
+    if (fe.draft.type === 'chamfer' && fe.draft.roundType === 'vertex') {
+      if (!fe.draft.vertex) {
+        get().pushMessage('Select the vertex to chamfer.', 'warn');
+        return;
+      }
+    } else if (isRoundFeature(fe.draft) && !fe.draft.edges.length) {
+      get().pushMessage(fe.draft.roundType === 'offsetFace' || fe.draft.roundType === 'faceFace' ? 'Select two faces that share an edge.' : 'Select at least one edge.', 'warn');
       return;
     }
     if (fe.draft.type === 'hole' && (!fe.draft.plane || !fe.draft.points.length)) {
@@ -2232,7 +2245,7 @@ export const useStore = create<State>((set, get) => ({
       return;
     }
     // Face Fillet (two faces) / Full Round Fillet (the center face): the faces define the edges
-    if (featureEdit && selectedFace && isRoundFeature(featureEdit.draft) && (featureEdit.draft.roundType === 'face' || featureEdit.draft.roundType === 'fullRound')) {
+    if (featureEdit && selectedFace && isRoundFeature(featureEdit.draft) && (featureEdit.draft.roundType === 'face' || featureEdit.draft.roundType === 'fullRound' || featureEdit.draft.roundType === 'offsetFace' || featureEdit.draft.roundType === 'faceFace')) {
       const body = rebuild.bodies.find((b) => b.id === selectedFace.bodyId);
       const face = body?.faces.find((f) => f.id === selectedFace.faceId);
       if (!body || !face) return;
@@ -2386,6 +2399,16 @@ export const useStore = create<State>((set, get) => ({
         set({ featureEdit: { ...featureEdit, draft: { ...d, faces: has ? (d.faces ?? []).filter((x) => x.label !== ref.label) : [...(d.faces ?? []), ref], featureIds: undefined } }, selectedFace });
         return;
       }
+    }
+    // Fill Pattern: a planar face pick becomes the fill boundary
+    if (featureEdit && featureEdit.draft.type === 'fillPattern' && selectedFace) {
+      const b = rebuild.bodies.find((x) => x.id === selectedFace.bodyId);
+      const fc = b?.faces.find((x) => x.id === selectedFace.faceId);
+      if (!b || !fc || fc.curved) return get().pushMessage('Select a planar face as the fill boundary.', 'warn');
+      const prev = featureEdit.draft.fill;
+      const fill: PatternFeature['fill'] = { ...faceBoundary(b.geometry, fc.triangles, fc.normal, fc.centroid), spacing: prev?.spacing ?? 10, margin: prev?.margin ?? 2, layout: prev?.layout ?? 'square', sides: prev?.sides, seedCut: prev?.seedCut, label: `Face<${b.faces.indexOf(fc) + 1}>` };
+      set({ featureEdit: { ...featureEdit, draft: { ...featureEdit.draft, fill } }, selectedFace });
+      return;
     }
     // Delete Face: a pick adds / removes the face
     if (featureEdit && featureEdit.draft.type === 'deleteFace' && selectedFace) {
