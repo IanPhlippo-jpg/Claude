@@ -1,4 +1,5 @@
 import { CheckDialog, RepairSketchDialog, SectionPropertiesDialog } from './evaluateDialogs';
+import { CompareDialog, PerformanceDialog, SimXpressDialog, SymmetryDialog } from './evaluateDialogs2';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useStore } from './store';
 import { desktop } from './desktop';
@@ -124,6 +125,10 @@ export function App() {
           {st.dialog === 'finalRender' && <FinalRenderDialog />}
           {st.dialog === 'interference' && <InterferenceDialog />}
           {st.dialog === 'check' && <CheckDialog />}
+          {st.dialog === 'performance' && <PerformanceDialog />}
+          {st.dialog === 'symmetry' && <SymmetryDialog />}
+          {st.dialog === 'compare' && <CompareDialog />}
+          {st.dialog === 'simxpress' && <SimXpressDialog />}
           {st.dialog === 'sectionProps' && <SectionPropertiesDialog />}
           {st.dialog === 'repairSketch' && <RepairSketchDialog />}
           {st.confirmDelete && <ConfirmDeleteDialog />}

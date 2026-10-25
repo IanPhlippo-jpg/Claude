@@ -872,3 +872,11 @@
 /* the Search Commands button of the title row: a dark tile with the white magnifier, as the original */
 .k-mb-btn.k-mb-btn-dark { background: #4b5058; color: #fff; border-radius: 3px; width: 24px; height: 20px; }
 .k-mb-btn.k-mb-btn-dark:hover { background: #333841; }
+
+/* Evaluate dialogs (Performance Evaluation, Compare, SimulationXpress): a compact report table */
+.k-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+.k-table th, .k-table td { padding: 3px 6px; border-bottom: 1px solid var(--border); text-align: left; }
+.k-table th { background: var(--bg-2); font-weight: 600; }
+.k-table tr.selected td { background: var(--selection-bg, #cfe3ff); }
+.k-table tbody tr:hover td { background: var(--hover-bg, #eef3fa); }
+.k-panel-footer { border-top: 1px solid var(--border); }

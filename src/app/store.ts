@@ -505,7 +505,7 @@ interface State {
   /** feature PropertyManager eye: show the model with the feature applied instead of the yellow preview */
   detailedPreview: boolean;
   /** Evaluate ▸ Draft Analysis / Curvature: faces coloured by the analysis */
-  analysis: { kind: 'draft'; pull: [number, number, number]; pullLabel: string; angle: number; classify?: boolean } | { kind: 'curvature' } | { kind: 'geometry'; shortEdge: number; smallFace: number; sharpAngle: number; checkShort?: boolean; checkSmall?: boolean; checkSharp?: boolean } | { kind: 'thickness'; target: number; mode?: 'thin' | 'thick'; resolution?: 'low' | 'medium' | 'high' } | { kind: 'undercut'; pull: [number, number, number]; pullLabel: string } | null;
+  analysis: { kind: 'draft'; pull: [number, number, number]; pullLabel: string; angle: number; classify?: boolean } | { kind: 'curvature' } | { kind: 'geometry'; shortEdge: number; smallFace: number; sharpAngle: number; checkShort?: boolean; checkSmall?: boolean; checkSharp?: boolean } | { kind: 'thickness'; target: number; mode?: 'thin' | 'thick'; resolution?: 'low' | 'medium' | 'high' } | { kind: 'undercut'; pull: [number, number, number]; pullLabel: string } | { kind: 'parting'; pull: [number, number, number]; pullLabel: string; angle: number } | { kind: 'deviation'; samples: number } | null;
   setAnalysis(a: State['analysis']): void;
   toggleDetailedPreview(): void;
   /** Sketch ▸ 3D Sketch: start a new 3D sketch (or edit one) */

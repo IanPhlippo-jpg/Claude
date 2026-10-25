@@ -54,6 +54,8 @@ export interface RebuildResult {
   autoHidden?: Id[];
   /** appearances copied by patterns (Propagate visual properties) */
   extraAppearances?: NonNullable<Document['faceAppearances']>;
+  /** Performance Evaluation: rebuild time per feature (ms) */
+  times?: Record<Id, number>;
 }
 
 /** Geometry of one sketch-based solid feature on its own (also used for the yellow preview). */
@@ -818,9 +820,12 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
     if (!v.length) return null;
     return v.length === 1 ? v[0].geometry : mergeGeometries(v.map((b) => b.geometry));
   };
+  const times: Record<Id, number> = {};
+  const clock = typeof performance !== 'undefined' ? () => performance.now() : () => Date.now();
   for (let i = 0; i < n; i++) {
     const f: Feature = doc.features[i];
     if (f.type === 'sketch') continue;
+    const t0 = clock();
     // one feature failing never takes the whole rebuild down: it is marked and the rest goes on
     try {
     if (isSketchBased(f)) consumedSketches.add(f.sketchId);
@@ -2443,6 +2448,8 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
     }
     } catch (err) {
       if (!errors[f.id]) errors[f.id] = `${f.name} could not be built: ${(err as Error).message}`;
+    } finally {
+      times[f.id] = (times[f.id] ?? 0) + (clock() - t0);
     }
   }
   for (const b of bodies) {
@@ -2463,7 +2470,7 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
     curves.push({ id: 'bbox:top', name: 'Bounding Box', points: top, dashed: true, color: '#5a5a5a' });
     for (let i = 0; i < 4; i++) curves.push({ id: `bbox:v${i}`, name: 'Bounding Box', points: [bottom[i], top[i]], dashed: true, color: '#5a5a5a' });
   }
-  return { bodies, errors, consumedSketches, curves, surfaceBodies, extraAppearances, autoHidden };
+  return { bodies, errors, consumedSketches, curves, surfaceBodies, extraAppearances, autoHidden, times };
 }
 
 

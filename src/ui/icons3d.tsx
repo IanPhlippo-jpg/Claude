@@ -520,6 +520,62 @@ export const Icons3D = {
       <Box x={0} y={1.2} z={0} w={9} h={5} d={1.2} s={0.95} c={TEAL} line={K.tLine} oy={14} />
     </svg>
   ),
+  /** Evaluate ▸ Performance Evaluation: a stopwatch over a small bar chart */
+  Performance: ({ size = 16, ...p }: P) => (
+    <svg {...base(size, p)} viewBox="0 0 24 24">
+      <rect x={3} y={14} width={3} height={7} fill={K.tFront} stroke={K.tLine} strokeWidth={0.6} />
+      <rect x={7.5} y={10} width={3} height={11} fill={K.tFront} stroke={K.tLine} strokeWidth={0.6} />
+      <rect x={12} y={16} width={3} height={5} fill={K.tFront} stroke={K.tLine} strokeWidth={0.6} />
+      <circle cx={17.5} cy={8} r={5} fill={K.top} stroke={K.line} strokeWidth={0.9} />
+      <path d="M17.5 8V5M17.5 8l2 1.5M16.5 2.5h2" stroke={K.red} strokeWidth={1} fill="none" strokeLinecap="round" />
+    </svg>
+  ),
+  /** Evaluate ▸ Symmetry Check: a block with its mirror image across a dashed plane */
+  Symmetry: ({ size = 16, ...p }: P) => (
+    <svg {...base(size, p)}>
+      <Box x={0} y={0} z={4.5} w={4} h={6} d={3} s={0.9} />
+      <Box x={0} y={0} z={0} w={4} h={6} d={3} s={0.9} c={TEAL} line={K.tLine} />
+      <path d={`M${iso(-1, -1, 3.75, 0.9).join(' ')}L${iso(6, -1, 3.75, 0.9).join(' ')}L${iso(6, 8, 3.75, 0.9).join(' ')}L${iso(-1, 8, 3.75, 0.9).join(' ')}Z`} fill={K.yellow} fillOpacity={0.35} stroke={K.yellowD} strokeWidth={0.7} strokeDasharray="1.5 1" />
+    </svg>
+  ),
+  /** Evaluate ▸ Deviation Analysis: two faces meeting with the angle between their normals */
+  Deviation: ({ size = 16, ...p }: P) => (
+    <svg {...base(size, p)} viewBox="0 0 24 24">
+      <path d="M3 17L12 13L21 17L12 21Z" fill={K.front} stroke={K.line} strokeWidth={0.8} />
+      <path d="M12 13V4" stroke={K.tLine} strokeWidth={1.2} />
+      <path d="M12 13L18 6" stroke={K.red} strokeWidth={1.2} />
+      <path d="M12 7.5A6 6 0 0 1 15.6 8.8" stroke={K.line} strokeWidth={0.8} fill="none" />
+      <circle cx={12} cy={4} r={1.3} fill={K.tFront} stroke={K.tLine} strokeWidth={0.6} />
+      <circle cx={18} cy={6} r={1.3} fill="#f3c0c0" stroke={K.red} strokeWidth={0.6} />
+    </svg>
+  ),
+  /** Evaluate ▸ Parting Line Analysis: a block coloured green above and red below the parting line */
+  PartingLine: ({ size = 16, ...p }: P) => (
+    <svg {...base(size, p)}>
+      <path d={poly([iso(0, 4, 0), iso(8, 4, 0), iso(8, 4, 8), iso(0, 4, 8)])} fill={K.top} stroke={K.line} strokeWidth={0.7} />
+      <path d={poly([iso(0, 4, 8), iso(8, 4, 8), iso(8, 7.5, 8), iso(0, 7.5, 8)])} fill="#9bd7a7" stroke={K.line} strokeWidth={0.7} />
+      <path d={poly([iso(8, 4, 8), iso(8, 4, 0), iso(8, 7.5, 0), iso(8, 7.5, 8)])} fill="#6fbf80" stroke={K.line} strokeWidth={0.7} />
+      <path d={poly([iso(0, 0.5, 8), iso(8, 0.5, 8), iso(8, 4, 8), iso(0, 4, 8)])} fill="#f0a3a3" stroke={K.line} strokeWidth={0.7} />
+      <path d={poly([iso(8, 0.5, 8), iso(8, 0.5, 0), iso(8, 4, 0), iso(8, 4, 8)])} fill="#d97777" stroke={K.line} strokeWidth={0.7} />
+      <path d={`M${iso(0, 4, 8).join(' ')}L${iso(8, 4, 8).join(' ')}L${iso(8, 4, 0).join(' ')}`} stroke={K.blue} strokeWidth={1.4} fill="none" />
+    </svg>
+  ),
+  /** Evaluate ▸ Compare: two overlapping blocks, grey and teal */
+  Compare: ({ size = 16, ...p }: P) => (
+    <svg {...base(size, p)}>
+      <Box x={0} y={0} z={0} w={6} h={5} d={6} s={0.9} oy={14} />
+      <Box x={3} y={2.5} z={3} w={6} h={5} d={6} s={0.9} c={TEAL} line={K.tLine} oy={14} />
+    </svg>
+  ),
+  /** Evaluate ▸ SimulationXpress: a beam with a load arrow and the stress colours */
+  Simulation: ({ size = 16, ...p }: P) => (
+    <svg {...base(size, p)} viewBox="0 0 24 24">
+      <defs><linearGradient id="simx-grad" x1="0" x2="1"><stop offset="0" stopColor="#d93b3b" /><stop offset="0.5" stopColor="#f2d13a" /><stop offset="1" stopColor="#2b6cb0" /></linearGradient></defs>
+      <rect x={2} y={11} width={19} height={5} fill="url(#simx-grad)" stroke={K.line} strokeWidth={0.8} />
+      <rect x={1} y={9} width={2} height={9} fill={K.dark} />
+      <path d="M19 3v6M16.5 6.5L19 9l2.5-2.5" stroke={K.red} strokeWidth={1.3} fill="none" strokeLinecap="round" />
+    </svg>
+  ),
   /** heads-up: View Settings — the monitor */
   ViewSettings: ({ size = 16, ...p }: P) => (
     <svg {...base(size, p)} viewBox="0 0 24 24">

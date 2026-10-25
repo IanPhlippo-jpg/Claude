@@ -332,6 +332,16 @@ export function Ribbon() {
           <SmallButton label="Undercut Analysis" icon={<Icon.Cut />} active={st.analysis?.kind === 'undercut'} onClick={() => st.setAnalysis(st.analysis?.kind === 'undercut' ? null : { kind: 'undercut', pull: [0, 1, 0], pullLabel: 'Y axis' })} />
           <SmallButton label="Thickness Analysis" icon={<Icon.Shell />} active={st.analysis?.kind === 'thickness'} onClick={() => st.setAnalysis(st.analysis?.kind === 'thickness' ? null : { kind: 'thickness', target: 2 })} />
         </div>
+        <div className="k-cm-col">
+          <SmallButton label="Symmetry Check" icon={<Icon.Symmetry />} active={st.dialog === 'symmetry'} onClick={() => st.setDialog(st.dialog === 'symmetry' ? null : 'symmetry')} />
+          <SmallButton label="Deviation Analysis" icon={<Icon.Deviation />} active={st.analysis?.kind === 'deviation'} onClick={() => st.setAnalysis(st.analysis?.kind === 'deviation' ? null : { kind: 'deviation', samples: 10 })} />
+          <SmallButton label="Parting Line Analysis" icon={<Icon.PartingLine />} active={st.analysis?.kind === 'parting'} onClick={() => st.setAnalysis(st.analysis?.kind === 'parting' ? null : { kind: 'parting', pull: [0, 1, 0], pullLabel: 'Y axis', angle: 1 })} />
+        </div>
+      </Group>
+      <Group>
+        <BigButton label="Performance Evaluation" icon={<Icon.Performance />} active={st.dialog === 'performance'} onClick={() => st.setDialog(st.dialog === 'performance' ? null : 'performance')} />
+        <BigButton label="Compare" icon={<Icon.Compare />} active={st.dialog === 'compare'} onClick={() => st.setDialog(st.dialog === 'compare' ? null : 'compare')} flyout={[{ label: 'Body Compare', icon: <Icon.Compare />, onSelect: () => st.setDialog('compare') }, { label: 'Compare Documents', icon: <Icon.Compare />, onSelect: () => st.setDialog('compare') }]} />
+        <BigButton label="SimulationXpress Analysis Wizard" icon={<Icon.Simulation />} active={st.dialog === 'simxpress'} onClick={() => st.setDialog(st.dialog === 'simxpress' ? null : 'simxpress')} />
       </Group>
     </>
   );
@@ -407,7 +417,7 @@ export function Ribbon() {
         </div>
       </Group>
       <Group>
-        <BigButton label="Forming Tool" disabled={noBody} icon={<Icon.FormTool />} active={st.featureEdit?.draft.type === 'formTool'} onClick={() => st.startFormTool()} flyout={FORM_TOOL_LIBRARY.map((t) => ({ label: `${t.folder} ▸ ${t.label}`, icon: <Icon.FormTool />, onClick: () => st.startFormTool(t.id) }))} />
+        <BigButton label="Forming Tool" disabled={noBody} icon={<Icon.FormTool />} active={st.featureEdit?.draft.type === 'formTool'} onClick={() => st.startFormTool()} flyout={FORM_TOOL_LIBRARY.map((t) => ({ label: `${t.folder} ▸ ${t.label}`, icon: <Icon.FormTool />, onSelect: () => st.startFormTool(t.id) }))} />
         <div className="k-cm-col">
           <SmallButton label="Extruded Cut" disabled={noBody} icon={<Icon.Cut />} active={st.featureEdit?.draft.type === 'extrude' && st.featureEdit.draft.op === 'cut'} onClick={() => st.startFeature('extrude', 'cut')} />
           <SmallButton label="Simple Hole" disabled={noBody} icon={<Icon.Hole />} active={st.featureEdit?.draft.type === 'hole' && !!st.featureEdit.draft.simple} onClick={() => st.startHole(false, true)} />
