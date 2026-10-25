@@ -183,7 +183,20 @@ export interface SurfaceFeature {
   type: 'surface';
   name: string;
   suppressed: boolean;
-  kind: 'extrude' | 'revolve' | 'planar' | 'offset' | 'knit' | 'sweep' | 'loft' | 'trim' | 'boundary';
+  kind: 'extrude' | 'revolve' | 'planar' | 'offset' | 'knit' | 'sweep' | 'loft' | 'trim' | 'boundary' | 'filled' | 'ruled' | 'extend' | 'untrim' | 'deleteHole' | 'flatten' | 'thicken' | 'thickenCut' | 'cutWithSurface' | 'replaceFace';
+  /** Ruled Surface: the model edge, the direction type and (for Vector) the direction */
+  edge?: EdgeRefData;
+  ruledMode?: 'tangent' | 'normal' | 'vector';
+  vector?: [number, number, number];
+  /** Replace Face: the faces of the solid that the surface (target) replaces */
+  faces?: { normal: [number, number, number]; point: [number, number, number]; label: string }[];
+  /** Thicken / Thickened Cut: the wall thickness; Thicken: Merge result */
+  thickness?: number;
+  merge?: boolean;
+  /** Thickened Cut / Cut With Surface: Feature Scope (absent: all bodies) */
+  scope?: Id[];
+  /** Filled Surface: which boundary loops of the surface to close */
+  fillWhich?: 'outer' | 'inner' | 'all';
   /** trim: the trim tool (a plane) and the surface it cuts; flip keeps the other side */
   trimPlane?: string;
   target?: Id;

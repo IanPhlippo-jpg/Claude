@@ -1991,6 +1991,14 @@ export const useStore = create<State>((set, get) => ({
         return;
       }
     }
+    // Ruled Surface: the picked edge is the edge to rule from
+    if (featureEdit && featureEdit.draft.type === 'surface' && featureEdit.draft.kind === 'ruled' && !has) {
+      const edge = rebuild.bodies.flatMap((b) => b.edges).find((e) => e.id === id);
+      if (edge) {
+        set({ featureEdit: { ...featureEdit, draft: { ...featureEdit.draft, edge: edgeRef(edge) } }, selectedEdges: [id] });
+        return;
+      }
+    }
     // Thread: the picked circular edge (rod or hole), the size follows its diameter
     if (featureEdit && featureEdit.draft.type === 'thread') {
       const body = rebuild.bodies.find((b) => b.edges.some((e) => e.id === id));
@@ -2403,6 +2411,18 @@ export const useStore = create<State>((set, get) => ({
         const ref = { normal: [...face.normal] as [number, number, number], point: [...face.centroid] as [number, number, number], label: `Face<${body.faces.indexOf(face) + 1}>@${body.id}` };
         const has = (d.faces ?? []).some((x) => x.label === ref.label);
         set({ featureEdit: { ...featureEdit, draft: { ...d, faces: has ? (d.faces ?? []).filter((x) => x.label !== ref.label) : [...(d.faces ?? []), ref], featureIds: undefined } }, selectedFace });
+        return;
+      }
+    }
+    // Replace Face: a face pick adds / removes the face to replace
+    if (featureEdit && featureEdit.draft.type === 'surface' && featureEdit.draft.kind === 'replaceFace' && selectedFace) {
+      const b = rebuild.bodies.find((x) => x.id === selectedFace.bodyId);
+      const fc = b?.faces.find((x) => x.id === selectedFace.faceId);
+      if (b && fc) {
+        const ref = { normal: [...fc.normal] as [number, number, number], point: [...fc.centroid] as [number, number, number], label: `Face<${b.faces.indexOf(fc) + 1}>` };
+        const cur = featureEdit.draft.faces ?? [];
+        const has = cur.some((x) => x.label === ref.label);
+        set({ featureEdit: { ...featureEdit, draft: { ...featureEdit.draft, faces: has ? cur.filter((x) => x.label !== ref.label) : [...cur, ref] } }, selectedFace });
         return;
       }
     }
@@ -3475,7 +3495,7 @@ export const useStore = create<State>((set, get) => ({
       const f = doc.features.find((x) => x.id === selectedFeatureId);
       if (f?.type === 'sketch') sketchId = f.sketchId;
     }
-    const base = { extrude: 'Surface-Extrude', revolve: 'Surface-Revolve', planar: 'Surface-Plane', offset: 'Surface-Offset', knit: 'Surface-Knit', sweep: 'Surface-Sweep', loft: 'Surface-Loft', trim: 'Surface-Trim', boundary: 'Boundary-Surface' }[kind];
+    const base = { extrude: 'Surface-Extrude', revolve: 'Surface-Revolve', planar: 'Surface-Plane', offset: 'Surface-Offset', knit: 'Surface-Knit', sweep: 'Surface-Sweep', loft: 'Surface-Loft', trim: 'Surface-Trim', filled: 'Surface-Fill', ruled: 'Surface-Ruled', extend: 'Surface-Extend', untrim: 'Surface-Untrim', deleteHole: 'DeleteHole', flatten: 'Surface-Flatten', thicken: 'Thicken', thickenCut: 'Thicken-Cut', cutWithSurface: 'SurfaceCut', replaceFace: 'Replace Face', boundary: 'Boundary-Surface' }[kind];
     const n = doc.features.filter((f) => f.type === 'surface' && f.kind === kind).length + 1;
     let face: SurfaceFeature['face'] = null;
     if (kind === 'offset' && selectedFace) {
@@ -3483,8 +3503,14 @@ export const useStore = create<State>((set, get) => ({
       const fc = b?.faces.find((x) => x.id === selectedFace.faceId);
       if (b && fc) face = { normal: [...fc.normal] as [number, number, number], point: [...fc.centroid] as [number, number, number], label: `Face<${b.faces.indexOf(fc) + 1}>` };
     }
-    const draft: SurfaceFeature = { id: newId('f'), type: 'surface', name: `${base}${n}`, suppressed: false, kind, sketchId: kind === 'offset' || kind === 'knit' ? undefined : sketchId ?? '', depth: 10, angle: 360, distance: 5, face, surfaces: kind === 'knit' ? doc.features.filter((f) => f.type === 'surface' && !f.suppressed && f.kind !== 'knit' && f.kind !== 'trim').map((f) => f.id) : undefined, createSolid: false, ...(kind === 'trim' ? { trimPlane: get().selectedPlane ?? 'front', target: (rebuild.surfaceBodies ?? [])[0]?.featureIds[0], flip: false } : {}) };
+    const SURFACE_TOOLS: SurfaceFeature['kind'][] = ['filled', 'ruled', 'extend', 'untrim', 'deleteHole', 'flatten', 'thicken', 'thickenCut', 'cutWithSurface', 'replaceFace'];
+    // the surface tools work on the selected surface feature (else the last one)
+    const surfFeatures = doc.features.filter((f): f is SurfaceFeature => f.type === 'surface' && f.kind !== 'knit');
+    const selSurf = surfFeatures.find((f) => f.id === selectedFeatureId) ?? surfFeatures[surfFeatures.length - 1];
+    const target = SURFACE_TOOLS.includes(kind) ? selSurf?.id : undefined;
+    const draft: SurfaceFeature = { id: newId('f'), type: 'surface', name: `${base}${n}`, suppressed: false, kind, target, thickness: 2, ruledMode: 'tangent', vector: [0, 1, 0], faces: [], fillWhich: 'outer', sketchId: kind === 'offset' || kind === 'knit' || (SURFACE_TOOLS.includes(kind) && kind !== 'filled') ? undefined : sketchId ?? '', depth: 10, angle: 360, distance: 5, face, surfaces: kind === 'knit' ? doc.features.filter((f) => f.type === 'surface' && !f.suppressed && f.kind !== 'knit' && f.kind !== 'trim').map((f) => f.id) : undefined, createSolid: false, ...(kind === 'trim' ? { trimPlane: get().selectedPlane ?? 'front', target: (rebuild.surfaceBodies ?? [])[0]?.featureIds[0], flip: false } : {}) };
     if ((kind === 'extrude' || kind === 'revolve' || kind === 'planar' || kind === 'sweep' || kind === 'loft' || kind === 'boundary') && !sketchId) get().pushMessage('Select the sketch in the FeatureManager design tree (or open it) first.', 'warn');
+    if (SURFACE_TOOLS.includes(kind) && kind !== 'ruled' && kind !== 'replaceFace' && !target && !(kind === 'filled' && sketchId)) get().pushMessage('Create a surface first (Extruded, Revolved, Planar … Surface); the tool works on it.', 'warn');
     set({ featureEdit: { featureId: null, draft }, activeSketchId: null, tool: 'select', selection: [], tab: 'surfaces', managerTab: 'tree', planePick: false });
   },
   startIntersect() {

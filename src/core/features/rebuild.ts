@@ -1,4 +1,5 @@
 import { deleteFaces } from './deleteface';
+import { extendSurface, fillLoops, flattenSurface, halfSpaceBox, ruledSurface } from './surfaces2';
 import { circleSegments } from '../sketch/geometry';
 import * as THREE from 'three';
 import { TOL } from './tolerance';
@@ -1970,6 +1971,112 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
           target.geometry = tg;
           target.featureIds.push(f.id);
           continue;
+        }
+        else if (f.kind === 'filled' || f.kind === 'untrim' || f.kind === 'deleteHole' || f.kind === 'extend' || f.kind === 'flatten' || f.kind === 'thicken' || f.kind === 'thickenCut' || f.kind === 'cutWithSurface' || f.kind === 'ruled' || f.kind === 'replaceFace') {
+          const target = surfaceBodies.find((x) => x.featureIds[0] === f.target);
+          const needsTarget = f.kind !== 'ruled' && f.kind !== 'replaceFace' && !(f.kind === 'filled' && f.sketchId && !f.target);
+          if (needsTarget && !target) {
+            errors[f.id] = 'Select the surface.';
+            continue;
+          }
+          if (f.kind === 'filled') {
+            // Filled Surface: a patch over a surface's boundary (or a planar patch over a sketch)
+            if (!target) g = planarSurface(doc, f);
+            else {
+              g = fillLoops(target.geometry, f.fillWhich ?? 'outer');
+              if (!g) { errors[f.id] = 'The surface has no open boundary to fill.'; continue; }
+            }
+          } else if (f.kind === 'untrim' || f.kind === 'deleteHole') {
+            const patchG = fillLoops(target!.geometry, 'inner');
+            if (!patchG) { errors[f.id] = 'The surface has no inner loop (hole) to close.'; continue; }
+            target!.geometry = mergeGeometries([target!.geometry, patchG]);
+            target!.featureIds.push(f.id);
+            continue;
+          } else if (f.kind === 'extend') {
+            const strip = extendSurface(target!.geometry, Math.max(0.01, f.distance ?? 5));
+            if (!strip) { errors[f.id] = 'The surface has no open edges to extend.'; continue; }
+            target!.geometry = mergeGeometries([target!.geometry, strip]);
+            target!.featureIds.push(f.id);
+            continue;
+          } else if (f.kind === 'flatten') {
+            const flat = flattenSurface(target!.geometry);
+            if (!flat) { errors[f.id] = 'The surface could not be flattened.'; continue; }
+            // laid down beside the surface (to the +X side of its bounding box)
+            target!.geometry.computeBoundingBox();
+            flat.computeBoundingBox();
+            const tb = target!.geometry.boundingBox!, fb = flat.boundingBox!;
+            flat.translate(tb.max.x - fb.min.x + 10, tb.min.y - fb.min.y, tb.min.z - fb.min.z);
+            g = flat;
+          } else if (f.kind === 'thicken') {
+            const tg = thickenSurface(target!.geometry, Math.max(0.01, f.thickness ?? 2));
+            if (body && f.merge !== false) {
+              addMaterial(tg, f.id, true);
+              addBoss(tg);
+            } else {
+              newBody(tg, f.id);
+              addBoss(tg);
+            }
+            continue;
+          } else if (f.kind === 'thickenCut') {
+            const tool = thickenSurface(target!.geometry, Math.max(0.01, f.thickness ?? 2));
+            if (!removeMaterial(tool, f.id, f.scope)) { errors[f.id] = 'The thickened surface does not touch any body (check the Feature Scope).'; continue; }
+            history.cuts.push(tool);
+            continue;
+          } else if (f.kind === 'cutWithSurface') {
+            const pl = fitPlane(target!.geometry);
+            if (!pl) { errors[f.id] = 'Cut With Surface needs a flat surface in this build.'; continue; }
+            const box = new THREE.Box3();
+            for (const b of visibleBodies()) { b.geometry.computeBoundingBox(); if (b.geometry.boundingBox) box.union(b.geometry.boundingBox); }
+            const size = box.isEmpty() ? 1000 : box.getSize(new THREE.Vector3()).length() * 2 + 10;
+            const tool = halfSpaceBox(pl, size, !!f.flip);
+            if (!removeMaterial(tool, f.id, f.scope)) { errors[f.id] = 'The surface does not cut any body (check the Feature Scope and the direction).'; continue; }
+            history.cuts.push(tool);
+            continue;
+          } else if (f.kind === 'ruled') {
+            if (!f.edge) { errors[f.id] = 'Select an edge of the model.'; continue; }
+            let found: { e: BodyEdge; faceN: THREE.Vector3; faceC: THREE.Vector3 } | null = null;
+            for (const b of visibleBodies()) {
+              const e = matchEdge(bodyEdges(b.geometry, b.id), f.edge);
+              if (!e) continue;
+              const faces = planarFaces(b.geometry, b.id);
+              // the face the edge lies on (its centroid nearest the edge's middle)
+              const mid = e.centroid;
+              const fc = faces.map((x) => ({ x, d: new THREE.Vector3(...x.centroid).distanceTo(mid) })).sort((p, q) => p.d - q.d)[0];
+              found = { e, faceN: new THREE.Vector3(...(fc?.x.normal ?? [0, 1, 0])), faceC: new THREE.Vector3(...(fc?.x.centroid ?? [0, 0, 0])) };
+              break;
+            }
+            if (!found) { errors[f.id] = 'The edge no longer exists on the model (dangling reference).'; continue; }
+            const { e, faceN, faceC } = found;
+            const dirAt = (i: number): THREE.Vector3 => {
+              if (f.ruledMode === 'vector' && f.vector) return new THREE.Vector3(...f.vector);
+              if (f.ruledMode === 'normal') return faceN.clone();
+              // tangent to the face: perpendicular to the edge, within the face, away from the face
+              const a = e.points[Math.max(0, i - 1)], b2 = e.points[Math.min(e.points.length - 1, i + 1)];
+              const t = b2.clone().sub(a).normalize();
+              const d = faceN.clone().cross(t).normalize();
+              if (d.dot(e.points[i].clone().sub(faceC)) < 0) d.negate();
+              return d;
+            };
+            g = ruledSurface(e.points, dirAt, Math.max(0.01, f.distance ?? 5));
+          } else if (f.kind === 'replaceFace') {
+            if (!f.faces?.length || !target) { errors[f.id] = 'Select the faces to replace and the replacement surface.'; continue; }
+            const p0 = new THREE.Vector3(...f.faces[0].point);
+            const owner = visibleBodies().find((b) => planarFaces(b.geometry, b.id).some((fc) => new THREE.Vector3(...fc.centroid).distanceTo(p0) < 0.5)) ?? body;
+            if (!owner) { errors[f.id] = 'Replace Face needs a solid body.'; continue; }
+            const pl = fitPlane(target.geometry);
+            if (!pl) { errors[f.id] = 'The replacement surface must be flat in this build.'; continue; }
+            const r = deleteFaces(owner.geometry, f.faces, 'patch');
+            if (!r.geometry) { errors[f.id] = r.error ?? 'Could not remove the faces.'; continue; }
+            // the body keeps the side of the surface where its centre lies
+            r.geometry.computeBoundingBox();
+            const c = r.geometry.boundingBox!.getCenter(new THREE.Vector3());
+            const n = new THREE.Vector3(...pl.n);
+            const keepSide = c.clone().sub(new THREE.Vector3(...pl.origin)).dot(n) >= 0;
+            const size = r.geometry.boundingBox!.getSize(new THREE.Vector3()).length() * 2 + 10;
+            owner.geometry = csg(r.geometry, halfSpaceBox(pl, size, keepSide), 'subtract');
+            owner.featureIds.push(f.id);
+            continue;
+          }
         }
         else if (f.kind === 'sweep') { g = sweptSurface(doc, f); if (f.sketchId2) consumedSketches.add(f.sketchId2); }
         else if (f.kind === 'loft' || f.kind === 'boundary') { g = loftedSurface(doc, f); if (f.sketchId2) consumedSketches.add(f.sketchId2); }

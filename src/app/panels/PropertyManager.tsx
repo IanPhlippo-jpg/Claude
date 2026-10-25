@@ -587,7 +587,7 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
     );
     return (
       <>
-        <Header title={d.name.replace(/\d+$/, '')} icon={d.kind === 'revolve' ? <Icon.Revolve /> : d.kind === 'offset' ? <Icon.Offset /> : d.kind === 'knit' ? <Icon.Mirror /> : <Icon.Extrude />} onOk={st.commitFeature} onCancel={st.cancelFeature} />
+        <Header title={d.name.replace(/\d+$/, '')} icon={d.kind === 'revolve' ? <Icon.Revolve /> : d.kind === 'offset' ? <Icon.Offset /> : d.kind === 'knit' ? <Icon.Mirror /> : d.kind === 'thicken' || d.kind === 'replaceFace' ? <Icon.Shell /> : d.kind === 'thickenCut' ? <Icon.Cut /> : d.kind === 'cutWithSurface' ? <Icon.Section /> : d.kind === 'filled' || d.kind === 'untrim' || d.kind === 'deleteHole' ? <Icon.Boundary /> : d.kind === 'ruled' ? <Icon.Curves /> : d.kind === 'flatten' ? <Icon.Sheet /> : <Icon.Extrude />} onOk={st.commitFeature} onCancel={st.cancelFeature} />
         {d.kind === 'extrude' && (
           <>
             <Section title="From">{sketchPick}</Section>
@@ -609,6 +609,67 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
           </>
         )}
         {d.kind === 'planar' && <Section title="Bounding Entities">{sketchPick}</Section>}
+        {(d.kind === 'filled' || d.kind === 'extend' || d.kind === 'untrim' || d.kind === 'deleteHole' || d.kind === 'flatten' || d.kind === 'thicken' || d.kind === 'thickenCut' || d.kind === 'cutWithSurface' || d.kind === 'replaceFace') && (
+          <Section title={d.kind === 'filled' ? 'Patch Boundary' : d.kind === 'replaceFace' ? 'Replacement Surface' : d.kind === 'thicken' || d.kind === 'thickenCut' ? 'Thicken Parameters' : 'Selections'}>
+            <div className="k-field"><label>{d.kind === 'filled' ? 'Surface' : d.kind === 'cutWithSurface' ? 'Surface Cut Parameters' : 'Surface'}</label>
+              <select className="k-input" value={d.target ?? ''} onChange={(e) => st.updateFeatureDraft({ target: e.target.value || undefined })} data-testid="surftool-target">
+                <option value="">—</option>
+                {surfaceFeatures.filter((f) => f.type === 'surface').map((f) => <option key={f.id} value={f.id}>{f.name}</option>)}
+              </select>
+            </div>
+            {d.kind === 'filled' && (
+              <>
+                {sketchPick}
+                <div className="k-pm-radios" data-testid="fill-which">
+                  <label className="k-check"><input type="radio" name="fillwhich" checked={(d.fillWhich ?? 'outer') === 'outer'} onChange={() => st.updateFeatureDraft({ fillWhich: 'outer' })} /> Outer boundary</label>
+                  <label className="k-check"><input type="radio" name="fillwhich" checked={d.fillWhich === 'inner'} onChange={() => st.updateFeatureDraft({ fillWhich: 'inner' })} /> Inner loops</label>
+                  <label className="k-check"><input type="radio" name="fillwhich" checked={d.fillWhich === 'all'} onChange={() => st.updateFeatureDraft({ fillWhich: 'all' })} /> All boundaries</label>
+                </div>
+              </>
+            )}
+            {d.kind === 'extend' && <div className="k-pm-valuerow k-tip" data-tip="Distance"><Icon.Depth size={16} /><NumberField value={d.distance ?? 5} onChange={(v) => st.updateFeatureDraft({ distance: Math.max(0.01, v) })} unit={st.doc.units} step={1} min={0.01} autoFocus /></div>}
+            {(d.kind === 'thicken' || d.kind === 'thickenCut') && <div className="k-pm-valuerow k-tip" data-tip="Thickness"><Icon.Shell size={16} /><NumberField value={d.thickness ?? 2} onChange={(v) => st.updateFeatureDraft({ thickness: Math.max(0.01, v) })} unit={st.doc.units} step={0.5} min={0.01} autoFocus data-testid="thicken-value" /></div>}
+            {d.kind === 'thicken' && st.rebuild.bodies.length > 0 && <label className="k-check"><input type="checkbox" checked={d.merge !== false} onChange={(e) => st.updateFeatureDraft({ merge: e.target.checked })} /> Merge result</label>}
+            {d.kind === 'cutWithSurface' && <button className={`k-pm-stylebtn k-tip ${d.flip ? 'active' : ''}`} data-tip="Flip cut" data-testid="surfcut-flip" onClick={() => st.updateFeatureDraft({ flip: !d.flip })}><Icon.ReverseDir size={16} /></button>}
+            {d.kind === 'replaceFace' && (
+              <div className="k-pm-selrow"><Icon.Properties size={14} /><div className="k-selbox k-selbox-dir" style={{ minHeight: 40 }} data-testid="replace-faces">{(d.faces ?? []).length ? (d.faces ?? []).map((f) => <div key={f.label} className="k-selbox-row">{f.label}</div>) : <span className="k-muted">Target faces for replacement: select faces in the graphics area.</span>}</div></div>
+            )}
+            {(d.kind === 'untrim' || d.kind === 'deleteHole') && <p className="k-muted">{d.kind === 'untrim' ? 'The inner loops (holes) of the surface are filled again.' : 'The hole (inner loop) of the surface is closed.'}</p>}
+            {d.kind === 'flatten' && <p className="k-muted">The surface is laid flat (rigid unfold, exact for developable surfaces) beside the model.</p>}
+          </Section>
+        )}
+        {(d.kind === 'thickenCut' || d.kind === 'cutWithSurface') && (
+          <Section title="Feature Scope" defaultOpen={false}>
+            <div className="k-pm-radios">
+              <label className="k-check"><input type="radio" name="sscope" checked={!d.scope} onChange={() => st.updateFeatureDraft({ scope: undefined })} /> All bodies</label>
+              <label className="k-check"><input type="radio" name="sscope" checked={!!d.scope} onChange={() => st.updateFeatureDraft({ scope: st.rebuild.bodies.map((b) => b.id) })} /> Selected bodies</label>
+            </div>
+            {d.scope && st.rebuild.bodies.map((b, i) => <label key={b.id} className="k-check" style={{ marginLeft: 18 }}><input type="checkbox" checked={d.scope!.includes(b.id)} onChange={(e) => st.updateFeatureDraft({ scope: e.target.checked ? [...d.scope!, b.id] : d.scope!.filter((x) => x !== b.id) })} /> Body{i + 1}</label>)}
+          </Section>
+        )}
+        {d.kind === 'ruled' && (
+          <>
+            <Section title="Type">
+              <div className="k-pm-radios" data-testid="ruled-type">
+                <label className="k-check"><input type="radio" name="ruledmode" checked={(d.ruledMode ?? 'tangent') === 'tangent'} onChange={() => st.updateFeatureDraft({ ruledMode: 'tangent' })} /> Tangent to Surface</label>
+                <label className="k-check"><input type="radio" name="ruledmode" checked={d.ruledMode === 'normal'} onChange={() => st.updateFeatureDraft({ ruledMode: 'normal' })} /> Normal to Surface</label>
+                <label className="k-check"><input type="radio" name="ruledmode" checked={d.ruledMode === 'vector'} onChange={() => st.updateFeatureDraft({ ruledMode: 'vector' })} /> Vector</label>
+              </div>
+            </Section>
+            <Section title="Distance/Direction">
+              <div className="k-pm-valuerow k-tip" data-tip="Distance"><Icon.Depth size={16} /><NumberField value={d.distance ?? 5} onChange={(v) => st.updateFeatureDraft({ distance: Math.max(0.01, v) })} unit={st.doc.units} step={1} min={0.01} autoFocus /></div>
+              {d.ruledMode === 'vector' && (
+                <div className="k-pm-stylerow">
+                  {(['X', 'Y', 'Z'] as const).map((ax, i) => <button key={ax} className={`k-pm-stylebtn ${Math.abs((d.vector ?? [0, 1, 0])[i]) > 0.5 ? 'active' : ''}`} onClick={() => { const v: [number, number, number] = [0, 0, 0]; v[i] = 1; st.updateFeatureDraft({ vector: v }); }}>{ax}</button>)}
+                  <button className="k-pm-stylebtn k-tip" data-tip="Reverse Direction" onClick={() => st.updateFeatureDraft({ vector: (d.vector ?? [0, 1, 0]).map((x) => -x) as [number, number, number] })}><Icon.ReverseDir size={16} /></button>
+                </div>
+              )}
+            </Section>
+            <Section title="Edge Selection">
+              <div className="k-pm-selrow"><Icon.EdgeSelect size={20} /><div className="k-selbox k-selbox-dir" style={{ minHeight: 24 }} data-testid="ruled-edge">{d.edge ? <div className="k-selbox-row">Edge&lt;1&gt;</div> : <span className="k-muted">Select an edge of the model.</span>}</div></div>
+            </Section>
+          </>
+        )}
         {d.kind === 'trim' && (
           <>
             <Section title="Trim Type">

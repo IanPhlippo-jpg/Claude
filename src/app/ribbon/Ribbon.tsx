@@ -342,14 +342,42 @@ export function Ribbon() {
         <BigButton label="Revolved Surface" icon={<Icon.Revolve />} active={st.featureEdit?.draft.type === 'surface' && st.featureEdit.draft.kind === 'revolve'} onClick={() => st.startSurface('revolve')} />
         <BigButton label="Swept Surface" icon={<Icon.Sweep />} active={st.featureEdit?.draft.type === 'surface' && st.featureEdit.draft.kind === 'sweep'} onClick={() => st.startSurface('sweep')} />
         <BigButton label="Lofted Surface" icon={<Icon.Loft />} active={st.featureEdit?.draft.type === 'surface' && st.featureEdit.draft.kind === 'loft'} onClick={() => st.startSurface('loft')} />
-        <BigButton label="Boundary Surface" icon={<Icon.Loft />} active={st.featureEdit?.draft.type === 'surface' && st.featureEdit.draft.kind === 'boundary'} onClick={() => st.startSurface('boundary')} />
+        <BigButton label="Boundary Surface" icon={<Icon.Boundary />} active={st.featureEdit?.draft.type === 'surface' && st.featureEdit.draft.kind === 'boundary'} onClick={() => st.startSurface('boundary')} />
+        <div className="k-cm-col">
+          <SmallButton label="Filled Surface" icon={<Icon.Boundary />} active={st.featureEdit?.draft.type === 'surface' && st.featureEdit.draft.kind === 'filled'} onClick={() => st.startSurface('filled')} />
+          <SmallButton label="Freeform" icon={<Icon.Curves />} later="a later build (face deformation)" />
+        </div>
       </Group>
       <Group>
         <BigButton label="Planar Surface" icon={<Icon.Sheet />} active={st.featureEdit?.draft.type === 'surface' && st.featureEdit.draft.kind === 'planar'} onClick={() => st.startSurface('planar')} />
         <BigButton label="Offset Surface" disabled={noBody} icon={<Icon.Offset />} active={st.featureEdit?.draft.type === 'surface' && st.featureEdit.draft.kind === 'offset'} onClick={() => st.startSurface('offset')} />
+        <BigButton label="Ruled Surface" disabled={noBody} icon={<Icon.Curves />} active={st.featureEdit?.draft.type === 'surface' && st.featureEdit.draft.kind === 'ruled'} onClick={() => st.startSurface('ruled')} />
+        <BigButton label="Surface Flatten" disabled={noSurface} icon={<Icon.Sheet />} active={st.featureEdit?.draft.type === 'surface' && st.featureEdit.draft.kind === 'flatten'} onClick={() => st.startSurface('flatten')} />
+      </Group>
+      <Group>
+        <BigButton label="Fillet" disabled={noBody || inSk} icon={<Icon.Fillet />} active={st.featureEdit?.draft.type === 'fillet'} onClick={() => st.startRound('fillet')} />
+        <div className="k-cm-col">
+          <SmallButton label="Delete Face" disabled={noBody} icon={<Icon.Trash />} active={st.featureEdit?.draft.type === 'deleteFace'} onClick={st.startDeleteFace} />
+          <SmallButton label="Replace Face" disabled={noBody || noSurface} icon={<Icon.Shell />} active={st.featureEdit?.draft.type === 'surface' && st.featureEdit.draft.kind === 'replaceFace'} onClick={() => st.startSurface('replaceFace')} />
+          <SmallButton label="Delete Hole" disabled={noSurface} icon={<Icon.Hole />} active={st.featureEdit?.draft.type === 'surface' && st.featureEdit.draft.kind === 'deleteHole'} onClick={() => st.startSurface('deleteHole')} />
+        </div>
+        <div className="k-cm-col">
+          <SmallButton label="Extend Surface" disabled={noSurface} icon={<Icon.Extrude />} active={st.featureEdit?.draft.type === 'surface' && st.featureEdit.draft.kind === 'extend'} onClick={() => st.startSurface('extend')} />
+          <SmallButton label="Trim Surface" disabled={noSurface} icon={<Icon.Trim />} active={st.featureEdit?.draft.type === 'surface' && st.featureEdit.draft.kind === 'trim'} onClick={() => st.startSurface('trim')} />
+          <SmallButton label="Untrim Surface" disabled={noSurface} icon={<Icon.Boundary />} active={st.featureEdit?.draft.type === 'surface' && st.featureEdit.draft.kind === 'untrim'} onClick={() => st.startSurface('untrim')} />
+        </div>
         <BigButton label="Knit Surface" disabled={noSurface} icon={<Icon.Mirror />} active={st.featureEdit?.draft.type === 'surface' && st.featureEdit.draft.kind === 'knit'} onClick={() => st.startSurface('knit')} />
-        <BigButton label="Trim Surface" disabled={noSurface} icon={<Icon.Trim />} active={st.featureEdit?.draft.type === 'surface' && st.featureEdit.draft.kind === 'trim'} onClick={() => st.startSurface('trim')} />
-        <BigButton label="Delete Face" disabled={noBody} icon={<Icon.Trash />} active={st.featureEdit?.draft.type === 'deleteFace'} onClick={st.startDeleteFace} />
+      </Group>
+      <Group>
+        <BigButton label="Thicken" disabled={noSurface} icon={<Icon.Shell />} active={st.featureEdit?.draft.type === 'surface' && st.featureEdit.draft.kind === 'thicken'} onClick={() => st.startSurface('thicken')} />
+        <div className="k-cm-col">
+          <SmallButton label="Thickened Cut" disabled={noSurface || noBody} icon={<Icon.Cut />} active={st.featureEdit?.draft.type === 'surface' && st.featureEdit.draft.kind === 'thickenCut'} onClick={() => st.startSurface('thickenCut')} />
+          <SmallButton label="Cut With Surface" disabled={noSurface || noBody} icon={<Icon.Section />} active={st.featureEdit?.draft.type === 'surface' && st.featureEdit.draft.kind === 'cutWithSurface'} onClick={() => st.startSurface('cutWithSurface')} />
+        </div>
+      </Group>
+      <Group>
+        <BigButton label="Reference Geometry" icon={<Icon.RefGeometry />} active={!!st.planeEdit} onClick={() => st.startPlane()} />
+        <BigButton label="Curves" icon={<Icon.Curves />} active={st.featureEdit?.draft.type === 'helix'} onClick={st.startHelix} />
       </Group>
     </>
   );
