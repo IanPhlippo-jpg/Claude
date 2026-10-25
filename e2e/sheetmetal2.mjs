@@ -49,7 +49,7 @@ const flatOff = await page.evaluate(() => window.__phlippoStore.getState().doc.f
 check('No Bends again folds the sheet back', !flatOff);
 
 // Closed Corner and Corner Relief PropertyManagers take their faces
-await page.click('.k-cm-small:has-text("Corners") .k-cm-small-arrow').catch(() => undefined);
+await page.click('.k-cm-big:has-text("Corners") .k-cm-arrow').catch(() => undefined);
 await page.evaluate(() => window.__phlippoStore.getState().startClosedCorner());
 await page.waitForTimeout(200);
 await page.evaluate(() => { const s = window.__phlippoStore.getState(); const b = s.rebuild.bodies[0]; const f = b.faces.filter((x) => !x.curved).sort((p, q) => p.area - q.area)[0]; s.setSelectedFace({ bodyId: b.id, faceId: f.id }); });

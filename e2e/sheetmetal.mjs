@@ -91,7 +91,7 @@ await shot('sm4-edge-flange');
 
 // Flatten: the sheet unfolds to a flat plate of the developed length
 await page.click('.k-cm-tab:has-text("Sheet Metal")');
-await page.click('.k-cm-big:has-text("Flatten") .k-cm-main');
+await page.click('.k-cm-small:has-text("Flatten")');
 await page.waitForTimeout(800);
 s = await S();
 const v3 = await volume();
@@ -102,7 +102,7 @@ check('flat volume = developed length x width x thickness', Math.abs(v3 - flatLe
 await page.keyboard.press('f');
 await page.waitForTimeout(400);
 await shot('sm5-flat-pattern');
-await page.click('.k-cm-big:has-text("Flatten") .k-cm-main');
+await page.click('.k-cm-small:has-text("Flatten")');
 await page.waitForTimeout(800);
 check('Flatten again folds the sheet back', Math.abs((await volume()) - v2) < 1);
 

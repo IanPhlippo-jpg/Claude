@@ -84,7 +84,7 @@ await shot('uf2-folded');
 
 // Flatten shows the slot in the flat pattern
 await page.click('.k-cm-tab:has-text("Sheet Metal")');
-await page.click('.k-cm-big:has-text("Flatten") .k-cm-main');
+await page.click('.k-cm-small:has-text("Flatten")');
 await page.waitForTimeout(800);
 s = await state();
 const bendLines = await page.evaluate(() => (window.__phlippoStore.getState().rebuild.curves ?? []).filter((c) => c.name === 'Bend-Lines').length);
@@ -94,7 +94,7 @@ await page.keyboard.press('f');
 await page.mouse.move(5, 900);
 await page.waitForTimeout(400);
 await shot('uf3-flat-pattern');
-await page.click('.k-cm-big:has-text("Flatten") .k-cm-main');
+await page.click('.k-cm-small:has-text("Flatten")');
 
 // the Unfold command from the ribbon: PropertyManager with the fixed face and the bends
 await page.click('.k-cm-small:has-text("Unfold")');

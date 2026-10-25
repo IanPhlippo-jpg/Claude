@@ -99,7 +99,7 @@ const topFace = await S(() => {
   return f.centroid;
 });
 check('the top face of the leg is selected', !!topFace);
-await page.click('.k-cm-big:has-text("Forming Tool") .k-cm-main');
+await page.click('.k-cm-small:has-text("Forming Tool")');
 await page.waitForTimeout(400);
 check('Form Tool Feature PM: Type/Position tabs, Placement Face, Forming Tool (Design Library list), Flat Pattern Visibility', (await page.locator('.k-pm-title:has-text("Form Tool Feature")').count()) === 1 && (await page.locator('[data-testid="form-shape"] option').count()) === 6 && (await page.locator('.k-section:has-text("Flat Pattern Visibility")').count()) === 1);
 check('the placement face is filled in', (await page.locator('[data-testid="form-face"] .k-selbox-row').count()) === 1);

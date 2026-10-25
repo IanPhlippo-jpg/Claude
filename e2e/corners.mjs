@@ -61,7 +61,7 @@ await page.waitForTimeout(400);
 await shot('co1-cross-break');
 
 // Corners ▸ Break-Corner: collect all corners, chamfer 5
-await page.click('.k-cm-small:has-text("Corners")');
+await page.click('.k-cm-big:has-text("Corners") .k-cm-main');
 await page.waitForTimeout(300);
 await page.click('[data-testid="collect-corners"]');
 const nCorners = await page.locator('[data-testid="bcorner-edges"] .k-selbox-row').count();

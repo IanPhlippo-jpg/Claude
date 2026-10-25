@@ -88,7 +88,7 @@ await page.waitForTimeout(400);
 await shot('hm3-hem');
 // Flatten: the developed length grows by leg + bend allowance (180) - setback
 await page.click('.k-cm-tab:has-text("Sheet Metal")');
-await page.click('.k-cm-big:has-text("Flatten") .k-cm-main');
+await page.click('.k-cm-small:has-text("Flatten")');
 await page.waitForTimeout(900);
 const v3 = await volume();
 const ba90 = (Math.PI / 2) * (r + 0.5 * t), sb = (r + t);

@@ -656,6 +656,8 @@ interface State {
   startSweptFlange(): void;
   /** Forming Tool: a click on the placement face adds a position */
   addFormToolPoint(p: SketchPoint): void;
+  /** Sheet Metal ▸ Normal Cut: the selected Cut-Extrude becomes a normal cut (walls perpendicular to the sheet, geometry optimized) */
+  applyNormalCut(): void;
   /** Trim/Extend: which box the next body pick fills (bodies to trim / trimming bodies) */
   trimFocus: 'bodies' | 'trimming';
   setTrimFocus(f: 'bodies' | 'trimming'): void;
@@ -3949,6 +3951,18 @@ export const useStore = create<State>((set, get) => ({
     const n = doc.features.filter((f) => f.type === 'weldBead').length + 1;
     const draft: WeldBeadFeature = { id: newId('f'), type: 'weldBead', name: `Weld Bead${n}`, suppressed: false, faces: [], size: 5, intermittent: null, from: 0, to: 0, bothSides: false };
     set({ featureEdit: { featureId: null, draft }, activeSketchId: null, tool: 'select', selection: [], tab: 'weldments', managerTab: 'tree', planePick: false, selectedFace: null, selectedFaces: [] });
+  },
+  applyNormalCut() {
+    const { doc, selectedFeatureId } = get();
+    const cuts = doc.features.filter((f): f is ExtrudeFeature => f.type === 'extrude' && f.op === 'cut');
+    const target = cuts.find((f) => f.id === selectedFeatureId) ?? (selectedFeatureId ? null : cuts[cuts.length - 1]);
+    if (!target) {
+      get().pushMessage(cuts.length ? 'Select the Cut-Extrude feature to convert in the FeatureManager design tree.' : 'Normal Cut needs an Extruded Cut on the sheet.', 'warn');
+      return;
+    }
+    const on = target.normalCut === false;
+    get().applyDocument('Normal Cut', { ...doc, features: doc.features.map((f) => (f.id === target.id ? { ...f, normalCut: on, optimizeGeometry: on } : f)) });
+    get().pushMessage(`${target.name}: Normal cut ${on ? 'on' : 'off'}${on ? ' (optimize geometry)' : ''}.`, 'info');
   },
   startVent() {
     const { doc, rebuild } = get();

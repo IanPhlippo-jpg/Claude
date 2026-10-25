@@ -410,7 +410,6 @@ export function Ribbon() {
         <div className="k-cm-col">
           <SmallButton label="Convert to Sheet Metal" icon={<Icon.Sheet />} disabled={noBody} active={st.featureEdit?.draft.type === 'convertSheet' && !st.featureEdit.draft.insertBends} onClick={() => st.startConvertSheet()} />
           <SmallButton label="Lofted-Bend" icon={<Icon.Loft />} active={st.featureEdit?.draft.type === 'loftedBend'} onClick={st.startLoftedBend} />
-          <SmallButton label="Swept Flange" icon={<Icon.SweptFlange />} disabled={noBody} active={st.featureEdit?.draft.type === 'sweptFlange'} onClick={st.startSweptFlange} />
         </div>
       </Group>
       <Group>
@@ -423,30 +422,36 @@ export function Ribbon() {
         <div className="k-cm-col">
           <SmallButton label="Sketched Bend" disabled={noBody} icon={<Icon.Line />} active={st.featureEdit?.draft.type === 'sketchedBend'} onClick={st.startSketchedBend} />
           <SmallButton label="Cross-Break" disabled={noBody} icon={<Icon.Mirror />} active={st.featureEdit?.draft.type === 'crossBreak'} onClick={st.startCrossBreak} />
-          <SmallButton label="Corners" disabled={noBody} icon={<Icon.Chamfer />} active={!!(st.featureEdit && (st.featureEdit.draft.type === 'fillet' || st.featureEdit.draft.type === 'chamfer') && st.featureEdit.draft.breakCorner)} onClick={st.startBreakCorner} flyout={[{ label: 'Closed Corner', icon: <Icon.Chamfer />, onSelect: () => st.startClosedCorner() }, { label: 'Welded Corner', icon: <Icon.Chamfer />, onSelect: () => st.startClosedCorner(true) }, { label: 'Break-Corner/Corner-Trim', icon: <Icon.Chamfer />, onSelect: st.startBreakCorner }, { label: 'Corner Relief', icon: <Icon.Chamfer />, onSelect: st.startCornerRelief }]} />
+          <SmallButton label="Swept Flange" icon={<Icon.SweptFlange />} disabled={noBody} active={st.featureEdit?.draft.type === 'sweptFlange'} onClick={st.startSweptFlange} />
         </div>
+        <BigButton label="Corners" disabled={noBody} icon={<Icon.Chamfer />} active={!!(st.featureEdit && (st.featureEdit.draft.type === 'fillet' || st.featureEdit.draft.type === 'chamfer') && st.featureEdit.draft.breakCorner)} onClick={st.startBreakCorner} flyout={[{ label: 'Closed Corner', icon: <Icon.Chamfer />, onSelect: () => st.startClosedCorner() }, { label: 'Welded Corner', icon: <Icon.Chamfer />, onSelect: () => st.startClosedCorner(true) }, { label: 'Break-Corner/Corner-Trim', icon: <Icon.Chamfer />, onSelect: st.startBreakCorner }, { label: 'Corner Relief', icon: <Icon.Chamfer />, onSelect: st.startCornerRelief }]} />
       </Group>
       <Group>
-        <BigButton label="Forming Tool" disabled={noBody} icon={<Icon.FormTool />} active={st.featureEdit?.draft.type === 'formTool'} onClick={() => st.startFormTool()} flyout={FORM_TOOL_LIBRARY.map((t) => ({ label: `${t.folder} ▸ ${t.label}`, icon: <Icon.FormTool />, onSelect: () => st.startFormTool(t.id) }))} />
+        <div className="k-cm-col">
+          <SmallButton label="Forming Tool" disabled={noBody} icon={<Icon.FormTool />} active={st.featureEdit?.draft.type === 'formTool'} onClick={() => st.startFormTool()} flyout={FORM_TOOL_LIBRARY.map((t) => ({ label: `${t.folder} ▸ ${t.label}`, icon: <Icon.FormTool />, onSelect: () => st.startFormTool(t.id) }))} />
+          <SmallButton label="Sheet Metal Gusset" disabled={noBody} icon={<Icon.Gusset />} active={st.featureEdit?.draft.type === 'gusset'} onClick={st.startGusset} />
+          <SmallButton label="Tab and Slot" disabled={noBody} icon={<Icon.TabSlot />} active={st.featureEdit?.draft.type === 'tabSlot'} onClick={st.startTabSlot} />
+        </div>
         <div className="k-cm-col">
           <SmallButton label="Extruded Cut" disabled={noBody} icon={<Icon.Cut />} active={st.featureEdit?.draft.type === 'extrude' && st.featureEdit.draft.op === 'cut'} onClick={() => st.startFeature('extrude', 'cut')} />
           <SmallButton label="Simple Hole" disabled={noBody} icon={<Icon.Hole />} active={st.featureEdit?.draft.type === 'hole' && !!st.featureEdit.draft.simple} onClick={() => st.startHole(false, true)} />
           <SmallButton label="Vent" disabled={noBody} icon={<Icon.Vent />} active={st.featureEdit?.draft.type === 'vent'} onClick={st.startVent} />
         </div>
         <div className="k-cm-col">
-          <SmallButton label="Sheet Metal Gusset" disabled={noBody} icon={<Icon.Gusset />} active={st.featureEdit?.draft.type === 'gusset'} onClick={st.startGusset} />
-          <SmallButton label="Tab and Slot" disabled={noBody} icon={<Icon.TabSlot />} active={st.featureEdit?.draft.type === 'tabSlot'} onClick={st.startTabSlot} />
-          <SmallButton label="Rip" disabled={noBody} icon={<Icon.Rip />} active={st.featureEdit?.draft.type === 'rip'} onClick={st.startRip} />
+          <SmallButton label="Normal Cut" disabled={noBody} icon={<Icon.Cut />} onClick={st.applyNormalCut} />
         </div>
       </Group>
       <Group>
-        <BigButton label="Flatten" disabled={noBody} icon={<Icon.Sheet />} active={st.doc.features.some((f) => f.type === 'flatPattern' && !f.suppressed)} onClick={st.toggleFlatten} />
         <div className="k-cm-col">
           <SmallButton label="Unfold" disabled={noBody} icon={<Icon.Sheet />} active={st.featureEdit?.draft.type === 'unfold'} onClick={() => st.startUnfold('unfold')} />
           <SmallButton label="Fold" disabled={noBody} icon={<Icon.Sheet />} active={st.featureEdit?.draft.type === 'fold'} onClick={() => st.startUnfold('fold')} />
+          <SmallButton label="Flatten" disabled={noBody} icon={<Icon.Sheet />} active={st.doc.features.some((f) => f.type === 'flatPattern' && !f.suppressed)} onClick={st.toggleFlatten} />
+        </div>
+        <div className="k-cm-col">
           <SmallButton label="No Bends" icon={<Icon.Sheet />} disabled={noBody} active={st.doc.features.some((f) => f.type === 'flatPattern' && !f.suppressed && f.noBendLines)} onClick={st.toggleNoBends} />
         </div>
         <div className="k-cm-col">
+          <SmallButton label="Rip" disabled={noBody} icon={<Icon.Rip />} active={st.featureEdit?.draft.type === 'rip'} onClick={st.startRip} />
           <SmallButton label="Insert Bends" icon={<Icon.Sheet />} disabled={noBody} active={st.featureEdit?.draft.type === 'convertSheet' && !!st.featureEdit.draft.insertBends} onClick={() => st.startConvertSheet(true)} />
         </div>
       </Group>
