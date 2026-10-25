@@ -31,6 +31,7 @@ import { baseFlangeGeometry, baseFlangeRegion, bendAllowance, DEFAULT_SHEET_META
 import type { DraftFeature, PatternFeature, RevolveFeature, EdgeFlangeFeature, HemFeature, JogFeature, MiterFlangeFeature, PlaneDef, SketchedBendFeature } from '../document/types';
 import { chainEdges, classifyVent, formToolGeometry, gussetTools, ripTool, sweptFlangeRegions, tabSlotTools, ventTool } from './sheetmetal4';
 import { bodyEdges as bodyEdgesOf, matchEdge as matchEdgeRef } from './edgesets';
+import { pointDeform } from './deform';
 import { endCapGeometry, findFaceOnBodies, findProfile, memberSegments, placedProfile, profileRegion, structuralMembers, trimByBodies, trimByPlane, weldBeadGeometry, weldGussetGeometry } from './weldments';
 
 export interface Body {
@@ -1912,6 +1913,29 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
       continue;
     }
     if (f.type === 'weldment') continue;
+    if (f.type === 'deform') {
+      if (!f.point) {
+        errors[f.id] = 'Select the face of the deform point.';
+        continue;
+      }
+      const p0 = new THREE.Vector3(...f.point);
+      const target = visibleBodies().find((b) => planarFaces(b.geometry, b.id).some((fc) => new THREE.Vector3(...fc.centroid).distanceTo(p0) < 0.5)) ?? body;
+      if (!target) {
+        errors[f.id] = 'Deform needs a solid body.';
+        continue;
+      }
+      try {
+        // the push goes into the body (against the face normal) unless reversed
+        const dir = f.direction.map((x) => (f.reverse ? x : -x)) as [number, number, number];
+        target.geometry = pointDeform(target.geometry, { point: f.point, direction: dir, distance: f.distance, radius: f.radius, stiffness: f.stiffness });
+        target.featureIds.push(f.id);
+        history.boss = target.geometry;
+        history.cuts = [];
+      } catch (err) {
+        errors[f.id] = `Could not deform the body: ${(err as Error).message}`;
+      }
+      continue;
+    }
     if (f.type === 'structuralMember') {
       consumedSketches.add(f.sketchId);
       const sk2 = doc.sketches[f.sketchId];

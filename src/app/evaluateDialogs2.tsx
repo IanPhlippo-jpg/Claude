@@ -9,6 +9,7 @@ import { desktop } from './desktop';
 import { REFERENCE_PLANE_DEFS as PLANES } from '../core/features/planes';
 import type { Document } from '../core/document/types';
 import { cutList } from '../core/features/weldments';
+import { saveDocumentWith } from './MenuBar';
 
 const fmt = (v: number, d = 2) => (Number.isFinite(v) ? round(v, d).toLocaleString('en-US', { maximumFractionDigits: d }) : '∞');
 
@@ -25,6 +26,37 @@ function Shell({ title, icon, testid, width = 420, children, onClose, footer }: 
         {footer && <div className="k-panel-footer" style={{ padding: 8, display: 'flex', gap: 6, justifyContent: 'flex-end' }}>{footer}</div>}
       </div>
     </div>
+  );
+}
+
+/** File ▸ Save As (browser build): file name, Save as copy and continue / and open, Include all referenced components. */
+export function SaveAsDialog() {
+  const st = useStore();
+  const [name, setName] = useState(st.doc.name);
+  const [copy, setCopy] = useState<'none' | 'continue' | 'open'>('none');
+  const [refs, setRefs] = useState(false);
+  const [suffix, setSuffix] = useState('');
+  const finalName = `${name}${suffix}`;
+  return (
+    <Shell title="Save As" icon={<Icon.Save />} testid="saveas-dialog" width={460} onClose={() => st.setDialog(null)} footer={<><button className="k-btn primary" data-testid="saveas-ok" disabled={!finalName.trim()} onClick={() => { saveDocumentWith({ name: finalName.trim(), copy: copy !== 'none', includeRefs: refs }); if (copy === 'open') st.renameDocument(finalName.trim()); st.setDialog(null); }}>Save</button><button className="k-btn" onClick={() => st.setDialog(null)}>Cancel</button></>}>
+      <div className="k-pm-label">File name:</div>
+      <div className="k-pm-valuerow"><input className="k-input" data-testid="saveas-name" style={{ flex: 1 }} value={name} onChange={(e) => setName(e.target.value)} onKeyDown={(e) => e.stopPropagation()} /><span className="k-muted">.kcad</span></div>
+      <div className="k-pm-label">Save as type:</div>
+      <select className="k-input" defaultValue="kcad" onChange={(e) => { if (e.target.value !== 'kcad') { useStore.setState({ exportFormat: e.target.value as 'stl' }); st.setDialog('exportOptions'); } }}>
+        <option value="kcad">Phlippo CAD Part (*.kcad)</option>
+        <option value="stl">STL (*.stl)</option>
+        <option value="3mf">3MF (*.3mf)</option>
+        <option value="amf">AMF (*.amf)</option>
+      </select>
+      <fieldset className="k-fieldset" style={{ marginTop: 8 }}><legend>Save as</legend>
+        <label className="k-check"><input type="radio" name="saveas" checked={copy === 'none'} onChange={() => setCopy('none')} /> Save as (the open document takes the new name)</label>
+        <label className="k-check"><input type="radio" name="saveas" data-testid="saveas-copy" checked={copy === 'continue'} onChange={() => setCopy('continue')} /> Save as copy and continue</label>
+        <label className="k-check"><input type="radio" name="saveas" checked={copy === 'open'} onChange={() => setCopy('open')} /> Save as copy and open</label>
+        <label className="k-check" style={{ marginTop: 6 }}><input type="checkbox" checked={refs} onChange={(e) => setRefs(e.target.checked)} /> Include all referenced components</label>
+        <div className="k-pm-valuerow"><span className="k-muted" style={{ minWidth: 80 }}>Add suffix</span><input className="k-input" style={{ width: 120 }} value={suffix} placeholder="-copy" onChange={(e) => setSuffix(e.target.value)} onKeyDown={(e) => e.stopPropagation()} /></div>
+      </fieldset>
+      <p className="k-muted">Preview: {finalName.trim() || '…'}.kcad</p>
+    </Shell>
   );
 }
 

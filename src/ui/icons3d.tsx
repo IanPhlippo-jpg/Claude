@@ -617,6 +617,15 @@ export const Icons3D = {
       <path d={poly([iso(1.5, 1.5, 0, 0.95, 12, 14), iso(1.5, 1.5, 8, 0.95, 12, 14), iso(1.5, 3.6, 8, 0.95, 12, 14), iso(1.5, 3.6, 0, 0.95, 12, 14)])} fill="#d98f2c" stroke="#a86a12" strokeWidth={0.5} />
     </svg>
   ),
+  /** Features ▸ Deform: a block with a dent pressed into its top */
+  Deform: ({ size = 16, ...p }: P) => (
+    <svg {...base(size, p)}>
+      <Box x={0} y={0} z={0} w={9} h={5} d={9} s={0.95} oy={13} />
+      <ellipse cx={12} cy={8.6} rx={3.6} ry={1.8} fill={K.tFront} stroke={K.tLine} strokeWidth={0.6} />
+      <ellipse cx={12} cy={8.9} rx={2} ry={1} fill={K.tSide} />
+      <path d="M12 3.5v3M10.8 5.3L12 6.6l1.2-1.3" stroke={K.red} strokeWidth={1} fill="none" strokeLinecap="round" />
+    </svg>
+  ),
   /** heads-up: View Settings — the monitor */
   ViewSettings: ({ size = 16, ...p }: P) => (
     <svg {...base(size, p)} viewBox="0 0 24 24">

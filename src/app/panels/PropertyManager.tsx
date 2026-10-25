@@ -93,6 +93,19 @@ const HOLE_SIZES: { size: string; fit: { Close: number; Normal: number; Loose: n
   { size: 'M20', fit: { Close: 21, Normal: 22, Loose: 24 }, cb: 33, cbDepth: 21.5, cs: 40.4, tap: 17.5, pitch: 2.5 },
 ];
 
+/** Hole Wizard ▸ Standard ANSI Inch: machine screw and fractional sizes (mm) */
+const HOLE_SIZES_INCH: typeof HOLE_SIZES = [
+  { size: '#4', fit: { Close: 3.0, Normal: 3.3, Loose: 3.6 }, cb: 5.6, cbDepth: 2.9, cs: 5.6, tap: 2.3, pitch: 0.635 },
+  { size: '#6', fit: { Close: 3.7, Normal: 3.9, Loose: 4.4 }, cb: 6.7, cbDepth: 3.5, cs: 6.9, tap: 2.7, pitch: 0.794 },
+  { size: '#8', fit: { Close: 4.4, Normal: 4.6, Loose: 5.1 }, cb: 7.9, cbDepth: 4.2, cs: 8.4, tap: 3.5, pitch: 0.794 },
+  { size: '#10', fit: { Close: 5.0, Normal: 5.3, Loose: 5.8 }, cb: 9.1, cbDepth: 4.8, cs: 9.8, tap: 3.8, pitch: 1.058 },
+  { size: '1/4', fit: { Close: 6.5, Normal: 7.1, Loose: 7.9 }, cb: 11.1, cbDepth: 6.4, cs: 12.7, tap: 5.1, pitch: 1.27 },
+  { size: '5/16', fit: { Close: 8.3, Normal: 8.7, Loose: 9.5 }, cb: 13.5, cbDepth: 8.0, cs: 15.9, tap: 6.5, pitch: 1.411 },
+  { size: '3/8', fit: { Close: 9.9, Normal: 10.3, Loose: 11.1 }, cb: 15.9, cbDepth: 9.5, cs: 19.1, tap: 8.0, pitch: 1.588 },
+  { size: '1/2', fit: { Close: 13.1, Normal: 13.9, Loose: 14.7 }, cb: 20.6, cbDepth: 12.7, cs: 25.4, tap: 10.7, pitch: 1.954 },
+];
+const holeSizesFor = (std: string) => (std === 'ANSI Inch' ? HOLE_SIZES_INCH : HOLE_SIZES);
+
 /** tools whose PropertyManager OK applies the edit (Offset, Move/Copy/Rotate/Scale, patterns) */
 const APPLY_TOOLS = new Set(['offset', 'moveEntities', 'copyEntities', 'rotateEntities', 'scaleEntities', 'linearSketchPattern', 'circularSketchPattern']);
 
@@ -1502,6 +1515,46 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
     );
   }
 
+  if (st.featureEdit && st.featureEdit.draft.type === 'deform') {
+    const d = st.featureEdit.draft;
+    const err = st.rebuild.errors[d.id];
+    return (
+      <>
+        <Header title="Deform" icon={<Icon.Deform />} onOk={st.commitFeature} onCancel={st.cancelFeature} />
+        <Section title="Deform Type">
+          <div className="k-pm-radios">
+            <label className="k-check"><input type="radio" name="deform-type" checked readOnly /> Point</label>
+            <label className="k-check"><input type="radio" name="deform-type" disabled /> Curve to curve</label>
+            <label className="k-check"><input type="radio" name="deform-type" disabled /> Surface push</label>
+          </div>
+        </Section>
+        <Section title="Deform Point">
+          <div className="k-selbox" style={{ minHeight: 24 }} data-testid="deform-point">{d.point ? <div className="k-selbox-row"><Icon.Point size={12} /> {d.label ?? 'Point'} ({d.point.map((x) => Math.round(x * 10) / 10).join(', ')})</div> : <span className="k-muted">Select a face: its centre is the deform point, its normal the push direction.</span>}</div>
+          <div className="k-pm-stylerow" style={{ marginTop: 4 }}>
+            <button className={`k-pm-stylebtn k-tip ${d.reverse ? 'active' : ''}`} data-tip="Deform direction: push outward" data-testid="deform-reverse" onClick={() => st.updateFeatureDraft({ reverse: !d.reverse })}><Icon.ReverseDir size={16} /></button>
+          </div>
+          <div className="k-pm-valuerow k-tip" data-tip="Deform distance"><Icon.Depth size={16} /><NumberField value={d.distance} onChange={(v) => st.updateFeatureDraft({ distance: Math.max(0.01, v) })} unit={st.doc.units} step={1} min={0.01} /></div>
+        </Section>
+        <Section title="Deform Region">
+          <div className="k-pm-valuerow k-tip" data-tip="Deform radius"><Icon.Dimension size={14} /><NumberField value={d.radius} onChange={(v) => st.updateFeatureDraft({ radius: Math.max(0.1, v) })} unit={st.doc.units} step={1} min={0.1} /></div>
+          <label className="k-check"><input type="checkbox" defaultChecked /> Deform region</label>
+        </Section>
+        <Section title="Shape Options">
+          <div className="k-pm-label">Stiffness:</div>
+          <div className="k-pm-stylerow">
+            {(['rigid', 'medium', 'flexible'] as const).map((s) => <button key={s} className={`k-pm-stylebtn ${d.stiffness === s ? 'active' : ''}`} data-testid={`deform-${s}`} onClick={() => st.updateFeatureDraft({ stiffness: s })}>{s === 'rigid' ? 'Rigid' : s === 'medium' ? 'Medium' : 'Flexible'}</button>)}
+          </div>
+          <label className="k-check"><input type="checkbox" defaultChecked /> Maintain boundary</label>
+        </Section>
+        {err && (
+          <Section title="Rebuild Errors">
+            <p className="k-pm-message" style={{ background: '#ffe3e3', borderColor: '#e0a0a0' }}>{err}</p>
+          </Section>
+        )}
+      </>
+    );
+  }
+
   if (st.featureEdit && st.featureEdit.draft.type === 'structuralMember') {
     const d = st.featureEdit.draft;
     const err = st.rebuild.errors[d.id];
@@ -2189,11 +2242,11 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
           <Section title="Hole Type">
             <div className="k-holetypes" data-testid="hole-types">
               {HOLE_TYPES.map((t) => (
-                <button key={t.id} className={`k-pm-typebtn k-tip ${d.holeType === t.id ? 'active' : ''}`} data-tip={t.label} disabled={!t.enabled} onClick={() => { if (!t.enabled) return; const sz = HOLE_SIZES.find((h) => h.size === holeSize); st.updateFeatureDraft(t.id === 'tap' && sz ? { holeType: 'tap', diameter: sz.tap, threadDiameter: Number(sz.size.slice(1)), pitch: sz.pitch, sizeName: sz.size } : { holeType: t.id as 'simple', ...(sz ? { diameter: sz.fit[holeFit] } : {}) }); }}><HoleTypeIcon kind={t.id} /></button>
+                <button key={t.id} className={`k-pm-typebtn k-tip ${d.holeType === t.id ? 'active' : ''}`} data-tip={t.label} disabled={!t.enabled} onClick={() => { if (!t.enabled) return; const sz = holeSizesFor(holeStd).find((h) => h.size === holeSize); st.updateFeatureDraft(t.id === 'tap' && sz ? { holeType: 'tap', diameter: sz.tap, threadDiameter: Number(sz.size.slice(1)), pitch: sz.pitch, sizeName: sz.size } : { holeType: t.id as 'simple', ...(sz ? { diameter: sz.fit[holeFit] } : {}) }); }}><HoleTypeIcon kind={t.id} /></button>
               ))}
             </div>
             <div className="k-pm-label">Standard:</div>
-            <select className="k-input" value={holeStd} onChange={(e) => setHoleStd(e.target.value)}><option>ISO</option><option>ANSI Metric</option><option>DIN</option></select>
+            <select className="k-input" data-testid="hole-standard" value={holeStd} onChange={(e) => { const std = e.target.value; setHoleStd(std); const first = holeSizesFor(std)[0]; setHoleSize(std === 'ANSI Inch' ? first.size : 'M6'); const sz = holeSizesFor(std).find((h) => h.size === (std === 'ANSI Inch' ? first.size : 'M6')); if (sz) st.updateFeatureDraft({ diameter: sz.fit[holeFit], cbDiameter: sz.cb, cbDepth: sz.cbDepth, csDiameter: sz.cs, sizeName: sz.size }); }}><option>ISO</option><option>ANSI Metric</option><option>ANSI Inch</option><option>DIN</option><option>JIS</option></select>
             <div className="k-pm-label">Type:</div>
             <select className="k-input" data-testid="hole-subtype" value={d.holeSubtype ?? (d.holeType === 'tap' ? 'Tapped hole' : d.holeType === 'simple' ? 'Drill sizes' : d.holeType === 'countersink' ? 'Flat Head Screw - ISO 10642' : 'Socket Head Cap Screw - ISO 4762')} onChange={(e) => st.updateFeatureDraft(holeSubtypePatch(e.target.value, HOLE_SIZES.find((h) => h.size === holeSize), holeFit, d))}>
               {(d.holeType === 'tap' ? ['Tapped hole', 'Bottoming tapped hole'] : d.holeType === 'simple' ? ['Drill sizes', 'Screw Clearances', 'Tap Drills', 'Dowel Holes'] : d.holeType === 'countersink' ? ['Flat Head Screw - ISO 10642', 'Raised Countersunk Head - ISO 2010', 'Countersunk Head - ISO 7046'] : ['Hex Bolt - ISO 4014', 'Socket Head Cap Screw - ISO 4762', 'Pan Cross Head - ISO 7045', 'Hex Screw - ISO 4017']).map((o) => <option key={o}>{o}</option>)}
@@ -2201,9 +2254,9 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
           </Section>
           <Section title="Hole Specifications">
             <div className="k-pm-label">Size:</div>
-            <div><select className="k-input" value={holeSize} onChange={(e) => { setHoleSize(e.target.value); const sz = HOLE_SIZES.find((h) => h.size === e.target.value); if (sz) st.updateFeatureDraft(d.holeType === 'tap' ? { diameter: sz.tap, threadDiameter: Number(sz.size.slice(1)), pitch: sz.pitch, sizeName: sz.size } : { diameter: sz.fit[holeFit], cbDiameter: sz.cb, cbDepth: sz.cbDepth, csDiameter: sz.cs, sizeName: sz.size }); }}>{HOLE_SIZES.map((h) => <option key={h.size}>{h.size}</option>)}</select></div>
+            <div><select className="k-input" data-testid="hole-size" value={holeSize} onChange={(e) => { setHoleSize(e.target.value); const sz = holeSizesFor(holeStd).find((h) => h.size === e.target.value); if (sz) st.updateFeatureDraft(d.holeType === 'tap' ? { diameter: sz.tap, threadDiameter: Number(sz.size.slice(1)), pitch: sz.pitch, sizeName: sz.size } : { diameter: sz.fit[holeFit], cbDiameter: sz.cb, cbDepth: sz.cbDepth, csDiameter: sz.cs, sizeName: sz.size }); }}>{holeSizesFor(holeStd).map((h) => <option key={h.size}>{h.size}</option>)}</select></div>
             <div className="k-pm-label">Fit:</div>
-            <div><select className="k-input" value={holeFit} onChange={(e) => { const f = e.target.value as 'Close' | 'Normal' | 'Loose'; setHoleFit(f); const sz = HOLE_SIZES.find((h) => h.size === holeSize); if (sz) st.updateFeatureDraft({ diameter: sz.fit[f] }); }}><option>Close</option><option>Normal</option><option>Loose</option></select></div>
+            <div><select className="k-input" value={holeFit} onChange={(e) => { const f = e.target.value as 'Close' | 'Normal' | 'Loose'; setHoleFit(f); const sz = holeSizesFor(holeStd).find((h) => h.size === holeSize); if (sz) st.updateFeatureDraft({ diameter: sz.fit[f] }); }}><option>Close</option><option>Normal</option><option>Loose</option></select></div>
             <label className="k-check"><input type="checkbox" checked={customSizing} onChange={(e) => setCustomSizing(e.target.checked)} /> Show custom sizing</label>
             {customSizing && <div className="k-pm-valuerow k-tip" data-tip="Through Hole Diameter"><Icon.Hole size={14} /><NumberField value={d.diameter} onChange={(v) => st.updateFeatureDraft({ diameter: Math.max(0.1, v) })} unit={st.doc.units} step={0.5} /></div>}
             {customSizing && d.holeType === 'counterbore' && (
@@ -2218,7 +2271,7 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
                 <div className="k-pm-valuerow k-tip" data-tip="Countersink Angle"><Icon.MateAngle size={14} /><NumberField value={d.csAngle} onChange={(v) => st.updateFeatureDraft({ csAngle: Math.max(10, Math.min(170, v)) })} unit="°" step={1} /></div>
               </>
             )}
-            {customSizing && <button className="k-btn" style={{ marginTop: 4 }} onClick={() => { const sz = HOLE_SIZES.find((h) => h.size === holeSize); if (sz) st.updateFeatureDraft({ diameter: sz.fit[holeFit], cbDiameter: sz.cb, cbDepth: sz.cbDepth, csDiameter: sz.cs, csAngle: 90 }); }}>Restore Default Values</button>}
+            {customSizing && <button className="k-btn" style={{ marginTop: 4 }} onClick={() => { const sz = holeSizesFor(holeStd).find((h) => h.size === holeSize); if (sz) st.updateFeatureDraft({ diameter: sz.fit[holeFit], cbDiameter: sz.cb, cbDepth: sz.cbDepth, csDiameter: sz.cs, csAngle: 90 }); }}>Restore Default Values</button>}
           </Section>
           <Section title="End Condition">
             <div className="k-pm-valuerow">
@@ -3182,9 +3235,14 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
       {c ? (
         <Header title={isDimension(c) ? 'Dimension' : relationLabel(c.kind)} icon={<Icon.Dimension />} onOk={commitValue} />
       ) : (
-        <Header title={TOOL_TITLE[st.tool] ?? sketch.name} icon={toolIcon[st.tool] ?? <Icon.Sketch />} onOk={st.tool === 'select' ? st.exitSketch : st.tool === 'equationCurve' ? () => { if ((eqc.param ? st.addEquationCurve(eqc.xt, eqc.x1, eqc.x2, eqc.yt) : st.addEquationCurve(eqc.expr, eqc.x1, eqc.x2))) st.setTool('select'); } : st.tool === 'fullyDefine' ? () => { st.fullyDefine(fdef); st.setTool('select'); } : APPLY_TOOLS.has(st.tool) ? st.applySketchTool : () => st.setTool('select')} onCancel={st.tool === 'select' ? st.discardSketch : () => st.setTool('select')} />
+        <Header title={st.tool === 'select' && selectedEntities.length === 1 && sketch.entities[selectedEntities[0].id] ? `${({ line: 'Line', circle: 'Circle', arc: 'Arc', spline: 'Spline', ellipse: 'Ellipse', ellipseArc: 'Ellipse', conic: 'Conic', text: 'Text', point: 'Point' } as Record<string, string>)[sketch.entities[selectedEntities[0].id].kind] ?? 'Entity'} Properties` : st.tool === 'select' && st.selection.length === 1 && st.selection[0].kind === 'point' ? 'Point Properties' : TOOL_TITLE[st.tool] ?? sketch.name} icon={toolIcon[st.tool] ?? <Icon.Sketch />} onOk={st.tool === 'select' ? st.exitSketch : st.tool === 'equationCurve' ? () => { if ((eqc.param ? st.addEquationCurve(eqc.xt, eqc.x1, eqc.x2, eqc.yt) : st.addEquationCurve(eqc.expr, eqc.x1, eqc.x2))) st.setTool('select'); } : st.tool === 'fullyDefine' ? () => { st.fullyDefine(fdef); st.setTool('select'); } : APPLY_TOOLS.has(st.tool) ? st.applySketchTool : () => st.setTool('select')} onCancel={st.tool === 'select' ? st.discardSketch : () => st.setTool('select')} />
       )}
 
+      {!c && (st.tool === 'line' || st.tool === 'centerline' || st.tool === 'midpointLine') && (
+        <Section title="Message">
+          <p className="k-pm-message" data-testid="line-message">Edit the settings of the next new line or sketch a new line.</p>
+        </Section>
+      )}
       {c && isDimension(c) && (
         <>
           <div className="k-pm-tabs">

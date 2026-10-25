@@ -306,7 +306,7 @@ export function Ribbon() {
           <SmallButton label="Shell" disabled={noBody || inSk} icon={<Icon.Shell />} active={st.featureEdit?.draft.type === 'shell'} onClick={st.startShell} />
         </div>
         <div className="k-cm-col">
-          <SmallButton label="Wrap" disabled={noBody || inSk} icon={<Icon.Wrap />} active={st.featureEdit?.draft.type === 'wrap'} onClick={st.startWrap} />
+          <SmallButton label="Wrap" disabled={noBody || inSk} icon={<Icon.Wrap />} active={st.featureEdit?.draft.type === 'wrap'} onClick={st.startWrap} flyout={[{ label: 'Wrap', icon: <Icon.Wrap />, onSelect: st.startWrap }, { label: 'Deform', icon: <Icon.Deform />, onSelect: st.startDeform }]} />
           <SmallButton label="Intersect" disabled={noBody || inSk} icon={<Icon.Intersect />} active={st.featureEdit?.draft.type === 'intersect'} onClick={st.startIntersect} />
           <SmallButton label="Mirror" disabled={noBody || inSk} icon={<Icon.Mirror />} active={st.featureEdit?.draft.type === 'mirror'} onClick={st.startMirror} />
         </div>

@@ -75,6 +75,39 @@ export const VIEW_QUATERNIONS: Record<StandardView, THREE.Quaternion> = {
   trimetric: Q(new THREE.Vector3(1.2, 0.8, 1.6), new THREE.Vector3(0, 1, 0)),
 };
 
+/** View ▸ Modify ▸ Up Axis: the standard views for a Y-up (default) or Z-up model; the table is replaced in place */
+export function setUpAxis(axis: 'Y' | 'Z'): void {
+  const Y = new THREE.Vector3(0, 1, 0), Z = new THREE.Vector3(0, 0, 1);
+  const table: Record<StandardView, THREE.Quaternion> = axis === 'Z'
+    ? {
+        front: Q(new THREE.Vector3(0, -1, 0), Z),
+        back: Q(new THREE.Vector3(0, 1, 0), Z),
+        top: Q(new THREE.Vector3(0, 0, 1), Y),
+        bottom: Q(new THREE.Vector3(0, 0, -1), new THREE.Vector3(0, -1, 0)),
+        right: Q(new THREE.Vector3(1, 0, 0), Z),
+        left: Q(new THREE.Vector3(-1, 0, 0), Z),
+        isometric: Q(new THREE.Vector3(1, -1, 1), Z),
+        dimetric: Q(new THREE.Vector3(1, -1.4, 0.6), Z),
+        trimetric: Q(new THREE.Vector3(1.2, -1.6, 0.8), Z),
+      }
+    : {
+        front: Q(new THREE.Vector3(0, 0, 1), Y),
+        back: Q(new THREE.Vector3(0, 0, -1), Y),
+        top: Q(new THREE.Vector3(0, 1, 0), new THREE.Vector3(0, 0, -1)),
+        bottom: Q(new THREE.Vector3(0, -1, 0), Z),
+        right: Q(new THREE.Vector3(1, 0, 0), Y),
+        left: Q(new THREE.Vector3(-1, 0, 0), Y),
+        isometric: Q(new THREE.Vector3(1, 1, 1), Y),
+        dimetric: Q(new THREE.Vector3(1, 0.6, 1.4), Y),
+        trimetric: Q(new THREE.Vector3(1.2, 0.8, 1.6), Y),
+      };
+  for (const k of Object.keys(table) as StandardView[]) VIEW_QUATERNIONS[k].copy(table[k]);
+}
+export let upAxis: 'Y' | 'Z' = 'Y';
+export function currentUpAxis(): 'Y' | 'Z' { return upAxis; }
+const _setUp = setUpAxis;
+export function applyUpAxis(axis: 'Y' | 'Z'): void { upAxis = axis; _setUp(axis); }
+
 export function normalToView(plane: PlaneId): THREE.Quaternion {
   const b = getPlane(plane);
   return Q(b.n, b.v);

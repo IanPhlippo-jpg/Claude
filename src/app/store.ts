@@ -5,7 +5,7 @@ import type { SectionPlane } from '../core/features/section';
 import { sketchDimensionName } from '../core/document/equations';
 import { faceOwner } from '../core/features/faceOwner';
 import { create } from 'zustand';
-import { createDocument, isRoundFeature, isSketchBased, isSolidFeature, type Document, type ExtrudeFeature, type HoleFeature, type MirrorFeature, type PatternFeature, type ImportedFeature, type LoftFeature, type RibFeature, type CombineFeature, type BaseFlangeFeature, type EdgeFlangeFeature, type FlatPatternFeature, type HelixFeature, type HemFeature, type MiterFlangeFeature, type JogFeature, type Sketch3DFeature, type SketchedBendFeature, type DraftFeature, type IntersectFeature, type SurfaceFeature, type CrossBreakFeature, type UnfoldFeature, type WrapFeature, type ThreadFeature, type RevolveFeature, type RoundFeature, type ShellFeature, type SolidFeature, type SweepFeature, type Units, type VentFeature, type FormToolFeature, type GussetFeature, type TabSlotFeature, type RipFeature, type SweptFlangeFeature, type StructuralMemberFeature, type TrimExtendFeature, type EndCapFeature, type WeldGussetFeature, type WeldBeadFeature } from '../core/document/types';
+import { createDocument, isRoundFeature, isSketchBased, isSolidFeature, type Document, type ExtrudeFeature, type HoleFeature, type MirrorFeature, type PatternFeature, type ImportedFeature, type LoftFeature, type RibFeature, type CombineFeature, type BaseFlangeFeature, type EdgeFlangeFeature, type FlatPatternFeature, type HelixFeature, type HemFeature, type MiterFlangeFeature, type JogFeature, type Sketch3DFeature, type SketchedBendFeature, type DraftFeature, type IntersectFeature, type SurfaceFeature, type CrossBreakFeature, type UnfoldFeature, type WrapFeature, type ThreadFeature, type RevolveFeature, type RoundFeature, type ShellFeature, type SolidFeature, type SweepFeature, type Units, type VentFeature, type FormToolFeature, type GussetFeature, type TabSlotFeature, type RipFeature, type SweptFlangeFeature, type StructuralMemberFeature, type TrimExtendFeature, type EndCapFeature, type WeldGussetFeature, type WeldBeadFeature, type DeformFeature } from '../core/document/types';
 import { FORM_TOOL_LIBRARY } from '../core/features/sheetmetal4';
 import { autoDimensionScheme, faceDistance, GTOL_SYMBOLS, type DimXpertData, type DimXpertGtol, type FaceRef as DxFaceRef } from '../core/document/dimxpert';
 import { edgeRef } from '../core/features/edgesets';
@@ -135,7 +135,7 @@ export type ManagerTab = 'tree' | 'properties' | 'configurations' | 'dimxpert' |
 export type DisplayStyle = 'wireframe' | 'hiddenVisible' | 'hiddenRemoved' | 'shaded' | 'shadedEdges';
 export type UnitSystem = 'MKS' | 'CGS' | 'MMGS' | 'IPS';
 export type TaskPaneTab = 'library' | 'relations' | 'properties' | 'resources' | 'marketplace' | 'forum' | 'explorer' | 'palette' | 'appearances' | 'platform' | 'recovery' | null;
-export type DialogId = 'welcome' | 'new' | 'options' | 'orientation' | 'mass' | 'measure' | 'equations' | 'bom' | 'interference' | 'sheetFormat' | 'sheetProperties' | 'material' | 'configure' | 'appearance' | 'check' | 'sectionProps' | 'repairSketch' | 'finalRender' | 'designStudy' | 'previewWindow' | 'mirrorComponents' | 'packAndGo' | 'share' | 'comments' | 'componentPreview' | 'relativeView' | 'spellCheck' | 'notePattern' | 'generalTable' | 'featureProps' | 'parentChild' | 'exportOptions' | 'customize' | 'performance' | 'deviation' | 'symmetry' | 'compare' | 'simxpress' | 'edrawings' | 'cutList' | null;
+export type DialogId = 'welcome' | 'new' | 'options' | 'orientation' | 'mass' | 'measure' | 'equations' | 'bom' | 'interference' | 'sheetFormat' | 'sheetProperties' | 'material' | 'configure' | 'appearance' | 'check' | 'sectionProps' | 'repairSketch' | 'finalRender' | 'designStudy' | 'previewWindow' | 'mirrorComponents' | 'packAndGo' | 'share' | 'comments' | 'componentPreview' | 'relativeView' | 'spellCheck' | 'notePattern' | 'generalTable' | 'featureProps' | 'parentChild' | 'exportOptions' | 'customize' | 'performance' | 'deviation' | 'symmetry' | 'compare' | 'simxpress' | 'edrawings' | 'cutList' | 'saveAs' | null;
 
 /** drawing commands: Model View, Projected View, Smart Dimension, Note, Center Mark */
 export interface DrawingEdit {
@@ -148,6 +148,9 @@ export interface DrawingEdit {
   draftQuality?: boolean;
   trueDims?: boolean;
   threadDraft?: boolean;
+  /** Flat Pattern Display: bend lines / bend notes of a sheet metal model view */
+  bendLines?: boolean;
+  bendNotes?: boolean;
   useParentStyle?: boolean;
   scaleMode?: 'parent' | 'sheet' | 'custom';
   projArrow?: boolean;
@@ -664,6 +667,8 @@ interface State {
   cancelDimXpert(): void;
   setDimXpertData(d: DimXpertData | undefined): void;
   deleteAllTolerances(): void;
+  /** Features ▸ Deform (Point) */
+  startDeform(): void;
   /** Weldments: Weldment, Structural Member, Trim/Extend, End Cap, Gusset, Weld Bead */
   startWeldment(): void;
   startStructuralMember(): void;
@@ -762,7 +767,7 @@ interface State {
   addHolePoint(p: SketchPoint): void;
   setHoverEdge(id: string | null): void;
   toggleSelectedEdge(id: string, additive?: boolean): void;
-  updateFeatureDraft(patch: Partial<ExtrudeFeature> | Partial<RevolveFeature> | Partial<RoundFeature> | Partial<MirrorFeature> | Partial<PatternFeature> | Partial<HoleFeature> | Partial<ShellFeature> | Partial<SweepFeature> | Partial<LoftFeature> | Partial<RibFeature> | Partial<CombineFeature> | Partial<BaseFlangeFeature> | Partial<EdgeFlangeFeature> | Partial<HelixFeature> | Partial<HemFeature> | Partial<MiterFlangeFeature> | Partial<JogFeature> | Partial<SketchedBendFeature> | Partial<DraftFeature> | Partial<IntersectFeature> | Partial<SurfaceFeature> | Partial<CrossBreakFeature> | Partial<WrapFeature> | Partial<ThreadFeature> | Partial<StudFeature> | Partial<SplitLineFeature> | Partial<ProjectedCurveFeature> | Partial<ClosedCornerFeature> | Partial<CornerReliefFeature> | Partial<LoftedBendFeature> | Partial<ConvertSheetFeature> | Partial<DeleteFaceFeature> | Partial<VentFeature> | Partial<FormToolFeature> | Partial<GussetFeature> | Partial<TabSlotFeature> | Partial<RipFeature> | Partial<SweptFlangeFeature> | Partial<StructuralMemberFeature> | Partial<TrimExtendFeature> | Partial<EndCapFeature> | Partial<WeldGussetFeature> | Partial<WeldBeadFeature>): void;
+  updateFeatureDraft(patch: Partial<ExtrudeFeature> | Partial<RevolveFeature> | Partial<RoundFeature> | Partial<MirrorFeature> | Partial<PatternFeature> | Partial<HoleFeature> | Partial<ShellFeature> | Partial<SweepFeature> | Partial<LoftFeature> | Partial<RibFeature> | Partial<CombineFeature> | Partial<BaseFlangeFeature> | Partial<EdgeFlangeFeature> | Partial<HelixFeature> | Partial<HemFeature> | Partial<MiterFlangeFeature> | Partial<JogFeature> | Partial<SketchedBendFeature> | Partial<DraftFeature> | Partial<IntersectFeature> | Partial<SurfaceFeature> | Partial<CrossBreakFeature> | Partial<WrapFeature> | Partial<ThreadFeature> | Partial<StudFeature> | Partial<SplitLineFeature> | Partial<ProjectedCurveFeature> | Partial<ClosedCornerFeature> | Partial<CornerReliefFeature> | Partial<LoftedBendFeature> | Partial<ConvertSheetFeature> | Partial<DeleteFaceFeature> | Partial<VentFeature> | Partial<FormToolFeature> | Partial<GussetFeature> | Partial<TabSlotFeature> | Partial<RipFeature> | Partial<SweptFlangeFeature> | Partial<StructuralMemberFeature> | Partial<TrimExtendFeature> | Partial<EndCapFeature> | Partial<WeldGussetFeature> | Partial<WeldBeadFeature> | Partial<DeformFeature>): void;
   commitFeature(): void;
   cancelFeature(): void;
   /** PropertyManager ▸ Keep Visible (pushpin): stays open after OK for the next feature of the same kind */
@@ -2142,6 +2147,10 @@ export const useStore = create<State>((set, get) => ({
       get().pushMessage('Select the two faces that meet at the corner.', 'warn');
       return;
     }
+    if (fe.draft.type === 'deform' && !fe.draft.point) {
+      get().pushMessage('Select the face (its centre is the deform point).', 'warn');
+      return;
+    }
     if (fe.draft.type === 'rip' && !fe.draft.edges.length) {
       get().pushMessage('Select the edges to rip.', 'warn');
       return;
@@ -2320,6 +2329,13 @@ export const useStore = create<State>((set, get) => ({
       const f = body?.faces.find((x) => x.id === selectedFace.faceId);
       if (!f || f.curved) return get().pushMessage('The start face must be planar.', 'warn');
       set({ featureEdit: { ...featureEdit, draft: { ...featureEdit.draft, startFace: { normal: f.normal, point: f.centroid, label: `Face<${body!.faces.indexOf(f) + 1}>` } } }, threadFacePick: false, selectedFace });
+      return;
+    }
+    if (featureEdit && selectedFace && featureEdit.draft.type === 'deform') {
+      const body = rebuild.bodies.find((b) => b.id === selectedFace.bodyId);
+      const face = body?.faces.find((f) => f.id === selectedFace.faceId);
+      if (!body || !face) return;
+      set({ featureEdit: { ...featureEdit, draft: { ...featureEdit.draft, point: [...face.centroid] as [number, number, number], direction: [...face.normal] as [number, number, number], label: `Face<${body.faces.indexOf(face) + 1}>` } }, selectedFace, selectedFaces: [selectedFace] });
       return;
     }
     const dx = get().dimxpertEdit;
@@ -2991,7 +3007,7 @@ export const useStore = create<State>((set, get) => ({
     history.push('Model View', doc);
     // Reference Configuration: the model as that configuration
     const model = drawingEdit.configuration ? documentForConfiguration(drawingEdit.model, drawingEdit.configuration) : drawingEdit.model;
-    const view: DrawingView = { id: newId('dv'), name: nextViewName(sheet), type: drawingEdit.orientation, position, scale: drawingEdit.useCustomScale ? drawingEdit.scale : undefined, displayStyle: drawingEdit.displayStyle, model, modelName: `${drawingEdit.model.name}<1>`, relative: drawingEdit.relative, empty: drawingEdit.emptyView || undefined, predefined: drawingEdit.predefined || undefined, ...(drawingEdit.configuration ? { configuration: drawingEdit.configuration } : {}), ...(drawingEdit.draftQuality ? { draftQuality: true } : {}), ...(drawingEdit.trueDims ? { trueDims: true } : {}), ...(drawingEdit.threadDraft ? { threadDraft: true } : {}) };
+    const view: DrawingView = { id: newId('dv'), name: nextViewName(sheet), type: drawingEdit.orientation, position, scale: drawingEdit.useCustomScale ? drawingEdit.scale : undefined, displayStyle: drawingEdit.displayStyle, model, modelName: `${drawingEdit.model.name}<1>`, relative: drawingEdit.relative, empty: drawingEdit.emptyView || undefined, predefined: drawingEdit.predefined || undefined, ...(drawingEdit.configuration ? { configuration: drawingEdit.configuration } : {}), ...(drawingEdit.draftQuality ? { draftQuality: true } : {}), ...(drawingEdit.trueDims ? { trueDims: true } : {}), ...(drawingEdit.threadDraft ? { threadDraft: true } : {}), ...(drawingEdit.bendLines !== false && drawingEdit.model.features.some((f) => f.type === 'flatPattern' && !f.suppressed) ? { bendLines: true } : {}), ...(drawingEdit.bendNotes ? { bendNotes: true } : {}) };
     let d: Document = { ...doc, sheets: [{ ...sheet, views: [...sheet.views, view] }] };
     // Import options ▸ Import annotations: the model dimensions come into the new view
     if (drawingEdit.importAnnotations && !drawingEdit.emptyView && !drawingEdit.predefined) {
@@ -3856,6 +3872,18 @@ export const useStore = create<State>((set, get) => ({
     }
     get().applyDocument(e.kind === 'auto' ? 'Auto Dimension Scheme' : 'MBD Dimension', { ...doc, dimxpert: next });
     set({ dimxpertEdit: null, selectedFace: null, selectedFaces: [], managerTab: 'dimxpert' });
+  },
+  startDeform() {
+    const { doc, rebuild, selectedFace } = get();
+    if (!rebuild.bodies.length) {
+      get().pushMessage('Deform needs a solid body.', 'warn');
+      return;
+    }
+    const b = selectedFace ? rebuild.bodies.find((x) => x.id === selectedFace.bodyId) : undefined;
+    const fc = b?.faces.find((x) => x.id === selectedFace?.faceId);
+    const n = doc.features.filter((f) => f.type === 'deform').length + 1;
+    const draft: DeformFeature = { id: newId('f'), type: 'deform', name: `Deform${n}`, suppressed: false, kind: 'point', point: fc ? [...fc.centroid] as [number, number, number] : null, direction: fc ? [...fc.normal] as [number, number, number] : [0, 1, 0], label: fc && b ? `Face<${b.faces.indexOf(fc) + 1}>` : undefined, distance: 5, radius: 20, stiffness: 'medium', reverse: false };
+    set({ featureEdit: { featureId: null, draft }, activeSketchId: null, tool: 'select', selection: [], tab: 'features', managerTab: 'tree', planePick: false, selectedFace: null, selectedFaces: [] });
   },
   startWeldment() {
     const { doc } = get();

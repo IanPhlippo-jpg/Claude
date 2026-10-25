@@ -430,6 +430,24 @@ export interface ConvertSheetFeature {
   insertBends?: boolean;
 }
 
+/** Features ▸ Deform ▸ Point: the body pushed in around a point with a smooth falloff. */
+export interface DeformFeature {
+  id: Id;
+  type: 'deform';
+  name: string;
+  suppressed: boolean;
+  kind: 'point';
+  /** the deform point and the push direction (a picked face: its centroid and normal) */
+  point: [number, number, number] | null;
+  direction: [number, number, number];
+  label?: string;
+  distance: number;
+  radius: number;
+  stiffness: 'rigid' | 'medium' | 'flexible';
+  /** push outward along the face normal instead of into the body */
+  reverse?: boolean;
+}
+
 /** Weldments ▸ Weldment: the part is a weldment (multibody, with a cut list). */
 export interface WeldmentFeature {
   id: Id;
@@ -1002,7 +1020,7 @@ export interface ImportedFeature {
   source: string;
 }
 
-export type SolidFeature = ExtrudeFeature | RevolveFeature | RoundFeature | MirrorFeature | PatternFeature | HoleFeature | ShellFeature | SweepFeature | LoftFeature | ImportedFeature | RibFeature | CombineFeature | BaseFlangeFeature | EdgeFlangeFeature | FlatPatternFeature | HelixFeature | HemFeature | MiterFlangeFeature | JogFeature | Sketch3DFeature | SketchedBendFeature | DraftFeature | IntersectFeature | SurfaceFeature | CrossBreakFeature | UnfoldFeature | WrapFeature | ThreadFeature | SplitLineFeature | ProjectedCurveFeature | StudFeature | ClosedCornerFeature | CornerReliefFeature | LoftedBendFeature | ConvertSheetFeature | BeltFeature | DeleteBodyFeature | DeleteFaceFeature | VentFeature | FormToolFeature | GussetFeature | TabSlotFeature | RipFeature | SweptFlangeFeature | WeldmentFeature | StructuralMemberFeature | TrimExtendFeature | EndCapFeature | WeldGussetFeature | WeldBeadFeature;
+export type SolidFeature = ExtrudeFeature | RevolveFeature | RoundFeature | MirrorFeature | PatternFeature | HoleFeature | ShellFeature | SweepFeature | LoftFeature | ImportedFeature | RibFeature | CombineFeature | BaseFlangeFeature | EdgeFlangeFeature | FlatPatternFeature | HelixFeature | HemFeature | MiterFlangeFeature | JogFeature | Sketch3DFeature | SketchedBendFeature | DraftFeature | IntersectFeature | SurfaceFeature | CrossBreakFeature | UnfoldFeature | WrapFeature | ThreadFeature | SplitLineFeature | ProjectedCurveFeature | StudFeature | ClosedCornerFeature | CornerReliefFeature | LoftedBendFeature | ConvertSheetFeature | BeltFeature | DeleteBodyFeature | DeleteFaceFeature | VentFeature | FormToolFeature | GussetFeature | TabSlotFeature | RipFeature | SweptFlangeFeature | WeldmentFeature | StructuralMemberFeature | TrimExtendFeature | EndCapFeature | WeldGussetFeature | WeldBeadFeature | DeformFeature;
 export type SketchBasedFeature = ExtrudeFeature | RevolveFeature | SweepFeature | LoftFeature | RibFeature | BaseFlangeFeature | HelixFeature;
 export type Feature = SketchFeature | SolidFeature;
 
@@ -1253,6 +1271,9 @@ export interface DrawingView {
   trueDims?: boolean;
   /** Cosmetic Thread Display ▸ Draft quality: the end view of a thread as a full circle instead of the 3/4 arc */
   threadDraft?: boolean;
+  /** Flat Pattern Display (sheet metal models): the bend lines and the bend notes (UP 90° R 3) */
+  bendLines?: boolean;
+  bendNotes?: boolean;
   /** Projected View ▸ Arrow: a viewing arrow at the parent view and VIEW X under this view */
   arrowLabel?: string;
 }

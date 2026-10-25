@@ -43,6 +43,9 @@ export interface Line2D {
   silhouette?: boolean;
   /** cosmetic thread (thin, dashed for an internal thread as ANSI; shown in every display style) */
   cosmetic?: boolean;
+  /** a bend line of a flat pattern (phantom line) with its bend note */
+  bend?: boolean;
+  note?: string;
 }
 
 export interface Circle2D {

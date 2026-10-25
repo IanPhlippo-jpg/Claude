@@ -1,6 +1,9 @@
 import { CheckDialog, RepairSketchDialog, SectionPropertiesDialog } from './evaluateDialogs';
 import { CompareDialog, CutListDialog, PerformanceDialog, SimXpressDialog, SymmetryDialog } from './evaluateDialogs2';
 import { CustomizeDialog } from './customize';
+import { applyUpAxis } from './viewport/camera';
+import { getPref } from './prefs';
+import { SaveAsDialog } from './evaluateDialogs2';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useStore } from './store';
 import { desktop } from './desktop';
@@ -75,6 +78,8 @@ export function App() {
     [],
   );
   useShortcuts(handlers);
+  // View ▸ Modify ▸ Up Axis: the saved choice applies to the standard views from the start
+  useEffect(() => { applyUpAxis(getPref('view.upAxis') === 'Z' ? 'Z' : 'Y'); }, []);
   // the command catalog (Customize) reaches Save and the shortcut bar through these hooks
   useEffect(() => {
     const w = window as unknown as { __phlippoSave?: () => void; __phlippoShortcutBar?: () => void };
@@ -135,6 +140,7 @@ export function App() {
           {st.dialog === 'performance' && <PerformanceDialog />}
           {st.dialog === 'customize' && <CustomizeDialog />}
           {st.dialog === 'cutList' && <CutListDialog />}
+          {st.dialog === 'saveAs' && <SaveAsDialog />}
           {st.dialog === 'symmetry' && <SymmetryDialog />}
           {st.dialog === 'compare' && <CompareDialog />}
           {st.dialog === 'simxpress' && <SimXpressDialog />}

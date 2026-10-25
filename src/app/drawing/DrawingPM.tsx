@@ -138,6 +138,13 @@ export function ModelViewPM() {
           <label className="k-check"><input type="radio" name="mvq" checked={!!de.draftQuality} onChange={() => st.setDrawingEdit({ draftQuality: true })} /> Draft quality</label>
         </div>
       </Section>
+      {de.model.features.some((f: { type: string }) => f.type === 'flatPattern') && (
+        <Section title="Flat Pattern Display" defaultOpen={!!de.model.features.some((f: { type: string; suppressed: boolean }) => f.type === 'flatPattern' && !f.suppressed)}>
+          <label className="k-check"><input type="checkbox" data-testid="mv-bendlines" checked={de.bendLines !== false} onChange={(e) => st.setDrawingEdit({ bendLines: e.target.checked })} /> Bend lines</label>
+          <label className="k-check" style={{ marginLeft: 18 }}><input type="checkbox" data-testid="mv-bendnotes" disabled={de.bendLines === false} checked={de.bendLines !== false && !!de.bendNotes} onChange={(e) => st.setDrawingEdit({ bendNotes: e.target.checked })} /> Bend notes</label>
+          <p className="k-muted">Bend lines show when the model's Flat-Pattern is unsuppressed; the note gives the bend direction, angle and radius.</p>
+        </Section>
+      )}
       <Section title="Scale">
         <div className="k-pm-radios">
           <label className="k-check"><input type="radio" name="mvscale" checked={!de.useCustomScale} onChange={() => st.setDrawingEdit({ useCustomScale: false })} /> Use sheet scale</label>

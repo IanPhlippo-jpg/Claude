@@ -29,23 +29,52 @@ export function modelBodies(model: Document): Body[] {
   return b;
 }
 
+const curveCache = new WeakMap<Document, NonNullable<ReturnType<typeof rebuildDocument>['curves']>>();
+
+/** the reference curves of the model a view shows (bend lines of a flat pattern), cached by document identity */
+export function modelCurves(model: Document): NonNullable<ReturnType<typeof rebuildDocument>['curves']> {
+  let c = curveCache.get(model);
+  if (!c) {
+    c = model.kind === 'assembly' ? [] : rebuildDocument(model, null).curves ?? [];
+    curveCache.set(model, c);
+  }
+  return c;
+}
+
+/** Flat Pattern Display ▸ Bend lines: the Bend-Lines curves of the flat pattern projected into the view, with the bend note */
+export function bendLines(model: Document, fr: { u: THREE.Vector3; v: THREE.Vector3; w: THREE.Vector3 }, notes: boolean): Line2D[] {
+  const fp = model.features.find((f) => f.type === 'flatPattern' && !f.suppressed);
+  if (!fp) return [];
+  const sm = model.sheetMetal;
+  const out: Line2D[] = [];
+  const to2 = (p: THREE.Vector3): [number, number] => [p.dot(fr.u), p.dot(fr.v)];
+  let k = 0;
+  for (const c of modelCurves(model)) {
+    if (c.name !== 'Bend-Lines' || c.points.length < 2) continue;
+    k++;
+    const a = c.points[0], b = c.points[c.points.length - 1];
+    out.push({ a: to2(a), b: to2(b), hidden: false, bend: true, note: notes ? `UP 90° R ${sm ? sm.bendRadius : 1}` : undefined });
+  }
+  return out;
+}
+
 const viewCache = new WeakMap<Document, Map<string, View2D>>();
 
 /** Projected 2D view of a model (model mm, view-centred at the projection of the model's bounds centre). */
-export function projectedView(model: Document, type: DrawingViewType, opts: { draft?: boolean; threadDraft?: boolean } = {}): View2D {
+export function projectedView(model: Document, type: DrawingViewType, opts: { draft?: boolean; threadDraft?: boolean; bendLines?: boolean; bendNotes?: boolean } = {}): View2D {
   let m = viewCache.get(model);
   if (!m) {
     m = new Map();
     viewCache.set(model, m);
   }
-  const key = `${type}|${opts.draft ? 'd' : ''}${opts.threadDraft ? 't' : ''}`;
+  const key = `${type}|${opts.draft ? 'd' : ''}${opts.threadDraft ? 't' : ''}${opts.bendLines ? 'b' : ''}${opts.bendNotes ? 'n' : ''}`;
   let v = m.get(key);
   if (!v) {
     const bodies = modelBodies(model);
     const fr = viewFrame(type);
     // Draft quality: coarser visibility samples along the edges
     const raw = projectView(bodies, fr, opts.draft ? 2.5 : 0.75);
-    v = { ...raw, lines: [...cleanLines(raw.lines), ...threadLines(model, bodies, fr, !opts.threadDraft)] };
+    v = { ...raw, lines: [...cleanLines(raw.lines), ...threadLines(model, bodies, fr, !opts.threadDraft), ...(opts.bendLines ? bendLines(model, fr, !!opts.bendNotes) : [])] };
     m.set(key, v);
   }
   return v;
@@ -108,11 +137,11 @@ export function threadLines(model: Document, bodies: Body[], fr: { u: THREE.Vect
 export type ViewGeo = View2D & { hatch?: [number, number][][]; /** Auto hatching: the hatch variant (0, 1, 2 …) of each hatch loop */ hatchVar?: number[]; /** the hatch only shows inside this outline (Broken-out Section) */ hatchClip?: [number, number][]; /** placement centre (a cropped view keeps the centre of the whole view, so it stays in place) */ centre?: [number, number] };
 
 /** The 2D geometry a drawing view shows: projection, section or detail. */
-export function viewGeometry(view: Pick<DrawingView, 'model' | 'type' | 'section' | 'detail'> & Partial<Pick<DrawingView, 'crop' | 'break' | 'aux' | 'brokenOut' | 'relative' | 'empty' | 'draftQuality' | 'threadDraft'>>): ViewGeo {
+export function viewGeometry(view: Pick<DrawingView, 'model' | 'type' | 'section' | 'detail'> & Partial<Pick<DrawingView, 'crop' | 'break' | 'aux' | 'brokenOut' | 'relative' | 'empty' | 'draftQuality' | 'threadDraft' | 'bendLines' | 'bendNotes'>>): ViewGeo {
   // Empty View / Predefined View without a model: a frame of 40 x 30 mm
   if (view.empty || (!view.model.features.length && !(view.model.components ?? []).length)) return { lines: [], circles: [], min: [-20, -15], max: [20, 15] };
   if (view.relative) return relativeGeometry(view.model, view.relative);
-  let g: ViewGeo = view.section ? sectionGeometry(view.model, view.section) : view.detail ? detailGeometry(view.model, view.detail) : view.aux ? auxGeometry(view.model, view.aux) : view.brokenOut ? brokenOutGeometry(view.model, view.type, view.brokenOut) : projectedView(view.model, view.type, { draft: view.draftQuality, threadDraft: view.threadDraft });
+  let g: ViewGeo = view.section ? sectionGeometry(view.model, view.section) : view.detail ? detailGeometry(view.model, view.detail) : view.aux ? auxGeometry(view.model, view.aux) : view.brokenOut ? brokenOutGeometry(view.model, view.type, view.brokenOut) : projectedView(view.model, view.type, { draft: view.draftQuality, threadDraft: view.threadDraft, bendLines: view.bendLines, bendNotes: view.bendNotes });
   if (view.crop) g = cropGeometry(g, view.crop.min, view.crop.max);
   if (view.break) g = breakGeometry(g, view.break);
   return g;

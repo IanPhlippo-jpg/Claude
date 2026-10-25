@@ -1,17 +1,17 @@
 # Graph Report - Claude  (2026-10-25)
 
 ## Corpus Check
-- 386 files · ~610,243 words
+- 390 files · ~615,607 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 15 file(s) not represented in the graph (top: .kcad 8, .css 2, .cmd 2)
 
 ## Summary
-- 3206 nodes · 9327 edges · 162 communities (135 shown, 27 thin omitted)
-- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 53 edges (avg confidence: 0.88)
+- 3247 nodes · 9447 edges · 164 communities (134 shown, 30 thin omitted)
+- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 54 edges (avg confidence: 0.88)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `c52b80f5`
+- Built from commit: `70d1c030`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -19,45 +19,45 @@
 - State
 - addLine
 - Id
-- CadCamera
+- camera.ts
 - Taken - Phlippo CAD
-- solver.ts
-- document/types.ts
-- MenuBar.tsx
+- Sketch
+- store.ts
+- AssemblyPM.tsx
 - useStore
 - bodyScene.ts
 - drawopts.mjs
-- react
+- icons.tsx
 - sheetmetal4.ts
 - SketchPoint
 - PropertyManager.tsx
 - Viewport.tsx
 - ref_node_fs
 - playwright
-- configurations.ts
+- dimxpert.ts
 - edit.ts
-- geometry.ts
+- tools.ts
 - rebuild.ts
-- Vergelijking met de video (lokale sessie, 2026-10-20)
+- configurations.ts
 - package.json
 - sketch/types.ts
 - planes.ts
 - sheetmetal.ts
 - features.mjs
 - sweep.ts
-- document/equations.ts
+- fasteners.ts
 - customize.tsx
 - annotations.ts
 - assembly.ts
 - Ribbon.tsx
-- evaluateDialogs2.tsx
-- three
+- evaluate2.ts
+- round.ts
 - devDependencies
-- thin.ts
+- thread.ts
 - compilerOptions
 - sketchtools2.mjs
-- evaluate.tsx
-- patterns2.ts
+- evaluateDialogs2.tsx
+- planarFaces
 - rect3.mjs
 - blockf.mjs
 - Document
@@ -96,14 +96,14 @@
 - editcomponent.mjs
 - explode.mjs
 - hem.mjs
-- inspect.test.ts
+- blocks.ts
 - sketchtools.mjs
 - surfaces.mjs
 - thickness.mjs
 - DesktopApi
 - corners.mjs
 - deletekey.mjs
-- Sketch
+- DrawingExtras.tsx
 - section.mjs
 - sketch3d.mjs
 - unfoldfold.mjs
@@ -120,18 +120,18 @@
 - Merken en auteursrecht: wat mag wel en niet lijken op het origineel
 - qa1.mjs
 - pattern3.test.ts
-- relations.ts
+- DrawingView
 - Lokaal werken met Claude Code (Windows)
 - 07-vergelijking-playlist.md
 - tsconfig.json
 - Phlippo CAD
 - gb.mjs
-- ExtrudeHandle.tsx
+- sketchScene.ts
 - electronFuses
-- camera.ts
+- unfold.ts
 - keys.mjs
 - filletopts.mjs
-- motion.mjs
+- gi.mjs
 - drawing2.mjs
 - section.ts
 - misc7.mjs
@@ -153,203 +153,209 @@
 - dialogopts.mjs
 - motion2.mjs
 - sectionopts.mjs
-- configureDialog.tsx
-- tools.ts
+- QA-rapport (extern, 24-10-2026) en wat ermee gebeurde
+- helix.mjs
 - gd.mjs
 - ga1.mjs
-- Architectuurschets
+- dwgopts.mjs
 - App.tsx
 - ga2.mjs
 - text.ts
 - gf.mjs
 - assembly2.mjs
 - render.mjs
-- look-ian.mjs
+- jogmiter.mjs
 - sheetmetal.mjs
-- store.ts
+- Mate
 - deletekey3.mjs
-- fasteners.mjs
-- sketchpattern.mjs
-- Hud.tsx
-- evalrender2.mjs
+- thread.mjs
+- silhouette.ts
+- faceappearance.mjs
+- patterns2.test.ts
 - instant3d.mjs
-- Instant3D.tsx
+- look-deurkruk-sel.mjs
+- inspect.test.ts
 - gg.mjs
+- DimXpertData
 - multibody.test.ts
 
 ## God Nodes (most connected - your core abstractions)
-1. `State` - 341 edges
+1. `State` - 349 edges
 2. `Id` - 212 edges
-3. `useStore` - 204 edges
+3. `useStore` - 206 edges
 4. `rebuildDocument()` - 151 edges
-5. `playwright` - 122 edges
-6. `three` - 98 edges
+5. `playwright` - 123 edges
+6. `three` - 100 edges
 7. `addLine()` - 97 edges
-8. `vitest` - 91 edges
-9. `Viewport()` - 90 edges
+8. `Viewport()` - 93 edges
+9. `vitest` - 92 edges
 10. `createSketch()` - 90 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `Viewport` --references--> `CadCamera`  [INFERRED]
-  docs/02-fase1-schetser.md → src/app/viewport/camera.ts
 - `Helix and Spiral (video 17, candy stripe) (2026-10-21)` --references--> `helixPath()`  [INFERRED]
   docs/05-vergelijking-video.md → src/core/features/sweep.ts
 - `Datamodel` --references--> `Sketch`  [INFERRED]
   docs/02-fase1-schetser.md → src/core/sketch/types.ts
+- `Viewport` --references--> `CadCamera`  [INFERRED]
+  docs/02-fase1-schetser.md → src/app/viewport/camera.ts
 - `Configuraties (ConfigurationManager) (2026-10-21)` --references--> `configurations()`  [INFERRED]
   docs/05-vergelijking-video.md → src/core/document/configurations.ts
-- `Configuraties (ConfigurationManager) (2026-10-21)` --references--> `activeConfiguration()`  [INFERRED]
-  docs/05-vergelijking-video.md → src/core/document/configurations.ts
+- `Invoer en robuustheid` --references--> `csg()`  [INFERRED]
+  docs/08-qa-rapport.md → src/core/features/solid.ts
 
 ## Import Cycles
 - 3-file cycle: `src/app/MenuBar.tsx -> src/app/viewport/Viewport.tsx -> src/app/panels/FeatureTreeBody.tsx -> src/app/MenuBar.tsx`
 - 3-file cycle: `src/core/assembly/assembly.ts -> src/core/features/rebuild.ts -> src/core/features/smcorners.ts -> src/core/assembly/assembly.ts`
 
-## Communities (162 total, 27 thin omitted)
+## Communities (164 total, 30 thin omitted)
 
 ### Community 1 - "addLine"
-Cohesion: 0.11
-Nodes (37): vitest, plate(), block(), pin(), plate(), fastenerPart(), placeFasteners(), plate() (+29 more)
+Cohesion: 0.13
+Nodes (26): plate(), block(), pin(), plate(), plate(), createDocument(), ExtrudeFeature, SketchFeature (+18 more)
 
 ### Community 2 - "Id"
-Cohesion: 0.03
-Nodes (3): DrawingView, Circle2D, Id
+Cohesion: 0.02
+Nodes (9): PatternEdit, ComponentPattern, Decal, DeleteBodyFeature, DrawingNote, WeldmentFeature, Circle2D, Hit (+1 more)
+
+### Community 3 - "camera.ts"
+Cohesion: 0.07
+Nodes (23): Architectuurschets, Bekende beperkingen (fase 1), Datamodel, Demo (± 2 minuten), Fase 1 — 2D-schetser met constraint-solver, Solver, Tests, UI-conventies (docs/01-research.md en docs/03-vergelijking-solidworks.md) (+15 more)
 
 ### Community 4 - "Taken - Phlippo CAD"
 Cohesion: 0.03
 Nodes (63): Configuraties (ConfigurationManager, video 19) (2026-10-21), Controle met de volledige playlist (58 video's, 15 u) — na de download, Curves ▸ Helix and Spiral (2026-10-21), Desktop-app (Electron) (2026-10-20, nacht), Eindcondities en sensors (video 40, 31) (2026-10-21), Extrude met Draft (video 29, LEG BASE) (2026-10-21), Fase 2: 3D-features op een solid-kern (2026-10-20), Fase 2b: Mirror, patronen, Hole Wizard, Shell, Sweep/Loft (2026-10-20, nacht) (+55 more)
 
-### Community 5 - "solver.ts"
-Cohesion: 0.20
-Nodes (20): lineLength(), resetIds(), ata(), atv(), dependentRows(), determinedParams(), Matrix, rref() (+12 more)
+### Community 5 - "Sketch"
+Cohesion: 0.09
+Nodes (40): OverlayProps, ToolContext, lineLength(), resetIds(), Sketch, buildEquations(), circleLike(), entityOf() (+32 more)
 
-### Community 6 - "document/types.ts"
-Cohesion: 0.05
-Nodes (65): BaseFlangeFeature, BeltFeature, ClosedCornerFeature, CombineFeature, ConvertSheetFeature, CornerReliefFeature, CrossBreakFeature, Decal (+57 more)
+### Community 6 - "store.ts"
+Cohesion: 0.03
+Nodes (108): AskOptions, AsmTool, ConfigEdit, COUPLING_MATES, DEFAULT_DECAL, DialogId, DockSide, DRAW_TOOLS (+100 more)
 
-### Community 7 - "MenuBar.tsx"
-Cohesion: 0.18
-Nodes (20): desktop(), DesktopFile, DesktopSaveResult, getDocumentPath(), isDesktop(), setDocumentPath(), download(), KCAD_FILTERS (+12 more)
+### Community 7 - "AssemblyPM.tsx"
+Cohesion: 0.16
+Nodes (22): PrefCheck(), saveCustom(), saveFavorites(), APPEARANCE_TREE, AppearancesPane(), findFolder(), Folder, Kind (+14 more)
 
 ### Community 8 - "useStore"
-Cohesion: 0.11
-Nodes (63): AltPositionPM(), AuxViewPM(), BalloonLayoutIcon(), BrokenOutPM(), ConfigSelect(), DetailViewPM(), DrawingDimensionPM(), DrawingViewPM() (+55 more)
+Cohesion: 0.12
+Nodes (58): AltPositionPM(), AuxViewPM(), BalloonLayoutIcon(), BrokenOutPM(), ConfigSelect(), DetailViewPM(), DrawingDimensionPM(), DrawingViewPM() (+50 more)
 
 ### Community 9 - "bodyScene.ts"
-Cohesion: 0.10
-Nodes (19): Beveiliging (Electron), Invoer en robuustheid, Prestaties en kwaliteit, QA-rapport (extern, 24-10-2026) en wat ermee gebeurde, Tests en proces, Uiterlijk en gebruik, DisplayStyle, BodyEntry (+11 more)
+Cohesion: 0.16
+Nodes (11): DisplayStyle, BodyScene, BodySceneInput, boxUVs(), LIGHTING, woodTexture(), featureEdges(), featureEdgeSets() (+3 more)
 
 ### Community 10 - "drawopts.mjs"
 Cohesion: 0.13
 Nodes (14): afront, asmDrw, det2, dim, dimAfter, dimEl, drw, errors (+6 more)
 
-### Community 11 - "react"
-Cohesion: 0.08
-Nodes (38): react, AssemblyTreeBody(), MATE_ICON, ConfigurationManagerBody(), DrawingTreeBody(), featureIcon(), FeatureTreeBody(), STATUS_LABEL (+30 more)
+### Community 11 - "icons.tsx"
+Cohesion: 0.06
+Nodes (50): react, fmtNum(), loadCustom(), loadFavorites(), MaterialDialog(), STRESS, TABS, AssemblyTreeBody() (+42 more)
 
 ### Community 12 - "sheetmetal4.ts"
-Cohesion: 0.11
-Nodes (30): PlaneDef, BodyEdge, matchEdge(), Body, RefSelection, axisCylinder(), bendLine(), chainEdges() (+22 more)
+Cohesion: 0.08
+Nodes (36): PlaneDef, V3, CreaseSegment, centroid(), pointInPolygon(), Region, sketchRegions(), axisCylinder() (+28 more)
 
 ### Community 13 - "SketchPoint"
-Cohesion: 0.16
-Nodes (6): ToolId, arcPoly(), slotGeometry(), ToolController, dist(), SketchPoint
+Cohesion: 0.17
+Nodes (8): ToolId, arcPoly(), slotGeometry(), ToolController, dist(), hitTest(), measure(), SketchPoint
 
 ### Community 14 - "PropertyManager.tsx"
-Cohesion: 0.06
-Nodes (62): PrefCheck(), fmtNum(), loadCustom(), MaterialDialog(), saveCustom(), STRESS, TABS, APPEARANCE_TREE (+54 more)
+Cohesion: 0.10
+Nodes (34): APPLY_TOOLS, DetailedPreviewButton(), dimFavs(), Header(), HOLE_SIZES, HOLE_TYPES, holeSubtypePatch(), HoleTypeIcon() (+26 more)
 
 ### Community 15 - "Viewport.tsx"
-Cohesion: 0.10
-Nodes (27): gestureBindings(), TEST_HOOKS, CadGTAOPass, renderWithAO(), planeLabel(), ConfirmationCorner(), viewDisplayName(), ViewSelector() (+19 more)
+Cohesion: 0.09
+Nodes (39): three-mesh-bvh, MarkupLayer(), isCommandActive(), CadGTAOPass, renderWithAO(), planeLabel(), viewDisplayName(), ViewSelector() (+31 more)
 
 ### Community 16 - "ref_node_fs"
-Cohesion: 0.03
-Nodes (27): [dir, first, last, prefix], b64, [inp, out, x, y, w, h, sc = '3'], b64, [file, x, y, w, h, out], errors, results, errors (+19 more)
+Cohesion: 0.04
+Nodes (29): b64, [file, x, y, w, h, out], doc, errors, results, errors, results, asm (+21 more)
 
 ### Community 17 - "playwright"
 Cohesion: 0.03
-Nodes (26): logs, env, logs, doc, errors, results, errors, part (+18 more)
+Nodes (22): [dir, first, last, prefix], b64, [inp, out, x, y, w, h, sc = '3'], logs, env, logs, errors, results (+14 more)
 
-### Community 18 - "configurations.ts"
-Cohesion: 0.22
-Nodes (21): BomDialog(), partWithExtrude(), activateConfiguration(), activeConfiguration(), addConfiguration(), applyConfiguration(), bomDescription(), bomPartNumber() (+13 more)
+### Community 18 - "dimxpert.ts"
+Cohesion: 0.18
+Nodes (17): autoDimensionScheme(), blockFor(), BlockTolerance, DEFAULT_BLOCK, DimXpertDatum, DimXpertDim, DimXpertGtol, faceDistance() (+9 more)
 
 ### Community 19 - "edit.ts"
 Cohesion: 0.14
-Nodes (35): addPiece(), arcAngles(), chainOf(), circularSketchPattern(), circumcentre(), convertPolylines(), copyEntities(), cornerTrim() (+27 more)
+Nodes (34): addPiece(), arcAngles(), chainOf(), circularSketchPattern(), circumcentre(), convertPolylines(), copyEntities(), cornerTrim() (+26 more)
 
-### Community 20 - "geometry.ts"
-Cohesion: 0.18
-Nodes (16): add(), distanceToEntity(), distToSegment(), ellipseArcRange(), ellipseParamOf(), ellipseParams(), Hit, hitTest() (+8 more)
+### Community 20 - "tools.ts"
+Cohesion: 0.11
+Nodes (31): PreviewItem, contourCache, PointerInfo, regionAt(), slotOutline(), ToolRender, Contour, DSU (+23 more)
 
 ### Community 21 - "rebuild.ts"
-Cohesion: 0.11
-Nodes (51): isRoundFeature(), body(), cache, featureSurface(), faceBoundary(), isReferencePlane(), resolvePlaneDef(), crossBreakLines() (+43 more)
+Cohesion: 0.09
+Nodes (61): deleteFaces(), holeTool(), MAX_PATTERN_INSTANCES, mirrorGeometry(), patternInstances(), rotatedAbout(), translated(), atLength() (+53 more)
 
-### Community 22 - "Vergelijking met de video (lokale sessie, 2026-10-20)"
-Cohesion: 0.08
-Nodes (24): Configuraties (ConfigurationManager) (2026-10-21), Doorgevoerd in de lokale sessie (2026-10-20, avond), Eindcondities Up To Next / Up To Surface / Offset From Surface (video 40) (2026-10-21), Evaluate en bestanden (2026-10-20, nacht), Fase 2 (2026-10-20, avond): 3D-features, Fase 3: Equations en Global Variables (2026-10-20, nacht), Fase 4: Assemblies (2026-10-20, nacht), Fase 5: Tekeningen (2026-10-21, nacht) (+16 more)
+### Community 22 - "configurations.ts"
+Cohesion: 0.05
+Nodes (68): Configuraties (ConfigurationManager) (2026-10-21), Doorgevoerd in de lokale sessie (2026-10-20, avond), Eindcondities Up To Next / Up To Surface / Offset From Surface (video 40) (2026-10-21), Evaluate en bestanden (2026-10-20, nacht), Fase 2 (2026-10-20, avond): 3D-features, Fase 3: Equations en Global Variables (2026-10-20, nacht), Fase 4: Assemblies (2026-10-20, nacht), Fase 5: Tekeningen (2026-10-21, nacht) (+60 more)
 
 ### Community 23 - "package.json"
 Cohesion: 0.10
 Nodes (20): author, description, main, name, private, type, version, concurrently (+12 more)
 
 ### Community 24 - "sketch/types.ts"
-Cohesion: 0.13
-Nodes (20): LibraryItem, GlyphDrawing, Block, insertBlock(), RelationOption, ArcEntity, CircleEntity, ConicEntity (+12 more)
+Cohesion: 0.17
+Nodes (18): dimensionForSelection(), isCircular(), LABELS, RelationOption, relationsForSelection(), ArcEntity, CircleEntity, ConicEntity (+10 more)
 
 ### Community 25 - "planes.ts"
-Cohesion: 0.16
-Nodes (13): cross(), dot(), norm(), planeOnFace(), REFERENCE_PLANE_DEFS, referencePlane(), referencePlaneRaw(), rotate() (+5 more)
+Cohesion: 0.23
+Nodes (11): basePlate(), cross(), dot(), norm(), planeOnFace(), referencePlane(), referencePlaneRaw(), rotate() (+3 more)
 
 ### Community 26 - "sheetmetal.ts"
-Cohesion: 0.11
-Nodes (31): base, P, vol(), baseFlangeGeometry(), baseFlangeRegion(), bendAllowance(), bendTableK(), cross() (+23 more)
+Cohesion: 0.12
+Nodes (35): polyArea(), extendEnd(), midpoint(), resample(), ribDraft(), ribGeometry(), base, P (+27 more)
 
 ### Community 27 - "features.mjs"
 Cohesion: 0.09
 Nodes (14): arrowInput, boxTris, c2, drift, eqInputs, errors, faces, mv (+6 more)
 
 ### Community 28 - "sweep.ts"
-Cohesion: 0.22
-Nodes (19): centroid(), pointInPolygon(), polyArea(), sketchRegions(), ccw(), sweptSurface(), capTriangles(), centroidOf() (+11 more)
+Cohesion: 0.35
+Nodes (12): capTriangles(), centroidOf(), finish(), frameOf(), loftGeometry(), orient(), placeLoop(), resample() (+4 more)
 
-### Community 29 - "document/equations.ts"
-Cohesion: 0.17
-Nodes (19): DesignStudyDialog(), evaluate(), Output, EquationsDialog(), fmt(), applyEquations(), DimensionRef, dimensionTable() (+11 more)
+### Community 29 - "fasteners.ts"
+Cohesion: 0.22
+Nodes (13): AsmHole, assemblyHoles(), FASTENER_NAMES, fastenerPart(), FastenerSlot, fastenerSlots(), FastenerType, Id (+5 more)
 
 ### Community 30 - "customize.tsx"
-Cohesion: 0.14
-Nodes (23): CATEGORIES, Command, commandById(), COMMANDS, DEFAULT_GESTURES, DEFAULT_KEYS, keyBindings(), keyCombo() (+15 more)
+Cohesion: 0.16
+Nodes (22): CATEGORIES, commandById(), COMMANDS, DEFAULT_GESTURES, DEFAULT_KEYS, gestureBindings(), keyBindings(), keyCombo() (+14 more)
 
 ### Community 31 - "annotations.ts"
-Cohesion: 0.30
-Nodes (13): lengthDecimals(), dimensionDrawing, dimensionDrawingBase(), entityAnchor(), entityFrame(), fmt(), glyphDrawings(), norm() (+5 more)
+Cohesion: 0.22
+Nodes (15): lengthDecimals(), dimensionDrawing, dimensionDrawingBase(), entityAnchor(), entityFrame(), fmt(), GlyphDrawing, glyphDrawings() (+7 more)
 
 ### Community 32 - "assembly.ts"
 Cohesion: 0.05
-Nodes (58): componentMatrix(), cylinderAxis(), flipWinding(), handMatrix(), leastSquares(), localRef(), matrixToTransform(), mergedCache (+50 more)
+Nodes (63): fmt(), LEN_UNITS, loadMassOpts(), MASS_UNITS, MassOpts, MassPropertiesDialog(), MeasureDialog(), MeasureLine (+55 more)
 
 ### Community 33 - "Ribbon.tsx"
-Cohesion: 0.19
-Nodes (20): startEmptyView(), LifecycleTab(), AnnotationTab(), SheetFormatTab(), ViewLayoutTab(), ASSEMBLY_TABS, BigButton(), BigProps (+12 more)
-
-### Community 34 - "evaluateDialogs2.tsx"
 Cohesion: 0.10
-Nodes (31): CompareDialog(), CutListDialog(), fmt(), PerformanceDialog(), Shell(), SimXpressDialog(), STEPS, SymmetryDialog() (+23 more)
+Nodes (34): DRAWING_BLOCKS, startEmptyView(), DockPanel(), LifecycleTab(), AnnotationTab(), SheetFormatTab(), ViewLayoutTab(), ASSEMBLY_TABS (+26 more)
 
-### Community 35 - "three"
-Cohesion: 0.11
-Nodes (36): three, faceOf(), loopOf(), Pick, SelectionToolbar(), bodyEdges(), CreaseSegment, creaseSegments() (+28 more)
+### Community 34 - "evaluate2.ts"
+Cohesion: 0.14
+Nodes (19): bodyCompare(), BodyCompareResult, compareDocuments(), deviationAnalysis(), DeviationResult, DocCompareResult, featureKey(), partingLineAnalysis() (+11 more)
+
+### Community 35 - "round.ts"
+Cohesion: 0.13
+Nodes (31): bodyEdges(), creaseSegments(), mergeCollinear(), subEdgeAt(), applyRoundFeature(), removed(), topEdge(), vol() (+23 more)
 
 ### Community 36 - "devDependencies"
 Cohesion: 0.12
 Nodes (16): devDependencies, concurrently, cross-env, electron, electron-builder, jsdom, playwright, @types/node (+8 more)
 
-### Community 37 - "thin.ts"
-Cohesion: 0.16
-Nodes (19): Region, extendEnd(), midpoint(), resample(), ribDraft(), ribGeometry(), VentInput, THROUGH_ALL (+11 more)
+### Community 37 - "thread.ts"
+Cohesion: 0.21
+Nodes (13): ccw(), flipWinding(), revolveGeometry(), helixRings(), METRIC_THREADS, nearestThread(), threadPreviewCurves(), threadProfile() (+5 more)
 
 ### Community 38 - "compilerOptions"
 Cohesion: 0.12
@@ -359,13 +365,13 @@ Nodes (15): compilerOptions, isolatedModules, jsx, lib, module, moduleResolution
 Cohesion: 0.16
 Nodes (11): click(), count(), errors, fly(), hd, K(), P(), pc (+3 more)
 
-### Community 40 - "evaluate.tsx"
-Cohesion: 0.19
-Nodes (19): fmt(), LEN_UNITS, loadMassOpts(), MASS_UNITS, MassOpts, MassPropertiesDialog(), MeasureDialog(), MeasureLine (+11 more)
+### Community 40 - "evaluateDialogs2.tsx"
+Cohesion: 0.36
+Nodes (10): CompareDialog(), CutListDialog(), fmt(), PerformanceDialog(), Shell(), SimXpressDialog(), STEPS, SymmetryDialog() (+2 more)
 
-### Community 41 - "patterns2.ts"
-Cohesion: 0.19
-Nodes (17): componentBody(), holeTool(), MAX_PATTERN_INSTANCES, mirrorGeometry(), patternInstances(), rotatedAbout(), translated(), atLength() (+9 more)
+### Community 41 - "planarFaces"
+Cohesion: 0.25
+Nodes (10): componentBody(), box(), body(), faceBoundary(), draftOnBody(), closedCornerTool(), findFace(), prism() (+2 more)
 
 ### Community 42 - "rect3.mjs"
 Cohesion: 0.15
@@ -377,7 +383,7 @@ Nodes (4): errors, results, S(), vol()
 
 ### Community 44 - "Document"
 Cohesion: 0.10
-Nodes (14): DrawingEdit, InsertGhost, AssemblyRebuild, Configuration, Document, DrawingDimension, DrawingSymbol, DrawingViewType (+6 more)
+Nodes (14): InsertGhost, AssemblyRebuild, Configuration, Equation, Component, Document, DeleteDependents, geometricChildren() (+6 more)
 
 ### Community 45 - "full.mjs"
 Cohesion: 0.21
@@ -404,8 +410,8 @@ Cohesion: 0.14
 Nodes (14): scripts, build, ci, desktop, desktop:build, desktop:start, dev, e2e (+6 more)
 
 ### Community 51 - "solid.ts"
-Cohesion: 0.10
-Nodes (29): three-mesh-bvh, detectInterferences(), Interference, InterferenceOptions, touchDistance(), deleteFaces(), V3, applyShell() (+21 more)
+Cohesion: 0.09
+Nodes (24): three, vitest, Interference, InterferenceOptions, touchDistance(), exportStl(), geometryFromPositions(), parseStl() (+16 more)
 
 ### Community 52 - "Onderzoek: workflow en lay-out van moderne parametrische CAD"
 Cohesion: 0.18
@@ -417,11 +423,11 @@ Nodes (7): asm, errors, front, items, results, tek, toPx()
 
 ### Community 54 - "sheet.ts"
 Cohesion: 0.05
-Nodes (87): arrow(), arrowHead(), directionFrom(), DrawingSheetView(), newSymbolId(), orientationFor(), PAPER, sheetToViewLocal() (+79 more)
+Nodes (89): arrow(), arrowHead(), directionFrom(), DrawingSheetView(), newSymbolId(), orientationFor(), PAPER, sheetToViewLocal() (+81 more)
 
 ### Community 55 - "analysis.ts"
-Cohesion: 0.22
-Nodes (17): AnalysisHead(), ThicknessAnalysisPM(), bvhCache, bvhOf(), curvatureAnalysis(), curvatureColor(), DRAFT_COLORS, draftAnalysis() (+9 more)
+Cohesion: 0.21
+Nodes (18): AnalysisHead(), ThicknessAnalysisPM(), UndercutAnalysisPM(), bvhCache, bvhOf(), curvatureAnalysis(), curvatureColor(), DRAFT_COLORS (+10 more)
 
 ### Community 57 - "compilerOptions"
 Cohesion: 0.18
@@ -484,8 +490,8 @@ Cohesion: 0.19
 Nodes (16): ColorList(), OptionsDialog(), appliedTokens, applyColorScheme(), Category, COLOR_SCHEME_ITEMS, Control, current (+8 more)
 
 ### Community 72 - "model.ts"
-Cohesion: 0.18
-Nodes (19): extractBlock(), copyEntitiesKeep(), addArc(), addConic(), addConstraint(), addEllipse(), addEllipseArc(), addPoint() (+11 more)
+Cohesion: 0.19
+Nodes (17): TEST_HOOKS, vaseDoc(), copyEntitiesKeep(), fullyDefineSketch(), addArc(), addCircle(), addConic(), addConstraint() (+9 more)
 
 ### Community 73 - "Vergelijking met de SOLIDWORKS-handleiding en aanpassingen"
 Cohesion: 0.25
@@ -507,9 +513,9 @@ Nodes (3): errors, nums, results
 Cohesion: 0.25
 Nodes (4): depthField, errors, pin, results
 
-### Community 80 - "inspect.test.ts"
-Cohesion: 0.30
-Nodes (9): CheckDialog(), RepairSketchDialog(), SectionPropertiesDialog(), bodyCheck(), sectionProperties(), findSketchProblems(), repair(), repairSketch() (+1 more)
+### Community 80 - "blocks.ts"
+Cohesion: 0.25
+Nodes (12): RepairSketchDialog(), Block, extractBlock(), entityPoints(), entityScalars(), ownerOfPoint(), removeEntity(), findSketchProblems() (+4 more)
 
 ### Community 81 - "sketchtools.mjs"
 Cohesion: 0.29
@@ -523,9 +529,9 @@ Nodes (5): errors, kruk, nums, results, thin
 Cohesion: 0.33
 Nodes (6): alive(), asm, check(), errors, results, tek
 
-### Community 87 - "Sketch"
-Cohesion: 0.14
-Nodes (16): solveAll(), PlaneId, OverlayProps, PreviewItem, SceneColors, SceneInput, ToolContext, ToolRender (+8 more)
+### Community 87 - "DrawingExtras.tsx"
+Cohesion: 0.42
+Nodes (10): drawingToolClick(), Frame(), GeneralTableDialog(), insertBlock(), insertModelInView(), LinearNotePatternDialog(), RelativeViewDialog(), sheetModels() (+2 more)
 
 ### Community 91 - "uptobody.mjs"
 Cohesion: 0.29
@@ -544,8 +550,8 @@ Cohesion: 0.33
 Nodes (3): doc, errors, results
 
 ### Community 95 - "refgeom.ts"
-Cohesion: 0.19
-Nodes (17): threadEdge(), RefGeometry, axisCandidate(), pointCandidate(), refGeometryFrom(), refGeometryLines(), T(), V() (+9 more)
+Cohesion: 0.26
+Nodes (12): RefGeometry, BodyEdge, axisCandidate(), pointCandidate(), refGeometryFrom(), refGeometryLines(), RefSelection, T() (+4 more)
 
 ### Community 97 - "export3d.ts"
 Cohesion: 0.23
@@ -568,12 +574,12 @@ Cohesion: 0.38
 Nodes (5): errors, mem(), results, S(), st()
 
 ### Community 103 - "pattern3.test.ts"
-Cohesion: 0.22
-Nodes (7): Feature, box(), rect(), base, vol(), holeDoc(), plate()
+Cohesion: 0.24
+Nodes (5): Feature, box(), rect(), holeDoc(), plate()
 
-### Community 104 - "relations.ts"
-Cohesion: 0.33
-Nodes (6): fullyDefineSketch(), dimensionForSelection(), isCircular(), LABELS, measure(), relationsForSelection()
+### Community 104 - "DrawingView"
+Cohesion: 0.20
+Nodes (5): DrawingEdit, DrawingDimension, DrawingSymbol, DrawingView, DrawingViewType
 
 ### Community 105 - "Lokaal werken met Claude Code (Windows)"
 Cohesion: 0.50
@@ -587,17 +593,17 @@ Nodes (6): Inventaris SOLIDWORKS-video's 25–37 vs. Phlippo CAD (src/)\n\nWerkw
 Cohesion: 0.14
 Nodes (11): amf, bodyRow, buf, dl, dl2, dl3, doc(), errors (+3 more)
 
-### Community 110 - "ExtrudeHandle.tsx"
+### Community 110 - "sketchScene.ts"
 Cohesion: 0.27
-Nodes (7): getPlane(), sketchToWorld(), worldToSketch(), ExtrudeHandle(), rgba(), SketchScene, sketchBounds()
+Nodes (8): getPlane(), PlaneId, sketchToWorld(), ExtrudeHandle(), rgba(), SceneColors, SceneInput, SketchScene
 
 ### Community 111 - "electronFuses"
 Cohesion: 0.29
 Nodes (7): electronFuses, enableCookieEncryption, enableEmbeddedAsarIntegrityValidation, enableNodeCliInspectArguments, enableNodeOptionsEnvironmentVariable, onlyLoadAppFromAsar, runAsNode
 
-### Community 112 - "camera.ts"
-Cohesion: 0.15
-Nodes (12): customPlanes, normalToView(), PlaneBasis, PLANES, Q(), REFERENCE_PLANES, ReferencePlaneId, registerPlanes() (+4 more)
+### Community 112 - "unfold.ts"
+Cohesion: 0.31
+Nodes (6): foldGeometry(), mapGeometry(), sheetMapping, splitByPlanes(), unfoldGeometry(), Zone
 
 ### Community 113 - "keys.mjs"
 Cohesion: 0.29
@@ -607,16 +613,16 @@ Nodes (6): check(), errs, keys, part, results, run()
 Cohesion: 0.20
 Nodes (5): errors, pickTopEdges(), results, topLongEdges(), undo()
 
-### Community 115 - "motion.mjs"
-Cohesion: 0.33
-Nodes (3): asm, errors, results
+### Community 115 - "gi.mjs"
+Cohesion: 0.32
+Nodes (5): dx(), errors, pickFace(), results, S()
 
 ### Community 116 - "drawing2.mjs"
 Cohesion: 0.22
 Nodes (7): clickSheet(), errors, P(), painted, results, [srcNote, dstNote], tek
 
 ### Community 117 - "section.ts"
-Cohesion: 0.20
+Cohesion: 0.23
 Nodes (13): SectionView, ReferencePlaneId, capTriangles(), clipPoly(), clipPolyAll(), Cut, dist(), Half (+5 more)
 
 ### Community 118 - "misc7.mjs"
@@ -632,16 +638,16 @@ Cohesion: 0.29
 Nodes (3): docs, errs, report
 
 ### Community 125 - "viewlayout.mjs"
-Cohesion: 0.09
-Nodes (21): asm, aux, click(), errors, front, nl, nrm, results (+13 more)
+Cohesion: 0.12
+Nodes (11): asm, aux, click(), errors, front, nl, nrm, results (+3 more)
 
 ### Community 126 - "vite.config.ts"
 Cohesion: 0.40
 Nodes (3): vite, @vitejs/plugin-react, pkg
 
 ### Community 128 - "newId"
-Cohesion: 0.13
-Nodes (35): Dataverlies (de GO-voorwaarden), addComment(), comps(), copyWithMates(), insertNewAssembly(), insertNewPart(), makeMultibodyPart(), mirrorComponents() (+27 more)
+Cohesion: 0.14
+Nodes (33): Dataverlies (de GO-voorwaarden), addComment(), comps(), copyWithMates(), insertNewAssembly(), insertNewPart(), makeMultibodyPart(), mirrorComponents() (+25 more)
 
 ### Community 130 - "preload.cjs"
 Cohesion: 0.50
@@ -653,7 +659,7 @@ Nodes (3): errors, pin, results
 
 ### Community 132 - "weldments.ts"
 Cohesion: 0.08
-Nodes (37): boundaryLoops(), capLoop(), extendSurface(), fillLoops(), flattenSurface(), halfSpaceBox(), key(), ruledSurface() (+29 more)
+Nodes (42): applyShell(), applyShellFromHistory(), applyShellOutward(), BuildHistory, FaceRefData, offsetInward(), solveOffset(), csg() (+34 more)
 
 ### Community 133 - "triad.mjs"
 Cohesion: 0.29
@@ -675,13 +681,9 @@ Nodes (4): errors, pin, results, rozet
 Cohesion: 0.29
 Nodes (3): errors, part, results
 
-### Community 139 - "configureDialog.tsx"
-Cohesion: 0.48
-Nodes (6): fmt(), ModifyConfigurationsDialog(), ConfigurationEdit, configurationDimension(), isSuppressedIn(), isSolidFeature()
-
-### Community 140 - "tools.ts"
-Cohesion: 0.20
-Nodes (12): contourCache, PointerInfo, regionAt(), slotOutline(), Contour, DSU, Edge, findContours() (+4 more)
+### Community 139 - "QA-rapport (extern, 24-10-2026) en wat ermee gebeurde"
+Cohesion: 0.29
+Nodes (6): Beveiliging (Electron), Invoer en robuustheid, Prestaties en kwaliteit, QA-rapport (extern, 24-10-2026) en wat ermee gebeurde, Tests en proces, Uiterlijk en gebruik
 
 ### Community 141 - "gd.mjs"
 Cohesion: 0.26
@@ -691,13 +693,13 @@ Nodes (9): errors, errs(), nSurf(), results, run(), S(), surfArea(), undo() (+1 
 Cohesion: 0.24
 Nodes (9): [a, b], clickAt(), errors, line, lines, proj(), results, S() (+1 more)
 
-### Community 143 - "Architectuurschets"
-Cohesion: 0.20
-Nodes (9): Architectuurschets, Bekende beperkingen (fase 1), Datamodel, Demo (± 2 minuten), Fase 1 — 2D-schetser met constraint-solver, Solver, Tests, UI-conventies (docs/01-research.md en docs/03-vergelijking-solidworks.md) (+1 more)
+### Community 143 - "dwgopts.mjs"
+Cohesion: 0.33
+Nodes (3): errors, part, results
 
 ### Community 144 - "App.tsx"
-Cohesion: 0.11
-Nodes (48): App(), AppearanceDialog(), SWATCHES, downloadText(), InterferenceDialog(), AskDialog(), ConfirmDeleteDialog(), LegacyOptionsDialog() (+40 more)
+Cohesion: 0.08
+Nodes (63): App(), AppearanceDialog(), SWATCHES, downloadText(), InterferenceDialog(), DesignStudyDialog(), evaluate(), Output (+55 more)
 
 ### Community 145 - "ga2.mjs"
 Cohesion: 0.36
@@ -719,25 +721,21 @@ Nodes (3): asm, errors, results
 Cohesion: 0.33
 Nodes (3): asm, errors, results
 
-### Community 150 - "look-ian.mjs"
-Cohesion: 0.50
-Nodes (3): asm, drw, errors
-
-### Community 152 - "store.ts"
-Cohesion: 0.04
-Nodes (53): AskOptions, AsmTool, ConfigEdit, COUPLING_MATES, DEFAULT_DECAL, DialogId, DockSide, DRAW_TOOLS (+45 more)
-
 ### Community 153 - "deletekey3.mjs"
 Cohesion: 0.40
 Nodes (3): doc, logs, t0
 
-### Community 156 - "Hud.tsx"
-Cohesion: 0.53
-Nodes (5): Hud(), HudButton(), VIEW_LABEL, ViewGrid(), ViewIcon()
+### Community 155 - "silhouette.ts"
+Cohesion: 0.47
+Nodes (3): BodyEntry, silhouette(), smoothEdges
 
-### Community 159 - "Instant3D.tsx"
-Cohesion: 0.83
-Nodes (3): isCommandActive(), extrudeCapOf(), Instant3DHandle()
+### Community 157 - "patterns2.test.ts"
+Cohesion: 0.50
+Nodes (3): base(), plate(), volume()
+
+### Community 159 - "look-deurkruk-sel.mjs"
+Cohesion: 0.50
+Nodes (3): asm, errors, rows
 
 ### Community 161 - "gg.mjs"
 Cohesion: 0.32
@@ -749,23 +747,23 @@ Nodes (5): extrudeF(), sketchF(), square(), twoBlocks(), vol()
 
 ## Knowledge Gaps
 - **10 isolated node(s):** `@types/node`, `@types/react`, `@types/react-dom`, `@types/three`, `concurrently` (+5 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 1346 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **27 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 1358 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **30 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `playwright` connect `playwright` to `asmoptions.mjs`, `triad.mjs`, `ge.mjs`, `dialogopts.mjs`, `motion2.mjs`, `drawopts.mjs`, `sectionopts.mjs`, `gd.mjs`, `ga1.mjs`, `ref_node_fs`, `ga2.mjs`, `gf.mjs`, `assembly2.mjs`, `render.mjs`, `look-ian.mjs`, `sheetmetal.mjs`, `package.json`, `deletekey3.mjs`, `fasteners.mjs`, `features.mjs`, `sketchpattern.mjs`, `evalrender2.mjs`, `instant3d.mjs`, `gg.mjs`, `sketchtools2.mjs`, `rect3.mjs`, `blockf.mjs`, `full.mjs`, `assembly.mjs`, `configurations.mjs`, `annotations.mjs`, `componentpattern.mjs`, `drawing.mjs`, `endconditions.mjs`, `fixes1.mjs`, `annotations2.mjs`, `annotations3.mjs`, `deletekey2.mjs`, `ellipsetext.mjs`, `multibody.mjs`, `rib.mjs`, `arcslot.mjs`, `asmcut.mjs`, `draftcheck.mjs`, `editcomponent.mjs`, `explode.mjs`, `hem.mjs`, `sketchtools.mjs`, `surfaces.mjs`, `thickness.mjs`, `corners.mjs`, `deletekey.mjs`, `section.mjs`, `sketch3d.mjs`, `unfoldfold.mjs`, `uptobody.mjs`, `drawingfix.mjs`, `confirmdelete.mjs`, `relations.mjs`, `qa2.mjs`, `gh.mjs`, `wrap.mjs`, `qa1.mjs`, `gb.mjs`, `keys.mjs`, `filletopts.mjs`, `motion.mjs`, `drawing2.mjs`, `misc7.mjs`, `doorhandle.mjs`, `clickall.mjs`, `features2.mjs`, `sheetmetal2.mjs`, `slot.mjs`, `viewlayout.mjs`?**
-  _High betweenness centrality (0.192) - this node is a cross-community bridge._
+- **Why does `playwright` connect `playwright` to `drawopts.mjs`, `ref_node_fs`, `package.json`, `features.mjs`, `sketchtools2.mjs`, `rect3.mjs`, `blockf.mjs`, `full.mjs`, `assembly.mjs`, `configurations.mjs`, `annotations.mjs`, `componentpattern.mjs`, `drawing.mjs`, `endconditions.mjs`, `fixes1.mjs`, `annotations2.mjs`, `annotations3.mjs`, `deletekey2.mjs`, `ellipsetext.mjs`, `multibody.mjs`, `rib.mjs`, `arcslot.mjs`, `asmcut.mjs`, `draftcheck.mjs`, `editcomponent.mjs`, `explode.mjs`, `hem.mjs`, `sketchtools.mjs`, `surfaces.mjs`, `thickness.mjs`, `corners.mjs`, `deletekey.mjs`, `section.mjs`, `sketch3d.mjs`, `unfoldfold.mjs`, `uptobody.mjs`, `drawingfix.mjs`, `confirmdelete.mjs`, `relations.mjs`, `qa2.mjs`, `gh.mjs`, `wrap.mjs`, `qa1.mjs`, `gb.mjs`, `keys.mjs`, `filletopts.mjs`, `gi.mjs`, `drawing2.mjs`, `misc7.mjs`, `doorhandle.mjs`, `clickall.mjs`, `features2.mjs`, `sheetmetal2.mjs`, `slot.mjs`, `viewlayout.mjs`, `asmoptions.mjs`, `triad.mjs`, `ge.mjs`, `dialogopts.mjs`, `motion2.mjs`, `sectionopts.mjs`, `helix.mjs`, `gd.mjs`, `ga1.mjs`, `dwgopts.mjs`, `ga2.mjs`, `gf.mjs`, `assembly2.mjs`, `render.mjs`, `jogmiter.mjs`, `sheetmetal.mjs`, `deletekey3.mjs`, `thread.mjs`, `faceappearance.mjs`, `instant3d.mjs`, `look-deurkruk-sel.mjs`, `gg.mjs`?**
+  _High betweenness centrality (0.206) - this node is a cross-community bridge._
 - **What connects `@types/node`, `@types/react`, `@types/react-dom` to the rest of the system?**
   _10 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `State` be split into smaller, more focused modules?**
-  _Cohesion score 0.0091324200913242 - nodes in this community are weakly interconnected._
-- **Why does `State` connect `State` to `newId`, `SelectionItem`, `Id`, `evaluateDialogs2.tsx`, `document/types.ts`, `prefs.ts`, `MenuBar.tsx`, `evaluate.tsx`, `Document`, `SketchPoint`, `PropertyManager.tsx`, `Viewport.tsx`, `sheet.ts`, `Sketch`, `store.ts`, `sketch/types.ts`, `sheetmetal.ts`, `document/equations.ts`?**
-  _High betweenness centrality (0.153) - this node is a cross-community bridge._
+  _Cohesion score 0.008620689655172414 - nodes in this community are weakly interconnected._
+- **Why does `State` connect `State` to `newId`, `SelectionItem`, `Id`, `Sketch`, `store.ts`, `icons.tsx`, `SketchPoint`, `App.tsx`, `dimxpert.ts`, `Mate`, `annotations.ts`, `assembly.ts`, `DimXpertData`, `evaluateDialogs2.tsx`, `Document`, `sheet.ts`, `prefs.ts`, `refgeom.ts`, `DrawingView`?**
+  _High betweenness centrality (0.154) - this node is a cross-community bridge._
 - **Should `addLine` be split into smaller, more focused modules?**
-  _Cohesion score 0.11491628614916286 - nodes in this community are weakly interconnected._
-- **Why does `three` connect `three` to `newId`, `addLine`, `weldments.ts`, `document/types.ts`, `MenuBar.tsx`, `useStore`, `bodyScene.ts`, `react`, `sheetmetal4.ts`, `Viewport.tsx`, `text.ts`, `rebuild.ts`, `package.json`, `store.ts`, `planes.ts`, `sheetmetal.ts`, `Hud.tsx`, `sweep.ts`, `Instant3D.tsx`, `assembly.ts`, `evaluateDialogs2.tsx`, `multibody.test.ts`, `thin.ts`, `evaluate.tsx`, `patterns2.ts`, `solid.ts`, `sheet.ts`, `analysis.ts`, `inspect.test.ts`, `Sketch`, `refgeom.ts`, `export3d.ts`, `pattern3.test.ts`, `ExtrudeHandle.tsx`, `camera.ts`, `section.ts`?**
-  _High betweenness centrality (0.111) - this node is a cross-community bridge._
+  _Cohesion score 0.13387755102040816 - nodes in this community are weakly interconnected._
+- **Why does `three` connect `solid.ts` to `newId`, `addLine`, `camera.ts`, `weldments.ts`, `store.ts`, `useStore`, `bodyScene.ts`, `icons.tsx`, `sheetmetal4.ts`, `Viewport.tsx`, `dimxpert.ts`, `text.ts`, `rebuild.ts`, `package.json`, `planes.ts`, `sheetmetal.ts`, `silhouette.ts`, `sweep.ts`, `fasteners.ts`, `patterns2.test.ts`, `assembly.ts`, `Ribbon.tsx`, `evaluate2.ts`, `round.ts`, `inspect.test.ts`, `multibody.test.ts`, `thread.ts`, `planarFaces`, `Document`, `sheet.ts`, `analysis.ts`, `refgeom.ts`, `export3d.ts`, `pattern3.test.ts`, `sketchScene.ts`, `unfold.ts`, `section.ts`?**
+  _High betweenness centrality (0.116) - this node is a cross-community bridge._
 - **Should `Id` be split into smaller, more focused modules?**
-  _Cohesion score 0.025925925925925925 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.023803009575923392 - nodes in this community are weakly interconnected._

@@ -484,6 +484,11 @@ export function DrawingSheetView() {
         {drawLines.map((l, i) => {
           const a = toPx(l.a), q = toPx(l.b);
           if (l.cosmetic) return <line key={i} className="k-cosmetic-thread" x1={a[0]} y1={a[1]} x2={q[0]} y2={q[1]} stroke="#000" strokeWidth={0.7} strokeDasharray="4 2" />;
+          if (l.bend) {
+            // Flat Pattern Display: a bend line as a phantom line (dash dot dot) with its bend note beside the middle
+            const mx = (a[0] + q[0]) / 2, my = (a[1] + q[1]) / 2;
+            return <g key={i} className="k-bend-line" data-testid="bend-line"><line x1={a[0]} y1={a[1]} x2={q[0]} y2={q[1]} stroke="#000" strokeWidth={0.8} strokeDasharray="8 2 2 2 2 2" />{l.note && <text x={mx + 3} y={my - 3} fontSize={9} fill="#000" data-testid="bend-note">{l.note}</text>}</g>;
+          }
           return <line key={i} x1={a[0]} y1={a[1]} x2={q[0]} y2={q[1]} stroke={l.hidden ? '#555' : '#000'} strokeWidth={l.hidden ? 0.9 : 1.6} strokeDasharray={l.hidden ? '5 3' : undefined} strokeLinecap="round" />;
         })}
         {sheet.centerMarks.filter((m) => m.viewId === v.id).map((m) => {

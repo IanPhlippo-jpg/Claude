@@ -5,6 +5,9 @@ import { Icon } from '../ui/icons';
 import { FILE_EXTENSION, MAX_FILE_BYTES, parseDocument, serializeDocument } from '../core/document/persistence';
 import { exportStl, parseStl } from '../core/document/stl';
 import { desktop, getDocumentPath, setDocumentPath } from './desktop';
+import { viewerHtml } from '../core/document/viewerExport';
+import { applyUpAxis as setUpAxis } from './viewport/camera';
+import { getPref, loadPrefs } from './prefs';
 import { getCamera } from './viewport/Viewport';
 
 /** the version from package.json (vite define) */
@@ -64,6 +67,29 @@ export function withUnsavedCheck(then: () => void): void {
 }
 
 export const saveDocumentAs = () => saveDocument(true);
+
+/** Save As (browser): the file name and the Save as copy options of the dialog */
+export function saveDocumentWith(opts: { name: string; copy: boolean; includeRefs: boolean }): void {
+  const st = useStore.getState();
+  const doc = opts.name && opts.name !== st.doc.name ? { ...st.doc, name: opts.name } : st.doc;
+  const text = serializeDocument(doc);
+  download(`${doc.name}${FILE_EXTENSION}`, text, 'application/json');
+  if (!opts.copy) {
+    if (doc.name !== st.doc.name) st.renameDocument(doc.name);
+    useStore.setState({ dirty: false });
+  }
+  st.pushMessage(opts.copy ? `${doc.name}${FILE_EXTENSION} saved as a copy; ${st.doc.name} stays open.` : `${doc.name}${FILE_EXTENSION} saved.`);
+}
+
+/** File ▸ Publish to Phlippo Viewer: a standalone HTML viewer of the bodies (the eDrawings equivalent) */
+export function publishViewer(): void {
+  const st = useStore.getState();
+  const bodies = st.rebuild.bodies.map((b) => ({ name: st.doc.features.find((f) => f.id === b.featureIds[b.featureIds.length - 1])?.name ?? b.id, geometry: b.geometry, color: st.doc.bodyAppearances?.[b.id] as string | undefined ?? st.doc.appearance ?? st.doc.material?.color ?? '#cfd3d8' }));
+  if (!bodies.length) return st.pushMessage('Publish needs a solid body.', 'warn');
+  const html = viewerHtml(st.doc.name, bodies, { app: 'Phlippo CAD', version: APP_VERSION, date: new Date().toISOString().slice(0, 10) });
+  download(`${st.doc.name}.html`, html, 'text/html');
+  st.pushMessage(`${st.doc.name}.html published: opens in any browser without Phlippo CAD.`);
+}
 
 /** Save As ▸ STL: the solid body as a binary STL (model units). */
 export function saveStl() {
@@ -178,7 +204,8 @@ export function MenuBar() {
       { label: 'Close', shortcut: 'Ctrl+W', onSelect: () => withUnsavedCheck(() => useStore.setState({ hasDocument: false, dialog: null })) },
       { separator: true },
       { label: 'Save', icon: <Icon.Save />, shortcut: 'Ctrl+S', onSelect: () => saveDocument() },
-      { label: 'Save As…', shortcut: 'Ctrl+Shift+S', onSelect: saveDocumentAs },
+      { label: 'Save As…', shortcut: 'Ctrl+Shift+S', onSelect: () => (desktop() ? saveDocumentAs() : st.setDialog('saveAs')) },
+      { label: 'Publish to Phlippo Viewer (*.html)…', icon: <Icon.Eye />, disabled: !st.rebuild.bodies.length, onSelect: () => publishViewer() },
       { label: 'Save As ▸ STL (*.stl)…', onSelect: () => { useStore.setState({ exportFormat: 'stl' }); st.setDialog('exportOptions'); } },
       { label: 'Save As ▸ 3MF (*.3mf)…', onSelect: () => { useStore.setState({ exportFormat: '3mf' }); st.setDialog('exportOptions'); } },
       { label: 'Save As ▸ AMF (*.amf)…', onSelect: () => { useStore.setState({ exportFormat: 'amf' }); st.setDialog('exportOptions'); } },
@@ -209,6 +236,21 @@ export function MenuBar() {
       { label: `Hide/Show ▸ ${st.show.relations ? '✓ ' : ''}Sketch Relations`, onSelect: () => st.toggleShow('relations') },
       { label: `Hide/Show ▸ ${st.show.grid ? '✓ ' : ''}Grid`, onSelect: () => st.toggleShow('grid') },
       { separator: true },
+      { label: `Display ▸ ${st.displayStyle === 'shadedEdges' ? '✓ ' : ''}Shaded With Edges`, icon: <Icon.StyleShadedEdges />, onSelect: () => st.setDisplayStyle('shadedEdges') },
+      { label: `Display ▸ ${st.displayStyle === 'shaded' ? '✓ ' : ''}Shaded`, icon: <Icon.StyleShaded />, onSelect: () => st.setDisplayStyle('shaded') },
+      { label: `Display ▸ ${st.displayStyle === 'hiddenVisible' ? '✓ ' : ''}Hidden Lines Visible`, icon: <Icon.StyleHiddenVisible />, onSelect: () => st.setDisplayStyle('hiddenVisible') },
+      { label: `Display ▸ ${st.displayStyle === 'hiddenRemoved' ? '✓ ' : ''}Hidden Lines Removed`, icon: <Icon.StyleHiddenRemoved />, onSelect: () => st.setDisplayStyle('hiddenRemoved') },
+      { label: `Display ▸ ${st.displayStyle === 'wireframe' ? '✓ ' : ''}Wireframe`, icon: <Icon.StyleWireframe />, onSelect: () => st.setDisplayStyle('wireframe') },
+      { label: `Display ▸ ${st.show.zebra ? '✓ ' : ''}Zebra Stripes`, icon: <Icon.Zebra />, onSelect: () => st.toggleShow('zebra') },
+      { label: `Display ▸ ${st.show.perspective ? '✓ ' : ''}Perspective`, onSelect: () => st.toggleShow('perspective') },
+      { label: `Display ▸ ${st.show.shadows ? '✓ ' : ''}Shadows In Shaded Mode`, onSelect: () => st.toggleShow('shadows') },
+      { label: `Display ▸ ${st.show.ambientOcclusion ? '✓ ' : ''}Ambient Occlusion`, onSelect: () => st.toggleShow('ambientOcclusion') },
+      { label: `Display ▸ ${st.show.realView ? '✓ ' : ''}RealView Graphics`, onSelect: () => st.toggleShow('realView') },
+      { label: `Display ▸ Tangent Edges ${getPref('view.tangentEdges') === 'removed' ? 'Removed' : getPref('view.tangentEdges') === 'phantom' ? 'As Phantom' : 'Visible'} (cycle)`, onSelect: () => { const cur = String(getPref('view.tangentEdges') ?? 'visible'); const next = cur === 'visible' ? 'phantom' : cur === 'phantom' ? 'removed' : 'visible'; st.setPrefs({ ...loadPrefs(), 'view.tangentEdges': next }); } },
+      { separator: true },
+      { label: `Modify ▸ Up Axis ▸ ${getPref('view.upAxis') !== 'Z' ? '✓ ' : ''}Y up`, onSelect: () => { setUpAxis('Y'); st.setPrefs({ ...loadPrefs(), 'view.upAxis': 'Y' }); cam().setView('trimetric'); } },
+      { label: `Modify ▸ Up Axis ▸ ${getPref('view.upAxis') === 'Z' ? '✓ ' : ''}Z up`, onSelect: () => { setUpAxis('Z'); st.setPrefs({ ...loadPrefs(), 'view.upAxis': 'Z' }); cam().setView('trimetric'); } },
+      { separator: true },
       { label: 'User Interface ▸ FeatureManager Tree Area', onSelect: () => st.setPanel('manager', { visible: !st.panels.manager.visible }) },
       { label: 'User Interface ▸ Task Pane', onSelect: () => st.setTaskPane(st.taskPane ? null : 'resources') },
       { label: st.theme === 'dark' ? 'Light theme' : 'Dark theme', icon: st.theme === 'dark' ? <Icon.Sun /> : <Icon.Moon />, shortcut: 'Ctrl+Shift+D', onSelect: () => st.setTheme(st.theme === 'dark' ? 'light' : 'dark') },
@@ -227,6 +269,7 @@ export function MenuBar() {
       { label: 'Features ▸ Shell…', icon: <Icon.Shell />, disabled: st.doc.kind !== 'part' && !!st.doc.kind, onSelect: () => st.startShell() },
       { label: 'Features ▸ Rib…', icon: <Icon.Rib />, disabled: st.doc.kind !== 'part' && !!st.doc.kind, onSelect: () => st.startRib() },
       { label: 'Features ▸ Combine…', icon: <Icon.Combine />, disabled: st.doc.kind !== 'part' && !!st.doc.kind, onSelect: () => st.startCombine() },
+      { label: 'Features ▸ Deform…', icon: <Icon.Deform />, disabled: st.doc.kind !== 'part' && !!st.doc.kind, onSelect: () => st.startDeform() },
       { label: 'Features ▸ Simple Hole…', icon: <Icon.Hole />, disabled: st.doc.kind !== 'part' && !!st.doc.kind, onSelect: () => st.startHole(false, true) },
       { label: 'Sheet Metal ▸ Vent…', icon: <Icon.Vent />, disabled: st.doc.kind !== 'part' && !!st.doc.kind, onSelect: () => st.startVent() },
       { label: 'Sheet Metal ▸ Forming Tool…', icon: <Icon.FormTool />, disabled: st.doc.kind !== 'part' && !!st.doc.kind, onSelect: () => st.startFormTool() },

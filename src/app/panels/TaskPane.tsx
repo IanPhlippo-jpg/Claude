@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { AppearancesPane } from './AppearancesPane';
 import { useActiveSketch, useActiveSolve, useStore } from '../store';
 import { Button } from '../../ui/components';
@@ -10,6 +10,81 @@ import { openFileDialog, withUnsavedCheck } from '../MenuBar';
 import { listAutosaves, loadAutosaveEntry } from '../../core/document/persistence';
 import { getPref } from '../prefs';
 import { FASTENER_NAMES, fastenerPart, LENGTHS, METRIC, type FastenerType } from '../../core/assembly/fasteners';
+
+/**
+ * Display/Delete Relations, as the original: the filter (All in this sketch, Dangling, Overdefining/Not Solved, External,
+ * Defined in context, Locked, Broken, Selected entities), the relation list with Delete / Delete All, and the Entities
+ * of the chosen relation.
+ */
+function RelationsPane() {
+  const st = useStore();
+  const sketch = useActiveSketch();
+  const solve = useActiveSolve();
+  const [filter, setFilter] = useState('All in this sketch');
+  const list = useMemo(() => {
+    if (!sketch) return [];
+    return sketch.constraintOrder.filter((id) => {
+      const k = sketch.constraints[id];
+      const status = solve?.constraintStatus[id] ?? 'ok';
+      switch (filter) {
+        case 'Dangling': return k.refs.some((r) => !sketch.points[r] && !sketch.entities[r]);
+        case 'Overdefining/Not Solved': return status !== 'ok';
+        case 'External': return !!k.pierce;
+        case 'Defined in context': return !!k.pierce;
+        case 'Locked': return k.kind === 'fix';
+        case 'Broken': return k.refs.some((r) => !sketch.points[r] && !sketch.entities[r]);
+        case 'Selected entities': return st.selection.some((s) => k.refs.includes(s.id));
+        default: return true;
+      }
+    });
+  }, [sketch, solve, filter, st.selection]);
+  if (!sketch) return <p className="k-muted" style={{ padding: 10 }}>No active sketch.</p>;
+  const sel = st.selectedConstraint ? sketch.constraints[st.selectedConstraint] : null;
+  const entityName = (id: string) => {
+    const e = sketch.entities[id];
+    if (e) { const i = sketch.entityOrder.indexOf(id) + 1; return `${e.kind[0].toUpperCase()}${e.kind.slice(1)}${i}`; }
+    if (sketch.points[id]) return `Point${Object.keys(sketch.points).indexOf(id) + 1}`;
+    return id;
+  };
+  return (
+    <div data-testid="relations-pane" style={{ padding: 4 }}>
+      <div className="k-pm-label" style={{ padding: '0 4px' }}>Relations</div>
+      <select className="k-input" data-testid="relations-filter" value={filter} onChange={(e) => setFilter(e.target.value)} style={{ margin: '0 4px 4px', width: 'calc(100% - 8px)' }}>
+        {['All in this sketch', 'Dangling', 'Overdefining/Not Solved', 'External', 'Defined in context', 'Locked', 'Broken', 'Selected entities'].map((f) => <option key={f}>{f}</option>)}
+      </select>
+      <ul className="k-list">
+        {list.map((id) => {
+          const k = sketch.constraints[id];
+          const G = RelationGlyph[k.kind];
+          const status = solve?.constraintStatus[id] ?? 'ok';
+          return (
+            <li key={id} className={st.selectedConstraint === id ? 'selected' : ''} onClick={() => st.selectConstraint(id)}>
+              {G ? <G size={14} /> : <Icon.Dimension size={14} />}
+              <span>{relationLabel(k.kind)}</span>
+              {k.value !== undefined && <span className="k-muted">{round(k.value)}</span>}
+              <span className="tail">
+                <span className={`status ${status}`}>{status === 'ok' ? 'Satisfied' : status}</span>
+                <button className="k-btn ghost icon" onClick={(e) => { e.stopPropagation(); st.removeRelation(id); }} title="Delete">
+                  <Icon.Trash size={12} />
+                </button>
+              </span>
+            </li>
+          );
+        })}
+        {list.length === 0 && <li className="k-muted">{sketch.constraintOrder.length ? 'No relations match the filter.' : 'No relations yet.'}</li>}
+      </ul>
+      <div className="k-pm-stylerow" style={{ padding: 4, gap: 6 }}>
+        <Button disabled={!sel} onClick={() => sel && st.removeRelation(sel.id)}>Delete</Button>
+        <Button data-testid="relations-deleteall" disabled={!list.length} onClick={() => { for (const id of list) st.removeRelation(id); }}>Delete All</Button>
+        <label className="k-check"><input type="checkbox" disabled /> Suppressed</label>
+      </div>
+      <div className="k-pm-label" style={{ padding: '4px 4px 0' }}>Entities</div>
+      <div className="k-selbox" style={{ margin: '0 4px', minHeight: 40 }} data-testid="relations-entities">
+        {sel ? sel.refs.map((r) => <div key={r} className="k-selbox-row"><Icon.Line size={12} /> {entityName(r)} <span className="k-muted">· {sketch.points[r] ? 'Point' : sketch.entities[r]?.kind ?? 'missing'} · Fully Defined · {sketch.name}</span></div>) : <span className="k-muted">Select a relation to list its entities.</span>}
+      </div>
+    </div>
+  );
+}
 
 /** Design Library ▸ Toolbox (with the Toolbox add-in): ISO screws and bolts made to size, inserted or opened */
 function ToolboxFolder() {
@@ -49,8 +124,6 @@ function ToolboxFolder() {
  */
 export function TaskPane() {
   const st = useStore();
-  const sketch = useActiveSketch();
-  const solve = useActiveSolve();
   // the strip in the order of the original (2026): Resources, Marketplace, Design Library, Forum, File Explorer,
   // View Palette, Appearances/Scenes/Decals, Custom Properties, Platform, Document Recovery
   const tabs: { id: Exclude<typeof st.taskPane, null>; icon: React.ReactNode; tip: string; online?: boolean; hidden?: boolean }[] = [
@@ -84,32 +157,7 @@ export function TaskPane() {
             {st.taskPane === 'palette' && <ViewPalette />}
             {st.taskPane === 'appearances' && <AppearancesPane />}
             {st.taskPane === 'recovery' && <RecoveryPane />}
-            {st.taskPane === 'relations' &&
-              (!sketch ? (
-                <p className="k-muted" style={{ padding: 10 }}>No active sketch.</p>
-              ) : (
-                <ul className="k-list" style={{ padding: 4 }}>
-                  {sketch.constraintOrder.map((id) => {
-                    const k = sketch.constraints[id];
-                    const G = RelationGlyph[k.kind];
-                    const status = solve?.constraintStatus[id] ?? 'ok';
-                    return (
-                      <li key={id} className={st.selectedConstraint === id ? 'selected' : ''} onClick={() => st.selectConstraint(id)}>
-                        {G ? <G size={14} /> : <Icon.Dimension size={14} />}
-                        <span>{relationLabel(k.kind)}</span>
-                        {k.value !== undefined && <span className="k-muted">{round(k.value)}</span>}
-                        <span className="tail">
-                          <span className={`status ${status}`}>{status === 'ok' ? 'Satisfied' : status}</span>
-                          <button className="k-btn ghost icon" onClick={(e) => { e.stopPropagation(); st.removeRelation(id); }} title="Delete">
-                            <Icon.Trash size={12} />
-                          </button>
-                        </span>
-                      </li>
-                    );
-                  })}
-                  {sketch.constraintOrder.length === 0 && <li className="k-muted">No relations yet.</li>}
-                </ul>
-              ))}
+            {st.taskPane === 'relations' && <RelationsPane />}
             {st.taskPane === 'properties' && (
               <div style={{ padding: 10 }}>
                 <div className="k-field"><label>Name</label><input className="k-input" value={st.doc.name} onChange={(e) => st.renameDocument(e.target.value)} onKeyDown={(e) => e.stopPropagation()} /></div>
