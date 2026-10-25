@@ -936,6 +936,12 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
         if (q) st.addHolePoint(q);
         return;
       }
+      // Forming Tool: clicks on the placement face place the form
+      if (st.featureEdit?.draft.type === 'formTool' && st.featureEdit.draft.plane) {
+        const q = camera.pixelToPlane(info.px, info.py, st.featureEdit.draft.plane);
+        if (q) st.addFormToolPoint(q);
+        return;
+      }
       // Selected Contours box active: a click on a region of the profile picks it, as the original
       if (st.contourPick && profileSketch && (st.featureEdit?.draft.type === 'extrude' || st.featureEdit?.draft.type === 'revolve')) {
         const q = camera.pixelToPlane(info.px, info.py, profileSketch.plane);
@@ -1056,7 +1062,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
     const c = ctx();
     if (!c) {
       // part mode: dynamic highlight of body edges and faces
-      const edge = st.featureEdit && !isRoundFeature(st.featureEdit.draft) && st.featureEdit.draft.type !== 'edgeFlange' && st.featureEdit.draft.type !== 'hem' ? null : edgeAt(px, py);
+      const edge = st.featureEdit && !isRoundFeature(st.featureEdit.draft) && st.featureEdit.draft.type !== 'edgeFlange' && st.featureEdit.draft.type !== 'hem' && st.featureEdit.draft.type !== 'tabSlot' && st.featureEdit.draft.type !== 'rip' && st.featureEdit.draft.type !== 'sweptFlange' ? null : edgeAt(px, py);
       st.setHoverEdge(edge);
       const face = edge || (st.featureEdit && st.featureEdit.draft.type !== 'shell' && st.featureEdit.draft.type !== 'draft') ? null : faceAt(px, py);
       st.setHoverFace(face);

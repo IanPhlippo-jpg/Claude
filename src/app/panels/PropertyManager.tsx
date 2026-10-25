@@ -17,6 +17,7 @@ import { toggleConstruction } from '../../core/sketch/model';
 import { PLANE_LABELS } from '../viewport/camera';
 import { rebuildDocument } from '../../core/features/rebuild';
 import { DEFAULT_SHEET_METAL, GAUGE_TABLES, materialKFactor, type SheetMetalParams } from '../../core/features/sheetmetal';
+import { classifyVent, FORM_TOOL_LIBRARY } from '../../core/features/sheetmetal4';
 
 /** Sheet-Metal1 PropertyManager: Bend Parameters (thickness, radius) and Bend Allowance (K-factor). */
 function SheetMetalPM({ params, onOk, onCancel }: { params: SheetMetalParams; onOk: (p: SheetMetalParams) => void; onCancel: () => void }) {
@@ -472,6 +473,18 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
             <p className="k-pm-message">Select a sketch in the FeatureManager design tree: an open profile bends into a sheet, a closed contour becomes a tab.</p>
           </Section>
         )}
+        {bsk && (() => {
+          // Profile Sketch check, as the original: one open chain (a bent sheet) or closed contours only (a tab)
+          const chains = sketchChains(bsk);
+          const open = chains.filter((c) => !c.closed), closed = chains.filter((c) => c.closed);
+          const valid = (open.length === 1 && closed.length === 0) || (open.length === 0 && closed.length > 0);
+          const why = !chains.length ? 'The sketch has no lines or arcs.' : open.length > 1 ? 'The sketch has more than one open contour.' : open.length === 1 && closed.length ? 'The sketch mixes an open contour with closed contours.' : '';
+          return (
+            <Section title="Profile Sketch">
+              <p className="k-pm-message" data-testid="bf-sketchcheck" style={valid ? undefined : { background: '#ffe3e3', borderColor: '#e0a0a0' }}>{valid ? 'The sketch is valid.' : `The sketch is not valid. ${why} Use a single open profile (sheet) or closed contours (tab).`}</p>
+            </Section>
+          );
+        })()}
         <Section title="Sheet Metal Parameters From Material" defaultOpen={false}>
           <label className="k-check"><input type="checkbox" data-testid="bf-material" checked={!!sm.useMaterial} onChange={(e) => { const k = materialKFactor(st.doc.material?.name); if (e.target.checked && k === null) { st.pushMessage('The part has no material with sheet metal parameters (choose a steel, aluminium or copper material).', 'warn'); return; } st.setSheetMetal({ ...sm, useMaterial: e.target.checked, ...(e.target.checked && k !== null ? { kFactor: k, allowanceType: 'kFactor' } : {}) }); }} /> Use material sheet metal parameters</label>
         </Section>
@@ -1228,7 +1241,12 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
     }
     return (
       <>
-        <Header title="Convert To Sheet Metal" icon={<Icon.Sheet />} onOk={st.commitFeature} onCancel={st.cancelFeature} />
+        <Header title={d.insertBends ? 'Bends' : 'Convert To Sheet Metal'} icon={<Icon.Sheet />} onOk={st.commitFeature} onCancel={st.cancelFeature} />
+        {d.insertBends && (
+          <Section title="Message">
+            <p className="k-pm-message">Select the fixed face. The sharp corners of the shelled solid become bends with the default radius (Sheet-Metal, Flatten-Bends and Process-Bends are added to the tree).</p>
+          </Section>
+        )}
         <Section title="Sheet Metal Parameters">
           <div className="k-selbox" style={{ minHeight: 24 }} data-testid="conv-fixed">{d.fixedFace ? <div className="k-selbox-row"><Icon.Sheet size={12} /> Face&lt;1&gt; (fixed)</div> : <span className="k-muted">Select the fixed face of the solid.</span>}</div>
           <div className="k-pm-valuerow k-tip" data-tip="Sheet thickness"><Icon.Dimension size={14} /><NumberField value={d.thickness} onChange={(v) => st.updateFeatureDraft({ thickness: Math.max(0.1, v) })} unit={st.doc.units} step={0.5} /></div>
@@ -1239,6 +1257,246 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
           <p className="k-muted">The side faces become flanges; the face opposite the fixed face is left open.</p>
         </Section>
         {errBox}
+      </>
+    );
+  }
+
+  if (st.featureEdit && st.featureEdit.draft.type === 'vent') {
+    const d = st.featureEdit.draft;
+    const err = st.rebuild.errors[d.id];
+    const sketches = st.doc.features.filter((f) => f.type === 'sketch') as { id: string; name: string; sketchId: string }[];
+    const vsk = st.doc.sketches[d.sketchId];
+    const parts = vsk ? classifyVent(vsk, !!d.fillIn) : null;
+    const nOpen = parts?.ribs.length ?? 0, nSpars = parts?.spars.length ?? 0, nClosed = parts ? parts.regions.length : 0;
+    return (
+      <>
+        <Header title="Vent" icon={<Icon.Vent />} onOk={st.commitFeature} onCancel={st.cancelFeature} />
+        <Section title="Message">
+          <p className="k-pm-message">Select a 2D sketch on the sheet: the largest closed contour is the boundary, open chains are ribs and the other closed contours are spars.</p>
+        </Section>
+        <Section title="Boundary">
+          <select className="k-input" value={d.sketchId} onChange={(e) => st.updateFeatureDraft({ sketchId: e.target.value })} data-testid="vent-sketch">
+            <option value="">(select a sketch)</option>
+            {sketches.map((s) => <option key={s.id} value={s.sketchId}>{s.name}</option>)}
+          </select>
+          <div className="k-selbox" style={{ minHeight: 24, marginTop: 4 }} data-testid="vent-boundary">{nClosed ? <div className="k-selbox-row"><Icon.Sketch size={12} /> Boundary: {vsk?.name} ({round(parts?.boundaryArea ?? 0, 1)} mm²)</div> : <span className="k-muted">No closed contour.</span>}</div>
+        </Section>
+        <Section title="Geometry Properties">
+          <div className="k-pm-valuerow k-tip" data-tip="Draft angle"><Icon.Draft size={16} /><NumberField value={d.draft ?? 0} onChange={(v) => st.updateFeatureDraft({ draft: Math.max(0, Math.min(45, v)) })} unit="°" step={1} min={0} /></div>
+          <div className="k-pm-valuerow k-tip" data-tip="Fillet radius of the corners"><Icon.Fillet size={16} /><NumberField value={d.radius ?? 0} onChange={(v) => st.updateFeatureDraft({ radius: Math.max(0, v) })} unit={st.doc.units} step={0.5} min={0} /></div>
+        </Section>
+        <Section title="Flow Area">
+          <p className="k-muted" data-testid="vent-flow">Boundary {round(parts?.boundaryArea ?? 0, 1)} mm² with {nOpen} rib(s) and {nSpars} spar(s){d.fillIn && parts?.fillIn.length ? ' and a fill-in boundary' : ''}: the open area is what is left between them.</p>
+        </Section>
+        <Section title="Ribs">
+          <div className="k-selbox" style={{ minHeight: 24 }} data-testid="vent-ribs">{nOpen ? Array.from({ length: nOpen }, (_, i) => <div key={i} className="k-selbox-row"><Icon.Line size={12} /> Rib&lt;{i + 1}&gt;</div>) : <span className="k-muted">Open lines of the sketch become ribs.</span>}</div>
+          <div className="k-pm-valuerow k-tip" data-tip="Rib width"><Icon.Dimension size={14} /><NumberField value={d.ribWidth} onChange={(v) => st.updateFeatureDraft({ ribWidth: Math.max(0.1, v) })} unit={st.doc.units} step={0.5} min={0.1} data-testid="vent-ribwidth" /></div>
+        </Section>
+        <Section title="Spars">
+          <div className="k-selbox" style={{ minHeight: 24 }} data-testid="vent-spars">{nSpars ? Array.from({ length: nSpars }, (_, i) => <div key={i} className="k-selbox-row"><Icon.Circle size={12} /> Spar&lt;{i + 1}&gt;</div>) : <span className="k-muted">Closed contours inside the boundary become spars.</span>}</div>
+          <div className="k-pm-valuerow k-tip" data-tip="Spar width"><Icon.Dimension size={14} /><NumberField value={d.sparWidth} onChange={(v) => st.updateFeatureDraft({ sparWidth: Math.max(0.1, v) })} unit={st.doc.units} step={0.5} min={0.1} /></div>
+        </Section>
+        <Section title="Fill-In Boundary" defaultOpen={!!d.fillIn}>
+          <label className="k-check"><input type="checkbox" data-testid="vent-fillin" checked={!!d.fillIn} onChange={(e) => st.updateFeatureDraft({ fillIn: e.target.checked })} /> The smallest closed contour stays solid</label>
+        </Section>
+        {err && (
+          <Section title="Rebuild Errors">
+            <p className="k-pm-message" style={{ background: '#ffe3e3', borderColor: '#e0a0a0' }}>{err}</p>
+          </Section>
+        )}
+      </>
+    );
+  }
+
+  if (st.featureEdit && st.featureEdit.draft.type === 'formTool') {
+    const d = st.featureEdit.draft;
+    const err = st.rebuild.errors[d.id];
+    const lib = FORM_TOOL_LIBRARY.find((x) => x.id === d.shape) ?? FORM_TOOL_LIBRARY[0];
+    return (
+      <>
+        <Header title="Form Tool Feature" icon={<Icon.FormTool />} onOk={st.commitFeature} onCancel={st.cancelFeature} />
+        <div className="k-pm-tabs">
+          <button className={holeTab === 'type' ? 'active' : ''} onClick={() => setHoleTab('type')}>Type</button>
+          <button className={holeTab === 'positions' ? 'active' : ''} onClick={() => setHoleTab('positions')}>Position</button>
+        </div>
+        {holeTab === 'type' && (
+          <>
+            <Section title="Placement Face">
+              <div className="k-selbox" style={{ minHeight: 24 }} data-testid="form-face">{d.plane ? <div className="k-selbox-row"><Icon.Sheet size={12} /> {st.doc.planes[d.plane]?.name ?? 'Face<1>'}</div> : <span className="k-muted">Select the face of the sheet the form is pressed into.</span>}</div>
+            </Section>
+            <Section title="Forming Tool">
+              <div className="k-pm-label">Design Library ▸ forming tools:</div>
+              <select className="k-input" value={d.shape} data-testid="form-shape" onChange={(e) => { const t = FORM_TOOL_LIBRARY.find((x) => x.id === e.target.value)!; st.updateFeatureDraft({ shape: t.id, width: t.width, length: t.length, height: t.height, name: `${t.label}${st.doc.features.filter((f) => f.type === 'formTool' && f.shape === t.id).length + 1}` }); }}>
+                {FORM_TOOL_LIBRARY.map((t) => <option key={t.id} value={t.id}>{t.folder} ▸ {t.label}</option>)}
+              </select>
+              <div className="k-pm-valuerow k-tip" data-tip="Rotation angle"><Icon.MateAngle size={14} /><NumberField value={d.rotation} onChange={(v) => st.updateFeatureDraft({ rotation: ((v % 360) + 360) % 360 })} unit="°" step={15} /></div>
+              <label className="k-check"><input type="checkbox" data-testid="form-flip" checked={d.flip} onChange={(e) => st.updateFeatureDraft({ flip: e.target.checked })} /> Flip tool</label>
+              <label className="k-check"><input type="checkbox" checked={d.linkToThickness !== false} onChange={(e) => st.updateFeatureDraft({ linkToThickness: e.target.checked })} /> Link to thickness</label>
+            </Section>
+            <Section title="Configurations" defaultOpen={false}>
+              <p className="k-muted">{lib.folder} ▸ {lib.label}: default configuration.</p>
+              <div className="k-pm-valuerow k-tip" data-tip="Length"><Icon.Dimension size={14} /><NumberField value={d.length} onChange={(v) => st.updateFeatureDraft({ length: Math.max(0.5, v) })} unit={st.doc.units} step={1} min={0.5} /></div>
+              <div className="k-pm-valuerow k-tip" data-tip="Width"><Icon.Dimension size={14} /><NumberField value={d.width} onChange={(v) => st.updateFeatureDraft({ width: Math.max(0.5, v) })} unit={st.doc.units} step={1} min={0.5} /></div>
+              <div className="k-pm-valuerow k-tip" data-tip="Height"><Icon.Depth size={16} /><NumberField value={d.height} onChange={(v) => st.updateFeatureDraft({ height: Math.max(0.5, v) })} unit={st.doc.units} step={0.5} min={0.5} /></div>
+            </Section>
+            <Section title="Flat Pattern Visibility" defaultOpen={false}>
+              <label className="k-check"><input type="checkbox" defaultChecked /> Override document settings</label>
+              <label className="k-check"><input type="checkbox" defaultChecked /> Show punch</label>
+              <label className="k-check"><input type="checkbox" /> Show profile</label>
+              <label className="k-check"><input type="checkbox" /> Show center</label>
+            </Section>
+          </>
+        )}
+        {holeTab === 'positions' && (
+          <Section title="Positions">
+            <p className="k-muted">Click the placement face to place the form. {d.points.length} position(s).</p>
+            <div className="k-selbox" style={{ minHeight: 24 }} data-testid="form-points">{d.points.map((p, i) => <div key={i} className="k-selbox-row"><Icon.Point size={12} /> Point{i + 1} ({round(p.x, 2)}, {round(p.y, 2)})</div>)}</div>
+            {d.points.length > 0 && <button className="k-btn" style={{ marginTop: 4 }} onClick={() => st.updateFeatureDraft({ points: d.points.slice(0, -1) })}>Remove last</button>}
+          </Section>
+        )}
+        {err && (
+          <Section title="Rebuild Errors">
+            <p className="k-pm-message" style={{ background: '#ffe3e3', borderColor: '#e0a0a0' }}>{err}</p>
+          </Section>
+        )}
+      </>
+    );
+  }
+
+  if (st.featureEdit && st.featureEdit.draft.type === 'gusset') {
+    const d = st.featureEdit.draft;
+    const err = st.rebuild.errors[d.id];
+    return (
+      <>
+        <Header title="Sheet Metal Gusset" icon={<Icon.Gusset />} onOk={st.commitFeature} onCancel={st.cancelFeature} />
+        <Section title="Position">
+          <div className="k-selbox" style={{ minHeight: 24 }} data-testid="gusset-faces">{d.faces.length ? d.faces.map((_, i) => <div key={i} className="k-selbox-row"><Icon.Sheet size={12} /> Face&lt;{i + 1}&gt;</div>) : <span className="k-muted">Select the two faces on both sides of the bend.</span>}</div>
+          <label className="k-check" style={{ marginTop: 4 }}><input type="checkbox" checked={d.offset === null} onChange={(e) => st.updateFeatureDraft({ offset: e.target.checked ? null : 10 })} /> Centre on the bend</label>
+          {d.offset !== null && <div className="k-pm-valuerow k-tip" data-tip="Offset from the start of the bend"><Icon.Dimension size={14} /><NumberField value={d.offset} onChange={(v) => st.updateFeatureDraft({ offset: Math.max(0, v) })} unit={st.doc.units} step={1} min={0} /></div>}
+        </Section>
+        <Section title="Profile">
+          <div className="k-pm-radios">
+            <label className="k-check"><input type="radio" name="gusset-profile" defaultChecked /> Indent depth</label>
+            <label className="k-check"><input type="radio" name="gusset-profile" disabled /> Profile dimensions</label>
+          </div>
+          <div className="k-pm-valuerow k-tip" data-tip="Indent depth"><Icon.Depth size={16} /><NumberField value={d.depth} onChange={(v) => st.updateFeatureDraft({ depth: Math.max(0.5, v) })} unit={st.doc.units} step={1} min={0.5} data-testid="gusset-depth" /></div>
+          <div className="k-pm-valuerow k-tip" data-tip="Indent width"><Icon.Dimension size={14} /><NumberField value={d.width} onChange={(v) => st.updateFeatureDraft({ width: Math.max(0.5, v) })} unit={st.doc.units} step={1} min={0.5} /></div>
+          <div className="k-pm-valuerow k-tip" data-tip="Side face draft"><Icon.Draft size={16} /><NumberField value={d.sideDraft ?? 0} onChange={(v) => st.updateFeatureDraft({ sideDraft: Math.max(0, Math.min(45, v)) })} unit="°" step={1} min={0} /></div>
+          <button className={`k-pm-stylebtn k-tip ${d.flip ? 'active' : ''}`} data-tip="Flip gusset side" onClick={() => st.updateFeatureDraft({ flip: !d.flip })}><Icon.ReverseDir size={16} /></button>
+        </Section>
+        <Section title="Dimensions" defaultOpen={false}>
+          <label className="k-check"><input type="checkbox" disabled /> Inner corner fillets</label>
+          <label className="k-check"><input type="checkbox" disabled /> Outer corner fillets</label>
+        </Section>
+        <Section title="Preview" defaultOpen={false}>
+          <label className="k-check"><input type="checkbox" defaultChecked /> Full preview</label>
+        </Section>
+        <Section title="Flat Pattern Visibility" defaultOpen={false}>
+          <label className="k-check"><input type="checkbox" defaultChecked /> Show gusset profile in flat pattern</label>
+        </Section>
+        {err && (
+          <Section title="Rebuild Errors">
+            <p className="k-pm-message" style={{ background: '#ffe3e3', borderColor: '#e0a0a0' }}>{err}</p>
+          </Section>
+        )}
+      </>
+    );
+  }
+
+  if (st.featureEdit && st.featureEdit.draft.type === 'tabSlot') {
+    const d = st.featureEdit.draft;
+    const err = st.rebuild.errors[d.id];
+    return (
+      <>
+        <Header title="Tab and Slot" icon={<Icon.TabSlot />} onOk={st.commitFeature} onCancel={st.cancelFeature} />
+        <Section title="Selection">
+          <div className="k-pm-label">Tab edge:</div>
+          <div className="k-selbox" style={{ minHeight: 24 }} data-testid="ts-edge">{d.edge ? <div className="k-selbox-row"><Icon.Line size={12} /> Edge&lt;1&gt;</div> : <span className="k-muted">Select the edge of the sheet that gets the tabs.</span>}</div>
+          <div className="k-pm-label">Slot face:</div>
+          <div className="k-selbox" style={{ minHeight: 24 }} data-testid="ts-face">{d.slotFace ? <div className="k-selbox-row"><Icon.Sheet size={12} /> Face&lt;1&gt;</div> : <span className="k-muted">Select the face of the other sheet that gets the slots.</span>}</div>
+        </Section>
+        <Section title="Offset">
+          <div className="k-pm-valuerow k-tip" data-tip="Offset of the first and last tab from the edge ends"><Icon.Dimension size={14} /><NumberField value={d.edgeOffset} onChange={(v) => st.updateFeatureDraft({ edgeOffset: Math.max(0, v) })} unit={st.doc.units} step={1} min={0} /></div>
+        </Section>
+        <Section title="Spacing">
+          <div className="k-pm-valuerow k-tip" data-tip="Number of tabs"><Icon.Pattern size={14} /><NumberField value={d.count} onChange={(v) => st.updateFeatureDraft({ count: Math.max(1, Math.round(v)) })} step={1} min={1} data-testid="ts-count" /></div>
+        </Section>
+        <Section title="Tab">
+          <div className="k-pm-valuerow k-tip" data-tip="Tab length"><Icon.Dimension size={14} /><NumberField value={d.tabLength} onChange={(v) => st.updateFeatureDraft({ tabLength: Math.max(0.5, v) })} unit={st.doc.units} step={1} min={0.5} data-testid="ts-length" /></div>
+          <label className="k-check"><input type="checkbox" checked={d.linkToThickness !== false} onChange={(e) => st.updateFeatureDraft({ linkToThickness: e.target.checked })} /> Link to thickness (height)</label>
+          {d.linkToThickness === false && <div className="k-pm-valuerow k-tip" data-tip="Tab height"><Icon.Depth size={16} /><NumberField value={d.tabHeight} onChange={(v) => st.updateFeatureDraft({ tabHeight: Math.max(0.1, v) })} unit={st.doc.units} step={0.5} min={0.1} /></div>}
+        </Section>
+        <Section title="Slot">
+          <div className="k-pm-valuerow k-tip" data-tip="Slot clearance (each side)"><Icon.Dimension size={14} /><NumberField value={d.clearance} onChange={(v) => st.updateFeatureDraft({ clearance: Math.max(0, v) })} unit={st.doc.units} step={0.05} min={0} /></div>
+        </Section>
+        {err && (
+          <Section title="Rebuild Errors">
+            <p className="k-pm-message" style={{ background: '#ffe3e3', borderColor: '#e0a0a0' }}>{err}</p>
+          </Section>
+        )}
+      </>
+    );
+  }
+
+  if (st.featureEdit && st.featureEdit.draft.type === 'rip') {
+    const d = st.featureEdit.draft;
+    const err = st.rebuild.errors[d.id];
+    return (
+      <>
+        <Header title="Rip" icon={<Icon.Rip />} onOk={st.commitFeature} onCancel={st.cancelFeature} />
+        <Section title="Rip Parameters">
+          <div className="k-selbox" style={{ minHeight: 24 }} data-testid="rip-edges">{d.edges.length ? d.edges.map((_, i) => <div key={i} className="k-selbox-row"><Icon.Line size={12} /> Edge&lt;{i + 1}&gt;</div>) : <span className="k-muted">Select the edges of the solid to rip.</span>}</div>
+          <div className="k-pm-stylerow" style={{ marginTop: 4 }}>
+            <button className={`k-pm-stylebtn k-tip ${d.direction === 'both' ? 'active' : ''}`} data-tip="Change Direction: both sides" data-testid="rip-both" onClick={() => st.updateFeatureDraft({ direction: 'both' })}><Icon.DirArrow size={16} /></button>
+            <button className={`k-pm-stylebtn k-tip ${d.direction === 'first' ? 'active' : ''}`} data-tip="Change Direction: first face" onClick={() => st.updateFeatureDraft({ direction: 'first' })}><Icon.ReverseDir size={16} /></button>
+            <button className={`k-pm-stylebtn k-tip ${d.direction === 'second' ? 'active' : ''}`} data-tip="Change Direction: second face" onClick={() => st.updateFeatureDraft({ direction: 'second' })}><Icon.Flip size={16} /></button>
+          </div>
+          <div className="k-pm-valuerow k-tip" data-tip="Rip gap"><Icon.Dimension size={14} /><NumberField value={d.gap} onChange={(v) => st.updateFeatureDraft({ gap: Math.max(0.01, v) })} unit={st.doc.units} step={0.1} min={0.01} data-testid="rip-gap" /></div>
+        </Section>
+        {err && (
+          <Section title="Rebuild Errors">
+            <p className="k-pm-message" style={{ background: '#ffe3e3', borderColor: '#e0a0a0' }}>{err}</p>
+          </Section>
+        )}
+      </>
+    );
+  }
+
+  if (st.featureEdit && st.featureEdit.draft.type === 'sweptFlange') {
+    const d = st.featureEdit.draft;
+    const err = st.rebuild.errors[d.id];
+    const sketches = st.doc.features.filter((f) => f.type === 'sketch') as { id: string; name: string; sketchId: string }[];
+    return (
+      <>
+        <Header title="Swept Flange" icon={<Icon.SweptFlange />} onOk={st.commitFeature} onCancel={st.cancelFeature} />
+        <Section title="Profile and Path">
+          <div className="k-pm-label">Profile (an open sketch):</div>
+          <select className="k-input" value={d.sketchId} onChange={(e) => st.updateFeatureDraft({ sketchId: e.target.value })} data-testid="sf-profile">
+            <option value="">(select a sketch)</option>
+            {sketches.map((s) => <option key={s.id} value={s.sketchId}>{s.name}</option>)}
+          </select>
+          <div className="k-pm-label">Path (a sketch, or edges of the sheet):</div>
+          <select className="k-input" value={d.pathSketchId} onChange={(e) => st.updateFeatureDraft({ pathSketchId: e.target.value })} data-testid="sf-path">
+            <option value="">(edges of the sheet)</option>
+            {sketches.map((s) => <option key={s.id} value={s.sketchId}>{s.name}</option>)}
+          </select>
+          <div className="k-selbox" style={{ minHeight: 24, marginTop: 4 }} data-testid="sf-edges">{d.edges.length ? d.edges.map((_, i) => <div key={i} className="k-selbox-row"><Icon.Line size={12} /> Edge&lt;{i + 1}&gt;</div>) : <span className="k-muted">Select straight edges of the sheet as the path.</span>}</div>
+        </Section>
+        <Section title="Sheet Metal Parameters">
+          <div className="k-pm-stylerow">
+            <button className={`k-pm-stylebtn k-tip ${d.reverse ? 'active' : ''}`} data-tip="Reverse Direction (material on the other side of the profile)" onClick={() => st.updateFeatureDraft({ reverse: !d.reverse })}><Icon.ReverseDir size={16} /></button>
+          </div>
+          <div className="k-pm-valuerow k-tip" data-tip="Sheet thickness"><Icon.Dimension size={14} /><NumberField value={(st.doc.sheetMetal ?? DEFAULT_SHEET_METAL).thickness} onChange={(v) => st.setSheetMetal({ ...(st.doc.sheetMetal ?? DEFAULT_SHEET_METAL), thickness: Math.max(0.1, v) })} unit={st.doc.units} step={0.5} min={0.1} /></div>
+          <label className="k-check"><input type="checkbox" checked={d.merge !== false} onChange={(e) => st.updateFeatureDraft({ merge: e.target.checked })} /> Merge result</label>
+        </Section>
+        <Section title="Flat Pattern Options" defaultOpen={false}>
+          <label className="k-check"><input type="checkbox" defaultChecked /> Flatten along path</label>
+        </Section>
+        {err && (
+          <Section title="Rebuild Errors">
+            <p className="k-pm-message" style={{ background: '#ffe3e3', borderColor: '#e0a0a0' }}>{err}</p>
+          </Section>
+        )}
       </>
     );
   }
@@ -1676,7 +1934,15 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
     if (d.type === 'hole') {
       return (
         <>
-          <Header title={d.advanced ? 'Advanced Hole' : 'Hole Specification'} icon={<Icon.Hole />} onOk={st.commitFeature} onCancel={st.cancelFeature} />
+          <Header title={d.simple ? 'Hole' : d.advanced ? 'Advanced Hole' : 'Hole Specification'} icon={<Icon.Hole />} onOk={st.commitFeature} onCancel={st.cancelFeature} />
+          {d.simple && (
+            <Section title="Direction 1" data-testid="simplehole">
+              <select className="k-input" value={d.depth > 0 ? 'blind' : 'throughAll'} onChange={(e) => st.updateFeatureDraft({ depth: e.target.value === 'blind' ? 10 : 0 })}><option value="blind">Blind</option><option value="throughAll">Through All</option></select>
+              {d.depth > 0 && <div className="k-pm-valuerow k-tip" data-tip="Depth"><Icon.Depth size={16} /><NumberField value={d.depth} onChange={(v) => st.updateFeatureDraft({ depth: Math.max(0.1, v) })} unit={st.doc.units} step={1} min={0.1} /></div>}
+              <div className="k-pm-valuerow k-tip" data-tip="Hole Diameter"><span className="k-pm-xy">⌀</span><NumberField value={d.diameter} onChange={(v) => st.updateFeatureDraft({ diameter: Math.max(0.1, v) })} unit={st.doc.units} step={0.5} min={0.1} autoFocus /></div>
+              <p className="k-muted">Click the face to place the hole; drag or dimension it afterwards.</p>
+            </Section>
+          )}
           {d.advanced && (
             <Section title="Far Side" check={!!d.farSide} onCheck={(on) => st.updateFeatureDraft({ farSide: on ? { kind: 'countersink', diameter: 10, depth: 2, angle: 90 } : undefined })}>
               {d.farSide && (
@@ -1699,7 +1965,7 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
             <button className={holeTab === 'type' ? 'active' : ''} onClick={() => setHoleTab('type')}>Type</button>
             <button className={holeTab === 'positions' ? 'active' : ''} onClick={() => setHoleTab('positions')}>Positions</button>
           </div>
-          {holeTab === 'type' && (<>
+          {holeTab === 'type' && !d.simple && (<>
           <Section title="Hole Type">
             <div className="k-holetypes" data-testid="hole-types">
               {HOLE_TYPES.map((t) => (
@@ -2469,6 +2735,13 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
                 </div>
               ) : null}
               {d.op === 'cut' && <label className="k-check"><input type="checkbox" checked={!!d.flipSide} onChange={(e) => st.updateFeatureDraft({ flipSide: e.target.checked })} /> Flip side to cut</label>}
+              {d.op === 'cut' && st.doc.sheetMetal && (
+                <>
+                  <label className="k-check"><input type="checkbox" data-testid="cut-linkthickness" checked={!!d.linkToThickness} onChange={(e) => st.updateFeatureDraft({ linkToThickness: e.target.checked, ...(e.target.checked ? { end: 'blind', depth: st.doc.sheetMetal!.thickness } : {}) })} /> Link to thickness</label>
+                  <label className="k-check"><input type="checkbox" data-testid="cut-normal" checked={d.normalCut !== false} onChange={(e) => st.updateFeatureDraft({ normalCut: e.target.checked, ...(e.target.checked ? {} : { optimizeGeometry: false }) })} /> Normal cut</label>
+                  <label className="k-check" style={{ paddingLeft: 18 }}><input type="checkbox" data-testid="cut-optimize" disabled={d.normalCut === false} checked={d.normalCut !== false && d.optimizeGeometry !== false} onChange={(e) => st.updateFeatureDraft({ optimizeGeometry: e.target.checked })} /> Optimize geometry</label>
+                </>
+              )}
               {st.rebuild.bodies.length > 0 && d.op === 'boss' && <label className="k-check"><input type="checkbox" checked={d.merge !== false} onChange={(e) => st.updateFeatureDraft({ merge: e.target.checked })} /> Merge result</label>}
               <div className="k-pm-valuerow">
                 <button className={`k-pm-stylebtn k-tip ${d.draft ? 'active' : ''}`} data-tip="Draft On/Off" onClick={() => st.updateFeatureDraft({ draft: d.draft ? undefined : { angle: 1, outward: false } })}><Icon.Draft size={16} /></button>

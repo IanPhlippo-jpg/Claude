@@ -469,6 +469,57 @@ export const Icons3D = {
       <ellipse cx={11.5} cy={17.2} rx={5} ry={1.2} fill={K.dark} opacity={0.35} />
     </svg>
   ),
+  /** Sheet Metal ▸ Vent: a plate with a round opening crossed by two ribs */
+  Vent: ({ size = 16, ...p }: P) => (
+    <svg {...base(size, p)}>
+      <Box x={0} y={0} z={0} w={10} h={1.2} d={10} s={0.95} oy={13} />
+      <ellipse cx={12} cy={9.2} rx={5.4} ry={2.7} fill={K.dark} stroke={K.line} strokeWidth={0.6} />
+      <path d={`M${iso(1.6, 1.2, 5, 0.95, 12, 13).join(' ')}L${iso(8.4, 1.2, 5, 0.95, 12, 13).join(' ')}M${iso(5, 1.2, 1.6, 0.95, 12, 13).join(' ')}L${iso(5, 1.2, 8.4, 0.95, 12, 13).join(' ')}`} stroke={K.tLine} strokeWidth={1.4} fill="none" />
+      <ellipse cx={12} cy={9.2} rx={2.2} ry={1.1} fill={K.tTop} stroke={K.tLine} strokeWidth={0.6} />
+    </svg>
+  ),
+  /** Sheet Metal ▸ Forming Tool: a plate with a teal emboss pressed up out of it */
+  FormTool: ({ size = 16, ...p }: P) => (
+    <svg {...base(size, p)}>
+      <Box x={0} y={0} z={0} w={10} h={1.2} d={10} s={0.95} oy={13} />
+      <Cyl x={5} y={1.2} z={5} r={2.6} h={3.4} s={0.95} oy={13} />
+    </svg>
+  ),
+  /** Sheet Metal ▸ Gusset: an L sheet with a teal triangular stiffener across the bend */
+  Gusset: ({ size = 16, ...p }: P) => (
+    <svg {...base(size, p)}>
+      <Box x={0} y={0} z={0} w={9} h={1.2} d={9} s={0.95} oy={14} />
+      <Box x={0} y={1.2} z={0} w={1.2} h={6} d={9} s={0.95} oy={14} />
+      <path d={poly([iso(1.2, 1.2, 3.2, 0.95, 12, 14), iso(1.2, 5, 3.2, 0.95, 12, 14), iso(5, 1.2, 3.2, 0.95, 12, 14)])} fill={K.tFront} stroke={K.tLine} strokeWidth={0.6} />
+      <path d={poly([iso(1.2, 1.2, 5.2, 0.95, 12, 14), iso(1.2, 5, 5.2, 0.95, 12, 14), iso(5, 1.2, 5.2, 0.95, 12, 14)])} fill={K.tSide} stroke={K.tLine} strokeWidth={0.6} />
+      <path d={poly([iso(1.2, 5, 3.2, 0.95, 12, 14), iso(5, 1.2, 3.2, 0.95, 12, 14), iso(5, 1.2, 5.2, 0.95, 12, 14), iso(1.2, 5, 5.2, 0.95, 12, 14)])} fill={K.tTop} stroke={K.tLine} strokeWidth={0.6} />
+    </svg>
+  ),
+  /** Sheet Metal ▸ Tab and Slot: two sheets, the teal tabs of one in the slots of the other */
+  TabSlot: ({ size = 16, ...p }: P) => (
+    <svg {...base(size, p)}>
+      <Box x={0} y={0} z={0} w={10} h={1.2} d={9} s={0.95} oy={14} />
+      <Box x={4.4} y={1.2} z={0} w={1.2} h={6} d={9} s={0.95} oy={14} />
+      <Box x={4.4} y={-1.2} z={1.2} w={1.2} h={2.4} d={2} s={0.95} c={TEAL} line={K.tLine} oy={14} />
+      <Box x={4.4} y={-1.2} z={5.8} w={1.2} h={2.4} d={2} s={0.95} c={TEAL} line={K.tLine} oy={14} />
+    </svg>
+  ),
+  /** Sheet Metal ▸ Rip: a box with its vertical corner edge torn open (red gap) */
+  Rip: ({ size = 16, ...p }: P) => (
+    <svg {...base(size, p)}>
+      <Box x={0} y={0} z={0} w={8} h={8} d={8} s={0.95} oy={13} />
+      <path d={`M${iso(8, 0, 8, 0.95, 12, 13).join(' ')}L${iso(8, 8, 8, 0.95, 12, 13).join(' ')}`} stroke={K.red} strokeWidth={1.8} fill="none" />
+      <path d={`M${iso(8, 0, 8, 0.95, 12, 13).join(' ')}L${iso(8, 8, 8, 0.95, 12, 13).join(' ')}`} stroke="#fff" strokeWidth={0.6} fill="none" strokeDasharray="1.2 1.2" />
+    </svg>
+  ),
+  /** Sheet Metal ▸ Swept Flange: a plate with a teal flange swept along two of its edges */
+  SweptFlange: ({ size = 16, ...p }: P) => (
+    <svg {...base(size, p)}>
+      <Box x={0} y={0} z={0} w={9} h={1.2} d={9} s={0.95} oy={14} />
+      <Box x={0} y={1.2} z={0} w={1.2} h={5} d={9} s={0.95} c={TEAL} line={K.tLine} oy={14} />
+      <Box x={0} y={1.2} z={0} w={9} h={5} d={1.2} s={0.95} c={TEAL} line={K.tLine} oy={14} />
+    </svg>
+  ),
   /** heads-up: View Settings — the monitor */
   ViewSettings: ({ size = 16, ...p }: P) => (
     <svg {...base(size, p)} viewBox="0 0 24 24">

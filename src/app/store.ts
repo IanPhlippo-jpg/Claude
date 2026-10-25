@@ -5,7 +5,8 @@ import type { SectionPlane } from '../core/features/section';
 import { sketchDimensionName } from '../core/document/equations';
 import { faceOwner } from '../core/features/faceOwner';
 import { create } from 'zustand';
-import { createDocument, isRoundFeature, isSketchBased, isSolidFeature, type Document, type ExtrudeFeature, type HoleFeature, type MirrorFeature, type PatternFeature, type ImportedFeature, type LoftFeature, type RibFeature, type CombineFeature, type BaseFlangeFeature, type EdgeFlangeFeature, type FlatPatternFeature, type HelixFeature, type HemFeature, type MiterFlangeFeature, type JogFeature, type Sketch3DFeature, type SketchedBendFeature, type DraftFeature, type IntersectFeature, type SurfaceFeature, type CrossBreakFeature, type UnfoldFeature, type WrapFeature, type ThreadFeature, type RevolveFeature, type RoundFeature, type ShellFeature, type SolidFeature, type SweepFeature, type Units } from '../core/document/types';
+import { createDocument, isRoundFeature, isSketchBased, isSolidFeature, type Document, type ExtrudeFeature, type HoleFeature, type MirrorFeature, type PatternFeature, type ImportedFeature, type LoftFeature, type RibFeature, type CombineFeature, type BaseFlangeFeature, type EdgeFlangeFeature, type FlatPatternFeature, type HelixFeature, type HemFeature, type MiterFlangeFeature, type JogFeature, type Sketch3DFeature, type SketchedBendFeature, type DraftFeature, type IntersectFeature, type SurfaceFeature, type CrossBreakFeature, type UnfoldFeature, type WrapFeature, type ThreadFeature, type RevolveFeature, type RoundFeature, type ShellFeature, type SolidFeature, type SweepFeature, type Units, type VentFeature, type FormToolFeature, type GussetFeature, type TabSlotFeature, type RipFeature, type SweptFlangeFeature } from '../core/document/types';
+import { FORM_TOOL_LIBRARY } from '../core/features/sheetmetal4';
 import { edgeRef } from '../core/features/edgesets';
 import { rebuildDocument, type RebuildResult } from '../core/features/rebuild';
 import { isReferencePlane, planeOnFace } from '../core/features/planes';
@@ -611,7 +612,7 @@ interface State {
   /** Curves ▸ Split Line / Projected Curve from the open or selected sketch */
   startCurveFeature(type: 'splitLine' | 'projectedCurve'): void;
   startPattern(type: 'linearPattern' | 'circularPattern' | 'sketchPattern' | 'curvePattern' | 'tablePattern' | 'fillPattern' | 'variablePattern'): void;
-  startHole(advanced?: boolean): void;
+  startHole(advanced?: boolean, simple?: boolean): void;
   /** Hole Wizard ▸ Stud Wizard: a threaded stud on the selected planar face */
   startStud(): void;
   /** Markup: freehand pen over the graphics area */
@@ -640,8 +641,17 @@ interface State {
   startClosedCorner(weld?: boolean): void;
   startCornerRelief(): void;
   startLoftedBend(): void;
-  startConvertSheet(): void;
+  startConvertSheet(insertBends?: boolean): void;
   toggleNoBends(): void;
+  /** Sheet Metal: Vent, Forming Tool, Sheet Metal Gusset, Tab and Slot, Rip, Swept Flange */
+  startVent(): void;
+  startFormTool(shape?: FormToolFeature['shape']): void;
+  startGusset(): void;
+  startTabSlot(): void;
+  startRip(): void;
+  startSweptFlange(): void;
+  /** Forming Tool: a click on the placement face adds a position */
+  addFormToolPoint(p: SketchPoint): void;
   /** Sketch ▸ Offset On Surface: the edges of the selected face moved over the face (a 3D sketch) */
   offsetSurfEdit: { distance: number; reverse: boolean } | null;
   setOffsetSurfEdit(e: { distance: number; reverse: boolean } | null): void;
@@ -733,7 +743,7 @@ interface State {
   addHolePoint(p: SketchPoint): void;
   setHoverEdge(id: string | null): void;
   toggleSelectedEdge(id: string, additive?: boolean): void;
-  updateFeatureDraft(patch: Partial<ExtrudeFeature> | Partial<RevolveFeature> | Partial<RoundFeature> | Partial<MirrorFeature> | Partial<PatternFeature> | Partial<HoleFeature> | Partial<ShellFeature> | Partial<SweepFeature> | Partial<LoftFeature> | Partial<RibFeature> | Partial<CombineFeature> | Partial<BaseFlangeFeature> | Partial<EdgeFlangeFeature> | Partial<HelixFeature> | Partial<HemFeature> | Partial<MiterFlangeFeature> | Partial<JogFeature> | Partial<SketchedBendFeature> | Partial<DraftFeature> | Partial<IntersectFeature> | Partial<SurfaceFeature> | Partial<CrossBreakFeature> | Partial<WrapFeature> | Partial<ThreadFeature> | Partial<StudFeature> | Partial<SplitLineFeature> | Partial<ProjectedCurveFeature> | Partial<ClosedCornerFeature> | Partial<CornerReliefFeature> | Partial<LoftedBendFeature> | Partial<ConvertSheetFeature> | Partial<DeleteFaceFeature>): void;
+  updateFeatureDraft(patch: Partial<ExtrudeFeature> | Partial<RevolveFeature> | Partial<RoundFeature> | Partial<MirrorFeature> | Partial<PatternFeature> | Partial<HoleFeature> | Partial<ShellFeature> | Partial<SweepFeature> | Partial<LoftFeature> | Partial<RibFeature> | Partial<CombineFeature> | Partial<BaseFlangeFeature> | Partial<EdgeFlangeFeature> | Partial<HelixFeature> | Partial<HemFeature> | Partial<MiterFlangeFeature> | Partial<JogFeature> | Partial<SketchedBendFeature> | Partial<DraftFeature> | Partial<IntersectFeature> | Partial<SurfaceFeature> | Partial<CrossBreakFeature> | Partial<WrapFeature> | Partial<ThreadFeature> | Partial<StudFeature> | Partial<SplitLineFeature> | Partial<ProjectedCurveFeature> | Partial<ClosedCornerFeature> | Partial<CornerReliefFeature> | Partial<LoftedBendFeature> | Partial<ConvertSheetFeature> | Partial<DeleteFaceFeature> | Partial<VentFeature> | Partial<FormToolFeature> | Partial<GussetFeature> | Partial<TabSlotFeature> | Partial<RipFeature> | Partial<SweptFlangeFeature>): void;
   commitFeature(): void;
   cancelFeature(): void;
   /** PropertyManager ▸ Keep Visible (pushpin): stays open after OK for the next feature of the same kind */
@@ -1722,7 +1732,7 @@ export const useStore = create<State>((set, get) => ({
         : { id: newId('f'), type, name: featureName(doc, type), suppressed: false, featureIds: seed, axis: { origin: [0, 0, 0], dir: [0, 1, 0] }, angle: 360, count: 4 };
     set({ featureEdit: { featureId: null, draft }, activeSketchId: null, tool: 'select', selection: [], tab: 'features', managerTab: 'tree', planePick: false });
   },
-  startHole(advanced = false) {
+  startHole(advanced = false, simple = false) {
     const { doc, rebuild, selectedFace } = get();
     if (!rebuild.bodies[0]) {
       get().pushMessage('Create a solid body first (Extruded Boss/Base).', 'warn');
@@ -1743,7 +1753,7 @@ export const useStore = create<State>((set, get) => ({
     if (!plane) get().pushMessage('Select a planar face of the body first, then click Hole Wizard.', 'warn');
     const draft: HoleFeature = advanced
       ? { id: newId('f'), type: 'hole', name: `Advanced Hole${doc.features.filter((f) => f.type === 'hole' && f.advanced).length + 1}`, suppressed: false, plane, points: [], holeType: 'counterbore', diameter: 6.6, depth: 0, cbDiameter: 11, cbDepth: 6.5, csDiameter: 12.6, csAngle: 90, advanced: true, farSide: { kind: 'countersink', diameter: 10, depth: 2, angle: 90 } }
-      : { id: newId('f'), type: 'hole', name: featureName(doc, 'hole'), suppressed: false, plane, points: [], holeType: 'simple', diameter: 6.6, depth: 0, cbDiameter: 11, cbDepth: 6.5, csDiameter: 12.6, csAngle: 90 };
+      : { id: newId('f'), type: 'hole', name: simple ? `Hole${doc.features.filter((f) => f.type === 'hole' && f.simple).length + 1}` : featureName(doc, 'hole'), suppressed: false, plane, points: [], holeType: 'simple', diameter: 6.6, depth: 0, cbDiameter: 11, cbDepth: 6.5, csDiameter: 12.6, csAngle: 90, ...(simple ? { simple: true } : {}) };
     set({ doc: d, featureEdit: { featureId: null, draft }, activeSketchId: null, tool: 'select', selection: [], tab: 'features', managerTab: 'tree', planePick: false, selectedFace: null, selectedFaces: [] });
   },
   setOffsetSurfEdit(offsetSurfEdit) {
@@ -1801,15 +1811,15 @@ export const useStore = create<State>((set, get) => ({
     const draft: LoftedBendFeature = { id: newId('f'), type: 'loftedBend', name: `Lofted-Bend${n}`, suppressed: false, sketchId: sk[sk.length - 2] ?? '', sketchId2: sk[sk.length - 1] ?? '', thickness: (doc.sheetMetal ?? DEFAULT_SHEET_METAL).thickness };
     set({ featureEdit: { featureId: null, draft }, activeSketchId: null, tool: 'select', selection: [], tab: 'sheetmetal', managerTab: 'tree', planePick: false });
   },
-  startConvertSheet() {
+  startConvertSheet(insertBends = false) {
     const { doc, rebuild, selectedFace } = get();
     if (!rebuild.bodies.length) {
-      get().pushMessage('Convert to Sheet Metal needs a solid body.', 'warn');
+      get().pushMessage(insertBends ? 'Insert Bends needs a (shelled) solid body.' : 'Convert to Sheet Metal needs a solid body.', 'warn');
       return;
     }
     const b = selectedFace ? rebuild.bodies.find((x) => x.id === selectedFace.bodyId) : undefined;
     const fc = b?.faces.find((x) => x.id === selectedFace?.faceId);
-    const draft: ConvertSheetFeature = { id: newId('f'), type: 'convertSheet', name: `Convert-Solid${doc.features.filter((f) => f.type === 'convertSheet').length + 1}`, suppressed: false, fixedFace: fc && !fc.curved ? { normal: fc.normal, point: fc.centroid } : null, thickness: (doc.sheetMetal ?? DEFAULT_SHEET_METAL).thickness, bendRadius: (doc.sheetMetal ?? DEFAULT_SHEET_METAL).bendRadius };
+    const draft: ConvertSheetFeature = { id: newId('f'), type: 'convertSheet', name: insertBends ? `Process-Bends${doc.features.filter((f) => f.type === 'convertSheet' && f.insertBends).length + 1}` : `Convert-Solid${doc.features.filter((f) => f.type === 'convertSheet' && !f.insertBends).length + 1}`, suppressed: false, ...(insertBends ? { insertBends: true } : {}), fixedFace: fc && !fc.curved ? { normal: fc.normal, point: fc.centroid } : null, thickness: (doc.sheetMetal ?? DEFAULT_SHEET_METAL).thickness, bendRadius: (doc.sheetMetal ?? DEFAULT_SHEET_METAL).bendRadius };
     set({ featureEdit: { featureId: null, draft }, activeSketchId: null, tool: 'select', selection: [], tab: 'sheetmetal', managerTab: 'tree', planePick: false, selectedFace: null, selectedFaces: [] });
   },
   toggleNoBends() {
@@ -2010,6 +2020,21 @@ export const useStore = create<State>((set, get) => ({
       } else get().pushMessage('Select a circular edge of a cylinder or hole.', 'warn');
       return;
     }
+    // Tab and Slot: the picked straight edge gets the tabs
+    if (featureEdit && featureEdit.draft.type === 'tabSlot') {
+      const body = rebuild.bodies.find((b) => b.edges.some((e) => e.id === id));
+      const e = body?.edges.find((x) => x.id === id);
+      if (e && e.straight) set({ featureEdit: { ...featureEdit, draft: { ...featureEdit.draft, edge: edgeRef(e) } }, selectedEdges: [id] });
+      else get().pushMessage('Select a straight edge of the sheet.', 'warn');
+      return;
+    }
+    // Rip / Swept Flange: the picked straight edges
+    if (featureEdit && (featureEdit.draft.type === 'rip' || featureEdit.draft.type === 'sweptFlange')) {
+      const all = rebuild.bodies.flatMap((b) => b.edges);
+      const edges = next.map((eid) => all.find((e) => e.id === eid)).filter((e): e is NonNullable<typeof e> => !!e && e.straight).map((e) => edgeRef(e));
+      set({ featureEdit: { ...featureEdit, draft: { ...featureEdit.draft, edges } } });
+      return;
+    }
     // Edge Flange: the picked straight edge
     if (featureEdit && (featureEdit.draft.type === 'edgeFlange' || featureEdit.draft.type === 'hem')) {
       const body = rebuild.bodies.find((b) => b.edges.some((e) => e.id === id));
@@ -2066,6 +2091,30 @@ export const useStore = create<State>((set, get) => ({
       get().pushMessage('Select a face and place at least one hole position.', 'warn');
       return;
     }
+    if (fe.draft.type === 'formTool' && (!fe.draft.plane || !fe.draft.points.length)) {
+      get().pushMessage('Select the placement face and place at least one position for the forming tool.', 'warn');
+      return;
+    }
+    if (fe.draft.type === 'vent' && !doc.sketches[fe.draft.sketchId]) {
+      get().pushMessage('Select the sketch of the vent.', 'warn');
+      return;
+    }
+    if (fe.draft.type === 'gusset' && fe.draft.faces.length < 2) {
+      get().pushMessage('Select the two faces on both sides of the bend.', 'warn');
+      return;
+    }
+    if (fe.draft.type === 'tabSlot' && (!fe.draft.edge || !fe.draft.slotFace)) {
+      get().pushMessage(!fe.draft.edge ? 'Select the edge that gets the tabs.' : 'Select the face that gets the slots.', 'warn');
+      return;
+    }
+    if (fe.draft.type === 'rip' && !fe.draft.edges.length) {
+      get().pushMessage('Select the edges to rip.', 'warn');
+      return;
+    }
+    if (fe.draft.type === 'sweptFlange' && (!doc.sketches[fe.draft.sketchId] || (!doc.sketches[fe.draft.pathSketchId] && !fe.draft.edges.length))) {
+      get().pushMessage('Select the profile sketch and the path (a sketch or edges) of the swept flange.', 'warn');
+      return;
+    }
     if (fe.draft.type === 'sweep' && !doc.sketches[fe.draft.pathSketchId] && !doc.features.some((f) => f.id === (fe.draft as SweepFeature).pathSketchId && f.type === 'helix')) {
       get().pushMessage('Select the path sketch for the sweep.', 'warn');
       return;
@@ -2107,7 +2156,7 @@ export const useStore = create<State>((set, get) => ({
       get().pushMessage('Select the features to pattern in the FeatureManager design tree.', 'warn');
       return;
     }
-    if (fe.draft.type === 'hole' && !fe.featureId && !fe.draft.advanced && /^Hole\d+$/.test(fe.draft.name)) {
+    if (fe.draft.type === 'hole' && !fe.featureId && !fe.draft.advanced && !fe.draft.simple && /^Hole\d+$/.test(fe.draft.name)) {
       const size = fe.draft.sizeName ?? 'M6';
       const base = fe.draft.holeType === 'counterbore' ? `CBORE for ${size} Hex Head Bolt` : fe.draft.holeType === 'countersink' ? `CSK for ${size} Flat Head Machine Screw` : fe.draft.holeType === 'tap' ? `${size}x${(fe.draft.pitch ?? 1).toFixed(1)} Tapped Hole` : `${size} Clearance Hole`;
       fe.draft.name = `${base}${doc.features.filter((f) => f.type === 'hole' && f.name.startsWith(base)).length + 1}`;
@@ -2236,6 +2285,22 @@ export const useStore = create<State>((set, get) => ({
       const f = body?.faces.find((x) => x.id === selectedFace.faceId);
       if (!f || f.curved) return get().pushMessage('The start face must be planar.', 'warn');
       set({ featureEdit: { ...featureEdit, draft: { ...featureEdit.draft, startFace: { normal: f.normal, point: f.centroid, label: `Face<${body!.faces.indexOf(f) + 1}>` } } }, threadFacePick: false, selectedFace });
+      return;
+    }
+    if (featureEdit && selectedFace && (featureEdit.draft.type === 'gusset' || featureEdit.draft.type === 'tabSlot')) {
+      const body = rebuild.bodies.find((b) => b.id === selectedFace.bodyId);
+      const face = body?.faces.find((f) => f.id === selectedFace.faceId);
+      if (!face) return;
+      if (face.curved) return get().pushMessage('Select a planar face of the sheet.', 'warn');
+      const ref = { normal: face.normal, point: face.centroid };
+      const d = featureEdit.draft;
+      if (d.type === 'tabSlot') {
+        set({ featureEdit: { ...featureEdit, draft: { ...d, slotFace: ref } }, selectedFace, selectedFaces: [selectedFace] });
+        return;
+      }
+      const has = d.faces.some((r) => Math.hypot(r.point[0] - ref.point[0], r.point[1] - ref.point[1], r.point[2] - ref.point[2]) < 1e-6);
+      const faces = has ? d.faces.filter((r) => Math.hypot(r.point[0] - ref.point[0], r.point[1] - ref.point[1], r.point[2] - ref.point[2]) > 1e-6) : [...d.faces, ref].slice(-2);
+      set({ featureEdit: { ...featureEdit, draft: { ...d, faces } }, selectedFace, selectedFaces: has ? selectedFaces.filter((f) => f.faceId !== selectedFace.faceId) : [...selectedFaces, selectedFace].slice(-2) });
       return;
     }
     if (featureEdit && selectedFace && (featureEdit.draft.type === 'closedCorner' || featureEdit.draft.type === 'cornerRelief' || featureEdit.draft.type === 'convertSheet')) {
@@ -3656,6 +3721,87 @@ export const useStore = create<State>((set, get) => ({
     const e = selectedEdges.map((id) => body.edges.find((x) => x.id === id)).find((x) => x && x.straight);
     const draft: HemFeature = { id: newId('f'), type: 'hem', name: featureName(doc, 'hem'), suppressed: false, edge: e ? edgeRef(e) : null, hemType: 'closed', length: 10, gap: 2, position: 'materialInside', flip: false };
     set({ featureEdit: { featureId: null, draft }, activeSketchId: null, tool: 'select', selection: [], tab: 'sheetmetal', managerTab: 'tree', planePick: false, selectedEdges: e ? [e.id] : [] });
+  },
+  startVent() {
+    const { doc, rebuild } = get();
+    if (!rebuild.bodies.length) {
+      get().pushMessage('Make a sheet metal body first (Base Flange/Tab).', 'warn');
+      return;
+    }
+    const sk = doc.features.filter((f) => f.type === 'sketch') as { sketchId: Id }[];
+    const sel = get().selectedFeatureId;
+    const selSk = doc.features.find((f) => f.id === sel && f.type === 'sketch') as { sketchId: Id } | undefined;
+    const draft: VentFeature = { id: newId('f'), type: 'vent', name: `Vent${doc.features.filter((f) => f.type === 'vent').length + 1}`, suppressed: false, sketchId: selSk?.sketchId ?? sk[sk.length - 1]?.sketchId ?? '', ribWidth: 3, sparWidth: 3, fillIn: false, radius: 0, draft: 0 };
+    set({ featureEdit: { featureId: null, draft }, activeSketchId: null, tool: 'select', selection: [], tab: 'sheetmetal', managerTab: 'tree', planePick: false });
+  },
+  startFormTool(shape = 'embossRound') {
+    const { doc, rebuild, selectedFace } = get();
+    if (!rebuild.bodies.length) {
+      get().pushMessage('Make a sheet metal body first (Base Flange/Tab).', 'warn');
+      return;
+    }
+    let plane = '';
+    let d = doc;
+    if (selectedFace) {
+      const body = rebuild.bodies.find((b) => b.id === selectedFace.bodyId);
+      const face = body?.faces.find((f) => f.id === selectedFace.faceId);
+      if (face && !face.curved) {
+        const def = { ...planeOnFace(newId('pl'), `Face${Object.keys(doc.planes).length + 1}`, face.centroid, face.normal), kind: 'face' as const };
+        d = { ...doc, planes: { ...doc.planes, [def.id]: def } };
+        registerPlanes(d.planes);
+        plane = def.id;
+      }
+    }
+    if (!plane) get().pushMessage('Select the placement face of the sheet first, then the forming tool.', 'warn');
+    const lib = FORM_TOOL_LIBRARY.find((x) => x.id === shape) ?? FORM_TOOL_LIBRARY[0];
+    const draft: FormToolFeature = { id: newId('f'), type: 'formTool', name: `${lib.label}${doc.features.filter((f) => f.type === 'formTool' && f.shape === lib.id).length + 1}`, suppressed: false, plane, points: [], shape: lib.id, width: lib.width, length: lib.length, height: lib.height, rotation: 0, flip: false, linkToThickness: true };
+    set({ doc: d, featureEdit: { featureId: null, draft }, activeSketchId: null, tool: 'select', selection: [], tab: 'sheetmetal', managerTab: 'tree', planePick: false, selectedFace: null, selectedFaces: [] });
+  },
+  addFormToolPoint(p) {
+    const fe = get().featureEdit;
+    if (!fe || fe.draft.type !== 'formTool') return;
+    set({ featureEdit: { ...fe, draft: { ...fe.draft, points: [...fe.draft.points, p] } } });
+  },
+  startGusset() {
+    const { doc, rebuild } = get();
+    if (!rebuild.bodies.length) {
+      get().pushMessage('Make a sheet metal body with a bend first.', 'warn');
+      return;
+    }
+    const draft: GussetFeature = { id: newId('f'), type: 'gusset', name: `Sheet Metal Gusset${doc.features.filter((f) => f.type === 'gusset').length + 1}`, suppressed: false, faces: [], depth: 10, width: 6, offset: null, flip: false };
+    set({ featureEdit: { featureId: null, draft }, activeSketchId: null, tool: 'select', selection: [], tab: 'sheetmetal', managerTab: 'tree', planePick: false, selectedFace: null, selectedFaces: [] });
+  },
+  startTabSlot() {
+    const { doc, rebuild, selectedEdges } = get();
+    if (rebuild.bodies.length < 2) {
+      get().pushMessage('Tab and Slot needs two sheet metal bodies: the tabs on one, the slots in the other.', 'warn');
+      return;
+    }
+    const body = rebuild.bodies.find((b) => b.edges.some((e) => selectedEdges.includes(e.id)));
+    const e = selectedEdges.map((id) => body?.edges.find((x) => x.id === id)).find((x) => x && x.straight);
+    const draft: TabSlotFeature = { id: newId('f'), type: 'tabSlot', name: `Tab and Slot${doc.features.filter((f) => f.type === 'tabSlot').length + 1}`, suppressed: false, edge: e ? edgeRef(e) : null, slotFace: null, tabLength: 10, tabHeight: (doc.sheetMetal ?? DEFAULT_SHEET_METAL).thickness, linkToThickness: true, count: 3, edgeOffset: 5, clearance: 0.1 };
+    set({ featureEdit: { featureId: null, draft }, activeSketchId: null, tool: 'select', selection: [], tab: 'sheetmetal', managerTab: 'tree', planePick: false, selectedEdges: e ? [e.id] : [], selectedFace: null, selectedFaces: [] });
+  },
+  startRip() {
+    const { doc, rebuild, selectedEdges } = get();
+    if (!rebuild.bodies.length) {
+      get().pushMessage('Rip needs a (shelled) solid body.', 'warn');
+      return;
+    }
+    const edges = selectedEdges.map((id) => rebuild.bodies.flatMap((b) => b.edges).find((x) => x.id === id)).filter((x): x is NonNullable<typeof x> => !!x && x.straight).map((e) => edgeRef(e));
+    const draft: RipFeature = { id: newId('f'), type: 'rip', name: `Rip${doc.features.filter((f) => f.type === 'rip').length + 1}`, suppressed: false, edges, gap: 0.1, direction: 'both' };
+    set({ featureEdit: { featureId: null, draft }, activeSketchId: null, tool: 'select', selection: [], tab: 'sheetmetal', managerTab: 'tree', planePick: false });
+  },
+  startSweptFlange() {
+    const { doc, rebuild, selectedEdges } = get();
+    if (!rebuild.bodies.length) {
+      get().pushMessage('Make a sheet metal body first (Base Flange/Tab).', 'warn');
+      return;
+    }
+    const sk = doc.features.filter((f) => f.type === 'sketch') as { sketchId: Id }[];
+    const edges = selectedEdges.map((id) => rebuild.bodies.flatMap((b) => b.edges).find((x) => x.id === id)).filter((x): x is NonNullable<typeof x> => !!x && x.straight).map((e) => edgeRef(e));
+    const draft: SweptFlangeFeature = { id: newId('f'), type: 'sweptFlange', name: `Swept Flange${doc.features.filter((f) => f.type === 'sweptFlange').length + 1}`, suppressed: false, sketchId: sk[sk.length - 1]?.sketchId ?? '', pathSketchId: '', edges, reverse: false, merge: true };
+    set({ featureEdit: { featureId: null, draft }, activeSketchId: null, tool: 'select', selection: [], tab: 'sheetmetal', managerTab: 'tree', planePick: false });
   },
   toggleFlatten() {
     const { doc } = get();

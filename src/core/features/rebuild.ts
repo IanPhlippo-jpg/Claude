@@ -29,6 +29,8 @@ import { wrapSplineTool, wrapTool } from './wrap';
 import { threadTool, type ThreadSpec } from './thread';
 import { baseFlangeGeometry, baseFlangeRegion, bendAllowance, DEFAULT_SHEET_METAL, edgeFlangeGeometry, flangeLeg, flangeSetback, flatPatternGeometry, hemFlangeParams, tabGeometry, type SheetMetalParams } from './sheetmetal';
 import type { DraftFeature, PatternFeature, RevolveFeature, EdgeFlangeFeature, HemFeature, JogFeature, MiterFlangeFeature, PlaneDef, SketchedBendFeature } from '../document/types';
+import { chainEdges, classifyVent, formToolGeometry, gussetTools, ripTool, sweptFlangeRegions, tabSlotTools, ventTool } from './sheetmetal4';
+import { bodyEdges as bodyEdgesOf, matchEdge as matchEdgeRef } from './edgesets';
 
 export interface Body {
   id: Id;
@@ -1716,6 +1718,190 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
       }
       continue;
     }
+    if (f.type === 'vent') {
+      consumedSketches.add(f.sketchId);
+      const sketch = doc.sketches[f.sketchId];
+      if (!sketch) {
+        errors[f.id] = 'Select the sketch of the vent (boundary, ribs and spars).';
+        continue;
+      }
+      if (!body) {
+        errors[f.id] = 'A vent needs a sheet metal body.';
+        continue;
+      }
+      const plane = resolvePlaneDef(doc, sketch.plane);
+      const parts = classifyVent(sketch, !!f.fillIn);
+      if (!parts.regions.length) {
+        errors[f.id] = 'The vent sketch needs a closed boundary contour.';
+        continue;
+      }
+      body.geometry.computeBoundingSphere();
+      const extent = Math.max(10, (body.geometry.boundingSphere?.radius ?? 0) * 3 + 10);
+      const tool = ventTool({ ...parts, ribWidth: f.ribWidth, sparWidth: f.sparWidth }, plane, extent);
+      if (!tool) {
+        errors[f.id] = 'The vent has no open area left.';
+        continue;
+      }
+      try {
+        if (!removeMaterial(tool, f.id)) errors[f.id] = 'The vent does not touch the sheet.';
+        else history.cuts.push(tool);
+      } catch (err) {
+        errors[f.id] = `Boolean operation failed: ${(err as Error).message}`;
+      }
+      continue;
+    }
+    if (f.type === 'formTool') {
+      if (!body) {
+        errors[f.id] = 'A forming tool needs a sheet metal body.';
+        continue;
+      }
+      if (!f.plane || !f.points.length) {
+        errors[f.id] = 'Select the placement face and place at least one position.';
+        continue;
+      }
+      const pl = resolvePlaneDef(doc, f.plane);
+      const t = (doc.sheetMetal ?? DEFAULT_SHEET_METAL).thickness;
+      try {
+        for (const pt of f.points) {
+          const g = formToolGeometry({ shape: f.shape, plane: pl, at: pt, rotation: f.rotation, flip: f.flip, width: f.width, length: f.length, height: f.height, thickness: f.linkToThickness === false ? Math.min(t, f.height / 2) : t });
+          addMaterial(g.add, f.id, true);
+          addBoss(g.add);
+          removeMaterial(g.cut, f.id);
+          history.cuts.push(g.cut);
+        }
+      } catch (err) {
+        errors[f.id] = `Boolean operation failed: ${(err as Error).message}`;
+      }
+      continue;
+    }
+    if (f.type === 'gusset') {
+      if (!body) {
+        errors[f.id] = 'A gusset needs a sheet metal body.';
+        continue;
+      }
+      if (f.faces.length < 2) {
+        errors[f.id] = 'Select the two faces on both sides of the bend.';
+        continue;
+      }
+      const sm = doc.sheetMetal ?? DEFAULT_SHEET_METAL;
+      const target = visibleBodies().find((b) => planarFaces(b.geometry, b.id).some((fc) => new THREE.Vector3(...fc.centroid).distanceTo(new THREE.Vector3(...f.faces[0].point)) < 0.5)) ?? body;
+      const r = gussetTools(target.geometry, target.id, { faces: f.faces, depth: f.depth, width: f.width, offset: f.offset, flip: f.flip, thickness: sm.thickness, bendRadius: sm.bendRadius });
+      if ('error' in r) {
+        errors[f.id] = r.error;
+        continue;
+      }
+      try {
+        target.geometry = csg(target.geometry, r.add, 'union');
+        target.geometry = csg(target.geometry, r.cut, 'subtract');
+        target.featureIds.push(f.id);
+        addBoss(r.add);
+        history.cuts.push(r.cut);
+      } catch (err) {
+        errors[f.id] = `Boolean operation failed: ${(err as Error).message}`;
+      }
+      continue;
+    }
+    if (f.type === 'tabSlot') {
+      if (!f.edge || !f.slotFace) {
+        errors[f.id] = !f.edge ? 'Select the edge of the sheet that gets the tabs.' : 'Select the face of the other sheet that gets the slots.';
+        continue;
+      }
+      const sm = doc.sheetMetal ?? DEFAULT_SHEET_METAL;
+      const edgeBody = visibleBodies().find((b) => matchEdgeRef(bodyEdgesOf(b.geometry, b.id), f.edge!));
+      const slotBody = visibleBodies().find((b) => planarFaces(b.geometry, b.id).some((fc) => new THREE.Vector3(...fc.centroid).distanceTo(new THREE.Vector3(...f.slotFace!.point)) < 0.5));
+      if (!edgeBody || !slotBody) {
+        errors[f.id] = !edgeBody ? 'The tab edge is no longer on a body.' : 'The slot face is no longer on a body.';
+        continue;
+      }
+      if (edgeBody === slotBody) {
+        errors[f.id] = 'The slot face must be on another body than the tab edge.';
+        continue;
+      }
+      slotBody.geometry.computeBoundingSphere();
+      const r = tabSlotTools(edgeBody.geometry, edgeBody.id, { edge: f.edge, slotFace: f.slotFace, tabLength: f.tabLength, tabHeight: f.linkToThickness !== false ? sm.thickness : f.tabHeight, count: f.count, edgeOffset: f.edgeOffset, clearance: f.clearance, thickness: sm.thickness }, (slotBody.geometry.boundingSphere?.radius ?? 10) * 2 + 10);
+      if ('error' in r) {
+        errors[f.id] = r.error;
+        continue;
+      }
+      try {
+        edgeBody.geometry = csg(edgeBody.geometry, r.tabs, 'union');
+        edgeBody.featureIds.push(f.id);
+        slotBody.geometry = csg(slotBody.geometry, r.slots, 'subtract');
+        slotBody.featureIds.push(f.id);
+        addBoss(r.tabs);
+        history.cuts.push(r.slots);
+      } catch (err) {
+        errors[f.id] = `Boolean operation failed: ${(err as Error).message}`;
+      }
+      continue;
+    }
+    if (f.type === 'rip') {
+      if (!body) {
+        errors[f.id] = 'Rip needs a (shelled) solid body.';
+        continue;
+      }
+      if (!f.edges.length) {
+        errors[f.id] = 'Select the edges to rip.';
+        continue;
+      }
+      const sm = doc.sheetMetal ?? DEFAULT_SHEET_METAL;
+      const target = visibleBodies().find((b) => f.edges.some((e) => matchEdgeRef(bodyEdgesOf(b.geometry, b.id), e))) ?? body;
+      const tool = ripTool(target.geometry, target.id, { edges: f.edges, gap: f.gap, direction: f.direction, thickness: sm.thickness });
+      if ('error' in tool) {
+        errors[f.id] = tool.error;
+        continue;
+      }
+      try {
+        target.geometry = csg(target.geometry, tool, 'subtract');
+        target.featureIds.push(f.id);
+        history.cuts.push(tool);
+      } catch (err) {
+        errors[f.id] = `Boolean operation failed: ${(err as Error).message}`;
+      }
+      continue;
+    }
+    if (f.type === 'sweptFlange') {
+      consumedSketches.add(f.sketchId);
+      if (f.pathSketchId) consumedSketches.add(f.pathSketchId);
+      if (sheet) sheet.bentOnly = false;
+      const sketch = doc.sketches[f.sketchId];
+      if (!sketch) {
+        errors[f.id] = 'Select the profile sketch of the swept flange (an open chain).';
+        continue;
+      }
+      const chain = sketchChains(sketch).find((c) => !c.closed && c.points.length >= 2);
+      if (!chain) {
+        errors[f.id] = 'The swept flange profile must be an open chain of lines and arcs.';
+        continue;
+      }
+      const sm = doc.sheetMetal ?? DEFAULT_SHEET_METAL;
+      let path: THREE.Vector3[] | null = null;
+      if (f.pathSketchId && doc.sketches[f.pathSketchId]) path = sketchPath(doc.sketches[f.pathSketchId], resolvePlaneDef(doc, doc.sketches[f.pathSketchId].plane));
+      else if (f.edges.length) {
+        const owner = visibleBodies().find((b) => f.edges.some((e) => matchEdgeRef(bodyEdgesOf(b.geometry, b.id), e))) ?? body;
+        if (owner) {
+          const all = bodyEdgesOf(owner.geometry, owner.id);
+          const picked = f.edges.map((e) => matchEdgeRef(all, e)).filter((e): e is NonNullable<typeof e> => !!e);
+          path = chainEdges(picked);
+        }
+      }
+      if (!path || path.length < 2) {
+        errors[f.id] = 'Select the path of the swept flange: a sketch or edges of the sheet.';
+        continue;
+      }
+      const g = sweepGeometry(sweptFlangeRegions(chain.points, sm.thickness, f.reverse), resolvePlaneDef(doc, sketch.plane), path);
+      if (!g) {
+        errors[f.id] = 'The swept flange has no volume (the profile must start on the path).';
+        continue;
+      }
+      try {
+        addMaterial(g, f.id, f.merge !== false);
+        addBoss(g);
+      } catch (err) {
+        errors[f.id] = `Boolean operation failed: ${(err as Error).message}`;
+      }
+      continue;
+    }
     if (f.type === 'convertSheet') {
       if (!body) {
         errors[f.id] = 'Convert to Sheet Metal needs a solid body.';
@@ -2228,7 +2414,9 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
       all.computeBoundingSphere();
       extent = Math.max(10, (all.boundingSphere?.radius ?? 0) * 3 + 10);
     }
-    const r = featureGeometry(doc, f as SketchBasedFeature, extent, all, bodies);
+    // sheet metal cut: Link to thickness makes the depth the sheet thickness (a normal cut through one sheet)
+    const fx: Feature = f.type === 'extrude' && f.op === 'cut' && f.linkToThickness && doc.sheetMetal ? { ...f, end: 'blind', depth: doc.sheetMetal.thickness } : f;
+    const r = featureGeometry(doc, fx as SketchBasedFeature, extent, all, bodies);
     if (!r.geometry) {
       errors[f.id] = r.error ?? 'Could not build the feature.';
       continue;

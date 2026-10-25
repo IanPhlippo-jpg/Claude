@@ -48,6 +48,11 @@ export interface ExtrudeFeature {
   vertex?: { point: [number, number, number]; label: string };
   /** Extruded Cut ▸ Flip side to cut: remove the material outside the profile (within the depth) */
   flipSide?: boolean;
+  /** Sheet metal cuts: Normal cut (the walls of the cut stay perpendicular to the sheet), Link to thickness (the depth is the
+   *  sheet thickness) and Optimize geometry (a normal cut keeps the profile where it crosses a bend) */
+  normalCut?: boolean;
+  linkToThickness?: boolean;
+  optimizeGeometry?: boolean;
   /** Up To Body: the solid body the extrusion runs into (its near side shapes the end) */
   upToBody?: { bodyId: Id; label: string };
   /** Offset From Surface: distance before the surface (Reverse offset = past it) */
@@ -421,6 +426,105 @@ export interface ConvertSheetFeature {
   bendRadius: number;
   /** Keep body: the original solid stays as a second (hidden) body */
   keepBody?: boolean;
+  /** Insert Bends: the shelled solid gets its bends (Sheet-Metal, Flatten-Bends, Process-Bends) */
+  insertBends?: boolean;
+}
+
+/** Sheet Metal ▸ Vent: the boundary of the sketch is cut out of the sheet, its ribs and spars stay as strips. */
+export interface VentFeature {
+  id: Id;
+  type: 'vent';
+  name: string;
+  suppressed: boolean;
+  sketchId: Id;
+  /** width of the ribs (open chains) and the spars (closed chains inside the boundary) */
+  ribWidth: number;
+  sparWidth: number;
+  /** Fill-In Boundary: the smallest closed contour stays solid */
+  fillIn?: boolean;
+  /** fillet radius of the corners (cosmetic in this kernel) and draft angle */
+  radius?: number;
+  draft?: number;
+}
+
+/** Sheet Metal ▸ Forming Tool: a form from the Design Library pressed into the sheet at the placed positions. */
+export interface FormToolFeature {
+  id: Id;
+  type: 'formTool';
+  name: string;
+  suppressed: boolean;
+  /** the placement face (a face plane) */
+  plane: string;
+  points: { x: number; y: number }[];
+  shape: 'embossRound' | 'embossRect' | 'louver' | 'bridgeLance' | 'rib' | 'extrudedHole';
+  width: number;
+  length: number;
+  height: number;
+  rotation: number;
+  flip: boolean;
+  /** Link to thickness: the wall of the form is the sheet thickness */
+  linkToThickness?: boolean;
+}
+
+/** Sheet Metal ▸ Sheet Metal Gusset: a triangular stiffener pressed across a bend. */
+export interface GussetFeature {
+  id: Id;
+  type: 'gusset';
+  name: string;
+  suppressed: boolean;
+  faces: { normal: [number, number, number]; point: [number, number, number] }[];
+  /** Profile: indent depth along both faces; width of the gusset along the bend */
+  depth: number;
+  width: number;
+  /** Position: distance from the start of the bend (null = centred) */
+  offset: number | null;
+  flip: boolean;
+  /** Profile type: Indent depth (default) or Profile dimensions (side draft, fillets: cosmetic here) */
+  sideDraft?: number;
+}
+
+/** Sheet Metal ▸ Tab and Slot: tabs along an edge of one sheet and the matching slots in the face of another. */
+export interface TabSlotFeature {
+  id: Id;
+  type: 'tabSlot';
+  name: string;
+  suppressed: boolean;
+  edge: EdgeRef | null;
+  slotFace: { normal: [number, number, number]; point: [number, number, number] } | null;
+  tabLength: number;
+  tabHeight: number;
+  linkToThickness?: boolean;
+  /** Spacing: number of tabs and the offset of the first/last tab from the edge ends */
+  count: number;
+  edgeOffset: number;
+  /** Slot: clearance around the tab */
+  clearance: number;
+}
+
+/** Sheet Metal ▸ Rip: the edges of a (shelled) solid cut open with the rip gap so bends can be inserted. */
+export interface RipFeature {
+  id: Id;
+  type: 'rip';
+  name: string;
+  suppressed: boolean;
+  edges: EdgeRef[];
+  gap: number;
+  /** Change Direction: the gap on both sides, or one face cut back */
+  direction: 'both' | 'first' | 'second';
+}
+
+/** Sheet Metal ▸ Swept Flange: an open profile (the sheet) swept along a path sketch or along edges of the sheet. */
+export interface SweptFlangeFeature {
+  id: Id;
+  type: 'sweptFlange';
+  name: string;
+  suppressed: boolean;
+  sketchId: Id;
+  pathSketchId: Id;
+  /** the path along edges of the sheet instead of a sketch */
+  edges: EdgeRef[];
+  reverse: boolean;
+  merge: boolean;
 }
 
 /** Curves ▸ Split Line (Projection): the closed sketch regions projected through the body split the faces they cross. */
@@ -692,6 +796,8 @@ export interface HoleFeature {
   underHeadCs?: { diameter: number; angle: number };
   farCs?: { diameter: number; angle: number };
   cosmeticThread?: boolean;
+  /** Insert ▸ Features ▸ Simple Hole: a plain hole without the Hole Wizard pages */
+  simple?: boolean;
   threadCallout?: boolean;
 }
 
@@ -807,7 +913,7 @@ export interface ImportedFeature {
   source: string;
 }
 
-export type SolidFeature = ExtrudeFeature | RevolveFeature | RoundFeature | MirrorFeature | PatternFeature | HoleFeature | ShellFeature | SweepFeature | LoftFeature | ImportedFeature | RibFeature | CombineFeature | BaseFlangeFeature | EdgeFlangeFeature | FlatPatternFeature | HelixFeature | HemFeature | MiterFlangeFeature | JogFeature | Sketch3DFeature | SketchedBendFeature | DraftFeature | IntersectFeature | SurfaceFeature | CrossBreakFeature | UnfoldFeature | WrapFeature | ThreadFeature | SplitLineFeature | ProjectedCurveFeature | StudFeature | ClosedCornerFeature | CornerReliefFeature | LoftedBendFeature | ConvertSheetFeature | BeltFeature | DeleteBodyFeature | DeleteFaceFeature;
+export type SolidFeature = ExtrudeFeature | RevolveFeature | RoundFeature | MirrorFeature | PatternFeature | HoleFeature | ShellFeature | SweepFeature | LoftFeature | ImportedFeature | RibFeature | CombineFeature | BaseFlangeFeature | EdgeFlangeFeature | FlatPatternFeature | HelixFeature | HemFeature | MiterFlangeFeature | JogFeature | Sketch3DFeature | SketchedBendFeature | DraftFeature | IntersectFeature | SurfaceFeature | CrossBreakFeature | UnfoldFeature | WrapFeature | ThreadFeature | SplitLineFeature | ProjectedCurveFeature | StudFeature | ClosedCornerFeature | CornerReliefFeature | LoftedBendFeature | ConvertSheetFeature | BeltFeature | DeleteBodyFeature | DeleteFaceFeature | VentFeature | FormToolFeature | GussetFeature | TabSlotFeature | RipFeature | SweptFlangeFeature;
 export type SketchBasedFeature = ExtrudeFeature | RevolveFeature | SweepFeature | LoftFeature | RibFeature | BaseFlangeFeature | HelixFeature;
 export type Feature = SketchFeature | SolidFeature;
 
