@@ -262,6 +262,7 @@ export function MenuBar() {
       { label: 'Evaluate ▸ Compare ▸ Compare Documents…', icon: <Icon.Compare />, onSelect: () => st.setDialog('compare') },
       { label: 'Evaluate ▸ SimulationXpress Analysis Wizard…', icon: <Icon.Simulation />, onSelect: () => st.setDialog('simxpress') },
       { separator: true },
+      { label: 'Customize…', icon: <Icon.Keyboard />, onSelect: () => st.setDialog('customize') },
       { label: 'Customize ▸ Keyboard', icon: <Icon.Keyboard />, shortcut: '?', onSelect: () => st.setPanel('shortcuts', { visible: true }) },
       { label: 'Options…', icon: <Icon.Options />, onSelect: () => st.setDialog('options') },
     ],
@@ -282,6 +283,8 @@ export function MenuBar() {
     ],
   };
 
+  // Customize ▸ Menus: the unchecked items are left out
+  const hiddenMenu = new Set(String(st.prefs['customize.menus.hidden'] ?? '').split('|').filter(Boolean));
   const tb = (icon: React.ReactNode, tip: string, onClick: () => void, opts: { disabled?: boolean; active?: boolean; caret?: boolean } = {}) => (
     <button className={`k-mb-btn k-tip ${opts.active ? 'active' : ''}`} data-tip={tip} onClick={onClick} disabled={opts.disabled}>
       {icon}
@@ -304,7 +307,7 @@ export function MenuBar() {
               <button className={`k-mb-menu ${open === name ? 'active' : ''}`} onClick={() => setOpen(open === name ? null : name)} onMouseEnter={() => open && setOpen(name)}>
                 {name}
               </button>
-              {open === name && <Menu items={menus[name]} onClose={() => setOpen(null)} style={{ top: '100%', left: 0 }} />}
+              {open === name && <Menu items={menus[name].filter((m) => !m.label || !hiddenMenu.has(`${name}:${m.label}`))} onClose={() => setOpen(null)} style={{ top: '100%', left: 0 }} />}
             </div>
           ))}
           <button

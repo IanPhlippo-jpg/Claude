@@ -880,3 +880,32 @@
 .k-table tr.selected td { background: var(--selection-bg, #cfe3ff); }
 .k-table tbody tr:hover td { background: var(--hover-bg, #eef3fa); }
 .k-panel-footer { border-top: 1px solid var(--border); }
+
+/* Customize dialog (Tools ▸ Customize): seven tabs over a page, as the original */
+.k-customize-tabs button { padding: 5px 10px; }
+.k-customize-body { flex-direction: column; overflow: auto; padding: 12px 16px; font-size: 12px; gap: 8px; }
+.k-customize-cols { display: flex; gap: 14px; align-items: flex-start; }
+.k-customize-cols .k-fieldset { flex: 1; }
+.k-customize-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px 12px; }
+.k-customize-cats li { height: 22px; }
+.k-customize-buttons { display: flex; flex-wrap: wrap; gap: 3px; padding: 6px; border: 1px solid var(--border); background: var(--bg-input, #fff); min-height: 120px; max-height: 240px; overflow: auto; }
+.k-customize-cmd { width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid transparent; background: transparent; border-radius: 3px; }
+.k-customize-cmd:hover { border-color: var(--border-strong); background: var(--bg-hover); }
+.k-customize-cmd.active { border-color: #c99a15; background: #fff3c4; }
+.k-customize-cmd svg { width: 22px; height: 22px; }
+.k-customize-keys { max-height: 360px; overflow: auto; border: 1px solid var(--border); }
+.k-customize-key { width: 150px; height: 22px; cursor: pointer; }
+.k-customize-key.recording { background: #fff3c4; border-color: #c99a15; }
+.k-customize-ring { position: relative; width: 260px; height: 260px; margin: 100px 40px 40px; flex: none; }
+.k-customize-ring .k-gesture-item { left: 50%; top: 50%; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 8px; font-size: 11px; min-width: 70px; }
+.k-customize-ring .k-gesture-item.up { transform: translate(-50%, calc(-50% - 92px)); }
+.k-customize-ring .k-gesture-item.down { transform: translate(-50%, calc(-50% + 92px)); }
+.k-customize-ring .k-gesture-item.left { transform: translate(calc(-50% - 96px), -50%); }
+.k-customize-ring .k-gesture-item.right { transform: translate(calc(-50% + 96px), -50%); }
+.k-customize-ring-center { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 70px; height: 70px; border-radius: 50%; border: 2px solid #9aa4b2; background: #f7f8fa; display: flex; align-items: center; justify-content: center; font-weight: 600; }
+/* Customize ▸ Toolbars: large buttons with text off hides the labels under the CommandManager icons */
+.k-cm.k-cm-notext .k-cm-label { display: none; }
+.k-cm.k-cm-notext .k-cm-big .k-cm-main { min-height: 36px; }
+/* Customize ▸ Customization: tooltips off / small tooltips only */
+.k-notips .k-tooltip, .k-notips .k-richtip { display: none !important; }
+.k-smalltips .k-richtip { display: none !important; }

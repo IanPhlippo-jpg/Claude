@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { useStore } from './store';
 import { withUnsavedCheck } from './MenuBar';
 import { getCamera } from './viewport/Viewport';
+import { commandById, DEFAULT_KEYS, keyBindings, keyCombo } from './commands';
 
 export interface Shortcut {
   keys: string;
@@ -64,6 +65,20 @@ export function useShortcuts(handlers: { save: () => void; open: () => void; sho
       const cam = getCamera();
       const key = e.key.toLowerCase();
       const ctrl = e.ctrlKey || e.metaKey;
+      // Customize ▸ Keyboard: when the user changed the bindings they decide; a default key that was moved does nothing
+      const custom = getPref<string>('customize.keys');
+      if (custom && !st.dialog) {
+        const combo = keyCombo(e);
+        const bind = keyBindings(custom);
+        const id = Object.keys(bind).find((k) => bind[k] === combo);
+        const cmd = id ? commandById(id) : undefined;
+        if (cmd) {
+          e.preventDefault();
+          cmd.run(st, cam);
+          return;
+        }
+        if (combo && Object.values(DEFAULT_KEYS).includes(combo) && !e.key.startsWith('Arrow')) return;
+      }
 
       // ---- view rotation / pan with the arrow keys (15°, Shift 90°, Alt roll, Ctrl pan)
       if (e.key.startsWith('Arrow')) {

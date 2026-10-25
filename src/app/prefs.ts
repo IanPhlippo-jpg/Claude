@@ -387,6 +387,7 @@ export const DEFAULT_PREFS: Record<string, PrefValue> = {
   'doc.configRebuildOnActivate': true, 'doc.configAddRebuild': false, 'doc.configPurge': false,
   'doc.mateAlignment': 'Closest', 'doc.mateShowPopup': true, 'doc.mateShowPreview': true, 'doc.mateUseForPositioning': false, 'doc.mateMakeFirstFixed': true,
   'doc.perfVerification': false, 'doc.perfImageQuality': 60, 'doc.perfUseLightweight': false,
+  'customize.largeButtons': true, 'customize.tooltips': true, 'customize.largeTooltips': true, 'customize.lock': false, 'customize.gestures.enabled': true, 'customize.tabs.hidden': '', 'customize.qat.hidden': '', 'customize.qat.extra': '', 'customize.menus.hidden': '', 'customize.shortcutbar.hidden': '', 'customize.keys': '', 'customize.gestures': '', 'customize.iconSize': 'Medium', 'customize.cmDescriptions': false, 'customize.showMenus': true,
 };
 
 const STORAGE_KEY = 'phlippo.prefs';

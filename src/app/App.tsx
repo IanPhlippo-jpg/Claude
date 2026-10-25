@@ -1,5 +1,6 @@
 import { CheckDialog, RepairSketchDialog, SectionPropertiesDialog } from './evaluateDialogs';
 import { CompareDialog, PerformanceDialog, SimXpressDialog, SymmetryDialog } from './evaluateDialogs2';
+import { CustomizeDialog } from './customize';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useStore } from './store';
 import { desktop } from './desktop';
@@ -74,6 +75,12 @@ export function App() {
     [],
   );
   useShortcuts(handlers);
+  // the command catalog (Customize) reaches Save and the shortcut bar through these hooks
+  useEffect(() => {
+    const w = window as unknown as { __phlippoSave?: () => void; __phlippoShortcutBar?: () => void };
+    w.__phlippoSave = handlers.save;
+    w.__phlippoShortcutBar = handlers.shortcutBar;
+  }, [handlers]);
 
   const onEditDimension = useCallback((id: string) => {
     st.selectConstraint(id);
@@ -85,7 +92,7 @@ export function App() {
   const managerSide = st.panels.manager.side;
 
   return (
-    <div className="k-app">
+    <div className={`k-app${st.prefs['customize.tooltips'] === false ? ' k-notips' : ''}${st.prefs['customize.largeTooltips'] === false ? ' k-smalltips' : ''}`}>
       <MenuBar />
       <Ribbon />
       <div className="k-main">
@@ -126,6 +133,7 @@ export function App() {
           {st.dialog === 'interference' && <InterferenceDialog />}
           {st.dialog === 'check' && <CheckDialog />}
           {st.dialog === 'performance' && <PerformanceDialog />}
+          {st.dialog === 'customize' && <CustomizeDialog />}
           {st.dialog === 'symmetry' && <SymmetryDialog />}
           {st.dialog === 'compare' && <CompareDialog />}
           {st.dialog === 'simxpress' && <SimXpressDialog />}

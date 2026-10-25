@@ -2,6 +2,14 @@ import { useState, type ReactNode } from 'react';
 import { useStore } from './store';
 import { Icon } from '../ui/icons';
 import { Menu, type MenuItem } from '../ui/components';
+import { getPref } from './prefs';
+
+/** the commands of the three shortcut bars, as Customize ▸ Shortcut Bars lists them */
+export const SHORTCUT_BAR_COMMANDS: Record<'sketch' | 'part' | 'assembly', string[]> = {
+  sketch: ['Select', 'Smart Dimension', 'Exit Sketch', 'Extruded Boss/Base', 'Line', 'Line', 'Centerline', 'Corner Rectangle', 'Corner Rectangle', 'Center Rectangle', 'Circle', 'Centerpoint Arc', 'Centerpoint Arc', '3 Point Arc', 'Polygon', 'Straight Slot', 'Trim Entities', 'Offset Entities', 'Sketch Fillet', 'Spline', 'Point', 'Linear Sketch Pattern', 'Mirror Entities', 'Construction Geometry', 'Display/Delete Relations', 'Circular Sketch Pattern'],
+  part: ['Select', 'Sketch', 'Extruded Boss/Base', 'Revolved Boss/Base', 'Extruded Cut', 'Hole Wizard', 'Revolved Cut', 'Fillet', 'Chamfer', 'Linear Pattern', 'Mirror', 'Shell', 'Rib', 'Measure', 'Mass Properties', 'Zoom to Fit', 'Options'],
+  assembly: ['Select', 'Insert Components', 'Mate', 'Move Component', 'Rotate Component', 'Interference Detection', 'Bill of Materials', 'Measure'],
+};
 
 interface Cmd {
   label: string;
@@ -75,7 +83,10 @@ export function ShortcutBar({ onClose }: { onClose: () => void }) {
     { label: 'Bill of Materials', icon: <Icon.Bom />, description: 'Inserts a bill of materials.', onSelect: t(() => st.setDialog('bom')) },
     { label: 'Measure', icon: <Icon.Measure />, description: 'Measures distances and angles.', onSelect: t(() => st.setDialog('measure')) },
   ];
-  const cmds = inSketch ? sketchCmds : st.doc.kind === 'assembly' ? asmCmds : partCmds;
+  // Customize ▸ Shortcut Bars: the unchecked commands are left out
+  const ctx = inSketch ? 'sketch' : st.doc.kind === 'assembly' ? 'assembly' : 'part';
+  const hidden = String(getPref('customize.shortcutbar.hidden') ?? '').split('|');
+  const cmds = (inSketch ? sketchCmds : st.doc.kind === 'assembly' ? asmCmds : partCmds).filter((c) => !hidden.includes(`${ctx}:${c.label}`));
   return (
     <div className="k-skey" onMouseLeave={() => setTip(null)}>
       <div className="k-skey-grid">

@@ -526,8 +526,8 @@ elease; README en docs/04 bijgewerkt
 - [x] Blok G-D (surfaces2.ts; e2e/gd.mjs 23/23; Freeform als 'later') Surfaces: Filled, Ruled, Extend, Untrim, Replace Face, Thickened Cut, Cut With Surface + Feature Scope, Surface Flatten
 - [x] Blok G-E Sheet Metal extra's: Swept Flange, Forming Tool (Design Library-lijst), Sheet Metal Gusset, Tab and Slot, Simple Hole, Vent (boundary/ribs/spars/fill-in), Normal cut + Link to thickness + Optimize geometry op Extruded Cut, Rip, Insert Bends, Profile Sketch-controle ("The sketch is valid."); Sheet Metal-tab in SW-volgorde; kernel `sheetmetal4.ts` + unit tests + e2e `ge.mjs` (59 checks)
 - [x] Blok G-F Evaluate: Performance Evaluation (rebuildtijd per feature + statistieken), Symmetry Check, Deviation Analysis, Parting Line Analysis (kleuren + parting line), Compare (Body Compare / Compare Documents), Check Active Document in Tools-menu, SimulationXpress Analysis Wizard (6 stappen, balk-schatting); kernel `evaluate2.ts` + unit tests + e2e `gf.mjs`
-- [~] Blok G-G Customize-dialoog (Toolbars, Shortcut Bars, Commands, Menus, Keyboard, Mouse Gestures, Customization) met echte instellingen
-- [ ] Blok G-H Weldments: Weldment, Structural Member (profielen), Trim/Extend, End Cap, Gusset, Weld Bead, cut list
+- [x] Blok G-G Customize-dialoog (Toolbars: CM-tabs/Quick Access/grote knoppen; Shortcut Bars per context; Commands-catalogus + Add to Quick Access; Menus verbergen; Keyboard herbinden; Mouse Gestures per richting + aan/uit; Customization: tooltips/lock/reset) met echte prefs; commando-register `commands.tsx`; e2e `gg.mjs` (22 checks)
+- [~] Blok G-H Weldments: Weldment, Structural Member (profielen), Trim/Extend, End Cap, Gusset, Weld Bead, cut list
 - [ ] Blok G-I Material-velden (Compressive Strength, Description, Source, Sustainability, Favorites), MBD Dimensions-tab
 - [ ] Playlist-inventaris afmaken (video's 13–15, 21–24, 26–37) en resterende verschillen wegwerken
 - [ ] Na elk blok tsc + e2e; op het einde volledige regressie, 0.3.3, installer, schermafbeeldingen

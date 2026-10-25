@@ -19,6 +19,7 @@ import { MarkupLayer } from '../lifecycleDialogs';
 import { refGeometryFrom, refGeometryLines } from '../../core/features/refgeom';
 import { curvatureAnalysis, draftAnalysis, thicknessAnalysis, undercutAnalysis } from '../../core/features/analysis';
 import { partingLineAnalysis } from '../../core/features/evaluate2';
+import { commandById, gestureBindings } from '../commands';
 import { MATERIAL_LIBRARY } from '../../core/document/materials';
 
 const WOODS = new Set((MATERIAL_LIBRARY.find((c) => c.name === 'Woods')?.materials ?? []).map((m) => m.name));
@@ -840,10 +841,13 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
   const gesture = useRef<{ x: number; y: number; dir: GestureDir | null } | null>(null);
   const gestureFired = useRef(false);
   const [gestureUi, setGestureUi] = useState<{ x: number; y: number; dir: GestureDir | null } | null>(null);
-  const gestureCommands = (): Record<GestureDir, { label: string; run: () => void }> =>
-    sketch
-      ? { left: { label: 'Line', run: () => st.setTool('line') }, right: { label: 'Smart Dimension', run: () => st.setTool('dimension') }, up: { label: 'Circle', run: () => st.setTool('circle') }, down: { label: 'Corner Rectangle', run: () => st.setTool('rectangle') } }
-      : { up: { label: 'Top', run: () => camera.setView('top') }, down: { label: 'Front', run: () => camera.setView('front') }, left: { label: 'Left', run: () => camera.setView('left') }, right: { label: 'Right', run: () => camera.setView('right') } };
+  // Customize ▸ Mouse Gestures: the four directions bind to commands of the catalog (defaults as the original)
+  const gestureCommands = (): Record<GestureDir, { label: string; run: () => void }> => {
+    const g = gestureBindings(getPref('customize.gestures'));
+    const ctx = sketch ? g.sketch : g.part;
+    const mk = (id: string) => { const c = commandById(id); return { label: c?.label ?? id, run: () => c?.run(useStore.getState(), camera) }; };
+    return { up: mk(ctx.up), down: mk(ctx.down), left: mk(ctx.left), right: mk(ctx.right) };
+  };
   const onPointerDown = (e: React.PointerEvent) => {
     hostRef.current?.focus();
     setCtxMenu(null);
@@ -867,7 +871,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
     if (e.button === 2) {
       // a right-drag becomes a mouse gesture; a plain right-click opens the context menu on the contextmenu event
       const r0 = hostRef.current!.getBoundingClientRect();
-      gesture.current = { x: e.clientX - r0.left, y: e.clientY - r0.top, dir: null };
+      if (getPref('customize.gestures.enabled') !== false) gesture.current = { x: e.clientX - r0.left, y: e.clientY - r0.top, dir: null };
       return;
     }
     // Insert Component: a click places the part on the pointer there

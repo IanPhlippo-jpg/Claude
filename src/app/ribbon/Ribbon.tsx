@@ -5,6 +5,8 @@ import { useStore, type RibbonTab, type ToolId } from '../store';
 import { Menu, type MenuItem } from '../../ui/components';
 import { Icon } from '../../ui/icons';
 import { FORM_TOOL_LIBRARY } from '../../core/features/sheetmetal4';
+import { commandById } from '../commands';
+import { getCamera } from '../viewport/Viewport';
 import { openFileDialog, saveDocument } from '../MenuBar';
 import { AssemblyTab, LifecycleTab } from './AssemblyTab';
 import { AnnotationTab, SheetFormatTab, ViewLayoutTab } from './DrawingTabs';
@@ -143,6 +145,11 @@ function MbIcon({ icon, tip, onClick, caret, disabled }: { icon: ReactNode; tip:
 
 export function Ribbon() {
   const st = useStore();
+  // Customize ▸ Toolbars: hidden CommandManager tabs and Quick Access buttons, extra Quick Access commands
+  const hiddenTabs = String(st.prefs['customize.tabs.hidden'] ?? '').split('|').filter(Boolean);
+  const qat = (id: string) => !String(st.prefs['customize.qat.hidden'] ?? '').split('|').includes(id);
+  const qatExtra = String(st.prefs['customize.qat.extra'] ?? '').split('|').filter(Boolean);
+  const locked = st.prefs['customize.lock'] === true;
   const [collapsed, setCollapsed] = useState(false);
   const inSketch = !!st.activeSketchId;
   const T = (id: ToolId) => ({ active: (st.tool === id && inSketch) || (st.planePick && st.pendingTool === id), onClick: () => st.setTool(id) });
@@ -152,15 +159,16 @@ export function Ribbon() {
   const menuBlock = (
     <Group>
       <div className="k-cm-mbgrid">
-        <MbIcon icon={<Icon.Home />} tip="Home" onClick={() => st.setDialog('welcome')} />
-        <MbIcon icon={<Icon.Save />} tip="Save (Ctrl+S)" onClick={() => saveDocument()} caret />
-        <MbIcon icon={<Icon.Undo />} tip={st.undoLabel ? `Undo ${st.undoLabel} (Ctrl+Z)` : 'Undo (Ctrl+Z)'} onClick={st.undo} caret disabled={!st.canUndo} />
-        <MbIcon icon={<Icon.New />} tip="New (Ctrl+N)" onClick={() => st.setDialog('new')} caret />
-        <MbIcon icon={<Icon.Rebuild />} tip="Rebuild (Ctrl+B)" onClick={() => st.rebuildAll()} />
-        <MbIcon icon={<Icon.Redo />} tip={st.redoLabel ? `Redo ${st.redoLabel} (Ctrl+Y)` : 'Redo (Ctrl+Y)'} onClick={st.redo} caret disabled={!st.canRedo} />
-        <MbIcon icon={<Icon.Open />} tip="Open (Ctrl+O)" onClick={openFileDialog} caret />
-        <MbIcon icon={<Icon.Options />} tip="Options" onClick={() => st.setDialog('options')} caret />
-        <MbIcon icon={<Icon.Select />} tip="Select (Esc)" onClick={() => st.setTool('select')} caret />
+        {qat('Home') && <MbIcon icon={<Icon.Home />} tip="Home" onClick={() => st.setDialog('welcome')} />}
+        {qat('Save') && <MbIcon icon={<Icon.Save />} tip="Save (Ctrl+S)" onClick={() => saveDocument()} caret />}
+        {qat('Undo') && <MbIcon icon={<Icon.Undo />} tip={st.undoLabel ? `Undo ${st.undoLabel} (Ctrl+Z)` : 'Undo (Ctrl+Z)'} onClick={st.undo} caret disabled={!st.canUndo} />}
+        {qat('New') && <MbIcon icon={<Icon.New />} tip="New (Ctrl+N)" onClick={() => st.setDialog('new')} caret />}
+        {qat('Rebuild') && <MbIcon icon={<Icon.Rebuild />} tip="Rebuild (Ctrl+B)" onClick={() => st.rebuildAll()} />}
+        {qat('Redo') && <MbIcon icon={<Icon.Redo />} tip={st.redoLabel ? `Redo ${st.redoLabel} (Ctrl+Y)` : 'Redo (Ctrl+Y)'} onClick={st.redo} caret disabled={!st.canRedo} />}
+        {qat('Open') && <MbIcon icon={<Icon.Open />} tip="Open (Ctrl+O)" onClick={openFileDialog} caret />}
+        {qat('Options') && <MbIcon icon={<Icon.Options />} tip="Options" onClick={() => st.setDialog('options')} caret />}
+        {qat('Select') && <MbIcon icon={<Icon.Select />} tip="Select (Esc)" onClick={() => st.setTool('select')} caret />}
+        {qatExtra.map((id) => { const c = commandById(id); return c ? <MbIcon key={id} icon={c.icon} tip={c.label} onClick={() => c.run(useStore.getState(), getCamera())} /> : null; })}
       </div>
     </Group>
   );
@@ -518,10 +526,10 @@ export function Ribbon() {
   };
 
   return (
-    <div className={`k-cm ${collapsed ? 'collapsed' : ''} ${st.hasDocument ? '' : 'k-cm-nodoc'}`}>
+    <div className={`k-cm ${collapsed ? 'collapsed' : ''} ${st.hasDocument ? '' : 'k-cm-nodoc'} ${st.prefs['customize.largeButtons'] === false ? 'k-cm-notext' : ''}`}>
       {!collapsed && <RibbonBody className={`k-cm-body ${busy ? 'busy' : ''}`} busy={busy}>{bodies[tabShown] ?? (st.doc.kind === 'assembly' ? bodies.assembly : st.doc.kind === 'drawing' ? bodies.viewLayout : featuresTab)}</RibbonBody>}
       <div className="k-cm-tabs" role="tablist">
-        {(st.doc.kind === 'assembly' ? ASSEMBLY_TABS : st.doc.kind === 'drawing' ? DRAWING_TABS : TABS).map((t) => (
+        {(st.doc.kind === 'assembly' ? ASSEMBLY_TABS : st.doc.kind === 'drawing' ? DRAWING_TABS : TABS).filter((t) => !hiddenTabs.includes(t.id)).map((t) => (
           <button
             key={t.id}
             role="tab"
@@ -535,7 +543,7 @@ export function Ribbon() {
           </button>
         ))}
         <span className="grow" />
-        <button className="k-btn ghost icon k-tip" data-tip={collapsed ? 'Expand CommandManager' : 'Collapse CommandManager'} onClick={() => setCollapsed((c) => !c)}>
+        <button className="k-btn ghost icon k-tip" data-tip={locked ? 'CommandManager is locked (Customize)' : collapsed ? 'Expand CommandManager' : 'Collapse CommandManager'} disabled={locked} onClick={() => setCollapsed((c) => !c)}>
           {collapsed ? <Icon.ChevronDown size={12} /> : <Icon.Pin size={12} />}
         </button>
       </div>
