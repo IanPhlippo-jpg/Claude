@@ -46,7 +46,7 @@ await page.click('.k-cm-tab:has-text("Sheet Metal")');
 await page.locator('.k-tree-row:has-text("Sketch2")').last().click();
 await page.click('.k-cm-small:has-text("Jog")');
 await page.waitForTimeout(300);
-check('Jog PropertyManager with the sketch', (await page.locator('.k-pm-title:has-text("Jog1")').count()) === 1 && (await page.locator('[data-testid="jog-sketch"]').inputValue()) === 'sk2');
+check('Jog Property Panel with the sketch', (await page.locator('.k-pm-title:has-text("Jog1")').count()) === 1 && (await page.locator('[data-testid="jog-sketch"]').inputValue()) === 'sk2');
 await page.locator('.k-section:has-text("Jog Offset") input.k-num').first().fill('12');
 await page.locator('.k-section:has-text("Jog Offset") input.k-num').first().press('Tab');
 await page.waitForTimeout(300);
@@ -74,7 +74,7 @@ await page.click('.k-cm-tab:has-text("Sheet Metal")');
 await page.locator('.k-tree-row:has-text("Sketch3")').last().click();
 await page.click('.k-cm-small:has-text("Miter Flange")');
 await page.waitForTimeout(300);
-check('Miter Flange PropertyManager with the profile sketch', (await page.locator('[data-testid="miter-sketch"]').inputValue()) === 'sk3');
+check('Miter Flange Property Panel with the profile sketch', (await page.locator('[data-testid="miter-sketch"]').inputValue()) === 'sk3');
 await page.keyboard.press('f');
 await page.waitForTimeout(400);
 // click the two top edges of the fixed half (x 50..100): along x at z = 60 and the end x = 100 along z
@@ -117,7 +117,7 @@ await page.click('.k-cm-tab:has-text("Sheet Metal")');
 await page.locator('.k-tree-row:has-text("Sketch2")').last().click();
 await page.click('.k-cm-small:has-text("Sketched Bend")');
 await page.waitForTimeout(300);
-check('Sketched Bend PropertyManager (SketchBend1, 90.00deg)', (await page.locator('.k-pm-title:has-text("SketchBend1")').count()) === 1 && (await page.locator('.k-section:has-text("Bend Parameters") input.k-num').first().inputValue()) === '90.00deg');
+check('Sketched Bend Property Panel (SketchBend1, 90.00deg)', (await page.locator('.k-pm-title:has-text("SketchBend1")').count()) === 1 && (await page.locator('.k-section:has-text("Bend Parameters") input.k-num').first().inputValue()) === '90.00deg');
 await page.click('.k-pm-ok');
 await page.waitForTimeout(800);
 b = await B();
@@ -128,7 +128,9 @@ await shot('jm4-sketched-bend');
 
 console.log(`
 ${results.filter((r) => r.ok).length}/${results.length} checks passed`);
-process.exitCode = results.every((r) => r.ok) ? 0 : 1;
+const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
+if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
+process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
 for (const r of results.filter((r) => !r.ok)) console.log(' - ' + r.name + (r.info ? ' (' + r.info + ')' : ''));
 console.log('errors:', errors.length ? errors : 'none');
 await browser.close();

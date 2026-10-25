@@ -65,7 +65,7 @@ await page.keyboard.press('Delete');
 await page.waitForTimeout(800);
 await alive('select all + delete');
 
-// the Delete button of the Dimension PropertyManager
+// the Delete button of the Dimension Property Panel
 await page.keyboard.press('Control+z');
 await page.waitForTimeout(400);
 await page.evaluate(() => { const s = window.__phlippoStore.getState(); const sk = s.doc.sketches[s.activeSketchId]; const l = Object.values(sk.entities).find((e) => e.kind === 'line' && !e.construction); s.commit('Dim', (k) => ({ ...k, constraints: { ...k.constraints, dd: { id: 'dd', kind: 'length', refs: [l.id], value: 50 } }, constraintOrder: [...k.constraintOrder, 'dd'] })); window.__phlippoStore.getState().selectConstraint('dd'); });

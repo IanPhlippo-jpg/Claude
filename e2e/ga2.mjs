@@ -155,6 +155,8 @@ check('Polygon layout stores six sides', (await S(() => window.__phlippoStore.ge
 await S(() => window.__phlippoStore.getState().cancelFeature());
 
 console.log(results.filter((r) => r.ok).length + '/' + results.length + ' passed');
-process.exitCode = results.every((r) => r.ok) ? 0 : 1;
+const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
+if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
+process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
 if (errors.length) console.log('ERRORS', errors.slice(0, 5));
 await browser.close();

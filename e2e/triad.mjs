@@ -74,6 +74,8 @@ const selMate = await S(() => { const s = window.__phlippoStore.getState(); retu
 check('the new mate stays selected', selMate);
 await page.screenshot({ path: `${OUT}/triad2-mate-cyan.png` });
 console.log(results.filter((r) => r.ok).length + '/' + results.length + ' passed');
-process.exitCode = results.every((r) => r.ok) ? 0 : 1;
+const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
+if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
+process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
 if (errors.length) console.log('ERRORS', errors.slice(0, 5));
 await browser.close();

@@ -142,7 +142,7 @@
 .k-viewport.tool-select { cursor: default; }
 .k-viewport.picking { cursor: crosshair; }
 .k-viewport-empty { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: var(--text-muted); pointer-events: none; text-align: center; padding: 20px; }
-.k-plane-label { position: absolute; transform: translate(6px, -100%); font-size: 13px; font-style: italic; letter-spacing: 0.04em; font-family: var(--font-ui); color: #5b7fc4; pointer-events: none; }
+.k-plane-label { position: absolute; transform: translate(6px, -100%); font-size: 13px; font-style: italic; letter-spacing: 0.04em; font-family: var(--font-ui); color: #5b7fc4; pointer-events: auto; cursor: default; white-space: nowrap; user-select: none; }
 .k-plane-label.hl { color: #e07b00; opacity: 1; }
 .k-zoom-rect { position: absolute; border: 1px dashed var(--accent); background: rgba(31,111,235,0.08); pointer-events: none; }
 .k-feedback { position: absolute; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; background: var(--sk-relation-bg); border: 1px solid var(--border-strong); border-radius: 3px; color: var(--text); pointer-events: none; }
@@ -915,3 +915,6 @@
 .k-dx-dim { background: #fff8d6; border-color: #7a6a1f; }
 .k-dx-dim.basic { border: 1.5px solid #1a1a1a; background: #fff; }
 .k-dx-gtol { font-family: 'Segoe UI Symbol', 'Segoe UI', sans-serif; letter-spacing: 0.5px; }
+
+/* the independence notice on the Welcome dialog (F72) */
+.k-legal { max-width: 260px; margin-top: 14px; font-size: 10.5px; line-height: 1.35; white-space: normal; }

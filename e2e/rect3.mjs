@@ -32,7 +32,7 @@ const state = () => page.evaluate(() => {
 });
 const len = (l) => Math.hypot(l.b.x - l.a.x, l.b.y - l.a.y);
 
-// the PropertyManager offers all five rectangle types, none greyed out
+// the Property Panel offers all five rectangle types, none greyed out
 await page.evaluate(() => window.__phlippoStore.getState().setTool('rectangle'));
 await page.waitForTimeout(200);
 const types = await page.evaluate(() => [...document.querySelectorAll('.k-pm-recttypes .k-pm-typebtn')].map((b) => ({ t: b.title, d: b.disabled })));
@@ -79,7 +79,9 @@ await page.screenshot({ path: `${OUT}/rect3.png` });
 
 console.log(`
 ${results.filter((r) => r.ok).length}/${results.length} checks passed`);
-process.exitCode = results.every((r) => r.ok) ? 0 : 1;
+const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
+if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
+process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
 for (const r of results.filter((r) => !r.ok)) console.log(' - ' + r.name + (r.info ? ' (' + r.info + ')' : ''));
 console.log('errors:', errors.length ? errors : 'none');
 await browser.close();

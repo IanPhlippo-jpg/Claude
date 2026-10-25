@@ -44,7 +44,7 @@ await page.locator('.k-tree-row:has-text("Cut-Extrude1")').last().click();
 await page.locator('.k-cm-big:has-text("Linear Pattern") .k-cm-arrow').first().click();
 await page.click('.k-menu-item:has-text("Sketch Driven Pattern")');
 await page.waitForTimeout(300);
-check('Sketch Driven Pattern PropertyManager with the seed', (await page.locator('.k-pm-title:has-text("Sketch Driven Pattern")').count()) === 1 && (await page.locator('.k-section:has-text("Features and Faces")').innerText()).includes('Cut-Extrude1'));
+check('Sketch Driven Pattern Property Panel with the seed', (await page.locator('.k-pm-title:has-text("Sketch Driven Pattern")').count()) === 1 && (await page.locator('.k-section:has-text("Features and Faces")').innerText()).includes('Cut-Extrude1'));
 await page.locator('[data-testid="skpattern-sketch"]').selectOption('sk3');
 await page.click('.k-pm-ok');
 await page.waitForTimeout(900);
@@ -56,7 +56,9 @@ await shot('sp1-sketch-pattern');
 
 console.log(`
 ${results.filter((r) => r.ok).length}/${results.length} checks passed`);
-process.exitCode = results.every((r) => r.ok) ? 0 : 1;
+const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
+if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
+process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
 for (const r of results.filter((r) => !r.ok)) console.log(' - ' + r.name + (r.info ? ' (' + r.info + ')' : ''));
 console.log('errors:', errors.length ? errors : 'none');
 await browser.close();

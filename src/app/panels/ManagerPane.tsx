@@ -36,16 +36,16 @@ export function ManagerPane({ editDimensionId, onEditDone }: { editDimensionId: 
   if (!st.hasDocument) return <div className="k-manager k-manager-empty" data-testid="manager-empty" />;
   if (st.managerCollapsed) {
     return (
-      <button className="k-manager-expand k-tip" data-tip="Show FeatureManager" onClick={() => st.setManagerCollapsed(false)}>
+      <button className="k-manager-expand k-tip" data-tip="Show Feature Tree" onClick={() => st.setManagerCollapsed(false)}>
         <Icon.ChevronRight size={12} />
       </button>
     );
   }
 
   const tabs: { id: typeof st.managerTab; icon: React.ReactNode; tip: string }[] = [
-    { id: 'tree', icon: <Icon.Part />, tip: 'FeatureManager design tree' },
-    { id: 'properties', icon: <Icon.MgrProperty />, tip: 'PropertyManager' },
-    { id: 'configurations', icon: <Icon.MgrConfig />, tip: 'ConfigurationManager' },
+    { id: 'tree', icon: <Icon.Part />, tip: 'Feature Tree' },
+    { id: 'properties', icon: <Icon.MgrProperty />, tip: 'Property Panel' },
+    { id: 'configurations', icon: <Icon.MgrConfig />, tip: 'Configurations' },
   ];
 
   return (
@@ -59,10 +59,10 @@ export function ManagerPane({ editDimensionId, onEditDone }: { editDimensionId: 
               {t.icon}
             </button>
           ))}
-          <button className={`k-manager-tab k-tip ${st.managerTab === 'dimxpert' ? 'active' : ''}`} data-tip="DimXpertManager" data-testid="tab-dimxpert" onClick={() => st.setManagerTab('dimxpert')}><Icon.MgrDimXpert /></button>
-          <button className={`k-manager-tab k-tip ${st.managerTab === 'display' ? 'active' : ''}`} data-tip="DisplayManager" data-testid="tab-display" onClick={() => st.setManagerTab('display')}><Icon.MgrDisplay /></button>
+          <button className={`k-manager-tab k-tip ${st.managerTab === 'dimxpert' ? 'active' : ''}`} data-tip="Tolerance Tree" data-testid="tab-dimxpert" onClick={() => st.setManagerTab('dimxpert')}><Icon.MgrDimXpert /></button>
+          <button className={`k-manager-tab k-tip ${st.managerTab === 'display' ? 'active' : ''}`} data-tip="Display Panel" data-testid="tab-display" onClick={() => st.setManagerTab('display')}><Icon.MgrDisplay /></button>
           <span className="grow" />
-          <button className="k-btn ghost icon k-tip" data-tip="Hide FeatureManager tree area" onClick={() => st.setManagerCollapsed(true)}>
+          <button className="k-btn ghost icon k-tip" data-tip="Hide Feature Tree tree area" onClick={() => st.setManagerCollapsed(true)}>
             <Icon.ChevronRight size={12} />
           </button>
         </div>
@@ -84,7 +84,7 @@ export function ManagerPane({ editDimensionId, onEditDone }: { editDimensionId: 
         <>
           {st.prefs['fm.treeFilter'] !== false && <div className="k-tree-filter">
             <Icon.Filter size={18} />
-            <input className="k-input" aria-label="Filter" title="Filter the FeatureManager design tree" value={st.treeFilter} onChange={(e) => st.setTreeFilter(e.target.value)} onKeyDown={(e) => e.stopPropagation()} />
+            <input className="k-input" aria-label="Filter" title="Filter the Feature Tree" value={st.treeFilter} onChange={(e) => st.setTreeFilter(e.target.value)} onKeyDown={(e) => e.stopPropagation()} />
           </div>}
           {st.doc.kind === 'assembly' ? <AssemblyTreeBody /> : st.doc.kind === 'drawing' ? <DrawingTreeBody /> : <FeatureTreeBody />}
         </>

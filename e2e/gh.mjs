@@ -44,7 +44,7 @@ await S(() => {
 await page.waitForTimeout(500);
 
 // ---- the Weldments tab and the Weldment feature
-check('CommandManager has a Weldments tab', (await page.locator('.k-cm-tab:has-text("Weldments")').count()) === 1);
+check('Command Ribbon has a Weldments tab', (await page.locator('.k-cm-tab:has-text("Weldments")').count()) === 1);
 await page.click('.k-cm-tab:has-text("Weldments")');
 for (const l of ['Weldment', 'Structural Member', 'Trim/Extend', 'End Cap', 'Gusset', 'Weld Bead', 'Cut List', '3D Sketch']) check(`Weldments tab has ${l}`, (await page.locator(`.k-cm-group :text-is("${l}")`).count()) >= 1);
 await page.click('.k-cm-big:has-text("Weldment") .k-cm-main');
@@ -176,6 +176,8 @@ await page.waitForTimeout(300);
 await shot('gh9-trimextend');
 
 console.log(results.filter((r) => r.ok).length + '/' + results.length + ' passed');
-process.exitCode = results.every((r) => r.ok) ? 0 : 1;
+const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
+if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
+process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
 if (errors.length) console.log('ERRORS', errors.slice(0, 5));
 await browser.close();

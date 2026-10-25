@@ -135,7 +135,7 @@ await shot('e31-assembly-inserted');
 // ---- coincident mate: top face of Plate<1> with top face of Plate<2> (anti-aligned: Plate<2> flips onto Plate<1>)
 await page.click('.k-cm-big:has-text("Mate") .k-cm-main');
 await page.waitForTimeout(300);
-check('Mate PropertyManager open', (await page.locator('.k-pm-title').innerText()).includes('Mate'));
+check('Mate Property Panel open', (await page.locator('.k-pm-title').innerText()).includes('Mate'));
 const b2 = a.bodies[1];
 const p1 = await page.evaluate(() => window.__phlippoProjectWorld(10, 10, -10));
 await page.mouse.click(p1.x, p1.y);

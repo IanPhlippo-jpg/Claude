@@ -40,7 +40,7 @@ await page.click('[data-testid="motion-contact"]');
 await page.waitForTimeout(200);
 await page.click('[data-testid="motion-edit-ok"]');
 await page.waitForTimeout(200);
-check('Gravity and Contact1 in the MotionManager tree', (await page.locator('.k-motion-row:has-text("Gravity")').count()) === 1 && (await page.locator('.k-motion-row:has-text("Contact1")').count()) === 1);
+check('Gravity and Contact1 in the Motion Timeline tree', (await page.locator('.k-motion-row:has-text("Gravity")').count()) === 1 && (await page.locator('.k-motion-row:has-text("Contact1")').count()) === 1);
 await page.click('[data-testid="motion-calc"]');
 await page.waitForTimeout(400);
 const sim = await S(() => { const s = window.__phlippoStore.getState().motionSim; return s ? s.frames.p?.slice(-1)[0] : null; });
@@ -100,6 +100,8 @@ await page.waitForTimeout(200);
 check('Motion Study Properties: 30 frames per second', (await S(() => window.__phlippoStore.getState().doc.motionStudy.fps)) === 30);
 
 console.log(results.filter((r) => r.ok).length + '/' + results.length + ' passed');
-process.exitCode = results.every((r) => r.ok) ? 0 : 1;
+const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
+if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
+process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
 if (errors.length) console.log('ERRORS', errors.slice(0, 5));
 await browser.close();

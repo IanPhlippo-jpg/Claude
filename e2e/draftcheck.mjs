@@ -40,7 +40,7 @@ await page.waitForTimeout(300);
 await page.click('.k-cm-tab:has-text("Features")');
 await page.click('.k-cm-small:has-text("Draft")');
 await page.waitForTimeout(300);
-check('Draft PropertyManager (Draft1)', (await page.locator('.k-pm-title:has-text("Draft1")').count()) === 1);
+check('Draft Property Panel (Draft1)', (await page.locator('.k-pm-title:has-text("Draft1")').count()) === 1);
 await page.locator('.k-section:has-text("Draft Angle") input.k-num').first().fill('5');
 await page.locator('.k-section:has-text("Draft Angle") input.k-num').first().press('Tab');
 let q = await W(20, 40, 20); await page.mouse.click(q.x, q.y); await page.waitForTimeout(200);
@@ -98,7 +98,7 @@ await page.waitForTimeout(700);
 await page.click('.k-cm-tab:has-text("Features")');
 await page.click('.k-cm-small:has-text("Intersect")');
 await page.waitForTimeout(300);
-check('Intersect PropertyManager with both bodies', (await page.locator('[data-testid="intersect-bodies"] .k-selbox-row').count()) === 2);
+check('Intersect Property Panel with both bodies', (await page.locator('[data-testid="intersect-bodies"] .k-selbox-row').count()) === 2);
 await page.locator('.k-section:has-text("Regions to Exclude") .k-check').nth(1).click();
 await page.locator('.k-section:has-text("Regions to Exclude") .k-check').nth(2).click();
 await page.click('.k-pm-ok');
@@ -109,7 +109,9 @@ await shot('dc3-intersect');
 
 console.log(`
 ${results.filter((r) => r.ok).length}/${results.length} checks passed`);
-process.exitCode = results.every((r) => r.ok) ? 0 : 1;
+const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
+if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
+process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
 for (const r of results.filter((r) => !r.ok)) console.log(' - ' + r.name + (r.info ? ' (' + r.info + ')' : ''));
 console.log('errors:', errors.length ? errors : 'none');
 await browser.close();

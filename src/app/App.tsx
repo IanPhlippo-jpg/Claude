@@ -1,3 +1,4 @@
+import { bridge } from './viewport/bridge';
 import { CheckDialog, RepairSketchDialog, SectionPropertiesDialog } from './evaluateDialogs';
 import { CompareDialog, CutListDialog, PerformanceDialog, SimXpressDialog, SymmetryDialog } from './evaluateDialogs2';
 import { CustomizeDialog } from './customize';
@@ -82,9 +83,8 @@ export function App() {
   useEffect(() => { applyUpAxis(getPref('view.upAxis') === 'Z' ? 'Z' : 'Y'); }, []);
   // the command catalog (Customize) reaches Save and the shortcut bar through these hooks
   useEffect(() => {
-    const w = window as unknown as { __phlippoSave?: () => void; __phlippoShortcutBar?: () => void };
-    w.__phlippoSave = handlers.save;
-    w.__phlippoShortcutBar = handlers.shortcutBar;
+    bridge.save = handlers.save;
+    bridge.shortcutBar = handlers.shortcutBar;
   }, [handlers]);
 
   const onEditDimension = useCallback((id: string) => {

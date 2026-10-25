@@ -1,4 +1,4 @@
-// Motion Study on the door handle: Motion Study 1 tab, Motor PropertyManager, Play / Stop of the animation.
+// Motion Study on the door handle: Motion Study 1 tab, Motor Property Panel, Play / Stop of the animation.
 import { chromium } from 'playwright';
 import { mkdirSync, readFileSync } from 'node:fs';
 
@@ -25,7 +25,7 @@ await page.evaluate((d) => window.__phlippoStore.getState().openDocument(d), asm
 await page.waitForTimeout(1500);
 await page.click('[data-testid="motion-tab"]');
 await page.waitForTimeout(300);
-check('Motion Study 1 tab opens the MotionManager (toolbar, tree, timeline)', (await page.locator('[data-testid="motion-manager"]').count()) === 1 && (await page.locator('.k-motion-row:has-text("Orientation and Camera Views")').count()) === 1 && (await page.locator('.k-motion-tick').count()) >= 5);
+check('Motion Study 1 tab opens the Motion Timeline (toolbar, tree, timeline)', (await page.locator('[data-testid="motion-manager"]').count()) === 1 && (await page.locator('.k-motion-row:has-text("Orientation and Camera Views")').count()) === 1 && (await page.locator('.k-motion-tick').count()) >= 5);
 await page.click('[data-testid="motion-motor"]');
 await page.waitForTimeout(300);
 check('Motor PM: Rotary Motor on the lever', (await page.locator('[data-testid="motor-pm"]').count()) === 1 && (await page.locator('[data-testid="motor-comp"] option:checked').innerText()).startsWith('Rozet') === false);
@@ -36,7 +36,7 @@ await shot('mo1-motor-pm');
 await page.click('[data-testid="motor-pm"] .k-pm-ok');
 await page.waitForTimeout(300);
 let s = await page.evaluate(() => { const st = window.__phlippoStore.getState(); return { motors: st.doc.motionStudy?.motors.map((m) => m.name + ':' + m.componentId + ':' + m.motion) }; });
-check('RotaryMotor1 in the study and in the MotionManager tree', JSON.stringify(s.motors) === '["RotaryMotor1:c5:oscillating"]' && (await page.locator('.k-motion-row:has-text("RotaryMotor1")').count()) === 1, JSON.stringify(s));
+check('RotaryMotor1 in the study and in the Motion Timeline tree', JSON.stringify(s.motors) === '["RotaryMotor1:c5:oscillating"]' && (await page.locator('.k-motion-row:has-text("RotaryMotor1")').count()) === 1, JSON.stringify(s));
 await page.click('[data-testid="motion-play"]');
 await page.waitForTimeout(1200);
 const t1 = await page.evaluate(() => window.__phlippoStore.getState().motionTime);
@@ -50,11 +50,13 @@ await page.waitForTimeout(300);
 await page.mouse.move(5, 900);
 await shot('mo2-motion-playing');
 await page.click('.k-doctab:has-text("Model")');
-check('Model tab closes the MotionManager', (await page.locator('[data-testid="motion-manager"]').count()) === 0);
+check('Model tab closes the Motion Timeline', (await page.locator('[data-testid="motion-manager"]').count()) === 0);
 
 console.log(`
 ${results.filter((r) => r.ok).length}/${results.length} checks passed`);
-process.exitCode = results.every((r) => r.ok) ? 0 : 1;
+const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
+if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
+process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
 for (const r of results.filter((r) => !r.ok)) console.log(' - ' + r.name + (r.info ? ' (' + r.info + ')' : ''));
 console.log('errors:', errors.length ? errors : 'none');
 await browser.close();

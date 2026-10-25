@@ -10,7 +10,7 @@ await page.evaluate(() => localStorage.clear());
 await page.reload();
 await page.waitForSelector('.k-viewport');
 await page.click('.k-doctype:has-text("Part")');
-// start a sketch by double-clicking the Front Plane in the FeatureManager
+// start a sketch by double-clicking the Front Plane in the Feature Tree
 await page.dblclick('.k-tree-row:has-text("Front Plane")');
 await page.waitForTimeout(500);
 const vp = await page.locator('.k-viewport').boundingBox();

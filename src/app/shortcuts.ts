@@ -1,3 +1,4 @@
+import { fitActive } from './viewport/bridge';
 import { getPref } from './prefs';
 import { useEffect } from 'react';
 import { useStore } from './store';
@@ -42,8 +43,8 @@ export const SHORTCUTS: Shortcut[] = [
   { keys: 'Space', label: 'View Selector and Orientation dialog', group: 'View' },
   { keys: 'Ctrl+Space', label: 'View Selector', group: 'View' },
   { keys: 'Ctrl+Shift+Z', label: 'Previous View', group: 'View' },
-  { keys: 'Shift+C', label: 'Collapse FeatureManager tree', group: 'View' },
-  { keys: 'F9', label: 'Hide/show FeatureManager tree area', group: 'View' },
+  { keys: 'Shift+C', label: 'Collapse Feature Tree tree', group: 'View' },
+  { keys: 'F9', label: 'Hide/show Feature Tree tree area', group: 'View' },
   { keys: 'F11', label: 'Full screen', group: 'View' },
   { keys: 'Ctrl+R', label: 'Redraw', group: 'View' },
   { keys: '?', label: 'Keyboard shortcuts / Help', group: 'Help' },
@@ -208,7 +209,7 @@ export function useShortcuts(handlers: { save: () => void; open: () => void; sho
         case 'l': st.setTool('line'); break;
         case 'r': st.setDialog('welcome'); break;
         case 'z': cam.zoomStep(1.25); break;
-        case 'f': (window as unknown as { __phlippoZoomFit?: () => void }).__phlippoZoomFit?.(); break;
+        case 'f': fitActive(); break;
         case 's': handlers.shortcutBar(); break;
         case ' ': e.preventDefault(); st.setDialog(st.dialog === 'orientation' ? null : 'orientation'); break;
         case '?': st.setPanel('shortcuts', { visible: !st.panels.shortcuts.visible }); break;

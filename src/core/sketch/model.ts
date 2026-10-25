@@ -330,7 +330,7 @@ export function addPolygon(s: Sketch, center: SketchPoint, radius: number, sides
   return [s1, lines];
 }
 
-/** Mirror entities about a line, adding symmetric relations (SOLIDWORKS "Mirror Entities"). */
+/** Mirror entities about a line, adding symmetric relations ("Mirror Entities"). */
 export function mirrorEntities(s: Sketch, ids: Id[], axisId: Id): Sketch {
   const axis = s.entities[axisId];
   if (!axis || axis.kind !== 'line') return s;

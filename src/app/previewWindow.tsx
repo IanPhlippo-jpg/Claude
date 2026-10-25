@@ -1,3 +1,4 @@
+import { bridge } from './viewport/bridge';
 import { useEffect, useState } from 'react';
 import { useStore } from './store';
 import { Icon } from '../ui/icons';
@@ -12,7 +13,7 @@ export function PreviewWindow() {
   const [paused, setPaused] = useState(false);
   useEffect(() => {
     if (paused) return;
-    const snap = () => setImg((window as unknown as { __phlippoSnapshot?: () => string | null }).__phlippoSnapshot?.() ?? null);
+    const snap = () => setImg(bridge.snapshot?.() ?? null);
     const t0 = setTimeout(snap, 50);
     const t = setInterval(snap, 2000);
     return () => { clearTimeout(t0); clearInterval(t); };
@@ -34,7 +35,7 @@ export function PreviewWindow() {
         <button className="k-btn ghost icon k-tip" data-tip="Close" onClick={() => st.setDialog(null)}><Icon.Close size={13} /></button>
       </div>
       <div className="k-preview-body">{img ? <img src={img} alt="Render preview" data-testid="preview-img" /> : <span className="k-muted">Rendering…</span>}</div>
-      <div className="k-preview-status">{paused ? 'Paused' : 'Updating'} · {st.show.realView ? 'RealView' : 'Shaded'}</div>
+      <div className="k-preview-status">{paused ? 'Paused' : 'Updating'} · {st.show.realView ? 'Realistic Shading' : 'Shaded'}</div>
     </div>
   );
 }

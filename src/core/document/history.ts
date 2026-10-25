@@ -37,4 +37,12 @@ export class History<T> {
     this.past = [];
     this.future = [];
   }
+  /** the whole stack, to park it while another document is edited (Edit Component) */
+  save(): { past: { label: string; state: T }[]; future: { label: string; state: T }[] } {
+    return { past: [...this.past], future: [...this.future] };
+  }
+  restore(s: { past: { label: string; state: T }[]; future: { label: string; state: T }[] }): void {
+    this.past = [...s.past];
+    this.future = [...s.future];
+  }
 }

@@ -261,7 +261,7 @@ await page.keyboard.press('f');
 await page.waitForTimeout(500);
 await page.evaluate(() => { const s = window.__phlippoStore.getState(); s.setDisplayStyle('shaded'); s.toggleShow('realView'); window.__phlippoStore.getState().toggleShow('shadows'); });
 await page.waitForTimeout(800);
-check('RealView Graphics and shadows on', await page.evaluate(() => { const s = window.__phlippoStore.getState(); return s.show.realView && s.show.shadows; }));
+check('Realistic Shading and shadows on', await page.evaluate(() => { const s = window.__phlippoStore.getState(); return s.show.realView && s.show.shadows; }));
 await shot('deurkruk-assembly');
 // close-up of the handle (zoom in around the front lever)
 const zoomTo = async (x, y, z, factor) => page.evaluate(([x, y, z, factor]) => { const c = window.__phlippoCamera; const r = document.querySelector('.k-viewport').getBoundingClientRect(); const p = window.__phlippoProjectWorld(x, y, z); c.zoomAt(p.x - r.left, p.y - r.top, factor); }, [x, y, z, factor]);
@@ -404,7 +404,7 @@ await page.waitForTimeout(300);
 await page.evaluate(() => window.__phlippoStore.getState().setMotionTime(1));
 await page.waitForTimeout(400);
 const motion = await page.evaluate(() => { const s = window.__phlippoStore.getState(); return { open: s.motionOpen, motors: s.doc.motionStudy?.motors.length, rows: document.querySelectorAll('.k-motion-row').length }; });
-check('Motion Study 1: MotionManager with RotaryMotor1 under the graphics area', motion.open && motion.motors === 1 && motion.rows >= 10, JSON.stringify(motion));
+check('Motion Study 1: Motion Timeline with RotaryMotor1 under the graphics area', motion.open && motion.motors === 1 && motion.rows >= 10, JSON.stringify(motion));
 await page.keyboard.press('Control+7');
 await page.keyboard.press('f');
 await page.waitForTimeout(300);
@@ -414,7 +414,9 @@ await page.click('[data-testid="motion-tab"]').catch(() => undefined);
 
 console.log(`
 ${results.filter((r) => r.ok).length}/${results.length} checks passed`);
-process.exitCode = results.every((r) => r.ok) ? 0 : 1;
+const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
+if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
+process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
 for (const r of results.filter((r) => !r.ok)) console.log(' - ' + r.name + (r.info ? ' (' + r.info + ')' : ''));
 console.log('errors:', errors.length ? errors : 'none');
 await browser.close();

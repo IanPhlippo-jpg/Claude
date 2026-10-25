@@ -1,4 +1,4 @@
-// Screenshot of the dark theme with a part and the FeatureManager (compare with the original's dark mode).
+// Screenshot of the dark theme with a part and the Feature Tree (compare with the original's dark mode).
 import { chromium } from 'playwright';
 import { mkdirSync } from 'node:fs';
 

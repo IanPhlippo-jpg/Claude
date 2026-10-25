@@ -5,3 +5,4 @@ dist
 referentie-video
 e2e-out
 release
+*.tsbuildinfo

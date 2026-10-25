@@ -31,8 +31,8 @@ export function AssemblyTab() {
         <Big label="New Motion Study" icon={<Icon.MotionStudy />} active={st.motionOpen} onClick={() => st.setMotionOpen(!st.motionOpen)} />
         <Big label="Bill of Materials" icon={<Icon.Bom />} onClick={() => st.setDialog('bom')} />
         <Big label="Exploded View" icon={<Icon.Explode />} active={!!st.explodeEdit || !!st.doc.exploded} onClick={st.startExplode} flyout={[{ label: 'Exploded View', icon: <Icon.Explode />, onSelect: () => st.startExplode() }, { label: st.doc.exploded ? 'Collapse' : 'Explode', icon: <Icon.Explode />, disabled: !(st.doc.explodeSteps ?? []).length, onSelect: () => st.setExploded(!st.doc.exploded) }]} />
-        <Big label="Instant3D" icon={<Icon.Cursor />} active={st.instant3d} onClick={st.toggleInstant3D} />
-        <Big label="Update SpeedPak Subassemblies" icon={<Icon.Rebuild />} disabled />
+        <Big label="Drag Handles" icon={<Icon.Cursor />} active={st.instant3d} onClick={st.toggleInstant3D} />
+        <Big label="Update Lightweight Subassembly Subassemblies" icon={<Icon.Rebuild />} disabled />
         <Big label="Take Snapshot" icon={<Icon.Appearance />} onClick={takeSnapshot} />
         <Big label="Large Assembly Settings" icon={<Icon.Options />} active={!!st.largeAssembly} onClick={() => st.setLargeAssembly(!st.largeAssembly)} flyout={[{ label: st.largeAssembly ? 'Turn off Large Assembly Settings' : 'Large Assembly Settings', icon: <Icon.Options />, onSelect: () => st.setLargeAssembly(!st.largeAssembly) }, { label: 'Options…', icon: <Icon.Options />, onSelect: () => st.setDialog('options') }]} />
       </Group>

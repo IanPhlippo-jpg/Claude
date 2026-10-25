@@ -76,7 +76,7 @@ export function startEmptyView(predefined: boolean): void {
   st.startModelView();
   st.setModelViewSource(createDocument(predefined ? 'Predefined View' : 'Empty View'));
   useStore.setState({ drawingEdit: { ...useStore.getState().drawingEdit!, emptyView: !predefined, predefined, orientation: predefined ? 'isometric' : 'front' } });
-  st.pushMessage(predefined ? 'Predefined View: click to place it; insert the model in its PropertyManager.' : 'Empty View: click to place it.');
+  st.pushMessage(predefined ? 'Predefined View: click to place it; insert the model in its Property Panel.' : 'Empty View: click to place it.');
 }
 
 /** Predefined View ▸ Insert Model: give the view one of the sheet's models. */

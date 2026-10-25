@@ -469,6 +469,126 @@ export const Icons3D = {
       <ellipse cx={11.5} cy={17.2} rx={5} ry={1.2} fill={K.dark} opacity={0.35} />
     </svg>
   ),
+  /** Sheet Metal ▸ Base Flange/Tab: a teal sheet with its yellow sketch outline */
+  BaseFlange: ({ size = 16, ...p }: P) => (
+    <svg {...base(size, p)}>
+      <Box x={0} y={0} z={0} w={10} h={1.2} d={10} s={0.95} c={TEAL} line={K.tLine} oy={13} />
+      <path d={poly([iso(1, 1.2, 1, 0.95, 12, 13), iso(9, 1.2, 1, 0.95, 12, 13), iso(9, 1.2, 9, 0.95, 12, 13), iso(1, 1.2, 9, 0.95, 12, 13)])} stroke={K.yellowD} strokeWidth={0.9} fill="none" strokeDasharray="1.6 0.8" />
+    </svg>
+  ),
+  /** Sheet Metal ▸ Convert to Sheet Metal: a grey solid wrapped in a teal sheet on two faces */
+  ConvertSheet: ({ size = 16, ...p }: P) => (
+    <svg {...base(size, p)}>
+      <Box x={0} y={0} z={0} w={8} h={7} d={8} s={0.95} oy={14} />
+      <Box x={0} y={7} z={0} w={8} h={1.2} d={8} s={0.95} c={TEAL} line={K.tLine} oy={14} />
+      <Box x={8} y={0} z={0} w={1.2} h={8.2} d={8} s={0.95} c={TEAL} line={K.tLine} oy={14} />
+    </svg>
+  ),
+  /** Sheet Metal ▸ Edge Flange: a grey sheet with a teal flange standing up from its front edge */
+  EdgeFlange: ({ size = 16, ...p }: P) => (
+    <svg {...base(size, p)}>
+      <Box x={0} y={0} z={0} w={10} h={1.2} d={9} s={0.95} oy={14} />
+      <Box x={0} y={0} z={9} w={10} h={7} d={1.2} s={0.95} c={TEAL} line={K.tLine} oy={14} />
+    </svg>
+  ),
+  /** Sheet Metal ▸ Miter Flange: teal flanges along two edges that meet in a red miter */
+  MiterFlange: ({ size = 16, ...p }: P) => (
+    <svg {...base(size, p)}>
+      <Box x={0} y={0} z={0} w={9} h={1.2} d={9} s={0.95} oy={14} />
+      <Box x={9} y={0} z={0} w={1.2} h={6} d={9} s={0.95} c={TEAL} line={K.tLine} oy={14} />
+      <Box x={0} y={0} z={9} w={9} h={6} d={1.2} s={0.95} c={TEAL} line={K.tLine} oy={14} />
+      <path d={`M${iso(9, 0, 9, 0.95, 12, 14).join(' ')}L${iso(10.2, 6, 10.2, 0.95, 12, 14).join(' ')}`} stroke={K.red} strokeWidth={1} fill="none" />
+    </svg>
+  ),
+  /** Sheet Metal ▸ Hem: a grey sheet whose front edge is folded back over itself (teal) */
+  Hem: ({ size = 16, ...p }: P) => (
+    <svg {...base(size, p)}>
+      <Box x={0} y={0} z={0} w={10} h={1.2} d={10} s={0.95} oy={13} />
+      <Box x={0} y={2.4} z={6} w={10} h={1.2} d={4} s={0.95} c={TEAL} line={K.tLine} oy={13} />
+      <path d={`M${iso(0, 0, 10, 0.95, 12, 13).join(' ')}A1.6 1.6 0 0 1 ${iso(0, 3.6, 10, 0.95, 12, 13).join(' ')}M${iso(10, 0, 10, 0.95, 12, 13).join(' ')}A1.6 1.6 0 0 1 ${iso(10, 3.6, 10, 0.95, 12, 13).join(' ')}`} stroke={K.tLine} strokeWidth={0.8} fill="none" />
+    </svg>
+  ),
+  /** Sheet Metal ▸ Jog: a sheet with a teal Z-shaped offset step */
+  Jog: ({ size = 16, ...p }: P) => (
+    <svg {...base(size, p)}>
+      <Box x={0} y={4} z={0} w={10} h={1.2} d={4} s={0.95} oy={14} />
+      <Box x={0} y={0} z={4} w={10} h={5.2} d={1.2} s={0.95} c={TEAL} line={K.tLine} oy={14} />
+      <Box x={0} y={0} z={5.2} w={10} h={1.2} d={4} s={0.95} oy={14} />
+    </svg>
+  ),
+  /** Sheet Metal ▸ Sketched Bend: a sheet bent up along a yellow sketch line */
+  SketchedBend: ({ size = 16, ...p }: P) => (
+    <svg {...base(size, p)}>
+      <Box x={0} y={0} z={0} w={6} h={1.2} d={10} s={0.95} oy={13} />
+      <Box x={6} y={0} z={0} w={1.2} h={6} d={10} s={0.95} c={TEAL} line={K.tLine} oy={13} />
+      <path d={`M${iso(5.4, 1.3, -1, 0.95, 12, 13).join(' ')}L${iso(5.4, 1.3, 11, 0.95, 12, 13).join(' ')}`} stroke={K.yellowD} strokeWidth={1.2} fill="none" />
+    </svg>
+  ),
+  /** Sheet Metal ▸ Cross-Break: a sheet with the two red diagonals of the break */
+  CrossBreak: ({ size = 16, ...p }: P) => (
+    <svg {...base(size, p)}>
+      <Box x={0} y={0} z={0} w={10} h={1.2} d={10} s={0.95} oy={13} />
+      <path d={`M${iso(0.6, 1.2, 0.6, 0.95, 12, 13).join(' ')}L${iso(9.4, 1.2, 9.4, 0.95, 12, 13).join(' ')}M${iso(9.4, 1.2, 0.6, 0.95, 12, 13).join(' ')}L${iso(0.6, 1.2, 9.4, 0.95, 12, 13).join(' ')}`} stroke={K.red} strokeWidth={1.1} fill="none" />
+    </svg>
+  ),
+  /** Sheet Metal ▸ Corners: two grey flanges whose corner is closed by a teal patch */
+  Corners: ({ size = 16, ...p }: P) => (
+    <svg {...base(size, p)}>
+      <Box x={0} y={0} z={0} w={9} h={1.2} d={9} s={0.95} oy={14} />
+      <Box x={9} y={0} z={0} w={1.2} h={6} d={7.4} s={0.95} oy={14} />
+      <Box x={0} y={0} z={9} w={7.4} h={6} d={1.2} s={0.95} oy={14} />
+      <Box x={7.4} y={0} z={7.4} w={2.8} h={6} d={2.8} s={0.95} c={TEAL} line={K.tLine} oy={14} />
+    </svg>
+  ),
+  /** Sheet Metal ▸ Unfold: the teal leg of an L sheet laid flat, with a blue arrow down */
+  Unfold: ({ size = 16, ...p }: P) => (
+    <svg {...base(size, p)}>
+      <Box x={0} y={0} z={0} w={6} h={1.2} d={9} s={0.95} oy={15} />
+      <Box x={6} y={0} z={0} w={5} h={1.2} d={9} s={0.95} c={TEAL} line={K.tLine} oy={15} />
+      <path d={poly([iso(6, 1.2, 0, 0.95, 12, 15), iso(6, 7, 0, 0.95, 12, 15), iso(6, 7, 9, 0.95, 12, 15), iso(6, 1.2, 9, 0.95, 12, 15)])} stroke={K.tLine} strokeWidth={0.6} fill="none" strokeDasharray="1 0.8" />
+      <path d="M17.2 5.2q2.4 2.4 1.4 5.8M17.6 11.4l1-0.6 0.6 1.1" stroke={K.blue} strokeWidth={1} fill="none" />
+    </svg>
+  ),
+  /** Sheet Metal ▸ Fold: a flat sheet whose teal leg rises again, with a blue arrow up */
+  Fold: ({ size = 16, ...p }: P) => (
+    <svg {...base(size, p)}>
+      <Box x={0} y={0} z={0} w={6} h={1.2} d={9} s={0.95} oy={15} />
+      <Box x={6} y={0} z={0} w={1.2} h={6} d={9} s={0.95} c={TEAL} line={K.tLine} oy={15} />
+      <path d={poly([iso(6, 1.2, 0, 0.95, 12, 15), iso(11, 1.2, 0, 0.95, 12, 15), iso(11, 1.2, 9, 0.95, 12, 15), iso(6, 1.2, 9, 0.95, 12, 15)])} stroke={K.tLine} strokeWidth={0.6} fill="none" strokeDasharray="1 0.8" />
+      <path d="M19.2 12q0.6-3.6-2-6M16.4 7.4l0.6-1.6 1.6 0.4" stroke={K.blue} strokeWidth={1} fill="none" />
+    </svg>
+  ),
+  /** Sheet Metal ▸ Flatten: the flat pattern with its dashed yellow bend lines */
+  Flatten: ({ size = 16, ...p }: P) => (
+    <svg {...base(size, p)}>
+      <Box x={0} y={0} z={0} w={12} h={1} d={10} s={0.95} c={TEAL} line={K.tLine} oy={12} />
+      <path d={`M${iso(4, 1, 0, 0.95, 12, 12).join(' ')}L${iso(4, 1, 10, 0.95, 12, 12).join(' ')}M${iso(8, 1, 0, 0.95, 12, 12).join(' ')}L${iso(8, 1, 10, 0.95, 12, 12).join(' ')}`} stroke={K.yellowD} strokeWidth={0.9} fill="none" strokeDasharray="1.4 0.8" />
+    </svg>
+  ),
+  /** Sheet Metal ▸ No Bends: the flat pattern with its bend lines struck out */
+  NoBends: ({ size = 16, ...p }: P) => (
+    <svg {...base(size, p)}>
+      <Box x={0} y={0} z={0} w={12} h={1} d={10} s={0.95} oy={12} />
+      <path d={`M${iso(6, 1, 0, 0.95, 12, 12).join(' ')}L${iso(6, 1, 10, 0.95, 12, 12).join(' ')}`} stroke={K.yellowD} strokeWidth={0.9} fill="none" strokeDasharray="1.4 0.8" />
+      <path d="M6 18L18 6" stroke={K.red} strokeWidth={1.4} />
+    </svg>
+  ),
+  /** Sheet Metal ▸ Insert Bends: a grey shell whose sharp corner becomes a teal bend */
+  InsertBends: ({ size = 16, ...p }: P) => (
+    <svg {...base(size, p)}>
+      <Box x={0} y={0} z={0} w={8} h={1.2} d={9} s={0.95} oy={14} />
+      <Box x={0} y={2.4} z={0} w={1.2} h={6} d={9} s={0.95} oy={14} />
+      <Cyl x={1.2} y={1.2} z={0} r={1.2} h={9} s={0.95} oy={14} />
+    </svg>
+  ),
+  /** Sheet Metal ▸ Normal Cut: a sheet with a red cut straight through its thickness */
+  NormalCut: ({ size = 16, ...p }: P) => (
+    <svg {...base(size, p)}>
+      <Box x={0} y={0} z={0} w={10} h={1.2} d={10} s={0.95} oy={13} />
+      <path d={poly([iso(3, 1.2, 3, 0.95, 12, 13), iso(7, 1.2, 3, 0.95, 12, 13), iso(7, 1.2, 7, 0.95, 12, 13), iso(3, 1.2, 7, 0.95, 12, 13)])} fill={K.red} stroke={K.line} strokeWidth={0.6} />
+      <path d={`M${iso(5, 5, 5, 0.95, 12, 13).join(' ')}L${iso(5, 1.6, 5, 0.95, 12, 13).join(' ')}`} stroke={K.blue} strokeWidth={1} />
+    </svg>
+  ),
   /** Sheet Metal ▸ Vent: a plate with a round opening crossed by two ribs */
   Vent: ({ size = 16, ...p }: P) => (
     <svg {...base(size, p)}>

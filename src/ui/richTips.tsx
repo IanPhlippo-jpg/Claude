@@ -101,7 +101,7 @@ const ART: Record<string, () => ReactElement[]> = {
 
 /** the explanations (own wording), keyed by command label */
 const DESC: Record<string, string> = {
-  'Extruded Boss/Base': 'Extrudes a sketch or selected contours in one or two directions into a solid. The PropertyManager sets where it starts and how far it goes; the drag arrow sets the depth directly.',
+  'Extruded Boss/Base': 'Extrudes a sketch or selected contours in one or two directions into a solid. The Property Panel sets where it starts and how far it goes; the drag arrow sets the depth directly.',
   'Extruded Cut': 'Removes material by extruding a sketched profile into the model, in one or two directions.',
   'Revolved Boss/Base': 'Revolves a sketch or selected contours around an axis into a solid.',
   'Revolved Cut': 'Removes material by revolving a sketched profile around an axis.',

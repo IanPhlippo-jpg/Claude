@@ -29,7 +29,7 @@ const cx = vp.x + vp.width / 2, cy = vp.y + vp.height / 2;
 
 // Straight Slot: start, end, width
 await page.click('.k-cm-iconbtn[data-tip="Straight Slot"]');
-check('Straight Slot tool active with its PropertyManager', (await S()).tool === 'slot' && (await page.locator('.k-pm-title:has-text("Slot")').count()) === 1);
+check('Straight Slot tool active with its Property Panel', (await S()).tool === 'slot' && (await page.locator('.k-pm-title:has-text("Slot")').count()) === 1);
 await page.mouse.click(cx - 150, cy);
 await page.mouse.move(cx + 150, cy);
 await page.waitForTimeout(100);
@@ -95,7 +95,9 @@ await shot('s3-slot-extruded');
 
 console.log(`
 ${results.filter((r) => r.ok).length}/${results.length} checks passed`);
-process.exitCode = results.every((r) => r.ok) ? 0 : 1;
+const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
+if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
+process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
 for (const r of results.filter((r) => !r.ok)) console.log(' - ' + r.name + (r.info ? ' (' + r.info + ')' : ''));
 console.log('errors:', errors.length ? errors : 'none');
 await browser.close();

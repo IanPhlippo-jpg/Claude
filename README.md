@@ -1,6 +1,6 @@
 # Phlippo CAD
 
-Phlippo CAD is een onafhankelijk product van Ian Phlippo en is niet verbonden met, goedgekeurd door of afgeleid van Dassault Systèmes SolidWorks Corp. SOLIDWORKS is een merk van Dassault Systèmes; het dient hier alleen als referentie voor de werkwijze (zie docs/06).
+Phlippo CAD is een onafhankelijk product van Ian Phlippo. Het is niet verbonden met of goedgekeurd door Dassault Systèmes SolidWorks Corp. en bevat geen SOLIDWORKS-code, -bestanden of -artwork; de werkwijze is gemodelleerd naar publiek getoond gedrag van desktop-CAD-software (o.a. referentievideo's). SOLIDWORKS is een merk van Dassault Systèmes en wordt hier alleen ter referentie genoemd. Licentie: `LICENSE.txt`; gebruikte open-sourcepakketten: `THIRD-PARTY-NOTICES.txt`.
 
 Parametrische 3D-CAD-webapplicatie voor werktuigbouwkundig ontwerp (TypeScript, React, three.js), met een interface die het
 bekende desktop-CAD-pakket volgt (CommandManager, FeatureManager, PropertyManager, Heads-up View toolbar, Confirmation Corner).

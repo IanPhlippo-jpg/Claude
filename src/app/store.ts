@@ -13,7 +13,7 @@ import { rebuildDocument, type RebuildResult } from '../core/features/rebuild';
 import { isReferencePlane, planeOnFace } from '../core/features/planes';
 import { registerPlanes } from './viewport/camera';
 import { History } from '../core/document/history';
-import { autosave, loadAutosave, setAutosaveErrorHandler } from '../core/document/persistence';
+import { autosave, loadAutosave, setAutosaveErrorHandler, validateDocument } from '../core/document/persistence';
 import { fullyDefineSketch } from '../core/sketch/fullyDefine';
 import { faceFilletEdges, fullRoundEdges } from '../core/features/round';
 import { freeSpot, tableGrid } from '../core/drawing/tables';
@@ -498,7 +498,7 @@ interface State {
   patternEdit: PatternEdit | null;
   sketch3dEdit: Sketch3DEdit | null;
   /** Assembly ▸ Edit Component: the assembly waiting while one of its parts is edited */
-  editContext: { assembly: Document; componentName: string; partName: string } | null;
+  editContext: { assembly: Document; componentName: string; partName: string; history?: ReturnType<History<Document>['save']> } | null;
   /** Evaluate ▸ Sensor PropertyManager (Mass Properties: Mass / Volume / Surface Area) */
   sensorEdit: { kind: 'mass' | 'volume' | 'area' | 'dimension' | 'interference'; dim?: string; alert?: { op: '>' | '<'; value: number } } | null;
   setSensorEdit(e: State['sensorEdit']): void;
@@ -967,7 +967,8 @@ interface State {
   setComponentConfiguration(id: Id, name: string): void;
   /** Edit Material: apply a material of the library (null = <not specified>) */
   setMaterial(m: { name: string; density: number; color: string } | null): void;
-  openDocument(doc: Document): void;
+  /** opens a document in place of the current one; the undo stack starts empty unless keepHistory is set (Return to Assembly) */
+  openDocument(doc: Document, opts?: { keepHistory?: boolean }): void;
   /** Rebuild (Ctrl+B): re-solve and rebuild the open document; undo history and the unsaved flag stay as they are */
   rebuildAll(): void;
   /** a document is shown; false at start-up until New / Open / a recent document, as the original */
@@ -1326,8 +1327,9 @@ export const useStore = create<State>((set, get) => ({
   },
   setScene(patch) {
     const { doc } = get();
+    history.push('Edit Scene', doc);
     const d: Document = { ...doc, scene: { background: 'gradient', ...(doc.scene ?? {}), ...patch } };
-    set({ doc: d, dirty: true });
+    set({ doc: d, dirty: true, ...historyFlags() });
     autosave(d);
   },
   setFinalImage(finalImage) {
@@ -1543,8 +1545,10 @@ export const useStore = create<State>((set, get) => ({
       get().pushMessage('Select a component to edit (in the graphics area or the tree).', 'warn');
       return;
     }
-    const ctx = { assembly: doc, componentName: comp.name, partName: comp.part.name };
+    const ctx = { assembly: doc, componentName: comp.name, partName: comp.part.name, history: history.save() };
+    const seq = get().openSeq;
     get().openDocument({ ...comp.part, kind: 'part' });
+    if (get().openSeq === seq) return; // the part could not be opened; the assembly stays
     set({ editContext: ctx, tab: 'features' });
     get().pushMessage(`Editing ${comp.name} in ${doc.name}: Edit Component (or Return to Assembly) goes back.`);
   },
@@ -1553,9 +1557,13 @@ export const useStore = create<State>((set, get) => ({
     if (!ctx) return;
     const part = get().doc;
     const assembly: Document = { ...ctx.assembly, components: (ctx.assembly.components ?? []).map((c) => (c.part.name === ctx.partName ? { ...c, part: { ...part, kind: 'part' } } : c)) };
+    // the assembly's undo stack comes back, with the component edit as one undoable step
+    if (ctx.history) history.restore(ctx.history);
+    else history.clear();
+    history.push(`Edit Component ${ctx.componentName}`, ctx.assembly);
     set({ editContext: null });
-    get().openDocument(assembly);
-    set({ tab: 'assembly', dirty: true });
+    get().openDocument(assembly, { keepHistory: true });
+    set({ tab: 'assembly', dirty: true, ...historyFlags() });
     autosave(get().doc);
   },
   detailedPreview: false,
@@ -1642,7 +1650,7 @@ export const useStore = create<State>((set, get) => ({
     void isSolidFeature;
     const sketch = sketchId ? doc.sketches[sketchId] : null;
     if (!sketch) {
-      get().pushMessage('Select a sketch in the FeatureManager design tree (or open one) before adding the feature.', 'warn');
+      get().pushMessage('Select a sketch in the Feature Tree (or open one) before adding the feature.', 'warn');
     }
     // an empty sketch gives no feature: the original refuses with "no closed contours"
     if (sketch && (type === 'extrude' || type === 'revolve') && sketchRegions(sketch).length === 0 && sketchChains(sketch).length === 0) {
@@ -1898,7 +1906,7 @@ export const useStore = create<State>((set, get) => ({
   },
   setLargeAssembly(largeAssembly) {
     set({ largeAssembly, show: largeAssembly ? { ...get().show, shadows: false, realView: false } : get().show, displayStyle: largeAssembly ? 'shaded' : get().displayStyle });
-    get().pushMessage(largeAssembly ? 'Large Assembly Settings on: shaded display without edges, no shadows or RealView.' : 'Large Assembly Settings off.');
+    get().pushMessage(largeAssembly ? 'Large Assembly Settings on: shaded display without edges, no shadows or Realistic Shading.' : 'Large Assembly Settings off.');
   },
   startBelt() {
     const { doc, rebuild, selectedFaces, selectedFace } = get();
@@ -2199,7 +2207,7 @@ export const useStore = create<State>((set, get) => ({
       return;
     }
     if ((fe.draft.type === 'linearPattern' || fe.draft.type === 'circularPattern' || fe.draft.type === 'sketchPattern' || fe.draft.type === 'curvePattern' || fe.draft.type === 'tablePattern' || fe.draft.type === 'fillPattern' || fe.draft.type === 'variablePattern') && !fe.draft.featureIds.length) {
-      get().pushMessage('Select the features to pattern in the FeatureManager design tree.', 'warn');
+      get().pushMessage('Select the features to pattern in the Feature Tree.', 'warn');
       return;
     }
     if (fe.draft.type === 'hole' && !fe.featureId && !fe.draft.advanced && !fe.draft.simple && /^Hole\d+$/.test(fe.draft.name)) {
@@ -2278,7 +2286,7 @@ export const useStore = create<State>((set, get) => ({
   },
   setFeatureDepth(id, depth) {
     const { doc } = get();
-    history.push('Instant3D', doc);
+    history.push('Drag Handles', doc);
     const d: Document = { ...doc, features: doc.features.map((f) => (f.id === id && f.type === 'extrude' ? { ...f, depth } : f)) };
     set({ doc: d, rebuild: rebuildFor(d, get().rollbackIndex), dirty: true, ...historyFlags() });
     autosave(d);
@@ -2871,13 +2879,18 @@ export const useStore = create<State>((set, get) => ({
   },
   setComponentHidden(id, hidden) {
     const { doc } = get();
+    history.push(hidden ? 'Hide component' : 'Show component', doc);
     const d: Document = { ...doc, components: (doc.components ?? []).map((x) => (x.id === id ? { ...x, hidden } : x)) };
-    set({ doc: d, rebuild: rebuildFor(d, null), dirty: true });
+    set({ doc: d, rebuild: rebuildFor(d, null), dirty: true, ...historyFlags() });
+    autosave(d);
   },
   showAllComponents() {
     const { doc } = get();
+    if (!(doc.components ?? []).some((x) => x.hidden)) return;
+    history.push('Show all components', doc);
     const d: Document = { ...doc, components: (doc.components ?? []).map((x) => ({ ...x, hidden: false })) };
-    set({ doc: d, rebuild: rebuildFor(d, null) });
+    set({ doc: d, rebuild: rebuildFor(d, null), dirty: true, ...historyFlags() });
+    autosave(d);
   },
   deleteComponent(id) {
     const { doc } = get();
@@ -2970,8 +2983,10 @@ export const useStore = create<State>((set, get) => ({
   },
   setMateSuppressed(id, suppressed) {
     const { doc } = get();
+    history.push(suppressed ? 'Suppress mate' : 'Unsuppress mate', doc);
     const d: Document = { ...doc, mates: (doc.mates ?? []).map((m) => (m.id === id ? { ...m, suppressed } : m)) };
-    set({ doc: d, rebuild: rebuildFor(d, null), dirty: true });
+    set({ doc: d, rebuild: rebuildFor(d, null), dirty: true, ...historyFlags() });
+    autosave(d);
   },
   setInterferenceHighlight(interferenceHighlight) {
     set({ interferenceHighlight });
@@ -3046,7 +3061,7 @@ export const useStore = create<State>((set, get) => ({
   placeSectionView(position) {
     const { doc, drawingEdit: de } = get();
     if (de?.sectionHold) {
-      get().pushMessage('Click "Place section view" in the PropertyManager first.', 'warn');
+      get().pushMessage('Click "Place section view" in the Property Panel first.', 'warn');
       return;
     }
     const sheet = doc.sheets?.[0];
@@ -3430,8 +3445,10 @@ export const useStore = create<State>((set, get) => ({
     const sheet = doc.sheets?.[0];
     if (!sheet) return;
     const tables = (sheet.tables ?? []).map((t) => (t.id === tableId && t.cells ? { ...t, cells: t.cells.map((row, i) => (i === r ? row.map((x, j) => (j === c ? text : x)) : row)) } : t));
+    if (tables.every((t, i) => t === (sheet.tables ?? [])[i])) return;
+    history.push('Edit table cell', doc);
     const d: Document = { ...doc, sheets: [{ ...sheet, tables }] };
-    set({ doc: d, dirty: true });
+    set({ doc: d, dirty: true, ...historyFlags() });
     autosave(d);
   },
   addSheet() {
@@ -3666,7 +3683,7 @@ export const useStore = create<State>((set, get) => ({
     const selSurf = surfFeatures.find((f) => f.id === selectedFeatureId) ?? surfFeatures[surfFeatures.length - 1];
     const target = SURFACE_TOOLS.includes(kind) ? selSurf?.id : undefined;
     const draft: SurfaceFeature = { id: newId('f'), type: 'surface', name: `${base}${n}`, suppressed: false, kind, target, thickness: 2, ruledMode: 'tangent', vector: [0, 1, 0], faces: [], fillWhich: 'outer', sketchId: kind === 'offset' || kind === 'knit' || (SURFACE_TOOLS.includes(kind) && kind !== 'filled') ? undefined : sketchId ?? '', depth: 10, angle: 360, distance: 5, face, surfaces: kind === 'knit' ? doc.features.filter((f) => f.type === 'surface' && !f.suppressed && f.kind !== 'knit' && f.kind !== 'trim').map((f) => f.id) : undefined, createSolid: false, ...(kind === 'trim' ? { trimPlane: get().selectedPlane ?? 'front', target: (rebuild.surfaceBodies ?? [])[0]?.featureIds[0], flip: false } : {}) };
-    if ((kind === 'extrude' || kind === 'revolve' || kind === 'planar' || kind === 'sweep' || kind === 'loft' || kind === 'boundary') && !sketchId) get().pushMessage('Select the sketch in the FeatureManager design tree (or open it) first.', 'warn');
+    if ((kind === 'extrude' || kind === 'revolve' || kind === 'planar' || kind === 'sweep' || kind === 'loft' || kind === 'boundary') && !sketchId) get().pushMessage('Select the sketch in the Feature Tree (or open it) first.', 'warn');
     if (SURFACE_TOOLS.includes(kind) && kind !== 'ruled' && kind !== 'replaceFace' && !target && !(kind === 'filled' && sketchId)) get().pushMessage('Create a surface first (Extruded, Revolved, Planar … Surface); the tool works on it.', 'warn');
     set({ featureEdit: { featureId: null, draft }, activeSketchId: null, tool: 'select', selection: [], tab: 'surfaces', managerTab: 'tree', planePick: false });
   },
@@ -3840,7 +3857,7 @@ export const useStore = create<State>((set, get) => ({
     if (!doc.dimxpert) return;
     get().applyDocument('Delete All Tolerances', { ...doc, dimxpert: undefined });
     set({ analysis: get().analysis?.kind === 'tolerance' ? null : get().analysis });
-    get().pushMessage('All DimXpert dimensions and tolerances deleted.', 'info');
+    get().pushMessage('All Auto Tolerancing dimensions and tolerances deleted.', 'info');
   },
   commitDimXpert() {
     const e = get().dimxpertEdit;
@@ -3957,7 +3974,7 @@ export const useStore = create<State>((set, get) => ({
     const cuts = doc.features.filter((f): f is ExtrudeFeature => f.type === 'extrude' && f.op === 'cut');
     const target = cuts.find((f) => f.id === selectedFeatureId) ?? (selectedFeatureId ? null : cuts[cuts.length - 1]);
     if (!target) {
-      get().pushMessage(cuts.length ? 'Select the Cut-Extrude feature to convert in the FeatureManager design tree.' : 'Normal Cut needs an Extruded Cut on the sheet.', 'warn');
+      get().pushMessage(cuts.length ? 'Select the Cut-Extrude feature to convert in the Feature Tree.' : 'Normal Cut needs an Extruded Cut on the sheet.', 'warn');
       return;
     }
     const on = target.normalCut === false;
@@ -4758,11 +4775,20 @@ export const useStore = create<State>((set, get) => ({
     set({ doc: r.doc, solve: r.solve, rebuild: rebuildFor(r.doc, get().rollbackIndex), dirty: true, ...historyFlags() });
     autosave(r.doc);
   },
-  openDocument(doc) {
-    history.clear();
+  openDocument(doc, opts) {
+    // solved and rebuilt before anything changes: a document that cannot be opened leaves the current one (and its autosave) as it is
+    let r: ReturnType<typeof solveAll>, rebuild: ReturnType<typeof rebuildFor>;
+    try {
+      validateDocument(doc);
+      r = solveAll(doc, {});
+      rebuild = rebuildFor(r.doc, null);
+    } catch (err) {
+      get().pushMessage(`Cannot open ${doc?.name ?? 'the document'}: ${(err as Error).message}`, 'error');
+      return;
+    }
+    if (!opts?.keepHistory) history.clear();
     set({ prefs: { ...loadPrefs(), ...(doc.properties ?? {}) } });
-    const r = solveAll(doc, {});
-    set({ openSeq: get().openSeq + 1, hasDocument: true, doc: r.doc, solve: r.solve, rebuild: rebuildFor(r.doc, null), activeSketchId: null, featureEdit: null, mateEdit: null, insertingComponent: false, asmTool: 'select', selectedFeatureId: null, selectedFace: null, selectedFaces: [], selection: [], selectedConstraint: null, dirty: false, tab: isAssembly(r.doc) ? 'assembly' : isDrawing(r.doc) ? 'viewLayout' : 'features', drawingEdit: null, selectedDrawingViewId: null, rollbackIndex: null, ...historyFlags() });
+    set({ openSeq: get().openSeq + 1, hasDocument: true, doc: r.doc, solve: r.solve, rebuild, activeSketchId: null, featureEdit: null, mateEdit: null, insertingComponent: false, asmTool: 'select', selectedFeatureId: null, selectedFace: null, selectedFaces: [], selection: [], selectedConstraint: null, dirty: false, tab: isAssembly(r.doc) ? 'assembly' : isDrawing(r.doc) ? 'viewLayout' : 'features', drawingEdit: null, selectedDrawingViewId: null, rollbackIndex: null, editContext: null, ...historyFlags() });
     autosave(r.doc);
   },
   rebuildAll() {
@@ -4784,8 +4810,11 @@ export const useStore = create<State>((set, get) => ({
     autosave(d);
   },
   renameDocument(name) {
-    const d = { ...get().doc, name };
-    set({ doc: d, dirty: true });
+    const { doc } = get();
+    if (doc.name === name) return;
+    history.push('Rename document', doc);
+    const d = { ...doc, name };
+    set({ doc: d, dirty: true, ...historyFlags() });
     autosave(d);
   },
   newSketch(plane) {
@@ -4982,8 +5011,10 @@ export const useStore = create<State>((set, get) => ({
     const sketches = { ...doc.sketches };
     const f = doc.features.find((x) => x.id === id);
     if (f && f.type === 'sketch') sketches[f.sketchId] = { ...sketches[f.sketchId], name };
+    if (!f || f.name === name) return;
+    history.push(`Rename ${f.name}`, doc);
     const d: Document = { ...doc, features, sketches };
-    set({ doc: d, dirty: true });
+    set({ doc: d, dirty: true, ...historyFlags() });
     autosave(d);
   },
   commit(label, fn) {

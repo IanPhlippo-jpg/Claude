@@ -44,12 +44,14 @@ const img = await page.evaluate(() => { const i = document.querySelector('[data-
 check('Final Render: an image at twice the graphics area size, with Save Image', img.w >= img.vw * 2 - 2 && (await page.locator('[data-testid="final-save"]').count()) === 1, `${img.w}x${img.h} (viewport ${img.vw})`);
 writeFileSync(`${OUT}/deurkruk-render.png`, Buffer.from(img.src.split(',')[1], 'base64'));
 const rv = await page.evaluate(() => window.__phlippoStore.getState().show.realView);
-check('RealView is restored after the render', rv === false, String(rv));
+check('Realistic Shading is restored after the render', rv === false, String(rv));
 await shot('rd2-final-render');
 
 console.log(`
 ${results.filter((r) => r.ok).length}/${results.length} checks passed`);
-process.exitCode = results.every((r) => r.ok) ? 0 : 1;
+const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
+if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
+process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
 for (const r of results.filter((r) => !r.ok)) console.log(' - ' + r.name + (r.info ? ' (' + r.info + ')' : ''));
 console.log('errors:', errors.length ? errors : 'none');
 await browser.close();

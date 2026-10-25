@@ -1,3 +1,4 @@
+import { bridge } from './viewport/bridge';
 import * as THREE from 'three';
 import { useStore } from './store';
 import { createDocument, type Component, type ComponentPattern, type Document, type Mate } from '../core/document/types';
@@ -152,9 +153,9 @@ export function makeMultibodyPart(): Document | null {
 /** Take Snapshot: the current view (orientation, centre, zoom) with a small picture, listed under Snapshots. */
 export function takeSnapshot(): void {
   const st = S();
-  const cam = (window as unknown as { __phlippoCamera?: { rotation: THREE.Quaternion; target: THREE.Vector3; scale: number } }).__phlippoCamera;
+  const cam = bridge.camera;
   if (!cam) return;
-  const image = (window as unknown as { __phlippoSnapshot?: () => string | null }).__phlippoSnapshot?.() ?? undefined;
+  const image = bridge.snapshot?.() ?? undefined;
   const n = (st.doc.snapshots ?? []).length + 1;
   const snap = { id: newId('snap'), name: `Snapshot${n}`, quaternion: [cam.rotation.x, cam.rotation.y, cam.rotation.z, cam.rotation.w] as [number, number, number, number], target: [cam.target.x, cam.target.y, cam.target.z] as [number, number, number], scale: cam.scale, image };
   st.applyDocument(snap.name, { ...st.doc, snapshots: [...(st.doc.snapshots ?? []), snap] });
@@ -163,7 +164,7 @@ export function takeSnapshot(): void {
 
 export function restoreSnapshot(id: string): void {
   const snap = (S().doc.snapshots ?? []).find((x) => x.id === id);
-  const cam = (window as unknown as { __phlippoCamera?: { animateTo: (q: THREE.Quaternion, t: THREE.Vector3, s: number) => void } }).__phlippoCamera;
+  const cam = bridge.camera;
   if (!snap || !cam) return;
   cam.animateTo(new THREE.Quaternion(...snap.quaternion), new THREE.Vector3(...snap.target), snap.scale);
 }

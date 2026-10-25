@@ -10,13 +10,13 @@ import { App } from './app/App';
 import { ErrorBoundary } from './app/ErrorBoundary';
 import { GlobalTooltip } from './ui/Tooltip';
 import { useStore } from './app/store';
-import { TEST_HOOKS } from './app/testHooks';
+import { exposeTestHooks } from './app/testHooks';
 // test hooks: the dev server and the browser build (regression on vite preview) have them; the packaged desktop app only with PHLIPPO_E2E=1
-if (TEST_HOOKS) {
-  (window as unknown as { __phlippoStore?: typeof useStore }).__phlippoStore = useStore;
-  // building blocks for scripted example documents (voorbeelden/) and tests
-  (window as unknown as { __phlippoKit?: unknown }).__phlippoKit = { createDocument, createSketch, addConstraint, addLine, addCircle, addArc, addPoint, addSpline, referencePlane, REFERENCE_PLANE_DEFS, findMaterial, newId, projectedView };
-}
+// (__phlippoKit: building blocks for scripted example documents (voorbeelden/) and tests)
+exposeTestHooks({ __phlippoStore: useStore, __phlippoKit: { createDocument, createSketch, addConstraint, addLine, addCircle, addArc, addPoint, addSpline, referencePlane, REFERENCE_PLANE_DEFS, findMaterial, newId, projectedView } });
+
+// a file dropped anywhere outside a drop target is ignored instead of opening in the window (F03)
+for (const t of ['dragover', 'drop'] as const) window.addEventListener(t, (e) => { if (!e.defaultPrevented) e.preventDefault(); });
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

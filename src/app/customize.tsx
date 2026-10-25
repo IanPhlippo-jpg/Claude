@@ -97,12 +97,12 @@ export function CustomizeDialog() {
         <div className="k-options-body k-customize-body">
           {tab === 'Toolbars' && (
             <div className="k-customize-cols">
-              <fieldset className="k-fieldset"><legend>CommandManager tabs</legend>
+              <fieldset className="k-fieldset"><legend>Command Ribbon tabs</legend>
                 {RIBBON_TABS.map((t) => (
                   <label key={t.id} className="k-check"><input type="checkbox" data-testid={`cz-tab-${t.id}`} checked={!hiddenTabs.includes(t.id)} onChange={(e) => toggleIn('customize.tabs.hidden', t.id, e.target.checked)} /> {t.label}</label>
                 ))}
                 <label className="k-check" style={{ marginTop: 8 }}><input type="checkbox" data-testid="cz-largebuttons" checked={get('customize.largeButtons') !== false} onChange={(e) => set('customize.largeButtons', e.target.checked)} /> Use large buttons with text</label>
-                <label className="k-check"><input type="checkbox" checked={!!get('customize.cmDescriptions')} onChange={(e) => set('customize.cmDescriptions', e.target.checked)} /> Show tooltip descriptions in the CommandManager</label>
+                <label className="k-check"><input type="checkbox" checked={!!get('customize.cmDescriptions')} onChange={(e) => set('customize.cmDescriptions', e.target.checked)} /> Show tooltip descriptions in the Command Ribbon</label>
               </fieldset>
               <fieldset className="k-fieldset"><legend>Quick Access Toolbar</legend>
                 {QAT_BUTTONS.map((b) => (
@@ -241,8 +241,8 @@ export function CustomizeDialog() {
                 <label className="k-check"><input type="checkbox" data-testid="cz-tooltips" checked={get('customize.tooltips') !== false} onChange={(e) => set('customize.tooltips', e.target.checked)} /> Show tooltips</label>
                 <label className="k-check" style={{ marginLeft: 18 }}><input type="checkbox" data-testid="cz-largetooltips" disabled={get('customize.tooltips') === false} checked={get('customize.tooltips') !== false && get('customize.largeTooltips') !== false} onChange={(e) => set('customize.largeTooltips', e.target.checked)} /> Use large tooltips</label>
               </fieldset>
-              <fieldset className="k-fieldset"><legend>CommandManager and toolbars</legend>
-                <label className="k-check"><input type="checkbox" data-testid="cz-lock" checked={!!get('customize.lock')} onChange={(e) => set('customize.lock', e.target.checked)} /> Lock CommandManager and toolbars</label>
+              <fieldset className="k-fieldset"><legend>Command Ribbon and toolbars</legend>
+                <label className="k-check"><input type="checkbox" data-testid="cz-lock" checked={!!get('customize.lock')} onChange={(e) => set('customize.lock', e.target.checked)} /> Lock Command Ribbon and toolbars</label>
                 <label className="k-check"><input type="checkbox" checked={get('customize.showMenus') !== false} onChange={(e) => set('customize.showMenus', e.target.checked)} /> Show the menu bar when the pointer is over the logo</label>
                 <button className="k-btn" style={{ marginTop: 8 }} data-testid="cz-reset-all" onClick={() => setDraft((d) => { const n = { ...d }; for (const k of Object.keys(n)) if (k.startsWith('customize.')) delete n[k]; return n; })}>Reset All Customization</button>
               </fieldset>

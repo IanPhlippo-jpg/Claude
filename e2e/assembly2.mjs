@@ -122,7 +122,7 @@ check('Markup: a pen stroke is kept with the document', (await S()).markups === 
 await page.click('.k-cm-big:has-text("Markup")');
 await page.screenshot({ path: `${OUT}/asm2-markup.png` });
 
-// Advanced / mechanical mates are enabled in the Mate PropertyManager
+// Advanced / mechanical mates are enabled in the Mate Property Panel
 await page.click('.k-cm-tab:has-text("Assembly")');
 await page.click('.k-cm-big:has-text("Mate")');
 await page.click('.k-mate-tabs button:has-text("Mechanical")');
@@ -137,7 +137,9 @@ await page.evaluate(() => window.__phlippoStore.getState().cancelMate());
 
 console.log(`
 ${results.filter((r) => r.ok).length}/${results.length} checks passed`);
-process.exitCode = results.every((r) => r.ok) ? 0 : 1;
+const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
+if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
+process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
 for (const r of results.filter((r) => !r.ok)) console.log(' - ' + r.name + (r.info ? ' (' + r.info + ')' : ''));
 console.log('errors:', errors.length ? errors : 'none');
 await browser.close();

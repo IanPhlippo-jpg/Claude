@@ -1,3 +1,4 @@
+import { bridge } from '../viewport/bridge';
 import { lastPolygon } from '../../core/sketch/lastShape';
 import { rotateAbout, scaleAbout, transformEntities, translate } from '../../core/sketch/edit';
 import { getPref, loadPrefs, savePrefs } from '../prefs';
@@ -314,7 +315,7 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
   // Polygon > Inscribed circle (default of the original) / Circumscribed circle
   const [polyInscribed, setPolyInscribed] = useState(true);
   useEffect(() => {
-    (window as unknown as { __phlippoPolygonInscribed?: boolean }).__phlippoPolygonInscribed = polyInscribed;
+    bridge.sketchOptions.polygonInscribed = polyInscribed;
   }, [polyInscribed]);
   // Equation Driven Curve and Fully Define Sketch options
   const [eqc, setEqc] = useState({ expr: '10*sin(x/10)', x1: 0, x2: 60, param: false, xt: '20*cos(t)', yt: '20*sin(t)' });
@@ -322,18 +323,18 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
   const [multiT, setMultiT0] = useState(2);
   const setMultiT = (v: number) => { setMultiT0(Math.max(0.01, v)); useStore.setState({ shellMultiThickness: Math.max(0.01, v) }); };
   const [threadFavs, setThreadFavs] = useState<Record<string, Partial<ThreadFeature>>>(() => { try { return JSON.parse(String(getPref('thread.favorites') || '{}')); } catch { return {}; } });
-  // Rectangle ▸ Add construction lines (the option reaches the sketch tool through the window, as the polygon sides do)
+  // Rectangle ▸ Add construction lines (the option reaches the sketch tool through the viewport bridge, as the polygon sides do)
   const [rectCons, setRectCons] = useState<{ on: boolean; mode: 'corners' | 'midpoints' }>({ on: false, mode: 'corners' });
   useEffect(() => {
-    (window as unknown as { __phlippoRectConstruction?: typeof rectCons }).__phlippoRectConstruction = rectCons;
+    bridge.sketchOptions.rectConstruction = rectCons;
   }, [rectCons]);
   useEffect(() => {
-    (window as unknown as { __phlippoPolygonSides?: number }).__phlippoPolygonSides = sides;
+    bridge.sketchOptions.polygonSides = sides;
   }, [sides]);
   // Sketch Text PropertyManager (Text, Font: height, bold; width factor, spacing, rotation)
   const [sketchText, setSketchText] = useState({ text: 'PHLIPPO', height: 10, bold: false, widthFactor: 100, spacing: 100, angle: 0 });
   useEffect(() => {
-    (window as unknown as { __phlippoSketchText?: typeof sketchText }).__phlippoSketchText = sketchText;
+    bridge.sketchOptions.textOptions = sketchText;
   }, [sketchText]);
   // Hole Wizard: standard sizes (ISO 273 clearance holes) with the default counterbore / countersink of the original
   const [holeStd, setHoleStd] = useState('ISO');
@@ -354,9 +355,6 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
   useEffect(() => {
     if (c?.value !== undefined) { setValue(c.value); setValueOf(c.id); }
   }, [c?.id, c?.value]);
-  useEffect(() => {
-    (window as unknown as { __phlippoPolygonSides?: number }).__phlippoPolygonSides = sides;
-  }, [sides]);
 
   if (st.featureEdit && st.featureEdit.draft.type === 'shell') {
     const d = st.featureEdit.draft;
@@ -484,7 +482,7 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
         <Header title={d.name} icon={<Icon.Sheet />} onOk={st.commitFeature} onCancel={st.cancelFeature} />
         {!bsk && (
           <Section title="Message">
-            <p className="k-pm-message">Select a sketch in the FeatureManager design tree: an open profile bends into a sheet, a closed contour becomes a tab.</p>
+            <p className="k-pm-message">Select a sketch in the Feature Tree: an open profile bends into a sheet, a closed contour becomes a tab.</p>
           </Section>
         )}
         {bsk && (() => {
@@ -835,10 +833,10 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
     return (
       <>
         <Header title={d.name} icon={<Icon.Chamfer />} onOk={st.commitFeature} onCancel={st.cancelFeature} />
-        <div className="k-pm-tabs"><button className={draftXpert ? '' : 'active'} onClick={() => setDraftXpert(false)}>Manual</button><button className={draftXpert ? 'active' : ''} data-testid="draft-xpert" onClick={() => { setDraftXpert(true); st.updateFeatureDraft({ draftType: 'neutral' }); }}>DraftXpert</button></div>
+        <div className="k-pm-tabs"><button className={draftXpert ? '' : 'active'} onClick={() => setDraftXpert(false)}>Manual</button><button className={draftXpert ? 'active' : ''} data-testid="draft-xpert" onClick={() => { setDraftXpert(true); st.updateFeatureDraft({ draftType: 'neutral' }); }}>Auto-Fix Draft</button></div>
         {draftXpert && (
           <Section title="Add / Change">
-            <p className="k-pm-message">DraftXpert: set the angle, pick the neutral plane and the faces, then Apply. Faces that already have enough draft show green in Draft Analysis.</p>
+            <p className="k-pm-message">Auto-Fix Draft: set the angle, pick the neutral plane and the faces, then Apply. Faces that already have enough draft show green in Draft Analysis.</p>
             <div style={{ display: 'flex', gap: 6, marginTop: 6 }}>
               <button className="k-btn" data-testid="draft-xpert-apply" onClick={() => st.commitFeature()}>Apply</button>
               <button className="k-btn" onClick={() => st.setAnalysis({ kind: 'draft', pull: d.neutral ? (d.neutral.normal.map((x) => -x) as [number, number, number]) : [0, 1, 0], pullLabel: d.neutral?.label ?? 'Top Plane', angle: d.angle })}>Draft Analysis</button>
@@ -1060,7 +1058,7 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
             <label className="k-check"><input type="radio" name="thm" checked={d.method === 'extrude'} onChange={() => st.updateFeatureDraft({ method: 'extrude' })} /> Extrude thread</label>
           </div>
           <label className="k-check"><input type="checkbox" checked={!!d.mirrorProfile} onChange={(e) => st.updateFeatureDraft({ mirrorProfile: e.target.checked })} /> Mirror Profile</label>
-          <button className="k-btn" style={{ marginTop: 4 }} disabled={!d.edge} onClick={() => { const cam = (window as unknown as { __phlippoCamera?: { target: { set: (x: number, y: number, z: number) => void }; scale: number; update: () => void } }).__phlippoCamera; if (cam && d.edge) { cam.target.set(...d.edge.center); cam.scale = Math.min(cam.scale, Math.max(0.02, (d.diameter * 3) / 600)); cam.update(); } st.pushMessage('Locate Profile: zoomed to the start of the thread (' + (d.edge?.label ?? '') + ').'); }}>Locate Profile</button>
+          <button className="k-btn" style={{ marginTop: 4 }} disabled={!d.edge} onClick={() => { const cam = bridge.camera; if (cam && d.edge) { cam.target.set(...d.edge.center); cam.scale = Math.min(cam.scale, Math.max(0.02, (d.diameter * 3) / 600)); cam.update(); } st.pushMessage('Locate Profile: zoomed to the start of the thread (' + (d.edge?.label ?? '') + ').'); }}>Locate Profile</button>
         </Section>
         <Section title="Thread Options">
           <div className="k-pm-radios">
@@ -2611,7 +2609,7 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
             </div>
             {xpert ? (
               <Section title="Items To Fillet">
-                <p className="k-pm-message">FilletXpert: select edges, set the radius and press Apply. The fillet is added and the PropertyManager stays open for the next set.</p>
+                <p className="k-pm-message">FilletXpert: select edges, set the radius and press Apply. The fillet is added and the Property Panel stays open for the next set.</p>
                 <div className="k-pm-valuerow"><Icon.Dimension size={14} /><NumberField value={d.size} onChange={(v) => st.updateFeatureDraft({ size: Math.max(0.01, v) })} unit={st.doc.units} step={1} min={0.01} /></div>
                 <button className="k-btn" data-testid="fillet-xpert-apply" disabled={!d.edges.length} onClick={() => { const size = d.size; st.commitFeature(); st.startRound('fillet'); st.updateFeatureDraft({ size }); }}>Apply</button>
               </Section>
@@ -2799,7 +2797,7 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
         <Header title={title} icon={icon} onOk={st.commitFeature} onCancel={st.cancelFeature} />
         {!fsketch && (
           <Section title="Message">
-            <p className="k-pm-message">Select a sketch in the FeatureManager design tree to create the feature from.</p>
+            <p className="k-pm-message">Select a sketch in the Feature Tree to create the feature from.</p>
           </Section>
         )}
         {fsketch && (d.type === 'extrude' || d.type === 'revolve') && (
@@ -3185,7 +3183,7 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
           </div>
         </Section>
         <Section title="Sketch">
-          <p className="k-muted">Click <b>Sketch</b> and select a plane in the graphics area or in the FeatureManager:</p>
+          <p className="k-muted">Click <b>Sketch</b> and select a plane in the graphics area or in the Feature Tree:</p>
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
             {(['front', 'top', 'right'] as const).map((p) => (
               <Button key={p} icon={<Icon.Plane />} onClick={() => st.newSketch(p)}>

@@ -35,7 +35,7 @@ await page.click('.k-cm-tab:has-text("Surfaces")');
 await page.locator('.k-tree-row:has-text("Sketch1")').last().click();
 await page.click('.k-cm-big:has-text("Extruded Surface") .k-cm-main');
 await page.waitForTimeout(300);
-check('Surface-Extrude PropertyManager with Sketch1', (await page.locator('[data-testid="surface-sketch"]').inputValue()) === 'a');
+check('Surface-Extrude Property Panel with Sketch1', (await page.locator('[data-testid="surface-sketch"]').inputValue()) === 'a');
 await page.click('.k-pm-ok');
 await page.waitForTimeout(500);
 let r = await R();
@@ -89,7 +89,7 @@ const area = () => page.evaluate(() => { const g = window.__phlippoStore.getStat
 let ar = await area();
 check('Surface-Sweep1: 10 x 50 = 500 mm^2', Math.abs(ar - 500) < 1, String(ar));
 await page.click('.k-cm-tab:has-text("Surfaces")');
-await page.click('.k-cm-big:has-text("Trim Surface") .k-cm-main');
+await page.click('.k-cm-small:has-text("Trim Surface")');
 await page.waitForTimeout(250);
 await page.locator('[data-testid="trim-plane"]').selectOption('px');
 await page.click('.k-pm-ok');
@@ -102,7 +102,9 @@ await shot('sf3-trim');
 
 console.log(`
 ${results.filter((r) => r.ok).length}/${results.length} checks passed`);
-process.exitCode = results.every((r) => r.ok) ? 0 : 1;
+const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
+if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
+process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
 for (const r of results.filter((r) => !r.ok)) console.log(' - ' + r.name + (r.info ? ' (' + r.info + ')' : ''));
 console.log('errors:', errors.length ? errors : 'none');
 await browser.close();

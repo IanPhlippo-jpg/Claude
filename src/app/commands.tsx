@@ -1,3 +1,4 @@
+import { bridge, fitActive } from './viewport/bridge';
 import type { ReactNode } from 'react';
 import { useStore } from './store';
 import { Icon } from '../ui/icons';
@@ -17,14 +18,14 @@ export interface Command {
   run: (st: St, cam: CadCamera | null) => void;
 }
 
-const zoomFit = () => (window as unknown as { __phlippoZoomFit?: () => void }).__phlippoZoomFit?.();
+const zoomFit = () => fitActive();
 
 /** The command catalog, grouped as the original's Customize ▸ Commands categories. */
 export const COMMANDS: Command[] = [
   // Standard
   { id: 'file.new', label: 'New', category: 'Standard', icon: <Icon.New />, description: 'Creates a new document.', run: (st) => st.setDialog('new') },
   { id: 'file.open', label: 'Open', category: 'Standard', icon: <Icon.Open />, description: 'Opens an existing document.', run: () => (document.getElementById('phlippo-open-file') as HTMLInputElement | null)?.click() },
-  { id: 'file.save', label: 'Save', category: 'Standard', icon: <Icon.Save />, description: 'Saves the active document.', run: () => (window as unknown as { __phlippoSave?: () => void }).__phlippoSave?.() },
+  { id: 'file.save', label: 'Save', category: 'Standard', icon: <Icon.Save />, description: 'Saves the active document.', run: () => bridge.save?.() },
   { id: 'file.print', label: 'Print', category: 'Standard', icon: <Icon.Print />, description: 'Prints the active document.', run: () => window.print() },
   { id: 'edit.undo', label: 'Undo', category: 'Standard', icon: <Icon.Undo />, description: 'Reverses the last action.', run: (st) => st.undo() },
   { id: 'edit.redo', label: 'Redo', category: 'Standard', icon: <Icon.Redo />, description: 'Redoes the last undone action.', run: (st) => st.redo() },
@@ -32,7 +33,7 @@ export const COMMANDS: Command[] = [
   { id: 'std.rebuild', label: 'Rebuild', category: 'Standard', icon: <Icon.Rebuild />, description: 'Rebuilds the part, assembly or drawing.', run: (st) => st.rebuildAll() },
   { id: 'std.options', label: 'Options', category: 'Standard', icon: <Icon.Options />, description: 'Changes the system and document options.', run: (st) => st.setDialog('options') },
   { id: 'file.recent', label: 'Recent Documents', category: 'Standard', icon: <Icon.Home />, description: 'Shows the recent documents (Welcome dialog).', run: (st) => st.setDialog('welcome') },
-  { id: 'std.shortcutBar', label: 'Shortcut Bar', category: 'Standard', icon: <Icon.Keyboard />, description: 'Shows the shortcut bar at the pointer.', run: () => (window as unknown as { __phlippoShortcutBar?: () => void }).__phlippoShortcutBar?.() },
+  { id: 'std.shortcutBar', label: 'Shortcut Bar', category: 'Standard', icon: <Icon.Keyboard />, description: 'Shows the shortcut bar at the pointer.', run: () => bridge.shortcutBar?.() },
   { id: 'help.shortcuts', label: 'Keyboard Shortcuts', category: 'Standard', icon: <Icon.Help />, description: 'Lists the keyboard shortcuts.', run: (st) => st.setPanel('shortcuts', { visible: !st.panels.shortcuts.visible }) },
   // View
   { id: 'view.front', label: 'Front', category: 'View', icon: <Icon.Orientation />, description: 'Front view.', run: (_s, cam) => cam?.setView('front') },

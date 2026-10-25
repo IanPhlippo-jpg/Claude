@@ -1,4 +1,4 @@
-// Instant3D: the end face of an extrusion gets a drag arrow; dragging it changes the depth (ruler readout).
+// Drag Handles: the end face of an extrusion gets a drag arrow; dragging it changes the depth (ruler readout).
 import { chromium } from 'playwright';
 import { mkdirSync } from 'node:fs';
 
@@ -46,7 +46,7 @@ await page.evaluate(() => {
   window.__phlippoStore.setState({ selectedFace: { bodyId: b.id, faceId: f.id } });
 });
 await page.waitForTimeout(300);
-check('Instant3D: the selected end face shows the drag arrow', (await page.locator('[data-testid="instant3d-grip"]').count()) === 1);
+check('Drag Handles: the selected end face shows the drag arrow', (await page.locator('[data-testid="instant3d-grip"]').count()) === 1);
 const grip = await page.locator('[data-testid="instant3d-grip"]').boundingBox();
 // pixels per mm along +Y from the projection
 const pxmm = await page.evaluate(() => { const a = window.__phlippoProjectWorld(40, 10, 30), b = window.__phlippoProjectWorld(40, 20, 30); return { dx: (b.x - a.x) / 10, dy: (b.y - a.y) / 10 }; });
@@ -70,7 +70,9 @@ check('Undo restores the depth', back === 10, String(back));
 
 console.log(`
 ${results.filter((r) => r.ok).length}/${results.length} checks passed`);
-process.exitCode = results.every((r) => r.ok) ? 0 : 1;
+const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
+if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
+process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
 for (const r of results.filter((r) => !r.ok)) console.log(' - ' + r.name + (r.info ? ' (' + r.info + ')' : ''));
 console.log('errors:', errors.length ? errors : 'none');
 await browser.close();

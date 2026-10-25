@@ -47,4 +47,11 @@ Fieldfisher en Husovec.
 
 ## Disclaimer in de app (0.3.2)
 
-Help ▸ About Phlippo CAD vermeldt sinds 0.3.2 dat Phlippo CAD een onafhankelijk product van Ian Phlippo is, niet verbonden met, goedgekeurd door of afgeleid van Dassault Systèmes SolidWorks Corp., en dat SOLIDWORKS een merk van Dassault Systèmes is (nominatief gebruik). De README draagt dezelfde zin. In de UI zelf komt de merknaam verder nergens voor (controle: `grep -rn SOLIDWORKS src` levert niets op).
+Help ▸ About Phlippo CAD vermeldt sinds 0.3.2 dat Phlippo CAD een onafhankelijk product van Ian Phlippo is en dat SOLIDWORKS een merk van Dassault Systèmes is (nominatief gebruik).
+
+**Correctie 0.3.4 (QA-rapport v0.3.3, F50/F72).** De eerdere zin "niet afgeleid van" klopte niet: de werkwijze is bewust gemodelleerd naar publiek getoond gedrag (referentievideo's). De bewering dat `grep -rn SOLIDWORKS src` niets oplevert was ook fout (vier commentaarregels en de About-tekst). Sinds 0.3.4:
+
+- één tekst (`src/app/legal.ts`): onafhankelijk product, niet verbonden met of goedgekeurd door Dassault Systèmes SolidWorks Corp., geen SOLIDWORKS-code, -bestanden of -artwork, werkwijze gemodelleerd naar publiek getoond gedrag; SOLIDWORKS alleen ter referentie genoemd;
+- die tekst staat in About, op het Welcome-venster, op de licentiepagina van de installer (`LICENSE.txt`) en (kort) in elk Phlippo Viewer-bestand;
+- productnamen van SOLIDWORKS zijn uit de zichtbare tekst gehaald (script `e2e-out/rename-trademarks.cjs`, alleen string-literals en JSX-tekst): FeatureManager → Feature Tree, PropertyManager → Property Panel, CommandManager → Command Ribbon, ConfigurationManager → Configurations, DisplayManager → Display Panel, MotionManager → Motion Timeline, DimXpert(Manager) → Auto Tolerancing / Tolerance Tree, TolAnalyst → Tolerance Stack-up, SimulationXpress → Quick Beam Estimate, FeatureXpert / DraftXpert → Auto-Fix Fillets / Auto-Fix Draft, Instant3D / Instant2D → Drag Handles / Drag Dimensions, RealView → Realistic Shading, SpeedPak → Lightweight Subassembly, eDrawings → Phlippo Viewer. Hole Wizard en Smart Fasteners (beschrijvende termen) blijven;
+- in de broncode staat het woord SOLIDWORKS alleen nog in `src/app/legal.ts` (controle: `grep -rn SOLIDWORKS src`). Namen van componenten en bestanden in de code (bv. `PropertyManager.tsx`) zijn interne identifiers en niet zichtbaar.

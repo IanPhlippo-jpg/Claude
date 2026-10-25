@@ -1,3 +1,4 @@
+import { bridge } from './bridge';
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { useStore } from '../store';
@@ -24,7 +25,7 @@ export function ViewPane({ view }: { view: 'front' | 'top' | 'right' }) {
     let raf = 0;
     const draw = () => {
       const canvas = ref.current, r = rendererRef.current;
-      const scene = (window as unknown as { __phlippoScene?: THREE.Scene }).__phlippoScene;
+      const scene = bridge.scene;
       if (!canvas || !r || !scene) return;
       const w = canvas.clientWidth || 1, h = canvas.clientHeight || 1;
       r.setSize(w, h, false);
@@ -39,17 +40,16 @@ export function ViewPane({ view }: { view: 'front' | 'top' | 'right' }) {
       cam.updateProjectionMatrix();
       cam.updateMatrixWorld();
       // the silhouettes of curved faces for this pane's orientation, then back to the main view's
-      const W = window as unknown as { __phlippoBodies?: { updateSilhouettes: (c: THREE.Camera) => void }; __phlippoCamera?: { view: THREE.Camera } };
-      W.__phlippoBodies?.updateSilhouettes(cam);
+      bridge.bodies?.updateSilhouettes(cam);
       r.render(scene, cam);
-      if (W.__phlippoCamera) W.__phlippoBodies?.updateSilhouettes(W.__phlippoCamera.view);
+      if (bridge.camera) bridge.bodies?.updateSilhouettes(bridge.camera.view);
     };
     raf = requestAnimationFrame(draw);
     const t = setInterval(draw, 1500);
     return () => { cancelAnimationFrame(raf); clearInterval(t); };
   }, [view, st.rebuild, st.doc, st.displayStyle]);
   return (
-    <div className="k-viewpane" data-testid={`viewpane-${view}`} onDoubleClick={() => (window as unknown as { __phlippoCamera?: { setView: (v: string) => void } }).__phlippoCamera?.setView(view)}>
+    <div className="k-viewpane" data-testid={`viewpane-${view}`} onDoubleClick={() => bridge.camera?.setView(view)}>
       <canvas ref={ref} />
       <span className="k-viewpane-name">*{view[0].toUpperCase() + view.slice(1)}</span>
     </div>

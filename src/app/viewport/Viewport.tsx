@@ -39,7 +39,7 @@ import { roundPreviewShapes } from '../../core/features/round';
 import { faceOwner } from '../../core/features/faceOwner';
 import { threadPreviewCurves, threadTool } from '../../core/features/thread';
 import { isCommandActive, useStore } from '../store';
-import { TEST_HOOKS } from '../testHooks';
+import { bridge } from './bridge';
 import { FeatureTreeBody } from '../panels/FeatureTreeBody';
 import { CadCamera, getPlane, planeLabel, REFERENCE_PLANES, sketchToWorld, type PlaneId } from './camera';
 import { readColors, SketchScene } from './sketchScene';
@@ -605,9 +605,8 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
 
   // Render Tools ▸ Final Render: the graphics area at twice the resolution, with RealView and shadows, on the scene background
   useEffect(() => {
-    if (!TEST_HOOKS) return;
     // Render Tools ▸ Preview Window: a snapshot of the graphics area on the scene background (no state changes)
-    (window as unknown as { __phlippoSnapshot?: (only?: string) => string | null }).__phlippoSnapshot = (only?: string) => {
+    bridge.snapshot = (only?: string) => {
       const renderer = rendererRef.current;
       if (!renderer) return null;
       // Component Preview Window: only that component's body
@@ -629,7 +628,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
       g.drawImage(src, 0, 0);
       return out.toDataURL('image/jpeg', 0.85);
     };
-    (window as unknown as { __phlippoFinalRender?: () => Promise<string | null> }).__phlippoFinalRender = async () => {
+    bridge.finalRender = async () => {
       const renderer = rendererRef.current;
       const host = hostRef.current;
       if (!renderer || !host) return null;
@@ -672,39 +671,38 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
       for (const k of hideKeys) useStore.getState().toggleShow(k);
       return url;
     };
+    return () => { bridge.snapshot = undefined; bridge.finalRender = undefined; };
   }, [scene, camera]);
 
   useEffect(() => {
     camera.fitRequest = zoomFit;
-    if (!TEST_HOOKS) return;
-    const w = window as unknown as { __phlippoZoomFit?: () => void; __phlippoProject?: (p: SketchPoint) => { x: number; y: number } };
-    w.__phlippoZoomFit = zoomFit;
-    (w as unknown as { __phlippoRenderer?: unknown }).__phlippoRenderer = rendererRef.current;
-    (w as unknown as { __phlippoCamera?: unknown }).__phlippoCamera = camera;
-    (w as unknown as { __phlippoBodyScene?: unknown }).__phlippoBodyScene = bodies;
-    (w as unknown as { __phlippoScene?: unknown }).__phlippoScene = scene.scene;
-    (w as unknown as { __phlippoBodies?: unknown }).__phlippoBodies = bodies;
-    (w as unknown as { __phlippoTools?: unknown }).__phlippoTools = tools;
-    (w as unknown as { __phlippoProjectWorld?: (x: number, y: number, z: number) => { x: number; y: number } }).__phlippoProjectWorld = (x, y, z) => {
+    bridge.zoomFit = zoomFit;
+    bridge.renderer = rendererRef.current;
+    bridge.camera = camera;
+    bridge.scene = scene.scene;
+    bridge.bodies = bodies;
+    bridge.tools = tools;
+    bridge.projectWorld = (x, y, z) => {
       const r = hostRef.current?.getBoundingClientRect();
       const q = camera.worldToPixel(new THREE.Vector3(x, y, z));
       return { x: q.x + (r?.left ?? 0), y: q.y + (r?.top ?? 0) };
     };
-    w.__phlippoProject = (p) => {
+    bridge.project = (p: SketchPoint) => {
       const r = hostRef.current?.getBoundingClientRect();
       const q = camera.worldToPixel(sketchToWorld(plane, p.x, p.y));
       return { x: q.x + (r?.left ?? 0), y: q.y + (r?.top ?? 0) };
     };
-  }, [zoomFit, camera, plane]);
+    return () => { if (bridge.zoomFit === zoomFit) bridge.zoomFit = undefined; };
+  }, [zoomFit, camera, plane, scene, bodies, tools]);
 
   // ---- tool context ---------------------------------------------------------
   const ctx = (): ToolContext | null => {
     if (!sketch) return null;
-    const W = window as unknown as { __phlippoPolygonSides?: number; __phlippoSketchText?: typeof tools.textOptions; __phlippoRectConstruction?: typeof tools.rectConstruction };
-    if (W.__phlippoRectConstruction) tools.rectConstruction = W.__phlippoRectConstruction;
-    tools.polygonSides = W.__phlippoPolygonSides ?? 6;
-    tools.polygonInscribed = (W as { __phlippoPolygonInscribed?: boolean }).__phlippoPolygonInscribed ?? true;
-    if (W.__phlippoSketchText) tools.textOptions = W.__phlippoSketchText;
+    const o = bridge.sketchOptions;
+    if (o.rectConstruction) tools.rectConstruction = o.rectConstruction;
+    tools.polygonSides = o.polygonSides;
+    tools.polygonInscribed = o.polygonInscribed;
+    if (o.textOptions) tools.textOptions = o.textOptions;
     return {
       sketch,
       tolerance: 8 * camera.scale,
@@ -811,7 +809,10 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
     st.setSelectedFace({ bodyId: next.bodyId, faceId: next.faceId });
     st.pushMessage(`Select Other: face ${((cur + 1) % hits.length) + 1} of ${hits.length} under the pointer.`);
   };
+  // the pointer is on a plane's name label: that plane is picked, whatever lies behind the label (F66)
+  const labelPlane = useRef<PlaneId | null>(null);
   const faceAt = (px: number, py: number): { bodyId: string; faceId: string } | null => {
+    if (labelPlane.current) return null;
     if (!st.rebuild.bodies.length) return null;
     const hit = bodies.pick(camera.pixelToRay(px, py));
     return hit ? { bodyId: hit.bodyId, faceId: hit.faceId } : null;
@@ -819,6 +820,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
 
   /** which reference plane is under the pixel (plane-pick mode) */
   const planeAt = (px: number, py: number): PlaneId | null => {
+    if (labelPlane.current) return labelPlane.current;
     const ray = camera.pixelToRay(px, py);
     const sizeW = planeHalf();
     let best: { id: PlaneId; d: number } | null = null;
@@ -840,7 +842,8 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
   // ---- mouse gestures, as the original: right-drag shows the guide, the tool in the drag direction runs on release
   type GestureDir = 'up' | 'down' | 'left' | 'right';
   const gesture = useRef<{ x: number; y: number; dir: GestureDir | null } | null>(null);
-  const gestureFired = useRef(false);
+  const rightPress = useRef<{ x: number; y: number } | null>(null);
+  const rightReleasedAt = useRef(-1e9);
   const [gestureUi, setGestureUi] = useState<{ x: number; y: number; dir: GestureDir | null } | null>(null);
   // Customize ▸ Mouse Gestures: the four directions bind to commands of the catalog (defaults as the original)
   const gestureCommands = (): Record<GestureDir, { label: string; run: () => void }> => {
@@ -870,8 +873,10 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
       return;
     }
     if (e.button === 2) {
-      // a right-drag becomes a mouse gesture; a plain right-click opens the context menu on the contextmenu event
+      // a right-drag becomes a mouse gesture; a plain right-click opens the context menu when the button comes up.
+      // The menu is not opened on the browser's contextmenu event: Linux fires that on the press, before a drag (F54).
       const r0 = hostRef.current!.getBoundingClientRect();
+      rightPress.current = { x: e.clientX, y: e.clientY };
       if (getPref('customize.gestures.enabled') !== false) gesture.current = { x: e.clientX - r0.left, y: e.clientY - r0.top, dir: null };
       return;
     }
@@ -1091,14 +1096,18 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
     refreshTool();
   };
   const onPointerUp = (e: React.PointerEvent) => {
-    if (e.button === 2 && gesture.current) {
-      const g = gesture.current;
+    if (e.button === 2) {
+      const g = gesture.current, press = rightPress.current;
       gesture.current = null;
+      rightPress.current = null;
+      rightReleasedAt.current = performance.now();
       setGestureUi(null);
-      if (g.dir) {
-        gestureFired.current = true;
+      if (g?.dir) {
         gestureCommands()[g.dir].run();
+        return;
       }
+      // a click (no drag) opens the context menu; a right-drag without gestures does nothing
+      if (press && Math.hypot(e.clientX - press.x, e.clientY - press.y) < 6) openContextMenu(e);
       return;
     }
     if (compDrag.current) {
@@ -1137,11 +1146,11 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
   };
   const onContextMenu = (e: React.MouseEvent) => {
     e.preventDefault();
-    // a mouse gesture just ran: no context menu
-    if (gestureFired.current) {
-      gestureFired.current = false;
-      return;
-    }
+    // the right button is handled on press / release (pointer events); only the keyboard's menu key (no press) opens it here
+    if (rightPress.current || performance.now() - rightReleasedAt.current < 800) return;
+    openContextMenu(e);
+  };
+  const openContextMenu = (e: React.MouseEvent | React.PointerEvent) => {
     const r = hostRef.current!.getBoundingClientRect();
     setCtxMenu({ x: e.clientX - r.left, y: e.clientY - r.top });
     if (sketch && !st.selection.length) {
@@ -1337,17 +1346,27 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
         }}
       />
       {/* plane labels in plane-pick mode / hover */}
-      {planesToDraw.map((pl) => {
-        const b = getPlane(pl.id);
+      {(() => {
+        // each label sits at the plane's corner that is highest on screen; labels that would overlap move down a line
         const sizeW = planeHalf();
-        const corner = b.o.clone().addScaledVector(b.u, -sizeW * 0.95).addScaledVector(b.v, sizeW * 0.72);
-        const p = camera.worldToPixel(corner);
-        return (
-          <span key={pl.id} className={`k-plane-label ${pl.highlight ? 'hl' : ''}`} style={{ left: p.x, top: p.y }}>
-            {planeLabel(pl.id)}
+        const placed: { id: PlaneId; x: number; y: number; hl: boolean; text: string }[] = [];
+        for (const pl of planesToDraw) {
+          const b = getPlane(pl.id);
+          const corners = [[-1, 1], [1, 1], [-1, -1], [1, -1]].map(([a, c]) => camera.worldToPixel(b.o.clone().addScaledVector(b.u, a * sizeW * 0.95).addScaledVector(b.v, c * sizeW * 0.72)));
+          const p = corners.reduce((m, q) => (q.y < m.y - 0.5 || (Math.abs(q.y - m.y) <= 0.5 && q.x < m.x) ? q : m));
+          const text = planeLabel(pl.id);
+          let y = p.y;
+          const w = text.length * 7.2 + 8;
+          for (let guard = 0; guard < 6 && placed.some((o) => Math.abs(o.y - y) < 17 && p.x < o.x + o.text.length * 7.2 + 8 && o.x < p.x + w); guard++) y += 17;
+          placed.push({ id: pl.id, x: p.x, y, hl: !!pl.highlight, text });
+        }
+        return placed.map((l) => (
+          <span key={l.id} className={`k-plane-label ${l.hl ? 'hl' : ''}`} data-testid={`plane-label-${l.id}`} style={{ left: l.x, top: l.y }}
+            onPointerEnter={() => { labelPlane.current = l.id; }} onPointerLeave={() => { labelPlane.current = null; }}>
+            {l.text}
           </span>
-        );
-      })}
+        ));
+      })()}
       {zoomArea.a && zoomArea.b && (
         <div className="k-zoom-rect" style={{ left: Math.min(zoomArea.a.x, zoomArea.b.x), top: Math.min(zoomArea.a.y, zoomArea.b.y), width: Math.abs(zoomArea.a.x - zoomArea.b.x), height: Math.abs(zoomArea.a.y - zoomArea.b.y) }} />
       )}

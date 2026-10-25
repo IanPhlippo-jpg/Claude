@@ -1,10 +1,12 @@
+import { LEGAL_NOTICE } from './legal';
+import { fitActive } from './viewport/bridge';
 import { useEffect, useRef, useState } from 'react';
 import { useStore } from './store';
 import { Menu, type MenuItem } from '../ui/components';
 import { Icon } from '../ui/icons';
 import { FILE_EXTENSION, MAX_FILE_BYTES, parseDocument, serializeDocument } from '../core/document/persistence';
 import { exportStl, parseStl } from '../core/document/stl';
-import { desktop, getDocumentPath, setDocumentPath } from './desktop';
+import { desktop, getDocumentHandle, setDocumentHandle } from './desktop';
 import { viewerHtml } from '../core/document/viewerExport';
 import { applyUpAxis as setUpAxis } from './viewport/camera';
 import { getPref, loadPrefs } from './prefs';
@@ -33,14 +35,15 @@ export async function saveDocument(forceAsk = false): Promise<boolean> {
   const api = desktop();
   if (api) {
     const data = new TextEncoder().encode(text).buffer as ArrayBuffer;
-    const known = forceAsk ? undefined : getDocumentPath() ?? undefined;
-    const r = await api.saveFile({ defaultPath: `${doc.name}${FILE_EXTENSION}`, filters: KCAD_FILTERS, data, path: known });
+    const known = forceAsk ? undefined : getDocumentHandle() ?? undefined;
+    const r = await api.saveFile({ defaultPath: `${doc.name}${FILE_EXTENSION}`, filters: KCAD_FILTERS, data, handle: known });
     if (!r) return false;
     if (r.error) {
       pushMessage(`${r.name} could not be saved: ${r.error}. The previous file is unchanged.`, 'error');
       return false;
     }
-    setDocumentPath(r.path);
+    setDocumentHandle(r.handle);
+    if (r.warning) pushMessage(`${r.name} saved, but: ${r.warning}`, 'warn');
     const name = r.name.replace(/\.kcad$/i, '');
     if (name !== doc.name) useStore.getState().renameDocument(name);
     useStore.setState({ dirty: false });
@@ -110,7 +113,7 @@ export function saveStl() {
 }
 
 /** Open a file: a loaded document (.kcad) or an imported mesh (.stl). */
-export function openFileData(name: string, data: ArrayBuffer, path: string | null) {
+export function openFileData(name: string, data: ArrayBuffer, handle: string | null) {
   const st = useStore.getState();
   try {
     if (data.byteLength > MAX_FILE_BYTES) throw new Error(`the file is larger than ${Math.round(MAX_FILE_BYTES / 1024 / 1024)} MB`);
@@ -131,7 +134,7 @@ export function openFileData(name: string, data: ArrayBuffer, path: string | nul
       const doc = parseDocument(new TextDecoder().decode(data));
       withUnsavedCheck(() => {
         useStore.getState().openDocument(doc);
-        setDocumentPath(path);
+        setDocumentHandle(handle);
         useStore.getState().setDialog(null);
       });
       return;
@@ -143,9 +146,9 @@ export function openFileData(name: string, data: ArrayBuffer, path: string | nul
 }
 
 /** a file handed over by the desktop shell (Open dialog, file association) */
-export function openDesktopFile(f: { name: string; path: string; data?: ArrayBuffer; error?: string }) {
+export function openDesktopFile(f: { name: string; handle: string; data?: ArrayBuffer; error?: string }) {
   if (f.error || !f.data) return useStore.getState().pushMessage(`Cannot open ${f.name}: ${f.error ?? 'the file could not be read'}.`, 'error');
-  openFileData(f.name, f.data, f.path);
+  openFileData(f.name, f.data, f.handle);
 }
 
 export function openFileDialog() {
@@ -227,7 +230,7 @@ export function MenuBar() {
     ],
     View: [
       { label: 'Previous View', icon: <Icon.Previous />, shortcut: 'Shift+Ctrl+Z', onSelect: () => cam().previousView() },
-      { label: 'Zoom to Fit', icon: <Icon.Fit />, shortcut: 'F', onSelect: () => (window as unknown as { __phlippoZoomFit?: () => void }).__phlippoZoomFit?.() },
+      { label: 'Zoom to Fit', icon: <Icon.Fit />, shortcut: 'F', onSelect: () => fitActive() },
       { label: 'Modify ▸ Orientation…', icon: <Icon.Orientation />, shortcut: 'Space', onSelect: () => st.setDialog('orientation') },
       { separator: true },
       { label: `Hide/Show ▸ ${st.show.planes ? '✓ ' : ''}Planes`, onSelect: () => st.toggleShow('planes') },
@@ -245,13 +248,13 @@ export function MenuBar() {
       { label: `Display ▸ ${st.show.perspective ? '✓ ' : ''}Perspective`, onSelect: () => st.toggleShow('perspective') },
       { label: `Display ▸ ${st.show.shadows ? '✓ ' : ''}Shadows In Shaded Mode`, onSelect: () => st.toggleShow('shadows') },
       { label: `Display ▸ ${st.show.ambientOcclusion ? '✓ ' : ''}Ambient Occlusion`, onSelect: () => st.toggleShow('ambientOcclusion') },
-      { label: `Display ▸ ${st.show.realView ? '✓ ' : ''}RealView Graphics`, onSelect: () => st.toggleShow('realView') },
+      { label: `Display ▸ ${st.show.realView ? '✓ ' : ''}Realistic Shading`, onSelect: () => st.toggleShow('realView') },
       { label: `Display ▸ Tangent Edges ${getPref('view.tangentEdges') === 'removed' ? 'Removed' : getPref('view.tangentEdges') === 'phantom' ? 'As Phantom' : 'Visible'} (cycle)`, onSelect: () => { const cur = String(getPref('view.tangentEdges') ?? 'visible'); const next = cur === 'visible' ? 'phantom' : cur === 'phantom' ? 'removed' : 'visible'; st.setPrefs({ ...loadPrefs(), 'view.tangentEdges': next }); } },
       { separator: true },
       { label: `Modify ▸ Up Axis ▸ ${getPref('view.upAxis') !== 'Z' ? '✓ ' : ''}Y up`, onSelect: () => { setUpAxis('Y'); st.setPrefs({ ...loadPrefs(), 'view.upAxis': 'Y' }); cam().setView('trimetric'); } },
       { label: `Modify ▸ Up Axis ▸ ${getPref('view.upAxis') === 'Z' ? '✓ ' : ''}Z up`, onSelect: () => { setUpAxis('Z'); st.setPrefs({ ...loadPrefs(), 'view.upAxis': 'Z' }); cam().setView('trimetric'); } },
       { separator: true },
-      { label: 'User Interface ▸ FeatureManager Tree Area', onSelect: () => st.setPanel('manager', { visible: !st.panels.manager.visible }) },
+      { label: 'User Interface ▸ Feature Tree Tree Area', onSelect: () => st.setPanel('manager', { visible: !st.panels.manager.visible }) },
       { label: 'User Interface ▸ Task Pane', onSelect: () => st.setTaskPane(st.taskPane ? null : 'resources') },
       { label: st.theme === 'dark' ? 'Light theme' : 'Dark theme', icon: st.theme === 'dark' ? <Icon.Sun /> : <Icon.Moon />, shortcut: 'Ctrl+Shift+D', onSelect: () => st.setTheme(st.theme === 'dark' ? 'light' : 'dark') },
     ],
@@ -309,7 +312,7 @@ export function MenuBar() {
       { label: 'Evaluate ▸ Parting Line Analysis…', icon: <Icon.PartingLine />, onSelect: () => st.setAnalysis({ kind: 'parting', pull: [0, 1, 0], pullLabel: 'Y axis', angle: 1 }) },
       { label: 'Evaluate ▸ Compare ▸ Body Compare…', icon: <Icon.Compare />, onSelect: () => st.setDialog('compare') },
       { label: 'Evaluate ▸ Compare ▸ Compare Documents…', icon: <Icon.Compare />, onSelect: () => st.setDialog('compare') },
-      { label: 'Evaluate ▸ SimulationXpress Analysis Wizard…', icon: <Icon.Simulation />, onSelect: () => st.setDialog('simxpress') },
+      { label: 'Evaluate ▸ Quick Beam Estimate…', icon: <Icon.Simulation />, onSelect: () => st.setDialog('simxpress') },
       { separator: true },
       { label: 'Customize…', icon: <Icon.Keyboard />, onSelect: () => st.setDialog('customize') },
       { label: 'Customize ▸ Keyboard', icon: <Icon.Keyboard />, shortcut: '?', onSelect: () => st.setPanel('shortcuts', { visible: true }) },
@@ -328,7 +331,7 @@ export function MenuBar() {
       { label: 'Tutorials (Task Pane ▸ Resources)', onSelect: () => st.setTaskPane('resources') },
       { label: 'Welcome to Phlippo CAD…', onSelect: () => st.setDialog('welcome') },
       { separator: true },
-      { label: 'About Phlippo CAD', onSelect: () => st.setAsk({ title: 'About Phlippo CAD', text: `Phlippo CAD ${APP_VERSION} — parametric 3D CAD: parts, assemblies and drawings. An independent product of Ian Phlippo; not affiliated with, endorsed by or derived from Dassault Systèmes SolidWorks Corp. SOLIDWORKS is a trademark of Dassault Systèmes.` }) },
+      { label: 'About Phlippo CAD', onSelect: () => st.setAsk({ title: 'About Phlippo CAD', text: `Phlippo CAD ${APP_VERSION} — parametric 3D CAD: parts, assemblies and drawings. ${LEGAL_NOTICE} Licence and third-party notices: LICENSE.txt and THIRD-PARTY-NOTICES.txt in the installation folder.` }) },
     ],
   };
 

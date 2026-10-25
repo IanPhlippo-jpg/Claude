@@ -1,4 +1,4 @@
-// Fillet / Chamfer PropertyManager options: asymmetric, conic profile, multi radius, variable size,
+// Fillet / Chamfer Property Panel options: asymmetric, conic profile, multi radius, variable size,
 // partial edge, Face Fillet, Full Round Fillet, FilletXpert and Chamfer Angle-Distance.
 import { chromium } from 'playwright';
 import { mkdirSync } from 'node:fs';
@@ -168,7 +168,7 @@ const frRemoved = V0 - (await volume());
 check('full round removes the two corners of the front face', frRemoved > 2 * (1 - Math.PI / 4) * 100 * 40 * 0.95, `${frRemoved}`);
 await undo();
 
-// FilletXpert: Apply keeps the PropertyManager open
+// FilletXpert: Apply keeps the Property Panel open
 await startFillet();
 await page.click('[data-testid="fillet-xpert"]');
 await pickTopEdges(1);
@@ -191,7 +191,9 @@ await page.screenshot({ path: `${OUT}/fillet-chamfer-angle.png` });
 
 console.log(`
 ${results.filter((r) => r.ok).length}/${results.length} checks passed`);
-process.exitCode = results.every((r) => r.ok) ? 0 : 1;
+const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
+if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
+process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
 for (const r of results.filter((r) => !r.ok)) console.log(' - ' + r.name + (r.info ? ' (' + r.info + ')' : ''));
 console.log('errors:', errors.length ? errors : 'none');
 await browser.close();

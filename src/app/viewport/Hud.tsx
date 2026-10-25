@@ -187,7 +187,7 @@ export function Hud({ camera, zoomFit, onZoomArea, zoomAreaActive }: { camera: C
         icon={<Icon.ViewSettings />}
         tip="View Settings"
         menu={[
-          { label: `${chk(st.show.realView)}RealView Graphics`, icon: <Icon.Appearance />, onSelect: () => st.toggleShow('realView') },
+          { label: `${chk(st.show.realView)}Realistic Shading`, icon: <Icon.Appearance />, onSelect: () => st.toggleShow('realView') },
           { label: `${chk(st.show.shadows)}Shadows In Shaded Mode`, icon: <Icon.Scene />, onSelect: () => st.toggleShow('shadows') },
           { label: `${chk(st.show.ambientOcclusion)}Ambient Occlusion`, icon: <Icon.Scene />, onSelect: () => st.toggleShow('ambientOcclusion') },
           { label: `${chk(st.show.perspective)}Perspective`, icon: <Icon.Orientation />, onSelect: () => st.toggleShow('perspective') },

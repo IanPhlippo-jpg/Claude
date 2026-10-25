@@ -50,7 +50,7 @@ await page.keyboard.press('Escape');
 // Sketch Text "PHLIPPO" right of the ellipse
 await page.click('.k-cm-iconbtn[data-tip="Text"]');
 await page.waitForTimeout(150);
-check('Sketch Text PropertyManager', (await page.locator('[data-testid="sketch-text-pm"]').count()) === 1);
+check('Sketch Text Property Panel', (await page.locator('[data-testid="sketch-text-pm"]').count()) === 1);
 await page.fill('[data-testid="sketch-text-pm"] textarea', 'CAD');
 const tp = await P(8, -6);
 await page.mouse.move(tp.x, tp.y);
@@ -79,7 +79,9 @@ await shot('et3-extruded');
 
 console.log(`
 ${results.filter((r) => r.ok).length}/${results.length} checks passed`);
-process.exitCode = results.every((r) => r.ok) ? 0 : 1;
+const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
+if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
+process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
 for (const r of results.filter((r) => !r.ok)) console.log(' - ' + r.name + (r.info ? ' (' + r.info + ')' : ''));
 console.log('errors:', errors.length ? errors : 'none');
 await browser.close();

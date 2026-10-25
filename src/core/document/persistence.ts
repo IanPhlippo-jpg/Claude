@@ -29,7 +29,91 @@ export function serializeDocument(doc: Document): string {
 
 type Raw = Record<string, unknown>;
 const isObj = (v: unknown): v is Raw => !!v && typeof v === 'object' && !Array.isArray(v);
-const isNum = (v: unknown) => typeof v === 'number' && Number.isFinite(v);
+/** the largest magnitude any number in a file may have (mm, degrees, counts): 1e12 covers a 1000 km model a thousand times over */
+export const MAX_FILE_NUMBER = 1e12;
+const isNum = (v: unknown) => typeof v === 'number' && Number.isFinite(v) && Math.abs(v) <= MAX_FILE_NUMBER;
+const isVec = (v: unknown, n: number) => Array.isArray(v) && v.length === n && v.every(isNum);
+const isBool = (v: unknown) => typeof v === 'boolean';
+/** nesting a file may have (an assembly in a drawing in … ); deeper is refused before anything recurses on it */
+export const MAX_FILE_DEPTH = 64;
+/** nodes (objects + arrays + values) a file may have; a 64 MB file of a real part stays well under it */
+export const MAX_FILE_NODES = 20_000_000;
+
+/**
+ * Structural limits over the whole tree, before any field is looked at: nesting depth, node count, finite numbers
+ * within range, and no string longer than 16 MB. A file that fails here is refused with the path of the problem.
+ */
+export function checkStructure(raw: unknown): void {
+  let nodes = 0;
+  const walk = (v: unknown, depth: number, where: string): void => {
+    if (++nodes > MAX_FILE_NODES) throw new DocumentFormatError('The file has more content than this version reads.');
+    if (depth > MAX_FILE_DEPTH) throw new DocumentFormatError(`The file is nested too deeply at ${where}.`);
+    if (typeof v === 'number') {
+      if (!Number.isFinite(v) || Math.abs(v) > MAX_FILE_NUMBER) throw new DocumentFormatError(`${where} holds a number out of range (${String(v)}).`);
+    } else if (typeof v === 'string') {
+      if (v.length > 16 * 1024 * 1024) throw new DocumentFormatError(`${where} holds a text that is too long.`);
+    } else if (Array.isArray(v)) {
+      for (let i = 0; i < v.length; i++) walk(v[i], depth + 1, `${where}[${i}]`);
+    } else if (v && typeof v === 'object') {
+      for (const k of Object.keys(v)) {
+        if (k === '__proto__' || k === 'constructor' || k === 'prototype') throw new DocumentFormatError(`${where} holds a forbidden key "${k}".`);
+        walk((v as Raw)[k], depth + 1, where ? `${where}.${k}` : k);
+      }
+    }
+  };
+  walk(raw, 0, '');
+}
+
+/** assembly component: an embedded part (checked like a document), a placement and the flags */
+function validateComponent(c: unknown, i: number, depth: number): void {
+  if (!isObj(c) || typeof c.id !== 'string' || typeof c.name !== 'string') throw new DocumentFormatError(`Component ${i + 1} is damaged.`);
+  if (!isObj(c.part)) throw new DocumentFormatError(`Component "${c.name}" has no part.`);
+  try {
+    validateDocument(c.part, depth + 1);
+  } catch (err) {
+    throw new DocumentFormatError(`Component "${c.name}": ${(err as Error).message}`);
+  }
+  if (!isVec(c.position, 3)) throw new DocumentFormatError(`Component "${c.name}" has no valid position.`);
+  if (!isVec(c.rotation, 4)) throw new DocumentFormatError(`Component "${c.name}" has no valid rotation.`);
+  if (!isBool(c.fixed) || !isBool(c.suppressed)) throw new DocumentFormatError(`Component "${c.name}" has no valid flags.`);
+  if (c.hidden !== undefined && !isBool(c.hidden)) throw new DocumentFormatError(`Component "${c.name}": hidden is not a flag.`);
+  if (c.configuration !== undefined && typeof c.configuration !== 'string') throw new DocumentFormatError(`Component "${c.name}": configuration is not a name.`);
+}
+
+function validateMate(m: unknown, i: number, componentIds: Set<string>): void {
+  if (!isObj(m) || typeof m.id !== 'string' || typeof m.type !== 'string' || typeof m.name !== 'string') throw new DocumentFormatError(`Mate ${i + 1} is damaged.`);
+  if (!Array.isArray(m.refs) || m.refs.length !== 2 || !m.refs.every((r) => isObj(r) && typeof r.componentId === 'string')) throw new DocumentFormatError(`Mate "${m.name}" has no two references.`);
+  for (const r of m.refs as Raw[]) if (!componentIds.has(r.componentId as string)) throw new DocumentFormatError(`Mate "${m.name}" refers to a component that is not in the assembly.`);
+  if (!isBool(m.aligned)) throw new DocumentFormatError(`Mate "${m.name}" has no alignment.`);
+  if (m.value !== undefined && !isNum(m.value)) throw new DocumentFormatError(`Mate "${m.name}" has no valid value.`);
+  if (m.suppressed !== undefined && !isBool(m.suppressed)) throw new DocumentFormatError(`Mate "${m.name}": suppressed is not a flag.`);
+}
+
+function validateSheet(sh: unknown, i: number, depth: number): void {
+  if (!isObj(sh) || typeof sh.id !== 'string' || typeof sh.name !== 'string') throw new DocumentFormatError(`Sheet ${i + 1} is damaged.`);
+  if (typeof sh.size !== 'string' || !isBool(sh.landscape) || !isVec(sh.scale, 2) || !isBool(sh.showFormat)) throw new DocumentFormatError(`Sheet "${sh.name}" has no valid format.`);
+  if ((sh.scale as number[]).some((x) => x <= 0)) throw new DocumentFormatError(`Sheet "${sh.name}" has a scale of zero.`);
+  if (!Array.isArray(sh.views) || !Array.isArray(sh.dimensions) || !Array.isArray(sh.notes) || !Array.isArray(sh.centerMarks)) throw new DocumentFormatError(`Sheet "${sh.name}" misses its view, dimension or note list.`);
+  const viewIds = new Set<string>();
+  sh.views.forEach((v, j) => {
+    if (!isObj(v) || typeof v.id !== 'string' || typeof v.name !== 'string' || typeof v.type !== 'string') throw new DocumentFormatError(`Sheet "${sh.name}": view ${j + 1} is damaged.`);
+    if (!isVec(v.position, 2)) throw new DocumentFormatError(`View "${v.name}" has no valid position.`);
+    if (v.scale !== undefined && (!isVec(v.scale, 2) || (v.scale as number[]).some((x) => x <= 0))) throw new DocumentFormatError(`View "${v.name}" has no valid scale.`);
+    if (typeof v.displayStyle !== 'string') throw new DocumentFormatError(`View "${v.name}" has no display style.`);
+    if (!isObj(v.model)) throw new DocumentFormatError(`View "${v.name}" has no model.`);
+    try {
+      validateDocument(v.model, depth + 1);
+    } catch (err) {
+      throw new DocumentFormatError(`View "${v.name}": ${(err as Error).message}`);
+    }
+    viewIds.add(v.id);
+  });
+  for (const v of sh.views as Raw[]) if (v.parentId !== undefined && !viewIds.has(v.parentId as string)) throw new DocumentFormatError(`View "${v.name}" refers to a parent view that is not on the sheet.`);
+  sh.dimensions.forEach((d, j) => { if (!isObj(d) || typeof d.id !== 'string') throw new DocumentFormatError(`Sheet "${sh.name}": dimension ${j + 1} is damaged.`); if (d.value !== undefined && !isNum(d.value)) throw new DocumentFormatError(`Sheet "${sh.name}": dimension ${j + 1} has no valid value.`); });
+  sh.notes.forEach((n, j) => { if (!isObj(n) || typeof n.id !== 'string' || typeof n.text !== 'string' || !isVec(n.position, 2)) throw new DocumentFormatError(`Sheet "${sh.name}": note ${j + 1} is damaged.`); });
+  sh.centerMarks.forEach((m, j) => { if (!isObj(m) || typeof m.viewId !== 'string' || !isVec(m.c, 2) || !isNum(m.r)) throw new DocumentFormatError(`Sheet "${sh.name}": centre mark ${j + 1} is damaged.`); });
+  if (sh.tables !== undefined && !Array.isArray(sh.tables)) throw new DocumentFormatError(`Sheet "${sh.name}": the tables are damaged.`);
+}
 
 /** format upgrades, one step per version: files written by an older build read like current ones */
 const MIGRATIONS: Record<number, (raw: Raw) => Raw> = {
@@ -38,8 +122,10 @@ const MIGRATIONS: Record<number, (raw: Raw) => Raw> = {
 };
 
 /** every field the app relies on is checked, so a damaged file is refused instead of opening empty or half */
-export function validateDocument(raw: unknown): Document {
+export function validateDocument(raw: unknown, depth = 0): Document {
   if (!isObj(raw)) throw new DocumentFormatError('The file does not contain a document.');
+  if (depth === 0) checkStructure(raw);
+  if (depth > 8) throw new DocumentFormatError('Documents are nested more than eight levels deep.');
   const d = raw;
   if (typeof d.name !== 'string' || !d.name.trim()) throw new DocumentFormatError('The document has no name.');
   if (!['mm', 'cm', 'm', 'in'].includes(d.units as string)) throw new DocumentFormatError(`Unknown units "${String(d.units)}".`);
@@ -64,9 +150,20 @@ export function validateDocument(raw: unknown): Document {
   if (d.equations !== undefined && !Array.isArray(d.equations)) throw new DocumentFormatError('The equations are damaged.');
   if (d.kind === 'assembly') {
     if (!Array.isArray(d.components) || !Array.isArray(d.mates)) throw new DocumentFormatError('The assembly has no component or mate list.');
-    for (const c of d.components) if (!isObj(c) || typeof c.id !== 'string' || !isObj(c.part)) throw new DocumentFormatError('A component is damaged.');
+    d.components.forEach((c, i) => validateComponent(c, i, depth));
+    const ids = new Set((d.components as Raw[]).map((c) => c.id as string));
+    d.mates.forEach((m, i) => validateMate(m, i, ids));
+  } else if (d.components !== undefined && d.components !== null && (!Array.isArray(d.components) || d.components.length)) throw new DocumentFormatError('Only an assembly has components.');
+  if (d.kind === 'drawing') {
+    if (!Array.isArray(d.sheets) || !d.sheets.length) throw new DocumentFormatError('The drawing has no sheet.');
+    d.sheets.forEach((sh, i) => validateSheet(sh, i, depth));
+    if (d.otherSheets !== undefined) {
+      if (!Array.isArray(d.otherSheets)) throw new DocumentFormatError('The other sheets are damaged.');
+      d.otherSheets.forEach((sh, i) => validateSheet(sh, i + 1, depth));
+    }
   }
-  if (d.kind === 'drawing' && (!Array.isArray(d.sheets) || !d.sheets.length)) throw new DocumentFormatError('The drawing has no sheet.');
+  if (d.configurations !== undefined && !Array.isArray(d.configurations)) throw new DocumentFormatError('The configurations are damaged.');
+  if (d.scene !== undefined && !isObj(d.scene)) throw new DocumentFormatError('The scene is damaged.');
   // decals: only embedded images (data:) are allowed; a file:// or http URL would read other files or call home
   if (Array.isArray(d.decals)) d.decals = d.decals.filter((x) => isObj(x) && typeof x.image === 'string' && /^data:image\//i.test(x.image));
   return d as unknown as Document;

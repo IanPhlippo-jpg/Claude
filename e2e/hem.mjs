@@ -52,7 +52,7 @@ const expectedBase = ((40 - (r + t)) * t + (30 - (r + t)) * t + (Math.PI / 4) * 
 const v1 = await volume();
 check('Base-Flange1 built: L sheet with the bend (3 mm, radius 3, 60 wide)', Math.abs(v1 - expectedBase) < expectedBase * 0.03 && Object.keys(s.errors).length === 0, `${v1.toFixed(0)} vs ${expectedBase.toFixed(0)} ${JSON.stringify(s.errors)}`);
 check('tree: Sheet-Metal1, Base-Flange1 and a suppressed Flat-Pattern1', s.sm && s.sm.thickness === 3 && s.features.includes('Base-Flange1') && s.features.includes('Flat-Pattern1(s)'), JSON.stringify(s));
-check('Sheet-Metal1 row in the FeatureManager', (await page.locator('.k-tree-row:has-text("Sheet-Metal")').count()) === 1);
+check('Sheet-Metal1 row in the Feature Tree', (await page.locator('.k-tree-row:has-text("Sheet-Metal")').count()) === 1);
 await page.keyboard.press('f');
 await page.waitForTimeout(400);
 await shot('hm1-base-flange');
@@ -98,7 +98,9 @@ check('flat pattern includes the hem', Math.abs(v3 - flat1 * depth * t) < flat1 
 
 console.log(`
 ${results.filter((r) => r.ok).length}/${results.length} checks passed`);
-process.exitCode = results.every((r) => r.ok) ? 0 : 1;
+const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
+if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
+process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
 for (const r of results.filter((r) => !r.ok)) console.log(' - ' + r.name + (r.info ? ' (' + r.info + ')' : ''));
 console.log('errors:', errors.length ? errors : 'none');
 await browser.close();

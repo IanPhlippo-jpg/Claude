@@ -22,11 +22,11 @@ await page.reload();
 await page.waitForSelector('.k-viewport');
 await page.waitForTimeout(400);
 
-// ---- start-up: Welcome over an empty window, nothing in the tree, CommandManager greyed
+// ---- start-up: Welcome over an empty window, nothing in the tree, Command Ribbon greyed
 let s = await st();
 check('start-up shows the Welcome dialog without a document', s.dialog === 'welcome' && !s.hasDocument, JSON.stringify(s));
-check('no FeatureManager and an empty graphics area without a document', (await page.locator('[data-testid="manager-empty"]').count()) === 1 && (await page.locator('[data-testid="nodoc"]').count()) === 1);
-check('CommandManager greyed without a document', (await page.locator('.k-cm.k-cm-nodoc').count()) === 1);
+check('no Feature Tree and an empty graphics area without a document', (await page.locator('[data-testid="manager-empty"]').count()) === 1 && (await page.locator('[data-testid="nodoc"]').count()) === 1);
+check('Command Ribbon greyed without a document', (await page.locator('.k-cm.k-cm-nodoc').count()) === 1);
 check('no recent documents on a clean start', (await page.locator('.k-welcome').innerText()).includes('No recent documents'));
 await page.screenshot({ path: `${OUT}/qa1-startup.png` });
 
@@ -157,11 +157,11 @@ await page.waitForTimeout(500);
 const m1 = await mem();
 check('30 feature edits do not grow the GPU geometry count', m1.geometries <= m0.geometries + 2, `${JSON.stringify(m0)} -> ${JSON.stringify(m1)}`);
 
-// ---- Enter repeats the last CommandManager command
+// ---- Enter repeats the last Command Ribbon command
 await page.click('.k-cm-tab:has-text("Features")');
 await page.click('.k-cm-big:has-text("Extruded Boss/Base") .k-cm-main');
 await page.waitForTimeout(300);
-check('the command opens its PropertyManager', !!(await S(() => window.__phlippoStore.getState().featureEdit)));
+check('the command opens its Property Panel', !!(await S(() => window.__phlippoStore.getState().featureEdit)));
 await S(() => window.__phlippoStore.getState().cancelFeature());
 await page.waitForTimeout(200);
 await page.mouse.click(960, 600);
@@ -184,6 +184,8 @@ check('Close without saving leaves the empty window', !s.hasDocument && (await p
 await page.screenshot({ path: `${OUT}/qa1-closed.png` });
 
 console.log(results.filter((r) => r.ok).length + '/' + results.length + ' passed');
-process.exitCode = results.every((r) => r.ok) ? 0 : 1;
+const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
+if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
+process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
 if (errors.length) console.log('ERRORS', errors.slice(0, 5));
 await browser.close();

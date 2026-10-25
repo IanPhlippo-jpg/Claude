@@ -164,7 +164,7 @@ export function AppearancesPane() {
       <div className="k-ap-tree" data-testid="appearance-tree">{tree.map((f) => row(f, '', 0))}</div>
       <div className="k-ap-split">
         <div className="k-ap-default">Default Appearance: {st.doc.appearance ? 'custom' : 'color'}</div>
-        <div className="k-ap-hint">Drag and drop appearances onto the model or FeatureManager tree. Double-click to apply to the part.</div>
+        <div className="k-ap-hint">Drag and drop appearances onto the model or Feature Tree tree. Double-click to apply to the part.</div>
       </div>
       <div className="k-ap-grid" data-testid="appearance-grid">
         {items.map((s) => (

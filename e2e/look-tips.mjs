@@ -1,4 +1,4 @@
-// rich tooltips of the CommandManager at Ian's DPI -> e2e-out/ian-tip-*.png
+// rich tooltips of the Command Ribbon at Ian's DPI -> e2e-out/ian-tip-*.png
 import { chromium } from 'playwright';
 const browser = await chromium.launch({ channel: process.env.PW_CHANNEL ?? 'msedge' });
 const page = await browser.newPage({ viewport: { width: 1280, height: 672 }, deviceScaleFactor: 1.5 });

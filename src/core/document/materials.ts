@@ -1,5 +1,5 @@
 /**
- * Material library as the original's "SOLIDWORKS Materials" tree (categories with materials),
+ * Material library as the reference's materials tree (categories with materials),
  * with the properties shown on the Properties tab. Densities in kg/m³, moduli in N/m², strengths
  * in N/m², thermal expansion in /K, conductivity in W/(m·K), specific heat in J/(kg·K).
  */

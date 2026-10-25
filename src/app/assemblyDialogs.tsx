@@ -103,7 +103,7 @@ export function InterferenceDialog() {
           <div className="k-selbox" style={{ minHeight: 80 }}>
             {result.length ? result.map((r, i) => (
               <div key={i} className={`k-selbox-row${ignored.has(key(r)) ? ' k-muted' : ''}`} onClick={() => st.setInterferenceHighlight(r.geometry)}>
-                <Icon.Interference size={12} /> {r.coincident ? `Coincidence${i + 1}` : `Interference${i + 1} - ${r.volume.toFixed(2)} mm^3`} <span className="k-muted">({name(r.a)}, {name(r.b)})</span>
+                <Icon.Interference size={12} /> {r.failed ? `Not checked${i + 1} - the boolean failed (${r.failed})` : r.coincident ? `Coincidence${i + 1}` : `Interference${i + 1} - ${r.volume.toFixed(2)} mm^3`} <span className="k-muted">({name(r.a)}, {name(r.b)})</span>
                 <span className="grow" />
                 <button className="k-btn ghost" style={{ marginLeft: 'auto' }} data-testid="intf-ignore" onClick={(e) => { e.stopPropagation(); const n = new Set(ignored); if (n.has(key(r))) n.delete(key(r)); else n.add(key(r)); setIgnored(n); }}>{ignored.has(key(r)) ? 'Un-ignore' : 'Ignore'}</button>
               </div>

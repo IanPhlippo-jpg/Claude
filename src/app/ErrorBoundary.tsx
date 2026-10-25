@@ -27,7 +27,7 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, { error: E
         <div className="k-dialog">
           <div className="k-dialog-title">Phlippo CAD</div>
           <div className="k-dialog-body">
-            <p>An operation failed and was stopped. Your document is kept (autosave).</p>
+            <p>An operation failed and was stopped. The last change may be incomplete: Undo and continue goes back one step, Reload starts again from the last autosave (unsaved changes after it are lost).</p>
             <pre className="k-crash-msg">{this.state.error.message}</pre>
           </div>
           <div className="k-dialog-actions">

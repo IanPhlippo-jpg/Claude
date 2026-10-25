@@ -1,4 +1,4 @@
-// Bug hunt: every CommandManager command (and its flyout items), every menu item and every tree context-menu item,
+// Bug hunt: every Command Ribbon command (and its flyout items), every menu item and every tree context-menu item,
 // for a part, an assembly and a drawing. After each click the state is reset; page errors, console errors and the
 // crash screen are reported per command. Runs at Ian's screen size (1280 x 672 CSS px, 150 %).
 import { chromium } from 'playwright';

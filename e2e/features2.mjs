@@ -46,8 +46,8 @@ await page.click('.k-cm-tab:has-text("Features")');
 await page.click('.k-cm-big:has-text("Reference Geometry") .k-cm-arrow').catch(() => undefined);
 await page.evaluate(() => window.__phlippoStore.getState().startRefGeom('axis'));
 await page.waitForTimeout(200);
-check('Reference Geometry ▸ Axis opens its PropertyManager', (await page.locator('[data-testid="refgeom-pm"]').count()) === 1);
-// the planes are picked in the flyout FeatureManager tree of the graphics area, as the original
+check('Reference Geometry ▸ Axis opens its Property Panel', (await page.locator('[data-testid="refgeom-pm"]').count()) === 1);
+// the planes are picked in the flyout Feature Tree tree of the graphics area, as the original
 await page.click('.k-flyout-toggle');
 await page.click('.k-flyout-body .k-tree-row:has-text("Front Plane")');
 await page.click('.k-flyout-body .k-tree-row:has-text("Right Plane")');
@@ -67,7 +67,9 @@ await page.waitForTimeout(300);
 let st = await S();
 check('Axis1 (two planes), Point1 (center of face) and Coordinate System1 are created', st.refs.includes('axis:Two Planes') && st.refs.includes('point:Center of Face') && st.refs.some((r) => r.startsWith('csys')), JSON.stringify(st.refs));
 check('the reference geometry shows in the tree', (await page.locator('.k-tree-row:has-text("Axis1")').count()) === 1 && (await page.locator('.k-tree-row:has-text("Coordinate System1")').count()) === 1);
-check('the reference geometry is drawn', st.curves.some((c) => c.startsWith('ref-')) || true);
+// the reference geometry is drawn as lines in the graphics area (not part of the rebuild curves)
+const refDrawn = await page.evaluate(() => { let n = 0; window.__phlippoScene.traverse((o) => { if (o.visible && (o.isLine || o.isLineSegments || o.isLine2 || o.isLineSegments2) && /^ref-/.test(o.name ?? '')) n++; }); return n; });
+check('the reference geometry is drawn', refDrawn > 0, String(refDrawn));
 await page.screenshot({ path: `${OUT}/f2-refgeom.png` });
 
 // Table Driven Pattern of the cut
@@ -127,7 +129,7 @@ check('Stud Wizard adds an M6 x 20 stud', st.feats.some((f) => f.type === 'stud'
 // Offset On Surface
 await page.evaluate((f) => { const s = window.__phlippoStore.getState(); s.setOffsetSurfEdit({ distance: 3, reverse: false }); s.setSelectedFace(f); }, await topFace());
 await page.waitForTimeout(200);
-check('Offset On Surface opens its PropertyManager', (await page.locator('[data-testid="offsetsurf-pm"]').count()) === 1);
+check('Offset On Surface opens its Property Panel', (await page.locator('[data-testid="offsetsurf-pm"]').count()) === 1);
 await page.click('[data-testid="offsetsurf-ok"]');
 await page.waitForTimeout(600);
 st = await S();
@@ -140,7 +142,9 @@ await page.screenshot({ path: `${OUT}/features2.png` });
 
 console.log(`
 ${results.filter((r) => r.ok).length}/${results.length} checks passed`);
-process.exitCode = results.every((r) => r.ok) ? 0 : 1;
+const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
+if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
+process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
 for (const r of results.filter((r) => !r.ok)) console.log(' - ' + r.name + (r.info ? ' (' + r.info + ')' : ''));
 console.log('errors:', errors.length ? errors : 'none');
 await browser.close();

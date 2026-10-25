@@ -1,3 +1,4 @@
+import { bridge } from '../viewport/bridge';
 import { getPref, loadPrefs, savePrefs } from '../prefs';
 import { RibbonBody } from './RibbonOverflow';
 import { useState, type ReactNode } from 'react';
@@ -259,7 +260,7 @@ export function Ribbon() {
       </Group>
       <Group>
         <BigButton label="Rapid Sketch" icon={<Icon.RapidSketch />} active={st.rapidSketch} onClick={st.toggleRapidSketch} />
-        <BigButton label="Instant2D" icon={<Icon.Instant2D />} active={st.instant2d} onClick={st.toggleInstant2D} />
+        <BigButton label="Drag Dimensions" icon={<Icon.Instant2D />} active={st.instant2d} onClick={st.toggleInstant2D} />
         <BigButton label="Shaded Sketch Contours" icon={<Icon.ShadedContours />} active={st.shadedContours} disabled={!inSketch} onClick={() => st.toggle('shadedContours')} />
       </Group>
     </>
@@ -268,7 +269,10 @@ export function Ribbon() {
   // as the original: commands that need a body (or a sketch) are greyed out until there is one
   // an assembly has no Features tab: commands that switch to it show the Assembly tab
   const tabShown = st.doc.kind === 'assembly' && (st.tab === 'features' || st.tab === 'surfaces' || st.tab === 'sheetmetal' || st.tab === 'weldments' || st.tab === 'mbd') ? 'assembly' : st.tab;
-  const noBody = st.doc.kind === 'part' && !st.rebuild.bodies.length;
+  // a document without a kind is a part (createDocument leaves it out for parts)
+  const noBody = (st.doc.kind ?? 'part') === 'part' && !st.rebuild.bodies.length;
+  // the sheet metal commands that change an existing sheet need a sheet metal body (Base Flange, Convert, Lofted-Bend, Swept Flange)
+  const noSheet = noBody || !st.doc.features.some((f) => !f.suppressed && (f.type === 'baseFlange' || f.type === 'convertSheet' || f.type === 'loftedBend' || f.type === 'sweptFlange'));
   // while a PropertyManager command runs, the original greys the CommandManager (the running command stays lit)
   const busy = st.doc.kind !== 'drawing' && (!!st.featureEdit || !!st.planeEdit || !!st.sheetMetalEdit || !!st.patternEdit || !!st.sketch3dEdit || !!st.motorEdit || !!st.fastenerEdit || (!!st.analysis && st.analysis.kind !== 'curvature'));
   const noSketch = !st.doc.features.some((f) => f.type === 'sketch');
@@ -314,7 +318,7 @@ export function Ribbon() {
       <Group>
         <BigButton label="Reference Geometry" icon={<Icon.RefGeometry />} active={!!st.planeEdit} onClick={() => st.startPlane()} flyout={[{ label: 'Plane', icon: <Icon.Plane />, onSelect: () => st.startPlane() }, { label: 'Axis', icon: <Icon.Line />, onSelect: () => st.startRefGeom('axis') }, { label: 'Coordinate System', icon: <Icon.Origin />, onSelect: () => st.startRefGeom('csys') }, { label: 'Point', icon: <Icon.Point />, onSelect: () => st.startRefGeom('point') }]} />
         <BigButton label="Curves" icon={<Icon.Curves />} active={st.featureEdit?.draft.type === 'helix'} onClick={st.startHelix} flyout={[{ label: 'Split Line', icon: <Icon.Line />, onSelect: () => st.startCurveFeature('splitLine') }, { label: 'Projected Curve', icon: <Icon.Spline />, onSelect: () => st.startCurveFeature('projectedCurve') }, { label: 'Helix and Spiral', icon: <Icon.Spline />, onSelect: () => st.startHelix() }]} />
-        <BigButton label="Instant3D" icon={<Icon.Instant3D />} active={st.instant3d} onClick={st.toggleInstant3D} />
+        <BigButton label="Drag Handles" icon={<Icon.Instant3D />} active={st.instant3d} onClick={st.toggleInstant3D} />
       </Group>
     </>
   );
@@ -351,7 +355,7 @@ export function Ribbon() {
       <Group>
         <BigButton label="Performance Evaluation" icon={<Icon.Performance />} active={st.dialog === 'performance'} onClick={() => st.setDialog(st.dialog === 'performance' ? null : 'performance')} />
         <BigButton label="Compare" icon={<Icon.Compare />} active={st.dialog === 'compare'} onClick={() => st.setDialog(st.dialog === 'compare' ? null : 'compare')} flyout={[{ label: 'Body Compare', icon: <Icon.Compare />, onSelect: () => st.setDialog('compare') }, { label: 'Compare Documents', icon: <Icon.Compare />, onSelect: () => st.setDialog('compare') }]} />
-        <BigButton label="SimulationXpress Analysis Wizard" icon={<Icon.Simulation />} active={st.dialog === 'simxpress'} onClick={() => st.setDialog(st.dialog === 'simxpress' ? null : 'simxpress')} />
+        <BigButton label="Quick Beam Estimate" icon={<Icon.Simulation />} active={st.dialog === 'simxpress'} onClick={() => st.setDialog(st.dialog === 'simxpress' ? null : 'simxpress')} />
       </Group>
     </>
   );
@@ -406,30 +410,30 @@ export function Ribbon() {
     <>
       {menuBlock}
       <Group>
-        <BigButton label="Base Flange/Tab" icon={<Icon.Sheet />} active={st.featureEdit?.draft.type === 'baseFlange'} onClick={st.startBaseFlange} />
+        <BigButton label="Base Flange/Tab" icon={<Icon.BaseFlange />} active={st.featureEdit?.draft.type === 'baseFlange'} onClick={st.startBaseFlange} />
         <div className="k-cm-col">
-          <SmallButton label="Convert to Sheet Metal" icon={<Icon.Sheet />} disabled={noBody} active={st.featureEdit?.draft.type === 'convertSheet' && !st.featureEdit.draft.insertBends} onClick={() => st.startConvertSheet()} />
+          <SmallButton label="Convert to Sheet Metal" icon={<Icon.ConvertSheet />} disabled={noBody} active={st.featureEdit?.draft.type === 'convertSheet' && !st.featureEdit.draft.insertBends} onClick={() => st.startConvertSheet()} />
           <SmallButton label="Lofted-Bend" icon={<Icon.Loft />} active={st.featureEdit?.draft.type === 'loftedBend'} onClick={st.startLoftedBend} />
         </div>
       </Group>
       <Group>
-        <BigButton label="Edge Flange" disabled={noBody} icon={<Icon.Chamfer />} active={st.featureEdit?.draft.type === 'edgeFlange'} onClick={st.startEdgeFlange} />
+        <BigButton label="Edge Flange" disabled={noSheet} icon={<Icon.EdgeFlange />} active={st.featureEdit?.draft.type === 'edgeFlange'} onClick={st.startEdgeFlange} />
         <div className="k-cm-col">
-          <SmallButton label="Miter Flange" disabled={noBody} icon={<Icon.Chamfer />} active={st.featureEdit?.draft.type === 'miterFlange'} onClick={st.startMiterFlange} />
-          <SmallButton label="Hem" disabled={noBody} icon={<Icon.Arc />} active={st.featureEdit?.draft.type === 'hem'} onClick={st.startHem} />
-          <SmallButton label="Jog" disabled={noBody} icon={<Icon.Line />} active={st.featureEdit?.draft.type === 'jog'} onClick={st.startJog} />
+          <SmallButton label="Miter Flange" disabled={noSheet} icon={<Icon.MiterFlange />} active={st.featureEdit?.draft.type === 'miterFlange'} onClick={st.startMiterFlange} />
+          <SmallButton label="Hem" disabled={noSheet} icon={<Icon.Hem />} active={st.featureEdit?.draft.type === 'hem'} onClick={st.startHem} />
+          <SmallButton label="Jog" disabled={noSheet} icon={<Icon.Jog />} active={st.featureEdit?.draft.type === 'jog'} onClick={st.startJog} />
         </div>
         <div className="k-cm-col">
-          <SmallButton label="Sketched Bend" disabled={noBody} icon={<Icon.Line />} active={st.featureEdit?.draft.type === 'sketchedBend'} onClick={st.startSketchedBend} />
-          <SmallButton label="Cross-Break" disabled={noBody} icon={<Icon.Mirror />} active={st.featureEdit?.draft.type === 'crossBreak'} onClick={st.startCrossBreak} />
+          <SmallButton label="Sketched Bend" disabled={noSheet} icon={<Icon.SketchedBend />} active={st.featureEdit?.draft.type === 'sketchedBend'} onClick={st.startSketchedBend} />
+          <SmallButton label="Cross-Break" disabled={noSheet} icon={<Icon.CrossBreak />} active={st.featureEdit?.draft.type === 'crossBreak'} onClick={st.startCrossBreak} />
           <SmallButton label="Swept Flange" icon={<Icon.SweptFlange />} disabled={noBody} active={st.featureEdit?.draft.type === 'sweptFlange'} onClick={st.startSweptFlange} />
         </div>
-        <BigButton label="Corners" disabled={noBody} icon={<Icon.Chamfer />} active={!!(st.featureEdit && (st.featureEdit.draft.type === 'fillet' || st.featureEdit.draft.type === 'chamfer') && st.featureEdit.draft.breakCorner)} onClick={st.startBreakCorner} flyout={[{ label: 'Closed Corner', icon: <Icon.Chamfer />, onSelect: () => st.startClosedCorner() }, { label: 'Welded Corner', icon: <Icon.Chamfer />, onSelect: () => st.startClosedCorner(true) }, { label: 'Break-Corner/Corner-Trim', icon: <Icon.Chamfer />, onSelect: st.startBreakCorner }, { label: 'Corner Relief', icon: <Icon.Chamfer />, onSelect: st.startCornerRelief }]} />
+        <BigButton label="Corners" disabled={noSheet} icon={<Icon.Corners />} active={!!(st.featureEdit && (st.featureEdit.draft.type === 'fillet' || st.featureEdit.draft.type === 'chamfer') && st.featureEdit.draft.breakCorner)} onClick={st.startBreakCorner} flyout={[{ label: 'Closed Corner', icon: <Icon.Corners />, onSelect: () => st.startClosedCorner() }, { label: 'Welded Corner', icon: <Icon.Corners />, onSelect: () => st.startClosedCorner(true) }, { label: 'Break-Corner/Corner-Trim', icon: <Icon.Chamfer />, onSelect: st.startBreakCorner }, { label: 'Corner Relief', icon: <Icon.Corners />, onSelect: st.startCornerRelief }]} />
       </Group>
       <Group>
         <div className="k-cm-col">
-          <SmallButton label="Forming Tool" disabled={noBody} icon={<Icon.FormTool />} active={st.featureEdit?.draft.type === 'formTool'} onClick={() => st.startFormTool()} flyout={FORM_TOOL_LIBRARY.map((t) => ({ label: `${t.folder} ▸ ${t.label}`, icon: <Icon.FormTool />, onSelect: () => st.startFormTool(t.id) }))} />
-          <SmallButton label="Sheet Metal Gusset" disabled={noBody} icon={<Icon.Gusset />} active={st.featureEdit?.draft.type === 'gusset'} onClick={st.startGusset} />
+          <SmallButton label="Forming Tool" disabled={noSheet} icon={<Icon.FormTool />} active={st.featureEdit?.draft.type === 'formTool'} onClick={() => st.startFormTool()} flyout={FORM_TOOL_LIBRARY.map((t) => ({ label: `${t.folder} ▸ ${t.label}`, icon: <Icon.FormTool />, onSelect: () => st.startFormTool(t.id) }))} />
+          <SmallButton label="Sheet Metal Gusset" disabled={noSheet} icon={<Icon.Gusset />} active={st.featureEdit?.draft.type === 'gusset'} onClick={st.startGusset} />
           <SmallButton label="Tab and Slot" disabled={noBody} icon={<Icon.TabSlot />} active={st.featureEdit?.draft.type === 'tabSlot'} onClick={st.startTabSlot} />
         </div>
         <div className="k-cm-col">
@@ -438,21 +442,21 @@ export function Ribbon() {
           <SmallButton label="Vent" disabled={noBody} icon={<Icon.Vent />} active={st.featureEdit?.draft.type === 'vent'} onClick={st.startVent} />
         </div>
         <div className="k-cm-col">
-          <SmallButton label="Normal Cut" disabled={noBody} icon={<Icon.Cut />} onClick={st.applyNormalCut} />
+          <SmallButton label="Normal Cut" disabled={noSheet} icon={<Icon.NormalCut />} onClick={st.applyNormalCut} />
         </div>
       </Group>
       <Group>
         <div className="k-cm-col">
-          <SmallButton label="Unfold" disabled={noBody} icon={<Icon.Sheet />} active={st.featureEdit?.draft.type === 'unfold'} onClick={() => st.startUnfold('unfold')} />
-          <SmallButton label="Fold" disabled={noBody} icon={<Icon.Sheet />} active={st.featureEdit?.draft.type === 'fold'} onClick={() => st.startUnfold('fold')} />
-          <SmallButton label="Flatten" disabled={noBody} icon={<Icon.Sheet />} active={st.doc.features.some((f) => f.type === 'flatPattern' && !f.suppressed)} onClick={st.toggleFlatten} />
+          <SmallButton label="Unfold" disabled={noSheet} icon={<Icon.Unfold />} active={st.featureEdit?.draft.type === 'unfold'} onClick={() => st.startUnfold('unfold')} />
+          <SmallButton label="Fold" disabled={noSheet} icon={<Icon.Fold />} active={st.featureEdit?.draft.type === 'fold'} onClick={() => st.startUnfold('fold')} />
+          <SmallButton label="Flatten" disabled={noSheet} icon={<Icon.Flatten />} active={st.doc.features.some((f) => f.type === 'flatPattern' && !f.suppressed)} onClick={st.toggleFlatten} />
         </div>
         <div className="k-cm-col">
-          <SmallButton label="No Bends" icon={<Icon.Sheet />} disabled={noBody} active={st.doc.features.some((f) => f.type === 'flatPattern' && !f.suppressed && f.noBendLines)} onClick={st.toggleNoBends} />
+          <SmallButton label="No Bends" icon={<Icon.NoBends />} disabled={noSheet} active={st.doc.features.some((f) => f.type === 'flatPattern' && !f.suppressed && f.noBendLines)} onClick={st.toggleNoBends} />
         </div>
         <div className="k-cm-col">
           <SmallButton label="Rip" disabled={noBody} icon={<Icon.Rip />} active={st.featureEdit?.draft.type === 'rip'} onClick={st.startRip} />
-          <SmallButton label="Insert Bends" icon={<Icon.Sheet />} disabled={noBody} active={st.featureEdit?.draft.type === 'convertSheet' && !!st.featureEdit.draft.insertBends} onClick={() => st.startConvertSheet(true)} />
+          <SmallButton label="Insert Bends" icon={<Icon.InsertBends />} disabled={noBody} active={st.featureEdit?.draft.type === 'convertSheet' && !!st.featureEdit.draft.insertBends} onClick={() => st.startConvertSheet(true)} />
         </div>
       </Group>
     </>
@@ -499,12 +503,12 @@ export function Ribbon() {
       <Group>
         <BigButton label="Show Tolerance Status" disabled={noBody} icon={<Icon.Check />} active={st.analysis?.kind === 'tolerance'} onClick={() => st.setAnalysis(st.analysis?.kind === 'tolerance' ? null : { kind: 'tolerance' })} />
         <div className="k-cm-col">
-          <SmallButton label="Copy Scheme" disabled={!st.doc.dimxpert} icon={<Icon.Properties />} onClick={() => { navigator.clipboard?.writeText(JSON.stringify(st.doc.dimxpert)).catch(() => {}); st.pushMessage('DimXpert scheme copied to the clipboard (paste with Import Scheme).', 'info'); }} />
-          <SmallButton label="Import Scheme" disabled={noBody} icon={<Icon.Open />} onClick={() => st.setAsk({ title: 'Import Scheme', text: 'Paste a DimXpert scheme (JSON from Copy Scheme).', input: '', yes: (v: string) => { try { const d = JSON.parse(String(v ?? '')); if (d && Array.isArray(d.dims) && Array.isArray(d.datums)) st.setDimXpertData(d); else st.pushMessage('Not a DimXpert scheme.', 'warn'); } catch { st.pushMessage('Not a DimXpert scheme.', 'warn'); } }, yesLabel: 'Import' })} />
+          <SmallButton label="Copy Scheme" disabled={!st.doc.dimxpert} icon={<Icon.Properties />} onClick={() => { navigator.clipboard?.writeText(JSON.stringify(st.doc.dimxpert)).catch(() => {}); st.pushMessage('Auto Tolerancing scheme copied to the clipboard (paste with Import Scheme).', 'info'); }} />
+          <SmallButton label="Import Scheme" disabled={noBody} icon={<Icon.Open />} onClick={() => st.setAsk({ title: 'Import Scheme', text: 'Paste a Auto Tolerancing scheme (JSON from Copy Scheme).', input: '', yes: (v: string) => { try { const d = JSON.parse(String(v ?? '')); if (d && Array.isArray(d.dims) && Array.isArray(d.datums)) st.setDimXpertData(d); else st.pushMessage('Not a Auto Tolerancing scheme.', 'warn'); } catch { st.pushMessage('Not a Auto Tolerancing scheme.', 'warn'); } }, yesLabel: 'Import' })} />
           <SmallButton label="Delete All Tolerances" disabled={!st.doc.dimxpert} icon={<Icon.Trash />} onClick={st.deleteAllTolerances} />
         </div>
         <div className="k-cm-col">
-          <SmallButton label="TolAnalyst Study" disabled={!st.doc.dimxpert} icon={<Icon.Measure />} onClick={() => { const d = st.doc.dimxpert!; const worst = d.dims.reduce((a, x) => a + x.plus + x.minus, 0); const rss = Math.sqrt(d.dims.reduce((a, x) => a + (x.plus + x.minus) ** 2, 0)); st.setAsk({ title: 'TolAnalyst Study', text: `Stack-up of ${d.dims.length} dimension(s): worst case ±${(worst / 2).toFixed(3)} mm, statistical (RSS) ±${(rss / 2).toFixed(3)} mm.` }); }} />
+          <SmallButton label="Tolerance Stack-up Study" disabled={!st.doc.dimxpert} icon={<Icon.Measure />} onClick={() => { const d = st.doc.dimxpert!; const worst = d.dims.reduce((a, x) => a + x.plus + x.minus, 0); const rss = Math.sqrt(d.dims.reduce((a, x) => a + (x.plus + x.minus) ** 2, 0)); st.setAsk({ title: 'Tolerance Stack-up Study', text: `Stack-up of ${d.dims.length} dimension(s): worst case ±${(worst / 2).toFixed(3)} mm, statistical (RSS) ±${(rss / 2).toFixed(3)} mm.` }); }} />
           <SmallButton label="Datum Target" disabled={noBody} icon={<Icon.Point />} onClick={() => st.startDimXpert('datum')} />
           <SmallButton label="Basic Dimension" disabled={noBody} icon={<Icon.Dimension />} onClick={() => { st.startDimXpert('size'); st.updateDimXpert({ basic: true }); }} />
         </div>
@@ -519,7 +523,7 @@ export function Ribbon() {
         <BigButton label="Edit Scene" icon={<Icon.Scene />} active={st.sceneEdit} onClick={() => st.setSceneEdit(!st.sceneEdit)} />
         <BigButton label="Edit Decal" icon={<Icon.Palette />} active={!!st.decalEdit} onClick={() => (st.decalEdit ? useStore.setState({ decalEdit: null }) : st.startDecal())} />
         <BigButton label="Preview Window" icon={<Icon.DisplayStyle />} active={st.dialog === 'previewWindow'} onClick={() => st.setDialog(st.dialog === 'previewWindow' ? null : 'previewWindow')} />
-        <BigButton label="Final Render" icon={<Icon.ViewSettings />} onClick={async () => { const img = await (window as unknown as { __phlippoFinalRender?: () => Promise<string | null> }).__phlippoFinalRender?.(); if (img) st.setFinalImage(img); }} />
+        <BigButton label="Final Render" icon={<Icon.ViewSettings />} onClick={async () => { const img = await bridge.finalRender?.(); if (img) st.setFinalImage(img); }} />
       </Group>
     </>
   );
@@ -606,7 +610,7 @@ export function Ribbon() {
           </button>
         ))}
         <span className="grow" />
-        <button className="k-btn ghost icon k-tip" data-tip={locked ? 'CommandManager is locked (Customize)' : collapsed ? 'Expand CommandManager' : 'Collapse CommandManager'} disabled={locked} onClick={() => setCollapsed((c) => !c)}>
+        <button className="k-btn ghost icon k-tip" data-tip={locked ? 'Command Ribbon is locked (Customize)' : collapsed ? 'Expand Command Ribbon' : 'Collapse Command Ribbon'} disabled={locked} onClick={() => setCollapsed((c) => !c)}>
           {collapsed ? <Icon.ChevronDown size={12} /> : <Icon.Pin size={12} />}
         </button>
       </div>

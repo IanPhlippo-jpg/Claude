@@ -155,6 +155,8 @@ check('Green scheme sets the selection colour', tok.toLowerCase() === '#2f9e44',
 await S(() => { const s = window.__phlippoStore.getState(); s.setPrefs({ ...s.prefs, 'colors.scheme': 'Blue' }); });
 
 console.log(results.filter((r) => r.ok).length + '/' + results.length + ' passed');
-process.exitCode = results.every((r) => r.ok) ? 0 : 1;
+const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
+if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
+process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
 if (errors.length) console.log('ERRORS', errors.slice(0, 5));
 await browser.close();

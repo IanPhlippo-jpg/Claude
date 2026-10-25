@@ -1,3 +1,4 @@
+import { fitActive } from './viewport/bridge';
 import { useState, type ReactNode } from 'react';
 import { useStore } from './store';
 import { Icon } from '../ui/icons';
@@ -36,7 +37,7 @@ export function ShortcutBar({ onClose }: { onClose: () => void }) {
     { label: 'Select', icon: <Icon.Select />, description: 'Selects sketch entities, edges, vertices, faces and so on.', onSelect: t(() => st.setTool('select')) },
     { label: 'Smart Dimension', icon: <Icon.Dimension />, description: 'Creates a dimension for one or more selected entities.', onSelect: t(() => st.setTool('dimension')) },
     { label: 'Exit Sketch', icon: <Icon.Sketch />, description: 'Exits the sketch and keeps the changes.', onSelect: t(() => st.exitSketch()) },
-    { label: 'Extruded Boss/Base', icon: <Icon.Extrude />, description: 'Extrudes a sketch or selected sketch contours in one or two directions to create a solid feature. Use the Extrude PropertyManager to control where the extrude starts from, and the PropertyManager or the Instant 3D drag handle to define its direction and extent.', onSelect: t(() => { st.exitSketch(); st.startFeature('extrude', 'boss'); }) },
+    { label: 'Extruded Boss/Base', icon: <Icon.Extrude />, description: 'Extrudes a sketch or selected sketch contours in one or two directions to create a solid feature. Use the Extrude Property Panel to control where the extrude starts from, and the Property Panel or the Instant 3D drag handle to define its direction and extent.', onSelect: t(() => { st.exitSketch(); st.startFeature('extrude', 'boss'); }) },
     { label: 'Line', icon: <Icon.Line />, description: 'Sketches a line.', onSelect: t(() => st.setTool('line')), flyout: [{ label: 'Line', icon: <Icon.Line />, onSelect: t(() => st.setTool('line')) }, { label: 'Centerline', icon: <Icon.Construction />, onSelect: t(() => st.setTool('centerline')) }] },
     { label: 'Corner Rectangle', icon: <Icon.Rect />, description: 'Sketches a rectangle.', onSelect: t(() => st.setTool('rectangle')), flyout: [{ label: 'Corner Rectangle', icon: <Icon.Rect />, onSelect: t(() => st.setTool('rectangle')) }, { label: 'Center Rectangle', icon: <Icon.Rect />, onSelect: t(() => st.setTool('centerRectangle')) }] },
     { label: 'Circle', icon: <Icon.Circle />, description: 'Sketches a circle. Select the center of the circle, then drag to set its radius.', onSelect: t(() => st.setTool('circle')) },
@@ -70,7 +71,7 @@ export function ShortcutBar({ onClose }: { onClose: () => void }) {
     { label: 'Rib', icon: <Icon.Rib />, description: 'Adds a thin-walled support between a sketched contour and the body.', onSelect: t(() => st.startRib()) },
     { label: 'Measure', icon: <Icon.Measure />, description: 'Measures distance, angle, radius and size of and between lines, points, surfaces and planes.', onSelect: t(() => st.setDialog('measure')) },
     { label: 'Mass Properties', icon: <Icon.Mass />, description: 'Evaluates the mass properties of the model.', onSelect: t(() => st.setDialog('mass')) },
-    { label: 'Zoom to Fit', icon: <Icon.Fit />, description: 'Zooms the model to fit the window.', onSelect: t(() => (window as unknown as { __phlippoZoomFit?: () => void }).__phlippoZoomFit?.()) },
+    { label: 'Zoom to Fit', icon: <Icon.Fit />, description: 'Zooms the model to fit the window.', onSelect: t(() => fitActive()) },
     { label: 'Options', icon: <Icon.Options />, description: 'Changes the system and document options.', onSelect: t(() => st.setDialog('options')) },
   ];
   const asmCmds: Cmd[] = [

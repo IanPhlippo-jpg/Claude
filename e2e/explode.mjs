@@ -1,4 +1,4 @@
-// Exploded View: Explode PM, a step along Y for Plate<2>, ExplView1 in the ConfigurationManager, Collapse / Explode, reload.
+// Exploded View: Explode PM, a step along Y for Plate<2>, ExplView1 in the Configurations, Collapse / Explode, reload.
 // a coincident and a concentric mate stack the plates, the BOM lists the part, the file survives a reload.
 import { chromium } from 'playwright';
 import { mkdirSync } from 'node:fs';
@@ -135,10 +135,10 @@ const d = await page.evaluate(() => { const s = window.__phlippoStore.getState()
 check('doc stores one step, exploded, the real position unchanged', d.steps === 1 && d.exploded === true && Math.abs(d.pos - 0) < 1e-6, JSON.stringify(d));
 check('exploded body 60 up after OK', Math.abs((await box(ids[1])) - y0 - 60) < 0.01);
 check('an explode line runs from the assembled to the exploded position', await page.evaluate(() => { const c = (window.__phlippoStore.getState().rebuild.curves ?? []).filter((x) => x.dashed); return c.length === 1 && Math.abs(c[0].points[1].y - c[0].points[0].y - 60) < 0.01; }));
-await page.click('.k-manager-tab[data-tip="ConfigurationManager"]');
+await page.click('.k-manager-tab[data-tip="Configurations"]');
 await page.waitForTimeout(200);
 await expandTree();
-check('ConfigurationManager shows ExplView1 with Explode Step1', (await page.locator('.k-tree-row:has-text("ExplView1")').count()) === 1 && (await page.locator('.k-tree-row:has-text("Explode Step1")').count()) === 1);
+check('Configurations shows ExplView1 with Explode Step1', (await page.locator('.k-tree-row:has-text("ExplView1")').count()) === 1 && (await page.locator('.k-tree-row:has-text("Explode Step1")').count()) === 1);
 await page.locator('.k-tree-row:has-text("ExplView1")').click({ button: 'right' });
 await page.click('.k-menu-item:has-text("Collapse")');
 await page.waitForTimeout(400);
@@ -156,7 +156,9 @@ check('reload keeps the exploded view', (await page.evaluate(() => window.__phli
 
 console.log(`
 ${results.filter((r) => r.ok).length}/${results.length} checks passed`);
-process.exitCode = results.every((r) => r.ok) ? 0 : 1;
+const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
+if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
+process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
 for (const r of results.filter((r) => !r.ok)) console.log(' - ' + r.name + (r.info ? ' (' + r.info + ')' : ''));
 console.log('errors:', errors.length ? errors : 'none');
 await browser.close();

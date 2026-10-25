@@ -1,5 +1,5 @@
 // Block G-F (Evaluate): Performance Evaluation, Symmetry Check, Deviation Analysis, Parting Line Analysis, Compare
-// (Body Compare / Compare Documents), Check Active Document in the menu, SimulationXpress Analysis Wizard.
+// (Body Compare / Compare Documents), Check Active Document in the menu, Quick Beam Estimate Analysis Wizard.
 import { chromium } from 'playwright';
 import { mkdirSync } from 'node:fs';
 
@@ -51,7 +51,7 @@ check('two bodies', (await S(() => window.__phlippoStore.getState().rebuild.bodi
 
 // ---- Evaluate tab has the new commands
 await page.click('.k-cm-tab:has-text("Evaluate")');
-for (const l of ['Performance Evaluation', 'Symmetry Check', 'Deviation Analysis', 'Parting Line Analysis', 'Compare', 'SimulationXpress Analysis Wizard']) check(`Evaluate tab has ${l}`, (await page.locator(`.k-cm-group :text-is("${l}")`).count()) >= 1);
+for (const l of ['Performance Evaluation', 'Symmetry Check', 'Deviation Analysis', 'Parting Line Analysis', 'Compare', 'Quick Beam Estimate']) check(`Evaluate tab has ${l}`, (await page.locator(`.k-cm-group :text-is("${l}")`).count()) >= 1);
 await shot('gf0-evaluate-tab');
 
 // ---- Performance Evaluation
@@ -119,13 +119,13 @@ await page.locator('[data-testid="compare-dialog"] .k-btn:has-text("Close")').cl
 await page.hover('.k-brand');
 await page.click('.k-mb-menu:has-text("Tools")');
 await page.waitForTimeout(150);
-for (const l of ['Evaluate ▸ Check Active Document…', 'Evaluate ▸ Performance Evaluation…', 'Evaluate ▸ Symmetry Check…', 'Evaluate ▸ Compare ▸ Body Compare…', 'Evaluate ▸ SimulationXpress Analysis Wizard…']) check(`Tools menu has ${l}`, (await page.locator(`.k-menu-item:has-text("${l}")`).count()) === 1);
+for (const l of ['Evaluate ▸ Check Active Document…', 'Evaluate ▸ Performance Evaluation…', 'Evaluate ▸ Symmetry Check…', 'Evaluate ▸ Compare ▸ Body Compare…', 'Evaluate ▸ Quick Beam Estimate…']) check(`Tools menu has ${l}`, (await page.locator(`.k-menu-item:has-text("${l}")`).count()) === 1);
 await page.keyboard.press('Escape');
 
-// ---- SimulationXpress: fix the left end face, 100 N on the top face of the 100 mm beam
-await page.click('.k-cm-big:has-text("SimulationXpress Analysis Wizard") .k-cm-main');
+// ---- Quick Beam Estimate: fix the left end face, 100 N on the top face of the 100 mm beam
+await page.click('.k-cm-big:has-text("Quick Beam Estimate") .k-cm-main');
 await page.waitForTimeout(300);
-check('SimulationXpress wizard: six steps, Welcome first', (await page.locator('[data-testid="simx-steps"] span').count()) === 6);
+check('Quick Beam Estimate wizard: six steps, Welcome first', (await page.locator('[data-testid="simx-steps"] span').count()) === 6);
 await page.locator('[data-testid="simx-next"]').click();
 // fixture: the face at x = 0 of the first beam
 await S(() => { const s = window.__phlippoStore.getState(); const b = s.rebuild.bodies.find((x) => x.faces.some((f) => Math.abs(f.centroid[0]) < 0.1 && Math.abs(f.centroid[1] - 5) < 0.1)); const f = b.faces.find((x) => Math.abs(x.centroid[0]) < 0.1 && Math.abs(x.centroid[1] - 5) < 0.1); s.setSelectedFace({ bodyId: b.id, faceId: f.id }); });
@@ -145,11 +145,15 @@ await page.locator('[data-testid="simx-next"]').click();
 await page.waitForTimeout(300);
 const res = (await text('[data-testid="simx-results"]')).replace(/\s+/g, ' ');
 // the load acts at the top face centre (x 50): M = 100 · 50 = 5000 N·mm, σ = 5000 · 5 / 833 = 30 MPa, FOS = 220 / 30 ≈ 7
-check('SimulationXpress results: FOS ≈ 7, stress ≈ 30 MPa, displacement, beam model', /Factor of safety/.test(res) && /von Mises stress \(max\) 3\d\.\d+ MPa/.test(res) && /span 50\.\d mm/.test(res), res);
+check('Quick Beam Estimate results: FOS ≈ 7, stress ≈ 30 MPa, displacement, beam model', /Factor of safety/.test(res) && /von Mises stress \(max\) 3\d\.\d+ MPa/.test(res) && /span 50\.\d mm/.test(res), res);
+const dlgText = await text('[data-testid="simxpress-dialog"]');
+check('Quick Beam Estimate is marked indicative and makes no safety claim (F56)', /Indicative estimate/.test(dlgText) && !/should be safe/i.test(dlgText) && /does not show that the part is safe|not a safety assessment/.test(dlgText), dlgText.slice(-200));
 await shot('gf6-simxpress');
 await page.locator('[data-testid="simxpress-dialog"] .k-btn:has-text("Close")').click();
 
 console.log(results.filter((r) => r.ok).length + '/' + results.length + ' passed');
-process.exitCode = results.every((r) => r.ok) ? 0 : 1;
+const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
+if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
+process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
 if (errors.length) console.log('ERRORS', errors.slice(0, 5));
 await browser.close();

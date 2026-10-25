@@ -33,6 +33,7 @@ export function SheetFormatDialog() {
     // Custom sheet size: the given width and height (the sheet format scales with it)
     if (custom && d.sheets) d.sheets[0] = { ...d.sheets[0], customSize: [Math.max(50, cw), Math.max(50, ch)] };
     st.openDocument(d);
+    if (useStore.getState().doc.kind !== 'drawing') return; // refused (validation): the dialog stays
     st.setDialog(null);
     // Start command when creating new drawing (Model View ▸ Options)
     if (getPref('drawing.startModelView') !== false) st.startModelView();

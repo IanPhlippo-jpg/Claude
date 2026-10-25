@@ -1,5 +1,5 @@
 // Sketch commands that were "later": Partial Ellipse, Parabola, Conic, Style Spline, Equation Driven Curve,
-// Fully Define Sketch, Instant2D, Rapid Sketch and the Perspective view.
+// Fully Define Sketch, Drag Dimensions, Rapid Sketch and the Perspective view.
 import { chromium } from 'playwright';
 import { mkdirSync } from 'node:fs';
 
@@ -61,7 +61,7 @@ await page.waitForTimeout(200);
 E = await ents();
 check('Style Spline is a Bezier spline', E.some((e) => e.kind === 'spline' && e.style), JSON.stringify(E));
 
-// Equation Driven Curve through the PropertyManager
+// Equation Driven Curve through the Property Panel
 await tool('equationCurve');
 await page.waitForTimeout(200);
 await page.fill('[data-testid="eq-expr"]', '5*sin(x/5)');
@@ -90,12 +90,12 @@ const fd = await page.evaluate(() => { const s = window.__phlippoStore.getState(
 check('Fully Define Sketch: the sketch becomes fully defined', dof0 > 0 && fd.dof === 0 && fd.status === 'full', JSON.stringify({ dof0, ...fd }));
 await page.screenshot({ path: `${OUT}/fullydefine.png` });
 
-// Instant2D: drag the handle of a length dimension
-await page.click('.k-cm-big:has-text("Instant2D")');
+// Drag Dimensions: drag the handle of a length dimension
+await page.click('.k-cm-big:has-text("Drag Dimensions")');
 const dim = await page.evaluate(() => { const s = window.__phlippoStore.getState(); const sk = s.doc.sketches[s.activeSketchId]; const c = sk.constraintOrder.map((id) => sk.constraints[id]).find((k) => k.kind === 'length'); s.selectConstraint(c.id); return { id: c.id, v: c.value }; });
 await page.waitForTimeout(300);
 const grip = await page.locator('[data-testid="instant2d-grip"]').boundingBox();
-check('Instant2D shows a drag handle on the selected dimension', !!grip);
+check('Drag Dimensions shows a drag handle on the selected dimension', !!grip);
 if (grip) {
   const sc = await page.evaluate(() => window.__phlippoCamera?.scale ?? null);
   await page.mouse.move(grip.x + grip.width / 2, grip.y + grip.height / 2);
@@ -105,7 +105,7 @@ if (grip) {
   await page.mouse.up();
   await page.waitForTimeout(400);
   const v1 = await page.evaluate((id) => { const s = window.__phlippoStore.getState(); return s.doc.sketches[s.activeSketchId].constraints[id].value; }, dim.id);
-  check('dragging the Instant2D handle changes the dimension value', Math.abs(v1 - dim.v) >= 1, JSON.stringify({ before: dim.v, after: v1, sc }));
+  check('dragging the Drag Dimensions handle changes the dimension value', Math.abs(v1 - dim.v) >= 1, JSON.stringify({ before: dim.v, after: v1, sc }));
 }
 
 // Rapid Sketch: with a tool active, clicking the Right Plane edge-on is not possible here, so switch via the store hook
@@ -131,7 +131,9 @@ check('picking still works in perspective (sketch point projects into the viewpo
 
 console.log(`
 ${results.filter((r) => r.ok).length}/${results.length} checks passed`);
-process.exitCode = results.every((r) => r.ok) ? 0 : 1;
+const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
+if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
+process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
 for (const r of results.filter((r) => !r.ok)) console.log(' - ' + r.name + (r.info ? ' (' + r.info + ')' : ''));
 console.log('errors:', errors.length ? errors : 'none');
 await browser.close();

@@ -110,7 +110,7 @@ function ToolboxFolder() {
           </div>
           <div className="k-pm-valuerow" style={{ marginTop: 4 }}>
             <Button variant="primary" data-testid="toolbox-insert" disabled={st.doc.kind !== 'assembly'} tip="Insert into the assembly (click to place)" onClick={() => { st.startInsertComponent(); st.setInsertGhost({ part: part(), rotation: [0, 0, 0, 1] }); }}>Insert</Button>
-            <Button tip="Open the part" onClick={() => st.openDocument(part())}>Open</Button>
+            <Button tip="Open the part" onClick={() => withUnsavedCheck(() => useStore.getState().openDocument(part()))}>Open</Button>
           </div>
         </div>
       )}

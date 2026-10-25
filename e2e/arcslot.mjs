@@ -1,4 +1,4 @@
-// 3 Point Arc Slot drawn with clicks (closed slot, extrudes), Repair Sketch, Boundary Boss and the Sensor PropertyManager.
+// 3 Point Arc Slot drawn with clicks (closed slot, extrudes), Repair Sketch, Boundary Boss and the Sensor Property Panel.
 import { chromium } from 'playwright';
 import { mkdirSync } from 'node:fs';
 
@@ -66,7 +66,9 @@ check('Sensor PM adds a volume sensor', sensors.length === 1, JSON.stringify(sen
 
 console.log(`
 ${results.filter((r) => r.ok).length}/${results.length} checks passed`);
-process.exitCode = results.every((r) => r.ok) ? 0 : 1;
+const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
+if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
+process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
 for (const r of results.filter((r) => !r.ok)) console.log(' - ' + r.name + (r.info ? ' (' + r.info + ')' : ''));
 console.log('errors:', errors.length ? errors : 'none');
 await browser.close();

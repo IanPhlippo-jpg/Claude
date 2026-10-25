@@ -1,4 +1,4 @@
-// look-dev: Corner Rectangle just drawn on the Top Plane, like reference frame f_0070 (Rectangle PropertyManager)
+// look-dev: Corner Rectangle just drawn on the Top Plane, like reference frame f_0070 (Rectangle Property Panel)
 import { chromium } from 'playwright';
 const browser = await chromium.launch({ channel: process.env.PW_CHANNEL ?? 'msedge' });
 const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } });

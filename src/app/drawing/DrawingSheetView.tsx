@@ -1,3 +1,4 @@
+import { bridge } from '../viewport/bridge';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useStore } from '../store';
 import { Icon } from '../../ui/icons';
@@ -67,8 +68,10 @@ export function DrawingSheetView() {
   useEffect(() => {
     if (!manualZoom.current) fit();
   }, [fit]);
+  // Zoom to Sheet (F, the ribbon, the menu) while the sheet is shown; the model's Zoom to Fit returns when it closes
   useEffect(() => {
-    (window as unknown as { __phlippoZoomFit?: () => void }).__phlippoZoomFit = fit;
+    bridge.sheetFit = fit;
+    return () => { if (bridge.sheetFit === fit) bridge.sheetFit = undefined; };
   }, [fit]);
   const z = zoom ?? { k: 1, x: 0, y: 0 };
   // sheet mm -> screen px (sheet origin bottom-left)
@@ -78,9 +81,9 @@ export function DrawingSheetView() {
     const r = hostRef.current!.getBoundingClientRect();
     return [e.clientX - r.left, e.clientY - r.top];
   };
-  // test hook: sheet mm <-> screen px of the sheet host
+  // sheet mm <-> screen px of the sheet host (for the test hooks)
   useEffect(() => {
-    (window as unknown as { __phlippoSheet?: unknown }).__phlippoSheet = { toPx: (p: [number, number]) => { const r = hostRef.current!.getBoundingClientRect(); const q = toPx(p); return { x: q[0] + r.left, y: q[1] + r.top }; }, toSheet, viewToSheet: (viewId: string, p: [number, number]) => { const v = sheet?.views.find((x) => x.id === viewId); return v && sheet ? viewToSheet(sheet, v, viewGeometry(v), p) : null; }, bounds: (viewId: string) => { const v = sheet?.views.find((x) => x.id === viewId); return v && sheet ? viewBounds(sheet, v, viewGeometry(v)) : null; } };
+    bridge.sheet = { toPx: (p: [number, number]) => { const r = hostRef.current!.getBoundingClientRect(); const q = toPx(p); return { x: q[0] + r.left, y: q[1] + r.top }; }, toSheet, viewToSheet: (viewId: string, p: [number, number]) => { const v = sheet?.views.find((x) => x.id === viewId); return v && sheet ? viewToSheet(sheet, v, viewGeometry(v), p) : null; }, bounds: (viewId: string) => { const v = sheet?.views.find((x) => x.id === viewId); return v && sheet ? viewBounds(sheet, v, viewGeometry(v)) : null; } };
   });
   const de = st.drawingEdit;
   const firstAngle = st.prefs['doc.standard'] === 'ISO' || st.prefs['doc.standard'] === 'DIN';

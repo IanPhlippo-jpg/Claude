@@ -29,7 +29,7 @@ function Header({ title, icon, onOk, onCancel, extra }: { title: string; icon: R
 const MATE_LABEL: Record<string, string> = { coincident: 'Coincident', parallel: 'Parallel', perpendicular: 'Perpendicular', tangent: 'Tangent', concentric: 'Concentric', lock: 'Lock', distance: 'Distance', angle: 'Angle', profileCenter: 'Profile Center', symmetric: 'Symmetric', width: 'Width', path: 'Path Mate', linearCoupler: 'Linear/Linear Coupler', distanceLimit: 'Distance (limit)', angleLimit: 'Angle (limit)', cam: 'Cam', slot: 'Slot', hinge: 'Hinge', gear: 'Gear', rackPinion: 'Rack Pinion', screw: 'Screw', universalJoint: 'Universal Joint' };
 
 /**
- * Mate PropertyManager as SOLIDWORKS 2026: tabs Advanced / Analysis over Standard / Mechanical, Mate Selections,
+ * Mate PropertyManager as the reference CAD workflow: tabs Advanced / Analysis over Standard / Mechanical, Mate Selections,
  * Mate Type (Coincident … Lock with Lock rotation under Concentric, Distance and Angle as value rows, Mate alignment),
  * Mates, Options; the title names the mate being made (Concentric3); ✓ ✗ ↶ (undo the last selection) and the push pin.
  */

@@ -52,12 +52,25 @@ window.addEventListener('resize',draw);draw();
 })();
 `;
 
+/** a CSS colour for the viewer: only #rgb / #rrggbb pass; anything else becomes the default grey */
+export function safeColor(c: string | undefined): string {
+  return c && /^#[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$/.test(c) ? c.toLowerCase() : '#cfd3d8';
+}
+
+/**
+ * JSON for inside a <script> block: `<`, `>`, `&` and the line separators are written as \uXXXX escapes, so a
+ * document or body name such as `</script><script>…` can never end the script block (stored XSS in the exported file).
+ */
+export function scriptJson(value: unknown): string {
+  return JSON.stringify(value).replace(/[<>&\u2028\u2029]/g, (ch) => '\\u' + ch.charCodeAt(0).toString(16).padStart(4, '0'));
+}
+
 /** the standalone viewer page for the bodies */
 export function viewerHtml(docName: string, bodies: ViewerBody[], meta: { app: string; version: string; date?: string } = { app: 'Phlippo CAD', version: '' }): string {
-  const model = { name: docName, bodies: bodies.map((b) => ({ name: b.name, color: b.color, tris: bodyTriangles(b.geometry) })) };
+  const model = { name: docName, bodies: bodies.map((b) => ({ name: b.name, color: safeColor(b.color), tris: bodyTriangles(b.geometry) })) };
   const tris = model.bodies.reduce((a, b) => a + b.tris.length / 9, 0);
   return `<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${esc(docName)} - Phlippo Viewer</title>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:"><title>${esc(docName)} - Phlippo Viewer</title>
 <style>
 html,body{margin:0;height:100%;font:12px/1.4 "Segoe UI",system-ui,sans-serif;color:#1a1a1a;background:#f4f5f7}
 #bar{display:flex;align-items:center;gap:10px;padding:6px 10px;background:#fff;border-bottom:1px solid #c9ced6}
@@ -68,8 +81,8 @@ html,body{margin:0;height:100%;font:12px/1.4 "Segoe UI",system-ui,sans-serif;col
 <div id="bar"><b>${esc(docName)}</b><span style="color:#666">Phlippo Viewer</span>
 <button id="v-front">Front</button><button id="v-top">Top</button><button id="v-right">Right</button><button id="v-iso">Isometric</button><button id="fit">Zoom to Fit</button>
 <label><input type="checkbox" id="shaded" checked> Shaded</label><label><input type="checkbox" id="edges" checked> Edges</label><label><input type="checkbox" id="measure"> Measure (click two points)</label><span id="info"></span></div>
-<div id="wrap"><div id="side"><b>Bodies</b><div id="bodies"></div><div id="foot">${tris} triangles · published by ${esc(meta.app)} ${esc(meta.version)}${meta.date ? ` · ${esc(meta.date)}` : ''}<br>Left drag: rotate · right drag: pan · wheel: zoom</div></div><canvas id="v"></canvas></div>
-<script>window.__PHLIPPO_MODEL__=${JSON.stringify(model)};</script>
+<div id="wrap"><div id="side"><b>Bodies</b><div id="bodies"></div><div id="foot">${tris} triangles · published by ${esc(meta.app)} ${esc(meta.version)}${meta.date ? ` · ${esc(meta.date)}` : ''}<br>Left drag: rotate · right drag: pan · wheel: zoom<br>Phlippo Viewer is part of Phlippo CAD, an independent product that is not affiliated with or endorsed by Dassault Systèmes SolidWorks Corp.</div></div><canvas id="v"></canvas></div>
+<script>window.__PHLIPPO_MODEL__=${scriptJson(model)};</script>
 <script>${VIEWER_SCRIPT}</script>
 </body></html>`;
 }

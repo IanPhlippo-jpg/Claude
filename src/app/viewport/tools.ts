@@ -700,7 +700,7 @@ export class ToolController {
         const { p } = this.applySnap(ctx, info.p, null);
         const o = this.textOptions;
         if (!o.text.trim()) {
-          ctx.message('Type the text in the Sketch Text PropertyManager first.');
+          ctx.message('Type the text in the Sketch Text Property Panel first.');
           return;
         }
         ctx.commit('Sketch Text', (s) => addText(s, p, o.text, o.height, { bold: o.bold, widthFactor: o.widthFactor, spacing: o.spacing, angle: o.angle })[0]);

@@ -1,3 +1,4 @@
+import { LEGAL_NOTICE } from './legal';
 import { getPref } from './prefs';
 import { sketchDimensionName } from '../core/document/equations';
 import { useEffect, useRef, useState } from 'react';
@@ -83,6 +84,7 @@ export function WelcomeDialog() {
               <li onClick={() => { st.setDialog(null); st.setPanel('shortcuts', { visible: true }); }}><Icon.Keyboard /> Keyboard shortcuts</li>
               <li onClick={() => { st.setDialog(null); st.setDialog('options'); }}><Icon.Options /> Options</li>
             </ul>
+            <p className="k-muted k-legal" data-testid="welcome-legal">{LEGAL_NOTICE}</p>
           </div>
         </div>
       )}
@@ -376,7 +378,7 @@ export function ConfirmDeleteDialog() {
             <button className="k-btn" onClick={yes}>Yes to All</button>
             <button className="k-btn" onClick={() => st.closeConfirmDelete()}>No</button>
             <button className="k-btn" onClick={() => st.closeConfirmDelete()}>Cancel</button>
-            <button className="k-btn" onClick={() => st.pushMessage('Confirm Delete: the selected item is removed from the FeatureManager design tree. Child features use it; absorbed features (the sketch) are consumed by it.', 'info')}>Help</button>
+            <button className="k-btn" onClick={() => st.pushMessage('Confirm Delete: the selected item is removed from the Feature Tree. Child features use it; absorbed features (the sketch) are consumed by it.', 'info')}>Help</button>
           </div>
         </div>
       </div>

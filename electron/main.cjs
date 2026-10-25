@@ -7,20 +7,40 @@
 // - every write is atomic (temp file, then rename) and keeps the previous file as .bak;
 // - the window never navigates away from the app and opens no child windows;
 // - IPC is only taken from the app's own frame.
-const { app, BrowserWindow, ipcMain, dialog, shell, session } = require('electron');
+const { app, BrowserWindow, Menu, ipcMain, dialog, shell, session } = require('electron');
 const path = require('node:path');
 const fs = require('node:fs/promises');
+const { pathToFileURL } = require('node:url');
+const { randomUUID } = require('node:crypto');
 
-const DEV_URL = process.env.VITE_DEV_SERVER_URL;
-const SMOKE = process.env.PHLIPPO_SMOKE; // path of a screenshot to write, then quit (used by the checks)
-const E2E = process.env.PHLIPPO_E2E === '1'; // the test hooks (window.__phlippoStore …) only exist with this
+// the development switches (dev server, smoke screenshot, test hooks) are only read by an unpackaged app:
+// the installed program ignores its environment
+const PACKAGED = app.isPackaged;
+const DEV_URL = PACKAGED ? undefined : process.env.VITE_DEV_SERVER_URL;
+const SMOKE = PACKAGED ? undefined : process.env.PHLIPPO_SMOKE; // path of a screenshot to write, then quit (used by the checks)
+const E2E = !PACKAGED && process.env.PHLIPPO_E2E === '1'; // the test hooks (window.__phlippoStore …) only exist with this
 const APP_INDEX = path.join(__dirname, '..', 'dist', 'index.html');
+const APP_URL = pathToFileURL(APP_INDEX).href;
+/** https links the app may hand to the system browser (Help ▸ …); everything else is dropped */
+const EXTERNAL_ALLOW = [/^https:\/\/github\.com\//i, /^https:\/\/(www\.)?phlippo\.be\//i];
+// no application menu: the app draws its own menu bar, and the default menu would offer DevTools and Reload
+Menu.setApplicationMenu(null);
 const MAX_FILE_BYTES = 64 * 1024 * 1024;
 
 /** @type {BrowserWindow | null} */
 let win = null;
-/** paths this process chose (dialogs, the file the app was started with): the only paths Save may write to */
-const knownPaths = new Set();
+/** paths this process chose (dialogs, the file the app was started with), by an opaque handle: the renderer only ever sees the handle */
+const handles = new Map();
+const pathHandles = new Map();
+function handleOf(file) {
+  let h = pathHandles.get(file);
+  if (!h) {
+    h = randomUUID();
+    handles.set(h, file);
+    pathHandles.set(file, h);
+  }
+  return h;
+}
 /** the renderer says whether the document has unsaved changes; closing then asks first */
 let dirty = false;
 let forceClose = false;
@@ -31,38 +51,80 @@ function kcadFromArgv(argv) {
   return argv.slice(1).find((a) => /\.kcad$/i.test(a) && !a.startsWith('-')) ?? null;
 }
 
-/** IPC only from the app's own frame: the dev server or the packaged index.html */
+/** IPC only from the app's own top frame: exactly the dev server page or the packaged index.html (no other file:// page) */
+function ownUrl(url) {
+  const u = String(url || '').split('#')[0];
+  if (DEV_URL) {
+    try {
+      const a = new URL(u), b = new URL(DEV_URL);
+      return a.origin === b.origin && (a.pathname === '/' || a.pathname === b.pathname);
+    } catch {
+      return false;
+    }
+  }
+  return u.split('?')[0].toLowerCase() === APP_URL.toLowerCase();
+}
 function trusted(e) {
-  const url = e.senderFrame?.url ?? '';
-  if (DEV_URL) return url.startsWith(DEV_URL);
-  return url.startsWith('file://') && decodeURIComponent(url).replace(/^file:\/\/\/?/, '').replace(/\//g, path.sep).toLowerCase().includes(path.join('dist', 'index.html').toLowerCase());
+  const frame = e.senderFrame;
+  if (!frame || frame.parent) return false; // only the top frame
+  return !!win && e.sender === win.webContents && ownUrl(frame.url);
 }
 
 async function readForOpen(file) {
   const stat = await fs.stat(file);
   if (stat.size > MAX_FILE_BYTES) throw new Error(`The file is larger than ${Math.round(MAX_FILE_BYTES / 1024 / 1024)} MB.`);
   const data = await fs.readFile(file);
-  knownPaths.add(file);
-  return { name: path.basename(file), path: file, data: data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength) };
+  return { name: path.basename(file), handle: handleOf(file), data: data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength) };
 }
 
-/** write the new contents next to the file, keep the old file as .bak, then swap: a failed save never damages the original */
+/**
+ * Write the new contents next to the file (flushed to disk), keep the previous file as .bak and the one before as
+ * .bak2, then swap. A failed save never damages the original and leaves no temp file; a backup that could not be
+ * made is reported (warning) instead of ignored.
+ */
 async function atomicWrite(file, data) {
-  const tmp = `${file}.tmp-${process.pid}`;
-  await fs.writeFile(tmp, Buffer.from(data));
+  const tmp = `${file}.tmp-${process.pid}-${Date.now()}`;
+  let warning;
   try {
-    await fs.copyFile(file, `${file}.bak`);
-  } catch {
-    /* no previous file */
+    const fh = await fs.open(tmp, 'w');
+    try {
+      await fh.writeFile(Buffer.from(data));
+      await fh.sync();
+    } finally {
+      await fh.close();
+    }
+    let hadPrevious = true;
+    try {
+      await fs.access(file);
+    } catch {
+      hadPrevious = false;
+    }
+    if (hadPrevious) {
+      try {
+        await fs.rm(`${file}.bak2`, { force: true });
+        try {
+          await fs.rename(`${file}.bak`, `${file}.bak2`);
+        } catch (err) {
+          if (err.code !== 'ENOENT') throw err;
+        }
+        await fs.copyFile(file, `${file}.bak`);
+      } catch (err) {
+        warning = `the backup copy (.bak) could not be made: ${err.message ?? err}`;
+      }
+    }
+    await fs.rename(tmp, file);
+  } catch (err) {
+    await fs.rm(tmp, { force: true }).catch(() => {});
+    throw err;
   }
-  await fs.rename(tmp, file);
+  return warning;
 }
 
 function sendOpen(file) {
   if (!win) return;
   readForOpen(file)
     .then((f) => win && win.webContents.send('file:opened', f))
-    .catch((err) => win && win.webContents.send('file:opened', { name: path.basename(file), path: file, error: String(err.message ?? err) }));
+    .catch((err) => win && win.webContents.send('file:opened', { name: path.basename(file), handle: '', error: String(err.message ?? err) }));
 }
 
 function createWindow() {
@@ -81,6 +143,8 @@ function createWindow() {
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: true,
+      // the installed program has no developer tools (F67); the development shell keeps them
+      devTools: !PACKAGED,
       additionalArguments: E2E ? ['--phlippo-e2e'] : [],
     },
   });
@@ -102,17 +166,19 @@ function createWindow() {
   win.on('closed', () => {
     win = null;
   });
-  // no child windows; http(s) links go to the system browser
+  // no child windows; only allow-listed https links go to the system browser
   win.webContents.setWindowOpenHandler(({ url }) => {
-    if (/^https:\/\//i.test(url)) shell.openExternal(url);
+    if (EXTERNAL_ALLOW.some((re) => re.test(url))) shell.openExternal(url);
     return { action: 'deny' };
   });
-  // the window shows the app and nothing else
-  win.webContents.on('will-navigate', (e, url) => {
-    const own = DEV_URL ? url.startsWith(DEV_URL) : url.startsWith('file://');
-    if (!own) e.preventDefault();
-  });
+  // the window shows the app and nothing else: no navigation at all (a dropped .html, a typed URL, a redirect)
+  win.webContents.on('will-navigate', (e) => e.preventDefault());
   win.webContents.on('will-redirect', (e) => e.preventDefault());
+  win.webContents.on('will-frame-navigate', (e) => e.preventDefault());
+  // DevTools shortcuts (Ctrl+Shift+I, F12) do nothing in the installed program
+  win.webContents.on('before-input-event', (e, input) => {
+    if (PACKAGED && input.type === 'keyDown' && ((input.control && input.shift && /^[IJC]$/i.test(input.key)) || input.key === 'F12')) e.preventDefault();
+  });
   if (DEV_URL) win.loadURL(DEV_URL);
   else win.loadFile(APP_INDEX);
   win.webContents.once('did-finish-load', async () => {
@@ -183,36 +249,36 @@ ipcMain.handle('file:open', async (e, filters) => {
   try {
     return await readForOpen(r.filePaths[0]);
   } catch (err) {
-    return { name: path.basename(r.filePaths[0]), path: r.filePaths[0], error: String(err.message ?? err) };
+    return { name: path.basename(r.filePaths[0]), handle: '', error: String(err.message ?? err) };
   }
 });
-ipcMain.handle('file:save', async (e, { defaultPath, filters, data, path: known }) => {
+ipcMain.handle('file:save', async (e, { defaultPath, filters, data, handle: known }) => {
   if (!trusted(e) || !win) return null;
-  // the renderer may only name a path this process handed out before; anything else goes through the dialog
-  let file = known && knownPaths.has(known) ? known : null;
+  if (!(data instanceof ArrayBuffer) || data.byteLength > MAX_FILE_BYTES) return { name: String(defaultPath ?? ''), handle: '', error: 'The document is too large to save.' };
+  // the renderer may only name a handle this process handed out before; anything else goes through the dialog
+  let file = typeof known === 'string' && handles.has(known) ? handles.get(known) : null;
   if (!file) {
-    const r = await dialog.showSaveDialog(win, { defaultPath, filters });
+    const r = await dialog.showSaveDialog(win, { defaultPath: path.basename(String(defaultPath ?? 'Part1.kcad')), filters });
     if (r.canceled || !r.filePath) return null;
     file = r.filePath;
   }
   try {
-    await atomicWrite(file, data);
-    knownPaths.add(file);
-    return { name: path.basename(file), path: file };
+    const warning = await atomicWrite(file, data);
+    return { name: path.basename(file), handle: handleOf(file), warning };
   } catch (err) {
-    return { name: path.basename(file), path: file, error: String(err.message ?? err) };
+    return { name: path.basename(file), handle: '', error: String(err.message ?? err) };
   }
 });
 ipcMain.handle('file:saveAs', async (e, { defaultPath, filters, data }) => {
   if (!trusted(e) || !win) return null;
-  const r = await dialog.showSaveDialog(win, { defaultPath, filters });
+  if (!(data instanceof ArrayBuffer) || data.byteLength > MAX_FILE_BYTES) return { name: String(defaultPath ?? ''), handle: '', error: 'The document is too large to save.' };
+  const r = await dialog.showSaveDialog(win, { defaultPath: path.basename(String(defaultPath ?? 'Part1.kcad')), filters });
   if (r.canceled || !r.filePath) return null;
   try {
-    await atomicWrite(r.filePath, data);
-    knownPaths.add(r.filePath);
-    return { name: path.basename(r.filePath), path: r.filePath };
+    const warning = await atomicWrite(r.filePath, data);
+    return { name: path.basename(r.filePath), handle: handleOf(r.filePath), warning };
   } catch (err) {
-    return { name: path.basename(r.filePath), path: r.filePath, error: String(err.message ?? err) };
+    return { name: path.basename(r.filePath), handle: '', error: String(err.message ?? err) };
   }
 });
 

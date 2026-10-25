@@ -13,8 +13,9 @@ export function sensorReading(doc: Document, bodies: Body[], sn: Sensor): { valu
     return d ? { value: d.value, text: `${d.value.toFixed(2)}${doc.units}` } : { value: NaN, text: 'dimension not found' };
   }
   if (sn.kind === 'interference') {
-    const n = detectInterferences(bodies.filter((b) => !(doc.components ?? []).some((c) => c.id === b.id && c.envelope))).length;
-    return { value: n, text: n ? `${n} interference${n === 1 ? '' : 's'}` : 'no interferences' };
+    const all = detectInterferences(bodies.filter((b) => !(doc.components ?? []).some((c) => c.id === b.id && c.envelope)));
+    const n = all.filter((r) => !r.failed).length, unchecked = all.length - n;
+    return { value: n, text: (n ? `${n} interference${n === 1 ? '' : 's'}` : 'no interferences') + (unchecked ? ` (${unchecked} pair${unchecked === 1 ? '' : 's'} not checked)` : '') };
   }
   let mass = 0, volume = 0, area = 0;
   for (const b of bodies) {

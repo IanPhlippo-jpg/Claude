@@ -57,7 +57,7 @@ check('draft stored on the feature', (await page.evaluate(() => window.__phlippo
 // Rib without a sketch: the warning
 await page.click('.k-cm-small:has-text("Rib")');
 await page.waitForTimeout(200);
-check('Rib opens its PropertyManager (Parameters, Thickness, Extrusion direction)', (await page.locator('.k-pm-title').innerText()).includes('Rib1') && (await page.locator('.k-section:has-text("Parameters")').count()) === 1);
+check('Rib opens its Property Panel (Parameters, Thickness, Extrusion direction)', (await page.locator('.k-pm-title').innerText()).includes('Rib1') && (await page.locator('.k-section:has-text("Parameters")').count()) === 1);
 await shot('r1-rib-pm-empty');
 await page.click('.k-pm-cancel');
 await page.waitForTimeout(200);
@@ -119,7 +119,9 @@ check('document still has the features', dims >= 3);
 
 console.log(`
 ${results.filter((r) => r.ok).length}/${results.length} checks passed`);
-process.exitCode = results.every((r) => r.ok) ? 0 : 1;
+const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
+if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
+process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
 for (const r of results.filter((r) => !r.ok)) console.log(' - ' + r.name + (r.info ? ' (' + r.info + ')' : ''));
 console.log('errors:', errors.length ? errors : 'none');
 await browser.close();

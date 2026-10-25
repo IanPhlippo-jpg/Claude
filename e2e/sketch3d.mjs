@@ -1,5 +1,5 @@
 // 3D Sketch and Loft guide curves through the UI: a bent pipe path drawn in space (Tab switches the plane),
-// a circle swept along it; then a vase loft with a guide curve picked in the Loft PropertyManager.
+// a circle swept along it; then a vase loft with a guide curve picked in the Loft Property Panel.
 import { chromium } from 'playwright';
 import { mkdirSync } from 'node:fs';
 
@@ -27,7 +27,7 @@ await page.click('.k-cm-tab:has-text("Sketch")');
 await page.locator('.k-cm-big:has-text("Sketch") .k-cm-arrow').first().click();
 await page.click('.k-menu-item:has-text("3D Sketch")');
 await page.waitForTimeout(300);
-check('3D Sketch PropertyManager (3DSketch1, XY plane)', (await page.locator('[data-testid="sketch3d-pm"]').count()) === 1 && (await page.locator('[data-testid="sketch3d-pm"] .k-pm-stylebtn.active').innerText()) === 'XY');
+check('3D Sketch Property Panel (3DSketch1, XY plane)', (await page.locator('[data-testid="sketch3d-pm"]').count()) === 1 && (await page.locator('[data-testid="sketch3d-pm"] .k-pm-stylebtn.active').innerText()) === 'XY');
 const W = (x, y, z) => page.evaluate(([x, y, z]) => window.__phlippoProjectWorld(x, y, z), [x, y, z]);
 // origin -> (60, 0, 0) -> (60, 40, 0) on XY; Tab twice (ZX) -> (60, 40, 50)
 let q = await W(0, 0, 0); await page.mouse.click(q.x, q.y);
@@ -65,7 +65,7 @@ await page.keyboard.press('f');
 await page.waitForTimeout(400);
 await shot('s3d2-sweep');
 
-// ---- Loft with a guide curve through the Loft PropertyManager
+// ---- Loft with a guide curve through the Loft Property Panel
 await page.evaluate(() => {
   const K = window.__phlippoKit;
   const d = K.createDocument('Vaas', 'part');
@@ -89,7 +89,7 @@ await page.locator('.k-tree-row:has-text("Loft1")').last().dblclick();
 await page.waitForTimeout(400);
 await page.locator('[data-testid="loft-add-guide"]').selectOption('sg');
 await page.waitForTimeout(300);
-check('guide curve listed in the Loft PropertyManager', (await page.locator('[data-testid="loft-guides"]').innerText()).includes('Sketch3'));
+check('guide curve listed in the Loft Property Panel', (await page.locator('[data-testid="loft-guides"]').innerText()).includes('Sketch3'));
 await page.click('.k-pm-ok');
 await page.waitForTimeout(800);
 r = await page.evaluate(() => { const s = window.__phlippoStore.getState(); const g = s.rebuild.bodies[0]?.geometry; if (!g) return { errors: s.rebuild.errors }; g.computeBoundingBox(); return { errors: s.rebuild.errors, max: g.boundingBox.max.toArray() }; });
@@ -101,7 +101,9 @@ await shot('s3d3-vase');
 
 console.log(`
 ${results.filter((r) => r.ok).length}/${results.length} checks passed`);
-process.exitCode = results.every((r) => r.ok) ? 0 : 1;
+const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
+if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
+process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
 for (const r of results.filter((r) => !r.ok)) console.log(' - ' + r.name + (r.info ? ' (' + r.info + ')' : ''));
 console.log('errors:', errors.length ? errors : 'none');
 await browser.close();

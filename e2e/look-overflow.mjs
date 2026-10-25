@@ -1,4 +1,4 @@
-// the CommandManager at Ian's size: » overflow on the Assembly tab, tooltip not clipped
+// the Command Ribbon at Ian's size: » overflow on the Assembly tab, tooltip not clipped
 import { chromium } from 'playwright';
 import { readFileSync } from 'node:fs';
 const browser = await chromium.launch({ channel: process.env.PW_CHANNEL ?? 'msedge' });

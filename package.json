@@ -15,7 +15,7 @@
     "desktop:start": "npm run build && electron .",
     "desktop:build": "npm run build && electron-builder --win --config.directories.output=%LOCALAPPDATA%/PhlippoCAD/release",
     "e2e:desktop": "node e2e/desktop.mjs",
-    "e2e:regression": "bash e2e-out/run-regression.sh",
+    "e2e:regression": "node e2e/run-regression.mjs",
     "ci": "npm run typecheck && npm run test && npm run build"
   },
   "dependencies": {
@@ -57,12 +57,16 @@
       "electron/**",
       "package.json"
     ],
+    "extraFiles": [
+      "LICENSE.txt",
+      "THIRD-PARTY-NOTICES.txt"
+    ],
     "asar": true,
     "electronFuses": {
       "runAsNode": false,
       "enableCookieEncryption": true,
       "enableNodeOptionsEnvironmentVariable": false,
-      "enableNodeCliInspectArguments": true,
+      "enableNodeCliInspectArguments": false,
       "enableEmbeddedAsarIntegrityValidation": true,
       "onlyLoadAppFromAsar": true
     },
@@ -85,6 +89,7 @@
     },
     "nsis": {
       "oneClick": false,
+      "license": "LICENSE.txt",
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,

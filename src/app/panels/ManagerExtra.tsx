@@ -25,7 +25,7 @@ export function DimXpertManagerBody() {
       icon: <Icon.Part />,
       label: <span>{st.doc.name} (Default)</span>,
       children: [
-        { id: 'dx-scheme', icon: <Icon.Dimension />, label: <span>{dx ? `${dx.toleranceType === 'geometric' ? 'Geometric' : 'Plus and Minus'} scheme · ${dx.partType}` : `Auto Dimension Scheme (${dims.length} model dimensions)`}</span> },
+        { id: 'dx-scheme', icon: <Icon.Dimension />, label: <span>{dx ? `${dx.toleranceType === 'geometric' ? 'Geometric' : 'Plus and Minus'} scheme · ${dx.partType}` : `Model dimensions (${dims.length})`}</span> },
         // the model's own dimensions per feature (what the scheme is built from), as before the scheme exists
         ...[...byOwner.entries()].map(([owner, list]): TreeNode => ({
           id: 'dx-owner-' + owner,
@@ -60,7 +60,7 @@ export function DimXpertManagerBody() {
         </div>
       )}
       <TreeView nodes={nodes} />
-      {!dx && <p className="k-muted" style={{ padding: 8 }}>No DimXpert scheme yet: run Auto Dimension Scheme or add datums and dimensions from the MBD Dimensions tab.</p>}
+      {!dx && <p className="k-muted" data-testid="dx-empty" style={{ padding: 8, whiteSpace: 'normal', overflowWrap: 'anywhere', lineHeight: 1.35 }}>No tolerance scheme yet. The model dimensions above are listed for reference; run Auto Dimension Scheme or add datums and dimensions on the MBD Dimensions tab.</p>}
     </div>
   );
 }

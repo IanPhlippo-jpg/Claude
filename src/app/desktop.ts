@@ -5,7 +5,8 @@
  */
 export interface DesktopFile {
   name: string;
-  path: string;
+  /** an opaque handle the shell gave for this file; Save passes it back. The renderer never sees the path. */
+  handle: string;
   data: ArrayBuffer;
   /** the shell could not read the file (too large, unreadable) */
   error?: string;
@@ -13,7 +14,10 @@ export interface DesktopFile {
 
 export interface DesktopSaveResult {
   name: string;
-  path: string;
+  /** opaque handle of the written file (see DesktopFile) */
+  handle: string;
+  /** the file was written but the backup (.bak) could not be made or the write could not be flushed */
+  warning?: string;
   /** the shell could not write the file; the previous file is untouched */
   error?: string;
 }
@@ -35,7 +39,7 @@ export interface DesktopApi {
   /** tell the shell whether the document has unsaved changes (closing then asks first) */
   setDirty?(value: boolean): void;
   openFile(filters: { name: string; extensions: string[] }[]): Promise<DesktopFile | null>;
-  saveFile(opts: { defaultPath: string; filters: { name: string; extensions: string[] }[]; data: ArrayBuffer; path?: string }): Promise<DesktopSaveResult | null>;
+  saveFile(opts: { defaultPath: string; filters: { name: string; extensions: string[] }[]; data: ArrayBuffer; handle?: string }): Promise<DesktopSaveResult | null>;
   saveFileAs(opts: { defaultPath: string; filters: { name: string; extensions: string[] }[]; data: ArrayBuffer }): Promise<DesktopSaveResult | null>;
 }
 
@@ -45,9 +49,9 @@ export function desktop(): DesktopApi | null {
 
 export const isDesktop = () => desktop() !== null;
 
-/** path of the document on disk (desktop only), kept per session so Save writes without asking again */
-let currentPath: string | null = null;
-export const getDocumentPath = () => currentPath;
-export const setDocumentPath = (p: string | null) => {
-  currentPath = p;
+/** handle of the document on disk (desktop only), kept per session so Save writes without asking again */
+let currentHandle: string | null = null;
+export const getDocumentHandle = () => currentHandle;
+export const setDocumentHandle = (h: string | null) => {
+  currentHandle = h;
 };

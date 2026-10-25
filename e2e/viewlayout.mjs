@@ -32,12 +32,12 @@ const v2s = (id, p) => page.evaluate(([vid, q]) => window.__phlippoSheet.viewToS
 const click = async (sheetPt) => { const q = await toPx(sheetPt); await page.mouse.click(q.x, q.y); await page.waitForTimeout(150); };
 await page.click('.k-cm-tab:has-text("Drawing")');
 
-// clicking a view on the sheet opens its PropertyManager; Display Style changes the view
+// clicking a view on the sheet opens its Property Panel; Display Style changes the view
 {
   const iso = await page.evaluate(() => window.__phlippoStore.getState().doc.sheets[0].views.find((x) => x.id === 'v4').position);
   await click(iso);
   await page.mouse.up();
-  check('clicking a view opens the Drawing View PropertyManager', (await page.locator('[data-testid="drawingview-pm"]').count()) === 1 && /Drawing View4/.test(await page.locator('[data-testid="drawingview-pm"] .k-pm-title').innerText()));
+  check('clicking a view opens the Drawing View Property Panel', (await page.locator('[data-testid="drawingview-pm"]').count()) === 1 && /Drawing View4/.test(await page.locator('[data-testid="drawingview-pm"] .k-pm-title').innerText()));
   await page.click('[data-testid="drawingview-pm"] [data-style="hiddenVisible"]');
   const ds = await page.evaluate(() => window.__phlippoStore.getState().doc.sheets[0].views.find((x) => x.id === 'v4').displayStyle);
   check('Display Style in the Drawing View PM changes the view', ds === 'hiddenVisible', ds);
@@ -52,7 +52,7 @@ let b = await bounds('v2');
 await page.evaluate(() => window.__phlippoStore.getState().selectDrawingView('v2'));
 const before = await v2s('v2', [b.min[0] + 5, b.min[1] + 2]);
 await page.click('.k-cm-small:has-text("Crop View")');
-check('Crop View opens its PropertyManager', await page.locator('[data-testid="viewtool-pm"]').count() === 1);
+check('Crop View opens its Property Panel', await page.locator('[data-testid="viewtool-pm"]').count() === 1);
 const cx0 = b.min[0] + (b.max[0] - b.min[0]) * 0.1, cx1 = b.min[0] + (b.max[0] - b.min[0]) * 0.55;
 await click(await v2s('v2', [cx0, b.min[1] - 1]));
 await click(await v2s('v2', [cx1, b.max[1] + 1]));
@@ -80,7 +80,7 @@ await shot('vl1-crop-break');
 // Auxiliary View: perpendicular to the longest slanted (else longest) visible edge of the right view (v3)
 await page.evaluate(() => window.__phlippoStore.getState().selectDrawingView('v3'));
 await page.click('.k-cm-big:has-text("Auxiliary View") .k-cm-main');
-check('Auxiliary View opens its PropertyManager', await page.locator('[data-testid="aux-pm"]').count() === 1);
+check('Auxiliary View opens its Property Panel', await page.locator('[data-testid="aux-pm"]').count() === 1);
 const edge = await page.evaluate(() => {
   const st = window.__phlippoStore.getState();
   const v = st.doc.sheets[0].views.find((x) => x.id === 'v3');
@@ -107,7 +107,7 @@ await page.click('.k-cm-tab:has-text("Drawing")');
 b = await bounds('v3');
 await page.evaluate(() => window.__phlippoStore.getState().selectDrawingView('v3'));
 await page.click('.k-cm-small:has-text("Broken-out Section")');
-check('Broken-out Section opens its PropertyManager', await page.locator('[data-testid="brokenout-pm"]').count() === 1);
+check('Broken-out Section opens its Property Panel', await page.locator('[data-testid="brokenout-pm"]').count() === 1);
 {
   const mx = (b.min[0] + b.max[0]) / 2, my = (b.min[1] + b.max[1]) / 2, hx = (b.max[0] - b.min[0]) * 0.3, hy = (b.max[1] - b.min[1]) * 0.6;
   const prof = [[mx - hx, my - hy], [mx + hx, my - hy * 0.8], [mx + hx * 1.1, my + hy], [mx - hx * 0.9, my + hy * 0.9], [mx - hx, my - hy]];
@@ -123,7 +123,7 @@ await shot('vl5-broken-out');
 // Model Items: the lever's sketch and feature dimensions into the views (entire model)
 await page.click('.k-cm-tab:has-text("Annotation")');
 await page.click('.k-cm-big:has-text("Model Items") .k-cm-main');
-check('Model Items opens its PropertyManager', await page.locator('[data-testid="modelitems-pm"]').count() === 1);
+check('Model Items opens its Property Panel', await page.locator('[data-testid="modelitems-pm"]').count() === 1);
 await page.click('[data-testid="modelitems-pm"] .k-pm-ok');
 await page.waitForTimeout(400);
 const mi = await page.evaluate(() => { const sh = window.__phlippoStore.getState().doc.sheets[0]; return { n: sh.dimensions.length, views: [...new Set(sh.dimensions.map((d) => d.viewId))] }; });
@@ -154,7 +154,9 @@ await shot('vl3-bom');
 
 console.log(`
 ${results.filter((r) => r.ok).length}/${results.length} checks passed`);
-process.exitCode = results.every((r) => r.ok) ? 0 : 1;
+const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
+if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
+process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
 for (const r of results.filter((r) => !r.ok)) console.log(' - ' + r.name + (r.info ? ' (' + r.info + ')' : ''));
 console.log('errors:', errors.length ? errors : 'none');
 await browser.close();

@@ -1,6 +1,6 @@
 // Block G-I: Material dialog fields (Compressive Strength, Description, Source, Sustainability, Favorites + the tree
 // material menu) and the MBD Dimensions tab (Auto Dimension Scheme, Datum, Size Dimension, Geometric Tolerance,
-// Show Tolerance Status, Delete All Tolerances, DimXpertManager, callouts).
+// Show Tolerance Status, Delete All Tolerances, Tolerance Tree, callouts).
 import { chromium } from 'playwright';
 import { mkdirSync } from 'node:fs';
 
@@ -76,9 +76,9 @@ await page.waitForTimeout(300);
 check('a favorite applies the material', (await S(() => window.__phlippoStore.getState().doc.material?.name)) === 'AISI 1020');
 
 // ---- MBD Dimensions tab
-check('CommandManager has an MBD Dimensions tab', (await page.locator('.k-cm-tab:has-text("MBD Dimensions")').count()) === 1);
+check('Command Ribbon has an MBD Dimensions tab', (await page.locator('.k-cm-tab:has-text("MBD Dimensions")').count()) === 1);
 await page.click('.k-cm-tab:has-text("MBD Dimensions")');
-for (const l of ['Auto Dimension Scheme', 'Location Dimension', 'Size Dimension', 'Pattern Feature', 'Datum', 'Geometric Tolerance', 'Show Tolerance Status', 'Copy Scheme', 'Import Scheme', 'Delete All Tolerances', 'TolAnalyst Study']) check(`MBD tab has ${l}`, (await page.locator(`.k-cm-group :text-is("${l}")`).count()) >= 1);
+for (const l of ['Auto Dimension Scheme', 'Location Dimension', 'Size Dimension', 'Pattern Feature', 'Datum', 'Geometric Tolerance', 'Show Tolerance Status', 'Copy Scheme', 'Import Scheme', 'Delete All Tolerances', 'Tolerance Stack-up Study']) check(`MBD tab has ${l}`, (await page.locator(`.k-cm-group :text-is("${l}")`).count()) >= 1);
 await shot('gi3-mbd-tab');
 // Auto Dimension Scheme
 await page.click('.k-cm-big:has-text("Auto Dimension Scheme") .k-cm-main');
@@ -88,7 +88,7 @@ await page.locator('[data-testid="dx-ok"]').click();
 await page.waitForTimeout(500);
 const d1 = await dx();
 check('the scheme has datums A B C and size dimensions 60 / 40 / 20', d1 && d1.datums.length === 3 && d1.dims.filter((x) => x.kind === 'size').map((x) => x.value).sort((a, b) => a - b).join(',') === '20,40,60', JSON.stringify(d1?.dims.map((x) => x.value)));
-check('DimXpertManager shows the datums and dimensions', (await page.locator('[data-testid="dx-datum"]').count()) === 3 && (await page.locator('[data-testid="dx-size"]').count()) === 3);
+check('Tolerance Tree shows the datums and dimensions', (await page.locator('[data-testid="dx-datum"]').count()) === 3 && (await page.locator('[data-testid="dx-size"]').count()) === 3);
 check('callouts in the graphics area: 3 datums and 3 dimensions with ± tolerance', (await page.locator('[data-testid="dx-callout-datum"]').count()) === 3 && (await page.locator('[data-testid="dx-callout-dim"]').count()) === 3 && /±0\.25/.test(await page.locator('[data-testid="dx-callout-dim"]').first().innerText()));
 await shot('gi4-auto-scheme');
 // Show Tolerance Status
@@ -127,10 +127,10 @@ await page.waitForTimeout(400);
 const d3 = await dx();
 check('Geometric Tolerance ⏥ with datum A added', d3.gtols.length === 1 && d3.gtols[0].symbol === 'flatness' && d3.gtols[0].datums.join('') === 'A' && (await page.locator('[data-testid="dx-callout-gtol"]').count()) === 1, JSON.stringify(d3.gtols));
 await shot('gi6-dimxpert');
-// TolAnalyst Study message and Delete All Tolerances
-await page.click('.k-cm-small:has-text("TolAnalyst Study")');
+// Tolerance Stack-up Study message and Delete All Tolerances
+await page.click('.k-cm-small:has-text("Tolerance Stack-up Study")');
 await page.waitForTimeout(300);
-check('TolAnalyst Study: worst case and RSS stack-up', /worst case/.test(await page.locator('[data-testid="ask"]').innerText()) && /RSS/.test(await page.locator('[data-testid="ask"]').innerText()));
+check('Tolerance Stack-up Study: worst case and RSS stack-up', /worst case/.test(await page.locator('[data-testid="ask"]').innerText()) && /RSS/.test(await page.locator('[data-testid="ask"]').innerText()));
 await page.locator('[data-testid="ask"] .k-btn.primary').click();
 await page.waitForTimeout(200);
 await page.click('.k-cm-small:has-text("Delete All Tolerances")');
@@ -138,6 +138,8 @@ await page.waitForTimeout(400);
 check('Delete All Tolerances clears the scheme and the callouts', (await dx()) === null && (await page.locator('[data-testid="dx-callout-dim"]').count()) === 0);
 
 console.log(results.filter((r) => r.ok).length + '/' + results.length + ' passed');
-process.exitCode = results.every((r) => r.ok) ? 0 : 1;
+const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
+if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
+process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
 if (errors.length) console.log('ERRORS', errors.slice(0, 5));
 await browser.close();

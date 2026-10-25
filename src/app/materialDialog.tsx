@@ -154,7 +154,7 @@ export function MaterialDialog() {
               ) : tab === 'Favorites' ? (
                 <div className="k-field" data-testid="mat-favorites">
                   <label>Favorites</label>
-                  <p className="k-muted">Favorite materials appear in the material menu of the FeatureManager tree (right-click the Material item). Select a material in the tree on the left and click Add.</p>
+                  <p className="k-muted">Favorite materials appear in the material menu of the Feature Tree tree (right-click the Material item). Select a material in the tree on the left and click Add.</p>
                   <div className="k-selbox" style={{ minHeight: 120 }}>
                     {favorites.map((n) => <div key={n} className={`k-selbox-row${favSel === n ? ' selected' : ''}`} style={favSel === n ? { background: 'var(--bg-selected)' } : undefined} onClick={() => setFavSel(n)}><span className="swatch" style={{ background: allMaterials.find((m) => m.name === n)?.color ?? '#ccc', width: 12, height: 12, display: 'inline-block', marginRight: 6 }} />{n}</div>)}
                     {!favorites.length && <span className="k-muted">No favorites yet.</span>}

@@ -94,7 +94,7 @@ interface BodyEntry {
 export const LIGHTING = { key: { dir: [-0.2, 0.15, 0.97] as [number, number, number], intensity: 3.0 }, fill: { dir: [0.9, 0.1, 0.4] as [number, number, number], intensity: 0.72 }, ambient: 1.05 };
 
 // test hook: the lighting can be tuned live
-(globalThis as unknown as { __phlippoLighting?: typeof LIGHTING }).__phlippoLighting = LIGHTING;
+if (import.meta.env.DEV || !(globalThis as unknown as { phlippoDesktop?: { testHooks?: boolean } }).phlippoDesktop || (globalThis as unknown as { phlippoDesktop?: { testHooks?: boolean } }).phlippoDesktop?.testHooks) if (import.meta.env.DEV || !(globalThis as unknown as { phlippoDesktop?: { testHooks?: boolean } }).phlippoDesktop || (globalThis as unknown as { phlippoDesktop?: { testHooks?: boolean } }).phlippoDesktop?.testHooks) (globalThis as unknown as { __phlippoLighting?: typeof LIGHTING }).__phlippoLighting = LIGHTING;
 
 /** Owns the three.js objects for solid bodies: shaded faces, edges, hover/selection overlays, preview. */
 export class BodyScene {

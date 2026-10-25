@@ -253,19 +253,48 @@ const LEN_MM: Record<string, number> = { mm: 1, cm: 10, m: 1000, in: 25.4, '"': 
 export function parseValue(text: string, unit?: string): number {
   const t = text.trim().toLowerCase().replace(',', '.');
   const m = /^([-+]?(?:\d+\.?\d*|\.\d+)(?:e[-+]?\d+)?)\s*([a-z"'°]*)$/.exec(t);
-  if (!m) return NaN;
+  // 2*25+5, (100-4)/3: plain arithmetic without units, as the equation-style input of the original
+  if (!m) return bounded(evalArithmetic(t));
   const v = parseFloat(m[1]);
   if (!Number.isFinite(v)) return NaN;
   const u = m[2];
-  if (!u || u === unit) return v;
+  if (!u || u === unit) return bounded(v);
   if (unit === '°' || unit === 'deg') {
-    if (u === 'deg' || u === '°') return v;
-    if (u === 'rad') return (v * 180) / Math.PI;
+    if (u === 'deg' || u === '°') return bounded(v);
+    if (u === 'rad') return bounded((v * 180) / Math.PI);
     return NaN;
   }
-  if (unit && LEN_MM[unit] && LEN_MM[u]) return (v * LEN_MM[u]) / LEN_MM[unit];
-  if (!unit && LEN_MM[u]) return v * LEN_MM[u];
+  if (unit && LEN_MM[unit] && LEN_MM[u]) return bounded((v * LEN_MM[u]) / LEN_MM[unit]);
+  if (!unit && LEN_MM[u]) return bounded(v * LEN_MM[u]);
   return NaN;
+}
+
+/** the largest magnitude a field accepts (1 000 000 mm = 1 km, far beyond the 1000 m of the original); more is refused like ∞ */
+export const MAX_FIELD_VALUE = 1e6;
+const bounded = (v: number): number => (Number.isFinite(v) && Math.abs(v) <= MAX_FIELD_VALUE ? v : NaN);
+
+/** + - * / and parentheses over plain numbers; anything else is NaN. No eval. */
+export function evalArithmetic(expr: string): number {
+  if (!/^[\d.\s+\-*/()e]+$/.test(expr) || !/[+\-*/]/.test(expr.replace(/^[-+]/, '').replace(/e[-+]/g, 'e'))) return NaN;
+  let i = 0;
+  const s = expr.replace(/\s+/g, '');
+  const peek = () => s[i];
+  const num = (): number => {
+    const m2 = /^(?:\d+\.?\d*|\.\d+)(?:e[-+]?\d+)?/.exec(s.slice(i));
+    if (!m2) return NaN;
+    i += m2[0].length;
+    return parseFloat(m2[0]);
+  };
+  const factor = (): number => {
+    if (peek() === '-') { i++; return -factor(); }
+    if (peek() === '+') { i++; return factor(); }
+    if (peek() === '(') { i++; const v = sum(); if (peek() !== ')') return NaN; i++; return v; }
+    return num();
+  };
+  const product = (): number => { let v = factor(); while (peek() === '*' || peek() === '/') { const op = s[i++]; const r = factor(); v = op === '*' ? v * r : v / r; } return v; };
+  const sum = (): number => { let v = product(); while (peek() === '+' || peek() === '-') { const op = s[i++]; const r = product(); v = op === '+' ? v + r : v - r; } return v; };
+  const v = sum();
+  return i === s.length ? v : NaN;
 }
 
 export function NumberField({

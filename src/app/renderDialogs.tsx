@@ -36,7 +36,7 @@ export function ScenePM() {
         <Section title="Illumination">
           <div className="k-field"><label>Rendering brightness</label><input type="range" min={0.2} max={2} step={0.05} data-testid="scene-brightness" value={sc.brightness ?? 1} onChange={(e) => st.setScene({ brightness: Number(e.target.value) })} style={{ width: '100%' }} /></div>
           <div className="k-field"><label>Scene reflectivity</label><input type="range" min={0} max={2} step={0.05} data-testid="scene-reflectivity" value={sc.reflectivity ?? 1} onChange={(e) => st.setScene({ reflectivity: Number(e.target.value) })} style={{ width: '100%' }} /></div>
-          <p className="k-muted">Reflectivity shows with RealView Graphics on.</p>
+          <p className="k-muted">Reflectivity shows with Realistic Shading on.</p>
         </Section>
       )}
       {tab === 'basic' && (<>

@@ -12,6 +12,8 @@ export interface Interference {
   geometry: THREE.BufferGeometry;
   /** Treat coincidence as interference: the bodies only touch (no volume) */
   coincident?: boolean;
+  /** the boolean failed: the pair could not be checked (message) */
+  failed?: string;
 }
 
 export interface InterferenceOptions {
@@ -46,8 +48,9 @@ export function detectInterferences(bodies: Body[], minVolume = 1e-3, opts: Inte
       const v = Math.abs(meshVolume(g));
       if (v > minVolume) out.push({ a: bodies[i].id, b: bodies[j].id, volume: v, geometry: g });
       else if (opts.coincidence && touchDistance(bodies[i].geometry, bodies[j].geometry) < 1e-3) out.push({ a: bodies[i].id, b: bodies[j].id, volume: 0, geometry: g, coincident: true });
-    } catch {
-      /* a failed boolean is reported as no interference */
+    } catch (err) {
+      // a failed boolean is not 'no interference': the pair is listed as unchecked
+      out.push({ a: bodies[i].id, b: bodies[j].id, volume: NaN, geometry: new THREE.BufferGeometry(), failed: String((err as Error).message ?? err) });
     }
   }
   return out;

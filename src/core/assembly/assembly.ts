@@ -653,7 +653,13 @@ export function rebuildAssembly(doc: Document): AssemblyRebuild {
         for (const b of bodies) {
           b.geometry.computeBoundingBox();
           if (!b.geometry.boundingBox!.intersectsBox(tool.boundingBox!)) continue;
-          const g = csg(b.geometry, tool, 'subtract');
+          let g: THREE.BufferGeometry;
+          try {
+            g = csg(b.geometry, tool, 'subtract');
+          } catch (err) {
+            errors[f.id] = `The hole failed on ${b.id.split('~')[0]}: ${(err as Error).message}`;
+            continue;
+          }
           if (Math.abs(meshVolume(g) - meshVolume(b.geometry)) < 1e-6) continue;
           b.geometry = g;
           b.faces = planarFaces(g, b.id);
@@ -678,7 +684,13 @@ export function rebuildAssembly(doc: Document): AssemblyRebuild {
       b.geometry.computeBoundingBox();
       r.geometry.computeBoundingBox();
       if (!b.geometry.boundingBox!.intersectsBox(r.geometry.boundingBox!)) continue;
-      const g = csg(b.geometry, r.geometry, 'subtract');
+      let g: THREE.BufferGeometry;
+      try {
+        g = csg(b.geometry, r.geometry, 'subtract');
+      } catch (err) {
+        errors[f.id] = `The cut failed on ${b.id.split('~')[0]}: ${(err as Error).message}`;
+        continue;
+      }
       if (Math.abs(meshVolume(g) - meshVolume(b.geometry)) < 1e-6) continue;
       b.geometry = g;
       b.faces = planarFaces(g, b.id);

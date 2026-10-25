@@ -90,7 +90,7 @@ await page.waitForTimeout(500);
 let d = await D();
 check('drawing document with View Layout tab and Model View open', d.kind === 'drawing' && d.tab === 'viewLayout' && d.edit && d.edit.mode === 'modelView' && !d.edit.hasModel, JSON.stringify({ kind: d.kind, tab: d.tab, edit: d.edit }));
 check('sheet A3 landscape, scale 1:1', d.sheet && d.sheet.size === 'A3' && d.sheet.scale[0] === 1 && d.sheet.scale[1] === 1, JSON.stringify(d.sheet));
-check('Model View PropertyManager', (await page.locator('.k-pm-title').innerText()).includes('Model View'));
+check('Model View Property Panel', (await page.locator('.k-pm-title').innerText()).includes('Model View'));
 check('status bar Editing Sheet1', (await page.locator('.k-statusbar').innerText()).includes('Editing Sheet1'));
 // Browse… -> the plate file
 await page.setInputFiles('#phlippo-open-file', { name: 'Plate.kcad', mimeType: 'application/json', buffer: Buffer.from(plateFile) });
@@ -194,7 +194,7 @@ check('drawing restored after reload', d.kind === 'drawing' && d.sheet.views.len
 await page.click('.k-cm-tab:has-text("Drawing")');
 await page.click('.k-cm-big:has-text("Section View")');
 await page.waitForTimeout(200);
-check('Section View PropertyManager', (await page.locator('[data-testid="section-view-pm"]').count()) === 1);
+check('Section View Property Panel', (await page.locator('[data-testid="section-view-pm"]').count()) === 1);
 const tv = d.sheet.views.find((v) => v.type === 'top' || v.type === 'bottom');
 const cutPt = await px([tv.position[0], tv.position[1]]);
 await page.mouse.move(cutPt.x, cutPt.y);
@@ -213,7 +213,7 @@ check('section hatched, cutting line on the parent, label SECTION A-A', (await p
 // ---- Detail View of the hole: centre, radius, place
 await page.click('.k-cm-big:has-text("Detail View")');
 await page.waitForTimeout(200);
-check('Detail View PropertyManager', (await page.locator('[data-testid="detail-view-pm"]').count()) === 1);
+check('Detail View Property Panel', (await page.locator('[data-testid="detail-view-pm"]').count()) === 1);
 const dc = await px([tv.position[0] + 17.5, tv.position[1]]);
 await page.mouse.click(dc.x, dc.y);
 await page.waitForTimeout(150);

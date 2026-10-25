@@ -1,3 +1,4 @@
+import { bridge } from './viewport/bridge';
 import { useEffect, useRef, useState } from 'react';
 import { useStore } from './store';
 import { Button } from '../ui/components';
@@ -74,7 +75,7 @@ export function PackAndGoDialog() {
 /** Share: a copy of the model, a picture of the view, or the picture on the clipboard. */
 export function ShareDialog() {
   const st = useStore();
-  const snap = () => (window as unknown as { __phlippoSnapshot?: () => string | null }).__phlippoSnapshot?.() ?? null;
+  const snap = () => bridge.snapshot?.() ?? null;
   return (
     <Frame title="Share" testid="share" actions={<Button onClick={() => st.setDialog(null)}>Close</Button>}>
       <div className="k-share-list">
@@ -112,7 +113,7 @@ export function ComponentPreview() {
   const comp = (st.doc.components ?? []).find((c) => c.id === st.selectedFeatureId);
   const [img, setImg] = useState<string | null>(null);
   useEffect(() => {
-    const snap = (window as unknown as { __phlippoSnapshot?: (only?: string) => string | null }).__phlippoSnapshot;
+    const snap = bridge.snapshot;
     setImg(comp && snap ? snap(comp.id) : null);
   }, [comp, st.rebuild]);
   return (

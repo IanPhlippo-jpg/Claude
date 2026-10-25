@@ -1,4 +1,4 @@
-// Configurations (ConfigurationManager, Modify Configurations, component configuration in an assembly, mass of all components).
+// Configurations (Configurations, Modify Configurations, component configuration in an assembly, mass of all components).
 import { chromium } from 'playwright';
 import { mkdirSync } from 'node:fs';
 
@@ -58,17 +58,17 @@ await page.waitForTimeout(600);
 let c = await C();
 check('plate built', c.bodies === 1 && c.depth === 10, JSON.stringify(c));
 
-// ---- ConfigurationManager tab
-await page.click('.k-manager-tab[data-tip="ConfigurationManager"]');
+// ---- Configurations tab
+await page.click('.k-manager-tab[data-tip="Configurations"]');
 await page.waitForTimeout(200);
 const tree = (await page.locator('.k-tree').innerText()).replace(/\s+/g, ' ');
-check('ConfigurationManager lists Part1 Configuration(s) (Default) and Default [ Part1 ]', /Part1 Configuration\(s\) \(Default\)/.test(tree) && /Default \[ Part1 \]/.test(tree) && /Tables/.test(tree), tree);
+check('Configurations lists Part1 Configuration(s) (Default) and Default [ Part1 ]', /Part1 Configuration\(s\) \(Default\)/.test(tree) && /Default \[ Part1 \]/.test(tree) && /Tables/.test(tree), tree);
 await shot('c1-configmanager');
 // Add Configuration… via the right mouse button on the top node
 await page.click('.k-tree-row:has-text("Configuration(s)")', { button: 'right' });
 await page.click('.k-menu-item:has-text("Add Configuration")');
 await page.waitForTimeout(200);
-check('Add Configuration PropertyManager', (await page.locator('[data-testid="configuration-pm"]').count()) === 1 && (await page.locator('.k-pm-title').innerText()).includes('Add Configuration'));
+check('Add Configuration Property Panel', (await page.locator('[data-testid="configuration-pm"]').count()) === 1 && (await page.locator('.k-pm-title').innerText()).includes('Add Configuration'));
 await shot('c2-add-configuration-pm');
 await page.locator('[data-testid="configuration-pm"] input.k-input').first().fill('210');
 await page.locator('[data-testid="configuration-pm"] input.k-input').nth(1).fill('210 mm plate');
@@ -113,7 +113,7 @@ check('270 shown: depth 27, one body', c.active === '270' && c.depth === 27 && c
 await shot('c5-config-270');
 
 // ---- Modify box: All Configurations writes the value into every configuration
-await page.click('.k-manager-tab[data-tip="FeatureManager design tree"]');
+await page.click('.k-manager-tab[data-tip="Feature Tree"]');
 await page.waitForTimeout(200);
 await page.locator('.k-tree-row:has-text("Boss-Extrude1")').last().click({ button: 'right' });
 await page.click('.k-menu-item:has-text("Edit Sketch")');
@@ -141,7 +141,7 @@ await page.click('.k-cm-tab:has-text("Sketch")');
 await page.click('.k-cm-big:has-text("Exit Sketch") .k-cm-main').catch(() => page.keyboard.press('Escape'));
 await page.waitForTimeout(500);
 
-// ---- Configure Feature from the FeatureManager: suppress Boss-Extrude1 in Default only
+// ---- Configure Feature from the Feature Tree: suppress Boss-Extrude1 in Default only
 await page.locator('.k-tree-row:has-text("Boss-Extrude1")').last().click({ button: 'right' });
 await page.click('.k-menu-item:has-text("Configure Feature")');
 await page.waitForTimeout(200);
@@ -159,7 +159,7 @@ await page.locator('[data-testid="welcome-recent-0"]').click({ timeout: 4000 }).
 await page.waitForTimeout(800);
 c = await C();
 check('configurations survive a reload', c.names.join(',') === 'Default,210,270' && c.active === '270' && c.depth === 27, JSON.stringify(c));
-check('FeatureManager top node names the active configuration', (await page.locator('.k-tree-row').first().innerText()).includes('(270)'));
+check('Feature Tree top node names the active configuration', (await page.locator('.k-tree-row').first().innerText()).includes('(270)'));
 
 // ---- assembly: three instances with the configurations 210 / 270 / Default
 const plateFile = await page.evaluate(() => JSON.stringify({ format: 'phlippo-cad', ...window.__phlippoStore.getState().doc }));
@@ -218,7 +218,9 @@ await shot('c8-bom');
 
 console.log(`
 ${results.filter((r) => r.ok).length}/${results.length} checks passed`);
-process.exitCode = results.every((r) => r.ok) ? 0 : 1;
+const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
+if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
+process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
 for (const r of results.filter((r) => !r.ok)) console.log(' - ' + r.name + (r.info ? ' (' + r.info + ')' : ''));
 console.log('errors:', errors.length ? errors : 'none');
 await browser.close();

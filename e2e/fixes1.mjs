@@ -22,7 +22,8 @@ await page.waitForSelector('.k-viewport');
 await page.waitForTimeout(500);
 await page.click('.k-doctype:has-text("Part")');
 await page.waitForTimeout(400);
-check('an empty part shows the turning Phlippo logo in the background', (await page.locator('[data-testid="bg-logo"]').count()) === 1);
+// since 0.3.2 (QA F15) the graphics area has no watermark, as the original
+check('an empty part shows no watermark logo in the graphics area', (await page.locator('[data-testid="bg-logo"], .k-bg-logo').count()) === 0);
 await shot('fx0-empty-logo');
 
 // sketch on the Front Plane
@@ -32,7 +33,7 @@ await page.click('.k-cm-big:has-text("Sketch") .k-cm-main');
 await page.waitForTimeout(400);
 const P = (x, y) => page.evaluate(([x, y]) => window.__phlippoProject({ x, y }), [x, y]);
 
-// the rectangle flyout opens above the tab strip (not clipped by the CommandManager)
+// the rectangle flyout opens above the tab strip (not clipped by the Command Ribbon)
 await page.click('.k-cm-iconfly:has(.k-cm-iconbtn[data-tip="Corner Rectangle"]) .k-cm-small-arrow');
 await page.waitForTimeout(200);
 const menu = await page.evaluate(() => { const m = [...document.querySelectorAll('.k-menu')].find((x) => /Center Rectangle/.test(x.textContent)); if (!m) return null; const r = m.getBoundingClientRect(); const tabs = document.querySelector('.k-cm-tabs').getBoundingClientRect(); const top = document.elementFromPoint(r.left + 20, Math.min(r.bottom - 8, tabs.bottom + 4)); return { inBody: m.parentElement === document.body, bottom: r.bottom, tabsBottom: tabs.bottom, onTop: !!top && m.contains(top) }; });
@@ -84,7 +85,9 @@ await shot('fx2-modify');
 
 console.log(`
 ${results.filter((r) => r.ok).length}/${results.length} checks passed`);
-process.exitCode = results.every((r) => r.ok) ? 0 : 1;
+const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
+if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
+process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
 for (const r of results.filter((r) => !r.ok)) console.log(' - ' + r.name + (r.info ? ' (' + r.info + ')' : ''));
 console.log('errors:', errors.length ? errors : 'none');
 await browser.close();

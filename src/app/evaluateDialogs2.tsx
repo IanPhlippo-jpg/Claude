@@ -309,19 +309,19 @@ export function SimXpressDialog() {
   const canNext = step === 0 || (step === 1 && !!fixture) || (step === 2 && !!load) || (step === 3 && !!mat) || (step === 4 && ran) || step === 5;
   const fosColor = (f: number) => (f >= 1 ? '#1f7a37' : '#b42318');
   return (
-    <Shell title="SimulationXpress Analysis Wizard" icon={<Icon.Simulation />} testid="simxpress-dialog" width={460} onClose={() => st.setDialog(null)} footer={<><button className="k-btn" disabled={step === 0} onClick={() => setStep((s) => s - 1)}>Back</button><button className="k-btn primary" data-testid="simx-next" disabled={!canNext || step === STEPS.length - 1} onClick={() => setStep((s) => s + 1)}>Next</button><button className="k-btn" onClick={() => st.setDialog(null)}>Close</button></>}>
+    <Shell title="Quick Beam Estimate" icon={<Icon.Simulation />} testid="simxpress-dialog" width={460} onClose={() => st.setDialog(null)} footer={<><button className="k-btn" disabled={step === 0} onClick={() => setStep((s) => s - 1)}>Back</button><button className="k-btn primary" data-testid="simx-next" disabled={!canNext || step === STEPS.length - 1} onClick={() => setStep((s) => s + 1)}>Next</button><button className="k-btn" onClick={() => st.setDialog(null)}>Close</button></>}>
       <div className="k-simx-steps" data-testid="simx-steps" style={{ display: 'flex', gap: 4, marginBottom: 8, flexWrap: 'wrap' }}>
         {STEPS.map((s, i) => <span key={s} className={`k-pill${i === step ? ' active' : ''}`} style={{ padding: '2px 8px', borderRadius: 10, background: i === step ? 'var(--accent)' : 'var(--bg-2)', color: i === step ? '#fff' : 'inherit', fontSize: 11 }}>{i + 1}. {s}</span>)}
       </div>
       {step === 0 && (
         <>
-          <p className="k-pm-message">Welcome to SimulationXpress. Define fixtures and loads on the part, assign a material and run the analysis to see the stress, displacement and factor of safety.</p>
+          <p className="k-pm-message">Quick Beam Estimate: define fixtures and loads on the part, assign a material and get an indicative stress, displacement and factor of safety from a beam model.</p>
           <fieldset className="k-fieldset"><legend>Options</legend>
             <div className="k-pm-label">System of units:</div>
             <select className="k-input" defaultValue="SI"><option>SI</option><option>English (IPS)</option><option>Metric (G)</option></select>
             <label className="k-check"><input type="checkbox" defaultChecked /> Show annotation for maximum and minimum in the result plots</label>
           </fieldset>
-          <p className="k-muted">This build estimates the part as a beam between the fixed and loaded faces (bending plus shear). It gives the order of magnitude, not a finite element solution.</p>
+          <p className="k-muted" data-testid="simx-disclaimer">Indicative only: the part is treated as a beam between the fixed and loaded faces (bending plus shear). This is not a finite element analysis and not a safety assessment; stress concentrations, buckling, fatigue and contact are not included.</p>
         </>
       )}
       {step === 1 && (
@@ -377,7 +377,7 @@ export function SimXpressDialog() {
               </tbody>
             </table>
           )}
-          {result && <p className="k-pm-message" style={{ marginTop: 6, background: result.fos >= 1 ? '#e6f4ea' : '#ffe3e3', borderColor: result.fos >= 1 ? '#9ccfae' : '#e0a0a0' }}>{result.fos >= 1 ? `Based on the specified parameters, the factor of safety in your design is ${fmt(result.fos, 2)}. The part should be safe for the given load.` : `The factor of safety is ${fmt(result.fos, 2)}: the part may fail under the given load.`}</p>}
+          {result && <p className="k-pm-message" style={{ marginTop: 6, background: result.fos >= 1 ? '#e6f4ea' : '#ffe3e3', borderColor: result.fos >= 1 ? '#9ccfae' : '#e0a0a0' }}>{result.fos >= 1 ? `Indicative estimate (beam model): factor of safety ${fmt(result.fos, 2)}. This does not show that the part is safe; verify the design with a full analysis or a qualified engineer.` : `Indicative estimate (beam model): factor of safety ${fmt(result.fos, 2)}, below 1. Even this simplified model expects the part to fail under the given load.`}</p>}
           <p className="k-muted">Estimate from the beam formulas on the part's cross-section (not a finite element result).</p>
         </fieldset>
       )}

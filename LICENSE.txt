@@ -1,0 +1,27 @@
+﻿PHLIPPO CAD - LICENCE AGREEMENT
+
+Copyright (c) 2026 Ian Phlippo. All rights reserved.
+
+1. Licence. You may install and use Phlippo CAD on computers you own or control, for your own design work.
+   You may not sell, rent, sublicense or redistribute the program, or reverse engineer it beyond what the law
+   allows.
+
+2. Your files. The documents you create with Phlippo CAD are yours. The program stores them only where you save
+   them and in the local autosave of your user profile; it sends nothing over the network.
+
+3. No warranty. Phlippo CAD is provided "as is", without warranty of any kind, express or implied, including
+   fitness for a particular purpose. Geometry, mass properties, flat patterns, tolerance stack-ups and the Quick
+   Beam Estimate are calculated approximations. They are not a substitute for verification by a qualified
+   engineer, and no result of the program shows that a part or assembly is safe.
+
+4. Limitation of liability. To the extent the law allows, Ian Phlippo is not liable for any damage, loss of data
+   or loss of profit arising from the use of, or the inability to use, Phlippo CAD.
+
+5. Trademarks. Phlippo CAD is an independent product. It is not affiliated with or endorsed by Dassault Systèmes
+   SolidWorks Corp. and contains no SOLIDWORKS code, files or artwork. SOLIDWORKS is a trademark of Dassault
+   Systèmes; it is named only for reference.
+
+6. Third-party software. Phlippo CAD includes open-source packages under their own licences; see
+   THIRD-PARTY-NOTICES.txt.
+
+7. Law. This agreement is governed by Belgian law.

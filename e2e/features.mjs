@@ -321,7 +321,7 @@ const volBeforeSweep = await volume();
 await page.click('.k-tree-row:has-text("Sketch3")');
 await page.click('.k-cm-small:has-text("Swept Boss/Base")');
 await page.waitForTimeout(400);
-const pathSel = page.locator('.k-field:has-text("Path") select');
+const pathSel = page.locator('.k-field:has(> label:text-is("Path")) select');
 await pathSel.selectOption({ label: 'Sketch4' });
 await page.waitForTimeout(800);
 await shot('e17-sweep-preview');
@@ -361,7 +361,11 @@ await page.click('.k-cm-tab:has-text("Features")');
 // STL: Save As STL downloads a binary STL of the body; opening an .stl adds an Imported feature
 await page.hover('.k-brand');
 await page.click('.k-mb-menu:has-text("File")');
-const [download] = await Promise.all([page.waitForEvent('download'), page.click('.k-menu-item:has-text("Save As ▸ STL")')]);
+// since G-C the STL export shows its Export Options page first (Binary is the default)
+await page.click('.k-menu-item:has-text("Save As ▸ STL")');
+await page.waitForSelector('[data-testid="export-ok"]');
+await page.locator('[data-testid="export-showinfo"]').uncheck().catch(() => {});
+const [download] = await Promise.all([page.waitForEvent('download'), page.locator('[data-testid="export-ok"]').click()]);
 const stlPath = download.suggestedFilename();
 check('Save As STL downloads Part1.stl', stlPath === 'Part1.stl', stlPath);
 const stlBuf = fs.readFileSync(await download.path());
@@ -511,7 +515,7 @@ await page.waitForTimeout(500);
 // Reference Geometry > Plane: an offset plane 25 mm from the Front Plane appears in the tree as Plane1 and in the graphics area
 await page.click('.k-cm-big:has-text("Reference Geometry") .k-cm-main');
 await page.waitForTimeout(300);
-check('Plane PropertyManager open', (await page.locator('.k-pm-title').innerText()).includes('Plane'));
+check('Plane Property Panel open', (await page.locator('.k-pm-title').innerText()).includes('Plane'));
 await page.locator('.k-section:has-text("First Reference") input.k-num').first().fill('25');
 await page.waitForTimeout(300);
 await shot('e26-plane-preview');
@@ -551,7 +555,9 @@ check('arrow key rotates (view name cleared)', (await page.locator('.k-viewname'
 await page.keyboard.press('Control+7');
 console.log(`
 ${results.filter((r) => r.ok).length}/${results.length} checks passed`);
-process.exitCode = results.every((r) => r.ok) ? 0 : 1;
+const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
+if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
+process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
 for (const r of results.filter((r) => !r.ok)) console.log(' - ' + r.name + (r.info ? ' (' + r.info + ')' : ''));
 console.log('errors:', errors.length ? errors : 'none');
 await browser.close();

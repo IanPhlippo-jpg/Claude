@@ -1,4 +1,4 @@
-// Linear and Circular Component Pattern: a square pin (from the door handle example) patterned in an assembly through the ribbon and the PropertyManager.
+// Linear and Circular Component Pattern: a square pin (from the door handle example) patterned in an assembly through the ribbon and the Property Panel.
 import { chromium } from 'playwright';
 import { mkdirSync, readFileSync } from 'node:fs';
 
@@ -40,7 +40,7 @@ await page.click('.k-cm-tab:has-text("Assembly")');
 await page.click('.k-tree-row:has-text("Vierkantstift<1>")');
 await page.click('.k-cm-big:has-text("Linear Component Pattern") .k-cm-main');
 await page.waitForTimeout(300);
-check('Linear Pattern PropertyManager with the seed preselected', (await page.locator('[data-testid="component-pattern-pm"]').count()) === 1 && (await page.locator('[data-testid="pattern-seeds"]').innerText()).includes('Vierkantstift<1>'));
+check('Linear Pattern Property Panel with the seed preselected', (await page.locator('[data-testid="component-pattern-pm"]').count()) === 1 && (await page.locator('[data-testid="pattern-seeds"]').innerText()).includes('Vierkantstift<1>'));
 await page.locator('[data-testid="component-pattern-pm"] .k-section:has-text("Direction 1") input.k-num').nth(0).fill('20');
 await page.locator('[data-testid="component-pattern-pm"] .k-section:has-text("Direction 1") input.k-num').nth(0).press('Tab');
 await page.locator('[data-testid="component-pattern-pm"] .k-section:has-text("Direction 1") input.k-num').nth(1).fill('4');
@@ -89,7 +89,9 @@ check('edited LocalLPattern1: 2 instances', s.patterns.find((p) => p.name === 'L
 
 console.log(`
 ${results.filter((r) => r.ok).length}/${results.length} checks passed`);
-process.exitCode = results.every((r) => r.ok) ? 0 : 1;
+const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
+if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
+process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
 for (const r of results.filter((r) => !r.ok)) console.log(' - ' + r.name + (r.info ? ' (' + r.info + ')' : ''));
 console.log('errors:', errors.length ? errors : 'none');
 await browser.close();

@@ -1,3 +1,4 @@
+import { fitActive } from '../viewport/bridge';
 import { useState } from 'react';
 import { useStore } from '../store';
 import { Menu, TreeView, type TreeNode } from '../../ui/components';
@@ -59,7 +60,7 @@ export function DrawingTreeBody() {
           onClose={() => setMenu(null)}
           items={[
             { label: 'Projected View', icon: <Icon.ProjectedView />, onSelect: () => { st.selectDrawingView(menuView.id); st.startProjectedView(); } },
-            { label: 'Zoom to Selection', icon: <Icon.Fit />, onSelect: () => (window as unknown as { __phlippoZoomFit?: () => void }).__phlippoZoomFit?.() },
+            { label: 'Zoom to Selection', icon: <Icon.Fit />, onSelect: () => fitActive() },
             { label: 'Delete', icon: <Icon.Trash />, shortcut: 'Del', onSelect: () => st.deleteDrawingView(menuView.id) },
           ]}
         />

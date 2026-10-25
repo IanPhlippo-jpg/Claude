@@ -130,7 +130,7 @@ await page.evaluate(() => window.__phlippoStore.getState().toggleConstructionSel
 { const s1 = await sk(); check('construction toggle', s1.entities[s1.entityOrder[0]].construction === true); }
 await page.evaluate(() => window.__phlippoStore.getState().toggleConstructionSelection());
 
-// ---- relations via PropertyManager: parallel / perpendicular / equal / coincident etc.
+// ---- relations via Property Panel: parallel / perpendicular / equal / coincident etc.
 { const b = await entPos('line', 2), r = await entPos('line', 3);
 await page.mouse.click(b.x, b.y); // bottom of rect
 await page.keyboard.down('Control');
@@ -168,7 +168,7 @@ check('dimension kinds', lk.includes('length') && lk.includes('diameter') && lk.
 const lenC = Object.values((await sk()).constraints).find((c) => c.kind === 'length');
 check('length value applied = 40', lenC && Math.abs(lenC.value - 40) < 1e-9, String(lenC && lenC.value));
 
-// ---- driven toggle via PropertyManager, dimension drag, double-click modify
+// ---- driven toggle via Property Panel, dimension drag, double-click modify
 await page.click(`.k-overlay text:has-text("40.00")`);
 check('dimension label selects constraint', (await S()).selectedConstraint === lenC.id);
 await page.click('.k-check:has-text("Driven") input');
@@ -331,7 +331,7 @@ await page.locator('.k-opt-check:has-text("Reverse mouse wheel zoom direction") 
 await page.click('.k-options-actions button:has-text("OK")');
 check('reverse wheel option', (await S()).reverseWheel === true);
 await page.keyboard.press('Shift+C');
-check('Shift+C collapses FeatureManager', (await S()).managerCollapsed === true);
+check('Shift+C collapses Feature Tree', (await S()).managerCollapsed === true);
 await page.keyboard.press('Shift+C');
 await page.keyboard.press('Control+Shift+d');
 check('dark theme', (await S()).theme === 'dark');
@@ -350,7 +350,9 @@ check('autosave reload keeps features', (await S()).doc.features.length === 2);
 await page.screenshot({ path: `${OUT}/full-final.png` });
 
 console.log(`\n${results.filter((r) => r.ok).length}/${results.length} checks passed`);
-process.exitCode = results.every((r) => r.ok) ? 0 : 1;
+const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
+if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
+process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
 for (const r of results.filter((r) => !r.ok)) console.log(' - ' + r.name + (r.info ? ' (' + r.info + ')' : ''));
 console.log('page errors:', errors);
 await browser.close();

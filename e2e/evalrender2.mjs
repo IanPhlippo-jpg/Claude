@@ -1,5 +1,5 @@
 // Evaluate / Render / managers that were "later": Geometry Analysis, Design Study, Edit Decal, Preview Window,
-// Apply Scene, Ambient Occlusion, DimXpertManager and DisplayManager.
+// Apply Scene, Ambient Occlusion, Tolerance Tree and Display Panel.
 import { chromium } from 'playwright';
 import { mkdirSync } from 'node:fs';
 
@@ -91,19 +91,21 @@ await page.screenshot({ path: `${OUT}/er2-ao.png` });
 check('Ambient Occlusion is on and the page keeps working', await page.evaluate(() => window.__phlippoStore.getState().show.ambientOcclusion) && errors.length === 0, JSON.stringify(errors));
 await page.evaluate(() => window.__phlippoStore.getState().toggleShow('ambientOcclusion'));
 
-// DimXpertManager and DisplayManager tabs
+// Tolerance Tree and Display Panel tabs
 await page.click('[data-testid="tab-dimxpert"]');
 await page.waitForTimeout(300);
-check('DimXpertManager lists the model dimensions', (await page.locator('[data-testid="dx-dim"]').count()) >= 2, String(await page.locator('[data-testid="dx-dim"]').count()));
+check('Tolerance Tree lists the model dimensions', (await page.locator('[data-testid="dx-dim"]').count()) >= 2, String(await page.locator('[data-testid="dx-dim"]').count()));
 await page.click('[data-testid="tab-display"]');
 await page.waitForTimeout(300);
 const dm = (await page.locator('[data-testid="display-manager"]').textContent()) ?? '';
-check('DisplayManager lists appearances, the decal and the scene', /Appearances/.test(dm) && /Decal1/.test(dm) && /Scene/.test(dm), dm.slice(0, 200));
+check('Display Panel lists appearances, the decal and the scene', /Appearances/.test(dm) && /Decal1/.test(dm) && /Scene/.test(dm), dm.slice(0, 200));
 await page.screenshot({ path: `${OUT}/er2-display.png` });
 
 console.log(`
 ${results.filter((r) => r.ok).length}/${results.length} checks passed`);
-process.exitCode = results.every((r) => r.ok) ? 0 : 1;
+const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
+if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
+process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
 for (const r of results.filter((r) => !r.ok)) console.log(' - ' + r.name + (r.info ? ' (' + r.info + ')' : ''));
 console.log('errors:', errors.length ? errors : 'none');
 await browser.close();

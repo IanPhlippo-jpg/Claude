@@ -96,7 +96,7 @@ await page.waitForTimeout(400);
 await shot('uf3-flat-pattern');
 await page.click('.k-cm-small:has-text("Flatten")');
 
-// the Unfold command from the ribbon: PropertyManager with the fixed face and the bends
+// the Unfold command from the ribbon: Property Panel with the fixed face and the bends
 await page.click('.k-cm-small:has-text("Unfold")');
 await page.waitForTimeout(300);
 check('Unfold PM lists the bend of the base flange', (await page.locator('[data-testid="unfold-bends"] .k-selbox-row').count()) === 1);
@@ -104,7 +104,9 @@ await page.click('.k-pm-cancel');
 
 console.log(`
 ${results.filter((r) => r.ok).length}/${results.length} checks passed`);
-process.exitCode = results.every((r) => r.ok) ? 0 : 1;
+const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
+if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
+process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
 for (const r of results.filter((r) => !r.ok)) console.log(' - ' + r.name + (r.info ? ' (' + r.info + ')' : ''));
 console.log('errors:', errors.length ? errors : 'none');
 await browser.close();

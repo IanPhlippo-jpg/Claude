@@ -1,3 +1,4 @@
+import { fitActive } from '../viewport/bridge';
 import { useStore } from '../store';
 import { Icon } from '../../ui/icons';
 import { BigButton as Big, Group, SmallButton as Small } from './Ribbon';
@@ -98,7 +99,7 @@ export function SheetFormatTab() {
       <Group>
         <div className="k-cm-col">
           <Small label="Sheet Properties…" icon={<Icon.Options />} onClick={() => st.setDialog('sheetProperties')} />
-          <Small label="Zoom to Sheet" icon={<Icon.Fit />} onClick={() => (window as unknown as { __phlippoZoomFit?: () => void }).__phlippoZoomFit?.()} />
+          <Small label="Zoom to Sheet" icon={<Icon.Fit />} onClick={() => fitActive()} />
         </div>
       </Group>
     </>
