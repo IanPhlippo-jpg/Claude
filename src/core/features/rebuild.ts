@@ -752,6 +752,12 @@ export function threadSpecOf(f: Extract<Feature, { type: 'thread' }>): ThreadSpe
   return { center: [c0.x, c0.y, c0.z], axis: [ax.x, ax.y, ax.z], radius: internal ? (f.diameter - 1.0825 * f.pitch) / 2 : f.diameter / 2, internal, pitch: f.pitch, length, method: f.method, rightHand: f.rightHand, angle: f.angle, starts: f.starts, mirror: f.mirrorProfile };
 }
 
+/** wall-clock budget of one rebuild (ms); the features after it are marked instead of computed */
+export let rebuildBudgetMs = 45_000;
+export function setRebuildBudget(ms: number): void {
+  rebuildBudgetMs = Math.max(0, ms);
+}
+
 export function rebuildDocument(doc: Document, upTo: number | null = null): RebuildResult {
   const bodies: Body[] = [];
   const errors: Record<Id, string> = {};
@@ -798,11 +804,13 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
       newBody(tool, fid);
       return;
     }
+    // all booleans first, then the bodies change: a failure leaves every body as it was (F48)
     const main = hits[0];
-    main.geometry = csg(main.geometry, tool, 'union');
+    let g = csg(main.geometry, tool, 'union');
+    for (const other of hits.slice(1)) g = csg(g, other.geometry, 'union');
+    main.geometry = g;
     main.featureIds.push(fid);
     for (const other of hits.slice(1)) {
-      main.geometry = csg(main.geometry, other.geometry, 'union');
       main.featureIds.push(...other.featureIds);
       bodies.splice(bodies.indexOf(other), 1);
     }
@@ -811,11 +819,13 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
   const removeMaterial = (tool: THREE.BufferGeometry, fid: Id, scope?: Id[]): boolean => {
     const hits = touching(tool, scoped(scope));
     if (!hits.length) return false;
-    for (const b of hits) {
-      b.geometry = csg(b.geometry, tool, 'subtract');
+    // every cut is computed before any body changes: when the second body fails, the first is not left half cut (F48)
+    const results = hits.map((b) => csg(b.geometry, tool, 'subtract'));
+    hits.forEach((b, k) => {
+      b.geometry = results[k];
       b.featureIds.push(fid);
       if (isEmpty(b.geometry)) bodies.splice(bodies.indexOf(b), 1);
-    }
+    });
     return true;
   };
   /** all visible bodies as one geometry (ray casts, extents) */
@@ -827,9 +837,17 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
   const times: Record<Id, number> = {};
   const bodyMeta: NonNullable<RebuildResult['bodyMeta']> = {};
   const clock = typeof performance !== 'undefined' ? () => performance.now() : () => Date.now();
+  const started = clock();
+  let outOfTime = false;
   for (let i = 0; i < n; i++) {
     const f: Feature = doc.features[i];
     if (f.type === 'sketch') continue;
+    // the rebuild never blocks the window for minutes: past the budget the rest is marked and skipped (F46)
+    if (outOfTime || clock() - started >= rebuildBudgetMs) {
+      outOfTime = true;
+      if (!f.suppressed) errors[f.id] = `Not rebuilt: the rebuild stopped after ${Math.round(rebuildBudgetMs / 1000)} s. Reduce the pattern counts or suppress heavy features, then rebuild.`;
+      continue;
+    }
     const t0 = clock();
     // one feature failing never takes the whole rebuild down: it is marked and the rest goes on
     try {

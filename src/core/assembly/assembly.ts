@@ -618,6 +618,8 @@ export function rebuildAssembly(doc: Document): AssemblyRebuild {
   }
   // Assembly Features ▸ Extruded Cut: cuts made in the assembly through the components in its scope (the parts stay as they are)
   const consumed = new Set<string>();
+  /** bodies an assembly cut or hole takes away completely */
+  const cutAway = new Set<Body>();
   for (const f of doc.features ?? []) {
     if (f.type === 'sketch' || f.suppressed) continue;
     // Fillet / Chamfer on component edges (weld-like assembly features)
@@ -657,6 +659,8 @@ export function rebuildAssembly(doc: Document): AssemblyRebuild {
           try {
             g = csg(b.geometry, tool, 'subtract');
           } catch (err) {
+            // a component entirely inside the tool is removed by it, as the original shows it; anything else is an error
+            if (/leaves nothing/.test((err as Error).message)) { cutAway.add(b); b.featureIds = [...b.featureIds, f.id]; hit++; continue; }
             errors[f.id] = `The hole failed on ${b.id.split('~')[0]}: ${(err as Error).message}`;
             continue;
           }
@@ -688,6 +692,8 @@ export function rebuildAssembly(doc: Document): AssemblyRebuild {
       try {
         g = csg(b.geometry, r.geometry, 'subtract');
       } catch (err) {
+        // a component entirely inside the cut is cut away completely; only a real boolean failure is an error (F60)
+        if (/leaves nothing/.test((err as Error).message)) { cutAway.add(b); b.featureIds = [...b.featureIds, f.id]; hit++; continue; }
         errors[f.id] = `The cut failed on ${b.id.split('~')[0]}: ${(err as Error).message}`;
         continue;
       }
@@ -700,6 +706,7 @@ export function rebuildAssembly(doc: Document): AssemblyRebuild {
     }
     if (!hit) errors[f.id] = 'The cut does not touch any component in its scope.';
   }
+  if (cutAway.size) for (let k = bodies.length - 1; k >= 0; k--) if (cutAway.has(bodies[k])) bodies.splice(k, 1);
   return { bodies, errors, consumedSketches: consumed, components, curves, patternInstances };
 }
 

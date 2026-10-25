@@ -11,6 +11,7 @@ await page.waitForSelector('.k-viewport', { timeout: 30000 });
 check('no test hooks without PHLIPPO_E2E', await page.evaluate(() => typeof window.__phlippoStore === 'undefined' && typeof window.__phlippoKit === 'undefined' && typeof window.__phlippoSnapshot === 'undefined'));
 check('bridge says testHooks is off', await page.evaluate(() => window.phlippoDesktop.testHooks === false));
 check('Content-Security-Policy meta in the page', await page.evaluate(() => (document.querySelector('meta[http-equiv="Content-Security-Policy"]')?.getAttribute('content') ?? '').includes("default-src 'self'")));
+check('no application menu (no DevTools / Reload entries in a menu, F67)', await app.evaluate(({ Menu }) => Menu.getApplicationMenu() === null));
 await app.close();
 console.log(`\n${passed}/${passed + failed} checks passed`);
 process.exit(failed ? 1 : 0);

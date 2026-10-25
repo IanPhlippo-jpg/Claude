@@ -83,8 +83,22 @@ export function Menu({ items, onClose, style }: { items: MenuItem[]; onClose: ()
     const left = Math.max(4, Math.min(r.left, window.innerWidth - r.width - 4));
     setFixed({ left, top: r.top });
   }, [fixed]);
+  // a menu always stays inside the window, as the original's: shifted up / left when it would run off the edge,
+  // and scrolling when it is taller than the window (long context menus near the bottom of the tree)
+  const [fit, setFit] = useState<{ dx: number; dy: number; maxH?: number } | null>(null);
+  useLayoutEffect(() => {
+    if (fit || !ref.current) return;
+    const r = ref.current.getBoundingClientRect();
+    const m = 4, H = window.innerHeight, W = window.innerWidth;
+    const maxH = r.height > H - 2 * m ? H - 2 * m : undefined;
+    const h = maxH ?? r.height;
+    const dy = r.top + h > H - m ? H - m - h - r.top : 0;
+    const dx = r.right > W - m ? Math.max(m - r.left, W - m - r.right) : 0;
+    setFit({ dx, dy, maxH });
+  }, [fit, fixed]);
+  const fitStyle: React.CSSProperties = fit && (fit.dx || fit.dy || fit.maxH) ? { transform: `translate(${fit.dx}px, ${fit.dy}px)`, ...(fit.maxH ? { maxHeight: fit.maxH, overflowY: 'auto' } : {}) } : {};
   const body = (
-    <div className="k-menu" ref={ref} style={fixed ? { ...style, position: 'fixed', left: fixed.left, top: fixed.top, right: 'auto', bottom: 'auto', zIndex: 2000 } : style}>
+    <div className="k-menu" ref={ref} style={fixed ? { ...style, position: 'fixed', left: fixed.left, top: fixed.top, right: 'auto', bottom: 'auto', zIndex: 2000, ...fitStyle } : { ...style, ...fitStyle }}>
       {items.map((it, i) =>
         it.separator ? (
           <div key={i} className="k-menu-sep" />

@@ -2,7 +2,7 @@
 import { chromium } from 'playwright';
 import { readFileSync } from 'node:fs';
 const [file, ...pts] = process.argv.slice(2);
-const browser = await chromium.launch({ channel: process.env.PW_CHANNEL ?? 'msedge' });
+const browser = await chromium.launch(process.platform === 'win32' ? { channel: process.env.PW_CHANNEL ?? 'msedge' } : { ...(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {}), args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
 const page = await browser.newPage();
 const b64 = readFileSync(file).toString('base64');
 const mime = file.endsWith('.png') ? 'image/png' : 'image/jpeg';

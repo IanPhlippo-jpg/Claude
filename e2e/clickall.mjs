@@ -4,7 +4,7 @@
 import { chromium } from 'playwright';
 import { readFileSync, writeFileSync } from 'node:fs';
 
-const browser = await chromium.launch({ channel: process.env.PW_CHANNEL ?? 'msedge' });
+const browser = await chromium.launch(process.platform === 'win32' ? { channel: process.env.PW_CHANNEL ?? 'msedge' } : { ...(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {}), args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
 const page = await browser.newPage({ viewport: { width: 1280, height: 672 }, deviceScaleFactor: 1.5, acceptDownloads: true });
 let errs = [];
 page.on('pageerror', (e) => errs.push('pageerror: ' + e.message));

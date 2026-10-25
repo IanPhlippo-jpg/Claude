@@ -45,8 +45,11 @@ export function rotatedAbout(g: THREE.BufferGeometry, origin: THREE.Vector3, dir
 }
 
 /** Instance transforms of a pattern feature (without the seed instance). */
-/** the most instances a pattern makes (the original refuses more as well) */
-export const MAX_PATTERN_INSTANCES = 2000;
+/**
+ * the most instances a pattern makes: every instance is a boolean on the UI thread, and 400 took close to a minute
+ * in 0.3.1, so the limit stays well below that (F44)
+ */
+export const MAX_PATTERN_INSTANCES = 250;
 
 export function patternInstances(f: { type: string; dir1?: { axis: [number, number, number]; spacing: number; count: number }; dir2?: { axis: [number, number, number]; spacing: number; count: number }; axis?: { origin: [number, number, number]; dir: [number, number, number] }; angle?: number; count?: number; instanceSpacing?: boolean; seedOnly?: boolean; modified?: { i: number; j: number; dx?: number; dy?: number }[] }): ((g: THREE.BufferGeometry) => THREE.BufferGeometry)[] {
   const out: ((g: THREE.BufferGeometry) => THREE.BufferGeometry)[] = [];

@@ -18,7 +18,7 @@ await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.
 await page.reload();
 await page.waitForSelector('.k-viewport');
 await page.click('.k-doctype:has-text("Part")');
-const doc = JSON.parse(readFileSync('e2e-out/user-part1.json', 'utf8'));
+const doc = JSON.parse(readFileSync(new URL('./fixtures/user-part1.json', import.meta.url), 'utf8'));
 await page.evaluate((d) => window.__phlippoStore.getState().openDocument(d), doc);
 await page.waitForTimeout(1200);
 

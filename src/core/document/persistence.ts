@@ -93,6 +93,8 @@ function validateSheet(sh: unknown, i: number, depth: number): void {
   if (!isObj(sh) || typeof sh.id !== 'string' || typeof sh.name !== 'string') throw new DocumentFormatError(`Sheet ${i + 1} is damaged.`);
   if (typeof sh.size !== 'string' || !isBool(sh.landscape) || !isVec(sh.scale, 2) || !isBool(sh.showFormat)) throw new DocumentFormatError(`Sheet "${sh.name}" has no valid format.`);
   if ((sh.scale as number[]).some((x) => x <= 0)) throw new DocumentFormatError(`Sheet "${sh.name}" has a scale of zero.`);
+  // lists that older drawings may not have start empty; a list of the wrong type is damage
+  for (const k of ['dimensions', 'notes', 'centerMarks'] as const) if (sh[k] === undefined) sh[k] = [];
   if (!Array.isArray(sh.views) || !Array.isArray(sh.dimensions) || !Array.isArray(sh.notes) || !Array.isArray(sh.centerMarks)) throw new DocumentFormatError(`Sheet "${sh.name}" misses its view, dimension or note list.`);
   const viewIds = new Set<string>();
   sh.views.forEach((v, j) => {
@@ -143,7 +145,8 @@ export function validateDocument(raw: unknown, depth = 0): Document {
   if (!Array.isArray(d.features)) throw new DocumentFormatError('The feature list is missing.');
   d.features.forEach((f, i) => {
     if (!isObj(f) || typeof f.id !== 'string' || typeof f.type !== 'string' || typeof f.name !== 'string') throw new DocumentFormatError(`Feature ${i + 1} is damaged.`);
-    for (const k of ['depth', 'angle', 'size', 'thickness', 'radius', 'distance']) if (k in f && f[k] !== undefined && f[k] !== null && !isNum(f[k])) throw new DocumentFormatError(`Feature "${f.name}": ${k} is not a valid number.`);
+    // size is a designation on some features (M6, 40 x 40 x 4), so it is not checked as a number here
+    for (const k of ['depth', 'angle', 'thickness', 'radius', 'distance']) if (k in f && f[k] !== undefined && f[k] !== null && !isNum(f[k])) throw new DocumentFormatError(`Feature "${f.name}": ${k} is not a valid number.`);
   });
   if (d.planes !== undefined && !isObj(d.planes)) throw new DocumentFormatError('The reference planes are damaged.');
   if (d.variables !== undefined && !isObj(d.variables)) throw new DocumentFormatError('The global variables are damaged.');

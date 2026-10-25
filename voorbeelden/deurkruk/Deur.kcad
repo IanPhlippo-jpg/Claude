@@ -13,87 +13,87 @@
           "x": 0,
           "y": 0
         },
-        "pmvnyx1x91": {
+        "pmvobizd61": {
           "x": -70,
           "y": -330
         },
-        "pmvnyx1x92": {
+        "pmvobizd62": {
           "x": 230,
           "y": -330
         },
-        "pmvnyx1x94": {
+        "pmvobizd64": {
           "x": 230,
           "y": 270
         },
-        "pmvnyx1x96": {
+        "pmvobizd66": {
           "x": -70,
           "y": 270
         },
-        "pmvnyx1x99": {
+        "pmvobizd69": {
           "x": 0,
           "y": 0
         },
-        "pmvnyx1x9c": {
+        "pmvobizd6c": {
           "x": 0,
           "y": -72
         }
       },
       "scalars": {
-        "smvnyx1x9a": 10,
-        "smvnyx1x9d": 9
+        "smvobizd6a": 10,
+        "smvobizd6d": 9
       },
       "entities": {
-        "lnmvnyx1x93": {
-          "id": "lnmvnyx1x93",
+        "lnmvobizd63": {
+          "id": "lnmvobizd63",
           "kind": "line",
-          "p1": "pmvnyx1x91",
-          "p2": "pmvnyx1x92",
+          "p1": "pmvobizd61",
+          "p2": "pmvobizd62",
           "construction": false
         },
-        "lnmvnyx1x95": {
-          "id": "lnmvnyx1x95",
+        "lnmvobizd65": {
+          "id": "lnmvobizd65",
           "kind": "line",
-          "p1": "pmvnyx1x92",
-          "p2": "pmvnyx1x94",
+          "p1": "pmvobizd62",
+          "p2": "pmvobizd64",
           "construction": false
         },
-        "lnmvnyx1x97": {
-          "id": "lnmvnyx1x97",
+        "lnmvobizd67": {
+          "id": "lnmvobizd67",
           "kind": "line",
-          "p1": "pmvnyx1x94",
-          "p2": "pmvnyx1x96",
+          "p1": "pmvobizd64",
+          "p2": "pmvobizd66",
           "construction": false
         },
-        "lnmvnyx1x98": {
-          "id": "lnmvnyx1x98",
+        "lnmvobizd68": {
+          "id": "lnmvobizd68",
           "kind": "line",
-          "p1": "pmvnyx1x96",
-          "p2": "pmvnyx1x91",
+          "p1": "pmvobizd66",
+          "p2": "pmvobizd61",
           "construction": false
         },
-        "cimvnyx1x9b": {
-          "id": "cimvnyx1x9b",
+        "cimvobizd6b": {
+          "id": "cimvobizd6b",
           "kind": "circle",
-          "center": "pmvnyx1x99",
-          "r": "smvnyx1x9a",
+          "center": "pmvobizd69",
+          "r": "smvobizd6a",
           "construction": false
         },
-        "cimvnyx1x9e": {
-          "id": "cimvnyx1x9e",
+        "cimvobizd6e": {
+          "id": "cimvobizd6e",
           "kind": "circle",
-          "center": "pmvnyx1x9c",
-          "r": "smvnyx1x9d",
+          "center": "pmvobizd6c",
+          "r": "smvobizd6d",
           "construction": false
         }
       },
       "constraints": {},
       "entityOrder": [
-        "lnmvnyx1x93",
-        "lnmvnyx1x95",
-        "lnmvnyx1x97",
-        "lnmvnyx1x98",
-        "cimvnyx1x9b",
-        "cimvnyx1x9e"
+        "lnmvobizd63",
+        "lnmvobizd65",
+        "lnmvobizd67",
+        "lnmvobizd68",
+        "cimvobizd6b",
+        "cimvobizd6e"
       ],
       "constraintOrder": [],
       "origin": "origin_s1"

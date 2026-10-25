@@ -44,6 +44,10 @@ Status per fase:
 8. Sheet metal (Base Flange/Tab, Edge Flange, Flatten met K-factor) — **basis gereed**; Hem/Jog/Miter/Unfold gepland
 7. Massa-eigenschappen en meten — **gereed** (Mass Properties, Measure); materialen en rendering gepland
 
+## Status 0.3.4 (2026-10-25)
+
+Het externe QA-rapport over 0.3.3 (76 bevindingen, NO-GO) is verwerkt zonder nieuwe functies: de app werkt zonder testhaken (viewport-brug), kapotte documenten worden geweigerd zonder crash of autosave, de Viewer-export is tegen script-injectie beveiligd, undo dekt alle modelwijzigingen, commando's staan grijs zonder body, eigen plaatwerkiconen, vlaklabels zonder overlap, SimulationXpress is een indicatieve Quick Beam Estimate, geen SOLIDWORKS-productnamen meer in de UI, licentie en third-party notices, strengere Electron-instellingen, en elk e2e-script faalt nu ook op een page error. Per bevinding: docs/11-qa-rapport-v0.3.3.md. Unit tests 337, e2e-regressie `npm run e2e:regression` (79 scripts).
+
 ## Status 0.3.3 (2026-10-25)
 
 Blokken G-A t/m G-J (docs/10-blokken-g.md): Surfaces compleet, Sheet Metal extra's (Vent, Forming Tool, Gusset, Tab and Slot, Rip, Swept Flange), Evaluate (Performance Evaluation, Symmetry Check, Deviation/Parting Line Analysis, Compare, SimulationXpress-schatting), Customize-dialoog met echte instellingen, Weldments met cut list, Material-velden + MBD Dimensions (DimXpert), Deform, Save As-opties, Publish to Phlippo Viewer (*.html), tekening bend lines. Unit tests 322, e2e-regressie 76 scripts.

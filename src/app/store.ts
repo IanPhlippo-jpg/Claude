@@ -1,3 +1,4 @@
+import { MAX_PATTERN_INSTANCES } from '../core/features/pattern';
 import { piercePoints, refreshPierce } from '../core/sketch/pierce';
 import { massProperties } from '../core/features/measure';
 import { keyedPose, simulateBasic } from '../core/assembly/motion';
@@ -2202,8 +2203,8 @@ export const useStore = create<State>((set, get) => ({
     }
     // instance count: beyond this the rebuild takes minutes (the original warns as well)
     const instances = fe.draft.type === 'linearPattern' ? (fe.draft.dir1?.count ?? 1) * (fe.draft.dir2?.count ?? 1) : fe.draft.type === 'circularPattern' ? (fe.draft.count ?? 1) * (fe.draft.dir2?.count ?? 1) : 0;
-    if (instances > 2000) {
-      get().pushMessage(`Too many instances (${instances}); the limit is 2000.`, 'warn');
+    if (instances > MAX_PATTERN_INSTANCES) {
+      get().pushMessage(`Too many instances (${instances}); the limit is ${MAX_PATTERN_INSTANCES}.`, 'warn');
       return;
     }
     if ((fe.draft.type === 'linearPattern' || fe.draft.type === 'circularPattern' || fe.draft.type === 'sketchPattern' || fe.draft.type === 'curvePattern' || fe.draft.type === 'tablePattern' || fe.draft.type === 'fillPattern' || fe.draft.type === 'variablePattern') && !fe.draft.featureIds.length) {
@@ -4788,7 +4789,7 @@ export const useStore = create<State>((set, get) => ({
     }
     if (!opts?.keepHistory) history.clear();
     set({ prefs: { ...loadPrefs(), ...(doc.properties ?? {}) } });
-    set({ openSeq: get().openSeq + 1, hasDocument: true, doc: r.doc, solve: r.solve, rebuild, activeSketchId: null, featureEdit: null, mateEdit: null, insertingComponent: false, asmTool: 'select', selectedFeatureId: null, selectedFace: null, selectedFaces: [], selection: [], selectedConstraint: null, dirty: false, tab: isAssembly(r.doc) ? 'assembly' : isDrawing(r.doc) ? 'viewLayout' : 'features', drawingEdit: null, selectedDrawingViewId: null, rollbackIndex: null, editContext: null, ...historyFlags() });
+    set({ openSeq: get().openSeq + 1, hasDocument: true, doc: r.doc, solve: r.solve, rebuild, activeSketchId: null, featureEdit: null, mateEdit: null, insertingComponent: false, asmTool: 'select', selectedFeatureId: null, selectedFace: null, selectedFaces: [], selection: [], selectedConstraint: null, dirty: false, tab: isAssembly(r.doc) ? 'assembly' : isDrawing(r.doc) ? 'viewLayout' : 'features', drawingEdit: null, selectedDrawingViewId: null, rollbackIndex: null, editContext: null, messages: get().messages.filter((m) => m.level !== 'info'), ...historyFlags() });
     autosave(r.doc);
   },
   rebuildAll() {

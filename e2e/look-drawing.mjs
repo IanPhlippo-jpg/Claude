@@ -2,7 +2,7 @@
 // With LOOK_ACTIONS=1 also runs Auto Balloon, BOM, Hole Table and General Table as a user would.
 import { chromium } from 'playwright';
 import { readFileSync } from 'node:fs';
-const browser = await chromium.launch({ channel: process.env.PW_CHANNEL ?? 'msedge' });
+const browser = await chromium.launch(process.platform === 'win32' ? { channel: process.env.PW_CHANNEL ?? 'msedge' } : { ...(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {}), args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
 const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } });
 const errors = [];
 page.on('pageerror', (e) => errors.push('pageerror: ' + e.message));

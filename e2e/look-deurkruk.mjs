@@ -1,7 +1,7 @@
 // look-dev: the door handle assembly (voorbeelden/deurkruk) in the current design -> e2e-out/look-deurkruk.png
 import { chromium } from 'playwright';
 import { readFileSync } from 'node:fs';
-const browser = await chromium.launch({ channel: process.env.PW_CHANNEL ?? 'msedge' });
+const browser = await chromium.launch(process.platform === 'win32' ? { channel: process.env.PW_CHANNEL ?? 'msedge' } : { ...(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {}), args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
 const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } });
 await page.goto(process.env.E2E_URL ?? 'http://127.0.0.1:4173/');
 await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.theme', 'light'); });

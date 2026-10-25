@@ -300,7 +300,16 @@ function brush(g: THREE.BufferGeometry): Brush {
 
 /** Boolean union / subtraction of two solids (world coordinates). */
 export function csg(a: THREE.BufferGeometry, b: THREE.BufferGeometry, op: 'union' | 'subtract' | 'intersect'): THREE.BufferGeometry {
-  const r = evaluator.evaluate(brush(a), brush(b), op === 'union' ? ADDITION : op === 'intersect' ? INTERSECTION : SUBTRACTION);
+  // three-bvh-csg 0.0.18 builds its BVH with the old "maxLeafSize" option name; that one deprecation notice is
+  // dropped here (it printed once per boolean, hundreds of times per test run, F35). Other warnings pass through.
+  const warn = console.warn;
+  console.warn = (...args: unknown[]) => { if (typeof args[0] === 'string' && args[0].includes('"maxLeafSize" option has been deprecated')) return; warn(...args); };
+  let r: Brush;
+  try {
+    r = evaluator.evaluate(brush(a), brush(b), op === 'union' ? ADDITION : op === 'intersect' ? INTERSECTION : SUBTRACTION) as Brush;
+  } finally {
+    console.warn = warn;
+  }
   const g = r.geometry;
   // the result is checked: no triangles (the bodies do not overlap, or the cut takes the whole body) or invalid
   // coordinates would otherwise travel on silently as an "empty body"

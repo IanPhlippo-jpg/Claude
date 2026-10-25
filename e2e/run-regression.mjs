@@ -8,7 +8,7 @@ const only = process.argv.slice(2);
 const list = only.length ? only : SCRIPTS;
 const version = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')).version;
 mkdirSync('e2e-out', { recursive: true });
-const log = `e2e-out/regression-${version}.txt`;
+const log = only.length ? `e2e-out/regression-${version}-partial.txt` : `e2e-out/regression-${version}.txt`;
 writeFileSync(log, `regression ${version} ${new Date().toISOString()} (${list.length} scripts)\n`);
 const failed = [];
 for (const t of list) {

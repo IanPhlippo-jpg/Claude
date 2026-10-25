@@ -1,10 +1,10 @@
-// Delete in the over-defined center rectangle sketch of the user's own part (e2e-out/user-part1.json)
+// Delete in the over-defined center rectangle sketch of the user's own part (e2e/fixtures/user-part1.json)
 import { chromium, _electron as electron } from 'playwright';
 import { readFileSync } from 'node:fs';
 
 const exe = process.env.PHLIPPO_EXE;
 const app = exe ? await electron.launch({ executablePath: exe, args: [] }) : null;
-const browser = exe ? null : await chromium.launch({ channel: process.env.PW_CHANNEL ?? 'msedge' });
+const browser = exe ? null : await chromium.launch(process.platform === 'win32' ? { channel: process.env.PW_CHANNEL ?? 'msedge' } : { ...(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {}), args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
 const page = exe ? await app.firstWindow() : await browser.newPage({ viewport: { width: 1920, height: 1080 } });
 const logs = [];
 page.on('pageerror', (e) => logs.push('pageerror: ' + e.message));
@@ -23,7 +23,7 @@ if (!exe) {
 } else await page.waitForTimeout(6000);
 // the installed app holds the user's own autosave: keep a copy and put it back at the end
 const savedAutosave = exe ? await page.evaluate(() => localStorage.getItem('phlippo.autosave')) : null;
-const doc = JSON.parse(readFileSync('e2e-out/user-part1.json', 'utf8'));
+const doc = JSON.parse(readFileSync(new URL('./fixtures/user-part1.json', import.meta.url), 'utf8'));
 await page.evaluate((d) => window.__phlippoStore.getState().openDocument(d), doc);
 await page.waitForTimeout(1500);
 await alive('open the part');

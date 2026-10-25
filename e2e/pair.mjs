@@ -1,7 +1,7 @@
 // side by side: SW frame (left) and our screenshot (right): node e2e/pair.mjs NNNN [NNNN …] -> e2e-out/tut/pair-NNNN.jpg
 import { chromium } from 'playwright';
 import { readFileSync, writeFileSync } from 'node:fs';
-const browser = await chromium.launch({ channel: process.env.PW_CHANNEL ?? 'msedge' });
+const browser = await chromium.launch(process.platform === 'win32' ? { channel: process.env.PW_CHANNEL ?? 'msedge' } : { ...(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {}), args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
 const page = await browser.newPage();
 for (const n of process.argv.slice(2)) {
   const a = 'data:image/jpeg;base64,' + readFileSync(`referentie-video/frames/f_${n}.jpg`).toString('base64');

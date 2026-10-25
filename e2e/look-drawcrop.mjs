@@ -1,7 +1,7 @@
 // the drawing's title block and border at Ian's DPI, zoomed like a user would -> e2e-out/ian-tb.png
 import { chromium } from 'playwright';
 import { readFileSync } from 'node:fs';
-const browser = await chromium.launch({ channel: process.env.PW_CHANNEL ?? 'msedge' });
+const browser = await chromium.launch(process.platform === 'win32' ? { channel: process.env.PW_CHANNEL ?? 'msedge' } : { ...(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {}), args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
 const page = await browser.newPage({ viewport: { width: 1280, height: 672 }, deviceScaleFactor: 1.5 });
 await page.goto(process.env.E2E_URL ?? 'http://127.0.0.1:5173/');
 await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.theme', 'light'); });

@@ -303,7 +303,9 @@ check('space opens orientation', (await page.locator('.k-orientation-dialog').co
 await page.click('.k-viewgrid-btn:has-text("Top")');
 await page.waitForTimeout(300);
 check('Top view', (await S()).viewName === '*Top');
+// the context menu of the last tree row is long: it has to move up to stay inside the window (else Delete is off-screen)
 await page.click('.k-tree-row:has-text("TopSketch")', { button: 'right' });
+check('the context menu stays inside the window', await page.locator('.k-menu').first().evaluate((el) => { const r = el.getBoundingClientRect(); return r.top >= 0 && r.bottom <= innerHeight && r.right <= innerWidth; }));
 await page.click('.k-menu-item:has-text("Delete")');
 check('Delete asks Confirm Delete first', (await page.locator('[data-testid="confirm-delete"]').count()) === 1);
 await page.click('[data-testid="cdel-yes"]');

@@ -1,9 +1,11 @@
 // The Delete key in the desktop app (Electron on dist/, or the installed exe with PHLIPPO_EXE): sketch a rectangle,
 // select a line, press Delete; then a feature; the window must keep responding.
+// Since 0.3.4 the installed program has no test hooks (QA F53/F65); the unpackaged shell (`electron .` on dist/) uses the
+// same profile (%APPDATA%\phlippo-cad), so it reads and writes the installed app's autosave. Run `npm run build` first.
 import { _electron as electron } from 'playwright';
 
 const exe = process.env.PHLIPPO_EXE;
-const app = await electron.launch(exe ? { executablePath: exe, args: [], env: { ...process.env, PHLIPPO_E2E: '1' } } : { args: ['.'], env: { ...process.env, PHLIPPO_E2E: '1', VITE_DEV_SERVER_URL: '' } });
+const app = await electron.launch({ args: ['.'], env: { ...process.env, PHLIPPO_E2E: '1', VITE_DEV_SERVER_URL: '' } });
 const page = await app.firstWindow();
 const logs = [];
 page.on('console', (m) => logs.push(m.type() + ': ' + m.text()));
