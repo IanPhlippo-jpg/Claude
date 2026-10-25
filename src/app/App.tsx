@@ -1,5 +1,5 @@
 import { CheckDialog, RepairSketchDialog, SectionPropertiesDialog } from './evaluateDialogs';
-import { CompareDialog, PerformanceDialog, SimXpressDialog, SymmetryDialog } from './evaluateDialogs2';
+import { CompareDialog, CutListDialog, PerformanceDialog, SimXpressDialog, SymmetryDialog } from './evaluateDialogs2';
 import { CustomizeDialog } from './customize';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useStore } from './store';
@@ -134,6 +134,7 @@ export function App() {
           {st.dialog === 'check' && <CheckDialog />}
           {st.dialog === 'performance' && <PerformanceDialog />}
           {st.dialog === 'customize' && <CustomizeDialog />}
+          {st.dialog === 'cutList' && <CutListDialog />}
           {st.dialog === 'symmetry' && <SymmetryDialog />}
           {st.dialog === 'compare' && <CompareDialog />}
           {st.dialog === 'simxpress' && <SimXpressDialog />}

@@ -430,6 +430,95 @@ export interface ConvertSheetFeature {
   insertBends?: boolean;
 }
 
+/** Weldments ▸ Weldment: the part is a weldment (multibody, with a cut list). */
+export interface WeldmentFeature {
+  id: Id;
+  type: 'weldment';
+  name: string;
+  suppressed: boolean;
+}
+
+/** Weldments ▸ Structural Member: a profile swept along the straight segments of a 2D or 3D sketch; one body per segment. */
+export interface StructuralMemberFeature {
+  id: Id;
+  type: 'structuralMember';
+  name: string;
+  suppressed: boolean;
+  /** the path: a 2D sketch or a 3D sketch feature */
+  sketchId: Id;
+  standard: 'iso' | 'ansi inch';
+  profileType: 'square tube' | 'rectangular tube' | 'pipe' | 'angle iron' | 'c channel' | 'sb beam';
+  size: string;
+  /** Settings: corner treatment, gap, merge arc segment bodies, rotation, mirror profile, locate profile offset */
+  corner: 'endMiter' | 'endButt1' | 'endButt2' | 'none';
+  gap: number;
+  mergeArcs?: boolean;
+  rotation: number;
+  mirror?: boolean;
+  locate?: { x: number; y: number };
+}
+
+/** Weldments ▸ Trim/Extend: bodies trimmed by other bodies or by a face/plane. */
+export interface TrimExtendFeature {
+  id: Id;
+  type: 'trimExtend';
+  name: string;
+  suppressed: boolean;
+  bodies: Id[];
+  trimBy: 'bodies' | 'face';
+  trimBodies: Id[];
+  face: { normal: [number, number, number]; point: [number, number, number] } | null;
+  allowExtension: boolean;
+  weldGap: number;
+}
+
+/** Weldments ▸ End Cap: plates closing the open ends of tubes. */
+export interface EndCapFeature {
+  id: Id;
+  type: 'endCap';
+  name: string;
+  suppressed: boolean;
+  faces: { normal: [number, number, number]; point: [number, number, number] }[];
+  thickness: number;
+  outward: boolean;
+  /** Offset: a thickness ratio of the wall or a distance; Corner treatment: chamfer */
+  useRatio: boolean;
+  ratio: number;
+  offset: number;
+  chamfer: number;
+}
+
+/** Weldments ▸ Gusset: a triangular or polygonal plate between two faces of the frame. */
+export interface WeldGussetFeature {
+  id: Id;
+  type: 'weldGusset';
+  name: string;
+  suppressed: boolean;
+  faces: { normal: [number, number, number]; point: [number, number, number] }[];
+  profile: 'triangular' | 'polygonal';
+  d1: number;
+  d2: number;
+  d3?: number;
+  thickness: number;
+  location: 'start' | 'mid' | 'end';
+  offset: number;
+}
+
+/** Weldments ▸ Weld Bead: a bead along the corner between two faces (its own body in the Weld Folder). */
+export interface WeldBeadFeature {
+  id: Id;
+  type: 'weldBead';
+  name: string;
+  suppressed: boolean;
+  faces: { normal: [number, number, number]; point: [number, number, number] }[];
+  size: number;
+  intermittent: { length: number; pitch: number } | null;
+  from: number;
+  to: number;
+  bothSides?: boolean;
+  symbol?: string;
+}
+
 /** Sheet Metal ▸ Vent: the boundary of the sketch is cut out of the sheet, its ribs and spars stay as strips. */
 export interface VentFeature {
   id: Id;
@@ -913,7 +1002,7 @@ export interface ImportedFeature {
   source: string;
 }
 
-export type SolidFeature = ExtrudeFeature | RevolveFeature | RoundFeature | MirrorFeature | PatternFeature | HoleFeature | ShellFeature | SweepFeature | LoftFeature | ImportedFeature | RibFeature | CombineFeature | BaseFlangeFeature | EdgeFlangeFeature | FlatPatternFeature | HelixFeature | HemFeature | MiterFlangeFeature | JogFeature | Sketch3DFeature | SketchedBendFeature | DraftFeature | IntersectFeature | SurfaceFeature | CrossBreakFeature | UnfoldFeature | WrapFeature | ThreadFeature | SplitLineFeature | ProjectedCurveFeature | StudFeature | ClosedCornerFeature | CornerReliefFeature | LoftedBendFeature | ConvertSheetFeature | BeltFeature | DeleteBodyFeature | DeleteFaceFeature | VentFeature | FormToolFeature | GussetFeature | TabSlotFeature | RipFeature | SweptFlangeFeature;
+export type SolidFeature = ExtrudeFeature | RevolveFeature | RoundFeature | MirrorFeature | PatternFeature | HoleFeature | ShellFeature | SweepFeature | LoftFeature | ImportedFeature | RibFeature | CombineFeature | BaseFlangeFeature | EdgeFlangeFeature | FlatPatternFeature | HelixFeature | HemFeature | MiterFlangeFeature | JogFeature | Sketch3DFeature | SketchedBendFeature | DraftFeature | IntersectFeature | SurfaceFeature | CrossBreakFeature | UnfoldFeature | WrapFeature | ThreadFeature | SplitLineFeature | ProjectedCurveFeature | StudFeature | ClosedCornerFeature | CornerReliefFeature | LoftedBendFeature | ConvertSheetFeature | BeltFeature | DeleteBodyFeature | DeleteFaceFeature | VentFeature | FormToolFeature | GussetFeature | TabSlotFeature | RipFeature | SweptFlangeFeature | WeldmentFeature | StructuralMemberFeature | TrimExtendFeature | EndCapFeature | WeldGussetFeature | WeldBeadFeature;
 export type SketchBasedFeature = ExtrudeFeature | RevolveFeature | SweepFeature | LoftFeature | RibFeature | BaseFlangeFeature | HelixFeature;
 export type Feature = SketchFeature | SolidFeature;
 
@@ -1326,6 +1415,8 @@ export interface Document {
   transparentBodies?: Id[];
   /** Create Bounding Box: the box around all bodies, shown as dashed lines and a tree item */
   boundingBox?: boolean;
+  /** Weldments: the part is a weldment (cut list instead of Solid Bodies) */
+  weldment?: boolean;
   /** Markup: freehand strokes over the graphics area (screen fractions 0..1), per document */
   markups?: { id: Id; color: string; points: [number, number][] }[];
   /** Render Tools ▸ Edit Decal: images on planar faces (DisplayManager ▸ Decals) */

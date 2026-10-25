@@ -8,6 +8,7 @@ import { findMaterial, MATERIAL_LIBRARY, type MaterialDef } from '../core/docume
 import { desktop } from './desktop';
 import { REFERENCE_PLANE_DEFS as PLANES } from '../core/features/planes';
 import type { Document } from '../core/document/types';
+import { cutList } from '../core/features/weldments';
 
 const fmt = (v: number, d = 2) => (Number.isFinite(v) ? round(v, d).toLocaleString('en-US', { maximumFractionDigits: d }) : '∞');
 
@@ -24,6 +25,42 @@ function Shell({ title, icon, testid, width = 420, children, onClose, footer }: 
         {footer && <div className="k-panel-footer" style={{ padding: 8, display: 'flex', gap: 6, justifyContent: 'flex-end' }}>{footer}</div>}
       </div>
     </div>
+  );
+}
+
+/** Weldments ▸ Cut list properties: the Cut-List-Items with quantity, description, length and the miter angles. */
+export function CutListDialog() {
+  const st = useStore();
+  const meta = st.rebuild.bodyMeta ?? {};
+  const items = useMemo(() => cutList(st.rebuild.bodies.filter((b) => meta[b.id]?.kind !== 'bead').map((b) => ({ id: b.id, geometry: b.geometry, description: meta[b.id]?.description, length: meta[b.id]?.length, angle1: meta[b.id]?.angle1, angle2: meta[b.id]?.angle2 }))), [st.rebuild.bodies, meta]);
+  const beads = st.rebuild.bodies.filter((b) => meta[b.id]?.kind === 'bead');
+  const copy = () => {
+    const text = ['ITEM NO.\tQTY.\tDESCRIPTION\tLENGTH\tANGLE1\tANGLE2', ...items.map((it, i) => `${i + 1}\t${it.quantity}\t${it.description}\t${fmt(it.length, 1)}\t${fmt(it.angle1, 1)}\t${fmt(it.angle2, 1)}`)].join('\n');
+    navigator.clipboard?.writeText(text).catch(() => {});
+    st.pushMessage('Cut list copied to the clipboard.', 'info');
+  };
+  return (
+    <Shell title="Cut-List Properties" icon={<Icon.Weldment />} testid="cutlist-dialog" width={560} onClose={() => st.setDialog(null)} footer={<><button className="k-btn" onClick={copy}>Copy Table</button><button className="k-btn primary" onClick={() => st.setDialog(null)}>OK</button></>}>
+      <div className="k-pm-tabs">
+        <button className="active">Cut List Summary</button>
+        <button onClick={() => st.pushMessage('Properties Summary and Cut List Table follow the summary in this build.', 'info')}>Properties Summary</button>
+        <button onClick={() => st.pushMessage('Properties Summary and Cut List Table follow the summary in this build.', 'info')}>Cut List Table</button>
+      </div>
+      <table className="k-table" data-testid="cutlist-table">
+        <thead><tr><th>Item</th><th>Qty.</th><th>Description</th><th>Length</th><th>Angle1</th><th>Angle2</th><th>Volume</th></tr></thead>
+        <tbody>
+          {items.map((it) => (
+            <tr key={it.id}>
+              <td>{it.name}</td><td>{it.quantity}</td><td>{it.description || '—'}</td><td>{it.length ? `${fmt(it.length, 1)} mm` : '—'}</td><td>{fmt(it.angle1, 1)}°</td><td>{fmt(it.angle2, 1)}°</td><td>{fmt(it.volume, 0)} mm³</td>
+            </tr>
+          ))}
+          {!items.length && <tr><td colSpan={7} className="k-muted">No bodies yet. Add structural members along a sketch.</td></tr>}
+        </tbody>
+      </table>
+      <p className="k-muted" style={{ marginTop: 6 }}>{items.length} cut list item(s), {st.rebuild.bodies.length - beads.length} body(ies){beads.length ? `, ${beads.length} weld bead(s) in the Weld Folder` : ''}. Identical bodies (same size and volume) share one item.</p>
+      <label className="k-check"><input type="checkbox" defaultChecked /> Automatically update cut lists</label>
+      <label className="k-check"><input type="checkbox" defaultChecked /> Automatically create cut lists</label>
+    </Shell>
   );
 }
 

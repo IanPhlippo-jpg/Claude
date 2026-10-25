@@ -5,7 +5,7 @@ import type { SectionPlane } from '../core/features/section';
 import { sketchDimensionName } from '../core/document/equations';
 import { faceOwner } from '../core/features/faceOwner';
 import { create } from 'zustand';
-import { createDocument, isRoundFeature, isSketchBased, isSolidFeature, type Document, type ExtrudeFeature, type HoleFeature, type MirrorFeature, type PatternFeature, type ImportedFeature, type LoftFeature, type RibFeature, type CombineFeature, type BaseFlangeFeature, type EdgeFlangeFeature, type FlatPatternFeature, type HelixFeature, type HemFeature, type MiterFlangeFeature, type JogFeature, type Sketch3DFeature, type SketchedBendFeature, type DraftFeature, type IntersectFeature, type SurfaceFeature, type CrossBreakFeature, type UnfoldFeature, type WrapFeature, type ThreadFeature, type RevolveFeature, type RoundFeature, type ShellFeature, type SolidFeature, type SweepFeature, type Units, type VentFeature, type FormToolFeature, type GussetFeature, type TabSlotFeature, type RipFeature, type SweptFlangeFeature } from '../core/document/types';
+import { createDocument, isRoundFeature, isSketchBased, isSolidFeature, type Document, type ExtrudeFeature, type HoleFeature, type MirrorFeature, type PatternFeature, type ImportedFeature, type LoftFeature, type RibFeature, type CombineFeature, type BaseFlangeFeature, type EdgeFlangeFeature, type FlatPatternFeature, type HelixFeature, type HemFeature, type MiterFlangeFeature, type JogFeature, type Sketch3DFeature, type SketchedBendFeature, type DraftFeature, type IntersectFeature, type SurfaceFeature, type CrossBreakFeature, type UnfoldFeature, type WrapFeature, type ThreadFeature, type RevolveFeature, type RoundFeature, type ShellFeature, type SolidFeature, type SweepFeature, type Units, type VentFeature, type FormToolFeature, type GussetFeature, type TabSlotFeature, type RipFeature, type SweptFlangeFeature, type StructuralMemberFeature, type TrimExtendFeature, type EndCapFeature, type WeldGussetFeature, type WeldBeadFeature } from '../core/document/types';
 import { FORM_TOOL_LIBRARY } from '../core/features/sheetmetal4';
 import { edgeRef } from '../core/features/edgesets';
 import { rebuildDocument, type RebuildResult } from '../core/features/rebuild';
@@ -127,14 +127,14 @@ export type ToolId =
   | 'fullyDefine'
   | 'text';
 
-export type RibbonTab = 'sketch' | 'features' | 'surfaces' | 'sheetmetal' | 'evaluate' | 'render' | 'addins' | 'assembly' | 'drawing' | 'markup' | 'mbd' | 'viewLayout' | 'annotation' | 'sheetFormat' | 'lifecycle';
+export type RibbonTab = 'sketch' | 'features' | 'surfaces' | 'sheetmetal' | 'weldments' | 'evaluate' | 'render' | 'addins' | 'assembly' | 'drawing' | 'markup' | 'mbd' | 'viewLayout' | 'annotation' | 'sheetFormat' | 'lifecycle';
 export type Theme = 'light' | 'dark';
 export type PanelId = 'manager' | 'relations' | 'shortcuts';
 export type ManagerTab = 'tree' | 'properties' | 'configurations' | 'dimxpert' | 'display';
 export type DisplayStyle = 'wireframe' | 'hiddenVisible' | 'hiddenRemoved' | 'shaded' | 'shadedEdges';
 export type UnitSystem = 'MKS' | 'CGS' | 'MMGS' | 'IPS';
 export type TaskPaneTab = 'library' | 'relations' | 'properties' | 'resources' | 'marketplace' | 'forum' | 'explorer' | 'palette' | 'appearances' | 'platform' | 'recovery' | null;
-export type DialogId = 'welcome' | 'new' | 'options' | 'orientation' | 'mass' | 'measure' | 'equations' | 'bom' | 'interference' | 'sheetFormat' | 'sheetProperties' | 'material' | 'configure' | 'appearance' | 'check' | 'sectionProps' | 'repairSketch' | 'finalRender' | 'designStudy' | 'previewWindow' | 'mirrorComponents' | 'packAndGo' | 'share' | 'comments' | 'componentPreview' | 'relativeView' | 'spellCheck' | 'notePattern' | 'generalTable' | 'featureProps' | 'parentChild' | 'exportOptions' | 'customize' | 'performance' | 'deviation' | 'symmetry' | 'compare' | 'simxpress' | 'edrawings' | null;
+export type DialogId = 'welcome' | 'new' | 'options' | 'orientation' | 'mass' | 'measure' | 'equations' | 'bom' | 'interference' | 'sheetFormat' | 'sheetProperties' | 'material' | 'configure' | 'appearance' | 'check' | 'sectionProps' | 'repairSketch' | 'finalRender' | 'designStudy' | 'previewWindow' | 'mirrorComponents' | 'packAndGo' | 'share' | 'comments' | 'componentPreview' | 'relativeView' | 'spellCheck' | 'notePattern' | 'generalTable' | 'featureProps' | 'parentChild' | 'exportOptions' | 'customize' | 'performance' | 'deviation' | 'symmetry' | 'compare' | 'simxpress' | 'edrawings' | 'cutList' | null;
 
 /** drawing commands: Model View, Projected View, Smart Dimension, Note, Center Mark */
 export interface DrawingEdit {
@@ -652,6 +652,16 @@ interface State {
   startSweptFlange(): void;
   /** Forming Tool: a click on the placement face adds a position */
   addFormToolPoint(p: SketchPoint): void;
+  /** Trim/Extend: which box the next body pick fills (bodies to trim / trimming bodies) */
+  trimFocus: 'bodies' | 'trimming';
+  setTrimFocus(f: 'bodies' | 'trimming'): void;
+  /** Weldments: Weldment, Structural Member, Trim/Extend, End Cap, Gusset, Weld Bead */
+  startWeldment(): void;
+  startStructuralMember(): void;
+  startTrimExtend(): void;
+  startEndCap(): void;
+  startWeldGusset(): void;
+  startWeldBead(): void;
   /** Sketch ▸ Offset On Surface: the edges of the selected face moved over the face (a 3D sketch) */
   offsetSurfEdit: { distance: number; reverse: boolean } | null;
   setOffsetSurfEdit(e: { distance: number; reverse: boolean } | null): void;
@@ -743,7 +753,7 @@ interface State {
   addHolePoint(p: SketchPoint): void;
   setHoverEdge(id: string | null): void;
   toggleSelectedEdge(id: string, additive?: boolean): void;
-  updateFeatureDraft(patch: Partial<ExtrudeFeature> | Partial<RevolveFeature> | Partial<RoundFeature> | Partial<MirrorFeature> | Partial<PatternFeature> | Partial<HoleFeature> | Partial<ShellFeature> | Partial<SweepFeature> | Partial<LoftFeature> | Partial<RibFeature> | Partial<CombineFeature> | Partial<BaseFlangeFeature> | Partial<EdgeFlangeFeature> | Partial<HelixFeature> | Partial<HemFeature> | Partial<MiterFlangeFeature> | Partial<JogFeature> | Partial<SketchedBendFeature> | Partial<DraftFeature> | Partial<IntersectFeature> | Partial<SurfaceFeature> | Partial<CrossBreakFeature> | Partial<WrapFeature> | Partial<ThreadFeature> | Partial<StudFeature> | Partial<SplitLineFeature> | Partial<ProjectedCurveFeature> | Partial<ClosedCornerFeature> | Partial<CornerReliefFeature> | Partial<LoftedBendFeature> | Partial<ConvertSheetFeature> | Partial<DeleteFaceFeature> | Partial<VentFeature> | Partial<FormToolFeature> | Partial<GussetFeature> | Partial<TabSlotFeature> | Partial<RipFeature> | Partial<SweptFlangeFeature>): void;
+  updateFeatureDraft(patch: Partial<ExtrudeFeature> | Partial<RevolveFeature> | Partial<RoundFeature> | Partial<MirrorFeature> | Partial<PatternFeature> | Partial<HoleFeature> | Partial<ShellFeature> | Partial<SweepFeature> | Partial<LoftFeature> | Partial<RibFeature> | Partial<CombineFeature> | Partial<BaseFlangeFeature> | Partial<EdgeFlangeFeature> | Partial<HelixFeature> | Partial<HemFeature> | Partial<MiterFlangeFeature> | Partial<JogFeature> | Partial<SketchedBendFeature> | Partial<DraftFeature> | Partial<IntersectFeature> | Partial<SurfaceFeature> | Partial<CrossBreakFeature> | Partial<WrapFeature> | Partial<ThreadFeature> | Partial<StudFeature> | Partial<SplitLineFeature> | Partial<ProjectedCurveFeature> | Partial<ClosedCornerFeature> | Partial<CornerReliefFeature> | Partial<LoftedBendFeature> | Partial<ConvertSheetFeature> | Partial<DeleteFaceFeature> | Partial<VentFeature> | Partial<FormToolFeature> | Partial<GussetFeature> | Partial<TabSlotFeature> | Partial<RipFeature> | Partial<SweptFlangeFeature> | Partial<StructuralMemberFeature> | Partial<TrimExtendFeature> | Partial<EndCapFeature> | Partial<WeldGussetFeature> | Partial<WeldBeadFeature>): void;
   commitFeature(): void;
   cancelFeature(): void;
   /** PropertyManager ▸ Keep Visible (pushpin): stays open after OK for the next feature of the same kind */
@@ -2107,6 +2117,22 @@ export const useStore = create<State>((set, get) => ({
       get().pushMessage(!fe.draft.edge ? 'Select the edge that gets the tabs.' : 'Select the face that gets the slots.', 'warn');
       return;
     }
+    if (fe.draft.type === 'structuralMember' && !doc.sketches[fe.draft.sketchId] && !doc.features.some((f) => f.id === (fe.draft as StructuralMemberFeature).sketchId && f.type === 'sketch3d')) {
+      get().pushMessage('Select the path sketch of the structural members.', 'warn');
+      return;
+    }
+    if (fe.draft.type === 'trimExtend' && (!fe.draft.bodies.length || (fe.draft.trimBy === 'bodies' ? !fe.draft.trimBodies.length : !fe.draft.face))) {
+      get().pushMessage(!fe.draft.bodies.length ? 'Select the bodies to be trimmed.' : 'Select the trimming boundary.', 'warn');
+      return;
+    }
+    if (fe.draft.type === 'endCap' && !fe.draft.faces.length) {
+      get().pushMessage('Select the end faces to cap.', 'warn');
+      return;
+    }
+    if ((fe.draft.type === 'weldGusset' || fe.draft.type === 'weldBead') && fe.draft.faces.length < 2) {
+      get().pushMessage('Select the two faces that meet at the corner.', 'warn');
+      return;
+    }
     if (fe.draft.type === 'rip' && !fe.draft.edges.length) {
       get().pushMessage('Select the edges to rip.', 'warn');
       return;
@@ -2285,6 +2311,32 @@ export const useStore = create<State>((set, get) => ({
       const f = body?.faces.find((x) => x.id === selectedFace.faceId);
       if (!f || f.curved) return get().pushMessage('The start face must be planar.', 'warn');
       set({ featureEdit: { ...featureEdit, draft: { ...featureEdit.draft, startFace: { normal: f.normal, point: f.centroid, label: `Face<${body!.faces.indexOf(f) + 1}>` } } }, threadFacePick: false, selectedFace });
+      return;
+    }
+    if (featureEdit && selectedFace && (featureEdit.draft.type === 'endCap' || featureEdit.draft.type === 'weldGusset' || featureEdit.draft.type === 'weldBead' || featureEdit.draft.type === 'trimExtend')) {
+      const body = rebuild.bodies.find((b) => b.id === selectedFace.bodyId);
+      const face = body?.faces.find((f) => f.id === selectedFace.faceId);
+      if (!body || !face) return;
+      const d = featureEdit.draft;
+      if (d.type === 'trimExtend') {
+        if (get().trimFocus === 'trimming' && d.trimBy === 'face') {
+          if (face.curved) return get().pushMessage('Select a planar face as the trimming boundary.', 'warn');
+          set({ featureEdit: { ...featureEdit, draft: { ...d, face: { normal: face.normal, point: face.centroid } } }, selectedFace, selectedFaces: [selectedFace] });
+          return;
+        }
+        const key = get().trimFocus === 'trimming' ? 'trimBodies' : 'bodies';
+        const list = d[key];
+        const next = list.includes(body.id) ? list.filter((x) => x !== body.id) : [...list, body.id];
+        set({ featureEdit: { ...featureEdit, draft: { ...d, [key]: next } }, selectedFace, selectedFaces: [...selectedFaces.filter((f) => f.bodyId !== body.id), ...(list.includes(body.id) ? [] : [selectedFace])] });
+        return;
+      }
+      if (face.curved) return get().pushMessage('Select a planar face.', 'warn');
+      const ref = { normal: face.normal, point: face.centroid };
+      const same = (r: { point: [number, number, number] }) => Math.hypot(r.point[0] - ref.point[0], r.point[1] - ref.point[1], r.point[2] - ref.point[2]) < 1e-6;
+      const has = d.faces.some(same);
+      const max = d.type === 'endCap' ? 64 : 2;
+      const faces = has ? d.faces.filter((r) => !same(r)) : [...d.faces, ref].slice(-max);
+      set({ featureEdit: { ...featureEdit, draft: { ...d, faces } }, selectedFace, selectedFaces: has ? selectedFaces.filter((f) => f.faceId !== selectedFace.faceId) : [...selectedFaces, selectedFace].slice(-max) });
       return;
     }
     if (featureEdit && selectedFace && (featureEdit.draft.type === 'gusset' || featureEdit.draft.type === 'tabSlot')) {
@@ -3721,6 +3773,71 @@ export const useStore = create<State>((set, get) => ({
     const e = selectedEdges.map((id) => body.edges.find((x) => x.id === id)).find((x) => x && x.straight);
     const draft: HemFeature = { id: newId('f'), type: 'hem', name: featureName(doc, 'hem'), suppressed: false, edge: e ? edgeRef(e) : null, hemType: 'closed', length: 10, gap: 2, position: 'materialInside', flip: false };
     set({ featureEdit: { featureId: null, draft }, activeSketchId: null, tool: 'select', selection: [], tab: 'sheetmetal', managerTab: 'tree', planePick: false, selectedEdges: e ? [e.id] : [] });
+  },
+  startWeldment() {
+    const { doc } = get();
+    if (doc.weldment) {
+      get().pushMessage('This part is already a weldment.', 'info');
+      set({ tab: 'weldments' });
+      return;
+    }
+    get().applyDocument('Weldment', { ...doc, weldment: true, features: [...doc.features, { id: newId('f'), type: 'weldment', name: 'Weldment', suppressed: false }] });
+    set({ tab: 'weldments', managerTab: 'tree' });
+  },
+  startStructuralMember() {
+    const { doc } = get();
+    const paths = doc.features.filter((f) => f.type === 'sketch' || f.type === 'sketch3d');
+    const sel = doc.features.find((f) => f.id === get().selectedFeatureId && (f.type === 'sketch' || f.type === 'sketch3d'));
+    const last = sel ?? paths[paths.length - 1];
+    const sketchId = last ? (last.type === 'sketch' ? last.sketchId : last.id) : '';
+    const n = doc.features.filter((f) => f.type === 'structuralMember').length + 1;
+    const draft: StructuralMemberFeature = { id: newId('f'), type: 'structuralMember', name: `Structural Member${n}`, suppressed: false, sketchId, standard: 'iso', profileType: 'square tube', size: '40 x 40 x 4', corner: 'endMiter', gap: 0, mergeArcs: false, rotation: 0, mirror: false, locate: { x: 0, y: 0 } };
+    const d = doc.weldment ? doc : { ...doc, weldment: true, features: [...doc.features, { id: newId('f'), type: 'weldment' as const, name: 'Weldment', suppressed: false }] };
+    set({ doc: d, featureEdit: { featureId: null, draft }, activeSketchId: null, tool: 'select', selection: [], tab: 'weldments', managerTab: 'tree', planePick: false });
+  },
+  startTrimExtend() {
+    const { doc, rebuild, selectedFace } = get();
+    if (rebuild.bodies.length < 2) {
+      get().pushMessage('Trim/Extend needs at least two bodies (structural members).', 'warn');
+      return;
+    }
+    const n = doc.features.filter((f) => f.type === 'trimExtend').length + 1;
+    const draft: TrimExtendFeature = { id: newId('f'), type: 'trimExtend', name: `Trim/Extend${n}`, suppressed: false, bodies: selectedFace ? [selectedFace.bodyId] : [], trimBy: 'bodies', trimBodies: [], face: null, allowExtension: true, weldGap: 0 };
+    set({ featureEdit: { featureId: null, draft }, activeSketchId: null, tool: 'select', selection: [], tab: 'weldments', managerTab: 'tree', planePick: false, selectedFace: null, selectedFaces: [], trimFocus: 'bodies' });
+  },
+  trimFocus: 'bodies',
+  setTrimFocus(trimFocus) {
+    set({ trimFocus });
+  },
+  startEndCap() {
+    const { doc, rebuild } = get();
+    if (!rebuild.bodies.length) {
+      get().pushMessage('End Cap needs a structural member.', 'warn');
+      return;
+    }
+    const n = doc.features.filter((f) => f.type === 'endCap').length + 1;
+    const draft: EndCapFeature = { id: newId('f'), type: 'endCap', name: `End Cap${n}`, suppressed: false, faces: [], thickness: 5, outward: false, useRatio: true, ratio: 0.5, offset: 2, chamfer: 0 };
+    set({ featureEdit: { featureId: null, draft }, activeSketchId: null, tool: 'select', selection: [], tab: 'weldments', managerTab: 'tree', planePick: false, selectedFace: null, selectedFaces: [] });
+  },
+  startWeldGusset() {
+    const { doc, rebuild } = get();
+    if (!rebuild.bodies.length) {
+      get().pushMessage('Gusset needs structural members that meet at a corner.', 'warn');
+      return;
+    }
+    const n = doc.features.filter((f) => f.type === 'weldGusset').length + 1;
+    const draft: WeldGussetFeature = { id: newId('f'), type: 'weldGusset', name: `Gusset${n}`, suppressed: false, faces: [], profile: 'triangular', d1: 30, d2: 30, thickness: 5, location: 'mid', offset: 0 };
+    set({ featureEdit: { featureId: null, draft }, activeSketchId: null, tool: 'select', selection: [], tab: 'weldments', managerTab: 'tree', planePick: false, selectedFace: null, selectedFaces: [] });
+  },
+  startWeldBead() {
+    const { doc, rebuild } = get();
+    if (!rebuild.bodies.length) {
+      get().pushMessage('Weld Bead needs bodies that meet at a corner.', 'warn');
+      return;
+    }
+    const n = doc.features.filter((f) => f.type === 'weldBead').length + 1;
+    const draft: WeldBeadFeature = { id: newId('f'), type: 'weldBead', name: `Weld Bead${n}`, suppressed: false, faces: [], size: 5, intermittent: null, from: 0, to: 0, bothSides: false };
+    set({ featureEdit: { featureId: null, draft }, activeSketchId: null, tool: 'select', selection: [], tab: 'weldments', managerTab: 'tree', planePick: false, selectedFace: null, selectedFaces: [] });
   },
   startVent() {
     const { doc, rebuild } = get();

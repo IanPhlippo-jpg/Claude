@@ -42,6 +42,7 @@ const TABS: { id: RibbonTab; label: string }[] = [
   { id: 'sketch', label: 'Sketch' },
   { id: 'surfaces', label: 'Surfaces' },
   { id: 'sheetmetal', label: 'Sheet Metal' },
+  { id: 'weldments', label: 'Weldments' },
   { id: 'evaluate', label: 'Evaluate' },
   { id: 'render', label: 'Render Tools' },
   { id: 'addins', label: 'Phlippo Add-Ins' },
@@ -265,7 +266,7 @@ export function Ribbon() {
 
   // as the original: commands that need a body (or a sketch) are greyed out until there is one
   // an assembly has no Features tab: commands that switch to it show the Assembly tab
-  const tabShown = st.doc.kind === 'assembly' && (st.tab === 'features' || st.tab === 'surfaces' || st.tab === 'sheetmetal') ? 'assembly' : st.tab;
+  const tabShown = st.doc.kind === 'assembly' && (st.tab === 'features' || st.tab === 'surfaces' || st.tab === 'sheetmetal' || st.tab === 'weldments') ? 'assembly' : st.tab;
   const noBody = st.doc.kind === 'part' && !st.rebuild.bodies.length;
   // while a PropertyManager command runs, the original greys the CommandManager (the running command stays lit)
   const busy = st.doc.kind !== 'drawing' && (!!st.featureEdit || !!st.planeEdit || !!st.sheetMetalEdit || !!st.patternEdit || !!st.sketch3dEdit || !!st.motorEdit || !!st.fastenerEdit || (!!st.analysis && st.analysis.kind !== 'curvature'));
@@ -450,6 +451,34 @@ export function Ribbon() {
       </Group>
     </>
   );
+  const weldmentsTab = (
+    <>
+      {menuBlock}
+      <Group>
+        <BigButton label="Weldment" icon={<Icon.Weldment />} active={!!st.doc.weldment} onClick={st.startWeldment} />
+        <BigButton label="Structural Member" icon={<Icon.StructuralMember />} active={st.featureEdit?.draft.type === 'structuralMember'} onClick={st.startStructuralMember} />
+        <div className="k-cm-col">
+          <SmallButton label="Trim/Extend" icon={<Icon.TrimExtend />} disabled={noBody} active={st.featureEdit?.draft.type === 'trimExtend'} onClick={st.startTrimExtend} />
+          <SmallButton label="End Cap" icon={<Icon.EndCap />} disabled={noBody} active={st.featureEdit?.draft.type === 'endCap'} onClick={st.startEndCap} />
+          <SmallButton label="Gusset" icon={<Icon.Gusset />} disabled={noBody} active={st.featureEdit?.draft.type === 'weldGusset'} onClick={st.startWeldGusset} />
+        </div>
+        <div className="k-cm-col">
+          <SmallButton label="Weld Bead" icon={<Icon.WeldBead />} disabled={noBody} active={st.featureEdit?.draft.type === 'weldBead'} onClick={st.startWeldBead} />
+          <SmallButton label="Cut List" icon={<Icon.TreeFolder glyph="bodies" />} disabled={!st.doc.weldment} active={st.dialog === 'cutList'} onClick={() => st.setDialog(st.dialog === 'cutList' ? null : 'cutList')} />
+        </div>
+      </Group>
+      <Group>
+        <BigButton label="3D Sketch" icon={<Icon.Sketch />} active={!!st.sketch3dEdit} onClick={st.start3DSketch} />
+        <BigButton label="Extruded Boss/Base" icon={<Icon.Extrude />} active={st.featureEdit?.draft.type === 'extrude' && st.featureEdit.draft.op === 'boss'} onClick={() => st.startFeature('extrude', 'boss')} />
+        <BigButton label="Extruded Cut" disabled={noBody} icon={<Icon.Cut />} active={st.featureEdit?.draft.type === 'extrude' && st.featureEdit.draft.op === 'cut'} onClick={() => st.startFeature('extrude', 'cut')} />
+        <BigButton label="Hole Wizard" disabled={noBody} icon={<Icon.Hole />} active={st.featureEdit?.draft.type === 'hole'} onClick={() => st.startHole()} />
+        <BigButton label="Chamfer" disabled={noBody} icon={<Icon.Chamfer />} active={st.featureEdit?.draft.type === 'chamfer'} onClick={() => st.startRound('chamfer')} />
+      </Group>
+      <Group>
+        <BigButton label="Reference Geometry" icon={<Icon.RefGeometry />} active={!!st.planeEdit} onClick={() => st.startPlane()} />
+      </Group>
+    </>
+  );
   const renderTab = (
     <>
       {menuBlock}
@@ -521,6 +550,7 @@ export function Ribbon() {
     ),
     surfaces: surfacesTab,
     sheetmetal: sheetMetalTab,
+    weldments: weldmentsTab,
     render: renderTab,
     addins: addinsTab,
   };

@@ -235,6 +235,12 @@ export function MenuBar() {
       { label: 'Sheet Metal ▸ Rip…', icon: <Icon.Rip />, disabled: st.doc.kind !== 'part' && !!st.doc.kind, onSelect: () => st.startRip() },
       { label: 'Sheet Metal ▸ Swept Flange…', icon: <Icon.SweptFlange />, disabled: st.doc.kind !== 'part' && !!st.doc.kind, onSelect: () => st.startSweptFlange() },
       { label: 'Sheet Metal ▸ Insert Bends…', icon: <Icon.Sheet />, disabled: st.doc.kind !== 'part' && !!st.doc.kind, onSelect: () => st.startConvertSheet(true) },
+      { label: 'Weldments ▸ Weldment', icon: <Icon.Weldment />, disabled: st.doc.kind !== 'part' && !!st.doc.kind, onSelect: () => st.startWeldment() },
+      { label: 'Weldments ▸ Structural Member…', icon: <Icon.StructuralMember />, disabled: st.doc.kind !== 'part' && !!st.doc.kind, onSelect: () => st.startStructuralMember() },
+      { label: 'Weldments ▸ Trim/Extend…', icon: <Icon.TrimExtend />, disabled: st.doc.kind !== 'part' && !!st.doc.kind, onSelect: () => st.startTrimExtend() },
+      { label: 'Weldments ▸ End Cap…', icon: <Icon.EndCap />, disabled: st.doc.kind !== 'part' && !!st.doc.kind, onSelect: () => st.startEndCap() },
+      { label: 'Weldments ▸ Gusset…', icon: <Icon.Gusset />, disabled: st.doc.kind !== 'part' && !!st.doc.kind, onSelect: () => st.startWeldGusset() },
+      { label: 'Weldments ▸ Weld Bead…', icon: <Icon.WeldBead />, disabled: st.doc.kind !== 'part' && !!st.doc.kind, onSelect: () => st.startWeldBead() },
       { label: 'Reference Geometry ▸ Plane…', icon: <Icon.Plane />, disabled: st.doc.kind !== 'part' && !!st.doc.kind, onSelect: () => st.startPlane() },
     ],
     Tools: [

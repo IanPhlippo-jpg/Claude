@@ -576,6 +576,47 @@ export const Icons3D = {
       <path d="M19 3v6M16.5 6.5L19 9l2.5-2.5" stroke={K.red} strokeWidth={1.3} fill="none" strokeLinecap="round" />
     </svg>
   ),
+  /** Weldments ▸ Weldment: two square tubes meeting at a mitered corner */
+  Weldment: ({ size = 16, ...p }: P) => (
+    <svg {...base(size, p)}>
+      <Box x={0} y={0} z={0} w={9} h={2.4} d={2.4} s={0.95} oy={13} c={TEAL} line={K.tLine} />
+      <Box x={0} y={0} z={2.4} w={2.4} h={2.4} d={6} s={0.95} oy={13} c={TEAL} line={K.tLine} />
+      <path d={poly([iso(0, 2.4, 0, 0.95, 12, 13), iso(2.4, 2.4, 2.4, 0.95, 12, 13), iso(0, 2.4, 2.4, 0.95, 12, 13)])} fill={K.tTop} stroke={K.tLine} strokeWidth={0.5} />
+    </svg>
+  ),
+  /** Weldments ▸ Structural Member: a square tube along a sketch line */
+  StructuralMember: ({ size = 16, ...p }: P) => (
+    <svg {...base(size, p)}>
+      <path d={`M${iso(-1, 1.6, 1.6, 0.95, 12, 13).join(' ')}L${iso(10, 1.6, 1.6, 0.95, 12, 13).join(' ')}`} stroke={K.yellowD} strokeWidth={0.9} strokeDasharray="1.2 0.8" fill="none" />
+      <Box x={1} y={0} z={0} w={7} h={3.2} d={3.2} s={0.95} oy={13} c={TEAL} line={K.tLine} />
+      <path d={poly([iso(1, 0.6, 0.6, 0.95, 12, 13), iso(1, 0.6, 2.6, 0.95, 12, 13), iso(1, 2.6, 2.6, 0.95, 12, 13), iso(1, 2.6, 0.6, 0.95, 12, 13)])} fill={K.dark} />
+    </svg>
+  ),
+  /** Weldments ▸ Trim/Extend: one tube cut back against another */
+  TrimExtend: ({ size = 16, ...p }: P) => (
+    <svg {...base(size, p)}>
+      <Box x={0} y={0} z={0} w={2.6} h={9} d={2.6} s={0.95} oy={14} />
+      <Box x={2.6} y={3} z={0} w={6.5} h={2.6} d={2.6} s={0.95} oy={14} c={TEAL} line={K.tLine} />
+      <path d={`M${iso(2.6, 2.4, -0.6, 0.95, 12, 14).join(' ')}L${iso(2.6, 6.2, -0.6, 0.95, 12, 14).join(' ')}`} stroke={K.red} strokeWidth={1.2} fill="none" />
+    </svg>
+  ),
+  /** Weldments ▸ End Cap: a plate closing the end of a tube */
+  EndCap: ({ size = 16, ...p }: P) => (
+    <svg {...base(size, p)}>
+      <Box x={0} y={0} z={0} w={7} h={4} d={4} s={0.95} oy={13} />
+      <Box x={7} y={-0.2} z={-0.2} w={0.9} h={4.4} d={4.4} s={0.95} oy={13} c={TEAL} line={K.tLine} />
+    </svg>
+  ),
+  /** Weldments ▸ Weld Bead: a bead in the corner of two plates */
+  WeldBead: ({ size = 16, ...p }: P) => (
+    <svg {...base(size, p)}>
+      <Box x={0} y={0} z={0} w={9} h={1.5} d={8} s={0.95} oy={14} />
+      <Box x={0} y={1.5} z={0} w={1.5} h={6} d={8} s={0.95} oy={14} />
+      <path d={poly([iso(1.5, 1.5, 0, 0.95, 12, 14), iso(3.6, 1.5, 0, 0.95, 12, 14), iso(1.5, 3.6, 0, 0.95, 12, 14)])} fill="#e9a23b" stroke="#a86a12" strokeWidth={0.6} />
+      <path d={poly([iso(1.5, 1.5, 0, 0.95, 12, 14), iso(1.5, 1.5, 8, 0.95, 12, 14), iso(3.6, 1.5, 8, 0.95, 12, 14), iso(3.6, 1.5, 0, 0.95, 12, 14)])} fill="#f3bf6a" stroke="#a86a12" strokeWidth={0.5} />
+      <path d={poly([iso(1.5, 1.5, 0, 0.95, 12, 14), iso(1.5, 1.5, 8, 0.95, 12, 14), iso(1.5, 3.6, 8, 0.95, 12, 14), iso(1.5, 3.6, 0, 0.95, 12, 14)])} fill="#d98f2c" stroke="#a86a12" strokeWidth={0.5} />
+    </svg>
+  ),
   /** heads-up: View Settings — the monitor */
   ViewSettings: ({ size = 16, ...p }: P) => (
     <svg {...base(size, p)} viewBox="0 0 24 24">

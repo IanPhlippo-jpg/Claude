@@ -31,6 +31,7 @@ import { baseFlangeGeometry, baseFlangeRegion, bendAllowance, DEFAULT_SHEET_META
 import type { DraftFeature, PatternFeature, RevolveFeature, EdgeFlangeFeature, HemFeature, JogFeature, MiterFlangeFeature, PlaneDef, SketchedBendFeature } from '../document/types';
 import { chainEdges, classifyVent, formToolGeometry, gussetTools, ripTool, sweptFlangeRegions, tabSlotTools, ventTool } from './sheetmetal4';
 import { bodyEdges as bodyEdgesOf, matchEdge as matchEdgeRef } from './edgesets';
+import { endCapGeometry, findFaceOnBodies, findProfile, memberSegments, placedProfile, profileRegion, structuralMembers, trimByBodies, trimByPlane, weldBeadGeometry, weldGussetGeometry } from './weldments';
 
 export interface Body {
   id: Id;
@@ -56,6 +57,8 @@ export interface RebuildResult {
   extraAppearances?: NonNullable<Document['faceAppearances']>;
   /** Performance Evaluation: rebuild time per feature (ms) */
   times?: Record<Id, number>;
+  /** Weldments: per body the cut list data (description, length, miter angles) and its kind */
+  bodyMeta?: Record<Id, { kind: 'member' | 'cap' | 'gusset' | 'bead' | 'other'; description: string; length: number; angle1: number; angle2: number }>;
 }
 
 /** Geometry of one sketch-based solid feature on its own (also used for the yellow preview). */
@@ -821,6 +824,7 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
     return v.length === 1 ? v[0].geometry : mergeGeometries(v.map((b) => b.geometry));
   };
   const times: Record<Id, number> = {};
+  const bodyMeta: NonNullable<RebuildResult['bodyMeta']> = {};
   const clock = typeof performance !== 'undefined' ? () => performance.now() : () => Date.now();
   for (let i = 0; i < n; i++) {
     const f: Feature = doc.features[i];
@@ -1907,6 +1911,117 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
       }
       continue;
     }
+    if (f.type === 'weldment') continue;
+    if (f.type === 'structuralMember') {
+      consumedSketches.add(f.sketchId);
+      const sk2 = doc.sketches[f.sketchId];
+      const f3 = doc.features.find((x) => x.id === f.sketchId && x.type === 'sketch3d');
+      let paths: THREE.Vector3[][] = [];
+      if (sk2) {
+        const pl = resolvePlaneDef(doc, sk2.plane);
+        const pm = planeMatrix(pl);
+        paths = sketchChains(sk2).map((c) => { const pts = c.points.map((p) => new THREE.Vector3(p.x, p.y, 0).applyMatrix4(pm)); if (c.closed) pts.push(pts[0].clone()); return pts; });
+      } else if (f3 && f3.type === 'sketch3d') paths = sketch3DChains(f3.segments);
+      if (!paths.length) {
+        errors[f.id] = 'Select the path sketch (2D or 3D) of the structural members.';
+        continue;
+      }
+      const prof = findProfile(f.standard, f.profileType, f.size);
+      const region = placedProfile(profileRegion(prof), f.rotation, !!f.mirror, f.locate);
+      const segs = memberSegments(paths);
+      if (!segs.length) {
+        errors[f.id] = 'The path has no straight segments.';
+        continue;
+      }
+      try {
+        const built = structuralMembers(region, segs, f.corner, f.gap, f.mergeArcs);
+        for (const m of built) {
+          const b = newBody(m.geometry, f.id);
+          bodyMeta[b.id] = { kind: 'member', description: `${prof.type.toUpperCase()} ${prof.size}`, length: m.length, angle1: m.angle1, angle2: m.angle2 };
+          addBoss(m.geometry);
+        }
+        if (!built.length) errors[f.id] = 'No members could be built from the path.';
+      } catch (err) {
+        errors[f.id] = `Boolean operation failed: ${(err as Error).message}`;
+      }
+      continue;
+    }
+    if (f.type === 'trimExtend') {
+      const targets = bodies.filter((b) => f.bodies.includes(b.id));
+      if (!targets.length) {
+        errors[f.id] = 'Select the bodies to be trimmed.';
+        continue;
+      }
+      try {
+        for (const t of targets) {
+          if (f.trimBy === 'bodies') {
+            const tools = bodies.filter((b) => f.trimBodies.includes(b.id) && b !== t).map((b) => b.geometry);
+            if (!tools.length) { errors[f.id] = 'Select the trimming bodies.'; break; }
+            t.geometry = trimByBodies(t.geometry, tools, f.weldGap);
+          } else {
+            if (!f.face) { errors[f.id] = 'Select the trimming face or plane.'; break; }
+            t.geometry = trimByPlane(t.geometry, { origin: f.face.point, n: f.face.normal });
+          }
+          t.featureIds.push(f.id);
+          if (isEmpty(t.geometry)) bodies.splice(bodies.indexOf(t), 1);
+        }
+      } catch (err) {
+        errors[f.id] = `Boolean operation failed: ${(err as Error).message}`;
+      }
+      continue;
+    }
+    if (f.type === 'endCap') {
+      if (!f.faces.length) {
+        errors[f.id] = 'Select the end faces of the tubes to cap.';
+        continue;
+      }
+      try {
+        let made = 0;
+        for (const ref of f.faces) {
+          const hit = findFaceOnBodies(visibleBodies(), ref);
+          if (!hit) continue;
+          const owner = visibleBodies().find((b) => b.geometry === hit.body)!;
+          const wall = owner ? Math.max(1, Math.min(...[3])) : 3;
+          const offset = f.useRatio ? Math.max(0, f.ratio) * (bodyMeta[owner?.id ?? '']?.kind === 'member' ? wall : 1) * 1 : Math.max(0, f.offset);
+          const cap = endCapGeometry(hit.body, hit.face, f.thickness, offset, f.outward, f.chamfer);
+          if (!cap) continue;
+          const b = newBody(cap, f.id);
+          bodyMeta[b.id] = { kind: 'cap', description: `End cap ${f.thickness} mm`, length: f.thickness, angle1: 0, angle2: 0 };
+          made++;
+        }
+        if (!made) errors[f.id] = 'None of the selected faces is still on a body.';
+      } catch (err) {
+        errors[f.id] = `Boolean operation failed: ${(err as Error).message}`;
+      }
+      continue;
+    }
+    if (f.type === 'weldGusset' || f.type === 'weldBead') {
+      if (f.faces.length < 2) {
+        errors[f.id] = 'Select the two faces that meet at the corner.';
+        continue;
+      }
+      const fa = findFaceOnBodies(visibleBodies(), f.faces[0]), fb = findFaceOnBodies(visibleBodies(), f.faces[1]);
+      if (!fa || !fb) {
+        errors[f.id] = 'A selected face is no longer on a body.';
+        continue;
+      }
+      try {
+        if (f.type === 'weldGusset') {
+          const r = weldGussetGeometry(fa, fb, { profile: f.profile, d1: f.d1, d2: f.d2, d3: f.d3, thickness: f.thickness, location: f.location, offset: f.offset });
+          if ('error' in r) { errors[f.id] = r.error; continue; }
+          const b = newBody(r.geometry, f.id);
+          bodyMeta[b.id] = { kind: 'gusset', description: `Gusset ${f.d1} x ${f.d2} x ${f.thickness}`, length: f.d1, angle1: 0, angle2: 0 };
+        } else {
+          const r = weldBeadGeometry(fa, fb, { size: f.size, intermittent: f.intermittent, from: f.from, to: f.to });
+          if ('error' in r) { errors[f.id] = r.error; continue; }
+          const b = newBody(r.geometry, f.id);
+          bodyMeta[b.id] = { kind: 'bead', description: `Weld bead ${f.size} mm${f.intermittent ? ` intermittent ${f.intermittent.length}/${f.intermittent.pitch}` : ''}`, length: r.length, angle1: 0, angle2: 0 };
+        }
+      } catch (err) {
+        errors[f.id] = `Boolean operation failed: ${(err as Error).message}`;
+      }
+      continue;
+    }
     if (f.type === 'convertSheet') {
       if (!body) {
         errors[f.id] = 'Convert to Sheet Metal needs a solid body.';
@@ -2470,7 +2585,7 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
     curves.push({ id: 'bbox:top', name: 'Bounding Box', points: top, dashed: true, color: '#5a5a5a' });
     for (let i = 0; i < 4; i++) curves.push({ id: `bbox:v${i}`, name: 'Bounding Box', points: [bottom[i], top[i]], dashed: true, color: '#5a5a5a' });
   }
-  return { bodies, errors, consumedSketches, curves, surfaceBodies, extraAppearances, autoHidden, times };
+  return { bodies, errors, consumedSketches, curves, surfaceBodies, extraAppearances, autoHidden, times, bodyMeta };
 }
 
 

@@ -5,6 +5,7 @@ import { sketchStatus, useStore } from '../store';
 import { Menu, TreeView, type TreeNode } from '../../ui/components';
 import { Icon } from '../../ui/icons';
 import { createDocument } from '../../core/document/types';
+import { cutList } from '../../core/features/weldments';
 import { serializeDocument } from '../../core/document/persistence';
 import { withUnsavedCheck } from '../MenuBar';
 import { activeConfiguration } from '../../core/document/configurations';
@@ -160,6 +161,19 @@ export function FeatureTreeBody() {
   });
 
   const sys = (id: string, icon: React.ReactNode, label: string, children?: TreeNode[]): TreeNode => ({ id, icon, label: <span>{label}</span>, children });
+  // Weldments: identical bodies grouped as Cut-List-Item folders (right-click: Properties…)
+  const withCutListItems = (nodes: TreeNode[]): TreeNode[] => {
+    const meta = st.rebuild.bodyMeta ?? {};
+    const items = cutList(st.rebuild.bodies.filter((b) => meta[b.id]?.kind !== 'bead').map((b) => ({ id: b.id, geometry: b.geometry, description: meta[b.id]?.description, length: meta[b.id]?.length, angle1: meta[b.id]?.angle1, angle2: meta[b.id]?.angle2 })));
+    return items.map((it, i): TreeNode => ({
+      id: `cutitem:${i}`,
+      icon: <Icon.TreeFolder glyph="bodies" />,
+      label: <span>{it.name}{it.quantity > 1 ? <span className="k-muted"> ({it.quantity})</span> : null}</span>,
+      onContextMenu: (e) => { e.preventDefault(); setMenu({ x: e.clientX, y: e.clientY, featureId: '__cutitem:' + i }); },
+      onDoubleClick: () => st.setDialog('cutList'),
+      children: nodes.filter((n) => it.bodyIds.includes(n.id.replace(/^body-/, ''))),
+    }));
+  };
   // Add to New Folder (bodies): body nodes in a folder sit under its node
   const withBodyFolders = (nodes: TreeNode[]): TreeNode[] => {
     const folders = st.doc.bodyFolders ?? [];
@@ -206,7 +220,7 @@ export function FeatureTreeBody() {
         },
         sys('annotations', <Icon.TreeFolder glyph="annotation" />, 'Annotations'),
         ...(bodies.length
-          ? [sys('bodies', <Icon.TreeFolder glyph="bodies" />, st.doc.sheetMetal ? `Cut list(${bodies.length})` : `Solid Bodies(${bodies.length})`, withBodyFolders(bodies.map((b): TreeNode => {
+          ? [sys('bodies', <Icon.TreeFolder glyph="bodies" />, st.doc.sheetMetal || st.doc.weldment ? `Cut list(${bodies.filter((b) => st.rebuild.bodyMeta?.[b.id]?.kind !== 'bead').length})` : `Solid Bodies(${bodies.length})`, (st.doc.weldment ? withCutListItems : withBodyFolders)(bodies.filter((b) => !st.doc.weldment || st.rebuild.bodyMeta?.[b.id]?.kind !== 'bead').map((b): TreeNode => {
               const hiddenBody = (st.doc.hiddenBodies ?? []).includes(b.id);
               const mat = st.doc.bodyMaterials?.[b.id];
               return {
@@ -228,6 +242,8 @@ export function FeatureTreeBody() {
         { id: 'origin', icon: <Icon.Origin style={{ color: '#2b2b2b' }} />, label: 'Origin', onClick: () => st.toggleShow('origin') },
         ...(st.doc.centerOfMass ? [{ id: 'com', icon: <Icon.CenterOfMass />, label: 'Center of Mass', onContextMenu: (e: React.MouseEvent) => { e.preventDefault(); st.applyDocument('Delete Center of Mass', { ...st.doc, centerOfMass: undefined }); } } as TreeNode] : []),
         // sheet metal parts: the Sheet-Metal folder after the origin (default parameters), as the original
+        ...(st.doc.weldment ? [{ id: 'weldment', icon: <Icon.Weldment />, label: <span>Weldment</span>, onDoubleClick: () => st.setDialog('cutList') } as TreeNode] : []),
+        ...(st.doc.weldment && st.rebuild.bodies.some((b) => st.rebuild.bodyMeta?.[b.id]?.kind === 'bead') ? [sys('weldfolder', <Icon.TreeFolder glyph="bodies" />, `Weld Folder(${st.rebuild.bodies.filter((b) => st.rebuild.bodyMeta?.[b.id]?.kind === 'bead').length})`, st.rebuild.bodies.filter((b) => st.rebuild.bodyMeta?.[b.id]?.kind === 'bead').map((b): TreeNode => ({ id: 'body-' + b.id, icon: <Icon.WeldBead />, label: <span>{st.doc.features.find((f) => f.id === b.featureIds[b.featureIds.length - 1])?.name ?? b.id}</span>, onContextMenu: (e) => { e.preventDefault(); setMenu({ x: e.clientX, y: e.clientY, featureId: '__body:' + b.id }); } })))] : []),
         ...(st.doc.sheetMetal ? [{ id: 'sheetmetal', icon: <Icon.Sheet />, label: <span>Sheet-Metal</span>, onDoubleClick: () => st.setSheetMetalEdit(true), onContextMenu: (e: React.MouseEvent) => { e.preventDefault(); st.setSheetMetalEdit(true); }, children: [{ id: 'sheetmetal:1', icon: <Icon.Sheet />, label: <span>Sheet-Metal1</span>, onDoubleClick: () => st.setSheetMetalEdit(true) } as TreeNode] } as TreeNode] : []),
         ...Object.values(st.doc.planes).filter((p) => p.kind === 'reference').map((p): TreeNode => ({
           id: p.id,
@@ -313,6 +329,7 @@ export function FeatureTreeBody() {
   const sensorMenu = menu && menu.featureId === '__sensors';
   const menuSensorId = menu && menu.featureId.startsWith('__sensor:') ? menu.featureId.slice(9) : null;
   const menuBodyId = menu && menu.featureId.startsWith('__body:') ? menu.featureId.slice(7) : null;
+  const menuCutItem = menu && menu.featureId.startsWith('__cutitem:');
   const menuBodyHidden = !!menuBodyId && (st.doc.hiddenBodies ?? []).includes(menuBodyId);
 
   return (
@@ -341,6 +358,18 @@ export function FeatureTreeBody() {
             dragRollback.current = true;
             (e.target as HTMLElement).setPointerCapture(e.pointerId);
           }}
+        />
+      )}
+      {menuCutItem && (
+        <Menu
+          onClose={() => setMenu(null)}
+          style={{ position: 'fixed', left: menu!.x, top: menu!.y }}
+          items={[
+            { label: 'Properties…', icon: <Icon.Properties />, onSelect: () => st.setDialog('cutList') },
+            { label: 'Update', icon: <Icon.Rebuild />, onSelect: () => st.rebuildAll() },
+            { separator: true },
+            { label: 'Collapse Items', onSelect: () => setMenu(null) },
+          ]}
         />
       )}
       {sensorMenu && (
