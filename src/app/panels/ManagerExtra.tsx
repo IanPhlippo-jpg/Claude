@@ -13,6 +13,11 @@ export function DimXpertManagerBody() {
   const st = useStore();
   const dims = useMemo(() => dimensionTable(st.doc), [st.doc]);
   const dx = st.doc.dimxpert;
+  const byOwner = new Map<string, typeof dims>();
+  for (const d of dims) {
+    const owner = d.name.split('@')[1] ?? '';
+    (byOwner.get(owner) ?? byOwner.set(owner, []).get(owner)!).push(d);
+  }
   const status = useMemo(() => toleranceStatus(st.rebuild.bodies, dx), [st.rebuild.bodies, dx]);
   const nodes: TreeNode[] = [
     {
@@ -21,6 +26,14 @@ export function DimXpertManagerBody() {
       label: <span>{st.doc.name} (Default)</span>,
       children: [
         { id: 'dx-scheme', icon: <Icon.Dimension />, label: <span>{dx ? `${dx.toleranceType === 'geometric' ? 'Geometric' : 'Plus and Minus'} scheme · ${dx.partType}` : `Auto Dimension Scheme (${dims.length} model dimensions)`}</span> },
+        // the model's own dimensions per feature (what the scheme is built from), as before the scheme exists
+        ...[...byOwner.entries()].map(([owner, list]): TreeNode => ({
+          id: 'dx-owner-' + owner,
+          icon: <Icon.TreeFolder glyph="annotation" />,
+          label: <span>{owner}</span>,
+          defaultOpen: !dx,
+          children: list.map((d): TreeNode => ({ id: 'dx-' + d.name, icon: <Icon.Dimension />, label: <span data-testid="dx-dim">{d.name.split('@')[0]} = {d.value.toFixed(2)}</span> })),
+        })),
         ...(dx
           ? [
               { id: 'dx-datums', icon: <Icon.TreeFolder glyph="annotation" />, label: <span>Datums ({dx.datums.length})</span>, defaultOpen: true, children: dx.datums.map((d): TreeNode => ({ id: 'dxd-' + d.id, icon: <Icon.Lock />, label: <span data-testid="dx-datum">Datum {d.label}</span> })) },
