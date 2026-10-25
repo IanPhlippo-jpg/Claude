@@ -44,6 +44,10 @@ Status per fase:
 8. Sheet metal (Base Flange/Tab, Edge Flange, Flatten met K-factor) — **basis gereed**; Hem/Jog/Miter/Unfold gepland
 7. Massa-eigenschappen en meten — **gereed** (Mass Properties, Measure); materialen en rendering gepland
 
+## Status 0.3.3 (2026-10-25)
+
+Blokken G-A t/m G-J (docs/10-blokken-g.md): Surfaces compleet, Sheet Metal extra's (Vent, Forming Tool, Gusset, Tab and Slot, Rip, Swept Flange), Evaluate (Performance Evaluation, Symmetry Check, Deviation/Parting Line Analysis, Compare, SimulationXpress-schatting), Customize-dialoog met echte instellingen, Weldments met cut list, Material-velden + MBD Dimensions (DimXpert), Deform, Save As-opties, Publish to Phlippo Viewer (*.html), tekening bend lines. Unit tests 322, e2e-regressie 76 scripts.
+
 ## Status 0.3.2 (2026-10-25)
 
 Het externe QA-rapport (52 bevindingen) is verwerkt: dataverlies-routes dicht (rebuild zonder undo-verlies, validatie bij openen, atomaire save met .bak, Save changes?, autosave per document), Electron-beveiliging (paden, CSP, navigatie, testhooks, fuses), invoervalidatie met eenheden, GPU-opruiming, start zoals SW (lege app + Welcome), muisgebaren en Enter-herhaling, exitcodes in alle e2e-scripts en een CI-workflow. Per bevinding: docs/08-qa-rapport.md.
