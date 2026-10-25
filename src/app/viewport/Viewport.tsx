@@ -19,6 +19,7 @@ import { MarkupLayer } from '../lifecycleDialogs';
 import { refGeometryFrom, refGeometryLines } from '../../core/features/refgeom';
 import { curvatureAnalysis, draftAnalysis, thicknessAnalysis, undercutAnalysis } from '../../core/features/analysis';
 import { partingLineAnalysis } from '../../core/features/evaluate2';
+import { toleranceStatus } from '../../core/document/dimxpert';
 import { commandById, gestureBindings } from '../commands';
 import { MATERIAL_LIBRARY } from '../../core/document/materials';
 
@@ -529,7 +530,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
       shadedContours: st.shadedContours,
     });
     bodies.updateLight(camera.rotation);
-    const faceColors = st.analysis?.kind === 'draft' ? draftAnalysis(st.rebuild.bodies, st.analysis.pull, st.analysis.angle, st.analysis.classify !== false).colors : st.analysis?.kind === 'parting' ? partingLineAnalysis(st.rebuild.bodies, st.analysis.pull, st.analysis.angle).colors : st.analysis?.kind === 'thickness' ? thicknessAnalysis(st.rebuild.bodies, st.analysis.target, st.analysis.mode, st.analysis.resolution).colors : st.analysis?.kind === 'undercut' ? undercutAnalysis(st.rebuild.bodies, st.analysis.pull).colors : st.analysis?.kind === 'curvature' ? curvatureAnalysis(st.rebuild.bodies) : st.doc.faceAppearances?.length ? matchFaceAppearances({ faceAppearances: [...(st.doc.faceAppearances ?? []), ...(st.rebuild.extraAppearances ?? [])] }, st.rebuild.bodies) : undefined;
+    const faceColors = st.analysis?.kind === 'draft' ? draftAnalysis(st.rebuild.bodies, st.analysis.pull, st.analysis.angle, st.analysis.classify !== false).colors : st.analysis?.kind === 'parting' ? partingLineAnalysis(st.rebuild.bodies, st.analysis.pull, st.analysis.angle).colors : st.analysis?.kind === 'tolerance' ? toleranceStatus(st.rebuild.bodies, st.doc.dimxpert).colors : st.analysis?.kind === 'thickness' ? thicknessAnalysis(st.rebuild.bodies, st.analysis.target, st.analysis.mode, st.analysis.resolution).colors : st.analysis?.kind === 'undercut' ? undercutAnalysis(st.rebuild.bodies, st.analysis.pull).colors : st.analysis?.kind === 'curvature' ? curvatureAnalysis(st.rebuild.bodies) : st.doc.faceAppearances?.length ? matchFaceAppearances({ faceAppearances: [...(st.doc.faceAppearances ?? []), ...(st.rebuild.extraAppearances ?? [])] }, st.rebuild.bodies) : undefined;
     bodies.update({ zebra: st.show.zebra, faceColors, bodies: shownBodies, displayStyle: st.displayStyle, hoverFace: st.hoverFace, selectedFace: st.selectedFace, selectedFaces: st.selectedFaces, preview: st.interferenceHighlight ?? (detailedBodies ? null : preview), previewOnTop: !!st.featureEdit && isRoundFeature(st.featureEdit.draft) && !detailedBodies, previewWire: st.handleDrag, featureFaces, mateFaces, featureHot: !!st.hoverFeatureId && st.hoverFeatureId === st.selectedFeatureId, hoverFeatureFaces, transparentBodies: [...(st.doc.transparentBodies ?? []), ...(st.mateEdit && st.mateEdit.draft.refs.length && getPref('assembly.mateFirstTransparent') !== false ? [st.mateEdit.draft.refs[0].componentId] : st.interferenceHighlight && st.dialog === 'interference' && st.interferenceOpts.transparent ? st.rebuild.bodies.map((b) => b.id) : []), ...(st.doc.components ?? []).filter((c) => c.envelope).map((c) => c.id)], replaceBody: detailedBodies ? null : roundPreview, hoverEdge: st.hoverEdge, selectedEdges: st.selectedEdges, scale: camera.scale, bodyColor: activeConfiguration(st.doc).color ?? st.doc.appearance ?? st.doc.material?.color, bodyColors: { ...Object.fromEntries((st.doc.components ?? []).map((c) => [c.id, (configurationByName(c.part, c.configuration)?.color ?? c.part.appearance ?? c.part.material?.color) as string | undefined]).filter((x) => !!x[1])), ...Object.fromEntries(Object.entries(st.doc.bodyMaterials ?? {}).map(([k, m]) => [k, m.color])), ...(st.doc.bodyAppearances ?? {}), ...(section?.capColor ? Object.fromEntries(st.rebuild.bodies.map((b) => [b.id + '~cap', section.capColor!])) : {}) }, hiddenBodies: st.isolated ? [...(st.doc.hiddenBodies ?? []), ...(st.rebuild.autoHidden ?? []), ...st.rebuild.bodies.map((b) => b.id).filter((id) => !st.isolated!.includes(id))] : [...(st.doc.hiddenBodies ?? []), ...(st.rebuild.autoHidden ?? [])], decals: [...(st.doc.decals ?? []).filter((x) => x.id !== st.decalEdit?.id), ...(st.decalEdit?.face ? [{ ...st.decalEdit, id: 'draft', face: st.decalEdit.face }] : [])], realView: st.show.realView, shadows: st.show.shadows, floor: { reflections: st.doc.scene?.floorReflections, align: st.doc.scene?.floorAlign, offset: st.doc.scene?.floorOffset }, woodBodies: (st.doc.components ?? []).filter((c) => isWood(c.part.material?.name)).map((c) => c.id), wooden: isWood(st.doc.material?.name), shinyBodies: (st.doc.components ?? []).filter((c) => (c.part.material?.density ?? 0) > 2500).map((c) => c.id), metallic: (st.doc.material?.density ?? 0) > 2500, curves: previewCurves, colors: { hover: colors.hover, selected: colors.selected } });
     // Motion Study playback: the motors turn their components (display only)
     const ms = st.doc.motionStudy;
@@ -1422,6 +1423,19 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
             </div>
           );
         });
+      })()}
+      {st.doc.dimxpert && !st.activeSketchId && (() => {
+        // MBD Dimensions: the datums, dimensions and tolerances as callouts at their faces
+        const dx = st.doc.dimxpert!;
+        const P = (p: [number, number, number]) => camera.worldToPixel(new THREE.Vector3(...p));
+        const mid = (a: [number, number, number], b: [number, number, number]): [number, number, number] => [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2, (a[2] + b[2]) / 2];
+        return (
+          <>
+            {dx.datums.map((d) => { const q = P(d.face.point); return <div key={d.id} className="k-callout k-dx-datum" data-testid="dx-callout-datum" style={{ left: q.x - 10, top: q.y - 10 }}>{d.label}</div>; })}
+            {dx.dims.map((d) => { const q = P(d.faces.length > 1 ? mid(d.faces[0].point, d.faces[1].point) : d.faces[0].point); return <div key={d.id} className={`k-callout k-dx-dim${d.basic ? ' basic' : ''}`} data-testid="dx-callout-dim" style={{ left: q.x + 8, top: q.y - 10 }}>{d.label}{d.basic ? '' : d.plus === d.minus ? ` ±${d.plus}` : ` +${d.plus} −${d.minus}`}</div>; })}
+            {dx.gtols.map((g) => { const q = P(g.face.point); return <div key={g.id} className="k-callout k-dx-gtol" data-testid="dx-callout-gtol" style={{ left: q.x + 8, top: q.y + 12 }}>{g.label}</div>; })}
+          </>
+        );
       })()}
       {st.featureEdit && isRoundFeature(st.featureEdit.draft) && st.featureEdit.draft.edges.length > 0 && (() => {
         const body = st.rebuild.bodies[0];

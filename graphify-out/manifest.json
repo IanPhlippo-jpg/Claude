@@ -534,9 +534,9 @@
     "semantic_hash": ""
   },
   "src/app/materialDialog.tsx": {
-    "mtime": 1792699947.5365863,
-    "seen": 1792701108.4841812,
-    "ast_hash": "13436d1402b1182e16130c6db5bc3fdd",
+    "mtime": 1792939347.646166,
+    "seen": 1792939643.67463,
+    "ast_hash": "df21c9a7d41da64eae83b0a6caf81f97",
     "semantic_hash": ""
   },
   "src/app/options.tsx": {
@@ -588,15 +588,15 @@
     "semantic_hash": ""
   },
   "src/app/panels/FeatureTreeBody.tsx": {
-    "mtime": 1792938561.559736,
-    "seen": 1792938951.8034787,
-    "ast_hash": "3078cf933715aaed6cd9c6975a87c581",
+    "mtime": 1792939347.6478257,
+    "seen": 1792939643.67463,
+    "ast_hash": "3519a80a89ed7cde9d8b17799052ec89",
     "semantic_hash": ""
   },
   "src/app/panels/ManagerPane.tsx": {
-    "mtime": 1792936696.0042264,
-    "seen": 1792937087.348348,
-    "ast_hash": "30f3a0d63469b20c4203f37201416497",
+    "mtime": 1792939555.6852705,
+    "seen": 1792939643.67463,
+    "ast_hash": "0da3a5e3f367f8e76910736f0b1cdebb",
     "semantic_hash": ""
   },
   "src/app/panels/PlanePM.tsx": {
@@ -660,9 +660,9 @@
     "semantic_hash": ""
   },
   "src/app/ribbon/Ribbon.tsx": {
-    "mtime": 1792938326.4437442,
-    "seen": 1792938951.8034787,
-    "ast_hash": "5337b699aee1fbb43e9241a1a95c1174",
+    "mtime": 1792939347.658267,
+    "seen": 1792939643.67463,
+    "ast_hash": "90b84d9cc417be62ac9266b066cfe81d",
     "semantic_hash": ""
   },
   "src/app/shortcuts.ts": {
@@ -672,9 +672,9 @@
     "semantic_hash": ""
   },
   "src/app/store.ts": {
-    "mtime": 1792938326.4381096,
-    "seen": 1792938951.8041937,
-    "ast_hash": "73df461fa2dc0981a22e24de1546c8b9",
+    "mtime": 1792939347.652253,
+    "seen": 1792939643.67463,
+    "ast_hash": "56f5d431eaafffcf758a19d2c035b1a6",
     "semantic_hash": ""
   },
   "src/app/viewport/Hud.tsx": {
@@ -714,9 +714,9 @@
     "semantic_hash": ""
   },
   "src/app/viewport/Viewport.tsx": {
-    "mtime": 1792937546.8702042,
-    "seen": 1792937792.8606505,
-    "ast_hash": "a4f9a22b8285d2d0fc512fccb433c842",
+    "mtime": 1792939347.657268,
+    "seen": 1792939643.67463,
+    "ast_hash": "fd271fda3e5dc00ba860c77941a69f99",
     "semantic_hash": ""
   },
   "src/app/viewport/annotations.ts": {
@@ -840,9 +840,9 @@
     "semantic_hash": ""
   },
   "src/core/document/materials.ts": {
-    "mtime": 1792530041.2464151,
-    "seen": 1792602509.1569512,
-    "ast_hash": "c671826935cb5f6dc565af6811e1c3e9",
+    "mtime": 1792939347.6440315,
+    "seen": 1792939643.67463,
+    "ast_hash": "3cba6b85adf78245c4387d6661d5277c",
     "semantic_hash": ""
   },
   "src/core/document/persistence.ts": {
@@ -864,9 +864,9 @@
     "semantic_hash": ""
   },
   "src/core/document/types.ts": {
-    "mtime": 1792938326.4321096,
-    "seen": 1792938951.8041937,
-    "ast_hash": "15a90fecb9270907ccb863dd565ff052",
+    "mtime": 1792939347.6487205,
+    "seen": 1792939643.67463,
+    "ast_hash": "0ad8e6a7de75f4dfcd4796a01a81d8c2",
     "semantic_hash": ""
   },
   "src/core/drawing/dbg.test.ts": {
@@ -1392,9 +1392,9 @@
     "semantic_hash": ""
   },
   "TASKS.md": {
-    "mtime": 1792938916.3916352,
-    "seen": 1792938951.8041937,
-    "ast_hash": "a02c7db62284e254eb55ee20194f1b94",
+    "mtime": 1792939608.352561,
+    "seen": 1792939643.67463,
+    "ast_hash": "3d8dd82d274958c84dac8f11611a9451",
     "semantic_hash": ""
   },
   "docs/01-research.md": {
@@ -1584,9 +1584,9 @@
     "semantic_hash": ""
   },
   "src/app/panels/ManagerExtra.tsx": {
-    "mtime": 1792605987.4116223,
-    "seen": 1792611194.4475589,
-    "ast_hash": "aee129216b767abb3433c5ed7d819b26",
+    "mtime": 1792939347.65527,
+    "seen": 1792939643.67463,
+    "ast_hash": "d1b6884c45ab8c2e9feebd8a1d6cded2",
     "semantic_hash": ""
   },
   "src/app/panels/RefGeomPM.tsx": {
@@ -2358,9 +2358,9 @@
     "semantic_hash": ""
   },
   "src/app/customize.tsx": {
-    "mtime": 1792938326.444267,
-    "seen": 1792938951.8034787,
-    "ast_hash": "d240303550d5a964504b4df097142663",
+    "mtime": 1792939347.6592662,
+    "seen": 1792939643.67463,
+    "ast_hash": "2c1cd26b348c0e8f0cfb7a20c2fe1344",
     "semantic_hash": ""
   },
   "e2e/gh.mjs": {
@@ -2379,6 +2379,30 @@
     "mtime": 1792938561.5571542,
     "seen": 1792938951.8041937,
     "ast_hash": "99362414eff2b3f3fdcc315b84272d82",
+    "semantic_hash": ""
+  },
+  "e2e/gi.mjs": {
+    "mtime": 1792939483.0437267,
+    "seen": 1792939643.67463,
+    "ast_hash": "700e7e3670b4b80fef72105d1c06661f",
+    "semantic_hash": ""
+  },
+  "src/app/panels/DimXpertPM.tsx": {
+    "mtime": 1792939322.5747602,
+    "seen": 1792939643.67463,
+    "ast_hash": "27b0604b75d3d1247d210df35c80b53a",
+    "semantic_hash": ""
+  },
+  "src/core/document/dimxpert.test.ts": {
+    "mtime": 1792939369.5090222,
+    "seen": 1792939643.67463,
+    "ast_hash": "c671d0449e83567e9339d865e1ec3245",
+    "semantic_hash": ""
+  },
+  "src/core/document/dimxpert.ts": {
+    "mtime": 1792939132.6609561,
+    "seen": 1792939643.67463,
+    "ast_hash": "c6bea5e750f8dcef7791f8dedbb6c980",
     "semantic_hash": ""
   }
 }

@@ -7,6 +7,7 @@ import { faceOwner } from '../core/features/faceOwner';
 import { create } from 'zustand';
 import { createDocument, isRoundFeature, isSketchBased, isSolidFeature, type Document, type ExtrudeFeature, type HoleFeature, type MirrorFeature, type PatternFeature, type ImportedFeature, type LoftFeature, type RibFeature, type CombineFeature, type BaseFlangeFeature, type EdgeFlangeFeature, type FlatPatternFeature, type HelixFeature, type HemFeature, type MiterFlangeFeature, type JogFeature, type Sketch3DFeature, type SketchedBendFeature, type DraftFeature, type IntersectFeature, type SurfaceFeature, type CrossBreakFeature, type UnfoldFeature, type WrapFeature, type ThreadFeature, type RevolveFeature, type RoundFeature, type ShellFeature, type SolidFeature, type SweepFeature, type Units, type VentFeature, type FormToolFeature, type GussetFeature, type TabSlotFeature, type RipFeature, type SweptFlangeFeature, type StructuralMemberFeature, type TrimExtendFeature, type EndCapFeature, type WeldGussetFeature, type WeldBeadFeature } from '../core/document/types';
 import { FORM_TOOL_LIBRARY } from '../core/features/sheetmetal4';
+import { autoDimensionScheme, faceDistance, GTOL_SYMBOLS, type DimXpertData, type DimXpertGtol, type FaceRef as DxFaceRef } from '../core/document/dimxpert';
 import { edgeRef } from '../core/features/edgesets';
 import { rebuildDocument, type RebuildResult } from '../core/features/rebuild';
 import { isReferencePlane, planeOnFace } from '../core/features/planes';
@@ -505,7 +506,7 @@ interface State {
   /** feature PropertyManager eye: show the model with the feature applied instead of the yellow preview */
   detailedPreview: boolean;
   /** Evaluate ▸ Draft Analysis / Curvature: faces coloured by the analysis */
-  analysis: { kind: 'draft'; pull: [number, number, number]; pullLabel: string; angle: number; classify?: boolean } | { kind: 'curvature' } | { kind: 'geometry'; shortEdge: number; smallFace: number; sharpAngle: number; checkShort?: boolean; checkSmall?: boolean; checkSharp?: boolean } | { kind: 'thickness'; target: number; mode?: 'thin' | 'thick'; resolution?: 'low' | 'medium' | 'high' } | { kind: 'undercut'; pull: [number, number, number]; pullLabel: string } | { kind: 'parting'; pull: [number, number, number]; pullLabel: string; angle: number } | { kind: 'deviation'; samples: number } | null;
+  analysis: { kind: 'draft'; pull: [number, number, number]; pullLabel: string; angle: number; classify?: boolean } | { kind: 'curvature' } | { kind: 'geometry'; shortEdge: number; smallFace: number; sharpAngle: number; checkShort?: boolean; checkSmall?: boolean; checkSharp?: boolean } | { kind: 'thickness'; target: number; mode?: 'thin' | 'thick'; resolution?: 'low' | 'medium' | 'high' } | { kind: 'undercut'; pull: [number, number, number]; pullLabel: string } | { kind: 'parting'; pull: [number, number, number]; pullLabel: string; angle: number } | { kind: 'deviation'; samples: number } | { kind: 'tolerance' } | null;
   setAnalysis(a: State['analysis']): void;
   toggleDetailedPreview(): void;
   /** Sketch ▸ 3D Sketch: start a new 3D sketch (or edit one) */
@@ -655,6 +656,14 @@ interface State {
   /** Trim/Extend: which box the next body pick fills (bodies to trim / trimming bodies) */
   trimFocus: 'bodies' | 'trimming';
   setTrimFocus(f: 'bodies' | 'trimming'): void;
+  /** MBD Dimensions (DimXpert): the tool being defined, its face picks and parameters */
+  dimxpertEdit: { kind: 'auto' | 'datum' | 'size' | 'location' | 'pattern' | 'gtol'; faces: DxFaceRef[]; partType?: 'prismatic' | 'turned'; toleranceType?: 'plusMinus' | 'geometric'; label?: string; basic?: boolean; plus?: number; minus?: number; symbol?: DimXpertGtol['symbol']; value?: number; datums?: string[] } | null;
+  startDimXpert(kind: NonNullable<State['dimxpertEdit']>['kind']): void;
+  updateDimXpert(patch: Partial<NonNullable<State['dimxpertEdit']>>): void;
+  commitDimXpert(): void;
+  cancelDimXpert(): void;
+  setDimXpertData(d: DimXpertData | undefined): void;
+  deleteAllTolerances(): void;
   /** Weldments: Weldment, Structural Member, Trim/Extend, End Cap, Gusset, Weld Bead */
   startWeldment(): void;
   startStructuralMember(): void;
@@ -2313,6 +2322,19 @@ export const useStore = create<State>((set, get) => ({
       set({ featureEdit: { ...featureEdit, draft: { ...featureEdit.draft, startFace: { normal: f.normal, point: f.centroid, label: `Face<${body!.faces.indexOf(f) + 1}>` } } }, threadFacePick: false, selectedFace });
       return;
     }
+    const dx = get().dimxpertEdit;
+    if (dx && selectedFace) {
+      const body = rebuild.bodies.find((b) => b.id === selectedFace.bodyId);
+      const face = body?.faces.find((f) => f.id === selectedFace.faceId);
+      if (!body || !face) return;
+      if (face.curved) return get().pushMessage('MBD Dimensions work on planar faces in this build.', 'warn');
+      const r: DxFaceRef = { normal: [...face.normal] as [number, number, number], point: [...face.centroid] as [number, number, number] };
+      const max = dx.kind === 'auto' ? 3 : dx.kind === 'datum' || dx.kind === 'gtol' ? 1 : dx.kind === 'pattern' ? 32 : 2;
+      const has = dx.faces.some((x) => Math.hypot(x.point[0] - r.point[0], x.point[1] - r.point[1], x.point[2] - r.point[2]) < 1e-6);
+      const faces = has ? dx.faces.filter((x) => Math.hypot(x.point[0] - r.point[0], x.point[1] - r.point[1], x.point[2] - r.point[2]) > 1e-6) : [...dx.faces, r].slice(-max);
+      set({ dimxpertEdit: { ...dx, faces }, selectedFace, selectedFaces: has ? selectedFaces.filter((f) => f.faceId !== selectedFace.faceId) : [...selectedFaces, selectedFace].slice(-max) });
+      return;
+    }
     if (featureEdit && selectedFace && (featureEdit.draft.type === 'endCap' || featureEdit.draft.type === 'weldGusset' || featureEdit.draft.type === 'weldBead' || featureEdit.draft.type === 'trimExtend')) {
       const body = rebuild.bodies.find((b) => b.id === selectedFace.bodyId);
       const face = body?.faces.find((f) => f.id === selectedFace.faceId);
@@ -3773,6 +3795,67 @@ export const useStore = create<State>((set, get) => ({
     const e = selectedEdges.map((id) => body.edges.find((x) => x.id === id)).find((x) => x && x.straight);
     const draft: HemFeature = { id: newId('f'), type: 'hem', name: featureName(doc, 'hem'), suppressed: false, edge: e ? edgeRef(e) : null, hemType: 'closed', length: 10, gap: 2, position: 'materialInside', flip: false };
     set({ featureEdit: { featureId: null, draft }, activeSketchId: null, tool: 'select', selection: [], tab: 'sheetmetal', managerTab: 'tree', planePick: false, selectedEdges: e ? [e.id] : [] });
+  },
+  dimxpertEdit: null,
+  startDimXpert(kind) {
+    const { rebuild } = get();
+    if (!rebuild.bodies.length) {
+      get().pushMessage('MBD Dimensions need a solid body.', 'warn');
+      return;
+    }
+    const blockMinor = Number(get().prefs['doc.blockLength2'] ?? 0.25);
+    const n = (get().doc.dimxpert?.datums.length ?? 0);
+    set({ dimxpertEdit: { kind, faces: [], partType: 'prismatic', toleranceType: 'plusMinus', label: String.fromCharCode(65 + Math.min(25, n)), basic: false, plus: blockMinor, minus: blockMinor, symbol: 'position', value: 2 * blockMinor, datums: [] }, featureEdit: null, activeSketchId: null, tool: 'select', selection: [], tab: 'mbd', managerTab: 'dimxpert', planePick: false, selectedFace: null, selectedFaces: [] });
+  },
+  updateDimXpert(patch) {
+    const e = get().dimxpertEdit;
+    if (e) set({ dimxpertEdit: { ...e, ...patch } });
+  },
+  cancelDimXpert() {
+    set({ dimxpertEdit: null, selectedFace: null, selectedFaces: [] });
+  },
+  setDimXpertData(dimxpert) {
+    get().applyDocument('MBD Dimensions', { ...get().doc, dimxpert });
+  },
+  deleteAllTolerances() {
+    const { doc } = get();
+    if (!doc.dimxpert) return;
+    get().applyDocument('Delete All Tolerances', { ...doc, dimxpert: undefined });
+    set({ analysis: get().analysis?.kind === 'tolerance' ? null : get().analysis });
+    get().pushMessage('All DimXpert dimensions and tolerances deleted.', 'info');
+  },
+  commitDimXpert() {
+    const e = get().dimxpertEdit;
+    if (!e) return;
+    const { doc, rebuild, prefs } = get();
+    const block = { length1: Number(prefs['doc.blockLength1'] ?? 0.5), length2: Number(prefs['doc.blockLength2'] ?? 0.25), length3: Number(prefs['doc.blockLength3'] ?? 0.1), angle: Number(prefs['doc.blockAngle'] ?? 0.5) };
+    const cur: DimXpertData = doc.dimxpert ?? { partType: e.partType ?? 'prismatic', toleranceType: e.toleranceType ?? 'plusMinus', datums: [], dims: [], gtols: [] };
+    const id = newId('dx');
+    const r2 = (v: number) => Math.round(v * 100) / 100;
+    let next: DimXpertData;
+    if (e.kind === 'auto') {
+      next = autoDimensionScheme(rebuild.bodies, { partType: e.partType ?? 'prismatic', toleranceType: e.toleranceType ?? 'plusMinus', block, datums: e.faces.slice(0, 3) });
+      if (!next.dims.length && !next.datums.length) return get().pushMessage('No planar faces to dimension.', 'warn');
+    } else if (e.kind === 'datum') {
+      if (!e.faces.length) return get().pushMessage('Select the datum face.', 'warn');
+      const label = (e.label || 'A').toUpperCase();
+      next = { ...cur, datums: [...cur.datums.filter((d) => d.label !== label), { id, label, face: e.faces[0] }] };
+    } else if (e.kind === 'gtol') {
+      if (!e.faces.length) return get().pushMessage('Select the face the tolerance applies to.', 'warn');
+      const symbol = e.symbol ?? 'position';
+      const value = e.value ?? 2 * block.length2;
+      const datums = e.datums ?? [];
+      next = { ...cur, gtols: [...cur.gtols, { id, symbol, value, datums, face: e.faces[0], label: `${GTOL_SYMBOLS[symbol]} ${r2(value)}${datums.length ? ' | ' + datums.join(' | ') : ''}` }] };
+    } else {
+      if (e.faces.length < 2) return get().pushMessage(e.kind === 'size' ? 'Select the two opposite faces.' : 'Select the two faces of the dimension.', 'warn');
+      const value = faceDistance(e.faces[0], e.faces[1]);
+      if (value < 1e-6) return get().pushMessage('The faces lie in the same plane: pick two faces apart from each other.', 'warn');
+      const plus = e.basic ? 0 : e.plus ?? block.length2, minus = e.basic ? 0 : e.minus ?? block.length2;
+      const datum = cur.datums.find((d) => Math.hypot(d.face.point[0] - e.faces[0].point[0], d.face.point[1] - e.faces[0].point[1], d.face.point[2] - e.faces[0].point[2]) < 0.5)?.label;
+      next = { ...cur, dims: [...cur.dims, { id, kind: e.kind, faces: e.faces.slice(0, 2), value, plus, minus, basic: !!e.basic, label: `${r2(value)}`, datum }] };
+    }
+    get().applyDocument(e.kind === 'auto' ? 'Auto Dimension Scheme' : 'MBD Dimension', { ...doc, dimxpert: next });
+    set({ dimxpertEdit: null, selectedFace: null, selectedFaces: [], managerTab: 'dimxpert' });
   },
   startWeldment() {
     const { doc } = get();

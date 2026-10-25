@@ -44,6 +44,7 @@ const TABS: { id: RibbonTab; label: string }[] = [
   { id: 'sheetmetal', label: 'Sheet Metal' },
   { id: 'weldments', label: 'Weldments' },
   { id: 'evaluate', label: 'Evaluate' },
+  { id: 'mbd', label: 'MBD Dimensions' },
   { id: 'render', label: 'Render Tools' },
   { id: 'addins', label: 'Phlippo Add-Ins' },
 ];
@@ -266,7 +267,7 @@ export function Ribbon() {
 
   // as the original: commands that need a body (or a sketch) are greyed out until there is one
   // an assembly has no Features tab: commands that switch to it show the Assembly tab
-  const tabShown = st.doc.kind === 'assembly' && (st.tab === 'features' || st.tab === 'surfaces' || st.tab === 'sheetmetal' || st.tab === 'weldments') ? 'assembly' : st.tab;
+  const tabShown = st.doc.kind === 'assembly' && (st.tab === 'features' || st.tab === 'surfaces' || st.tab === 'sheetmetal' || st.tab === 'weldments' || st.tab === 'mbd') ? 'assembly' : st.tab;
   const noBody = st.doc.kind === 'part' && !st.rebuild.bodies.length;
   // while a PropertyManager command runs, the original greys the CommandManager (the running command stays lit)
   const busy = st.doc.kind !== 'drawing' && (!!st.featureEdit || !!st.planeEdit || !!st.sheetMetalEdit || !!st.patternEdit || !!st.sketch3dEdit || !!st.motorEdit || !!st.fastenerEdit || (!!st.analysis && st.analysis.kind !== 'curvature'));
@@ -479,6 +480,32 @@ export function Ribbon() {
       </Group>
     </>
   );
+  const mbdTab = (
+    <>
+      {menuBlock}
+      <Group>
+        <BigButton label="Auto Dimension Scheme" disabled={noBody} icon={<Icon.SmartDimension />} active={st.dimxpertEdit?.kind === 'auto'} onClick={() => st.startDimXpert('auto')} />
+        <BigButton label="Location Dimension" disabled={noBody} icon={<Icon.Dimension />} active={st.dimxpertEdit?.kind === 'location'} onClick={() => st.startDimXpert('location')} />
+        <BigButton label="Size Dimension" disabled={noBody} icon={<Icon.Dimension />} active={st.dimxpertEdit?.kind === 'size'} onClick={() => st.startDimXpert('size')} />
+        <BigButton label="Pattern Feature" disabled={noBody} icon={<Icon.Pattern />} active={st.dimxpertEdit?.kind === 'pattern'} onClick={() => st.startDimXpert('pattern')} />
+        <BigButton label="Datum" disabled={noBody} icon={<Icon.Lock />} active={st.dimxpertEdit?.kind === 'datum'} onClick={() => st.startDimXpert('datum')} />
+        <BigButton label="Geometric Tolerance" disabled={noBody} icon={<Icon.Annotation />} active={st.dimxpertEdit?.kind === 'gtol'} onClick={() => st.startDimXpert('gtol')} />
+      </Group>
+      <Group>
+        <BigButton label="Show Tolerance Status" disabled={noBody} icon={<Icon.Check />} active={st.analysis?.kind === 'tolerance'} onClick={() => st.setAnalysis(st.analysis?.kind === 'tolerance' ? null : { kind: 'tolerance' })} />
+        <div className="k-cm-col">
+          <SmallButton label="Copy Scheme" disabled={!st.doc.dimxpert} icon={<Icon.Properties />} onClick={() => { navigator.clipboard?.writeText(JSON.stringify(st.doc.dimxpert)).catch(() => {}); st.pushMessage('DimXpert scheme copied to the clipboard (paste with Import Scheme).', 'info'); }} />
+          <SmallButton label="Import Scheme" disabled={noBody} icon={<Icon.Open />} onClick={() => st.setAsk({ title: 'Import Scheme', text: 'Paste a DimXpert scheme (JSON from Copy Scheme).', input: '', yes: (v: string) => { try { const d = JSON.parse(String(v ?? '')); if (d && Array.isArray(d.dims) && Array.isArray(d.datums)) st.setDimXpertData(d); else st.pushMessage('Not a DimXpert scheme.', 'warn'); } catch { st.pushMessage('Not a DimXpert scheme.', 'warn'); } }, yesLabel: 'Import' })} />
+          <SmallButton label="Delete All Tolerances" disabled={!st.doc.dimxpert} icon={<Icon.Trash />} onClick={st.deleteAllTolerances} />
+        </div>
+        <div className="k-cm-col">
+          <SmallButton label="TolAnalyst Study" disabled={!st.doc.dimxpert} icon={<Icon.Measure />} onClick={() => { const d = st.doc.dimxpert!; const worst = d.dims.reduce((a, x) => a + x.plus + x.minus, 0); const rss = Math.sqrt(d.dims.reduce((a, x) => a + (x.plus + x.minus) ** 2, 0)); st.setAsk({ title: 'TolAnalyst Study', text: `Stack-up of ${d.dims.length} dimension(s): worst case ±${(worst / 2).toFixed(3)} mm, statistical (RSS) ±${(rss / 2).toFixed(3)} mm.` }); }} />
+          <SmallButton label="Datum Target" disabled={noBody} icon={<Icon.Point />} onClick={() => st.startDimXpert('datum')} />
+          <SmallButton label="Basic Dimension" disabled={noBody} icon={<Icon.Dimension />} onClick={() => { st.startDimXpert('size'); st.updateDimXpert({ basic: true }); }} />
+        </div>
+      </Group>
+    </>
+  );
   const renderTab = (
     <>
       {menuBlock}
@@ -551,6 +578,7 @@ export function Ribbon() {
     surfaces: surfacesTab,
     sheetmetal: sheetMetalTab,
     weldments: weldmentsTab,
+    mbd: mbdTab,
     render: renderTab,
     addins: addinsTab,
   };

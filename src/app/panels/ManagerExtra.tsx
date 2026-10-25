@@ -3,6 +3,7 @@ import { useStore } from '../store';
 import { TreeView, type TreeNode } from '../../ui/components';
 import { Icon } from '../../ui/icons';
 import { dimensionTable } from '../../core/document/equations';
+import { STATUS_COLORS, toleranceStatus } from '../../core/document/dimxpert';
 
 /**
  * DimXpertManager tab, as the original: the model's dimensions per feature (the dimensions DimXpert works with),
@@ -11,35 +12,42 @@ import { dimensionTable } from '../../core/document/equations';
 export function DimXpertManagerBody() {
   const st = useStore();
   const dims = useMemo(() => dimensionTable(st.doc), [st.doc]);
-  const byOwner = new Map<string, typeof dims>();
-  for (const d of dims) {
-    const owner = d.name.split('@')[1] ?? '';
-    (byOwner.get(owner) ?? byOwner.set(owner, []).get(owner)!).push(d);
-  }
+  const dx = st.doc.dimxpert;
+  const status = useMemo(() => toleranceStatus(st.rebuild.bodies, dx), [st.rebuild.bodies, dx]);
   const nodes: TreeNode[] = [
     {
       id: 'dx-root',
       icon: <Icon.Part />,
       label: <span>{st.doc.name} (Default)</span>,
       children: [
-        { id: 'dx-scheme', icon: <Icon.Dimension />, label: <span>Auto Dimension Scheme ({dims.length} dimensions)</span> },
-        ...[...byOwner.entries()].map(([owner, list]): TreeNode => ({
-          id: 'dx-' + owner,
-          icon: <Icon.TreeFolder glyph="annotation" />,
-          label: <span>{owner}</span>,
-          defaultOpen: true,
-          children: list.map((d): TreeNode => ({ id: 'dx-' + d.name, icon: <Icon.Dimension />, label: <span data-testid="dx-dim">{d.name.split('@')[0]} = {d.value.toFixed(2)}</span> })),
-        })),
+        { id: 'dx-scheme', icon: <Icon.Dimension />, label: <span>{dx ? `${dx.toleranceType === 'geometric' ? 'Geometric' : 'Plus and Minus'} scheme · ${dx.partType}` : `Auto Dimension Scheme (${dims.length} model dimensions)`}</span> },
+        ...(dx
+          ? [
+              { id: 'dx-datums', icon: <Icon.TreeFolder glyph="annotation" />, label: <span>Datums ({dx.datums.length})</span>, defaultOpen: true, children: dx.datums.map((d): TreeNode => ({ id: 'dxd-' + d.id, icon: <Icon.Lock />, label: <span data-testid="dx-datum">Datum {d.label}</span> })) },
+              { id: 'dx-size', icon: <Icon.TreeFolder glyph="annotation" />, label: <span>Size Dimensions ({dx.dims.filter((d) => d.kind === 'size').length})</span>, defaultOpen: true, children: dx.dims.filter((d) => d.kind === 'size').map((d): TreeNode => ({ id: 'dxs-' + d.id, icon: <Icon.Dimension />, label: <span data-testid="dx-size">{d.label}{d.basic ? '' : ` ±${d.plus}`}</span> })) },
+              { id: 'dx-loc', icon: <Icon.TreeFolder glyph="annotation" />, label: <span>Location Dimensions ({dx.dims.filter((d) => d.kind !== 'size').length})</span>, defaultOpen: true, children: dx.dims.filter((d) => d.kind !== 'size').map((d): TreeNode => ({ id: 'dxl-' + d.id, icon: <Icon.Dimension />, label: <span data-testid="dx-loc">{d.label}{d.basic ? '' : ` ±${d.plus}`}{d.datum ? ` from ${d.datum}` : ''}</span> })) },
+              { id: 'dx-gtol', icon: <Icon.TreeFolder glyph="annotation" />, label: <span>Geometric Tolerances ({dx.gtols.length})</span>, defaultOpen: true, children: dx.gtols.map((g): TreeNode => ({ id: 'dxg-' + g.id, icon: <Icon.Annotation />, label: <span data-testid="dx-gtol">{g.label}</span> })) },
+            ]
+          : []),
       ],
     },
   ];
   return (
     <div className="k-mgr-extra" data-testid="dimxpert-manager">
       <div className="k-mgr-extra-bar">
-        <button className="k-btn ghost icon k-tip" data-tip="Auto Dimension Scheme" onClick={() => st.pushMessage(`Auto Dimension Scheme: ${dims.length} dimensions found on ${byOwner.size} features.`)}><Icon.Dimension size={14} /></button>
-        <button className="k-btn ghost icon k-tip" data-tip="Show Tolerance Status" onClick={() => st.pushMessage('Tolerance status: every dimension is fully defined by the model.')}><Icon.Check size={14} /></button>
+        <button className="k-btn ghost icon k-tip" data-tip="Auto Dimension Scheme" data-testid="dx-auto" onClick={() => st.startDimXpert('auto')}><Icon.Dimension size={14} /></button>
+        <button className={`k-btn ghost icon k-tip${st.analysis?.kind === 'tolerance' ? ' active' : ''}`} data-tip="Show Tolerance Status" data-testid="dx-status" onClick={() => st.setAnalysis(st.analysis?.kind === 'tolerance' ? null : { kind: 'tolerance' })}><Icon.Check size={14} /></button>
+        <button className="k-btn ghost icon k-tip" data-tip="Delete All Tolerances" disabled={!dx} onClick={st.deleteAllTolerances}><Icon.Trash size={14} /></button>
       </div>
-      {dims.length ? <TreeView nodes={nodes} /> : <p className="k-muted" style={{ padding: 8 }}>The model has no dimensions yet.</p>}
+      {st.analysis?.kind === 'tolerance' && (
+        <div className="k-draft-legend" style={{ padding: '4px 8px' }} data-testid="dx-status-legend">
+          <div><span style={{ background: STATUS_COLORS.constrained }} /> {status.counts.constrained} fully constrained</div>
+          <div><span style={{ background: STATUS_COLORS.under }} /> {status.counts.under} under constrained</div>
+          <div><span style={{ background: STATUS_COLORS.over }} /> {status.counts.over} over constrained</div>
+        </div>
+      )}
+      <TreeView nodes={nodes} />
+      {!dx && <p className="k-muted" style={{ padding: 8 }}>No DimXpert scheme yet: run Auto Dimension Scheme or add datums and dimensions from the MBD Dimensions tab.</p>}
     </div>
   );
 }

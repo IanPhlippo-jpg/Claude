@@ -1417,6 +1417,8 @@ export interface Document {
   boundingBox?: boolean;
   /** Weldments: the part is a weldment (cut list instead of Solid Bodies) */
   weldment?: boolean;
+  /** MBD Dimensions (DimXpert): datums, size/location dimensions and geometric tolerances */
+  dimxpert?: import('./dimxpert').DimXpertData;
   /** Markup: freehand strokes over the graphics area (screen fractions 0..1), per document */
   markups?: { id: Id; color: string; points: [number, number][] }[];
   /** Render Tools ▸ Edit Decal: images on planar faces (DisplayManager ▸ Decals) */

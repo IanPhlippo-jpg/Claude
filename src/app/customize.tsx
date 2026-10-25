@@ -15,6 +15,7 @@ export const RIBBON_TABS: { id: string; label: string }[] = [
   { id: 'sheetmetal', label: 'Sheet Metal' },
   { id: 'weldments', label: 'Weldments' },
   { id: 'evaluate', label: 'Evaluate' },
+  { id: 'mbd', label: 'MBD Dimensions' },
   { id: 'render', label: 'Render Tools' },
   { id: 'addins', label: 'Phlippo Add-Ins' },
 ];

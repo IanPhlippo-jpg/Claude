@@ -1,13 +1,16 @@
 import { useMemo, useState } from 'react';
 import { useStore } from './store';
 import { Icon } from '../ui/icons';
-import { MATERIAL_LIBRARY, type MaterialDef } from '../core/document/materials';
+import { MATERIAL_LIBRARY, materialInfo, type MaterialDef } from '../core/document/materials';
 import { getPref, loadPrefs, savePrefs } from './prefs';
 import { activeConfiguration, configurations } from '../core/document/configurations';
 
 /** the custom material library (kept between sessions) */
 const loadCustom = (): MaterialDef[] => { try { return JSON.parse(String(getPref('material.custom') || '[]')); } catch { return []; } };
 const saveCustom = (list: MaterialDef[]) => savePrefs({ ...loadPrefs(), 'material.custom': JSON.stringify(list) });
+/** Favorites: material names kept between sessions (the right-click material menu of the tree lists them) */
+export const loadFavorites = (): string[] => { try { return JSON.parse(String(getPref('material.favorites') || '[]')); } catch { return []; } };
+const saveFavorites = (list: string[]) => savePrefs({ ...loadPrefs(), 'material.favorites': JSON.stringify(list) });
 /** stress units of the Properties table: factor from N/m² */
 const STRESS = { pa: { f: 1, u: 'N/m^2' }, mpa: { f: 1e-6, u: 'N/mm^2' }, psi: { f: 1 / 6894.757, u: 'psi' } } as const;
 
@@ -32,6 +35,10 @@ export function MaterialDialog() {
   const [applyLook, setApplyLook] = useState(true);
   const [cfgPanel, setCfgPanel] = useState(false);
   const [cfgScope, setCfgScope] = useState<'this' | 'all'>('all');
+  const [favorites, setFavorites] = useState<string[]>(loadFavorites);
+  const [favSel, setFavSel] = useState<string | null>(null);
+  const allMaterials = useMemo(() => [...MATERIAL_LIBRARY.flatMap((c) => c.materials), ...custom], [custom]);
+  const setFavs = (list: string[]) => { setFavorites(list); saveFavorites(list); };
   const q = query.trim().toLowerCase();
   const cats = useMemo(() => [...MATERIAL_LIBRARY, ...(custom.length ? [{ name: 'Custom Materials', materials: custom }] : [])].map((c) => ({ ...c, materials: c.materials.filter((m) => !q || m.name.toLowerCase().includes(q)) })).filter((c) => c.materials.length), [q, custom]);
   const isCustom = !!sel && custom.some((m) => m.name === sel.name);
@@ -74,7 +81,7 @@ export function MaterialDialog() {
   };
   const S = STRESS[units];
   const stress = (v?: number) => (v === undefined ? '' : fmtNum(Number((v * S.f).toPrecision(6))));
-  type Key = 'elasticModulus' | 'poisson' | 'shearModulus' | 'density' | 'tensile' | 'yield' | 'thermalExpansion' | 'conductivity' | 'specificHeat';
+  type Key = 'elasticModulus' | 'poisson' | 'shearModulus' | 'density' | 'tensile' | 'compressive' | 'yield' | 'thermalExpansion' | 'conductivity' | 'specificHeat';
   const rows: [string, string, string, Key, number][] = cur
     ? [
         ['Elastic Modulus', stress(cur.elasticModulus), S.u, 'elasticModulus', S.f],
@@ -82,6 +89,7 @@ export function MaterialDialog() {
         ['Shear Modulus', stress(cur.shearModulus), S.u, 'shearModulus', S.f],
         ['Mass Density', String(cur.density), 'kg/m^3', 'density', 1],
         ['Tensile Strength', stress(cur.tensile), S.u, 'tensile', S.f],
+        ['Compressive Strength', stress(cur.compressive), S.u, 'compressive', S.f],
         ['Yield Strength', stress(cur.yield), S.u, 'yield', S.f],
         ['Thermal Expansion Coefficient', fmtNum(cur.thermalExpansion), '/K', 'thermalExpansion', 1],
         ['Thermal Conductivity', fmtNum(cur.conductivity), 'W/(m·K)', 'conductivity', 1],
@@ -123,9 +131,9 @@ export function MaterialDialog() {
               {TABS.map((t) => <button key={t} className={tab === t ? 'active' : ''} onClick={() => setTab(t)}>{t}</button>)}
             </div>
             <div className="k-material-page">
-              {!cur ? (
+              {!cur && tab !== 'Favorites' ? (
                 <div className="k-material-empty">Select a material to Apply/Edit</div>
-              ) : tab === 'Properties' ? (
+              ) : tab === 'Properties' && cur ? (
                 <>
                   <div className="k-field"><label>Material properties</label>{isCustom ? <span className="k-muted">A custom material: edit the values, then Save.</span> : <span className="k-muted">Materials in the default library can not be edited. You must first copy the material to a custom library to edit it.</span>}</div>
                   {!isCustom && <button className="k-btn" data-testid="mat-copy" style={{ alignSelf: 'flex-start', marginBottom: 4 }} onClick={copyToCustom}>Copy to Custom Materials</button>}
@@ -133,13 +141,31 @@ export function MaterialDialog() {
                   <div className="k-pm-valuerow"><label>Units:</label><select className="k-input" data-testid="mat-units" value={units} onChange={(e) => setUnits(e.target.value as 'pa')}><option value="pa">SI - N/m^2 (Pa)</option><option value="mpa">SI - N/mm^2 (MPa)</option><option value="psi">English (IPS)</option></select></div>
                   <div className="k-pm-valuerow"><label>Category:</label><input className="k-input" value={isCustom ? 'Custom Materials' : MATERIAL_LIBRARY.find((c) => c.materials.some((m) => m.name === cur.name))?.name ?? ''} readOnly /></div>
                   <div className="k-pm-valuerow"><label>Name:</label><input className="k-input" data-testid="mat-name" value={cur.name} readOnly={!isCustom} onChange={(e) => setEdit({ ...cur, name: e.target.value })} onKeyDown={(e) => e.stopPropagation()} /></div>
+                  <div className="k-pm-valuerow"><label>Description:</label><input className="k-input" data-testid="mat-description" value={isCustom ? (cur.description ?? '') : materialInfo(cur).description} readOnly={!isCustom} onChange={(e) => setEdit({ ...cur, description: e.target.value })} onKeyDown={(e) => e.stopPropagation()} /></div>
+                  <div className="k-pm-valuerow"><label>Source:</label><input className="k-input" data-testid="mat-source" value={isCustom ? (cur.source ?? '') : materialInfo(cur).source} readOnly={!isCustom} onChange={(e) => setEdit({ ...cur, source: e.target.value })} onKeyDown={(e) => e.stopPropagation()} /></div>
+                  <div className="k-pm-valuerow"><label>Sustainability:</label><input className="k-input" data-testid="mat-sustainability" value={isCustom ? (cur.sustainability ?? '') : materialInfo(cur).sustainability} readOnly={!isCustom} onChange={(e) => setEdit({ ...cur, sustainability: e.target.value })} onKeyDown={(e) => e.stopPropagation()} />{!isCustom && <button className="k-btn" onClick={() => st.pushMessage('Sustainability: the material class is used by the Sustainability add-in for the environmental impact; set it on a custom material.', 'info')}>Select…</button>}</div>
                   <table className="k-material-props">
                     <thead><tr><th>Property</th><th>Value</th><th>Units</th></tr></thead>
                     <tbody>{rows.map(([p, v, u, k, f]) => <tr key={p} className={v ? '' : 'k-muted'}><td>{p}</td><td>{isCustom ? <input className="k-input" data-testid={'mat-' + k} style={{ width: 110 }} type="number" value={v} onChange={(e) => setEdit({ ...cur, [k]: e.target.value === '' ? undefined : Number(e.target.value) / f })} onKeyDown={(e) => e.stopPropagation()} /> : v}</td><td>{u}</td></tr>)}</tbody>
                   </table>
                 </>
-              ) : tab === 'Appearance' ? (
+              ) : tab === 'Appearance' && cur ? (
                 <div className="k-field"><label>Appearance</label><div className="k-pm-valuerow"><span className="swatch" style={{ background: cur.color, width: 40, height: 20, display: 'inline-block', border: '1px solid #888' }} /> <span>{cur.name} (color)</span>{isCustom && <input type="color" value={cur.color} onChange={(e) => setEdit({ ...cur, color: e.target.value })} />}</div><label className="k-check"><input type="checkbox" data-testid="mat-applylook" checked={applyLook} onChange={(e) => setApplyLook(e.target.checked)} /> Apply appearance of the material</label></div>
+              ) : tab === 'Favorites' ? (
+                <div className="k-field" data-testid="mat-favorites">
+                  <label>Favorites</label>
+                  <p className="k-muted">Favorite materials appear in the material menu of the FeatureManager tree (right-click the Material item). Select a material in the tree on the left and click Add.</p>
+                  <div className="k-selbox" style={{ minHeight: 120 }}>
+                    {favorites.map((n) => <div key={n} className={`k-selbox-row${favSel === n ? ' selected' : ''}`} style={favSel === n ? { background: 'var(--bg-selected)' } : undefined} onClick={() => setFavSel(n)}><span className="swatch" style={{ background: allMaterials.find((m) => m.name === n)?.color ?? '#ccc', width: 12, height: 12, display: 'inline-block', marginRight: 6 }} />{n}</div>)}
+                    {!favorites.length && <span className="k-muted">No favorites yet.</span>}
+                  </div>
+                  <div className="k-pm-stylerow" style={{ marginTop: 6 }}>
+                    <button className="k-btn" data-testid="mat-fav-add" disabled={!sel || favorites.includes(sel.name)} onClick={() => sel && setFavs([...favorites, sel.name])}>Add</button>
+                    <button className="k-btn" data-testid="mat-fav-remove" disabled={!favSel} onClick={() => { setFavs(favorites.filter((n) => n !== favSel)); setFavSel(null); }}>Remove</button>
+                    <button className="k-btn" disabled={!favSel || favorites.indexOf(favSel) <= 0} onClick={() => { const i = favorites.indexOf(favSel!); const l = favorites.slice(); [l[i - 1], l[i]] = [l[i], l[i - 1]]; setFavs(l); }}>Up</button>
+                    <button className="k-btn" disabled={!favSel || favorites.indexOf(favSel) >= favorites.length - 1} onClick={() => { const i = favorites.indexOf(favSel!); const l = favorites.slice(); [l[i + 1], l[i]] = [l[i], l[i + 1]]; setFavs(l); }}>Down</button>
+                  </div>
+                </div>
               ) : (
                 <div className="k-material-empty">No {tab} data for this material.</div>
               )}

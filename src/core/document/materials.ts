@@ -14,6 +14,12 @@ export interface MaterialDef {
   thermalExpansion?: number;
   conductivity?: number;
   specificHeat?: number;
+  /** Compressive Strength (Pa), as the original's Properties table */
+  compressive?: number;
+  /** Description, Source and Sustainability of the material */
+  description?: string;
+  source?: string;
+  sustainability?: string;
   /** display colour in the graphics area */
   color: string;
 }
@@ -30,21 +36,21 @@ export const MATERIAL_LIBRARY: MaterialCategory[] = [
     name: 'Steel',
     materials: [
       m('1023 Carbon Steel Sheet (SS)', 7858, '#b8bcc2', { elasticModulus: 2.05e11, poisson: 0.29, shearModulus: 8e10, tensile: 4.25e8, yield: 2.827e8, thermalExpansion: 1.2e-5, conductivity: 52, specificHeat: 486 }),
-      m('AISI 1020', 7900, '#b8bcc2', { elasticModulus: 2e11, poisson: 0.29, shearModulus: 7.7e10, tensile: 4.2e8, yield: 3.5e8, thermalExpansion: 1.5e-5, conductivity: 47, specificHeat: 420 }),
+      m('AISI 1020', 7900, '#b8bcc2', { description: 'Low carbon steel, general machine parts', source: 'Phlippo CAD Materials (ISO/ASTM data)', sustainability: 'Steel ▸ Carbon steel', elasticModulus: 2e11, poisson: 0.29, shearModulus: 7.7e10, tensile: 4.2e8, yield: 3.5e8, thermalExpansion: 1.5e-5, conductivity: 47, specificHeat: 420 }),
       m('AISI 1045 Steel, cold drawn', 7850, '#b8bcc2', { elasticModulus: 2.05e11, poisson: 0.29, shearModulus: 8e10, tensile: 6.25e8, yield: 5.3e8, thermalExpansion: 1.15e-5, conductivity: 49.8, specificHeat: 486 }),
       m('AISI 304', 8000, '#c9ccd1', { elasticModulus: 1.9e11, poisson: 0.29, shearModulus: 7.5e10, tensile: 5.17e8, yield: 2.07e8, thermalExpansion: 1.8e-5, conductivity: 16, specificHeat: 500 }),
       m('AISI 316 Stainless Steel Sheet (SS)', 8000, '#c9ccd1', { elasticModulus: 1.93e11, poisson: 0.27, shearModulus: 8.2e10, tensile: 5.8e8, yield: 1.72e8, thermalExpansion: 1.6e-5, conductivity: 16.3, specificHeat: 500 }),
       m('Alloy Steel', 7700, '#b8bcc2', { elasticModulus: 2.1e11, poisson: 0.28, shearModulus: 7.9e10, tensile: 7.24e8, yield: 6.2e8, thermalExpansion: 1.3e-5, conductivity: 50, specificHeat: 460 }),
-      m('Plain Carbon Steel', 7800, '#b8bcc2', { elasticModulus: 2.1e11, poisson: 0.28, shearModulus: 7.9e10, tensile: 3.99e8, yield: 2.2e8, thermalExpansion: 1.3e-5, conductivity: 43, specificHeat: 440 }),
+      m('Plain Carbon Steel', 7800, '#b8bcc2', { description: 'Plain carbon steel, the default steel of the library', source: 'Phlippo CAD Materials', sustainability: 'Steel ▸ Carbon steel', elasticModulus: 2.1e11, poisson: 0.28, shearModulus: 7.9e10, tensile: 3.99e8, yield: 2.2e8, thermalExpansion: 1.3e-5, conductivity: 43, specificHeat: 440 }),
       m('Stainless Steel (ferritic)', 7800, '#c9ccd1', { elasticModulus: 2e11, poisson: 0.28, shearModulus: 7.7e10, tensile: 5.1e8, yield: 1.7e8, thermalExpansion: 1.1e-5, conductivity: 18, specificHeat: 460 }),
     ],
   },
   {
     name: 'Iron',
     materials: [
-      m('Ductile Iron', 7100, '#8e9298', { elasticModulus: 1.2e11, poisson: 0.31, shearModulus: 7.7e10, tensile: 8.6e8, yield: 5.5e8, thermalExpansion: 1.1e-5, conductivity: 47, specificHeat: 500 }),
-      m('Gray Cast Iron', 7200, '#8e9298', { elasticModulus: 6.6e10, poisson: 0.27, shearModulus: 5e10, tensile: 1.5e8, thermalExpansion: 1.2e-5, conductivity: 45, specificHeat: 510 }),
-      m('Malleable Cast Iron', 7300, '#8e9298', { elasticModulus: 1.9e11, poisson: 0.27, shearModulus: 8.6e10, tensile: 4.1e8, yield: 2.8e8, thermalExpansion: 1.2e-5, conductivity: 45, specificHeat: 510 }),
+      m('Ductile Iron', 7100, '#8e9298', { compressive: 8.6e8, elasticModulus: 1.2e11, poisson: 0.31, shearModulus: 7.7e10, tensile: 8.6e8, yield: 5.5e8, thermalExpansion: 1.1e-5, conductivity: 47, specificHeat: 500 }),
+      m('Gray Cast Iron', 7200, '#8e9298', { compressive: 5.72e8, description: 'Grey cast iron, flake graphite', elasticModulus: 6.6e10, poisson: 0.27, shearModulus: 5e10, tensile: 1.5e8, thermalExpansion: 1.2e-5, conductivity: 45, specificHeat: 510 }),
+      m('Malleable Cast Iron', 7300, '#8e9298', { compressive: 1.2e9, elasticModulus: 1.9e11, poisson: 0.27, shearModulus: 8.6e10, tensile: 4.1e8, yield: 2.8e8, thermalExpansion: 1.2e-5, conductivity: 45, specificHeat: 510 }),
     ],
   },
   {
@@ -106,3 +112,9 @@ export function findMaterial(name: string): MaterialDef | undefined {
 
 /** density in g/mm³ for Mass Properties (1000 kg/m³ = 0.001 g/mm³) */
 export const densityGPerMm3 = (kgPerM3: number) => kgPerM3 / 1e6;
+
+/** the Description / Source / Sustainability shown for a material (its own text or the category default) */
+export function materialInfo(m: MaterialDef): { description: string; source: string; sustainability: string } {
+  const cat = MATERIAL_LIBRARY.find((c) => c.materials.some((x) => x.name === m.name));
+  return { description: m.description ?? `${m.name}${cat ? ` (${cat.name})` : ''}`, source: m.source ?? 'Phlippo CAD Materials', sustainability: m.sustainability ?? (cat ? `${cat.name} ▸ information not defined` : 'Information not defined') };
+}

@@ -909,3 +909,9 @@
 /* Customize ▸ Customization: tooltips off / small tooltips only */
 .k-notips .k-tooltip, .k-notips .k-richtip { display: none !important; }
 .k-smalltips .k-richtip { display: none !important; }
+
+/* MBD Dimensions (DimXpert) callouts: datum flags, dimensions (basic = boxed) and geometric tolerance frames */
+.k-dx-datum { background: #fff; border: 1.5px solid #1a1a1a; font-weight: 700; padding: 1px 5px; border-radius: 2px; }
+.k-dx-dim { background: #fff8d6; border-color: #7a6a1f; }
+.k-dx-dim.basic { border: 1.5px solid #1a1a1a; background: #fff; }
+.k-dx-gtol { font-family: 'Segoe UI Symbol', 'Segoe UI', sans-serif; letter-spacing: 0.5px; }

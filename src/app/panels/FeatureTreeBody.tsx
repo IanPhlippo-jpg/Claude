@@ -6,6 +6,8 @@ import { Menu, TreeView, type TreeNode } from '../../ui/components';
 import { Icon } from '../../ui/icons';
 import { createDocument } from '../../core/document/types';
 import { cutList } from '../../core/features/weldments';
+import { loadFavorites } from '../materialDialog';
+import { MATERIAL_LIBRARY } from '../../core/document/materials';
 import { serializeDocument } from '../../core/document/persistence';
 import { withUnsavedCheck } from '../MenuBar';
 import { activeConfiguration } from '../../core/document/configurations';
@@ -235,7 +237,7 @@ export function FeatureTreeBody() {
           ? [sys('surfaces', <Icon.TreeFolder glyph="surfaces" />, `Surface Bodies(${(st.rebuild.surfaceBodies ?? []).length})`, (st.rebuild.surfaceBodies ?? []).map((b): TreeNode => ({ id: 'sbody-' + b.id, icon: <Icon.Sheet />, label: <span>{st.doc.features.find((f) => f.id === b.featureIds[0])?.name ?? b.id}</span> })))]
           : []),
         ...(st.doc.equations.length ? [{ id: 'equations', icon: <Icon.Config />, label: 'Equations', onDoubleClick: () => st.setDialog('equations'), onClick: () => st.setDialog('equations') }] : []),
-        { id: 'material', icon: <Icon.TreeMaterial />, label: <span>{st.doc.material ? st.doc.material.name : 'Material <not specified>'}</span>, onDoubleClick: () => st.setDialog('material'), onContextMenu: (e) => { e.preventDefault(); st.setDialog('material'); } },
+        { id: 'material', icon: <Icon.TreeMaterial />, label: <span>{st.doc.material ? st.doc.material.name : 'Material <not specified>'}</span>, onDoubleClick: () => st.setDialog('material'), onContextMenu: (e) => { e.preventDefault(); setMenu({ x: e.clientX, y: e.clientY, featureId: '__material' }); } },
         planeNode('front'),
         planeNode('top'),
         planeNode('right'),
@@ -330,6 +332,7 @@ export function FeatureTreeBody() {
   const menuSensorId = menu && menu.featureId.startsWith('__sensor:') ? menu.featureId.slice(9) : null;
   const menuBodyId = menu && menu.featureId.startsWith('__body:') ? menu.featureId.slice(7) : null;
   const menuCutItem = menu && menu.featureId.startsWith('__cutitem:');
+  const menuMaterial = menu && menu.featureId === '__material';
   const menuBodyHidden = !!menuBodyId && (st.doc.hiddenBodies ?? []).includes(menuBodyId);
 
   return (
@@ -358,6 +361,22 @@ export function FeatureTreeBody() {
             dragRollback.current = true;
             (e.target as HTMLElement).setPointerCapture(e.pointerId);
           }}
+        />
+      )}
+      {menuMaterial && (
+        <Menu
+          onClose={() => setMenu(null)}
+          style={{ position: 'fixed', left: menu!.x, top: menu!.y }}
+          items={[
+            { label: 'Edit Material…', icon: <Icon.Material />, onSelect: () => st.setDialog('material') },
+            { label: 'Configure Material…', icon: <Icon.Config />, onSelect: () => st.setDialog('material') },
+            { label: 'Manage Favorites…', icon: <Icon.Folder />, onSelect: () => st.setDialog('material') },
+            { separator: true },
+            ...loadFavorites().map((n) => ({ label: `${st.doc.material?.name === n ? '✓ ' : ''}${n}`, icon: <span className="swatch" style={{ background: MATERIAL_LIBRARY.flatMap((c) => c.materials).find((m) => m.name === n)?.color ?? '#ccc', width: 12, height: 12, display: 'inline-block' }} />, onSelect: () => { const m = MATERIAL_LIBRARY.flatMap((c) => c.materials).find((x) => x.name === n); if (m) st.setMaterial({ name: m.name, density: m.density, color: m.color }); } })),
+            ...(loadFavorites().length ? [{ separator: true }] : []),
+            { label: 'Plain Carbon Steel', onSelect: () => { const m = MATERIAL_LIBRARY.flatMap((c) => c.materials).find((x) => x.name === 'Plain Carbon Steel'); if (m) st.setMaterial({ name: m.name, density: m.density, color: m.color }); } },
+            { label: 'Remove Material', icon: <Icon.Trash />, disabled: !st.doc.material, onSelect: () => st.setMaterial(null) },
+          ]}
         />
       )}
       {menuCutItem && (
