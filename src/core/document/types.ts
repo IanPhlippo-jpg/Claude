@@ -1196,6 +1196,17 @@ export interface Document {
   snapshots?: { id: Id; name: string; quaternion: [number, number, number, number]; target: [number, number, number]; scale: number; image?: string }[];
   /** Lifecycle ▸ Comments: notes on the model or on a feature */
   comments?: { id: Id; featureId?: Id; text: string; author: string; date: string }[];
+  /** FeatureManager folders (Create New Folder / Add to New Folder) */
+  featureFolders?: { id: Id; name: string; featureIds: Id[] }[];
+  bodyFolders?: { id: Id; name: string; bodyIds: Id[] }[];
+  /** Add to Favorites: the Favorites folder at the top of the tree */
+  favorites?: Id[];
+  /** Feature Properties: description and creation date per feature */
+  featureMeta?: Record<Id, { description?: string; created?: string }>;
+  /** Body Display ▸ Change Transparency */
+  transparentBodies?: Id[];
+  /** Create Bounding Box: the box around all bodies, shown as dashed lines and a tree item */
+  boundingBox?: boolean;
   /** Markup: freehand strokes over the graphics area (screen fractions 0..1), per document */
   markups?: { id: Id; color: string; points: [number, number][] }[];
   /** Render Tools ▸ Edit Decal: images on planar faces (DisplayManager ▸ Decals) */

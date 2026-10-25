@@ -4,6 +4,9 @@ import { featureIcon } from './featureIcon';
 import { sketchStatus, useStore } from '../store';
 import { Menu, TreeView, type TreeNode } from '../../ui/components';
 import { Icon } from '../../ui/icons';
+import { createDocument } from '../../core/document/types';
+import { serializeDocument } from '../../core/document/persistence';
+import { withUnsavedCheck } from '../MenuBar';
 import { activeConfiguration } from '../../core/document/configurations';
 import { PLANE_LABELS } from '../viewport/camera';
 import { isRoundFeature, isSketchBased, isSolidFeature, type Feature } from '../../core/document/types';
@@ -106,12 +109,37 @@ export function FeatureTreeBody() {
   };
 
   const featureNodes: TreeNode[] = [];
+  // Create New Folder: features in a folder sit under its node, placed where the first member was
+  const folderOf = new Map<string, string>();
+  for (const fo of st.doc.featureFolders ?? []) for (const id of fo.featureIds) folderOf.set(id, fo.id);
+  const folderNodes = new Map<string, TreeNode>();
+  const comments = st.doc.comments ?? [];
+  const withComment = (node: TreeNode, id: string): TreeNode => (comments.some((c) => c.featureId === id) ? { ...node, tail: <span style={{ display: 'inline-flex', gap: 4 }}>{node.tail}<Icon.Note size={11} style={{ color: '#b8860b' }} /></span> } : node);
   st.doc.features.forEach((f, i) => {
     if (q && !f.name.toLowerCase().includes(q)) return;
+    let node: TreeNode | null = null;
     if (f.type === 'sketch') {
-      if (!consumed.has(f.sketchId)) featureNodes.push(sketchNode(f, i));
-    } else featureNodes.push(solidNode(f, i));
+      if (!consumed.has(f.sketchId)) node = sketchNode(f, i);
+    } else node = solidNode(f, i);
+    if (!node) return;
+    node = withComment(node, f.id);
+    const fid = folderOf.get(f.id);
+    if (fid) {
+      let fn = folderNodes.get(fid);
+      if (!fn) {
+        const fo = (st.doc.featureFolders ?? []).find((x) => x.id === fid)!;
+        fn = { id: 'folder:' + fid, icon: <Icon.Folder />, label: <span>{fo.name}</span>, children: [], onContextMenu: (e) => { e.preventDefault(); setMenu({ x: e.clientX, y: e.clientY, featureId: '__folder:' + fid }); } };
+        folderNodes.set(fid, fn);
+        featureNodes.push(fn);
+      }
+      fn.children!.push(node);
+    } else featureNodes.push(node);
   });
+  // Add to Favorites: the Favorites folder (above History, as the original) lists the chosen features
+  const favorites = (st.doc.favorites ?? []).map((id) => st.doc.features.find((x) => x.id === id)).filter((x): x is Feature => !!x);
+  const favoritesNode: TreeNode[] = favorites.length ? [{ id: 'favorites', icon: <Icon.Folder />, label: <span>Favorites</span>, children: favorites.map((x) => ({ ...(x.type === 'sketch' ? sketchNode(x, st.doc.features.indexOf(x)) : solidNode(x, st.doc.features.indexOf(x))), id: 'fav:' + x.id, children: undefined })) }] : [];
+  // Create Bounding Box: a tree item after the features
+  if (st.doc.boundingBox) featureNodes.push({ id: 'boundingbox', icon: <Icon.Orientation />, label: <span>Bounding Box</span>, onContextMenu: (e) => { e.preventDefault(); setMenu({ x: e.clientX, y: e.clientY, featureId: '__bbox' }); } });
 
   const planeNode = (p: 'front' | 'top' | 'right'): TreeNode => ({
     id: 'plane-' + p,
@@ -132,6 +160,22 @@ export function FeatureTreeBody() {
   });
 
   const sys = (id: string, icon: React.ReactNode, label: string, children?: TreeNode[]): TreeNode => ({ id, icon, label: <span>{label}</span>, children });
+  // Add to New Folder (bodies): body nodes in a folder sit under its node
+  const withBodyFolders = (nodes: TreeNode[]): TreeNode[] => {
+    const folders = st.doc.bodyFolders ?? [];
+    if (!folders.length) return nodes;
+    const out: TreeNode[] = [];
+    const seen = new Set<string>();
+    for (const n of nodes) {
+      const fo = folders.find((x) => x.bodyIds.includes(n.id.replace(/^body-/, '')));
+      if (!fo) { out.push(n); continue; }
+      if (!seen.has(fo.id)) {
+        seen.add(fo.id);
+        out.push({ id: 'bfolder:' + fo.id, icon: <Icon.Folder />, label: <span>{fo.name}</span>, children: nodes.filter((m) => fo.bodyIds.includes(m.id.replace(/^body-/, ''))) });
+      }
+    }
+    return out;
+  };
 
   const bodies = st.rebuild.bodies;
   const sensorAlarm = (sn: NonNullable<typeof st.doc.sensors>[number]) => sensorAlarmOf(st.doc, bodies, sn);
@@ -146,6 +190,7 @@ export function FeatureTreeBody() {
       ),
       tail: Object.keys(st.rebuild.errors).length ? <span className="status conflict" title="A feature could not be rebuilt">!</span> : null,
       children: [
+        ...favoritesNode,
         sys('history', <Icon.TreeFolder glyph="history" />, 'History', st.doc.features.slice(-6).reverse().map((f): TreeNode => ({ id: 'hist-' + f.id, icon: <Icon.History />, label: <span>{f.name}</span>, onClick: () => st.setSelectedFeature(f.id) }))),
         {
           id: 'sensors',
@@ -161,7 +206,7 @@ export function FeatureTreeBody() {
         },
         sys('annotations', <Icon.TreeFolder glyph="annotation" />, 'Annotations'),
         ...(bodies.length
-          ? [sys('bodies', <Icon.TreeFolder glyph="bodies" />, st.doc.sheetMetal ? `Cut list(${bodies.length})` : `Solid Bodies(${bodies.length})`, bodies.map((b): TreeNode => {
+          ? [sys('bodies', <Icon.TreeFolder glyph="bodies" />, st.doc.sheetMetal ? `Cut list(${bodies.length})` : `Solid Bodies(${bodies.length})`, withBodyFolders(bodies.map((b): TreeNode => {
               const hiddenBody = (st.doc.hiddenBodies ?? []).includes(b.id);
               const mat = st.doc.bodyMaterials?.[b.id];
               return {
@@ -170,7 +215,7 @@ export function FeatureTreeBody() {
                 label: <span className={hiddenBody ? 'k-muted' : ''} style={hiddenBody ? { fontStyle: 'italic' } : undefined}>{st.doc.features.find((f) => f.id === b.featureIds[b.featureIds.length - 1])?.name ?? b.id}{mat ? <span className="k-muted"> ({mat.name})</span> : null}</span>,
                 onContextMenu: (e) => { e.preventDefault(); setMenu({ x: e.clientX, y: e.clientY, featureId: '__body:' + b.id }); },
               };
-            }))]
+            })))]
           : []),
         ...((st.rebuild.surfaceBodies ?? []).length
           ? [sys('surfaces', <Icon.TreeFolder glyph="surfaces" />, `Surface Bodies(${(st.rebuild.surfaceBodies ?? []).length})`, (st.rebuild.surfaceBodies ?? []).map((b): TreeNode => ({ id: 'sbody-' + b.id, icon: <Icon.Sheet />, label: <span>{st.doc.features.find((f) => f.id === b.featureIds[0])?.name ?? b.id}</span> })))]
@@ -244,6 +289,26 @@ export function FeatureTreeBody() {
     return () => ro.disconnect();
   });
 
+  const bodyLabel = (id: string) => { const i = st.rebuild.bodies.findIndex((b) => b.id === id); return i >= 0 ? `${st.doc.features.find((x) => x.id === st.rebuild.bodies[i].featureIds[st.rebuild.bodies[i].featureIds.length - 1])?.name ?? 'Body'}${st.rebuild.bodies.length > 1 ? `<${i + 1}>` : ''}` : id; };
+  /** Insert into New Part / Save Selection / Save Bodies: the body (or all bodies) as an imported mesh in a part document */
+  const bodyToNewPart = (bodyId: string | null, how: 'open' | 'save') => {
+    const bodies = st.rebuild.bodies.filter((b) => !bodyId || b.id === bodyId);
+    if (!bodies.length) return;
+    const name = bodyId ? bodyLabel(bodyId).replace(/[<>]/g, '') : `${st.doc.name}-bodies`;
+    const d = createDocument(name);
+    d.features = bodies.map((b, i) => { const pos = (b.geometry.index ? b.geometry.toNonIndexed() : b.geometry).getAttribute('position'); return { id: `imp${i + 1}`, type: 'imported' as const, name: bodyLabel(b.id), suppressed: false, positions: Array.from(pos.array as Float32Array), source: `${st.doc.name}.kcad` }; });
+    if (how === 'open') withUnsavedCheck(() => { useStore.getState().openDocument(d); useStore.getState().pushMessage(`${name} opened as a new part with the body as an imported feature.`, 'info'); });
+    else {
+      const text = serializeDocument(d);
+      const blob = new Blob([text], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `${name}.kcad`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+      st.pushMessage(`${name}.kcad saved.`, 'info');
+    }
+  };
   const menuFeature = menu ? st.doc.features.find((f) => f.id === menu.featureId) : undefined;
   const sensorMenu = menu && menu.featureId === '__sensors';
   const menuSensorId = menu && menu.featureId.startsWith('__sensor:') ? menu.featureId.slice(9) : null;
@@ -296,15 +361,36 @@ export function FeatureTreeBody() {
           onClose={() => setMenu(null)}
           style={{ position: 'fixed', left: menu!.x, top: menu!.y }}
           items={[
-            { label: menuBodyHidden ? 'Show Body' : 'Hide Body', icon: <Icon.Eye />, onSelect: () => st.setBodyHidden(menuBodyId, !menuBodyHidden) },
+            { label: menuBodyHidden ? 'Body Display ▸ Show Body' : 'Body Display ▸ Hide Body', icon: <Icon.Eye />, onSelect: () => st.setBodyHidden(menuBodyId, !menuBodyHidden) },
+            { label: (st.doc.transparentBodies ?? []).includes(menuBodyId) ? 'Body Display ▸ Change Transparency (opaque)' : 'Body Display ▸ Change Transparency', icon: <Icon.DisplayStyle />, onSelect: () => { const t = st.doc.transparentBodies ?? []; st.applyDocument('Change Transparency', { ...st.doc, transparentBodies: t.includes(menuBodyId) ? t.filter((x) => x !== menuBodyId) : [...t, menuBodyId] }); } },
+            { label: 'Body Display ▸ Appearance…', icon: <Icon.Appearance />, onSelect: () => { st.openMaterialFor(menuBodyId); st.setDialog('appearance'); } },
             { label: 'Material…', icon: <Icon.Material />, onSelect: () => st.openMaterialFor(menuBodyId) },
-            { label: 'Appearance…', icon: <Icon.Appearance />, onSelect: () => { st.openMaterialFor(menuBodyId); st.setDialog('appearance'); } },
             { label: 'Combine…', icon: <Icon.Combine />, onSelect: () => st.startCombine() },
             { separator: true },
             { label: 'Isolate', icon: <Icon.Eye />, onSelect: () => st.setIsolated([menuBodyId]) },
-            { label: 'Delete Body', icon: <Icon.Trash />, onSelect: () => st.deleteBodies([menuBodyId]) },
+            { label: 'Show Feature History', icon: <Icon.TreeFolder glyph="history" />, onSelect: () => { const b = st.rebuild.bodies.find((x) => x.id === menuBodyId); const names = (b?.featureIds ?? []).map((id) => st.doc.features.find((x) => x.id === id)?.name).filter(Boolean); if (b?.featureIds[0]) st.setSelectedFeature(b.featureIds[0]); st.pushMessage(`${bodyLabel(menuBodyId)}: ${names.join(' → ') || 'no features'}`, 'info'); } },
+            { label: 'Add to New Folder', icon: <Icon.Folder />, onSelect: () => { const folders = st.doc.bodyFolders ?? []; st.applyDocument('New Folder', { ...st.doc, bodyFolders: [...folders.map((fo) => ({ ...fo, bodyIds: fo.bodyIds.filter((x) => x !== menuBodyId) })).filter((fo) => fo.bodyIds.length), { id: `bf${Date.now()}`, name: `Folder${folders.length + 1}`, bodyIds: [menuBodyId] }] }); } },
+            { label: 'Create Bounding Box', icon: <Icon.Orientation />, onSelect: () => st.applyDocument('Bounding Box', { ...st.doc, boundingBox: true }) },
+            { separator: true },
+            { label: 'Insert into New Part…', icon: <Icon.Part />, onSelect: () => bodyToNewPart(menuBodyId, 'open') },
+            { label: 'Save Selection…', icon: <Icon.Save />, onSelect: () => bodyToNewPart(menuBodyId, 'save') },
+            { label: 'Save Bodies…', icon: <Icon.Save />, onSelect: () => bodyToNewPart(null, 'save') },
+            { label: 'Delete/Keep Body…', icon: <Icon.Trash />, onSelect: () => st.setAsk({ title: 'Delete/Keep Body', text: `Delete ${bodyLabel(menuBodyId)} (Yes) or keep only this body and delete the others (No)?`, yes: () => st.deleteBodies([menuBodyId]), no: () => st.deleteBodies(st.rebuild.bodies.map((b) => b.id).filter((id) => id !== menuBodyId)), yesLabel: 'Delete Body', noLabel: 'Keep Body' }) },
           ]}
         />
+      )}
+      {menu && menu.featureId.startsWith('__folder:') && (
+        <Menu
+          onClose={() => setMenu(null)}
+          style={{ position: 'fixed', left: menu.x, top: menu.y }}
+          items={[
+            { label: 'Rename folder', onSelect: () => { const id = menu.featureId.slice(9); const fo = (st.doc.featureFolders ?? []).find((x) => x.id === id); st.setAsk({ title: 'Rename folder', text: 'Folder name', input: fo?.name ?? '', yes: (v) => v && st.applyDocument('Rename folder', { ...st.doc, featureFolders: (st.doc.featureFolders ?? []).map((x) => (x.id === id ? { ...x, name: v } : x)) }) }); } },
+            { label: 'Dissolve folder', onSelect: () => { const id = menu.featureId.slice(9); st.applyDocument('Dissolve folder', { ...st.doc, featureFolders: (st.doc.featureFolders ?? []).filter((x) => x.id !== id) }); } },
+          ]}
+        />
+      )}
+      {menu && menu.featureId === '__bbox' && (
+        <Menu onClose={() => setMenu(null)} style={{ position: 'fixed', left: menu.x, top: menu.y }} items={[{ label: 'Delete Bounding Box', icon: <Icon.Trash />, onSelect: () => st.applyDocument('Bounding Box', { ...st.doc, boundingBox: undefined }) }]} />
       )}
       {menuSensorId && (
         <Menu
@@ -337,6 +423,17 @@ export function FeatureTreeBody() {
             { separator: true },
             { label: 'Roll to end', onSelect: () => st.setRollback(null) },
             { label: 'Roll to previous', onSelect: () => st.setRollback(Math.max(0, st.doc.features.findIndex((f) => f.id === menu.featureId))) },
+            { separator: true },
+            { label: 'Comment ▸ Add Comment…', icon: <Icon.Note />, onSelect: () => { const existing = (st.doc.comments ?? []).find((c) => c.featureId === menuFeature.id); st.setAsk({ title: `Comment on ${menuFeature.name}`, text: 'Comment', input: existing?.text ?? '', yes: (v) => { const rest = (st.doc.comments ?? []).filter((c) => c.featureId !== menuFeature.id); st.applyDocument('Comment', { ...st.doc, comments: v.trim() ? [...rest, { id: existing?.id ?? `cm${Date.now()}`, featureId: menuFeature.id, text: v.trim(), author: 'Ian', date: new Date().toISOString() }] : rest }); } }); } },
+            { label: 'Parent/Child…', icon: <Icon.Tree />, onSelect: () => { useStore.setState({ dialogFeatureId: menuFeature.id }); st.setDialog('parentChild'); } },
+            { label: 'Configure Feature', icon: <Icon.Config />, onSelect: () => st.openConfigure({ features: [menuFeature.id] }) },
+            { label: (st.doc.favorites ?? []).includes(menuFeature.id) ? 'Remove from Favorites' : 'Add to Favorites', icon: <Icon.Folder />, onSelect: () => { const favs = st.doc.favorites ?? []; st.applyDocument('Favorites', { ...st.doc, favorites: favs.includes(menuFeature.id) ? favs.filter((x) => x !== menuFeature.id) : [...favs, menuFeature.id] }); } },
+            { label: 'Feature Properties…', icon: <Icon.Properties />, onSelect: () => { useStore.setState({ dialogFeatureId: menuFeature.id }); st.setDialog('featureProps'); } },
+            { label: 'Go To…', onSelect: () => st.setAsk({ title: 'Go To', text: 'Feature name (or part of it)', input: '', yes: (v) => { const hit = st.doc.features.find((x) => x.name.toLowerCase().includes(v.toLowerCase())); if (hit) { st.setSelectedFeature(hit.id); document.querySelector(`.k-tree-row[data-id="${CSS.escape(hit.id)}"]`)?.scrollIntoView({ block: 'center' }); } else st.pushMessage(`No feature named "${v}".`, 'warn'); } }) },
+            { label: 'Create New Folder', icon: <Icon.Folder />, onSelect: () => { const folders = st.doc.featureFolders ?? []; const name = `Folder${folders.length + 1}`; st.applyDocument('New Folder', { ...st.doc, featureFolders: [...folders.map((fo) => ({ ...fo, featureIds: fo.featureIds.filter((x) => x !== menuFeature.id) })), { id: `fo${Date.now()}`, name, featureIds: [menuFeature.id] }] }); } },
+            ...((st.doc.featureFolders ?? []).some((fo) => fo.featureIds.includes(menuFeature.id)) ? [{ label: 'Remove from Folder', onSelect: () => st.applyDocument('Remove from Folder', { ...st.doc, featureFolders: (st.doc.featureFolders ?? []).map((fo) => ({ ...fo, featureIds: fo.featureIds.filter((x) => x !== menuFeature.id) })).filter((fo) => fo.featureIds.length) }) }] : []),
+            { label: 'Hide/Show Tree Items…', icon: <Icon.Eye />, onSelect: () => { useStore.setState({ optionsPage: 'featureManager' } as never); st.setDialog('options'); } },
+            { label: 'Collapse Items', onSelect: () => document.querySelectorAll<HTMLElement>('.k-tree-row .caret[data-open="true"]').forEach((c) => c.click()) },
             { separator: true },
             {
               label: 'Rename tree item',

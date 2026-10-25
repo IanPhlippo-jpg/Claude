@@ -2,6 +2,7 @@ import { CheckDialog, RepairSketchDialog, SectionPropertiesDialog } from './eval
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useStore } from './store';
 import { desktop } from './desktop';
+import { ExportOptionsDialog, FeaturePropertiesDialog, ParentChildDialog } from './treeDialogs';
 import { openDesktopFile, withUnsavedCheck } from './MenuBar';
 import { MenuBar, openFileDialog, saveDocument } from './MenuBar';
 import { Ribbon } from './ribbon/Ribbon';
@@ -137,6 +138,9 @@ export function App() {
           {st.dialog === 'spellCheck' && <SpellCheckDialog />}
           {st.dialog === 'notePattern' && <LinearNotePatternDialog />}
           {st.dialog === 'generalTable' && <GeneralTableDialog />}
+          {st.dialog === 'featureProps' && <FeaturePropertiesDialog />}
+          {st.dialog === 'parentChild' && <ParentChildDialog />}
+          {st.dialog === 'exportOptions' && <ExportOptionsDialog />}
           {shortcutBar && (
             <div className="k-shortcut-bar">
               <ShortcutBar onClose={() => setShortcutBar(false)} />

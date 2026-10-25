@@ -2156,6 +2156,18 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
     b.faces = r.faces;
     b.edges = bodyEdges(b.geometry, b.id, 20, r.segments);
   }
+  // Create Bounding Box: the box around all solid bodies, as dashed lines
+  if (doc.boundingBox && bodies.length) {
+    const box = new THREE.Box3();
+    for (const b of bodies) { b.geometry.computeBoundingBox(); if (b.geometry.boundingBox) box.union(b.geometry.boundingBox); }
+    const { min, max } = box;
+    const P = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z);
+    const bottom = [P(min.x, min.y, min.z), P(max.x, min.y, min.z), P(max.x, min.y, max.z), P(min.x, min.y, max.z), P(min.x, min.y, min.z)];
+    const top = bottom.map((p) => P(p.x, max.y, p.z));
+    curves.push({ id: 'bbox:bottom', name: 'Bounding Box', points: bottom, dashed: true, color: '#5a5a5a' });
+    curves.push({ id: 'bbox:top', name: 'Bounding Box', points: top, dashed: true, color: '#5a5a5a' });
+    for (let i = 0; i < 4; i++) curves.push({ id: `bbox:v${i}`, name: 'Bounding Box', points: [bottom[i], top[i]], dashed: true, color: '#5a5a5a' });
+  }
   return { bodies, errors, consumedSketches, curves, surfaceBodies, extraAppearances, autoHidden };
 }
 

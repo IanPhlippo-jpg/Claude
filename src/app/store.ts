@@ -133,7 +133,7 @@ export type ManagerTab = 'tree' | 'properties' | 'configurations' | 'dimxpert' |
 export type DisplayStyle = 'wireframe' | 'hiddenVisible' | 'hiddenRemoved' | 'shaded' | 'shadedEdges';
 export type UnitSystem = 'MKS' | 'CGS' | 'MMGS' | 'IPS';
 export type TaskPaneTab = 'library' | 'relations' | 'properties' | 'resources' | 'marketplace' | 'forum' | 'explorer' | 'palette' | 'appearances' | 'platform' | 'recovery' | null;
-export type DialogId = 'welcome' | 'new' | 'options' | 'orientation' | 'mass' | 'measure' | 'equations' | 'bom' | 'interference' | 'sheetFormat' | 'sheetProperties' | 'material' | 'configure' | 'appearance' | 'check' | 'sectionProps' | 'repairSketch' | 'finalRender' | 'designStudy' | 'previewWindow' | 'mirrorComponents' | 'packAndGo' | 'share' | 'comments' | 'componentPreview' | 'relativeView' | 'spellCheck' | 'notePattern' | 'generalTable' | 'customize' | 'performance' | 'deviation' | 'symmetry' | 'compare' | 'simxpress' | 'edrawings' | null;
+export type DialogId = 'welcome' | 'new' | 'options' | 'orientation' | 'mass' | 'measure' | 'equations' | 'bom' | 'interference' | 'sheetFormat' | 'sheetProperties' | 'material' | 'configure' | 'appearance' | 'check' | 'sectionProps' | 'repairSketch' | 'finalRender' | 'designStudy' | 'previewWindow' | 'mirrorComponents' | 'packAndGo' | 'share' | 'comments' | 'componentPreview' | 'relativeView' | 'spellCheck' | 'notePattern' | 'generalTable' | 'featureProps' | 'parentChild' | 'exportOptions' | 'customize' | 'performance' | 'deviation' | 'symmetry' | 'compare' | 'simxpress' | 'edrawings' | null;
 
 /** drawing commands: Model View, Projected View, Smart Dimension, Note, Center Mark */
 export interface DrawingEdit {
@@ -940,6 +940,10 @@ interface State {
   showDocument(): void;
   /** Enter runs the last CommandManager command again */
   lastCommand: { label: string; run: () => void } | null;
+  /** Feature Properties… / Parent/Child… work on this feature */
+  dialogFeatureId: Id | null;
+  /** Save As ▸ STL / 3MF / AMF: the options page exports in this format */
+  exportFormat: 'stl' | '3mf' | 'amf';
   setLastCommand(c: { label: string; run: () => void } | null): void;
   /** counts opened documents: the graphics area zooms to fit each newly opened one, as the original */
   openSeq: number;
@@ -1572,6 +1576,8 @@ export const useStore = create<State>((set, get) => ({
   dialog: typeof localStorage !== 'undefined' && localStorage.getItem('phlippo.welcome.hide') === '1' ? null : 'welcome',
   hasDocument: false,
   lastCommand: null,
+  dialogFeatureId: null,
+  exportFormat: 'stl',
   confirmDelete: null,
   ask: null,
   confirmAtCursor: null,
