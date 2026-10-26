@@ -113,6 +113,29 @@ export function profileRegion(p: ProfileDef): Region {
   }
 }
 
+/** one point of a profile with the Settings applied (as placedProfile) */
+export function placedPoint(p: SketchPoint, rotation: number, mirror: boolean, offset: SketchPoint = { x: 0, y: 0 }): SketchPoint {
+  const c = Math.cos((rotation * Math.PI) / 180), s = Math.sin((rotation * Math.PI) / 180);
+  const x0 = (mirror ? -p.x : p.x) - offset.x, y0 = p.y - offset.y;
+  return { x: x0 * c - y0 * s, y: x0 * s + y0 * c };
+}
+
+/**
+ * The profile as exact loops for the B-rep kernel: polygons as lines, the pipe as true circles (two half arcs each).
+ * Segments: { a, b, m? } with m the middle of an arc.
+ */
+export function profileLoops(p: ProfileDef, rotation: number, mirror: boolean, offset: SketchPoint = { x: 0, y: 0 }): { outer: { a: SketchPoint; b: SketchPoint; m?: SketchPoint }[]; holes: { a: SketchPoint; b: SketchPoint; m?: SketchPoint }[][] } {
+  const P = (q: SketchPoint) => placedPoint(q, rotation, mirror, offset);
+  const ring = (r: number) => {
+    const e = P({ x: r, y: 0 }), n = P({ x: 0, y: r }), w = P({ x: -r, y: 0 }), s = P({ x: 0, y: -r });
+    return [{ a: e, b: w, m: n }, { a: w, b: e, m: s }];
+  };
+  if (p.type === 'pipe') return { outer: ring(p.a / 2), holes: [ring(p.a / 2 - p.t)] };
+  const reg = placedProfile(profileRegion(p), rotation, mirror, offset);
+  const lines = (pts: SketchPoint[]) => pts.map((q, i) => ({ a: q, b: pts[(i + 1) % pts.length] }));
+  return { outer: lines(reg.outer), holes: reg.holes.map(lines) };
+}
+
 /** the profile with the Settings applied: rotation (degrees), mirror, locate-profile offset (in profile coordinates) */
 export function placedProfile(r: Region, rotation: number, mirror: boolean, offset: SketchPoint = { x: 0, y: 0 }): Region {
   const c = Math.cos((rotation * Math.PI) / 180), s = Math.sin((rotation * Math.PI) / 180);
@@ -158,6 +181,8 @@ export function memberPlane(a: THREE.Vector3, b: THREE.Vector3, id = 'member'): 
 
 export interface MemberBuild {
   geometry: THREE.BufferGeometry;
+  /** the member for the B-rep kernel: its plane and length, and the half-spaces cut away at mitered corners */
+  exact: { plane: PlaneDef; length: number; clips: { point: V3; normal: V3 }[] };
   length: number;
   /** the miter angles at the two ends (degrees, 0 = square cut) */
   angle1: number;
@@ -180,6 +205,7 @@ export function structuralMembers(region: Region, segments: MemberSegment[], cor
     let a = seg.a.clone(), b = seg.b.clone();
     let angle1 = 0, angle2 = 0;
     const cuts: THREE.BufferGeometry[] = [];
+    const clips: { point: V3; normal: V3 }[] = [];
     const cornerCut = (p: THREE.Vector3, dIn: THREE.Vector3, dOut: THREE.Vector3, atStart: boolean) => {
       // the miter plane of the corner: its normal bisects the two member axes (dIn + dOut); a U-turn has no miter
       const bis = dIn.clone().add(dOut);
@@ -196,6 +222,8 @@ export function structuralMembers(region: Region, segments: MemberSegment[], cor
         const side = Math.sign(bis.dot(keepDir)) || 1;
         const origin = p.clone().addScaledVector(bis, (side * gap) / 2);
         cuts.push(halfSpaceBox({ origin: origin.toArray() as V3, n: bis.toArray() as V3 }, half * 20 + seg.a.distanceTo(seg.b) * 2, side > 0));
+        const away = side > 0 ? bis.clone().negate() : bis.clone();
+        clips.push({ point: origin.toArray() as V3, normal: away.toArray() as V3 });
         return miter;
       }
       if (corner === 'endButt1' || corner === 'endButt2') {
@@ -222,7 +250,7 @@ export function structuralMembers(region: Region, segments: MemberSegment[], cor
     let g = extrudeGeometry([region], plane, { end: 'blind', depth: len, reverse: false }, 0, 0);
     if (!g) continue;
     for (const c of cuts) g = csg(g, c, 'subtract');
-    out.push({ geometry: g, length: seg.a.distanceTo(seg.b), angle1, angle2, segment: seg });
+    out.push({ geometry: g, length: seg.a.distanceTo(seg.b), angle1, angle2, segment: seg, exact: { plane, length: len, clips } });
   }
   return out;
 }

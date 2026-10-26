@@ -354,9 +354,9 @@
     "semantic_hash": ""
   },
   "package.json": {
-    "mtime": 1793034663.9292476,
-    "seen": 1793036306.947022,
-    "ast_hash": "955c1f9e5c281b54eee76ba0f9ae2cbc",
+    "mtime": 1793052077.2910595,
+    "seen": 1793053721.4868457,
+    "ast_hash": "13a4a20ca53a0897cdeda245c0266e67",
     "semantic_hash": ""
   },
   "src/app/App.tsx": {
@@ -960,9 +960,9 @@
     "semantic_hash": ""
   },
   "src/core/features/rebuild.ts": {
-    "mtime": 1793034560.325733,
-    "seen": 1793036306.9478562,
-    "ast_hash": "04c6460ad4389d78afc50b605a940c83",
+    "mtime": 1793051153.3189921,
+    "seen": 1793053721.487851,
+    "ast_hash": "380df13e94c269b9e1f98bb8bbb2de6d",
     "semantic_hash": ""
   },
   "src/core/features/regions.ts": {
@@ -1002,9 +1002,9 @@
     "semantic_hash": ""
   },
   "src/core/features/sheetmetal.ts": {
-    "mtime": 1792996942.7616446,
-    "seen": 1792999711.172904,
-    "ast_hash": "89e9c3fe295d7ea83f85e131186b710a",
+    "mtime": 1793050168.7262976,
+    "seen": 1793053721.487851,
+    "ast_hash": "2d262af9813b7014a181ec2bd4c6df26",
     "semantic_hash": ""
   },
   "src/core/features/shell.test.ts": {
@@ -1296,15 +1296,15 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1793034663.9302387,
-    "seen": 1793036306.9483624,
-    "ast_hash": "3f30c6780e0ba33f41a2b7e351691551",
+    "mtime": 1793052077.2921965,
+    "seen": 1793053721.487851,
+    "ast_hash": "d956efa607aeb0b05fa1bed0a4ba93c6",
     "semantic_hash": ""
   },
   "TASKS.md": {
-    "mtime": 1793036285.425818,
-    "seen": 1793036306.9483624,
-    "ast_hash": "18be4ad8cb09d4f1ff156776139e1010",
+    "mtime": 1793053699.1651742,
+    "seen": 1793053721.487851,
+    "ast_hash": "526bd65b0f3a108ea8c725b840b7aefb",
     "semantic_hash": ""
   },
   "docs/01-research.md": {
@@ -2136,9 +2136,9 @@
     "semantic_hash": ""
   },
   "src/core/features/weldments.ts": {
-    "mtime": 1792996942.776592,
-    "seen": 1792999711.172904,
-    "ast_hash": "60ef3c284bfc737a88d9b3d0ae5fdf9e",
+    "mtime": 1793050726.8840117,
+    "seen": 1793053721.487851,
+    "ast_hash": "f3ff3c51a18cdfd7bc4f51d058de30d4",
     "semantic_hash": ""
   },
   "e2e/gi.mjs": {
@@ -2736,21 +2736,21 @@
     "semantic_hash": ""
   },
   "src/core/features/brepKernel.ts": {
-    "mtime": 1793034412.6481855,
-    "seen": 1793036306.9478562,
-    "ast_hash": "ba7d4cbb047ca8ddfe8210da923b752c",
+    "mtime": 1793050806.7029197,
+    "seen": 1793053721.487851,
+    "ast_hash": "56eebb012231e52fc6afcfd00eb7f610",
     "semantic_hash": ""
   },
   "src/core/occt/brep.test.ts": {
-    "mtime": 1793034560.326737,
-    "seen": 1793036306.9478562,
-    "ast_hash": "846a056f43ad9b2d09a36e3a01a4b4ee",
+    "mtime": 1793051223.6331906,
+    "seen": 1793053721.487851,
+    "ast_hash": "608c188ec522aab73e51963defe0a4db",
     "semantic_hash": ""
   },
   "src/core/occt/brep.ts": {
-    "mtime": 1793034412.6494348,
-    "seen": 1793036306.9478562,
-    "ast_hash": "80cd4cd13a45b39950b265b8db3d2e14",
+    "mtime": 1793050806.7039273,
+    "seen": 1793053721.487851,
+    "ast_hash": "5b70e53c5953ca32565a32fec3b8fd7c",
     "semantic_hash": ""
   },
   "docs/15-brep-features-0.3.8.md": {
@@ -2793,6 +2793,36 @@
     "mtime": 1793032316.2458937,
     "seen": 1793036306.9483624,
     "ast_hash": "e4afc2e6135c4feea3d6df6a87f28c89",
+    "semantic_hash": ""
+  },
+  "e2e/tools/brep-showcase.mjs": {
+    "mtime": 1793036450.1447563,
+    "seen": 1793053721.4868457,
+    "ast_hash": "f7324782d7e68d690f53059b68bb1751",
+    "semantic_hash": ""
+  },
+  "docs/17-brep-eindcondities-0.4.0.md": {
+    "mtime": 1793050479.639009,
+    "seen": 1793053721.487851,
+    "ast_hash": "cb1cb005371e9330d985b9e7106615c9",
+    "semantic_hash": ""
+  },
+  "docs/18-brep-plaatwerk-weldments-0.4.1.md": {
+    "mtime": 1793052077.2229357,
+    "seen": 1793053721.487851,
+    "ast_hash": "bd8ef3520f03f160745cdc4a07e653e9",
+    "semantic_hash": ""
+  },
+  "docs/screenshots/0.3.9-deurkruk.png": {
+    "mtime": 1793036494.328416,
+    "seen": 1793053721.487851,
+    "ast_hash": "917c84a1b5856eed814aec711051d66a",
+    "semantic_hash": ""
+  },
+  "docs/screenshots/0.3.9-flens-exact.png": {
+    "mtime": 1793036483.1517866,
+    "seen": 1793053721.487851,
+    "ast_hash": "ba706127f8a6f7e34e01079c79967e78",
     "semantic_hash": ""
   }
 }

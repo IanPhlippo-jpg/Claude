@@ -271,10 +271,363 @@ describe('B-rep kernel in the rebuild (OpenCascade)', () => {
     expect(Math.abs(r2.bodies[0].exactVolume! - 40 * 40 * 20)).toBeGreaterThan(100);
   });
 
-  it('a feature without a B-rep version continues on the mesh (fallback); the body is still built', () => {
+  it('extrude end conditions are exact and agree with the mesh kernel', () => {
+    const base = () => {
+      const doc = createDocument();
+      doc.sketches.s1 = rect('s1', 'top', 0, 0, 80, 60);
+      doc.features.push(extrude('e1', 's1', 'boss', 10));
+      doc.planes.p30 = { id: 'p30', name: 'Plane1', kind: 'offset', u: [1, 0, 0], v: [0, 0, -1], n: [0, 1, 0], origin: [0, 30, 0] } as never;
+      doc.sketches.s2 = rect('s2', 'top', 10, 10, 30, 30);
+      doc.sketches.s3 = rect('s3', 'p30', 40, 10, 60, 30);
+      return doc;
+    };
+    const cases: [string, Record<string, unknown>, string, number][] = [
+      ['Up To Vertex', { end: 'upToVertex', vertex: { point: [0, 25, 0], label: 'Vertex' } }, 's2', 400 * 15],
+      ['Up To Next (from a plane above, downwards)', { end: 'upToNext', reverse: true }, 's3', 400 * 20],
+      ['Up To Surface', { end: 'upToSurface', surface: { normal: [0, 1, 0], point: [0, 15, 0], label: 'Face' } }, 's2', 400 * 5],
+      ['Offset From Surface', { end: 'offsetFromSurface', offset: 3, surface: { normal: [0, 1, 0], point: [0, 15, 0], label: 'Face' } }, 's2', 400 * 2],
+      ['From offset', { fromOffset: 20 }, 's2', 400 * 10],
+    ];
+    // toolVol: the material the new boss adds above the 80 x 60 x 10 plate (it starts inside the plate)
+    for (const [label, extra, sk, toolVol] of cases) {
+      const doc = base();
+      doc.features.push(extrude('b2', sk, 'boss', 10, extra));
+      setBrepKernel(null);
+      const mesh = rebuildDocument(doc);
+      setBrepKernel(kernel);
+      const r = rebuildDocument(doc);
+      expect(r.errors.b2, label).toBeUndefined();
+      expect(r.bodies.every((b) => b.exact), label).toBe(true);
+      const total = r.bodies.reduce((a, b) => a + b.exactVolume!, 0);
+      const meshTotal = mesh.bodies.reduce((a, b) => a + Math.abs(meshVolume(b.geometry)), 0);
+      // Up To Next ends 0.01 mm into the face (both kernels), the rest exactly
+      expect(Math.abs(total - (48000 + toolVol)), label).toBeLessThan(label.startsWith('Up To Next') ? 5 : 1e-4);
+      expect(Math.abs(total - meshTotal) / meshTotal, label).toBeLessThan(0.002);
+    }
+    // Up To Body: from the Top Plane up to the plate that floats at y = 30
+    {
+      const doc = createDocument();
+      doc.planes.p30 = { id: 'p30', name: 'Plane1', kind: 'offset', u: [1, 0, 0], v: [0, 0, -1], n: [0, 1, 0], origin: [0, 30, 0] } as never;
+      doc.sketches.s1 = rect('s1', 'p30', 0, 0, 80, 60);
+      doc.features.push(extrude('e1', 's1', 'boss', 10));
+      doc.sketches.s2 = rect('s2', 'top', 10, 10, 30, 30);
+      doc.features.push(extrude('b2', 's2', 'boss', 10, { end: 'upToBody', upToBody: { bodyId: 'body1', label: 'Body' } }));
+      setBrepKernel(null);
+      const mesh = rebuildDocument(doc);
+      setBrepKernel(kernel);
+      const r = rebuildDocument(doc);
+      expect(r.errors.b2).toBeUndefined();
+      expect(r.bodies.every((b) => b.exact)).toBe(true);
+      const total = r.bodies.reduce((a, b) => a + b.exactVolume!, 0);
+      expect(Math.abs(total - (48000 + 400 * 30))).toBeLessThan(1e-4);
+      expect(Math.abs(total - mesh.bodies.reduce((a, b) => a + Math.abs(meshVolume(b.geometry)), 0)) / total).toBeLessThan(0.002);
+    }
+    // Flip side to cut: everything outside the 20 x 20 profile goes
+    const doc = base();
+    doc.features.push(extrude('c2', 's2', 'cut', 0, { end: 'throughAll', flipSide: true }));
+    const r = rebuildDocument(doc);
+    expect(r.errors.c2).toBeUndefined();
+    expect(r.bodies[0].exact).toBe(true);
+    expect(Math.abs(r.bodies[0].exactVolume! - 400 * 10)).toBeLessThan(1e-4);
+  });
+
+  it('a thin revolve of an open L is exact and equal to the mesh kernel', () => {
+    const doc = createDocument();
+    let sk = createSketch('s1', 's1', 'front');
+    sk = addLine(sk, { x: 10, y: 0 }, { x: 30, y: 0 })[0];
+    sk = addLine(sk, { x: 30, y: 0 }, { x: 30, y: 25 })[0];
+    sk = addLine(sk, { x: 0, y: -5 }, { x: 0, y: 40 })[0];
+    const axisId = sk.entityOrder[sk.entityOrder.length - 1];
+    sk.entities[axisId] = { ...sk.entities[axisId], construction: true } as never;
+    doc.sketches.s1 = sk;
+    doc.features.push({ id: 'v1', type: 'revolve', name: 'Revolve1', sketchId: 's1', suppressed: false, op: 'boss', axisEntityId: axisId, angle: 360, reverse: false, thin: { mode: 'one', thickness: 2 } } as never);
+    setBrepKernel(null);
+    const mesh = rebuildDocument(doc);
+    setBrepKernel(kernel);
+    const r = rebuildDocument(doc);
+    expect(r.errors.v1).toBeUndefined();
+    expect(r.bodies[0].exact).toBe(true);
+    const mv = Math.abs(meshVolume(mesh.bodies[0].geometry));
+    expect(Math.abs(r.bodies[0].exactVolume! - mv) / mv).toBeLessThan(0.01);
+  });
+
+  it('a thin feature of an open L of lines is exact and equal to the mesh kernel', () => {
+    for (const mode of ['one', 'mid', 'two'] as const) {
+      const doc = createDocument();
+      let sk = createSketch('s1', 's1', 'top');
+      sk = addLine(sk, { x: 0, y: 0 }, { x: 40, y: 0 })[0];
+      sk = addLine(sk, { x: 40, y: 0 }, { x: 40, y: 30 })[0];
+      doc.sketches.s1 = sk;
+      doc.features.push(extrude('t1', 's1', 'boss', 10, { thin: { mode, thickness: 2, thickness2: 1 } }));
+      setBrepKernel(null);
+      const mesh = rebuildDocument(doc);
+      setBrepKernel(kernel);
+      const r = rebuildDocument(doc);
+      expect(r.errors.t1, mode).toBeUndefined();
+      expect(r.bodies[0].exact, mode).toBe(true);
+      const mv = Math.abs(meshVolume(mesh.bodies[0].geometry));
+      expect(Math.abs(r.bodies[0].exactVolume! - mv) / mv, mode).toBeLessThan(1e-6);
+    }
+  });
+
+  it('a rib in a U-channel is exact: 90 x 15 x 4 between the walls', () => {
+    const doc = createDocument();
+    doc.sketches.s1 = rect('s1', 'front', -50, 0, 50, 30);
+    doc.features.push(extrude('e1', 's1', 'boss', 60, { end: 'midPlane' }));
+    doc.sketches.s2 = rect('s2', 'front', -45, 5, 45, 35);
+    doc.features.push(extrude('c1', 's2', 'cut', 0, { end: 'throughAllBoth' }));
+    doc.sketches.s3 = addLine(createSketch('s3', 's3', 'front'), { x: -30, y: 20 }, { x: 30, y: 20 })[0];
+    doc.features.push({ id: 'r1', type: 'rib', name: 'Rib1', sketchId: 's3', suppressed: false, thickness: 4, side: 'both', direction: 'parallel', flip: false, draft: 0 } as never);
+    const r = rebuildDocument(doc);
+    expect(r.errors.r1).toBeUndefined();
+    expect(r.bodies).toHaveLength(1);
+    expect(r.bodies[0].exact).toBe(true);
+    expect(Math.abs(r.bodies[0].exactVolume! - (100 * 30 * 60 - 90 * 25 * 60 + 90 * 15 * 4))).toBeLessThan(0.5);
+  });
+
+  it('a sheet metal base flange (U of lines) has true bend cylinders; a tab is an exact plate', () => {
+    const doc = createDocument();
+    doc.sheetMetal = { thickness: 2, bendRadius: 3, kFactor: 0.5, reliefType: 'rectangular', reliefRatio: 0.5 } as never;
+    let sk = createSketch('s1', 's1', 'front');
+    sk = addLine(sk, { x: 0, y: 40 }, { x: 0, y: 0 })[0];
+    sk = addLine(sk, { x: 0, y: 0 }, { x: 60, y: 0 })[0];
+    sk = addLine(sk, { x: 60, y: 0 }, { x: 60, y: 40 })[0];
+    doc.sketches.s1 = sk;
+    doc.features.push({ id: 'bf', type: 'baseFlange', name: 'Base-Flange1', sketchId: 's1', suppressed: false, depth: 30, midPlane: false, reverse: false } as never);
+    setBrepKernel(null);
+    const mesh = rebuildDocument(doc);
+    setBrepKernel(kernel);
+    const r = rebuildDocument(doc);
+    expect(r.errors.bf).toBeUndefined();
+    expect(r.bodies[0].exact).toBe(true);
+    const mv = Math.abs(meshVolume(mesh.bodies[0].geometry));
+    // the mesh bends are 12-segment polygons: close, the B-rep is a little larger (true arcs)
+    expect(Math.abs(r.bodies[0].exactVolume! - mv) / mv).toBeLessThan(0.005);
+    expect(r.brep && Object.keys(r.brep)).toHaveLength(1);
+    const tab = createDocument();
+    tab.sheetMetal = { thickness: 2, bendRadius: 3, kFactor: 0.5 } as never;
+    tab.sketches.s1 = rect('s1', 'top', 0, 0, 50, 40, { x: 25, y: 20, r: 5 });
+    tab.features.push({ id: 'tb', type: 'baseFlange', name: 'Base-Flange1', sketchId: 's1', suppressed: false, depth: 0, midPlane: false, reverse: false } as never);
+    const rt = rebuildDocument(tab);
+    expect(rt.bodies[0].exact).toBe(true);
+    expect(Math.abs(rt.bodies[0].exactVolume! - (50 * 40 - PI * 25) * 2)).toBeLessThan(1e-4);
+  });
+
+  it('edge flanges (material outside and inside) and a hem on a tab have true bend cylinders', () => {
+    for (const [label, extra] of [['flange outside', { type: 'edgeFlange', angle: 90, length: 20, lengthMode: 'outerSharp', position: 'materialOutside' }], ['flange inside', { type: 'edgeFlange', angle: 90, length: 20, lengthMode: 'outerSharp', position: 'materialInside' }], ['hem', { type: 'hem', hemType: 'closed', length: 10, gap: 0.5, position: 'materialInside', flip: false }]] as const) {
+      const doc = createDocument();
+      doc.sheetMetal = { thickness: 2, bendRadius: 3, kFactor: 0.5 } as never;
+      doc.sketches.s1 = rect('s1', 'top', 0, 0, 60, 40);
+      doc.features.push({ id: 'tb', type: 'baseFlange', name: 'Base-Flange1', sketchId: 's1', suppressed: false, depth: 0, midPlane: false, reverse: false } as never);
+      setBrepKernel(null);
+      const plate = rebuildDocument(doc).bodies[0];
+      const edge = plate.edges.filter((e) => e.straight && e.length > 50).reduce((a, x) => (x.centroid.y > a.centroid.y || (x.centroid.y === a.centroid.y && x.centroid.z < a.centroid.z) ? x : a));
+      doc.features.push({ id: 'ef', name: 'Edge-Flange1', suppressed: false, edge: edgeRef(edge), flip: false, ...extra } as never);
+      const mesh = rebuildDocument(doc);
+      setBrepKernel(kernel);
+      const r = rebuildDocument(doc);
+      expect(r.errors.ef, label).toBeUndefined();
+      expect(mesh.errors.ef, label).toBeUndefined();
+      expect(r.bodies[0].exact, label).toBe(true);
+      const mv = Math.abs(meshVolume(mesh.bodies[0].geometry));
+      expect(Math.abs(r.bodies[0].exactVolume! - mv) / mv, label).toBeLessThan(0.005);
+    }
+  });
+
+  it('multi radius and variable size fillets are built by OpenCascade', () => {
+    const doc = createDocument();
+    doc.sketches.s1 = rect('s1', 'top', 0, 0, 80, 60);
+    doc.features.push(extrude('e1', 's1', 'boss', 10));
+    const b0 = rebuildDocument(doc).bodies[0];
+    const tops = b0.edges.filter((e) => e.straight && Math.abs(e.centroid.y - 10) < 1e-3 && Math.abs(e.length - 60) < 1e-3).sort((a, c) => a.centroid.x - c.centroid.x);
+    expect(tops).toHaveLength(2);
+    const k = 1 - PI / 4;
+    const multi = { ...doc, features: [...doc.features, { id: 'r1', type: 'fillet', name: 'Fillet1', suppressed: false, size: 2, radii: [2, 4], edges: tops.map(edgeRef) } as never] };
+    const r = rebuildDocument(multi);
+    expect(r.errors.r1).toBeUndefined();
+    expect(r.bodies[0].exact).toBe(true);
+    expect(Math.abs(r.bodies[0].exactVolume! - (48000 - k * 60 * (4 + 16)))).toBeLessThan(1e-3);
+    const variable = { ...doc, features: [...doc.features, { id: 'r2', type: 'fillet', name: 'Fillet2', suppressed: false, size: 2, roundType: 'variable', variable: { start: 2, end: 4 }, edges: [edgeRef(tops[1])] } as never] };
+    const rv = rebuildDocument(variable);
+    expect(rv.errors.r2).toBeUndefined();
+    expect(rv.bodies[0].exact).toBe(true);
+    const removed = 48000 - rv.bodies[0].exactVolume!;
+    const expected = k * 60 * (4 + 8 + 16) / 3;
+    expect(Math.abs(removed - expected) / expected).toBeLessThan(0.02);
+  });
+
+  it('a sketched bend of 90° on a tab is exact', () => {
+    const doc = createDocument();
+    doc.sheetMetal = { thickness: 2, bendRadius: 3, kFactor: 0.5 } as never;
+    doc.sketches.s1 = rect('s1', 'top', 0, 0, 80, 40);
+    doc.features.push({ id: 'tb', type: 'baseFlange', name: 'Base-Flange1', sketchId: 's1', suppressed: false, depth: 0, midPlane: false, reverse: false } as never);
+    doc.planes.f2 = { id: 'f2', name: 'Face', kind: 'face', u: [1, 0, 0], v: [0, 0, -1], n: [0, 1, 0], origin: [0, 2, 0] } as never;
+    doc.sketches.s2 = addLine(createSketch('s2', 's2', 'f2'), { x: 50, y: -5 }, { x: 50, y: 45 })[0];
+    doc.features.push({ id: 'sb', type: 'sketchedBend', name: 'SketchedBend1', sketchId: 's2', suppressed: false, angle: 90, flipSide: false, reverse: false } as never);
+    setBrepKernel(null);
+    const mesh = rebuildDocument(doc);
+    setBrepKernel(kernel);
+    const r = rebuildDocument(doc);
+    expect(mesh.errors.sb).toBeUndefined();
+    expect(r.errors.sb).toBeUndefined();
+    expect(r.bodies[0].exact).toBe(true);
+    const mv = Math.abs(meshVolume(mesh.bodies[0].geometry));
+    expect(Math.abs(r.bodies[0].exactVolume! - mv) / mv).toBeLessThan(0.005);
+  });
+
+  it('a miter flange along two edges of a tab is exact and equal to the mesh kernel', () => {
+    const doc = createDocument();
+    doc.sheetMetal = { thickness: 2, bendRadius: 3, kFactor: 0.5 } as never;
+    let s1 = createSketch('sk1', 'Sketch1', 'top');
+    const c = [{ x: 0, y: 0 }, { x: 100, y: 0 }, { x: 100, y: -60 }, { x: 0, y: -60 }];
+    for (let i = 0; i < 4; i++) s1 = addLine(s1, c[i], c[(i + 1) % 4])[0];
+    doc.sketches.sk1 = s1;
+    doc.features.push({ id: 'f2', type: 'baseFlange', name: 'Base-Flange1', sketchId: 'sk1', suppressed: false, depth: 10, midPlane: false, reverse: false, flipDir: false } as never);
+    setBrepKernel(null);
+    const body = rebuildDocument(doc).bodies[0];
+    const t = 2;
+    const along = (dir: THREE.Vector3, test: (m: THREE.Vector3) => boolean) => body.edges.find((e) => e.straight && Math.abs(e.points[e.points.length - 1].clone().sub(e.points[0]).normalize().dot(dir)) > 0.999 && test(e.centroid))!;
+    const e1 = along(new THREE.Vector3(1, 0, 0), (m) => Math.abs(m.y - t) < 1e-3 && Math.abs(m.z - 60) < 1e-3);
+    const e2 = along(new THREE.Vector3(0, 0, 1), (m) => Math.abs(m.y - t) < 1e-3 && Math.abs(m.x - 100) < 1e-3);
+    // the right plane: u = (0, 0, -1), v = (0, 1, 0)
+    doc.sketches.sk2 = addLine(createSketch('sk2', 'Sketch2', 'right'), { x: -60, y: t }, { x: -60, y: t + 20 })[0];
+    doc.features.push({ id: 'f4', type: 'miterFlange', name: 'Miter Flange1', sketchId: 'sk2', suppressed: false, edges: [edgeRef(e1), edgeRef(e2)], reverse: false, gap: 0.25 } as never);
+    const mesh = rebuildDocument(doc);
+    setBrepKernel(kernel);
+    const r = rebuildDocument(doc);
+    expect(mesh.errors.f4).toBeUndefined();
+    expect(r.errors.f4).toBeUndefined();
+    expect(r.bodies[0].exact).toBe(true);
+    const mv = Math.abs(meshVolume(mesh.bodies[0].geometry));
+    expect(Math.abs(r.bodies[0].exactVolume! - mv) / mv).toBeLessThan(0.005);
+  });
+
+  it('a jog on a tab is exact: the far side moved up, two true bends', () => {
+    const doc = createDocument();
+    doc.sheetMetal = { thickness: 2, bendRadius: 3, kFactor: 0.5 } as never;
+    doc.sketches.s1 = rect('s1', 'top', 0, 0, 80, 40);
+    doc.features.push({ id: 'tb', type: 'baseFlange', name: 'Base-Flange1', sketchId: 's1', suppressed: false, depth: 0, midPlane: false, reverse: false } as never);
+    doc.planes.f2 = { id: 'f2', name: 'Face', kind: 'face', u: [1, 0, 0], v: [0, 0, -1], n: [0, 1, 0], origin: [0, 2, 0] } as never;
+    doc.sketches.s2 = addLine(createSketch('s2', 's2', 'f2'), { x: 40, y: -5 }, { x: 40, y: 45 })[0];
+    doc.features.push({ id: 'jg', type: 'jog', name: 'Jog1', sketchId: 's2', suppressed: false, offset: 10, flipSide: false, reverse: false } as never);
+    setBrepKernel(null);
+    const mesh = rebuildDocument(doc);
+    setBrepKernel(kernel);
+    const r = rebuildDocument(doc);
+    expect(mesh.errors.jg).toBeUndefined();
+    expect(r.errors.jg).toBeUndefined();
+    expect(r.bodies[0].exact).toBe(true);
+    const mv = Math.abs(meshVolume(mesh.bodies[0].geometry));
+    expect(Math.abs(r.bodies[0].exactVolume! - mv) / mv).toBeLessThan(0.005);
+  });
+
+  it('weldment frames: square tube and pipe members with end miters are exact', () => {
+    for (const [type, size] of [['square tube', '40 x 40 x 4'], ['pipe', '48.3 x 4.0']] as const) {
+      const doc = createDocument();
+      doc.sketches.s1 = rect('s1', 'top', 0, 0, 200, 100);
+      doc.features.push({ id: 'w', type: 'weldment', name: 'Weldment', suppressed: false } as never);
+      doc.features.push({ id: 'sm', type: 'structuralMember', name: 'Structural Member1', suppressed: false, sketchId: 's1', standard: 'iso', profileType: type, size, corner: 'endMiter', gap: 0, mergeArcs: false, rotation: 0, mirror: false, locate: { x: 0, y: 0 } } as never);
+      setBrepKernel(null);
+      const mesh = rebuildDocument(doc);
+      setBrepKernel(kernel);
+      const r = rebuildDocument(doc);
+      expect(r.errors.sm, type).toBeUndefined();
+      expect(r.bodies, type).toHaveLength(4);
+      expect(r.bodies.every((b) => b.exact), type).toBe(true);
+      const total = r.bodies.reduce((a, b) => a + b.exactVolume!, 0);
+      const mv = mesh.bodies.reduce((a, b) => a + Math.abs(meshVolume(b.geometry)), 0);
+      expect(Math.abs(total - mv) / mv, type).toBeLessThan(0.01);
+    }
+  });
+
+  it('Combine (add, subtract, common) and Intersect of two exact bodies are exact', () => {
+    const two = () => {
+      const doc = createDocument();
+      doc.sketches.s1 = rect('s1', 'top', 0, 0, 40, 40);
+      doc.features.push(extrude('e1', 's1', 'boss', 10));
+      doc.sketches.s2 = rect('s2', 'top', 20, 20, 60, 60);
+      doc.features.push(extrude('e2', 's2', 'boss', 10, { merge: false }));
+      return doc;
+    };
+    const cases: [string, Record<string, unknown>, number][] = [
+      ['add', { type: 'combine', op: 'add', bodies: ['body1', 'body2'] }, 1600 * 10 * 2 - 400 * 10],
+      ['subtract', { type: 'combine', op: 'subtract', mainBody: 'body1', bodies: ['body1', 'body2'] }, 1600 * 10 - 400 * 10],
+      ['common', { type: 'combine', op: 'common', bodies: ['body1', 'body2'] }, 400 * 10],
+    ];
+    for (const [label, extra, vol] of cases) {
+      const doc = two();
+      doc.features.push({ id: 'cb', name: 'Combine1', suppressed: false, ...extra } as never);
+      const r = rebuildDocument(doc);
+      expect(r.errors.cb, label).toBeUndefined();
+      expect(r.bodies, label).toHaveLength(1);
+      expect(r.bodies[0].exact, label).toBe(true);
+      expect(Math.abs(r.bodies[0].exactVolume! - vol), label).toBeLessThan(1e-4);
+    }
+    const doc = two();
+    doc.features.push({ id: 'ix', type: 'intersect', name: 'Intersect1', suppressed: false, bodies: ['body1', 'body2'], exclude: [], merge: false } as never);
+    const r = rebuildDocument(doc);
+    expect(r.errors.ix).toBeUndefined();
+    expect(r.bodies).toHaveLength(3);
+    expect(r.bodies.every((b) => b.exact)).toBe(true);
+    expect(Math.abs(r.bodies.reduce((a, b) => a + b.exactVolume!, 0) - (1600 * 10 * 2 - 400 * 10))).toBeLessThan(1e-3);
+  });
+
+  it('a stud on a plate and a trim of a member by a plane are exact', () => {
+    const doc = createDocument();
+    doc.sketches.s1 = rect('s1', 'top', 0, 0, 40, 40);
+    doc.features.push(extrude('e1', 's1', 'boss', 10));
+    doc.planes.f1 = { id: 'f1', name: 'Face', kind: 'face', u: [1, 0, 0], v: [0, 0, -1], n: [0, 1, 0], origin: [0, 10, 0] } as never;
+    doc.features.push({ id: 'st', type: 'stud', name: 'Stud1', suppressed: false, plane: 'f1', point: { x: 20, y: 20 }, diameter: 8, length: 20, threadLength: 15, pitch: 1.25 } as never);
+    const r = rebuildDocument(doc);
+    expect(r.errors.st).toBeUndefined();
+    expect(r.bodies[0].exact).toBe(true);
+    expect(Math.abs(r.bodies[0].exactVolume! - (16000 + PI * 16 * 20))).toBeLessThan(1e-4);
+
+    const w = createDocument();
+    w.sketches.s1 = addLine(createSketch('s1', 's1', 'top'), { x: 0, y: 0 }, { x: 100, y: 0 })[0];
+    w.features.push({ id: 'sm', type: 'structuralMember', name: 'Structural Member1', suppressed: false, sketchId: 's1', standard: 'iso', profileType: 'square tube', size: '40 x 40 x 4', corner: 'none', gap: 0, mergeArcs: false, rotation: 0, mirror: false, locate: { x: 0, y: 0 } } as never);
+    w.features.push({ id: 'tr', type: 'trimExtend', name: 'Trim/Extend1', suppressed: false, bodies: ['body1'], trimBy: 'face', trimBodies: [], weldGap: 0, face: { point: [70, 0, 0], normal: [1, 0, 0], label: 'Plane' } } as never);
+    const rw = rebuildDocument(w);
+    expect(rw.errors.tr).toBeUndefined();
+    expect(rw.bodies[0].exact).toBe(true);
+    expect(Math.abs(rw.bodies[0].exactVolume! - (40 * 40 - 32 * 32) * 70)).toBeLessThan(1e-3);
+  });
+
+  it('an end cap on a square tube is an exact plate', () => {
+    const w = createDocument();
+    w.sketches.s1 = addLine(createSketch('s1', 's1', 'top'), { x: 0, y: 0 }, { x: 100, y: 0 })[0];
+    w.features.push({ id: 'sm', type: 'structuralMember', name: 'Structural Member1', suppressed: false, sketchId: 's1', standard: 'iso', profileType: 'square tube', size: '40 x 40 x 4', corner: 'none', gap: 0, mergeArcs: false, rotation: 0, mirror: false, locate: { x: 0, y: 0 } } as never);
+    w.features.push({ id: 'ec', type: 'endCap', name: 'End cap1', suppressed: false, faces: [{ normal: [1, 0, 0], point: [100, 18, 0] }], thickness: 5, outward: true, useRatio: false, ratio: 0, offset: 0, chamfer: 0 } as never);
+    setBrepKernel(null);
+    const mesh = rebuildDocument(w);
+    setBrepKernel(kernel);
+    const r = rebuildDocument(w);
+    expect(mesh.errors.ec).toBeUndefined();
+    expect(r.errors.ec).toBeUndefined();
+    expect(r.bodies).toHaveLength(2);
+    expect(r.bodies.every((b) => b.exact)).toBe(true);
+    const capMesh = Math.abs(meshVolume(mesh.bodies[1].geometry));
+    expect(Math.abs(r.bodies[1].exactVolume! - capMesh) / capMesh).toBeLessThan(1e-3);
+  });
+
+  it('a mid-plane extrude with draft: its tool has only planar faces and becomes exact through the planar fallback', () => {
     const doc = plateWithHole();
     doc.sketches.s2 = rect('s2', 'top', 2, 2, 8, 8);
     doc.features.push(extrude('b2', 's2', 'boss', 15, { end: 'midPlane', draft: { angle: 5, outward: false } }));
+    setBrepKernel(null);
+    const mesh = rebuildDocument(doc);
+    setBrepKernel(kernel);
+    const r = rebuildDocument(doc);
+    expect(r.bodies[0].exact).toBe(true);
+    const mv = Math.abs(meshVolume(mesh.bodies[0].geometry));
+    expect(Math.abs(r.bodies[0].exactVolume! - mv) / mv).toBeLessThan(0.002);
+  });
+
+  it('a feature without a B-rep version continues on the mesh (fallback); the body is still built', () => {
+    const doc = plateWithHole();
+    // a thin feature of an arc: its wall is curved and has no B-rep version yet
+    doc.sketches.s2 = addArc(createSketch('s2', 's2', 'top'), { x: 40, y: 30 }, { x: 55, y: 30 }, { x: 25, y: 30 }, true)[0];
+    doc.features.push(extrude('b2', 's2', 'boss', 15, { thin: { mode: 'one', thickness: 2 } }));
     const r = rebuildDocument(doc);
     expect(r.bodies).toHaveLength(1);
     expect(r.bodies[0].exact).toBeFalsy();

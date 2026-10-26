@@ -12,6 +12,7 @@ import type { ContourRegion } from '../features/regions';
 import type { BodyEdge } from '../features/edgesets';
 import type { BrepKernel, BrepShape } from '../features/brepKernel';
 import type { Contour } from '../sketch/contours';
+import { meshToSolid } from './step';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 type OC = any;
@@ -353,8 +354,58 @@ export function occtKernel(oc: OC, replicad: Replicad, opts: { tolerance?: numbe
       if (!ts.IsDone()) return null;
       return S(clean(t(ts.Shape())));
     },
+    clipByPlane(shape, point, normal) {
+      const pln = t(new oc.gp_Pln(pnt(point), dir(normal)));
+      const face = t(new oc.BRepBuilderAPI_MakeFace(pln, -1e5, 1e5, -1e5, 1e5)).Face();
+      const ref = pnt([point[0] + normal[0], point[1] + normal[1], point[2] + normal[2]]);
+      const half = t(t(new oc.BRepPrimAPI_MakeHalfSpace(face, ref)).Solid());
+      return S(cut(R(shape), half));
+    },
+    cutKeepTouching(a, b, point, normal) {
+      const rest = cut(R(a), R(b));
+      const pln = t(new oc.gp_Pln(pnt(point), dir(normal)));
+      const face = t(new oc.BRepBuilderAPI_MakeFace(pln, -1e5, 1e5, -1e5, 1e5)).Face();
+      let out: any = null;
+      const ex = t(new oc.TopExp_Explorer(rest, oc.TopAbs_ShapeEnum.TopAbs_SOLID, oc.TopAbs_ShapeEnum.TopAbs_SHAPE));
+      while (ex.More()) {
+        const solid = t(ex.Current());
+        ex.Next();
+        const d = t(new oc.BRepExtrema_DistShapeShape(solid, face));
+        if (d.IsDone() && d.Value() < 1e-6) out = out ? fuse(out, solid) : solid;
+      }
+      return out ? S(out) : null;
+    },
+    fromMesh(g) {
+      const src = g.index ? g.toNonIndexed() : g;
+      const solid = meshToSolid(oc, src.getAttribute('position').array as ArrayLike<number>);
+      if (!solid) return null;
+      t(solid);
+      let v = 0;
+      try { v = replicad.measureVolume(replicad.cast(solid) as never); } catch { return null; }
+      return S(v < 0 ? t(solid.Reversed()) : solid);
+    },
+    extrudeLoop(plane, loop, zStart, total) {
+      if (!loop.length || !(total > 1e-9)) return null;
+      const mw = t(new oc.BRepBuilderAPI_MakeWire());
+      for (const g of loop) {
+        if (g.m) {
+          const arc = t(new oc.GC_MakeArcOfCircle(pnt(to3(plane, g.a, zStart)), pnt(to3(plane, g.m, zStart)), pnt(to3(plane, g.b, zStart)))).Value();
+          mw.Add(t(new oc.BRepBuilderAPI_MakeEdge(arc)).Edge());
+        } else mw.Add(lineEdge(to3(plane, g.a, zStart), to3(plane, g.b, zStart)));
+      }
+      if (!mw.IsDone()) return null;
+      const mf = t(new oc.BRepBuilderAPI_MakeFace(mw.Wire(), true));
+      if (!mf.IsDone()) return null;
+      const v = t(new oc.gp_Vec(plane.n[0] * total, plane.n[1] * total, plane.n[2] * total));
+      return S(t(t(new oc.BRepPrimAPI_MakePrism(mf.Face(), v, false, true)).Shape()));
+    },
     fuse: (a, b) => S(fuse(R(a), R(b))),
     cut: (a, b) => S(cut(R(a), R(b))),
+    common: (a, b) => {
+      const op = t(new oc.BRepAlgoAPI_Common(R(a), R(b), progress()));
+      if (!op.IsDone()) throw new Error('B-rep intersection failed');
+      return S(clean(op.Shape()));
+    },
     fillet(shape, edges, radius) {
       const list = brepEdgesOn(R(shape), edges);
       if (!list.length) throw new Error('the selected edges were not found on the B-rep body');
@@ -362,6 +413,27 @@ export function occtKernel(oc: OC, replicad: Replicad, opts: { tolerance?: numbe
       for (const e of list) mk.Add(radius, e);
       mk.Build(progress());
       if (!mk.IsDone()) throw new Error('the fillet does not fit (radius too large for the faces next to the edge)');
+      return S(clean(mk.Shape()));
+    },
+    filletEach(shape, items) {
+      const mk = t(new oc.BRepFilletAPI_MakeFillet(R(shape), oc.ChFi3d_FilletShape.ChFi3d_Rational));
+      let n = 0;
+      for (const it of items) {
+        const start = it.edge.segments[0]?.a ?? it.edge.points[0];
+        for (const e of brepEdgesOn(R(shape), [it.edge])) {
+          if (it.r2 === undefined || Math.abs(it.r2 - it.r1) < 1e-12) mk.Add(it.r1, e);
+          else {
+            // R1 belongs to the B-rep edge's first vertex: the mesh edge's start decides which radius that is
+            const s = edgeSamples(e);
+            const forward = s[0].distanceTo(start) <= s[4].distanceTo(start);
+            mk.Add(forward ? it.r1 : it.r2, forward ? it.r2 : it.r1, e);
+          }
+          n++;
+        }
+      }
+      if (!n) throw new Error('the selected edges were not found on the B-rep body');
+      mk.Build(progress());
+      if (!mk.IsDone()) throw new Error('the fillet does not fit');
       return S(clean(mk.Shape()));
     },
     chamfer(shape, edges, distance) {

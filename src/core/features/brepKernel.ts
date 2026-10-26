@@ -33,11 +33,23 @@ export interface BrepKernel {
   mirror(shape: BrepShape, origin: [number, number, number], normal: [number, number, number]): BrepShape;
   /** a loft between the outer contours of two profile regions (one region each) */
   loft(s1: Sketch, p1: PlaneDef, r1: ContourRegion, s2: Sketch, p2: PlaneDef, r2: ContourRegion): BrepShape | null;
+  /** the shape without what lies on the side of the plane the normal points to */
+  clipByPlane(shape: BrepShape, point: [number, number, number], normal: [number, number, number]): BrepShape;
+  /** the solids of `a` minus `b` that touch the plane (Up To Body: the piece from the sketch plane to the body) */
+  cutKeepTouching(a: BrepShape, b: BrepShape, point: [number, number, number], normal: [number, number, number]): BrepShape | null;
+  /** a closed mesh of planar faces as a B-rep solid (coplanar triangles merged into one face); null when it does not close */
+  fromMesh(g: THREE.BufferGeometry): BrepShape | null;
+  /** a prism of a closed loop of lines and arcs (through m) in sketch coordinates of the plane */
+  extrudeLoop(plane: PlaneDef, loop: { a: { x: number; y: number }; b: { x: number; y: number }; m?: { x: number; y: number } }[], zStart: number, total: number): BrepShape | null;
   fuse(a: BrepShape, b: BrepShape): BrepShape;
   cut(a: BrepShape, b: BrepShape): BrepShape;
+  /** what the two solids have in common */
+  common(a: BrepShape, b: BrepShape): BrepShape;
   /** constant radius fillet / equal distance chamfer on the B-rep edges that lie on these mesh edges */
   fillet(shape: BrepShape, edges: BodyEdge[], radius: number): BrepShape;
   chamfer(shape: BrepShape, edges: BodyEdge[], distance: number): BrepShape;
+  /** fillet with a radius per edge; r2 makes it vary linearly from r1 at the start of the mesh edge to r2 at its end */
+  filletEach(shape: BrepShape, items: { edge: BodyEdge; r1: number; r2?: number }[]): BrepShape;
   /** hollow the solid: wall `thickness` inward (outward when set), the faces at these planes left open */
   shell(shape: BrepShape, openFaces: { normal: [number, number, number]; point: [number, number, number] }[], thickness: number, outward: boolean): BrepShape;
   /**

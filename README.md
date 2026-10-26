@@ -44,6 +44,14 @@ Status per fase:
 8. Sheet metal (Base Flange/Tab, Edge Flange, Flatten met K-factor) — **basis gereed**; Hem/Jog/Miter/Unfold gepland
 7. Massa-eigenschappen en meten — **gereed** (Mass Properties, Measure); materialen en rendering gepland
 
+## Status 0.4.1 (2026-10-26)
+
+Ook Miter Flange, Revolve Thin, weldment-frames (Structural Member, Trim/Extend, End Cap), Combine en Intersect, Stud en elk gereedschap met alleen vlakke vlakken bouwen exact met OpenCascade. Zie docs/18-brep-plaatwerk-weldments-0.4.1.md.
+
+## Status 0.4.0 (2026-10-26)
+
+Ook alle extrude-eindcondities (Up To Vertex/Next/Surface/Body, Offset From Surface, From offset, Flip side to cut), Thin Feature en Rib van lijnen, plaatwerk (Base Flange, Tab, Edge Flange, Hem, Jog, Sketched Bend met echte bochtcilinders) en afrondingen met meerdere of variabele radius bouwen exact met OpenCascade. Zie docs/17-brep-eindcondities-0.4.0.md.
+
 ## Status 0.3.9 (2026-10-26)
 
 Ook patronen (lineair, cirkelvormig, sketch/curve/table/fill), mirror van features en bodies, loft tussen twee profielen, extrude met draft en de Draft-feature bouwen nu exact met OpenCascade; de mesh-kern blijft de terugval. Zie docs/16-brep-open-stukken-0.3.9.md (met de bevinding over shell naast een afronding).

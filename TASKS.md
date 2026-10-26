@@ -590,3 +590,19 @@ elease; README en docs/04 bijgewerkt
 - [x] Draft (neutraal vlak, vlakken) via DraftAngle, met volume-vangnet
 - [x] Shell naast een afronding: uitgezocht (rand meetkundig niet eenduidig; OCCT weigert, mesh benadert; zonder SW-referentie blijft het vangnet de mesh kiezen) — docs/16
 - [x] Tests (unit + e2e), regressie, desktop, installer 0.3.9, screenshots, commit + tag (unit 368, regressie 83/83)
+
+## Vervolg 41: B-rep verder — eindcondities, rib, thin, sheet metal basis, topologische namen (2026-10-26)
+- [x] Extrude-eindcondities via B-rep: Up To Vertex, Up To Next, Up To Surface, Offset From Surface, Up To Body, From offset, Flip side to cut
+- [x] Thin Feature (extrude en revolve) via B-rep
+- [x] Rib via B-rep
+- [x] Sheet metal Base Flange/Tab via B-rep (plaat + bochten als echte cilinders)
+- [ ] Topologische namen (verschoven naar Vervolg 42)
+- [x] Tests (unit + e2e), regressie (83/83 op de 0.4.0-code); uitgebracht samen met Vervolg 42 als 0.4.1
+
+## Vervolg 42: plaatwerk-flenzen, topologische namen, rebuild in de worker (2026-10-26)
+- [x] Edge Flange via B-rep: bocht als echte cilindersector, been als prisma
+- [x] Hem, Jog en Sketched Bend via B-rep; ook multi-radius en variabele fillet (Miter Flange: volgende ronde)
+- [ ] (naar Vervolg 43) Topologische namen: een randverwijzing onthoudt de features van zijn twee vlakken; bij twijfel tussen kandidaten wint de rand met dezelfde herkomst
+- [ ] (naar Vervolg 43) Rebuild in de worker (F46): voor exacte parts komt de mesh-stap niet meer op de hoofdthread als de worker klaar staat
+- [x] Tests, regressie (83/83), desktop, installer 0.4.1, screenshots, commit + tag
+- [x] Extra in 0.4.1: Miter Flange, Revolve Thin, weldment-frames (Structural Member, Trim/Extend, End Cap), Combine/Intersect, Stud, vlakke terugval (docs/18)

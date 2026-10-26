@@ -17,7 +17,7 @@ import { curveInstances, fillInstances, tableInstances } from './patterns2';
 import { solveSketch } from '../solver/solver';
 import { splitBodySurface, splitFaces, type SplitRegions } from './splitline';
 import { brepKernel, type BrepKernel, type BrepShape } from './brepKernel';
-import { sketchContourRegions } from './regions';
+import { sketchContourRegions, polyArea, type ContourRegion } from './regions';
 import { closedCornerTool, cornerReliefTool, findFace } from './smcorners';
 import { thickenSurface } from './surfaces';
 import { applyShellFromHistory, applyShellOutward, type BuildHistory } from './shell';
@@ -29,12 +29,12 @@ import { ribGeometry } from './rib';
 import { foldGeometry, sheetMapping, unfoldGeometry } from './unfold';
 import { wrapSplineTool, wrapTool } from './wrap';
 import { threadTool, type ThreadSpec } from './thread';
-import { baseFlangeGeometry, baseFlangeRegion, bendAllowance, DEFAULT_SHEET_METAL, edgeFlangeGeometry, flangeLeg, flangeSetback, flatPatternGeometry, hemFlangeParams, tabGeometry, type SheetMetalParams } from './sheetmetal';
+import { baseFlangeGeometry, baseFlangeLoop, baseFlangeRegion, bendAllowance, DEFAULT_SHEET_METAL, edgeFlangeGeometry, flangeLeg, flangeSetback, flatPatternGeometry, hemFlangeParams, tabGeometry, type SheetMetalParams } from './sheetmetal';
 import type { DraftFeature, PatternFeature, RevolveFeature, EdgeFlangeFeature, HemFeature, HoleFeature, JogFeature, MiterFlangeFeature, PlaneDef, SketchedBendFeature } from '../document/types';
 import { chainEdges, classifyVent, formToolGeometry, gussetTools, ripTool, sweptFlangeRegions, tabSlotTools, ventTool } from './sheetmetal4';
 import { bodyEdges as bodyEdgesOf, matchEdge as matchEdgeRef } from './edgesets';
 import { pointDeform } from './deform';
-import { endCapGeometry, findFaceOnBodies, findProfile, memberSegments, placedProfile, profileRegion, structuralMembers, trimByBodies, trimByPlane, weldBeadGeometry, weldGussetGeometry } from './weldments';
+import { endCapGeometry, faceOutline, findFaceOnBodies, findProfile, memberSegments, placedProfile, profileLoops, profileRegion, structuralMembers, trimByBodies, trimByPlane, weldBeadGeometry, weldGussetGeometry } from './weldments';
 
 export interface Body {
   id: Id;
@@ -68,6 +68,56 @@ export interface RebuildResult {
   brep?: Record<Id, BrepShape>;
   /** Weldments: per body the cut list data (description, length, miter angles) and its kind */
   bodyMeta?: Record<Id, { kind: 'member' | 'cap' | 'gusset' | 'bead' | 'other'; description: string; length: number; angle1: number; angle2: number }>;
+}
+
+/**
+ * The end conditions of an extrusion that depend on the model (Up To Next, Up To Vertex, Direction 2 up to …) turned
+ * into blind depths, the same for the mesh kernel and the B-rep kernel.
+ */
+export function resolveExtrudeEnds(f: ExtrudeFeature, regions: Region[], plane: PlaneDef, body: THREE.BufferGeometry | null | undefined): { fe: ExtrudeFeature } | { error: string } {
+    let fe: ExtrudeFeature = f;
+    // Direction 2 ▸ Up To Next / Up To Vertex / Up To Surface / Offset From Surface: the depth along the second direction
+    if (f.direction2 && ['upToNext', 'upToVertex', 'upToSurface', 'offsetFromSurface'].includes(f.direction2.end)) {
+      const d2 = f.direction2;
+      const c = regionCentre(regions[0]);
+      const origin = new THREE.Vector3(c.x, c.y, 0).applyMatrix4(planeMatrix(plane));
+      const dir = new THREE.Vector3(...plane.n).multiplyScalar(f.reverse ? 1 : -1);
+      let depth: number | null = null;
+      if (d2.end === 'upToNext') {
+        if (!body) return { error: 'Direction 2 ▸ Up To Next needs an existing solid body.' };
+        const hit = new MeshBVH(body).raycastFirst(new THREE.Ray(origin.clone().addScaledVector(dir, 0.01), dir), THREE.DoubleSide);
+        if (!hit) return { error: 'Direction 2 ▸ Up To Next: no face of the body in that direction.' };
+        depth = hit.distance + 0.01;
+      } else if (d2.end === 'upToVertex') {
+        if (!d2.vertex) return { error: 'Direction 2: select the vertex.' };
+        depth = new THREE.Vector3(...d2.vertex.point).sub(origin).dot(dir);
+      } else {
+        if (!d2.surface) return { error: 'Direction 2: select the face.' };
+        const n = new THREE.Vector3(...d2.surface.normal);
+        const den = n.dot(dir);
+        if (Math.abs(den) < 1e-9) return { error: 'Direction 2: the face is parallel to the extrusion direction.' };
+        depth = new THREE.Vector3(...d2.surface.point).sub(origin).dot(n) / den + (d2.end === 'offsetFromSurface' ? (d2.offset ?? 0) : 0);
+      }
+      if (depth === null || depth <= 1e-6) return { error: 'Direction 2: the end lies on the side of direction 1.' };
+      fe = { ...fe, direction2: { end: 'blind', depth } };
+    }
+    if (f.end === 'upToNext') {
+      // the first face of the body met along the extrusion direction (from the profile centre)
+      if (!body) return { error: 'Up To Next needs an existing solid body.' };
+      const c = regionCentre(regions[0]);
+      const origin = new THREE.Vector3(c.x, c.y, 0).applyMatrix4(planeMatrix(plane));
+      const dir = new THREE.Vector3(...plane.n).multiplyScalar(f.reverse ? -1 : 1);
+      const hit = new MeshBVH(body).raycastFirst(new THREE.Ray(origin.clone().addScaledVector(dir, 0.01), dir), THREE.DoubleSide);
+      if (!hit) return { error: 'Up To Next: no face of the body in the extrusion direction.' };
+      fe = { ...fe, end: 'blind', depth: hit.distance + 0.01 };
+    }
+    if (f.end === 'upToVertex') {
+      if (!f.vertex) return { error: 'Select a vertex (an end point of a model edge) for Up To Vertex.' };
+      const d = new THREE.Vector3(...f.vertex.point).sub(new THREE.Vector3(...plane.origin)).dot(new THREE.Vector3(...plane.n));
+      if (Math.abs(d) < 1e-6) return { error: 'The vertex lies in the sketch plane.' };
+      fe = { ...fe, end: 'blind', depth: Math.abs(d), reverse: d < 0 };
+    }
+    return { fe };
 }
 
 /** Geometry of one sketch-based solid feature on its own (also used for the yellow preview). */
@@ -105,48 +155,9 @@ export function featureGeometry(doc: Document, f: SketchBasedFeature, extent = T
     return { geometry: null, error: f.type === 'extrude' && sketchChains(sketch).length ? 'The sketch is an open contour: use Thin Feature or close the profile.' : 'The sketch has no closed contour to build a solid from.' };
   }
   if (f.type === 'extrude') {
-    let fe: ExtrudeFeature = f;
-    // Direction 2 ▸ Up To Next / Up To Vertex / Up To Surface / Offset From Surface: the depth along the second direction
-    if (f.direction2 && ['upToNext', 'upToVertex', 'upToSurface', 'offsetFromSurface'].includes(f.direction2.end)) {
-      const d2 = f.direction2;
-      const c = regionCentre(regions[0]);
-      const origin = new THREE.Vector3(c.x, c.y, 0).applyMatrix4(planeMatrix(plane));
-      const dir = new THREE.Vector3(...plane.n).multiplyScalar(f.reverse ? 1 : -1);
-      let depth: number | null = null;
-      if (d2.end === 'upToNext') {
-        if (!body) return { geometry: null, error: 'Direction 2 ▸ Up To Next needs an existing solid body.' };
-        const hit = new MeshBVH(body).raycastFirst(new THREE.Ray(origin.clone().addScaledVector(dir, 0.01), dir), THREE.DoubleSide);
-        if (!hit) return { geometry: null, error: 'Direction 2 ▸ Up To Next: no face of the body in that direction.' };
-        depth = hit.distance + 0.01;
-      } else if (d2.end === 'upToVertex') {
-        if (!d2.vertex) return { geometry: null, error: 'Direction 2: select the vertex.' };
-        depth = new THREE.Vector3(...d2.vertex.point).sub(origin).dot(dir);
-      } else {
-        if (!d2.surface) return { geometry: null, error: 'Direction 2: select the face.' };
-        const n = new THREE.Vector3(...d2.surface.normal);
-        const den = n.dot(dir);
-        if (Math.abs(den) < 1e-9) return { geometry: null, error: 'Direction 2: the face is parallel to the extrusion direction.' };
-        depth = new THREE.Vector3(...d2.surface.point).sub(origin).dot(n) / den + (d2.end === 'offsetFromSurface' ? (d2.offset ?? 0) : 0);
-      }
-      if (depth === null || depth <= 1e-6) return { geometry: null, error: 'Direction 2: the end lies on the side of direction 1.' };
-      fe = { ...fe, direction2: { end: 'blind', depth } };
-    }
-    if (f.end === 'upToNext') {
-      // the first face of the body met along the extrusion direction (from the profile centre)
-      if (!body) return { geometry: null, error: 'Up To Next needs an existing solid body.' };
-      const c = regionCentre(regions[0]);
-      const origin = new THREE.Vector3(c.x, c.y, 0).applyMatrix4(planeMatrix(plane));
-      const dir = new THREE.Vector3(...plane.n).multiplyScalar(f.reverse ? -1 : 1);
-      const hit = new MeshBVH(body).raycastFirst(new THREE.Ray(origin.clone().addScaledVector(dir, 0.01), dir), THREE.DoubleSide);
-      if (!hit) return { geometry: null, error: 'Up To Next: no face of the body in the extrusion direction.' };
-      fe = { ...fe, end: 'blind', depth: hit.distance + 0.01 };
-    }
-    if (f.end === 'upToVertex') {
-      if (!f.vertex) return { geometry: null, error: 'Select a vertex (an end point of a model edge) for Up To Vertex.' };
-      const d = new THREE.Vector3(...f.vertex.point).sub(new THREE.Vector3(...plane.origin)).dot(new THREE.Vector3(...plane.n));
-      if (Math.abs(d) < 1e-6) return { geometry: null, error: 'The vertex lies in the sketch plane.' };
-      fe = { ...fe, end: 'blind', depth: Math.abs(d), reverse: d < 0 };
-    }
+    const ends = resolveExtrudeEnds(f, regions, plane, body);
+    if ('error' in ends) return { geometry: null, error: ends.error };
+    const fe = ends.fe;
     if ((f.end === 'upToSurface' || f.end === 'offsetFromSurface') && !f.surface) return { geometry: null, error: 'Select the face the extrusion ends at.' };
     if (f.end === 'upToBody') {
       // through the target body, minus the body; the piece that starts at the sketch plane ends on the body's near side
@@ -270,7 +281,7 @@ export function hemAsFlange(h: HemFeature): Pick<EdgeFlangeFeature, 'edge' | 'an
   return { edge: h.edge, ...hemFlangeParams(h), gap: h.miterGap, customAllowance: h.customAllowance, customRelief: h.customRelief, startOffset: h.startOffset, endOffset: h.endOffset };
 }
 
-export function edgeFlangeOnBody(geometry: THREE.BufferGeometry, bodyId: string, f: Pick<EdgeFlangeFeature, 'edge' | 'angle' | 'length' | 'lengthMode' | 'position' | 'flip' | 'radius'> & Partial<EdgeFlangeFeature>, params0: SheetMetalParams): { geometry: THREE.BufferGeometry | null; error?: string; edge?: BodyEdge; trim?: THREE.BufferGeometry | null } {
+export function edgeFlangeOnBody(geometry: THREE.BufferGeometry, bodyId: string, f: Pick<EdgeFlangeFeature, 'edge' | 'angle' | 'length' | 'lengthMode' | 'position' | 'flip' | 'radius'> & Partial<EdgeFlangeFeature>, params0: SheetMetalParams): { geometry: THREE.BufferGeometry | null; error?: string; edge?: BodyEdge; trim?: THREE.BufferGeometry | null; exact?: ReturnType<typeof edgeFlangeGeometry>['exact'] } {
   const params = flangeParams(params0, f);
   if (!f.edge) return { geometry: null, error: 'Select a straight edge of the sheet.' };
   const edges = bodyEdges(geometry, bodyId);
@@ -292,7 +303,13 @@ export function edgeFlangeOnBody(geometry: THREE.BufferGeometry, bodyId: string,
  * one of its ends) is swept along the chain of selected straight edges; adjacent flanges meet in a
  * miter plane (bisector of the corner), with half the gap on each side.
  */
-export function miterFlangeOnBody(doc: Document, geometry: THREE.BufferGeometry, bodyId: string, f: Pick<MiterFlangeFeature, 'sketchId' | 'edges' | 'reverse' | 'gap'> & Partial<MiterFlangeFeature>, params0: SheetMetalParams): { geometry: THREE.BufferGeometry | null; error?: string } {
+/** a miter flange for the B-rep kernel: the exact profile and per leg its plane, length and the two cut planes */
+export interface ExactMiter {
+  loop: NonNullable<ReturnType<typeof baseFlangeLoop>>;
+  legs: { plane: PlaneDef; depth: number; clips: { point: [number, number, number]; normal: [number, number, number] }[] }[];
+}
+
+export function miterFlangeOnBody(doc: Document, geometry: THREE.BufferGeometry, bodyId: string, f: Pick<MiterFlangeFeature, 'sketchId' | 'edges' | 'reverse' | 'gap'> & Partial<MiterFlangeFeature>, params0: SheetMetalParams): { geometry: THREE.BufferGeometry | null; error?: string; exact?: ExactMiter } {
   const params = f.radius !== undefined ? { ...params0, bendRadius: f.radius } : params0;
   const sketch = doc.sketches[f.sketchId];
   if (!sketch) return { geometry: null, error: 'Select the sketch of the miter flange profile (an open line/arc chain).' };
@@ -360,6 +377,15 @@ export function miterFlangeOnBody(doc: Document, geometry: THREE.BufferGeometry,
   const ext = size * 2 + 10;
   const gap = Math.max(0, f.gap ?? 0.25);
   const parts: THREE.BufferGeometry[] = [];
+  // exact only for a profile of straight lines (a chain with arcs is sampled into many corners here)
+  const linesOnly = !Object.values(sketch.entities).some((e) => !e.construction && e.kind !== 'line' && e.kind !== 'point');
+  const exactLoop = linesOnly ? baseFlangeLoop(prof, params, !!f.reverse) : null;
+  const exactLegs: ExactMiter['legs'] = [];
+  /** the cut plane of clipToSurface as a half-space normal: away from the side that stays */
+  const cutAway = (p: THREE.Vector3, n: THREE.Vector3, keep: THREE.Vector3) => {
+    const m = keep.clone().sub(p).dot(n) > 0 ? n.clone().negate() : n.clone();
+    return { point: [p.x, p.y, p.z] as [number, number, number], normal: [m.x, m.y, m.z] as [number, number, number] };
+  };
   for (let k = 0; k < legs.length; k++) {
     const L = legs[k];
     const u = L.n.clone().cross(L.dir).normalize();
@@ -377,18 +403,29 @@ export function miterFlangeOnBody(doc: Document, geometry: THREE.BufferGeometry,
     const pE = L.b.clone().addScaledVector(mE, next ? -gap / 2 : -Math.max(0, f.endOffset ?? 0));
     g = clipToSurface(g, { normal: [mE.x, mE.y, mE.z], point: [pE.x, pE.y, pE.z] }, [L.a.x, L.a.y, L.a.z]);
     parts.push(g);
+    exactLegs.push({ plane: pl, depth: len, clips: [cutAway(pS, mS, L.b), cutAway(pE, mE, L.a)] });
   }
   if (!parts.length) return { geometry: null, error: 'Could not build the miter flange.' };
   let out = parts[0];
   for (const g of parts.slice(1)) out = csg(out, g, 'union');
-  return { geometry: out };
+  return { geometry: out, ...(exactLoop && exactLegs.length === parts.length ? { exact: { loop: exactLoop, legs: exactLegs } } : {}) };
 }
 
 /**
  * Jog: a sketch line on a planar face of the sheet; the sheet on one side of the line is raised (or
  * lowered) by the jog offset with two bends (inner radius of the sheet metal parameters).
  */
-export function jogOnBody(doc: Document, geometry: THREE.BufferGeometry, bodyId: string, f: Pick<JogFeature, 'sketchId' | 'offset' | 'flipSide' | 'reverse'> & Partial<JogFeature>, params0: SheetMetalParams): { geometry: THREE.BufferGeometry | null; region?: THREE.BufferGeometry; error?: string } {
+/** a jog or sketched bend for the B-rep kernel: the cut plane, the move of the far side (matrix) and the exact bend region */
+export interface ExactJog {
+  origin: [number, number, number];
+  m: [number, number, number];
+  move: number[];
+  plane: PlaneDef;
+  loop: ReturnType<typeof baseFlangeLoop>;
+  depth: number;
+}
+
+export function jogOnBody(doc: Document, geometry: THREE.BufferGeometry, bodyId: string, f: Pick<JogFeature, 'sketchId' | 'offset' | 'flipSide' | 'reverse'> & Partial<JogFeature>, params0: SheetMetalParams): { geometry: THREE.BufferGeometry | null; region?: THREE.BufferGeometry; error?: string; exact?: ExactJog } {
   // Up To Vertex: the offset is the height of the picked corner above the sketch (face) plane
   if (f.offsetEnd === 'upToVertex') {
     const sk = doc.sketches[f.sketchId];
@@ -462,14 +499,16 @@ export function jogOnBody(doc: Document, geometry: THREE.BufferGeometry, bodyId:
   if (Math.abs(along) > 1e-9) moving.translate(m.x * along, m.y * along, m.z * along);
   let out = csg(fixed, zg, 'union');
   out = csg(out, moving, 'union');
-  return { geometry: out, region: zg };
+  const mv = nf.clone().multiplyScalar(D).addScaledVector(m, along);
+  const exact: ExactJog = { origin: [origin.x, origin.y, origin.z], m: [m.x, m.y, m.z], move: new THREE.Matrix4().makeTranslation(mv.x, mv.y, mv.z).elements.slice(), plane: pl, loop: baseFlangeLoop(chain, params, true), depth: s1 - s0 };
+  return { geometry: out, region: zg, exact };
 }
 
 /**
  * Sketched Bend: the sketch line on a face of the sheet is the bend line; the side away from the fixed
  * face turns by the bend angle around it (inner radius of the sheet metal parameters).
  */
-export function sketchedBendOnBody(doc: Document, geometry: THREE.BufferGeometry, bodyId: string, f: Pick<SketchedBendFeature, 'sketchId' | 'angle' | 'flipSide' | 'reverse'> & Partial<SketchedBendFeature>, params0: SheetMetalParams): { geometry: THREE.BufferGeometry | null; region?: THREE.BufferGeometry; error?: string } {
+export function sketchedBendOnBody(doc: Document, geometry: THREE.BufferGeometry, bodyId: string, f: Pick<SketchedBendFeature, 'sketchId' | 'angle' | 'flipSide' | 'reverse'> & Partial<SketchedBendFeature>, params0: SheetMetalParams): { geometry: THREE.BufferGeometry | null; region?: THREE.BufferGeometry; error?: string; exact?: ExactJog } {
   const params = f.radius !== undefined ? { ...params0, bendRadius: f.radius } : params0;
   const fr = sheetLineFrame(doc, geometry, bodyId, f.sketchId, f.reverse, f.flipSide, params);
   if ('error' in fr) return { geometry: null, error: fr.error };
@@ -494,7 +533,7 @@ export function sketchedBendOnBody(doc: Document, geometry: THREE.BufferGeometry
   moving.applyMatrix4(rot);
   let out = csg(fixed, zg, 'union');
   out = csg(out, moving, 'union');
-  return { geometry: out, region: zg };
+  return { geometry: out, region: zg, exact: { origin: [origin.x, origin.y, origin.z], m: [m.x, m.y, m.z], move: rot.elements.slice(), plane: pl, loop: baseFlangeLoop(chain, params, true), depth: s1 - s0 } };
 }
 
 /** Frame of a sheet-metal sketch line on a face: origin on the line (top face), l along it, nf the face normal, m across. */
@@ -802,7 +841,9 @@ function brepHoleTool(K: BrepKernel, f: HoleFeature, pl: PlaneDef, at: { x: numb
 /** a fillet or chamfer the B-rep kernel builds: one constant size on picked edges (the other options: mesh kernel) */
 function brepRoundable(f: RoundFeature): boolean {
   const plainType = !f.roundType || f.roundType === 'constant' || (f.type === 'chamfer' && f.roundType === 'angleDistance' && (f.angle ?? 45) === 45);
-  return plainType && !f.size2 && (!f.profile || f.profile === 'circular') && !f.radii?.length && !f.variable && !f.partial && !f.setback && (!f.overflow || f.overflow === 'default') && !f.internalOnly && f.tangentPropagation !== false && f.edges.length > 0 && f.size > 0;
+  // multi radius and variable size (fillets): one radius per edge, or a linear change along the edge
+  const perEdge = f.type === 'fillet' && (!!f.radii?.length || (f.roundType === 'variable' && !!f.variable));
+  return (plainType || perEdge) && !f.size2 && (!f.profile || f.profile === 'circular') && (f.type === 'fillet' || (!f.radii?.length && !f.variable)) && !f.partial && !f.setback && (!f.overflow || f.overflow === 'default') && !f.internalOnly && f.tangentPropagation !== false && f.edges.length > 0 && f.size > 0;
 }
 
 /**
@@ -810,7 +851,7 @@ function brepRoundable(f: RoundFeature): boolean {
  * (the feature is then built by the mesh kernel). The extents are those of extrudeGeometry, without the overhang that
  * the mesh kernel needs against coplanar faces.
  */
-function brepTool(K: BrepKernel, doc: Document, f: Feature, extent: number, meshTool?: THREE.BufferGeometry): BrepShape | null {
+function brepTool(K: BrepKernel, doc: Document, f: Feature, extent: number, meshTool?: THREE.BufferGeometry, bodyGeom?: THREE.BufferGeometry | null, targetShape?: (bodyId: Id) => BrepShape | null): BrepShape | null {
   if (f.type === 'sweep') {
     // a sketch profile along a sketch path, following it (no twist, guides, tangency or circular profile yet)
     if (f.profileType === 'circular' || f.twist || f.guides?.length || f.orientation === 'keepNormal' || f.alignEnd || (f.startTangency && f.startTangency !== 'none') || (f.endTangency && f.endTangency !== 'none')) return null;
@@ -842,9 +883,26 @@ function brepTool(K: BrepKernel, doc: Document, f: Feature, extent: number, mesh
   }
   if (f.type !== 'extrude' && f.type !== 'revolve') return null;
   const sketch = doc.sketches[f.sketchId];
-  if (!sketch || f.thin) return null;
-  let regions = sketchContourRegions(sketch);
-  if (f.contours && f.contours.length) regions = regions.filter((_, i) => f.contours!.includes(i));
+  if (!sketch) return null;
+  let regions: ContourRegion[];
+  if (f.thin) {
+    // Thin Feature: the wall around the open (or closed) profile; exact when the profile is made of lines only
+    if ((f.type === 'extrude' && f.thin.autoFillet)) return null;
+    if (Object.values(sketch.entities).some((e) => !e.construction && e.kind !== 'line' && e.kind !== 'point')) return null;
+    let chains = sketchChains(sketch);
+    if (f.type === 'revolve') {
+      // the axis is not part of the wall (as featureGeometry)
+      const ax = sketch.entities[f.axisEntityId];
+      const axPts = ax && ax.kind === 'line' ? [sketch.points[ax.p1], sketch.points[ax.p2]] : null;
+      const onAxis = (p: { x: number; y: number }) => !!axPts && Math.abs((axPts[1].x - axPts[0].x) * (p.y - axPts[0].y) - (axPts[1].y - axPts[0].y) * (p.x - axPts[0].x)) < 1e-6 * Math.hypot(axPts[1].x - axPts[0].x, axPts[1].y - axPts[0].y);
+      chains = chains.filter((c) => !c.points.every(onAxis));
+    }
+    if (!chains.length) return null;
+    regions = thinRegions(chains, f.thin).map((r) => ({ outer: { points: r.outer, area: Math.abs(polyArea(r.outer)), entityIds: [] }, holes: r.holes.map((h) => ({ points: h, area: Math.abs(polyArea(h)), entityIds: [] })) }));
+  } else {
+    regions = sketchContourRegions(sketch);
+    if (f.contours && f.contours.length) regions = regions.filter((_, i) => f.contours!.includes(i));
+  }
   if (!regions.length) return null;
   const plane = resolvePlaneDef(doc, sketch.plane);
   if (f.type === 'revolve') {
@@ -869,31 +927,72 @@ function brepTool(K: BrepKernel, doc: Document, f: Feature, extent: number, mesh
     }
     return best;
   }
-  if (f.flipSide || f.fromOffset || f.normalCut) return null;
+  if (f.normalCut) return null;
+  // Up To Body: through the target body, minus the body; the piece that starts at the sketch plane ends on its near side
+  if (f.end === 'upToBody') {
+    const target = f.upToBody && targetShape ? targetShape(f.upToBody.bodyId) : null;
+    if (!target || f.draft || f.direction2 || f.flipSide || f.fromOffset) return null;
+    const through = K.extrude(sketch, plane, regions, f.reverse ? -extent : 0, extent);
+    if (!through) return null;
+    const dir = f.reverse ? -1 : 1;
+    return K.cutKeepTouching(through, target, plane.origin, [plane.n[0] * dir, plane.n[1] * dir, plane.n[2] * dir]);
+  }
+  // the model-dependent ends (Up To Next, Up To Vertex, Direction 2 up to …) as blind depths, as the mesh kernel has them
+  let polyRegions = sketchRegions(sketch);
+  if (f.contours && f.contours.length) polyRegions = polyRegions.filter((_, i) => f.contours!.includes(i));
+  const ends = resolveExtrudeEnds(f, polyRegions, plane, bodyGeom ?? null);
+  if ('error' in ends) return null;
+  const fe = ends.fe;
+  const surfaceEnd = (fe.end === 'upToSurface' || fe.end === 'offsetFromSurface') && !!fe.surface;
+  if ((fe.end === 'upToSurface' || fe.end === 'offsetFromSurface') && !fe.surface) return null;
   // Draft On/Off: one-sided extrusions only (the mesh kernel tapers both sides away from the sketch plane)
-  if (f.draft && (f.end === 'midPlane' || f.end === 'throughAllBoth' || f.direction2 || !(f.draft.angle > 0 && f.draft.angle < 89))) return null;
-  const simple = ['blind', 'midPlane', 'throughAll', 'throughAllBoth'];
-  if (!simple.includes(f.end)) return null;
-  if (f.direction2 && !['blind', 'throughAll'].includes(f.direction2.end)) return null;
-  const d1 = f.end === 'throughAll' || f.end === 'throughAllBoth' ? extent : Math.max(0, f.depth);
-  const d2 = f.end === 'throughAllBoth' ? extent : f.direction2 ? (f.direction2.end === 'blind' ? Math.max(0, f.direction2.depth) : extent) : 0;
+  if (fe.draft && (fe.end === 'midPlane' || fe.end === 'throughAllBoth' || fe.direction2 || fe.flipSide || surfaceEnd || !(fe.draft.angle > 0 && fe.draft.angle < 89))) return null;
+  if (fe.direction2 && !['blind', 'throughAll'].includes(fe.direction2.end)) return null;
+  const d1 = fe.end === 'throughAll' || fe.end === 'throughAllBoth' || surfaceEnd ? extent : Math.max(0, fe.depth);
+  const d2 = fe.end === 'throughAllBoth' ? extent : fe.direction2 ? (fe.direction2.end === 'blind' ? Math.max(0, fe.direction2.depth) : extent) : 0;
   let zStart: number, total: number;
-  if (f.end === 'midPlane') {
+  if (fe.end === 'midPlane') {
     zStart = -d1 / 2;
     total = d1;
   } else {
-    const a = f.reverse ? -d1 : d1;
-    const b = f.reverse ? d2 : -d2;
+    const a = fe.reverse ? -d1 : d1;
+    const b = fe.reverse ? d2 : -d2;
     zStart = Math.min(0, a, b);
     total = Math.max(0, a, b) - zStart;
   }
   if (total <= 1e-9) return null;
-  const prism = K.extrude(sketch, plane, regions, zStart, total);
-  if (!prism || !f.draft) return prism;
-  const dirSign = f.reverse ? -1 : 1;
-  const pull: [number, number, number] = [plane.n[0] * dirSign, plane.n[1] * dirSign, plane.n[2] * dirSign];
-  const neutral = { origin: plane.origin, normal: plane.n };
-  return pickByVolume(K, [f.draft.angle, -f.draft.angle].map((a) => () => K.draft(prism, 'sides', pull, a, neutral)), meshTool ? Math.abs(meshVolume(meshTool)) : 0, 0.1);
+  // From ▸ Offset: the extrusion starts at this distance from the sketch plane
+  if (fe.fromOffset) zStart += fe.fromReverse ? -fe.fromOffset : fe.fromOffset;
+  let shape = K.extrude(sketch, plane, regions, zStart, total);
+  if (!shape) return null;
+  if (fe.draft) {
+    const dirSign = fe.reverse ? -1 : 1;
+    const pull: [number, number, number] = [plane.n[0] * dirSign, plane.n[1] * dirSign, plane.n[2] * dirSign];
+    const neutral = { origin: plane.origin, normal: plane.n };
+    const prism = shape;
+    return pickByVolume(K, [fe.draft.angle, -fe.draft.angle].map((a) => () => K.draft(prism, 'sides', pull, a, neutral)), meshTool ? Math.abs(meshVolume(meshTool)) : 0, 0.1);
+  }
+  // Flip side to cut: the slab of the same depth minus the profile prism
+  if (fe.op === 'cut' && fe.flipSide) {
+    const c = polyRegions.length ? polyRegions[0].outer.reduce((acc, p) => ({ x: acc.x + p.x / polyRegions[0].outer.length, y: acc.y + p.y / polyRegions[0].outer.length }), { x: 0, y: 0 }) : { x: 0, y: 0 };
+    const big = extent * 2;
+    const sq = [{ x: c.x - big, y: c.y - big }, { x: c.x + big, y: c.y - big }, { x: c.x + big, y: c.y + big }, { x: c.x - big, y: c.y + big }];
+    const slabRegion = { outer: { points: sq, area: 4 * big * big, entityIds: [] }, holes: [] };
+    const slab = K.extrude(sketch, plane, [slabRegion], zStart, total);
+    if (!slab) return null;
+    shape = K.cut(slab, shape);
+  }
+  // Up To Surface / Offset From Surface: through all, cut back at the (offset) face plane
+  if (surfaceEnd && fe.surface) {
+    const n = new THREE.Vector3(...fe.surface.normal).normalize();
+    const p = new THREE.Vector3(...fe.surface.point);
+    if (new THREE.Vector3(...plane.origin).sub(p).dot(n) > 0) n.negate();
+    let off = fe.end === 'offsetFromSurface' ? fe.offset ?? 0 : 0;
+    if (off && fe.translateSurface) off *= Math.abs(new THREE.Vector3(...fe.surface.normal).normalize().dot(new THREE.Vector3(...plane.n).normalize()));
+    p.addScaledVector(n, fe.reverseOffset ? off : -off);
+    shape = K.clipByPlane(shape, [p.x, p.y, p.z], [n.x, n.y, n.z]);
+  }
+  return shape;
 }
 
 /** of candidate B-rep results, the one whose volume is nearest the mesh kernel's (within the tolerance); null if none */
@@ -966,7 +1065,7 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
   const toolOf = (feature: Feature, ext: number, meshTool?: THREE.BufferGeometry | null): BrepShape | null => {
     if (!K) return null;
     try {
-      return brepTool(K, doc, feature, ext, meshTool ?? undefined);
+      return brepTool(K, doc, feature, ext, meshTool ?? undefined, allVisible());
     } catch {
       return null;
     }
@@ -991,8 +1090,23 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
   const scoped = (scope?: Id[]) => (scope && scope.length ? bodies.filter((b) => scope.includes(b.id)) : visibleBodies());
   const isEmpty = (g: THREE.BufferGeometry) => !g.getAttribute('position') || g.getAttribute('position').count < 3;
   /** boss material: merge into the bodies it touches (several touching bodies become one), else a new body */
+  /** a tool without a B-rep version whose faces are all planar becomes an exact solid (gussets, vents, slots …) */
+  const planarTool = (tool: THREE.BufferGeometry): BrepShape | null => {
+    if (!K) return null;
+    try {
+      const faces = planarFaces(tool, 'tool');
+      if (!faces.length || faces.some((x) => x.curved)) return null;
+      const sh = K.fromMesh(tool);
+      if (!sh) return null;
+      const mv = Math.abs(meshVolume(tool)), bv = Math.abs(K.volume(sh));
+      return mv > 0 && Math.abs(bv - mv) / mv < 1e-3 ? sh : null;
+    } catch {
+      return null;
+    }
+  };
   const addMaterial = (tool: THREE.BufferGeometry, fid: Id, merge: boolean, scope?: Id[], toolShape?: BrepShape | null) => {
     const hits = merge ? touching(tool, scoped(scope)) : [];
+    if (K && toolShape === undefined && (hits.length ? hits.every((b) => exactOf(b)) : bodies.some((b) => exactOf(b)))) toolShape = planarTool(tool);
     if (!hits.length) {
       newBody(tool, fid, toolShape);
       return;
@@ -1029,6 +1143,7 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
   const removeMaterial = (tool: THREE.BufferGeometry, fid: Id, scope?: Id[], toolShape?: BrepShape | null): boolean => {
     const hits = touching(tool, scoped(scope));
     if (!hits.length) return false;
+    if (K && toolShape === undefined && hits.some((b) => exactOf(b))) toolShape = planarTool(tool);
     // every cut is computed before any body changes: when the second body fails, the first is not left half cut (F48)
     // an exact body is cut by the B-rep tool (falling back to the mesh kernel when that fails)
     const results = hits.map((b): { shape: BrepShape } | { mesh: THREE.BufferGeometry } => {
@@ -1279,8 +1394,24 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
         errors[f.id] = 'The base flange has no volume.';
         continue;
       }
+      // B-rep: the bent wall with true bend cylinders (a sketch of lines), or the tab as an exact plate
+      let flangeShape: BrepShape | null = null;
+      if (K) {
+        try {
+          const linesOnly = !Object.values(sketch.entities).some((e) => !e.construction && e.kind !== 'line' && e.kind !== 'point');
+          if (open && linesOnly) {
+            const loop = baseFlangeLoop(open.points, params, f.reverse);
+            const z0 = f.midPlane ? -f.depth / 2 : f.flipDir ? -f.depth : 0;
+            if (loop) flangeShape = K.extrudeLoop(plane, loop, z0, f.depth);
+          } else if (!open) {
+            flangeShape = K.extrude(sketch, plane, sketchContourRegions(sketch), f.reverse ? -params.thickness : 0, params.thickness);
+          }
+        } catch {
+          flangeShape = null;
+        }
+      }
       try {
-        addMaterial(g, f.id, f.merge !== false);
+        addMaterial(g, f.id, f.merge !== false, undefined, flangeShape ?? undefined);
         addBoss(g);
       } catch (err) {
         errors[f.id] = `Boolean operation failed: ${(err as Error).message}`;
@@ -1332,7 +1463,41 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
             lastErr = r.error ?? '';
             continue;
           }
-          b.geometry = f.type === 'miterFlange' ? csg(b.geometry, r.geometry, 'union') : r.geometry;
+          // B-rep jog: the fixed side, the moved side and the exact Z with its two bend cylinders
+          const exJ = exactOf(b);
+          const ej = f.type === 'miterFlange' ? undefined : (r as { exact?: ExactJog }).exact;
+          let jogDone = false;
+          const em = f.type === 'miterFlange' ? (r as { exact?: ExactMiter }).exact : undefined;
+          if (K && exJ && em) {
+            try {
+              let acc: BrepShape = exJ;
+              for (const leg of em.legs) {
+                let piece = K.extrudeLoop(leg.plane, em.loop, 0, leg.depth);
+                if (!piece) throw new Error('leg');
+                for (const c of leg.clips) piece = K.clipByPlane(piece, c.point, c.normal);
+                acc = K.fuse(acc, piece);
+              }
+              setExact(b, acc);
+              jogDone = true;
+            } catch {
+              jogDone = false;
+            }
+          }
+          if (!jogDone && K && exJ && ej && ej.loop) {
+            try {
+              const fixed = K.clipByPlane(exJ, ej.origin, ej.m);
+              const moving0 = K.clipByPlane(exJ, ej.origin, [-ej.m[0], -ej.m[1], -ej.m[2]]);
+              const moving = K.transform(moving0, ej.move);
+              const z = K.extrudeLoop(ej.plane, ej.loop, 0, ej.depth);
+              if (moving && z) {
+                setExact(b, K.fuse(K.fuse(fixed, z), moving));
+                jogDone = true;
+              }
+            } catch {
+              jogDone = false;
+            }
+          }
+          if (!jogDone) b.geometry = f.type === 'miterFlange' ? csg(b.geometry, r.geometry, 'union') : r.geometry;
           b.featureIds.push(f.id);
           addBoss(f.type !== 'miterFlange' ? (r as { region?: THREE.BufferGeometry }).region ?? r.geometry : r.geometry);
           built = true;
@@ -1360,8 +1525,26 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
           continue;
         }
         try {
-          if (r.trim) b.geometry = csg(b.geometry, r.trim, 'subtract');
-          b.geometry = csg(b.geometry, r.geometry, 'union');
+          // B-rep: the flange with a true bend cylinder on an exact sheet
+          const exF = exactOf(b);
+          let done = false;
+          if (K && exF && r.exact) {
+            try {
+              const prism = (x: NonNullable<typeof r.exact>['flange']) => K.extrudeLoop(x.plane, x.loop, x.reverse ? -x.depth : 0, x.depth);
+              let sh = exF;
+              if (r.exact.trim) { const tr = prism(r.exact.trim); if (!tr) throw new Error('trim'); sh = K.cut(sh, tr); }
+              const fl = prism(r.exact.flange);
+              if (!fl) throw new Error('flange');
+              setExact(b, K.fuse(sh, fl));
+              done = true;
+            } catch {
+              done = false;
+            }
+          }
+          if (!done) {
+            if (r.trim) b.geometry = csg(b.geometry, r.trim, 'subtract');
+            b.geometry = csg(b.geometry, r.geometry, 'union');
+          }
           b.featureIds.push(f.id);
           addBoss(r.geometry);
           const rr = ff.radius ?? params.bendRadius;
@@ -1438,8 +1621,13 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
         errors[f.id] = r.error ?? 'The rib could not be built.';
         continue;
       }
+      // B-rep: a rib of straight lines has planar faces only; its solid joins an exact body exactly
+      let ribShape: BrepShape | null = null;
+      if (K && !Object.values(sketch.entities).some((e) => !e.construction && e.kind !== 'line' && e.kind !== 'point')) {
+        try { ribShape = K.fromMesh(r.geometry); } catch { ribShape = null; }
+      }
       try {
-        addMaterial(r.geometry, f.id, true);
+        addMaterial(r.geometry, f.id, true, undefined, ribShape ?? undefined);
         addBoss(r.geometry);
       } catch (err) {
         errors[f.id] = `Boolean operation failed: ${(err as Error).message}`;
@@ -1730,10 +1918,10 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
             if (seed.type === 'helix') continue;
             const boss = seed.type === 'rib' || seed.type === 'baseFlange' || seed.op === 'boss';
             if (boss) {
-              addMaterial(ig, f.id, true, undefined, ish);
+              addMaterial(ig, f.id, true, undefined, ish ?? undefined);
               addBoss(ig);
             } else {
-              removeMaterial(ig, f.id, undefined, ish);
+              removeMaterial(ig, f.id, undefined, ish ?? undefined);
               history.cuts.push(ig);
             }
           }
@@ -2255,8 +2443,21 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
       }
       try {
         const built = structuralMembers(region, segs, f.corner, f.gap, f.mergeArcs);
+        const loops = K ? profileLoops(prof, f.rotation, !!f.mirror, f.locate) : null;
         for (const m of built) {
-          const b = newBody(m.geometry, f.id);
+          // B-rep: the profile prism (true circles for a pipe), cut back on the miter planes
+          let memberShape: BrepShape | null = null;
+          if (K && loops) {
+            try {
+              let sh = K.extrudeLoop(m.exact.plane, loops.outer, 0, m.exact.length);
+              for (const h of loops.holes) { const hs = sh && K.extrudeLoop(m.exact.plane, h, -1, m.exact.length + 2); if (sh && hs) sh = K.cut(sh, hs); }
+              for (const c of m.exact.clips) if (sh) sh = K.clipByPlane(sh, c.point, c.normal);
+              memberShape = sh;
+            } catch {
+              memberShape = null;
+            }
+          }
+          const b = newBody(m.geometry, f.id, memberShape);
           bodyMeta[b.id] = { kind: 'member', description: `${prof.type.toUpperCase()} ${prof.size}`, length: m.length, angle1: m.angle1, angle2: m.angle2 };
           addBoss(m.geometry);
         }
@@ -2274,6 +2475,25 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
       }
       try {
         for (const t of targets) {
+          // B-rep: an exact member cut by exact trimming bodies (no weld gap) or by the plane
+          const exT = exactOf(t);
+          if (K && exT) {
+            try {
+              let sh: BrepShape | null = null;
+              if (f.trimBy === 'bodies' && !(f.weldGap > 0)) {
+                const tb = bodies.filter((b) => f.trimBodies.includes(b.id) && b !== t);
+                if (tb.length && tb.every((b) => exactOf(b))) sh = tb.reduce((acc, b) => K.cut(acc, exactOf(b)!), exT);
+              } else if (f.trimBy !== 'bodies' && f.face) sh = K.clipByPlane(exT, f.face.point, f.face.normal);
+              if (sh) {
+                if (K.volume(sh) < 1e-9) bodies.splice(bodies.indexOf(t), 1);
+                else setExact(t, sh);
+                t.featureIds.push(f.id);
+                continue;
+              }
+            } catch {
+              /* the mesh kernel below */
+            }
+          }
           if (f.trimBy === 'bodies') {
             const tools = bodies.filter((b) => f.trimBodies.includes(b.id) && b !== t).map((b) => b.geometry);
             if (!tools.length) { errors[f.id] = 'Select the trimming bodies.'; break; }
@@ -2305,7 +2525,13 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
           const offset = f.useRatio ? Math.max(0, f.ratio) * (bodyMeta[owner?.id ?? '']?.kind === 'member' ? wall : 1) * 1 : Math.max(0, f.offset);
           const cap = endCapGeometry(hit.body, hit.face, f.thickness, offset, f.outward, f.chamfer);
           if (!cap) continue;
-          const b = newBody(cap, f.id);
+          // B-rep: the cap of a straight-sided tube (a polygon outline) is an exact plate
+          let capShape: BrepShape | null = null;
+          if (K && owner && exactOf(owner)) {
+            const outline = faceOutline(hit.body, hit.face);
+            if (outline && outline.region.outer.length <= 16) { try { capShape = K.fromMesh(cap); } catch { capShape = null; } }
+          }
+          const b = newBody(cap, f.id, capShape);
           bodyMeta[b.id] = { kind: 'cap', description: `End cap ${f.thickness} mm`, length: f.thickness, angle1: 0, angle2: 0 };
           made++;
         }
@@ -2418,8 +2644,11 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
       g.applyMatrix4(m);
       const tool = g.toNonIndexed();
       tool.computeVertexNormals();
+      // B-rep: a true cylinder
+      let studShape: BrepShape | null = null;
+      if (K) { try { studShape = K.axisymmetric([base.x, base.y, base.z], [n.x, n.y, n.z], [u.x, u.y, u.z], [{ t0: -0.5, t1: f.length, r0: f.diameter / 2, r1: f.diameter / 2 }]); } catch { studShape = null; } }
       try {
-        addMaterial(tool, f.id, true);
+        addMaterial(tool, f.id, true, undefined, studShape);
         addBoss(tool);
         // cosmetic thread: dashed circles at the minor diameter at the top and at the end of the thread
         const minor = f.diameter / 2 - 0.6134 * f.pitch;
@@ -2516,7 +2745,10 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
           const matched = f.edges.map((ref) => matchEdge(edges, ref)).filter((e): e is BodyEdge => !!e);
           if (!matched.length) continue;
           try {
-            const shape = f.type === 'fillet' ? K.fillet(ex, matched, f.size) : K.chamfer(ex, matched, f.size);
+            const perEdge = f.type === 'fillet' && (!!f.radii?.length || (f.roundType === 'variable' && !!f.variable));
+            const shape = perEdge
+              ? K.filletEach(ex, matched.map((e, ei) => (f.roundType === 'variable' && f.variable ? { edge: e, r1: Math.max(0.01, f.variable.start), r2: Math.max(0.01, f.variable.end) } : { edge: e, r1: f.radii?.[ei] ?? f.size })))
+              : f.type === 'fillet' ? K.fillet(ex, matched, f.size) : K.chamfer(ex, matched, f.size);
             setExact(b, shape);
             b.featureIds.push(f.id);
             const lost = f.edges.length - matched.length;
@@ -2815,6 +3047,32 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
         errors[f.id] = 'Select two solid bodies to intersect.';
         continue;
       }
+      // B-rep: two exact bodies give exact regions
+      if (K && exactOf(picked[0]) && exactOf(picked[1])) {
+        try {
+          const [A, B] = picked;
+          const ea = exactOf(A)!, eb = exactOf(B)!;
+          const regs: { key: 'common' | 'a' | 'b'; s: BrepShape }[] = [
+            { key: 'common', s: K.common(ea, eb) },
+            { key: 'a', s: K.cut(ea, eb) },
+            { key: 'b', s: K.cut(eb, ea) },
+          ];
+          const kept = regs.filter((r) => !f.exclude.includes(r.key) && K.volume(r.s) > 1e-9);
+          if (!kept.length) { errors[f.id] = 'All regions are excluded.'; continue; }
+          // every OpenCascade step first: a failure leaves the bodies as they were (mesh kernel below)
+          const merged = f.merge ? kept.slice(1).reduce((u, r) => K.fuse(u, r.s), kept[0].s) : null;
+          const tess = kept.map((r) => K.tessellate(r.s));
+          bodies.splice(bodies.indexOf(A), 1);
+          bodies.splice(bodies.indexOf(B), 1);
+          if (merged) {
+            const nb = newBody(tess[0], f.id, merged);
+            nb.featureIds = [...A.featureIds, ...B.featureIds, f.id];
+          } else kept.forEach((r, i) => newBody(tess[i], f.id, r.s));
+          continue;
+        } catch {
+          /* the mesh kernel below */
+        }
+      }
       try {
         const [A, B] = picked;
         const regions: { key: 'common' | 'a' | 'b'; g: THREE.BufferGeometry }[] = [
@@ -2845,6 +3103,31 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
       if (picked.length < (f.op === 'subtract' ? 1 : 2) || (f.op === 'subtract' && !f.mainBody)) {
         errors[f.id] = f.op === 'subtract' ? 'Select a main body and the bodies to subtract.' : 'Select at least two bodies to combine.';
         continue;
+      }
+      // B-rep: every picked body exact → the combination is exact
+      if (K && picked.every((b) => exactOf(b)) && (f.op !== 'subtract' || exactOf(bodies.find((b) => b.id === f.mainBody)))) {
+        try {
+          if (f.op === 'subtract') {
+            const main = bodies.find((b) => b.id === f.mainBody)!;
+            let sh = exactOf(main)!;
+            for (const b of picked) if (b !== main) sh = K.cut(sh, exactOf(b)!);
+            const gone = picked.filter((b) => b !== main);
+            setExact(main, sh);
+            for (const b of gone) { history.cuts.push(b.geometry); bodies.splice(bodies.indexOf(b), 1); }
+            main.featureIds.push(f.id);
+          } else {
+            const main = picked[0];
+            let sh = exactOf(main)!;
+            for (const b of picked.slice(1)) sh = f.op === 'add' ? K.fuse(sh, exactOf(b)!) : K.common(sh, exactOf(b)!);
+            const empty = K.volume(sh) < 1e-9;
+            for (const b of picked.slice(1)) bodies.splice(bodies.indexOf(b), 1);
+            if (empty) { bodies.splice(bodies.indexOf(main), 1); errors[f.id] = 'The bodies have nothing in common.'; }
+            else { setExact(main, sh); main.featureIds.push(f.id); }
+          }
+          continue;
+        } catch {
+          /* the mesh kernel below */
+        }
       }
       try {
         if (f.op === 'subtract') {
@@ -2888,7 +3171,7 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
     let toolShape: BrepShape | null = null;
     if (K) {
       try {
-        toolShape = brepTool(K, doc, fx, extent, r.geometry);
+        toolShape = brepTool(K, doc, fx, extent, r.geometry, all, (id) => exactOf(bodies.find((b) => b.id === id)));
       } catch {
         toolShape = null;
       }
@@ -2897,14 +3180,14 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
     try {
       if (sf.op === 'boss') {
         // Merge result (default on): join the bodies the new material touches; off: a separate body
-        addMaterial(r.geometry, f.id, sf.merge !== false, sf.scope, toolShape);
+        addMaterial(r.geometry, f.id, sf.merge !== false, sf.scope, toolShape ?? undefined);
         addBoss(r.geometry);
       } else {
         if (!body) {
           errors[f.id] = 'A cut needs an existing solid body.';
           continue;
         }
-        if (!removeMaterial(r.geometry, f.id, sf.scope, toolShape)) {
+        if (!removeMaterial(r.geometry, f.id, sf.scope, toolShape ?? undefined)) {
           errors[f.id] = 'The cut does not touch any body (check the Feature Scope).';
           continue;
         }

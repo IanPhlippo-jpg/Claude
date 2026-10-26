@@ -149,6 +149,67 @@ export function baseFlangeRegion(chain: SketchPoint[], p: SheetMetalParams, reve
   return { outer: area < 0 ? poly.slice().reverse() : poly, holes: [], area: Math.abs(area) };
 }
 
+/** a segment of an exact profile: a line, or a circular arc through `m` (B-rep kernel) */
+export interface ProfileSegment {
+  a: SketchPoint;
+  b: SketchPoint;
+  m?: SketchPoint;
+}
+
+/** roundCorners() as exact segments: lines between the bends, one true arc per bend (same tangent points and radii) */
+export function roundCornerSegments(pts: SketchPoint[], radiusAt: (i: number) => number): ProfileSegment[] {
+  const segs: ProfileSegment[] = [];
+  let from = pts[0];
+  for (let i = 1; i < pts.length - 1; i++) {
+    const p = pts[i];
+    const d1 = unit(sub(p, pts[i - 1]));
+    const d2 = unit(sub(pts[i + 1], p));
+    const turn = cross(d1, d2);
+    const dot = Math.max(-1, Math.min(1, d1.x * d2.x + d1.y * d2.y));
+    const theta = Math.acos(dot);
+    const r = radiusAt(i);
+    if (Math.abs(turn) < 1e-9 || theta < 1e-6 || r <= 1e-9) {
+      segs.push({ a: from, b: p });
+      from = p;
+      continue;
+    }
+    const tdist = r * Math.tan(theta / 2);
+    const maxA = len(sub(p, pts[i - 1])) * 0.999, maxB = len(sub(pts[i + 1], p)) * 0.999;
+    const td = Math.min(tdist, maxA, maxB);
+    const rr = td / Math.tan(theta / 2);
+    const t1 = { x: p.x - d1.x * td, y: p.y - d1.y * td };
+    const t2 = { x: p.x + d2.x * td, y: p.y + d2.y * td };
+    const s = turn > 0 ? 1 : -1;
+    const n1 = { x: -d1.y * s, y: d1.x * s };
+    const c = { x: t1.x + n1.x * rr, y: t1.y + n1.y * rr };
+    const a0 = Math.atan2(t1.y - c.y, t1.x - c.x);
+    const a1 = Math.atan2(t2.y - c.y, t2.x - c.x);
+    let sweep = a1 - a0;
+    while (sweep > Math.PI) sweep -= 2 * Math.PI;
+    while (sweep < -Math.PI) sweep += 2 * Math.PI;
+    const am = a0 + sweep / 2;
+    segs.push({ a: from, b: t1 });
+    segs.push({ a: t1, b: t2, m: { x: c.x + rr * Math.cos(am), y: c.y + rr * Math.sin(am) } });
+    from = t2;
+  }
+  segs.push({ a: from, b: pts[pts.length - 1] });
+  return segs.filter((g) => Math.hypot(g.b.x - g.a.x, g.b.y - g.a.y) > 1e-9);
+}
+
+/** the closed exact profile of a base flange (baseFlangeRegion with true bend arcs) */
+export function baseFlangeLoop(chain: SketchPoint[], p: SheetMetalParams, reverse = false): ProfileSegment[] | null {
+  if (chain.length < 2) return null;
+  const t = p.thickness, r = p.bendRadius;
+  const dl = reverse ? 0 : t, dr = reverse ? -t : 0;
+  const left = offsetPolyline(chain, dl, false);
+  const right = offsetPolyline(chain, dr, false);
+  const turnAt = (i: number) => cross(unit(sub(chain[i], chain[i - 1])), unit(sub(chain[i + 1], chain[i])));
+  const a = roundCornerSegments(left, (i) => (turnAt(i) > 0 ? r : r + t));
+  const b = roundCornerSegments(right, (i) => (turnAt(i) > 0 ? r + t : r));
+  const back = b.slice().reverse().map((g) => ({ a: g.b, b: g.a, m: g.m }));
+  return [...a, { a: left[left.length - 1], b: right[right.length - 1] }, ...back, { a: right[0], b: left[0] }];
+}
+
 /** Base flange solid: the bent wall extruded along the sketch normal (Blind or Mid Plane). */
 export function baseFlangeGeometry(chain: SketchPoint[], plane: PlaneDef, p: SheetMetalParams, depth: number, midPlane: boolean, reverse = false, flipDir = false): THREE.BufferGeometry | null {
   const region = baseFlangeRegion(chain, p, reverse);
@@ -205,7 +266,15 @@ export function flangeLeg(input: Pick<EdgeFlangeInput, 'angle' | 'length' | 'len
  * Edge Flange: a bend (inner radius r) plus a straight leg, swept along the selected edge. Built
  * as a 2D profile in the (outward, normal) plane of the edge and extruded along the edge.
  */
-export function edgeFlangeGeometry(input0: EdgeFlangeInput, p: SheetMetalParams): { geometry: THREE.BufferGeometry | null; error?: string; trim?: THREE.BufferGeometry | null } {
+/** an exact prism for the B-rep kernel: a closed loop of lines and arcs on a plane, extruded `depth` (reverse: the other way) */
+export interface ExactPrism {
+  plane: PlaneDef;
+  loop: ProfileSegment[];
+  depth: number;
+  reverse: boolean;
+}
+
+export function edgeFlangeGeometry(input0: EdgeFlangeInput, p: SheetMetalParams): { geometry: THREE.BufferGeometry | null; error?: string; trim?: THREE.BufferGeometry | null; exact?: { flange: ExactPrism; trim?: ExactPrism } } {
   let input = input0;
   const A = new THREE.Vector3(...input.a), B = new THREE.Vector3(...input.b);
   const u = B.clone().sub(A);
@@ -310,7 +379,28 @@ export function edgeFlangeGeometry(input0: EdgeFlangeInput, p: SheetMetalParams)
     trim = extrudeGeometry([{ outer: tp, holes: [], area: 0 }], tplane, { end: 'blind', depth: L - s0 - s1 + (full ? 2 * e : 0), reverse: along }, THROUGH_ALL, 0);
   }
   if (reliefs.length) trim = mergeGeometries(trim ? [trim, ...reliefs] : reliefs);
-  return { geometry: g, trim };
+  // the same flange as exact segments (true bend arcs) for the B-rep kernel; flanges with relief notches: mesh kernel
+  let exact: { flange: ExactPrism; trim?: ExactPrism } | undefined;
+  if (!reliefs.length) {
+    const phiMid = -Math.PI / 2 + theta / 2;
+    const mi = { x: C.x + r * Math.cos(phiMid), y: C.y + r * Math.sin(phiMid) };
+    const mo = { x: C.x + (r + t) * Math.cos(phiMid), y: C.y + (r + t) * Math.sin(phiMid) };
+    const Li = { x: Ei.x + tangent.x * leg, y: Ei.y + tangent.y * leg }, Lo = { x: Eo.x + tangent.x * leg, y: Eo.y + tangent.y * leg };
+    const loop: ProfileSegment[] = [{ a: inner[0], b: Ei, m: mi }];
+    if (leg > 1e-9) loop.push({ a: Ei, b: Li }, { a: Li, b: Lo }, { a: Lo, b: Eo });
+    else loop.push({ a: Ei, b: Eo });
+    loop.push({ a: Eo, b: outer[0], m: mo }, { a: outer[0], b: inner[0] });
+    exact = { flange: { plane: flangePlane, loop, depth: L - s0 - s1, reverse: along } };
+    if (shift < -1e-9) {
+      const e = 0.05;
+      const tp = [{ x: shift, y: -t - e }, { x: e, y: -t - e }, { x: e, y: e }, { x: shift, y: e }];
+      const eAB = B.clone().sub(A).normalize();
+      const full = s0 < 1e-9 && s1 < 1e-9;
+      const o = A1.clone().addScaledVector(eAB, full ? -e : 0);
+      exact.trim = { plane: { ...plane, origin: [o.x, o.y, o.z] }, loop: tp.map((q, i) => ({ a: q, b: tp[(i + 1) % 4] })), depth: L - s0 - s1 + (full ? 2 * e : 0), reverse: along };
+    }
+  }
+  return { geometry: g, trim, exact };
 }
 
 /** How far a flange cuts the sheet back (Material Inside); 0 for Material Outside / Bend Outside. */
