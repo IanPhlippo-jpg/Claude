@@ -2253,7 +2253,7 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
         if (f.keepFeatures !== false && r.tools && history.cuts.length) {
           const toolBox = new THREE.Box3();
           for (const t of [...r.tools.cutters, ...r.tools.adders]) { t.computeBoundingBox(); if (t.boundingBox) toolBox.union(t.boundingBox); }
-          const mids = r.edges.filter((e) => f.edges.some((ref) => matchEdge([e], ref))).map((e) => e.centroid);
+          const mids = f.edges.map((ref) => matchEdge(r.edges, ref)).filter((e): e is BodyEdge => !!e).map((e) => e.centroid);
           for (const c of history.cuts) {
             c.computeBoundingBox();
             if (!c.boundingBox || !c.boundingBox.intersectsBox(toolBox)) continue;

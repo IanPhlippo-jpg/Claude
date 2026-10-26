@@ -89,9 +89,40 @@ export function ExportOptionsDialog() {
   const [positive, setPositive] = useState(getPref<boolean>('export.keepPosition') !== true);
   const [single, setSingle] = useState(getPref<boolean>('export.singleFile') !== false);
   const bodies = st.rebuild.bodies.map((b, i) => ({ geometry: b.geometry, name: `Body${i + 1}` }));
+  // STEP (QA F51): every body becomes a B-rep solid in OpenCascade (worker), planar faces merged
+  const runStep = () => {
+    st.setDialog(null);
+    st.pushMessage('Writing STEP…', 'info');
+    const name = `${st.doc.name}.step`;
+    const list = st.rebuild.bodies.map((b, i) => {
+      const g = b.geometry.index ? b.geometry.toNonIndexed() : b.geometry;
+      return { name: `Body${i + 1}`, positions: new Float32Array(g.getAttribute('position').array) };
+    });
+    import('../core/occt/occtClient')
+      .then((m) => m.exportStep(list, (unit ?? 'mm') as 'mm' | 'cm' | 'm' | 'in'))
+      .then(async ({ bytes, volumes }) => {
+        const data = bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer;
+        const save = async () => {
+          const api = desktop();
+          if (api) await api.saveFileAs({ defaultPath: name, filters: [{ name: 'STEP AP214', extensions: ['step', 'stp'] }], data });
+          else {
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(new Blob([data], { type: 'model/step' }));
+            a.download = name;
+            a.click();
+            URL.revokeObjectURL(a.href);
+          }
+          st.pushMessage(`${name} saved (${volumes.length} ${volumes.length === 1 ? 'solid' : 'solids'}).`, 'info');
+        };
+        if (showInfo) st.setAsk({ title: 'STEP Info', text: `${volumes.length} ${volumes.length === 1 ? 'solid' : 'solids'}, AP214, unit ${unit}; volume ${volumes.map((v) => v.toFixed(2)).join(', ')} mm³. Save?`, yes: () => { void save(); } });
+        else await save();
+      })
+      .catch((err: Error) => st.pushMessage(`Cannot write STEP: ${err.message}`, 'error'));
+  };
   const run = () => {
     st.setPrefs({ ...st.prefs, 'export.ascii': ascii, 'export.unit': unit ?? 'mm', 'export.resolution': resolution, 'export.deviation': deviation, 'export.angle': angle, 'export.showInfo': showInfo, 'export.keepPosition': !positive, 'export.singleFile': single });
     if (!bodies.length) return st.pushMessage('There is no solid body to export; create one first (Extruded Boss/Base).', 'warn');
+    if (fmt === 'step') return runStep();
     const r = exportMesh(bodies, st.doc.name, { format: fmt, ascii, unit, keepPosition: !positive, singleFile: single });
     const save = async () => {
       const api = desktop();
@@ -115,6 +146,13 @@ export function ExportOptionsDialog() {
   return (
     <Dialog title={`Export Options — ${fmt.toUpperCase()}`} onClose={() => st.setDialog(null)} data-testid="export-options">
       <div className="k-form" style={{ minWidth: 420 }}>
+        {fmt === 'step' && (
+          <div className="k-field"><label>Output as</label>
+            <select className="k-input" data-testid="export-step-schema" value="ap214" onChange={() => undefined}>
+              <option value="ap214">AP214</option>
+            </select>
+          </div>
+        )}
         {fmt === 'stl' && (
           <div className="k-field"><label>Output as</label>
             <div className="k-pm-radios" data-testid="export-output">

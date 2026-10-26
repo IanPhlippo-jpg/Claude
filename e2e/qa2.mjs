@@ -109,7 +109,7 @@ await page.waitForTimeout(200);
 check('10 000 instances are refused', !!(await S(() => window.__phlippoStore.getState().featureEdit)) && /Too many instances/.test(await lastMsg()), await lastMsg());
 await S(() => window.__phlippoStore.getState().cancelFeature());
 
-console.log('step 5: dangling edge references: a fillet on the four vertical edges, then the plate grows → the edges move → warning');
+console.log('step 5: edge references: a fillet on the four vertical edges keeps them when the plate grows (F47); a reference to an edge that is gone gives a warning');
 // ---- dangling edge references: a fillet on the four vertical edges, then the plate grows → the edges move → warning
 await S(() => {
   const s = window.__phlippoStore.getState();
@@ -126,8 +126,21 @@ const f0 = await S(() => { const s = window.__phlippoStore.getState(); const f =
 check('fillet on the four vertical edges builds clean', f0.edges === 4 && !f0.err, JSON.stringify(f0));
 await S(() => { const s = window.__phlippoStore.getState(); s.applyDocument('Depth', { ...s.doc, features: s.doc.features.map((f) => (f.id === 'e1' ? { ...f, depth: 40 } : f)) }); });
 await page.waitForTimeout(600);
+const volOf = () => S(() => window.__phlippoStore.getState().rebuild.bodies.reduce((a, b) => { const g = b.geometry.index ? b.geometry.toNonIndexed() : b.geometry; const p = g.getAttribute('position'); let v = 0; for (let k = 0; k < p.count; k += 3) { const ax = p.getX(k), ay = p.getY(k), az = p.getZ(k), bx = p.getX(k + 1), by = p.getY(k + 1), bz = p.getZ(k + 1), cx = p.getX(k + 2), cy = p.getY(k + 2), cz = p.getZ(k + 2); v += (ax * (by * cz - bz * cy) - ay * (bx * cz - bz * cx) + az * (bx * cy - by * cx)) / 6; } return a + Math.abs(v); }, 0));
 const f1 = await S(() => { const s = window.__phlippoStore.getState(); const f = s.doc.features.find((x) => x.type === 'fillet'); return { err: s.rebuild.errors[f?.id] ?? '', bodies: s.rebuild.bodies.length }; });
-check('after the plate grows the fillet reports its lost references instead of failing silently', /dangling|could not be found/i.test(f1.err) && f1.bodies === 1, JSON.stringify(f1));
+const withFillet = await volOf();
+await S(() => { const s = window.__phlippoStore.getState(); s.applyDocument('Suppress', { ...s.doc, features: s.doc.features.map((f) => (f.type === 'fillet' ? { ...f, suppressed: true } : f)) }); });
+await page.waitForTimeout(400);
+const without = await volOf();
+await S(() => window.__phlippoStore.getState().undo());
+await page.waitForTimeout(400);
+const removed = 4 * (1 - Math.PI / 4) * 9 * 40;
+check('after the plate grows to 40 mm the fillet keeps all four vertical edges (F47)', !f1.err && f1.bodies === 1 && Math.abs(without - withFillet - removed) < removed * 0.15, `${JSON.stringify(f1)} removed ${(without - withFillet).toFixed(1)} of ${removed.toFixed(1)}`);
+// a reference to an edge that no longer exists (other faces): reported, not silent
+await S(() => { const s = window.__phlippoStore.getState(); s.applyDocument('Ref', { ...s.doc, features: s.doc.features.map((f) => (f.type === 'fillet' ? { ...f, edges: f.edges.map((r, k) => (k === 0 ? { ...r, centroid: [999, 999, 999], normals: [[0.6, 0.8, 0], [0, 0.6, 0.8]] } : r)) } : f)) }); });
+await page.waitForTimeout(500);
+const f2 = await S(() => { const s = window.__phlippoStore.getState(); const f = s.doc.features.find((x) => x.type === 'fillet'); return { err: s.rebuild.errors[f?.id] ?? '', bodies: s.rebuild.bodies.length }; });
+check('a fillet whose edge is gone reports its lost reference instead of failing silently', /dangling|could not be found/i.test(f2.err) && f2.bodies === 1, JSON.stringify(f2));
 await page.screenshot({ path: `${OUT}/qa2-dangling.png` });
 
 console.log('step 6: mouse gestures: right-drag to the right = Right view; in a sketch left = Line');

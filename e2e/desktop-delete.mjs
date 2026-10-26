@@ -16,9 +16,11 @@ await page.waitForSelector('.k-viewport', { timeout: 30000 });
 await page.waitForTimeout(800);
 // the installed app holds the user's own autosave: keep a copy and put it back at the end
 const savedAutosave = await page.evaluate(() => localStorage.getItem('phlippo.autosave'));
+let failures = 0;
 const alive = async (label) => {
   const r = await Promise.race([page.evaluate(() => 1), new Promise((res) => setTimeout(() => res('timeout'), 5000))]);
   console.log(`${r === 1 ? 'ok  ' : 'FAIL'} ${label}`);
+  if (r !== 1) failures++;
   return r === 1;
 };
 await page.click('.k-doctype:has-text("Part")').catch(() => undefined);
@@ -52,4 +54,7 @@ await alive('Delete the sketch feature');
 await page.screenshot({ path: 'e2e-out/desktop-delete.png' }).catch(() => undefined);
 console.log('logs:', logs.slice(-10));
 await page.evaluate((a) => (a === null ? localStorage.removeItem('phlippo.autosave') : localStorage.setItem('phlippo.autosave', a)), savedAutosave).catch(() => undefined);
-await app.close();
+// the window may ask to save the changed part when it closes: close with a time limit, then end the process
+await Promise.race([app.close(), new Promise((res) => setTimeout(res, 10000))]);
+try { app.process().kill(); } catch { /* already closed */ }
+process.exit(failures ? 1 : 0);

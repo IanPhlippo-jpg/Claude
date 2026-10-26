@@ -44,6 +44,10 @@ Status per fase:
 8. Sheet metal (Base Flange/Tab, Edge Flange, Flatten met K-factor) — **basis gereed**; Hem/Jog/Miter/Unfold gepland
 7. Massa-eigenschappen en meten — **gereed** (Mass Properties, Measure); materialen en rendering gepland
 
+## Status 0.3.7 (2026-10-26)
+
+STEP in en uit via OpenCascade (File ▸ Open van *.step/*.stp, Save As ▸ STEP AP214), in een eigen worker die pas bij het eerste gebruik laadt. Afrondingen en afschuiningen houden hun rand als een eerdere feature hem verschuift. Geen code signing (besluit): zie docs/14-brep-kern-0.3.7.md, met de metingen van de B-rep-spike en het migratiepad.
+
 ## Status 0.3.6 (2026-10-26)
 
 De open punten van het QA-rapport over 0.3.4 die zonder externe beslissing af konden: de hoofdbundel van 2 168 naar 830 kB (dialogen en panelen als eigen chunk, three/CSG/React/kernel apart), de store opgesplitst in negen slices met componenten die alleen hun eigen velden lezen, interne namen zonder programmanamen (bestandsformaat 2 met automatische omzetting van format 1, oude optiesleutels blijven gelden), taakvenster-tabs op referentiemaat en een haalbaarheidsoordeel voor rebuild in een worker. Per punt: docs/13-vervolg-0.3.6.md. Unit tests 346, regressie 81/81.

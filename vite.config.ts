@@ -6,7 +6,7 @@ import { readFileSync } from 'node:fs';
 const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf-8')) as { version: string };
 
 /** the built page carries a Content-Security-Policy (the dev server needs inline scripts for React Fast Refresh) */
-const CSP = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; media-src 'self' blob:; worker-src 'self' blob:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'"; // frame-ancestors is header-only (the Electron shell sends it as a header)
+const CSP = "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; media-src 'self' blob:; worker-src 'self' blob:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'"; // frame-ancestors is header-only (the Electron shell sends it as a header)
 const csp = (): Plugin => ({
   name: 'phlippo-csp',
   apply: 'build',

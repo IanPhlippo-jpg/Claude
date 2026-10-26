@@ -968,7 +968,7 @@ export interface State {
   /** Feature Properties… / Parent/Child… work on this feature */
   dialogFeatureId: Id | null;
   /** Save As ▸ STL / 3MF / AMF: the options page exports in this format */
-  exportFormat: 'stl' | '3mf' | 'amf';
+  exportFormat: 'stl' | '3mf' | 'amf' | 'step';
   setLastCommand(c: { label: string; run: () => void } | null): void;
   /** counts opened documents: the graphics area zooms to fit each newly opened one, by design */
   openSeq: number;
@@ -981,7 +981,8 @@ export interface State {
   /** Modify box: "= expression" links a sketch dimension to an equation (empty expression unlinks) */
   setDimensionEquation(constraintId: Id, expression: string | null): void;
   /** add an imported mesh (STL) as a feature; a fresh document is named after the file */
-  importMesh(source: string, positions: number[]): void;
+  /** an imported file (STL: one mesh; STEP: one mesh per solid) as Imported features, one per body */
+  importMesh(source: string, positions: number[] | number[][]): void;
   setUnits(u: Units): void;
   renameDocument(name: string): void;
   newSketch(plane: Sketch['plane']): void;

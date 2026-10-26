@@ -564,3 +564,11 @@ elease; README en docs/04 bijgewerkt
 - [x] F21/F16: taakvenster-iconen en lettermaten naast de referentieframes
 - [x] F46: haalbaarheid van rebuild in een worker beoordelen; wat kan zonder de hele store async te maken
 - [x] tsc, unit, volledige regressie, desktop-checks, installer 0.3.6, screenshots, commit + tag (regressie 81/81, unit 346, desktop 8/8 + 10/10 + delete, geïnstalleerd 9/9)
+
+## Vervolg 38: zonder certificaat, B-rep-kern en stabiele randen (2026-10-26)
+- [x] F49: geen code signing (Ian levert geen certificaat); SmartScreen-stap documenteren, F49 sluiten
+- [x] F47: randverwijzingen met richting en aanliggende vlaknormalen; een rand die door een eerdere feature verschuift wordt teruggevonden (unit test + e2e)
+- [x] F51 spike: OpenCascade (replicad + opencascade-wasm) in een worker; extrude, fillet op echte topologie, volume tegen de mesh-kern, tijd en bundelgrootte gemeten
+- [x] F51: STEP importeren (File ▸ Open / Insert ▸ Imported) en STEP exporteren via OpenCascade, zoals SOLIDWORKS
+- [x] Beslisdocument kern (docs/14) met meetwaarden en migratiepad
+- [ ] tsc, unit, regressie, desktop, installer 0.3.7, screenshots, commit + tag

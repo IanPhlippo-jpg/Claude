@@ -18,6 +18,7 @@ const APP_VERSION: string = typeof __APP_VERSION__ === 'string' ? __APP_VERSION_
 
 const KCAD_FILTERS = [{ name: 'Phlippo CAD part', extensions: ['kcad'] }, { name: 'All files', extensions: ['*'] }];
 const STL_FILTERS = [{ name: 'STL', extensions: ['stl'] }];
+const STEP_FILTERS = [{ name: 'STEP AP203/214/242', extensions: ['step', 'stp'] }];
 
 function download(name: string, data: BlobPart, type: string) {
   const blob = new Blob([data], { type });
@@ -139,11 +140,35 @@ export function saveStl() {
   pushMessage(`${doc.name}.stl saved.`);
 }
 
-/** Open a file: a loaded document (.kcad) or an imported mesh (.stl). */
+/**
+ * File ▸ Open of a STEP file (QA F51): read by OpenCascade in its worker and opened as a new part with one Imported
+ * body per solid, as a desktop CAD program opens a neutral file.
+ */
+function openStep(name: string, data: ArrayBuffer) {
+  const st = useStore.getState();
+  st.pushMessage(`Reading ${name}…`, 'info');
+  import('../core/occt/occtClient')
+    .then((m) => m.importStep(new Uint8Array(data.slice(0))))
+    .then((bodies) => {
+      if (!bodies.length) throw new Error('the file has no solids or surfaces');
+      const meshes = bodies.map((b) => Array.from(b.positions, (v) => Math.round(v * 1e5) / 1e5));
+      withUnsavedCheck(() => {
+        const s = useStore.getState();
+        s.newDocument('part');
+        s.importMesh(name, meshes);
+        setDocumentHandle(null);
+        s.setDialog(null);
+      });
+    })
+    .catch((err: Error) => useStore.getState().pushMessage(`Cannot open ${name}: ${err.message}`, 'error'));
+}
+
+/** Open a file: a loaded document (.kcad), an imported mesh (.stl) or a STEP file (.step, .stp). */
 export function openFileData(name: string, data: ArrayBuffer, handle: string | null) {
   const st = useStore.getState();
   try {
     if (data.byteLength > MAX_FILE_BYTES) throw new Error(`the file is larger than ${Math.round(MAX_FILE_BYTES / 1024 / 1024)} MB`);
+    if (/\.(step|stp)$/i.test(name)) return openStep(name, data);
     if (/\.stl$/i.test(name)) st.importMesh(name, parseStl(data));
     else if (st.doc.kind === 'drawing' && st.drawingEdit?.mode === 'modelView' && !st.drawingEdit.model) {
       const model = parseDocument(new TextDecoder().decode(data));
@@ -181,7 +206,7 @@ export function openDesktopFile(f: { name: string; handle: string; data?: ArrayB
 export function openFileDialog() {
   const api = desktop();
   if (api) {
-    api.openFile([{ name: 'Phlippo CAD files', extensions: ['kcad', 'json', 'stl'] }, ...KCAD_FILTERS, ...STL_FILTERS]).then((f) => f && openDesktopFile(f));
+    api.openFile([{ name: 'Phlippo CAD files', extensions: ['kcad', 'json', 'stl', 'step', 'stp'] }, ...KCAD_FILTERS, ...STL_FILTERS, ...STEP_FILTERS]).then((f) => f && openDesktopFile(f));
     return;
   }
   (document.getElementById('phlippo-open-file') as HTMLInputElement | null)?.click();
@@ -239,6 +264,7 @@ export function MenuBar() {
       { label: 'Save As ▸ STL (*.stl)…', onSelect: () => { useStore.setState({ exportFormat: 'stl' }); st.setDialog('exportOptions'); } },
       { label: 'Save As ▸ 3MF (*.3mf)…', onSelect: () => { useStore.setState({ exportFormat: '3mf' }); st.setDialog('exportOptions'); } },
       { label: 'Save As ▸ AMF (*.amf)…', onSelect: () => { useStore.setState({ exportFormat: 'amf' }); st.setDialog('exportOptions'); } },
+      { label: 'Save As ▸ STEP AP214 (*.step)…', disabled: !st.rebuild.bodies.length, onSelect: () => { useStore.setState({ exportFormat: 'step' }); st.setDialog('exportOptions'); } },
       { label: 'Save All', onSelect: () => saveDocument() },
       { separator: true },
       { label: 'Print…', icon: <Icon.Print />, shortcut: 'Ctrl+P', onSelect: () => window.print() },
@@ -443,7 +469,7 @@ export function MenuBar() {
         id="phlippo-open-file"
         ref={fileRef}
         type="file"
-        accept={FILE_EXTENSION + ',.json,.stl'}
+        accept={FILE_EXTENSION + ',.json,.stl,.step,.stp'}
         style={{ display: 'none' }}
         onChange={async (e) => {
           const f = e.target.files?.[0];

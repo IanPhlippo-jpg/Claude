@@ -36,13 +36,21 @@ export const documentSlice = (set: StoreSet, get: StoreGet): Pick<State, Documen
     const fresh = !doc.features.length && !Object.keys(doc.sketches).length;
     const start: Document = fresh ? { ...doc, name: base } : doc;
     history.push('Import', doc);
-    const feature: ImportedFeature = { id: newId('f'), type: 'imported', name: featureName(start, 'imported'), suppressed: false, positions, source };
-    const d: Document = { ...start, features: [...start.features, feature] };
+    const list = (positions.length && Array.isArray(positions[0]) ? positions : [positions]) as number[][];
+    let d: Document = start;
+    const added: ImportedFeature[] = [];
+    for (const pos of list) {
+      const feature: ImportedFeature = { id: newId('f'), type: 'imported', name: featureName(d, 'imported'), suppressed: false, positions: pos, source };
+      added.push(feature);
+      d = { ...d, features: [...d.features, feature] };
+    }
     const rebuild = rebuildFor(d, null);
-    set({ doc: d, rebuild, activeSketchId: null, featureEdit: null, selectedFeatureId: feature.id, selectedFace: null, selection: [], dirty: true, tab: 'features', rollbackIndex: null, ...historyFlags() });
-    const err = rebuild.errors[feature.id];
-    if (err) get().pushMessage(`${feature.name}: ${err}`, 'error');
-    else get().pushMessage(`${source} imported as ${feature.name} (${positions.length / 9} triangles).`);
+    set({ doc: d, rebuild, activeSketchId: null, featureEdit: null, selectedFeatureId: added[added.length - 1]?.id ?? null, selectedFace: null, selection: [], dirty: true, tab: 'features', rollbackIndex: null, ...historyFlags() });
+    const failed = added.filter((f) => rebuild.errors[f.id]);
+    const triangles = list.reduce((n, p) => n + p.length / 9, 0);
+    if (failed.length) get().pushMessage(`${failed[0].name}: ${rebuild.errors[failed[0].id]}`, 'error');
+    else if (added.length === 1) get().pushMessage(`${source} imported as ${added[0].name} (${triangles} triangles).`);
+    else get().pushMessage(`${source} imported: ${added.length} bodies, ${added[0].name} to ${added[added.length - 1].name} (${triangles} triangles).`);
     autosave(d);
   },
   applyDocument(label, d) {

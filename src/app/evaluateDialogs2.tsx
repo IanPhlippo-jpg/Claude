@@ -48,6 +48,7 @@ export function SaveAsDialog() {
         <option value="stl">STL (*.stl)</option>
         <option value="3mf">3MF (*.3mf)</option>
         <option value="amf">AMF (*.amf)</option>
+        <option value="step">STEP AP214 (*.step)</option>
       </select>
       <fieldset className="k-fieldset" style={{ marginTop: 8 }}><legend>Save as</legend>
         <label className="k-check"><input type="radio" name="saveas" checked={copy === 'none'} onChange={() => setCopy('none')} /> Save as (the open document takes the new name)</label>

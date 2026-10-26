@@ -21,12 +21,20 @@ export interface BodyEdge {
   centroid: THREE.Vector3;
 }
 
-/** Reference to an edge that survives a rebuild: matched by centroid, length and shape. */
+/**
+ * Reference to an edge that survives a rebuild: matched by centroid, length and shape. Since 0.3.7 (QA F47) also the
+ * direction of a straight edge and the normals of the two faces it joins, so an edge that an earlier feature moved
+ * (a deeper extrude, a longer plate) is found again by what it is instead of where it was.
+ */
 export interface EdgeRef {
   centroid: [number, number, number];
   length: number;
   closed: boolean;
   straight: boolean;
+  /** unit direction of a straight edge */
+  dir?: [number, number, number];
+  /** normals of the two faces the edge joins (at its middle) */
+  normals?: [[number, number, number], [number, number, number]];
 }
 
 const Q = 1e-3;
@@ -236,23 +244,81 @@ export function bodyEdges(g: THREE.BufferGeometry, bodyId: string, thresholdDeg 
   return edges;
 }
 
+const v3 = (v: THREE.Vector3): [number, number, number] => [round6(v.x), round6(v.y), round6(v.z)];
+const round6 = (x: number) => Math.round(x * 1e6) / 1e6;
+
+/** the segment in the middle of the chain (its normals stand for the faces the edge joins) */
+function midSegment(e: BodyEdge): CreaseSegment {
+  let best = e.segments[0], bd = Infinity;
+  for (const s of e.segments) {
+    const d = s.a.clone().add(s.b).multiplyScalar(0.5).distanceTo(e.centroid);
+    if (d < bd) { bd = d; best = s; }
+  }
+  return best;
+}
+
+function edgeDir(e: BodyEdge): THREE.Vector3 {
+  return e.points[e.points.length - 1].clone().sub(e.points[0]).normalize();
+}
+
 export function edgeRef(e: BodyEdge): EdgeRef {
-  return { centroid: [e.centroid.x, e.centroid.y, e.centroid.z], length: e.length, closed: e.closed, straight: e.straight };
+  const m = midSegment(e);
+  return {
+    centroid: [e.centroid.x, e.centroid.y, e.centroid.z], length: e.length, closed: e.closed, straight: e.straight,
+    ...(e.straight && !e.closed ? { dir: v3(edgeDir(e)) } : {}),
+    normals: [v3(m.n1.clone().normalize()), v3(m.n2.clone().normalize())],
+  };
+}
+
+/** both face normals agree (in either order); for a curved edge one of them is enough (the other turns along it) */
+function sameNormals(e: BodyEdge, ref: EdgeRef): boolean {
+  if (!ref.normals) return true;
+  const m = midSegment(e);
+  const [r1, r2] = ref.normals.map((n) => new THREE.Vector3(...n));
+  const a = m.n1.clone().normalize(), b = m.n2.clone().normalize();
+  const eq = (x: THREE.Vector3, y: THREE.Vector3) => x.dot(y) > 0.995;
+  if (e.straight) return (eq(a, r1) && eq(b, r2)) || (eq(a, r2) && eq(b, r1));
+  return eq(a, r1) || eq(a, r2) || eq(b, r1) || eq(b, r2);
 }
 
 /** Find the edge of a body that a reference points to (after a rebuild). */
 export function matchEdge(edges: BodyEdge[], ref: EdgeRef, tol: number = TOL.reference): BodyEdge | null {
   let best: BodyEdge | null = null, bestD = Infinity;
+  const c = new THREE.Vector3(...ref.centroid);
   for (const e of edges) {
     if (e.closed !== ref.closed || e.straight !== ref.straight) continue;
     if (Math.abs(e.length - ref.length) > Math.max(0.5, ref.length * 0.05)) continue;
-    const d = e.centroid.distanceTo(new THREE.Vector3(...ref.centroid));
+    const d = e.centroid.distanceTo(c);
     if (d < tol && d < bestD) {
       best = e;
       bestD = d;
     }
   }
-  return best;
+  if (best) return best;
+  return matchMovedEdge(edges, ref);
+}
+
+/**
+ * The edge moved or changed length (an earlier feature was edited): the edge of the same kind with the same direction
+ * and the same two faces, nearest to where it was. Ambiguous cases (two equally near candidates) are not guessed.
+ */
+function matchMovedEdge(edges: BodyEdge[], ref: EdgeRef): BodyEdge | null {
+  if (!ref.normals) return null;
+  const c = new THREE.Vector3(...ref.centroid);
+  const dir = ref.dir ? new THREE.Vector3(...ref.dir) : null;
+  const cands: { e: BodyEdge; d: number }[] = [];
+  for (const e of edges) {
+    if (e.closed !== ref.closed || e.straight !== ref.straight) continue;
+    if (dir && Math.abs(edgeDir(e).dot(dir)) < 0.999) continue;
+    // a curved edge keeps its size unless its own sketch changed: allow a moderate change only
+    if (!e.straight && Math.abs(e.length - ref.length) > Math.max(1, ref.length * 0.25)) continue;
+    if (!sameNormals(e, ref)) continue;
+    cands.push({ e, d: e.centroid.distanceTo(c) });
+  }
+  if (!cands.length) return null;
+  cands.sort((x, y) => x.d - y.d);
+  if (cands.length > 1 && cands[1].d - cands[0].d < Math.max(0.5, cands[0].d * 0.1)) return null;
+  return cands[0].e;
 }
 
 

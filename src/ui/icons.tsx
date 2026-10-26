@@ -291,6 +291,15 @@ export const Icon = {
       <path d="M4 10l5-5h11l-5 5z" fill={C.blueL} /><path d="M4 10h11v10H4z" fill={C.blue} /><path d="M15 10l5-5v10l-5 5z" fill={C.blueD} />
     </svg>
   ),
+  /** an imported body (STEP/STL): a solid block with the arrow of a file coming in, own design */
+  Imported: ({ size = 16, ...p }: P) => (
+    <svg {...base(size, p)}>
+      <path d="M8 9l6-4 7 3v9l-6 4-7-3z" fill={C.blueL} stroke={C.blue} strokeWidth={1.1} strokeLinejoin="round" />
+      <path d="M8 9l7 3 6-4M15 12v9" fill="none" stroke={C.blue} strokeWidth={1} />
+      <path d="M2 15h6" stroke={C.yellowD} strokeWidth={1.8} strokeLinecap="round" />
+      <path d="M6 12.5l2.5 2.5L6 17.5" fill="none" stroke={C.yellowD} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  ),
   Combine: ({ size = 16, ...p }: P) => (
     <svg {...base(size, p)}>
       <rect x="3" y="3" width="12" height="12" fill={C.blueL} stroke={C.blue} strokeWidth={1.2} />

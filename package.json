@@ -1,7 +1,7 @@
 {
   "name": "phlippo-cad",
   "private": true,
-  "version": "0.3.6",
+  "version": "0.3.7",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -22,6 +22,8 @@
   "dependencies": {
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "replicad": "^1.2.0",
+    "replicad-opencascadejs": "^1.1.0",
     "three": "^0.180.0",
     "three-bvh-csg": "^0.0.18",
     "three-mesh-bvh": "^0.9.16",
@@ -63,6 +65,9 @@
       "THIRD-PARTY-NOTICES.txt"
     ],
     "asar": true,
+    "asarUnpack": [
+      "dist/assets/replicad_single-*"
+    ],
     "electronFuses": {
       "runAsNode": false,
       "enableCookieEncryption": true,

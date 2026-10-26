@@ -15,6 +15,9 @@ const check = (name, ok, detail = '') => {
 
 const app = await electron.launch({ args: ['.'], env: { ...process.env, PHLIPPO_E2E: '1', VITE_DEV_SERVER_URL: '', PHLIPPO_USER_DATA: profile } });
 const page = await app.firstWindow();
+const consoleLog = [];
+page.on('console', (m) => consoleLog.push(`${m.type()}: ${m.text()}`.slice(0, 300)));
+page.on('pageerror', (e) => consoleLog.push(`pageerror: ${e.message}`.slice(0, 300)));
 await page.waitForSelector('.k-viewport', { timeout: 30000 });
 await page.waitForTimeout(800);
 // start-up as the original: the Welcome dialog over an empty window (no document is made: this runs in the real profile)
@@ -45,6 +48,24 @@ await page.click('.k-doctype:has-text("Assembly")');
 await page.waitForTimeout(800);
 const opens = await app.evaluate(() => globalThis.__opens);
 check('a new assembly opens the file dialog for Insert Component (F28)', opens === 1 && (await page.evaluate(() => window.__phlippoStore.getState().insertingComponent)) === true, String(opens));
+// F51: File > Open of a STEP file in the desktop app: the OpenCascade worker and its WebAssembly start under app://
+// with the Content-Security-Policy of the shell (the native dialog is stubbed and returns the fixture)
+const stepFile = (await import('node:path')).resolve('e2e/fixtures/plate-hole.step');
+await app.evaluate(({ dialog }, f) => { globalThis.__stepOpens = 0; dialog.showOpenDialog = async () => { globalThis.__stepOpens++; return { canceled: false, filePaths: [f] }; }; }, stepFile);
+await page.evaluate(() => window.__phlippoStore.getState().cancelInsertComponent?.());
+await page.evaluate(() => window.__phlippoStore.getState().setDialog('welcome'));
+await page.waitForTimeout(300);
+await page.click('.k-doctype:has-text("Part")');
+await page.waitForTimeout(500);
+await page.evaluate(() => (document.activeElement instanceof HTMLElement ? document.activeElement.blur() : undefined));
+await page.keyboard.press('Escape');
+await page.keyboard.press('Control+o');
+await page.locator('[data-testid="ask-no"]').click({ timeout: 5000 }).catch(() => undefined);
+const stepOk = await page.waitForFunction(() => window.__phlippoStore.getState().doc.features.some((f) => f.type === 'imported'), null, { timeout: 60000 }).then(() => true, () => false);
+const stepState = await page.evaluate(() => { const s = window.__phlippoStore.getState(); return { name: s.doc.name, bodies: s.rebuild.bodies.length, msgs: s.messages.map((m) => m.text).slice(-2) }; });
+stepState.opens = await app.evaluate(() => globalThis.__stepOpens);
+if (!stepOk) console.log(consoleLog.slice(-8).join(' | '));
+check('a STEP file opens in the desktop app through the OpenCascade worker (F51)', stepOk && stepState.name === 'plate-hole' && stepState.bodies === 1, JSON.stringify(stepState));
 await app.close();
 console.log(`\n${passed}/${passed + failed} checks passed`);
 process.exit(failed ? 1 : 0);

@@ -33,7 +33,11 @@ const APP_INDEX = path.join(APP_DIST, 'index.html');
 // files, and the Content-Security-Policy below is sent as a real header
 const APP_ORIGIN = 'app://phlippo';
 const APP_URL = `${APP_ORIGIN}/index.html`;
-const CSP = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; media-src 'self' blob:; worker-src 'self' blob:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'";
+const CSP = "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; media-src 'self' blob:; worker-src 'self' blob:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'";
+// the OpenCascade worker (STEP import/export, QA F51): its Emscripten glue builds functions at run time, which needs
+// 'unsafe-eval'. Only that worker gets it; a worker keeps the policy of its own script, so the page stays strict.
+const CSP_OCCT_WORKER = CSP.replace("script-src 'self' 'wasm-unsafe-eval'", "script-src 'self' 'wasm-unsafe-eval' 'unsafe-eval'");
+const isOcctWorker = (file) => /^occt\.worker-[\w-]+\.js$/.test(path.basename(file));
 const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.mjs': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.ico': 'image/x-icon', '.woff': 'font/woff', '.woff2': 'font/woff2', '.ttf': 'font/ttf', '.wasm': 'application/wasm', '.txt': 'text/plain', '.hdr': 'application/octet-stream' };
 protocol.registerSchemesAsPrivileged([{ scheme: 'app', privileges: { standard: true, secure: true, supportFetchAPI: true, stream: true } }]);
 /** https links the app may hand to the system browser (Help ▸ …); everything else is dropped */
@@ -327,7 +331,7 @@ function serveApp(request) {
   const file = path.normalize(path.join(APP_DIST, rel));
   if (file !== APP_DIST && !file.startsWith(APP_DIST + path.sep)) return new Response('Forbidden', { status: 403 });
   return fs.readFile(file).then(
-    (data) => new Response(data, { status: 200, headers: { 'Content-Type': MIME[path.extname(file).toLowerCase()] ?? 'application/octet-stream', 'Content-Security-Policy': CSP, 'X-Content-Type-Options': 'nosniff' } }),
+    (data) => new Response(data, { status: 200, headers: { 'Content-Type': MIME[path.extname(file).toLowerCase()] ?? 'application/octet-stream', 'Content-Security-Policy': isOcctWorker(file) ? CSP_OCCT_WORKER : CSP, 'X-Content-Type-Options': 'nosniff' } }),
     () => new Response('Not found', { status: 404 }),
   );
 }
