@@ -563,4 +563,4 @@ elease; README en docs/04 bijgewerkt
 - [x] F50 rest: interne namen (PropertyManager-bestanden/componenten, dimxpert-identifiers, dialoog-id simxpress) neutraal; bestandsveld via migratie
 - [x] F21/F16: taakvenster-iconen en lettermaten naast de referentieframes
 - [x] F46: haalbaarheid van rebuild in een worker beoordelen; wat kan zonder de hele store async te maken
-- [ ] tsc, unit, volledige regressie, desktop-checks, installer 0.3.6, screenshots, commit + tag
+- [x] tsc, unit, volledige regressie, desktop-checks, installer 0.3.6, screenshots, commit + tag (regressie 81/81, unit 346, desktop 8/8 + 10/10 + delete, geïnstalleerd 9/9)
