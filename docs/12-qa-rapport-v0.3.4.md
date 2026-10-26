@@ -75,3 +75,13 @@ Fit, About, permissies) draaien op dezelfde releasebuild in `desktop-nohooks.mjs
 - Desktop: `npm run build` (zonder haken), dan `desktop-nohooks`, `desktop`, `desktop-delete`; na installatie
   `desktop-installed`.
 - Voorbeelden opnieuw genereren: `UPDATE_EXAMPLES=1 node e2e/doorhandle.mjs`.
+
+## Resultaat van deze ronde
+
+| Stap | Resultaat |
+|---|---|
+| tsc, unit tests | 0 fouten; 343 tests in 98 bestanden |
+| Tekstcontroles | `rename-trademarks --check` en `neutral-comments --check`: 0 treffers |
+| Browserregressie (`build:e2e`) | 81/81 groen (`e2e-out/regression-0.3.5.txt`), `voorbeelden/` ongewijzigd |
+| Desktop, releasebuild, eigen profiel | desktop-nohooks 8/8, desktop 10/10, desktop-delete groen |
+| Geïnstalleerde app 0.3.5 | desktop-installed 9/9 (gebouwd van een schone, getagde tree `v0.3.5`) |
