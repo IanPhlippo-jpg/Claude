@@ -1,3 +1,4 @@
+import { MAX_PATTERN_INSTANCES } from '../../core/features/pattern';
 import { bridge } from '../viewport/bridge';
 import { lastPolygon } from '../../core/sketch/lastShape';
 import { rotateAbout, scaleAbout, transformEntities, translate } from '../../core/sketch/edit';
@@ -229,7 +230,7 @@ const TOOL_HELP: Record<string, string> = {
   dimension: 'Select a line (length), circle (diameter), arc (radius), two points (distance), point + line (distance) or two lines (angle). Click to place the dimension; the Modify box appears.',
 };
 
-/** PropertyManager header like the original: icon + title + help, then a row with OK / Cancel. */
+/** PropertyManager header by design: icon + title + help, then a row with OK / Cancel. */
 /** the eye of a feature PropertyManager: Detailed Preview shows the model with the feature applied */
 function DetailedPreviewButton() {
   const on = useStore((s) => s.detailedPreview);
@@ -242,7 +243,7 @@ function DetailedPreviewButton() {
 }
 
 /**
- * Selected Contours of the original: a selection box listing the picked regions (Sketch1-Region<1> …); while it is
+ * Selected Contours of the intended design: a selection box listing the picked regions (Sketch1-Region<1> …); while it is
  * active, a click on a region of the profile in the graphics area adds or removes it (shown magenta). Empty = all.
  */
 function SelectedContoursBox({ sketchName, contours }: { sketchName: string; contours?: number[] }) {
@@ -258,7 +259,7 @@ function SelectedContoursBox({ sketchName, contours }: { sketchName: string; con
   );
 }
 
-/** Keep Visible: the pushpin of the Fillet / Chamfer PropertyManager, as the original */
+/** Keep Visible: the pushpin of the Fillet / Chamfer PropertyManager, by design */
 function KeepVisibleButton() {
   const on = useStore((s) => s.pmPinned);
   const toggle = useStore((s) => s.togglePmPinned);
@@ -295,7 +296,7 @@ function Header({ title, icon, onOk, onCancel, okTip = 'OK', cancelTip = 'Cancel
 }
 
 /** PropertyManager body: replaces the tree while a command/selection is active. */
-/** Polygon parameters of the original, greyed until a polygon is drawn */
+/** Polygon parameters of the intended design, greyed until a polygon is drawn */
 const POLY_FIELDS: [string, string][] = [['X coordinate of center', 'Cx'], ['Y coordinate of center', 'Cy'], ['Circle diameter', '⌀'], ['Angle', '∠']];
 
 /** dimension Favorites (Dimension PropertyManager > Style), kept as JSON text in the preferences */
@@ -312,7 +313,7 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
   const solve = useActiveSolve();
   const [value, setValue] = useState(0);
   const [sides, setSides] = useState(6);
-  // Polygon > Inscribed circle (default of the original) / Circumscribed circle
+  // Polygon > Inscribed circle (default of the intended design) / Circumscribed circle
   const [polyInscribed, setPolyInscribed] = useState(true);
   useEffect(() => {
     bridge.sketchOptions.polygonInscribed = polyInscribed;
@@ -336,7 +337,7 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
   useEffect(() => {
     bridge.sketchOptions.textOptions = sketchText;
   }, [sketchText]);
-  // Hole Wizard: standard sizes (ISO 273 clearance holes) with the default counterbore / countersink of the original
+  // Hole Wizard: standard sizes (ISO 273 clearance holes) with the default counterbore / countersink of the intended design
   const [holeStd, setHoleStd] = useState('ISO');
   const [holeSize, setHoleSize] = useState('M6');
   const [holeFit, setHoleFit] = useState<'Close' | 'Normal' | 'Loose'>('Normal');
@@ -486,7 +487,7 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
           </Section>
         )}
         {bsk && (() => {
-          // Profile Sketch check, as the original: one open chain (a bent sheet) or closed contours only (a tab)
+          // Profile Sketch check, by design: one open chain (a bent sheet) or closed contours only (a tab)
           const chains = sketchChains(bsk);
           const open = chains.filter((c) => !c.closed), closed = chains.filter((c) => c.closed);
           const valid = (open.length === 1 && closed.length === 0) || (open.length === 0 && closed.length > 0);
@@ -1011,7 +1012,7 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
           </div>
         </Section>
         <Section title="Thread Location">
-          {/* the two selection boxes of the original (fr. 299): the start edge (blue tag) and an optional start face (purple tag) */}
+          {/* the two selection boxes of the intended design: the start edge (blue tag) and an optional start face (purple tag) */}
           <div className="k-pm-selrow k-tip" data-tip="Edge: a circular edge of a cylinder or hole">
             <Icon.Circle size={18} />
             <div className="k-pm-colorbox active" style={{ ['--tag' as string]: '#5aa8f0' }} data-testid="thread-edge"><i />{d.edge ? d.edge.label : ''}</div>
@@ -1337,7 +1338,7 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
               <div className="k-selbox" style={{ minHeight: 24 }} data-testid="form-face">{d.plane ? <div className="k-selbox-row"><Icon.Sheet size={12} /> {st.doc.planes[d.plane]?.name ?? 'Face<1>'}</div> : <span className="k-muted">Select the face of the sheet the form is pressed into.</span>}</div>
             </Section>
             <Section title="Forming Tool">
-              <div className="k-pm-label">Design Library ▸ forming tools:</div>
+              <div className="k-pm-label">Part Library ▸ forming tools:</div>
               <select className="k-input" value={d.shape} data-testid="form-shape" onChange={(e) => { const t = FORM_TOOL_LIBRARY.find((x) => x.id === e.target.value)!; st.updateFeatureDraft({ shape: t.id, width: t.width, length: t.length, height: t.height, name: `${t.label}${st.doc.features.filter((f) => f.type === 'formTool' && f.shape === t.id).length + 1}` }); }}>
                 {FORM_TOOL_LIBRARY.map((t) => <option key={t.id} value={t.id}>{t.folder} ▸ {t.label}</option>)}
               </select>
@@ -2303,7 +2304,7 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
           {holeTab === 'positions' && (
           <Section title="Hole Position(s)">
             {!d.plane ? (
-              <p className="k-pm-message">Select a planar face first, then click Hole Wizard.</p>
+              <p className="k-pm-message">Select a planar face first, then click Hole Tool.</p>
             ) : d.points.length === 0 ? (
               <p className="k-pm-message">Click on the face to place the hole positions.</p>
             ) : (
@@ -2331,6 +2332,11 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
     return (
       <>
         <Header title={({ sketchPattern: 'Sketch Driven Pattern', curvePattern: 'Curve Driven Pattern', tablePattern: 'Table Driven Pattern', fillPattern: 'Fill Pattern', variablePattern: 'Variable Pattern', linearPattern: 'Linear Pattern', circularPattern: 'Circular Pattern' } as Record<string, string>)[d.type] ?? d.name} icon={<Icon.Pattern />} onOk={st.commitFeature} onCancel={st.cancelFeature} />
+        {(() => {
+          // more instances than the limit: say so instead of cutting the pattern off silently (F81)
+          const n = d.type === 'linearPattern' ? Math.max(1, d.dir1?.count ?? 1) * Math.max(1, d.dir2?.count ?? 1) - 1 : d.type === 'circularPattern' ? Math.max(1, d.count ?? 1) - 1 : 0;
+          return n > MAX_PATTERN_INSTANCES ? <p className="k-pm-message warn" data-testid="pattern-limit">{n} instances requested: the maximum is {MAX_PATTERN_INSTANCES}. Lower the counts; OK is refused above the limit.</p> : null;
+        })()}
         {d.type === 'curvePattern' ? (
           <Section title="Direction 1">
             <div className="k-field"><label>Pattern Direction (curve)</label>
@@ -2626,7 +2632,7 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
         )}
         {!isFillet && (
           <Section title="Chamfer Type">
-            {/* Angle Distance, Distance Distance, Vertex, Offset Face, Face Face, as the original */}
+            {/* Angle Distance, Distance Distance, Vertex, Offset Face, Face Face, by design */}
             <div className="k-pm-typegrid">
               <button className={`k-pm-typebtn${d.roundType === 'angleDistance' ? ' active' : ''}`} title="Angle-Distance" data-testid="chamfer-angle" onClick={() => st.updateFeatureDraft({ roundType: 'angleDistance', angle: d.angle ?? 45 })}><Icon.Chamfer size={22} /></button>
               <button className={`k-pm-typebtn${!d.roundType || d.roundType === 'constant' ? ' active' : ''}`} title="Distance-Distance" data-testid="chamfer-dd" onClick={() => st.updateFeatureDraft({ roundType: undefined })}><Icon.Chamfer size={22} /></button>
@@ -2661,7 +2667,7 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
               </>
             ) : (
               <>
-                {/* Full Round: Side Face Set 1 (blue), Center Face Set (purple), Side Face Set 2 (pink), as the original (video 10) */}
+                {/* Full Round: Side Face Set 1 (blue), Center Face Set (purple), Side Face Set 2 (pink), by design */}
                 {([['side1', 'Side Face Set 1', '#5aa0e6'], ['center', 'Center Face Set', '#c06ad0'], ['side2', 'Side Face Set 2', '#e98fc0']] as const).map(([k, label, color]) => (
                   <div key={k} className={`k-pm-selrow${st.fullRoundPick === k ? ' active' : ''}`} title={label} onClick={() => useStore.setState({ fullRoundPick: k })}>
                     <span className="k-pm-tag" style={{ background: color }} />
@@ -2679,7 +2685,7 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
           </Section>
         )}
         {(isFillet || !['vertex', 'offsetFace', 'faceFace'].includes(d.roundType ?? '')) && <Section title={isFillet ? 'Items To Fillet' : 'Items To Chamfer'}>
-          {/* the selection box of the original: its picture on the left, light blue while it takes the picks, the last pick highlighted */}
+          {/* the selection box of the intended design: its picture on the left, light blue while it takes the picks, the last pick highlighted */}
           <div className="k-pm-selrow">
             <Icon.EdgeSelect size={20} />
             <ul className="k-list k-pm-edgelist k-pm-selbox active" data-testid="round-items" title="Select edges on the model (Ctrl for more than one)">
@@ -3151,7 +3157,7 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
     );
   }
 
-  // plane pick: "Edit Sketch" with the yellow message, as the original shows it
+  // plane pick: "Edit Sketch" with the yellow message, by design shows it
   if (st.planePick) {
     return (
       <>
@@ -3214,7 +3220,7 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
   const dimName = (k: Constraint) => sketchDimensionName(sketch, k.id);
   const isDraw = ['line', 'centerline', 'midpointLine', 'rectangle', 'centerRectangle', 'rect3Corner', 'rect3Center', 'parallelogram', 'circle', 'perimeterCircle', 'arcCenter', 'arc3', 'tangentArc', 'polygon', 'slot', 'centerSlot', 'spline', 'ellipse', 'partialEllipse', 'point'].includes(st.tool);
   const isRect = st.tool === 'rectangle' || st.tool === 'centerRectangle' || st.tool === 'rect3Corner' || st.tool === 'rect3Center' || st.tool === 'parallelogram';
-  // after a rectangle is drawn the original shows its relations, options and corner coordinates
+  // after a rectangle is drawn the intended design shows its relations, options and corner coordinates
   const lastRect = isRect ? lastRectangle(sketch) : null;
   const rectCorners = (lastRect ?? []).map((id) => {
     const e = sketch.entities[id];
@@ -3274,7 +3280,7 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
           )}
           {dimTab === 'value' && <>
           <Section title="Style" defaultOpen>
-            {/* Favorites, as the original: apply defaults, add/update, delete, save to a file, load from a file */}
+            {/* Favorites, by design: apply defaults, add/update, delete, save to a file, load from a file */}
             <div className="k-pm-stylerow">
               <button className="k-pm-stylebtn k-tip" data-tip="Apply the default attributes" data-testid="dimfav-default" onClick={() => st.updateDimension(c.id, { tol: undefined, precision: undefined, dual: undefined, arrows: undefined, arrowStyle: undefined, fontSize: undefined, justify: undefined, unitOverride: undefined, dimText: undefined })}><Icon.Undo size={14} /></button>
               <button className="k-pm-stylebtn k-tip" data-tip="Add or Update a Favorite" data-testid="dimfav-add" onClick={() => st.setAsk({ title: 'Add or Update a Favorite', text: 'Favorite name', input: dimFav || 'Favorite1', yes: (n) => { if (!n) return; const favs = { ...dimFavs(), [n]: { tol: c.tol, precision: c.precision, dual: c.dual, arrows: c.arrows, arrowStyle: c.arrowStyle, fontSize: c.fontSize, justify: c.justify, dimText: c.dimText } }; saveDimFavs(favs); setDimFav(n); } })}><Icon.Save size={14} /></button>
@@ -3753,7 +3759,7 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
         </Section>
       )}
 
-      {/* Polygon > Parameters as the original (fr. 275): sides, inscribed / circumscribed, centre, diameter, angle, New Polygon */}
+      {/* Polygon > Parameters by design: sides, inscribed / circumscribed, centre, diameter, angle, New Polygon */}
       {!c && st.tool === 'polygon' && (
         <Section title="Parameters">
           <div className="k-pm-valuerow k-tip" data-tip="Number of sides" data-testid="polygon-sides"><Icon.Polygon size={16} /><NumberField value={sides} onChange={(v) => setSides(Math.max(3, Math.min(40, Math.round(v))))} step={1} min={3} /></div>
@@ -3778,7 +3784,7 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
           <div style={{ display: 'flex', justifyContent: 'center', marginTop: 6 }}><button className="k-btn" onClick={() => st.setTool('polygon')}>New Polygon</button></div>
         </Section>
       )}
-      {/* Parameters of the entity drawn last, greyed until there is one, as the original */}
+      {/* Parameters of the entity drawn last, greyed until there is one, by design */}
       {!c && isDraw && !isRect && (st.tool === 'circle' || st.tool === 'perimeterCircle' || st.tool === 'arcCenter' || st.tool === 'arc3' || st.tool === 'tangentArc' || st.tool === 'line' || st.tool === 'centerline') && (() => {
         const kind = st.tool === 'circle' || st.tool === 'perimeterCircle' ? 'circle' : st.tool === 'line' || st.tool === 'centerline' ? 'line' : 'arc';
         const lastId = [...sketch.entityOrder].reverse().find((id) => sketch.entities[id]?.kind === kind);
@@ -3799,7 +3805,7 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
                 {row('L', len !== null ? round(len) : null, (v) => { if (!l || !a || !b || !len) return; const k2 = v / len; setPt(l.p2, { x: a.x + (b.x - a.x) * k2, y: a.y + (b.y - a.y) * k2 }); })}
                 {row('∠', ang !== null ? round(ang) : null, (v) => { if (!l || !a || !len) return; const t = (v * Math.PI) / 180; setPt(l.p2, { x: a.x + len * Math.cos(t), y: a.y + len * Math.sin(t) }); }, true)}
               </Section>
-              {/* Additional Parameters, as the original: start and end point, ΔX and ΔY */}
+              {/* Additional Parameters, by design: start and end point, ΔX and ΔY */}
               <Section title="Additional Parameters" defaultOpen={false}>
                 {row('x₁', a ? round(a.x) : null, (v) => l && setPt(l.p1, { x: v }))}
                 {row('y₁', a ? round(a.y) : null, (v) => l && setPt(l.p1, { y: v }))}

@@ -320,7 +320,7 @@ export class CadCamera {
 
   normalTo(plane: PlaneId): void {
     this.pushHistory();
-    // normal to a reference plane is the standard Front/Top/Right view (the original names it so)
+    // normal to a reference plane is the standard Front/Top/Right view (the intended design names it so)
     this.setViewName(plane in PLANES ? plane : 'normalTo');
     this.animateTo(normalToView(plane), this.target, this.scale);
   }

@@ -1,5 +1,6 @@
 // Full functional check: every tool and command, reporting pass/fail per step.
 import { chromium } from 'playwright';
+import { exitCode, skip } from './lib/check.mjs';
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 const browser = await chromium.launch(process.platform === 'win32' ? { channel: process.env.PW_CHANNEL ?? 'msedge' } : { ...(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {}), args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
 const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, acceptDownloads: true });
@@ -213,8 +214,8 @@ await page.keyboard.up('Control');
 await page.click('.k-cm-small:has-text("Mirror Entities")');
 check('mirror entities adds a mirrored circle', (await nEnt()) === n0 + 1, `${n0} -> ${await nEnt()}`);
 
-// ---- Design Library: create, add selection, insert, export, import
-await page.click('.k-taskpane-btn[data-tip="Design Library"]');
+// ---- Part Library: create, add selection, insert, export, import
+await page.click('.k-taskpane-btn[data-tip="Part Library"]');
 await page.locator('.k-library-toolbar .k-input').fill('My blocks');
 await page.click('.k-library-toolbar .k-btn:has-text("New")');
 check('library created', (await S()).libraries.length === 1 && (await S()).libraries[0].name === 'My blocks');
@@ -234,8 +235,8 @@ await page.waitForTimeout(200);
 check('library import adds a library', (await S()).libraries.length === 2);
 await page.reload();
 await page.waitForSelector('.k-viewport');
-await page.locator('[data-testid="welcome-recent-0"]').click({ timeout: 4000 }).catch(() => {}); // the autosave waits under Recent Documents, as the original
-await page.click('.k-taskpane-btn[data-tip="Design Library"]');
+await page.locator('[data-testid="welcome-recent-0"]').click({ timeout: 4000 }).catch(skip('full:238')); // the autosave waits under Recent Documents, as the original
+await page.click('.k-taskpane-btn[data-tip="Part Library"]');
 check('libraries persist after reload', (await S()).libraries.length === 2);
 await page.click('.k-taskpane-panel .k-panel-header .k-btn');
 
@@ -318,7 +319,7 @@ const [download] = await Promise.all([page.waitForEvent('download'), page.keyboa
 const path = await download.path();
 check('save downloads .kcad', download.suggestedFilename().endsWith('.kcad'), download.suggestedFilename());
 await page.keyboard.press('Control+n');
-await page.locator('[data-testid="ask-no"]').click({ timeout: 1500 }).catch(() => {}); // Save changes? → Don't Save
+await page.locator('[data-testid="ask-no"]').click({ timeout: 1500 }).catch(skip('full:322')); // Save changes? → Don't Save
 await page.locator('.k-dialog input').fill('Bracket');
 await page.click('.k-dialog .k-btn.primary');
 check('new document named Bracket', (await S()).doc.name === 'Bracket' && (await S()).doc.features.length === 0);
@@ -347,14 +348,12 @@ await page.evaluate(() => window.__phlippoStore.getState().setPanel('manager', {
 // ---- autosave survives reload
 await page.reload();
 await page.waitForSelector('.k-viewport');
-await page.locator('[data-testid="welcome-recent-0"]').click({ timeout: 4000 }).catch(() => {}); // the autosave waits under Recent Documents, as the original
+await page.locator('[data-testid="welcome-recent-0"]').click({ timeout: 4000 }).catch(skip('full:351')); // the autosave waits under Recent Documents, as the original
 check('autosave reload keeps features', (await S()).doc.features.length === 2);
 await page.screenshot({ path: `${OUT}/full-final.png` });
 
 console.log(`\n${results.filter((r) => r.ok).length}/${results.length} checks passed`);
-const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
-if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
-process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
+process.exitCode = exitCode(results, errors);
 for (const r of results.filter((r) => !r.ok)) console.log(' - ' + r.name + (r.info ? ' (' + r.info + ')' : ''));
 console.log('page errors:', errors);
 await browser.close();

@@ -21,12 +21,12 @@ const newSymbolId = () => `sy${Date.now().toString(36)}${(++symbolSeq).toString(
 const BASE = 3;
 
 /**
- * The drawing sheet: paper (the original's default paper colour) with border, zones and title block (Sheet Format1), the views
+ * The drawing sheet: paper (the intended default paper colour) with border, zones and title block (Sheet Format1), the views
  * (visible lines solid, hidden lines dashed), center marks, dimensions and notes. Middle-drag pans,
  * the wheel zooms at the cursor, views are dragged with the left button; placing views, dimensions
  * and notes follows the active command (drawingEdit).
  */
-/** the original's default drawing paper colour (Options ▸ Colors ▸ Drawings, Paper Color) */
+/** the intended default drawing paper colour (Options ▸ Colors ▸ Drawings, Paper Color) */
 export const PAPER = '#e8e8e0';
 
 export function DrawingSheetView() {
@@ -319,7 +319,7 @@ export function DrawingSheetView() {
           }
           const dx = p[0] - c.circle.c[0], dy = p[1] - c.circle.c[1], L = Math.hypot(dx, dy) || 1;
           const dia = 2 * c.viewCircle.r;
-          // a tapped hole of the Hole Wizard with "With thread callout": the thread designation, as the original
+          // a tapped hole of the Hole Wizard with "With thread callout": the thread designation, by design
           const tap = v.model.kind !== 'assembly' ? v.model.features.find((x) => x.type === 'hole' && !x.suppressed && x.holeType === 'tap' && x.threadDiameter && (Math.abs(x.diameter - dia) < 0.05 || Math.abs(x.threadDiameter - dia) < 0.05)) : undefined;
           const text = tap && tap.type === 'hole' && tap.threadCallout !== false
             ? `${tap.sizeName ?? `M${tap.threadDiameter}`}x${(tap.pitch ?? 1).toFixed(1)} - 6H ${tap.depth > 0 ? `▼ ${(tap.threadDepth || tap.depth).toFixed(2)}` : 'THRU'}`
@@ -359,7 +359,7 @@ export function DrawingSheetView() {
       else st.pushMessage('Select a circular edge in a drawing view.', 'warn');
       return;
     }
-    // annotations (balloons, notes, tables, symbols) are picked before the views and dragged, as the original
+    // annotations (balloons, notes, tables, symbols) are picked before the views and dragged, by design
     const an = !de ? annotationAt(p) : null;
     if (an) {
       if (an.kind === 'dimension') st.selectDrawingDimension(an.id);
@@ -372,7 +372,7 @@ export function DrawingSheetView() {
     }
     const v = viewAt(p);
     st.selectDrawingView(v?.id ?? null);
-    // clicking a view opens its PropertyManager (Drawing View1 …), as the original
+    // clicking a view opens its PropertyManager (Drawing View1 …), by design
     st.setManagerTab(v ? 'properties' : 'tree');
     if (v) {
       drag.current = { kind: 'view', x: e.clientX, y: e.clientY, viewId: v.id, start: [v.position[0], v.position[1]] };
@@ -383,7 +383,7 @@ export function DrawingSheetView() {
     const [px, py] = pxOf(e);
     const sp = toSheet(px, py);
     setCursor(sp);
-    // sheet coordinates in the status bar, as the original
+    // sheet coordinates in the status bar, by design
     if (!statusRaf.current) statusRaf.current = requestAnimationFrame(() => { statusRaf.current = 0; useStore.getState().setCursor({ x: sp[0], y: sp[1] }); });
     if (drag.current?.kind === 'pan') {
       manualZoom.current = true;
@@ -465,7 +465,7 @@ export function DrawingSheetView() {
           <path className="k-bo-outline" d={v2d.hatchClip.map((pt, k) => { const q = toPx(viewToSheet(sheet, v, v2d, pt)); return `${k ? 'L' : 'M'}${q[0].toFixed(2)},${q[1].toFixed(2)}`; }).join('') + 'Z'} fill="none" stroke="#000" strokeWidth={0.8} />
         )}
         {v2d.hatch && v2d.hatch.length > 0 && [0, 1, 2].map((variant) => {
-          // Auto hatching: each component its own hatch (45°, 135°, 45° denser), as the original
+          // Auto hatching: each component its own hatch (45°, 135°, 45° denser), by design
           const loops = v2d.hatch!.filter((_, i) => (v2d.hatchVar?.[i] ?? 0) === variant);
           if (!loops.length) return null;
           return <path key={'h' + variant} data-hatch-variant={variant} clipPath={v2d.hatchClip ? `url(#k-boclip-${v.id})` : undefined} d={loops.map((t) => t.map((pt, k) => { const q = toPx(viewToSheet(sheet, v, v2d, pt)); return `${k ? 'L' : 'M'}${q[0].toFixed(2)},${q[1].toFixed(2)}`; }).join('') + 'Z').join('')} fill={variant === 0 ? 'url(#k-hatch)' : variant === 1 ? 'url(#k-hatch-b)' : 'url(#k-hatch-c)'} fillRule="nonzero" stroke="none" />;
@@ -480,7 +480,7 @@ export function DrawingSheetView() {
           return <path className="k-detail-outline" d={d} fill="none" stroke="#000" strokeWidth={0.9} />;
         })()}
         {v.altPosition && !preview && alternateLines(v).map((l, i) => {
-          // the alternate position in phantom lines (long dash, two short dashes), as the original
+          // the alternate position in phantom lines (long dash, two short dashes), by design
           const a = toPx(viewToSheet(sheet, v, v2d, l.a)), q = toPx(viewToSheet(sheet, v, v2d, l.b));
           return <line key={'alt' + i} className="k-alt-position" x1={a[0]} y1={a[1]} x2={q[0]} y2={q[1]} stroke="#3c3c3c" strokeWidth={0.8} strokeDasharray="9 2 2 2 2 2" />;
         })}
@@ -624,7 +624,7 @@ export function DrawingSheetView() {
   const componentCentres = (v: DrawingView, visible = false): { name: string; item: number; at: [number, number] }[] => {
     if (v.model.kind !== 'assembly') {
       const g = viewGeometry(v);
-      // a part: the dot on the longest visible edge's midpoint, as the original attaches to an edge of the part
+      // a part: the dot on the longest visible edge's midpoint, by design attaches to an edge of the part
       const l = visible ? [...g.lines].filter((x) => !x.hidden).sort((a, b) => Math.hypot(b.b[0] - b.a[0], b.b[1] - b.a[1]) - Math.hypot(a.b[0] - a.a[0], a.b[1] - a.a[1]))[0] : undefined;
       return [{ name: v.model.name, item: 1, at: l ? [(l.a[0] + l.b[0]) / 2, (l.a[1] + l.b[1]) / 2] : [(g.min[0] + g.max[0]) / 2, (g.min[1] + g.max[1]) / 2] }];
     }
@@ -672,7 +672,7 @@ export function DrawingSheetView() {
       }
       picked.push({ item: c.item, a: viewToSheet(sheet, v, g, at) });
     }
-    // the balloons of the original sit clear of the view and of each other: 2 characters = 8 mm, 2 mm apart
+    // the balloons of the intended design sit clear of the view and of each other: 2 characters = 8 mm, 2 mm apart
     const lay = layoutBalloons(picked.map((p) => p.a), { x: b.x, y: b.y, w: b.w, h: b.h }, de?.balloonLayout ?? 'square', { offset: 12, gap: 10 });
     const symbols = picked.map((p, i) => ({ id: newSymbolId(), kind: 'balloon' as const, anchor: p.a, position: lay.positions[i], text: String(p.item), viewId: v.id, ...(de?.balloonAttach === 'edges' ? { head: 'arrow' as const } : {}) }));
     const lines = de?.insertMagnetic === false ? [] : lay.lines.map((l) => ({ id: newSymbolId(), a: l.a, b: l.b, balloons: l.members.map((i) => symbols[i].id) }));
@@ -823,7 +823,7 @@ export function DrawingSheetView() {
     );
   };
 
-  /** Revision Table at the top right of the sheet: REVISIONS / REV. / DESCRIPTION / DATE / APPROVED, as the original. */
+  /** Revision Table at the top right of the sheet: REVISIONS / REV. / DESCRIPTION / DATE / APPROVED, by design. */
   const renderRevisionTable = () => {
     const revs = sheet.revisions ?? [];
     const cols = [12, 60, 24, 22];
@@ -970,7 +970,7 @@ export function DrawingSheetView() {
     );
   };
 
-  // the title block as the original's default sheet format (bottom right)
+  // the title block as the intended default sheet format (bottom right)
   const tb = { w: 180 * mm, h: 44 * mm };
   const tbx = ox + pxW - border - tb.w, tby = oy + pxH - border - tb.h;
   const zones = sheet.format?.zones === false ? 0 : sheet.size === 'A4' ? 4 : sheet.size === 'A3' ? 6 : 8;
@@ -993,7 +993,7 @@ export function DrawingSheetView() {
           else if (de) st.cancelDrawingEdit();
           else st.selectDrawingView(null);
         } else if (e.key === 'Delete' && st.selectedDrawingDimensionId && !de && sheet) {
-          // Delete removes the selected dimension, as the original
+          // Delete removes the selected dimension, by design
           const id = st.selectedDrawingDimensionId;
           st.selectDrawingDimension(null);
           st.applyDocument('Delete', { ...st.doc, sheets: [{ ...sheet, dimensions: sheet.dimensions.filter((x) => x.id !== id) }, ...(st.doc.sheets ?? []).slice(1)] });
@@ -1020,7 +1020,7 @@ export function DrawingSheetView() {
             <rect x={ox + border} y={oy + border} width={pxW - 2 * border} height={pxH - 2 * border} fill="none" stroke="#000" strokeWidth={1.4} />
             {Array.from({ length: zones }, (_, i) => {
               const x = ox + border + ((pxW - 2 * border) * (i + 0.5)) / zones;
-              // zone label in the margin and a tick at the zone boundary, as the original's sheet format
+              // zone label in the margin and a tick at the zone boundary, as the intended sheet format
               const xt = ox + border + ((pxW - 2 * border) * i) / zones;
               return <g key={'z' + i}><text x={x} y={oy + border - 2.6 * mm} fontSize={4.5 * mm} textAnchor="middle" fill="#000">{zones - i}</text><text x={x} y={oy + pxH - border + 6.6 * mm} fontSize={4.5 * mm} textAnchor="middle" fill="#000">{zones - i}</text>{i > 0 && <><line x1={xt} y1={oy + border * 0.35} x2={xt} y2={oy + border} stroke="#000" strokeWidth={0.6} /><line x1={xt} y1={oy + pxH - border} x2={xt} y2={oy + pxH - border * 0.35} stroke="#000" strokeWidth={0.6} /></>}</g>;
             })}
@@ -1032,7 +1032,7 @@ export function DrawingSheetView() {
               return <g key={'l' + i}><text x={ox + border - 5 * mm} y={y + 1.6 * mm} fontSize={4.5 * mm} textAnchor="middle" fill="#000">{letter}</text><text x={ox + pxW - border + 5 * mm} y={y + 1.6 * mm} fontSize={4.5 * mm} textAnchor="middle" fill="#000">{letter}</text>{i > 0 && <><line x1={ox + border * 0.35} y1={yt} x2={ox + border} y2={yt} stroke="#000" strokeWidth={0.6} /><line x1={ox + pxW - border} y1={yt} x2={ox + pxW - border * 0.35} y2={yt} stroke="#000" strokeWidth={0.6} /></>}</g>;
             })}
             {(() => {
-              // the title block of the original's ISO sheet format (180 x 44 mm): a band of general notes on top,
+              // the title block of the intended ISO sheet format (180 x 44 mm): a band of general notes on top,
               // the NAME / SIGNATURE / DATE grid, MATERIAL / WEIGHT, and TITLE / DWG NO. / size / SCALE / SHEET
               const X = (u: number) => tbx + u * mm, Y = (v: number) => tby + v * mm;
               const L = (x1: number, y1: number, x2: number, y2: number, k: string) => <line key={k} x1={X(x1)} y1={Y(y1)} x2={X(x2)} y2={Y(y2)} />;
@@ -1255,7 +1255,7 @@ function sheetToViewLocal(sheet: DrawingSheet, v: DrawingView, v2d: ReturnType<t
   return [c[0] + (p[0] - v.position[0]) / s, c[1] + (p[1] - v.position[1]) / s];
 }
 
-/** orientation of a linear dimension from where the label is placed (as the Smart Dimension of the original) */
+/** orientation of a linear dimension from where the label is placed (as the Smart Dimension of the intended design) */
 export function orientationFor(a: [number, number], b: [number, number], label: [number, number]): 'h' | 'v' | 'aligned' {
   const dx = Math.abs(b[0] - a[0]), dy = Math.abs(b[1] - a[1]);
   if (dx < 1e-6) return 'v';

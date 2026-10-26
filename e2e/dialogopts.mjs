@@ -3,6 +3,7 @@
 // Configuration properties (BOM name, colour), Sensor (dimension + alert), Equations (radians), Appearances (back /
 // forward, new folder, add to library), colour schemes.
 import { chromium } from 'playwright';
+import { exitCode, skip } from './lib/check.mjs';
 import { mkdirSync, readFileSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -138,7 +139,7 @@ check('Equations angle units radians', (await S(() => window.__phlippoStore.getS
 await S(() => window.__phlippoStore.getState().setTaskPane?.('appearances'));
 await page.waitForTimeout(400);
 if ((await page.locator('[data-testid="ap-newfolder"]').count()) === 1) {
-  await page.click('.k-ap-row:has-text("Chrome")').catch(() => undefined);
+  await page.click('.k-ap-row:has-text("Chrome")').catch(skip('dialogopts:142'));
   await page.click('[data-testid="ap-back"]');
   check('Appearances Back works', (await page.locator('[data-testid="ap-forward"]').isEnabled()));
   await page.click('[data-testid="ap-newfolder"]');
@@ -155,8 +156,6 @@ check('Green scheme sets the selection colour', tok.toLowerCase() === '#2f9e44',
 await S(() => { const s = window.__phlippoStore.getState(); s.setPrefs({ ...s.prefs, 'colors.scheme': 'Blue' }); });
 
 console.log(results.filter((r) => r.ok).length + '/' + results.length + ' passed');
-const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
-if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
-process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
+process.exitCode = exitCode(results, errors);
 if (errors.length) console.log('ERRORS', errors.slice(0, 5));
 await browser.close();

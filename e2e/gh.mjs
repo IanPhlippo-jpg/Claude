@@ -1,6 +1,7 @@
 // Block G-H (Weldments): the Weldments tab, Weldment, Structural Member (profile library, corner treatment), the cut list
 // (Cut-List-Items, Properties dialog), End Cap, Gusset, Weld Bead (Weld Folder), Trim/Extend.
 import { chromium } from 'playwright';
+import { exitCode, skip } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -69,7 +70,7 @@ const area = 40 * 40 - 32 * 32;
 const v1 = await vol();
 check('Structural Member1: two mitered tubes, volume = area × (300 + 200)', Math.abs(v1 - area * 500) < area * 500 * 0.03 && (await nBodies()) === 2 && !Object.keys(await errs()).length, `${v1.toFixed(0)} vs ${area * 500} ${JSON.stringify(await errs())}`);
 check('tree: Cut list(2) with two Cut-List-Items (different lengths)', (await page.locator('.k-tree-row:has-text("Cut list(2)")').count()) === 1);
-await page.locator('.k-tree-row[data-id="bodies"] .caret').click().catch(() => {});
+await page.locator('.k-tree-row[data-id="bodies"] .caret').click().catch(skip('gh:73'));
 await page.waitForTimeout(200);
 check('Cut-List-Item1 and Cut-List-Item2 folders', (await page.locator('.k-tree-row[data-id^="cutitem:"]').count()) === 2);
 await page.keyboard.press('f');
@@ -176,8 +177,6 @@ await page.waitForTimeout(300);
 await shot('gh9-trimextend');
 
 console.log(results.filter((r) => r.ok).length + '/' + results.length + ' passed');
-const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
-if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
-process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
+process.exitCode = exitCode(results, errors);
 if (errors.length) console.log('ERRORS', errors.slice(0, 5));
 await browser.close();

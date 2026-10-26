@@ -9,7 +9,7 @@ import { isSolidFeature } from '../core/document/types';
 const fmt = (v: number) => (Number.isInteger(v) ? String(v) : String(Math.round(v * 1000) / 1000));
 
 /**
- * Modify Configurations table (Configure Dimension / Configure Feature), as the original: one row
+ * Modify Configurations table (Configure Dimension / Configure Feature), by design: one row
  * per configuration, a column group per sketch or feature with its dimensions (D1, D2 …) or its
  * Suppress state, and a last row "< Creates a new configuration. >". OK applies and closes,
  * Apply keeps the table open.

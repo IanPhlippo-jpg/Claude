@@ -83,7 +83,7 @@ export function Menu({ items, onClose, style }: { items: MenuItem[]; onClose: ()
     const left = Math.max(4, Math.min(r.left, window.innerWidth - r.width - 4));
     setFixed({ left, top: r.top });
   }, [fixed]);
-  // a menu always stays inside the window, as the original's: shifted up / left when it would run off the edge,
+  // a menu always stays inside the window, as the intended: shifted up / left when it would run off the edge,
   // and scrolling when it is taller than the window (long context menus near the bottom of the tree)
   const [fit, setFit] = useState<{ dx: number; dy: number; maxH?: number } | null>(null);
   useLayoutEffect(() => {
@@ -183,7 +183,7 @@ export interface TreeNode {
   onClick?: (e: RMouseEvent) => void;
   onDoubleClick?: () => void;
   onContextMenu?: (e: RMouseEvent) => void;
-  /** pointing at the row (the model highlights the feature, as the original) */
+  /** pointing at the row (the model highlights the feature, by design) */
   onHover?: (on: boolean) => void;
   /** start expanded (default: only the top level) */
   defaultOpen?: boolean;
@@ -195,7 +195,7 @@ function hasSelectedBelow(n: TreeNode): boolean {
 }
 
 function TreeRow({ node, depth }: { node: TreeNode; depth: number }) {
-  // as the original: the top node is expanded, features and folders start collapsed (▸) until opened
+  // by design: the top node is expanded, features and folders start collapsed (▸) until opened
   const [open, setOpen] = useState(node.defaultOpen ?? depth === 0);
   const hasKids = !!node.children?.length;
   const selectedBelow = hasKids && hasSelectedBelow(node);
@@ -225,7 +225,7 @@ function TreeRow({ node, depth }: { node: TreeNode; depth: number }) {
         >
           {hasKids && depth > 0 ? <Icon.TreeCaret open={open} /> : null}
         </span>
-        {/* as the original: only the icon and name get the hover / selection box, not the whole row */}
+        {/* by design: only the icon and name get the hover / selection box, not the whole row */}
         <span className="k-tree-hl">
           {node.icon}
           <span>{node.label}</span>
@@ -249,7 +249,7 @@ export function TreeView({ nodes }: { nodes: TreeNode[] }) {
 
 /* ---------- Form fields ----------------------------------------------------------- */
 
-/** Value text as the original shows it in a PropertyManager: 10.00mm, 1.00deg, 0.375in; counts without decimals. */
+/** Value text by design shows it in a PropertyManager: 10.00mm, 1.00deg, 0.375in; counts without decimals. */
 export function formatValue(v: number, unit?: string): string {
   if (!Number.isFinite(v)) return '';
   if (!unit) return String(round(v));
@@ -267,7 +267,7 @@ const LEN_MM: Record<string, number> = { mm: 1, cm: 10, m: 1000, in: 25.4, '"': 
 export function parseValue(text: string, unit?: string): number {
   const t = text.trim().toLowerCase().replace(',', '.');
   const m = /^([-+]?(?:\d+\.?\d*|\.\d+)(?:e[-+]?\d+)?)\s*([a-z"'°]*)$/.exec(t);
-  // 2*25+5, (100-4)/3: plain arithmetic without units, as the equation-style input of the original
+  // 2*25+5, (100-4)/3: plain arithmetic without units, as the equation-style input of the intended design
   if (!m) return bounded(evalArithmetic(t));
   const v = parseFloat(m[1]);
   if (!Number.isFinite(v)) return NaN;
@@ -283,7 +283,7 @@ export function parseValue(text: string, unit?: string): number {
   return NaN;
 }
 
-/** the largest magnitude a field accepts (1 000 000 mm = 1 km, far beyond the 1000 m of the original); more is refused like ∞ */
+/** the largest magnitude a field accepts (1 000 000 mm = 1 km, far beyond the 1000 m of the intended design); more is refused like ∞ */
 export const MAX_FIELD_VALUE = 1e6;
 const bounded = (v: number): number => (Number.isFinite(v) && Math.abs(v) <= MAX_FIELD_VALUE ? v : NaN);
 
@@ -336,6 +336,17 @@ export function NumberField({
   const [text, setText] = useState(formatValue(value, unit));
   const focused = useRef(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  // a typed value that is refused (not a number, out of range) or adjusted (below the minimum) is marked and explained
+  const [bad, setBad] = useState(false);
+  const [note, setNote] = useState<string | null>(null);
+  const noteTimer = useRef(0);
+  const showNote = (n: string) => {
+    setNote(n);
+    window.clearTimeout(noteTimer.current);
+    noteTimer.current = window.setTimeout(() => setNote(null), 4000);
+  };
+  useEffect(() => () => window.clearTimeout(noteTimer.current), []);
+  const unitLabel = unit === 'deg' ? '°' : unit ?? '';
   // the first value field of a PropertyManager takes the focus without scrolling the panel (its top stays in view)
   useEffect(() => {
     if (autoFocus) inputRef.current?.focus({ preventScroll: true });
@@ -359,7 +370,8 @@ export function NumberField({
   return (
     <div className={`k-number ${disabled ? 'disabled' : ''}`}>
       <input
-        className="k-input k-num"
+        className={`k-input k-num ${bad ? 'bad' : ''}`}
+        aria-invalid={bad || undefined}
         type="text"
         inputMode="decimal"
         data-unit={unit ?? ''}
@@ -373,13 +385,22 @@ export function NumberField({
         }}
         onBlur={() => {
           focused.current = false;
+          if (typed.current && text.trim()) {
+            const v = parseValue(text, unit);
+            const raw = parseFloat(text.replace(',', '.'));
+            if (!Number.isFinite(v)) showNote(Number.isFinite(raw) && Math.abs(raw) > MAX_FIELD_VALUE ? `Refused: the value must lie between -${formatValue(MAX_FIELD_VALUE)} and ${formatValue(MAX_FIELD_VALUE)} ${unitLabel}.` : 'Refused: not a valid value. The previous value is kept.');
+            else if (Math.abs(v - value) > 1e-9 * Math.max(1, Math.abs(v))) showNote(`Adjusted to ${formatValue(value, unit)}: ${formatValue(v, unit)} is not allowed here${v < value ? ' (below the minimum)' : ''}.`);
+          }
           typed.current = false;
+          setBad(false);
           setText(formatValue(value, unit));
         }}
         onChange={(e) => {
           typed.current = true;
           setText(e.target.value);
           const v = parseValue(e.target.value, unit);
+          // while typing, an unfinished expression (2*, -, 3e) is not marked yet
+          setBad(!Number.isFinite(v) && !/^\s*[-+]?$|[-+*/(.,e]\s*$/i.test(e.target.value));
           if (Number.isFinite(v)) onChange(min !== undefined ? Math.max(min, v) : v);
         }}
         onKeyDown={(e) => {
@@ -396,6 +417,7 @@ export function NumberField({
           e.stopPropagation();
         }}
       />
+      {note && <span className="k-num-note" role="status" data-testid="num-note">{note}</span>}
       <span className="k-spin">
         <button type="button" tabIndex={-1} disabled={disabled} onMouseDown={(e) => e.preventDefault()} onClick={() => spin(1)} aria-label="Increase"><svg width={7} height={4} viewBox="0 0 7 4"><path d="M0 4L3.5 0 7 4z" fill="currentColor" /></svg></button>
         <button type="button" tabIndex={-1} disabled={disabled} onMouseDown={(e) => e.preventDefault()} onClick={() => spin(-1)} aria-label="Decrease"><svg width={7} height={4} viewBox="0 0 7 4"><path d="M0 0l3.5 4L7 0z" fill="currentColor" /></svg></button>

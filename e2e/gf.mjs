@@ -1,6 +1,7 @@
 // Block G-F (Evaluate): Performance Evaluation, Symmetry Check, Deviation Analysis, Parting Line Analysis, Compare
 // (Body Compare / Compare Documents), Check Active Document in the menu, Quick Beam Estimate Analysis Wizard.
 import { chromium } from 'playwright';
+import { exitCode } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -145,15 +146,13 @@ await page.locator('[data-testid="simx-next"]').click();
 await page.waitForTimeout(300);
 const res = (await text('[data-testid="simx-results"]')).replace(/\s+/g, ' ');
 // the load acts at the top face centre (x 50): M = 100 · 50 = 5000 N·mm, σ = 5000 · 5 / 833 = 30 MPa, FOS = 220 / 30 ≈ 7
-check('Quick Beam Estimate results: FOS ≈ 7, stress ≈ 30 MPa, displacement, beam model', /Factor of safety/.test(res) && /von Mises stress \(max\) 3\d\.\d+ MPa/.test(res) && /span 50\.\d mm/.test(res), res);
+check('Quick Beam Estimate results: FOS ≈ 7, stress ≈ 30 MPa, displacement, beam model', /Indicative ratio yield \/ stress 7\.\d+/.test(res) && /von Mises stress \(max\) 3\d\.\d+ MPa/.test(res) && /span 50\.\d mm/.test(res), res);
 const dlgText = await text('[data-testid="simxpress-dialog"]');
-check('Quick Beam Estimate is marked indicative and makes no safety claim (F56)', /Indicative estimate/.test(dlgText) && !/should be safe/i.test(dlgText) && /does not show that the part is safe|not a safety assessment/.test(dlgText), dlgText.slice(-200));
+check('Quick Beam Estimate is marked indicative and makes no safety claim, no green safety colour (F56)', /Indicative estimate/.test(dlgText) && /Not for design decisions/.test(dlgText) && !/Factor of safety/i.test(dlgText) && !(await page.locator('[data-testid="simxpress-dialog"] [style*="#e6f4ea"], [data-testid="simxpress-dialog"] [style*="rgb(31, 122, 55)"]').count()) && !/should be safe/i.test(dlgText) && /does not show that the part is safe|not a safety assessment/.test(dlgText), dlgText.slice(-200));
 await shot('gf6-simxpress');
 await page.locator('[data-testid="simxpress-dialog"] .k-btn:has-text("Close")').click();
 
 console.log(results.filter((r) => r.ok).length + '/' + results.length + ' passed');
-const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
-if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
-process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
+process.exitCode = exitCode(results, errors);
 if (errors.length) console.log('ERRORS', errors.slice(0, 5));
 await browser.close();

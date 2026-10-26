@@ -3,7 +3,7 @@ import * as THREE from 'three';
 /**
  * Publish to Phlippo Viewer: a single self-contained HTML file with the model's triangles and a small built-in
  * viewer (rotate, pan, zoom, shaded display with edges, body list, measure between two picked points), the
- * equivalent of the original's eDrawings file. It needs no network and no install: any browser opens it.
+ * equivalent of the intended eDrawings file. It needs no network and no install: any browser opens it.
  */
 export interface ViewerBody { name: string; geometry: THREE.BufferGeometry; color?: string }
 

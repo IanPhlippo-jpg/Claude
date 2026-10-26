@@ -34,7 +34,7 @@ export function insertNewAssembly(): void {
 
 /**
  * Insert Components ▸ Copy with Mates: a copy of the selected component next to it; its mates are repeated for the
- * copy (suppressed, so you pick the new references with Edit Mate), as the original asks for new references.
+ * copy (suppressed, so you pick the new references with Edit Mate), by design asks for new references.
  */
 export function copyWithMates(): void {
   const st = S();
@@ -118,7 +118,7 @@ export function mirrorComponents(planeId: string, ids?: string[], oppositeHand =
     const R = new THREE.Matrix4().makeRotationFromQuaternion(new THREE.Quaternion(...c.rotation));
     const Rm = Sm.clone().multiply(R).multiply(Sm);
     // Create opposite hand version: a mirrored part (its own name) instead of a copy of the same part;
-    // mirroring an opposite-hand part again gives a turned copy of the original (two reflections make a rotation)
+    // mirroring an opposite-hand part again gives a turned copy of the intended design (two reflections make a rotation)
     let q = new THREE.Quaternion().setFromRotationMatrix(Rm);
     if (oppositeHand && c.mirror) {
       const m0 = new THREE.Vector3(...c.mirror).normalize();

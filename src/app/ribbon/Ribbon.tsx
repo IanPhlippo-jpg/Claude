@@ -34,7 +34,7 @@ const ASSEMBLY_TABS: { id: RibbonTab; label: string }[] = [
   { id: 'markup', label: 'Markup' },
   { id: 'evaluate', label: 'Evaluate' },
   { id: 'render', label: 'Render Tools' },
-  { id: 'lifecycle', label: 'Lifecycle and Collaboration' },
+  { id: 'lifecycle', label: 'Share' },
   { id: 'addins', label: 'Phlippo Add-Ins' },
 ];
 
@@ -75,7 +75,7 @@ export function BigButton({ label, icon, active, disabled, later, shortcut, onCl
   const [open, setOpen] = useState(false);
   const laterFn = useLater();
   const run = later ? laterFn(label, later) : onClick;
-  // Enter repeats the last command, as the original
+  // Enter repeats the last command, by design
   const click = run ? () => { useStore.getState().setLastCommand({ label, run }); run(); } : undefined;
   return (
     <div className={`k-cm-big ${active ? 'active' : ''} ${disabled ? 'disabled' : ''} ${later ? 'later' : ''}`}>
@@ -158,7 +158,7 @@ export function Ribbon() {
   const T = (id: ToolId) => ({ active: (st.tool === id && inSketch) || (st.planePick && st.pendingTool === id), onClick: () => st.setTool(id) });
   const mirrorable = inSketch && st.selection.filter((s) => s.kind === 'entity').length >= 2;
 
-  // 3×3 block with the menu-bar commands, present on every tab (as the 2026 CommandManager)
+  // 3×3 block with the menu-bar commands, present on every tab
   const menuBlock = (
     <Group>
       <div className="k-cm-mbgrid">
@@ -205,7 +205,7 @@ export function Ribbon() {
             { label: 'Midpoint Line', icon: <Icon.MidLine />, onSelect: () => st.setTool('midpointLine') },
           ]} />
           {(() => {
-            // the button shows the last used rectangle type, as the original
+            // the button shows the last used rectangle type, by design
             const R = { rectangle: ['Corner Rectangle', <Icon.Rect key="r" />], centerRectangle: ['Center Rectangle', <Icon.CenterRect key="c" />], rect3Corner: ['3 Point Corner Rectangle', <Icon.Rect3Corner key="3" />], rect3Center: ['3 Point Center Rectangle', <Icon.Rect3Center key="3c" />], parallelogram: ['Parallelogram', <Icon.Parallelogram key="p" />] } as const;
             const last = (st.lastTool in R ? st.lastTool : 'rectangle') as keyof typeof R;
             return (
@@ -266,18 +266,18 @@ export function Ribbon() {
     </>
   );
 
-  // as the original: commands that need a body (or a sketch) are greyed out until there is one
+  // by design: commands that need a body (or a sketch) are greyed out until there is one
   // an assembly has no Features tab: commands that switch to it show the Assembly tab
   const tabShown = st.doc.kind === 'assembly' && (st.tab === 'features' || st.tab === 'surfaces' || st.tab === 'sheetmetal' || st.tab === 'weldments' || st.tab === 'mbd') ? 'assembly' : st.tab;
   // a document without a kind is a part (createDocument leaves it out for parts)
   const noBody = (st.doc.kind ?? 'part') === 'part' && !st.rebuild.bodies.length;
   // the sheet metal commands that change an existing sheet need a sheet metal body (Base Flange, Convert, Lofted-Bend, Swept Flange)
   const noSheet = noBody || !st.doc.features.some((f) => !f.suppressed && (f.type === 'baseFlange' || f.type === 'convertSheet' || f.type === 'loftedBend' || f.type === 'sweptFlange'));
-  // while a PropertyManager command runs, the original greys the CommandManager (the running command stays lit)
+  // while a PropertyManager command runs, the intended design greys the CommandManager (the running command stays lit)
   const busy = st.doc.kind !== 'drawing' && (!!st.featureEdit || !!st.planeEdit || !!st.sheetMetalEdit || !!st.patternEdit || !!st.sketch3dEdit || !!st.motorEdit || !!st.fastenerEdit || (!!st.analysis && st.analysis.kind !== 'curvature'));
   const noSketch = !st.doc.features.some((f) => f.type === 'sketch');
   const noSurface = !(st.rebuild.surfaceBodies ?? []).length;
-  // while a sketch is open the original greys the commands that do not take a sketch
+  // while a sketch is open the intended design greys the commands that do not take a sketch
   const inSk = !!st.activeSketchId;
   const featuresTab = (
     <>
@@ -293,7 +293,7 @@ export function Ribbon() {
       </Group>
       <Group>
         <BigButton label="Extruded Cut" disabled={noBody} icon={<Icon.Cut />} active={st.featureEdit?.draft.type === 'extrude' && st.featureEdit.draft.op === 'cut'} onClick={() => st.startFeature('extrude', 'cut')} />
-        <BigButton label="Hole Wizard" disabled={noBody || inSk} icon={<Icon.Hole />} active={st.featureEdit?.draft.type === 'hole' || st.featureEdit?.draft.type === 'thread' || st.featureEdit?.draft.type === 'stud'} onClick={() => st.startHole()} flyout={[{ label: 'Hole Wizard', icon: <Icon.Hole />, onSelect: () => st.startHole() }, { label: 'Advanced Hole', icon: <Icon.Hole />, onSelect: () => st.startHole(true) }, { label: 'Thread', icon: <Icon.Hole />, onSelect: st.startThread }, { label: 'Stud Wizard', icon: <Icon.Hole />, onSelect: st.startStud }]} />
+        <BigButton label="Hole Tool" disabled={noBody || inSk} icon={<Icon.Hole />} active={st.featureEdit?.draft.type === 'hole' || st.featureEdit?.draft.type === 'thread' || st.featureEdit?.draft.type === 'stud'} onClick={() => st.startHole()} flyout={[{ label: 'Hole Tool', icon: <Icon.Hole />, onSelect: () => st.startHole() }, { label: 'Advanced Hole', icon: <Icon.Hole />, onSelect: () => st.startHole(true) }, { label: 'Thread', icon: <Icon.Hole />, onSelect: st.startThread }, { label: 'Stud Wizard', icon: <Icon.Hole />, onSelect: st.startStud }]} />
         <BigButton label="Revolved Cut" disabled={noBody} icon={<Icon.RevolveCut />} active={st.featureEdit?.draft.type === 'revolve' && st.featureEdit.draft.op === 'cut'} onClick={() => st.startFeature('revolve', 'cut')} />
         <div className="k-cm-col">
           <SmallButton label="Swept Cut" disabled={noBody || inSk} icon={<Icon.SweepCut />} active={st.featureEdit?.draft.type === 'sweep' && st.featureEdit.draft.op === 'cut'} onClick={() => st.startFeature('sweep', 'cut')} />
@@ -303,7 +303,7 @@ export function Ribbon() {
       </Group>
       <Group>
         <BigButton label="Fillet" disabled={noBody || inSk} icon={<Icon.Fillet />} active={st.featureEdit?.draft.type === 'fillet'} onClick={() => st.startRound('fillet')} flyout={[{ label: 'Fillet', icon: <Icon.Fillet />, onSelect: () => st.startRound('fillet') }, { label: 'Chamfer', icon: <Icon.Chamfer />, onSelect: () => st.startRound('chamfer') }]} />
-        <BigButton label="Linear Pattern" disabled={inSk} icon={<Icon.Pattern />} active={!!st.featureEdit && /Pattern$/.test(st.featureEdit.draft.type)} onClick={() => st.startPattern('linearPattern')} flyout={[{ label: 'Linear Pattern', icon: <Icon.Pattern />, onSelect: () => st.startPattern('linearPattern') }, { label: 'Circular Pattern', icon: <Icon.Pattern />, onSelect: () => st.startPattern('circularPattern') }, { label: 'Curve Driven Pattern', icon: <Icon.Pattern />, onSelect: () => st.startPattern('curvePattern') }, { label: 'Sketch Driven Pattern', icon: <Icon.Pattern />, onSelect: () => st.startPattern('sketchPattern') }, { label: 'Table Driven Pattern', icon: <Icon.Pattern />, onSelect: () => st.startPattern('tablePattern') }, { label: 'Fill Pattern', icon: <Icon.Pattern />, onSelect: () => st.startPattern('fillPattern') }, { label: 'Variable Pattern', icon: <Icon.Pattern />, onSelect: () => st.startPattern('variablePattern') }]} />
+        <BigButton label="Linear Pattern" disabled={noBody || inSk} icon={<Icon.Pattern />} active={!!st.featureEdit && /Pattern$/.test(st.featureEdit.draft.type)} onClick={() => st.startPattern('linearPattern')} flyout={[{ label: 'Linear Pattern', icon: <Icon.Pattern />, onSelect: () => st.startPattern('linearPattern') }, { label: 'Circular Pattern', icon: <Icon.Pattern />, onSelect: () => st.startPattern('circularPattern') }, { label: 'Curve Driven Pattern', icon: <Icon.Pattern />, onSelect: () => st.startPattern('curvePattern') }, { label: 'Sketch Driven Pattern', icon: <Icon.Pattern />, onSelect: () => st.startPattern('sketchPattern') }, { label: 'Table Driven Pattern', icon: <Icon.Pattern />, onSelect: () => st.startPattern('tablePattern') }, { label: 'Fill Pattern', icon: <Icon.Pattern />, onSelect: () => st.startPattern('fillPattern') }, { label: 'Variable Pattern', icon: <Icon.Pattern />, onSelect: () => st.startPattern('variablePattern') }]} />
         <div className="k-cm-col">
           <SmallButton label="Rib" disabled={noBody} icon={<Icon.Rib />} active={st.featureEdit?.draft.type === 'rib'} onClick={st.startRib} />
           <SmallButton label="Draft" disabled={noBody || inSk} icon={<Icon.Draft />} active={st.featureEdit?.draft.type === 'draft'} onClick={st.startDraft} />
@@ -481,7 +481,7 @@ export function Ribbon() {
         <BigButton label="3D Sketch" icon={<Icon.Sketch />} active={!!st.sketch3dEdit} onClick={st.start3DSketch} />
         <BigButton label="Extruded Boss/Base" icon={<Icon.Extrude />} active={st.featureEdit?.draft.type === 'extrude' && st.featureEdit.draft.op === 'boss'} onClick={() => st.startFeature('extrude', 'boss')} />
         <BigButton label="Extruded Cut" disabled={noBody} icon={<Icon.Cut />} active={st.featureEdit?.draft.type === 'extrude' && st.featureEdit.draft.op === 'cut'} onClick={() => st.startFeature('extrude', 'cut')} />
-        <BigButton label="Hole Wizard" disabled={noBody} icon={<Icon.Hole />} active={st.featureEdit?.draft.type === 'hole'} onClick={() => st.startHole()} />
+        <BigButton label="Hole Tool" disabled={noBody} icon={<Icon.Hole />} active={st.featureEdit?.draft.type === 'hole'} onClick={() => st.startHole()} />
         <BigButton label="Chamfer" disabled={noBody} icon={<Icon.Chamfer />} active={st.featureEdit?.draft.type === 'chamfer'} onClick={() => st.startRound('chamfer')} />
       </Group>
       <Group>
@@ -504,11 +504,11 @@ export function Ribbon() {
         <BigButton label="Show Tolerance Status" disabled={noBody} icon={<Icon.Check />} active={st.analysis?.kind === 'tolerance'} onClick={() => st.setAnalysis(st.analysis?.kind === 'tolerance' ? null : { kind: 'tolerance' })} />
         <div className="k-cm-col">
           <SmallButton label="Copy Scheme" disabled={!st.doc.dimxpert} icon={<Icon.Properties />} onClick={() => { navigator.clipboard?.writeText(JSON.stringify(st.doc.dimxpert)).catch(() => {}); st.pushMessage('Auto Tolerancing scheme copied to the clipboard (paste with Import Scheme).', 'info'); }} />
-          <SmallButton label="Import Scheme" disabled={noBody} icon={<Icon.Open />} onClick={() => st.setAsk({ title: 'Import Scheme', text: 'Paste a Auto Tolerancing scheme (JSON from Copy Scheme).', input: '', yes: (v: string) => { try { const d = JSON.parse(String(v ?? '')); if (d && Array.isArray(d.dims) && Array.isArray(d.datums)) st.setDimXpertData(d); else st.pushMessage('Not a Auto Tolerancing scheme.', 'warn'); } catch { st.pushMessage('Not a Auto Tolerancing scheme.', 'warn'); } }, yesLabel: 'Import' })} />
+          <SmallButton label="Import Scheme" disabled={noBody} icon={<Icon.Open />} onClick={() => st.setAsk({ title: 'Import Scheme', text: 'Paste an Auto Tolerancing scheme (JSON from Copy Scheme).', input: '', yes: (v: string) => { try { const d = JSON.parse(String(v ?? '')); if (d && Array.isArray(d.dims) && Array.isArray(d.datums)) st.setDimXpertData(d); else st.pushMessage('Not an Auto Tolerancing scheme.', 'warn'); } catch { st.pushMessage('Not an Auto Tolerancing scheme.', 'warn'); } }, yesLabel: 'Import' })} />
           <SmallButton label="Delete All Tolerances" disabled={!st.doc.dimxpert} icon={<Icon.Trash />} onClick={st.deleteAllTolerances} />
         </div>
         <div className="k-cm-col">
-          <SmallButton label="Tolerance Stack-up Study" disabled={!st.doc.dimxpert} icon={<Icon.Measure />} onClick={() => { const d = st.doc.dimxpert!; const worst = d.dims.reduce((a, x) => a + x.plus + x.minus, 0); const rss = Math.sqrt(d.dims.reduce((a, x) => a + (x.plus + x.minus) ** 2, 0)); st.setAsk({ title: 'Tolerance Stack-up Study', text: `Stack-up of ${d.dims.length} dimension(s): worst case ±${(worst / 2).toFixed(3)} mm, statistical (RSS) ±${(rss / 2).toFixed(3)} mm.` }); }} />
+          <SmallButton label="Tolerance Sum" disabled={!st.doc.dimxpert} icon={<Icon.Measure />} onClick={() => { const d = st.doc.dimxpert!; const worst = d.dims.reduce((a, x) => a + x.plus + x.minus, 0); const rss = Math.sqrt(d.dims.reduce((a, x) => a + (x.plus + x.minus) ** 2, 0)); st.setAsk({ title: 'Tolerance Sum (all dimensions)', text: `Sum over all ${d.dims.length} toleranced dimension(s) of the scheme: worst case ±${(worst / 2).toFixed(3)} mm, statistical (RSS) ±${(rss / 2).toFixed(3)} mm. This adds every tolerance; it is not the stack-up of one dimension chain, so it overstates any single chain.` }); }} />
           <SmallButton label="Datum Target" disabled={noBody} icon={<Icon.Point />} onClick={() => st.startDimXpert('datum')} />
           <SmallButton label="Basic Dimension" disabled={noBody} icon={<Icon.Dimension />} onClick={() => { st.startDimXpert('size'); st.updateDimXpert({ basic: true }); }} />
         </div>
@@ -533,7 +533,7 @@ export function Ribbon() {
       {menuBlock}
       <Group>
         {/* Add-ins load and unload with a click (Toolbox: standard hardware in the Design Library) */}
-        <BigButton label="Toolbox" icon={<Icon.Library />} active={toolboxOn} onClick={() => { const on = !toolboxOn; setToolboxOn(on); savePrefs({ ...loadPrefs(), 'addin.toolbox': on }); st.pushMessage(on ? 'Toolbox loaded: Design Library ▸ Toolbox holds the standard hardware.' : 'Toolbox unloaded.'); if (on && st.taskPane !== 'library') st.setTaskPane('library'); }} />
+        <BigButton label="Standard Parts" icon={<Icon.Library />} active={toolboxOn} onClick={() => { const on = !toolboxOn; setToolboxOn(on); savePrefs({ ...loadPrefs(), 'addin.toolbox': on }); st.pushMessage(on ? 'Standard Parts loaded: Part Library ▸ Standard Parts holds the standard hardware.' : 'Standard Parts unloaded.'); if (on && st.taskPane !== 'library') st.setTaskPane('library'); }} />
       </Group>
     </>
   );

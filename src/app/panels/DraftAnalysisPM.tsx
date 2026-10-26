@@ -129,7 +129,7 @@ export function UndercutAnalysisPM() {
   );
 }
 
-/** Evaluate ▸ Geometry Analysis, as the original: the limits, Calculate, and the lists of what was found. */
+/** Evaluate ▸ Geometry Analysis, by design: the limits, Calculate, and the lists of what was found. */
 export function GeometryAnalysisPM() {
   const st = useStore();
   const a = st.analysis;

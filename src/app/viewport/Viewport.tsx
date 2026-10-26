@@ -150,7 +150,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
     };
   }, [camera, scene, bodies]);
 
-  // a newly opened document is shown whole (Zoom to Fit), as the original
+  // a newly opened document is shown whole (Zoom to Fit), by design
   useEffect(() => {
     if (!st.openSeq) return;
     const t = setTimeout(() => zoomFit(), 60);
@@ -175,14 +175,14 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
     bump((n) => n + 1);
   }, [st.tool, tools]);
 
-  // starting a solid feature from a view normal to the sketch rotates to trimetric so the preview is visible (as the original)
+  // starting a solid feature from a view normal to the sketch rotates to trimetric so the preview is visible (by design)
   const featureEditId = st.featureEdit?.draft.id ?? null;
   useEffect(() => {
     if (featureEditId && ['front', 'top', 'right', 'back', 'bottom', 'left', 'normalTo'].includes(camera.viewName)) camera.setView('trimetric');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [featureEditId]);
 
-  // hovering a face shows the name of the feature that made it, in a small grey tag, as the original
+  // hovering a face shows the name of the feature that made it, in a small grey tag, by design
   const hoverTag = useMemo(() => {
     const h = st.hoverFace;
     if (!h || st.activeSketchId || st.doc.kind === 'assembly' || st.doc.kind === 'drawing') return null;
@@ -252,7 +252,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
   }, [ghostPart]);
   const [ghostPos, setGhostPos] = useState<THREE.Vector3 | null>(null);
   const hoverFeatureFaces = useMemo(() => (st.hoverFeatureId && st.hoverFeatureId !== st.selectedFeatureId ? facesOfFeature(st.hoverFeatureId) : []), [facesOfFeature, st.hoverFeatureId, st.selectedFeatureId]);
-  // a feature selected in the tree shows the dimensions of its sketch on the model, as the original
+  // a feature selected in the tree shows the dimensions of its sketch on the model, by design
   const selFeature = st.selectedFeatureId ? st.doc.features.find((f) => f.id === st.selectedFeatureId) : undefined;
   const dimSketch = !st.activeSketchId && !st.featureEdit && selFeature && selFeature.type !== 'sketch' && isSketchBased(selFeature) ? st.doc.sketches[(selFeature as { sketchId: string }).sketchId] ?? null : null;
   const regionKeyRef = useRef('');
@@ -262,7 +262,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
     () =>
       st.show.sketches
         ? st.doc.features
-            // sketches used by a feature are hidden once the feature exists (as in the original), except while that feature is edited
+            // sketches used by a feature are hidden once the feature exists (by design), except while that feature is edited
             .filter((f, i) => f.type === 'sketch' && f.sketchId !== profileSketch?.id && !f.suppressed && (st.rollbackIndex === null || i < st.rollbackIndex) && f.sketchId !== st.activeSketchId && st.doc.sketches[f.sketchId] && (!st.rebuild.consumedSketches.has(f.sketchId) || (st.featureEdit && isSketchBased(st.featureEdit.draft) && st.featureEdit.draft.sketchId === f.sketchId)))
             .map((f) => { const sid = (f as { sketchId: string }).sketchId; return { sketch: st.doc.sketches[sid], plane: st.doc.sketches[sid].plane }; })
         : [],
@@ -316,7 +316,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
   // Reference Geometry (axes, points, coordinate systems) and the one being defined
   const refSel = st.refEdit ? st.refSelection() : null;
   const refDraft = st.refEdit && refSel ? refGeometryFrom(st.refEdit.kind, refSel, 'refdraft', st.refEdit.name) : null;
-  // Fillet / Chamfer: the yellow see-through rounded faces and their cross-section lines, as the original
+  // Fillet / Chamfer: the yellow see-through rounded faces and their cross-section lines, by design
   const roundShapes = useMemo(() => {
     const fe = st.featureEdit;
     const body = st.rebuild.bodies[0];
@@ -337,7 +337,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
   const previewCurves = useMemo(() => {
     const size = Math.max(20, camera.scale * 160);
     const out = [...previewCurves0];
-    // Center of Mass feature: a small circle with a cross, as the original's marker
+    // Center of Mass feature: a small circle with a cross, as the intended marker
     if (comPoint) {
       const r = Math.max(1, camera.scale * 8);
       const ring = Array.from({ length: 33 }, (_, i) => { const t = (i / 32) * Math.PI * 2; return comPoint.clone().add(new THREE.Vector3(Math.cos(t) * r, Math.sin(t) * r, 0)); });
@@ -347,7 +347,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
       for (const [k, d] of [['x', new THREE.Vector3(1, 0, 0)], ['y', new THREE.Vector3(0, 1, 0)], ['z', new THREE.Vector3(0, 0, 1)]] as const) out.push({ id: 'com-' + k, name: 'Center of Mass', points: [comPoint.clone().addScaledVector(d, -r * 1.4), comPoint.clone().addScaledVector(d, r * 1.4)], color: '#2b2b2b' } as (typeof out)[number]);
     }
     roundShapes?.lines.forEach((l, i) => out.push({ id: `round-pv-${i}`, name: '', points: l, color: '#eef51c' } as (typeof out)[number]));
-    // Thread: the helical paths of the profile in cyan until OK, as the original (fr. 299–301)
+    // Thread: the helical paths of the profile in cyan until OK, by design
     const td = st.featureEdit?.draft;
     if (td && td.type === 'thread' && !st.detailedPreview) {
       const spec = threadSpecOf(td);
@@ -399,7 +399,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
   const preview = useMemo(() => {
     if (!st.featureEdit) return null;
     const d = st.featureEdit.draft;
-    // the original shows no filled preview for a fillet / chamfer, only its yellow lines
+    // the intended design shows no filled preview for a fillet / chamfer, only its yellow lines
     if (isRoundFeature(d)) return null;
     if (d.type === 'rib') {
       // against the body as it is before the rib (editing: rebuild up to the feature)
@@ -454,7 +454,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
     const fe = st.featureEdit;
     const body = st.rebuild.bodies[0];
     if (!fe || !body) return null;
-    // a fillet / chamfer is only previewed (yellow) until OK, as the original; the eye (Detailed Preview) shows the result
+    // a fillet / chamfer is only previewed (yellow) until OK, by design; the eye (Detailed Preview) shows the result
     if (isRoundFeature(fe.draft)) return null;
     if (fe.draft.type === 'mirror' || fe.draft.type === 'linearPattern' || fe.draft.type === 'circularPattern' || fe.draft.type === 'hole' || fe.draft.type === 'shell') {
       // preview = the document rebuilt with the draft appended (or replacing the edited feature)
@@ -505,11 +505,11 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
     const colors = readColors(hostRef.current);
     const tr = toolRenderRef.current;
     const selection = new Set(st.selection.filter((s) => s.kind === 'entity').map((s) => s.id));
-    // a rectangle just drawn stays selected (light blue) while its PropertyManager is open, as the original
+    // a rectangle just drawn stays selected (light blue) while its PropertyManager is open, by design
     if (sketch && !tr?.preview?.length && ['rectangle', 'centerRectangle', 'rect3Corner', 'rect3Center', 'parallelogram'].includes(st.tool)) for (const id of lastRectangle(sketch) ?? []) selection.add(id);
     const selectedPoints = new Set(st.selection.filter((s) => s.kind === 'point').map((s) => s.id));
     scene.update({
-      // while a sketch based feature is defined, its profile sketch is shown in full (lines, shaded contour), as the original
+      // while a sketch based feature is defined, its profile sketch is shown in full (lines, shaded contour), by design
       sketch: sketch ?? profileSketch,
       plane: sketch ? plane : profileSketch?.plane ?? plane,
       solve: sketch ? solve : profileSketch ? st.solve[profileSketch.id] ?? null : null,
@@ -639,6 +639,10 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
       // a render shows the model only: no origin, planes or sketches
       const hideKeys = (['origin', 'planes', 'sketches'] as const).filter((k) => useStore.getState().show[k]);
       for (const k of hideKeys) useStore.getState().toggleShow(k);
+      // nor the selection or the pointer's highlight (F79): cleared for the render and put back afterwards
+      const s0 = useStore.getState();
+      const kept = { selectedFace: s0.selectedFace, selectedFaces: s0.selectedFaces, hoverFace: s0.hoverFace, selectedEdges: s0.selectedEdges, hoverEdge: s0.hoverEdge, hoverFeatureId: s0.hoverFeatureId, selectedFeatureId: s0.selectedFeatureId, selection: s0.selection, hover: s0.hover };
+      useStore.setState({ selectedFace: null, selectedFaces: [], hoverFace: null, selectedEdges: [], hoverEdge: null, hoverFeatureId: null, selectedFeatureId: null, selection: [], hover: null });
       // let the graphics area apply RealView and the floor shadow first
       await new Promise((res) => requestAnimationFrame(() => requestAnimationFrame(res)));
       const ratio = renderer.getPixelRatio();
@@ -669,6 +673,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
       if (!prevRV) useStore.getState().toggleShow('realView');
       if (!prevSh) useStore.getState().toggleShow('shadows');
       for (const k of hideKeys) useStore.getState().toggleShow(k);
+      useStore.setState(kept);
       return url;
     };
     return () => { bridge.snapshot = undefined; bridge.finalRender = undefined; };
@@ -766,7 +771,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
 
   /** body edge near the pixel (within 6 px), nearest first */
   const edgeAt = (px: number, py: number): string | null => {
-    // only edges the viewer can see (as the original): an edge behind a face is not picked through it
+    // only edges the viewer can see (by design): an edge behind a face is not picked through it
     const ray = camera.pixelToRay(px, py);
     const hit = st.displayStyle === 'wireframe' || st.displayStyle === 'hiddenVisible' ? null : bodies.pick(ray);
     const hitDepth = hit ? hit.point.clone().sub(ray.origin).dot(ray.direction) : Infinity;
@@ -839,13 +844,13 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
   };
 
   const compDrag = useRef<{ id: string; x: number; y: number; mode: 'move' | 'rotate' } | null>(null);
-  // ---- mouse gestures, as the original: right-drag shows the guide, the tool in the drag direction runs on release
+  // ---- mouse gestures, by design: right-drag shows the guide, the tool in the drag direction runs on release
   type GestureDir = 'up' | 'down' | 'left' | 'right';
   const gesture = useRef<{ x: number; y: number; dir: GestureDir | null } | null>(null);
   const rightPress = useRef<{ x: number; y: number } | null>(null);
   const rightReleasedAt = useRef(-1e9);
   const [gestureUi, setGestureUi] = useState<{ x: number; y: number; dir: GestureDir | null } | null>(null);
-  // Customize ▸ Mouse Gestures: the four directions bind to commands of the catalog (defaults as the original)
+  // Customize ▸ Mouse Gestures: the four directions bind to commands of the catalog (defaults by design)
   const gestureCommands = (): Record<GestureDir, { label: string; run: () => void }> => {
     const g = gestureBindings(getPref('customize.gestures'));
     const ctx = sketch ? g.sketch : g.part;
@@ -855,7 +860,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
   const onPointerDown = (e: React.PointerEvent) => {
     hostRef.current?.focus();
     setCtxMenu(null);
-    // the fly-out FeatureManager collapses as soon as the graphics area is used (as in the original)
+    // the fly-out FeatureManager collapses as soon as the graphics area is used (by design)
     if (flyout && !(e.target as HTMLElement).closest?.('.k-flyout-tree')) setFlyout(false);
     if (e.button === 1) {
       // middle: rotate; Ctrl+middle: pan; Shift+middle: zoom; Alt+middle: roll; double-click: zoom to fit
@@ -954,7 +959,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
         if (q) st.addFormToolPoint(q);
         return;
       }
-      // Selected Contours box active: a click on a region of the profile picks it, as the original
+      // Selected Contours box active: a click on a region of the profile picks it, by design
       if (st.contourPick && profileSketch && (st.featureEdit?.draft.type === 'extrude' || st.featureEdit?.draft.type === 'revolve')) {
         const q = camera.pixelToPlane(info.px, info.py, profileSketch.plane);
         const regs = sketchRegions(profileSketch);
@@ -1178,7 +1183,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
         if (st.planePick) st.cancelPlanePick();
         if (st.featureEdit) st.cancelFeature();
         if (st.placing) st.cancelPlacing();
-        // Insert Component: Esc ends the command, the part on the pointer is not inserted (as the original)
+        // Insert Component: Esc ends the command, the part on the pointer is not inserted (by design)
         if (st.insertingComponent) st.cancelInsertComponent();
         if (st.modify) st.setModify(null);
         if (ctxMenu) setCtxMenu(null);
@@ -1211,7 +1216,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
   // context toolbar items (relations for the selection) + shortcut menu
   const ctxItems = (): { toolbar: MenuItem[]; menu: MenuItem[] } => {
     if (!sketch && st.featureEdit && st.featureEdit.draft.type === 'extrude') {
-      // as the original: the shortcut menu of an extrude offers the end conditions of both directions
+      // by design: the shortcut menu of an extrude offers the end conditions of both directions
       const d = st.featureEdit.draft;
       const end = (id: import('../../core/document/types').EndCondition, label: string): MenuItem => ({ label: `${d.end === id ? '✓ ' : ''}${label}`, onSelect: () => st.updateFeatureDraft({ end: id }) });
       const end2 = (id: 'blind' | 'throughAll' | 'upToVertex' | 'upToSurface' | null, label: string): MenuItem => ({ label: `${(d.direction2?.end ?? null) === id ? '✓ ' : ''}${label}`, onSelect: () => { st.updateFeatureDraft({ direction2: id ? { ...d.direction2, end: id, depth: d.direction2?.depth ?? 10 } : undefined }); useStore.setState({ dir2Pick: id === 'upToVertex' ? 'vertex' : id === 'upToSurface' ? 'surface' : null }); } });
@@ -1310,7 +1315,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
       tabIndex={0}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
-      // an appearance swatch dragged from the task pane onto the model: applied to the part (as the original's default)
+      // an appearance swatch dragged from the task pane onto the model: applied to the part (as the intended default)
       onDragOver={(e) => { if (e.dataTransfer.types.includes('application/x-phlippo-appearance')) { e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; } }}
       onDrop={(e) => { const c = e.dataTransfer.getData('application/x-phlippo-appearance'); if (c) { e.preventDefault(); st.setAppearance(c, null); } }}
       onPointerUp={onPointerUp}
@@ -1407,7 +1412,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
         </span>
       )}
       {st.featureEdit && (st.featureEdit.draft.type === 'linearPattern' || st.featureEdit.draft.type === 'circularPattern') && (() => {
-        // instance markers as the original: yellow rings per instance, click to add it to Instances to Skip
+        // instance markers by design: yellow rings per instance, click to add it to Instances to Skip
         const d = st.featureEdit.draft;
         const seed = d.featureIds.map((id) => st.doc.features.find((f) => f.id === id)).find((f) => f && isSketchBased(f) && f.type !== 'sketch');
         if (!seed || !isSketchBased(seed) || seed.type === 'sketch') return null;
@@ -1423,7 +1428,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
         });
       })()}
       {st.featureEdit && (st.featureEdit.draft.type === 'sweep' || st.featureEdit.draft.type === 'loft') && (() => {
-        // callouts as the original: Profile(Sketch3), Path(Sketch4) / Profile 2(Sketch5) at the sketches
+        // callouts by design: Profile(Sketch3), Path(Sketch4) / Profile 2(Sketch5) at the sketches
         const d = st.featureEdit.draft;
         const items: { label: string; sketchId: string }[] = [{ label: 'Profile', sketchId: d.sketchId }];
         if (d.type === 'sweep' && d.pathSketchId) items.push({ label: 'Path', sketchId: d.pathSketchId });
@@ -1464,7 +1469,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
         const q = camera.worldToPixel(e.centroid);
         const d = st.featureEdit.draft;
         return (
-          // the callout of the original: a leader from the edge to a box with the label and an editable value
+          // the callout of the intended design: a leader from the edge to a box with the label and an editable value
           <>
             <svg className="k-callout-line" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
               <line x1={q.x} y1={q.y} x2={q.x + 48} y2={q.y + 112} stroke="#000" strokeWidth={1} />

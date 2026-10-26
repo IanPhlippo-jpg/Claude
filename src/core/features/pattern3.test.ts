@@ -24,7 +24,7 @@ const holeDoc = () => {
 const holeVol = Math.PI * 9 * 10;
 const lp = (o: Partial<PatternFeature>): PatternFeature => ({ id: 'p1', type: 'linearPattern', name: 'LPattern1', suppressed: false, featureIds: ['f2'], dir1: { axis: [1, 0, 0], spacing: 20, count: 3 }, ...o });
 
-describe('pattern options of the original', () => {
+describe('pattern options of the intended design', () => {
   it('Up to reference: four holes from x = 10 up to a plane at x = 70 (spacing 20)', () => {
     const doc = holeDoc();
     doc.planes.p70 = { ...REFERENCE_PLANE_DEFS.right, id: 'p70', name: 'Plane1', origin: [70, 0, 0], kind: 'reference' };

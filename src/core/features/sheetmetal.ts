@@ -6,7 +6,7 @@ import { polyArea, type Region } from './regions';
 import { mergeGeometries, extrudeGeometry, THROUGH_ALL } from './solid';
 
 /**
- * Sheet metal, as the original's Sheet Metal tab (basic set): Base Flange/Tab, Edge Flange and the
+ * Sheet metal, as the intended Sheet Metal tab (basic set): Base Flange/Tab, Edge Flange and the
  * Flat Pattern. The sheet has one thickness and a default inner bend radius; the bend allowance
  * follows the K-factor (neutral axis at K * thickness from the inside of the bend).
  */

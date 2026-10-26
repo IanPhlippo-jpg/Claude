@@ -6,7 +6,7 @@ import { exportMesh, type MeshExportOptions } from '../core/document/export3d';
 import { desktop } from './desktop';
 import { getPref } from './prefs';
 
-/** Feature Properties: name, description, suppressed, the dates — as the original's dialog */
+/** Feature Properties: name, description, suppressed, the dates — as the intended dialog */
 export function FeaturePropertiesDialog() {
   const st = useStore();
   const f = st.doc.features.find((x) => x.id === st.dialogFeatureId);
@@ -75,7 +75,7 @@ export function ParentChildDialog() {
   );
 }
 
-/** Save As ▸ STL / 3MF / AMF: the Export Options page of the original */
+/** Save As ▸ STL / 3MF / AMF: the Export Options page of the intended design */
 export function ExportOptionsDialog() {
   const st = useStore();
   const fmt = st.exportFormat;

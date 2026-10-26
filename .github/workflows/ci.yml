@@ -5,6 +5,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # the full regression takes about 35 minutes on a runner; a hang must not run for hours
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -14,13 +16,19 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm test
+      # no program-specific names in the visible text and no wording that names the reference program (F50, F92)
+      - run: node tools/rename-trademarks.cjs --check && node tools/neutral-comments.cjs --check
+      # the release build (no test hooks), then the e2e build (VITE_TEST_HOOKS=1) the regression drives
       - run: npm run build
+      - run: npm run build:e2e
       - run: npx playwright install --with-deps chromium
-      # the browser build on vite preview: the full regression; every script exits 1 on a failed check or a page error
+      # every script exits 1 on a failed check, a page error or an unexpected console error (e2e/lib/check.mjs)
       - run: |
           npx vite preview --host 127.0.0.1 --port 4173 --strictPort &
           npx wait-on http://127.0.0.1:4173
           PW_CHROMIUM="$(node -e "console.log(require('playwright').chromium.executablePath())")" E2E_URL=http://127.0.0.1:4173/ node e2e/run-regression.mjs
+      # the tests leave the repository as they found it (no rewritten examples, F84)
+      - run: git diff --exit-code
       - uses: actions/upload-artifact@v4
         if: always()
         with:

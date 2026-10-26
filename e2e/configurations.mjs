@@ -1,5 +1,6 @@
 // Configurations (Configurations, Modify Configurations, component configuration in an assembly, mass of all components).
 import { chromium } from 'playwright';
+import { exitCode, skip } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -155,7 +156,7 @@ check('Default has the feature suppressed, 270 (active) still built', c.sup[0] =
 // ---- reload keeps configurations
 await page.reload();
 await page.waitForSelector('.k-viewport');
-await page.locator('[data-testid="welcome-recent-0"]').click({ timeout: 4000 }).catch(() => {}); // the autosave waits under Recent Documents, as the original
+await page.locator('[data-testid="welcome-recent-0"]').click({ timeout: 4000 }).catch(skip('configurations:159')); // the autosave waits under Recent Documents, as the original
 await page.waitForTimeout(800);
 c = await C();
 check('configurations survive a reload', c.names.join(',') === 'Default,210,270' && c.active === '270' && c.depth === 27, JSON.stringify(c));
@@ -169,7 +170,7 @@ await page.click('.k-menu-item:has-text("New")');
 await page.waitForTimeout(200);
 await page.click('.k-doctype:has-text("Assembly")');
 await page.click('.k-dialog-actions button:has-text("OK")');
-await page.locator('[data-testid="ask-no"]').click({ timeout: 1500 }).catch(() => {}); // Save changes? → Don't Save
+await page.locator('[data-testid="ask-no"]').click({ timeout: 1500 }).catch(skip('configurations:173')); // Save changes? → Don't Save
 await page.waitForTimeout(500);
 for (let i = 0; i < 3; i++) {
   if (i) await page.click('.k-cm-big:has-text("Insert Components") .k-cm-main');
@@ -218,9 +219,7 @@ await shot('c8-bom');
 
 console.log(`
 ${results.filter((r) => r.ok).length}/${results.length} checks passed`);
-const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
-if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
-process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
+process.exitCode = exitCode(results, errors);
 for (const r of results.filter((r) => !r.ok)) console.log(' - ' + r.name + (r.info ? ' (' + r.info + ')' : ''));
 console.log('errors:', errors.length ? errors : 'none');
 await browser.close();

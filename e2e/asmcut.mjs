@@ -1,5 +1,6 @@
 // Assembly Features ▸ Extruded Cut on the door handle: a cutaway (upper half around the spindle) made in the assembly only.
 import { chromium } from 'playwright';
+import { exitCode } from './lib/check.mjs';
 import { mkdirSync, readFileSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -61,9 +62,7 @@ await shot('ac2-cutaway');
 
 console.log(`
 ${results.filter((r) => r.ok).length}/${results.length} checks passed`);
-const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
-if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
-process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
+process.exitCode = exitCode(results, errors);
 for (const r of results.filter((r) => !r.ok)) console.log(' - ' + r.name + (r.info ? ' (' + r.info + ')' : ''));
 console.log('errors:', errors.length ? errors : 'none');
 await browser.close();

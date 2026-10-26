@@ -2,6 +2,7 @@
 // custom scale), Detail View (Full / Jagged outline, Pin position), Dimension (tolerance, precision, override,
 // prefix/suffix, dual, Leaders arrows, Other font height, select and drag the text).
 import { chromium } from 'playwright';
+import { exitCode, skip } from './lib/check.mjs';
 import { mkdirSync, readFileSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -51,9 +52,9 @@ await page.evaluate(() => window.__phlippoStore.getState().undo());
 await page.evaluate(() => window.__phlippoStore.getState().selectDrawingView(null));
 await page.evaluate((id) => { const s = window.__phlippoStore.getState(); s.selectDrawingView(id); s.startDrawingSection('v'); }, top.id);
 await page.waitForTimeout(200);
-await page.click('.k-section-title:has-text("Section View")').catch(() => undefined);
+await page.click('.k-section-title:has-text("Section View")').catch(skip('drawopts:55'));
 await page.click('[data-testid="sv-slice"]');
-await page.click('.k-section-title:has-text("Scale")').catch(() => undefined);
+await page.click('.k-section-title:has-text("Scale")').catch(skip('drawopts:57'));
 await page.click('[data-testid="sv-customscale"]');
 await page.selectOption('[data-testid="sv-scale"]', '2:1');
 await page.evaluate((id) => window.__phlippoStore.getState().setSectionLine(id, 0), top.id);
@@ -71,7 +72,7 @@ await page.waitForTimeout(2500);
 const afront = (await sheet()).views.find((v) => v.type === 'front');
 await page.evaluate((id) => { const s = window.__phlippoStore.getState(); s.selectDrawingView(id); s.startDrawingSection('h'); }, afront.id);
 await page.waitForTimeout(200);
-await page.click('.k-section-title:has-text("Section View")').catch(() => undefined);
+await page.click('.k-section-title:has-text("Section View")').catch(skip('drawopts:75'));
 await page.click('[data-testid="sv-autohatch"]');
 await page.click('[data-testid="sv-partial"]');
 await page.evaluate((id) => window.__phlippoStore.getState().setSectionLine(id, 0), afront.id);
@@ -89,7 +90,7 @@ await page.evaluate((d) => window.__phlippoStore.getState().openDocument(d), drw
 await page.waitForTimeout(2000);
 await page.evaluate((id) => { const s = window.__phlippoStore.getState(); s.selectDrawingView(id); s.startDetailView(); }, front.id);
 await page.waitForTimeout(200);
-await page.click('.k-section-title:has-text("Detail View")').catch(() => undefined);
+await page.click('.k-section-title:has-text("Detail View")').catch(skip('drawopts:93'));
 await page.click('[data-testid="dv-jagged"]');
 await page.click('[data-testid="dv-pin"]');
 await page.evaluate((id) => { const s = window.__phlippoStore.getState(); s.setDetailCircle(id, [0, 0], 12); s.setDetailCircle(id, [0, 0], 12); }, front.id);
@@ -207,9 +208,7 @@ check('Drawing View PM ▸ Use parent scale', JSON.stringify(secScale) === JSON.
 await page.screenshot({ path: `${OUT}/drawopts-rest.png` });
 console.log(`
 ${results.filter((r) => r.ok).length}/${results.length} checks passed`);
-const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
-if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
-process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
+process.exitCode = exitCode(results, errors);
 for (const r of results.filter((r) => !r.ok)) console.log(' - ' + r.name + (r.info ? ' (' + r.info + ')' : ''));
 console.log('errors:', errors.length ? errors : 'none');
 await browser.close();

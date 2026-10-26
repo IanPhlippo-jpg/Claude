@@ -4,7 +4,7 @@ import type { SketchPoint } from '../sketch/types';
 import type { SheetMetalParams } from './sheetmetal';
 
 /**
- * Unfolding of a base flange made from an open chain, as the original's Flatten / Unfold / Fold:
+ * Unfolding of a base flange made from an open chain, as the intended Flatten / Unfold / Fold:
  * every point of the bent sheet has a developed coordinate s along the neutral surface (the bends count
  * with their bend allowance, neutral radius r + K·t), a thickness coordinate h (0 on the sketch-line face,
  * t on the other) and its depth w along the sketch normal (unchanged). The flat sheet lies in the plane

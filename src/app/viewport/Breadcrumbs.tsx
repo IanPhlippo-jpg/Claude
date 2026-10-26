@@ -9,9 +9,9 @@ import { faceOwner } from '../../core/features/faceOwner';
 import { isSketchBased, type Feature } from '../../core/document/types';
 
 /**
- * The breadcrumbs of the original (Options ▸ Display ▸ Show breadcrumbs on selection): after a selection a small
+ * The breadcrumbs of the intended design (Options ▸ Display ▸ Show breadcrumbs on selection): after a selection a small
  * bar at the top left of the graphics area shows its parents (part ▸ body ▸ feature) with the feature's sketch
- * below it; it stays while the selection does (fr. 372 / 376).
+ * below it; it stays while the selection does.
  */
 export function Breadcrumbs() {
   const st = useStore();
@@ -36,7 +36,7 @@ export function Breadcrumbs() {
 
   const opacity = 1;
 
-  // assembly: a selected component shows assembly ▸ component, with the component's mates above it (fr. 372)
+  // assembly: a selected component shows assembly ▸ component, with the component's mates above it
   const comp = st.doc.kind === 'assembly' ? (st.doc.components ?? []).find((c) => c.id === (st.selectedFeatureId ?? st.selectedFace?.bodyId)) : undefined;
   if (on && comp && opacity > 0 && !st.mateEdit && !st.insertingComponent) {
     const mates = (st.doc.mates ?? []).filter((m) => m.refs.some((r) => r.componentId === comp.id));

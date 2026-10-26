@@ -1,5 +1,6 @@
 // Block E: Move with Triad (drag an arrow, turn a ring) and the light cyan faces of a selected mate (fr. 365/372).
 import { chromium } from 'playwright';
+import { exitCode, skip } from './lib/check.mjs';
 import { mkdirSync, readFileSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -27,7 +28,7 @@ await S(({ rozet, pin }) => {
   window.__phlippoStore.getState().openDocument(d);
 }, { rozet, pin });
 await page.waitForTimeout(1200);
-await page.click('.k-cm-tab:has-text("Assembly")').catch(() => undefined);
+await page.click('.k-cm-tab:has-text("Assembly")').catch(skip('triad:31'));
 await page.click('.k-tree-row:has-text("Vierkantstift<1>")', { button: 'right' });
 await page.click('.k-menu-item:has-text("Move with Triad")');
 await page.waitForTimeout(300);
@@ -74,8 +75,6 @@ const selMate = await S(() => { const s = window.__phlippoStore.getState(); retu
 check('the new mate stays selected', selMate);
 await page.screenshot({ path: `${OUT}/triad2-mate-cyan.png` });
 console.log(results.filter((r) => r.ok).length + '/' + results.length + ' passed');
-const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
-if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
-process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
+process.exitCode = exitCode(results, errors);
 if (errors.length) console.log('ERRORS', errors.slice(0, 5));
 await browser.close();

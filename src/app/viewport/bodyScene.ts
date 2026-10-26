@@ -1,3 +1,4 @@
+import { TEST_HOOKS } from '../testHooks';
 import * as THREE from 'three';
 import { Line2 } from 'three/examples/jsm/lines/Line2.js';
 import { LineSegments2 } from 'three/examples/jsm/lines/LineSegments2.js';
@@ -22,11 +23,11 @@ export interface BodySceneInput {
   preview: THREE.BufferGeometry | null;
   /** the preview is seen through the body (a fillet lies inside the sharp corner until OK) */
   previewOnTop?: boolean;
-  /** while a handle is dragged the preview shows its edges only, as the original */
+  /** while a handle is dragged the preview shows its edges only, by design */
   previewWire?: boolean;
   /** the faces of the feature selected in the tree (blue) and of the one pointed at (orange outline) */
   featureFaces?: { bodyId: string; faceId: string }[];
-  /** the faces of the selected mate: light cyan, as the original (fr. 365/372: 143,255,252) */
+  /** the faces of the selected mate: light cyan, by design */
   mateFaces?: { bodyId: string; faceId: string }[];
   /** the selected feature is also pointed at in the tree */
   featureHot?: boolean;
@@ -81,20 +82,21 @@ interface BodyEntry {
   extra?: THREE.Object3D[];
   /** silhouette lines of the curved surfaces, recomputed when the camera moves */
   sil?: { se: SmoothEdges; lines: THREE.LineSegments; key: string; fat?: LineSegments2 };
-  /** the visible edges as 1.5 px anti-aliased black lines (a GL line is one grey device pixel), as the original */
+  /** the visible edges as 1.5 px anti-aliased black lines (a GL line is one grey device pixel), by design */
   fat?: LineSegments2;
 }
 
 /**
  * The graphics area's lights, fixed to the camera (view space: x right, y up, z towards the viewer), as the
- * original's default scene: a key light from the upper left and ambient (the fill is off by default).
- * Calibrated on the reference frames: an isometric box measures top 227, left 223, right 172 (original 228 / 223 / 172).
+ * default scene: a key light from the upper left and ambient (the fill is off by default).
+ * Calibrated: an isometric box measures top 227, left 223, right 172 (grey levels).
  */
-/** measured against the video (frame f_0118, BasePlate in Trimetric): top face 219, front 240, right 218 */
+/** target grey levels: top face 219, front 240, right 218 */
 export const LIGHTING = { key: { dir: [-0.2, 0.15, 0.97] as [number, number, number], intensity: 3.0 }, fill: { dir: [0.9, 0.1, 0.4] as [number, number, number], intensity: 0.72 }, ambient: 1.05 };
 
 // test hook: the lighting can be tuned live
-if (import.meta.env.DEV || !(globalThis as unknown as { phlippoDesktop?: { testHooks?: boolean } }).phlippoDesktop || (globalThis as unknown as { phlippoDesktop?: { testHooks?: boolean } }).phlippoDesktop?.testHooks) if (import.meta.env.DEV || !(globalThis as unknown as { phlippoDesktop?: { testHooks?: boolean } }).phlippoDesktop || (globalThis as unknown as { phlippoDesktop?: { testHooks?: boolean } }).phlippoDesktop?.testHooks) (globalThis as unknown as { __phlippoLighting?: typeof LIGHTING }).__phlippoLighting = LIGHTING;
+// the light calibration scripts read the lighting through the test hooks (one gate, F83)
+if (TEST_HOOKS) (globalThis as unknown as { __phlippoLighting?: typeof LIGHTING }).__phlippoLighting = LIGHTING;
 
 /** Owns the three.js objects for solid bodies: shaded faces, edges, hover/selection overlays, preview. */
 export class BodyScene {
@@ -112,13 +114,13 @@ export class BodyScene {
   private fill = new THREE.DirectionalLight(0xffffff, 0);
   private realView = false;
 
-  // appearance of the original: light grey shaded faces, black edges
+  // appearance of the intended design: light grey shaded faces, black edges
   private faceMat = new THREE.MeshPhongMaterial({ color: 0xe8e8ea, specular: 0x222222, shininess: 20, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
   private occluderMat = new THREE.MeshBasicMaterial({ colorWrite: false, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
   private edgeMat = new THREE.LineBasicMaterial({ color: 0x1a1a1a });
-  /** model edges in Shaded With Edges: black, 1.5 px, anti-aliased (measured 22,20,21 in the video) */
+  /** model edges in Shaded With Edges: black, 1.5 px, anti-aliased (RGB 22,20,21) */
   private edgeMat2 = new LineMaterial({ color: 0x000000, linewidth: 1.5, worldUnits: false, alphaToCoverage: true });
-  // the yellow preview of the original: light, slightly green-yellow faces and bright yellow edges (measured on the reference frames)
+  // the yellow preview: light, slightly green-yellow faces and bright yellow edges
   private previewMat = new THREE.MeshPhongMaterial({ color: 0xe9f07a, transparent: true, opacity: 0.42, side: THREE.DoubleSide, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
   private previewEdgeMat = new THREE.LineBasicMaterial({ color: 0xd7e43c, transparent: true, opacity: 1 });
   private roundPreviewMat = new THREE.MeshBasicMaterial({ color: 0xf4fd1e, transparent: true, opacity: 0.82, side: THREE.DoubleSide, depthWrite: false, depthTest: false });
@@ -283,7 +285,7 @@ export class BodyScene {
   /** floor that only receives the shadow (Shadows In Shaded Mode) */
   private floor = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.ShadowMaterial({ opacity: 0.22 }));
 
-  /** Zebra Stripes: a matcap with 12 stripes; the stripes follow the view-space normal, as the original's zebra */
+  /** Zebra Stripes: a matcap with 12 stripes; the stripes follow the view-space normal, as the intended zebra */
   private zebraMat: THREE.MeshMatcapMaterial | null = null;
   private zebra(): THREE.MeshMatcapMaterial {
     if (this.zebraMat) return this.zebraMat;
@@ -350,7 +352,7 @@ export class BodyScene {
         (faceMat as THREE.MeshPhongMaterial).vertexColors = true;
         (faceMat as THREE.MeshPhongMaterial).color.set(0xffffff);
       }
-      // Mate > Make first selection transparent (the original's default): the first part is see-through while mating
+      // Mate > Make first selection transparent (the intended default): the first part is see-through while mating
       if (look.transparent?.has(b.id) && style !== 'hiddenRemoved' && style !== 'hiddenVisible') {
         faceMat = faceMat.clone();
         Object.assign(faceMat, { transparent: true, opacity: 0.4, depthWrite: false });
@@ -388,7 +390,7 @@ export class BodyScene {
       }
       const extra: THREE.Object3D[] = [];
       if (style === 'hiddenVisible' || style === 'wireframe') {
-        // Hidden Lines Visible: hidden parts solid or dashed (Display option), as the original
+        // Hidden Lines Visible: hidden parts solid or dashed (Display option), by design
         const dashed = getPref('display.hiddenEdges') === 'Dashed' && style === 'hiddenVisible';
         edges.material = new THREE.LineBasicMaterial({ color: 0x1a1a1a });
         const hiddenMat = dashed ? new THREE.LineDashedMaterial({ color: 0x5a5a5a, dashSize: 2, gapSize: 1.5, depthFunc: THREE.GreaterDepth, depthWrite: false }) : new THREE.LineBasicMaterial({ color: style === 'wireframe' ? 0x1a1a1a : 0x6a6a6a, depthFunc: THREE.GreaterDepth, depthWrite: false });
@@ -405,7 +407,7 @@ export class BodyScene {
         phantom.renderOrder = 2;
         extra.push(phantom);
       }
-      // silhouettes of curved faces (a cylinder's outline), drawn like the edges, as the original
+      // silhouettes of curved faces (a cylinder's outline), drawn like the edges, by design
       const se = smoothEdges(g);
       let sil: BodyEntry['sil'];
       if (se.count) {
@@ -434,7 +436,7 @@ export class BodyScene {
     }
   }
 
-  /** the hovered face of the original: only its boundary lights up (orange), no fill */
+  /** the hovered face of the intended design: only its boundary lights up (orange), no fill */
   private faceOutline(input: BodySceneInput, ref: { bodyId: string; faceId: string }, color: string): void {
     const body = input.bodies.find((b) => b.id === ref.bodyId);
     const face = body?.faces.find((f) => f.id === ref.faceId);
@@ -617,7 +619,7 @@ export class BodyScene {
       }
       for (const c of input.curves ?? []) {
         if ((c.id.startsWith('round-pv-') || c.id.startsWith('thread-pv-')) && c.points.length > 1) {
-          // the fillet / chamfer preview of the original: thick bright yellow lines, seen through the sharp corner
+          // the fillet / chamfer preview of the intended design: thick bright yellow lines, seen through the sharp corner
           const lg = new LineGeometry();
           lg.setPositions(c.points.flatMap((p) => [p.x, p.y, p.z]));
           const lm = new LineMaterial({ color: new THREE.Color(c.color ?? '#eef51c').getHex(), linewidth: c.id.startsWith('thread-pv-') ? 2.5 : 3, worldUnits: false, depthTest: false });
@@ -630,11 +632,11 @@ export class BodyScene {
           continue;
         }
         const g = new THREE.BufferGeometry().setFromPoints(c.points);
-        // the yellow fillet preview lines show through the sharp corner, as the original
+        // the yellow fillet preview lines show through the sharp corner, by design
         const line = new THREE.Line(g, c.dashed ? new THREE.LineDashedMaterial({ color: c.color ?? 0x5a5a5a, dashSize: 6, gapSize: 4 }) : new THREE.LineBasicMaterial({ color: c.color ?? 0x1e4fd8, depthTest: !c.id.startsWith('round-pv-') && !c.id.startsWith('com-') && !c.id.startsWith('explode-ring-') }));
         if (c.dashed) line.computeLineDistances();
         line.name = c.id;
-        // the Center of Mass marker and the explode rotation rings show through the model, as the original
+        // the Center of Mass marker and the explode rotation rings show through the model, by design
         line.renderOrder = c.id.startsWith('com-') || c.id.startsWith('explode-ring-') ? 5 : 3;
         this.curveGroup.add(line);
       }
@@ -646,7 +648,7 @@ export class BodyScene {
       (o as THREE.Mesh).geometry.dispose();
       ((o as THREE.Mesh).material as THREE.Material).dispose();
     }
-    // the selection of the original: its blue (measured 57,128,247 lit) shaded as the model, half over the part's own colour (fr. 381: 74,118,205 over navy)
+    // the selection of the intended design: its blue (measured 57,128,247 lit) shaded as the model, half over the part's own colour
     const SEL_BLUE = 0x3a83fc;
     const overlay = (ref: { bodyId: string; faceId: string }, color: string, opacity: number, shaded = false) => {
       const body = input.bodies.find((b) => b.id === ref.bodyId);
@@ -669,8 +671,8 @@ export class BodyScene {
         if (narr.length === arr.length) g.setAttribute('normal', new THREE.Float32BufferAttribute(narr, 3));
         else g.computeVertexNormals();
       }
-      // depth-tested and pulled slightly forward: only the visible part of the face lights up, as in the original
-      // between the face (pushed back by 1) and its edges (not pushed): the black edges stay on top, as the original
+      // depth-tested and pulled slightly forward: only the visible part of the face lights up, by design
+      // between the face (pushed back by 1) and its edges (not pushed): the black edges stay on top, by design
       const common = { transparent: opacity < 1, opacity, side: THREE.DoubleSide, depthWrite: false, polygonOffset: true, polygonOffsetFactor: 0.5, polygonOffsetUnits: 0.5 };
       const m = new THREE.Mesh(g, shaded ? new THREE.MeshPhongMaterial({ color: SEL_BLUE, specular: 0x222222, shininess: 20, ...common }) : new THREE.MeshBasicMaterial({ color: new THREE.Color(color), ...common }));
       m.renderOrder = 3;
@@ -700,7 +702,7 @@ export class BodyScene {
     for (const f of input.selectedFaces ?? []) if (f.faceId !== input.selectedFace?.faceId) overlay(f, input.colors.selected, 0.5, true);
     if (input.selectedFace) overlay(input.selectedFace, input.colors.selected, 0.5, true);
     if (input.hoverFace && !(input.selectedFace && input.hoverFace.faceId === input.selectedFace.faceId)) this.faceOutline(input, input.hoverFace, input.colors.hover);
-    // a selected feature pointed at in the tree shows the full selection blue (fr. 376), else half over the part (fr. 381)
+    // a selected feature pointed at in the tree shows the full selection blue, else half over the part
     for (const f of input.featureFaces ?? []) overlay(f, input.colors.selected, input.featureHot ? 1 : 0.5, true);
     for (const f of input.mateFaces ?? []) overlay(f, '#8ffffc', 0.95);
     for (const f of input.hoverFeatureFaces ?? []) this.faceOutline(input, f, input.colors.hover);
@@ -718,7 +720,7 @@ export class BodyScene {
       }
       if (input.preview) {
         this.previewEdgeMat.depthTest = !input.previewOnTop;
-        // a fillet / chamfer preview is the original's strong yellow (measured 250,255,20), an extrusion the light one
+        // a fillet / chamfer preview is the intended strong yellow (measured 250,255,20), an extrusion the light one
         this.previewMesh = new THREE.Mesh(smoothNormals(input.preview, 30), input.previewOnTop ? this.roundPreviewMat : this.previewMat);
         this.previewMesh.renderOrder = 1;
         this.previewEdges = new THREE.LineSegments(featureEdges(input.preview, 20), this.previewEdgeMat);

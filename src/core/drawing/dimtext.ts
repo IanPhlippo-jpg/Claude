@@ -1,6 +1,6 @@
 import type { DrawingDimension } from '../document/types';
 
-/** Dimension PropertyManager ▸ Tolerance/Precision: the tolerance types of the original (reduced) */
+/** Dimension PropertyManager ▸ Tolerance/Precision: the tolerance types of the intended design (reduced) */
 export type DimTolerance = { type: 'none' | 'basic' | 'bilateral' | 'symmetric' | 'limit' | 'min' | 'max'; plus: number; minus: number };
 
 /** The texts of a drawing dimension: the value (with prefix, suffix, Ø / R), the stacked tolerance and the dual value. */
@@ -9,7 +9,7 @@ export function dimensionText(d: DrawingDimension, decimals: number): { main: st
   const f = (x: number) => x.toFixed(dec);
   const sym = d.kind === 'diameter' ? 'Ø' : d.kind === 'radius' ? 'R' : '';
   const tol = d.tol ?? { type: 'none', plus: 0, minus: 0 };
-  // Override value replaces the measured number, as the original
+  // Override value replaces the measured number, by design
   const val = d.override !== undefined && d.override !== '' ? d.override : f(d.value);
   const wrap = (core: string) => `${d.prefix ?? ''}${sym}${core}${d.suffix ?? ''}`;
   const tf = (x: number) => x.toFixed(Math.max(dec, 2));

@@ -60,7 +60,7 @@ export function ViewCube({ camera }: { camera: CadCamera }) {
   );
 }
 
-/** Orientation triad bottom-left: thin coloured axis arrows with small letters, like the original. */
+/** Orientation triad bottom-left: thin coloured axis arrows with small letters, by design. */
 export function Triad({ camera }: { camera: CadCamera }) {
   const [q, setQ] = useState(() => camera.rotation.clone());
   useEffect(() => {

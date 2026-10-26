@@ -32,7 +32,7 @@ function handleOf(s: Sketch, c: Constraint): { at: SketchPoint; dir: SketchPoint
 }
 
 /**
- * Instant2D, as the original: with the command on, a selected sketch dimension gets a drag handle; dragging
+ * Instant2D, by design: with the command on, a selected sketch dimension gets a drag handle; dragging
  * it shows a ruler and changes the value (rounded to the ruler increment, 1 mm; 0.1 mm with Alt).
  */
 export function Instant2DHandle({ project }: { project: (p: SketchPoint) => { x: number; y: number } }) {

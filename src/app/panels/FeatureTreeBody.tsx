@@ -63,7 +63,7 @@ export function FeatureTreeBody() {
     const prefix = status === 'under' ? '(-) ' : status && status !== 'full' ? '(+) ' : '';
     return {
       id: f.id,
-      // a sketch shared by several features shows the hand, as the original (video 15)
+      // a sketch shared by several features shows the hand, by design
       icon: st.doc.features.filter((x) => x.type !== 'sketch' && 'sketchId' in x && (x as { sketchId?: string }).sketchId === f.sketchId).length > 1 ? <Icon.SketchShared style={{ color: '#2b6cb0' }} /> : <Icon.Sketch style={{ color: '#2b6cb0' }} />,
       label: nameLabel(f, prefix),
       active: st.activeSketchId === f.sketchId,
@@ -73,7 +73,7 @@ export function FeatureTreeBody() {
       onDoubleClick: () => st.editSketch(f.sketchId),
       onClick: (e) => {
         if (st.activeSketchId !== f.sketchId) st.setSelection([]);
-        // as the original: a click selects (again), Ctrl+click takes it out of the selection
+        // by design: a click selects (again), Ctrl+click takes it out of the selection
         st.setSelectedFeature(e.ctrlKey && st.selectedFeatureId === f.id ? null : f.id);
       },
       onContextMenu: (e) => {
@@ -94,12 +94,12 @@ export function FeatureTreeBody() {
     return {
       id: f.id,
       icon,
-      // the flat pattern is a folder "Flat-Pattern" holding Flat-Pattern1, as the original
+      // the flat pattern is a folder "Flat-Pattern" holding Flat-Pattern1, by design
       label: f.type === 'flatPattern' ? <span>Flat-Pattern</span> : nameLabel(f),
       selected: st.selectedFeatureId === f.id,
       active: st.featureEdit?.featureId === f.id,
       suppressed: f.suppressed || rolledBack,
-      tail: err ? <span className="status conflict" title={err}>!</span> : null,
+      tail: err ? <span className="status conflict" data-testid="tree-error" title={err} onClick={(e) => { e.stopPropagation(); useStore.setState({ whatsWrong: true }); }}>!</span> : null,
       children: [...(f.type === 'flatPattern' ? [{ id: f.id + ':fp', icon: <Icon.Sheet />, label: nameLabel(f), suppressed: f.suppressed } as TreeNode] : []), ...(sketchFeature && sketchFeature.type === 'sketch' ? [sketchNode(sketchFeature, sketchIndex)] : []), ...(secondSketch && secondSketch.type === 'sketch' ? [sketchNode(secondSketch, st.doc.features.indexOf(secondSketch))] : []), ...(f.type === 'loft' ? (f.guides ?? []).map((gid) => st.doc.features.find((x) => x.type === 'sketch' && x.sketchId === gid)).filter((x): x is Extract<Feature, { type: 'sketch' }> => !!x && x.type === 'sketch').map((x) => sketchNode(x, st.doc.features.indexOf(x))) : [])],
       onDoubleClick: () => (f.type === 'sketch3d' ? st.edit3DSketch(f.id) : st.editFeature(f.id)),
       onClick: (e) => st.setSelectedFeature(e.ctrlKey && st.selectedFeatureId === f.id ? null : f.id),
@@ -138,7 +138,7 @@ export function FeatureTreeBody() {
       fn.children!.push(node);
     } else featureNodes.push(node);
   });
-  // Add to Favorites: the Favorites folder (above History, as the original) lists the chosen features
+  // Add to Favorites: the Favorites folder (above History, by design) lists the chosen features
   const favorites = (st.doc.favorites ?? []).map((id) => st.doc.features.find((x) => x.id === id)).filter((x): x is Feature => !!x);
   const favoritesNode: TreeNode[] = favorites.length ? [{ id: 'favorites', icon: <Icon.Folder />, label: <span>Favorites</span>, children: favorites.map((x) => ({ ...(x.type === 'sketch' ? sketchNode(x, st.doc.features.indexOf(x)) : solidNode(x, st.doc.features.indexOf(x))), id: 'fav:' + x.id, children: undefined })) }] : [];
   // Create Bounding Box: a tree item after the features
@@ -201,10 +201,12 @@ export function FeatureTreeBody() {
       icon: <span style={{ display: 'inline-flex', gap: 2 }}><Icon.Part /><Icon.ConfigBadge /></span>,
       label: (
         <span>
+          {/* the root's error marker comes first: the long root name runs past the pane edge (F78) */}
+          {Object.keys(st.rebuild.errors).length ? <span className="status conflict" data-testid="tree-error-root" style={{ marginRight: 4 }} title="What's Wrong: features that could not be rebuilt" onClick={(e) => { e.stopPropagation(); useStore.setState({ whatsWrong: true }); }}>!</span> : null}
           {st.doc.name} ({activeConfiguration(st.doc).name}) {`<<${activeConfiguration(st.doc).name}>_Display State 1>`}
         </span>
       ),
-      tail: Object.keys(st.rebuild.errors).length ? <span className="status conflict" title="A feature could not be rebuilt">!</span> : null,
+      tail: null,
       children: [
         ...favoritesNode,
         sys('history', <Icon.TreeFolder glyph="history" />, 'History', st.doc.features.slice(-6).reverse().map((f): TreeNode => ({ id: 'hist-' + f.id, icon: <Icon.History />, label: <span>{f.name}</span>, onClick: () => st.setSelectedFeature(f.id) }))),
@@ -243,7 +245,7 @@ export function FeatureTreeBody() {
         planeNode('right'),
         { id: 'origin', icon: <Icon.Origin style={{ color: '#2b2b2b' }} />, label: 'Origin', onClick: () => st.toggleShow('origin') },
         ...(st.doc.centerOfMass ? [{ id: 'com', icon: <Icon.CenterOfMass />, label: 'Center of Mass', onContextMenu: (e: React.MouseEvent) => { e.preventDefault(); st.applyDocument('Delete Center of Mass', { ...st.doc, centerOfMass: undefined }); } } as TreeNode] : []),
-        // sheet metal parts: the Sheet-Metal folder after the origin (default parameters), as the original
+        // sheet metal parts: the Sheet-Metal folder after the origin (default parameters), by design
         ...(st.doc.weldment ? [{ id: 'weldment', icon: <Icon.Weldment />, label: <span>Weldment</span>, onDoubleClick: () => st.setDialog('cutList') } as TreeNode] : []),
         ...(st.doc.weldment && st.rebuild.bodies.some((b) => st.rebuild.bodyMeta?.[b.id]?.kind === 'bead') ? [sys('weldfolder', <Icon.TreeFolder glyph="bodies" />, `Weld Folder(${st.rebuild.bodies.filter((b) => st.rebuild.bodyMeta?.[b.id]?.kind === 'bead').length})`, st.rebuild.bodies.filter((b) => st.rebuild.bodyMeta?.[b.id]?.kind === 'bead').map((b): TreeNode => ({ id: 'body-' + b.id, icon: <Icon.WeldBead />, label: <span>{st.doc.features.find((f) => f.id === b.featureIds[b.featureIds.length - 1])?.name ?? b.id}</span>, onContextMenu: (e) => { e.preventDefault(); setMenu({ x: e.clientX, y: e.clientY, featureId: '__body:' + b.id }); } })))] : []),
         ...(st.doc.sheetMetal ? [{ id: 'sheetmetal', icon: <Icon.Sheet />, label: <span>Sheet-Metal</span>, onDoubleClick: () => st.setSheetMetalEdit(true), onContextMenu: (e: React.MouseEvent) => { e.preventDefault(); st.setSheetMetalEdit(true); }, children: [{ id: 'sheetmetal:1', icon: <Icon.Sheet />, label: <span>Sheet-Metal1</span>, onDoubleClick: () => st.setSheetMetalEdit(true) } as TreeNode] } as TreeNode] : []),

@@ -1,5 +1,6 @@
 // Section View options: Section 2 (quarter cut), cap colour, graphics-only, zonal, selected bodies, Save.
 import { chromium } from 'playwright';
+import { exitCode } from './lib/check.mjs';
 import { mkdirSync, readFileSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -51,8 +52,6 @@ await page.click('[data-testid="section-pm"] .k-pm-ok');
 await page.waitForTimeout(300);
 check('section committed', await page.evaluate(() => !!window.__phlippoStore.getState().sectionView));
 console.log(results.filter((r) => r.ok).length + '/' + results.length + ' passed');
-const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
-if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
-process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
+process.exitCode = exitCode(results, errors);
 if (errors.length) console.log('ERRORS', errors.slice(0, 5));
 await browser.close();

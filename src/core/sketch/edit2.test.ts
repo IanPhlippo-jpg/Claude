@@ -3,7 +3,7 @@ import { addConstraint, addLine, createSketch } from './model';
 import { chainOf, circularSketchPattern, copyEntitiesKeep, dropOutsideRelations, sketchFillet, translate } from './edit';
 import { solveSketch } from '../solver/solver';
 
-describe('sketch tool options of the original', () => {
+describe('sketch tool options of the intended design', () => {
   it('Sketch Fillet > Keep constrained corners: the corner dimension moves to a virtual sharp', () => {
     let s = createSketch('s', 's', 'top');
     let a, b;

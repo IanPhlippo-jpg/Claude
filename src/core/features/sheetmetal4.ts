@@ -11,7 +11,7 @@ import type { Region } from './regions';
 import { TOL } from './tolerance';
 
 /**
- * Sheet metal, the remaining tools of the original's Sheet Metal tab: Vent, Forming Tool, Sheet Metal
+ * Sheet metal, the remaining tools of the intended Sheet Metal tab: Vent, Forming Tool, Sheet Metal
  * Gusset, Tab and Slot, Rip and Swept Flange. Everything here builds tools (geometry to add or to cut)
  * on the sheet body; the rebuild applies them with the usual booleans.
  */
@@ -113,7 +113,7 @@ const inPoly = (p: SketchPoint, poly: SketchPoint[]) => {
 const inRegions = (p: SketchPoint, regions: Region[]) => regions.some((r) => inPoly(p, r.outer));
 
 /**
- * Vent: sort the sketch into its parts, as the original's boxes. The regions of the sketch together are the boundary.
+ * Vent: sort the sketch into its parts, as the intended boxes. The regions of the sketch together are the boundary.
  * An entity with enclosed area on both sides is a rib (open) or a spar (closed); one with area on one side only lies on
  * the boundary. Fill-In Boundary: the smallest closed entity stays solid.
  */

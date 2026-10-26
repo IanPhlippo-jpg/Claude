@@ -1,59 +1,53 @@
-// The installed app (NSIS install in %LOCALAPPDATA%\Programs\Phlippo CAD): it starts, shows the Welcome dialog over an
-// empty app, Help ▸ About reports the version of package.json and the independence notice, and it works as a user
-// gets it: the packaged program ignores PHLIPPO_E2E (no test hooks, F53/F65), Final Render and Zoom to Fit work
-// without them, and there is no application menu with DevTools (F67). Nothing in the user's profile is changed.
-import { chromium } from 'playwright';
-import { spawn } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+// Smoke test of the installed program (NSIS install in %LOCALAPPDATA%\Programs\Phlippo CAD), as a user gets it: no test
+// hooks, no debugging port (QA v0.3.4 F85), so it is driven from the outside only. It starts and shows its window, the
+// file version matches package.json, the licence files are installed (F73, F91), and a start with
+// --remote-debugging-port is refused. The functional checks without hooks run on the same release build in
+// desktop-nohooks.mjs. Run after installing; nothing in the user's profile is changed (the app only shows Welcome).
+import { spawn, execFileSync } from 'node:child_process';
+import { existsSync, readFileSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
+import { checks, exitCode } from './lib/check.mjs';
+
 const exe = process.env.PHLIPPO_EXE ?? join(process.env.LOCALAPPDATA, 'Programs', 'Phlippo CAD', 'Phlippo CAD.exe');
-const version = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')).version;
-let passed = 0, failed = 0;
-const check = (name, ok, detail = '') => { if (ok) passed++; else failed++; console.log(`${ok ? 'ok  ' : 'FAIL'} ${name}${ok || !detail ? '' : ` (${detail})`}`); };
-// PHLIPPO_E2E and --phlippo-e2e are passed on purpose: the installed program must ignore both. The fuse
-// enableNodeCliInspectArguments is off (F49), so Playwright's Electron driver cannot attach; the check connects over
-// Chromium's debugging protocol instead.
-const proc = spawn(exe, ['--phlippo-e2e', '--remote-debugging-port=9333'], { env: { ...process.env, PHLIPPO_E2E: '1', VITE_DEV_SERVER_URL: 'http://127.0.0.1:9/' }, stdio: 'ignore' });
-let browser = null;
-for (let i = 0; i < 60 && !browser; i++) { await new Promise((r) => setTimeout(r, 500)); browser = await chromium.connectOverCDP('http://127.0.0.1:9333').catch(() => null); }
-const page = browser.contexts()[0].pages()[0] ?? (await browser.contexts()[0].waitForEvent('page'));
-const pageErrors = [];
-page.on('pageerror', (e) => pageErrors.push(e.message));
-await page.waitForSelector('.k-viewport', { timeout: 30000 });
-await page.waitForTimeout(800);
-check('the installed app starts without a document (Welcome)', (await page.locator('[data-testid="nodoc"]').count()) === 1 || (await page.locator('.k-doctype').count()) > 0);
-check('the installed app loads its own page, not the dev server URL from the environment', /^file:/.test(page.url()), page.url());
-check('the Welcome shows the independence notice', /not affiliated with or endorsed by Dassault/.test(await page.locator('[data-testid="welcome-legal"]').innerText().catch(() => '')));
-check('no test hooks in the installed app, even with PHLIPPO_E2E=1', await page.evaluate(() => Object.getOwnPropertyNames(window).filter((k) => k.startsWith('__phlippo')).length === 0 && window.phlippoDesktop.testHooks === false));
-check('the inspect fuse is off: the check attaches over the debugging protocol', true);
-
-// a part with a body through the UI: Extruded Boss on a rectangle needs hooks, so open the Welcome's Part and use Render
-await page.click('.k-doctype:has-text("Part")');
-await page.waitForTimeout(600);
-await page.click('.k-cm-tab:has-text("Render Tools")');
-await page.waitForTimeout(200);
-await page.click('.k-cm-big:has-text("Final Render") .k-cm-main');
-await page.waitForSelector('[data-testid="final-image"]', { timeout: 15000 }).catch(() => {});
-check('Final Render works without the test hooks (F53)', (await page.locator('[data-testid="final-image"]').count()) === 1);
-await page.keyboard.press('Escape');
-await page.locator('.k-dialog .k-btn:has-text("Close")').first().click().catch(() => {});
-await page.mouse.click(900, 600);
-await page.keyboard.press('f');
-await page.waitForTimeout(300);
-check('Zoom to Fit (F) runs without a page error', pageErrors.length === 0, pageErrors.join(' | '));
-
-await page.hover('.k-brand');
-await page.click('.k-mb-menu:has-text("Help")');
-await page.click('.k-menu-item:has-text("About Phlippo CAD")');
-await page.waitForTimeout(300);
-const about = await page.locator('[data-testid="ask"]').innerText();
-check(`About reports version ${version}`, about.includes(`Phlippo CAD ${version}`), about.slice(0, 80));
-check('About carries the notice and the licence files', /not affiliated with or endorsed by/.test(about) && /LICENSE\.txt/.test(about));
-await page.screenshot({ path: 'e2e-out/desktop-installed-about.png' });
 const dir = join(exe, '..');
-const { existsSync } = await import('node:fs');
-check('LICENSE.txt and THIRD-PARTY-NOTICES.txt are installed', existsSync(join(dir, 'LICENSE.txt')) && existsSync(join(dir, 'THIRD-PARTY-NOTICES.txt')), dir);
-await browser.close().catch(() => {});
-proc.kill();
-console.log(`\n${passed}/${passed + failed} checks passed`);
-process.exit(failed ? 1 : 0);
+const version = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')).version;
+const { results, check } = checks();
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const ps = (cmd) => execFileSync('powershell.exe', ['-NoProfile', '-Command', cmd], { encoding: 'utf8' }).trim();
+mkdirSync('e2e-out', { recursive: true });
+
+check('the program is installed', existsSync(exe), exe);
+const fileVersion = ps(`(Get-Item '${exe.replace(/'/g, "''")}').VersionInfo.ProductVersion`);
+check(`the installed program is version ${version}`, fileVersion.startsWith(version), fileVersion);
+check('LICENSE.txt and THIRD-PARTY-NOTICES.txt are installed', existsSync(join(dir, 'LICENSE.txt')) && existsSync(join(dir, 'THIRD-PARTY-NOTICES.txt')));
+check('the Chromium licences ship with it (LICENSES.chromium.html, F91)', existsSync(join(dir, 'LICENSES.chromium.html')));
+check('THIRD-PARTY-NOTICES points to the Chromium licences', /LICENSES\.chromium\.html/.test(readFileSync(join(dir, 'THIRD-PARTY-NOTICES.txt'), 'utf8')));
+
+// a normal start: the window appears with its title
+const app = spawn(exe, [], { stdio: 'ignore', detached: false });
+let title = '';
+for (let i = 0; i < 40 && !title; i++) {
+  await sleep(500);
+  try { title = ps(`(Get-Process -Id ${app.pid} -ErrorAction Stop).MainWindowTitle`); } catch { /* not up yet */ }
+}
+check('the installed program starts and shows its window', /Phlippo CAD/.test(title), title || 'no window');
+await sleep(2500);
+try {
+  ps(`Add-Type -AssemblyName System.Windows.Forms, System.Drawing; $b = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds; $img = New-Object System.Drawing.Bitmap $b.Width, $b.Height; $g = [System.Drawing.Graphics]::FromImage($img); $g.CopyFromScreen($b.Location, [System.Drawing.Point]::Empty, $b.Size); $img.Save('${join(process.cwd(), 'e2e-out', 'desktop-installed.png').replace(/'/g, "''")}'); 'ok'`);
+} catch { /* a screenshot is evidence only */ }
+check('the program is still running after start-up (no crash)', app.exitCode === null);
+app.kill();
+await sleep(1000);
+
+// a start with a debugging port is refused: the process ends at once and the port stays closed (F85)
+const dbg = spawn(exe, ['--remote-debugging-port=9333'], { stdio: 'ignore' });
+let ended = null;
+dbg.on('exit', (code) => { ended = code; });
+await sleep(4000);
+const portOpen = await fetch('http://127.0.0.1:9333/json/version').then(() => true, () => false);
+check('--remote-debugging-port is refused: the program exits with code 1', ended === 1, `exit ${ended}`);
+check('--remote-debugging-port is refused: no debugging endpoint', !portOpen);
+if (ended === null) dbg.kill();
+
+console.log(`\n${results.filter((r) => r.ok).length}/${results.length} checks passed`);
+process.exitCode = exitCode(results);

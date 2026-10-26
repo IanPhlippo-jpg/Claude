@@ -3,7 +3,7 @@ import { NumberField, Section } from '../../ui/components';
 import { Icon } from '../../ui/icons';
 
 /**
- * Plane PropertyManager as the original (Reference Geometry ▸ Plane): First Reference with the
+ * Plane PropertyManager by design (Reference Geometry ▸ Plane): First Reference with the
  * constraint (Offset Distance / At Angle through a straight edge / Parallel / Coincident…), Flip,
  * number of planes, Second/Third Reference, and the message "Fully defined".
  */

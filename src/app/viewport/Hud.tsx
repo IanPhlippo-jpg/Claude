@@ -82,7 +82,7 @@ export function ViewGrid({ camera, onPick }: { camera: CadCamera; onPick?: () =>
         <Icon.Orientation size={18} />
         <span>View Selector</span>
       </button>
-      {/* Viewports: Single View, Two View (horizontal / vertical), Four View, as the original's flyout */}
+      {/* Viewports: Single View, Two View (horizontal / vertical), Four View, as the intended flyout */}
       {([['single', 'Single View'], ['twoH', 'Two View - Horizontal'], ['twoV', 'Two View - Vertical'], ['four', 'Four View']] as const).map(([id, label]) => (
         <button key={id} className={`k-viewgrid-btn k-tip ${st.viewportLayout === id ? 'active' : ''}`} data-tip={label} data-testid={'viewport-' + id} onClick={pick(() => st.setViewportLayout(id))}>
           <svg width={18} height={18} viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth={1.2}>
@@ -211,10 +211,19 @@ export function ConfirmationCorner({ onOk, onCancel, sketch }: { onOk: () => voi
   return (
     <div className={`k-confirm ${at ? 'at-cursor' : ''}`} style={at ? { left: at.x + 12, top: at.y + 12, right: 'auto' } : undefined}>
       <button className="k-confirm-ok k-tip" data-tip={sketch ? 'Exit Sketch (keep changes)' : 'OK'} onClick={onOk}>
-        {sketch ? <Icon.Sketch size={20} /> : <Icon.Check size={20} />}
+        {sketch ? (
+          // Exit Sketch: the corner of a sketch with a return arrow (own drawing)
+          <svg width={28} height={28} viewBox="0 0 28 28" fill="none" strokeLinecap="round" strokeLinejoin="round" data-testid="confirm-exit-sketch">
+            <path d="M5 4v13a3 3 0 0 0 3 3h7" stroke="#9aa6b4" strokeWidth={2.2} />
+            <path d="M24 9c0 6-4 10-10 10" stroke="#7fb0d8" strokeWidth={2.6} />
+            <path d="M17 15l-3.5 4 3.5 3.6" stroke="#7fb0d8" strokeWidth={2.6} />
+          </svg>
+        ) : <Icon.Check size={20} />}
       </button>
       <button className="k-confirm-cancel k-tip" data-tip={sketch ? 'Exit Sketch without saving changes' : 'Cancel'} onClick={onCancel}>
-        <Icon.Close size={20} />
+        {sketch ? (
+          <svg width={26} height={26} viewBox="0 0 26 26" fill="none" strokeLinecap="round"><path d="M6 6l14 14M20 6L6 20" stroke="#e06868" strokeWidth={3.6} /></svg>
+        ) : <Icon.Close size={20} />}
       </button>
     </div>
   );

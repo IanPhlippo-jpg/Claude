@@ -1,6 +1,7 @@
 // Block G-D (Surfaces): Thicken, Cut With Surface, Thickened Cut, Extend, Untrim/Delete Hole, Filled, Ruled, Flatten,
 // Replace Face — on a 60 x 40 x 20 block with planar surfaces on reference planes.
 import { chromium } from 'playwright';
+import { exitCode } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -148,8 +149,6 @@ check('the ruled strip is 8 wide along the edge (480 or 320 mm²)', Math.abs(ar 
 await page.screenshot({ path: `${OUT}/gd-ruled.png` });
 
 console.log(results.filter((r) => r.ok).length + '/' + results.length + ' passed');
-const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
-if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
-process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
+process.exitCode = exitCode(results, errors);
 if (errors.length) console.log('ERRORS', errors.slice(0, 5));
 await browser.close();

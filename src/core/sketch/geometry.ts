@@ -95,7 +95,7 @@ export function ellipseArcRange(s: Sketch, e: EllipseArcEntity): { c: Pt; a: num
 /** Polyline approximation of an entity in sketch coordinates. */
 /**
  * Segments for a full circle of radius r: at least `base`, more for large radii so the chord deviation stays
- * under 0.02 mm (the original's image quality adapts the tessellation to the size the same way). At most 256.
+ * under 0.02 mm (the intended image quality adapts the tessellation to the size the same way). At most 256.
  */
 export function circleSegments(r: number, base: number): number {
   if (!(r > 0.02)) return base;

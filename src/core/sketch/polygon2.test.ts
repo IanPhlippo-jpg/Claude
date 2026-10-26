@@ -27,7 +27,7 @@ describe('polygon inscribed (default of the Polygon tool)', () => {
   });
 });
 
-describe('thread preview (cyan lines of the original)', () => {
+describe('thread preview (cyan lines of the intended design)', () => {
   it('gives the three corner helices and the profile at both ends', () => {
     const c = threadPreviewCurves({ center: [0, 0, 0], axis: [0, 1, 0], radius: 7, internal: false, pitch: 2, length: 30, method: 'cut', rightHand: true });
     expect(c.length).toBe(5);

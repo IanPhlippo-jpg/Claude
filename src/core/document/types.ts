@@ -1104,7 +1104,7 @@ export interface RefGeometry {
 /** A part placed in an assembly: an embedded copy of its part document and a rigid transform. */
 export interface Component {
   id: Id;
-  /** instance name as the original: Part1<1> */
+  /** instance name by design: Part1<1> */
   name: string;
   /** the part document (embedded, so the assembly file is self-contained) */
   part: Document;
@@ -1178,7 +1178,7 @@ export type MateType = 'coincident' | 'parallel' | 'perpendicular' | 'tangent' |
 export interface MateRef {
   componentId: Id;
   kind: 'face' | 'plane' | 'origin';
-  /** display name as the original: Face<1>@Part1<1>, Front Plane@Part2<1> */
+  /** display name by design: Face<1>@Part1<1>, Front Plane@Part2<1> */
   label: string;
   /** plane: unit normal + point; cylinder: axis direction + point on the axis */
   normal: [number, number, number];
@@ -1193,7 +1193,7 @@ export interface Mate {
   type: MateType;
   name: string;
   refs: [MateRef, MateRef];
-  /** anti-aligned (face normals opposite) is the default for coincident faces, as the original */
+  /** anti-aligned (face normals opposite) is the default for coincident faces, by design */
   aligned: boolean;
   /** distance (mm) or angle (degrees) */
   value?: number;
@@ -1222,7 +1222,7 @@ export interface Mate {
   analysis?: { friction?: number; loadBearing?: boolean; bushing?: { stiffness: number; damping: number } };
 }
 
-/** Drawing sheet sizes as the original's Sheet Format/Size dialog (mm). */
+/** Drawing sheet sizes as the intended Sheet Format/Size dialog (mm). */
 export type SheetSize = 'A4' | 'A3' | 'A2' | 'A1' | 'A0' | 'A' | 'B' | 'C' | 'D';
 
 export type DrawingViewType = 'front' | 'back' | 'top' | 'bottom' | 'left' | 'right' | 'isometric' | 'trimetric' | 'dimetric';

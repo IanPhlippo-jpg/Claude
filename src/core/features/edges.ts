@@ -72,7 +72,7 @@ export function featureEdgeSets(g: THREE.BufferGeometry, thresholdDeg = 20, tang
   }
   const cosT = Math.cos((thresholdDeg * Math.PI) / 180);
   // planar faces versus facets of curved surfaces: a tangent edge (planar face meeting a
-  // fillet or cylinder) is drawn too, as the original shows tangent edges by default
+  // fillet or cylinder) is drawn too, by design shows tangent edges by default
   const groups = new Map<string, { tris: number[]; area: number }>();
   const groupOf: string[] = [];
   let totalArea = 0;

@@ -7,7 +7,7 @@ const P: SheetMetalParams = { thickness: 2, bendRadius: 2, kFactor: 0.5 };
 const vol = (g: THREE.BufferGeometry | null) => Math.abs(meshVolume(g!));
 const base = { a: [20, 0, -30] as [number, number, number], b: [20, 0, 30] as [number, number, number], faceNormal: [0, 1, 0] as [number, number, number], faceCentroid: [0, 0, 0] as [number, number, number], angle: 90, length: 32, lengthMode: 'outerSharp' as const, position: 'materialOutside' as const, flip: false };
 
-describe('sheet metal options of the original', () => {
+describe('sheet metal options of the intended design', () => {
   it('Bend Allowance types: K-Factor, Bend Allowance, Bend Deduction, Bend Table', () => {
     expect(bendAllowance(90, 2, P)).toBeCloseTo((Math.PI / 2) * 3, 6);
     expect(bendAllowance(90, 2, { ...P, allowanceType: 'bendAllowance', allowanceValue: 4.2 })).toBeCloseTo(4.2, 6);

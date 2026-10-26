@@ -1,3 +1,4 @@
+import { WhatsWrong } from './WhatsWrong';
 import { bridge } from './viewport/bridge';
 import { CheckDialog, RepairSketchDialog, SectionPropertiesDialog } from './evaluateDialogs';
 import { CompareDialog, CutListDialog, PerformanceDialog, SimXpressDialog, SymmetryDialog } from './evaluateDialogs2';
@@ -61,7 +62,7 @@ export function App() {
   useEffect(() => {
     const onBeforeUnload = (e: BeforeUnloadEvent) => {
       const s = useStore.getState();
-      if (s.hasDocument && s.dirty && !desktop()) { e.preventDefault(); e.returnValue = ''; }
+      if (s.hasDocument && (s.dirty || !!s.editContext) && !desktop()) { e.preventDefault(); e.returnValue = ''; }
     };
     window.addEventListener('beforeunload', onBeforeUnload);
     return () => window.removeEventListener('beforeunload', onBeforeUnload);
@@ -141,6 +142,7 @@ export function App() {
           {st.dialog === 'customize' && <CustomizeDialog />}
           {st.dialog === 'cutList' && <CutListDialog />}
           {st.dialog === 'saveAs' && <SaveAsDialog />}
+          <WhatsWrong />
           {st.dialog === 'symmetry' && <SymmetryDialog />}
           {st.dialog === 'compare' && <CompareDialog />}
           {st.dialog === 'simxpress' && <SimXpressDialog />}

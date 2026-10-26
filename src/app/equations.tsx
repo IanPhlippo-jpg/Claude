@@ -9,7 +9,7 @@ import { newId } from '../core/sketch/model';
 const fmt = (v: number) => (Number.isInteger(v) ? String(v) : v.toFixed(3).replace(/\.?0+$/, ''));
 
 /**
- * Equations, Global Variables, and Dimensions (Tools ▸ Equations…), laid out as the original:
+ * Equations, Global Variables, and Dimensions (Tools ▸ Equations…), laid out by design:
  * the Equation View with the sections Global Variables, Features (dimensions) and Equations,
  * each a table Name · Value / Equation · Evaluates to · Comments, a placeholder row to add
  * entries, the Automatically rebuild and angular units options, OK / Cancel / Help.

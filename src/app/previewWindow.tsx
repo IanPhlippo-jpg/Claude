@@ -4,7 +4,7 @@ import { useStore } from './store';
 import { Icon } from '../ui/icons';
 
 /**
- * Render Tools ▸ Preview Window, as the original: a separate window that keeps showing the rendered model
+ * Render Tools ▸ Preview Window, by design: a separate window that keeps showing the rendered model
  * while you work (refreshed after every change and every two seconds), with Pause and Save Image.
  */
 export function PreviewWindow() {

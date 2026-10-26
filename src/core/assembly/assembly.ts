@@ -577,7 +577,7 @@ export function rebuildAssembly(doc: Document): AssemblyRebuild {
     const g0 = src.geometry.clone().applyMatrix4(m);
     const g = hand ? flipWinding(g0) : g0;
     bodies.push({ id: c.id, geometry: g, faces: src.faces.map((f) => transformFace(f, m, rot, c.id)), edges: src.edges.map((e) => transformEdge(e, m, rot, c.id)), featureIds: [c.id] });
-    // explode line: from the assembled to the exploded position of the component's centre (dashed, as the original)
+    // explode line: from the assembled to the exploded position of the component's centre (dashed, by design)
     if (off && off.lengthSq() > 1e-9 && !(doc.explodeSteps ?? []).some((s) => s.componentIds.includes(c.id) && s.angle && !s.distance)) {
       src.geometry.computeBoundingBox();
       const centre = src.geometry.boundingBox!.getCenter(new THREE.Vector3());
@@ -659,7 +659,7 @@ export function rebuildAssembly(doc: Document): AssemblyRebuild {
           try {
             g = csg(b.geometry, tool, 'subtract');
           } catch (err) {
-            // a component entirely inside the tool is removed by it, as the original shows it; anything else is an error
+            // a component entirely inside the tool is removed by it, by design shows it; anything else is an error
             if (/leaves nothing/.test((err as Error).message)) { cutAway.add(b); b.featureIds = [...b.featureIds, f.id]; hit++; continue; }
             errors[f.id] = `The hole failed on ${b.id.split('~')[0]}: ${(err as Error).message}`;
             continue;

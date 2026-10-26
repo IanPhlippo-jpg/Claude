@@ -64,7 +64,7 @@ export interface ThreadSpec {
 }
 
 /**
- * Thread tool, as the original's Thread feature: an ISO 60° V profile (depth 0.6134·P outside, 0.5413·P inside) swept
+ * Thread tool, as the intended Thread feature: an ISO 60° V profile (depth 0.6134·P outside, 0.5413·P inside) swept
  * along a helix with the pitch, from the start edge over the length. Cut thread removes it, Extrude thread adds a ridge.
  */
 /** the profile swept along the helix: ring(k) gives the profile corners at step k of steps */
@@ -86,7 +86,7 @@ function helixRings(t: ThreadSpec, prof: [number, number][], C: THREE.Vector3, a
 }
 
 /**
- * The preview of the original's Thread PropertyManager (fr. 299–301): the paths of the profile's corners along the
+ * The preview of the intended Thread PropertyManager: the paths of the profile's corners along the
  * helix and the profile at both ends, as cyan lines; no shaded result until OK.
  */
 export function threadPreviewCurves(t: ThreadSpec): THREE.Vector3[][] {

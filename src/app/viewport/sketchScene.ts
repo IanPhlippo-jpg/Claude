@@ -170,7 +170,7 @@ export class SketchScene {
     const dashed: number[] = [], dashedCol: number[] = [];
     const cons: number[] = [], consCol: number[] = [];
     const pts: number[] = [], ptsCol: number[] = [];
-    // construction geometry as the original (fr. 276): the sketch colour, thinner, long dash - gap - dot - gap
+    // construction geometry by design: the sketch colour, thinner, long dash - gap - dot - gap
     const DASHDOT = [10, 3, 1.5, 3].map((v) => v * input.scale);
     const addDashDot = (plane: PlaneId, poly: SketchPoint[], color: THREE.Color) => {
       let k = 0, left = DASHDOT[0];
@@ -285,7 +285,7 @@ export class SketchScene {
     }
     if (input.sketch) drawSketch(input.sketch, input.plane, false);
 
-    // reference planes as in the original: a thin blue-grey outline (no fill), dashed centre lines,
+    // reference planes by design: a thin blue-grey outline (no fill), dashed centre lines,
     // the hovered/selected plane in orange with a faint fill
     for (const pl of input.planes) {
       const b = getPlane(pl.id);
@@ -350,7 +350,7 @@ export class SketchScene {
     }
 
     if (solid.length) {
-      // sketch lines about 2 px wide and smooth, as the original draws them (a GL line is only 1 device pixel)
+      // sketch lines about 2 px wide and smooth, by design draws them (a GL line is only 1 device pixel)
       const g = new LineSegmentsGeometry();
       g.setPositions(solid);
       g.setColors(solidCol);

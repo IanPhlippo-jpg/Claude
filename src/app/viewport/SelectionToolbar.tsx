@@ -6,7 +6,7 @@ import { edgesOnFace } from '../../core/features/round';
 import type { BodyEdge } from '../../core/features/edgesets';
 
 /**
- * The selection toolbar of Fillet / Chamfer, as the original: after an edge is picked a see-through bar appears
+ * The selection toolbar of Fillet / Chamfer, by design: after an edge is picked a see-through bar appears
  * near it to add the connected edges in one click (the loop or all edges of either face, the feature's edges,
  * all edges of the body). The red cross closes it.
  */

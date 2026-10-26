@@ -5,7 +5,7 @@ import { MeshBVH } from 'three-mesh-bvh';
 
 export type DraftClass = 'positive' | 'requires' | 'negative';
 
-/** Draft Analysis colours of the original: positive draft green, requires draft yellow, negative draft red. */
+/** Draft Analysis colours of the intended design: positive draft green, requires draft yellow, negative draft red. */
 export const DRAFT_COLORS: Record<DraftClass, string> = { positive: '#2fb34a', requires: '#f2d13a', negative: '#d93b3b' };
 
 /**
@@ -81,7 +81,7 @@ function bvhOf(g: THREE.BufferGeometry) {
   return hit;
 }
 
-/** Thickness Analysis colours of the original's "Show thin regions": red at no thickness to yellow at the target, other faces grey. */
+/** Thickness Analysis colours of the intended "Show thin regions": red at no thickness to yellow at the target, other faces grey. */
 /** Show thick regions: faces thicker than the target from blue (just above) to red (twice the target and more) */
 export function thickColor(t: number, target: number): string {
   if (t <= target) return '#c8c8cc';

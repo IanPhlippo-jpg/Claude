@@ -3,7 +3,7 @@ import { Section } from '../../ui/components';
 import { Icon } from '../../ui/icons';
 import { FASTENER_NAMES, LENGTHS, METRIC, standardLength, type FastenerType } from '../../core/assembly/fasteners';
 
-/** Smart Fasteners PropertyManager, as the original: Selection (holes), Series Components (groups), Properties (type, size, length). */
+/** Smart Fasteners PropertyManager, by design: Selection (holes), Series Components (groups), Properties (type, size, length). */
 export function FastenerPM() {
   const st = useStore();
   const fe = st.fastenerEdit;
@@ -11,14 +11,14 @@ export function FastenerPM() {
   return (
     <div className="k-pm" data-testid="fastener-pm">
       <div className="k-pm-head">
-        <div className="k-pm-title"><Icon.Fasteners /> <b>Smart Fasteners</b><span className="grow" /><span className="k-pm-help" title="Help">?</span></div>
+        <div className="k-pm-title"><Icon.Fasteners /> <b>Auto Fasteners</b><span className="grow" /><span className="k-pm-help" title="Help">?</span></div>
         <div className="k-pm-buttons">
           <button className="k-pm-ok k-tip" data-tip="OK" onClick={st.commitSmartFasteners}><Icon.Check /></button>
           <button className="k-pm-cancel k-tip" data-tip="Cancel" onClick={st.cancelSmartFasteners}><Icon.Close /></button>
         </div>
       </div>
       <Section title="Message">
-        <p className="k-pm-message">Fasteners are added to the Hole Wizard holes; holes on one axis through stacked parts share one fastener. Click OK to add them.</p>
+        <p className="k-pm-message">Fasteners are added to the Hole Tool holes; holes on one axis through stacked parts share one fastener. Click OK to add them.</p>
       </Section>
       <Section title="Selection">
         <div className="k-selbox" style={{ minHeight: 40 }} data-testid="fastener-holes">

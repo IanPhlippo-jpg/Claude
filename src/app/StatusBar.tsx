@@ -24,7 +24,7 @@ export function StatusBar({ hint }: { hint: string }) {
   const u = st.doc.units;
   const coord = (v: number) => `${Math.round(v * 100) / 100}${u}`;
   const r2 = (v: number) => Math.round(v * 100) / 100;
-  // the selection readout, as the original's status bar: a line's length, two points' distance (dX dY dZ), a circle's diameter and centre
+  // the selection readout, as the intended status bar: a line's length, two points' distance (dX dY dZ), a circle's diameter and centre
   let readout: string | null = null;
   if (sketch && st.selection.length) {
     const ents = st.selection.filter((s) => s.kind === 'entity').map((s) => sketch.entities[s.id]).filter(Boolean);
@@ -64,13 +64,16 @@ export function StatusBar({ hint }: { hint: string }) {
         <span className={`k-status-msg ${msg.level}`}>
           {msg.level !== 'info' && <Icon.Warning size={13} />} {msg.text}
         </span>
+      ) : !hint && Object.keys(st.rebuild.errors).length ? (
+        <span className="k-status-err" data-testid="status-errors" onClick={() => useStore.setState({ whatsWrong: true })}>{Object.keys(st.rebuild.errors).length} rebuild error{Object.keys(st.rebuild.errors).length === 1 ? '' : 's'}: What's Wrong</span>
       ) : (
         <span className="k-muted">{hint || (st.planePick ? '' : st.activeSketchId ? '' : 'Ready')}</span>
       )}
       <span className="grow" />
       {readout && <span className="k-status-cell" data-testid="status-readout">{readout}</span>}
       {st.cursor && (st.activeSketchId || st.doc.kind === 'drawing') && (
-        <span className="k-status-coords">
+        // the pointer in sketch coordinates x, y and 0, as the reference status bar shows them while sketching
+        <span className="k-status-coords" data-testid="status-xyz">
           <span>{coord(st.cursor.x)}</span>
           <span>{coord(st.cursor.y)}</span>
           <span>0{u}</span>

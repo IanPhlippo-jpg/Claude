@@ -14,7 +14,7 @@ export interface MaterialDef {
   thermalExpansion?: number;
   conductivity?: number;
   specificHeat?: number;
-  /** Compressive Strength (Pa), as the original's Properties table */
+  /** Compressive Strength (Pa), as the intended Properties table */
   compressive?: number;
   /** Description, Source and Sustainability of the material */
   description?: string;

@@ -7,7 +7,7 @@ await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.
 await page.reload();
 await page.waitForSelector('.k-viewport');
 await page.click('.k-doctype:has-text("Part")');
-for (const [tab, label] of [['Features', 'Extruded Boss/Base'], ['Features', 'Fillet'], ['Features', 'Hole Wizard'], ['Features', 'Linear Pattern'], ['Sketch', 'Smart Dimension'], ['Sketch', 'Trim Entities']]) {
+for (const [tab, label] of [['Features', 'Extruded Boss/Base'], ['Features', 'Fillet'], ['Features', 'Hole Tool'], ['Features', 'Linear Pattern'], ['Sketch', 'Smart Dimension'], ['Sketch', 'Trim Entities']]) {
   await page.click(`.k-cm-tab:has-text("${tab}")`);
   await page.mouse.move(640, 500);
   await page.waitForTimeout(200);

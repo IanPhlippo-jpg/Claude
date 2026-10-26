@@ -1,3 +1,4 @@
+import { addLine, createSketch } from '../sketch/model';
 import { describe, expect, it } from 'vitest';
 import { createDocument } from './types';
 import { DocumentFormatError, FILE_VERSION, parseDocument, serializeDocument, validateDocument } from './persistence';
@@ -87,5 +88,29 @@ describe('file format: validation and upgrades', () => {
     for (let i = 0; i < 70; i++) deep = [deep];
     expect(() => validateDocument({ ...createDocument('Deep'), equations: [deep] })).toThrow(/nested too deeply/);
     expect(() => validateDocument(JSON.parse('{"name":"P","units":"mm","sketches":{},"features":[],"planes":{},"__proto__":{"x":1}}'))).toThrow(/forbidden key/);
+  });
+
+  it('refuses dangling references, unknown feature types and lengths outside the field limits (F80)', () => {
+    const base = () => {
+      let sk = createSketch('s1', 'Sketch1', 'front');
+      sk = addLine(sk, { x: 0, y: 0 }, { x: 10, y: 0 })[0];
+      const d = createDocument('Refs') as unknown as Record<string, unknown>;
+      d.sketches = { s1: sk };
+      d.features = [{ id: 'k1', type: 'sketch', name: 'Sketch1', sketchId: 's1', suppressed: false }, { id: 'e1', type: 'extrude', name: 'Boss-Extrude1', sketchId: 's1', suppressed: false, op: 'boss', end: 'blind', depth: 10, reverse: false }];
+      return d as Record<string, any>;
+    };
+    expect(() => validateDocument(base())).not.toThrow();
+    const a = base(); const line = Object.values(a.sketches.s1.entities).find((e: any) => e.kind === 'line') as any; line.p1 = 'nope';
+    expect(() => validateDocument(a)).toThrow(/refers to a point that does not exist/);
+    const b = base(); b.features[1].type = 'bogusFeature';
+    expect(() => validateDocument(b)).toThrow(/unknown type "bogusFeature"/);
+    const c = base(); c.features[1].depth = 1e11;
+    expect(() => validateDocument(c)).toThrow(/depth .* outside/);
+    const e = base(); e.features[1].depth = -5;
+    expect(() => validateDocument(e)).toThrow(/depth -5 is outside/);
+    const g = base(); g.features[1].sketchId = 'gone';
+    expect(() => validateDocument(g)).toThrow(/sketch that does not exist/);
+    const h = base(); h.features.push({ ...h.features[1] });
+    expect(() => validateDocument(h)).toThrow(/share the id/);
   });
 });

@@ -1,5 +1,6 @@
 // Sheet metal commands that were "later": No Bends, Convert to Sheet Metal, Lofted-Bend, Closed / Welded Corner, Corner Relief.
 import { chromium } from 'playwright';
+import { exitCode, skip } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -49,7 +50,7 @@ const flatOff = await page.evaluate(() => window.__phlippoStore.getState().doc.f
 check('No Bends again folds the sheet back', !flatOff);
 
 // Closed Corner and Corner Relief PropertyManagers take their faces
-await page.click('.k-cm-big:has-text("Corners") .k-cm-arrow').catch(() => undefined);
+await page.click('.k-cm-big:has-text("Corners") .k-cm-arrow').catch(skip('sheetmetal2:53'));
 await page.evaluate(() => window.__phlippoStore.getState().startClosedCorner());
 await page.waitForTimeout(200);
 await page.evaluate(() => { const s = window.__phlippoStore.getState(); const b = s.rebuild.bodies[0]; const f = b.faces.filter((x) => !x.curved).sort((p, q) => p.area - q.area)[0]; s.setSelectedFace({ bodyId: b.id, faceId: f.id }); });
@@ -113,9 +114,7 @@ await page.screenshot({ path: `${OUT}/sm2-loftedbend.png` });
 
 console.log(`
 ${results.filter((r) => r.ok).length}/${results.length} checks passed`);
-const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
-if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
-process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
+process.exitCode = exitCode(results, errors);
 for (const r of results.filter((r) => !r.ok)) console.log(' - ' + r.name + (r.info ? ' (' + r.info + ')' : ''));
 console.log('errors:', errors.length ? errors : 'none');
 await browser.close();

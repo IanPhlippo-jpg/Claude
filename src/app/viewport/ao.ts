@@ -6,7 +6,7 @@ import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
 
 /**
  * View Settings ▸ Ambient Occlusion: the scene rendered through a GTAO pass, so inside corners and creases
- * darken softly, as the original. The composer is rebuilt when the camera or size changes.
+ * darken softly, by design. The composer is rebuilt when the camera or size changes.
  */
 /** GTAO without the overlays: decals (and anything marked noAO) do not take part in the occlusion */
 class CadGTAOPass extends GTAOPass {

@@ -161,7 +161,7 @@ export function featureGeometry(doc: Document, f: SketchBasedFeature, extent = T
       }
     }
     // a cut sketched on a face starts a little outside it (no coplanar boolean); on a reference or offset plane the cut
-    // starts at the plane itself, as the original (a hair's breadth only, so a face lying in the plane is not coplanar)
+    // starts at the plane itself, by design (a hair's breadth only, so a face lying in the plane is not coplanar)
     const onFace = !isReferencePlane(sketch.plane) && doc.planes[sketch.plane]?.kind !== 'reference';
     let g = extrudeGeometry(regions, plane, fe, extent, f.op === 'cut' ? (onFace ? 0.5 : 0.002) : 0);
     if (g && f.op === 'cut' && f.flipSide) {
@@ -771,9 +771,15 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
   // what the body is made of, for the shell (added material and the tools of every cut)
   const history: BuildHistory = { boss: null, cuts: [] };
   const addBoss = (g: THREE.BufferGeometry) => {
-    history.boss = history.boss ? csg(history.boss, g, 'union') : g;
+    // the union of all boss tools is bookkeeping (feature history); when that boolean fails the feature itself stays
+    // built, the history keeps its previous state
+    try {
+      history.boss = history.boss ? csg(history.boss, g, 'union') : g;
+    } catch {
+      /* the feature is fine; only its share in the boss history is left out */
+    }
   };
-  // ---- multi-body helpers (Merge result, Feature Scope, hidden bodies), as the original
+  // ---- multi-body helpers (Merge result, Feature Scope, hidden bodies), by design
   const hiddenIds = new Set(doc.hiddenBodies ?? []);
   const autoHidden: Id[] = [];
   // the sheet metal base (for the flat pattern): the open chain, its plane and the flange extensions
@@ -1265,7 +1271,7 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
               b.geometry = csg(b.geometry, m, cut ? 'subtract' : 'union');
               b.featureIds.push(f.id);
             }
-            if (cut) history.cuts.push(m); else if (history.boss) history.boss = csg(history.boss, m, 'union');
+            if (cut) history.cuts.push(m); else if (history.boss) addBoss(m);
           }
           if (f.propagateVisual !== false) for (const fa of doc.faceAppearances ?? []) {
             const p = new THREE.Vector3(...fa.point), n = new THREE.Vector3(...fa.normal);
@@ -1289,7 +1295,7 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
           const mp = p.clone().sub(o).addScaledVector(nn, -2 * p.clone().sub(o).dot(nn)).add(o), mn = n.clone().addScaledVector(nn, -2 * n.dot(nn));
           extraAppearances.push({ normal: [mn.x, mn.y, mn.z], point: [mp.x, mp.y, mp.z], color: fa.color });
         }
-        if (history.boss) history.boss = csg(history.boss, mirrorGeometry(history.boss, pl.origin, pl.n), 'union');
+        if (history.boss) addBoss(mirrorGeometry(history.boss, pl.origin, pl.n));
         history.cuts = [...history.cuts, ...history.cuts.map((c) => mirrorGeometry(c, pl.origin, pl.n))];
       } catch (err) {
         errors[f.id] = `Boolean operation failed: ${(err as Error).message}`;
@@ -2082,7 +2088,7 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
       const fn = new THREE.Vector3(...fixed.normal);
       const opp = planarFaces(body.geometry, body.id).filter((x) => !x.curved && new THREE.Vector3(...x.normal).dot(fn) < -0.999).sort((a, b) => new THREE.Vector3(...b.centroid).dot(fn) - new THREE.Vector3(...a.centroid).dot(fn))[0];
       try {
-        // Keep body: the solid stays as a second body (hidden, as the original)
+        // Keep body: the solid stays as a second body (hidden, by design)
         if (f.keepBody) {
           const kept = newBody(body.geometry.clone(), f.id);
           hiddenIds.add(kept.id);
@@ -2604,7 +2610,8 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
       errors[f.id] = `Boolean operation failed: ${(err as Error).message}`;
     }
     } catch (err) {
-      if (!errors[f.id]) errors[f.id] = `${f.name} could not be built: ${(err as Error).message}`;
+      // an internal error (missing data) is said in words; the technical text stays in brackets for a bug report
+      if (!errors[f.id]) errors[f.id] = err instanceof TypeError || err instanceof RangeError ? `${f.name} could not be built: its data is incomplete or refers to geometry that no longer exists (${(err as Error).message}).` : `${f.name} could not be built: ${(err as Error).message}`;
     } finally {
       times[f.id] = (times[f.id] ?? 0) + (clock() - t0);
     }

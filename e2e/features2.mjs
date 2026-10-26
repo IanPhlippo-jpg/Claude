@@ -1,6 +1,7 @@
 // Features that were "later": Reference Axis / Point / Coordinate System, Curve / Table / Fill / Variable Pattern,
 // Split Line, Projected Curve, Advanced Hole, Stud Wizard, Offset On Surface.
 import { chromium } from 'playwright';
+import { exitCode, skip } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -43,11 +44,11 @@ const topFace = () => page.evaluate(() => { const s = window.__phlippoStore.getS
 
 // Reference Geometry ▸ Axis from two planes picked in the tree
 await page.click('.k-cm-tab:has-text("Features")');
-await page.click('.k-cm-big:has-text("Reference Geometry") .k-cm-arrow').catch(() => undefined);
+await page.click('.k-cm-big:has-text("Reference Geometry") .k-cm-arrow').catch(skip('features2:47'));
 await page.evaluate(() => window.__phlippoStore.getState().startRefGeom('axis'));
 await page.waitForTimeout(200);
 check('Reference Geometry ▸ Axis opens its Property Panel', (await page.locator('[data-testid="refgeom-pm"]').count()) === 1);
-// the planes are picked in the flyout Feature Tree tree of the graphics area, as the original
+// the planes are picked in the flyout Feature Tree of the graphics area, as the original
 await page.click('.k-flyout-toggle');
 await page.click('.k-flyout-body .k-tree-row:has-text("Front Plane")');
 await page.click('.k-flyout-body .k-tree-row:has-text("Right Plane")');
@@ -142,9 +143,7 @@ await page.screenshot({ path: `${OUT}/features2.png` });
 
 console.log(`
 ${results.filter((r) => r.ok).length}/${results.length} checks passed`);
-const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
-if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
-process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
+process.exitCode = exitCode(results, errors);
 for (const r of results.filter((r) => !r.ok)) console.log(' - ' + r.name + (r.info ? ' (' + r.info + ')' : ''));
 console.log('errors:', errors.length ? errors : 'none');
 await browser.close();

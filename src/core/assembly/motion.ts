@@ -5,7 +5,7 @@ import { componentMatrix } from './assembly';
 import { evaluateExpression } from '../document/equations';
 
 /**
- * A motor of a motion study, as the original's Motor PropertyManager: rotary (turns the component about its
+ * A motor of a motion study, as the intended Motor PropertyManager: rotary (turns the component about its
  * concentric mate axis) or linear (an actuator moving it along that axis), with a motion profile.
  */
 export interface Motor {
@@ -198,7 +198,7 @@ export interface MotionSim {
 }
 
 /**
- * Basic Motion (as the original's: approximate, fast): components without mates that are not fixed are rigid
+ * Basic Motion (as the intended: approximate, fast): components without mates that are not fixed are rigid
  * bodies pushed by gravity and springs; within a Contact group they stop where their boxes meet (no bounce).
  * Units: mm, s, g (mass from the bodies' volume and density), N.
  */

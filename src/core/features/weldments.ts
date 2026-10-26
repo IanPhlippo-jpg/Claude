@@ -8,7 +8,7 @@ import { circleSegments } from '../sketch/geometry';
 import { TOL } from './tolerance';
 
 /**
- * Weldments, as the original's Weldments tab: the structural member profile library (ISO / ANSI inch), structural
+ * Weldments, as the intended Weldments tab: the structural member profile library (ISO / ANSI inch), structural
  * members swept along the straight segments of a path with the corner treatments (end miter, end butt), Trim/Extend,
  * End Cap, the weldment Gusset, the Weld Bead and the cut list grouping of identical bodies.
  */
@@ -451,7 +451,7 @@ export interface CutListItem {
   volume: number;
 }
 
-/** identical bodies (same volume and bounding size) grouped into cut list items, as the original's Cut-List-Item folders */
+/** identical bodies (same volume and bounding size) grouped into cut list items, as the intended Cut-List-Item folders */
 export function cutList(bodies: { id: string; geometry: THREE.BufferGeometry; description?: string; length?: number; angle1?: number; angle2?: number }[]): CutListItem[] {
   const items: CutListItem[] = [];
   const keyOf = (b: (typeof bodies)[number]) => {

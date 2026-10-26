@@ -6,7 +6,7 @@ import { dimensionTable } from '../../core/document/equations';
 import { STATUS_COLORS, toleranceStatus } from '../../core/document/dimxpert';
 
 /**
- * DimXpertManager tab, as the original: the model's dimensions per feature (the dimensions DimXpert works with),
+ * DimXpertManager tab, by design: the model's dimensions per feature (the dimensions DimXpert works with),
  * with Auto Dimension Scheme putting them on the drawing-ready list and Show Tolerance Status colouring them.
  */
 export function DimXpertManagerBody() {
@@ -66,7 +66,7 @@ export function DimXpertManagerBody() {
 }
 
 /**
- * DisplayManager tab, as the original: the appearances (document, bodies, faces), the decals and the scene,
+ * DisplayManager tab, by design: the appearances (document, bodies, faces), the decals and the scene,
  * each opening its editor on double-click.
  */
 export function DisplayManagerBody() {

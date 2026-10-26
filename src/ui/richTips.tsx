@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 
 /**
- * Rich tooltips of the CommandManager, as the original 2026 shows them: a bold title, an illustration of what the
+ * Rich tooltips of the CommandManager, by design shows them: a bold title, an illustration of what the
  * command makes (here our own small isometric drawings, yellow for what the command adds) and a short explanation.
  */
 
@@ -65,7 +65,7 @@ const ART: Record<string, () => ReactElement[]> = {
   'Lofted Cut': () => [box(-16, 0, -14, 32, 9, 28), cyl(0, 0.3, 0, 7, 9, YEL)],
   'Boundary Boss/Base': () => [<path key="b" d="M50,100Q110,20 170,90L150,110Q110,60 70,115Z" fill="rgba(240,248,60,0.8)" stroke={YEL.line} />, sk('M50,100Q110,20 170,90', 'c1'), sk('M70,115Q110,60 150,110', 'c2')],
   'Boundary Cut': () => [box(-16, 0, -14, 32, 9, 28), <path key="b" d="M70,70Q110,50 150,72L140,84Q110,70 80,84Z" fill="rgba(246,252,70,0.9)" stroke={YEL.line} />],
-  'Hole Wizard': () => [box(-16, 0, -14, 32, 8, 28), cyl(0, 0.3, 0, 6, 8, YEL), cyl(0, 5, 0, 9, 3.3, YEL, 'cb')],
+  'Hole Tool': () => [box(-16, 0, -14, 32, 8, 28), cyl(0, 0.3, 0, 6, 8, YEL), cyl(0, 5, 0, 9, 3.3, YEL, 'cb')],
   Fillet: () => [box(-14, 0, -12, 28, 12, 24), <path key="f" d={`M${P([-14, 12, 12])}L${P([14, 12, 12])}L${P([14, 9, 15])}L${P([-14, 9, 15])}Z`} fill="rgba(246,252,40,0.9)" stroke={YEL.line} />],
   Chamfer: () => [box(-14, 0, -12, 28, 12, 24), <path key="f" d={`M${P([-14, 12, 9])}L${P([14, 12, 9])}L${P([14, 9, 12])}L${P([-14, 9, 12])}Z`} fill="rgba(246,252,40,0.9)" stroke={YEL.line} />],
   'Linear Pattern': () => [box(-20, 0, -8, 40, 3, 16), cyl(-12, 3, 0, 3.5, 6, BODY, 'c1'), cyl(0, 3, 0, 3.5, 6, YEL, 'c2'), cyl(12, 3, 0, 3.5, 6, YEL, 'c3'), arrow([-12, 12, 0], [14, 12, 0])],
@@ -111,7 +111,7 @@ const DESC: Record<string, string> = {
   'Lofted Cut': 'Removes material by blending between two or more profiles.',
   'Boundary Boss/Base': 'Adds material between profiles in one or two directions with high-quality, smooth surfaces.',
   'Boundary Cut': 'Removes material between profiles in one or two directions.',
-  'Hole Wizard': 'Places holes with a standard cross-section (counterbore, countersink, tapped, …) on a face, by standard and fastener size.',
+  'Hole Tool': 'Places holes with a standard cross-section (counterbore, countersink, tapped, …) on a face, by standard and fastener size.',
   Fillet: 'Rounds one or more edges, or the edges between faces, of a solid or surface with a constant or variable radius.',
   Chamfer: 'Bevels the selected edges or vertices with distances or a distance and an angle.',
   'Linear Pattern': 'Repeats features, faces or bodies in one or two linear directions.',

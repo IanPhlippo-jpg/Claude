@@ -1,5 +1,6 @@
 // Phase 2 check: rebuild the BasePlate of the reference video (80x80, Ø35, extrude 10, cut), face selection, undo/redo, reload, wheel zoom at the pointer.
 import fs from 'node:fs';
+import { exitCode, skip } from './lib/check.mjs';
 import { chromium } from 'playwright';
 import { mkdirSync } from 'node:fs';
 
@@ -132,7 +133,7 @@ check('redo restores the cut', (await S()).features.length === 4);
 // reload: autosave rebuilds the solids
 await page.reload();
 await page.waitForSelector('.k-viewport');
-await page.locator('[data-testid="welcome-recent-0"]').click({ timeout: 4000 }).catch(() => {}); // the autosave waits under Recent Documents, as the original
+await page.locator('[data-testid="welcome-recent-0"]').click({ timeout: 4000 }).catch(skip('features:136')); // the autosave waits under Recent Documents, as the original
 await page.waitForTimeout(800);
 const s3 = await S();
 check('autosave rebuilds the solids after reload', s3.bodies === 1 && s3.features.length === 4 && Object.keys(s3.errors).length === 0);
@@ -201,7 +202,7 @@ await page.keyboard.press('Control+z');
 await page.waitForTimeout(600);
 check('undo removes chamfer and fillet', (await S()).features.length === 4);
 
-// Hole Wizard on the top face: select the face, Hole Wizard, counterbore, two positions, OK
+// Hole Tool on the top face: select the face, Hole Tool, counterbore, two positions, OK
 await page.keyboard.press('Control+7');
 await page.waitForTimeout(300);
 await page.keyboard.press('f');
@@ -209,8 +210,8 @@ await page.waitForTimeout(300);
 const fm = await page.evaluate(() => window.__phlippoProjectWorld(15, 10, -15));
 await page.mouse.click(fm.x, fm.y);
 await page.waitForTimeout(150);
-check('face selected for the Hole Wizard', !!(await page.evaluate(() => window.__phlippoStore.getState().selectedFace)));
-await page.click('.k-cm-big:has-text("Hole Wizard") .k-cm-main');
+check('face selected for the Hole Tool', !!(await page.evaluate(() => window.__phlippoStore.getState().selectedFace)));
+await page.click('.k-cm-big:has-text("Hole Tool") .k-cm-main');
 await page.waitForTimeout(300);
 await page.locator('.k-pm-typebtn[data-tip="Counterbore"]').click();
 const h1 = await page.evaluate(() => window.__phlippoProjectWorld(15, 10, -15));
@@ -364,7 +365,7 @@ await page.click('.k-mb-menu:has-text("File")');
 // since G-C the STL export shows its Export Options page first (Binary is the default)
 await page.click('.k-menu-item:has-text("Save As ▸ STL")');
 await page.waitForSelector('[data-testid="export-ok"]');
-await page.locator('[data-testid="export-showinfo"]').uncheck().catch(() => {});
+await page.locator('[data-testid="export-showinfo"]').uncheck().catch(skip('features:368'));
 const [download] = await Promise.all([page.waitForEvent('download'), page.locator('[data-testid="export-ok"]').click()]);
 const stlPath = download.suggestedFilename();
 check('Save As STL downloads Part1.stl', stlPath === 'Part1.stl', stlPath);
@@ -529,7 +530,7 @@ await page.click('.k-tree-row:has-text("Plane1")', { button: 'right' });
 await page.waitForTimeout(500);
 check('sketch opens on Plane1', await page.evaluate(() => { const s = window.__phlippoStore.getState(); const sk = s.doc.sketches[s.activeSketchId]; return !!sk && s.doc.planes[sk.plane]?.name === 'Plane1'; }));
 await page.keyboard.press('Escape');
-await page.click('.k-confirm-cancel').catch(() => {});
+await page.click('.k-confirm-cancel').catch(skip('features:533'));
 await page.waitForTimeout(300);
 
 // mouse wheel zooms about the pointer: the sketch point under the pointer stays put
@@ -555,9 +556,7 @@ check('arrow key rotates (view name cleared)', (await page.locator('.k-viewname'
 await page.keyboard.press('Control+7');
 console.log(`
 ${results.filter((r) => r.ok).length}/${results.length} checks passed`);
-const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
-if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
-process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
+process.exitCode = exitCode(results, errors);
 for (const r of results.filter((r) => !r.ok)) console.log(' - ' + r.name + (r.info ? ' (' + r.info + ')' : ''));
 console.log('errors:', errors.length ? errors : 'none');
 await browser.close();

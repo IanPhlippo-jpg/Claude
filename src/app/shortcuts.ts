@@ -43,8 +43,8 @@ export const SHORTCUTS: Shortcut[] = [
   { keys: 'Space', label: 'View Selector and Orientation dialog', group: 'View' },
   { keys: 'Ctrl+Space', label: 'View Selector', group: 'View' },
   { keys: 'Ctrl+Shift+Z', label: 'Previous View', group: 'View' },
-  { keys: 'Shift+C', label: 'Collapse Feature Tree tree', group: 'View' },
-  { keys: 'F9', label: 'Hide/show Feature Tree tree area', group: 'View' },
+  { keys: 'Shift+C', label: 'Collapse Feature Tree', group: 'View' },
+  { keys: 'F9', label: 'Hide/show Feature Tree area', group: 'View' },
   { keys: 'F11', label: 'Full screen', group: 'View' },
   { keys: 'Ctrl+R', label: 'Redraw', group: 'View' },
   { keys: '?', label: 'Keyboard shortcuts / Help', group: 'Help' },
@@ -161,7 +161,7 @@ export function useShortcuts(handlers: { save: () => void; open: () => void; sho
         withUnsavedCheck(() => useStore.getState().setDialog('new'));
         return;
       }
-      // Enter outside a sketch / command / dialog: the last CommandManager command runs again, as the original
+      // Enter outside a sketch / command / dialog: the last CommandManager command runs again, by design
       if (e.key === 'Enter' && !ctrl && !e.shiftKey && !e.altKey && st.hasDocument && !st.activeSketchId && !st.featureEdit && !st.dialog && !st.ask && !st.modify && !st.confirmDelete && st.lastCommand) {
         e.preventDefault();
         st.lastCommand.run();

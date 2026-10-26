@@ -6,12 +6,12 @@ const SWATCHES = ['#c9cbcf', '#d94b3d', '#e38b2a', '#e8c547', '#59a84b', '#2f8f9
 
 /**
  * Edit Appearance (Render Tools ▸ Edit Appearance, or a body's Appearance…): a colour for the part
- * or one body, laid out like the original's Color PropertyManager (swatches + RGB picker, Remove).
+ * or one body, laid out like the intended Color PropertyManager (swatches + RGB picker, Remove).
  */
 export function AppearanceDialog() {
   const st = useStore();
   const target = st.materialTarget;
-  // a face selected in the graphics area is the target (Selected Geometry: Face<n>), as the original
+  // a face selected in the graphics area is the target (Selected Geometry: Face<n>), by design
   const [face] = useState(() => (!target ? st.selectedFace : null));
   const faceObj = face ? st.rebuild.bodies.find((b) => b.id === face.bodyId)?.faces.find((f) => f.id === face.faceId) : undefined;
   const faceIndex = face && faceObj ? (st.rebuild.bodies.find((b) => b.id === face.bodyId)?.faces.indexOf(faceObj) ?? 0) + 1 : 0;

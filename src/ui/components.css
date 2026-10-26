@@ -71,7 +71,7 @@ input[type='number']::-webkit-inner-spin-button { opacity: 0.4; }
 .k-input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px var(--bg-selected); }
 .k-number { position: relative; display: flex; align-items: center; flex: 1; min-width: 0; }
 .k-number .k-num { width: 100%; padding-right: 18px; }
-/* spin buttons inside the field, at the right (as the original) */
+/* spin buttons inside the field, at the right (by design) */
 .k-number .k-spin { position: absolute; right: 1px; top: 1px; bottom: 1px; width: 14px; display: flex; flex-direction: column; border-left: 1px solid var(--border); background: #f6f6f6; }
 .k-number .k-spin button { flex: 1; display: flex; align-items: center; justify-content: center; padding: 0; border: 0; background: transparent; color: var(--text-muted); cursor: default; }
 .k-number .k-spin button:hover:not(:disabled) { background: var(--bg-hover); color: var(--text); }
@@ -103,13 +103,15 @@ input[type='number']::-webkit-inner-spin-button { opacity: 0.4; }
 .k-tree-row { display: flex; align-items: center; gap: 4px; height: 22px; padding-right: 6px; border-radius: 0; cursor: default; white-space: nowrap; }
 .k-tree-hl { display: inline-flex; align-items: center; gap: 5px; height: 21px; padding: 0 3px 0 1px; margin-left: -2px; border: 1px solid transparent; box-sizing: border-box; }
 .k-tree-hl > svg { width: 18px; height: 18px; flex: none; color: var(--icon); }
-/* measured on the original: pointed at = grey frame only (fr. 374), selected = blue-grey box (fr. 381) */
+/* measured: pointed at = grey frame only, selected = blue-grey box */
 .k-tree-row:hover .k-tree-hl { border-color: var(--tree-hover-border); }
 .k-tree-row.selected .k-tree-hl { background: var(--tree-sel-bg); border-color: var(--tree-sel-border); }
 .k-tree-row.active { font-weight: 600; }
 .k-tree-row.suppressed { opacity: 0.5; }
 .k-tree-row .caret { width: 16px; display: inline-flex; justify-content: center; color: var(--text-faint); }
-.k-tree-row .status { margin-left: auto; font-size: 10px; padding: 1px 5px; border-radius: 3px; }
+/* the status marker follows the name (a long root name used to push it out of the pane, F78) */
+.k-tree-row .status { margin-left: 4px; flex: none; font-size: 10px; padding: 1px 5px; border-radius: 3px; }
+.k-tree-row .status.conflict, .k-tree-row .status.invalid { color: #fff; background: var(--danger); border-radius: 50%; width: 14px; height: 14px; padding: 0; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; cursor: pointer; }
 .status.under { color: var(--sk-under); background: var(--bg-selected); }
 .status.full { color: var(--ok); }
 .status.over, .status.conflict, .status.invalid { color: var(--danger); }
@@ -136,9 +138,13 @@ input[type='number']::-webkit-inner-spin-button { opacity: 0.4; }
 .k-list li.selected { background: var(--bg-selected); }
 .k-list li .tail { margin-left: auto; display: flex; gap: 4px; }
 
-/* the rich tooltip of the CommandManager (title, picture, explanation) with a tail to the button, as the original 2026 */
+/* the rich tooltip of the CommandManager (title, picture, explanation) with a tail to the button, by design */
 .k-richtip { position: fixed; z-index: 10000; width: 300px; padding: 9px 12px 10px; background: #fff; border: 1px solid #9a9a9a; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18); pointer-events: none; color: #1a1a1a; font-size: 12px; }
 .k-richtip b { display: block; font-size: 13px; margin-bottom: 4px; }
 .k-richtip-art { display: flex; justify-content: center; margin: 2px 0 6px; }
 .k-richtip p { margin: 0; line-height: 1.35; }
 .k-richtip-tail { position: absolute; top: -7px; width: 12px; height: 12px; background: #fff; border-left: 1px solid #9a9a9a; border-top: 1px solid #9a9a9a; transform: rotate(45deg); }
+
+/* number field: a refused or adjusted value (F81) */
+.k-number .k-num.bad { border-color: var(--danger); background: #fff4f4; }
+.k-num-note { position: absolute; left: 0; top: calc(100% + 2px); z-index: 30; max-width: 260px; padding: 2px 6px; font-size: 11px; line-height: 1.3; color: #8a1c1c; background: #fff4f4; border: 1px solid #e0a0a0; border-radius: 3px; white-space: normal; pointer-events: none; }

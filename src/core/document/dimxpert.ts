@@ -3,7 +3,7 @@ import type { Body } from '../features/rebuild';
 import type { PlanarFace } from '../features/solid';
 
 /**
- * DimXpert / MBD Dimensions, as the original's MBD Dimensions tab: datums, size and location dimensions, geometric
+ * DimXpert / MBD Dimensions, as the intended MBD Dimensions tab: datums, size and location dimensions, geometric
  * tolerances and the Auto Dimension Scheme that derives them from the model faces. Tolerances follow the document's
  * block tolerance (Document Properties ▸ DimXpert) or the geometric method.
  */
@@ -55,7 +55,7 @@ export function planarFaceList(bodies: Body[]): PlanarFace[] {
   return bodies.flatMap((b) => b.faces.filter((f) => !f.curved && f.area > 1));
 }
 
-/** the block tolerance of a dimension by its magnitude: the original's "precision" classes */
+/** the block tolerance of a dimension by its magnitude: the intended "precision" classes */
 export function blockFor(value: number, block: BlockTolerance): number {
   if (value < 10) return block.length3;
   if (value < 100) return block.length2;

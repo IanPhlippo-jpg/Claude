@@ -2,6 +2,7 @@
 // material menu) and the MBD Dimensions tab (Auto Dimension Scheme, Datum, Size Dimension, Geometric Tolerance,
 // Show Tolerance Status, Delete All Tolerances, Tolerance Tree, callouts).
 import { chromium } from 'playwright';
+import { exitCode } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -78,7 +79,7 @@ check('a favorite applies the material', (await S(() => window.__phlippoStore.ge
 // ---- MBD Dimensions tab
 check('Command Ribbon has an MBD Dimensions tab', (await page.locator('.k-cm-tab:has-text("MBD Dimensions")').count()) === 1);
 await page.click('.k-cm-tab:has-text("MBD Dimensions")');
-for (const l of ['Auto Dimension Scheme', 'Location Dimension', 'Size Dimension', 'Pattern Feature', 'Datum', 'Geometric Tolerance', 'Show Tolerance Status', 'Copy Scheme', 'Import Scheme', 'Delete All Tolerances', 'Tolerance Stack-up Study']) check(`MBD tab has ${l}`, (await page.locator(`.k-cm-group :text-is("${l}")`).count()) >= 1);
+for (const l of ['Auto Dimension Scheme', 'Location Dimension', 'Size Dimension', 'Pattern Feature', 'Datum', 'Geometric Tolerance', 'Show Tolerance Status', 'Copy Scheme', 'Import Scheme', 'Delete All Tolerances', 'Tolerance Sum']) check(`MBD tab has ${l}`, (await page.locator(`.k-cm-group :text-is("${l}")`).count()) >= 1);
 await shot('gi3-mbd-tab');
 // Auto Dimension Scheme
 await page.click('.k-cm-big:has-text("Auto Dimension Scheme") .k-cm-main');
@@ -128,9 +129,9 @@ const d3 = await dx();
 check('Geometric Tolerance ⏥ with datum A added', d3.gtols.length === 1 && d3.gtols[0].symbol === 'flatness' && d3.gtols[0].datums.join('') === 'A' && (await page.locator('[data-testid="dx-callout-gtol"]').count()) === 1, JSON.stringify(d3.gtols));
 await shot('gi6-dimxpert');
 // Tolerance Stack-up Study message and Delete All Tolerances
-await page.click('.k-cm-small:has-text("Tolerance Stack-up Study")');
+await page.click('.k-cm-small:has-text("Tolerance Sum")');
 await page.waitForTimeout(300);
-check('Tolerance Stack-up Study: worst case and RSS stack-up', /worst case/.test(await page.locator('[data-testid="ask"]').innerText()) && /RSS/.test(await page.locator('[data-testid="ask"]').innerText()));
+check('Tolerance Sum: worst case and RSS over all dimensions, said so (F90)', /not the stack-up of one dimension chain/.test(await page.locator('[data-testid="ask"]').innerText()) && /worst case/.test(await page.locator('[data-testid="ask"]').innerText()) && /RSS/.test(await page.locator('[data-testid="ask"]').innerText()));
 await page.locator('[data-testid="ask"] .k-btn.primary').click();
 await page.waitForTimeout(200);
 await page.click('.k-cm-small:has-text("Delete All Tolerances")');
@@ -138,8 +139,6 @@ await page.waitForTimeout(400);
 check('Delete All Tolerances clears the scheme and the callouts', (await dx()) === null && (await page.locator('[data-testid="dx-callout-dim"]').count()) === 0);
 
 console.log(results.filter((r) => r.ok).length + '/' + results.length + ' passed');
-const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
-if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
-process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
+process.exitCode = exitCode(results, errors);
 if (errors.length) console.log('ERRORS', errors.slice(0, 5));
 await browser.close();

@@ -24,7 +24,7 @@
   --tree-hover-border: #858585;
   --bg-viewport: #fcfcfc;
   --bg-viewport-2: #fcfcfc;
-  /* drawing graphics area: light gradient behind the sheet, as the original */
+  /* drawing graphics area: light gradient behind the sheet, by design */
   --bg-sheet-1: #ffffff;
   --bg-sheet-2: #c5c9d5;
   --border: #d9d9d9;

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useStore } from '../store';
 
 /**
- * The Rotate context toolbar of Insert Component (fr. 320): an angle box with spin buttons and X / Y / Z buttons that
+ * The Rotate context toolbar of Insert Component: an angle box with spin buttons and X / Y / Z buttons that
  * turn the part on the pointer by that angle before it is placed. It stands at the bottom left of the graphics area.
  */
 export function InsertRotateBar() {

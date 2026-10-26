@@ -545,3 +545,13 @@ elease; README en docs/04 bijgewerkt
 - [x] F59/F26/F37/F44/F46/F36: tsbuildinfo uit git, lang="en", npm audit, cap 250 + rebuild met wall-clock-budget, store-helpers afgesplitst
 - [x] docs/11-qa-rapport-2.md met status per bevinding; tsc, unit tests, volledige regressie, versie 0.3.4, installer + stille installatie (Local Storage-backup eerst), schermafbeeldingen, commit lokaal
 - [ ] Later (architectuur, eigen fase): store opsplitsen (F36), CSG in een worker (F46), B-rep-kernel (F47/F51), code signing (F49), visuele rest (F16/F19–F22/F24)
+
+## Vervolg 36: QA-rapport v0.3.4 (extern, F01–F92, 6/10 NO-GO) verwerken → 0.3.5 (2026-10-26)
+- [x] F82: 0.3.4 is gecommit (f001b13) → tag v0.3.4; F84 doorhandle schrijft niet meer in voorbeelden/ (alleen met UPDATE_EXAMPLES=1)
+- [x] F74/F41: opslagvraag tijdens Edit Component (Ctrl+N/Ctrl+O/Open, Make Multibody Part met Save), editContext pas na bevestiging weg
+- [x] F10/F54/F57/F31: drawing Ø35 robuust (ook Linux-fonts), gedeelde e2e-helper e2e/lib/check.mjs (exit 1 bij FAIL en page error, console-allowlist), smoke/relations/keys/deletekey(2) erop, lege catches weg, CI-timeout
+- [x] F80/F78/F40/F05/F70/F81: referentiële validatie (punten, schetsen, componenten, feature-types, grenzen als de UI), rebuild-fouten zichtbaar in de boom + What's Wrong bij openen, Ctrl+S met fouten vraagt bevestiging, melding bij afkappen/weigeren
+- [x] F50/F77/F92/F56/F90: resterende merknamen (Hole Wizard, Toolbox, Design Library, Lifecycle and Collaboration, Smart Fasteners), kapotte teksten, 'as the original'-commentaren neutraal, FOS zonder groen, Tolerance Stack-up eerlijk
+- [x] F85/F87/F88/F89/F83/F91: packaged app weigert debug-switches, permissies deny-by-default, app://-protocol + fuse, testhaken alleen in de e2e-build (VITE_TEST_HOOKS), dubbele gate weg, Chromium-licenties
+- [x] F14/F79/F48/F86/F33/F28/F19/F20: Linear Pattern grijs, Final Render zonder highlight, volume-check na booleans, lektest in de regressie, machinegebonden scripts apart, desktop auto-browse getest, statusbalk XYZ, Confirmation Corner
+- [~] docs/12 met status per bevinding + correcties docs/11 (F38); tsc, unit, volledige regressie (e2e-build), installer + rooktest geïnstalleerde app, screenshots, commit + tag v0.3.5

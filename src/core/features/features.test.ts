@@ -7,7 +7,7 @@ import { meshVolume } from './solid';
 import { planeOnFace } from './planes';
 
 function basePlate() {
-  // 80 x 80 plate with a Ø35 hole in the middle, like the BasePlate of the reference video
+  // 80 x 80 plate with a Ø35 hole in the middle, the BasePlate test part
   let s = createSketch('sk1', 'Sketch1', 'top');
   const c = [
     { x: -40, y: -40 },

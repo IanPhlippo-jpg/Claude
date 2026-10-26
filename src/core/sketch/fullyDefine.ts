@@ -4,7 +4,7 @@ import { measure } from './relations';
 import { solveSketch } from '../solver/solver';
 
 /**
- * Fully Define Sketch, as the original: first relations (horizontal / vertical for nearly level lines),
+ * Fully Define Sketch, by design: first relations (horizontal / vertical for nearly level lines),
  * then dimensions (line lengths, radii / diameters), then the positions of the remaining free points
  * measured horizontally and vertically from the origin. A candidate is kept only when it lowers the
  * degrees of freedom without over-defining the sketch. Returns the sketch and how many items were added.

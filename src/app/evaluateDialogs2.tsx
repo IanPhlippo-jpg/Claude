@@ -307,7 +307,6 @@ export function SimXpressDialog() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ran]);
   const canNext = step === 0 || (step === 1 && !!fixture) || (step === 2 && !!load) || (step === 3 && !!mat) || (step === 4 && ran) || step === 5;
-  const fosColor = (f: number) => (f >= 1 ? '#1f7a37' : '#b42318');
   return (
     <Shell title="Quick Beam Estimate" icon={<Icon.Simulation />} testid="simxpress-dialog" width={460} onClose={() => st.setDialog(null)} footer={<><button className="k-btn" disabled={step === 0} onClick={() => setStep((s) => s - 1)}>Back</button><button className="k-btn primary" data-testid="simx-next" disabled={!canNext || step === STEPS.length - 1} onClick={() => setStep((s) => s + 1)}>Next</button><button className="k-btn" onClick={() => st.setDialog(null)}>Close</button></>}>
       <div className="k-simx-steps" data-testid="simx-steps" style={{ display: 'flex', gap: 4, marginBottom: 8, flexWrap: 'wrap' }}>
@@ -315,7 +314,7 @@ export function SimXpressDialog() {
       </div>
       {step === 0 && (
         <>
-          <p className="k-pm-message">Quick Beam Estimate: define fixtures and loads on the part, assign a material and get an indicative stress, displacement and factor of safety from a beam model.</p>
+          <p className="k-pm-message">Quick Beam Estimate: define fixtures and loads on the part, assign a material and get an indicative stress, displacement and yield-to-stress ratio from a beam model. Not for design decisions.</p>
           <fieldset className="k-fieldset"><legend>Options</legend>
             <div className="k-pm-label">System of units:</div>
             <select className="k-input" defaultValue="SI"><option>SI</option><option>English (IPS)</option><option>Metric (G)</option></select>
@@ -369,7 +368,7 @@ export function SimXpressDialog() {
           {result && (
             <table className="k-table" data-testid="simx-results">
               <tbody>
-                <tr><td>Factor of safety (min)</td><td style={{ color: fosColor(result.fos), fontWeight: 600 }}>{fmt(result.fos, 2)}</td></tr>
+                <tr><td>Indicative ratio yield / stress</td><td data-testid="simx-ratio">{fmt(result.fos, 2)} <span className="k-muted">(not a safety factor)</span></td></tr>
                 <tr><td>von Mises stress (max)</td><td>{fmt(result.stress / 1e6, 2)} MPa</td></tr>
                 <tr><td>Displacement (max)</td><td>{fmt(result.displacement, 4)} mm</td></tr>
                 <tr><td>Bending / shear stress</td><td>{fmt(result.bendingStress / 1e6, 2)} / {fmt(result.shearStress / 1e6, 2)} MPa</td></tr>
@@ -377,7 +376,7 @@ export function SimXpressDialog() {
               </tbody>
             </table>
           )}
-          {result && <p className="k-pm-message" style={{ marginTop: 6, background: result.fos >= 1 ? '#e6f4ea' : '#ffe3e3', borderColor: result.fos >= 1 ? '#9ccfae' : '#e0a0a0' }}>{result.fos >= 1 ? `Indicative estimate (beam model): factor of safety ${fmt(result.fos, 2)}. This does not show that the part is safe; verify the design with a full analysis or a qualified engineer.` : `Indicative estimate (beam model): factor of safety ${fmt(result.fos, 2)}, below 1. Even this simplified model expects the part to fail under the given load.`}</p>}
+          {result && <p className="k-pm-message" data-testid="simx-warning" style={{ marginTop: 6 }}><b>Not for design decisions.</b> Indicative estimate (beam model): the yield strength is {fmt(result.fos, 2)} times the estimated maximum stress. This does not show that the part is safe; verify the design with a full analysis or a qualified engineer.</p>}
           <p className="k-muted">Estimate from the beam formulas on the part's cross-section (not a finite element result).</p>
         </fieldset>
       )}

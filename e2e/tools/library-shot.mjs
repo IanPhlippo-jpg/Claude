@@ -15,7 +15,7 @@ await page.click('.k-cm-iconbtn[data-tip="Circle"]'); await page.mouse.click(cx 
 await page.click('.k-cm-iconbtn[data-tip="Circle"]'); await page.mouse.click(cx - 100, cy); await page.mouse.click(cx - 85, cy);
 await page.keyboard.press('Escape');
 await page.mouse.move(cx - 150, cy - 50); await page.mouse.down(); await page.mouse.move(cx - 50, cy + 50, { steps: 3 }); await page.mouse.up();
-await page.click('.k-taskpane-btn[data-tip="Design Library"]');
+await page.click('.k-taskpane-btn[data-tip="Part Library"]');
 await page.locator('.k-library-toolbar .k-input').fill('Standard holes');
 await page.click('.k-library-toolbar .k-btn:has-text("New")');
 await page.locator('.k-library-add .k-input').fill('Counterbore');

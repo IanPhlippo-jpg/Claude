@@ -18,7 +18,7 @@ const doc0 = () => {
 const full = Math.PI * (400 - 100) * 20;
 const rev = (axis: string, o: Partial<RevolveFeature>): Feature => ({ id: 'r', type: 'revolve', name: 'Revolve1', sketchId: 's', suppressed: false, op: 'boss', axisEntityId: axis, angle: 90, reverse: false, ...o } as Feature);
 
-describe('revolve options of the original', () => {
+describe('revolve options of the intended design', () => {
   it('Direction 2 adds its angle on the other side; Mid-Plane splits the angle', () => {
     const { doc, axis } = doc0();
     doc.features = [{ id: 'k', type: 'sketch', name: 'S', sketchId: 's', suppressed: false } as Feature, rev(axis, { direction2: { angle: 90 } })];

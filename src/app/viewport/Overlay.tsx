@@ -72,7 +72,7 @@ export function Overlay(props: OverlayProps) {
       {dims.map((d) => {
         const color = colorFor(d.id);
         const label = project(d.label);
-        // as the original (ISO): no frame, the text above the dimension line and turned with it (a vertical
+        // by design (ISO): no frame, the text above the dimension line and turned with it (a vertical
         // dimension reads from bottom to top); a radius / diameter text lies on the end of its leader
         const FS = d.fontSize ?? 15;
         // the widest line of the text (several lines: a dimension text with line breaks), the stacked tolerance beside it
@@ -115,7 +115,7 @@ export function Overlay(props: OverlayProps) {
                   <line x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke={color} strokeWidth={1} />
                   {l.arrowA && arrow(a, { x: -dir.x, y: -dir.y }, color, `a${i}`, d.arrowStyle)}
                   {l.arrowB && arrow(b, dir, color, `b${i}`, d.arrowStyle)}
-                  {/* the dimensions of a feature selected in the tree carry the original's blue end handles (fr. 376) */}
+                  {/* the dimensions of a feature selected in the tree carry the intended blue end handles */}
                   {props.dimsOnly && l.arrowA && <circle cx={a.x} cy={a.y} r={4.5} fill="#2814d2" data-testid="dim-handle" />}
                   {props.dimsOnly && l.arrowB && <circle cx={b.x} cy={b.y} r={4.5} fill="#2814d2" data-testid="dim-handle" />}
                 </g>
@@ -138,7 +138,7 @@ export function Overlay(props: OverlayProps) {
             {leaderEnd && main && (() => { const a = project(main.a); return <line x1={a.x} y1={a.y} x2={leaderEnd.x} y2={leaderEnd.y} stroke={color} strokeWidth={1} />; })()}
             <g transform={`rotate(${deg} ${c.x} ${c.y})`}>
               {/* the text is picked through its box; it shows a frame only while hovered / selected */}
-              {/* Basic tolerance: the value in a frame, as the original */}
+              {/* Basic tolerance: the value in a frame, by design */}
               <rect x={c.x - w / 2} y={c.y - h / 2} width={w} height={h} fill="transparent" stroke={hl || d.basic ? color : 'none'} strokeWidth={d.basic ? 1 : 0.75} data-testid={d.basic ? 'dim-basic' : undefined} />
               <text x={d.justify === 'left' ? c.x - w / 2 + 2 : d.justify === 'right' ? c.x + w / 2 - 2 - tolW : c.x - tolW / 2} y={c.y + FS * 0.36 - ((lines.length - 1) * FS) / 2} textAnchor={d.justify === 'left' ? 'start' : d.justify === 'right' ? 'end' : 'middle'} fontSize={FS} fontFamily="'Century Gothic', 'Segoe UI', Arial, sans-serif" fill={color} data-testid="sketch-dim-text">
                 {lines.length > 1 ? lines.map((l, i) => <tspan key={i} x={d.justify === 'left' ? c.x - w / 2 + 2 : d.justify === 'right' ? c.x + w / 2 - 2 - tolW : c.x - tolW / 2} dy={i ? FS : 0}>{l}</tspan>) : d.text}
@@ -178,7 +178,7 @@ export function Overlay(props: OverlayProps) {
         const st = solve?.constraintStatus[g.constraintId];
         const bad = st === 'conflicting' || st === 'redundant' || st === 'invalid';
         const hl = props.selectedConstraint === g.constraintId || props.hoverConstraint === g.constraintId;
-        // bright green filled squares with a dark glyph, like the original (red when over defined, orange on hover)
+        // bright green filled squares with a dark glyph, by design (red when over defined, orange on hover)
         const box = bad ? 'var(--sk-over)' : hl ? 'var(--sk-hover)' : 'var(--sk-relation-box)';
         labelBoxes.push({ id: g.constraintId, x, y, w: S, h: S });
         return (

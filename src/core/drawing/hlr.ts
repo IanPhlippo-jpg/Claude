@@ -13,7 +13,7 @@ export interface ViewFrame {
 
 const F = (u: number[], v: number[], w: number[]): ViewFrame => ({ u: new THREE.Vector3(...u).normalize(), v: new THREE.Vector3(...v).normalize(), w: new THREE.Vector3(...w).normalize() });
 
-/** Standard views of a Y-up model with the front toward +Z, as the original's view orientations. */
+/** Standard views of a Y-up model with the front toward +Z, as the intended view orientations. */
 export function viewFrame(name: ViewName): ViewFrame {
   switch (name) {
     case 'front': return F([1, 0, 0], [0, 1, 0], [0, 0, 1]);
@@ -282,7 +282,7 @@ export function mergeLines(lines: Line2D[], tol = 0.02): Line2D[] {
 
 /**
  * Lines ready to draw: merged per span, and hidden lines that coincide with a visible line are
- * removed (the original draws no hidden line under a visible one).
+ * removed (the intended design draws no hidden line under a visible one).
  */
 export function cleanLines(lines: Line2D[], tol = 0.05): Line2D[] {
   const merged = mergeLines(lines);

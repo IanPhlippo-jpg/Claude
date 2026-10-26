@@ -1,6 +1,7 @@
 // Exploded View: Explode PM, a step along Y for Plate<2>, ExplView1 in the Configurations, Collapse / Explode, reload.
 // a coincident and a concentric mate stack the plates, the BOM lists the part, the file survives a reload.
 import { chromium } from 'playwright';
+import { exitCode, skip } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -83,7 +84,7 @@ await page.click('.k-menu-item:has-text("New")');
 await page.waitForTimeout(200);
 await page.click('.k-doctype:has-text("Assembly")');
 await page.click('.k-dialog-actions button:has-text("OK")');
-await page.locator('[data-testid="ask-no"]').click({ timeout: 1500 }).catch(() => {}); // Save changes? → Don't Save
+await page.locator('[data-testid="ask-no"]').click({ timeout: 1500 }).catch(skip('explode:87')); // Save changes? → Don't Save
 await page.waitForTimeout(500);
 let a = await A();
 check('assembly document with the Assembly tab and Insert Component open', a.kind === 'assembly' && a.tab === 'assembly' && a.inserting, JSON.stringify({ kind: a.kind, tab: a.tab, inserting: a.inserting }));
@@ -150,15 +151,13 @@ check('Explode again', Math.abs((await box(ids[1])) - y0 - 60) < 0.01);
 await shot('x2-exploded');
 await page.reload();
 await page.waitForSelector('.k-viewport');
-await page.locator('[data-testid="welcome-recent-0"]').click({ timeout: 4000 }).catch(() => {}); // the autosave waits under Recent Documents, as the original
+await page.locator('[data-testid="welcome-recent-0"]').click({ timeout: 4000 }).catch(skip('explode:154')); // the autosave waits under Recent Documents, as the original
 await page.waitForTimeout(800);
 check('reload keeps the exploded view', (await page.evaluate(() => window.__phlippoStore.getState().doc.exploded)) === true && Math.abs((await box(ids[1])) - y0 - 60) < 0.01);
 
 console.log(`
 ${results.filter((r) => r.ok).length}/${results.length} checks passed`);
-const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
-if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
-process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
+process.exitCode = exitCode(results, errors);
 for (const r of results.filter((r) => !r.ok)) console.log(' - ' + r.name + (r.info ? ' (' + r.info + ')' : ''));
 console.log('errors:', errors.length ? errors : 'none');
 await browser.close();

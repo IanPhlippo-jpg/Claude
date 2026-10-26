@@ -20,7 +20,7 @@ export function sectionPlaneOf(s: SectionPlane): { normal: THREE.Vector3; point:
   if (s.rotY) n.applyAxisAngle(v.clone().applyAxisAngle(u, ((s.rotX ?? 0) * Math.PI) / 180), (s.rotY * Math.PI) / 180);
   n.normalize();
   const point = new THREE.Vector3(...pl.origin).addScaledVector(new THREE.Vector3(...pl.n), s.offset);
-  // the original keeps the half behind the plane: the removed side is along the normal (flip: the other half)
+  // the intended design keeps the half behind the plane: the removed side is along the normal (flip: the other half)
   return { normal: s.flip ? n.negate() : n, point };
 }
 
@@ -143,7 +143,7 @@ function capTriangles(loops: THREE.Vector3[][], c: Cut): THREE.Vector3[][] {
 
 /**
  * Section of a body by one to three planes. Planar: the region on the removed side of all planes is cut away
- * (two planes cut a quarter out, as the original). Zonal: only the zone on the kept side of every plane stays.
+ * (two planes cut a quarter out, by design). Zonal: only the zone on the kept side of every plane stays.
  * Plane clipping per triangle (no boolean), so a plane on a face of the model is no problem. Returns the cut
  * body (open) and the cap faces on the section planes separately.
  */

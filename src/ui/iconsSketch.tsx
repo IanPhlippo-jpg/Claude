@@ -2,7 +2,7 @@ import type { SVGProps } from 'react';
 
 /**
  * Sketch icons in the 2D line-art language of a desktop CAD Sketch tab: teal strokes about 1.6 px wide on the 24 px
- * grid, small square end points, light teal fills. Own designs; the palette follows the reference video's ribbon.
+ * grid, small square end points, light teal fills. Own designs.
  */
 type P = SVGProps<SVGSVGElement> & { size?: number };
 

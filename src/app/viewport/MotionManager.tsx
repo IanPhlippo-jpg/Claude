@@ -41,7 +41,7 @@ async function recordAnimation(fps: number, duration: number, name: string): Pro
 }
 
 /**
- * MotionManager of Motion Study 1, docked under the graphics area as the original: the toolbar (study type,
+ * MotionManager of Motion Study 1, docked under the graphics area by design: the toolbar (study type,
  * Calculate, Play from Start, Play, Stop, playback speed and mode, Save Animation, Animation Wizard, Autokey,
  * Add/Update Key, Motor, Spring, Contact, Gravity, Results and Plots, Motion Study Properties), the MotionManager
  * tree on the left and the timeline with the time bar and key points on the right.
@@ -315,7 +315,7 @@ export function MotionEditPM() {
   );
 }
 
-/** Motor PropertyManager (Rotary / Linear Motor on a component, Constant speed, Oscillating, Distance, Segments, Expression), as the original. */
+/** Motor PropertyManager (Rotary / Linear Motor on a component, Constant speed, Oscillating, Distance, Segments, Expression), by design. */
 export function MotorPM() {
   const st = useStore();
   const m = st.motorEdit;

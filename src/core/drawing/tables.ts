@@ -19,7 +19,7 @@ export function holeTableRows(v: DrawingView): { tag: string; x: number; y: numb
   });
 }
 
-/** width of a table column that fits its texts (2.8 mm Century Gothic: about 1.75 mm per character), as the original's auto-fit */
+/** width of a table column that fits its texts (2.8 mm Century Gothic: about 1.75 mm per character), as the intended auto-fit */
 function fitCols(rows: string[][], min: number[]): number[] {
   return min.map((m, ci) => Math.max(m, ...rows.map((r) => (r[ci] ?? '').length * 1.75 + 3)));
 }
@@ -62,12 +62,12 @@ export function tableGrid(sheet: DrawingSheet, t: NonNullable<DrawingSheet['tabl
 export function freeSpot(sheet: DrawingSheet, w: number, h: number): [number, number] {
   const [sw, sh] = sheetSize(sheet);
   const busy: { x: number; y: number; w: number; h: number }[] = sheet.views.map((v) => viewBounds(sheet, v, viewGeometry(v)));
-  // the title block of the format (bottom right, 180 x 56 on A3/A4 like the original's ISO format)
+  // the title block of the format (bottom right, 180 x 56 on A3/A4 like the intended ISO format)
   busy.push({ x: sw - 10 - Math.min(180, sw - 20), y: 10, w: Math.min(180, sw - 20), h: 56 });
   for (const t of sheet.tables ?? []) { const g = tableGrid(sheet, t); if (g) busy.push({ x: g.pos[0], y: g.pos[1] - g.h, w: g.w, h: g.h }); }
   for (const n of sheet.notes) busy.push({ x: n.position[0], y: n.position[1] - 1, w: n.text.length * (n.fontSize ?? 3.5) * 0.6, h: (n.fontSize ?? 3.5) + 2 });
   const free = (x: number, y: number) => busy.every((b) => x + w + 3 < b.x || x - 3 > b.x + b.w || y - 3 < b.y || y - h + 3 > b.y + b.h);
-  // top left first, then along the rows: the corner the original's tables are usually dragged to
+  // top left first, then along the rows: the corner the intended tables are usually dragged to
   for (let y = sh - 15; y - h > 12; y -= 5)
     for (let x = 15; x + w < sw - 12; x += 5) if (free(x, y)) return [x, y];
   return [15, sh - 15];

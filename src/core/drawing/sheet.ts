@@ -477,7 +477,7 @@ export function sectionGeometry(model: Document, sec: NonNullable<DrawingView['s
     hatch.forEach((poly, i) => { const c = clipPoly(poly); if (c.length >= 3) { hh.push(c); hv.push(hatchVar[i]); } });
     const cutLines = clipHalf([...raw.lines.filter((l) => !l.hidden), ...cut], true);
     const outside = clipHalf(cleanLines(whole.lines).filter((l) => !l.hidden), false);
-    // the centreline between the halves, as the original draws it
+    // the centreline between the halves, by design draws it
     const centre: Line2D = { a: [whole.min[0] - 3, mid], b: [whole.max[0] + 3, mid], hidden: false, silhouette: false, cosmetic: true };
     const geoH: ViewGeo = { ...whole, lines: [...cleanLines([...cutLines, ...outside]), centre], hatch: hh, hatchVar: hv };
     m.set(key, geoH);
@@ -490,7 +490,7 @@ export function sectionGeometry(model: Document, sec: NonNullable<DrawingView['s
 
 const boCache = new WeakMap<Document, Map<string, ViewGeo>>();
 
-/** The Broken-out Section profile as the original's closed spline through the picked points (Catmull-Rom). */
+/** The Broken-out Section profile as the intended closed spline through the picked points (Catmull-Rom). */
 export function brokenOutOutline(poly: [number, number][], segs = 10): [number, number][] {
   const n = poly.length;
   if (n < 3) return poly;
@@ -711,7 +711,7 @@ export function projectedPlacement(parent: DrawingView, dir: 'up' | 'down' | 'le
   return (firstAngle ? first : third)[t]?.[dir] ?? null;
 }
 
-/** Snap a projected view to the parent's row or column (as the original keeps projections aligned). */
+/** Snap a projected view to the parent's row or column (by design keeps projections aligned). */
 export function alignedPosition(parent: DrawingView, dir: 'up' | 'down' | 'left' | 'right', cursor: [number, number]): [number, number] {
   return dir === 'up' || dir === 'down' ? [parent.position[0], cursor[1]] : [cursor[0], parent.position[1]];
 }
@@ -769,12 +769,12 @@ export function nextViewName(sheet: DrawingSheet): string {
 }
 
 /** Standard three views: front, top (above), right (to the right), spaced by the model size. */
-/** the standard drawing scales of the original's list (ISO preferred), largest first */
+/** the standard drawing scales of the intended list (ISO preferred), largest first */
 export const STANDARD_SCALES: [number, number][] = [[10, 1], [5, 1], [2, 1], [1, 1], [1, 2], [1, 5], [1, 10], [1, 20], [1, 50], [1, 100]];
 
 /**
  * Automatic scaling of new drawing views: the largest standard scale at which the front, top and right
- * views (15 mm apart) fit in the sheet above the title block, as the original does for the first view.
+ * views (15 mm apart) fit in the sheet above the title block, by design does for the first view.
  */
 export function autoSheetScale(model: Document, sheet: DrawingSheet): [number, number] {
   const [sw, sh] = sheetSize(sheet);

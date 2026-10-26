@@ -7,7 +7,7 @@ import { sketchRegions } from '../../core/features/regions';
 import type { ExtrudeFeature } from '../../core/document/types';
 
 /**
- * The drag arrow of the Boss-Extrude / Cut-Extrude PropertyManager, as the original: a grey arrow from the middle
+ * The drag arrow of the Boss-Extrude / Cut-Extrude PropertyManager, by design: a grey arrow from the middle
  * of the profile to the end of the extrusion; dragging its head along the direction sets the depth (Blind).
  */
 export function ExtrudeHandle({ project }: { project: (v: THREE.Vector3) => { x: number; y: number } }) {
@@ -49,7 +49,7 @@ export function ExtrudeHandle({ project }: { project: (v: THREE.Vector3) => { x:
     if (!drag) return;
     const along = ((e.clientX - drag.x) * ux + (e.clientY - drag.y) * uy) / pxPerMm;
     if (drag.dir === 2) {
-      // the hollow arrow of Direction 2: dragging it switches Direction 2 on (Blind) with that depth, as the original
+      // the hollow arrow of Direction 2: dragging it switches Direction 2 on (Blind) with that depth, by design
       const v = Math.round((drag.depth - along) * 2) / 2;
       if (v >= 0.5 && Math.abs(v - (d2?.depth ?? 0)) > 1e-9) st.updateFeatureDraft({ direction2: { end: d2?.end ?? 'blind', depth: v } });
       return;
@@ -59,11 +59,11 @@ export function ExtrudeHandle({ project }: { project: (v: THREE.Vector3) => { x:
   };
   const onUp = () => { setDrag(null); useStore.setState({ handleDrag: false }); };
   const head = 12, w = 5;
-  // while dragging, the arrow is magenta and a ruler along it shows the depth (marks every 5, numbers every 10), as the original
-  // pointed at: orange (as the original's preselection), dragged: magenta, else grey
+  // while dragging, the arrow is magenta and a ruler along it shows the depth (marks every 5, numbers every 10), by design
+  // pointed at: orange (as the intended preselection), dragged: magenta, else grey
   const drag1 = drag?.dir === 1, drag2 = drag?.dir === 2;
   const col = drag1 ? '#c623c6' : hot === 1 ? '#e8771c' : '#8d8d8d', fill = drag1 ? '#d63bd6' : hot === 1 ? '#f08a2c' : '#9a9a9a';
-  // Direction 2: a solid arrow at its depth once on, else a short hollow double chevron on the other side (fr. 192 / 230)
+  // Direction 2: a solid arrow at its depth once on, else a short hollow double chevron on the other side
   const L2 = d2 ? d2.depth * pxPerMm : 64;
   const q2 = { x: p0.x - ux * L2, y: p0.y - uy * L2 };
   const col2 = drag2 ? '#c623c6' : hot === 2 ? '#e8771c' : d2 ? '#8d8d8d' : '#c9c9c9';

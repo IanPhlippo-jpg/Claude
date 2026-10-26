@@ -1,6 +1,7 @@
 // Block G-A (features): Chamfer Vertex / Face Face, Sweep Circular Profile + Keep normal constant + twist, Loft centerline,
 // Fill Pattern circular / polygon layouts with Validate Count and Create seed cut.
 import { chromium } from 'playwright';
+import { exitCode } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -155,8 +156,6 @@ check('Polygon layout stores six sides', (await S(() => window.__phlippoStore.ge
 await S(() => window.__phlippoStore.getState().cancelFeature());
 
 console.log(results.filter((r) => r.ok).length + '/' + results.length + ' passed');
-const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
-if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
-process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
+process.exitCode = exitCode(results, errors);
 if (errors.length) console.log('ERRORS', errors.slice(0, 5));
 await browser.close();

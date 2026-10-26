@@ -1,5 +1,6 @@
 // Drag Handles: the end face of an extrusion gets a drag arrow; dragging it changes the depth (ruler readout).
 import { chromium } from 'playwright';
+import { exitCode, skip } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -56,7 +57,7 @@ await page.mouse.down();
 await page.mouse.move(gx + pxmm.dx * 5, gy + pxmm.dy * 5, { steps: 5 });
 await page.mouse.move(gx + pxmm.dx * 10, gy + pxmm.dy * 10, { steps: 5 });
 const readout = await page.locator('[data-testid="instant3d-value"]').textContent();
-await page.mouse.move(5, 900, { steps: 1 }).catch(() => undefined);
+await page.mouse.move(5, 900, { steps: 1 }).catch(skip('instant3d:60'));
 await page.mouse.move(gx + pxmm.dx * 10, gy + pxmm.dy * 10);
 await shot('i3-drag');
 await page.mouse.up();
@@ -70,9 +71,7 @@ check('Undo restores the depth', back === 10, String(back));
 
 console.log(`
 ${results.filter((r) => r.ok).length}/${results.length} checks passed`);
-const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
-if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
-process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
+process.exitCode = exitCode(results, errors);
 for (const r of results.filter((r) => !r.ok)) console.log(' - ' + r.name + (r.info ? ' (' + r.info + ')' : ''));
 console.log('errors:', errors.length ? errors : 'none');
 await browser.close();

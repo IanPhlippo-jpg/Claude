@@ -319,7 +319,22 @@ export function csg(a: THREE.BufferGeometry, b: THREE.BufferGeometry, op: 'union
   g.computeBoundingBox();
   const bb = g.boundingBox!;
   if (![bb.min.x, bb.min.y, bb.min.z, bb.max.x, bb.max.y, bb.max.z].every(Number.isFinite)) throw new Error('the result has invalid coordinates');
+  // volume check (F48): a boolean of two closed solids cannot gain material on a cut or an intersection, nor lose it on
+  // a union. A result outside those bounds is a failed boolean and becomes a feature error, not a silent wrong body.
+  // Open or inside-out inputs (surfaces, tools) have no meaningful volume and are not checked.
+  // (the size of the result is compared: a few tools give a correctly sized but inside-out result)
+  const va = meshVolume(a), vb = meshVolume(b), vr = Math.abs(meshVolume(g));
+  if (!booleanVolumeOk(op, va, vb, vr)) throw new Error(`the boolean result failed the volume check (${op}: ${va.toFixed(2)} and ${vb.toFixed(2)} gave ${vr.toFixed(2)} mm³)`);
   return g;
+}
+
+/** can a boolean of solids with volumes va and vb give a result of volume vr? (open or inside-out inputs: not judged) */
+export function booleanVolumeOk(op: 'union' | 'subtract' | 'intersect', va: number, vb: number, vr: number): boolean {
+  if (!(va > 0 && vb > 0)) return true;
+  const tol = 1e-3 * Math.max(va, vb) + 1e-6;
+  if (op === 'subtract') return vr <= va + tol;
+  if (op === 'intersect') return vr <= Math.min(va, vb) + tol;
+  return vr >= Math.max(va, vb) - tol && vr <= va + vb + tol;
 }
 
 /** Signed volume of a closed triangle mesh (positive for outward-facing triangles). */
@@ -351,7 +366,7 @@ export interface PlanarFace {
 /**
  * Faces of a body for picking and highlighting: coplanar triangles grouped into planar faces
  * (slivers left by booleans are assigned to the plane their vertices lie on), and the facets
- * of curved surfaces (cylinders, fillets) merged into one face each, as the original highlights
+ * of curved surfaces (cylinders, fillets) merged into one face each, by design highlights
  * a whole cylindrical face.
  */
 export function planarFaces(g: THREE.BufferGeometry, bodyId: string): PlanarFace[] {

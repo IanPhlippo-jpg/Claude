@@ -6,7 +6,7 @@ import { meshVolume, planarFaces } from './solid';
 
 const vol = (g: THREE.BufferGeometry) => Math.abs(meshVolume(g));
 
-describe('fillet options of the original', () => {
+describe('fillet options of the intended design', () => {
   it('Round corners: two top edges meeting at a corner get a round corner (less material than the mitre)', () => {
     const g = new THREE.BoxGeometry(40, 40, 40).toNonIndexed();
     const es = bodyEdges(g, 'b').filter((e) => Math.abs(e.centroid.y - 20) < 1e-6 && (Math.abs(e.centroid.x - 20) < 1e-6 || Math.abs(e.centroid.z - 20) < 1e-6));

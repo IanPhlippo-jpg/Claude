@@ -29,7 +29,7 @@ export function extrudeCapOf(st: ReturnType<typeof useStore.getState>): { f: Ext
 }
 
 /**
- * Instant3D, as the original: the end face of a blind extrusion gets a drag arrow; dragging it along the
+ * Instant3D, by design: the end face of a blind extrusion gets a drag arrow; dragging it along the
  * extrusion direction changes the depth (ruler readout while dragging, rounded to 0.5 mm).
  */
 export function Instant3DHandle({ project }: { project: (v: THREE.Vector3) => { x: number; y: number } }) {

@@ -11,6 +11,12 @@ const MAP = [
   ['TolAnalyst', 'Tolerance Stack-up'], ['SimulationXpress', 'Quick Beam Estimate'], ['FeatureXpert', 'Auto-Fix Fillets'],
   ['DraftXpert', 'Auto-Fix Draft'], ['DimXpert', 'Auto Tolerancing'], ['Instant3D', 'Drag Handles'], ['Instant2D', 'Drag Dimensions'],
   ['RealView Graphics', 'Realistic Shading'], ['RealView', 'Realistic Shading'], ['SpeedPak', 'Lightweight Subassembly'], ['eDrawings', 'Phlippo Viewer'],
+  // QA v0.3.4 F50: the remaining program-specific names
+  ['Hole Wizard', 'Hole Tool'], ['Smart Fasteners', 'Auto Fasteners'], ['Smart Fastener', 'Auto Fastener'], ['Design Library', 'Part Library'],
+  ['Lifecycle and Collaboration', 'Share'], ['Toolbox', 'Standard Parts'],
+  // QA v0.3.4 F77: phrases the first rename left broken
+  ['Feature Tree Tree Area', 'Feature Tree Area'], ['Feature Tree tree area', 'Feature Tree area'], ['Feature Tree tree', 'Feature Tree'],
+  ['a Auto Tolerancing', 'an Auto Tolerancing'], ['A Auto Tolerancing', 'An Auto Tolerancing'],
 ];
 const RE = new RegExp(MAP.map(([a]) => a.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|'), 'g');
 const TO = Object.fromEntries(MAP);
@@ -71,3 +77,5 @@ function walk(dir, whole) {
 walk(path.join(ROOT, 'src'), false);
 walk(path.join(ROOT, 'e2e'), true);
 console.log('total', total, APPLY ? 'applied' : 'dry run');
+// --check (CI): any hit is a failure
+if (process.argv.includes('--check') && total > 0) process.exit(1);

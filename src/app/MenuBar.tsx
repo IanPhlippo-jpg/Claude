@@ -28,9 +28,20 @@ function download(name: string, data: BlobPart, type: string) {
 }
 
 /** Save: in the desktop app to the document's file (asks for a name the first time), in the browser a download. */
-export async function saveDocument(forceAsk = false): Promise<boolean> {
+export async function saveDocument(forceAsk = false, confirmedErrors = false): Promise<boolean> {
   const { doc, pushMessage, hasDocument } = useStore.getState();
   if (!hasDocument) return false;
+  // a model with rebuild errors (a damaged or half-repaired file) is only written after a confirmation (F40)
+  const errs = Object.keys(useStore.getState().rebuild.errors);
+  if (errs.length && !confirmedErrors) {
+    return new Promise<boolean>((resolve) => useStore.getState().setAsk({
+      title: 'Phlippo CAD',
+      text: `${doc.name} has ${errs.length} feature${errs.length === 1 ? '' : 's'} that could not be rebuilt (What's Wrong). Save the incomplete model anyway? The previous file is kept as .bak.`,
+      yes: () => { saveDocument(forceAsk, true).then(resolve); },
+      yesLabel: 'Save Anyway',
+      noLabel: 'Cancel',
+    }));
+  }
   const text = serializeDocument(doc);
   const api = desktop();
   if (api) {
@@ -55,10 +66,25 @@ export async function saveDocument(forceAsk = false): Promise<boolean> {
   return true;
 }
 
-/** Unsaved changes: "Save changes to Part1?" with Yes (save, then go on), No (go on) and Cancel, as the original */
+/** Unsaved changes: "Save changes to Part1?" with Yes (save, then go on), No (go on) and Cancel, by design */
 export function withUnsavedCheck(then: () => void): void {
   const st = useStore.getState();
-  if (!st.hasDocument || !st.dirty) return then();
+  if (!st.hasDocument) return then();
+  // Edit Component: the part being edited belongs to an assembly that is not saved yet (F74). The question comes first;
+  // only after Save / Don't Save does the next document replace them, Cancel keeps everything as it is.
+  const ctx = st.editContext;
+  if (ctx) {
+    st.setAsk({
+      title: 'Phlippo CAD',
+      text: `${ctx.componentName} is being edited in ${ctx.assembly.name}. Return to ${ctx.assembly.name} and save the changes?`,
+      yes: () => { useStore.getState().returnToAssembly(); saveDocument().then((ok) => ok && then()); },
+      no: then,
+      yesLabel: 'Save',
+      noLabel: "Don't Save",
+    });
+    return;
+  }
+  if (!st.dirty) return then();
   st.setAsk({
     title: 'Phlippo CAD',
     text: `Save changes to ${st.doc.name}?`,
@@ -126,7 +152,7 @@ export function openFileData(name: string, data: ArrayBuffer, handle: string | n
       // Insert Component: the chosen part becomes a component of the open assembly
       const part = parseDocument(new TextDecoder().decode(data));
       if (part.kind === 'drawing') st.pushMessage('A drawing cannot be inserted; choose a part or assembly file.', 'warn');
-      // with the Insert Component PM open the part follows the pointer until a click or OK places it, as the original
+      // with the Insert Component PM open the part follows the pointer until a click or OK places it, by design
       else if (st.insertingComponent) st.setInsertGhost({ part, rotation: [0, 0, 0, 1] });
       else st.insertComponent(part);
     } else {
@@ -195,7 +221,7 @@ export function MenuBar() {
   const cam = () => getCamera();
   const inSketch = !!st.activeSketchId;
   const showMenus = pinned || hover || open !== null;
-  // title as the original: "Sketch1 of Part1 *" while sketching, "Part1 *" otherwise
+  // title by design: "Sketch1 of Part1 *" while sketching, "Part1 *" otherwise
   const sketchName = st.activeSketchId ? st.doc.sketches[st.activeSketchId]?.name : null;
   const sketchTitle = st.hasDocument ? `${sketchName ? `${sketchName} of ` : ''}${st.doc.name}${st.dirty ? ' *' : ''}` : '';
 
@@ -254,7 +280,7 @@ export function MenuBar() {
       { label: `Modify ▸ Up Axis ▸ ${getPref('view.upAxis') !== 'Z' ? '✓ ' : ''}Y up`, onSelect: () => { setUpAxis('Y'); st.setPrefs({ ...loadPrefs(), 'view.upAxis': 'Y' }); cam().setView('trimetric'); } },
       { label: `Modify ▸ Up Axis ▸ ${getPref('view.upAxis') === 'Z' ? '✓ ' : ''}Z up`, onSelect: () => { setUpAxis('Z'); st.setPrefs({ ...loadPrefs(), 'view.upAxis': 'Z' }); cam().setView('trimetric'); } },
       { separator: true },
-      { label: 'User Interface ▸ Feature Tree Tree Area', onSelect: () => st.setPanel('manager', { visible: !st.panels.manager.visible }) },
+      { label: 'User Interface ▸ Feature Tree Area', onSelect: () => st.setPanel('manager', { visible: !st.panels.manager.visible }) },
       { label: 'User Interface ▸ Task Pane', onSelect: () => st.setTaskPane(st.taskPane ? null : 'resources') },
       { label: st.theme === 'dark' ? 'Light theme' : 'Dark theme', icon: st.theme === 'dark' ? <Icon.Sun /> : <Icon.Moon />, shortcut: 'Ctrl+Shift+D', onSelect: () => st.setTheme(st.theme === 'dark' ? 'light' : 'dark') },
     ],

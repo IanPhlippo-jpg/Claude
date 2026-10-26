@@ -7,7 +7,7 @@
 // - every write is atomic (temp file, then rename) and keeps the previous file as .bak;
 // - the window never navigates away from the app and opens no child windows;
 // - IPC is only taken from the app's own frame.
-const { app, BrowserWindow, Menu, ipcMain, dialog, shell, session } = require('electron');
+const { app, BrowserWindow, Menu, ipcMain, dialog, shell, session, protocol } = require('electron');
 const path = require('node:path');
 const fs = require('node:fs/promises');
 const { pathToFileURL } = require('node:url');
@@ -16,11 +16,26 @@ const { randomUUID } = require('node:crypto');
 // the development switches (dev server, smoke screenshot, test hooks) are only read by an unpackaged app:
 // the installed program ignores its environment
 const PACKAGED = app.isPackaged;
+// the installed program refuses the debugging switches (F85): with --remote-debugging-port any local process could
+// drive the window and its save bridge. The fuse covers --inspect for Node; these are Chromium switches.
+if (PACKAGED && process.argv.some((a) => /^--(remote-debugging-(port|pipe|address)|inspect(-brk|-port)?|js-flags|remote-allow-origins)\b/i.test(a))) {
+  console.error('Phlippo CAD: debugging switches are not accepted by the installed program.');
+  app.exit(1);
+}
 const DEV_URL = PACKAGED ? undefined : process.env.VITE_DEV_SERVER_URL;
+// the desktop checks run in a profile of their own, never in the user's (unpackaged shell only)
+if (!PACKAGED && process.env.PHLIPPO_USER_DATA) app.setPath('userData', process.env.PHLIPPO_USER_DATA);
 const SMOKE = PACKAGED ? undefined : process.env.PHLIPPO_SMOKE; // path of a screenshot to write, then quit (used by the checks)
 const E2E = !PACKAGED && process.env.PHLIPPO_E2E === '1'; // the test hooks (window.__phlippoStore …) only exist with this
-const APP_INDEX = path.join(__dirname, '..', 'dist', 'index.html');
-const APP_URL = pathToFileURL(APP_INDEX).href;
+const APP_DIST = path.join(__dirname, '..', 'dist');
+const APP_INDEX = path.join(APP_DIST, 'index.html');
+// the app is served from its own scheme instead of file:// (F88): a page on app://phlippo cannot read other local
+// files, and the Content-Security-Policy below is sent as a real header
+const APP_ORIGIN = 'app://phlippo';
+const APP_URL = `${APP_ORIGIN}/index.html`;
+const CSP = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; media-src 'self' blob:; worker-src 'self' blob:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'";
+const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.mjs': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.ico': 'image/x-icon', '.woff': 'font/woff', '.woff2': 'font/woff2', '.ttf': 'font/ttf', '.wasm': 'application/wasm', '.txt': 'text/plain', '.hdr': 'application/octet-stream' };
+protocol.registerSchemesAsPrivileged([{ scheme: 'app', privileges: { standard: true, secure: true, supportFetchAPI: true, stream: true } }]);
 /** https links the app may hand to the system browser (Help ▸ …); everything else is dropped */
 const EXTERNAL_ALLOW = [/^https:\/\/github\.com\//i, /^https:\/\/(www\.)?phlippo\.be\//i];
 // no application menu: the app draws its own menu bar, and the default menu would offer DevTools and Reload
@@ -62,7 +77,8 @@ function ownUrl(url) {
       return false;
     }
   }
-  return u.split('?')[0].toLowerCase() === APP_URL.toLowerCase();
+  const p = u.split('?')[0];
+  return p === APP_URL || p === `${APP_ORIGIN}/`;
 }
 function trusted(e) {
   const frame = e.senderFrame;
@@ -149,7 +165,7 @@ function createWindow() {
     },
   });
   win.setMenuBarVisibility(false);
-  win.once('ready-to-show', () => {
+  const showWhenReady = () => win && win.once('ready-to-show', () => {
     if (!win) return;
     if (!SMOKE) win.maximize();
     win.show();
@@ -179,9 +195,18 @@ function createWindow() {
   win.webContents.on('before-input-event', (e, input) => {
     if (PACKAGED && input.type === 'keyDown' && ((input.control && input.shift && /^[IJC]$/i.test(input.key)) || input.key === 'F12')) e.preventDefault();
   });
-  if (DEV_URL) win.loadURL(DEV_URL);
-  else win.loadFile(APP_INDEX);
-  win.webContents.once('did-finish-load', async () => {
+  if (DEV_URL) {
+    showWhenReady();
+    win.loadURL(DEV_URL);
+  } else {
+    const w = win;
+    migrateStorage(w.webContents).then(() => {
+      if (w.isDestroyed()) return;
+      showWhenReady();
+      w.loadURL(APP_URL);
+    });
+  }
+  const onAppLoaded = async () => {
     if (pendingOpen) {
       sendOpen(pendingOpen);
       pendingOpen = null;
@@ -197,7 +222,14 @@ function createWindow() {
       }
       app.quit();
     }
-  });
+  };
+  // the blank pages of the storage migration load first: only the app page itself counts
+  const onLoad = () => {
+    const url = win?.webContents.getURL() ?? '';
+    if (DEV_URL ? url.startsWith(DEV_URL) : url.split('?')[0] === APP_URL) onAppLoaded();
+    else win?.webContents.once('did-finish-load', onLoad);
+  };
+  win.webContents.once('did-finish-load', onLoad);
 }
 
 // one running app: a second .kcad double-click opens in the existing window
@@ -282,11 +314,52 @@ ipcMain.handle('file:saveAs', async (e, { defaultPath, filters, data }) => {
   }
 });
 
-app.whenReady().then(() => {
-  // the packaged app loads from file://; the same Content-Security-Policy as the built index.html carries
+/** app://phlippo/<path>: a file of dist/, never outside it, with its type and the Content-Security-Policy */
+function serveApp(request) {
+  let rel;
+  try {
+    const u = new URL(request.url);
+    if (u.host !== 'phlippo') return new Response('Not found', { status: 404 });
+    rel = decodeURIComponent(u.pathname).replace(/^\/+/, '') || 'index.html';
+  } catch {
+    return new Response('Bad request', { status: 400 });
+  }
+  const file = path.normalize(path.join(APP_DIST, rel));
+  if (file !== APP_DIST && !file.startsWith(APP_DIST + path.sep)) return new Response('Forbidden', { status: 403 });
+  return fs.readFile(file).then(
+    (data) => new Response(data, { status: 200, headers: { 'Content-Type': MIME[path.extname(file).toLowerCase()] ?? 'application/octet-stream', 'Content-Security-Policy': CSP, 'X-Content-Type-Options': 'nosniff' } }),
+    () => new Response('Not found', { status: 404 }),
+  );
+}
+
+/**
+ * Until 0.3.4 the app ran on file://, so its saved preferences, recent documents and autosaves are stored for that
+ * origin. On the first start on app:// they are copied over once (only keys the new origin does not have yet; the old
+ * copy stays as it is). Runs in the (still hidden) app window before the app itself is loaded.
+ */
+async function migrateStorage(wc) {
+  const marker = 'phlippo.migrated.fileOrigin';
+  try {
+    await wc.loadURL(`${APP_ORIGIN}/__blank.html`);
+    if (await wc.executeJavaScript(`localStorage.getItem(${JSON.stringify(marker)}) !== null`)) return;
+    await wc.loadFile(path.join(__dirname, 'blank.html'));
+    const entries = JSON.parse(await wc.executeJavaScript('JSON.stringify(Object.keys(localStorage).map((k) => [k, localStorage.getItem(k)]))'));
+    await wc.loadURL(`${APP_ORIGIN}/__blank.html`);
+    await wc.executeJavaScript(`(() => { const e = ${JSON.stringify(entries)}; for (const [k, v] of e) if (localStorage.getItem(k) === null && v !== null) localStorage.setItem(k, v); localStorage.setItem(${JSON.stringify(marker)}, new Date().toISOString()); })()`);
+  } catch (err) {
+    console.error('Phlippo CAD: the saved settings could not be copied to the new app origin: ' + (err.message ?? err));
+  }
+}
+
+app.whenReady().then(async () => {
+  // permissions (camera, microphone, notifications, …): none is ever granted (F87)
+  session.defaultSession.setPermissionRequestHandler((_wc, _permission, cb) => cb(false));
+  session.defaultSession.setPermissionCheckHandler(() => false);
   if (!DEV_URL) {
-    session.defaultSession.webRequest.onHeadersReceived((details, cb) => {
-      cb({ responseHeaders: { ...details.responseHeaders, 'Content-Security-Policy': ["default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; media-src 'self' blob:; worker-src 'self' blob:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"] } });
+    protocol.handle('app', (request) => {
+      // the hidden page of the storage migration
+      if (request.url === `${APP_ORIGIN}/__blank.html`) return new Response('<!doctype html><title>Phlippo CAD</title>', { headers: { 'Content-Type': 'text/html', 'Content-Security-Policy': "default-src 'none'" } });
+      return serveApp(request);
     });
   }
   createWindow();

@@ -301,7 +301,7 @@ export function arcAngles(s: Sketch, a: ArcEntity): { start: number; end: number
 
 /**
  * Regular polygon with its construction circle (centre, circle radius, n sides, rotation). Circumscribed: the circle
- * passes through the vertices and rotation points at the first vertex. Inscribed (the original's default): the circle
+ * passes through the vertices and rotation points at the first vertex. Inscribed (the intended default): the circle
  * touches the sides and rotation points at the middle of the first side.
  */
 export function addPolygon(s: Sketch, center: SketchPoint, radius: number, sides: number, rotation = 0, inscribed = false): [Sketch, LineEntity[]] {

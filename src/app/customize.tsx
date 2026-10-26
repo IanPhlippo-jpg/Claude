@@ -34,7 +34,7 @@ const splitList = (v: PrefValue | undefined) => String(v ?? '').split('|').filte
 const joinList = (xs: string[]) => xs.join('|');
 
 /**
- * Tools ▸ Customize: the dialog of the original with its seven tabs. Every setting here is a real preference:
+ * Tools ▸ Customize: the dialog of the intended design with its seven tabs. Every setting here is a real preference:
  * the CommandManager tabs and Quick Access buttons shown, the commands in the S shortcut bars, the menu items,
  * the keyboard shortcuts, the mouse gestures and the tooltip / lock options.
  */
@@ -66,7 +66,7 @@ export function CustomizeDialog() {
   };
   const setKey = (id: string, combo: string) => {
     const custom = { ...keys, [id]: combo };
-    // a key bound to another command is taken away from it, as the original's "Reassign" question
+    // a key bound to another command is taken away from it, as the intended "Reassign" question
     for (const [cid, k] of Object.entries(custom)) if (cid !== id && k === combo) custom[cid] = '';
     set('customize.keys', JSON.stringify(custom));
   };
@@ -253,7 +253,7 @@ export function CustomizeDialog() {
           <span className="grow" />
           <button className="k-btn primary" data-testid="cz-ok" onClick={ok}>OK</button>
           <button className="k-btn" onClick={() => st.setDialog(null)}>Cancel</button>
-          <button className="k-btn" onClick={() => st.pushMessage('Customize: Toolbars, Shortcut Bars, Commands, Menus, Keyboard, Mouse Gestures and Customization, as the original.')}>Help</button>
+          <button className="k-btn" onClick={() => st.pushMessage('Customize: Toolbars, Shortcut Bars, Commands, Menus, Keyboard, Mouse Gestures and Customization, by design.')}>Help</button>
         </div>
       </div>
     </div>

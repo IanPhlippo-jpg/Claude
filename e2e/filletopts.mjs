@@ -1,6 +1,7 @@
 // Fillet / Chamfer Property Panel options: asymmetric, conic profile, multi radius, variable size,
 // partial edge, Face Fillet, Full Round Fillet, FilletXpert and Chamfer Angle-Distance.
 import { chromium } from 'playwright';
+import { exitCode, skip } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -63,7 +64,7 @@ const pickTopEdges = async (n = 1) => {
   for (let i = 0; i < ids.length; i++) await page.evaluate(([id, add]) => window.__phlippoStore.getState().toggleSelectedEdge(id, add), [ids[i], i > 0]);
   await page.waitForTimeout(200);
 };
-const ok = async () => { await page.click('.k-pm-header .k-pm-ok, [data-testid="pm-ok"]').catch(async () => page.evaluate(() => window.__phlippoStore.getState().commitFeature())); await page.waitForTimeout(600); };
+const ok = async () => { await page.locator('.k-pm-ok').first().click({ timeout: 3000 }); await page.waitForTimeout(600); };
 const undo = async () => { await page.evaluate(() => window.__phlippoStore.getState().undo()); await page.waitForTimeout(500); };
 const V0 = await volume();
 check('block volume 80 x 40 x 20', Math.abs(V0 - 64000) < 1, String(V0));
@@ -132,7 +133,7 @@ await undo();
 await startFillet();
 await pickTopEdges(1);
 await page.evaluate(() => window.__phlippoStore.getState().updateFeatureDraft({ size: 5 }));
-await page.click('.k-section-title:has-text("Partial Edge Parameters")').catch(() => undefined);
+await page.click('.k-section-title:has-text("Partial Edge Parameters")').catch(skip('filletopts:136'));
 await page.click('[data-testid="fillet-partial"]');
 await ok();
 const partRemoved = V0 - (await volume());
@@ -191,9 +192,7 @@ await page.screenshot({ path: `${OUT}/fillet-chamfer-angle.png` });
 
 console.log(`
 ${results.filter((r) => r.ok).length}/${results.length} checks passed`);
-const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
-if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
-process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
+process.exitCode = exitCode(results, errors);
 for (const r of results.filter((r) => !r.ok)) console.log(' - ' + r.name + (r.info ? ' (' + r.info + ')' : ''));
 console.log('errors:', errors.length ? errors : 'none');
 await browser.close();

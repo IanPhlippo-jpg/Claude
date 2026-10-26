@@ -3,14 +3,14 @@ import type { SVGProps } from 'react';
 /**
  * Feature icons drawn as small isometric solids, in the visual language of a desktop CAD CommandManager: light grey
  * blocks with dark outlines, the feature itself in teal-blue, sketch geometry yellow, cuts red. Own designs on a
- * 24 px grid (no third-party artwork); the palette was measured from the reference video's ribbon.
+ * 24 px grid (no third-party artwork).
  */
 type P = SVGProps<SVGSVGElement> & { size?: number };
 
 const base = (size: number, props: P) => ({
   width: size,
   height: size,
-  // the solids fill the box as the original's icons do: the 24 px drawing is shown 1.25x
+  // the solids fill the box as the intended icons do: the 24 px drawing is shown 1.25x
   viewBox: '2.4 2.4 19.2 19.2',
   fill: 'none',
   strokeLinecap: 'round' as const,

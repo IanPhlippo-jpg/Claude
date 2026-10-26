@@ -4,7 +4,7 @@ interface Hidden { label: string; icon: string; disabled: boolean; button: HTMLB
 
 /**
  * The CommandManager body. When the window is too narrow for all commands, the ones at the right are
- * hidden and a » button at the right edge lists them in a flyout, as the original does.
+ * hidden and a » button at the right edge lists them in a flyout, by design does.
  */
 export function RibbonBody({ className, busy, children }: { className: string; busy?: boolean; children: ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);

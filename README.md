@@ -44,6 +44,10 @@ Status per fase:
 8. Sheet metal (Base Flange/Tab, Edge Flange, Flatten met K-factor) — **basis gereed**; Hem/Jog/Miter/Unfold gepland
 7. Massa-eigenschappen en meten — **gereed** (Mass Properties, Measure); materialen en rendering gepland
 
+## Status 0.3.5 (2026-10-26)
+
+Het QA-rapport over 0.3.4 (92 bevindingen, 6/10, NO-GO) is verwerkt, opnieuw zonder nieuwe functies: opslagvraag tijdens Edit Component, half-geldige bestanden geweigerd (verwijzingen, featuretypes, grenzen), What's Wrong bij rebuild-fouten, meldingen bij geweigerde of aangepaste invoer, de laatste programmanamen en "as the original"-commentaren neutraal, Quick Beam Estimate zonder veiligheidskleur, app:// in plaats van file:// (met overzetting van de opgeslagen gegevens), geen debugpoort of permissies in de geïnstalleerde app, testhaken alleen in de e2e-build, één gedeelde e2e-helper, lektest en CI met timeout en git-diff-controle. Per bevinding: docs/12-qa-rapport-v0.3.4.md. Regressie: `npm run build:e2e` en `node e2e/run-regression.mjs`.
+
 ## Status 0.3.4 (2026-10-25)
 
 Het externe QA-rapport over 0.3.3 (76 bevindingen, NO-GO) is verwerkt zonder nieuwe functies: de app werkt zonder testhaken (viewport-brug), kapotte documenten worden geweigerd zonder crash of autosave, de Viewer-export is tegen script-injectie beveiligd, undo dekt alle modelwijzigingen, commando's staan grijs zonder body, eigen plaatwerkiconen, vlaklabels zonder overlap, SimulationXpress is een indicatieve Quick Beam Estimate, geen SOLIDWORKS-productnamen meer in de UI, licentie en third-party notices, strengere Electron-instellingen, en elk e2e-script faalt nu ook op een page error. Per bevinding: docs/11-qa-rapport-v0.3.3.md. Unit tests 337, e2e-regressie `npm run e2e:regression` (79 scripts).

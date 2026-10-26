@@ -24,7 +24,7 @@ function evaluate(doc: Document, dim: string, value: number, density: number): {
 }
 
 /**
- * Evaluate ▸ Design Study, as the original (Variable View): a dimension as the variable with a range of
+ * Evaluate ▸ Design Study, by design (Variable View): a dimension as the variable with a range of
  * values, a sensor (mass, volume or surface area) as the result, Run fills the scenario table; a scenario
  * can be applied to the model.
  */

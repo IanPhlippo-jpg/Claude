@@ -8,6 +8,13 @@ tests en documentatie.
 Statuslegende: **opgelost** (gecontroleerd met een test), **deels** (wat ontbreekt staat erbij), **open** (bewust niet
 in deze ronde, met reden).
 
+> **Correctie na het QA-rapport v0.3.4 (F38).** Een aantal statussen hieronder was te optimistisch. Volgens de hertest
+> waren F31, F57, F74, F50, F05/F70 en F56 in 0.3.4 *deels* opgelost, niet opgelost: smoke en relations gaven nooit
+> exit 1 (F31/F57), Ctrl+N tijdens Edit Component vroeg niets (F74), Hole Wizard, Toolbox, Design Library en
+> "Lifecycle and Collaboration" stonden nog in de UI (F50), verwijzingen en onbekende featuretypes werden niet
+> gevalideerd (F05/F70) en Quick Beam Estimate kleurde de factor groen (F56). De afhandeling staat in
+> docs/12-qa-rapport-v0.3.4.md.
+
 ## Nieuwe bevindingen F53–F76
 
 | ID | Ernst | Status | Wat er veranderd is | Bewijs |

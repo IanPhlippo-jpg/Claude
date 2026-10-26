@@ -2,6 +2,7 @@
 // Sheet Metal Gusset, Simple Hole, Extruded Cut sheet metal options (Link to thickness / Normal cut / Optimize geometry),
 // Insert Bends, Tab and Slot, Rip, Swept Flange.
 import { chromium } from 'playwright';
+import { exitCode } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -101,7 +102,7 @@ const topFace = await S(() => {
 check('the top face of the leg is selected', !!topFace);
 await page.click('.k-cm-small:has-text("Forming Tool")');
 await page.waitForTimeout(400);
-check('Form Tool Feature PM: Type/Position tabs, Placement Face, Forming Tool (Design Library list), Flat Pattern Visibility', (await page.locator('.k-pm-title:has-text("Form Tool Feature")').count()) === 1 && (await page.locator('[data-testid="form-shape"] option').count()) === 6 && (await page.locator('.k-section:has-text("Flat Pattern Visibility")').count()) === 1);
+check('Form Tool Feature PM: Type/Position tabs, Placement Face, Forming Tool (Part Library list), Flat Pattern Visibility', (await page.locator('.k-pm-title:has-text("Form Tool Feature")').count()) === 1 && (await page.locator('[data-testid="form-shape"] option').count()) === 6 && (await page.locator('.k-section:has-text("Flat Pattern Visibility")').count()) === 1);
 check('the placement face is filled in', (await page.locator('[data-testid="form-face"] .k-selbox-row').count()) === 1);
 await S(() => { const st = window.__phlippoStore.getState(); st.updateFeatureDraft({ width: 8, length: 8, height: 4 }); st.addFormToolPoint({ x: 0, y: 18 }); });
 await page.waitForTimeout(500);
@@ -153,7 +154,7 @@ await S(() => {
 });
 await page.click('.k-cm-small:has-text("Simple Hole")');
 await page.waitForTimeout(400);
-check('Simple Hole PM: title Hole, Direction 1 (Blind/Through All) and the diameter, no Hole Wizard pages', (await page.locator('.k-pm-title').innerText()).trim().startsWith('Hole') && (await page.locator('.k-section-name:text-is("Direction 1")').count()) === 1 && (await page.locator('[data-testid="hole-types"]').count()) === 0, await page.locator('.k-pm-title').innerText());
+check('Simple Hole PM: title Hole, Direction 1 (Blind/Through All) and the diameter, no Hole Tool pages', (await page.locator('.k-pm-title').innerText()).trim().startsWith('Hole') && (await page.locator('.k-section-name:text-is("Direction 1")').count()) === 1 && (await page.locator('[data-testid="hole-types"]').count()) === 0, await page.locator('.k-pm-title').innerText());
 await S(() => window.__phlippoStore.getState().addHolePoint({ x: 0, y: -18 }));
 await page.waitForTimeout(400);
 await shot('ge7-simplehole-pm');
@@ -367,8 +368,6 @@ await page.waitForTimeout(300);
 await shot('ge14-sweptflange');
 
 console.log(results.filter((r) => r.ok).length + '/' + results.length + ' passed');
-const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
-if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
-process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
+process.exitCode = exitCode(results, errors);
 if (errors.length) console.log('ERRORS', errors.slice(0, 5));
 await browser.close();

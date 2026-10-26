@@ -4,7 +4,7 @@ import { Icon } from '../../ui/icons';
 import { GTOL_SYMBOLS, type DimXpertGtol } from '../../core/document/dimxpert';
 
 /**
- * MBD Dimensions PropertyManagers, as the original: Auto Dimension Scheme (Settings, Datum Selection, Scope), Datum,
+ * MBD Dimensions PropertyManagers, by design: Auto Dimension Scheme (Settings, Datum Selection, Scope), Datum,
  * Size / Location Dimension, Pattern Feature and Geometric Tolerance. Faces are picked in the graphics area.
  */
 export function DimXpertPM() {

@@ -20,7 +20,7 @@ const box = () => {
   return doc;
 };
 
-describe('curve and split options of the original', () => {
+describe('curve and split options of the intended design', () => {
   it('Split Line > Intersection: a plane at mid height splits the four side faces', () => {
     const doc = box();
     doc.planes.p10 = { id: 'p10', name: 'Plane1', origin: [0, 10, 0], u: [1, 0, 0], v: [0, 0, -1], n: [0, 1, 0], kind: 'reference' };

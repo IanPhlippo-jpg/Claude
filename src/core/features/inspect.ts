@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import type { Body } from './rebuild';
 
-/** Evaluate ▸ Check: closed-shell and face/edge checks of the bodies, as the original's Check Entity dialog. */
+/** Evaluate ▸ Check: closed-shell and face/edge checks of the bodies, as the intended Check Entity dialog. */
 export function bodyCheck(bodies: Body[], shortEdge = 0.01): { body: string; openEdges: number; nonManifold: number; degenerate: number; short: number }[] {
   return bodies.map((b) => {
     const g = b.geometry.index ? b.geometry.toNonIndexed() : b.geometry;

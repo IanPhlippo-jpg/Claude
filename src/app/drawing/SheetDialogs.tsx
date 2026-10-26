@@ -17,7 +17,7 @@ const STANDARD: { id: SheetSize; label: string }[] = [
   { id: 'A4', label: 'A4 (ISO)' },
 ];
 
-/** Sheet Format/Size dialog shown for a new drawing, as the original. */
+/** Sheet Format/Size dialog shown for a new drawing, by design. */
 export function SheetFormatDialog() {
   const st = useStore();
   const [size, setSize] = useState<SheetSize>('A4');
@@ -32,11 +32,12 @@ export function SheetFormatDialog() {
     const d = createDocument('Draw1', 'drawing', { size, landscape, showFormat, scale: size === 'A4' || size === 'A' ? [1, 2] : [1, 1] });
     // Custom sheet size: the given width and height (the sheet format scales with it)
     if (custom && d.sheets) d.sheets[0] = { ...d.sheets[0], customSize: [Math.max(50, cw), Math.max(50, ch)] };
+    // the question about unsaved changes came before this dialog (New and Welcome ask when they open it)
     st.openDocument(d);
     if (useStore.getState().doc.kind !== 'drawing') return; // refused (validation): the dialog stays
     st.setDialog(null);
     // Start command when creating new drawing (Model View ▸ Options)
-    if (getPref('drawing.startModelView') !== false) st.startModelView();
+    if (getPref('drawing.startModelView') !== false) useStore.getState().startModelView();
   };
   // Only show standard formats: the ISO list for an ISO / DIN standard, the ANSI list otherwise
   const iso = st.prefs['doc.standard'] === 'ISO' || st.prefs['doc.standard'] === 'DIN';

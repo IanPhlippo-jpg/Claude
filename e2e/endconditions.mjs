@@ -1,5 +1,6 @@
 // Extrude end conditions (video 40): Offset From Surface with a picked face, then Up To Next; Sensors in the tree (video 31).
 import { chromium } from 'playwright';
+import { exitCode, skip } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -101,7 +102,7 @@ await page.waitForTimeout(200);
 const menuText = (await page.locator('.k-ctx').innerText().catch(() => '')).replace(/\s+/g, ' ');
 check('RMB menu offers Up To Next / Up To Vertex / Up To Surface / Offset From Surface', /Up To Next/.test(menuText) && /Up To Vertex/.test(menuText) && /Up To Surface/.test(menuText) && /Offset From Surface/.test(menuText), menuText.slice(0, 160));
 await page.keyboard.press('Escape');
-await page.click('.k-pm-cancel').catch(() => undefined);
+await page.click('.k-pm-cancel').catch(skip('endconditions:105'));
 await page.waitForTimeout(300);
 
 // Up To Vertex: edit the cut to Blind 3, then Up To Vertex on a top corner of the plate (10 high)
@@ -139,9 +140,7 @@ await shot('u3-sensor');
 
 console.log(`
 ${results.filter((r) => r.ok).length}/${results.length} checks passed`);
-const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
-if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
-process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
+process.exitCode = exitCode(results, errors);
 for (const r of results.filter((r) => !r.ok)) console.log(' - ' + r.name + (r.info ? ' (' + r.info + ')' : ''));
 console.log('errors:', errors.length ? errors : 'none');
 await browser.close();

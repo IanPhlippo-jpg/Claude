@@ -1,5 +1,6 @@
-// Assembly ▸ Smart Fasteners: a base plate and a bracket plate with two M6 clearance holes get two ISO 4762 M6 screws.
+// Assembly ▸ Auto Fasteners: a base plate and a bracket plate with two M6 clearance holes get two ISO 4762 M6 screws.
 import { chromium } from 'playwright';
+import { exitCode } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -50,11 +51,11 @@ await page.evaluate(() => {
   window.__phlippoStore.getState().openDocument(asm);
 });
 await page.waitForTimeout(1200);
-await page.click('.k-cm-big:has-text("Smart Fasteners") .k-cm-main');
+await page.click('.k-cm-big:has-text("Auto Fasteners") .k-cm-main');
 await page.waitForTimeout(600);
 const holes = await page.locator('[data-testid="fastener-holes"] .k-selbox-row').count();
 const groups = await page.locator('[data-testid="fastener-groups"]').innerText();
-check('Smart Fasteners finds the 4 holes as 2 groups of coaxial holes: Socket Head Cap Screw M6 x 25', holes === 4 && (groups.match(/Group/g) ?? []).length === 2 && /Socket Head Cap Screw M6 x 25/.test(groups), groups);
+check('Auto Fasteners finds the 4 holes as 2 groups of coaxial holes: Socket Head Cap Screw M6 x 25', holes === 4 && (groups.match(/Group/g) ?? []).length === 2 && /Socket Head Cap Screw M6 x 25/.test(groups), groups);
 await page.mouse.move(5, 900);
 await shot('sf1-smart-fasteners-pm');
 await page.click('[data-testid="fastener-pm"] .k-pm-ok');
@@ -69,9 +70,7 @@ await shot('sf2-fasteners');
 
 console.log(`
 ${results.filter((r) => r.ok).length}/${results.length} checks passed`);
-const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
-if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
-process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
+process.exitCode = exitCode(results, errors);
 for (const r of results.filter((r) => !r.ok)) console.log(' - ' + r.name + (r.info ? ' (' + r.info + ')' : ''));
 console.log('errors:', errors.length ? errors : 'none');
 await browser.close();

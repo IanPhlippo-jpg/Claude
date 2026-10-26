@@ -62,7 +62,7 @@ const STYLES: { id: 'wireframe' | 'hiddenVisible' | 'hiddenRemoved' | 'shadedEdg
   { id: 'shaded', label: 'Shaded', icon: <Icon.StyleShaded size={20} /> },
 ];
 
-/** Model View PropertyManager: Part/Assembly to Insert, then Orientation, Display Style and Scale (as the original). */
+/** Model View PropertyManager: Part/Assembly to Insert, then Orientation, Display Style and Scale (by design). */
 export function ModelViewPM() {
   const st = useStore();
   const de = st.drawingEdit;
@@ -300,7 +300,7 @@ function nextLabel(sheet: import('../../core/document/types').DrawingSheet): str
   return 'Z';
 }
 
-/** Dimension PropertyManager of a drawing (Value / Leaders / Other tabs as the original, reduced). */
+/** Dimension PropertyManager of a drawing (Value / Leaders / Other tabs by design, reduced). */
 export function DrawingDimensionPM() {
   const st = useStore();
   const de = st.drawingEdit;
@@ -537,7 +537,7 @@ export function AuxViewPM() {
 }
 
 
-/** Model Items PropertyManager (Source/Destination, Dimensions, Options), as the original. */
+/** Model Items PropertyManager (Source/Destination, Dimensions, Options), by design. */
 export function ModelItemsPM() {
   const st = useStore();
   const de = st.drawingEdit;
@@ -563,7 +563,7 @@ export function ModelItemsPM() {
         <div className="k-pm-stylerow">
           <button className={`k-pm-stylebtn k-tip ${mi.sketchDims ? 'active' : ''}`} data-tip="Marked for drawing" onClick={() => set({ sketchDims: !mi.sketchDims })} data-testid="mi-sketch"><Icon.Dimension size={16} /></button>
           <button className={`k-pm-stylebtn k-tip ${mi.featureDims ? 'active' : ''}`} data-tip="Not marked for drawing" onClick={() => set({ featureDims: !mi.featureDims })} data-testid="mi-feature"><Icon.Extrude size={16} /></button>
-          <button className={`k-pm-stylebtn k-tip ${mi.holeDims ? 'active' : ''}`} data-tip="Hole Wizard Locations" onClick={() => set({ holeDims: !mi.holeDims })} data-testid="mi-hole"><Icon.Hole size={16} /></button>
+          <button className={`k-pm-stylebtn k-tip ${mi.holeDims ? 'active' : ''}`} data-tip="Hole Tool Locations" onClick={() => set({ holeDims: !mi.holeDims })} data-testid="mi-hole"><Icon.Hole size={16} /></button>
         </div>
         <label className="k-check"><input type="checkbox" data-testid="mi-dupes" checked={mi.eliminateDuplicates !== false} onChange={(e) => set({ eliminateDuplicates: e.target.checked })} /> Eliminate duplicates</label>
       </Section>
@@ -597,7 +597,7 @@ export function BrokenOutPM() {
 }
 
 
-/** PropertyManager of a placed drawing view (Drawing View1 …), shown when the view is clicked on the sheet, as the original. */
+/** PropertyManager of a placed drawing view (Drawing View1 …), shown when the view is clicked on the sheet, by design. */
 export function DrawingViewPM() {
   const st = useStore();
   const sheet = st.doc.sheets?.[0];

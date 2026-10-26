@@ -185,7 +185,7 @@ export function placeFasteners(doc: Document, slots: FastenerSlot[]): { componen
     const k = c.name.replace(/<\d+>$/, ''), m = /<(\d+)>$/.exec(c.name);
     counters.set(k, Math.max(counters.get(k) ?? 0, m ? Number(m[1]) : 0));
   }
-  // mates are numbered per type, as the original (Concentric7, Coincident9 …)
+  // mates are numbered per type, by design (Concentric7, Coincident9 …)
   let nConc = (doc.mates ?? []).filter((m) => m.type === 'concentric').length;
   let nCoin = (doc.mates ?? []).filter((m) => m.type === 'coincident').length;
   slots.forEach((s) => {

@@ -40,7 +40,7 @@ export interface GlyphDrawing {
 
 const P = (s: Sketch, id: Id): SketchPoint => (id in s.points ? s.points[id] : s.points[(s.entities[id] as { p: Id }).p]);
 
-/** dimension text as the original shows it: two decimals, no unit ("80.00", "Ø35.00", "R15.00", "90.00°") */
+/** dimension text by design shows it: two decimals, no unit ("80.00", "Ø35.00", "R15.00", "90.00°") */
 function fmt(v: number, _unit: string, kind: Constraint['kind'], decimals?: number): string {
   const txt = v.toFixed(decimals ?? lengthDecimals());
   if (kind === 'angle') return `${txt}°`;
@@ -61,7 +61,7 @@ export function dimensionDrawing(s: Sketch, c: Constraint, unit: string, driven:
   const d = dimensionDrawingBase(s, c, unit, driven, linked);
   if (!d) return d;
   const out: DimensionDrawing = { ...d, fontSize: c.fontSize, justify: c.justify, arrowStyle: c.arrowStyle };
-  // tolerance of the original's Tolerance/Precision box
+  // tolerance of the intended Tolerance/Precision box
   const tol = c.tol;
   const dec = c.precision ?? lengthDecimals();
   const k = c.kind === 'angle' ? 1 : UNIT_SCALE[c.unitOverride ?? 'mm'] ?? 1;
@@ -96,7 +96,7 @@ export function dimensionDrawing(s: Sketch, c: Constraint, unit: string, driven:
 function dimensionDrawingBase(s: Sketch, c: Constraint, unit: string, driven: boolean, linked = false): DimensionDrawing | null {
   const k = c.kind === 'angle' ? 1 : UNIT_SCALE[c.unitOverride ?? 'mm'] ?? 1;
   const value = (c.value ?? 0) * k;
-  // a dimension driven by an equation shows the Σ prefix, as the original
+  // a dimension driven by an equation shows the Σ prefix, by design
   const core = fmt(value, c.kind === 'angle' ? '' : unit, c.kind, c.precision);
   const shown = c.dimText && c.dimText.includes('<DIM>') ? c.dimText.replace('<DIM>', core) : core;
   const text = (linked ? 'Σ' : '') + (driven ? '(' : '') + shown + (driven ? ')' : '');
@@ -161,7 +161,7 @@ function dimensionDrawingBase(s: Sketch, c: Constraint, unit: string, driven: bo
         { a: b, b: pb },
         { a: pa, b: pb, arrowA: true, arrowB: true },
       ];
-      // as the original, the text sits centred between the arrows unless it is dragged outside the extension lines
+      // by design, the text sits centred between the arrows unless it is dragged outside the extension lines
       const span = Math.hypot(pb.x - pa.x, pb.y - pa.y);
       const along = span > 1e-9 ? ((label.x - pa.x) * (pb.x - pa.x) + (label.y - pa.y) * (pb.y - pa.y)) / span : 0;
       const shown = along > 0 && along < span ? { x: (pa.x + pb.x) / 2, y: (pa.y + pb.y) / 2 } : label;
@@ -176,7 +176,7 @@ function dimensionDrawingBase(s: Sketch, c: Constraint, unit: string, driven: bo
       const d = norm(sub(label, ctr));
       const onCircle = { x: ctr.x + d.x * r, y: ctr.y + d.y * r };
       const lines: DimensionDrawing['lines'] = [];
-      // as the original: a leader from the text to the circle with one arrow on the circle; a diameter also runs
+      // by design: a leader from the text to the circle with one arrow on the circle; a diameter also runs
       // on through the centre to the far side of the circle
       if (c.kind === 'diameter') lines.push({ a: { x: ctr.x - d.x * r, y: ctr.y - d.y * r }, b: onCircle });
       lines.push({ a: label, b: onCircle, arrowB: true });

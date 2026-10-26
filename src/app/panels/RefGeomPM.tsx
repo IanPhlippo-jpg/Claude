@@ -12,7 +12,7 @@ const MODES = {
 } as const;
 
 /**
- * Reference Geometry ▸ Axis / Point / Coordinate System, as the original: a Selections box with the picked
+ * Reference Geometry ▸ Axis / Point / Coordinate System, by design: a Selections box with the picked
  * edges, faces and planes, the definition the selection gives (highlighted), and the name.
  */
 export function RefGeomPM() {
@@ -60,7 +60,7 @@ export function RefGeomPM() {
   );
 }
 
-/** Offset On Surface, as the original: the faces (or edges) to offset, the distance and Reverse. */
+/** Offset On Surface, by design: the faces (or edges) to offset, the distance and Reverse. */
 export function OffsetOnSurfacePM() {
   const st = useStore();
   const e = st.offsetSurfEdit;
@@ -88,7 +88,7 @@ export function OffsetOnSurfacePM() {
   );
 }
 
-/** Render Tools ▸ Edit Decal, as the original: Image (file), Mapping (face, width, rotation), Name. */
+/** Render Tools ▸ Edit Decal, by design: Image (file), Mapping (face, width, rotation), Name. */
 export function DecalPM() {
   const st = useStore();
   const e = st.decalEdit;

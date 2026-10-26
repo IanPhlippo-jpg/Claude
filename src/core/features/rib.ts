@@ -7,7 +7,7 @@ import { extrudeGeometry, planeMatrix, THROUGH_ALL } from './solid';
 import type { Region } from './regions';
 
 /**
- * Rib (Features ▸ Rib), as the original: an open sketch (a line, an arc, a chain) on a plane
+ * Rib (Features ▸ Rib), by design: an open sketch (a line, an arc, a chain) on a plane
  * becomes a thin wall that grows from the sketch until it meets the body. The ends of the
  * sketch are extended to the body automatically and the far side follows the body's surface.
  *
@@ -41,7 +41,7 @@ export function ribGeometry(sketch: Sketch, plane: PlaneDef, body: THREE.BufferG
     const pts = chain.points.map((p) => ({ x: p.x, y: p.y }));
     const mid = midpoint(pts);
     if (!chain.closed) {
-      // extend both ends to the body (the original extends the sketch automatically)
+      // extend both ends to the body (the intended design extends the sketch automatically)
       extendEnd(pts, true, hitDistance);
       extendEnd(pts, false, hitDistance);
     }

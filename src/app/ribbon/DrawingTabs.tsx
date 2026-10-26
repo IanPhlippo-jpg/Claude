@@ -4,7 +4,7 @@ import { Icon } from '../../ui/icons';
 import { BigButton as Big, Group, SmallButton as Small } from './Ribbon';
 import { DRAWING_BLOCKS, startEmptyView } from '../drawing/DrawingExtras';
 
-/** View Layout tab of a drawing, as the original. */
+/** View Layout tab of a drawing, by design. */
 export function ViewLayoutTab() {
   const st = useStore();
   const de = st.drawingEdit;

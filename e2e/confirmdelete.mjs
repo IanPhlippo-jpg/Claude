@@ -1,6 +1,7 @@
 // Confirm Delete as the original: Delete on a feature opens the dialog with its dependent items; Yes deletes the
 // feature and its children (no orphan Fillet left behind); Ctrl+Z restores; a crash shows the recovery box.
 import { chromium } from 'playwright';
+import { exitCode, skip } from './lib/check.mjs';
 import { readFileSync, mkdirSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -25,7 +26,7 @@ await page.waitForTimeout(1200);
 // Delete Boss-Extrude1 from the tree with the Delete key
 await page.locator('.k-tree-row:has-text("Boss-Extrude1")').first().click();
 await page.keyboard.press('Delete');
-await page.waitForSelector('[data-testid="confirm-delete"]', { timeout: 3000 }).catch(() => undefined);
+await page.waitForSelector('[data-testid="confirm-delete"]', { timeout: 3000 }).catch(skip('confirmdelete:29'));
 await page.waitForTimeout(600);
 const dlg = await page.evaluate(() => ({ items: document.querySelector('[data-testid="cdel-items"]')?.textContent, deps: document.querySelector('[data-testid="cdel-children"]')?.textContent }));
 check('Delete opens Confirm Delete with the feature', /Boss-Extrude1/.test(dlg.items ?? ''), JSON.stringify(dlg));
@@ -80,9 +81,7 @@ check('Undo and continue brings the app back with the document', (await page.loc
 
 console.log(`
 ${results.filter((r) => r.ok).length}/${results.length} checks passed`);
-const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
-if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
-process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
+process.exitCode = exitCode(results, errors);
 for (const r of results.filter((r) => !r.ok)) console.log(' - ' + r.name + (r.info ? ' (' + r.info + ')' : ''));
 console.log('errors:', errors.length ? errors : 'none');
 await browser.close();

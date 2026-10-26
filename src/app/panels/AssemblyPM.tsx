@@ -25,7 +25,7 @@ function Header({ title, icon, onOk, onCancel, extra }: { title: string; icon: R
   );
 }
 
-/** Mate PropertyManager as the original: Mate Selections, Standard Mates, alignment, Mates list, Options. */
+/** Mate PropertyManager by design: Mate Selections, Standard Mates, alignment, Mates list, Options. */
 const MATE_LABEL: Record<string, string> = { coincident: 'Coincident', parallel: 'Parallel', perpendicular: 'Perpendicular', tangent: 'Tangent', concentric: 'Concentric', lock: 'Lock', distance: 'Distance', angle: 'Angle', profileCenter: 'Profile Center', symmetric: 'Symmetric', width: 'Width', path: 'Path Mate', linearCoupler: 'Linear/Linear Coupler', distanceLimit: 'Distance (limit)', angleLimit: 'Angle (limit)', cam: 'Cam', slot: 'Slot', hinge: 'Hinge', gear: 'Gear', rackPinion: 'Rack Pinion', screw: 'Screw', universalJoint: 'Universal Joint' };
 
 /**
@@ -212,7 +212,7 @@ export function InsertComponentPM() {
   const [rotBar, setRotBar] = useState(getPref<boolean>('assembly.rotateToolbar') !== false);
   const [virtual, setVirtual] = useState(false);
   const [envelope, setEnvelope] = useState(false);
-  // options kept between sessions (System Options ▸ Assemblies in the original)
+  // options kept between sessions (System Options ▸ Assemblies in the intended design)
   const [opt, setOptState] = useState(() => ({ startInsert: getPref<boolean>('assembly.startInsert') !== false, autoBrowse: getPref<boolean>('assembly.autoBrowse') !== false, graphicsPreview: getPref<boolean>('assembly.graphicsPreview') !== false }));
   const setOpt = (k: keyof typeof opt, v: boolean) => { setOptState((o) => ({ ...o, [k]: v })); savePrefs({ ...loadPrefs(), ['assembly.' + k]: v }); if (k === 'graphicsPreview' && ghost) st.setInsertGhost({ ...ghost }); };
   // the chosen part follows the pointer (graphics preview); the PM options travel with it
@@ -280,7 +280,7 @@ export function InsertComponentPM() {
 }
 
 /**
- * Explode PropertyManager as the original (SW 2024): Explode Steps list, Add a Step (Explode Step
+ * Explode Property Panel: Explode Steps list, Add a Step (Explode Step
  * Components, direction X/Y/Z with Reverse, distance, Add Step / Reset), Options.
  */
 export function ExplodePM() {
@@ -348,7 +348,7 @@ export function ComponentPatternPM() {
   const pe = st.patternEdit;
   if (!pe) return null;
   const d = pe.draft;
-  // instance number → (row, column) for a linear pattern, as the original labels the skipped instances
+  // instance number → (row, column) for a linear pattern, by design labels the skipped instances
   const instanceLabel = (n: number) => {
     if (d.kind !== 'linear') return `(${n + 1})`;
     // the seed is position 0 of the grid, instance n is grid position n

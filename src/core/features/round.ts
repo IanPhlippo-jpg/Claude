@@ -279,7 +279,7 @@ function roundSection(s: CreaseSegment, o: THREE.Vector3, kind: 'fillet' | 'cham
 }
 
 /**
- * The yellow preview of a fillet / chamfer, as the original: the rounded faces as a see-through strip and thin
+ * The yellow preview of a fillet / chamfer, by design: the rounded faces as a see-through strip and thin
  * lines on it (cross-section arcs along the edge, the two tangent lines and the middle line).
  */
 export function roundPreviewShapes(edges: BodyEdge[], kind: 'fillet' | 'chamfer', size: number): { strip: THREE.BufferGeometry; lines: THREE.Vector3[][] } {

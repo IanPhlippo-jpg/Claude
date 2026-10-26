@@ -11,12 +11,12 @@ import type { Sketch } from '../core/sketch/types';
 
 const fmt = (v: number, d = 2) => (Math.abs(v) < 0.5 * 10 ** -d ? (0).toFixed(d) : v.toFixed(d));
 
-/** Density for "Material <not specified>": 1000 kg/m³ = 0.001 g/mm³, as the original assumes. */
+/** Density for "Material <not specified>": 1000 kg/m³ = 0.001 g/mm³, by design assumes. */
 const DEFAULT_DENSITY = 0.001;
 
 /**
  * Mass Properties: a modeless window (the model can still be rotated) with the report text in
- * the layout of the original: density, mass, volume, surface area, centre of mass, principal
+ * the layout of the intended design: density, mass, volume, surface area, centre of mass, principal
  * axes and moments, inertia at the centre of mass and at the output coordinate system.
  */
 const LEN_UNITS = { mm: { f: 1, s: 'millimeter', p: 'millimeters' }, cm: { f: 0.1, s: 'centimeter', p: 'centimeters' }, m: { f: 0.001, s: 'meter', p: 'meters' }, in: { f: 1 / 25.4, s: 'inch', p: 'inches' } } as const;
@@ -286,7 +286,7 @@ const polyLength = (pts: { x: number; y: number }[]) => {
 };
 
 /**
- * Measure: a floating window as the original (toolbar with Arc/Circle Measurements, Units,
+ * Measure: a floating window by design (toolbar with Arc/Circle Measurements, Units,
  * Show XYZ, Projected On, History, Sensor), the selected items and their measurements.
  * Selection in the graphics area accumulates while the window is open.
  */

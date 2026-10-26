@@ -3,7 +3,7 @@ import { addArc, addCircle, addConstraint, addLine, addPoint, addPointParam, add
 import { sampleEntity } from './geometry';
 
 /**
- * Sketch editing tools of the original's Sketch tab, as pure functions on the sketch model:
+ * Sketch editing tools of the intended Sketch tab, as pure functions on the sketch model:
  * Trim Entities (trim to closest), Sketch Fillet, Offset Entities, Linear / Circular Sketch
  * Pattern, Move / Copy / Rotate / Scale Entities.
  */
@@ -372,7 +372,7 @@ function offsetDir(d: SketchPoint, side: number): SketchPoint {
 /**
  * Offset of entities (lines, arcs, circles, splines) by a distance; consecutive lines of a chain
  * meet at the mitre, arcs and circles stay concentric. Positive = to the left of each line's
- * direction (reverse flips), as the original's Offset Entities (one side).
+ * direction (reverse flips), as the intended Offset Entities (one side).
  */
 export function offsetEntities(s: Sketch, ids: Id[], d: number, reverse = false, construction = false): Sketch {
   const side = reverse ? -1 : 1;

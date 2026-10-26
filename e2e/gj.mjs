@@ -1,7 +1,8 @@
 // Block G-J: the remaining inventory items: status bar readouts, Line Properties title + Insert Line message,
-// Display/Delete Relations filters / Delete All / Entities, Hole Wizard ANSI Inch, View ▸ Display submenu, Up Axis,
+// Display/Delete Relations filters / Delete All / Entities, Hole Tool ANSI Inch, View ▸ Display submenu, Up Axis,
 // Deform (point), Save As options, Publish to Phlippo Viewer (.html), drawing bend lines / notes.
 import { chromium } from 'playwright';
+import { exitCode } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -91,7 +92,7 @@ await page.waitForTimeout(300);
 check('status bar: Length of a body edge', /Length: 60mm/.test(await page.locator('[data-testid="status-readout"]').innerText()));
 await S(() => window.__phlippoStore.getState().toggleSelectedEdge(window.__phlippoStore.getState().selectedEdges[0]));
 
-// ---- Hole Wizard: ANSI Inch standard with its sizes
+// ---- Hole Tool: ANSI Inch standard with its sizes
 await S(() => { const s = window.__phlippoStore.getState(); const b = s.rebuild.bodies[0]; const f = b.faces.find((x) => !x.curved && x.normal[1] > 0.99); s.setSelectedFace({ bodyId: b.id, faceId: f.id }); s.startHole(); });
 await page.waitForTimeout(400);
 await page.locator('[data-testid="hole-standard"]').selectOption('ANSI Inch');
@@ -197,8 +198,6 @@ check('drawing view of the flat pattern shows the bend line with its note', (awa
 await shot('gj6-drawing-bendlines');
 
 console.log(results.filter((r) => r.ok).length + '/' + results.length + ' passed');
-const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
-if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
-process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
+process.exitCode = exitCode(results, errors);
 if (errors.length) console.log('ERRORS', errors.slice(0, 5));
 await browser.close();

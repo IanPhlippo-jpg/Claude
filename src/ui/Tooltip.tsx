@@ -3,7 +3,7 @@ import { richTipFor } from './richTips';
 
 /**
  * One tooltip for the whole window: any element with data-tip shows it after a short delay, below the element,
- * kept inside the window and never clipped by a panel (the CommandManager, the PropertyManager), as the original.
+ * kept inside the window and never clipped by a panel (the CommandManager, the PropertyManager), by design.
  */
 export function GlobalTooltip() {
   const [tip, setTip] = useState<{ text: string; x: number; y: number; above: boolean; rich: boolean } | null>(null);
@@ -25,7 +25,7 @@ export function GlobalTooltip() {
         const r = el.getBoundingClientRect();
         const below = r.bottom + 6;
         const above = below + 30 > window.innerHeight;
-        // CommandManager buttons get the rich tooltip (title, picture, explanation) below the button, as the original
+        // CommandManager buttons get the rich tooltip (title, picture, explanation) below the button, by design
         const rich = !!el.closest('.k-cm-body') && !!richTipFor(text);
         setTip({ text, x: rich ? r.left + r.width / 2 - 24 : el.classList.contains('tip-right') ? r.right : r.left, y: above && !rich ? r.top - 6 : below + (rich ? 4 : 0), above: above && !rich, rich });
       }, 450);

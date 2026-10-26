@@ -5,6 +5,7 @@
 // huge values and take arithmetic (F71/F42), the Welcome shows the notice and no trademarked product names (F72/F50),
 // a dropped file never navigates (F03), the Tolerance Tree empty text (F64).
 import { chromium } from 'playwright';
+import { exitCode, skip } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -29,7 +30,7 @@ await page.waitForTimeout(400);
 check('Welcome shows the independence notice', /not affiliated with or endorsed by Dassault Systèmes SolidWorks Corp\./.test(await page.locator('[data-testid="welcome-legal"]').innerText()));
 await page.click('.k-doctype:has-text("Part")');
 await page.waitForTimeout(500);
-const tmNames = /FeatureManager|PropertyManager|CommandManager|ConfigurationManager|DisplayManager|MotionManager|DimXpert|TolAnalyst|SimulationXpress|FeatureXpert|DraftXpert|Instant3D|RealView|SpeedPak|eDrawings/;
+const tmNames = /FeatureManager|PropertyManager|CommandManager|ConfigurationManager|DisplayManager|MotionManager|DimXpert|TolAnalyst|SimulationXpress|FeatureXpert|DraftXpert|Instant3D|RealView|SpeedPak|eDrawings|Hole Wizard|Toolbox|Design Library|Lifecycle and Collaboration|Smart Fasteners|Tree Tree|tree tree|a Auto/;
 const visibleNames = await S(() => {
   const texts = [document.body.innerText];
   for (const el of document.querySelectorAll('[data-tip],[title],[aria-label]')) texts.push(el.getAttribute('data-tip') ?? '', el.getAttribute('title') ?? '', el.getAttribute('aria-label') ?? '');
@@ -96,7 +97,7 @@ check('without the hooks: Final Render makes the image', await S(() => !!window.
 await S(() => window.__qa.store.getState().setFinalImage?.(null));
 await page.reload();
 await page.waitForSelector('.k-viewport');
-await page.locator('[data-testid="welcome-recent-0"]').click({ timeout: 4000 }).catch(() => {});
+await page.locator('[data-testid="welcome-recent-0"]').click({ timeout: 4000 }).catch(skip('qa3:100'));
 await page.waitForTimeout(600);
 check('the hooks come back after a reload (test build)', await S(() => typeof window.__phlippoCamera === 'object' && typeof window.__phlippoZoomFit === 'function'));
 
@@ -254,7 +255,5 @@ check('the empty text wraps instead of being cut off', wraps);
 await S(() => window.__phlippoStore.getState().setManagerTab('tree'));
 
 console.log(results.filter((r) => r.ok).length + '/' + results.length + ' passed');
-const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
-if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
-process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
+process.exitCode = exitCode(results, errors);
 await browser.close();

@@ -1,6 +1,7 @@
 // Multi-body (videos 11/44/45/52): a second boss away from the first becomes its own body; Solid Bodies folder,
 // Hide/Show Body, Material per body, Merge result off, Feature Scope, Combine.
 import { chromium } from 'playwright';
+import { exitCode, skip } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -144,16 +145,14 @@ check('cut applied without errors; bodies unchanged', b.bodies.length === 2 && O
 // reload keeps hidden bodies / materials / combine
 await page.reload();
 await page.waitForSelector('.k-viewport');
-await page.locator('[data-testid="welcome-recent-0"]').click({ timeout: 4000 }).catch(() => {}); // the autosave waits under Recent Documents, as the original
+await page.locator('[data-testid="welcome-recent-0"]').click({ timeout: 4000 }).catch(skip('multibody:148')); // the autosave waits under Recent Documents, as the original
 await page.waitForTimeout(800);
 b = await B();
 check('reload keeps the bodies, the material and Combine1', b.bodies.length === 2 && Object.keys(b.mats).length === 1 && b.features.includes('Combine1'), JSON.stringify(b));
 
 console.log(`
 ${results.filter((r) => r.ok).length}/${results.length} checks passed`);
-const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
-if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
-process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
+process.exitCode = exitCode(results, errors);
 for (const r of results.filter((r) => !r.ok)) console.log(' - ' + r.name + (r.info ? ' (' + r.info + ')' : ''));
 console.log('errors:', errors.length ? errors : 'none');
 await browser.close();

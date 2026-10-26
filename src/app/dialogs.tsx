@@ -12,7 +12,7 @@ import { createDocument } from '../core/document/types';
 import { ViewGrid } from './viewport/Hud';
 import { getCamera } from './viewport/Viewport';
 
-/** Welcome dialog at start-up: Home / Recent / Learn / Alerts, like the original. */
+/** Welcome dialog at start-up: Home / Recent / Learn / Alerts, by design. */
 export function WelcomeDialog() {
   const st = useStore();
   const [tab, setTab] = useState<'home' | 'recent' | 'learn' | 'alerts'>('home');
@@ -54,7 +54,7 @@ export function WelcomeDialog() {
                 <Icon.Component size={40} />
                 <b>Assembly</b>
               </button>
-              <button className="k-doctype" onClick={() => st.setDialog('sheetFormat')}>
+              <button className="k-doctype" onClick={() => withUnsavedCheck(() => useStore.getState().setDialog('sheetFormat'))}>
                 <Icon.Drawing size={40} />
                 <b>Drawing</b>
               </button>
@@ -190,7 +190,7 @@ export function ModifyDialog() {
   const c = m && sketch ? sketch.constraints[m.id] : null;
   const [value, setValue] = useState(c?.value ?? 0);
   useEffect(() => setValue(c?.value ?? 0), [c?.id, c?.value]);
-  // typing "=" turns the box into an equation box ("= "Width" / 2"), as the original
+  // typing "=" turns the box into an equation box ("= "Width" / 2"), by design
   const existing = c ? st.doc.equations.find((e) => !!sketch && e.target === sketchDimensionName(sketch, c.id)) : undefined;
   const [eqText, setEqText] = useState<string | null>(null);
   const [spinOpen, setSpinOpen] = useState(false);
@@ -200,12 +200,12 @@ export function ModifyDialog() {
   const isAngle = c?.kind === 'angle';
   const shownUnit = unit ?? (isAngle ? 'deg' : st.doc.units);
   const k = isAngle ? (shownUnit === 'rad' ? Math.PI / 180 : 1) : (LEN[st.doc.units] ?? 1) / (LEN[shownUnit] ?? 1);
-  // configurations: This Configuration / All Configurations / Specify Configuration(s), as the original
+  // configurations: This Configuration / All Configurations / Specify Configuration(s), by design
   const cfgs = configurations(st.doc);
   const [scope, setScope] = useState<'this' | 'all' | 'specify'>('this');
   const [scopeIds, setScopeIds] = useState<string[]>([]);
   useEffect(() => setEqText(existing ? `= ${existing.expression}` : null), [c?.id, existing?.id]);
-  // the Modify box takes the keyboard focus with the value selected, like the original
+  // the Modify box takes the keyboard focus with the value selected, by design
   const boxRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!m) return;
@@ -223,7 +223,7 @@ export function ModifyDialog() {
       st.setModify(null);
       return;
     }
-    // a length must be a positive number (the original refuses 0 and anything that is not a number); an angle may be 0
+    // a length must be a positive number (the intended design refuses 0 and anything that is not a number); an angle may be 0
     if (!Number.isFinite(value) || (c.kind !== 'angle' && value <= 0) || (c.kind === 'angle' && value < 0)) {
       st.pushMessage(c.kind === 'angle' ? 'Enter an angle of 0 or more.' : 'Enter a value larger than zero.', 'warn');
       return;
@@ -236,7 +236,7 @@ export function ModifyDialog() {
     st.setModify(null);
   };
   const x = Math.min(m.x, window.innerWidth - 300), y = Math.min(m.y, window.innerHeight - 120);
-  // dimension name as the original: D1@Sketch1, D2@Sketch1, …
+  // dimension name by design: D1@Sketch1, D2@Sketch1, …
   const dims = sketch!.constraintOrder.filter((id) => sketch!.constraints[id].value !== undefined);
   const name = sketchDimensionName(sketch!, c.id);
   void dims;
@@ -292,7 +292,7 @@ export function ModifyDialog() {
           <input className="k-input" style={{ width: 70 }} type="number" step={0.1} value={Number(st.prefs[c.kind === 'angle' ? 'spin.angle' : st.unitSystem === 'IPS' ? 'spin.lengthEnglish' : 'spin.lengthMetric'])} onChange={(e) => st.setPrefs({ ...st.prefs, [c.kind === 'angle' ? 'spin.angle' : st.unitSystem === 'IPS' ? 'spin.lengthEnglish' : 'spin.lengthMetric']: parseFloat(e.target.value) || 1 })} onKeyDown={(e) => e.stopPropagation()} />
         </div>
       )}
-      {/* thumbwheel as the original: drag to change the value continuously */}
+      {/* thumbwheel by design: drag to change the value continuously */}
       <input className="k-modify-wheel" type="range" min={0} max={1000} value={500} onChange={(e) => { const dv = (parseFloat(e.target.value) - 500) / 100; setValue(Math.max(0, Math.round((value + dv * (c.kind === 'angle' ? 1 : 0.5)) * 100) / 100)); }} onPointerUp={(e) => { (e.target as HTMLInputElement).value = '500'; }} title="Thumbwheel" />
       <div className="k-modify-units">
         <span>Units</span>
@@ -307,14 +307,14 @@ export function ModifyDialog() {
 const CDEL_KEY = 'phlippo.confirmDelete';
 const loadCdel = (): { absorbed: boolean; children: boolean } => {
   try {
-    // as the original: absorbed features go with the feature, child features stay unless asked
+    // by design: absorbed features go with the feature, child features stay unless asked
     return { absorbed: true, children: false, ...JSON.parse(localStorage.getItem(CDEL_KEY) ?? '{}') };
   } catch {
     return { absorbed: true, children: false };
   }
 };
 
-/** Confirm Delete, as the original: the selected item, its absorbed and dependent items, two options. */
+/** Confirm Delete, by design: the selected item, its absorbed and dependent items, two options. */
 export function ConfirmDeleteDialog() {
   const st = useStore();
   const cd = st.confirmDelete;

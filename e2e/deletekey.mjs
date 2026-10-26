@@ -1,5 +1,6 @@
 // The Delete key must never freeze the app: nothing selected, a feature, a sketch line, a dimension, a face, a component, a drawing view.
 import { chromium } from 'playwright';
+import { exitCode, skip } from './lib/check.mjs';
 import { readFileSync } from 'node:fs';
 
 const browser = await chromium.launch(process.platform === 'win32' ? { channel: process.env.PW_CHANNEL ?? 'msedge' } : { ...(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {}), args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
@@ -61,7 +62,7 @@ await page.keyboard.press('Delete');
 await page.waitForTimeout(400);
 if (!(await alive('a feature selected'))) process.exit(1);
 await page.keyboard.press('Escape');
-await page.keyboard.press('Enter').catch(() => undefined);
+await page.keyboard.press('Enter').catch(skip('deletekey:65'));
 await page.waitForTimeout(300);
 
 // in the sketch: a line and the dimension
@@ -100,4 +101,6 @@ console.log(`
 ${results.filter((r) => r.ok).length}/${results.length} checks passed`);
 for (const r of results.filter((r) => !r.ok)) console.log(' - ' + r.name + (r.info ? ' (' + r.info + ')' : ''));
 console.log('errors:', errors.length ? errors : 'none');
+// every failed check and every page error makes the run fail (QA v0.3.4 F57)
+process.exitCode = exitCode(results, errors);
 await browser.close();

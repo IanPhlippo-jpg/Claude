@@ -27,7 +27,7 @@ export interface InterferenceOptions {
 
 /**
  * Interference Detection: every pair of bodies whose bounding boxes overlap is intersected with a
- * boolean; pairs with a real overlapping volume are reported (as the original lists them with the
+ * boolean; pairs with a real overlapping volume are reported (by design lists them with the
  * volume of each interference).
  */
 export function detectInterferences(bodies: Body[], minVolume = 1e-3, opts: InterferenceOptions = {}): Interference[] {

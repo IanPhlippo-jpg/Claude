@@ -6,7 +6,7 @@ import { csg, meshVolume } from './solid';
 import { DRAFT_COLORS } from './analysis';
 
 /**
- * Evaluate, the remaining tools of the original's Evaluate tab: Symmetry Check, Deviation Analysis, Parting Line
+ * Evaluate, the remaining tools of the intended Evaluate tab: Symmetry Check, Deviation Analysis, Parting Line
  * Analysis, Compare (Body Compare, Compare Documents), Performance Evaluation statistics and the SimulationXpress
  * estimate. Everything works on the rebuilt mesh bodies.
  */

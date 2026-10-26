@@ -59,7 +59,7 @@ export function fitCylinder(g: THREE.BufferGeometry, triangles: number[]): Cylin
 }
 
 /**
- * Wrap a closed sketch onto a cylinder (as the original's Wrap, analytical method): the sketch plane's coordinate
+ * Wrap a closed sketch onto a cylinder (as the intended Wrap, analytical method): the sketch plane's coordinate
  * across the axis becomes arc length on the cylinder, along the axis it stays. Emboss grows outward by depth,
  * Deboss cuts inward by depth; the returned solid is the tool (union for emboss, subtract for deboss).
  */

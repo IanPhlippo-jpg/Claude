@@ -12,7 +12,7 @@ import { getPref } from '../prefs';
 import { FASTENER_NAMES, fastenerPart, LENGTHS, METRIC, type FastenerType } from '../../core/assembly/fasteners';
 
 /**
- * Display/Delete Relations, as the original: the filter (All in this sketch, Dangling, Overdefining/Not Solved, External,
+ * Display/Delete Relations, by design: the filter (All in this sketch, Dangling, Overdefining/Not Solved, External,
  * Defined in context, Locked, Broken, Selected entities), the relation list with Delete / Delete All, and the Entities
  * of the chosen relation.
  */
@@ -99,7 +99,7 @@ function ToolboxFolder() {
       <div className="k-library-folder-row" onClick={() => setOpen(!open)}>
         {open ? <Icon.ChevronDown size={11} /> : <Icon.ChevronRight size={11} />}
         <Icon.Folder />
-        <span className="grow">Toolbox <span className="k-muted">(ISO)</span></span>
+        <span className="grow">Standard Parts <span className="k-muted">(ISO)</span></span>
       </div>
       {open && (
         <div className="k-library-items" style={{ padding: 6 }}>
@@ -124,12 +124,12 @@ function ToolboxFolder() {
  */
 export function TaskPane() {
   const st = useStore();
-  // the strip in the order of the original (2026): Resources, Marketplace, Design Library, Forum, File Explorer,
+  // the strip in its intended order: Resources, Marketplace, Part Library, Forum, File Explorer,
   // View Palette, Appearances/Scenes/Decals, Custom Properties, Platform, Document Recovery
   const tabs: { id: Exclude<typeof st.taskPane, null>; icon: React.ReactNode; tip: string; online?: boolean; hidden?: boolean }[] = [
     { id: 'resources', icon: <Icon.Resources />, tip: 'Phlippo CAD Resources' },
     { id: 'marketplace', icon: <Icon.TPMarketplace />, tip: 'Marketplace', online: true },
-    { id: 'library', icon: <Icon.Library />, tip: 'Design Library' },
+    { id: 'library', icon: <Icon.Library />, tip: 'Part Library' },
     { id: 'forum', icon: <Icon.TPForum />, tip: 'Forum', online: true },
     { id: 'explorer', icon: <Icon.TPExplorer />, tip: 'File Explorer' },
     { id: 'palette', icon: <Icon.TPPalette />, tip: 'View Palette' },
@@ -243,7 +243,7 @@ function DesignLibrary() {
               <span className="grow">{l.name} <span className="k-muted">({l.items.length})</span></span>
               <button className="k-btn ghost icon k-tip" data-tip="Export library" onClick={(e) => { e.stopPropagation(); exportLib(l.id); }}><Icon.Save size={13} /></button>
               <button className="k-btn ghost icon k-tip" data-tip="Rename" onClick={(e) => { e.stopPropagation(); st.setAsk({ title: 'Rename', text: 'Library name', input: l.name, yes: (n) => n && st.renameLibrary(l.id, n) }); }}><Icon.Text size={13} /></button>
-              <button className="k-btn ghost icon k-tip" data-tip="Delete library" onClick={(e) => { e.stopPropagation(); st.setAsk({ title: 'Design Library', text: `Delete library "${l.name}"?`, yes: () => st.deleteLibrary(l.id) }); }}><Icon.Trash size={13} /></button>
+              <button className="k-btn ghost icon k-tip" data-tip="Delete library" onClick={(e) => { e.stopPropagation(); st.setAsk({ title: 'Part Library', text: `Delete library "${l.name}"?`, yes: () => st.deleteLibrary(l.id) }); }}><Icon.Trash size={13} /></button>
             </div>
             {open === l.id && (
               <div className="k-library-items">

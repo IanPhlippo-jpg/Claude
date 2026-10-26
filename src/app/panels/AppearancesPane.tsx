@@ -5,7 +5,7 @@ import { getPref, loadPrefs, savePrefs } from '../prefs';
 import { activeConfiguration, configurations } from '../../core/document/configurations';
 
 /**
- * Appearances, Scenes, and Decals task pane, laid out as the original (fr. 247–250): a navigation bar, a folder tree
+ * Appearances, Scenes, and Decals task pane, laid out by design: a navigation bar, a folder tree
  * (Appearances / Scenes / Decals with their sub folders), the "Default Appearance" line with the yellow hint, and the
  * swatches of the chosen folder as shaded spheres. Click selects, double-click or the right-click menu applies to the
  * part, and a swatch can be dragged onto the model.
@@ -57,7 +57,7 @@ export const APPEARANCE_TREE: Folder[] = [
   { name: 'Decals', items: [m('Phlippo badge', '#1f4fa8', 'gloss')] },
 ];
 
-/** a shaded sphere as the original's swatch thumbnails: highlight, body colour, dark rim */
+/** a shaded sphere as the intended swatch thumbnails: highlight, body colour, dark rim */
 function sphere(s: Swatch) {
   const hi = s.kind === 'metal' || s.kind === 'gloss' ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.45)';
   const alpha = s.kind === 'glass' ? 0.65 : 1;
@@ -164,7 +164,7 @@ export function AppearancesPane() {
       <div className="k-ap-tree" data-testid="appearance-tree">{tree.map((f) => row(f, '', 0))}</div>
       <div className="k-ap-split">
         <div className="k-ap-default">Default Appearance: {st.doc.appearance ? 'custom' : 'color'}</div>
-        <div className="k-ap-hint">Drag and drop appearances onto the model or Feature Tree tree. Double-click to apply to the part.</div>
+        <div className="k-ap-hint">Drag and drop appearances onto the model or Feature Tree. Double-click to apply to the part.</div>
       </div>
       <div className="k-ap-grid" data-testid="appearance-grid">
         {items.map((s) => (

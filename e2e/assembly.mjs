@@ -1,6 +1,7 @@
 // Phase 4 check: a plate part is built, an assembly is created, the plate is inserted twice,
 // a coincident and a concentric mate stack the plates, the BOM lists the part, the file survives a reload.
 import { chromium } from 'playwright';
+import { exitCode, skip } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -81,7 +82,7 @@ await page.click('.k-menu-item:has-text("New")');
 await page.waitForTimeout(200);
 await page.click('.k-doctype:has-text("Assembly")');
 await page.click('.k-dialog-actions button:has-text("OK")');
-await page.locator('[data-testid="ask-no"]').click({ timeout: 1500 }).catch(() => {}); // Save changes? → Don't Save
+await page.locator('[data-testid="ask-no"]').click({ timeout: 1500 }).catch(skip('assembly:85')); // Save changes? → Don't Save
 await page.waitForTimeout(500);
 let a = await A();
 check('assembly document with the Assembly tab and Insert Component open', a.kind === 'assembly' && a.tab === 'assembly' && a.inserting, JSON.stringify({ kind: a.kind, tab: a.tab, inserting: a.inserting }));
@@ -210,7 +211,7 @@ await page.click('.k-cm-big:has-text("Move Component") .k-cm-main');
 // ---- reload: the assembly (components with embedded parts and mates) is restored from the autosave
 await page.reload();
 await page.waitForSelector('.k-viewport');
-await page.locator('[data-testid="welcome-recent-0"]').click({ timeout: 4000 }).catch(() => {}); // the autosave waits under Recent Documents, as the original
+await page.locator('[data-testid="welcome-recent-0"]').click({ timeout: 4000 }).catch(skip('assembly:214')); // the autosave waits under Recent Documents, as the original
 await page.waitForTimeout(1000);
 a = await A();
 check('assembly restored after reload', a.kind === 'assembly' && a.components.length === 2 && a.mates.length === 2 && a.bodies.length === 2, JSON.stringify({ k: a.kind, c: a.components.length, m: a.mates.length, b: a.bodies.length }));
@@ -220,4 +221,4 @@ console.log(`\n${passed}/${results.length} checks passed`);
 for (const r of results) if (!r.ok) console.log(' -', r.name, r.info);
 console.log('errors:', errors.length ? errors.join('\n') : 'none');
 await browser.close();
-process.exit(passed === results.length && !errors.length ? 0 : 1);
+process.exit(exitCode(results, errors));

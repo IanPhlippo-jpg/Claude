@@ -1,5 +1,6 @@
 // Sketch editing tools: Trim Entities, Sketch Fillet, Offset Entities, Linear/Circular Sketch Pattern, Move/Copy/Rotate, Convert Entities.
 import { chromium } from 'playwright';
+import { exitCode, skip } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -119,7 +120,7 @@ await page.waitForTimeout(300);
 check('Linear Sketch Pattern: 3 circles', (await count('circle')) === 3, String(await count('circle')));
 
 // Move Entities: move the first circle by (0, 10)
-await page.click('.k-cm-iconfly:has(.k-cm-small:has-text("Move Entities")) .k-cm-small-arrow').catch(() => undefined);
+await page.click('.k-cm-iconfly:has(.k-cm-small:has-text("Move Entities")) .k-cm-small-arrow').catch(skip('sketchtools:123'));
 await page.click('.k-menu-item:has-text("Move Entities")').catch(() => page.click('.k-cm-small:has-text("Move Entities")'));
 await page.waitForTimeout(100);
 a = await P(7, 40);
@@ -171,9 +172,7 @@ await shot('t3-convert');
 
 console.log(`
 ${results.filter((r) => r.ok).length}/${results.length} checks passed`);
-const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
-if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
-process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
+process.exitCode = exitCode(results, errors);
 for (const r of results.filter((r) => !r.ok)) console.log(' - ' + r.name + (r.info ? ' (' + r.info + ')' : ''));
 console.log('errors:', errors.length ? errors : 'none');
 await browser.close();

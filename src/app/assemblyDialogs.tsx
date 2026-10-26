@@ -6,11 +6,11 @@ import { Icon } from '../ui/icons';
 import { detectInterferences } from '../core/assembly/interference';
 import { massProperties } from '../core/features/measure';
 
-/** Bill of Materials: ITEM NO. / PART NUMBER / DESCRIPTION / QTY., as the original's default BOM table. */
+/** Bill of Materials: ITEM NO. / PART NUMBER / DESCRIPTION / QTY., as the intended default BOM table. */
 export function BomDialog() {
   const st = useStore();
   const rows = useMemo(() => {
-    // one row per part AND configuration, as the original (PLATES / 210, PLATES / 270 …)
+    // one row per part AND configuration, by design (PLATES / 210, PLATES / 270 …)
     const byPart = new Map<string, { name: string; description: string; qty: number; mass: number }>();
     const keyOf = (c: Component) => `${c.part.name}\u0000${c.configuration ?? ''}`;
     const subsSeen = new Set<string>();

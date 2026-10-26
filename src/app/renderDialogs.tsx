@@ -3,7 +3,7 @@ import { useStore } from './store';
 import { NumberField, Section } from '../ui/components';
 import { Icon } from '../ui/icons';
 
-/** Render Tools ▸ Edit Scene PropertyManager (Basic): background, environment, floor, as the original. */
+/** Render Tools ▸ Edit Scene PropertyManager (Basic): background, environment, floor, by design. */
 export function ScenePM() {
   const st = useStore();
   const [tab, setTab] = useState<'basic' | 'advanced' | 'illumination'>('basic');

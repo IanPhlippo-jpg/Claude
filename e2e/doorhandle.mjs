@@ -2,10 +2,15 @@
 // Builds the parts with the app's own model, opens the assembly, checks it and saves everything to voorbeelden/deurkruk/.
 // Run after every change: node e2e/doorhandle.mjs  -> e2e-out/deurkruk-*.png
 import { chromium } from 'playwright';
+import { exitCode, skip } from './lib/check.mjs';
 import { mkdirSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
-const DIR = 'voorbeelden/deurkruk';
+// the regression writes to a temporary folder; the committed examples are only rewritten on purpose (QA v0.3.4 F84):
+// UPDATE_EXAMPLES=1 node e2e/doorhandle.mjs
+const DIR = process.env.UPDATE_EXAMPLES === '1' ? 'voorbeelden/deurkruk' : join(tmpdir(), 'phlippo-deurkruk');
 mkdirSync(OUT, { recursive: true });
 mkdirSync(DIR, { recursive: true });
 const browser = await chromium.launch(process.platform === 'win32' ? { channel: process.env.PW_CHANNEL ?? 'msedge' } : { ...(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {}), args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
@@ -23,7 +28,7 @@ await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.
 await page.reload();
 await page.waitForSelector('.k-viewport');
 await page.waitForTimeout(500);
-await page.click('.k-doctype:has-text("Part")').catch(() => undefined);
+await page.click('.k-doctype:has-text("Part")').catch(skip('doorhandle:27'));
 
 const docs = await page.evaluate(() => {
   const K = window.__phlippoKit;
@@ -70,7 +75,7 @@ const docs = await page.evaluate(() => {
 
   // Rozet: domed rosette Ø52, 9 high, Ø18 bore (revolved profile)
   const rz = revolveSketch('s1', 'Sketch1', [[9, 0], [26, 0], [26, 2], [25, 4.5], [22.5, 7], [17, 8.6], [13, 9], [9, 9]]);
-  // two countersunk M4 screw holes (Hole Wizard, ISO 10642) above and below the handle, from the domed face (z = 8 at r = 19)
+  // two countersunk M4 screw holes (Hole Tool, ISO 10642) above and below the handle, from the domed face (z = 8 at r = 19)
   const rozet = part('Rozet', 'AISI 304', { s1: rz.sketch }, [sk('s1', 'Sketch1'), rev('f1', 'Revolve1', 's1', rz.axis),
     { id: 'f2', type: 'hole', name: 'CSK for M4 Flat Head Socket Screw1', suppressed: false, plane: 'csk', points: [{ x: 0, y: 19 }, { x: 0, y: -19 }], holeType: 'countersink', diameter: 4.5, depth: 0, cbDiameter: 8, cbDepth: 4.4, csDiameter: 8.4, csAngle: 90, sizeName: 'M4' }],
     { csk: { id: 'csk', name: 'Face<4>', origin: [0, 0, 8], u: [1, 0, 0], v: [0, 1, 0], n: [0, 0, 1], kind: 'face' } });
@@ -241,9 +246,9 @@ await shot('deurkruk-kruk');
 // the assembly
 const a = await page.evaluate((d) => { const s = window.__phlippoStore.getState(); s.openDocument(d); const st = window.__phlippoStore.getState(); return { bodies: st.rebuild.bodies.length, errors: st.rebuild.errors }; }, docs.asm);
 check('Deurkruk assembly: 8 components, no errors', a.bodies === 8 && Object.keys(a.errors).length === 0, JSON.stringify(a));
-// Smart Fasteners: the rosette holes get countersunk socket screws ISO 10642 M4
+// Auto Fasteners: the rosette holes get countersunk socket screws ISO 10642 M4
 const sf = await page.evaluate(() => { const s = window.__phlippoStore.getState(); s.startSmartFasteners(); const groups = window.__phlippoStore.getState().fastenerEdit?.slots.length ?? 0; window.__phlippoStore.getState().commitSmartFasteners(); const st = window.__phlippoStore.getState(); return { groups, screws: st.doc.components.filter((c) => /ISO 10642 M4/.test(c.name)).map((c) => c.name), bodies: st.rebuild.bodies.length, errors: st.rebuild.errors, doc: st.doc }; });
-check('Smart Fasteners: four ISO 10642 M4 countersunk screws in the rosettes', sf.groups === 4 && sf.screws.length === 4 && sf.bodies === 12 && Object.keys(sf.errors).length === 0, JSON.stringify({ g: sf.groups, s: sf.screws, b: sf.bodies, e: sf.errors }));
+check('Auto Fasteners: four ISO 10642 M4 countersunk screws in the rosettes', sf.groups === 4 && sf.screws.length === 4 && sf.bodies === 12 && Object.keys(sf.errors).length === 0, JSON.stringify({ g: sf.groups, s: sf.screws, b: sf.bodies, e: sf.errors }));
 {
   const screwsFront = sf.doc.components.filter((c) => /ISO 10642/.test(c.name) && c.position[2] > 20).map((c) => c.id);
   const screwsBack = sf.doc.components.filter((c) => /ISO 10642/.test(c.name) && c.position[2] <= 20).map((c) => c.id);
@@ -410,13 +415,11 @@ await page.keyboard.press('f');
 await page.waitForTimeout(300);
 await page.mouse.move(120, 1000);
 await shot('deurkruk-motion');
-await page.click('[data-testid="motion-tab"]').catch(() => undefined);
+await page.click('[data-testid="motion-tab"]').catch(skip('doorhandle:414'));
 
 console.log(`
 ${results.filter((r) => r.ok).length}/${results.length} checks passed`);
-const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
-if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
-process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
+process.exitCode = exitCode(results, errors);
 for (const r of results.filter((r) => !r.ok)) console.log(' - ' + r.name + (r.info ? ' (' + r.info + ')' : ''));
 console.log('errors:', errors.length ? errors : 'none');
 await browser.close();

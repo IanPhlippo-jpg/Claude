@@ -1,6 +1,7 @@
 // Assembly options (Block D): Mate options (preview, popup, new folder, positioning only, Analysis tab), Explode rotation /
 // auto-space / rotation rings, Instances to Skip, Insert Component options (virtual, envelope), sub-assembly and multibody components.
 import { chromium } from 'playwright';
+import { exitCode, skip } from './lib/check.mjs';
 import { mkdirSync, readFileSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -64,7 +65,7 @@ await page.waitForTimeout(150);
 await page.locator('.k-pm .k-section:has-text("Analysis") label:has-text("Friction") input').check();
 await shot('ao1-mate-analysis');
 // Add to new folder
-await page.locator('[data-testid="mate-newfolder"]').check().catch(() => undefined);
+await page.locator('[data-testid="mate-newfolder"]').check().catch(skip('asmoptions:68'));
 let mopt = await page.evaluate(() => window.__phlippoStore.getState().mateOpts);
 if (!mopt.newFolder) await page.evaluate(() => window.__phlippoStore.setState({ mateOpts: { ...window.__phlippoStore.getState().mateOpts, newFolder: true } }));
 await page.evaluate(() => window.__phlippoStore.getState().commitMate());
@@ -168,8 +169,6 @@ const mb = await page.evaluate(() => {
 check('every component has a body', mb.bodies === mb.comps, JSON.stringify(mb));
 
 console.log(results.filter((r) => r.ok).length + '/' + results.length + ' passed');
-const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
-if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
-process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
+process.exitCode = exitCode(results, errors);
 if (errors.length) console.log('ERRORS', errors.slice(0, 5));
 await browser.close();

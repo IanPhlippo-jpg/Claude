@@ -4,7 +4,7 @@ import { isRoundFeature, isSketchBased, type Document, type Feature } from '../d
 import { applyRoundFeature, featureGeometry, rebuildDocument } from './rebuild';
 
 /**
- * The feature that made a face, for the hover tag of the original ("Boss-Extrude1"): going from the newest
+ * The feature that made a face, for the hover tag of the intended design ("Boss-Extrude1"): going from the newest
  * feature back, the first whose own geometry (an extrusion's prism, a fillet's rounding tool …) has a surface
  * through the face's centre with the same direction. Each feature's geometry is built once and cached.
  */

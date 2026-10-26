@@ -30,7 +30,7 @@ function PlaneFields({ sp, onChange, units, focus }: { sp: SectionPlane; onChang
 }
 
 /**
- * Section View PropertyManager as the original (heads-up ▸ Section View): Drawing Section View,
+ * Section View PropertyManager by design (heads-up ▸ Section View): Drawing Section View,
  * Section Method, Section Options, Section 1 (plane, offset distance, flip, angles, cap colour), Section 2 / 3, Selected Bodies.
  */
 export function SectionViewPM() {

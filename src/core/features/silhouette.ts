@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
 /**
- * Silhouette edges of curved surfaces, as the original draws them in Shaded With Edges / Hidden Lines Removed:
+ * Silhouette edges of curved surfaces, by design draws them in Shaded With Edges / Hidden Lines Removed:
  * the smooth (non-crease) mesh edges between a triangle facing the viewer and one facing away.
  * The adjacency is built once per body; the silhouette follows the camera.
  */

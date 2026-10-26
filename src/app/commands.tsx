@@ -20,7 +20,7 @@ export interface Command {
 
 const zoomFit = () => fitActive();
 
-/** The command catalog, grouped as the original's Customize ▸ Commands categories. */
+/** The command catalog, grouped as the intended Customize ▸ Commands categories. */
 export const COMMANDS: Command[] = [
   // Standard
   { id: 'file.new', label: 'New', category: 'Standard', icon: <Icon.New />, description: 'Creates a new document.', run: (st) => st.setDialog('new') },
@@ -84,7 +84,7 @@ export const COMMANDS: Command[] = [
   { id: 'feat.loft', label: 'Lofted Boss/Base', category: 'Features', icon: <Icon.Loft />, description: 'Lofts between profiles.', run: (st) => st.startFeature('loft', 'boss') },
   { id: 'feat.extrudeCut', label: 'Extruded Cut', category: 'Features', icon: <Icon.Cut />, description: 'Cuts a solid model by extruding a sketched profile.', run: (st) => st.startFeature('extrude', 'cut') },
   { id: 'feat.revolveCut', label: 'Revolved Cut', category: 'Features', icon: <Icon.RevolveCut />, description: 'Cuts a solid model by revolving a sketched profile.', run: (st) => st.startFeature('revolve', 'cut') },
-  { id: 'feat.hole', label: 'Hole Wizard', category: 'Features', icon: <Icon.Hole />, description: 'Inserts a hole using a pre-defined cross-section.', run: (st) => st.startHole() },
+  { id: 'feat.hole', label: 'Hole Tool', category: 'Features', icon: <Icon.Hole />, description: 'Inserts a hole using a pre-defined cross-section.', run: (st) => st.startHole() },
   { id: 'feat.fillet', label: 'Fillet', category: 'Features', icon: <Icon.Fillet />, description: 'Creates a rounded face along edges.', run: (st) => st.startRound('fillet') },
   { id: 'feat.chamfer', label: 'Chamfer', category: 'Features', icon: <Icon.Chamfer />, description: 'Creates a bevel along edges or at a vertex.', run: (st) => st.startRound('chamfer') },
   { id: 'feat.linearPattern', label: 'Linear Pattern', category: 'Features', icon: <Icon.Pattern />, description: 'Patterns features in one or two directions.', run: (st) => st.startPattern('linearPattern') },

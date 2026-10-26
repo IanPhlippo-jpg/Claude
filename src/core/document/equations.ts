@@ -2,7 +2,7 @@ import type { Document, Feature } from './types';
 import type { Id, Sketch } from '../sketch/types';
 
 /**
- * Equations and global variables (Tools ▸ Equations), as the original:
+ * Equations and global variables (Tools ▸ Equations), by design:
  *   "Width" = 80                       global variable
  *   "D1@Sketch1" = "Width" / 2         dimension driven by an expression
  *   "D1@Boss-Extrude1" = "Width" * 0.1 feature dimension
@@ -159,7 +159,7 @@ const DEG = Math.PI / 180;
 
 /** Evaluate an expression with a lookup for names; throws on errors. */
 export function evaluateExpression(src: string, lookup: (name: string) => number | undefined, opts: { radians?: boolean } = {}): number {
-  // equations use degrees (as the original); an Equation Driven Curve uses radians
+  // equations use degrees (by design); an Equation Driven Curve uses radians
   const U = opts.radians ? 1 : DEG;
   const toks = tokenize(src);
   let p = 0;
@@ -344,7 +344,7 @@ export function equationFor(doc: Document, name: string): Equation | undefined {
   return (doc.equations ?? []).find((e) => e.target === name);
 }
 
-/** Equations as a text file, one per line: "Name" = expression  'comment (as the original's export) */
+/** Equations as a text file, one per line: "Name" = expression  'comment (as the intended export) */
 export function equationsToText(list: Equation[]): string {
   return list.map((e) => `"${e.target}" = ${e.expression}`).join('\r\n') + '\r\n';
 }

@@ -4,7 +4,7 @@ import { Icon } from '../ui/icons';
 import { type Category, COLOR_SCHEME_ITEMS, type Control, customColors, DEFAULT_PREFS, DOCUMENT_CATEGORIES, type PrefValue, savedSchemes, SYSTEM_CATEGORIES } from './prefs';
 
 /**
- * Options dialog laid out as the original: the title follows the page ("System Options - General"),
+ * Options dialog laid out by design: the title follows the page ("System Options - General"),
  * two tabs (System Options / Document Properties), the category list on the left with the page on
  * the right, "Search Options" at the top right, Reset… at the bottom left and OK / Cancel / Help.
  */
@@ -49,7 +49,7 @@ export function OptionsDialog() {
     const msgs: Record<string, string> = {
       fileAssociations: 'File associations are set by the installer (.kcad opens with Phlippo CAD).',
       sounds: 'Sounds are configured in Windows Settings ▸ Sound.',
-      resetColors: 'Colors follow the Blue scheme of the original; Dark background switches the dark theme.',
+      resetColors: 'Colors follow the Blue scheme of the intended design; Dark background switches the dark theme.',
       docColors: 'Switch to Document Properties ▸ Model Display for the model colors.',
       goSnaps: 'See System Options ▸ Sketch ▸ Relations/Snaps.',
       goSystemColors: 'See System Options ▸ Colors.',
@@ -172,7 +172,7 @@ export function OptionsDialog() {
         <div className="k-dialog-title k-options-title">
           <span>{title}</span>
           <span className="grow" />
-          <button className="k-btn ghost icon k-tip" data-tip="Help" onClick={() => st.pushMessage('Options as in the original: System Options apply to the program, Document Properties to this document.')}><Icon.Help size={13} /></button>
+          <button className="k-btn ghost icon k-tip" data-tip="Help" onClick={() => st.pushMessage('Options by design: System Options apply to the program, Document Properties to this document.')}><Icon.Help size={13} /></button>
           <button className="k-btn ghost icon" onClick={() => st.setDialog(null)}><Icon.Close size={12} /></button>
         </div>
         <div className="k-options-top">
@@ -210,7 +210,7 @@ export function OptionsDialog() {
           <span className="grow" />
           <button className="k-btn primary" onClick={ok}>OK</button>
           <button className="k-btn" onClick={() => st.setDialog(null)}>Cancel</button>
-          <button className="k-btn" onClick={() => st.pushMessage('Help: every page mirrors the original Tools ▸ Options page of the same name.')}>Help</button>
+          <button className="k-btn" onClick={() => st.pushMessage('Help: every page follows the intended design Tools ▸ Options page of the same name.')}>Help</button>
         </div>
       </div>
     </div>

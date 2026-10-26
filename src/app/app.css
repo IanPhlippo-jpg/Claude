@@ -85,8 +85,8 @@
 .k-rollback-bar { position: absolute; left: 6px; right: 6px; height: 0; border-top: 2px solid var(--accent); cursor: ns-resize; }
 .k-rollback-bar::after { content: ''; position: absolute; left: -6px; top: -6px; right: -6px; height: 10px; }
 .k-rollback-bar:hover { border-top-color: var(--warn); }
-/* PropertyManager header as in the original: title row, then a row with OK / Cancel */
-.k-pm-head { border-bottom: 1px solid var(--border); background: var(--bg-panel); position: sticky; top: 0; z-index: 4; } /* the title with OK / Cancel stays in view when the PropertyManager scrolls, as the original */
+/* PropertyManager header by design: title row, then a row with OK / Cancel */
+.k-pm-head { border-bottom: 1px solid var(--border); background: var(--bg-panel); position: sticky; top: 0; z-index: 4; } /* the title with OK / Cancel stays in view when the PropertyManager scrolls, by design */
 .k-pm-title { display: flex; align-items: center; gap: 6px; padding: 6px 8px 2px; }
 .k-pm-title .grow { flex: 1; }
 .k-pm-title > svg { width: 22px; height: 22px; }
@@ -108,7 +108,7 @@
 .k-check { display: flex; align-items: center; gap: 6px; margin: 4px 0; color: var(--text); }
 .k-pm-dimtext { height: 44px; resize: none; padding: 4px 6px; font-family: var(--font-ui); }
 .k-pm-typegrid { display: grid; grid-template-columns: repeat(2, 48px); gap: 6px; margin-bottom: 6px; }
-/* Display Style of a drawing view: five small buttons on one row, as the original */
+/* Display Style of a drawing view: five small buttons on one row, by design */
 .k-pm-stylegrid { grid-template-columns: repeat(5, 28px); gap: 3px; }
 .k-pm-stylegrid .k-pm-typebtn { width: 28px; height: 26px; padding: 0; display: grid; place-items: center; }
 .k-pm-typebtn { width: 48px; height: 40px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--border); background: var(--bg-panel-alt); color: var(--icon); border-radius: 2px; }
@@ -123,7 +123,7 @@
 .k-section-title .k-section-name { flex: 1; }
 .k-section-title .k-section-caret { display: flex; color: #6a6a6a; }
 .k-section-title .k-section-check { margin: 0; }
-/* sections are separated by a thin inset rule, as the original PropertyManager */
+/* sections are separated by a thin inset rule, by design PropertyManager */
 .k-pm .k-section, .k-panel .k-section { border-bottom: 0; border-top: 1px solid #d4d4d4; margin: 0 6px; }
 .k-pm .k-section-body, .k-panel .k-section-body { padding: 2px 2px 8px; }
 :root[data-theme='dark'] .k-section-title { color: #d0d0d0; }
@@ -164,7 +164,8 @@
 .k-viewgrid-sep { grid-column: 1 / -1; height: 1px; background: var(--border); margin: 2px 0; }
 
 /* confirmation corner */
-.k-confirm { position: absolute; top: 4px; right: 4px; display: flex; gap: 0; padding: 0; background: transparent; border: none; z-index: 6; opacity: 0.8; }
+/* the corner stays faint until the pointer is over it, as in the reference frames */
+.k-confirm { position: absolute; top: 4px; right: 4px; display: flex; gap: 0; padding: 0; background: transparent; border: none; z-index: 6; opacity: 0.5; transition: opacity 0.12s; }
 .k-confirm:hover { opacity: 1; }
 .k-confirm.at-cursor { background: var(--bg-panel); border: 1px solid var(--border); box-shadow: var(--shadow-2); opacity: 1; }
 .k-confirm button { width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center; border-radius: var(--radius-s); }
@@ -489,13 +490,13 @@
 .k-appearance-dialog { width: 280px; }
 
 .k-palette-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-/* Task Pane strip as the original: square buttons with a thin separator, 22 px icons */
+/* Task Pane strip by design: square buttons with a thin separator, 22 px icons */
 .k-taskpane-strip { gap: 0; width: 30px; padding: 2px 1px; background: #ececec; }
 .k-taskpane-btn { width: 28px; height: 28px; border-radius: 0; border-bottom: 1px solid #c8c8c8; }
 .k-taskpane-btn svg { width: 22px; height: 22px; }
 :root[data-theme='dark'] .k-taskpane-strip { background: var(--bg-panel); }
 
-/* PropertyManager rows as the original: an icon column on the left; fields and checkboxes without an icon line up after it */
+/* PropertyManager rows by design: an icon column on the left; fields and checkboxes without an icon line up after it */
 .k-pm-host .k-section-body:has(> .k-pm-valuerow) > select.k-input,
 .k-pm-host .k-section-body:has(> .k-pm-valuerow) > input.k-input,
 .k-pm-host .k-section-body:has(> .k-pm-valuerow) > .k-check,
@@ -516,7 +517,7 @@
 .k-pm-host input.k-input:disabled, .k-pm-host select.k-input:disabled { background: #f0f0f0; color: #9a9a9a; }
 :root[data-theme='dark'] .k-selbox-dir { background: #2b2b2b; border-color: #555; border-left-color: #3d86d6; }
 
-/* pressed / toggled CommandManager buttons are grey with a darker frame in the original (not blue) */
+/* pressed / toggled CommandManager buttons are grey with a darker frame in the intended design (not blue) */
 .k-cm-big.active { background: #b4b4b4; border-color: #8c8c8c; }
 .k-cm-big.active .k-cm-label { color: #1a1a1a; }
 .k-cm-small.active { background: #b4b4b4; border-color: #8c8c8c; color: #1a1a1a; }
@@ -532,7 +533,7 @@
 .k-pm-host select.k-input:not(:disabled), .k-pm-host input.k-input:not(:disabled) { color: #1a1a1a; }
 :root[data-theme='dark'] .k-pm-host select.k-input:not(:disabled), :root[data-theme='dark'] .k-pm-host input.k-input:not(:disabled) { color: #eee; }
 
-/* Mate PM (SW 2026): two rows of tabs, boxed type icons */
+/* Mate PM: two rows of tabs, boxed type icons */
 .k-mate-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 0; margin: 6px 6px 2px; border: 1px solid #c8c8c8; }
 .k-mate-tabs button { display: flex; align-items: center; gap: 5px; padding: 4px 8px; border: 0; border-right: 1px solid #c8c8c8; border-bottom: 1px solid #c8c8c8; background: #ececec; color: #333; font-size: 12px; cursor: default; }
 .k-mate-tabs button:nth-child(2n) { border-right: 0; }
@@ -563,7 +564,7 @@
 :root[data-theme='dark'] .k-mate-popup button { color: #ddd; }
 .k-mate-types .k-mate-type.active { background: transparent; color: #1a1a1a; font-weight: 600; }
 
-/* Hole Wizard: the nine hole types in a 3 x 3 grid, as the original */
+/* Hole Wizard: the nine hole types in a 3 x 3 grid, by design */
 .k-holetypes { display: grid; grid-template-columns: repeat(3, 36px); gap: 4px; margin: 2px 0 6px 2px; }
 .k-holetypes .k-pm-typebtn { width: 36px; height: 34px; padding: 0; display: flex; align-items: center; justify-content: center; }
 .k-holetypes .k-pm-typebtn:disabled { opacity: 0.45; }
@@ -579,7 +580,7 @@
 .k-editcontext { position: absolute; top: 34px; left: 50%; transform: translateX(-50%); z-index: 20; display: flex; align-items: center; gap: 10px; padding: 4px 6px 4px 12px; background: #fff7d6; border: 1px solid #d8c67a; font-size: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.15); }
 :root[data-theme='dark'] .k-editcontext { background: #4a4224; border-color: #7a6b3a; color: #eee; }
 
-/* MotionManager (Motion Study 1) docked under the graphics area, as the original */
+/* MotionManager (Motion Study 1) docked under the graphics area, by design */
 .k-motion { position: absolute; left: 0; right: 0; bottom: 20px; height: 210px; display: flex; flex-direction: column; background: var(--bg-panel); border-top: 1px solid var(--border); z-index: 5; font-size: 11px; }
 .k-motion-bar { display: flex; align-items: center; gap: 2px; height: 28px; padding: 0 6px; border-bottom: 1px solid var(--border); background: var(--bg-header); }
 .k-motion-type { width: 110px; height: 22px; font-size: 11px; }
@@ -600,7 +601,7 @@
 .k-motion-key { position: absolute; top: 4px; width: 9px; height: 9px; margin-left: -5px; background: #3a7fd5; border: 1px solid #1d5196; transform: rotate(45deg); }
 .k-motion-timebar { position: absolute; top: 0; bottom: 0; width: 0; border-left: 2px solid #8a8a8a; pointer-events: none; }
 
-/* a running command greys the CommandManager, as the original (the active button stays lit) */
+/* a running command greys the CommandManager, by design (the active button stays lit) */
 .k-cm-body.busy .k-cm-group .k-cm-big:not(.active), .k-cm-body.busy .k-cm-group .k-cm-smallwrap:has(.k-cm-small:not(.active)) { opacity: 0.42; filter: grayscale(1); pointer-events: none; }
 
 /* the logo turning slowly behind an empty graphics area */
@@ -609,7 +610,7 @@
 @keyframes k-logo-turn { from { transform: rotateY(0deg); } to { transform: rotateY(360deg); } }
 @media (prefers-reduced-motion: reduce) { .k-bg-logo svg { animation-duration: 60s; } }
 
-/* Modify box as the original: narrow, plain title, bare icon row, name and value on their own rows, thumbwheel, Units */
+/* Modify box by design: narrow, plain title, bare icon row, name and value on their own rows, thumbwheel, Units */
 .k-modify { width: 214px; border-radius: 2px; border: 1px solid #a9a9a9; box-shadow: 2px 2px 6px rgba(0,0,0,0.25); font-size: 12px; padding-bottom: 3px; }
 .k-modify-title { padding: 4px 8px 3px; font-weight: 400; background: var(--bg-panel); border-bottom: none; border-radius: 2px 2px 0 0; color: var(--text); }
 .k-modify-actions { display: flex; gap: 1px; padding: 0 6px 3px; }
@@ -625,7 +626,7 @@
 .k-modify-unitsel { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
 .k-modify-units::after { content: '>'; color: var(--text); }
 
-/* CommandManager measured on the 2026 reference (1920 px): body 80 px, big icons 24 px, labels Segoe UI 12 px, small rows 26 px,
+/* Command Ribbon at 1920 px: body 80 px, big icons 24 px, labels Segoe UI 12 px, small rows 26 px,
    tab strip 20 px; the title bar holds the command search (no extra toolbar row) */
 .k-cm-body { height: 82px; min-height: 82px; padding: 1px 2px 0; }
 .k-cm-big { height: 80px; }
@@ -640,7 +641,7 @@
 .k-mb-search-title { height: 22px; margin-right: 8px; }
 .k-mb-search-title input { width: 170px; font-size: 12px; }
 
-/* Confirm Delete (as the original: list boxes left, a column of buttons right) */
+/* Confirm Delete (by design: list boxes left, a column of buttons right) */
 .k-cdel { width: 470px; }
 .k-cdel-body { display: flex; gap: 12px; padding: 12px 14px; }
 .k-cdel-main { flex: 1; min-width: 0; }
@@ -658,7 +659,7 @@
 .k-crash-msg { white-space: pre-wrap; font-size: 11px; max-height: 120px; overflow: auto; background: var(--surface); padding: 6px; border: 1px solid var(--border); }
 .k-ask { width: 380px; }
 
-/* FeatureManager as the original: a grip strip, bordered tabs with 20 px icons, a full-height filter box,
+/* FeatureManager by design: a grip strip, bordered tabs with 20 px icons, a full-height filter box,
    13 px tree text with solid expand triangles */
 .k-dock-left .k-panel-header { height: 46px; padding: 15px 4px 0; position: relative; align-items: flex-end; }
 .k-dock-left .k-panel-header::before { content: ''; position: absolute; left: 50%; top: 3px; width: 5px; height: 5px; border: 1px solid var(--text-faint); border-radius: 50%; transform: translateX(-50%); }
@@ -673,7 +674,7 @@
 .k-tree-row .caret { width: 12px; margin-left: 4px; }
 .k-tree-row > svg { width: 18px; height: 18px; flex: none; }
 
-/* Model / Motion Study tabs under the whole window width (below the FeatureManager too), as the original */
+/* Model / Motion Study tabs under the whole window width (below the FeatureManager too), by design */
 .k-doctabs { position: relative; left: auto; right: auto; bottom: auto; height: 21px; flex: none; background: var(--bg-header); border-top: 1px solid var(--border); font-size: 12px; padding-left: 2px; }
 .k-doctab { padding: 0 9px; }
 .k-motion { bottom: 0; }
@@ -683,7 +684,7 @@
 .k-docwin button { width: 20px; height: 18px; display: inline-flex; align-items: center; justify-content: center; color: #9aa0a6; background: none; border: none; }
 .k-docwin button:hover { color: var(--text); background: var(--bg-hover); }
 .k-confirm { top: 26px; right: 6px; }
-/* Rectangle Type: two big buttons on the first row, three on the second, as the original */
+/* Rectangle Type: two big buttons on the first row, three on the second, by design */
 .k-pm-recttypes { display: grid; grid-template-columns: repeat(3, 46px); gap: 10px 14px; padding: 4px 2px 6px; }
 .k-pm-recttypes .k-pm-typebtn { width: 46px; height: 46px; }
 .k-pm-recttypes .k-pm-typebtn:nth-child(3) { grid-column: 1; }
@@ -734,7 +735,7 @@
 .k-viewpane-name { position: absolute; left: 8px; bottom: 6px; font-size: 12px; color: var(--text); }
 .k-isolate-bar { position: absolute; top: 40px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; align-items: center; background: var(--bg-panel); border: 1px solid var(--border); padding: 3px 8px; z-index: 6; font-size: 12px; box-shadow: var(--shadow-2); }
 
-/* CommandManager too narrow: the hidden commands behind » at the right edge, as the original */
+/* CommandManager too narrow: the hidden commands behind » at the right edge, by design */
 .k-cm-body { position: relative; }
 .k-cm-overflow { display: none !important; }
 .k-cm-more { position: absolute; right: 2px; top: 2px; z-index: 30; }
@@ -747,7 +748,7 @@
 .k-cm-more-icon { display: inline-flex; width: 20px; height: 20px; align-items: center; justify-content: center; }
 .k-cm-more-icon svg { width: 20px; height: 20px; }
 
-/* Fillet / Chamfer callout: label and an editable value in one box at the end of a leader, as the original */
+/* Fillet / Chamfer callout: label and an editable value in one box at the end of a leader, by design */
 .k-callout-edit { display: flex; align-items: stretch; padding: 0; gap: 0; pointer-events: all; }
 .k-callout-edit .k-callout-label { padding: 2px 6px; border-right: 1px solid #8a8a8a; background: #fff; }
 .k-callout-input { width: 64px; border: none; outline: none; padding: 2px 5px; font: inherit; background: #fff; color: #000; }
@@ -772,7 +773,7 @@
 .k-pm-selbox li.sel { background: #0b7ecf; color: #fff; }
 .k-pm-selbox li, .k-pm-selbox li.sel { border-radius: 0; }
 
-/* the name of the feature of the hovered face, as the original shows it next to the pointer */
+/* the name of the feature of the hovered face, by design shows it next to the pointer */
 .k-face-tag { position: absolute; z-index: 6; pointer-events: none; padding: 1px 6px; font-size: 11px; color: #4a4a4a; background: rgba(246, 246, 246, 0.92); border: 1px solid #d4d4d4; border-radius: 2px; white-space: nowrap; }
 
 /* the selection toolbar of Fillet / Chamfer: a see-through bar near the picked edge, solid while pointed at */
@@ -796,7 +797,7 @@
 :root[data-theme="dark"] .k-crumbs-bar, :root[data-theme="dark"] .k-crumb.boxed { background: var(--bg-panel); border-color: var(--border); }
 :root[data-theme="dark"] .k-crumb.active { background: var(--tree-sel-bg); outline-color: var(--tree-sel-border); }
 
-/* Insert Component ▸ Rotate context toolbar (fr. 320): grey grip strip, angle box with spin buttons, X / Y / Z */
+/* Insert Component ▸ Rotate context toolbar: grey grip strip, angle box with spin buttons, X / Y / Z */
 .k-rotbar { position: absolute; left: 113px; bottom: 36px; z-index: 7; border: 1px solid #666; background: #f0f0f0; font-size: 12px; }
 .k-rotbar-grip { height: 5px; background: #8b8c96; }
 .k-rotbar-body { display: flex; align-items: center; gap: 1px; padding: 3px 3px 4px 6px; }
@@ -807,14 +808,14 @@
 .k-rotbar-btn:hover, .k-rotbar-spin button:hover { background: #e5f1fb; border-color: #7eb4ea; }
 :root[data-theme="dark"] .k-rotbar { background: var(--bg-panel); border-color: var(--border); }
 :root[data-theme="dark"] .k-rotbar-input { background: var(--bg-input, #1f1f1f); color: var(--text); }
-/* a component's mates above its breadcrumbs (fr. 372): small framed icon buttons */
+/* a component's mates above its breadcrumbs: small framed icon buttons */
 .k-crumbs-mates { display: flex; align-items: center; gap: 2px; margin: 0 0 6px 50px; }
 .k-crumbs-mates > svg { margin-right: 3px; }
 .k-crumb-mate { width: 24px; height: 24px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border: 1px solid #c9d6de; background: #edf3f7; color: #5f8a92; }
 .k-crumb-mate:hover { background: #dcebf6; border-color: #7eb4ea; }
 .k-crumbs-mates + .k-crumbs-bar .k-crumb.active { padding: 0 12px 0 10px; }
 
-/* Appearances, Scenes, and Decals (fr. 247–250): nav bar, folder tree, hint, sphere swatches */
+/* Appearances, Scenes, and Decals: nav bar, folder tree, hint, sphere swatches */
 .k-ap { display: flex; flex-direction: column; min-height: 100%; font-size: 12px; }
 .k-ap-nav { display: flex; gap: 2px; padding: 4px 6px; border-bottom: 1px solid var(--border); }
 .k-ap-nav button { width: 22px; height: 22px; padding: 0; border: 1px solid transparent; background: transparent; display: inline-flex; align-items: center; justify-content: center; color: var(--icon); }
@@ -843,7 +844,7 @@
 :root[data-theme="dark"] .k-ap-hint { background: #3a3a2a; color: var(--text); border-color: #5a5a40; }
 :root[data-theme="dark"] .k-ap-row.active .k-ap-hl { background: var(--tree-sel-bg); border-color: var(--tree-sel-border); }
 
-/* selection box with a colour tag as the original's (fr. 299): blue tag for the first, purple for the second */
+/* selection box with a colour tag as the intended: blue tag for the first, purple for the second */
 .k-pm-colorbox { flex: 1; display: flex; align-items: center; gap: 6px; height: 22px; box-sizing: border-box; border: 1px solid #8a8a8a; background: var(--bg-input, #fff); font-size: 12px; overflow: hidden; white-space: nowrap; }
 .k-pm-colorbox > i { flex: none; width: 10px; align-self: stretch; background: var(--tag); }
 .k-pm-colorbox.active { background: #cfe5f5; border-color: #5aa8dc; }
@@ -866,10 +867,10 @@
 .k-gesture-item.right { left: 96px; top: 0; }
 .k-gesture-item.active { background: #ffd54a; border-color: #c99a15; font-weight: 600; }
 
-/* CommandManager icon sizes as the original: 24 px on big buttons, 20 px in the sketch entity grid */
+/* CommandManager icon sizes by design: 24 px on big buttons, 20 px in the sketch entity grid */
 .k-cm-iconbtn > svg { width: 20px; height: 20px; }
 
-/* the Search Commands button of the title row: a dark tile with the white magnifier, as the original */
+/* the Search Commands button of the title row: a dark tile with the white magnifier, by design */
 .k-mb-btn.k-mb-btn-dark { background: #4b5058; color: #fff; border-radius: 3px; width: 24px; height: 20px; }
 .k-mb-btn.k-mb-btn-dark:hover { background: #333841; }
 
@@ -881,7 +882,7 @@
 .k-table tbody tr:hover td { background: var(--hover-bg, #eef3fa); }
 .k-panel-footer { border-top: 1px solid var(--border); }
 
-/* Customize dialog (Tools ▸ Customize): seven tabs over a page, as the original */
+/* Customize dialog (Tools ▸ Customize): seven tabs over a page, by design */
 .k-customize-tabs button { padding: 5px 10px; }
 .k-customize-body { flex-direction: column; overflow: auto; padding: 12px 16px; font-size: 12px; gap: 8px; }
 .k-customize-cols { display: flex; gap: 14px; align-items: flex-start; }
@@ -918,3 +919,9 @@
 
 /* the independence notice on the Welcome dialog (F72) */
 .k-legal { max-width: 260px; margin-top: 14px; font-size: 10.5px; line-height: 1.35; white-space: normal; }
+
+/* What's Wrong (F78): over the graphics area, below the heads-up toolbar */
+.k-whatswrong { position: fixed; top: 150px; left: 50%; transform: translateX(-50%); width: 520px; max-width: calc(100vw - 40px); z-index: 1500; box-shadow: 0 4px 18px rgba(0,0,0,0.25); }
+.k-whatswrong .k-table td { vertical-align: top; }
+.k-ww-mark { margin-left: 0 !important; }
+.k-status-err { color: var(--danger); cursor: pointer; font-weight: 600; }

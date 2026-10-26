@@ -20,7 +20,7 @@ export const MATE_ICON: Partial<Record<Mate['type'], React.ReactNode>> = {
 };
 
 /**
- * FeatureManager design tree of an assembly as the original:
+ * FeatureManager design tree of an assembly by design:
  * Assem1 (Default) <Display State-1> ▸ History, Sensors, Annotations, Front/Top/Right Plane, Origin,
  * (f) Part1<1>, (-) Part2<1> (each with the part's features as children), Mates ▸ Coincident1 (Part1<1>,Part2<1>).
  */
@@ -88,7 +88,7 @@ export function AssemblyTreeBody() {
         setMenu({ x: e.clientX, y: e.clientY, mateId: m.id });
       },
     }));
-  // inserted sub-assemblies: their components (and their own mates) under one node, as the original
+  // inserted sub-assemblies: their components (and their own mates) under one node, by design
   const subs = [...new Map(components.filter((c) => c.subassembly).map((c) => [c.subassembly!.id, c.subassembly!] as const)).values()];
   const subNodes: TreeNode[] = subs.map((sb) => ({
     id: sb.id,
@@ -132,7 +132,7 @@ export function AssemblyTreeBody() {
         ...componentNodes.filter((n) => !components.find((c) => c.id === n.id)?.subassembly),
         ...subNodes,
         { id: 'mates', icon: <Icon.Mate />, label: <span>Mates</span>, children: groupedMates, onDoubleClick: () => st.startMate() },
-        // assembly sketches and assembly features (after the mates, as the original)
+        // assembly sketches and assembly features (after the mates, by design)
         ...st.doc.features
           .filter((f) => f.type !== 'sketch' || !st.doc.features.some((x) => x.type !== 'sketch' && 'sketchId' in x && (x as { sketchId?: string }).sketchId === f.sketchId))
           .map((f): TreeNode => {

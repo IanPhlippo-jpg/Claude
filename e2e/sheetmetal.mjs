@@ -1,5 +1,6 @@
 // Sheet metal (videos 16/21/24): Base Flange/Tab from an open L sketch, Edge Flange on a straight edge, Flatten.
 import { chromium } from 'playwright';
+import { exitCode, skip } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -119,16 +120,14 @@ check('thickness 2 gives a thinner sheet', (await volume()) < v2 * 0.8, String(a
 // reload keeps everything
 await page.reload();
 await page.waitForSelector('.k-viewport');
-await page.locator('[data-testid="welcome-recent-0"]').click({ timeout: 4000 }).catch(() => {}); // the autosave waits under Recent Documents, as the original
+await page.locator('[data-testid="welcome-recent-0"]').click({ timeout: 4000 }).catch(skip('sheetmetal:123')); // the autosave waits under Recent Documents, as the original
 await page.waitForTimeout(800);
 s = await S();
 check('reload keeps Sheet-Metal1, the flanges and the flat pattern feature', s.sm && s.sm.thickness === 2 && s.features.includes('Edge-Flange1') && s.features.includes('Flat-Pattern1(s)'), JSON.stringify(s));
 
 console.log(`
 ${results.filter((r) => r.ok).length}/${results.length} checks passed`);
-const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
-if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
-process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
+process.exitCode = exitCode(results, errors);
 for (const r of results.filter((r) => !r.ok)) console.log(' - ' + r.name + (r.info ? ' (' + r.info + ')' : ''));
 console.log('errors:', errors.length ? errors : 'none');
 await browser.close();

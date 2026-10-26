@@ -62,7 +62,7 @@ export function ManagerPane({ editDimensionId, onEditDone }: { editDimensionId: 
           <button className={`k-manager-tab k-tip ${st.managerTab === 'dimxpert' ? 'active' : ''}`} data-tip="Tolerance Tree" data-testid="tab-dimxpert" onClick={() => st.setManagerTab('dimxpert')}><Icon.MgrDimXpert /></button>
           <button className={`k-manager-tab k-tip ${st.managerTab === 'display' ? 'active' : ''}`} data-tip="Display Panel" data-testid="tab-display" onClick={() => st.setManagerTab('display')}><Icon.MgrDisplay /></button>
           <span className="grow" />
-          <button className="k-btn ghost icon k-tip" data-tip="Hide Feature Tree tree area" onClick={() => st.setManagerCollapsed(true)}>
+          <button className="k-btn ghost icon k-tip" data-tip="Hide Feature Tree area" onClick={() => st.setManagerCollapsed(true)}>
             <Icon.ChevronRight size={12} />
           </button>
         </div>

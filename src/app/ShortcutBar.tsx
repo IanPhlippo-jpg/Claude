@@ -8,7 +8,7 @@ import { getPref } from './prefs';
 /** the commands of the three shortcut bars, as Customize ▸ Shortcut Bars lists them */
 export const SHORTCUT_BAR_COMMANDS: Record<'sketch' | 'part' | 'assembly', string[]> = {
   sketch: ['Select', 'Smart Dimension', 'Exit Sketch', 'Extruded Boss/Base', 'Line', 'Line', 'Centerline', 'Corner Rectangle', 'Corner Rectangle', 'Center Rectangle', 'Circle', 'Centerpoint Arc', 'Centerpoint Arc', '3 Point Arc', 'Polygon', 'Straight Slot', 'Trim Entities', 'Offset Entities', 'Sketch Fillet', 'Spline', 'Point', 'Linear Sketch Pattern', 'Mirror Entities', 'Construction Geometry', 'Display/Delete Relations', 'Circular Sketch Pattern'],
-  part: ['Select', 'Sketch', 'Extruded Boss/Base', 'Revolved Boss/Base', 'Extruded Cut', 'Hole Wizard', 'Revolved Cut', 'Fillet', 'Chamfer', 'Linear Pattern', 'Mirror', 'Shell', 'Rib', 'Measure', 'Mass Properties', 'Zoom to Fit', 'Options'],
+  part: ['Select', 'Sketch', 'Extruded Boss/Base', 'Revolved Boss/Base', 'Extruded Cut', 'Hole Tool', 'Revolved Cut', 'Fillet', 'Chamfer', 'Linear Pattern', 'Mirror', 'Shell', 'Rib', 'Measure', 'Mass Properties', 'Zoom to Fit', 'Options'],
   assembly: ['Select', 'Insert Components', 'Mate', 'Move Component', 'Rotate Component', 'Interference Detection', 'Bill of Materials', 'Measure'],
 };
 
@@ -22,7 +22,7 @@ interface Cmd {
 }
 
 /**
- * The S-key shortcut bar as the original: a compact floating palette of icons (with carets for
+ * The S-key shortcut bar by design: a compact floating palette of icons (with carets for
  * fly-outs) that depends on the context — sketch tools while sketching, feature tools in a part,
  * assembly tools in an assembly — and a tooltip with the command's description.
  */
@@ -61,7 +61,7 @@ export function ShortcutBar({ onClose }: { onClose: () => void }) {
     { label: 'Extruded Boss/Base', icon: <Icon.Extrude />, description: 'Extrudes a sketch or selected sketch contours in one or two directions to create a solid feature.', onSelect: t(() => st.startFeature('extrude', 'boss')) },
     { label: 'Revolved Boss/Base', icon: <Icon.Revolve />, description: 'Revolves a sketch or selected sketch contours around an axis to create a solid feature.', onSelect: t(() => st.startFeature('revolve', 'boss')) },
     { label: 'Extruded Cut', icon: <Icon.Cut />, description: 'Cuts a solid model by extruding a sketched profile in one or two directions.', onSelect: t(() => st.startFeature('extrude', 'cut')) },
-    { label: 'Hole Wizard', icon: <Icon.Hole />, description: 'Inserts a hole using a pre-defined cross-section.', onSelect: t(() => st.startHole()) },
+    { label: 'Hole Tool', icon: <Icon.Hole />, description: 'Inserts a hole using a pre-defined cross-section.', onSelect: t(() => st.startHole()) },
     { label: 'Revolved Cut', icon: <Icon.Revolve />, description: 'Cuts a solid model by revolving a sketched profile around an axis.', onSelect: t(() => st.startFeature('revolve', 'cut')) },
     { label: 'Fillet', icon: <Icon.Arc />, description: 'Creates a rounded internal or external face along one or more edges in solid or surface features.', onSelect: t(() => st.startRound('fillet')) },
     { label: 'Chamfer', icon: <Icon.Chamfer />, description: 'Creates a bevel feature along an edge, a chain of tangent edges or a vertex.', onSelect: t(() => st.startRound('chamfer')) },

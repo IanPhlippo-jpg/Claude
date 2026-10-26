@@ -430,7 +430,7 @@ interface State {
   mateEdit: MateEdit | null;
   /** assembly: Insert Component PropertyManager open */
   insertingComponent: boolean;
-  /** Insert Component: the chosen part follows the pointer until a click places it (the original's graphics preview) */
+  /** Insert Component: the chosen part follows the pointer until a click places it (the intended graphics preview) */
   insertGhost: InsertGhost | null;
   /** Insert Component: the angle of the Rotate context toolbar */
   insertAngle: number;
@@ -500,6 +500,8 @@ interface State {
   sketch3dEdit: Sketch3DEdit | null;
   /** Assembly ▸ Edit Component: the assembly waiting while one of its parts is edited */
   editContext: { assembly: Document; componentName: string; partName: string; history?: ReturnType<History<Document>['save']> } | null;
+  /** What's Wrong: the list of rebuild errors (opens after opening a document that has them) */
+  whatsWrong: boolean;
   /** Evaluate ▸ Sensor PropertyManager (Mass Properties: Mass / Volume / Surface Area) */
   sensorEdit: { kind: 'mass' | 'volume' | 'area' | 'dimension' | 'interference'; dim?: string; alert?: { op: '>' | '<'; value: number } } | null;
   setSensorEdit(e: State['sensorEdit']): void;
@@ -565,7 +567,7 @@ interface State {
   /** tool to activate once the plane is picked */
   pendingTool: ToolId | null;
   hoverPlane: Sketch['plane'] | null;
-  /** plane selected in the FeatureManager (click); "Sketch" then opens directly on it, like the original */
+  /** plane selected in the FeatureManager (click); "Sketch" then opens directly on it, by design */
   selectedPlane: Sketch['plane'] | null;
   displayStyle: DisplayStyle;
   show: { planes: boolean; origin: boolean; sketches: boolean; relations: boolean; grid: boolean; viewSelector: boolean; realView: boolean; shadows: boolean; perspective: boolean; ambientOcclusion: boolean; zebra: boolean };
@@ -807,7 +809,7 @@ interface State {
   toggleContour(index: number): void;
   editFeature(id: Id): void;
   toggleSuppress(id: Id): void;
-  /** Instant3D: drag handles on faces (on by default, as the original) */
+  /** Instant3D: drag handles on faces (on by default, by design) */
   instant3d: boolean;
   /** Sketch ▸ Instant2D: drag handles on sketch dimensions */
   instant2d: boolean;
@@ -972,7 +974,7 @@ interface State {
   openDocument(doc: Document, opts?: { keepHistory?: boolean }): void;
   /** Rebuild (Ctrl+B): re-solve and rebuild the open document; undo history and the unsaved flag stay as they are */
   rebuildAll(): void;
-  /** a document is shown; false at start-up until New / Open / a recent document, as the original */
+  /** a document is shown; false at start-up until New / Open / a recent document, by design */
   hasDocument: boolean;
   /** show the document already loaded behind the Welcome dialog (its autosave) */
   showDocument(): void;
@@ -983,7 +985,7 @@ interface State {
   /** Save As ▸ STL / 3MF / AMF: the options page exports in this format */
   exportFormat: 'stl' | '3mf' | 'amf';
   setLastCommand(c: { label: string; run: () => void } | null): void;
-  /** counts opened documents: the graphics area zooms to fit each newly opened one, as the original */
+  /** counts opened documents: the graphics area zooms to fit each newly opened one, by design */
   openSeq: number;
   /** replace the document as one undoable step (commands outside the store) */
   applyDocument(label: string, d: Document): void;
@@ -1342,7 +1344,7 @@ export const useStore = create<State>((set, get) => ({
     if (!isAssembly(doc)) return;
     const holes = assemblyHoles(doc, rebuild.bodies);
     if (!holes.length) {
-      get().pushMessage('Smart Fasteners needs Hole Wizard holes in the components.', 'warn');
+      get().pushMessage('Auto Fasteners needs Hole Tool holes in the components.', 'warn');
       return;
     }
     set({ fastenerEdit: { slots: fastenerSlots(holes), autoLength: true }, managerTab: 'tree', tab: 'assembly' });
@@ -1355,7 +1357,7 @@ export const useStore = create<State>((set, get) => ({
   commitSmartFasteners() {
     const { doc, fastenerEdit } = get();
     if (!fastenerEdit || !isAssembly(doc)) return;
-    history.push('Smart Fasteners', doc);
+    history.push('Auto Fasteners', doc);
     const placed = placeFasteners(doc, fastenerEdit.slots);
     const r = withSolvedComponents({ ...doc, components: [...(doc.components ?? []), ...placed.components], mates: [...(doc.mates ?? []), ...placed.mates] });
     set({ doc: r.doc, rebuild: r.rebuild, fastenerEdit: null, dirty: true, ...historyFlags() });
@@ -1409,7 +1411,7 @@ export const useStore = create<State>((set, get) => ({
       next = { ...study, contacts: [...(study.contacts ?? []).filter((s) => s.id !== me.contact!.id), me.contact], type: 'basic' };
     } else if (me.kind === 'gravity' && me.gravity) next = { ...study, gravity: me.gravity, type: 'basic' };
     else if (me.kind === 'wizard' && me.wizard) {
-      // the study grows to hold the wizard's step, as the original
+      // the study grows to hold the wizard's step, by design
       const end = me.wizard.start + me.wizard.duration;
       next = { ...study, wizard: [...(study.wizard ?? []), me.wizard], duration: Math.max(study.duration, end) };
     } else if (me.kind === 'properties' && me.props) next = { ...study, fps: Math.max(1, Math.round(me.props.fps)), duration: Math.max(0.5, me.props.duration) };
@@ -1533,6 +1535,7 @@ export const useStore = create<State>((set, get) => ({
   patternEdit: null,
   sketch3dEdit: null,
   editContext: null,
+  whatsWrong: false,
   sensorEdit: null,
   setSensorEdit(sensorEdit) {
     set({ sensorEdit, managerTab: 'tree' });
@@ -1617,7 +1620,7 @@ export const useStore = create<State>((set, get) => ({
   lastTool: 'line',
   viewName: '*Trimetric',
   taskPane: null,
-  // start-up as the original: the Welcome dialog over an empty window; the autosave waits under Recent Documents
+  // start-up by design: the Welcome dialog over an empty window; the autosave waits under Recent Documents
   dialog: typeof localStorage !== 'undefined' && localStorage.getItem('phlippo.welcome.hide') === '1' ? null : 'welcome',
   hasDocument: false,
   lastCommand: null,
@@ -1653,7 +1656,7 @@ export const useStore = create<State>((set, get) => ({
     if (!sketch) {
       get().pushMessage('Select a sketch in the Feature Tree (or open one) before adding the feature.', 'warn');
     }
-    // an empty sketch gives no feature: the original refuses with "no closed contours"
+    // an empty sketch gives no feature: the intended design refuses with "no closed contours"
     if (sketch && (type === 'extrude' || type === 'revolve') && sketchRegions(sketch).length === 0 && sketchChains(sketch).length === 0) {
       get().pushMessage('The sketch is empty: draw a closed contour (or an open chain for a thin feature) first.', 'warn');
       return;
@@ -1661,9 +1664,9 @@ export const useStore = create<State>((set, get) => ({
     const id = newId('f');
     const name = featureName(doc, type, op);
     let draft: SolidFeature;
-    // a cut on a face of the body goes into the material by default (the face normal points outward), as in the original
+    // a cut on a face of the body goes into the material by default (the face normal points outward), by design
     const intoMaterial = op === 'cut' && !!sketch && !isReferencePlane(sketch.plane);
-    // an open profile becomes a thin feature automatically, as the original proposes
+    // an open profile becomes a thin feature automatically, by design proposes
     const openProfile = !!sketch && type === 'extrude' && sketchRegions(sketch).length === 0 && sketchChains(sketch).length > 0;
     if (type === 'sweep') draft = { id, type: 'sweep', name, sketchId: sketchId ?? '', pathSketchId: '', suppressed: false, op };
     else if (type === 'loft') draft = boundary ? { id, type: 'loft', name: `${op === 'boss' ? 'Boundary-Boss' : 'Boundary-Cut'}${doc.features.filter((f) => f.type === 'loft' && f.boundary && f.op === op).length + 1}`, sketchId: sketchId ?? '', sketchId2: '', suppressed: false, op, boundary: true } : { id, type: 'loft', name, sketchId: sketchId ?? '', sketchId2: '', suppressed: false, op };
@@ -1672,7 +1675,7 @@ export const useStore = create<State>((set, get) => ({
       const axis = sketch ? sketch.entityOrder.map((eid) => sketch.entities[eid]).find((e) => e.kind === 'line' && e.construction) ?? sketch.entityOrder.map((eid) => sketch.entities[eid]).find((e) => e.kind === 'line') : undefined;
       draft = { id, type: 'revolve', name, sketchId: sketchId ?? '', suppressed: false, op, axisEntityId: axis?.id ?? '', angle: 360, reverse: false };
     }
-    // the sketch stays as it is; the feature PropertyManager replaces the sketch tools (as in the original)
+    // the sketch stays as it is; the feature PropertyManager replaces the sketch tools (by design)
     set({ featureEdit: { featureId: null, draft }, activeSketchId: null, tool: 'select', selection: [], selectedConstraint: null, hover: null, modify: null, tab: isAssembly(doc) ? 'assembly' : 'features', managerTab: 'tree', planePick: false });
   },
   startRound(type) {
@@ -1785,7 +1788,7 @@ export const useStore = create<State>((set, get) => ({
         plane = def.id;
       }
     }
-    if (!plane) get().pushMessage('Select a planar face of the body first, then click Hole Wizard.', 'warn');
+    if (!plane) get().pushMessage('Select a planar face of the body first, then click Hole Tool.', 'warn');
     const draft: HoleFeature = advanced
       ? { id: newId('f'), type: 'hole', name: `Advanced Hole${doc.features.filter((f) => f.type === 'hole' && f.advanced).length + 1}`, suppressed: false, plane, points: [], holeType: 'counterbore', diameter: 6.6, depth: 0, cbDiameter: 11, cbDepth: 6.5, csDiameter: 12.6, csAngle: 90, advanced: true, farSide: { kind: 'countersink', diameter: 10, depth: 2, angle: 90 } }
       : { id: newId('f'), type: 'hole', name: simple ? `Hole${doc.features.filter((f) => f.type === 'hole' && f.simple).length + 1}` : featureName(doc, 'hole'), suppressed: false, plane, points: [], holeType: 'simple', diameter: 6.6, depth: 0, cbDiameter: 11, cbDepth: 6.5, csDiameter: 12.6, csAngle: 90, ...(simple ? { simple: true } : {}) };
@@ -2182,7 +2185,7 @@ export const useStore = create<State>((set, get) => ({
       get().pushMessage('The wall thickness must be larger than zero.', 'warn');
       return;
     }
-    // numbers: a depth / angle / size is a positive finite number (the original refuses 0, negative, NaN and ∞)
+    // numbers: a depth / angle / size is a positive finite number (the intended design refuses 0, negative, NaN and ∞)
     const bad = (v: unknown) => typeof v === 'number' && !(Number.isFinite(v) && v > 0);
     if (fe.draft.type === 'extrude' && (((fe.draft.end === 'blind' || fe.draft.end === 'midPlane') && bad(fe.draft.depth)) || (fe.draft.direction2 && fe.draft.direction2.end === 'blind' && bad(fe.draft.direction2.depth)))) {
       get().pushMessage('The depth must be a positive number.', 'warn');
@@ -2201,7 +2204,7 @@ export const useStore = create<State>((set, get) => ({
       get().pushMessage('The sketch is empty: draw a closed contour first.', 'warn');
       return;
     }
-    // instance count: beyond this the rebuild takes minutes (the original warns as well)
+    // instance count: beyond this the rebuild takes minutes (the intended design warns as well)
     const instances = fe.draft.type === 'linearPattern' ? (fe.draft.dir1?.count ?? 1) * (fe.draft.dir2?.count ?? 1) : fe.draft.type === 'circularPattern' ? (fe.draft.count ?? 1) * (fe.draft.dir2?.count ?? 1) : 0;
     if (instances > MAX_PATTERN_INSTANCES) {
       get().pushMessage(`Too many instances (${instances}); the limit is ${MAX_PATTERN_INSTANCES}.`, 'warn');
@@ -2225,7 +2228,7 @@ export const useStore = create<State>((set, get) => ({
       features = [...features, flat];
       docIn = { ...doc, sheetMetal: doc.sheetMetal ?? DEFAULT_SHEET_METAL };
     } else if (!fe.featureId && features.some((f) => f.type === 'flatPattern')) {
-      // Flat-Pattern1 always stays the last feature, as in the original
+      // Flat-Pattern1 always stays the last feature, by design
       const flat = features.find((f) => f.type === 'flatPattern')!;
       features = [...features.filter((f) => f !== flat), flat];
     }
@@ -2964,7 +2967,7 @@ export const useStore = create<State>((set, get) => ({
     // keep the solved positions so later moves start from the mated state
     const solved = (rebuild as unknown as { components?: Component[] }).components;
     if (solved) d = { ...d, components: (d.components ?? []).map((c) => solved.find((x) => x.id === c.id) ?? c) };
-    // the new mate stays selected: its faces light up in cyan, as the original (fr. 365)
+    // the new mate stays selected: its faces light up in cyan, by design
     set({ doc: d, rebuild, mateEdit: null, selectedFace: null, selectedFaces: [], selectedFeatureId: draft.id, dirty: true, ...historyFlags() });
     autosave(d);
     // Keep Visible (push pin): the Mate PropertyManager stays open for the next mate
@@ -3039,7 +3042,7 @@ export const useStore = create<State>((set, get) => ({
       autosave(d);
       return;
     }
-    // as the original: after placing the view the Projected View command continues from it (Auto-start projected view)
+    // by design: after placing the view the Projected View command continues from it (Auto-start projected view)
     const auto = getPref('drawing.autoProjected') !== false;
     set({ doc: d, selectedDrawingViewId: view.id, drawingEdit: auto ? { ...drawingEdit, mode: 'projected', parentId: view.id, useParentStyle: true, scaleMode: 'parent' } : null, dirty: true, ...historyFlags() });
     autosave(d);
@@ -3423,7 +3426,7 @@ export const useStore = create<State>((set, get) => ({
       get().pushMessage('Insert a drawing view with holes first.', 'warn');
       return;
     }
-    // placed on a free spot, then it follows the cursor until a click places it (as the original)
+    // placed on a free spot, then it follows the cursor until a click places it (by design)
     const t: NonNullable<DrawingSheet['tables']>[number] = { id: newId('tb'), kind: 'hole', viewId: v.id };
     const g = tableGrid(sheet, t);
     t.position = freeSpot(sheet, g?.w ?? 80, g?.h ?? 20);
@@ -3537,7 +3540,7 @@ export const useStore = create<State>((set, get) => ({
     if (!sheet) return;
     history.push(sym.kind === 'balloon' ? 'Balloon' : sym.kind === 'centerline' ? 'Centerline' : 'Annotation', doc);
     const d: Document = { ...doc, sheets: [{ ...sheet, symbols: [...(sheet.symbols ?? []), { ...sym, id: newId('sy') }] }] };
-    // stays in the command for the next one (as the original), the first pick is cleared
+    // stays in the command for the next one (by design), the first pick is cleared
     set({ doc: d, drawingEdit: drawingEdit ? { ...drawingEdit, symbolAnchor: undefined, symbolLine: undefined, symbolText: sym.kind === 'datum' ? String.fromCharCode((sym.text ?? 'A').charCodeAt(0) + 1) : drawingEdit.symbolText } : null, dirty: true, ...historyFlags() });
     autosave(d);
   },
@@ -4177,7 +4180,7 @@ export const useStore = create<State>((set, get) => ({
       for (const rev of sides) k = offsetEntities(k, oids, p.offsetDistance, rev, p.offsetConstruction);
       const added = k.entityOrder.filter((id) => !before.has(id));
       if (p.offsetBidirectional && p.offsetCapEnds) {
-        // the two new end points nearest to each free end of the original chain are joined with a line
+        // the two new end points nearest to each free end of the intended design chain are joined with a line
         const ends: SketchPoint[] = [];
         const count = new Map<string, number>();
         const key = (q: SketchPoint) => `${q.x.toFixed(6)},${q.y.toFixed(6)}`;
@@ -4789,7 +4792,7 @@ export const useStore = create<State>((set, get) => ({
     }
     if (!opts?.keepHistory) history.clear();
     set({ prefs: { ...loadPrefs(), ...(doc.properties ?? {}) } });
-    set({ openSeq: get().openSeq + 1, hasDocument: true, doc: r.doc, solve: r.solve, rebuild, activeSketchId: null, featureEdit: null, mateEdit: null, insertingComponent: false, asmTool: 'select', selectedFeatureId: null, selectedFace: null, selectedFaces: [], selection: [], selectedConstraint: null, dirty: false, tab: isAssembly(r.doc) ? 'assembly' : isDrawing(r.doc) ? 'viewLayout' : 'features', drawingEdit: null, selectedDrawingViewId: null, rollbackIndex: null, editContext: null, messages: get().messages.filter((m) => m.level !== 'info'), ...historyFlags() });
+    set({ openSeq: get().openSeq + 1, hasDocument: true, doc: r.doc, solve: r.solve, rebuild, activeSketchId: null, featureEdit: null, mateEdit: null, insertingComponent: false, asmTool: 'select', selectedFeatureId: null, selectedFace: null, selectedFaces: [], selection: [], selectedConstraint: null, dirty: false, tab: isAssembly(r.doc) ? 'assembly' : isDrawing(r.doc) ? 'viewLayout' : 'features', drawingEdit: null, selectedDrawingViewId: null, rollbackIndex: null, editContext: null, messages: get().messages.filter((m) => m.level !== 'info'), whatsWrong: Object.keys(rebuild.errors).length > 0, ...historyFlags() });
     autosave(r.doc);
   },
   rebuildAll() {
@@ -5080,7 +5083,7 @@ export const useStore = create<State>((set, get) => ({
   },
   setTool(tool) {
     if (!get().activeSketchId) {
-      // like the original: picking a sketch tool first asks for a plane
+      // by design: picking a sketch tool first asks for a plane
       if (tool !== 'select') {
         set({ pendingTool: tool });
         get().startPlanePick();
@@ -5123,7 +5126,7 @@ export const useStore = create<State>((set, get) => ({
     }
     const sk = activeSketchId ? doc.sketches[activeSketchId] : null;
     const ids = new Set(selection.filter((s) => s.kind === 'entity').map((s) => s.id));
-    // a selected point deletes the entity that owns it (as in the original)
+    // a selected point deletes the entity that owns it (by design)
     if (sk) for (const s of selection) if (s.kind === 'point' && s.id !== sk.origin) { const o = ownerOfPoint(sk, s.id); if (o) ids.add(o.id); }
     if (!ids.size) return;
     get().commit('Delete', (s) => {
@@ -5294,7 +5297,7 @@ export const useStore = create<State>((set, get) => ({
 export const isCommandActive = (s: Pick<State, 'activeSketchId' | 'selection' | 'selectedConstraint' | 'tool' | 'planePick' | 'featureEdit' | 'mateEdit' | 'insertingComponent' | 'drawingEdit' | 'planeEdit' | 'configEdit' | 'sheetMetalEdit' | 'sectionEdit' | 'explodeEdit' | 'patternEdit' | 'sketch3dEdit' | 'analysis' | 'sensorEdit'> & Partial<Pick<State, 'motorEdit' | 'motionEdit' | 'fastenerEdit' | 'sceneEdit' | 'refEdit' | 'offsetSurfEdit' | 'decalEdit'>>): boolean =>
   !!s.refEdit || !!s.offsetSurfEdit || !!s.decalEdit || !!s.motorEdit || !!s.motionEdit || !!s.fastenerEdit || !!s.sceneEdit || s.planePick || !!s.featureEdit || !!s.mateEdit || s.insertingComponent || !!s.drawingEdit || !!s.planeEdit || !!s.configEdit || s.sheetMetalEdit || !!s.sectionEdit || !!s.explodeEdit || !!s.patternEdit || !!s.sketch3dEdit || (!!s.analysis && s.analysis.kind !== 'curvature') || !!s.sensorEdit || (!!s.activeSketchId && (s.selection.length > 0 || !!s.selectedConstraint || s.tool !== 'select'));
 
-/** Definition status as the original reports it: an empty sketch counts as under defined. */
+/** Definition status by design reports it: an empty sketch counts as under defined. */
 export const sketchStatus = (sketch: Sketch | null | undefined, solve: SolveResult | null | undefined): SolveResult['status'] | null => {
   if (!sketch || !solve) return null;
   if (solve.status === 'full' && sketch.entityOrder.length === 0) return 'under';
@@ -5313,7 +5316,8 @@ if (typeof window !== 'undefined') {
   setAutosaveErrorHandler((m) => useStore.getState().pushMessage(m, 'warn'));
   let lastDirty: boolean | null = null;
   useStore.subscribe((st) => {
-    const d = st.hasDocument && st.dirty;
+    // a component edit counts as unsaved: closing the window asks first (F74)
+    const d = st.hasDocument && (st.dirty || !!st.editContext);
     if (d !== lastDirty) {
       lastDirty = d;
       (window as unknown as { phlippoDesktop?: { setDirty?: (v: boolean) => void } }).phlippoDesktop?.setDirty?.(d);

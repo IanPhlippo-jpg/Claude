@@ -1,5 +1,6 @@
 import type { Document } from './types';
 import { newId } from '../sketch/model';
+import { ENTITY_POINT_FIELDS, ENTITY_SCALAR_FIELDS, FEATURE_TYPES } from './featureTypes';
 
 export const FILE_EXTENSION = '.kcad';
 /** the file format this build writes; older files pass through MIGRATIONS, newer ones are refused */
@@ -29,7 +30,9 @@ export function serializeDocument(doc: Document): string {
 
 type Raw = Record<string, unknown>;
 const isObj = (v: unknown): v is Raw => !!v && typeof v === 'object' && !Array.isArray(v);
-/** the largest magnitude any number in a file may have (mm, degrees, counts): 1e12 covers a 1000 km model a thousand times over */
+/** the largest length a field accepts (mm), as the input fields of the app */
+export const MAX_FIELD_LENGTH = 1e6;
+/** the largest magnitude any number in a file may have (material constants such as E in Pa need more than lengths) */
 export const MAX_FILE_NUMBER = 1e12;
 const isNum = (v: unknown) => typeof v === 'number' && Number.isFinite(v) && Math.abs(v) <= MAX_FILE_NUMBER;
 const isVec = (v: unknown, n: number) => Array.isArray(v) && v.length === n && v.every(isNum);
@@ -140,14 +143,42 @@ export function validateDocument(raw: unknown, depth = 0): Document {
       if (!isObj(c) || typeof c.kind !== 'string') throw new DocumentFormatError(`Sketch "${id}": relation "${cid}" is damaged.`);
       if (c.value !== undefined && !isNum(c.value)) throw new DocumentFormatError(`Sketch "${id}": dimension "${cid}" has no valid value.`);
     }
-    for (const [eid, e] of Object.entries(sk.entities)) if (!isObj(e) || typeof e.kind !== 'string') throw new DocumentFormatError(`Sketch "${id}": entity "${eid}" is damaged.`);
+    const scalars = isObj(sk.scalars) ? sk.scalars : {};
+    for (const [eid, e] of Object.entries(sk.entities)) {
+      if (!isObj(e) || typeof e.kind !== 'string') throw new DocumentFormatError(`Sketch "${id}": entity "${eid}" is damaged.`);
+      // every point and radius an entity refers to must exist (F80): a dangling id otherwise breaks the rebuild silently
+      const pts = ENTITY_POINT_FIELDS[e.kind];
+      if (!pts) throw new DocumentFormatError(`Sketch "${id}": entity "${eid}" has an unknown kind "${e.kind}".`);
+      for (const k of pts) if (typeof e[k] !== 'string' || !(e[k] as string in sk.points)) throw new DocumentFormatError(`Sketch "${id}": entity "${eid}" refers to a point that does not exist.`);
+      if (e.kind === 'spline' && (!Array.isArray(e.points) || e.points.some((p) => typeof p !== 'string' || !(p in (sk.points as Raw))))) throw new DocumentFormatError(`Sketch "${id}": spline "${eid}" refers to a point that does not exist.`);
+      for (const k of ENTITY_SCALAR_FIELDS[e.kind] ?? []) if (typeof e[k] !== 'string' || !isNum(scalars[e[k] as string])) throw new DocumentFormatError(`Sketch "${id}": entity "${eid}" has no valid radius.`);
+    }
+    for (const [cid, c] of Object.entries(sk.constraints) as [string, Raw][]) {
+      if (Array.isArray(c.refs) && c.refs.some((r) => typeof r !== 'string' || (!(r in (sk.points as Raw)) && !(r in (sk.entities as Raw))))) throw new DocumentFormatError(`Sketch "${id}": relation "${cid}" refers to geometry that does not exist.`);
+    }
+    for (const list of ['entityOrder', 'constraintOrder'] as const) for (const x of sk[list] as unknown[]) if (typeof x !== 'string' || !(x in (list === 'entityOrder' ? sk.entities : sk.constraints))) throw new DocumentFormatError(`Sketch "${id}": the ${list === 'entityOrder' ? 'entity' : 'relation'} list refers to an item that does not exist.`);
   }
   if (!Array.isArray(d.features)) throw new DocumentFormatError('The feature list is missing.');
   d.features.forEach((f, i) => {
     if (!isObj(f) || typeof f.id !== 'string' || typeof f.type !== 'string' || typeof f.name !== 'string') throw new DocumentFormatError(`Feature ${i + 1} is damaged.`);
     // size is a designation on some features (M6, 40 x 40 x 4), so it is not checked as a number here
     for (const k of ['depth', 'angle', 'thickness', 'radius', 'distance']) if (k in f && f[k] !== undefined && f[k] !== null && !isNum(f[k])) throw new DocumentFormatError(`Feature "${f.name}": ${k} is not a valid number.`);
+    // only the types this version knows (F80): an unknown type would load as a feature that never builds
+    if (!FEATURE_TYPES.has(f.type)) throw new DocumentFormatError(`Feature "${f.name}" has an unknown type "${f.type}"; it was made by another program or a newer version.`);
+    // the same limits as the input fields (F80): a length is never negative and at most 1 000 000 mm (0 stays allowed:
+    // an unused depth of a Through All cut or hole is stored as 0)
+    for (const k of ['depth', 'thickness', 'radius'] as const) if (isNum(f[k]) && ((f[k] as number) < 0 || (f[k] as number) > MAX_FIELD_LENGTH)) throw new DocumentFormatError(`Feature "${f.name}": ${k} ${f[k]} is outside 0 … ${MAX_FIELD_LENGTH} mm.`);
+    for (const k of ['distance', 'angle'] as const) if (isNum(f[k]) && Math.abs(f[k] as number) > MAX_FIELD_LENGTH) throw new DocumentFormatError(`Feature "${f.name}": ${k} ${f[k]} is out of range.`);
+    // the sketches a feature is built from must exist (a path or guide may also be a 3D sketch or helix feature)
+    const known = (id: string, orFeature: boolean) => (isObj(d.sketches) && id in (d.sketches as Raw)) || (orFeature && (d.features as Raw[]).some((x) => isObj(x) && x.id === id));
+    for (const k of ['sketchId', 'sketchId2', 'pathSketchId'] as const) if (typeof f[k] === 'string' && !known(f[k] as string, k === 'pathSketchId')) throw new DocumentFormatError(`Feature "${f.name}" refers to a sketch that does not exist.`);
+    if (Array.isArray(f.guides)) for (const g of f.guides) if (typeof g === 'string' && !known(g, true)) throw new DocumentFormatError(`Feature "${f.name}" refers to a guide sketch that does not exist.`);
   });
+  const ids = new Set<string>();
+  for (const f of d.features as Raw[]) {
+    if (ids.has(f.id as string)) throw new DocumentFormatError(`Two features share the id "${f.id}".`);
+    ids.add(f.id as string);
+  }
   if (d.planes !== undefined && !isObj(d.planes)) throw new DocumentFormatError('The reference planes are damaged.');
   if (d.variables !== undefined && !isObj(d.variables)) throw new DocumentFormatError('The global variables are damaged.');
   if (d.equations !== undefined && !Array.isArray(d.equations)) throw new DocumentFormatError('The equations are damaged.');

@@ -3,7 +3,7 @@ import type { Id } from '../sketch/types';
 import { dimensionTable, setDimensionValues } from './equations';
 
 /**
- * Configurations (ConfigurationManager), as the original: a part or assembly has at least the
+ * Configurations (ConfigurationManager), by design: a part or assembly has at least the
  * "Default" configuration; every configuration stores its own dimension values ("D1@Sketch1")
  * and which features are suppressed. The document always holds the values of the ACTIVE
  * configuration; switching captures the current values into the old configuration and applies

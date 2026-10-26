@@ -1,6 +1,7 @@
 // Phase 5 check: a plate part is built, a drawing is created (Sheet Format/Size), the plate is inserted as a
 // Model View, projected views are placed, a dimension, a center mark and a note are added, the drawing reloads.
 import { chromium } from 'playwright';
+import { exitCode, skip } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -80,7 +81,7 @@ await page.click('.k-menu-item:has-text("New")');
 await page.waitForTimeout(200);
 await page.click('.k-doctype:has-text("Drawing")');
 await page.click('.k-dialog-actions button:has-text("OK")');
-await page.locator('[data-testid="ask-no"]').click({ timeout: 1500 }).catch(() => {}); // Save changes? → Don't Save
+await page.locator('[data-testid="ask-no"]').click({ timeout: 1500 }).catch(skip('drawing:84')); // Save changes? → Don't Save
 await page.waitForTimeout(300);
 check('Sheet Format/Size dialog', (await page.locator('.k-dialog-title').innerText()).includes('Sheet Format/Size'));
 await page.click('.k-sheetfmt-list .k-selbox-row:has-text("A3 (ISO)")');
@@ -147,18 +148,27 @@ await page.waitForTimeout(300);
 d = await D();
 check('dimension 80 mm placed (horizontal)', d.sheet.dims.length === 1 && Math.abs(d.sheet.dims[0].value - 80) < 0.05 && d.sheet.dims[0].orientation === 'h', JSON.stringify(d.sheet.dims));
 await page.keyboard.press('Escape');
-// diameter of the hole in the top view
+// diameter of the hole in the top view. Every step waits for the app's state instead of a fixed time: on a slow CI
+// runner (software GL) 200 ms was not always enough (F10).
+const waitState = (fn, arg, ms = 8000) => page.waitForFunction(fn, arg, { timeout: ms }).then(() => true, () => false);
+await waitState(() => !window.__phlippoStore.getState().drawingEdit);
 await page.click('.k-cm-big:has-text("Smart Dimension") .k-cm-main');
-await page.waitForTimeout(200);
+await waitState(() => window.__phlippoStore.getState().drawingEdit?.mode === 'dimension');
 const topView = d.sheet.views.find((v) => v.type === 'top' || v.type === 'bottom');
 const circlePt = await px([topView.position[0] + 17.5, topView.position[1]]);
+await page.mouse.move(circlePt.x, circlePt.y);
+await page.waitForTimeout(100);
 await page.mouse.click(circlePt.x, circlePt.y);
-await page.waitForTimeout(200);
+const picked = await waitState(() => !!window.__phlippoStore.getState().drawingEdit?.dimStart || (window.__phlippoStore.getState().doc.sheets?.[0]?.dimensions.length ?? 0) >= 2, undefined, 5000);
 const dl = await px([topView.position[0] + 45, topView.position[1] + 30]);
+await page.mouse.move(dl.x, dl.y);
+await page.waitForTimeout(100);
 await page.mouse.click(dl.x, dl.y);
-await page.waitForTimeout(300);
+await waitState(() => (window.__phlippoStore.getState().doc.sheets?.[0]?.dimensions.length ?? 0) >= 2, undefined, 5000);
 d = await D();
-check('diameter Ø35 placed', d.sheet.dims.length === 2 && d.sheet.dims[1].kind === 'diameter' && Math.abs(d.sheet.dims[1].value - 35) < 0.3, JSON.stringify(d.sheet.dims));
+const dimOk = d.sheet.dims.length === 2 && d.sheet.dims[1].kind === 'diameter' && Math.abs(d.sheet.dims[1].value - 35) < 0.3;
+if (!dimOk) await shot('e43-fail-diameter');
+check('diameter Ø35 placed', dimOk, JSON.stringify({ picked, edit: d.edit, dims: d.sheet.dims, circlePt, topView: topView.position }));
 await page.keyboard.press('Escape');
 // center mark
 await page.click('.k-cm-small:has-text("Center Mark")');
@@ -184,11 +194,12 @@ await shot('e43-drawing');
 // ---- reload: the drawing with its embedded model, views, dimensions and notes is restored
 await page.reload();
 await page.waitForSelector('.k-viewport');
-await page.locator('[data-testid="welcome-recent-0"]').click({ timeout: 4000 }).catch(() => {}); // the autosave waits under Recent Documents, as the original
+await page.locator('[data-testid="welcome-recent-0"]').click({ timeout: 4000 }).catch(skip('drawing:188')); // the autosave waits under Recent Documents, as the original
 await page.waitForSelector('.k-sheet-host');
-await page.waitForTimeout(800);
+// wait for the restored drawing itself, not a fixed time (F10)
+await page.waitForFunction(() => { const s = window.__phlippoStore.getState(); return s.doc.kind === 'drawing' && (s.doc.sheets?.[0]?.views.length ?? 0) === 3; }, undefined, { timeout: 10000 }).catch(skip('drawing: restored drawing'));
 d = await D();
-check('drawing restored after reload', d.kind === 'drawing' && d.sheet.views.length === 3 && d.sheet.dims.length === 2 && d.sheet.notes.length === 1, JSON.stringify({ k: d.kind, v: d.sheet && d.sheet.views.length }));
+check('drawing restored after reload', d.kind === 'drawing' && d.sheet.views.length === 3 && d.sheet.dims.length === 2 && d.sheet.notes.length === 1, JSON.stringify({ k: d.kind, v: d.sheet && d.sheet.views.length, dims: d.sheet && d.sheet.dims.length, notes: d.sheet && d.sheet.notes.length }));
 
 // ---- Section View: vertical cutting line through the hole of the top view, section placed right of it
 await page.click('.k-cm-tab:has-text("Drawing")');
@@ -237,4 +248,4 @@ console.log(`\n${passed}/${results.length} checks passed`);
 for (const r of results) if (!r.ok) console.log(' -', r.name, r.info);
 console.log('errors:', errors.length ? errors.join('\n') : 'none');
 await browser.close();
-process.exit(passed === results.length && !errors.length ? 0 : 1);
+process.exit(exitCode(results, errors));

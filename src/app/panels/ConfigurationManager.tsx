@@ -5,7 +5,7 @@ import { Icon } from '../../ui/icons';
 import { activeConfiguration, configurations } from '../../core/document/configurations';
 
 /**
- * ConfigurationManager (third tab of the manager pane), as the original:
+ * ConfigurationManager (third tab of the manager pane), by design:
  *   Part1 Configuration(s) (Default)
  *     ✓ Default [ Part1 ]
  *       210 [ Part1 ]
@@ -114,7 +114,7 @@ export function ConfigurationManagerBody() {
 }
 
 /**
- * Add Configuration / Configuration Properties PropertyManager, as the original: Configuration
+ * Add Configuration / Configuration Properties PropertyManager, by design: Configuration
  * Properties (name, description, use in BOM, comment), Bill of Materials Options, Advanced Options.
  */
 export function ConfigurationPM() {

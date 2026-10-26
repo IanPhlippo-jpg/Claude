@@ -1,7 +1,6 @@
 /**
  * The test hooks (window.__phlippoStore, __phlippoKit, __phlippoCamera …) let the e2e scripts drive the app.
- * They exist in the dev server and in the browser build (the regression runs on `vite preview`), but not in the
- * packaged desktop app unless it was started with PHLIPPO_E2E=1 (the desktop checks).
+ * They exist in the dev server, in the e2e build (VITE_TEST_HOOKS=1) and in the unpackaged desktop shell with PHLIPPO_E2E=1.
  *
  * The app itself never reads them: everything the viewport offers goes through the bridge (viewport/bridge.ts), and
  * `exposeTestHooks` only mirrors that bridge on `window` as getters.
@@ -9,7 +8,9 @@
 import { bridge, fitActive } from './viewport/bridge';
 
 const d = (window as unknown as { phlippoDesktop?: { testHooks?: boolean } }).phlippoDesktop;
-export const TEST_HOOKS: boolean = import.meta.env.DEV || !d || !!d.testHooks;
+// on only in the dev server, in a build made with VITE_TEST_HOOKS=1 (npm run build:e2e, the browser regression) and in the
+// unpackaged desktop shell started with PHLIPPO_E2E=1. A normal build (hosted or packaged) has none (F89).
+export const TEST_HOOKS: boolean = import.meta.env.DEV || import.meta.env.VITE_TEST_HOOKS === '1' || !!d?.testHooks;
 
 const MIRROR: Record<string, () => unknown> = {
   __phlippoZoomFit: () => fitActive,

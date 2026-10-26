@@ -11,7 +11,7 @@ const AXES: { id: 'x' | 'y' | 'z'; v: [number, number, number]; label: string }[
 ];
 
 /**
- * Move with Triad (component right-click), as the original (fr. 372): an orange triad at the component's centre —
+ * Move with Triad (component right-click), by design: an orange triad at the component's centre —
  * drag an arrow to move the component along that axis, drag a ring to turn it about the axis; Esc or a click on
  * empty space ends it. Mated components move only within their free degrees of freedom.
  */

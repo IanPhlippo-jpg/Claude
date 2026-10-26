@@ -5,7 +5,7 @@ import { Menu, TreeView, type TreeNode } from '../../ui/components';
 import { Icon } from '../../ui/icons';
 
 /**
- * FeatureManager design tree of a drawing as the original:
+ * FeatureManager design tree of a drawing by design:
  * Draw1 ▸ Annotations, Sheet1 ▸ Sheet Format1, Drawing View1 ▸ Plate<1>, Drawing View2 …
  */
 export function DrawingTreeBody() {
@@ -28,7 +28,7 @@ export function DrawingTreeBody() {
       },
       children: [
         { id: v.id + ':model', icon: v.model.kind === 'assembly' ? <Icon.Component /> : <Icon.Part />, label: <span className="k-muted">{v.modelName}</span> },
-        // tables made from this view (Bill of Materials1 …), as the original lists them under the view
+        // tables made from this view (Bill of Materials1 …), by design lists them under the view
         ...(sheet?.tables ?? []).filter((t) => t.viewId === v.id).map((t, i): TreeNode => ({ id: t.id, icon: <Icon.Bom />, label: <span>Bill of Materials{i + 1}</span> })),
       ],
     }));

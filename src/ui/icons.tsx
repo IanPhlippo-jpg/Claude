@@ -256,7 +256,7 @@ export const Icon = {
       <path d="M10 10v7M14 10v7" stroke={C.red} strokeWidth={1.4} />
     </svg>
   ),
-  /** the five display styles as the original draws them: a cube in wireframe, hidden lines visible/removed, shaded with edges, shaded */
+  /** the five display styles by design draws them: a cube in wireframe, hidden lines visible/removed, shaded with edges, shaded */
   StyleWireframe: ({ size = 16, ...p }: P) => (
     <svg {...base(size, p)}>
       <g fill="none" stroke="#222" strokeWidth={0.9}>
@@ -311,7 +311,7 @@ export const Icon = {
       {dir === 'parallel' ? <path d="M7 17h8M13 15l2 2-2 2" stroke={C.green} strokeWidth={1.5} fill="none" /> : <path d="M12 16V5M10 7l2-2 2 2" stroke={C.green} strokeWidth={1.5} fill="none" />}
     </svg>
   ),
-  /** Fillet Type pictures of the original: a white block with the rounded edge in blue */
+  /** Fillet Type pictures of the intended design: a white block with the rounded edge in blue */
   FilletConstant: ({ size = 24, ...p }: P) => (
     <svg {...base(size, p)}>
       <defs><linearGradient id="kfc" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#a8d6ef" /><stop offset="1" stopColor="#2f7fae" /></linearGradient></defs>

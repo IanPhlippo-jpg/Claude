@@ -2,6 +2,7 @@
 // Component Pattern, Assembly Features (Revolved Cut, Hole, Fillet, Belt/Chain), Reference Geometry, Make Multibody
 // Part, Take Snapshot, Large Assembly Settings, Component Preview, Pack and Go, Share, Markup, Comments, advanced mates.
 import { chromium } from 'playwright';
+import { exitCode, skip } from './lib/check.mjs';
 import { mkdirSync, readFileSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -27,7 +28,7 @@ const n0 = (await S()).comps.length;
 
 // New Part / New Assembly
 await page.click('.k-cm-tab:has-text("Assembly")');
-await page.click('.k-cm-big:has-text("Insert Components") .k-cm-arrow').catch(() => undefined);
+await page.click('.k-cm-big:has-text("Insert Components") .k-cm-arrow').catch(skip('assembly2:31'));
 await page.waitForTimeout(200);
 const fly = await page.evaluate(() => [...document.querySelectorAll('.k-menu .k-menu-item')].map((x) => ({ t: x.textContent.trim(), d: x.classList.contains('disabled') || x.getAttribute('aria-disabled') === 'true' })));
 check('Insert Components flyout: New Part, New Assembly, Copy with Mates enabled', ['New Part', 'New Assembly', 'Copy with Mates'].every((l) => fly.some((x) => x.t === l && !x.d)), JSON.stringify(fly));
@@ -39,7 +40,7 @@ check('New Assembly adds an empty sub-assembly', st.comps.length === n0 + 1 && s
 // Copy with Mates of the handle
 await page.evaluate(() => { const s = window.__phlippoStore.getState(); const c = s.doc.components.find((x) => /Kruk<1>/.test(x.name)); s.selectComponent(c.id); });
 const m0 = (await S()).mates;
-await page.click('.k-cm-big:has-text("Insert Components") .k-cm-arrow').catch(() => undefined);
+await page.click('.k-cm-big:has-text("Insert Components") .k-cm-arrow').catch(skip('assembly2:43'));
 await page.click('.k-menu .k-menu-item:has-text("Copy with Mates")');
 await page.waitForTimeout(1200);
 st = await S();
@@ -94,8 +95,8 @@ await page.waitForTimeout(300);
 check('Make Multibody Part asks first', (await page.locator('[data-testid="ask"]').count()) === 1);
 await page.keyboard.press('Escape');
 
-// Lifecycle tab: Pack and Go, Share, Markup, Comments
-await page.click('.k-cm-tab:has-text("Lifecycle")');
+// Share tab: Pack and Go, Share, Markup, Comments
+await page.click('.k-cm-tab:text-is("Share")');
 await page.click('.k-cm-big:has-text("Pack and Go")');
 await page.waitForTimeout(300);
 const files = await page.locator('[data-testid="pack-files"] tbody tr').count();
@@ -137,9 +138,7 @@ await page.evaluate(() => window.__phlippoStore.getState().cancelMate());
 
 console.log(`
 ${results.filter((r) => r.ok).length}/${results.length} checks passed`);
-const pageErrors = errors.filter((e) => e.startsWith('pageerror'));
-if (pageErrors.length) console.log('FAIL page errors', pageErrors.slice(0, 5));
-process.exitCode = results.every((r) => r.ok) && !pageErrors.length ? 0 : 1;
+process.exitCode = exitCode(results, errors);
 for (const r of results.filter((r) => !r.ok)) console.log(' - ' + r.name + (r.info ? ' (' + r.info + ')' : ''));
 console.log('errors:', errors.length ? errors : 'none');
 await browser.close();

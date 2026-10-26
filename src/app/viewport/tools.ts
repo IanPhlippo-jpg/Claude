@@ -46,7 +46,7 @@ export interface ToolRender {
   lasso?: SketchPoint[];
   /** Smart Dimension: the dimension being placed follows the cursor */
   dimPreview?: { kind: ConstraintKind; refs: Id[]; value: number; label: SketchPoint };
-  /** the size readout next to the cursor while an entity is drawn ("x = 80.00, y = 40.00", "R = 17.50"), as the original */
+  /** the size readout next to the cursor while an entity is drawn ("x = 80.00, y = 40.00", "R = 17.50"), by design */
   readout?: string;
   cursorAt?: SketchPoint;
 }
@@ -94,7 +94,7 @@ export class ToolController {
   private down: { px: number; py: number; pts: number } | null = null;
   onAnnotationDrag: ((id: Id, delta: SketchPoint, phase: 'move' | 'end') => void) | null = null;
   polygonSides = 6;
-  /** Polygon > Inscribed circle (the original's default): the second click lies on the circle touching the sides */
+  /** Polygon > Inscribed circle (the intended default): the second click lies on the circle touching the sides */
   polygonInscribed = true;
   /** Rectangle PM ▸ Add construction lines: from the corners (diagonals) or from the midpoints of the sides */
   rectConstruction: { on: boolean; mode: 'corners' | 'midpoints' } = { on: false, mode: 'corners' };
@@ -282,7 +282,7 @@ export class ToolController {
     return { p, snap: null };
   }
 
-  /** Ctrl held while sketching: automatic relations are turned off (as in the original) */
+  /** Ctrl held while sketching: automatic relations are turned off (by design) */
   private noInfer = false;
 
   /** relations implied by a snap for a newly created point id */
@@ -319,7 +319,7 @@ export class ToolController {
       }
       const h = hitTest(ctx.sketch, info.p, ctx.tolerance);
       ctx.setHover(h ? { kind: h.kind, id: h.id } : null);
-      // over a closed region (not on an entity): its boundary lights up, holes included, as the original
+      // over a closed region (not on an entity): its boundary lights up, holes included, by design
       this.hoverRegion = h ? null : regionAt(ctx.sketch, info.p);
       this.curSnap = null;
       return;
@@ -509,7 +509,7 @@ export class ToolController {
           [s1, arcA] = addArc(s1, a, l2.p2, l1.p1, false);
           [s1, cl] = addLine(s1, arcA.center, arcB.center, true);
           void cl;
-          // the relations the original adds: tangent at the four junctions, equal arcs
+          // the relations the intended design adds: tangent at the four junctions, equal arcs
           s1 = addConstraint(s1, 'tangent', [l1.id, arcB.id])[0];
           s1 = addConstraint(s1, 'tangent', [l2.id, arcB.id])[0];
           s1 = addConstraint(s1, 'tangent', [l2.id, arcA.id])[0];
@@ -884,7 +884,7 @@ export class ToolController {
           }
           const opt = this.rectConstruction;
           if (center) {
-            // the centre point at the middle of a construction diagonal (the original draws both diagonals)
+            // the centre point at the middle of a construction diagonal (the intended design draws both diagonals)
             let [s2, c] = addPoint(s1, a, true);
             let [s3, d] = addLine(s2, l1.p1, l2.p2, true);
             s3 = addConstraint(s3, 'midpoint', [c.id, d.id])[0];
@@ -1022,7 +1022,7 @@ export class ToolController {
           ctx.select([]);
           return;
         }
-        // Shift+click on an arc or circle: the dimension goes to its edge (tangent), as the original
+        // Shift+click on an arc or circle: the dimension goes to its edge (tangent), by design
         const ent = h.kind === 'entity' ? ctx.sketch.entities[h.id] : undefined;
         const tangent = !!info.shift && !!ent && (ent.kind === 'arc' || ent.kind === 'circle');
         const item: SelectionItem = tangent ? { kind: h.kind, id: h.id, tangent: true } : { kind: h.kind, id: h.id };
@@ -1064,7 +1064,7 @@ export class ToolController {
       if (moved && placedOnDown) {
         const chainTool = this.tool === 'line' || this.tool === 'centerline';
         this.place(ctx, { ...info, button: 0 });
-        // a dragged line is a single segment (no chain), like the original
+        // a dragged line is a single segment (no chain), by design
         if (chainTool) this.reset();
       }
       return;
@@ -1150,7 +1150,7 @@ export class ToolController {
 
   /**
    * The dimension that would be placed at the cursor. For two points the type follows the
-   * cursor like the original: above/below the points = horizontal, left/right = vertical,
+   * cursor by design: above/below the points = horizontal, left/right = vertical,
    * diagonal = aligned distance.
    */
   private resolveDim(ctx: ToolContext, cursor: SketchPoint): { kind: ConstraintKind; refs: Id[]; value: number; arcCondition?: Record<number, { entityId: Id; mode: 'min' | 'max' }> } {

@@ -17,7 +17,7 @@ const frustum = (h: number, a: number, deg: number) => { const t = a - 2 * h * M
 const neutral = { normal: [0, -1, 0] as [number, number, number], point: [20, 0, 20] as [number, number, number], label: 'Face<1>' };
 const oneFace = [{ normal: [1, 0, 0] as [number, number, number], point: [40, 20, 20] as [number, number, number], label: 'Face<2>' }];
 
-describe('Draft options of the original', () => {
+describe('Draft options of the intended design', () => {
   it('Face propagation > All faces drafts every side face from one pick', () => {
     const { doc, base } = cube();
     doc.features = [...base, { id: 'd', type: 'draft', name: 'Draft1', suppressed: false, angle: 5, neutral, faces: oneFace, propagation: 'all' } as DraftFeature];
