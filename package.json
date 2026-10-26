@@ -14,7 +14,7 @@
     "e2e": "node e2e/smoke.mjs && node e2e/relations.mjs && node e2e/full.mjs && node e2e/features.mjs && node e2e/assembly.mjs && node e2e/drawing.mjs && node e2e/configurations.mjs && node e2e/rib.mjs && node e2e/endconditions.mjs && node e2e/multibody.mjs && node e2e/slot.mjs && node e2e/sheetmetal.mjs && node e2e/section.mjs && node e2e/sketchtools.mjs && node e2e/helix.mjs && node e2e/hem.mjs && node e2e/explode.mjs",
     "desktop": "concurrently -k \"vite --port 5174 --strictPort\" \"wait-on http://127.0.0.1:5174 && cross-env VITE_DEV_SERVER_URL=http://127.0.0.1:5174 electron .\"",
     "desktop:start": "npm run build && electron .",
-    "desktop:build": "npm run build && electron-builder --win --config.directories.output=%LOCALAPPDATA%/PhlippoCAD/release",
+    "desktop:build": "git diff --quiet && git diff --cached --quiet && npm run build && electron-builder --win --config.directories.output=%LOCALAPPDATA%/PhlippoCAD/release",
     "e2e:desktop": "node e2e/desktop.mjs",
     "e2e:regression": "node e2e/run-regression.mjs",
     "ci": "npm run typecheck && npm run test && npm run build"
