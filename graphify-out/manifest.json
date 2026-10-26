@@ -354,9 +354,9 @@
     "semantic_hash": ""
   },
   "package.json": {
-    "mtime": 1793052077.2910595,
-    "seen": 1793053721.4868457,
-    "ast_hash": "13a4a20ca53a0897cdeda245c0266e67",
+    "mtime": 1793054222.3865986,
+    "seen": 1793055875.1961403,
+    "ast_hash": "8ae16e5242c66580e9668fe1ae6ff00f",
     "semantic_hash": ""
   },
   "src/app/App.tsx": {
@@ -960,9 +960,9 @@
     "semantic_hash": ""
   },
   "src/core/features/rebuild.ts": {
-    "mtime": 1793051153.3189921,
-    "seen": 1793053721.487851,
-    "ast_hash": "380df13e94c269b9e1f98bb8bbb2de6d",
+    "mtime": 1793054109.9501252,
+    "seen": 1793055875.1961403,
+    "ast_hash": "457cf79ea75d0cadf37395efbecffe87",
     "semantic_hash": ""
   },
   "src/core/features/regions.ts": {
@@ -1086,9 +1086,9 @@
     "semantic_hash": ""
   },
   "src/core/features/thread.ts": {
-    "mtime": 1793011773.750102,
-    "seen": 1793020847.6086097,
-    "ast_hash": "f540d31a719b411924e47163c254659d",
+    "mtime": 1793054103.0462425,
+    "seen": 1793055875.1961403,
+    "ast_hash": "a421ec441993d2cdf830074faf79d63c",
     "semantic_hash": ""
   },
   "src/core/features/unfold.test.ts": {
@@ -1296,15 +1296,15 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1793052077.2921965,
-    "seen": 1793053721.487851,
-    "ast_hash": "d956efa607aeb0b05fa1bed0a4ba93c6",
+    "mtime": 1793054222.3865986,
+    "seen": 1793055875.1961403,
+    "ast_hash": "9aba847da7ebd627b4c1f9fc7dc911d3",
     "semantic_hash": ""
   },
   "TASKS.md": {
-    "mtime": 1793053699.1651742,
-    "seen": 1793053721.487851,
-    "ast_hash": "526bd65b0f3a108ea8c725b840b7aefb",
+    "mtime": 1793055853.4252272,
+    "seen": 1793055875.1961403,
+    "ast_hash": "2934b2ce96e7d81c24b14bb76115a59e",
     "semantic_hash": ""
   },
   "docs/01-research.md": {
@@ -2136,9 +2136,9 @@
     "semantic_hash": ""
   },
   "src/core/features/weldments.ts": {
-    "mtime": 1793050726.8840117,
-    "seen": 1793053721.487851,
-    "ast_hash": "f3ff3c51a18cdfd7bc4f51d058de30d4",
+    "mtime": 1793053917.4587896,
+    "seen": 1793055875.1961403,
+    "ast_hash": "5219e37006f9030e70427284a65101c5",
     "semantic_hash": ""
   },
   "e2e/gi.mjs": {
@@ -2736,21 +2736,21 @@
     "semantic_hash": ""
   },
   "src/core/features/brepKernel.ts": {
-    "mtime": 1793050806.7029197,
-    "seen": 1793053721.487851,
-    "ast_hash": "56eebb012231e52fc6afcfd00eb7f610",
+    "mtime": 1793054103.0442455,
+    "seen": 1793055875.1961403,
+    "ast_hash": "23245d96ea75b49e9bc07622a28da2b8",
     "semantic_hash": ""
   },
   "src/core/occt/brep.test.ts": {
-    "mtime": 1793051223.6331906,
-    "seen": 1793053721.487851,
-    "ast_hash": "608c188ec522aab73e51963defe0a4db",
+    "mtime": 1793054141.8320348,
+    "seen": 1793055875.1961403,
+    "ast_hash": "8a39b37ee8757b95e8a0ad6d98083e9d",
     "semantic_hash": ""
   },
   "src/core/occt/brep.ts": {
-    "mtime": 1793050806.7039273,
-    "seen": 1793053721.487851,
-    "ast_hash": "5b70e53c5953ca32565a32fec3b8fd7c",
+    "mtime": 1793054103.0452406,
+    "seen": 1793055875.1961403,
+    "ast_hash": "29c5d7a1ec0579f5a6b81a77bf4ca7e9",
     "semantic_hash": ""
   },
   "docs/15-brep-features-0.3.8.md": {
@@ -2823,6 +2823,36 @@
     "mtime": 1793036483.1517866,
     "seen": 1793053721.487851,
     "ast_hash": "ba706127f8a6f7e34e01079c79967e78",
+    "semantic_hash": ""
+  },
+  "e2e/tools/brep-showcase2.mjs": {
+    "mtime": 1793053892.9059553,
+    "seen": 1793055875.1961403,
+    "ast_hash": "557301e5b708f7ab8808d2cf8c550ff0",
+    "semantic_hash": ""
+  },
+  "docs/19-brep-schroefdraad-0.4.2.md": {
+    "mtime": 1793054222.3218691,
+    "seen": 1793055875.1961403,
+    "ast_hash": "bbc5cbeade292671e09af20007c44f6b",
+    "semantic_hash": ""
+  },
+  "docs/screenshots/0.4.1-plaatwerk-exact.png": {
+    "mtime": 1793054034.8406937,
+    "seen": 1793055875.1961403,
+    "ast_hash": "f35558be5a8b3efe40469fefa5fe5446",
+    "semantic_hash": ""
+  },
+  "docs/screenshots/0.4.2-frame-verstek.png": {
+    "mtime": 1793054034.8754482,
+    "seen": 1793055875.1961403,
+    "ast_hash": "73d2c32c66f56d80961fc8c43244f57a",
+    "semantic_hash": ""
+  },
+  "docs/screenshots/0.4.2-schroefdraad-exact.png": {
+    "mtime": 1793054222.285733,
+    "seen": 1793055875.1961403,
+    "ast_hash": "72eaf4f0e19ec568590a2f7c248792ca",
     "semantic_hash": ""
   }
 }

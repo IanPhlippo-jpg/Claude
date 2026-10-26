@@ -41,6 +41,12 @@ export interface BrepKernel {
   fromMesh(g: THREE.BufferGeometry): BrepShape | null;
   /** a prism of a closed loop of lines and arcs (through m) in sketch coordinates of the plane */
   extrudeLoop(plane: PlaneDef, loop: { a: { x: number; y: number }; b: { x: number; y: number }; m?: { x: number; y: number } }[], zStart: number, total: number): BrepShape | null;
+  /**
+   * a profile swept along a helix about the axis (thread): the helix on the cylinder of `radius`, starting at angle
+   * `startAngle` (radians, from `xdir` towards axis × xdir), turning `sign` (+1 right hand) with `lead` per turn over
+   * `length`; the profile (world points at the start) keeps lying in a plane through the axis
+   */
+  helixSweep(center: [number, number, number], axis: [number, number, number], xdir: [number, number, number], radius: number, lead: number, length: number, sign: number, startAngle: number, profile: [number, number, number][]): BrepShape | null;
   fuse(a: BrepShape, b: BrepShape): BrepShape;
   cut(a: BrepShape, b: BrepShape): BrepShape;
   /** what the two solids have in common */

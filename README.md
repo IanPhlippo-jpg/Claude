@@ -44,6 +44,10 @@ Status per fase:
 8. Sheet metal (Base Flange/Tab, Edge Flange, Flatten met K-factor) — **basis gereed**; Hem/Jog/Miter/Unfold gepland
 7. Massa-eigenschappen en meten — **gereed** (Mass Properties, Measure); materialen en rendering gepland
 
+## Status 0.4.2 (2026-10-26)
+
+Gemodelleerde schroefdraad langs een echte helix (OpenCascade), en weldment-frames krijgen nu op alle hoeken een verstek. Zie docs/19-brep-schroefdraad-0.4.2.md.
+
 ## Status 0.4.1 (2026-10-26)
 
 Ook Miter Flange, Revolve Thin, weldment-frames (Structural Member, Trim/Extend, End Cap), Combine en Intersect, Stud en elk gereedschap met alleen vlakke vlakken bouwen exact met OpenCascade. Zie docs/18-brep-plaatwerk-weldments-0.4.1.md.

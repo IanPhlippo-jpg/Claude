@@ -606,3 +606,10 @@ elease; README en docs/04 bijgewerkt
 - [ ] (naar Vervolg 43) Rebuild in de worker (F46): voor exacte parts komt de mesh-stap niet meer op de hoofdthread als de worker klaar staat
 - [x] Tests, regressie (83/83), desktop, installer 0.4.1, screenshots, commit + tag
 - [x] Extra in 0.4.1: Miter Flange, Revolve Thin, weldment-frames (Structural Member, Trim/Extend, End Cap), Combine/Intersect, Stud, vlakke terugval (docs/18)
+
+## Vervolg 43: verder naar volledige B-rep (2026-10-26)
+- [x] Weldments: het verstek op de begin/eindhoek van een gesloten pad (alle vier de hoeken van een frame), ook in de mesh-kern
+- [x] Thread (gemodelleerd) via B-rep: driehoeksprofiel langs een echte helix
+- [x] Beoordeeld, apart traject (docs/19): Topologische namen: bij twijfel tussen kandidaat-randen wint de rand met dezelfde herkomst
+- [x] Beoordeeld, apart traject (docs/19): Rebuild in de worker (F46): geen dubbele rebuild op de hoofdthread voor exacte parts
+- [x] Tests, regressie (83/83), desktop, installer 0.4.2, screenshots, commit + tag

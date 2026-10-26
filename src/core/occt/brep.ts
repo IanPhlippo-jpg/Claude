@@ -399,6 +399,26 @@ export function occtKernel(oc: OC, replicad: Replicad, opts: { tolerance?: numbe
       const v = t(new oc.gp_Vec(plane.n[0] * total, plane.n[1] * total, plane.n[2] * total));
       return S(t(t(new oc.BRepPrimAPI_MakePrism(mf.Face(), v, false, true)).Shape()));
     },
+    helixSweep(center, axis, xdir, radius, lead, length, sign, startAngle, profile) {
+      if (!(lead > 0) || !(length > 0) || profile.length < 3) return null;
+      const ax3 = t(new oc.gp_Ax3(t(new oc.gp_Ax2(pnt(center), dir(axis), dir(xdir)))));
+      const surf = t(new oc.Geom_CylindricalSurface(ax3, radius));
+      const line = t(new oc.Geom2d_Line(t(new oc.gp_Pnt2d(startAngle, 0)), t(new oc.gp_Dir2d(sign * 2 * Math.PI, lead))));
+      const L = (length / lead) * Math.sqrt((2 * Math.PI) ** 2 + lead ** 2);
+      const seg = t(new oc.GC_MakeSegment2d(t(line.Value(0)), t(line.Value(L))));
+      const edge = t(new oc.BRepBuilderAPI_MakeEdge(t(seg.Value()), surf)).Edge();
+      const spine = t(new oc.BRepBuilderAPI_MakeWire(edge)).Wire();
+      oc.BRepLib.BuildCurves3d(spine);
+      const pw = t(new oc.BRepBuilderAPI_MakeWire());
+      for (let i = 0; i < profile.length; i++) pw.Add(lineEdge(profile[i], profile[(i + 1) % profile.length]));
+      if (!pw.IsDone()) return null;
+      const pipe = t(new oc.BRepOffsetAPI_MakePipeShell(spine));
+      pipe.SetMode(dir(axis));
+      pipe.Add(pw.Wire(), false, false);
+      pipe.Build(progress());
+      if (!pipe.IsDone() || !pipe.MakeSolid()) return null;
+      return S(t(pipe.Shape()));
+    },
     fuse: (a, b) => S(fuse(R(a), R(b))),
     cut: (a, b) => S(cut(R(a), R(b))),
     common: (a, b) => {

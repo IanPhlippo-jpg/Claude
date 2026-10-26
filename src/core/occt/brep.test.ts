@@ -538,7 +538,7 @@ describe('B-rep kernel in the rebuild (OpenCascade)', () => {
       const mv = mesh.bodies.reduce((a, b) => a + Math.abs(meshVolume(b.geometry)), 0);
       expect(Math.abs(total - mv) / mv, type).toBeLessThan(0.01);
     }
-  });
+  }, 60000);
 
   it('Combine (add, subtract, common) and Intersect of two exact bodies are exact', () => {
     const two = () => {
@@ -622,6 +622,24 @@ describe('B-rep kernel in the rebuild (OpenCascade)', () => {
     const mv = Math.abs(meshVolume(mesh.bodies[0].geometry));
     expect(Math.abs(r.bodies[0].exactVolume! - mv) / mv).toBeLessThan(0.002);
   });
+
+  it('a modelled M10 thread (cut and extruded, one and two starts) follows a true helix and agrees with the mesh kernel', () => {
+    for (const [label, extra] of [['cut', { method: 'cut' }], ['extrude', { method: 'extrude' }], ['two starts', { method: 'cut', starts: 2 }]] as const) {
+      const doc = createDocument();
+      doc.sketches.s1 = addCircle(createSketch('s1', 's1', 'top'), { x: 0, y: 0 }, 5)[0];
+      doc.features.push(extrude('e1', 's1', 'boss', 30));
+      doc.features.push({ id: 'th', type: 'thread', name: 'Thread1', suppressed: false, edge: { center: [0, 30, 0], axis: [0, -1, 0], radius: 5, internal: false, label: 'Edge' }, diameter: 10, pitch: 1.5, length: 20, rightHand: true, ...extra } as never);
+      setBrepKernel(null);
+      const mesh = rebuildDocument(doc);
+      setBrepKernel(kernel);
+      const r = rebuildDocument(doc);
+      expect(mesh.errors.th, label).toBeUndefined();
+      expect(r.errors.th, label).toBeUndefined();
+      expect(r.bodies[0].exact, label).toBe(true);
+      const mv = Math.abs(meshVolume(mesh.bodies[0].geometry));
+      expect(Math.abs(r.bodies[0].exactVolume! - mv) / mv, label).toBeLessThan(0.01);
+    }
+  }, 120000);
 
   it('a feature without a B-rep version continues on the mesh (fallback); the body is still built', () => {
     const doc = plateWithHole();

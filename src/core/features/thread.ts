@@ -105,6 +105,25 @@ export function threadPreviewCurves(t: ThreadSpec): THREE.Vector3[][] {
   return out;
 }
 
+/**
+ * The thread for the B-rep kernel: per start the helix (radius, lead, turning sense, start angle) and the V profile
+ * as world points at the start, the same as threadTool() sweeps.
+ */
+export function threadSweeps(t: ThreadSpec): { center: [number, number, number]; axis: [number, number, number]; xdir: [number, number, number]; radius: number; lead: number; length: number; sign: number; startAngle: number; profile: [number, number, number][] }[] {
+  const n = Math.max(1, Math.round(t.starts ?? 1));
+  const C = new THREE.Vector3(...t.center), ax = new THREE.Vector3(...t.axis).normalize();
+  const e1 = (Math.abs(ax.x) < 0.9 ? new THREE.Vector3(1, 0, 0) : new THREE.Vector3(0, 1, 0)).cross(ax).normalize();
+  const e2 = ax.clone().cross(e1).normalize();
+  const lead = t.pitch * n;
+  const prof = threadProfile(t);
+  return Array.from({ length: n }, (_, i) => {
+    const th0 = (((t.angle ?? 0) + (360 * i) / n) * Math.PI) / 180;
+    const radial = e1.clone().multiplyScalar(Math.cos(th0)).addScaledVector(e2, Math.sin(th0));
+    const profile = prof.map(([rho, off]) => C.clone().addScaledVector(ax, off).addScaledVector(radial, rho).toArray() as [number, number, number]);
+    return { center: C.toArray() as [number, number, number], axis: ax.toArray() as [number, number, number], xdir: e1.toArray() as [number, number, number], radius: t.radius, lead, length: t.length, sign: t.rightHand ? 1 : -1, startAngle: th0, profile };
+  });
+}
+
 /** the V profile (radial, axial) of a groove (cut) or ridge (extrude) */
 function threadProfile(t: ThreadSpec): [number, number][] {
   const P = t.pitch, R = t.radius;

@@ -199,8 +199,12 @@ export function structuralMembers(region: Region, segments: MemberSegment[], cor
   const half = Math.max(...region.outer.map((p) => Math.hypot(p.x, p.y))) + 1;
   const out: MemberBuild[] = [];
   for (const seg of segments) {
-    const prev = segments.find((s) => s.group === seg.group && s.index === seg.index - 1);
-    const next = segments.find((s) => s.group === seg.group && s.index === seg.index + 1);
+    // a closed path (its last point is its first): the first and the last member meet at a corner too
+    const group = segments.filter((s) => s.group === seg.group);
+    const first = group.reduce((x, y) => (y.index < x.index ? y : x)), last = group.reduce((x, y) => (y.index > x.index ? y : x));
+    const closed = group.length > 2 && first.a.distanceTo(last.b) < TOL.point;
+    const prev = segments.find((s) => s.group === seg.group && s.index === seg.index - 1) ?? (closed && seg === first ? last : undefined);
+    const next = segments.find((s) => s.group === seg.group && s.index === seg.index + 1) ?? (closed && seg === last ? first : undefined);
     const d = seg.b.clone().sub(seg.a).normalize();
     let a = seg.a.clone(), b = seg.b.clone();
     let angle1 = 0, angle2 = 0;

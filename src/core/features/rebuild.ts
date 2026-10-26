@@ -28,7 +28,7 @@ import { sketchChains, thinRegions } from './thin';
 import { ribGeometry } from './rib';
 import { foldGeometry, sheetMapping, unfoldGeometry } from './unfold';
 import { wrapSplineTool, wrapTool } from './wrap';
-import { threadTool, type ThreadSpec } from './thread';
+import { threadSweeps, threadTool, type ThreadSpec } from './thread';
 import { baseFlangeGeometry, baseFlangeLoop, baseFlangeRegion, bendAllowance, DEFAULT_SHEET_METAL, edgeFlangeGeometry, flangeLeg, flangeSetback, flatPatternGeometry, hemFlangeParams, tabGeometry, type SheetMetalParams } from './sheetmetal';
 import type { DraftFeature, PatternFeature, RevolveFeature, EdgeFlangeFeature, HemFeature, HoleFeature, JogFeature, MiterFlangeFeature, PlaneDef, SketchedBendFeature } from '../document/types';
 import { chainEdges, classifyVent, formToolGeometry, gussetTools, ripTool, sweptFlangeRegions, tabSlotTools, ventTool } from './sheetmetal4';
@@ -1998,10 +1998,34 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
         slab.translate(c0.x, c0.y, c0.z);
         try { tool = csg(tool, slab.toNonIndexed(), 'intersect'); } catch { /* keep the untrimmed tool */ }
       }
+      // B-rep: the V profile swept along a true helix (every start), trimmed like the mesh tool; kept when it agrees
+      let threadShape: BrepShape | null = null;
+      if (K && body && exactOf(body)) {
+        try {
+          let sh: BrepShape | null = null;
+          for (const sw of threadSweeps(spec)) {
+            const one = K.helixSweep(sw.center, sw.axis, sw.xdir, sw.radius, sw.lead, sw.length, sw.sign, sw.startAngle, sw.profile);
+            if (!one) { sh = null; break; }
+            sh = sh ? K.fuse(sh, one) : one;
+          }
+          if (sh && (f.trimStart || f.trimEnd)) {
+            const big = f.diameter * 4 + 20;
+            const from = f.trimStart ? 0 : -length, to = f.trimEnd ? length : 2 * length;
+            const ref = Math.abs(ax.x) < 0.9 ? new THREE.Vector3(1, 0, 0).cross(ax).normalize() : new THREE.Vector3(0, 1, 0).cross(ax).normalize();
+            sh = K.common(sh, K.axisymmetric([c0.x, c0.y, c0.z], [ax.x, ax.y, ax.z], [ref.x, ref.y, ref.z], [{ t0: from, t1: to, r0: big, r1: big }]));
+          }
+          if (sh) {
+            const mv = Math.abs(meshVolume(tool)), bv = Math.abs(K.volume(sh));
+            if (mv > 0 && Math.abs(bv - mv) / mv < 0.05) threadShape = sh;
+          }
+        } catch {
+          threadShape = null;
+        }
+      }
       try {
         if (f.method === 'cut') {
-          if (!removeMaterial(tool, f.id)) errors[f.id] = 'The thread does not touch the body.';
-        } else addMaterial(tool, f.id, true);
+          if (!removeMaterial(tool, f.id, undefined, threadShape)) errors[f.id] = 'The thread does not touch the body.';
+        } else addMaterial(tool, f.id, true, undefined, threadShape);
       } catch (err) {
         errors[f.id] = `Boolean operation failed: ${(err as Error).message}`;
       }
