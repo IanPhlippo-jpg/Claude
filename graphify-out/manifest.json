@@ -354,9 +354,9 @@
     "semantic_hash": ""
   },
   "package.json": {
-    "mtime": 1793030555.749867,
-    "seen": 1793032185.7088912,
-    "ast_hash": "566224ff1b486844e102d9f27844495d",
+    "mtime": 1793034663.9292476,
+    "seen": 1793036306.947022,
+    "ast_hash": "955c1f9e5c281b54eee76ba0f9ae2cbc",
     "semantic_hash": ""
   },
   "src/app/App.tsx": {
@@ -960,9 +960,9 @@
     "semantic_hash": ""
   },
   "src/core/features/rebuild.ts": {
-    "mtime": 1793030178.5575888,
-    "seen": 1793032185.7088912,
-    "ast_hash": "403b71fedc123d8ff147381efef9915f",
+    "mtime": 1793034560.325733,
+    "seen": 1793036306.9478562,
+    "ast_hash": "04c6460ad4389d78afc50b605a940c83",
     "semantic_hash": ""
   },
   "src/core/features/regions.ts": {
@@ -1296,15 +1296,15 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1793030555.750863,
-    "seen": 1793032185.7088912,
-    "ast_hash": "118fc8cad9e57625ad8f88f30f4f2ba1",
+    "mtime": 1793034663.9302387,
+    "seen": 1793036306.9483624,
+    "ast_hash": "3f30c6780e0ba33f41a2b7e351691551",
     "semantic_hash": ""
   },
   "TASKS.md": {
-    "mtime": 1793032164.359228,
-    "seen": 1793032185.7088912,
-    "ast_hash": "11e839410aabe11731010767693b08e7",
+    "mtime": 1793036285.425818,
+    "seen": 1793036306.9483624,
+    "ast_hash": "18be4ad8cb09d4f1ff156776139e1010",
     "semantic_hash": ""
   },
   "docs/01-research.md": {
@@ -2718,9 +2718,9 @@
     "semantic_hash": ""
   },
   "e2e/brep.mjs": {
-    "mtime": 1793030425.060351,
-    "seen": 1793032185.7078855,
-    "ast_hash": "ad19fc037704975d09352ecb41427c07",
+    "mtime": 1793034663.7804322,
+    "seen": 1793036306.947022,
+    "ast_hash": "b930a1da28609b1811561a8ae9fcbd70",
     "semantic_hash": ""
   },
   "e2e/tools/brep-parts.mjs": {
@@ -2736,21 +2736,21 @@
     "semantic_hash": ""
   },
   "src/core/features/brepKernel.ts": {
-    "mtime": 1793030178.555372,
-    "seen": 1793032185.7088912,
-    "ast_hash": "ca1455647ee1c2664859005cb09e779c",
+    "mtime": 1793034412.6481855,
+    "seen": 1793036306.9478562,
+    "ast_hash": "ba7d4cbb047ca8ddfe8210da923b752c",
     "semantic_hash": ""
   },
   "src/core/occt/brep.test.ts": {
-    "mtime": 1793030217.1629572,
-    "seen": 1793032185.7088912,
-    "ast_hash": "b11cfe8bfbcebfa664b2a4bd3d30fcdd",
+    "mtime": 1793034560.326737,
+    "seen": 1793036306.9478562,
+    "ast_hash": "846a056f43ad9b2d09a36e3a01a4b4ee",
     "semantic_hash": ""
   },
   "src/core/occt/brep.ts": {
-    "mtime": 1793030424.9848158,
-    "seen": 1793032185.7088912,
-    "ast_hash": "1b42b700f63dad92b2fd4c51e17384cf",
+    "mtime": 1793034412.6494348,
+    "seen": 1793036306.9478562,
+    "ast_hash": "80cd4cd13a45b39950b265b8db3d2e14",
     "semantic_hash": ""
   },
   "docs/15-brep-features-0.3.8.md": {
@@ -2769,6 +2769,30 @@
     "mtime": 1793027905.6564746,
     "seen": 1793032185.7088912,
     "ast_hash": "b43a44a6973e4728aac31a6fa3d8a261",
+    "semantic_hash": ""
+  },
+  "docs/16-brep-open-stukken-0.3.9.md": {
+    "mtime": 1793034663.8625975,
+    "seen": 1793036306.9483624,
+    "ast_hash": "566d1ff8b87aa550ca5618e1ea9b029f",
+    "semantic_hash": ""
+  },
+  "docs/screenshots/0.3.8-afronding-exact.png": {
+    "mtime": 1793032316.27873,
+    "seen": 1793036306.9483624,
+    "ast_hash": "0a541473b166dffe684075b9b6dbb93a",
+    "semantic_hash": ""
+  },
+  "docs/screenshots/0.3.8-deurkruk-exact.png": {
+    "mtime": 1793032316.3112662,
+    "seen": 1793036306.9483624,
+    "ast_hash": "e89f84e20e21a307f04c0d5fd07b1eef",
+    "semantic_hash": ""
+  },
+  "docs/screenshots/0.3.8-kruk-exact.png": {
+    "mtime": 1793032316.2458937,
+    "seen": 1793036306.9483624,
+    "ast_hash": "e4afc2e6135c4feea3d6df6a87f28c89",
     "semantic_hash": ""
   }
 }

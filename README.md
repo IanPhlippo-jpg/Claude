@@ -44,6 +44,10 @@ Status per fase:
 8. Sheet metal (Base Flange/Tab, Edge Flange, Flatten met K-factor) — **basis gereed**; Hem/Jog/Miter/Unfold gepland
 7. Massa-eigenschappen en meten — **gereed** (Mass Properties, Measure); materialen en rendering gepland
 
+## Status 0.3.9 (2026-10-26)
+
+Ook patronen (lineair, cirkelvormig, sketch/curve/table/fill), mirror van features en bodies, loft tussen twee profielen, extrude met draft en de Draft-feature bouwen nu exact met OpenCascade; de mesh-kern blijft de terugval. Zie docs/16-brep-open-stukken-0.3.9.md (met de bevinding over shell naast een afronding).
+
 ## Status 0.3.8 (2026-10-26)
 
 De modelleerfeatures bouwen met de B-rep-kern (OpenCascade) en vallen per feature terug op de mesh-kern: extrude en cut, revolve, sweep, Hole Tool, fillet, chamfer en shell geven exacte cilinders, kegels en afrondingen; Mass Properties en STEP-export gebruiken de exacte bodies; de hele Deurkruk (onderdelen en assembly) is exact. Uit te zetten in Tools ▸ Options ▸ Performance. Zie docs/15-brep-features-0.3.8.md.

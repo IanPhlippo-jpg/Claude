@@ -84,6 +84,27 @@ export function occtKernel(oc: OC, replicad: Replicad, opts: { tolerance?: numbe
     return out;
   }
 
+  /** the closed wire of a contour (exact entities when the contour knows them, else its polygon) */
+  function contourWire(sketch: Sketch, plane: PlaneDef, c: Contour, z: number): any | null {
+    let edges: any[] | null = null;
+    if (c.path) {
+      edges = [];
+      for (const step of c.path) {
+        const es = entityEdges(sketch, plane, step.id, step.rev, z);
+        if (!es) { edges = null; break; }
+        edges.push(...es);
+      }
+    }
+    if (edges && edges.length) {
+      const mw = t(new oc.BRepBuilderAPI_MakeWire());
+      for (const e of edges) mw.Add(e);
+      if (mw.IsDone()) return mw.Wire();
+    }
+    const pw = t(new oc.BRepBuilderAPI_MakeWire());
+    for (const e of polygonEdges(plane, c.points, z)) pw.Add(e);
+    return pw.IsDone() ? pw.Wire() : null;
+  }
+
   /** a planar face bounded by the contour (exact entities when the contour knows them, else its polygon) */
   function contourFace(sketch: Sketch, plane: PlaneDef, c: Contour, z: number): any | null {
     let edges: any[] | null = null;
@@ -142,6 +163,36 @@ export function occtKernel(oc: OC, replicad: Replicad, opts: { tolerance?: numbe
       at = rev ? it.a : it.b;
     }
     return mw.IsDone() ? mw.Wire() : null;
+  }
+
+  /** the faces of a shape (each once) */
+  function facesOf(shape: any): any[] {
+    const out: any[] = [];
+    const ex = t(new oc.TopExp_Explorer(shape, oc.TopAbs_ShapeEnum.TopAbs_FACE, oc.TopAbs_ShapeEnum.TopAbs_SHAPE));
+    while (ex.More()) {
+      const f = t(oc.TopoDS.Face(ex.Current()));
+      ex.Next();
+      if (!out.some((g) => g.IsSame(f))) out.push(f);
+    }
+    return out;
+  }
+  const faceNormal = (face: any): { x: number; y: number; z: number } | null => {
+    try { return (replicad.cast(face) as any).normalAt(); } catch { return null; }
+  };
+  /** the faces of a shape at these planes (normal and a point on the face) */
+  function matchFaces(shape: any, refs: { normal: [number, number, number]; point: [number, number, number] }[]): any[] {
+    const out: any[] = [];
+    for (const ref of refs) {
+      const ln = Math.hypot(...ref.normal) || 1;
+      const v = t(t(new oc.BRepBuilderAPI_MakeVertex(pnt(ref.point))).Vertex());
+      for (const face of facesOf(shape)) {
+        const n = faceNormal(face);
+        if (!n || (n.x * ref.normal[0] + n.y * ref.normal[1] + n.z * ref.normal[2]) / ln < 0.99) continue;
+        const dist = t(new oc.BRepExtrema_DistShapeShape(v, face));
+        if (dist.IsDone() && dist.Value() < 1e-3) { if (!out.some((g) => g.IsSame(face))) out.push(face); break; }
+      }
+    }
+    return out;
   }
 
   const fuse = (a: any, b: any) => {
@@ -278,6 +329,30 @@ export function occtKernel(oc: OC, replicad: Replicad, opts: { tolerance?: numbe
       });
       return s ? S(s) : null;
     },
+    transform(shape, m) {
+      const e = m;
+      const det = e[0] * (e[5] * e[10] - e[9] * e[6]) - e[4] * (e[1] * e[10] - e[9] * e[2]) + e[8] * (e[1] * e[6] - e[5] * e[2]);
+      if (Math.abs(det - 1) > 1e-6) return null;
+      const tr = t(new oc.gp_Trsf());
+      tr.SetValues(e[0], e[4], e[8], e[12], e[1], e[5], e[9], e[13], e[2], e[6], e[10], e[14]);
+      return S(t(t(new oc.BRepBuilderAPI_Transform(R(shape), tr, true, false)).Shape()));
+    },
+    mirror(shape, origin, normal) {
+      const tr = t(new oc.gp_Trsf());
+      tr.SetMirror(t(new oc.gp_Ax2(pnt(origin), dir(normal))));
+      return S(t(t(new oc.BRepBuilderAPI_Transform(R(shape), tr, true, false)).Shape()));
+    },
+    loft(s1, p1, r1, s2, p2, r2) {
+      if (r1.holes.length || r2.holes.length) return null;
+      const w1 = contourWire(s1, p1, r1.outer, 0), w2 = contourWire(s2, p2, r2.outer, 0);
+      if (!w1 || !w2) return null;
+      const ts = t(new oc.BRepOffsetAPI_ThruSections(true, false, 1e-6));
+      ts.AddWire(w1);
+      ts.AddWire(w2);
+      ts.Build(progress());
+      if (!ts.IsDone()) return null;
+      return S(clean(t(ts.Shape())));
+    },
     fuse: (a, b) => S(fuse(R(a), R(b))),
     cut: (a, b) => S(cut(R(a), R(b))),
     fillet(shape, edges, radius) {
@@ -298,25 +373,27 @@ export function occtKernel(oc: OC, replicad: Replicad, opts: { tolerance?: numbe
       if (!mk.IsDone()) throw new Error('the chamfer does not fit (distance too large for the faces next to the edge)');
       return S(clean(mk.Shape()));
     },
+    draft(shape, faces, pull, angle, neutral) {
+      const mk = t(new oc.BRepOffsetAPI_DraftAngle(R(shape)));
+      const pd = dir(pull);
+      const pln = t(new oc.gp_Pln(pnt(neutral.origin), dir(neutral.normal)));
+      const list = faces === 'sides'
+        ? facesOf(R(shape)).filter((f) => { const n = faceNormal(f); return !!n && Math.abs(n.x * pull[0] + n.y * pull[1] + n.z * pull[2]) < 1e-6; })
+        : matchFaces(R(shape), faces);
+      if (!list.length) throw new Error('no faces to draft');
+      for (const f of list) {
+        mk.Add(f, pd, (angle * Math.PI) / 180, pln, true);
+        if (!mk.AddDone()) throw new Error('a face cannot be drafted');
+      }
+      mk.Build(progress());
+      if (!mk.IsDone()) throw new Error('the draft failed');
+      return S(t(mk.Shape()));
+    },
     shell(shape, openFaces, thickness, outward) {
       const list = t(new oc.NCollection_List_TopoDS_Shape());
-      const ex = t(new oc.TopExp_Explorer(R(shape), oc.TopAbs_ShapeEnum.TopAbs_FACE, oc.TopAbs_ShapeEnum.TopAbs_SHAPE));
-      let found = 0;
-      while (ex.More()) {
-        const face = t(oc.TopoDS.Face(ex.Current()));
-        ex.Next();
-        const rf: any = replicad.cast(face);
-        let n: { x: number; y: number; z: number };
-        try { n = rf.normalAt(); } catch { continue; }
-        for (const of of openFaces) {
-          const ln = Math.hypot(...of.normal) || 1;
-          if ((n.x * of.normal[0] + n.y * of.normal[1] + n.z * of.normal[2]) / ln < 0.99) continue;
-          const v = t(t(new oc.BRepBuilderAPI_MakeVertex(pnt(of.point))).Vertex());
-          const dist = t(new oc.BRepExtrema_DistShapeShape(v, face));
-          if (dist.IsDone() && dist.Value() < 1e-3) { list.Append(face); found++; break; }
-        }
-      }
-      if (openFaces.length && found < openFaces.length) throw new Error('a face to remove was not found on the B-rep body');
+      const matched = matchFaces(R(shape), openFaces);
+      for (const f of matched) list.Append(f);
+      if (openFaces.length && matched.length < openFaces.length) throw new Error('a face to remove was not found on the B-rep body');
       const mk = t(new oc.BRepOffsetAPI_MakeThickSolid());
       mk.MakeThickSolidByJoin(R(shape), list, outward ? thickness : -thickness, 1e-3, oc.BRepOffset_Mode.BRepOffset_Skin, false, false, oc.GeomAbs_JoinType.GeomAbs_Arc, false, progress());
       if (!mk.IsDone()) throw new Error('the shell failed');

@@ -826,6 +826,20 @@ function brepTool(K: BrepKernel, doc: Document, f: Feature, extent: number, mesh
     }
     return shape;
   }
+  if (f.type === 'loft') {
+    // a loft between two single-region profiles; guides, centerline, end constraints and boundary: mesh kernel
+    if (f.boundary || f.guides?.length || f.centerline || f.closeLoft || f.startNormal || f.endNormal || (f.startType && f.startType !== 'normal') || (f.endType && f.endType !== 'normal')) return null;
+    const s1 = doc.sketches[f.sketchId], s2 = doc.sketches[f.sketchId2];
+    if (!s1 || !s2) return null;
+    const r1 = sketchContourRegions(s1), r2 = sketchContourRegions(s2);
+    if (r1.length !== 1 || r2.length !== 1) return null;
+    const shape = K.loft(s1, resolvePlaneDef(doc, s1.plane), r1[0], s2, resolvePlaneDef(doc, s2.plane), r2[0]);
+    if (shape && meshTool) {
+      const mv = Math.abs(meshVolume(meshTool)), bv = Math.abs(K.volume(shape));
+      if (!(mv > 0) || Math.abs(bv - mv) / mv > 0.03) return null;
+    }
+    return shape;
+  }
   if (f.type !== 'extrude' && f.type !== 'revolve') return null;
   const sketch = doc.sketches[f.sketchId];
   if (!sketch || f.thin) return null;
@@ -855,7 +869,9 @@ function brepTool(K: BrepKernel, doc: Document, f: Feature, extent: number, mesh
     }
     return best;
   }
-  if (f.draft || f.flipSide || f.fromOffset || f.normalCut) return null;
+  if (f.flipSide || f.fromOffset || f.normalCut) return null;
+  // Draft On/Off: one-sided extrusions only (the mesh kernel tapers both sides away from the sketch plane)
+  if (f.draft && (f.end === 'midPlane' || f.end === 'throughAllBoth' || f.direction2 || !(f.draft.angle > 0 && f.draft.angle < 89))) return null;
   const simple = ['blind', 'midPlane', 'throughAll', 'throughAllBoth'];
   if (!simple.includes(f.end)) return null;
   if (f.direction2 && !['blind', 'throughAll'].includes(f.direction2.end)) return null;
@@ -872,7 +888,28 @@ function brepTool(K: BrepKernel, doc: Document, f: Feature, extent: number, mesh
     total = Math.max(0, a, b) - zStart;
   }
   if (total <= 1e-9) return null;
-  return K.extrude(sketch, plane, regions, zStart, total);
+  const prism = K.extrude(sketch, plane, regions, zStart, total);
+  if (!prism || !f.draft) return prism;
+  const dirSign = f.reverse ? -1 : 1;
+  const pull: [number, number, number] = [plane.n[0] * dirSign, plane.n[1] * dirSign, plane.n[2] * dirSign];
+  const neutral = { origin: plane.origin, normal: plane.n };
+  return pickByVolume(K, [f.draft.angle, -f.draft.angle].map((a) => () => K.draft(prism, 'sides', pull, a, neutral)), meshTool ? Math.abs(meshVolume(meshTool)) : 0, 0.1);
+}
+
+/** of candidate B-rep results, the one whose volume is nearest the mesh kernel's (within the tolerance); null if none */
+function pickByVolume(K: BrepKernel, makers: (() => BrepShape)[], meshVol: number, tol: number): BrepShape | null {
+  if (!(meshVol > 0)) return null;
+  let best: BrepShape | null = null, bd = Infinity;
+  for (const make of makers) {
+    try {
+      const sh = make();
+      const d = Math.abs(Math.abs(K.volume(sh)) - meshVol) / meshVol;
+      if (d < bd) { bd = d; best = sh; }
+    } catch {
+      /* this candidate failed */
+    }
+  }
+  return bd <= tol ? best : null;
 }
 
 export function rebuildDocument(doc: Document, upTo: number | null = null): RebuildResult {
@@ -925,6 +962,23 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
     b.geometry = K!.tessellate(shape);
     shapes.set(b, { shape, geometry: b.geometry, version: posVersion(b.geometry) });
   }
+  /** the B-rep tool of a feature, or null (no kernel, not supported, or the kernel failed) */
+  const toolOf = (feature: Feature, ext: number, meshTool?: THREE.BufferGeometry | null): BrepShape | null => {
+    if (!K) return null;
+    try {
+      return brepTool(K, doc, feature, ext, meshTool ?? undefined);
+    } catch {
+      return null;
+    }
+  };
+  const moved = (shape: BrepShape | null, m: THREE.Matrix4): BrepShape | null => {
+    if (!K || !shape) return null;
+    try {
+      return K.transform(shape, m.elements);
+    } catch {
+      return null;
+    }
+  };
   const visibleBodies = () => bodies.filter((b) => !hiddenIds.has(b.id));
   const boxOf = (g: THREE.BufferGeometry) => {
     g.computeBoundingBox();
@@ -1245,7 +1299,17 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
           errors[f.id] = r.error ?? 'Could not build the draft.';
           continue;
         }
-        target.geometry = r.geometry;
+        // B-rep draft about the neutral plane: the side of the angle that agrees with the mesh kernel
+        const exD = exactOf(target);
+        let drafted: BrepShape | null = null;
+        if (K && exD && f.neutral && (!f.draftType || f.draftType === 'neutral') && (!f.propagation || f.propagation === 'none')) {
+          const nn = f.neutral.normal;
+          // direction of pull: into the part from the neutral face (Reverse flips it), as draftOnBody
+          const pull: [number, number, number] = f.reverse ? [nn[0], nn[1], nn[2]] : [-nn[0], -nn[1], -nn[2]];
+          drafted = pickByVolume(K, [f.angle, -f.angle].map((a) => () => K.draft(exD, f.faces, pull, a, { origin: f.neutral!.point, normal: nn })), Math.abs(meshVolume(r.geometry)), 0.03);
+        }
+        if (drafted) setExact(target, drafted);
+        else target.geometry = r.geometry;
         target.featureIds.push(f.id);
       } catch (err) {
         errors[f.id] = `Boolean operation failed: ${(err as Error).message}`;
@@ -1431,8 +1495,22 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
             if (!tool) continue;
             const m = mirrorGeometry(tool, pl.origin, pl.n);
             const cut = (src as { op?: string }).op === 'cut';
+            // the mirrored B-rep tool, for the bodies that are exact
+            const srcShape = toolOf(src, THROUGH_ALL, tool);
+            let mShape: BrepShape | null = null;
+            if (K && srcShape) { try { mShape = K.mirror(srcShape, pl.origin, pl.n); } catch { mShape = null; } }
             for (const b of visibleBodies()) {
               if (f.bodies?.length && !f.bodies.includes(b.id)) continue;
+              const ex = exactOf(b);
+              if (K && ex && mShape) {
+                try {
+                  setExact(b, cut ? K.cut(ex, mShape) : K.fuse(ex, mShape));
+                  b.featureIds.push(f.id);
+                  continue;
+                } catch {
+                  /* the mesh kernel below */
+                }
+              }
               b.geometry = csg(b.geometry, m, cut ? 'subtract' : 'union');
               b.featureIds.push(f.id);
             }
@@ -1450,8 +1528,17 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
           // Bodies to Mirror: only the listed bodies (absent: every body)
           if (f.bodies?.length && !f.bodies.includes(b.id)) continue;
           // Merge solids off: the mirrored half becomes a body of its own
-          if (f.mergeSolids === false) newBody(mirrorGeometry(b.geometry, pl.origin, pl.n), f.id);
-          else b.geometry = csg(b.geometry, mirrorGeometry(b.geometry, pl.origin, pl.n), 'union');
+          const ex = exactOf(b);
+          let mirrored: BrepShape | null = null;
+          if (K && ex) { try { mirrored = K.mirror(ex, pl.origin, pl.n); } catch { mirrored = null; } }
+          if (f.mergeSolids === false) newBody(mirrorGeometry(b.geometry, pl.origin, pl.n), f.id, mirrored);
+          else {
+            let done = false;
+            if (K && ex && mirrored) {
+              try { setExact(b, K.fuse(ex, mirrored)); done = true; } catch { done = false; }
+            }
+            if (!done) b.geometry = csg(b.geometry, mirrorGeometry(b.geometry, pl.origin, pl.n), 'union');
+          }
           b.featureIds.push(f.id);
         }
         if (f.propagateVisual !== false) for (const fa of doc.faceAppearances ?? []) {
@@ -1481,7 +1568,7 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
       // Bodies to pattern: copies of whole bodies (linear / circular), then the features (if any)
       if (patBodies.length && (f.type === 'linearPattern' || f.type === 'circularPattern')) {
         const insts = patternInstances(patternSpec(doc, f, seeds[0]));
-        for (const b of patBodies) for (const [k, inst] of insts.entries()) if (!f.skip?.includes(k)) newBody(inst(b.geometry), f.id);
+        for (const b of patBodies) for (const [k, inst] of insts.entries()) if (!f.skip?.includes(k)) newBody(inst(b.geometry), f.id, moved(exactOf(b), instanceMatrix(inst)));
         if (!seeds.length) continue;
       }
       body.geometry.computeBoundingSphere();
@@ -1600,12 +1687,15 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
         for (const seed of seeds) {
           const g = featureGeometry(doc, seed, extent, body?.geometry).geometry;
           if (!g) continue;
+          // the seed's tool as a B-rep solid: every instance is that solid moved (exact patterns)
+          const seedShape = toolOf(seed, extent, g);
           const sk = doc.sketches[seed.sketchId];
           const bodyBound = seed.type === 'extrude' && ['upToNext', 'upToSurface', 'offsetFromSurface', 'upToBody', 'upToVertex'].includes(seed.end);
           const perInstance = !!sk && (f.varySketch || !!f.varyDims?.length || (!f.geometryPattern && bodyBound));
           for (const [k, inst] of instances.entries()) {
             if (f.skip?.includes(k)) continue;
             let ig: THREE.BufferGeometry | null = null;
+            let ish: BrepShape | null = null;
             if (perInstance && sk) {
               // the instance's own sketch: dimensions varied, moved (and solved again) to the instance place
               const m = instanceMatrix(inst);
@@ -1632,15 +1722,18 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
                 idoc = { ...doc, planes: { ...doc.planes, [pid]: { id: pid, name: pid, origin: [o.x, o.y, o.z], u: [u.x, u.y, u.z], v: [v.x, v.y, v.z], n: [n.x, n.y, n.z], kind: 'face' } }, sketches: { ...doc.sketches, [sk.id]: { ...isk, plane: pid } } };
               }
               ig = featureGeometry(idoc, seed, extent, body?.geometry).geometry;
-            } else ig = inst(g);
+            } else {
+              ig = inst(g);
+              ish = moved(seedShape, instanceMatrix(inst));
+            }
             if (!ig) continue;
             if (seed.type === 'helix') continue;
             const boss = seed.type === 'rib' || seed.type === 'baseFlange' || seed.op === 'boss';
             if (boss) {
-              addMaterial(ig, f.id, true);
+              addMaterial(ig, f.id, true, undefined, ish);
               addBoss(ig);
             } else {
-              removeMaterial(ig, f.id);
+              removeMaterial(ig, f.id, undefined, ish);
               history.cuts.push(ig);
             }
           }

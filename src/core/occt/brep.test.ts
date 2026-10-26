@@ -198,11 +198,83 @@ describe('B-rep kernel in the rebuild (OpenCascade)', () => {
     expect(Math.abs(r.bodies[0].exactVolume! - (80 * 60 * 20 - 76 * 56 * 18))).toBeLessThan(1e-3);
   });
 
+  it('linear and circular patterns of features are exact (every instance the seed tool moved)', () => {
+    const doc = createDocument();
+    doc.sketches.s1 = rect('s1', 'top', 0, 0, 100, 100);
+    doc.features.push(extrude('e1', 's1', 'boss', 10));
+    doc.sketches.s2 = rect('s2', 'top', 5, 5, 15, 15);
+    doc.features.push(extrude('b2', 's2', 'boss', 5, { reverse: true }));
+    doc.features.push({ id: 'lp', type: 'linearPattern', name: 'LPattern1', suppressed: false, featureIds: ['b2'], dir1: { axis: [1, 0, 0], spacing: 20, count: 4 } } as never);
+    doc.sketches.s3 = addCircle(createSketch('s3', 's3', 'top'), { x: 80, y: 50 }, 4)[0];
+    doc.features.push(extrude('c3', 's3', 'cut', 0, { end: 'throughAll' }));
+    doc.features.push({ id: 'cp', type: 'circularPattern', name: 'CirPattern1', suppressed: false, featureIds: ['c3'], axis: { origin: [50, 0, -50], dir: [0, 1, 0] }, angle: 360, count: 4 } as never);
+    const r = rebuildDocument(doc);
+    expect(Object.keys(r.errors)).toHaveLength(0);
+    expect(r.bodies).toHaveLength(1);
+    expect(r.bodies[0].exact).toBe(true);
+    expect(Math.abs(r.bodies[0].exactVolume! - (100 * 100 * 10 + 4 * 10 * 10 * 5 - 4 * PI * 16 * 10))).toBeLessThan(1e-4);
+  });
+
+  it('mirror: a mirrored feature and a mirrored body are exact', () => {
+    const doc = createDocument();
+    doc.sketches.s1 = rect('s1', 'top', 0, 0, 40, 30, { x: 20, y: 15, r: 5 });
+    doc.features.push(extrude('e1', 's1', 'boss', 10));
+    doc.features.push({ id: 'm1', type: 'mirror', name: 'Mirror1', suppressed: false, plane: 'right', featureIds: ['e1'] } as never);
+    const r = rebuildDocument(doc);
+    expect(Object.keys(r.errors)).toHaveLength(0);
+    expect(r.bodies[0].exact).toBe(true);
+    expect(Math.abs(r.bodies[0].exactVolume! - 2 * (40 * 30 * 10 - PI * 25 * 10))).toBeLessThan(1e-4);
+    const doc2 = createDocument();
+    doc2.sketches.s1 = rect('s1', 'top', 0, 0, 40, 30);
+    doc2.features.push(extrude('e1', 's1', 'boss', 10));
+    doc2.features.push({ id: 'm2', type: 'mirror', name: 'Mirror2', suppressed: false, plane: 'right' } as never);
+    const r2 = rebuildDocument(doc2);
+    expect(r2.bodies[0].exact).toBe(true);
+    expect(Math.abs(r2.bodies[0].exactVolume! - 2 * 40 * 30 * 10)).toBeLessThan(1e-4);
+  });
+
+  it('a loft from a 40 mm square to a 20 mm square 30 mm higher is an exact frustum', () => {
+    const doc = createDocument();
+    doc.planes.p30 = { id: 'p30', name: 'Plane1', kind: 'offset', u: [1, 0, 0], v: [0, 0, -1], n: [0, 1, 0], origin: [0, 30, 0] } as never;
+    doc.sketches.s1 = rect('s1', 'top', -20, -20, 20, 20);
+    doc.sketches.s2 = rect('s2', 'p30', -10, -10, 10, 10);
+    doc.features.push({ id: 'l1', type: 'loft', name: 'Loft1', suppressed: false, op: 'boss', sketchId: 's1', sketchId2: 's2' } as never);
+    const r = rebuildDocument(doc);
+    expect(r.errors.l1).toBeUndefined();
+    expect(r.bodies[0].exact).toBe(true);
+    expect(Math.abs(r.bodies[0].exactVolume! - (30 / 3) * (1600 + 400 + 800))).toBeLessThan(1e-3);
+  });
+
+  it('an extrude with a 5° draft and a Draft feature on the sides are exact (tapered planes)', () => {
+    const doc = createDocument();
+    doc.sketches.s1 = rect('s1', 'top', -20, -20, 20, 20);
+    doc.features.push(extrude('e1', 's1', 'boss', 20, { draft: { angle: 5, outward: false } }));
+    const r = rebuildDocument(doc);
+    expect(r.errors.e1).toBeUndefined();
+    expect(r.bodies[0].exact).toBe(true);
+    // a frustum of squares: 40 at the base, 40 - 2 * 20 * tan 5° at the top
+    const top = 40 - 2 * 20 * Math.tan((5 * PI) / 180);
+    expect(Math.abs(r.bodies[0].exactVolume! - (20 / 3) * (1600 + top * top + 40 * top))).toBeLessThan(1e-3);
+
+    const d2 = createDocument();
+    d2.sketches.s1 = rect('s1', 'top', -20, -20, 20, 20);
+    d2.features.push(extrude('e1', 's1', 'boss', 20));
+    d2.features.push({ id: 'd1', type: 'draft', name: 'Draft1', suppressed: false, angle: 5, neutral: { normal: [0, 1, 0], point: [0, 20, 0], label: 'Face' }, faces: [{ normal: [1, 0, 0], point: [20, 10, 0], label: 'Face' }, { normal: [-1, 0, 0], point: [-20, 10, 0], label: 'Face' }] } as never);
+    setBrepKernel(null);
+    const mesh = rebuildDocument(d2);
+    setBrepKernel(kernel);
+    const r2 = rebuildDocument(d2);
+    expect(r2.errors.d1).toBeUndefined();
+    expect(r2.bodies[0].exact).toBe(true);
+    const mv = Math.abs(meshVolume(mesh.bodies[0].geometry));
+    expect(Math.abs(r2.bodies[0].exactVolume! - mv) / mv).toBeLessThan(0.005);
+    expect(Math.abs(r2.bodies[0].exactVolume! - 40 * 40 * 20)).toBeGreaterThan(100);
+  });
+
   it('a feature without a B-rep version continues on the mesh (fallback); the body is still built', () => {
     const doc = plateWithHole();
     doc.sketches.s2 = rect('s2', 'top', 2, 2, 8, 8);
-    doc.features.push(extrude('b2', 's2', 'boss', 15));
-    doc.features.push({ id: 'lp', type: 'linearPattern', name: 'LPattern1', suppressed: false, featureIds: ['b2'], dir1: { axis: [1, 0, 0], spacing: 20, count: 3 } } as never);
+    doc.features.push(extrude('b2', 's2', 'boss', 15, { end: 'midPlane', draft: { angle: 5, outward: false } }));
     const r = rebuildDocument(doc);
     expect(r.bodies).toHaveLength(1);
     expect(r.bodies[0].exact).toBeFalsy();

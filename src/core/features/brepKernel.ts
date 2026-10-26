@@ -27,6 +27,12 @@ export interface BrepKernel {
   axisymmetric(origin: [number, number, number], axis: [number, number, number], ref: [number, number, number], parts: { t0: number; t1: number; r0: number; r1: number }[]): BrepShape;
   /** sweep the profile regions along the open chain of lines, arcs and splines of the path sketch (profile moves with the path) */
   sweep(profile: Sketch, profilePlane: PlaneDef, regions: ContourRegion[], path: Sketch, pathPlane: PlaneDef): BrepShape | null;
+  /** a rigid move (THREE.Matrix4 elements, column-major); null for a matrix that mirrors or scales */
+  transform(shape: BrepShape, m: ArrayLike<number>): BrepShape | null;
+  /** the mirror image about the plane through origin with this normal */
+  mirror(shape: BrepShape, origin: [number, number, number], normal: [number, number, number]): BrepShape;
+  /** a loft between the outer contours of two profile regions (one region each) */
+  loft(s1: Sketch, p1: PlaneDef, r1: ContourRegion, s2: Sketch, p2: PlaneDef, r2: ContourRegion): BrepShape | null;
   fuse(a: BrepShape, b: BrepShape): BrepShape;
   cut(a: BrepShape, b: BrepShape): BrepShape;
   /** constant radius fillet / equal distance chamfer on the B-rep edges that lie on these mesh edges */
@@ -34,6 +40,11 @@ export interface BrepKernel {
   chamfer(shape: BrepShape, edges: BodyEdge[], distance: number): BrepShape;
   /** hollow the solid: wall `thickness` inward (outward when set), the faces at these planes left open */
   shell(shape: BrepShape, openFaces: { normal: [number, number, number]; point: [number, number, number] }[], thickness: number, outward: boolean): BrepShape;
+  /**
+   * draft faces about a neutral plane: the faces at these planes, or 'sides' = every face parallel to the pull direction;
+   * the angle in degrees (its sign follows OpenCascade's convention; the rebuild checks it against the mesh kernel)
+   */
+  draft(shape: BrepShape, faces: { normal: [number, number, number]; point: [number, number, number] }[] | 'sides', pull: [number, number, number], angle: number, neutral: { origin: [number, number, number]; normal: [number, number, number] }): BrepShape;
   /** triangles for the viewport and the mesh kernel (non-indexed, with the normals of the surfaces) */
   tessellate(shape: BrepShape): THREE.BufferGeometry;
   volume(shape: BrepShape): number;

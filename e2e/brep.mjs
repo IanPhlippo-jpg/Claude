@@ -89,11 +89,12 @@ const s3 = await state();
 // next to a fillet the B-rep offset and the mesh wall can differ: then the mesh kernel builds it (safety net)
 check('Shell1 (top face open) builds without an error', s3.bodies.length === 1 && !s3.errors.sh1, JSON.stringify(s3));
 await page.screenshot({ path: `${OUT}/brep-shell.png` });
-// a linear pattern has no B-rep version yet: the mesh kernel builds it (fallback), the part stays whole
+// a linear pattern of the plate (100 mm apart: a second body), built from the exact seed tool
+await S(() => { const s = window.__phlippoStore.getState(); s.applyDocument('Suppress shell', { ...s.doc, features: s.doc.features.map((f) => (f.id === 'sh1' ? { ...f, suppressed: true } : f)) }); });
 await S(() => { const s = window.__phlippoStore.getState(); s.applyDocument('Pattern', { ...s.doc, features: [...s.doc.features, { id: 'lp1', type: 'linearPattern', name: 'LPattern1', suppressed: false, featureIds: ['e1'], dir1: { axis: [1, 0, 0], spacing: 100, count: 2 } }] }); });
-await page.waitForTimeout(2500);
+const okPat = await page.waitForFunction(() => { const s = window.__phlippoStore.getState(); return s.rebuild.bodies.length === 2 && s.rebuild.bodies.every((b) => b.exact); }, null, { timeout: 60000 }).then(() => true, () => false);
 const s4 = await state();
-check('a linear pattern falls back to the mesh kernel; the bodies are still built', s4.bodies.length >= 1 && s4.bodies.some((b) => !b.exact) && !s4.errors.lp1, JSON.stringify(s4));
+check('a linear pattern of the plate is exact: two exact bodies (docs/16)', okPat && !s4.errors.lp1, JSON.stringify(s4));
 
 // an assembly: the door handle; every part is refined once and the assembly is rebuilt from the exact parts
 const asm = readFileSync('voorbeelden/deurkruk/Deurkruk.kcad', 'utf8');

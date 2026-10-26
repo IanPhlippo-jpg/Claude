@@ -582,3 +582,11 @@ elease; README en docs/04 bijgewerkt
 - [x] STEP-export uit de B-rep (echte cilinders, geen facetten) wanneer de body exact is
 - [x] Extra: Hole Tool (cilinders/kegels), gedeeltelijke revolve, sweep langs schetspad, shell (met volume-vangnet), assemblies uit exacte onderdelen, Mass Properties exact
 - [x] Unit tests per feature (volume, vlakken) en e2e; optie in Tools ▸ Options; regressie, desktop, installer 0.3.8 (unit 364, regressie 83/83, desktop 8/8 + 12/12 + delete)
+
+## Vervolg 40: open stukken B-rep — patronen, mirror, loft, draft, shell naast afronding (2026-10-26)
+- [x] Linear en circular pattern (en sketch/table pattern) van features via B-rep: elke instantie het B-rep-gereedschap verplaatst
+- [x] Mirror (features en bodies) via een B-rep-spiegeling
+- [x] Loft (boss/cut) tussen twee profielen via ThruSections, met volume-vangnet
+- [x] Draft (neutraal vlak, vlakken) via DraftAngle, met volume-vangnet
+- [x] Shell naast een afronding: uitgezocht (rand meetkundig niet eenduidig; OCCT weigert, mesh benadert; zonder SW-referentie blijft het vangnet de mesh kiezen) — docs/16
+- [x] Tests (unit + e2e), regressie, desktop, installer 0.3.9, screenshots, commit + tag (unit 368, regressie 83/83)
