@@ -1,6 +1,7 @@
 import { bridge } from '../viewport/bridge';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useStore } from '../store';
+import { useShallow } from 'zustand/react/shallow';
 import { Icon } from '../../ui/icons';
 import { drawingToolClick, tableGrid } from './DrawingExtras';
 import { alternateLines, faceRegionAt, alignedPosition, nearestCircle, nearestLine, projectedPlacement, projectedView, sectionFlipFor, sectionFrame, sheetSize, sheetToView, viewBounds, viewGeometry, viewOnSheet, viewScale, viewToSheet } from '../../core/drawing/sheet';
@@ -30,7 +31,7 @@ const BASE = 3;
 export const PAPER = '#e8e8e0';
 
 export function DrawingSheetView() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ doc: s.doc, drawingEdit: s.drawingEdit, prefs: s.prefs, reverseWheel: s.reverseWheel, drawingTool: s.drawingTool, placeView: s.placeView, placeProjectedView: s.placeProjectedView, pushMessage: s.pushMessage, placeDrawingDimension: s.placeDrawingDimension, startDrawingDimensionOnCircle: s.startDrawingDimensionOnCircle, startDrawingDimensionOnLine: s.startDrawingDimensionOnLine, placeNote: s.placeNote, setSectionLine: s.setSectionLine, placeSectionView: s.placeSectionView, setDetailCircle: s.setDetailCircle, placeDetailView: s.placeDetailView, addBrokenOutPoint: s.addBrokenOutPoint, setAuxEdge: s.setAuxEdge, placeAuxView: s.placeAuxView, setDrawingEdit: s.setDrawingEdit, setViewCrop: s.setViewCrop, setViewBreak: s.setViewBreak, applyDocument: s.applyDocument, cancelDrawingEdit: s.cancelDrawingEdit, addSymbol: s.addSymbol, addRevision: s.addRevision, addCenterMark: s.addCenterMark, selectDrawingDimension: s.selectDrawingDimension, selectedDrawingDimensionId: s.selectedDrawingDimensionId, beginAnnotationMove: s.beginAnnotationMove, selectDrawingView: s.selectDrawingView, setManagerTab: s.setManagerTab, moveAnnotation: s.moveAnnotation, updateDrawingDimension: s.updateDrawingDimension, moveDrawingView: s.moveDrawingView, commitViewMove: s.commitViewMove, selectedDrawingViewId: s.selectedDrawingViewId, setDrawingTool: s.setDrawingTool, deleteDrawingView: s.deleteDrawingView, activateSheet: s.activateSheet, setDialog: s.setDialog, addSheet: s.addSheet })));
   const sheet = st.doc.sheets?.[0];
   // WEIGHT in the title block: the mass of the first view's model (part material density)
   const firstModel = sheet?.views[0]?.model;
@@ -319,7 +320,7 @@ export function DrawingSheetView() {
           }
           const dx = p[0] - c.circle.c[0], dy = p[1] - c.circle.c[1], L = Math.hypot(dx, dy) || 1;
           const dia = 2 * c.viewCircle.r;
-          // a tapped hole of the Hole Wizard with "With thread callout": the thread designation, by design
+          // a tapped hole of the Hole Tool with "With thread callout": the thread designation, by design
           const tap = v.model.kind !== 'assembly' ? v.model.features.find((x) => x.type === 'hole' && !x.suppressed && x.holeType === 'tap' && x.threadDiameter && (Math.abs(x.diameter - dia) < 0.05 || Math.abs(x.threadDiameter - dia) < 0.05)) : undefined;
           const text = tap && tap.type === 'hole' && tap.threadCallout !== false
             ? `${tap.sizeName ?? `M${tap.threadDiameter}`}x${(tap.pitch ?? 1).toFixed(1)} - 6H ${tap.depth > 0 ? `▼ ${(tap.threadDepth || tap.depth).toFixed(2)}` : 'THRU'}`
@@ -372,7 +373,7 @@ export function DrawingSheetView() {
     }
     const v = viewAt(p);
     st.selectDrawingView(v?.id ?? null);
-    // clicking a view opens its PropertyManager (Drawing View1 …), by design
+    // clicking a view opens its Property Panel (Drawing View1 …), by design
     st.setManagerTab(v ? 'properties' : 'tree');
     if (v) {
       drag.current = { kind: 'view', x: e.clientX, y: e.clientY, viewId: v.id, start: [v.position[0], v.position[1]] };

@@ -138,7 +138,7 @@ input[type='number']::-webkit-inner-spin-button { opacity: 0.4; }
 .k-list li.selected { background: var(--bg-selected); }
 .k-list li .tail { margin-left: auto; display: flex; gap: 4px; }
 
-/* the rich tooltip of the CommandManager (title, picture, explanation) with a tail to the button, by design */
+/* the rich tooltip of the Command Ribbon (title, picture, explanation) with a tail to the button, by design */
 .k-richtip { position: fixed; z-index: 10000; width: 300px; padding: 9px 12px 10px; background: #fff; border: 1px solid #9a9a9a; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18); pointer-events: none; color: #1a1a1a; font-size: 12px; }
 .k-richtip b { display: block; font-size: 13px; margin-bottom: 4px; }
 .k-richtip-art { display: flex; justify-content: center; margin: 2px 0 6px; }

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { useStore } from '../store';
+import { useShallow } from 'zustand/react/shallow';
 import { Icon } from '../../ui/icons';
 import { NumberField, Section } from '../../ui/components';
 import { motionTransforms, motorValue, playbackTime, type MotionStudy } from '../../core/assembly/motion';
@@ -41,13 +42,13 @@ async function recordAnimation(fps: number, duration: number, name: string): Pro
 }
 
 /**
- * MotionManager of Motion Study 1, docked under the graphics area by design: the toolbar (study type,
+ * Motion Timeline of Motion Study 1, docked under the graphics area by design: the toolbar (study type,
  * Calculate, Play from Start, Play, Stop, playback speed and mode, Save Animation, Animation Wizard, Autokey,
- * Add/Update Key, Motor, Spring, Contact, Gravity, Results and Plots, Motion Study Properties), the MotionManager
+ * Add/Update Key, Motor, Spring, Contact, Gravity, Results and Plots, Motion Study Properties), the Motion Timeline
  * tree on the left and the timeline with the time bar and key points on the right.
  */
-export function MotionManager() {
-  const st = useStore();
+export function MotionTimeline() {
+  const st = useStore(useShallow((s) => ({ doc: s.doc, motionPlaying: s.motionPlaying, motionTime: s.motionTime, deleteMotor: s.deleteMotor, deleteMotionItem: s.deleteMotionItem, calculateMotion: s.calculateMotion, setMotionTime: s.setMotionTime, setMotionPlaying: s.setMotionPlaying, setMotionStudy: s.setMotionStudy, startMotionEdit: s.startMotionEdit, motionAutokey: s.motionAutokey, setMotionAutokey: s.setMotionAutokey, addMotionKey: s.addMotionKey, selectedFeatureId: s.selectedFeatureId, startMotor: s.startMotor, setMotionDuration: s.setMotionDuration, motionEdit: s.motionEdit })));
   const study = st.doc.motionStudy ?? EMPTY;
   const speed = useRef(1);
   const raf = useRef(0);
@@ -168,7 +169,7 @@ export function MotionManager() {
 
 /** Results and Plots: a quantity of a component over the study time, as a line graph */
 function MotionPlot() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ motionEdit: s.motionEdit, doc: s.doc, rebuild: s.rebuild, motionSim: s.motionSim, updateMotionEdit: s.updateMotionEdit, motionTime: s.motionTime })));
   const me = st.motionEdit!;
   const p = me.plot!;
   const study = st.doc.motionStudy ?? EMPTY;
@@ -224,9 +225,9 @@ function MotionPlot() {
   );
 }
 
-/** Spring / Contact / Gravity / Motion Study Properties / Animation Wizard PropertyManagers */
+/** Spring / Contact / Gravity / Motion Study Properties / Animation Wizard Property Panels */
 export function MotionEditPM() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ motionEdit: s.motionEdit, doc: s.doc, commitMotionEdit: s.commitMotionEdit, updateMotionEdit: s.updateMotionEdit })));
   const me = st.motionEdit;
   if (!me || me.kind === 'plot') return null;
   const comps = st.doc.components ?? [];
@@ -315,9 +316,9 @@ export function MotionEditPM() {
   );
 }
 
-/** Motor PropertyManager (Rotary / Linear Motor on a component, Constant speed, Oscillating, Distance, Segments, Expression), by design. */
+/** Motor Property Panel (Rotary / Linear Motor on a component, Constant speed, Oscillating, Distance, Segments, Expression), by design. */
 export function MotorPM() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ motorEdit: s.motorEdit, selectedFace: s.selectedFace, updateMotorDraft: s.updateMotorDraft, doc: s.doc, commitMotor: s.commitMotor, cancelMotor: s.cancelMotor })));
   const m = st.motorEdit;
   const [loadPick, setLoadPick] = useState(false);
   useEffect(() => {

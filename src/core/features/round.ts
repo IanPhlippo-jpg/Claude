@@ -84,7 +84,7 @@ export function roundTool(s: CreaseSegment, kind: 'fillet' | 'chamfer', size: nu
   return { geometry: prism(poly, s, dir), convex };
 }
 
-/** Fillet / chamfer options of the PropertyManager. */
+/** Fillet / chamfer options of the Property Panel. */
 export interface RoundOptions {
   /** asymmetric: the distance on the second face (chamfer D2, fillet asymmetric) */
   size2?: number;

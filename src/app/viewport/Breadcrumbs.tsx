@@ -1,6 +1,7 @@
 import { useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { useStore } from '../store';
+import { useShallow } from 'zustand/react/shallow';
 import { getPref } from '../prefs';
 import { Icon } from '../../ui/icons';
 import { featureIcon } from '../panels/featureIcon';
@@ -14,7 +15,7 @@ import { isSketchBased, type Feature } from '../../core/document/types';
  * below it; it stays while the selection does.
  */
 export function Breadcrumbs() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ selectedFeatureId: s.selectedFeatureId, doc: s.doc, selectedFace: s.selectedFace, rebuild: s.rebuild, mateEdit: s.mateEdit, insertingComponent: s.insertingComponent, setSelectedFeature: s.setSelectedFeature, selectComponent: s.selectComponent, activeSketchId: s.activeSketchId, featureEdit: s.featureEdit, editSketch: s.editSketch, editFeature: s.editFeature })));
   const ref = useRef<HTMLDivElement>(null);
   const on = getPref<boolean>('display.breadcrumbs') !== false;
 

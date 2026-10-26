@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useStore } from './store';
+import { useShallow } from 'zustand/react/shallow';
 import { Icon } from '../ui/icons';
 import { type PrefValue } from './prefs';
 import { CATEGORIES, COMMANDS, DEFAULT_GESTURES, DEFAULT_KEYS, commandById, gestureBindings, keyBindings, keyCombo, keyLabel } from './commands';
@@ -35,11 +36,11 @@ const joinList = (xs: string[]) => xs.join('|');
 
 /**
  * Tools ▸ Customize: the dialog of the intended design with its seven tabs. Every setting here is a real preference:
- * the CommandManager tabs and Quick Access buttons shown, the commands in the S shortcut bars, the menu items,
+ * the Command Ribbon tabs and Quick Access buttons shown, the commands in the S shortcut bars, the menu items,
  * the keyboard shortcuts, the mouse gestures and the tooltip / lock options.
  */
 export function CustomizeDialog() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ prefs: s.prefs, setPrefs: s.setPrefs, setDialog: s.setDialog, pushMessage: s.pushMessage })));
   const [tab, setTab] = useState<Tab>('Toolbars');
   const [draft, setDraft] = useState<Record<string, PrefValue>>(() => ({ ...st.prefs }));
   const [category, setCategory] = useState(CATEGORIES[0]);

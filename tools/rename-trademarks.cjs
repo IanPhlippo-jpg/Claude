@@ -12,7 +12,7 @@ const MAP = [
   ['DraftXpert', 'Auto-Fix Draft'], ['DimXpert', 'Auto Tolerancing'], ['Instant3D', 'Drag Handles'], ['Instant2D', 'Drag Dimensions'],
   ['RealView Graphics', 'Realistic Shading'], ['RealView', 'Realistic Shading'], ['SpeedPak', 'Lightweight Subassembly'], ['eDrawings', 'Phlippo Viewer'],
   // QA v0.3.4 F50: the remaining program-specific names
-  ['Hole Wizard', 'Hole Tool'], ['Smart Fasteners', 'Auto Fasteners'], ['Smart Fastener', 'Auto Fastener'], ['Design Library', 'Part Library'],
+  ['Hole Wizard', 'Hole Tool'], ['Stud Wizard', 'Stud Tool'], ['Smart Fasteners', 'Auto Fasteners'], ['Smart Fastener', 'Auto Fastener'], ['Design Library', 'Part Library'],
   ['Lifecycle and Collaboration', 'Share'], ['Toolbox', 'Standard Parts'],
   // QA v0.3.4 F77: phrases the first rename left broken
   ['Feature Tree Tree Area', 'Feature Tree Area'], ['Feature Tree tree area', 'Feature Tree area'], ['Feature Tree tree', 'Feature Tree'],

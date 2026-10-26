@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useStore } from './store';
+import { useShallow } from 'zustand/react/shallow';
 import { Icon } from '../ui/icons';
 import { MATERIAL_LIBRARY, materialInfo, type MaterialDef } from '../core/document/materials';
 import { getPref, loadPrefs, savePrefs } from './prefs';
@@ -24,7 +25,7 @@ const fmtNum = (v?: number) => (v === undefined ? '' : v >= 1e6 || v < 1e-3 ? v.
  * Close / Help. Apply sets the document material (density for Mass Properties, colour of the body).
  */
 export function MaterialDialog() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ doc: s.doc, applyDocument: s.applyDocument, setMaterial: s.setMaterial, pushMessage: s.pushMessage, setDialog: s.setDialog })));
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState<Record<string, boolean>>({ Steel: true });
   const [sel, setSel] = useState<MaterialDef | null>(() => (st.doc.material ? MATERIAL_LIBRARY.flatMap((c) => c.materials).find((m) => m.name === st.doc.material!.name) ?? null : null));

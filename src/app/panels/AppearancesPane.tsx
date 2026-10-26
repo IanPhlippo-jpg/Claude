@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useStore } from '../store';
+import { useShallow } from 'zustand/react/shallow';
 import { Icon } from '../../ui/icons';
 import { getPref, loadPrefs, savePrefs } from '../prefs';
 import { activeConfiguration, configurations } from '../../core/document/configurations';
@@ -82,7 +83,7 @@ const saveMine = (f: Folder[]) => savePrefs({ ...loadPrefs(), 'appearance.custom
 const MINE = 'My Appearances';
 
 export function AppearancesPane() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ doc: s.doc, pushMessage: s.pushMessage, setScene: s.setScene, startDecal: s.startDecal, setAppearance: s.setAppearance, setDialog: s.setDialog, applyDocument: s.applyDocument })));
   const [path, setPathRaw] = useState('Appearances(color)/Metal/Aluminum');
   // Back / Forward: the folders visited
   const [hist, setHist] = useState<{ list: string[]; at: number }>({ list: ['Appearances(color)/Metal/Aluminum'], at: 0 });

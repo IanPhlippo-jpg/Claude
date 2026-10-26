@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import * as THREE from 'three';
 import { useStore } from './store';
+import { useShallow } from 'zustand/react/shallow';
 import { Icon } from '../ui/icons';
 import { combineMassProperties, faceMeasure, massProperties, massPropertiesInFrame, overrideMassProperties, polylineDistance } from '../core/features/measure';
 import { rebuildAssembly } from '../core/assembly/assembly';
@@ -25,7 +26,7 @@ interface MassOpts { useDoc: boolean; len: keyof typeof LEN_UNITS; mass: keyof t
 const loadMassOpts = (): MassOpts => { try { return { useDoc: true, len: 'mm', mass: 'g', decimals: 2, ...JSON.parse(String(getPref('mass.options') || '{}')) }; } catch { return { useDoc: true, len: 'mm', mass: 'g', decimals: 2 }; } };
 
 export function MassPropertiesDialog() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ rebuild: s.rebuild, doc: s.doc, applyDocument: s.applyDocument, pushMessage: s.pushMessage, setDialog: s.setDialog })));
   const body = st.rebuild.bodies[0];
   const [tick, setTick] = useState(0);
   const [includeHidden, setIncludeHidden] = useState(true);

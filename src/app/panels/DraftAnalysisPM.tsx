@@ -1,12 +1,13 @@
 import { useMemo } from 'react';
 import { useStore } from '../store';
+import { useShallow } from 'zustand/react/shallow';
 import { NumberField, Section } from '../../ui/components';
 import { Icon } from '../../ui/icons';
 import { DRAFT_COLORS, draftAnalysis, draftGradient, thickColor, geometryAnalysis, thicknessAnalysis, thicknessColor, undercutAnalysis, UNDERCUT_COLORS } from '../../core/features/analysis';
 
-/** Evaluate ▸ Draft Analysis PropertyManager: direction of pull, draft angle, face classification with colours. */
+/** Evaluate ▸ Draft Analysis Property Panel: direction of pull, draft angle, face classification with colours. */
 export function DraftAnalysisPM() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ analysis: s.analysis, rebuild: s.rebuild, selectedFace: s.selectedFace, pushMessage: s.pushMessage, setAnalysis: s.setAnalysis })));
   const a = st.analysis;
   const result = useMemo(() => (a?.kind === 'draft' ? draftAnalysis(st.rebuild.bodies, a.pull, a.angle, a.classify !== false) : null), [a, st.rebuild.bodies]);
   if (!a || a.kind !== 'draft' || !result) return null;
@@ -55,7 +56,7 @@ export function DraftAnalysisPM() {
 
 
 function AnalysisHead({ title, icon }: { title: string; icon: React.ReactNode }) {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ setAnalysis: s.setAnalysis })));
   return (
     <div className="k-pm-head">
       <div className="k-pm-title">{icon} <b>{title}</b><span className="grow" /><span className="k-pm-help" title="Help">?</span></div>
@@ -67,9 +68,9 @@ function AnalysisHead({ title, icon }: { title: string; icon: React.ReactNode })
   );
 }
 
-/** Evaluate ▸ Thickness Analysis PropertyManager: target thickness, Show thin regions, colour ramp. */
+/** Evaluate ▸ Thickness Analysis Property Panel: target thickness, Show thin regions, colour ramp. */
 export function ThicknessAnalysisPM() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ analysis: s.analysis, rebuild: s.rebuild, setAnalysis: s.setAnalysis, doc: s.doc })));
   const a = st.analysis;
   const result = useMemo(() => (a?.kind === 'thickness' ? thicknessAnalysis(st.rebuild.bodies, a.target, a.mode, a.resolution) : null), [a, st.rebuild.bodies]);
   if (!a || a.kind !== 'thickness' || !result) return null;
@@ -100,9 +101,9 @@ export function ThicknessAnalysisPM() {
   );
 }
 
-/** Evaluate ▸ Undercut Analysis PropertyManager: direction of pull and the five face classes with their colours. */
+/** Evaluate ▸ Undercut Analysis Property Panel: direction of pull and the five face classes with their colours. */
 export function UndercutAnalysisPM() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ analysis: s.analysis, rebuild: s.rebuild, setAnalysis: s.setAnalysis })));
   const a = st.analysis;
   const result = useMemo(() => (a?.kind === 'undercut' ? undercutAnalysis(st.rebuild.bodies, a.pull) : null), [a, st.rebuild.bodies]);
   if (!a || a.kind !== 'undercut' || !result) return null;
@@ -131,7 +132,7 @@ export function UndercutAnalysisPM() {
 
 /** Evaluate ▸ Geometry Analysis, by design: the limits, Calculate, and the lists of what was found. */
 export function GeometryAnalysisPM() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ analysis: s.analysis, rebuild: s.rebuild, setAnalysis: s.setAnalysis, doc: s.doc })));
   const a = st.analysis;
   const r0 = useMemo(() => (a?.kind === 'geometry' ? geometryAnalysis(st.rebuild.bodies as never, a) : null), [a, st.rebuild.bodies]);
   // the unchecked checks report nothing

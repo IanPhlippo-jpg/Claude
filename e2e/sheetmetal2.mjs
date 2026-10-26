@@ -49,7 +49,7 @@ await page.waitForTimeout(800);
 const flatOff = await page.evaluate(() => window.__phlippoStore.getState().doc.features.some((f) => f.type === 'flatPattern' && !f.suppressed));
 check('No Bends again folds the sheet back', !flatOff);
 
-// Closed Corner and Corner Relief PropertyManagers take their faces
+// Closed Corner and Corner Relief Property Panels take their faces
 await page.click('.k-cm-big:has-text("Corners") .k-cm-arrow').catch(skip('sheetmetal2:53'));
 await page.evaluate(() => window.__phlippoStore.getState().startClosedCorner());
 await page.waitForTimeout(200);

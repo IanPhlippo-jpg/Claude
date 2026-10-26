@@ -1,7 +1,7 @@
 import type { SVGProps } from 'react';
 
 /**
- * Feature icons drawn as small isometric solids, in the visual language of a desktop CAD CommandManager: light grey
+ * Feature icons drawn as small isometric solids, in the visual language of a desktop CAD Command Ribbon: light grey
  * blocks with dark outlines, the feature itself in teal-blue, sketch geometry yellow, cuts red. Own designs on a
  * 24 px grid (no third-party artwork).
  */
@@ -150,7 +150,7 @@ export const Icons3D = {
       <path d="M4.3 15.5c2-3.6 4.6-4.2 7.7-3.6s5.8-.2 7.6-3.6" stroke={K.tTop} strokeWidth={1.1} fill="none" />
     </svg>
   ),
-  /** Hole Wizard: a block with a drilled hole and the drill above it */
+  /** Hole Tool: a block with a drilled hole and the drill above it */
   Hole: ({ size = 16, ...p }: P) => (
     <svg {...base(size, p)}>
       <Box x={0} y={0} z={0} w={9} h={4.5} d={9} s={0.95} oy={14.5} />
@@ -298,8 +298,8 @@ export const Icons3D = {
       <circle cx={20.5} cy={16} r={1.1} fill={K.tTop} stroke={K.tLine} strokeWidth={0.6} />
     </svg>
   ),
-  /** Instant3D: a ruler with the drag arrow */
-  Instant3D: ({ size = 16, ...p }: P) => (
+  /** Drag Handles: a ruler with the drag arrow */
+  DragHandles: ({ size = 16, ...p }: P) => (
     <svg {...base(size, p)}>
       <g transform="rotate(-40 12 12)">
         <rect x={3} y={9} width={18} height={6} rx={0.8} fill={K.yellow} stroke={K.yellowD} strokeWidth={0.8} />
@@ -308,7 +308,7 @@ export const Icons3D = {
       <path d="M16 19l-4.5-4.5M16 19h-3.4M16 19v-3.4" stroke={K.blue} strokeWidth={1.4} />
     </svg>
   ),
-  /** a part document: the yellow stepped block on a blue-grey base, as the FeatureManager shows it */
+  /** a part document: the yellow stepped block on a blue-grey base, as the Feature Tree shows it */
   Part: ({ size = 16, ...p }: P) => (
     <svg {...base(size, p)}>
       <Box x={0} y={0} z={0} w={9} h={2.2} d={9} s={1} c={{ top: '#8fb4d9', front: '#5b86b8', side: '#3d6494' }} line="#2a4a73" oy={13.5} />
@@ -324,7 +324,7 @@ export const Icons3D = {
       <circle cx={12} cy={12} r={1.9} fill={K.white} />
     </svg>
   ),
-  /** PropertyManager tab: a panel with its rows */
+  /** Property Panel tab: a panel with its rows */
   MgrProperty: ({ size = 16, ...p }: P) => (
     <svg {...base(size, p)}>
       <rect x={4} y={3.5} width={16} height={17} fill={K.white} stroke={K.line} strokeWidth={1} />
@@ -333,7 +333,7 @@ export const Icons3D = {
       <path d="M12.5 10.5h5M12.5 13.5h5M12.5 16.5h5" stroke={K.line} strokeWidth={0.9} />
     </svg>
   ),
-  /** ConfigurationManager tab: the tree with a gear */
+  /** Configurations panel tab: the tree with a gear */
   MgrConfig: ({ size = 16, ...p }: P) => (
     <svg {...base(size, p)}>
       <path d="M6 5v13h5M6 10h5M6 15h5" stroke={K.line} strokeWidth={1.1} />
@@ -342,15 +342,15 @@ export const Icons3D = {
       <circle cx={16.5} cy={14.9} r={1.5} fill={K.white} />
     </svg>
   ),
-  /** DimXpertManager tab: a target cross */
-  MgrDimXpert: ({ size = 16, ...p }: P) => (
+  /** Tolerance Tree tab: a target cross */
+  MgrAutoTolerance: ({ size = 16, ...p }: P) => (
     <svg {...base(size, p)}>
       <circle cx={12} cy={12} r={6.5} fill="none" stroke={K.line} strokeWidth={1.2} />
       <path d="M12 2.5v6M12 15.5v6M2.5 12h6M15.5 12h6" stroke={K.line} strokeWidth={1.2} />
       <circle cx={12} cy={12} r={1.4} fill={K.line} />
     </svg>
   ),
-  /** DisplayManager tab: the colour wheel */
+  /** Display Panel tab: the colour wheel */
   MgrDisplay: ({ size = 16, ...p }: P) => (
     <svg {...base(size, p)}>
       <path d="M12 12L12 3.5A8.5 8.5 0 0 1 20.5 12z" fill="#e5533c" />
@@ -687,11 +687,11 @@ export const Icons3D = {
       <Box x={3} y={2.5} z={3} w={6} h={5} d={6} s={0.9} c={TEAL} line={K.tLine} oy={14} />
     </svg>
   ),
-  /** Evaluate ▸ SimulationXpress: a beam with a load arrow and the stress colours */
+  /** Evaluate ▸ Quick Beam Estimate: a beam with a load arrow and the stress colours */
   Simulation: ({ size = 16, ...p }: P) => (
     <svg {...base(size, p)} viewBox="0 0 24 24">
-      <defs><linearGradient id="simx-grad" x1="0" x2="1"><stop offset="0" stopColor="#d93b3b" /><stop offset="0.5" stopColor="#f2d13a" /><stop offset="1" stopColor="#2b6cb0" /></linearGradient></defs>
-      <rect x={2} y={11} width={19} height={5} fill="url(#simx-grad)" stroke={K.line} strokeWidth={0.8} />
+      <defs><linearGradient id="beam-grad" x1="0" x2="1"><stop offset="0" stopColor="#d93b3b" /><stop offset="0.5" stopColor="#f2d13a" /><stop offset="1" stopColor="#2b6cb0" /></linearGradient></defs>
+      <rect x={2} y={11} width={19} height={5} fill="url(#beam-grad)" stroke={K.line} strokeWidth={0.8} />
       <rect x={1} y={9} width={2} height={9} fill={K.dark} />
       <path d="M19 3v6M16.5 6.5L19 9l2.5-2.5" stroke={K.red} strokeWidth={1.3} fill="none" strokeLinecap="round" />
     </svg>

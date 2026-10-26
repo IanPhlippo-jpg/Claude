@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import * as THREE from 'three';
 import { useStore, type DisplayStyle } from '../store';
+import { useShallow } from 'zustand/react/shallow';
 import { Icon } from '../../ui/icons';
 import { Menu, type MenuItem } from '../../ui/components';
 import type { CadCamera, StandardView } from './camera';
@@ -40,7 +41,7 @@ function HudButton({ icon, tip, onClick, active, disabled, menu }: { icon: React
 
 /** Grid of standard-view buttons (shared by the orientation drop-down and the Orientation dialog). */
 export function ViewGrid({ camera, onPick }: { camera: CadCamera; onPick?: () => void }) {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ activeSketchId: s.activeSketchId, doc: s.doc, show: s.show, toggleShow: s.toggleShow, viewportLayout: s.viewportLayout, setViewportLayout: s.setViewportLayout })));
   const views: { id: StandardView; label: string }[] = [
     { id: 'top', label: 'Top' },
     { id: 'left', label: 'Left' },
@@ -121,7 +122,7 @@ function ViewIcon({ view }: { view: StandardView }) {
 
 /** Heads-up View toolbar: transparent toolbar top-centre of the graphics area. */
 export function Hud({ camera, zoomFit, onZoomArea, zoomAreaActive }: { camera: CadCamera; zoomFit: () => void; onZoomArea: () => void; zoomAreaActive: boolean }) {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ sectionView: s.sectionView, sectionEdit: s.sectionEdit, startSectionView: s.startSectionView, displayStyle: s.displayStyle, setDisplayStyle: s.setDisplayStyle, show: s.show, toggleShow: s.toggleShow, setDialog: s.setDialog, doc: s.doc, setScene: s.setScene, setSceneEdit: s.setSceneEdit, theme: s.theme, setTheme: s.setTheme })));
   const [, bump] = useState(0);
   useEffect(() => {
     const prev = camera.onViewName;
@@ -187,7 +188,7 @@ export function Hud({ camera, zoomFit, onZoomArea, zoomAreaActive }: { camera: C
         icon={<Icon.ViewSettings />}
         tip="View Settings"
         menu={[
-          { label: `${chk(st.show.realView)}Realistic Shading`, icon: <Icon.Appearance />, onSelect: () => st.toggleShow('realView') },
+          { label: `${chk(st.show.realisticShading)}Realistic Shading`, icon: <Icon.Appearance />, onSelect: () => st.toggleShow('realisticShading') },
           { label: `${chk(st.show.shadows)}Shadows In Shaded Mode`, icon: <Icon.Scene />, onSelect: () => st.toggleShow('shadows') },
           { label: `${chk(st.show.ambientOcclusion)}Ambient Occlusion`, icon: <Icon.Scene />, onSelect: () => st.toggleShow('ambientOcclusion') },
           { label: `${chk(st.show.perspective)}Perspective`, icon: <Icon.Orientation />, onSelect: () => st.toggleShow('perspective') },

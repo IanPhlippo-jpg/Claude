@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { sketchStatus, useActiveSketch, useActiveSolve, useStore, type UnitSystem } from './store';
+import { useShallow } from 'zustand/react/shallow';
 import { Icon } from '../ui/icons';
 import { Menu } from '../ui/components';
 
@@ -14,7 +15,7 @@ const STATUS_TEXT: Record<string, string> = {
 const UNIT_LABEL: Record<UnitSystem, string> = { MKS: 'MKS (meter, kilogram, second)', CGS: 'CGS (centimeter, gram, second)', MMGS: 'MMGS (millimeter, gram, second)', IPS: 'IPS (inch, pound, second)' };
 
 export function StatusBar({ hint }: { hint: string }) {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ messages: s.messages, doc: s.doc, selection: s.selection, selectedEdges: s.selectedEdges, rebuild: s.rebuild, selectedFace: s.selectedFace, planePick: s.planePick, activeSketchId: s.activeSketchId, cursor: s.cursor, hasDocument: s.hasDocument, selectedDrawingViewId: s.selectedDrawingViewId, unitSystem: s.unitSystem, setUnitSystem: s.setUnitSystem, setDialog: s.setDialog })));
   const solve = useActiveSolve();
   const sketch = useActiveSketch();
   const [units, setUnits] = useState(false);

@@ -93,7 +93,7 @@ check('Ambient Occlusion is on and the page keeps working', await page.evaluate(
 await page.evaluate(() => window.__phlippoStore.getState().toggleShow('ambientOcclusion'));
 
 // Tolerance Tree and Display Panel tabs
-await page.click('[data-testid="tab-dimxpert"]');
+await page.click('[data-testid="tab-autoTolerance"]');
 await page.waitForTimeout(300);
 check('Tolerance Tree lists the model dimensions', (await page.locator('[data-testid="dx-dim"]').count()) >= 2, String(await page.locator('[data-testid="dx-dim"]').count()));
 await page.click('[data-testid="tab-display"]');

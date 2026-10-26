@@ -1,15 +1,12 @@
 import { WhatsWrong } from './WhatsWrong';
 import { bridge } from './viewport/bridge';
-import { CheckDialog, RepairSketchDialog, SectionPropertiesDialog } from './evaluateDialogs';
-import { CompareDialog, CutListDialog, PerformanceDialog, SimXpressDialog, SymmetryDialog } from './evaluateDialogs2';
-import { CustomizeDialog } from './customize';
 import { applyUpAxis } from './viewport/camera';
 import { getPref } from './prefs';
-import { SaveAsDialog } from './evaluateDialogs2';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { lazyNamed, preloadLazy } from './lazy';
 import { useStore } from './store';
+import { useShallow } from 'zustand/react/shallow';
 import { desktop } from './desktop';
-import { ExportOptionsDialog, FeaturePropertiesDialog, ParentChildDialog } from './treeDialogs';
 import { openDesktopFile, withUnsavedCheck } from './MenuBar';
 import { MenuBar, openFileDialog, saveDocument } from './MenuBar';
 import { Ribbon } from './ribbon/Ribbon';
@@ -21,29 +18,47 @@ import { StatusBar } from './StatusBar';
 import { SHORTCUTS, useShortcuts } from './shortcuts';
 import { Dialog, Kbd } from '../ui/components';
 
-import { DesignStudyDialog } from './designStudy';
 import { ViewPane } from './viewport/ViewPane';
 import { GeneralTableDialog, LinearNotePatternDialog, RelativeViewDialog, SpellCheckDialog } from './drawing/DrawingExtras';
-import { PreviewWindow } from './previewWindow';
 import { CommentsDialog, ComponentPreview, MirrorComponentsDialog, PackAndGoDialog, ShareDialog } from './lifecycleDialogs';
 import { AskDialog, ConfirmDeleteDialog, ModifyDialog, NewDocumentDialog, OrientationDialog, WelcomeDialog } from './dialogs';
-import { OptionsDialog } from './options';
-import { MassPropertiesDialog, MeasureDialog } from './evaluate';
-import { EquationsDialog } from './equations';
-import { ModifyConfigurationsDialog } from './configureDialog';
-import { AppearanceDialog } from './appearanceDialog';
-import { BomDialog, InterferenceDialog } from './assemblyDialogs';
 import { FinalRenderDialog } from './renderDialogs';
-import { DrawingSheetView } from './drawing/DrawingSheetView';
 import { ShortcutBar } from './ShortcutBar';
 import { MaterialDialog } from './materialDialog';
-import { SheetFormatDialog, SheetPropertiesDialog } from './drawing/SheetDialogs';
 import '../ui/tokens.css';
 import '../ui/components.css';
 import './app.css';
 
+// dialogs and the drawing view load when first shown (QA F34): they are not part of the start-up bundle
+const CheckDialog = lazyNamed(() => import('./evaluateDialogs'), 'CheckDialog');
+const RepairSketchDialog = lazyNamed(() => import('./evaluateDialogs'), 'RepairSketchDialog');
+const SectionPropertiesDialog = lazyNamed(() => import('./evaluateDialogs'), 'SectionPropertiesDialog');
+const CompareDialog = lazyNamed(() => import('./evaluateDialogs2'), 'CompareDialog');
+const CutListDialog = lazyNamed(() => import('./evaluateDialogs2'), 'CutListDialog');
+const PerformanceDialog = lazyNamed(() => import('./evaluateDialogs2'), 'PerformanceDialog');
+const BeamEstimateDialog = lazyNamed(() => import('./evaluateDialogs2'), 'BeamEstimateDialog');
+const SymmetryDialog = lazyNamed(() => import('./evaluateDialogs2'), 'SymmetryDialog');
+const SaveAsDialog = lazyNamed(() => import('./evaluateDialogs2'), 'SaveAsDialog');
+const CustomizeDialog = lazyNamed(() => import('./customize'), 'CustomizeDialog');
+const ExportOptionsDialog = lazyNamed(() => import('./treeDialogs'), 'ExportOptionsDialog');
+const FeaturePropertiesDialog = lazyNamed(() => import('./treeDialogs'), 'FeaturePropertiesDialog');
+const ParentChildDialog = lazyNamed(() => import('./treeDialogs'), 'ParentChildDialog');
+const DesignStudyDialog = lazyNamed(() => import('./designStudy'), 'DesignStudyDialog');
+const PreviewWindow = lazyNamed(() => import('./previewWindow'), 'PreviewWindow');
+const OptionsDialog = lazyNamed(() => import('./options'), 'OptionsDialog');
+const MassPropertiesDialog = lazyNamed(() => import('./evaluate'), 'MassPropertiesDialog');
+const MeasureDialog = lazyNamed(() => import('./evaluate'), 'MeasureDialog');
+const EquationsDialog = lazyNamed(() => import('./equations'), 'EquationsDialog');
+const ModifyConfigurationsDialog = lazyNamed(() => import('./configureDialog'), 'ModifyConfigurationsDialog');
+const AppearanceDialog = lazyNamed(() => import('./appearanceDialog'), 'AppearanceDialog');
+const BomDialog = lazyNamed(() => import('./assemblyDialogs'), 'BomDialog');
+const InterferenceDialog = lazyNamed(() => import('./assemblyDialogs'), 'InterferenceDialog');
+const DrawingSheetView = lazyNamed(() => import('./drawing/DrawingSheetView'), 'DrawingSheetView', true);
+const SheetFormatDialog = lazyNamed(() => import('./drawing/SheetDialogs'), 'SheetFormatDialog');
+const SheetPropertiesDialog = lazyNamed(() => import('./drawing/SheetDialogs'), 'SheetPropertiesDialog');
+
 export function App() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ theme: s.theme, selectedConstraint: s.selectedConstraint, selectConstraint: s.selectConstraint, panels: s.panels, prefs: s.prefs, managerCollapsed: s.managerCollapsed, hasDocument: s.hasDocument, doc: s.doc, viewportLayout: s.viewportLayout, setPanel: s.setPanel, dialog: s.dialog, confirmDelete: s.confirmDelete, motionOpen: s.motionOpen, setMotionOpen: s.setMotionOpen, ask: s.ask })));
   const [editDim, setEditDim] = useState<string | null>(null);
   const [shortcutBar, setShortcutBar] = useState(false);
 
@@ -80,6 +95,8 @@ export function App() {
     [],
   );
   useShortcuts(handlers);
+  // the chunks of the Property Panel, the drawing view and the tree panels are fetched once the app has painted
+  useEffect(() => { const t = window.setTimeout(preloadLazy, 300); return () => window.clearTimeout(t); }, []);
   // View ▸ Modify ▸ Up Axis: the saved choice applies to the standard views from the start
   useEffect(() => { applyUpAxis(getPref('view.upAxis') === 'Z' ? 'Z' : 'Y'); }, []);
   // the command catalog (Customize) reaches Save and the shortcut bar through these hooks
@@ -145,7 +162,7 @@ export function App() {
           <WhatsWrong />
           {st.dialog === 'symmetry' && <SymmetryDialog />}
           {st.dialog === 'compare' && <CompareDialog />}
-          {st.dialog === 'simxpress' && <SimXpressDialog />}
+          {st.dialog === 'beamEstimate' && <BeamEstimateDialog />}
           {st.dialog === 'sectionProps' && <SectionPropertiesDialog />}
           {st.dialog === 'repairSketch' && <RepairSketchDialog />}
           {st.confirmDelete && <ConfirmDeleteDialog />}

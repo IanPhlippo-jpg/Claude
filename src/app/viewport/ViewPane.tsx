@@ -2,6 +2,7 @@ import { bridge } from './bridge';
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { useStore } from '../store';
+import { useShallow } from 'zustand/react/shallow';
 import { VIEW_QUATERNIONS } from './camera';
 
 /**
@@ -10,7 +11,7 @@ import { VIEW_QUATERNIONS } from './camera';
  * interactive one; double-clicking a pane turns the main view to that orientation.
  */
 export function ViewPane({ view }: { view: 'front' | 'top' | 'right' }) {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ rebuild: s.rebuild, doc: s.doc, displayStyle: s.displayStyle })));
   const ref = useRef<HTMLCanvasElement>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
   useEffect(() => {

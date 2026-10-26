@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-/** Auto Balloon ▸ Balloon Layout, as the intended PropertyManager */
+/** Auto Balloon ▸ Balloon Layout, as the intended Property Panel */
 export type BalloonLayout = 'square' | 'circular' | 'top' | 'bottom' | 'left' | 'right';
 
 export interface BalloonBox { x: number; y: number; w: number; h: number }

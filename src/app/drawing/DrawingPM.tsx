@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { insertModelInView, sheetModels } from './DrawingExtras';
 import { useStore } from '../store';
+import { useShallow } from 'zustand/react/shallow';
 import { NumberField, Section } from '../../ui/components';
 import { Icon } from '../../ui/icons';
 import type { DrawingViewType } from '../../core/document/types';
@@ -62,9 +63,9 @@ const STYLES: { id: 'wireframe' | 'hiddenVisible' | 'hiddenRemoved' | 'shadedEdg
   { id: 'shaded', label: 'Shaded', icon: <Icon.StyleShaded size={20} /> },
 ];
 
-/** Model View PropertyManager: Part/Assembly to Insert, then Orientation, Display Style and Scale (by design). */
+/** Model View Property Panel: Part/Assembly to Insert, then Orientation, Display Style and Scale (by design). */
 export function ModelViewPM() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ drawingEdit: s.drawingEdit, doc: s.doc, cancelDrawingEdit: s.cancelDrawingEdit, setModelViewSource: s.setModelViewSource, setDrawingEdit: s.setDrawingEdit })));
   const de = st.drawingEdit;
   if (!de) return null;
   const models = [...new Map((st.doc.sheets?.[0]?.views ?? []).map((v) => [v.model.name, v.model])).values()];
@@ -166,9 +167,9 @@ export function ModelViewPM() {
   );
 }
 
-/** Projected View PropertyManager. */
+/** Projected View Property Panel. */
 export function ProjectedViewPM() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ drawingEdit: s.drawingEdit, doc: s.doc, cancelDrawingEdit: s.cancelDrawingEdit, setDrawingEdit: s.setDrawingEdit })));
   const de = st.drawingEdit;
   if (!de) return null;
   const parent = st.doc.sheets?.[0]?.views.find((v) => v.id === de.parentId);
@@ -205,9 +206,9 @@ export function ProjectedViewPM() {
   );
 }
 
-/** Section View PropertyManager (Section View Assist): Section / Half Section, Cutting Line, then the view options. */
+/** Section View Property Panel (Section View Assist): Section / Half Section, Cutting Line, then the view options. */
 export function SectionViewDrawingPM() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ drawingEdit: s.drawingEdit, cancelDrawingEdit: s.cancelDrawingEdit, setDrawingEdit: s.setDrawingEdit, doc: s.doc })));
   const de = st.drawingEdit;
   if (!de) return null;
   const placed = de.sectionAt !== undefined;
@@ -257,9 +258,9 @@ export function SectionViewDrawingPM() {
   );
 }
 
-/** Detail View PropertyManager: Detail Circle (style, label), Detail View (outline), Scale. */
+/** Detail View Property Panel: Detail Circle (style, label), Detail View (outline), Scale. */
 export function DetailViewPM() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ drawingEdit: s.drawingEdit, cancelDrawingEdit: s.cancelDrawingEdit, setDrawingEdit: s.setDrawingEdit, doc: s.doc })));
   const de = st.drawingEdit;
   if (!de) return null;
   return (
@@ -300,9 +301,9 @@ function nextLabel(sheet: import('../../core/document/types').DrawingSheet): str
   return 'Z';
 }
 
-/** Dimension PropertyManager of a drawing (Value / Leaders / Other tabs by design, reduced). */
+/** Dimension Property Panel of a drawing (Value / Leaders / Other tabs by design, reduced). */
 export function DrawingDimensionPM() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ drawingEdit: s.drawingEdit, doc: s.doc, selectedDrawingDimensionId: s.selectedDrawingDimensionId, updateDrawingDimension: s.updateDrawingDimension, selectDrawingDimension: s.selectDrawingDimension, cancelDrawingEdit: s.cancelDrawingEdit, prefs: s.prefs, setPrefs: s.setPrefs })));
   const de = st.drawingEdit;
   const sheet = st.doc.sheets?.[0];
   const sel = sheet?.dimensions.find((d) => d.id === st.selectedDrawingDimensionId);
@@ -365,9 +366,9 @@ export function DrawingDimensionPM() {
   );
 }
 
-/** Note PropertyManager (text entered here, placed with a click). */
+/** Note Property Panel (text entered here, placed with a click). */
 export function NotePM() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ drawingEdit: s.drawingEdit, cancelDrawingEdit: s.cancelDrawingEdit, setDrawingEdit: s.setDrawingEdit, pushMessage: s.pushMessage })));
   const de = st.drawingEdit;
   // Style: saved note formats (favourites), kept between sessions
   const [noteStyles, setNoteStyles] = useState<Record<string, Partial<NonNullable<typeof de>>>>(() => { try { return JSON.parse(String(getPref('drawing.noteStyles') || '{}')); } catch { return {}; } });
@@ -406,9 +407,9 @@ export function NotePM() {
 }
 
 
-/** Annotation PropertyManagers for the symbols: Balloon, Surface Finish, Geometric Tolerance, Datum Feature, Hole Callout, Centerline. */
+/** Annotation Property Panels for the symbols: Balloon, Surface Finish, Geometric Tolerance, Datum Feature, Hole Callout, Centerline. */
 export function SymbolPM() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ drawingEdit: s.drawingEdit, cancelDrawingEdit: s.cancelDrawingEdit, setDrawingEdit: s.setDrawingEdit, doc: s.doc, addRevision: s.addRevision })));
   const de = st.drawingEdit;
   if (!de || de.mode !== 'symbol') return null;
   const titles: Record<string, string> = { balloon: 'Balloon', autoBalloon: 'Auto Balloon', surfaceFinish: 'Surface Finish', gtol: 'Geometric Tolerance', datum: 'Datum Feature', holeCallout: 'Hole Callout', centerline: 'Centerline', revision: 'Revision Symbol', cloud: 'Revision Cloud', weld: 'Weld Symbol', datumTarget: 'Datum Target', areaHatch: 'Area Hatch/Fill' };
@@ -487,9 +488,9 @@ export function SymbolPM() {
 }
 
 
-/** Crop View / Break PropertyManagers */
+/** Crop View / Break Property Panels */
 export function ViewToolPM() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ drawingEdit: s.drawingEdit, cancelDrawingEdit: s.cancelDrawingEdit, setDrawingEdit: s.setDrawingEdit, setViewBreak: s.setViewBreak, setViewCrop: s.setViewCrop })));
   const de = st.drawingEdit;
   if (!de || (de.mode !== 'crop' && de.mode !== 'break') || !de.viewTool) return null;
   const isBreak = de.mode === 'break';
@@ -517,9 +518,9 @@ export function ViewToolPM() {
 }
 
 
-/** Auxiliary View PropertyManager */
+/** Auxiliary View Property Panel */
 export function AuxViewPM() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ drawingEdit: s.drawingEdit, cancelDrawingEdit: s.cancelDrawingEdit, setDrawingEdit: s.setDrawingEdit })));
   const de = st.drawingEdit;
   if (!de || de.mode !== 'aux') return null;
   return (
@@ -537,9 +538,9 @@ export function AuxViewPM() {
 }
 
 
-/** Model Items PropertyManager (Source/Destination, Dimensions, Options), by design. */
+/** Model Items Property Panel (Source/Destination, Dimensions, Options), by design. */
 export function ModelItemsPM() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ drawingEdit: s.drawingEdit, setDrawingEdit: s.setDrawingEdit, insertModelItems: s.insertModelItems, cancelDrawingEdit: s.cancelDrawingEdit })));
   const de = st.drawingEdit;
   if (!de || de.mode !== 'modelItems' || !de.modelItems) return null;
   const mi = de.modelItems;
@@ -576,9 +577,9 @@ export function ModelItemsPM() {
 }
 
 
-/** Broken-out Section PropertyManager: Depth (from the front of the model), Preview. */
+/** Broken-out Section Property Panel: Depth (from the front of the model), Preview. */
 export function BrokenOutPM() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ drawingEdit: s.drawingEdit, applyBrokenOut: s.applyBrokenOut, cancelDrawingEdit: s.cancelDrawingEdit, setDrawingEdit: s.setDrawingEdit, doc: s.doc })));
   const de = st.drawingEdit;
   if (!de || de.mode !== 'brokenOut' || !de.brokenOut) return null;
   const bo = de.brokenOut;
@@ -597,9 +598,9 @@ export function BrokenOutPM() {
 }
 
 
-/** PropertyManager of a placed drawing view (Drawing View1 …), shown when the view is clicked on the sheet, by design. */
+/** Property Panel of a placed drawing view (Drawing View1 …), shown when the view is clicked on the sheet, by design. */
 export function DrawingViewPM() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ doc: s.doc, selectedDrawingViewId: s.selectedDrawingViewId, setManagerTab: s.setManagerTab, updateDrawingView: s.updateDrawingView, selectDrawingView: s.selectDrawingView, startModelItems: s.startModelItems, setDrawingEdit: s.setDrawingEdit })));
   const sheet = st.doc.sheets?.[0];
   const v = sheet?.views.find((x) => x.id === st.selectedDrawingViewId);
   if (!sheet || !v) return null;
@@ -673,7 +674,7 @@ export function DrawingViewPM() {
 
 /** Sheet Format ▸ Title Block Fields: the fields of the title block (names, date, title, drawing number, company). */
 export function TitleBlockPM() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ doc: s.doc, drawingEdit: s.drawingEdit, setSheet: s.setSheet, cancelDrawingEdit: s.cancelDrawingEdit })));
   const sheet = st.doc.sheets?.[0];
   if (!sheet || st.drawingEdit?.mode !== 'titleBlock') return null;
   const tb = sheet.titleBlock ?? {};
@@ -701,9 +702,9 @@ export function TitleBlockPM() {
 }
 
 
-/** Alternate Position View PropertyManager: a new configuration from the exploded view or the motion study. */
+/** Alternate Position View Property Panel: a new configuration from the exploded view or the motion study. */
 export function AltPositionPM() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ drawingEdit: s.drawingEdit, doc: s.doc, applyAltPosition: s.applyAltPosition, cancelDrawingEdit: s.cancelDrawingEdit, setDrawingEdit: s.setDrawingEdit })));
   const de = st.drawingEdit;
   if (!de || de.mode !== 'altPosition' || !de.altPosition) return null;
   const ap = de.altPosition;

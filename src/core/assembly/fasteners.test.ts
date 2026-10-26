@@ -21,7 +21,7 @@ function plate(name: string): Document {
   return doc;
 }
 
-describe('Assembly ▸ Smart Fasteners', () => {
+describe('Assembly ▸ Auto Fasteners', () => {
   it('toolbox parts rebuild: socket head cap screw, countersunk screw, hex bolt', () => {
     for (const t of ['shcs', 'csk', 'hex'] as const) {
       const p = fastenerPart(t, 'M6', 30);

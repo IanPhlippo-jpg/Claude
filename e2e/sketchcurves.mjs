@@ -95,7 +95,7 @@ await page.screenshot({ path: `${OUT}/fullydefine.png` });
 await page.click('.k-cm-big:has-text("Drag Dimensions")');
 const dim = await page.evaluate(() => { const s = window.__phlippoStore.getState(); const sk = s.doc.sketches[s.activeSketchId]; const c = sk.constraintOrder.map((id) => sk.constraints[id]).find((k) => k.kind === 'length'); s.selectConstraint(c.id); return { id: c.id, v: c.value }; });
 await page.waitForTimeout(300);
-const grip = await page.locator('[data-testid="instant2d-grip"]').boundingBox();
+const grip = await page.locator('[data-testid="dragDimensions-grip"]').boundingBox();
 check('Drag Dimensions shows a drag handle on the selected dimension', !!grip);
 if (grip) {
   const sc = await page.evaluate(() => window.__phlippoCamera?.scale ?? null);

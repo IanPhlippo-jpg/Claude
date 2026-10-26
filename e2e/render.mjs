@@ -44,7 +44,7 @@ await page.waitForTimeout(500);
 const img = await page.evaluate(() => { const i = document.querySelector('[data-testid="final-image"]'); const r = document.querySelector('.k-viewport canvas').getBoundingClientRect(); return { w: i.naturalWidth, h: i.naturalHeight, vw: Math.round(r.width), src: i.src }; });
 check('Final Render: an image at twice the graphics area size, with Save Image', img.w >= img.vw * 2 - 2 && (await page.locator('[data-testid="final-save"]').count()) === 1, `${img.w}x${img.h} (viewport ${img.vw})`);
 writeFileSync(`${OUT}/deurkruk-render.png`, Buffer.from(img.src.split(',')[1], 'base64'));
-const rv = await page.evaluate(() => window.__phlippoStore.getState().show.realView);
+const rv = await page.evaluate(() => window.__phlippoStore.getState().show.realisticShading);
 check('Realistic Shading is restored after the render', rv === false, String(rv));
 await shot('rd2-final-render');
 

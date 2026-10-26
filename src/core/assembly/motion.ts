@@ -5,7 +5,7 @@ import { componentMatrix } from './assembly';
 import { evaluateExpression } from '../document/equations';
 
 /**
- * A motor of a motion study, as the intended Motor PropertyManager: rotary (turns the component about its
+ * A motor of a motion study, as the intended Motor Property Panel: rotary (turns the component about its
  * concentric mate axis) or linear (an actuator moving it along that axis), with a motion profile.
  */
 export interface Motor {

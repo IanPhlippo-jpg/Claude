@@ -26,11 +26,11 @@ export interface ToolContext {
   freePoints: Set<Id>;
   /** hit-test for annotation (dimension label / relation glyph) at a pixel */
   hitAnnotation: (px: number, py: number) => Id | null;
-  /** Sketch Fillet radius from the PropertyManager */
+  /** Sketch Fillet radius from the Property Panel */
   filletRadius: number;
-  /** Sketch Chamfer distances from the PropertyManager */
+  /** Sketch Chamfer distances from the Property Panel */
   chamfer: { d1: number; d2: number };
-  /** all sketch tool options of the PropertyManager (trim mode, …) */
+  /** all sketch tool options of the Property Panel (trim mode, …) */
   sketchTool?: import('../store').SketchToolParams;
 }
 
@@ -100,7 +100,7 @@ export class ToolController {
   rectConstruction: { on: boolean; mode: 'corners' | 'midpoints' } = { on: false, mode: 'corners' };
   /** Tangent Arc: the end point it starts from and the direction it leaves in */
   private tangentFrom: { pointId: Id; entityId: Id; dir: SketchPoint } | null = null;
-  /** Sketch Text PropertyManager values */
+  /** Sketch Text Property Panel values */
   textOptions: { text: string; height: number; bold: boolean; widthFactor: number; spacing: number; angle: number } = { text: 'Text', height: 10, bold: false, widthFactor: 100, spacing: 100, angle: 0 };
 
   setTool(t: ToolId): void {
@@ -418,7 +418,7 @@ export class ToolController {
         return;
       }
       case 'sketchFillet': {
-        // two lines (a corner) -> tangent arc of the radius in the PropertyManager
+        // two lines (a corner) -> tangent arc of the radius in the Property Panel
         const h = hitTest(ctx.sketch, info.p, ctx.tolerance);
         if (!h || h.kind !== 'entity' || ctx.sketch.entities[h.id]?.kind !== 'line') return;
         const prev = ctx.selection.filter((x) => x.kind === 'entity' && ctx.sketch.entities[x.id]?.kind === 'line' && x.id !== h.id);
@@ -483,7 +483,7 @@ export class ToolController {
       case 'scaleEntities':
       case 'linearSketchPattern':
       case 'circularSketchPattern': {
-        // the PropertyManager applies the tool; clicks collect the entities (points are not picked here)
+        // the Property Panel applies the tool; clicks collect the entities (points are not picked here)
         const h = hitTest(ctx.sketch, info.p, ctx.tolerance, new Set([...Object.keys(ctx.sketch.points), ctx.sketch.origin]));
         if (h && h.kind === 'entity') ctx.toggleSelect({ kind: 'entity', id: h.id }, true);
         return;

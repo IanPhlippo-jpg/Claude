@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useStore } from '../store';
+import { useShallow } from 'zustand/react/shallow';
 import { NumberField, Section } from '../../ui/components';
 import { Icon } from '../../ui/icons';
 import { refGeometryFrom } from '../../core/features/refgeom';
@@ -16,7 +17,7 @@ const MODES = {
  * edges, faces and planes, the definition the selection gives (highlighted), and the name.
  */
 export function RefGeomPM() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ refEdit: s.refEdit, refSelection: s.refSelection, selectedEdges: s.selectedEdges, selectedFaces: s.selectedFaces, selectedFace: s.selectedFace, commitRefGeom: s.commitRefGeom, cancelRefGeom: s.cancelRefGeom })));
   const re = st.refEdit;
   if (!re) return null;
   const sel = st.refSelection();
@@ -62,7 +63,7 @@ export function RefGeomPM() {
 
 /** Offset On Surface, by design: the faces (or edges) to offset, the distance and Reverse. */
 export function OffsetOnSurfacePM() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ offsetSurfEdit: s.offsetSurfEdit, selectedFaces: s.selectedFaces, selectedFace: s.selectedFace, commitOffsetOnSurface: s.commitOffsetOnSurface, setOffsetSurfEdit: s.setOffsetSurfEdit, doc: s.doc })));
   const e = st.offsetSurfEdit;
   if (!e) return null;
   const faces = st.selectedFaces.length ? st.selectedFaces : st.selectedFace ? [st.selectedFace] : [];
@@ -90,7 +91,7 @@ export function OffsetOnSurfacePM() {
 
 /** Render Tools ▸ Edit Decal, by design: Image (file), Mapping (face, width, rotation), Name. */
 export function DecalPM() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ decalEdit: s.decalEdit, updateDecalEdit: s.updateDecalEdit, commitDecal: s.commitDecal, doc: s.doc })));
   const e = st.decalEdit;
   const [tab, setTab] = useState<'image' | 'mapping' | 'illumination'>('image');
   if (!e) return null;

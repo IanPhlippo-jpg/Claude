@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useStore } from '../store';
+import { useShallow } from 'zustand/react/shallow';
 import { Button, Dialog } from '../../ui/components';
 import { createDocument, SHEET_SIZES_MM, type SheetSize } from '../../core/document/types';
 import { getPref } from '../prefs';
@@ -19,7 +20,7 @@ const STANDARD: { id: SheetSize; label: string }[] = [
 
 /** Sheet Format/Size dialog shown for a new drawing, by design. */
 export function SheetFormatDialog() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ openDocument: s.openDocument, setDialog: s.setDialog, prefs: s.prefs, pushMessage: s.pushMessage })));
   const [size, setSize] = useState<SheetSize>('A4');
   const [landscape, setLandscape] = useState(true);
   const [showFormat, setShowFormat] = useState(true);
@@ -89,7 +90,7 @@ export function SheetFormatDialog() {
 
 /** Sheet Properties dialog: name, scale, projection type, size. */
 export function SheetPropertiesDialog() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ doc: s.doc, prefs: s.prefs, setSheet: s.setSheet, setPrefs: s.setPrefs, setDialog: s.setDialog })));
   const sheet = st.doc.sheets?.[0];
   const [name, setName] = useState(sheet?.name ?? 'Sheet1');
   const [scale, setScale] = useState(sheet ? `${sheet.scale[0]}:${sheet.scale[1]}` : '1:2');

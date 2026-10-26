@@ -4,7 +4,7 @@ import { ENTITY_POINT_FIELDS, ENTITY_SCALAR_FIELDS, FEATURE_TYPES } from './feat
 
 export const FILE_EXTENSION = '.kcad';
 /** the file format this build writes; older files pass through MIGRATIONS, newer ones are refused */
-export const FILE_VERSION = 1;
+export const FILE_VERSION = 2;
 const AUTOSAVE_KEY = 'phlippo.autosave';
 const AUTOSAVE_INDEX = 'phlippo.autosave.index';
 const AUTOSAVE_DOC_PREFIX = 'phlippo.autosave.doc.';
@@ -124,7 +124,18 @@ function validateSheet(sh: unknown, i: number, depth: number): void {
 const MIGRATIONS: Record<number, (raw: Raw) => Raw> = {
   // files from before the versioned format (never shipped) only lack the version number
   0: (raw) => ({ ...raw, version: 1 }),
+  // format 2 (0.3.6): the tolerancing data has a neutral field name; validateDocument renames it, in nested parts too
+  1: (raw) => ({ ...raw, version: 2 }),
 };
+
+/** the field names of format 1 that format 2 renamed (QA F50) */
+function renameOldFields(d: Raw): void {
+  if ('dimxpert' in d) {
+    if (d.autoTolerance === undefined) d.autoTolerance = d.dimxpert;
+    delete d.dimxpert;
+  }
+  if (d.version === 1) d.version = FILE_VERSION;
+}
 
 /** every field the app relies on is checked, so a damaged file is refused instead of opening empty or half */
 export function validateDocument(raw: unknown, depth = 0): Document {
@@ -132,6 +143,7 @@ export function validateDocument(raw: unknown, depth = 0): Document {
   if (depth === 0) checkStructure(raw);
   if (depth > 8) throw new DocumentFormatError('Documents are nested more than eight levels deep.');
   const d = raw;
+  renameOldFields(d);
   if (typeof d.name !== 'string' || !d.name.trim()) throw new DocumentFormatError('The document has no name.');
   if (!['mm', 'cm', 'm', 'in'].includes(d.units as string)) throw new DocumentFormatError(`Unknown units "${String(d.units)}".`);
   if (d.kind !== undefined && !['part', 'assembly', 'drawing'].includes(d.kind as string)) throw new DocumentFormatError(`Unknown document kind "${String(d.kind)}".`);

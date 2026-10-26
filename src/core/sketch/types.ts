@@ -86,7 +86,7 @@ export interface TextEntity extends EntityBase {
   bold?: boolean;
   /** rotation in degrees */
   angle?: number;
-  /** width factor (100 = normal) and character spacing (100 = normal), as the Sketch Text PropertyManager */
+  /** width factor (100 = normal) and character spacing (100 = normal), as the Sketch Text Property Panel */
   widthFactor?: number;
   spacing?: number;
 }
@@ -142,9 +142,9 @@ export interface Constraint {
    * "Arc Condition" Min / Max): keyed by the index in refs, the entity id of the arc that ref's centre belongs to
    */
   arcCondition?: Record<number, { entityId: Id; mode: 'min' | 'max' }>;
-  /** Dimension Text of the PropertyManager: <DIM> is the value, the rest is shown around it (2X <DIM>, <DIM> THRU) */
+  /** Dimension Text of the Property Panel: <DIM> is the value, the rest is shown around it (2X <DIM>, <DIM> THRU) */
   dimText?: string;
-  /** dimension PropertyManager: own name (D1 when absent), tolerance, precision, dual display, arrows, units, font, justification */
+  /** dimension Property Panel: own name (D1 when absent), tolerance, precision, dual display, arrows, units, font, justification */
   name?: string;
   tol?: { type: 'none' | 'basic' | 'bilateral' | 'limit' | 'symmetric' | 'min' | 'max'; plus?: number; minus?: number };
   precision?: number;

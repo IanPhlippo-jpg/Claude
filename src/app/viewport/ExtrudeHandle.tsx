@@ -1,17 +1,18 @@
 import { useState } from 'react';
 import * as THREE from 'three';
 import { useStore } from '../store';
+import { useShallow } from 'zustand/react/shallow';
 import { getPlane, sketchToWorld } from './camera';
 import { sketchBounds } from '../../core/sketch/geometry';
 import { sketchRegions } from '../../core/features/regions';
 import type { ExtrudeFeature } from '../../core/document/types';
 
 /**
- * The drag arrow of the Boss-Extrude / Cut-Extrude PropertyManager, by design: a grey arrow from the middle
+ * The drag arrow of the Boss-Extrude / Cut-Extrude Property Panel, by design: a grey arrow from the middle
  * of the profile to the end of the extrusion; dragging its head along the direction sets the depth (Blind).
  */
 export function ExtrudeHandle({ project }: { project: (v: THREE.Vector3) => { x: number; y: number } }) {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ featureEdit: s.featureEdit, activeSketchId: s.activeSketchId, doc: s.doc, updateFeatureDraft: s.updateFeatureDraft })));
   const [drag, setDrag] = useState<{ x: number; y: number; depth: number; dir: 1 | 2 } | null>(null);
   const [hot, setHot] = useState<0 | 1 | 2>(0);
   const d = st.featureEdit?.draft;

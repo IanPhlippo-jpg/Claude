@@ -46,7 +46,7 @@ export interface ViewportBridge {
   /** File ▸ Save and the shortcut bar, as the command catalog (Customize) reaches them */
   save?: () => void;
   shortcutBar?: () => void;
-  /** options of the sketch PropertyManager that the sketch tools read (polygon sides, construction lines, text) */
+  /** options of the sketch Property Panel that the sketch tools read (polygon sides, construction lines, text) */
   sketchOptions: SketchToolOptions;
 }
 

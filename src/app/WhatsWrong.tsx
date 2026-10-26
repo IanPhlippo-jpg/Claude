@@ -1,4 +1,5 @@
 import { useStore } from './store';
+import { useShallow } from 'zustand/react/shallow';
 import { Icon } from '../ui/icons';
 
 /**
@@ -6,7 +7,7 @@ import { Icon } from '../ui/icons';
  * rebuild errors is opened (F78), and from the red marker in the tree or the status bar.
  */
 export function WhatsWrong() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ rebuild: s.rebuild, whatsWrong: s.whatsWrong, doc: s.doc, setSelectedFeature: s.setSelectedFeature })));
   const errors = Object.entries(st.rebuild.errors);
   if (!st.whatsWrong || !errors.length) return null;
   const close = () => useStore.setState({ whatsWrong: false });

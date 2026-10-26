@@ -2,6 +2,7 @@ import { sensorAlarm as sensorAlarmOf, sensorReading } from '../sensors';
 import { useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { featureIcon } from './featureIcon';
 import { sketchStatus, useStore } from '../store';
+import { useShallow } from 'zustand/react/shallow';
 import { Menu, TreeView, type TreeNode } from '../../ui/components';
 import { Icon } from '../../ui/icons';
 import { createDocument } from '../../core/document/types';
@@ -17,12 +18,12 @@ import { isRoundFeature, isSketchBased, isSolidFeature, type Feature } from '../
 const STATUS_LABEL: Record<string, string> = { under: 'under defined', full: '', over: 'over defined', conflict: 'conflict', invalid: 'invalid' };
 
 /**
- * FeatureManager design tree body: Part ▸ History, Sensors, Annotations, Solid Bodies(n),
+ * Feature Tree body: Part ▸ History, Sensors, Annotations, Solid Bodies(n),
  * Material, Front/Top/Right Plane, Origin, features (a feature shows its sketch as a
  * child); with a draggable rollback bar.
  */
 export function FeatureTreeBody() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ treeFilter: s.treeFilter, rebuild: s.rebuild, renameFeature: s.renameFeature, solve: s.solve, doc: s.doc, rollbackIndex: s.rollbackIndex, activeSketchId: s.activeSketchId, selectedFeatureId: s.selectedFeatureId, editSketch: s.editSketch, setSelection: s.setSelection, setSelectedFeature: s.setSelectedFeature, featureEdit: s.featureEdit, edit3DSketch: s.edit3DSketch, editFeature: s.editFeature, setHoverPlane: s.setHoverPlane, selectedPlane: s.selectedPlane, planePick: s.planePick, newSketch: s.newSketch, setSelectedPlane: s.setSelectedPlane, setDialog: s.setDialog, toggleShow: s.toggleShow, applyDocument: s.applyDocument, setSheetMetalEdit: s.setSheetMetalEdit, planeEdit: s.planeEdit, editPlane: s.editPlane, startRefGeom: s.startRefGeom, pushMessage: s.pushMessage, setRollback: s.setRollback, setMaterial: s.setMaterial, rebuildAll: s.rebuildAll, addSensor: s.addSensor, setAsk: s.setAsk, setBodyHidden: s.setBodyHidden, openMaterialFor: s.openMaterialFor, startCombine: s.startCombine, setIsolated: s.setIsolated, deleteBodies: s.deleteBodies, deleteSensor: s.deleteSensor, toggleSuppress: s.toggleSuppress, openConfigure: s.openConfigure, startFeature: s.startFeature, requestDeleteFeature: s.requestDeleteFeature })));
   const [menu, setMenu] = useState<{ x: number; y: number; featureId: string } | null>(null);
   const [renaming, setRenaming] = useState<{ id: string; value: string } | null>(null);
   const dragRollback = useRef(false);
@@ -482,7 +483,7 @@ export function FeatureTreeBody() {
             { label: 'Go To…', onSelect: () => st.setAsk({ title: 'Go To', text: 'Feature name (or part of it)', input: '', yes: (v) => { const hit = st.doc.features.find((x) => x.name.toLowerCase().includes(v.toLowerCase())); if (hit) { st.setSelectedFeature(hit.id); document.querySelector(`.k-tree-row[data-id="${CSS.escape(hit.id)}"]`)?.scrollIntoView({ block: 'center' }); } else st.pushMessage(`No feature named "${v}".`, 'warn'); } }) },
             { label: 'Create New Folder', icon: <Icon.Folder />, onSelect: () => { const folders = st.doc.featureFolders ?? []; const name = `Folder${folders.length + 1}`; st.applyDocument('New Folder', { ...st.doc, featureFolders: [...folders.map((fo) => ({ ...fo, featureIds: fo.featureIds.filter((x) => x !== menuFeature.id) })), { id: `fo${Date.now()}`, name, featureIds: [menuFeature.id] }] }); } },
             ...((st.doc.featureFolders ?? []).some((fo) => fo.featureIds.includes(menuFeature.id)) ? [{ label: 'Remove from Folder', onSelect: () => st.applyDocument('Remove from Folder', { ...st.doc, featureFolders: (st.doc.featureFolders ?? []).map((fo) => ({ ...fo, featureIds: fo.featureIds.filter((x) => x !== menuFeature.id) })).filter((fo) => fo.featureIds.length) }) }] : []),
-            { label: 'Hide/Show Tree Items…', icon: <Icon.Eye />, onSelect: () => { useStore.setState({ optionsPage: 'featureManager' } as never); st.setDialog('options'); } },
+            { label: 'Hide/Show Tree Items…', icon: <Icon.Eye />, onSelect: () => { useStore.setState({ optionsPage: 'featureTree' } as never); st.setDialog('options'); } },
             { label: 'Collapse Items', onSelect: () => document.querySelectorAll<HTMLElement>('.k-tree-row .caret[data-open="true"]').forEach((c) => c.click()) },
             { separator: true },
             {

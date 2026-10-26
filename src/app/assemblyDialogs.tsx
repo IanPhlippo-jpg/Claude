@@ -1,6 +1,7 @@
 import { bomDescription, bomPartNumber } from '../core/document/configurations';
 import { useMemo, useState } from 'react';
 import { useStore } from './store';
+import { useShallow } from 'zustand/react/shallow';
 import type { Component } from '../core/document/types';
 import { Icon } from '../ui/icons';
 import { detectInterferences } from '../core/assembly/interference';
@@ -8,7 +9,7 @@ import { massProperties } from '../core/features/measure';
 
 /** Bill of Materials: ITEM NO. / PART NUMBER / DESCRIPTION / QTY., as the intended default BOM table. */
 export function BomDialog() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ doc: s.doc, rebuild: s.rebuild, pushMessage: s.pushMessage, setDialog: s.setDialog })));
   const rows = useMemo(() => {
     // one row per part AND configuration, by design (PLATES / 210, PLATES / 270 …)
     const byPart = new Map<string, { name: string; description: string; qty: number; mass: number }>();
@@ -74,7 +75,7 @@ export function BomDialog() {
 
 /** Interference Detection: every overlapping pair of components with the volume of the interference. */
 export function InterferenceDialog() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ interferenceOpts: s.interferenceOpts, doc: s.doc, rebuild: s.rebuild, setDialog: s.setDialog, pushMessage: s.pushMessage, setInterferenceHighlight: s.setInterferenceHighlight })));
   const o = st.interferenceOpts;
   const set = (patch: Partial<typeof o>) => useStore.setState({ interferenceOpts: { ...o, ...patch } });
   const [ignored, setIgnored] = useState<Set<string>>(new Set());

@@ -785,7 +785,7 @@ export const Icon = {
       <rect x="10" y="14" width="8" height="4" fill={C.yellow} stroke={C.yellowD} strokeWidth={0.6} />
     </svg>
   ),
-  /** FeatureManager folder: a grey folder outline with a small glyph inside (history, sensors, annotations, bodies) */
+  /** Feature Tree folder: a grey folder outline with a small glyph inside (history, sensors, annotations, bodies) */
   TreeFolder: ({ size = 16, glyph = 'history', ...p }: P & { glyph?: 'history' | 'sensor' | 'annotation' | 'bodies' | 'surfaces' | 'equations' }) => (
     <svg {...base(size, p)}>
       <path d="M1 3.5h8l2 2.5h12v16H1z" fill="#fbfbfb" stroke="#5d6672" strokeWidth={1.2} />

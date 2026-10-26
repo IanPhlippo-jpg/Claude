@@ -3,14 +3,14 @@ import type { Body } from '../features/rebuild';
 import type { PlanarFace } from '../features/solid';
 
 /**
- * DimXpert / MBD Dimensions, as the intended MBD Dimensions tab: datums, size and location dimensions, geometric
+ * Auto Tolerancing / MBD Dimensions, as the intended MBD Dimensions tab: datums, size and location dimensions, geometric
  * tolerances and the Auto Dimension Scheme that derives them from the model faces. Tolerances follow the document's
- * block tolerance (Document Properties ▸ DimXpert) or the geometric method.
+ * block tolerance (Document Properties ▸ Auto Tolerancing) or the geometric method.
  */
 
 export interface FaceRef { normal: [number, number, number]; point: [number, number, number] }
-export interface DimXpertDatum { id: string; label: string; face: FaceRef }
-export interface DimXpertDim {
+export interface AutoToleranceDatum { id: string; label: string; face: FaceRef }
+export interface AutoToleranceDim {
   id: string;
   kind: 'size' | 'location' | 'pattern' | 'angle';
   faces: FaceRef[];
@@ -23,7 +23,7 @@ export interface DimXpertDim {
   /** the datum the location dimension is measured from */
   datum?: string;
 }
-export interface DimXpertGtol {
+export interface AutoToleranceGtol {
   id: string;
   symbol: 'position' | 'flatness' | 'perpendicularity' | 'parallelism' | 'profile' | 'cylindricity';
   value: number;
@@ -31,15 +31,15 @@ export interface DimXpertGtol {
   face: FaceRef;
   label: string;
 }
-export interface DimXpertData {
+export interface AutoToleranceData {
   partType: 'prismatic' | 'turned';
   toleranceType: 'plusMinus' | 'geometric';
-  datums: DimXpertDatum[];
-  dims: DimXpertDim[];
-  gtols: DimXpertGtol[];
+  datums: AutoToleranceDatum[];
+  dims: AutoToleranceDim[];
+  gtols: AutoToleranceGtol[];
 }
 
-export const GTOL_SYMBOLS: Record<DimXpertGtol['symbol'], string> = { position: '⌖', flatness: '⏥', perpendicularity: '⟂', parallelism: '∥', profile: '⌓', cylindricity: '⌭' };
+export const GTOL_SYMBOLS: Record<AutoToleranceGtol['symbol'], string> = { position: '⌖', flatness: '⏥', perpendicularity: '⟂', parallelism: '∥', profile: '⌓', cylindricity: '⌭' };
 
 export interface BlockTolerance { length1: number; length2: number; length3: number; angle: number }
 export const DEFAULT_BLOCK: BlockTolerance = { length1: 0.5, length2: 0.25, length3: 0.1, angle: 0.5 };
@@ -67,9 +67,9 @@ export function blockFor(value: number, block: BlockTolerance): number {
  * every pair of opposite parallel faces, a location dimension for every other face parallel to a datum, and with the
  * geometric method a flatness on the datums and a profile tolerance on the located faces.
  */
-export function autoDimensionScheme(bodies: Body[], opts: { partType: 'prismatic' | 'turned'; toleranceType: 'plusMinus' | 'geometric'; block: BlockTolerance; datums?: FaceRef[] }): DimXpertData {
+export function autoDimensionScheme(bodies: Body[], opts: { partType: 'prismatic' | 'turned'; toleranceType: 'plusMinus' | 'geometric'; block: BlockTolerance; datums?: FaceRef[] }): AutoToleranceData {
   const faces = planarFaceList(bodies).slice().sort((a, b) => b.area - a.area);
-  const data: DimXpertData = { partType: opts.partType, toleranceType: opts.toleranceType, datums: [], dims: [], gtols: [] };
+  const data: AutoToleranceData = { partType: opts.partType, toleranceType: opts.toleranceType, datums: [], dims: [], gtols: [] };
   if (!faces.length) return data;
   // datums
   const labels = ['A', 'B', 'C'];
@@ -133,7 +133,7 @@ export type ToleranceStatus = 'constrained' | 'under' | 'over';
 export const STATUS_COLORS: Record<ToleranceStatus, string> = { constrained: '#2fb34a', under: '#f2d13a', over: '#d93b3b' };
 
 /** Show Tolerance Status: a face is fully constrained when a datum, dimension or tolerance refers to it; more than two make it over-constrained. */
-export function toleranceStatus(bodies: Body[], data: DimXpertData | undefined): { colors: Record<string, Record<string, string>>; counts: Record<ToleranceStatus, number> } {
+export function toleranceStatus(bodies: Body[], data: AutoToleranceData | undefined): { colors: Record<string, Record<string, string>>; counts: Record<ToleranceStatus, number> } {
   const colors: Record<string, Record<string, string>> = {};
   const counts: Record<ToleranceStatus, number> = { constrained: 0, under: 0, over: 0 };
   const refs: FaceRef[] = data ? [...data.datums.map((d) => d.face), ...data.dims.flatMap((d) => d.faces), ...data.gtols.map((g) => g.face)] : [];

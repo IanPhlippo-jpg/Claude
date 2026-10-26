@@ -3,6 +3,7 @@ import { getPref } from './prefs';
 import { sketchDimensionName } from '../core/document/equations';
 import { useEffect, useRef, useState } from 'react';
 import { useStore } from './store';
+import { useShallow } from 'zustand/react/shallow';
 import { listAutosaves, loadAutosaveEntry } from '../core/document/persistence';
 import { Button, Dialog, NumberField, Toggle } from '../ui/components';
 import { Icon } from '../ui/icons';
@@ -14,7 +15,7 @@ import { getCamera } from './viewport/Viewport';
 
 /** Welcome dialog at start-up: Home / Recent / Learn / Alerts, by design. */
 export function WelcomeDialog() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ setDialog: s.setDialog, hasDocument: s.hasDocument, doc: s.doc, showDocument: s.showDocument, setTaskPane: s.setTaskPane, setPanel: s.setPanel })));
   const [tab, setTab] = useState<'home' | 'recent' | 'learn' | 'alerts'>('home');
   const hasAutosave = (() => {
     try {
@@ -108,7 +109,7 @@ export function WelcomeDialog() {
 
 /** New document dialog (Part / Assembly / Drawing). */
 export function NewDocumentDialog() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ setDialog: s.setDialog, openDocument: s.openDocument, startInsertComponent: s.startInsertComponent })));
   const [kind, setKind] = useState<'part' | 'assembly' | 'drawing'>('part');
   const [name, setName] = useState('Part1');
   const pick = (k: 'part' | 'assembly' | 'drawing') => { setKind(k); setName(k === 'assembly' ? 'Assem1' : k === 'drawing' ? 'Draw1' : 'Part1'); };
@@ -139,7 +140,7 @@ export function NewDocumentDialog() {
 
 /** System options / document properties. */
 export function LegacyOptionsDialog() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ setDialog: s.setDialog, theme: s.theme, setTheme: s.setTheme, reverseWheel: s.reverseWheel, setReverseWheel: s.setReverseWheel, show: s.show, toggleShow: s.toggleShow, snapGrid: s.snapGrid, toggle: s.toggle, gridSize: s.gridSize, doc: s.doc, renameDocument: s.renameDocument, unitSystem: s.unitSystem, setUnitSystem: s.setUnitSystem })));
   return (
     <Dialog title="System Options - Document Properties" onClose={() => st.setDialog(null)} actions={<Button variant="primary" onClick={() => st.setDialog(null)}>OK</Button>}>
       <h4 style={{ margin: '0 0 6px' }}>System Options</h4>
@@ -165,7 +166,7 @@ export function LegacyOptionsDialog() {
 
 /** Orientation dialog (spacebar). */
 export function OrientationDialog() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ setDialog: s.setDialog })));
   return (
     <div className="k-orientation-dialog">
       <div className="k-panel">
@@ -184,7 +185,7 @@ export function OrientationDialog() {
 
 /** Modify dialog: appears at the pointer after a dimension is placed (or on double-click). */
 export function ModifyDialog() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ modify: s.modify, activeSketchId: s.activeSketchId, doc: s.doc, setDimensionEquation: s.setDimensionEquation, setModify: s.setModify, pushMessage: s.pushMessage, setDimensionInConfigurations: s.setDimensionInConfigurations, updateDimension: s.updateDimension, prefs: s.prefs, unitSystem: s.unitSystem, setPrefs: s.setPrefs })));
   const m = st.modify;
   const sketch = st.activeSketchId ? st.doc.sketches[st.activeSketchId] : null;
   const c = m && sketch ? sketch.constraints[m.id] : null;
@@ -316,7 +317,7 @@ const loadCdel = (): { absorbed: boolean; children: boolean } => {
 
 /** Confirm Delete, by design: the selected item, its absorbed and dependent items, two options. */
 export function ConfirmDeleteDialog() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ confirmDelete: s.confirmDelete, doc: s.doc, deleteFeature: s.deleteFeature, deleteComponent: s.deleteComponent, deleteMate: s.deleteMate, deleteRefGeom: s.deleteRefGeom, closeConfirmDelete: s.closeConfirmDelete, pushMessage: s.pushMessage })));
   const cd = st.confirmDelete;
   const [opt, setOpt] = useState(loadCdel);
   const yesRef = useRef<HTMLButtonElement>(null);
@@ -388,7 +389,7 @@ export function ConfirmDeleteDialog() {
 
 /** Message box: Yes/No when there is something to confirm, else OK. */
 export function AskDialog() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ ask: s.ask, setAsk: s.setAsk })));
   const okRef = useRef<HTMLButtonElement>(null);
   const a = st.ask;
   const [value, setValue] = useState(a?.input ?? '');

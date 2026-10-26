@@ -556,3 +556,11 @@ elease; README en docs/04 bijgewerkt
 - [x] F14/F79/F48/F86/F33/F28/F19/F20: Linear Pattern grijs, Final Render zonder highlight, volume-check na booleans, lektest in de regressie, machinegebonden scripts apart, desktop auto-browse getest, statusbalk XYZ, Confirmation Corner
 - [x] docs/12 met status per bevinding + correcties docs/11 (F38); tsc, unit, volledige regressie (e2e-build), installer + rooktest geïnstalleerde app, screenshots, commit + tag v0.3.5
 - [ ] Later (architectuur, eigen fase): store opsplitsen (F36), CSG in een worker (F46), B-rep-kernel (F47/F51), code signing (F49), interne namen (PropertyManager.tsx, doc.dimxpert), taakvenster-iconen (F21), iconen/lettertype (F16)
+
+## Vervolg 37: resterende punten na 0.3.5 (2026-10-26)
+- [x] F34: bundel opsplitsen (zware dialogen en panelen lazy laden, manualChunks), gemeten voor/na
+- [x] F36: store opsplitsen in slices (zelfde API), zware componenten met selectors i.p.v. de hele store
+- [x] F50 rest: interne namen (PropertyManager-bestanden/componenten, dimxpert-identifiers, dialoog-id simxpress) neutraal; bestandsveld via migratie
+- [x] F21/F16: taakvenster-iconen en lettermaten naast de referentieframes
+- [x] F46: haalbaarheid van rebuild in een worker beoordelen; wat kan zonder de hele store async te maken
+- [ ] tsc, unit, volledige regressie, desktop-checks, installer 0.3.6, screenshots, commit + tag

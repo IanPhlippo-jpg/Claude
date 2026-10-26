@@ -23,10 +23,14 @@ export default defineConfig({
     rollupOptions: {
       output: {
         // the big libraries load as their own chunks (cached between versions)
-        manualChunks: {
-          three: ['three'],
-          csg: ['three-bvh-csg', 'three-mesh-bvh'],
-          react: ['react', 'react-dom', 'zustand'],
+        manualChunks(id: string) {
+          const p = id.split(String.fromCharCode(92)).join('/');
+          if (/node_modules\/three\//.test(p)) return 'three';
+          if (/node_modules\/(three-bvh-csg|three-mesh-bvh)\//.test(p)) return 'csg';
+          if (/node_modules\/(react|react-dom|scheduler|zustand)\//.test(p)) return 'react';
+          // the geometry and document kernel (features, sketch solver, drawing views): its own chunk (QA F34)
+          if (/\/src\/core\//.test(p) && !/\.worker\./.test(p)) return 'kernel';
+          return undefined;
         },
       },
     },

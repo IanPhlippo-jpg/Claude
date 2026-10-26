@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { useStore } from '../store';
+import { useShallow } from 'zustand/react/shallow';
 import type { CadCamera } from './camera';
 
 const ORANGE = '#f39c1f';
@@ -16,7 +17,7 @@ const AXES: { id: 'x' | 'y' | 'z'; v: [number, number, number]; label: string }[
  * empty space ends it. Mated components move only within their free degrees of freedom.
  */
 export function MoveTriad({ camera, width, height }: { camera: CadCamera; width: number; height: number }) {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ triadComponentId: s.triadComponentId, rebuild: s.rebuild, applyDocument: s.applyDocument, doc: s.doc, moveComponent: s.moveComponent, rotateComponent: s.rotateComponent })));
   const id = st.triadComponentId;
   const [, bump] = useState(0);
   const drag = useRef<{ kind: 'arrow' | 'ring'; axis: 'x' | 'y' | 'z'; x: number; y: number; ang: number } | null>(null);

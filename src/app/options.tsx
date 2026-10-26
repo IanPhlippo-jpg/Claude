@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useStore } from './store';
+import { useShallow } from 'zustand/react/shallow';
 import { Icon } from '../ui/icons';
 import { type Category, COLOR_SCHEME_ITEMS, type Control, customColors, DEFAULT_PREFS, DOCUMENT_CATEGORIES, type PrefValue, savedSchemes, SYSTEM_CATEGORIES } from './prefs';
 
@@ -9,7 +10,7 @@ import { type Category, COLOR_SCHEME_ITEMS, type Control, customColors, DEFAULT_
  * the right, "Search Options" at the top right, Reset… at the bottom left and OK / Cancel / Help.
  */
 export function OptionsDialog() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ prefs: s.prefs, setPrefs: s.setPrefs, setDialog: s.setDialog, pushMessage: s.pushMessage })));
   const [tab, setTab] = useState<'system' | 'document'>('system');
   const [cat, setCat] = useState<string>('general');
   const [query, setQuery] = useState('');

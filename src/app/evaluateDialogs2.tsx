@@ -1,8 +1,9 @@
 import { useMemo, useRef, useState } from 'react';
 import { useStore } from './store';
+import { useShallow } from 'zustand/react/shallow';
 import { Icon } from '../ui/icons';
 import { NumberField, round } from '../ui/components';
-import { bodyCompare, compareDocuments, performanceRows, simXpressEstimate, symmetryCheck, type DocCompareResult } from '../core/features/evaluate2';
+import { bodyCompare, compareDocuments, performanceRows, beamEstimateEstimate, symmetryCheck, type DocCompareResult } from '../core/features/evaluate2';
 import { parseDocument } from '../core/document/persistence';
 import { findMaterial, MATERIAL_LIBRARY, type MaterialDef } from '../core/document/materials';
 import { desktop } from './desktop';
@@ -31,7 +32,7 @@ function Shell({ title, icon, testid, width = 420, children, onClose, footer }: 
 
 /** File ▸ Save As (browser build): file name, Save as copy and continue / and open, Include all referenced components. */
 export function SaveAsDialog() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ doc: s.doc, setDialog: s.setDialog, renameDocument: s.renameDocument })));
   const [name, setName] = useState(st.doc.name);
   const [copy, setCopy] = useState<'none' | 'continue' | 'open'>('none');
   const [refs, setRefs] = useState(false);
@@ -62,7 +63,7 @@ export function SaveAsDialog() {
 
 /** Weldments ▸ Cut list properties: the Cut-List-Items with quantity, description, length and the miter angles. */
 export function CutListDialog() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ rebuild: s.rebuild, pushMessage: s.pushMessage, setDialog: s.setDialog })));
   const meta = st.rebuild.bodyMeta ?? {};
   const items = useMemo(() => cutList(st.rebuild.bodies.filter((b) => meta[b.id]?.kind !== 'bead').map((b) => ({ id: b.id, geometry: b.geometry, description: meta[b.id]?.description, length: meta[b.id]?.length, angle1: meta[b.id]?.angle1, angle2: meta[b.id]?.angle2 }))), [st.rebuild.bodies, meta]);
   const beads = st.rebuild.bodies.filter((b) => meta[b.id]?.kind === 'bead');
@@ -98,7 +99,7 @@ export function CutListDialog() {
 
 /** Evaluate ▸ Performance Evaluation: the rebuild time of every feature, slowest first, with the model statistics. */
 export function PerformanceDialog() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ doc: s.doc, rebuild: s.rebuild, setDialog: s.setDialog, rebuildAll: s.rebuildAll, pushMessage: s.pushMessage, selectedFeatureId: s.selectedFeatureId, setSelectedFeature: s.setSelectedFeature })));
   const [tab, setTab] = useState<'rebuild' | 'stats'>('rebuild');
   const { rows, total } = useMemo(() => performanceRows(st.doc.features.filter((f) => f.type !== 'sketch'), st.rebuild.times ?? {}), [st.doc.features, st.rebuild.times]);
   const tris = st.rebuild.bodies.reduce((a, b) => a + b.geometry.getAttribute('position').count / 3, 0);
@@ -144,7 +145,7 @@ export function PerformanceDialog() {
 
 /** Evaluate ▸ Symmetry Check: the bodies mirrored across a plane must lie on themselves. */
 export function SymmetryDialog() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ doc: s.doc, rebuild: s.rebuild, setDialog: s.setDialog })));
   const [planeId, setPlaneId] = useState('front');
   const [tol, setTol] = useState(0.05);
   const [ran, setRan] = useState(0);
@@ -183,7 +184,7 @@ export function SymmetryDialog() {
 
 /** Evaluate ▸ Compare: Body Compare (two bodies of the model) and Compare Documents (the open model against a file). */
 export function CompareDialog() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ rebuild: s.rebuild, doc: s.doc, setDialog: s.setDialog })));
   const [tab, setTab] = useState<'bodies' | 'documents'>(st.rebuild.bodies.length >= 2 ? 'bodies' : 'documents');
   const [a, setA] = useState(st.rebuild.bodies[0]?.id ?? '');
   const [b, setB] = useState(st.rebuild.bodies[1]?.id ?? '');
@@ -281,9 +282,9 @@ export function CompareDialog() {
 
 const STEPS = ['Welcome', 'Fixtures', 'Loads', 'Material', 'Run', 'Results'] as const;
 
-/** Evaluate ▸ SimulationXpress Analysis Wizard: fixtures, loads, material, a beam-model estimate and the results. */
-export function SimXpressDialog() {
-  const st = useStore();
+/** Evaluate ▸ Quick Beam Estimate Analysis Wizard: fixtures, loads, material, a beam-model estimate and the results. */
+export function BeamEstimateDialog() {
+  const st = useStore(useShallow((s) => ({ doc: s.doc, selectedFace: s.selectedFace, rebuild: s.rebuild, pushMessage: s.pushMessage, setDialog: s.setDialog, setMaterial: s.setMaterial })));
   const [step, setStep] = useState(0);
   const [fixture, setFixture] = useState<{ normal: [number, number, number]; point: [number, number, number]; label: string } | null>(null);
   const [load, setLoad] = useState<{ normal: [number, number, number]; point: [number, number, number]; area: number; label: string } | null>(null);
@@ -303,13 +304,13 @@ export function SimXpressDialog() {
   };
   const result = useMemo(() => {
     if (!ran || !fixture || !load || !mat || !st.rebuild.bodies.length) return null;
-    return simXpressEstimate({ body: st.rebuild.bodies[0].geometry, fixture, load, force, elasticModulus: mat.elasticModulus ?? 2e11, yieldStrength: mat.yield ?? mat.tensile ?? 2.2e8 });
+    return beamEstimateEstimate({ body: st.rebuild.bodies[0].geometry, fixture, load, force, elasticModulus: mat.elasticModulus ?? 2e11, yieldStrength: mat.yield ?? mat.tensile ?? 2.2e8 });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ran]);
   const canNext = step === 0 || (step === 1 && !!fixture) || (step === 2 && !!load) || (step === 3 && !!mat) || (step === 4 && ran) || step === 5;
   return (
-    <Shell title="Quick Beam Estimate" icon={<Icon.Simulation />} testid="simxpress-dialog" width={460} onClose={() => st.setDialog(null)} footer={<><button className="k-btn" disabled={step === 0} onClick={() => setStep((s) => s - 1)}>Back</button><button className="k-btn primary" data-testid="simx-next" disabled={!canNext || step === STEPS.length - 1} onClick={() => setStep((s) => s + 1)}>Next</button><button className="k-btn" onClick={() => st.setDialog(null)}>Close</button></>}>
-      <div className="k-simx-steps" data-testid="simx-steps" style={{ display: 'flex', gap: 4, marginBottom: 8, flexWrap: 'wrap' }}>
+    <Shell title="Quick Beam Estimate" icon={<Icon.Simulation />} testid="beamEstimate-dialog" width={460} onClose={() => st.setDialog(null)} footer={<><button className="k-btn" disabled={step === 0} onClick={() => setStep((s) => s - 1)}>Back</button><button className="k-btn primary" data-testid="beam-next" disabled={!canNext || step === STEPS.length - 1} onClick={() => setStep((s) => s + 1)}>Next</button><button className="k-btn" onClick={() => st.setDialog(null)}>Close</button></>}>
+      <div className="k-beam-steps" data-testid="beam-steps" style={{ display: 'flex', gap: 4, marginBottom: 8, flexWrap: 'wrap' }}>
         {STEPS.map((s, i) => <span key={s} className={`k-pill${i === step ? ' active' : ''}`} style={{ padding: '2px 8px', borderRadius: 10, background: i === step ? 'var(--accent)' : 'var(--bg-2)', color: i === step ? '#fff' : 'inherit', fontSize: 11 }}>{i + 1}. {s}</span>)}
       </div>
       {step === 0 && (
@@ -320,27 +321,27 @@ export function SimXpressDialog() {
             <select className="k-input" defaultValue="SI"><option>SI</option><option>English (IPS)</option><option>Metric (G)</option></select>
             <label className="k-check"><input type="checkbox" defaultChecked /> Show annotation for maximum and minimum in the result plots</label>
           </fieldset>
-          <p className="k-muted" data-testid="simx-disclaimer">Indicative only: the part is treated as a beam between the fixed and loaded faces (bending plus shear). This is not a finite element analysis and not a safety assessment; stress concentrations, buckling, fatigue and contact are not included.</p>
+          <p className="k-muted" data-testid="beam-disclaimer">Indicative only: the part is treated as a beam between the fixed and loaded faces (bending plus shear). This is not a finite element analysis and not a safety assessment; stress concentrations, buckling, fatigue and contact are not included.</p>
         </>
       )}
       {step === 1 && (
         <fieldset className="k-fieldset"><legend>Fixtures</legend>
           <p className="k-muted">Select the face that is held fixed and click Add a fixture.</p>
-          <button className="k-btn" data-testid="simx-addfixture" onClick={() => { const f = pickedFace(); if (f) setFixture(f); }}>Add a fixture</button>
-          <div className="k-selbox" style={{ minHeight: 24, marginTop: 4 }} data-testid="simx-fixture">{fixture ? <div className="k-selbox-row"><Icon.Lock size={12} /> Fixed-1: {fixture.label}</div> : <span className="k-muted">No fixture yet.</span>}</div>
+          <button className="k-btn" data-testid="beam-addfixture" onClick={() => { const f = pickedFace(); if (f) setFixture(f); }}>Add a fixture</button>
+          <div className="k-selbox" style={{ minHeight: 24, marginTop: 4 }} data-testid="beam-fixture">{fixture ? <div className="k-selbox-row"><Icon.Lock size={12} /> Fixed-1: {fixture.label}</div> : <span className="k-muted">No fixture yet.</span>}</div>
         </fieldset>
       )}
       {step === 2 && (
         <fieldset className="k-fieldset"><legend>Loads</legend>
           <p className="k-muted">Select the face the force acts on, enter the force and click Add a force.</p>
           <div className="k-pm-valuerow"><span className="k-muted" style={{ minWidth: 60 }}>Force</span><NumberField value={force} onChange={(v) => setForce(Math.max(0, v))} unit="N" step={10} min={0} /></div>
-          <button className="k-btn" data-testid="simx-addforce" onClick={() => { const f = pickedFace(); if (f) setLoad(f); }}>Add a force</button>
-          <div className="k-selbox" style={{ minHeight: 24, marginTop: 4 }} data-testid="simx-load">{load ? <div className="k-selbox-row"><Icon.Arrow size={12} /> Force-1: {force} N normal to {load.label}</div> : <span className="k-muted">No load yet.</span>}</div>
+          <button className="k-btn" data-testid="beam-addforce" onClick={() => { const f = pickedFace(); if (f) setLoad(f); }}>Add a force</button>
+          <div className="k-selbox" style={{ minHeight: 24, marginTop: 4 }} data-testid="beam-load">{load ? <div className="k-selbox-row"><Icon.Arrow size={12} /> Force-1: {force} N normal to {load.label}</div> : <span className="k-muted">No load yet.</span>}</div>
         </fieldset>
       )}
       {step === 3 && (
         <fieldset className="k-fieldset"><legend>Material</legend>
-          <select className="k-input" data-testid="simx-material" value={materialName} onChange={(e) => setMaterialName(e.target.value)}>
+          <select className="k-input" data-testid="beam-material" value={materialName} onChange={(e) => setMaterialName(e.target.value)}>
             {MATERIAL_LIBRARY.map((c) => <optgroup key={c.name} label={c.name}>{c.materials.map((m) => <option key={m.name} value={m.name}>{m.name}</option>)}</optgroup>)}
           </select>
           {mat && (
@@ -358,7 +359,7 @@ export function SimXpressDialog() {
       {step === 4 && (
         <fieldset className="k-fieldset"><legend>Run</legend>
           <p className="k-muted">Fixed: {fixture?.label} · Force: {force} N on {load?.label} · Material: {materialName}</p>
-          <button className="k-btn primary" data-testid="simx-run" onClick={() => setRan(true)}>Run Simulation</button>
+          <button className="k-btn primary" data-testid="beam-run" onClick={() => setRan(true)}>Run Simulation</button>
           {ran && <p className="k-pm-message" style={{ marginTop: 6 }}>The analysis is complete. Continue to the results.</p>}
         </fieldset>
       )}
@@ -366,9 +367,9 @@ export function SimXpressDialog() {
         <fieldset className="k-fieldset"><legend>Results</legend>
           {!result && <span className="k-muted">Run the simulation first.</span>}
           {result && (
-            <table className="k-table" data-testid="simx-results">
+            <table className="k-table" data-testid="beam-results">
               <tbody>
-                <tr><td>Indicative ratio yield / stress</td><td data-testid="simx-ratio">{fmt(result.fos, 2)} <span className="k-muted">(not a safety factor)</span></td></tr>
+                <tr><td>Indicative ratio yield / stress</td><td data-testid="beam-ratio">{fmt(result.fos, 2)} <span className="k-muted">(not a safety factor)</span></td></tr>
                 <tr><td>von Mises stress (max)</td><td>{fmt(result.stress / 1e6, 2)} MPa</td></tr>
                 <tr><td>Displacement (max)</td><td>{fmt(result.displacement, 4)} mm</td></tr>
                 <tr><td>Bending / shear stress</td><td>{fmt(result.bendingStress / 1e6, 2)} / {fmt(result.shearStress / 1e6, 2)} MPa</td></tr>
@@ -376,7 +377,7 @@ export function SimXpressDialog() {
               </tbody>
             </table>
           )}
-          {result && <p className="k-pm-message" data-testid="simx-warning" style={{ marginTop: 6 }}><b>Not for design decisions.</b> Indicative estimate (beam model): the yield strength is {fmt(result.fos, 2)} times the estimated maximum stress. This does not show that the part is safe; verify the design with a full analysis or a qualified engineer.</p>}
+          {result && <p className="k-pm-message" data-testid="beam-warning" style={{ marginTop: 6 }}><b>Not for design decisions.</b> Indicative estimate (beam model): the yield strength is {fmt(result.fos, 2)} times the estimated maximum stress. This does not show that the part is safe; verify the design with a full analysis or a qualified engineer.</p>}
           <p className="k-muted">Estimate from the beam formulas on the part's cross-section (not a finite element result).</p>
         </fieldset>
       )}

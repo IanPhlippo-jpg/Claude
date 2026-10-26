@@ -1,6 +1,7 @@
 import { sensorAlarm, sensorReading } from '../sensors';
 import { useState } from 'react';
 import { useStore } from '../store';
+import { useShallow } from 'zustand/react/shallow';
 import { Menu, TreeView, type MenuItem, type TreeNode } from '../../ui/components';
 import { Icon } from '../../ui/icons';
 import { restoreSnapshot } from '../assemblyCommands';
@@ -20,12 +21,12 @@ export const MATE_ICON: Partial<Record<Mate['type'], React.ReactNode>> = {
 };
 
 /**
- * FeatureManager design tree of an assembly by design:
+ * Feature Tree of an assembly by design:
  * Assem1 (Default) <Display State-1> ▸ History, Sensors, Annotations, Front/Top/Right Plane, Origin,
  * (f) Part1<1>, (-) Part2<1> (each with the part's features as children), Mates ▸ Coincident1 (Part1<1>,Part2<1>).
  */
 export function AssemblyTreeBody() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ treeFilter: s.treeFilter, setHoverPlane: s.setHoverPlane, selectedPlane: s.selectedPlane, setSelectedPlane: s.setSelectedPlane, doc: s.doc, selectedFeatureId: s.selectedFeatureId, rebuild: s.rebuild, selectComponent: s.selectComponent, setSelectedFeature: s.setSelectedFeature, editMate: s.editMate, deleteSensor: s.deleteSensor, setSensorEdit: s.setSensorEdit, setDialog: s.setDialog, toggleShow: s.toggleShow, applyDocument: s.applyDocument, startMate: s.startMate, editSketch: s.editSketch, editFeature: s.editFeature, editComponentPattern: s.editComponentPattern, setComponentFixed: s.setComponentFixed, setComponentHidden: s.setComponentHidden, setAsmTool: s.setAsmTool, insertComponent: s.insertComponent, setComponentConfiguration: s.setComponentConfiguration, deleteComponent: s.deleteComponent, setMateSuppressed: s.setMateSuppressed, deleteMate: s.deleteMate })));
   const [menu, setMenu] = useState<{ x: number; y: number; componentId?: string; mateId?: string } | null>(null);
   const q = st.treeFilter.trim().toLowerCase();
   const sys = (id: string, icon: React.ReactNode, label: string, children?: TreeNode[]): TreeNode => ({ id, icon, label: <span>{label}</span>, children });

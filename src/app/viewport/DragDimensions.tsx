@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useActiveSketch, useStore } from '../store';
+import { useShallow } from 'zustand/react/shallow';
 import { isDimension, type Constraint, type Sketch, type SketchPoint } from '../../core/sketch/types';
 
 /** Where the drag handle of a dimension sits (sketch coordinates) and in which direction the value grows. */
@@ -32,14 +33,14 @@ function handleOf(s: Sketch, c: Constraint): { at: SketchPoint; dir: SketchPoint
 }
 
 /**
- * Instant2D, by design: with the command on, a selected sketch dimension gets a drag handle; dragging
+ * Drag Dimensions, by design: with the command on, a selected sketch dimension gets a drag handle; dragging
  * it shows a ruler and changes the value (rounded to the ruler increment, 1 mm; 0.1 mm with Alt).
  */
-export function Instant2DHandle({ project }: { project: (p: SketchPoint) => { x: number; y: number } }) {
-  const st = useStore();
+export function DragDimensionsHandle({ project }: { project: (p: SketchPoint) => { x: number; y: number } }) {
+  const st = useStore(useShallow((s) => ({ dragDimensions: s.dragDimensions, activeSketchId: s.activeSketchId, selectedConstraint: s.selectedConstraint, updateDimension: s.updateDimension })));
   const sketch = useActiveSketch();
   const [drag, setDrag] = useState<{ x: number; y: number; v0: number; value: number } | null>(null);
-  if (!sketch || !st.instant2d || !st.activeSketchId || !st.selectedConstraint) return null;
+  if (!sketch || !st.dragDimensions || !st.activeSketchId || !st.selectedConstraint) return null;
   const c = sketch.constraints[st.selectedConstraint];
   if (!c || !isDimension(c) || c.driven || c.value === undefined) return null;
   const h = handleOf(sketch, c);
@@ -68,7 +69,7 @@ export function Instant2DHandle({ project }: { project: (p: SketchPoint) => { x:
   };
   const ticks = drag ? Array.from({ length: 21 }, (_, i) => i - 10) : [];
   return (
-    <svg className="k-instant2d" data-testid="instant2d" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', overflow: 'visible' }}>
+    <svg className="k-dragDimensions" data-testid="dragDimensions" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', overflow: 'visible' }}>
       {drag && (
         <g>
           <line x1={p0.x - ux * 10 * pxPerMm} y1={p0.y - uy * 10 * pxPerMm} x2={p0.x + ux * 10 * pxPerMm} y2={p0.y + uy * 10 * pxPerMm} stroke="#2b2b2b" strokeWidth={1} />
@@ -77,10 +78,10 @@ export function Instant2DHandle({ project }: { project: (p: SketchPoint) => { x:
             return <line key={k} x1={p0.x + ux * k * pxPerMm - uy * t} y1={p0.y + uy * k * pxPerMm + ux * t} x2={p0.x + ux * k * pxPerMm + uy * t} y2={p0.y + uy * k * pxPerMm - ux * t} stroke="#2b2b2b" strokeWidth={1} />;
           })}
           <rect x={bx + 12} y={by - 22} width={64} height={18} fill="#ffffe1" stroke="#7a7a7a" />
-          <text x={bx + 44} y={by - 9} fontSize={11} textAnchor="middle" fill="#000" data-testid="instant2d-value">{drag.value.toFixed(2)}</text>
+          <text x={bx + 44} y={by - 9} fontSize={11} textAnchor="middle" fill="#000" data-testid="dragDimensions-value">{drag.value.toFixed(2)}</text>
         </g>
       )}
-      <circle data-testid="instant2d-grip" cx={bx} cy={by} r={6} fill="#1f6fd1" stroke="#fff" strokeWidth={1.5} style={{ pointerEvents: 'all', cursor: 'move' }} onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} />
+      <circle data-testid="dragDimensions-grip" cx={bx} cy={by} r={6} fill="#1f6fd1" stroke="#fff" strokeWidth={1.5} style={{ pointerEvents: 'all', cursor: 'move' }} onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} />
     </svg>
   );
 }

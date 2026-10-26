@@ -11,6 +11,7 @@ import { METRIC_THREADS } from '../../core/features/thread';
 import { useEffect, useState, type ReactNode } from 'react';
 import { lastRectangle } from '../../core/sketch/lastShape';
 import { useActiveSketch, useActiveSolve, useStore } from '../store';
+import { useShallow } from 'zustand/react/shallow';
 import { Button, NumberField, Section, round } from '../../ui/components';
 import { Icon, RelationGlyph } from '../../ui/icons';
 import { relationLabel, relationsForSelection } from '../../core/sketch/relations';
@@ -22,10 +23,10 @@ import { DEFAULT_SHEET_METAL, GAUGE_TABLES, materialKFactor, type SheetMetalPara
 import { classifyVent, FORM_TOOL_LIBRARY } from '../../core/features/sheetmetal4';
 import { profileSizes, profileTypes, type ProfileType } from '../../core/features/weldments';
 
-/** Sheet-Metal1 PropertyManager: Bend Parameters (thickness, radius) and Bend Allowance (K-factor). */
+/** Sheet-Metal1 Property Panel: Bend Parameters (thickness, radius) and Bend Allowance (K-factor). */
 function SheetMetalPM({ params, onOk, onCancel }: { params: SheetMetalParams; onOk: (p: SheetMetalParams) => void; onCancel: () => void }) {
   const [p, setP] = useState(params);
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ doc: s.doc })));
   return (
     <>
       <Header title="Sheet-Metal1" icon={<Icon.Sheet />} onOk={() => onOk(p)} onCancel={onCancel} />
@@ -61,7 +62,7 @@ function SheetMetalPM({ params, onOk, onCancel }: { params: SheetMetalParams; on
 }
 
 /**
- * Hole Wizard ▸ Type: the sub type sets the sizes as its standard does (drill sizes and dowel holes at the nominal size,
+ * Hole Tool ▸ Type: the sub type sets the sizes as its standard does (drill sizes and dowel holes at the nominal size,
  * screw clearances at the chosen fit, tap drills at the tap drill size; counterbore / countersink heads per screw).
  */
 function holeSubtypePatch(t: string, sz: (typeof HOLE_SIZES)[number] | undefined, fit: 'Close' | 'Normal' | 'Loose', d: HoleFeature): Partial<HoleFeature> {
@@ -95,7 +96,7 @@ const HOLE_SIZES: { size: string; fit: { Close: number; Normal: number; Loose: n
   { size: 'M20', fit: { Close: 21, Normal: 22, Loose: 24 }, cb: 33, cbDepth: 21.5, cs: 40.4, tap: 17.5, pitch: 2.5 },
 ];
 
-/** Hole Wizard ▸ Standard ANSI Inch: machine screw and fractional sizes (mm) */
+/** Hole Tool ▸ Standard ANSI Inch: machine screw and fractional sizes (mm) */
 const HOLE_SIZES_INCH: typeof HOLE_SIZES = [
   { size: '#4', fit: { Close: 3.0, Normal: 3.3, Loose: 3.6 }, cb: 5.6, cbDepth: 2.9, cs: 5.6, tap: 2.3, pitch: 0.635 },
   { size: '#6', fit: { Close: 3.7, Normal: 3.9, Loose: 4.4 }, cb: 6.7, cbDepth: 3.5, cs: 6.9, tap: 2.7, pitch: 0.794 },
@@ -108,7 +109,7 @@ const HOLE_SIZES_INCH: typeof HOLE_SIZES = [
 ];
 const holeSizesFor = (std: string) => (std === 'ANSI Inch' ? HOLE_SIZES_INCH : HOLE_SIZES);
 
-/** tools whose PropertyManager OK applies the edit (Offset, Move/Copy/Rotate/Scale, patterns) */
+/** tools whose Property Panel OK applies the edit (Offset, Move/Copy/Rotate/Scale, patterns) */
 const APPLY_TOOLS = new Set(['offset', 'moveEntities', 'copyEntities', 'rotateEntities', 'scaleEntities', 'linearSketchPattern', 'circularSketchPattern']);
 
 const TOOL_TITLE: Record<string, string> = {
@@ -230,8 +231,8 @@ const TOOL_HELP: Record<string, string> = {
   dimension: 'Select a line (length), circle (diameter), arc (radius), two points (distance), point + line (distance) or two lines (angle). Click to place the dimension; the Modify box appears.',
 };
 
-/** PropertyManager header by design: icon + title + help, then a row with OK / Cancel. */
-/** the eye of a feature PropertyManager: Detailed Preview shows the model with the feature applied */
+/** Property Panel header by design: icon + title + help, then a row with OK / Cancel. */
+/** the eye of a feature Property Panel: Detailed Preview shows the model with the feature applied */
 function DetailedPreviewButton() {
   const on = useStore((s) => s.detailedPreview);
   const toggle = useStore((s) => s.toggleDetailedPreview);
@@ -247,7 +248,7 @@ function DetailedPreviewButton() {
  * active, a click on a region of the profile in the graphics area adds or removes it (shown magenta). Empty = all.
  */
 function SelectedContoursBox({ sketchName, contours }: { sketchName: string; contours?: number[] }) {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ contourPick: s.contourPick, setContourPick: s.setContourPick })));
   const active = st.contourPick;
   return (
     <div className="k-pm-selrow">
@@ -259,7 +260,7 @@ function SelectedContoursBox({ sketchName, contours }: { sketchName: string; con
   );
 }
 
-/** Keep Visible: the pushpin of the Fillet / Chamfer PropertyManager, by design */
+/** Keep Visible: the pushpin of the Fillet / Chamfer Property Panel, by design */
 function KeepVisibleButton() {
   const on = useStore((s) => s.pmPinned);
   const toggle = useStore((s) => s.togglePmPinned);
@@ -295,11 +296,11 @@ function Header({ title, icon, onOk, onCancel, okTip = 'OK', cancelTip = 'Cancel
   );
 }
 
-/** PropertyManager body: replaces the tree while a command/selection is active. */
+/** Property Panel body: replaces the tree while a command/selection is active. */
 /** Polygon parameters of the intended design, greyed until a polygon is drawn */
 const POLY_FIELDS: [string, string][] = [['X coordinate of center', 'Cx'], ['Y coordinate of center', 'Cy'], ['Circle diameter', '⌀'], ['Angle', '∠']];
 
-/** dimension Favorites (Dimension PropertyManager > Style), kept as JSON text in the preferences */
+/** dimension Favorites (Dimension Property Panel > Style), kept as JSON text in the preferences */
 function dimFavs(): Record<string, Partial<Constraint>> {
   try { return JSON.parse(String(getPref('sketch.dimFavorites') ?? '{}')) ?? {}; } catch { return {}; }
 }
@@ -307,8 +308,8 @@ function saveDimFavs(f: Record<string, unknown>): void {
   savePrefs({ ...loadPrefs(), 'sketch.dimFavorites': JSON.stringify(f) });
 }
 
-export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimensionId: string | null; onEditDone: () => void }) {
-  const st = useStore();
+export function PropertyPanelBody({ editDimensionId, onEditDone }: { editDimensionId: string | null; onEditDone: () => void }) {
+  const st = useStore(useShallow((s) => ({ selectedConstraint: s.selectedConstraint, featureEdit: s.featureEdit, rebuild: s.rebuild, commitFeature: s.commitFeature, cancelFeature: s.cancelFeature, updateFeatureDraft: s.updateFeatureDraft, doc: s.doc, detailedPreview: s.detailedPreview, toggleDetailedPreview: s.toggleDetailedPreview, shellPick: s.shellPick, sheetMetalEdit: s.sheetMetalEdit, setSheetMetal: s.setSheetMetal, setSheetMetalEdit: s.setSheetMetalEdit, pushMessage: s.pushMessage, setAnalysis: s.setAnalysis, setDraftFocus: s.setDraftFocus, draftFocus: s.draftFocus, flangePick: s.flangePick, threadFacePick: s.threadFacePick, selectedFace: s.selectedFace, trimFocus: s.trimFocus, setTrimFocus: s.setTrimFocus, mirrorPick: s.mirrorPick, togglePatternSkip: s.togglePatternSkip, collectAllCorners: s.collectAllCorners, startRound: s.startRound, selectedFaces: s.selectedFaces, fullRoundPick: s.fullRoundPick, selectionToolbar: s.selectionToolbar, show: s.show, toggleShow: s.toggleShow, editSketch: s.editSketch, dir2Pick: s.dir2Pick, planePick: s.planePick, cancelPlanePick: s.cancelPlanePick, renameDocument: s.renameDocument, unitSystem: s.unitSystem, setUnitSystem: s.setUnitSystem, newSketch: s.newSketch, selection: s.selection, updateDimension: s.updateDimension, tool: s.tool, exitSketch: s.exitSketch, addEquationCurve: s.addEquationCurve, setTool: s.setTool, fullyDefine: s.fullyDefine, applySketchTool: s.applySketchTool, discardSketch: s.discardSketch, setAsk: s.setAsk, renameDimension: s.renameDimension, modify: s.modify, removeRelation: s.removeRelation, selectConstraint: s.selectConstraint, addRelation: s.addRelation, commit: s.commit, toggleConstructionSelection: s.toggleConstructionSelection, deleteSelection: s.deleteSelection, addPierce: s.addPierce, sketchTool: s.sketchTool, setSketchTool: s.setSketchTool })));
   const sketch = useActiveSketch();
   const solve = useActiveSolve();
   const [value, setValue] = useState(0);
@@ -332,17 +333,17 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
   useEffect(() => {
     bridge.sketchOptions.polygonSides = sides;
   }, [sides]);
-  // Sketch Text PropertyManager (Text, Font: height, bold; width factor, spacing, rotation)
+  // Sketch Text Property Panel (Text, Font: height, bold; width factor, spacing, rotation)
   const [sketchText, setSketchText] = useState({ text: 'PHLIPPO', height: 10, bold: false, widthFactor: 100, spacing: 100, angle: 0 });
   useEffect(() => {
     bridge.sketchOptions.textOptions = sketchText;
   }, [sketchText]);
-  // Hole Wizard: standard sizes (ISO 273 clearance holes) with the default counterbore / countersink of the intended design
+  // Hole Tool: standard sizes (ISO 273 clearance holes) with the default counterbore / countersink of the intended design
   const [holeStd, setHoleStd] = useState('ISO');
   const [holeSize, setHoleSize] = useState('M6');
   const [holeFit, setHoleFit] = useState<'Close' | 'Normal' | 'Loose'>('Normal');
   const [filletXpert, setFilletXpert] = useState(false);
-  const [draftXpert, setDraftXpert] = useState(false);
+  const [autoFixDraft, setAutoFixDraft] = useState(false);
   const [profileEdit, setProfileEdit] = useState(false);
   const [dimTab, setDimTab] = useState<'value' | 'leaders' | 'other'>('value');
   const [dimFav, setDimFav] = useState('');
@@ -834,8 +835,8 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
     return (
       <>
         <Header title={d.name} icon={<Icon.Chamfer />} onOk={st.commitFeature} onCancel={st.cancelFeature} />
-        <div className="k-pm-tabs"><button className={draftXpert ? '' : 'active'} onClick={() => setDraftXpert(false)}>Manual</button><button className={draftXpert ? 'active' : ''} data-testid="draft-xpert" onClick={() => { setDraftXpert(true); st.updateFeatureDraft({ draftType: 'neutral' }); }}>Auto-Fix Draft</button></div>
-        {draftXpert && (
+        <div className="k-pm-tabs"><button className={autoFixDraft ? '' : 'active'} onClick={() => setAutoFixDraft(false)}>Manual</button><button className={autoFixDraft ? 'active' : ''} data-testid="draft-xpert" onClick={() => { setAutoFixDraft(true); st.updateFeatureDraft({ draftType: 'neutral' }); }}>Auto-Fix Draft</button></div>
+        {autoFixDraft && (
           <Section title="Add / Change">
             <p className="k-pm-message">Auto-Fix Draft: set the angle, pick the neutral plane and the faces, then Apply. Faces that already have enough draft show green in Draft Analysis.</p>
             <div style={{ display: 'flex', gap: 6, marginTop: 6 }}>
@@ -844,7 +845,7 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
             </div>
           </Section>
         )}
-        {!draftXpert && <Section title="Type of Draft">
+        {!autoFixDraft && <Section title="Type of Draft">
           <div className="k-pm-radios">
             <label className="k-check"><input type="radio" name="drafttype" checked={(d.draftType ?? 'neutral') === 'neutral'} onChange={() => st.updateFeatureDraft({ draftType: 'neutral' })} /> Neutral plane</label>
             <label className="k-check"><input type="radio" name="drafttype" data-testid="draft-parting" checked={d.draftType === 'parting'} onChange={() => { st.updateFeatureDraft({ draftType: 'parting' }); st.setDraftFocus('neutral'); }} /> Parting line</label>
@@ -1155,7 +1156,7 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
     );
   }
 
-  // Delete Face PropertyManager: Selections (Faces to delete) and Options (Delete / Delete and Patch / Delete and Fill)
+  // Delete Face Property Panel: Selections (Faces to delete) and Options (Delete / Delete and Patch / Delete and Fill)
   if (st.featureEdit && st.featureEdit.draft.type === 'deleteFace') {
     const d = st.featureEdit.draft;
     const err = st.rebuild.errors[d.id];
@@ -1779,7 +1780,7 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
     const SIZES: [string, number, number][] = [['M3', 3, 0.5], ['M4', 4, 0.7], ['M5', 5, 0.8], ['M6', 6, 1], ['M8', 8, 1.25], ['M10', 10, 1.5], ['M12', 12, 1.75], ['M16', 16, 2], ['M20', 20, 2.5]];
     return (
       <>
-        <Header title="Stud Wizard" icon={<Icon.Hole />} onOk={st.commitFeature} onCancel={st.cancelFeature} />
+        <Header title="Stud Tool" icon={<Icon.Hole />} onOk={st.commitFeature} onCancel={st.cancelFeature} />
         <Section title="Stud">
           <div className="k-pm-radios">
             <label className="k-check"><input type="radio" name="studkind" checked={d.onCylinder === undefined} onChange={() => st.updateFeatureDraft({ onCylinder: undefined })} /> Create stud on surface</label>
@@ -2143,7 +2144,7 @@ export function PropertyManagerBody({ editDimensionId, onEditDone }: { editDimen
     );
   }
 
-  // Mirror, Linear / Circular Pattern, Hole Wizard
+  // Mirror, Linear / Circular Pattern, Hole Tool
   if (st.featureEdit && (st.featureEdit.draft.type === 'mirror' || st.featureEdit.draft.type === 'linearPattern' || st.featureEdit.draft.type === 'circularPattern' || st.featureEdit.draft.type === 'sketchPattern' || st.featureEdit.draft.type === 'curvePattern' || st.featureEdit.draft.type === 'tablePattern' || st.featureEdit.draft.type === 'fillPattern' || st.featureEdit.draft.type === 'variablePattern' || st.featureEdit.draft.type === 'hole')) {
     const d = st.featureEdit.draft;
     const err = st.rebuild.errors[d.id];

@@ -3,6 +3,7 @@ import { getPref, loadPrefs, savePrefs } from '../prefs';
 import { RibbonBody } from './RibbonOverflow';
 import { useState, type ReactNode } from 'react';
 import { useStore, type RibbonTab, type ToolId } from '../store';
+import { useShallow } from 'zustand/react/shallow';
 import { Menu, type MenuItem } from '../../ui/components';
 import { Icon } from '../../ui/icons';
 import { FORM_TOOL_LIBRARY } from '../../core/features/sheetmetal4';
@@ -13,7 +14,7 @@ import { AssemblyTab, LifecycleTab } from './AssemblyTab';
 import { AnnotationTab, SheetFormatTab, ViewLayoutTab } from './DrawingTabs';
 
 /**
- * CommandManager laid out like the desktop original: a 3×3 block with the menu-bar
+ * Command Ribbon laid out like the desktop original: a 3×3 block with the menu-bar
  * commands, large icon+text buttons, stacked small buttons, consolidated fly-outs,
  * and the tab strip below (Features · Sketch · Surfaces · Sheet Metal · Evaluate ·
  * Render Tools · Add-Ins).
@@ -136,7 +137,7 @@ function IconFly({ icon, tip, active, disabled, later, onClick, flyout }: { icon
   );
 }
 
-/** small icon button with optional caret (menu-bar block inside the CommandManager) */
+/** small icon button with optional caret (menu-bar block inside the Command Ribbon) */
 function MbIcon({ icon, tip, onClick, caret, disabled }: { icon: ReactNode; tip: string; onClick?: () => void; caret?: boolean; disabled?: boolean }) {
   return (
     <button className="k-cm-mbbtn k-tip" data-tip={tip} onClick={onClick} disabled={disabled}>
@@ -147,8 +148,8 @@ function MbIcon({ icon, tip, onClick, caret, disabled }: { icon: ReactNode; tip:
 }
 
 export function Ribbon() {
-  const st = useStore();
-  // Customize ▸ Toolbars: hidden CommandManager tabs and Quick Access buttons, extra Quick Access commands
+  const st = useStore(useShallow((s) => ({ prefs: s.prefs, activeSketchId: s.activeSketchId, tool: s.tool, planePick: s.planePick, pendingTool: s.pendingTool, setTool: s.setTool, selection: s.selection, setDialog: s.setDialog, undoLabel: s.undoLabel, undo: s.undo, canUndo: s.canUndo, rebuildAll: s.rebuildAll, redoLabel: s.redoLabel, redo: s.redo, canRedo: s.canRedo, sketch3dEdit: s.sketch3dEdit, commit3DSketch: s.commit3DSketch, exitSketch: s.exitSketch, startPlanePick: s.startPlanePick, start3DSketch: s.start3DSketch, lastTool: s.lastTool, convertEntities: s.convertEntities, offsetSurfEdit: s.offsetSurfEdit, rebuild: s.rebuild, setOffsetSurfEdit: s.setOffsetSurfEdit, mirrorSelection: s.mirrorSelection, taskPane: s.taskPane, setTaskPane: s.setTaskPane, setManagerTab: s.setManagerTab, dialog: s.dialog, snapGrid: s.snapGrid, toggle: s.toggle, rapidSketch: s.rapidSketch, toggleRapidSketch: s.toggleRapidSketch, dragDimensions: s.dragDimensions, toggleDragDimensions: s.toggleDragDimensions, shadedContours: s.shadedContours, doc: s.doc, tab: s.tab, featureEdit: s.featureEdit, planeEdit: s.planeEdit, sheetMetalEdit: s.sheetMetalEdit, patternEdit: s.patternEdit, motorEdit: s.motorEdit, fastenerEdit: s.fastenerEdit, analysis: s.analysis, startFeature: s.startFeature, startHole: s.startHole, startThread: s.startThread, startStud: s.startStud, startRound: s.startRound, startPattern: s.startPattern, startRib: s.startRib, startDraft: s.startDraft, startShell: s.startShell, startWrap: s.startWrap, startDeform: s.startDeform, startIntersect: s.startIntersect, startMirror: s.startMirror, startPlane: s.startPlane, startRefGeom: s.startRefGeom, startHelix: s.startHelix, startCurveFeature: s.startCurveFeature, dragHandles: s.dragHandles, toggleDragHandles: s.toggleDragHandles, sensorEdit: s.sensorEdit, setSensorEdit: s.setSensorEdit, setAnalysis: s.setAnalysis, show: s.show, toggleShow: s.toggleShow, startSurface: s.startSurface, startDeleteFace: s.startDeleteFace, startBaseFlange: s.startBaseFlange, startConvertSheet: s.startConvertSheet, startLoftedBend: s.startLoftedBend, startEdgeFlange: s.startEdgeFlange, startMiterFlange: s.startMiterFlange, startHem: s.startHem, startJog: s.startJog, startSketchedBend: s.startSketchedBend, startCrossBreak: s.startCrossBreak, startSweptFlange: s.startSweptFlange, startBreakCorner: s.startBreakCorner, startClosedCorner: s.startClosedCorner, startCornerRelief: s.startCornerRelief, startFormTool: s.startFormTool, startGusset: s.startGusset, startTabSlot: s.startTabSlot, startVent: s.startVent, applyNormalCut: s.applyNormalCut, startUnfold: s.startUnfold, toggleFlatten: s.toggleFlatten, toggleNoBends: s.toggleNoBends, startRip: s.startRip, startWeldment: s.startWeldment, startStructuralMember: s.startStructuralMember, startTrimExtend: s.startTrimExtend, startEndCap: s.startEndCap, startWeldGusset: s.startWeldGusset, startWeldBead: s.startWeldBead, autoToleranceEdit: s.autoToleranceEdit, startAutoTolerance: s.startAutoTolerance, pushMessage: s.pushMessage, setAsk: s.setAsk, setAutoToleranceData: s.setAutoToleranceData, deleteAllTolerances: s.deleteAllTolerances, updateAutoTolerance: s.updateAutoTolerance, sceneEdit: s.sceneEdit, setSceneEdit: s.setSceneEdit, decalEdit: s.decalEdit, startDecal: s.startDecal, setFinalImage: s.setFinalImage, markupMode: s.markupMode, setMarkupMode: s.setMarkupMode, applyDocument: s.applyDocument, hasDocument: s.hasDocument, setTab: s.setTab })));
+  // Customize ▸ Toolbars: hidden Command Ribbon tabs and Quick Access buttons, extra Quick Access commands
   const hiddenTabs = String(st.prefs['customize.tabs.hidden'] ?? '').split('|').filter(Boolean);
   const qat = (id: string) => !String(st.prefs['customize.qat.hidden'] ?? '').split('|').includes(id);
   const qatExtra = String(st.prefs['customize.qat.extra'] ?? '').split('|').filter(Boolean);
@@ -260,7 +261,7 @@ export function Ribbon() {
       </Group>
       <Group>
         <BigButton label="Rapid Sketch" icon={<Icon.RapidSketch />} active={st.rapidSketch} onClick={st.toggleRapidSketch} />
-        <BigButton label="Drag Dimensions" icon={<Icon.Instant2D />} active={st.instant2d} onClick={st.toggleInstant2D} />
+        <BigButton label="Drag Dimensions" icon={<Icon.DragDimensions />} active={st.dragDimensions} onClick={st.toggleDragDimensions} />
         <BigButton label="Shaded Sketch Contours" icon={<Icon.ShadedContours />} active={st.shadedContours} disabled={!inSketch} onClick={() => st.toggle('shadedContours')} />
       </Group>
     </>
@@ -273,7 +274,7 @@ export function Ribbon() {
   const noBody = (st.doc.kind ?? 'part') === 'part' && !st.rebuild.bodies.length;
   // the sheet metal commands that change an existing sheet need a sheet metal body (Base Flange, Convert, Lofted-Bend, Swept Flange)
   const noSheet = noBody || !st.doc.features.some((f) => !f.suppressed && (f.type === 'baseFlange' || f.type === 'convertSheet' || f.type === 'loftedBend' || f.type === 'sweptFlange'));
-  // while a PropertyManager command runs, the intended design greys the CommandManager (the running command stays lit)
+  // while a Property Panel command runs, the intended design greys the Command Ribbon (the running command stays lit)
   const busy = st.doc.kind !== 'drawing' && (!!st.featureEdit || !!st.planeEdit || !!st.sheetMetalEdit || !!st.patternEdit || !!st.sketch3dEdit || !!st.motorEdit || !!st.fastenerEdit || (!!st.analysis && st.analysis.kind !== 'curvature'));
   const noSketch = !st.doc.features.some((f) => f.type === 'sketch');
   const noSurface = !(st.rebuild.surfaceBodies ?? []).length;
@@ -293,7 +294,7 @@ export function Ribbon() {
       </Group>
       <Group>
         <BigButton label="Extruded Cut" disabled={noBody} icon={<Icon.Cut />} active={st.featureEdit?.draft.type === 'extrude' && st.featureEdit.draft.op === 'cut'} onClick={() => st.startFeature('extrude', 'cut')} />
-        <BigButton label="Hole Tool" disabled={noBody || inSk} icon={<Icon.Hole />} active={st.featureEdit?.draft.type === 'hole' || st.featureEdit?.draft.type === 'thread' || st.featureEdit?.draft.type === 'stud'} onClick={() => st.startHole()} flyout={[{ label: 'Hole Tool', icon: <Icon.Hole />, onSelect: () => st.startHole() }, { label: 'Advanced Hole', icon: <Icon.Hole />, onSelect: () => st.startHole(true) }, { label: 'Thread', icon: <Icon.Hole />, onSelect: st.startThread }, { label: 'Stud Wizard', icon: <Icon.Hole />, onSelect: st.startStud }]} />
+        <BigButton label="Hole Tool" disabled={noBody || inSk} icon={<Icon.Hole />} active={st.featureEdit?.draft.type === 'hole' || st.featureEdit?.draft.type === 'thread' || st.featureEdit?.draft.type === 'stud'} onClick={() => st.startHole()} flyout={[{ label: 'Hole Tool', icon: <Icon.Hole />, onSelect: () => st.startHole() }, { label: 'Advanced Hole', icon: <Icon.Hole />, onSelect: () => st.startHole(true) }, { label: 'Thread', icon: <Icon.Hole />, onSelect: st.startThread }, { label: 'Stud Tool', icon: <Icon.Hole />, onSelect: st.startStud }]} />
         <BigButton label="Revolved Cut" disabled={noBody} icon={<Icon.RevolveCut />} active={st.featureEdit?.draft.type === 'revolve' && st.featureEdit.draft.op === 'cut'} onClick={() => st.startFeature('revolve', 'cut')} />
         <div className="k-cm-col">
           <SmallButton label="Swept Cut" disabled={noBody || inSk} icon={<Icon.SweepCut />} active={st.featureEdit?.draft.type === 'sweep' && st.featureEdit.draft.op === 'cut'} onClick={() => st.startFeature('sweep', 'cut')} />
@@ -318,7 +319,7 @@ export function Ribbon() {
       <Group>
         <BigButton label="Reference Geometry" icon={<Icon.RefGeometry />} active={!!st.planeEdit} onClick={() => st.startPlane()} flyout={[{ label: 'Plane', icon: <Icon.Plane />, onSelect: () => st.startPlane() }, { label: 'Axis', icon: <Icon.Line />, onSelect: () => st.startRefGeom('axis') }, { label: 'Coordinate System', icon: <Icon.Origin />, onSelect: () => st.startRefGeom('csys') }, { label: 'Point', icon: <Icon.Point />, onSelect: () => st.startRefGeom('point') }]} />
         <BigButton label="Curves" icon={<Icon.Curves />} active={st.featureEdit?.draft.type === 'helix'} onClick={st.startHelix} flyout={[{ label: 'Split Line', icon: <Icon.Line />, onSelect: () => st.startCurveFeature('splitLine') }, { label: 'Projected Curve', icon: <Icon.Spline />, onSelect: () => st.startCurveFeature('projectedCurve') }, { label: 'Helix and Spiral', icon: <Icon.Spline />, onSelect: () => st.startHelix() }]} />
-        <BigButton label="Drag Handles" icon={<Icon.Instant3D />} active={st.instant3d} onClick={st.toggleInstant3D} />
+        <BigButton label="Drag Handles" icon={<Icon.DragHandles />} active={st.dragHandles} onClick={st.toggleDragHandles} />
       </Group>
     </>
   );
@@ -355,7 +356,7 @@ export function Ribbon() {
       <Group>
         <BigButton label="Performance Evaluation" icon={<Icon.Performance />} active={st.dialog === 'performance'} onClick={() => st.setDialog(st.dialog === 'performance' ? null : 'performance')} />
         <BigButton label="Compare" icon={<Icon.Compare />} active={st.dialog === 'compare'} onClick={() => st.setDialog(st.dialog === 'compare' ? null : 'compare')} flyout={[{ label: 'Body Compare', icon: <Icon.Compare />, onSelect: () => st.setDialog('compare') }, { label: 'Compare Documents', icon: <Icon.Compare />, onSelect: () => st.setDialog('compare') }]} />
-        <BigButton label="Quick Beam Estimate" icon={<Icon.Simulation />} active={st.dialog === 'simxpress'} onClick={() => st.setDialog(st.dialog === 'simxpress' ? null : 'simxpress')} />
+        <BigButton label="Quick Beam Estimate" icon={<Icon.Simulation />} active={st.dialog === 'beamEstimate'} onClick={() => st.setDialog(st.dialog === 'beamEstimate' ? null : 'beamEstimate')} />
       </Group>
     </>
   );
@@ -493,24 +494,24 @@ export function Ribbon() {
     <>
       {menuBlock}
       <Group>
-        <BigButton label="Auto Dimension Scheme" disabled={noBody} icon={<Icon.SmartDimension />} active={st.dimxpertEdit?.kind === 'auto'} onClick={() => st.startDimXpert('auto')} />
-        <BigButton label="Location Dimension" disabled={noBody} icon={<Icon.Dimension />} active={st.dimxpertEdit?.kind === 'location'} onClick={() => st.startDimXpert('location')} />
-        <BigButton label="Size Dimension" disabled={noBody} icon={<Icon.Dimension />} active={st.dimxpertEdit?.kind === 'size'} onClick={() => st.startDimXpert('size')} />
-        <BigButton label="Pattern Feature" disabled={noBody} icon={<Icon.Pattern />} active={st.dimxpertEdit?.kind === 'pattern'} onClick={() => st.startDimXpert('pattern')} />
-        <BigButton label="Datum" disabled={noBody} icon={<Icon.Lock />} active={st.dimxpertEdit?.kind === 'datum'} onClick={() => st.startDimXpert('datum')} />
-        <BigButton label="Geometric Tolerance" disabled={noBody} icon={<Icon.Annotation />} active={st.dimxpertEdit?.kind === 'gtol'} onClick={() => st.startDimXpert('gtol')} />
+        <BigButton label="Auto Dimension Scheme" disabled={noBody} icon={<Icon.SmartDimension />} active={st.autoToleranceEdit?.kind === 'auto'} onClick={() => st.startAutoTolerance('auto')} />
+        <BigButton label="Location Dimension" disabled={noBody} icon={<Icon.Dimension />} active={st.autoToleranceEdit?.kind === 'location'} onClick={() => st.startAutoTolerance('location')} />
+        <BigButton label="Size Dimension" disabled={noBody} icon={<Icon.Dimension />} active={st.autoToleranceEdit?.kind === 'size'} onClick={() => st.startAutoTolerance('size')} />
+        <BigButton label="Pattern Feature" disabled={noBody} icon={<Icon.Pattern />} active={st.autoToleranceEdit?.kind === 'pattern'} onClick={() => st.startAutoTolerance('pattern')} />
+        <BigButton label="Datum" disabled={noBody} icon={<Icon.Lock />} active={st.autoToleranceEdit?.kind === 'datum'} onClick={() => st.startAutoTolerance('datum')} />
+        <BigButton label="Geometric Tolerance" disabled={noBody} icon={<Icon.Annotation />} active={st.autoToleranceEdit?.kind === 'gtol'} onClick={() => st.startAutoTolerance('gtol')} />
       </Group>
       <Group>
         <BigButton label="Show Tolerance Status" disabled={noBody} icon={<Icon.Check />} active={st.analysis?.kind === 'tolerance'} onClick={() => st.setAnalysis(st.analysis?.kind === 'tolerance' ? null : { kind: 'tolerance' })} />
         <div className="k-cm-col">
-          <SmallButton label="Copy Scheme" disabled={!st.doc.dimxpert} icon={<Icon.Properties />} onClick={() => { navigator.clipboard?.writeText(JSON.stringify(st.doc.dimxpert)).catch(() => {}); st.pushMessage('Auto Tolerancing scheme copied to the clipboard (paste with Import Scheme).', 'info'); }} />
-          <SmallButton label="Import Scheme" disabled={noBody} icon={<Icon.Open />} onClick={() => st.setAsk({ title: 'Import Scheme', text: 'Paste an Auto Tolerancing scheme (JSON from Copy Scheme).', input: '', yes: (v: string) => { try { const d = JSON.parse(String(v ?? '')); if (d && Array.isArray(d.dims) && Array.isArray(d.datums)) st.setDimXpertData(d); else st.pushMessage('Not an Auto Tolerancing scheme.', 'warn'); } catch { st.pushMessage('Not an Auto Tolerancing scheme.', 'warn'); } }, yesLabel: 'Import' })} />
-          <SmallButton label="Delete All Tolerances" disabled={!st.doc.dimxpert} icon={<Icon.Trash />} onClick={st.deleteAllTolerances} />
+          <SmallButton label="Copy Scheme" disabled={!st.doc.autoTolerance} icon={<Icon.Properties />} onClick={() => { navigator.clipboard?.writeText(JSON.stringify(st.doc.autoTolerance)).catch(() => {}); st.pushMessage('Auto Tolerancing scheme copied to the clipboard (paste with Import Scheme).', 'info'); }} />
+          <SmallButton label="Import Scheme" disabled={noBody} icon={<Icon.Open />} onClick={() => st.setAsk({ title: 'Import Scheme', text: 'Paste an Auto Tolerancing scheme (JSON from Copy Scheme).', input: '', yes: (v: string) => { try { const d = JSON.parse(String(v ?? '')); if (d && Array.isArray(d.dims) && Array.isArray(d.datums)) st.setAutoToleranceData(d); else st.pushMessage('Not an Auto Tolerancing scheme.', 'warn'); } catch { st.pushMessage('Not an Auto Tolerancing scheme.', 'warn'); } }, yesLabel: 'Import' })} />
+          <SmallButton label="Delete All Tolerances" disabled={!st.doc.autoTolerance} icon={<Icon.Trash />} onClick={st.deleteAllTolerances} />
         </div>
         <div className="k-cm-col">
-          <SmallButton label="Tolerance Sum" disabled={!st.doc.dimxpert} icon={<Icon.Measure />} onClick={() => { const d = st.doc.dimxpert!; const worst = d.dims.reduce((a, x) => a + x.plus + x.minus, 0); const rss = Math.sqrt(d.dims.reduce((a, x) => a + (x.plus + x.minus) ** 2, 0)); st.setAsk({ title: 'Tolerance Sum (all dimensions)', text: `Sum over all ${d.dims.length} toleranced dimension(s) of the scheme: worst case ±${(worst / 2).toFixed(3)} mm, statistical (RSS) ±${(rss / 2).toFixed(3)} mm. This adds every tolerance; it is not the stack-up of one dimension chain, so it overstates any single chain.` }); }} />
-          <SmallButton label="Datum Target" disabled={noBody} icon={<Icon.Point />} onClick={() => st.startDimXpert('datum')} />
-          <SmallButton label="Basic Dimension" disabled={noBody} icon={<Icon.Dimension />} onClick={() => { st.startDimXpert('size'); st.updateDimXpert({ basic: true }); }} />
+          <SmallButton label="Tolerance Sum" disabled={!st.doc.autoTolerance} icon={<Icon.Measure />} onClick={() => { const d = st.doc.autoTolerance!; const worst = d.dims.reduce((a, x) => a + x.plus + x.minus, 0); const rss = Math.sqrt(d.dims.reduce((a, x) => a + (x.plus + x.minus) ** 2, 0)); st.setAsk({ title: 'Tolerance Sum (all dimensions)', text: `Sum over all ${d.dims.length} toleranced dimension(s) of the scheme: worst case ±${(worst / 2).toFixed(3)} mm, statistical (RSS) ±${(rss / 2).toFixed(3)} mm. This adds every tolerance; it is not the stack-up of one dimension chain, so it overstates any single chain.` }); }} />
+          <SmallButton label="Datum Target" disabled={noBody} icon={<Icon.Point />} onClick={() => st.startAutoTolerance('datum')} />
+          <SmallButton label="Basic Dimension" disabled={noBody} icon={<Icon.Dimension />} onClick={() => { st.startAutoTolerance('size'); st.updateAutoTolerance({ basic: true }); }} />
         </div>
       </Group>
     </>
@@ -527,13 +528,13 @@ export function Ribbon() {
       </Group>
     </>
   );
-  const [toolboxOn, setToolboxOn] = useState(() => getPref('addin.toolbox') === true);
+  const [standardPartsOn, setStandardPartsOn] = useState(() => getPref('addin.standardParts') === true);
   const addinsTab = (
     <>
       {menuBlock}
       <Group>
-        {/* Add-ins load and unload with a click (Toolbox: standard hardware in the Design Library) */}
-        <BigButton label="Standard Parts" icon={<Icon.Library />} active={toolboxOn} onClick={() => { const on = !toolboxOn; setToolboxOn(on); savePrefs({ ...loadPrefs(), 'addin.toolbox': on }); st.pushMessage(on ? 'Standard Parts loaded: Part Library ▸ Standard Parts holds the standard hardware.' : 'Standard Parts unloaded.'); if (on && st.taskPane !== 'library') st.setTaskPane('library'); }} />
+        {/* Add-ins load and unload with a click (Standard Parts: standard hardware in the Part Library) */}
+        <BigButton label="Standard Parts" icon={<Icon.Library />} active={standardPartsOn} onClick={() => { const on = !standardPartsOn; setStandardPartsOn(on); savePrefs({ ...loadPrefs(), 'addin.standardParts': on }); st.pushMessage(on ? 'Standard Parts loaded: Part Library ▸ Standard Parts holds the standard hardware.' : 'Standard Parts unloaded.'); if (on && st.taskPane !== 'library') st.setTaskPane('library'); }} />
       </Group>
     </>
   );

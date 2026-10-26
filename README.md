@@ -44,6 +44,10 @@ Status per fase:
 8. Sheet metal (Base Flange/Tab, Edge Flange, Flatten met K-factor) — **basis gereed**; Hem/Jog/Miter/Unfold gepland
 7. Massa-eigenschappen en meten — **gereed** (Mass Properties, Measure); materialen en rendering gepland
 
+## Status 0.3.6 (2026-10-26)
+
+De open punten van het QA-rapport over 0.3.4 die zonder externe beslissing af konden: de hoofdbundel van 2 168 naar 830 kB (dialogen en panelen als eigen chunk, three/CSG/React/kernel apart), de store opgesplitst in negen slices met componenten die alleen hun eigen velden lezen, interne namen zonder programmanamen (bestandsformaat 2 met automatische omzetting van format 1, oude optiesleutels blijven gelden), taakvenster-tabs op referentiemaat en een haalbaarheidsoordeel voor rebuild in een worker. Per punt: docs/13-vervolg-0.3.6.md. Unit tests 346, regressie 81/81.
+
 ## Status 0.3.5 (2026-10-26)
 
 Het QA-rapport over 0.3.4 (92 bevindingen, 6/10, NO-GO) is verwerkt, opnieuw zonder nieuwe functies: opslagvraag tijdens Edit Component, half-geldige bestanden geweigerd (verwijzingen, featuretypes, grenzen), What's Wrong bij rebuild-fouten, meldingen bij geweigerde of aangepaste invoer, de laatste programmanamen en "as the original"-commentaren neutraal, Quick Beam Estimate zonder veiligheidskleur, app:// in plaats van file:// (met overzetting van de opgeslagen gegevens), geen debugpoort of permissies in de geïnstalleerde app, testhaken alleen in de e2e-build, één gedeelde e2e-helper, lektest en CI met timeout en git-diff-controle. Per bevinding: docs/12-qa-rapport-v0.3.4.md. Regressie: `npm run build:e2e` en `node e2e/run-regression.mjs`.

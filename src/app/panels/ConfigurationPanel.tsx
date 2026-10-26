@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { useStore } from '../store';
+import { useShallow } from 'zustand/react/shallow';
 import { Menu, Section, TreeView, type TreeNode } from '../../ui/components';
 import { Icon } from '../../ui/icons';
 import { activeConfiguration, configurations } from '../../core/document/configurations';
 
 /**
- * ConfigurationManager (third tab of the manager pane), by design:
+ * Configurations panel (third tab of the manager pane), by design:
  *   Part1 Configuration(s) (Default)
  *     ✓ Default [ Part1 ]
  *       210 [ Part1 ]
@@ -13,8 +14,8 @@ import { activeConfiguration, configurations } from '../../core/document/configu
  * Double-click shows a configuration; the right mouse button offers Add Configuration…,
  * Show Configuration, Delete, Properties…; "Modify Configurations…" opens the table.
  */
-export function ConfigurationManagerBody() {
-  const st = useStore();
+export function ConfigurationPanelBody() {
+  const st = useStore(useShallow((s) => ({ doc: s.doc, treeFilter: s.treeFilter, showConfiguration: s.showConfiguration, setExploded: s.setExploded, openConfigure: s.openConfigure, startAddConfiguration: s.startAddConfiguration, setDialog: s.setDialog, startExplode: s.startExplode, animateCollapse: s.animateCollapse, deleteConfiguration: s.deleteConfiguration, editConfigurationProperties: s.editConfigurationProperties })));
   const [menu, setMenu] = useState<{ x: number; y: number; configId?: string } | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
   const list = configurations(st.doc);
@@ -114,11 +115,11 @@ export function ConfigurationManagerBody() {
 }
 
 /**
- * Add Configuration / Configuration Properties PropertyManager, by design: Configuration
+ * Add Configuration / Configuration Properties Property Panel, by design: Configuration
  * Properties (name, description, use in BOM, comment), Bill of Materials Options, Advanced Options.
  */
 export function ConfigurationPM() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ configEdit: s.configEdit, commitConfiguration: s.commitConfiguration, cancelConfiguration: s.cancelConfiguration, updateConfigDraft: s.updateConfigDraft, doc: s.doc })));
   const ce = st.configEdit;
   if (!ce) return null;
   const d = ce.draft;

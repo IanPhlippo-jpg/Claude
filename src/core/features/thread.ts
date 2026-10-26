@@ -86,7 +86,7 @@ function helixRings(t: ThreadSpec, prof: [number, number][], C: THREE.Vector3, a
 }
 
 /**
- * The preview of the intended Thread PropertyManager: the paths of the profile's corners along the
+ * The preview of the intended Thread Property Panel: the paths of the profile's corners along the
  * helix and the profile at both ends, as cyan lines; no shaded result until OK.
  */
 export function threadPreviewCurves(t: ThreadSpec): THREE.Vector3[][] {

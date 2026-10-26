@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useStore } from './store';
+import { useShallow } from 'zustand/react/shallow';
 import { Button, NumberField } from '../ui/components';
 import { dimensionTable, setDimensionValues } from '../core/document/equations';
 import { rebuildDocument } from '../core/features/rebuild';
@@ -29,7 +30,7 @@ function evaluate(doc: Document, dim: string, value: number, density: number): {
  * can be applied to the model.
  */
 export function DesignStudyDialog() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ doc: s.doc, setDialog: s.setDialog, setDimensionValue: s.setDimensionValue })));
   const dims = useMemo(() => dimensionTable(st.doc), [st.doc]);
   const [dim, setDim] = useState(dims[0]?.name ?? '');
   const cur = dims.find((d) => d.name === dim)?.value ?? 0;

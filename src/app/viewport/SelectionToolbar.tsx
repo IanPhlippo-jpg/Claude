@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import * as THREE from 'three';
 import { useStore } from '../store';
+import { useShallow } from 'zustand/react/shallow';
 import { isRoundFeature } from '../../core/document/types';
 import { edgesOnFace } from '../../core/features/round';
 import type { BodyEdge } from '../../core/features/edgesets';
@@ -37,7 +38,7 @@ function loopOf(edges: BodyEdge[], start: BodyEdge): BodyEdge[] {
 }
 
 export function SelectionToolbar({ project }: { project: (v: THREE.Vector3) => { x: number; y: number } }) {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ featureEdit: s.featureEdit, selectionToolbar: s.selectionToolbar, rebuild: s.rebuild, selectedEdges: s.selectedEdges, toggleSelectedEdge: s.toggleSelectedEdge })));
   const [closedFor, setClosedFor] = useState<string | null>(null);
   const fe = st.featureEdit;
   if (!fe || !isRoundFeature(fe.draft) || !st.selectionToolbar) return null;

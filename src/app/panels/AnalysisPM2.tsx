@@ -1,12 +1,13 @@
 import { useMemo } from 'react';
 import { useStore } from '../store';
+import { useShallow } from 'zustand/react/shallow';
 import { NumberField, Section } from '../../ui/components';
 import { Icon } from '../../ui/icons';
 import { DRAFT_COLORS } from '../../core/features/analysis';
 import { deviationAnalysis, partingLineAnalysis } from '../../core/features/evaluate2';
 
 function Head({ title, icon }: { title: string; icon: React.ReactNode }) {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ setAnalysis: s.setAnalysis })));
   return (
     <div className="k-pm-head">
       <div className="k-pm-title">{icon} <b>{title}</b><span className="grow" /><span className="k-pm-help" title="Help">?</span></div>
@@ -18,9 +19,9 @@ function Head({ title, icon }: { title: string; icon: React.ReactNode }) {
   );
 }
 
-/** Evaluate ▸ Parting Line Analysis PropertyManager: direction of pull, the faces on each side and the parting line. */
+/** Evaluate ▸ Parting Line Analysis Property Panel: direction of pull, the faces on each side and the parting line. */
 export function PartingLinePM() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ analysis: s.analysis, rebuild: s.rebuild, selectedFace: s.selectedFace, pushMessage: s.pushMessage, setAnalysis: s.setAnalysis, doc: s.doc })));
   const a = st.analysis;
   const result = useMemo(() => (a?.kind === 'parting' ? partingLineAnalysis(st.rebuild.bodies, a.pull, a.angle) : null), [a, st.rebuild.bodies]);
   if (!a || a.kind !== 'parting' || !result) return null;
@@ -65,9 +66,9 @@ export function PartingLinePM() {
   );
 }
 
-/** Evaluate ▸ Deviation Analysis PropertyManager: the angle between the faces along the selected edges. */
+/** Evaluate ▸ Deviation Analysis Property Panel: the angle between the faces along the selected edges. */
 export function DeviationPM() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ analysis: s.analysis, rebuild: s.rebuild, selectedEdges: s.selectedEdges, setAnalysis: s.setAnalysis })));
   const a = st.analysis;
   const result = useMemo(() => (a?.kind === 'deviation' ? deviationAnalysis(st.rebuild.bodies, st.selectedEdges, a.samples) : []), [a, st.rebuild.bodies, st.selectedEdges]);
   if (!a || a.kind !== 'deviation') return null;

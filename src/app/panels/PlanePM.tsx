@@ -1,14 +1,15 @@
 import { useStore } from '../store';
+import { useShallow } from 'zustand/react/shallow';
 import { NumberField, Section } from '../../ui/components';
 import { Icon } from '../../ui/icons';
 
 /**
- * Plane PropertyManager by design (Reference Geometry ▸ Plane): First Reference with the
+ * Plane Property Panel by design (Reference Geometry ▸ Plane): First Reference with the
  * constraint (Offset Distance / At Angle through a straight edge / Parallel / Coincident…), Flip,
  * number of planes, Second/Third Reference, and the message "Fully defined".
  */
 export function PlanePM() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ planeEdit: s.planeEdit, doc: s.doc, rebuild: s.rebuild, commitPlane: s.commitPlane, cancelPlane: s.cancelPlane, updatePlaneDraft: s.updatePlaneDraft })));
   const pe = st.planeEdit;
   if (!pe) return null;
   const d = pe.draft;

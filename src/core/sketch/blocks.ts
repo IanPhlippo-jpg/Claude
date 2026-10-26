@@ -2,7 +2,7 @@ import type { Constraint, Entity, Id, Sketch, SketchPoint } from './types';
 import { entityPoints, entityScalars, newId } from './model';
 
 /**
- * Sketch blocks for the Design Library: a reusable set of entities with their
+ * Sketch blocks for the Part Library: a reusable set of entities with their
  * internal relations, stored relative to a reference point.
  */
 export interface Block {

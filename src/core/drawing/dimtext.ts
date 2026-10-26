@@ -1,6 +1,6 @@
 import type { DrawingDimension } from '../document/types';
 
-/** Dimension PropertyManager ▸ Tolerance/Precision: the tolerance types of the intended design (reduced) */
+/** Dimension Property Panel ▸ Tolerance/Precision: the tolerance types of the intended design (reduced) */
 export type DimTolerance = { type: 'none' | 'basic' | 'bilateral' | 'symmetric' | 'limit' | 'min' | 'max'; plus: number; minus: number };
 
 /** The texts of a drawing dimension: the value (with prefix, suffix, Ø / R), the stacked tolerance and the dual value. */

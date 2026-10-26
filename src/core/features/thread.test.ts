@@ -5,7 +5,7 @@ import { rebuildDocument } from './rebuild';
 import { csg, meshVolume } from './solid';
 import { nearestThread, threadTool } from './thread';
 
-describe('Features ▸ Hole Wizard ▸ Thread', () => {
+describe('Features ▸ Hole Tool ▸ Thread', () => {
   const doc = createDocument('Bout');
   doc.sketches.sk1 = addCircle(createSketch('sk1', 'Sketch1', 'top'), { x: 0, y: 0 }, 7)[0];
   const f2: ExtrudeFeature = { id: 'f2', type: 'extrude', name: 'Boss-Extrude1', sketchId: 'sk1', suppressed: false, op: 'boss', end: 'blind', depth: 40, reverse: false };

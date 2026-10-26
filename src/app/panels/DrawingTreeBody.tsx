@@ -1,15 +1,16 @@
 import { fitActive } from '../viewport/bridge';
 import { useState } from 'react';
 import { useStore } from '../store';
+import { useShallow } from 'zustand/react/shallow';
 import { Menu, TreeView, type TreeNode } from '../../ui/components';
 import { Icon } from '../../ui/icons';
 
 /**
- * FeatureManager design tree of a drawing by design:
+ * Feature Tree of a drawing by design:
  * Draw1 ▸ Annotations, Sheet1 ▸ Sheet Format1, Drawing View1 ▸ Plate<1>, Drawing View2 …
  */
 export function DrawingTreeBody() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ doc: s.doc, treeFilter: s.treeFilter, selectedDrawingViewId: s.selectedDrawingViewId, selectDrawingView: s.selectDrawingView, setDialog: s.setDialog, startProjectedView: s.startProjectedView, deleteDrawingView: s.deleteDrawingView })));
   const [menu, setMenu] = useState<{ x: number; y: number; viewId: string } | null>(null);
   const sheet = st.doc.sheets?.[0];
   const q = st.treeFilter.trim().toLowerCase();

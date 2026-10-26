@@ -1,6 +1,6 @@
 // QA report v0.3.3 fixes: the app works without the window test hooks (F53/F61), damaged documents are refused
 // without a crash or autosave (F55/F05/F70), Open/New end Edit Component (F74), Edit Component keeps the assembly's
-// undo (F39), model changes are undoable (F75), Toolbox Open asks to save (F41), body and sheet metal commands are
+// undo (F39), model changes are undoable (F75), Standard Parts Open asks to save (F41), body and sheet metal commands are
 // greyed without a body (F14/F63), plane labels do not overlap and pick their own plane (F66/F18), number fields refuse
 // huge values and take arithmetic (F71/F42), the Welcome shows the notice and no trademarked product names (F72/F50),
 // a dropped file never navigates (F03), the Tolerance Tree empty text (F64).
@@ -183,12 +183,12 @@ await page.waitForTimeout(300);
 const f74 = await S(() => ({ ctx: window.__phlippoStore.getState().editContext === null, name: window.__phlippoStore.getState().doc.name, bar: [...document.querySelectorAll('.k-viewport button')].some((b) => b.textContent === 'Return to Assembly') }));
 check('Open/New during Edit Component ends the edit context (F74)', f74.ctx && f74.name === 'Nieuw' && !f74.bar, JSON.stringify(f74));
 
-// ---- F41: Toolbox Open asks to save unsaved changes first
-await S(() => { const st = window.__phlippoStore.getState(); st.setPrefs({ ...st.prefs, 'addin.toolbox': true }); window.__phlippoStore.setState({ dirty: true }); st.setTaskPane('library'); });
+// ---- F41: Standard Parts Open asks to save unsaved changes first
+await S(() => { const st = window.__phlippoStore.getState(); st.setPrefs({ ...st.prefs, 'addin.standardParts': true }); window.__phlippoStore.setState({ dirty: true }); st.setTaskPane('library'); });
 await page.waitForTimeout(300);
 await page.locator('[data-testid="toolbox-folder"] button:has-text("Open")').click();
 await page.waitForTimeout(300);
-check('Toolbox Open with unsaved changes asks "Save changes?"', /Save changes to Nieuw\?/.test(await page.locator('[data-testid="ask"]').innerText().catch(() => '')));
+check('Standard Parts Open with unsaved changes asks "Save changes?"', /Save changes to Nieuw\?/.test(await page.locator('[data-testid="ask"]').innerText().catch(() => '')));
 await page.locator('[data-testid="ask"] button:has-text("Cancel"), [data-testid="ask-cancel"]').first().click().catch(() => page.keyboard.press('Escape'));
 await S(() => window.__phlippoStore.getState().setTaskPane('library'));
 
@@ -246,7 +246,7 @@ const dropped = await S(() => { const ev = new DragEvent('drop', { cancelable: t
 check('a dropped file never navigates the window', dropped);
 
 // ---- F64: the Tolerance Tree without a scheme says so once, readable
-await S(() => window.__phlippoStore.getState().setManagerTab('dimxpert'));
+await S(() => window.__phlippoStore.getState().setManagerTab('autoTolerance'));
 await page.waitForTimeout(300);
 const dxText = await page.locator('[data-testid="dx-empty"]').evaluate((el) => el.parentElement.innerText).catch(() => '');
 check('Tolerance Tree without a scheme: no "Auto Dimension Scheme (n …)" next to "No … scheme"', /No tolerance scheme yet/.test(dxText) && !/Auto Dimension Scheme \(\d/.test(dxText), dxText.slice(0, 160));

@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useStore } from './store';
+import { useShallow } from 'zustand/react/shallow';
 import { Button, Dialog } from '../ui/components';
 import { Icon } from '../ui/icons';
 import { dimensionTable, equationsFromText, equationsToText, evaluateEquations, type Equation } from '../core/document/equations';
@@ -15,7 +16,7 @@ const fmt = (v: number) => (Number.isInteger(v) ? String(v) : v.toFixed(3).repla
  * entries, the Automatically rebuild and angular units options, OK / Cancel / Help.
  */
 export function EquationsDialog() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ doc: s.doc, pushMessage: s.pushMessage, applyDocument: s.applyDocument, setEquations: s.setEquations, setDialog: s.setDialog })));
   const [rows, setRows] = useState<Equation[]>(() => st.doc.equations.map((e) => ({ ...e })));
   const [view, setView] = useState<'equation' | 'dimension' | 'ordered'>('equation');
   const [autoRebuild, setAutoRebuild] = useState(true);

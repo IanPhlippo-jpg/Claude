@@ -1,17 +1,18 @@
 import { withUnsavedCheck } from '../MenuBar';
 import { useStore } from '../store';
+import { useShallow } from 'zustand/react/shallow';
 import { Icon } from '../../ui/icons';
 import { BigButton as Big, Group } from './Ribbon';
 import { copyWithMates, insertNewAssembly, insertNewPart, makeMultibodyPart, patternDrivenPattern, takeSnapshot } from '../assemblyCommands';
 
 /**
- * Assembly tab of the CommandManager by design: Edit Component, Insert Components,
- * Mate, Component Preview Window, Linear Component Pattern, Smart Fasteners, Move Component, Show Hidden Components,
+ * Assembly tab of the Command Ribbon by design: Edit Component, Insert Components,
+ * Mate, Component Preview Window, Linear Component Pattern, Auto Fasteners, Move Component, Show Hidden Components,
  * Make Multibody Part, Assembly Features, Reference Geometry, New Motion Study, Bill of Materials, Exploded View,
- * Instant3D, Update SpeedPak Subassemblies, Take Snapshot, Large Assembly Settings.
+ * Drag Handles, Update Lightweight Subassembly Subassemblies, Take Snapshot, Large Assembly Settings.
  */
 export function AssemblyTab() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ selectedFeatureId: s.selectedFeatureId, selectedFace: s.selectedFace, editComponent: s.editComponent, insertingComponent: s.insertingComponent, cancelInsertComponent: s.cancelInsertComponent, startInsertComponent: s.startInsertComponent, mateEdit: s.mateEdit, cancelMate: s.cancelMate, startMate: s.startMate, dialog: s.dialog, setDialog: s.setDialog, patternEdit: s.patternEdit, cancelComponentPattern: s.cancelComponentPattern, startComponentPattern: s.startComponentPattern, pushMessage: s.pushMessage, fastenerEdit: s.fastenerEdit, cancelSmartFasteners: s.cancelSmartFasteners, startSmartFasteners: s.startSmartFasteners, asmTool: s.asmTool, setAsmTool: s.setAsmTool, showAllComponents: s.showAllComponents, featureEdit: s.featureEdit, startFeature: s.startFeature, startHole: s.startHole, startRound: s.startRound, startBelt: s.startBelt, planeEdit: s.planeEdit, refEdit: s.refEdit, startPlane: s.startPlane, startRefGeom: s.startRefGeom, motionOpen: s.motionOpen, setMotionOpen: s.setMotionOpen, explodeEdit: s.explodeEdit, doc: s.doc, startExplode: s.startExplode, setExploded: s.setExploded, dragHandles: s.dragHandles, toggleDragHandles: s.toggleDragHandles, largeAssembly: s.largeAssembly, setLargeAssembly: s.setLargeAssembly })));
   const hasSelection = !!st.selectedFeatureId || !!st.selectedFace;
   return (
     <>
@@ -32,7 +33,7 @@ export function AssemblyTab() {
         <Big label="New Motion Study" icon={<Icon.MotionStudy />} active={st.motionOpen} onClick={() => st.setMotionOpen(!st.motionOpen)} />
         <Big label="Bill of Materials" icon={<Icon.Bom />} onClick={() => st.setDialog('bom')} />
         <Big label="Exploded View" icon={<Icon.Explode />} active={!!st.explodeEdit || !!st.doc.exploded} onClick={st.startExplode} flyout={[{ label: 'Exploded View', icon: <Icon.Explode />, onSelect: () => st.startExplode() }, { label: st.doc.exploded ? 'Collapse' : 'Explode', icon: <Icon.Explode />, disabled: !(st.doc.explodeSteps ?? []).length, onSelect: () => st.setExploded(!st.doc.exploded) }]} />
-        <Big label="Drag Handles" icon={<Icon.Cursor />} active={st.instant3d} onClick={st.toggleInstant3D} />
+        <Big label="Drag Handles" icon={<Icon.Cursor />} active={st.dragHandles} onClick={st.toggleDragHandles} />
         <Big label="Update Lightweight Subassemblies" icon={<Icon.Rebuild />} disabled />
         <Big label="Take Snapshot" icon={<Icon.Appearance />} onClick={takeSnapshot} />
         <Big label="Large Assembly Settings" icon={<Icon.Options />} active={!!st.largeAssembly} onClick={() => st.setLargeAssembly(!st.largeAssembly)} flyout={[{ label: st.largeAssembly ? 'Turn off Large Assembly Settings' : 'Large Assembly Settings', icon: <Icon.Options />, onSelect: () => st.setLargeAssembly(!st.largeAssembly) }, { label: 'Options…', icon: <Icon.Options />, onSelect: () => st.setDialog('options') }]} />
@@ -43,7 +44,7 @@ export function AssemblyTab() {
 
 /** Lifecycle and Collaboration tab (assemblies), by design: sharing and packaging commands. */
 export function LifecycleTab() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ dialog: s.dialog, setDialog: s.setDialog, markupMode: s.markupMode, setMarkupMode: s.setMarkupMode })));
   return (
     <>
       <Group>

@@ -1,7 +1,7 @@
 import type { ReactElement } from 'react';
 
 /**
- * Rich tooltips of the CommandManager, by design shows them: a bold title, an illustration of what the
+ * Rich tooltips of the Command Ribbon, by design shows them: a bold title, an illustration of what the
  * command makes (here our own small isometric drawings, yellow for what the command adds) and a short explanation.
  */
 
@@ -77,7 +77,7 @@ const ART: Record<string, () => ReactElement[]> = {
   Intersect: () => [box(-14, 0, -6, 18, 12, 12), cyl(6, 0, 0, 9, 12, YEL)],
   'Reference Geometry': () => [<polygon key="pl" points={pts([-18, 0, -18], [18, 0, -18], [18, 0, 18], [-18, 0, 18])} fill="rgba(160,190,235,0.35)" stroke="#5c7fc0" />, <polygon key="pl2" points={pts([-18, 0, 0], [18, 0, 0], [18, 22, 0], [-18, 22, 0])} fill="rgba(246,252,40,0.55)" stroke={YEL.line} />],
   Curves: () => [<path key="h" d={Array.from({ length: 49 }, (_, i) => { const t = (i / 48) * Math.PI * 8; const p = P([Math.cos(t) * 10, i * 0.45, Math.sin(t) * 10]); return `${i ? 'L' : 'M'}${p[0].toFixed(1)},${p[1].toFixed(1)}`; }).join('')} fill="none" stroke="#c9b800" strokeWidth={2} />],
-  Instant3D: () => [box(-12, 0, -12, 24, 10, 24), arrow([0, 10, 0], [0, 24, 0])],
+  DragHandles: () => [box(-12, 0, -12, 24, 10, 24), arrow([0, 10, 0], [0, 24, 0])],
   Sketch: () => [<polygon key="pl" points={pts([-20, 0, -20], [20, 0, -20], [20, 0, 20], [-20, 0, 20])} fill="rgba(160,190,235,0.25)" stroke="#5c7fc0" />, profile(-9, -9, 18, 18)],
   'Smart Dimension': () => [sk('M50,80H170', 'l'), dot(50, 80, 'd1'), dot(170, 80, 'd2'), <g key="dim" stroke="#000" strokeWidth={0.8}><line x1={50} y1={74} x2={50} y2={44} /><line x1={170} y1={74} x2={170} y2={44} /><line x1={56} y1={50} x2={164} y2={50} /><path d="M50,50l7,-3v6zM170,50l-7,-3v6z" fill="#000" /></g>, <text key="t" x={110} y={44} fontSize={12} textAnchor="middle" fill="#000">120.00</text>],
   'Exit Sketch': () => [profile(-12, -10, 24, 20)],
@@ -123,7 +123,7 @@ const DESC: Record<string, string> = {
   Intersect: 'Intersects solids, surfaces and planes to keep or remove the enclosed regions.',
   'Reference Geometry': 'Creates planes, axes, coordinate systems and points to build features from.',
   Curves: 'Creates curves: split lines, projected curves, helices and spirals, curves through points.',
-  Instant3D: 'Drag handles and dimensions on the model to change features directly.',
+  DragHandles: 'Drag handles and dimensions on the model to change features directly.',
   Sketch: 'Creates a new sketch on a plane or planar face, or edits the selected sketch.',
   'Smart Dimension': 'Adds a dimension to one or more selected entities; the kind follows from what is selected.',
   'Exit Sketch': 'Closes the sketch and keeps the changes.',

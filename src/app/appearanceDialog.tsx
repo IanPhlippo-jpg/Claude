@@ -1,15 +1,16 @@
 import { useState } from 'react';
 import { useStore } from './store';
+import { useShallow } from 'zustand/react/shallow';
 import { Icon } from '../ui/icons';
 
 const SWATCHES = ['#c9cbcf', '#d94b3d', '#e38b2a', '#e8c547', '#59a84b', '#2f8f9d', '#3b6fd0', '#7b4fc4', '#d26aa6', '#8c6a4a', '#5b5b5b', '#f2f2f2'];
 
 /**
  * Edit Appearance (Render Tools ▸ Edit Appearance, or a body's Appearance…): a colour for the part
- * or one body, laid out like the intended Color PropertyManager (swatches + RGB picker, Remove).
+ * or one body, laid out like the intended Color Property Panel (swatches + RGB picker, Remove).
  */
 export function AppearanceDialog() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ materialTarget: s.materialTarget, selectedFace: s.selectedFace, rebuild: s.rebuild, doc: s.doc, setFaceAppearance: s.setFaceAppearance, setAppearance: s.setAppearance, setDialog: s.setDialog })));
   const target = st.materialTarget;
   // a face selected in the graphics area is the target (Selected Geometry: Face<n>), by design
   const [face] = useState(() => (!target ? st.selectedFace : null));

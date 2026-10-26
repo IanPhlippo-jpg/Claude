@@ -7,7 +7,7 @@ import { DRAFT_COLORS } from './analysis';
 
 /**
  * Evaluate, the remaining tools of the intended Evaluate tab: Symmetry Check, Deviation Analysis, Parting Line
- * Analysis, Compare (Body Compare, Compare Documents), Performance Evaluation statistics and the SimulationXpress
+ * Analysis, Compare (Body Compare, Compare Documents), Performance Evaluation statistics and the Quick Beam Estimate
  * estimate. Everything works on the rebuilt mesh bodies.
  */
 
@@ -250,9 +250,9 @@ export function performanceRows(features: Feature[], times: Record<string, numbe
 }
 
 // ---------------------------------------------------------------------------------------------
-// SimulationXpress estimate
+// Quick Beam Estimate estimate
 // ---------------------------------------------------------------------------------------------
-export interface SimXpressInput {
+export interface BeamEstimateInput {
   body: THREE.BufferGeometry;
   fixture: { normal: V3; point: V3 };
   load: { normal: V3; point: V3; area: number };
@@ -263,7 +263,7 @@ export interface SimXpressInput {
   yieldStrength: number;
 }
 
-export interface SimXpressResult {
+export interface BeamEstimateResult {
   /** beam model: span between the fixture and the load (mm), cross-section (mm) */
   span: number;
   width: number;
@@ -277,11 +277,11 @@ export interface SimXpressResult {
 }
 
 /**
- * SimulationXpress estimate: the part as a cantilever between the fixed face and the loaded face (bending plus shear
+ * Quick Beam Estimate estimate: the part as a cantilever between the fixed face and the loaded face (bending plus shear
  * from the beam formulas on the part's cross-section). It gives the order of magnitude of stress, displacement and
  * factor of safety, not a finite element solution.
  */
-export function simXpressEstimate(i: SimXpressInput): SimXpressResult {
+export function beamEstimateEstimate(i: BeamEstimateInput): BeamEstimateResult {
   const fp = new THREE.Vector3(...i.fixture.point), lp = new THREE.Vector3(...i.load.point);
   const axis = lp.clone().sub(fp);
   const span = Math.max(1e-3, axis.length());

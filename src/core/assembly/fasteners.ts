@@ -83,7 +83,7 @@ export function fastenerPart(type: FastenerType, size: string, length: number): 
   return doc;
 }
 
-/** A Hole Wizard hole of a component in the assembly (world). */
+/** A Hole Tool hole of a component in the assembly (world). */
 export interface AsmHole {
   componentId: Id;
   componentName: string;
@@ -100,7 +100,7 @@ export interface AsmHole {
   localAxis: [number, number, number];
 }
 
-/** All Hole Wizard holes of the assembly's components, with their through depth (the plate thickness around the hole). */
+/** All Hole Tool holes of the assembly's components, with their through depth (the plate thickness around the hole). */
 export function assemblyHoles(doc: Document, bodies: { id: string; geometry: THREE.BufferGeometry }[]): AsmHole[] {
   const out: AsmHole[] = [];
   for (const c of doc.components ?? []) {

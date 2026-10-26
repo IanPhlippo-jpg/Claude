@@ -264,9 +264,9 @@ await page.mouse.move(120, 1000);
 await page.keyboard.press('Control+7');
 await page.keyboard.press('f');
 await page.waitForTimeout(500);
-await page.evaluate(() => { const s = window.__phlippoStore.getState(); s.setDisplayStyle('shaded'); s.toggleShow('realView'); window.__phlippoStore.getState().toggleShow('shadows'); });
+await page.evaluate(() => { const s = window.__phlippoStore.getState(); s.setDisplayStyle('shaded'); s.toggleShow('realisticShading'); window.__phlippoStore.getState().toggleShow('shadows'); });
 await page.waitForTimeout(800);
-check('Realistic Shading and shadows on', await page.evaluate(() => { const s = window.__phlippoStore.getState(); return s.show.realView && s.show.shadows; }));
+check('Realistic Shading and shadows on', await page.evaluate(() => { const s = window.__phlippoStore.getState(); return s.show.realisticShading && s.show.shadows; }));
 await shot('deurkruk-assembly');
 // close-up of the handle (zoom in around the front lever)
 const zoomTo = async (x, y, z, factor) => page.evaluate(([x, y, z, factor]) => { const c = window.__phlippoCamera; const r = document.querySelector('.k-viewport').getBoundingClientRect(); const p = window.__phlippoProjectWorld(x, y, z); c.zoomAt(p.x - r.left, p.y - r.top, factor); }, [x, y, z, factor]);
@@ -275,7 +275,7 @@ await page.waitForTimeout(300);
 await shot('deurkruk-closeup');
 await page.keyboard.press('f');
 await page.waitForTimeout(300);
-await page.evaluate(() => { const s = window.__phlippoStore.getState(); s.setDisplayStyle('shadedEdges'); s.toggleShow('realView'); window.__phlippoStore.getState().toggleShow('shadows'); });
+await page.evaluate(() => { const s = window.__phlippoStore.getState(); s.setDisplayStyle('shadedEdges'); s.toggleShow('realisticShading'); window.__phlippoStore.getState().toggleShow('shadows'); });
 await page.waitForTimeout(300);
 await shot('deurkruk-assembly-edges');
 // no interference between the parts (touching faces only)
@@ -285,7 +285,7 @@ check('tree lists the components and the mates', /\(f\) Deur<1>/.test(tree) && /
 const moved = await page.evaluate((orig) => window.__phlippoStore.getState().doc.components.map((c, i) => Math.hypot(c.position[0] - orig[i][0], c.position[1] - orig[i][1], c.position[2] - orig[i][2])), docs.asm.components.map((c) => c.position));
 check('the mates are satisfied: no component moved', moved.every((d) => d < 0.01), JSON.stringify(moved));
 // exploded
-await page.evaluate(() => { const s = window.__phlippoStore.getState(); s.setExploded(true); s.setDisplayStyle('shaded'); s.toggleShow('realView'); });
+await page.evaluate(() => { const s = window.__phlippoStore.getState(); s.setExploded(true); s.setDisplayStyle('shaded'); s.toggleShow('realisticShading'); });
 await page.waitForTimeout(500);
 await page.mouse.move(120, 1000);
 await page.keyboard.press('f');
@@ -293,7 +293,7 @@ await page.waitForTimeout(300);
 await zoomTo(20, -36, 40, 0.42);
 await page.waitForTimeout(600);
 await shot('deurkruk-exploded');
-await page.evaluate(() => { const s = window.__phlippoStore.getState(); s.setDisplayStyle('shadedEdges'); s.toggleShow('realView'); });
+await page.evaluate(() => { const s = window.__phlippoStore.getState(); s.setDisplayStyle('shadedEdges'); s.toggleShow('realisticShading'); });
 await page.evaluate(() => window.__phlippoStore.getState().setExploded(false));
 // mass
 const mass = await page.evaluate(() => { const s = window.__phlippoStore.getState(); s.setDialog('mass'); return true; });

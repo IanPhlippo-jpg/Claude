@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { mateRefCount, STANDARD_MATES, useStore } from '../store';
+import { useShallow } from 'zustand/react/shallow';
 import { NumberField, Section } from '../../ui/components';
 import { Icon } from '../../ui/icons';
 import type { Document, MateType } from '../../core/document/types';
@@ -7,7 +8,7 @@ import { configurations } from '../../core/document/configurations';
 import { openFileDialog } from '../MenuBar';
 import { getPref, loadPrefs, savePrefs } from '../prefs';
 
-/** PropertyManager header (same look as the feature PropertyManagers). */
+/** Property Panel header (same look as the feature Property Panels). */
 function Header({ title, icon, onOk, onCancel, extra }: { title: string; icon: React.ReactNode; onOk?: () => void; onCancel: () => void; extra?: React.ReactNode }) {
   return (
     <div className="k-pm-head">
@@ -25,17 +26,17 @@ function Header({ title, icon, onOk, onCancel, extra }: { title: string; icon: R
   );
 }
 
-/** Mate PropertyManager by design: Mate Selections, Standard Mates, alignment, Mates list, Options. */
+/** Mate Property Panel by design: Mate Selections, Standard Mates, alignment, Mates list, Options. */
 const MATE_LABEL: Record<string, string> = { coincident: 'Coincident', parallel: 'Parallel', perpendicular: 'Perpendicular', tangent: 'Tangent', concentric: 'Concentric', lock: 'Lock', distance: 'Distance', angle: 'Angle', profileCenter: 'Profile Center', symmetric: 'Symmetric', width: 'Width', path: 'Path Mate', linearCoupler: 'Linear/Linear Coupler', distanceLimit: 'Distance (limit)', angleLimit: 'Angle (limit)', cam: 'Cam', slot: 'Slot', hinge: 'Hinge', gear: 'Gear', rackPinion: 'Rack Pinion', screw: 'Screw', universalJoint: 'Universal Joint' };
 
 /**
- * Mate PropertyManager as the reference CAD workflow: tabs Advanced / Analysis over Standard / Mechanical, Mate Selections,
+ * Mate Property Panel as the reference CAD workflow: tabs Advanced / Analysis over Standard / Mechanical, Mate Selections,
  * Mate Type (Coincident … Lock with Lock rotation under Concentric, Distance and Angle as value rows, Mate alignment),
  * Mates, Options; the title names the mate being made (Concentric3); ✓ ✗ ↶ (undo the last selection) and the push pin.
  */
 /** The values of the advanced and mechanical mates: what to select, limits, ratio, pitch. */
 function MateParams() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ mateEdit: s.mateEdit, updateMateDraft: s.updateMateDraft, doc: s.doc })));
   const d = st.mateEdit?.draft;
   if (!d || STANDARD_MATES.has(d.type)) return null;
   const n = mateRefCount(d.type);
@@ -72,7 +73,7 @@ function MateParams() {
 }
 
 export function MatePM() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ mateEdit: s.mateEdit, doc: s.doc, updateMateDraft: s.updateMateDraft, commitMate: s.commitMate, cancelMate: s.cancelMate, removeMateRef: s.removeMateRef, editMate: s.editMate, mateOpts: s.mateOpts })));
   const [tab, setTab] = useState<'standard' | 'advanced' | 'mechanical' | 'analysis'>('standard');
   const [pinned, setPinned] = useState(false);
   const me = st.mateEdit;
@@ -198,9 +199,9 @@ export function MatePM() {
   );
 }
 
-/** Insert Component PropertyManager: Browse… opens a part file (.kcad) that is placed at the origin. */
+/** Insert Component Property Panel: Browse… opens a part file (.kcad) that is placed at the origin. */
 export function InsertComponentPM() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ doc: s.doc, insertGhost: s.insertGhost, setInsertGhost: s.setInsertGhost, placeInsertGhost: s.placeInsertGhost, pushMessage: s.pushMessage, insertComponent: s.insertComponent, cancelInsertComponent: s.cancelInsertComponent })));
   // the open documents: the parts in the assembly and the part just browsed to (it is open in the session too)
   const parts = st.doc.kind === 'assembly' ? [...new Map([...(st.doc.components ?? []).map((c) => [c.part.name, c.part] as const), ...(st.insertGhost ? [[st.insertGhost.part.name, st.insertGhost.part] as const] : [])]).values()] : [];
   const [sel, setSel] = useState<string | null>(parts[0]?.name ?? null);
@@ -284,7 +285,7 @@ export function InsertComponentPM() {
  * Components, direction X/Y/Z with Reverse, distance, Add Step / Reset), Options.
  */
 export function ExplodePM() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ explodeEdit: s.explodeEdit, doc: s.doc, commitExplode: s.commitExplode, cancelExplode: s.cancelExplode, deleteExplodeStep: s.deleteExplodeStep, updateExplodeDraft: s.updateExplodeDraft, addExplodeStep: s.addExplodeStep })));
   const ee = st.explodeEdit;
   if (!ee) return null;
   const comps = st.doc.components ?? [];
@@ -342,9 +343,9 @@ export function ExplodePM() {
   );
 }
 
-/** Linear / Circular Component Pattern PropertyManager: Direction 1 (2) or Axis, spacing / angle, instances, Components to Pattern. */
+/** Linear / Circular Component Pattern Property Panel: Direction 1 (2) or Axis, spacing / angle, instances, Components to Pattern. */
 export function ComponentPatternPM() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ patternEdit: s.patternEdit, doc: s.doc, updatePatternDraft: s.updatePatternDraft, commitComponentPattern: s.commitComponentPattern, cancelComponentPattern: s.cancelComponentPattern })));
   const pe = st.patternEdit;
   if (!pe) return null;
   const d = pe.draft;

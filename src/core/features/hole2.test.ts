@@ -9,7 +9,7 @@ import { REFERENCE_PLANE_DEFS } from './planes';
 const vol = (g: Parameters<typeof meshVolume>[0]) => Math.abs(meshVolume(g));
 const base = { holeType: 'counterbore' as const, diameter: 6.6, depth: 10, cbDiameter: 11, cbDepth: 6.5, csDiameter: 13, csAngle: 90 };
 
-describe('Hole Wizard options of the intended design', () => {
+describe('Hole Tool options of the intended design', () => {
   it('Head clearance makes the counterbore deeper; the countersinks add cones', () => {
     const plain = vol(holeTool(base, REFERENCE_PLANE_DEFS.top, { x: 0, y: 0 }, 100));
     const clear = vol(holeTool({ ...base, headClearance: 1 }, REFERENCE_PLANE_DEFS.top, { x: 0, y: 0 }, 100));

@@ -645,7 +645,7 @@ export function rebuildAssembly(doc: Document): AssemblyRebuild {
       else curves.push({ id: f.id, name: f.name, points: path.points });
       continue;
     }
-    // Hole Wizard through the components
+    // Hole Tool through the components
     if (f.type === 'hole') {
       const pl = resolvePlaneDef(doc, f.plane);
       let hit = 0;

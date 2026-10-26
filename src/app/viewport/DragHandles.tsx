@@ -29,14 +29,14 @@ export function extrudeCapOf(st: ReturnType<typeof useStore.getState>): { f: Ext
 }
 
 /**
- * Instant3D, by design: the end face of a blind extrusion gets a drag arrow; dragging it along the
+ * Drag Handles, by design: the end face of a blind extrusion gets a drag arrow; dragging it along the
  * extrusion direction changes the depth (ruler readout while dragging, rounded to 0.5 mm).
  */
-export function Instant3DHandle({ project }: { project: (v: THREE.Vector3) => { x: number; y: number } }) {
+export function DragHandlesHandle({ project }: { project: (v: THREE.Vector3) => { x: number; y: number } }) {
   const st = useStore();
   const [drag, setDrag] = useState<{ x: number; y: number; depth: number; value: number } | null>(null);
   const ref = useRef<SVGSVGElement>(null);
-  if (!st.instant3d || isCommandActive(st) || st.activeSketchId) return null;
+  if (!st.dragHandles || isCommandActive(st) || st.activeSketchId) return null;
   const cap = extrudeCapOf(st);
   if (!cap) return null;
   const sign = cap.f.op === 'cut' ? -1 : 1;
@@ -65,18 +65,18 @@ export function Instant3DHandle({ project }: { project: (v: THREE.Vector3) => { 
   };
   const ticks = drag ? Array.from({ length: 11 }, (_, i) => i - 5) : [];
   return (
-    <svg ref={ref} className="k-instant3d" data-testid="instant3d" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', overflow: 'visible' }}>
+    <svg ref={ref} className="k-dragHandles" data-testid="dragHandles" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', overflow: 'visible' }}>
       {drag && (
-        <g className="k-instant3d-ruler">
+        <g className="k-dragHandles-ruler">
           <line x1={p0.x - ux * 5 * pxPerMm * 2} y1={p0.y - uy * 5 * pxPerMm * 2} x2={p0.x + ux * 5 * pxPerMm * 2} y2={p0.y + uy * 5 * pxPerMm * 2} stroke="#2b2b2b" strokeWidth={1} />
           {ticks.map((k) => <line key={k} x1={p0.x + ux * k * 2 * pxPerMm - uy * 5} y1={p0.y + uy * k * 2 * pxPerMm + ux * 5} x2={p0.x + ux * k * 2 * pxPerMm + uy * 5} y2={p0.y + uy * k * 2 * pxPerMm - ux * 5} stroke="#2b2b2b" strokeWidth={1} />)}
           <rect x={tip.x + 8} y={tip.y - 10} width={64} height={18} fill="#ffffe1" stroke="#7a7a7a" />
-          <text x={tip.x + 40} y={tip.y + 3} fontSize={11} textAnchor="middle" fill="#000" data-testid="instant3d-value">{drag.value.toFixed(2)}mm</text>
+          <text x={tip.x + 40} y={tip.y + 3} fontSize={11} textAnchor="middle" fill="#000" data-testid="dragHandles-value">{drag.value.toFixed(2)}mm</text>
         </g>
       )}
       <line x1={bx} y1={by} x2={tip.x - ux * 9} y2={tip.y - uy * 9} stroke="#1f4fa8" strokeWidth={2.5} />
       <path d={`M${tip.x},${tip.y}L${tip.x - ux * 11 - uy * 5},${tip.y - uy * 11 + ux * 5}L${tip.x - ux * 11 + uy * 5},${tip.y - uy * 11 - ux * 5}Z`} fill="#1f4fa8" />
-      <circle className="k-instant3d-grip" data-testid="instant3d-grip" cx={tip.x} cy={tip.y} r={7} fill="rgba(31,79,168,0.15)" stroke="none" style={{ pointerEvents: 'all', cursor: 'move' }} onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} />
+      <circle className="k-dragHandles-grip" data-testid="dragHandles-grip" cx={tip.x} cy={tip.y} r={7} fill="rgba(31,79,168,0.15)" stroke="none" style={{ pointerEvents: 'all', cursor: 'move' }} onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} />
     </svg>
   );
 }

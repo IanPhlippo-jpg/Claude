@@ -126,31 +126,31 @@ await page.keyboard.press('Escape');
 // ---- Quick Beam Estimate: fix the left end face, 100 N on the top face of the 100 mm beam
 await page.click('.k-cm-big:has-text("Quick Beam Estimate") .k-cm-main');
 await page.waitForTimeout(300);
-check('Quick Beam Estimate wizard: six steps, Welcome first', (await page.locator('[data-testid="simx-steps"] span').count()) === 6);
-await page.locator('[data-testid="simx-next"]').click();
+check('Quick Beam Estimate wizard: six steps, Welcome first', (await page.locator('[data-testid="beam-steps"] span').count()) === 6);
+await page.locator('[data-testid="beam-next"]').click();
 // fixture: the face at x = 0 of the first beam
 await S(() => { const s = window.__phlippoStore.getState(); const b = s.rebuild.bodies.find((x) => x.faces.some((f) => Math.abs(f.centroid[0]) < 0.1 && Math.abs(f.centroid[1] - 5) < 0.1)); const f = b.faces.find((x) => Math.abs(x.centroid[0]) < 0.1 && Math.abs(x.centroid[1] - 5) < 0.1); s.setSelectedFace({ bodyId: b.id, faceId: f.id }); });
-await page.locator('[data-testid="simx-addfixture"]').click();
-check('fixture added', /Fixed-1/.test(await text('[data-testid="simx-fixture"]')));
-await page.locator('[data-testid="simx-next"]').click();
+await page.locator('[data-testid="beam-addfixture"]').click();
+check('fixture added', /Fixed-1/.test(await text('[data-testid="beam-fixture"]')));
+await page.locator('[data-testid="beam-next"]').click();
 // load: the top face (y = 10) of the first beam
 await S(() => { const s = window.__phlippoStore.getState(); const b = s.rebuild.bodies.find((x) => x.faces.some((f) => Math.abs(f.centroid[1] - 10) < 0.1 && Math.abs(f.centroid[0] - 50) < 0.1)); const f = b.faces.find((x) => Math.abs(x.centroid[1] - 10) < 0.1 && Math.abs(x.centroid[0] - 50) < 0.1); s.setSelectedFace({ bodyId: b.id, faceId: f.id }); });
-await page.locator('[data-testid="simx-addforce"]').click();
-check('force added', /Force-1: 100 N/.test(await text('[data-testid="simx-load"]')));
-await page.locator('[data-testid="simx-next"]').click();
-check('material page shows the part material (Plain Carbon Steel)', (await page.locator('[data-testid="simx-material"]').inputValue()) === 'Plain Carbon Steel');
-await page.locator('[data-testid="simx-next"]').click();
-await page.locator('[data-testid="simx-run"]').click();
+await page.locator('[data-testid="beam-addforce"]').click();
+check('force added', /Force-1: 100 N/.test(await text('[data-testid="beam-load"]')));
+await page.locator('[data-testid="beam-next"]').click();
+check('material page shows the part material (Plain Carbon Steel)', (await page.locator('[data-testid="beam-material"]').inputValue()) === 'Plain Carbon Steel');
+await page.locator('[data-testid="beam-next"]').click();
+await page.locator('[data-testid="beam-run"]').click();
 await page.waitForTimeout(300);
-await page.locator('[data-testid="simx-next"]').click();
+await page.locator('[data-testid="beam-next"]').click();
 await page.waitForTimeout(300);
-const res = (await text('[data-testid="simx-results"]')).replace(/\s+/g, ' ');
+const res = (await text('[data-testid="beam-results"]')).replace(/\s+/g, ' ');
 // the load acts at the top face centre (x 50): M = 100 · 50 = 5000 N·mm, σ = 5000 · 5 / 833 = 30 MPa, FOS = 220 / 30 ≈ 7
 check('Quick Beam Estimate results: FOS ≈ 7, stress ≈ 30 MPa, displacement, beam model', /Indicative ratio yield \/ stress 7\.\d+/.test(res) && /von Mises stress \(max\) 3\d\.\d+ MPa/.test(res) && /span 50\.\d mm/.test(res), res);
-const dlgText = await text('[data-testid="simxpress-dialog"]');
-check('Quick Beam Estimate is marked indicative and makes no safety claim, no green safety colour (F56)', /Indicative estimate/.test(dlgText) && /Not for design decisions/.test(dlgText) && !/Factor of safety/i.test(dlgText) && !(await page.locator('[data-testid="simxpress-dialog"] [style*="#e6f4ea"], [data-testid="simxpress-dialog"] [style*="rgb(31, 122, 55)"]').count()) && !/should be safe/i.test(dlgText) && /does not show that the part is safe|not a safety assessment/.test(dlgText), dlgText.slice(-200));
-await shot('gf6-simxpress');
-await page.locator('[data-testid="simxpress-dialog"] .k-btn:has-text("Close")').click();
+const dlgText = await text('[data-testid="beamEstimate-dialog"]');
+check('Quick Beam Estimate is marked indicative and makes no safety claim, no green safety colour (F56)', /Indicative estimate/.test(dlgText) && /Not for design decisions/.test(dlgText) && !/Factor of safety/i.test(dlgText) && !(await page.locator('[data-testid="beamEstimate-dialog"] [style*="#e6f4ea"], [data-testid="beamEstimate-dialog"] [style*="rgb(31, 122, 55)"]').count()) && !/should be safe/i.test(dlgText) && /does not show that the part is safe|not a safety assessment/.test(dlgText), dlgText.slice(-200));
+await shot('gf6-beamEstimate');
+await page.locator('[data-testid="beamEstimate-dialog"] .k-btn:has-text("Close")').click();
 
 console.log(results.filter((r) => r.ok).length + '/' + results.length + ' passed');
 process.exitCode = exitCode(results, errors);

@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useStore, type ConfigurationEdit } from './store';
+import { useShallow } from 'zustand/react/shallow';
 import { Dialog } from '../ui/components';
 import { Icon } from '../ui/icons';
 import { activeConfiguration, configurationDimension, configurations, isSuppressedIn } from '../core/document/configurations';
@@ -15,7 +16,7 @@ const fmt = (v: number) => (Number.isInteger(v) ? String(v) : String(Math.round(
  * Apply keeps the table open.
  */
 export function ModifyConfigurationsDialog() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ configure: s.configure, doc: s.doc, applyConfigurationTable: s.applyConfigurationTable, closeConfigure: s.closeConfigure, pushMessage: s.pushMessage })));
   const target = st.configure ?? { dims: [], features: [] };
   const dims = useMemo(() => dimensionTable(st.doc), [st.doc]);
   const [dimCols, setDimCols] = useState<string[]>(() => target.dims.filter((n) => dims.some((d) => d.name === n)));

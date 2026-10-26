@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState } from 'react';
 import { AppearancesPane } from './AppearancesPane';
 import { useActiveSketch, useActiveSolve, useStore } from '../store';
+import { useShallow } from 'zustand/react/shallow';
 import { Button } from '../../ui/components';
 import { Icon, RelationGlyph } from '../../ui/icons';
 import { relationLabel } from '../../core/sketch/relations';
@@ -17,7 +18,7 @@ import { FASTENER_NAMES, fastenerPart, LENGTHS, METRIC, type FastenerType } from
  * of the chosen relation.
  */
 function RelationsPane() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ selection: s.selection, selectedConstraint: s.selectedConstraint, selectConstraint: s.selectConstraint, removeRelation: s.removeRelation })));
   const sketch = useActiveSketch();
   const solve = useActiveSolve();
   const [filter, setFilter] = useState('All in this sketch');
@@ -86,9 +87,9 @@ function RelationsPane() {
   );
 }
 
-/** Design Library ▸ Toolbox (with the Toolbox add-in): ISO screws and bolts made to size, inserted or opened */
-function ToolboxFolder() {
-  const st = useStore();
+/** Part Library ▸ Standard Parts (with the Standard Parts add-in): ISO screws and bolts made to size, inserted or opened */
+function StandardPartsFolder() {
+  const st = useStore(useShallow((s) => ({ doc: s.doc, startInsertComponent: s.startInsertComponent, setInsertGhost: s.setInsertGhost })));
   const [open, setOpen] = useState(true);
   const [type, setType] = useState<FastenerType>('shcs');
   const [size, setSize] = useState('M6');
@@ -119,11 +120,11 @@ function ToolboxFolder() {
 }
 
 /**
- * Task Pane: vertical icon strip on the right (Design Library, Relations,
+ * Task Pane: vertical icon strip on the right (Part Library, Relations,
  * Custom Properties, Resources) with a fly-out panel.
  */
 export function TaskPane() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ taskPane: s.taskPane, setTaskPane: s.setTaskPane, doc: s.doc, renameDocument: s.renameDocument, unitSystem: s.unitSystem })));
   // the strip in its intended order: Resources, Marketplace, Part Library, Forum, File Explorer,
   // View Palette, Appearances/Scenes/Decals, Custom Properties, Platform, Document Recovery
   const tabs: { id: Exclude<typeof st.taskPane, null>; icon: React.ReactNode; tip: string; online?: boolean; hidden?: boolean }[] = [
@@ -202,12 +203,12 @@ export function TaskPane() {
 
 
 /**
- * Design Library: user-created libraries (folders) with sketch blocks.
+ * Part Library: user-created libraries (folders) with sketch blocks.
  * Add the current selection (or whole sketch), insert into the active sketch,
  * export/import libraries as .kcadlib JSON files.
  */
 function DesignLibrary() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ libraries: s.libraries, selection: s.selection, exportLibrary: s.exportLibrary, createLibrary: s.createLibrary, importLibrary: s.importLibrary, setAsk: s.setAsk, renameLibrary: s.renameLibrary, deleteLibrary: s.deleteLibrary, startPlacing: s.startPlacing, activeSketchId: s.activeSketchId, deleteLibraryItem: s.deleteLibraryItem, addLibraryItem: s.addLibraryItem })));
   const [open, setOpen] = useState<string | null>(st.libraries[0]?.id ?? null);
   const [newName, setNewName] = useState('');
   const [itemName, setItemName] = useState('');
@@ -233,7 +234,7 @@ function DesignLibrary() {
         <input ref={fileRef} type="file" accept=".kcadlib,.json" style={{ display: 'none' }} onChange={async (e) => { const f = e.target.files?.[0]; if (f) st.importLibrary(await f.text()); e.target.value = ''; }} />
       </div>
       <div className="k-library-folders">
-        {getPref('addin.toolbox') === true && <ToolboxFolder />}
+        {getPref('addin.standardParts') === true && <StandardPartsFolder />}
         {st.libraries.length === 0 && <p className="k-muted" style={{ padding: '6px 10px' }}>No libraries yet. Create one above, then add sketch blocks to it.</p>}
         {st.libraries.map((l) => (
           <div key={l.id} className={`k-library-folder ${open === l.id ? 'open' : ''}`}>
@@ -298,7 +299,7 @@ function BlockThumb({ block }: { block: import('../../core/sketch/blocks').Block
 
 /** File Explorer: the open document and opening files from disk */
 function FileExplorer() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ doc: s.doc, dirty: s.dirty })));
   return (
     <div style={{ padding: 8 }}>
       <p style={{ margin: '0 0 4px' }}><b>Open in Phlippo CAD</b></p>
@@ -313,7 +314,7 @@ function FileExplorer() {
 
 /** View Palette: drag-free version — the standard views of the drawing's model, placed with one click */
 function ViewPalette() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ doc: s.doc, startStandardThreeViews: s.startStandardThreeViews })));
   if (st.doc.kind !== 'drawing') return <p className="k-muted" style={{ padding: 10 }}>Open or create a drawing to use the View Palette.</p>;
   const model = st.doc.sheets?.[0]?.views[0]?.model;
   return (
@@ -332,7 +333,7 @@ function ViewPalette() {
 
 /** Document Recovery: the auto-recover copy of the last session */
 function RecoveryPane() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ hasDocument: s.hasDocument, doc: s.doc, dirty: s.dirty })));
   const list = listAutosaves();
   const open = (key: string) => withUnsavedCheck(() => {
     const d = loadAutosaveEntry(key);

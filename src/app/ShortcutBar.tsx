@@ -1,6 +1,7 @@
 import { fitActive } from './viewport/bridge';
 import { useState, type ReactNode } from 'react';
 import { useStore } from './store';
+import { useShallow } from 'zustand/react/shallow';
 import { Icon } from '../ui/icons';
 import { Menu, type MenuItem } from '../ui/components';
 import { getPref } from './prefs';
@@ -27,7 +28,7 @@ interface Cmd {
  * assembly tools in an assembly — and a tooltip with the command's description.
  */
 export function ShortcutBar({ onClose }: { onClose: () => void }) {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ activeSketchId: s.activeSketchId, setTool: s.setTool, exitSketch: s.exitSketch, startFeature: s.startFeature, mirrorSelection: s.mirrorSelection, toggleConstructionSelection: s.toggleConstructionSelection, setTaskPane: s.setTaskPane, startPlanePick: s.startPlanePick, startHole: s.startHole, startRound: s.startRound, startPattern: s.startPattern, startMirror: s.startMirror, startShell: s.startShell, startRib: s.startRib, setDialog: s.setDialog, startInsertComponent: s.startInsertComponent, startMate: s.startMate, setAsmTool: s.setAsmTool, doc: s.doc })));
   const [open, setOpen] = useState<number | null>(null);
   const [tip, setTip] = useState<Cmd | null>(null);
   const inSketch = !!st.activeSketchId;

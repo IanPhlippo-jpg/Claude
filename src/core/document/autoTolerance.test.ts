@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import * as THREE from 'three';
-import { autoDimensionScheme, blockFor, DEFAULT_BLOCK, faceDistance, toleranceStatus } from './dimxpert';
+import { autoDimensionScheme, blockFor, DEFAULT_BLOCK, faceDistance, toleranceStatus } from './autoTolerance';
 import { planarFaces } from '../features/solid';
 import { bodyEdges } from '../features/edgesets';
 import type { Body } from '../features/rebuild';
 
 const box = (sx: number, sy: number, sz: number): Body => { const g = new THREE.BoxGeometry(sx, sy, sz).toNonIndexed(); return { id: 'b1', geometry: g, faces: planarFaces(g, 'b1'), edges: bodyEdges(g, 'b1'), featureIds: [] }; };
 
-describe('DimXpert', () => {
+describe('AutoTolerance', () => {
   it('block tolerance by magnitude', () => {
     expect(blockFor(5, DEFAULT_BLOCK)).toBe(0.1);
     expect(blockFor(40, DEFAULT_BLOCK)).toBe(0.25);

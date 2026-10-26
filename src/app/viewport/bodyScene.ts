@@ -46,15 +46,15 @@ export interface BodySceneInput {
   shinyBodies?: string[];
   /** the part itself is metal */
   metallic?: boolean;
-  /** View Settings ▸ RealView Graphics: physically based materials with environment reflections */
-  realView?: boolean;
+  /** View Settings ▸ Realistic Shading Graphics: physically based materials with environment reflections */
+  realisticShading?: boolean;
   /** Evaluate ▸ Zebra Stripes: black and white stripes reflected in the surfaces (surface continuity check) */
   zebra?: boolean;
   /** View Settings ▸ Shadows In Shaded Mode: a soft shadow on a floor below the model */
   shadows?: boolean;
   /** Edit Scene ▸ Floor: reflections, alignment and offset */
   floor?: { reflections?: boolean; align?: 'bottom' | 'top'; offset?: number };
-  /** wooden bodies (RealView: wood grain) */
+  /** wooden bodies (Realistic Shading: wood grain) */
   woodBodies?: string[];
   /** the part itself is wood */
   wooden?: boolean;
@@ -112,7 +112,7 @@ export class BodyScene {
   private headlight = new THREE.DirectionalLight(0xffffff, 1.1);
   private ambient = new THREE.AmbientLight(0xffffff, 0.75);
   private fill = new THREE.DirectionalLight(0xffffff, 0);
-  private realView = false;
+  private realisticShading = false;
 
   // appearance of the intended design: light grey shaded faces, black edges
   private faceMat = new THREE.MeshPhongMaterial({ color: 0xe8e8ea, specular: 0x222222, shininess: 20, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
@@ -271,7 +271,7 @@ export class BodyScene {
   brightness = 1;
   updateLight(cameraQuaternion: THREE.Quaternion): void {
     const dir = new THREE.Vector3(...LIGHTING.key.dir).applyQuaternion(cameraQuaternion);
-    if (!this.realView) {
+    if (!this.realisticShading) {
       this.headlight.intensity = LIGHTING.key.intensity * this.brightness;
       this.ambient.intensity = LIGHTING.ambient * this.brightness;
       this.fill.intensity = LIGHTING.fill.intensity * this.brightness;
@@ -301,7 +301,7 @@ export class BodyScene {
     this.zebraMat = new THREE.MeshMatcapMaterial({ matcap: tex, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
     return this.zebraMat;
   }
-  private rebuildBodies(bodies: Body[], style: DisplayStyle, colors: Record<string, string> = {}, shiny: Set<string> = new Set(), look: { zebra?: boolean; realView: boolean; shadows: boolean; metallic: boolean; base: string; wood?: Set<string>; wooden?: boolean; faceColors?: Record<string, Record<string, string>>; transparent?: Set<string> } = { realView: false, shadows: false, metallic: false, base: '#e8e8ea' }) {
+  private rebuildBodies(bodies: Body[], style: DisplayStyle, colors: Record<string, string> = {}, shiny: Set<string> = new Set(), look: { zebra?: boolean; realisticShading: boolean; shadows: boolean; metallic: boolean; base: string; wood?: Set<string>; wooden?: boolean; faceColors?: Record<string, Record<string, string>>; transparent?: Set<string> } = { realisticShading: false, shadows: false, metallic: false, base: '#e8e8ea' }) {
     for (const e of this.entries.values()) {
       this.group.remove(e.mesh, e.edges, ...(e.extra ?? []));
       if (e.fat) { this.group.remove(e.fat); this.disposeObject(e.fat); }
@@ -325,8 +325,8 @@ export class BodyScene {
         }
       }
       if (look.zebra && style !== 'hiddenRemoved' && style !== 'hiddenVisible' && style !== 'wireframe') faceMat = this.zebra();
-      else if (look.realView && style !== 'hiddenRemoved' && style !== 'hiddenVisible') {
-        // RealView: metal reflects the environment, other materials stay matte
+      else if (look.realisticShading && style !== 'hiddenRemoved' && style !== 'hiddenVisible') {
+        // Realistic Shading: metal reflects the environment, other materials stay matte
         const metal = shiny.has(b.id) || (look.metallic && !colors[b.id]);
         const wood = look.wood?.has(b.id) || (look.wooden && !colors[b.id]);
         faceMat = new THREE.MeshStandardMaterial({ color: colors[b.id] ?? look.base, metalness: metal ? 1 : 0, roughness: metal ? 0.2 : 0.78, envMapIntensity: metal ? 1.1 : 0.3, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
@@ -524,22 +524,22 @@ export class BodyScene {
     this.edgeMat2.resolution.copy(SketchScene.resolution);
     const wanted = new THREE.Color(input.bodyColor ?? '#e8e8ea');
     if (!this.faceMat.color.equals(wanted)) this.faceMat.color.copy(wanted);
-    // RealView: the environment lights the model; the lamps are turned down
-    this.realView = !!input.realView;
-    this.ambient.intensity = input.realView ? 0.1 : LIGHTING.ambient;
-    this.headlight.intensity = input.realView ? 0.9 : LIGHTING.key.intensity;
-    this.fill.intensity = input.realView ? 0 : LIGHTING.fill.intensity;
+    // Realistic Shading: the environment lights the model; the lamps are turned down
+    this.realisticShading = !!input.realisticShading;
+    this.ambient.intensity = input.realisticShading ? 0.1 : LIGHTING.ambient;
+    this.headlight.intensity = input.realisticShading ? 0.9 : LIGHTING.key.intensity;
+    this.fill.intensity = input.realisticShading ? 0 : LIGHTING.fill.intensity;
     const shin = input.metallic ? 110 : 20;
     if (this.faceMat.shininess !== shin) {
       this.faceMat.shininess = shin;
       this.faceMat.specular.set(input.metallic ? 0x9a9a9a : 0x222222);
     }
-    const key = (input.hiddenBodies ?? []).join(',') + '|' + JSON.stringify(input.bodyColors ?? {}) + '|' + (input.shinyBodies ?? []).join(',') + '|' + (input.realView ? 'rv' : '') + (input.zebra ? 'zb' : '') + (input.metallic ? 'm' : '') + (input.shadows ? 's' : '') + (input.wooden ? 'w' : '') + (input.bodyColor ?? '') + '|' + (input.woodBodies ?? []).join(',') + '|' + JSON.stringify(input.faceColors ?? {}) + '|' + (input.transparentBodies ?? []).join(',');
+    const key = (input.hiddenBodies ?? []).join(',') + '|' + JSON.stringify(input.bodyColors ?? {}) + '|' + (input.shinyBodies ?? []).join(',') + '|' + (input.realisticShading ? 'rv' : '') + (input.zebra ? 'zb' : '') + (input.metallic ? 'm' : '') + (input.shadows ? 's' : '') + (input.wooden ? 'w' : '') + (input.bodyColor ?? '') + '|' + (input.woodBodies ?? []).join(',') + '|' + JSON.stringify(input.faceColors ?? {}) + '|' + (input.transparentBodies ?? []).join(',');
     if (input.bodies !== this.lastBodies || input.displayStyle !== this.lastStyle || input.replaceBody !== this.lastReplace || key !== this.lastKey) {
       const hidden = new Set(input.hiddenBodies ?? []);
       const visible = input.bodies.filter((b) => !hidden.has(b.id));
       const shown = input.replaceBody && visible.length ? [{ ...visible[0], geometry: input.replaceBody }, ...visible.slice(1)] : visible;
-      this.rebuildBodies(shown, input.displayStyle, input.bodyColors ?? {}, new Set(input.shinyBodies ?? []), { zebra: !!input.zebra, realView: !!input.realView, shadows: !!input.shadows, metallic: !!input.metallic, base: input.bodyColor ?? '#e8e8ea', wood: new Set(input.woodBodies ?? []), wooden: !!input.wooden, faceColors: input.faceColors ?? {}, transparent: new Set(input.transparentBodies ?? []) });
+      this.rebuildBodies(shown, input.displayStyle, input.bodyColors ?? {}, new Set(input.shinyBodies ?? []), { zebra: !!input.zebra, realisticShading: !!input.realisticShading, shadows: !!input.shadows, metallic: !!input.metallic, base: input.bodyColor ?? '#e8e8ea', wood: new Set(input.woodBodies ?? []), wooden: !!input.wooden, faceColors: input.faceColors ?? {}, transparent: new Set(input.transparentBodies ?? []) });
       this.lastBodies = input.bodies;
       this.lastStyle = input.displayStyle;
       this.lastReplace = input.replaceBody;

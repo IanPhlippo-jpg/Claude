@@ -1,10 +1,11 @@
 import { useStore } from '../store';
+import { useShallow } from 'zustand/react/shallow';
 import { Section } from '../../ui/components';
 import { Icon } from '../../ui/icons';
 
 /** 3D Sketch: the lines drawn so far, the active plane of the space handle (Tab switches) and OK / Cancel. */
 export function Sketch3DPM() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ sketch3dEdit: s.sketch3dEdit, commit3DSketch: s.commit3DSketch, cancel3DSketch: s.cancel3DSketch, doc: s.doc, undo3DSegment: s.undo3DSegment })));
   const e = st.sketch3dEdit;
   if (!e) return null;
   const planeLabel = { xy: 'XY', yz: 'YZ', zx: 'ZX' }[e.plane];

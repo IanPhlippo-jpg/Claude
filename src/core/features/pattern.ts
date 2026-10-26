@@ -54,7 +54,7 @@ export const MAX_PATTERN_INSTANCES = 250;
 export function patternInstances(f: { type: string; dir1?: { axis: [number, number, number]; spacing: number; count: number }; dir2?: { axis: [number, number, number]; spacing: number; count: number }; axis?: { origin: [number, number, number]; dir: [number, number, number] }; angle?: number; count?: number; instanceSpacing?: boolean; seedOnly?: boolean; modified?: { i: number; j: number; dx?: number; dy?: number }[] }): ((g: THREE.BufferGeometry) => THREE.BufferGeometry)[] {
   const out: ((g: THREE.BufferGeometry) => THREE.BufferGeometry)[] = [];
   if (f.type !== 'linearPattern' && f.type !== 'circularPattern') return out;
-  // never more than MAX_PATTERN_INSTANCES transforms: the PropertyManager previews every change, and a boolean
+  // never more than MAX_PATTERN_INSTANCES transforms: the Property Panel previews every change, and a boolean
   // per instance beyond that takes minutes (the commit refuses such a count with a message)
   const push = (t: (g: THREE.BufferGeometry) => THREE.BufferGeometry) => { if (out.length < MAX_PATTERN_INSTANCES) out.push(t); };
   if (f.type === 'linearPattern') {
@@ -86,7 +86,7 @@ export function patternInstances(f: { type: string; dir1?: { axis: [number, numb
   return out;
 }
 
-/** Tool solid of one hole of the Hole Wizard, in world coordinates (axis along -normal of the plane). */
+/** Tool solid of one hole of the Hole Tool, in world coordinates (axis along -normal of the plane). */
 export function holeTool(f: Pick<HoleFeature, 'holeType' | 'diameter' | 'depth' | 'cbDiameter' | 'cbDepth' | 'csDiameter' | 'csAngle'> & Partial<Pick<HoleFeature, 'headClearance' | 'nearCs' | 'underHeadCs'>>, plane: PlaneDef, at: { x: number; y: number }, throughAll: number): THREE.BufferGeometry {
   const o = new THREE.Vector3(...plane.origin), u = new THREE.Vector3(...plane.u), v = new THREE.Vector3(...plane.v), n = new THREE.Vector3(...plane.n);
   const start = o.clone().addScaledVector(u, at.x).addScaledVector(v, at.y);

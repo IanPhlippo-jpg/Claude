@@ -31,6 +31,18 @@ describe('file format: validation and upgrades', () => {
     expect(back.name).toBe('Old');
   });
 
+  it('upgrades format 1: the tolerancing data moves to its new field, also in parts inside an assembly (F50)', () => {
+    const data = { datums: [], dims: [], gtols: [] };
+    const part = { ...createDocument('P'), version: 1, dimxpert: data } as Record<string, unknown>;
+    const asm = { ...createDocument('A'), version: 1, kind: 'assembly', dimxpert: data, components: [{ id: 'c1', name: 'P<1>', part, position: [0, 0, 0], rotation: [0, 0, 0, 1], fixed: true, suppressed: false }], mates: [] };
+    const back = parseDocument(JSON.stringify({ format: 'phlippo-cad', ...asm })) as unknown as Record<string, unknown> & { components: { part: Record<string, unknown> }[] };
+    expect(back.version).toBe(FILE_VERSION);
+    expect(back.autoTolerance).toEqual(data);
+    expect('dimxpert' in back).toBe(false);
+    expect(back.components[0].part.autoTolerance).toEqual(data);
+    expect('dimxpert' in back.components[0].part).toBe(false);
+  });
+
   it('refuses a half document instead of opening it empty', () => {
     const d = createDocument('Half') as unknown as Record<string, unknown>;
     delete d.features;

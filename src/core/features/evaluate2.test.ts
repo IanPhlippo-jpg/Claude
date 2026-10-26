@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import * as THREE from 'three';
-import { bodyCompare, compareDocuments, deviationAnalysis, partingLineAnalysis, performanceRows, simXpressEstimate, symmetryCheck } from './evaluate2';
+import { bodyCompare, compareDocuments, deviationAnalysis, partingLineAnalysis, performanceRows, beamEstimateEstimate, symmetryCheck } from './evaluate2';
 import { csg, planarFaces } from './solid';
 import { bodyEdges } from './edgesets';
 import type { Body } from './rebuild';
@@ -92,9 +92,9 @@ describe('Evaluate tools', () => {
     expect(rows[0].order).toBe(3);
   });
 
-  it('SimulationXpress estimate: a steel cantilever 100 x 10 x 10 with 100 N at the end', () => {
+  it('BeamEstimate estimate: a steel cantilever 100 x 10 x 10 with 100 N at the end', () => {
     const beam = box(50, 0, 0, 100, 10, 10);
-    const r = simXpressEstimate({ body: beam, fixture: { normal: [-1, 0, 0], point: [0, 0, 0] }, load: { normal: [0, 1, 0], point: [100, 5, 0], area: 1000 }, force: 100, elasticModulus: 2.1e11, yieldStrength: 2.2e8 });
+    const r = beamEstimateEstimate({ body: beam, fixture: { normal: [-1, 0, 0], point: [0, 0, 0] }, load: { normal: [0, 1, 0], point: [100, 5, 0], area: 1000 }, force: 100, elasticModulus: 2.1e11, yieldStrength: 2.2e8 });
     // bending: M = 100 N · 100 mm = 1e4 N·mm; I = 10·10³/12 = 833 mm⁴; σ = M·5/I = 60 N/mm² = 60 MPa
     expect(Math.abs(r.bendingStress / 1e6 - 60)).toBeLessThan(1);
     // deflection: F L³ / (3 E I) = 100 · 1e6 / (3 · 2.1e5 · 833) = 0.19 mm

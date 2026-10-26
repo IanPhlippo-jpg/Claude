@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useStore } from './store';
+import { useShallow } from 'zustand/react/shallow';
 import { Button, Dialog, NumberField } from '../ui/components';
 import { featureDependents } from '../core/features/dependents';
 import { exportMesh, type MeshExportOptions } from '../core/document/export3d';
@@ -8,7 +9,7 @@ import { getPref } from './prefs';
 
 /** Feature Properties: name, description, suppressed, the dates — as the intended dialog */
 export function FeaturePropertiesDialog() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ doc: s.doc, dialogFeatureId: s.dialogFeatureId, applyDocument: s.applyDocument, setDialog: s.setDialog })));
   const f = st.doc.features.find((x) => x.id === st.dialogFeatureId);
   const meta = (f && st.doc.featureMeta?.[f.id]) || {};
   const [name, setName] = useState(f?.name ?? '');
@@ -42,7 +43,7 @@ export function FeaturePropertiesDialog() {
 
 /** Parent/Child relationships of a feature: what it needs, what needs it */
 export function ParentChildDialog() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ doc: s.doc, dialogFeatureId: s.dialogFeatureId, setDialog: s.setDialog })));
   const f = st.doc.features.find((x) => x.id === st.dialogFeatureId);
   if (!f) return null;
   const nameOf = (id: string) => st.doc.features.find((x) => x.id === id)?.name ?? id;
@@ -77,7 +78,7 @@ export function ParentChildDialog() {
 
 /** Save As ▸ STL / 3MF / AMF: the Export Options page of the intended design */
 export function ExportOptionsDialog() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ exportFormat: s.exportFormat, doc: s.doc, rebuild: s.rebuild, setPrefs: s.setPrefs, prefs: s.prefs, pushMessage: s.pushMessage, setDialog: s.setDialog, setAsk: s.setAsk })));
   const fmt = st.exportFormat;
   const [ascii, setAscii] = useState(getPref<boolean>('export.ascii') === true);
   const [unit, setUnit] = useState<MeshExportOptions['unit']>((getPref<string>('export.unit') as MeshExportOptions['unit']) || st.doc.units);

@@ -47,8 +47,8 @@ await page.evaluate(() => {
   window.__phlippoStore.setState({ selectedFace: { bodyId: b.id, faceId: f.id } });
 });
 await page.waitForTimeout(300);
-check('Drag Handles: the selected end face shows the drag arrow', (await page.locator('[data-testid="instant3d-grip"]').count()) === 1);
-const grip = await page.locator('[data-testid="instant3d-grip"]').boundingBox();
+check('Drag Handles: the selected end face shows the drag arrow', (await page.locator('[data-testid="dragHandles-grip"]').count()) === 1);
+const grip = await page.locator('[data-testid="dragHandles-grip"]').boundingBox();
 // pixels per mm along +Y from the projection
 const pxmm = await page.evaluate(() => { const a = window.__phlippoProjectWorld(40, 10, 30), b = window.__phlippoProjectWorld(40, 20, 30); return { dx: (b.x - a.x) / 10, dy: (b.y - a.y) / 10 }; });
 const gx = grip.x + grip.width / 2, gy = grip.y + grip.height / 2;
@@ -56,8 +56,8 @@ await page.mouse.move(gx, gy);
 await page.mouse.down();
 await page.mouse.move(gx + pxmm.dx * 5, gy + pxmm.dy * 5, { steps: 5 });
 await page.mouse.move(gx + pxmm.dx * 10, gy + pxmm.dy * 10, { steps: 5 });
-const readout = await page.locator('[data-testid="instant3d-value"]').textContent();
-await page.mouse.move(5, 900, { steps: 1 }).catch(skip('instant3d:60'));
+const readout = await page.locator('[data-testid="dragHandles-value"]').textContent();
+await page.mouse.move(5, 900, { steps: 1 }).catch(skip('dragHandles:60'));
 await page.mouse.move(gx + pxmm.dx * 10, gy + pxmm.dy * 10);
 await shot('i3-drag');
 await page.mouse.up();

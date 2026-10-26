@@ -75,7 +75,7 @@ export function Menu({ items, onClose, style }: { items: MenuItem[]; onClose: ()
       document.removeEventListener('keydown', onKey);
     };
   }, [onClose]);
-  // a menu opened inside the CommandManager (which clips its content) is lifted out to the page, at the same place
+  // a menu opened inside the Command Ribbon (which clips its content) is lifted out to the page, at the same place
   const [fixed, setFixed] = useState<{ left: number; top: number } | null>(null);
   useLayoutEffect(() => {
     if (fixed || !ref.current || !ref.current.closest('.k-cm-body, .k-cm')) return;
@@ -249,7 +249,7 @@ export function TreeView({ nodes }: { nodes: TreeNode[] }) {
 
 /* ---------- Form fields ----------------------------------------------------------- */
 
-/** Value text by design shows it in a PropertyManager: 10.00mm, 1.00deg, 0.375in; counts without decimals. */
+/** Value text by design shows it in a Property Panel: 10.00mm, 1.00deg, 0.375in; counts without decimals. */
 export function formatValue(v: number, unit?: string): string {
   if (!Number.isFinite(v)) return '';
   if (!unit) return String(round(v));
@@ -347,7 +347,7 @@ export function NumberField({
   };
   useEffect(() => () => window.clearTimeout(noteTimer.current), []);
   const unitLabel = unit === 'deg' ? '°' : unit ?? '';
-  // the first value field of a PropertyManager takes the focus without scrolling the panel (its top stays in view)
+  // the first value field of a Property Panel takes the focus without scrolling the panel (its top stays in view)
   useEffect(() => {
     if (autoFocus) inputRef.current?.focus({ preventScroll: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -437,7 +437,7 @@ export function Toggle({ value, onChange, label }: { value: boolean; onChange: (
 
 export function Section({ title, children, defaultOpen = true, check, onCheck }: { title: string; children: ReactNode; defaultOpen?: boolean; check?: boolean; onCheck?: (v: boolean) => void }) {
   const [open, setOpen] = useState(defaultOpen);
-  // a PropertyManager that swaps its sections keeps React state by position: reset when the title changes
+  // a Property Panel that swaps its sections keeps React state by position: reset when the title changes
   useEffect(() => setOpen(defaultOpen), [title, defaultOpen]);
   return (
     <div className={`k-section ${open ? 'open' : ''}`}>

@@ -1,4 +1,5 @@
 import { useStore, type SectionView } from '../store';
+import { useShallow } from 'zustand/react/shallow';
 import { NumberField, Section } from '../../ui/components';
 import { Icon } from '../../ui/icons';
 import type { SectionPlane } from '../../core/features/section';
@@ -30,11 +31,11 @@ function PlaneFields({ sp, onChange, units, focus }: { sp: SectionPlane; onChang
 }
 
 /**
- * Section View PropertyManager by design (heads-up ▸ Section View): Drawing Section View,
+ * Section View Property Panel by design (heads-up ▸ Section View): Drawing Section View,
  * Section Method, Section Options, Section 1 (plane, offset distance, flip, angles, cap colour), Section 2 / 3, Selected Bodies.
  */
 export function SectionViewPM() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ sectionEdit: s.sectionEdit, updateSectionView: s.updateSectionView, doc: s.doc, rebuild: s.rebuild, commitSectionView: s.commitSectionView, cancelSectionView: s.cancelSectionView, saveSectionView: s.saveSectionView, pushMessage: s.pushMessage })));
   const se = st.sectionEdit;
   if (!se) return null;
   const up = (p: Partial<SectionView>) => st.updateSectionView(p);

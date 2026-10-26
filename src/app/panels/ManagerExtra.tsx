@@ -1,18 +1,19 @@
 import { useMemo } from 'react';
 import { useStore } from '../store';
+import { useShallow } from 'zustand/react/shallow';
 import { TreeView, type TreeNode } from '../../ui/components';
 import { Icon } from '../../ui/icons';
 import { dimensionTable } from '../../core/document/equations';
-import { STATUS_COLORS, toleranceStatus } from '../../core/document/dimxpert';
+import { STATUS_COLORS, toleranceStatus } from '../../core/document/autoTolerance';
 
 /**
- * DimXpertManager tab, by design: the model's dimensions per feature (the dimensions DimXpert works with),
+ * Tolerance Tree tab, by design: the model's dimensions per feature (the dimensions Auto Tolerancing works with),
  * with Auto Dimension Scheme putting them on the drawing-ready list and Show Tolerance Status colouring them.
  */
-export function DimXpertManagerBody() {
-  const st = useStore();
+export function ToleranceTreeBody() {
+  const st = useStore(useShallow((s) => ({ doc: s.doc, rebuild: s.rebuild, startAutoTolerance: s.startAutoTolerance, analysis: s.analysis, setAnalysis: s.setAnalysis, deleteAllTolerances: s.deleteAllTolerances })));
   const dims = useMemo(() => dimensionTable(st.doc), [st.doc]);
-  const dx = st.doc.dimxpert;
+  const dx = st.doc.autoTolerance;
   const byOwner = new Map<string, typeof dims>();
   for (const d of dims) {
     const owner = d.name.split('@')[1] ?? '';
@@ -46,9 +47,9 @@ export function DimXpertManagerBody() {
     },
   ];
   return (
-    <div className="k-mgr-extra" data-testid="dimxpert-manager">
+    <div className="k-mgr-extra" data-testid="autoTolerance-manager">
       <div className="k-mgr-extra-bar">
-        <button className="k-btn ghost icon k-tip" data-tip="Auto Dimension Scheme" data-testid="dx-auto" onClick={() => st.startDimXpert('auto')}><Icon.Dimension size={14} /></button>
+        <button className="k-btn ghost icon k-tip" data-tip="Auto Dimension Scheme" data-testid="dx-auto" onClick={() => st.startAutoTolerance('auto')}><Icon.Dimension size={14} /></button>
         <button className={`k-btn ghost icon k-tip${st.analysis?.kind === 'tolerance' ? ' active' : ''}`} data-tip="Show Tolerance Status" data-testid="dx-status" onClick={() => st.setAnalysis(st.analysis?.kind === 'tolerance' ? null : { kind: 'tolerance' })}><Icon.Check size={14} /></button>
         <button className="k-btn ghost icon k-tip" data-tip="Delete All Tolerances" disabled={!dx} onClick={st.deleteAllTolerances}><Icon.Trash size={14} /></button>
       </div>
@@ -66,11 +67,11 @@ export function DimXpertManagerBody() {
 }
 
 /**
- * DisplayManager tab, by design: the appearances (document, bodies, faces), the decals and the scene,
+ * Display Panel tab, by design: the appearances (document, bodies, faces), the decals and the scene,
  * each opening its editor on double-click.
  */
-export function DisplayManagerBody() {
-  const st = useStore();
+export function DisplayPanelBody() {
+  const st = useStore(useShallow((s) => ({ doc: s.doc, setDialog: s.setDialog, startDecal: s.startDecal, deleteDecal: s.deleteDecal, setSceneEdit: s.setSceneEdit })));
   const doc = st.doc;
   const css = (c: string | [number, number, number]) => (typeof c === 'string' ? c : `rgb(${c.map((x) => Math.round(x <= 1 ? x * 255 : x)).join(',')})`);
   const swatch = (c: string | [number, number, number]) => <span className="k-swatch" style={{ background: css(c) }} />;

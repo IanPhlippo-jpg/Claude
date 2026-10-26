@@ -6,7 +6,7 @@ import { meshVolume } from './solid';
 import { REFERENCE_PLANE_DEFS } from './planes';
 import { projectedView } from '../drawing/sheet';
 
-describe('Hole Wizard ▸ Straight Tap', () => {
+describe('Hole Tool ▸ Straight Tap', () => {
   it('an M6 tapped hole drills the 5.0 mm tap drill and shows a 6 mm cosmetic thread', () => {
     const doc = createDocument('T');
     let s = createSketch('sk1', 'Sketch1', 'front');

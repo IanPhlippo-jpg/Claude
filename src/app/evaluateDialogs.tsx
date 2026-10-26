@@ -1,11 +1,12 @@
 import { useMemo, useState } from 'react';
 import { useStore } from './store';
+import { useShallow } from 'zustand/react/shallow';
 import { Icon } from '../ui/icons';
 import { bodyCheck, sectionProperties } from '../core/features/inspect';
 import { findSketchProblems, repairSketch } from '../core/sketch/repair';
 
 export function CheckDialog() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ selectedFace: s.selectedFace, selectedFaces: s.selectedFaces, selectedEdges: s.selectedEdges, rebuild: s.rebuild, selectedFeatureId: s.selectedFeatureId, doc: s.doc, setDialog: s.setDialog })));
   const [shortLen, setShortLen] = useState(0.01);
   const [ran, setRan] = useState(0);
   const [strict, setStrict] = useState(true);
@@ -73,7 +74,7 @@ export function CheckDialog() {
 }
 
 export function SectionPropertiesDialog() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ selectedFace: s.selectedFace, rebuild: s.rebuild, doc: s.doc, setDialog: s.setDialog })));
   const face = st.selectedFace;
   const body = face ? st.rebuild.bodies.find((b) => b.id === face.bodyId) : undefined;
   const f = face ? body?.faces.find((x) => x.id === face.faceId) : undefined;
@@ -116,7 +117,7 @@ export function SectionPropertiesDialog() {
 
 /** Sketch ▸ Repair Sketch: the problems found in the active sketch and a Repair button (gap tolerance adjustable). */
 export function RepairSketchDialog() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ activeSketchId: s.activeSketchId, doc: s.doc, setDialog: s.setDialog, commit: s.commit })));
   const [gap, setGap] = useState(0.05);
   const sketch = st.activeSketchId ? st.doc.sketches[st.activeSketchId] : null;
   const problems = useMemo(() => (sketch ? findSketchProblems(sketch, gap) : []), [sketch, gap]);

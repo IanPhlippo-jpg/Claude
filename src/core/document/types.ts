@@ -304,7 +304,7 @@ export interface HemFeature {
 }
 
 /** Flat-Pattern1: unsuppressed, the sheet is shown unfolded. */
-/** Features ▸ Hole Wizard ▸ Thread: a helical thread on a cylindrical edge (Metric Die outside, Metric Tap inside). */
+/** Features ▸ Hole Tool ▸ Thread: a helical thread on a cylindrical edge (Metric Die outside, Metric Tap inside). */
 export interface ThreadFeature {
   id: Id;
   type: 'thread';
@@ -554,7 +554,7 @@ export interface VentFeature {
   draft?: number;
 }
 
-/** Sheet Metal ▸ Forming Tool: a form from the Design Library pressed into the sheet at the placed positions. */
+/** Sheet Metal ▸ Forming Tool: a form from the Part Library pressed into the sheet at the placed positions. */
 export interface FormToolFeature {
   id: Id;
   type: 'formTool';
@@ -760,7 +760,7 @@ export interface RoundFeature {
   suppressed: boolean;
   size: number;
   edges: EdgeRefData[];
-  /** Sheet Metal ▸ Corners ▸ Break-Corner/Corner-Trim (same geometry, its own name and PropertyManager) */
+  /** Sheet Metal ▸ Corners ▸ Break-Corner/Corner-Trim (same geometry, its own name and Property Panel) */
   breakCorner?: boolean;
   /** Fillet / Chamfer options: asymmetric second distance, profile, multi radius, variable size, partial edge */
   size2?: number;
@@ -769,7 +769,7 @@ export interface RoundFeature {
   radii?: number[];
   variable?: { start: number; end: number };
   partial?: { start: number; end: number };
-  /** Fillet Type / Chamfer Type shown in the PropertyManager */
+  /** Fillet Type / Chamfer Type shown in the Property Panel */
   roundType?: 'constant' | 'variable' | 'face' | 'fullRound' | 'angleDistance' | 'vertex' | 'offsetFace' | 'faceFace';
   /** Chamfer ▸ Vertex: the corner and the three distances along its edges (equal distance: D1 for all) */
   vertex?: { point: [number, number, number]; label: string };
@@ -813,7 +813,7 @@ export interface MirrorFeature {
   knitSurfaces?: boolean;
   /** Propagate visual properties (default on): face appearances are mirrored too */
   propagateVisual?: boolean;
-  /** Full / Partial preview of the PropertyManager */
+  /** Full / Partial preview of the Property Panel */
   previewMode?: 'full' | 'partial';
 }
 
@@ -870,7 +870,7 @@ export interface PatternFeature {
 
 export type HoleType = 'simple' | 'counterbore' | 'countersink' | 'tap';
 
-/** Hole Wizard: holes normal to a plane (usually a face plane) at sketch positions. */
+/** Hole Tool: holes normal to a plane (usually a face plane) at sketch positions. */
 export interface HoleFeature {
   /** Hole Type ▸ Type: the hole standard's sub type (Drill sizes, Screw Clearances, Socket Head Cap Screw …) */
   holeSubtype?: string;
@@ -888,7 +888,7 @@ export interface HoleFeature {
   cbDepth: number;
   csDiameter: number;
   csAngle: number;
-  /** Hole Wizard size name (M6, …) for the feature name */
+  /** Hole Tool size name (M6, …) for the feature name */
   sizeName?: string;
   /** Straight Tap: nominal thread diameter and pitch (cosmetic thread), thread depth (0 = through) */
   threadDiameter?: number;
@@ -903,12 +903,12 @@ export interface HoleFeature {
   underHeadCs?: { diameter: number; angle: number };
   farCs?: { diameter: number; angle: number };
   cosmeticThread?: boolean;
-  /** Insert ▸ Features ▸ Simple Hole: a plain hole without the Hole Wizard pages */
+  /** Insert ▸ Features ▸ Simple Hole: a plain hole without the Hole Tool pages */
   simple?: boolean;
   threadCallout?: boolean;
 }
 
-/** Stud Wizard: a threaded stud standing on a planar face (cosmetic thread). */
+/** Stud Tool: a threaded stud standing on a planar face (cosmetic thread). */
 export interface StudFeature {
   id: Id;
   type: 'stud';
@@ -1097,7 +1097,7 @@ export interface RefGeometry {
   x?: [number, number, number];
   y?: [number, number, number];
   z?: [number, number, number];
-  /** how it was defined (the PropertyManager option), shown as a tooltip */
+  /** how it was defined (the Property Panel option), shown as a tooltip */
   how?: string;
 }
 
@@ -1291,7 +1291,7 @@ export interface DrawingDimension {
   value: number;
   /** horizontal / vertical / aligned */
   orientation?: 'h' | 'v' | 'aligned';
-  /** Dimension PropertyManager: Tolerance/Precision, Override value, Dimension Text, Dual dimension */
+  /** Dimension Property Panel: Tolerance/Precision, Override value, Dimension Text, Dual dimension */
   tol?: import('../drawing/dimtext').DimTolerance;
   precision?: number;
   override?: string;
@@ -1403,7 +1403,8 @@ export interface Document {
   centerOfMass?: boolean;
   /** Section View ▸ Drawing Section View ▸ Save: named section views (for drawings) */
   sectionViews?: { name: string; view: { plane: 'front' | 'top' | 'right'; offset: number; flip: boolean; cap: boolean; [k: string]: unknown } }[];
-  version: 1;
+  /** the file format (persistence FILE_VERSION); format 1 files are upgraded when opened */
+  version: 2;
   name: string;
   /** part (default), assembly or drawing */
   kind?: 'part' | 'assembly' | 'drawing';
@@ -1425,7 +1426,7 @@ export interface Document {
   snapshots?: { id: Id; name: string; quaternion: [number, number, number, number]; target: [number, number, number]; scale: number; image?: string }[];
   /** Lifecycle ▸ Comments: notes on the model or on a feature */
   comments?: { id: Id; featureId?: Id; text: string; author: string; date: string }[];
-  /** FeatureManager folders (Create New Folder / Add to New Folder) */
+  /** Feature Tree folders (Create New Folder / Add to New Folder) */
   featureFolders?: { id: Id; name: string; featureIds: Id[] }[];
   bodyFolders?: { id: Id; name: string; bodyIds: Id[] }[];
   /** Add to Favorites: the Favorites folder at the top of the tree */
@@ -1438,11 +1439,11 @@ export interface Document {
   boundingBox?: boolean;
   /** Weldments: the part is a weldment (cut list instead of Solid Bodies) */
   weldment?: boolean;
-  /** MBD Dimensions (DimXpert): datums, size/location dimensions and geometric tolerances */
-  dimxpert?: import('./dimxpert').DimXpertData;
+  /** MBD Dimensions (Auto Tolerancing): datums, size/location dimensions and geometric tolerances */
+  autoTolerance?: import('./autoTolerance').AutoToleranceData;
   /** Markup: freehand strokes over the graphics area (screen fractions 0..1), per document */
   markups?: { id: Id; color: string; points: [number, number][] }[];
-  /** Render Tools ▸ Edit Decal: images on planar faces (DisplayManager ▸ Decals) */
+  /** Render Tools ▸ Edit Decal: images on planar faces (Display Panel ▸ Decals) */
   decals?: Decal[];
   /** Reference Geometry ▸ Axis / Point / Coordinate System (shown in the tree after the planes) */
   refGeometry?: RefGeometry[];
@@ -1462,7 +1463,7 @@ export interface Document {
   scene?: {
     background: 'gradient' | 'white' | 'color' | 'studio';
     color?: string;
-    /** Environment: what RealView reflects (Studio Room, Courtyard, Warehouse, or none) */
+    /** Environment: what Realistic Shading reflects (Studio Room, Courtyard, Warehouse, or none) */
     environment?: 'studio' | 'courtyard' | 'warehouse' | 'none';
     /** Floor: reflections of the model, alignment (bottom of the model or the Top Plane) and offset */
     floorReflections?: boolean;
@@ -1492,14 +1493,14 @@ export interface Document {
   bodyMaterials?: Record<Id, { name: string; density: number; color: string }>;
   /** Sensors folder: mass-property sensors that show the current value in the tree */
   sensors?: { id: Id; name: string; kind: 'mass' | 'volume' | 'area' | 'dimension' | 'interference'; /** Dimension sensor: the dimension watched (D1@Sketch1) */ dim?: string; /** Notifications: alert when the value is above / below the limit */ alert?: { op: '>' | '<'; value: number } }[];
-  /** ConfigurationManager: named sets of dimension values and suppressed features (absent = only Default) */
+  /** Configurations panel: named sets of dimension values and suppressed features (absent = only Default) */
   configurations?: Configuration[];
   /** id of the active configuration (absent = the first one / Default) */
   activeConfiguration?: Id;
 }
 
 export function createDocument(name = 'Part1', kind: 'part' | 'assembly' | 'drawing' = 'part', sheet?: Partial<Pick<DrawingSheet, 'size' | 'landscape' | 'scale' | 'showFormat'>>): Document {
-  const doc: Document = { version: 1, name, units: 'mm', sketches: {}, features: [], planes: {}, variables: {}, equations: [] };
+  const doc: Document = { version: 2, name, units: 'mm', sketches: {}, features: [], planes: {}, variables: {}, equations: [] };
   if (kind === 'assembly') return { ...doc, kind, components: [], mates: [] };
   if (kind === 'drawing') return { ...doc, kind, sheets: [{ id: 'sheet1', name: 'Sheet1', size: sheet?.size ?? 'A4', landscape: sheet?.landscape ?? true, scale: sheet?.scale ?? [1, 2], showFormat: sheet?.showFormat ?? true, views: [], dimensions: [], notes: [], centerMarks: [] }] };
   return doc;

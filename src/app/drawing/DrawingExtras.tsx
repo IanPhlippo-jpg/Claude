@@ -2,13 +2,14 @@ import { magneticOrder } from '../../core/drawing/balloons';
 export { holeTableRows, tableGrid, freeSpot } from '../../core/drawing/tables';
 import { useMemo, useState } from 'react';
 import { useStore } from '../store';
+import { useShallow } from 'zustand/react/shallow';
 import { Button, NumberField } from '../../ui/components';
 import { modelBodies } from '../../core/drawing/sheet';
 import { createDocument, type Document, type DrawingSheet } from '../../core/document/types';
 import { newId } from '../../core/sketch/model';
 
 function Frame({ title, testid, children, actions, width = 440 }: { title: string; testid: string; children: React.ReactNode; actions: React.ReactNode; width?: number }) {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ setDialog: s.setDialog })));
   return (
     <div className="k-dialog-backdrop" onMouseDown={(e) => e.target === e.currentTarget && st.setDialog(null)} onKeyDown={(e) => { if (e.key === 'Escape') st.setDialog(null); e.stopPropagation(); }}>
       <div className="k-dialog" style={{ width }} role="dialog" aria-label={title} data-testid={testid}>
@@ -31,7 +32,7 @@ export function sheetModels(doc: Document): Document[] {
 
 /** Relative View: pick the face that looks at you and the face to the right; then click to place the view. */
 export function RelativeViewDialog() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ doc: s.doc, setDialog: s.setDialog, startModelView: s.startModelView, setModelViewSource: s.setModelViewSource, pushMessage: s.pushMessage })));
   const models = sheetModels(st.doc);
   const [mi, setMi] = useState(0);
   const model = models[mi];
@@ -89,7 +90,7 @@ export function insertModelInView(viewId: string, model: Document): void {
 
 /** Spell Checker: every note in an editable box with the spell checker of the system on. */
 export function SpellCheckDialog() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ doc: s.doc, applyDocument: s.applyDocument, setDialog: s.setDialog })));
   const sheet = sheetOf(st.doc);
   const [texts, setTexts] = useState<Record<string, string>>(() => Object.fromEntries((sheet?.notes ?? []).map((n) => [n.id, n.text])));
   const apply = () => {
@@ -109,7 +110,7 @@ export function SpellCheckDialog() {
 
 /** Linear Note Pattern: copies of a note in rows and columns. */
 export function LinearNotePatternDialog() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ doc: s.doc, applyDocument: s.applyDocument, setDialog: s.setDialog })));
   const sheet = sheetOf(st.doc);
   const notes = sheet?.notes ?? [];
   const [noteId, setNoteId] = useState(notes[notes.length - 1]?.id ?? '');
@@ -138,7 +139,7 @@ export function LinearNotePatternDialog() {
 
 /** General Table: rows and columns, then the cells are edited in this window. */
 export function GeneralTableDialog() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ doc: s.doc, insertGeneralTable: s.insertGeneralTable, setDialog: s.setDialog, setTableCell: s.setTableCell })));
   const sheet = sheetOf(st.doc);
   const tables = (sheet?.tables ?? []).filter((t) => t.kind === 'general');
   const [size, setSize] = useState({ rows: 3, cols: 3 });

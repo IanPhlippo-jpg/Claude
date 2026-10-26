@@ -1,11 +1,12 @@
 import { useStore } from '../store';
+import { useShallow } from 'zustand/react/shallow';
 import { Section } from '../../ui/components';
 import { Icon } from '../../ui/icons';
 import { FASTENER_NAMES, LENGTHS, METRIC, standardLength, type FastenerType } from '../../core/assembly/fasteners';
 
-/** Smart Fasteners PropertyManager, by design: Selection (holes), Series Components (groups), Properties (type, size, length). */
+/** Auto Fasteners Property Panel, by design: Selection (holes), Series Components (groups), Properties (type, size, length). */
 export function FastenerPM() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ fastenerEdit: s.fastenerEdit, commitSmartFasteners: s.commitSmartFasteners, cancelSmartFasteners: s.cancelSmartFasteners, updateFastenerSlot: s.updateFastenerSlot, doc: s.doc })));
   const fe = st.fastenerEdit;
   if (!fe) return null;
   return (

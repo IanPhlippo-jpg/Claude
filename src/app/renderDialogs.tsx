@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { useStore } from './store';
+import { useShallow } from 'zustand/react/shallow';
 import { NumberField, Section } from '../ui/components';
 import { Icon } from '../ui/icons';
 
-/** Render Tools ▸ Edit Scene PropertyManager (Basic): background, environment, floor, by design. */
+/** Render Tools ▸ Edit Scene Property Panel (Basic): background, environment, floor, by design. */
 export function ScenePM() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ sceneEdit: s.sceneEdit, doc: s.doc, setSceneEdit: s.setSceneEdit, setScene: s.setScene, show: s.show, toggleShow: s.toggleShow })));
   const [tab, setTab] = useState<'basic' | 'advanced' | 'illumination'>('basic');
   if (!st.sceneEdit) return null;
   const sc = st.doc.scene ?? { background: 'gradient' as const };
@@ -69,7 +70,7 @@ export function ScenePM() {
 
 /** Final Render window: the rendered image, Save Image, Close. */
 export function FinalRenderDialog() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ finalImage: s.finalImage, doc: s.doc, setFinalImage: s.setFinalImage })));
   if (!st.finalImage) return null;
   const save = () => {
     const a = document.createElement('a');

@@ -1,12 +1,13 @@
 import { fitActive } from '../viewport/bridge';
 import { useStore } from '../store';
+import { useShallow } from 'zustand/react/shallow';
 import { Icon } from '../../ui/icons';
 import { BigButton as Big, Group, SmallButton as Small } from './Ribbon';
 import { DRAWING_BLOCKS, startEmptyView } from '../drawing/DrawingExtras';
 
 /** View Layout tab of a drawing, by design. */
 export function ViewLayoutTab() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ drawingEdit: s.drawingEdit, selectedDrawingViewId: s.selectedDrawingViewId, startStandardThreeViews: s.startStandardThreeViews, cancelDrawingEdit: s.cancelDrawingEdit, startModelView: s.startModelView, startProjectedView: s.startProjectedView, startAuxView: s.startAuxView, startDrawingSection: s.startDrawingSection, startDetailView: s.startDetailView, dialog: s.dialog, setDialog: s.setDialog, startBrokenOut: s.startBrokenOut, startViewTool: s.startViewTool, startAltPosition: s.startAltPosition })));
   const de = st.drawingEdit;
   const hasView = !!st.selectedDrawingViewId;
   return (
@@ -39,7 +40,7 @@ export function ViewLayoutTab() {
 
 /** Annotation tab of a drawing. */
 export function AnnotationTab() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ drawingEdit: s.drawingEdit, cancelDrawingEdit: s.cancelDrawingEdit, startSymbol: s.startSymbol, startDrawingDimension: s.startDrawingDimension, startModelItems: s.startModelItems, dialog: s.dialog, setDialog: s.setDialog, drawingTool: s.drawingTool, setDrawingTool: s.setDrawingTool, startNote: s.startNote, startCenterMark: s.startCenterMark, insertBomTable: s.insertBomTable, insertHoleTable: s.insertHoleTable, addRevision: s.addRevision })));
   const de = st.drawingEdit;
   const sym = (k: NonNullable<typeof de>['symbolKind']) => ({
     active: de?.mode === 'symbol' && de.symbolKind === k,
@@ -87,7 +88,7 @@ export function AnnotationTab() {
 
 /** Sheet Format tab of a drawing. */
 export function SheetFormatTab() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ doc: s.doc, drawingEdit: s.drawingEdit, startTitleBlock: s.startTitleBlock, setDrawingEdit: s.setDrawingEdit, cancelDrawingEdit: s.cancelDrawingEdit, setSheet: s.setSheet, setDialog: s.setDialog })));
   const sheet = st.doc.sheets?.[0];
   return (
     <>

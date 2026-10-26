@@ -1,11 +1,12 @@
 import { useStore } from '../store';
+import { useShallow } from 'zustand/react/shallow';
 import { NumberField, Section } from '../../ui/components';
 import { dimensionTable } from '../../core/document/equations';
 import { Icon } from '../../ui/icons';
 
 /** Evaluate ▸ Sensor: Sensor Type Mass Properties with the property to watch; the sensor lands in the Sensors folder. */
 export function SensorPM() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ sensorEdit: s.sensorEdit, doc: s.doc, pushMessage: s.pushMessage, addSensor: s.addSensor, setSensorEdit: s.setSensorEdit })));
   const e = st.sensorEdit;
   if (!e) return null;
   const type = e.kind === 'dimension' ? 'dimension' : e.kind === 'interference' ? 'interference' : 'mass';

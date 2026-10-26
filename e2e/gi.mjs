@@ -16,7 +16,7 @@ page.on('pageerror', (e) => errors.push('pageerror: ' + e.message));
 page.on('console', (m) => { if (m.type() === 'error') errors.push('console: ' + m.text()); });
 const S = (fn, arg) => page.evaluate(fn, arg);
 const shot = (n) => page.screenshot({ path: `${OUT}/${n}.png` });
-const dx = () => S(() => window.__phlippoStore.getState().doc.dimxpert ?? null);
+const dx = () => S(() => window.__phlippoStore.getState().doc.autoTolerance ?? null);
 const pickFace = (pred, additive = false) => S(({ pred, additive }) => {
   const s = window.__phlippoStore.getState();
   const fn = new Function('f', `return ${pred}`);
@@ -84,7 +84,7 @@ await shot('gi3-mbd-tab');
 // Auto Dimension Scheme
 await page.click('.k-cm-big:has-text("Auto Dimension Scheme") .k-cm-main');
 await page.waitForTimeout(300);
-check('Auto Dimension Scheme PM: Settings (Prismatic/Turned, Plus and Minus/Geometric), Datum Selection, Scope', (await page.locator('[data-testid="dimxpert-pm"]').count()) === 1 && (await page.locator('[data-testid="dx-plusminus"]').isChecked()) && (await page.locator('.k-section-name:text-is("Datum Selection")').count()) === 1);
+check('Auto Dimension Scheme PM: Settings (Prismatic/Turned, Plus and Minus/Geometric), Datum Selection, Scope', (await page.locator('[data-testid="autoTolerance-pm"]').count()) === 1 && (await page.locator('[data-testid="dx-plusminus"]').isChecked()) && (await page.locator('.k-section-name:text-is("Datum Selection")').count()) === 1);
 await page.locator('[data-testid="dx-ok"]').click();
 await page.waitForTimeout(500);
 const d1 = await dx();
@@ -127,7 +127,7 @@ await page.locator('[data-testid="dx-ok"]').click();
 await page.waitForTimeout(400);
 const d3 = await dx();
 check('Geometric Tolerance ⏥ with datum A added', d3.gtols.length === 1 && d3.gtols[0].symbol === 'flatness' && d3.gtols[0].datums.join('') === 'A' && (await page.locator('[data-testid="dx-callout-gtol"]').count()) === 1, JSON.stringify(d3.gtols));
-await shot('gi6-dimxpert');
+await shot('gi6-autoTolerance');
 // Tolerance Stack-up Study message and Delete All Tolerances
 await page.click('.k-cm-small:has-text("Tolerance Sum")');
 await page.waitForTimeout(300);

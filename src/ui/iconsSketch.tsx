@@ -246,8 +246,8 @@ export const IconsSketch = {
       <path d="M13.5 3l-5 9h4l-2 8 7-11h-4z" fill={Y} stroke={YD} strokeWidth={0.9} />
     </svg>
   ),
-  /** Instant2D: a ruler on the sketch plane */
-  Instant2D: ({ size = 16, ...p }: P) => (
+  /** Drag Dimensions: a ruler on the sketch plane */
+  DragDimensions: ({ size = 16, ...p }: P) => (
     <svg {...base(size, p)}>
       <path d="M3 18l5-11h13l-5 11z" fill="#dfe3e8" stroke={D} strokeWidth={1} />
       <g transform="rotate(-35 12 11)">

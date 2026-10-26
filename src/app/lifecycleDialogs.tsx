@@ -1,6 +1,7 @@
 import { bridge } from './viewport/bridge';
 import { useEffect, useRef, useState } from 'react';
 import { useStore } from './store';
+import { useShallow } from 'zustand/react/shallow';
 import { Button } from '../ui/components';
 import { Icon } from '../ui/icons';
 import { addComment, downloadText, mirrorComponents, packAndGoFiles } from './assemblyCommands';
@@ -8,7 +9,7 @@ import { serializeDocument } from '../core/document/persistence';
 import { newId } from '../core/sketch/model';
 
 function Frame({ title, testid, children, actions, width = 420 }: { title: string; testid: string; children: React.ReactNode; actions: React.ReactNode; width?: number }) {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ setDialog: s.setDialog })));
   return (
     <div className="k-dialog-backdrop" onMouseDown={(e) => e.target === e.currentTarget && st.setDialog(null)} onKeyDown={(e) => { if (e.key === 'Escape') st.setDialog(null); e.stopPropagation(); }}>
       <div className="k-dialog" style={{ width }} role="dialog" aria-label={title} data-testid={testid}>
@@ -22,7 +23,7 @@ function Frame({ title, testid, children, actions, width = 420 }: { title: strin
 
 /** Mirror Components: the mirror plane and the components to mirror (Copy). */
 export function MirrorComponentsDialog() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ doc: s.doc, selectedFeatureId: s.selectedFeatureId, setDialog: s.setDialog, pushMessage: s.pushMessage })));
   const comps = st.doc.components ?? [];
   const [plane, setPlane] = useState('right');
   const [pick, setPick] = useState<string[]>(st.selectedFeatureId && comps.some((c) => c.id === st.selectedFeatureId) ? [st.selectedFeatureId] : []);
@@ -50,7 +51,7 @@ export function MirrorComponentsDialog() {
 
 /** Pack and Go: the assembly and all its parts as separate files. */
 export function PackAndGoDialog() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ setDialog: s.setDialog, pushMessage: s.pushMessage })));
   const files = packAndGoFiles();
   const [prefix, setPrefix] = useState('');
   const save = async () => {
@@ -74,7 +75,7 @@ export function PackAndGoDialog() {
 
 /** Share: a copy of the model, a picture of the view, or the picture on the clipboard. */
 export function ShareDialog() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ setDialog: s.setDialog, doc: s.doc, pushMessage: s.pushMessage })));
   const snap = () => bridge.snapshot?.() ?? null;
   return (
     <Frame title="Share" testid="share" actions={<Button onClick={() => st.setDialog(null)}>Close</Button>}>
@@ -89,7 +90,7 @@ export function ShareDialog() {
 
 /** Comments: notes on the model or on the selected feature/component. */
 export function CommentsDialog() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ doc: s.doc, selectedFeatureId: s.selectedFeatureId, setDialog: s.setDialog })));
   const [text, setText] = useState('');
   const list = st.doc.comments ?? [];
   const target = st.selectedFeatureId ? (st.doc.features.find((f) => f.id === st.selectedFeatureId)?.name ?? (st.doc.components ?? []).find((c) => c.id === st.selectedFeatureId)?.name) : null;
@@ -109,7 +110,7 @@ export function CommentsDialog() {
 
 /** Component Preview Window: the selected component on its own, in a separate window. */
 export function ComponentPreview() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ doc: s.doc, selectedFeatureId: s.selectedFeatureId, rebuild: s.rebuild, setDialog: s.setDialog })));
   const comp = (st.doc.components ?? []).find((c) => c.id === st.selectedFeatureId);
   const [img, setImg] = useState<string | null>(null);
   useEffect(() => {
@@ -126,7 +127,7 @@ export function ComponentPreview() {
 
 /** Markup: freehand pen strokes over the graphics area, kept with the document. */
 export function MarkupLayer() {
-  const st = useStore();
+  const st = useStore(useShallow((s) => ({ markupMode: s.markupMode, doc: s.doc, applyDocument: s.applyDocument })));
   const mode = st.markupMode;
   const ref = useRef<SVGSVGElement>(null);
   const [cur, setCur] = useState<[number, number][] | null>(null);

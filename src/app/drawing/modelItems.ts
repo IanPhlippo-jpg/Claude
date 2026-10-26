@@ -8,13 +8,13 @@ import { viewGeometry } from '../../core/drawing/sheet';
 import { dimensionDrawing } from '../viewport/annotations';
 import { newId } from '../../core/sketch/model';
 
-/** The dimension types the Model Items PropertyManager can import. */
+/** The dimension types the Model Items Property Panel can import. */
 export interface ModelItemsOptions {
   /** 'Marked for drawing' sketch dimensions (all driving sketch dimensions here) */
   sketchDims: boolean;
   /** feature dimensions such as the depth of an extrusion */
   featureDims: boolean;
-  /** Hole Wizard / circle diameters are imported as diameter dimensions */
+  /** Hole Tool / circle diameters are imported as diameter dimensions */
   holeDims: boolean;
   /** Include items from hidden features (a hidden sketch); off: only shown sketches */
   includeHidden?: boolean;

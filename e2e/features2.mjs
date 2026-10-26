@@ -1,5 +1,5 @@
 // Features that were "later": Reference Axis / Point / Coordinate System, Curve / Table / Fill / Variable Pattern,
-// Split Line, Projected Curve, Advanced Hole, Stud Wizard, Offset On Surface.
+// Split Line, Projected Curve, Advanced Hole, Stud Tool, Offset On Surface.
 import { chromium } from 'playwright';
 import { exitCode, skip } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
@@ -114,7 +114,7 @@ await page.waitForTimeout(1200);
 st = await S();
 check('Projected Curve lies on the body (a 3D curve)', st.feats.some((f) => f.type === 'projectedCurve') && !Object.keys(st.errors).length, JSON.stringify(st.errors));
 
-// Advanced Hole with a far side countersink, Stud Wizard
+// Advanced Hole with a far side countersink, Stud Tool
 const v2 = await vol();
 await page.evaluate((f) => { const s = window.__phlippoStore.getState(); s.setSelectedFace(f); s.startHole(true); s.addHolePoint({ x: 12, y: 12 }); s.commitFeature(); }, await topFace());
 await page.waitForTimeout(1500);
@@ -125,7 +125,7 @@ await page.evaluate((f) => { const s = window.__phlippoStore.getState(); s.setSe
 await page.waitForTimeout(1500);
 const v4 = await vol();
 st = await S();
-check('Stud Wizard adds an M6 x 20 stud', st.feats.some((f) => f.type === 'stud') && v4 > v3 + 400 && !Object.keys(st.errors).length, JSON.stringify({ v3, v4, e: st.errors }));
+check('Stud Tool adds an M6 x 20 stud', st.feats.some((f) => f.type === 'stud') && v4 > v3 + 400 && !Object.keys(st.errors).length, JSON.stringify({ v3, v4, e: st.errors }));
 
 // Offset On Surface
 await page.evaluate((f) => { const s = window.__phlippoStore.getState(); s.setOffsetSurfEdit({ distance: 3, reverse: false }); s.setSelectedFace(f); }, await topFace());

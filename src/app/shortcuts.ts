@@ -15,7 +15,7 @@ export interface Shortcut {
 /**
  * Keyboard shortcuts as in the desktop original (help: "Selected Keyboard Shortcuts" and
  * the commonly-used list). Sketch tools have no single-letter keys except L (Line); use
- * the S shortcut bar or the CommandManager for the others.
+ * the S shortcut bar or the Command Ribbon for the others.
  */
 export const SHORTCUTS: Shortcut[] = [
   { keys: 'L', label: 'Line', group: 'Sketch' },
@@ -161,7 +161,7 @@ export function useShortcuts(handlers: { save: () => void; open: () => void; sho
         withUnsavedCheck(() => useStore.getState().setDialog('new'));
         return;
       }
-      // Enter outside a sketch / command / dialog: the last CommandManager command runs again, by design
+      // Enter outside a sketch / command / dialog: the last Command Ribbon command runs again, by design
       if (e.key === 'Enter' && !ctrl && !e.shiftKey && !e.altKey && st.hasDocument && !st.activeSketchId && !st.featureEdit && !st.dialog && !st.ask && !st.modify && !st.confirmDelete && st.lastCommand) {
         e.preventDefault();
         st.lastCommand.run();
