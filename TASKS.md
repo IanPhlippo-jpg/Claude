@@ -571,4 +571,4 @@ elease; README en docs/04 bijgewerkt
 - [x] F51 spike: OpenCascade (replicad + opencascade-wasm) in een worker; extrude, fillet op echte topologie, volume tegen de mesh-kern, tijd en bundelgrootte gemeten
 - [x] F51: STEP importeren (File ▸ Open / Insert ▸ Imported) en STEP exporteren via OpenCascade, zoals SOLIDWORKS
 - [x] Beslisdocument kern (docs/14) met meetwaarden en migratiepad
-- [ ] tsc, unit, regressie, desktop, installer 0.3.7, screenshots, commit + tag
+- [x] tsc, unit, regressie, desktop, installer 0.3.7, screenshots, commit + tag (regressie 82/82, unit 351, geïnstalleerd 9/9)
