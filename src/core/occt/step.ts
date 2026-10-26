@@ -110,6 +110,31 @@ export function meshToSolid(OC: OCInstance, positions: ArrayLike<number>, tolera
   return solid;
 }
 
+/** exact B-rep solids (and meshes for the rest) -> STEP (AP214) bytes */
+export async function shapesToStep(replicad: Replicad, items: ({ name: string; shape: any } | { name: string; positions: ArrayLike<number> })[], unit: 'mm' | 'cm' | 'm' | 'in' = 'mm'): Promise<{ bytes: Uint8Array; volumes: number[]; exact: number }> {
+  const OC = replicad.getOC() as OCInstance;
+  const shapes: { shape: any; name: string }[] = [];
+  const volumes: number[] = [];
+  let exact = 0;
+  for (const it of items) {
+    let shape: any;
+    if ('shape' in it) { shape = replicad.cast(it.shape); exact++; }
+    else {
+      const s = meshToSolid(OC, it.positions);
+      if (!s) continue;
+      shape = replicad.cast(s);
+    }
+    let v = 0;
+    try { v = replicad.measureVolume(shape); } catch { v = 0; }
+    if (v < 0) { shape = replicad.cast(shape.wrapped.Reversed()); v = -v; }
+    volumes.push(v);
+    shapes.push({ shape, name: it.name });
+  }
+  if (!shapes.length) throw new Error('none of the bodies is a closed solid');
+  const blob = replicad.exportSTEP(shapes, { unit: unit === 'in' ? 'inch' : unit, modelUnit: 'mm' });
+  return { bytes: new Uint8Array(await blob.arrayBuffer()), volumes, exact };
+}
+
 /** bodies -> STEP (AP214) bytes; the positions are in millimetres, `unit` is the length unit written in the file */
 export async function meshesToStep(replicad: Replicad, bodies: { name: string; positions: ArrayLike<number> }[], unit: 'mm' | 'cm' | 'm' | 'in' = 'mm'): Promise<{ bytes: Uint8Array; volumes: number[] }> {
   const OC = replicad.getOC() as OCInstance;

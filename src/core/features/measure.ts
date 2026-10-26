@@ -21,6 +21,14 @@ export interface MassProperties {
  * Volume, centroid and inertia of a closed mesh with the divergence theorem over its
  * triangles (signed tetrahedra from the origin): exact for the polyhedron.
  */
+/** the exact volume of a B-rep body corrects the tessellation's: mass and inertias scale with it (docs/14) */
+export function withExactVolume(m: MassProperties, exact?: number): MassProperties {
+  if (!exact || !(m.volume > 0)) return m;
+  const k = exact / m.volume;
+  const sc = (t: number[][]) => t.map((r) => r.map((v) => v * k));
+  return { ...m, volume: exact, mass: m.mass * k, inertiaOrigin: sc(m.inertiaOrigin), inertiaCentroid: sc(m.inertiaCentroid), principalMoments: m.principalMoments.map((v) => v * k) };
+}
+
 export function massProperties(g: THREE.BufferGeometry, density = 0.001): MassProperties {
   const ng = g.index ? g.toNonIndexed() : g;
   const a = ng.getAttribute('position');

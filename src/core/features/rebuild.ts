@@ -16,6 +16,8 @@ import { holeTool, mirrorGeometry, patternInstances, translated } from './patter
 import { curveInstances, fillInstances, tableInstances } from './patterns2';
 import { solveSketch } from '../solver/solver';
 import { splitBodySurface, splitFaces, type SplitRegions } from './splitline';
+import { brepKernel, type BrepKernel, type BrepShape } from './brepKernel';
+import { sketchContourRegions } from './regions';
 import { closedCornerTool, cornerReliefTool, findFace } from './smcorners';
 import { thickenSurface } from './surfaces';
 import { applyShellFromHistory, applyShellOutward, type BuildHistory } from './shell';
@@ -28,7 +30,7 @@ import { foldGeometry, sheetMapping, unfoldGeometry } from './unfold';
 import { wrapSplineTool, wrapTool } from './wrap';
 import { threadTool, type ThreadSpec } from './thread';
 import { baseFlangeGeometry, baseFlangeRegion, bendAllowance, DEFAULT_SHEET_METAL, edgeFlangeGeometry, flangeLeg, flangeSetback, flatPatternGeometry, hemFlangeParams, tabGeometry, type SheetMetalParams } from './sheetmetal';
-import type { DraftFeature, PatternFeature, RevolveFeature, EdgeFlangeFeature, HemFeature, JogFeature, MiterFlangeFeature, PlaneDef, SketchedBendFeature } from '../document/types';
+import type { DraftFeature, PatternFeature, RevolveFeature, EdgeFlangeFeature, HemFeature, HoleFeature, JogFeature, MiterFlangeFeature, PlaneDef, SketchedBendFeature } from '../document/types';
 import { chainEdges, classifyVent, formToolGeometry, gussetTools, ripTool, sweptFlangeRegions, tabSlotTools, ventTool } from './sheetmetal4';
 import { bodyEdges as bodyEdgesOf, matchEdge as matchEdgeRef } from './edgesets';
 import { pointDeform } from './deform';
@@ -40,6 +42,10 @@ export interface Body {
   faces: PlanarFace[];
   edges: BodyEdge[];
   featureIds: Id[];
+  /** built by the B-rep kernel up to the last feature (exact surfaces); absent = mesh kernel */
+  exact?: boolean;
+  /** the volume of the B-rep solid (mm³) when exact */
+  exactVolume?: number;
 }
 
 export interface RebuildResult {
@@ -58,6 +64,8 @@ export interface RebuildResult {
   extraAppearances?: NonNullable<Document['faceAppearances']>;
   /** Performance Evaluation: rebuild time per feature (ms) */
   times?: Record<Id, number>;
+  /** the B-rep solid of every exact body (only where a B-rep kernel is registered; the caller releases them) */
+  brep?: Record<Id, BrepShape>;
   /** Weldments: per body the cut list data (description, length, miter angles) and its kind */
   bodyMeta?: Record<Id, { kind: 'member' | 'cap' | 'gusset' | 'bead' | 'other'; description: string; length: number; angle1: number; angle2: number }>;
 }
@@ -758,6 +766,115 @@ export function setRebuildBudget(ms: number): void {
   rebuildBudgetMs = Math.max(0, ms);
 }
 
+/** the hole tool of holeTool() as an exact solid of revolution (same sizes; cylinders and cones are true surfaces) */
+function brepHoleTool(K: BrepKernel, f: HoleFeature, pl: PlaneDef, at: { x: number; y: number }, throughAll: number): BrepShape | null {
+  try {
+    const n: [number, number, number] = [-pl.n[0], -pl.n[1], -pl.n[2]];
+    const start: [number, number, number] = [pl.origin[0] + pl.u[0] * at.x + pl.v[0] * at.y, pl.origin[1] + pl.u[1] * at.x + pl.v[1] * at.y, pl.origin[2] + pl.u[2] * at.x + pl.v[2] * at.y];
+    const depth = f.depth > 0 ? f.depth : throughAll;
+    const EPS = 0.5;
+    const d2 = f.diameter / 2;
+    const parts: { t0: number; t1: number; r0: number; r1: number }[] = [{ t0: -EPS, t1: depth, r0: d2, r1: d2 }];
+    if (f.holeType === 'counterbore') {
+      const cbd = f.cbDepth + (f.headClearance ?? 0);
+      parts.push({ t0: -EPS, t1: cbd, r0: f.cbDiameter / 2, r1: f.cbDiameter / 2 });
+      if (f.underHeadCs && f.underHeadCs.diameter > f.diameter) {
+        const h = (f.underHeadCs.diameter / 2 - d2) / Math.tan((f.underHeadCs.angle * Math.PI) / 360);
+        parts.push({ t0: cbd - EPS, t1: cbd + h, r0: f.underHeadCs.diameter / 2, r1: d2 });
+      }
+    } else if (f.holeType === 'countersink') {
+      const r = f.csDiameter / 2;
+      const h = r / Math.tan((f.csAngle * Math.PI) / 360);
+      parts.push({ t0: -EPS, t1: h, r0: (r * (h + EPS)) / h, r1: 0 });
+    }
+    if (f.nearCs && f.nearCs.diameter > (f.holeType === 'counterbore' ? f.cbDiameter : f.diameter)) {
+      const r0 = (f.holeType === 'counterbore' ? f.cbDiameter : f.diameter) / 2;
+      const r = f.nearCs.diameter / 2;
+      const h = (r - r0) / Math.tan((f.nearCs.angle * Math.PI) / 360);
+      parts.push({ t0: -EPS, t1: h, r0: r + EPS * Math.tan((f.nearCs.angle * Math.PI) / 360), r1: r0 });
+    }
+    return K.axisymmetric(start, n, pl.u, parts);
+  } catch {
+    return null;
+  }
+}
+
+/** a fillet or chamfer the B-rep kernel builds: one constant size on picked edges (the other options: mesh kernel) */
+function brepRoundable(f: RoundFeature): boolean {
+  const plainType = !f.roundType || f.roundType === 'constant' || (f.type === 'chamfer' && f.roundType === 'angleDistance' && (f.angle ?? 45) === 45);
+  return plainType && !f.size2 && (!f.profile || f.profile === 'circular') && !f.radii?.length && !f.variable && !f.partial && !f.setback && (!f.overflow || f.overflow === 'default') && !f.internalOnly && f.tangentPropagation !== false && f.edges.length > 0 && f.size > 0;
+}
+
+/**
+ * The tool of a sketch-based feature as a B-rep solid, for the cases the B-rep kernel builds; null for the rest
+ * (the feature is then built by the mesh kernel). The extents are those of extrudeGeometry, without the overhang that
+ * the mesh kernel needs against coplanar faces.
+ */
+function brepTool(K: BrepKernel, doc: Document, f: Feature, extent: number, meshTool?: THREE.BufferGeometry): BrepShape | null {
+  if (f.type === 'sweep') {
+    // a sketch profile along a sketch path, following it (no twist, guides, tangency or circular profile yet)
+    if (f.profileType === 'circular' || f.twist || f.guides?.length || f.orientation === 'keepNormal' || f.alignEnd || (f.startTangency && f.startTangency !== 'none') || (f.endTangency && f.endTangency !== 'none')) return null;
+    const prof = doc.sketches[f.sketchId], path = doc.sketches[f.pathSketchId];
+    if (!prof || !path) return null;
+    const regions = sketchContourRegions(prof);
+    if (!regions.length) return null;
+    const shape = K.sweep(prof, resolvePlaneDef(doc, prof.plane), regions, path, resolvePlaneDef(doc, path.plane));
+    // the B-rep sweep must agree with the mesh kernel's (orientation conventions): else the mesh kernel builds it
+    if (shape && meshTool) {
+      const mv = Math.abs(meshVolume(meshTool)), bv = Math.abs(K.volume(shape));
+      if (!(mv > 0) || Math.abs(bv - mv) / mv > 0.03) return null;
+    }
+    return shape;
+  }
+  if (f.type !== 'extrude' && f.type !== 'revolve') return null;
+  const sketch = doc.sketches[f.sketchId];
+  if (!sketch || f.thin) return null;
+  let regions = sketchContourRegions(sketch);
+  if (f.contours && f.contours.length) regions = regions.filter((_, i) => f.contours!.includes(i));
+  if (!regions.length) return null;
+  const plane = resolvePlaneDef(doc, sketch.plane);
+  if (f.type === 'revolve') {
+    const ax = sketch.entities[f.axisEntityId];
+    if (!ax || ax.kind !== 'line') return null;
+    const axis: [{ x: number; y: number }, { x: number; y: number }] = [sketch.points[ax.p1], sketch.points[ax.p2]];
+    const a1 = Math.max(0.1, Math.min(360, f.angle)), a2 = f.direction2 ? Math.max(0, f.direction2.angle) : 0;
+    if (a1 + a2 >= 360 - 1e-9 && !(f.end === 'midPlane')) return K.revolve(sketch, plane, regions, axis, 360, 0);
+    // a partial turn: the side the mesh kernel turns to (start angle and sense), found by the centre of its tool
+    const cands = f.end === 'midPlane' ? [{ s: -a1 / 2, a: a1 }] : f.direction2 ? [{ s: -a2, a: a1 + a2 }, { s: -a1, a: a1 + a2 }] : [{ s: 0, a: a1 }, { s: -a1, a: a1 }];
+    if (cands.length === 1 || !meshTool) return K.revolve(sketch, plane, regions, axis, cands[0].a, cands[0].s);
+    meshTool.computeBoundingBox();
+    const target = meshTool.boundingBox!.getCenter(new THREE.Vector3());
+    let best: BrepShape | null = null, bd = Infinity;
+    for (const c of cands) {
+      const sh = K.revolve(sketch, plane, regions, axis, c.a, c.s);
+      if (!sh) continue;
+      const g = K.tessellate(sh);
+      g.computeBoundingBox();
+      const d = g.boundingBox!.getCenter(new THREE.Vector3()).distanceTo(target);
+      if (d < bd) { bd = d; best = sh; }
+    }
+    return best;
+  }
+  if (f.draft || f.flipSide || f.fromOffset || f.normalCut) return null;
+  const simple = ['blind', 'midPlane', 'throughAll', 'throughAllBoth'];
+  if (!simple.includes(f.end)) return null;
+  if (f.direction2 && !['blind', 'throughAll'].includes(f.direction2.end)) return null;
+  const d1 = f.end === 'throughAll' || f.end === 'throughAllBoth' ? extent : Math.max(0, f.depth);
+  const d2 = f.end === 'throughAllBoth' ? extent : f.direction2 ? (f.direction2.end === 'blind' ? Math.max(0, f.direction2.depth) : extent) : 0;
+  let zStart: number, total: number;
+  if (f.end === 'midPlane') {
+    zStart = -d1 / 2;
+    total = d1;
+  } else {
+    const a = f.reverse ? -d1 : d1;
+    const b = f.reverse ? d2 : -d2;
+    zStart = Math.min(0, a, b);
+    total = Math.max(0, a, b) - zStart;
+  }
+  if (total <= 1e-9) return null;
+  return K.extrude(sketch, plane, regions, zStart, total);
+}
+
 export function rebuildDocument(doc: Document, upTo: number | null = null): RebuildResult {
   const bodies: Body[] = [];
   const errors: Record<Id, string> = {};
@@ -787,11 +904,27 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
   /** Unfold … Fold: the body is flat in between */
   let unfolded = false;
   let bodySeq = 0;
-  const newBody = (g: THREE.BufferGeometry, fid: Id): Body => {
+  const newBody = (g: THREE.BufferGeometry, fid: Id, shape?: BrepShape | null): Body => {
     const b: Body = { id: `body${++bodySeq}`, geometry: g, faces: [], edges: [], featureIds: [fid] };
     bodies.push(b);
+    if (shape) setExact(b, shape);
     return b;
   };
+  // ---- B-rep kernel (docs/14): a body keeps its B-rep solid while every feature that changes it has a B-rep
+  // version; a feature without one works on the tessellation (mesh kernel) and the body is a mesh from then on
+  const K: BrepKernel | null = brepKernel();
+  const shapes = new Map<Body, { shape: BrepShape; geometry: THREE.BufferGeometry; version: number }>();
+  const posVersion = (g: THREE.BufferGeometry) => (g.getAttribute('position') as THREE.BufferAttribute | undefined)?.version ?? -1;
+  /** the B-rep solid of a body, when its geometry is still the tessellation of that solid */
+  const exactOf = (b: Body | undefined): BrepShape | null => {
+    if (!b) return null;
+    const e = shapes.get(b);
+    return e && e.geometry === b.geometry && e.version === posVersion(b.geometry) ? e.shape : null;
+  };
+  function setExact(b: Body, shape: BrepShape) {
+    b.geometry = K!.tessellate(shape);
+    shapes.set(b, { shape, geometry: b.geometry, version: posVersion(b.geometry) });
+  }
   const visibleBodies = () => bodies.filter((b) => !hiddenIds.has(b.id));
   const boxOf = (g: THREE.BufferGeometry) => {
     g.computeBoundingBox();
@@ -804,11 +937,28 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
   const scoped = (scope?: Id[]) => (scope && scope.length ? bodies.filter((b) => scope.includes(b.id)) : visibleBodies());
   const isEmpty = (g: THREE.BufferGeometry) => !g.getAttribute('position') || g.getAttribute('position').count < 3;
   /** boss material: merge into the bodies it touches (several touching bodies become one), else a new body */
-  const addMaterial = (tool: THREE.BufferGeometry, fid: Id, merge: boolean, scope?: Id[]) => {
+  const addMaterial = (tool: THREE.BufferGeometry, fid: Id, merge: boolean, scope?: Id[], toolShape?: BrepShape | null) => {
     const hits = merge ? touching(tool, scoped(scope)) : [];
     if (!hits.length) {
-      newBody(tool, fid);
+      newBody(tool, fid, toolShape);
       return;
+    }
+    // B-rep: every touched body is exact, so the union is exact too
+    if (K && toolShape && hits.every((b) => exactOf(b))) {
+      try {
+        let u = K.fuse(exactOf(hits[0])!, toolShape);
+        for (const other of hits.slice(1)) u = K.fuse(u, exactOf(other)!);
+        const main = hits[0];
+        setExact(main, u);
+        main.featureIds.push(fid);
+        for (const other of hits.slice(1)) {
+          main.featureIds.push(...other.featureIds);
+          bodies.splice(bodies.indexOf(other), 1);
+        }
+        return;
+      } catch {
+        /* the mesh kernel below */
+      }
     }
     // all booleans first, then the bodies change: a failure leaves every body as it was (F48)
     const main = hits[0];
@@ -822,13 +972,28 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
     }
   };
   /** cut material: subtract from the bodies the tool touches (Feature Scope, else Auto-select) */
-  const removeMaterial = (tool: THREE.BufferGeometry, fid: Id, scope?: Id[]): boolean => {
+  const removeMaterial = (tool: THREE.BufferGeometry, fid: Id, scope?: Id[], toolShape?: BrepShape | null): boolean => {
     const hits = touching(tool, scoped(scope));
     if (!hits.length) return false;
     // every cut is computed before any body changes: when the second body fails, the first is not left half cut (F48)
-    const results = hits.map((b) => csg(b.geometry, tool, 'subtract'));
+    // an exact body is cut by the B-rep tool (falling back to the mesh kernel when that fails)
+    const results = hits.map((b): { shape: BrepShape } | { mesh: THREE.BufferGeometry } => {
+      const ex = exactOf(b);
+      if (K && toolShape && ex) {
+        try {
+          return { shape: K.cut(ex, toolShape) };
+        } catch {
+          /* mesh kernel */
+        }
+      }
+      return { mesh: csg(b.geometry, tool, 'subtract') };
+    });
     hits.forEach((b, k) => {
-      b.geometry = results[k];
+      const r = results[k];
+      if ('shape' in r) {
+        if (K!.volume(r.shape) < 1e-9) { bodies.splice(bodies.indexOf(b), 1); return; }
+        setExact(b, r.shape);
+      } else b.geometry = r.mesh;
       b.featureIds.push(fid);
       if (isEmpty(b.geometry)) bodies.splice(bodies.indexOf(b), 1);
     });
@@ -1507,7 +1672,21 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
             }
           }
         }
-        target.geometry = f.outward ? applyShellOutward(target.geometry, f.thickness, f.faces) : applyShellFromHistory(target.geometry, f.thickness, f.faces, history, f.multi ?? []);
+        const exShell = exactOf(target);
+        const meshShell = f.outward ? applyShellOutward(target.geometry, f.thickness, f.faces) : applyShellFromHistory(target.geometry, f.thickness, f.faces, history, f.multi ?? []);
+        // B-rep shell (offset surfaces, true inner rounds): kept when it agrees with the mesh kernel's wall
+        let brepShell: BrepShape | null = null;
+        if (K && exShell && !f.multi?.length) {
+          try {
+            const sh = K.shell(exShell, f.faces, f.thickness, !!f.outward);
+            const mv = Math.abs(meshVolume(meshShell)), bv = Math.abs(K.volume(sh));
+            if (mv > 0 && Math.abs(bv - mv) / mv < 0.03) brepShell = sh;
+          } catch {
+            /* the mesh shell */
+          }
+        }
+        if (brepShell) setExact(target, brepShell);
+        else target.geometry = meshShell;
         // later features work on the shelled body
         history.boss = target.geometry;
         history.cuts = [];
@@ -2189,7 +2368,7 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
             if (out) exit = out.point.clone();
           }
           const tool = holeTool(f, pl, pt, extent);
-          removeMaterial(tool, f.id);
+          removeMaterial(tool, f.id, undefined, K && !f.farSide && !f.farCs ? brepHoleTool(K, f, pl, pt, extent) : null);
           history.cuts.push(tool);
           // Far side countersink (Options): the same as an Advanced Hole far side countersink
           const far = f.farSide ?? (f.farCs ? { kind: 'countersink' as const, diameter: f.farCs.diameter, depth: 0, angle: f.farCs.angle } : undefined);
@@ -2233,6 +2412,29 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
           errors[f.id] = `Boolean operation failed: ${(err as Error).message}`;
         }
         continue;
+      }
+      // B-rep fillet / chamfer with a constant size on an exact body: the faces of the round are true surfaces
+      if (K && brepRoundable(f)) {
+        let done = false;
+        for (const b of [body, ...visibleBodies().filter((x) => x !== body)]) {
+          const ex = exactOf(b);
+          if (!b || !ex) continue;
+          const edges = bodyEdges(b.geometry, b.id);
+          const matched = f.edges.map((ref) => matchEdge(edges, ref)).filter((e): e is BodyEdge => !!e);
+          if (!matched.length) continue;
+          try {
+            const shape = f.type === 'fillet' ? K.fillet(ex, matched, f.size) : K.chamfer(ex, matched, f.size);
+            setExact(b, shape);
+            b.featureIds.push(f.id);
+            const lost = f.edges.length - matched.length;
+            if (lost) errors[f.id] = `Warning: ${lost} of the ${f.edges.length} edge references could not be found after the rebuild; the feature uses the rest.`;
+            done = true;
+          } catch {
+            /* the mesh kernel below */
+          }
+          break;
+        }
+        if (done) continue;
       }
       // the body that owns the selected edges (the first one where they match)
       let target = body;
@@ -2589,18 +2791,27 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
       errors[f.id] = r.error ?? 'Could not build the feature.';
       continue;
     }
+    // the same tool as a B-rep solid, for the features the B-rep kernel builds (null: mesh kernel only)
+    let toolShape: BrepShape | null = null;
+    if (K) {
+      try {
+        toolShape = brepTool(K, doc, fx, extent, r.geometry);
+      } catch {
+        toolShape = null;
+      }
+    }
     const sf = f as SolidFeature & { op: 'boss' | 'cut'; merge?: boolean; scope?: Id[] };
     try {
       if (sf.op === 'boss') {
         // Merge result (default on): join the bodies the new material touches; off: a separate body
-        addMaterial(r.geometry, f.id, sf.merge !== false, sf.scope);
+        addMaterial(r.geometry, f.id, sf.merge !== false, sf.scope, toolShape);
         addBoss(r.geometry);
       } else {
         if (!body) {
           errors[f.id] = 'A cut needs an existing solid body.';
           continue;
         }
-        if (!removeMaterial(r.geometry, f.id, sf.scope)) {
+        if (!removeMaterial(r.geometry, f.id, sf.scope, toolShape)) {
           errors[f.id] = 'The cut does not touch any body (check the Feature Scope).';
           continue;
         }
@@ -2616,6 +2827,16 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
       times[f.id] = (times[f.id] ?? 0) + (clock() - t0);
     }
   }
+  const brep: Record<Id, BrepShape> = {};
+  for (const b of bodies) {
+    const ex = exactOf(b);
+    if (ex && K) {
+      b.exact = true;
+      brep[b.id] = ex;
+      try { b.exactVolume = K.volume(ex); } catch { /* the tessellation's volume is used */ }
+    }
+  }
+  K?.release(Object.values(brep));
   for (const b of bodies) {
     const sp = splits.get(b.id) ?? [];
     const r = splitFaces(b.geometry, planarFaces(b.geometry, b.id), sp);
@@ -2634,7 +2855,7 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
     curves.push({ id: 'bbox:top', name: 'Bounding Box', points: top, dashed: true, color: '#5a5a5a' });
     for (let i = 0; i < 4; i++) curves.push({ id: `bbox:v${i}`, name: 'Bounding Box', points: [bottom[i], top[i]], dashed: true, color: '#5a5a5a' });
   }
-  return { bodies, errors, consumedSketches, curves, surfaceBodies, extraAppearances, autoHidden, times, bodyMeta };
+  return { bodies, errors, consumedSketches, curves, surfaceBodies, extraAppearances, autoHidden, times, bodyMeta, ...(K ? { brep } : {}) };
 }
 
 

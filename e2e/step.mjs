@@ -56,7 +56,7 @@ const file = await dl;
 const buf = Buffer.concat(await (await file.createReadStream()).toArray());
 const text = buf.toString('utf8');
 check('Blok.step downloads as an ISO 10303-21 file with a closed solid', file.suggestedFilename() === 'Blok.step' && text.startsWith('ISO-10303-21;') && /MANIFOLD_SOLID_BREP/.test(text), `${file.suggestedFilename()} ${buf.length} bytes`);
-check('the cylinder of the hole is one face in the STEP, not facets (planar faces merged)', (text.match(/ADVANCED_FACE/g) ?? []).length < 200, String((text.match(/ADVANCED_FACE/g) ?? []).length));
+check('the part goes out as its B-rep: 7 faces, the hole a true cylinder (docs/14)', (text.match(/ADVANCED_FACE/g) ?? []).length === 7 && /CYLINDRICAL_SURFACE/.test(text), String((text.match(/ADVANCED_FACE/g) ?? []).length));
 
 // ---- File ▸ Open of the STEP: a new part with one Imported body of the same volume
 await page.setInputFiles('#phlippo-open-file', { name: 'Blok.step', mimeType: 'model/step', buffer: buf });

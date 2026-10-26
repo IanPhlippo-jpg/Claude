@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import { useStore } from './store';
 import { useShallow } from 'zustand/react/shallow';
 import { Icon } from '../ui/icons';
-import { combineMassProperties, faceMeasure, massProperties, massPropertiesInFrame, overrideMassProperties, polylineDistance } from '../core/features/measure';
+import { combineMassProperties, faceMeasure, massProperties, withExactVolume, massPropertiesInFrame, overrideMassProperties, polylineDistance } from '../core/features/measure';
 import { rebuildAssembly } from '../core/assembly/assembly';
 import { getPref, loadPrefs, savePrefs } from './prefs';
 import { activeConfiguration } from '../core/document/configurations';
@@ -56,7 +56,7 @@ export function MassPropertiesDialog() {
     const parts = bodies.filter((b) => !comps.some((c) => c.id === b.id && c.envelope)).map((b) => {
       const comp = comps.find((c) => c.id === b.id);
       const mat = comp ? comp.part.material : st.doc.bodyMaterials?.[b.id] ?? st.doc.material;
-      return massProperties(b.geometry, mat ? mat.density / 1e6 : DEFAULT_DENSITY);
+      return withExactVolume(massProperties(b.geometry, mat ? mat.density / 1e6 : DEFAULT_DENSITY), b.exactVolume);
     });
     let m = combineMassProperties(parts)!;
     // Show weld bead mass: welded corners add a bead (right-angle triangle, legs = sheet thickness) along their seam
@@ -158,7 +158,7 @@ export function MassPropertiesDialog() {
           )}
           {panel === 'override' && (
             <div className="k-mass-sub" data-testid="mass-override-panel">
-              <label className="k-check"><input type="checkbox" data-testid="mass-ov-mass" checked={ov.mass !== undefined} onChange={(e) => setOverride({ ...ov, mass: e.target.checked ? Number(((combineMassProperties(st.rebuild.bodies.map((b) => massProperties(b.geometry, st.doc.material ? st.doc.material.density / 1e6 : DEFAULT_DENSITY)))?.mass) ?? 0).toFixed(2)) : undefined })} /> Override mass</label>
+              <label className="k-check"><input type="checkbox" data-testid="mass-ov-mass" checked={ov.mass !== undefined} onChange={(e) => setOverride({ ...ov, mass: e.target.checked ? Number(((combineMassProperties(st.rebuild.bodies.map((b) => withExactVolume(massProperties(b.geometry, st.doc.material ? st.doc.material.density / 1e6 : DEFAULT_DENSITY), b.exactVolume)))?.mass) ?? 0).toFixed(2)) : undefined })} /> Override mass</label>
               {ov.mass !== undefined && <div className="k-pm-valuerow"><input className="k-input" type="number" data-testid="mass-ov-value" value={ov.mass} onChange={(e) => setOverride({ ...ov, mass: Math.max(0, Number(e.target.value)) })} /> <span>grams</span></div>}
               <label className="k-check"><input type="checkbox" checked={!!ov.centroid} onChange={(e) => setOverride({ ...ov, centroid: e.target.checked ? [0, 0, 0] : undefined })} /> Override center of mass</label>
               {ov.centroid && <div className="k-pm-valuerow">{(['X', 'Y', 'Z'] as const).map((l, i) => <label key={l} style={{ display: 'inline-flex', gap: 2, alignItems: 'center' }}>{l}<input className="k-input" style={{ width: 64 }} type="number" value={ov.centroid![i]} onChange={(e) => { const c = [...ov.centroid!] as [number, number, number]; c[i] = Number(e.target.value); setOverride({ ...ov, centroid: c }); }} /></label>)}</div>}

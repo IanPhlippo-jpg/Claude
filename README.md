@@ -44,6 +44,10 @@ Status per fase:
 8. Sheet metal (Base Flange/Tab, Edge Flange, Flatten met K-factor) — **basis gereed**; Hem/Jog/Miter/Unfold gepland
 7. Massa-eigenschappen en meten — **gereed** (Mass Properties, Measure); materialen en rendering gepland
 
+## Status 0.3.8 (2026-10-26)
+
+De modelleerfeatures bouwen met de B-rep-kern (OpenCascade) en vallen per feature terug op de mesh-kern: extrude en cut, revolve, sweep, Hole Tool, fillet, chamfer en shell geven exacte cilinders, kegels en afrondingen; Mass Properties en STEP-export gebruiken de exacte bodies; de hele Deurkruk (onderdelen en assembly) is exact. Uit te zetten in Tools ▸ Options ▸ Performance. Zie docs/15-brep-features-0.3.8.md.
+
 ## Status 0.3.7 (2026-10-26)
 
 STEP in en uit via OpenCascade (File ▸ Open van *.step/*.stp, Save As ▸ STEP AP214), in een eigen worker die pas bij het eerste gebruik laadt. Afrondingen en afschuiningen houden hun rand als een eerdere feature hem verschuift. Geen code signing (besluit): zie docs/14-brep-kern-0.3.7.md, met de metingen van de B-rep-spike en het migratiepad.

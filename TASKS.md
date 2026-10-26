@@ -572,3 +572,13 @@ elease; README en docs/04 bijgewerkt
 - [x] F51: STEP importeren (File ▸ Open / Insert ▸ Imported) en STEP exporteren via OpenCascade, zoals SOLIDWORKS
 - [x] Beslisdocument kern (docs/14) met meetwaarden en migratiepad
 - [x] tsc, unit, regressie, desktop, installer 0.3.7, screenshots, commit + tag (regressie 82/82, unit 351, geïnstalleerd 9/9)
+
+## Vervolg 39: features via OpenCascade, mesh-kern als terugval (2026-10-26)
+- [x] Contouren met hun entiteiten in volgorde (lijnen, bogen, cirkels) zodat een B-rep-draad exact is
+- [x] B-rep-kern (src/core/occt/brep.ts): profiel → vlak, extrude (blind, mid plane, through all, twee richtingen), fuse/cut, tesselleren
+- [x] rebuild.ts: per body een B-rep-vorm zolang elke feature ondersteund is; elke andere feature valt terug op de mesh-kern
+- [x] Fillet en chamfer (constante maat) op echte randen; revolve (boss/cut)
+- [x] Worker: rebuild met de B-rep-kern; de app vervangt de mesh-bodies door de exacte (selectie blijft kloppen)
+- [x] STEP-export uit de B-rep (echte cilinders, geen facetten) wanneer de body exact is
+- [x] Extra: Hole Tool (cilinders/kegels), gedeeltelijke revolve, sweep langs schetspad, shell (met volume-vangnet), assemblies uit exacte onderdelen, Mass Properties exact
+- [x] Unit tests per feature (volume, vlakken) en e2e; optie in Tools ▸ Options; regressie, desktop, installer 0.3.8 (unit 364, regressie 83/83, desktop 8/8 + 12/12 + delete)

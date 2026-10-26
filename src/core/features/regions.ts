@@ -1,5 +1,5 @@
 import type { Sketch, SketchPoint } from '../sketch/types';
-import { findContours } from '../sketch/contours';
+import { findContours, type Contour } from '../sketch/contours';
 
 /** A closed region of a sketch: an outer loop with zero or more holes (nested loops). */
 export interface Region {
@@ -26,11 +26,24 @@ function centroid(poly: SketchPoint[]): SketchPoint {
   return { x: x / poly.length, y: y / poly.length };
 }
 
-/**
- * Regions to extrude, like "Selected Contours" with everything selected: every closed
- * loop at an even nesting depth is a region; the loops directly inside it are its holes.
- */
-export function sketchRegions(s: Sketch): Region[] {
+/** a region with the contours it is made of (outer + holes), for an exact B-rep profile */
+export interface ContourRegion {
+  outer: Contour;
+  holes: Contour[];
+}
+
+/** the regions of a sketch with their contours, in the same order as sketchRegions (Selected Contours indices) */
+export function sketchContourRegions(s: Sketch): ContourRegion[] {
+  const { loops, parentOf, depth } = nesting(s);
+  const out: ContourRegion[] = [];
+  loops.forEach((c, i) => {
+    if (depth[i] % 2 !== 0) return;
+    out.push({ outer: c, holes: loops.filter((_, j) => parentOf[j] === i) });
+  });
+  return out;
+}
+
+function nesting(s: Sketch) {
   const loops = findContours(s)
     .filter((c) => c.points.length >= 3 && c.area > 1e-9)
     .sort((a, b) => b.area - a.area);
@@ -54,6 +67,15 @@ export function sketchRegions(s: Sketch): Region[] {
     }
     return d;
   });
+  return { loops, parentOf, depth };
+}
+
+/**
+ * Regions to extrude, like "Selected Contours" with everything selected: every closed
+ * loop at an even nesting depth is a region; the loops directly inside it are its holes.
+ */
+export function sketchRegions(s: Sketch): Region[] {
+  const { loops, parentOf, depth } = nesting(s);
   const out: Region[] = [];
   loops.forEach((c, i) => {
     if (depth[i] % 2 !== 0) return;

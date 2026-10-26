@@ -98,8 +98,11 @@ export function ExportOptionsDialog() {
       const g = b.geometry.index ? b.geometry.toNonIndexed() : b.geometry;
       return { name: `Body${i + 1}`, positions: new Float32Array(g.getAttribute('position').array) };
     });
+    const u = (unit ?? 'mm') as 'mm' | 'cm' | 'm' | 'in';
+    // a part goes through the B-rep rebuild (true cylinders and rounds); an assembly as sewn meshes
+    const part = st.doc.kind !== 'assembly' && st.doc.kind !== 'drawing' && getPref('perf.brepKernel') !== false;
     import('../core/occt/occtClient')
-      .then((m) => m.exportStep(list, (unit ?? 'mm') as 'mm' | 'cm' | 'm' | 'in'))
+      .then((m) => (part ? m.exportStepDoc(st.doc, useStore.getState().rollbackIndex, u) : m.exportStep(list, u)))
       .then(async ({ bytes, volumes }) => {
         const data = bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer;
         const save = async () => {

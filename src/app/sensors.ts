@@ -1,6 +1,6 @@
 import type { Document } from '../core/document/types';
 import type { Body } from '../core/features/rebuild';
-import { massProperties } from '../core/features/measure';
+import { massProperties, withExactVolume } from '../core/features/measure';
 import { dimensionTable } from '../core/document/equations';
 import { detectInterferences } from '../core/assembly/interference';
 
@@ -21,7 +21,7 @@ export function sensorReading(doc: Document, bodies: Body[], sn: Sensor): { valu
   for (const b of bodies) {
     const comp = (doc.components ?? []).find((c) => c.id === b.id);
     const bm = comp ? comp.part.material : doc.bodyMaterials?.[b.id] ?? doc.material;
-    const m = massProperties(b.geometry, bm ? bm.density / 1e6 : 0.001);
+    const m = withExactVolume(massProperties(b.geometry, bm ? bm.density / 1e6 : 0.001), b.exactVolume);
     mass += m.mass; volume += m.volume; area += m.area;
   }
   if (sn.kind === 'mass') return { value: mass, text: `${mass.toFixed(2)} grams` };

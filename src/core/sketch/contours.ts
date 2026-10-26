@@ -12,6 +12,9 @@ export interface Contour {
   points: SketchPoint[];
   area: number;
   entityIds: Id[];
+  /** the entities in order around the contour (rev: walked from its end to its start), for an exact B-rep wire;
+   *  absent when the polygon was cleaned (spurs) or comes from text */
+  path?: { id: Id; rev: boolean }[];
 }
 
 class DSU {
@@ -76,7 +79,7 @@ export function findContours(s: Sketch, tol = 1e-6): Contour[] {
     if (e.construction) continue;
     if (e.kind === 'circle' || e.kind === 'ellipse') {
       const poly = sampleEntity(s, e, 64).slice(0, -1);
-      out.push({ points: poly, area: Math.abs(polygonArea(poly)), entityIds: [eid] });
+      out.push({ points: poly, area: Math.abs(polygonArea(poly)), entityIds: [eid], path: [{ id: eid, rev: false }] });
     } else if (e.kind === 'text') {
       // every glyph outline and counter (the hole of an O) is a closed contour; nesting makes the holes
       for (const loop of entityLoops(s, e)) {
@@ -91,7 +94,7 @@ export function findContours(s: Sketch, tol = 1e-6): Contour[] {
       const a = dsu.find(e.points[0]), b = dsu.find(e.points[e.points.length - 1]);
       const poly = sampleEntity(s, e, 64);
       // a spline closed on itself is a contour of its own
-      if (a === b) out.push({ points: poly.slice(0, -1), area: Math.abs(polygonArea(poly.slice(0, -1))), entityIds: [eid] });
+      if (a === b) out.push({ points: poly.slice(0, -1), area: Math.abs(polygonArea(poly.slice(0, -1))), entityIds: [eid], path: [{ id: eid, rev: false }] });
       else edges.push({ id: eid, a, b, poly });
     }
   }
@@ -154,7 +157,7 @@ export function findContours(s: Sketch, tol = 1e-6): Contour[] {
     for (const i of face) pts.push(...halves[i].poly.slice(0, -1));
     // remove spurs (out-and-back runs) so the polygon is simple
     const same = (a: SketchPoint, b: SketchPoint) => Math.abs(a.x - b.x) < tol && Math.abs(a.y - b.y) < tol;
-    let changed = true;
+    let changed = true, cleaned = false;
     while (changed && pts.length > 3) {
       changed = false;
       for (let i = 0; i < pts.length; i++) {
@@ -163,12 +166,14 @@ export function findContours(s: Sketch, tol = 1e-6): Contour[] {
           const j = (i + 1) % pts.length;
           pts = pts.filter((_, k) => k !== i && k !== j);
           changed = true;
+          cleaned = true;
           break;
         }
       }
     }
     const area = polygonArea(pts);
-    if (area > tol) out.push({ points: pts, area, entityIds: [...new Set(face.map((i) => halves[i].edge.id))] });
+    const path = cleaned || new Set(face.map((i) => halves[i].edge.id)).size !== face.length ? undefined : face.map((i) => ({ id: halves[i].edge.id, rev: halves[i].from !== halves[i].edge.a }));
+    if (area > tol) out.push({ points: pts, area, entityIds: [...new Set(face.map((i) => halves[i].edge.id))], ...(path ? { path } : {}) });
   }
   return out;
 }

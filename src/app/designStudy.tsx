@@ -4,7 +4,7 @@ import { useShallow } from 'zustand/react/shallow';
 import { Button, NumberField } from '../ui/components';
 import { dimensionTable, setDimensionValues } from '../core/document/equations';
 import { rebuildDocument } from '../core/features/rebuild';
-import { massProperties } from '../core/features/measure';
+import { massProperties, withExactVolume } from '../core/features/measure';
 import { solveSketch } from '../core/solver/solver';
 import type { Document } from '../core/document/types';
 
@@ -18,7 +18,7 @@ function evaluate(doc: Document, dim: string, value: number, density: number): {
   const r = rebuildDocument(d);
   let mass = 0, volume = 0, area = 0;
   for (const b of r.bodies) {
-    const m = massProperties(b.geometry, density);
+    const m = withExactVolume(massProperties(b.geometry, density), b.exactVolume);
     mass += m.mass; volume += m.volume; area += m.area;
   }
   return { mass, volume, area, ok: Object.keys(r.errors).length === 0 };

@@ -4,6 +4,7 @@ import { applyUpAxis } from './viewport/camera';
 import { getPref } from './prefs';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { lazyNamed, preloadLazy } from './lazy';
+import { startBrepRefinement } from './brepRefine';
 import { useStore } from './store';
 import { useShallow } from 'zustand/react/shallow';
 import { desktop } from './desktop';
@@ -97,6 +98,8 @@ export function App() {
   useShortcuts(handlers);
   // the chunks of the Property Panel, the drawing view and the tree panels are fetched once the app has painted
   useEffect(() => { const t = window.setTimeout(preloadLazy, 300); return () => window.clearTimeout(t); }, []);
+  // the B-rep kernel refines every part rebuild in its worker (docs/14)
+  useEffect(() => startBrepRefinement(), []);
   // View ▸ Modify ▸ Up Axis: the saved choice applies to the standard views from the start
   useEffect(() => { applyUpAxis(getPref('view.upAxis') === 'Z' ? 'Z' : 'Y'); }, []);
   // the command catalog (Customize) reaches Save and the shortcut bar through these hooks

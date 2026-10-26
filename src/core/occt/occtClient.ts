@@ -44,3 +44,14 @@ export async function importStep(bytes: Uint8Array): Promise<StepBody[]> {
 export async function exportStep(bodies: { name: string; positions: Float32Array }[], unit: 'mm' | 'cm' | 'm' | 'in'): Promise<{ bytes: Uint8Array; volumes: number[] }> {
   return call({ op: 'export', bodies, unit }, bodies.map((b) => b.positions.buffer));
 }
+
+/** the rebuild of a part with the B-rep kernel: per body the exact tessellation (bodies that stayed exact) */
+export async function refineRebuild(doc: import('../document/types').Document, upTo: number | null): Promise<import('../../workers/occt.worker').RefinedBody[]> {
+  const r = await call<{ bodies: import('../../workers/occt.worker').RefinedBody[] }>({ op: 'rebuild', doc, upTo });
+  return r.bodies;
+}
+
+/** a part as STEP, rebuilt with the B-rep kernel: exact bodies keep their true surfaces (exact = how many) */
+export async function exportStepDoc(doc: import('../document/types').Document, upTo: number | null, unit: 'mm' | 'cm' | 'm' | 'in'): Promise<{ bytes: Uint8Array; volumes: number[]; exact: number }> {
+  return call({ op: 'exportDoc', doc, upTo, unit });
+}

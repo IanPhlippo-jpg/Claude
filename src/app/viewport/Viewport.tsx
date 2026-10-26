@@ -1,4 +1,4 @@
-import { combineMassProperties, massProperties } from '../../core/features/measure';
+import { combineMassProperties, massProperties, withExactVolume } from '../../core/features/measure';
 import { activeConfiguration, configurationByName } from '../../core/document/configurations';
 import { sectionBody, sectionPlaneOf, type SectionPlane } from '../../core/features/section';
 import { rebuildAssembly } from '../../core/assembly/assembly';
@@ -332,7 +332,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
   }, [st.featureEdit, st.rebuild]);
   const comPoint = useMemo(() => {
     if (!st.doc.centerOfMass || !st.rebuild.bodies.length) return null;
-    const list = st.rebuild.bodies.map((b) => massProperties(b.geometry, 0.001));
+    const list = st.rebuild.bodies.map((b) => withExactVolume(massProperties(b.geometry, 0.001), b.exactVolume));
     return combineMassProperties(list)?.centroid ?? null;
   }, [st.doc.centerOfMass, st.rebuild.bodies]);
   const previewCurves = useMemo(() => {

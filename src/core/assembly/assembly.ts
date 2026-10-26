@@ -423,6 +423,11 @@ export function solveMates(components: Component[], mates: Mate[], passes = 8): 
 
 const partCache = new WeakMap<Document, RebuildResult>();
 
+/** the exact (B-rep) rebuild of a part replaces its mesh rebuild in the cache (docs/14); the next assembly rebuild uses it */
+export function setPartRebuild(part: Document, r: RebuildResult): void {
+  partCache.set(part, r);
+}
+
 /** Rebuild of a part document, cached by document identity (documents are immutable). */
 export function partRebuild(part: Document): RebuildResult {
   let r = partCache.get(part);
@@ -576,7 +581,7 @@ export function rebuildAssembly(doc: Document): AssemblyRebuild {
     const rot = new THREE.Matrix3().setFromMatrix4(m);
     const g0 = src.geometry.clone().applyMatrix4(m);
     const g = hand ? flipWinding(g0) : g0;
-    bodies.push({ id: c.id, geometry: g, faces: src.faces.map((f) => transformFace(f, m, rot, c.id)), edges: src.edges.map((e) => transformEdge(e, m, rot, c.id)), featureIds: [c.id] });
+    bodies.push({ id: c.id, geometry: g, faces: src.faces.map((f) => transformFace(f, m, rot, c.id)), edges: src.edges.map((e) => transformEdge(e, m, rot, c.id)), featureIds: [c.id], ...(src.exact ? { exact: true, exactVolume: src.exactVolume } : {}) });
     // explode line: from the assembled to the exploded position of the component's centre (dashed, by design)
     if (off && off.lengthSq() > 1e-9 && !(doc.explodeSteps ?? []).some((s) => s.componentIds.includes(c.id) && s.angle && !s.distance)) {
       src.geometry.computeBoundingBox();

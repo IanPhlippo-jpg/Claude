@@ -66,6 +66,23 @@ const stepState = await page.evaluate(() => { const s = window.__phlippoStore.ge
 stepState.opens = await app.evaluate(() => globalThis.__stepOpens);
 if (!stepOk) console.log(consoleLog.slice(-8).join(' | '));
 check('a STEP file opens in the desktop app through the OpenCascade worker (F51)', stepOk && stepState.name === 'plate-hole' && stepState.bodies === 1, JSON.stringify(stepState));
+// docs/14: the B-rep kernel refines a part in the desktop app (the worker runs under app:// with its own policy)
+await page.evaluate(() => localStorage.setItem('phlippo.kernel', 'brep'));
+await page.evaluate(() => {
+  const K = window.__phlippoKit;
+  let sk = K.createSketch('s1', 'Sketch1', 'top');
+  const c = [[-20, -15], [20, -15], [20, 15], [-20, 15]];
+  for (let i = 0; i < 4; i++) sk = K.addLine(sk, { x: c[i][0], y: c[i][1] }, { x: c[(i + 1) % 4][0], y: c[(i + 1) % 4][1] })[0];
+  sk = K.addCircle(sk, { x: 0, y: 0 }, 5)[0];
+  const d = K.createDocument('Exact');
+  d.sketches = { s1: sk };
+  d.features = [{ id: 'k1', type: 'sketch', name: 'Sketch1', sketchId: 's1', suppressed: false }, { id: 'e1', type: 'extrude', name: 'Boss-Extrude1', sketchId: 's1', suppressed: false, op: 'boss', end: 'blind', depth: 8, reverse: false }];
+  window.__phlippoStore.getState().openDocument(d);
+});
+await page.locator('[data-testid="ask-no"]').click({ timeout: 3000 }).catch(() => undefined);
+const exactOk = await page.waitForFunction(() => window.__phlippoStore.getState().rebuild.bodies.some((b) => b.exact), null, { timeout: 60000 }).then(() => true, () => false);
+const ev = await page.evaluate(() => window.__phlippoStore.getState().rebuild.bodies[0]?.exactVolume ?? 0);
+check('a part becomes an exact B-rep body in the desktop app (docs/14)', exactOk && Math.abs(ev - (40 * 30 * 8 - Math.PI * 25 * 8)) < 1e-6, String(ev));
 await app.close();
 console.log(`\n${passed}/${passed + failed} checks passed`);
 process.exit(failed ? 1 : 0);
