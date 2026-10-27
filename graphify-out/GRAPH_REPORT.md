@@ -1,17 +1,17 @@
 # Graph Report - Claude  (2026-10-28)
 
 ## Corpus Check
-- 526 files · ~1,007,668 words
+- 526 files · ~1,007,835 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 15 file(s) not represented in the graph (top: .kcad 8, (none) 2, .css 2)
 
 ## Summary
-- 4626 nodes · 13270 edges · 192 communities (173 shown, 19 thin omitted)
+- 4626 nodes · 13273 edges · 192 communities (173 shown, 19 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 138 edges (avg confidence: 0.88)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `46fc2f35`
+- Built from commit: `46a1bd93`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -42,11 +42,11 @@
 - package.json
 - P2 (12)
 - Vergelijking met de video (lokale sessie, 2026-10-20)
-- sheetmetal.ts
+- planes.ts
 - evaluate.tsx
 - P3 (11)
 - Ribbon.tsx
-- meshVolume
+- solid.ts
 - viewlayout.mjs
 - MenuBar.tsx
 - rename-trademarks.cjs
@@ -63,7 +63,7 @@
 - prefs.ts
 - full.mjs
 - patterns2.ts
-- solid.ts
+- rebuild.ts
 - qa3.mjs
 - build
 - scripts
@@ -75,7 +75,7 @@
 - occt.worker.ts
 - compilerOptions
 - Phlippo CAD — QA-rapport v0.4.8
-- rebuild.ts
+- rebuildDocument
 - assembly/assembly.ts
 - occt-spike.mjs
 - annotations2.mjs
@@ -90,7 +90,7 @@
 - P3 — look en kwaliteit (17)
 - react
 - Vergelijking met de SOLIDWORKS-handleiding en aanpassingen
-- planes.ts
+- deform.test.ts
 - componentpattern.mjs
 - gg.mjs
 - editcomponent.mjs
@@ -341,9 +341,9 @@ Nodes (13): F100 · Major · Nieuw · Tests — desktop-nohooks niet in CI, F105
 Cohesion: 0.08
 Nodes (23): Doorgevoerd in de lokale sessie (2026-10-20, avond), Eindcondities Up To Next / Up To Surface / Offset From Surface (video 40) (2026-10-21), Evaluate en bestanden (2026-10-20, nacht), Fase 2 (2026-10-20, avond): 3D-features, Fase 3: Equations en Global Variables (2026-10-20, nacht), Fase 4: Assemblies (2026-10-20, nacht), Fase 5: Tekeningen (2026-10-21, nacht), Functionele fouten gezien tijdens het vastleggen (+15 more)
 
-### Community 26 - "sheetmetal.ts"
-Cohesion: 0.12
-Nodes (33): ExactJog, ExactMiter, polyArea(), base, P, baseFlangeGeometry(), baseFlangeLoop(), baseFlangeRegion() (+25 more)
+### Community 26 - "planes.ts"
+Cohesion: 0.16
+Nodes (17): cross(), dot(), norm(), planeOnFace(), referencePlane(), referencePlaneRaw(), rotate(), sub() (+9 more)
 
 ### Community 27 - "evaluate.tsx"
 Cohesion: 0.15
@@ -357,9 +357,9 @@ Nodes (12): F101 · Minor · Nieuw · Tests — clickall (en desktop-export/peek
 Cohesion: 0.16
 Nodes (24): startEmptyView(), ShareTab(), AnnotationTab(), SheetFormatTab(), ViewLayoutTab(), ASSEMBLY_TABS, BigButton(), BigProps (+16 more)
 
-### Community 30 - "meshVolume"
-Cohesion: 0.08
-Nodes (32): three-mesh-bvh, Interference, InterferenceOptions, touchDistance(), exportStl(), geometryFromPositions(), parseStl(), falloff() (+24 more)
+### Community 30 - "solid.ts"
+Cohesion: 0.06
+Nodes (51): three-mesh-bvh, Interference, InterferenceOptions, touchDistance(), exportStl(), geometryFromPositions(), parseStl(), deleteFaces() (+43 more)
 
 ### Community 31 - "viewlayout.mjs"
 Cohesion: 0.12
@@ -378,8 +378,8 @@ Cohesion: 0.06
 Nodes (92): App(), AppearanceDialog, BeamEstimateDialog, BodiesToKeepDialog, BomDialog, CheckDialog, CompareDialog, CustomizeDialog (+84 more)
 
 ### Community 35 - "three"
-Cohesion: 0.05
-Nodes (76): Blokken G-A t/m G-J: de laatste SOLIDWORKS-onderdelen uit de playlist-inventaris (0.3.3, 2026-10-25), Keuzes die afwijken van het origineel (bewust), Nieuwe testhaken en patronen, Per bevinding, QA-rapport v0.5.1 verwerkt (0.5.2), three, startFlangeProfile(), box() (+68 more)
+Cohesion: 0.07
+Nodes (52): Per bevinding, QA-rapport v0.5.1 verwerkt (0.5.2, 0.5.3), three, startFlangeProfile(), box(), bodyEdges(), CreaseSegment, creaseSegments() (+44 more)
 
 ### Community 36 - "devDependencies"
 Cohesion: 0.12
@@ -425,9 +425,9 @@ Nodes (8): errors, kinds(), lenC, nCon(), nEnt(), results, S(), sk()
 Cohesion: 0.22
 Nodes (15): holeTool(), MAX_PATTERN_INSTANCES, mirrorGeometry(), patternInstances(), rotatedAbout(), translated(), atLength(), curveInstances() (+7 more)
 
-### Community 47 - "solid.ts"
-Cohesion: 0.07
-Nodes (57): profileCheck(), FACE_TAG, jogOnBody(), miterFlangeOnBody(), positionShift(), sheetLineFrame(), sketchedBendOnBody(), sliceMeshLoops() (+49 more)
+### Community 47 - "rebuild.ts"
+Cohesion: 0.05
+Nodes (105): Blokken G-A t/m G-J: de laatste SOLIDWORKS-onderdelen uit de playlist-inventaris (0.3.3, 2026-10-25), Keuzes die afwijken van het origineel (bewust), Nieuwe testhaken en patronen, B-rep: eindcondities, thin, rib en plaatwerk-basis → 0.4.0 (2026-10-26), Bewijs, profileCheck(), isReferencePlane(), brepTool() (+97 more)
 
 ### Community 48 - "qa3.mjs"
 Cohesion: 0.20
@@ -473,9 +473,9 @@ Nodes (10): compilerOptions, lib, module, moduleResolution, noEmit, skipLibCheck
 Cohesion: 0.18
 Nodes (10): 0. Versie en commit, 1. Oordeel, 2. GO-voorwaarden, 3. Top 5, 4. Testresultaten, 5. Verbeteringen sinds 0.3.4 (hoogtepunten), 6. Score per gebied (t.o.v. SOLIDWORKS 2026), 8. IP-risico (+2 more)
 
-### Community 59 - "rebuild.ts"
+### Community 59 - "rebuildDocument"
 Cohesion: 0.05
-Nodes (88): B-rep: eindcondities, thin, rib en plaatwerk-basis → 0.4.0 (2026-10-26), Bewijs, faceBoundary(), isReferencePlane(), brepHoleTool(), brepRoundable(), brepTool(), centroid3() (+80 more)
+Nodes (68): faceBoundary(), brepHoleTool(), brepRoundable(), crossBreakLines(), draftOnBody(), edgeFlangeOnBody(), flangeParams(), instanceMatrix() (+60 more)
 
 ### Community 60 - "assembly/assembly.ts"
 Cohesion: 0.07
@@ -533,9 +533,9 @@ Nodes (37): react, zustand, PALETTE, InterferenceDialog(), AssemblyTreeBody(), M
 Cohesion: 0.25
 Nodes (7): Derde ronde: afstemming op de YouTube-video's, Kleuren (tweede ronde), Naam en logo, Vergelijking met de SOLIDWORKS-handleiding en aanpassingen, Vierde ronde: iconen, triade, tekst, Vijfde ronde: functionele controle, relatie-iconen, Design Library, YouTube-video's
 
-### Community 74 - "planes.ts"
-Cohesion: 0.38
-Nodes (10): cross(), dot(), norm(), planeOnFace(), referencePlane(), referencePlaneRaw(), rotate(), sub() (+2 more)
+### Community 74 - "deform.test.ts"
+Cohesion: 0.90
+Nodes (3): falloff(), pointDeform, subdivideOnce()
 
 ### Community 75 - "componentpattern.mjs"
 Cohesion: 0.20
@@ -937,7 +937,7 @@ Nodes (4): all, files(), isText(), literals()
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `State` connect `State` to `DrawingDimension`, `store.ts`, `ManagerPane.tsx`, `drawing.ts`, `bodyScene.ts`, `SketchPoint`, `Sketch`, `sketch.ts`, `sketch/types.ts`, `Viewport.tsx`, `sheetmetal.ts`, `MenuBar.tsx`, `annotations.ts`, `Document`, `prefs.ts`, `featuresSlice`, `QA-rapport (extern, 24-10-2026) en wat ermee gebeurde`, `PlaneDef`, `History`, `QA-rapport v0.3.3 verwerkt → 0.3.4 (2026-10-25)`?**
+- **Why does `State` connect `State` to `DrawingDimension`, `store.ts`, `ManagerPane.tsx`, `drawing.ts`, `bodyScene.ts`, `SketchPoint`, `Sketch`, `sketch.ts`, `sketch/types.ts`, `Viewport.tsx`, `MenuBar.tsx`, `annotations.ts`, `Document`, `prefs.ts`, `rebuild.ts`, `featuresSlice`, `QA-rapport (extern, 24-10-2026) en wat ermee gebeurde`, `PlaneDef`, `History`, `QA-rapport v0.3.3 verwerkt → 0.3.4 (2026-10-25)`?**
   _High betweenness centrality (0.133) - this node is a cross-community bridge._
 - **Are the 2 inferred relationships involving `rebuildDocument()` (e.g. with `F46: rebuild in een worker — haalbaarheid` and `Hoe het werkt`) actually correct?**
   _`rebuildDocument()` has 2 INFERRED edges - model-reasoned connections that need verification._
@@ -946,8 +946,8 @@ _Questions this graph is uniquely positioned to answer:_
 - **Should `State` be split into smaller, more focused modules?**
   _Cohesion score 0.00794392523364486 - nodes in this community are weakly interconnected._
 - **Why does `playwright` connect `playwright` to `ge.mjs`, `dwgopts.mjs`, `drawopts.mjs`, `section.mjs`, `gd.mjs`, `ga1.mjs`, `misc7.mjs`, `configurations.mjs`, `examples.check.test.ts`, `ga2.mjs`, `render.mjs`, `helix.mjs`, `package.json`, `draftcheck.mjs`, `gb.mjs`, `viewlayout.mjs`, `check.mjs`, `rebuildworker.mjs`, `sketchtools2.mjs`, `unfoldfold.mjs`, `rect3.mjs`, `blockf.mjs`, `full.mjs`, `endconditions.mjs`, `qa3.mjs`, `appearance2.mjs`, `annotations.mjs`, `hem.mjs`, `dialogopts.mjs`, `uptobody.mjs`, `wrap.mjs`, `annotations2.mjs`, `arcslot.mjs`, `deletekey2.mjs`, `annotations3.mjs`, `drawing.mjs`, `ellipsetext.mjs`, `reorder.mjs`, `sheetmetal2.mjs`, `sketch3d.mjs`, `slot.mjs`, `videos46.mjs`, `componentpattern.mjs`, `gg.mjs`, `editcomponent.mjs`, `skip`, `videos56.mjs`, `assembly.mjs`, `exitCode`, `thickness.mjs`, `deletekey.mjs`, `doorhandle.mjs`, `fixes1.mjs`, `drawingfix.mjs`, `rib.mjs`, `qa2.mjs`, `gh.mjs`, `qa1.mjs`, `features.mjs`, `pmsweep.mjs`, `asmcut.mjs`, `sketchtools.mjs`, `filletopts.mjs`, `gi.mjs`, `drawing2.mjs`, `corners.mjs`?**
-  _High betweenness centrality (0.093) - this node is a cross-community bridge._
+  _High betweenness centrality (0.091) - this node is a cross-community bridge._
 - **Should `model.ts` be split into smaller, more focused modules?**
   _Cohesion score 0.05793627010288682 - nodes in this community are weakly interconnected._
-- **Why does `three` connect `three` to `model.ts`, `store.ts`, `bridge.ts`, `newId`, `bodyScene.ts`, `Sketch`, `sweep.ts`, `sketch.ts`, `geometry.ts`, `Viewport.tsx`, `package.json`, `StatusBar.tsx`, `sheetmetal.ts`, `evaluate.tsx`, `meshVolume`, `useStore`, `faceOwner.ts`, `Document`, `evaluate2.ts`, `patterns2.ts`, `solid.ts`, `sheet.ts`, `featuresSlice`, `rebuild.ts`, `assembly/assembly.ts`, `motion.ts`, `react`, `export3d.ts`, `DraftAnalysisPM.tsx`, `PlaneDef`, `section.ts`, `modelItems.ts`, `refgeom.ts`, `DrawingSheetView.tsx`, `viewerExport.ts`?**
-  _High betweenness centrality (0.070) - this node is a cross-community bridge._
+- **Why does `three` connect `three` to `model.ts`, `store.ts`, `bridge.ts`, `newId`, `bodyScene.ts`, `Sketch`, `sweep.ts`, `sketch.ts`, `geometry.ts`, `Viewport.tsx`, `package.json`, `StatusBar.tsx`, `planes.ts`, `evaluate.tsx`, `solid.ts`, `useStore`, `faceOwner.ts`, `Document`, `evaluate2.ts`, `patterns2.ts`, `rebuild.ts`, `sheet.ts`, `featuresSlice`, `rebuildDocument`, `assembly/assembly.ts`, `motion.ts`, `react`, `deform.test.ts`, `export3d.ts`, `DraftAnalysisPM.tsx`, `PlaneDef`, `section.ts`, `modelItems.ts`, `refgeom.ts`, `DrawingSheetView.tsx`, `viewerExport.ts`?**
+  _High betweenness centrality (0.067) - this node is a cross-community bridge._

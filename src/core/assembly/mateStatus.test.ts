@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { readFileSync } from 'node:fs';
 import { solveMates } from './assembly';
 import { mateStatus } from './mateStatus';
 import { createDocument, type Component, type Mate, type MateRef } from '../document/types';
@@ -65,5 +66,12 @@ describe('mate status (QA v0.5.1 F108)', () => {
     const A = comp('A', true), B = comp('B', false, 30);
     const bare = { id: 'mx', type: 'distance', name: 'Distance1', refs: [{ componentId: 'A' }, { componentId: 'B' }], aligned: false, suppressed: false, value: 60 } as unknown as Mate;
     expect(mateStatus([A, B], [bare]).components.B).toBe('under');
+  });
+
+  it('the Deurkruk example has no conflicting mates: concentric screws flipped by their coincident mate are no conflict', () => {
+    const d = JSON.parse(readFileSync('voorbeelden/deurkruk/Deurkruk.kcad', 'utf8'));
+    const st = mateStatus(solveMates(d.components, d.mates), d.mates);
+    expect(st.violated.size).toBe(0);
+    expect(Object.values(st.components).filter((x) => x === 'over')).toHaveLength(0);
   });
 });

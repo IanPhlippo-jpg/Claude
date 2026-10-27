@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import type { Component, Mate } from '../document/types';
 import type { Id } from '../sketch/types';
-import { groundDistance, movingSide, solveMate } from './assembly';
+import { groundDistance, movingSide, solveMate, worldRef } from './assembly';
 
 /**
  * The state of the mates of an assembly, as the intended design shows it (QA v0.5.1 F108):
@@ -24,6 +24,13 @@ const EPS = 1e-3;
 
 /** how far a mate would move its moving component: 0 when the mate is met */
 function mateError(m: Mate, a: Component, b: Component, ground: Map<Id, number>): number {
+  // concentric: the two axes on one line, whichever way each points (the direction of a cylinder's axis follows how
+  // the face was picked, so a flip that another mate settles is no conflict)
+  if (m.type === 'concentric' && !m.lockRotation) {
+    const A = worldRef(m.refs[0], a), B = worldRef(m.refs[1], b);
+    const n = A.n.clone().normalize(), off = B.p.clone().sub(A.p);
+    return (1 - Math.abs(n.dot(B.n.clone().normalize()))) * 50 + off.sub(n.multiplyScalar(off.dot(n))).length();
+  }
   const idx = movingSide(a, b, ground);
   const mov = idx === 1 ? b : a, fix = idx === 1 ? a : b;
   return poseDelta(mov, solveMate(m, fix, mov, idx));

@@ -336,9 +336,9 @@
     "semantic_hash": ""
   },
   "package.json": {
-    "mtime": 1793141979.821723,
-    "seen": 1793142025.110546,
-    "ast_hash": "c3b5bd9f1d85e2686b4af145fdbbd4fa",
+    "mtime": 1793142596.1483572,
+    "seen": 1793142619.653506,
+    "ast_hash": "7b81a2e532fdc63d9663e39d729fbcf9",
     "semantic_hash": ""
   },
   "src/app/App.tsx": {
@@ -1272,9 +1272,9 @@
     "semantic_hash": ""
   },
   "TASKS.md": {
-    "mtime": 1793141987.7062883,
-    "seen": 1793142025.110546,
-    "ast_hash": "0efcdab2eea27da8fc29fef9710588d4",
+    "mtime": 1793142596.2908034,
+    "seen": 1793142619.653506,
+    "ast_hash": "25d297369f73f687b7d2a2e489f5564f",
     "semantic_hash": ""
   },
   "docs/01-research.md": {
@@ -3408,15 +3408,15 @@
     "semantic_hash": ""
   },
   "src/core/assembly/mateStatus.test.ts": {
-    "mtime": 1793141822.9078941,
-    "seen": 1793142025.110546,
-    "ast_hash": "a01b3d990e842f24637c404afa8e8237",
+    "mtime": 1793142311.824697,
+    "seen": 1793142619.653506,
+    "ast_hash": "d6e5adfe591e167ab8be415e97f48a15",
     "semantic_hash": ""
   },
   "src/core/assembly/mateStatus.ts": {
-    "mtime": 1793141822.9078941,
-    "seen": 1793142025.110546,
-    "ast_hash": "dc3b79d26c4a7a9f8149530dac92ccc4",
+    "mtime": 1793142292.9464786,
+    "seen": 1793142619.653506,
+    "ast_hash": "4d8c8b1c25eaa73fec8b39e072edbac9",
     "semantic_hash": ""
   },
   "src/core/drawing/autoMarks.test.ts": {
@@ -3456,9 +3456,9 @@
     "semantic_hash": ""
   },
   "docs/25-qa-rapport-v0.5.1.md": {
-    "mtime": 1793138996.3499455,
-    "seen": 1793139135.343581,
-    "ast_hash": "a677f85a7a2dce77fda4fd14bfad8706",
+    "mtime": 1793142596.2751424,
+    "seen": 1793142619.653506,
+    "ast_hash": "0ebb00e1d1250e72ed1b2e452a121213",
     "semantic_hash": ""
   },
   "qa-rapporten/QA-rapport-0.5.1.md": {

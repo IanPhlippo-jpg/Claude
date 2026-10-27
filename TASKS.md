@@ -761,4 +761,5 @@ elease; README en docs/04 bijgewerkt
 - [ ] Dome, Indent, Mounting Boss (F121) — volgende ronde; Instant3D als Drag Handles vastgelegd in docs/25
 - [x] SW-Density → Density met migratie, SW- in de merknamentest (F116); Weldments blijft (vakwoord, F50); 3D ContentCentral hernoemd (F131/F132)
 - [x] Afwerking: code-splitting, hoofdbundel 919 → 827 kB (F118); auto-centermarks bij nieuwe aanzichten + weergavestijl uit Options (F122); schetsrelaties Intersection, Merge, Equal Curvature (F123; Along X/Y/Z blijft de oriëntatie tijdens 3D-schetsen); WebGL-melding (F115)
-- [~] Regressie (Windows 94/95 → qa3 opgelost, B-rep 11/11, worker 6/6), installer, commit, push
+- [x] Regressie (Windows 94/95 → qa3 opgelost, B-rep 11/11, worker 6/6), installer 0.5.2, commit, push
+- [x] 0.5.3: concentric-conflict richting-onafhankelijk (Deurkruk vals Over Defined), test op het Deurkruk-voorbeeld
