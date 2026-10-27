@@ -61,7 +61,7 @@ export function ToleranceTreeBody() {
         </div>
       )}
       <TreeView nodes={nodes} />
-      {!dx && <p className="k-muted" data-testid="dx-empty" style={{ padding: 8, whiteSpace: 'normal', overflowWrap: 'anywhere', lineHeight: 1.35 }}>No tolerance scheme yet. The model dimensions above are listed for reference; run Auto Dimension Scheme or add datums and dimensions on the MBD Dimensions tab.</p>}
+      {!dx && <p className="k-muted" data-testid="dx-empty" style={{ padding: 8, whiteSpace: 'normal', overflowWrap: 'anywhere', lineHeight: 1.35 }}>No tolerance scheme yet. The model dimensions above are listed for reference; run Auto Dimension Scheme or add datums and dimensions on the Product Dimensions tab.</p>}
     </div>
   );
 }

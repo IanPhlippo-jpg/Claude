@@ -9,7 +9,7 @@ const literals = (src: string): string[] => {
   const code = src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:'"`\\])\/\/[^\n]*/g, '$1');
   return [...code.matchAll(/'((?:[^'\\\n]|\\.)*)'|"((?:[^"\\\n]|\\.)*)"|`((?:[^`\\]|\\.)*)`|>([^<>{}\n]*[A-Za-z][^<>{}\n]*)</g)].map((m) => m[1] ?? m[2] ?? m[3] ?? m[4] ?? '');
 };
-const NAMES = /\b(?:FeatureManager|PropertyManager|CommandManager|ConfigurationManager|DisplayManager|MotionManager|DimXpert|TolAnalyst|SimulationXpress|FeatureXpert|DraftXpert|Instant3D|RealView|SpeedPak|eDrawings|Hole Wizard|Toolbox|Design Library|Lifecycle and Collaboration|Smart Fasteners?|SOLIDWORKS)\b/;
+const NAMES = /\b(?:FeatureManager|PropertyManager|CommandManager|ConfigurationManager|DisplayManager|MotionManager|DimXpert|TolAnalyst|SimulationXpress|FeatureXpert|DraftXpert|Instant3D|RealView|SpeedPak|eDrawings|Hole Wizard|Toolbox|Design Library|Lifecycle and Collaboration|Smart Fasteners?|Pack and Go|MBD Dimensions?|SOLIDWORKS)\b/;
 // import paths and lower-case keys (prefs, ids, test ids) are code, not text
 const isText = (t: string) => !/^\.{1,2}\//.test(t) && !/^[a-z][\w.:-]*$/.test(t);
 const all = ['src/app', 'src/ui'].flatMap(files).map((f) => ({ f, texts: literals(readFileSync(f, 'utf8')).filter(isText) }));

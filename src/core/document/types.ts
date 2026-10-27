@@ -1446,7 +1446,7 @@ export interface Document {
   otherSheets?: DrawingSheet[];
   /** Assembly ▸ Take Snapshot: saved views (camera) with a thumbnail */
   snapshots?: { id: Id; name: string; quaternion: [number, number, number, number]; target: [number, number, number]; scale: number; image?: string }[];
-  /** Lifecycle ▸ Comments: notes on the model or on a feature */
+  /** Share ▸ Comments: notes on the model or on a feature */
   comments?: { id: Id; featureId?: Id; text: string; author: string; date: string }[];
   /** Feature Tree folders (Create New Folder / Add to New Folder) */
   featureFolders?: { id: Id; name: string; featureIds: Id[] }[];
@@ -1461,7 +1461,7 @@ export interface Document {
   boundingBox?: boolean;
   /** Weldments: the part is a weldment (cut list instead of Solid Bodies) */
   weldment?: boolean;
-  /** MBD Dimensions (Auto Tolerancing): datums, size/location dimensions and geometric tolerances */
+  /** Product Dimensions (Auto Tolerancing): datums, size/location dimensions and geometric tolerances */
   autoTolerance?: import('./autoTolerance').AutoToleranceData;
   /** Markup: freehand strokes over the graphics area (screen fractions 0..1), per document */
   markups?: { id: Id; color: string; points: [number, number][] }[];

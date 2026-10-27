@@ -16,13 +16,13 @@ export const RIBBON_TABS: { id: string; label: string }[] = [
   { id: 'sheetmetal', label: 'Sheet Metal' },
   { id: 'weldments', label: 'Weldments' },
   { id: 'evaluate', label: 'Evaluate' },
-  { id: 'mbd', label: 'MBD Dimensions' },
+  { id: 'mbd', label: 'Product Dimensions' },
   { id: 'render', label: 'Render Tools' },
   { id: 'addins', label: 'Phlippo Add-Ins' },
 ];
 export const QAT_BUTTONS = ['Home', 'New', 'Open', 'Save', 'Undo', 'Redo', 'Select', 'Rebuild', 'Options'];
 export const MENU_ITEMS: Record<string, string[]> = {
-  File: ['New…', 'Open…', 'Close', 'Save', 'Save As…', 'Print…', 'Pack and Go…', 'Exit'],
+  File: ['New…', 'Open…', 'Close', 'Save', 'Save As…', 'Print…', 'Package Files…', 'Exit'],
   Edit: ['Undo', 'Redo', 'Delete', 'Suppress', 'Unsuppress', 'Rebuild', 'Appearance ▸ Edit Appearance…'],
   View: ['Redraw', 'Display ▸ Zebra Stripes', 'Hide/Show ▸ Planes', 'Hide/Show ▸ Origins', 'Hide/Show ▸ Sketches', 'Lights and Cameras', 'Toolbars'],
   Insert: ['Boss/Base ▸ Extrude…', 'Boss/Base ▸ Revolve…', 'Cut ▸ Extrude…', 'Features ▸ Fillet/Round…', 'Features ▸ Shell…', 'Features ▸ Rib…', 'Features ▸ Combine…', 'Sheet Metal ▸ Vent…', 'Reference Geometry ▸ Plane…'],

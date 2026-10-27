@@ -6,3 +6,7 @@ losse debugscripts. Ze draaien tegen `vite preview` op 4173 en schrijven naar `e
 alleen op de ontwikkelmachine staan (referentieframes in `referentie-video/`). Start ze vanuit de projectmap:
 
     node e2e/tools/look-deurkruk.mjs
+
+De desktop-hulpscripts `desktop-export`, `desktop-peek` en `desktop-peek-autosave` lezen alleen de autosave of maken een
+schermafbeelding van de onverpakte shell (`electron .`, eerst `npm run build`); ze controleren niets en geven dus geen
+foutcode (QA F101).

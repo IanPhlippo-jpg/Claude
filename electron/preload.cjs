@@ -22,6 +22,9 @@ contextBridge.exposeInMainWorld('phlippoDesktop', {
   /** a .kcad opened from the Explorer (file association), also while the app runs */
   onOpenFile: on('file:opened'),
   setDirty: (value) => ipcRenderer.send('doc:dirty', !!value),
+  /** --self-test of the installed program (QA F97): the shell asks, the app answers with its result */
+  onSelfTest: on('self-test:run'),
+  selfTestDone: (result) => ipcRenderer.send('self-test:done', result),
   openFile: (filters) => ipcRenderer.invoke('file:open', filters),
   saveFile: (opts) => ipcRenderer.invoke('file:save', opts),
   saveFileAs: (opts) => ipcRenderer.invoke('file:saveAs', opts),

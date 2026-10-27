@@ -44,6 +44,18 @@ Status per fase:
 8. Sheet metal (Base Flange/Tab, Edge Flange, Flatten met K-factor) — **basis gereed**; Hem/Jog/Miter/Unfold gepland
 7. Massa-eigenschappen en meten — **gereed** (Mass Properties, Measure); materialen en rendering gepland
 
+## Status 0.4.9 (2026-10-27)
+
+Het QA-rapport over 0.4.8 is verwerkt (docs/22-qa-rapport-v0.4.8.md).
+- Tekeningpicks gebruiken overal 4 px (de Ø-maat faalde op Linux).
+- Pack and Go en MBD Dimensions heten nu Package Files en Product Dimensions.
+- De statusbalk toont "Faceted n/m" en STEP waarschuwt bij gefacetteerde solids.
+- De OpenCascade-oproepen hebben een time-out met herstart, en de ongebruikte solver-worker is weg.
+- `Phlippo CAD.exe --self-test` controleert de geïnstalleerde app: app://, WASM, extrude, fillet, STEP en een atomische save.
+- De CI draait de desktopchecks en een B-rep-pass.
+
+Eerlijkheidsnoot: de regressiecijfers van 0.3.5 tot en met 0.4.8 zijn Windows-cijfers. Op Linux faalde drawing.
+
 ## Status 0.4.8 (2026-10-28)
 
 Elke ribbonknop heeft een tooltip met beschrijving. Een nieuwe weldment krijgt de configuraties Default<As Machined> en Default<As Welded>; As Welded onderdrukt de snedes en gaten na de Weldment-feature.

@@ -36,6 +36,9 @@ export interface DesktopApi {
   onCloseRequested?(cb: () => void): () => void;
   /** a .kcad opened from the file manager (file association) */
   onOpenFile?(cb: (file: DesktopFile) => void): () => void;
+  /** the shell was started with --self-test (QA F97): run it and hand back the result */
+  onSelfTest?(cb: () => void): () => void;
+  selfTestDone?(result: import('./selfTest').SelfTestResult): void;
   /** tell the shell whether the document has unsaved changes (closing then asks first) */
   setDirty?(value: boolean): void;
   openFile(filters: { name: string; extensions: string[] }[]): Promise<DesktopFile | null>;

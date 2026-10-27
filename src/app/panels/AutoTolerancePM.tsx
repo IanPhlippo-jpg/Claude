@@ -5,7 +5,7 @@ import { Icon } from '../../ui/icons';
 import { GTOL_SYMBOLS, type AutoToleranceGtol } from '../../core/document/autoTolerance';
 
 /**
- * MBD Dimensions Property Panels, by design: Auto Dimension Scheme (Settings, Datum Selection, Scope), Datum,
+ * Product Dimensions Property Panels, by design: Auto Dimension Scheme (Settings, Datum Selection, Scope), Datum,
  * Size / Location Dimension, Pattern Feature and Geometric Tolerance. Faces are picked in the graphics area.
  */
 export function AutoTolerancePM() {

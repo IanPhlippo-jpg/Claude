@@ -50,6 +50,7 @@ export function StatusBar({ hint: hint0 }: { hint: string }) {
   const sketchName = sketch?.name ?? null;
   const status = sketchStatus(sketch, solve);
   const u = st.doc.units;
+  const faceted = st.rebuild.bodies.filter((b) => !b.exact).length;
   const coord = (v: number) => `${Math.round(v * 100) / 100}${u}`;
   const r2 = (v: number) => Math.round(v * 100) / 100;
   // the selection readout, as the intended status bar: a line's length, two points' distance (dX dY dZ), a circle's diameter and centre
@@ -127,6 +128,10 @@ export function StatusBar({ hint: hint0 }: { hint: string }) {
         </span>
       )}
       {st.doc.kind === 'drawing' && !st.activeSketchId && <span className="k-status-cell status under">Under Defined</span>}
+      {st.doc.kind !== 'drawing' && faceted > 0 && (
+        // bodies the B-rep kernel did not rebuild are shown (and written to STEP) as facets: say so (QA F99)
+        <span className="k-status-cell" data-testid="status-faceted" title={`${faceted} of ${st.rebuild.bodies.length} ${st.rebuild.bodies.length === 1 ? 'body is' : 'bodies are'} faceted (mesh kernel), not exact surfaces; STEP writes them as sewn facets.`}>Faceted {faceted}/{st.rebuild.bodies.length}</span>
+      )}
       <span className="k-status-cell">{!st.hasDocument ? '' : sketchName ? `Editing ${sketchName}` : (st.doc.kind === 'assembly' ? 'Editing Assembly' : st.doc.kind === 'drawing' ? `Editing ${st.doc.sheets?.[0]?.views.find((v) => v.id === st.selectedDrawingViewId)?.name ?? st.doc.sheets?.[0]?.name ?? 'Sheet1'}` : 'Editing Part')}</span>
       {st.doc.kind === 'drawing' && st.doc.sheets?.[0] && <span className="k-status-cell" data-testid="sheet-scale">{st.doc.sheets[0].scale[0]} : {st.doc.sheets[0].scale[1]}</span>}
       <span className="k-status-cell" style={{ position: 'relative' }}>

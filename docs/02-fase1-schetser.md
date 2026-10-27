@@ -25,7 +25,7 @@
 │  solver/solver.ts    – Levenberg-Marquardt, DOF/rang-analyse,        │
 │                        redundantie & conflictdetectie, drag-solve    │
 │  solver/linalg.ts    – Cholesky, RREF, nulruimte                     │
-│  solver/solverClient – sync voor kleine schetsen, web worker daarboven│
+│  solver/solver.ts    – synchroon (worker geschrapt in 0.4.9, F107)   │
 │  document/           – Document-type, History, .kcad-formaat         │
 └──────────────────────────────────────────────────────────────────────┘
 ```

@@ -221,14 +221,3 @@ export function solveSketch(sketch: Sketch, opts: SolveOptions = {}): SolveResul
     freePoints,
   };
 }
-
-/** Serializable form of the result (for workers). */
-export interface SolveResultWire extends Omit<SolveResult, 'freePoints'> {
-  freePoints: Id[];
-}
-export function toWire(r: SolveResult): SolveResultWire {
-  return { ...r, freePoints: [...r.freePoints] };
-}
-export function fromWire(r: SolveResultWire): SolveResult {
-  return { ...r, freePoints: new Set(r.freePoints) };
-}

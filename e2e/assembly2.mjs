@@ -1,6 +1,6 @@
 // Assembly commands that were "later": New Part / New Assembly / Copy with Mates, Mirror Components, Pattern Driven
 // Component Pattern, Assembly Features (Revolved Cut, Hole, Fillet, Belt/Chain), Reference Geometry, Make Multibody
-// Part, Take Snapshot, Large Assembly Settings, Component Preview, Pack and Go, Share, Markup, Comments, advanced mates.
+// Part, Take Snapshot, Large Assembly Settings, Component Preview, Package Files, Share, Markup, Comments, advanced mates.
 import { chromium } from 'playwright';
 import { exitCode, skip } from './lib/check.mjs';
 import { mkdirSync, readFileSync } from 'node:fs';
@@ -95,12 +95,12 @@ await page.waitForTimeout(300);
 check('Make Multibody Part asks first', (await page.locator('[data-testid="ask"]').count()) === 1);
 await page.keyboard.press('Escape');
 
-// Share tab: Pack and Go, Share, Markup, Comments
+// Share tab: Package Files, Share, Markup, Comments
 await page.click('.k-cm-tab:text-is("Share")');
-await page.click('.k-cm-big:has-text("Pack and Go")');
+await page.click('.k-cm-big:has-text("Package Files")');
 await page.waitForTimeout(300);
 const files = await page.locator('[data-testid="pack-files"] tbody tr').count();
-check('Pack and Go lists the assembly and its parts', files >= 5, String(files));
+check('Package Files lists the assembly and its parts', files >= 5, String(files));
 await page.click('[data-testid="packandgo"] button:has-text("Cancel")');
 await page.click('.k-cm-big:has-text("Share")');
 check('Share offers copy / picture / clipboard', (await page.locator('[data-testid="share"] .k-btn').count()) >= 3);

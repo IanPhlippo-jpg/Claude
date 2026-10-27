@@ -668,3 +668,16 @@ elease; README en docs/04 bijgewerkt
 - [x] Tests, regressie (86/86 met inventory47, unit 389), installer 0.4.6, screenshots, commit
 - [x] Release 0.4.7: unit 392, regressie 86/86, desktop, installer (Loft, Appearance, bochten in de boom, Segment, 3D-schets)
 - [x] Release 0.4.8: ribbon-tooltips voor alle knoppen, weldment-configuraties; unit 393, regressie 86/86, installer
+
+## QA-rapport 0.4.8 verwerken (2026-10-27)
+- [x] F10/F54/F102: drawing.mjs Ø35-plaatsing los van font/metriek, reload-check splitsen (views/notes vs maten); draaien met Linux-achtige Chromium (swiftshader)
+- [x] F93/F38: docs eerlijk: "Windows-regressie", Linux-status apart; README/docs/12 corrigeren
+- [x] F95: engines.node >=22 in package.json, .nvmrc 22
+- [x] F50/F94: Pack and Go → Package Files, MBD Dimensions → Product Dimensions (regex in uiText.test + rename-trademarks)
+- [x] F96: tooltip Tolerance Sum gelijk aan de dialoog; F101: clickall/peek/desktop-export exitCode
+- [x] F106/F107: occtClient- en solver-timeouts met herstart; solver-worker gebruiken of schrappen
+- [x] F99: exact/benadering-indicator per body + STEP-waarschuwing bij mesh-bodies
+- [x] F97/F100: desktop-installed uitbreiden (schets, extrude, fillet, STEP, Save onder app:// + WASM); desktop-nohooks in CI
+- [x] F105: CI-stap met phlippo.kernel=brep op features/fillet/step/bodies
+- [x] F104: blank.html-flits in migrateStorage; release 0.4.9 (unit, regressie, desktop, installer)
+- [ ] Open na 0.4.9: F98 pushen (beslissing Ian), F46 mesh-booleans naar een worker, F103 PropertyPanel splitsen, F47/F48 topologie

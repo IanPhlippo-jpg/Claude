@@ -42,13 +42,13 @@ export function AssemblyTab() {
   );
 }
 
-/** Lifecycle and Collaboration tab (assemblies), by design: sharing and packaging commands. */
-export function LifecycleTab() {
+/** Share tab (assemblies): sharing and packaging commands. */
+export function ShareTab() {
   const st = useStore(useShallow((s) => ({ dialog: s.dialog, setDialog: s.setDialog, markupMode: s.markupMode, setMarkupMode: s.setMarkupMode })));
   return (
     <>
       <Group>
-        <Big label="Pack and Go" icon={<Icon.Save />} active={st.dialog === 'packAndGo'} onClick={() => st.setDialog('packAndGo')} />
+        <Big label="Package Files" icon={<Icon.Save />} active={st.dialog === 'packAndGo'} onClick={() => st.setDialog('packAndGo')} />
         <Big label="Share" icon={<Icon.Open />} active={st.dialog === 'share'} onClick={() => st.setDialog('share')} />
         <Big label="Markup" icon={<Icon.Note />} active={!!st.markupMode} onClick={() => st.setMarkupMode(st.markupMode ? null : { color: '#d9363e' })} />
         <Big label="Comments" icon={<Icon.Note />} active={st.dialog === 'comments'} onClick={() => st.setDialog('comments')} />

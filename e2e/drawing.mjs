@@ -155,7 +155,10 @@ await waitState(() => !window.__phlippoStore.getState().drawingEdit);
 await page.click('.k-cm-big:has-text("Smart Dimension") .k-cm-main');
 await waitState(() => window.__phlippoStore.getState().drawingEdit?.mode === 'dimension');
 const topView = d.sheet.views.find((v) => v.type === 'top' || v.type === 'bottom');
-const circlePt = await px([topView.position[0] + 17.5, topView.position[1]]);
+// the hole as the view draws it (sheet coordinates), so the click lands on the drawn circle on every platform (F10)
+const topId = await page.evaluate(() => window.__phlippoStore.getState().doc.sheets[0].views.find((v) => v.type === 'top' || v.type === 'bottom').id);
+const hole = await page.evaluate((id) => window.__phlippoSheet.circles(id).find((c) => Math.abs(c.r - 17.5) < 1), topId);
+const circlePt = await px(hole ? [hole.c[0] + hole.r, hole.c[1]] : [topView.position[0] + 17.5, topView.position[1]]);
 await page.mouse.move(circlePt.x, circlePt.y);
 await page.waitForTimeout(100);
 await page.mouse.click(circlePt.x, circlePt.y);
@@ -168,7 +171,7 @@ await waitState(() => (window.__phlippoStore.getState().doc.sheets?.[0]?.dimensi
 d = await D();
 const dimOk = d.sheet.dims.length === 2 && d.sheet.dims[1].kind === 'diameter' && Math.abs(d.sheet.dims[1].value - 35) < 0.3;
 if (!dimOk) await shot('e43-fail-diameter');
-check('diameter Ø35 placed', dimOk, JSON.stringify({ picked, edit: d.edit, dims: d.sheet.dims, circlePt, topView: topView.position }));
+check('diameter Ø35 placed', dimOk, JSON.stringify({ picked, edit: d.edit, dims: d.sheet.dims, circlePt, hole, zoom: await page.evaluate(() => window.__phlippoSheet.zoom()), topView: topView.position }));
 await page.keyboard.press('Escape');
 // center mark
 await page.click('.k-cm-small:has-text("Center Mark")');
@@ -199,7 +202,9 @@ await page.waitForSelector('.k-sheet-host');
 // wait for the restored drawing itself, not a fixed time (F10)
 await page.waitForFunction(() => { const s = window.__phlippoStore.getState(); return s.doc.kind === 'drawing' && (s.doc.sheets?.[0]?.views.length ?? 0) === 3; }, undefined, { timeout: 10000 }).catch(skip('drawing: restored drawing'));
 d = await D();
-check('drawing restored after reload', d.kind === 'drawing' && d.sheet.views.length === 3 && d.sheet.dims.length === 2 && d.sheet.notes.length === 1, JSON.stringify({ k: d.kind, v: d.sheet && d.sheet.views.length, dims: d.sheet && d.sheet.dims.length, notes: d.sheet && d.sheet.notes.length }));
+check('drawing restored after reload (views, note)', d.kind === 'drawing' && d.sheet.views.length === 3 && d.sheet.notes.length === 1, JSON.stringify({ k: d.kind, v: d.sheet && d.sheet.views.length, notes: d.sheet && d.sheet.notes.length }));
+// the dimensions come back as they were placed: a failed Ø35 above is not counted a second time here (F102)
+check('dimensions restored after reload', d.sheet && d.sheet.dims.length === (dimOk ? 2 : 1), JSON.stringify({ dims: d.sheet && d.sheet.dims, dimOk }));
 
 // ---- Section View: vertical cutting line through the hole of the top view, section placed right of it
 await page.click('.k-cm-tab:has-text("Drawing")');

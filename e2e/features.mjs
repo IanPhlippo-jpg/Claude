@@ -341,7 +341,8 @@ await page.click('.k-cm-tab:has-text("Evaluate")');
 await page.click('.k-cm-big:has-text("Mass Properties") .k-cm-main');
 await page.waitForTimeout(500);
 const report = await page.locator('.k-mass-report').innerText();
-const volNow = await volume();
+// on the B-rep kernel (?kernel=brep) Mass Properties reports the exact volume of the exact bodies
+const volNow = (await page.evaluate(() => { const bs = window.__phlippoStore.getState().rebuild.bodies; return bs.length && bs.every((b) => b.exact) ? bs.reduce((t, b) => t + b.exactVolume, 0) : null; })) ?? (await volume());
 const mv = /Volume = ([\d.]+)/.exec(report);
 check('Mass Properties reports the volume', !!mv && Math.abs(parseFloat(mv[1]) - volNow) < 1, `${mv && mv[1]} vs ${volNow.toFixed(2)}`);
 check('Mass Properties lists the centre of mass and inertia', /Center of mass/.test(report) && /Lxx = /.test(report));

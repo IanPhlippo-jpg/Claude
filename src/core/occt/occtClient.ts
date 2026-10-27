@@ -15,34 +15,46 @@ function ensure(): Worker {
       if (ev.data.error) p.reject(new Error(ev.data.error));
       else p.resolve(ev.data as never);
     };
-    worker.onerror = (ev) => {
-      for (const p of pending.values()) p.reject(new Error(ev.message || 'the geometry kernel could not start'));
-      pending.clear();
-      worker?.terminate();
-      worker = null;
-    };
+    worker.onerror = (ev) => restart(new Error(ev.message || 'the geometry kernel could not start'));
   }
   return worker;
 }
 
-function call<T>(msg: Record<string, unknown>, transfer: Transferable[] = []): Promise<T> {
+/** a kernel call that did not answer in time; the worker is restarted, the mesh result stays (QA F106) */
+export class KernelTimeout extends Error {
+  constructor(what: string, ms: number) {
+    super(`the geometry kernel did not finish the ${what} within ${Math.round(ms / 1000)} s`);
+    this.name = 'KernelTimeout';
+  }
+}
+
+/** a hung WASM call blocks the worker for good: stop it, fail every waiting call and start a new one next time */
+function restart(err: Error) {
+  for (const p of pending.values()) p.reject(err);
+  pending.clear();
+  worker?.terminate();
+  worker = null;
+}
+
+function call<T>(msg: Record<string, unknown>, transfer: Transferable[] = [], ms = 60_000): Promise<T> {
   const w = ensure();
   const id = ++seq;
   return new Promise<T>((resolve, reject) => {
-    pending.set(id, { resolve: resolve as (v: never) => void, reject });
+    const timer = setTimeout(() => { if (pending.has(id)) restart(new KernelTimeout(String(msg.op), ms)); }, ms);
+    pending.set(id, { resolve: (v: never) => { clearTimeout(timer); resolve(v); }, reject: (e: Error) => { clearTimeout(timer); reject(e); } });
     w.postMessage({ ...msg, id }, transfer);
   });
 }
 
 /** STEP file -> one mesh per solid (mm) */
 export async function importStep(bytes: Uint8Array): Promise<StepBody[]> {
-  const r = await call<{ bodies: StepBody[] }>({ op: 'import', bytes }, [bytes.buffer]);
+  const r = await call<{ bodies: StepBody[] }>({ op: 'import', bytes }, [bytes.buffer], 120_000);
   return r.bodies;
 }
 
 /** bodies (triangle positions in mm) -> STEP AP214 bytes and the volume of each exported solid */
 export async function exportStep(bodies: { name: string; positions: Float32Array }[], unit: 'mm' | 'cm' | 'm' | 'in'): Promise<{ bytes: Uint8Array; volumes: number[] }> {
-  return call({ op: 'export', bodies, unit }, bodies.map((b) => b.positions.buffer));
+  return call({ op: 'export', bodies, unit }, bodies.map((b) => b.positions.buffer), 120_000);
 }
 
 /** the rebuild of a part with the B-rep kernel: per body the exact tessellation (bodies that stayed exact) */
@@ -53,5 +65,5 @@ export async function refineRebuild(doc: import('../document/types').Document, u
 
 /** a part as STEP, rebuilt with the B-rep kernel: exact bodies keep their true surfaces (exact = how many) */
 export async function exportStepDoc(doc: import('../document/types').Document, upTo: number | null, unit: 'mm' | 'cm' | 'm' | 'in'): Promise<{ bytes: Uint8Array; volumes: number[]; exact: number }> {
-  return call({ op: 'exportDoc', doc, upTo, unit });
+  return call({ op: 'exportDoc', doc, upTo, unit }, [], 120_000);
 }

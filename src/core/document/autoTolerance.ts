@@ -3,7 +3,7 @@ import type { Body } from '../features/rebuild';
 import type { PlanarFace } from '../features/solid';
 
 /**
- * Auto Tolerancing / MBD Dimensions, as the intended MBD Dimensions tab: datums, size and location dimensions, geometric
+ * Auto Tolerancing / Product Dimensions, as the intended Product Dimensions tab: datums, size and location dimensions, geometric
  * tolerances and the Auto Dimension Scheme that derives them from the model faces. Tolerances follow the document's
  * block tolerance (Document Properties ▸ Auto Tolerancing) or the geometric method.
  */

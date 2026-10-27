@@ -1533,7 +1533,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
         });
       })()}
       {st.doc.autoTolerance && !st.activeSketchId && (() => {
-        // MBD Dimensions: the datums, dimensions and tolerances as callouts at their faces
+        // Product Dimensions: the datums, dimensions and tolerances as callouts at their faces
         const dx = st.doc.autoTolerance!;
         const P = (p: [number, number, number]) => camera.worldToPixel(new THREE.Vector3(...p));
         const mid = (a: [number, number, number], b: [number, number, number]): [number, number, number] => [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2, (a[2] + b[2]) / 2];

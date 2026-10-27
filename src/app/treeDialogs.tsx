@@ -103,7 +103,11 @@ export function ExportOptionsDialog() {
     const part = st.doc.kind !== 'assembly' && st.doc.kind !== 'drawing' && getPref('perf.brepKernel') !== false;
     import('../core/occt/occtClient')
       .then((m) => (part ? m.exportStepDoc(st.doc, useStore.getState().rollbackIndex, u) : m.exportStep(list, u)))
-      .then(async ({ bytes, volumes }) => {
+      .then(async (res: { bytes: Uint8Array; volumes: number[]; exact?: number }) => {
+        const { bytes, volumes } = res;
+        // bodies the B-rep kernel could not rebuild are written as sewn facets: say so (QA F99)
+        const faceted = part ? volumes.length - (res.exact ?? 0) : volumes.length;
+        const facetNote = faceted > 0 ? ` ${faceted} of ${volumes.length} ${volumes.length === 1 ? 'solid is' : 'solids are'} faceted (sewn from the mesh), not exact surfaces.` : '';
         const data = bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer;
         const save = async () => {
           const api = desktop();
@@ -115,9 +119,9 @@ export function ExportOptionsDialog() {
             a.click();
             URL.revokeObjectURL(a.href);
           }
-          st.pushMessage(`${name} saved (${volumes.length} ${volumes.length === 1 ? 'solid' : 'solids'}).`, 'info');
+          st.pushMessage(`${name} saved (${volumes.length} ${volumes.length === 1 ? 'solid' : 'solids'}).${facetNote}`, faceted > 0 ? 'warn' : 'info');
         };
-        if (showInfo) st.setAsk({ title: 'STEP Info', text: `${volumes.length} ${volumes.length === 1 ? 'solid' : 'solids'}, AP214, unit ${unit}; volume ${volumes.map((v) => v.toFixed(2)).join(', ')} mm³. Save?`, yes: () => { void save(); } });
+        if (showInfo) st.setAsk({ title: 'STEP Info', text: `${volumes.length} ${volumes.length === 1 ? 'solid' : 'solids'}, AP214, unit ${unit}; volume ${volumes.map((v) => v.toFixed(2)).join(', ')} mm³.${facetNote} Save?`, yes: () => { void save(); } });
         else await save();
       })
       .catch((err: Error) => st.pushMessage(`Cannot write STEP: ${err.message}`, 'error'));

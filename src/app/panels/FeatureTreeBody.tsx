@@ -290,7 +290,7 @@ export function FeatureTreeBody() {
               return {
                 id: 'body-' + b.id,
                 icon: <Icon.Part style={hiddenBody ? { opacity: 0.4 } : undefined} />,
-                label: <span className={hiddenBody ? 'k-muted' : ''} style={hiddenBody ? { fontStyle: 'italic' } : undefined}>{bodyName(b)}</span>,
+                label: <span className={hiddenBody ? 'k-muted' : ''} style={hiddenBody ? { fontStyle: 'italic' } : undefined} title={b.exact ? 'Exact surfaces (B-rep)' : 'Faceted (mesh kernel): STEP writes it as sewn facets'} data-exact={b.exact ? 'true' : 'false'}>{bodyName(b)}</span>,
                 // the body's own material is a row under it, by design
                 children: mat ? [{ id: 'bodymat-' + b.id, icon: <Icon.TreeMaterial />, label: <span>{mat.name}</span>, onDoubleClick: () => st.openMaterialFor(b.id) }] : undefined,
                 onClick: (e) => { if (!e.ctrlKey && !st.activeSketchId && !st.featureEdit) setBar({ x: e.clientX, y: e.clientY, featureId: '__body:' + b.id }); },

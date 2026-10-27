@@ -169,7 +169,7 @@ export function restoreSnapshot(id: string): void {
   cam.animateTo(new THREE.Quaternion(...snap.quaternion), new THREE.Vector3(...snap.target), snap.scale);
 }
 
-/** Pack and Go: the assembly and every part it uses, each as its own file. */
+/** Package Files: the assembly and every part it uses, each as its own file. */
 export function packAndGoFiles(): { name: string; text: string }[] {
   const doc = S().doc;
   const files: { name: string; text: string }[] = [{ name: `${doc.name}.kcad`, text: serializeDocument(doc) }];

@@ -71,7 +71,7 @@ export const SYSTEM_CATEGORIES: Category[] = [
       },
     ],
   },
-  { id: 'mbd', label: 'MBD', sections: [{ controls: [{ kind: 'check', key: 'mbd.autoShow', label: 'Automatically show the Auto Tolerancing annotations when a model is opened' }, { kind: 'check', key: 'mbd.hideWhenRotating', label: 'Hide 3D views when rotating or panning' }] }] },
+  { id: 'mbd', label: 'Product Dimensions', sections: [{ controls: [{ kind: 'check', key: 'mbd.autoShow', label: 'Automatically show the Auto Tolerancing annotations when a model is opened' }, { kind: 'check', key: 'mbd.hideWhenRotating', label: 'Hide 3D views when rotating or panning' }] }] },
   {
     id: 'drawings',
     label: 'Drawings',

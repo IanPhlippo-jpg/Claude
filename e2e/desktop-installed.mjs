@@ -1,10 +1,12 @@
 // Smoke test of the installed program (NSIS install in %LOCALAPPDATA%\Programs\Phlippo CAD), as a user gets it: no test
 // hooks, no debugging port (QA v0.3.4 F85), so it is driven from the outside only. It starts and shows its window, the
 // file version matches package.json, the licence files are installed (F73, F91), and a start with
-// --remote-debugging-port is refused. The functional checks without hooks run on the same release build in
-// desktop-nohooks.mjs. Run after installing; nothing in the user's profile is changed (the app only shows Welcome).
+// --remote-debugging-port is refused, and --self-test (sketch, extrude, fillet and STEP on the B-rep kernel, an atomic
+// save) passes in a throw-away profile.
+// More functional checks without hooks run on the release build in desktop-nohooks.mjs.
+// Run after installing; nothing in the user's profile is changed (the app only shows Welcome).
 import { spawn, execFileSync } from 'node:child_process';
-import { existsSync, readFileSync, mkdirSync } from 'node:fs';
+import { existsSync, readFileSync, mkdirSync, rmSync, copyFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { checks, exitCode } from './lib/check.mjs';
 
@@ -48,6 +50,21 @@ const portOpen = await fetch('http://127.0.0.1:9333/json/version').then(() => tr
 check('--remote-debugging-port is refused: the program exits with code 1', ended === 1, `exit ${ended}`);
 check('--remote-debugging-port is refused: no debugging endpoint', !portOpen);
 if (ended === null) dbg.kill();
+
+// --self-test (F97): the installed program itself loads app:// and the OpenCascade WASM worker, builds a plate, makes it
+// exact, adds an exact fillet, writes STEP and saves the .kcad atomically, all in a throw-away profile
+const resultFile = join(process.env.TEMP ?? process.env.TMP, 'phlippo-self-test.json');
+rmSync(resultFile, { force: true });
+const st = spawn(exe, ['--self-test'], { stdio: 'ignore' });
+const stExit = await new Promise((r) => { const t = setTimeout(() => { st.kill(); r('timeout'); }, 240000); st.on('exit', (code) => { clearTimeout(t); r(code); }); });
+const selfTest = existsSync(resultFile) ? JSON.parse(readFileSync(resultFile, 'utf8')) : null;
+check('--self-test runs and exits with code 0', stExit === 0 && !!selfTest, `exit ${stExit}`);
+check('--self-test ran in the installed program on app://', !!selfTest && selfTest.packaged === true && selfTest.version === version && selfTest.url === 'app://phlippo/index.html', JSON.stringify(selfTest && { packaged: selfTest.packaged, version: selfTest.version, url: selfTest.url }));
+for (const s of selfTest?.steps ?? []) check(`self-test: ${s.name}`, s.ok, s.info ?? '');
+if (selfTest?.dir) {
+  try { copyFileSync(join(selfTest.dir, 'self-test.png'), join('e2e-out', 'desktop-selftest.png')); } catch { /* evidence only */ }
+  rmSync(selfTest.dir, { recursive: true, force: true });
+}
 
 console.log(`\n${results.filter((r) => r.ok).length}/${results.length} checks passed`);
 process.exitCode = exitCode(results);

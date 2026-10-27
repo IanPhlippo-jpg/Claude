@@ -13,6 +13,9 @@ import type { SketchPoint } from '../../core/sketch/types';
 export interface SheetBridge {
   toPx: (p: [number, number]) => { x: number; y: number };
   toSheet: (px: number, py: number) => [number, number];
+  /** sheet zoom (pixels per sheet unit / BASE) and the visible circles of a view in sheet coordinates, for the e2e picks */
+  zoom: () => number;
+  circles: (viewId: string) => { c: [number, number]; r: number }[];
   viewToSheet: (viewId: string, p: [number, number]) => [number, number] | null;
   bounds: (viewId: string) => { x: number; y: number; w: number; h: number } | null;
 }

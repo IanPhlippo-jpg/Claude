@@ -27,6 +27,9 @@ const BASE = 3;
  * the wheel zooms at the cursor, views are dragged with the left button; placing views, dimensions
  * and notes follows the active command (drawingEdit).
  */
+/** pick aperture in screen pixels for edges and circles (dimensions, center marks, hole callouts, centerlines) */
+const PICK_PX = 4;
+
 /** the intended default drawing paper colour (Options ▸ Colors ▸ Drawings, Paper Color) */
 export const PAPER = '#e8e8e0';
 
@@ -88,7 +91,7 @@ export function DrawingSheetView() {
   };
   // sheet mm <-> screen px of the sheet host (for the test hooks)
   useEffect(() => {
-    bridge.sheet = { toPx: (p: [number, number]) => { const r = hostRef.current!.getBoundingClientRect(); const q = toPx(p); return { x: q[0] + r.left, y: q[1] + r.top }; }, toSheet, viewToSheet: (viewId: string, p: [number, number]) => { const v = sheet?.views.find((x) => x.id === viewId); return v && sheet ? viewToSheet(sheet, v, viewGeometry(v), p) : null; }, bounds: (viewId: string) => { const v = sheet?.views.find((x) => x.id === viewId); return v && sheet ? viewBounds(sheet, v, viewGeometry(v)) : null; } };
+    bridge.sheet = { toPx: (p: [number, number]) => { const r = hostRef.current!.getBoundingClientRect(); const q = toPx(p); return { x: q[0] + r.left, y: q[1] + r.top }; }, toSheet, zoom: () => z.k, circles: (viewId: string) => { const v = sheet?.views.find((x) => x.id === viewId); return v && sheet ? viewOnSheet(sheet, v).circles.filter((c) => !c.hidden).map((c) => ({ c: c.c, r: c.r })) : []; }, viewToSheet: (viewId: string, p: [number, number]) => { const v = sheet?.views.find((x) => x.id === viewId); return v && sheet ? viewToSheet(sheet, v, viewGeometry(v), p) : null; }, bounds: (viewId: string) => { const v = sheet?.views.find((x) => x.id === viewId); return v && sheet ? viewBounds(sheet, v, viewGeometry(v)) : null; } };
   });
   const de = st.drawingEdit;
   const firstAngle = st.prefs['doc.standard'] === 'ISO' || st.prefs['doc.standard'] === 'DIN';
@@ -177,7 +180,7 @@ export function DrawingSheetView() {
       if (v) {
         const c = nearestCircle(sheet, v, p);
         const l = nearestLine(sheet, v, p);
-        const tol = 2 / z.k;
+        const tol = PICK_PX / z.k;
         // a circle wins over the short facet lines it is drawn with
         if (c && c.distance < tol) st.startDrawingDimensionOnCircle(v.id, c.viewCircle);
         else if (l && l.distance < tol) st.startDrawingDimensionOnLine(v.id, l.viewLine);
@@ -277,7 +280,7 @@ export function DrawingSheetView() {
       }
       if (kind === 'centerline') {
         const l = v ? nearestLine(sheet, v, p) : null;
-        if (!v || !l || l.distance > 3 / z.k) {
+        if (!v || !l || l.distance > PICK_PX / z.k) {
           st.pushMessage('Select two parallel edges in a drawing view.', 'warn');
           return;
         }
@@ -318,7 +321,7 @@ export function DrawingSheetView() {
       if (!de.symbolAnchor) {
         if (kind === 'holeCallout') {
           const c = v ? nearestCircle(sheet, v, p) : null;
-          if (!v || !c || c.distance > 3 / z.k) {
+          if (!v || !c || c.distance > PICK_PX / z.k) {
             st.pushMessage('Select the edge of a hole in a drawing view.', 'warn');
             return;
           }
@@ -360,7 +363,7 @@ export function DrawingSheetView() {
     if (de?.mode === 'centerMark') {
       const v = viewAt(p);
       const c = v ? nearestCircle(sheet, v, p) : null;
-      if (v && c && c.distance < 3 / z.k) st.addCenterMark(v.id, c.viewCircle);
+      if (v && c && c.distance < PICK_PX / z.k) st.addCenterMark(v.id, c.viewCircle);
       else st.pushMessage('Select a circular edge in a drawing view.', 'warn');
       return;
     }

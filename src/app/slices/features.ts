@@ -625,7 +625,7 @@ export const featuresSlice = (set: StoreSet, get: StoreGet): Pick<State, Feature
       const body = rebuild.bodies.find((b) => b.id === selectedFace.bodyId);
       const face = body?.faces.find((f) => f.id === selectedFace.faceId);
       if (!body || !face) return;
-      if (face.curved) return get().pushMessage('MBD Dimensions work on planar faces in this build.', 'warn');
+      if (face.curved) return get().pushMessage('Product Dimensions work on planar faces in this build.', 'warn');
       const r: DxFaceRef = { normal: [...face.normal] as [number, number, number], point: [...face.centroid] as [number, number, number] };
       const max = dx.kind === 'auto' ? 3 : dx.kind === 'datum' || dx.kind === 'gtol' ? 1 : dx.kind === 'pattern' ? 32 : 2;
       const has = dx.faces.some((x) => Math.hypot(x.point[0] - r.point[0], x.point[1] - r.point[1], x.point[2] - r.point[2]) < 1e-6);

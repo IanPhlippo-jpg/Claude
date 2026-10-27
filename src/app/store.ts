@@ -40,7 +40,6 @@ import { newId, addConstraint } from '../core/sketch/model';
 import type { StudFeature, SplitLineFeature, ProjectedCurveFeature, ClosedCornerFeature, CornerReliefFeature, LoftedBendFeature, ConvertSheetFeature, DeleteFaceFeature } from '../core/document/types';
 import type { Constraint, ConstraintKind, Id, Sketch, SketchPoint } from '../core/sketch/types';
 import { solveSketch, type SolveResult } from '../core/solver/solver';
-import { SolverClient } from '../core/solver/solverClient';
 import type { SelectionItem } from '../core/sketch/relations';
 import { applyEquations, type Equation } from '../core/document/equations';
 import { type PrefValue } from './prefs';
@@ -654,7 +653,7 @@ export interface State {
   /** Trim/Extend: which box the next body pick fills (bodies to trim / trimming bodies) */
   trimFocus: 'bodies' | 'trimming';
   setTrimFocus(f: 'bodies' | 'trimming'): void;
-  /** MBD Dimensions (Auto Tolerancing): the tool being defined, its face picks and parameters */
+  /** Product Dimensions (Auto Tolerancing): the tool being defined, its face picks and parameters */
   autoToleranceEdit: { kind: 'auto' | 'datum' | 'size' | 'location' | 'pattern' | 'gtol'; faces: DxFaceRef[]; partType?: 'prismatic' | 'turned'; toleranceType?: 'plusMinus' | 'geometric'; label?: string; basic?: boolean; plus?: number; minus?: number; symbol?: AutoToleranceGtol['symbol']; value?: number; datums?: string[] } | null;
   startAutoTolerance(kind: NonNullable<State['autoToleranceEdit']>['kind']): void;
   updateAutoTolerance(patch: Partial<NonNullable<State['autoToleranceEdit']>>): void;
@@ -1078,7 +1077,6 @@ export interface AskOptions {
   yesLabel?: string;
   noLabel?: string;
 }
-const solver = new SolverClient();
 let dragBase: Document | null = null;
 let msgSeq = 0;
 
@@ -1093,7 +1091,7 @@ export function solveAll(doc0: Document, prev: Record<Id, SolveResult>, only?: I
     if (only && id !== only && prev[id]) continue;
     // Pierce: the point follows where its curve crosses the plane
     sketches[id] = refreshPierce({ ...doc, sketches }, sketches[id]);
-    const r = solver.solveSync(sketches[id]);
+    const r = solveSketch(sketches[id]);
     solve[id] = r;
     sketches[id] = r.sketch;
   }
@@ -1296,12 +1294,12 @@ export const useStore = create<State>((set, get) => ({
       return;
     }
     const sketch = doc.sketches[activeSketchId];
-    const r = solver.solveSync(sketch, { drag: { point: pointId, target }, skipAnalysis: phase !== 'end', maxIterations: 30 });
+    const r = solveSketch(sketch, { drag: { point: pointId, target }, skipAnalysis: phase !== 'end', maxIterations: 30 });
     const d = { ...doc, sketches: { ...doc.sketches, [activeSketchId]: r.sketch } };
     if (phase === 'end') {
       if (dragBase) history.push('Drag', dragBase);
       dragBase = null;
-      const full = solver.solveSync(r.sketch);
+      const full = solveSketch(r.sketch);
       const d2 = { ...d, sketches: { ...d.sketches, [activeSketchId]: full.sketch } };
       set({ doc: d2, solve: { ...solve, [activeSketchId]: full }, rebuild: rebuildFor(d2, get().rollbackIndex), dirty: true, ...historyFlags() });
       autosave(d2);

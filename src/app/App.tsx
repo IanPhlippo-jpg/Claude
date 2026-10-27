@@ -74,7 +74,8 @@ export function App() {
     if (!api) return;
     const offOpen = api.onOpenFile?.((f) => openDesktopFile(f));
     const offClose = api.onCloseRequested?.(() => withUnsavedCheck(() => api.close(true)));
-    return () => { offOpen?.(); offClose?.(); };
+    const offSelfTest = api.onSelfTest?.(() => { void import('./selfTest').then((m) => m.runSelfTest()).then((r) => api.selfTestDone?.(r)); });
+    return () => { offOpen?.(); offClose?.(); offSelfTest?.(); };
   }, []);
   // browser: leaving the page with unsaved changes asks first
   useEffect(() => {

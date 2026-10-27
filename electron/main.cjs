@@ -10,7 +10,6 @@
 const { app, BrowserWindow, Menu, ipcMain, dialog, shell, session, protocol } = require('electron');
 const path = require('node:path');
 const fs = require('node:fs/promises');
-const { pathToFileURL } = require('node:url');
 const { randomUUID } = require('node:crypto');
 
 // the development switches (dev server, smoke screenshot, test hooks) are only read by an unpackaged app:
@@ -23,6 +22,12 @@ if (PACKAGED && process.argv.some((a) => /^--(remote-debugging-(port|pipe|addres
   app.exit(1);
 }
 const DEV_URL = PACKAGED ? undefined : process.env.VITE_DEV_SERVER_URL;
+// --self-test (QA F97): the installed program checks itself (app://, the OpenCascade WASM worker, extrude, fillet, STEP,
+// an atomic save) in a throw-away profile, writes the result to %TEMP%\phlippo-self-test.json and quits. The user's
+// profile and documents are never touched; it takes no path from the command line.
+const SELF_TEST = process.argv.includes('--self-test');
+const SELF_TEST_DIR = SELF_TEST ? require('node:fs').mkdtempSync(path.join(require('node:os').tmpdir(), 'phlippo-self-test-')) : null;
+if (SELF_TEST) app.setPath('userData', path.join(SELF_TEST_DIR, 'profile'));
 // the desktop checks run in a profile of their own, never in the user's (unpackaged shell only)
 if (!PACKAGED && process.env.PHLIPPO_USER_DATA) app.setPath('userData', process.env.PHLIPPO_USER_DATA);
 const SMOKE = PACKAGED ? undefined : process.env.PHLIPPO_SMOKE; // path of a screenshot to write, then quit (used by the checks)
@@ -203,17 +208,18 @@ function createWindow() {
     showWhenReady();
     win.loadURL(DEV_URL);
   } else {
-    const w = win;
-    migrateStorage(w.webContents).then(() => {
-      if (w.isDestroyed()) return;
-      showWhenReady();
-      w.loadURL(APP_URL);
-    });
+    showWhenReady();
+    win.loadURL(APP_URL);
   }
   const onAppLoaded = async () => {
     if (pendingOpen) {
       sendOpen(pendingOpen);
       pendingOpen = null;
+    }
+    if (SELF_TEST) {
+      win.webContents.send('self-test:run');
+      // a renderer that never answers still ends the run, with a failed result
+      setTimeout(() => finishSelfTest({ steps: [{ name: 'the app answered the self-test', ok: false, info: 'no answer within 180 s' }] }), 180_000);
     }
     if (SMOKE) {
       await new Promise((r) => setTimeout(r, 2500));
@@ -227,13 +233,7 @@ function createWindow() {
       app.quit();
     }
   };
-  // the blank pages of the storage migration load first: only the app page itself counts
-  const onLoad = () => {
-    const url = win?.webContents.getURL() ?? '';
-    if (DEV_URL ? url.startsWith(DEV_URL) : url.split('?')[0] === APP_URL) onAppLoaded();
-    else win?.webContents.once('did-finish-load', onLoad);
-  };
-  win.webContents.once('did-finish-load', onLoad);
+  win.webContents.once('did-finish-load', onAppLoaded);
 }
 
 // one running app: a second .kcad double-click opens in the existing window
@@ -336,35 +336,41 @@ function serveApp(request) {
   );
 }
 
-/**
- * Until 0.3.4 the app ran on file://, so its saved preferences, recent documents and autosaves are stored for that
- * origin. On the first start on app:// they are copied over once (only keys the new origin does not have yet; the old
- * copy stays as it is). Runs in the (still hidden) app window before the app itself is loaded.
- */
-async function migrateStorage(wc) {
-  const marker = 'phlippo.migrated.fileOrigin';
-  try {
-    await wc.loadURL(`${APP_ORIGIN}/__blank.html`);
-    if (await wc.executeJavaScript(`localStorage.getItem(${JSON.stringify(marker)}) !== null`)) return;
-    await wc.loadFile(path.join(__dirname, 'blank.html'));
-    const entries = JSON.parse(await wc.executeJavaScript('JSON.stringify(Object.keys(localStorage).map((k) => [k, localStorage.getItem(k)]))'));
-    await wc.loadURL(`${APP_ORIGIN}/__blank.html`);
-    await wc.executeJavaScript(`(() => { const e = ${JSON.stringify(entries)}; for (const [k, v] of e) if (localStorage.getItem(k) === null && v !== null) localStorage.setItem(k, v); localStorage.setItem(${JSON.stringify(marker)}, new Date().toISOString()); })()`);
-  } catch (err) {
-    console.error('Phlippo CAD: the saved settings could not be copied to the new app origin: ' + (err.message ?? err));
+let selfTestDone = false;
+/** writes the self-test result (with the save and the screenshot checks of this process) and quits */
+async function finishSelfTest(result) {
+  if (selfTestDone) return;
+  selfTestDone = true;
+  const steps = Array.isArray(result?.steps) ? result.steps.slice(0, 50) : [];
+  if (typeof result?.kcad === 'string' && result.kcad) {
+    try {
+      const file = path.join(SELF_TEST_DIR, 'SelfTest.kcad');
+      await atomicWrite(file, result.kcad);
+      await atomicWrite(file, result.kcad);
+      const back = await fs.readFile(file, 'utf8');
+      const bak = await fs.readFile(`${file}.bak`, 'utf8');
+      steps.push({ name: 'Save writes the .kcad atomically and keeps a .bak', ok: back === result.kcad && bak === result.kcad });
+    } catch (err) {
+      steps.push({ name: 'Save writes the .kcad atomically and keeps a .bak', ok: false, info: String(err.message ?? err) });
+    }
   }
+  try {
+    if (win && !win.isDestroyed()) await fs.writeFile(path.join(SELF_TEST_DIR, 'self-test.png'), (await win.webContents.capturePage()).toPNG());
+  } catch { /* the screenshot is evidence only */ }
+  const out = { version: app.getVersion(), packaged: PACKAGED, url: win && !win.isDestroyed() ? win.webContents.getURL() : '', dir: SELF_TEST_DIR, steps };
+  await fs.writeFile(path.join(require('node:os').tmpdir(), 'phlippo-self-test.json'), JSON.stringify(out, null, 1)).catch(() => {});
+  app.exit(steps.length && steps.every((x) => x.ok) ? 0 : 1);
 }
+ipcMain.on('self-test:done', (e, result) => {
+  if (SELF_TEST && trusted(e)) void finishSelfTest(result);
+});
 
 app.whenReady().then(async () => {
   // permissions (camera, microphone, notifications, …): none is ever granted (F87)
   session.defaultSession.setPermissionRequestHandler((_wc, _permission, cb) => cb(false));
   session.defaultSession.setPermissionCheckHandler(() => false);
   if (!DEV_URL) {
-    protocol.handle('app', (request) => {
-      // the hidden page of the storage migration
-      if (request.url === `${APP_ORIGIN}/__blank.html`) return new Response('<!doctype html><title>Phlippo CAD</title>', { headers: { 'Content-Type': 'text/html', 'Content-Security-Policy': "default-src 'none'" } });
-      return serveApp(request);
-    });
+    protocol.handle('app', serveApp);
   }
   createWindow();
   app.on('activate', () => {

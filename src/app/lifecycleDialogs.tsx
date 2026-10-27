@@ -49,7 +49,7 @@ export function MirrorComponentsDialog() {
   );
 }
 
-/** Pack and Go: the assembly and all its parts as separate files. */
+/** Package Files: the assembly and all its parts as separate files. */
 export function PackAndGoDialog() {
   const st = useStore(useShallow((s) => ({ setDialog: s.setDialog, pushMessage: s.pushMessage })));
   const files = packAndGoFiles();
@@ -61,10 +61,10 @@ export function PackAndGoDialog() {
       else downloadText(prefix + f.name, f.text);
     }
     st.setDialog(null);
-    st.pushMessage(`Pack and Go: ${files.length} files saved.`);
+    st.pushMessage(`Package Files: ${files.length} files saved.`);
   };
   return (
-    <Frame title="Pack and Go" testid="packandgo" width={520} actions={<><Button variant="primary" data-testid="pack-save" onClick={save}>Save</Button><Button onClick={() => st.setDialog(null)}>Cancel</Button></>}>
+    <Frame title="Package Files" testid="packandgo" width={520} actions={<><Button variant="primary" data-testid="pack-save" onClick={save}>Save</Button><Button onClick={() => st.setDialog(null)}>Cancel</Button></>}>
       <table className="k-pm-table" data-testid="pack-files"><thead><tr><th>Name</th><th>Save To Name</th><th>Size</th></tr></thead>
         <tbody>{files.map((f) => <tr key={f.name}><td>{f.name}</td><td>{prefix + f.name}</td><td>{(f.text.length / 1024).toFixed(1)} KB</td></tr>)}</tbody>
       </table>

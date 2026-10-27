@@ -21,12 +21,14 @@ let timer: number | null = null;
 let busy = false;
 let again = false;
 
-/** on by default; off in Tools ▸ Options ▸ Performance. The e2e builds use the mesh kernel unless a test asks for it. */
+/** on by default; off in Tools ▸ Options ▸ Performance. The e2e builds use the mesh kernel unless a test asks for it
+ * (localStorage phlippo.kernel = brep, or ?kernel=brep in the address). */
 export function brepEnabled(): boolean {
   if (getPref('perf.brepKernel') === false) return false;
   if (TEST_HOOKS) {
     try {
-      return localStorage.getItem('phlippo.kernel') === 'brep';
+      // ?kernel=brep runs a whole e2e script on the B-rep kernel (the CI's B-rep pass, QA F105)
+      return localStorage.getItem('phlippo.kernel') === 'brep' || new URLSearchParams(location.search).get('kernel') === 'brep';
     } catch {
       return false;
     }
@@ -124,6 +126,11 @@ function carrySelection(from: RebuildResult, to: RebuildResult) {
   };
 }
 
+/** a kernel call that hung: say so once, the faceted (mesh) result stays shown */
+function timedOut(err: unknown) {
+  if (err instanceof Error && err.name === 'KernelTimeout') useStore.getState().pushMessage('Exact geometry timed out; showing the faceted (mesh) result.', 'warn');
+}
+
 async function run() {
   if (busy) { again = true; return; }
   const st = useStore.getState();
@@ -140,8 +147,8 @@ async function run() {
           useStore.setState({ rebuild: r, ...carrySelection(sent, r) });
         }
       }
-    } catch {
-      /* the mesh parts stay */
+    } catch (err) {
+      timedOut(err); /* the mesh parts stay */
     } finally {
       busy = false;
       if (again) { again = false; schedule(); }
@@ -155,8 +162,8 @@ async function run() {
     const { refineRebuild } = await import('../core/occt/occtClient');
     const bodies = await refineRebuild(st.doc, st.rollbackIndex);
     apply(sent, bodies);
-  } catch {
-    /* the mesh bodies stay */
+  } catch (err) {
+    timedOut(err); /* the mesh bodies stay */
   } finally {
     busy = false;
     if (again) { again = false; schedule(); }

@@ -14,6 +14,8 @@ const MAP = [
   // QA v0.3.4 F50: the remaining program-specific names
   ['Hole Wizard', 'Hole Tool'], ['Stud Wizard', 'Stud Tool'], ['Smart Fasteners', 'Auto Fasteners'], ['Smart Fastener', 'Auto Fastener'], ['Design Library', 'Part Library'],
   ['Lifecycle and Collaboration', 'Share'], ['Toolbox', 'Standard Parts'],
+  // QA v0.4.8 F94: the last product names on the Share and tolerance tabs
+  ['Pack and Go', 'Package Files'], ['MBD Dimensions', 'Product Dimensions'], ['MBD Dimension', 'Product Dimension'],
   // QA v0.3.4 F77: phrases the first rename left broken
   ['Feature Tree Tree Area', 'Feature Tree Area'], ['Feature Tree tree area', 'Feature Tree area'], ['Feature Tree tree', 'Feature Tree'],
   ['a Auto Tolerancing', 'an Auto Tolerancing'], ['A Auto Tolerancing', 'An Auto Tolerancing'],

@@ -153,3 +153,6 @@ for (const [kind, doc] of docs) {
 writeFileSync('e2e-out/clickall.json', JSON.stringify(report, null, 1));
 console.log(`\n${clicks} commands clicked, ${report.length} with errors`);
 await browser.close();
+
+// a command with a page error, a console error or the crash screen fails the run (QA F101)
+process.exitCode = report.length ? 1 : 0;

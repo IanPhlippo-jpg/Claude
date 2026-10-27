@@ -1,5 +1,5 @@
 // Block G-I: Material dialog fields (Compressive Strength, Description, Source, Sustainability, Favorites + the tree
-// material menu) and the MBD Dimensions tab (Auto Dimension Scheme, Datum, Size Dimension, Geometric Tolerance,
+// material menu) and the Product Dimensions tab (Auto Dimension Scheme, Datum, Size Dimension, Geometric Tolerance,
 // Show Tolerance Status, Delete All Tolerances, Tolerance Tree, callouts).
 import { chromium } from 'playwright';
 import { exitCode } from './lib/check.mjs';
@@ -76,9 +76,9 @@ await page.locator('.k-menu-item:has-text("AISI 1020")').click();
 await page.waitForTimeout(300);
 check('a favorite applies the material', (await S(() => window.__phlippoStore.getState().doc.material?.name)) === 'AISI 1020');
 
-// ---- MBD Dimensions tab
-check('Command Ribbon has an MBD Dimensions tab', (await page.locator('.k-cm-tab:has-text("MBD Dimensions")').count()) === 1);
-await page.click('.k-cm-tab:has-text("MBD Dimensions")');
+// ---- Product Dimensions tab
+check('Command Ribbon has an Product Dimensions tab', (await page.locator('.k-cm-tab:has-text("Product Dimensions")').count()) === 1);
+await page.click('.k-cm-tab:has-text("Product Dimensions")');
 for (const l of ['Auto Dimension Scheme', 'Location Dimension', 'Size Dimension', 'Pattern Feature', 'Datum', 'Geometric Tolerance', 'Show Tolerance Status', 'Copy Scheme', 'Import Scheme', 'Delete All Tolerances', 'Tolerance Sum']) check(`MBD tab has ${l}`, (await page.locator(`.k-cm-group :text-is("${l}")`).count()) >= 1);
 await shot('gi3-mbd-tab');
 // Auto Dimension Scheme

@@ -340,7 +340,7 @@ export class SketchScene {
       seg(uy, uy.clone().addScaledVector(b.v, -L * head).addScaledVector(b.u, -L * head * 0.5));
       const g = new THREE.BufferGeometry();
       g.setAttribute('position', new THREE.Float32BufferAttribute(arr, 3));
-      // in a sketch the origin stays on top; in the part it hides behind the bodies, as the reference (frame 118)
+      // in a sketch the origin stays on top; in the part it hides behind the bodies, by design
       const ls = new THREE.LineSegments(g, new THREE.LineBasicMaterial({ color: col, depthTest: !input.sketch, transparent: !!input.sketch }));
       ls.renderOrder = 9;
       this.group.add(ls);

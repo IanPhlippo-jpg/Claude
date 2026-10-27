@@ -15,7 +15,7 @@ export const tolerancingSlice = (set: StoreSet, get: StoreGet): Pick<State, Tole
   startAutoTolerance(kind) {
     const { rebuild } = get();
     if (!rebuild.bodies.length) {
-      get().pushMessage('MBD Dimensions need a solid body.', 'warn');
+      get().pushMessage('Product Dimensions need a solid body.', 'warn');
       return;
     }
     const blockMinor = Number(get().prefs['doc.blockLength2'] ?? 0.25);
@@ -30,7 +30,7 @@ export const tolerancingSlice = (set: StoreSet, get: StoreGet): Pick<State, Tole
     set({ autoToleranceEdit: null, selectedFace: null, selectedFaces: [] });
   },
   setAutoToleranceData(autoTolerance) {
-    get().applyDocument('MBD Dimensions', { ...get().doc, autoTolerance });
+    get().applyDocument('Product Dimensions', { ...get().doc, autoTolerance });
   },
   deleteAllTolerances() {
     const { doc } = get();
@@ -69,7 +69,7 @@ export const tolerancingSlice = (set: StoreSet, get: StoreGet): Pick<State, Tole
       const datum = cur.datums.find((d) => Math.hypot(d.face.point[0] - e.faces[0].point[0], d.face.point[1] - e.faces[0].point[1], d.face.point[2] - e.faces[0].point[2]) < 0.5)?.label;
       next = { ...cur, dims: [...cur.dims, { id, kind: e.kind, faces: e.faces.slice(0, 2), value, plus, minus, basic: !!e.basic, label: `${r2(value)}`, datum }] };
     }
-    get().applyDocument(e.kind === 'auto' ? 'Auto Dimension Scheme' : 'MBD Dimension', { ...doc, autoTolerance: next });
+    get().applyDocument(e.kind === 'auto' ? 'Auto Dimension Scheme' : 'Product Dimension', { ...doc, autoTolerance: next });
     set({ autoToleranceEdit: null, selectedFace: null, selectedFaces: [], managerTab: 'autoTolerance' });
   },
 });

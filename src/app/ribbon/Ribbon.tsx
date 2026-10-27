@@ -10,7 +10,7 @@ import { FORM_TOOL_LIBRARY } from '../../core/features/sheetmetal4';
 import { commandById } from '../commands';
 import { getCamera } from '../viewport/Viewport';
 import { openFileDialog, saveDocument } from '../MenuBar';
-import { AssemblyTab, LifecycleTab } from './AssemblyTab';
+import { AssemblyTab, ShareTab } from './AssemblyTab';
 import { AnnotationTab, SheetFormatTab, ViewLayoutTab } from './DrawingTabs';
 
 /**
@@ -46,7 +46,7 @@ const TABS: { id: RibbonTab; label: string }[] = [
   { id: 'sheetmetal', label: 'Sheet Metal' },
   { id: 'weldments', label: 'Weldments' },
   { id: 'evaluate', label: 'Evaluate' },
-  { id: 'mbd', label: 'MBD Dimensions' },
+  { id: 'mbd', label: 'Product Dimensions' },
   { id: 'render', label: 'Render Tools' },
   { id: 'addins', label: 'Phlippo Add-Ins' },
 ];
@@ -553,7 +553,7 @@ export function Ribbon() {
     lifecycle: (
       <>
         {menuBlock}
-        <LifecycleTab />
+        <ShareTab />
       </>
     ),
     viewLayout: (
