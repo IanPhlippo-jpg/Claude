@@ -136,8 +136,8 @@ await S(() => window.__phlippoStore.getState().undo());
 await page.waitForTimeout(400);
 const removed = 4 * (1 - Math.PI / 4) * 9 * 40;
 check('after the plate grows to 40 mm the fillet keeps all four vertical edges (F47)', !f1.err && f1.bodies === 1 && Math.abs(without - withFillet - removed) < removed * 0.15, `${JSON.stringify(f1)} removed ${(without - withFillet).toFixed(1)} of ${removed.toFixed(1)}`);
-// a reference to an edge that no longer exists (other faces): reported, not silent
-await S(() => { const s = window.__phlippoStore.getState(); s.applyDocument('Ref', { ...s.doc, features: s.doc.features.map((f) => (f.type === 'fillet' ? { ...f, edges: f.edges.map((r, k) => (k === 0 ? { ...r, centroid: [999, 999, 999], normals: [[0.6, 0.8, 0], [0, 0.6, 0.8]] } : r)) } : f)) }); });
+// a reference to an edge that no longer exists (other faces, other face names since 0.5.0): reported, not silent
+await S(() => { const s = window.__phlippoStore.getState(); s.applyDocument('Ref', { ...s.doc, features: s.doc.features.map((f) => (f.type === 'fillet' ? { ...f, edges: f.edges.map((r, k) => (k === 0 ? { ...r, centroid: [999, 999, 999], normals: [[0.6, 0.8, 0], [0, 0.6, 0.8]], faces: [1, 2] } : r)) } : f)) }); });
 await page.waitForTimeout(500);
 const f2 = await S(() => { const s = window.__phlippoStore.getState(); const f = s.doc.features.find((x) => x.type === 'fillet'); return { err: s.rebuild.errors[f?.id] ?? '', bodies: s.rebuild.bodies.length }; });
 check('a fillet whose edge is gone reports its lost reference instead of failing silently', /dangling|could not be found/i.test(f2.err) && f2.bodies === 1, JSON.stringify(f2));

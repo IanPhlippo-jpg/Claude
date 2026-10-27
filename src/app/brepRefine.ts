@@ -5,7 +5,8 @@
  * Selected faces and edges are carried over to the new body by their place, not by their number.
  */
 import * as THREE from 'three';
-import { useStore, rebuildFor, type FaceRef } from './store';
+import { copyFaceNames } from '../core/features/faceNames';
+import { useStore, rebuildNow, type FaceRef } from './store';
 import { partRebuild, setPartRebuild } from '../core/assembly/assembly';
 import type { Document } from '../core/document/types';
 import type { Body, RebuildResult } from '../core/features/rebuild';
@@ -58,10 +59,15 @@ function refinedResult(sent: RebuildResult, bodies: import('../workers/occt.work
     g.setAttribute('position', new THREE.BufferAttribute(r.positions, 3));
     if (r.normals) g.setAttribute('normal', new THREE.BufferAttribute(r.normals, 3));
     else g.computeVertexNormals();
+    // the exact body takes the face names of its mesh twin (F47)
+    copyFaceNames([b.geometry], g);
     const sf = splitFaces(g, planarFaces(g, b.id), []);
     return { ...b, geometry: g, faces: sf.faces, edges: bodyEdges(g, b.id, 20, sf.segments), exact: true, exactVolume: r.exactVolume };
   });
-  return { ...sent, bodies: next };
+  // the openings of the faceted result (F48) are gone where the body is exact now
+  const faceted = next.filter((b) => !b.exact);
+  const warnings = Object.fromEntries(Object.entries(sent.warnings ?? {}).filter(([id]) => faceted.some((b) => b.featureIds.includes(id))));
+  return { ...sent, bodies: next, warnings: Object.keys(warnings).length ? warnings : undefined };
 }
 
 function apply(sent: RebuildResult, bodies: import('../workers/occt.worker').RefinedBody[]) {
@@ -135,14 +141,14 @@ async function run() {
   if (busy) { again = true; return; }
   const st = useStore.getState();
   const sent = st.rebuild;
-  if (refined.has(sent) || !st.hasDocument || isDrawing(st.doc) || !sent.bodies.length) return;
+  if (refined.has(sent) || sent.pending || !st.hasDocument || isDrawing(st.doc) || !sent.bodies.length) return;
   if (isAssembly(st.doc)) {
     busy = true;
     try {
       if (await refineAssembly(st.doc)) {
         const now = useStore.getState();
         if (now.doc === st.doc && now.rebuild === sent) {
-          const r = rebuildFor(st.doc, st.rollbackIndex);
+          const r = rebuildNow(st.doc, st.rollbackIndex);
           refined.add(r);
           useStore.setState({ rebuild: r, ...carrySelection(sent, r) });
         }
@@ -178,7 +184,7 @@ function schedule() {
 /** starts following the rebuilds of the store (once, at start-up) */
 export function startBrepRefinement(): () => void {
   return useStore.subscribe((s, prev) => {
-    if (s.rebuild === prev.rebuild || refined.has(s.rebuild)) return;
+    if (s.rebuild === prev.rebuild || refined.has(s.rebuild) || s.rebuild.pending) return;
     if (!brepEnabled()) return;
     // the next rebuild starts from the mesh again: the selection made on the exact body moves with it
     // (only what the update left as it was: a selection the action set itself already refers to the new rebuild)

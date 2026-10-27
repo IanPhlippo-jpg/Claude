@@ -28,6 +28,7 @@ branch niet gepusht wordt (F98). Vanaf 0.4.9 vermelden de commits het platform: 
 | F105 | Major | opgelost (CI niet gedraaid) | `?kernel=brep` in het adres zet de B-rep-kern aan voor een heel script. De CI draait features, features2, filletopts, endconditions, multibody, full, doorhandle, step en bodies een tweede keer op de B-rep-kern. Lokaal is dat 9/9 groen; filletopts duurt dan 23 s in plaats van 291 s. |
 | F104 | Minor | opgelost | De eenmalige file://-migratie uit 0.3.4 is weg, net als `electron/blank.html`. De app laadt direct app://. |
 | F98 | Major | open (beslissing Ian) | Commits blijven lokaal; pushen gebeurt alleen op vraag van Ian. |
-| F46 | Major | open | Mesh-booleans draaien nog op de UI-thread, met een budget van 45 s. Een worker vraagt een grote ombouw. De B-rep-kern neemt steeds meer features over en is veel sneller. |
-| F47, F48, F51 | | deels | Ongewijzigd in deze ronde. |
-| F103 | Minor | open | PropertyPanel splitsen staat gepland voor een volgende ronde. |
+| F46 | Major | opgelost in 0.5.0 | Zware parts rebuilden in een eigen worker (zie docs/23). |
+| F47, F48 | | opgelost in 0.5.0 | Vlaknamen en randen op naam; gesloten-check na elke boolean (zie docs/23). |
+| F51 | | deels | Ongewijzigd. |
+| F103 | Minor | opgelost in 0.5.0 | PropertyPanel gesplitst in panels/pm/, regelbudget in de CI (zie docs/23). |

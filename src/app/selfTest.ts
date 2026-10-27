@@ -7,7 +7,7 @@
 import { createDocument, type Document } from '../core/document/types';
 import { addCircle, addLine, createSketch } from '../core/sketch/model';
 import { serializeDocument } from '../core/document/persistence';
-import { useStore } from './store';
+import { rebuildNow, useStore } from './store';
 import { fitActive } from './viewport/bridge';
 
 export interface SelfTestResult {
@@ -62,6 +62,12 @@ export async function runSelfTest(): Promise<SelfTestResult> {
     const st = await exportStepDoc(useStore.getState().doc, null, 'mm');
     const text = new TextDecoder().decode(st.bytes.slice(0, 200));
     step('STEP is written with exact surfaces', text.startsWith('ISO-10303-21') && st.exact === 1 && st.volumes.length === 1, `${st.bytes.length} bytes, exact ${st.exact}`);
+    // the rebuild worker (QA F46) loads from app:// and gives the same body as this thread
+    const { rebuildInWorker } = await import('./rebuildWorker');
+    const here = rebuildNow(useStore.getState().doc, null);
+    const there = await rebuildInWorker(useStore.getState().doc, null, 45_000);
+    const count = (r: typeof here) => r.bodies.reduce((n, b) => n + b.geometry.getAttribute('position').count, 0);
+    step('the rebuild worker builds the same body', there.result.bodies.length === 1 && count(there.result) === count(here) && !Object.keys(there.result.errors).length, `${count(there.result)} / ${count(here)} vertices, ${Math.round(there.ms)} ms`);
     return { steps, kcad: serializeDocument(useStore.getState().doc) };
   } catch (err) {
     step('self-test ran to the end', false, err instanceof Error ? err.message : String(err));

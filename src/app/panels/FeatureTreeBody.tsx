@@ -119,7 +119,7 @@ export function FeatureTreeBody() {
   // sheet metal bends under their feature, numbered through the part as the intended tree: BaseBend1, EdgeBend1, …
   const bendRows = (() => {
     const out = new Map<string, TreeNode[]>();
-    const n: Record<string, number> = { BaseBend: 0, EdgeBend: 0, MiterBend: 0 };
+    const n: Record<string, number> = { BaseBend: 0, EdgeBend: 0, MiterBend: 0, SharpBend: 0 };
     const add = (fid: string, kind: string, count: number) => out.set(fid, Array.from({ length: count }, () => { n[kind]++; return { id: `${fid}:bend${n[kind]}`, icon: <Icon.Sheet />, label: <span>{kind}{n[kind]}</span> } as TreeNode; }));
     for (const f of st.doc.features) {
       if (f.type === 'baseFlange') {
@@ -132,6 +132,8 @@ export function FeatureTreeBody() {
         if (!closed) add(f.id, 'BaseBend', A + Math.max(0, L - 1 - A));
       } else if (f.type === 'edgeFlange' && f.edge) add(f.id, 'EdgeBend', 1);
       else if (f.type === 'miterFlange') add(f.id, 'MiterBend', Math.max(1, f.edges.length));
+      // Convert to Sheet Metal / Insert Bends: the sharp edges that became bends
+      else if (f.type === 'convertSheet' && st.rebuild.bendCounts?.[f.id]) add(f.id, 'SharpBend', st.rebuild.bendCounts[f.id]);
     }
     return out;
   })();
@@ -139,6 +141,7 @@ export function FeatureTreeBody() {
   const solidNode = (f: Feature, i: number): TreeNode => {
     const rolledBack = st.rollbackIndex !== null && i >= st.rollbackIndex;
     const err = st.rebuild.errors[f.id];
+    const warning = st.rebuild.warnings?.[f.id];
     const icon = featureIcon(f);
     const sketchFeature = (isSketchBased(f) && f.type !== 'sketch') || f.type === 'miterFlange' || f.type === 'jog' || f.type === 'sketchedBend' || (f.type === 'surface' && !!f.sketchId) ? st.doc.features.find((x) => x.type === 'sketch' && x.sketchId === (f as { sketchId: string }).sketchId) : undefined;
     const secondId = f.type === 'sweep' ? f.pathSketchId : f.type === 'loft' ? f.sketchId2 : null;
@@ -152,7 +155,7 @@ export function FeatureTreeBody() {
       selected: st.selectedFeatureId === f.id,
       active: st.featureEdit?.featureId === f.id,
       suppressed: f.suppressed || rolledBack,
-      tail: err ? <span className="status conflict" data-testid="tree-error" title={err} onClick={(e) => { e.stopPropagation(); useStore.setState({ whatsWrong: true }); }}>!</span> : null,
+      tail: err ? <span className="status conflict" data-testid="tree-error" title={err} onClick={(e) => { e.stopPropagation(); useStore.setState({ whatsWrong: true }); }}>!</span> : warning ? <span className="status warning" data-testid="tree-warning" title={warning} onClick={(e) => { e.stopPropagation(); useStore.setState({ whatsWrong: true }); }}>!</span> : null,
       children: [...(f.type === 'flatPattern' ? [{ id: f.id + ':fp', icon: <Icon.Sheet />, label: nameLabel(f), suppressed: f.suppressed } as TreeNode] : []), ...(sketchFeature && sketchFeature.type === 'sketch' ? [sketchNode(sketchFeature, sketchIndex)] : []), ...(bendRows.get(f.id) ?? []), ...(secondSketch && secondSketch.type === 'sketch' ? [sketchNode(secondSketch, st.doc.features.indexOf(secondSketch))] : []), ...(f.type === 'loft' ? (f.guides ?? []).map((gid) => st.doc.features.find((x) => x.type === 'sketch' && x.sketchId === gid)).filter((x): x is Extract<Feature, { type: 'sketch' }> => !!x && x.type === 'sketch').map((x) => sketchNode(x, st.doc.features.indexOf(x))) : [])],
       onDoubleClick: () => (f.type === 'sketch3d' ? st.edit3DSketch(f.id) : st.editFeature(f.id)),
       onClick: (e) => { st.setSelectedFeature(e.ctrlKey && st.selectedFeatureId === f.id ? null : f.id); if (!e.ctrlKey && !st.activeSketchId && !st.featureEdit) setBar({ x: e.clientX, y: e.clientY, featureId: f.id }); },

@@ -128,6 +128,12 @@ export function StatusBar({ hint: hint0 }: { hint: string }) {
         </span>
       )}
       {st.doc.kind === 'drawing' && !st.activeSketchId && <span className="k-status-cell status under">Under Defined</span>}
+      {st.rebuild.pending && (
+        // a heavy part rebuilds in the rebuild worker: the window stays usable, the old result stays shown (QA F46)
+        <span className="k-status-cell k-status-rebuilding" data-testid="status-rebuilding" title="The part is rebuilding in the background; the model updates when it is done.">
+          Rebuilding… <span className="k-status-progress"><span /></span>
+        </span>
+      )}
       {st.doc.kind !== 'drawing' && faceted > 0 && (
         // bodies the B-rep kernel did not rebuild are shown (and written to STEP) as facets: say so (QA F99)
         <span className="k-status-cell" data-testid="status-faceted" title={`${faceted} of ${st.rebuild.bodies.length} ${st.rebuild.bodies.length === 1 ? 'body is' : 'bodies are'} faceted (mesh kernel), not exact surfaces; STEP writes them as sewn facets.`}>Faceted {faceted}/{st.rebuild.bodies.length}</span>

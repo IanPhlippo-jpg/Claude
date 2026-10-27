@@ -1,5 +1,7 @@
 import { TEST_HOOKS } from '../testHooks';
 import * as THREE from 'three';
+import { appearanceMaterial } from './appearanceLook';
+import type { AppearanceProps } from '../../core/document/types';
 import { Line2 } from 'three/examples/jsm/lines/Line2.js';
 import { LineSegments2 } from 'three/examples/jsm/lines/LineSegments2.js';
 import { LineSegmentsGeometry } from 'three/examples/jsm/lines/LineSegmentsGeometry.js';
@@ -15,6 +17,8 @@ import type { BodyEdge } from '../../core/features/edgesets';
 
 export interface BodySceneInput {
   bodies: Body[];
+  /** Edit Appearance ▸ image, mapping, illumination, finish: per body id, '' for the part (the document's own object) */
+  appearanceProps?: Record<string, AppearanceProps>;
   displayStyle: DisplayStyle;
   hoverFace: { bodyId: string; faceId: string } | null;
   selectedFace: { bodyId: string; faceId: string } | null;
@@ -301,7 +305,7 @@ export class BodyScene {
     this.zebraMat = new THREE.MeshMatcapMaterial({ matcap: tex, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
     return this.zebraMat;
   }
-  private rebuildBodies(bodies: Body[], style: DisplayStyle, colors: Record<string, string> = {}, shiny: Set<string> = new Set(), look: { zebra?: boolean; realisticShading: boolean; shadows: boolean; metallic: boolean; base: string; wood?: Set<string>; wooden?: boolean; faceColors?: Record<string, Record<string, string>>; transparent?: Set<string> } = { realisticShading: false, shadows: false, metallic: false, base: '#e8e8ea' }) {
+  private rebuildBodies(bodies: Body[], style: DisplayStyle, colors: Record<string, string> = {}, shiny: Set<string> = new Set(), look: { zebra?: boolean; realisticShading: boolean; shadows: boolean; metallic: boolean; base: string; wood?: Set<string>; wooden?: boolean; faceColors?: Record<string, Record<string, string>>; transparent?: Set<string>; props?: Record<string, AppearanceProps> } = { realisticShading: false, shadows: false, metallic: false, base: '#e8e8ea' }) {
     for (const e of this.entries.values()) {
       this.group.remove(e.mesh, e.edges, ...(e.extra ?? []));
       if (e.fat) { this.group.remove(e.fat); this.disposeObject(e.fat); }
@@ -335,6 +339,9 @@ export class BodyScene {
           (faceMat as THREE.MeshStandardMaterial).map = woodTexture();
         }
       }
+      // Edit Appearance ▸ image, mapping, illumination and finish (the body's own, else the part's)
+      const ap = look.props?.[b.id] ?? look.props?.[''];
+      if (ap && !look.zebra && style !== 'hiddenRemoved' && style !== 'hiddenVisible' && style !== 'wireframe') faceMat = appearanceMaterial(faceMat, g, ap, (url) => this.imageTexture(url));
       // Appearances on faces: vertex colours on the triangles of those faces, the body colour elsewhere
       const fc = look.faceColors?.[b.id];
       if (fc && Object.keys(fc).length && style !== 'hiddenRemoved' && style !== 'hiddenVisible') {
@@ -515,6 +522,18 @@ export class BodyScene {
 
   private lastReplace: THREE.BufferGeometry | null = null;
   private lastKey = '';
+  private lastProps: Record<string, AppearanceProps> | undefined = undefined;
+  /** an appearance image as a repeating texture (loaded once) */
+  private imageTexture(url: string): THREE.Texture {
+    const key = 'appearance:' + url;
+    const hit = this.textures.get(key);
+    if (hit) return hit;
+    const t = new THREE.TextureLoader().load(url, () => this.onDecalLoaded?.());
+    t.colorSpace = THREE.SRGBColorSpace;
+    t.wrapS = t.wrapT = THREE.RepeatWrapping;
+    this.textures.set(key, t);
+    return t;
+  }
 
   /** set by the viewport: redraw when a decal image has loaded */
   onDecalLoaded: (() => void) | null = null;
@@ -535,11 +554,12 @@ export class BodyScene {
       this.faceMat.specular.set(input.metallic ? 0x9a9a9a : 0x222222);
     }
     const key = (input.hiddenBodies ?? []).join(',') + '|' + JSON.stringify(input.bodyColors ?? {}) + '|' + (input.shinyBodies ?? []).join(',') + '|' + (input.realisticShading ? 'rv' : '') + (input.zebra ? 'zb' : '') + (input.metallic ? 'm' : '') + (input.shadows ? 's' : '') + (input.wooden ? 'w' : '') + (input.bodyColor ?? '') + '|' + (input.woodBodies ?? []).join(',') + '|' + JSON.stringify(input.faceColors ?? {}) + '|' + (input.transparentBodies ?? []).join(',');
-    if (input.bodies !== this.lastBodies || input.displayStyle !== this.lastStyle || input.replaceBody !== this.lastReplace || key !== this.lastKey) {
+    if (input.bodies !== this.lastBodies || input.displayStyle !== this.lastStyle || input.replaceBody !== this.lastReplace || key !== this.lastKey || input.appearanceProps !== this.lastProps) {
       const hidden = new Set(input.hiddenBodies ?? []);
       const visible = input.bodies.filter((b) => !hidden.has(b.id));
       const shown = input.replaceBody && visible.length ? [{ ...visible[0], geometry: input.replaceBody }, ...visible.slice(1)] : visible;
-      this.rebuildBodies(shown, input.displayStyle, input.bodyColors ?? {}, new Set(input.shinyBodies ?? []), { zebra: !!input.zebra, realisticShading: !!input.realisticShading, shadows: !!input.shadows, metallic: !!input.metallic, base: input.bodyColor ?? '#e8e8ea', wood: new Set(input.woodBodies ?? []), wooden: !!input.wooden, faceColors: input.faceColors ?? {}, transparent: new Set(input.transparentBodies ?? []) });
+      this.rebuildBodies(shown, input.displayStyle, input.bodyColors ?? {}, new Set(input.shinyBodies ?? []), { zebra: !!input.zebra, realisticShading: !!input.realisticShading, shadows: !!input.shadows, metallic: !!input.metallic, base: input.bodyColor ?? '#e8e8ea', wood: new Set(input.woodBodies ?? []), wooden: !!input.wooden, faceColors: input.faceColors ?? {}, transparent: new Set(input.transparentBodies ?? []), props: input.appearanceProps });
+      this.lastProps = input.appearanceProps;
       this.lastBodies = input.bodies;
       this.lastStyle = input.displayStyle;
       this.lastReplace = input.replaceBody;

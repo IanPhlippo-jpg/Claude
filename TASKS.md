@@ -115,7 +115,7 @@ elease; README en docs/04 bijgewerkt
 
 ## Controle met de volledige playlist (58 video's, 15 u) — na de download
 - [~] Playlist downloaden (720p) met frames om de 15 s en contactvellen per video: referentie-video/playlist/ (achtergrond, download.sh)
-- [ ] Per video de contactvellen bekijken en alles wat gebouwd is vergelijken (interface, PropertyManagers, gedrag); afwijkingen noteren in docs/07-vergelijking-playlist.md en oplossen
+- [~] Per video de contactvellen bekijken en alles wat gebouwd is vergelijken (interface, PropertyManagers, gedrag); afwijkingen noteren in docs/07-vergelijking-playlist.md en oplossen — de gedownloade video's in de Vervolg-rondes; de 10 ontbrekende wachten op de download
 
 ## Fase 5: Tekeningen (2026-10-20/21, nacht)
 - [x] Datamodel: Document.kind 'drawing', sheets (formaat A4/A3/A2/A1/A0/ANSI A-D, liggend/staand, schaal), views (type front/top/right/left/back/bottom/iso, positie, schaal, bron-document ingebed), maten en notities; New > Drawing met het "Sheet Format/Size"-dialoog
@@ -407,8 +407,8 @@ elease; README en docs/04 bijgewerkt
 - [x] Maattekst gecentreerd tussen de maatpijlen
 - [x] Modify-box in de SW-indeling (titel, iconenrij, naam, waarde, duimwiel, Units >); getalvelden tonen meteen de juiste waarde
 - [x] Alternate Position View (ingedrukte kruk als fantoomlijnen in de deurkruk-tekening)
-- [~] bugronde: volledige regressie
-- [ ] designronde: interface naast SW 2026-frames (lettertype, kleuren, afstanden, iconen) en bijwerken
+- [x] bugronde: volledige regressie
+- [x] designronde: interface naast SW 2026-frames (lettertype, kleuren, afstanden, iconen) en bijwerken (gedaan in 0.4.4/0.4.5, Vervolg 45–46)
 - [x] nieuwe installer (0.2.1) bouwen en installeren
 
 ## Vervolg 26: Delete-bug, Confirm Delete, crash-vangnet (2026-10-21)
@@ -467,7 +467,7 @@ elease; README en docs/04 bijgewerkt
 - [x] Bugjacht: elk lint-commando, menu-item, tab en contextmenu automatisch aangeklikt (e2e/clickall.mjs): schets 128, part 115, assembly 89, tekening 106 — 0 fouten; alle sneltoetsen (e2e/keys.mjs) — dubbele items in de S-balk opgelost
 - [x] Bugjacht: PropertyManagers openen/OK/Cancel/Undo per feature; geen vastlopers (e2e/pmsweep.mjs, 0.4.3)
 - [x] SW-gelijkenis: hoofdschermen (part, sketch, feature-PM, assembly, drawing) opnieuw naast referentieframes, verschillen wegwerken (0.4.4/0.4.5, zie Vervolg 45–46)
-- [ ] Gevonden fouten oplossen + regressie + installer
+- [x] Gevonden fouten oplossen + regressie + installer (releases 0.4.x)
 
 ## Vervolg 31: elk commando naast de SW-referentievideo (2026-10-22)
 - [x] Replay van de BasePlate-tutorial op 1920×1080 (e2e/tutorial.mjs) + zij-aan-zij-beelden (e2e/pair.mjs)
@@ -645,11 +645,11 @@ elease; README en docs/04 bijgewerkt
   - [x] Chamfer-callout met Angle; Linear Pattern-flyout met Mirror; bodies met [n] bij dezelfde naam; bodymateriaal als kindrij
   - [x] Hole Wizard: titel Hole Position op het tabblad Positions met de Type-verwijzing; ANSI Metric-typenamen (B18.2.3.5M, B18.6.7M …)
   - [x] Loft: profielenlijst met ▲▼, Apply to all als vinkje bij Start constraint (callouts hadden de schetsnaam al)
-  - [ ] Loft: modelvlakken als profiel, Curvature To Face, Next Face
+  - [x] Loft: modelvlakken als profiel, Curvature To Face, Next Face (0.5.0)
   - [x] Equations: groep Features met Add feature suppression ("suppressed"/"unsuppressed" of een voorwaarde), Sketch Equation View, vier view-iconen links van het filter
   - [x] Evaluate ▸ Import Diagnostics: foute vlakken en gaten van de geïmporteerde driehoeken, Attempt to Heal All last punten binnen de tolerantie (Check staat al op de tab)
   - [x] Appearance: kop met ✓/✗ (✗ zet terug), Selected Geometry + Remove Appearance, Color met standaardpalet 8×5, kleurveld en Red/Green/Blue, statusprompt "Select entities to modify their appearance."
-  - [ ] Appearance: tabs Basic/Advanced en Color/Image/Mapping (vragen belichting en texturen)
+  - [x] Appearance: tabs Basic/Advanced en Color/Image/Mapping (0.5.0)
 - [~] Verschillen 45–52 (tweede agent, e2e-out/inventaris-45-52.md):
   - [x] meer statusprompts (Select sweep profile, Edge Flange, Mirror, Sketched Bend, Break Corner, callout), open boogrand toont Radius
   - [x] contextwerkbalk op een body in de boom (Hide/Show, Isolate, Appearance, Zoom to Fit)
@@ -657,7 +657,7 @@ elease; README en docs/04 bijgewerkt
   - [x] cut list: aantal altijd "(n)", body-[n], materiaal als kindrij; materialen Red Oak, American Cherry
   - [x] Fill Pattern: Create seed cut als radio bij Features and Faces, layoutvolgorde Perforation/Circular/Square/Polygon
   - [x] Section View: "Section by Body", Offset perpendicular to (Reference plane / Selected plane, unit test)
-  - [ ] Insert Bends: Ignore beveled faces; face fillet Hold Line
+  - [x] Insert Bends: Ignore beveled faces; face fillet Hold Line (0.5.0)
   - [x] View-menu: Redraw, Screen Capture ▸ Image Capture, Lights and Cameras ▸ Edit Scene, Toolbars ▸ Customize, Full Screen, Customize Menu; Display ▸ Curvature/Draft/Undercut/Parting Line/Section View; Tangent Edges als drie keuzes
   - [x] sensorwaarde als Mass1(23.8401841 g)
   - [x] plaatwerk-bochten in de boom: BaseBend1…, EdgeBend1…, MiterBend1… onder hun feature
@@ -680,4 +680,14 @@ elease; README en docs/04 bijgewerkt
 - [x] F97/F100: desktop-installed uitbreiden (schets, extrude, fillet, STEP, Save onder app:// + WASM); desktop-nohooks in CI
 - [x] F105: CI-stap met phlippo.kernel=brep op features/fillet/step/bodies
 - [x] F104: blank.html-flits in migrateStorage; release 0.4.9 (unit, regressie, desktop, installer)
-- [ ] Open na 0.4.9: F98 pushen (beslissing Ian), F46 mesh-booleans naar een worker, F103 PropertyPanel splitsen, F47/F48 topologie
+- [x] Open na 0.4.9: F46, F103, F47/F48 opgepakt in 0.5.0; F98 pushen blijft de beslissing van Ian
+
+## Open punten afwerken na 0.4.9 (2026-10-27)
+- [x] F46: zware part-rebuilds in een eigen worker (mesh-CSG van de UI-thread), synchroon budget ~4 s, "Rebuilding…" in de statusbalk; e2e die de UI-thread meet
+- [x] F48: gesloten-check na elke boolean (som van georiënteerde oppervlakken); een opening wordt een rebuild-waarschuwing (gele driehoek, What's Wrong ▸ Show warnings)
+- [x] F47: vlaknamen (feature + schetsentiteit) als attribuut door de booleans; randen herkend aan hun twee vlaknamen; ook op exacte bodies (unit + e2e facenames, mesh en B-rep)
+- [x] F103: PropertyPanel.tsx gesplitst in pm/ (7 families + schets + gedeeld; max 841 regels); tools/line-budget.cjs in CI
+- [x] Loft: modelvlak als tweede profiel (Selected face as profile), Curvature To Face, Next Face (unit + e2e loftface)
+- [x] Appearance: Basic/Advanced; tabs Color/Image (afbeelding), Mapping (box/projectie/cilinder/bol, breedte, rotatie, spiegelen), Illumination, Surface Finish (e2e appearance2)
+- [x] Insert Bends: Ignore beveled faces + bochten geteld in de boom (SharpBend); Face Fillet ▸ Hold line (unit + e2e)
+- [~] Release 0.5.0: unit, regressie Windows, B-rep-pass, desktop, installer, screenshots

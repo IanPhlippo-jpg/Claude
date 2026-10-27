@@ -17,7 +17,7 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       # no program-specific names in the visible text and no wording that names the reference program (F50, F92)
-      - run: node tools/rename-trademarks.cjs --check && node tools/neutral-comments.cjs --check
+      - run: node tools/rename-trademarks.cjs --check && node tools/neutral-comments.cjs --check && node tools/line-budget.cjs
       # the release build (no test hooks), then the e2e build (VITE_TEST_HOOKS=1) the regression drives
       - run: npm run build
       # the release build without test hooks, in the desktop shell (F53, F97, F100): the functional checks without hooks,

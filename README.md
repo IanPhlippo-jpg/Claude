@@ -44,6 +44,19 @@ Status per fase:
 8. Sheet metal (Base Flange/Tab, Edge Flange, Flatten met K-factor) — **basis gereed**; Hem/Jog/Miter/Unfold gepland
 7. Massa-eigenschappen en meten — **gereed** (Mass Properties, Measure); materialen en rendering gepland
 
+## Status 0.5.0 (2026-10-27)
+
+De open punten na 0.4.9 zijn afgewerkt (docs/23-open-punten-0.5.0.md).
+- Trage parts rebuilden in een eigen worker. Het venster blijft dan vloeiend en de statusbalk toont "Rebuilding…".
+- Een mesh-boolean met een opening geeft een gele waarschuwing. What's Wrong toont ook waarschuwingen.
+- Vlakken van extrusies hebben een naam. Fillets en chamfers vinden hun rand daardoor terug na een wijziging.
+- De PropertyPanel is gesplitst per feature-familie, en een regelbudget in de CI bewaakt de grootte van modules.
+- Loft kan naar een vlak van het model lopen, met Tangency To Face, Curvature To Face en Next Face.
+- Appearance heeft Basic/Advanced en de tabs Color/Image, Mapping, Illumination en Surface Finish.
+- Insert Bends kan afgeschuinde vlakken negeren. Face Fillet kent de methode Hold line.
+
+De regressiecijfers zijn Windows-cijfers. De CI en Linux zijn niet gedraaid, omdat er niet gepusht wordt.
+
 ## Status 0.4.9 (2026-10-27)
 
 Het QA-rapport over 0.4.8 is verwerkt (docs/22-qa-rapport-v0.4.8.md).

@@ -8,7 +8,7 @@ import { newId } from '../../core/sketch/model';
 import { loadPrefs } from '../prefs';
 import { isAssembly, isDrawing } from '../../core/document/types';
 import type { State, StoreSet, StoreGet, Library } from '../store';
-import { initialSolve, initialRebuild, history, rebuildFor, historyFlags, featureName, solveAll, saveLibraries } from '../store';
+import { initialSolve, initialRebuild, history, rebuildFor, whenRebuilt, historyFlags, featureName, solveAll, saveLibraries } from '../store';
 
 type DocumentKeys =
   | 'doc' | 'rebuild' | 'openSeq' | 'hasDocument' | 'sessionParts' | 'exportFormat' | 'dirty'
@@ -55,12 +55,14 @@ export const documentSlice = (set: StoreSet, get: StoreGet): Pick<State, Documen
     }
     const rebuild = rebuildFor(d, null);
     set({ doc: d, rebuild, activeSketchId: null, featureEdit: null, selectedFeatureId: added[added.length - 1]?.id ?? null, selectedFace: null, selection: [], dirty: true, tab: 'features', rollbackIndex: null, ...historyFlags() });
-    const failed = added.filter((f) => rebuild.errors[f.id]);
-    const triangles = list.reduce((n, p) => n + p.length / 9, 0);
-    if (failed.length) get().pushMessage(`${failed[0].name}: ${rebuild.errors[failed[0].id]}`, 'error');
-    else if (added.length === 1) get().pushMessage(`${source} imported as ${added[0].name} (${triangles} triangles).`);
-    else get().pushMessage(`${source} imported: ${added.length} bodies, ${added[0].name} to ${added[added.length - 1].name} (${triangles} triangles).`);
     autosave(d);
+    whenRebuilt(rebuild, (rebuild) => {
+      const failed = added.filter((f) => rebuild.errors[f.id]);
+      const triangles = list.reduce((n, p) => n + p.length / 9, 0);
+      if (failed.length) get().pushMessage(`${failed[0].name}: ${rebuild.errors[failed[0].id]}`, 'error');
+      else if (added.length === 1) get().pushMessage(`${source} imported as ${added[0].name} (${triangles} triangles).`);
+      else get().pushMessage(`${source} imported: ${added.length} bodies, ${added[0].name} to ${added[added.length - 1].name} (${triangles} triangles).`);
+    });
   },
   applyDocument(label, d) {
     history.push(label, get().doc);
@@ -83,6 +85,7 @@ export const documentSlice = (set: StoreSet, get: StoreGet): Pick<State, Documen
     set({ prefs: { ...loadPrefs(), ...(doc.properties ?? {}) } });
     set({ openSeq: get().openSeq + 1, hasDocument: true, doc: r.doc, solve: r.solve, rebuild, activeSketchId: null, featureEdit: null, mateEdit: null, insertingComponent: false, asmTool: 'select', selectedFeatureId: null, selectedFace: null, selectedFaces: [], selection: [], selectedConstraint: null, dirty: false, tab: isAssembly(r.doc) ? 'assembly' : isDrawing(r.doc) ? 'viewLayout' : 'features', drawingEdit: null, selectedDrawingViewId: null, rollbackIndex: null, editContext: null, messages: get().messages.filter((m) => m.level !== 'info'), whatsWrong: Object.keys(rebuild.errors).length > 0, ...historyFlags() });
     autosave(r.doc);
+    if (rebuild.pending) whenRebuilt(rebuild, (rb) => { if (Object.keys(rb.errors).length) set({ whatsWrong: true }); });
   },
   rebuildAll() {
     const { doc, rollbackIndex } = get();

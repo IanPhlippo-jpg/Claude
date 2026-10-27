@@ -30,7 +30,7 @@ import { featureDependents, geometricChildren } from '../../core/features/depend
 import { refGeometryFrom } from '../../core/features/refgeom';
 import { faceBoundary } from '../../core/features/patterns2';
 import type { State, StoreSet, StoreGet, FaceRef, PatternEdit, UnitSystem } from '../store';
-import { history, historyFlags, initialDoc, featureName, DEFAULT_DECAL, threadEdge, rebuildFor, mateRefCount, STANDARD_MATES, refreshMatePreview, previewPattern, solveAll, cfgOpts, DRAW_TOOLS } from '../store';
+import { history, historyFlags, initialDoc, featureName, DEFAULT_DECAL, threadEdge, rebuildFor, rebuildNow, whenRebuilt, mateRefCount, STANDARD_MATES, refreshMatePreview, previewPattern, solveAll, cfgOpts, DRAW_TOOLS } from '../store';
 
 type FeaturesKeys =
   | 'featureEdit' | 'planeEdit' | 'refEdit' | 'decalEdit' | 'hoverFeatureId' | 'edgePick'
@@ -44,7 +44,7 @@ type FeaturesKeys =
   | 'toggleSelectedEdge' | 'updateFeatureDraft' | 'commitFeature' | 'cancelFeature' | 'editFeature' | 'setFeatureDepth'
   | 'toggleSuppress' | 'setSelectedFeature' | 'setHoverFace' | 'setSelectedFace' | 'setBodyHidden' | 'startCurveFeature'
   | 'startHelix' | 'startSurface' | 'startIntersect' | 'startDeleteFace' | 'startDraft' | 'startThread'
-  | 'startWrap' | 'startDeform' | 'setAppearance' | 'setFaceAppearance' | 'addEquationCurve' | 'updatePatternDraft'
+  | 'startWrap' | 'startDeform' | 'setAppearance' | 'setAppearanceProps' | 'setFaceAppearance' | 'addEquationCurve' | 'updatePatternDraft'
   | 'startSectionView' | 'updateSectionView' | 'commitSectionView' | 'saveSectionView' | 'cancelSectionView' | 'startCombine' | 'startMoveBody'
   | 'startRefGeom' | 'cancelRefGeom' | 'commitRefGeom' | 'deleteRefGeom' | 'startPlane' | 'showConfiguration'
   | 'startAddConfiguration' | 'editConfigurationProperties' | 'updateConfigDraft' | 'commitConfiguration' | 'cancelConfiguration' | 'deleteConfiguration'
@@ -342,6 +342,14 @@ export const featuresSlice = (set: StoreSet, get: StoreGet): Pick<State, Feature
         return;
       }
     }
+    // Face Fillet ▸ Hold line: the picked edge is the hold line
+    if (featureEdit && featureEdit.draft.type === 'fillet' && featureEdit.draft.roundType === 'face' && featureEdit.draft.holdLineMode && !has) {
+      const edge = rebuild.bodies.flatMap((b) => b.edges).find((e) => e.id === id);
+      if (edge) {
+        set({ featureEdit: { ...featureEdit, draft: { ...featureEdit.draft, holdLine: edgeRef(edge) } }, selectedEdges: [id] });
+        return;
+      }
+    }
     // Ruled Surface: the picked edge is the edge to rule from
     if (featureEdit && featureEdit.draft.type === 'surface' && featureEdit.draft.kind === 'ruled' && !has) {
       const edge = rebuild.bodies.flatMap((b) => b.edges).find((e) => e.id === id);
@@ -480,8 +488,8 @@ export const featuresSlice = (set: StoreSet, get: StoreGet): Pick<State, Feature
       get().pushMessage('Select the path sketch for the sweep.', 'warn');
       return;
     }
-    if (fe.draft.type === 'loft' && !doc.sketches[fe.draft.sketchId2]) {
-      get().pushMessage('Select the second profile sketch for the loft.', 'warn');
+    if (fe.draft.type === 'loft' && !doc.sketches[fe.draft.sketchId2] && !fe.draft.face2) {
+      get().pushMessage('Select the second profile for the loft (a sketch or a planar face).', 'warn');
       return;
     }
     if (fe.draft.type === 'shell' && fe.draft.thickness <= 0) {
@@ -538,11 +546,13 @@ export const featuresSlice = (set: StoreSet, get: StoreGet): Pick<State, Feature
     const d: Document = applyEquations({ ...docIn, features }).doc;
     const rebuild = rebuildFor(d, get().rollbackIndex);
     set({ contourPick: false, doc: d, rebuild, featureEdit: null, selectedFeatureId: null, selectedEdges: [], selectedFaces: [], selectedFace: null, hoverEdge: null, dirty: true, tab: get().tab === 'surfaces' || get().tab === 'sheetmetal' || get().tab === 'evaluate' ? get().tab : 'features', ...historyFlags() });
-    const err = rebuild.errors[fe.draft.id];
-    if (err) get().pushMessage(`${fe.draft.name}: ${err}`, 'error');
     autosave(d);
-    // Bodies to Keep: the cut split a body (and no choice was made yet): ask which pieces to keep
-    if ((rebuild.splitCounts?.[fe.draft.id] ?? 0) > 1 && !(fe.draft as { keepBodies?: number[] }).keepBodies) set({ dialog: 'bodiesToKeep', dialogFeatureId: fe.draft.id });
+    whenRebuilt(rebuild, (rebuild) => {
+      const err = rebuild.errors[fe.draft.id];
+      if (err) get().pushMessage(`${fe.draft.name}: ${err}`, 'error');
+      // Bodies to Keep: the cut split a body (and no choice was made yet): ask which pieces to keep
+      if ((rebuild.splitCounts?.[fe.draft.id] ?? 0) > 1 && !(fe.draft as { keepBodies?: number[] }).keepBodies) set({ dialog: 'bodiesToKeep', dialogFeatureId: fe.draft.id });
+    });
     // Keep Visible (the pushpin): the Property Panel opens again for the next one
     if (get().pmPinned && !fe.featureId && isRoundFeature(fe.draft)) get().startRound(fe.draft.type);
   },
@@ -1142,6 +1152,16 @@ export const featuresSlice = (set: StoreSet, get: StoreGet): Pick<State, Feature
     set({ doc: d, dirty: true, ...historyFlags() });
     autosave(d);
   },
+  setAppearanceProps(target, props) {
+    const { doc } = get();
+    history.push('Appearance', doc);
+    const all = { ...(doc.appearanceProps ?? {}) };
+    if (props) all[target ?? ''] = props;
+    else delete all[target ?? ''];
+    const d: Document = { ...doc, appearanceProps: Object.keys(all).length ? all : undefined };
+    set({ doc: d, dirty: true, ...historyFlags() });
+    autosave(d);
+  },
   setFaceAppearance(face, color) {
     const { doc, rebuild } = get();
     const body = rebuild.bodies.find((b) => b.id === face.bodyId);
@@ -1463,7 +1483,7 @@ export const featuresSlice = (set: StoreSet, get: StoreGet): Pick<State, Feature
     const deps = featureDependents(doc, id);
     if (withChildren) {
       for (const c of deps.children) remove.add(c.id);
-      for (const c of geometricChildren(doc, remove, get().rebuild.errors, (d) => rebuildFor(d, null))) remove.add(c.id);
+      for (const c of geometricChildren(doc, remove, get().rebuild.errors, (d) => rebuildNow(d, null))) remove.add(c.id);
     }
     if (opts.absorbed) for (const a of deps.absorbed) remove.add(a.id);
     // a sketch that goes also takes its sketch data along
@@ -1488,7 +1508,7 @@ export const featuresSlice = (set: StoreSet, get: StoreGet): Pick<State, Feature
       if (!cd || cd.id !== id) return;
       let extra: Id[] = [];
       try {
-        extra = geometricChildren(get().doc, new Set([id, ...cd.children]), get().rebuild.errors, (d) => rebuildFor(d, null)).map((c) => c.id);
+        extra = geometricChildren(get().doc, new Set([id, ...cd.children]), get().rebuild.errors, (d) => rebuildNow(d, null)).map((c) => c.id);
       } catch {
         /* the dialog still works with the reference children */
       }

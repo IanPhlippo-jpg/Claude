@@ -13,7 +13,8 @@ import type { SectionPlane } from '../core/features/section';
 import { create } from 'zustand';
 import { createDocument, type Document, type ExtrudeFeature, type HoleFeature, type MirrorFeature, type PatternFeature, type LoftFeature, type RibFeature, type CombineFeature, type BaseFlangeFeature, type EdgeFlangeFeature, type HelixFeature, type HemFeature, type MiterFlangeFeature, type JogFeature, type Sketch3DFeature, type SketchedBendFeature, type DraftFeature, type IntersectFeature, type SurfaceFeature, type CrossBreakFeature, type WrapFeature, type ThreadFeature, type RevolveFeature, type RoundFeature, type ShellFeature, type SolidFeature, type SweepFeature, type Units, type VentFeature, type FormToolFeature, type GussetFeature, type TabSlotFeature, type RipFeature, type SweptFlangeFeature, type StructuralMemberFeature, type TrimExtendFeature, type EndCapFeature, type WeldGussetFeature, type WeldBeadFeature, type DeformFeature, type MoveBodyFeature } from '../core/document/types';
 import { type AutoToleranceData, type AutoToleranceGtol, type FaceRef as DxFaceRef } from '../core/document/autoTolerance';
-import { rebuildDocument, type RebuildResult } from '../core/features/rebuild';
+import { rebuildBudgetMs, rebuildDocument, setRebuildBudget, type RebuildResult } from '../core/features/rebuild';
+import { rebuildInWorker, rebuildWorkerEnabled, RebuildSuperseded } from './rebuildWorker';
 import { registerPlanes } from './viewport/camera';
 import { History } from '../core/document/history';
 import { autosave, loadAutosave, setAutosaveErrorHandler } from '../core/document/persistence';
@@ -725,6 +726,8 @@ export interface State {
   setSketchTool(patch: Partial<SketchToolParams>): void;
   /** Edit Appearance: a colour for the part (bodyId null) or one body; null colour removes it */
   setAppearance(color: string | null, bodyId?: Id | null): void;
+  /** Edit Appearance ▸ image, mapping, illumination, surface finish of a body (or the part: null); null removes them */
+  setAppearanceProps(target: Id | null, props: import('../core/document/types').AppearanceProps | null): void;
   /** Appearance on one face (null removes it) */
   setFaceAppearance(face: FaceRef, color: string | null): void;
   /** OK of an editing tool's Property Panel: Offset, Move/Copy/Rotate/Scale, Linear/Circular Sketch Pattern */
@@ -1173,7 +1176,8 @@ export function withSolvedComponents(d: Document): { doc: Document; rebuild: Reb
   return { doc, rebuild };
 }
 
-export function rebuildFor(doc: Document, rollbackIndex: number | null): RebuildResult {
+/** the rebuild of a document, always on this thread (callers that use the result at once, not only show it) */
+export function rebuildNow(doc: Document, rollbackIndex: number | null): RebuildResult {
   registerPlanes(doc.planes);
   try {
     if (isDrawing(doc)) return { bodies: [], errors: {}, consumedSketches: new Set() };
@@ -1183,7 +1187,65 @@ export function rebuildFor(doc: Document, rollbackIndex: number | null): Rebuild
     return { bodies: [], errors: { __all: (err as Error).message }, consumedSketches: new Set() };
   }
 }
-export const initialRebuild = rebuildFor(initialSolve.doc, null);
+
+/** a part rebuild slower than this goes to the rebuild worker the next time (ms) */
+const HEAVY_REBUILD_MS = 250;
+/** with the worker available a rebuild on this thread stops here and goes on in the worker (ms) */
+const SYNC_REBUILD_MS = 4_000;
+/** per document: how long its last part rebuild took */
+const lastRebuildMs = new Map<string, number>();
+
+/**
+ * The rebuild the store shows. Parts that rebuild slowly are built in the rebuild worker (QA F46): the window stays
+ * responsive, the previous result stays shown (pending, "Rebuilding…" in the status bar) and the new one replaces it
+ * when it is done, unless another rebuild came first.
+ */
+export function rebuildFor(doc: Document, rollbackIndex: number | null): RebuildResult {
+  if (isDrawing(doc) || isAssembly(doc) || !rebuildWorkerEnabled()) return rebuildNow(doc, rollbackIndex);
+  const key = doc.id ?? doc.name;
+  if ((lastRebuildMs.get(key) ?? 0) >= HEAVY_REBUILD_MS) return rebuildLater(doc, rollbackIndex, key);
+  const budget = rebuildBudgetMs;
+  setRebuildBudget(Math.min(budget, SYNC_REBUILD_MS));
+  const t0 = performance.now();
+  let r: RebuildResult;
+  try {
+    r = rebuildNow(doc, rollbackIndex);
+  } finally {
+    setRebuildBudget(budget);
+  }
+  lastRebuildMs.set(key, performance.now() - t0);
+  return r.stopped ? rebuildLater(doc, rollbackIndex, key) : r;
+}
+
+/** runs cb with the finished rebuild: at once, or when the rebuild worker delivers it (a newer rebuild counts too) */
+export function whenRebuilt(r: RebuildResult, cb: (r: RebuildResult) => void): void {
+  if (!r.pending) { cb(r); return; }
+  const unsub = useStore.subscribe((s) => {
+    if (s.rebuild.pending) return;
+    unsub();
+    cb(s.rebuild);
+  });
+}
+
+function rebuildLater(doc: Document, rollbackIndex: number | null, key: string): RebuildResult {
+  registerPlanes(doc.planes);
+  const st = useStore.getState();
+  const placeholder: RebuildResult = st.doc && (st.doc.id ?? st.doc.name) === key ? { ...st.rebuild, pending: true } : { bodies: [], errors: {}, consumedSketches: new Set(), pending: true };
+  rebuildInWorker(doc, rollbackIndex, rebuildBudgetMs).then(
+    ({ result, ms }) => {
+      lastRebuildMs.set(key, ms);
+      if (useStore.getState().rebuild === placeholder) useStore.setState({ rebuild: result });
+    },
+    (err) => {
+      if (err instanceof RebuildSuperseded) return;
+      // the worker failed: the rebuild runs here after all
+      lastRebuildMs.delete(key);
+      if (useStore.getState().rebuild === placeholder) useStore.setState({ rebuild: rebuildNow(doc, rollbackIndex) });
+    },
+  );
+  return placeholder;
+}
+export const initialRebuild = rebuildNow(initialSolve.doc, null);
 
 /** the default decal image: a Phlippo badge */
 export const DEFAULT_DECAL = 'data:image/svg+xml;base64,' + (typeof btoa !== 'undefined' ? btoa('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="100" viewBox="0 0 200 100"><rect x="2" y="2" width="196" height="96" rx="14" fill="#1f4fa8"/><text x="100" y="64" font-family="Arial" font-size="40" font-weight="bold" text-anchor="middle" fill="#ffffff">Phlippo</text></svg>') : '');

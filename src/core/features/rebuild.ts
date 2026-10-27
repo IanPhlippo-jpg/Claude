@@ -11,7 +11,7 @@ import { clipToSurface, csg, extrudeGeometry, flipWinding, meshPieces, meshVolum
 import { MeshBVH } from 'three-mesh-bvh';
 import type { Region } from './regions';
 import { bodyEdges, matchEdge, subEdgeAt, type BodyEdge } from './edgesets';
-import { applyTools, cornerTools, keepEdgeRadii, roundTools, roundToolsOpts, vertexChamferTool } from './round';
+import { applyTools, cornerTools, keepEdgeRadii, roundTools, roundToolsOpts, vertexChamferTool, holdLineRadius } from './round';
 import { holeTool, mirrorGeometry, patternInstances, translated } from './pattern';
 import { curveInstances, fillInstances, tableInstances } from './patterns2';
 import { solveSketch } from '../solver/solver';
@@ -33,6 +33,7 @@ import { baseFlangeGeometry, baseFlangeLoop, baseFlangeRegion, bendAllowance, DE
 import type { DraftFeature, PatternFeature, RevolveFeature, EdgeFlangeFeature, HemFeature, HoleFeature, JogFeature, MiterFlangeFeature, PlaneDef, SketchedBendFeature } from '../document/types';
 import { chainEdges, classifyVent, formToolGeometry, gussetTools, ripTool, sweptFlangeRegions, tabSlotTools, ventTool } from './sheetmetal4';
 import { bodyEdges as bodyEdgesOf, matchEdge as matchEdgeRef } from './edgesets';
+import { copyFaceNames, FACE_TAG, nameExtrudedFaces } from './faceNames';
 import { pointDeform } from './deform';
 import { endCapGeometry, faceOutline, findFaceOnBodies, findProfile, memberSegments, placedProfile, profileLoops, profileRegion, structuralMembers, trimByBodies, trimByPlane, weldBeadGeometry, weldGussetGeometry } from './weldments';
 
@@ -70,6 +71,14 @@ export interface RebuildResult {
   brep?: Record<Id, BrepShape>;
   /** Weldments: per body the cut list data (description, length, miter angles) and its kind */
   bodyMeta?: Record<Id, { kind: 'member' | 'cap' | 'gusset' | 'bead' | 'other'; description: string; length: number; angle1: number; angle2: number }>;
+  /** feature id -> rebuild warning (the feature is built, but something about it needs a look) */
+  warnings?: Record<Id, string>;
+  /** Convert to Sheet Metal / Insert Bends: the number of bends per feature (the sharp edges that became bends) */
+  bendCounts?: Record<Id, number>;
+  /** the wall-clock budget ran out: the features after it were marked, not built */
+  stopped?: boolean;
+  /** shown while the rebuild runs in the rebuild worker: the previous result, replaced when the worker is done */
+  pending?: boolean;
 }
 
 /**
@@ -123,7 +132,47 @@ export function resolveExtrudeEnds(f: ExtrudeFeature, regions: Region[], plane: 
 }
 
 /** Geometry of one sketch-based solid feature on its own (also used for the yellow preview). */
+const centroid3 = (pts: THREE.Vector3[]) => pts.reduce((a, p) => a.add(p), new THREE.Vector3()).divideScalar(pts.length || 1);
+
+/**
+ * Loft ▸ Tangency To Face: the directions of the model faces next to a profile outline (each face that the outline
+ * lies on and that is not the profile plane itself), taken in the face and away from the profile, pointing along the
+ * loft. Most used first; Next Face steps through them.
+ */
+export function faceTangents(bodies: Body[], outline: THREE.Vector3[], n: THREE.Vector3, along: THREE.Vector3): THREE.Vector3[] {
+  const found: { d: THREE.Vector3; hits: number }[] = [];
+  const step = Math.max(1, Math.floor(outline.length / 24));
+  for (const b of bodies) {
+    for (const face of planarFaces(b.geometry, b.id)) {
+      if (face.curved) continue;
+      const m = new THREE.Vector3(...face.normal).normalize();
+      if (Math.abs(m.dot(n)) > 0.99) continue;
+      const c = new THREE.Vector3(...face.centroid);
+      let hits = 0;
+      for (let i = 0; i < outline.length; i += step) if (Math.abs(outline[i].clone().sub(c).dot(m)) < 0.05) hits++;
+      if (!hits) continue;
+      const d = n.clone().addScaledVector(m, -n.dot(m)).normalize();
+      if (d.dot(along) < 0) d.negate();
+      const same = found.find((x) => x.d.dot(d) > 0.999);
+      if (same) same.hits += hits;
+      else found.push({ d, hits });
+    }
+  }
+  return found.sort((a, b) => b.hits - a.hits).map((x) => x.d);
+}
+
 export function featureGeometry(doc: Document, f: SketchBasedFeature, extent = THROUGH_ALL, body?: THREE.BufferGeometry | null, bodyList: Body[] = []): { geometry: THREE.BufferGeometry | null; error?: string } {
+  const r = sketchedGeometry(doc, f, extent, body, bodyList);
+  // the faces of an extrusion are named after the feature and the sketch entities (F47); From ▸ Offset is named by
+  // the extrusion it moves
+  if (r.geometry && f.type === 'extrude' && !f.fromOffset && !f.thin) {
+    const sketch = doc.sketches[f.sketchId];
+    if (sketch) return { ...r, geometry: nameExtrudedFaces(r.geometry, f.id, sketch, resolvePlaneDef(doc, sketch.plane)) };
+  }
+  return r;
+}
+
+function sketchedGeometry(doc: Document, f: SketchBasedFeature, extent = THROUGH_ALL, body?: THREE.BufferGeometry | null, bodyList: Body[] = []): { geometry: THREE.BufferGeometry | null; error?: string } {
   const sketch = doc.sketches[f.sketchId];
   if (!sketch) return { geometry: null, error: 'The sketch of this feature no longer exists.' };
   // From ▸ Offset: the extrusion as from the sketch plane, moved along the plane normal
@@ -237,10 +286,22 @@ export function featureGeometry(doc: Document, f: SketchBasedFeature, extent = T
     return g ? { geometry: g } : { geometry: null, error: 'Could not sweep the profile along the path.' };
   }
   if (f.type === 'loft') {
-    const sketch2 = doc.sketches[f.sketchId2];
-    if (!sketch2) return { geometry: null, error: 'Select a second profile sketch.' };
-    const regions2 = sketchRegions(sketch2);
-    if (!regions2.length) return { geometry: null, error: 'The second sketch has no closed contour.' };
+    // the second profile: a sketch, or a planar face of the model
+    let region2: Region, plane2: PlaneDef;
+    if (f.face2) {
+      const hit = findFaceOnBodies(bodyList, f.face2);
+      const outline = hit ? faceOutline(hit.body, hit.face) : null;
+      if (!outline) return { geometry: null, error: 'The face of the second profile is no longer on the model.' };
+      region2 = outline.region;
+      plane2 = outline.plane;
+    } else {
+      const sketch2 = doc.sketches[f.sketchId2];
+      if (!sketch2) return { geometry: null, error: 'Select a second profile sketch.' };
+      const regions2 = sketchRegions(sketch2);
+      if (!regions2.length) return { geometry: null, error: 'The second sketch has no closed contour.' };
+      region2 = regions2[0];
+      plane2 = resolvePlaneDef(doc, sketch2.plane);
+    }
     const guides: THREE.Vector3[][] = [];
     for (const gid of f.guides ?? []) {
       const gs = doc.sketches[gid];
@@ -248,7 +309,7 @@ export function featureGeometry(doc: Document, f: SketchBasedFeature, extent = T
       let pts = sketchPath(gs, resolvePlaneDef(doc, gs.plane));
       if (!pts) return { geometry: null, error: 'A guide curve sketch has no lines, arcs or splines.' };
       // Guide tangency type > Normal to profile: the guide leaves each profile plane at a right angle
-      if (f.guideTangency === 'normal') pts = guideNormalToProfiles(pts, new THREE.Vector3(...plane.n), new THREE.Vector3(...resolvePlaneDef(doc, sketch2.plane).n));
+      if (f.guideTangency === 'normal') pts = guideNormalToProfiles(pts, new THREE.Vector3(...plane.n), new THREE.Vector3(...plane2.n));
       guides.push(pts);
     }
     // Centerline Parameters: the sketch curve the section centres follow
@@ -259,7 +320,25 @@ export function featureGeometry(doc: Document, f: SketchBasedFeature, extent = T
       if (!pts) return { geometry: null, error: 'The centerline sketch has no lines, arcs or splines.' };
       centerline = pts;
     }
-    const g = loftGeometry(regions[0], plane, regions2[0], resolvePlaneDef(doc, sketch2.plane), 64, guides, { centerline, start: f.startNormal, end: f.endNormal, startDir: f.startType === 'direction' ? f.startDir : undefined, endDir: f.endType === 'direction' ? f.endDir : undefined });
+    // Tangency / Curvature To Face: the loft leaves (or meets) the profile along the faces next to it; Curvature To Face
+    // also carries their bend on, approximated by a longer tangent
+    const world = (r: Region, pl: PlaneDef) => r.outer.map((q) => new THREE.Vector3(...pl.origin).addScaledVector(new THREE.Vector3(...pl.u), q.x).addScaledVector(new THREE.Vector3(...pl.v), q.y));
+    const w1 = world(regions[0], plane), w2 = world(region2, plane2);
+    const axis = centroid3(w2).sub(centroid3(w1));
+    const faceDir = (end: 'start' | 'end'): [number, number, number] | undefined => {
+      const type = end === 'start' ? f.startType : f.endType;
+      if (type === 'direction') return end === 'start' ? f.startDir : f.endDir;
+      if (type !== 'tangent' && type !== 'curvature') return undefined;
+      const dirs = faceTangents(bodyList, end === 'start' ? w1 : w2, new THREE.Vector3(...(end === 'start' ? plane : plane2).n), axis);
+      if (!dirs.length) return undefined;
+      const d = dirs[((end === 'start' ? f.startFace : f.endFace) ?? 0) % dirs.length];
+      return [d.x, d.y, d.z];
+    };
+    const weight = (end: 'start' | 'end') => {
+      const w = end === 'start' ? f.startNormal : f.endNormal;
+      return w !== undefined && (end === 'start' ? f.startType : f.endType) === 'curvature' ? w * 1.5 : w;
+    };
+    const g = loftGeometry(regions[0], plane, region2, plane2, 64, guides, { centerline, start: weight('start'), end: weight('end'), startDir: faceDir('start'), endDir: faceDir('end') });
     return g ? { geometry: g } : { geometry: null, error: 'Could not loft between the profiles.' };
   }
   // Mid-Plane: half the angle each way; Direction 2: the second angle on the other side
@@ -871,7 +950,7 @@ function brepTool(K: BrepKernel, doc: Document, f: Feature, extent: number, mesh
   }
   if (f.type === 'loft') {
     // a loft between two single-region profiles; guides, centerline, end constraints and boundary: mesh kernel
-    if (f.boundary || f.guides?.length || f.centerline || f.closeLoft || f.startNormal || f.endNormal || (f.startType && f.startType !== 'normal') || (f.endType && f.endType !== 'normal')) return null;
+    if (f.boundary || f.face2 || f.guides?.length || f.centerline || f.closeLoft || f.startNormal || f.endNormal || (f.startType && f.startType !== 'normal') || (f.endType && f.endType !== 'normal')) return null;
     const s1 = doc.sketches[f.sketchId], s2 = doc.sketches[f.sketchId2];
     if (!s1 || !s2) return null;
     const r1 = sketchContourRegions(s1), r2 = sketchContourRegions(s2);
@@ -1107,6 +1186,7 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
     }
   };
   const addMaterial = (tool: THREE.BufferGeometry, fid: Id, merge: boolean, scope?: Id[], toolShape?: BrepShape | null) => {
+    featureTools.push(tool);
     const hits = merge ? touching(tool, scoped(scope)) : [];
     if (K && toolShape === undefined && (hits.length ? hits.every((b) => exactOf(b)) : bodies.some((b) => exactOf(b)))) toolShape = planarTool(tool);
     if (!hits.length) {
@@ -1143,6 +1223,7 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
   };
   /** cut material: subtract from the bodies the tool touches (Feature Scope, else Auto-select) */
   const removeMaterial = (tool: THREE.BufferGeometry, fid: Id, scope?: Id[], toolShape?: BrepShape | null): boolean => {
+    featureTools.push(tool);
     const hits = touching(tool, scoped(scope));
     if (!hits.length) return false;
     if (K && toolShape === undefined && hits.some((b) => exactOf(b))) toolShape = planarTool(tool);
@@ -1199,6 +1280,23 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
     return v.length === 1 ? v[0].geometry : mergeGeometries(v.map((b) => b.geometry));
   };
   const times: Record<Id, number> = {};
+  const warnings: Record<Id, string> = {};
+  const bendCounts: Record<Id, number> = {};
+  /** Face Fillet ▸ Hold line: the fillet with the radius that ends it on the hold line */
+  const holdLineErrors: Record<Id, string> = {};
+  const sizedByHoldLine = (x: Feature): Feature => {
+    if (x.type !== 'fillet' || x.roundType !== 'face' || !x.holdLine || x.suppressed) return x;
+    const b = visibleBodies()[0] ?? bodies[0];
+    if (!b) return x;
+    const edges = bodyEdges(b.geometry, b.id);
+    const hold = matchEdge(edges, x.holdLine);
+    const edge = x.edges.length ? matchEdge(edges, x.edges[0]) : null;
+    const r = !hold ? 'The hold line is no longer on the body.' : !edge ? 'Select the two faces to fillet.' : holdLineRadius(edge, hold);
+    if (typeof r === 'string') { holdLineErrors[x.id] = r; return x; }
+    return { ...x, size: r };
+  };
+  /** the tools of the feature being built (the sources of the face names of its result) */
+  const featureTools: THREE.BufferGeometry[] = [];
   /** Bodies to Keep: the number of pieces a cut split a body into */
   const splitCounts: Record<Id, number> = {};
   const bodyMeta: NonNullable<RebuildResult['bodyMeta']> = {};
@@ -1206,7 +1304,7 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
   const started = clock();
   let outOfTime = false;
   for (let i = 0; i < n; i++) {
-    const f: Feature = doc.features[i];
+    const f: Feature = sizedByHoldLine(doc.features[i]);
     if (f.type === 'sketch') continue;
     // the rebuild never blocks the window for minutes: past the budget the rest is marked and skipped (F46)
     if (outOfTime || clock() - started >= rebuildBudgetMs) {
@@ -1215,6 +1313,8 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
       continue;
     }
     const t0 = clock();
+    const before = new Map(bodies.map((b) => [b, b.geometry]));
+    featureTools.length = 0;
     // one feature failing never takes the whole rebuild down: it is marked and the rest goes on
     try {
     if (isSketchBased(f)) consumedSketches.add(f.sketchId);
@@ -1906,6 +2006,9 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
           const sk = doc.sketches[seed.sketchId];
           const bodyBound = seed.type === 'extrude' && ['upToNext', 'upToSurface', 'offsetFromSurface', 'upToBody', 'upToVertex'].includes(seed.end);
           const perInstance = !!sk && (f.varySketch || !!f.varyDims?.length || (!f.geometryPattern && bodyBound));
+          // mesh kernel: the cut tools of the instances are gathered and, when no two overlap, cut as one tool (one
+          // boolean instead of one per instance: a 8 × 8 hole pattern went from 30 s to about a second, QA F46)
+          const batch: THREE.BufferGeometry[] = [];
           for (const [k, inst] of instances.entries()) {
             if (f.skip?.includes(k)) continue;
             let ig: THREE.BufferGeometry | null = null;
@@ -1947,9 +2050,16 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
               addMaterial(ig, f.id, true, undefined, ish ?? undefined);
               addBoss(ig);
             } else {
-              removeMaterial(ig, f.id, undefined, ish ?? undefined);
+              if (!K) batch.push(ig);
+              else removeMaterial(ig, f.id, undefined, ish ?? undefined);
               history.cuts.push(ig);
             }
+          }
+          if (batch.length) {
+            const boxes = batch.map((g) => { g.computeBoundingBox(); return g.boundingBox!.clone().expandByScalar(1e-4); });
+            const apart = boxes.every((a, i) => boxes.every((b, j) => j <= i || !a.intersectsBox(b)));
+            if (apart && batch.length > 1) removeMaterial(mergeGeometries(batch.map((g) => (g.index ? g.toNonIndexed() : g))), f.id);
+            else for (const g of batch) removeMaterial(g, f.id);
           }
         }
         body.featureIds.push(f.id);
@@ -2664,6 +2774,20 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
       // the open side: the planar face opposite the fixed face, farthest away
       const fn = new THREE.Vector3(...fixed.normal);
       const opp = planarFaces(body.geometry, body.id).filter((x) => !x.curved && new THREE.Vector3(...x.normal).dot(fn) < -0.999).sort((a, b) => new THREE.Vector3(...b.centroid).dot(fn) - new THREE.Vector3(...a.centroid).dot(fn))[0];
+      // the bends: the straight sharp edges of the solid that run along the fixed face (not up from it: those are the
+      // corners) and do not lie on the open face; with Ignore beveled faces not the edges of a face at a slant to the
+      // fixed face (a chamfer stays a cut face)
+      {
+        const on = (face: { normal: [number, number, number]; centroid: [number, number, number] }) => (e: BodyEdge) => {
+          const n = new THREE.Vector3(...face.normal), c = new THREE.Vector3(...face.centroid);
+          return e.segments.some((s) => (s.n1.dot(n) > 0.999 || s.n2.dot(n) > 0.999) && Math.abs(s.a.clone().sub(c).dot(n)) < 1e-3);
+        };
+        const beveled = (v: THREE.Vector3) => { const k = Math.abs(v.clone().normalize().dot(fn)); return k > 0.01 && k < 0.99; };
+        const onOpen = opp ? on(opp) : () => false;
+        const along = (e: BodyEdge) => Math.abs(e.points[e.points.length - 1].clone().sub(e.points[0]).normalize().dot(fn)) < 0.01;
+        const bends = bodyEdges(body.geometry, body.id).filter((e) => !onOpen(e) && e.straight && along(e) && !(f.ignoreBeveled && e.segments.some((s) => beveled(s.n1) || beveled(s.n2))));
+        bendCounts[f.id] = bends.length;
+      }
       try {
         // Keep body: the solid stays as a second body (hidden, by design)
         if (f.keepBody) {
@@ -2801,6 +2925,8 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
         errors[f.id] = 'A fillet or chamfer needs an existing solid body.';
         continue;
       }
+      // Face Fillet ▸ Hold line: the size came from the hold line (sizedByHoldLine); a hold line that failed is said
+      if (holdLineErrors[f.id]) { errors[f.id] = holdLineErrors[f.id]; continue; }
       // Chamfer ▸ Vertex: a tetrahedron at the corner, its three distances along the edges that meet there
       if (f.type === 'chamfer' && f.roundType === 'vertex') {
         if (!f.vertex) { errors[f.id] = 'Select the vertex to chamfer.'; continue; }
@@ -3280,6 +3406,16 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
       if (!errors[f.id]) errors[f.id] = err instanceof TypeError || err instanceof RangeError ? `${f.name} could not be built: its data is incomplete or refers to geometry that no longer exists (${(err as Error).message}).` : `${f.name} could not be built: ${(err as Error).message}`;
     } finally {
       times[f.id] = (times[f.id] ?? 0) + (clock() - t0);
+      // face names (F47): a body this feature rebuilt without them (a B-rep tessellation, a fillet) takes them from
+      // the body before and the feature's tools
+      for (const b of bodies) {
+        if (b.geometry === before.get(b) || b.geometry.getAttribute(FACE_TAG)) continue;
+        const prev = before.get(b);
+        copyFaceNames(prev ? [prev, ...featureTools] : featureTools, b.geometry);
+      }
+      // the manifold gate (F48): a boolean of this feature left an opening in a body
+      const open = bodies.filter((b) => b.featureIds[b.featureIds.length - 1] === f.id && b.geometry.userData.openArea);
+      if (open.length && !errors[f.id]) warnings[f.id] = `The faceted result is not closed (an opening of about ${Math.max(...open.map((b) => b.geometry.userData.openArea as number)).toFixed(2)} mm²): mass properties and STEP of this body are approximate.`;
     }
   }
   const brep: Record<Id, BrepShape> = {};
@@ -3310,7 +3446,7 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
     curves.push({ id: 'bbox:top', name: 'Bounding Box', points: top, dashed: true, color: '#5a5a5a' });
     for (let i = 0; i < 4; i++) curves.push({ id: `bbox:v${i}`, name: 'Bounding Box', points: [bottom[i], top[i]], dashed: true, color: '#5a5a5a' });
   }
-  return { bodies, errors, consumedSketches, curves, surfaceBodies, extraAppearances, autoHidden, times, bodyMeta, ...(K ? { brep } : {}), ...(Object.keys(splitCounts).length ? { splitCounts } : {}) };
+  return { bodies, errors, consumedSketches, curves, surfaceBodies, extraAppearances, autoHidden, times, bodyMeta, ...(K ? { brep } : {}), ...(Object.keys(splitCounts).length ? { splitCounts } : {}), ...(outOfTime ? { stopped: true } : {}), ...(Object.keys(warnings).length ? { warnings } : {}), ...(Object.keys(bendCounts).length ? { bendCounts } : {}) };
 }
 
 

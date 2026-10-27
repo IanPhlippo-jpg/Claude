@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import { createDocument } from '../document/types';
 import { addCircle, addLine, createSketch } from '../sketch/model';
 import { rebuildDocument } from './rebuild';
-import { csg, meshVolume } from './solid';
+import { csg, isClosed, meshVolume } from './solid';
 import { holeTool, mirrorGeometry, patternInstances, patternInstancePoints } from './pattern';
 import { REFERENCE_PLANE_DEFS } from './planes';
 
@@ -86,6 +86,8 @@ describe('hole wizard', () => {
     // 48-gon approximations of the circles take a little less than the exact cylinders
     expect(removed).toBeGreaterThan(expected * 0.96);
     expect(removed).toBeLessThan(expected * 1.01);
+    // the mesh boolean leaves a crack where the counterbore floor meets the hole: flagged for a rebuild warning (F48)
+    expect(isClosed(cut)).toBe(cut.userData.openArea === undefined);
   });
 });
 

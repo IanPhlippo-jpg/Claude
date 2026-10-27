@@ -13,4 +13,5 @@
   gelijke kandidaten; F47) dekt de gangbare wijzigingen. Dit blijft een apart traject.
 - **De hele rebuild in de worker (F46).** De mesh-rebuild op de hoofdthread geeft direct beeld en de preview tijdens
   het bewerken; de exacte versie volgt een fractie later uit de worker. De rebuild volledig asynchroon maken raakt elke
-  actie die direct na een rebuild de geometrie leest (71 plaatsen); dat blijft een apart traject.
+  actie die direct na een rebuild de geometrie leest (71 plaatsen); dat blijft een apart traject. (0.5.0: trage parts
+  rebuilden wel in een worker, zie docs/23; F47: vlaknamen voor extrusies, ook docs/23.)

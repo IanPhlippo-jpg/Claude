@@ -433,6 +433,8 @@ export interface ConvertSheetFeature {
   keepBody?: boolean;
   /** Insert Bends: the shelled solid gets its bends (Sheet-Metal, Flatten-Bends, Process-Bends) */
   insertBends?: boolean;
+  /** Insert Bends ▸ Ignore beveled faces: faces at a slant to the fixed face (chamfers) stay cut faces, no bends */
+  ignoreBeveled?: boolean;
 }
 
 /** Features ▸ Deform ▸ Point: the body pushed in around a point with a smooth falloff. */
@@ -797,6 +799,10 @@ export interface RoundFeature {
   overflow?: 'default' | 'keepEdge' | 'keepSurface';
   /** Break Corner > Internal corners only: only the concave corners are broken */
   internalOnly?: boolean;
+  /** Face Fillet ▸ Hold line: the fillet runs up to this edge (its radius follows from the distance); holdLineMode:
+   * the Hold line method is chosen (the next edge picked is the hold line) */
+  holdLine?: EdgeRefData;
+  holdLineMode?: boolean;
 }
 
 /** Mirror the body about a reference plane or a face plane and merge. */
@@ -992,9 +998,15 @@ export interface LoftFeature {
   boundary?: boolean;
   /** Start/End Constraints: Normal To Profile with its tangent length (absent = None) */
   startNormal?: number;
-  /** Start/End Constraints: Normal To Profile (default when a weight is set), Direction Vector, Tangency To Face */
-  startType?: 'normal' | 'direction' | 'tangent';
-  endType?: 'normal' | 'direction' | 'tangent';
+  /** Start/End Constraints: Normal To Profile (default when a weight is set), Direction Vector, Tangency To Face,
+   * Curvature To Face (the faces next to the profile carry on into the loft) */
+  startType?: 'normal' | 'direction' | 'tangent' | 'curvature';
+  endType?: 'normal' | 'direction' | 'tangent' | 'curvature';
+  /** Tangency / Curvature To Face ▸ Next Face: which of the faces next to the profile the loft follows */
+  startFace?: number;
+  endFace?: number;
+  /** the second profile is a planar face of the model instead of a sketch (sketchId2 then empty) */
+  face2?: { point: [number, number, number]; normal: [number, number, number] };
   startDir?: [number, number, number];
   endDir?: [number, number, number];
   endNormal?: number;
@@ -1412,6 +1424,19 @@ export const SHEET_SIZES_MM: Record<SheetSize, [number, number]> = {
   D: [863.6, 558.8],
 };
 
+/** Edit Appearance beyond the colour: an image with its mapping, the illumination and the surface finish */
+export interface AppearanceProps {
+  /** Color/Image ▸ the image (data URL) and its file name */
+  image?: string;
+  imageName?: string;
+  /** Mapping: how the image lies on the faces; size = the width of one image in mm */
+  mapping?: { style: 'box' | 'planar' | 'cylindrical' | 'spherical'; size: number; rotation: number; mirrorH?: boolean; mirrorV?: boolean };
+  /** Illumination (Advanced), each 0…1 */
+  illumination?: { diffuse: number; specular: number; spread: number; reflectivity: number; transparency: number; luminous: number };
+  /** Surface Finish (Advanced) */
+  finish?: 'none' | 'polished' | 'brushed' | 'sandblasted' | 'knurled';
+}
+
 export interface Document {
   /** stable id (autosave per document, Document Recovery); files from older builds get one when opened */
   id?: string;
@@ -1511,6 +1536,8 @@ export interface Document {
   /** Edit Appearance: colour of the part and per body (wins over the material colour) */
   appearance?: string;
   bodyAppearances?: Record<Id, string>;
+  /** Edit Appearance ▸ image, mapping, illumination and surface finish: per body id, '' for the part */
+  appearanceProps?: Record<string, AppearanceProps>;
   /** material per body (Solid Bodies ▸ body ▸ Material); absent = the part material */
   bodyMaterials?: Record<Id, { name: string; density: number; color: string }>;
   /** Sensors folder: mass-property sensors that show the current value in the tree */

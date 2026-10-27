@@ -1,3 +1,4 @@
+import { FACE_TAG } from './faceNames';
 import * as THREE from 'three';
 import { TOL } from './tolerance';
 import { circleSegments } from '../sketch/geometry';
@@ -336,25 +337,36 @@ export function piecesTouchingPlane(g: THREE.BufferGeometry, n: THREE.Vector3, d
 /** Concatenate non-indexed geometries (position + normal). */
 export function mergeGeometries(list: THREE.BufferGeometry[]): THREE.BufferGeometry {
   const pos: number[] = [];
+  const tags: number[] = [];
+  let named = false;
   for (const g of list) {
     const ng = g.index ? g.toNonIndexed() : g;
     const a = ng.getAttribute('position');
-    for (let i = 0; i < a.count; i++) pos.push(a.getX(i), a.getY(i), a.getZ(i));
+    const t = ng.getAttribute(FACE_TAG);
+    if (t) named = true;
+    for (let i = 0; i < a.count; i++) {
+      pos.push(a.getX(i), a.getY(i), a.getZ(i));
+      tags.push(t ? t.getX(i) : 0);
+    }
   }
   const out = new THREE.BufferGeometry();
   out.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  // the face names go along (F47)
+  if (named) out.setAttribute(FACE_TAG, new THREE.Float32BufferAttribute(tags, 1));
   out.computeVertexNormals();
   return out;
 }
 
 const evaluator = new Evaluator();
-evaluator.attributes = ['position', 'normal'];
+evaluator.attributes = ['position', 'normal', FACE_TAG];
 const csgMaterial = new THREE.MeshBasicMaterial();
 
 function brush(g: THREE.BufferGeometry): Brush {
   const ng = g.index ? g.toNonIndexed() : g.clone();
   if (!ng.getAttribute('normal')) ng.computeVertexNormals();
-  for (const name of Object.keys(ng.attributes)) if (name !== 'position' && name !== 'normal') ng.deleteAttribute(name);
+  for (const name of Object.keys(ng.attributes)) if (name !== 'position' && name !== 'normal' && name !== FACE_TAG) ng.deleteAttribute(name);
+  // both sides of a boolean carry the face names (0 where a face has none), so the result keeps them (F47)
+  if (!ng.getAttribute(FACE_TAG)) ng.setAttribute(FACE_TAG, new THREE.BufferAttribute(new Float32Array(ng.getAttribute('position').count), 1));
   const b = new Brush(ng, csgMaterial);
   b.updateMatrixWorld();
   return b;
@@ -387,6 +399,11 @@ export function csg(a: THREE.BufferGeometry, b: THREE.BufferGeometry, op: 'union
   // (the size of the result is compared: a few tools give a correctly sized but inside-out result)
   const va = meshVolume(a), vb = meshVolume(b), vr = Math.abs(meshVolume(g));
   if (!booleanVolumeOk(op, va, vb, vr)) throw new Error(`the boolean result failed the volume check (${op}: ${va.toFixed(2)} and ${vb.toFixed(2)} gave ${vr.toFixed(2)} mm³)`);
+  // closed check (F48): two closed solids give a closed result. A hole in the surface leaves an open area (the sum of
+  // the oriented triangle areas is no longer zero); T-junctions of the boolean do not count, they still close.
+  // The mesh kernel's boolean leaves such cracks now and then: the body stays (as in the intended design a rebuild
+  // warning, not an error) and the rebuild marks the feature with the size of the opening.
+  if (isClosed(a) && isClosed(b) && !isClosed(g)) g.userData.openArea = openArea(g);
   return g;
 }
 
@@ -397,6 +414,40 @@ export function booleanVolumeOk(op: 'union' | 'subtract' | 'intersect', va: numb
   if (op === 'subtract') return vr <= va + tol;
   if (op === 'intersect') return vr <= Math.min(va, vb) + tol;
   return vr >= Math.max(va, vb) - tol && vr <= va + vb + tol;
+}
+
+/** the size of the openings of a triangle mesh: the length of the sum of its oriented triangle areas (0 when closed) */
+export function openArea(g: THREE.BufferGeometry): number {
+  const ng = g.index ? g.toNonIndexed() : g;
+  const a = ng.getAttribute('position');
+  let x = 0, y = 0, z = 0;
+  for (let i = 0; i + 2 < a.count; i += 3) {
+    const ux = a.getX(i + 1) - a.getX(i), uy = a.getY(i + 1) - a.getY(i), uz = a.getZ(i + 1) - a.getZ(i);
+    const vx = a.getX(i + 2) - a.getX(i), vy = a.getY(i + 2) - a.getY(i), vz = a.getZ(i + 2) - a.getZ(i);
+    x += (uy * vz - uz * vy) / 2;
+    y += (uz * vx - ux * vz) / 2;
+    z += (ux * vy - uy * vx) / 2;
+  }
+  return Math.hypot(x, y, z);
+}
+
+/** the total area of a triangle mesh */
+export function meshArea(g: THREE.BufferGeometry): number {
+  const ng = g.index ? g.toNonIndexed() : g;
+  const a = ng.getAttribute('position');
+  let t = 0;
+  for (let i = 0; i + 2 < a.count; i += 3) {
+    const ux = a.getX(i + 1) - a.getX(i), uy = a.getY(i + 1) - a.getY(i), uz = a.getZ(i + 1) - a.getZ(i);
+    const vx = a.getX(i + 2) - a.getX(i), vy = a.getY(i + 2) - a.getY(i), vz = a.getZ(i + 2) - a.getZ(i);
+    t += Math.hypot(uy * vz - uz * vy, uz * vx - ux * vz, ux * vy - uy * vx) / 2;
+  }
+  return t;
+}
+
+/** closed within round-off: the openings are below a thousandth of the area */
+export function isClosed(g: THREE.BufferGeometry): boolean {
+  const area = meshArea(g);
+  return area > 0 && openArea(g) <= 1e-3 * area + 1e-6;
 }
 
 /** Signed volume of a closed triangle mesh (positive for outward-facing triangles). */

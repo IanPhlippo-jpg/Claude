@@ -1,3 +1,4 @@
+import { FACE_TAG } from './faceNames';
 import * as THREE from 'three';
 import { TOL } from './tolerance';
 
@@ -7,6 +8,9 @@ export interface CreaseSegment {
   b: THREE.Vector3;
   n1: THREE.Vector3;
   n2: THREE.Vector3;
+  /** the names (face tags) of the two faces, where the body carries them (F47) */
+  f1?: number;
+  f2?: number;
 }
 
 /** A selectable edge of a body: a straight line or a chain of segments (circle, arc). */
@@ -35,6 +39,8 @@ export interface EdgeRef {
   dir?: [number, number, number];
   /** normals of the two faces the edge joins (at its middle) */
   normals?: [[number, number, number], [number, number, number]];
+  /** the names of the two faces the edge joins (face tags, smallest first; F47) */
+  faces?: [number, number];
 }
 
 const Q = 1e-3;
@@ -49,6 +55,8 @@ export function creaseSegments(g: THREE.BufferGeometry, thresholdDeg = 20): Crea
   const pos = ng.getAttribute('position');
   const triCount = Math.floor(pos.count / 3);
   const P = (i: number) => new THREE.Vector3().fromBufferAttribute(pos, i);
+  const tagAttr = ng.getAttribute(FACE_TAG);
+  const tag = (t: number) => (tagAttr ? Math.round(tagAttr.getX(t * 3)) : 0);
   const normals: THREE.Vector3[] = [];
   interface E {
     tri: number;
@@ -111,7 +119,7 @@ export function creaseSegments(g: THREE.BufferGeometry, thresholdDeg = 20): Crea
       if (o.dir.dot(e.dir) > 0) continue;
       const dot = normals[o.tri].dot(normals[e.tri]);
       if (dot > cosT) continue;
-      out.push({ a: e.a.clone().addScaledVector(e.dir, lo), b: e.a.clone().addScaledVector(e.dir, hi), n1: normals[e.tri].clone(), n2: normals[o.tri].clone() });
+      out.push({ a: e.a.clone().addScaledVector(e.dir, lo), b: e.a.clone().addScaledVector(e.dir, hi), n1: normals[e.tri].clone(), n2: normals[o.tri].clone(), ...(tagAttr ? { f1: tag(e.tri), f2: tag(o.tri) } : {}) });
     }
   }
   return out;
@@ -167,7 +175,7 @@ export function mergeCollinear(segs: CreaseSegment[]): CreaseSegment[] {
       const nx = iv[i];
       if (nx && nx.lo <= cur.hi + 0.05) cur = { lo: cur.lo, hi: Math.max(cur.hi, nx.hi), s: cur.s };
       else {
-        out.push({ a: o.clone().addScaledVector(d, cur.lo), b: o.clone().addScaledVector(d, cur.hi), n1: cur.s.n1, n2: cur.s.n2 });
+        out.push({ a: o.clone().addScaledVector(d, cur.lo), b: o.clone().addScaledVector(d, cur.hi), n1: cur.s.n1, n2: cur.s.n2, f1: cur.s.f1, f2: cur.s.f2 });
         if (nx) cur = nx;
       }
     }
@@ -213,7 +221,7 @@ export function bodyEdges(g: THREE.BufferGeometry, bodyId: string, thresholdDeg 
         let j = -1, best = -Infinity, seg: CreaseSegment | null = null;
         for (const cj of cands) {
           const s = segs[cj];
-          const oriented = key(s.a) === key(end) ? s : { a: s.b, b: s.a, n1: s.n1, n2: s.n2 };
+          const oriented = key(s.a) === key(end) ? s : { ...s, a: s.b, b: s.a };
           const d0 = dirOf(last), d1 = dirOf(oriented);
           const turn = forward ? d0.dot(d1) : d1.dot(d0);
           if (turn > best && sameFaces(last, oriented)) {
@@ -228,7 +236,7 @@ export function bodyEdges(g: THREE.BufferGeometry, bodyId: string, thresholdDeg 
         if (turn < 0.9995) straight = false;
         used[j] = true;
         if (forward) chain.push(seg);
-        else chain.unshift(forward ? seg : { a: seg.b, b: seg.a, n1: seg.n1, n2: seg.n2 });
+        else chain.unshift(forward ? seg : { ...seg, a: seg.b, b: seg.a });
       }
     };
     extend(true);
@@ -261,12 +269,21 @@ function edgeDir(e: BodyEdge): THREE.Vector3 {
   return e.points[e.points.length - 1].clone().sub(e.points[0]).normalize();
 }
 
+/** the names of the two faces of an edge (smallest first), when both faces have one */
+export function edgeFaces(e: BodyEdge): [number, number] | null {
+  const m = midSegment(e);
+  if (!m.f1 || !m.f2 || m.f1 === m.f2) return null;
+  return m.f1 < m.f2 ? [m.f1, m.f2] : [m.f2, m.f1];
+}
+
 export function edgeRef(e: BodyEdge): EdgeRef {
   const m = midSegment(e);
+  const faces = edgeFaces(e);
   return {
     centroid: [e.centroid.x, e.centroid.y, e.centroid.z], length: e.length, closed: e.closed, straight: e.straight,
     ...(e.straight && !e.closed ? { dir: v3(edgeDir(e)) } : {}),
     normals: [v3(m.n1.clone().normalize()), v3(m.n2.clone().normalize())],
+    ...(faces ? { faces } : {}),
   };
 }
 
@@ -285,6 +302,13 @@ function sameNormals(e: BodyEdge, ref: EdgeRef): boolean {
 export function matchEdge(edges: BodyEdge[], ref: EdgeRef, tol: number = TOL.reference): BodyEdge | null {
   let best: BodyEdge | null = null, bestD = Infinity;
   const c = new THREE.Vector3(...ref.centroid);
+  // by name first (F47): the edge between the same two named faces; where they meet more than once (a pattern, a
+  // face crossed twice) the nearest of those
+  if (ref.faces) {
+    const named = edges.filter((e) => e.closed === ref.closed && e.straight === ref.straight && edgeFaces(e)?.[0] === ref.faces![0] && edgeFaces(e)?.[1] === ref.faces![1]);
+    if (named.length === 1) return named[0];
+    if (named.length > 1) return named.reduce((a, b) => (b.centroid.distanceTo(c) < a.centroid.distanceTo(c) ? b : a));
+  }
   for (const e of edges) {
     if (e.closed !== ref.closed || e.straight !== ref.straight) continue;
     if (Math.abs(e.length - ref.length) > Math.max(0.5, ref.length * 0.05)) continue;

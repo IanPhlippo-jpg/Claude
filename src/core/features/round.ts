@@ -213,6 +213,24 @@ export function faceFilletEdges(edges: BodyEdge[], f1: FaceLike, f2: FaceLike): 
   return edgesOnFace(edges, f1).filter((e) => on2.has(e.id));
 }
 
+/**
+ * Face Fillet ▸ Hold line: the radius that makes the fillet end on the hold line, a straight edge parallel to the
+ * filleted edge on one of its faces. The fillet meets that face at r / tan(α / 2) from the corner (α: the angle inside
+ * the corner between the two faces), so r = d · tan(α / 2).
+ */
+export function holdLineRadius(edge: BodyEdge, hold: BodyEdge): number | string {
+  if (!edge.straight || !hold.straight) return 'The hold line and the filleted edge must be straight.';
+  const p0 = edge.points[0], dir = edge.points[edge.points.length - 1].clone().sub(p0).normalize();
+  const hd = hold.points[hold.points.length - 1].clone().sub(hold.points[0]).normalize();
+  if (Math.abs(hd.dot(dir)) < 0.999) return 'The hold line must run parallel to the filleted edge.';
+  const d = hold.centroid.clone().sub(p0).cross(dir).length();
+  if (d < 1e-6) return 'The hold line lies on the filleted edge.';
+  const m = edge.segments[Math.floor(edge.segments.length / 2)];
+  const phi = Math.acos(Math.max(-1, Math.min(1, m.n1.clone().normalize().dot(m.n2.clone().normalize()))));
+  const alpha = Math.PI - phi;
+  return d * Math.tan(alpha / 2);
+}
+
 /** Full Round Fillet: the two long parallel edges of the center face, filleted at half its width */
 export function fullRoundEdges(edges: BodyEdge[], center: FaceLike): { edges: BodyEdge[]; size: number } | null {
   const on = edgesOnFace(edges, center).filter((e) => e.straight);

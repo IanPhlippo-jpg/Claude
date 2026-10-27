@@ -65,4 +65,35 @@ describe('edge references survive an edit of an earlier feature (F47)', () => {
     doc.features.push({ id: 'r1', type: 'chamfer', name: 'Chamfer1', suppressed: false, size: 2, edges: [old] } as never);
     expect(rebuildDocument(doc).errors.r1).toBeUndefined();
   });
+
+  it('a fillet keeps its edge by the names of its faces where an equal edge lies nearer (F47)', () => {
+    // a step: two convex edges along Z with the same direction and the same two face normals (+X and +Y)
+    const doc = createDocument();
+    let s = createSketch('sk1', 'Sketch1', 'front');
+    const c = [{ x: 0, y: 0 }, { x: 60, y: 0 }, { x: 60, y: 10 }, { x: 30, y: 10 }, { x: 30, y: 20 }, { x: 0, y: 20 }];
+    for (let i = 0; i < c.length; i++) s = addLine(s, c[i], c[(i + 1) % c.length])[0];
+    doc.sketches.sk1 = s;
+    doc.features.push({ id: 'f1', type: 'extrude', name: 'B', sketchId: 'sk1', suppressed: false, op: 'boss', end: 'blind', depth: 20, reverse: false });
+    const along = (b: { edges: import('./edgesets').BodyEdge[] }, x: number, y: number) => b.edges.find((e) => e.straight && Math.abs(e.centroid.x - x) < 0.01 && Math.abs(e.centroid.y - y) < 0.01 && Math.abs(e.points[0].z - e.points[e.points.length - 1].z) > 19);
+    const body = rebuildDocument(doc).bodies[0];
+    const step = along(body, 30, 20)!;
+    expect(step).toBeTruthy();
+    const ref = edgeRef(step);
+    expect(ref.faces).toBeTruthy();
+    doc.features.push({ id: 'r1', type: 'fillet', name: 'Fillet1', suppressed: false, size: 3, edges: [ref] } as never);
+    // the tall part grows from 20 to 60: the step edge moves 40 up, the other convex edge (60, 10) is now nearer
+    const sk = doc.sketches.sk1;
+    doc.sketches.sk1 = { ...sk, points: Object.fromEntries(Object.entries(sk.points).map(([id, p]) => [id, Math.abs(p.y - 20) < 1e-9 ? { ...p, y: 60 } : p])) };
+    const after = rebuildDocument(doc);
+    expect(after.errors.r1).toBeUndefined();
+    expect(along(after.bodies[0], 30, 60)).toBeUndefined(); // rounded
+    expect(along(after.bodies[0], 60, 10)).toBeTruthy(); // still sharp
+    // without the names the step edge is lost (the moved-edge guess does not find it)
+    const { faces: _f, ...geometric } = ref;
+    void _f;
+    (doc.features[1] as { edges: unknown[] }).edges = [geometric];
+    const oldR = rebuildDocument(doc);
+    const old = oldR.bodies[0];
+    expect(along(old, 30, 60)).toBeTruthy();
+  });
 });

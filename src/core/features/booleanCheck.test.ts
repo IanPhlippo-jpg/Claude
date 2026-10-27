@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import * as THREE from 'three';
-import { booleanVolumeOk, csg, meshVolume } from './solid';
+import { booleanVolumeOk, csg, isClosed, meshVolume, openArea } from './solid';
 
 describe('boolean volume check (QA v0.3.4 F48)', () => {
   it('accepts the possible results and refuses impossible ones', () => {
@@ -19,5 +19,19 @@ describe('boolean volume check (QA v0.3.4 F48)', () => {
     const b = new THREE.BoxGeometry(10, 10, 10).toNonIndexed().translate(5, 0, 0);
     expect(Math.abs(meshVolume(csg(a, b, 'union')))).toBeCloseTo(1500, 0);
     expect(Math.abs(meshVolume(csg(a, b, 'subtract')))).toBeCloseTo(500, 0);
+  });
+  it('tells a closed solid from one with an opening (F48)', () => {
+    const box = new THREE.BoxGeometry(10, 10, 10).toNonIndexed();
+    expect(isClosed(box)).toBe(true);
+    expect(openArea(box)).toBeLessThan(1e-9);
+    // one side (two triangles) taken away: an opening of 10 × 10
+    const pos = box.getAttribute('position').array as Float32Array;
+    const open = new THREE.BufferGeometry();
+    open.setAttribute('position', new THREE.BufferAttribute(pos.slice(18), 3));
+    expect(isClosed(open)).toBe(false);
+    expect(openArea(open)).toBeCloseTo(100, 3);
+    // a boolean result with T-junctions still counts as closed
+    const b = new THREE.BoxGeometry(4, 4, 20).toNonIndexed();
+    expect(isClosed(csg(box, b, 'subtract'))).toBe(true);
   });
 });
