@@ -963,6 +963,8 @@ export interface State {
   rebuildAll(): void;
   /** a document is shown; false at start-up until New / Open / a recent document, by design */
   hasDocument: boolean;
+  /** the parts open earlier in this session (File ▸ New / Open replaced them): Insert Component lists them under Open documents */
+  sessionParts: Document[];
   /** show the document already loaded behind the Welcome dialog (its autosave) */
   showDocument(): void;
   /** Enter runs the last Command Ribbon command again */

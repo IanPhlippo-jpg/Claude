@@ -14,3 +14,11 @@ Werkwijze: `e2e/tools/compare-baseplate.mjs` (frames 111 en 118) en `e2e/tools/c
 | 82 | maten zonder plaatsing binnen de rechthoek | standaard buiten de schets, weg van het midden, op een zesde van de schetsmaat | — |
 
 Niet aangepast: de zoom (in de video zoomt de gebruiker zelf) en de groene relatiesymbolen (al gelijk).
+
+## 0.4.5: tekening en assembly
+
+| Referentie | Verschil | Oplossing |
+|---|---|---|
+| video 36, frame 0004 | het blad vulde het venster niet, de bladtabs vielen onder de rand | de ResizeObserver mat de lege host van vóór het blad; nu wordt de echte host gemeten, de bladtabs liggen onderaan en de inpassing houdt er rekening mee |
+| frame 340 | (assembly-scherm) | lint, tabs en boom gelijk; geen wijziging |
+| frame 320 | Insert Component: "No open documents." | het part dat open was vóór File ▸ New blijft in de sessie (sessionParts), staat onder Open documents, is geselecteerd en hangt als preview aan de cursor |

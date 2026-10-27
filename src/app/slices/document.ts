@@ -11,10 +11,17 @@ import type { State, StoreSet, StoreGet, Library } from '../store';
 import { initialSolve, initialRebuild, history, rebuildFor, historyFlags, featureName, solveAll, saveLibraries } from '../store';
 
 type DocumentKeys =
-  | 'doc' | 'rebuild' | 'openSeq' | 'hasDocument' | 'exportFormat' | 'dirty'
+  | 'doc' | 'rebuild' | 'openSeq' | 'hasDocument' | 'sessionParts' | 'exportFormat' | 'dirty'
   | 'newDocument' | 'importMesh' | 'applyDocument' | 'openDocument' | 'rebuildAll' | 'showDocument'
   | 'setUnits' | 'renameDocument' | 'renameLibrary' | 'importLibrary' | 'exportLibrary' | 'undo'
   | 'redo';
+
+/** the part being replaced stays open in the session (as a part with a body), most recent first */
+function keepInSession(get: StoreGet, set: StoreSet) {
+  const { doc, hasDocument, rebuild, sessionParts } = get();
+  if (!hasDocument || isAssembly(doc) || isDrawing(doc) || !rebuild.bodies.length) return;
+  set({ sessionParts: [doc, ...sessionParts.filter((p) => p.name !== doc.name)].slice(0, 10) });
+}
 
 export const documentSlice = (set: StoreSet, get: StoreGet): Pick<State, DocumentKeys> => ({
   doc: initialSolve.doc,
@@ -23,7 +30,9 @@ export const documentSlice = (set: StoreSet, get: StoreGet): Pick<State, Documen
   hasDocument: false,
   exportFormat: 'stl',
   dirty: false,
+  sessionParts: [],
   newDocument(kind = 'part') {
+    keepInSession(get, set);
     history.clear();
     const n = kind === 'assembly' ? 'Assem1' : kind === 'drawing' ? 'Draw1' : 'Part1';
     const doc = createDocument(n, kind);
@@ -70,6 +79,7 @@ export const documentSlice = (set: StoreSet, get: StoreGet): Pick<State, Documen
       return;
     }
     if (!opts?.keepHistory) history.clear();
+    if (get().doc !== doc && get().doc.name !== doc.name) keepInSession(get, set);
     set({ prefs: { ...loadPrefs(), ...(doc.properties ?? {}) } });
     set({ openSeq: get().openSeq + 1, hasDocument: true, doc: r.doc, solve: r.solve, rebuild, activeSketchId: null, featureEdit: null, mateEdit: null, insertingComponent: false, asmTool: 'select', selectedFeatureId: null, selectedFace: null, selectedFaces: [], selection: [], selectedConstraint: null, dirty: false, tab: isAssembly(r.doc) ? 'assembly' : isDrawing(r.doc) ? 'viewLayout' : 'features', drawingEdit: null, selectedDrawingViewId: null, rollbackIndex: null, editContext: null, messages: get().messages.filter((m) => m.level !== 'info'), whatsWrong: Object.keys(rebuild.errors).length > 0, ...historyFlags() });
     autosave(r.doc);

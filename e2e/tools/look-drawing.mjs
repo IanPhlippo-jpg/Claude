@@ -13,7 +13,8 @@ await page.waitForSelector('.k-viewport');
 await page.click('.k-doctype:has-text("Part")');
 const d = JSON.parse(readFileSync(process.env.LOOK_FILE ?? 'voorbeelden/deurkruk/Deurkruk-tekening.kcad', 'utf8')); delete d.format;
 await page.evaluate((d) => window.__phlippoStore.getState().openDocument(d), d);
-await page.waitForTimeout(3000);
+await page.waitForSelector('.k-sheet-paper', { timeout: 30000 });
+await page.waitForTimeout(2000);
 await page.screenshot({ path: 'e2e-out/look-drawing.png' });
 if (process.env.LOOK_ACTIONS) {
   const px = (x, y) => page.evaluate(([x, y]) => window.__phlippoSheet.toPx([x, y]), [x, y]);

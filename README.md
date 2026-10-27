@@ -44,6 +44,10 @@ Status per fase:
 8. Sheet metal (Base Flange/Tab, Edge Flange, Flatten met K-factor) — **basis gereed**; Hem/Jog/Miter/Unfold gepland
 7. Massa-eigenschappen en meten — **gereed** (Mass Properties, Measure); materialen en rendering gepland
 
+## Status 0.4.5 (2026-10-28)
+
+Tekening en assembly naast de referentie. Een tekening vult bij het openen weer het hele venster en de bladtabs (Sheet1, Add Sheet) staan onderaan; voorheen bleef het blad op een vaste maat staan. Insert Component in een nieuwe assembly toont het part dat net open was onder Open documents, met de preview meteen aan de cursor (frame 320). Zie docs/21-ontwerpronde-0.4.4.md.
+
 ## Status 0.4.4 (2026-10-28)
 
 Ontwerpronde naast de referentievideo (BasePlate). Boss-Extrude (frame 111): de schetsregio is nu donker onder de gele preview, de preview zelf heeft de kleur van de referentie, de schetslijnen blijven effen zwart en de sleeppijl is een gearceerde kegel. Schetsen (frames 70, 82, 95): de contourvulling heeft dezelfde grijswaarden en maten zonder plaatsing komen buiten de schets. De oorsprong staat in partmodus standaard uit, zoals in de referentie. Zie docs/21-ontwerpronde-0.4.4.md.

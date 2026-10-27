@@ -30,6 +30,9 @@ const BASE = 3;
 /** the intended default drawing paper colour (Options ▸ Colors ▸ Drawings, Paper Color) */
 export const PAPER = '#e8e8e0';
 
+/** the sheet tabs under the graphics area (Sheet1, Add Sheet), by design */
+const SHEET_TABS_H = 21;
+
 export function DrawingSheetView() {
   const st = useStore(useShallow((s) => ({ doc: s.doc, drawingEdit: s.drawingEdit, prefs: s.prefs, reverseWheel: s.reverseWheel, drawingTool: s.drawingTool, placeView: s.placeView, placeProjectedView: s.placeProjectedView, pushMessage: s.pushMessage, placeDrawingDimension: s.placeDrawingDimension, startDrawingDimensionOnCircle: s.startDrawingDimensionOnCircle, startDrawingDimensionOnLine: s.startDrawingDimensionOnLine, placeNote: s.placeNote, setSectionLine: s.setSectionLine, placeSectionView: s.placeSectionView, setDetailCircle: s.setDetailCircle, placeDetailView: s.placeDetailView, addBrokenOutPoint: s.addBrokenOutPoint, setAuxEdge: s.setAuxEdge, placeAuxView: s.placeAuxView, setDrawingEdit: s.setDrawingEdit, setViewCrop: s.setViewCrop, setViewBreak: s.setViewBreak, applyDocument: s.applyDocument, cancelDrawingEdit: s.cancelDrawingEdit, addSymbol: s.addSymbol, addRevision: s.addRevision, addCenterMark: s.addCenterMark, selectDrawingDimension: s.selectDrawingDimension, selectedDrawingDimensionId: s.selectedDrawingDimensionId, beginAnnotationMove: s.beginAnnotationMove, selectDrawingView: s.selectDrawingView, setManagerTab: s.setManagerTab, moveAnnotation: s.moveAnnotation, updateDrawingDimension: s.updateDrawingDimension, moveDrawingView: s.moveDrawingView, commitViewMove: s.commitViewMove, selectedDrawingViewId: s.selectedDrawingViewId, setDrawingTool: s.setDrawingTool, deleteDrawingView: s.deleteDrawingView, activateSheet: s.activateSheet, setDialog: s.setDialog, addSheet: s.addSheet })));
   const sheet = st.doc.sheets?.[0];
@@ -56,15 +59,16 @@ export function DrawingSheetView() {
     ro.observe(el);
     setSize({ w: el.clientWidth, h: el.clientHeight });
     return () => ro.disconnect();
-  }, []);
+    // the host is a new element once the sheet exists (the empty host above returns early): measure that one
+  }, [!!sheet]);
   const [sw, sh] = sheet ? sheetSize(sheet) : [297, 210];
   // zoom to fit: the sheet fills the host with a margin
   // the sheet keeps fitting the window (resizes, panels) until the user zooms or pans
   const manualZoom = useRef(false);
   const fit = useCallback(() => {
     manualZoom.current = false;
-    const k = Math.min((size.w - 40) / (sw * BASE), (size.h - 40) / (sh * BASE));
-    setZoom({ k, x: (size.w - sw * BASE * k) / 2, y: (size.h - sh * BASE * k) / 2 });
+    const k = Math.min((size.w - 40) / (sw * BASE), (size.h - SHEET_TABS_H - 40) / (sh * BASE));
+    setZoom({ k, x: (size.w - sw * BASE * k) / 2, y: (size.h - SHEET_TABS_H - sh * BASE * k) / 2 });
   }, [size, sw, sh]);
   useEffect(() => {
     if (!manualZoom.current) fit();
@@ -1002,7 +1006,7 @@ export function DrawingSheetView() {
         else if (e.key === 'f' || e.key === 'F') fit();
       }}
     >
-      <svg width={size.w} height={size.h} className="k-sheet-svg">
+      <svg width={size.w} height={Math.max(0, size.h - SHEET_TABS_H)} className="k-sheet-svg">
         <defs>
           <pattern id="k-hatch" patternUnits="userSpaceOnUse" width={2.5 * mm} height={2.5 * mm} patternTransform="rotate(45)">
             <line x1={0} y1={0} x2={0} y2={2.5 * mm} stroke="#000" strokeWidth={0.6} />

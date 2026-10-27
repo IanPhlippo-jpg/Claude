@@ -466,7 +466,7 @@ elease; README en docs/04 bijgewerkt
 - [x] Geopend document zoomt automatisch passend (Zoom to Fit), zoals SW
 - [x] Bugjacht: elk lint-commando, menu-item, tab en contextmenu automatisch aangeklikt (e2e/clickall.mjs): schets 128, part 115, assembly 89, tekening 106 — 0 fouten; alle sneltoetsen (e2e/keys.mjs) — dubbele items in de S-balk opgelost
 - [x] Bugjacht: PropertyManagers openen/OK/Cancel/Undo per feature; geen vastlopers (e2e/pmsweep.mjs, 0.4.3)
-- [ ] SW-gelijkenis: hoofdschermen (part, sketch, feature-PM, assembly, drawing) opnieuw naast referentieframes, verschillen wegwerken
+- [x] SW-gelijkenis: hoofdschermen (part, sketch, feature-PM, assembly, drawing) opnieuw naast referentieframes, verschillen wegwerken (0.4.4/0.4.5, zie Vervolg 45–46)
 - [ ] Gevonden fouten oplossen + regressie + installer
 
 ## Vervolg 31: elk commando naast de SW-referentievideo (2026-10-22)
@@ -625,3 +625,9 @@ elease; README en docs/04 bijgewerkt
 - [x] Boss-Extrude naast frame 111: schetsregio donker onder de preview (gemeten 162,166,118 tegen 162,165,118), gele preview donkerder (208,214,156 tegen 211,216,158), schetslijnen effen zwart over de gele randen (geen z-fighting meer), sleeppijl met schaduwkegel en gevulde kegeltjes voor Direction 2
 - [x] Schetsen naast frames 70, 82 en 95 (e2e/tools/compare-sketch.mjs): contourvulling 179/126 grijs zoals de referentie, maten zonder plaatsing buiten de schets
 - [x] Tests, regressie, desktop, installer 0.4.4, screenshots, commit + tag (unit 387, regressie 85/85, desktop 8/8 + 12/12)
+
+## Vervolg 46: tekening en assembly naast de referentie (2026-10-28)
+- [x] Tekening naast video 36 (frame 0004): het blad vulde het venster niet en de bladtabs vielen weg; de ResizeObserver mat de lege host van vóór het blad. Nu wordt de echte host gemeten, het blad past in en de bladtabs staan onderaan.
+- [x] Assembly naast frame 340: lint, tabs en boom gelijk (eigen namen Drag Handles en Auto Fasteners blijven)
+- [x] Insert Component naast frame 320: het part dat open was vóór File ▸ New staat onder Open documents, is geselecteerd en hangt meteen als preview aan de cursor (sessionParts; e2e/tools/compare-insert.mjs)
+- [x] Tests, regressie, desktop, installer 0.4.5, commit + tag (unit 387, regressie 85/85, desktop 8/8 + 12/12)

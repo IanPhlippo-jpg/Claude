@@ -202,8 +202,9 @@ export function MatePM() {
 /** Insert Component Property Panel: Browse… opens a part file (.kcad) that is placed at the origin. */
 export function InsertComponentPM() {
   const st = useStore(useShallow((s) => ({ doc: s.doc, insertGhost: s.insertGhost, setInsertGhost: s.setInsertGhost, placeInsertGhost: s.placeInsertGhost, pushMessage: s.pushMessage, insertComponent: s.insertComponent, cancelInsertComponent: s.cancelInsertComponent })));
-  // the open documents: the parts in the assembly and the part just browsed to (it is open in the session too)
-  const parts = st.doc.kind === 'assembly' ? [...new Map([...(st.doc.components ?? []).map((c) => [c.part.name, c.part] as const), ...(st.insertGhost ? [[st.insertGhost.part.name, st.insertGhost.part] as const] : [])]).values()] : [];
+  // the open documents: the parts open earlier in the session, the parts in the assembly and the part just browsed to
+  const sessionParts = useStore((s) => s.sessionParts);
+  const parts = st.doc.kind === 'assembly' ? [...new Map([...sessionParts.map((p) => [p.name, p] as const), ...(st.doc.components ?? []).map((c) => [c.part.name, c.part] as const), ...(st.insertGhost ? [[st.insertGhost.part.name, st.insertGhost.part] as const] : [])]).values()] : [];
   const [sel, setSel] = useState<string | null>(parts[0]?.name ?? null);
   const [pinned, setPinned] = useState(false);
   const [fixMode, setFixMode] = useState<'first' | 'fix' | 'float'>('first');
@@ -223,6 +224,12 @@ export function InsertComponentPM() {
     if (g && (g.fixMode !== fixMode || g.keepOpen !== pinned || (g.configuration ?? '') !== config || !!g.virtual !== virtual || !!g.envelope !== envelope)) useStore.getState().setInsertGhost({ ...g, fixMode, keepOpen: pinned, configuration: config || undefined, virtual, envelope });
   }, [fixMode, pinned, config, ghost, virtual, envelope]);
   const choose = (p: Document) => { setSel(p.name); st.setInsertGhost({ part: p, rotation: [0, 0, 0, 1], fixMode, keepOpen: pinned, configuration: config || undefined, virtual, envelope }); };
+  // a new assembly with a part open in the session: that part is selected and follows the pointer at once, by design
+  useEffect(() => {
+    if (!ghost && !(st.doc.components ?? []).length && sessionParts.length && opt.graphicsPreview) choose(sessionParts[0]);
+    // only when the Property Panel opens
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const insert = (atOrigin: boolean) => {
     // OK: the part on the pointer goes to the origin ("Hit OK button to insert a component at the origin")
     if (ghost) {
