@@ -354,9 +354,9 @@
     "semantic_hash": ""
   },
   "package.json": {
-    "mtime": 1793061803.841084,
-    "seen": 1793063438.6087165,
-    "ast_hash": "f6c4e3b04a50c8e2098ac348da34e6c2",
+    "mtime": 1793065527.0632238,
+    "seen": 1793067193.9078283,
+    "ast_hash": "c450d77455f710d72983db6f26bc6b21",
     "semantic_hash": ""
   },
   "src/app/App.tsx": {
@@ -426,9 +426,9 @@
     "semantic_hash": ""
   },
   "src/app/drawing/DrawingSheetView.tsx": {
-    "mtime": 1793011931.0929554,
-    "seen": 1793020847.6086097,
-    "ast_hash": "bd52dd9c6a975ebc420693107ef31b54",
+    "mtime": 1793063862.9295356,
+    "seen": 1793067193.9078283,
+    "ast_hash": "8b35a3808dec27e6f591aadb0b381df9",
     "semantic_hash": ""
   },
   "src/app/drawing/SheetDialogs.tsx": {
@@ -480,9 +480,9 @@
     "semantic_hash": ""
   },
   "src/app/panels/AssemblyPM.tsx": {
-    "mtime": 1793011773.583625,
-    "seen": 1793020847.6086097,
-    "ast_hash": "04dff418c4bc7646a73be57515113957",
+    "mtime": 1793064069.6923635,
+    "seen": 1793067193.9078283,
+    "ast_hash": "094201a9549b5a26694f3a5fe128baeb",
     "semantic_hash": ""
   },
   "src/app/panels/AssemblyTreeBody.tsx": {
@@ -594,9 +594,9 @@
     "semantic_hash": ""
   },
   "src/app/store.ts": {
-    "mtime": 1793056240.1994872,
-    "seen": 1793060799.6682875,
-    "ast_hash": "90e5efa958726986cbac2f5b3ae40690",
+    "mtime": 1793064062.4284008,
+    "seen": 1793067193.9078283,
+    "ast_hash": "035c15664bae0340ad896faf83352a4b",
     "semantic_hash": ""
   },
   "src/app/viewport/Hud.tsx": {
@@ -1296,15 +1296,15 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1793061803.7908444,
-    "seen": 1793063438.6087165,
-    "ast_hash": "d5e8d00a798a7ab3e56d361dbf027a11",
+    "mtime": 1793065527.0308664,
+    "seen": 1793067193.9078283,
+    "ast_hash": "e0638dd6a6e4054b819f07df187a243d",
     "semantic_hash": ""
   },
   "TASKS.md": {
-    "mtime": 1793063418.1793568,
-    "seen": 1793063438.6087165,
-    "ast_hash": "e71d22e3f2085714cc7414dffc3113e2",
+    "mtime": 1793067173.4320407,
+    "seen": 1793067193.9078283,
+    "ast_hash": "cd2c6cc338a1bd11095690c6ad5e67e9",
     "semantic_hash": ""
   },
   "docs/01-research.md": {
@@ -2358,9 +2358,9 @@
     "semantic_hash": ""
   },
   "e2e/tools/look-drawing.mjs": {
-    "mtime": 1792956564.816176,
-    "seen": 1792999711.1718993,
-    "ast_hash": "6ff2e2798c63457fee0201d2e3f37eab",
+    "mtime": 1793063928.0113041,
+    "seen": 1793067193.9078283,
+    "ast_hash": "aed5720bfc5d414926fe0b349d08dd88",
     "semantic_hash": ""
   },
   "e2e/tools/look-extdrag.mjs": {
@@ -2580,9 +2580,9 @@
     "semantic_hash": ""
   },
   "src/app/slices/document.ts": {
-    "mtime": 1793023915.176631,
-    "seen": 1793027738.641231,
-    "ast_hash": "385b51e70e4ca6f47b0c4a88ade868dc",
+    "mtime": 1793064062.429418,
+    "seen": 1793067193.9078283,
+    "ast_hash": "b4fef14c1c7c4035217f5ffccd844d07",
     "semantic_hash": ""
   },
   "src/app/slices/drawing.ts": {
@@ -2898,9 +2898,45 @@
     "semantic_hash": ""
   },
   "docs/21-ontwerpronde-0.4.4.md": {
-    "mtime": 1793061803.8947606,
-    "seen": 1793063438.6087165,
-    "ast_hash": "772744333cbaa82d63fb742632a406ea",
+    "mtime": 1793065527.0308664,
+    "seen": 1793067193.9078283,
+    "ast_hash": "418c8215e716b3e619dcf5f1bc0c7dbf",
+    "semantic_hash": ""
+  },
+  "e2e/tools/compare-insert.mjs": {
+    "mtime": 1793064000.4011047,
+    "seen": 1793067193.9078283,
+    "ast_hash": "72dab7bbe472a690eb759f66e4a0bc4b",
+    "semantic_hash": ""
+  },
+  "docs/screenshots/0.4.4/cmp-111.png": {
+    "mtime": 1793063582.708189,
+    "seen": 1793067193.9078283,
+    "ast_hash": "b99fd238670c242848f32fcf3f83d4a4",
+    "semantic_hash": ""
+  },
+  "docs/screenshots/0.4.4/cmp-118.png": {
+    "mtime": 1793063582.708189,
+    "seen": 1793067193.9078283,
+    "ast_hash": "9acd43fe7c647685cb91d24d7757ae43",
+    "semantic_hash": ""
+  },
+  "docs/screenshots/0.4.4/cmp-sk-82.png": {
+    "mtime": 1793063582.708189,
+    "seen": 1793067193.9078283,
+    "ast_hash": "8a8df50fa5d54c57801fa2bda6a697a3",
+    "semantic_hash": ""
+  },
+  "docs/screenshots/0.4.4/cmp-sk-95.png": {
+    "mtime": 1793063582.722469,
+    "seen": 1793067193.9078283,
+    "ast_hash": "52c4eec622c40d9b2fd85dd6afda0c70",
+    "semantic_hash": ""
+  },
+  "docs/screenshots/0.4.4/look-deurkruk.png": {
+    "mtime": 1793063582.7244835,
+    "seen": 1793067193.9078283,
+    "ast_hash": "59bd246b33a687eb872322a7c619f008",
     "semantic_hash": ""
   }
 }

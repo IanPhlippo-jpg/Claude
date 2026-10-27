@@ -3,6 +3,8 @@ import { sketchStatus, useActiveSketch, useActiveSolve, useStore, type UnitSyste
 import { useShallow } from 'zustand/react/shallow';
 import { Icon } from '../ui/icons';
 import { Menu } from '../ui/components';
+import { bridge } from './viewport/bridge';
+import { sampleEntity } from '../core/sketch/geometry';
 
 const STATUS_TEXT: Record<string, string> = {
   under: 'Under Defined',
@@ -14,8 +16,31 @@ const STATUS_TEXT: Record<string, string> = {
 
 const UNIT_LABEL: Record<UnitSystem, string> = { MKS: 'MKS (meter, kilogram, second)', CGS: 'CGS (centimeter, gram, second)', MMGS: 'MMGS (millimeter, gram, second)', IPS: 'IPS (inch, pound, second)' };
 
-export function StatusBar({ hint }: { hint: string }) {
+/** the prompt of the command in progress, as the intended status bar words it (measured in the reference videos) */
+function commandPrompt(s: { tool: string; activeSketchId: string | null; selectedConstraint: string | null; contourPick: boolean; featureEdit: { draft: { type: string; sketchId?: string; breakCorner?: boolean; edges?: unknown[] } } | null }): string {
+  if (s.activeSketchId) {
+    if (s.selectedConstraint) return 'Set the properties of the selected dimension(s).';
+    if (s.tool === 'dimension' || s.tool === 'hdim' || s.tool === 'vdim') return 'Select one or two edges/vertices and then a text location.';
+    if (s.tool === 'offset') return 'Click on either side to complete, or click and drag for dynamic control. Right-click for additional options.';
+    if (s.tool === 'polygon') return `Creating ${bridge.sketchOptions.polygonSides} sided polygon`;
+    return '';
+  }
+  const t = s.featureEdit?.draft.type;
+  if (s.contourPick && (t === 'extrude' || t === 'revolve')) return 'To select a region, pick inside an area bounded by sketch geometry.';
+  const d = s.featureEdit?.draft;
+  if (t === 'sweep') return d?.sketchId ? 'Select one or more sketch entities or model edges to form the group.' : 'Select sweep profile';
+  if (t === 'mirror') return 'Select a plane or planar face about which to mirror, followed by the features to mirror.';
+  if (t === 'sketchedBend') return 'Select the fixed face or edge and set the bend parameters.';
+  if (t === 'edgeFlange') return 'Please click a location in empty space or a vertex to set the flange height';
+  if ((t === 'fillet' || t === 'chamfer') && d?.breakCorner) return 'Please select corner edge(s) or flange face(s).';
+  if ((t === 'fillet' || t === 'chamfer') && d?.edges?.length) return 'Select a callout to modify parameters';
+  return '';
+}
+
+export function StatusBar({ hint: hint0 }: { hint: string }) {
   const st = useStore(useShallow((s) => ({ messages: s.messages, doc: s.doc, selection: s.selection, selectedEdges: s.selectedEdges, rebuild: s.rebuild, selectedFace: s.selectedFace, planePick: s.planePick, activeSketchId: s.activeSketchId, cursor: s.cursor, hasDocument: s.hasDocument, selectedDrawingViewId: s.selectedDrawingViewId, unitSystem: s.unitSystem, setUnitSystem: s.setUnitSystem, setDialog: s.setDialog })));
+  const prompt = useStore(useShallow((s) => commandPrompt({ tool: s.tool, activeSketchId: s.activeSketchId, selectedConstraint: s.selectedConstraint, contourPick: s.contourPick, featureEdit: s.featureEdit })));
+  const hint = hint0 || prompt;
   const solve = useActiveSolve();
   const sketch = useActiveSketch();
   const [units, setUnits] = useState(false);
@@ -44,17 +69,31 @@ export function StatusBar({ hint }: { hint: string }) {
       readout = `Distance: ${coord(Math.hypot(b.x - a.x, b.y - a.y))}   dX: ${coord(b.x - a.x)}   dY: ${coord(b.y - a.y)}   dZ: 0${u}`;
     } else if (pts.length === 1 && !ents.length) {
       readout = `X: ${coord(pts[0].x)}   Y: ${coord(pts[0].y)}`;
+    } else if (ents.length > 1) {
+      // several curves: their total length, as the intended status bar
+      let L = 0;
+      for (const e of ents) { const q = sampleEntity(sketch, e); for (let i = 1; i < q.length; i++) L += Math.hypot(q[i].x - q[i - 1].x, q[i].y - q[i - 1].y); }
+      readout = `Total Length: ${coord(r2(L))}`;
     }
   } else if (!sketch && st.selectedEdges.length) {
     const edges = st.selectedEdges.map((id) => st.rebuild.bodies.flatMap((b) => b.edges).find((e) => e.id === id)).filter((e): e is NonNullable<typeof e> => !!e);
     if (edges.length === 1) {
       const e = edges[0];
       if (e.closed && !e.straight) readout = `Diameter: ${coord(r2(e.length / Math.PI))}   Center: ${coord(e.centroid.x)}, ${coord(e.centroid.y)}, ${coord(e.centroid.z)}`;
-      else readout = `${e.straight ? 'Length' : 'Arc length'}: ${coord(e.length)}`;
+      else if (!e.straight && e.points.length >= 3) {
+        // an open arc edge shows its radius, as the intended status bar (circle through its ends and middle)
+        // (only when every point of the edge lies on that circle: a spline keeps its arc length)
+        const [p, q, r] = [e.points[0], e.points[Math.floor(e.points.length / 2)], e.points[e.points.length - 1]];
+        const u = p.clone().sub(r), v = q.clone().sub(r), w = u.clone().cross(v);
+        const centre = w.lengthSq() > 1e-12 ? r.clone().add(v.clone().multiplyScalar(u.lengthSq()).sub(u.clone().multiplyScalar(v.lengthSq())).cross(w).divideScalar(2 * w.lengthSq())) : null;
+        const R = centre ? centre.distanceTo(p) : 0;
+        const onCircle = !!centre && e.points.every((x) => Math.abs(x.distanceTo(centre) - R) < Math.max(1e-3, R * 0.01));
+        readout = onCircle ? `Radius: ${coord(r2(R))}   Arc length: ${coord(r2(e.length))}` : `Arc length: ${coord(e.length)}`;
+      } else readout = `${e.straight ? 'Length' : 'Arc length'}: ${coord(e.length)}`;
     } else if (edges.length === 2 && edges.every((e) => e.straight)) {
       const d = edges[0].centroid.clone().sub(edges[1].centroid);
-      readout = `Distance: ${coord(d.length())}   dX: ${coord(Math.abs(d.x))}   dY: ${coord(Math.abs(d.y))}   dZ: ${coord(Math.abs(d.z))}`;
-    }
+      readout = `Distance: ${coord(d.length())}   dX: ${coord(Math.abs(d.x))}   dY: ${coord(Math.abs(d.y))}   dZ: ${coord(Math.abs(d.z))}   Total Length: ${coord(r2(edges[0].length + edges[1].length))}`;
+    } else if (edges.length > 2) readout = `Total Length: ${coord(r2(edges.reduce((n, e) => n + e.length, 0)))}`;
   } else if (!sketch && st.selectedFace) {
     const f = st.rebuild.bodies.find((b) => b.id === st.selectedFace!.bodyId)?.faces.find((x) => x.id === st.selectedFace!.faceId);
     if (f) readout = `Area: ${r2(f.area)}${u}²`;

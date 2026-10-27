@@ -32,6 +32,7 @@ import './app.css';
 
 // dialogs and the drawing view load when first shown (QA F34): they are not part of the start-up bundle
 const CheckDialog = lazyNamed(() => import('./evaluateDialogs'), 'CheckDialog');
+const ImportDiagnosticsDialog = lazyNamed(() => import('./evaluateDialogs'), 'ImportDiagnosticsDialog');
 const RepairSketchDialog = lazyNamed(() => import('./evaluateDialogs'), 'RepairSketchDialog');
 const SectionPropertiesDialog = lazyNamed(() => import('./evaluateDialogs'), 'SectionPropertiesDialog');
 const CompareDialog = lazyNamed(() => import('./evaluateDialogs2'), 'CompareDialog');
@@ -159,6 +160,7 @@ export function App() {
           {st.dialog === 'finalRender' && <FinalRenderDialog />}
           {st.dialog === 'interference' && <InterferenceDialog />}
           {st.dialog === 'check' && <CheckDialog />}
+          {st.dialog === 'importDiagnostics' && <ImportDiagnosticsDialog />}
           {st.dialog === 'performance' && <PerformanceDialog />}
           {st.dialog === 'customize' && <CustomizeDialog />}
           {st.dialog === 'cutList' && <CutListDialog />}

@@ -32,7 +32,7 @@ function PlaneFields({ sp, onChange, units, focus }: { sp: SectionPlane; onChang
 
 /**
  * Section View Property Panel by design (heads-up ▸ Section View): Drawing Section View,
- * Section Method, Section Options, Section 1 (plane, offset distance, flip, angles, cap colour), Section 2 / 3, Selected Bodies.
+ * Section Method, Section Options (offset perpendicular to), Section 1 (plane, offset distance, flip, angles, cap colour), Section 2 / 3, Section by Body.
  */
 export function SectionViewPM() {
   const st = useStore(useShallow((s) => ({ sectionEdit: s.sectionEdit, updateSectionView: s.updateSectionView, doc: s.doc, rebuild: s.rebuild, commitSectionView: s.commitSectionView, cancelSectionView: s.cancelSectionView, saveSectionView: s.saveSectionView, pushMessage: s.pushMessage })));
@@ -69,6 +69,11 @@ export function SectionViewPM() {
         </div>
       </Section>
       <Section title="Section Options">
+        <div className="k-pm-label">Offset perpendicular to:</div>
+        <div className="k-pm-radios">
+          <label className="k-check"><input type="radio" name="secoffset" checked={(se.offsetAlong ?? 'reference') === 'reference'} onChange={() => up({ offsetAlong: 'reference' })} /> Reference plane</label>
+          <label className="k-check"><input type="radio" name="secoffset" data-testid="section-offset-selected" checked={se.offsetAlong === 'selected'} onChange={() => up({ offsetAlong: 'selected' })} /> Selected plane</label>
+        </div>
         <label className="k-check"><input type="checkbox" checked={se.cap} disabled={!!se.graphicsOnly} onChange={(e) => up({ cap: e.target.checked })} /> Show section cap</label>
         <label className="k-check"><input type="checkbox" checked={!!se.keepCapColor} disabled={!se.cap} onChange={(e) => up({ keepCapColor: e.target.checked })} /> Keep cap color</label>
         <label className="k-check"><input type="checkbox" data-testid="section-gpu" checked={!!se.graphicsOnly} onChange={(e) => up({ graphicsOnly: e.target.checked })} /> Graphics-only section</label>
@@ -87,7 +92,7 @@ export function SectionViewPM() {
       <Section title="Section 3" defaultOpen={!!se.s3} check={!!se.s3} onCheck={(on) => (se.s2 || !on ? up({ s3: on ? { plane: 'right', offset: 0, flip: false } : undefined }) : st.pushMessage('Section 2 comes first.', 'warn'))}>
         {se.s3 && <PlaneFields sp={se.s3} onChange={(p) => up({ s3: { ...se.s3!, ...p } })} units={st.doc.units} />}
       </Section>
-      <Section title="Selected Bodies" defaultOpen={!!se.selectedOnly} check={!!se.selectedOnly} onCheck={(on) => up({ selectedOnly: on, pickBodies: on })}>
+      <Section title="Section by Body" defaultOpen={!!se.selectedOnly} check={!!se.selectedOnly} onCheck={(on) => up({ selectedOnly: on, pickBodies: on })}>
         <div className={`k-selbox ${se.pickBodies ? 'focus' : ''}`} style={{ minHeight: 40 }} data-testid="section-bodies" onClick={() => up({ pickBodies: true })}>
           {se.bodies?.length ? se.bodies.map((id) => <div key={id} className="k-selbox-row"><Icon.Part size={12} /> {bodyName(id)}</div>) : <span className="k-muted">Select the bodies or components to section.</span>}
         </div>

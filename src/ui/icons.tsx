@@ -248,6 +248,13 @@ export const Icon = {
       <circle cx="18" cy="12" r="1.8" fill="currentColor" />
     </svg>
   ),
+  /** Add or Update Favorite: a star with a green plus */
+  Plus: ({ size = 16, ...p }: P) => (
+    <svg {...base(size, p)}>
+      <path d="M10 3l2 4.6 5 .5-3.8 3.3 1.1 4.9L10 13.8 5.7 16.3l1.1-4.9L3 8.1l5-.5z" fill={C.yellow} stroke={C.greyD} strokeWidth={1} />
+      <path d="M18 14v7M14.5 17.5h7" stroke={C.green} strokeWidth={2.2} />
+    </svg>
+  ),
   Trash: ({ size = 16, ...p }: P) => (
     <svg {...base(size, p)}>
       <path d="M4 7h16" stroke={C.greyD} strokeWidth={1.6} />

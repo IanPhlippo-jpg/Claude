@@ -44,6 +44,22 @@ Status per fase:
 8. Sheet metal (Base Flange/Tab, Edge Flange, Flatten met K-factor) — **basis gereed**; Hem/Jog/Miter/Unfold gepland
 7. Massa-eigenschappen en meten — **gereed** (Mass Properties, Measure); materialen en rendering gepland
 
+## Status 0.4.6 (2026-10-28)
+
+Playlist-inventaris van video 39 tot 52, en de verschillen weggewerkt:
+- **Statusbalk:** prompts per commando, en Total Length, Radius.
+- **Contextwerkbalk:** bij een klik op een feature, body of schetsentiteit, met "Make …"-tooltips.
+- **Schets-snelmenu:** fly-outs en een maatkop met Link Values, Driven en Mark For Drawing.
+- **Modify:** Reverse sense.
+- **Equations:** onderdrukking via vergelijkingen.
+- **Section View:** Offset perpendicular to.
+- **View-menu:** Redraw, Screen Capture, Full Screen, analyses en drie Tangent Edges-keuzes.
+- **Evaluate:** Import Diagnostics met Attempt to Heal All.
+- **Thread-PM:** zoals in SOLIDWORKS.
+- **Kleinere aanpassingen:** Hole Position, ANSI Metric-namen, Fill Pattern, Chamfer-callout, bodies met [n], materiaal als rij en Red Oak/American Cherry.
+
+Zie docs/07 (onderaan).
+
 ## Status 0.4.5 (2026-10-28)
 
 Tekening en assembly naast de referentie. Een tekening vult bij het openen weer het hele venster en de bladtabs (Sheet1, Add Sheet) staan onderaan; voorheen bleef het blad op een vaste maat staan. Insert Component in een nieuwe assembly toont het part dat net open was onder Open documents, met de preview meteen aan de cursor (frame 320). Zie docs/21-ontwerpronde-0.4.4.md.

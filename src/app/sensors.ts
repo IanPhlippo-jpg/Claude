@@ -24,7 +24,8 @@ export function sensorReading(doc: Document, bodies: Body[], sn: Sensor): { valu
     const m = withExactVolume(massProperties(b.geometry, bm ? bm.density / 1e6 : 0.001), b.exactVolume);
     mass += m.mass; volume += m.volume; area += m.area;
   }
-  if (sn.kind === 'mass') return { value: mass, text: `${mass.toFixed(2)} grams` };
+  // the tree shows the value as the intended design does: Mass1(23.8401841 g)
+  if (sn.kind === 'mass') return { value: mass, text: `${mass.toFixed(7)} g` };
   if (sn.kind === 'volume') return { value: volume, text: `${volume.toFixed(2)} ${doc.units}^3` };
   return { value: area, text: `${area.toFixed(2)} ${doc.units}^2` };
 }

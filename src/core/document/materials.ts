@@ -101,7 +101,7 @@ export const MATERIAL_LIBRARY: MaterialCategory[] = [
   },
   {
     name: 'Woods',
-    materials: [m('Balsa', 160, '#e5d1a6', { elasticModulus: 3e9, poisson: 0.29, tensile: 2e7, conductivity: 0.05, specificHeat: 1700 }), m('Oak', 700, '#b98a4e', { elasticModulus: 9.3e9, poisson: 0.3, tensile: 1.9e7, conductivity: 0.17, specificHeat: 2000 }), m('Pine', 500, '#d9b57c', { elasticModulus: 8.5e9, poisson: 0.3, tensile: 1.5e7, conductivity: 0.12, specificHeat: 1800 }), m('Teak', 700, '#9e6e3a', { elasticModulus: 1.2e10, poisson: 0.3, tensile: 2e7, conductivity: 0.17, specificHeat: 1700 })],
+    materials: [m('Balsa', 160, '#e5d1a6', { elasticModulus: 3e9, poisson: 0.29, tensile: 2e7, conductivity: 0.05, specificHeat: 1700 }), m('Oak', 700, '#b98a4e', { elasticModulus: 9.3e9, poisson: 0.3, tensile: 1.9e7, conductivity: 0.17, specificHeat: 2000 }), m('Red Oak', 660, '#b07a52', { elasticModulus: 1.25e10, poisson: 0.3, tensile: 1.9e7, conductivity: 0.17, specificHeat: 2000 }), m('American Cherry', 560, '#9b5a3c', { elasticModulus: 1.03e10, poisson: 0.3, tensile: 1.7e7, conductivity: 0.15, specificHeat: 1900 }), m('Pine', 500, '#d9b57c', { elasticModulus: 8.5e9, poisson: 0.3, tensile: 1.5e7, conductivity: 0.12, specificHeat: 1800 }), m('Teak', 700, '#9e6e3a', { elasticModulus: 1.2e10, poisson: 0.3, tensile: 2e7, conductivity: 0.17, specificHeat: 1700 })],
   },
 ];
 

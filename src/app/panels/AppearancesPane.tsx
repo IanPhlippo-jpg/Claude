@@ -146,7 +146,8 @@ export function AppearancesPane() {
       <div key={p}>
         <div className={`k-ap-row${path === p ? ' active' : ''}`} style={{ paddingLeft: 4 + depth * 16 }} onClick={() => setPath(p)} onDoubleClick={() => setOpen((o) => { const n = new Set(o); if (n.has(p)) n.delete(p); else n.add(p); return n; })}>
           <span className="k-ap-caret" onClick={(e) => { e.stopPropagation(); setOpen((o) => { const n = new Set(o); if (n.has(p)) n.delete(p); else n.add(p); return n; }); }}>{kids.length ? <Icon.TreeCaret open={isOpen} /> : null}</span>
-          <span className="k-ap-hl"><Icon.TPAppearances size={16} /><span>{f.name}</span></span>
+          {/* the categories are folders with a colour ball, by design; the root of each library its own sign */}
+          <span className="k-ap-hl">{depth === 0 ? (f.name.startsWith('Scenes') ? <Icon.TPPalette size={16} /> : f.name.startsWith('Decals') ? <Icon.Palette size={16} /> : <Icon.TPAppearances size={16} />) : <span className="k-ap-folder"><Icon.Folder size={16} /><Icon.TPAppearances size={9} /></span>}<span>{f.name}</span></span>
         </div>
         {isOpen && kids.map((k) => row(k, p, depth + 1))}
       </div>

@@ -631,3 +631,32 @@ elease; README en docs/04 bijgewerkt
 - [x] Assembly naast frame 340: lint, tabs en boom gelijk (eigen namen Drag Handles en Auto Fasteners blijven)
 - [x] Insert Component naast frame 320: het part dat open was vóór File ▸ New staat onder Open documents, is geselecteerd en hangt meteen als preview aan de cursor (sessionParts; e2e/tools/compare-insert.mjs)
 - [x] Tests, regressie, desktop, installer 0.4.5, commit + tag (unit 387, regressie 85/85, desktop 8/8 + 12/12)
+
+## Vervolg 47: playlist-inventaris video 39–52 (2026-10-28)
+- [x] Inventaris video 39–44 en 45–52 (twee agents; 38 is Onshape, 46 en 53–58 niet gedownload): e2e-out/inventaris-39-44.md en -45-52.md; e2e/inventory47.mjs 15/15
+- [x] Thread-PM naast frame 298: Favorite open met vijf knoppen (eigen ster-plus-icoon) en volle keuzelijst, Type/Size volle breedte, diameter en spoed grijs tot Override, Locate Profile gecentreerd
+- [x] Appearances-paneel naast frame 142: categorieën als map met kleurbal, takenpaneelkop met « links en de titel in het midden (frame 262 is de Dimension-PM, al vergeleken)
+- [~] Gevonden verschillen (39–44) oplossen:
+  - [x] statusbalk: prompt per commando (Smart Dimension, Offset, Polygon, Selected Contours, Sweep, maat geselecteerd), Total Length bij meerdere curves/randen
+  - [x] contextwerkbalk bij klik op een boomitem (Edit Feature, Edit Sketch, Suppress, Normal To, Zoom to Fit; na een korte rust, klikbaar zodra de pointer erop staat)
+  - [x] schets-RMB-menu: Selection Tools ▸, Recent Commands ▸, Sketch Entities ▸, More Dimensions ▸, Display Grid, Fully Define Sketch…, Sketch Tools ▸ (Menu kent nu fly-outs); maatkop met Link Values…, Driven, Mark For Drawing (Model Items slaat ongemarkeerde maten over)
+  - [x] Dimension Text: R<DIM> en <MOD-DIAM><DIM> als standaardtekst (Rectangle-PM "Static" niet gewijzigd: frame 70 en het rect3-frame spreken elkaar tegen)
+  - [x] Modify: Reverse the sense of the dimension en Mark dimension to be imported into a drawing
+  - [x] Chamfer-callout met Angle; Linear Pattern-flyout met Mirror; bodies met [n] bij dezelfde naam; bodymateriaal als kindrij
+  - [x] Hole Wizard: titel Hole Position op het tabblad Positions met de Type-verwijzing; ANSI Metric-typenamen (B18.2.3.5M, B18.6.7M …)
+  - [ ] Loft: profielenlijst met ▲▼ en vlakken, Apply to all als vinkje, Curvature To Face, Next Face; callouts met schetsnaam
+  - [x] Equations: groep Features met Add feature suppression ("suppressed"/"unsuppressed" of een voorwaarde), Sketch Equation View, vier view-iconen links van het filter
+  - [x] Evaluate ▸ Import Diagnostics: foute vlakken en gaten van de geïmporteerde driehoeken, Attempt to Heal All last punten binnen de tolerantie (Check staat al op de tab)
+  - [ ] Appearance-PM: Basic/Advanced, kleurwiel, "Select an appearance"; ontbrekende swatches
+- [~] Verschillen 45–52 (tweede agent, e2e-out/inventaris-45-52.md):
+  - [x] meer statusprompts (Select sweep profile, Edge Flange, Mirror, Sketched Bend, Break Corner, callout), open boogrand toont Radius
+  - [x] contextwerkbalk op een body in de boom (Hide/Show, Isolate, Appearance, Zoom to Fit)
+  - [x] contextwerkbalk na linksklik in een schets (relaties met "Make …"-tooltips; ook op de RMB-werkbalk)
+  - [x] cut list: aantal altijd "(n)", body-[n], materiaal als kindrij; materialen Red Oak, American Cherry
+  - [x] Fill Pattern: Create seed cut als radio bij Features and Faces, layoutvolgorde Perforation/Circular/Square/Polygon
+  - [x] Section View: "Section by Body", Offset perpendicular to (Reference plane / Selected plane, unit test)
+  - [ ] Insert Bends: Ignore beveled faces; face fillet Hold Line
+  - [x] View-menu: Redraw, Screen Capture ▸ Image Capture, Lights and Cameras ▸ Edit Scene, Toolbars ▸ Customize, Full Screen, Customize Menu; Display ▸ Curvature/Draft/Undercut/Parting Line/Section View; Tangent Edges als drie keuzes
+  - [x] sensorwaarde als Mass1(23.8401841 g)
+  - [ ] plaatwerk-bochten in de boom (BaseBend, EdgeBend, RoundBend); 3D-schets Line/Point-PM; Segment-commando; ribbon-tooltips met beschrijving
+- [x] Tests, regressie (86/86 met inventory47, unit 389), installer 0.4.6, screenshots, commit

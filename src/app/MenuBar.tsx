@@ -1,5 +1,5 @@
 import { LEGAL_NOTICE } from './legal';
-import { fitActive } from './viewport/bridge';
+import { bridge, fitActive } from './viewport/bridge';
 import { useEffect, useRef, useState } from 'react';
 import { useStore } from './store';
 import { useShallow } from 'zustand/react/shallow';
@@ -220,7 +220,7 @@ export function openFileDialog() {
  * login, Help and window controls.
  */
 export function MenuBar() {
-  const st = useStore(useShallow((s) => ({ activeSketchId: s.activeSketchId, doc: s.doc, hasDocument: s.hasDocument, dirty: s.dirty, setDialog: s.setDialog, rebuild: s.rebuild, pushMessage: s.pushMessage, undoLabel: s.undoLabel, canUndo: s.canUndo, undo: s.undo, redoLabel: s.redoLabel, canRedo: s.canRedo, redo: s.redo, repeatLastTool: s.repeatLastTool, deleteSelection: s.deleteSelection, rebuildAll: s.rebuildAll, show: s.show, toggleShow: s.toggleShow, displayStyle: s.displayStyle, setDisplayStyle: s.setDisplayStyle, setPrefs: s.setPrefs, setPanel: s.setPanel, panels: s.panels, setTaskPane: s.setTaskPane, taskPane: s.taskPane, theme: s.theme, setTheme: s.setTheme, exitSketch: s.exitSketch, startPlanePick: s.startPlanePick, startInsertComponent: s.startInsertComponent, startMate: s.startMate, startModelView: s.startModelView, startProjectedView: s.startProjectedView, startNote: s.startNote, startFeature: s.startFeature, startRound: s.startRound, startShell: s.startShell, startRib: s.startRib, startCombine: s.startCombine, startMoveBody: s.startMoveBody, startDeform: s.startDeform, startHole: s.startHole, startVent: s.startVent, startFormTool: s.startFormTool, startGusset: s.startGusset, startTabSlot: s.startTabSlot, startRip: s.startRip, startSweptFlange: s.startSweptFlange, startConvertSheet: s.startConvertSheet, startWeldment: s.startWeldment, startStructuralMember: s.startStructuralMember, startTrimExtend: s.startTrimExtend, startEndCap: s.startEndCap, startWeldGusset: s.startWeldGusset, startWeldBead: s.startWeldBead, startPlane: s.startPlane, setTool: s.setTool, convertEntities: s.convertEntities, setAnalysis: s.setAnalysis, viewportLayout: s.viewportLayout, setViewportLayout: s.setViewportLayout, setAsk: s.setAsk, prefs: s.prefs })));
+  const st = useStore(useShallow((s) => ({ analysis: s.analysis, setSceneEdit: s.setSceneEdit, startSectionView: s.startSectionView, activeSketchId: s.activeSketchId, doc: s.doc, hasDocument: s.hasDocument, dirty: s.dirty, setDialog: s.setDialog, rebuild: s.rebuild, pushMessage: s.pushMessage, undoLabel: s.undoLabel, canUndo: s.canUndo, undo: s.undo, redoLabel: s.redoLabel, canRedo: s.canRedo, redo: s.redo, repeatLastTool: s.repeatLastTool, deleteSelection: s.deleteSelection, rebuildAll: s.rebuildAll, show: s.show, toggleShow: s.toggleShow, displayStyle: s.displayStyle, setDisplayStyle: s.setDisplayStyle, setPrefs: s.setPrefs, setPanel: s.setPanel, panels: s.panels, setTaskPane: s.setTaskPane, taskPane: s.taskPane, theme: s.theme, setTheme: s.setTheme, exitSketch: s.exitSketch, startPlanePick: s.startPlanePick, startInsertComponent: s.startInsertComponent, startMate: s.startMate, startModelView: s.startModelView, startProjectedView: s.startProjectedView, startNote: s.startNote, startFeature: s.startFeature, startRound: s.startRound, startShell: s.startShell, startRib: s.startRib, startCombine: s.startCombine, startMoveBody: s.startMoveBody, startDeform: s.startDeform, startHole: s.startHole, startVent: s.startVent, startFormTool: s.startFormTool, startGusset: s.startGusset, startTabSlot: s.startTabSlot, startRip: s.startRip, startSweptFlange: s.startSweptFlange, startConvertSheet: s.startConvertSheet, startWeldment: s.startWeldment, startStructuralMember: s.startStructuralMember, startTrimExtend: s.startTrimExtend, startEndCap: s.startEndCap, startWeldGusset: s.startWeldGusset, startWeldBead: s.startWeldBead, startPlane: s.startPlane, setTool: s.setTool, convertEntities: s.convertEntities, setAnalysis: s.setAnalysis, viewportLayout: s.viewportLayout, setViewportLayout: s.setViewportLayout, setAsk: s.setAsk, prefs: s.prefs })));
   const [open, setOpen] = useState<string | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [pinned, setPinned] = useState(() => {
@@ -282,6 +282,10 @@ export function MenuBar() {
       { label: 'Appearance ▸ Material…', icon: <Icon.Material />, onSelect: () => st.setDialog('material') },
     ],
     View: [
+      // Redraw: the graphics area drawn again (nothing rebuilt), as the intended View menu
+      { label: 'Redraw', icon: <Icon.Rebuild />, shortcut: 'Ctrl+R', onSelect: () => useStore.setState((s) => ({ show: { ...s.show } })) },
+      { label: 'Screen Capture ▸ Image Capture', icon: <Icon.Print />, onSelect: () => { const url = bridge.snapshot?.(); if (!url) return; const a = document.createElement('a'); a.href = url; a.download = `${st.doc.name}.png`; a.click(); } },
+      { separator: true },
       { label: 'Previous View', icon: <Icon.Previous />, shortcut: 'Shift+Ctrl+Z', onSelect: () => cam().previousView() },
       { label: 'Zoom to Fit', icon: <Icon.Fit />, shortcut: 'F', onSelect: () => fitActive() },
       { label: 'Modify ▸ Orientation…', icon: <Icon.Orientation />, shortcut: 'Space', onSelect: () => st.setDialog('orientation') },
@@ -302,13 +306,23 @@ export function MenuBar() {
       { label: `Display ▸ ${st.show.shadows ? '✓ ' : ''}Shadows In Shaded Mode`, onSelect: () => st.toggleShow('shadows') },
       { label: `Display ▸ ${st.show.ambientOcclusion ? '✓ ' : ''}Ambient Occlusion`, onSelect: () => st.toggleShow('ambientOcclusion') },
       { label: `Display ▸ ${st.show.realisticShading ? '✓ ' : ''}Realistic Shading`, onSelect: () => st.toggleShow('realisticShading') },
-      { label: `Display ▸ Tangent Edges ${getPref('view.tangentEdges') === 'removed' ? 'Removed' : getPref('view.tangentEdges') === 'phantom' ? 'As Phantom' : 'Visible'} (cycle)`, onSelect: () => { const cur = String(getPref('view.tangentEdges') ?? 'visible'); const next = cur === 'visible' ? 'phantom' : cur === 'phantom' ? 'removed' : 'visible'; st.setPrefs({ ...loadPrefs(), 'view.tangentEdges': next }); } },
+      // Tangent Edges: three choices, by design (Visible / As Phantom / Removed)
+      ...(['visible', 'phantom', 'removed'] as const).map((v): MenuItem => ({ label: `Display ▸ Tangent Edges ▸ ${String(getPref('view.tangentEdges') ?? 'visible') === v ? '✓ ' : ''}${v === 'visible' ? 'Tangent Edges Visible' : v === 'phantom' ? 'Tangent Edges As Phantom' : 'Tangent Edges Removed'}`, onSelect: () => st.setPrefs({ ...loadPrefs(), 'view.tangentEdges': v }) })),
+      { label: `Display ▸ ${st.analysis?.kind === 'curvature' ? '✓ ' : ''}Curvature`, onSelect: () => st.setAnalysis(st.analysis?.kind === 'curvature' ? null : { kind: 'curvature' }) },
+      { label: `Display ▸ ${st.analysis?.kind === 'draft' ? '✓ ' : ''}Draft Analysis`, onSelect: () => st.setAnalysis(st.analysis?.kind === 'draft' ? null : { kind: 'draft', pull: [0, 1, 0], pullLabel: 'Y axis', angle: 1 }) },
+      { label: `Display ▸ ${st.analysis?.kind === 'undercut' ? '✓ ' : ''}Undercut Analysis`, onSelect: () => st.setAnalysis(st.analysis?.kind === 'undercut' ? null : { kind: 'undercut', pull: [0, 1, 0], pullLabel: 'Y axis' }) },
+      { label: `Display ▸ ${st.analysis?.kind === 'parting' ? '✓ ' : ''}Parting Line Analysis`, onSelect: () => st.setAnalysis(st.analysis?.kind === 'parting' ? null : { kind: 'parting', pull: [0, 1, 0], pullLabel: 'Y axis', angle: 1 }) },
+      { label: 'Display ▸ Section View', icon: <Icon.Section />, onSelect: () => st.startSectionView() },
       { separator: true },
       { label: `Modify ▸ Up Axis ▸ ${getPref('view.upAxis') !== 'Z' ? '✓ ' : ''}Y up`, onSelect: () => { setUpAxis('Y'); st.setPrefs({ ...loadPrefs(), 'view.upAxis': 'Y' }); cam().setView('trimetric'); } },
       { label: `Modify ▸ Up Axis ▸ ${getPref('view.upAxis') === 'Z' ? '✓ ' : ''}Z up`, onSelect: () => { setUpAxis('Z'); st.setPrefs({ ...loadPrefs(), 'view.upAxis': 'Z' }); cam().setView('trimetric'); } },
       { separator: true },
       { label: 'User Interface ▸ Feature Tree Area', onSelect: () => st.setPanel('manager', { visible: !st.panels.manager.visible }) },
       { label: 'User Interface ▸ Task Pane', onSelect: () => st.setTaskPane(st.taskPane ? null : 'resources') },
+      { label: 'Lights and Cameras ▸ Edit Scene…', onSelect: () => st.setSceneEdit(true) },
+      { label: 'Toolbars ▸ Customize…', onSelect: () => st.setDialog('customize') },
+      { label: 'Full Screen', shortcut: 'F11', onSelect: () => { if (document.fullscreenElement) void document.exitFullscreen(); else void document.documentElement.requestFullscreen?.(); } },
+      { label: 'Customize Menu', onSelect: () => st.setDialog('customize') },
       { label: st.theme === 'dark' ? 'Light theme' : 'Dark theme', icon: st.theme === 'dark' ? <Icon.Sun /> : <Icon.Moon />, shortcut: 'Ctrl+Shift+D', onSelect: () => st.setTheme(st.theme === 'dark' ? 'light' : 'dark') },
     ],
     Insert: [

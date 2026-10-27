@@ -260,6 +260,8 @@ export function evaluateEquations(doc: Document): EquationResult {
   const dims = dimensionTable(doc);
   const dimValue = new Map(dims.map((d) => [d.name, d.value]));
   const byTarget = new Map(equations.map((e) => [e.target, e]));
+  // Features: an equation on a feature name sets its suppression ("suppressed" / "unsuppressed", or a number: not 0 = suppressed)
+  const featureNames = new Set(doc.features.map((f) => f.name));
   const values: Record<Id, number> = {};
   const errors: Record<Id, string> = {};
   const variables: Record<string, number> = {};
@@ -272,9 +274,10 @@ export function evaluateEquations(doc: Document): EquationResult {
       if (visiting.has(name)) throw new Error(`Circular reference through "${name}"`);
       visiting.add(name);
       try {
-        const v = evaluateExpression(eq.expression, resolve, { radians: doc.equationAngleUnits === 'rad' });
+        const word = featureNames.has(name) && !dimValue.has(name) ? /^\s*"?(un)?suppressed"?\s*$/i.exec(eq.expression) : null;
+        const v = word ? (word[1] ? 0 : 1) : evaluateExpression(eq.expression, resolve, { radians: doc.equationAngleUnits === 'rad' });
         values[eq.id] = v;
-        if (!dimValue.has(name)) variables[name] = v;
+        if (!dimValue.has(name) && !featureNames.has(name)) variables[name] = v;
         return v;
       } catch (err) {
         errors[eq.id] = (err as Error).message;
@@ -302,7 +305,14 @@ export function applyEquations(doc: Document): { doc: Document; result: Equation
   if (!equations.length) return { doc, result };
   const values: Record<string, number> = {};
   for (const eq of equations) if (eq.id in result.values) values[eq.target] = result.values[eq.id];
-  return { doc: setDimensionValues(doc, values), result };
+  let d = setDimensionValues(doc, values);
+  // feature suppression equations
+  const dimNames = new Set(dimensionTable(doc).map((x) => x.name));
+  const suppress = new Map(equations.filter((eq) => eq.id in result.values && !dimNames.has(eq.target)).map((eq) => [eq.target, result.values[eq.id] !== 0] as const));
+  if (d.features.some((f) => suppress.has(f.name) && suppress.get(f.name) !== f.suppressed)) {
+    d = { ...d, features: d.features.map((f) => (suppress.has(f.name) && suppress.get(f.name) !== f.suppressed ? { ...f, suppressed: suppress.get(f.name)! } : f)) };
+  }
+  return { doc: d, result };
 }
 
 /** Set dimension values by name (D1@Sketch1, D1@Boss-Extrude1 ...); unknown names are ignored, unchanged values keep the objects. */

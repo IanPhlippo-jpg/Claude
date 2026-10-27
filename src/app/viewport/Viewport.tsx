@@ -3,6 +3,7 @@ import { activeConfiguration, configurationByName } from '../../core/document/co
 import { sectionBody, sectionPlaneOf, type SectionPlane } from '../../core/features/section';
 import { rebuildAssembly } from '../../core/assembly/assembly';
 import { sketchDimensionName } from '../../core/document/equations';
+import { newId } from '../../core/sketch/model';
 import { getPref } from '../prefs';
 import { referencePlane, resolvePlaneDef } from '../../core/features/planes';
 import { helixPath, sketch3DChains } from '../../core/features/sweep';
@@ -100,6 +101,11 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
   const [, bump] = useState(0);
   const [hoverConstraint, setHoverConstraint] = useState<string | null>(null);
   const [ctxMenu, setCtxMenu] = useState<{ x: number; y: number } | null>(null);
+  // the context toolbar after a left-click selection in a sketch, by design: the relations for the selection beside the
+  // pointer, shown after a short rest and taking clicks once the pointer is on it
+  const lastUp = useRef<{ x: number; y: number } | null>(null);
+  const [selBar, setSelBar] = useState<{ x: number; y: number; live?: boolean } | null>(null);
+  const selBarRef = useRef<HTMLDivElement>(null);
   const [zoomArea, setZoomArea] = useState<{ active: boolean; a?: { x: number; y: number }; b?: { x: number; y: number } }>({ active: false });
   const [cursorPx, setCursorPx] = useState<{ x: number; y: number } | null>(null);
   const [flyout, setFlyout] = useState(false);
@@ -374,7 +380,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
   }, [st.detailedPreview, st.featureEdit, st.doc]);
   // Section View: the bodies cut by the section plane (display only; the real bodies stay for picking)
   const section = st.sectionEdit ?? st.sectionView;
-  const sectionPlanes = useMemo((): SectionPlane[] => (section ? [{ plane: section.plane, offset: section.offset, flip: section.flip, rotX: section.rotX, rotY: section.rotY }, ...(section.s2 ? [section.s2] : []), ...(section.s3 ? [section.s3] : [])] : []), [section]);
+  const sectionPlanes = useMemo((): SectionPlane[] => (section ? [{ plane: section.plane, offset: section.offset, flip: section.flip, rotX: section.rotX, rotY: section.rotY }, ...(section.s2 ? [section.s2] : []), ...(section.s3 ? [section.s3] : [])].map((p) => ({ ...p, offsetAlong: section.offsetAlong })) : []), [section]);
   // Graphics-only section: one plane (or a zonal section) is clipped on the graphics card, without cap
   const gpuSection = !!section?.graphicsOnly && (sectionPlanes.length === 1 || section.method === 'zonal');
   const sectionedBodies = useMemo(() => {
@@ -1107,6 +1113,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
     refreshTool();
   };
   const onPointerUp = (e: React.PointerEvent) => {
+    if (e.button === 0 && hostRef.current) { const r = hostRef.current.getBoundingClientRect(); lastUp.current = { x: e.clientX - r.left, y: e.clientY - r.top }; }
     if (e.button === 2) {
       const g = gesture.current, press = rightPress.current;
       gesture.current = null;
@@ -1281,11 +1288,41 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
       return { label: o.label, icon: G ? <G size={14} /> : undefined, onSelect: () => st.addRelation(o.kind, o.refs, { internal: o.internal }) };
     });
     const hasEnt = st.selection.some((s) => s.kind === 'entity');
+    const S = useStore.getState;
+    const cid = st.selectedConstraint;
+    const dimC = cid && sketch.constraints[cid]?.value !== undefined ? sketch.constraints[cid] : null;
+    const tool = (id: Parameters<typeof st.setTool>[0], label: string, icon?: React.ReactNode): MenuItem => ({ label, icon, onSelect: () => st.setTool(id) });
+    // the sketch shortcut menu of the intended design: the selected dimension on top, then the tools in fly-outs
     const menu: MenuItem[] = [
+      ...(dimC && cid
+        ? [
+            { header: true, label: `Dimension (${sketchDimensionName(sketch, cid)}(${(dimC.value ?? 0).toFixed(2)}))` } as MenuItem,
+            { label: 'Link Values…', onSelect: () => st.setAsk({ title: 'Shared Values', text: 'Name', input: '', yes: (n) => {
+              const name = (n ?? '').replace(/"/g, '').trim();
+              if (!name) return;
+              const eqs = S().doc.equations;
+              if (!eqs.some((e) => e.target === name)) S().setEquations([...eqs, { id: newId('eq'), target: name, expression: String(+(dimC.value ?? 0).toFixed(6)) }]);
+              S().setDimensionEquation(cid, `"${name}"`);
+            } }) },
+            { label: `${dimC.driven ? '✓ ' : ''}Driven`, onSelect: () => S().updateDimension(cid, { driven: !dimC.driven }) },
+            { label: `${dimC.markForDrawing === false ? '' : '✓ '}Mark For Drawing`, onSelect: () => S().updateDimension(cid, { markForDrawing: dimC.markForDrawing === false }) },
+            { label: 'Configure Dimension', icon: <Icon.Config />, onSelect: () => { st.openConfigure({ dims: [sketchDimensionName(sketch, cid)] }); } },
+            { separator: true },
+          ]
+        : []),
+      { label: 'Selection Tools', icon: <Icon.Select />, children: [
+        { label: `${tools.lassoMode ? '' : '✓ '}Box Selection`, onSelect: () => { tools.lassoMode = false; } },
+        { label: `${tools.lassoMode ? '✓ ' : ''}Lasso Selection`, onSelect: () => { tools.lassoMode = true; } },
+      ] },
+      { label: 'Recent Commands', children: [tool(S().lastTool, `Repeat ${S().lastTool}`)] },
       { label: 'Select', icon: <Icon.Select />, shortcut: 'Esc', onSelect: () => st.setTool('select') },
-      { label: `${tools.lassoMode ? '' : '✓ '}Box Selection`, icon: <Icon.Select />, onSelect: () => { tools.lassoMode = false; } },
-      { label: `${tools.lassoMode ? '✓ ' : ''}Lasso Selection`, icon: <Icon.Select />, onSelect: () => { tools.lassoMode = true; } },
+      { label: 'Sketch Entities', icon: <Icon.Line />, children: [
+        tool('line', 'Line', <Icon.Line />), tool('rectangle', 'Corner Rectangle', <Icon.Rect />), tool('circle', 'Circle', <Icon.Circle />), tool('arcCenter', 'Centerpoint Arc'),
+        tool('tangentArc', 'Tangent Arc'), tool('arc3', '3 Point Arc'), tool('spline', 'Spline'), tool('point', 'Point', <Icon.Point />), tool('polygon', 'Polygon', <Icon.Polygon />),
+        tool('slot', 'Straight Slot'), tool('centerline', 'Centerline'),
+      ] },
       { label: 'Smart Dimension', icon: <Icon.Dimension />, onSelect: () => st.setTool('dimension') },
+      { label: 'More Dimensions', children: [tool('hdim', 'Horizontal Dimension'), tool('vdim', 'Vertical Dimension')] },
       { separator: true },
       ...(hasEnt
         ? [
@@ -1295,20 +1332,48 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
             { separator: true },
           ]
         : []),
-      ...(st.selectedConstraint && sketch && sketch.constraints[st.selectedConstraint]?.value !== undefined
-        ? [
-            { label: 'Configure Dimension', icon: <Icon.Config />, onSelect: () => { st.openConfigure({ dims: [sketchDimensionName(sketch, st.selectedConstraint!)] }); } },
-            { separator: true },
-          ]
-        : []),
       { label: 'Display/Delete Relations', icon: <Icon.Lock />, onSelect: () => st.setTaskPane('relations') },
-      { label: 'Exit Sketch', icon: <Icon.Exit />, onSelect: st.exitSketch },
+      { label: `${st.show.grid ? '✓ ' : ''}Display Grid`, onSelect: () => st.toggleShow('grid') },
+      { label: 'Fully Define Sketch…', onSelect: () => st.setTool('fullyDefine') },
+      { label: 'Sketch Tools', children: [
+        tool('trim', 'Trim Entities'), tool('extend', 'Extend Entities'), tool('offset', 'Offset Entities'), tool('sketchFillet', 'Sketch Fillet'), tool('sketchChamfer', 'Sketch Chamfer'),
+        tool('moveEntities', 'Move Entities'), tool('rotateEntities', 'Rotate Entities'), tool('linearSketchPattern', 'Linear Sketch Pattern'), tool('circularSketchPattern', 'Circular Sketch Pattern'),
+      ] },
       { separator: true },
+      { label: 'Exit Sketch', icon: <Icon.Exit />, onSelect: st.exitSketch },
       { label: 'Zoom to fit', icon: <Icon.Fit />, shortcut: 'F', onSelect: zoomFit },
       { label: 'Normal To', icon: <Icon.Plane />, shortcut: 'Ctrl+8', onSelect: () => camera.normalTo(plane) },
     ];
     return { toolbar, menu };
   };
+
+  useEffect(() => {
+    setSelBar(null);
+    if (!sketch || st.tool !== 'select' || !st.selection.some((x) => x.kind === 'entity') || !relationsForSelection(sketch, st.selection).length) return;
+    // the selection changes on the press; where the click ended is known by the time the toolbar shows
+    const t = window.setTimeout(() => { if (lastUp.current) setSelBar({ ...lastUp.current }); }, 350);
+    return () => window.clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [st.selection, st.tool, sketch?.id]);
+  useEffect(() => {
+    if (!selBar) return;
+    const move = (e: PointerEvent) => {
+      const r = hostRef.current?.getBoundingClientRect();
+      if (!r) return;
+      const x = e.clientX - r.left, y = e.clientY - r.top;
+      if (Math.hypot(x - selBar.x, y - selBar.y) > 160) { setSelBar(null); return; }
+      const b = selBarRef.current?.getBoundingClientRect();
+      const inside = !!b && e.clientX >= b.left && e.clientX <= b.right && e.clientY >= b.top && e.clientY <= b.bottom;
+      // it takes clicks once the pointer rests on it (a quick click passing over it goes to the sketch)
+      if (!inside) { window.clearTimeout(liveTimer); liveTimer = 0; if (selBar.live) setSelBar({ ...selBar, live: false }); }
+      else if (!selBar.live && !liveTimer) liveTimer = window.setTimeout(() => setSelBar({ ...selBar, live: true }), 150);
+    };
+    let liveTimer = 0;
+    const key = (e: KeyboardEvent) => { if (e.key === 'Escape') setSelBar(null); };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('keydown', key);
+    return () => { window.clearTimeout(liveTimer); window.removeEventListener('pointermove', move); window.removeEventListener('keydown', key); };
+  }, [selBar]);
 
   const unit = st.doc.units;
   const feedback = st.feedback;
@@ -1496,7 +1561,35 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
                 onBlur={(ev) => { const v = parseFloat(ev.target.value.replace(',', '.')); if (v > 0 && Math.abs(v - d.size) > 1e-9) st.updateFeatureDraft({ size: v }); }}
               />
             </div>
+            {/* a chamfer's callout also carries its angle (Angle Distance; equal distances are 45°), by design */}
+            {d.type === 'chamfer' && (!d.roundType || d.roundType === 'angleDistance') && (
+              <div className="k-callout k-callout-edit" data-testid="round-callout-angle" style={{ left: q.x, top: q.y + 112 + 24 }} onPointerDown={(e) => e.stopPropagation()}>
+                <span className="k-callout-label">Angle:</span>
+                <input
+                  className="k-callout-input"
+                  key={d.angle ?? 45}
+                  defaultValue={`${+(d.angle ?? 45).toFixed(2)}deg`}
+                  onKeyDown={(ev) => {
+                    ev.stopPropagation();
+                    if (ev.key === 'Enter') { const v = parseFloat((ev.target as HTMLInputElement).value.replace(',', '.')); if (v > 0 && v < 90) st.updateFeatureDraft({ angle: v, roundType: 'angleDistance' }); }
+                  }}
+                  onBlur={(ev) => { const v = parseFloat(ev.target.value.replace(',', '.')); if (v > 0 && v < 90 && Math.abs(v - (d.angle ?? 45)) > 1e-9) st.updateFeatureDraft({ angle: v, roundType: 'angleDistance' }); }}
+                />
+              </div>
+            )}
           </>
+        );
+      })()}
+      {selBar && !ctxMenu && sketch && (() => {
+        const rel = relationsForSelection(sketch, st.selection);
+        if (!rel.length) return null;
+        return (
+          <div ref={selBarRef} className="k-ctx-toolbar" data-testid="sketch-ctxbar" style={{ position: 'absolute', left: selBar.x + 14, top: selBar.y - 40, zIndex: 40, pointerEvents: selBar.live ? 'auto' : 'none' }} onPointerDown={(e) => e.stopPropagation()}>
+            {rel.map((o, i) => {
+              const G = RelationGlyph[o.kind];
+              return <button key={i} className="k-btn ghost icon k-tip" data-tip={`Make ${o.label}`} onClick={() => { st.addRelation(o.kind, o.refs, { internal: o.internal }); setSelBar(null); }}>{G ? <G size={14} /> : o.label}</button>;
+            })}
+          </div>
         );
       })()}
       {ctxMenu && (() => {
@@ -1506,7 +1599,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
             {toolbar.length > 0 && (
               <div className="k-ctx-toolbar">
                 {toolbar.map((t, i) => (
-                  <button key={i} className="k-btn ghost icon k-tip" data-tip={t.label} onClick={() => { t.onSelect?.(); setCtxMenu(null); }}>
+                  <button key={i} className="k-btn ghost icon k-tip" data-tip={sketch ? `Make ${t.label}` : t.label} onClick={() => { t.onSelect?.(); setCtxMenu(null); }}>
                     {t.icon}
                   </button>
                 ))}

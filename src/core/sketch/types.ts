@@ -133,6 +133,8 @@ export interface Constraint {
   pierce?: { sketchId: Id; entityId: Id };
   /** driven = reference dimension, not solved */
   driven?: boolean;
+  /** Mark For Drawing: the dimension is imported into a drawing by Model Items (absent = yes) */
+  markForDrawing?: boolean;
   /** label placement offset for dimensions (sketch units) */
   labelOffset?: SketchPoint;
   /** for tangent circle-circle: internal tangency */

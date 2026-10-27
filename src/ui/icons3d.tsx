@@ -445,6 +445,13 @@ export const Icons3D = {
       <circle cx={12} cy={9.5} r={0.9} fill={K.line} />
     </svg>
   ),
+  /** Suppress: a box seen through, struck through in red */
+  Suppress: ({ size = 16, ...p }: P) => (
+    <svg {...base(size, p)} viewBox="0 0 24 24">
+      <Box x={0} y={0} z={0} w={10} h={8} d={10} s={0.95} oy={18} />
+      <path d="M4 20L20 4" stroke="#d9363e" strokeWidth={2.2} />
+    </svg>
+  ),
   /** heads-up: Edit Appearance — the colour ball with a pencil */
   Appearance: ({ size = 16, ...p }: P) => (
     <svg {...base(size, p)} viewBox="0 0 24 24">

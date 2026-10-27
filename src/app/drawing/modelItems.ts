@@ -62,7 +62,7 @@ export function modelItems(views: DrawingView[], opts: ModelItemsOptions, existi
         const P = (q: SketchPoint) => to2(new THREE.Vector3(q.x, q.y, 0).applyMatrix4(m));
         for (const cid of s.constraintOrder) {
           const c = s.constraints[cid];
-          if (!c || !isDimension(c) || c.driven || (once && done.has(s.id + cid))) continue;
+          if (!c || !isDimension(c) || c.driven || c.markForDrawing === false || (once && done.has(s.id + cid))) continue;
           const isCircle = c.kind === 'radius' || c.kind === 'diameter';
           if (isCircle ? !opts.holeDims : !opts.sketchDims) continue;
           if (c.kind === 'angle') continue;

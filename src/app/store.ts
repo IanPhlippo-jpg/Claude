@@ -121,7 +121,7 @@ export type ManagerTab = 'tree' | 'properties' | 'configurations' | 'autoToleran
 export type DisplayStyle = 'wireframe' | 'hiddenVisible' | 'hiddenRemoved' | 'shaded' | 'shadedEdges';
 export type UnitSystem = 'MKS' | 'CGS' | 'MMGS' | 'IPS';
 export type TaskPaneTab = 'library' | 'relations' | 'properties' | 'resources' | 'marketplace' | 'forum' | 'explorer' | 'palette' | 'appearances' | 'platform' | 'recovery' | null;
-export type DialogId = 'welcome' | 'new' | 'options' | 'orientation' | 'mass' | 'measure' | 'equations' | 'bom' | 'interference' | 'sheetFormat' | 'sheetProperties' | 'material' | 'configure' | 'appearance' | 'check' | 'sectionProps' | 'repairSketch' | 'finalRender' | 'designStudy' | 'previewWindow' | 'mirrorComponents' | 'packAndGo' | 'share' | 'comments' | 'componentPreview' | 'relativeView' | 'spellCheck' | 'notePattern' | 'generalTable' | 'featureProps' | 'parentChild' | 'exportOptions' | 'customize' | 'performance' | 'deviation' | 'symmetry' | 'compare' | 'beamEstimate' | 'bodiesToKeep' | 'phlippoViewer' | 'cutList' | 'saveAs' | null;
+export type DialogId = 'welcome' | 'new' | 'options' | 'orientation' | 'mass' | 'measure' | 'equations' | 'bom' | 'interference' | 'sheetFormat' | 'sheetProperties' | 'material' | 'configure' | 'appearance' | 'check' | 'sectionProps' | 'repairSketch' | 'finalRender' | 'designStudy' | 'previewWindow' | 'mirrorComponents' | 'packAndGo' | 'share' | 'comments' | 'componentPreview' | 'relativeView' | 'spellCheck' | 'notePattern' | 'generalTable' | 'featureProps' | 'parentChild' | 'exportOptions' | 'customize' | 'performance' | 'deviation' | 'symmetry' | 'compare' | 'beamEstimate' | 'bodiesToKeep' | 'phlippoViewer' | 'cutList' | 'saveAs' | 'importDiagnostics' | null;
 
 /** drawing commands: Model View, Projected View, Smart Dimension, Note, Center Mark */
 export interface DrawingEdit {
@@ -336,6 +336,8 @@ export interface SectionView {
   rotY?: number;
   /** Section Method: Planar (cut away) or Zonal (keep the zone between the planes) */
   method?: 'planar' | 'zonal';
+  /** Section Options ▸ Offset perpendicular to: Reference plane or Selected plane */
+  offsetAlong?: 'reference' | 'selected';
   /** Edit Color: the colour of the section cap (absent: the body colour) */
   capColor?: string;
   /** Keep cap color: the cap colour is kept for the next section views */

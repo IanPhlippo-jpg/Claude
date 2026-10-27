@@ -135,7 +135,7 @@ await page.click('.k-menu-item:has-text("Mass")');
 await page.waitForTimeout(300);
 await expandTree();
 const tree = (await page.locator('.k-tree').innerText()).replace(/\s+/g, ' ');
-check('Mass1 sensor with its value in the tree', /Mass1 \([\d.]+ grams\)/.test(tree), tree.slice(0, 200));
+check('Mass1 sensor with its value in the tree, as Mass1(74.1112018 g)', /Mass1\(\d+\.\d{7} g\)/.test(tree), tree.slice(0, 200));
 await shot('u3-sensor');
 
 console.log(`

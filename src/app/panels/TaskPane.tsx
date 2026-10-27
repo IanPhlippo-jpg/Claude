@@ -145,9 +145,9 @@ export function TaskPane() {
       {st.taskPane && (
         <div className="k-taskpane-panel">
           <div className="k-panel-header">
-            <span>{tabs.find((t) => t.id === st.taskPane)?.tip}</span>
-            <span className="grow" />
-            <button className="k-btn ghost icon" onClick={() => st.setTaskPane(null)}><Icon.Close size={12} /></button>
+            <button className="k-btn ghost icon k-tip" data-tip="Collapse" data-testid="taskpane-close" onClick={() => st.setTaskPane(null)}>«</button>
+            <span className="k-tp-title">{tabs.find((t) => t.id === st.taskPane)?.tip}</span>
+            <span style={{ width: 22 }} />
           </div>
           <div className="k-panel-body">
             {st.taskPane === 'library' && <DesignLibrary />}

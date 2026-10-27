@@ -59,6 +59,53 @@ export interface MenuItem {
   disabled?: boolean;
   separator?: boolean;
   onSelect?: () => void;
+  /** a fly-out: the items open beside this one when the pointer rests on it */
+  children?: MenuItem[];
+  /** a bold heading row (the selected item, as "Dimension (D1@Sketch1)") */
+  header?: boolean;
+}
+
+/** the rows of a menu; a row with children opens them as a fly-out to the right */
+function MenuRows({ items, onClose }: { items: MenuItem[]; onClose: () => void }) {
+  const [open, setOpen] = useState<number | null>(null);
+  return (
+    <>
+      {items.map((it, i) =>
+        it.separator ? (
+          <div key={i} className="k-menu-sep" />
+        ) : it.header ? (
+          <div key={i} className="k-menu-header">{it.icon}<span>{it.label}</span></div>
+        ) : it.children ? (
+          <div key={i} className="k-menu-flyhost" onMouseEnter={() => setOpen(i)} onMouseLeave={() => setOpen((o) => (o === i ? null : o))}>
+            <button className="k-menu-item" disabled={it.disabled} onClick={() => setOpen(i)}>
+              {it.icon}
+              <span>{it.label}</span>
+              <span className="shortcut">▸</span>
+            </button>
+            {open === i && !it.disabled && (
+              <div className="k-menu k-menu-sub">
+                <MenuRows items={it.children} onClose={onClose} />
+              </div>
+            )}
+          </div>
+        ) : (
+          <button
+            key={i}
+            className="k-menu-item"
+            disabled={it.disabled}
+            onClick={() => {
+              it.onSelect?.();
+              onClose();
+            }}
+          >
+            {it.icon}
+            <span>{it.label}</span>
+            {it.shortcut && <span className="shortcut">{it.shortcut}</span>}
+          </button>
+        ),
+      )}
+    </>
+  );
 }
 
 export function Menu({ items, onClose, style }: { items: MenuItem[]; onClose: () => void; style?: React.CSSProperties }) {
@@ -99,25 +146,7 @@ export function Menu({ items, onClose, style }: { items: MenuItem[]; onClose: ()
   const fitStyle: React.CSSProperties = fit && (fit.dx || fit.dy || fit.maxH) ? { transform: `translate(${fit.dx}px, ${fit.dy}px)`, ...(fit.maxH ? { maxHeight: fit.maxH, overflowY: 'auto' } : {}) } : {};
   const body = (
     <div className="k-menu" ref={ref} style={fixed ? { ...style, position: 'fixed', left: fixed.left, top: fixed.top, right: 'auto', bottom: 'auto', zIndex: 2000, ...fitStyle } : { ...style, ...fitStyle }}>
-      {items.map((it, i) =>
-        it.separator ? (
-          <div key={i} className="k-menu-sep" />
-        ) : (
-          <button
-            key={i}
-            className="k-menu-item"
-            disabled={it.disabled}
-            onClick={() => {
-              it.onSelect?.();
-              onClose();
-            }}
-          >
-            {it.icon}
-            <span>{it.label}</span>
-            {it.shortcut && <span className="shortcut">{it.shortcut}</span>}
-          </button>
-        ),
-      )}
+      <MenuRows items={items} onClose={onClose} />
     </div>
   );
   return fixed ? createPortal(body, document.body) : body;

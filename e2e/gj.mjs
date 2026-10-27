@@ -108,7 +108,7 @@ await page.click('.k-pm-cancel');
 await page.hover('.k-brand');
 await page.click('.k-mb-menu:has-text("View")');
 await page.waitForTimeout(150);
-for (const l of ['Display ▸ ✓ Shaded With Edges', 'Display ▸ Shaded', 'Display ▸ Hidden Lines Visible', 'Display ▸ Wireframe', 'Display ▸ Zebra Stripes', 'Display ▸ Perspective', 'Display ▸ Shadows In Shaded Mode', 'Display ▸ Tangent Edges Visible', 'Modify ▸ Up Axis ▸ ✓ Y up', 'Modify ▸ Up Axis ▸ Z up']) check(`View menu has ${l}`, (await menuItem(l).count()) === 1);
+for (const l of ['Display ▸ ✓ Shaded With Edges', 'Display ▸ Shaded', 'Display ▸ Hidden Lines Visible', 'Display ▸ Wireframe', 'Display ▸ Zebra Stripes', 'Display ▸ Perspective', 'Display ▸ Shadows In Shaded Mode', 'Display ▸ Tangent Edges ▸ ✓ Tangent Edges Visible', 'Modify ▸ Up Axis ▸ ✓ Y up', 'Modify ▸ Up Axis ▸ Z up']) check(`View menu has ${l}`, (await menuItem(l).count()) === 1);
 await menuItem('Display ▸ Zebra Stripes').click();
 await page.waitForTimeout(200);
 check('Display ▸ Zebra Stripes toggles the zebra display', await S(() => window.__phlippoStore.getState().show.zebra));

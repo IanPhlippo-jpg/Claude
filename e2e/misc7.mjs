@@ -27,10 +27,13 @@ await page.click('.k-cm-big:has-text("Sketch") .k-cm-main');
 await page.waitForTimeout(300);
 await page.evaluate(() => { const s = window.__phlippoStore.getState(); s.commit('c', (k) => window.__phlippoKit.addCircle(window.__phlippoKit.addCircle(k, { x: 0, y: 0 }, 10)[0], { x: 60, y: 0 }, 10)[0]); });
 const P = (x, y) => page.evaluate(([x, y]) => window.__phlippoProject({ x, y }), [x, y]);
-// shortcut menu ▸ Lasso Selection (set directly on the tool, as the menu does)
+// shortcut menu ▸ Selection Tools ▸ Lasso Selection
 const vp = await page.locator('.k-viewport').boundingBox();
 await page.mouse.click(vp.x + vp.width - 200, vp.y + vp.height - 120, { button: 'right' });
 await page.waitForTimeout(200);
+// Lasso Selection sits in the Selection Tools fly-out, by design
+await page.locator('.k-menu-item:has-text("Selection Tools")').first().hover().catch(() => undefined);
+await page.waitForTimeout(150);
 const lassoItem = page.locator('.k-menu-item:has-text("Lasso Selection")').first();
 const hasLasso = await lassoItem.count();
 if (hasLasso) await lassoItem.click(); else await page.keyboard.press('Escape');

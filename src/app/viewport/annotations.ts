@@ -105,7 +105,9 @@ function dimensionDrawingBase(s: Sketch, c: Constraint, unit: string, driven: bo
   const value = (c.value ?? 0) * k;
   // a dimension driven by an equation shows the Σ prefix, by design
   const core = fmt(value, c.kind === 'angle' ? '' : unit, c.kind, c.precision);
-  const shown = c.dimText && c.dimText.includes('<DIM>') ? c.dimText.replace('<DIM>', core) : core;
+  // Dimension Text: <MOD-DIAM> is the diameter sign and R<DIM> a radius, by design (the value then goes in bare)
+  const bare = c.dimText && ((c.kind === 'diameter' && c.dimText.includes('<MOD-DIAM>')) || (c.kind === 'radius' && c.dimText.includes('R<DIM>'))) ? core.replace(/^[ØR]/, '') : core;
+  const shown = c.dimText && c.dimText.includes('<DIM>') ? c.dimText.replace('<MOD-DIAM>', 'Ø').replace('<DIM>', bare) : core;
   const text = (linked ? 'Σ' : '') + (driven ? '(' : '') + shown + (driven ? ')' : '');
   const off = c.labelOffset;
   switch (c.kind) {

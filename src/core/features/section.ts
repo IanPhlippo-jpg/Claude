@@ -9,6 +9,8 @@ export interface SectionPlane {
   /** rotation about the plane's first / second in-plane axis (degrees) */
   rotX?: number;
   rotY?: number;
+  /** Offset perpendicular to: the reference plane (the default) or the tilted (selected) plane */
+  offsetAlong?: 'reference' | 'selected';
 }
 
 /** The cutting plane in world space: point and the normal pointing to the side that is removed. */
@@ -19,7 +21,7 @@ export function sectionPlaneOf(s: SectionPlane): { normal: THREE.Vector3; point:
   if (s.rotX) n.applyAxisAngle(u, (s.rotX * Math.PI) / 180);
   if (s.rotY) n.applyAxisAngle(v.clone().applyAxisAngle(u, ((s.rotX ?? 0) * Math.PI) / 180), (s.rotY * Math.PI) / 180);
   n.normalize();
-  const point = new THREE.Vector3(...pl.origin).addScaledVector(new THREE.Vector3(...pl.n), s.offset);
+  const point = new THREE.Vector3(...pl.origin).addScaledVector(s.offsetAlong === 'selected' ? n : new THREE.Vector3(...pl.n), s.offset);
   // the intended design keeps the half behind the plane: the removed side is along the normal (flip: the other half)
   return { normal: s.flip ? n.negate() : n, point };
 }

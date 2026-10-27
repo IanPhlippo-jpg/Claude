@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import * as THREE from 'three';
-import { sectionBody } from './section';
+import { sectionBody, sectionPlaneOf } from './section';
 import { meshVolume } from './solid';
 
 const cube = () => new THREE.BoxGeometry(20, 20, 20);
@@ -30,5 +30,15 @@ describe('section view', () => {
     const g = new THREE.BufferGeometry();
     g.setAttribute('position', new THREE.Float32BufferAttribute([...(r.body.getAttribute('position').array as Float32Array), ...(r.cap!.getAttribute('position').array as Float32Array)], 3));
     expect(Math.abs(meshVolume(g))).toBeCloseTo(4000, 0);
+  });
+
+  it('offsets a tilted plane perpendicular to the reference plane or to itself', () => {
+    const ref = sectionPlaneOf({ plane: 'front', offset: 10, flip: false, rotX: 30 });
+    const sel = sectionPlaneOf({ plane: 'front', offset: 10, flip: false, rotX: 30, offsetAlong: 'selected' });
+    // Reference plane: the point moves along the front plane's normal (z); Selected plane: along the tilted normal
+    expect(ref.point.z).toBeCloseTo(10);
+    expect(Math.abs(ref.point.y)).toBeLessThan(1e-9);
+    expect(sel.point.length()).toBeCloseTo(10);
+    expect(sel.point.clone().normalize().dot(sel.normal)).toBeCloseTo(1);
   });
 });

@@ -331,6 +331,9 @@ export interface ThreadFeature {
   /** Specification: Metric Tap (internal) / Metric Die (external) chosen by the user */
   internalOverride?: boolean;
   /** Mirror Profile (horizontally: the flanks swap) */
+  /** Override Diameter / Override Pitch: the value is typed instead of taken from the size */
+  overrideDiameter?: boolean;
+  overridePitch?: boolean;
   mirrorProfile?: boolean;
   /** Multiple Start: number of thread starts (lead = starts x pitch) */
   starts?: number;

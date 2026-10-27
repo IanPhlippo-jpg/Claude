@@ -84,6 +84,20 @@ function holeSubtypePatch(t: string, sz: (typeof HOLE_SIZES)[number] | undefined
   }
 }
 
+/** the Dimension Text a dimension starts with, as the intended Dimension Property Panel shows it */
+const defaultDimText = (kind: string) => (kind === 'diameter' ? '<MOD-DIAM><DIM>' : kind === 'radius' ? 'R<DIM>' : '<DIM>');
+
+/** the fastener types under ANSI Metric carry the ANSI standard numbers, by design (the value stored stays the ISO name) */
+const ANSI_METRIC_NAMES: Record<string, string> = {
+  'Hex Bolt - ISO 4014': 'Hex Bolt - ANSI B18.2.3.5M',
+  'Hex Screw - ISO 4017': 'Hex Screw - ANSI B18.2.3.1M',
+  'Socket Head Cap Screw - ISO 4762': 'Socket Head Cap Screw - ANSI B18.3.1M',
+  'Pan Cross Head - ISO 7045': 'Pan Cross Head - ANSI B18.6.7M',
+  'Flat Head Screw - ISO 10642': 'Flat Head Screw - ANSI B18.6.7M',
+  'Raised Countersunk Head - ISO 2010': 'Oval Head - ANSI B18.6.7M',
+  'Countersunk Head - ISO 7046': 'Flat Head Socket - ANSI B18.3.5M',
+};
+
 const HOLE_SIZES: { size: string; fit: { Close: number; Normal: number; Loose: number }; cb: number; cbDepth: number; cs: number; tap: number; pitch: number }[] = [
   { size: 'M3', fit: { Close: 3.2, Normal: 3.4, Loose: 3.6 }, cb: 6.5, cbDepth: 3.4, cs: 6.3, tap: 2.5, pitch: 0.5 },
   { size: 'M4', fit: { Close: 4.3, Normal: 4.5, Loose: 4.8 }, cb: 8, cbDepth: 4.6, cs: 8.4, tap: 3.3, pitch: 0.7 },
@@ -325,6 +339,7 @@ export function PropertyPanelBody({ editDimensionId, onEditDone }: { editDimensi
   const [multiT, setMultiT0] = useState(2);
   const setMultiT = (v: number) => { setMultiT0(Math.max(0.01, v)); useStore.setState({ shellMultiThickness: Math.max(0.01, v) }); };
   const [threadFavs, setThreadFavs] = useState<Record<string, Partial<ThreadFeature>>>(() => { try { return JSON.parse(String(getPref('thread.favorites') || '{}')); } catch { return {}; } });
+  const [threadFav, setThreadFav] = useState('');
   // Rectangle ▸ Add construction lines (the option reaches the sketch tool through the viewport bridge, as the polygon sides do)
   const [rectCons, setRectCons] = useState<{ on: boolean; mode: 'corners' | 'midpoints' }>({ on: false, mode: 'corners' });
   useEffect(() => {
@@ -1002,14 +1017,20 @@ export function PropertyPanelBody({ editDimensionId, onEditDone }: { editDimensi
     return (
       <>
         <Header title="Thread" icon={<Icon.Hole />} onOk={st.commitFeature} onCancel={st.cancelFeature} />
-        <Section title="Favorite" defaultOpen={false}>
-          <div className="k-pm-valuerow">
-            <select className="k-input" data-testid="thread-fav" value="" onChange={(e) => { const f = threadFavs[e.target.value]; if (f) st.updateFeatureDraft(f); }}>
+        <Section title="Favorite">
+          {/* Favorites, by design: apply defaults, add/update, delete, save to a file, load from a file; the list below */}
+          <div className="k-pm-stylerow" style={{ justifyContent: 'center' }}>
+            <button className="k-pm-stylebtn k-tip" data-tip="Apply Defaults / No Favorites" data-testid="thread-fav-default" onClick={() => { setThreadFav(''); pick(d.size); st.updateFeatureDraft({ method: 'cut', mirrorProfile: false, rightHand: true, starts: 1, trimStart: false, trimEnd: false }); }}><Icon.Undo size={14} /></button>
+            <button className="k-pm-stylebtn k-tip" data-tip="Add or Update Favorite" data-testid="thread-fav-add" onClick={() => { const { id: _i, name: _n, edge: _e, upTo: _u, ...rest } = d; void _i; void _n; void _e; void _u; const name = `${d.size} ${d.method === 'cut' ? 'cut' : 'extruded'} ${d.length}`; const list = { ...threadFavs, [name]: rest }; savePrefs({ ...loadPrefs(), 'thread.favorites': JSON.stringify(list) }); setThreadFavs(list); setThreadFav(name); st.pushMessage(`Favorite "${name}" saved.`); }}><Icon.Plus size={14} /></button>
+            <button className="k-pm-stylebtn k-tip" data-tip="Delete Favorite" disabled={!threadFav} onClick={() => { const list = { ...threadFavs }; delete list[threadFav]; savePrefs({ ...loadPrefs(), 'thread.favorites': JSON.stringify(list) }); setThreadFavs(list); setThreadFav(''); }}><Icon.Trash size={14} /></button>
+            <button className="k-pm-stylebtn k-tip" data-tip="Save Favorite" disabled={!threadFav} onClick={() => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify({ [threadFav]: threadFavs[threadFav] }, null, 2)], { type: 'application/json' })); a.download = `${threadFav}.json`; a.click(); }}><Icon.Save size={14} /></button>
+            <button className="k-pm-stylebtn k-tip" data-tip="Load Favorite" onClick={() => { const inp = document.createElement('input'); inp.type = 'file'; inp.accept = '.json'; inp.onchange = async () => { const file = inp.files?.[0]; if (!file) return; try { const add = JSON.parse(await file.text()) as Record<string, Partial<ThreadFeature>>; const list = { ...threadFavs, ...add }; savePrefs({ ...loadPrefs(), 'thread.favorites': JSON.stringify(list) }); setThreadFavs(list); const n = Object.keys(add)[0] ?? ''; setThreadFav(n); if (add[n]) st.updateFeatureDraft(add[n]); } catch { st.pushMessage('This file is not a thread favorite.', 'error'); } }; inp.click(); }}><Icon.Open size={14} /></button>
+          </div>
+          <div>
+            <select className="k-input" data-testid="thread-fav" value={threadFav} onChange={(e) => { const n = e.target.value; setThreadFav(n); const f = threadFavs[n]; if (f) st.updateFeatureDraft(f); }}>
               <option value="">No Favorite Selected</option>
               {Object.keys(threadFavs).map((n) => <option key={n} value={n}>{n}</option>)}
             </select>
-            <button className="k-btn ghost icon k-tip" data-tip="Add or Update Favorite" data-testid="thread-fav-add" onClick={() => { const { id: _i, name: _n, edge: _e, upTo: _u, ...rest } = d; void _i; void _n; void _e; void _u; const name = `${d.size} ${d.method === 'cut' ? 'cut' : 'extruded'} ${d.length}`; const list = { ...threadFavs, [name]: rest }; savePrefs({ ...loadPrefs(), 'thread.favorites': JSON.stringify(list) }); setThreadFavs(list); st.pushMessage(`Favorite "${name}" saved.`); }}>+</button>
-            <button className="k-btn ghost icon k-tip" data-tip="Delete Favorite" disabled={!Object.keys(threadFavs).length} onClick={() => { const keys = Object.keys(threadFavs); const list = { ...threadFavs }; delete list[keys[keys.length - 1]]; savePrefs({ ...loadPrefs(), 'thread.favorites': JSON.stringify(list) }); setThreadFavs(list); }}>−</button>
           </div>
         </Section>
         <Section title="Thread Location">
@@ -1047,20 +1068,21 @@ export function PropertyPanelBody({ editDimensionId, onEditDone }: { editDimensi
         </Section>
         <Section title="Specification">
           <div className="k-pm-label">Type:</div>
-          <select className="k-input" value={(d.internalOverride ?? internal) ? 'Metric Tap' : 'Metric Die'} onChange={(e) => st.updateFeatureDraft({ internalOverride: e.target.value === 'Metric Tap' })}><option>Metric Die</option><option>Metric Tap</option></select>
+          <div><select className="k-input" value={(d.internalOverride ?? internal) ? 'Metric Tap' : 'Metric Die'} onChange={(e) => st.updateFeatureDraft({ internalOverride: e.target.value === 'Metric Tap' })}><option>Metric Die</option><option>Metric Tap</option></select></div>
           <div className="k-pm-label">Size:</div>
-          <select className="k-input" value={d.size} onChange={(e) => pick(e.target.value)} data-testid="thread-size">
+          <div><select className="k-input" value={d.size} onChange={(e) => pick(e.target.value)} data-testid="thread-size">
             {METRIC_THREADS.map((t) => <option key={t[0]} value={t[0]}>{t[0]}</option>)}
-          </select>
-          <div className="k-pm-valuerow k-tip" data-tip="Override Diameter"><Icon.Circle size={14} /><NumberField value={d.diameter} onChange={(v) => st.updateFeatureDraft({ diameter: Math.max(0.5, v) })} unit={st.doc.units} step={0.5} /></div>
-          <div className="k-pm-valuerow k-tip" data-tip="Override Pitch"><Icon.Pattern size={14} /><NumberField value={d.pitch} onChange={(v) => st.updateFeatureDraft({ pitch: Math.max(0.1, v) })} unit={st.doc.units} step={0.05} /></div>
+          </select></div>
+          {/* the diameter and pitch follow the size (grey) until their Override button is pressed, by design */}
+          <div className="k-pm-valuerow"><button className={`k-pm-revbtn k-tip${d.overrideDiameter ? ' active' : ''}`} data-tip="Override Diameter" data-testid="thread-ovr-dia" onClick={() => { if (d.overrideDiameter) pick(d.size); st.updateFeatureDraft({ overrideDiameter: !d.overrideDiameter }); }}><Icon.Circle size={14} /></button><NumberField value={d.diameter} disabled={!d.overrideDiameter} onChange={(v) => st.updateFeatureDraft({ diameter: Math.max(0.5, v) })} unit={st.doc.units} step={0.5} /></div>
+          <div className="k-pm-valuerow"><button className={`k-pm-revbtn k-tip${d.overridePitch ? ' active' : ''}`} data-tip="Override Pitch" data-testid="thread-ovr-pitch" onClick={() => { if (d.overridePitch) pick(d.size); st.updateFeatureDraft({ overridePitch: !d.overridePitch }); }}><Icon.Pattern size={14} /></button><NumberField value={d.pitch} disabled={!d.overridePitch} onChange={(v) => st.updateFeatureDraft({ pitch: Math.max(0.1, v) })} unit={st.doc.units} step={0.05} /></div>
           <div className="k-pm-label">Thread method:</div>
           <div className="k-pm-radios">
             <label className="k-check"><input type="radio" name="thm" checked={d.method === 'cut'} onChange={() => st.updateFeatureDraft({ method: 'cut' })} /> Cut thread</label>
             <label className="k-check"><input type="radio" name="thm" checked={d.method === 'extrude'} onChange={() => st.updateFeatureDraft({ method: 'extrude' })} /> Extrude thread</label>
           </div>
-          <label className="k-check"><input type="checkbox" checked={!!d.mirrorProfile} onChange={(e) => st.updateFeatureDraft({ mirrorProfile: e.target.checked })} /> Mirror Profile</label>
-          <button className="k-btn" style={{ marginTop: 4 }} disabled={!d.edge} onClick={() => { const cam = bridge.camera; if (cam && d.edge) { cam.target.set(...d.edge.center); cam.scale = Math.min(cam.scale, Math.max(0.02, (d.diameter * 3) / 600)); cam.update(); } st.pushMessage('Locate Profile: zoomed to the start of the thread (' + (d.edge?.label ?? '') + ').'); }}>Locate Profile</button>
+          <div><label className="k-check"><input type="checkbox" checked={!!d.mirrorProfile} onChange={(e) => st.updateFeatureDraft({ mirrorProfile: e.target.checked })} /> Mirror Profile</label></div>
+          <div style={{ display: 'flex', justifyContent: 'center' }}><button className="k-btn" style={{ marginTop: 4 }} disabled={!d.edge} onClick={() => { const cam = bridge.camera; if (cam && d.edge) { cam.target.set(...d.edge.center); cam.scale = Math.min(cam.scale, Math.max(0.02, (d.diameter * 3) / 600)); cam.update(); } st.pushMessage('Locate Profile: zoomed to the start of the thread (' + (d.edge?.label ?? '') + ').'); }}>Locate Profile</button></div>
         </Section>
         <Section title="Thread Options">
           <div className="k-pm-radios">
@@ -2248,7 +2270,7 @@ export function PropertyPanelBody({ editDimensionId, onEditDone }: { editDimensi
     if (d.type === 'hole') {
       return (
         <>
-          <Header title={d.simple ? 'Hole' : d.advanced ? 'Advanced Hole' : 'Hole Specification'} icon={<Icon.Hole />} onOk={st.commitFeature} onCancel={st.cancelFeature} />
+          <Header title={d.simple ? 'Hole' : d.advanced ? 'Advanced Hole' : holeTab === 'positions' ? 'Hole Position' : 'Hole Specification'} icon={<Icon.Hole />} onOk={st.commitFeature} onCancel={st.cancelFeature} />
           {d.simple && (
             <Section title="Direction 1" data-testid="simplehole">
               <select className="k-input" value={d.depth > 0 ? 'blind' : 'throughAll'} onChange={(e) => st.updateFeatureDraft({ depth: e.target.value === 'blind' ? 10 : 0 })}><option value="blind">Blind</option><option value="throughAll">Through All</option></select>
@@ -2290,7 +2312,7 @@ export function PropertyPanelBody({ editDimensionId, onEditDone }: { editDimensi
             <select className="k-input" data-testid="hole-standard" value={holeStd} onChange={(e) => { const std = e.target.value; setHoleStd(std); const first = holeSizesFor(std)[0]; setHoleSize(std === 'ANSI Inch' ? first.size : 'M6'); const sz = holeSizesFor(std).find((h) => h.size === (std === 'ANSI Inch' ? first.size : 'M6')); if (sz) st.updateFeatureDraft({ diameter: sz.fit[holeFit], cbDiameter: sz.cb, cbDepth: sz.cbDepth, csDiameter: sz.cs, sizeName: sz.size }); }}><option>ISO</option><option>ANSI Metric</option><option>ANSI Inch</option><option>DIN</option><option>JIS</option></select>
             <div className="k-pm-label">Type:</div>
             <select className="k-input" data-testid="hole-subtype" value={d.holeSubtype ?? (d.holeType === 'tap' ? 'Tapped hole' : d.holeType === 'simple' ? 'Drill sizes' : d.holeType === 'countersink' ? 'Flat Head Screw - ISO 10642' : 'Socket Head Cap Screw - ISO 4762')} onChange={(e) => st.updateFeatureDraft(holeSubtypePatch(e.target.value, HOLE_SIZES.find((h) => h.size === holeSize), holeFit, d))}>
-              {(d.holeType === 'tap' ? ['Tapped hole', 'Bottoming tapped hole'] : d.holeType === 'simple' ? ['Drill sizes', 'Screw Clearances', 'Tap Drills', 'Dowel Holes'] : d.holeType === 'countersink' ? ['Flat Head Screw - ISO 10642', 'Raised Countersunk Head - ISO 2010', 'Countersunk Head - ISO 7046'] : ['Hex Bolt - ISO 4014', 'Socket Head Cap Screw - ISO 4762', 'Pan Cross Head - ISO 7045', 'Hex Screw - ISO 4017']).map((o) => <option key={o}>{o}</option>)}
+              {(d.holeType === 'tap' ? ['Tapped hole', 'Bottoming tapped hole'] : d.holeType === 'simple' ? ['Drill sizes', 'Screw Clearances', 'Tap Drills', 'Dowel Holes'] : d.holeType === 'countersink' ? ['Flat Head Screw - ISO 10642', 'Raised Countersunk Head - ISO 2010', 'Countersunk Head - ISO 7046'] : ['Hex Bolt - ISO 4014', 'Socket Head Cap Screw - ISO 4762', 'Pan Cross Head - ISO 7045', 'Hex Screw - ISO 4017']).map((o) => <option key={o} value={o}>{holeStd === 'ANSI Metric' ? ANSI_METRIC_NAMES[o] ?? o : o}</option>)}
             </select>
           </Section>
           <Section title="Hole Specifications">
@@ -2348,7 +2370,7 @@ export function PropertyPanelBody({ editDimensionId, onEditDone }: { editDimensi
             {!d.plane ? (
               <p className="k-pm-message">Select a planar face first, then click Hole Tool.</p>
             ) : d.points.length === 0 ? (
-              <p className="k-pm-message">Click on the face to place the hole positions.</p>
+              <p className="k-pm-message">Click on the face to position the hole. Click on the 'Type' tab to define the hole specification and size.</p>
             ) : (
               <ul className="k-list k-pm-edgelist">
                 {d.points.map((pt, i) => <li key={i}>Point{i + 1}: {pt.x.toFixed(2)}, {pt.y.toFixed(2)}</li>)}
@@ -2429,19 +2451,17 @@ export function PropertyPanelBody({ editDimensionId, onEditDone }: { editDimensi
             {d.fill && (
               <Section title="Pattern Layout">
                 <div className="k-pm-stylerow">
-                  <button className={`k-pm-stylebtn k-tip ${d.fill.layout === 'circular' ? 'active' : ''}`} data-tip="Circular" data-testid="fill-circular" onClick={() => st.updateFeatureDraft({ fill: { ...d.fill!, layout: 'circular' } })}><Icon.Circle size={14} /></button>
-                  <button className={`k-pm-stylebtn k-tip ${d.fill.layout === 'polygon' ? 'active' : ''}`} data-tip="Polygon" data-testid="fill-polygon" onClick={() => st.updateFeatureDraft({ fill: { ...d.fill!, layout: 'polygon', sides: d.fill!.sides ?? 6 } })}><Icon.Polygon size={14} /></button>
                   <button className={`k-pm-stylebtn k-tip ${d.fill.layout === 'hex' ? 'active' : ''}`} data-tip="Perforation" onClick={() => st.updateFeatureDraft({ fill: { ...d.fill!, layout: 'hex' } })}>⬡</button>
+                  <button className={`k-pm-stylebtn k-tip ${d.fill.layout === 'circular' ? 'active' : ''}`} data-tip="Circular" data-testid="fill-circular" onClick={() => st.updateFeatureDraft({ fill: { ...d.fill!, layout: 'circular' } })}><Icon.Circle size={14} /></button>
                   <button className={`k-pm-stylebtn k-tip ${d.fill.layout === 'square' ? 'active' : ''}`} data-tip="Square" onClick={() => st.updateFeatureDraft({ fill: { ...d.fill!, layout: 'square' } })}>▦</button>
+                  <button className={`k-pm-stylebtn k-tip ${d.fill.layout === 'polygon' ? 'active' : ''}`} data-tip="Polygon" data-testid="fill-polygon" onClick={() => st.updateFeatureDraft({ fill: { ...d.fill!, layout: 'polygon', sides: d.fill!.sides ?? 6 } })}><Icon.Polygon size={14} /></button>
                 </div>
                 <div className="k-field"><label>Instance Spacing</label><NumberField value={d.fill.spacing} onChange={(v) => st.updateFeatureDraft({ fill: { ...d.fill!, spacing: Math.max(0.5, v) } })} unit={st.doc.units} step={1} /></div>
                 <div className="k-field"><label>Margins</label><NumberField value={d.fill.margin} onChange={(v) => st.updateFeatureDraft({ fill: { ...d.fill!, margin: Math.max(0, v) } })} unit={st.doc.units} step={0.5} /></div>
                 {d.fill.layout === 'polygon' && <div className="k-field"><label>Polygon sides</label><NumberField value={d.fill.sides ?? 6} onChange={(v) => st.updateFeatureDraft({ fill: { ...d.fill!, sides: Math.max(3, Math.round(v)) } })} step={1} min={3} /></div>}
                 <div className="k-pm-stylerow" style={{ marginTop: 4 }}>
                   <button className="k-btn" data-testid="fill-validate" onClick={() => st.pushMessage(`The pattern makes ${st.rebuild.bodies.length ? (st.rebuild.errors[d.id] ? 0 : (st.doc.features.find((x) => x.id === d.id) ? 'the shown' : 'the previewed')) : 0} instances; see the preview.`, 'info')}>Validate Count</button>
-                  <label className="k-check"><input type="checkbox" data-testid="fill-seedcut" checked={d.fill.seedCut !== undefined} onChange={(e) => st.updateFeatureDraft({ fill: { ...d.fill!, seedCut: e.target.checked ? 3 : undefined } })} /> Create seed cut</label>
                 </div>
-                {d.fill.seedCut !== undefined && <div className="k-pm-valuerow k-tip" data-tip="Seed cut diameter"><Icon.Circle size={14} /><NumberField value={d.fill.seedCut} onChange={(v) => st.updateFeatureDraft({ fill: { ...d.fill!, seedCut: Math.max(0.1, v) } })} unit={st.doc.units} step={0.5} min={0.1} /></div>}
               </Section>
             )}
           </>
@@ -2545,7 +2565,17 @@ export function PropertyPanelBody({ editDimensionId, onEditDone }: { editDimensi
           </Section>
         )}
         <Section title="Features and Faces">
-          {seedFeatures.length === 0 ? (
+          {/* Fill Pattern: the selected features or a seed cut made by the pattern itself, by design */}
+          {d.type === 'fillPattern' && d.fill && (
+            <>
+              <div className="k-pm-radios">
+                <label className="k-check"><input type="radio" name="fillseed" checked={d.fill.seedCut === undefined} onChange={() => st.updateFeatureDraft({ fill: { ...d.fill!, seedCut: undefined } })} /> Selected features</label>
+                <label className="k-check"><input type="radio" name="fillseed" data-testid="fill-seedcut" checked={d.fill.seedCut !== undefined} onChange={() => st.updateFeatureDraft({ fill: { ...d.fill!, seedCut: 3 } })} /> Create seed cut</label>
+              </div>
+              {d.fill.seedCut !== undefined && <div className="k-pm-valuerow k-tip" data-tip="Seed cut diameter"><Icon.Circle size={14} /><NumberField value={d.fill.seedCut} onChange={(v) => st.updateFeatureDraft({ fill: { ...d.fill!, seedCut: Math.max(0.1, v) } })} unit={st.doc.units} step={0.5} min={0.1} /></div>}
+            </>
+          )}
+          {d.type === 'fillPattern' && d.fill?.seedCut !== undefined ? null : seedFeatures.length === 0 ? (
             <p className="k-pm-message">No extrude or revolve features yet.</p>
           ) : (
             <div className="k-pm-addrel">
@@ -3362,13 +3392,13 @@ export function PropertyPanelBody({ editDimensionId, onEditDone }: { editDimensi
             <label className="k-check"><input type="checkbox" checked={!!c.driven} onChange={(e) => st.updateDimension(c.id, { driven: e.target.checked })} /> Driven</label>
           </Section>
           <Section title="Dimension Text" defaultOpen>
-            <textarea className="k-input k-pm-dimtext" data-testid="dim-text" value={c.dimText ?? '<DIM>'} onChange={(e) => st.updateDimension(c.id, { dimText: e.target.value })} onKeyDown={(e) => e.stopPropagation()} />
+            <textarea className="k-input k-pm-dimtext" data-testid="dim-text" value={c.dimText ?? defaultDimText(c.kind)} onChange={(e) => st.updateDimension(c.id, { dimText: e.target.value })} onKeyDown={(e) => e.stopPropagation()} />
             <div className="k-pm-stylerow" style={{ marginTop: 4 }}>
               {(['left', 'center', 'right'] as const).map((j) => <button key={j} className={`k-pm-stylebtn k-tip ${(c.justify ?? 'center') === j ? 'active' : ''}`} data-tip={`Justify ${j}`} data-testid={`dimjust-${j}`} onClick={() => st.updateDimension(c.id, { justify: j === 'center' ? undefined : j })}>{j === 'left' ? '⫷' : j === 'center' ? '≡' : '⫸'}</button>)}
             </div>
             <div className="k-pm-stylerow k-dimsyms" style={{ marginTop: 4 }}>
               {[['Ø', 'Diameter'], ['°', 'Degree'], ['±', 'Plus/Minus'], ['℄', 'Centerline'], ['□', 'Square'], ['⌵', 'Countersink'], ['⊔', 'Counterbore'], ['↧', 'Depth/Deep']].map(([sym, tip]) => (
-                <button key={sym} className="k-pm-stylebtn k-tip" data-tip={tip} data-testid={`dimsym-${tip}`} onClick={() => st.updateDimension(c.id, { dimText: (c.dimText ?? '<DIM>').includes('<DIM>') ? (c.dimText ?? '<DIM>').replace('<DIM>', `${sym}<DIM>`) : `${sym}${c.dimText}` })}>{sym}</button>
+                <button key={sym} className="k-pm-stylebtn k-tip" data-tip={tip} data-testid={`dimsym-${tip}`} onClick={() => st.updateDimension(c.id, { dimText: (c.dimText ?? defaultDimText(c.kind)).includes('<DIM>') ? (c.dimText ?? defaultDimText(c.kind)).replace('<DIM>', `${sym}<DIM>`) : `${sym}${c.dimText}` })}>{sym}</button>
               ))}
             </div>
           </Section>

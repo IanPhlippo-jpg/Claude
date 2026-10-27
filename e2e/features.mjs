@@ -404,7 +404,7 @@ await page.fill('.k-eq-table input[placeholder="Add global variable"]', '"Width"
 await page.press('.k-eq-table input[placeholder="Add global variable"]', 'Enter');
 await page.waitForTimeout(200);
 check('global variable row added', await page.locator('.k-eq-table input.mono').evaluateAll((els) => els.some((e) => e.value.includes('Width'))));
-await page.selectOption('.k-eq-table select', { label: '"D1@Sketch1" = 80' });
+await page.selectOption('.k-eq-table select:not([data-testid="eq-add-suppression"])', { label: '"D1@Sketch1" = 80' });
 await page.waitForTimeout(200);
 const eqInputs = page.locator('.k-eq-table input.mono');
 await eqInputs.last().fill('= "Width"');

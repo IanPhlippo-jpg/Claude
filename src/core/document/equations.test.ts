@@ -40,6 +40,16 @@ describe('equations in a document', () => {
     return doc;
   };
 
+  it('suppresses a feature by an equation (Features: "Boss-Extrude1" = "suppressed" or a condition)', () => {
+    const doc = build();
+    doc.equations = [{ id: 'e1', target: 'Boss-Extrude1', expression: '"suppressed"' }];
+    expect(applyEquations(doc).doc.features[1].suppressed).toBe(true);
+    doc.equations = [{ id: 'e2', target: 'W', expression: '40' }, { id: 'e3', target: 'Boss-Extrude1', expression: '"W" > 50' }];
+    const r = applyEquations(doc);
+    expect(r.doc.features[1].suppressed).toBe(false);
+    expect(r.result.variables).toEqual({ W: 40 });
+  });
+
   it('names the dimensions D1@Sketch1, D2@Sketch1 and D1@Boss-Extrude1', () => {
     const doc = build();
     const names = dimensionTable(doc).map((d) => `${d.name}=${d.value}`);

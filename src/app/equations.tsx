@@ -18,7 +18,7 @@ const fmt = (v: number) => (Number.isInteger(v) ? String(v) : v.toFixed(3).repla
 export function EquationsDialog() {
   const st = useStore(useShallow((s) => ({ doc: s.doc, pushMessage: s.pushMessage, applyDocument: s.applyDocument, setEquations: s.setEquations, setDialog: s.setDialog })));
   const [rows, setRows] = useState<Equation[]>(() => st.doc.equations.map((e) => ({ ...e })));
-  const [view, setView] = useState<'equation' | 'dimension' | 'ordered'>('equation');
+  const [view, setView] = useState<'equation' | 'sketch' | 'dimension' | 'ordered'>('equation');
   const [autoRebuild, setAutoRebuild] = useState(true);
   const [autoSolve, setAutoSolve] = useState(true);
   const [angleUnits, setAngleUnits] = useState<'deg' | 'rad'>(st.doc.equationAngleUnits ?? 'deg');
@@ -43,7 +43,9 @@ export function EquationsDialog() {
   };
   const dims = useMemo(() => dimensionTable(st.doc), [st.doc]);
   const dimNames = useMemo(() => new Set(dims.map((d) => d.name)), [dims]);
-  const globals = rows.filter((r) => !dimNames.has(r.target));
+  const featureNames = useMemo(() => new Set(st.doc.features.map((f) => f.name)), [st.doc]);
+  const featureEqs = rows.filter((r) => !dimNames.has(r.target) && featureNames.has(r.target));
+  const globals = rows.filter((r) => !dimNames.has(r.target) && !featureNames.has(r.target));
   const dimEqs = rows.filter((r) => dimNames.has(r.target));
   const update = (id: string, patch: Partial<Equation>) => setRows((rs) => rs.map((r) => (r.id === id ? { ...r, ...patch } : r)));
   const remove = (id: string) => setRows((rs) => rs.filter((r) => r.id !== id));
@@ -64,7 +66,7 @@ export function EquationsDialog() {
   const evalText = (r: Equation) => (r.id in preview.errors ? preview.errors[r.id] : r.id in preview.values ? fmt(preview.values[r.id]) : '');
   const hasErrors = Object.keys(preview.errors).length > 0;
 
-  const table = (title: string, list: Equation[], placeholder: string, isDim: boolean) => (
+  const table = (title: string, list: Equation[], placeholder: string, isDim: boolean, isFeature = false) => (
     <table className="k-eq-table">
       <thead>
         <tr>
@@ -80,17 +82,22 @@ export function EquationsDialog() {
         {list.map((r) => (
           <tr key={r.id} className={r.id in preview.errors ? 'error' : ''}>
             <td>
-              {isDim ? <span className="mono">"{r.target}"</span> : <input className="k-input mono" value={`"${r.target}"`} onChange={(e) => update(r.id, { target: e.target.value.replace(/"/g, '') })} onKeyDown={(e) => e.stopPropagation()} />}
+              {isDim || isFeature ? <span className="mono">"{r.target}"</span> : <input className="k-input mono" value={`"${r.target}"`} onChange={(e) => update(r.id, { target: e.target.value.replace(/"/g, '') })} onKeyDown={(e) => e.stopPropagation()} />}
             </td>
             <td><input className="k-input mono" value={r.expression.startsWith('=') ? r.expression : `= ${r.expression}`} onChange={(e) => update(r.id, { expression: e.target.value.replace(/^\s*=\s*/, '') })} onKeyDown={(e) => e.stopPropagation()} /></td>
-            <td className="mono">{evalText(r)}{isDim && !(r.id in preview.errors) ? (dims.find((d) => d.name === r.target)?.ref.kind === 'sketch' && dims.find((d) => d.name === r.target)?.ref.kind === 'sketch' && (dims.find((d) => d.name === r.target)!.ref as { angle?: boolean }).angle ? '°' : st.doc.units) : ''}</td>
+            <td className="mono">{isFeature && !(r.id in preview.errors) && r.id in preview.values ? (preview.values[r.id] !== 0 ? 'Suppressed' : 'Unsuppressed') : evalText(r)}{isDim && !(r.id in preview.errors) ? (dims.find((d) => d.name === r.target)?.ref.kind === 'sketch' && dims.find((d) => d.name === r.target)?.ref.kind === 'sketch' && (dims.find((d) => d.name === r.target)!.ref as { angle?: boolean }).angle ? '°' : st.doc.units) : ''}</td>
             <td><input className="k-input" value={r.comment ?? ''} onChange={(e) => update(r.id, { comment: e.target.value })} onKeyDown={(e) => e.stopPropagation()} /></td>
             <td><button className="k-btn ghost icon k-tip" data-tip="Delete" onClick={() => remove(r.id)}><Icon.Trash size={12} /></button></td>
           </tr>
         ))}
         <tr className="k-eq-add">
           <td colSpan={5}>
-            {isDim ? (
+            {isFeature ? (
+              <select className="k-input" data-testid="eq-add-suppression" value="" onChange={(e) => e.target.value && add(e.target.value, '"suppressed"')}>
+                <option value="">{placeholder}</option>
+                {st.doc.features.filter((f) => f.type !== 'sketch' && !rows.some((r) => r.target === f.name)).map((f) => <option key={f.id} value={f.name}>"{f.name}"</option>)}
+              </select>
+            ) : isDim ? (
               <select className="k-input" value="" onChange={(e) => e.target.value && add(e.target.value, fmt(dims.find((d) => d.name === e.target.value)?.value ?? 0))}>
                 <option value="">{placeholder}</option>
                 {dims.filter((d) => !rows.some((r) => r.target === d.name)).map((d) => <option key={d.name} value={d.name}>"{d.name}" = {fmt(d.value)}</option>)}
@@ -131,18 +138,22 @@ export function EquationsDialog() {
     >
       <div className="k-eq-dialog">
         <div className="k-eq-views">
-          <button className={`k-btn ${view === 'equation' ? 'active' : ''}`} onClick={() => setView('equation')}><Icon.Config size={13} /> Equation View</button>
-          <button className={`k-btn ${view === 'dimension' ? 'active' : ''}`} onClick={() => setView('dimension')}><Icon.Dimension size={13} /> Dimension View</button>
-          <button className={`k-btn ${view === 'ordered' ? 'active' : ''}`} onClick={() => setView('ordered')}><Icon.History size={13} /> Ordered View</button>
-          <span className="grow" />
-          <input className="k-input" placeholder="Filter All Fields" style={{ width: 160 }} onKeyDown={(e) => e.stopPropagation()} />
+          {/* the four views as icon buttons left of the filter, by design */}
+          <button className={`k-btn ghost icon k-tip ${view === 'equation' ? 'active' : ''}`} data-tip="Equation View" onClick={() => setView('equation')}><Icon.Config size={14} /></button>
+          <button className={`k-btn ghost icon k-tip ${view === 'sketch' ? 'active' : ''}`} data-tip="Sketch Equation View" data-testid="eq-view-sketch" onClick={() => setView('sketch')}><Icon.Sketch size={14} /></button>
+          <button className={`k-btn ghost icon k-tip ${view === 'dimension' ? 'active' : ''}`} data-tip="Dimension View" onClick={() => setView('dimension')}><Icon.Dimension size={14} /></button>
+          <button className={`k-btn ghost icon k-tip ${view === 'ordered' ? 'active' : ''}`} data-tip="Ordered View" onClick={() => setView('ordered')}><Icon.History size={14} /></button>
+          <input className="k-input" placeholder="Filter All Fields" style={{ width: 160, marginLeft: 6 }} onKeyDown={(e) => e.stopPropagation()} />
         </div>
         {view === 'equation' && (
           <>
             {table('Global Variables', globals, 'Add global variable', false)}
+            {table('Features', featureEqs, 'Add feature suppression', false, true)}
             {table('Equations', dimEqs, 'Add equation', true)}
           </>
         )}
+        {/* Sketch Equation View: the equations on sketch dimensions only */}
+        {view === 'sketch' && table('Sketch Equations', dimEqs.filter((r) => dims.find((d) => d.name === r.target)?.ref.kind === 'sketch'), 'Add equation', true)}
         {view === 'dimension' && (
           <table className="k-eq-table">
             <thead><tr><th>Name</th><th>Value / Equation</th><th>Evaluates to</th><th>Comments</th></tr></thead>

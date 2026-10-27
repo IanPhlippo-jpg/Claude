@@ -1,5 +1,6 @@
 import { sensorAlarm as sensorAlarmOf, sensorReading } from '../sensors';
-import { useLayoutEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
+import { bridge } from '../viewport/bridge';
 import { featureIcon } from './featureIcon';
 import { sketchStatus, useStore } from '../store';
 import { useShallow } from 'zustand/react/shallow';
@@ -25,6 +26,35 @@ const STATUS_LABEL: Record<string, string> = { under: 'under defined', full: '',
 export function FeatureTreeBody() {
   const st = useStore(useShallow((s) => ({ treeFilter: s.treeFilter, rebuild: s.rebuild, renameFeature: s.renameFeature, solve: s.solve, doc: s.doc, rollbackIndex: s.rollbackIndex, activeSketchId: s.activeSketchId, selectedFeatureId: s.selectedFeatureId, editSketch: s.editSketch, setSelection: s.setSelection, setSelectedFeature: s.setSelectedFeature, featureEdit: s.featureEdit, edit3DSketch: s.edit3DSketch, editFeature: s.editFeature, setHoverPlane: s.setHoverPlane, selectedPlane: s.selectedPlane, planePick: s.planePick, newSketch: s.newSketch, setSelectedPlane: s.setSelectedPlane, setDialog: s.setDialog, toggleShow: s.toggleShow, applyDocument: s.applyDocument, setSheetMetalEdit: s.setSheetMetalEdit, planeEdit: s.planeEdit, editPlane: s.editPlane, startRefGeom: s.startRefGeom, pushMessage: s.pushMessage, setRollback: s.setRollback, setMaterial: s.setMaterial, rebuildAll: s.rebuildAll, addSensor: s.addSensor, setAsk: s.setAsk, setBodyHidden: s.setBodyHidden, openMaterialFor: s.openMaterialFor, startCombine: s.startCombine, setIsolated: s.setIsolated, deleteBodies: s.deleteBodies, deleteSensor: s.deleteSensor, toggleSuppress: s.toggleSuppress, openConfigure: s.openConfigure, startFeature: s.startFeature, requestDeleteFeature: s.requestDeleteFeature })));
   const [menu, setMenu] = useState<{ x: number; y: number; featureId: string } | null>(null);
+  // the context toolbar of a clicked feature or sketch, by design: it appears beside the pointer and fades when the pointer leaves
+  const [bar, setBar0] = useState<{ x: number; y: number; featureId: string; shown?: boolean; live?: boolean } | null>(null);
+  const barTimer = useRef(0);
+  // shown after a short rest of the pointer (a quick second click goes to the tree, not to the toolbar)
+  const setBar = (b: { x: number; y: number; featureId: string } | null) => {
+    window.clearTimeout(barTimer.current);
+    setBar0(null);
+    if (b) barTimer.current = window.setTimeout(() => setBar0({ ...b, shown: true }), 350);
+  };
+  const barRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!bar) return;
+    const away = (e: PointerEvent) => {
+      if (Math.hypot(e.clientX - bar.x, e.clientY - bar.y) > 160) { setBar0(null); return; }
+      // it takes clicks only once the pointer is on it
+      const r = barRef.current?.getBoundingClientRect();
+      const inside = !!r && e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
+      // live once the pointer rests on it (a quick click passing over it goes to the tree)
+      if (!inside) { window.clearTimeout(liveTimer); liveTimer = 0; if (bar.live) setBar0({ ...bar, live: false }); }
+      else if (!bar.live && !liveTimer) liveTimer = window.setTimeout(() => setBar0({ ...bar, live: true }), 150);
+    };
+    let liveTimer = 0;
+    const down = (e: PointerEvent) => { if (!(e.target as Element).closest?.('.k-tree-ctxbar')) setBar0(null); };
+    const key = (e: KeyboardEvent) => { if (e.key === 'Escape') setBar0(null); };
+    window.addEventListener('pointermove', away);
+    window.addEventListener('pointerdown', down, true);
+    window.addEventListener('keydown', key);
+    return () => { window.clearTimeout(liveTimer); window.removeEventListener('pointermove', away); window.removeEventListener('pointerdown', down, true); window.removeEventListener('keydown', key); };
+  }, [bar]);
   const [renaming, setRenaming] = useState<{ id: string; value: string } | null>(null);
   const dragRollback = useRef(false);
   const q = st.treeFilter.trim().toLowerCase();
@@ -76,6 +106,7 @@ export function FeatureTreeBody() {
         if (st.activeSketchId !== f.sketchId) st.setSelection([]);
         // by design: a click selects (again), Ctrl+click takes it out of the selection
         st.setSelectedFeature(e.ctrlKey && st.selectedFeatureId === f.id ? null : f.id);
+        if (!e.ctrlKey && !st.activeSketchId) setBar({ x: e.clientX, y: e.clientY, featureId: f.id });
       },
       onContextMenu: (e) => {
         e.preventDefault();
@@ -103,7 +134,7 @@ export function FeatureTreeBody() {
       tail: err ? <span className="status conflict" data-testid="tree-error" title={err} onClick={(e) => { e.stopPropagation(); useStore.setState({ whatsWrong: true }); }}>!</span> : null,
       children: [...(f.type === 'flatPattern' ? [{ id: f.id + ':fp', icon: <Icon.Sheet />, label: nameLabel(f), suppressed: f.suppressed } as TreeNode] : []), ...(sketchFeature && sketchFeature.type === 'sketch' ? [sketchNode(sketchFeature, sketchIndex)] : []), ...(secondSketch && secondSketch.type === 'sketch' ? [sketchNode(secondSketch, st.doc.features.indexOf(secondSketch))] : []), ...(f.type === 'loft' ? (f.guides ?? []).map((gid) => st.doc.features.find((x) => x.type === 'sketch' && x.sketchId === gid)).filter((x): x is Extract<Feature, { type: 'sketch' }> => !!x && x.type === 'sketch').map((x) => sketchNode(x, st.doc.features.indexOf(x))) : [])],
       onDoubleClick: () => (f.type === 'sketch3d' ? st.edit3DSketch(f.id) : st.editFeature(f.id)),
-      onClick: (e) => st.setSelectedFeature(e.ctrlKey && st.selectedFeatureId === f.id ? null : f.id),
+      onClick: (e) => { st.setSelectedFeature(e.ctrlKey && st.selectedFeatureId === f.id ? null : f.id); if (!e.ctrlKey && !st.activeSketchId && !st.featureEdit) setBar({ x: e.clientX, y: e.clientY, featureId: f.id }); },
       onHover: (on) => useStore.setState({ hoverFeatureId: on ? f.id : null }),
       onContextMenu: (e) => {
         e.preventDefault();
@@ -171,7 +202,8 @@ export function FeatureTreeBody() {
     return items.map((it, i): TreeNode => ({
       id: `cutitem:${i}`,
       icon: <Icon.TreeFolder glyph="bodies" />,
-      label: <span>{it.name}{it.quantity > 1 ? <span className="k-muted"> ({it.quantity})</span> : null}</span>,
+      // the quantity always follows the name, as Cut-List-Item1(1), by design
+      label: <span>{it.name}({it.quantity})</span>,
       onContextMenu: (e) => { e.preventDefault(); setMenu({ x: e.clientX, y: e.clientY, featureId: '__cutitem:' + i }); },
       onDoubleClick: () => st.setDialog('cutList'),
       children: nodes.filter((n) => it.bodyIds.includes(n.id.replace(/^body-/, ''))),
@@ -195,6 +227,12 @@ export function FeatureTreeBody() {
   };
 
   const bodies = st.rebuild.bodies;
+  // a body is named after its last feature; several bodies of one feature get [1], [2], …, by design
+  const bodyName = (b: (typeof bodies)[number]) => {
+    const name = (x: typeof b) => st.doc.features.find((f) => f.id === x.featureIds[x.featureIds.length - 1])?.name ?? x.id;
+    const same = bodies.filter((x) => name(x) === name(b));
+    return same.length > 1 ? `${name(b)}[${same.indexOf(b) + 1}]` : name(b);
+  };
   const sensorAlarm = (sn: NonNullable<typeof st.doc.sensors>[number]) => sensorAlarmOf(st.doc, bodies, sn);
   const nodes: TreeNode[] = [
     {
@@ -219,7 +257,7 @@ export function FeatureTreeBody() {
           children: (st.doc.sensors ?? []).map((sn) => ({
             id: sn.id,
             icon: <Icon.Sensor />,
-            label: <span className={sensorAlarm(sn) ? 'k-sensor-alarm' : ''} title={sn.alert ? `Alert when ${sn.alert.op} ${sn.alert.value}` : undefined}>{sensorAlarm(sn) ? '⚠ ' : ''}{sn.name} ({sensorReading(st.doc, bodies, sn).text})</span>,
+            label: <span className={sensorAlarm(sn) ? 'k-sensor-alarm' : ''} title={sn.alert ? `Alert when ${sn.alert.op} ${sn.alert.value}` : undefined}>{sensorAlarm(sn) ? '⚠ ' : ''}{sn.name}({sensorReading(st.doc, bodies, sn).text})</span>,
             onContextMenu: (e: React.MouseEvent) => { e.preventDefault(); setMenu({ x: e.clientX, y: e.clientY, featureId: '__sensor:' + sn.id }); },
           })),
         },
@@ -231,7 +269,10 @@ export function FeatureTreeBody() {
               return {
                 id: 'body-' + b.id,
                 icon: <Icon.Part style={hiddenBody ? { opacity: 0.4 } : undefined} />,
-                label: <span className={hiddenBody ? 'k-muted' : ''} style={hiddenBody ? { fontStyle: 'italic' } : undefined}>{st.doc.features.find((f) => f.id === b.featureIds[b.featureIds.length - 1])?.name ?? b.id}{mat ? <span className="k-muted"> ({mat.name})</span> : null}</span>,
+                label: <span className={hiddenBody ? 'k-muted' : ''} style={hiddenBody ? { fontStyle: 'italic' } : undefined}>{bodyName(b)}</span>,
+                // the body's own material is a row under it, by design
+                children: mat ? [{ id: 'bodymat-' + b.id, icon: <Icon.TreeMaterial />, label: <span>{mat.name}</span>, onDoubleClick: () => st.openMaterialFor(b.id) }] : undefined,
+                onClick: (e) => { if (!e.ctrlKey && !st.activeSketchId && !st.featureEdit) setBar({ x: e.clientX, y: e.clientY, featureId: '__body:' + b.id }); },
                 onContextMenu: (e) => { e.preventDefault(); setMenu({ x: e.clientX, y: e.clientY, featureId: '__body:' + b.id }); },
               };
             })))]
@@ -453,6 +494,39 @@ export function FeatureTreeBody() {
           ]}
         />
       )}
+      {bar?.shown && !menu && bar.featureId.startsWith('__body:') && (() => {
+        const id = bar.featureId.slice(7);
+        const hidden = (st.doc.hiddenBodies ?? []).includes(id);
+        const btn = (tip: string, icon: ReactNode, run: () => void, testid: string) => (
+          <button key={testid} className="k-btn ghost icon k-tip" data-tip={tip} data-testid={testid} onClick={() => { setBar(null); run(); }}>{icon}</button>
+        );
+        return (
+          <div ref={barRef} className="k-ctx-toolbar k-tree-ctxbar" data-testid="tree-ctxbar" style={{ position: 'fixed', left: bar.x + 14, top: bar.y - 40, zIndex: 50, pointerEvents: bar.live ? 'auto' : 'none' }}>
+            {btn(hidden ? 'Show Body' : 'Hide Body', <Icon.Eye />, () => st.setBodyHidden(id, !hidden), 'ctx-body-hide')}
+            {btn('Isolate', <Icon.Orientation />, () => st.setIsolated([id]), 'ctx-body-isolate')}
+            {btn('Appearance', <Icon.Appearance />, () => { st.openMaterialFor(id); st.setDialog('appearance'); }, 'ctx-body-appearance')}
+            {btn('Zoom to Fit', <Icon.Fit />, () => bridge.zoomFit?.(), 'ctx-zoom')}
+          </div>
+        );
+      })()}
+      {bar?.shown && !menu && (() => {
+        const f = st.doc.features.find((x) => x.id === bar.featureId);
+        if (!f) return null;
+        const sketchId = f.type === 'sketch' ? f.sketchId : isSketchBased(f) && !isRoundFeature(f) ? (f as { sketchId?: string }).sketchId : undefined;
+        const plane = sketchId ? st.doc.sketches[sketchId]?.plane : undefined;
+        const btn = (tip: string, icon: ReactNode, run: () => void, testid: string) => (
+          <button key={testid} className="k-btn ghost icon k-tip" data-tip={tip} data-testid={testid} onClick={() => { setBar(null); run(); }}>{icon}</button>
+        );
+        return (
+          <div ref={barRef} className="k-ctx-toolbar k-tree-ctxbar" data-testid="tree-ctxbar" style={{ position: 'fixed', left: bar.x + 14, top: bar.y - 40, zIndex: 50, pointerEvents: bar.live ? 'auto' : 'none' }}>
+            {f.type !== 'sketch' && isSolidFeature(f) && btn('Edit Feature', featureIcon(f), () => st.editFeature(f.id), 'ctx-edit-feature')}
+            {sketchId && btn('Edit Sketch', <Icon.Sketch />, () => st.editSketch(sketchId), 'ctx-edit-sketch')}
+            {f.type !== 'sketch' && btn(f.suppressed ? 'Unsuppress' : 'Suppress', <Icon.Suppress />, () => st.toggleSuppress(f.id), 'ctx-suppress')}
+            {plane && btn('Normal To', <Icon.Orientation />, () => bridge.camera?.normalTo(plane as never), 'ctx-normal-to')}
+            {btn('Zoom to Fit', <Icon.Fit />, () => bridge.zoomFit?.(), 'ctx-zoom')}
+          </div>
+        );
+      })()}
       {menu && menuFeature && (
         <Menu
           onClose={() => setMenu(null)}

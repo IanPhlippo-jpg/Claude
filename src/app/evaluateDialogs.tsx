@@ -1,9 +1,94 @@
 import { useMemo, useState } from 'react';
+import * as THREE from 'three';
+import type { ImportedFeature } from '../core/document/types';
 import { useStore } from './store';
 import { useShallow } from 'zustand/react/shallow';
 import { Icon } from '../ui/icons';
 import { bodyCheck, sectionProperties } from '../core/features/inspect';
 import { findSketchProblems, repairSketch } from '../core/sketch/repair';
+
+/** corner points closer than tol are moved onto the first one met (a grid of tol-sized cells, the 27 around each point) */
+export function weldPositions(src: number[], tol: number): { positions: number[]; moved: number } {
+  const out = src.slice();
+  const grid = new Map<string, number[]>();
+  const cell = (v: number) => Math.floor(v / tol);
+  let moved = 0;
+  for (let i = 0; i < out.length; i += 3) {
+    const [x, y, z] = [out[i], out[i + 1], out[i + 2]];
+    const cx = cell(x), cy = cell(y), cz = cell(z);
+    let hit = -1;
+    for (let dx = -1; dx <= 1 && hit < 0; dx++) for (let dy = -1; dy <= 1 && hit < 0; dy++) for (let dz = -1; dz <= 1 && hit < 0; dz++) {
+      for (const j of grid.get(`${cx + dx},${cy + dy},${cz + dz}`) ?? []) {
+        if (Math.hypot(out[j] - x, out[j + 1] - y, out[j + 2] - z) <= tol) { hit = j; break; }
+      }
+    }
+    if (hit >= 0) {
+      if (out[hit] !== x || out[hit + 1] !== y || out[hit + 2] !== z) { out[i] = out[hit]; out[i + 1] = out[hit + 1]; out[i + 2] = out[hit + 2]; moved++; }
+    } else {
+      const k = `${cx},${cy},${cz}`;
+      (grid.get(k) ?? grid.set(k, []).get(k)!).push(i);
+    }
+  }
+  return { positions: out, moved };
+}
+
+/**
+ * Import Diagnostics (Evaluate), by design: the imported bodies with their faulty faces and gaps, and Attempt to Heal All,
+ * which closes the gaps by joining corner points closer than the gap tolerance (as a file of loose triangles needs).
+ */
+export function ImportDiagnosticsDialog() {
+  const st = useStore(useShallow((s) => ({ rebuild: s.rebuild, doc: s.doc, setDialog: s.setDialog, applyDocument: s.applyDocument, pushMessage: s.pushMessage })));
+  const imported = st.doc.features.filter((f): f is ImportedFeature => f.type === 'imported');
+  // the triangles as they were imported (the rebuilt body is already cleaned up)
+  const rows = useMemo(() => imported.map((f) => {
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.Float32BufferAttribute(f.positions, 3));
+    const r = bodyCheck([{ id: f.id, geometry: g, edges: [] } as unknown as Parameters<typeof bodyCheck>[0][number]]);
+    return { f, faulty: r.reduce((n, x) => n + x.degenerate + x.nonManifold, 0), gaps: r.reduce((n, x) => n + x.openEdges, 0) };
+  }), [imported]);
+  const heal = () => {
+    let healed = 0;
+    const features = st.doc.features.map((f) => {
+      if (f.type !== 'imported') return f;
+      const g = new THREE.BufferGeometry();
+      g.setAttribute('position', new THREE.Float32BufferAttribute(f.positions, 3));
+      g.computeBoundingBox();
+      const tol = Math.max(1e-3, g.boundingBox!.getSize(new THREE.Vector3()).length() * 1e-4);
+      const { positions: pos, moved } = weldPositions(f.positions, tol);
+      if (!moved) return f;
+      healed++;
+      return { ...f, positions: pos };
+    });
+    if (healed) st.applyDocument('Attempt to Heal All', { ...st.doc, features });
+    st.pushMessage(healed ? `${healed} imported bod${healed === 1 ? 'y' : 'ies'} healed (gaps closed).` : 'Nothing to heal: no gaps closer than the tolerance.');
+  };
+  return (
+    <div className="k-float-dialog k-check-dialog" data-testid="import-diagnostics">
+      <div className="k-panel">
+        <div className="k-panel-header">
+          <Icon.Imported /> <span>Import Diagnostics</span>
+          <span className="grow" />
+          <button className="k-btn ghost icon" onClick={() => st.setDialog(null)}><Icon.Close size={12} /></button>
+        </div>
+        <div className="k-panel-body" style={{ padding: 8, width: 360 }}>
+          <fieldset className="k-fieldset"><legend>Analysis Problems</legend>
+            {rows.length ? (
+              <table className="k-pm-table">
+                <thead><tr><th>Body</th><th>Faulty faces</th><th>Gaps</th></tr></thead>
+                <tbody>{rows.map((r) => <tr key={r.f.id}><td>{r.f.name}</td><td>{r.faulty}</td><td>{r.gaps}</td></tr>)}</tbody>
+              </table>
+            ) : <p className="k-muted">There are no imported bodies (File ▸ Open a STEP or STL file).</p>}
+          </fieldset>
+          <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
+            <button className="k-btn" data-testid="import-heal" disabled={!rows.length} onClick={heal}>Attempt to Heal All</button>
+            <span className="grow" />
+            <button className="k-btn" onClick={() => st.setDialog(null)}>Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export function CheckDialog() {
   const st = useStore(useShallow((s) => ({ selectedFace: s.selectedFace, selectedFaces: s.selectedFaces, selectedEdges: s.selectedEdges, rebuild: s.rebuild, selectedFeatureId: s.selectedFeatureId, doc: s.doc, setDialog: s.setDialog })));

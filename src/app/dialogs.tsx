@@ -250,6 +250,18 @@ export function ModifyDialog() {
         <button className="k-modify-ic k-tip" data-tip="Rebuild the model with the current value" onClick={() => value !== c.value && st.updateDimension(c.id, { value })}><Icon.Rebuild /></button>
         <button className="k-modify-ic k-tip" data-tip="Reset spin increment value" onClick={() => setValue(c.value ?? 0)}><Icon.Undo /></button>
         <button className={`k-modify-ic k-tip ${spinOpen ? 'active' : ''}`} data-tip="Spin box increment" onClick={() => setSpinOpen((o) => !o)}><Icon.Options /></button>
+        {/* Reverse the sense: the second point goes to the other side of the first (a distance between two points) */}
+        {(c.kind === 'distance' || c.kind === 'hDistance' || c.kind === 'vDistance') && sketch!.points[c.refs[0]] && sketch!.points[c.refs[1]] && (
+          <button className="k-modify-ic k-tip" data-tip="Reverse the sense of the dimension" data-testid="modify-reverse" onClick={() => {
+            const [a, b] = [c.refs[0], c.refs[1]];
+            useStore.getState().commit('Reverse dimension', (k) => {
+              const pa = k.points[a], pb = k.points[b];
+              const q = { x: c.kind === 'vDistance' ? pb.x : 2 * pa.x - pb.x, y: c.kind === 'hDistance' ? pb.y : 2 * pa.y - pb.y };
+              return { ...k, points: { ...k.points, [b]: { ...pb, ...q } } };
+            });
+          }}><Icon.Flip /></button>
+        )}
+        <button className={`k-modify-ic k-tip ${c.markForDrawing === false ? '' : 'active'}`} data-tip="Mark dimension to be imported into a drawing" data-testid="modify-mark" onClick={() => st.updateDimension(c.id, { markForDrawing: c.markForDrawing === false })}><Icon.Dimension /></button>
       </div>
       <div className="k-modify-name" data-testid="modify-name">{name}</div>
       <div className="k-modify-row k-modify-value">
