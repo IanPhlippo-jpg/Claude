@@ -690,4 +690,4 @@ elease; README en docs/04 bijgewerkt
 - [x] Loft: modelvlak als tweede profiel (Selected face as profile), Curvature To Face, Next Face (unit + e2e loftface)
 - [x] Appearance: Basic/Advanced; tabs Color/Image (afbeelding), Mapping (box/projectie/cilinder/bol, breedte, rotatie, spiegelen), Illumination, Surface Finish (e2e appearance2)
 - [x] Insert Bends: Ignore beveled faces + bochten geteld in de boom (SharpBend); Face Fillet ▸ Hold line (unit + e2e)
-- [~] Release 0.5.0: unit, regressie Windows, B-rep-pass, desktop, installer, screenshots
+- [x] Release 0.5.0: unit 404, regressie Windows 90/90, B-rep-pass 11/11, worker-pass 6/6, desktop 8/8 + 12/12, installer + zelftest 19/19 (rebuild-worker onder app://), screenshots
