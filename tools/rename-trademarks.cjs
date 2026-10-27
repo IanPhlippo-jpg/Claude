@@ -16,6 +16,8 @@ const MAP = [
   ['Lifecycle and Collaboration', 'Share'], ['Toolbox', 'Standard Parts'],
   // QA v0.4.8 F94: the last product names on the Share and tolerance tabs
   ['Pack and Go', 'Package Files'], ['MBD Dimensions', 'Product Dimensions'], ['MBD Dimension', 'Product Dimension'],
+  // QA v0.5.1 F131/F132: the content portal of Options > Search
+  ['3D ContentCentral', 'online content library'],
   // QA v0.3.4 F77: phrases the first rename left broken
   ['Feature Tree Tree Area', 'Feature Tree Area'], ['Feature Tree tree area', 'Feature Tree area'], ['Feature Tree tree', 'Feature Tree'],
   ['a Auto Tolerancing', 'an Auto Tolerancing'], ['A Auto Tolerancing', 'An Auto Tolerancing'],

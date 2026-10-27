@@ -10,7 +10,7 @@ import { sketchRegions } from './regions';
 import { clipToSurface, csg, extrudeGeometry, flipWinding, meshPieces, meshVolume, mergeGeometries, piecesTouchingPlane, planarFaces, planeMatrix, revolveGeometry, THROUGH_ALL, type PlanarFace } from './solid';
 import { MeshBVH } from 'three-mesh-bvh';
 import type { Region } from './regions';
-import { bodyEdges, matchEdge, subEdgeAt, type BodyEdge } from './edgesets';
+import { bodyEdges, matchEdge, matchEdges, subEdgeAt, type BodyEdge } from './edgesets';
 import { applyTools, cornerTools, keepEdgeRadii, roundTools, roundToolsOpts, vertexChamferTool, holdLineRadius } from './round';
 import { holeTool, mirrorGeometry, patternInstances, translated } from './pattern';
 import { curveInstances, fillInstances, tableInstances } from './patterns2';
@@ -34,7 +34,7 @@ import { baseFlangeGeometry, baseFlangeLoop, baseFlangeRegion, bendAllowance, DE
 import type { DraftFeature, PatternFeature, RevolveFeature, EdgeFlangeFeature, HemFeature, HoleFeature, JogFeature, MiterFlangeFeature, PlaneDef, SketchedBendFeature } from '../document/types';
 import { chainEdges, classifyVent, formToolGeometry, gussetTools, ripTool, sweptFlangeRegions, tabSlotTools, ventTool } from './sheetmetal4';
 import { bodyEdges as bodyEdgesOf, matchEdge as matchEdgeRef } from './edgesets';
-import { copyFaceNames, FACE_TAG, nameExtrudedFaces } from './faceNames';
+import { copyFaceNames, FACE_TAG, nameFeatureFaces } from './faceNames';
 import { pointDeform } from './deform';
 import { endCapGeometry, faceOutline, findFaceOnBodies, findProfile, memberSegments, placedProfile, profileLoops, profileRegion, structuralMembers, trimByBodies, trimByPlane, weldBeadGeometry, weldGussetGeometry } from './weldments';
 
@@ -164,13 +164,9 @@ export function faceTangents(bodies: Body[], outline: THREE.Vector3[], n: THREE.
 
 export function featureGeometry(doc: Document, f: SketchBasedFeature, extent = THROUGH_ALL, body?: THREE.BufferGeometry | null, bodyList: Body[] = []): { geometry: THREE.BufferGeometry | null; error?: string } {
   const r = sketchedGeometry(doc, f, extent, body, bodyList);
-  // the faces of an extrusion are named after the feature and the sketch entities (F47); From ▸ Offset is named by
-  // the extrusion it moves
-  if (r.geometry && f.type === 'extrude' && !f.fromOffset && !f.thin) {
-    const sketch = doc.sketches[f.sketchId];
-    if (sketch) return { ...r, geometry: nameExtrudedFaces(r.geometry, f.id, sketch, resolvePlaneDef(doc, sketch.plane)) };
-  }
-  return r;
+  // the faces of an extrusion or a revolve are named after the feature and the sketch entities (F47, F110)
+  const sketch = doc.sketches[f.sketchId];
+  return r.geometry && sketch ? { ...r, geometry: nameFeatureFaces(r.geometry, f, sketch, resolvePlaneDef(doc, sketch.plane)) } : r;
 }
 
 function sketchedGeometry(doc: Document, f: SketchBasedFeature, extent = THROUGH_ALL, body?: THREE.BufferGeometry | null, bodyList: Body[] = []): { geometry: THREE.BufferGeometry | null; error?: string } {
@@ -818,9 +814,12 @@ function regionCentre(r: Region): { x: number; y: number } {
 export function applyRoundFeature(geometry: THREE.BufferGeometry, f: RoundFeature): { geometry: THREE.BufferGeometry | null; error?: string; /** edge references that no longer match after the rebuild (dangling) */ lost?: number; edges: BodyEdge[]; tools?: { cutters: THREE.BufferGeometry[]; adders: THREE.BufferGeometry[] } } {
   const edges = bodyEdges(geometry, 'tmp');
   // Tangent propagation off: only the run (straight or curved) of the chain where the edge was picked
-  const matched = f.edges.map((r) => { const e = matchEdge(edges, r); return e && f.tangentPropagation === false && r.pick ? subEdgeAt(e, new THREE.Vector3(...r.pick)) : e; }).filter((e): e is BodyEdge => !!e);
+  // an edge split by a feature inserted before this one is rounded in all its pieces (F111); radii follow the pieces
+  const found = f.edges.map((r) => matchEdges(edges, r).map((e) => (f.tangentPropagation === false && r.pick ? subEdgeAt(e, new THREE.Vector3(...r.pick)) : e)));
+  const matched = found.flat();
   if (!matched.length) return { geometry: null, error: 'None of the selected edges exist on the body any more (dangling references).', edges };
-  const lost = f.edges.length - matched.length;
+  const lost = found.filter((x) => !x.length).length;
+  if (f.radii?.length) f = { ...f, radii: found.flatMap((x, i) => x.map(() => f.radii![i] ?? f.size)) };
   if (f.size <= 0) return { geometry: null, error: 'The size must be larger than zero.', edges };
   try {
     // Overflow type > Keep edge: each radius at most what keeps the tangent lines on the adjacent faces
@@ -2952,16 +2951,17 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
           const ex = exactOf(b);
           if (!b || !ex) continue;
           const edges = bodyEdges(b.geometry, b.id);
-          const matched = f.edges.map((ref) => matchEdge(edges, ref)).filter((e): e is BodyEdge => !!e);
+          const found = f.edges.map((ref) => matchEdges(edges, ref)), matched = found.flat();
+          const radii = found.flatMap((x, i) => x.map(() => f.radii?.[i] ?? f.size));
           if (!matched.length) continue;
           try {
             const perEdge = f.type === 'fillet' && (!!f.radii?.length || (f.roundType === 'variable' && !!f.variable));
             const shape = perEdge
-              ? K.filletEach(ex, matched.map((e, ei) => (f.roundType === 'variable' && f.variable ? { edge: e, r1: Math.max(0.01, f.variable.start), r2: Math.max(0.01, f.variable.end) } : { edge: e, r1: f.radii?.[ei] ?? f.size })))
+              ? K.filletEach(ex, matched.map((e, ei) => (f.roundType === 'variable' && f.variable ? { edge: e, r1: Math.max(0.01, f.variable.start), r2: Math.max(0.01, f.variable.end) } : { edge: e, r1: radii[ei] })))
               : f.type === 'fillet' ? K.fillet(ex, matched, f.size) : K.chamfer(ex, matched, f.size);
             setExact(b, shape);
             b.featureIds.push(f.id);
-            const lost = f.edges.length - matched.length;
+            const lost = found.filter((x) => !x.length).length;
             if (lost) errors[f.id] = `Warning: ${lost} of the ${f.edges.length} edge references could not be found after the rebuild; the feature uses the rest.`;
             done = true;
           } catch {
@@ -2990,7 +2990,7 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
         if (f.keepFeatures !== false && r.tools && history.cuts.length) {
           const toolBox = new THREE.Box3();
           for (const t of [...r.tools.cutters, ...r.tools.adders]) { t.computeBoundingBox(); if (t.boundingBox) toolBox.union(t.boundingBox); }
-          const mids = f.edges.map((ref) => matchEdge(r.edges, ref)).filter((e): e is BodyEdge => !!e).map((e) => e.centroid);
+          const mids = f.edges.flatMap((ref) => matchEdges(r.edges, ref)).map((e) => e.centroid);
           for (const c of history.cuts) {
             c.computeBoundingBox();
             if (!c.boundingBox || !c.boundingBox.intersectsBox(toolBox)) continue;

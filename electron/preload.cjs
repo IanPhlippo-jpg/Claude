@@ -28,4 +28,9 @@ contextBridge.exposeInMainWorld('phlippoDesktop', {
   openFile: (filters) => ipcRenderer.invoke('file:open', filters),
   saveFile: (opts) => ipcRenderer.invoke('file:save', opts),
   saveFileAs: (opts) => ipcRenderer.invoke('file:saveAs', opts),
+  /** Auto-Recover: copies of the open document in the auto-recover folder */
+  writeRecover: (opts) => ipcRenderer.invoke('recover:write', opts),
+  listRecover: (folder) => ipcRenderer.invoke('recover:list', folder),
+  readRecover: (opts) => ipcRenderer.invoke('recover:read', opts),
+  removeRecover: (opts) => ipcRenderer.invoke('recover:remove', opts),
 });

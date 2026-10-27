@@ -1574,11 +1574,9 @@ export const featuresSlice = (set: StoreSet, get: StoreGet): Pick<State, Feature
     if (get().selectedPlane !== selectedPlane) set({ selectedPlane });
   },
   setPrefs(prefs) {
-    const { doc } = get();
     const system: Record<string, PrefValue> = {}, docProps: Record<string, PrefValue> = {};
     for (const [k, v] of Object.entries(prefs)) (k.startsWith('doc.') ? docProps : system)[k] = v;
     savePrefs({ ...system, ...docProps });
-    const d: Document = { ...doc, properties: docProps };
     // options that drive existing settings
     const theme = prefs['colors.background'] === 'Dark' ? 'dark' : 'light';
     if (theme !== get().theme) get().setTheme(theme);
@@ -1586,6 +1584,11 @@ export const featuresSlice = (set: StoreSet, get: StoreGet): Pick<State, Feature
     if (!!prefs['view.reverseWheel'] !== get().reverseWheel) get().setReverseWheel(!!prefs['view.reverseWheel']);
     const unitSys = String(prefs['doc.unitSystem']).split(' ')[0] as UnitSystem;
     if (['MKS', 'CGS', 'MMGS', 'IPS'].includes(unitSys) && unitSys !== get().unitSystem) get().setUnitSystem(unitSys);
+    // Custom: the Length unit of the Units page is the document unit (QA v0.5.1 F112)
+    const lenUnit = ({ millimeters: 'mm', centimeters: 'cm', meters: 'm', inches: 'in' } as const)[String(prefs['doc.lengthUnit']) as 'millimeters'];
+    if (String(prefs['doc.unitSystem']).startsWith('Custom') && lenUnit && lenUnit !== get().doc.units) get().setUnits(lenUnit);
+    const doc = get().doc;
+    const d: Document = { ...doc, properties: docProps };
     set({ prefs, doc: d, gridSize: Math.max(0.1, Number(prefs['doc.gridMajor']) || 10), show: { ...get().show, grid: !!prefs['doc.displayGrid'] }, dirty: get().dirty || JSON.stringify(docProps) !== JSON.stringify(doc.properties ?? {}) });
     autosave(d);
   },

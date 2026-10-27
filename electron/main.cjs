@@ -318,6 +318,58 @@ ipcMain.handle('file:saveAs', async (e, { defaultPath, filters, data }) => {
   }
 });
 
+// Auto-Recover (Options > Backup/Recover, QA v0.5.1 F112): a copy of the open document every few minutes in the
+// auto-recover folder. The shell makes the file names itself (<document>.autorecover.kcad) and only lists, reads and
+// removes such files in that folder.
+const RECOVER_SUFFIX = '.autorecover.kcad';
+function recoverDir(folder) {
+  const expanded = String(folder ?? '').replace(/%([^%]+)%/g, (_m, v) => process.env[v] ?? '');
+  return path.isAbsolute(expanded) ? path.normalize(expanded) : path.join(app.getPath('userData'), 'backup');
+}
+const recoverFile = (name) => (String(name ?? '').replace(/[^\w .()-]+/g, '_').trim().slice(0, 80) || 'Document') + RECOVER_SUFFIX;
+const isRecoverFile = (name) => typeof name === 'string' && name === path.basename(name) && name.endsWith(RECOVER_SUFFIX);
+ipcMain.handle('recover:write', async (e, { folder, name, data }) => {
+  if (!trusted(e)) return null;
+  if (!(data instanceof ArrayBuffer) || data.byteLength > MAX_FILE_BYTES) return { error: 'The document is too large.' };
+  const dir = recoverDir(folder), file = path.join(dir, recoverFile(name));
+  const tmp = `${file}.tmp-${process.pid}-${Date.now()}`;
+  try {
+    await fs.mkdir(dir, { recursive: true });
+    await fs.writeFile(tmp, Buffer.from(data));
+    await fs.rename(tmp, file);
+    return { name: path.basename(file) };
+  } catch (err) {
+    await fs.rm(tmp, { force: true }).catch(() => {});
+    return { error: String(err.message ?? err) };
+  }
+});
+ipcMain.handle('recover:list', async (e, folder) => {
+  if (!trusted(e)) return [];
+  const dir = recoverDir(folder);
+  try {
+    const names = (await fs.readdir(dir)).filter(isRecoverFile);
+    const out = [];
+    for (const n of names) out.push({ name: n, time: (await fs.stat(path.join(dir, n))).mtimeMs });
+    return out.sort((a, b) => b.time - a.time);
+  } catch {
+    return [];
+  }
+});
+ipcMain.handle('recover:read', async (e, { folder, name }) => {
+  if (!trusted(e) || !isRecoverFile(name)) return null;
+  try {
+    const buf = await fs.readFile(path.join(recoverDir(folder), name));
+    if (buf.byteLength > MAX_FILE_BYTES) return null;
+    return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
+  } catch {
+    return null;
+  }
+});
+ipcMain.handle('recover:remove', async (e, { folder, name }) => {
+  if (!trusted(e)) return;
+  await fs.rm(path.join(recoverDir(folder), recoverFile(name)), { force: true }).catch(() => {});
+});
+
 /** app://phlippo/<path>: a file of dist/, never outside it, with its type and the Content-Security-Policy */
 function serveApp(request) {
   let rel;

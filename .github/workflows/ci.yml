@@ -35,7 +35,9 @@ jobs:
           export PW_CHROMIUM="$(node -e "console.log(require('playwright').chromium.executablePath())")"
           E2E_URL=http://127.0.0.1:4173/ node e2e/run-regression.mjs
           # the same feature scripts once more on the B-rep kernel (OpenCascade WASM) instead of the mesh kernel (F105)
-          E2E_URL="http://127.0.0.1:4173/?kernel=brep" node e2e/run-regression.mjs features features2 filletopts endconditions multibody full doorhandle step bodies
+          E2E_URL="http://127.0.0.1:4173/?kernel=brep" node e2e/run-regression.mjs features features2 filletopts endconditions multibody full doorhandle step bodies qa2 facenames
+          # and the heavy scripts once more with the rebuild worker (F46)
+          E2E_URL="http://127.0.0.1:4173/?rebuild=worker" node e2e/run-regression.mjs rebuildworker features full doorhandle facenames bodies
       # the tests leave the repository as they found it (no rewritten examples, F84)
       - run: git diff --exit-code
       - uses: actions/upload-artifact@v4

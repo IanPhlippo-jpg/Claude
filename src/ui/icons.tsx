@@ -993,6 +993,27 @@ export const RelationGlyph: Record<string, (p: P) => ReactElement> = {
       <path d="M3 6h10M3 10h10" />
     </svg>
   ),
+  // Intersection: two crossing lines with the point on the crossing
+  intersection: ({ size = 12, ...p }) => (
+    <svg {...g(size, p)}>
+      <path d="M3 3l10 10M13 3L3 13" />
+      <circle cx="8" cy="8" r="1.6" fill="currentColor" stroke="none" />
+    </svg>
+  ),
+  // Merge: two points drawn together into one
+  merge: ({ size = 12, ...p }) => (
+    <svg {...g(size, p)}>
+      <path d="M2 8h4M10 8h4M5 6l2 2-2 2M11 6L9 8l2 2" />
+      <circle cx="8" cy="8" r="1.4" fill="currentColor" stroke="none" />
+    </svg>
+  ),
+  // Equal Curvature: a line running on into a curve, with the equal sign
+  equalCurvature: ({ size = 12, ...p }) => (
+    <svg {...g(size, p)}>
+      <path d="M2 12h5c3 0 5-2 6-6" />
+      <path d="M9 3h4M9 5h4" />
+    </svg>
+  ),
   // Coradial: two concentric arcs of one radius
   coradial: ({ size = 12, ...p }) => (
     <svg {...g(size, p)}>

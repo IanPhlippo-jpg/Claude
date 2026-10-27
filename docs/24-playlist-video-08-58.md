@@ -9,7 +9,7 @@ verschillen weggewerkt, met de e2e-tests `videos56`, `videos46` en `videos54`.
 
 | Onderwerp | Wat er veranderd is | Video | Bewijs |
 |---|---|---|---|
-| Vergelijkingen in PM-velden | `=` in een waardeveld maakt er een vergelijking van: menu Global Variables ▸ / Functions ▸ / File Properties ▸ (SW-Density). Na OK stuurt de vergelijking de maat van de feature (`"D1@Boss-Extrude1" = "Width" / 2`). Het veld toont Σ; een klik toont de vergelijking. Het Modify-vak en de Equations-dialoog gebruiken hetzelfde menu. | 46, 55, 57 | e2e `videos56`, `videos46` |
+| Vergelijkingen in PM-velden | `=` in een waardeveld maakt er een vergelijking van: menu Global Variables ▸ / Functions ▸ / File Properties ▸ (Density). Na OK stuurt de vergelijking de maat van de feature (`"D1@Boss-Extrude1" = "Width" / 2`). Het veld toont Σ; een klik toont de vergelijking. Het Modify-vak en de Equations-dialoog gebruiken hetzelfde menu. | 46, 55, 57 | e2e `videos56`, `videos46` |
 | Equations-map | Σ-icoon in de boom, de vergelijkingen eronder; dubbelklik opent Manage Equations | 46 | e2e `videos46` |
 | Rib | Type Linear / Natural (bij Normal to Sketch), Draft On/Off-knop, Rib Thickness At sketch plane / At wall interface | 58 | unit `rib.test`, e2e `videos56` |
 | Delete Face | Show selection toolbar en Show preview | 57 | e2e `videos56` |

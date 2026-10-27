@@ -157,8 +157,14 @@ await waitState(() => window.__phlippoStore.getState().drawingEdit?.mode === 'di
 const topView = d.sheet.views.find((v) => v.type === 'top' || v.type === 'bottom');
 // the hole as the view draws it (sheet coordinates), so the click lands on the drawn circle on every platform (F10)
 const topId = await page.evaluate(() => window.__phlippoStore.getState().doc.sheets[0].views.find((v) => v.type === 'top' || v.type === 'bottom').id);
+// on a slow runner the view's circles and the sheet's zoom may still be settling: wait for the hole, then for two
+// frames in which the sheet does not move, before the click point is taken (F10)
+await waitState((id) => !!window.__phlippoSheet.circles(id).find((c) => Math.abs(c.r - 17.5) < 1), topId);
+await page.evaluate(() => new Promise((ok) => { let last = '', same = 0; const tick = () => { const now = JSON.stringify([window.__phlippoSheet.zoom(), window.__phlippoSheet.toPx([0, 0])]); same = now === last ? same + 1 : 0; last = now; if (same >= 2) ok(); else requestAnimationFrame(tick); }; tick(); }));
 const hole = await page.evaluate((id) => window.__phlippoSheet.circles(id).find((c) => Math.abs(c.r - 17.5) < 1), topId);
 const circlePt = await px(hole ? [hole.c[0] + hole.r, hole.c[1]] : [topView.position[0] + 17.5, topView.position[1]]);
+// what lies under the click, for the report when the pick fails
+const under = await page.evaluate((q) => { const e = document.elementFromPoint(q.x, q.y); return e ? `${e.tagName.toLowerCase()}.${String(e.getAttribute('class') ?? '').slice(0, 40)}` : null; }, circlePt);
 await page.mouse.move(circlePt.x, circlePt.y);
 await page.waitForTimeout(100);
 await page.mouse.click(circlePt.x, circlePt.y);
@@ -171,7 +177,7 @@ await waitState(() => (window.__phlippoStore.getState().doc.sheets?.[0]?.dimensi
 d = await D();
 const dimOk = d.sheet.dims.length === 2 && d.sheet.dims[1].kind === 'diameter' && Math.abs(d.sheet.dims[1].value - 35) < 0.3;
 if (!dimOk) await shot('e43-fail-diameter');
-check('diameter Ø35 placed', dimOk, JSON.stringify({ picked, edit: d.edit, dims: d.sheet.dims, circlePt, hole, zoom: await page.evaluate(() => window.__phlippoSheet.zoom()), topView: topView.position }));
+check('diameter Ø35 placed', dimOk, JSON.stringify({ picked, under, message: await page.evaluate(() => window.__phlippoStore.getState().messages.slice(-1)[0]?.text), edit: d.edit, dims: d.sheet.dims, circlePt, hole, zoom: await page.evaluate(() => window.__phlippoSheet.zoom()), topView: topView.position }));
 await page.keyboard.press('Escape');
 // center mark
 await page.click('.k-cm-small:has-text("Center Mark")');

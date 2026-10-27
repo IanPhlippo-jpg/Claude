@@ -10,7 +10,7 @@ import { activeConfiguration, configurations } from '../core/document/configurat
 const loadCustom = (): MaterialDef[] => { try { return JSON.parse(String(getPref('material.custom') || '[]')); } catch { return []; } };
 const saveCustom = (list: MaterialDef[]) => savePrefs({ ...loadPrefs(), 'material.custom': JSON.stringify(list) });
 /** Favorites: material names kept between sessions (the right-click material menu of the tree lists them) */
-export const loadFavorites = (): string[] => { try { return JSON.parse(String(getPref('material.favorites') || '[]')); } catch { return []; } };
+import { materialFavorites as loadFavorites } from './prefs';
 const saveFavorites = (list: string[]) => savePrefs({ ...loadPrefs(), 'material.favorites': JSON.stringify(list) });
 /** stress units of the Properties table: factor from N/m² */
 const STRESS = { pa: { f: 1, u: 'N/m^2' }, mpa: { f: 1e-6, u: 'N/mm^2' }, psi: { f: 1 / 6894.757, u: 'psi' } } as const;

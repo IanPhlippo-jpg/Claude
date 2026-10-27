@@ -1,4 +1,5 @@
 import { sensorAlarm as sensorAlarmOf, sensorReading } from '../sensors';
+import { reorderFeatures } from '../../core/features/reorder';
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { bridge } from '../viewport/bridge';
 import { featureIcon } from './featureIcon';
@@ -8,7 +9,7 @@ import { Menu, TreeView, type TreeNode } from '../../ui/components';
 import { Icon } from '../../ui/icons';
 import { createDocument } from '../../core/document/types';
 import { cutList } from '../../core/features/weldments';
-import { loadFavorites } from '../materialDialog';
+import { materialFavorites as loadFavorites } from '../prefs';
 import { MATERIAL_LIBRARY } from '../../core/document/materials';
 import { serializeDocument } from '../../core/document/persistence';
 import { withUnsavedCheck } from '../MenuBar';
@@ -199,6 +200,8 @@ export function FeatureTreeBody() {
   };
 
   const featureNodes: TreeNode[] = [];
+  // Reorder: a feature dragged onto another goes right below it, unless that breaks a parent/child relation (F113)
+  const dragFor = (id: string): TreeNode['drag'] => (st.activeSketchId || st.featureEdit ? undefined : { canDrop: (src) => !reorderFeatures(st.doc, src, id).error, onDrop: (src) => { useStore.getState().reorderFeature(src, id); } });
   // Create New Folder: features in a folder sit under its node, placed where the first member was
   const folderOf = new Map<string, string>();
   for (const fo of st.doc.featureFolders ?? []) for (const id of fo.featureIds) folderOf.set(id, fo.id);
@@ -212,7 +215,7 @@ export function FeatureTreeBody() {
       if (!consumed.has(f.sketchId)) node = sketchNode(f, i);
     } else node = solidNode(f, i);
     if (!node) return;
-    node = withComment(node, f.id);
+    node = { ...withComment(node, f.id), drag: dragFor(f.id) };
     const fid = folderOf.get(f.id);
     if (fid) {
       let fn = folderNodes.get(fid);

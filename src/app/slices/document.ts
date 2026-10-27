@@ -8,12 +8,13 @@ import { newId } from '../../core/sketch/model';
 import { loadPrefs } from '../prefs';
 import { isAssembly, isDrawing } from '../../core/document/types';
 import type { State, StoreSet, StoreGet, Library } from '../store';
-import { initialSolve, initialRebuild, history, rebuildFor, whenRebuilt, historyFlags, featureName, solveAll, saveLibraries } from '../store';
+import { initialSolve, initialRebuild, history, rebuildFor, rebuildNow, whenRebuilt, historyFlags, featureName, solveAll, saveLibraries } from '../store';
+import { reorderFeatures } from '../../core/features/reorder';
 
 type DocumentKeys =
   | 'doc' | 'rebuild' | 'openSeq' | 'hasDocument' | 'sessionParts' | 'exportFormat' | 'dirty'
   | 'newDocument' | 'importMesh' | 'applyDocument' | 'openDocument' | 'rebuildAll' | 'showDocument'
-  | 'setUnits' | 'renameDocument' | 'renameLibrary' | 'importLibrary' | 'exportLibrary' | 'undo'
+  | 'setUnits' | 'reorderFeature' | 'renameDocument' | 'renameLibrary' | 'importLibrary' | 'exportLibrary' | 'undo'
   | 'redo';
 
 /** the part being replaced stays open in the session (as a part with a body), most recent first */
@@ -101,6 +102,28 @@ export const documentSlice = (set: StoreSet, get: StoreGet): Pick<State, Documen
     const d = { ...doc, units };
     set({ doc: d, dirty: true, ...historyFlags() });
     autosave(d);
+  },
+  reorderFeature(id, afterId) {
+    const { doc, rebuild } = get();
+    const r = reorderFeatures(doc, id, afterId);
+    if (!r.features) {
+      if (r.error) get().pushMessage(r.error, 'warn');
+      return false;
+    }
+    if (r.features.every((f, i) => f === doc.features[i])) return false;
+    // a move that makes a feature fail (a fillet above the body it rounds, a sketch above its face) is refused
+    const d = { ...doc, features: r.features };
+    const after = rebuildNow(d, null);
+    const broken = Object.keys(after.errors).filter((k) => !(k in rebuild.errors) && !/^Warning/.test(after.errors[k]));
+    if (broken.length) {
+      const nameOf = (fid: string) => doc.features.find((x) => x.id === fid)?.name ?? fid;
+      get().pushMessage(`${nameOf(id)} cannot be moved there: ${nameOf(broken[0])} would fail (${after.errors[broken[0]]}).`, 'warn');
+      return false;
+    }
+    history.push('Reorder', doc);
+    set({ doc: d, rebuild: after, rollbackIndex: null, dirty: true, ...historyFlags() });
+    autosave(d);
+    return true;
   },
   renameDocument(name) {
     const { doc } = get();

@@ -1,8 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
+import { WIRED_PREFS } from './prefsWired';
+
+/** the length unit of each unit system (Document Properties ▸ Units) */
+const SYSTEM_LENGTH: Record<string, string> = { MKS: 'meters', CGS: 'centimeters', MMGS: 'millimeters', IPS: 'inches' };
 import { useStore } from './store';
 import { useShallow } from 'zustand/react/shallow';
 import { Icon } from '../ui/icons';
-import { type Category, COLOR_SCHEME_ITEMS, type Control, customColors, DEFAULT_PREFS, DOCUMENT_CATEGORIES, type PrefValue, savedSchemes, SYSTEM_CATEGORIES } from './prefs';
+import { COLOR_SCHEME_ITEMS, customColors, DEFAULT_PREFS, type PrefValue, savedSchemes } from './prefs';
+import { type Category, type Control, DOCUMENT_CATEGORIES, SYSTEM_CATEGORIES } from './prefsSchema';
 
 /**
  * Options dialog laid out by design: the title follows the page ("System Options - General"),
@@ -23,7 +28,12 @@ export function OptionsDialog() {
     if (!cats.some((c) => c.id === cat)) setCat(cats[0].id);
   }, [tab, cats, cat]);
   const title = `${tab === 'system' ? 'System Options' : 'Document Properties'} - ${active.label}`;
-  const set = (key: string, v: PrefValue) => setDraft((d) => ({ ...d, [key]: v }));
+  const set = (key: string, v: PrefValue) => setDraft((d) => {
+    const n = { ...d, [key]: v };
+    if (key === 'doc.unitSystem' && SYSTEM_LENGTH[String(v).split(' ')[0]]) n['doc.lengthUnit'] = SYSTEM_LENGTH[String(v).split(' ')[0]];
+    if (key === 'doc.lengthUnit' && SYSTEM_LENGTH[String(d['doc.unitSystem'] ?? '').split(' ')[0]] !== v) n['doc.unitSystem'] = 'Custom';
+    return n;
+  });
   const get = (key: string) => draft[key] ?? DEFAULT_PREFS[key];
   // search: categories whose labels or control labels match
   const q = query.trim().toLowerCase();
@@ -64,33 +74,36 @@ export function OptionsDialog() {
     st.pushMessage(msgs[name ?? ''] ?? 'This option has no effect in this build.');
   };
 
+  // an option the program does not read yet is shown greyed out (QA v0.5.1 F112)
+  const OFF_TIP = 'Not available in this version of Phlippo CAD.';
+  const off = (key: string) => !WIRED_PREFS.has(key);
   const render = (ctl: Control, i: number) => {
     const indent = { marginLeft: ('indent' in ctl && ctl.indent ? ctl.indent * 18 : 0) };
     switch (ctl.kind) {
       case 'check':
         return (
-          <label key={i} className={`k-opt-check ${ctl.disabled ? 'disabled' : ''}`} style={indent}>
-            <input type="checkbox" checked={!!get(ctl.key)} disabled={ctl.disabled} onChange={(e) => set(ctl.key, e.target.checked)} />
+          <label key={i} className={`k-opt-check ${ctl.disabled || off(ctl.key) ? 'disabled' : ''}`} style={indent} title={off(ctl.key) ? OFF_TIP : undefined}>
+            <input type="checkbox" checked={!!get(ctl.key)} disabled={ctl.disabled || off(ctl.key)} onChange={(e) => set(ctl.key, e.target.checked)} />
             <span>{ctl.label}</span>
             {ctl.textAfter && <input className="k-input k-opt-tiny" value={String(get(ctl.textAfter) ?? '')} disabled={!get(ctl.key)} maxLength={1} onChange={(e) => set(ctl.textAfter!, e.target.value)} onKeyDown={(e) => e.stopPropagation()} />}
           </label>
         );
       case 'select':
         return (
-          <div key={i} className={`k-opt-row ${ctl.inline ? 'inline' : ''}`}>
+          <div key={i} className={`k-opt-row ${ctl.inline ? 'inline' : ''} ${off(ctl.key) ? 'disabled' : ''}`} title={off(ctl.key) ? OFF_TIP : undefined}>
             {ctl.label && <label>{ctl.label}</label>}
-            <select className="k-input" value={String(get(ctl.key))} onChange={(e) => { set(ctl.key, e.target.value); if (ctl.key === 'colors.scheme') set('colors.custom', '{}'); }}>
+            <select className="k-input" value={String(get(ctl.key))} disabled={off(ctl.key)} onChange={(e) => { set(ctl.key, e.target.value); if (ctl.key === 'colors.scheme') set('colors.custom', '{}'); }}>
               {[...ctl.options, ...(ctl.key === 'colors.scheme' ? Object.keys(savedSchemes(draft)) : [])].map((o) => <option key={o} value={o}>{o}</option>)}
             </select>
           </div>
         );
       case 'radio':
         return (
-          <div key={i} className="k-opt-radios">
+          <div key={i} className={`k-opt-radios ${off(ctl.key) ? 'disabled' : ''}`} title={off(ctl.key) ? OFF_TIP : undefined}>
             {ctl.label && <label>{ctl.label}</label>}
             {ctl.options.map((o) => (
-              <label key={o} className="k-opt-check">
-                <input type="radio" name={ctl.key} checked={get(ctl.key) === o} onChange={() => set(ctl.key, o)} />
+              <label key={o} className={`k-opt-check ${off(ctl.key) ? 'disabled' : ''}`}>
+                <input type="radio" name={ctl.key} checked={get(ctl.key) === o} disabled={off(ctl.key)} onChange={() => set(ctl.key, o)} />
                 <span>{o}</span>
               </label>
             ))}
@@ -98,28 +111,28 @@ export function OptionsDialog() {
         );
       case 'number':
         return (
-          <div key={i} className="k-opt-row inline">
+          <div key={i} className={`k-opt-row inline ${off(ctl.key) ? 'disabled' : ''}`} title={off(ctl.key) ? OFF_TIP : undefined}>
             {ctl.label && <label>{ctl.label}</label>}
-            <input className="k-input k-opt-number" type="number" value={Number(get(ctl.key))} min={ctl.min} max={ctl.max} step={ctl.step ?? 1} onChange={(e) => set(ctl.key, parseFloat(e.target.value) || 0)} onKeyDown={(e) => e.stopPropagation()} />
+            <input className="k-input k-opt-number" type="number" disabled={off(ctl.key)} value={Number(get(ctl.key))} min={ctl.min} max={ctl.max} step={ctl.step ?? 1} onChange={(e) => set(ctl.key, parseFloat(e.target.value) || 0)} onKeyDown={(e) => e.stopPropagation()} />
             {ctl.unit && <span className="k-muted">{ctl.unit}</span>}
             {ctl.after && <span>{ctl.after}</span>}
           </div>
         );
       case 'slider':
         return (
-          <div key={i} className="k-opt-row inline k-opt-slider">
+          <div key={i} className={`k-opt-row inline k-opt-slider ${off(ctl.key) ? 'disabled' : ''}`} title={off(ctl.key) ? OFF_TIP : undefined}>
             {ctl.label && <label>{ctl.label}</label>}
             {ctl.left && <span className="k-muted">{ctl.left}</span>}
-            <input type="range" min={ctl.min} max={ctl.max} value={Number(get(ctl.key))} onChange={(e) => set(ctl.key, parseFloat(e.target.value))} />
+            <input type="range" disabled={off(ctl.key)} min={ctl.min} max={ctl.max} value={Number(get(ctl.key))} onChange={(e) => set(ctl.key, parseFloat(e.target.value))} />
             {ctl.right && <span className="k-muted">{ctl.right}</span>}
           </div>
         );
       case 'text':
         return (
-          <div key={i} className="k-opt-row">
+          <div key={i} className={`k-opt-row ${off(ctl.key) ? 'disabled' : ''}`} title={off(ctl.key) ? OFF_TIP : undefined}>
             <label>{ctl.label}</label>
             <div className="k-opt-text">
-              <input className="k-input" value={String(get(ctl.key) ?? '')} placeholder={ctl.placeholder} onChange={(e) => set(ctl.key, e.target.value)} onKeyDown={(e) => e.stopPropagation()} />
+              <input className="k-input" disabled={off(ctl.key)} value={String(get(ctl.key) ?? '')} placeholder={ctl.placeholder} onChange={(e) => set(ctl.key, e.target.value)} onKeyDown={(e) => e.stopPropagation()} />
               {ctl.browse && <button className="k-btn" onClick={() => st.pushMessage('Folders are chosen in the desktop app through the Windows dialogs.')}>Browse...</button>}
             </div>
           </div>

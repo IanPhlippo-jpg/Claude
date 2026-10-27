@@ -14,7 +14,7 @@ describe('relations for selection', () => {
     expect(kinds([{ kind: 'entity', id: l1.id }])).toEqual(['horizontal', 'vertical']);
     expect(kinds([{ kind: 'entity', id: l1.id }, { kind: 'entity', id: l2.id }])).toEqual(['parallel', 'perpendicular', 'equal', 'collinear']);
     expect(kinds([{ kind: 'entity', id: l1.id }, { kind: 'entity', id: c.id }])).toEqual(['tangent']);
-    expect(kinds([{ kind: 'point', id: l1.p1 }, { kind: 'point', id: l2.p1 }])).toEqual(['coincident', 'horizontal', 'vertical']);
+    expect(kinds([{ kind: 'point', id: l1.p1 }, { kind: 'point', id: l2.p1 }])).toEqual(['coincident', 'horizontal', 'vertical', 'merge']);
     expect(kinds([{ kind: 'entity', id: p.id }, { kind: 'entity', id: l1.id }])).toEqual(['pointOnEntity', 'midpoint']);
     expect(kinds([{ kind: 'point', id: l1.p1 }, { kind: 'point', id: l1.p2 }, { kind: 'entity', id: l2.id }])).toEqual(['symmetric']);
   });

@@ -1,6 +1,5 @@
 import { ScenePM } from '../renderDialogs';
 import { CurveColorPM } from './CurveColorPM';
-import { MotorPM, MotionEditPM } from '../viewport/MotionTimeline';
 import { isCommandActive, useStore } from '../store';
 import { useShallow } from 'zustand/react/shallow';
 import { AssemblyTreeBody } from './AssemblyTreeBody';
@@ -13,6 +12,9 @@ import { Icon } from '../../ui/icons';
 import { FeatureTreeBody } from './FeatureTreeBody';
 import { DockPanel } from './Dock';
 import { lazyNamed } from '../lazy';
+
+const MotorPM = lazyNamed(() => import('../viewport/MotionTimeline'), 'MotorPM', true);
+const MotionEditPM = lazyNamed(() => import('../viewport/MotionTimeline'), 'MotionEditPM', true);
 
 // panels in chunks of their own (QA F34); the common ones are preloaded after start-up
 const DetailViewPM = lazyNamed(() => import('../drawing/DrawingPM'), 'DetailViewPM', true);

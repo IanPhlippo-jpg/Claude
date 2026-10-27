@@ -28,7 +28,6 @@ import { CommentsDialog, ComponentPreview, MirrorComponentsDialog, PackAndGoDial
 import { AskDialog, ConfirmDeleteDialog, ModifyDialog, NewDocumentDialog, OrientationDialog, WelcomeDialog } from './dialogs';
 import { FinalRenderDialog } from './renderDialogs';
 import { ShortcutBar } from './ShortcutBar';
-import { MaterialDialog } from './materialDialog';
 import '../ui/tokens.css';
 import '../ui/components.css';
 import './app.css';
@@ -59,6 +58,7 @@ const ModifyConfigurationsDialog = lazyNamed(() => import('./configureDialog'), 
 const AppearanceDialog = lazyNamed(() => import('./appearanceDialog'), 'AppearanceDialog');
 const BomDialog = lazyNamed(() => import('./assemblyDialogs'), 'BomDialog');
 const InterferenceDialog = lazyNamed(() => import('./assemblyDialogs'), 'InterferenceDialog');
+const MaterialDialog = lazyNamed(() => import('./materialDialog'), 'MaterialDialog', true);
 const DrawingSheetView = lazyNamed(() => import('./drawing/DrawingSheetView'), 'DrawingSheetView', true);
 const SheetFormatDialog = lazyNamed(() => import('./drawing/SheetDialogs'), 'SheetFormatDialog');
 const SheetPropertiesDialog = lazyNamed(() => import('./drawing/SheetDialogs'), 'SheetPropertiesDialog');

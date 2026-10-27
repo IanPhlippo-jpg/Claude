@@ -1,5 +1,6 @@
-import { useMemo, useRef, useState } from 'react';
-import { AppearancesPane } from './AppearancesPane';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { lazyNamed } from '../lazy';
+const AppearancesPane = lazyNamed(() => import('./AppearancesPane'), 'AppearancesPane', true);
 import { useActiveSketch, useActiveSolve, useStore } from '../store';
 import { useShallow } from 'zustand/react/shallow';
 import { Button } from '../../ui/components';
@@ -8,7 +9,8 @@ import { relationLabel } from '../../core/sketch/relations';
 import { round, Kbd } from '../../ui/components';
 import { SHORTCUTS } from '../shortcuts';
 import { openFileDialog, withUnsavedCheck } from '../MenuBar';
-import { listAutosaves, loadAutosaveEntry } from '../../core/document/persistence';
+import { listAutosaves, loadAutosaveEntry, parseDocument } from '../../core/document/persistence';
+import { listDiskRecovery, readDiskRecovery } from '../autoRecover';
 import { getPref } from '../prefs';
 import { FASTENER_NAMES, fastenerPart, LENGTHS, METRIC, type FastenerType } from '../../core/assembly/fasteners';
 
@@ -340,6 +342,19 @@ function RecoveryPane() {
     if (!d) return useStore.getState().pushMessage('The recovered document could not be read.', 'error');
     useStore.getState().openDocument(d);
   });
+  // the desktop app: the copies in the auto-recover folder (Options ▸ Backup/Recover)
+  const [disk, setDisk] = useState<{ name: string; time: number }[]>([]);
+  useEffect(() => { void listDiskRecovery().then(setDisk); }, []);
+  const openDisk = (name: string) => withUnsavedCheck(() => {
+    void readDiskRecovery(name).then((text) => {
+      try {
+        if (!text) throw new Error('empty');
+        useStore.getState().openDocument(parseDocument(text));
+      } catch {
+        useStore.getState().pushMessage('The recovered document could not be read.', 'error');
+      }
+    });
+  });
   return (
     <div style={{ padding: 8 }}>
       <p className="k-muted" style={{ margin: '0 0 6px' }}>Phlippo CAD keeps an auto-recover copy of every document after each change (the last {5}).</p>
@@ -350,6 +365,16 @@ function RecoveryPane() {
           ))}
         </ul>
       ) : <p className="k-muted">No recovered documents.</p>}
+      {disk.length > 0 && (
+        <>
+          <p className="k-muted" style={{ margin: '8px 0 6px' }}>Auto-recover folder:</p>
+          <ul className="k-list" data-testid="recovery-disk">
+            {disk.map((r) => (
+              <li key={r.name} onClick={() => openDisk(r.name)} title="Open the auto-recover copy"><Icon.TPRecovery size={14} /> <span>{r.name}</span> <span className="k-muted" style={{ marginLeft: 'auto' }}>{new Date(r.time).toLocaleString()}</span></li>
+            ))}
+          </ul>
+        </>
+      )}
       {st.hasDocument && <p className="k-muted" style={{ marginTop: 8 }}>Open: {st.doc.name}{st.dirty ? ' (unsaved changes)' : ''}</p>}
     </div>
   );

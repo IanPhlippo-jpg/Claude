@@ -77,8 +77,10 @@ export function MassPropertiesDialog() {
     if (ov.mass !== undefined || ov.centroid) m = overrideMassProperties(m, ov);
     const frame = frames.find((f) => f.id === frameId);
     if (frame?.x && frame.y && frame.z) m = massPropertiesInFrame(m, new THREE.Vector3(...frame.origin), new THREE.Vector3(...frame.x), new THREE.Vector3(...frame.y), new THREE.Vector3(...frame.z));
-    // Options: units and decimals of the report (document: mm and grams)
-    const L = opts.useDoc ? LEN_UNITS.mm : LEN_UNITS[opts.len], M = opts.useDoc ? MASS_UNITS.g : MASS_UNITS[opts.mass];
+    // Options: units and decimals of the report (document settings: Units ▸ Mass/Section Properties, QA v0.5.1 F112)
+    const docLen = ({ millimeters: 'mm', centimeters: 'cm', meters: 'm', inches: 'in' } as const)[String(getPref('doc.massLengthUnit')) as 'millimeters'] ?? 'mm';
+    const docMass = ({ grams: 'g', kilograms: 'kg', pounds: 'lb' } as const)[String(getPref('doc.massUnit')) as 'grams'] ?? 'g';
+    const L = LEN_UNITS[opts.useDoc ? docLen : opts.len], M = MASS_UNITS[opts.useDoc ? docMass : opts.mass];
     const dec = opts.useDoc ? 2 : opts.decimals;
     const f = (v: number) => fmt(v, dec);
     const fL = (v: number) => f(v * L.f), fI = (v: number) => f(v * M.f * L.f * L.f);

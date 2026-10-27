@@ -9,10 +9,11 @@ const literals = (src: string): string[] => {
   const code = src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:'"`\\])\/\/[^\n]*/g, '$1');
   return [...code.matchAll(/'((?:[^'\\\n]|\\.)*)'|"((?:[^"\\\n]|\\.)*)"|`((?:[^`\\]|\\.)*)`|>([^<>{}\n]*[A-Za-z][^<>{}\n]*)</g)].map((m) => m[1] ?? m[2] ?? m[3] ?? m[4] ?? '');
 };
-const NAMES = /\b(?:FeatureManager|PropertyManager|CommandManager|ConfigurationManager|DisplayManager|MotionManager|DimXpert|TolAnalyst|SimulationXpress|FeatureXpert|DraftXpert|Instant3D|RealView|SpeedPak|eDrawings|Hole Wizard|Toolbox|Design Library|Lifecycle and Collaboration|Smart Fasteners?|Pack and Go|MBD Dimensions?|SOLIDWORKS)\b/;
+const NAMES = /\b(?:FeatureManager|PropertyManager|CommandManager|ConfigurationManager|DisplayManager|MotionManager|DimXpert|TolAnalyst|SimulationXpress|FeatureXpert|DraftXpert|Instant3D|RealView|SpeedPak|eDrawings|Hole Wizard|Toolbox|Design Library|Lifecycle and Collaboration|Smart Fasteners?|Pack and Go|MBD Dimensions?|SOLIDWORKS)\b|\bSW-[A-Z]|3D ContentCentral/;
 // import paths and lower-case keys (prefs, ids, test ids) are code, not text
 const isText = (t: string) => !/^\.{1,2}\//.test(t) && !/^[a-z][\w.:-]*$/.test(t);
-const all = ['src/app', 'src/ui'].flatMap(files).map((f) => ({ f, texts: literals(readFileSync(f, 'utf8')).filter(isText) }));
+// src/core too: names it hands to the interface (file properties in equations, QA v0.5.1 F116)
+const all = ['src/app', 'src/ui', 'src/core'].flatMap(files).map((f) => ({ f, texts: literals(readFileSync(f, 'utf8')).filter(isText) }));
 
 describe('visible UI text', () => {
   it('names no program-specific product (except the legal notice)', () => {

@@ -97,3 +97,32 @@ describe('edge references survive an edit of an earlier feature (F47)', () => {
     expect(along(old, 30, 60)).toBeTruthy();
   });
 });
+
+describe('a fillet edge split by a feature inserted before it (QA v0.5.1 F111, T3)', () => {
+  it('rounds every piece of the split edge', () => {
+    const doc = createDocument();
+    let s = createSketch('sk1', 'Sketch1', 'top');
+    const c = [{ x: 0, y: 0 }, { x: 80, y: 0 }, { x: 80, y: 40 }, { x: 0, y: 40 }];
+    for (let i = 0; i < 4; i++) s = addLine(s, c[i], c[(i + 1) % 4])[0];
+    doc.sketches.sk1 = s;
+    doc.features.push({ id: 'f1', type: 'extrude', name: 'B', sketchId: 'sk1', suppressed: false, op: 'boss', end: 'blind', depth: 10, reverse: false });
+    const body = rebuildDocument(doc).bodies[0];
+    const edge = body.edges.find((e) => e.straight && Math.abs(e.centroid.y - 10) < 1e-6 && Math.abs(e.length - 80) < 1e-6)!;
+    doc.features.push({ id: 'r1', type: 'fillet', name: 'Fillet1', suppressed: false, size: 2, edges: [edgeRef(edge)] } as never);
+    const lossPerMm = (1 - Math.PI / 4) * 4;
+    expect(Math.abs(meshVolume(rebuildDocument(doc).bodies[0].geometry) - (32000 - lossPerMm * 80))).toBeLessThan(2);
+    // a notch 10 wide across both long edges, inserted before the fillet: the filleted edge is now two edges of 35
+    let n = createSketch('sk2', 'Sketch2', 'top');
+    for (const [y0, y1] of [[-5, 5], [35, 45]]) {
+      const q = [{ x: 35, y: y0 }, { x: 45, y: y0 }, { x: 45, y: y1 }, { x: 35, y: y1 }];
+      for (let i = 0; i < 4; i++) n = addLine(n, q[i], q[(i + 1) % 4])[0];
+    }
+    doc.sketches.sk2 = n;
+    doc.features.splice(1, 0, { id: 'f2', type: 'extrude', name: 'Cut', sketchId: 'sk2', suppressed: false, op: 'cut', end: 'throughAll', depth: 0, reverse: false });
+    const after = rebuildDocument(doc);
+    expect(after.errors.r1).toBeUndefined();
+    const v = meshVolume(after.bodies[0].geometry);
+    // both halves rounded (70 mm of edge), not one (35 mm)
+    expect(Math.abs(v - (31000 - lossPerMm * 70))).toBeLessThan(3);
+  });
+});

@@ -1017,6 +1017,9 @@ export interface State {
   /** an imported file (STL: one mesh; STEP: one mesh per solid) as Imported features, one per body */
   importMesh(source: string, positions: number[] | number[][]): void;
   setUnits(u: Units): void;
+  /** drag in the design tree: the feature (with its absorbed sketches) right below another one (null: to the top);
+   *  false when the move is not allowed (parent/child) or would make a feature fail */
+  reorderFeature(id: Id, afterId: Id | null): boolean;
   renameDocument(name: string): void;
   newSketch(plane: Sketch['plane']): void;
   editSketch(id: Id): void;

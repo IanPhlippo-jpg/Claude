@@ -254,11 +254,12 @@ export interface EquationResult {
   variables: Record<string, number>;
 }
 
-/** File Properties in an equation ("SW-Density@Part1"): the density of the part material in g/mm³ (as MMGS) */
-export const FILE_PROPERTIES = ['SW-Density'];
+/** File Properties in an equation ("Density@Part1"): the density of the part material in g/mm³ (as MMGS) */
+export const FILE_PROPERTIES = ['Density'];
 export function fileProperty(doc: Pick<Document, 'material'>, name: string): number | undefined {
   const base = name.replace(/@.*$/, '');
-  if (base === 'SW-Density' && doc.material) return doc.material.density / 1e6;
+  // (files of 0.5.1 wrote it with a vendor prefix: still read)
+  if (/^(?:SW-)?Density$/.test(base) && doc.material) return doc.material.density / 1e6;
   return undefined;
 }
 

@@ -1,5 +1,5 @@
 import { sensorAlarm, sensorReading } from '../sensors';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useStore } from '../store';
 import { useShallow } from 'zustand/react/shallow';
 import { Menu, TreeView, type MenuItem, type TreeNode } from '../../ui/components';
@@ -8,6 +8,7 @@ import { restoreSnapshot } from '../assemblyCommands';
 import { activeConfiguration, configurations } from '../../core/document/configurations';
 import { PLANE_LABELS } from '../viewport/camera';
 import type { Mate } from '../../core/document/types';
+import { mateStatus } from '../../core/assembly/mateStatus';
 
 export const MATE_ICON: Partial<Record<Mate['type'], React.ReactNode>> = {
   coincident: <Icon.MateCoincident />,
@@ -40,6 +41,9 @@ export function AssemblyTreeBody() {
   const components = st.doc.components ?? [];
   const mates = st.doc.mates ?? [];
   const compName = (id: string) => components.find((c) => c.id === id)?.name ?? '?';
+  // (f) fixed, (-) can still move, (+) one of its mates conflicts, nothing when fully defined (QA v0.5.1 F108)
+  const status = useMemo(() => mateStatus(components, mates), [components, mates]);
+  const PREFIX = { fixed: '(f) ', under: '(-) ', over: '(+) ', full: '' } as const;
   const componentNodes: TreeNode[] = components
     .filter((c) => !q || c.name.toLowerCase().includes(q))
     .map((c) => ({
@@ -47,7 +51,7 @@ export function AssemblyTreeBody() {
       icon: <Icon.Part />,
       label: (
         <span className={c.hidden ? 'k-muted' : ''}>
-          {c.fixed ? '(f) ' : '(-) '}
+          {PREFIX[status.components[c.id] ?? (c.fixed ? 'fixed' : 'under')]}
           {c.virtual ? `[${c.name.replace(/<\d+>$/, '')}^${st.doc.name}]${/<\d+>$/.exec(c.name)?.[0] ?? ''}` : c.name} ({c.configuration ?? activeConfiguration(c.part).name}){c.envelope ? ' (envelope)' : ''}
           {c.hidden ? ' (hidden)' : ''}
         </span>
@@ -76,10 +80,11 @@ export function AssemblyTreeBody() {
       id: m.id,
       icon: MATE_ICON[m.type],
       label: (
-        <span>
+        <span className={status.violated.has(m.id) ? 'k-mate-error' : ''} title={status.violated.has(m.id) ? 'This mate cannot be met together with the other mates (over defined).' : undefined}>
           {m.name} ({compName(m.refs[0].componentId)},{compName(m.refs[1].componentId)})
         </span>
       ),
+      tail: status.violated.has(m.id) ? <span className="status conflict" data-testid="mate-error" title="Over defined: this mate conflicts with others">!</span> : null,
       selected: st.selectedFeatureId === m.id,
       suppressed: m.suppressed,
       onClick: (e) => st.setSelectedFeature(e.ctrlKey && st.selectedFeatureId === m.id ? null : m.id),

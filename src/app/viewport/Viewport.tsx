@@ -39,6 +39,7 @@ import * as THREE from 'three';
 import { lastRectangle } from '../../core/sketch/lastShape';
 import { bodyEdges, matchEdge, subEdgeAt } from '../../core/features/edgesets';
 import { confirmUnlessHidden, pickForDraft } from './draftPicks';
+import { createRenderer } from './glSetup';
 import { roundPreviewShapes } from '../../core/features/round';
 import { faceOwner } from '../../core/features/faceOwner';
 import { threadPreviewCurves, threadTool } from '../../core/features/thread';
@@ -49,7 +50,7 @@ import { FeatureTreeBody } from '../panels/FeatureTreeBody';
 import { CadCamera, getPlane, planeLabel, REFERENCE_PLANES, sketchToWorld, type PlaneId } from './camera';
 import { readColors, SketchScene } from './sketchScene';
 import { motionTransforms } from '../../core/assembly/motion';
-import { MotionTimeline } from './MotionTimeline';
+import { lazyNamed } from '../lazy';
 import { BodyScene } from './bodyScene';
 import { mergeGeometries, planeMatrix } from '../../core/features/solid';
 import { edgeFlangeOnBody, featureGeometry, hemAsFlange, jogOnBody, miterFlangeOnBody, rebuildDocument, sketchedBendOnBody, threadSpecOf } from '../../core/features/rebuild';
@@ -69,7 +70,7 @@ import type { SketchPoint } from '../../core/sketch/types';
 import { updateConstraint } from '../../core/sketch/model';
 import { hitTest, sketchBounds } from '../../core/sketch/geometry';
 import { relationsForSelection } from '../../core/sketch/relations';
-
+const MotionTimeline = lazyNamed(() => import('./MotionTimeline'), 'MotionTimeline', true); // loads when first opened (F118)
 let sharedCamera: CadCamera | null = null;
 export function getCamera(): CadCamera {
   if (!sharedCamera) sharedCamera = new CadCamera();
@@ -98,6 +99,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
   }, []);
   const tools = useMemo(() => new ToolController(), []);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
+  const [noWebGL, setNoWebGL] = useState(false);
   const envCache = useRef<Record<string, THREE.Texture>>({});
   const envRef = useRef<THREE.Texture | null>(null);
   const [size, setSize] = useState({ w: 1, h: 1 });
@@ -122,14 +124,11 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
   const solve = st.activeSketchId ? st.solve[st.activeSketchId] ?? null : null;
   const plane: PlaneId = sketch?.plane ?? 'front';
   const theme = st.theme;
-
   // renderer setup
   useEffect(() => {
     const canvas = canvasRef.current!;
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-    renderer.setPixelRatio(window.devicePixelRatio || 1);
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    const renderer = createRenderer(canvas, bodies);
+    if (!renderer) { setNoWebGL(true); return; }
     rendererRef.current = renderer;
     scene.scene.add(bodies.group, bodies.lights);
     const host = hostRef.current!;
@@ -1434,6 +1433,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
       onContextMenu={onContextMenu}
     >
       <canvas ref={canvasRef} style={{ display: 'block', width: '100%', height: '100%' }} />
+      {noWebGL && <div className="k-nogl" data-testid="no-webgl">This computer cannot show 3D graphics (WebGL is off or the graphics driver is missing). Update the graphics driver, or turn on hardware acceleration in the browser.</div>}
       <Overlay
         sketch={sketch ?? profileSketch ?? dimSketch}
         solve={sketch ? solve : profileSketch ? st.solve[profileSketch.id] ?? null : dimSketch ? st.solve[dimSketch.id] ?? null : null}

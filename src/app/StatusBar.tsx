@@ -8,6 +8,7 @@ import { Menu } from '../ui/components';
 import { bridge } from './viewport/bridge';
 import { sampleEntity } from '../core/sketch/geometry';
 import { faceMeasure } from '../core/features/measure';
+import { mateStatus } from '../core/assembly/mateStatus';
 
 const STATUS_TEXT: Record<string, string> = {
   under: 'Under Defined',
@@ -98,6 +99,12 @@ export function StatusBar({ hint: hint0 }: { hint: string }) {
   const msg = st.messages[st.messages.length - 1];
   const sketchName = sketch?.name ?? null;
   const status = sketchStatus(sketch, solve);
+  // an assembly: Under / Fully / Over Defined from its mates (QA v0.5.1 F108)
+  const asmStatus = useMemo(() => {
+    if (st.doc.kind !== 'assembly' || !(st.doc.components ?? []).length) return null;
+    const s = Object.values(mateStatus(st.doc.components ?? [], st.doc.mates ?? []).components);
+    return s.includes('over') ? 'Over Defined' : s.includes('under') ? 'Under Defined' : 'Fully Defined';
+  }, [st.doc]);
   const u = st.doc.units;
   const faceted = st.rebuild.bodies.filter((b) => !b.exact).length;
   const coord = (v: number) => `${Math.round(v * 100) / 100}${u}`;
@@ -202,6 +209,7 @@ export function StatusBar({ hint: hint0 }: { hint: string }) {
         </span>
       )}
       {st.doc.kind === 'drawing' && !st.activeSketchId && <span className="k-status-cell status under">Under Defined</span>}
+      {asmStatus && !st.activeSketchId && <span className={`k-status-cell status ${asmStatus === 'Over Defined' ? 'over' : asmStatus === 'Fully Defined' ? 'full' : 'under'}`} data-testid="status-assembly">{asmStatus}</span>}
       {st.rebuild.pending && (
         // a heavy part rebuilds in the rebuild worker: the window stays usable, the old result stays shown (QA F46)
         <span className="k-status-cell k-status-rebuilding" data-testid="status-rebuilding" title="The part is rebuilding in the background; the model updates when it is done.">

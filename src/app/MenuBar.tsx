@@ -12,6 +12,9 @@ import { desktop, getDocumentHandle, setDocumentHandle } from './desktop';
 import { viewerHtml } from '../core/document/viewerExport';
 import { applyUpAxis as setUpAxis } from './viewport/camera';
 import { getPref, loadPrefs } from './prefs';
+import { clearAutoRecover } from './autoRecover';
+import { exportSheet } from './drawing/sheetExport';
+import { isDrawing } from '../core/document/types';
 import { getCamera } from './viewport/Viewport';
 
 /** the version from package.json (vite define) */
@@ -69,6 +72,7 @@ export async function saveDocument(forceAsk = false, confirmedErrors = false): P
     const name = r.name.replace(/\.kcad$/i, '');
     if (name !== doc.name) useStore.getState().renameDocument(name);
     useStore.setState({ dirty: false });
+    clearAutoRecover(doc.name);
     pushMessage(`${r.name} saved.`);
     return true;
   }
@@ -274,6 +278,8 @@ export function MenuBar() {
       { label: 'Save As ▸ 3MF (*.3mf)…', onSelect: () => { useStore.setState({ exportFormat: '3mf' }); st.setDialog('exportOptions'); } },
       { label: 'Save As ▸ AMF (*.amf)…', onSelect: () => { useStore.setState({ exportFormat: 'amf' }); st.setDialog('exportOptions'); } },
       { label: 'Save As ▸ STEP AP214 (*.step)…', disabled: !st.rebuild.bodies.length, onSelect: () => { useStore.setState({ exportFormat: 'step' }); st.setDialog('exportOptions'); } },
+      // a drawing: the active sheet as vectors (QA v0.5.1 F114)
+      ...(isDrawing(st.doc) ? [{ label: 'Save As ▸ DXF (*.dxf)…', onSelect: () => void exportSheet('dxf') }, { label: 'Save As ▸ Adobe PDF (*.pdf)…', onSelect: () => void exportSheet('pdf') }] : []),
       { label: 'Save All', onSelect: () => saveDocument() },
       { separator: true },
       { label: 'Print…', icon: <Icon.Print />, shortcut: 'Ctrl+P', onSelect: () => window.print() },

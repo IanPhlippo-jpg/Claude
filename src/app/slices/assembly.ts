@@ -527,6 +527,11 @@ export const assemblySlice = (set: StoreSet, get: StoreGet): Pick<State, Assembl
     // keep the solved positions so later moves start from the mated state
     const solved = (rebuild as unknown as { components?: Component[] }).components;
     if (solved) d = { ...d, components: (d.components ?? []).map((c) => solved.find((x) => x.id === c.id) ?? c) };
+    // Lock rotation: the turn about the shaft is held as the solved mate leaves it
+    if (draft.type === 'concentric' && draft.lockRotation && !draft.base) {
+      const ca = d.components?.find((c) => c.id === draft.refs[0].componentId), cb = d.components?.find((c) => c.id === draft.refs[1].componentId);
+      if (ca && cb) d = { ...d, mates: (d.mates ?? []).map((m) => (m.id === draft.id ? { ...m, base: { a: { position: [...ca.position], rotation: [...ca.rotation] }, b: { position: [...cb.position], rotation: [...cb.rotation] } } } : m)) };
+    }
     // the new mate stays selected: its faces light up in cyan, by design
     set({ doc: d, rebuild, mateEdit: null, selectedFace: null, selectedFaces: [], selectedFeatureId: draft.id, dirty: true, ...historyFlags() });
     autosave(d);

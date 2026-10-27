@@ -304,6 +304,42 @@ export function buildEquations(
           } else throw new EquationBuildError('equal needs two lines or two circular entities');
           break;
         }
+        case 'intersection': {
+          // the point on both curves
+          const p = resolvePoint(s, c.refs[0]);
+          for (const id of c.refs.slice(1)) {
+            const e = entityOf(s, id);
+            if (e.kind === 'line') eqPointOnLine(cid, p, e.p1, e.p2);
+            else if (e.kind === 'circle' || e.kind === 'arc') eqPointOnCircle(cid, p, e.center, e.r);
+            else throw new EquationBuildError('intersection needs lines, circles or arcs');
+          }
+          break;
+        }
+        case 'merge': {
+          const [a, b] = c.refs.map((r) => resolvePoint(s, r));
+          eqCoincident(cid, a, b);
+          break;
+        }
+        case 'equalCurvature': {
+          // the first stretch of the spline from the common end keeps the other curve's curvature: its next two
+          // through-points lie on the line (curvature 0) or on the arc's circle (curvature 1/r), so the spline
+          // leaves the end with the same tangent and the same curvature (G2)
+          const sp = entityOf(s, c.refs[0]), other = entityOf(s, c.refs[1]);
+          if (sp.kind !== 'spline' || sp.points.length < 3) throw new EquationBuildError('equal curvature needs a spline of three or more points');
+          const ends = other.kind === 'line' ? [other.p1, other.p2] : other.kind === 'arc' ? [other.start, other.end] : [];
+          const gap = (pid: Id) => {
+            const q = s.points[pid];
+            if (other.kind === 'circle') { const cc = s.points[other.center]; return Math.abs(Math.hypot(q.x - cc.x, q.y - cc.y) - s.scalars[other.r]); }
+            return Math.min(...ends.map((e) => Math.hypot(q.x - s.points[e].x, q.y - s.points[e].y)));
+          };
+          const pts = gap(sp.points[0]) <= gap(sp.points[sp.points.length - 1]) ? sp.points : [...sp.points].reverse();
+          for (const p of pts.slice(1, 3)) {
+            if (other.kind === 'line') eqPointOnLine(cid, p, other.p1, other.p2);
+            else if (other.kind === 'circle' || other.kind === 'arc') eqPointOnCircle(cid, p, other.center, other.r);
+            else throw new EquationBuildError('equal curvature needs a line or an arc');
+          }
+          break;
+        }
         case 'concentric': {
           const A = circleLike(s, c.refs[0]), B = circleLike(s, c.refs[1]);
           eqCoincident(cid, A.center, B.center);

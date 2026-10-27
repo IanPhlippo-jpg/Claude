@@ -245,7 +245,12 @@ export interface TreeNode {
   onHover?: (on: boolean) => void;
   /** start expanded (default: only the top level) */
   defaultOpen?: boolean;
+  /** Reorder by dragging: the row can be dragged, and a dragged row can be dropped below it when allowed */
+  drag?: { canDrop: (sourceId: string) => boolean; onDrop: (sourceId: string) => void };
 }
+
+/** the row being dragged (dragover cannot read the drag data) */
+let dragSource: string | null = null;
 
 /** a selected or active row somewhere below this node */
 function hasSelectedBelow(n: TreeNode): boolean {
@@ -260,13 +265,27 @@ function TreeRow({ node, depth }: { node: TreeNode; depth: number }) {
   useEffect(() => {
     if (selectedBelow) setOpen(true);
   }, [selectedBelow]);
+  // dragged over: a line below the row where the dragged feature will go; no line (and the no-drop cursor) where it may not
+  const [dropHere, setDropHere] = useState(false);
+  const drag = node.drag;
   return (
     <>
       <div
-        className={`k-tree-row ${node.selected ? 'selected' : ''} ${node.active ? 'active' : ''} ${node.suppressed ? 'suppressed' : ''}`}
+        className={`k-tree-row ${node.selected ? 'selected' : ''} ${node.active ? 'active' : ''} ${node.suppressed ? 'suppressed' : ''} ${dropHere ? 'drop-below' : ''}`}
         data-id={node.id}
         data-depth={depth}
         style={{ paddingLeft: depth === 0 ? 0 : 4 + (depth - 1) * 16 }}
+        draggable={!!drag}
+        onDragStart={drag ? (e) => { dragSource = node.id; e.dataTransfer.setData('application/x-phlippo-tree', node.id); e.dataTransfer.effectAllowed = 'move'; } : undefined}
+        onDragEnd={drag ? () => { dragSource = null; } : undefined}
+        onDragOver={drag ? (e) => {
+          const ok = !!dragSource && dragSource !== node.id && drag.canDrop(dragSource);
+          if (ok) e.preventDefault();
+          e.dataTransfer.dropEffect = ok ? 'move' : 'none';
+          if (ok !== dropHere) setDropHere(ok);
+        } : undefined}
+        onDragLeave={drag ? () => setDropHere(false) : undefined}
+        onDrop={drag ? (e) => { e.preventDefault(); setDropHere(false); const src = dragSource; dragSource = null; if (src && src !== node.id) drag.onDrop(src); } : undefined}
         onClick={node.onClick}
         onDoubleClick={node.onDoubleClick}
         onContextMenu={node.onContextMenu}

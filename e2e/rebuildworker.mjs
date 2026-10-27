@@ -76,6 +76,15 @@ const watchFrames = () => page.evaluate(() => {
 });
 const stopFrames = () => page.evaluate(() => { window.__watching = false; return { gap: window.__gap, frames: window.__frames }; });
 
+// what one ordinary redraw of this part costs on this machine (a new document object, no rebuild): with software GL
+// (a CI runner without graphics card) drawing alone takes a few hundred ms. The rebuild may add at most 150 ms on top
+// of that; on a graphics card the limit stays 250 ms (QA v0.5.1 F125).
+const redraw = await page.evaluate(() => new Promise((ok) => {
+  let last = performance.now(), gap = 0, n = 0;
+  const tick = (t) => { gap = Math.max(gap, t - last); last = t; if (++n < 10) requestAnimationFrame(tick); else ok(gap); };
+  requestAnimationFrame((t) => { last = t; const s = window.__phlippoStore; s.setState({ doc: { ...s.getState().doc } }); requestAnimationFrame(tick); });
+}));
+const limit = Math.max(250, redraw + 150);
 await watchFrames();
 const t0 = Date.now();
 const applied = await page.evaluate(() => {
@@ -92,8 +101,8 @@ await page.screenshot({ path: `${OUT}/rebuildworker-busy.png` });
 await settled();
 const worker = Date.now() - t0;
 const frames = await stopFrames();
-check('the window kept drawing frames during the rebuild (no gap over 250 ms)', frames.gap < 250, JSON.stringify({ ...frames, workerMs: worker }));
-console.log('frames', JSON.stringify({ ...frames, workerMs: worker }));
+check(`the window kept drawing frames during the rebuild (no gap over ${Math.round(limit)} ms)`, frames.gap < limit, JSON.stringify({ ...frames, workerMs: worker, redraw: Math.round(redraw) }));
+console.log('frames', JSON.stringify({ ...frames, workerMs: worker, redraw: Math.round(redraw) }));
 s = await state();
 check('the new model replaces the old one (depth 12)', s.bodies === 1 && Math.abs(s.volume - expected(12)) / expected(12) < 0.01 && Object.keys(s.errors).length === 0, `${s.volume.toFixed(0)} vs ${expected(12).toFixed(0)}`);
 check('Rebuilding… is gone', (await page.locator('[data-testid="status-rebuilding"]').count()) === 0);

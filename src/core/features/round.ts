@@ -84,6 +84,77 @@ export function roundTool(s: CreaseSegment, kind: 'fillet' | 'chamfer', size: nu
   return { geometry: prism(poly, s, dir), convex };
 }
 
+/**
+ * One tool for a whole curved edge chain (a rim, an arc): the cross-section at every joint of the chain, lofted from
+ * joint to joint (a ring for a closed chain). A tool per facet meant dozens of booleans on nearly touching faces, and
+ * some of them failed and took a slice too much or too little (QA v0.5.1 F110: a revolved rim lost 923 mm³ for 356).
+ * Null when the chain is not one connected run or its joints are not all convex or all concave.
+ */
+export function chainTool(e: BodyEdge, kind: 'fillet' | 'chamfer', size: number, nArc = 12): { geometry: THREE.BufferGeometry; convex: boolean } | null {
+  const segs = e.segments;
+  if (e.straight || segs.length < 3) return null;
+  for (let i = 0; i + 1 < segs.length; i++) if (segs[i].b.distanceTo(segs[i + 1].a) > 1e-4) return null;
+  const closed = e.closed && segs[segs.length - 1].b.distanceTo(segs[0].a) < 1e-4;
+  // face 1 of every segment on the same side as face 1 of the first
+  const n1s: THREE.Vector3[] = [], n2s: THREE.Vector3[] = [];
+  for (const sg of segs) {
+    const p1 = n1s[n1s.length - 1];
+    const swap = !!p1 && p1.dot(sg.n2) > p1.dot(sg.n1);
+    n1s.push((swap ? sg.n2 : sg.n1).clone().normalize());
+    n2s.push((swap ? sg.n1 : sg.n2).clone().normalize());
+  }
+  const dirs = segs.map((sg) => sg.b.clone().sub(sg.a).normalize());
+  const joints = closed ? segs.length : segs.length + 1;
+  const sections: THREE.Vector3[][] = [];
+  let convex: boolean | null = null;
+  for (let i = 0; i < joints; i++) {
+    const prev = i > 0 ? i - 1 : closed ? segs.length - 1 : -1, next = i < segs.length ? i : -1;
+    const avg = (v: THREE.Vector3[]) => (prev < 0 ? v[next].clone() : next < 0 ? v[prev].clone() : v[prev].clone().add(v[next])).normalize();
+    const dir = avg(dirs), n1 = avg(n1s), n2 = avg(n2s);
+    let o = next >= 0 ? segs[next].a.clone() : segs[prev].b.clone();
+    // the open ends a little past the edge, as the single tools do
+    if (prev < 0) o = o.addScaledVector(dir, -2 * EPS);
+    if (next < 0) o = o.addScaledVector(dir, 2 * EPS);
+    const t1 = dir.clone().cross(n1).normalize(), t2 = dir.clone().cross(n2).normalize();
+    if (t1.dot(n2) > 0) t1.negate();
+    if (t2.dot(n1) > 0) t2.negate();
+    const cvx = t1.clone().add(t2).dot(n1.clone().add(n2)) < 0;
+    if (convex === null) convex = cvx;
+    else if (cvx !== convex) return null;
+    const phi = Math.acos(Math.max(-1, Math.min(1, t1.dot(t2))));
+    if (phi < 0.05 || phi > Math.PI - 0.05) return null;
+    const outward = n1.clone().add(n2).normalize().multiplyScalar(cvx ? 1 : -1);
+    const d = kind === 'fillet' ? size / Math.tan(phi / 2) : size;
+    sections.push(profilePoly(o, t1, t2, n1, n2, cvx, outward, kind, d, d, Math.sin(phi / 2), kind === 'fillet' ? nArc : 1));
+  }
+  return { geometry: loftChain(sections, closed), convex: !!convex };
+}
+
+/** a solid through cross-sections with the same number of points: ruled sides, end caps unless it closes on itself */
+function loftChain(sections: THREE.Vector3[][], closed: boolean): THREE.BufferGeometry {
+  const pos: number[] = [];
+  const push = (...v: THREE.Vector3[]) => { for (const p of v) pos.push(p.x, p.y, p.z); };
+  const n = sections[0].length, m = sections.length;
+  for (let k = 0; k < (closed ? m : m - 1); k++) {
+    const a = sections[k], b = sections[(k + 1) % m];
+    for (let i = 0; i < n; i++) {
+      const j = (i + 1) % n;
+      push(a[i], a[j], b[j]);
+      push(a[i], b[j], b[i]);
+    }
+  }
+  if (!closed) {
+    const a = sections[0], b = sections[m - 1];
+    for (let i = 1; i + 1 < n; i++) {
+      push(a[0], a[i + 1], a[i]);
+      push(b[0], b[i], b[i + 1]);
+    }
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  return orientOutward(g);
+}
+
 /** Fillet / chamfer options of the Property Panel. */
 export interface RoundOptions {
   /** asymmetric: the distance on the second face (chamfer D2, fillet asymmetric) */
@@ -131,7 +202,12 @@ function loftPrism(a: THREE.Vector3[], b: THREE.Vector3[]): THREE.BufferGeometry
   }
   const g = new THREE.BufferGeometry();
   g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
-  // outward winding
+  return orientOutward(g);
+}
+
+/** turn the triangles of a closed triangle soup outward (positive volume) */
+function orientOutward(g: THREE.BufferGeometry): THREE.BufferGeometry {
+  const pos = g.getAttribute('position').array;
   let v = 0;
   for (let i = 0; i + 8 < pos.length; i += 9) v += (pos[i] * (pos[i + 4] * pos[i + 8] - pos[i + 5] * pos[i + 7]) - pos[i + 1] * (pos[i + 3] * pos[i + 8] - pos[i + 5] * pos[i + 6]) + pos[i + 2] * (pos[i + 3] * pos[i + 7] - pos[i + 4] * pos[i + 6])) / 6;
   if (v < 0) {
@@ -174,6 +250,8 @@ export function roundToolsOpts(edges: BodyEdge[], kind: 'fillet' | 'chamfer', si
   const adders: THREE.BufferGeometry[] = [];
   edges.forEach((e, ei) => {
     const base = o2.radii?.[ei] ?? size;
+    const chain = !o2.variable && !o2.partial && !o2.size2 && (!o2.profile || o2.profile === 'circular') ? chainTool(e, kind, base) : null;
+    if (chain) { (chain.convex ? cutters : adders).push(chain.geometry); return; }
     const total = e.segments.reduce((acc, sg) => acc + sg.a.distanceTo(sg.b), 0) || 1;
     let run = 0;
     for (const s0 of e.segments) {
@@ -255,6 +333,8 @@ export function roundTools(edges: BodyEdge[], kind: 'fillet' | 'chamfer', size: 
   const cutters: THREE.BufferGeometry[] = [];
   const adders: THREE.BufferGeometry[] = [];
   for (const e of edges) {
+    const chain = chainTool(e, kind, size);
+    if (chain) { (chain.convex ? cutters : adders).push(chain.geometry); continue; }
     for (const s of e.segments) {
       const t = roundTool(s, kind, size, e.straight ? 10 : 6);
       if (!t) continue;

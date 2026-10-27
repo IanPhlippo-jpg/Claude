@@ -67,9 +67,9 @@ await S(() => { const s = window.__phlippoStore.getState(); s.setEquations(s.doc
 await page.waitForTimeout(500);
 r = await S(() => window.__phlippoStore.getState().doc.features.find((f) => f.id === 'e1').depth);
 check('changing "Width" to 60 makes the depth 30', r === 30, String(r));
-// a file property: SW-Density of the material (g/mm³)
-r = await S(() => window.__phlippoKit.evaluateFieldExpression(window.__phlippoStore.getState().doc, '"SW-Density@Videos56" * 1000'));
-check('File Properties: "SW-Density" is the material density (7.8 g/cm³)', Math.abs(r - 7.8) < 1e-9, String(r));
+// a file property: Density of the material (g/mm³)
+r = await S(() => window.__phlippoKit.evaluateFieldExpression(window.__phlippoStore.getState().doc, '"Density@Videos56" * 1000'));
+check('File Properties: "Density" is the material density (7.8 g/cm³)', Math.abs(r - 7.8) < 1e-9, String(r));
 
 // ---- status bar readouts on model geometry: a face (Area + Perimeter)
 await S(() => { const s = window.__phlippoStore.getState(); const b = s.rebuild.bodies[0]; const f = b.faces.find((x) => x.normal[1] > 0.999); s.setSelectedFace({ bodyId: b.id, faceId: f.id }); });

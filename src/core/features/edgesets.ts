@@ -323,6 +323,39 @@ export function matchEdge(edges: BodyEdge[], ref: EdgeRef, tol: number = TOL.ref
 }
 
 /**
+ * The edges a reference points to after a rebuild. A straight edge that a feature inserted before it split into pieces
+ * (a slot across it) gives all of its pieces: the edges of the same kind on the same line, with the same faces, inside
+ * the old edge (QA v0.5.1 F111: only the nearest piece was rounded). Otherwise the one edge `matchEdge` finds.
+ */
+export function matchEdges(edges: BodyEdge[], ref: EdgeRef, tol: number = TOL.reference): BodyEdge[] {
+  const pieces = splitPieces(edges, ref);
+  if (pieces.length > 1) return pieces;
+  const e = matchEdge(edges, ref, tol);
+  return e ? [e] : [];
+}
+
+function splitPieces(edges: BodyEdge[], ref: EdgeRef): BodyEdge[] {
+  if (!ref.straight || ref.closed || !ref.dir) return [];
+  const c = new THREE.Vector3(...ref.centroid), dir = new THREE.Vector3(...ref.dir).normalize();
+  const half = ref.length / 2 + 1e-3;
+  const inside = (q: THREE.Vector3) => {
+    const d = q.clone().sub(c);
+    const t = d.dot(dir);
+    return Math.abs(t) <= half && d.addScaledVector(dir, -t).length() < 1e-3;
+  };
+  const pieces = edges.filter((e) => {
+    if (!e.straight || e.closed || e.length > ref.length - 1e-3) return false;
+    if (Math.abs(edgeDir(e).dot(dir)) < 0.9999 || !e.points.every(inside)) return false;
+    if (ref.faces) {
+      const f = edgeFaces(e);
+      return !!f && f[0] === ref.faces[0] && f[1] === ref.faces[1];
+    }
+    return sameNormals(e, ref);
+  });
+  return pieces.length > 1 ? pieces : [];
+}
+
+/**
  * The edge moved or changed length (an earlier feature was edited): the edge of the same kind with the same direction
  * and the same two faces, nearest to where it was. Ambiguous cases (two equally near candidates) are not guessed.
  */

@@ -32,6 +32,9 @@ const LABELS: Record<ConstraintKind, string> = {
   symmetric: 'Symmetric',
   fix: 'Fix',
   pierce: 'Pierce',
+  intersection: 'Intersection',
+  merge: 'Merge',
+  equalCurvature: 'Equal Curvature',
   distance: 'Distance',
   hDistance: 'Horizontal distance',
   vDistance: 'Vertical distance',
@@ -78,6 +81,7 @@ export function relationsForSelection(s: Sketch, sel: SelectionItem[]): Relation
     push('coincident', allPoints);
     push('horizontal', allPoints);
     push('vertical', allPoints);
+    push('merge', allPoints);
   }
   if (allPoints.length === 1 && lines.length === 1 && ents.length - ptEnts.length === 1) {
     push('pointOnEntity', [allPoints[0], lines[0].id]);
@@ -85,6 +89,15 @@ export function relationsForSelection(s: Sketch, sel: SelectionItem[]): Relation
   }
   if (allPoints.length === 1 && circles.length === 1 && ents.length - ptEnts.length === 1) {
     push('pointOnEntity', [allPoints[0], circles[0].id]);
+  }
+  // a point and two curves: the point at their crossing
+  if (allPoints.length === 1 && lines.length + circles.length === 2 && ents.length - ptEnts.length === 2) {
+    push('intersection', [allPoints[0], ...[...lines, ...circles].map((e) => e.id)]);
+  }
+  // a spline and a line or arc that meet: Equal Curvature at the common end
+  const splines = ents.filter((e) => e.kind === 'spline');
+  if (allPoints.length === 0 && splines.length === 1 && lines.length + circles.length === 1 && ents.length === 2) {
+    push('equalCurvature', [splines[0].id, (lines[0] ?? circles[0]).id]);
   }
   if (allPoints.length === 0 && lines.length === 1 && ents.length === 1) {
     push('horizontal', [lines[0].id]);

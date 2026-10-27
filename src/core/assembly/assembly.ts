@@ -206,6 +206,14 @@ export function solveMate(mate: Mate, fixed: Component, mov: Component, movIdx: 
       const cur = M();
       const target = cur.n.dot(F.n) < 0 && !mate.aligned ? F.n.clone().negate() : F.n.clone();
       alignDir(mate.aligned ? F.n.clone() : target);
+      // Lock rotation: the turn about the shaft stays as it was when the mate was made (base: both components then)
+      if (mate.lockRotation && mate.base) {
+        const qa = new THREE.Quaternion(...mate.base.a.rotation), qb = new THREE.Quaternion(...mate.base.b.rotation);
+        const rel = qa.clone().invert().multiply(qb);
+        const qf = new THREE.Quaternion(...fixed.rotation);
+        const q = movIdx === 1 ? qf.multiply(rel) : qf.multiply(rel.invert());
+        out = { ...out, rotation: [q.x, q.y, q.z, q.w] };
+      }
       const c2 = M();
       // move the moving axis point onto the fixed axis line (perpendicular to the axis)
       const d = F.p.clone().sub(c2.p);
@@ -393,22 +401,50 @@ export function solveMate(mate: Mate, fixed: Component, mov: Component, movIdx: 
   return out;
 }
 
+/** which side of a mate moves when the other stays (the one further from the fixed components; as in solveMates) */
+export function movingSide(a: Component, b: Component, ground: Map<Id, number>): 0 | 1 {
+  if (a.fixed && !b.fixed) return 1;
+  if (b.fixed && !a.fixed) return 0;
+  return (ground.get(a.id) ?? Infinity) > (ground.get(b.id) ?? Infinity) ? 0 : 1;
+}
+
+/** hops from a fixed component over the mates, in both directions (unreachable: no entry) */
+export function groundDistance(components: Component[], mates: Mate[]): Map<Id, number> {
+  const d = new Map<Id, number>();
+  const queue: Id[] = [];
+  for (const c of components) if (c.fixed) { d.set(c.id, 0); queue.push(c.id); }
+  const next = new Map<Id, Id[]>();
+  for (const m of mates) {
+    if (m.suppressed) continue;
+    const [x, y] = [m.refs[0].componentId, m.refs[1].componentId];
+    next.set(x, [...(next.get(x) ?? []), y]);
+    next.set(y, [...(next.get(y) ?? []), x]);
+  }
+  while (queue.length) {
+    const id = queue.shift()!;
+    for (const o of next.get(id) ?? []) if (!d.has(o)) { d.set(o, d.get(id)! + 1); queue.push(o); }
+  }
+  return d;
+}
+
 /**
- * Solve all mates: iterate over the mates in order a few times, each one moving a component that is
- * not fixed (the second reference's component by preference). Fixed components never move.
+ * All mates of an assembly, solved by moving the free components. Per mate the component further from the fixed
+ * ones moves and the nearer one stays, whichever reference was picked first (QA v0.5.1 F109: a free part picked as the
+ * first reference was never moved); the mates nearest the fixed components go first, and the passes repeat until
+ * nothing moves any more.
  */
 export function solveMates(components: Component[], mates: Mate[], passes = 8): Component[] {
   const byId = new Map(components.map((c) => [c.id, { ...c }]));
-  const active = mates.filter((m) => !m.suppressed);
+  const ground = groundDistance(components, mates.filter((m) => !m.suppressed));
+  const far = (m: Mate) => Math.max(ground.get(m.refs[0].componentId) ?? Infinity, ground.get(m.refs[1].componentId) ?? Infinity);
+  const active = mates.filter((m) => !m.suppressed).sort((x, y) => far(x) - far(y));
   for (let pass = 0; pass < passes; pass++) {
     let moved = 0;
     for (const m of active) {
       const a = byId.get(m.refs[0].componentId), b = byId.get(m.refs[1].componentId);
-      if (!a || !b || a === b) continue;
-      let fixed: Component, mov: Component, idx: 0 | 1;
-      if (!b.fixed) { fixed = a; mov = b; idx = 1; }
-      else if (!a.fixed) { fixed = b; mov = a; idx = 0; }
-      else continue;
+      if (!a || !b || a === b || (a.fixed && b.fixed)) continue;
+      const idx = movingSide(a, b, ground);
+      const fixed = idx === 1 ? a : b, mov = idx === 1 ? b : a;
       const next = solveMate(m, fixed, mov, idx, (id) => byId.get(id));
       const delta = Math.hypot(next.position[0] - mov.position[0], next.position[1] - mov.position[1], next.position[2] - mov.position[2]) + Math.abs(1 - Math.abs(next.rotation[0] * mov.rotation[0] + next.rotation[1] * mov.rotation[1] + next.rotation[2] * mov.rotation[2] + next.rotation[3] * mov.rotation[3]));
       if (delta > 1e-7) moved++;

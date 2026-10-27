@@ -104,6 +104,8 @@ if (TEST_HOOKS) (globalThis as unknown as { __phlippoLighting?: typeof LIGHTING 
 
 /** Owns the three.js objects for solid bodies: shaded faces, edges, hover/selection overlays, preview. */
 export class BodyScene {
+  /** WebGL drawn in software (no graphics card): plain edge lines instead of the anti-aliased wide ones */
+  softwareGL = false;
   readonly group = new THREE.Group();
   private entries = new Map<string, BodyEntry>();
   private overlays = new THREE.Group();
@@ -386,7 +388,7 @@ export class BodyScene {
       edges.renderOrder = 2;
       // Shaded With Edges: the edges as 1.5 px black anti-aliased lines; the GL lines carry the HLR styles
       let fat: LineSegments2 | undefined;
-      if (style === 'shadedEdges') {
+      if (style === 'shadedEdges' && !this.softwareGL) {
         const fg = new LineSegmentsGeometry();
         fg.setPositions(Array.from(sets.edges.getAttribute('position').array as Float32Array));
         fat = new LineSegments2(fg, this.edgeMat2);

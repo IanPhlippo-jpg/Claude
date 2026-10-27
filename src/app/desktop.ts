@@ -44,6 +44,11 @@ export interface DesktopApi {
   openFile(filters: { name: string; extensions: string[] }[]): Promise<DesktopFile | null>;
   saveFile(opts: { defaultPath: string; filters: { name: string; extensions: string[] }[]; data: ArrayBuffer; handle?: string }): Promise<DesktopSaveResult | null>;
   saveFileAs(opts: { defaultPath: string; filters: { name: string; extensions: string[] }[]; data: ArrayBuffer }): Promise<DesktopSaveResult | null>;
+  /** Auto-Recover (Options ▸ Backup/Recover): copies of the open document in the auto-recover folder */
+  writeRecover?(opts: { folder: string; name: string; data: ArrayBuffer }): Promise<{ name?: string; error?: string } | null>;
+  listRecover?(folder: string): Promise<{ name: string; time: number }[]>;
+  readRecover?(opts: { folder: string; name: string }): Promise<ArrayBuffer | null>;
+  removeRecover?(opts: { folder: string; name: string }): Promise<void>;
 }
 
 export function desktop(): DesktopApi | null {

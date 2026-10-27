@@ -749,3 +749,16 @@ elease; README en docs/04 bijgewerkt
 - [x] Material-dialoog: DIN Materials, Sustainability Extras, Save model type in library
 - [x] Tooltips: maatnaam (D3@Sketch6), volledige naam bij afgekapte boomrijen
 - [x] On-screen numeric input bij lijn en cirkel
+
+## QA-rapport 0.5.1 verwerken (2026-10-27)
+- [x] Per bevinding een status in docs/25-qa-rapport-v0.5.1.md
+- [~] CI-waarheid: rebuildworker-framegap opgelost (software-GL: dunne randen, F125); qa2 + facenames + worker-pass in CI (F120); skips geteld (F119); drawing-test wacht op rust en meldt wat onder de klik ligt (F10, Linux niet lokaal te draaien); SwiftShader-schakelaar in de app wacht op Ians OK (F115)
+- [x] Assembly: solver ordent vanaf de vaste componenten, beide kanten verplaatsbaar (F109); vrijheidsgraden gemeten → (-)/(+)/niets, conflicterende mate rood, statusbalk Under/Fully/Over Defined (F108); Lock rotation werkt echt; M1/M2 als unit-tests
+- [x] Topologie: gesplitste rand in al zijn stukken afgerond (F111); afronding van een gebogen rand als één gereedschap i.p.v. één boolean per facet (F110: 923 → 359 mm³); vlaknamen voor revolve; T2/T3 als unit-tests
+- [x] Options eerlijk: wat het programma niet leest staat grijs (lijst getest tegen de broncode); AutoRecover op schijf (desktop) met interval en map, in Document Recovery; herinnering niet-opgeslagen; Length-eenheid en Mass/Section-eenheden doorgevoerd (F112)
+- [x] Feature-reorder: slepen in de boom (met de eigen schets mee), parent/child-controle (no-drop), weigeren als een feature dan faalt, Undo; unit + e2e reorder (F113)
+- [x] Tekening naar DXF (R12, mm, HIDDEN-laag) en PDF (vector, Helvetica), arcering mee, geen selectiekleur; IGES-export kan niet: de meegeleverde OCCT-build heeft alleen de IGES-reader (F114)
+- [ ] Dome, Indent, Mounting Boss (F121) — volgende ronde; Instant3D als Drag Handles vastgelegd in docs/25
+- [x] SW-Density → Density met migratie, SW- in de merknamentest (F116); Weldments blijft (vakwoord, F50); 3D ContentCentral hernoemd (F131/F132)
+- [x] Afwerking: code-splitting, hoofdbundel 919 → 827 kB (F118); auto-centermarks bij nieuwe aanzichten + weergavestijl uit Options (F122); schetsrelaties Intersection, Merge, Equal Curvature (F123; Along X/Y/Z blijft de oriëntatie tijdens 3D-schetsen); WebGL-melding (F115)
+- [~] Regressie (Windows 94/95 → qa3 opgelost, B-rep 11/11, worker 6/6), installer, commit, push

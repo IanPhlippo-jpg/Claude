@@ -10,7 +10,7 @@
  */
 import * as THREE from 'three';
 import { MeshBVH } from 'three-mesh-bvh';
-import type { PlaneDef } from '../document/types';
+import type { PlaneDef, SketchBasedFeature } from '../document/types';
 import type { Sketch } from '../sketch/types';
 import { distanceToEntity, entityLoops, sampleEntity } from '../sketch/geometry';
 
@@ -47,15 +47,72 @@ const segDist = (p: { x: number; y: number }, a: { x: number; y: number }, b: { 
   return Math.hypot(p.x - a.x - t * dx, p.y - a.y - t * dy);
 };
 
+/** the named geometry of a sketched feature; From ▸ Offset is named by the extrusion it moves, thin walls not at all */
+export function nameFeatureFaces(g: THREE.BufferGeometry, f: SketchBasedFeature, sketch: Sketch, plane: PlaneDef): THREE.BufferGeometry {
+  if (f.type === 'extrude' && !f.fromOffset && !f.thin) return nameExtrudedFaces(g, f.id, sketch, plane);
+  const axis = f.type === 'revolve' && !f.thin ? sketch.entities[f.axisEntityId] : null;
+  if (f.type === 'revolve' && axis?.kind === 'line') return nameRevolvedFaces(g, f.id, sketch, plane, f.axisEntityId, { a: sketch.points[axis.p1], b: sketch.points[axis.p2] });
+  return g;
+}
+
 /**
  * Names the faces of an extruded solid: a cap after its side of the sketch plane, a side face after the nearest
  * sketch entity (the one it was swept from). Returns the geometry non-indexed with the tags set.
  */
 export function nameExtrudedFaces(g: THREE.BufferGeometry, featureId: string, sketch: Sketch, plane: PlaneDef): THREE.BufferGeometry {
+  const o = new THREE.Vector3(...plane.origin), u = new THREE.Vector3(...plane.u), v = new THREE.Vector3(...plane.v), n = new THREE.Vector3(...plane.n);
+  const c = new THREE.Vector3();
+  return nameFaces(g, featureId, sketch, null, (centroid, normal) => {
+    const d = normal.dot(n);
+    if (Math.abs(d) > 0.98) return d > 0 ? '+' : '-';
+    c.copy(centroid).sub(o);
+    return { x: c.dot(u), y: c.dot(v) };
+  });
+}
+
+/**
+ * Names the faces of a revolved solid (QA v0.5.1 F110): a face after the profile entity it was turned from (found by
+ * turning the face back into the sketch plane), the start and end faces of a revolve under 360° as caps.
+ */
+export function nameRevolvedFaces(g: THREE.BufferGeometry, featureId: string, sketch: Sketch, plane: PlaneDef, axisEntityId: string, axis: { a: { x: number; y: number }; b: { x: number; y: number } }): THREE.BufferGeometry {
+  const o = new THREE.Vector3(...plane.origin), u = new THREE.Vector3(...plane.u), v = new THREE.Vector3(...plane.v);
+  const d2 = { x: axis.b.x - axis.a.x, y: axis.b.y - axis.a.y };
+  const dl = Math.hypot(d2.x, d2.y);
+  if (dl < 1e-9) return g.index ? g.toNonIndexed() : g;
+  d2.x /= dl; d2.y /= dl;
+  // the profile lies on one side of the axis in the sketch: the side of most of its points
+  let side = 0;
+  for (const [id, e] of Object.entries(sketch.entities)) {
+    if (id === axisEntityId || e.kind === 'point') continue;
+    for (const q of sampleEntity(sketch, e)) side += Math.sign(d2.x * (q.y - axis.a.y) - d2.y * (q.x - axis.a.x));
+  }
+  const perp = side >= 0 ? { x: -d2.y, y: d2.x } : { x: d2.y, y: -d2.x };
+  const A = o.clone().addScaledVector(u, axis.a.x).addScaledVector(v, axis.a.y);
+  const D = u.clone().multiplyScalar(d2.x).addScaledVector(v, d2.y).normalize();
+  const rad = new THREE.Vector3(), tan = new THREE.Vector3();
+  return nameFaces(g, featureId, sketch, axisEntityId, (centroid, normal) => {
+    rad.copy(centroid).sub(A);
+    const h = rad.dot(D);
+    rad.addScaledVector(D, -h);
+    const r = rad.length();
+    if (r > 1e-9) {
+      tan.crossVectors(D, rad).divideScalar(r);
+      const t = normal.dot(tan);
+      if (Math.abs(t) > 0.98) return t > 0 ? '+' : '-';
+    }
+    return { x: axis.a.x + h * d2.x + r * perp.x, y: axis.a.y + h * d2.y + r * perp.y };
+  });
+}
+
+/**
+ * The tags of a solid made from a sketch: `where` gives per triangle (centroid, unit normal) a cap side or the sketch
+ * point it came from, and that point takes the name of the nearest sketch entity.
+ */
+function nameFaces(g: THREE.BufferGeometry, featureId: string, sketch: Sketch, skip: string | null, where: (centroid: THREE.Vector3, normal: THREE.Vector3) => '+' | '-' | { x: number; y: number }): THREE.BufferGeometry {
   const ng = g.index ? g.toNonIndexed() : g;
   const pos = ng.getAttribute('position');
   const tris = Math.floor(pos.count / 3);
-  const entities = Object.entries(sketch.entities).filter(([, e]) => e.kind !== 'point' && !(e as { construction?: boolean }).construction);
+  const entities = Object.entries(sketch.entities).filter(([id, e]) => id !== skip && e.kind !== 'point' && !(e as { construction?: boolean }).construction);
   // a sketch with very many entities (text) is not worth the time: its faces stay unnamed
   if (!tris || !entities.length || tris * entities.length > 4e6) return ng;
   // the curves that are not simple are sampled once
@@ -71,7 +128,6 @@ export function nameExtrudedFaces(g: THREE.BufferGeometry, featureId: string, sk
     for (const pts of pl) for (let i = 0; i < pts.length - 1; i++) best = Math.min(best, segDist(p, pts[i], pts[i + 1]));
     return best;
   };
-  const o = new THREE.Vector3(...plane.origin), u = new THREE.Vector3(...plane.u), v = new THREE.Vector3(...plane.v), n = new THREE.Vector3(...plane.n);
   const capPlus = faceTag(`${featureId}:cap+`), capMinus = faceTag(`${featureId}:cap-`);
   const sideTags = new Map(entities.map(([id]) => [id, faceTag(`${featureId}:${id}`)]));
   const p0 = new THREE.Vector3(), p1 = new THREE.Vector3(), p2 = new THREE.Vector3(), c = new THREE.Vector3(), tn = new THREE.Vector3();
@@ -83,10 +139,9 @@ export function nameExtrudedFaces(g: THREE.BufferGeometry, featureId: string, sk
     tn.subVectors(p1, p0).cross(c.subVectors(p2, p0));
     const l = tn.length();
     if (l < 1e-12) { tags.push(0); continue; }
-    const d = tn.dot(n) / l;
-    if (Math.abs(d) > 0.98) { tags.push(d > 0 ? capPlus : capMinus); continue; }
-    c.copy(p0).add(p1).add(p2).divideScalar(3).sub(o);
-    const q = { x: c.dot(u), y: c.dot(v) };
+    c.copy(p0).add(p1).add(p2).divideScalar(3);
+    const q = where(c, tn.divideScalar(l));
+    if (q === '+' || q === '-') { tags.push(q === '+' ? capPlus : capMinus); continue; }
     let best = '', bd = Infinity;
     for (const [id, e] of entities) {
       const dd = dist(id, e, q);

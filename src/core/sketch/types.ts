@@ -115,6 +115,12 @@ export type ConstraintKind =
   | 'fix'
   /** Pierce: a point held where a curve of another sketch passes through this sketch's plane */
   | 'pierce'
+  /** a point at the crossing of two curves (QA v0.5.1 F123) */
+  | 'intersection'
+  /** two points merged into one */
+  | 'merge'
+  /** a spline that runs on with the curvature of a line or arc at their common end (G2) */
+  | 'equalCurvature'
   // dimensional
   | 'distance'
   | 'hDistance'
