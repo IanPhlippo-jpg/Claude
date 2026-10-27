@@ -44,6 +44,10 @@ Status per fase:
 8. Sheet metal (Base Flange/Tab, Edge Flange, Flatten met K-factor) — **basis gereed**; Hem/Jog/Miter/Unfold gepland
 7. Massa-eigenschappen en meten — **gereed** (Mass Properties, Measure); materialen en rendering gepland
 
+## Status 0.4.8 (2026-10-28)
+
+Elke ribbonknop heeft een tooltip met beschrijving. Een nieuwe weldment krijgt de configuraties Default<As Machined> en Default<As Welded>; As Welded onderdrukt de snedes en gaten na de Weldment-feature.
+
 ## Status 0.4.7 (2026-10-28)
 
 Vervolg van de playlist-inventaris:

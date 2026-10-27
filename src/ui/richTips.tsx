@@ -1,4 +1,5 @@
 import type { ReactElement } from 'react';
+import { TIP_TEXTS } from './tipTexts';
 
 /**
  * Rich tooltips of the Command Ribbon, by design shows them: a bold title, an illustration of what the
@@ -145,9 +146,15 @@ const DESC: Record<string, string> = {
   'Move Entities': 'Moves sketch entities by a distance or from one point to another.',
 };
 
+/** descriptions of the other commands (the command catalogue registers them): every ribbon button explains itself */
+const MORE: Record<string, string> = {};
+export function registerTipDescriptions(entries: [string, string][]): void {
+  for (const [label, desc] of entries) if (!(label in MORE)) MORE[label] = desc;
+}
+
 export function richTipFor(label: string): { title: string; art?: ReactElement; desc: string } | null {
   const key = label.replace(/\s*\(.*\)$/, '').trim();
-  const desc = DESC[key];
+  const desc = DESC[key] ?? MORE[key] ?? TIP_TEXTS[key];
   if (!desc) return null;
   const art = ART[key];
   return { title: key, desc, art: art ? <svg width={220} height={130} viewBox="0 0 220 130">{art()}</svg> : undefined };

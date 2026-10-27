@@ -663,6 +663,8 @@ elease; README en docs/04 bijgewerkt
   - [x] plaatwerk-bochten in de boom: BaseBend1…, EdgeBend1…, MiterBend1… onder hun feature
   - [x] 3D-schets: Insert Line-PM met Orientation (As sketched / Along X/Y/Z, werkt op het volgende punt) en Control Vertex Parameters X/Y/Z van het laatste punt
   - [x] Segment (Sketch Tools ▸ Segment…): Sketch points of Sketch segments, n gelijke delen (unit 3, e2e)
-  - [ ] ribbon-tooltips met beschrijving voor alle commando's
+  - [x] ribbon-tooltips met beschrijving voor alle commando's (catalogus registreert zijn beschrijvingen; 94 eigen teksten in src/ui/tipTexts.ts)
+  - [x] weldment-configuraties: een nieuwe weldment krijgt Default<As Machined> (actief) en Default<As Welded>, die de snedes en gaten na de Weldment-feature onderdrukt (unit test)
 - [x] Tests, regressie (86/86 met inventory47, unit 389), installer 0.4.6, screenshots, commit
 - [x] Release 0.4.7: unit 392, regressie 86/86, desktop, installer (Loft, Appearance, bochten in de boom, Segment, 3D-schets)
+- [x] Release 0.4.8: ribbon-tooltips voor alle knoppen, weldment-configuraties; unit 393, regressie 86/86, installer

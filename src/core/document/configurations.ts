@@ -33,6 +33,8 @@ export interface Configuration {
   known?: Id[];
   /** Use configuration specific color */
   color?: string;
+  /** Weldment ▸ As Welded: the machining features after the weldment (cuts, holes) are suppressed */
+  asWelded?: boolean;
   /** Material ▸ Config…: a material for this configuration only */
   material?: { name: string; density: number; color: string };
 }
@@ -85,7 +87,7 @@ export function applyConfiguration(doc: Document, cfg: Configuration): Document 
   let d = setDimensionValues(doc, cfg.dims);
   // Suppress new features and mates: features this configuration has not seen yet stay suppressed in it
   const known = cfg.known ? new Set(cfg.known) : null;
-  const sup = new Set([...cfg.suppressed, ...(known && cfg.suppressNew !== false ? doc.features.filter((f) => !known.has(f.id)).map((f) => f.id) : [])]);
+  const sup = new Set([...cfg.suppressed, ...(known && cfg.suppressNew !== false ? doc.features.filter((f) => !known.has(f.id)).map((f) => f.id) : []), ...(cfg.asWelded ? machiningFeatures(doc) : [])]);
   let changed = false;
   const features: Feature[] = d.features.map((f) => {
     const s = sup.has(f.id);
@@ -116,7 +118,7 @@ export function activateConfiguration(doc: Document, id: Id): Document {
 }
 
 /** Add Configuration: a copy of the active configuration's values, made active. */
-export function addConfiguration(doc: Document, name: string, extra: Partial<Pick<Configuration, 'description' | 'comment' | 'parentId' | 'descriptionInBom' | 'bomName' | 'bomUserName' | 'hideChildrenInBom' | 'suppressNew' | 'color'>> = {}): Document {
+export function addConfiguration(doc: Document, name: string, extra: Partial<Pick<Configuration, 'description' | 'comment' | 'parentId' | 'descriptionInBom' | 'bomName' | 'bomUserName' | 'hideChildrenInBom' | 'suppressNew' | 'color' | 'asWelded'>> = {}): Document {
   const list = withCaptured(doc);
   const active = list.find((c) => c.id === activeConfiguration(doc).id) ?? list[0];
   // a derived configuration starts from its parent's values
@@ -147,6 +149,24 @@ export function updateConfiguration(doc: Document, id: Id, patch: Partial<Pick<C
   const list = configurations(doc);
   const name = patch.name !== undefined ? uniqueName(list.filter((c) => c.id !== id), patch.name.trim() || 'Configuration') : undefined;
   return { ...doc, configurations: list.map((c) => (c.id === id ? { ...c, ...patch, ...(name !== undefined ? { name } : {}) } : c)) };
+}
+
+/** As Welded: the machining after the weldment — cuts and holes — that the welded part does not have yet */
+export function machiningFeatures(doc: Document): Id[] {
+  const w = doc.features.findIndex((f) => f.type === 'weldment');
+  if (w < 0) return [];
+  return doc.features.slice(w + 1).filter((f) => f.type === 'hole' || ((f.type === 'extrude' || f.type === 'revolve' || f.type === 'sweep' || f.type === 'loft') && f.op === 'cut')).map((f) => f.id);
+}
+
+/** A new weldment gets the derived configurations Default<As Machined> (shown) and Default<As Welded>, by design. */
+export function addWeldmentConfigurations(doc: Document): Document {
+  const list = configurations(doc);
+  if (list.length > 1 || list.some((c) => c.asWelded)) return doc;
+  const parentId = list[0].id;
+  let d = addConfiguration(doc, `${list[0].name}<As Machined>`, { parentId });
+  const machined = activeConfiguration(d).id;
+  d = addConfiguration(d, `${list[0].name}<As Welded>`, { parentId, asWelded: true, suppressNew: false });
+  return activateConfiguration(d, machined);
 }
 
 /** Value of a dimension in a configuration (the active configuration reads the document). */

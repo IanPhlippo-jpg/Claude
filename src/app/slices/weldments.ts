@@ -4,6 +4,7 @@
  */
 import { type StructuralMemberFeature, type TrimExtendFeature, type EndCapFeature, type WeldGussetFeature, type WeldBeadFeature } from '../../core/document/types';
 import { newId } from '../../core/sketch/model';
+import { addWeldmentConfigurations } from '../../core/document/configurations';
 import type { State, StoreSet, StoreGet } from '../store';
 
 type WeldmentsKeys =
@@ -17,7 +18,7 @@ export const weldmentsSlice = (set: StoreSet, get: StoreGet): Pick<State, Weldme
       set({ tab: 'weldments' });
       return;
     }
-    get().applyDocument('Weldment', { ...doc, weldment: true, features: [...doc.features, { id: newId('f'), type: 'weldment', name: 'Weldment', suppressed: false }] });
+    get().applyDocument('Weldment', addWeldmentConfigurations({ ...doc, weldment: true, features: [...doc.features, { id: newId('f'), type: 'weldment', name: 'Weldment', suppressed: false }] }));
     set({ tab: 'weldments', managerTab: 'tree' });
   },
   startStructuralMember() {
@@ -28,7 +29,7 @@ export const weldmentsSlice = (set: StoreSet, get: StoreGet): Pick<State, Weldme
     const sketchId = last ? (last.type === 'sketch' ? last.sketchId : last.id) : '';
     const n = doc.features.filter((f) => f.type === 'structuralMember').length + 1;
     const draft: StructuralMemberFeature = { id: newId('f'), type: 'structuralMember', name: `Structural Member${n}`, suppressed: false, sketchId, standard: 'iso', profileType: 'square tube', size: '40 x 40 x 4', corner: 'endMiter', gap: 0, mergeArcs: false, rotation: 0, mirror: false, locate: { x: 0, y: 0 } };
-    const d = doc.weldment ? doc : { ...doc, weldment: true, features: [...doc.features, { id: newId('f'), type: 'weldment' as const, name: 'Weldment', suppressed: false }] };
+    const d = doc.weldment ? doc : addWeldmentConfigurations({ ...doc, weldment: true, features: [...doc.features, { id: newId('f'), type: 'weldment' as const, name: 'Weldment', suppressed: false }] });
     set({ doc: d, featureEdit: { featureId: null, draft }, activeSketchId: null, tool: 'select', selection: [], tab: 'weldments', managerTab: 'tree', planePick: false });
   },
   startTrimExtend() {

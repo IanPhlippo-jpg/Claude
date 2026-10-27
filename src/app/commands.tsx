@@ -1,6 +1,7 @@
 import { bridge, fitActive } from './viewport/bridge';
 import type { ReactNode } from 'react';
 import { useStore } from './store';
+import { registerTipDescriptions } from '../ui/richTips';
 import { Icon } from '../ui/icons';
 import type { CadCamera } from './viewport/camera';
 
@@ -106,6 +107,9 @@ export const COMMANDS: Command[] = [
   { id: 'sm.hem', label: 'Hem', category: 'Sheet Metal', icon: <Icon.Arc />, description: 'Folds an edge back over the sheet.', run: (st) => st.startHem() },
   { id: 'sm.flatten', label: 'Flatten', category: 'Sheet Metal', icon: <Icon.Sheet />, description: 'Shows the flat pattern.', run: (st) => st.toggleFlatten() },
 ];
+
+// the descriptions of the catalogue explain the ribbon buttons too (rich tooltips), by design
+registerTipDescriptions(COMMANDS.map((c) => [c.label, c.description]));
 
 export const CATEGORIES = Array.from(new Set(COMMANDS.map((c) => c.category)));
 export const commandById = (id: string) => COMMANDS.find((c) => c.id === id);
