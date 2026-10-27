@@ -1,4 +1,5 @@
 import { WhatsWrong } from './WhatsWrong';
+import { SelectionFilterBar } from './SelectionFilterBar';
 import { bridge } from './viewport/bridge';
 import { applyUpAxis } from './viewport/camera';
 import { getPref } from './prefs';
@@ -203,6 +204,7 @@ export function App() {
           <button className="k-doctab-arrow">›</button>
           <button className={`k-doctab ${st.motionOpen ? '' : 'active'}`} onClick={() => st.setMotionOpen(false)}>Model</button>
           <button className={`k-doctab ${st.motionOpen ? 'active' : ''}`} data-testid="motion-tab" onClick={() => st.setMotionOpen(true)}>{st.doc.motionStudy?.name ?? 'Motion Study 1'}</button>
+          <SelectionFilterBar />
         </div>
       )}
       <StatusBar hint="" />

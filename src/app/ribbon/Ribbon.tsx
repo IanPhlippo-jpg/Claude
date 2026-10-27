@@ -318,7 +318,7 @@ export function Ribbon() {
       </Group>
       <Group>
         <BigButton label="Reference Geometry" icon={<Icon.RefGeometry />} active={!!st.planeEdit} onClick={() => st.startPlane()} flyout={[{ label: 'Plane', icon: <Icon.Plane />, onSelect: () => st.startPlane() }, { label: 'Axis', icon: <Icon.Line />, onSelect: () => st.startRefGeom('axis') }, { label: 'Coordinate System', icon: <Icon.Origin />, onSelect: () => st.startRefGeom('csys') }, { label: 'Point', icon: <Icon.Point />, onSelect: () => st.startRefGeom('point') }]} />
-        <BigButton label="Curves" icon={<Icon.Curves />} active={st.featureEdit?.draft.type === 'helix'} onClick={st.startHelix} flyout={[{ label: 'Split Line', icon: <Icon.Line />, onSelect: () => st.startCurveFeature('splitLine') }, { label: 'Projected Curve', icon: <Icon.Spline />, onSelect: () => st.startCurveFeature('projectedCurve') }, { label: 'Helix and Spiral', icon: <Icon.Spline />, onSelect: () => st.startHelix() }]} />
+        <BigButton label="Curves" icon={<Icon.Curves />} active={st.featureEdit?.draft.type === 'helix'} onClick={st.startHelix} flyout={[{ label: 'Split Line', icon: <Icon.Line />, onSelect: () => st.startCurveFeature('splitLine') }, { label: 'Projected Curve', icon: <Icon.Spline />, onSelect: () => st.startCurveFeature('projectedCurve') }, { label: 'Helix and Spiral', icon: <Icon.Spline />, onSelect: () => st.startHelix() }, { label: 'Composite Curve', icon: <Icon.Curves />, onSelect: () => useStore.getState().startCompositeCurve() }]} />
         <BigButton label="Drag Handles" icon={<Icon.DragHandles />} active={st.dragHandles} onClick={st.toggleDragHandles} />
       </Group>
     </>

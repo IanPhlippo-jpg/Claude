@@ -254,6 +254,21 @@ export interface EquationResult {
   variables: Record<string, number>;
 }
 
+/** File Properties in an equation ("SW-Density@Part1"): the density of the part material in g/mm³ (as MMGS) */
+export const FILE_PROPERTIES = ['SW-Density'];
+export function fileProperty(doc: Pick<Document, 'material'>, name: string): number | undefined {
+  const base = name.replace(/@.*$/, '');
+  if (base === 'SW-Density' && doc.material) return doc.material.density / 1e6;
+  return undefined;
+}
+
+/** The value of an expression typed in a value field: global variables, dimensions and file properties by name. */
+export function evaluateFieldExpression(doc: Document, expression: string): number {
+  const { variables } = evaluateEquations(doc);
+  const dims = new Map(dimensionTable(doc).map((d) => [d.name, d.value]));
+  return evaluateExpression(expression, (n) => variables[n] ?? dims.get(n) ?? fileProperty(doc, n), { radians: doc.equationAngleUnits === 'rad' });
+}
+
 /** Evaluate all equations of a document (global variables first, dimensions may reference each other). */
 export function evaluateEquations(doc: Document): EquationResult {
   const equations = doc.equations ?? [];
@@ -286,7 +301,7 @@ export function evaluateEquations(doc: Document): EquationResult {
         visiting.delete(name);
       }
     }
-    return dimValue.get(name);
+    return dimValue.get(name) ?? fileProperty(doc, name);
   };
   for (const eq of equations) {
     try {

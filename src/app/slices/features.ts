@@ -15,12 +15,14 @@ import { newId, addSpline } from '../../core/sketch/model';
 import type { StudFeature, DeleteFaceFeature } from '../../core/document/types';
 import type { Id, SketchPoint } from '../../core/sketch/types';
 import { applyEquations, evaluateExpression } from '../../core/document/equations';
+
+import { draftEquations, withFieldEquations } from './fieldEquations';
 import { activateConfiguration, activeConfiguration, addConfiguration as addConfig, configurations, deleteConfiguration as deleteConfig, setConfigurationDimension as setCfgDim, setConfigurationSuppressed as setCfgSup, updateConfiguration } from '../../core/document/configurations';
 import { sketchChains } from '../../core/features/thin';
 import { sketchRegions } from '../../core/features/regions';
 import { applyColorScheme, DEFAULT_PREFS, getPref, loadPrefs, savePrefs, type PrefValue } from '../prefs';
 import { cylinderAxis, localRef } from '../../core/assembly/assembly';
-import { referencePlane, resolvePlaneDef } from '../../core/features/planes';
+import { curveEndNormal, referencePlane, resolvePlaneDef } from '../../core/features/planes';
 import { DEFAULT_SHEET_METAL } from '../../core/features/sheetmetal';
 import { isAssembly, type MateRef } from '../../core/document/types';
 import { fitCylinder } from '../../core/features/wrap';
@@ -40,7 +42,7 @@ type FeaturesKeys =
   | 'hoverFace' | 'selectedFace' | 'hoverEdge' | 'selectedEdges' | 'selectedFaces' | 'hoverPlane'
   | 'selectedPlane' | 'prefs' | 'dialogFeatureId' | 'rollbackIndex' | 'startFeature' | 'startRound'
   | 'startMirror' | 'startPattern' | 'startHole' | 'startDecal' | 'updateDecalEdit' | 'commitDecal'
-  | 'deleteDecal' | 'deleteBodies' | 'startStud' | 'startRib' | 'startShell' | 'setHoverEdge'
+  | 'deleteDecal' | 'startStud' | 'startRib' | 'startShell' | 'setHoverEdge'
   | 'toggleSelectedEdge' | 'updateFeatureDraft' | 'commitFeature' | 'cancelFeature' | 'editFeature' | 'setFeatureDepth'
   | 'toggleSuppress' | 'setSelectedFeature' | 'setHoverFace' | 'setSelectedFace' | 'setBodyHidden' | 'startCurveFeature'
   | 'startHelix' | 'startSurface' | 'startIntersect' | 'startDeleteFace' | 'startDraft' | 'startThread'
@@ -264,11 +266,6 @@ export const featuresSlice = (set: StoreSet, get: StoreGet): Pick<State, Feature
     set({ doc: d, dirty: true, ...historyFlags() });
     autosave(d);
   },
-  deleteBodies(ids) {
-    const { doc } = get();
-    const n = doc.features.filter((f) => f.type === 'deleteBody').length + 1;
-    get().applyDocument(`Body-Delete/Keep${n}`, { ...doc, features: [...doc.features, { id: newId('f'), type: 'deleteBody', name: `Body-Delete/Keep${n}`, suppressed: false, bodies: ids }] });
-  },
   startStud() {
     const { doc, rebuild, selectedFace } = get();
     if (!rebuild.bodies[0]) {
@@ -417,7 +414,9 @@ export const featuresSlice = (set: StoreSet, get: StoreGet): Pick<State, Feature
     if (!fe) return;
     // a number that is not finite (NaN, ∞ from a bad input) never reaches the draft: the preview would draw NaN
     const clean = Object.fromEntries(Object.entries(patch).filter(([, v]) => typeof v !== 'number' || Number.isFinite(v)));
-    set({ featureEdit: { ...fe, draft: { ...fe.draft, ...clean } as SolidFeature } });
+    const draft = { ...fe.draft, ...clean } as SolidFeature;
+    const equations = draftEquations(fe, draft, clean, get().doc);
+    set({ featureEdit: { ...fe, draft, ...(equations ? { equations } : {}) } });
   },
   commitFeature() {
     const fe = get().featureEdit;
@@ -543,6 +542,7 @@ export const featuresSlice = (set: StoreSet, get: StoreGet): Pick<State, Feature
       const flat = features.find((f) => f.type === 'flatPattern')!;
       features = [...features.filter((f) => f !== flat), flat];
     }
+    docIn = withFieldEquations(docIn, fe);
     const d: Document = applyEquations({ ...docIn, features }).doc;
     const rebuild = rebuildFor(d, get().rollbackIndex);
     set({ contourPick: false, doc: d, rebuild, featureEdit: null, selectedFeatureId: null, selectedEdges: [], selectedFaces: [], selectedFace: null, hoverEdge: null, dirty: true, tab: get().tab === 'surfaces' || get().tab === 'sheetmetal' || get().tab === 'evaluate' ? get().tab : 'features', ...historyFlags() });
@@ -1394,6 +1394,7 @@ export const featuresSlice = (set: StoreSet, get: StoreGet): Pick<State, Feature
     const base = resolvePlaneDef(doc, d.ref);
     let axis: { origin: [number, number, number]; dir: [number, number, number] } | undefined;
     let mid: { origin: [number, number, number]; n: [number, number, number] } | undefined;
+    let normalAt: { origin: [number, number, number]; n: [number, number, number] } | undefined;
     if (d.mode === 'mid') {
       const other = d.ref2 ? resolvePlaneDef(doc, d.ref2) : null;
       const cos = other ? Math.abs(other.n[0] * base.n[0] + other.n[1] * base.n[1] + other.n[2] * base.n[2]) : 0;
@@ -1408,7 +1409,7 @@ export const featuresSlice = (set: StoreSet, get: StoreGet): Pick<State, Feature
       if (e?.straight) {
         const a = e.points[0], b = e.points[e.points.length - 1];
         axis = { origin: [a.x, a.y, a.z], dir: [b.x - a.x, b.y - a.y, b.z - a.z] };
-      }
+      } else if (e && !e.closed) normalAt = curveEndNormal(e.points, d.flip);
     }
     if (d.mode === 'angle') {
       const e = d.edgeId ? rebuild.bodies.flatMap((b) => b.edges).find((x) => x.id === d.edgeId) : undefined;
@@ -1426,7 +1427,7 @@ export const featuresSlice = (set: StoreSet, get: StoreGet): Pick<State, Feature
     for (let i = 0; i < count; i++) {
       const id = i === 0 && planeEdit.planeId ? planeEdit.planeId : newId('pl');
       const name = i === 0 ? d.name : `Plane${existing + i + 1}`;
-      planes[id] = referencePlane(id, name, base, { ref: d.ref, mode: d.mode, distance: d.distance * (i + 1), angle: d.angle, flip: d.flip, axis, ...(mid ? { mid, ref2: d.ref2 } : {}), ...(d.flipNormal ? { flipNormal: true } : {}) });
+      planes[id] = referencePlane(id, name, base, { ref: d.ref, mode: d.mode, distance: d.distance * (i + 1), angle: d.angle, flip: d.flip, axis, ...(mid ? { mid, ref2: d.ref2 } : {}), ...(normalAt ? { normalAt } : {}), ...(d.flipNormal ? { flipNormal: true } : {}) });
     }
     const nd: Document = { ...doc, planes };
     registerPlanes(nd.planes);

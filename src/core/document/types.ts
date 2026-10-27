@@ -722,6 +722,11 @@ export interface RibFeature {
   /** draft angle in degrees: the rib gets thinner away from the sketch (Draft outward: thicker) */
   draft: number;
   draftOutward?: boolean;
+  /** Rib Thickness with draft: the thickness holds at the sketch plane (default) or where the rib meets the wall */
+  thicknessAt?: 'sketch' | 'wall';
+  /** Type (Normal to Sketch): Linear extends the open ends straight to the body, Natural continues their curve
+   *  (an arc runs on along its circle) */
+  ribType?: 'linear' | 'natural';
 }
 
 /** Revolved Boss/Base or Revolved Cut around a (construction) line of the sketch. */
@@ -973,6 +978,9 @@ export interface SweepFeature {
   orientation?: 'followPath' | 'keepNormal';
   /** Options ▸ Profile Twist ▸ Specify Twist Value: revolutions over the path */
   twist?: number;
+  /** Options ▸ Profile Twist ▸ Minimum Twist: the profile frame is carried along the path with the least rotation
+   *  (the frames are always transported that way here, so the result equals None on the same path) */
+  minTwist?: boolean;
   /** Options ▸ Merge tangent faces, Align with end faces, Show preview */
   mergeTangent?: boolean;
   alignEnd?: boolean;
@@ -1037,7 +1045,22 @@ export interface ImportedFeature {
   source: string;
 }
 
-export type SolidFeature = ExtrudeFeature | RevolveFeature | RoundFeature | MirrorFeature | PatternFeature | HoleFeature | ShellFeature | SweepFeature | LoftFeature | ImportedFeature | RibFeature | CombineFeature | BaseFlangeFeature | EdgeFlangeFeature | FlatPatternFeature | HelixFeature | HemFeature | MiterFlangeFeature | JogFeature | Sketch3DFeature | SketchedBendFeature | DraftFeature | IntersectFeature | SurfaceFeature | CrossBreakFeature | UnfoldFeature | WrapFeature | ThreadFeature | SplitLineFeature | ProjectedCurveFeature | StudFeature | ClosedCornerFeature | CornerReliefFeature | LoftedBendFeature | ConvertSheetFeature | BeltFeature | DeleteBodyFeature | MoveBodyFeature | DeleteFaceFeature | VentFeature | FormToolFeature | GussetFeature | TabSlotFeature | RipFeature | SweptFlangeFeature | WeldmentFeature | StructuralMemberFeature | TrimExtendFeature | EndCapFeature | WeldGussetFeature | WeldBeadFeature | DeformFeature;
+/**
+ * Composite Curve (Features ▸ Curves ▸ Composite Curve): model edges, sketches and curves joined end to end into one
+ * curve (CompCurve1), for instance the path of a sweep along the edges of a body.
+ */
+export interface CompositeCurveFeature {
+  id: Id;
+  type: 'compositeCurve';
+  name: string;
+  suppressed: boolean;
+  /** model edges, found again after a rebuild like the edges of a fillet */
+  edges: EdgeRef[];
+  /** sketches and curve features (3D sketch) whose curves join in */
+  sketches: Id[];
+}
+
+export type SolidFeature = CompositeCurveFeature | ExtrudeFeature | RevolveFeature | RoundFeature | MirrorFeature | PatternFeature | HoleFeature | ShellFeature | SweepFeature | LoftFeature | ImportedFeature | RibFeature | CombineFeature | BaseFlangeFeature | EdgeFlangeFeature | FlatPatternFeature | HelixFeature | HemFeature | MiterFlangeFeature | JogFeature | Sketch3DFeature | SketchedBendFeature | DraftFeature | IntersectFeature | SurfaceFeature | CrossBreakFeature | UnfoldFeature | WrapFeature | ThreadFeature | SplitLineFeature | ProjectedCurveFeature | StudFeature | ClosedCornerFeature | CornerReliefFeature | LoftedBendFeature | ConvertSheetFeature | BeltFeature | DeleteBodyFeature | MoveBodyFeature | DeleteFaceFeature | VentFeature | FormToolFeature | GussetFeature | TabSlotFeature | RipFeature | SweptFlangeFeature | WeldmentFeature | StructuralMemberFeature | TrimExtendFeature | EndCapFeature | WeldGussetFeature | WeldBeadFeature | DeformFeature;
 export type SketchBasedFeature = ExtrudeFeature | RevolveFeature | SweepFeature | LoftFeature | RibFeature | BaseFlangeFeature | HelixFeature;
 export type Feature = SketchFeature | SolidFeature;
 
@@ -1054,7 +1077,7 @@ export interface PlaneDef {
   /** face: created for a sketch on a face (hidden); reference: Reference Geometry ▸ Plane (shown in the tree) */
   kind?: 'face' | 'reference';
   /** how a reference plane was defined */
-  def?: { ref: string; mode: 'offset' | 'angle' | 'parallel' | 'coincident' | 'perpendicular' | 'mid'; distance: number; angle: number; flip: boolean; axis?: { origin: [number, number, number]; dir: [number, number, number] }; ref2?: string; mid?: { origin: [number, number, number]; n: [number, number, number] }; flipNormal?: boolean };
+  def?: { ref: string; mode: 'offset' | 'angle' | 'parallel' | 'coincident' | 'perpendicular' | 'mid'; distance: number; angle: number; flip: boolean; axis?: { origin: [number, number, number]; dir: [number, number, number] }; ref2?: string; mid?: { origin: [number, number, number]; n: [number, number, number] }; flipNormal?: boolean; /** Perpendicular to a curve: the plane through its end point, normal to it there */ normalAt?: { origin: [number, number, number]; n: [number, number, number] } };
 }
 
 /** A decal: an image projected on a planar face (matched by its normal and a point), width in mm, rotation in degrees. */
@@ -1094,6 +1117,8 @@ export interface DeleteFaceFeature {
   suppressed: boolean;
   faces: { normal: [number, number, number]; point: [number, number, number]; label: string }[];
   option: 'delete' | 'patch' | 'fill';
+  /** Show preview: the model is shown with the faces deleted while the panel is open */
+  preview?: boolean;
 }
 
 /** Insert ▸ Features ▸ Move/Copy: bodies moved, or copied (a number of times), by a translation and rotations about X, Y and Z through a point. */
@@ -1119,6 +1144,8 @@ export interface DeleteBodyFeature {
   name: string;
   suppressed: boolean;
   bodies: Id[];
+  /** Type ▸ Keep Bodies: the listed bodies stay and every other body is deleted */
+  keep?: boolean;
 }
 
 /** Reference Geometry: an axis (origin + direction), a point, or a coordinate system (origin + x/y/z). World xyz. */
@@ -1533,6 +1560,11 @@ export interface Document {
   sheetMetal?: SheetMetalParams;
   /** Solid Bodies ▸ Hide: bodies not shown and not used for Merge result */
   hiddenBodies?: Id[];
+  /** names given in the tree to bodies (by body id) and to the default planes ("Top Plane-FLOOR PLANE") */
+  bodyNames?: Record<Id, string>;
+  planeNames?: Record<string, string>;
+  /** Show / Hide of a plane from the tree (absent: View ▸ Planes decides) */
+  planeVisibility?: Record<string, boolean>;
   /** Edit Appearance: colour of the part and per body (wins over the material colour) */
   appearance?: string;
   bodyAppearances?: Record<Id, string>;

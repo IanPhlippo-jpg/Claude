@@ -1,6 +1,7 @@
 import { createPortal } from 'react-dom';
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode, type MouseEvent as RMouseEvent } from 'react';
 import { Icon } from './icons';
+import { EquationMenu, equationEnv } from './equationMenu';
 
 /* ---------- Button / ToolButton ---------------------------------------------- */
 
@@ -350,6 +351,7 @@ export function NumberField({
   onCommit,
   disabled,
   blankWhenDisabled,
+  equation,
 }: {
   value: number;
   onChange: (v: number) => void;
@@ -361,9 +363,14 @@ export function NumberField({
   disabled?: boolean;
   /** an unavailable value shows an empty grey field (as the draft angle while Draft is off) */
   blankWhenDisabled?: boolean;
+  /** the equation that drives this value: Σ in the field, and the equation to edit when it gets the focus */
+  equation?: string;
 }) {
   const [text, setText] = useState(formatValue(value, unit));
+  // = turns the field into an equation ("= "Width" / 2"), with the Global Variables / Functions / File Properties menu
+  const [eq, setEq] = useState<string | null>(null);
   const focused = useRef(false);
+  const autoFocusing = useRef(false);
   const inputRef = useRef<HTMLInputElement>(null);
   // a typed value that is refused (not a number, out of range) or adjusted (below the minimum) is marked and explained
   const [bad, setBad] = useState(false);
@@ -378,7 +385,8 @@ export function NumberField({
   const unitLabel = unit === 'deg' ? '°' : unit ?? '';
   // the first value field of a Property Panel takes the focus without scrolling the panel (its top stays in view)
   useEffect(() => {
-    if (autoFocus) inputRef.current?.focus({ preventScroll: true });
+    // (the panel's own focus does not open an equation for editing; a click into the field does)
+    if (autoFocus) { autoFocusing.current = true; inputRef.current?.focus({ preventScroll: true }); autoFocusing.current = false; }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   // typed: the user has edited the text since the field got the focus (only then a new outside value is not shown)
@@ -396,8 +404,46 @@ export function NumberField({
     onChange(v);
     setText(formatValue(v, unit));
   };
+  const commitEq = () => {
+    const env = equationEnv.current;
+    const expr = (eq ?? '').replace(/^\s*=\s*/, '').trim();
+    setEq(null);
+    if (!env || !expr) return;
+    try {
+      const v = env.evaluate(expr);
+      if (!Number.isFinite(v) || Math.abs(v) > MAX_FIELD_VALUE) throw new Error('The result is not a valid value');
+      env.onEquation(expr);
+      onChange(min !== undefined ? Math.max(min, v) : v);
+      setText(formatValue(min !== undefined ? Math.max(min, v) : v, unit));
+    } catch (err) {
+      showNote(`Unable to compute value. ${err instanceof Error ? err.message : 'Invalid entry.'}`);
+    }
+  };
+  if (eq !== null) {
+    return (
+      <div className="k-number k-number-eq" style={{ position: 'relative' }}>
+        <span className="k-eq-sigma">Σ</span>
+        <input
+          className="k-input k-num mono"
+          data-testid="eq-input"
+          value={eq}
+          autoFocus
+          onChange={(e) => setEq(e.target.value)}
+          onBlur={commitEq}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') { e.preventDefault(); commitEq(); onCommit?.(); }
+            else if (e.key === 'Escape') setEq(null);
+            e.stopPropagation();
+          }}
+        />
+        <EquationMenu text={eq} setText={setEq} />
+      </div>
+    );
+  }
   return (
-    <div className={`k-number ${disabled ? 'disabled' : ''}`}>
+    <div className={`k-number ${disabled ? 'disabled' : ''} ${equation ? 'k-number-eq' : ''}`} style={equation ? { position: 'relative' } : undefined} title={equation ? `= ${equation}` : undefined}>
+      {note && <span className="k-num-note" role="status" data-testid="num-note">{note}</span>}
+      {equation && <span className="k-eq-sigma" data-testid="field-sigma">Σ</span>}
       <input
         className={`k-input k-num ${bad ? 'bad' : ''}`}
         aria-invalid={bad || undefined}
@@ -410,8 +456,10 @@ export function NumberField({
         onFocus={(e) => {
           focused.current = true;
           typed.current = false;
+          if (equation && equationEnv.current && !autoFocusing.current) { setEq(`= ${equation}`); return; }
           e.target.select();
         }}
+        onClick={() => { if (equation && equationEnv.current) setEq(`= ${equation}`); }}
         onBlur={() => {
           focused.current = false;
           if (typed.current && text.trim()) {
@@ -433,7 +481,11 @@ export function NumberField({
           if (Number.isFinite(v)) onChange(min !== undefined ? Math.max(min, v) : v);
         }}
         onKeyDown={(e) => {
-          if (e.key === 'Enter') {
+          if (e.key === '=' && equationEnv.current) {
+            e.preventDefault();
+            typed.current = false;
+            setEq('= ');
+          } else if (e.key === 'Enter') {
             setText(formatValue(value, unit));
             onCommit?.();
           } else if (e.key === 'ArrowUp') {
@@ -446,7 +498,6 @@ export function NumberField({
           e.stopPropagation();
         }}
       />
-      {note && <span className="k-num-note" role="status" data-testid="num-note">{note}</span>}
       <span className="k-spin">
         <button type="button" tabIndex={-1} disabled={disabled} onMouseDown={(e) => e.preventDefault()} onClick={() => spin(1)} aria-label="Increase"><svg width={7} height={4} viewBox="0 0 7 4"><path d="M0 4L3.5 0 7 4z" fill="currentColor" /></svg></button>
         <button type="button" tabIndex={-1} disabled={disabled} onMouseDown={(e) => e.preventDefault()} onClick={() => spin(-1)} aria-label="Decrease"><svg width={7} height={4} viewBox="0 0 7 4"><path d="M0 0l3.5 4L7 0z" fill="currentColor" /></svg></button>

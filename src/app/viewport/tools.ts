@@ -1014,7 +1014,7 @@ export class ToolController {
           const label = info.p;
           let createdId: Id | null = null;
           ctx.commit('Dimension', (s) => {
-            const [s1, c] = addConstraint(s, placing.kind, placing.refs, { value: placing.value, labelOffset: label, ...(placing.arcCondition ? { arcCondition: placing.arcCondition } : {}) });
+            const [s1, c] = addConstraint(s, placing.kind, placing.refs, { value: placing.value, labelOffset: label, ...(placing.arcCondition ? { arcCondition: placing.arcCondition } : {}), ...(placing.doubled ? { doubled: true } : {}) });
             createdId = c.id;
             return s1;
           });
@@ -1159,9 +1159,17 @@ export class ToolController {
    * cursor by design: above/below the points = horizontal, left/right = vertical,
    * diagonal = aligned distance.
    */
-  private resolveDim(ctx: ToolContext, cursor: SketchPoint): { kind: ConstraintKind; refs: Id[]; value: number; arcCondition?: Record<number, { entityId: Id; mode: 'min' | 'max' }> } {
+  private resolveDim(ctx: ToolContext, cursor: SketchPoint): { kind: ConstraintKind; refs: Id[]; value: number; arcCondition?: Record<number, { entityId: Id; mode: 'min' | 'max' }>; doubled?: boolean } {
     const d = this.dimPlacing!;
     const s = ctx.sketch;
+    // a distance to a centerline with the text past the centerline is a doubled distance (a diameter), by design
+    const cl = d.kind === 'distance' && d.refs.length === 2 && !d.arcCondition ? s.entities[d.refs[1]] : undefined;
+    if (cl?.kind === 'line' && cl.construction) {
+      const a = s.points[cl.p1], b = s.points[cl.p2];
+      const P0 = d.refs[0] in s.points ? s.points[d.refs[0]] : s.points[(s.entities[d.refs[0]] as { p: Id }).p];
+      const side = (q: SketchPoint) => (b.x - a.x) * (q.y - a.y) - (b.y - a.y) * (q.x - a.x);
+      if (P0 && side(P0) * side(cursor) < 0) return { kind: 'distance', refs: d.refs, value: 2 * measure(s, { kind: 'distance', refs: d.refs, label: '' }), doubled: true };
+    }
     // Horizontal / Vertical Dimension: always the x or y distance (a line gives its two end points)
     if (this.tool === 'hdim' || this.tool === 'vdim') {
       const kind: ConstraintKind = this.tool === 'hdim' ? 'hDistance' : 'vDistance';

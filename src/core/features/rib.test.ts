@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import * as THREE from 'three';
-import { addLine, createSketch } from '../sketch/model';
+import { addArc, addLine, createSketch } from '../sketch/model';
 import { REFERENCE_PLANE_DEFS } from './planes';
 import { csg, meshVolume } from './solid';
 import { ribGeometry } from './rib';
@@ -77,5 +77,34 @@ describe('rib draft', () => {
     // over 15 mm the wall loses 2 x 15 x tan 2deg ~ 1.05 mm at the floor: about 13 % less volume on average
     expect(inward).toBeLessThan(plain * 0.9);
     expect(outward).toBeGreaterThan(plain * 1.1);
+  });
+
+  it('Rib Thickness At wall interface keeps the 4 mm where the drafted rib meets the floor, so it starts thicker', () => {
+    const body = channel();
+    let s = createSketch('s', 'Sketch2', 'front');
+    s = addLine(s, { x: -30, y: 20 }, { x: 30, y: 20 })[0];
+    const base = { thickness: 4, side: 'both' as const, direction: 'parallel' as const, flip: false, draft: 2 };
+    const vol = (o: object) => Math.abs(meshVolume(csg(body, ribGeometry(s, REFERENCE_PLANE_DEFS.front, body, { ...base, ...o }).geometry!, 'union'))) - Math.abs(meshVolume(body));
+    const plain = vol({ draft: 0 }), atSketch = vol({}), atWall = vol({ thicknessAt: 'wall' });
+    expect(atWall).toBeGreaterThan(atSketch * 1.1);
+    // 4 mm at the floor, thicker above: more than the undrafted rib
+    expect(atWall).toBeGreaterThan(plain);
+  });
+
+  it('Type Natural continues an arc on its circle until the wall; Linear only goes on along the end tangents', () => {
+    const body = channel();
+    // an arc (centre x = 20, r = 30) on a plane 20 above the floor; its circle meets the wall at x = 45
+    const plane = { ...REFERENCE_PLANE_DEFS.top, origin: [0, 20, 0] as [number, number, number] };
+    const c = { x: 20, y: 0 }, at = (deg: number) => ({ x: c.x + 30 * Math.cos((deg * Math.PI) / 180), y: c.y + 30 * Math.sin((deg * Math.PI) / 180) });
+    const s = addArc(createSketch('s', 'Sketch2', 'top'), c, at(150), at(210), true)[0];
+    const base = { thickness: 2, side: 'both' as const, direction: 'normal' as const, flip: false };
+    const vol = (o: object) => {
+      const r = ribGeometry(s, plane, body, { ...base, ...o });
+      expect(r.error).toBeUndefined();
+      return Math.abs(meshVolume(csg(body, r.geometry!, 'union'))) - Math.abs(meshVolume(body));
+    };
+    const linear = vol({}), natural = vol({ ribType: 'natural' });
+    // linear: the 60 degree arc (31 mm); natural: the circle from wall to wall (about 293 degrees, 153 mm)
+    expect(natural).toBeGreaterThan(linear * 3);
   });
 });

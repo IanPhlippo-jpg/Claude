@@ -420,7 +420,7 @@ export function buildEquations(
             equations.push({
               constraintId: cid,
               deps: [...pointDeps(p), ...pointDeps(e2.p1), ...pointDeps(e2.p2), ...arcDeps],
-              f: (x) => Math.abs(pointLineDist(x, p, e2.p1, e2.p2)) + radii(x) - v,
+              f: (x) => (c.doubled ? 2 : 1) * Math.abs(pointLineDist(x, p, e2.p1, e2.p2)) + radii(x) - v,
             });
           } else {
             const a = resolvePoint(s, c.refs[0]), b = resolvePoint(s, ref1);

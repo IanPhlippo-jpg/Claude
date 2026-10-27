@@ -5,7 +5,7 @@ import { rebuildAssembly } from '../../core/assembly/assembly';
 import { sketchDimensionName } from '../../core/document/equations';
 import { newId } from '../../core/sketch/model';
 import { getPref } from '../prefs';
-import { referencePlane, resolvePlaneDef } from '../../core/features/planes';
+import { curveEndNormal, referencePlane, resolvePlaneDef } from '../../core/features/planes';
 import { helixPath, sketch3DChains } from '../../core/features/sweep';
 import { matchFaceAppearances } from '../../core/features/faceAppearance';
 import { MatePopup } from './MatePopup';
@@ -15,6 +15,7 @@ import { SelectionToolbar } from './SelectionToolbar';
 import { Breadcrumbs } from './Breadcrumbs';
 import { InsertRotateBar } from './InsertRotateBar';
 import { DragDimensionsHandle } from './DragDimensions';
+import { filterAllows } from '../SelectionFilterBar';
 import { renderWithAO } from './ao';
 import { MarkupLayer } from '../lifecycleDialogs';
 import { refGeometryFrom, refGeometryLines } from '../../core/features/refgeom';
@@ -36,6 +37,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { lastRectangle } from '../../core/sketch/lastShape';
 import { bodyEdges, matchEdge, subEdgeAt } from '../../core/features/edgesets';
+import { pickForDraft } from './draftPicks';
 import { roundPreviewShapes } from '../../core/features/round';
 import { faceOwner } from '../../core/features/faceOwner';
 import { threadPreviewCurves, threadTool } from '../../core/features/thread';
@@ -48,7 +50,7 @@ import { readColors, SketchScene } from './sketchScene';
 import { motionTransforms } from '../../core/assembly/motion';
 import { MotionTimeline } from './MotionTimeline';
 import { BodyScene } from './bodyScene';
-import { mergeGeometries } from '../../core/features/solid';
+import { mergeGeometries, planeMatrix } from '../../core/features/solid';
 import { edgeFlangeOnBody, featureGeometry, hemAsFlange, jogOnBody, miterFlangeOnBody, rebuildDocument, sketchedBendOnBody, threadSpecOf } from '../../core/features/rebuild';
 import { baseFlangeGeometry, DEFAULT_SHEET_METAL, tabGeometry } from '../../core/features/sheetmetal';
 import { sketchChains } from '../../core/features/thin';
@@ -271,7 +273,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
       st.show.sketches
         ? st.doc.features
             // sketches used by a feature are hidden once the feature exists (by design), except while that feature is edited
-            .filter((f, i) => f.type === 'sketch' && f.sketchId !== profileSketch?.id && !f.suppressed && (st.rollbackIndex === null || i < st.rollbackIndex) && f.sketchId !== st.activeSketchId && st.doc.sketches[f.sketchId] && (!st.rebuild.consumedSketches.has(f.sketchId) || (st.featureEdit && isSketchBased(st.featureEdit.draft) && st.featureEdit.draft.sketchId === f.sketchId)))
+            .filter((f, i) => f.type === 'sketch' && f.sketchId !== profileSketch?.id && !f.suppressed && (st.rollbackIndex === null || i < st.rollbackIndex) && f.sketchId !== st.activeSketchId && st.doc.sketches[f.sketchId] && ((st.doc.sketches[f.sketchId].visible ?? !st.rebuild.consumedSketches.has(f.sketchId)) || (st.featureEdit && isSketchBased(st.featureEdit.draft) && st.featureEdit.draft.sketchId === f.sketchId)))
             .map((f) => { const sid = (f as { sketchId: string }).sketchId; return { sketch: st.doc.sketches[sid], plane: st.doc.sketches[sid].plane }; })
         : [],
     [st.doc, st.activeSketchId, st.show.sketches, st.rollbackIndex, st.rebuild, st.featureEdit, profileSketch],
@@ -503,7 +505,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
     const out: { id: PlaneId; highlight: boolean }[] = [];
     for (const id of ids) {
       const hl = st.hoverPlane === id || st.selectedPlane === id || st.planeEdit?.planeId === id;
-      if (st.show.planes || hl) out.push({ id, highlight: hl });
+      if ((st.doc.planeVisibility?.[id] ?? st.show.planes) || hl) out.push({ id, highlight: hl });
     }
     // preview of the plane being defined
     if (st.planeEdit) {
@@ -512,13 +514,15 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
       const e = d.edgeId ? st.rebuild.bodies.flatMap((b) => b.edges).find((x) => x.id === d.edgeId) : undefined;
       const axis = e && e.straight ? { origin: [e.points[0].x, e.points[0].y, e.points[0].z] as [number, number, number], dir: [e.points[e.points.length - 1].x - e.points[0].x, e.points[e.points.length - 1].y - e.points[0].y, e.points[e.points.length - 1].z - e.points[0].z] as [number, number, number] } : undefined;
       if (d.mode !== 'angle' || axis) {
-        const prev = referencePlane('__planePreview', d.name, base, { ref: d.ref, mode: d.mode, distance: d.distance, angle: d.angle, flip: d.flip, axis });
+        // a curve as the reference of Perpendicular: the plane normal to it at its end point (as commitPlane)
+        const normalAt = e && !e.straight && !e.closed && d.mode === 'perpendicular' ? curveEndNormal(e.points, d.flip) : undefined;
+        const prev = referencePlane('__planePreview', d.name, base, { ref: d.ref, mode: d.mode, distance: d.distance, angle: d.angle, flip: d.flip, axis, ...(normalAt ? { normalAt } : {}) });
         registerPlanes({ ...st.doc.planes, __planePreview: prev });
         out.push({ id: '__planePreview', highlight: true });
       }
     }
     return out;
-  }, [st.planePick, st.hoverPlane, st.selectedPlane, st.show.planes, st.doc.planes, st.planeEdit, st.rebuild.bodies]);
+  }, [st.planePick, st.hoverPlane, st.selectedPlane, st.show.planes, st.doc.planes, st.doc.planeVisibility, st.planeEdit, st.rebuild.bodies]);
 
   /** half-size of the drawn reference planes in world units (about a fifth of the graphics area) */
   const planeHalf = useCallback(() => Math.max(40, camera.scale * Math.min(size.w, size.h) * 0.19), [camera, size]);
@@ -1005,19 +1009,35 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
           }
         }
         const fd = st.featureEdit?.draft;
-        if (best && fd?.type === 'extrude' && st.dir2Pick === 'vertex' && fd.direction2) { st.updateFeatureDraft({ direction2: { ...fd.direction2, vertex: { point: [best.x, best.y, best.z], label: 'Vertex<1>' } } }); useStore.setState({ dir2Pick: null }); }
-        else if (best) { st.updateFeatureDraft({ vertex: { point: [best.x, best.y, best.z], label: 'Vertex<1>' } }); useStore.setState({ flangePick: null }); }
+        // Up To Vertex of an extrusion: a point of a shown sketch (a layout sketch) counts too, by design
+        let label = 'Vertex<1>';
+        if (fd?.type === 'extrude') {
+          for (const { sketch: sk } of otherSketches) {
+            const M = planeMatrix(resolvePlaneDef(st.doc, sk.plane));
+            for (const p of Object.values(sk.points)) {
+              const q = new THREE.Vector3(p.x, p.y, 0).applyMatrix4(M);
+              const px = camera.worldToPixel(q);
+              const dd = Math.hypot(px.x - info.px, px.y - info.py);
+              if (dd < bestD) { bestD = dd; best = q; label = `Point@${sk.name}`; }
+            }
+          }
+        }
+        if (best && fd?.type === 'extrude' && st.dir2Pick === 'vertex' && fd.direction2) { st.updateFeatureDraft({ direction2: { ...fd.direction2, vertex: { point: [best.x, best.y, best.z], label } } }); useStore.setState({ dir2Pick: null }); }
+        else if (best) { st.updateFeatureDraft({ vertex: { point: [best.x, best.y, best.z], label } }); useStore.setState({ flangePick: null }); }
         else st.pushMessage('Click on a corner (end point of a model edge).', 'warn');
         return;
       }
+      // Composite Curve / Delete/Keep Body: the click fills the list of the feature being made
+      if (pickForDraft(() => edgeAt(info.px, info.py), () => faceAt(info.px, info.py))) return;
       // part mode: select an edge or a face of a body; a click on nothing clears plane / face / feature selection
-      const edge = edgeAt(info.px, info.py);
+      // (the Selection Filter lets only the checked kinds through)
+      const edge = filterAllows('edges') ? edgeAt(info.px, info.py) : null;
       if (edge) {
         st.toggleSelectedEdge(edge, info.ctrl || info.shift);
         return;
       }
       if (st.featureEdit && isRoundFeature(st.featureEdit.draft)) return;
-      const face = faceAt(info.px, info.py);
+      const face = filterAllows('faces') ? faceAt(info.px, info.py) : null;
       if (face) st.setSelectedFace(!info.ctrl && !info.shift && st.dialog !== 'measure' && st.selectedFace?.faceId === face.faceId && st.selectedFaces.length <= 1 ? null : face, info.ctrl || info.shift);
       else {
         if (st.selectedPlane) st.setSelectedPlane(null);
@@ -1531,6 +1551,15 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
               {it.label}({sk.name})
             </div>
           );
+        });
+      })()}
+      {st.featureEdit && isRoundFeature(st.featureEdit.draft) && st.featureEdit.draft.roundType === 'fullRound' && st.featureEdit.draft.fullRound && (() => {
+        // Full round fillet: a callout at each picked face set, in the colour of its box (as the intended design)
+        const fr = st.featureEdit.draft.fullRound;
+        const sets = ([['side1', 'Side Face Set 1', '#5aa0e6'], ['center', 'Center Face Set', '#c06ad0'], ['side2', 'Side Face Set 2', '#e98fc0']] as const).filter(([k]) => fr[k]);
+        return sets.map(([k, label, color]) => {
+          const q = camera.worldToPixel(new THREE.Vector3(...fr[k]!.point));
+          return <div key={k} className="k-callout" data-testid={`fullround-callout-${k}`} style={{ left: q.x + 24, top: q.y - 24, borderColor: color, color }}>{label}</div>;
         });
       })()}
       {st.doc.autoTolerance && !st.activeSketchId && (() => {

@@ -1,4 +1,5 @@
 import { LEGAL_NOTICE } from './legal';
+import { EquationMenu } from '../ui/equationMenu';
 import { getPref } from './prefs';
 import { sketchDimensionName } from '../core/document/equations';
 import { useEffect, useRef, useState } from 'react';
@@ -264,22 +265,15 @@ export function ModifyDialog() {
         <button className={`k-modify-ic k-tip ${c.markForDrawing === false ? '' : 'active'}`} data-tip="Mark dimension to be imported into a drawing" data-testid="modify-mark" onClick={() => st.updateDimension(c.id, { markForDrawing: c.markForDrawing === false })}><Icon.Dimension /></button>
       </div>
       <div className="k-modify-name" data-testid="modify-name">{name}</div>
-      <div className="k-modify-row k-modify-value">
+      <div className="k-modify-row k-modify-value k-tip" data-tip={`${c.kind === 'angle' ? 'Angle' : c.kind === 'radius' ? 'Radius' : c.kind === 'diameter' ? 'Diameter' : 'Distance'} (Enter a value or start with = to create an equation)`}>
         {eqText === null ? (
-          <div onKeyDownCapture={(e) => { if (e.key === '=') { e.preventDefault(); setEqText('= '); } }}>
+          <div onKeyDownCapture={(e) => { if (e.key === '=') { e.preventDefault(); e.stopPropagation(); setEqText('= '); } }}>
             <NumberField value={Math.round(value * k * 1e6) / 1e6} onChange={(v) => setValue(v / k)} unit={c.kind === 'angle' ? (shownUnit === 'rad' ? 'rad' : '°') : shownUnit} step={c.kind === 'angle' ? Number(st.prefs['spin.angle']) || 1 : st.unitSystem === 'IPS' ? Number(st.prefs['spin.lengthEnglish']) || 0.1 : Number(st.prefs['spin.lengthMetric']) || 10} autoFocus onCommit={apply} />
           </div>
         ) : (
           <div style={{ position: 'relative', flex: 1 }}>
             <input className="k-input mono" value={eqText} autoFocus onChange={(e) => setEqText(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') apply(); if (e.key === 'Escape') st.setModify(null); e.stopPropagation(); }} placeholder='= "Width" / 2' title="Equation: names between double quotes" style={{ width: '100%' }} />
-            <div className="k-eq-suggest">
-              {st.doc.equations.filter((eq) => !/@/.test(eq.target)).map((eq) => (
-                <div key={eq.id} className="k-menu-item" onMouseDown={(ev) => { ev.preventDefault(); setEqText(`${eqText.trimEnd()} "${eq.target}"`); }}>"{eq.target}"</div>
-              ))}
-              <div className="k-menu-item k-muted">Global Variables ▸</div>
-              <div className="k-menu-item" onMouseDown={(ev) => { ev.preventDefault(); setEqText(`${eqText.trimEnd()} sin(`); }}>Functions ▸ sin, cos, tan, sqrt, abs, int</div>
-              <div className="k-menu-item k-muted">File Properties ▸</div>
-            </div>
+            <EquationMenu text={eqText} setText={setEqText} />
           </div>
         )}
       </div>

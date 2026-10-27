@@ -107,7 +107,7 @@ function dimensionDrawingBase(s: Sketch, c: Constraint, unit: string, driven: bo
   const core = fmt(value, c.kind === 'angle' ? '' : unit, c.kind, c.precision);
   // Dimension Text: <MOD-DIAM> is the diameter sign and R<DIM> a radius, by design (the value then goes in bare)
   const bare = c.dimText && ((c.kind === 'diameter' && c.dimText.includes('<MOD-DIAM>')) || (c.kind === 'radius' && c.dimText.includes('R<DIM>'))) ? core.replace(/^[ØR]/, '') : core;
-  const shown = c.dimText && c.dimText.includes('<DIM>') ? c.dimText.replace('<MOD-DIAM>', 'Ø').replace('<DIM>', bare) : core;
+  const shown = c.dimText && c.dimText.includes('<DIM>') ? c.dimText.replace('<MOD-DIAM>', 'Ø').replace('<DIM>', bare) : c.doubled ? `Ø${core}` : core;
   const text = (linked ? 'Σ' : '') + (driven ? '(' : '') + shown + (driven ? ')' : '');
   const off = c.labelOffset;
   switch (c.kind) {
@@ -132,6 +132,8 @@ function dimensionDrawingBase(s: Sketch, c: Constraint, unit: string, driven: bo
           const t = ((p.x - la.x) * d.x + (p.y - la.y) * d.y) / l2;
           a = p;
           b = { x: la.x + d.x * t, y: la.y + d.y * t };
+          // Doubled distance: the dimension runs across the centerline to the mirrored point
+          if (c.doubled) b = { x: 2 * b.x - p.x, y: 2 * b.y - p.y };
         } else {
           a = P(s, c.refs[0]);
           b = P(s, c.refs[1]);

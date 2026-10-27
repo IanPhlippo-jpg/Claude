@@ -45,6 +45,14 @@ export function relationLabel(kind: ConstraintKind): string {
   return LABELS[kind];
 }
 
+/** A relation's name in Existing Relations, as the intended design numbers them per kind: Horizontal0, Tangent9 */
+export function relationName(s: Sketch, id: Id): string {
+  const c = s.constraints[id];
+  if (!c) return '';
+  const n = s.constraintOrder.filter((k) => s.constraints[k]?.kind === c.kind).indexOf(id);
+  return `${LABELS[c.kind]}${Math.max(0, n)}`;
+}
+
 function isCircular(e: Entity): boolean {
   return e.kind === 'circle' || e.kind === 'arc';
 }
@@ -147,6 +155,14 @@ export function dimensionForSelection(s: Sketch, sel: SelectionItem[]): Relation
     if (e.kind === 'arc') return { kind: 'radius', label: LABELS.radius, refs: [e.id] };
   }
   if (points.length === 0 && ents.length === 2 && ents[0].kind === 'line' && ents[1].kind === 'line') {
+    // a line parallel to a centerline: the distance to it (placed past the centerline: a doubled distance)
+    const [l1, l2] = ents as [Entity & { kind: 'line' }, Entity & { kind: 'line' }];
+    const dir = (l: typeof l1) => { const a = s.points[l.p1], b = s.points[l.p2]; const n = Math.hypot(b.x - a.x, b.y - a.y) || 1; return { x: (b.x - a.x) / n, y: (b.y - a.y) / n }; };
+    const par = Math.abs(dir(l1).x * dir(l2).y - dir(l1).y * dir(l2).x) < 1e-6;
+    if (par && (l1.construction || l2.construction)) {
+      const [line, centre] = l2.construction ? [l1, l2] : [l2, l1];
+      return { kind: 'distance', label: LABELS.distance, refs: [line.p1, centre.id] };
+    }
     return { kind: 'angle', label: LABELS.angle, refs: [ents[0].id, ents[1].id] };
   }
   if (points.length === 0 && ents.length === 2) {

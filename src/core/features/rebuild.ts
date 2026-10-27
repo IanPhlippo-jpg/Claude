@@ -22,6 +22,7 @@ import { closedCornerTool, cornerReliefTool, findFace } from './smcorners';
 import { thickenSurface } from './surfaces';
 import { applyShellFromHistory, applyShellOutward, type BuildHistory } from './shell';
 import { helixPath, loftGeometry, sketch3DChains, sketchPath, sweepGeometry } from './sweep';
+import { compositePath, sweepPathOf } from './compositeCurve';
 import { extrudedSurface, fitPlane, loftedSurface, offsetSurface, openEdges, orientShell, planarSurface, revolvedSurface, surfaceCentroid, sweptSurface, trimSurface } from './surfaces';
 import { geometryFromPositions } from '../document/stl';
 import { sketchChains, thinRegions } from './thin';
@@ -255,19 +256,9 @@ function sketchedGeometry(doc: Document, f: SketchBasedFeature, extent = THROUGH
     return g ? { geometry: g } : { geometry: null, error: 'The extrusion has zero depth.' };
   }
   if (f.type === 'sweep') {
-    // the path: a sketch, or a Helix/Spiral feature
-    const helix = doc.features.find((x) => x.id === f.pathSketchId && x.type === 'helix');
-    const s3d = doc.features.find((x) => x.id === f.pathSketchId && x.type === 'sketch3d');
-    if (s3d && s3d.type === 'sketch3d') {
-      const chain = sketch3DChains(s3d.segments)[0];
-      if (!chain || chain.length < 2) return { geometry: null, error: 'The 3D sketch has no lines to sweep along.' };
-      const g3 = sweepGeometry(regions, plane, chain);
-      return g3 ? { geometry: g3 } : { geometry: null, error: 'Could not sweep the profile along the 3D sketch.' };
-    }
-    const pathSketch = helix ? doc.sketches[(helix as { sketchId: Id }).sketchId] : doc.sketches[f.pathSketchId];
-    if (!pathSketch) return { geometry: null, error: 'Select a sketch (or a helix) with the path.' };
-    const path = helix ? helixPath(pathSketch, resolvePlaneDef(doc, pathSketch.plane), helix as Parameters<typeof helixPath>[2]) : sketchPath(pathSketch, resolvePlaneDef(doc, pathSketch.plane));
-    if (!path) return { geometry: null, error: 'The path sketch has no lines, arcs or splines to sweep along.' };
+    // the path: a sketch, a Helix/Spiral, a 3D sketch or a composite curve
+    const { points: path, error: pathError } = sweepPathOf(doc, f.pathSketchId, bodyList);
+    if (!path) return { geometry: null, error: pathError };
     const sweepOpts = { keepNormal: f.orientation === 'keepNormal', twist: f.twist };
     if (f.profileType === 'circular') {
       // Circular Profile: a circle of the given diameter on a plane normal to the path at its start
@@ -1483,6 +1474,13 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
       for (const [i, chain] of sketch3DChains(f.segments).entries()) curves.push({ id: i ? `${f.id}:${i}` : f.id, name: f.name, points: chain });
       continue;
     }
+    if (f.type === 'compositeCurve') {
+      const cp = compositePath(doc, f, bodies);
+      if (cp.points) curves.push({ id: f.id, name: f.name, points: cp.points });
+      else errors[f.id] = cp.error!;
+      for (const id of f.sketches) consumedSketches.add(id);
+      continue;
+    }
     if (f.type === 'helix') {
       const sketch = doc.sketches[f.sketchId];
       if (!sketch) {
@@ -2320,6 +2318,11 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
     }
     if (f.type === 'deleteBody') {
       const before = bodies.length;
+      if (f.keep) { // Keep Bodies: every body that is not listed goes
+        if (!f.bodies.some((id) => bodies.some((b) => b.id === id))) errors[f.id] = 'The bodies to keep are no longer there.';
+        else for (let i = bodies.length - 1; i >= 0; i--) if (!f.bodies.includes(bodies[i].id)) bodies.splice(i, 1);
+        continue;
+      }
       for (const id of f.bodies) {
         const i = bodies.findIndex((b) => b.id === id);
         if (i >= 0) bodies.splice(i, 1);

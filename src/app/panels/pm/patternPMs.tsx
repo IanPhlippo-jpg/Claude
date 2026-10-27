@@ -38,9 +38,12 @@ export function mirrorPM(ctx: PMContext): ReactNode | typeof NEXT {
         <>
           <Header title="Mirror" icon={<Icon.Mirror />} onOk={st.commitFeature} onCancel={st.cancelFeature} />
           <Section title="Mirror Face/Plane">
-            <select className="k-input" value={d.plane} onChange={(e) => st.updateFeatureDraft({ plane: e.target.value })}>
-              {planeOptions.map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}
-            </select>
+            {/* a sheet metal part: the hint of the intended design on the mirror face box */}
+            <div className={st.doc.sheetMetal ? 'k-tip' : undefined} data-tip={st.doc.sheetMetal ? 'To mirror a sheet metal part, please select a face of the sheet metal part as the Mirror Plane/Face' : undefined} data-testid="mirror-plane-box">
+              <select className="k-input" value={d.plane} onChange={(e) => st.updateFeatureDraft({ plane: e.target.value })}>
+                {planeOptions.map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}
+              </select>
+            </div>
           </Section>
           <Section title="Features to Mirror" defaultOpen={!!d.featureIds?.length}>
             <div className="k-selbox" style={{ minHeight: 30 }} data-testid="mirror-features">

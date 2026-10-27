@@ -58,6 +58,14 @@ function rotate(v: V3, d: V3, ang: number): V3 {
   return [v[0] * c + cr[0] * s + d[0] * dot * (1 - c), v[1] * c + cr[1] * s + d[1] * dot * (1 - c), v[2] * c + cr[2] * s + d[2] * dot * (1 - c)];
 }
 
+/** Perpendicular to a curve: the plane at its end point (flip: the other end), normal to the curve there. */
+export function curveEndNormal(points: { x: number; y: number; z: number }[], flip: boolean): { origin: V3; n: V3 } | undefined {
+  if (points.length < 2) return undefined;
+  const pts = flip ? [...points].reverse() : points;
+  const p = pts[pts.length - 1], q = pts[pts.length - 2];
+  return { origin: [p.x, p.y, p.z], n: [p.x - q.x, p.y - q.y, p.z - q.z] };
+}
+
 /**
  * A reference plane from its definition: offset along the normal of the reference plane, at an
  * angle about an axis lying in it, parallel through the origin, or coincident.
@@ -79,6 +87,13 @@ function referencePlaneRaw(id: string, name: string, base: PlaneDef, def: NonNul
   }
   // Perpendicular: through the straight edge (second reference) or the reference's origin, at 90° to it
   if (def.mode === 'perpendicular') {
+    // normal to a curve at its end point (the sweep path's start, by design)
+    if (def.normalAt) {
+      const n = norm(def.normalAt.n);
+      const helper: V3 = Math.abs(n[2]) < 0.9 ? [0, 0, 1] : [1, 0, 0];
+      const u = norm(cross(helper, n));
+      return { id, name, origin: def.normalAt.origin, u, v: norm(cross(n, u)), n, kind: 'reference', def };
+    }
     if (def.axis) {
       const d = norm(def.axis.dir);
       const n = norm(rotate(base.n, d, (sign * Math.PI) / 2));

@@ -1,5 +1,6 @@
 /** Property Panels: surfacePMs (split from PropertyPanel.tsx, QA F103). */
 import { type ReactNode } from 'react';
+import { useStore } from '../../store';
 import { NumberField, Section } from '../../../ui/components';
 import { Icon } from '../../../ui/icons';
 import { Header } from './shared';
@@ -257,6 +258,7 @@ export function deleteFacePM(ctx: PMContext): ReactNode | typeof NEXT {
           <div className="k-selbox k-selbox-dir" style={{ minHeight: 60 }} data-testid="deleteface-faces">
             {d.faces.length ? d.faces.map((f) => <div key={f.label} className="k-selbox-row">{f.label}<button className="k-btn ghost icon" style={{ marginLeft: 'auto' }} onClick={() => st.updateFeatureDraft({ faces: d.faces.filter((x) => x.label !== f.label) })}>×</button></div>) : <span className="k-muted">Faces to delete</span>}
           </div>
+          <label className="k-check"><input type="checkbox" data-testid="deleteface-seltoolbar" checked={st.selectionToolbar} onChange={(e) => useStore.setState({ selectionToolbar: e.target.checked })} /> Show selection toolbar</label>
         </Section>
         <Section title="Options">
           <div className="k-pm-radios" data-testid="deleteface-option">
@@ -264,6 +266,7 @@ export function deleteFacePM(ctx: PMContext): ReactNode | typeof NEXT {
             <label className="k-check"><input type="radio" name="dfopt" checked={d.option === 'patch'} onChange={() => st.updateFeatureDraft({ option: 'patch' })} /> Delete and Patch</label>
             <label className="k-check"><input type="radio" name="dfopt" checked={d.option === 'fill'} onChange={() => st.updateFeatureDraft({ option: 'fill' })} /> Delete and Fill</label>
           </div>
+          <label className="k-check"><input type="checkbox" data-testid="deleteface-preview" checked={!!d.preview} onChange={(e) => { st.updateFeatureDraft({ preview: e.target.checked }); if (e.target.checked !== st.detailedPreview) st.toggleDetailedPreview(); }} /> Show preview</label>
         </Section>
       </>
     );

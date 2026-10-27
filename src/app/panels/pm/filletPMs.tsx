@@ -3,7 +3,7 @@ import { type ReactNode } from 'react';
 import { useStore } from '../../store';
 import { NumberField, Section } from '../../../ui/components';
 import { Icon } from '../../../ui/icons';
-import { Header } from './shared';
+import { Header, fieldEquation } from './shared';
 import { NEXT, type PMContext } from './context';
 
 export function filletPM(ctx: PMContext): ReactNode | typeof NEXT {
@@ -25,7 +25,7 @@ export function filletPM(ctx: PMContext): ReactNode | typeof NEXT {
             <button className={`k-pm-stylebtn k-tip ${d.type === 'chamfer' ? 'active' : ''}`} data-tip="Chamfer" data-testid="bcorner-chamfer" onClick={() => st.updateFeatureDraft({ type: 'chamfer' } as never)}><Icon.Chamfer size={14} /></button>
             <button className={`k-pm-stylebtn k-tip ${d.type === 'fillet' ? 'active' : ''}`} data-tip="Fillet" data-testid="bcorner-fillet" onClick={() => st.updateFeatureDraft({ type: 'fillet' } as never)}><Icon.Arc size={14} /></button>
           </div>
-          <div className="k-pm-valuerow"><Icon.Dimension size={14} /><NumberField value={d.size} onChange={(v) => st.updateFeatureDraft({ size: Math.max(0.01, v) })} unit={st.doc.units} step={1} min={0.01} autoFocus /></div>
+          <div className="k-pm-valuerow"><Icon.Dimension size={14} /><NumberField equation={fieldEquation(st, 'size')} value={d.size} onChange={(v) => st.updateFeatureDraft({ size: Math.max(0.01, v) })} unit={st.doc.units} step={1} min={0.01} autoFocus /></div>
           <label className="k-check"><input type="checkbox" data-testid="bcorner-internal" checked={!!d.internalOnly} onChange={(e) => st.updateFeatureDraft({ internalOnly: e.target.checked })} /> Internal corners only</label>
         </Section>
         {err && (
@@ -58,7 +58,7 @@ export function filletPM2(ctx: PMContext): ReactNode | typeof NEXT {
             {xpert ? (
               <Section title="Items To Fillet">
                 <p className="k-pm-message">FilletXpert: select edges, set the radius and press Apply. The fillet is added and the Property Panel stays open for the next set.</p>
-                <div className="k-pm-valuerow"><Icon.Dimension size={14} /><NumberField value={d.size} onChange={(v) => st.updateFeatureDraft({ size: Math.max(0.01, v) })} unit={st.doc.units} step={1} min={0.01} /></div>
+                <div className="k-pm-valuerow"><Icon.Dimension size={14} /><NumberField equation={fieldEquation(st, 'size')} value={d.size} onChange={(v) => st.updateFeatureDraft({ size: Math.max(0.01, v) })} unit={st.doc.units} step={1} min={0.01} /></div>
                 <button className="k-btn" data-testid="fillet-xpert-apply" disabled={!d.edges.length} onClick={() => { const size = d.size; st.commitFeature(); st.startRound('fillet'); st.updateFeatureDraft({ size }); }}>Apply</button>
               </Section>
             ) : (
@@ -87,7 +87,7 @@ export function filletPM2(ctx: PMContext): ReactNode | typeof NEXT {
         {!isFillet && d.roundType === 'vertex' && (
           <Section title="Items To Chamfer">
             <div className="k-pm-selrow"><Icon.Point size={16} /><div className="k-selbox k-selbox-dir" style={{ minHeight: 24 }} data-testid="chamfer-vertex-box">{d.vertex ? <div className="k-selbox-row"><Icon.Point size={12} /> {d.vertex.label}</div> : <span className="k-muted">Select a vertex (a corner of three edges) in the graphics area.</span>}</div></div>
-            <div className="k-pm-valuerow"><span className="k-muted" style={{ minWidth: 18 }}>D1</span><NumberField value={d.size} onChange={(v) => st.updateFeatureDraft({ size: Math.max(0.01, v) })} unit={st.doc.units} step={1} min={0.01} /></div>
+            <div className="k-pm-valuerow"><span className="k-muted" style={{ minWidth: 18 }}>D1</span><NumberField equation={fieldEquation(st, 'size')} value={d.size} onChange={(v) => st.updateFeatureDraft({ size: Math.max(0.01, v) })} unit={st.doc.units} step={1} min={0.01} /></div>
             <div className="k-pm-valuerow"><span className="k-muted" style={{ minWidth: 18 }}>D2</span><NumberField value={d.equalDistance === false ? d.size2 ?? d.size : d.size} onChange={(v) => st.updateFeatureDraft({ size2: Math.max(0.01, v) })} unit={st.doc.units} step={1} min={0.01} disabled={d.equalDistance !== false} /></div>
             <div className="k-pm-valuerow"><span className="k-muted" style={{ minWidth: 18 }}>D3</span><NumberField value={d.equalDistance === false ? d.size3 ?? d.size : d.size} onChange={(v) => st.updateFeatureDraft({ size3: Math.max(0.01, v) })} unit={st.doc.units} step={1} min={0.01} disabled={d.equalDistance !== false} /></div>
             <label className="k-check"><input type="checkbox" data-testid="chamfer-equal" checked={d.equalDistance !== false} onChange={(e) => st.updateFeatureDraft({ equalDistance: e.target.checked ? undefined : false, size2: d.size2 ?? d.size, size3: d.size3 ?? d.size })} /> Equal distance</label>
@@ -167,7 +167,7 @@ export function filletPM2(ctx: PMContext): ReactNode | typeof NEXT {
           ) : (
             <div className="k-pm-valuerow">
               <Icon.Dimension size={14} />
-              <NumberField value={d.size} onChange={(v) => st.updateFeatureDraft({ size: Math.max(0.01, v) })} unit={st.doc.units} step={1} min={0.01} autoFocus />
+              <NumberField equation={fieldEquation(st, 'size')} value={d.size} onChange={(v) => st.updateFeatureDraft({ size: Math.max(0.01, v) })} unit={st.doc.units} step={1} min={0.01} autoFocus />
             </div>
           )}
           {d.roundType === 'angleDistance' && !isFillet && <div className="k-pm-valuerow"><Icon.MateAngle size={14} /><NumberField value={d.angle ?? 45} onChange={(v) => st.updateFeatureDraft({ angle: Math.max(1, Math.min(89, v)) })} unit="°" step={5} /></div>}

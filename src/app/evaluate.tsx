@@ -30,6 +30,9 @@ export function MassPropertiesDialog() {
   const body = st.rebuild.bodies[0];
   const [tick, setTick] = useState(0);
   const [includeHidden, setIncludeHidden] = useState(true);
+  // Selected items: the whole part, or only the bodies picked here (multibody), as the intended design
+  const [picked, setPicked] = useState<string[]>([]);
+  const nameOf = (b: { id: string; featureIds: string[] }) => st.doc.bodyNames?.[b.id] ?? st.doc.features.find((f) => f.id === b.featureIds[b.featureIds.length - 1])?.name ?? b.id;
   const [weld, setWeld] = useState(false);
   const [frameId, setFrameId] = useState('default');
   const [opts, setOptsState] = useState<MassOpts>(loadMassOpts);
@@ -43,7 +46,7 @@ export function MassPropertiesDialog() {
     if (!body) return null;
     const comps = st.doc.components ?? [];
     // Include hidden bodies/components: hidden components are rebuilt in place; hidden bodies of a part count or not
-    let bodies = st.rebuild.bodies.filter((b) => includeHidden || !(st.doc.hiddenBodies ?? []).includes(b.id));
+    let bodies = st.rebuild.bodies.filter((b) => (includeHidden || !(st.doc.hiddenBodies ?? []).includes(b.id)) && (!picked.length || picked.includes(b.id)));
     if (includeHidden && comps.some((c) => c.hidden && !c.suppressed)) {
       try {
         const all = rebuildAssembly({ ...st.doc, components: comps.map((c) => ({ ...c, hidden: false })) }).bodies;
@@ -124,7 +127,7 @@ export function MassPropertiesDialog() {
       row2('I', m.inertiaOrigin[1]),
       row3('I', m.inertiaOrigin[2]),
     ].join('\n');
-  }, [body, st.rebuild.bodies, st.rebuild.curves, st.doc, tick, includeHidden, weld, frameId, opts, ov, frames]);
+  }, [body, st.rebuild.bodies, st.rebuild.curves, st.doc, tick, includeHidden, weld, frameId, opts, ov, frames, picked]);
   const copy = () => {
     if (!report) return;
     navigator.clipboard?.writeText(report).then(() => st.pushMessage('Mass properties copied to the clipboard.'));
@@ -140,8 +143,15 @@ export function MassPropertiesDialog() {
         <div className="k-panel-body" style={{ padding: 8 }}>
           <div className="k-field" style={{ marginBottom: 6 }}>
             <label>Selected items:</label>
-            <input className="k-input" readOnly value={body ? `${st.doc.name}.kcad` : 'No solid body'} />
+            <input className="k-input" readOnly data-testid="mass-selected" value={!body ? 'No solid body' : picked.length ? st.rebuild.bodies.filter((b) => picked.includes(b.id)).map(nameOf).join(', ') : `${st.doc.name}.kcad`} />
           </div>
+          {st.rebuild.bodies.length > 1 && !st.doc.components?.length && (
+            <div className="k-selbox" data-testid="mass-bodies" style={{ marginBottom: 6, maxHeight: 90, overflow: 'auto' }}>
+              {st.rebuild.bodies.map((b) => (
+                <label key={b.id} className="k-check"><input type="checkbox" checked={picked.includes(b.id)} onChange={(e) => setPicked((p) => (e.target.checked ? [...p, b.id] : p.filter((x) => x !== b.id)))} /> {nameOf(b)}</label>
+              ))}
+            </div>
+          )}
           <div className="k-mass-toolbar">
             <button className={`k-btn${panel === 'options' ? ' active' : ''}`} data-testid="mass-options" onClick={() => setPanel(panel === 'options' ? null : 'options')}>Options…</button>
             <button className={`k-btn${panel === 'override' ? ' active' : ''}`} data-testid="mass-override" onClick={() => setPanel(panel === 'override' ? null : 'override')}>Override Mass Properties…</button>
@@ -261,6 +271,8 @@ function measureLines(st: ReturnType<typeof useStore.getState>): { items: string
     }
     lines.push({ label: 'Total Length', value: `${fmt(edges[0]!.length + edges[1]!.length)}${u}` });
   }
+  // three or more edges: their total length, as the intended design
+  if (edges.length > 2 && !faces.length) lines.push({ label: 'Total Length', value: `${fmt(edges.reduce((n, e) => n + e!.length, 0))}${u}` });
   if (faces.length === 2 && !edges.length && !faces[0]!.curved && !faces[1]!.curved) {
     const n0 = new THREE.Vector3(...faces[0]!.normal), n1 = new THREE.Vector3(...faces[1]!.normal);
     const dot = Math.abs(n0.dot(n1));
@@ -327,6 +339,8 @@ export function MeasureDialog() {
               </div>
             ))}
           </div>
+          {/* the document the measurement comes from, as the intended footer */}
+          {items.length > 0 && <div className="k-muted" data-testid="measure-file" style={{ marginTop: 6, fontSize: 11 }}>File: {st.doc.name}  Config: {activeConfiguration(st.doc).name}</div>}
         </div>
       </div>
     </div>

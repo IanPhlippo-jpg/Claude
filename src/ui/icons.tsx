@@ -689,6 +689,25 @@ export const Icon = {
       <path d="M14 3l7 7-3 1.5-3.5-.5L9 16l-1.5 6-1.5-1.5L12 14l-.5-3.5L9 7z" fill={C.greyL} stroke={C.greyD} strokeWidth={1.2} />
     </svg>
   ),
+  Sigma: ({ size = 16, ...p }: P) => (
+    <svg {...base(size, p)}>
+      <path d="M17 5H7l6 7-6 7h10" fill="none" stroke={C.greyD} strokeWidth={1.8} strokeLinejoin="round" />
+    </svg>
+  ),
+  EyeOff: ({ size = 16, ...p }: P) => (
+    <svg {...base(size, p)}>
+      <path d="M2 12c3-5 7-7 10-7s7 2 10 7c-3 5-7 7-10 7s-7-2-10-7z" fill={C.white} stroke={C.greyD} strokeWidth={1.4} />
+      <circle cx="12" cy="12" r="3.5" fill={C.greyD} />
+      <path d="M4 20L20 4" stroke={C.greyD} strokeWidth={1.8} />
+    </svg>
+  ),
+  ZoomSelection: ({ size = 16, ...p }: P) => (
+    <svg {...base(size, p)}>
+      <circle cx="10" cy="10" r="6.5" fill={C.white} stroke={C.greyD} strokeWidth={1.6} />
+      <rect x="7" y="7" width="6" height="6" fill="none" stroke={C.greyD} strokeWidth={1.2} strokeDasharray="2 1" />
+      <path d="M15 15l6 6" stroke={C.greyD} strokeWidth={2.4} />
+    </svg>
+  ),
   Search: ({ size = 16, ...p }: P) => (
     <svg {...base(size, p)}>
       <circle cx="10" cy="10" r="6.5" fill={C.white} stroke={C.greyD} strokeWidth={1.6} />

@@ -17,7 +17,7 @@ import type { Region } from './regions';
  *   direction 'normal'   — the material grows along the plane normal (a band of the thickness
  *                          around the sketch, extruded until it meets the body)
  */
-export function ribGeometry(sketch: Sketch, plane: PlaneDef, body: THREE.BufferGeometry, f: Pick<RibFeature, 'thickness' | 'side' | 'direction' | 'flip'> & Partial<Pick<RibFeature, 'draft' | 'draftOutward'>>): { geometry: THREE.BufferGeometry | null; error?: string } {
+export function ribGeometry(sketch: Sketch, plane: PlaneDef, body: THREE.BufferGeometry, f: Pick<RibFeature, 'thickness' | 'side' | 'direction' | 'flip'> & Partial<Pick<RibFeature, 'draft' | 'draftOutward' | 'thicknessAt' | 'ribType'>>): { geometry: THREE.BufferGeometry | null; error?: string } {
   const chains = sketchChains(sketch).filter((c) => c.points.length >= 2);
   if (!chains.length) return { geometry: null, error: 'The rib sketch needs a line, arc or chain to grow the rib from.' };
   const t = Math.max(1e-3, f.thickness);
@@ -35,6 +35,11 @@ export function ribGeometry(sketch: Sketch, plane: PlaneDef, body: THREE.BufferG
     return hit && hit.distance <= reach ? hit.distance : null;
   };
   const OVER = 0.05; // a little into the body so the rib merges with it
+  // Rib Thickness ▸ At wall interface: the drafted rib has the thickness where it meets the body, so it starts
+  // thicker (inward draft) or thinner (outward) at the sketch by the draft over the rib's depth
+  const tan = f.draft ? Math.tan((Math.min(45, Math.max(0, f.draft)) * Math.PI) / 180) * (f.draftOutward ? -1 : 1) : 0;
+  const atSketch = (depth: number) => (f.thicknessAt === 'wall' && tan ? Math.max(0.01, t + 2 * depth * tan) : t);
+  const natural = f.direction === 'normal' && f.ribType === 'natural';
 
   const parts: THREE.BufferGeometry[] = [];
   for (const chain of chains) {
@@ -42,13 +47,17 @@ export function ribGeometry(sketch: Sketch, plane: PlaneDef, body: THREE.BufferG
     const mid = midpoint(pts);
     if (!chain.closed) {
       // extend both ends to the body (the intended design extends the sketch automatically)
-      extendEnd(pts, true, hitDistance);
-      extendEnd(pts, false, hitDistance);
+      if (natural) {
+        extendNatural(pts, true, hitDistance);
+        extendNatural(pts, false, hitDistance);
+      } else {
+        extendEnd(pts, true, hitDistance);
+        extendEnd(pts, false, hitDistance);
+      }
     }
     const dense = resample(pts, 64);
     let geom: THREE.BufferGeometry | null;
     if (f.direction === 'normal') {
-      const regions = thinRegions([{ points: pts, closed: chain.closed }], { mode: 'mid', thickness: t });
       const up = hitDistance(new THREE.Vector3(mid.x, mid.y, 0), new THREE.Vector3(0, 0, 1));
       const down = hitDistance(new THREE.Vector3(mid.x, mid.y, 0), new THREE.Vector3(0, 0, -1));
       let reverse = up === null && down !== null ? true : up !== null && down === null ? false : (down ?? Infinity) < (up ?? Infinity);
@@ -56,10 +65,14 @@ export function ribGeometry(sketch: Sketch, plane: PlaneDef, body: THREE.BufferG
       const dir = new THREE.Vector3(0, 0, reverse ? -1 : 1);
       const hits = dense.map((p) => hitDistance(new THREE.Vector3(p.x, p.y, 0), dir)).filter((d): d is number => d !== null);
       if (!hits.length) return { geometry: null, error: 'The rib does not reach the body: sketch it so that the material can grow into the part.' };
-      geom = extrudeGeometry(regions, plane, { end: 'blind', depth: Math.max(...hits) + OVER, reverse }, THROUGH_ALL, 0);
-      if (geom && f.draft) geom = ribDraft(geom, M, Minv, dense, f.draft, !!f.draftOutward, t / 2, 'normal', 0);
+      const depth = Math.max(...hits);
+      const ts = atSketch(depth);
+      const regions = thinRegions([{ points: pts, closed: chain.closed }], { mode: 'mid', thickness: ts });
+      geom = extrudeGeometry(regions, plane, { end: 'blind', depth: depth + OVER, reverse }, THROUGH_ALL, 0);
+      if (geom && f.draft) geom = ribDraft(geom, M, Minv, dense, f.draft, !!f.draftOutward, ts / 2, 'normal', 0);
     } else {
       let regions: Region[];
+      let ts = t;
       if (chain.closed) {
         regions = [{ outer: pts, holes: [], area: 0 }];
       } else {
@@ -78,12 +91,13 @@ export function ribGeometry(sketch: Sketch, plane: PlaneDef, body: THREE.BufferG
         const valid = hits.filter((d): d is number => d !== null);
         if (!valid.length) return { geometry: null, error: 'The rib does not reach the body: sketch it so that the material can grow into the part (or Flip material side).' };
         const dmax = Math.max(...valid);
+        ts = atSketch(dmax);
         const farSide = dense.map((p, i) => ({ x: p.x + dir.x * ((hits[i] ?? dmax) + OVER), y: p.y + dir.y * ((hits[i] ?? dmax) + OVER) }));
         regions = [{ outer: [...dense, ...farSide.reverse()], holes: [], area: 0 }];
       }
-      const ext = f.side === 'both' ? { end: 'midPlane' as const, depth: t, reverse: false } : { end: 'blind' as const, depth: t, reverse: f.side === 'second' };
+      const ext = f.side === 'both' ? { end: 'midPlane' as const, depth: ts, reverse: false } : { end: 'blind' as const, depth: ts, reverse: f.side === 'second' };
       geom = extrudeGeometry(regions, plane, ext, THROUGH_ALL, 0);
-      if (geom && f.draft) geom = ribDraft(geom, M, Minv, dense, f.draft, !!f.draftOutward, t / 2, 'parallel', f.side === 'both' ? 0 : f.side === 'second' ? -t / 2 : t / 2);
+      if (geom && f.draft) geom = ribDraft(geom, M, Minv, dense, f.draft, !!f.draftOutward, ts / 2, 'parallel', f.side === 'both' ? 0 : f.side === 'second' ? -ts / 2 : ts / 2);
     }
     if (geom) parts.push(geom);
   }
@@ -170,6 +184,47 @@ function resample(pts: SketchPoint[], n: number): SketchPoint[] {
     for (let j = 1; j <= k; j++) out.push({ x: a.x + ((b.x - a.x) * j) / k, y: a.y + ((b.y - a.y) * j) / k });
   }
   return out;
+}
+
+/**
+ * Type ▸ Natural: the end of the chain runs on along its own curve until the body is hit. A curved end (the last
+ * three points not in line, as on an arc) follows its circle in small steps; a straight end goes on straight, as Linear.
+ */
+function extendNatural(pts: SketchPoint[], first: boolean, hitDistance: (o: THREE.Vector3, d: THREE.Vector3) => number | null): void {
+  if (pts.length < 3) return extendEnd(pts, first, hitDistance);
+  const [a, b, c] = first ? [pts[2], pts[1], pts[0]] : [pts[pts.length - 3], pts[pts.length - 2], pts[pts.length - 1]];
+  const cross = (b.x - a.x) * (c.y - b.y) - (b.y - a.y) * (c.x - b.x);
+  const span = Math.hypot(c.x - a.x, c.y - a.y);
+  if (Math.abs(cross) < 1e-6 * span * span) return extendEnd(pts, first, hitDistance);
+  // the circle through a, b, c
+  const d = 2 * (a.x * (b.y - c.y) + b.x * (c.y - a.y) + c.x * (a.y - b.y));
+  const a2 = a.x * a.x + a.y * a.y, b2 = b.x * b.x + b.y * b.y, c2 = c.x * c.x + c.y * c.y;
+  const cx = (a2 * (b.y - c.y) + b2 * (c.y - a.y) + c2 * (a.y - b.y)) / d;
+  const cy = (a2 * (c.x - b.x) + b2 * (a.x - c.x) + c2 * (b.x - a.x)) / d;
+  const r = Math.hypot(c.x - cx, c.y - cy);
+  const sense = cross > 0 ? 1 : -1;
+  const step = (2 * Math.PI) / 180;
+  const added: SketchPoint[] = [];
+  let p = c;
+  let ang = Math.atan2(c.y - cy, c.x - cx);
+  for (let i = 0; i < 180; i++) {
+    ang += sense * step;
+    const q = { x: cx + r * Math.cos(ang), y: cy + r * Math.sin(ang) };
+    const dir = new THREE.Vector3(q.x - p.x, q.y - p.y, 0);
+    const len = dir.length();
+    const hit = hitDistance(new THREE.Vector3(p.x, p.y, 0), dir);
+    if (hit !== null && hit <= len) {
+      const e = hit + 0.05;
+      added.push({ x: p.x + (dir.x / len) * e, y: p.y + (dir.y / len) * e });
+      if (first) pts.unshift(...added.reverse());
+      else pts.push(...added);
+      return;
+    }
+    added.push(q);
+    p = q;
+  }
+  // a full turn without meeting the body: the curve stays as sketched, like Linear
+  extendEnd(pts, first, hitDistance);
 }
 
 /** Extend the first (or last) point of a polyline along its end tangent until the body is hit. */

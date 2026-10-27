@@ -6,6 +6,7 @@ import { Icon } from '../ui/icons';
 import { dimensionTable, equationsFromText, equationsToText, evaluateEquations, type Equation } from '../core/document/equations';
 import { downloadText } from './assemblyCommands';
 import { newId } from '../core/sketch/model';
+import { EquationMenu } from '../ui/equationMenu';
 
 const fmt = (v: number) => (Number.isInteger(v) ? String(v) : v.toFixed(3).replace(/\.?0+$/, ''));
 
@@ -20,6 +21,8 @@ export function EquationsDialog() {
   const [rows, setRows] = useState<Equation[]>(() => st.doc.equations.map((e) => ({ ...e })));
   const [view, setView] = useState<'equation' | 'sketch' | 'dimension' | 'ordered'>('equation');
   const [autoRebuild, setAutoRebuild] = useState(true);
+  // the Value cell being typed in: the Global Variables / Functions / File Properties pick list hangs under it
+  const [valueFocus, setValueFocus] = useState<string | null>(null);
   const [autoSolve, setAutoSolve] = useState(true);
   const [angleUnits, setAngleUnits] = useState<'deg' | 'rad'>(st.doc.equationAngleUnits ?? 'deg');
   const [linkFile, setLinkFile] = useState<string | undefined>(st.doc.equationsFile);
@@ -84,7 +87,10 @@ export function EquationsDialog() {
             <td>
               {isDim || isFeature ? <span className="mono">"{r.target}"</span> : <input className="k-input mono" value={`"${r.target}"`} onChange={(e) => update(r.id, { target: e.target.value.replace(/"/g, '') })} onKeyDown={(e) => e.stopPropagation()} />}
             </td>
-            <td><input className="k-input mono" value={r.expression.startsWith('=') ? r.expression : `= ${r.expression}`} onChange={(e) => update(r.id, { expression: e.target.value.replace(/^\s*=\s*/, '') })} onKeyDown={(e) => e.stopPropagation()} /></td>
+            <td style={{ position: 'relative' }}>
+              <input className="k-input mono" data-testid="eq-value" value={r.expression.startsWith('=') ? r.expression : `= ${r.expression}`} onFocus={() => setValueFocus(r.id)} onBlur={() => setValueFocus((v) => (v === r.id ? null : v))} onChange={(e) => update(r.id, { expression: e.target.value.replace(/^\s*=\s*/, '') })} onKeyDown={(e) => e.stopPropagation()} />
+              {valueFocus === r.id && <EquationMenu text={`= ${r.expression}`} setText={(t) => update(r.id, { expression: t.replace(/^\s*=\s*/, '') })} />}
+            </td>
             <td className="mono">{isFeature && !(r.id in preview.errors) && r.id in preview.values ? (preview.values[r.id] !== 0 ? 'Suppressed' : 'Unsuppressed') : evalText(r)}{isDim && !(r.id in preview.errors) ? (dims.find((d) => d.name === r.target)?.ref.kind === 'sketch' && dims.find((d) => d.name === r.target)?.ref.kind === 'sketch' && (dims.find((d) => d.name === r.target)!.ref as { angle?: boolean }).angle ? '°' : st.doc.units) : ''}</td>
             <td><input className="k-input" value={r.comment ?? ''} onChange={(e) => update(r.id, { comment: e.target.value })} onKeyDown={(e) => e.stopPropagation()} /></td>
             <td><button className="k-btn ghost icon k-tip" data-tip="Delete" onClick={() => remove(r.id)}><Icon.Trash size={12} /></button></td>

@@ -15,6 +15,9 @@ import { withUnsavedCheck } from '../MenuBar';
 import { activeConfiguration } from '../../core/document/configurations';
 import { PLANE_LABELS } from '../viewport/camera';
 import { sketchChains } from '../../core/features/thin';
+import * as THREE from 'three';
+import { resolvePlaneDef } from '../../core/features/planes';
+import { planeMatrix } from '../../core/features/solid';
 import { isRoundFeature, isSketchBased, isSolidFeature, type Feature } from '../../core/document/types';
 
 const STATUS_LABEL: Record<string, string> = { under: 'under defined', full: '', over: 'over defined', conflict: 'conflict', invalid: 'invalid' };
@@ -25,7 +28,7 @@ const STATUS_LABEL: Record<string, string> = { under: 'under defined', full: '',
  * child); with a draggable rollback bar.
  */
 export function FeatureTreeBody() {
-  const st = useStore(useShallow((s) => ({ treeFilter: s.treeFilter, rebuild: s.rebuild, renameFeature: s.renameFeature, solve: s.solve, doc: s.doc, rollbackIndex: s.rollbackIndex, activeSketchId: s.activeSketchId, selectedFeatureId: s.selectedFeatureId, editSketch: s.editSketch, setSelection: s.setSelection, setSelectedFeature: s.setSelectedFeature, featureEdit: s.featureEdit, edit3DSketch: s.edit3DSketch, editFeature: s.editFeature, setHoverPlane: s.setHoverPlane, selectedPlane: s.selectedPlane, planePick: s.planePick, newSketch: s.newSketch, setSelectedPlane: s.setSelectedPlane, setDialog: s.setDialog, toggleShow: s.toggleShow, applyDocument: s.applyDocument, setSheetMetalEdit: s.setSheetMetalEdit, planeEdit: s.planeEdit, editPlane: s.editPlane, startRefGeom: s.startRefGeom, pushMessage: s.pushMessage, setRollback: s.setRollback, setMaterial: s.setMaterial, rebuildAll: s.rebuildAll, addSensor: s.addSensor, setAsk: s.setAsk, setBodyHidden: s.setBodyHidden, openMaterialFor: s.openMaterialFor, startCombine: s.startCombine, setIsolated: s.setIsolated, deleteBodies: s.deleteBodies, deleteSensor: s.deleteSensor, toggleSuppress: s.toggleSuppress, openConfigure: s.openConfigure, startFeature: s.startFeature, requestDeleteFeature: s.requestDeleteFeature })));
+  const st = useStore(useShallow((s) => ({ treeFilter: s.treeFilter, show: s.show, rebuild: s.rebuild, renameFeature: s.renameFeature, solve: s.solve, doc: s.doc, rollbackIndex: s.rollbackIndex, activeSketchId: s.activeSketchId, selectedFeatureId: s.selectedFeatureId, editSketch: s.editSketch, setSelection: s.setSelection, setSelectedFeature: s.setSelectedFeature, featureEdit: s.featureEdit, edit3DSketch: s.edit3DSketch, editFeature: s.editFeature, setHoverPlane: s.setHoverPlane, selectedPlane: s.selectedPlane, planePick: s.planePick, newSketch: s.newSketch, setSelectedPlane: s.setSelectedPlane, setDialog: s.setDialog, toggleShow: s.toggleShow, applyDocument: s.applyDocument, setSheetMetalEdit: s.setSheetMetalEdit, planeEdit: s.planeEdit, editPlane: s.editPlane, startRefGeom: s.startRefGeom, pushMessage: s.pushMessage, setRollback: s.setRollback, setMaterial: s.setMaterial, rebuildAll: s.rebuildAll, addSensor: s.addSensor, setAsk: s.setAsk, setBodyHidden: s.setBodyHidden, openMaterialFor: s.openMaterialFor, startCombine: s.startCombine, setIsolated: s.setIsolated, deleteBodies: s.deleteBodies, deleteSensor: s.deleteSensor, toggleSuppress: s.toggleSuppress, openConfigure: s.openConfigure, startFeature: s.startFeature, requestDeleteFeature: s.requestDeleteFeature })));
   const [menu, setMenu] = useState<{ x: number; y: number; featureId: string } | null>(null);
   // the context toolbar of a clicked feature or sketch, by design: it appears beside the pointer and fades when the pointer leaves
   const [bar, setBar0] = useState<{ x: number; y: number; featureId: string; shown?: boolean; live?: boolean } | null>(null);
@@ -60,6 +63,34 @@ export function FeatureTreeBody() {
   const dragRollback = useRef(false);
   const q = st.treeFilter.trim().toLowerCase();
   const consumed = st.rebuild.consumedSketches;
+
+  // F2 renames the selected plane or feature in the tree, by design
+  useEffect(() => {
+    const key = (e: KeyboardEvent) => {
+      if (e.key !== 'F2' || (e.target as Element)?.closest?.('input, textarea, select')) return;
+      const s = useStore.getState();
+      if (s.selectedPlane === 'front' || s.selectedPlane === 'top' || s.selectedPlane === 'right') setRenaming({ id: '__plane:' + s.selectedPlane, value: s.doc.planeNames?.[s.selectedPlane] ?? PLANE_LABELS[s.selectedPlane] });
+      else if (s.selectedFeatureId) { const f = s.doc.features.find((x) => x.id === s.selectedFeatureId); if (f) setRenaming({ id: f.id, value: f.name }); }
+      else return;
+      e.preventDefault();
+    };
+    window.addEventListener('keydown', key);
+    return () => window.removeEventListener('keydown', key);
+  }, []);
+  // the rename box of a body or plane (their names live in the document, not in a feature)
+  const renameBox = (id: string, current: string, save: (name: string) => void): ReactNode => (
+    <input
+      className="k-input"
+      style={{ height: 20 }}
+      autoFocus
+      data-testid="tree-rename"
+      onFocus={(e) => e.target.select()}
+      value={renaming?.value ?? current}
+      onChange={(e) => setRenaming({ id, value: e.target.value })}
+      onBlur={() => { if (renaming?.value && renaming.value !== current) save(renaming.value); setRenaming(null); }}
+      onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); if (e.key === 'Escape') setRenaming(null); e.stopPropagation(); }}
+    />
+  );
 
   const nameLabel = (f: Feature, prefix = ''): ReactNode =>
     renaming?.id === f.id ? (
@@ -202,12 +233,18 @@ export function FeatureTreeBody() {
 
   const planeNode = (p: 'front' | 'top' | 'right'): TreeNode => ({
     id: 'plane-' + p,
-    label: <span onMouseEnter={() => st.setHoverPlane(p)} onMouseLeave={() => st.setHoverPlane(null)}>{PLANE_LABELS[p]}</span>,
+    label: renaming?.id === '__plane:' + p
+      ? renameBox('__plane:' + p, st.doc.planeNames?.[p] ?? PLANE_LABELS[p], (name) => st.applyDocument('Rename plane', { ...st.doc, planeNames: { ...st.doc.planeNames, [p]: name } }))
+      : <span onMouseEnter={() => st.setHoverPlane(p)} onMouseLeave={() => st.setHoverPlane(null)}>{st.doc.planeNames?.[p] ?? PLANE_LABELS[p]}</span>,
     icon: <Icon.TreePlane />,
     selected: st.selectedPlane === p,
     onClick: (e) => {
       if (st.planePick) st.newSketch(p);
-      else st.setSelectedPlane(e.ctrlKey && st.selectedPlane === p ? null : p);
+      else {
+        st.setSelectedPlane(e.ctrlKey && st.selectedPlane === p ? null : p);
+        // the context toolbar of a plane, as the intended design: Sketch, Show/Hide, Zoom to Selection, Normal To
+        if (!e.ctrlKey && !st.activeSketchId && !st.featureEdit) setBar({ x: e.clientX, y: e.clientY, featureId: '__plane:' + p });
+      }
     },
     onDoubleClick: () => {
       if (!st.activeSketchId) st.newSketch(p);
@@ -253,6 +290,7 @@ export function FeatureTreeBody() {
   const bodies = st.rebuild.bodies;
   // a body is named after its last feature; several bodies of one feature get [1], [2], …, by design
   const bodyName = (b: (typeof bodies)[number]) => {
+    if (st.doc.bodyNames?.[b.id]) return st.doc.bodyNames[b.id];
     const name = (x: typeof b) => st.doc.features.find((f) => f.id === x.featureIds[x.featureIds.length - 1])?.name ?? x.id;
     const same = bodies.filter((x) => name(x) === name(b));
     return same.length > 1 ? `${name(b)}[${same.indexOf(b) + 1}]` : name(b);
@@ -293,7 +331,7 @@ export function FeatureTreeBody() {
               return {
                 id: 'body-' + b.id,
                 icon: <Icon.Part style={hiddenBody ? { opacity: 0.4 } : undefined} />,
-                label: <span className={hiddenBody ? 'k-muted' : ''} style={hiddenBody ? { fontStyle: 'italic' } : undefined} title={b.exact ? 'Exact surfaces (B-rep)' : 'Faceted (mesh kernel): STEP writes it as sewn facets'} data-exact={b.exact ? 'true' : 'false'}>{bodyName(b)}</span>,
+                label: <span className={hiddenBody ? 'k-muted' : ''} style={hiddenBody ? { fontStyle: 'italic' } : undefined} title={b.exact ? 'Exact surfaces (B-rep)' : 'Faceted (mesh kernel): STEP writes it as sewn facets'} data-exact={b.exact ? 'true' : 'false'}>{renaming?.id === '__body:' + b.id ? renameBox('__body:' + b.id, bodyName(b), (name) => st.applyDocument('Rename body', { ...st.doc, bodyNames: { ...st.doc.bodyNames, [b.id]: name } })) : bodyName(b)}</span>,
                 // the body's own material is a row under it, by design
                 children: mat ? [{ id: 'bodymat-' + b.id, icon: <Icon.TreeMaterial />, label: <span>{mat.name}</span>, onDoubleClick: () => st.openMaterialFor(b.id) }] : undefined,
                 onClick: (e) => { if (!e.ctrlKey && !st.activeSketchId && !st.featureEdit) setBar({ x: e.clientX, y: e.clientY, featureId: '__body:' + b.id }); },
@@ -304,7 +342,8 @@ export function FeatureTreeBody() {
         ...((st.rebuild.surfaceBodies ?? []).length
           ? [sys('surfaces', <Icon.TreeFolder glyph="surfaces" />, `Surface Bodies(${(st.rebuild.surfaceBodies ?? []).length})`, (st.rebuild.surfaceBodies ?? []).map((b): TreeNode => ({ id: 'sbody-' + b.id, icon: <Icon.Sheet />, label: <span>{st.doc.features.find((f) => f.id === b.featureIds[0])?.name ?? b.id}</span> })))]
           : []),
-        ...(st.doc.equations.length ? [{ id: 'equations', icon: <Icon.Config />, label: 'Equations', onDoubleClick: () => st.setDialog('equations'), onClick: () => st.setDialog('equations') }] : []),
+        // the Equations folder, as the intended design: Σ, the equations under it, a double-click opens Manage Equations
+        { id: 'equations', icon: <Icon.Sigma />, label: <span>Equations</span>, onDoubleClick: () => st.setDialog('equations'), onContextMenu: (e: React.MouseEvent) => { e.preventDefault(); st.setDialog('equations'); }, children: st.doc.equations.length ? st.doc.equations.map((eq): TreeNode => ({ id: 'eq-' + eq.id, icon: <Icon.Sigma size={12} />, label: <span className="mono">"{eq.target}" = {eq.expression}</span>, onDoubleClick: () => st.setDialog('equations') })) : undefined },
         { id: 'material', icon: <Icon.TreeMaterial />, label: <span>{st.doc.material ? st.doc.material.name : 'Material <not specified>'}</span>, onDoubleClick: () => st.setDialog('material'), onContextMenu: (e) => { e.preventDefault(); setMenu({ x: e.clientX, y: e.clientY, featureId: '__material' }); } },
         planeNode('front'),
         planeNode('top'),
@@ -481,6 +520,7 @@ export function FeatureTreeBody() {
             { label: (st.doc.transparentBodies ?? []).includes(menuBodyId) ? 'Body Display ▸ Change Transparency (opaque)' : 'Body Display ▸ Change Transparency', icon: <Icon.DisplayStyle />, onSelect: () => { const t = st.doc.transparentBodies ?? []; st.applyDocument('Change Transparency', { ...st.doc, transparentBodies: t.includes(menuBodyId) ? t.filter((x) => x !== menuBodyId) : [...t, menuBodyId] }); } },
             { label: 'Body Display ▸ Appearance…', icon: <Icon.Appearance />, onSelect: () => { st.openMaterialFor(menuBodyId); st.setDialog('appearance'); } },
             { label: 'Material…', icon: <Icon.Material />, onSelect: () => st.openMaterialFor(menuBodyId) },
+            { label: 'Rename', onSelect: () => { const b = bodies.find((x) => x.id === menuBodyId); if (b) setRenaming({ id: '__body:' + b.id, value: bodyName(b) }); } },
             { label: 'Combine…', icon: <Icon.Combine />, onSelect: () => st.startCombine() },
             { separator: true },
             { label: 'Isolate', icon: <Icon.Eye />, onSelect: () => st.setIsolated([menuBodyId]) },
@@ -491,7 +531,7 @@ export function FeatureTreeBody() {
             { label: 'Insert into New Part…', icon: <Icon.Part />, onSelect: () => bodyToNewPart(menuBodyId, 'open') },
             { label: 'Save Selection…', icon: <Icon.Save />, onSelect: () => bodyToNewPart(menuBodyId, 'save') },
             { label: 'Save Bodies…', icon: <Icon.Save />, onSelect: () => bodyToNewPart(null, 'save') },
-            { label: 'Delete/Keep Body…', icon: <Icon.Trash />, onSelect: () => st.setAsk({ title: 'Delete/Keep Body', text: `Delete ${bodyLabel(menuBodyId)} (Yes) or keep only this body and delete the others (No)?`, yes: () => st.deleteBodies([menuBodyId]), no: () => st.deleteBodies(st.rebuild.bodies.map((b) => b.id).filter((id) => id !== menuBodyId)), yesLabel: 'Delete Body', noLabel: 'Keep Body' }) },
+            { label: 'Delete/Keep Body…', icon: <Icon.Trash />, onSelect: () => useStore.getState().startDeleteBody([menuBodyId]) },
           ]}
         />
       )}
@@ -518,6 +558,21 @@ export function FeatureTreeBody() {
           ]}
         />
       )}
+      {bar?.shown && !menu && bar.featureId.startsWith('__plane:') && (() => {
+        const p = bar.featureId.slice(8) as 'front' | 'top' | 'right';
+        const shown = st.doc.planeVisibility?.[p] ?? st.show.planes;
+        const btn = (tip: string, icon: ReactNode, run: () => void, testid: string) => (
+          <button key={testid} className="k-btn ghost icon k-tip" data-tip={tip} data-testid={testid} onClick={() => { setBar(null); run(); }}>{icon}</button>
+        );
+        return (
+          <div ref={barRef} className="k-ctx-toolbar k-tree-ctxbar" data-testid="tree-ctxbar" style={{ position: 'fixed', left: bar.x + 14, top: bar.y - 40, zIndex: 50, pointerEvents: bar.live ? 'auto' : 'none' }}>
+            {btn('Sketch', <Icon.Sketch />, () => st.newSketch(p), 'ctx-plane-sketch')}
+            {btn(shown ? 'Hide' : 'Show', shown ? <Icon.EyeOff /> : <Icon.Eye />, () => st.applyDocument(shown ? 'Hide plane' : 'Show plane', { ...st.doc, planeVisibility: { ...st.doc.planeVisibility, [p]: !shown } }), 'ctx-plane-show')}
+            {btn('Zoom to Selection', <Icon.ZoomSelection />, () => bridge.zoomFit?.(), 'ctx-zoom-selection')}
+            {btn('Normal To', <Icon.Orientation />, () => bridge.camera?.normalTo(p as never), 'ctx-normal-to')}
+          </div>
+        );
+      })()}
       {bar?.shown && !menu && bar.featureId.startsWith('__body:') && (() => {
         const id = bar.featureId.slice(7);
         const hidden = (st.doc.hiddenBodies ?? []).includes(id);
@@ -541,11 +596,29 @@ export function FeatureTreeBody() {
         const btn = (tip: string, icon: ReactNode, run: () => void, testid: string) => (
           <button key={testid} className="k-btn ghost icon k-tip" data-tip={tip} data-testid={testid} onClick={() => { setBar(null); run(); }}>{icon}</button>
         );
+        if (f.type === 'sketch') {
+          // a sketch in the tree, as the intended design (58/0033): Show/Hide, Zoom to Selection, Normal To
+          const sk = st.doc.sketches[f.sketchId];
+          const shown = sk?.visible ?? !st.rebuild.consumedSketches.has(f.sketchId);
+          const zoomTo = () => {
+            const pts = Object.values(sk?.points ?? {});
+            if (!sk || !pts.length) return bridge.zoomFit?.();
+            const M = planeMatrix(resolvePlaneDef(st.doc, sk.plane));
+            bridge.camera?.fit(new THREE.Box3().setFromPoints(pts.map((p) => new THREE.Vector3(p.x, p.y, 0).applyMatrix4(M))));
+          };
+          return (
+            <div ref={barRef} className="k-ctx-toolbar k-tree-ctxbar" data-testid="tree-ctxbar" style={{ position: 'fixed', left: bar.x + 14, top: bar.y - 40, zIndex: 50, pointerEvents: bar.live ? 'auto' : 'none' }}>
+              {sk && btn(shown ? 'Hide' : 'Show', shown ? <Icon.EyeOff /> : <Icon.Eye />, () => st.applyDocument(shown ? 'Hide sketch' : 'Show sketch', { ...st.doc, sketches: { ...st.doc.sketches, [sk.id]: { ...sk, visible: !shown } } }), 'ctx-show')}
+              {btn('Zoom to Selection', <Icon.ZoomSelection />, zoomTo, 'ctx-zoom-selection')}
+              {plane && btn('Normal To', <Icon.Orientation />, () => bridge.camera?.normalTo(plane as never), 'ctx-normal-to')}
+            </div>
+          );
+        }
         return (
           <div ref={barRef} className="k-ctx-toolbar k-tree-ctxbar" data-testid="tree-ctxbar" style={{ position: 'fixed', left: bar.x + 14, top: bar.y - 40, zIndex: 50, pointerEvents: bar.live ? 'auto' : 'none' }}>
-            {f.type !== 'sketch' && isSolidFeature(f) && btn('Edit Feature', featureIcon(f), () => st.editFeature(f.id), 'ctx-edit-feature')}
+            {isSolidFeature(f) && btn('Edit Feature', featureIcon(f), () => st.editFeature(f.id), 'ctx-edit-feature')}
             {sketchId && btn('Edit Sketch', <Icon.Sketch />, () => st.editSketch(sketchId), 'ctx-edit-sketch')}
-            {f.type !== 'sketch' && btn(f.suppressed ? 'Unsuppress' : 'Suppress', <Icon.Suppress />, () => st.toggleSuppress(f.id), 'ctx-suppress')}
+            {btn(f.suppressed ? 'Unsuppress' : 'Suppress', <Icon.Suppress />, () => st.toggleSuppress(f.id), 'ctx-suppress')}
             {plane && btn('Normal To', <Icon.Orientation />, () => bridge.camera?.normalTo(plane as never), 'ctx-normal-to')}
             {btn('Zoom to Fit', <Icon.Fit />, () => bridge.zoomFit?.(), 'ctx-zoom')}
           </div>
@@ -565,7 +638,7 @@ export function FeatureTreeBody() {
                 ]
               : [
                   { label: 'Edit Sketch', icon: <Icon.Sketch />, onSelect: () => st.editSketch(menuFeature.sketchId) },
-                  { label: 'Sketch Color…', icon: <Icon.Palette />, onSelect: () => { const sid = menuFeature.sketchId; const inp = document.createElement('input'); inp.type = 'color'; inp.value = st.doc.sketches[sid]?.color ?? '#5a5a5a'; inp.onchange = () => { const doc = useStore.getState().doc; useStore.getState().applyDocument('Sketch Color', { ...doc, sketches: { ...doc.sketches, [sid]: { ...doc.sketches[sid], color: inp.value } } }); }; inp.click(); } },
+                  { label: 'Sketch Color…', icon: <Icon.Palette />, onSelect: () => useStore.setState({ curveColorEdit: { sketchId: menuFeature.sketchId, color: st.doc.sketches[menuFeature.sketchId]?.color ?? null, scope: 'all' }, managerTab: 'tree' }) },
                   { label: 'Extruded Boss/Base', icon: <Icon.Extrude />, onSelect: () => { st.setSelectedFeature(menuFeature.id); st.startFeature('extrude', 'boss'); } },
                   { label: 'Extruded Cut', icon: <Icon.Cut />, onSelect: () => { st.setSelectedFeature(menuFeature.id); st.startFeature('extrude', 'cut'); } },
                 ]),

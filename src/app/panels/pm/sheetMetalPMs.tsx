@@ -6,7 +6,7 @@ import { NumberField, Section, round } from '../../../ui/components';
 import { Icon } from '../../../ui/icons';
 import { DEFAULT_SHEET_METAL, GAUGE_TABLES, materialKFactor } from '../../../core/features/sheetmetal';
 import { classifyVent, FORM_TOOL_LIBRARY } from '../../../core/features/sheetmetal4';
-import { SheetMetalPM, Header } from './shared';
+import { SheetMetalPM, Header, fieldEquation } from './shared';
 import { NEXT, type PMContext } from './context';
 
 export function sheetMetalEditPM(ctx: PMContext): ReactNode | typeof NEXT {
@@ -25,6 +25,26 @@ export function baseFlangePM(ctx: PMContext): ReactNode | typeof NEXT {
     const err = st.rebuild.errors[d.id];
     const sm = st.doc.sheetMetal ?? DEFAULT_SHEET_METAL;
     const bsk = st.doc.sketches[d.sketchId];
+    // a tab on a part that is sheet metal already: only the Sheet Metal Parameters (the thickness is the part's)
+    const own = st.doc.features.findIndex((f) => f.id === d.id);
+    const isTab = st.doc.features.some((f, i) => f.type === 'baseFlange' && f.id !== d.id && (own < 0 || i < own));
+    if (isTab) {
+      return (
+        <>
+          <Header title="Base Flange" icon={<Icon.Sheet />} onOk={st.commitFeature} onCancel={st.cancelFeature} />
+          {!bsk && <Section title="Message"><p className="k-pm-message">Select a sketch with closed contours for the tab.</p></Section>}
+          <Section title="Sheet Metal Parameters">
+            <div className="k-pm-valuerow" data-testid="tab-thickness">
+              <span className="k-muted" style={{ minWidth: 18 }}>T1</span>
+              <NumberField value={sm.thickness} onChange={() => undefined} unit={st.doc.units} disabled />
+            </div>
+            <label className="k-check"><input type="checkbox" checked={d.reverse} onChange={(e) => st.updateFeatureDraft({ reverse: e.target.checked })} /> Reverse direction</label>
+            <label className="k-check"><input type="checkbox" data-testid="tab-merge" checked={d.merge !== false} onChange={(e) => st.updateFeatureDraft({ merge: e.target.checked })} /> Merge result</label>
+          </Section>
+          {err && <Section title="Rebuild Errors"><p className="k-pm-message" style={{ background: '#ffe3e3', borderColor: '#e0a0a0' }}>{err}</p></Section>}
+        </>
+      );
+    }
     return (
       <>
         <Header title={d.name} icon={<Icon.Sheet />} onOk={st.commitFeature} onCancel={st.cancelFeature} />
@@ -58,7 +78,7 @@ export function baseFlangePM(ctx: PMContext): ReactNode | typeof NEXT {
           </div>
           <div className="k-pm-valuerow">
             <Icon.Dimension size={14} />
-            <NumberField value={d.depth} onChange={(v) => st.updateFeatureDraft({ depth: Math.max(0.01, v) })} unit={st.doc.units} step={1} min={0.01} autoFocus />
+            <NumberField equation={fieldEquation(st, 'depth')} value={d.depth} onChange={(v) => st.updateFeatureDraft({ depth: Math.max(0.01, v) })} unit={st.doc.units} step={1} min={0.01} autoFocus />
           </div>
         </Section>
         <Section title="Sheet Metal Gauges" defaultOpen={!!sm.gauge}>

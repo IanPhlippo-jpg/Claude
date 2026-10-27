@@ -3,7 +3,7 @@ import { type ReactNode } from 'react';
 import { useStore } from '../../store';
 import { NumberField, Section } from '../../../ui/components';
 import { Icon } from '../../../ui/icons';
-import { SelectedContoursBox, Header } from './shared';
+import { SelectedContoursBox, Header, fieldEquation } from './shared';
 import { NEXT, type PMContext } from './context';
 
 export function genericPM(ctx: PMContext): ReactNode | typeof NEXT {
@@ -63,7 +63,7 @@ export function genericPM(ctx: PMContext): ReactNode | typeof NEXT {
               <select className="k-input" value={d.pathSketchId} onChange={(e) => st.updateFeatureDraft({ pathSketchId: e.target.value })}>
                 <option value="">Select a sketch…</option>
                 {otherSketches.map((f) => <option key={f.id} value={f.sketchId}>{f.name}</option>)}
-                {st.doc.features.filter((f) => f.type === 'helix' || f.type === 'sketch3d').map((f) => <option key={f.id} value={f.id}>{f.name}</option>)}
+                {st.doc.features.filter((f) => f.type === 'helix' || f.type === 'sketch3d' || f.type === 'compositeCurve').map((f) => <option key={f.id} value={f.id}>{f.name}</option>)}
               </select>
             </div>
             <p className="k-muted" style={{ margin: '4px 0 0' }}>The path sketch holds the lines, arcs or splines to sweep along; the profile stays centred on the path start.</p>
@@ -95,15 +95,17 @@ export function genericPM(ctx: PMContext): ReactNode | typeof NEXT {
               </select>
             </div>
             <div className="k-field"><label>Profile Twist</label>
-              <select className="k-input" data-testid="sweep-twist" value={d.twist ? 'value' : 'none'} onChange={(e) => st.updateFeatureDraft({ twist: e.target.value === 'value' ? 1 : undefined })}>
+              <select className="k-input" data-testid="sweep-twist" value={d.twist ? 'value' : d.minTwist ? 'minimum' : 'none'} onChange={(e) => st.updateFeatureDraft({ twist: e.target.value === 'value' ? 1 : undefined, minTwist: e.target.value === 'minimum' || undefined })}>
                 <option value="none">None</option>
                 <option value="value">Specify Twist Value</option>
+                <option value="minimum">Minimum Twist</option>
               </select>
             </div>
             {d.twist !== undefined && <div className="k-pm-valuerow k-tip" data-tip="Twist control: revolutions"><Icon.Revolve size={14} /><NumberField value={d.twist} onChange={(v) => st.updateFeatureDraft({ twist: v })} step={0.25} /></div>}
             <label className="k-check"><input type="checkbox" checked={!!d.mergeTangent} onChange={(e) => st.updateFeatureDraft({ mergeTangent: e.target.checked })} /> Merge tangent faces</label>
             <label className="k-check"><input type="checkbox" checked={!!d.alignEnd} onChange={(e) => st.updateFeatureDraft({ alignEnd: e.target.checked })} /> Align with end faces</label>
             <label className="k-check"><input type="checkbox" defaultChecked /> Show preview</label>
+            {st.rebuild.bodies.length > 0 && d.op === 'boss' && <label className="k-check"><input type="checkbox" data-testid="sweep-merge" checked={d.merge !== false} onChange={(e) => st.updateFeatureDraft({ merge: e.target.checked })} /> Merge result</label>}
           </Section>
         )}
         {fsketch && d.type === 'sweep' && (
@@ -257,7 +259,7 @@ export function genericPM(ctx: PMContext): ReactNode | typeof NEXT {
               {d.end === 'blind' || d.end === 'midPlane' ? (
                 <div className="k-pm-valuerow k-tip" data-tip="Depth">
                   <Icon.Depth size={16} />
-                  <NumberField value={d.depth} onChange={(v) => st.updateFeatureDraft({ depth: Math.max(0.01, v) })} unit={st.doc.units} step={1} min={0.01} autoFocus />
+                  <NumberField equation={fieldEquation(st, 'depth')} value={d.depth} onChange={(v) => st.updateFeatureDraft({ depth: Math.max(0.01, v) })} unit={st.doc.units} step={1} min={0.01} autoFocus />
                 </div>
               ) : null}
               {d.op === 'cut' && <label className="k-check"><input type="checkbox" checked={!!d.flipSide} onChange={(e) => st.updateFeatureDraft({ flipSide: e.target.checked })} /> Flip side to cut</label>}
@@ -331,7 +333,7 @@ export function genericPM(ctx: PMContext): ReactNode | typeof NEXT {
             </Section>
           </>
         )}
-        {st.rebuild.bodies.length > 1 && (d.op === 'cut' || (d.type === 'extrude' && d.merge !== false)) && (
+        {st.rebuild.bodies.length > 1 && (d.op === 'cut' || ((d.type === 'extrude' || d.type === 'sweep') && d.merge !== false)) && (
           <Section title="Feature Scope" defaultOpen={false}>
             <div className="k-pm-radios">
               <label className="k-check"><input type="radio" name="fscope" checked={!d.scope} onChange={() => st.updateFeatureDraft({ scope: undefined })} /> {st.doc.kind === 'assembly' ? 'All components' : 'All bodies'}</label>
@@ -365,7 +367,7 @@ export function genericPM(ctx: PMContext): ReactNode | typeof NEXT {
               </div>
               <div className="k-pm-valuerow">
                 <Icon.Dimension size={14} />
-                <NumberField value={d.angle} onChange={(v) => st.updateFeatureDraft({ angle: Math.max(0.1, Math.min(360, v)) })} unit="°" step={5} min={0} autoFocus />
+                <NumberField equation={fieldEquation(st, 'angle')} value={d.angle} onChange={(v) => st.updateFeatureDraft({ angle: Math.max(0.1, Math.min(360, v)) })} unit="°" step={5} min={0} autoFocus />
               </div>
             </Section>
             {(d.end ?? 'blind') !== 'midPlane' && (

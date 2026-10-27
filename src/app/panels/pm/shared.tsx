@@ -8,6 +8,7 @@ import { NumberField, Section } from '../../../ui/components';
 import { Icon } from '../../../ui/icons';
 import { type Constraint } from '../../../core/sketch/types';
 import { GAUGE_TABLES, type SheetMetalParams } from '../../../core/features/sheetmetal';
+import { featureDimensionNames } from '../../../core/document/equations';
 
 /** Sheet-Metal1 Property Panel: Bend Parameters (thickness, radius) and Bend Allowance (K-factor). */
 export function SheetMetalPM({ params, onOk, onCancel }: { params: SheetMetalParams; onOk: (p: SheetMetalParams) => void; onCancel: () => void }) {
@@ -308,4 +309,13 @@ export function dimFavs(): Record<string, Partial<Constraint>> {
 }
 export function saveDimFavs(f: Record<string, unknown>): void {
   savePrefs({ ...loadPrefs(), 'sketch.dimFavorites': JSON.stringify(f) });
+}
+
+/** the equation that drives a dimension of the feature being edited (typed in its field, or in Tools ▸ Equations) */
+export function fieldEquation(st: { featureEdit: import('../../store').FeatureEdit | null; doc: { equations: { target: string; expression: string }[] } }, prop: string): string | undefined {
+  const fe = st.featureEdit;
+  if (!fe) return undefined;
+  if (fe.equations && prop in fe.equations) return fe.equations[prop] || undefined;
+  const dim = featureDimensionNames(fe.draft).find((d) => d.prop === prop);
+  return dim ? st.doc.equations.find((e) => e.target === dim.name)?.expression : undefined;
 }

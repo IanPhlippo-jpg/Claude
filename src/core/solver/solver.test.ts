@@ -267,3 +267,17 @@ describe('solver: dragging', () => {
     expect(p.y).toBeCloseTo(10, 4);
   });
 });
+
+describe('solver: doubled distance', () => {
+  it('a doubled distance to a centerline puts the point at half the value from it (a diameter)', () => {
+    let s = createSketch('s', 'Sketch1');
+    let cl, p;
+    [s, cl] = addLine(s, { x: 0, y: -20 }, { x: 0, y: 20 }, true);
+    [s, p] = addPoint(s, { x: 10, y: 0 });
+    [s] = addConstraint(s, 'distance', [p.id, cl.id], { value: 50, doubled: true });
+    const r = solveSketch(s);
+    const q = r.sketch.points[p.p], a = r.sketch.points[cl.p1], b = r.sketch.points[cl.p2];
+    const d = Math.abs((b.x - a.x) * (q.y - a.y) - (b.y - a.y) * (q.x - a.x)) / Math.hypot(b.x - a.x, b.y - a.y);
+    expect(d).toBeCloseTo(25, 6);
+  });
+});

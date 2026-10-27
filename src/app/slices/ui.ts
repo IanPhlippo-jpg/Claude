@@ -12,7 +12,7 @@ import { loadTheme, loadLibraries, history, historyFlags, saveLibraries } from '
 
 type UiKeys =
   | 'viewportLayout' | 'pmPinned' | 'handleDrag' | 'dir2Pick' | 'finalImage' | 'setFinalImage'
-  | 'whatsWrong' | 'sensorEdit' | 'setSensorEdit' | 'detailedPreview' | 'toggleDetailedPreview' | 'tab'
+  | 'whatsWrong' | 'sensorEdit' | 'curveColorEdit' | 'setSensorEdit' | 'detailedPreview' | 'toggleDetailedPreview' | 'tab' | 'selFilter'
   | 'theme' | 'panels' | 'dockWidth' | 'managerTab' | 'managerCollapsed' | 'treeFilter'
   | 'displayStyle' | 'show' | 'reverseWheel' | 'unitSystem' | 'viewName' | 'taskPane'
   | 'dialog' | 'lastCommand' | 'confirmDelete' | 'ask' | 'feedback' | 'libraries'
@@ -34,9 +34,11 @@ export const uiSlice = (set: StoreSet, get: StoreGet): Pick<State, UiKeys> => ({
   },
   whatsWrong: false,
   sensorEdit: null,
+  curveColorEdit: null,
   setSensorEdit(sensorEdit) {
     set({ sensorEdit, managerTab: 'tree' });
   },
+  selFilter: { bar: false, on: true, types: [] },
   detailedPreview: false,
   toggleDetailedPreview() {
     set({ detailedPreview: !get().detailedPreview });

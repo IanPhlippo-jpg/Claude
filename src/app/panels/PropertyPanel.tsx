@@ -4,7 +4,7 @@
  */
 import type { ReactNode } from 'react';
 import { NEXT, usePMContext } from './pm/context';
-import { shellPM, helixPM, draftPM, threadPM, wrapPM, studPM, splitLinePM, moveBodyPM, combinePM, ribPM } from './pm/featurePMs';
+import { shellPM, helixPM, draftPM, threadPM, wrapPM, studPM, splitLinePM, moveBodyPM, combinePM, ribPM, deleteBodyPM, compositeCurvePM } from './pm/featurePMs';
 import { filletPM, filletPM2 } from './pm/filletPMs';
 import { mirrorPM } from './pm/patternPMs';
 import { sheetMetalEditPM, baseFlangePM, miterFlangePM, sketchedBendPM, jogPM, unfoldPM, closedCornerPM, ventPM, formToolPM, gussetPM, tabSlotPM, ripPM, sweptFlangePM, crossBreakPM, hemPM, edgeFlangePM } from './pm/sheetMetalPMs';
@@ -13,7 +13,7 @@ import { surfacePM, intersectPM, deleteFacePM, deformPM } from './pm/surfacePMs'
 import { structuralMemberPM, trimExtendPM, endCapPM, weldGussetPM, weldBeadPM } from './pm/weldmentPMs';
 import { sketchPM } from './pm/sketchPM';
 
-const FAMILIES = [shellPM, helixPM, sheetMetalEditPM, baseFlangePM, miterFlangePM, surfacePM, intersectPM, draftPM, sketchedBendPM, jogPM, threadPM, wrapPM, unfoldPM, deleteFacePM, closedCornerPM, ventPM, formToolPM, gussetPM, tabSlotPM, ripPM, sweptFlangePM, deformPM, structuralMemberPM, trimExtendPM, endCapPM, weldGussetPM, weldBeadPM, studPM, splitLinePM, crossBreakPM, hemPM, edgeFlangePM, moveBodyPM, combinePM, ribPM, mirrorPM, filletPM, filletPM2, genericPM];
+const FAMILIES = [shellPM, helixPM, sheetMetalEditPM, baseFlangePM, miterFlangePM, surfacePM, intersectPM, draftPM, sketchedBendPM, jogPM, threadPM, wrapPM, unfoldPM, deleteFacePM, closedCornerPM, ventPM, formToolPM, gussetPM, tabSlotPM, ripPM, sweptFlangePM, deformPM, structuralMemberPM, trimExtendPM, endCapPM, weldGussetPM, weldBeadPM, studPM, splitLinePM, crossBreakPM, hemPM, edgeFlangePM, moveBodyPM, combinePM, deleteBodyPM, compositeCurvePM, ribPM, mirrorPM, filletPM, filletPM2, genericPM];
 
 export function PropertyPanelBody({ editDimensionId, onEditDone }: { editDimensionId: string | null; onEditDone: () => void }) {
   const ctx = usePMContext(editDimensionId, onEditDone);

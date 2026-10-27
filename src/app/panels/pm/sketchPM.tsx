@@ -7,7 +7,7 @@ import { lastRectangle } from '../../../core/sketch/lastShape';
 import { useStore } from '../../store';
 import { Button, NumberField, Section, round } from '../../../ui/components';
 import { Icon, RelationGlyph } from '../../../ui/icons';
-import { relationLabel, relationsForSelection } from '../../../core/sketch/relations';
+import { relationLabel, relationName, relationsForSelection } from '../../../core/sketch/relations';
 import { isDimension, type Constraint } from '../../../core/sketch/types';
 import { toggleConstruction } from '../../../core/sketch/model';
 import { PLANE_LABELS } from '../../viewport/camera';
@@ -249,7 +249,7 @@ export function sketchPM(ctx: PMContext): ReactNode {
                 return (
                   <li key={k.id} onClick={() => st.selectConstraint(k.id)}>
                     {G ? <G size={14} /> : <Icon.Dimension size={14} />}
-                    <span>{relationLabel(k.kind)}</span>
+                    <span>{sketch ? relationName(sketch, k.id) : relationLabel(k.kind)}</span>
                   </li>
                 );
               })}
@@ -362,7 +362,7 @@ export function sketchPM(ctx: PMContext): ReactNode {
               return (
                 <li key={k.id} onClick={() => st.selectConstraint(k.id)}>
                   {G ? <G size={14} /> : <Icon.Dimension size={14} />}
-                  <span>{relationLabel(k.kind)}</span>
+                  <span>{sketch ? relationName(sketch, k.id) : relationLabel(k.kind)}</span>
                   {k.value !== undefined && <span className="k-muted">{round(k.value)}</span>}
                   <span className="tail">
                     <span className={`status ${solve?.constraintStatus[k.id] ?? 'ok'}`}>{solve?.constraintStatus[k.id] ?? 'ok'}</span>

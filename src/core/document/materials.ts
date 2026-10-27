@@ -41,6 +41,7 @@ export const MATERIAL_LIBRARY: MaterialCategory[] = [
       m('AISI 304', 8000, '#c9ccd1', { elasticModulus: 1.9e11, poisson: 0.29, shearModulus: 7.5e10, tensile: 5.17e8, yield: 2.07e8, thermalExpansion: 1.8e-5, conductivity: 16, specificHeat: 500 }),
       m('AISI 316 Stainless Steel Sheet (SS)', 8000, '#c9ccd1', { elasticModulus: 1.93e11, poisson: 0.27, shearModulus: 8.2e10, tensile: 5.8e8, yield: 1.72e8, thermalExpansion: 1.6e-5, conductivity: 16.3, specificHeat: 500 }),
       m('Alloy Steel', 7700, '#b8bcc2', { elasticModulus: 2.1e11, poisson: 0.28, shearModulus: 7.9e10, tensile: 7.24e8, yield: 6.2e8, thermalExpansion: 1.3e-5, conductivity: 50, specificHeat: 460 }),
+      m('Cast Alloy Steel', 7300, '#a9adb3', { elasticModulus: 1.9e11, poisson: 0.26, shearModulus: 7.8e10, tensile: 4.48e8, yield: 2.41e8, thermalExpansion: 1.5e-5, conductivity: 38, specificHeat: 440 }),
       m('Plain Carbon Steel', 7800, '#b8bcc2', { description: 'Plain carbon steel, the default steel of the library', source: 'Phlippo CAD Materials', sustainability: 'Steel ▸ Carbon steel', elasticModulus: 2.1e11, poisson: 0.28, shearModulus: 7.9e10, tensile: 3.99e8, yield: 2.2e8, thermalExpansion: 1.3e-5, conductivity: 43, specificHeat: 440 }),
       m('Stainless Steel (ferritic)', 7800, '#c9ccd1', { elasticModulus: 2e11, poisson: 0.28, shearModulus: 7.7e10, tensile: 5.1e8, yield: 1.7e8, thermalExpansion: 1.1e-5, conductivity: 18, specificHeat: 460 }),
     ],
@@ -80,6 +81,7 @@ export const MATERIAL_LIBRARY: MaterialCategory[] = [
   {
     name: 'Plastics',
     materials: [
+      m('PBT General Purpose', 1300, '#e8e4d8', { elasticModulus: 2.5e9, poisson: 0.39, tensile: 5.5e7, thermalExpansion: 8e-5, conductivity: 0.25, specificHeat: 1340 }),
       m('ABS', 1020, '#f2d16b', { elasticModulus: 2e9, poisson: 0.394, shearModulus: 3.189e8, tensile: 3e7, thermalExpansion: 7.5e-5, conductivity: 0.2256, specificHeat: 1386 }),
       m('ABS PC', 1070, '#f2d16b', { elasticModulus: 2.41e9, poisson: 0.3897, shearModulus: 8.6e8, tensile: 4e7, thermalExpansion: 7e-5, conductivity: 0.2618, specificHeat: 1900 }),
       m('Acrylic (Medium-high impact)', 1200, '#e8eef5', { elasticModulus: 3e9, poisson: 0.35, shearModulus: 9e8, tensile: 7.3e7, thermalExpansion: 5.2e-5, conductivity: 0.21, specificHeat: 1500 }),

@@ -8,7 +8,7 @@ import { useStore } from '../../store';
 import { Button, NumberField, Section } from '../../../ui/components';
 import { Icon } from '../../../ui/icons';
 import { rebuildDocument } from '../../../core/features/rebuild';
-import { Header } from './shared';
+import { Header, fieldEquation } from './shared';
 import { NEXT, type PMContext } from './context';
 
 export function shellPM(ctx: PMContext): ReactNode | typeof NEXT {
@@ -22,7 +22,7 @@ export function shellPM(ctx: PMContext): ReactNode | typeof NEXT {
         <Section title="Parameters">
           <div className="k-pm-valuerow">
             <Icon.Dimension size={14} />
-            <NumberField value={d.thickness} onChange={(v) => st.updateFeatureDraft({ thickness: Math.max(0.01, v) })} unit={st.doc.units} step={0.5} min={0.01} autoFocus />
+            <NumberField equation={fieldEquation(st, 'thickness')} value={d.thickness} onChange={(v) => st.updateFeatureDraft({ thickness: Math.max(0.01, v) })} unit={st.doc.units} step={0.5} min={0.01} autoFocus />
           </div>
           <p className="k-muted" style={{ margin: '4px 0' }}>Faces to remove</p>
           {d.faces.length === 0 ? (
@@ -557,6 +557,63 @@ export function combinePM(ctx: PMContext): ReactNode | typeof NEXT {
   return NEXT;
 }
 
+export function compositeCurvePM(ctx: PMContext): ReactNode | typeof NEXT {
+  const { st } = ctx;
+  // Composite Curve, by design: Entities to Join (edges picked in the graphics area, sketches and 3D sketches)
+  if (st.featureEdit && st.featureEdit.draft.type === 'compositeCurve') {
+    const d = st.featureEdit.draft;
+    const err = st.rebuild.errors[d.id];
+    const nameOf = (id: string) => st.doc.sketches[id]?.name ?? st.doc.features.find((f) => f.id === id)?.name ?? id;
+    const candidates = [...st.doc.features.filter((f) => f.type === 'sketch').map((f) => ({ id: (f as { sketchId: string }).sketchId, name: f.name })), ...st.doc.features.filter((f) => f.type === 'sketch3d').map((f) => ({ id: f.id, name: f.name }))].filter((c) => !d.sketches.includes(c.id));
+    return (
+      <>
+        <Header title="Composite Curve" icon={<Icon.Curves />} onOk={st.commitFeature} onCancel={st.cancelFeature} />
+        <Section title="Entities to Join">
+          <div className="k-selbox" data-testid="comp-entities" style={{ minHeight: 60 }}>
+            {d.edges.map((_, i) => <div key={'e' + i} className="k-selbox-row"><Icon.Line size={12} /> Edge&lt;{i + 1}&gt;<button className="k-btn ghost icon" style={{ marginLeft: 'auto' }} onClick={() => st.updateFeatureDraft({ edges: d.edges.filter((__, j) => j !== i) })}>×</button></div>)}
+            {d.sketches.map((id) => <div key={id} className="k-selbox-row"><Icon.Sketch size={12} /> {nameOf(id)}<button className="k-btn ghost icon" style={{ marginLeft: 'auto' }} onClick={() => st.updateFeatureDraft({ sketches: d.sketches.filter((x) => x !== id) })}>×</button></div>)}
+            {!d.edges.length && !d.sketches.length && <span className="k-muted">Select edges, sketches or curves.</span>}
+          </div>
+          {candidates.length > 0 && (
+            <select className="k-input" data-testid="comp-add-sketch" value="" onChange={(e) => e.target.value && st.updateFeatureDraft({ sketches: [...d.sketches, e.target.value] })} style={{ marginTop: 4 }}>
+              <option value="">Add a sketch or curve…</option>
+              {candidates.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+            </select>
+          )}
+        </Section>
+        {err && <Section title="Rebuild Errors"><p className="k-pm-message" style={{ background: '#ffe3e3', borderColor: '#e0a0a0' }}>{err}</p></Section>}
+      </>
+    );
+  }
+  return NEXT;
+}
+
+export function deleteBodyPM(ctx: PMContext): ReactNode | typeof NEXT {
+  const { st } = ctx;
+  // Delete/Keep Body, by design: Type (Delete Bodies / Keep Bodies) and the bodies, picked in the graphics area or here
+  if (st.featureEdit && st.featureEdit.draft.type === 'deleteBody') {
+    const d = st.featureEdit.draft;
+    const name = (id: string) => { const b = st.rebuild.bodies.find((x) => x.id === id); return st.doc.bodyNames?.[id] ?? st.doc.features.find((f) => f.id === b?.featureIds[b.featureIds.length - 1])?.name ?? id; };
+    return (
+      <>
+        <Header title="Delete/Keep Body" icon={<Icon.Trash />} onOk={st.commitFeature} onCancel={st.cancelFeature} />
+        <Section title="Type">
+          <label className="k-check"><input type="radio" name="dkb" checked={!d.keep} onChange={() => st.updateFeatureDraft({ keep: false })} /> Delete Bodies</label>
+          <label className="k-check"><input type="radio" name="dkb" data-testid="dkb-keep" checked={!!d.keep} onChange={() => st.updateFeatureDraft({ keep: true })} /> Keep Bodies</label>
+        </Section>
+        <Section title={d.keep ? 'Bodies to Keep' : 'Bodies to Delete'}>
+          <div className="k-selbox" data-testid="dkb-bodies" style={{ minHeight: 48 }}>
+            {st.rebuild.bodies.map((b) => (
+              <label key={b.id} className="k-check"><input type="checkbox" checked={d.bodies.includes(b.id)} onChange={(e) => st.updateFeatureDraft({ bodies: e.target.checked ? [...d.bodies, b.id] : d.bodies.filter((x) => x !== b.id) })} /> {name(b.id)}</label>
+            ))}
+          </div>
+        </Section>
+      </>
+    );
+  }
+  return NEXT;
+}
+
 export function ribPM(ctx: PMContext): ReactNode | typeof NEXT {
   const { st } = ctx;
   if (st.featureEdit && st.featureEdit.draft.type === 'rib') {
@@ -577,8 +634,14 @@ export function ribPM(ctx: PMContext): ReactNode | typeof NEXT {
           </div>
           <div className="k-pm-valuerow" style={{ marginTop: 4 }}>
             <Icon.Dimension size={14} />
-            <NumberField value={d.thickness} onChange={(v) => st.updateFeatureDraft({ thickness: Math.max(0.01, v) })} unit={st.doc.units} step={1} min={0.01} autoFocus />
+            <NumberField equation={fieldEquation(st, 'thickness')} value={d.thickness} onChange={(v) => st.updateFeatureDraft({ thickness: Math.max(0.01, v) })} unit={st.doc.units} step={1} min={0.01} autoFocus />
           </div>
+          {!!d.draft && (
+            <div data-testid="rib-thickness-at" style={{ margin: '2px 0 0 20px' }}>
+              <label className="k-check"><input type="radio" checked={d.thicknessAt !== 'wall'} onChange={() => st.updateFeatureDraft({ thicknessAt: 'sketch' })} /> At sketch plane</label>
+              <label className="k-check"><input type="radio" data-testid="rib-at-wall" checked={d.thicknessAt === 'wall'} onChange={() => st.updateFeatureDraft({ thicknessAt: 'wall' })} /> At wall interface</label>
+            </div>
+          )}
           <p className="k-muted" style={{ margin: '4px 0 2px' }}>Extrusion direction:</p>
           <div className="k-pm-radios" style={{ flexDirection: 'row', gap: 4 }}>
             <button className={`k-btn icon k-tip ${d.direction === 'parallel' ? 'active' : ''}`} data-tip="Parallel to Sketch" onClick={() => st.updateFeatureDraft({ direction: 'parallel' })}><Icon.RibDir dir="parallel" size={16} /></button>
@@ -586,10 +649,17 @@ export function ribPM(ctx: PMContext): ReactNode | typeof NEXT {
           </div>
           <label className="k-check"><input type="checkbox" checked={d.flip} onChange={(e) => st.updateFeatureDraft({ flip: e.target.checked })} /> Flip material side</label>
           <div className="k-pm-valuerow">
-            <Icon.Chamfer size={14} />
-            <NumberField value={d.draft} onChange={(v) => st.updateFeatureDraft({ draft: Math.max(0, Math.min(45, v)) })} unit="°" step={1} min={0} />
-            <label className="k-check" style={{ marginLeft: 4 }}><input type="checkbox" data-testid="rib-draft-outward" disabled={!d.draft} checked={!!d.draftOutward} onChange={(e) => st.updateFeatureDraft({ draftOutward: e.target.checked })} /> Draft outward</label>
+            <button className={`k-pm-stylebtn k-tip ${d.draft ? 'active' : ''}`} data-tip="Draft On/Off" data-testid="rib-draft-toggle" onClick={() => st.updateFeatureDraft({ draft: d.draft ? 0 : 1 })}><Icon.Draft size={16} /></button>
+            <NumberField value={d.draft} disabled={!d.draft} onChange={(v) => st.updateFeatureDraft({ draft: Math.max(0, Math.min(45, v)) })} unit="°" step={1} min={0} />
           </div>
+          {!!d.draft && <label className="k-check" style={{ marginLeft: 20 }}><input type="checkbox" data-testid="rib-draft-outward" checked={!!d.draftOutward} onChange={(e) => st.updateFeatureDraft({ draftOutward: e.target.checked })} /> Draft outward</label>}
+          {d.direction === 'normal' && (
+            <div data-testid="rib-type">
+              <p className="k-muted" style={{ margin: '4px 0 2px' }}>Type:</p>
+              <label className="k-check"><input type="radio" checked={d.ribType !== 'natural'} onChange={() => st.updateFeatureDraft({ ribType: 'linear' })} /> Linear</label>
+              <label className="k-check"><input type="radio" data-testid="rib-natural" checked={d.ribType === 'natural'} onChange={() => st.updateFeatureDraft({ ribType: 'natural' })} /> Natural</label>
+            </div>
+          )}
         </Section>
         <Section title="Selected Contours" defaultOpen={false}>
           <div className="k-selbox" style={{ minHeight: 24 }}>{rsk ? <div className="k-selbox-row"><Icon.Sketch size={12} /> {rsk.name}</div> : <span className="k-muted">Select the sketch of the rib.</span>}</div>

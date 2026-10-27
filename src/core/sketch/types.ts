@@ -133,6 +133,8 @@ export interface Constraint {
   pierce?: { sketchId: Id; entityId: Id };
   /** driven = reference dimension, not solved */
   driven?: boolean;
+  /** Doubled distance: a distance to a centerline shown and solved as twice its value (a diameter for a revolve) */
+  doubled?: boolean;
   /** Mark For Drawing: the dimension is imported into a drawing by Model Items (absent = yes) */
   markForDrawing?: boolean;
   /** label placement offset for dimensions (sketch units) */
@@ -165,6 +167,8 @@ export interface Constraint {
 export interface Sketch {
   /** Sketch Color: the colour of the sketch while it is not edited (a layout sketch in its own colour) */
   color?: string;
+  /** Show / Hide from the tree: absent, a sketch is shown until a feature uses it (by design) */
+  visible?: boolean;
   id: Id;
   name: string;
   /** 'front' | 'top' | 'right' or the id of a plane on a body face (Document.planes) */

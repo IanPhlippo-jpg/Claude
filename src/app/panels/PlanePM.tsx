@@ -88,7 +88,7 @@ export function PlanePM() {
         ) : d.mode === 'angle' || d.mode === 'perpendicular' ? (
           <>
             <div className="k-selbox" style={{ minHeight: 24 }}>
-              {d.edgeId ? <div className="k-selbox-row"><Icon.Line size={12} /> Edge&lt;1&gt;</div> : <span className="k-muted">{d.mode === 'perpendicular' ? 'Optional: a straight edge the plane passes through (else the reference origin).' : 'Select a straight edge of the model (the hinge of the angle).'}</span>}
+              {d.edgeId ? <div className="k-selbox-row"><Icon.Line size={12} /> Edge&lt;1&gt;</div> : <span className="k-muted">{d.mode === 'perpendicular' ? 'Optional: a straight edge the plane passes through, or a curve: the plane is normal to it at its end point (else the reference origin).' : 'Select a straight edge of the model (the hinge of the angle).'}</span>}
             </div>
             {straightEdges.length > 0 && !d.edgeId && <p className="k-muted" style={{ margin: '4px 0 0' }}>Click an edge in the graphics area.</p>}
           </>

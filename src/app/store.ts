@@ -1,17 +1,19 @@
 import { documentSlice } from './slices/document';
 import { sketchSlice } from './slices/sketch';
 import { featuresSlice } from './slices/features';
+import { notePendingEquation } from './slices/fieldEquations';
 import { assemblySlice } from './slices/assembly';
 import { drawingSlice } from './slices/drawing';
 import { uiSlice } from './slices/ui';
 import { sheetMetalSlice } from './slices/sheetMetal';
 import { tolerancingSlice } from './slices/tolerancing';
 import { weldmentsSlice } from './slices/weldments';
+import { bodiesSlice } from './slices/bodies';
 import type { StoreApi } from 'zustand';
 import { refreshPierce } from '../core/sketch/pierce';
 import type { SectionPlane } from '../core/features/section';
 import { create } from 'zustand';
-import { createDocument, type Document, type ExtrudeFeature, type HoleFeature, type MirrorFeature, type PatternFeature, type LoftFeature, type RibFeature, type CombineFeature, type BaseFlangeFeature, type EdgeFlangeFeature, type HelixFeature, type HemFeature, type MiterFlangeFeature, type JogFeature, type Sketch3DFeature, type SketchedBendFeature, type DraftFeature, type IntersectFeature, type SurfaceFeature, type CrossBreakFeature, type WrapFeature, type ThreadFeature, type RevolveFeature, type RoundFeature, type ShellFeature, type SolidFeature, type SweepFeature, type Units, type VentFeature, type FormToolFeature, type GussetFeature, type TabSlotFeature, type RipFeature, type SweptFlangeFeature, type StructuralMemberFeature, type TrimExtendFeature, type EndCapFeature, type WeldGussetFeature, type WeldBeadFeature, type DeformFeature, type MoveBodyFeature } from '../core/document/types';
+import { createDocument, type Document, type ExtrudeFeature, type HoleFeature, type MirrorFeature, type PatternFeature, type LoftFeature, type RibFeature, type CombineFeature, type BaseFlangeFeature, type EdgeFlangeFeature, type HelixFeature, type HemFeature, type MiterFlangeFeature, type JogFeature, type Sketch3DFeature, type SketchedBendFeature, type DraftFeature, type IntersectFeature, type SurfaceFeature, type CrossBreakFeature, type WrapFeature, type ThreadFeature, type RevolveFeature, type RoundFeature, type ShellFeature, type SolidFeature, type SweepFeature, type Units, type VentFeature, type FormToolFeature, type GussetFeature, type TabSlotFeature, type RipFeature, type SweptFlangeFeature, type StructuralMemberFeature, type TrimExtendFeature, type EndCapFeature, type WeldGussetFeature, type WeldBeadFeature, type DeformFeature, type MoveBodyFeature, type DeleteBodyFeature, type CompositeCurveFeature } from '../core/document/types';
 import { type AutoToleranceData, type AutoToleranceGtol, type FaceRef as DxFaceRef } from '../core/document/autoTolerance';
 import { rebuildBudgetMs, rebuildDocument, setRebuildBudget, type RebuildResult } from '../core/features/rebuild';
 import { rebuildInWorker, rebuildWorkerEnabled, RebuildSuperseded } from './rebuildWorker';
@@ -42,7 +44,8 @@ import type { StudFeature, SplitLineFeature, ProjectedCurveFeature, ClosedCorner
 import type { Constraint, ConstraintKind, Id, Sketch, SketchPoint } from '../core/sketch/types';
 import { solveSketch, type SolveResult } from '../core/solver/solver';
 import type { SelectionItem } from '../core/sketch/relations';
-import { applyEquations, type Equation } from '../core/document/equations';
+import { applyEquations, evaluateFieldExpression, FILE_PROPERTIES, type Equation } from '../core/document/equations';
+import { equationEnv } from '../ui/equationMenu';
 import { type PrefValue } from './prefs';
 import { rebuildAssembly } from '../core/assembly/assembly';
 import { type SheetMetalParams } from '../core/features/sheetmetal';
@@ -68,6 +71,8 @@ import type { Circle2D, Line2D } from '../core/drawing/hlr';
 import * as THREE from 'three';
 import { type Block } from '../core/sketch/blocks';
 import { type RefSelection } from '../core/features/refgeom';
+
+export type SelFilterKind = 'vertices' | 'edges' | 'faces' | 'solidBodies' | 'planes' | 'sketchPoints' | 'sketchSegments';
 
 export type ToolId =
   | 'select'
@@ -392,6 +397,8 @@ export interface FeatureEdit {
   /** id of the existing feature when editing, null when creating */
   featureId: Id | null;
   draft: SolidFeature;
+  /** equations typed in the panel's value fields, per dimension property ('' = the typed value replaces an equation) */
+  equations?: Record<string, string>;
 }
 
 export interface PanelLayout {
@@ -494,6 +501,8 @@ export interface State {
   whatsWrong: boolean;
   /** Evaluate ▸ Sensor Property Panel (Mass Properties: Mass / Volume / Surface Area) */
   sensorEdit: { kind: 'mass' | 'volume' | 'area' | 'dimension' | 'interference'; dim?: string; alert?: { op: '>' | '<'; value: number } } | null;
+  /** Sketch/Curve Color Property Panel (right-click a sketch ▸ Sketch Color…) */
+  curveColorEdit: { sketchId: Id; color: string | null; scope: 'this' | 'all' | 'specify' } | null;
   setSensorEdit(e: State['sensorEdit']): void;
   /** open the selected component's part for editing (Edit Component) */
   editComponent(id?: Id | null): void;
@@ -501,6 +510,8 @@ export interface State {
   returnToAssembly(): void;
   /** feature Property Panel eye: show the model with the feature applied instead of the yellow preview */
   detailedPreview: boolean;
+  /** Selection Filter (F5 shows the toolbar, F6 turns the filters on/off): only the checked kinds can be picked */
+  selFilter: { bar: boolean; on: boolean; types: SelFilterKind[] };
   /** Evaluate ▸ Draft Analysis / Curvature: faces coloured by the analysis */
   analysis: { kind: 'draft'; pull: [number, number, number]; pullLabel: string; angle: number; classify?: boolean } | { kind: 'curvature' } | { kind: 'geometry'; shortEdge: number; smallFace: number; sharpAngle: number; checkShort?: boolean; checkSmall?: boolean; checkSharp?: boolean } | { kind: 'thickness'; target: number; mode?: 'thin' | 'thick'; resolution?: 'low' | 'medium' | 'high' } | { kind: 'undercut'; pull: [number, number, number]; pullLabel: string } | { kind: 'parting'; pull: [number, number, number]; pullLabel: string; angle: number } | { kind: 'deviation'; samples: number } | { kind: 'tolerance' } | null;
   setAnalysis(a: State['analysis']): void;
@@ -622,6 +633,10 @@ export interface State {
   setIsolated(ids: Id[] | null): void;
   /** Solid Bodies ▸ Delete Body: a Body-Delete/Keep feature */
   deleteBodies(ids: Id[]): void;
+  /** Delete/Keep Body Property Panel (the given bodies picked already) */
+  startDeleteBody(ids?: Id[]): void;
+  /** Curves ▸ Composite Curve Property Panel */
+  startCompositeCurve(): void;
   /** Large Assembly Settings: lighter display (no edges on curved faces, no shadows) */
   largeAssembly: boolean;
   setLargeAssembly(on: boolean): void;
@@ -766,7 +781,7 @@ export interface State {
   addHolePoint(p: SketchPoint): void;
   setHoverEdge(id: string | null): void;
   toggleSelectedEdge(id: string, additive?: boolean): void;
-  updateFeatureDraft(patch: Partial<ExtrudeFeature> | Partial<RevolveFeature> | Partial<RoundFeature> | Partial<MirrorFeature> | Partial<PatternFeature> | Partial<HoleFeature> | Partial<ShellFeature> | Partial<SweepFeature> | Partial<LoftFeature> | Partial<RibFeature> | Partial<CombineFeature> | Partial<BaseFlangeFeature> | Partial<EdgeFlangeFeature> | Partial<HelixFeature> | Partial<HemFeature> | Partial<MiterFlangeFeature> | Partial<JogFeature> | Partial<SketchedBendFeature> | Partial<DraftFeature> | Partial<IntersectFeature> | Partial<SurfaceFeature> | Partial<CrossBreakFeature> | Partial<WrapFeature> | Partial<ThreadFeature> | Partial<StudFeature> | Partial<SplitLineFeature> | Partial<ProjectedCurveFeature> | Partial<ClosedCornerFeature> | Partial<CornerReliefFeature> | Partial<LoftedBendFeature> | Partial<ConvertSheetFeature> | Partial<DeleteFaceFeature> | Partial<VentFeature> | Partial<FormToolFeature> | Partial<GussetFeature> | Partial<TabSlotFeature> | Partial<RipFeature> | Partial<SweptFlangeFeature> | Partial<StructuralMemberFeature> | Partial<TrimExtendFeature> | Partial<EndCapFeature> | Partial<WeldGussetFeature> | Partial<WeldBeadFeature> | Partial<DeformFeature> | Partial<MoveBodyFeature>): void;
+  updateFeatureDraft(patch: Partial<ExtrudeFeature> | Partial<RevolveFeature> | Partial<RoundFeature> | Partial<MirrorFeature> | Partial<PatternFeature> | Partial<HoleFeature> | Partial<ShellFeature> | Partial<SweepFeature> | Partial<LoftFeature> | Partial<RibFeature> | Partial<CombineFeature> | Partial<BaseFlangeFeature> | Partial<EdgeFlangeFeature> | Partial<HelixFeature> | Partial<HemFeature> | Partial<MiterFlangeFeature> | Partial<JogFeature> | Partial<SketchedBendFeature> | Partial<DraftFeature> | Partial<IntersectFeature> | Partial<SurfaceFeature> | Partial<CrossBreakFeature> | Partial<WrapFeature> | Partial<ThreadFeature> | Partial<StudFeature> | Partial<SplitLineFeature> | Partial<ProjectedCurveFeature> | Partial<ClosedCornerFeature> | Partial<CornerReliefFeature> | Partial<LoftedBendFeature> | Partial<ConvertSheetFeature> | Partial<DeleteFaceFeature> | Partial<VentFeature> | Partial<FormToolFeature> | Partial<GussetFeature> | Partial<TabSlotFeature> | Partial<RipFeature> | Partial<SweptFlangeFeature> | Partial<StructuralMemberFeature> | Partial<TrimExtendFeature> | Partial<EndCapFeature> | Partial<WeldGussetFeature> | Partial<WeldBeadFeature> | Partial<DeformFeature> | Partial<MoveBodyFeature> | Partial<DeleteBodyFeature> | Partial<CompositeCurveFeature>): void;
   commitFeature(): void;
   cancelFeature(): void;
   /** Property Panel ▸ Keep Visible (pushpin): stays open after OK for the next feature of the same kind */
@@ -1277,6 +1292,8 @@ export function featureName(doc: Document, type: SolidFeature['type'], op: 'boss
   const opBase: Record<string, [string, string]> = { extrude: ['Boss-Extrude', 'Cut-Extrude'], revolve: ['Revolve', 'Cut-Revolve'], sweep: ['Sweep', 'Cut-Sweep'], loft: ['Loft', 'Cut-Loft'] };
   const base = bases[type] ?? (opBase[type] ? opBase[type][op === 'boss' ? 0 : 1] : type);
   const n = doc.features.filter((f) => f.type === type && (type in bases || (f as ExtrudeFeature).op === op)).length + 1;
+  // a base flange on a part that is sheet metal already is a tab: Tab1, Tab2 (by design)
+  if (type === 'baseFlange' && doc.features.some((f) => f.type === 'baseFlange')) return `Tab${doc.features.filter((f) => f.type === 'baseFlange' && f.name.startsWith('Tab')).length + 1}`;
   if (type === 'extrude' && op === 'boss' && thin) return `Extrude-Thin${doc.features.filter((f) => f.type === 'extrude' && f.op === 'boss' && f.thin).length + 1}`;
   return `${base}${n}`;
 }
@@ -1347,6 +1364,7 @@ export const useStore = create<State>((set, get) => ({
   ...sheetMetalSlice(set, get),
   ...tolerancingSlice(set, get),
   ...weldmentsSlice(set, get),
+  ...bodiesSlice(set, get),
   ...historyFlags(),
   dragPoint(pointId, target, phase) {
     const { doc, activeSketchId, solve } = get();
@@ -1377,8 +1395,8 @@ export const useStore = create<State>((set, get) => ({
 }));
 
 /** A command or selection is active: the Property Panel replaces the design tree. */
-export const isCommandActive = (s: Pick<State, 'activeSketchId' | 'selection' | 'selectedConstraint' | 'tool' | 'planePick' | 'featureEdit' | 'mateEdit' | 'insertingComponent' | 'drawingEdit' | 'planeEdit' | 'configEdit' | 'sheetMetalEdit' | 'sectionEdit' | 'explodeEdit' | 'patternEdit' | 'sketch3dEdit' | 'analysis' | 'sensorEdit'> & Partial<Pick<State, 'motorEdit' | 'motionEdit' | 'fastenerEdit' | 'sceneEdit' | 'refEdit' | 'offsetSurfEdit' | 'decalEdit'>>): boolean =>
-  !!s.refEdit || !!s.offsetSurfEdit || !!s.decalEdit || !!s.motorEdit || !!s.motionEdit || !!s.fastenerEdit || !!s.sceneEdit || s.planePick || !!s.featureEdit || !!s.mateEdit || s.insertingComponent || !!s.drawingEdit || !!s.planeEdit || !!s.configEdit || s.sheetMetalEdit || !!s.sectionEdit || !!s.explodeEdit || !!s.patternEdit || !!s.sketch3dEdit || (!!s.analysis && s.analysis.kind !== 'curvature') || !!s.sensorEdit || (!!s.activeSketchId && (s.selection.length > 0 || !!s.selectedConstraint || s.tool !== 'select'));
+export const isCommandActive = (s: Pick<State, 'activeSketchId' | 'selection' | 'selectedConstraint' | 'tool' | 'planePick' | 'featureEdit' | 'mateEdit' | 'insertingComponent' | 'drawingEdit' | 'planeEdit' | 'configEdit' | 'sheetMetalEdit' | 'sectionEdit' | 'explodeEdit' | 'patternEdit' | 'sketch3dEdit' | 'analysis' | 'sensorEdit'> & Partial<Pick<State, 'curveColorEdit' | 'motorEdit' | 'motionEdit' | 'fastenerEdit' | 'sceneEdit' | 'refEdit' | 'offsetSurfEdit' | 'decalEdit'>>): boolean =>
+  !!s.curveColorEdit || !!s.refEdit || !!s.offsetSurfEdit || !!s.decalEdit || !!s.motorEdit || !!s.motionEdit || !!s.fastenerEdit || !!s.sceneEdit || s.planePick || !!s.featureEdit || !!s.mateEdit || s.insertingComponent || !!s.drawingEdit || !!s.planeEdit || !!s.configEdit || s.sheetMetalEdit || !!s.sectionEdit || !!s.explodeEdit || !!s.patternEdit || !!s.sketch3dEdit || (!!s.analysis && s.analysis.kind !== 'curvature') || !!s.sensorEdit || (!!s.activeSketchId && (s.selection.length > 0 || !!s.selectedConstraint || s.tool !== 'select'));
 
 /** Definition status by design reports it: an empty sketch counts as under defined. */
 export const sketchStatus = (sketch: Sketch | null | undefined, solve: SolveResult | null | undefined): SolveResult['status'] | null => {
@@ -1407,3 +1425,12 @@ if (typeof window !== 'undefined') {
     }
   });
 }
+
+// equations in value fields (= in a Property Panel field): the names come from the document, a feature field's
+// equation is recorded for the dimension it edits
+equationEnv.current = {
+  globals: () => useStore.getState().doc.equations.filter((e) => !/@/.test(e.target) && !useStore.getState().doc.features.some((f) => f.name === e.target)).map((e) => e.target),
+  fileProperties: () => FILE_PROPERTIES,
+  evaluate: (expression) => evaluateFieldExpression(useStore.getState().doc, expression),
+  onEquation: notePendingEquation,
+};

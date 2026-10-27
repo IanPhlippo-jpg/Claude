@@ -341,6 +341,7 @@ export function MenuBar() {
       { label: 'Features ▸ Combine…', icon: <Icon.Combine />, disabled: st.doc.kind !== 'part' && !!st.doc.kind, onSelect: () => st.startCombine() },
       { label: 'Features ▸ Move/Copy…', icon: <Icon.MoveComponent />, disabled: (st.doc.kind !== 'part' && !!st.doc.kind) || !st.rebuild.bodies.length, onSelect: () => st.startMoveBody() },
       { label: 'Features ▸ Deform…', icon: <Icon.Deform />, disabled: st.doc.kind !== 'part' && !!st.doc.kind, onSelect: () => st.startDeform() },
+      { label: 'Features ▸ Delete/Keep Body…', icon: <Icon.Trash />, disabled: (st.doc.kind !== 'part' && !!st.doc.kind) || !st.rebuild.bodies.length, onSelect: () => useStore.getState().startDeleteBody() },
       { label: 'Features ▸ Simple Hole…', icon: <Icon.Hole />, disabled: st.doc.kind !== 'part' && !!st.doc.kind, onSelect: () => st.startHole(false, true) },
       { label: 'Sheet Metal ▸ Vent…', icon: <Icon.Vent />, disabled: st.doc.kind !== 'part' && !!st.doc.kind, onSelect: () => st.startVent() },
       { label: 'Sheet Metal ▸ Forming Tool…', icon: <Icon.FormTool />, disabled: st.doc.kind !== 'part' && !!st.doc.kind, onSelect: () => st.startFormTool() },

@@ -140,7 +140,7 @@ elease; README en docs/04 bijgewerkt
 - [x] Selected Contours bij Extrude/Revolve (per gebied aan/uit in de PM)
 - [x] Straight Slot en Centerpoint Straight Slot (2 lijnen + 2 bogen + constructie-middellijn, 4x tangent + equal), preview met L/W, fly-out, S-palet, Tools-menu; e2e/slot.mjs 7/7
 - [x] Shift+klik op een boog/cirkel bij Smart Dimension = maat tot de rand (Arc Condition Min; solver, tekening en waarde volgen); Slot PM met Slot Types / Add dimensions / Center to Center
-- [ ] Nog 10 video's niet gedownload (YouTube-botcontrole: 08, 09, 35, 46, 53–58) — later opnieuw proberen
+- [x] Nog 10 video's niet gedownload (YouTube-botcontrole: 08, 09, 35, 46, 53–58): op 2026-10-27 alsnog binnengehaald zonder cookies
 
 ## Configuraties (ConfigurationManager, video 19) (2026-10-21)
 - [x] Datamodel: Document.configurations (naam, omschrijving, maten per naam, onderdrukte features), activeConfiguration; Component.configuration in assemblies
@@ -691,3 +691,51 @@ elease; README en docs/04 bijgewerkt
 - [x] Appearance: Basic/Advanced; tabs Color/Image (afbeelding), Mapping (box/projectie/cilinder/bol, breedte, rotatie, spiegelen), Illumination, Surface Finish (e2e appearance2)
 - [x] Insert Bends: Ignore beveled faces + bochten geteld in de boom (SharpBend); Face Fillet ▸ Hold line (unit + e2e)
 - [x] Release 0.5.0: unit 404, regressie Windows 90/90, B-rep-pass 11/11, worker-pass 6/6, desktop 8/8 + 12/12, installer + zelftest 19/19 (rebuild-worker onder app://), screenshots
+
+## Ontbrekende playlist-video's 08, 09, 35, 46, 53–58 (2026-10-27)
+- [x] Downloaden en frames maken: 08, 09, 35, 55, 56, 57, 58 binnen; 46, 53, 54 opnieuw (netwerk en botcontrole)
+- [x] Inventaris per video: e2e-out/inventaris-08-09-35-55.md, -46-53-54.md, -56-58.md
+- [~] Verschillen wegwerken, met e2e-test (e2e/videos56.mjs)
+- [ ] Regressie, commit en push
+
+## Verschillen video 56–58 wegwerken (2026-10-27)
+- [x] Rib: Type Linear/Natural, Draft On/Off-knop, Rib Thickness At sketch plane / At wall interface
+- [x] Delete Face: Show selection toolbar en Show preview
+- [x] Statusbalkprompts (rib, full round fillet, handles, mirror) en Perimeter/Radius-readouts
+- [ ] Live Length-readout bij slepen van de flenshandgreep
+- [x] Mass-sensor 9 significante cijfers
+- [x] Modify-box: Global Variables ▸, File Properties ▸, Functions ▸ en tooltip
+- [x] Contextwerkbalk schets in de boom: Show/Hide en Zoom to Selection
+- [x] Sketch/Curve Color PM
+- [ ] Slot als één entiteit bij Trim (waarschuwing)
+- [x] Instant2D (bestaat als Drag Dimensions, naam bewust anders), plaatwerk-mirror tooltip, full round fillet callouts
+
+## Verschillen video 08, 09, 35, 55 wegwerken (2026-10-27)
+- [x] Vergelijkingen in PM-getalvelden (="HALFWIRE"+4) met het =-menu (Global Variables, Functions, File Properties; SW-Density)
+- [x] Sweep: Merge result, Feature Scope en Minimum Twist
+- [x] Composite Curve en sweep langs modelranden of een composite curve
+- [x] Doubled Distance (diametermaat over een middellijn)
+- [x] Up To Vertex op punten van een layoutschets
+- [x] Delete/Keep Body als PM (ook in Insert ▸ Features)
+- [ ] Insert-menu met echte submenu's
+- [ ] Plane: Project-optie bij een punt
+- [ ] Edge Flange: Bend from Virtual Sharp en Tangent to Bend
+- [ ] Curve Through XYZ Points / Reference Points
+- [x] Selection Filter-werkbalk (F5, F6)
+- [x] Statusbalk: Normal Distance bij twee vlakken of lijnen, Diameter bij een cilindervlak
+- [x] Tab<n> voor een Base Flange op een bestaand plaatwerkpart
+- [x] Statusprompts rechthoek, cirkel, 3-puntsboog, Circular Pattern; relatienamen met volgnummer
+- [x] Materialen Cast Alloy Steel, PBT General Purpose (Nickel en Rubber bestonden al)
+
+## Verschillen video 46, 53, 54 wegwerken (2026-10-27)
+- [x] Equations-dialoog: keuzelijst na = in de Value-cel; Σ in velden met een vergelijking
+- [x] Contextwerkbalk op een vlak in de boom (Sketch, Show/Hide, Zoom to Selection, Normal To)
+- [x] Bodies en standaardvlakken hernoemen
+- [x] Mass Properties voor geselecteerde bodies
+- [x] Base Flange als Tab op bestaand plaatwerk (verkorte PM, Tab1)
+- [ ] Override default parameters bij bewerken van Base-Flange1
+- [x] Vlak loodrecht op een curve in zijn eindpunt
+- [ ] 3D-schets: bogen, sketch fillet, maten (pad voor sweep in 46)
+- [ ] Edit Flange Profile als echte profielschets (Profile Sketch-dialoog)
+- [x] Measure Total Length voor meer dan 2 randen; voettekst File/Config
+- [x] Equations-map in de boom uitklapbaar met Σ-icoon
