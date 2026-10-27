@@ -43,8 +43,8 @@ await page.mouse.move(5, 600);
 await page.click('.k-hud-btn[data-tip="Edit Appearance"]');
 await page.waitForTimeout(200);
 check('Color dialog targets the face', (await page.locator('[data-testid="appearance-target"]').innerText()).includes('Face<'));
-await page.click('.k-swatch[title="#d94b3d"]');
-await page.click('.k-appearance-dialog .k-btn.primary');
+await page.click('.k-swatch[title="#e60000"]');
+await page.click('[data-testid="appearance-ok"]');
 await page.waitForTimeout(500);
 // clear the selection highlight, then sample the top face and a side face
 await page.keyboard.press('Escape');

@@ -644,10 +644,12 @@ elease; README en docs/04 bijgewerkt
   - [x] Modify: Reverse the sense of the dimension en Mark dimension to be imported into a drawing
   - [x] Chamfer-callout met Angle; Linear Pattern-flyout met Mirror; bodies met [n] bij dezelfde naam; bodymateriaal als kindrij
   - [x] Hole Wizard: titel Hole Position op het tabblad Positions met de Type-verwijzing; ANSI Metric-typenamen (B18.2.3.5M, B18.6.7M …)
-  - [ ] Loft: profielenlijst met ▲▼ en vlakken, Apply to all als vinkje, Curvature To Face, Next Face; callouts met schetsnaam
+  - [x] Loft: profielenlijst met ▲▼, Apply to all als vinkje bij Start constraint (callouts hadden de schetsnaam al)
+  - [ ] Loft: modelvlakken als profiel, Curvature To Face, Next Face
   - [x] Equations: groep Features met Add feature suppression ("suppressed"/"unsuppressed" of een voorwaarde), Sketch Equation View, vier view-iconen links van het filter
   - [x] Evaluate ▸ Import Diagnostics: foute vlakken en gaten van de geïmporteerde driehoeken, Attempt to Heal All last punten binnen de tolerantie (Check staat al op de tab)
-  - [ ] Appearance-PM: Basic/Advanced, kleurwiel, "Select an appearance"; ontbrekende swatches
+  - [x] Appearance: kop met ✓/✗ (✗ zet terug), Selected Geometry + Remove Appearance, Color met standaardpalet 8×5, kleurveld en Red/Green/Blue, statusprompt "Select entities to modify their appearance."
+  - [ ] Appearance: tabs Basic/Advanced en Color/Image/Mapping (vragen belichting en texturen)
 - [~] Verschillen 45–52 (tweede agent, e2e-out/inventaris-45-52.md):
   - [x] meer statusprompts (Select sweep profile, Edge Flange, Mirror, Sketched Bend, Break Corner, callout), open boogrand toont Radius
   - [x] contextwerkbalk op een body in de boom (Hide/Show, Isolate, Appearance, Zoom to Fit)
@@ -658,5 +660,9 @@ elease; README en docs/04 bijgewerkt
   - [ ] Insert Bends: Ignore beveled faces; face fillet Hold Line
   - [x] View-menu: Redraw, Screen Capture ▸ Image Capture, Lights and Cameras ▸ Edit Scene, Toolbars ▸ Customize, Full Screen, Customize Menu; Display ▸ Curvature/Draft/Undercut/Parting Line/Section View; Tangent Edges als drie keuzes
   - [x] sensorwaarde als Mass1(23.8401841 g)
-  - [ ] plaatwerk-bochten in de boom (BaseBend, EdgeBend, RoundBend); 3D-schets Line/Point-PM; Segment-commando; ribbon-tooltips met beschrijving
+  - [x] plaatwerk-bochten in de boom: BaseBend1…, EdgeBend1…, MiterBend1… onder hun feature
+  - [x] 3D-schets: Insert Line-PM met Orientation (As sketched / Along X/Y/Z, werkt op het volgende punt) en Control Vertex Parameters X/Y/Z van het laatste punt
+  - [x] Segment (Sketch Tools ▸ Segment…): Sketch points of Sketch segments, n gelijke delen (unit 3, e2e)
+  - [ ] ribbon-tooltips met beschrijving voor alle commando's
 - [x] Tests, regressie (86/86 met inventory47, unit 389), installer 0.4.6, screenshots, commit
+- [x] Release 0.4.7: unit 392, regressie 86/86, desktop, installer (Loft, Appearance, bochten in de boom, Segment, 3D-schets)

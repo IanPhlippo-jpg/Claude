@@ -44,6 +44,15 @@ Status per fase:
 8. Sheet metal (Base Flange/Tab, Edge Flange, Flatten met K-factor) — **basis gereed**; Hem/Jog/Miter/Unfold gepland
 7. Massa-eigenschappen en meten — **gereed** (Mass Properties, Measure); materialen en rendering gepland
 
+## Status 0.4.7 (2026-10-28)
+
+Vervolg van de playlist-inventaris:
+- **Loft:** profielenlijst met ▲▼, en Apply to all als vinkje.
+- **Appearance:** zoals de SOLIDWORKS-PM, met standaardpalet, RGB, ✓/✗ en Remove Appearance.
+- **Plaatwerkbochten in de boom:** BaseBend, EdgeBend en MiterBend.
+- **Segment:** schetspunten of segmenten.
+- **3D-schets:** Insert Line-PM met Orientation Along X/Y/Z en Control Vertex Parameters.
+
 ## Status 0.4.6 (2026-10-28)
 
 Playlist-inventaris van video 39 tot 52, en de verschillen weggewerkt:

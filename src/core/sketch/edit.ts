@@ -724,3 +724,47 @@ export function copyEntitiesKeep(s: Sketch, ids: Id[], xf: Xform): Sketch {
   }
   return s1;
 }
+
+/**
+ * Segment (Tools ▸ Sketch Tools ▸ Segment): a line, arc, circle or spline divided into n equal parts — by n − 1 sketch
+ * points held on it (a circle: n points), or, for a line or an arc, cut into n segments (collinear / coradial).
+ */
+export function segmentEntity(s: Sketch, id: Id, n: number, mode: 'points' | 'segments'): Sketch {
+  const e = s.entities[id];
+  const count = Math.max(2, Math.min(100, Math.round(n)));
+  if (!e || e.kind === 'point') return s;
+  const closed = e.kind === 'circle';
+  const ts = Array.from({ length: closed ? count : count - 1 }, (_, k) => (closed ? k : k + 1) / count);
+  if (mode === 'points' || (e.kind !== 'line' && e.kind !== 'arc')) {
+    let s1 = s;
+    for (const t of ts) {
+      const [s2, pt] = addPoint(s1, pointAt(s, e, t));
+      s1 = addConstraint(s2, 'pointOnEntity', [pt.p, id])[0];
+    }
+    return s1;
+  }
+  // segments: the entity keeps its start and runs to the first cut; new pieces follow up to the old end point
+  let s1 = s;
+  const cuts: Id[] = [];
+  for (const t of ts) { let pid: Id; [s1, pid] = addPointParam(s1, pointAt(s, e, t)); cuts.push(pid); }
+  if (e.kind === 'line') {
+    s1 = { ...s1, entities: { ...s1.entities, [id]: { ...e, p2: cuts[0] } } };
+    const ends = [...cuts, e.p2];
+    for (let k = 0; k < cuts.length; k++) {
+      let ln: LineEntity;
+      [s1, ln] = addLine(s1, ends[k], ends[k + 1], e.construction);
+      s1 = addConstraint(s1, 'collinear', [id, ln.id])[0];
+    }
+    return s1;
+  }
+  const arc = e as ArcEntity;
+  const c = P(s, arc.center);
+  s1 = { ...s1, entities: { ...s1.entities, [id]: { ...arc, end: cuts[0] } } };
+  const ends = [...cuts, arc.end];
+  for (let k = 0; k < cuts.length; k++) {
+    let a2: ArcEntity;
+    [s1, a2] = addArc(s1, c, ends[k], ends[k + 1], arc.ccw, arc.construction);
+    s1 = addConstraint(s1, 'coradial', [id, a2.id])[0];
+  }
+  return s1;
+}

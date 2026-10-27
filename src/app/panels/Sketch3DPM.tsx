@@ -1,6 +1,6 @@
 import { useStore } from '../store';
 import { useShallow } from 'zustand/react/shallow';
-import { Section } from '../../ui/components';
+import { NumberField, Section } from '../../ui/components';
 import { Icon } from '../../ui/icons';
 
 /** 3D Sketch: the lines drawn so far, the active plane of the space handle (Tab switches) and OK / Cancel. */
@@ -13,7 +13,7 @@ export function Sketch3DPM() {
     <div className="k-pm" data-testid="sketch3d-pm">
       <div className="k-pm-head">
         <div className="k-pm-title">
-          <Icon.Sketch /> <b>{e.name}</b>
+          <Icon.Line /> <b>Insert Line</b> <span className="k-muted" style={{ marginLeft: 4 }}>{e.name}</span>
           <span className="grow" />
           <span className="k-pm-help" title="Help">?</span>
         </div>
@@ -25,6 +25,30 @@ export function Sketch3DPM() {
       <Section title="Message">
         <p className="k-pm-message">Click points in the graphics area. Lines are drawn on the {planeLabel} plane through the last point; press Tab to switch the plane. Double-click or Esc ends the chain.</p>
       </Section>
+      <Section title="Orientation">
+        <div className="k-pm-radios">
+          {([['free', 'As sketched'], ['x', 'Along X'], ['y', 'Along Y'], ['z', 'Along Z']] as const).map(([v, label]) => (
+            <label key={v} className="k-check"><input type="radio" name="s3dorient" data-testid={`sketch3d-orient-${v}`} checked={(e.orientation ?? 'free') === v} onChange={() => useStore.setState({ sketch3dEdit: { ...e, orientation: v } })} /> {label}</label>
+          ))}
+        </div>
+      </Section>
+      {e.last && (
+        <Section title="Control Vertex Parameters">
+          {/* the last point of the chain, typed exactly (the line that ends there follows) */}
+          {(['X', 'Y', 'Z'] as const).map((ax, i) => (
+            <div key={ax} className="k-pm-valuerow k-tip" data-tip={`${ax} Coordinate`} data-testid={`sketch3d-${ax.toLowerCase()}`}>
+              <span className="k-pm-xy">{ax}</span>
+              <NumberField value={e.last![i]} unit={st.doc.units} step={1} onChange={(v) => {
+                const old = e.last!;
+                const p = [...old] as [number, number, number];
+                p[i] = v;
+                const same = (q: [number, number, number]) => q[0] === old[0] && q[1] === old[1] && q[2] === old[2];
+                useStore.setState({ sketch3dEdit: { ...e, last: p, segments: e.segments.map((sg) => sg.map((q) => (same(q as [number, number, number]) ? p : q)) as typeof sg) } });
+              }} />
+            </div>
+          ))}
+        </Section>
+      )}
       <Section title="Space Handle">
         <div className="k-pm-stylerow">
           {(['xy', 'yz', 'zx'] as const).map((p) => (

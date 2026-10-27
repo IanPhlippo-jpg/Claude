@@ -934,3 +934,7 @@
 .k-whatswrong .k-table td { vertical-align: top; }
 .k-ww-mark { margin-left: 0 !important; }
 .k-status-err { color: var(--danger); cursor: pointer; font-weight: 600; }
+/* Appearance: the standard palette (8 x 5) and the colour chips of the red / green / blue fields */
+.k-appearance-palette { display: grid; grid-template-columns: repeat(8, 1fr); gap: 2px; }
+.k-appearance-palette .k-swatch { width: 100%; height: 16px; border-radius: 1px; }
+.k-appearance-chip { display: inline-block; width: 10px; height: 10px; border: 1px solid #888; vertical-align: -1px; }

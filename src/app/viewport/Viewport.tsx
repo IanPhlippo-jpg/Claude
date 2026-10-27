@@ -289,6 +289,19 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
       if (Math.hypot(q.x - px, q.y - py) < 8) return [...end] as [number, number, number];
     }
     const anchor = new THREE.Vector3(...(e3.last ?? [0, 0, 0]));
+    const r2 = (v: number) => Math.round(v * 100) / 100;
+    // Orientation along an axis: the point of that axis through the last point nearest to the pointer ray
+    if (e3.last && e3.orientation && e3.orientation !== 'free') {
+      const a = new THREE.Vector3(e3.orientation === 'x' ? 1 : 0, e3.orientation === 'y' ? 1 : 0, e3.orientation === 'z' ? 1 : 0);
+      const ray = camera.pixelToRay(px, py);
+      const w0 = anchor.clone().sub(ray.origin);
+      const b = a.dot(ray.direction), d = a.dot(w0), e = ray.direction.dot(w0);
+      const den = 1 - b * b;
+      if (den < 1e-6) return null;
+      const t = (b * e - d) / den;
+      const q = anchor.clone().addScaledVector(a, t);
+      return [r2(q.x), r2(q.y), r2(q.z)];
+    }
     const n = e3.plane === 'xy' ? new THREE.Vector3(0, 0, 1) : e3.plane === 'yz' ? new THREE.Vector3(1, 0, 0) : new THREE.Vector3(0, 1, 0);
     const ray = camera.pixelToRay(px, py);
     if (Math.abs(ray.direction.dot(n)) < 0.05) return null;
@@ -1337,7 +1350,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
       { label: 'Fully Define Sketch…', onSelect: () => st.setTool('fullyDefine') },
       { label: 'Sketch Tools', children: [
         tool('trim', 'Trim Entities'), tool('extend', 'Extend Entities'), tool('offset', 'Offset Entities'), tool('sketchFillet', 'Sketch Fillet'), tool('sketchChamfer', 'Sketch Chamfer'),
-        tool('moveEntities', 'Move Entities'), tool('rotateEntities', 'Rotate Entities'), tool('linearSketchPattern', 'Linear Sketch Pattern'), tool('circularSketchPattern', 'Circular Sketch Pattern'),
+        tool('segment', 'Segment…'), tool('moveEntities', 'Move Entities'), tool('rotateEntities', 'Rotate Entities'), tool('linearSketchPattern', 'Linear Sketch Pattern'), tool('circularSketchPattern', 'Circular Sketch Pattern'),
       ] },
       { separator: true },
       { label: 'Exit Sketch', icon: <Icon.Exit />, onSelect: st.exitSketch },

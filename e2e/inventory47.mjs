@@ -84,6 +84,21 @@ const xAfter = await pointX();
 check('Reverse the sense moves the point to the other side (80 → -80)', Math.round(xBefore) === 80 && Math.round(xAfter) === -80, `${xBefore} → ${xAfter}`);
 await S(() => { const s = window.__phlippoStore.getState(); s.setModify(null); s.undo(); });
 await page.waitForTimeout(200);
+// ---- Segment: the top line cut into three segments through the Property Panel
+const linesBefore = await S(() => { const sk = window.__phlippoStore.getState().doc.sketches.s1; return sk.entityOrder.filter((id) => sk.entities[id].kind === 'line').length; });
+await S(() => window.__phlippoStore.getState().setTool('segment'));
+await page.waitForTimeout(200);
+const topMid = await S(() => window.__phlippoProject({ x: 40, y: 60 }));
+await page.mouse.click(topMid.x, topMid.y);
+await page.waitForTimeout(200);
+await page.locator('[data-testid="segment-segments"]').check();
+await page.locator('.k-pm-host .k-pm-valuerow:has(input) input').first().fill('3');
+await page.locator('.k-pm-host .k-pm-valuerow:has(input) input').first().press('Enter');
+await page.locator('[data-testid="segment-apply"]').click();
+await page.waitForTimeout(300);
+const linesAfter = await S(() => { const sk = window.__phlippoStore.getState().doc.sketches.s1; return sk.entityOrder.filter((id) => sk.entities[id].kind === 'line').length; });
+check('Segment cuts the top line into three segments', linesAfter === linesBefore + 2, `${linesBefore} → ${linesAfter}`);
+await S(() => { const s = window.__phlippoStore.getState(); s.undo(); s.setTool('select'); });
 await S(() => window.__phlippoStore.getState().exitSketch());
 await page.waitForTimeout(400);
 
@@ -163,6 +178,26 @@ await page.waitForTimeout(400);
 const gaps1 = await gapsOf();
 check('Import Diagnostics finds the gaps and Attempt to Heal All closes them', Number(gaps0) > 0 && Number(gaps1) === 0, `${gaps0} → ${gaps1}`);
 await page.screenshot({ path: `${OUT}/inventory47.png` });
+await page.locator('[data-testid="import-diagnostics"] button:has-text("Close")').click().catch(() => undefined);
+
+// ---- sheet metal: a base flange from an open U profile shows BaseBend1 and BaseBend2 under it
+await S(() => {
+  const K = window.__phlippoKit;
+  let sk = K.createSketch('u1', 'Sketch1', 'front');
+  let a, b;
+  [sk, a] = K.addLine(sk, { x: 0, y: 30 }, { x: 0, y: 0 });
+  [sk, b] = K.addLine(sk, a.p2, { x: 50, y: 0 });
+  sk = K.addLine(sk, b.p2, { x: 50, y: 30 })[0];
+  const d = K.createDocument('Goot');
+  d.sketches = { u1: sk };
+  d.features = [{ id: 'k1', type: 'sketch', name: 'Sketch1', sketchId: 'u1', suppressed: false }, { id: 'bf1', type: 'baseFlange', name: 'Base-Flange1', sketchId: 'u1', suppressed: false, depth: 60, midPlane: true, reverse: false, flipDir: false }];
+  window.__phlippoStore.getState().openDocument(d);
+});
+await page.locator('[data-testid="ask-no"]').click({ timeout: 1500 }).catch(() => undefined);
+await page.waitForTimeout(500);
+await page.locator('.k-tree-row:has-text("Base-Flange1") .caret').first().click().catch(() => undefined);
+await page.waitForTimeout(200);
+check('Base-Flange1 holds BaseBend1 and BaseBend2', (await page.locator('.k-tree-row:has-text("BaseBend1")').count()) === 1 && (await page.locator('.k-tree-row:has-text("BaseBend2")').count()) === 1);
 
 await browser.close();
 console.log(`${results.filter((r) => r.ok).length}/${results.length} checks passed`);

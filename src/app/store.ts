@@ -112,6 +112,7 @@ export type ToolId =
   | 'styleSpline'
   | 'equationCurve'
   | 'fullyDefine'
+  | 'segment'
   | 'text';
 
 export type RibbonTab = 'sketch' | 'features' | 'surfaces' | 'sheetmetal' | 'weldments' | 'evaluate' | 'render' | 'addins' | 'assembly' | 'drawing' | 'markup' | 'mbd' | 'viewLayout' | 'annotation' | 'sheetFormat' | 'lifecycle';
@@ -316,6 +317,8 @@ export interface Sketch3DEdit {
   segments: Sketch3DFeature['segments'];
   plane: 'xy' | 'yz' | 'zx';
   last: [number, number, number] | null;
+  /** Insert Line ▸ Orientation: as sketched, or along a world axis from the last point */
+  orientation?: 'free' | 'x' | 'y' | 'z';
 }
 export interface ExplodeEdit {
   steps: ExplodeStep[];

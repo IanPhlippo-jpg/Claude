@@ -45,6 +45,20 @@ await page.waitForTimeout(200);
 const segs = await page.evaluate(() => window.__phlippoStore.getState().sketch3dEdit.segments);
 const near = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]) < 0.6;
 check('three lines in space, the last one along Z', segs.length === 3 && near(segs[0][1], [60, 0, 0]) && near(segs[1][1], [60, 40, 0]) && near(segs[2][1], [60, 40, 50]), JSON.stringify(segs));
+// Orientation ▸ Along X: the next point stays on the X axis through the last point, wherever the pointer is
+await page.locator('[data-testid="sketch3d-orient-x"]').check();
+q = await W(90, 70, 20); await page.mouse.move(q.x, q.y); await page.mouse.click(q.x, q.y);
+await page.waitForTimeout(200);
+const along = await page.evaluate(() => window.__phlippoStore.getState().sketch3dEdit.last);
+check('Along X keeps Y and Z of the last point (40, 50)', Math.abs(along[1] - 40) < 0.01 && Math.abs(along[2] - 50) < 0.01, JSON.stringify(along));
+// Control Vertex Parameters: typing X moves the last point and the end of its line
+await page.locator('[data-testid="sketch3d-x"] input').fill('100');
+await page.locator('[data-testid="sketch3d-x"] input').press('Enter');
+await page.waitForTimeout(200);
+const moved = await page.evaluate(() => { const e = window.__phlippoStore.getState().sketch3dEdit; return { last: e.last, end: e.segments[e.segments.length - 1][1] }; });
+check('Control Vertex Parameters X = 100 moves the last point and its line', moved.last[0] === 100 && moved.end[0] === 100, JSON.stringify(moved));
+await page.evaluate(() => window.__phlippoStore.getState().undo3DSegment());
+await page.locator('[data-testid="sketch3d-orient-free"]').check();
 await page.click('.k-cm-big:has-text("Exit Sketch") .k-cm-main');
 await page.waitForTimeout(400);
 check('3DSketch1 in the tree', (await page.locator('.k-tree-row:has-text("3DSketch1")').count()) === 1);

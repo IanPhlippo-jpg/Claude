@@ -39,7 +39,9 @@ function commandPrompt(s: { tool: string; activeSketchId: string | null; selecte
 
 export function StatusBar({ hint: hint0 }: { hint: string }) {
   const st = useStore(useShallow((s) => ({ messages: s.messages, doc: s.doc, selection: s.selection, selectedEdges: s.selectedEdges, rebuild: s.rebuild, selectedFace: s.selectedFace, planePick: s.planePick, activeSketchId: s.activeSketchId, cursor: s.cursor, hasDocument: s.hasDocument, selectedDrawingViewId: s.selectedDrawingViewId, unitSystem: s.unitSystem, setUnitSystem: s.setUnitSystem, setDialog: s.setDialog })));
-  const prompt = useStore(useShallow((s) => commandPrompt({ tool: s.tool, activeSketchId: s.activeSketchId, selectedConstraint: s.selectedConstraint, contourPick: s.contourPick, featureEdit: s.featureEdit })));
+  const dialogPrompt = useStore((s) => (s.dialog === 'appearance' ? 'Select entities to modify their appearance.' : ''));
+  const commandText = useStore(useShallow((s) => commandPrompt({ tool: s.tool, activeSketchId: s.activeSketchId, selectedConstraint: s.selectedConstraint, contourPick: s.contourPick, featureEdit: s.featureEdit })));
+  const prompt = dialogPrompt || commandText;
   const hint = hint0 || prompt;
   const solve = useActiveSolve();
   const sketch = useActiveSketch();

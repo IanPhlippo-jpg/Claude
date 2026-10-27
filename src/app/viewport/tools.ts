@@ -370,6 +370,12 @@ export class ToolController {
         }
         return;
       }
+      // Segment: a click picks the entity to divide (the Property Panel applies it)
+      case 'segment': {
+        const h = hitTest(ctx.sketch, info.p, ctx.tolerance);
+        ctx.select(h && h.kind === 'entity' ? [{ kind: 'entity', id: h.id }] : []);
+        return;
+      }
       case 'point': {
         const { p, snap: sn } = this.applySnap(ctx, info.p, null);
         ctx.commit('Point', (s) => {

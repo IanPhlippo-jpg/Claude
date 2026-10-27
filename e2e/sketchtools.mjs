@@ -142,11 +142,11 @@ await page.keyboard.press('Escape');
 await page.click('.k-cm-tab:has-text("Render Tools")');
 await page.click('.k-cm-big:has-text("Edit Appearance") .k-cm-main');
 await page.waitForTimeout(200);
-check('Color dialog with swatches', (await page.locator('[data-testid="appearance-dialog"]').count()) === 1 && (await page.locator('.k-swatch').count()) === 12);
-await page.locator('.k-swatch').nth(1).click();
-await page.click('.k-dialog-actions button:has-text("OK")');
+check('Appearance with the standard palette (40 colours)', (await page.locator('[data-testid="appearance-dialog"]').count()) === 1 && (await page.locator('.k-appearance-palette .k-swatch').count()) === 40);
+await page.click('.k-swatch[title="#e60000"]');
+await page.click('[data-testid="appearance-ok"]');
 await page.waitForTimeout(200);
-check('appearance stored on the document', (await page.evaluate(() => window.__phlippoStore.getState().doc.appearance)) === '#d94b3d');
+check('appearance stored on the document', (await page.evaluate(() => window.__phlippoStore.getState().doc.appearance)) === '#e60000');
 await page.click('.k-cm-tab:has-text("Sketch")');
 
 // Convert Entities: extrude, then a new sketch on the Top plane converts a model edge

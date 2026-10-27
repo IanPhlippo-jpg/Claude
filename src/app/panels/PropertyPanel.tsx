@@ -1,7 +1,7 @@
 import { MAX_PATTERN_INSTANCES } from '../../core/features/pattern';
 import { bridge } from '../viewport/bridge';
 import { lastPolygon } from '../../core/sketch/lastShape';
-import { rotateAbout, scaleAbout, transformEntities, translate } from '../../core/sketch/edit';
+import { rotateAbout, scaleAbout, segmentEntity, transformEntities, translate } from '../../core/sketch/edit';
 import { getPref, loadPrefs, savePrefs } from '../prefs';
 import { sketchDimensionName } from '../../core/document/equations';
 import { resolvePlaneDef } from '../../core/features/planes';
@@ -138,6 +138,7 @@ const TOOL_TITLE: Record<string, string> = {
   styleSpline: 'Style Spline',
   equationCurve: 'Equation Driven Curve',
   fullyDefine: 'Fully Define Sketch',
+  segment: 'Segment',
   rect3Corner: 'Rectangle',
   rect3Center: 'Rectangle',
   parallelogram: 'Rectangle',
@@ -230,6 +231,7 @@ const TOOL_HELP: Record<string, string> = {
   slot: 'Click the start and the end of the centerline, then a point for the width.',
   trim: 'Click the part of an entity to trim away; it is trimmed to the closest crossings.',
   sketchFillet: 'Select two lines that meet at a corner (or cross) to round the corner.',
+  segment: 'Select a sketch entity, set the number of segments and click Apply.',
   sketchChamfer: 'Select two lines that meet at a corner (or cross) to chamfer the corner.',
   extend: 'Click the end of a line to extend it to the next entity.',
   offset: 'Select the entities (chains follow automatically), set the distance and click OK.',
@@ -364,6 +366,7 @@ export function PropertyPanelBody({ editDimensionId, onEditDone }: { editDimensi
   const [dimFav, setDimFav] = useState('');
   const [customSizing, setCustomSizing] = useState(false);
   const [holeTab, setHoleTab] = useState<'type' | 'positions'>('type');
+  const [segment, setSegment] = useState<{ n: number; mode: 'points' | 'segments' }>({ n: 4, mode: 'points' });
   const selected = st.selectedConstraint ?? editDimensionId;
   const c: Constraint | null = sketch && selected ? sketch.constraints[selected] ?? null : null;
 
@@ -2958,14 +2961,20 @@ export function PropertyPanelBody({ editDimensionId, onEditDone }: { editDimensi
         )}
         {fsketch && d.type === 'loft' && (
           <Section title="Profiles">
-            <div className="k-field"><label>Profile 1</label><span>{fsketch.name}</span></div>
-            <div className="k-field">
-              <label>Profile 2</label>
-              <select className="k-input" value={d.sketchId2} onChange={(e) => st.updateFeatureDraft({ sketchId2: e.target.value })}>
-                <option value="">Select a sketch…</option>
-                {otherSketches.map((f) => <option key={f.id} value={f.sketchId}>{f.name}</option>)}
-              </select>
+            {/* the profiles as a list in loft order with Move Up / Move Down beside it, by design */}
+            <div className="k-pm-selrow" style={{ alignItems: 'flex-start' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <button className="k-pm-revbtn k-tip" data-tip="Move Up" data-testid="loft-up" disabled={!d.sketchId2} onClick={() => st.updateFeatureDraft({ sketchId: d.sketchId2, sketchId2: d.sketchId })}>▲</button>
+                <button className="k-pm-revbtn k-tip" data-tip="Move Down" data-testid="loft-down" disabled={!d.sketchId2} onClick={() => st.updateFeatureDraft({ sketchId: d.sketchId2, sketchId2: d.sketchId })}>▼</button>
+              </div>
+              <div className="k-selbox" style={{ minHeight: 44, flex: 1 }} data-testid="loft-profiles">
+                {[d.sketchId, d.sketchId2].filter(Boolean).map((sid, i) => <div key={sid + i} className="k-selbox-row"><Icon.Sketch size={12} /> {st.doc.features.find((f) => f.type === 'sketch' && f.sketchId === sid)?.name ?? sid}</div>)}
+              </div>
             </div>
+            <select className="k-input" data-testid="loft-profile2" value={d.sketchId2} onChange={(e) => st.updateFeatureDraft({ sketchId2: e.target.value })}>
+              <option value="">{d.sketchId2 ? 'Second profile…' : 'Select the second profile…'}</option>
+              {otherSketches.map((f) => <option key={f.id} value={f.sketchId}>{f.name}</option>)}
+            </select>
           </Section>
         )}
         {fsketch && d.type === 'loft' && (
@@ -2996,6 +3005,7 @@ export function PropertyPanelBody({ editDimensionId, onEditDone }: { editDimensi
                     </div>
                   )}
                   {w !== undefined && <div className="k-pm-valuerow k-tip" data-tip="Tangent length"><Icon.Dimension size={14} /><NumberField value={w} onChange={(v) => set({ [`${k}Normal`]: Math.max(0, v) })} step={0.1} min={0} /></div>}
+                  {k === 'start' && w !== undefined && <label className="k-check"><input type="checkbox" data-testid="loft-applyall" checked={!!d.applyToAll} onChange={(e) => st.updateFeatureDraft({ applyToAll: e.target.checked, ...(e.target.checked ? { endNormal: d.startNormal, endType: d.startType, endDir: d.startDir } : {}) })} /> Apply to all</label>}
                 </div>
               );
             })}
@@ -3017,7 +3027,6 @@ export function PropertyPanelBody({ editDimensionId, onEditDone }: { editDimensi
             <label className="k-check"><input type="checkbox" defaultChecked /> Show preview</label>
             <div className="k-pm-stylerow" style={{ marginTop: 4 }}>
               <button className="k-btn" data-testid="loft-dragsketch" onClick={() => { const sid = d.sketchId; st.cancelFeature(); st.editSketch(sid); }}>Drag Sketch</button>
-              <button className="k-btn" onClick={() => st.updateFeatureDraft({ applyToAll: !d.applyToAll, ...(d.applyToAll ? {} : { endNormal: d.startNormal, endType: d.startType, endDir: d.startDir }) })}>{d.applyToAll ? '✓ Apply to all' : 'Apply to all'}</button>
             </div>
           </Section>
         )}
@@ -3662,6 +3671,17 @@ export function PropertyPanelBody({ editDimensionId, onEditDone }: { editDimensi
           <p className="k-muted" style={{ margin: '4px 0' }}>{({ power: 'Drag across the entities to trim them.', corner: 'Click two lines: they are trimmed or extended to meet.', inside: 'Click two boundary entities, then the entities to trim between them.', outside: 'Click two boundary entities, then the entities to trim outside them.', closest: 'Click the part of an entity to remove.' } as Record<string, string>)[st.sketchTool.trimMode]}</p>
           <label className="k-check" style={{ marginTop: 4 }}><input type="checkbox" checked={st.sketchTool.trimKeep} onChange={(e) => st.setSketchTool({ trimKeep: e.target.checked })} /> Keep trimmed entities as construction geometry</label>
           <label className="k-check"><input type="checkbox" checked={st.sketchTool.trimIgnore} onChange={(e) => st.setSketchTool({ trimIgnore: e.target.checked })} /> Ignore trimming of construction geometry</label>
+        </Section>
+      )}
+      {!c && st.tool === 'segment' && (
+        <Section title="Segment Parameters">
+          <div className="k-pm-radios">
+            <label className="k-check"><input type="radio" name="segmode" checked={segment.mode === 'points'} onChange={() => setSegment({ ...segment, mode: 'points' })} /> Sketch points</label>
+            <label className="k-check"><input type="radio" name="segmode" data-testid="segment-segments" checked={segment.mode === 'segments'} onChange={() => setSegment({ ...segment, mode: 'segments' })} /> Sketch segments</label>
+          </div>
+          <div className="k-pm-valuerow k-tip" data-tip="Number of segments"><Icon.Pattern size={14} /><NumberField value={segment.n} onChange={(v) => setSegment({ ...segment, n: Math.max(2, Math.min(100, Math.round(v))) })} step={1} min={2} /></div>
+          <div className="k-selbox" style={{ minHeight: 24 }} data-testid="segment-entity">{selectedEntities.length ? selectedEntities.slice(0, 1).map((it) => <div key={it.id} className="k-selbox-row"><Icon.Line size={12} /> {sketch.entities[it.id]?.kind ?? it.id}</div>) : <span className="k-muted">Select a line, arc, circle or spline.</span>}</div>
+          <button className="k-btn" style={{ marginTop: 4 }} data-testid="segment-apply" disabled={!selectedEntities.length} onClick={() => { const id = selectedEntities[0].id; st.commit('Segment', (k) => segmentEntity(k, id, segment.n, segment.mode)); useStore.setState({ selection: [] }); }}>Apply</button>
         </Section>
       )}
       {!c && st.tool === 'sketchFillet' && (
