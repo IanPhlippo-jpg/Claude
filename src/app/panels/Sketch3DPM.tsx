@@ -2,6 +2,41 @@ import { useStore } from '../store';
 import { useShallow } from 'zustand/react/shallow';
 import { NumberField, Section } from '../../ui/components';
 import { Icon } from '../../ui/icons';
+import type { Sketch3DEdit } from '../store';
+
+type P3 = [number, number, number];
+const same = (p: P3, q: P3) => Math.hypot(p[0] - q[0], p[1] - q[1], p[2] - q[2]) < 1e-6;
+
+/** the corners of the lines: points where exactly two lines meet */
+function corners(segs: Sketch3DEdit['segments']): P3[] {
+  const pts: { p: P3; n: number }[] = [];
+  for (const s of segs) for (const p of s) { const h = pts.find((x) => same(x.p, p)); if (h) h.n++; else pts.push({ p, n: 1 }); }
+  return pts.filter((x) => x.n === 2).map((x) => x.p);
+}
+
+/**
+ * A line set to a new length: its end point moves along the line and everything joined beyond it moves with it
+ * (the rest of the path keeps its shape), as a driving dimension on the line.
+ */
+export function setLineLength(e: Sketch3DEdit, i: number, length: number): Sketch3DEdit {
+  const [a, b] = e.segments[i];
+  const L = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
+  if (!(L > 0) || !(length > 0)) return e;
+  const d: P3 = [(b[0] - a[0]) * (length / L - 1), (b[1] - a[1]) * (length / L - 1), (b[2] - a[2]) * (length / L - 1)];
+  // the points reachable from b without crossing line i
+  const moved: P3[] = [b];
+  for (let grow = true; grow; ) {
+    grow = false;
+    e.segments.forEach((s, j) => {
+      if (j === i) return;
+      const [p, q] = s;
+      if (moved.some((m) => same(m, p)) && !moved.some((m) => same(m, q))) { moved.push(q); grow = true; }
+      else if (moved.some((m) => same(m, q)) && !moved.some((m) => same(m, p))) { moved.push(p); grow = true; }
+    });
+  }
+  const mv = (p: P3): P3 => (moved.some((m) => same(m, p)) ? [p[0] + d[0], p[1] + d[1], p[2] + d[2]] : p);
+  return { ...e, segments: e.segments.map((s) => [mv(s[0]), mv(s[1])] as typeof s), fillets: e.fillets?.map((f) => ({ ...f, at: mv(f.at) })), last: e.last ? mv(e.last) : e.last };
+}
 
 /** 3D Sketch: the lines drawn so far, the active plane of the space handle (Tab switches) and OK / Cancel. */
 export function Sketch3DPM() {
@@ -58,12 +93,25 @@ export function Sketch3DPM() {
           ))}
         </div>
       </Section>
+      <Section title="Sketch Fillet" defaultOpen={!!e.fillets?.length}>
+        {/* the corners of the path rounded with the radius, as Sketch Fillet in a 3D sketch */}
+        <div className="k-pm-valuerow k-tip" data-tip="Fillet Radius"><Icon.Arc size={14} /><NumberField value={e.filletRadius ?? 5} unit={st.doc.units} step={1} min={0.01} onChange={(v) => useStore.setState({ sketch3dEdit: { ...e, filletRadius: Math.max(0.01, v) } })} /></div>
+        <button className="k-btn" data-testid="sketch3d-fillet-all" disabled={!corners(e.segments).length} onClick={() => useStore.setState({ sketch3dEdit: { ...e, fillets: corners(e.segments).map((at) => ({ at, r: e.filletRadius ?? 5 })) } })}>Fillet all corners</button>
+        {(e.fillets ?? []).map((f, i) => (
+          <div key={i} className="k-selbox-row" data-testid="sketch3d-fillet-row">
+            <Icon.Arc size={12} /> SketchFillet{i + 1}
+            <span className="k-muted" style={{ marginLeft: 6 }}>R{f.r}</span>
+            <button className="k-btn ghost icon" style={{ marginLeft: 'auto' }} onClick={() => useStore.setState({ sketch3dEdit: { ...e, fillets: e.fillets!.filter((_, j) => j !== i) } })}>×</button>
+          </div>
+        ))}
+      </Section>
       <Section title={`Lines (${e.segments.length})`}>
         <div className="k-selbox" style={{ minHeight: 40, maxHeight: 160, overflow: 'auto' }} data-testid="sketch3d-lines">
           {e.segments.length ? e.segments.map((s, i) => (
             <div key={i} className="k-selbox-row">
               <Icon.Line size={12} /> Line{i + 1}
-              <span className="k-muted" style={{ marginLeft: 6 }}>{Math.hypot(s[1][0] - s[0][0], s[1][1] - s[0][1], s[1][2] - s[0][2]).toFixed(2)} {st.doc.units}</span>
+              {/* the length of the line, driving: typing it moves the end point and what follows */}
+              <span style={{ marginLeft: 'auto', width: 110 }} data-testid={`sketch3d-length-${i}`}><NumberField value={Math.round(Math.hypot(s[1][0] - s[0][0], s[1][1] - s[0][1], s[1][2] - s[0][2]) * 1e6) / 1e6} unit={st.doc.units} step={1} min={0.01} onChange={(v) => useStore.setState({ sketch3dEdit: setLineLength(useStore.getState().sketch3dEdit!, i, v) })} /></span>
             </div>
           )) : <span className="k-muted">No lines yet.</span>}
         </div>

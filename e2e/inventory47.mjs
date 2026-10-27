@@ -2,6 +2,7 @@
 // body names with [n], the sketch shortcut menu fly-outs and the dimension heading, Modify ▸ Reverse the sense,
 // Equations ▸ Features (suppression), Section View ▸ Offset perpendicular to, View ▸ Tangent Edges choices and
 // Import Diagnostics.
+import { menuPath } from './lib/menu.mjs';
 import { chromium } from 'playwright';
 import { mkdirSync } from 'node:fs';
 import { checks, exitCode, track } from './lib/check.mjs';
@@ -150,8 +151,8 @@ await page.waitForTimeout(200);
 await page.hover('.k-brand');
 await page.click('.k-mb-menu:has-text("View")');
 await page.waitForTimeout(150);
-check('View offers Redraw, Full Screen and the three Tangent Edges choices', (await page.locator('.k-menu-item:has-text("Redraw")').count()) === 1 && (await page.locator('.k-menu-item:has-text("Full Screen")').count()) === 1 && (await page.locator('.k-menu-item:has-text("Tangent Edges ▸")').count()) === 3);
-await page.locator('.k-menu-item:has-text("Tangent Edges Removed")').click();
+check('View offers Redraw, Full Screen and the three Tangent Edges choices', (await page.locator('.k-menu-item:has-text("Redraw")').count()) === 1 && (await page.locator('.k-menu-item:has-text("Full Screen")').count()) === 1 && (await menuPath(page, 'Display ▸ Tangent Edges Visible').count()) === 1 && (await page.locator('.k-menu-sub .k-menu-item:has-text("Tangent Edges")').count()) === 3);
+await page.locator('.k-menu-sub .k-menu-item:has-text("Tangent Edges Removed")').click();
 await page.waitForTimeout(150);
 check('Tangent Edges Removed is stored', await S(() => window.__phlippoStore.getState().prefs['view.tangentEdges'] === 'removed'));
 

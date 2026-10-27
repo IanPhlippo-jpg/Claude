@@ -22,7 +22,7 @@ import { closedCornerTool, cornerReliefTool, findFace } from './smcorners';
 import { thickenSurface } from './surfaces';
 import { applyShellFromHistory, applyShellOutward, type BuildHistory } from './shell';
 import { helixPath, loftGeometry, sketch3DChains, sketchPath, sweepGeometry } from './sweep';
-import { compositePath, sweepPathOf } from './compositeCurve';
+import { compositePath, curveThroughPoints, sweepPathOf } from './compositeCurve';
 import { extrudedSurface, fitPlane, loftedSurface, offsetSurface, openEdges, orientShell, planarSurface, revolvedSurface, surfaceCentroid, sweptSurface, trimSurface } from './surfaces';
 import { geometryFromPositions } from '../document/stl';
 import { sketchChains, thinRegions } from './thin';
@@ -353,7 +353,7 @@ export function hemAsFlange(h: HemFeature): Pick<EdgeFlangeFeature, 'edge' | 'an
   return { edge: h.edge, ...hemFlangeParams(h), gap: h.miterGap, customAllowance: h.customAllowance, customRelief: h.customRelief, startOffset: h.startOffset, endOffset: h.endOffset };
 }
 
-export function edgeFlangeOnBody(geometry: THREE.BufferGeometry, bodyId: string, f: Pick<EdgeFlangeFeature, 'edge' | 'angle' | 'length' | 'lengthMode' | 'position' | 'flip' | 'radius'> & Partial<EdgeFlangeFeature>, params0: SheetMetalParams): { geometry: THREE.BufferGeometry | null; error?: string; edge?: BodyEdge; trim?: THREE.BufferGeometry | null; exact?: ReturnType<typeof edgeFlangeGeometry>['exact'] } {
+export function edgeFlangeOnBody(geometry: THREE.BufferGeometry, bodyId: string, f: Pick<EdgeFlangeFeature, 'edge' | 'angle' | 'length' | 'lengthMode' | 'position' | 'flip' | 'radius'> & Partial<EdgeFlangeFeature> & { profile?: Region[] }, params0: SheetMetalParams): { geometry: THREE.BufferGeometry | null; error?: string; edge?: BodyEdge; trim?: THREE.BufferGeometry | null; exact?: ReturnType<typeof edgeFlangeGeometry>['exact'] } {
   const params = flangeParams(params0, f);
   if (!f.edge) return { geometry: null, error: 'Select a straight edge of the sheet.' };
   const edges = bodyEdges(geometry, bodyId);
@@ -366,7 +366,7 @@ export function edgeFlangeOnBody(geometry: THREE.BufferGeometry, bodyId: string,
   const face = (f1?.area ?? 0) >= (f2?.area ?? 0) ? f1 : f2;
   if (!face) return { geometry: null, error: 'Could not find the sheet face of the edge.' };
   const a = e.points[0], b = e.points[e.points.length - 1];
-  const r = edgeFlangeGeometry({ a: [a.x, a.y, a.z], b: [b.x, b.y, b.z], faceNormal: face.normal, faceCentroid: face.centroid, angle: f.angle, length: f.length, lengthMode: f.lengthMode, position: f.position, flip: f.flip, radius: f.radius, startOffset: f.startOffset, endOffset: f.endOffset, gap: f.gap, trimSideBends: f.trimSideBends, offset: f.offset, angleFace: f.angleFace, upToVertex: f.lengthEnd === 'upToVertex' ? f.vertex?.point : undefined }, params);
+  const r = edgeFlangeGeometry({ a: [a.x, a.y, a.z], b: [b.x, b.y, b.z], faceNormal: face.normal, faceCentroid: face.centroid, angle: f.angle, length: f.length, lengthMode: f.lengthMode, position: f.position, flip: f.flip, radius: f.radius, startOffset: f.startOffset, endOffset: f.endOffset, gap: f.gap, trimSideBends: f.trimSideBends, offset: f.offset, angleFace: f.angleFace, upToVertex: f.lengthEnd === 'upToVertex' ? f.vertex?.point : undefined, profile: f.profile }, params);
   return { ...r, edge: e };
 }
 
@@ -1310,6 +1310,7 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
     try {
     if (isSketchBased(f)) consumedSketches.add(f.sketchId);
     if (f.type === 'sweep') consumedSketches.add(f.pathSketchId);
+    if (f.type === 'edgeFlange' && f.profileSketchId) consumedSketches.add(f.profileSketchId);
     if (f.type === 'loft') {
       consumedSketches.add(f.sketchId2);
       for (const g of f.guides ?? []) consumedSketches.add(g);
@@ -1471,14 +1472,14 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
       continue;
     }
     if (f.type === 'sketch3d') {
-      for (const [i, chain] of sketch3DChains(f.segments).entries()) curves.push({ id: i ? `${f.id}:${i}` : f.id, name: f.name, points: chain });
+      for (const [i, chain] of sketch3DChains(f.segments, f.fillets).entries()) curves.push({ id: i ? `${f.id}:${i}` : f.id, name: f.name, points: chain });
       continue;
     }
-    if (f.type === 'compositeCurve') {
-      const cp = compositePath(doc, f, bodies);
+    if (f.type === 'compositeCurve' || f.type === 'curvePoints') {
+      const cp = f.type === 'curvePoints' ? curveThroughPoints(doc, f) : compositePath(doc, f, bodies);
       if (cp.points) curves.push({ id: f.id, name: f.name, points: cp.points });
       else errors[f.id] = cp.error!;
-      for (const id of f.sketches) consumedSketches.add(id);
+      if (f.type === 'compositeCurve') for (const id of f.sketches) consumedSketches.add(id);
       continue;
     }
     if (f.type === 'helix') {
@@ -1640,7 +1641,8 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
         continue;
       }
       const params = doc.sheetMetal ?? DEFAULT_SHEET_METAL;
-      const ff = f.type === 'hem' ? hemAsFlange(f) : f;
+      const prof = f.type === 'edgeFlange' && f.profileSketchId ? doc.sketches[f.profileSketchId] : undefined;
+      const ff = f.type === 'hem' ? hemAsFlange(f) : prof ? { ...f, profile: sketchRegions(prof) } : f;
       let built = false;
       for (const b of visibleBodies()) {
         const r = edgeFlangeOnBody(b.geometry, b.id, ff, params);
@@ -2620,7 +2622,7 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
         const pl = resolvePlaneDef(doc, sk2.plane);
         const pm = planeMatrix(pl);
         paths = sketchChains(sk2).map((c) => { const pts = c.points.map((p) => new THREE.Vector3(p.x, p.y, 0).applyMatrix4(pm)); if (c.closed) pts.push(pts[0].clone()); return pts; });
-      } else if (f3 && f3.type === 'sketch3d') paths = sketch3DChains(f3.segments);
+      } else if (f3 && f3.type === 'sketch3d') paths = sketch3DChains(f3.segments, f3.fillets);
       if (!paths.length) {
         errors[f.id] = 'Select the path sketch (2D or 3D) of the structural members.';
         continue;

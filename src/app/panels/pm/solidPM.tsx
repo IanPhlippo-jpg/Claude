@@ -63,7 +63,7 @@ export function genericPM(ctx: PMContext): ReactNode | typeof NEXT {
               <select className="k-input" value={d.pathSketchId} onChange={(e) => st.updateFeatureDraft({ pathSketchId: e.target.value })}>
                 <option value="">Select a sketch…</option>
                 {otherSketches.map((f) => <option key={f.id} value={f.sketchId}>{f.name}</option>)}
-                {st.doc.features.filter((f) => f.type === 'helix' || f.type === 'sketch3d' || f.type === 'compositeCurve').map((f) => <option key={f.id} value={f.id}>{f.name}</option>)}
+                {st.doc.features.filter((f) => f.type === 'helix' || f.type === 'sketch3d' || f.type === 'compositeCurve' || f.type === 'curvePoints').map((f) => <option key={f.id} value={f.id}>{f.name}</option>)}
               </select>
             </div>
             <p className="k-muted" style={{ margin: '4px 0 0' }}>The path sketch holds the lines, arcs or splines to sweep along; the profile stays centred on the path start.</p>

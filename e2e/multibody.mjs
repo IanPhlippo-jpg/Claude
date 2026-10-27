@@ -1,5 +1,6 @@
 // Multi-body (videos 11/44/45/52): a second boss away from the first becomes its own body; Solid Bodies folder,
 // Hide/Show Body, Material per body, Merge result off, Feature Scope, Combine.
+import { menuPath } from './lib/menu.mjs';
 import { chromium } from 'playwright';
 import { exitCode, skip } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
@@ -103,7 +104,7 @@ check('tree shows Solid Bodies(3)', (await page.locator('.k-tree-row:has-text("S
 // Combine ▸ Add body 1 and body 3 via Insert ▸ Features ▸ Combine…
 await page.hover('.k-brand');
 await page.click('.k-mb-menu:has-text("Insert")');
-await page.click('.k-menu-item:has-text("Combine")');
+await menuPath(page, 'Features ▸ Combine…').click();
 await page.waitForTimeout(300);
 check('Combine PM with Operation Type and Bodies to Combine', (await page.locator('.k-pm-title').innerText()).includes('Combine1') && (await page.locator('.k-section:has-text("Bodies to Combine")').count()) === 1);
 // keep only body1 and body3 ticked

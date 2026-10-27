@@ -1,5 +1,6 @@
 // Insert ▸ Features ▸ Move/Copy (Body-Move/Copy Property Panel: copies and ΔX) and Bodies to Keep (a cut that splits
 // a plate opens the dialog; Selected bodies keeps one), through the menu, the Property Panel and the dialog.
+import { menuPath } from './lib/menu.mjs';
 import { chromium } from 'playwright';
 import { mkdirSync } from 'node:fs';
 import { checks, exitCode, track } from './lib/check.mjs';
@@ -11,7 +12,7 @@ const page = await browser.newPage({ viewport: { width: 1920, height: 1080 }, de
 const errors = track(page);
 const { results, check } = checks();
 const S = (fn, arg) => page.evaluate(fn, arg);
-const menuItem = (label) => page.locator(`.k-menu-item:has-text("${label}")`).first();
+const menuItem = (label) => menuPath(page, label);
 const bodies = () => S(() => window.__phlippoStore.getState().rebuild.bodies.map((b) => { b.geometry.computeBoundingBox(); return Math.round(b.geometry.boundingBox.min.x); }).sort((a, c) => a - c));
 
 await page.goto(process.env.E2E_URL ?? 'http://localhost:4173/');

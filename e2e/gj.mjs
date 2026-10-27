@@ -1,6 +1,7 @@
 // Block G-J: the remaining inventory items: status bar readouts, Line Properties title + Insert Line message,
 // Display/Delete Relations filters / Delete All / Entities, Hole Tool ANSI Inch, View ▸ Display submenu, Up Axis,
 // Deform (point), Save As options, Publish to Phlippo Viewer (.html), drawing bend lines / notes.
+import { menuPath } from './lib/menu.mjs';
 import { chromium } from 'playwright';
 import { exitCode } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
@@ -18,7 +19,7 @@ const S = (fn, arg) => page.evaluate(fn, arg);
 const shot = (n) => page.screenshot({ path: `${OUT}/${n}.png` });
 const vol = () => S(() => { const s = window.__phlippoStore.getState(); return s.rebuild.bodies.reduce((a, b) => { const p = b.geometry.getAttribute('position'); let v = 0; for (let i = 0; i < p.count; i += 3) { const ax = p.getX(i), ay = p.getY(i), az = p.getZ(i), bx = p.getX(i + 1), by = p.getY(i + 1), bz = p.getZ(i + 1), cx = p.getX(i + 2), cy = p.getY(i + 2), cz = p.getZ(i + 2); v += (ax * (by * cz - bz * cy) + bx * (cy * az - cz * ay) + cx * (ay * bz - az * by)) / 6; } return a + Math.abs(v); }, 0); });
 const errs = () => S(() => window.__phlippoStore.getState().rebuild.errors);
-const menuItem = (label) => page.locator(`.k-menu-item:has-text("${label}")`).first();
+const menuItem = (label) => menuPath(page, label);
 
 await page.goto(process.env.E2E_URL ?? 'http://localhost:4173/');
 await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.theme', 'light'); });
@@ -108,7 +109,7 @@ await page.click('.k-pm-cancel');
 await page.hover('.k-brand');
 await page.click('.k-mb-menu:has-text("View")');
 await page.waitForTimeout(150);
-for (const l of ['Display ▸ ✓ Shaded With Edges', 'Display ▸ Shaded', 'Display ▸ Hidden Lines Visible', 'Display ▸ Wireframe', 'Display ▸ Zebra Stripes', 'Display ▸ Perspective', 'Display ▸ Shadows In Shaded Mode', 'Display ▸ Tangent Edges ▸ ✓ Tangent Edges Visible', 'Modify ▸ Up Axis ▸ ✓ Y up', 'Modify ▸ Up Axis ▸ Z up']) check(`View menu has ${l}`, (await menuItem(l).count()) === 1);
+for (const l of ['Display ▸ ✓ Shaded With Edges', 'Display ▸ Shaded', 'Display ▸ Hidden Lines Visible', 'Display ▸ Wireframe', 'Display ▸ Zebra Stripes', 'Display ▸ Perspective', 'Display ▸ Shadows In Shaded Mode', 'Display ▸ ✓ Tangent Edges Visible', 'Modify ▸ Up Axis ▸ ✓ Y up', 'Modify ▸ Up Axis ▸ Z up']) check(`View menu has ${l}`, (await menuItem(l).count()) === 1);
 await menuItem('Display ▸ Zebra Stripes').click();
 await page.waitForTimeout(200);
 check('Display ▸ Zebra Stripes toggles the zebra display', await S(() => window.__phlippoStore.getState().show.zebra));

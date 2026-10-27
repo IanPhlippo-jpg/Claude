@@ -282,7 +282,7 @@ export const sketchSlice = (set: StoreSet, get: StoreGet): Pick<State, SketchKey
   edit3DSketch(id) {
     const f = get().doc.features.find((x) => x.id === id);
     if (!f || f.type !== 'sketch3d') return;
-    set({ sketch3dEdit: { featureId: id, name: f.name, segments: f.segments.map((s) => [[...s[0]], [...s[1]]] as Sketch3DFeature['segments'][number]), plane: 'xy', last: null }, featureEdit: null, activeSketchId: null, tab: 'sketch', managerTab: 'tree' });
+    set({ sketch3dEdit: { featureId: id, name: f.name, segments: f.segments.map((s) => [[...s[0]], [...s[1]]] as Sketch3DFeature['segments'][number]), fillets: f.fillets, plane: 'xy', last: null }, featureEdit: null, activeSketchId: null, tab: 'sketch', managerTab: 'tree' });
   },
   add3DPoint(p) {
     const e = get().sketch3dEdit;
@@ -319,7 +319,7 @@ export const sketchSlice = (set: StoreSet, get: StoreGet): Pick<State, SketchKey
       return;
     }
     history.push('3D Sketch', doc);
-    const f: Sketch3DFeature = { id: e.featureId ?? newId('f'), type: 'sketch3d', name: e.name, suppressed: false, segments: e.segments };
+    const f: Sketch3DFeature = { id: e.featureId ?? newId('f'), type: 'sketch3d', name: e.name, suppressed: false, segments: e.segments, ...(e.fillets?.length ? { fillets: e.fillets } : {}) };
     const features = e.featureId ? doc.features.map((x) => (x.id === e.featureId ? f : x)) : [...doc.features, f];
     const d: Document = { ...doc, features };
     set({ doc: d, sketch3dEdit: null, rebuild: rebuildFor(d, null), selectedFeatureId: f.id, dirty: true, ...historyFlags() });
@@ -373,12 +373,14 @@ export const sketchSlice = (set: StoreSet, get: StoreGet): Pick<State, SketchKey
   },
   editSketch(id) {
     if (!get().doc.sketches[id]) return;
+    // Lock Sketch Focus: the open sketch keeps the focus
+    if (get().sketchFocusLocked && get().activeSketchId && get().activeSketchId !== id) { get().pushMessage('The sketch focus is locked: right-click ▸ Unlock Sketch Focus first.', 'warn'); return; }
     set({ activeSketchId: id, tab: 'sketch', tool: 'select', selection: [], selectedConstraint: null, planePick: false, featureEdit: null, selectedFace: null, managerTab: 'tree' });
   },
   exitSketch() {
     // leaving a sketch rebuilds the features that use it
     const { doc, rollbackIndex } = get();
-    set({ activeSketchId: null, tab: 'features', tool: 'select', selection: [], selectedConstraint: null, hover: null, modify: null, managerTab: 'tree', rebuild: rebuildFor(doc, rollbackIndex) });
+    set({ activeSketchId: null, sketchFocusLocked: false, tab: 'features', tool: 'select', selection: [], selectedConstraint: null, hover: null, modify: null, managerTab: 'tree', rebuild: rebuildFor(doc, rollbackIndex) });
   },
   discardSketch() {
     // undo everything back to the moment the sketch was opened is not tracked; discard = delete if empty, else keep

@@ -44,6 +44,17 @@ Status per fase:
 8. Sheet metal (Base Flange/Tab, Edge Flange, Flatten met K-factor) — **basis gereed**; Hem/Jog/Miter/Unfold gepland
 7. Massa-eigenschappen en meten — **gereed** (Mass Properties, Measure); materialen en rendering gepland
 
+## Status 0.5.1 (2026-10-27)
+
+De laatste 10 playlist-video's (08, 09, 35, 46, 53–58) zijn naast Phlippo gelegd en de verschillen weggewerkt
+(docs/24-playlist-video-08-58.md).
+- Vergelijkingen in elk maatveld (`=` met Global Variables / Functions / File Properties, Σ), Composite Curve en
+  Curve Through XYZ Points als sweeppad, Sketch Fillet in een 3D-schets, Doubled Distance.
+- Edit Flange Profile als echte profielschets, Tab1 op plaatwerk, Delete/Keep Body als Property Panel, Rib Type
+  Linear/Natural.
+- Selection Filter (F5), menu's met uitklapgroepen en beschrijving in de statusbalk, New Document ▸ Advanced,
+  contextwerkbalken voor schetsen en vlakken, bodies en vlakken hernoemen.
+
 ## Status 0.5.0 (2026-10-27)
 
 De open punten na 0.4.9 zijn afgewerkt (docs/23-open-punten-0.5.0.md).

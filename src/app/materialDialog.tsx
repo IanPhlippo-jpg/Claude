@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { useStore } from './store';
 import { useShallow } from 'zustand/react/shallow';
 import { Icon } from '../ui/icons';
-import { MATERIAL_LIBRARY, materialInfo, type MaterialDef } from '../core/document/materials';
+import { MATERIAL_LIBRARIES, MATERIAL_LIBRARY, materialInfo, type MaterialDef } from '../core/document/materials';
 import { getPref, loadPrefs, savePrefs } from './prefs';
 import { activeConfiguration, configurations } from '../core/document/configurations';
 
@@ -28,7 +28,7 @@ export function MaterialDialog() {
   const st = useStore(useShallow((s) => ({ doc: s.doc, applyDocument: s.applyDocument, setMaterial: s.setMaterial, pushMessage: s.pushMessage, setDialog: s.setDialog })));
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState<Record<string, boolean>>({ Steel: true });
-  const [sel, setSel] = useState<MaterialDef | null>(() => (st.doc.material ? MATERIAL_LIBRARY.flatMap((c) => c.materials).find((m) => m.name === st.doc.material!.name) ?? null : null));
+  const [sel, setSel] = useState<MaterialDef | null>(() => (st.doc.material ? MATERIAL_LIBRARIES.flatMap((l) => l.categories.flatMap((c) => c.materials)).find((m) => m.name === st.doc.material!.name) ?? null : null));
   const [tab, setTab] = useState('Properties');
   const [custom, setCustom] = useState<MaterialDef[]>(loadCustom);
   const [edit, setEdit] = useState<MaterialDef | null>(null);
@@ -38,7 +38,7 @@ export function MaterialDialog() {
   const [cfgScope, setCfgScope] = useState<'this' | 'all'>('all');
   const [favorites, setFavorites] = useState<string[]>(loadFavorites);
   const [favSel, setFavSel] = useState<string | null>(null);
-  const allMaterials = useMemo(() => [...MATERIAL_LIBRARY.flatMap((c) => c.materials), ...custom], [custom]);
+  const allMaterials = useMemo(() => [...MATERIAL_LIBRARIES.flatMap((l) => l.categories.flatMap((c) => c.materials)), ...custom], [custom]);
   const setFavs = (list: string[]) => { setFavorites(list); saveFavorites(list); };
   const q = query.trim().toLowerCase();
   const cats = useMemo(() => [...MATERIAL_LIBRARY, ...(custom.length ? [{ name: 'Custom Materials', materials: custom }] : [])].map((c) => ({ ...c, materials: c.materials.filter((m) => !q || m.name.toLowerCase().includes(q)) })).filter((c) => c.materials.length), [q, custom]);
@@ -112,6 +112,20 @@ export function MaterialDialog() {
               <Icon.Search size={13} />
             </div>
             <div className="k-material-list">
+              {MATERIAL_LIBRARIES.filter((l) => l.categories !== MATERIAL_LIBRARY).map((lib) => (
+                // the other libraries of the intended dialog, each its own root (DIN, Sustainability Extras)
+                <div key={lib.name}>
+                  <div className="k-material-root" onClick={() => setOpen({ ...open, [lib.name]: !open[lib.name] })}>{open[lib.name] || q ? <Icon.ChevronDown size={10} /> : <Icon.ChevronRight size={10} />} <Icon.Material size={14} /> {lib.name}</div>
+                  {(open[lib.name] || q) && lib.categories.map((c) => ({ ...c, materials: c.materials.filter((x) => !q || x.name.toLowerCase().includes(q)) })).filter((c) => c.materials.length).map((c) => (
+                    <div key={c.name} style={{ paddingLeft: 12 }}>
+                      <div className="k-material-cat" onClick={() => setOpen({ ...open, [lib.name + c.name]: !open[lib.name + c.name] })}>{open[lib.name + c.name] || q ? <Icon.ChevronDown size={10} /> : <Icon.ChevronRight size={10} />} <Icon.Folder size={14} /> {c.name}</div>
+                      {(open[lib.name + c.name] || q) && c.materials.map((mat) => (
+                        <div key={mat.name} className={`k-material-item ${sel?.name === mat.name ? 'active' : ''}`} onClick={() => { setSel(mat); setEdit(null); }}><span className="swatch" style={{ background: mat.color }} /> {mat.name}</div>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+              ))}
               <div className="k-material-root"><Icon.Material size={14} /> Phlippo CAD Materials</div>
               {cats.map((c) => (
                 <div key={c.name}>
@@ -139,8 +153,9 @@ export function MaterialDialog() {
                   <div className="k-field"><label>Material properties</label>{isCustom ? <span className="k-muted">A custom material: edit the values, then Save.</span> : <span className="k-muted">Materials in the default library can not be edited. You must first copy the material to a custom library to edit it.</span>}</div>
                   {!isCustom && <button className="k-btn" data-testid="mat-copy" style={{ alignSelf: 'flex-start', marginBottom: 4 }} onClick={copyToCustom}>Copy to Custom Materials</button>}
                   <div className="k-pm-valuerow"><label>Model Type:</label><input className="k-input" readOnly value="Linear Elastic Isotropic" /></div>
+                  <label className="k-check" style={{ marginLeft: 92 }}><input type="checkbox" data-testid="mat-savemodeltype" disabled={!isCustom} defaultChecked={isCustom} /> Save model type in library</label>
                   <div className="k-pm-valuerow"><label>Units:</label><select className="k-input" data-testid="mat-units" value={units} onChange={(e) => setUnits(e.target.value as 'pa')}><option value="pa">SI - N/m^2 (Pa)</option><option value="mpa">SI - N/mm^2 (MPa)</option><option value="psi">English (IPS)</option></select></div>
-                  <div className="k-pm-valuerow"><label>Category:</label><input className="k-input" value={isCustom ? 'Custom Materials' : MATERIAL_LIBRARY.find((c) => c.materials.some((m) => m.name === cur.name))?.name ?? ''} readOnly /></div>
+                  <div className="k-pm-valuerow"><label>Category:</label><input className="k-input" value={isCustom ? 'Custom Materials' : MATERIAL_LIBRARIES.flatMap((l) => l.categories).find((c) => c.materials.some((m) => m.name === cur.name))?.name ?? ''} readOnly /></div>
                   <div className="k-pm-valuerow"><label>Name:</label><input className="k-input" data-testid="mat-name" value={cur.name} readOnly={!isCustom} onChange={(e) => setEdit({ ...cur, name: e.target.value })} onKeyDown={(e) => e.stopPropagation()} /></div>
                   <div className="k-pm-valuerow"><label>Description:</label><input className="k-input" data-testid="mat-description" value={isCustom ? (cur.description ?? '') : materialInfo(cur).description} readOnly={!isCustom} onChange={(e) => setEdit({ ...cur, description: e.target.value })} onKeyDown={(e) => e.stopPropagation()} /></div>
                   <div className="k-pm-valuerow"><label>Source:</label><input className="k-input" data-testid="mat-source" value={isCustom ? (cur.source ?? '') : materialInfo(cur).source} readOnly={!isCustom} onChange={(e) => setEdit({ ...cur, source: e.target.value })} onKeyDown={(e) => e.stopPropagation()} /></div>

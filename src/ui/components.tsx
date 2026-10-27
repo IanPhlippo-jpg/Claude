@@ -64,6 +64,29 @@ export interface MenuItem {
   children?: MenuItem[];
   /** a bold heading row (the selected item, as "Dimension (D1@Sketch1)") */
   header?: boolean;
+  /** what the command does: shown in the status bar while the pointer rests on the row */
+  description?: string;
+}
+
+/** the status bar text of the menu row under the pointer ('' when the pointer leaves it) */
+export const menuHint = (text: string): void => void window.dispatchEvent(new CustomEvent('phlippo:menuhint', { detail: text }));
+
+/**
+ * Rows labelled "Group ▸ Item" become a fly-out "Group" with "Item" in it (deeper paths nest further), in the order
+ * the groups first appear, as the menus of the intended design.
+ */
+export function nestMenu(items: MenuItem[]): MenuItem[] {
+  const out: MenuItem[] = [];
+  const groups = new Map<string, MenuItem[]>();
+  for (const it of items) {
+    const k = it.label?.indexOf(' ▸ ') ?? -1;
+    if (!it.label || k < 0 || it.children) { out.push(it); continue; }
+    const head = it.label.slice(0, k), rest = { ...it, label: it.label.slice(k + 3) };
+    let kids = groups.get(head);
+    if (!kids) { kids = []; groups.set(head, kids); out.push({ label: head, icon: it.icon, children: kids }); }
+    kids.push(rest);
+  }
+  return out.map((it) => (it.children && groups.has(it.label ?? '') ? { ...it, children: nestMenu(it.children), disabled: it.children.every((c) => c.disabled) } : it));
 }
 
 /** the rows of a menu; a row with children opens them as a fly-out to the right */
@@ -94,7 +117,10 @@ function MenuRows({ items, onClose }: { items: MenuItem[]; onClose: () => void }
             key={i}
             className="k-menu-item"
             disabled={it.disabled}
+            onMouseEnter={it.description ? () => menuHint(it.description!) : undefined}
+            onMouseLeave={it.description ? () => menuHint('') : undefined}
             onClick={() => {
+              if (it.description) menuHint('');
               it.onSelect?.();
               onClose();
             }}
@@ -111,6 +137,8 @@ function MenuRows({ items, onClose }: { items: MenuItem[]; onClose: () => void }
 
 export function Menu({ items, onClose, style }: { items: MenuItem[]; onClose: () => void; style?: React.CSSProperties }) {
   const ref = useRef<HTMLDivElement>(null);
+  // a closed menu leaves no description behind in the status bar
+  useEffect(() => () => { menuHint(''); }, []);
   useEffect(() => {
     const onDoc = (e: MouseEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) onClose();
@@ -242,7 +270,13 @@ function TreeRow({ node, depth }: { node: TreeNode; depth: number }) {
         onClick={node.onClick}
         onDoubleClick={node.onDoubleClick}
         onContextMenu={node.onContextMenu}
-        onMouseEnter={node.onHover ? () => node.onHover!(true) : undefined}
+        onMouseEnter={(e) => {
+          // a name cut off by the width of the tree shows in full as a tooltip, as the intended design
+          const el = e.currentTarget as HTMLElement, hl = el.querySelector('.k-tree-hl') as HTMLElement | null;
+          const cut = el.scrollWidth > el.clientWidth + 1 || (!!hl && hl.offsetLeft + hl.scrollWidth > el.clientWidth);
+          el.title = cut ? hl?.textContent ?? '' : '';
+          node.onHover?.(true);
+        }}
         onMouseLeave={node.onHover ? () => node.onHover!(false) : undefined}
       >
         <span

@@ -127,7 +127,7 @@ export type ManagerTab = 'tree' | 'properties' | 'configurations' | 'autoToleran
 export type DisplayStyle = 'wireframe' | 'hiddenVisible' | 'hiddenRemoved' | 'shaded' | 'shadedEdges';
 export type UnitSystem = 'MKS' | 'CGS' | 'MMGS' | 'IPS';
 export type TaskPaneTab = 'library' | 'relations' | 'properties' | 'resources' | 'marketplace' | 'forum' | 'explorer' | 'palette' | 'appearances' | 'platform' | 'recovery' | null;
-export type DialogId = 'welcome' | 'new' | 'options' | 'orientation' | 'mass' | 'measure' | 'equations' | 'bom' | 'interference' | 'sheetFormat' | 'sheetProperties' | 'material' | 'configure' | 'appearance' | 'check' | 'sectionProps' | 'repairSketch' | 'finalRender' | 'designStudy' | 'previewWindow' | 'mirrorComponents' | 'packAndGo' | 'share' | 'comments' | 'componentPreview' | 'relativeView' | 'spellCheck' | 'notePattern' | 'generalTable' | 'featureProps' | 'parentChild' | 'exportOptions' | 'customize' | 'performance' | 'deviation' | 'symmetry' | 'compare' | 'beamEstimate' | 'bodiesToKeep' | 'phlippoViewer' | 'cutList' | 'saveAs' | 'importDiagnostics' | null;
+export type DialogId = 'curveXYZ' | 'curveRefPoints' | 'welcome' | 'new' | 'options' | 'orientation' | 'mass' | 'measure' | 'equations' | 'bom' | 'interference' | 'sheetFormat' | 'sheetProperties' | 'material' | 'configure' | 'appearance' | 'check' | 'sectionProps' | 'repairSketch' | 'finalRender' | 'designStudy' | 'previewWindow' | 'mirrorComponents' | 'packAndGo' | 'share' | 'comments' | 'componentPreview' | 'relativeView' | 'spellCheck' | 'notePattern' | 'generalTable' | 'featureProps' | 'parentChild' | 'exportOptions' | 'customize' | 'performance' | 'deviation' | 'symmetry' | 'compare' | 'beamEstimate' | 'bodiesToKeep' | 'phlippoViewer' | 'cutList' | 'saveAs' | 'importDiagnostics' | null;
 
 /** drawing commands: Model View, Projected View, Smart Dimension, Note, Center Mark */
 export interface DrawingEdit {
@@ -324,6 +324,9 @@ export interface Sketch3DEdit {
   last: [number, number, number] | null;
   /** Insert Line ▸ Orientation: as sketched, or along a world axis from the last point */
   orientation?: 'free' | 'x' | 'y' | 'z';
+  /** Sketch Fillet corners and the radius the next ones get */
+  fillets?: Sketch3DFeature['fillets'];
+  filletRadius?: number;
 }
 export interface ExplodeEdit {
   steps: ExplodeStep[];
@@ -501,6 +504,10 @@ export interface State {
   whatsWrong: boolean;
   /** Evaluate ▸ Sensor Property Panel (Mass Properties: Mass / Volume / Surface Area) */
   sensorEdit: { kind: 'mass' | 'volume' | 'area' | 'dimension' | 'interference'; dim?: string; alert?: { op: '>' | '<'; value: number } } | null;
+  /** Lock Sketch Focus (right-click in a sketch): another sketch is not opened until it is unlocked */
+  sketchFocusLocked: boolean;
+  /** Edit Flange Profile: the flange being made while its profile sketch is open (Profile Sketch dialog) */
+  flangeProfileEdit: { featureId: Id | null; draft: EdgeFlangeFeature; before?: Id } | null;
   /** Sketch/Curve Color Property Panel (right-click a sketch ▸ Sketch Color…) */
   curveColorEdit: { sketchId: Id; color: string | null; scope: 'this' | 'all' | 'specify' } | null;
   setSensorEdit(e: State['sensorEdit']): void;
@@ -1094,6 +1101,8 @@ export interface AskOptions {
   no?: () => void;
   yesLabel?: string;
   noLabel?: string;
+  /** a "Don't show again" box: once checked, the question is answered Yes without asking (kept per key) */
+  dontShowKey?: string;
 }
 let dragBase: Document | null = null;
 let msgSeq = 0;

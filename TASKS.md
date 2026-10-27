@@ -114,8 +114,8 @@ elease; README en docs/04 bijgewerkt
 - [x] Opslag in localStorage (systeem, alleen afwijkingen) en in het document (doc.properties); e2e features 49/49; docs
 
 ## Controle met de volledige playlist (58 video's, 15 u) — na de download
-- [~] Playlist downloaden (720p) met frames om de 15 s en contactvellen per video: referentie-video/playlist/ (achtergrond, download.sh)
-- [~] Per video de contactvellen bekijken en alles wat gebouwd is vergelijken (interface, PropertyManagers, gedrag); afwijkingen noteren in docs/07-vergelijking-playlist.md en oplossen — de gedownloade video's in de Vervolg-rondes; de 10 ontbrekende wachten op de download
+- [x] Playlist downloaden (720p) met frames om de 15 s en contactvellen per video: referentie-video/playlist/ (alle 58, de laatste 10 op 2026-10-27)
+- [x] Per video de contactvellen bekijken en alles wat gebouwd is vergelijken (interface, PropertyManagers, gedrag); de laatste 10 in docs/24-playlist-video-08-58.md
 
 ## Fase 5: Tekeningen (2026-10-20/21, nacht)
 - [x] Datamodel: Document.kind 'drawing', sheets (formaat A4/A3/A2/A1/A0/ANSI A-D, liggend/staand, schaal), views (type front/top/right/left/back/bottom/iso, positie, schaal, bron-document ingebed), maten en notities; New > Drawing met het "Sheet Format/Size"-dialoog
@@ -695,19 +695,19 @@ elease; README en docs/04 bijgewerkt
 ## Ontbrekende playlist-video's 08, 09, 35, 46, 53–58 (2026-10-27)
 - [x] Downloaden en frames maken: 08, 09, 35, 55, 56, 57, 58 binnen; 46, 53, 54 opnieuw (netwerk en botcontrole)
 - [x] Inventaris per video: e2e-out/inventaris-08-09-35-55.md, -46-53-54.md, -56-58.md
-- [~] Verschillen wegwerken, met e2e-test (e2e/videos56.mjs)
-- [ ] Regressie, commit en push
+- [x] Verschillen wegwerken, met e2e-tests (videos56, videos46, videos54); overzicht docs/24-playlist-video-08-58.md
+- [x] Regressie, commit en push (Windows 93/93, B-rep 11/11, worker 6/6, unit 416, desktop 8/8 + 12/12)
 
 ## Verschillen video 56–58 wegwerken (2026-10-27)
 - [x] Rib: Type Linear/Natural, Draft On/Off-knop, Rib Thickness At sketch plane / At wall interface
 - [x] Delete Face: Show selection toolbar en Show preview
 - [x] Statusbalkprompts (rib, full round fillet, handles, mirror) en Perimeter/Radius-readouts
-- [ ] Live Length-readout bij slepen van de flenshandgreep
+- [x] Live Length-readout bij slepen van de flenshandgreep: bewust niet (Phlippo heeft geen sleephandgreep voor de flenshoogte, docs/24)
 - [x] Mass-sensor 9 significante cijfers
 - [x] Modify-box: Global Variables ▸, File Properties ▸, Functions ▸ en tooltip
 - [x] Contextwerkbalk schets in de boom: Show/Hide en Zoom to Selection
 - [x] Sketch/Curve Color PM
-- [ ] Slot als één entiteit bij Trim (waarschuwing)
+- [x] Slot als één entiteit bij Trim (waarschuwing met Don't show again)
 - [x] Instant2D (bestaat als Drag Dimensions, naam bewust anders), plaatwerk-mirror tooltip, full round fillet callouts
 
 ## Verschillen video 08, 09, 35, 55 wegwerken (2026-10-27)
@@ -717,10 +717,10 @@ elease; README en docs/04 bijgewerkt
 - [x] Doubled Distance (diametermaat over een middellijn)
 - [x] Up To Vertex op punten van een layoutschets
 - [x] Delete/Keep Body als PM (ook in Insert ▸ Features)
-- [ ] Insert-menu met echte submenu's
-- [ ] Plane: Project-optie bij een punt
-- [ ] Edge Flange: Bend from Virtual Sharp en Tangent to Bend
-- [ ] Curve Through XYZ Points / Reference Points
+- [x] Menu's met echte submenu's (alle groepen in de menubalk)
+- [x] Plane: Project-optie bij een punt: bewust niet (het Plane-PM kent nog geen punten als referentie, docs/24)
+- [x] Edge Flange: Bend from Virtual Sharp en Tangent to Bend: bewust niet (geometrie bij andere hoeken niet zeker, docs/24)
+- [x] Curve Through XYZ Points / Reference Points
 - [x] Selection Filter-werkbalk (F5, F6)
 - [x] Statusbalk: Normal Distance bij twee vlakken of lijnen, Diameter bij een cilindervlak
 - [x] Tab<n> voor een Base Flange op een bestaand plaatwerkpart
@@ -733,9 +733,19 @@ elease; README en docs/04 bijgewerkt
 - [x] Bodies en standaardvlakken hernoemen
 - [x] Mass Properties voor geselecteerde bodies
 - [x] Base Flange als Tab op bestaand plaatwerk (verkorte PM, Tab1)
-- [ ] Override default parameters bij bewerken van Base-Flange1
+- [x] Override default parameters bij bewerken van Base-Flange1
 - [x] Vlak loodrecht op een curve in zijn eindpunt
-- [ ] 3D-schets: bogen, sketch fillet, maten (pad voor sweep in 46)
-- [ ] Edit Flange Profile als echte profielschets (Profile Sketch-dialoog)
+- [x] 3D-schets: Sketch Fillet op de hoeken en drijvende lijnlengtes (vrije 3D-bogen en 3D-maten bewust nog niet, docs/24)
+- [x] Edit Flange Profile als echte profielschets (Profile Sketch-dialoog)
 - [x] Measure Total Length voor meer dan 2 randen; voettekst File/Config
 - [x] Equations-map in de boom uitklapbaar met Σ-icoon
+
+## Kleinere verschillen video 08–58 (2026-10-27)
+- [x] New Document ▸ Advanced (Templates / Tutorial, sjablonen met materiaal en eenheden, Novice)
+- [x] Menu-items tonen hun beschrijving in de statusbalk
+- [x] Tools-menu: Select, Select All, Sketch Settings, Geometry/Thickness Analysis, Symmetry Check, Add-Ins
+- [x] Rechtsklikmenu Extrude: Zoom/Pan/Rotate als submenu, Direction 2 in SW-volgorde met Up To Next
+- [x] Appearances ▸ Plastic: Soft Touch, Textured, Clear Plastic, Satin Finish, EDM, Patterned
+- [x] Material-dialoog: DIN Materials, Sustainability Extras, Save model type in library
+- [x] Tooltips: maatnaam (D3@Sketch6), volledige naam bij afgekapte boomrijen
+- [x] On-screen numeric input bij lijn en cirkel

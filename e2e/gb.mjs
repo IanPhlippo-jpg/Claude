@@ -1,5 +1,6 @@
 // Block G-B/G-C: feature right-click menu (Comment, Parent/Child, Feature Properties, Go To, folders, Favorites), body menu
 // (transparency, folders, feature history, bounding box, Insert into New Part, Delete/Keep), Save As STL/3MF/AMF options.
+import { menuPath } from './lib/menu.mjs';
 import { chromium } from 'playwright';
 import { exitCode, skip } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
@@ -41,7 +42,7 @@ await S(() => {
 await page.waitForTimeout(800);
 
 const rmb = async (id) => { await page.locator(`.k-tree-row[data-id="${id}"]`).first().click({ button: 'right' }); await page.waitForTimeout(200); };
-const menuItem = (label) => page.locator(`.k-menu-item:has-text("${label}")`).first();
+const menuItem = (label) => menuPath(page, label);
 
 // ---- feature menu: the new items are there
 await rmb('e1');

@@ -11,6 +11,7 @@ import { Icon } from '../ui/icons';
 import { activeConfiguration, configurations } from '../core/document/configurations';
 import { openFileDialog, withUnsavedCheck } from './MenuBar';
 import { createDocument } from '../core/document/types';
+import { findMaterial } from '../core/document/materials';
 import { ViewGrid } from './viewport/Hud';
 import { getCamera } from './viewport/Viewport';
 
@@ -109,22 +110,72 @@ export function WelcomeDialog() {
 }
 
 /** New document dialog (Part / Assembly / Drawing). */
+/** the templates of New Document ▸ Advanced: a kind, and for a part its material and unit system */
+const TEMPLATES: { name: string; kind: 'part' | 'assembly' | 'drawing'; material?: string; units: 'MMGS' | 'IPS' }[] = [
+  { name: 'Part', kind: 'part', units: 'MMGS' },
+  { name: 'Assembly', kind: 'assembly', units: 'MMGS' },
+  { name: 'Drawing', kind: 'drawing', units: 'MMGS' },
+  { name: 'Part-PLAIN CARBON STEEL-MMGS', kind: 'part', material: 'Plain Carbon Steel', units: 'MMGS' },
+  { name: 'Part-6061 ALUMINUM-MMGS', kind: 'part', material: '6061 Alloy', units: 'MMGS' },
+  { name: 'Part-ABS-MMGS', kind: 'part', material: 'ABS', units: 'MMGS' },
+  { name: 'Part-RED OAK-IPS', kind: 'part', material: 'Red Oak', units: 'IPS' },
+  { name: 'Part-PLAIN CARBON STEEL-IPS', kind: 'part', material: 'Plain Carbon Steel', units: 'IPS' },
+];
+
 export function NewDocumentDialog() {
-  const st = useStore(useShallow((s) => ({ setDialog: s.setDialog, openDocument: s.openDocument, startInsertComponent: s.startInsertComponent })));
+  const st = useStore(useShallow((s) => ({ setDialog: s.setDialog, openDocument: s.openDocument, startInsertComponent: s.startInsertComponent, setUnitSystem: s.setUnitSystem })));
   const [kind, setKind] = useState<'part' | 'assembly' | 'drawing'>('part');
   const [name, setName] = useState('Part1');
+  // Novice (the three kinds) or Advanced (the template list), remembered as the intended design does
+  const [advanced, setAdvanced0] = useState(() => { try { return localStorage.getItem('phlippo.newDocAdvanced') === '1'; } catch { return false; } });
+  const setAdvanced = (v: boolean) => { setAdvanced0(v); try { localStorage.setItem('phlippo.newDocAdvanced', v ? '1' : '0'); } catch { /* not remembered */ } };
+  const [tab, setTab] = useState<'templates' | 'tutorial'>('templates');
+  const [tpl, setTpl] = useState(TEMPLATES[0]);
   const pick = (k: 'part' | 'assembly' | 'drawing') => { setKind(k); setName(k === 'assembly' ? 'Assem1' : k === 'drawing' ? 'Draw1' : 'Part1'); };
+  const ok = () => withUnsavedCheck(() => {
+    const k = advanced ? tpl.kind : kind;
+    if (k === 'drawing') { st.setDialog('sheetFormat'); return; }
+    const d = createDocument(advanced ? (k === 'assembly' ? 'Assem1' : 'Part1') : name || (k === 'assembly' ? 'Assem1' : 'Part1'), k);
+    const mat = advanced && tpl.material ? findMaterial(tpl.material) : undefined;
+    st.openDocument(mat ? { ...d, material: { name: mat.name, density: mat.density, color: mat.color } } : d);
+    if (advanced) st.setUnitSystem(tpl.units);
+    if (k === 'assembly' && getPref('assembly.startInsert') !== false) { st.startInsertComponent(); if (getPref('assembly.autoBrowse') !== false) openFileDialog(); }
+    st.setDialog(null);
+  });
   return (
     <Dialog
       title="New Phlippo CAD Document"
       onClose={() => st.setDialog(null)}
       actions={
         <>
+          <Button data-testid="newdoc-mode" onClick={() => setAdvanced(!advanced)}>{advanced ? 'Novice' : 'Advanced'}</Button>
+          <span style={{ flex: 1 }} />
+          <Button variant="primary" data-testid="newdoc-ok" onClick={ok}>OK</Button>
           <Button onClick={() => st.setDialog(null)}>Cancel</Button>
-          <Button variant="primary" onClick={() => withUnsavedCheck(() => { if (kind === 'drawing') { st.setDialog('sheetFormat'); return; } st.openDocument(createDocument(name || (kind === 'assembly' ? 'Assem1' : 'Part1'), kind)); if (kind === 'assembly' && getPref('assembly.startInsert') !== false) { st.startInsertComponent(); if (getPref('assembly.autoBrowse') !== false) openFileDialog(); } st.setDialog(null); })}>OK</Button>
+          <Button disabled>Help</Button>
         </>
       }
     >
+      {advanced ? (
+        <div data-testid="newdoc-advanced">
+          <div className="k-tabs" style={{ display: 'flex', gap: 2, marginBottom: 6 }}>
+            {(['templates', 'tutorial'] as const).map((t) => <button key={t} className={`k-btn ${tab === t ? 'active' : ''}`} onClick={() => setTab(t)}>{t === 'templates' ? 'Templates' : 'Tutorial'}</button>)}
+          </div>
+          <table className="k-table" data-testid="newdoc-templates" style={{ width: '100%' }}>
+            <thead><tr><th>Name</th><th>Size</th><th>Modified</th></tr></thead>
+            <tbody>
+              {(tab === 'templates' ? TEMPLATES : TEMPLATES.slice(0, 3)).map((t) => (
+                <tr key={t.name} className={tpl.name === t.name ? 'selected' : ''} onClick={() => setTpl(t)} style={{ cursor: 'default', background: tpl.name === t.name ? 'var(--bg-active, #d6e4f7)' : undefined }}>
+                  <td>{t.kind === 'assembly' ? <Icon.Component size={14} /> : t.kind === 'drawing' ? <Icon.Drawing size={14} /> : <Icon.Part size={14} />} {t.name}</td>
+                  <td>{t.kind === 'drawing' ? '48 KB' : '32 KB'}</td>
+                  <td>2026-01-01</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <p className="k-muted" style={{ marginTop: 6 }}>Preview: {tpl.kind}{tpl.material ? `, material ${tpl.material}` : ''}, {tpl.units}.</p>
+        </div>
+      ) : (<>
       <div className="k-doctypes">
         <button className={`k-doctype ${kind === 'part' ? 'active' : ''}`} onClick={() => pick('part')}><Icon.Part size={40} /><b>Part</b><span>a 3D representation of a single design component</span></button>
         <button className={`k-doctype ${kind === 'assembly' ? 'active' : ''}`} onClick={() => pick('assembly')}><Icon.Component size={40} /><b>Assembly</b><span>a 3D arrangement of parts and/or other assemblies</span></button>
@@ -135,6 +186,7 @@ export function NewDocumentDialog() {
         <input className="k-input" value={name} onChange={(e) => setName(e.target.value)} onKeyDown={(e) => e.stopPropagation()} autoFocus />
       </div>
       <p className="k-muted">Template: Y-up, MMGS.</p>
+      </>)}
     </Dialog>
   );
 }
@@ -399,10 +451,11 @@ export function AskDialog() {
   const okRef = useRef<HTMLButtonElement>(null);
   const a = st.ask;
   const [value, setValue] = useState(a?.input ?? '');
+  const [dontShow, setDontShow] = useState(false);
   useEffect(() => { if (a?.input === undefined) okRef.current?.focus(); }, [a?.input]);
   if (!a) return null;
   const close = () => st.setAsk(null);
-  const yes = () => { close(); a.yes?.(value); };
+  const yes = () => { if (a.dontShowKey && dontShow) { try { localStorage.setItem(`phlippo.dontShow.${a.dontShowKey}`, '1'); } catch { /* the box is only remembered where storage works */ } } close(); a.yes?.(value); };
   return (
     <div className="k-dialog-backdrop" onKeyDown={(e) => { if (e.key === 'Escape') close(); e.stopPropagation(); }}>
       <div className="k-dialog k-ask" role="dialog" aria-label={a.title} data-testid="ask">
@@ -410,6 +463,7 @@ export function AskDialog() {
         <div className="k-dialog-body">
           {a.text}
           {a.input !== undefined && <input className="k-input" autoFocus value={value} onChange={(e) => setValue(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && yes()} style={{ display: 'block', width: '100%', marginTop: 8 }} />}
+          {a.dontShowKey && <label className="k-check" style={{ marginTop: 8 }}><input type="checkbox" data-testid="ask-dontshow" checked={dontShow} onChange={(e) => setDontShow(e.target.checked)} /> Don't show again</label>}
         </div>
         <div className="k-dialog-actions">
           {a.input !== undefined ? (

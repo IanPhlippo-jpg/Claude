@@ -1,9 +1,10 @@
 import { LEGAL_NOTICE } from './legal';
+import { COMMANDS } from './commands';
 import { bridge, fitActive } from './viewport/bridge';
 import { useEffect, useRef, useState } from 'react';
 import { useStore } from './store';
 import { useShallow } from 'zustand/react/shallow';
-import { Menu, type MenuItem } from '../ui/components';
+import { Menu, nestMenu, type MenuItem } from '../ui/components';
 import { Icon } from '../ui/icons';
 import { FILE_EXTENSION, MAX_FILE_BYTES, parseDocument, serializeDocument } from '../core/document/persistence';
 import { exportStl, parseStl } from '../core/document/stl';
@@ -30,6 +31,14 @@ function download(name: string, data: BlobPart, type: string) {
 }
 
 /** Save: in the desktop app to the document's file (asks for a name the first time), in the browser a download. */
+/** a menu row gets the description of the command of the same name (Insert ▸ Features ▸ Rib… is the Rib command) */
+function withDescription(m: MenuItem): MenuItem {
+  if (m.description || !m.label) return m;
+  const name = m.label.split(' ▸ ').pop()!.replace(/^✓ /, '').replace(/…$/, '').trim();
+  const c = COMMANDS.find((x) => x.label === name);
+  return c?.description ? { ...m, description: c.description } : m;
+}
+
 export async function saveDocument(forceAsk = false, confirmedErrors = false): Promise<boolean> {
   const { doc, pushMessage, hasDocument } = useStore.getState();
   if (!hasDocument) return false;
@@ -307,7 +316,7 @@ export function MenuBar() {
       { label: `Display ▸ ${st.show.ambientOcclusion ? '✓ ' : ''}Ambient Occlusion`, onSelect: () => st.toggleShow('ambientOcclusion') },
       { label: `Display ▸ ${st.show.realisticShading ? '✓ ' : ''}Realistic Shading`, onSelect: () => st.toggleShow('realisticShading') },
       // Tangent Edges: three choices, by design (Visible / As Phantom / Removed)
-      ...(['visible', 'phantom', 'removed'] as const).map((v): MenuItem => ({ label: `Display ▸ Tangent Edges ▸ ${String(getPref('view.tangentEdges') ?? 'visible') === v ? '✓ ' : ''}${v === 'visible' ? 'Tangent Edges Visible' : v === 'phantom' ? 'Tangent Edges As Phantom' : 'Tangent Edges Removed'}`, onSelect: () => st.setPrefs({ ...loadPrefs(), 'view.tangentEdges': v }) })),
+      ...(['visible', 'phantom', 'removed'] as const).map((v): MenuItem => ({ label: `Display ▸ ${String(getPref('view.tangentEdges') ?? 'visible') === v ? '✓ ' : ''}${v === 'visible' ? 'Tangent Edges Visible' : v === 'phantom' ? 'Tangent Edges As Phantom' : 'Tangent Edges Removed'}`, onSelect: () => st.setPrefs({ ...loadPrefs(), 'view.tangentEdges': v }) })),
       { label: `Display ▸ ${st.analysis?.kind === 'curvature' ? '✓ ' : ''}Curvature`, onSelect: () => st.setAnalysis(st.analysis?.kind === 'curvature' ? null : { kind: 'curvature' }) },
       { label: `Display ▸ ${st.analysis?.kind === 'draft' ? '✓ ' : ''}Draft Analysis`, onSelect: () => st.setAnalysis(st.analysis?.kind === 'draft' ? null : { kind: 'draft', pull: [0, 1, 0], pullLabel: 'Y axis', angle: 1 }) },
       { label: `Display ▸ ${st.analysis?.kind === 'undercut' ? '✓ ' : ''}Undercut Analysis`, onSelect: () => st.setAnalysis(st.analysis?.kind === 'undercut' ? null : { kind: 'undercut', pull: [0, 1, 0], pullLabel: 'Y axis' }) },
@@ -359,6 +368,16 @@ export function MenuBar() {
       { label: 'Reference Geometry ▸ Plane…', icon: <Icon.Plane />, disabled: st.doc.kind !== 'part' && !!st.doc.kind, onSelect: () => st.startPlane() },
     ],
     Tools: [
+      // the selection items and the sketch settings of the intended Tools menu (46/0146)
+      { label: 'Select', icon: <Icon.Select />, onSelect: () => { st.setTool('select'); useStore.getState().setSelection([]); } },
+      { label: 'Select All', shortcut: 'Ctrl+A', disabled: !inSketch, onSelect: () => { const k = useStore.getState().doc.sketches[st.activeSketchId ?? '']; if (k) useStore.getState().setSelection(k.entityOrder.map((id) => ({ kind: 'entity' as const, id }))); } },
+      { separator: true },
+      { label: `Sketch Settings ▸ ${getPref('snaps.automaticRelations') !== false ? '✓ ' : ''}Automatic Relations`, onSelect: () => st.setPrefs({ ...loadPrefs(), 'snaps.automaticRelations': getPref('snaps.automaticRelations') === false }) },
+      { label: 'Geometry Analysis…', icon: <Icon.Measure />, disabled: !st.rebuild.bodies.length, onSelect: () => st.setAnalysis({ kind: 'geometry', shortEdge: 0.5, smallFace: 1, sharpAngle: 30 }) },
+      { label: 'Thickness Analysis…', icon: <Icon.Shell />, disabled: !st.rebuild.bodies.length, onSelect: () => st.setAnalysis({ kind: 'thickness', target: 2 }) },
+      { label: 'Symmetry Check…', icon: <Icon.Symmetry />, onSelect: () => st.setDialog('symmetry') },
+      { label: 'Add-Ins…', onSelect: () => useStore.setState({ tab: 'addins' }) },
+      { separator: true },
       { label: 'Sketch Entities ▸ Line', icon: <Icon.Line />, disabled: !inSketch, onSelect: () => st.setTool('line') },
       { label: 'Sketch Entities ▸ Corner Rectangle', icon: <Icon.Rect />, disabled: !inSketch, onSelect: () => st.setTool('rectangle') },
       { label: 'Sketch Entities ▸ Circle', icon: <Icon.Circle />, disabled: !inSketch, onSelect: () => st.setTool('circle') },
@@ -428,7 +447,7 @@ export function MenuBar() {
               <button className={`k-mb-menu ${open === name ? 'active' : ''}`} onClick={() => setOpen(open === name ? null : name)} onMouseEnter={() => open && setOpen(name)}>
                 {name}
               </button>
-              {open === name && <Menu items={menus[name].filter((m) => !m.label || !hiddenMenu.has(`${name}:${m.label}`))} onClose={() => setOpen(null)} style={{ top: '100%', left: 0 }} />}
+              {open === name && <Menu items={nestMenu(menus[name].filter((m) => !m.label || !hiddenMenu.has(`${name}:${m.label}`)).map(withDescription))} onClose={() => setOpen(null)} style={{ top: '100%', left: 0 }} />}
             </div>
           ))}
           <button

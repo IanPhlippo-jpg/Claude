@@ -1,5 +1,6 @@
 // Block G-F (Evaluate): Performance Evaluation, Symmetry Check, Deviation Analysis, Parting Line Analysis, Compare
 // (Body Compare / Compare Documents), Check Active Document in the menu, Quick Beam Estimate Analysis Wizard.
+import { menuPath } from './lib/menu.mjs';
 import { chromium } from 'playwright';
 import { exitCode } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
@@ -120,7 +121,7 @@ await page.locator('[data-testid="compare-dialog"] .k-btn:has-text("Close")').cl
 await page.hover('.k-brand');
 await page.click('.k-mb-menu:has-text("Tools")');
 await page.waitForTimeout(150);
-for (const l of ['Evaluate ▸ Check Active Document…', 'Evaluate ▸ Performance Evaluation…', 'Evaluate ▸ Symmetry Check…', 'Evaluate ▸ Compare ▸ Body Compare…', 'Evaluate ▸ Quick Beam Estimate…']) check(`Tools menu has ${l}`, (await page.locator(`.k-menu-item:has-text("${l}")`).count()) === 1);
+for (const l of ['Evaluate ▸ Check Active Document…', 'Evaluate ▸ Performance Evaluation…', 'Evaluate ▸ Symmetry Check…', 'Evaluate ▸ Compare ▸ Body Compare…', 'Evaluate ▸ Quick Beam Estimate…']) check(`Tools menu has ${l}`, (await menuPath(page, l).count()) === 1);
 await page.keyboard.press('Escape');
 
 // ---- Quick Beam Estimate: fix the left end face, 100 N on the top face of the 100 mm beam

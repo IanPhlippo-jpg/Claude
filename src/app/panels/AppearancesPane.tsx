@@ -22,9 +22,16 @@ export const APPEARANCE_TREE: Folder[] = [
     name: 'Appearances(color)',
     children: [
       { name: 'Plastic', children: [
-        { name: 'High Gloss', items: [m('high gloss black plastic', '#1b1b1b', 'gloss'), m('high gloss red plastic', '#c4232a', 'gloss'), m('high gloss white plastic', '#f2f2f2', 'gloss'), m('high gloss blue plastic', '#1f4fa8', 'gloss')] },
+        // the folders and names of the intended Plastic library (53/0068)
+        { name: 'High Gloss', items: [m('white high gloss plastic', '#f4f4f2', 'gloss'), m('cream high gloss plastic', '#efe6cf', 'gloss'), m('beige high gloss plastic', '#dccbab', 'gloss'), m('light grey high gloss plastic', '#c9cbcd', 'gloss'), m('high gloss black plastic', '#1b1b1b', 'gloss'), m('high gloss red plastic', '#c4232a', 'gloss'), m('high gloss white plastic', '#f2f2f2', 'gloss')] },
         { name: 'Medium Gloss', items: [m('medium gloss black plastic', '#262626', 'gloss'), m('medium gloss grey plastic', '#8a8d91', 'gloss')] },
         { name: 'Low Gloss', items: [m('low gloss black plastic', '#2b2b2b', 'matte'), m('low gloss beige plastic', '#d8c8a8', 'matte')] },
+        { name: 'Soft Touch', items: [m('soft touch black plastic', '#232323', 'matte'), m('soft touch grey plastic', '#6d7074', 'matte')] },
+        { name: 'Textured', items: [m('textured black plastic', '#2a2a2a', 'matte'), m('textured white plastic', '#e8e8e6', 'matte')] },
+        { name: 'Clear Plastic', items: [m('clear plastic', '#dfe9ee', 'glass'), m('smoke clear plastic', '#8f969b', 'glass')] },
+        { name: 'Satin Finish', items: [m('satin finish black plastic', '#2d2d2d', 'matte'), m('satin finish white plastic', '#eeeeec', 'matte')] },
+        { name: 'EDM', items: [m('EDM black plastic', '#303030', 'matte'), m('EDM grey plastic', '#7a7d81', 'matte')] },
+        { name: 'Patterned', items: [m('patterned black plastic', '#292929', 'matte'), m('patterned blue plastic', '#2f5fa8', 'matte')] },
         { name: 'Matte', items: [m('matte black plastic', '#2a2a2a', 'matte'), m('matte white plastic', '#ececec', 'matte'), m('matte blue plastic', '#2f5fa8', 'matte')] },
       ] },
       { name: 'Metal', children: [

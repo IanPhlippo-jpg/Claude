@@ -15,6 +15,7 @@ import { SelectionToolbar } from './SelectionToolbar';
 import { Breadcrumbs } from './Breadcrumbs';
 import { InsertRotateBar } from './InsertRotateBar';
 import { DragDimensionsHandle } from './DragDimensions';
+import { NumericInput } from './NumericInput';
 import { filterAllows } from '../SelectionFilterBar';
 import { renderWithAO } from './ao';
 import { MarkupLayer } from '../lifecycleDialogs';
@@ -37,7 +38,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { lastRectangle } from '../../core/sketch/lastShape';
 import { bodyEdges, matchEdge, subEdgeAt } from '../../core/features/edgesets';
-import { pickForDraft } from './draftPicks';
+import { confirmUnlessHidden, pickForDraft } from './draftPicks';
 import { roundPreviewShapes } from '../../core/features/round';
 import { faceOwner } from '../../core/features/faceOwner';
 import { threadPreviewCurves, threadTool } from '../../core/features/thread';
@@ -324,7 +325,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
     const e3 = st.sketch3dEdit;
     if (e3) {
       const out = base.filter((c) => !e3.featureId || !c.id.startsWith(e3.featureId));
-      sketch3DChains(e3.segments).forEach((chain, i) => out.push({ id: `s3d-draft-${i}`, name: e3.name, points: chain }));
+      sketch3DChains(e3.segments, e3.fillets).forEach((chain, i) => out.push({ id: `s3d-draft-${i}`, name: e3.name, points: chain }));
       const anchor = new THREE.Vector3(...(e3.last ?? [0, 0, 0]));
       if (e3.last && cursor3d) out.push({ id: 's3d-rubber', name: '', points: [anchor.clone(), new THREE.Vector3(...cursor3d)] });
       // the space handle: a square of the active plane around the last point
@@ -446,7 +447,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
       const idx = st.featureEdit.featureId ? st.doc.features.findIndex((f) => f.id === st.featureEdit!.featureId) : -1;
       const bodies = idx >= 0 ? rebuildDocument(st.doc, idx).bodies : st.rebuild.bodies;
       for (const b of bodies) {
-        const r = edgeFlangeOnBody(b.geometry, b.id, d.type === 'hem' ? hemAsFlange(d) : d, st.doc.sheetMetal ?? DEFAULT_SHEET_METAL);
+        const r = edgeFlangeOnBody(b.geometry, b.id, d.type === 'hem' ? hemAsFlange(d) : d.profileSketchId && st.doc.sketches[d.profileSketchId] ? { ...d, profile: sketchRegions(st.doc.sketches[d.profileSketchId]) } : d, st.doc.sheetMetal ?? DEFAULT_SHEET_METAL);
         if (r.geometry) return r.geometry;
       }
       return null;
@@ -757,6 +758,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
         onEditDimension(id);
       },
       message: (t) => st.pushMessage(t, 'warn'),
+      confirm: confirmUnlessHidden,
       selection: st.selection,
       freePoints: solve?.freePoints ?? new Set(),
       filletRadius: st.sketchTool.filletRadius,
@@ -1266,7 +1268,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
       // by design: the shortcut menu of an extrude offers the end conditions of both directions
       const d = st.featureEdit.draft;
       const end = (id: import('../../core/document/types').EndCondition, label: string): MenuItem => ({ label: `${d.end === id ? '✓ ' : ''}${label}`, onSelect: () => st.updateFeatureDraft({ end: id }) });
-      const end2 = (id: 'blind' | 'throughAll' | 'upToVertex' | 'upToSurface' | null, label: string): MenuItem => ({ label: `${(d.direction2?.end ?? null) === id ? '✓ ' : ''}${label}`, onSelect: () => { st.updateFeatureDraft({ direction2: id ? { ...d.direction2, end: id, depth: d.direction2?.depth ?? 10 } : undefined }); useStore.setState({ dir2Pick: id === 'upToVertex' ? 'vertex' : id === 'upToSurface' ? 'surface' : null }); } });
+      const end2 = (id: 'blind' | 'throughAll' | 'upToNext' | 'upToVertex' | 'upToSurface' | null, label: string): MenuItem => ({ label: `${(d.direction2?.end ?? null) === id ? '✓ ' : ''}${label}`, onSelect: () => { st.updateFeatureDraft({ direction2: id ? { ...d.direction2, end: id, depth: d.direction2?.depth ?? 10 } : undefined }); useStore.setState({ dir2Pick: id === 'upToVertex' ? 'vertex' : id === 'upToSurface' ? 'surface' : null }); } });
       return {
         toolbar: [],
         menu: [
@@ -1274,7 +1276,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
           { label: `${tools.lassoMode ? '✓ ' : ''}Lasso Selection`, icon: <Icon.Select />, onSelect: () => { tools.lassoMode = true; } },
           { label: 'Select Other', onSelect: selectOther },
           { label: 'Clear Selections', onSelect: () => st.setSelectedFace(null) },
-          { label: 'Zoom/Pan/Rotate ▸ Zoom to Fit', icon: <Icon.Fit />, shortcut: 'F', onSelect: zoomFit },
+          { label: 'Zoom/Pan/Rotate', icon: <Icon.Fit />, children: [{ label: 'Zoom to Fit', icon: <Icon.Fit />, shortcut: 'F', onSelect: zoomFit }, { label: 'Zoom to Area', onSelect: () => setZoomArea({ active: true }) }, { label: 'Zoom In/Out', shortcut: 'Shift+Z', onSelect: () => camera.zoomStep(0.8) }, { label: 'Previous View', onSelect: () => camera.previousView() }] },
           { separator: true },
           { label: 'OK', icon: <Icon.Check />, onSelect: st.commitFeature },
           { label: 'Cancel', icon: <Icon.Close />, onSelect: st.cancelFeature },
@@ -1294,9 +1296,10 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
           { label: 'Direction 2', disabled: true },
           end2(null, 'Direction 2 Off'),
           end2('blind', 'Blind'),
+          end2('throughAll', 'Through All'),
+          end2('upToNext', 'Up To Next'),
           end2('upToVertex', 'Up To Vertex'),
           end2('upToSurface', 'Up To Surface'),
-          end2('throughAll', 'Through All'),
           { separator: true },
           { label: 'Customize Menu', onSelect: () => st.setDialog('customize') },
         ],
@@ -1375,6 +1378,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
       ] },
       { separator: true },
       { label: 'Exit Sketch', icon: <Icon.Exit />, onSelect: st.exitSketch },
+      { label: useStore.getState().sketchFocusLocked ? 'Unlock Sketch Focus' : 'Lock Sketch Focus', icon: <Icon.Lock />, onSelect: () => useStore.setState({ sketchFocusLocked: !useStore.getState().sketchFocusLocked }) },
       { label: 'Zoom to fit', icon: <Icon.Fit />, shortcut: 'F', onSelect: zoomFit },
       { label: 'Normal To', icon: <Icon.Plane />, shortcut: 'Ctrl+8', onSelect: () => camera.normalTo(plane) },
     ];
@@ -1496,6 +1500,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
       <MarkupLayer />
       {st.isolated && <div className="k-isolate-bar" data-testid="isolate-bar"><span>Isolate</span><button className="k-btn" onClick={() => st.setIsolated(null)}>Exit Isolate</button></div>}
       {sketch && plane && <DragDimensionsHandle project={(p) => camera.worldToPixel(sketchToWorld(plane, p.x, p.y))} />}
+      {sketch && plane && <NumericInput tools={tools} ctx={ctx} project={(p) => camera.worldToPixel(sketchToWorld(plane, p.x, p.y))} onDone={refreshTool} />}
       {st.editContext && (
         <div className="k-editcontext" data-testid="edit-context">
           <span>Editing <b>{st.editContext.componentName}</b> in {st.editContext.assembly.name}</span>

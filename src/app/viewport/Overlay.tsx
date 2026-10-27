@@ -3,7 +3,7 @@ import type { Sketch, SketchPoint } from '../../core/sketch/types';
 import type { SolveResult } from '../../core/solver/solver';
 import { dimensionDrawing, glyphDrawings } from './annotations';
 import { useStore } from '../store';
-import { dimensionTable } from '../../core/document/equations';
+import { dimensionTable, sketchDimensionName } from '../../core/document/equations';
 import { RelationGlyph } from '../../ui/icons';
 import type { ToolRender } from './tools';
 
@@ -107,6 +107,8 @@ export function Overlay(props: OverlayProps) {
         const w = tw, h = th;
         return (
           <g key={d.id} className="k-dim" style={{ cursor: 'pointer' }} onMouseDown={(e) => { e.stopPropagation(); }} onClick={(e) => { e.stopPropagation(); if (!props.dimsOnly) props.onConstraintClick(d.id); }} onDoubleClick={(e) => { e.stopPropagation(); if (!props.dimsOnly) props.onConstraintDoubleClick(d.id); }}>
+            {/* the dimension's name as its tooltip, as the intended design (D3@Sketch6) */}
+            {props.sketch && <title>{sketchDimensionName(props.sketch, d.id)}</title>}
             {d.lines.map((l, i) => {
               const a = project(l.a), b = project(l.b);
               const dir = { x: b.x - a.x, y: b.y - a.y };

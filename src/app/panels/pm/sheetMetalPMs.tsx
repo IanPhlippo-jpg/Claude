@@ -8,6 +8,7 @@ import { DEFAULT_SHEET_METAL, GAUGE_TABLES, materialKFactor } from '../../../cor
 import { classifyVent, FORM_TOOL_LIBRARY } from '../../../core/features/sheetmetal4';
 import { SheetMetalPM, Header, fieldEquation } from './shared';
 import { NEXT, type PMContext } from './context';
+import { startFlangeProfile } from '../../flangeProfile';
 
 export function sheetMetalEditPM(ctx: PMContext): ReactNode | typeof NEXT {
   const { st } = ctx;
@@ -91,14 +92,16 @@ export function baseFlangePM(ctx: PMContext): ReactNode | typeof NEXT {
         )}
         </Section>
         <Section title="Sheet Metal Parameters">
+          {/* editing Base-Flange1, by design: the thickness and radius stay locked until Override default parameters */}
+          {!!st.featureEdit.featureId && <label className="k-check"><input type="checkbox" data-testid="bf-override" checked={!!d.overrideParams} onChange={(e) => st.updateFeatureDraft({ overrideParams: e.target.checked })} /> Override default parameters</label>}
           <div className="k-pm-valuerow">
             <span className="k-muted" style={{ minWidth: 18 }}>T1</span>
-            <NumberField value={sm.thickness} onChange={(v) => st.setSheetMetal({ ...sm, thickness: Math.max(0.01, v) })} unit={st.doc.units} step={0.5} min={0.01} />
+            <NumberField value={sm.thickness} disabled={!!st.featureEdit.featureId && !d.overrideParams} onChange={(v) => st.setSheetMetal({ ...sm, thickness: Math.max(0.01, v) })} unit={st.doc.units} step={0.5} min={0.01} />
           </div>
           <label className="k-check"><input type="checkbox" checked={d.reverse} onChange={(e) => st.updateFeatureDraft({ reverse: e.target.checked })} /> Reverse direction</label>
           <div className="k-pm-valuerow">
             <Icon.Arc size={14} />
-            <NumberField value={sm.bendRadius} onChange={(v) => st.setSheetMetal({ ...sm, bendRadius: Math.max(0, v) })} unit={st.doc.units} step={0.5} min={0} />
+            <NumberField value={sm.bendRadius} disabled={!!st.featureEdit.featureId && !d.overrideParams} onChange={(v) => st.setSheetMetal({ ...sm, bendRadius: Math.max(0, v) })} unit={st.doc.units} step={0.5} min={0} />
           </div>
         </Section>
         <Section title="Bend Allowance">
@@ -767,7 +770,7 @@ export function hemPM(ctx: PMContext): ReactNode | typeof NEXT {
 }
 
 export function edgeFlangePM(ctx: PMContext): ReactNode | typeof NEXT {
-  const { st, profileEdit, setProfileEdit } = ctx;
+  const { st } = ctx;
   if (st.featureEdit && st.featureEdit.draft.type === 'edgeFlange') {
     const d = st.featureEdit.draft;
     const err = st.rebuild.errors[d.id];
@@ -778,13 +781,9 @@ export function edgeFlangePM(ctx: PMContext): ReactNode | typeof NEXT {
         <Header title={d.name} icon={<Icon.Chamfer />} onOk={st.commitFeature} onCancel={st.cancelFeature} />
         <Section title="Flange Parameters">
           <div className="k-selbox" style={{ minHeight: 24 }}>{d.edge ? <div className="k-selbox-row"><Icon.Line size={12} /> Edge&lt;1&gt;</div> : <span className="k-muted">Select a straight edge of the sheet in the graphics area.</span>}</div>
-          <button className={`k-btn${profileEdit ? ' active' : ''}`} data-testid="flange-editprofile" style={{ marginTop: 4 }} onClick={() => setProfileEdit((x) => !x)}>Edit Flange Profile</button>
-          {profileEdit && (
-            <div className="k-pm-xyrow" data-testid="flange-profile">
-              <span className="k-pm-xy k-tip" data-tip="Offset from the start of the edge">⇤</span><NumberField value={d.startOffset ?? 0} onChange={(v) => st.updateFeatureDraft({ startOffset: Math.max(0, v) })} unit={st.doc.units} step={1} />
-              <span className="k-pm-xy k-tip" data-tip="Offset from the end of the edge">⇥</span><NumberField value={d.endOffset ?? 0} onChange={(v) => st.updateFeatureDraft({ endOffset: Math.max(0, v) })} unit={st.doc.units} step={1} />
-            </div>
-          )}
+          {/* Edit Flange Profile, by design: the flange's outline opens as a sketch on its face (Profile Sketch dialog) */}
+          <button className="k-btn" data-testid="flange-editprofile" style={{ marginTop: 4 }} disabled={!d.edge} onClick={startFlangeProfile}>Edit Flange Profile</button>
+          {d.profileSketchId && <div className="k-muted" data-testid="flange-profile" style={{ marginTop: 2 }}>Profile: {st.doc.sketches[d.profileSketchId]?.name ?? ''}</div>}
           <label className="k-check" style={{ marginTop: 4 }}><input type="checkbox" checked={useDefault} onChange={(e) => st.updateFeatureDraft({ radius: e.target.checked ? undefined : sm.bendRadius })} /> Use default radius</label>
           <div className="k-pm-valuerow">
             <Icon.Arc size={14} />

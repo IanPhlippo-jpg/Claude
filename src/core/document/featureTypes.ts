@@ -3,7 +3,7 @@
  * other type is refused on opening (QA v0.3.4 F80); `featureTypes.test.ts` keeps this list in step with the union.
  */
 export const FEATURE_TYPES: ReadonlySet<string> = new Set([
-  'compositeCurve', 'baseFlange', 'belt', 'chamfer', 'circularPattern', 'closedCorner', 'combine', 'convertSheet', 'cornerRelief', 'crossBreak',
+  'compositeCurve', 'curvePoints', 'baseFlange', 'belt', 'chamfer', 'circularPattern', 'closedCorner', 'combine', 'convertSheet', 'cornerRelief', 'crossBreak',
   'curvePattern', 'deform', 'deleteBody', 'deleteFace', 'draft', 'edgeFlange', 'endCap', 'extrude', 'fillPattern', 'fillet',
   'flatPattern', 'fold', 'formTool', 'gusset', 'helix', 'hem', 'hole', 'imported', 'intersect', 'jog', 'linearPattern', 'loft',
   'loftedBend', 'mirror', 'miterFlange', 'moveBody', 'projectedCurve', 'revolve', 'rib', 'rip', 'shell', 'sketch', 'sketch3d',

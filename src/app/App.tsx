@@ -1,4 +1,6 @@
 import { WhatsWrong } from './WhatsWrong';
+import { ProfileSketchDialog } from './flangeProfile';
+import { CurveDialog } from './curveDialog';
 import { SelectionFilterBar } from './SelectionFilterBar';
 import { bridge } from './viewport/bridge';
 import { applyUpAxis } from './viewport/camera';
@@ -156,6 +158,7 @@ export function App() {
           )}
           {st.dialog === 'orientation' && <OrientationDialog />}
           {st.dialog === 'mass' && <MassPropertiesDialog />}
+          {(st.dialog === 'curveXYZ' || st.dialog === 'curveRefPoints') && <CurveDialog />}
           {st.dialog === 'appearance' && <AppearanceDialog />}
           {st.dialog === 'measure' && <MeasureDialog />}
           {st.dialog === 'bom' && <BomDialog />}
@@ -219,6 +222,7 @@ export function App() {
       <ModifyDialog />
       {/* a question (Save changes?) always lies on top of the other dialogs */}
       {st.ask && <AskDialog />}
+      <ProfileSketchDialog />
     </div>
   );
 }

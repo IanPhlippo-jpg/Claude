@@ -12,6 +12,8 @@ export type EntityKind = 'point' | 'line' | 'circle' | 'arc' | 'spline' | 'ellip
 interface EntityBase {
   id: Id;
   construction: boolean;
+  /** the slot this line or arc belongs to (a slot is one entity by design: trimming it asks first) */
+  slot?: Id;
 }
 
 export interface PointEntity extends EntityBase {

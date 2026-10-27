@@ -1,5 +1,6 @@
 // QA F51/F47: STEP out and back in through OpenCascade (File ▸ Save As ▸ STEP, File ▸ Open of a .step), and a fillet
 // that keeps its edge when the extrude below it gets deeper.
+import { menuPath } from './lib/menu.mjs';
 import { chromium } from 'playwright';
 import { mkdirSync } from 'node:fs';
 import { checks, exitCode, track } from './lib/check.mjs';
@@ -11,7 +12,7 @@ const page = await browser.newPage({ viewport: { width: 1920, height: 1080 }, de
 const errors = track(page);
 const { results, check } = checks();
 const S = (fn, arg) => page.evaluate(fn, arg);
-const menuItem = (label) => page.locator(`.k-menu-item:has-text("${label}")`).first();
+const menuItem = (label) => menuPath(page, label);
 const vol = () => S(() => window.__phlippoStore.getState().rebuild.bodies.map((b) => { const g = b.geometry.index ? b.geometry.toNonIndexed() : b.geometry; const a = g.getAttribute('position'); let v = 0; for (let i = 0; i < a.count; i += 3) { const x0 = a.getX(i), y0 = a.getY(i), z0 = a.getZ(i), x1 = a.getX(i + 1), y1 = a.getY(i + 1), z1 = a.getZ(i + 1), x2 = a.getX(i + 2), y2 = a.getY(i + 2), z2 = a.getZ(i + 2); v += (x0 * (y1 * z2 - z1 * y2) - y0 * (x1 * z2 - z1 * x2) + z0 * (x1 * y2 - y1 * x2)) / 6; } return Math.abs(v); }));
 
 await page.goto(process.env.E2E_URL ?? 'http://localhost:4173/');

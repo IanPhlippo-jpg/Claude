@@ -1,4 +1,5 @@
 // Phase 2 check: rebuild the BasePlate of the reference video (80x80, Ø35, extrude 10, cut), face selection, undo/redo, reload, wheel zoom at the pointer.
+import { menuPath } from './lib/menu.mjs';
 import fs from 'node:fs';
 import { exitCode, skip } from './lib/check.mjs';
 import { chromium } from 'playwright';
@@ -364,7 +365,7 @@ await page.click('.k-cm-tab:has-text("Features")');
 await page.hover('.k-brand');
 await page.click('.k-mb-menu:has-text("File")');
 // since G-C the STL export shows its Export Options page first (Binary is the default)
-await page.click('.k-menu-item:has-text("Save As ▸ STL")');
+await menuPath(page, 'Save As ▸ STL').click();
 await page.waitForSelector('[data-testid="export-ok"]');
 await page.locator('[data-testid="export-showinfo"]').uncheck().catch(skip('features:368'));
 const [download] = await Promise.all([page.waitForEvent('download'), page.locator('[data-testid="export-ok"]').click()]);

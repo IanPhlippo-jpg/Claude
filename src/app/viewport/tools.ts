@@ -1,4 +1,6 @@
 import { findContours } from '../../core/sketch/contours';
+import { slotGeometry, slotOutline } from './slotGeometry';
+export { slotGeometry, slotOutline } from './slotGeometry';
 import type { ConstraintKind, Id, Sketch, SketchPoint } from '../../core/sketch/types';
 import { addArc, addCircle, addConic, addConstraint, addEllipse, addEllipseArc, addLine, addPoint, addPolygon, addSpline, addText, entityPoints } from '../../core/sketch/model';
 import { dist, entityLoops, hitTest, sampleBezier, sampleConic, snap, type Snap } from '../../core/sketch/geometry';
@@ -32,6 +34,8 @@ export interface ToolContext {
   chamfer: { d1: number; d2: number };
   /** all sketch tool options of the Property Panel (trim mode, …) */
   sketchTool?: import('../store').SketchToolParams;
+  /** a Yes/No question before the action (the slot warning of Trim); absent = go on */
+  confirm?: (title: string, text: string, dontShowKey: string, yes: () => void) => void;
 }
 
 export interface ToolRender {
@@ -271,7 +275,34 @@ export class ToolController {
     return this.pts.length > 0 || !!this.dimPlacing;
   }
 
+  /** a point typed with the on-screen numeric input is placed exactly, without snapping */
+  private exactNext = false;
+
+  /**
+   * On-screen numeric input (Options ▸ Sketch): the length of the line or the radius of the circle being drawn,
+   * typed; the end lands that far along the direction to the pointer. True when it was used.
+   */
+  numericEntry(ctx: ToolContext, value: number): boolean {
+    if (!(value > 0) || !this.pts.length || !this.cursor) return false;
+    if (this.tool !== 'line' && this.tool !== 'centerline' && this.tool !== 'circle') return false;
+    const a = this.tool === 'circle' ? this.pts[0] : this.lastLineEndPt ?? this.pts[this.pts.length - 1];
+    const dx = this.cursor.x - a.x, dy = this.cursor.y - a.y, l = Math.hypot(dx, dy);
+    const p = l > 1e-9 ? { x: a.x + (dx / l) * value, y: a.y + (dy / l) * value } : { x: a.x + value, y: a.y };
+    this.exactNext = true;
+    this.pointerDown(ctx, { p, px: 0, py: 0, shift: false, ctrl: false, button: 0 });
+    this.exactNext = false;
+    return true;
+  }
+
+  /** the point the next typed value measures from (the line start or circle centre), null when nothing is being drawn */
+  numericAnchor(): { at: SketchPoint; value: number; label: string } | null {
+    if (!this.pts.length || !this.cursor || (this.tool !== 'line' && this.tool !== 'centerline' && this.tool !== 'circle')) return null;
+    const a = this.tool === 'circle' ? this.pts[0] : this.lastLineEndPt ?? this.pts[this.pts.length - 1];
+    return { at: this.cursor, value: dist(a, this.cursor), label: this.tool === 'circle' ? 'R' : 'L' };
+  }
+
   private applySnap(ctx: ToolContext, p: SketchPoint, ref: SketchPoint | null): { p: SketchPoint; snap: Snap | null } {
+    if (this.exactNext) return { p, snap: null };
     const exclude = new Set<Id>();
     const s = snap(ctx.sketch, p, ctx.tolerance, ref, exclude);
     if (s.length) return { p: s[0].point, snap: s[0] };
@@ -420,7 +451,16 @@ export class ToolController {
           ctx.commit(mode === 'inside' ? 'Trim away inside' : 'Trim away outside', (s) => trimBetween(s, h.id, b, mode === 'inside', opts));
           return;
         }
-        ctx.commit('Trim Entities', (s) => trimEntity(s, h.id, info.p, opts));
+        // a line or arc of a slot: the intended design warns that the slot stops being one entity
+        const slot = ctx.sketch.entities[h.id]?.slot;
+        const trim = () => ctx.commit('Trim Entities', (s) => {
+          const t = trimEntity(s, h.id, info.p, opts);
+          if (!slot) return t;
+          const ents = Object.fromEntries(Object.entries(t.entities).map(([k, e]) => [k, e.slot === slot ? { ...e, slot: undefined } : e]));
+          return { ...t, entities: ents };
+        });
+        if (slot && ctx.confirm) ctx.confirm('Trim Entities', 'This trim operation will destroy the slot entity. Do you want to continue?', 'trimSlot', trim);
+        else trim();
         return;
       }
       case 'sketchFillet': {
@@ -514,7 +554,9 @@ export class ToolController {
           [s1, l2] = addLine(s1, arcB.end, a2);
           [s1, arcA] = addArc(s1, a, l2.p2, l1.p1, false);
           [s1, cl] = addLine(s1, arcA.center, arcB.center, true);
-          void cl;
+          // the four curves and the centreline are one slot
+          const slotId = l1.id;
+          s1 = { ...s1, entities: Object.fromEntries(Object.entries(s1.entities).map(([k, e]) => [k, [l1.id, arcB.id, l2.id, arcA.id, cl.id].includes(k) ? { ...e, slot: slotId } : e])) };
           // the relations the intended design adds: tangent at the four junctions, equal arcs
           s1 = addConstraint(s1, 'tangent', [l1.id, arcB.id])[0];
           s1 = addConstraint(s1, 'tangent', [l2.id, arcB.id])[0];
@@ -1554,44 +1596,6 @@ function arcPoly(c: SketchPoint, a: SketchPoint, b: SketchPoint, ccw: boolean): 
     const t = s + (ccw ? 1 : -1) * (sweep * i) / n;
     out.push({ x: c.x + r * Math.cos(t), y: c.y + r * Math.sin(t) });
   }
-  return out;
-}
-
-/** Geometry of a straight slot: centreline a→b (centre-point variant: a is the centre) and the half width. */
-export function slotGeometry(p0: SketchPoint, p1: SketchPoint, w: SketchPoint, centered: boolean): { a: SketchPoint; b: SketchPoint; half: number; a1: SketchPoint; b1: SketchPoint; a2: SketchPoint; b2: SketchPoint } | null {
-  const a = centered ? { x: 2 * p0.x - p1.x, y: 2 * p0.y - p1.y } : p0;
-  const b = p1;
-  const len = dist(a, b);
-  if (len < 1e-9) return null;
-  const dir = { x: (b.x - a.x) / len, y: (b.y - a.y) / len };
-  const nrm = { x: -dir.y, y: dir.x };
-  const half = Math.abs((w.x - a.x) * nrm.x + (w.y - a.y) * nrm.y);
-  if (half < 1e-6) return null;
-  return {
-    a,
-    b,
-    half,
-    a1: { x: a.x + nrm.x * half, y: a.y + nrm.y * half },
-    b1: { x: b.x + nrm.x * half, y: b.y + nrm.y * half },
-    a2: { x: a.x - nrm.x * half, y: a.y - nrm.y * half },
-    b2: { x: b.x - nrm.x * half, y: b.y - nrm.y * half },
-  };
-}
-
-/** Outline of a slot as a closed polyline (two lines, two semicircles). */
-export function slotOutline(g: NonNullable<ReturnType<typeof slotGeometry>>): SketchPoint[] {
-  const out: SketchPoint[] = [g.a1, g.b1];
-  const arc = (c: SketchPoint, from: SketchPoint) => {
-    const a0 = Math.atan2(from.y - c.y, from.x - c.x);
-    for (let i = 1; i < 16; i++) {
-      const t = a0 - (i / 16) * Math.PI; // clockwise half turn
-      out.push({ x: c.x + g.half * Math.cos(t), y: c.y + g.half * Math.sin(t) });
-    }
-  };
-  arc(g.b, g.b1);
-  out.push(g.b2, g.a2);
-  arc(g.a, g.a2);
-  out.push(g.a1);
   return out;
 }
 

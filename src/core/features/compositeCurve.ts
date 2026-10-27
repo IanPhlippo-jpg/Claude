@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import type { CompositeCurveFeature, Document } from '../document/types';
+import type { CompositeCurveFeature, CurvePointsFeature, Document } from '../document/types';
 import type { Id } from '../sketch/types';
 import { bodyEdges, matchEdge, type BodyEdge } from './edgesets';
 
@@ -44,7 +44,9 @@ export function compositePath(doc: Document, f: CompositeCurveFeature, bodies: B
   }
   for (const id of f.sketches) {
     const s3 = doc.features.find((x) => x.id === id && x.type === 'sketch3d');
-    if (s3 && s3.type === 'sketch3d') { pieces.push(...sketch3DChains(s3.segments)); continue; }
+    if (s3 && s3.type === 'sketch3d') { pieces.push(...sketch3DChains(s3.segments, s3.fillets)); continue; }
+    const cv = doc.features.find((x) => x.id === id && x.type === 'curvePoints');
+    if (cv && cv.type === 'curvePoints') { const c = curveThroughPoints(doc, cv); if (!c.points) return c; pieces.push(c.points); continue; }
     const sk = doc.sketches[id];
     const p = sk ? sketchPath(sk, resolvePlaneDef(doc, sk.plane)) : null;
     if (!p) return { points: null, error: 'A sketch of the composite curve has no lines, arcs or splines.' };
@@ -59,8 +61,9 @@ export function compositePath(doc: Document, f: CompositeCurveFeature, bodies: B
 export function sweepPathOf(doc: Document, pathId: Id, bodies: BodiesBefore): { points: THREE.Vector3[] | null; error?: string } {
   const feat = doc.features.find((x) => x.id === pathId);
   if (feat?.type === 'compositeCurve') return compositePath(doc, feat, bodies);
+  if (feat?.type === 'curvePoints') return curveThroughPoints(doc, feat);
   if (feat?.type === 'sketch3d') {
-    const chain = sketch3DChains(feat.segments)[0];
+    const chain = sketch3DChains(feat.segments, feat.fillets)[0];
     return chain && chain.length >= 2 ? { points: chain } : { points: null, error: 'The 3D sketch has no lines to sweep along.' };
   }
   const sk = feat?.type === 'helix' ? doc.sketches[feat.sketchId] : doc.sketches[pathId];
@@ -68,4 +71,16 @@ export function sweepPathOf(doc: Document, pathId: Id, bodies: BodiesBefore): { 
   const plane = resolvePlaneDef(doc, sk.plane);
   const points = feat?.type === 'helix' ? helixPath(sk, plane, feat) : sketchPath(sk, plane);
   return points ? { points } : { points: null, error: 'The path sketch has no lines, arcs or splines to sweep along.' };
+}
+
+/** The smooth curve through the points of a Curve Through XYZ / Reference Points (centripetal Catmull-Rom). */
+export function curveThroughPoints(doc: Pick<Document, 'refGeometry'>, f: CurvePointsFeature): { points: THREE.Vector3[] | null; error?: string } {
+  const pts = f.refPoints?.length
+    ? f.refPoints.map((id) => (doc.refGeometry ?? []).find((r) => r.id === id && r.kind === 'point')).map((r) => (r ? new THREE.Vector3(...r.origin) : null))
+    : (f.points ?? []).map((p) => new THREE.Vector3(...p));
+  if (pts.some((p) => !p)) return { points: null, error: 'A reference point of the curve is no longer there.' };
+  const list = (pts as THREE.Vector3[]).filter((p, i, a) => i === 0 || p.distanceTo(a[i - 1]) > 1e-9);
+  if (list.length < 2) return { points: null, error: 'The curve needs at least two different points.' };
+  if (list.length === 2) return { points: list };
+  return { points: new THREE.CatmullRomCurve3(list, false, 'centripetal').getPoints((list.length - 1) * 16) };
 }

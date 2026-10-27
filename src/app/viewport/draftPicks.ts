@@ -21,3 +21,11 @@ export function pickForDraft(edgeAt: () => string | null, faceAt: () => { bodyId
   }
   return false;
 }
+
+/** a Yes/No question with "Don't show again": once that box was checked, the action goes on without asking */
+export function confirmUnlessHidden(title: string, text: string, key: string, yes: () => void): void {
+  let skip = false;
+  try { skip = localStorage.getItem(`phlippo.dontShow.${key}`) === '1'; } catch { /* asked every time */ }
+  if (skip) yes();
+  else useStore.getState().setAsk({ title, text, yes, dontShowKey: key });
+}

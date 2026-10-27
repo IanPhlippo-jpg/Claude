@@ -201,7 +201,35 @@ function resample(loop: SketchPoint[], n: number, start?: SketchPoint): SketchPo
 }
 
 /** The connected polylines of a 3D sketch (segments joined at shared end points). */
-export function sketch3DChains(segments: [[number, number, number], [number, number, number]][]): THREE.Vector3[][] {
+/**
+ * Sketch Fillet in a 3D sketch: each corner with a fillet is replaced by an arc of radius r tangent to its two lines,
+ * in the plane of those lines. A radius too large for the shorter line, or a straight corner, is left sharp.
+ */
+export function filletCorners(chain: THREE.Vector3[], fillets: { at: [number, number, number]; r: number }[]): THREE.Vector3[] {
+  if (!fillets.length || chain.length < 3) return chain;
+  const out: THREE.Vector3[] = [chain[0]];
+  for (let i = 1; i < chain.length - 1; i++) {
+    const v = chain[i];
+    const fl = fillets.find((f) => v.distanceTo(new THREE.Vector3(...f.at)) < 1e-6);
+    const a = chain[i - 1].clone().sub(v), b = chain[i + 1].clone().sub(v);
+    const la = a.length(), lb = b.length();
+    a.normalize(); b.normalize();
+    const theta = Math.acos(Math.max(-1, Math.min(1, a.dot(b))));
+    if (!fl || !(fl.r > 0) || theta < 1e-6 || Math.PI - theta < 1e-6) { out.push(v); continue; }
+    const t = fl.r / Math.tan(theta / 2);
+    if (t > Math.min(la, lb) + 1e-9) { out.push(v); continue; }
+    const p1 = v.clone().addScaledVector(a, t), p2 = v.clone().addScaledVector(b, t);
+    const c = v.clone().addScaledVector(a.clone().add(b).normalize(), fl.r / Math.sin(theta / 2));
+    const u1 = p1.clone().sub(c), u2 = p2.clone().sub(c);
+    const phi = Math.PI - theta, n = Math.max(4, Math.ceil(phi / (Math.PI / 36)));
+    const axis = u1.clone().cross(u2).normalize();
+    for (let k = 0; k <= n; k++) out.push(c.clone().add(u1.clone().applyAxisAngle(axis, (phi * k) / n)));
+  }
+  out.push(chain[chain.length - 1]);
+  return out;
+}
+
+export function sketch3DChains(segments: [[number, number, number], [number, number, number]][], fillets: { at: [number, number, number]; r: number }[] = []): THREE.Vector3[][] {
   const segs = segments.map(([a, b]) => [new THREE.Vector3(...a), new THREE.Vector3(...b)]);
   const used = new Array(segs.length).fill(false);
   const out: THREE.Vector3[][] = [];
@@ -227,7 +255,7 @@ export function sketch3DChains(segments: [[number, number, number], [number, num
     }
     out.push(chain);
   }
-  return out;
+  return fillets.length ? out.map((c) => filletCorners(c, fillets)) : out;
 }
 
 function centroidOf(pts: THREE.Vector3[]): THREE.Vector3 {

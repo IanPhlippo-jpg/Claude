@@ -107,8 +107,41 @@ export const MATERIAL_LIBRARY: MaterialCategory[] = [
   },
 ];
 
+/** the DIN library of the intended Material dialog: materials by their DIN number and name */
+export const DIN_LIBRARY: MaterialCategory[] = [
+  { name: 'Steel', materials: [
+    m('1.0037 (S235JR)', 7850, '#b4b8be', { elasticModulus: 2.1e11, poisson: 0.28, tensile: 3.6e8, yield: 2.35e8, thermalExpansion: 1.2e-5, conductivity: 54, specificHeat: 460 }),
+    m('1.0570 (S355J2)', 7850, '#b1b5bb', { elasticModulus: 2.1e11, poisson: 0.28, tensile: 4.7e8, yield: 3.55e8, thermalExpansion: 1.2e-5, conductivity: 50, specificHeat: 460 }),
+    m('1.0503 (C45)', 7850, '#aeb2b8', { elasticModulus: 2.1e11, poisson: 0.28, tensile: 6.5e8, yield: 4.3e8, thermalExpansion: 1.1e-5, conductivity: 49, specificHeat: 460 }),
+    m('1.4301 (X5CrNi18-10)', 7900, '#c6c9cd', { elasticModulus: 2e11, poisson: 0.28, tensile: 5.2e8, yield: 2.1e8, thermalExpansion: 1.6e-5, conductivity: 15, specificHeat: 500 }),
+  ] },
+  { name: 'Aluminium', materials: [
+    m('3.3547 (AlMg4,5Mn)', 2660, '#cfd2d6', { elasticModulus: 7e10, poisson: 0.33, tensile: 2.75e8, yield: 1.25e8, thermalExpansion: 2.4e-5, conductivity: 120, specificHeat: 900 }),
+    m('3.2315 (AlMgSi1)', 2700, '#d1d4d8', { elasticModulus: 7e10, poisson: 0.33, tensile: 3.1e8, yield: 2.6e8, thermalExpansion: 2.3e-5, conductivity: 170, specificHeat: 900 }),
+  ] },
+];
+
+/** Sustainability Extras: materials with their environmental source noted */
+export const SUSTAINABILITY_LIBRARY: MaterialCategory[] = [
+  { name: 'Plastics', materials: [
+    m('ABS PC', 1070, '#e4d9b8', { elasticModulus: 2.41e9, poisson: 0.39, tensile: 4e7, conductivity: 0.26, specificHeat: 1900, sustainability: 'Plastics ▸ ABS/PC' }),
+    m('PET', 1420, '#e7eef0', { elasticModulus: 2.96e9, poisson: 0.37, tensile: 5.7e7, conductivity: 0.24, specificHeat: 1100, sustainability: 'Plastics ▸ PET' }),
+  ] },
+  { name: 'Metals', materials: [
+    m('Recycled Aluminum', 2700, '#c9ccd0', { elasticModulus: 6.9e10, poisson: 0.33, tensile: 2.4e8, conductivity: 170, specificHeat: 900, sustainability: 'Aluminium ▸ recycled' }),
+    m('Recycled Steel', 7850, '#aab0b6', { elasticModulus: 2e11, poisson: 0.29, tensile: 4e8, conductivity: 50, specificHeat: 460, sustainability: 'Steel ▸ recycled' }),
+  ] },
+];
+
+/** the libraries of the Material dialog, each with its categories */
+export const MATERIAL_LIBRARIES: { name: string; categories: MaterialCategory[] }[] = [
+  { name: 'DIN Materials', categories: DIN_LIBRARY },
+  { name: 'Phlippo CAD Materials', categories: MATERIAL_LIBRARY },
+  { name: 'Sustainability Extras', categories: SUSTAINABILITY_LIBRARY },
+];
+
 export function findMaterial(name: string): MaterialDef | undefined {
-  for (const c of MATERIAL_LIBRARY) for (const mat of c.materials) if (mat.name === name) return mat;
+  for (const lib of MATERIAL_LIBRARIES) for (const c of lib.categories) for (const mat of c.materials) if (mat.name === name) return mat;
   return undefined;
 }
 

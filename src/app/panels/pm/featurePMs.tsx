@@ -564,7 +564,7 @@ export function compositeCurvePM(ctx: PMContext): ReactNode | typeof NEXT {
     const d = st.featureEdit.draft;
     const err = st.rebuild.errors[d.id];
     const nameOf = (id: string) => st.doc.sketches[id]?.name ?? st.doc.features.find((f) => f.id === id)?.name ?? id;
-    const candidates = [...st.doc.features.filter((f) => f.type === 'sketch').map((f) => ({ id: (f as { sketchId: string }).sketchId, name: f.name })), ...st.doc.features.filter((f) => f.type === 'sketch3d').map((f) => ({ id: f.id, name: f.name }))].filter((c) => !d.sketches.includes(c.id));
+    const candidates = [...st.doc.features.filter((f) => f.type === 'sketch').map((f) => ({ id: (f as { sketchId: string }).sketchId, name: f.name })), ...st.doc.features.filter((f) => f.type === 'sketch3d' || f.type === 'curvePoints').map((f) => ({ id: f.id, name: f.name }))].filter((c) => !d.sketches.includes(c.id));
     return (
       <>
         <Header title="Composite Curve" icon={<Icon.Curves />} onOk={st.commitFeature} onCancel={st.cancelFeature} />

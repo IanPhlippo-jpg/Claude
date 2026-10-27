@@ -957,3 +957,10 @@
 .k-curvecolor-grid { display: grid; grid-template-columns: repeat(8, 14px); gap: 1px; margin-top: 6px; }
 .k-curvecolor-cell { width: 14px; height: 14px; padding: 0; border: 1px solid #00000033; cursor: pointer; }
 .k-curvecolor-cell.active { outline: 2px solid var(--accent, #1f5fbf); }
+.k-numeric-input { position: absolute; z-index: 30; display: flex; align-items: center; gap: 3px; background: var(--bg-panel); border: 1px solid var(--border-strong); padding: 1px 3px; font-size: 11px; box-shadow: var(--shadow-2); }
+.k-numeric-input .k-input { width: 64px; height: 18px; padding: 0 3px; }
+.k-profile-dialog { position: fixed; top: 110px; right: 80px; z-index: 60; width: 360px; background: var(--bg-panel); border: 1px solid var(--border-strong); box-shadow: var(--shadow-2); }
+.k-profile-dialog .k-dialog-title { padding: 4px 8px; font-size: 12px; }
+.k-profile-msg { margin: 8px; padding: 10px 8px; border: 1px solid var(--border); text-align: center; font-size: 12px; }
+.k-profile-msg.bad { color: #8a1c1c; }
+.k-profile-dialog .k-dialog-actions { padding: 6px 8px; display: flex; gap: 6px; justify-content: flex-end; }

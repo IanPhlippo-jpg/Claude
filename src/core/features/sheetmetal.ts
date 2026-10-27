@@ -3,7 +3,7 @@ import type { PlaneDef } from '../document/types';
 import type { SketchPoint } from '../sketch/types';
 import { offsetPolyline } from './thin';
 import { polyArea, type Region } from './regions';
-import { mergeGeometries, extrudeGeometry, THROUGH_ALL } from './solid';
+import { csg, mergeGeometries, extrudeGeometry, THROUGH_ALL } from './solid';
 
 /**
  * Sheet metal, as the intended Sheet Metal tab (basic set): Base Flange/Tab, Edge Flange and the
@@ -252,6 +252,11 @@ export interface EdgeFlangeInput {
   angleFace?: { normal: [number, number, number]; mode: 'perpendicular' | 'parallel' };
   /** Flange Length > Up To Vertex: the leg runs up to this point */
   upToVertex?: [number, number, number];
+  /**
+   * Edit Flange Profile: the flange's outline drawn on the plane of its outer face (x along the edge from its start,
+   * y up the leg from the end of the bend). Its bottom line sets the width, its top the length; holes cut through.
+   */
+  profile?: Region[];
 }
 
 /** The straight leg length that corresponds to the dimensioned flange length. */
@@ -304,6 +309,15 @@ export function edgeFlangeGeometry(input0: EdgeFlangeInput, p: SheetMetalParams)
   }
   const theta = Math.max(1, Math.min(180, input.angle)) * Math.PI / 180;
   let leg = flangeLeg(input, r, p);
+  // Edit Flange Profile: the width comes from the profile's bottom line, the leg from its top
+  const prof = input.profile?.length ? input.profile : null;
+  if (prof) {
+    const pts = prof.flatMap((g) => g.outer);
+    const y0 = Math.min(...pts.map((q) => q.y));
+    const bottom = pts.filter((q) => Math.abs(q.y - y0) < 1e-6);
+    input = { ...input, startOffset: Math.max(0, Math.min(...bottom.map((q) => q.x))), endOffset: Math.max(0, L - Math.max(...bottom.map((q) => q.x))) };
+    leg = Math.max(0, Math.max(...pts.map((q) => q.y)));
+  }
   // the flange starts at the edge (Material Outside) or the bend eats into the sheet (Material Inside); Offset moves it in
   const shift = -flangeSetback(input.angle, r, p, input.position) - Math.max(0, input.offset ?? 0);
   // Up To Vertex: the leg runs to the point (measured along the leg from the end of the bend)
@@ -345,6 +359,18 @@ export function edgeFlangeGeometry(input0: EdgeFlangeInput, p: SheetMetalParams)
   const flangePlane: PlaneDef = { ...plane, origin: [A1.x, A1.y, A1.z] };
   const g = extrudeGeometry([region], flangePlane, { end: 'blind', depth: L - s0 - s1, reverse: along }, THROUGH_ALL, 0);
   if (!g) return { geometry: null, error: 'The flange has no volume.' };
+  let flange = g;
+  if (prof) {
+    // the leg outside the profile goes: (a box over the leg) minus (the profile), both through the thickness
+    const legDir = v.clone().multiplyScalar(tangent.x).addScaledVector(n, tangent.y);
+    const o = A.clone().addScaledVector(v, Eo.x).addScaledVector(n, Eo.y);
+    const ex = eAB0, pn = ex.clone().cross(legDir).normalize();
+    const pp: PlaneDef = { id: 'flange-profile', name: 'Profile', origin: [o.x, o.y, o.z], u: [ex.x, ex.y, ex.z], v: [legDir.x, legDir.y, legDir.z], n: [pn.x, pn.y, pn.z] };
+    const box: Region = { outer: [{ x: -1, y: 1e-3 }, { x: L + 1, y: 1e-3 }, { x: L + 1, y: leg + 1 }, { x: -1, y: leg + 1 }], holes: [], area: 0 };
+    const deep = { end: 'midPlane' as const, depth: 2 * (t + 1), reverse: false };
+    const keep = extrudeGeometry(prof, pp, deep, THROUGH_ALL, 0), all = extrudeGeometry([box], pp, deep, THROUGH_ALL, 0);
+    if (keep && all) flange = csg(flange, csg(all, keep, 'subtract'), 'subtract');
+  }
   // Auto Relief where the flange ends inside the edge: a notch behind each inner end of the bend
   const reliefs: THREE.BufferGeometry[] = [];
   const rw = p.reliefType === 'tear' ? 0.2 : p.useReliefRatio === false ? Math.max(0.1, p.reliefWidth ?? t) : Math.max(0.1, (p.reliefRatio ?? 0.5) * t);
@@ -381,7 +407,7 @@ export function edgeFlangeGeometry(input0: EdgeFlangeInput, p: SheetMetalParams)
   if (reliefs.length) trim = mergeGeometries(trim ? [trim, ...reliefs] : reliefs);
   // the same flange as exact segments (true bend arcs) for the B-rep kernel; flanges with relief notches: mesh kernel
   let exact: { flange: ExactPrism; trim?: ExactPrism } | undefined;
-  if (!reliefs.length) {
+  if (!reliefs.length && !prof) {
     const phiMid = -Math.PI / 2 + theta / 2;
     const mi = { x: C.x + r * Math.cos(phiMid), y: C.y + r * Math.sin(phiMid) };
     const mo = { x: C.x + (r + t) * Math.cos(phiMid), y: C.y + (r + t) * Math.sin(phiMid) };
@@ -400,7 +426,32 @@ export function edgeFlangeGeometry(input0: EdgeFlangeInput, p: SheetMetalParams)
       exact.trim = { plane: { ...plane, origin: [o.x, o.y, o.z] }, loop: tp.map((q, i) => ({ a: q, b: tp[(i + 1) % 4] })), depth: L - s0 - s1 + (full ? 2 * e : 0), reverse: along };
     }
   }
-  return { geometry: g, trim, exact };
+  return { geometry: flange, trim, exact };
+}
+
+/**
+ * The plane of an edge flange's outer face, where its profile is drawn (Edit Flange Profile): origin at the edge start
+ * where the bend ends, x along the edge, y up the leg; with the edge length and the leg of the flange as it is now.
+ */
+export function flangeProfilePlane(input: EdgeFlangeInput, p: SheetMetalParams): { plane: PlaneDef; length: number; leg: number } | null {
+  const A = new THREE.Vector3(...input.a), B = new THREE.Vector3(...input.b);
+  const L = A.distanceTo(B);
+  if (L < 1e-6) return null;
+  const eAB = B.clone().sub(A).normalize();
+  let u = eAB.clone();
+  const n = new THREE.Vector3(...input.faceNormal).normalize();
+  if (input.flip) n.negate();
+  let v = new THREE.Vector3().crossVectors(n, u).normalize();
+  if (new THREE.Vector3(...input.faceCentroid).sub(A.clone().add(B).multiplyScalar(0.5)).dot(v) > 0) { v.negate(); u = u.negate(); }
+  void u;
+  const r = input.radius ?? p.bendRadius, t = p.thickness;
+  const theta = Math.max(1, Math.min(180, input.angle)) * Math.PI / 180, phi = -Math.PI / 2 + theta;
+  const shift = -flangeSetback(input.angle, r, p, input.position) - Math.max(0, input.offset ?? 0);
+  const Eo = { x: shift + (r + t) * Math.cos(phi), y: r + (r + t) * Math.sin(phi) };
+  const legDir = v.clone().multiplyScalar(-Math.sin(phi)).addScaledVector(n, Math.cos(phi));
+  const o = A.clone().addScaledVector(v, Eo.x).addScaledVector(n, Eo.y);
+  const pn = eAB.clone().cross(legDir).normalize();
+  return { plane: { id: 'flange-profile', name: 'Profile', origin: [o.x, o.y, o.z], u: [eAB.x, eAB.y, eAB.z], v: [legDir.x, legDir.y, legDir.z], n: [pn.x, pn.y, pn.z] }, length: L, leg: flangeLeg(input, r, p) };
 }
 
 /** How far a flange cuts the sheet back (Material Inside); 0 for Material Outside / Bend Outside. */

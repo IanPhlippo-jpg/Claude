@@ -3,6 +3,8 @@ import type { Equation } from './equations';
 import type { Configuration } from './configurations';
 import type { SheetMetalParams, FlangeLengthMode, FlangePosition, HemType } from '../features/sheetmetal';
 import type { EdgeRef } from '../features/edgesets';
+import type { CompositeCurveFeature, CurvePointsFeature } from './curveTypes';
+export type { CompositeCurveFeature, CurvePointsFeature } from './curveTypes';
 
 export type Units = 'mm' | 'cm' | 'm' | 'in';
 
@@ -82,6 +84,8 @@ export interface BaseFlangeFeature {
   /** extrude the other way (Direction 1 reverse) */
   flipDir: boolean;
   merge?: boolean;
+  /** editing Base-Flange1: Sheet Metal Parameters ▸ Override default parameters (thickness and radius unlocked) */
+  overrideParams?: boolean;
 }
 
 /** Sheet Metal ▸ Edge Flange: a bend and a straight leg along a straight edge of the sheet. */
@@ -110,6 +114,8 @@ export interface EdgeFlangeFeature {
   /** Custom Bend Allowance / Custom Relief Type of this flange */
   customAllowance?: { type: 'kFactor' | 'bendAllowance' | 'bendDeduction' | 'bendTable'; value: number };
   customRelief?: { type: 'rectangle' | 'tear' | 'obround'; ratio: number };
+  /** Edit Flange Profile: the sketch of the flange's outline on its outer face (width, length and holes) */
+  profileSketchId?: Id;
 }
 
 /** 3D Sketch: lines in space (drawn on the XY / YZ / ZX plane through the last point, Tab switches). */
@@ -119,6 +125,8 @@ export interface Sketch3DFeature {
   name: string;
   suppressed: boolean;
   segments: [[number, number, number], [number, number, number]][];
+  /** Sketch Fillet: the corner at `at` (where two lines meet) rounded with radius r */
+  fillets?: { at: [number, number, number]; r: number }[];
 }
 
 /** Sheet Metal ▸ Miter Flange: an open profile swept along a chain of sheet edges, mitered at the corners. */
@@ -1045,22 +1053,7 @@ export interface ImportedFeature {
   source: string;
 }
 
-/**
- * Composite Curve (Features ▸ Curves ▸ Composite Curve): model edges, sketches and curves joined end to end into one
- * curve (CompCurve1), for instance the path of a sweep along the edges of a body.
- */
-export interface CompositeCurveFeature {
-  id: Id;
-  type: 'compositeCurve';
-  name: string;
-  suppressed: boolean;
-  /** model edges, found again after a rebuild like the edges of a fillet */
-  edges: EdgeRef[];
-  /** sketches and curve features (3D sketch) whose curves join in */
-  sketches: Id[];
-}
-
-export type SolidFeature = CompositeCurveFeature | ExtrudeFeature | RevolveFeature | RoundFeature | MirrorFeature | PatternFeature | HoleFeature | ShellFeature | SweepFeature | LoftFeature | ImportedFeature | RibFeature | CombineFeature | BaseFlangeFeature | EdgeFlangeFeature | FlatPatternFeature | HelixFeature | HemFeature | MiterFlangeFeature | JogFeature | Sketch3DFeature | SketchedBendFeature | DraftFeature | IntersectFeature | SurfaceFeature | CrossBreakFeature | UnfoldFeature | WrapFeature | ThreadFeature | SplitLineFeature | ProjectedCurveFeature | StudFeature | ClosedCornerFeature | CornerReliefFeature | LoftedBendFeature | ConvertSheetFeature | BeltFeature | DeleteBodyFeature | MoveBodyFeature | DeleteFaceFeature | VentFeature | FormToolFeature | GussetFeature | TabSlotFeature | RipFeature | SweptFlangeFeature | WeldmentFeature | StructuralMemberFeature | TrimExtendFeature | EndCapFeature | WeldGussetFeature | WeldBeadFeature | DeformFeature;
+export type SolidFeature = CurvePointsFeature | CompositeCurveFeature | ExtrudeFeature | RevolveFeature | RoundFeature | MirrorFeature | PatternFeature | HoleFeature | ShellFeature | SweepFeature | LoftFeature | ImportedFeature | RibFeature | CombineFeature | BaseFlangeFeature | EdgeFlangeFeature | FlatPatternFeature | HelixFeature | HemFeature | MiterFlangeFeature | JogFeature | Sketch3DFeature | SketchedBendFeature | DraftFeature | IntersectFeature | SurfaceFeature | CrossBreakFeature | UnfoldFeature | WrapFeature | ThreadFeature | SplitLineFeature | ProjectedCurveFeature | StudFeature | ClosedCornerFeature | CornerReliefFeature | LoftedBendFeature | ConvertSheetFeature | BeltFeature | DeleteBodyFeature | MoveBodyFeature | DeleteFaceFeature | VentFeature | FormToolFeature | GussetFeature | TabSlotFeature | RipFeature | SweptFlangeFeature | WeldmentFeature | StructuralMemberFeature | TrimExtendFeature | EndCapFeature | WeldGussetFeature | WeldBeadFeature | DeformFeature;
 export type SketchBasedFeature = ExtrudeFeature | RevolveFeature | SweepFeature | LoftFeature | RibFeature | BaseFlangeFeature | HelixFeature;
 export type Feature = SketchFeature | SolidFeature;
 
