@@ -6,7 +6,7 @@ export const FEATURE_TYPES: ReadonlySet<string> = new Set([
   'baseFlange', 'belt', 'chamfer', 'circularPattern', 'closedCorner', 'combine', 'convertSheet', 'cornerRelief', 'crossBreak',
   'curvePattern', 'deform', 'deleteBody', 'deleteFace', 'draft', 'edgeFlange', 'endCap', 'extrude', 'fillPattern', 'fillet',
   'flatPattern', 'fold', 'formTool', 'gusset', 'helix', 'hem', 'hole', 'imported', 'intersect', 'jog', 'linearPattern', 'loft',
-  'loftedBend', 'mirror', 'miterFlange', 'projectedCurve', 'revolve', 'rib', 'rip', 'shell', 'sketch', 'sketch3d',
+  'loftedBend', 'mirror', 'miterFlange', 'moveBody', 'projectedCurve', 'revolve', 'rib', 'rip', 'shell', 'sketch', 'sketch3d',
   'sketchPattern', 'sketchedBend', 'splitLine', 'structuralMember', 'stud', 'surface', 'sweep', 'sweptFlange', 'tabSlot',
   'tablePattern', 'thread', 'trimExtend', 'unfold', 'variablePattern', 'vent', 'weldBead', 'weldGusset', 'weldment', 'wrap',
 ]);

@@ -47,6 +47,7 @@ import { readColors, SketchScene } from './sketchScene';
 import { motionTransforms } from '../../core/assembly/motion';
 import { MotionTimeline } from './MotionTimeline';
 import { BodyScene } from './bodyScene';
+import { mergeGeometries } from '../../core/features/solid';
 import { edgeFlangeOnBody, featureGeometry, hemAsFlange, jogOnBody, miterFlangeOnBody, rebuildDocument, sketchedBendOnBody, threadSpecOf } from '../../core/features/rebuild';
 import { baseFlangeGeometry, DEFAULT_SHEET_METAL, tabGeometry } from '../../core/features/sheetmetal';
 import { sketchChains } from '../../core/features/thin';
@@ -457,7 +458,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
     if (!fe || !body) return null;
     // a fillet / chamfer is only previewed (yellow) until OK, by design; the eye (Detailed Preview) shows the result
     if (isRoundFeature(fe.draft)) return null;
-    if (fe.draft.type === 'mirror' || fe.draft.type === 'linearPattern' || fe.draft.type === 'circularPattern' || fe.draft.type === 'hole' || fe.draft.type === 'shell') {
+    if (fe.draft.type === 'mirror' || fe.draft.type === 'linearPattern' || fe.draft.type === 'circularPattern' || fe.draft.type === 'hole' || fe.draft.type === 'shell' || fe.draft.type === 'moveBody') {
       // preview = the document rebuilt with the draft appended (or replacing the edited feature)
       // Partial preview (patterns): only every second instance is shown
       const pd = fe.draft as { partialPreview?: boolean; skip?: number[] };
@@ -465,6 +466,8 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
       const features = fe.featureId ? st.doc.features.map((f) => (f.id === fe.featureId ? draft : f)) : [...st.doc.features, draft];
       try {
         const r = rebuildDocument({ ...st.doc, features }, st.rollbackIndex === null ? null : st.rollbackIndex + 1);
+        // Move/Copy: every body where it lands (the moved ones and their copies) in one preview
+        if (fe.draft.type === 'moveBody' && r.bodies.length > 1) return mergeGeometries(r.bodies.map((b) => { const g = (b.geometry.index ? b.geometry.toNonIndexed() : b.geometry).clone(); for (const k of Object.keys(g.attributes)) if (k !== 'position') g.deleteAttribute(k); return g; }));
         return r.bodies[0]?.geometry ?? null;
       } catch {
         return null;

@@ -62,6 +62,8 @@ export interface ExtrudeFeature {
   translateSurface?: boolean;
   /** Selected Contours: indices of the sketch regions to use (absent = all closed contours) */
   contours?: number[];
+  /** Bodies to Keep: when the cut splits a body, the pieces kept (largest first, 0-based); absent = all bodies */
+  keepBodies?: number[];
   /** Thin Feature: the profile (open or closed) becomes a wall of this thickness; Auto-fillet corners rounds its corners */
   thin?: { mode: 'one' | 'mid' | 'two'; thickness: number; thickness2?: number; reverse?: boolean; autoFillet?: number };
 }
@@ -1020,7 +1022,7 @@ export interface ImportedFeature {
   source: string;
 }
 
-export type SolidFeature = ExtrudeFeature | RevolveFeature | RoundFeature | MirrorFeature | PatternFeature | HoleFeature | ShellFeature | SweepFeature | LoftFeature | ImportedFeature | RibFeature | CombineFeature | BaseFlangeFeature | EdgeFlangeFeature | FlatPatternFeature | HelixFeature | HemFeature | MiterFlangeFeature | JogFeature | Sketch3DFeature | SketchedBendFeature | DraftFeature | IntersectFeature | SurfaceFeature | CrossBreakFeature | UnfoldFeature | WrapFeature | ThreadFeature | SplitLineFeature | ProjectedCurveFeature | StudFeature | ClosedCornerFeature | CornerReliefFeature | LoftedBendFeature | ConvertSheetFeature | BeltFeature | DeleteBodyFeature | DeleteFaceFeature | VentFeature | FormToolFeature | GussetFeature | TabSlotFeature | RipFeature | SweptFlangeFeature | WeldmentFeature | StructuralMemberFeature | TrimExtendFeature | EndCapFeature | WeldGussetFeature | WeldBeadFeature | DeformFeature;
+export type SolidFeature = ExtrudeFeature | RevolveFeature | RoundFeature | MirrorFeature | PatternFeature | HoleFeature | ShellFeature | SweepFeature | LoftFeature | ImportedFeature | RibFeature | CombineFeature | BaseFlangeFeature | EdgeFlangeFeature | FlatPatternFeature | HelixFeature | HemFeature | MiterFlangeFeature | JogFeature | Sketch3DFeature | SketchedBendFeature | DraftFeature | IntersectFeature | SurfaceFeature | CrossBreakFeature | UnfoldFeature | WrapFeature | ThreadFeature | SplitLineFeature | ProjectedCurveFeature | StudFeature | ClosedCornerFeature | CornerReliefFeature | LoftedBendFeature | ConvertSheetFeature | BeltFeature | DeleteBodyFeature | MoveBodyFeature | DeleteFaceFeature | VentFeature | FormToolFeature | GussetFeature | TabSlotFeature | RipFeature | SweptFlangeFeature | WeldmentFeature | StructuralMemberFeature | TrimExtendFeature | EndCapFeature | WeldGussetFeature | WeldBeadFeature | DeformFeature;
 export type SketchBasedFeature = ExtrudeFeature | RevolveFeature | SweepFeature | LoftFeature | RibFeature | BaseFlangeFeature | HelixFeature;
 export type Feature = SketchFeature | SolidFeature;
 
@@ -1077,6 +1079,23 @@ export interface DeleteFaceFeature {
   suppressed: boolean;
   faces: { normal: [number, number, number]; point: [number, number, number]; label: string }[];
   option: 'delete' | 'patch' | 'fill';
+}
+
+/** Insert ▸ Features ▸ Move/Copy: bodies moved, or copied (a number of times), by a translation and rotations about X, Y and Z through a point. */
+export interface MoveBodyFeature {
+  id: Id;
+  type: 'moveBody';
+  name: string;
+  suppressed: boolean;
+  bodies: Id[];
+  copy: boolean;
+  /** Number of copies (each the previous one moved again) */
+  copies: number;
+  /** Translate: ΔX, ΔY, ΔZ (world) */
+  translate: [number, number, number];
+  /** Rotate: degrees about X, Y and Z, through the origin point */
+  rotate: [number, number, number];
+  origin: [number, number, number];
 }
 
 export interface DeleteBodyFeature {

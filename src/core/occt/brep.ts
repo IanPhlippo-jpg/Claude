@@ -419,6 +419,18 @@ export function occtKernel(oc: OC, replicad: Replicad, opts: { tolerance?: numbe
       if (!pipe.IsDone() || !pipe.MakeSolid()) return null;
       return S(t(pipe.Shape()));
     },
+    solids(shape) {
+      const out: { s: any; v: number }[] = [];
+      const ex = t(new oc.TopExp_Explorer(R(shape), oc.TopAbs_ShapeEnum.TopAbs_SOLID, oc.TopAbs_ShapeEnum.TopAbs_SHAPE));
+      while (ex.More()) {
+        const s = t(ex.Current());
+        ex.Next();
+        let v = 0;
+        try { v = Math.abs(replicad.measureVolume(replicad.cast(s) as never)); } catch { v = 0; }
+        if (v > 1e-9) out.push({ s, v });
+      }
+      return out.sort((x, y) => y.v - x.v).map((x) => S(x.s));
+    },
     fuse: (a, b) => S(fuse(R(a), R(b))),
     cut: (a, b) => S(cut(R(a), R(b))),
     common: (a, b) => {

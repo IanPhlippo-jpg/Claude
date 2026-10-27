@@ -42,6 +42,7 @@ const SymmetryDialog = lazyNamed(() => import('./evaluateDialogs2'), 'SymmetryDi
 const SaveAsDialog = lazyNamed(() => import('./evaluateDialogs2'), 'SaveAsDialog');
 const CustomizeDialog = lazyNamed(() => import('./customize'), 'CustomizeDialog');
 const ExportOptionsDialog = lazyNamed(() => import('./treeDialogs'), 'ExportOptionsDialog');
+const BodiesToKeepDialog = lazyNamed(() => import('./treeDialogs'), 'BodiesToKeepDialog');
 const FeaturePropertiesDialog = lazyNamed(() => import('./treeDialogs'), 'FeaturePropertiesDialog');
 const ParentChildDialog = lazyNamed(() => import('./treeDialogs'), 'ParentChildDialog');
 const DesignStudyDialog = lazyNamed(() => import('./designStudy'), 'DesignStudyDialog');
@@ -183,6 +184,7 @@ export function App() {
           {st.dialog === 'featureProps' && <FeaturePropertiesDialog />}
           {st.dialog === 'parentChild' && <ParentChildDialog />}
           {st.dialog === 'exportOptions' && <ExportOptionsDialog />}
+          {st.dialog === 'bodiesToKeep' && <BodiesToKeepDialog />}
           {shortcutBar && (
             <div className="k-shortcut-bar">
               <ShortcutBar onClose={() => setShortcutBar(false)} />

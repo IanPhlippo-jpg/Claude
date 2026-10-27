@@ -7,7 +7,7 @@ import { isRoundFeature, isSketchBased, type Document, type ExtrudeFeature, type
 import type { Id } from '../sketch/types';
 import { isReferencePlane, resolvePlaneDef } from './planes';
 import { sketchRegions } from './regions';
-import { clipToSurface, csg, extrudeGeometry, flipWinding, meshVolume, mergeGeometries, piecesTouchingPlane, planarFaces, planeMatrix, revolveGeometry, THROUGH_ALL, type PlanarFace } from './solid';
+import { clipToSurface, csg, extrudeGeometry, flipWinding, meshPieces, meshVolume, mergeGeometries, piecesTouchingPlane, planarFaces, planeMatrix, revolveGeometry, THROUGH_ALL, type PlanarFace } from './solid';
 import { MeshBVH } from 'three-mesh-bvh';
 import type { Region } from './regions';
 import { bodyEdges, matchEdge, subEdgeAt, type BodyEdge } from './edgesets';
@@ -64,6 +64,8 @@ export interface RebuildResult {
   extraAppearances?: NonNullable<Document['faceAppearances']>;
   /** Performance Evaluation: rebuild time per feature (ms) */
   times?: Record<Id, number>;
+  /** Bodies to Keep: per cut feature the number of pieces it split a body into (only cuts that split) */
+  splitCounts?: Record<Id, number>;
   /** the B-rep solid of every exact body (only where a B-rep kernel is registered; the caller releases them) */
   brep?: Record<Id, BrepShape>;
   /** Weldments: per body the cut list data (description, length, miter angles) and its kind */
@@ -1157,16 +1159,38 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
       }
       return { mesh: csg(b.geometry, tool, 'subtract') };
     });
+    // Bodies to Keep: a cut that splits a body makes a body of every piece (largest first); the feature may keep some
+    const keep = (doc.features.find((x) => x.id === fid) as { keepBodies?: number[] } | undefined)?.keepBodies;
     hits.forEach((b, k) => {
       const r = results[k];
       if ('shape' in r) {
         if (K!.volume(r.shape) < 1e-9) { bodies.splice(bodies.indexOf(b), 1); return; }
+        const parts = K!.solids(r.shape);
+        if (parts.length > 1) { splitInto(b, parts.map((s) => ({ shape: s, geometry: K!.tessellate(s) })), fid, keep); return; }
         setExact(b, r.shape);
-      } else b.geometry = r.mesh;
+      } else {
+        const parts = meshPieces(r.mesh);
+        if (parts.length > 1) { splitInto(b, parts.map((g) => ({ shape: null, geometry: g })), fid, keep); return; }
+        b.geometry = r.mesh;
+      }
       b.featureIds.push(fid);
       if (isEmpty(b.geometry)) bodies.splice(bodies.indexOf(b), 1);
     });
     return true;
+  };
+  /** the pieces of a split body: the first kept piece stays this body, every other kept piece becomes a body */
+  const splitInto = (b: Body, parts: { shape: BrepShape | null; geometry: THREE.BufferGeometry }[], fid: Id, keep?: number[]) => {
+    splitCounts[fid] = Math.max(splitCounts[fid] ?? 0, parts.length);
+    const kept = parts.filter((_, i) => !keep || !keep.length || keep.includes(i));
+    if (!kept.length) { bodies.splice(bodies.indexOf(b), 1); return; }
+    const [first, ...rest] = kept;
+    if (first.shape) setExact(b, first.shape);
+    else b.geometry = first.geometry;
+    b.featureIds.push(fid);
+    for (const p of rest) {
+      const nb = newBody(p.geometry, fid, p.shape);
+      nb.featureIds = [...b.featureIds];
+    }
   };
   /** all visible bodies as one geometry (ray casts, extents) */
   const allVisible = (): THREE.BufferGeometry | null => {
@@ -1175,6 +1199,8 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
     return v.length === 1 ? v[0].geometry : mergeGeometries(v.map((b) => b.geometry));
   };
   const times: Record<Id, number> = {};
+  /** Bodies to Keep: the number of pieces a cut split a body into */
+  const splitCounts: Record<Id, number> = {};
   const bodyMeta: NonNullable<RebuildResult['bodyMeta']> = {};
   const clock = typeof performance !== 'undefined' ? () => performance.now() : () => Date.now();
   const started = clock();
@@ -2154,6 +2180,34 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
       target.featureIds.push(f.id);
       continue;
     }
+    if (f.type === 'moveBody') {
+      const targets = bodies.filter((b) => f.bodies.includes(b.id));
+      if (!targets.length) {
+        errors[f.id] = 'Select the bodies to move or copy.';
+        continue;
+      }
+      // one step: rotate about X, then Y, then Z through the origin point, then translate
+      const o = new THREE.Vector3(...f.origin);
+      const rot = new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(...(f.rotate.map((a) => (a * Math.PI) / 180) as [number, number, number]), 'XYZ'));
+      const step = new THREE.Matrix4().makeTranslation(...f.translate).multiply(new THREE.Matrix4().makeTranslation(o.x, o.y, o.z)).multiply(rot).multiply(new THREE.Matrix4().makeTranslation(-o.x, -o.y, -o.z));
+      for (const b of targets) {
+        const ex = exactOf(b);
+        if (f.copy) {
+          const m = new THREE.Matrix4();
+          for (let k = 0; k < Math.max(1, Math.min(250, Math.round(f.copies))); k++) {
+            m.premultiply(step);
+            const nb = newBody(b.geometry.clone().applyMatrix4(m), f.id, moved(ex, m));
+            nb.featureIds = [...b.featureIds, f.id];
+          }
+        } else {
+          const sh = moved(ex, step);
+          if (sh) setExact(b, sh);
+          else b.geometry = b.geometry.clone().applyMatrix4(step);
+          b.featureIds.push(f.id);
+        }
+      }
+      continue;
+    }
     if (f.type === 'deleteBody') {
       const before = bodies.length;
       for (const id of f.bodies) {
@@ -2471,11 +2525,12 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
         for (const m of built) {
           // B-rep: the profile prism (true circles for a pipe), cut back on the miter planes
           let memberShape: BrepShape | null = null;
-          if (K && loops) {
+          if (K && loops && m.exact) {
             try {
-              let sh = K.extrudeLoop(m.exact.plane, loops.outer, 0, m.exact.length);
-              for (const h of loops.holes) { const hs = sh && K.extrudeLoop(m.exact.plane, h, -1, m.exact.length + 2); if (sh && hs) sh = K.cut(sh, hs); }
-              for (const c of m.exact.clips) if (sh) sh = K.clipByPlane(sh, c.point, c.normal);
+              const ex = m.exact;
+              let sh = K.extrudeLoop(ex.plane, loops.outer, 0, ex.length);
+              for (const h of loops.holes) { const hs = sh && K.extrudeLoop(ex.plane, h, -1, ex.length + 2); if (sh && hs) sh = K.cut(sh, hs); }
+              for (const c of ex.clips) if (sh) sh = K.clipByPlane(sh, c.point, c.normal);
               memberShape = sh;
             } catch {
               memberShape = null;
@@ -3255,7 +3310,7 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
     curves.push({ id: 'bbox:top', name: 'Bounding Box', points: top, dashed: true, color: '#5a5a5a' });
     for (let i = 0; i < 4; i++) curves.push({ id: `bbox:v${i}`, name: 'Bounding Box', points: [bottom[i], top[i]], dashed: true, color: '#5a5a5a' });
   }
-  return { bodies, errors, consumedSketches, curves, surfaceBodies, extraAppearances, autoHidden, times, bodyMeta, ...(K ? { brep } : {}) };
+  return { bodies, errors, consumedSketches, curves, surfaceBodies, extraAppearances, autoHidden, times, bodyMeta, ...(K ? { brep } : {}), ...(Object.keys(splitCounts).length ? { splitCounts } : {}) };
 }
 
 

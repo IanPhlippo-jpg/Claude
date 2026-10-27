@@ -4,7 +4,7 @@
  */
 import { MAX_PATTERN_INSTANCES } from '../../core/features/pattern';
 import { faceOwner } from '../../core/features/faceOwner';
-import { isRoundFeature, isSketchBased, isSolidFeature, type Document, type ExtrudeFeature, type HoleFeature, type MirrorFeature, type PatternFeature, type RibFeature, type CombineFeature, type FlatPatternFeature, type HelixFeature, type DraftFeature, type IntersectFeature, type SurfaceFeature, type WrapFeature, type ThreadFeature, type RoundFeature, type ShellFeature, type SolidFeature, type SweepFeature, type StructuralMemberFeature, type DeformFeature } from '../../core/document/types';
+import { isRoundFeature, isSketchBased, isSolidFeature, type Document, type ExtrudeFeature, type HoleFeature, type MirrorFeature, type PatternFeature, type RibFeature, type CombineFeature, type FlatPatternFeature, type HelixFeature, type DraftFeature, type IntersectFeature, type SurfaceFeature, type WrapFeature, type ThreadFeature, type RoundFeature, type ShellFeature, type SolidFeature, type SweepFeature, type StructuralMemberFeature, type DeformFeature, type MoveBodyFeature } from '../../core/document/types';
 import { type FaceRef as DxFaceRef } from '../../core/document/autoTolerance';
 import { edgeRef } from '../../core/features/edgesets';
 import { isReferencePlane, planeOnFace } from '../../core/features/planes';
@@ -45,7 +45,7 @@ type FeaturesKeys =
   | 'toggleSuppress' | 'setSelectedFeature' | 'setHoverFace' | 'setSelectedFace' | 'setBodyHidden' | 'startCurveFeature'
   | 'startHelix' | 'startSurface' | 'startIntersect' | 'startDeleteFace' | 'startDraft' | 'startThread'
   | 'startWrap' | 'startDeform' | 'setAppearance' | 'setFaceAppearance' | 'addEquationCurve' | 'updatePatternDraft'
-  | 'startSectionView' | 'updateSectionView' | 'commitSectionView' | 'saveSectionView' | 'cancelSectionView' | 'startCombine'
+  | 'startSectionView' | 'updateSectionView' | 'commitSectionView' | 'saveSectionView' | 'cancelSectionView' | 'startCombine' | 'startMoveBody'
   | 'startRefGeom' | 'cancelRefGeom' | 'commitRefGeom' | 'deleteRefGeom' | 'startPlane' | 'showConfiguration'
   | 'startAddConfiguration' | 'editConfigurationProperties' | 'updateConfigDraft' | 'commitConfiguration' | 'cancelConfiguration' | 'deleteConfiguration'
   | 'setConfigurationDimension' | 'setConfigurationSuppressed' | 'openConfigure' | 'closeConfigure' | 'setDimensionInConfigurations' | 'updatePlaneDraft'
@@ -541,6 +541,8 @@ export const featuresSlice = (set: StoreSet, get: StoreGet): Pick<State, Feature
     const err = rebuild.errors[fe.draft.id];
     if (err) get().pushMessage(`${fe.draft.name}: ${err}`, 'error');
     autosave(d);
+    // Bodies to Keep: the cut split a body (and no choice was made yet): ask which pieces to keep
+    if ((rebuild.splitCounts?.[fe.draft.id] ?? 0) > 1 && !(fe.draft as { keepBodies?: number[] }).keepBodies) set({ dialog: 'bodiesToKeep', dialogFeatureId: fe.draft.id });
     // Keep Visible (the pushpin): the Property Panel opens again for the next one
     if (get().pmPinned && !fe.featureId && isRoundFeature(fe.draft)) get().startRound(fe.draft.type);
   },
@@ -1233,6 +1235,15 @@ export const featuresSlice = (set: StoreSet, get: StoreGet): Pick<State, Feature
       return;
     }
     const draft: CombineFeature = { id: newId('f'), type: 'combine', name: featureName(doc, 'combine'), suppressed: false, op: 'add', bodies: rebuild.bodies.map((b) => b.id) };
+    set({ featureEdit: { featureId: null, draft }, activeSketchId: null, tool: 'select', selection: [], tab: 'features', managerTab: 'tree', planePick: false, selectedFace: null, selectedFaces: [] });
+  },
+  startMoveBody() {
+    const { doc, rebuild } = get();
+    if (!rebuild.bodies.length) {
+      get().pushMessage('Create a solid body first (Extruded Boss/Base).', 'warn');
+      return;
+    }
+    const draft: MoveBodyFeature = { id: newId('f'), type: 'moveBody', name: featureName(doc, 'moveBody'), suppressed: false, bodies: rebuild.bodies.map((b) => b.id), copy: false, copies: 1, translate: [0, 0, 0], rotate: [0, 0, 0], origin: [0, 0, 0] };
     set({ featureEdit: { featureId: null, draft }, activeSketchId: null, tool: 'select', selection: [], tab: 'features', managerTab: 'tree', planePick: false, selectedFace: null, selectedFaces: [] });
   },
   startRefGeom(kind, editId) {

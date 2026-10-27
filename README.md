@@ -44,6 +44,10 @@ Status per fase:
 8. Sheet metal (Base Flange/Tab, Edge Flange, Flatten met K-factor) — **basis gereed**; Hem/Jog/Miter/Unfold gepland
 7. Massa-eigenschappen en meten — **gereed** (Mass Properties, Measure); materialen en rendering gepland
 
+## Status 0.4.3 (2026-10-27)
+
+Move/Copy Bodies (met kopieën, verschuiving en draaiing, live voorbeeld) en Bodies to Keep (een snede die een lichaam splitst geeft aparte bodies, met de keuzedialoog). Een bugjacht over 54 Property Panels vond één vastloper (Structural Member langs een boog), die is opgelost. Zie docs/20-bodies-bugjacht-0.4.3.md.
+
 ## Status 0.4.2 (2026-10-26)
 
 Gemodelleerde schroefdraad langs een echte helix (OpenCascade), en weldment-frames krijgen nu op alle hoeken een verstek. Zie docs/19-brep-schroefdraad-0.4.2.md.

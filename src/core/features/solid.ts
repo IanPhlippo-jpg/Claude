@@ -236,6 +236,68 @@ export function flipWinding(g: THREE.BufferGeometry): void {
 }
 
 /** The connected pieces of a triangle soup (vertices welded by position) that touch the plane n·p = d. */
+/** the separate pieces of a mesh (triangles connected through shared corner points), largest volume first */
+export function meshPieces(g: THREE.BufferGeometry): THREE.BufferGeometry[] {
+  const ng = g.index ? g.toNonIndexed() : g;
+  const a = ng.getAttribute('position');
+  const tri = Math.floor(a.count / 3);
+  const key = (i: number) => `${Math.round(a.getX(i) * 1e3)},${Math.round(a.getY(i) * 1e3)},${Math.round(a.getZ(i) * 1e3)}`;
+  const parent = new Map<string, string>();
+  const find = (k: string): string => {
+    let r = k;
+    while (parent.has(r) && parent.get(r) !== r) r = parent.get(r)!;
+    parent.set(k, r);
+    return r;
+  };
+  const union = (x: string, y: string) => {
+    const rx = find(x), ry = find(y);
+    if (rx !== ry) parent.set(rx, ry);
+  };
+  for (let t = 0; t < tri; t++) {
+    union(key(t * 3), key(t * 3 + 1));
+    union(key(t * 3 + 1), key(t * 3 + 2));
+  }
+  const groups = new Map<string, number[]>();
+  for (let t = 0; t < tri; t++) {
+    const r = find(key(t * 3));
+    (groups.get(r) ?? groups.set(r, []).get(r)!).push(t);
+  }
+  if (groups.size < 2) return [g];
+  // boolean results have T-junctions (a corner on the edge of another triangle): such patches belong to one body.
+  // Patches whose boxes touch are merged; a real split leaves a gap between the pieces.
+  const lists = [...groups.values()];
+  const boxOf = (ts: number[]) => {
+    const b = new THREE.Box3();
+    const v = new THREE.Vector3();
+    for (const t of ts) for (let k = 0; k < 3; k++) b.expandByPoint(v.fromBufferAttribute(a, t * 3 + k));
+    return b.expandByScalar(1e-3);
+  };
+  let merged = true;
+  const items = lists.map((ts) => ({ ts, box: boxOf(ts) }));
+  while (merged && items.length > 1) {
+    merged = false;
+    outer: for (let i = 0; i < items.length; i++) for (let j = i + 1; j < items.length; j++) {
+      if (items[i].box.intersectsBox(items[j].box)) {
+        items[i] = { ts: [...items[i].ts, ...items[j].ts], box: items[i].box.clone().union(items[j].box) };
+        items.splice(j, 1);
+        merged = true;
+        break outer;
+      }
+    }
+  }
+  if (items.length < 2) return [g];
+  const out = items.map((x) => x.ts).map((ts) => {
+    const pos = new Float32Array(ts.length * 9);
+    ts.forEach((t, i) => { for (let k = 0; k < 3; k++) { pos[i * 9 + k * 3] = a.getX(t * 3 + k); pos[i * 9 + k * 3 + 1] = a.getY(t * 3 + k); pos[i * 9 + k * 3 + 2] = a.getZ(t * 3 + k); } });
+    const p = new THREE.BufferGeometry();
+    p.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    p.computeVertexNormals();
+    return p;
+  });
+  // slivers of a boolean (no volume) are not pieces of their own
+  return out.map((p) => ({ p, v: Math.abs(meshVolume(p)) })).filter((x) => x.v > 1e-6).sort((x, y) => y.v - x.v).map((x) => x.p);
+}
+
 export function piecesTouchingPlane(g: THREE.BufferGeometry, n: THREE.Vector3, d: number, tol: number = TOL.plane): THREE.BufferGeometry {
   const ng = g.index ? g.toNonIndexed() : g;
   const a = ng.getAttribute('position');

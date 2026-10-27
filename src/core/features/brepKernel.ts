@@ -47,6 +47,8 @@ export interface BrepKernel {
    * `length`; the profile (world points at the start) keeps lying in a plane through the axis
    */
   helixSweep(center: [number, number, number], axis: [number, number, number], xdir: [number, number, number], radius: number, lead: number, length: number, sign: number, startAngle: number, profile: [number, number, number][]): BrepShape | null;
+  /** the separate solids of a shape, largest volume first */
+  solids(shape: BrepShape): BrepShape[];
   fuse(a: BrepShape, b: BrepShape): BrepShape;
   cut(a: BrepShape, b: BrepShape): BrepShape;
   /** what the two solids have in common */

@@ -2058,6 +2058,47 @@ export function PropertyPanelBody({ editDimensionId, onEditDone }: { editDimensi
     );
   }
 
+  if (st.featureEdit && st.featureEdit.draft.type === 'moveBody') {
+    const d = st.featureEdit.draft;
+    const err = st.rebuild.errors[d.id];
+    const bodyName = (id: string) => { const b = st.rebuild.bodies.find((x) => x.id === id); return b ? st.doc.features.find((f) => f.id === b.featureIds[b.featureIds.length - 1])?.name ?? id : id; };
+    const bodies = st.featureEdit.featureId ? rebuildDocument(st.doc, st.doc.features.findIndex((f) => f.id === st.featureEdit!.featureId)).bodies : st.rebuild.bodies;
+    const vec = (key: 'translate' | 'rotate' | 'origin', labels: [string, string, string], unit: string) => labels.map((label, i) => (
+      <div key={label} className="k-pm-valuerow" data-testid={`move-${key}-${i}`}>
+        <span className="k-muted" style={{ minWidth: 28 }}>{label}</span>
+        <NumberField value={d[key][i]} unit={unit} onChange={(v) => { const next = [...d[key]] as [number, number, number]; next[i] = v; st.updateFeatureDraft({ [key]: next } as never); }} />
+      </div>
+    ));
+    return (
+      <>
+        <Header title={d.name} icon={<Icon.MoveComponent />} onOk={st.commitFeature} onCancel={st.cancelFeature} />
+        <Section title="Bodies to Move/Copy">
+          <div className="k-selbox" style={{ minHeight: 28 }}>
+            {bodies.map((b) => (
+              <label key={b.id} className="k-check">
+                <input type="checkbox" checked={d.bodies.includes(b.id)} onChange={(e) => st.updateFeatureDraft({ bodies: e.target.checked ? [...d.bodies, b.id] : d.bodies.filter((x) => x !== b.id) })} /> {bodyName(b.id)}
+              </label>
+            ))}
+          </div>
+          <label className="k-check" style={{ marginTop: 6 }}><input type="checkbox" data-testid="move-copy" checked={d.copy} onChange={(e) => st.updateFeatureDraft({ copy: e.target.checked })} /> Copy</label>
+          {d.copy && <div className="k-pm-valuerow" data-testid="move-copies"><span className="k-muted" style={{ minWidth: 28 }}>#</span><NumberField value={d.copies} step={1} min={1} onChange={(v) => st.updateFeatureDraft({ copies: Math.max(1, Math.min(250, Math.round(v))) })} /></div>}
+        </Section>
+        <Section title="Translate">{vec('translate', ['ΔX', 'ΔY', 'ΔZ'], 'mm')}</Section>
+        <Section title="Rotate">
+          <div className="k-pm-label">Rotation origin</div>
+          {vec('origin', ['X', 'Y', 'Z'], 'mm')}
+          <div className="k-pm-label">Angles</div>
+          {vec('rotate', ['X', 'Y', 'Z'], '°')}
+        </Section>
+        {err && (
+          <Section title="Rebuild Errors">
+            <p className="k-pm-message" style={{ background: '#ffe3e3', borderColor: '#e0a0a0' }}>{err}</p>
+          </Section>
+        )}
+      </>
+    );
+  }
+
   if (st.featureEdit && st.featureEdit.draft.type === 'combine') {
     const d = st.featureEdit.draft;
     const err = st.rebuild.errors[d.id];

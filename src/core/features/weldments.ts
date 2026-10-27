@@ -1,3 +1,4 @@
+import { sweepGeometry } from './sweep';
 import * as THREE from 'three';
 import type { PlaneDef } from '../document/types';
 import type { SketchPoint } from '../sketch/types';
@@ -181,8 +182,8 @@ export function memberPlane(a: THREE.Vector3, b: THREE.Vector3, id = 'member'): 
 
 export interface MemberBuild {
   geometry: THREE.BufferGeometry;
-  /** the member for the B-rep kernel: its plane and length, and the half-spaces cut away at mitered corners */
-  exact: { plane: PlaneDef; length: number; clips: { point: V3; normal: V3 }[] };
+  /** the member for the B-rep kernel: its plane and length, and the half-spaces cut away at mitered corners (absent: a curved member) */
+  exact?: { plane: PlaneDef; length: number; clips: { point: V3; normal: V3 }[] };
   length: number;
   /** the miter angles at the two ends (degrees, 0 = square cut) */
   angle1: number;
@@ -194,11 +195,39 @@ export interface MemberBuild {
  * Structural members along the segments: each straight segment becomes a body. Where two segments of one chain meet,
  * the corner treatment applies: End Miter cuts both on the bisector plane, End Butt extends one member over the other.
  */
-export function structuralMembers(region: Region, segments: MemberSegment[], corner: CornerTreatment, gap = 0, mergeArcs = false): MemberBuild[] {
+export function structuralMembers(region: Region, segments0: MemberSegment[], corner: CornerTreatment, gap = 0, mergeArcs = false): MemberBuild[] {
   void mergeArcs;
   const half = Math.max(...region.outer.map((p) => Math.hypot(p.x, p.y))) + 1;
   const out: MemberBuild[] = [];
+  // an arc or a spline in the path comes as many short segments that turn a little each: such a run is one curved
+  // member (the profile swept along it), as the intended design builds a member along an arc
+  const dirOf = (s: MemberSegment) => s.b.clone().sub(s.a).normalize();
+  const curvedRuns: MemberSegment[][] = [];
+  const inCurve = new Set<MemberSegment>();
+  for (const g of [...new Set(segments0.map((s) => s.group))]) {
+    const chain = segments0.filter((s) => s.group === g).sort((x, y) => x.index - y.index);
+    let run: MemberSegment[] = [chain[0]];
+    const flush = () => {
+      if (run.length >= 3) { curvedRuns.push(run); run.forEach((x) => inCurve.add(x)); }
+    };
+    for (let i = 1; i < chain.length; i++) {
+      const p = chain[i - 1], c = chain[i];
+      const turn = Math.acos(Math.max(-1, Math.min(1, dirOf(p).dot(dirOf(c))))) * (180 / Math.PI);
+      if (p.b.distanceTo(c.a) < TOL.point && turn > 1e-3 && turn < 20) run.push(c);
+      else { flush(); run = [c]; }
+    }
+    flush();
+  }
+  for (const run of curvedRuns) {
+    const path = [run[0].a.clone(), ...run.map((x) => x.b.clone())];
+    const g = sweepGeometry([region], memberPlane(path[0], path[1]), path);
+    if (!g) continue;
+    const length = run.reduce((a, x) => a + x.a.distanceTo(x.b), 0);
+    out.push({ geometry: g, length, angle1: 0, angle2: 0, segment: run[0] });
+  }
+  const segments = segments0;
   for (const seg of segments) {
+    if (inCurve.has(seg)) continue;
     // a closed path (its last point is its first): the first and the last member meet at a corner too
     const group = segments.filter((s) => s.group === seg.group);
     const first = group.reduce((x, y) => (y.index < x.index ? y : x)), last = group.reduce((x, y) => (y.index > x.index ? y : x));

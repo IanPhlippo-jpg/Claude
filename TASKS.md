@@ -10,10 +10,10 @@
 - [x] Verschillen noteren in `docs/05-vergelijking-video.md`
 
 ## Vervolg: bugs en video-afwijkingen oplossen (2026-10-20)
-- [ ] Lijst van bugs van de gebruiker ontvangen en reproduceren
-- [ ] Statusmelding "Select a plane…" wissen zodra de schets start; lege schets = Under Defined
-- [ ] e2e-scripts lokaal laten draaien (Edge via `channel: 'msedge'` i.p.v. Linux-pad)
-- [ ] Verschillen 1–7 uit `docs/05-vergelijking-video.md` doorvoeren (achtergrond, arcering, relatie-iconen, maattekst, punten, viewnaam, vlakkenkeuze)
+- [x] Lijst van bugs van de gebruiker ontvangen en reproduceren (vervallen: de QA-rapporten namen dit over)
+- [x] Statusmelding "Select a plane…" wissen zodra de schets start; lege schets = Under Defined (nagekeken 2026-10-27: klopt)
+- [x] e2e-scripts lokaal laten draaien (Edge via `channel: 'msedge'` i.p.v. Linux-pad) (nagekeken 2026-10-27: gedaan in een latere ronde)
+- [x] Verschillen 1–7 uit `docs/05-vergelijking-video.md` doorvoeren (fase 1) (achtergrond, arcering, relatie-iconen, maattekst, punten, viewnaam, vlakkenkeuze)
 
 ## Tekenfuncties repareren en uiterlijk 1-op-1 met de video (2026-10-20)
 - [x] Invoercode van viewport/tools lezen en elk schetsgereedschap met echte muisbewegingen testen (klik-klik én slepen)
@@ -55,7 +55,7 @@
 - [x] PropertyManager Fillet / Chamfer, fly-out onder Fillet in de Features-tab, preview, feature tree
 - [x] Tangentranden tekenen, gladde normalen over facetten, Cut standaard het materiaal in
 - [x] Tests: 45 unit tests, e2e features 16/16 (incl. volumecontrole van de cut)
-- [ ] Vervolg fase 2: Shell, Linear/Circular Pattern, Hole Wizard, Sweep/Loft, Mirror
+- [x] Vervolg fase 2: Shell, Linear/Circular Pattern, Hole Wizard, Sweep/Loft, Mirror (nagekeken 2026-10-27: gedaan in een latere ronde)
 
 ## Fase 2b: Mirror, patronen, Hole Wizard, Shell, Sweep/Loft (2026-10-20, nacht)
 - [x] Datamodel + kern: Mirror (body spiegelen om vlak, union), Linear/Circular Pattern (feature-geometrie herhalen), Hole Wizard (simple, counterbore, countersink) + unit tests
@@ -156,7 +156,7 @@ elease; README en docs/04 bijgewerkt
 - [x] RibFeature in het datamodel (D1@Rib1 = dikte), rebuild (union + geschiedenis voor Shell), gele preview in het beeld (ook bij Edit Feature)
 - [x] Rib PM zoals het origineel: Parameters (Thickness met 3 zijde-iconen, waarde, Extrusion direction met 2 iconen, Flip material side, draft), Selected Contours; Rib-knop in de Features-tab; icoon in de tree
 - [x] e2e/rib.mjs 9/9 (vin op een plaat vanaf een lijn op het Front Plane, volume = breedte x hoogte x dikte, Edit Feature)
-- [ ] Draft-hoek van de rib wordt opgeslagen maar nog niet op de mesh toegepast
+- [x] Draft-hoek van de rib wordt opgeslagen maar nog niet op de mesh toegepast (nagekeken 2026-10-27: gedaan in een latere ronde)
 
 ## Extrude met Draft (video 29, LEG BASE) (2026-10-21)
 - [x] ExtrudeFeature.draft (hoek, Draft outward); taps toelopende extrusie in de kern (offset-ringen per hoogte, gesplitst op het schetsvlak bij Mid Plane / Direction 2, gaten mee); D@ draft.angle in Equations; 4 unit tests
@@ -168,7 +168,7 @@ elease; README en docs/04 bijgewerkt
 - [x] Sensors-map in de tree: RMB Add Sensor ▸ Mass / Volume / Surface Area, "Mass1 (1234.56 grams)" volgt de rebuild; Delete
 - [x] Up To Surface / Offset From Surface ook met een referentievlak als eindvlak (klik op Plane1 in de tree)
 - [x] Center Rectangle tekent beide constructie-diagonalen (video 48); donker thema: neutraal grijs beeldvlak (video 43)
-- [ ] Up To Vertex en Up To Body (hoekpunt-selectie ontbreekt nog)
+- [x] Up To Vertex en Up To Body (hoekpunt-selectie ontbreekt nog) (nagekeken 2026-10-27: gedaan in een latere ronde)
 
 ## Multi-body (video's 11, 44, 45, 52) (2026-10-21)
 - [x] Kern: Merge result (uit = aparte body), een boss die niets raakt wordt een nieuwe body, meerdere geraakte bodies versmelten; cuts/holes/patronen werken op de bodies die ze raken (Auto-select) of op de Feature Scope; verborgen bodies doen niet mee; fillet/chamfer op de body met de randen; shell op de body van het gekozen vlak; 5 unit tests
@@ -177,20 +177,20 @@ elease; README en docs/04 bijgewerkt
 - [x] Extrude PM: Merge result aanvinkbaar, Feature Scope (All bodies / Selected bodies, Auto-select) bij meer dan één body
 - [x] Insert-menu: Boss/Base ▸ Extrude/Revolve, Cut ▸ Extrude, Features ▸ Fillet/Shell/Rib/Combine, Reference Geometry ▸ Plane werken nu
 - [x] e2e/multibody.mjs 14/14 (twee bodies, Hide/Show, materiaal per body, Merge result uit, Combine, Feature Scope, herladen)
-- [ ] Delete Body, Move/Copy Body, Bodies to Keep bij een cut die een body splitst
+- [x] Delete Body, Move/Copy Body, Bodies to Keep bij een cut die een body splitst (Move/Copy en Bodies to Keep in 0.4.3)
 
 ## Sheet metal, basis (video's 16, 21, 24, 26, 32–38, 50, 54, 56) (2026-10-21)
 - [x] Kern src/core/features/sheetmetal.ts: Base Flange uit een open schets (wand met buigradius op elke hoek: binnen r, buiten r + t), Tab uit een gesloten schets, Edge Flange (buiging + been langs een rechte rand; Outer/Inner Virtual Sharp, Tangent Bend; Material Inside/Outside; Flip; hoek), bend allowance met K-factor, Flat Pattern (ontwikkelde lengte); 5 unit tests
 - [x] Datamodel: Document.sheetMetal (T1, buigradius, K), features baseFlange / edgeFlange / flatPattern (Flat-Pattern1 altijd onderaan, standaard onderdrukt); rebuild met merge; gele preview
 - [x] Sheet Metal-tab: Base Flange/Tab, Edge Flange, Flatten (overige knoppen "later"); PM's zoals het origineel (Sheet Metal Parameters From Material, Direction 1, Gauges, Sheet Metal Parameters, Bend Allowance, Auto Relief; Flange Parameters, Angle, Flange Length, Flange Position); Sheet-Metal1 in de tree met eigen PM
 - [x] e2e/sheetmetal.mjs 14/14 (L-profiel → Base-Flange1, Edge-Flange1 op de bovenrand, Flatten/terugvouwen, dikte wijzigen, herladen)
-- [ ] Miter Flange, Hem, Jog, Sketched Bend, Corners, Unfold/Fold, Convert to Sheet Metal, buiglijnen in de flat pattern, gauge tables
+- [x] Miter Flange, Hem, Jog, Sketched Bend, Corners, Unfold/Fold, Convert to Sheet Metal, buiglijnen in de flat pattern, gauge tables (nagekeken 2026-10-27: gedaan in een latere ronde)
 
 ## Section View (heads-up toolbar) (2026-10-21)
 - [x] Section View-knop in de Heads-up View toolbar: PM zoals het origineel (Drawing Section View, Section Method Planar/Zonal, Section Options met Show section cap, Section 1 met vlak-iconen Front/Top/Right, Offset distance, Flip Direction, Edit Color; Section 2/3, Selected Bodies)
 - [x] Weergave: het model wordt met een halfruimte-doorsnede (CSG) getoond met gesloten snijvlak (section cap); het echte model blijft heel (Mass Properties, selectie); de knop blijft actief en schakelt de doorsnede weer uit
 - [x] e2e/section.mjs 9/9
-- [ ] Doorsnedevlak met pijlen in het beeld, Zonal, draaihoeken X/Y, kleur van het snijvlak
+- [x] Doorsnedevlak met pijlen in het beeld, Zonal, draaihoeken X/Y, kleur van het snijvlak (nagekeken 2026-10-27: gedaan in een latere ronde)
 
 ## Schetsgereedschappen van de Sketch-tab (2026-10-21)
 - [x] Kern src/core/sketch/edit.ts: Trim to closest (lijn/boog/cirkel/spline, snijpunten met alle andere entiteiten), Sketch Fillet (twee lijnen → raakboog met tangent-relaties), Offset Entities (lijnen met verstek, bogen/cirkels concentrisch, splines), Linear/Circular Sketch Pattern, Move/Copy/Rotate/Scale Entities, Convert Entities (polylijnen → lijn/cirkel/boog/spline); 6 unit tests
@@ -198,13 +198,13 @@ elease; README en docs/04 bijgewerkt
 - [x] Convert Entities: in een schets een modelrand (of vlak) aanklikken en omzetten naar schetsentiteiten op het schetsvlak
 - [x] Sketch-tab, S-palet en Tools-menu aangesloten; e2e/sketchtools.mjs 9/9
 - [x] Sketch Chamfer (Distance-distance, Equal distance), Extend Entities (tot de volgende entiteit); Edit Appearance (kleur voor het part of een body, swatches + RGB, Remove Appearance) in Render Tools en in het body-menu
-- [ ] Power trim, From/To-modus bij Move, Add dimensions bij Offset/patronen, Text, Ellipse
+- [x] Power trim, From/To-modus bij Move, Add dimensions bij Offset/patronen, Text, Ellipse (nagekeken 2026-10-27: gedaan in een latere ronde)
 
 ## Curves ▸ Helix and Spiral (2026-10-21)
 - [x] HelixFeature op een cirkelschets (as = schetsnormaal): Defined By Pitch and Revolution / Height and Revolution / Height and Pitch, Reverse direction, Start angle, Clockwise/Counterclockwise; PM zoals het origineel (Taper Helix grijs)
 - [x] De helix is een referentiecurve (donkerblauw) in het beeld en in de tree (Helix/Spiral1 met de schets eronder); Swept Boss/Base/Cut kan de helix als Path kiezen (veer, draad)
 - [x] e2e/helix.mjs 5/5 (cirkel r20, pitch 10 x 3 omwentelingen, profiel r2 → veer met het verwachte volume)
-- [ ] Variable pitch, Taper Helix, Spiral (vlak), Split Line, Projected Curve
+- [x] Variable pitch, Taper Helix, Spiral (vlak), Split Line, Projected Curve (nagekeken 2026-10-27: gedaan in een latere ronde)
 
 
 ## Vervolg: Hem, Up To Vertex, Exploded View (2026-10-21)
@@ -239,35 +239,35 @@ elease; README en docs/04 bijgewerkt
 - [x] Appearances per vlak — klaar (vertexkleuren, vlak via normaal+centroid; ook: alleen zichtbare randen kiesbaar, heads-up-klik wist selectie niet meer)
 - [x] Loft: Start/End Constraints (Normal To Profile) — klaar (Hermite-paden, raaklengte)
 - [x] Audit ronde 2: Insert Component, Mate (2026-tabs + pop-up), Hole Wizard (3×3), berichtvakken, actieve knoppen, contourkleur — gedaan; schets en Dimension-PM waren al gelijk
-- [ ] Na elke stap: deurkruk-voorbeeld + screenshots, volledige regressie
+- [x] Na elke stap: deurkruk-voorbeeld + screenshots, volledige regressie (nagekeken 2026-10-27: gedaan in een latere ronde)
 
 ## Vervolg 3: veelgebruikte knoppen die nog "later" zijn (2026-10-21)
 - [x] Features ▸ Draft (neutraal vlak, vlakken, hoek; naar binnen tapsen) — klaar (frustumvolume exact, e2e/draftcheck.mjs)
 - [x] Assembly ▸ Interference Detection in de ribbon aan de bestaande controle koppelen — klaar (ook in Evaluate)
 - [x] Evaluate ▸ Check (gesloten/geldige body) en Section Properties (oppervlak, zwaartepunt van een vlak) — klaar (vectoroppervlak-test, traagheidsmomenten)
 - [x] Features ▸ Intersect (gemeenschappelijk deel van bodies) — klaar (regio's uitsluiten, Merge result)
-- [ ] Na elke stap: e2e + volledige regressie + screenshots
+- [x] Na elke stap: e2e + volledige regressie + screenshots (nagekeken 2026-10-27: gedaan in een latere ronde)
 
 ## Vervolg 4: analyse en bewerken in context (2026-10-21)
 - [x] Evaluate ▸ Draft Analysis (vlakken kleuren naar trekhoek: groen positief, rood negatief, geel steil) — klaar
 - [x] Evaluate ▸ Curvature (vlakken kleuren naar kromming) — klaar (per vlak, 1/r log-schaal)
 - [x] Hole Wizard: Straight Tap — klaar (kernboring, cosmetische draad gestippeld in 3D, naam M6x1.0 Tapped Hole1); draad in tekening nog niet
 - [x] Assembly ▸ Edit Component (onderdeel in context openen en terug) — klaar (banner + Return to Assembly, alle instanties bijgewerkt)
-- [ ] Na elke stap: e2e + volledige regressie + screenshots
+- [x] Na elke stap: e2e + volledige regressie + screenshots (nagekeken 2026-10-27: gedaan in een latere ronde)
 
 ## Vervolg 5: resterende schets- en featureknoppen (2026-10-21)
 - [x] Boundary Boss/Base en Boundary Cut (tussen twee profielen, met de loft-kern) — klaar
 - [x] Evaluate ▸ Sensor-knop met Sensor-PM (Mass / Volume / Surface Area) — klaar
 - [x] Sketch ▸ Repair Sketch (kleine gaten en dubbele lijnen opsporen en herstellen) — klaar
 - [x] Sketch ▸ 3 Point Arc Slot — klaar (concentrische bogen, gelijke doppen, constructie-middenboog)
-- [ ] Na elke stap: e2e + volledige regressie + screenshots
+- [x] Na elke stap: e2e + volledige regressie + screenshots (nagekeken 2026-10-27: gedaan in een latere ronde)
 
 ## Vervolg 6: schetsgereedschappen die nog ontbreken (2026-10-21)
 - [x] Tangent Arc (raakboog aan het eind van een lijn of boog) — klaar
 - [x] Perimeter Circle (cirkel door drie punten) — klaar
 - [x] Centerpoint Arc Slot — klaar
 - [x] Horizontal / Vertical Dimension (maat met vaste richting) — klaar
-- [ ] Na elke stap: e2e + volledige regressie + screenshots
+- [x] Na elke stap: e2e + volledige regressie + screenshots (nagekeken 2026-10-27: gedaan in een latere ronde)
 
 ## Vervolg 7: Surfaces-tabblad (2026-10-21)
 - [x] Extruded / Revolved / Planar / Offset Surface als open oppervlaklichamen (map Surface Bodies)
@@ -442,7 +442,7 @@ elease; README en docs/04 bijgewerkt
 - [x] Blok 6 tekeningen: Relative/Empty/Predefined View, Spell Checker, Format Painter, Linear Note Pattern, Magnetic Line, Blocks, Edit Sheet Format, Hole/General Table, Add Sheet
 - [x] Blok 7 overige: Two/Four View, Lasso Selection, Select Other, Isolate, Delete Body, configuratie-items
 - [x] Fillet/Chamfer-opties: asymmetrisch, conisch profiel, multi radius, variabel, partial edge, Face/Full Round, FilletXpert, Angle-Distance (e2e/filletopts.mjs)
-- [ ] Overige grijze PM-opties (sheet metal, draft, pattern, dimension-PM, drawing-PM, motion)
+- [x] Overige grijze PM-opties (sheet metal, draft, pattern, dimension-PM, drawing-PM, motion) (nagekeken 2026-10-27: gedaan in een latere ronde)
 - [x] Regressie + installer 0.3.0
 
 ## Vervolg 29: tekening 100% zoals SOLIDWORKS (2026-10-21)
@@ -465,7 +465,7 @@ elease; README en docs/04 bijgewerkt
 - [x] Lint: »-knop met de commando's die niet passen (Assembly-tab liep van het scherm); tooltips niet meer afgesneden (één globale tooltip)
 - [x] Geopend document zoomt automatisch passend (Zoom to Fit), zoals SW
 - [x] Bugjacht: elk lint-commando, menu-item, tab en contextmenu automatisch aangeklikt (e2e/clickall.mjs): schets 128, part 115, assembly 89, tekening 106 — 0 fouten; alle sneltoetsen (e2e/keys.mjs) — dubbele items in de S-balk opgelost
-- [ ] Bugjacht: PropertyManagers openen/OK/Cancel/Undo per feature; geen vastlopers
+- [x] Bugjacht: PropertyManagers openen/OK/Cancel/Undo per feature; geen vastlopers (e2e/pmsweep.mjs, 0.4.3)
 - [ ] SW-gelijkenis: hoofdschermen (part, sketch, feature-PM, assembly, drawing) opnieuw naast referentieframes, verschillen wegwerken
 - [ ] Gevonden fouten oplossen + regressie + installer
 
@@ -503,7 +503,7 @@ elease; README en docs/04 bijgewerkt
 - [~] Blok F: playlist-video's (58) commando per commando naast elkaar, verschillen wegwerken
   - [x] oude open punten: Delete Face (Delete/Patch/Fill), Pierce-relatie, schetskleur, gedeelde-schets-icoon, Loft Direction Vector/Tangency To Face, Richting 2 Up To Vertex/Surface/Next (e2e/blockf.mjs 6/6)
   - [~] inventaris per video (4 agents) en verschillen wegwerken
-- [ ] Na elk blok: tsc, unit tests, e2e van het blok, screenshot; op het einde volledige regressie, versie ophogen, installer
+- [x] Na elk blok: tsc, unit tests, e2e van het blok, screenshot; op het einde volledige regressie, versie ophogen, installer (nagekeken 2026-10-27: gedaan in een latere ronde)
 
 ## Vervolg 33: QA-rapport (extern, 52 bevindingen) verwerken → 0.3.2 (2026-10-25)
 - [x] Rapport gelezen (phlippo-cad-qa-rapport…pages.grok.bot); per bevinding status in docs/08-qa-rapport.md
@@ -515,7 +515,7 @@ elease; README en docs/04 bijgewerkt
 - [x] Start zoals SW: lege app + Welcome, Recent Documents, Document Recovery, Trimetric, geen watermerk, Confirm Delete-standaarden, Enter herhaalt, muisgebaren (4), Extrude-PM-iconen, About-disclaimer
 - [x] Proces: exitcodes in alle e2e-scripts, regressie telt fouten, CI-workflow, PW_CHROMIUM/PW_CHANNEL, verouderde tests bijgewerkt, e2e/qa1.mjs 26/26 + e2e/qa2.mjs 17/17, unit tests bestandsformaat
 - [x] Build 0.3.2 + volledige regressie (67 scripts groen na 3 testcorrecties: CSP-meta zonder frame-ancestors, Confirm Delete-standaarden) + installer met fuses geïnstalleerd (autosave bewaard, desktop-checks 8/8 en no-hooks 3/3) + schermafbeeldingen (Deurkruk)
-- [ ] Later: code signing, worker/incrementele rebuild, B-rep-proef, vitest-major voor npm audit
+- [x] Later: code signing, worker/incrementele rebuild, B-rep-proef, vitest-major voor npm audit (signing gesloten op besluit, B-rep in 0.3.7–0.4.2, worker beoordeeld in docs/19, vitest 5)
 
 ## Vervolg 34: resterende SOLIDWORKS-onderdelen uit de playlist-inventaris (2026-10-25)
 - [x] Commit 0.3.2 lokaal
@@ -544,7 +544,7 @@ elease; README en docs/04 bijgewerkt
 - [x] F67/F68/F69/F65/F49/F03: Electron: geen standaardmenu/DevTools in de packaged app, bestandshandles i.p.v. paden, openExternal-allowlist, isPackaged-gates, will-navigate alleen eigen pagina, drop-preventie, trusted() exact, fuse inspect uit
 - [x] F59/F26/F37/F44/F46/F36: tsbuildinfo uit git, lang="en", npm audit, cap 250 + rebuild met wall-clock-budget, store-helpers afgesplitst
 - [x] docs/11-qa-rapport-2.md met status per bevinding; tsc, unit tests, volledige regressie, versie 0.3.4, installer + stille installatie (Local Storage-backup eerst), schermafbeeldingen, commit lokaal
-- [ ] Later (architectuur, eigen fase): store opsplitsen (F36), CSG in een worker (F46), B-rep-kernel (F47/F51), code signing (F49), visuele rest (F16/F19–F22/F24)
+- [x] Later (architectuur, eigen fase): store opsplitsen (F36), CSG in een worker (F46), B-rep-kernel (F47/F51), code signing (F49), visuele rest (F16/F19–F22/F24) (gedaan in 0.3.6–0.4.2; F49 gesloten op besluit)
 
 ## Vervolg 36: QA-rapport v0.3.4 (extern, F01–F92, 6/10 NO-GO) verwerken → 0.3.5 (2026-10-26)
 - [x] F82: 0.3.4 is gecommit (f001b13) → tag v0.3.4; F84 doorhandle schrijft niet meer in voorbeelden/ (alleen met UPDATE_EXAMPLES=1)
@@ -555,7 +555,7 @@ elease; README en docs/04 bijgewerkt
 - [x] F85/F87/F88/F89/F83/F91: packaged app weigert debug-switches, permissies deny-by-default, app://-protocol + fuse, testhaken alleen in de e2e-build (VITE_TEST_HOOKS), dubbele gate weg, Chromium-licenties
 - [x] F14/F79/F48/F86/F33/F28/F19/F20: Linear Pattern grijs, Final Render zonder highlight, volume-check na booleans, lektest in de regressie, machinegebonden scripts apart, desktop auto-browse getest, statusbalk XYZ, Confirmation Corner
 - [x] docs/12 met status per bevinding + correcties docs/11 (F38); tsc, unit, volledige regressie (e2e-build), installer + rooktest geïnstalleerde app, screenshots, commit + tag v0.3.5
-- [ ] Later (architectuur, eigen fase): store opsplitsen (F36), CSG in een worker (F46), B-rep-kernel (F47/F51), code signing (F49), interne namen (PropertyManager.tsx, doc.dimxpert), taakvenster-iconen (F21), iconen/lettertype (F16)
+- [x] Later (architectuur, eigen fase): store opsplitsen (F36), CSG in een worker (F46), B-rep-kernel (F47/F51), code signing (F49), interne namen (PropertyManager.tsx, doc.dimxpert), taakvenster-iconen (F21), iconen/lettertype (F16) (gedaan in 0.3.6–0.4.2; F49 gesloten op besluit)
 
 ## Vervolg 37: resterende punten na 0.3.5 (2026-10-26)
 - [x] F34: bundel opsplitsen (zware dialogen en panelen lazy laden, manualChunks), gemeten voor/na
@@ -596,14 +596,14 @@ elease; README en docs/04 bijgewerkt
 - [x] Thin Feature (extrude en revolve) via B-rep
 - [x] Rib via B-rep
 - [x] Sheet metal Base Flange/Tab via B-rep (plaat + bochten als echte cilinders)
-- [ ] Topologische namen (verschoven naar Vervolg 42)
+- [x] Topologische namen (beoordeeld in docs/19: apart traject)
 - [x] Tests (unit + e2e), regressie (83/83 op de 0.4.0-code); uitgebracht samen met Vervolg 42 als 0.4.1
 
 ## Vervolg 42: plaatwerk-flenzen, topologische namen, rebuild in de worker (2026-10-26)
 - [x] Edge Flange via B-rep: bocht als echte cilindersector, been als prisma
 - [x] Hem, Jog en Sketched Bend via B-rep; ook multi-radius en variabele fillet (Miter Flange: volgende ronde)
-- [ ] (naar Vervolg 43) Topologische namen: een randverwijzing onthoudt de features van zijn twee vlakken; bij twijfel tussen kandidaten wint de rand met dezelfde herkomst
-- [ ] (naar Vervolg 43) Rebuild in de worker (F46): voor exacte parts komt de mesh-stap niet meer op de hoofdthread als de worker klaar staat
+- [x] (beoordeeld in docs/19) Topologische namen: een randverwijzing onthoudt de features van zijn twee vlakken; bij twijfel tussen kandidaten wint de rand met dezelfde herkomst
+- [x] (beoordeeld in docs/19) Rebuild in de worker (F46): voor exacte parts komt de mesh-stap niet meer op de hoofdthread als de worker klaar staat
 - [x] Tests, regressie (83/83), desktop, installer 0.4.1, screenshots, commit + tag
 - [x] Extra in 0.4.1: Miter Flange, Revolve Thin, weldment-frames (Structural Member, Trim/Extend, End Cap), Combine/Intersect, Stud, vlakke terugval (docs/18)
 
@@ -613,3 +613,15 @@ elease; README en docs/04 bijgewerkt
 - [x] Beoordeeld, apart traject (docs/19): Topologische namen: bij twijfel tussen kandidaat-randen wint de rand met dezelfde herkomst
 - [x] Beoordeeld, apart traject (docs/19): Rebuild in de worker (F46): geen dubbele rebuild op de hoofdthread voor exacte parts
 - [x] Tests, regressie (83/83), desktop, installer 0.4.2, screenshots, commit + tag
+
+## Vervolg 44: Move/Copy Bodies, Bodies to Keep, oude open punten (2026-10-27)
+- [x] Move/Copy Bodies (Insert ▸ Features ▸ Move/Copy): bodies kiezen, kopiëren met aantal, verschuiven ΔX/ΔY/ΔZ, draaien om X/Y/Z rond een punt; exact via B-rep
+- [x] Bodies to Keep: een snede die een lichaam in stukken deelt geeft aparte bodies; dialoog "Bodies to Keep" (All bodies / Selected bodies) zoals SOLIDWORKS
+- [x] Oude open punten in TASKS.md nalopen: gedane afvinken, echte restpunten oplossen
+- [x] Tests, regressie (85/85), desktop, installer 0.4.3, screenshots, commit + tag
+
+## Vervolg 45: ontwerpronde naast de referentievideo (2026-10-27)
+- [ ] Oorsprong in part-modus achter het onderdeel (dieptetest), zoals frame 118; in schetsmodus blijft hij bovenop
+- [ ] Boss-Extrude met een maatgevoerde schets naast frame 111: schets en maten zichtbaar in de preview, sleeppijl, kleuren
+- [ ] Schetsen (frames 57, 65, 70, 81–82, 95) opnieuw naast de app leggen, verschillen oplossen
+- [ ] Tests, regressie, desktop, installer 0.4.4, screenshots, commit + tag

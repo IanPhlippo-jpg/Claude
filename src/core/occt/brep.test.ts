@@ -641,6 +641,80 @@ describe('B-rep kernel in the rebuild (OpenCascade)', () => {
     }
   }, 120000);
 
+  it('Move/Copy Bodies: three copies 100 mm apart and a 90° turn, exact and in the right place', () => {
+    for (const kernelOn of [false, true]) {
+      setBrepKernel(kernelOn ? kernel : null);
+      const doc = plateWithHole();
+      doc.features.push({ id: 'mc', type: 'moveBody', name: 'Body-Move/Copy1', suppressed: false, bodies: ['body1'], copy: true, copies: 3, translate: [100, 0, 0], rotate: [0, 0, 0], origin: [0, 0, 0] } as never);
+      const r = rebuildDocument(doc);
+      expect(r.errors.mc).toBeUndefined();
+      expect(r.bodies).toHaveLength(4);
+      const xs = r.bodies.map((b) => { b.geometry.computeBoundingBox(); return Math.round(b.geometry.boundingBox!.min.x); }).sort((a, c) => a - c);
+      expect(xs).toEqual([0, 100, 200, 300]);
+      if (kernelOn) expect(r.bodies.every((b) => b.exact)).toBe(true);
+      const turn = plateWithHole();
+      turn.features.push({ id: 'mv', type: 'moveBody', name: 'Body-Move/Copy1', suppressed: false, bodies: ['body1'], copy: false, copies: 1, translate: [0, 0, 0], rotate: [0, 90, 0], origin: [0, 0, 0] } as never);
+      const rt = rebuildDocument(turn);
+      rt.bodies[0].geometry.computeBoundingBox();
+      const bb = rt.bodies[0].geometry.boundingBox!;
+      // the plate (x 0..80, z -60..0) turned 90° about Y: x becomes -z, z becomes -x
+      expect(Math.round(bb.min.x)).toBe(-60);
+      expect(Math.round(bb.max.x)).toBe(0);
+      expect(Math.round(bb.min.z)).toBe(-80);
+      if (kernelOn) {
+        expect(rt.bodies[0].exact).toBe(true);
+        expect(Math.abs(rt.bodies[0].exactVolume! - (48000 - PI * 1000))).toBeLessThan(1e-4);
+      }
+    }
+    setBrepKernel(kernel);
+  });
+
+  it('Bodies to Keep: a cut through a plate makes two bodies; keeping the largest leaves one', () => {
+    for (const kernelOn of [false, true]) {
+      setBrepKernel(kernelOn ? kernel : null);
+      const base = () => {
+        const doc = createDocument();
+        doc.sketches.s1 = rect('s1', 'top', 0, 0, 80, 60);
+        doc.features.push(extrude('e1', 's1', 'boss', 10));
+        doc.sketches.s2 = rect('s2', 'top', 20, -5, 30, 65);
+        return doc;
+      };
+      const doc = base();
+      doc.features.push(extrude('c1', 's2', 'cut', 0, { end: 'throughAll' }));
+      const r = rebuildDocument(doc);
+      expect(r.errors.c1).toBeUndefined();
+      expect(r.splitCounts?.c1).toBe(2);
+      expect(r.bodies).toHaveLength(2);
+      const vols = r.bodies.map((b) => Math.round(Math.abs(meshVolume(b.geometry)))).sort((a, c) => c - a);
+      expect(vols[0]).toBeCloseTo(50 * 60 * 10, -1);
+      expect(vols[1]).toBeCloseTo(20 * 60 * 10, -1);
+      if (kernelOn) expect(r.bodies.every((b) => b.exact)).toBe(true);
+      const keepOne = base();
+      keepOne.features.push(extrude('c1', 's2', 'cut', 0, { end: 'throughAll', keepBodies: [0] }));
+      const r1 = rebuildDocument(keepOne);
+      expect(r1.bodies).toHaveLength(1);
+      expect(Math.abs(Math.abs(meshVolume(r1.bodies[0].geometry)) - 30000)).toBeLessThan(5);
+    }
+    setBrepKernel(kernel);
+  });
+
+  it('a structural member along a circle is one curved member (not one per arc segment) and builds quickly', () => {
+    setBrepKernel(null);
+    const doc = createDocument();
+    doc.sketches.s1 = addCircle(createSketch('s1', 's1', 'top'), { x: 0, y: 0 }, 100)[0];
+    doc.features.push({ id: 'sm', type: 'structuralMember', name: 'Structural Member1', suppressed: false, sketchId: 's1', standard: 'iso', profileType: 'pipe', size: '33.7 x 4.0', corner: 'endMiter', gap: 0, mergeArcs: false, rotation: 0, mirror: false, locate: { x: 0, y: 0 } } as never);
+    const t0 = performance.now();
+    const r = rebuildDocument(doc);
+    const ms = performance.now() - t0;
+    setBrepKernel(kernel);
+    expect(r.errors.sm).toBeUndefined();
+    expect(r.bodies).toHaveLength(1);
+    expect(ms).toBeLessThan(5000);
+    // a torus: 2π R × the ring area of the pipe
+    const ring = PI * ((33.7 / 2) ** 2 - (33.7 / 2 - 4) ** 2);
+    expect(Math.abs(Math.abs(meshVolume(r.bodies[0].geometry)) - 2 * PI * 100 * ring) / (2 * PI * 100 * ring)).toBeLessThan(0.03);
+  });
+
   it('a feature without a B-rep version continues on the mesh (fallback); the body is still built', () => {
     const doc = plateWithHole();
     // a thin feature of an arc: its wall is curved and has no B-rep version yet

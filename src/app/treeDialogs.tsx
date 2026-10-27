@@ -194,3 +194,43 @@ export function ExportOptionsDialog() {
     </Dialog>
   );
 }
+
+/**
+ * Bodies to Keep, as the intended dialog: a cut split a body into pieces. All bodies keeps every piece as a body of its
+ * own; Selected bodies keeps the checked ones (largest first). The choice is stored in the feature.
+ */
+export function BodiesToKeepDialog() {
+  const st = useStore(useShallow((s) => ({ doc: s.doc, rebuild: s.rebuild, dialogFeatureId: s.dialogFeatureId, applyDocument: s.applyDocument, setDialog: s.setDialog })));
+  const f = st.doc.features.find((x) => x.id === st.dialogFeatureId);
+  const n = (f && st.rebuild.splitCounts?.[f.id]) || 0;
+  const all = Array.from({ length: n }, (_, i) => i);
+  const [mode, setMode] = useState<'all' | 'selected'>('all');
+  const [sel, setSel] = useState<number[]>(all);
+  if (!f || n < 2) return null;
+  const close = (keep: number[]) => {
+    st.applyDocument('Bodies to Keep', { ...st.doc, features: st.doc.features.map((x) => (x.id === f.id ? ({ ...x, keepBodies: keep } as typeof x) : x)) });
+    st.setDialog(null);
+  };
+  return (
+    <Dialog title="Bodies to Keep" onClose={() => close(all)} data-testid="bodies-to-keep">
+      <div className="k-form" style={{ minWidth: 340 }}>
+        <p className="k-muted" style={{ margin: '0 0 6px' }}>{f.name} split the body into {n} bodies.</p>
+        <div className="k-pm-radios">
+          <label className="k-check"><input type="radio" name="keep" data-testid="keep-all" checked={mode === 'all'} onChange={() => setMode('all')} /> All bodies</label>
+          <label className="k-check"><input type="radio" name="keep" data-testid="keep-selected" checked={mode === 'selected'} onChange={() => setMode('selected')} /> Selected bodies</label>
+        </div>
+        <div className="k-selbox" style={{ minHeight: 28, marginTop: 6, opacity: mode === 'all' ? 0.5 : 1 }}>
+          {all.map((i) => (
+            <label key={i} className="k-check">
+              <input type="checkbox" data-testid={`keep-body-${i}`} disabled={mode === 'all'} checked={mode === 'all' || sel.includes(i)} onChange={(e) => setSel(e.target.checked ? [...sel, i].sort((a, b) => a - b) : sel.filter((x) => x !== i))} /> Body {i + 1}{i === 0 ? ' (largest)' : ''}
+            </label>
+          ))}
+        </div>
+      </div>
+      <div className="k-dialog-actions">
+        <Button variant="primary" data-testid="keep-ok" disabled={mode === 'selected' && !sel.length} onClick={() => close(mode === 'all' ? all : sel)}>OK</Button>
+        <Button onClick={() => close(all)}>Cancel</Button>
+      </div>
+    </Dialog>
+  );
+}
