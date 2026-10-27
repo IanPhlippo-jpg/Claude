@@ -93,7 +93,12 @@ export interface SceneInput {
   planeSize: number;
   /** "Shaded Sketch Contours": fill closed loops with translucent grey */
   shadedContours: boolean;
+  /** the profile sketch under the yellow preview of a feature: its contours shaded dark, by design */
+  underPreview?: boolean;
 }
+
+/** the contour fill under a feature preview: dark blue, so that it reads olive-grey through the yellow (measured against the intended design) */
+const CONTOUR_UNDER_PREVIEW = { color: 0x00002c, opacity: 0.5 };
 
 /** Owns the three.js scene graph for sketch rendering. */
 export class SketchScene {
@@ -255,7 +260,7 @@ export class SketchScene {
     for (const o of input.otherSketches) drawSketch(o.sketch, o.plane, true);
     // shaded sketch contours (drawn first so lines stay on top)
     if (input.sketch && input.shadedContours) {
-      const { c: cc, a: ca } = rgba(input.colors.contour);
+      const { c: cc, a: ca } = input.underPreview ? { c: new THREE.Color(CONTOUR_UNDER_PREVIEW.color), a: CONTOUR_UNDER_PREVIEW.opacity } : rgba(input.colors.contour);
       for (const contour of findContours(input.sketch)) {
         if (contour.points.length < 3) continue;
         const shape = new THREE.Shape(contour.points.map((p) => new THREE.Vector2(p.x, p.y)));
@@ -335,7 +340,8 @@ export class SketchScene {
       seg(uy, uy.clone().addScaledVector(b.v, -L * head).addScaledVector(b.u, -L * head * 0.5));
       const g = new THREE.BufferGeometry();
       g.setAttribute('position', new THREE.Float32BufferAttribute(arr, 3));
-      const ls = new THREE.LineSegments(g, new THREE.LineBasicMaterial({ color: col, depthTest: false }));
+      // in a sketch the origin stays on top; in the part it hides behind the bodies, as the reference (frame 118)
+      const ls = new THREE.LineSegments(g, new THREE.LineBasicMaterial({ color: col, depthTest: !input.sketch, transparent: !!input.sketch }));
       ls.renderOrder = 9;
       this.group.add(ls);
     }
@@ -354,20 +360,24 @@ export class SketchScene {
       const g = new LineSegmentsGeometry();
       g.setPositions(solid);
       g.setColors(solidCol);
-      const m = new LineMaterial({ vertexColors: true, linewidth: SketchScene.lineWidth, worldUnits: false });
+      const m = new LineMaterial({ vertexColors: true, linewidth: SketchScene.lineWidth, worldUnits: false, transparent: !!input.underPreview });
       m.resolution.copy(SketchScene.resolution);
       const ls = new LineSegments2(g, m);
       ls.frustumCulled = false;
+      // under a feature preview the sketch lines lie on its yellow edges: drawn after them so they win
+      if (input.underPreview) { ls.renderOrder = 3; Object.assign(m, { polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -4 }); }
       this.group.add(ls);
     }
     if (cons.length) {
       const g = new LineSegmentsGeometry();
       g.setPositions(cons);
       g.setColors(consCol);
-      const m = new LineMaterial({ vertexColors: true, linewidth: Math.max(1, SketchScene.lineWidth * 0.6), worldUnits: false });
+      const m = new LineMaterial({ vertexColors: true, linewidth: Math.max(1, SketchScene.lineWidth * 0.6), worldUnits: false, transparent: !!input.underPreview });
       m.resolution.copy(SketchScene.resolution);
       const ls = new LineSegments2(g, m);
       ls.frustumCulled = false;
+      // under a feature preview the sketch lines lie on its yellow edges: drawn after them so they win
+      if (input.underPreview) { ls.renderOrder = 3; Object.assign(m, { polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -4 }); }
       this.group.add(ls);
     }
     if (dashed.length) {

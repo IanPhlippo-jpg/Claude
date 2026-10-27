@@ -93,6 +93,13 @@ export function dimensionDrawing(s: Sketch, c: Constraint, unit: string, driven:
   return out;
 }
 
+/** the middle of the bounding box of a sketch's points and its larger side */
+function sketchMiddle(s: Sketch): SketchPoint & { span: number } {
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  for (const p of Object.values(s.points)) { x0 = Math.min(x0, p.x); y0 = Math.min(y0, p.y); x1 = Math.max(x1, p.x); y1 = Math.max(y1, p.y); }
+  return x0 <= x1 ? { x: (x0 + x1) / 2, y: (y0 + y1) / 2, span: Math.max(x1 - x0, y1 - y0) } : { x: 0, y: 0, span: 0 };
+}
+
 function dimensionDrawingBase(s: Sketch, c: Constraint, unit: string, driven: boolean, linked = false): DimensionDrawing | null {
   const k = c.kind === 'angle' ? 1 : UNIT_SCALE[c.unitOverride ?? 'mm'] ?? 1;
   const value = (c.value ?? 0) * k;
@@ -141,9 +148,17 @@ function dimensionDrawingBase(s: Sketch, c: Constraint, unit: string, driven: bo
       let dir = norm(sub(b, a));
       if (c.kind === 'hDistance') dir = { x: 1, y: 0 };
       if (c.kind === 'vDistance') dir = { x: 0, y: 1 };
-      const n = { x: -dir.y, y: dir.x };
+      let n = { x: -dir.y, y: dir.x };
       const mid = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
-      const label = off ?? { x: mid.x + n.x * 8, y: mid.y + n.y * 8 };
+      // not placed yet (made without a click): on the outside of the sketch, away from its middle, as far out as the
+      // reference places them by hand (about a sixth of the sketch)
+      let gap = 8;
+      if (!off) {
+        const c0 = sketchMiddle(s);
+        if ((mid.x - c0.x) * n.x + (mid.y - c0.y) * n.y < 0) n = { x: -n.x, y: -n.y };
+        gap = Math.max(8, c0.span / 6);
+      }
+      const label = off ?? { x: mid.x + n.x * gap, y: mid.y + n.y * gap };
       const h = (label.x - mid.x) * n.x + (label.y - mid.y) * n.y;
       let pa: SketchPoint, pb: SketchPoint;
       if (c.kind === 'hDistance') {

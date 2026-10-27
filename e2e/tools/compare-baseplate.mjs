@@ -14,20 +14,32 @@ await page.waitForSelector('.k-viewport');
 await page.click('.k-doctype:has-text("Part")');
 await page.evaluate(() => {
   const K = window.__phlippoKit;
+  // fully defined as in the reference: the corner on the origin, 80 × 80, Ø35 at 35 from the far edges
   let sk = K.createSketch('s1', 'Sketch1', 'top');
-  const c = [[-40, -40], [40, -40], [40, 40], [-40, 40]];
-  for (let i = 0; i < 4; i++) sk = K.addLine(sk, { x: c[i][0], y: c[i][1] }, { x: c[(i + 1) % 4][0], y: c[(i + 1) % 4][1] })[0];
-  sk = K.addCircle(sk, { x: 5, y: 5 }, 17.5)[0];
+  let l0, l1, l2, l3, circ;
+  [sk, l0] = K.addLine(sk, sk.origin, { x: 80, y: 0 });
+  [sk, l1] = K.addLine(sk, l0.p2, { x: 80, y: 80 });
+  [sk, l2] = K.addLine(sk, l1.p2, { x: 0, y: 80 });
+  [sk, l3] = K.addLine(sk, l2.p2, l0.p1);
+  [sk, circ] = K.addCircle(sk, { x: 45, y: 45 }, 17.5);
+  for (const l of [l0, l2]) sk = K.addConstraint(sk, 'horizontal', [l.id])[0];
+  for (const l of [l1, l3]) sk = K.addConstraint(sk, 'vertical', [l.id])[0];
+  sk = K.addConstraint(sk, 'length', [l0.id], { value: 80 })[0];
+  sk = K.addConstraint(sk, 'length', [l3.id], { value: 80 })[0];
+  sk = K.addConstraint(sk, 'diameter', [circ.id], { value: 35 })[0];
+  sk = K.addConstraint(sk, 'hDistance', [circ.center, l1.p2], { value: 35 })[0];
+  sk = K.addConstraint(sk, 'vDistance', [circ.center, l1.p2], { value: 35 })[0];
   const d = K.createDocument('BasePlate');
   d.sketches = { s1: sk };
   d.features = [{ id: 'k1', type: 'sketch', name: 'Sketch1', sketchId: 's1', suppressed: false }];
   window.__phlippoStore.getState().openDocument(d);
 });
 await page.waitForTimeout(300);
-await page.evaluate(() => { window.__phlippoStore.setState({ selectedFeatureId: 'k1' }); window.__phlippoStore.getState().startFeature('extrude', 'boss'); window.__phlippoStore.getState().updateFeatureDraft({ depth: 15 }); });
+await page.evaluate(() => { window.__phlippoStore.setState({ selectedFeatureId: 'k1' }); window.__phlippoStore.getState().startFeature('extrude', 'boss'); window.__phlippoStore.getState().updateFeatureDraft({ depth: 35 }); });
 await page.waitForTimeout(800);
 await page.screenshot({ path: 'e2e-out/app-111.png' });
-await page.evaluate(() => window.__phlippoStore.getState().commitFeature());
+// the reference sets 10 mm before OK (frame 118)
+await page.evaluate(() => { window.__phlippoStore.getState().updateFeatureDraft({ depth: 10 }); window.__phlippoStore.getState().commitFeature(); });
 await page.waitForFunction(() => window.__phlippoStore.getState().rebuild.bodies.every((b) => b.exact), null, { timeout: 30000 }).catch(() => undefined);
 await page.waitForTimeout(600);
 await page.screenshot({ path: 'e2e-out/app-118.png' });

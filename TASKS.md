@@ -621,7 +621,7 @@ elease; README en docs/04 bijgewerkt
 - [x] Tests, regressie (85/85), desktop, installer 0.4.3, screenshots, commit + tag
 
 ## Vervolg 45: ontwerpronde naast de referentievideo (2026-10-27)
-- [ ] Oorsprong in part-modus achter het onderdeel (dieptetest), zoals frame 118; in schetsmodus blijft hij bovenop
-- [ ] Boss-Extrude met een maatgevoerde schets naast frame 111: schets en maten zichtbaar in de preview, sleeppijl, kleuren
-- [ ] Schetsen (frames 57, 65, 70, 81–82, 95) opnieuw naast de app leggen, verschillen oplossen
-- [ ] Tests, regressie, desktop, installer 0.4.4, screenshots, commit + tag
+- [x] Oorsprong in part-modus: standaard verborgen (frames 50 en 118 tonen geen oorsprong), achter het onderdeel als hij aan staat; in schetsmodus en onder een feature-preview de rode schetsoorsprong bovenop
+- [x] Boss-Extrude naast frame 111: schetsregio donker onder de preview (gemeten 162,166,118 tegen 162,165,118), gele preview donkerder (208,214,156 tegen 211,216,158), schetslijnen effen zwart over de gele randen (geen z-fighting meer), sleeppijl met schaduwkegel en gevulde kegeltjes voor Direction 2
+- [x] Schetsen naast frames 70, 82 en 95 (e2e/tools/compare-sketch.mjs): contourvulling 179/126 grijs zoals de referentie, maten zonder plaatsing buiten de schets
+- [x] Tests, regressie, desktop, installer 0.4.4, screenshots, commit + tag (unit 387, regressie 85/85, desktop 8/8 + 12/12)

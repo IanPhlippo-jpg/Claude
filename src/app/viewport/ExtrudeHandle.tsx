@@ -68,7 +68,13 @@ export function ExtrudeHandle({ project }: { project: (v: THREE.Vector3) => { x:
   const L2 = d2 ? d2.depth * pxPerMm : 64;
   const q2 = { x: p0.x - ux * L2, y: p0.y - uy * L2 };
   const col2 = drag2 ? '#c623c6' : hot === 2 ? '#e8771c' : d2 ? '#8d8d8d' : '#c9c9c9';
-  const chev = (t: number) => `M${q2.x + ux * t - uy * w},${q2.y + uy * t + ux * w}L${q2.x + ux * (t - 9)},${q2.y + uy * (t - 9)}L${q2.x + ux * t + uy * w},${q2.y + uy * t - ux * w}`;
+  const chev = (t: number) => `M${q2.x + ux * t - uy * w},${q2.y + uy * t + ux * w}L${q2.x + ux * (t - 9)},${q2.y + uy * (t - 9)}L${q2.x + ux * t + uy * w},${q2.y + uy * t - ux * w}Z`;
+  // the head is a shaded cone, by design: a light and a dark half either side of the axis
+  const cone = (tx: number, ty: number) => {
+    const bx = tx - ux * head, by = ty - uy * head;
+    return { light: `M${tx},${ty}L${bx - uy * w},${by + ux * w}L${bx},${by}Z`, dark: `M${tx},${ty}L${bx},${by}L${bx + uy * w},${by - ux * w}Z`, all: `M${tx},${ty}L${bx - uy * w},${by + ux * w}L${bx + uy * w},${by - ux * w}Z` };
+  };
+  const c1 = cone(p1.x, p1.y);
   const nx = -uy, ny = ux;
   const span = Math.ceil((f.depth + 20) / 5) * 5;
   const ticks = drag ? Array.from({ length: span / 5 + 1 }, (_, i) => i * 5) : [];
@@ -95,15 +101,17 @@ export function ExtrudeHandle({ project }: { project: (v: THREE.Vector3) => { x:
           {d2
             ? <path d={`M${q2.x},${q2.y}L${q2.x + ux * head - uy * w},${q2.y + uy * head + ux * w}L${q2.x + ux * head + uy * w},${q2.y + uy * head - ux * w}Z`} fill={drag2 ? '#d63bd6' : hot === 2 ? '#f08a2c' : '#9a9a9a'} stroke={drag2 ? '#9a1a9a' : '#6e6e6e'} strokeWidth={0.8} />
             : <>
-                <path d={chev(9)} fill="none" stroke={col2} strokeWidth={2} strokeLinejoin="round" />
-                <path d={chev(1)} fill="none" stroke={col2} strokeWidth={2} strokeLinejoin="round" />
+                <path d={chev(9)} fill={hot === 2 || drag2 ? col2 : '#e2e2e2'} stroke={hot === 2 || drag2 ? col2 : '#9a9a9a'} strokeWidth={1} strokeLinejoin="round" />
+                <path d={chev(1)} fill={hot === 2 || drag2 ? col2 : '#e2e2e2'} stroke={hot === 2 || drag2 ? col2 : '#9a9a9a'} strokeWidth={1} strokeLinejoin="round" />
               </>}
           <circle data-testid="extrude-grip2" cx={q2.x + ux * 5} cy={q2.y + uy * 5} r={8} fill="transparent" style={{ pointerEvents: 'all', cursor: 'move' }} onPointerEnter={() => setHot(2)} onPointerLeave={() => setHot(0)} onPointerDown={onDown(2)} onPointerMove={onMove} onPointerUp={onUp} />
         </g>
       )}
-      <line x1={p0.x} y1={p0.y} x2={p1.x - ux * head} y2={p1.y - uy * head} stroke={col} strokeWidth={3} strokeLinecap="round" />
-      {!drag1 && hot !== 1 && <line x1={p0.x} y1={p0.y} x2={p1.x - ux * head} y2={p1.y - uy * head} stroke="#d9d9d9" strokeWidth={1} />}
-      <path d={`M${p1.x},${p1.y}L${p1.x - ux * head - uy * w},${p1.y - uy * head + ux * w}L${p1.x - ux * head + uy * w},${p1.y - uy * head - ux * w}Z`} fill={fill} stroke={drag1 ? '#9a1a9a' : '#6e6e6e'} strokeWidth={0.8} />
+      <line x1={p0.x} y1={p0.y} x2={p1.x - ux * head} y2={p1.y - uy * head} stroke={col} strokeWidth={4} strokeLinecap="round" />
+      {!drag1 && hot !== 1 && <line x1={p0.x} y1={p0.y} x2={p1.x - ux * head} y2={p1.y - uy * head} stroke="#e4e4e4" strokeWidth={1.6} />}
+      {!drag1 && hot !== 1
+        ? <><path d={c1.light} fill="#d4d4d4" /><path d={c1.dark} fill="#8a8a8a" /><path d={c1.all} fill="none" stroke="#6e6e6e" strokeWidth={0.8} strokeLinejoin="round" /></>
+        : <path d={c1.all} fill={fill} stroke={drag1 ? '#9a1a9a' : '#6e6e6e'} strokeWidth={0.8} />}
       <circle data-testid="extrude-grip" cx={p1.x - ux * 5} cy={p1.y - uy * 5} r={8} fill="transparent" style={{ pointerEvents: 'all', cursor: 'move' }} onPointerEnter={() => setHot(1)} onPointerLeave={() => setHot(0)} onPointerDown={onDown(1)} onPointerMove={onMove} onPointerUp={onUp} />
       {drag1 && <text x={p1.x + 12} y={p1.y - 6} fontSize={11} fill="#000" stroke="#fff" strokeWidth={3} paintOrder="stroke">{f.depth.toFixed(2)}mm</text>}
     </svg>

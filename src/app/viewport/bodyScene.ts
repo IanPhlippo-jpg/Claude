@@ -121,7 +121,7 @@ export class BodyScene {
   /** model edges in Shaded With Edges: black, 1.5 px, anti-aliased (RGB 22,20,21) */
   private edgeMat2 = new LineMaterial({ color: 0x000000, linewidth: 1.5, worldUnits: false, alphaToCoverage: true });
   // the yellow preview: light, slightly green-yellow faces and bright yellow edges
-  private previewMat = new THREE.MeshPhongMaterial({ color: 0xe9f07a, transparent: true, opacity: 0.42, side: THREE.DoubleSide, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
+  private previewMat = new THREE.MeshPhongMaterial({ color: 0xbec66e, transparent: true, opacity: 0.42, side: THREE.DoubleSide, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
   private previewEdgeMat = new THREE.LineBasicMaterial({ color: 0xd7e43c, transparent: true, opacity: 1 });
   private roundPreviewMat = new THREE.MeshBasicMaterial({ color: 0xf4fd1e, transparent: true, opacity: 0.82, side: THREE.DoubleSide, depthWrite: false, depthTest: false });
 

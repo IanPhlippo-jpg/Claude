@@ -529,9 +529,11 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
       colors,
       otherSketches,
       planes: planesToDraw,
-      showOrigin: st.show.origin,
+      // the part origin only when View ▸ Origins is on (off in the reference); a sketch being edited or shown under a feature preview always shows its red origin
+      showOrigin: st.show.origin || !!sketch || !!profileSketch,
       planeSize: planeHalf(),
       shadedContours: st.shadedContours,
+      underPreview: !sketch && !!profileSketch && !!preview,
     });
     bodies.updateLight(camera.rotation);
     const faceColors = st.analysis?.kind === 'draft' ? draftAnalysis(st.rebuild.bodies, st.analysis.pull, st.analysis.angle, st.analysis.classify !== false).colors : st.analysis?.kind === 'parting' ? partingLineAnalysis(st.rebuild.bodies, st.analysis.pull, st.analysis.angle).colors : st.analysis?.kind === 'tolerance' ? toleranceStatus(st.rebuild.bodies, st.doc.autoTolerance).colors : st.analysis?.kind === 'thickness' ? thicknessAnalysis(st.rebuild.bodies, st.analysis.target, st.analysis.mode, st.analysis.resolution).colors : st.analysis?.kind === 'undercut' ? undercutAnalysis(st.rebuild.bodies, st.analysis.pull).colors : st.analysis?.kind === 'curvature' ? curvatureAnalysis(st.rebuild.bodies) : st.doc.faceAppearances?.length ? matchFaceAppearances({ faceAppearances: [...(st.doc.faceAppearances ?? []), ...(st.rebuild.extraAppearances ?? [])] }, st.rebuild.bodies) : undefined;

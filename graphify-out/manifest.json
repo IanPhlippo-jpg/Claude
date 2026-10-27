@@ -354,9 +354,9 @@
     "semantic_hash": ""
   },
   "package.json": {
-    "mtime": 1793059070.8057406,
-    "seen": 1793060799.6682875,
-    "ast_hash": "52cb51be27abd8c13dc175974286bd05",
+    "mtime": 1793061803.841084,
+    "seen": 1793063438.6087165,
+    "ast_hash": "f6c4e3b04a50c8e2098ac348da34e6c2",
     "semantic_hash": ""
   },
   "src/app/App.tsx": {
@@ -624,21 +624,21 @@
     "semantic_hash": ""
   },
   "src/app/viewport/Viewport.tsx": {
-    "mtime": 1793057324.442633,
-    "seen": 1793060799.6682875,
-    "ast_hash": "e0fbc99fb6a09e696c7b1f4a3368398a",
+    "mtime": 1793061434.2415607,
+    "seen": 1793063438.6087165,
+    "ast_hash": "9bde37f4bccfb087ad01718766ae18e1",
     "semantic_hash": ""
   },
   "src/app/viewport/annotations.ts": {
-    "mtime": 1792996942.671657,
-    "seen": 1792999711.172904,
-    "ast_hash": "e9c19a4666b860f41f50c685718d0753",
+    "mtime": 1793061640.4388363,
+    "seen": 1793063438.6087165,
+    "ast_hash": "fb0229d9ae262be46855bbc1edfafd4a",
     "semantic_hash": ""
   },
   "src/app/viewport/bodyScene.ts": {
-    "mtime": 1793011773.6530912,
-    "seen": 1793020847.6086097,
-    "ast_hash": "370833ee0be0210b5c6bf05b1ab71a59",
+    "mtime": 1793061501.153916,
+    "seen": 1793063438.6087165,
+    "ast_hash": "29b993ce1b0989f6a789b1f9b2020e78",
     "semantic_hash": ""
   },
   "src/app/viewport/camera.ts": {
@@ -648,9 +648,9 @@
     "semantic_hash": ""
   },
   "src/app/viewport/sketchScene.ts": {
-    "mtime": 1792996942.6888144,
-    "seen": 1792999711.172904,
-    "ast_hash": "6eb7d887218495161fd011ff55c0f3b3",
+    "mtime": 1793061541.3344347,
+    "seen": 1793063438.6087165,
+    "ast_hash": "5a127de8e951a9c291f37251f4cd6287",
     "semantic_hash": ""
   },
   "src/app/viewport/tools.ts": {
@@ -1296,15 +1296,15 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1793059070.8078983,
-    "seen": 1793060799.6692832,
-    "ast_hash": "5d60cb8b09ffe1f1efde6ca072221554",
+    "mtime": 1793061803.7908444,
+    "seen": 1793063438.6087165,
+    "ast_hash": "d5e8d00a798a7ab3e56d361dbf027a11",
     "semantic_hash": ""
   },
   "TASKS.md": {
-    "mtime": 1793060778.003724,
-    "seen": 1793060799.6692832,
-    "ast_hash": "9e727e89aff4a7acad5c02d52eede0d7",
+    "mtime": 1793063418.1793568,
+    "seen": 1793063438.6087165,
+    "ast_hash": "e71d22e3f2085714cc7414dffc3113e2",
     "semantic_hash": ""
   },
   "docs/01-research.md": {
@@ -1662,9 +1662,9 @@
     "semantic_hash": ""
   },
   "src/app/viewport/ExtrudeHandle.tsx": {
-    "mtime": 1793011773.655093,
-    "seen": 1793020847.6086097,
-    "ast_hash": "75fe3c80c81bedf7ad389b376a719f21",
+    "mtime": 1793061356.9906936,
+    "seen": 1793063438.6087165,
+    "ast_hash": "cb50774152ca66ccf7c7f2a2ca3eadd3",
     "semantic_hash": ""
   },
   "src/app/viewport/InsertRotateBar.tsx": {
@@ -2616,9 +2616,9 @@
     "semantic_hash": ""
   },
   "src/app/slices/ui.ts": {
-    "mtime": 1793011773.6428986,
-    "seen": 1793020847.6086097,
-    "ast_hash": "eddaad079531fcbf34fa7ef6319b46fa",
+    "mtime": 1793061434.2065368,
+    "seen": 1793063438.6087165,
+    "ast_hash": "561b63e3ed629d931316257467b1be3d",
     "semantic_hash": ""
   },
   "src/app/slices/weldments.ts": {
@@ -2868,9 +2868,9 @@
     "semantic_hash": ""
   },
   "e2e/tools/compare-baseplate.mjs": {
-    "mtime": 1793059162.0619395,
-    "seen": 1793060799.6682875,
-    "ast_hash": "021c3c33f2104efac7613d6151d2abc1",
+    "mtime": 1793061375.9305594,
+    "seen": 1793063438.6087165,
+    "ast_hash": "caec58340ccbd75797c08729da73c3b7",
     "semantic_hash": ""
   },
   "docs/20-bodies-bugjacht-0.4.3.md": {
@@ -2889,6 +2889,18 @@
     "mtime": 1793060778.1242523,
     "seen": 1793060799.6692832,
     "ast_hash": "2ed75df9eb964941547c6966181a0a21",
+    "semantic_hash": ""
+  },
+  "e2e/tools/compare-sketch.mjs": {
+    "mtime": 1793061822.1480515,
+    "seen": 1793063438.6087165,
+    "ast_hash": "2e0801498090f4d7c353d9b4368cbdd2",
+    "semantic_hash": ""
+  },
+  "docs/21-ontwerpronde-0.4.4.md": {
+    "mtime": 1793061803.8947606,
+    "seen": 1793063438.6087165,
+    "ast_hash": "772744333cbaa82d63fb742632a406ea",
     "semantic_hash": ""
   }
 }

@@ -44,6 +44,10 @@ Status per fase:
 8. Sheet metal (Base Flange/Tab, Edge Flange, Flatten met K-factor) — **basis gereed**; Hem/Jog/Miter/Unfold gepland
 7. Massa-eigenschappen en meten — **gereed** (Mass Properties, Measure); materialen en rendering gepland
 
+## Status 0.4.4 (2026-10-28)
+
+Ontwerpronde naast de referentievideo (BasePlate). Boss-Extrude (frame 111): de schetsregio is nu donker onder de gele preview, de preview zelf heeft de kleur van de referentie, de schetslijnen blijven effen zwart en de sleeppijl is een gearceerde kegel. Schetsen (frames 70, 82, 95): de contourvulling heeft dezelfde grijswaarden en maten zonder plaatsing komen buiten de schets. De oorsprong staat in partmodus standaard uit, zoals in de referentie. Zie docs/21-ontwerpronde-0.4.4.md.
+
 ## Status 0.4.3 (2026-10-27)
 
 Move/Copy Bodies (met kopieën, verschuiving en draaiing, live voorbeeld) en Bodies to Keep (een snede die een lichaam splitst geeft aparte bodies, met de keuzedialoog). Een bugjacht over 54 Property Panels vond één vastloper (Structural Member langs een boog), die is opgelost. Zie docs/20-bodies-bugjacht-0.4.3.md.
