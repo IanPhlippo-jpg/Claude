@@ -500,9 +500,9 @@ elease; README en docs/04 bijgewerkt
 - [x] Blok D assembly/tekening/dialogen (klaar: Mate-opties preview/popup/nieuwe map/alleen positioneren + Analysis-tab; Insert Component start/auto browse/preview/virtual/envelope; sub-assemblies invoegen; multibody-componenten; Explode-rotatie/auto-space/ringen; Instances to Skip; Section View eigen snijding (Zonal, dop + kleur, graphics-only, Section 2/3, hoeken, geselecteerde bodies, Save); Plane Perpendicular/Mid Plane/Flip normal; ConfigurationManager BOM-opties/kleur/nieuwe features onderdrukken + materiaal per configuratie; Decal-tabs + Illumination + vrije hoogte; Draft/Thickness/Geometry-opties; Mass Properties opties/override/verborgen/zwaartepunt/lasnaad/coördinatensysteem; Check-opties; Edit Scene omgevingen/reflecties/vloer/Advanced/Illumination; eigen materialen; Mirror opposite hand; Sensor Dimension/Interference + Alert; Equations import/export/link/radialen; Fastener auto length; Appearances terug/vooruit/bibliotheek/map/display state; eigen kleurschema's; alle tekening-PM-opties (configuratie, preview, annotaties importeren, draft quality, true dims, draadweergave, pijl-label, detail-stijlen + profiel, notitie leader/rand/uitlijning/stijlen, ballon-vorm/tekst, breuklijnstijl, aux-pijl, duplicaten, alt. positie, eigen bladmaat, volgende labels); jog Up To Vertex, draad-favorieten, gattypes, Extrude From Offset, Fully Define schema's, eenheden in Modify)
 - [x] Blok D2 Motion Study (klaar: Basic Motion met zwaartekracht/veren/contact + Calculate, Loop/Reciprocate, Save Animation (WebM), Animation Wizard draaien/exploderen/samenvoegen, Autokey + Add/Update Key met sleutelpunten, lineaire motor + Distance/Segments/Expression, Results and Plots, Motion Study Properties, Load-bearing faces; ook Richting 2 Up To Vertex/Surface/Next, Viewports-knoppen, Toolbox-add-in): Basic Motion (zwaartekracht, veer, contact), afspeelmodi Loop/Reciprocate, Save Animation, Animation Wizard, Autokey/Add Key, motorprofielen Segments/Expression, Load-bearing faces
 - [x] Blok E: Move with Triad (pijlen verschuiven, ringen draaien, Esc) en lichtcyaan = vlakken van de geselecteerde/net gemaakte mate (gemeten 143,255,252) — e2e/triad.mjs 5/5
-- [~] Blok F: playlist-video's (58) commando per commando naast elkaar, verschillen wegwerken
+- [x] Blok F: playlist-video's (58) commando per commando naast elkaar, verschillen wegwerken
   - [x] oude open punten: Delete Face (Delete/Patch/Fill), Pierce-relatie, schetskleur, gedeelde-schets-icoon, Loft Direction Vector/Tangency To Face, Richting 2 Up To Vertex/Surface/Next (e2e/blockf.mjs 6/6)
-  - [~] inventaris per video (4 agents) en verschillen wegwerken
+  - [x] inventaris per video (4 agents) en verschillen wegwerken (alle 58, de laatste 10 in docs/24)
 - [x] Na elk blok: tsc, unit tests, e2e van het blok, screenshot; op het einde volledige regressie, versie ophogen, installer (nagekeken 2026-10-27: gedaan in een latere ronde)
 
 ## Vervolg 33: QA-rapport (extern, 52 bevindingen) verwerken → 0.3.2 (2026-10-25)
@@ -636,7 +636,7 @@ elease; README en docs/04 bijgewerkt
 - [x] Inventaris video 39–44 en 45–52 (twee agents; 38 is Onshape, 46 en 53–58 niet gedownload): e2e-out/inventaris-39-44.md en -45-52.md; e2e/inventory47.mjs 15/15
 - [x] Thread-PM naast frame 298: Favorite open met vijf knoppen (eigen ster-plus-icoon) en volle keuzelijst, Type/Size volle breedte, diameter en spoed grijs tot Override, Locate Profile gecentreerd
 - [x] Appearances-paneel naast frame 142: categorieën als map met kleurbal, takenpaneelkop met « links en de titel in het midden (frame 262 is de Dimension-PM, al vergeleken)
-- [~] Gevonden verschillen (39–44) oplossen:
+- [x] Gevonden verschillen (39–44) oplossen:
   - [x] statusbalk: prompt per commando (Smart Dimension, Offset, Polygon, Selected Contours, Sweep, maat geselecteerd), Total Length bij meerdere curves/randen
   - [x] contextwerkbalk bij klik op een boomitem (Edit Feature, Edit Sketch, Suppress, Normal To, Zoom to Fit; na een korte rust, klikbaar zodra de pointer erop staat)
   - [x] schets-RMB-menu: Selection Tools ▸, Recent Commands ▸, Sketch Entities ▸, More Dimensions ▸, Display Grid, Fully Define Sketch…, Sketch Tools ▸ (Menu kent nu fly-outs); maatkop met Link Values…, Driven, Mark For Drawing (Model Items slaat ongemarkeerde maten over)
@@ -650,7 +650,7 @@ elease; README en docs/04 bijgewerkt
   - [x] Evaluate ▸ Import Diagnostics: foute vlakken en gaten van de geïmporteerde driehoeken, Attempt to Heal All last punten binnen de tolerantie (Check staat al op de tab)
   - [x] Appearance: kop met ✓/✗ (✗ zet terug), Selected Geometry + Remove Appearance, Color met standaardpalet 8×5, kleurveld en Red/Green/Blue, statusprompt "Select entities to modify their appearance."
   - [x] Appearance: tabs Basic/Advanced en Color/Image/Mapping (0.5.0)
-- [~] Verschillen 45–52 (tweede agent, e2e-out/inventaris-45-52.md):
+- [x] Verschillen 45–52 (tweede agent, e2e-out/inventaris-45-52.md):
   - [x] meer statusprompts (Select sweep profile, Edge Flange, Mirror, Sketched Bend, Break Corner, callout), open boogrand toont Radius
   - [x] contextwerkbalk op een body in de boom (Hide/Show, Isolate, Appearance, Zoom to Fit)
   - [x] contextwerkbalk na linksklik in een schets (relaties met "Make …"-tooltips; ook op de RMB-werkbalk)
