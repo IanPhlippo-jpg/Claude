@@ -268,7 +268,7 @@ export function hitTest(s: Sketch, p: Pt, tolerance: number, excludePoints: Set<
   return best;
 }
 
-export type SnapKind = 'endpoint' | 'midpoint' | 'center' | 'on' | 'horizontal' | 'vertical' | 'origin' | 'quadrant';
+export type SnapKind = 'endpoint' | 'midpoint' | 'center' | 'on' | 'horizontal' | 'vertical' | 'origin' | 'quadrant' | 'align';
 
 export interface Snap {
   kind: SnapKind;
@@ -277,6 +277,8 @@ export interface Snap {
   pointId?: Id;
   /** entity id when snapping onto a curve */
   entityId?: Id;
+  /** existing points the snapped point lines up with (shown as dotted inference lines; no relation is added) */
+  align?: Pt[];
 }
 
 /**
@@ -328,17 +330,47 @@ export function snap(
     snaps.push({ kind: 'on', point: pt, entityId: hit.id });
     return snaps;
   }
+  const out = { ...cursor };
+  let fixedX = false, fixedY = false;
   if (ref) {
-    const out = { ...cursor };
     if (Math.abs(cursor.y - ref.y) <= tolerance && Math.abs(cursor.x - ref.x) > tolerance) {
       out.y = ref.y;
+      fixedY = true;
       snaps.push({ kind: 'horizontal', point: out });
     } else if (Math.abs(cursor.x - ref.x) <= tolerance && Math.abs(cursor.y - ref.y) > tolerance) {
       out.x = ref.x;
+      fixedX = true;
       snaps.push({ kind: 'vertical', point: out });
     }
   }
+  // inference lines: the cursor lines up horizontally or vertically with another existing point (an end point, a
+  // centre, the origin) and takes over its exact coordinate, by design; only a dotted line shows it, no relation
+  const align: Pt[] = [];
+  let bestX: Pt | null = null, bestY: Pt | null = null;
+  for (const id of inferencePoints(s)) {
+    if (excludePoints.has(id)) continue;
+    const q = s.points[id];
+    if (!q || (ref && Math.abs(q.x - ref.x) < 1e-9 && Math.abs(q.y - ref.y) < 1e-9)) continue;
+    if (!fixedX && Math.abs(cursor.x - q.x) <= tolerance && Math.abs(cursor.y - q.y) > tolerance && (!bestX || Math.abs(cursor.x - q.x) < Math.abs(cursor.x - bestX.x))) bestX = q;
+    if (!fixedY && Math.abs(cursor.y - q.y) <= tolerance && Math.abs(cursor.x - q.x) > tolerance && (!bestY || Math.abs(cursor.y - q.y) < Math.abs(cursor.y - bestY.y))) bestY = q;
+  }
+  if (bestX) { out.x = bestX.x; align.push(bestX); }
+  if (bestY) { out.y = bestY.y; align.push(bestY); }
+  if (align.length) {
+    if (snaps.length) snaps[0] = { ...snaps[0], point: out, align };
+    else snaps.push({ kind: 'align', point: out, align });
+  }
   return snaps;
+}
+
+/** the points a drawn point may line up with: the origin and the end points and centres of the entities */
+function inferencePoints(s: Sketch): Id[] {
+  const ids = new Set<Id>(s.origin ? [s.origin] : []);
+  for (const eid of s.entityOrder) {
+    const e = s.entities[eid] as { p1?: Id; p2?: Id; center?: Id; start?: Id; end?: Id };
+    for (const k of ['p1', 'p2', 'center', 'start', 'end'] as const) if (e[k]) ids.add(e[k]!);
+  }
+  return [...ids];
 }
 
 /** Bounding box of all entities (for zoom-to-fit). */

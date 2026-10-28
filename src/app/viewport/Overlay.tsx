@@ -226,6 +226,11 @@ export function Overlay(props: OverlayProps) {
           </g>
         );
       })()}
+      {toolRender?.snap?.align?.map((q, i) => {
+        // dotted inference line from the point the cursor lines up with
+        const a = project(q), p = project(toolRender.snap!.point);
+        return <line key={'al' + i} data-testid="inference-line" x1={a.x} y1={a.y} x2={p.x} y2={p.y} stroke="var(--sk-hover)" strokeWidth={1} strokeDasharray="2 3" />;
+      })}
       {toolRender?.snap && (() => {
         const p = project(toolRender.snap.point);
         const k = toolRender.snap.kind;

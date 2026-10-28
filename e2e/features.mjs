@@ -527,8 +527,11 @@ await page.waitForTimeout(400);
 const planes = await page.evaluate(() => Object.values(window.__phlippoStore.getState().doc.planes).filter((p) => p.kind === 'reference').map((p) => ({ name: p.name, origin: p.origin, n: p.n })));
 check('Plane1 created 25 mm in front of the Front Plane', planes.length === 1 && planes[0].name === 'Plane1' && Math.abs(planes[0].origin[2] - 25) < 1e-6 && Math.abs(planes[0].n[2] - 1) < 1e-6, JSON.stringify(planes));
 check('Plane1 listed in the tree', (await page.locator('.k-tree-row:has-text("Plane1")').count()) === 1);
-// a sketch can be started on it (right-click = new sketch, as the reference planes)
+// right-click: context toolbar above the context menu, as for the standard planes; its Sketch button starts the sketch
 await page.click('.k-tree-row:has-text("Plane1")', { button: 'right' });
+await page.waitForTimeout(300);
+check('right-click on Plane1 shows the context toolbar and the menu "Feature (Plane1)"', (await page.locator('[data-testid="ctx-plane-sketch"]').count()) === 1 && (await page.locator('.k-menu-header:has-text("Feature (Plane1)")').count()) === 1);
+await page.click('[data-testid="ctx-plane-sketch"]');
 await page.waitForTimeout(500);
 check('sketch opens on Plane1', await page.evaluate(() => { const s = window.__phlippoStore.getState(); const sk = s.doc.sketches[s.activeSketchId]; return !!sk && s.doc.planes[sk.plane]?.name === 'Plane1'; }));
 await page.keyboard.press('Escape');

@@ -35,6 +35,14 @@ export function FeatureTreeBody() {
   const [bar, setBar0] = useState<{ x: number; y: number; featureId: string; shown?: boolean; live?: boolean } | null>(null);
   const barTimer = useRef(0);
   // shown after a short rest of the pointer (a quick second click goes to the tree, not to the toolbar)
+  const planeMenu = (e: React.MouseEvent, plane: string) => {
+    e.preventDefault();
+    if (st.planePick) { st.newSketch(plane); return; }
+    st.setSelectedPlane(plane);
+    window.clearTimeout(barTimer.current);
+    setBar0({ x: e.clientX, y: e.clientY, featureId: '__plane:' + plane, shown: true, live: true });
+    setMenu({ x: e.clientX, y: e.clientY + 8, featureId: '__plane:' + plane });
+  };
   const setBar = (b: { x: number; y: number; featureId: string } | null) => {
     window.clearTimeout(barTimer.current);
     setBar0(null);
@@ -252,10 +260,9 @@ export function FeatureTreeBody() {
     onDoubleClick: () => {
       if (!st.activeSketchId) st.newSketch(p);
     },
-    onContextMenu: (e) => {
-      e.preventDefault();
-      st.newSketch(p);
-    },
+    // right-click: the plane is selected and its context toolbar shows above the context menu (a sketch starts from
+    // the toolbar's Sketch button or a double-click, never from the right-click itself)
+    onContextMenu: (e) => planeMenu(e, p),
   });
 
   const sys = (id: string, icon: React.ReactNode, label: string, children?: TreeNode[]): TreeNode => ({ id, icon, label: <span>{label}</span>, children });
@@ -365,7 +372,7 @@ export function FeatureTreeBody() {
           active: st.planeEdit?.planeId === p.id,
           onClick: (e) => (st.planePick ? st.newSketch(p.id) : st.setSelectedPlane(e.ctrlKey && st.selectedPlane === p.id ? null : p.id)),
           onDoubleClick: () => st.editPlane(p.id),
-          onContextMenu: (e) => { e.preventDefault(); st.newSketch(p.id); },
+          onContextMenu: (e) => planeMenu(e, p.id),
         })),
         ...(st.doc.refGeometry ?? []).map((r): TreeNode => ({
           id: r.id,
@@ -561,7 +568,7 @@ export function FeatureTreeBody() {
           ]}
         />
       )}
-      {bar?.shown && !menu && bar.featureId.startsWith('__plane:') && (() => {
+      {bar?.shown && (!menu || menu.featureId === bar.featureId) && bar.featureId.startsWith('__plane:') && (() => {
         const p = bar.featureId.slice(8) as 'front' | 'top' | 'right';
         const shown = st.doc.planeVisibility?.[p] ?? st.show.planes;
         const btn = (tip: string, icon: ReactNode, run: () => void, testid: string) => (
@@ -625,6 +632,25 @@ export function FeatureTreeBody() {
             {plane && btn('Normal To', <Icon.Orientation />, () => bridge.camera?.normalTo(plane as never), 'ctx-normal-to')}
             {btn('Zoom to Fit', <Icon.Fit />, () => bridge.zoomFit?.(), 'ctx-zoom')}
           </div>
+        );
+      })()}
+      {menu && menu.featureId.startsWith('__plane:') && (() => {
+        const p = menu.featureId.slice(8);
+        const name = st.doc.planeNames?.[p] ?? PLANE_LABELS[p as 'front'] ?? st.doc.planes[p]?.name ?? p;
+        return (
+          <Menu
+            onClose={() => { setMenu(null); setBar0(null); }}
+            style={{ position: 'fixed', left: menu.x, top: menu.y }}
+            items={[
+              { label: `Feature (${name})`, header: true },
+              { label: '3D Sketch On Plane', icon: <Icon.Sketch />, onSelect: () => useStore.getState().start3DSketch() },
+              { label: 'Section View', icon: <Icon.SectionView />, onSelect: () => useStore.getState().startSectionView() },
+              ...(st.doc.planes[p]?.kind === 'reference' ? [{ label: 'Edit Feature', icon: <Icon.Plane />, onSelect: () => st.editPlane(p) }] : []),
+              { separator: true },
+              { label: 'Rename tree item', onSelect: () => setRenaming({ id: '__plane:' + p, value: name }) },
+              { label: 'Hide/Show Tree Items…', icon: <Icon.Eye />, onSelect: () => { useStore.setState({ optionsPage: 'featureTree' } as never); st.setDialog('options'); } },
+            ]}
+          />
         );
       })()}
       {menu && menuFeature && (

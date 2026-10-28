@@ -13,6 +13,10 @@ import { surfacePM, intersectPM, deleteFacePM, deformPM } from './pm/surfacePMs'
 import { structuralMemberPM, trimExtendPM, endCapPM, weldGussetPM, weldBeadPM } from './pm/weldmentPMs';
 import { sketchPM } from './pm/sketchPM';
 import { domePM, indentPM, mountingBossPM, snapHookPM, lipGroovePM } from './pm/plasticsPMs';
+import { useStore } from '../store';
+
+// Enter in a number field of a feature's panel accepts the feature (OK), once the typed value is in the draft
+if (typeof window !== 'undefined') window.addEventListener('phlippo:pmenter', () => requestAnimationFrame(() => { const s = useStore.getState(); if (s.featureEdit) s.commitFeature(); }));
 
 const FAMILIES = [shellPM, helixPM, sheetMetalEditPM, baseFlangePM, miterFlangePM, surfacePM, intersectPM, draftPM, sketchedBendPM, jogPM, threadPM, wrapPM, unfoldPM, deleteFacePM, closedCornerPM, ventPM, formToolPM, gussetPM, tabSlotPM, ripPM, sweptFlangePM, deformPM, structuralMemberPM, trimExtendPM, endCapPM, weldGussetPM, weldBeadPM, studPM, domePM, indentPM, mountingBossPM, snapHookPM, lipGroovePM, splitLinePM, crossBreakPM, hemPM, edgeFlangePM, moveBodyPM, combinePM, deleteBodyPM, compositeCurvePM, ribPM, mirrorPM, filletPM, filletPM2, genericPM];
 

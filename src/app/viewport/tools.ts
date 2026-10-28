@@ -278,10 +278,8 @@ export class ToolController {
   /** a point typed with the on-screen numeric input is placed exactly, without snapping */
   private exactNext = false;
 
-  /**
-   * On-screen numeric input (Options ▸ Sketch): the length of the line or the radius of the circle being drawn,
-   * typed; the end lands that far along the direction to the pointer. True when it was used.
-   */
+  /** On-screen numeric input (Options ▸ Sketch): the typed length of the line or radius of the circle being drawn;
+   * the end lands that far along the direction to the pointer. True when it was used. */
   numericEntry(ctx: ToolContext, value: number): boolean {
     if (!(value > 0) || !this.pts.length || !this.cursor) return false;
     if (this.tool !== 'line' && this.tool !== 'centerline' && this.tool !== 'circle') return false;
@@ -824,8 +822,10 @@ export class ToolController {
             s1 = this.inferredRelations(s1, startSnap, mp.id);
           } else if (!prevEnd) s1 = this.inferredRelations(s1, startSnap, l.p1);
           s1 = this.inferredRelations(s1, sn, l.p2);
-          if (!this.noInfer && (horizontal || ori === 'horizontal') && (sn?.kind === 'horizontal' || !sn || ori === 'horizontal')) s1 = addConstraint(s1, 'horizontal', [l.id])[0];
-          else if (!this.noInfer && (vertical || ori === 'vertical') && (sn?.kind === 'vertical' || !sn || ori === 'vertical')) s1 = addConstraint(s1, 'vertical', [l.id])[0];
+          // ending exactly level/plumb on an existing point or inference line also adds Horizontal/Vertical, by design
+          const level = (k: 'horizontal' | 'vertical') => sn?.kind === k || !sn || ori === k || sn.kind === 'align' || !!sn.pointId;
+          const hv = (horizontal || ori === 'horizontal') && level('horizontal') ? 'horizontal' : (vertical || ori === 'vertical') && level('vertical') ? 'vertical' : null;
+          if (!this.noInfer && hv) s1 = addConstraint(s1, hv, [l.id])[0];
           // Add dimensions: the length of the line
           if (ctx.sketchTool?.addDimensions && !infinite) s1 = addConstraint(s1, 'length', [l.id], { value: dist(a, p) * (midpointLine ? 2 : 1) })[0];
           return s1;
@@ -1196,11 +1196,8 @@ export class ToolController {
     this.reset();
   }
 
-  /**
-   * The dimension that would be placed at the cursor. For two points the type follows the
-   * cursor by design: above/below the points = horizontal, left/right = vertical,
-   * diagonal = aligned distance.
-   */
+  /** The dimension that would be placed at the cursor; for two points the type follows the cursor by design:
+   * above/below the points = horizontal, left/right = vertical, diagonal = aligned distance. */
   private resolveDim(ctx: ToolContext, cursor: SketchPoint): { kind: ConstraintKind; refs: Id[]; value: number; arcCondition?: Record<number, { entityId: Id; mode: 'min' | 'max' }>; doubled?: boolean } {
     const d = this.dimPlacing!;
     const s = ctx.sketch;
@@ -1295,7 +1292,7 @@ export class ToolController {
     const cur = this.cursor;
     const sn = this.curSnap;
     const cp = cur ? (sn ? sn.point : ctx.snapGrid ? { x: Math.round(cur.x / ctx.gridSize) * ctx.gridSize, y: Math.round(cur.y / ctx.gridSize) * ctx.gridSize } : cur) : null;
-    if (sn) out.hint = { endpoint: 'Endpoint', midpoint: 'Midpoint', center: 'Center', on: 'On entity', horizontal: 'Horizontal', vertical: 'Vertical', origin: 'Origin', quadrant: 'Quadrant' }[sn.kind];
+    if (sn) out.hint = { endpoint: 'Endpoint', midpoint: 'Midpoint', center: 'Center', on: 'On entity', horizontal: 'Horizontal', vertical: 'Vertical', origin: 'Origin', quadrant: 'Quadrant', align: '' }[sn.kind];
     if (this.powerPath && this.powerPath.length > 1) out.preview.push({ points: this.powerPath.slice(), dashed: true });
     if (this.boxStart && this.boxEnd && this.lassoMode && this.lasso) out.lasso = this.lasso.slice();
     else if (this.boxStart && this.boxEnd) out.box = { a: this.boxStart, b: this.boxEnd };

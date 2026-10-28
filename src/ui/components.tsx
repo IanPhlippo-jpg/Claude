@@ -541,6 +541,8 @@ export function NumberField({
           } else if (e.key === 'Enter') {
             setText(formatValue(value, unit));
             onCommit?.();
+            // Enter in a field of a feature's Property Panel is OK, by design: type the depth, Enter, done
+            if ((e.target as HTMLElement).closest('.k-pm-host')) window.dispatchEvent(new CustomEvent('phlippo:pmenter'));
           } else if (e.key === 'ArrowUp') {
             e.preventDefault();
             spin(1);

@@ -298,7 +298,7 @@ export function sketchPM(ctx: PMContext): ReactNode {
           </div>
         </Section>
       )}
-      {!c && !isRect && st.tool !== 'equationCurve' && st.tool !== 'fullyDefine' && !['circle', 'perimeterCircle', 'arcCenter', 'arc3', 'tangentArc', 'polygon'].includes(st.tool) && (
+      {!c && !isRect && st.tool !== 'equationCurve' && st.tool !== 'fullyDefine' && !['circle', 'perimeterCircle', 'arcCenter', 'arc3', 'tangentArc', 'polygon', 'line', 'centerline', 'midpointLine'].includes(st.tool) && (
         <Section title="Message">
           <p className="k-pm-message">{TOOL_HELP[st.tool]}</p>
           {st.tool === 'text' && (

@@ -161,6 +161,12 @@ export function useShortcuts(handlers: { save: () => void; open: () => void; sho
         withUnsavedCheck(() => useStore.getState().setDialog('new'));
         return;
       }
+      // Enter while a feature's Property Panel is open (pointer in the graphics area, after picking an edge): OK
+      if (e.key === 'Enter' && !ctrl && !e.shiftKey && !e.altKey && st.featureEdit && !st.dialog && !st.ask && !st.modify && !st.confirmDelete) {
+        e.preventDefault();
+        st.commitFeature();
+        return;
+      }
       // Enter outside a sketch / command / dialog: the last Command Ribbon command runs again, by design
       if (e.key === 'Enter' && !ctrl && !e.shiftKey && !e.altKey && st.hasDocument && !st.activeSketchId && !st.featureEdit && !st.dialog && !st.ask && !st.modify && !st.confirmDelete && st.lastCommand) {
         e.preventDefault();

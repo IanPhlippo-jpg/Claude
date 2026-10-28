@@ -1244,7 +1244,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
         } else if (st.tool !== 'select') st.setTool('select');
         else if (st.selection.length || st.selectedConstraint) st.setSelection([]);
         refreshTool();
-      } else if (e.key === 'Enter' && !(e.target instanceof HTMLInputElement)) {
+      } else if (e.key === 'Enter' && !(e.target instanceof HTMLInputElement) && !e.defaultPrevented && !useStore.getState().featureEdit) { // a feature panel takes Enter as OK
         const c = ctx();
         if (!c) return;
         if (tools.busy) tools.enter(c);
