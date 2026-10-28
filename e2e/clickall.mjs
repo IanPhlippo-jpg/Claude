@@ -3,6 +3,7 @@
 // crash screen are reported per command. Runs at Ian's screen size (1280 x 672 CSS px, 150 %).
 import { chromium } from 'playwright';
 import { readFileSync, writeFileSync } from 'node:fs';
+import { skip } from './lib/check.mjs';
 
 const browser = await chromium.launch(process.platform === 'win32' ? { channel: process.env.PW_CHANNEL ?? 'msedge' } : { ...(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {}), args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
 const page = await browser.newPage({ viewport: { width: 1280, height: 672 }, deviceScaleFactor: 1.5, acceptDownloads: true });
@@ -10,7 +11,7 @@ let errs = [];
 page.on('pageerror', (e) => errs.push('pageerror: ' + e.message));
 page.on('console', (m) => { if (m.type() === 'error' && !/favicon|WebGL|GL_|Failed to load resource/.test(m.text())) errs.push('console: ' + m.text()); });
 page.on('filechooser', () => undefined);
-page.on('dialog', (d) => d.dismiss().catch(() => undefined));
+page.on('dialog', (d) => d.dismiss().catch(skip('clickall.mjs:13')));
 await page.goto(process.env.E2E_URL ?? 'http://127.0.0.1:4173/');
 await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.theme', 'light'); });
 await page.reload();
@@ -30,7 +31,7 @@ let clicks = 0;
 
 let currentKind = '';
 const reset = async (doc) => {
-  for (let i = 0; i < 3; i++) await page.keyboard.press('Escape').catch(() => undefined);
+  for (let i = 0; i < 3; i++) await page.keyboard.press('Escape').catch(skip('clickall.mjs:33'));
   await page.evaluate((d) => {
     const S = window.__phlippoStore;
     const s = S.getState();
@@ -61,7 +62,7 @@ const check = async (kind, label) => {
   if (errs.length || crash) {
     report.push({ doc: kind, command: label, errors: [...new Set(errs)].slice(0, 3), crash: !!crash });
     console.log('BUG', kind, '|', label, '|', [...new Set(errs)].slice(0, 2).join(' / '), crash ? '(crash screen)' : '');
-    if (crash) await page.click('[data-testid="crash"] button').catch(() => undefined);
+    if (crash) await page.click('[data-testid="crash"] button').catch(skip('clickall.mjs:64'));
   }
   errs = [];
 };
@@ -80,7 +81,7 @@ for (const [kind, doc] of docs) {
     const labels = await page.evaluate(() => [...document.querySelectorAll('.k-cm-body button.k-cm-main, .k-cm-body button.k-cm-small, .k-cm-body button.k-cm-mbbtn')].map((b) => (b.getAttribute('data-tip') || b.textContent || '').trim()));
     for (let i = 0; i < labels.length; i++) {
       if (/^(Home|Save|Open|New|Print|Options|Rebuild)/.test(labels[i])) continue;
-      await page.locator('.k-cm-tab').nth(ti).click().catch(() => undefined);
+      await page.locator('.k-cm-tab').nth(ti).click().catch(skip('clickall.mjs:83'));
       const ok = await page.evaluate((i) => { const b = [...document.querySelectorAll('.k-cm-body button.k-cm-main, .k-cm-body button.k-cm-small, .k-cm-body button.k-cm-mbbtn')][i]; if (!b || b.disabled) return false; b.click(); return true; }, i);
       if (!ok) continue;
       clicks++;
@@ -89,10 +90,10 @@ for (const [kind, doc] of docs) {
     }
     const arrows = await page.evaluate(() => document.querySelectorAll('.k-cm-body button.k-cm-arrow, .k-cm-body button.k-cm-small-arrow').length);
     for (let a = 0; a < arrows; a++) {
-      await page.locator('.k-cm-tab').nth(ti).click().catch(() => undefined);
+      await page.locator('.k-cm-tab').nth(ti).click().catch(skip('clickall.mjs:92'));
       const n = await page.evaluate((a) => { const b = [...document.querySelectorAll('.k-cm-body button.k-cm-arrow, .k-cm-body button.k-cm-small-arrow')][a]; if (!b || b.disabled) return 0; b.click(); return document.querySelectorAll('.k-menu .k-menu-item').length; }, a);
       for (let k = 0; k < n; k++) {
-        await page.locator('.k-cm-tab').nth(ti).click().catch(() => undefined);
+        await page.locator('.k-cm-tab').nth(ti).click().catch(skip('clickall.mjs:95'));
         const label = await page.evaluate(([a, k]) => {
           const b = [...document.querySelectorAll('.k-cm-body button.k-cm-arrow, .k-cm-body button.k-cm-small-arrow')][a];
           if (!b) return null;
@@ -112,17 +113,17 @@ for (const [kind, doc] of docs) {
   }
   // the menu bar
   await reset(doc);
-  await page.hover('.k-brand').catch(() => undefined);
+  await page.hover('.k-brand').catch(skip('clickall.mjs:115'));
   const menus = await page.locator('.k-mb-menu').allTextContents();
   for (let mi = 0; mi < menus.length; mi++) {
-    await page.hover('.k-brand').catch(() => undefined);
-    await page.locator('.k-mb-menu').nth(mi).click().catch(() => undefined);
+    await page.hover('.k-brand').catch(skip('clickall.mjs:118'));
+    await page.locator('.k-mb-menu').nth(mi).click().catch(skip('clickall.mjs:119'));
     const items = await page.locator('.k-menu-item').allTextContents();
     await page.keyboard.press('Escape');
     for (let k = 0; k < items.length; k++) {
       if (/^(Open|Save|Exit|Close|Print|Import|Export|New)/i.test(items[k].trim())) continue;
-      await page.hover('.k-brand').catch(() => undefined);
-      await page.locator('.k-mb-menu').nth(mi).click().catch(() => undefined);
+      await page.hover('.k-brand').catch(skip('clickall.mjs:124'));
+      await page.locator('.k-mb-menu').nth(mi).click().catch(skip('clickall.mjs:125'));
       const ok = await page.evaluate((k) => { const it = [...document.querySelectorAll('.k-menu-item')][k]; if (!it || it.disabled || it.getAttribute('aria-disabled') === 'true') return false; it.click(); return true; }, k);
       if (!ok) { await page.keyboard.press('Escape'); continue; }
       clicks++;
@@ -135,12 +136,12 @@ for (const [kind, doc] of docs) {
   for (let r = 0; r < rows; r++) {
     await reset(doc);
     const row = page.locator('.k-tree-row').nth(r);
-    const rowText = ((await row.textContent().catch(() => '')) ?? '').trim().slice(0, 30);
-    await row.click({ button: 'right' }).catch(() => undefined);
+    const rowText = ((await row.textContent().catch(skip('clickall.mjs:138', ''))) ?? '').trim().slice(0, 30);
+    await row.click({ button: 'right' }).catch(skip('clickall.mjs:139'));
     const n = await page.locator('.k-menu .k-menu-item, .k-ctx button').count();
     await page.keyboard.press('Escape');
     for (let k = 0; k < n; k++) {
-      await page.locator('.k-tree-row').nth(r).click({ button: 'right' }).catch(() => undefined);
+      await page.locator('.k-tree-row').nth(r).click({ button: 'right' }).catch(skip('clickall.mjs:143'));
       const label = await page.evaluate((k) => { const it = [...document.querySelectorAll('.k-menu .k-menu-item, .k-ctx button')][k]; if (!it || it.disabled) return null; const t = it.textContent.trim(); it.click(); return t; }, k);
       if (!label) { await page.keyboard.press('Escape'); continue; }
       if (/^(Delete|Open|Save)/.test(label)) { await reset(doc); }

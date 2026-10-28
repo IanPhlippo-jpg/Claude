@@ -3,7 +3,7 @@
 // ▸ …), the 3D sketch with Sketch Fillet and line lengths, Curve Through XYZ Points as a sweep path, Override default
 // parameters when editing Base-Flange1 and the Zoom/Pan/Rotate fly-out in the right-click menu of a feature.
 import { chromium } from 'playwright';
-import { exitCode } from './lib/check.mjs';
+import { exitCode, skip } from './lib/check.mjs';
 import { menuPath } from './lib/menu.mjs';
 import { mkdirSync } from 'node:fs';
 
@@ -49,7 +49,7 @@ await page.waitForTimeout(100);
 // the top line of the slot lies 40 px above the centre
 await page.mouse.click(cx, cy - 40);
 await page.waitForTimeout(300);
-check('Trim on a slot line asks "This trim operation will destroy the slot entity"', (await page.locator('[data-testid="ask"]').innerText().catch(() => '')).includes('destroy the slot entity') && (await page.locator('[data-testid="ask-dontshow"]').count()) === 1);
+check('Trim on a slot line asks "This trim operation will destroy the slot entity"', (await page.locator('[data-testid="ask"]').innerText().catch(skip('videos54.mjs:52', ''))).includes('destroy the slot entity') && (await page.locator('[data-testid="ask-dontshow"]').count()) === 1);
 await page.screenshot({ path: `${OUT}/videos54-slottrim.png` });
 await page.click('[data-testid="ask-no"]');
 r = await S(() => { const s = window.__phlippoStore.getState(); const sk = s.doc.sketches[s.activeSketchId]; return Object.values(sk.entities).filter((e) => e.slot).length; });
@@ -100,7 +100,7 @@ await len0.press('Enter');
 await page.waitForTimeout(150);
 r = await S(() => window.__phlippoStore.getState().sketch3dEdit.segments);
 check('Line1 typed to 60: its end and the line after it move along', r[0][1][0] === 60 && r[1][0][0] === 60 && r[1][1][0] === 60 && r[1][1][2] === 40, JSON.stringify(r));
-await page.click('.k-section-title:has-text("Sketch Fillet")').catch(() => undefined);
+await page.click('.k-section-title:has-text("Sketch Fillet")').catch(skip('videos54.mjs:103'));
 await page.waitForTimeout(100);
 await page.click('[data-testid="sketch3d-fillet-all"]');
 await page.waitForTimeout(150);
@@ -172,7 +172,7 @@ await S(() => {
 await page.waitForTimeout(300);
 await page.click('[data-testid="flange-editprofile"]');
 await page.waitForTimeout(400);
-check('Edit Flange Profile opens the profile sketch with the Profile Sketch dialog: "The sketch is valid."', (await page.locator('[data-testid="profile-msg"]').innerText().catch(() => '')) === 'The sketch is valid.' && await S(() => !!window.__phlippoStore.getState().activeSketchId));
+check('Edit Flange Profile opens the profile sketch with the Profile Sketch dialog: "The sketch is valid."', (await page.locator('[data-testid="profile-msg"]').innerText().catch(skip('videos54.mjs:175', ''))) === 'The sketch is valid.' && await S(() => !!window.__phlippoStore.getState().activeSketchId));
 // an open line makes the profile invalid, a circle inside the outline is a hole
 await S(() => {
   const st = window.__phlippoStore.getState();

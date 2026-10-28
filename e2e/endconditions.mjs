@@ -99,7 +99,7 @@ await page.click('.k-menu-item:has-text("Edit Feature")');
 await page.waitForTimeout(300);
 await page.mouse.click(cx + 300, cy - 300, { button: 'right' });
 await page.waitForTimeout(200);
-const menuText = (await page.locator('.k-ctx').innerText().catch(() => '')).replace(/\s+/g, ' ');
+const menuText = (await page.locator('.k-ctx').innerText().catch(skip('endconditions.mjs:102', ''))).replace(/\s+/g, ' ');
 check('RMB menu offers Up To Next / Up To Vertex / Up To Surface / Offset From Surface', /Up To Next/.test(menuText) && /Up To Vertex/.test(menuText) && /Up To Surface/.test(menuText) && /Offset From Surface/.test(menuText), menuText.slice(0, 160));
 await page.keyboard.press('Escape');
 await page.click('.k-pm-cancel').catch(skip('endconditions:105'));

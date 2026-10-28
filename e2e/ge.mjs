@@ -2,7 +2,7 @@
 // Sheet Metal Gusset, Simple Hole, Extruded Cut sheet metal options (Link to thickness / Normal cut / Optimize geometry),
 // Insert Bends, Tab and Slot, Rip, Swept Flange.
 import { chromium } from 'playwright';
-import { exitCode } from './lib/check.mjs';
+import { exitCode, skip } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -75,10 +75,10 @@ const vBefore = await vol();
 await page.click('.k-cm-tab:has-text("Sheet Metal")');
 await page.click('.k-cm-small:has-text("Vent")');
 await page.waitForTimeout(400);
-check('Vent PM: Boundary, Geometry Properties, Flow Area, Ribs, Spars, Fill-In Boundary', (await page.locator('.k-pm-title:has-text("Vent")').count()) >= 1 && (await page.locator('.k-section-name:text-is("Flow Area")').count()) === 1 && (await page.locator('.k-section-name:text-is("Fill-In Boundary")').count()) === 1, await page.locator('.k-pm-title').innerText().catch(() => '?'));
+check('Vent PM: Boundary, Geometry Properties, Flow Area, Ribs, Spars, Fill-In Boundary', (await page.locator('.k-pm-title:has-text("Vent")').count()) >= 1 && (await page.locator('.k-section-name:text-is("Flow Area")').count()) === 1 && (await page.locator('.k-section-name:text-is("Fill-In Boundary")').count()) === 1, await page.locator('.k-pm-title').innerText().catch(skip('ge.mjs:78', '?')));
 await page.locator('[data-testid="vent-sketch"]').selectOption('vent1');
 await page.waitForTimeout(600);
-check('Vent lists 2 ribs and 1 spar', (await page.locator('[data-testid="vent-ribs"] .k-selbox-row').count()) === 2 && (await page.locator('[data-testid="vent-spars"] .k-selbox-row').count()) === 1, await page.locator('[data-testid="vent-flow"]').innerText().catch(() => '?'));
+check('Vent lists 2 ribs and 1 spar', (await page.locator('[data-testid="vent-ribs"] .k-selbox-row').count()) === 2 && (await page.locator('[data-testid="vent-spars"] .k-selbox-row').count()) === 1, await page.locator('[data-testid="vent-flow"]').innerText().catch(skip('ge.mjs:81', '?')));
 await shot('ge1-vent-pm');
 await page.click('.k-pm-ok');
 await page.waitForTimeout(900);

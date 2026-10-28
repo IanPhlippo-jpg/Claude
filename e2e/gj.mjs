@@ -3,7 +3,7 @@
 // Deform (point), Save As options, Publish to Phlippo Viewer (.html), drawing bend lines / notes.
 import { menuPath } from './lib/menu.mjs';
 import { chromium } from 'playwright';
-import { exitCode } from './lib/check.mjs';
+import { exitCode, skip } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -49,7 +49,7 @@ await S(() => window.__phlippoStore.getState().editSketch('s1'));
 await page.waitForTimeout(400);
 const lineId = await S(() => { const s = window.__phlippoStore.getState(); const sk = s.doc.sketches.s1; const id = sk.entityOrder.find((e) => sk.entities[e].kind === 'line'); s.setSelection([{ kind: 'entity', id }]); return id; });
 await page.waitForTimeout(300);
-check('status bar: Length of the selected line (60)', /Length: 60mm/.test(await page.locator('[data-testid="status-readout"]').innerText().catch(() => '')), await page.locator('[data-testid="status-readout"]').innerText().catch(() => '?'));
+check('status bar: Length of the selected line (60)', /Length: 60mm/.test(await page.locator('[data-testid="status-readout"]').innerText().catch(skip('gj.mjs:52', ''))), await page.locator('[data-testid="status-readout"]').innerText().catch(skip('gj.mjs:52', '?')));
 check('Line Properties PM title', /Line Properties/.test(await page.locator('.k-pm-title').innerText()));
 await S(() => { const s = window.__phlippoStore.getState(); const sk = s.doc.sketches.s1; const id = sk.entityOrder.find((e) => sk.entities[e].kind === 'circle'); s.setSelection([{ kind: 'entity', id }]); });
 await page.waitForTimeout(300);

@@ -1,5 +1,5 @@
 import { chromium } from 'playwright';
-import { checks, exitCode } from './lib/check.mjs';
+import { checks, exitCode, skip } from './lib/check.mjs';
 const { results, check } = checks();
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 const browser = await chromium.launch(process.platform === 'win32' ? { channel: process.env.PW_CHANNEL ?? 'msedge' } : { ...(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {}), args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
@@ -48,7 +48,7 @@ await page.mouse.click(cx + 260, cy - 100);
 await page.waitForTimeout(150);
 await page.keyboard.press('Escape');
 check('a redundant dimension makes it over defined', (await status()) === 'Over Defined', await status());
-check('the status bar explains the over defined sketch', /over defined/.test((await page.locator('.k-status-msg').textContent().catch(() => '')) ?? ''));
+check('the status bar explains the over defined sketch', /over defined/.test((await page.locator('.k-status-msg').textContent().catch(skip('relations.mjs:51', ''))) ?? ''));
 await page.screenshot({ path: `${OUT}/05-overdefined.png` });
 await page.keyboard.press('Escape');
 await page.keyboard.press('Control+z');

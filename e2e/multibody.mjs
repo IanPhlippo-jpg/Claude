@@ -90,7 +90,7 @@ await page.waitForTimeout(400);
 b = await B();
 check('material stored for body2 only', Object.keys(b.mats).length === 1 && Object.values(b.mats)[0].name === '1060 Alloy' && !(await page.evaluate(() => window.__phlippoStore.getState().doc.material)), JSON.stringify(b.mats));
 // the body's material is a row of its own under the body, by design
-await page.locator('.k-tree-row[data-id^="body-"]:has-text("Boss-Extrude2") .caret').first().click().catch(() => undefined);
+await page.locator('.k-tree-row[data-id^="body-"]:has-text("Boss-Extrude2") .caret').first().click().catch(skip('multibody.mjs:93'));
 await page.waitForTimeout(150);
 check('tree shows the material as a row under the body', (await page.locator('.k-tree-row[data-id^="bodymat-"]:has-text("1060 Alloy")').count()) === 1);
 await shot('m3-body-material');

@@ -3,7 +3,7 @@
 import { menuPath } from './lib/menu.mjs';
 import { chromium } from 'playwright';
 import { mkdirSync } from 'node:fs';
-import { checks, exitCode, track } from './lib/check.mjs';
+import { checks, exitCode, track, skip } from './lib/check.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -61,7 +61,7 @@ check('Body-Move/Copy1 is in the tree', (await page.locator('.k-tree-row:has-tex
 
 // ---- Bodies to Keep: a through cut splits the plate
 await plate(true);
-await page.locator('[data-testid="ask-no"]').click({ timeout: 3000 }).catch(() => undefined);
+await page.locator('[data-testid="ask-no"]').click({ timeout: 3000 }).catch(skip('bodies.mjs:64'));
 await page.waitForTimeout(300);
 await S(() => { window.__phlippoStore.setState({ selectedFeatureId: 'k2' }); window.__phlippoStore.getState().startFeature('extrude', 'cut'); });
 await page.waitForTimeout(200);

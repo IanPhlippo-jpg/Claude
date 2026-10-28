@@ -3,6 +3,7 @@
 // Since 0.3.4 the installed program has no test hooks (QA F53/F65); the unpackaged shell (`electron .` on dist/) uses the
 // same profile (%APPDATA%\phlippo-cad), so it reads and writes the installed app's autosave. Run `npm run build` first.
 import { _electron as electron } from 'playwright';
+import { skip } from './lib/check.mjs';
 // a fresh profile of its own: the checks never touch the user's documents or settings
 const profile = (await import('node:fs')).mkdtempSync((await import('node:path')).join((await import('node:os')).tmpdir(), 'phlippo-desktop-'));
 
@@ -23,7 +24,7 @@ const alive = async (label) => {
   if (r !== 1) failures++;
   return r === 1;
 };
-await page.click('.k-doctype:has-text("Part")').catch(() => undefined);
+await page.click('.k-doctype:has-text("Part")').catch(skip('desktop-delete.mjs:26'));
 await page.waitForTimeout(500);
 await page.keyboard.press('Delete');
 await alive('Delete in an empty part');
@@ -44,16 +45,16 @@ await page.waitForTimeout(800);
 const ok1 = await alive('Delete a sketch line');
 const n = ok1 ? await page.evaluate(() => { const s = window.__phlippoStore.getState(); return Object.keys(s.doc.sketches[s.activeSketchId]?.entities ?? {}).length; }) : -1;
 console.log('entities after delete:', n);
-await page.keyboard.press('Control+q').catch(() => undefined);
-await page.evaluate(() => window.__phlippoStore.getState().exitSketch()).catch(() => undefined);
+await page.keyboard.press('Control+q').catch(skip('desktop-delete.mjs:47'));
+await page.evaluate(() => window.__phlippoStore.getState().exitSketch()).catch(skip('desktop-delete.mjs:48'));
 await page.waitForTimeout(400);
-await page.locator('.k-tree-row:has-text("Sketch1")').first().click().catch(() => undefined);
+await page.locator('.k-tree-row:has-text("Sketch1")').first().click().catch(skip('desktop-delete.mjs:50'));
 await page.keyboard.press('Delete');
 await page.waitForTimeout(800);
 await alive('Delete the sketch feature');
-await page.screenshot({ path: 'e2e-out/desktop-delete.png' }).catch(() => undefined);
+await page.screenshot({ path: 'e2e-out/desktop-delete.png' }).catch(skip('desktop-delete.mjs:54'));
 console.log('logs:', logs.slice(-10));
-await page.evaluate((a) => (a === null ? localStorage.removeItem('phlippo.autosave') : localStorage.setItem('phlippo.autosave', a)), savedAutosave).catch(() => undefined);
+await page.evaluate((a) => (a === null ? localStorage.removeItem('phlippo.autosave') : localStorage.setItem('phlippo.autosave', a)), savedAutosave).catch(skip('desktop-delete.mjs:56'));
 // the window may ask to save the changed part when it closes: close with a time limit, then end the process
 await Promise.race([app.close(), new Promise((res) => setTimeout(res, 10000))]);
 try { app.process().kill(); } catch { /* already closed */ }

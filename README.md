@@ -17,8 +17,7 @@ npm run e2e        # Playwright-scenario's tegen de preview
 start-app.cmd     # app als eigen venster, schermvullend (Windows, Edge app-modus)
 start-desktop.cmd # echte desktop-app (Electron): eigen venster met - [] x, bestandsdialogen
 npm run desktop   # desktop-app tegen de dev-server (hot reload)
-npm run desktop:build  # installer + portable exe in %LOCALAPPDATA%\PhlippoCAD
-elease
+npm run desktop:build  # installer + portable exe in %LOCALAPPDATA%\PhlippoCAD\release
 npm run e2e:desktop    # Playwright-controle van het desktopvenster (na npm run build)
 ```
 
@@ -40,9 +39,21 @@ Status per fase:
 3. Variabelen en vergelijkingen (Tools ▸ Equations, Σ-maten) en configuraties (ConfigurationManager, Modify Configurations, configuratie per component) — **gereed**; ontwerptabellen (Excel) gepland
 4. Assemblies (Insert Components, Mates, Move/Rotate, BOM, Interference Detection) — **basis gereed**
 5. 2D-tekeningen (Sheet Format/Size, Model View, Projected View, Smart Dimension, Center Mark, Note, titelblok) — **basis gereed**
-6. Import/export — STL in/uit **gereed**; STEP/IGES niet (geen B-rep)
+6. Import/export — STL in/uit en STEP in/uit (B-rep-kernel) **gereed**; tekeningen naar DXF en PDF; IGES niet (de meegeleverde OpenCascade-build heeft geen IGES-writer)
 8. Sheet metal (Base Flange/Tab, Edge Flange, Flatten met K-factor) — **basis gereed**; Hem/Jog/Miter/Unfold gepland
 7. Massa-eigenschappen en meten — **gereed** (Mass Properties, Measure); materialen en rendering gepland
+
+## Status 0.5.4 (2026-10-28)
+
+De rest van het QA-rapport over 0.5.1 is verwerkt (docs/25-qa-rapport-v0.5.1.md).
+- Nieuwe features: Dome en Indent (Insert ▸ Features), Mounting Boss, Snap Hook en Lip/Groove (Insert ▸ Fastening Feature).
+- Software-OpenGL (SwiftShader) in de desktop-app: Options ▸ Performance, `--software-gl`, of de knop in de melding
+  "cannot show 3D graphics". De CI draait de desktopchecks daarmee.
+- De statusbalkprompts zijn in eigen woorden herschreven en de neutral-comments-check vangt frame-tags.
+- De e2e-scripts slikken geen fouten meer stil in: een optionele stap die faalt, verschijnt als `skip:` in de regressie.
+
+Over de CI: de branch wordt sinds 0.5.2 gepusht, maar de uitslag van GitHub Actions is van hieruit niet te lezen (private
+repo, geen `gh`). De regressiecijfers hieronder zijn Windows-cijfers; groen op Linux telt pas met een Actions-run.
 
 ## Status 0.5.1 (2026-10-27)
 
@@ -66,7 +77,7 @@ De open punten na 0.4.9 zijn afgewerkt (docs/23-open-punten-0.5.0.md).
 - Appearance heeft Basic/Advanced en de tabs Color/Image, Mapping, Illumination en Surface Finish.
 - Insert Bends kan afgeschuinde vlakken negeren. Face Fillet kent de methode Hold line.
 
-De regressiecijfers zijn Windows-cijfers. De CI en Linux zijn niet gedraaid, omdat er niet gepusht wordt.
+De regressiecijfers zijn Windows-cijfers. De CI en Linux zijn toen niet gedraaid, omdat er nog niet gepusht werd (sinds 0.5.2 wel; zie Status 0.5.4).
 
 ## Status 0.4.9 (2026-10-27)
 

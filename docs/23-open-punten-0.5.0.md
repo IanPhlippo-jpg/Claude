@@ -1,8 +1,8 @@
 # Open punten van QA 0.4.8 afgewerkt → 0.5.0 (2026-10-27)
 
 Deze ronde pakt de punten op die na 0.4.9 openstonden (F46, F47, F48, F103) en de laatste open taken van Vervolg 47.
-De regressie is gedraaid op **Windows** (msedge). Linux en de CI zijn niet gedraaid, omdat de branch niet gepusht wordt
-(F98, de beslissing van Ian).
+De regressie is gedraaid op **Windows** (msedge). Linux en de CI zijn toen niet gedraaid, omdat de branch nog niet gepusht
+werd (F98). Sinds 0.5.2 wordt er gepusht; de Actions-uitslag is van hieruit niet te lezen (README, Status 0.5.4).
 
 | Punt | Wat er veranderd is | Bewijs |
 |---|---|---|

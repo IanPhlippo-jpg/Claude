@@ -1,7 +1,7 @@
 // The last greyed-out items: Lasso Selection, Select Other, Isolate, Delete Body, Add Derived Configuration,
 // Animate collapse, sensor Notifications, Window ▸ Viewport ▸ Two / Four View.
 import { chromium } from 'playwright';
-import { exitCode } from './lib/check.mjs';
+import { exitCode, skip } from './lib/check.mjs';
 import { mkdirSync, readFileSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -32,7 +32,7 @@ const vp = await page.locator('.k-viewport').boundingBox();
 await page.mouse.click(vp.x + vp.width - 200, vp.y + vp.height - 120, { button: 'right' });
 await page.waitForTimeout(200);
 // Lasso Selection sits in the Selection Tools fly-out, by design
-await page.locator('.k-menu-item:has-text("Selection Tools")').first().hover().catch(() => undefined);
+await page.locator('.k-menu-item:has-text("Selection Tools")').first().hover().catch(skip('misc7.mjs:35'));
 await page.waitForTimeout(150);
 const lassoItem = page.locator('.k-menu-item:has-text("Lasso Selection")').first();
 const hasLasso = await lassoItem.count();

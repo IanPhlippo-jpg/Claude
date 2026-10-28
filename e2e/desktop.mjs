@@ -2,6 +2,7 @@
 // the window buttons (maximize / restore) and that the app renders. Run `npm run build` first.
 import { _electron as electron } from 'playwright';
 import { mkdirSync } from 'node:fs';
+import { skip } from './lib/check.mjs';
 // a fresh profile of its own: the checks never touch the user's documents or settings
 const profile = (await import('node:fs')).mkdtempSync((await import('node:path')).join((await import('node:os')).tmpdir(), 'phlippo-desktop-'));
 
@@ -60,7 +61,7 @@ await page.waitForTimeout(500);
 await page.evaluate(() => (document.activeElement instanceof HTMLElement ? document.activeElement.blur() : undefined));
 await page.keyboard.press('Escape');
 await page.keyboard.press('Control+o');
-await page.locator('[data-testid="ask-no"]').click({ timeout: 5000 }).catch(() => undefined);
+await page.locator('[data-testid="ask-no"]').click({ timeout: 5000 }).catch(skip('desktop.mjs:63'));
 const stepOk = await page.waitForFunction(() => window.__phlippoStore.getState().doc.features.some((f) => f.type === 'imported'), null, { timeout: 60000 }).then(() => true, () => false);
 const stepState = await page.evaluate(() => { const s = window.__phlippoStore.getState(); return { name: s.doc.name, bodies: s.rebuild.bodies.length, msgs: s.messages.map((m) => m.text).slice(-2) }; });
 stepState.opens = await app.evaluate(() => globalThis.__stepOpens);
@@ -79,7 +80,7 @@ await page.evaluate(() => {
   d.features = [{ id: 'k1', type: 'sketch', name: 'Sketch1', sketchId: 's1', suppressed: false }, { id: 'e1', type: 'extrude', name: 'Boss-Extrude1', sketchId: 's1', suppressed: false, op: 'boss', end: 'blind', depth: 8, reverse: false }];
   window.__phlippoStore.getState().openDocument(d);
 });
-await page.locator('[data-testid="ask-no"]').click({ timeout: 3000 }).catch(() => undefined);
+await page.locator('[data-testid="ask-no"]').click({ timeout: 3000 }).catch(skip('desktop.mjs:82'));
 const exactOk = await page.waitForFunction(() => window.__phlippoStore.getState().rebuild.bodies.some((b) => b.exact), null, { timeout: 60000 }).then(() => true, () => false);
 const ev = await page.evaluate(() => window.__phlippoStore.getState().rebuild.bodies[0]?.exactVolume ?? 0);
 check('a part becomes an exact B-rep body in the desktop app (docs/14)', exactOk && Math.abs(ev - (40 * 30 * 8 - Math.PI * 25 * 8)) < 1e-6, String(ev));

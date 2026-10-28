@@ -1,6 +1,7 @@
 // Desktop shell without PHLIPPO_E2E: no test hooks on window, the Content-Security-Policy is in place, the bridge
 // exposes no file paths to name. Run `npm run build` first.
 import { _electron as electron } from 'playwright';
+import { skip } from './lib/check.mjs';
 // a fresh profile of its own: the checks never touch the user's documents or settings
 const profile = (await import('node:fs')).mkdtempSync((await import('node:path')).join((await import('node:os')).tmpdir(), 'phlippo-desktop-'));
 let passed = 0, failed = 0;
@@ -33,7 +34,7 @@ await page.click('.k-doctype:has-text("Part")');
 await page.waitForTimeout(600);
 await page.click('.k-cm-tab:has-text("Render Tools")');
 await page.click('.k-cm-big:has-text("Final Render") .k-cm-main');
-await page.waitForSelector('[data-testid="final-image"]', { timeout: 15000 }).catch(() => {});
+await page.waitForSelector('[data-testid="final-image"]', { timeout: 15000 }).catch(skip('desktop-nohooks.mjs:36'));
 check('Final Render works without the test hooks', (await page.locator('[data-testid="final-image"]').count()) === 1);
 await page.locator('.k-dialog .k-btn:has-text("Close")').first().click({ timeout: 3000 }).catch(() => page.keyboard.press('Escape'));
 const errs = [];

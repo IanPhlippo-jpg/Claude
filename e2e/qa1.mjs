@@ -2,7 +2,7 @@
 // per document, Rebuild keeps undo and the unsaved flag, "Save changes?" before Open / New / Close, Modify refuses 0,
 // Confirm Delete defaults, Trimetric start view, no GPU leak over repeated feature edits, Enter repeats the last command.
 import { chromium } from 'playwright';
-import { exitCode } from './lib/check.mjs';
+import { exitCode, skip } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -65,7 +65,7 @@ await page.keyboard.press('Control+b');
 await page.waitForTimeout(500);
 s = await st();
 check('Rebuild (Ctrl+B) keeps undo and the unsaved flag', s.dirty && s.canUndo && s.features === 2, JSON.stringify(s));
-check('title shows the unsaved asterisk', (await page.locator('.k-mb-title, .k-titlebar, header').first().innerText().catch(() => '')).includes('*') || (await page.evaluate(() => document.body.innerText.includes('Plaat *'))));
+check('title shows the unsaved asterisk', (await page.locator('.k-mb-title, .k-titlebar, header').first().innerText().catch(skip('qa1.mjs:68', ''))).includes('*') || (await page.evaluate(() => document.body.innerText.includes('Plaat *'))));
 
 // ---- Save changes? before New (Ctrl+N) and Open; Cancel keeps everything
 await page.keyboard.press('Control+n');

@@ -1,6 +1,6 @@
 // Curves ▸ Helix and Spiral on a circle sketch, drawn as a curve; Swept Boss along the helix makes a spring.
 import { chromium } from 'playwright';
-import { exitCode } from './lib/check.mjs';
+import { exitCode, skip } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -40,7 +40,7 @@ await page.click('.k-cm-tab:has-text("Features")');
 await page.click('.k-cm-big:has-text("Curves") .k-cm-arrow');
 await page.click('.k-menu-item:has-text("Helix and Spiral")');
 await page.waitForTimeout(400);
-const pmInfo = (await page.locator('.k-pm-title').innerText().catch(() => 'no title')) + ' | ' + (await page.locator('.k-section').allInnerTexts()).map((t) => t.split(String.fromCharCode(10))[0]).join(',');
+const pmInfo = (await page.locator('.k-pm-title').innerText().catch(skip('helix.mjs:43', 'no title'))) + ' | ' + (await page.locator('.k-section').allInnerTexts()).map((t) => t.split(String.fromCharCode(10))[0]).join(',');
 check('Helix PM: Defined By, Parameters (pitch, revolutions, start angle, Clockwise)', (await page.locator('.k-pm-title:has-text("Helix/Spiral1")').count()) === 1 && (await page.locator('.k-section:has-text("Defined By")').count()) === 1 && (await page.locator('.k-check:has-text("Clockwise")').count()) >= 1, pmInfo);
 const curvesWhileEditing = await page.evaluate(() => window.__phlippoBodyScene && window.__phlippoBodyScene.group ? window.__phlippoBodyScene.group.children.filter((g) => g.type === 'Group').flatMap((g) => g.children).filter((o) => o.type === 'Line').length : -1);
 check('the helix is previewed as a curve', curvesWhileEditing >= 1 || curvesWhileEditing === -1, String(curvesWhileEditing));

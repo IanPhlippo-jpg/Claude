@@ -16,7 +16,7 @@ page.on('pageerror', (e) => errors.push('pageerror: ' + e.message));
 page.on('console', (m) => { if (m.type() === 'error') errors.push('console: ' + m.text()); });
 const shot = (n) => page.screenshot({ path: `${OUT}/${n}.png` });
 const S = () => page.evaluate(() => { const s = window.__phlippoStore.getState(); return { features: s.doc.features.map((f) => ({ type: f.type, name: f.name, op: f.op })), bodies: s.rebuild.bodies.length, errors: s.rebuild.errors, fe: s.featureEdit ? s.featureEdit.draft : null, active: s.activeSketchId, selFace: s.selectedFace, tab: s.tab }; });
-const status = async () => ((await page.locator('.k-statusbar').textContent().catch(() => '')) || '').trim().replace(/\s+/g, ' ');
+const status = async () => ((await page.locator('.k-statusbar').textContent().catch(skip('features.mjs:19', ''))) || '').trim().replace(/\s+/g, ' ');
 
 const expandTree = async () => { for (let k = 0; k < 8; k++) { const n = await page.evaluate(() => { const c = [...document.querySelectorAll('.k-tree-row .caret[data-open="false"]')]; c.forEach((x) => x.click()); return c.length; }); if (!n) break; await page.waitForTimeout(80); } };
 await page.goto(process.env.E2E_URL ?? 'http://localhost:4173/');

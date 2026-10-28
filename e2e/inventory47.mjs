@@ -5,7 +5,7 @@
 import { menuPath } from './lib/menu.mjs';
 import { chromium } from 'playwright';
 import { mkdirSync } from 'node:fs';
-import { checks, exitCode, track } from './lib/check.mjs';
+import { checks, exitCode, track, skip } from './lib/check.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -64,7 +64,7 @@ await S((id) => { window.__phlippoStore.getState().setSelection([]); window.__ph
 const vp = await page.locator('.k-viewport').boundingBox();
 await page.mouse.click(vp.x + vp.width - 150, vp.y + vp.height - 120, { button: 'right' });
 await page.waitForTimeout(200);
-const head = await page.locator('.k-menu-header').first().innerText().catch(() => '');
+const head = await page.locator('.k-menu-header').first().innerText().catch(skip('inventory47.mjs:67', ''));
 check('the shortcut menu starts with the dimension heading Dimension (D1@Sketch1(80.00))', head.includes('D1@Sketch1(80.00)'), head);
 check('Link Values…, Driven and Mark For Drawing are offered for the dimension', (await page.locator('.k-menu-item:has-text("Link Values")').count()) === 1 && (await page.locator('.k-menu-item:has-text("Driven")').count()) === 1 && (await page.locator('.k-menu-item:has-text("Mark For Drawing")').count()) === 1);
 await page.locator('.k-menu-item:has-text("Sketch Entities")').hover();
@@ -122,7 +122,7 @@ await page.waitForTimeout(300);
 // ---- bodies: [n] when one feature makes several
 await S(() => { const s = window.__phlippoStore.getState(); s.startMoveBody(); s.updateFeatureDraft({ copy: true, copies: 2, translate: [100, 0, 0] }); s.commitFeature(); });
 await page.waitForTimeout(600);
-await page.locator('.k-tree-row:has-text("Solid Bodies") .caret').first().click().catch(() => undefined);
+await page.locator('.k-tree-row:has-text("Solid Bodies") .caret').first().click().catch(skip('inventory47.mjs:125'));
 await page.waitForTimeout(150);
 const names = await page.locator('.k-tree-row[data-id^="body-"]').allInnerTexts();
 check('two bodies of one feature are named Body-Move/Copy1[1] and [2]', names.some((n) => n.includes('Body-Move/Copy1[1]')) && names.some((n) => n.includes('Body-Move/Copy1[2]')), JSON.stringify(names));
@@ -168,18 +168,18 @@ await S(() => {
   d.features = [{ id: 'im1', type: 'imported', name: 'Imported1', suppressed: false, positions: tri, source: 'box.stl' }];
   window.__phlippoStore.getState().openDocument(d);
 });
-await page.locator('[data-testid="ask-no"]').click({ timeout: 1500 }).catch(() => undefined);
+await page.locator('[data-testid="ask-no"]').click({ timeout: 1500 }).catch(skip('inventory47.mjs:171'));
 await page.waitForTimeout(400);
 await S(() => window.__phlippoStore.getState().setDialog('importDiagnostics'));
-await page.waitForSelector('[data-testid="import-diagnostics"]', { timeout: 5000 }).catch(() => undefined);
-const gapsOf = () => page.locator('[data-testid="import-diagnostics"] tbody td').nth(2).innerText().catch(() => '');
+await page.waitForSelector('[data-testid="import-diagnostics"]', { timeout: 5000 }).catch(skip('inventory47.mjs:174'));
+const gapsOf = () => page.locator('[data-testid="import-diagnostics"] tbody td').nth(2).innerText().catch(skip('inventory47.mjs:175', ''));
 const gaps0 = await gapsOf();
 await page.locator('[data-testid="import-heal"]').click();
 await page.waitForTimeout(400);
 const gaps1 = await gapsOf();
 check('Import Diagnostics finds the gaps and Attempt to Heal All closes them', Number(gaps0) > 0 && Number(gaps1) === 0, `${gaps0} → ${gaps1}`);
 await page.screenshot({ path: `${OUT}/inventory47.png` });
-await page.locator('[data-testid="import-diagnostics"] button:has-text("Close")').click().catch(() => undefined);
+await page.locator('[data-testid="import-diagnostics"] button:has-text("Close")').click().catch(skip('inventory47.mjs:182'));
 
 // ---- sheet metal: a base flange from an open U profile shows BaseBend1 and BaseBend2 under it
 await S(() => {
@@ -194,9 +194,9 @@ await S(() => {
   d.features = [{ id: 'k1', type: 'sketch', name: 'Sketch1', sketchId: 'u1', suppressed: false }, { id: 'bf1', type: 'baseFlange', name: 'Base-Flange1', sketchId: 'u1', suppressed: false, depth: 60, midPlane: true, reverse: false, flipDir: false }];
   window.__phlippoStore.getState().openDocument(d);
 });
-await page.locator('[data-testid="ask-no"]').click({ timeout: 1500 }).catch(() => undefined);
+await page.locator('[data-testid="ask-no"]').click({ timeout: 1500 }).catch(skip('inventory47.mjs:197'));
 await page.waitForTimeout(500);
-await page.locator('.k-tree-row:has-text("Base-Flange1") .caret').first().click().catch(() => undefined);
+await page.locator('.k-tree-row:has-text("Base-Flange1") .caret').first().click().catch(skip('inventory47.mjs:199'));
 await page.waitForTimeout(200);
 check('Base-Flange1 holds BaseBend1 and BaseBend2', (await page.locator('.k-tree-row:has-text("BaseBend1")').count()) === 1 && (await page.locator('.k-tree-row:has-text("BaseBend2")').count()) === 1);
 

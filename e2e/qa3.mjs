@@ -188,7 +188,7 @@ await S(() => { const st = window.__phlippoStore.getState(); st.setPrefs({ ...st
 await page.waitForTimeout(300);
 await page.locator('[data-testid="toolbox-folder"] button:has-text("Open")').click();
 await page.waitForTimeout(300);
-check('Standard Parts Open with unsaved changes asks "Save changes?"', /Save changes to Nieuw\?/.test(await page.locator('[data-testid="ask"]').innerText().catch(() => '')));
+check('Standard Parts Open with unsaved changes asks "Save changes?"', /Save changes to Nieuw\?/.test(await page.locator('[data-testid="ask"]').innerText().catch(skip('qa3.mjs:191', ''))));
 await page.locator('[data-testid="ask"] button:has-text("Cancel"), [data-testid="ask-cancel"]').first().click().catch(() => page.keyboard.press('Escape'));
 await S(() => window.__phlippoStore.getState().setTaskPane('library'));
 
@@ -248,7 +248,7 @@ check('a dropped file never navigates the window', dropped);
 // ---- F64: the Tolerance Tree without a scheme says so once, readable
 await S(() => window.__phlippoStore.getState().setManagerTab('autoTolerance'));
 await page.waitForTimeout(300);
-const dxText = await page.locator('[data-testid="dx-empty"]').evaluate((el) => el.parentElement.innerText).catch(() => '');
+const dxText = await page.locator('[data-testid="dx-empty"]').evaluate((el) => el.parentElement.innerText).catch(skip('qa3.mjs:251', ''));
 check('Tolerance Tree without a scheme: no "Auto Dimension Scheme (n …)" next to "No … scheme"', /No tolerance scheme yet/.test(dxText) && !/Auto Dimension Scheme \(\d/.test(dxText), dxText.slice(0, 160));
 const wraps = await page.locator('[data-testid="dx-empty"]').evaluate((el) => el.scrollWidth <= el.clientWidth + 1);
 check('the empty text wraps instead of being cut off', wraps);

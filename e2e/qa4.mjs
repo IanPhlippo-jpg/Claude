@@ -73,9 +73,9 @@ await S(() => {
 await page.waitForTimeout(500);
 const errs = await S(() => Object.keys(window.__phlippoStore.getState().rebuild.errors));
 check("a model with rebuild errors opens with What's Wrong (F78)", errs.length > 0 && (await page.locator('[data-testid="whats-wrong"]').count()) === 1 && /Cut-Extrude1/.test(await page.locator('[data-testid="whats-wrong-list"]').innerText()), JSON.stringify(errs));
-const marker = await page.locator('[data-testid="tree-error"]').first().evaluate((el) => { const r = el.getBoundingClientRect(); const pane = el.closest('.k-panel-body, .k-manager, .k-tree')?.parentElement?.getBoundingClientRect(); const tree = document.querySelector('.k-tree')?.closest('[class*="k-"]')?.getBoundingClientRect(); return { right: r.right, paneRight: Math.min(pane?.right ?? 9999, document.querySelector('.k-viewport').getBoundingClientRect().left) }; }).catch(() => null);
+const marker = await page.locator('[data-testid="tree-error"]').first().evaluate((el) => { const r = el.getBoundingClientRect(); const pane = el.closest('.k-panel-body, .k-manager, .k-tree')?.parentElement?.getBoundingClientRect(); const tree = document.querySelector('.k-tree')?.closest('[class*="k-"]')?.getBoundingClientRect(); return { right: r.right, paneRight: Math.min(pane?.right ?? 9999, document.querySelector('.k-viewport').getBoundingClientRect().left) }; }).catch(skip('qa4.mjs:76', null));
 check('the error marker of the feature is visible inside the tree pane (F78)', marker && marker.right <= marker.paneRight + 1, JSON.stringify(marker));
-check('the status bar says the model has rebuild errors', /rebuild error/.test(await page.locator('[data-testid="status-errors"]').innerText().catch(() => '')));
+check('the status bar says the model has rebuild errors', /rebuild error/.test(await page.locator('[data-testid="status-errors"]').innerText().catch(skip('qa4.mjs:78', ''))));
 await shot('qa4-f78-whatswrong');
 await page.locator('[data-testid="whats-wrong"] .k-btn:has-text("Close")').click();
 // ---- F40: saving a model with rebuild errors asks first
@@ -83,7 +83,7 @@ await S(() => window.__phlippoStore.setState({ dirty: true }));
 await page.mouse.click(1000, 600);
 await page.keyboard.press('Control+s');
 await page.waitForTimeout(300);
-check('Save of a model with rebuild errors asks first (F40)', /could not be rebuilt/.test(await page.locator('[data-testid="ask"]').innerText().catch(() => '')));
+check('Save of a model with rebuild errors asks first (F40)', /could not be rebuilt/.test(await page.locator('[data-testid="ask"]').innerText().catch(skip('qa4.mjs:86', ''))));
 await page.locator('[data-testid="ask"] .k-btn:has-text("Cancel")').click().catch(skip('qa4: cancel save'));
 await S(() => window.__phlippoStore.setState({ dirty: false }));
 
@@ -103,7 +103,7 @@ await page.waitForTimeout(400);
 await page.mouse.click(1000, 600);
 await page.keyboard.press('Control+n');
 await page.waitForTimeout(300);
-const ask74 = await page.locator('[data-testid="ask"]').innerText().catch(() => '');
+const ask74 = await page.locator('[data-testid="ask"]').innerText().catch(skip('qa4.mjs:106', ''));
 check('Ctrl+N during Edit Component asks to save the assembly (F74)', /being edited in Assem1/.test(ask74) && /save/i.test(ask74), ask74.slice(0, 120));
 await page.locator('[data-testid="ask-cancel"]').click();
 check('Cancel keeps the component edit open', await S(() => !!window.__phlippoStore.getState().editContext));
@@ -124,18 +124,18 @@ if (await depth.count()) {
   await depth.fill('1e7');
   await depth.blur();
   await page.waitForTimeout(150);
-  check('a depth of 1e7 is refused with a note (F81)', /Refused/.test(await page.locator('[data-testid="num-note"]').first().innerText().catch(() => '')));
+  check('a depth of 1e7 is refused with a note (F81)', /Refused/.test(await page.locator('[data-testid="num-note"]').first().innerText().catch(skip('qa4.mjs:127', ''))));
   await depth.fill('-5');
   await depth.blur();
   await page.waitForTimeout(150);
-  check('a depth of -5 is adjusted with a note (F81)', /Adjusted to/.test(await page.locator('[data-testid="num-note"]').first().innerText().catch(() => '')));
+  check('a depth of -5 is adjusted with a note (F81)', /Adjusted to/.test(await page.locator('[data-testid="num-note"]').first().innerText().catch(skip('qa4.mjs:131', ''))));
   await shot('qa4-f81-note');
   await S(() => window.__phlippoStore.getState().cancelFeature());
 } else check('the Extrude panel opens for editing', false);
 // pattern limit
 await S(() => { const s = window.__phlippoStore.getState(); window.__phlippoStore.setState({ selectedFeatureId: 'e1' }); s.startPattern('linearPattern'); s.updateFeatureDraft({ featureIds: ['e1'], dir1: { axis: [1, 0, 0], spacing: 70, count: 20 }, dir2: { axis: [0, 0, 1], spacing: 50, count: 20 } }); });
 await page.waitForTimeout(300);
-check('more than 250 instances: the pattern panel says so (F81)', /maximum is 250/.test(await page.locator('[data-testid="pattern-limit"]').innerText().catch(() => '')));
+check('more than 250 instances: the pattern panel says so (F81)', /maximum is 250/.test(await page.locator('[data-testid="pattern-limit"]').innerText().catch(skip('qa4.mjs:138', ''))));
 await S(() => window.__phlippoStore.getState().cancelFeature());
 
 // ---- F79: Final Render restores the selection and does not keep it in the image state

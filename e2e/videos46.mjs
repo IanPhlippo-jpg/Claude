@@ -3,7 +3,7 @@
 // Base Flange on sheet metal as Tab1, the Selection Filter (F5), the sketch tool prompts, Normal Distance between two
 // parallel faces, Diameter of a cylindrical face, Mass Properties of selected bodies and a doubled distance.
 import { chromium } from 'playwright';
-import { exitCode } from './lib/check.mjs';
+import { exitCode, skip } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -18,7 +18,7 @@ page.on('console', (m) => { if (m.type() === 'error') errors.push('console: ' + 
 const S = (fn, arg) => page.evaluate(fn, arg);
 const status = () => page.locator('.k-statusbar').innerText();
 let r;
-const readout = () => page.locator('[data-testid="status-readout"]').innerText().catch(() => '');
+const readout = () => page.locator('[data-testid="status-readout"]').innerText().catch(skip('videos46.mjs:21', ''));
 
 await page.goto(process.env.E2E_URL ?? 'http://localhost:4173/');
 await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.theme', 'light'); });
@@ -58,7 +58,7 @@ check('the Depth driven by "T" * 2 shows Σ', (await page.locator('[data-testid=
 const dep = page.locator('.k-number-eq input').first();
 await dep.click();
 await page.waitForTimeout(150);
-check('a click into the field shows its equation', (await page.locator('[data-testid="eq-input"]').inputValue().catch(() => '')).includes('"T" * 2'));
+check('a click into the field shows its equation', (await page.locator('[data-testid="eq-input"]').inputValue().catch(skip('videos46.mjs:61', ''))).includes('"T" * 2'));
 await page.keyboard.press('Escape');
 await S(() => window.__phlippoStore.getState().cancelFeature());
 await page.waitForTimeout(200);
@@ -91,7 +91,7 @@ await page.waitForTimeout(200);
 check('F2 renames Top Plane', (await page.locator('.k-tree').first().innerText()).includes('Top Plane-FLOOR PLANE'));
 
 // ---- a body renamed through its menu
-await page.locator('.k-tree-row:has-text("Solid Bodies") .caret').first().click().catch(() => undefined);
+await page.locator('.k-tree-row:has-text("Solid Bodies") .caret').first().click().catch(skip('videos46.mjs:94'));
 await page.waitForTimeout(150);
 await page.locator('.k-tree-row[data-id^="body-"]').first().click({ button: 'right' });
 await page.waitForTimeout(150);
@@ -198,7 +198,7 @@ await page.locator('.k-tree-row:has-text("Sketch2")').last().click({ button: 'ri
 await page.waitForTimeout(150);
 await page.locator('.k-menu-item:has-text("Sketch Color")').first().click();
 await page.waitForTimeout(300);
-check('Sketch Color opens the Sketch/Curve Color panel (Remove Color, standard palette, configurations)', /Remove Color[\s\S]*standard[\s\S]*All configurations/.test(await page.locator('[data-testid="curvecolor-pm"]').innerText().catch(() => '')));
+check('Sketch Color opens the Sketch/Curve Color panel (Remove Color, standard palette, configurations)', /Remove Color[\s\S]*standard[\s\S]*All configurations/.test(await page.locator('[data-testid="curvecolor-pm"]').innerText().catch(skip('videos46.mjs:201', ''))));
 await page.locator('[data-testid="curvecolor-grid"] button[title="#ff0000"]').click();
 await page.screenshot({ path: `${OUT}/videos46-curvecolor.png` });
 await page.click('[data-testid="curvecolor-ok"]');
@@ -218,7 +218,7 @@ await S(() => {
   window.__phlippoStore.getState().openDocument(d);
 });
 await page.waitForTimeout(600);
-await page.click('.k-ribbon-tab:has-text("Features")').catch(() => undefined);
+await page.click('.k-ribbon-tab:has-text("Features")').catch(skip('videos46.mjs:221'));
 await S(() => window.__phlippoStore.getState().startCompositeCurve());
 await page.waitForTimeout(200);
 check('Composite Curve opens its panel (Entities to Join)', (await page.locator('.k-pm-host').innerText()).includes('Entities to Join'));

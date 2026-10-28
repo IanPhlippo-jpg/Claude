@@ -4,7 +4,7 @@
 // Radius / Area + Perimeter readouts; the tree context toolbar of a sketch (Show/Hide, Zoom to Selection, Normal To);
 // the mass sensor with 9 significant digits.
 import { chromium } from 'playwright';
-import { exitCode } from './lib/check.mjs';
+import { exitCode, skip } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -74,12 +74,12 @@ check('File Properties: "Density" is the material density (7.8 g/cm³)', Math.ab
 // ---- status bar readouts on model geometry: a face (Area + Perimeter)
 await S(() => { const s = window.__phlippoStore.getState(); const b = s.rebuild.bodies[0]; const f = b.faces.find((x) => x.normal[1] > 0.999); s.setSelectedFace({ bodyId: b.id, faceId: f.id }); });
 await page.waitForTimeout(200);
-const ro = await page.locator('[data-testid="status-readout"]').innerText().catch(() => '');
+const ro = await page.locator('[data-testid="status-readout"]').innerText().catch(skip('videos56.mjs:77', ''));
 check('a face shows "Area: 4800mm^2   Perimeter: 280mm"', /Area: 4800mm\^2\s+Perimeter: 280mm/.test(ro), ro);
 await S(() => window.__phlippoStore.getState().setSelectedFace(null));
 
 // ---- the tree context toolbar of a sketch: Show/Hide, Zoom to Selection, Normal To
-await page.locator('.k-tree-row:has-text("Boss-Extrude1") .caret').first().click().catch(() => undefined);
+await page.locator('.k-tree-row:has-text("Boss-Extrude1") .caret').first().click().catch(skip('videos56.mjs:82'));
 await page.waitForTimeout(200);
 await page.locator('.k-tree-row:has-text("Sketch1")').first().click();
 await page.waitForTimeout(700);
@@ -114,7 +114,7 @@ await page.waitForTimeout(800);
 await page.locator('.k-tree-row:has-text("Rib1")').last().dblclick();
 await page.waitForTimeout(400);
 check('Rib1 ▸ status prompt "Set the direction and the thickness of the rib."', (await status()).includes('Set the direction and the thickness of the rib.'), await status());
-check('Rib (Normal to Sketch) ▸ Type: Linear / Natural', /Type:[\s\S]*Linear[\s\S]*Natural/.test(await page.locator('[data-testid="rib-type"]').innerText().catch(() => '')));
+check('Rib (Normal to Sketch) ▸ Type: Linear / Natural', /Type:[\s\S]*Linear[\s\S]*Natural/.test(await page.locator('[data-testid="rib-type"]').innerText().catch(skip('videos56.mjs:117', ''))));
 check('without draft no Rib Thickness choice', (await page.locator('[data-testid="rib-thickness-at"]').count()) === 0);
 await page.click('[data-testid="rib-draft-toggle"]');
 await page.waitForTimeout(200);
@@ -141,7 +141,7 @@ await S(() => window.__phlippoStore.getState().cancelFeature());
 // ---- the mass sensor: 9 significant digits
 await S(() => window.__phlippoStore.getState().addSensor?.('mass'));
 await page.waitForTimeout(400);
-await page.locator('.k-tree-row:has-text("Sensors") .caret').first().click().catch(() => undefined);
+await page.locator('.k-tree-row:has-text("Sensors") .caret').first().click().catch(skip('videos56.mjs:144'));
 await page.waitForTimeout(200);
 const tree = await page.locator('.k-tree').first().innerText();
 const m = /Mass1\((\d+)\.(\d+) g\)/.exec(tree);

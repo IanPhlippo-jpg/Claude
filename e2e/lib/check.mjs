@@ -29,4 +29,5 @@ export function exitCode(results, errors = []) {
 }
 
 /** for an optional step (a question that may not come, a section that may already be open): never silent */
-export const skip = (what) => (e) => console.log(`skip: ${what} (${String(e?.message ?? e).split('\n')[0].slice(0, 120)})`);
+// `.catch(skip('what'))` gives undefined, `.catch(skip('what', ''))` the given value (QA v0.5.1 F133: no silent catches)
+export const skip = (what, value) => (e) => { console.log(`skip: ${what} (${String(e?.message ?? e).split('\n')[0].slice(0, 120)})`); return value; };

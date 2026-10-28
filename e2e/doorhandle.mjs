@@ -298,7 +298,7 @@ await page.evaluate(() => window.__phlippoStore.getState().setExploded(false));
 // mass
 const mass = await page.evaluate(() => { const s = window.__phlippoStore.getState(); s.setDialog('mass'); return true; });
 await page.waitForTimeout(400);
-const report = await page.locator('.k-mass-report').innerText().catch(() => '');
+const report = await page.locator('.k-mass-report').innerText().catch(skip('doorhandle.mjs:301', ''));
 check('Mass Properties of the assembly', mass && /Mass = /.test(report), report.slice(0, 80));
 await page.evaluate(() => window.__phlippoStore.getState().setDialog(null));
 

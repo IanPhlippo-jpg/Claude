@@ -2,7 +2,7 @@
 // with the views, dimensions and the sheet format; no selection highlight in the file.
 import { menuPath } from './lib/menu.mjs';
 import { chromium } from 'playwright';
-import { exitCode } from './lib/check.mjs';
+import { exitCode, skip } from './lib/check.mjs';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -69,7 +69,7 @@ check('PDF draws vectors and text', (s.match(/ l /g) ?? []).length > 100 && (s.m
 check('no selection blue in the file (black only)', !/0\.1\d* 0\.4\d* 0\.8\d* RG/.test(s));
 // the PDF as Edge shows it
 const viewer = await browser.newPage({ viewport: { width: 1400, height: 1000 } });
-await viewer.goto('file:///' + `${process.cwd()}/${OUT}/sheet.pdf`.replace(/\\/g, '/')).catch(() => {});
+await viewer.goto('file:///' + `${process.cwd()}/${OUT}/sheet.pdf`.replace(/\\/g, '/')).catch(skip('sheetexport.mjs:72'));
 await viewer.waitForTimeout(2500);
 await viewer.screenshot({ path: `${OUT}/sheet-pdf.png` });
 await viewer.close();

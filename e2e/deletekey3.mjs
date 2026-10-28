@@ -1,6 +1,7 @@
 // Delete in the over-defined center rectangle sketch of the user's own part (e2e/fixtures/user-part1.json)
 import { chromium, _electron as electron } from 'playwright';
 import { readFileSync } from 'node:fs';
+import { skip } from './lib/check.mjs';
 
 const exe = process.env.PHLIPPO_EXE;
 const app = exe ? await electron.launch({ executablePath: exe, args: [] }) : null;
@@ -12,7 +13,7 @@ const alive = async (label) => {
   const t0 = Date.now();
   const r = await Promise.race([page.evaluate(() => 1), new Promise((res) => setTimeout(() => res('timeout'), 8000))]);
   console.log(`${r === 1 ? 'ok  ' : 'FROZEN'} ${label} (${Date.now() - t0} ms)`);
-  if (r !== 1) { console.log(logs); if (app) await app.close().catch(() => undefined); process.exit(1); }
+  if (r !== 1) { console.log(logs); if (app) await app.close().catch(skip('deletekey3.mjs:15')); process.exit(1); }
 };
 if (!exe) {
   await page.goto(process.env.E2E_URL ?? 'http://localhost:4173/');
@@ -60,4 +61,4 @@ for (const name of ['Fillet1', 'Sketch2', 'Boss-Extrude1', 'Sketch1']) {
   console.log('   ', JSON.stringify(st));
 }
 console.log('logs:', logs);
-if (app) { await page.evaluate((a) => (a === null ? localStorage.removeItem('phlippo.autosave') : localStorage.setItem('phlippo.autosave', a)), savedAutosave).catch(() => undefined); await app.close(); } else await browser.close();
+if (app) { await page.evaluate((a) => (a === null ? localStorage.removeItem('phlippo.autosave') : localStorage.setItem('phlippo.autosave', a)), savedAutosave).catch(skip('deletekey3.mjs:63')); await app.close(); } else await browser.close();

@@ -3,7 +3,7 @@
 // fillet stays exact; a shell (no B-rep version yet) falls back to the mesh kernel and the part still builds.
 import { chromium } from 'playwright';
 import { mkdirSync, readFileSync } from 'node:fs';
-import { checks, exitCode, track } from './lib/check.mjs';
+import { checks, exitCode, track, skip } from './lib/check.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -77,7 +77,7 @@ await page.screenshot({ path: `${OUT}/brep-fillet.png` });
 // Mass Properties uses the exact volume
 await S(() => window.__phlippoStore.getState().setDialog('mass'));
 await page.waitForTimeout(400);
-const massText = await page.locator('.k-mass-dialog').first().evaluate((el) => el.innerText + ' ' + [...el.querySelectorAll('textarea, pre')].map((t) => t.value ?? t.textContent).join(' ')).catch(() => '');
+const massText = await page.locator('.k-mass-dialog').first().evaluate((el) => el.innerText + ' ' + [...el.querySelectorAll('textarea, pre')].map((t) => t.value ?? t.textContent).join(' ')).catch(skip('brep.mjs:80', ''));
 await S(() => window.__phlippoStore.getState().setDialog(null));
 const volShown = /Volume\s*=?\s*([\d.,]+)/i.exec(massText);
 check('Mass Properties shows the exact volume', !!volShown && Math.abs(parseFloat(volShown[1].replace(/,/g, '')) - exact2) < 0.6, (volShown ?? [''])[0] || massText.replace(/\s+/g, ' ').slice(0, 300));
@@ -99,7 +99,7 @@ check('a linear pattern of the plate is exact: two exact bodies (docs/16)', okPa
 // an assembly: the door handle; every part is refined once and the assembly is rebuilt from the exact parts
 const asm = readFileSync('voorbeelden/deurkruk/Deurkruk.kcad', 'utf8');
 await page.evaluate((t) => { const d = JSON.parse(t); delete d.format; window.__phlippoStore.getState().openDocument(d); }, asm);
-await page.locator('[data-testid="ask-no"]').click({ timeout: 3000 }).catch(() => undefined);
+await page.locator('[data-testid="ask-no"]').click({ timeout: 3000 }).catch(skip('brep.mjs:102'));
 const okAsm = await page.waitForFunction(() => { const s = window.__phlippoStore.getState(); return s.doc.kind === 'assembly' && s.rebuild.bodies.length > 5 && s.rebuild.bodies.every((b) => b.exact); }, null, { timeout: 90000 }).then(() => true, () => false);
 const sa = await S(() => { const s = window.__phlippoStore.getState(); return { n: s.rebuild.bodies.length, exact: s.rebuild.bodies.filter((b) => b.exact).length, errors: Object.keys(s.rebuild.errors).length }; });
 check('the door handle assembly: every component is an exact body', okAsm && sa.n === sa.exact && !sa.errors, JSON.stringify(sa));

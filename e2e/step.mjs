@@ -3,7 +3,7 @@
 import { menuPath } from './lib/menu.mjs';
 import { chromium } from 'playwright';
 import { mkdirSync } from 'node:fs';
-import { checks, exitCode, track } from './lib/check.mjs';
+import { checks, exitCode, track, skip } from './lib/check.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -49,7 +49,7 @@ check('Export Options for STEP: Output as AP214 and the unit', (await page.locat
 const dl = page.waitForEvent('download', { timeout: 60000 });
 await page.locator('[data-testid="export-ok"]').click();
 await page.locator('[data-testid="ask-yes"]').waitFor({ timeout: 60000 });
-const info = await page.locator('[data-testid="ask"]').innerText().catch(() => '');
+const info = await page.locator('[data-testid="ask"]').innerText().catch(skip('step.mjs:52', ''));
 check('STEP Info names one solid and its volume', /1 solid/.test(info) && /AP214/.test(info), info.replace(/\s+/g, ' ').slice(0, 160));
 await page.screenshot({ path: `${OUT}/step-info.png` });
 await page.locator('[data-testid="ask-yes"]').click();
@@ -73,7 +73,7 @@ await page.screenshot({ path: `${OUT}/step-imported.png` });
 
 // ---- a damaged STEP file: a message, the open part stays
 await page.setInputFiles('#phlippo-open-file', { name: 'kapot.step', mimeType: 'model/step', buffer: Buffer.from('ISO-10303-21;\nHEADER;\nENDSEC;\nDATA;\nENDSEC;\nEND-ISO-10303-21;\n') });
-await page.waitForFunction(() => window.__phlippoStore.getState().messages.some((m) => /Cannot open kapot\.step/.test(m.text)), null, { timeout: 60000 }).catch(() => undefined);
+await page.waitForFunction(() => window.__phlippoStore.getState().messages.some((m) => /Cannot open kapot\.step/.test(m.text)), null, { timeout: 60000 }).catch(skip('step.mjs:76'));
 const msgs = await S(() => window.__phlippoStore.getState().messages.map((m) => m.text));
 check('a STEP file without solids is refused with a message; the part stays open', msgs.some((m) => /Cannot open kapot\.step/.test(m)) && (await S(() => window.__phlippoStore.getState().doc.name)) === 'Blok', msgs.slice(-2).join(' | '));
 

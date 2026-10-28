@@ -12,7 +12,7 @@ const results = [];
 const check = (name, ok, info = '') => { results.push({ name, ok: !!ok, info }); if (!ok) console.log('FAIL', name, info); };
 const S = () => page.evaluate(() => window.__phlippoStore.getState());
 const sk = async () => { const s = await S(); return s.doc.sketches[s.activeSketchId]; };
-const status = async () => ((await page.locator('.k-statusbar .status').first().textContent().catch(() => '')) || '').trim();
+const status = async () => ((await page.locator('.k-statusbar .status').first().textContent().catch(skip('full.mjs:15', ''))) || '').trim();
 const nEnt = async () => (await sk()).entityOrder.length;
 const nCon = async () => (await sk()).constraintOrder.length;
 const kinds = async () => { const s = await sk(); return s.constraintOrder.map((id) => s.constraints[id].kind); };
