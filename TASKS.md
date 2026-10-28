@@ -774,3 +774,11 @@ elease; README en docs/04 bijgewerkt
 - [x] Ingeslikte catches in e2e gericht maken (F133); docs en line-budget-doelen (F129/F134)
 - [x] Regressie (Windows 96/96, B-rep 12/12, worker 6/6), release 0.5.4, push
 - [x] 0.5.5: voorbeeld van Dome, Indent, Mounting Boss, Snap Hook en Lip/Groove terwijl het paneel open is
+
+## Uiterlijk en handelingen naast SOLIDWORKS leggen (2026-10-28)
+- [x] Referentieframes zoeken: model in shaded-with-edges, achtergrond, selectie/hover, schets, PropertyManager
+- [x] Uiterlijk vergelijken: belichting te vlak (219/240/218 i.p.v. 254/180/230), geen AO, selectie flets blauw i.p.v. cyaan; iconen (teal = standaardstijl), achtergrond en donker thema komen overeen
+- [x] Uiterlijk aanpassen: belichting gekalibreerd, AO standaard aan (software-GL: na stilstand), selectie cyaan; voor/na in docs/screenshots/shading-voor-na.png
+- [~] Basishandelingen vergelijken: schets + extrude, fillet, maat wijzigen, draaien/zoomen/pannen, selecteren
+- [ ] Verschillen in handelingen oplossen, met e2e-controle
+- [ ] Regressie, release, push

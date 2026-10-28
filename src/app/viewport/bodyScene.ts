@@ -91,12 +91,13 @@ interface BodyEntry {
 }
 
 /**
- * The graphics area's lights, fixed to the camera (view space: x right, y up, z towards the viewer), as the
- * default scene: a key light from the upper left and ambient (the fill is off by default).
- * Calibrated: an isometric box measures top 227, left 223, right 172 (grey levels).
+ * The graphics area's lights, fixed to the camera (view space: x right, y up, z towards the viewer): one key light
+ * from the upper right in front of the model, and ambient (the fill is off by default).
+ * Calibrated on the reference part in the default grey (e2e/tools/calib-light.mjs, isometric box): top face 254,
+ * front face 180, right face 230 grey, as measured in the reference frames (2026-10-28). The faces turned to the
+ * light read clearly apart, so the shape shows without edges.
  */
-/** target grey levels: top face 219, front 240, right 218 */
-export const LIGHTING = { key: { dir: [-0.2, 0.15, 0.97] as [number, number, number], intensity: 3.0 }, fill: { dir: [0.9, 0.1, 0.4] as [number, number, number], intensity: 0.72 }, ambient: 1.05 };
+export const LIGHTING = { key: { dir: [0.266, 0.338, 0.903] as [number, number, number], intensity: 3.462 }, fill: { dir: [0.9, 0.1, 0.4] as [number, number, number], intensity: 0 }, ambient: 1.1 };
 
 // test hook: the lighting can be tuned live
 // the light calibration scripts read the lighting through the test hooks (one gate, F83)
@@ -670,8 +671,9 @@ export class BodyScene {
       (o as THREE.Mesh).geometry.dispose();
       ((o as THREE.Mesh).material as THREE.Material).dispose();
     }
-    // the selection of the intended design: its blue (measured 57,128,247 lit) shaded as the model, half over the part's own colour
-    const SEL_BLUE = 0x3a83fc;
+    // the selection: an opaque cyan that is only mildly shaded (reference frames: a face turned to the light 64,240,250,
+    // a face turned away 30,200,251): part of it is its own glow, the rest is lit as the model
+    const SEL_BLUE = 0x45b100, SEL_GLOW = 0x009cfc;
     const overlay = (ref: { bodyId: string; faceId: string }, color: string, opacity: number, shaded = false) => {
       const body = input.bodies.find((b) => b.id === ref.bodyId);
       const face = body?.faces.find((f) => f.id === ref.faceId);
@@ -696,7 +698,7 @@ export class BodyScene {
       // depth-tested and pulled slightly forward: only the visible part of the face lights up, by design
       // between the face (pushed back by 1) and its edges (not pushed): the black edges stay on top, by design
       const common = { transparent: opacity < 1, opacity, side: THREE.DoubleSide, depthWrite: false, polygonOffset: true, polygonOffsetFactor: 0.5, polygonOffsetUnits: 0.5 };
-      const m = new THREE.Mesh(g, shaded ? new THREE.MeshPhongMaterial({ color: SEL_BLUE, specular: 0x222222, shininess: 20, ...common }) : new THREE.MeshBasicMaterial({ color: new THREE.Color(color), ...common }));
+      const m = new THREE.Mesh(g, shaded ? new THREE.MeshPhongMaterial({ color: SEL_BLUE, emissive: SEL_GLOW, specular: 0x222222, shininess: 20, ...common }) : new THREE.MeshBasicMaterial({ color: new THREE.Color(color), ...common }));
       m.renderOrder = 3;
       this.overlays.add(m);
     };
@@ -721,8 +723,8 @@ export class BodyScene {
       const e = allEdges.find((x) => x.id === input.hoverEdge);
       if (e) edgeTube(e, input.colors.hover);
     }
-    for (const f of input.selectedFaces ?? []) if (f.faceId !== input.selectedFace?.faceId) overlay(f, input.colors.selected, 0.5, true);
-    if (input.selectedFace) overlay(input.selectedFace, input.colors.selected, 0.5, true);
+    for (const f of input.selectedFaces ?? []) if (f.faceId !== input.selectedFace?.faceId) overlay(f, input.colors.selected, 1, true);
+    if (input.selectedFace) overlay(input.selectedFace, input.colors.selected, 1, true);
     if (input.hoverFace && !(input.selectedFace && input.hoverFace.faceId === input.selectedFace.faceId)) this.faceOutline(input, input.hoverFace, input.colors.hover);
     // a selected feature pointed at in the tree shows the full selection blue, else half over the part
     for (const f of input.featureFaces ?? []) overlay(f, input.colors.selected, input.featureHot ? 1 : 0.5, true);

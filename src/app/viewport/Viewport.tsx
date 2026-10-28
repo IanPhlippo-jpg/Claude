@@ -17,7 +17,7 @@ import { InsertRotateBar } from './InsertRotateBar';
 import { DragDimensionsHandle } from './DragDimensions';
 import { NumericInput } from './NumericInput';
 import { filterAllows } from '../SelectionFilterBar';
-import { renderWithAO } from './ao';
+import { cancelAO, disposeAO, renderWithAO } from './ao';
 import { MarkupLayer } from '../lifecycleDialogs';
 import { refGeometryFrom, refGeometryLines } from '../../core/features/refgeom';
 import { curvatureAnalysis, draftAnalysis, thicknessAnalysis, undercutAnalysis } from '../../core/features/analysis';
@@ -156,7 +156,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
       canvas.removeEventListener('webglcontextrestored', onRestored);
       // GPU resources go with the graphics area (the renderer may be recreated on the same canvas, so the context stays)
       bodies.dispose();
-      renderer.dispose();
+      disposeAO(); renderer.dispose();
     };
   }, [camera, scene, bodies]);
 
@@ -584,8 +584,8 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
     renderer.toneMappingExposure = (st.show.realisticShading ? 0.8 : 1) * (st.doc.scene?.brightness ?? 1);
     bodies.setGhost(getPref('assembly.graphicsPreview') === false ? null : ghostBodies, (ghostPart?.appearance ?? ghostPart?.material?.color) as string | undefined, ghostPos, new THREE.Quaternion(...(st.insertGhost?.rotation ?? [0, 0, 0, 1])));
     bodies.updateSilhouettes(camera.view);
-    if (st.show.ambientOcclusion && st.displayStyle !== 'wireframe' && !sketch) renderWithAO(renderer, scene.scene, camera.view);
-    else renderer.render(scene.scene, camera.view);
+    if (st.show.ambientOcclusion && st.displayStyle !== 'wireframe' && !sketch) renderWithAO(renderer, scene.scene, camera.view, bodies.softwareGL);
+    else { cancelAO(); renderer.render(scene.scene, camera.view); }
   }, [st.show.ambientOcclusion, st.show.zebra, scene, bodies, camera, sketch, plane, solve, profileSketch, st.solve, regionKey, st.handleDrag, featureFaces, hoverFeatureFaces, st.hoverFeatureId, st.selection, st.hover, st.show.grid, st.show.origin, st.shadedContours, otherSketches, planesToDraw, size, planeHalf, st.rebuild, st.displayStyle, st.hoverFace, st.selectedFace, st.selectedFaces, preview, roundPreview, st.hoverEdge, st.selectedEdges, st.interferenceHighlight, st.doc.material, sectionedBodies, st.doc.bodyMaterials, st.doc.hiddenBodies, st.doc.appearance, st.doc.bodyAppearances, previewCurves, st.doc.components, st.show.realisticShading, st.show.shadows, detailedBodies, st.doc.faceAppearances, st.analysis, st.doc.decals, st.decalEdit, st.isolated, ghostBodies, ghostPos, st.insertGhost, st.mateEdit, st.interferenceOpts, st.dialog, st.motionSim, mateFaces, gpuSection, sectionPlanes, section?.capColor, st.doc.scene]);
   // View Settings ▸ Perspective
   useEffect(() => {

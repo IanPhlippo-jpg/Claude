@@ -57,7 +57,7 @@ export const uiSlice = (set: StoreSet, get: StoreGet): Pick<State, UiKeys> => ({
   managerCollapsed: false,
   treeFilter: '',
   displayStyle: 'shadedEdges',
-  show: { planes: false, origin: false, sketches: true, relations: true, grid: false, viewSelector: false, realisticShading: false, shadows: false, perspective: false, ambientOcclusion: false, zebra: false },
+  show: { planes: false, origin: false, sketches: true, relations: true, grid: false, viewSelector: false, realisticShading: false, shadows: false, perspective: false, ambientOcclusion: true, zebra: false },
   reverseWheel: typeof localStorage !== 'undefined' && localStorage.getItem('phlippo.reverseWheel') === 'true',
   unitSystem: 'MMGS',
   viewName: '*Trimetric',
