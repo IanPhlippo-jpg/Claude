@@ -773,3 +773,4 @@ elease; README en docs/04 bijgewerkt
 - [x] Statusbalkprompts in eigen woorden, frame-tags weg, neutral-comments-check uitgebreid (F135/F136)
 - [x] Ingeslikte catches in e2e gericht maken (F133); docs en line-budget-doelen (F129/F134)
 - [x] Regressie (Windows 96/96, B-rep 12/12, worker 6/6), release 0.5.4, push
+- [x] 0.5.5: voorbeeld van Dome, Indent, Mounting Boss, Snap Hook en Lip/Groove terwijl het paneel open is
