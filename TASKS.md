@@ -781,4 +781,4 @@ elease; README en docs/04 bijgewerkt
 - [x] Uiterlijk aanpassen: belichting gekalibreerd, AO standaard aan (software-GL: na stilstand), selectie cyaan; voor/na in docs/screenshots/shading-voor-na.png
 - [x] Basishandelingen vergelijken (quick-start-video 02, op 1920x1080): rechtsklik op vlak, lijnen, maten, extrude, fillet
 - [x] Verschillen opgelost: rechtsklik vlak = werkbalk + menu; Enter = OK in featurepanelen; uitlijnlijnen + H/V op sluitende lijn; een berichtvak; e2e quickstart.mjs 8/8
-- [~] Regressie, release 0.5.6, push
+- [x] Regressie, release 0.5.6 (desktop 12/12 + 9/9, geinstalleerd 19/19), push
