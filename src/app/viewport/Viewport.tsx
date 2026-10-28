@@ -50,7 +50,7 @@ import { FeatureTreeBody } from '../panels/FeatureTreeBody';
 import { CadCamera, getPlane, planeLabel, REFERENCE_PLANES, sketchToWorld, type PlaneId } from './camera';
 import { readColors, SketchScene } from './sketchScene';
 import { motionTransforms } from '../../core/assembly/motion';
-import { lazyNamed } from '../lazy';
+import { lazyNamed } from '../lazy'; import { NoWebGL } from '../softwareGL';
 import { BodyScene } from './bodyScene';
 import { mergeGeometries, planeMatrix } from '../../core/features/solid';
 import { edgeFlangeOnBody, featureGeometry, hemAsFlange, jogOnBody, miterFlangeOnBody, rebuildDocument, sketchedBendOnBody, threadSpecOf } from '../../core/features/rebuild';
@@ -1433,7 +1433,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
       onContextMenu={onContextMenu}
     >
       <canvas ref={canvasRef} style={{ display: 'block', width: '100%', height: '100%' }} />
-      {noWebGL && <div className="k-nogl" data-testid="no-webgl">This computer cannot show 3D graphics (WebGL is off or the graphics driver is missing). Update the graphics driver, or turn on hardware acceleration in the browser.</div>}
+      {noWebGL && <NoWebGL />}
       <Overlay
         sketch={sketch ?? profileSketch ?? dimSketch}
         solve={sketch ? solve : profileSketch ? st.solve[profileSketch.id] ?? null : dimSketch ? st.solve[dimSketch.id] ?? null : null}

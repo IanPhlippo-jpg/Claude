@@ -5,6 +5,8 @@ import type { SheetMetalParams, FlangeLengthMode, FlangePosition, HemType } from
 import type { EdgeRef } from '../features/edgesets';
 import type { CompositeCurveFeature, CurvePointsFeature } from './curveTypes';
 export type { CompositeCurveFeature, CurvePointsFeature } from './curveTypes';
+import type { PlasticsFeature } from './plasticsTypes';
+export type { DomeFeature, IndentFeature, MountingBossFeature, SnapHookFeature, LipGrooveFeature, PlasticsFeature } from './plasticsTypes';
 
 export type Units = 'mm' | 'cm' | 'm' | 'in';
 
@@ -1053,7 +1055,7 @@ export interface ImportedFeature {
   source: string;
 }
 
-export type SolidFeature = CurvePointsFeature | CompositeCurveFeature | ExtrudeFeature | RevolveFeature | RoundFeature | MirrorFeature | PatternFeature | HoleFeature | ShellFeature | SweepFeature | LoftFeature | ImportedFeature | RibFeature | CombineFeature | BaseFlangeFeature | EdgeFlangeFeature | FlatPatternFeature | HelixFeature | HemFeature | MiterFlangeFeature | JogFeature | Sketch3DFeature | SketchedBendFeature | DraftFeature | IntersectFeature | SurfaceFeature | CrossBreakFeature | UnfoldFeature | WrapFeature | ThreadFeature | SplitLineFeature | ProjectedCurveFeature | StudFeature | ClosedCornerFeature | CornerReliefFeature | LoftedBendFeature | ConvertSheetFeature | BeltFeature | DeleteBodyFeature | MoveBodyFeature | DeleteFaceFeature | VentFeature | FormToolFeature | GussetFeature | TabSlotFeature | RipFeature | SweptFlangeFeature | WeldmentFeature | StructuralMemberFeature | TrimExtendFeature | EndCapFeature | WeldGussetFeature | WeldBeadFeature | DeformFeature;
+export type SolidFeature = CurvePointsFeature | CompositeCurveFeature | ExtrudeFeature | RevolveFeature | RoundFeature | MirrorFeature | PatternFeature | HoleFeature | ShellFeature | SweepFeature | LoftFeature | ImportedFeature | RibFeature | CombineFeature | BaseFlangeFeature | EdgeFlangeFeature | FlatPatternFeature | HelixFeature | HemFeature | MiterFlangeFeature | JogFeature | Sketch3DFeature | SketchedBendFeature | DraftFeature | IntersectFeature | SurfaceFeature | CrossBreakFeature | UnfoldFeature | WrapFeature | ThreadFeature | SplitLineFeature | ProjectedCurveFeature | StudFeature | ClosedCornerFeature | CornerReliefFeature | LoftedBendFeature | ConvertSheetFeature | BeltFeature | DeleteBodyFeature | MoveBodyFeature | DeleteFaceFeature | VentFeature | FormToolFeature | GussetFeature | TabSlotFeature | RipFeature | SweptFlangeFeature | WeldmentFeature | StructuralMemberFeature | TrimExtendFeature | EndCapFeature | WeldGussetFeature | WeldBeadFeature | DeformFeature | PlasticsFeature;
 export type SketchBasedFeature = ExtrudeFeature | RevolveFeature | SweepFeature | LoftFeature | RibFeature | BaseFlangeFeature | HelixFeature;
 export type Feature = SketchFeature | SolidFeature;
 

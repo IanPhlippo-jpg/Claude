@@ -6,8 +6,8 @@ import { FEATURE_TYPES } from './featureTypes';
 // the whitelist of feature types must list exactly the `type` literals of the Feature union in types.ts
 describe('feature type whitelist', () => {
   it('matches the Feature union', () => {
-    // types.ts and the modules beside it that hold feature interfaces (curveTypes.ts)
-    const files = ['src/core/document/types.ts', 'src/core/document/curveTypes.ts'].map((f) => ts.createSourceFile(f, readFileSync(f, 'utf8'), ts.ScriptTarget.Latest, true));
+    // types.ts and the modules beside it that hold feature interfaces (curveTypes.ts, plasticsTypes.ts)
+    const files = ['src/core/document/types.ts', 'src/core/document/curveTypes.ts', 'src/core/document/plasticsTypes.ts'].map((f) => ts.createSourceFile(f, readFileSync(f, 'utf8'), ts.ScriptTarget.Latest, true));
     const sfOf = new Map<ts.Node, ts.SourceFile>();
     const ifaces = new Map<string, ts.InterfaceDeclaration>();
     const aliases = new Map<string, ts.TypeAliasDeclaration>();
@@ -23,7 +23,7 @@ describe('feature type whitelist', () => {
     };
     const visit = (t: ts.TypeNode): void => {
       if (ts.isUnionTypeNode(t)) return t.types.forEach(visit);
-      if (ts.isTypeReferenceNode(t)) { const nm = t.typeName.getText(sf); const a = aliases.get(nm); if (a) return visit(a.type); const i = ifaces.get(nm); if (i) typeOf(i); }
+      if (ts.isTypeReferenceNode(t)) { const nm = t.typeName.getText(t.getSourceFile()); const a = aliases.get(nm); if (a) return visit(a.type); const i = ifaces.get(nm); if (i) typeOf(i); }
     };
     visit(aliases.get('Feature')!.type);
     expect([...out].sort()).toEqual([...FEATURE_TYPES].sort());

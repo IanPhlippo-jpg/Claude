@@ -21,10 +21,16 @@ jobs:
       # the release build (no test hooks), then the e2e build (VITE_TEST_HOOKS=1) the regression drives
       - run: npm run build
       # the release build without test hooks, in the desktop shell (F53, F97, F100): the functional checks without hooks,
-      # then the self-test (app://, the OpenCascade WASM worker, extrude, fillet, STEP, an atomic save)
-      - run: xvfb-run -a node e2e/desktop-nohooks.mjs
-      - run: |
-          code=0; xvfb-run -a npx electron . --self-test --no-sandbox || code=$?
+      # then the self-test (app://, the OpenCascade WASM worker, extrude, fillet, STEP, an atomic save). The runner has no
+      # GPU: the shell draws with software OpenGL (SwiftShader, F115/F128). A red desktop step does not hide the
+      # regression: both run on, and the last step fails the job when one of them failed.
+      - id: nohooks
+        continue-on-error: true
+        run: PHLIPPO_SOFTWARE_GL=1 xvfb-run -a node e2e/desktop-nohooks.mjs
+      - id: selftest
+        continue-on-error: true
+        run: |
+          code=0; xvfb-run -a npx electron . --self-test --software-gl --no-sandbox || code=$?
           cat /tmp/phlippo-self-test.json; exit $code
       - run: npm run build:e2e
       - run: npx playwright install --with-deps chromium
@@ -35,17 +41,20 @@ jobs:
           export PW_CHROMIUM="$(node -e "console.log(require('playwright').chromium.executablePath())")"
           E2E_URL=http://127.0.0.1:4173/ node e2e/run-regression.mjs
           # the same feature scripts once more on the B-rep kernel (OpenCascade WASM) instead of the mesh kernel (F105)
-          E2E_URL="http://127.0.0.1:4173/?kernel=brep" node e2e/run-regression.mjs features features2 filletopts endconditions multibody full doorhandle step bodies qa2 facenames
+          E2E_URL="http://127.0.0.1:4173/?kernel=brep" node e2e/run-regression.mjs features features2 filletopts endconditions multibody full doorhandle step bodies qa2 facenames plastics
           # and the heavy scripts once more with the rebuild worker (F46)
           E2E_URL="http://127.0.0.1:4173/?rebuild=worker" node e2e/run-regression.mjs rebuildworker features full doorhandle facenames bodies
       # the tests leave the repository as they found it (no rewritten examples, F84)
       - run: git diff --exit-code
+      - name: desktop checks passed
+        run: test "${{ steps.nohooks.outcome }}" = success && test "${{ steps.selftest.outcome }}" = success
+      # the regression log is the evidence of a run: a missing log fails the upload (F128)
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: e2e-regression-log
           path: e2e-out/regression-*.txt
-          if-no-files-found: ignore
+          if-no-files-found: error
       - uses: actions/upload-artifact@v4
         if: always()
         with:

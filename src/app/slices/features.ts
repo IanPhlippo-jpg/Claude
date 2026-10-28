@@ -16,7 +16,7 @@ import type { StudFeature, DeleteFaceFeature } from '../../core/document/types';
 import type { Id, SketchPoint } from '../../core/sketch/types';
 import { applyEquations, evaluateExpression } from '../../core/document/equations';
 
-import { draftEquations, withFieldEquations } from './fieldEquations';
+import { draftEquations, withFieldEquations } from './fieldEquations'; import { plasticsFacePick } from './plastics';
 import { activateConfiguration, activeConfiguration, addConfiguration as addConfig, configurations, deleteConfiguration as deleteConfig, setConfigurationDimension as setCfgDim, setConfigurationSuppressed as setCfgSup, updateConfiguration } from '../../core/document/configurations';
 import { sketchChains } from '../../core/features/thin';
 import { sketchRegions } from '../../core/features/regions';
@@ -775,6 +775,7 @@ export const featuresSlice = (set: StoreSet, get: StoreGet): Pick<State, Feature
     }
     let faces: FaceRef[] = [];
     const measuring = dialog === 'measure';
+    if (selectedFace && plasticsFacePick(get, set, selectedFace)) return;
     // Stud > Apply to cylindrical body: the picked cylinder (fitted)
     if (featureEdit && featureEdit.draft.type === 'stud' && featureEdit.draft.onCylinder !== undefined && selectedFace) {
       const body = rebuild.bodies.find((b) => b.id === selectedFace.bodyId);

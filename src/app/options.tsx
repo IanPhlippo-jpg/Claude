@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { WIRED_PREFS } from './prefsWired';
 
+import { applySoftwareGL } from './softwareGL';
 /** the length unit of each unit system (Document Properties ▸ Units) */
 const SYSTEM_LENGTH: Record<string, string> = { MKS: 'meters', CGS: 'centimeters', MMGS: 'millimeters', IPS: 'inches' };
 import { useStore } from './store';
@@ -48,6 +49,7 @@ export function OptionsDialog() {
   }, [q]);
   const ok = () => {
     st.setPrefs(draft);
+    void applySoftwareGL(draft['perf.softwareOpenGL'] === true);
     st.setDialog(null);
   };
   const resetAll = () => setDraft({ ...DEFAULT_PREFS });

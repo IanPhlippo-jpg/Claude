@@ -36,6 +36,7 @@ import { chainEdges, classifyVent, formToolGeometry, gussetTools, ripTool, swept
 import { bodyEdges as bodyEdgesOf, matchEdge as matchEdgeRef } from './edgesets';
 import { copyFaceNames, FACE_TAG, nameFeatureFaces } from './faceNames';
 import { pointDeform } from './deform';
+import { buildFastening, isFasteningFeature } from './fasteningBuild';
 import { endCapGeometry, faceOutline, findFaceOnBodies, findProfile, memberSegments, placedProfile, profileLoops, profileRegion, structuralMembers, trimByBodies, trimByPlane, weldBeadGeometry, weldGussetGeometry } from './weldments';
 
 export interface Body {
@@ -2808,68 +2809,8 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
       }
       continue;
     }
-    if (f.type === 'stud' && f.onCylinder) {
-      // Apply to cylindrical body: the cylinder gets the (cosmetic) thread from its end over the thread length
-      const c = new THREE.Vector3(...f.onCylinder.center), ax = new THREE.Vector3(...f.onCylinder.axis).normalize();
-      const ref = (Math.abs(ax.x) < 0.9 ? new THREE.Vector3(1, 0, 0) : new THREE.Vector3(0, 1, 0)).cross(ax).normalize();
-      const w = ax.clone().cross(ref);
-      // the end of the cylinder: the farthest point of the bodies along the axis near it
-      let top = -Infinity;
-      for (const b of bodies) {
-        const pa = (b.geometry.index ? b.geometry.toNonIndexed() : b.geometry).getAttribute('position');
-        for (let i = 0; i < pa.count; i++) {
-          const p = new THREE.Vector3().fromBufferAttribute(pa, i);
-          const rel = p.clone().sub(c);
-          const radial = rel.clone().addScaledVector(ax, -rel.dot(ax)).length();
-          if (radial <= f.onCylinder.radius + 1e-3) top = Math.max(top, rel.dot(ax));
-        }
-      }
-      if (!Number.isFinite(top)) { errors[f.id] = 'The cylinder is no longer there.'; continue; }
-      if (f.cosmetic !== false) {
-        const minor = f.onCylinder.radius - 0.6134 * f.pitch;
-        for (const [k, h] of [[0, top], [1, top - f.threadLength]] as [number, number][]) {
-          const ring: THREE.Vector3[] = [];
-          for (let a = 0; a <= 48; a++) { const t = (a / 48) * Math.PI * 2; ring.push(c.clone().addScaledVector(ax, h).addScaledVector(ref, minor * Math.cos(t)).addScaledVector(w, minor * Math.sin(t))); }
-          curves.push({ id: `${f.id}:thread${k}`, name: 'Cosmetic Thread', points: ring, dashed: true });
-        }
-      }
-      body?.featureIds.push(f.id);
-      continue;
-    }
-    if (f.type === 'stud') {
-      if (!body) {
-        errors[f.id] = 'A stud needs an existing solid body.';
-        continue;
-      }
-      const pl = resolvePlaneDef(doc, f.plane);
-      const o = new THREE.Vector3(...pl.origin), u = new THREE.Vector3(...pl.u), v = new THREE.Vector3(...pl.v), n = new THREE.Vector3(...pl.n).normalize();
-      const base = o.clone().addScaledVector(u, f.point.x).addScaledVector(v, f.point.y);
-      const g = new THREE.CylinderGeometry(f.diameter / 2, f.diameter / 2, f.length + 0.5, 48, 1, false);
-      g.translate(0, (f.length + 0.5) / 2 - 0.5, 0);
-      const m = new THREE.Matrix4().makeBasis(u, n, u.clone().cross(n));
-      m.setPosition(base);
-      g.applyMatrix4(m);
-      const tool = g.toNonIndexed();
-      tool.computeVertexNormals();
-      // B-rep: a true cylinder
-      let studShape: BrepShape | null = null;
-      if (K) { try { studShape = K.axisymmetric([base.x, base.y, base.z], [n.x, n.y, n.z], [u.x, u.y, u.z], [{ t0: -0.5, t1: f.length, r0: f.diameter / 2, r1: f.diameter / 2 }]); } catch { studShape = null; } }
-      try {
-        addMaterial(tool, f.id, true, undefined, studShape);
-        addBoss(tool);
-        // cosmetic thread: dashed circles at the minor diameter at the top and at the end of the thread
-        const minor = f.diameter / 2 - 0.6134 * f.pitch;
-        for (const [k, h] of (f.cosmetic === false ? [] : [[0, f.length], [1, f.length - Math.min(f.length, f.threadLength)]]) as [number, number][]) {
-          const ring: THREE.Vector3[] = [];
-          for (let a = 0; a <= 48; a++) {
-            const t = (a / 48) * Math.PI * 2;
-            ring.push(base.clone().addScaledVector(n, h).addScaledVector(u, minor * Math.cos(t)).addScaledVector(n.clone().cross(u), minor * Math.sin(t)));
-          }
-          curves.push({ id: `${f.id}:thread${k}`, name: 'Cosmetic Thread', points: ring, dashed: true });
-        }
-      } catch (err) {
-        errors[f.id] = `Boolean operation failed: ${(err as Error).message}`;
-      }
+    if (isFasteningFeature(f)) {
+      buildFastening(f, { doc, bodies, body, visibleBodies, errors, curves, K, addMaterial, removeMaterial, addBoss });
       continue;
     }
     if (f.type === 'hole') {

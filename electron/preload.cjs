@@ -33,4 +33,8 @@ contextBridge.exposeInMainWorld('phlippoDesktop', {
   listRecover: (folder) => ipcRenderer.invoke('recover:list', folder),
   readRecover: (opts) => ipcRenderer.invoke('recover:read', opts),
   removeRecover: (opts) => ipcRenderer.invoke('recover:remove', opts),
+  /** software OpenGL (SwiftShader): this run's state, the choice for the next start, a restart to apply it */
+  gpuStatus: () => ipcRenderer.invoke('gpu:status'),
+  setSoftwareGL: (on) => ipcRenderer.invoke('gpu:setSoftware', !!on),
+  restartApp: () => ipcRenderer.invoke('gpu:restart'),
 });

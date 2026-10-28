@@ -753,6 +753,49 @@ export const Icons3D = {
       <path d="M12 3.5v3M10.8 5.3L12 6.6l1.2-1.3" stroke={K.red} strokeWidth={1} fill="none" strokeLinecap="round" />
     </svg>
   ),
+  /** Features ▸ Dome: a block with a rounded cap on its top face */
+  Dome: ({ size = 16, ...p }: P) => (
+    <svg {...base(size, p)}>
+      <Box x={0} y={0} z={0} w={9} h={4} d={9} s={0.95} oy={14} />
+      <path d="M7.6 9.6Q12 1.6 16.4 9.6Q12 12.2 7.6 9.6Z" fill={K.tFront} stroke={K.tLine} strokeWidth={0.6} />
+      <path d="M9.6 6.8Q12 5.4 13.6 6.2" stroke={K.tTop} strokeWidth={0.9} fill="none" />
+    </svg>
+  ),
+  /** Features ▸ Indent: a plate wrapped around a ball pressed into it */
+  Indent: ({ size = 16, ...p }: P) => (
+    <svg {...base(size, p)}>
+      <Box x={0} y={0} z={0} w={10} h={1.6} d={9} s={0.95} oy={15} />
+      <path d="M8.2 11.2Q12 3.6 15.8 11.2" fill={K.tFront} stroke={K.tLine} strokeWidth={0.7} />
+      <circle cx={12} cy={9} r={2.1} fill={K.top} stroke={K.line} strokeWidth={0.6} />
+    </svg>
+  ),
+  /** Fastening Feature ▸ Mounting Boss: a boss with a hole and fins on a plate */
+  MountingBoss: ({ size = 16, ...p }: P) => (
+    <svg {...base(size, p)}>
+      <Box x={0} y={0} z={0} w={10} h={1.6} d={9} s={0.95} oy={16} />
+      <path d="M6.6 12.2L10 8.6V13.4ZM17.4 12.2L14 8.6V13.4Z" fill={K.tSide} stroke={K.tLine} strokeWidth={0.5} />
+      <path d="M9.6 6v7.2a2.4 1.2 0 0 0 4.8 0V6" fill={K.tFront} stroke={K.tLine} strokeWidth={0.6} />
+      <ellipse cx={12} cy={6} rx={2.4} ry={1.2} fill={K.tTop} stroke={K.tLine} strokeWidth={0.6} />
+      <ellipse cx={12} cy={6} rx={0.9} ry={0.45} fill={K.dark} />
+    </svg>
+  ),
+  /** Fastening Feature ▸ Snap Hook: a thin beam with a hook lip at its top */
+  SnapHook: ({ size = 16, ...p }: P) => (
+    <svg {...base(size, p)}>
+      <Box x={0} y={0} z={0} w={10} h={1.6} d={8} s={0.95} oy={17} />
+      <path d="M10 15V5.6h2V9l3.2 0.2L12 5.6" fill={K.tFront} stroke={K.tLine} strokeWidth={0.6} />
+      <path d="M12 9V15H10" fill={K.tSide} stroke={K.tLine} strokeWidth={0.6} />
+    </svg>
+  ),
+  /** Fastening Feature ▸ Lip/Groove: two shell halves, a lip on one that fits the groove of the other */
+  LipGroove: ({ size = 16, ...p }: P) => (
+    <svg {...base(size, p)}>
+      <path d="M5 13h14v4H5Z" fill={K.front} stroke={K.line} strokeWidth={0.6} />
+      <path d="M8 11.2h2V13H8Z" fill={K.tFront} stroke={K.tLine} strokeWidth={0.5} />
+      <path d="M5 5h14v4.6H10.6V7.8H7.4v1.8H5Z" fill={K.top} stroke={K.line} strokeWidth={0.6} />
+      <path d="M7.4 7.8h3.2v1.8H7.4Z" fill={K.red} fillOpacity={0.35} />
+    </svg>
+  ),
   /** heads-up: View Settings — the monitor */
   ViewSettings: ({ size = 16, ...p }: P) => (
     <svg {...base(size, p)} viewBox="0 0 24 24">

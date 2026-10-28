@@ -763,3 +763,13 @@ elease; README en docs/04 bijgewerkt
 - [x] Afwerking: code-splitting, hoofdbundel 919 → 827 kB (F118); auto-centermarks bij nieuwe aanzichten + weergavestijl uit Options (F122); schetsrelaties Intersection, Merge, Equal Curvature (F123; Along X/Y/Z blijft de oriëntatie tijdens 3D-schetsen); WebGL-melding (F115)
 - [x] Regressie (Windows 94/95 → qa3 opgelost, B-rep 11/11, worker 6/6), installer 0.5.2, commit, push
 - [x] 0.5.3: concentric-conflict richting-onafhankelijk (Deurkruk vals Over Defined), test op het Deurkruk-voorbeeld
+
+## QA 0.5.1 restpunten: SwiftShader, Dome/Indent/Mounting Boss, eigen woorden (2026-10-28)
+- [x] Software-OpenGL (SwiftShader) in de desktop-app: optie + `--software-gl`, knop in de WebGL-melding, CI-stappen met de vlag, artefacten verplicht (F115/F128)
+- [x] Dome op een vlak vlak (F121): rond (bolsegment, Elliptical, afstand 0 = halve bol), veelhoek (rechtop of Continuous), Reverse
+- [x] Mounting Boss (F121): hardware head/thread, pin/hole, draft, vinnen; exact op de B-rep-kernel
+- [x] Indent (F121): doel- en gereedschapslichaam, speling, wanddikte, Cut
+- [x] Snap Hook en Lip/Groove (F121); unit plastics.test.ts, e2e plastics.mjs 25/25 (mesh, B-rep, worker)
+- [~] Statusbalkprompts in eigen woorden, frame-tags weg, neutral-comments-check uitgebreid (F135/F136)
+- [ ] Ingeslikte catches in e2e gericht maken (F133); docs en line-budget-doelen (F129/F134)
+- [ ] Regressie, release 0.5.4, push

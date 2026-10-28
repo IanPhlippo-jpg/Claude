@@ -49,6 +49,10 @@ export interface DesktopApi {
   listRecover?(folder: string): Promise<{ name: string; time: number }[]>;
   readRecover?(opts: { folder: string; name: string }): Promise<ArrayBuffer | null>;
   removeRecover?(opts: { folder: string; name: string }): Promise<void>;
+  /** software OpenGL (SwiftShader): this run's state and the choice for the next start */
+  gpuStatus?(): Promise<{ software: boolean; next: boolean } | null>;
+  setSoftwareGL?(on: boolean): Promise<boolean>;
+  restartApp?(): Promise<void>;
 }
 
 export function desktop(): DesktopApi | null {

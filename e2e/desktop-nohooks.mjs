@@ -15,6 +15,18 @@ check('no test hooks without PHLIPPO_E2E', await page.evaluate(() => typeof wind
 check('bridge says testHooks is off', await page.evaluate(() => window.phlippoDesktop.testHooks === false));
 check('Content-Security-Policy meta in the page', await page.evaluate(() => (document.querySelector('meta[http-equiv="Content-Security-Policy"]')?.getAttribute('content') ?? '').includes("default-src 'self'")));
 check('no application menu (no DevTools / Reload entries in a menu, F67)', await app.evaluate(({ Menu }) => Menu.getApplicationMenu() === null));
+// software OpenGL (F115): with PHLIPPO_SOFTWARE_GL=1 (the CI runner, no GPU) the 3D view is drawn by SwiftShader
+if (process.env.PHLIPPO_SOFTWARE_GL === '1') {
+  const gl = await page.evaluate(async () => ({ status: await window.phlippoDesktop.gpuStatus(), renderer: (() => { const c = document.createElement('canvas').getContext('webgl2'); const x = c?.getExtension('WEBGL_debug_renderer_info'); return c ? String(c.getParameter(x ? x.UNMASKED_RENDERER_WEBGL : c.RENDERER)) : 'no WebGL'; })() }));
+  check('software OpenGL: the shell reports it and WebGL runs on SwiftShader', gl.status?.software === true && /swiftshader/i.test(gl.renderer), JSON.stringify(gl));
+}
+{
+  // the option is kept by the shell for the next start (gpu.json in this test's own profile)
+  const before = await page.evaluate(() => window.phlippoDesktop.gpuStatus());
+  const on = await page.evaluate(async () => { await window.phlippoDesktop.setSoftwareGL(true); return window.phlippoDesktop.gpuStatus(); });
+  const off = await page.evaluate(async () => { await window.phlippoDesktop.setSoftwareGL(false); return window.phlippoDesktop.gpuStatus(); });
+  check('Use software OpenGL is kept for the next start', on?.next === true && off?.next === false && on.software === before.software, JSON.stringify({ before, on, off }));
+}
 check('permissions are refused (F87)', await page.evaluate(() => navigator.permissions.query({ name: 'notifications' }).then((r) => r.state !== 'granted', () => true)));
 // the release build works as a user gets it, without the hooks (F53): Final Render, Zoom to Fit, About
 await page.click('.k-doctype:has-text("Part")');

@@ -12,8 +12,9 @@ import { genericPM } from './pm/solidPM';
 import { surfacePM, intersectPM, deleteFacePM, deformPM } from './pm/surfacePMs';
 import { structuralMemberPM, trimExtendPM, endCapPM, weldGussetPM, weldBeadPM } from './pm/weldmentPMs';
 import { sketchPM } from './pm/sketchPM';
+import { domePM, indentPM, mountingBossPM, snapHookPM, lipGroovePM } from './pm/plasticsPMs';
 
-const FAMILIES = [shellPM, helixPM, sheetMetalEditPM, baseFlangePM, miterFlangePM, surfacePM, intersectPM, draftPM, sketchedBendPM, jogPM, threadPM, wrapPM, unfoldPM, deleteFacePM, closedCornerPM, ventPM, formToolPM, gussetPM, tabSlotPM, ripPM, sweptFlangePM, deformPM, structuralMemberPM, trimExtendPM, endCapPM, weldGussetPM, weldBeadPM, studPM, splitLinePM, crossBreakPM, hemPM, edgeFlangePM, moveBodyPM, combinePM, deleteBodyPM, compositeCurvePM, ribPM, mirrorPM, filletPM, filletPM2, genericPM];
+const FAMILIES = [shellPM, helixPM, sheetMetalEditPM, baseFlangePM, miterFlangePM, surfacePM, intersectPM, draftPM, sketchedBendPM, jogPM, threadPM, wrapPM, unfoldPM, deleteFacePM, closedCornerPM, ventPM, formToolPM, gussetPM, tabSlotPM, ripPM, sweptFlangePM, deformPM, structuralMemberPM, trimExtendPM, endCapPM, weldGussetPM, weldBeadPM, studPM, domePM, indentPM, mountingBossPM, snapHookPM, lipGroovePM, splitLinePM, crossBreakPM, hemPM, edgeFlangePM, moveBodyPM, combinePM, deleteBodyPM, compositeCurvePM, ribPM, mirrorPM, filletPM, filletPM2, genericPM];
 
 export function PropertyPanelBody({ editDimensionId, onEditDone }: { editDimensionId: string | null; onEditDone: () => void }) {
   const ctx = usePMContext(editDimensionId, onEditDone);

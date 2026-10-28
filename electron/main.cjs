@@ -30,6 +30,19 @@ const SELF_TEST_DIR = SELF_TEST ? require('node:fs').mkdtempSync(path.join(requi
 if (SELF_TEST) app.setPath('userData', path.join(SELF_TEST_DIR, 'profile'));
 // the desktop checks run in a profile of their own, never in the user's (unpackaged shell only)
 if (!PACKAGED && process.env.PHLIPPO_USER_DATA) app.setPath('userData', process.env.PHLIPPO_USER_DATA);
+// Software OpenGL (Options ▸ Performance ▸ Use software OpenGL, QA F115): on a computer without a usable graphics driver
+// (a virtual machine, a CI runner under xvfb) the 3D view is drawn by SwiftShader, Chromium's CPU renderer. The choice is
+// kept in gpu.json in the profile and read before Chromium starts, so it takes effect at the next start; --software-gl
+// turns it on for one run (and PHLIPPO_SOFTWARE_GL=1 in the unpackaged shell, for the checks). Chromium calls this
+// renderer "unsafe" because its JIT then runs for web content; this window only ever loads the app's own app:// pages.
+const GPU_FILE = path.join(app.getPath('userData'), 'gpu.json');
+const readGpuPrefs = () => { try { return JSON.parse(require('node:fs').readFileSync(GPU_FILE, 'utf8')); } catch { return {}; } };
+const SOFTWARE_GL = process.argv.includes('--software-gl') || (!PACKAGED && process.env.PHLIPPO_SOFTWARE_GL === '1') || readGpuPrefs().software === true;
+if (SOFTWARE_GL) {
+  app.commandLine.appendSwitch('use-gl', 'angle');
+  app.commandLine.appendSwitch('use-angle', 'swiftshader');
+  app.commandLine.appendSwitch('enable-unsafe-swiftshader');
+}
 const SMOKE = PACKAGED ? undefined : process.env.PHLIPPO_SMOKE; // path of a screenshot to write, then quit (used by the checks)
 const E2E = !PACKAGED && process.env.PHLIPPO_E2E === '1'; // the test hooks (window.__phlippoStore …) only exist with this
 const APP_DIST = path.join(__dirname, '..', 'dist');
@@ -368,6 +381,20 @@ ipcMain.handle('recover:read', async (e, { folder, name }) => {
 ipcMain.handle('recover:remove', async (e, { folder, name }) => {
   if (!trusted(e)) return;
   await fs.rm(path.join(recoverDir(folder), recoverFile(name)), { force: true }).catch(() => {});
+});
+
+// software OpenGL: whether this run uses it, the choice for the next start, and a restart to apply it now
+ipcMain.handle('gpu:status', (e) => (trusted(e) ? { software: SOFTWARE_GL, next: readGpuPrefs().software === true } : null));
+ipcMain.handle('gpu:setSoftware', async (e, on) => {
+  if (!trusted(e)) return false;
+  await fs.mkdir(path.dirname(GPU_FILE), { recursive: true });
+  await fs.writeFile(GPU_FILE, JSON.stringify({ software: on === true }));
+  return true;
+});
+ipcMain.handle('gpu:restart', (e) => {
+  if (!trusted(e) || SELF_TEST) return;
+  app.relaunch({ args: process.argv.slice(1).filter((a) => a !== '--software-gl') });
+  app.exit(0);
 });
 
 /** app://phlippo/<path>: a file of dist/, never outside it, with its type and the Content-Security-Policy */

@@ -8,7 +8,7 @@ import { uiSlice } from './slices/ui';
 import { sheetMetalSlice } from './slices/sheetMetal';
 import { tolerancingSlice } from './slices/tolerancing';
 import { weldmentsSlice } from './slices/weldments';
-import { bodiesSlice } from './slices/bodies';
+import { bodiesSlice } from './slices/bodies'; import { plasticsSlice, type PlasticsActions } from './slices/plastics';
 import type { StoreApi } from 'zustand';
 import { refreshPierce } from '../core/sketch/pierce';
 import type { SectionPlane } from '../core/features/section';
@@ -418,7 +418,7 @@ export interface StatusMessage {
   level: 'info' | 'warn' | 'error';
 }
 
-export interface State {
+export interface State extends PlasticsActions {
   doc: Document;
   /** sketch currently being edited */
   activeSketchId: Id | null;
@@ -788,7 +788,7 @@ export interface State {
   addHolePoint(p: SketchPoint): void;
   setHoverEdge(id: string | null): void;
   toggleSelectedEdge(id: string, additive?: boolean): void;
-  updateFeatureDraft(patch: Partial<ExtrudeFeature> | Partial<RevolveFeature> | Partial<RoundFeature> | Partial<MirrorFeature> | Partial<PatternFeature> | Partial<HoleFeature> | Partial<ShellFeature> | Partial<SweepFeature> | Partial<LoftFeature> | Partial<RibFeature> | Partial<CombineFeature> | Partial<BaseFlangeFeature> | Partial<EdgeFlangeFeature> | Partial<HelixFeature> | Partial<HemFeature> | Partial<MiterFlangeFeature> | Partial<JogFeature> | Partial<SketchedBendFeature> | Partial<DraftFeature> | Partial<IntersectFeature> | Partial<SurfaceFeature> | Partial<CrossBreakFeature> | Partial<WrapFeature> | Partial<ThreadFeature> | Partial<StudFeature> | Partial<SplitLineFeature> | Partial<ProjectedCurveFeature> | Partial<ClosedCornerFeature> | Partial<CornerReliefFeature> | Partial<LoftedBendFeature> | Partial<ConvertSheetFeature> | Partial<DeleteFaceFeature> | Partial<VentFeature> | Partial<FormToolFeature> | Partial<GussetFeature> | Partial<TabSlotFeature> | Partial<RipFeature> | Partial<SweptFlangeFeature> | Partial<StructuralMemberFeature> | Partial<TrimExtendFeature> | Partial<EndCapFeature> | Partial<WeldGussetFeature> | Partial<WeldBeadFeature> | Partial<DeformFeature> | Partial<MoveBodyFeature> | Partial<DeleteBodyFeature> | Partial<CompositeCurveFeature>): void;
+  updateFeatureDraft(patch: Partial<ExtrudeFeature> | Partial<RevolveFeature> | Partial<RoundFeature> | Partial<MirrorFeature> | Partial<PatternFeature> | Partial<HoleFeature> | Partial<ShellFeature> | Partial<SweepFeature> | Partial<LoftFeature> | Partial<RibFeature> | Partial<CombineFeature> | Partial<BaseFlangeFeature> | Partial<EdgeFlangeFeature> | Partial<HelixFeature> | Partial<HemFeature> | Partial<MiterFlangeFeature> | Partial<JogFeature> | Partial<SketchedBendFeature> | Partial<DraftFeature> | Partial<IntersectFeature> | Partial<SurfaceFeature> | Partial<CrossBreakFeature> | Partial<WrapFeature> | Partial<ThreadFeature> | Partial<StudFeature> | Partial<SplitLineFeature> | Partial<ProjectedCurveFeature> | Partial<ClosedCornerFeature> | Partial<CornerReliefFeature> | Partial<LoftedBendFeature> | Partial<ConvertSheetFeature> | Partial<DeleteFaceFeature> | Partial<VentFeature> | Partial<FormToolFeature> | Partial<GussetFeature> | Partial<TabSlotFeature> | Partial<RipFeature> | Partial<SweptFlangeFeature> | Partial<StructuralMemberFeature> | Partial<TrimExtendFeature> | Partial<EndCapFeature> | Partial<WeldGussetFeature> | Partial<WeldBeadFeature> | Partial<DeformFeature> | Partial<MoveBodyFeature> | Partial<DeleteBodyFeature> | Partial<CompositeCurveFeature> | Partial<import('../core/document/plasticsTypes').PlasticsFeature>): void;
   commitFeature(): void;
   cancelFeature(): void;
   /** Property Panel ▸ Keep Visible (pushpin): stays open after OK for the next feature of the same kind */
@@ -1376,7 +1376,7 @@ export const useStore = create<State>((set, get) => ({
   ...sheetMetalSlice(set, get),
   ...tolerancingSlice(set, get),
   ...weldmentsSlice(set, get),
-  ...bodiesSlice(set, get),
+  ...bodiesSlice(set, get), ...plasticsSlice(set, get),
   ...historyFlags(),
   dragPoint(pointId, target, phase) {
     const { doc, activeSketchId, solve } = get();
