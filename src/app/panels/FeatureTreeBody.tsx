@@ -639,7 +639,7 @@ export function FeatureTreeBody() {
         const name = st.doc.planeNames?.[p] ?? PLANE_LABELS[p as 'front'] ?? st.doc.planes[p]?.name ?? p;
         return (
           <Menu
-            onClose={() => { setMenu(null); setBar0(null); }}
+            onClose={() => setMenu(null)} // the toolbar above it closes on its own (a click on it must still land)
             style={{ position: 'fixed', left: menu.x, top: menu.y }}
             items={[
               { label: `Feature (${name})`, header: true },

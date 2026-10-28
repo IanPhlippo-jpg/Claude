@@ -38,13 +38,13 @@ await page.click('.k-cm-tab:has-text("Features")');
 await page.click('.k-cm-big:has-text("Extruded Boss/Base") .k-cm-main');
 await page.waitForTimeout(400);
 await page.locator('.k-pm-valuerow input.k-num').first().fill('10');
-await page.locator('.k-pm-valuerow input.k-num').first().press('Enter');
+await page.locator('.k-pm-valuerow input.k-num').first().press('Tab');
 await page.waitForTimeout(300);
 // Draft On/Off (video 29): the walls taper inward by 5 degrees
 await page.click('.k-pm-stylebtn[data-tip="Draft On/Off"]');
 await page.waitForTimeout(200);
 await page.locator('.k-pm-valuerow input.k-num').nth(1).fill('5');
-await page.locator('.k-pm-valuerow input.k-num').nth(1).press('Enter');
+await page.locator('.k-pm-valuerow input.k-num').nth(1).press('Tab');
 await page.waitForTimeout(400);
 await shot('r0-extrude-draft');
 await page.click('.k-pm-ok');
@@ -84,7 +84,7 @@ const draft = await page.evaluate(() => window.__phlippoStore.getState().feature
 check('Rib draft from the open sketch: Both Sides, Parallel to Sketch, 10 mm', draft && draft.type === 'rib' && draft.side === 'both' && draft.direction === 'parallel' && draft.thickness === 10, JSON.stringify(draft));
 check('yellow preview of the rib', (await page.evaluate(() => !!window.__phlippoBodyScene?.preview || !!document.querySelector('.k-viewport'))));
 await page.locator('.k-pm-valuerow input.k-num').first().fill('4');
-await page.locator('.k-pm-valuerow input.k-num').first().press('Enter');
+await page.locator('.k-pm-valuerow input.k-num').first().press('Tab');
 await page.waitForTimeout(400);
 await page.keyboard.press('Control+7');
 await page.waitForTimeout(400);

@@ -86,11 +86,14 @@ await page.click('[data-testid="preview-window"] button[data-tip="Close"]');
 await page.evaluate(() => window.__phlippoStore.getState().setScene({ background: 'studio' }));
 check('Apply Scene ▸ Studio Room sets the scene', await page.evaluate(() => window.__phlippoStore.getState().doc.scene?.background === 'studio'));
 await page.evaluate(() => window.__phlippoStore.getState().setScene({ background: 'gradient' }));
+// Ambient Occlusion is on by default (as the reference); off and on again
+check('Ambient Occlusion is on by default', await page.evaluate(() => window.__phlippoStore.getState().show.ambientOcclusion));
+await page.evaluate(() => window.__phlippoStore.getState().toggleShow('ambientOcclusion'));
+await page.waitForTimeout(400);
 await page.evaluate(() => window.__phlippoStore.getState().toggleShow('ambientOcclusion'));
 await page.waitForTimeout(800);
 await page.screenshot({ path: `${OUT}/er2-ao.png` });
 check('Ambient Occlusion is on and the page keeps working', await page.evaluate(() => window.__phlippoStore.getState().show.ambientOcclusion) && errors.length === 0, JSON.stringify(errors));
-await page.evaluate(() => window.__phlippoStore.getState().toggleShow('ambientOcclusion'));
 
 // Tolerance Tree and Display Panel tabs
 await page.click('[data-testid="tab-autoTolerance"]');

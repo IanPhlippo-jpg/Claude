@@ -73,7 +73,7 @@ const picked = await page.evaluate(() => {
 });
 check('the top edge is the hem edge', picked === true);
 await page.locator('.k-section:has-text("Type and Size") input.k-num').first().fill('10');
-await page.locator('.k-section:has-text("Type and Size") input.k-num').first().press('Enter');
+await page.locator('.k-section:has-text("Type and Size") input.k-num').first().press('Tab');
 await page.waitForTimeout(500);
 await shot('hm2-hem-preview');
 await page.click('.k-pm-ok');

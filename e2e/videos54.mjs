@@ -96,7 +96,7 @@ await S(() => {
 await page.waitForTimeout(200);
 const len0 = page.locator('[data-testid="sketch3d-length-0"] input');
 await len0.fill('60');
-await len0.press('Enter');
+await len0.press('Tab');
 await page.waitForTimeout(150);
 r = await S(() => window.__phlippoStore.getState().sketch3dEdit.segments);
 check('Line1 typed to 60: its end and the line after it move along', r[0][1][0] === 60 && r[1][0][0] === 60 && r[1][1][0] === 60 && r[1][1][2] === 40, JSON.stringify(r));

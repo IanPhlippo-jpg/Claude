@@ -41,7 +41,7 @@ await page.click('.k-cm-tab:has-text("Features")');
 await page.click('.k-cm-big:has-text("Extruded Boss/Base") .k-cm-main');
 await page.waitForTimeout(400);
 await page.locator('.k-pm-valuerow input.k-num').first().fill('20');
-await page.locator('.k-pm-valuerow input.k-num').first().press('Enter');
+await page.locator('.k-pm-valuerow input.k-num').first().press('Tab');
 await page.waitForTimeout(300);
 await page.click('.k-pm-ok');
 await page.waitForTimeout(700);

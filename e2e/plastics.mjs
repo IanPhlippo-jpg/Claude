@@ -44,7 +44,7 @@ const insert = async (label) => {
 const field = async (testid, v) => {
   const inp = page.locator(`[data-testid="${testid}"] input`).first();
   await inp.fill(String(v));
-  await inp.press('Enter');
+  await inp.press('Tab');
   await page.waitForTimeout(400);
 };
 /** puts the open feature's position at a corner of the body's face plane: (+-1, +-1) picks the corner */

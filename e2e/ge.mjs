@@ -135,7 +135,7 @@ check('two faces picked for the gusset', gussetFaces === 2, String(gussetFaces))
 await shot('ge5a-gusset-before');
 const gDepth = page.locator('.k-section:has-text("Profile") input.k-num').first();
 await gDepth.fill('8');
-await gDepth.press('Enter');
+await gDepth.press('Tab');
 await page.waitForTimeout(600);
 await shot('ge5-gusset-pm');
 await page.click('.k-pm-ok');
@@ -306,7 +306,7 @@ await page.waitForTimeout(400);
 check('Rip PM: Rip Parameters with the edge, Change Direction buttons and the rip gap', (await page.locator('.k-pm-title').innerText()).trim().startsWith('Rip') && (await page.locator('[data-testid="rip-edges"] .k-selbox-row').count()) === 1 && (await page.locator('[data-testid="rip-both"]').count()) === 1);
 const ripGap = page.locator('.k-section:has-text("Rip Parameters") input.k-num').first();
 await ripGap.fill('0.5');
-await ripGap.press('Enter');
+await ripGap.press('Tab');
 await page.waitForTimeout(500);
 await shot('ge11-rip-pm');
 await page.click('.k-pm-ok');

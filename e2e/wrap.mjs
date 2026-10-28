@@ -55,7 +55,7 @@ await page.click('.k-cm-small:has-text("Wrap")');
 await page.waitForTimeout(300);
 check('Wrap PM: Wrap Type, Wrap Method, the cylindrical face and Sketch2', /Face<\d+>/.test(await page.locator('[data-testid="wrap-face"]').innerText()) && (await page.locator('.k-section:has-text("Wrap Method")').count()) === 1 && (await page.locator('[data-testid="wrap-sketch"]').inputValue()) === 's2');
 await page.locator('.k-pm-host input.k-num').first().fill('2');
-await page.keyboard.press('Enter');
+await page.keyboard.press('Tab');
 await page.waitForTimeout(200);
 await page.click('.k-pm-ok');
 await page.waitForTimeout(800);

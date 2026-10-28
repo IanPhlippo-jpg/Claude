@@ -75,7 +75,7 @@ const picked = await page.evaluate(() => {
 });
 check('picked edge goes into Flange Parameters', !!picked && picked.edge && (await page.locator('.k-selbox-row:has-text("Edge<1>")').count()) === 1, JSON.stringify(picked));
 await page.locator('.k-section:has-text("Flange Length") input.k-num').first().fill('32');
-await page.locator('.k-section:has-text("Flange Length") input.k-num').first().press('Enter');
+await page.locator('.k-section:has-text("Flange Length") input.k-num').first().press('Tab');
 await page.waitForTimeout(500);
 await shot('sm3-edge-flange-preview');
 await page.click('.k-pm-ok');
@@ -112,7 +112,7 @@ await page.locator('.k-tree-row:has-text("Sheet-Metal")').first().dblclick();
 await page.waitForTimeout(300);
 check('Sheet-Metal1 PM with Bend Parameters', (await page.locator('.k-pm-title:has-text("Sheet-Metal1")').count()) === 1 && (await page.locator('.k-section:has-text("Bend Parameters")').count()) === 1);
 await page.locator('.k-section:has-text("Bend Parameters") input.k-num').first().fill('2');
-await page.locator('.k-section:has-text("Bend Parameters") input.k-num').first().press('Enter');
+await page.locator('.k-section:has-text("Bend Parameters") input.k-num').first().press('Tab');
 await page.click('.k-pm-ok');
 await page.waitForTimeout(800);
 check('thickness 2 gives a thinner sheet', (await volume()) < v2 * 0.8, String(await volume()));

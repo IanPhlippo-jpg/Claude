@@ -48,9 +48,9 @@ check('the Body-Move/Copy1 Property Panel opens with Translate and Rotate', (awa
 await page.locator('[data-testid="move-copy"]').check();
 await page.waitForTimeout(150);
 await page.locator('[data-testid="move-copies"] input').fill('2');
-await page.locator('[data-testid="move-copies"] input').press('Enter');
+await page.locator('[data-testid="move-copies"] input').press('Tab');
 await page.locator('[data-testid="move-translate-0"] input').fill('100');
-await page.locator('[data-testid="move-translate-0"] input').press('Enter');
+await page.locator('[data-testid="move-translate-0"] input').press('Tab');
 await page.waitForTimeout(200);
 await page.screenshot({ path: `${OUT}/bodies-move-pm.png` });
 await S(() => window.__phlippoStore.getState().commitFeature());

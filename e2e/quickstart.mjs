@@ -1,15 +1,20 @@
-// look-dev: the beginners' quick-start part done with the mouse as in the reference video (02): sketch on the Front
-// Plane from its context toolbar, an L of lines, Smart Dimension 62 / 30 / 65 / 15, Extruded Boss/Base Mid Plane 30,
-// Fillet R14.5 on the outer edge. A screenshot at each moment the video shows -> e2e-out/walk-NN-*.png (1920 x 1080, the reference screen).
+// The beginners' quick-start part done with the mouse and keyboard as in the reference video (02): right-click the
+// Front Plane (context toolbar above the menu), Sketch, an L of lines (the closing line gets Horizontal), Smart
+// Dimension 62 / 30 / 65 / 15 (Fully Defined), Extruded Boss/Base Mid Plane 30 with Enter as OK, Fillet R14.5 with
+// Enter as OK. Screenshots at each moment the video shows -> walk-NN-*.png (1920 x 1080, the reference screen).
 import { chromium } from 'playwright';
+import { checks, exitCode } from './lib/check.mjs';
+const { results, check } = checks();
+const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 const browser = await chromium.launch(process.platform === 'win32' ? { channel: process.env.PW_CHANNEL ?? 'msedge' } : { ...(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {}), args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
 const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } });
 const errors = [];
-page.on('pageerror', (e) => errors.push(e.message));
+page.on('pageerror', (e) => errors.push('pageerror: ' + e.message));
+page.on('console', (m) => { if (m.type() === 'error') errors.push('console: ' + m.text()); });
 let n = 0;
-const shot = async (name) => { await page.waitForTimeout(350); await page.screenshot({ path: `e2e-out/walk-${String(++n).padStart(2, '0')}-${name}.png` }); };
+const shot = async (name) => { await page.waitForTimeout(350); await page.screenshot({ path: `${OUT}/walk-${String(++n).padStart(2, '0')}-${name}.png` }); };
 const status = () => page.locator('.k-statusbar').innerText();
-await page.goto(process.env.E2E_URL ?? 'http://127.0.0.1:5173/');
+await page.goto(process.env.E2E_URL ?? 'http://127.0.0.1:4173/');
 await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.theme', 'light'); });
 await page.reload();
 await page.waitForSelector('.k-viewport');
@@ -18,9 +23,11 @@ await shot('new-part');
 // 1. right-click Front Plane in the tree: context toolbar, Sketch
 await page.click('.k-tree-row:has-text("Front Plane")', { button: 'right' });
 await shot('front-plane-rmb');
+check('right-click on Front Plane: context toolbar above the menu "Feature (Front Plane)", no sketch yet', (await page.locator('[data-testid="ctx-plane-sketch"]').count()) === 1 && (await page.locator('.k-menu-header:has-text("Feature (Front Plane)")').count()) === 1 && (await page.evaluate(() => window.__phlippoStore.getState().activeSketchId)) === null);
 await page.click('[data-testid="ctx-plane-sketch"]');
 await page.waitForTimeout(800);
 await shot('sketch-open');
+check('the toolbar Sketch button opens Sketch1 on the Front Plane', await page.evaluate(() => { const st = window.__phlippoStore.getState(); return st.doc.sketches[st.activeSketchId]?.plane === 'front'; }));
 // screen point of a sketch point (front plane: world x, y)
 const at = (x, y) => page.evaluate(([x, y]) => window.__phlippoProjectWorld(x, y, 0), [x, y]);
 // scale the L so it fills about half the view: the drawn sizes are rough, as by hand
@@ -41,6 +48,9 @@ await shot('l-drawn');
 await page.keyboard.press('Escape');
 await page.mouse.move(900, 600);
 await shot('l-done');
+const rel = await page.evaluate(() => { const st = window.__phlippoStore.getState(); return Object.values(st.doc.sketches[st.activeSketchId].constraints).map((c) => c.kind); });
+check('the L has six lines with H/V on each (the closing line too) and its start on the origin', rel.filter((k) => k === 'horizontal').length === 3 && rel.filter((k) => k === 'vertical').length === 3, rel.join(' '));
+check('one Message box in the Line panel', (await page.locator('.k-pm-host .k-section:has-text("Message")').count()) <= 1);
 // 3. Smart Dimension on each line, placed outside, value typed in the Modify box
 await page.click('.k-cm-big:has-text("Smart Dimension") .k-cm-main');
 // the lines of the active sketch as they are now (they move when a dimension changes them)
@@ -75,13 +85,12 @@ const dim = async (which, off, value, name) => {
 };
 await dim('left', [-12, 0], 62, 'dim62');
 await dim('top', [0, 10], 30, 'dim30');
-console.log('after 30:', await page.evaluate(() => { const st = window.__phlippoStore.getState(); return JSON.stringify({ modify: !!st.modify, sel: st.selection, cons: Object.values(st.doc.sketches[st.activeSketchId].constraints).map((c) => c.kind + ':' + (c.value ?? '')).join(' ') }); }));
 await dim('bottom', [0, -12], 65);
 await dim('right', [12, 0], 15);
 await page.keyboard.press('Escape');
 await page.mouse.move(1100, 600);
 await shot('dimensioned');
-console.log('sketch status:', (await status()).replace(/\s+/g, ' '));
+check('four dimensions make the sketch Fully Defined', /Fully Defined/.test(await status()), (await status()).replace(/\s+/g, ' '));
 // 4. Features ▸ Extruded Boss/Base, Mid Plane, 30
 await page.click('.k-cm-tab:has-text("Features")');
 await page.click('.k-cm-big:has-text("Extruded Boss/Base") .k-cm-main');
@@ -95,6 +104,7 @@ await shot('extrude-midplane');
 // Enter in the field is OK, as in the video
 await depth.press('Enter');
 await page.waitForTimeout(1000);
+check('Enter in the depth field is OK: Boss-Extrude1 is built and the panel closed', await page.evaluate(() => { const st = window.__phlippoStore.getState(); return !st.featureEdit && st.doc.features.some((f) => f.name === 'Boss-Extrude1') && st.rebuild.bodies.length === 1; }));
 await page.keyboard.press('Control+7');
 await page.keyboard.press('f');
 await page.mouse.move(1100, 650);
@@ -108,19 +118,20 @@ await rad.fill('14.5');
 const e = await page.evaluate(() => window.__phlippoProjectWorld(65, 0, 0));
 await page.mouse.move(e.x, e.y, { steps: 5 });
 await shot('fillet-hover');
-console.log('fillet hover', JSON.stringify(e), await page.evaluate(() => { const st = window.__phlippoStore.getState(); const g = st.rebuild.bodies[0]?.geometry; g?.computeBoundingBox(); return JSON.stringify({ he: st.hoverEdge, box: g?.boundingBox, sk: Object.values(st.doc.sketches)[0] && Object.values(Object.values(st.doc.sketches)[0].constraints).map((c) => c.kind + ':' + (c.value ?? '')).join(' ') }); }));
+check('the edge under the pointer lights up', await page.evaluate(() => !!window.__phlippoStore.getState().hoverEdge));
 await page.mouse.click(e.x, e.y);
 await page.waitForTimeout(1000);
 await shot('fillet-pm');
 const state = () => page.evaluate(() => { const st = window.__phlippoStore.getState(); return JSON.stringify({ focus: document.activeElement?.tagName + '.' + document.activeElement?.className, fe: st.featureEdit?.draft.type ?? null, sketch: st.activeSketchId, features: st.doc.features.map((f) => f.name), undo: st.undoLabel }); });
-console.log('before Enter', await state());
 await page.keyboard.press('Enter');
 await page.waitForTimeout(100);
-console.log('after Enter', await state());
 await page.waitForTimeout(1200);
-console.log('1.2 s later', await state());
+const after = JSON.parse(await state());
+check('Enter in the graphics area is OK: Fillet1 is built, no sketch or tool starts again', !after.fe && !after.sketch && after.features.join(',') === 'Sketch1,Boss-Extrude1,Fillet1', JSON.stringify(after));
 await page.waitForTimeout(1200);
 await page.mouse.move(1100, 650);
 await shot('done');
-console.log('errors:', errors.slice(0, 3));
+console.log(results.filter((r) => r.ok).length + '/' + results.length + ' passed');
+process.exitCode = exitCode(results, errors);
+if (errors.length) console.log('ERRORS', errors.slice(0, 5));
 await browser.close();

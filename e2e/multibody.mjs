@@ -46,7 +46,7 @@ const boxOnTop = async (x0, y0, x1, y1, depth, merge = true) => {
   await page.click('.k-cm-big:has-text("Extruded Boss/Base") .k-cm-main');
   await page.waitForTimeout(400);
   await page.locator('.k-pm-valuerow input.k-num').first().fill(String(depth));
-  await page.locator('.k-pm-valuerow input.k-num').first().press('Enter');
+  await page.locator('.k-pm-valuerow input.k-num').first().press('Tab');
   if (!merge) await page.locator('.k-check:has-text("Merge result") input').uncheck();
   await page.waitForTimeout(300);
   await page.click('.k-pm-ok');

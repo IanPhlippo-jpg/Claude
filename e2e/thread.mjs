@@ -49,7 +49,7 @@ await page.waitForTimeout(300);
 const pm = await page.evaluate(() => { const d = window.__phlippoStore.getState().featureEdit?.draft; return d && { size: d.size, internal: d.edge?.internal, label: d.edge?.label, name: d.name }; });
 check('Thread PM takes the shank edge and proposes M14x2.0 (Metric Die)', pm && pm.size === 'M14x2.0' && pm.internal === false && /Edge</.test(pm.label), JSON.stringify(pm));
 await page.locator('.k-pm-host input.k-num').nth(1).fill('30');
-await page.keyboard.press('Enter');
+await page.keyboard.press('Tab');
 await page.waitForTimeout(200);
 await page.mouse.move(5, 900);
 await shot('th1-thread-pm');

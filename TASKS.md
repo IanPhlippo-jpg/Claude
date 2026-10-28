@@ -779,6 +779,6 @@ elease; README en docs/04 bijgewerkt
 - [x] Referentieframes zoeken: model in shaded-with-edges, achtergrond, selectie/hover, schets, PropertyManager
 - [x] Uiterlijk vergelijken: belichting te vlak (219/240/218 i.p.v. 254/180/230), geen AO, selectie flets blauw i.p.v. cyaan; iconen (teal = standaardstijl), achtergrond en donker thema komen overeen
 - [x] Uiterlijk aanpassen: belichting gekalibreerd, AO standaard aan (software-GL: na stilstand), selectie cyaan; voor/na in docs/screenshots/shading-voor-na.png
-- [~] Basishandelingen vergelijken: schets + extrude, fillet, maat wijzigen, draaien/zoomen/pannen, selecteren
-- [ ] Verschillen in handelingen oplossen, met e2e-controle
-- [ ] Regressie, release, push
+- [x] Basishandelingen vergelijken (quick-start-video 02, op 1920x1080): rechtsklik op vlak, lijnen, maten, extrude, fillet
+- [x] Verschillen opgelost: rechtsklik vlak = werkbalk + menu; Enter = OK in featurepanelen; uitlijnlijnen + H/V op sluitende lijn; een berichtvak; e2e quickstart.mjs 8/8
+- [~] Regressie, release 0.5.6, push

@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { TEST_HOOKS } from '../testHooks';
+import { useStore } from '../store';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { GTAOPass } from 'three/examples/jsm/postprocessing/GTAOPass.js';
@@ -45,7 +46,9 @@ export function renderWithAO(renderer: THREE.WebGLRenderer, scene: THREE.Scene, 
   idle = null;
   if (deferred) {
     renderer.render(scene, camera);
-    idle = setTimeout(() => { idle = null; composeAO(renderer, scene, camera); }, 250);
+    // never while a rebuild runs in the worker: the window must keep drawing frames then (F46)
+    const later = () => { idle = setTimeout(() => { if (useStore.getState().rebuild.pending) { later(); return; } idle = null; composeAO(renderer, scene, camera); }, 250); };
+    later();
     return;
   }
   composeAO(renderer, scene, camera);

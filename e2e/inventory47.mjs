@@ -94,7 +94,7 @@ await page.mouse.click(topMid.x, topMid.y);
 await page.waitForTimeout(200);
 await page.locator('[data-testid="segment-segments"]').check();
 await page.locator('.k-pm-host .k-pm-valuerow:has(input) input').first().fill('3');
-await page.locator('.k-pm-host .k-pm-valuerow:has(input) input').first().press('Enter');
+await page.locator('.k-pm-host .k-pm-valuerow:has(input) input').first().press('Tab');
 await page.locator('[data-testid="segment-apply"]').click();
 await page.waitForTimeout(300);
 const linesAfter = await S(() => { const sk = window.__phlippoStore.getState().doc.sketches.s1; return sk.entityOrder.filter((id) => sk.entities[id].kind === 'line').length; });
