@@ -45,7 +45,7 @@ await S(() => window.__phlippoStore.getState().editSketch('s1'));
 await page.waitForTimeout(300);
 await S(() => window.__phlippoStore.getState().setTool('dimension'));
 await page.waitForTimeout(150);
-check('Smart Dimension prompts "Select one or two edges/vertices and then a text location."', (await status()).includes('Select one or two edges/vertices and then a text location.'));
+check('Smart Dimension prompts "Pick one or two edges or points, then click where the dimension goes."', (await status()).includes('Pick one or two edges or points, then click where the dimension goes.'));
 await S(() => { const s = window.__phlippoStore.getState(); s.setTool('select'); const sk = s.doc.sketches.s1; s.setSelection(sk.entityOrder.slice(0, 2).map((id) => ({ kind: 'entity', id }))); });
 await page.waitForTimeout(150);
 check('two lines selected: Total Length 140mm in the status bar', (await status()).includes('Total Length: 140mm'), await status());

@@ -379,7 +379,7 @@ export function MenuBar() {
       { label: 'Reference Geometry ▸ Plane…', icon: <Icon.Plane />, disabled: st.doc.kind !== 'part' && !!st.doc.kind, onSelect: () => st.startPlane() },
     ],
     Tools: [
-      // the selection items and the sketch settings of the intended Tools menu (46/0146)
+      // the selection items and the sketch settings of the intended Tools menu
       { label: 'Select', icon: <Icon.Select />, onSelect: () => { st.setTool('select'); useStore.getState().setSelection([]); } },
       { label: 'Select All', shortcut: 'Ctrl+A', disabled: !inSketch, onSelect: () => { const k = useStore.getState().doc.sketches[st.activeSketchId ?? '']; if (k) useStore.getState().setSelection(k.entityOrder.map((id) => ({ kind: 'entity' as const, id }))); } },
       { separator: true },

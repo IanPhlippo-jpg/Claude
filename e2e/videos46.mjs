@@ -137,10 +137,10 @@ await page.keyboard.press('F5');
 // ---- sketch tool prompts
 await S(() => { const s = window.__phlippoStore.getState(); s.newSketch('front'); s.setTool('rectangle'); });
 await page.waitForTimeout(300);
-check('Corner Rectangle prompt "Click first and then second corner"', (await status()).includes('Click first and then second corner'), await status());
+check('Corner Rectangle prompt "Click one corner, then the opposite corner"', (await status()).includes('Click one corner, then the opposite corner'), await status());
 await S(() => window.__phlippoStore.getState().setTool('circle'));
 await page.waitForTimeout(150);
-check('Circle prompt "Click-drag from the center or click center and click radius."', (await status()).includes('Click-drag from the center or click center and click radius.'));
+check('Circle prompt "Click the centre, then a point on the circle (or drag from the centre)."', (await status()).includes('Click the centre, then a point on the circle (or drag from the centre).'));
 
 // ---- a doubled distance: a point and a centerline, the text past the centerline
 await S(() => {

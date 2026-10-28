@@ -1,5 +1,5 @@
 // Phlippo CAD desktop shell: one frameless window (the app draws its own title row with the
-// window buttons, as the original), native file dialogs for Open / Save As, and nothing else.
+// window buttons, by design), native file dialogs for Open / Save As, and nothing else.
 //
 // Safety rules of this process:
 // - the renderer never names a path: Save writes only to a path this process handed out itself

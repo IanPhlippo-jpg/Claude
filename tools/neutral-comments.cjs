@@ -23,6 +23,11 @@ const RULES = [
   [new RegExp(`\\b([Tt])he original (${VERBS})\\b`, 'g'), '$1he intended design $2'],
   [/\(the original, /g, '('],
   [/measured on the original: /g, 'measured: '],
+  // video frame tags such as (57/0028) and wording that points at the reference videos (QA v0.5.1 F136)
+  [/,? ?\(\d{2}\/\d{4}(?:[,/ ]+\d{2,4})*\)/g, ''],
+  [/ ?\((?:measured|seen) (?:in|on) the reference (?:videos?|frames?)\)/g, ''],
+  [/(?:in|from|as in) the reference (?:videos?|frames?|program)/g, 'by design'],
+  [/,? as the intended status bar(?: words it)?/g, ''],
 ];
 let total = 0;
 const changed = [];
@@ -30,7 +35,7 @@ function walk(dir) {
   for (const f of fs.readdirSync(dir)) {
     const p = path.join(dir, f);
     if (fs.statSync(p).isDirectory()) walk(p);
-    else if (/\.(tsx?|css)$/.test(f)) {
+    else if (/\.(tsx?|css|cjs)$/.test(f)) {
       const text = fs.readFileSync(p, 'utf8');
       let t = text, n = 0;
       for (const [re, to] of RULES) t = t.replace(re, (...m) => { n++; return typeof to === 'string' ? to.replace(/\$(\d)/g, (_, i) => m[+i]) : to; });
@@ -39,6 +44,7 @@ function walk(dir) {
   }
 }
 walk(path.join(ROOT, 'src'));
+walk(path.join(ROOT, 'electron'));
 console.log(changed.join('\n'));
 console.log('total', total, APPLY ? 'applied' : 'dry run');
 // --check (CI): any hit is a failure

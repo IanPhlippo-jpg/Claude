@@ -22,7 +22,7 @@ export const APPEARANCE_TREE: Folder[] = [
     name: 'Appearances(color)',
     children: [
       { name: 'Plastic', children: [
-        // the folders and names of the intended Plastic library (53/0068)
+        // the folders and names of the intended Plastic library
         { name: 'High Gloss', items: [m('white high gloss plastic', '#f4f4f2', 'gloss'), m('cream high gloss plastic', '#efe6cf', 'gloss'), m('beige high gloss plastic', '#dccbab', 'gloss'), m('light grey high gloss plastic', '#c9cbcd', 'gloss'), m('high gloss black plastic', '#1b1b1b', 'gloss'), m('high gloss red plastic', '#c4232a', 'gloss'), m('high gloss white plastic', '#f2f2f2', 'gloss')] },
         { name: 'Medium Gloss', items: [m('medium gloss black plastic', '#262626', 'gloss'), m('medium gloss grey plastic', '#8a8d91', 'gloss')] },
         { name: 'Low Gloss', items: [m('low gloss black plastic', '#2b2b2b', 'matte'), m('low gloss beige plastic', '#d8c8a8', 'matte')] },

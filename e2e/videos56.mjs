@@ -44,7 +44,7 @@ await page.waitForTimeout(800);
 // ---- = in the Depth field of Boss-Extrude1
 await page.locator('.k-tree-row:has-text("Boss-Extrude1")').first().dblclick();
 await page.waitForTimeout(400);
-check('Boss-Extrude1 ▸ status prompt "Select a handle to modify parameters"', (await status()).includes('Select a handle to modify parameters'), await status());
+check('Boss-Extrude1 ▸ status prompt "Drag an arrow handle to change the size."', (await status()).includes('Drag an arrow handle to change the size.'), await status());
 const depth = page.locator('.k-pm-host input.k-num').first();
 await depth.focus();
 await depth.press('=');
@@ -113,7 +113,7 @@ await S(() => {
 await page.waitForTimeout(800);
 await page.locator('.k-tree-row:has-text("Rib1")').last().dblclick();
 await page.waitForTimeout(400);
-check('Rib1 ▸ status prompt "Set direction, thickness and other parameters to create the rib."', (await status()).includes('Set direction, thickness and other parameters to create the rib.'), await status());
+check('Rib1 ▸ status prompt "Set the direction and the thickness of the rib."', (await status()).includes('Set the direction and the thickness of the rib.'), await status());
 check('Rib (Normal to Sketch) ▸ Type: Linear / Natural', /Type:[\s\S]*Linear[\s\S]*Natural/.test(await page.locator('[data-testid="rib-type"]').innerText().catch(() => '')));
 check('without draft no Rib Thickness choice', (await page.locator('[data-testid="rib-thickness-at"]').count()) === 0);
 await page.click('[data-testid="rib-draft-toggle"]');

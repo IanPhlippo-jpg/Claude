@@ -600,7 +600,7 @@ export function FeatureTreeBody() {
           <button key={testid} className="k-btn ghost icon k-tip" data-tip={tip} data-testid={testid} onClick={() => { setBar(null); run(); }}>{icon}</button>
         );
         if (f.type === 'sketch') {
-          // a sketch in the tree, as the intended design (58/0033): Show/Hide, Zoom to Selection, Normal To
+          // a sketch in the tree, as the intended design: Show/Hide, Zoom to Selection, Normal To
           const sk = st.doc.sketches[f.sketchId];
           const shown = sk?.visible ?? !st.rebuild.consumedSketches.has(f.sketchId);
           const zoomTo = () => {

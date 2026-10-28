@@ -47,45 +47,48 @@ function cylinderOf(g: THREE.BufferGeometry, triangles: number[]): { radius: num
 
 const UNIT_LABEL: Record<UnitSystem, string> = { MKS: 'MKS (meter, kilogram, second)', CGS: 'CGS (centimeter, gram, second)', MMGS: 'MMGS (millimeter, gram, second)', IPS: 'IPS (inch, pound, second)' };
 
-/** the prompt of the command in progress, as the intended status bar words it (measured in the reference videos) */
-function commandPrompt(s: { tool: string; activeSketchId: string | null; selectedConstraint: string | null; contourPick: boolean; featureEdit: { draft: { type: string; sketchId?: string; breakCorner?: boolean; edges?: unknown[]; plane?: string; roundType?: string; end?: string; contours?: number[] } } | null }): string {
+/** the prompt of the command in progress: what to pick or click next, in Phlippo CAD's own words (QA v0.5.1 F135) */
+function commandPrompt(s: { tool: string; activeSketchId: string | null; selectedConstraint: string | null; contourPick: boolean; featureEdit: { draft: { type: string; sketchId?: string; face?: unknown; target?: unknown; tool?: unknown; grooveFace?: unknown; breakCorner?: boolean; edges?: unknown[]; plane?: string; roundType?: string; end?: string; contours?: number[] } } | null }): string {
   if (s.activeSketchId) {
-    if (s.selectedConstraint) return 'Set the properties of the selected dimension(s).';
-    if (s.tool === 'dimension' || s.tool === 'hdim' || s.tool === 'vdim') return 'Select one or two edges/vertices and then a text location.';
-    if (s.tool === 'offset') return 'Click on either side to complete, or click and drag for dynamic control. Right-click for additional options.';
-    if (s.tool === 'polygon') return `Creating ${bridge.sketchOptions.polygonSides} sided polygon`;
-    if (s.tool === 'rectangle') return 'Click first and then second corner';
-    if (s.tool === 'circle') return 'Click-drag from the center or click center and click radius.';
-    if (s.tool === 'arc3') return 'Place start and end points. Place a point on the circumference of the arc.';
+    if (s.selectedConstraint) return 'Edit the value or the properties of the selected dimension.';
+    if (s.tool === 'dimension' || s.tool === 'hdim' || s.tool === 'vdim') return 'Pick one or two edges or points, then click where the dimension goes.';
+    if (s.tool === 'offset') return 'Click the side the offset goes to, or drag to set its distance. Right-click for more options.';
+    if (s.tool === 'polygon') return `Polygon with ${bridge.sketchOptions.polygonSides} sides: click the centre, then a corner.`;
+    if (s.tool === 'rectangle') return 'Click one corner, then the opposite corner.';
+    if (s.tool === 'circle') return 'Click the centre, then a point on the circle (or drag from the centre).';
+    if (s.tool === 'arc3') return 'Click the two end points, then a point the arc passes through.';
     return '';
   }
   const t = s.featureEdit?.draft.type;
   const d = s.featureEdit?.draft;
-  // with a contour already picked the prompt names both ways of picking (57/0028)
-  if (s.contourPick && t === 'extrude' && d?.contours?.length) return 'Pick a sketch entity to define an open or closed contour. To define a region, pick inside an area bounded by sketch geometry.';
-  if (s.contourPick && (t === 'extrude' || t === 'revolve')) return 'To select a region, pick inside an area bounded by sketch geometry.';
-  if (t === 'sweep') return d?.sketchId ? 'Select one or more sketch entities or model edges to form the group.' : 'Select sweep profile';
-  if (t === 'mirror') return d?.plane ? 'Select the features to mirror' : 'Select a plane or planar face about which to mirror, followed by the features to mirror.';
-  if (t === 'circularPattern') return 'Select edge or axis for direction reference, select face of feature for pattern features';
-  if (t === 'rib') return 'Set direction, thickness and other parameters to create the rib.';
-  if ((t === 'fillet' || t === 'chamfer') && d?.roundType === 'fullRound') return 'Select faces for the center and side face sets';
+  // with a contour already picked the prompt names both ways of picking
+  if (s.contourPick && t === 'extrude' && d?.contours?.length) return 'Click a sketch curve to use its contour, or click inside a closed area to use that region.';
+  if (s.contourPick && (t === 'extrude' || t === 'revolve')) return 'Click inside a closed area of the sketch to use that region.';
+  if (t === 'sweep') return d?.sketchId ? 'Pick the sketch curves or model edges that make up the path.' : 'Pick the profile to sweep.';
+  if (t === 'mirror') return d?.plane ? 'Pick the features to copy across the plane.' : 'Pick the mirror plane (a plane or a flat face), then the features to copy.';
+  if (t === 'circularPattern') return 'Pick an axis or a round edge for the direction, then a face of each feature to repeat.';
+  if (t === 'rib') return 'Set the direction and the thickness of the rib.';
+  if ((t === 'fillet' || t === 'chamfer') && d?.roundType === 'fullRound') return 'Pick the two side faces and the centre face to round over.';
   // the extrude and base flange show their drag handles; Through All offers a click in empty space to go back to Blind
-  if (t === 'extrude' && (d?.end === 'throughAll' || d?.end === 'throughAllBoth')) return 'Click a location in empty space to change to a blind extrusion or select a different entity';
-  if (t === 'extrude' || t === 'baseFlange') return 'Select a handle to modify parameters';
-  if (t === 'sketchedBend') return 'Select the fixed face or edge and set the bend parameters.';
-  if (t === 'edgeFlange') return 'Please click a location in empty space or a vertex to set the flange height';
-  if ((t === 'fillet' || t === 'chamfer') && d?.breakCorner) return 'Please select corner edge(s) or flange face(s).';
-  if ((t === 'fillet' || t === 'chamfer') && d?.edges?.length) return 'Select a callout to modify parameters';
+  if (t === 'extrude' && (d?.end === 'throughAll' || d?.end === 'throughAllBoth')) return 'Click empty space to go back to a blind depth, or pick another end entity.';
+  if (t === 'extrude' || t === 'baseFlange') return 'Drag an arrow handle to change the size.';
+  if (t === 'sketchedBend') return 'Pick the face or edge that stays in place, then set the bend.';
+  if (t === 'edgeFlange') return 'Click empty space or a vertex to set the flange height.';
+  if ((t === 'fillet' || t === 'chamfer') && d?.breakCorner) return 'Pick the corner edges or the flange faces.';
+  if ((t === 'fillet' || t === 'chamfer') && d?.edges?.length) return 'Click a value label to change it.';
+  if (t === 'dome' && !d?.face) return 'Pick a flat face to dome.';
+  if (t === 'indent') return d?.target ? (d?.tool ? '' : 'Pick the tool body (the shape to wrap around).') : 'Pick the body to indent.';
+  if (t === 'lipGroove' && !d?.grooveFace) return 'Pick the rim face that gets the groove, then the rim face that gets the lip.';
   return '';
 }
 
 export function StatusBar({ hint: hint0 }: { hint: string }) {
   const st = useStore(useShallow((s) => ({ messages: s.messages, doc: s.doc, selection: s.selection, selectedEdges: s.selectedEdges, rebuild: s.rebuild, selectedFace: s.selectedFace, selectedFaces: s.selectedFaces, planePick: s.planePick, activeSketchId: s.activeSketchId, cursor: s.cursor, hasDocument: s.hasDocument, selectedDrawingViewId: s.selectedDrawingViewId, unitSystem: s.unitSystem, setUnitSystem: s.setUnitSystem, setDialog: s.setDialog })));
   const focusLocked = useStore((s) => s.sketchFocusLocked);
-  const dialogPrompt = useStore((s) => (s.dialog === 'appearance' ? 'Select entities to modify their appearance.' : ''));
+  const dialogPrompt = useStore((s) => (s.dialog === 'appearance' ? 'Pick the faces, features or bodies to colour.' : ''));
   const commandText = useStore(useShallow((s) => commandPrompt({ tool: s.tool, activeSketchId: s.activeSketchId, selectedConstraint: s.selectedConstraint, contourPick: s.contourPick, featureEdit: s.featureEdit })));
   const prompt = dialogPrompt || commandText;
-  // the menu row under the pointer describes its command, as the intended status bar
+  // the menu row under the pointer describes its command
   const [menuText, setMenuText] = useState('');
   useEffect(() => {
     const h = (e: Event) => setMenuText((e as CustomEvent<string>).detail);
@@ -109,7 +112,7 @@ export function StatusBar({ hint: hint0 }: { hint: string }) {
   const faceted = st.rebuild.bodies.filter((b) => !b.exact).length;
   const coord = (v: number) => `${Math.round(v * 100) / 100}${u}`;
   const r2 = (v: number) => Math.round(v * 100) / 100;
-  // a model face (or two): as the intended status bar, "Area: …mm^2   Perimeter: …", "Diameter: …" on a cylinder,
+  // a model face (or two): "Area: …mm^2   Perimeter: …", "Diameter: …" on a cylinder,
   // "Normal Distance: …" between two parallel planar faces (memoised: the bar renders on every pointer move)
   const faceReadout = useMemo(() => {
     const refs = st.selectedFaces.length ? st.selectedFaces : st.selectedFace ? [st.selectedFace] : [];
@@ -128,7 +131,7 @@ export function StatusBar({ hint: hint0 }: { hint: string }) {
     }
     return `Area: ${Math.round(f.area * 100) / 100}${u}^2   Perimeter: ${mm(faceMeasure(b.geometry, f.triangles).perimeter)}`;
   }, [st.rebuild, st.selectedFace, st.selectedFaces, u]);
-  // the selection readout, as the intended status bar: a line's length, two points' distance (dX dY dZ), a circle's diameter and centre
+  // the selection readout: a line's length, two points' distance (dX dY dZ), a circle's diameter and centre
   let readout: string | null = null;
   if (sketch && st.selection.length) {
     const ents = st.selection.filter((s) => s.kind === 'entity').map((s) => sketch.entities[s.id]).filter(Boolean);
@@ -148,7 +151,7 @@ export function StatusBar({ hint: hint0 }: { hint: string }) {
     } else if (pts.length === 1 && !ents.length) {
       readout = `X: ${coord(pts[0].x)}   Y: ${coord(pts[0].y)}`;
     } else if (ents.length > 1) {
-      // several curves: their total length, as the intended status bar; two parallel lines first their normal distance
+      // several curves: their total length; two parallel lines first their normal distance
       let L = 0;
       for (const e of ents) { const q = sampleEntity(sketch, e); for (let i = 1; i < q.length; i++) L += Math.hypot(q[i].x - q[i - 1].x, q[i].y - q[i - 1].y); }
       let nd = '';
@@ -168,7 +171,7 @@ export function StatusBar({ hint: hint0 }: { hint: string }) {
       const e = edges[0];
       if (e.closed && !e.straight) readout = `Radius: ${coord(r2(e.length / (2 * Math.PI)))}   Center: ${coord(r2(e.centroid.x))}, ${coord(r2(e.centroid.y))}, ${coord(r2(e.centroid.z))}`;
       else if (!e.straight && e.points.length >= 3) {
-        // an open arc edge shows its radius, as the intended status bar (circle through its ends and middle)
+        // an open arc edge shows its radius (circle through its ends and middle)
         // (only when every point of the edge lies on that circle: a spline keeps its arc length)
         const [p, q, r] = [e.points[0], e.points[Math.floor(e.points.length / 2)], e.points[e.points.length - 1]];
         const u = p.clone().sub(r), v = q.clone().sub(r), w = u.clone().cross(v);
