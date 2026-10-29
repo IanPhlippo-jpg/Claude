@@ -865,7 +865,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
       const hit = ray.intersectPlane(new THREE.Plane(b.n, -b.n.dot(b.o)), new THREE.Vector3());
       if (!hit) continue;
       const rel = hit.clone().sub(b.o); const u = rel.dot(b.u), v = rel.dot(b.v);
-      if (Math.abs(u) <= sizeW && Math.abs(v) <= sizeW * 0.75) {
+      if (Math.abs(u) <= sizeW && Math.abs(v) <= sizeW) {
         // nearest hit along the ray wins (the plane in front)
         const d = hit.distanceTo(ray.origin);
         if (!best || d < best.d) best = { id, d };
@@ -1466,7 +1466,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
         const placed: { id: PlaneId; x: number; y: number; hl: boolean; text: string }[] = [];
         for (const pl of planesToDraw) {
           const b = getPlane(pl.id);
-          const corners = [[-1, 1], [1, 1], [-1, -1], [1, -1]].map(([a, c]) => camera.worldToPixel(b.o.clone().addScaledVector(b.u, a * sizeW * 0.95).addScaledVector(b.v, c * sizeW * 0.72)));
+          const corners = [[-1, 1], [1, 1], [-1, -1], [1, -1]].map(([a, c]) => camera.worldToPixel(b.o.clone().addScaledVector(b.u, a * sizeW * 0.95).addScaledVector(b.v, c * sizeW * 0.95)));
           const p = corners.reduce((m, q) => (q.y < m.y - 0.5 || (Math.abs(q.y - m.y) <= 0.5 && q.x < m.x) ? q : m));
           const text = planeLabel(pl.id);
           let y = p.y;

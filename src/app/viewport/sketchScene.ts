@@ -294,9 +294,10 @@ export class SketchScene {
     }
     if (input.sketch) drawSketch(input.sketch, input.plane, false);
 
-    // reference planes: outline, faint fill and the name on the plane; the selected one with handles (planeLook.ts)
+    // reference planes: squares of one size, so each plane's edges run through the edge middles of the others (where
+    // the handles of a selected plane sit); outline, faint fill, the name on the plane (planeLook.ts)
     const dark = document.documentElement.dataset.theme === 'dark';
-    for (const pl of input.planes) addReferencePlane(this.group, getPlane(pl.id), input.planeSize, input.planeSize * 0.75, pl.selected ? 'selected' : pl.highlight ? 'hover' : 'normal', planeLabel(pl.id), input.scale, dark, rgba(input.colors.hover).c);
+    for (const pl of input.planes) addReferencePlane(this.group, getPlane(pl.id), input.planeSize, input.planeSize, pl.selected ? 'selected' : pl.highlight ? 'hover' : 'normal', planeLabel(pl.id), input.scale, dark, rgba(input.colors.hover).c);
 
     // origin glyph: two short arrows (blue in part mode, red in sketch mode)
     if (input.showOrigin) {

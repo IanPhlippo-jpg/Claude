@@ -60,12 +60,14 @@ await S(() => window.__phlippoStore.getState().setDialog(null));
 await S(() => { const s = window.__phlippoStore.getState(); s.setSceneEdit(true); });
 await page.waitForTimeout(300);
 await page.selectOption('[data-testid="scene-env"]', 'courtyard');
+// floor reflections are on by default; the click turns them off
+check('Floor reflections are on by default', await page.locator('[data-testid="scene-reflect"]').isChecked());
 await page.click('[data-testid="scene-reflect"]');
 await page.click('[data-testid="scene-tab-illumination"]');
 await page.fill('[data-testid="scene-brightness"]', '1.4').catch(async () => { await page.locator('[data-testid="scene-brightness"]').evaluate((el) => { const set = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set; set.call(el, '1.4'); el.dispatchEvent(new Event('input', { bubbles: true })); el.dispatchEvent(new Event('change', { bubbles: true })); }); });
 await page.waitForTimeout(400);
 const sc = await S(() => window.__phlippoStore.getState().doc.scene);
-check('Scene: courtyard, reflections, brightness', sc.environment === 'courtyard' && sc.floorReflections === true && Math.abs((sc.brightness ?? 1) - 1.4) < 0.01, JSON.stringify(sc));
+check('Scene: courtyard, reflections off, brightness', sc.environment === 'courtyard' && sc.floorReflections === false && Math.abs((sc.brightness ?? 1) - 1.4) < 0.01, JSON.stringify(sc));
 await page.screenshot({ path: `${OUT}/dlg-scene.png` });
 await S(() => window.__phlippoStore.getState().setSceneEdit(false));
 
