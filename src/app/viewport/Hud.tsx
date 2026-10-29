@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import * as THREE from 'three';
 import { useStore, type DisplayStyle } from '../store';
 import { useShallow } from 'zustand/react/shallow';
@@ -122,6 +122,24 @@ function ViewIcon({ view }: { view: StandardView }) {
 
 /** Heads-up View toolbar: transparent toolbar top-centre of the graphics area. */
 export function Hud({ camera, zoomFit, onZoomArea, zoomAreaActive }: { camera: CadCamera; zoomFit: () => void; onZoomArea: () => void; zoomAreaActive: boolean }) {
+  // the toolbar sits on the row of the ribbon tabs; in a narrow window, where it would cover a tab, it drops below them
+  const hudRef = useRef<HTMLDivElement>(null);
+  const [lowered, setLowered] = useState(false);
+  useLayoutEffect(() => {
+    const check = () => {
+      const hud = hudRef.current, tabs = document.querySelectorAll('.k-cm-tabs .k-cm-tab');
+      if (!hud || !tabs.length) return;
+      const tabsRight = tabs[tabs.length - 1].getBoundingClientRect().right;
+      const host = hud.parentElement?.getBoundingClientRect();
+      const left = host ? host.left + host.width / 2 - hud.offsetWidth / 2 : hud.getBoundingClientRect().left;
+      setLowered(left < tabsRight + 8);
+    };
+    check();
+    window.addEventListener('resize', check);
+    const ro = typeof ResizeObserver !== 'undefined' && hudRef.current?.parentElement ? new ResizeObserver(check) : null;
+    if (ro && hudRef.current?.parentElement) ro.observe(hudRef.current.parentElement);
+    return () => { window.removeEventListener('resize', check); ro?.disconnect(); };
+  }, []);
   const st = useStore(useShallow((s) => ({ sectionView: s.sectionView, sectionEdit: s.sectionEdit, startSectionView: s.startSectionView, displayStyle: s.displayStyle, setDisplayStyle: s.setDisplayStyle, show: s.show, toggleShow: s.toggleShow, setDialog: s.setDialog, doc: s.doc, setScene: s.setScene, setSceneEdit: s.setSceneEdit, theme: s.theme, setTheme: s.setTheme })));
   const [, bump] = useState(0);
   useEffect(() => {
@@ -145,11 +163,11 @@ export function Hud({ camera, zoomFit, onZoomArea, zoomAreaActive }: { camera: C
   const chk = (b: boolean) => (b ? '✓ ' : '');
   const STYLE_ICON: Record<DisplayStyle, React.ReactNode> = { wireframe: <Icon.StyleWireframe />, hiddenVisible: <Icon.StyleHiddenVisible />, hiddenRemoved: <Icon.StyleHiddenRemoved />, shaded: <Icon.StyleShaded />, shadedEdges: <Icon.StyleShadedEdges /> };
   return (
-    <div className="k-hud" onPointerDown={(e) => e.stopPropagation()} onDoubleClick={(e) => e.stopPropagation()}>
-      <HudButton icon={<Icon.Fit />} tip="Zoom to Fit (F)" onClick={zoomFit} />
-      <HudButton icon={<Icon.ZoomArea />} tip="Zoom to Area" onClick={onZoomArea} active={zoomAreaActive} />
-      <HudButton icon={<Icon.Previous />} tip="Previous View (Shift+Ctrl+Z)" onClick={() => camera.previousView()} />
-      <HudButton icon={<Icon.Section />} tip="Section View" active={!!st.sectionView || !!st.sectionEdit} onClick={st.startSectionView} />
+    <div ref={hudRef} className={`k-hud${lowered ? ' lowered' : ''}`} onPointerDown={(e) => e.stopPropagation()} onDoubleClick={(e) => e.stopPropagation()}>
+      <HudButton icon={<Icon.HudFit />} tip="Zoom to Fit (F)" onClick={zoomFit} />
+      <HudButton icon={<Icon.HudZoomArea />} tip="Zoom to Area" onClick={onZoomArea} active={zoomAreaActive} />
+      <HudButton icon={<Icon.HudPrevious />} tip="Previous View (Shift+Ctrl+Z)" onClick={() => camera.previousView()} />
+      <HudButton icon={<Icon.HudSection />} tip="Section View" active={!!st.sectionView || !!st.sectionEdit} onClick={st.startSectionView} />
       <span className="k-hud-sep" />
       <HudButton icon={<Icon.Orientation />} tip="View Orientation (Space)" menu={() => <ViewGrid camera={camera} />} />
       <HudButton

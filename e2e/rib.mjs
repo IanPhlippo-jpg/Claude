@@ -104,7 +104,7 @@ await shot('r3-rib-done');
 
 // edit: Flip material side grows upward (nothing above: error), back again builds
 await page.locator('.k-tree-row:has-text("Rib1")').last().click({ button: 'right' });
-await page.click('.k-menu-item:has-text("Edit Feature")');
+await page.click('[data-testid="ctx-edit-feature"]');
 await page.waitForTimeout(300);
 await page.locator('.k-check:has-text("Flip material side") input').check();
 await page.waitForTimeout(400);

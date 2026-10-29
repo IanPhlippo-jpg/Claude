@@ -29,7 +29,7 @@ const STATUS_LABEL: Record<string, string> = { under: 'under defined', full: '',
  * child); with a draggable rollback bar.
  */
 export function FeatureTreeBody() {
-  const st = useStore(useShallow((s) => ({ treeFilter: s.treeFilter, show: s.show, rebuild: s.rebuild, renameFeature: s.renameFeature, solve: s.solve, doc: s.doc, rollbackIndex: s.rollbackIndex, activeSketchId: s.activeSketchId, selectedFeatureId: s.selectedFeatureId, editSketch: s.editSketch, setSelection: s.setSelection, setSelectedFeature: s.setSelectedFeature, featureEdit: s.featureEdit, edit3DSketch: s.edit3DSketch, editFeature: s.editFeature, setHoverPlane: s.setHoverPlane, selectedPlane: s.selectedPlane, planePick: s.planePick, newSketch: s.newSketch, setSelectedPlane: s.setSelectedPlane, setDialog: s.setDialog, toggleShow: s.toggleShow, applyDocument: s.applyDocument, setSheetMetalEdit: s.setSheetMetalEdit, planeEdit: s.planeEdit, editPlane: s.editPlane, startRefGeom: s.startRefGeom, pushMessage: s.pushMessage, setRollback: s.setRollback, setMaterial: s.setMaterial, rebuildAll: s.rebuildAll, addSensor: s.addSensor, setAsk: s.setAsk, setBodyHidden: s.setBodyHidden, openMaterialFor: s.openMaterialFor, startCombine: s.startCombine, setIsolated: s.setIsolated, deleteBodies: s.deleteBodies, deleteSensor: s.deleteSensor, toggleSuppress: s.toggleSuppress, openConfigure: s.openConfigure, startFeature: s.startFeature, requestDeleteFeature: s.requestDeleteFeature })));
+  const st = useStore(useShallow((s) => ({ prefs: s.prefs, treeFilter: s.treeFilter, show: s.show, rebuild: s.rebuild, renameFeature: s.renameFeature, solve: s.solve, doc: s.doc, rollbackIndex: s.rollbackIndex, activeSketchId: s.activeSketchId, selectedFeatureId: s.selectedFeatureId, editSketch: s.editSketch, setSelection: s.setSelection, setSelectedFeature: s.setSelectedFeature, featureEdit: s.featureEdit, edit3DSketch: s.edit3DSketch, editFeature: s.editFeature, setHoverPlane: s.setHoverPlane, selectedPlane: s.selectedPlane, planePick: s.planePick, newSketch: s.newSketch, setSelectedPlane: s.setSelectedPlane, setDialog: s.setDialog, toggleShow: s.toggleShow, applyDocument: s.applyDocument, setSheetMetalEdit: s.setSheetMetalEdit, planeEdit: s.planeEdit, editPlane: s.editPlane, startRefGeom: s.startRefGeom, pushMessage: s.pushMessage, setRollback: s.setRollback, setMaterial: s.setMaterial, rebuildAll: s.rebuildAll, addSensor: s.addSensor, setAsk: s.setAsk, setBodyHidden: s.setBodyHidden, openMaterialFor: s.openMaterialFor, startCombine: s.startCombine, setIsolated: s.setIsolated, deleteBodies: s.deleteBodies, deleteSensor: s.deleteSensor, toggleSuppress: s.toggleSuppress, openConfigure: s.openConfigure, startFeature: s.startFeature, requestDeleteFeature: s.requestDeleteFeature })));
   const [menu, setMenu] = useState<{ x: number; y: number; featureId: string } | null>(null);
   // the context toolbar of a clicked feature or sketch, by design: it appears beside the pointer and fades when the pointer leaves
   const [bar, setBar0] = useState<{ x: number; y: number; featureId: string; shown?: boolean; live?: boolean } | null>(null);
@@ -42,6 +42,13 @@ export function FeatureTreeBody() {
     window.clearTimeout(barTimer.current);
     setBar0({ x: e.clientX, y: e.clientY, featureId: '__plane:' + plane, shown: true, live: true });
     setMenu({ x: e.clientX, y: e.clientY + 8, featureId: '__plane:' + plane });
+  };
+  // a right-click on a feature shows its toolbar with the menu under it, as on a plane
+  const featureMenu = (e: React.MouseEvent, id: string) => {
+    e.preventDefault();
+    window.clearTimeout(barTimer.current);
+    setBar0(st.activeSketchId ? null : { x: e.clientX, y: e.clientY, featureId: id, shown: true, live: true });
+    setMenu({ x: e.clientX, y: e.clientY + 8, featureId: id });
   };
   const setBar = (b: { x: number; y: number; featureId: string } | null) => {
     window.clearTimeout(barTimer.current);
@@ -149,10 +156,7 @@ export function FeatureTreeBody() {
         st.setSelectedFeature(e.ctrlKey && st.selectedFeatureId === f.id ? null : f.id);
         if (!e.ctrlKey && !st.activeSketchId) setBar({ x: e.clientX, y: e.clientY, featureId: f.id });
       },
-      onContextMenu: (e) => {
-        e.preventDefault();
-        setMenu({ x: e.clientX, y: e.clientY, featureId: f.id });
-      },
+      onContextMenu: (e) => featureMenu(e, f.id),
     };
   };
 
@@ -200,10 +204,7 @@ export function FeatureTreeBody() {
       onDoubleClick: () => (f.type === 'sketch3d' ? st.edit3DSketch(f.id) : st.editFeature(f.id)),
       onClick: (e) => { st.setSelectedFeature(e.ctrlKey && st.selectedFeatureId === f.id ? null : f.id); if (!e.ctrlKey && !st.activeSketchId && !st.featureEdit) setBar({ x: e.clientX, y: e.clientY, featureId: f.id }); },
       onHover: (on) => useStore.setState({ hoverFeatureId: on ? f.id : null }),
-      onContextMenu: (e) => {
-        e.preventDefault();
-        setMenu({ x: e.clientX, y: e.clientY, featureId: f.id });
-      },
+      onContextMenu: (e) => featureMenu(e, f.id),
     };
   };
 
@@ -306,6 +307,15 @@ export function FeatureTreeBody() {
     return same.length > 1 ? `${name(b)}[${same.indexOf(b) + 1}]` : name(b);
   };
   const sensorAlarm = (sn: NonNullable<typeof st.doc.sensors>[number]) => sensorAlarmOf(st.doc, bodies, sn);
+  // Options > Feature Tree > Hide/show tree items: Automatic shows a folder as the intended design does (Equations only
+  // once there are equations), Hide and Show force it
+  const TREE_ITEM: Record<string, string> = { history: 'History', sensors: 'Sensors', annotations: 'Annotations', bodies: 'Solid Bodies', surfaces: 'Surface Bodies', equations: 'Equations', material: 'Material', 'plane-front': 'Default Planes', 'plane-top': 'Default Planes', 'plane-right': 'Default Planes', origin: 'Origin' };
+  const treeItemShown = (n: TreeNode) => {
+    const item = TREE_ITEM[n.id];
+    if (!item) return true;
+    const how = String(st.prefs[`fm.tree.${item}`] ?? 'Automatic');
+    return how === 'Show' || (how !== 'Hide' && (item !== 'Equations' || st.doc.equations.length > 0));
+  };
   const nodes: TreeNode[] = [
     {
       id: 'part',
@@ -318,7 +328,7 @@ export function FeatureTreeBody() {
         </span>
       ),
       tail: null,
-      children: [
+      children: ([
         ...favoritesNode,
         sys('history', <Icon.TreeFolder glyph="history" />, 'History', st.doc.features.slice(-6).reverse().map((f): TreeNode => ({ id: 'hist-' + f.id, icon: <Icon.History />, label: <span>{f.name}</span>, onClick: () => st.setSelectedFeature(f.id) }))),
         {
@@ -384,7 +394,7 @@ export function FeatureTreeBody() {
           onContextMenu: (e) => { e.preventDefault(); st.startRefGeom(r.kind, r.id); },
         })),
         ...featureNodes,
-      ],
+      ] as TreeNode[]).filter(treeItemShown),
     },
   ];
 
@@ -469,7 +479,7 @@ export function FeatureTreeBody() {
       onPointerUp={() => (dragRollback.current = false)}
     >
       <TreeView nodes={nodes} />
-      {n > 0 && (
+      {(
         <div
           className="k-rollback-bar k-tip"
           data-tip="Rollback bar: drag up to roll back features"
@@ -598,7 +608,7 @@ export function FeatureTreeBody() {
           </div>
         );
       })()}
-      {bar?.shown && !menu && (() => {
+      {bar?.shown && (!menu || menu.featureId === bar.featureId) && (() => {
         const f = st.doc.features.find((x) => x.id === bar.featureId);
         if (!f) return null;
         const sketchId = f.type === 'sketch' ? f.sketchId : isSketchBased(f) && !isRoundFeature(f) ? (f as { sketchId?: string }).sketchId : undefined;
@@ -658,13 +668,10 @@ export function FeatureTreeBody() {
           onClose={() => setMenu(null)}
           style={{ position: 'fixed', left: menu.x, top: menu.y }}
           items={[
+            // the header names the feature; Edit Feature, Edit Sketch and Suppress of a feature are on the toolbar above the menu
+            { label: `Feature (${menuFeature.name})`, header: true },
             ...(isSolidFeature(menuFeature)
-              ? [
-                  { label: 'Edit Feature', icon: menuFeature.type === 'extrude' ? <Icon.Extrude /> : <Icon.Revolve />, onSelect: () => st.editFeature(menuFeature.id) },
-                  ...(isRoundFeature(menuFeature) ? [] : [{ label: 'Edit Sketch', icon: <Icon.Sketch />, onSelect: () => st.editSketch((menuFeature as { sketchId: string }).sketchId) }]),
-                  { label: menuFeature.suppressed ? 'Unsuppress' : 'Suppress', onSelect: () => st.toggleSuppress(menuFeature.id) },
-                  { label: 'Configure Feature', icon: <Icon.Config />, onSelect: () => st.openConfigure({ features: [menuFeature.id] }) },
-                ]
+              ? []
               : [
                   { label: 'Edit Sketch', icon: <Icon.Sketch />, onSelect: () => st.editSketch(menuFeature.sketchId) },
                   { label: 'Sketch Color…', icon: <Icon.Palette />, onSelect: () => useStore.setState({ curveColorEdit: { sketchId: menuFeature.sketchId, color: st.doc.sketches[menuFeature.sketchId]?.color ?? null, scope: 'all' }, managerTab: 'tree' }) },

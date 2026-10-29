@@ -178,7 +178,8 @@ export function filletPM2(ctx: PMContext): ReactNode | typeof NEXT {
               {d.radii && d.edges.map((_, i) => <div key={i} className="k-pm-valuerow"><span className="k-muted" style={{ minWidth: 52 }}>Edge&lt;{i + 1}&gt;</span><NumberField value={d.radii![i] ?? d.size} onChange={(v) => { const r = d.edges.map((__, j) => d.radii![j] ?? d.size); r[i] = Math.max(0.01, v); st.updateFeatureDraft({ radii: r }); }} unit={st.doc.units} step={1} min={0.01} /></div>)}
             </>
           ) : d.roundType !== 'angleDistance' && <label className="k-check"><input type="checkbox" checked={d.size2 === undefined} onChange={(e) => st.updateFeatureDraft({ size2: e.target.checked ? undefined : d.size })} /> Equal distance</label>}
-          {isFillet && <div className="k-field" style={{ marginTop: 4 }}><label>Profile:</label><select className="k-input" data-testid="fillet-profile" value={d.profile ?? 'circular'} onChange={(e) => st.updateFeatureDraft({ profile: e.target.value as 'circular', rho: d.rho ?? 0.5 })}><option value="circular">Circular</option><option value="conicRho">Conic Rho</option><option value="conicRadius">Conic Radius</option><option value="curvature">Curvature Continuous</option></select></div>}
+          {isFillet && <div className="k-pm-label">Profile:</div>}
+          {isFillet && <div className="k-indent"><select className="k-input" style={{ width: '100%' }} data-testid="fillet-profile" value={d.profile ?? 'circular'} onChange={(e) => st.updateFeatureDraft({ profile: e.target.value as 'circular', rho: d.rho ?? 0.5 })}><option value="circular">Circular</option><option value="conicRho">Conic Rho</option><option value="conicRadius">Conic Radius</option><option value="curvature">Curvature Continuous</option></select></div>}
           {isFillet && (d.profile === 'conicRho' || d.profile === 'conicRadius') && <div className="k-pm-valuerow"><span className="k-muted" style={{ minWidth: 26 }}>ρ</span><NumberField value={d.rho ?? 0.5} onChange={(v) => st.updateFeatureDraft({ rho: Math.max(0.05, Math.min(0.95, v)) })} step={0.05} /></div>}
         </Section>
         {!isFillet && (
@@ -195,8 +196,11 @@ export function filletPM2(ctx: PMContext): ReactNode | typeof NEXT {
         )}
         {isFillet && (
           <>
-            <Section title="Partial Edge Parameters" defaultOpen={false}>
-              <label className="k-check"><input type="checkbox" data-testid="fillet-partial" checked={!!d.partial} onChange={(e) => st.updateFeatureDraft({ partial: e.target.checked ? { start: 0, end: 0.5 } : undefined })} /> Partial Edge Parameters</label>
+            <Section title="Setback Parameters" defaultOpen={(d.setback ?? 0) > 0}>
+              <p className="k-muted" style={{ margin: '0 0 4px' }}>Corners where three filleted edges meet blend over the setback distance.</p>
+              <div className="k-pm-valuerow k-tip" data-tip="Distance"><Icon.Dimension size={14} /><NumberField value={d.setback ?? 0} onChange={(v) => st.updateFeatureDraft({ setback: Math.max(0, v) })} unit={st.doc.units} step={1} min={0} /></div>
+            </Section>
+            <Section title="Partial Edge Parameters" defaultOpen={false} check={!!d.partial} checkTestId="fillet-partial" onCheck={(on) => st.updateFeatureDraft({ partial: on ? { start: 0, end: 0.5 } : undefined })}>
               <div className="k-field"><label>Start condition:</label><select className="k-input" disabled={!d.partial}><option>Distance Offset</option></select></div>
               {d.partial && (
                 <>
@@ -204,10 +208,6 @@ export function filletPM2(ctx: PMContext): ReactNode | typeof NEXT {
                   <div className="k-pm-valuerow"><span className="k-muted" style={{ minWidth: 34 }}>End</span><NumberField value={Math.round(d.partial.end * 100)} onChange={(v) => st.updateFeatureDraft({ partial: { ...d.partial!, end: Math.max(0, Math.min(100, v)) / 100 } })} unit="%" step={5} /></div>
                 </>
               )}
-            </Section>
-            <Section title="Setback Parameters" defaultOpen={(d.setback ?? 0) > 0}>
-              <p className="k-muted" style={{ margin: '0 0 4px' }}>Corners where three filleted edges meet blend over the setback distance.</p>
-              <div className="k-pm-valuerow k-tip" data-tip="Distance"><Icon.Dimension size={14} /><NumberField value={d.setback ?? 0} onChange={(v) => st.updateFeatureDraft({ setback: Math.max(0, v) })} unit={st.doc.units} step={1} min={0} /></div>
             </Section>
             <Section title="Fillet Options" defaultOpen={false}>
               <label className="k-check"><input type="checkbox" data-testid="fillet-through" checked={!!d.selectThroughFaces} onChange={(e) => st.updateFeatureDraft({ selectThroughFaces: e.target.checked })} /> Select through faces</label>

@@ -27,6 +27,27 @@ describe('polygon inscribed (default of the Polygon tool)', () => {
   });
 });
 
+describe('polygon inscribed: independent relations (no false Over Defined)', () => {
+  for (const n of [3, 4, 5, 6, 10, 12]) {
+    it(`${n} sides: under defined with 4 degrees of freedom, and still regular after a vertex is dragged`, () => {
+      let s = createSketch('s', 'S');
+      let lines;
+      [s, lines] = addPolygon(s, { x: 3, y: -2 }, 10, n, 0.3, true);
+      const r = solveSketch(s);
+      expect(r.status).toBe('under');
+      expect(r.dof).toBe(4);
+      const drag = solveSketch(r.sketch, { drag: { point: lines[0].p1, target: { x: r.sketch.points[lines[0].p1].x + 4, y: r.sketch.points[lines[0].p1].y + 1 } } });
+      const k = drag.sketch;
+      const lens = lines.map((l) => Math.hypot(k.points[l.p2].x - k.points[l.p1].x, k.points[l.p2].y - k.points[l.p1].y));
+      for (const len of lens) expect(len).toBeCloseTo(lens[0], 4);
+      // regular: every corner on one circle around the centre of the corners
+      const cx = lines.reduce((a, l) => a + k.points[l.p1].x, 0) / n, cy = lines.reduce((a, l) => a + k.points[l.p1].y, 0) / n;
+      const rad = lines.map((l) => Math.hypot(k.points[l.p1].x - cx, k.points[l.p1].y - cy));
+      for (const q of rad) expect(q).toBeCloseTo(rad[0], 4);
+    });
+  }
+});
+
 describe('thread preview (cyan lines of the intended design)', () => {
   it('gives the three corner helices and the profile at both ends', () => {
     const c = threadPreviewCurves({ center: [0, 0, 0], axis: [0, 1, 0], radius: 7, internal: false, pitch: 2, length: 30, method: 'cut', rightHand: true });

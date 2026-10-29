@@ -88,9 +88,12 @@ export function ManagerPane({ editDimensionId, onEditDone }: { editDimensionId: 
           <button className={`k-manager-tab k-tip ${st.managerTab === 'autoTolerance' ? 'active' : ''}`} data-tip="Tolerance Tree" data-testid="tab-autoTolerance" onClick={() => st.setManagerTab('autoTolerance')}><Icon.MgrAutoTolerance /></button>
           <button className={`k-manager-tab k-tip ${st.managerTab === 'display' ? 'active' : ''}`} data-tip="Display Panel" data-testid="tab-display" onClick={() => st.setManagerTab('display')}><Icon.MgrDisplay /></button>
           <span className="grow" />
-          <button className="k-btn ghost icon k-tip" data-tip="Hide Feature Tree area" onClick={() => st.setManagerCollapsed(true)}>
-            <Icon.ChevronRight size={12} />
-          </button>
+          {/* the arrow beside the tabs shows with the tree, not while a Property Panel is open, by design */}
+          {!showProps && (
+            <button className="k-btn ghost icon k-tip" data-tip="Hide Feature Tree area" onClick={() => st.setManagerCollapsed(true)}>
+              <Icon.ChevronRight size={12} />
+            </button>
+          )}
         </div>
       }
     >

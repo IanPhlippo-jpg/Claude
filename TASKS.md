@@ -794,3 +794,14 @@ elease; README en docs/04 bijgewerkt
 ## Plane onder de muis alleen tonen (2026-10-29)
 - [x] Muis boven een plane (boom of beeld): de andere planes verdwijnen even, zoals SOLIDWORKS; aanwijzen van de andere blijft werken
 - [x] Controle in quickstart.mjs (9/9), release 0.5.8, push
+
+## Strenge zelfcontrole 1-op-1 met SOLIDWORKS 2025 (2026-10-29)
+- [x] Referentieframes per gebied verzamelen (hoofdreferentie SOLIDWORKS Design 2026, 1920x1080, referentie-video/frames) en dezelfde toestanden in Phlippo vastleggen (e2e/tools/audit-shots.mjs)
+- [x] Bovenbalk + Command Ribbon: pictogrammen, teksten, tabbladen, afstanden, kleuren
+- [x] FeatureManager-boom: pictogrammen, teksten, inspringing, selectie/hover
+- [x] PropertyManager-panelen (schets, extrude, fillet): koppen, secties, velden, pictogrammen
+- [x] Heads-up-werkbalk, Task Pane, statusbalk, bevestigingshoek
+- [x] Schets: lijnkleuren, punten, relatie-iconen, maten, Modify-venster (+ polygoon-solverfout opgelost)
+- [x] Menu's en rechtsklikmenu's: teksten, volgorde, pictogrammen
+- [x] Bevindingen vastleggen (docs/26), oplossen per gebied, voor/na-beelden
+- [~] Regressie, release, push

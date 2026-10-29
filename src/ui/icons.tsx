@@ -1,6 +1,7 @@
 import type { ReactElement, SVGProps } from 'react';
 import { Icons3D } from './icons3d';
 import { IconsSketch } from './iconsSketch';
+import { IconsChrome } from './iconsChrome';
 
 /**
  * Phlippo icon set — filled, multi-colour icons in the style of desktop CAD:
@@ -201,18 +202,6 @@ export const Icon = {
   Close: ({ size = 16, ...p }: P) => (
     <svg {...base(size, p)}>
       <path d="M5 5l14 14M19 5L5 19" stroke={C.red} strokeWidth={2.8} />
-    </svg>
-  ),
-  Undo: ({ size = 16, ...p }: P) => (
-    <svg {...base(size, p)}>
-      <path d="M8 5L3 10l5 5" stroke={C.blue} strokeWidth={2} />
-      <path d="M3 10h11a5 5 0 0 1 0 10h-4" stroke={C.blue} strokeWidth={2} />
-    </svg>
-  ),
-  Redo: ({ size = 16, ...p }: P) => (
-    <svg {...base(size, p)}>
-      <path d="M16 5l5 5-5 5" stroke={C.blue} strokeWidth={2} />
-      <path d="M21 10H10a5 5 0 0 0 0 10h4" stroke={C.blue} strokeWidth={2} />
     </svg>
   ),
   Sun: ({ size = 16, ...p }: P) => (
@@ -625,50 +614,12 @@ export const Icon = {
       <path d="M14 2v5h5" stroke={C.greyD} strokeWidth={1.4} />
     </svg>
   ),
-  New: ({ size = 16, ...p }: P) => (
-    <svg {...base(size, p)}>
-      <path d="M5 2h9l5 5v15H5z" fill={C.white} stroke={C.greyD} strokeWidth={1.4} />
-      <path d="M14 2v5h5" stroke={C.greyD} strokeWidth={1.4} />
-    </svg>
-  ),
-  Home: ({ size = 16, ...p }: P) => (
-    <svg {...base(size, p)}>
-      <path d="M3 12L12 4l9 8" fill="none" stroke={C.greyD} strokeWidth={1.6} strokeLinejoin="round" />
-      <path d="M6 11v9h5v-5h2v5h5v-9" fill={C.white} stroke={C.greyD} strokeWidth={1.4} strokeLinejoin="round" />
-    </svg>
-  ),
-  Open: ({ size = 16, ...p }: P) => (
-    <svg {...base(size, p)}>
-      <path d="M3 6h6l2 2h10v12H3z" fill={C.yellow} stroke={C.yellowD} strokeWidth={1.2} />
-      <path d="M3 11h18l-2 9H3z" fill={C.orange} stroke={C.yellowD} strokeWidth={1} />
-    </svg>
-  ),
-  Save: ({ size = 16, ...p }: P) => (
-    <svg {...base(size, p)}>
-      <path d="M3 3h15l3 3v15H3z" fill={C.blue} stroke={C.blueD} strokeWidth={1} />
-      <rect x="7" y="3" width="8" height="5" fill={C.white} />
-      <rect x="6" y="13" width="12" height="8" fill={C.greyL} />
-    </svg>
-  ),
   Print: ({ size = 16, ...p }: P) => (
     <svg {...base(size, p)}>
       <rect x="7" y="3" width="10" height="5" fill={C.white} stroke={C.greyD} strokeWidth={1.2} />
       <rect x="3" y="8" width="18" height="8" rx="1" fill={C.greyD} />
       <rect x="7" y="13" width="10" height="7" fill={C.white} stroke={C.greyD} strokeWidth={1.2} />
       <circle cx="18" cy="11" r="1" fill={C.green} />
-    </svg>
-  ),
-  Rebuild: ({ size = 16, ...p }: P) => (
-    <svg {...base(size, p)}>
-      <path d="M20 12a8 8 0 1 1-2.3-5.7" stroke={C.green} strokeWidth={2.4} />
-      <path d="M20 3v5h-5" stroke={C.green} strokeWidth={2.4} />
-      <path d="M8 13l3 3 5-6" stroke={C.red} strokeWidth={2.2} />
-    </svg>
-  ),
-  Options: ({ size = 16, ...p }: P) => (
-    <svg {...base(size, p)}>
-      <circle cx="12" cy="12" r="3" fill={C.white} stroke={C.greyD} strokeWidth={1.4} />
-      <path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1" stroke={C.greyD} strokeWidth={2.2} />
     </svg>
   ),
   /** a person (the sign-in button of the title row) */
@@ -938,6 +889,7 @@ export const Icon = {
   // feature icons as isometric solids (icons3d.tsx) and the Sketch tab's line art (iconsSketch.tsx) override the flat ones above
   ...Icons3D,
   ...IconsSketch,
+  ...IconsChrome,
 };
 
 /** Small relation glyphs shown in green boxes next to geometry. */

@@ -48,7 +48,7 @@ const lens = solid.map(len).map((v) => Math.round(v));
 check('3 Point Corner Rectangle: four sides 50 / 30 at an angle', solid.length === 4 && lens.filter((v) => v === 50).length === 2 && lens.filter((v) => v === 30).length === 2, JSON.stringify(lens));
 check('… with parallel and perpendicular relations', S.kinds.filter((k) => k === 'parallel').length === 2 && S.kinds.includes('perpendicular'), JSON.stringify(S.kinds));
 
-const pm = await page.evaluate(() => ({ rows: document.querySelectorAll('[data-testid="rect-params"] .k-pm-xyrow').length, rel: document.querySelector('[data-testid="rect-relations"]')?.textContent ?? '' }));
+const pm = await page.evaluate(() => ({ rows: document.querySelectorAll('[data-testid="rect-params"] .k-pm-ptpair').length, rel: document.querySelector('[data-testid="rect-relations"]')?.textContent ?? '' }));
 check('after drawing, the PM shows Existing Relations and the corner Parameters', pm.rows === 4 && /Parallel/.test(pm.rel) && /Perpendicular/.test(pm.rel), JSON.stringify(pm));
 
 // 3 Point Center Rectangle around (100, 0)

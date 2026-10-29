@@ -968,3 +968,66 @@
 .k-mate-error { color: #c42b1c; }
 .k-opt-row.disabled, .k-opt-radios.disabled { opacity: 0.5; }
 .k-tree-row.drop-below { box-shadow: inset 0 -2px 0 var(--accent); }
+
+/* Strict 1:1 pass against the 2026 reference frames at 1920 x 1080 (docs/26): window chrome #f7f7f7, ribbon tabs as
+   grey boxes with the active one light and bold, square pressed buttons, menu-bar block row by row, Feature Tree text
+   12 px, manager tabs as grey tiles */
+:root:not([data-theme='dark']) .k-cm-tabs { background: #fdfdfd; }
+:root:not([data-theme='dark']) .k-cm-tab { background: #d4d4d4; border-color: #a9a9a9; color: #1a1a1a; }
+:root:not([data-theme='dark']) .k-cm-tab:hover { background: #e2e2e2; }
+:root:not([data-theme='dark']) .k-cm-tab.active { background: #f7f7f7; border-color: #7e8482; }
+.k-cm-mbgrid { grid-template-rows: none; grid-template-columns: repeat(3, auto); grid-auto-rows: 22px; grid-auto-flow: row; gap: 4px 2px; }
+.k-cm-big, .k-cm-big.active, .k-cm-iconfly, .k-cm-iconbtn, .k-cm-small { border-radius: 0; }
+:root:not([data-theme='dark']) .k-cm-iconfly.active { background: #c4c4c4; border-color: #8c8c8c; }
+:root:not([data-theme='dark']) .k-cm-iconfly.active .k-cm-iconbtn { color: inherit; }
+.k-tree { font-size: 12px; }
+:root:not([data-theme='dark']) .k-manager-tab { background: #d2d3d5; border-color: #a9abae; }
+:root:not([data-theme='dark']) .k-manager-tab.active { background: #f7f7f7; }
+/* Property Panel by the reference: section titles 11 px bold dark grey flush left, heavy dark chevrons, fields 21 px
+   high with left-aligned text, checkboxes and radio buttons lined up after the icon column */
+:root:not([data-theme='dark']) .k-pm-host .k-section-title, :root:not([data-theme='dark']) .k-pm .k-section-title { font-size: 11px; font-weight: 700; color: #3a3a3a; padding: 7px 4px 6px 3px; }
+:root:not([data-theme='dark']) .k-section-title .k-section-caret { color: #2b2b2b; }
+.k-section-title .k-section-caret svg path { stroke-width: 2.6; }
+.k-pm-host .k-section-body > .k-check, .k-pm-host .k-section-body > .k-pm-radios { margin-left: 30px; width: calc(100% - 30px); box-sizing: border-box; }
+.k-pm-host select.k-input { height: 21px; text-align: left; text-align-last: left; padding: 0 18px 0 4px; appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23555' stroke-width='1.2'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 6px center; }
+.k-pm-host .k-number .k-num, .k-pm-host input.k-input { height: 21px; }
+/* type buttons by the reference: light boxes with a grey frame, the chosen one dark grey */
+:root:not([data-theme='dark']) .k-pm-typebtn { background: #f7f7f7; border-color: #979797; border-radius: 0; }
+:root:not([data-theme='dark']) .k-pm-typebtn.active { background: #b1b1b1; border-color: #636363; box-shadow: none; }
+.k-pm-recttypes .k-pm-typebtn { width: 48px; height: 48px; }
+/* point-coordinate rows: one column, a point glyph with the axis letter, then the field */
+.k-pm-ptaxis { position: relative; flex: 0 0 22px; width: 22px; height: 18px; margin-right: 4px; font: italic 700 10px 'Segoe UI', sans-serif; color: #2b2b2b; text-align: right; line-height: 26px; }
+.k-pm-ptaxis i { position: absolute; left: 4px; top: 3px; width: 5px; height: 5px; border-radius: 50%; background: #6d7a85; }
+.k-pm-ptrow { margin-bottom: 4px; }
+:root:not([data-theme='dark']) .k-pm-host .k-number.disabled .k-num { background: #dadade; color: #8a8a8a; border-color: #d0d4d6; }
+/* the graphics area runs up under the ribbon tab strip, as in the reference: the tabs float on its top-left, the heads-up
+   toolbar and the view-window buttons sit on the same row, the Feature Tree pane starts below the tabs */
+.k-cm { position: relative; z-index: 6; background: transparent; border-bottom: none; }
+.k-cm-body { background: var(--bg-panel); border-bottom: 1px solid var(--border); }
+:root:not([data-theme='dark']) .k-cm-tabs, .k-cm-tabs { background: transparent; pointer-events: none; }
+.k-cm-tabs > * { pointer-events: auto; }
+.k-center { margin-top: -21px; }
+.k-crumbs { top: 38px; }
+.k-hud { top: 1px; }
+.k-hud-sep { display: none; }
+.k-hud-btn { height: 26px; padding: 0 2px; }
+.k-hud-btn svg:first-child { width: 22px; height: 22px; }
+/* while a command panel or the Modify box is open, the sketch tool grid and the menu-bar block grey out too (New and
+   Options stay), as in the reference */
+.k-cm-body.busy .k-cm-iconfly:not(.active), .k-cm-body.busy .k-cm-mbbtn:not([data-tip^="New"]):not([data-tip="Options"]) { opacity: 0.42; filter: grayscale(1); pointer-events: none; }
+/* the Feature Tree root sits flush left (no expand triangle), big ribbon buttons are as wide as their label */
+.k-tree-row[data-depth="0"] > .caret { width: 0; margin: 0; overflow: hidden; }
+.k-cm-main { min-width: 34px; padding: 4px 2px 0; }
+.k-flyout-tree { top: 25px; }
+.k-hud.lowered { top: 23px; }
+/* text glyphs of the Tolerance/Precision rows (1.50 over ±.01, X.XX) */
+.k-pm-glyph { flex: 0 0 22px; width: 22px; margin-right: 4px; display: flex; flex-direction: column; align-items: center; font: 700 7px/8px 'Segoe UI', sans-serif; color: #2b2b2b; }
+.k-pm-glyph i { font-style: normal; color: #1f6178; }
+/* the manager tab row keeps to the pane width (a long root name in the tree pushed the arrow out of view) */
+.k-dock-left .k-panel-header { box-sizing: border-box; max-width: 100%; }
+.k-manager-tabs { min-width: 0; overflow: hidden; }
+.k-dock-left .k-dock-stack { min-width: 0; max-width: 100%; }
+.k-dock-left .k-dock-stack > .k-panel { min-width: 0; }
+/* clicks beside the tabs go to the graphics area under the strip */
+.k-cm { pointer-events: none; }
+.k-cm > :not(.k-cm-tabs) { pointer-events: auto; }

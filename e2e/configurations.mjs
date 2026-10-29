@@ -117,7 +117,7 @@ await shot('c5-config-270');
 await page.click('.k-manager-tab[data-tip="Feature Tree"]');
 await page.waitForTimeout(200);
 await page.locator('.k-tree-row:has-text("Boss-Extrude1")').last().click({ button: 'right' });
-await page.click('.k-menu-item:has-text("Edit Sketch")');
+await page.click('[data-testid="ctx-edit-sketch"]');
 await page.waitForTimeout(400);
 await page.keyboard.press('Control+5');
 await page.waitForTimeout(400);

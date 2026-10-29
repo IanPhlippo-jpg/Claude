@@ -335,6 +335,8 @@ export function TreeView({ nodes }: { nodes: TreeNode[] }) {
 /** Value text by design shows it in a Property Panel: 10.00mm, 1.00deg, 0.375in; counts without decimals. */
 export function formatValue(v: number, unit?: string): string {
   if (!Number.isFinite(v)) return '';
+  // an empty unit shows a plain value with two decimals (coordinate fields of a Parameters section)
+  if (unit === '') return v.toFixed(2);
   if (!unit) return String(round(v));
   if (unit === '°' || unit === 'deg') return `${v.toFixed(2)}deg`;
   if (unit === 'in') return `${v.toFixed(3)}in`;
@@ -570,7 +572,7 @@ export function Toggle({ value, onChange, label }: { value: boolean; onChange: (
   );
 }
 
-export function Section({ title, children, defaultOpen = true, check, onCheck }: { title: string; children: ReactNode; defaultOpen?: boolean; check?: boolean; onCheck?: (v: boolean) => void }) {
+export function Section({ title, children, defaultOpen = true, check, onCheck, checkTestId }: { title: string; children: ReactNode; defaultOpen?: boolean; check?: boolean; onCheck?: (v: boolean) => void; checkTestId?: string }) {
   const [open, setOpen] = useState(defaultOpen);
   // a Property Panel that swaps its sections keeps React state by position: reset when the title changes
   useEffect(() => setOpen(defaultOpen), [title, defaultOpen]);
@@ -581,6 +583,7 @@ export function Section({ title, children, defaultOpen = true, check, onCheck }:
           <input
             type="checkbox"
             className="k-section-check"
+            data-testid={checkTestId}
             checked={check}
             onClick={(e) => e.stopPropagation()}
             onChange={(e) => {
@@ -590,7 +593,7 @@ export function Section({ title, children, defaultOpen = true, check, onCheck }:
           />
         )}
         <span className="k-section-name">{title}</span>
-        <span className="k-section-caret">{open ? <Icon.ChevronDown size={12} style={{ transform: 'rotate(180deg)' }} /> : <Icon.ChevronDown size={12} />}</span>
+        <span className="k-section-caret">{open ? <Icon.ChevronDown size={14} style={{ transform: 'rotate(180deg)' }} /> : <Icon.ChevronDown size={14} />}</span>
       </div>
       {open && <div className="k-section-body">{children}</div>}
     </div>

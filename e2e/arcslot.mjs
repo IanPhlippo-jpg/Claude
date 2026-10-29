@@ -27,7 +27,8 @@ await page.click('.k-cm-tab:has-text("Sketch")');
 await page.click('.k-cm-big:has-text("Sketch") .k-cm-main');
 await page.waitForTimeout(400);
 const P = (x, y) => page.evaluate(([x, y]) => window.__phlippoProject({ x, y }), [x, y]);
-await page.click('.k-cm-iconbtn[data-tip="3 Point Arc Slot"]');
+await page.click('.k-cm-iconfly:has(.k-cm-iconbtn[data-tip="Straight Slot"]) .k-cm-small-arrow');
+await page.click('.k-menu-item:has-text("3 Point Arc Slot")');
 await page.waitForTimeout(150);
 for (const [x, y] of [[-40, 0], [40, 0], [0, 40], [0, 48]]) {
   const q = await P(x, y);

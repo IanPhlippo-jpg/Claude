@@ -66,7 +66,8 @@ check('a polygon makes the sketch under defined', (await status()) === 'Under De
 await page.click('.k-cm-iconbtn[data-tip="Circle"]');
 await page.mouse.click(cx + 400, cy);
 await page.mouse.click(cx + 440, cy);
-await page.click('.k-cm-iconbtn[data-tip="Arc"]');
+await page.click('.k-cm-iconfly:has(.k-cm-iconbtn[data-tip="Centerpoint Arc"]) .k-cm-small-arrow');
+await page.click('.k-menu-item:has-text("3 Point Arc")');
 await page.mouse.click(cx + 300, cy + 150);
 await page.mouse.click(cx + 500, cy + 150);
 await page.mouse.click(cx + 400, cy + 220);
@@ -78,7 +79,7 @@ await page.keyboard.up('Control');
 check('the PM offers Tangent, Equal and Concentric', JSON.stringify(await page.locator('.k-pm-relbtn').allTextContents()) === JSON.stringify(['Tangent', 'Equal', 'Concentric']), JSON.stringify(await page.locator('.k-pm-relbtn').allTextContents()));
 await page.click('.k-pm-relbtn:has-text("Tangent")');
 await page.waitForTimeout(100);
-check('Tangent applied, still under defined', (await status()) === 'Under Defined');
+check('Tangent applied, still under defined', (await status()) === 'Under Defined', await status());
 
 // drag the circle centre
 await page.keyboard.press('Escape');

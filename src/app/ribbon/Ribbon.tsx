@@ -148,7 +148,7 @@ function MbIcon({ icon, tip, onClick, caret, disabled }: { icon: ReactNode; tip:
 }
 
 export function Ribbon() {
-  const st = useStore(useShallow((s) => ({ prefs: s.prefs, activeSketchId: s.activeSketchId, tool: s.tool, planePick: s.planePick, pendingTool: s.pendingTool, setTool: s.setTool, selection: s.selection, setDialog: s.setDialog, undoLabel: s.undoLabel, undo: s.undo, canUndo: s.canUndo, rebuildAll: s.rebuildAll, redoLabel: s.redoLabel, redo: s.redo, canRedo: s.canRedo, sketch3dEdit: s.sketch3dEdit, commit3DSketch: s.commit3DSketch, exitSketch: s.exitSketch, startPlanePick: s.startPlanePick, start3DSketch: s.start3DSketch, lastTool: s.lastTool, convertEntities: s.convertEntities, offsetSurfEdit: s.offsetSurfEdit, rebuild: s.rebuild, setOffsetSurfEdit: s.setOffsetSurfEdit, mirrorSelection: s.mirrorSelection, taskPane: s.taskPane, setTaskPane: s.setTaskPane, setManagerTab: s.setManagerTab, dialog: s.dialog, snapGrid: s.snapGrid, toggle: s.toggle, rapidSketch: s.rapidSketch, toggleRapidSketch: s.toggleRapidSketch, dragDimensions: s.dragDimensions, toggleDragDimensions: s.toggleDragDimensions, shadedContours: s.shadedContours, doc: s.doc, tab: s.tab, featureEdit: s.featureEdit, planeEdit: s.planeEdit, sheetMetalEdit: s.sheetMetalEdit, patternEdit: s.patternEdit, motorEdit: s.motorEdit, fastenerEdit: s.fastenerEdit, analysis: s.analysis, startFeature: s.startFeature, startHole: s.startHole, startThread: s.startThread, startStud: s.startStud, startRound: s.startRound, startPattern: s.startPattern, startRib: s.startRib, startDraft: s.startDraft, startShell: s.startShell, startWrap: s.startWrap, startDeform: s.startDeform, startIntersect: s.startIntersect, startMirror: s.startMirror, startPlane: s.startPlane, startRefGeom: s.startRefGeom, startHelix: s.startHelix, startCurveFeature: s.startCurveFeature, dragHandles: s.dragHandles, toggleDragHandles: s.toggleDragHandles, sensorEdit: s.sensorEdit, setSensorEdit: s.setSensorEdit, setAnalysis: s.setAnalysis, show: s.show, toggleShow: s.toggleShow, startSurface: s.startSurface, startDeleteFace: s.startDeleteFace, startBaseFlange: s.startBaseFlange, startConvertSheet: s.startConvertSheet, startLoftedBend: s.startLoftedBend, startEdgeFlange: s.startEdgeFlange, startMiterFlange: s.startMiterFlange, startHem: s.startHem, startJog: s.startJog, startSketchedBend: s.startSketchedBend, startCrossBreak: s.startCrossBreak, startSweptFlange: s.startSweptFlange, startBreakCorner: s.startBreakCorner, startClosedCorner: s.startClosedCorner, startCornerRelief: s.startCornerRelief, startFormTool: s.startFormTool, startGusset: s.startGusset, startTabSlot: s.startTabSlot, startVent: s.startVent, applyNormalCut: s.applyNormalCut, startUnfold: s.startUnfold, toggleFlatten: s.toggleFlatten, toggleNoBends: s.toggleNoBends, startRip: s.startRip, startWeldment: s.startWeldment, startStructuralMember: s.startStructuralMember, startTrimExtend: s.startTrimExtend, startEndCap: s.startEndCap, startWeldGusset: s.startWeldGusset, startWeldBead: s.startWeldBead, autoToleranceEdit: s.autoToleranceEdit, startAutoTolerance: s.startAutoTolerance, pushMessage: s.pushMessage, setAsk: s.setAsk, setAutoToleranceData: s.setAutoToleranceData, deleteAllTolerances: s.deleteAllTolerances, updateAutoTolerance: s.updateAutoTolerance, sceneEdit: s.sceneEdit, setSceneEdit: s.setSceneEdit, decalEdit: s.decalEdit, startDecal: s.startDecal, setFinalImage: s.setFinalImage, markupMode: s.markupMode, setMarkupMode: s.setMarkupMode, applyDocument: s.applyDocument, hasDocument: s.hasDocument, setTab: s.setTab })));
+  const st = useStore(useShallow((s) => ({ modify: s.modify, prefs: s.prefs, activeSketchId: s.activeSketchId, tool: s.tool, planePick: s.planePick, pendingTool: s.pendingTool, setTool: s.setTool, selection: s.selection, setDialog: s.setDialog, undoLabel: s.undoLabel, undo: s.undo, canUndo: s.canUndo, rebuildAll: s.rebuildAll, redoLabel: s.redoLabel, redo: s.redo, canRedo: s.canRedo, sketch3dEdit: s.sketch3dEdit, commit3DSketch: s.commit3DSketch, exitSketch: s.exitSketch, startPlanePick: s.startPlanePick, start3DSketch: s.start3DSketch, lastTool: s.lastTool, convertEntities: s.convertEntities, offsetSurfEdit: s.offsetSurfEdit, rebuild: s.rebuild, setOffsetSurfEdit: s.setOffsetSurfEdit, mirrorSelection: s.mirrorSelection, taskPane: s.taskPane, setTaskPane: s.setTaskPane, setManagerTab: s.setManagerTab, dialog: s.dialog, snapGrid: s.snapGrid, toggle: s.toggle, rapidSketch: s.rapidSketch, toggleRapidSketch: s.toggleRapidSketch, dragDimensions: s.dragDimensions, toggleDragDimensions: s.toggleDragDimensions, shadedContours: s.shadedContours, doc: s.doc, tab: s.tab, featureEdit: s.featureEdit, planeEdit: s.planeEdit, sheetMetalEdit: s.sheetMetalEdit, patternEdit: s.patternEdit, motorEdit: s.motorEdit, fastenerEdit: s.fastenerEdit, analysis: s.analysis, startFeature: s.startFeature, startHole: s.startHole, startThread: s.startThread, startStud: s.startStud, startRound: s.startRound, startPattern: s.startPattern, startRib: s.startRib, startDraft: s.startDraft, startShell: s.startShell, startWrap: s.startWrap, startDeform: s.startDeform, startIntersect: s.startIntersect, startMirror: s.startMirror, startPlane: s.startPlane, startRefGeom: s.startRefGeom, startHelix: s.startHelix, startCurveFeature: s.startCurveFeature, dragHandles: s.dragHandles, toggleDragHandles: s.toggleDragHandles, sensorEdit: s.sensorEdit, setSensorEdit: s.setSensorEdit, setAnalysis: s.setAnalysis, show: s.show, toggleShow: s.toggleShow, startSurface: s.startSurface, startDeleteFace: s.startDeleteFace, startBaseFlange: s.startBaseFlange, startConvertSheet: s.startConvertSheet, startLoftedBend: s.startLoftedBend, startEdgeFlange: s.startEdgeFlange, startMiterFlange: s.startMiterFlange, startHem: s.startHem, startJog: s.startJog, startSketchedBend: s.startSketchedBend, startCrossBreak: s.startCrossBreak, startSweptFlange: s.startSweptFlange, startBreakCorner: s.startBreakCorner, startClosedCorner: s.startClosedCorner, startCornerRelief: s.startCornerRelief, startFormTool: s.startFormTool, startGusset: s.startGusset, startTabSlot: s.startTabSlot, startVent: s.startVent, applyNormalCut: s.applyNormalCut, startUnfold: s.startUnfold, toggleFlatten: s.toggleFlatten, toggleNoBends: s.toggleNoBends, startRip: s.startRip, startWeldment: s.startWeldment, startStructuralMember: s.startStructuralMember, startTrimExtend: s.startTrimExtend, startEndCap: s.startEndCap, startWeldGusset: s.startWeldGusset, startWeldBead: s.startWeldBead, autoToleranceEdit: s.autoToleranceEdit, startAutoTolerance: s.startAutoTolerance, pushMessage: s.pushMessage, setAsk: s.setAsk, setAutoToleranceData: s.setAutoToleranceData, deleteAllTolerances: s.deleteAllTolerances, updateAutoTolerance: s.updateAutoTolerance, sceneEdit: s.sceneEdit, setSceneEdit: s.setSceneEdit, decalEdit: s.decalEdit, startDecal: s.startDecal, setFinalImage: s.setFinalImage, markupMode: s.markupMode, setMarkupMode: s.setMarkupMode, applyDocument: s.applyDocument, hasDocument: s.hasDocument, setTab: s.setTab })));
   // Customize ▸ Toolbars: hidden Command Ribbon tabs and Quick Access buttons, extra Quick Access commands
   const hiddenTabs = String(st.prefs['customize.tabs.hidden'] ?? '').split('|').filter(Boolean);
   const qat = (id: string) => !String(st.prefs['customize.qat.hidden'] ?? '').split('|').includes(id);
@@ -219,7 +219,16 @@ export function Ribbon() {
             { label: 'Circle', icon: <Icon.Circle />, onSelect: () => st.setTool('circle') },
             { label: 'Perimeter Circle', icon: <Icon.Circle />, onSelect: () => st.setTool('perimeterCircle') },
           ]} />
-          <IconFly icon={<Icon.Slot />} tip="3 Point Arc Slot" {...T('arcSlot')} />
+          {(() => {
+            // the button shows the last used arc type, Centerpoint Arc at first, by design
+            const A = { arcCenter: ['Centerpoint Arc', <Icon.ArcCenter key="c" />], tangentArc: ['Tangent Arc', <Icon.Arc key="t" />], arc3: ['3 Point Arc', <Icon.Arc key="3" />] } as const;
+            const last = (st.lastTool in A ? st.lastTool : 'arcCenter') as keyof typeof A;
+            return <IconFly icon={A[last][1]} tip={A[last][0]} {...T(last)} flyout={[
+            { label: 'Centerpoint Arc', icon: <Icon.ArcCenter />, onSelect: () => st.setTool('arcCenter') },
+            { label: 'Tangent Arc', icon: <Icon.Arc />, onSelect: () => st.setTool('tangentArc') },
+            { label: '3 Point Arc', icon: <Icon.Arc />, onSelect: () => st.setTool('arc3') },
+          ]} />;
+          })()}
           <IconFly icon={<Icon.Polygon />} tip="Polygon" {...T('polygon')} />
           {/* column 3 */}
           <IconFly icon={<Icon.Spline />} tip="Spline" {...T('spline')} flyout={[
@@ -228,26 +237,22 @@ export function Ribbon() {
             { label: 'Equation Driven Curve', icon: <Icon.Spline />, onSelect: () => st.setTool('equationCurve') },
           ]} />
           <IconFly icon={<Icon.Ellipse />} tip="Ellipse" {...T('ellipse')} flyout={[{ label: 'Ellipse', icon: <Icon.Ellipse />, onSelect: () => st.setTool('ellipse') }, { label: 'Partial Ellipse', icon: <Icon.Ellipse />, onSelect: () => st.setTool('partialEllipse') }, { label: 'Parabola', icon: <Icon.Arc />, onSelect: () => st.setTool('parabola') }, { label: 'Conic', icon: <Icon.Arc />, onSelect: () => st.setTool('conic') }]} />
-          <IconFly icon={st.lastTool === 'arcCenter' ? <Icon.ArcCenter /> : <Icon.Arc />} tip="Arc" {...T(st.lastTool === 'arcCenter' ? 'arcCenter' : 'arc3')} flyout={[
-            { label: 'Centerpoint Arc', icon: <Icon.ArcCenter />, onSelect: () => st.setTool('arcCenter') },
-            { label: 'Tangent Arc', icon: <Icon.Arc />, onSelect: () => st.setTool('tangentArc') },
-            { label: '3 Point Arc', icon: <Icon.Arc />, onSelect: () => st.setTool('arc3') },
-          ]} />
-          {/* column 4 */}
           <IconFly icon={<Icon.SketchFillet />} tip="Sketch Fillet" {...T('sketchFillet')} flyout={[{ label: 'Sketch Fillet', icon: <Icon.SketchFillet />, onSelect: () => st.setTool('sketchFillet') }, { label: 'Sketch Chamfer', icon: <Icon.SketchChamfer />, onSelect: () => st.setTool('sketchChamfer') }]} />
+          {/* column 4 */}
+          <IconFly icon={<Icon.SketchPlane />} tip="Plane" disabled={!st.sketch3dEdit} onClick={() => st.startPlane()} />
           <IconFly icon={<Icon.Text />} tip="Text" {...T('text')} />
           <IconFly icon={<Icon.Point />} tip="Point" {...T('point')} />
         </div>
       </Group>
       <Group>
-        <BigButton label="Trim Entities" icon={<Icon.TrimEntities />} {...T('trim')} flyout={[{ label: 'Trim Entities', icon: <Icon.Trim />, onSelect: () => st.setTool('trim') }, { label: 'Extend Entities', icon: <Icon.Arrow />, onSelect: () => st.setTool('extend') }]} />
-        <BigButton label="Convert Entities" icon={<Icon.ConvertEntities />} disabled={!inSketch} onClick={st.convertEntities} />
-        <BigButton label="Offset Entities" icon={<Icon.OffsetEntities />} {...T('offset')} flyout={[{ label: 'Offset Entities', icon: <Icon.Offset />, onSelect: () => st.setTool('offset') }]} />
-        <BigButton label="Offset On Surface" icon={<Icon.OffsetOnSurface />} active={!!st.offsetSurfEdit} disabled={!st.rebuild.bodies.length} onClick={() => st.setOffsetSurfEdit(st.offsetSurfEdit ? null : { distance: 5, reverse: false })} />
+        <BigButton label="Trim Entities" icon={<Icon.TrimEntities />} {...T('trim')} disabled={!inSketch} flyout={[{ label: 'Trim Entities', icon: <Icon.Trim />, onSelect: () => st.setTool('trim') }, { label: 'Extend Entities', icon: <Icon.Arrow />, onSelect: () => st.setTool('extend') }]} />
+        <BigButton label="Convert Entities" icon={<Icon.ConvertEntities />} onClick={inSketch ? st.convertEntities : st.startPlanePick} />
+        <BigButton label="Offset Entities" icon={<Icon.OffsetEntities />} {...T('offset')} disabled={!inSketch} flyout={[{ label: 'Offset Entities', icon: <Icon.Offset />, onSelect: () => st.setTool('offset') }]} />
+        <BigButton label="Offset On Surface" icon={<Icon.OffsetOnSurface />} active={!!st.offsetSurfEdit} disabled={inSketch} onClick={() => st.setOffsetSurfEdit(st.offsetSurfEdit ? null : { distance: 5, reverse: false })} />
         <div className="k-cm-col">
           <SmallButton label="Mirror Entities" icon={<Icon.MirrorEntities />} disabled={!mirrorable} onClick={() => st.mirrorSelection()} />
-          <SmallButton label="Linear Sketch Pattern" icon={<Icon.SketchPattern />} {...T('linearSketchPattern')} flyout={[{ label: 'Linear Sketch Pattern', icon: <Icon.Pattern />, onSelect: () => st.setTool('linearSketchPattern') }, { label: 'Circular Sketch Pattern', icon: <Icon.Pattern />, onSelect: () => st.setTool('circularSketchPattern') }]} />
-          <SmallButton label="Move Entities" icon={<Icon.MoveEntities />} {...T('moveEntities')} flyout={[{ label: 'Move Entities', icon: <Icon.MoveEntities />, onSelect: () => st.setTool('moveEntities') }, { label: 'Copy Entities', icon: <Icon.MoveEntities />, onSelect: () => st.setTool('copyEntities') }, { label: 'Rotate Entities', icon: <Icon.Rebuild />, onSelect: () => st.setTool('rotateEntities') }, { label: 'Scale Entities', icon: <Icon.Fit />, onSelect: () => st.setTool('scaleEntities') }]} />
+          <SmallButton label="Linear Sketch Pattern" icon={<Icon.SketchPattern />} {...T('linearSketchPattern')} disabled={!inSketch} flyout={[{ label: 'Linear Sketch Pattern', icon: <Icon.Pattern />, onSelect: () => st.setTool('linearSketchPattern') }, { label: 'Circular Sketch Pattern', icon: <Icon.Pattern />, onSelect: () => st.setTool('circularSketchPattern') }]} />
+          <SmallButton label="Move Entities" icon={<Icon.MoveEntities />} {...T('moveEntities')} disabled={!inSketch} flyout={[{ label: 'Move Entities', icon: <Icon.MoveEntities />, onSelect: () => st.setTool('moveEntities') }, { label: 'Copy Entities', icon: <Icon.MoveEntities />, onSelect: () => st.setTool('copyEntities') }, { label: 'Rotate Entities', icon: <Icon.Rebuild />, onSelect: () => st.setTool('rotateEntities') }, { label: 'Scale Entities', icon: <Icon.Fit />, onSelect: () => st.setTool('scaleEntities') }]} />
         </div>
       </Group>
       <Group>
@@ -257,12 +262,12 @@ export function Ribbon() {
           { label: 'Fully Define Sketch', icon: <Icon.Lock />, onSelect: () => st.setTool('fullyDefine') },
         ]} />
         <BigButton label="Repair Sketch" icon={<Icon.RepairSketch />} disabled={!inSketch} active={st.dialog === 'repairSketch'} onClick={() => st.setDialog(st.dialog === 'repairSketch' ? null : 'repairSketch')} />
-        <BigButton label="Quick Snaps" icon={<Icon.QuickSnaps />} active={st.snapGrid} disabled={!inSketch} onClick={() => st.toggle('snapGrid')} flyout={[{ label: 'Snap to grid', icon: <Icon.Grid />, onSelect: () => st.toggle('snapGrid') }]} />
+        <BigButton label="Quick Snaps" icon={<Icon.QuickSnaps />} active={st.snapGrid && inSketch} onClick={() => st.toggle('snapGrid')} flyout={[{ label: 'Snap to grid', icon: <Icon.Grid />, onSelect: () => st.toggle('snapGrid') }]} />
       </Group>
       <Group>
         <BigButton label="Rapid Sketch" icon={<Icon.RapidSketch />} active={st.rapidSketch} onClick={st.toggleRapidSketch} />
         <BigButton label="Drag Dimensions" icon={<Icon.DragDimensions />} active={st.dragDimensions} onClick={st.toggleDragDimensions} />
-        <BigButton label="Shaded Sketch Contours" icon={<Icon.ShadedContours />} active={st.shadedContours} disabled={!inSketch} onClick={() => st.toggle('shadedContours')} />
+        <BigButton label="Shaded Sketch Contours" icon={<Icon.ShadedContours />} active={st.shadedContours && inSketch} disabled={!inSketch} onClick={() => st.toggle('shadedContours')} />
       </Group>
     </>
   );
@@ -275,7 +280,8 @@ export function Ribbon() {
   // the sheet metal commands that change an existing sheet need a sheet metal body (Base Flange, Convert, Lofted-Bend, Swept Flange)
   const noSheet = noBody || !st.doc.features.some((f) => !f.suppressed && (f.type === 'baseFlange' || f.type === 'convertSheet' || f.type === 'loftedBend' || f.type === 'sweptFlange'));
   // while a Property Panel command runs, the intended design greys the Command Ribbon (the running command stays lit)
-  const busy = st.doc.kind !== 'drawing' && (!!st.featureEdit || !!st.planeEdit || !!st.sheetMetalEdit || !!st.patternEdit || !!st.sketch3dEdit || !!st.motorEdit || !!st.fastenerEdit || (!!st.analysis && st.analysis.kind !== 'curvature'));
+  // the Modify box of a dimension greys the ribbon too, as in the reference
+  const busy = st.doc.kind !== 'drawing' && (!!st.modify || !!st.featureEdit || !!st.planeEdit || !!st.sheetMetalEdit || !!st.patternEdit || !!st.sketch3dEdit || !!st.motorEdit || !!st.fastenerEdit || (!!st.analysis && st.analysis.kind !== 'curvature'));
   const noSketch = !st.doc.features.some((f) => f.type === 'sketch');
   const noSurface = !(st.rebuild.surfaceBodies ?? []).length;
   // while a sketch is open the intended design greys the commands that do not take a sketch

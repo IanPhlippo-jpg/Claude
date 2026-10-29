@@ -16,8 +16,8 @@ const base = (size: number, props: P) => ({
   ...props,
 });
 
-const T = '#3f7f9c'; // teal stroke
-const TL = '#cfe6ef'; // light teal fill
+const T = '#1f6178'; // teal stroke
+const TL = '#c6e0ea'; // light teal fill
 const D = '#3a3f46'; // dark outline / black line work
 const Y = '#f4d55c';
 const YD = '#b8951f';
@@ -28,24 +28,29 @@ const W = '#ffffff';
 /** a sketch end point: a small square */
 const Pt = ({ x, y }: { x: number; y: number }) => <rect x={x - 1.6} y={y - 1.6} width={3.2} height={3.2} fill={W} stroke={D} strokeWidth={0.9} />;
 
+/** a click-order number beside a point */
+const N = ({ x, y, children }: { x: number; y: number; children: string }) => (
+  <text x={x} y={y} fontSize={5.4} fontWeight={700} fontFamily="Segoe UI, Arial, sans-serif" fill={D}>{children}</text>
+);
+
 export const IconsSketch = {
   Line: ({ size = 16, ...p }: P) => (
     <svg {...base(size, p)}>
-      <path d="M4.5 19.5L19.5 4.5" stroke={T} strokeWidth={1.7} />
+      <path d="M4.5 19.5L19.5 4.5" stroke={T} strokeWidth={2} />
       <Pt x={4.5} y={19.5} />
       <Pt x={19.5} y={4.5} />
     </svg>
   ),
   Rect: ({ size = 16, ...p }: P) => (
     <svg {...base(size, p)}>
-      <rect x={4.5} y={6.5} width={15} height={11} fill={TL} stroke={T} strokeWidth={1.7} />
+      <rect x={4.5} y={6.5} width={15} height={11} fill={TL} stroke={T} strokeWidth={2} />
       <Pt x={4.5} y={6.5} />
       <Pt x={19.5} y={17.5} />
     </svg>
   ),
   CenterRect: ({ size = 16, ...p }: P) => (
     <svg {...base(size, p)}>
-      <rect x={4.5} y={6.5} width={15} height={11} fill={TL} stroke={T} strokeWidth={1.7} />
+      <rect x={4.5} y={6.5} width={15} height={11} fill={TL} stroke={T} strokeWidth={2} />
       <path d="M4.5 6.5L19.5 17.5M19.5 6.5L4.5 17.5" stroke={T} strokeWidth={0.8} strokeDasharray="1.6 1.2" />
       <Pt x={12} y={12} />
       <Pt x={19.5} y={17.5} />
@@ -53,14 +58,14 @@ export const IconsSketch = {
   ),
   Circle: ({ size = 16, ...p }: P) => (
     <svg {...base(size, p)}>
-      <circle cx={12} cy={12} r={7.5} fill={TL} stroke={T} strokeWidth={1.7} />
+      <circle cx={12} cy={12} r={7.5} fill={TL} stroke={T} strokeWidth={2} />
       <Pt x={12} y={12} />
       <Pt x={19.5} y={12} />
     </svg>
   ),
   PerimeterCircle: ({ size = 16, ...p }: P) => (
     <svg {...base(size, p)}>
-      <circle cx={12} cy={12} r={7.5} fill={TL} stroke={T} strokeWidth={1.7} />
+      <circle cx={12} cy={12} r={7.5} fill={TL} stroke={T} strokeWidth={2} />
       <Pt x={12} y={4.5} />
       <Pt x={5.5} y={15.8} />
       <Pt x={18.5} y={15.8} />
@@ -68,7 +73,7 @@ export const IconsSketch = {
   ),
   Arc: ({ size = 16, ...p }: P) => (
     <svg {...base(size, p)}>
-      <path d="M5 17a9 9 0 0 1 14 0" stroke={T} strokeWidth={1.7} />
+      <path d="M5 17a9 9 0 0 1 14 0" stroke={T} strokeWidth={2} />
       <path d="M5 17V7.5" stroke={T} strokeWidth={0.8} strokeDasharray="1.6 1.2" />
       <Pt x={5} y={17} />
       <Pt x={19} y={17} />
@@ -76,7 +81,7 @@ export const IconsSketch = {
   ),
   ArcCenter: ({ size = 16, ...p }: P) => (
     <svg {...base(size, p)}>
-      <path d="M5.5 16.5a7 7 0 1 1 13 0" stroke={T} strokeWidth={1.7} />
+      <path d="M5.5 16.5a7 7 0 1 1 13 0" stroke={T} strokeWidth={2} />
       <path d="M12 13v-6" stroke={T} strokeWidth={0.8} strokeDasharray="1.6 1.2" />
       <Pt x={12} y={13} />
       <Pt x={5.5} y={16.5} />
@@ -85,7 +90,7 @@ export const IconsSketch = {
   ),
   Arc3Point: ({ size = 16, ...p }: P) => (
     <svg {...base(size, p)}>
-      <path d="M4.5 16a9 9 0 0 1 15 0" stroke={T} strokeWidth={1.7} />
+      <path d="M4.5 16a9 9 0 0 1 15 0" stroke={T} strokeWidth={2} />
       <Pt x={4.5} y={16} />
       <Pt x={12} y={9.2} />
       <Pt x={19.5} y={16} />
@@ -93,27 +98,27 @@ export const IconsSketch = {
   ),
   Spline: ({ size = 16, ...p }: P) => (
     <svg {...base(size, p)}>
-      <path d="M4 17c2-11 5-11 8-2s6 9 8-8" stroke={T} strokeWidth={1.7} />
+      <path d="M4 17c2-11 5-11 8-2s6 9 8-8" stroke={T} strokeWidth={2} />
       <Pt x={4} y={17} />
       <Pt x={20} y={7} />
     </svg>
   ),
   Ellipse: ({ size = 16, ...p }: P) => (
     <svg {...base(size, p)}>
-      <ellipse cx={12} cy={12} rx={8} ry={5.5} fill={TL} stroke={T} strokeWidth={1.7} transform="rotate(-25 12 12)" />
+      <ellipse cx={12} cy={12} rx={8} ry={5.5} fill={TL} stroke={T} strokeWidth={2} transform="rotate(-25 12 12)" />
       <Pt x={12} y={12} />
     </svg>
   ),
   Slot: ({ size = 16, ...p }: P) => (
     <svg {...base(size, p)}>
-      <rect x={3.5} y={8} width={17} height={8} rx={4} fill={TL} stroke={T} strokeWidth={1.7} />
+      <rect x={3.5} y={8} width={17} height={8} rx={4} fill={TL} stroke={T} strokeWidth={2} />
       <Pt x={7.5} y={12} />
       <Pt x={16.5} y={12} />
     </svg>
   ),
   Polygon: ({ size = 16, ...p }: P) => (
     <svg {...base(size, p)}>
-      <path d="M12 4.5l6.9 4v8l-6.9 4-6.9-4v-8z" fill={TL} stroke={T} strokeWidth={1.7} />
+      <path d="M12 4.5l6.9 4v8l-6.9 4-6.9-4v-8z" fill={TL} stroke={T} strokeWidth={2} />
       <Pt x={12} y={12.5} />
     </svg>
   ),
@@ -133,7 +138,7 @@ export const IconsSketch = {
   ),
   Text: ({ size = 16, ...p }: P) => (
     <svg {...base(size, p)}>
-      <path d="M5 20L12 4l7 16M7.6 14.5h8.8" stroke={T} strokeWidth={1.7} fill="none" />
+      <path d="M5 20L12 4l7 16M7.6 14.5h8.8" stroke={T} strokeWidth={2} fill="none" />
       <path d="M8.8 12l3.2-6.8 3.2 6.8z" fill={TL} />
     </svg>
   ),
@@ -173,13 +178,13 @@ export const IconsSketch = {
     <svg {...base(size, p)}>
       <path d="M6 9l6-3.5 6 3.5v7l-6 3.5-6-3.5z" fill="#e8ebee" stroke={D} strokeWidth={1} />
       <path d="M6 9l6 3.5 6-3.5M12 12.5V19.5" stroke={D} strokeWidth={1} />
-      <path d="M6 9l6-3.5 6 3.5v7l-6 3.5-6-3.5z" stroke={T} strokeWidth={1.7} fill="none" />
+      <path d="M6 9l6-3.5 6 3.5v7l-6 3.5-6-3.5z" stroke={T} strokeWidth={2} fill="none" />
     </svg>
   ),
   OffsetEntities: ({ size = 16, ...p }: P) => (
     <svg {...base(size, p)}>
       <path d="M16 5H8a3 3 0 0 0-3 3v11h11" stroke={D} strokeWidth={1.7} />
-      <path d="M19 9h-9.5a1 1 0 0 0-1 1v7h9.5" stroke={T} strokeWidth={1.7} />
+      <path d="M19 9h-9.5a1 1 0 0 0-1 1v7h9.5" stroke={T} strokeWidth={2} />
     </svg>
   ),
   OffsetOnSurface: ({ size = 16, ...p }: P) => (
@@ -192,8 +197,8 @@ export const IconsSketch = {
   MirrorEntities: ({ size = 16, ...p }: P) => (
     <svg {...base(size, p)}>
       <path d="M12 3v18" stroke={D} strokeWidth={0.9} strokeDasharray="2 1.4" />
-      <path d="M9.5 7.5h-4v9h4" stroke={T} strokeWidth={1.7} fill="none" />
-      <path d="M14.5 7.5h4v9h-4" stroke={T} strokeWidth={1.7} fill="none" />
+      <path d="M9.5 7.5h-4v9h4" stroke={T} strokeWidth={2} fill="none" />
+      <path d="M14.5 7.5h4v9h-4" stroke={T} strokeWidth={2} fill="none" />
       <Pt x={9.5} y={7.5} />
       <Pt x={14.5} y={7.5} />
     </svg>
@@ -271,6 +276,58 @@ export const IconsSketch = {
       <path d="M3 18l5-11h13l-5 11z" fill="none" stroke={T} strokeWidth={1.2} strokeDasharray="1.8 1.4" />
       <Pt x={8} y={7} />
       <Pt x={16} y={18} />
+    </svg>
+  ),
+  /** Rectangle PM type buttons: the shape with the click order (1, 2, 3) at its points */
+  PmRectCorner: ({ size = 16, ...p }: P) => (
+    <svg {...base(size, p)}>
+      <rect x="5" y="7" width="13" height="11" fill={TL} stroke={T} strokeWidth={1.6} />
+      <Pt x={5} y={18} />
+      <Pt x={18} y={7} />
+      <N x={1.2} y={23.4}>1</N>
+      <N x={19.4} y={5.4}>2</N>
+    </svg>
+  ),
+  PmRectCenter: ({ size = 16, ...p }: P) => (
+    <svg {...base(size, p)}>
+      <rect x="4" y="7" width="14" height="11" fill="none" stroke={T} strokeWidth={1.6} />
+      <Pt x={11} y={12.5} />
+      <Pt x={18} y={7} />
+      <N x={6} y={14.6}>1</N>
+      <N x={19.4} y={5.4}>2</N>
+    </svg>
+  ),
+  PmRect3Corner: ({ size = 16, ...p }: P) => (
+    <svg {...base(size, p)}>
+      <path d="M4 12l7-7 7 7-7 7z" fill="none" stroke={T} strokeWidth={1.6} />
+      <Pt x={4} y={12} />
+      <Pt x={11} y={19} />
+      <Pt x={18} y={12} />
+      <N x={0.2} y={10.6}>1</N>
+      <N x={9.6} y={24}>2</N>
+      <N x={19.6} y={14.6}>3</N>
+    </svg>
+  ),
+  PmRect3Center: ({ size = 16, ...p }: P) => (
+    <svg {...base(size, p)}>
+      <path d="M4 12l7-7 7 7-7 7z" fill="none" stroke={T} strokeWidth={1.6} />
+      <Pt x={11} y={12} />
+      <Pt x={11} y={19} />
+      <Pt x={18} y={12} />
+      <N x={6.4} y={14.4}>1</N>
+      <N x={12.6} y={23.6}>2</N>
+      <N x={19.6} y={14.6}>3</N>
+    </svg>
+  ),
+  PmParallelogram: ({ size = 16, ...p }: P) => (
+    <svg {...base(size, p)}>
+      <path d="M3 18l5-11h13l-5 11z" fill="none" stroke={T} strokeWidth={1.6} />
+      <Pt x={3} y={18} />
+      <Pt x={16} y={18} />
+      <Pt x={21} y={7} />
+      <N x={1.6} y={23.6}>1</N>
+      <N x={14.6} y={23.6}>2</N>
+      <N x={19.6} y={5}>3</N>
     </svg>
   ),
 };

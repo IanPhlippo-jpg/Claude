@@ -227,7 +227,7 @@ export function StatusBar({ hint: hint0 }: { hint: string }) {
       {st.doc.kind === 'drawing' && st.doc.sheets?.[0] && <span className="k-status-cell" data-testid="sheet-scale">{st.doc.sheets[0].scale[0]} : {st.doc.sheets[0].scale[1]}</span>}
       <span className="k-status-cell" style={{ position: 'relative' }}>
         <button className="k-status-units" onClick={() => setUnits(true)}>
-          {st.unitSystem} <Icon.ChevronDown size={10} />
+          {st.unitSystem} <Icon.ChevronDown size={10} style={{ transform: 'rotate(180deg)' }} />
         </button>
         {units && (
           <Menu

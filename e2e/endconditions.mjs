@@ -82,7 +82,7 @@ check('no rebuild errors', (await page.evaluate(() => Object.keys(window.__phlip
 
 // edit: Up To Next goes through to the top face (10 mm)
 await page.locator('.k-tree-row:has-text("Cut-Extrude1")').last().click({ button: 'right' });
-await page.click('.k-menu-item:has-text("Edit Feature")');
+await page.click('[data-testid="ctx-edit-feature"]');
 await page.waitForTimeout(300);
 await page.locator('.k-section:has-text("Direction 1") select.k-input').first().selectOption('upToNext');
 await page.waitForTimeout(300);
@@ -95,7 +95,7 @@ await shot('u2-up-to-next');
 
 // RMB menu during an extrude lists the end conditions
 await page.locator('.k-tree-row:has-text("Cut-Extrude1")').last().click({ button: 'right' });
-await page.click('.k-menu-item:has-text("Edit Feature")');
+await page.click('[data-testid="ctx-edit-feature"]');
 await page.waitForTimeout(300);
 await page.mouse.click(cx + 300, cy - 300, { button: 'right' });
 await page.waitForTimeout(200);
@@ -107,7 +107,7 @@ await page.waitForTimeout(300);
 
 // Up To Vertex: edit the cut to Blind 3, then Up To Vertex on a top corner of the plate (10 high)
 await page.locator('.k-tree-row:has-text("Cut-Extrude1")').last().click({ button: 'right' });
-await page.click('.k-menu-item:has-text("Edit Feature")');
+await page.click('[data-testid="ctx-edit-feature"]');
 await page.waitForTimeout(300);
 await page.locator('.k-section:has-text("Direction 1") select.k-input').first().selectOption('blind');
 await page.locator('.k-section:has-text("Direction 1") .k-pm-valuerow input.k-num').first().fill('3');
@@ -116,7 +116,7 @@ await page.click('.k-pm-ok');
 await page.waitForTimeout(700);
 check('Blind 3 cut', Math.abs(v0 - (await volume()) - area * 3) < area * 0.05);
 await page.locator('.k-tree-row:has-text("Cut-Extrude1")').last().click({ button: 'right' });
-await page.click('.k-menu-item:has-text("Edit Feature")');
+await page.click('[data-testid="ctx-edit-feature"]');
 await page.waitForTimeout(300);
 await page.locator('.k-section:has-text("Direction 1") select.k-input').first().selectOption('upToVertex');
 await page.waitForTimeout(200);

@@ -241,7 +241,7 @@ export function DetailedPreviewButton() {
   const toggle = useStore((s) => s.toggleDetailedPreview);
   return (
     <button className={`k-pm-eye k-tip ${on ? 'active' : ''}`} data-tip="Detailed Preview" onClick={toggle}>
-      <Icon.Eye />
+      <Icon.PreviewEye size={18} />
     </button>
   );
 }

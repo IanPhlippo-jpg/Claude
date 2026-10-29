@@ -326,7 +326,12 @@ export function addPolygon(s: Sketch, center: SketchPoint, radius: number, sides
   [s1, c] = addCircle(s1, center, radius, true);
   if (inscribed) for (const l of lines) s1 = addConstraint(s1, 'tangent', [l.id, c.id])[0];
   else for (const id of ids) s1 = addConstraint(s1, 'pointOnEntity', [id, c.id])[0];
-  for (let i = 0; i < sides - 1; i++) s1 = addConstraint(s1, 'equal', [lines[i].id, lines[i + 1].id])[0];
+  // touching sides of equal length keep an even polygon regular only up to alternating corners, and one of their Equal
+  // relations is then redundant (the sketch reads Over Defined): for an even polygon the last Equal becomes a Parallel
+  // between opposite sides (n/2 odd) or a Perpendicular a quarter turn on (n/4 odd), which pins the regular shape
+  const swap = inscribed && sides % 2 === 0 ? ((sides / 2) % 2 === 1 ? ['parallel', sides / 2] : (sides / 4) % 2 === 1 ? ['perpendicular', sides / 4] : null) as ['parallel' | 'perpendicular', number] | null : null;
+  for (let i = 0; i < sides - (swap ? 2 : 1); i++) s1 = addConstraint(s1, 'equal', [lines[i].id, lines[i + 1].id])[0];
+  if (swap) s1 = addConstraint(s1, swap[0], [lines[0].id, lines[swap[1]].id])[0];
   return [s1, lines];
 }
 

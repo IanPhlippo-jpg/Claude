@@ -14,6 +14,11 @@ import { PLANE_LABELS } from '../../viewport/camera';
 import { defaultDimText, APPLY_TOOLS, TOOL_TITLE, TOOL_HELP, Header, POLY_FIELDS, dimFavs, saveDimFavs } from './shared';
 import type { PMContext } from './context';
 
+/** the point-coordinate glyph of a Parameters row: a small point with the axis letter at its lower right */
+const PtAxis = ({ axis }: { axis: 'x' | 'y' }) => (
+  <span className="k-pm-ptaxis"><i />{axis.toUpperCase()}</span>
+);
+
 export function sketchPM(ctx: PMContext): ReactNode {
   const { st, solve, value, setValue, sides, setSides, polyInscribed, setPolyInscribed, eqc, setEqc, fdef, setFdef, rectCons, setRectCons, sketchText, setSketchText, dimTab, setDimTab, dimFav, setDimFav, segment, setSegment, c, valueOf, setValueOf, onEditDone } = ctx;
   const sketch = ctx.sketch;
@@ -99,7 +104,7 @@ export function sketchPM(ctx: PMContext): ReactNode {
       {c ? (
         <Header title={isDimension(c) ? 'Dimension' : relationLabel(c.kind)} icon={<Icon.Dimension />} onOk={commitValue} />
       ) : (
-        <Header title={st.tool === 'select' && selectedEntities.length === 1 && sketch.entities[selectedEntities[0].id] ? `${({ line: 'Line', circle: 'Circle', arc: 'Arc', spline: 'Spline', ellipse: 'Ellipse', ellipseArc: 'Ellipse', conic: 'Conic', text: 'Text', point: 'Point' } as Record<string, string>)[sketch.entities[selectedEntities[0].id].kind] ?? 'Entity'} Properties` : st.tool === 'select' && st.selection.length === 1 && st.selection[0].kind === 'point' ? 'Point Properties' : TOOL_TITLE[st.tool] ?? sketch.name} icon={toolIcon[st.tool] ?? <Icon.Sketch />} onOk={st.tool === 'select' ? st.exitSketch : st.tool === 'equationCurve' ? () => { if ((eqc.param ? st.addEquationCurve(eqc.xt, eqc.x1, eqc.x2, eqc.yt) : st.addEquationCurve(eqc.expr, eqc.x1, eqc.x2))) st.setTool('select'); } : st.tool === 'fullyDefine' ? () => { st.fullyDefine(fdef); st.setTool('select'); } : APPLY_TOOLS.has(st.tool) ? st.applySketchTool : () => st.setTool('select')} onCancel={st.tool === 'select' ? st.discardSketch : () => st.setTool('select')} />
+        <Header title={st.tool === 'select' && selectedEntities.length === 1 && sketch.entities[selectedEntities[0].id] ? `${({ line: 'Line', circle: 'Circle', arc: 'Arc', spline: 'Spline', ellipse: 'Ellipse', ellipseArc: 'Ellipse', conic: 'Conic', text: 'Text', point: 'Point' } as Record<string, string>)[sketch.entities[selectedEntities[0].id].kind] ?? 'Entity'} Properties` : st.tool === 'select' && st.selection.length === 1 && st.selection[0].kind === 'point' ? 'Point Properties' : TOOL_TITLE[st.tool] ?? sketch.name} icon={toolIcon[st.tool] ?? <Icon.Sketch />} onOk={st.tool === 'select' ? st.exitSketch : st.tool === 'equationCurve' ? () => { if ((eqc.param ? st.addEquationCurve(eqc.xt, eqc.x1, eqc.x2, eqc.yt) : st.addEquationCurve(eqc.expr, eqc.x1, eqc.x2))) st.setTool('select'); } : st.tool === 'fullyDefine' ? () => { st.fullyDefine(fdef); st.setTool('select'); } : APPLY_TOOLS.has(st.tool) ? st.applySketchTool : () => st.setTool('select')} onCancel={isDraw ? undefined : st.tool === 'select' ? st.discardSketch : () => st.setTool('select')} />
       )}
 
       {!c && (st.tool === 'line' || st.tool === 'centerline' || st.tool === 'midpointLine') && (
@@ -154,8 +159,8 @@ export function sketchPM(ctx: PMContext): ReactNode {
             </select>
           </Section>
           <Section title="Tolerance/Precision" defaultOpen>
-            <div className="k-field"><label>Tolerance</label>
-              <select className="k-input" data-testid="dim-tol" value={c.tol?.type ?? 'none'} onChange={(e) => st.updateDimension(c.id, { tol: e.target.value === 'none' ? undefined : { type: e.target.value as 'basic', plus: c.tol?.plus ?? 0.1, minus: c.tol?.minus ?? 0.1 } })}>
+            <div className="k-pm-valuerow k-tip" data-tip="Tolerance Type"><span className="k-pm-glyph"><b>1.50</b><i>±.01</i></span>
+              <select className="k-input" style={{ flex: 1 }} data-testid="dim-tol" value={c.tol?.type ?? 'none'} onChange={(e) => st.updateDimension(c.id, { tol: e.target.value === 'none' ? undefined : { type: e.target.value as 'basic', plus: c.tol?.plus ?? 0.1, minus: c.tol?.minus ?? 0.1 } })}>
                 <option value="none">None</option><option value="basic">Basic</option><option value="bilateral">Bilateral</option><option value="limit">Limit</option><option value="symmetric">Symmetric</option><option value="min">MIN</option><option value="max">MAX</option>
               </select>
             </div>
@@ -165,8 +170,8 @@ export function sketchPM(ctx: PMContext): ReactNode {
                 {c.tol.type !== 'symmetric' && <div className="k-pm-valuerow k-tip" data-tip="Minimum Variation"><span className="k-pm-xy">−</span><NumberField value={c.tol.minus ?? 0} onChange={(v) => st.updateDimension(c.id, { tol: { ...c.tol!, minus: Math.max(0, v) } })} unit={st.doc.units} step={0.01} /></div>}
               </>
             )}
-            <div className="k-field"><label>Precision</label>
-              <select className="k-input" data-testid="dim-precision" value={c.precision ?? -1} onChange={(e) => st.updateDimension(c.id, { precision: Number(e.target.value) < 0 ? undefined : Number(e.target.value) })}>
+            <div className="k-pm-valuerow k-tip" data-tip="Unit Precision"><span className="k-pm-glyph"><b>X.XX</b></span>
+              <select className="k-input" style={{ flex: 1 }} data-testid="dim-precision" value={c.precision ?? -1} onChange={(e) => st.updateDimension(c.id, { precision: Number(e.target.value) < 0 ? undefined : Number(e.target.value) })}>
                 <option value={-1}>.12 (Document)</option><option value={0}>None</option><option value={1}>.1</option><option value={2}>.12</option><option value={3}>.123</option><option value={4}>.1234</option><option value={5}>.12345</option>
               </select>
             </div>
@@ -224,11 +229,11 @@ export function sketchPM(ctx: PMContext): ReactNode {
       {!c && isRect && (
         <Section title="Rectangle Type">
           <div className="k-pm-typegrid k-pm-recttypes">
-            <button className={`k-pm-typebtn ${st.tool === 'rectangle' ? 'active' : ''}`} title="Corner Rectangle" onClick={() => st.setTool('rectangle')}><Icon.Rect size={30} /></button>
-            <button className={`k-pm-typebtn ${st.tool === 'centerRectangle' ? 'active' : ''}`} title="Center Rectangle" onClick={() => st.setTool('centerRectangle')}><Icon.CenterRect size={30} /></button>
-            <button className={`k-pm-typebtn ${st.tool === 'rect3Corner' ? 'active' : ''}`} title="3 Point Corner Rectangle" data-testid="rect3corner" onClick={() => st.setTool('rect3Corner')}><Icon.Rect3Corner size={30} /></button>
-            <button className={`k-pm-typebtn ${st.tool === 'rect3Center' ? 'active' : ''}`} title="3 Point Center Rectangle" data-testid="rect3center" onClick={() => st.setTool('rect3Center')}><Icon.Rect3Center size={30} /></button>
-            <button className={`k-pm-typebtn ${st.tool === 'parallelogram' ? 'active' : ''}`} title="Parallelogram" data-testid="parallelogram" onClick={() => st.setTool('parallelogram')}><Icon.Parallelogram size={30} /></button>
+            <button className={`k-pm-typebtn ${st.tool === 'rectangle' ? 'active' : ''}`} title="Corner Rectangle" onClick={() => st.setTool('rectangle')}><Icon.PmRectCorner size={34} /></button>
+            <button className={`k-pm-typebtn ${st.tool === 'centerRectangle' ? 'active' : ''}`} title="Center Rectangle" onClick={() => st.setTool('centerRectangle')}><Icon.PmRectCenter size={34} /></button>
+            <button className={`k-pm-typebtn ${st.tool === 'rect3Corner' ? 'active' : ''}`} title="3 Point Corner Rectangle" data-testid="rect3corner" onClick={() => st.setTool('rect3Corner')}><Icon.PmRect3Corner size={34} /></button>
+            <button className={`k-pm-typebtn ${st.tool === 'rect3Center' ? 'active' : ''}`} title="3 Point Center Rectangle" data-testid="rect3center" onClick={() => st.setTool('rect3Center')}><Icon.PmRect3Center size={34} /></button>
+            <button className={`k-pm-typebtn ${st.tool === 'parallelogram' ? 'active' : ''}`} title="Parallelogram" data-testid="parallelogram" onClick={() => st.setTool('parallelogram')}><Icon.PmParallelogram size={34} /></button>
           </div>
           <label className="k-check"><input type="checkbox" checked={rectCons.on} onChange={(e) => setRectCons({ ...rectCons, on: e.target.checked })} data-testid="rect-construction" /> Add construction lines</label>
           {rectCons.on && (
@@ -268,12 +273,11 @@ export function sketchPM(ctx: PMContext): ReactNode {
           </Section>
           <Section title="Parameters">
             <div className="k-pm-params" data-testid="rect-params">
-              {rectCorners.map((c, i) => c && (
-                <div key={c.id} className="k-pm-xyrow">
-                  <span className="k-pm-xy">x<sub>{i + 1}</sub></span>
-                  <NumberField value={round(c.x)} onChange={(v) => st.commit('Rectangle parameters', (k) => ({ ...k, points: { ...k.points, [c.id]: { ...k.points[c.id], x: v } } }))} step={1} />
-                  <span className="k-pm-xy">y<sub>{i + 1}</sub></span>
-                  <NumberField value={round(c.y)} onChange={(v) => st.commit('Rectangle parameters', (k) => ({ ...k, points: { ...k.points, [c.id]: { ...k.points[c.id], y: v } } }))} step={1} />
+              {rectCorners.map((c) => c && (
+                <div key={c.id} className="k-pm-ptpair">
+                  {(['x', 'y'] as const).map((ax) => (
+                    <div key={ax} className="k-pm-valuerow k-pm-ptrow"><PtAxis axis={ax} /><NumberField value={round(c[ax])} onChange={(v) => st.commit('Rectangle parameters', (k) => ({ ...k, points: { ...k.points, [c.id]: { ...k.points[c.id], [ax]: v } } }))} step={1} /></div>
+                  ))}
                 </div>
               ))}
             </div>
@@ -614,7 +618,7 @@ export function sketchPM(ctx: PMContext): ReactNode {
           </div>
         </Section>
       )}
-      {!c && !lastRect && (selectedEntities.length > 0 || isDraw) && (
+      {!c && !lastRect && (selectedEntities.length > 0 || (isDraw && !isRect)) && (
         <Section title="Options">
           {selectedEntities.length > 0 && !isDraw ? (
             <label className="k-check"><input type="checkbox" checked={selectedEntities.every((s) => sketch.entities[s.id]?.construction)} onChange={st.toggleConstructionSelection} /> For construction</label>
@@ -701,9 +705,9 @@ export function sketchPM(ctx: PMContext): ReactNode {
       })()}
       {!c && isRect && !lastRect && (
         <Section title="Parameters">
-          {[1, 2, 3, 4].map((i) => (
-            <div className="k-pm-xyrow" key={i}><span className="k-pm-xy">x<sub>{i}</sub></span><NumberField value={0} onChange={() => undefined} disabled blankWhenDisabled step={1} /><span className="k-pm-xy">y<sub>{i}</sub></span><NumberField value={0} onChange={() => undefined} disabled blankWhenDisabled step={1} /></div>
-          ))}
+          {[1, 2, 3, 4].flatMap((i) => (['x', 'y'] as const).map((ax) => (
+            <div className="k-pm-valuerow k-pm-ptrow" key={ax + i}><PtAxis axis={ax} /><NumberField value={0} onChange={() => undefined} disabled unit="" step={1} /></div>
+          )))}
         </Section>
       )}
     </>

@@ -17,7 +17,7 @@ const CAPS = {
   'src/core/document/types.ts': 1591,
   'src/app/store.ts': 1449,
   'src/app/drawing/DrawingSheetView.tsx': 1277,
-  'src/ui/icons.tsx': 1070,
+  'src/ui/icons.tsx': 1022,
 };
 
 const root = path.join(__dirname, '..');
