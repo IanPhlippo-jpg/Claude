@@ -789,4 +789,4 @@ elease; README en docs/04 bijgewerkt
 - [x] Modelmateriaal: glanzend blauwgrijs met studioreflecties (PBR, eigen studio, virtueel oog voor verloop binnen vlakken); gekleurde onderdelen als kunststof
 - [x] Vloer: vervagende spiegeling (alleen het voorste vlak) en zachte schaduw; spiegeling standaard aan
 - [x] Kalibratie: box 134/186/230 tegen 138/195/240, voorvlak 126 (135), rechts 165 (165); tools calib-studio.mjs, look-planes.mjs
-- [ ] Regressie, release, push
+- [x] Regressie (96/97 → 97/97 na testaanpassing, B-rep 12/12, worker 6/6), release 0.5.7, push
