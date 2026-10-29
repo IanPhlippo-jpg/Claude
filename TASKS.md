@@ -804,4 +804,4 @@ elease; README en docs/04 bijgewerkt
 - [x] Schets: lijnkleuren, punten, relatie-iconen, maten, Modify-venster (+ polygoon-solverfout opgelost)
 - [x] Menu's en rechtsklikmenu's: teksten, volgorde, pictogrammen
 - [x] Bevindingen vastleggen (docs/26), oplossen per gebied, voor/na-beelden
-- [~] Regressie, release, push
+- [x] Regressie (97/97, B-rep 12/12, worker 6/6), release 0.5.9 geïnstalleerd (19/19), push
