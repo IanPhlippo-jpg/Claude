@@ -501,11 +501,11 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
   const planesToDraw = useMemo(() => {
     const refIds = Object.values(st.doc.planes).filter((p) => p.kind === 'reference').map((p) => p.id);
     const ids: PlaneId[] = [...REFERENCE_PLANES, ...refIds];
-    if (st.planePick) return ids.map((id) => ({ id, highlight: st.hoverPlane === id || st.selectedPlane === id }));
-    const out: { id: PlaneId; highlight: boolean }[] = [];
+    if (st.planePick) return ids.map((id) => ({ id, highlight: st.hoverPlane === id, selected: st.selectedPlane === id && st.hoverPlane !== id })); // hover: highlight colour; selected/edited: blue + handles
+    const out: { id: PlaneId; highlight: boolean; selected?: boolean }[] = [];
     for (const id of ids) {
-      const hl = st.hoverPlane === id || st.selectedPlane === id || st.planeEdit?.planeId === id;
-      if ((st.doc.planeVisibility?.[id] ?? st.show.planes) || hl) out.push({ id, highlight: hl });
+      const sel = st.selectedPlane === id || st.planeEdit?.planeId === id, hl = st.hoverPlane === id;
+      if ((st.doc.planeVisibility?.[id] ?? st.show.planes) || hl || sel) out.push({ id, highlight: hl || sel, selected: sel && !hl });
     }
     // preview of the plane being defined
     if (st.planeEdit) {

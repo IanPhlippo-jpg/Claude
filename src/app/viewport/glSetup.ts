@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import type { BodyScene } from './bodyScene';
+import { makeStudioEnvironment } from './studioLook';
 
 /**
  * The renderer of the graphics area. Without a graphics card (a PC without driver, a remote desktop, the CI runner)
@@ -18,6 +19,8 @@ export function createRenderer(canvas: HTMLCanvasElement, bodies: BodyScene): TH
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   bodies.softwareGL = isSoftwareRenderer(renderer.getContext());
+  // the studio the parts reflect (studioLook.ts)
+  makeStudioEnvironment(renderer);
   return renderer;
 }
 

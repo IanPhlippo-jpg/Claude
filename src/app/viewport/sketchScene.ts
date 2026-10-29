@@ -8,7 +8,8 @@ import { entityLoops } from '../../core/sketch/geometry';
 import { entityPoints } from '../../core/sketch/model';
 import { findContours } from '../../core/sketch/contours';
 import type { SolveResult } from '../../core/solver/solver';
-import { getPlane, sketchToWorld, type PlaneId } from './camera';
+import { getPlane, planeLabel, sketchToWorld, type PlaneId } from './camera';
+import { addReferencePlane } from './planeLook';
 
 export interface SceneColors {
   under: string;
@@ -87,7 +88,7 @@ export interface SceneInput {
   /** sketches that are not active: drawn faded */
   otherSketches: { sketch: Sketch; plane: PlaneId }[];
   /** reference planes to draw (with highlight) */
-  planes: { id: PlaneId; highlight: boolean }[];
+  planes: { id: PlaneId; highlight: boolean; selected?: boolean }[];
   showOrigin: boolean;
   /** half-size of the drawn reference planes in world units */
   planeSize: number;
@@ -113,6 +114,9 @@ export class SketchScene {
   constructor() {
     this.scene.add(this.gridGroup);
     this.scene.add(this.group);
+    // sketches, planes and the grid take no part in the ambient occlusion (only the bodies do)
+    this.group.userData.noAO = this.group.userData.afterAO = true;
+    this.gridGroup.userData.noAO = this.gridGroup.userData.afterAO = true;
   }
 
   private clear(g: THREE.Group) {
@@ -290,36 +294,9 @@ export class SketchScene {
     }
     if (input.sketch) drawSketch(input.sketch, input.plane, false);
 
-    // reference planes by design: a thin blue-grey outline (no fill), dashed centre lines,
-    // the hovered/selected plane in orange with a faint fill
-    for (const pl of input.planes) {
-      const b = getPlane(pl.id);
-      const s = input.planeSize;
-      const h = s * 0.75;
-      const corners = [
-        b.u.clone().multiplyScalar(-s).addScaledVector(b.v, -h),
-        b.u.clone().multiplyScalar(s).addScaledVector(b.v, -h),
-        b.u.clone().multiplyScalar(s).addScaledVector(b.v, h),
-        b.u.clone().multiplyScalar(-s).addScaledVector(b.v, h),
-      ];
-      const col = pl.highlight ? rgba(input.colors.hover).c : rgba(input.colors.plane).c;
-      // invisible quad keeps the plane pickable-looking (faint fill only when highlighted)
-      const g = new THREE.BufferGeometry();
-      g.setAttribute('position', new THREE.Float32BufferAttribute(corners.flatMap((c) => [c.x, c.y, c.z]), 3));
-      g.setIndex([0, 1, 2, 0, 2, 3]);
-      const mesh = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: pl.highlight ? 0.1 : 0.03, side: THREE.DoubleSide, depthWrite: false }));
-      this.group.add(mesh);
-      const outline = new THREE.BufferGeometry();
-      outline.setAttribute('position', new THREE.Float32BufferAttribute([...corners, corners[0]].flatMap((c) => [c.x, c.y, c.z]), 3));
-      this.group.add(new THREE.Line(outline, new THREE.LineBasicMaterial({ color: col, transparent: true, opacity: pl.highlight ? 1 : 0.75 })));
-      // dashed centre lines through the origin
-      const mid = new THREE.BufferGeometry();
-      const mu = b.u.clone().multiplyScalar(s), mv = b.v.clone().multiplyScalar(h);
-      mid.setAttribute('position', new THREE.Float32BufferAttribute([-mu.x, -mu.y, -mu.z, mu.x, mu.y, mu.z, -mv.x, -mv.y, -mv.z, mv.x, mv.y, mv.z], 3));
-      const midLines = new THREE.LineSegments(mid, new THREE.LineDashedMaterial({ color: col, transparent: true, opacity: 0.6, dashSize: 5 * input.scale, gapSize: 4 * input.scale }));
-      midLines.computeLineDistances();
-      this.group.add(midLines);
-    }
+    // reference planes: outline, faint fill and the name on the plane; the selected one with handles (planeLook.ts)
+    const dark = document.documentElement.dataset.theme === 'dark';
+    for (const pl of input.planes) addReferencePlane(this.group, getPlane(pl.id), input.planeSize, input.planeSize * 0.75, pl.selected ? 'selected' : pl.highlight ? 'hover' : 'normal', planeLabel(pl.id), input.scale, dark, rgba(input.colors.hover).c);
 
     // origin glyph: two short arrows (blue in part mode, red in sketch mode)
     if (input.showOrigin) {

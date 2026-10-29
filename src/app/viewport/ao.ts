@@ -25,9 +25,9 @@ class CadGTAOPass extends GTAOPass {
 }
 
 /**
- * The occlusion's reach (share of the view height), strength and falloff, calibrated on the reference part
+ * The occlusion's reach (share of the view height), strength and falloff, calibrated on an L-block
  * (e2e/tools/calib-ao.mjs): the inside corner darkens to about 150 grey right at the crease and fades out over a
- * fifth of the block, as in the reference frames.
+ * fifth of the block, by design.
  */
 export const AO = { radius: 0.3, thickness: 0.3, distanceExponent: 1, falloff: 0, scale: 3, intensity: 1 };
 if (TEST_HOOKS) (globalThis as unknown as { __phlippoAO?: typeof AO }).__phlippoAO = AO;
@@ -35,6 +35,7 @@ if (TEST_HOOKS) (globalThis as unknown as { __phlippoAO?: typeof AO }).__phlippo
 let state: { composer: EffectComposer; gtao: GTAOPass; render: RenderPass; w: number; h: number; scene: THREE.Scene; camera: THREE.Camera; key: string } | null = null;
 
 let idle: ReturnType<typeof setTimeout> | null = null;
+const depthOnly = new THREE.MeshBasicMaterial({ colorWrite: false, side: THREE.DoubleSide });
 
 /**
  * Draws the scene with ambient occlusion. On a processor-drawn screen (no usable graphics driver) the pass costs about
@@ -84,7 +85,30 @@ function composeAO(renderer: THREE.WebGLRenderer, scene: THREE.Scene, camera: TH
     state.gtao.blendIntensity = AO.intensity;
     state.key = key;
   }
+  // what is drawn over the model (floor reflection, sketches, planes: marked afterAO) goes on layer 1 and is drawn after
+  // the occlusion frame: through the composer, a see-through surface over the empty background would come out white
+  scene.traverse((o) => {
+    if (o.userData.afterAO) o.traverse((c) => c.layers.set(1));
+    if ((o as THREE.Light).isLight) o.layers.enable(1);
+  });
+  const mask = camera.layers.mask;
+  camera.layers.set(0);
   state.composer.render();
+  // the frame on the screen has no usable depth: the model's depth is written again (no colour), then the overlay is
+  // drawn against it, so a plane still goes behind the part
+  const autoClear = renderer.autoClear;
+  renderer.autoClear = false;
+  renderer.clearDepth();
+  const override = scene.overrideMaterial;
+  scene.overrideMaterial = depthOnly;
+  renderer.render(scene, camera);
+  scene.overrideMaterial = override;
+  camera.layers.set(1);
+  renderer.render(scene, camera);
+  renderer.autoClear = autoClear;
+  camera.layers.mask = mask;
+  camera.layers.enable(0);
+  camera.layers.enable(1);
 }
 
 /** a plain frame was drawn (occlusion off, sketch, wireframe): a waiting occlusion frame must not paint over it */

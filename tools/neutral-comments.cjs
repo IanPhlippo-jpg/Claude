@@ -26,8 +26,8 @@ const RULES = [
   // video frame tags such as (57/0028) and wording that points at the reference videos (QA v0.5.1 F136)
   [/,? ?\(\d{2}\/\d{4}(?:[,/ ]+\d{2,4})*\)/g, ''],
   [/ ?\((?:measured|seen) (?:in|on) the reference (?:videos?|frames?)\)/g, ''],
-  [/(?:in|from|as in) the reference (?:videos?|frames?|program)/g, 'by design'],
-  [/,? as the intended status bar(?: words it)?/g, ''],
+  [/\b(?:in|from|as in) the reference (?:videos?|frames?|program)\b/g, 'by design'],
+  [/,? as the intended status bar(?: words it)?\b/g, ''],
 ];
 let total = 0;
 const changed = [];

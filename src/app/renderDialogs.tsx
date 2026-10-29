@@ -60,7 +60,7 @@ export function ScenePM() {
       </Section>
       <Section title="Floor">
         <label className="k-check"><input type="checkbox" checked={st.show.shadows} onChange={() => st.toggleShow('shadows')} data-testid="scene-shadows" /> Floor shadows</label>
-        <label className="k-check"><input type="checkbox" data-testid="scene-reflect" checked={!!sc.floorReflections} onChange={(e) => st.setScene({ floorReflections: e.target.checked })} /> Floor reflections</label>
+        <label className="k-check"><input type="checkbox" data-testid="scene-reflect" checked={sc.floorReflections !== false} onChange={(e) => st.setScene({ floorReflections: e.target.checked })} /> Floor reflections</label>
         <div className="k-field"><label>Align floor with</label><select className="k-input" data-testid="scene-floor-align" value={sc.floorAlign ?? 'bottom'} onChange={(e) => st.setScene({ floorAlign: e.target.value as 'bottom' })}><option value="bottom">Bottom of model</option><option value="top">Top Plane</option></select></div>
       </Section>
       </>)}

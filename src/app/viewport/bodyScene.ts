@@ -1,6 +1,8 @@
 import { TEST_HOOKS } from '../testHooks';
 import * as THREE from 'three';
 import { appearanceMaterial } from './appearanceLook';
+import { setStudioView, STUDIO, studioEnvironment, studioMaterial } from './studioLook';
+import { depthPrepass, FLOOR, reflectionMaterial, softShadow } from './floorLook';
 import type { AppearanceProps } from '../../core/document/types';
 import { Line2 } from 'three/examples/jsm/lines/Line2.js';
 import { LineSegments2 } from 'three/examples/jsm/lines/LineSegments2.js';
@@ -93,8 +95,8 @@ interface BodyEntry {
 /**
  * The graphics area's lights, fixed to the camera (view space: x right, y up, z towards the viewer): one key light
  * from the upper right in front of the model, and ambient (the fill is off by default).
- * Calibrated on the reference part in the default grey (e2e/tools/calib-light.mjs, isometric box): top face 254,
- * front face 180, right face 230 grey, as measured in the reference frames (2026-10-28). The faces turned to the
+ * Calibrated on an L-block in the default grey (e2e/tools/calib-light.mjs, isometric box): top face 254,
+ * front face 180, right face 230 grey (2026-10-28). The faces turned to the
  * light read clearly apart, so the shape shows without edges.
  */
 export const LIGHTING = { key: { dir: [0.266, 0.338, 0.903] as [number, number, number], intensity: 3.462 }, fill: { dir: [0.9, 0.1, 0.4] as [number, number, number], intensity: 0 }, ambient: 1.1 };
@@ -122,7 +124,8 @@ export class BodyScene {
   private realisticShading = false;
 
   // appearance of the intended design: light grey shaded faces, black edges
-  private faceMat = new THREE.MeshPhongMaterial({ color: 0xe8e8ea, specular: 0x222222, shininess: 20, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
+  // the default part look: glossy blue-grey reflecting a studio (studioLook.ts)
+  private faceMat = studioMaterial();
   private occluderMat = new THREE.MeshBasicMaterial({ colorWrite: false, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
   private edgeMat = new THREE.LineBasicMaterial({ color: 0x1a1a1a });
   /** model edges in Shaded With Edges: black, 1.5 px, anti-aliased (RGB 22,20,21) */
@@ -227,12 +230,16 @@ export class BodyScene {
     this.headlight.castShadow = on;
     for (const o of [...this.reflectGroup.children]) {
       this.reflectGroup.remove(o);
-      // the reflection shares the body's geometry; only its cloned material is its own
+      // the reflection shares the body's geometry; only its cloned material is its own (the shadow owns its quad)
+      if (o.name === 'floor-shadow') (o as THREE.Mesh).geometry.dispose();
       const m = (o as THREE.Mesh).material as THREE.Material;
-      if (m && m !== this.faceMat && m !== this.edgeMat) m.dispose();
+      if (m && m !== this.faceMat && m !== this.edgeMat && m !== depthPrepass) m.dispose();
     }
     if (!this.reflectGroup.parent) this.group.add(this.reflectGroup);
-    if ((!on && !opts.reflections) || !bodies.length) return;
+    this.reflectGroup.userData.noAO = this.reflectGroup.userData.afterAO = true;
+    // floor reflections are on unless the scene turns them off, as the reference's default scene
+    const reflections = opts.reflections !== false;
+    if ((!on && !reflections) || !bodies.length) return;
     const box = new THREE.Box3();
     for (const b of bodies) {
       b.geometry.computeBoundingBox();
@@ -243,18 +250,23 @@ export class BodyScene {
     const c = box.getCenter(new THREE.Vector3());
     // Align floor with: the bottom of the model (default) or the Top Plane, plus the offset
     const floorY = (opts.align === 'top' ? 0 : box.min.y - Math.max(0.5, size.y * 0.02)) + (opts.offset ?? 0);
-    if (opts.reflections) {
+    if (reflections) {
+      // the part mirrored in the floor, fading out below it, and a soft shadow round its footprint (floorLook.ts)
       for (const e of this.entries.values()) {
         const m = e.mesh as THREE.Mesh;
         if (!m.visible) continue;
-        const mat = (Array.isArray(m.material) ? m.material[0] : m.material).clone();
-        Object.assign(mat, { transparent: true, opacity: 0.16, depthWrite: false });
-        const r = new THREE.Mesh(m.geometry, mat);
-        r.scale.set(1, -1, 1);
-        r.position.set(0, 2 * floorY, 0);
-        r.renderOrder = -1;
-        this.reflectGroup.add(r);
+        const mat = reflectionMaterial(Array.isArray(m.material) ? m.material[0] : m.material, floorY, size.length() * FLOOR.fade);
+        // first the mirror image's depth alone, then its colour on the nearest surface only (a real mirror shows no
+        // inner faces), both among the see-through objects so they come after the part
+        for (const [k, mt] of [[-3, depthPrepass], [-2, mat]] as [number, THREE.Material][]) {
+          const r = new THREE.Mesh(m.geometry, mt);
+          r.scale.set(1, -1, 1);
+          r.position.set(0, 2 * floorY, 0);
+          r.renderOrder = k;
+          this.reflectGroup.add(r);
+        }
       }
+      this.reflectGroup.add(softShadow(box, floorY));
     }
     if (!on) return;
     this.floor.geometry.dispose();
@@ -325,11 +337,8 @@ export class BodyScene {
       let faceMat: THREE.Material = this.faceMat;
       if (colors[b.id] || shiny.has(b.id)) {
         faceMat = this.faceMat.clone();
-        if (colors[b.id]) (faceMat as THREE.MeshPhongMaterial).color.set(colors[b.id]);
-        if (shiny.has(b.id)) {
-          (faceMat as THREE.MeshPhongMaterial).shininess = 110;
-          (faceMat as THREE.MeshPhongMaterial).specular.set(0x9a9a9a);
-        }
+        if (colors[b.id]) (Object.assign(faceMat, STUDIO.plastic) as THREE.MeshStandardMaterial).color.set(colors[b.id]);
+        if (shiny.has(b.id)) Object.assign(faceMat, { metalness: 0.9, roughness: 0.18 });
       }
       if (look.zebra && style !== 'hiddenRemoved' && style !== 'hiddenVisible' && style !== 'wireframe') faceMat = this.zebra();
       else if (look.realisticShading && style !== 'hiddenRemoved' && style !== 'hiddenVisible') {
@@ -544,24 +553,29 @@ export class BodyScene {
   update(input: BodySceneInput): void {
     // fat lines need the viewport size in pixels
     this.edgeMat2.resolution.copy(SketchScene.resolution);
-    const wanted = new THREE.Color(input.bodyColor ?? '#e8e8ea');
+    const wanted = new THREE.Color(input.bodyColor ?? STUDIO.color);
     if (!this.faceMat.color.equals(wanted)) this.faceMat.color.copy(wanted);
     // Realistic Shading: the environment lights the model; the lamps are turned down
     this.realisticShading = !!input.realisticShading;
     this.ambient.intensity = input.realisticShading ? 0.1 : LIGHTING.ambient;
     this.headlight.intensity = input.realisticShading ? 0.9 : LIGHTING.key.intensity;
     this.fill.intensity = input.realisticShading ? 0 : LIGHTING.fill.intensity;
-    const shin = input.metallic ? 110 : 20;
-    if (this.faceMat.shininess !== shin) {
-      this.faceMat.shininess = shin;
-      this.faceMat.specular.set(input.metallic ? 0x9a9a9a : 0x222222);
+    // metal (a dense material) mirrors more; the studio's settings follow STUDIO (live-tunable for the calibration)
+    const plastic = !!input.bodyColor && !input.metallic;
+    Object.assign(this.faceMat, { metalness: input.metallic ? 0.9 : plastic ? STUDIO.plastic.metalness : STUDIO.metalness, roughness: input.metallic ? 0.18 : plastic ? STUDIO.plastic.roughness : STUDIO.roughness, envMapIntensity: STUDIO.envIntensity });
+    // every studio material follows the current studio (a new renderer or a recalibrated studio makes a new one)
+    const env = studioEnvironment();
+    for (const m of [this.faceMat, ...[...this.entries.values()].map((e) => e.mesh.material as THREE.Material)]) {
+      const sm = m as THREE.MeshStandardMaterial;
+      if (sm.isMeshStandardMaterial && (sm === this.faceMat || sm.envMap) && sm.envMap !== env) { sm.envMap = env; sm.needsUpdate = true; }
     }
+    setStudioView(input.scale * SketchScene.resolution.y);
     const key = (input.hiddenBodies ?? []).join(',') + '|' + JSON.stringify(input.bodyColors ?? {}) + '|' + (input.shinyBodies ?? []).join(',') + '|' + (input.realisticShading ? 'rv' : '') + (input.zebra ? 'zb' : '') + (input.metallic ? 'm' : '') + (input.shadows ? 's' : '') + (input.wooden ? 'w' : '') + (input.bodyColor ?? '') + '|' + (input.woodBodies ?? []).join(',') + '|' + JSON.stringify(input.faceColors ?? {}) + '|' + (input.transparentBodies ?? []).join(',');
     if (input.bodies !== this.lastBodies || input.displayStyle !== this.lastStyle || input.replaceBody !== this.lastReplace || key !== this.lastKey || input.appearanceProps !== this.lastProps) {
       const hidden = new Set(input.hiddenBodies ?? []);
       const visible = input.bodies.filter((b) => !hidden.has(b.id));
       const shown = input.replaceBody && visible.length ? [{ ...visible[0], geometry: input.replaceBody }, ...visible.slice(1)] : visible;
-      this.rebuildBodies(shown, input.displayStyle, input.bodyColors ?? {}, new Set(input.shinyBodies ?? []), { zebra: !!input.zebra, realisticShading: !!input.realisticShading, shadows: !!input.shadows, metallic: !!input.metallic, base: input.bodyColor ?? '#e8e8ea', wood: new Set(input.woodBodies ?? []), wooden: !!input.wooden, faceColors: input.faceColors ?? {}, transparent: new Set(input.transparentBodies ?? []), props: input.appearanceProps });
+      this.rebuildBodies(shown, input.displayStyle, input.bodyColors ?? {}, new Set(input.shinyBodies ?? []), { zebra: !!input.zebra, realisticShading: !!input.realisticShading, shadows: !!input.shadows, metallic: !!input.metallic, base: input.bodyColor ?? STUDIO.color, wood: new Set(input.woodBodies ?? []), wooden: !!input.wooden, faceColors: input.faceColors ?? {}, transparent: new Set(input.transparentBodies ?? []), props: input.appearanceProps });
       this.lastProps = input.appearanceProps;
       this.lastBodies = input.bodies;
       this.lastStyle = input.displayStyle;

@@ -782,3 +782,11 @@ elease; README en docs/04 bijgewerkt
 - [x] Basishandelingen vergelijken (quick-start-video 02, op 1920x1080): rechtsklik op vlak, lijnen, maten, extrude, fillet
 - [x] Verschillen opgelost: rechtsklik vlak = werkbalk + menu; Enter = OK in featurepanelen; uitlijnlijnen + H/V op sluitende lijn; een berichtvak; e2e quickstart.mjs 8/8
 - [x] Regressie, release 0.5.6 (desktop 12/12 + 9/9, geinstalleerd 19/19), push
+
+## Realistischer beeld en duidelijke planes, zoals SOLIDWORKS 2025 (2026-10-28)
+- [x] Planes: paarsblauwe rand, naam op het vlak zelf (leesbaar gedraaid), selectie hemelsblauw met ronde greepjes, hover oranje, geen stippellijnen, nauwelijks vulling
+- [x] Achtergrond: wit met een zachte blauwgrijze band
+- [x] Modelmateriaal: glanzend blauwgrijs met studioreflecties (PBR, eigen studio, virtueel oog voor verloop binnen vlakken); gekleurde onderdelen als kunststof
+- [x] Vloer: vervagende spiegeling (alleen het voorste vlak) en zachte schaduw; spiegeling standaard aan
+- [x] Kalibratie: box 134/186/230 tegen 138/195/240, voorvlak 126 (135), rechts 165 (165); tools calib-studio.mjs, look-planes.mjs
+- [ ] Regressie, release, push

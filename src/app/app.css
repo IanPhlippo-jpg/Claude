@@ -137,13 +137,13 @@
 .k-flyout-body { max-height: 260px; overflow: auto; border: 1px solid var(--border); background: var(--bg-panel); box-shadow: var(--shadow-1); }
 
 /* --- viewport --------------------------------------------------------------------- */
-.k-viewport { position: relative; flex: 1; border: 1px solid var(--border); border-radius: 0; overflow: hidden; outline: none; background: linear-gradient(180deg, var(--bg-viewport) 0%, var(--bg-viewport) 70%, var(--bg-viewport-2) 100%); }
+.k-viewport { position: relative; flex: 1; border: 1px solid var(--border); border-radius: 0; overflow: hidden; outline: none; background: var(--bg-viewport-gradient); }
 .k-viewport.sketching { cursor: crosshair; }
 .k-viewport.tool-select { cursor: default; }
 .k-viewport.picking { cursor: crosshair; }
 .k-viewport-empty { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: var(--text-muted); pointer-events: none; text-align: center; padding: 20px; }
-.k-plane-label { position: absolute; transform: translate(6px, -100%); font-size: 13px; font-style: italic; letter-spacing: 0.04em; font-family: var(--font-ui); color: #5b7fc4; pointer-events: auto; cursor: default; white-space: nowrap; user-select: none; }
-.k-plane-label.hl { color: #e07b00; opacity: 1; }
+/* the visible name lies on the plane itself (planeLook.ts); this box stays as the place a click on the name lands */
+.k-plane-label { position: absolute; transform: translate(6px, -100%); font-size: 13px; letter-spacing: 0.04em; font-family: var(--font-ui); color: transparent; pointer-events: auto; cursor: default; white-space: nowrap; user-select: none; }
 .k-zoom-rect { position: absolute; border: 1px dashed var(--accent); background: rgba(31,111,235,0.08); pointer-events: none; }
 .k-feedback { position: absolute; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; background: var(--sk-relation-bg); border: 1px solid var(--border-strong); border-radius: 3px; color: var(--text); pointer-events: none; }
 
@@ -164,7 +164,7 @@
 .k-viewgrid-sep { grid-column: 1 / -1; height: 1px; background: var(--border); margin: 2px 0; }
 
 /* confirmation corner */
-/* the corner stays faint until the pointer is over it, as in the reference frames */
+/* the corner stays faint until the pointer is over it, by design */
 .k-confirm { position: absolute; top: 4px; right: 4px; display: flex; gap: 0; padding: 0; background: transparent; border: none; z-index: 6; opacity: 0.5; transition: opacity 0.12s; }
 .k-confirm:hover { opacity: 1; }
 .k-confirm.at-cursor { background: var(--bg-panel); border: 1px solid var(--border); box-shadow: var(--shadow-2); opacity: 1; }

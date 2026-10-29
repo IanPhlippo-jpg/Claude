@@ -24,6 +24,8 @@
   --tree-hover-border: #858585;
   --bg-viewport: #fcfcfc;
   --bg-viewport-2: #fcfcfc;
+  /* the graphics area of the default scene, by design: white, a soft blue-grey band around the middle */
+  --bg-viewport-gradient: linear-gradient(180deg, #fdfdfd 0%, #f9f9fb 15%, #ebeef3 27%, #dfe4ea 39%, #dee2eb 50%, #f4f8f9 62%, #fefefe 74%, #fefefe 92%, #f9f9fb 100%);
   /* drawing graphics area: light gradient behind the sheet, by design */
   --bg-sheet-1: #ffffff;
   --bg-sheet-2: #c5c9d5;
@@ -75,6 +77,7 @@
   --tree-hover-border: #8a8a8a;
   --bg-viewport: #303030;
   --bg-viewport-2: #252525;
+  --bg-viewport-gradient: linear-gradient(180deg, var(--bg-viewport) 0%, var(--bg-viewport) 70%, var(--bg-viewport-2) 100%);
   --bg-sheet-1: #3a3a3a;
   --bg-sheet-2: #262626;
   --border: #343a44;
