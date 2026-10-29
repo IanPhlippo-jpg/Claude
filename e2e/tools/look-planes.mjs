@@ -17,4 +17,11 @@ await page.click('.k-tree-row:has-text("Top Plane")');
 await page.mouse.move(1500, 900);
 await page.waitForTimeout(800);
 await page.screenshot({ path: 'e2e-out/look-planes-sel.png' });
+// the pointer over Right Plane in the tree: only that plane shows, in the highlight colour; the others step away
+await page.hover('.k-tree-row:has-text("Right Plane") span:text-is("Right Plane")');
+await page.waitForTimeout(800);
+await page.screenshot({ path: 'e2e-out/look-planes-hover.png' });
+await page.mouse.move(1500, 900);
+await page.waitForTimeout(800);
+await page.screenshot({ path: 'e2e-out/look-planes-after.png' });
 await browser.close();

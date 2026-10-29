@@ -501,11 +501,11 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
   const planesToDraw = useMemo(() => {
     const refIds = Object.values(st.doc.planes).filter((p) => p.kind === 'reference').map((p) => p.id);
     const ids: PlaneId[] = [...REFERENCE_PLANES, ...refIds];
-    if (st.planePick) return ids.map((id) => ({ id, highlight: st.hoverPlane === id, selected: st.selectedPlane === id && st.hoverPlane !== id })); // hover: highlight colour; selected/edited: blue + handles
+    if (st.planePick) return ids.filter((id) => !st.hoverPlane || id === st.hoverPlane).map((id) => ({ id, highlight: st.hoverPlane === id, selected: st.selectedPlane === id && st.hoverPlane !== id })); // a plane under the pointer is shown alone, by design
     const out: { id: PlaneId; highlight: boolean; selected?: boolean }[] = [];
     for (const id of ids) {
       const sel = st.selectedPlane === id || st.planeEdit?.planeId === id, hl = st.hoverPlane === id;
-      if ((st.doc.planeVisibility?.[id] ?? st.show.planes) || hl || sel) out.push({ id, highlight: hl || sel, selected: sel && !hl });
+      if (((st.doc.planeVisibility?.[id] ?? st.show.planes) || hl || sel) && (!st.hoverPlane || hl)) out.push({ id, highlight: hl || sel, selected: sel && !hl }); // hover: highlight colour; selected/edited: blue + handles
     }
     // preview of the plane being defined
     if (st.planeEdit) {

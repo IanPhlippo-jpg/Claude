@@ -790,3 +790,7 @@ elease; README en docs/04 bijgewerkt
 - [x] Vloer: vervagende spiegeling (alleen het voorste vlak) en zachte schaduw; spiegeling standaard aan
 - [x] Kalibratie: box 134/186/230 tegen 138/195/240, voorvlak 126 (135), rechts 165 (165); tools calib-studio.mjs, look-planes.mjs
 - [x] Regressie (96/97 → 97/97 na testaanpassing, B-rep 12/12, worker 6/6), release 0.5.7, push
+
+## Plane onder de muis alleen tonen (2026-10-29)
+- [x] Muis boven een plane (boom of beeld): de andere planes verdwijnen even, zoals SOLIDWORKS; aanwijzen van de andere blijft werken
+- [x] Controle in quickstart.mjs (9/9), release 0.5.8, push

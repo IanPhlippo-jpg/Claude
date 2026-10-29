@@ -20,6 +20,16 @@ await page.reload();
 await page.waitForSelector('.k-viewport');
 await page.click('.k-doctype:has-text("Part")');
 await shot('new-part');
+// planes shown: the pointer over Right Plane in the tree shows that plane alone; leaving it brings the others back
+await page.evaluate(() => window.__phlippoStore.getState().toggleShow('planes'));
+await page.hover('.k-tree-row:has-text("Right Plane") span:text-is("Right Plane")');
+await page.waitForTimeout(400);
+const alone = await page.locator('.k-plane-label').allTextContents();
+await page.mouse.move(1700, 900);
+await page.waitForTimeout(400);
+const all = await page.locator('.k-plane-label').allTextContents();
+check('a plane under the pointer is shown alone, the others come back after', alone.join(',') === 'Right Plane' && all.length === 3, JSON.stringify({ alone, all }));
+await page.evaluate(() => window.__phlippoStore.getState().toggleShow('planes'));
 // 1. right-click Front Plane in the tree: context toolbar, Sketch
 await page.click('.k-tree-row:has-text("Front Plane")', { button: 'right' });
 await shot('front-plane-rmb');
