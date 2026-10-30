@@ -379,8 +379,10 @@ export const sketchSlice = (set: StoreSet, get: StoreGet): Pick<State, SketchKey
   },
   exitSketch() {
     // leaving a sketch rebuilds the features that use it
-    const { doc, rollbackIndex } = get();
-    set({ activeSketchId: null, sketchFocusLocked: false, tab: 'features', tool: 'select', selection: [], selectedConstraint: null, hover: null, modify: null, managerTab: 'tree', rebuild: rebuildFor(doc, rollbackIndex) });
+    const { doc, rollbackIndex, activeSketchId } = get();
+    // the sketch just closed stays selected, so Extruded Boss/Base (or Cut, Revolve…) takes it straight away
+    const closed = doc.features.find((f) => f.type === 'sketch' && f.sketchId === activeSketchId && doc.sketches[f.sketchId]?.entityOrder.length);
+    set({ activeSketchId: null, sketchFocusLocked: false, tab: 'features', tool: 'select', selection: [], selectedConstraint: null, hover: null, modify: null, managerTab: 'tree', rebuild: rebuildFor(doc, rollbackIndex), ...(closed ? { selectedFeatureId: closed.id } : {}) });
   },
   discardSketch() {
     // undo everything back to the moment the sketch was opened is not tracked; discard = delete if empty, else keep

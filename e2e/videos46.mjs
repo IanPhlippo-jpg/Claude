@@ -218,7 +218,7 @@ await S(() => {
   window.__phlippoStore.getState().openDocument(d);
 });
 await page.waitForTimeout(600);
-await page.click('.k-ribbon-tab:has-text("Features")').catch(skip('videos46.mjs:221'));
+await page.click('.k-cm-tab:has-text("Features")');
 await S(() => window.__phlippoStore.getState().startCompositeCurve());
 await page.waitForTimeout(200);
 check('Composite Curve opens its panel (Entities to Join)', (await page.locator('.k-pm-host').innerText()).includes('Entities to Join'));

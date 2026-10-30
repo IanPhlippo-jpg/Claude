@@ -65,7 +65,7 @@ await page.keyboard.press('Control+b');
 await page.waitForTimeout(500);
 s = await st();
 check('Rebuild (Ctrl+B) keeps undo and the unsaved flag', s.dirty && s.canUndo && s.features === 2, JSON.stringify(s));
-check('title shows the unsaved asterisk', (await page.locator('.k-mb-title, .k-titlebar, header').first().innerText().catch(skip('qa1.mjs:68', ''))).includes('*') || (await page.evaluate(() => document.body.innerText.includes('Plaat *'))));
+check('title shows the unsaved asterisk', (await page.locator('.k-title').first().innerText()).includes('*'));
 
 // ---- Save changes? before New (Ctrl+N) and Open; Cancel keeps everything
 await page.keyboard.press('Control+n');

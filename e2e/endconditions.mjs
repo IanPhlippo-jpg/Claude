@@ -102,7 +102,9 @@ await page.waitForTimeout(200);
 const menuText = (await page.locator('.k-ctx').innerText().catch(skip('endconditions.mjs:102', ''))).replace(/\s+/g, ' ');
 check('RMB menu offers Up To Next / Up To Vertex / Up To Surface / Offset From Surface', /Up To Next/.test(menuText) && /Up To Vertex/.test(menuText) && /Up To Surface/.test(menuText) && /Offset From Surface/.test(menuText), menuText.slice(0, 160));
 await page.keyboard.press('Escape');
-await page.click('.k-pm-cancel').catch(skip('endconditions:105'));
+await page.waitForTimeout(150);
+check('Esc with the menu open closes only the menu, the Property Panel stays', (await page.locator('.k-ctx').count()) === 0 && (await page.evaluate(() => !!window.__phlippoStore.getState().featureEdit)));
+await page.click('.k-pm-cancel');
 await page.waitForTimeout(300);
 
 // Up To Vertex: edit the cut to Blind 3, then Up To Vertex on a top corner of the plate (10 high)

@@ -21,7 +21,8 @@ const plate = () => {
 const view = (id: string, type: DrawingView['type'], model = plate()): DrawingView => ({ id, name: id, type, position: [100, 100], displayStyle: 'hiddenRemoved', model, modelName: 'Plaat<1>' });
 
 describe('auto insert center marks on view creation (QA v0.5.1 F122)', () => {
-  it('one mark per hole in the view that looks down the holes, the largest of a counterbore; none in the others', () => {
+  // a heavy view (hidden-line pass): ample time when the whole suite runs in parallel
+  it('one mark per hole in the view that looks down the holes, the largest of a counterbore; none in the others', { timeout: 30000 }, () => {
     let n = 0;
     const id = () => `cm${++n}`;
     const top = autoCenterMarks([view('t', 'top')], [], id);

@@ -120,8 +120,8 @@ await page.waitForTimeout(300);
 check('Linear Sketch Pattern: 3 circles', (await count('circle')) === 3, String(await count('circle')));
 
 // Move Entities: move the first circle by (0, 10)
-await page.click('.k-cm-iconfly:has(.k-cm-small:has-text("Move Entities")) .k-cm-small-arrow').catch(skip('sketchtools:123'));
-await page.click('.k-menu-item:has-text("Move Entities")').catch(() => page.click('.k-cm-small:has-text("Move Entities")'));
+await page.click('.k-cm-smallwrap:has(.k-cm-small:has-text("Move Entities")) .k-cm-small-arrow');
+await page.click('.k-menu-item:has-text("Move Entities")');
 await page.waitForTimeout(100);
 a = await P(7, 40);
 await page.mouse.click(a.x, a.y);

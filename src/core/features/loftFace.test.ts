@@ -59,7 +59,8 @@ describe('Loft to a face of the model', () => {
     expect(r.errors.l1).toMatch(/face of the second profile/);
   });
 
-  it('Tangency To Face: the block walls carry on into the loft (fuller just above the face)', () => {
+  // a heavy rebuild: ample time when the whole suite runs in parallel
+  it('Tangency To Face: the block walls carry on into the loft (fuller just above the face)', { timeout: 30000 }, () => {
     const plain = rebuildDocument(doc({})).bodies[0].geometry;
     const tangent = rebuildDocument(doc({ endType: 'tangent', endNormal: 1 })).bodies[0].geometry;
     const curvature = rebuildDocument(doc({ endType: 'curvature', endNormal: 1 })).bodies[0].geometry;

@@ -1225,7 +1225,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
         st.end3DChain();
         return;
       }
-      if (e.key === 'Escape') {
+      if (e.key === 'Escape') { if (document.querySelector('.k-menu, .k-ctx')) return; // the first Esc only closes an open menu, by design
         if (zoomArea.active) setZoomArea({ active: false });
         if (st.show.viewSelector) st.toggleShow('viewSelector');
         if (st.planePick) st.cancelPlanePick();

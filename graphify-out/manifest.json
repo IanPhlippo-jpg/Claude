@@ -138,9 +138,9 @@
     "semantic_hash": ""
   },
   "e2e/endconditions.mjs": {
-    "mtime": 1793303554.9986913,
-    "seen": 1793307442.5328856,
-    "ast_hash": "c419892a138c8f2acaac5b1c475ea633",
+    "mtime": 1793393648.4527874,
+    "seen": 1793396914.3083897,
+    "ast_hash": "073e94169b907f2a543f697b2271e57d",
     "semantic_hash": ""
   },
   "e2e/explode.mjs": {
@@ -258,9 +258,9 @@
     "semantic_hash": ""
   },
   "e2e/sketchtools.mjs": {
-    "mtime": 1793072644.4573503,
-    "seen": 1793074986.355186,
-    "ast_hash": "48444ede73c169f413f4a5620ee6c2a5",
+    "mtime": 1793393654.4807787,
+    "seen": 1793396914.3083897,
+    "ast_hash": "00fc186c60ae213f1612d2687884dfb0",
     "semantic_hash": ""
   },
   "e2e/sketchtools2.mjs": {
@@ -336,9 +336,9 @@
     "semantic_hash": ""
   },
   "package.json": {
-    "mtime": 1793307417.3611333,
-    "seen": 1793307442.5328856,
-    "ast_hash": "26902b03a0a626fd1c8564203bc9c529",
+    "mtime": 1793396889.243189,
+    "seen": 1793396914.3083897,
+    "ast_hash": "447290269189d2cda3c6c3712e8036e9",
     "semantic_hash": ""
   },
   "src/app/App.tsx": {
@@ -606,9 +606,9 @@
     "semantic_hash": ""
   },
   "src/app/viewport/Viewport.tsx": {
-    "mtime": 1793302885.1163142,
-    "seen": 1793307442.5328856,
-    "ast_hash": "d517750c989b286faa1185ff3aeea428",
+    "mtime": 1793393615.6344287,
+    "seen": 1793396914.3083897,
+    "ast_hash": "8302d514e03cb51e4f8505b4d71687b7",
     "semantic_hash": ""
   },
   "src/app/viewport/annotations.ts": {
@@ -1272,9 +1272,9 @@
     "semantic_hash": ""
   },
   "TASKS.md": {
-    "mtime": 1793307417.3601482,
-    "seen": 1793307442.5338867,
-    "ast_hash": "3def7b7cbb33a9bca2e01b2464a65bff",
+    "mtime": 1793396889.249196,
+    "seen": 1793396914.309391,
+    "ast_hash": "676a67ab1d137730815cd8353eca6a38",
     "semantic_hash": ""
   },
   "docs/01-research.md": {
@@ -1902,9 +1902,9 @@
     "semantic_hash": ""
   },
   "e2e/qa1.mjs": {
-    "mtime": 1793184088.33368,
-    "seen": 1793184312.7294633,
-    "ast_hash": "3cfe43a122093633c7e407e794772738",
+    "mtime": 1793393648.455795,
+    "seen": 1793396914.3083897,
+    "ast_hash": "a8856cc29fac273de95a0ce921c214bf",
     "semantic_hash": ""
   },
   "e2e/qa2.mjs": {
@@ -2166,9 +2166,9 @@
     "semantic_hash": ""
   },
   "e2e/run-regression.mjs": {
-    "mtime": 1793196271.259991,
-    "seen": 1793196616.4161248,
-    "ast_hash": "c398d9f504c23f6a005bf24127c961cf",
+    "mtime": 1793390993.2025871,
+    "seen": 1793396914.3083897,
+    "ast_hash": "0fc9c309865bbd74c77c837230c8ae77",
     "semantic_hash": ""
   },
   "src/app/legal.ts": {
@@ -2568,9 +2568,9 @@
     "semantic_hash": ""
   },
   "src/app/slices/sketch.ts": {
-    "mtime": 1793126280.217513,
-    "seen": 1793129676.598395,
-    "ast_hash": "f532289661a95446448f151598bcac1b",
+    "mtime": 1793390819.7473092,
+    "seen": 1793396914.3083897,
+    "ast_hash": "78b12a320c897f98d3c1687a2e3b873a",
     "semantic_hash": ""
   },
   "src/app/slices/tolerancing.ts": {
@@ -3162,9 +3162,9 @@
     "semantic_hash": ""
   },
   "src/core/features/loftFace.test.ts": {
-    "mtime": 1793107810.498819,
-    "seen": 1793108920.3348224,
-    "ast_hash": "cf7689a91f8de66bb144fb3e627511d7",
+    "mtime": 1793394084.9226575,
+    "seen": 1793396914.309391,
+    "ast_hash": "9379f12e63ef83098eef035597cf3332",
     "semantic_hash": ""
   },
   "src/core/features/rebuildWire.test.ts": {
@@ -3210,9 +3210,9 @@
     "semantic_hash": ""
   },
   "e2e/videos46.mjs": {
-    "mtime": 1793184088.347129,
-    "seen": 1793184312.7294633,
-    "ast_hash": "370a5ab709bf78720a8b637a7bf985a0",
+    "mtime": 1793393648.454797,
+    "seen": 1793396914.3083897,
+    "ast_hash": "ab1eb168b518bccc68fdd266eec08c46",
     "semantic_hash": ""
   },
   "e2e/videos56.mjs": {
@@ -3420,9 +3420,9 @@
     "semantic_hash": ""
   },
   "src/core/drawing/autoMarks.test.ts": {
-    "mtime": 1793138493.010145,
-    "seen": 1793139135.343581,
-    "ast_hash": "1ae12ff74bab279bd66f002171e3337a",
+    "mtime": 1793394084.879096,
+    "seen": 1793396914.309391,
+    "ast_hash": "7a3b36845dc83497ce168b690e5f8c3f",
     "semantic_hash": ""
   },
   "src/core/drawing/autoMarks.ts": {
@@ -3717,6 +3717,30 @@
     "mtime": 1793293392.009231,
     "seen": 1793307442.5338867,
     "ast_hash": "8ac34fff502b4dccfe34aa85deea2238",
+    "semantic_hash": ""
+  },
+  "e2e/round2.mjs": {
+    "mtime": 1793390932.9567964,
+    "seen": 1793396914.3083897,
+    "ast_hash": "723acd3212f97b4717030d4b875130db",
+    "semantic_hash": ""
+  },
+  "e2e/tools/explore-round2.mjs": {
+    "mtime": 1793390747.747324,
+    "seen": 1793396914.3083897,
+    "ast_hash": "87b4596a163dd4ba901380552d8cd41d",
+    "semantic_hash": ""
+  },
+  "docs/27-testronde-0.5.10.md": {
+    "mtime": 1793394225.2903116,
+    "seen": 1793396914.309391,
+    "ast_hash": "18032744d2b6aa43b54a9330fb2cd423",
+    "semantic_hash": ""
+  },
+  "docs/screenshots/deurkruk-0.5.9.png": {
+    "mtime": 1793307704.0524507,
+    "seen": 1793396914.309391,
+    "ast_hash": "d1b474b841a0e35c8ef5243a2cb25753",
     "semantic_hash": ""
   }
 }

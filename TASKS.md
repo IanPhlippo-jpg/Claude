@@ -805,3 +805,10 @@ elease; README en docs/04 bijgewerkt
 - [x] Menu's en rechtsklikmenu's: teksten, volgorde, pictogrammen
 - [x] Bevindingen vastleggen (docs/26), oplossen per gebied, voor/na-beelden
 - [x] Regressie (97/97, B-rep 12/12, worker 6/6), release 0.5.9 geïnstalleerd (19/19), push
+
+## Testronde op fouten na 0.5.9 (2026-10-30)
+- [x] Alle suites: typecheck, unit (454, 2 wankele time-outs opgelost), browserregressie 98/98, B-rep 12/12, worker 6/6, CI-checks; 4 van de 10 overgeslagen stappen waren verborgen problemen
+- [x] Verkennend testen van de 0.5.9-wijzigingen op Ians scherm (1280x672 @1.5), donker thema, tekening, assembly, gesplitst beeld, ingeklapt lint
+- [x] Console-fouten en waarschuwingen nalopen (geen)
+- [x] Gevonden fouten oplossen met een test per fout (e2e/round2.mjs: Exit Sketch houdt de schets geselecteerd, donker thema tabrij/pictogrammen)
+- [ ] Regressie, release, push
