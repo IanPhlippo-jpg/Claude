@@ -811,4 +811,4 @@ elease; README en docs/04 bijgewerkt
 - [x] Verkennend testen van de 0.5.9-wijzigingen op Ians scherm (1280x672 @1.5), donker thema, tekening, assembly, gesplitst beeld, ingeklapt lint
 - [x] Console-fouten en waarschuwingen nalopen (geen)
 - [x] Gevonden fouten oplossen met een test per fout (e2e/round2.mjs: Exit Sketch houdt de schets geselecteerd, donker thema tabrij/pictogrammen)
-- [ ] Regressie, release, push
+- [x] Regressie, release 0.5.10 geïnstalleerd (19/19), push
