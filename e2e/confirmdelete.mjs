@@ -60,7 +60,8 @@ await page.waitForTimeout(600);
 
 // Escape and No keep everything
 await page.evaluate(() => { const s = window.__phlippoStore.getState(); s.requestDeleteFeature(s.doc.features.find((f) => f.name === 'Sketch1').id); });
-await page.waitForTimeout(400);
+await page.waitForFunction(() => { const cd = window.__phlippoStore.getState().confirmDelete; return !!cd && !cd.checking; }, undefined, { timeout: 30000 }).catch(() => undefined);
+await page.waitForTimeout(200);
 const deps2 = await page.evaluate(() => document.querySelector('[data-testid="cdel-children"]')?.textContent);
 check('deleting Sketch1 lists Boss-Extrude1 and Fillet1 as dependent items', /Boss-Extrude1/.test(deps2 ?? '') && /Fillet1/.test(deps2 ?? ''), deps2);
 await page.keyboard.press('Escape');

@@ -106,7 +106,8 @@ await page.evaluate(() => window.__phlippoStore.getState().cancelFeature());
 // Split Line with Sketch4 (a circle) and Projected Curve
 const faces0 = (await S()).faces;
 await page.evaluate(() => { const s = window.__phlippoStore.getState(); s.setSelectedFeature('k4'); s.startCurveFeature('splitLine'); s.commitFeature(); });
-await page.waitForTimeout(1500);
+await page.waitForFunction((n) => { const s = window.__phlippoStore.getState(); return !s.rebuild.pending && s.rebuild.bodies.reduce((a, b) => a + b.faces.length, 0) > n; }, faces0, { timeout: 30000 }).catch(() => undefined);
+await waitSettled(page);
 st = await S();
 check('Split Line splits the faces it crosses', st.feats.some((f) => f.type === 'splitLine') && st.faces > faces0 && !Object.keys(st.errors).length, JSON.stringify({ faces0, faces: st.faces, e: st.errors }));
 await page.evaluate(() => { const s = window.__phlippoStore.getState(); s.startCurveFeature('projectedCurve'); s.updateFeatureDraft({ sketchId: 'sk3' }); s.commitFeature(); });

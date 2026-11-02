@@ -167,8 +167,13 @@ await page.keyboard.press('Escape');
 // runner (software GL) 200 ms was not always enough (F10).
 const waitState = (fn, arg, ms = 8000) => page.waitForFunction(fn, arg, { timeout: ms }).then(() => true, () => false);
 await waitState(() => !window.__phlippoStore.getState().drawingEdit);
-await page.click('.k-cm-big:has-text("Smart Dimension") .k-cm-main');
-await waitState(() => window.__phlippoStore.getState().drawingEdit?.mode === 'dimension');
+// the tool click can be lost while the sheet still settles (Linux CI: drawingEdit stayed null): click until the mode is on
+let dimMode = false;
+for (let k = 0; k < 4 && !dimMode; k++) {
+  await page.click('.k-cm-big:has-text("Smart Dimension") .k-cm-main');
+  dimMode = await waitState(() => window.__phlippoStore.getState().drawingEdit?.mode === 'dimension', undefined, 4000);
+}
+check('Smart Dimension is on for the hole', dimMode);
 const topView = d.sheet.views.find((v) => v.type === 'top' || v.type === 'bottom');
 // the hole as the view draws it (sheet coordinates), so the click lands on the drawn circle on every platform (F10)
 const topId = await page.evaluate(() => window.__phlippoStore.getState().doc.sheets[0].views.find((v) => v.type === 'top' || v.type === 'bottom').id);
@@ -183,6 +188,7 @@ const D45 = Math.SQRT1_2;
 const circlePt = await px(hole ? [hole.c[0] + hole.r * D45, hole.c[1] + hole.r * D45] : [topView.position[0] + 17.5 * D45, topView.position[1] + 17.5 * D45]);
 // what lies under the click, for the report when the pick fails
 const under = await page.evaluate((q) => { const e = document.elementFromPoint(q.x, q.y); return e ? `${e.tagName.toLowerCase()}.${String(e.getAttribute('class') ?? '').slice(0, 40)}` : null; }, circlePt);
+if (!(await page.evaluate(() => window.__phlippoStore.getState().drawingEdit?.mode === 'dimension'))) await page.click('.k-cm-big:has-text("Smart Dimension") .k-cm-main');
 await page.mouse.move(circlePt.x, circlePt.y);
 await page.waitForTimeout(100);
 await page.mouse.click(circlePt.x, circlePt.y);

@@ -475,10 +475,12 @@ const rotBefore = await page.evaluate(() => window.__phlippoCamera ? window.__ph
 await page.mouse.click(960, 540);
 await page.keyboard.press('ArrowLeft');
 await page.waitForTimeout(500);
-const rotAfter = await page.evaluate(() => window.__phlippoCamera ? window.__phlippoCamera.rotation.toArray() : null);
+const degBetween = (a, b) => { const dot = Math.abs(a[0] * b[0] + a[1] * b[1] + a[2] * b[2] + a[3] * b[3]); return (2 * Math.acos(Math.min(1, dot)) * 180) / Math.PI; };
+let rotAfter = await page.evaluate(() => window.__phlippoCamera ? window.__phlippoCamera.rotation.toArray() : null);
+// the turn takes a few frames; a slow runner (software GL) draws them late
+for (let k = 0; k < 20 && rotBefore && rotAfter && Math.abs(degBetween(rotBefore, rotAfter) - 30) >= 1; k++) { await page.waitForTimeout(250); rotAfter = await page.evaluate(() => window.__phlippoCamera ? window.__phlippoCamera.rotation.toArray() : null); }
 if (rotBefore && rotAfter) {
-  const dot = Math.abs(rotBefore[0] * rotAfter[0] + rotBefore[1] * rotAfter[1] + rotBefore[2] * rotAfter[2] + rotBefore[3] * rotAfter[3]);
-  const deg = (2 * Math.acos(Math.min(1, dot)) * 180) / Math.PI;
+  const deg = degBetween(rotBefore, rotAfter);
   check('arrow key rotates by the configured 30 degrees', Math.abs(deg - 30) < 1, deg.toFixed(1));
 }
 // reset the options for the following checks
