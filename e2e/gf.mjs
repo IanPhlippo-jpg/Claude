@@ -83,7 +83,7 @@ await page.locator('[data-testid="symmetry-dialog"] .k-btn:has-text("Close")').c
 await page.click('.k-cm-small:has-text("Deviation Analysis")');
 await page.waitForTimeout(400);
 check('Deviation Analysis PM opens and asks for edges', (await page.locator('[data-testid="deviation-pm"]').count()) === 1);
-// the edges are picked while the PM is open (opening an analysis clears the selection, as the original)
+// the edges are picked while the PM is open (opening an analysis clears the selection, by design)
 await S(() => { const s = window.__phlippoStore.getState(); const b = s.rebuild.bodies[0]; s.toggleSelectedEdge(b.edges[0].id); s.toggleSelectedEdge(b.edges[1].id, true); });
 await page.waitForTimeout(400);
 check('Deviation Analysis PM lists the edges and 90 degree deviations', (await page.locator('[data-testid="deviation-edges"] .k-selbox-row').count()) === 2 && /Maximum deviation: 90\.00/.test(await text('[data-testid="deviation-result"]')), await text('[data-testid="deviation-result"]'));

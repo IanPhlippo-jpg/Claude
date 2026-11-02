@@ -1,6 +1,6 @@
-// Block E: Move with Triad (drag an arrow, turn a ring) and the light cyan faces of a selected mate (fr. 365/372).
+// Block E: Move with Triad (drag an arrow, turn a ring) and the light cyan faces of a selected mate.
 import { chromium } from 'playwright';
-import { exitCode, skip } from './lib/check.mjs';
+import { exitCode } from './lib/check.mjs';
 import { mkdirSync, readFileSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -28,7 +28,7 @@ await S(({ rozet, pin }) => {
   window.__phlippoStore.getState().openDocument(d);
 }, { rozet, pin });
 await page.waitForTimeout(1200);
-await page.click('.k-cm-tab:has-text("Assembly")').catch(skip('triad:31'));
+await page.click('.k-cm-tab:has-text("Assembly")');
 await page.click('.k-tree-row:has-text("Vierkantstift<1>")', { button: 'right' });
 await page.click('.k-menu-item:has-text("Move with Triad")');
 await page.waitForTimeout(300);

@@ -79,10 +79,10 @@ check('a face shows "Area: 4800mm^2   Perimeter: 280mm"', /Area: 4800mm\^2\s+Per
 await S(() => window.__phlippoStore.getState().setSelectedFace(null));
 
 // ---- the tree context toolbar of a sketch: Show/Hide, Zoom to Selection, Normal To
-await page.locator('.k-tree-row:has-text("Boss-Extrude1") .caret').first().click().catch(skip('videos56.mjs:82'));
+await page.locator('.k-tree-row:has-text("Boss-Extrude1") .caret').first().click();
 await page.waitForTimeout(200);
 await page.locator('.k-tree-row:has-text("Sketch1")').first().click();
-await page.waitForTimeout(700);
+await page.locator('[data-testid="ctx-show"]').waitFor({ timeout: 6000 }).catch(() => undefined);
 check('a sketch in the tree: context toolbar Show, Zoom to Selection, Normal To (no Edit Sketch)', (await page.locator('[data-testid="ctx-show"]').count()) === 1 && (await page.locator('[data-testid="ctx-zoom-selection"]').count()) === 1 && (await page.locator('[data-testid="ctx-normal-to"]').count()) === 1 && (await page.locator('[data-testid="ctx-edit-sketch"]').count()) === 0);
 check('the used sketch offers "Show"', (await page.locator('[data-testid="ctx-show"]').getAttribute('data-tip')) === 'Show');
 await page.screenshot({ path: `${OUT}/videos56-ctxbar.png` });
@@ -141,7 +141,7 @@ await S(() => window.__phlippoStore.getState().cancelFeature());
 // ---- the mass sensor: 9 significant digits
 await S(() => window.__phlippoStore.getState().addSensor?.('mass'));
 await page.waitForTimeout(400);
-await page.locator('.k-tree-row:has-text("Sensors") .caret').first().click().catch(skip('videos56.mjs:144'));
+await page.locator('.k-tree-row:has-text("Sensors") .caret').first().click();
 await page.waitForTimeout(200);
 const tree = await page.locator('.k-tree').first().innerText();
 const m = /Mass1\((\d+)\.(\d+) g\)/.exec(tree);

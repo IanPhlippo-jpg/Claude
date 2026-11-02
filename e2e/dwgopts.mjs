@@ -1,5 +1,5 @@
 // Drawing options (Block D): Model View preview / import annotations / auto-start projected / draft quality,
-import { exitCode, skip } from './lib/check.mjs';
+import { exitCode } from './lib/check.mjs';
 // Projected View arrow and parent scale, Detail circle styles and Profile, Note leader / border / alignment,
 // Balloon shape, Break line style, Auxiliary arrow, Sheet Properties next view label, custom sheet size.
 import { chromium } from 'playwright';
@@ -46,7 +46,7 @@ await page.click('[data-testid="mv-autoprojected"]');
 await page.evaluate((m) => window.__phlippoStore.getState().setModelViewSource(m), part);
 await page.waitForTimeout(300);
 await page.click('[data-testid="mv-preview"]');
-await page.click('.k-section-title:has-text("Import Options")').catch(skip('dwgopts:49'));
+await page.click('.k-section-title:has-text("Import Options")');
 await page.click('[data-testid="mv-import"]');
 const host = await page.locator('.k-sheet-host').boundingBox();
 await page.mouse.move(host.x + host.width * 0.3, host.y + host.height * 0.4);
@@ -94,7 +94,7 @@ await page.waitForTimeout(200);
 await page.fill('.k-pm textarea', 'BREAK SHARP EDGES');
 await page.click('[data-testid="note-leader"]');
 await page.click('[data-testid="note-align-center"]');
-await page.click('.k-section-title:has-text("Border")').catch(skip('dwgopts:97'));
+await page.click('.k-section-title:has-text("Border")');
 await page.selectOption('[data-testid="note-border"]', 'box');
 await page.evaluate(() => { const s = window.__phlippoStore.getState(); s.placeNote([120, 150]); s.placeNote([170, 60]); });
 await page.waitForTimeout(400);

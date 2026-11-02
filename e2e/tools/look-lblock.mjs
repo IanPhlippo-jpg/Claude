@@ -1,5 +1,5 @@
 // look-dev: the L-block of the beginners' reference part (65 x 62, 30 and 15 thick, 30 deep) in the current design,
-// isometric, at 1280 x 720 like the reference frames -> e2e-out/look-lblock.png, -sel.png (a face selected).
+// isometric, at 1280 x 720 like the calibration frames -> e2e-out/look-lblock.png, -sel.png (a face selected).
 // Prints the grey levels of the top, front and right faces and of the background.
 import { chromium } from 'playwright';
 const browser = await chromium.launch(process.platform === 'win32' ? { channel: process.env.PW_CHANNEL ?? 'msedge' } : { ...(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {}), args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });

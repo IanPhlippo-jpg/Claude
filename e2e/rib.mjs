@@ -1,6 +1,6 @@
-// Rib (video 10): a line on the Front plane above a plate grows into a wall down to the plate.
+// Rib: a line on the Front plane above a plate grows into a wall down to the plate.
 import { chromium } from 'playwright';
-import { exitCode } from './lib/check.mjs';
+import { exitCode, waitSettled } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -13,7 +13,7 @@ const check = (name, ok, info = '') => { results.push({ name, ok: !!ok, info });
 page.on('pageerror', (e) => errors.push('pageerror: ' + e.message));
 page.on('console', (m) => { if (m.type() === 'error') errors.push('console: ' + m.text()); });
 const shot = (n) => page.screenshot({ path: `${OUT}/${n}.png` });
-const volume = () => page.evaluate(() => { const b = window.__phlippoStore.getState().rebuild.bodies[0]; if (!b) return 0; const p = b.geometry.attributes.position.array; let v = 0; for (let i = 0; i < p.length; i += 9) { const ax = p[i], ay = p[i + 1], az = p[i + 2], bx = p[i + 3], by = p[i + 4], bz = p[i + 5], cx = p[i + 6], cy = p[i + 7], cz = p[i + 8]; v += (ax * (by * cz - bz * cy) - ay * (bx * cz - bz * cx) + az * (bx * cy - by * cx)) / 6; } return Math.abs(v); });
+const volume = async () => { await waitSettled(page); return page.evaluate(() => { const b = window.__phlippoStore.getState().rebuild.bodies[0]; if (!b) return 0; const p = b.geometry.attributes.position.array; let v = 0; for (let i = 0; i < p.length; i += 9) { const ax = p[i], ay = p[i + 1], az = p[i + 2], bx = p[i + 3], by = p[i + 4], bz = p[i + 5], cx = p[i + 6], cy = p[i + 7], cz = p[i + 8]; v += (ax * (by * cz - bz * cy) - ay * (bx * cz - bz * cx) + az * (bx * cy - by * cx)) / 6; } return Math.abs(v); }); };
 const bbox = () => page.evaluate(() => { const b = window.__phlippoStore.getState().rebuild.bodies[0]; b.geometry.computeBoundingBox(); const bb = b.geometry.boundingBox; return { min: [bb.min.x, bb.min.y, bb.min.z], max: [bb.max.x, bb.max.y, bb.max.z] }; });
 
 const expandTree = async () => { for (let k = 0; k < 8; k++) { const n = await page.evaluate(() => { const c = [...document.querySelectorAll('.k-tree-row .caret[data-open="false"]')]; c.forEach((x) => x.click()); return c.length; }); if (!n) break; await page.waitForTimeout(80); } };
@@ -40,7 +40,7 @@ await page.waitForTimeout(400);
 await page.locator('.k-pm-valuerow input.k-num').first().fill('10');
 await page.locator('.k-pm-valuerow input.k-num').first().press('Tab');
 await page.waitForTimeout(300);
-// Draft On/Off (video 29): the walls taper inward by 5 degrees
+// Draft On/Off: the walls taper inward by 5 degrees
 await page.click('.k-pm-stylebtn[data-tip="Draft On/Off"]');
 await page.waitForTimeout(200);
 await page.locator('.k-pm-valuerow input.k-num').nth(1).fill('5');

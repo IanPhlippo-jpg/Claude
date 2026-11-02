@@ -1,3 +1,5 @@
+> **Intern werkdocument, niet voor publicatie.** Dit verslag legt een vergelijking met de beelden van het referentieprogramma vast en noemt dat programma bij naam; het hoort niet in een publieke release, website of handleiding (QA 0.5.10 F163). De merk- en neutral-comments-checks scannen alleen code (src/, electron/, e2e/), niet docs/.
+
 # 26 — Strenge zelfcontrole 1-op-1 (2026-10-29)
 
 Referentie: de hoofdvideo (SOLIDWORKS Design 2026, 1920x1080, `referentie-video/frames`), aangevuld met video 01 (2025),

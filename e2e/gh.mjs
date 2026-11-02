@@ -1,7 +1,7 @@
-// Block G-H (Weldments): the Weldments tab, Weldment, Structural Member (profile library, corner treatment), the cut list
+// Block G-H (Frames): the Frames tab, Frame, Structural Member (profile library, corner treatment), the cut list
 // (Cut-List-Items, Properties dialog), End Cap, Gusset, Weld Bead (Weld Folder), Trim/Extend.
 import { chromium } from 'playwright';
-import { exitCode, skip } from './lib/check.mjs';
+import { exitCode } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -44,13 +44,13 @@ await S(() => {
 });
 await page.waitForTimeout(500);
 
-// ---- the Weldments tab and the Weldment feature
-check('Command Ribbon has a Weldments tab', (await page.locator('.k-cm-tab:has-text("Weldments")').count()) === 1);
-await page.click('.k-cm-tab:has-text("Weldments")');
-for (const l of ['Weldment', 'Structural Member', 'Trim/Extend', 'End Cap', 'Gusset', 'Weld Bead', 'Cut List', '3D Sketch']) check(`Weldments tab has ${l}`, (await page.locator(`.k-cm-group :text-is("${l}")`).count()) >= 1);
-await page.click('.k-cm-big:has-text("Weldment") .k-cm-main');
+// ---- the Frames tab and the Frame feature
+check('Command Ribbon has a Frames tab', (await page.locator('.k-cm-tab:has-text("Frames")').count()) === 1);
+await page.click('.k-cm-tab:has-text("Frames")');
+for (const l of ['Frame', 'Structural Member', 'Trim/Extend', 'End Cap', 'Gusset', 'Weld Bead', 'Cut List', '3D Sketch']) check(`Frames tab has ${l}`, (await page.locator(`.k-cm-group :text-is("${l}")`).count()) >= 1);
+await page.click('.k-cm-big:has-text("Frame") .k-cm-main');
 await page.waitForTimeout(300);
-check('Weldment: the document is a weldment with a Weldment tree item', (await S(() => !!window.__phlippoStore.getState().doc.weldment)) && (await page.locator('.k-tree-row[data-id="weldment"]').count()) === 1 && (await names()).includes('Weldment'));
+check('Frame: the document is a frame part with a Frame tree item', (await S(() => !!window.__phlippoStore.getState().doc.weldment)) && (await page.locator('.k-tree-row[data-id="weldment"]').count()) === 1 && (await names()).includes('Frame'));
 await shot('gh0-weldments-tab');
 
 // ---- Structural Member: ISO square tube 40 x 40 x 4 along the L, end miter
@@ -70,7 +70,7 @@ const area = 40 * 40 - 32 * 32;
 const v1 = await vol();
 check('Structural Member1: two mitered tubes, volume = area × (300 + 200)', Math.abs(v1 - area * 500) < area * 500 * 0.03 && (await nBodies()) === 2 && !Object.keys(await errs()).length, `${v1.toFixed(0)} vs ${area * 500} ${JSON.stringify(await errs())}`);
 check('tree: Cut list(2) with two Cut-List-Items (different lengths)', (await page.locator('.k-tree-row:has-text("Cut list(2)")').count()) === 1);
-await page.locator('.k-tree-row[data-id="bodies"] .caret').click().catch(skip('gh:73'));
+await page.locator('.k-tree-row[data-id="bodies"] .caret').click();
 await page.waitForTimeout(200);
 check('Cut-List-Item1 and Cut-List-Item2 folders', (await page.locator('.k-tree-row[data-id^="cutitem:"]').count()) === 2);
 await page.keyboard.press('f');
@@ -78,7 +78,7 @@ await page.waitForTimeout(300);
 await shot('gh2-members');
 
 // ---- End Cap on the free end of the horizontal member (x = 0, normal -x)
-await page.click('.k-cm-tab:has-text("Weldments")');
+await page.click('.k-cm-tab:has-text("Frames")');
 await page.click('.k-cm-small:has-text("End Cap")');
 await page.waitForTimeout(300);
 check('End Cap PM: Parameters, Offset (thickness ratio), Corner Treatment', (await page.locator('[data-testid="ec-faces"]').count()) === 1 && (await page.locator('[data-testid="ec-ratio"]').isChecked()));
@@ -95,7 +95,7 @@ const v2 = await vol();
 check('End Cap1: a plate of 36 x 36 x 5 as a new body', Math.abs(v2 - v1 - 36 * 36 * 5) < 200 && (await nBodies()) === 3 && !Object.keys(await errs()).length, `${(v2 - v1).toFixed(0)} ${JSON.stringify(await errs())}`);
 
 // ---- Gusset between the top of the horizontal member and the inner face of the vertical one
-await page.click('.k-cm-tab:has-text("Weldments")');
+await page.click('.k-cm-tab:has-text("Frames")');
 await page.click('.k-cm-small:has-text("Gusset")');
 await page.waitForTimeout(300);
 check('Gusset PM: Supporting Faces, Profile (triangular/polygonal, d1 d2 thickness), Parameters', (await page.locator('[data-testid="wg-faces"]').count()) === 1 && (await page.locator('[data-testid="wg-poly"]').count()) === 1);
@@ -110,7 +110,7 @@ const v3 = await vol();
 check('Gusset1: a 30 x 30 x 5 triangular plate', Math.abs(v3 - v2 - 0.5 * 30 * 30 * 5) < 60 && (await nBodies()) === 4 && !Object.keys(await errs()).length, `${(v3 - v2).toFixed(0)} ${JSON.stringify(await errs())}`);
 
 // ---- Weld Bead along the same corner (its own body in the Weld Folder, not in the cut list)
-await page.click('.k-cm-tab:has-text("Weldments")');
+await page.click('.k-cm-tab:has-text("Frames")');
 await page.click('.k-cm-small:has-text("Weld Bead")');
 await page.waitForTimeout(300);
 await pickFace('f.normal[1] > 0.99 && Math.abs(f.centroid[1] - 20) < 0.5 && f.centroid[0] < 250');
@@ -128,7 +128,7 @@ await page.waitForTimeout(300);
 await shot('gh6-frame');
 
 // ---- Cut list properties
-await page.click('.k-cm-tab:has-text("Weldments")');
+await page.click('.k-cm-tab:has-text("Frames")');
 await page.click('.k-cm-small:has-text("Cut List")');
 await page.waitForTimeout(400);
 const rows = await page.locator('[data-testid="cutlist-table"] tbody tr').count();
@@ -147,7 +147,7 @@ await S(() => {
   d.sketches = { p2: sk };
   d.weldment = true;
   d.features = [
-    { id: 'w', type: 'weldment', name: 'Weldment', suppressed: false },
+    { id: 'w', type: 'weldment', name: 'Frame', suppressed: false },
     { id: 'k1', type: 'sketch', name: 'Path', sketchId: 'p2', suppressed: false },
     { id: 'm1', type: 'structuralMember', name: 'Structural Member1', suppressed: false, sketchId: 'p2', standard: 'iso', profileType: 'square tube', size: '40 x 40 x 4', corner: 'none', gap: 0, rotation: 0 },
   ];
@@ -156,7 +156,7 @@ await S(() => {
 await page.waitForTimeout(900);
 check('T frame: two crossing members', (await nBodies()) === 2);
 const vT0 = await vol();
-await page.click('.k-cm-tab:has-text("Weldments")');
+await page.click('.k-cm-tab:has-text("Frames")');
 await page.click('.k-cm-small:has-text("Trim/Extend")');
 await page.waitForTimeout(300);
 check('Trim/Extend PM: Corner Type, Bodies to be Trimmed, Trimming Boundary (Face/Plane | Bodies)', (await page.locator('[data-testid="te-bodies"]').count()) === 1 && (await page.locator('[data-testid="te-bybodies"]').isChecked()));

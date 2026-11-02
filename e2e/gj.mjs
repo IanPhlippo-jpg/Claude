@@ -62,7 +62,7 @@ check('status bar: Distance with dX dY dZ for two points', /Distance: .*dX: .*dY
 await page.click('.k-cm-tab:has-text("Sketch")');
 await page.click('.k-cm-iconbtn[data-tip="Line (L)"]');
 await page.waitForTimeout(200);
-check('Insert Line PM has the Message box of the original', (await page.locator('[data-testid="line-message"]').innerText()) === 'Edit the settings of the next new line or sketch a new line.');
+check('Insert Line PM has the Message box of the intended design', (await page.locator('[data-testid="line-message"]').innerText()) === 'Edit the settings of the next new line or sketch a new line.');
 await page.keyboard.press('Escape');
 await shot('gj0-line-properties');
 // Display/Delete Relations: filters, Delete All, Entities

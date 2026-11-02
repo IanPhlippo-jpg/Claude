@@ -1,6 +1,6 @@
 // Full functional check: every tool and command, reporting pass/fail per step.
 import { chromium } from 'playwright';
-import { exitCode, skip } from './lib/check.mjs';
+import { exitCode, skip, dontSave } from './lib/check.mjs';
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 const browser = await chromium.launch(process.platform === 'win32' ? { channel: process.env.PW_CHANNEL ?? 'msedge' } : { ...(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {}), args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
 const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, acceptDownloads: true });
@@ -236,7 +236,7 @@ await page.waitForTimeout(200);
 check('library import adds a library', (await S()).libraries.length === 2);
 await page.reload();
 await page.waitForSelector('.k-viewport');
-await page.locator('[data-testid="welcome-recent-0"]').click({ timeout: 4000 }).catch(skip('full:238')); // the autosave waits under Recent Documents, as the original
+await page.locator('[data-testid="welcome-recent-0"]').click({ timeout: 10000 }); // the autosave waits under Recent Documents, by design
 await page.click('.k-taskpane-btn[data-tip="Part Library"]');
 check('libraries persist after reload', (await S()).libraries.length === 2);
 await page.click('.k-taskpane-panel .k-panel-header .k-btn');
@@ -320,7 +320,7 @@ const [download] = await Promise.all([page.waitForEvent('download'), page.keyboa
 const path = await download.path();
 check('save downloads .kcad', download.suggestedFilename().endsWith('.kcad'), download.suggestedFilename());
 await page.keyboard.press('Control+n');
-await page.locator('[data-testid="ask-no"]').click({ timeout: 1500 }).catch(skip('full:322')); // Save changes? → Don't Save
+await dontSave(page); // Save changes? → Don't Save, when it asks
 await page.locator('.k-dialog input').fill('Bracket');
 await page.click('.k-dialog .k-btn.primary');
 check('new document named Bracket', (await S()).doc.name === 'Bracket' && (await S()).doc.features.length === 0);
@@ -349,7 +349,7 @@ await page.evaluate(() => window.__phlippoStore.getState().setPanel('manager', {
 // ---- autosave survives reload
 await page.reload();
 await page.waitForSelector('.k-viewport');
-await page.locator('[data-testid="welcome-recent-0"]').click({ timeout: 4000 }).catch(skip('full:351')); // the autosave waits under Recent Documents, as the original
+await page.locator('[data-testid="welcome-recent-0"]').click({ timeout: 10000 }); // the autosave waits under Recent Documents, by design
 check('autosave reload keeps features', (await S()).doc.features.length === 2);
 await page.screenshot({ path: `${OUT}/full-final.png` });
 

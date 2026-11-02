@@ -97,7 +97,7 @@ check('without the hooks: Final Render makes the image', await S(() => !!window.
 await S(() => window.__qa.store.getState().setFinalImage?.(null));
 await page.reload();
 await page.waitForSelector('.k-viewport');
-await page.locator('[data-testid="welcome-recent-0"]').click({ timeout: 4000 }).catch(skip('qa3:100'));
+await page.locator('[data-testid="welcome-recent-0"]').click({ timeout: 10000 });
 await page.waitForTimeout(600);
 check('the hooks come back after a reload (test build)', await S(() => typeof window.__phlippoCamera === 'object' && typeof window.__phlippoZoomFit === 'function'));
 

@@ -28,11 +28,14 @@ contextBridge.exposeInMainWorld('phlippoDesktop', {
   openFile: (filters) => ipcRenderer.invoke('file:open', filters),
   saveFile: (opts) => ipcRenderer.invoke('file:save', opts),
   saveFileAs: (opts) => ipcRenderer.invoke('file:saveAs', opts),
-  /** Auto-Recover: copies of the open document in the auto-recover folder */
+  /** Auto-Recover: copies of the open documents in the auto-recover folder; the shell decides the folder */
   writeRecover: (opts) => ipcRenderer.invoke('recover:write', opts),
-  listRecover: (folder) => ipcRenderer.invoke('recover:list', folder),
-  readRecover: (opts) => ipcRenderer.invoke('recover:read', opts),
+  listRecover: () => ipcRenderer.invoke('recover:list'),
+  readRecover: (name) => ipcRenderer.invoke('recover:read', name),
   removeRecover: (opts) => ipcRenderer.invoke('recover:remove', opts),
+  recoverFolder: () => ipcRenderer.invoke('recover:folder'),
+  chooseRecoverFolder: () => ipcRenderer.invoke('recover:chooseFolder'),
+  resetRecoverFolder: () => ipcRenderer.invoke('recover:resetFolder'),
   /** software OpenGL (SwiftShader): this run's state, the choice for the next start, a restart to apply it */
   gpuStatus: () => ipcRenderer.invoke('gpu:status'),
   setSoftwareGL: (on) => ipcRenderer.invoke('gpu:setSoftware', !!on),

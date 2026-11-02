@@ -1,4 +1,4 @@
-// look-dev: the Extrude Property Panel on a plate sketch -> e2e-out/look-extrudepm.png (compare with frame f_0111)
+// look-dev: the Extrude Property Panel on a plate sketch -> e2e-out/look-extrudepm.png (compare with calibration frame 0111)
 import { chromium } from 'playwright';
 const browser = await chromium.launch(process.platform === 'win32' ? { channel: process.env.PW_CHANNEL ?? 'msedge' } : { ...(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {}), args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
 const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } });

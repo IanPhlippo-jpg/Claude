@@ -354,6 +354,12 @@ export function occtKernel(oc: OC, replicad: Replicad, opts: { tolerance?: numbe
       if (!ts.IsDone()) return null;
       return S(clean(t(ts.Shape())));
     },
+    sphere(center, radius, axis, lat1, lat2) {
+      if (!axis) return S(t(t(new oc.BRepPrimAPI_MakeSphere(pnt(center), radius)).Shape()));
+      const ax = t(new oc.gp_Ax2(pnt(center), dir(axis)));
+      const mk = lat1 === undefined || lat2 === undefined ? new oc.BRepPrimAPI_MakeSphere(ax, radius) : new oc.BRepPrimAPI_MakeSphere(ax, radius, lat1, lat2);
+      return S(t(t(mk).Shape()));
+    },
     clipByPlane(shape, point, normal) {
       const pln = t(new oc.gp_Pln(pnt(point), dir(normal)));
       const face = t(new oc.BRepBuilderAPI_MakeFace(pln, -1e5, 1e5, -1e5, 1e5)).Face();

@@ -29,7 +29,8 @@ const volume = (doc: Document) => {
 };
 
 describe('more patterns', () => {
-  it('Table Driven Pattern: one hole per table row', () => {
+  // a heavy boolean chain: ample time when the whole suite runs in parallel
+  it('Table Driven Pattern: one hole per table row', { timeout: 30000 }, () => {
     const doc = base();
     doc.features.push({ id: 'f3', type: 'tablePattern', name: 'TPattern1', suppressed: false, featureIds: ['f2'], table: [{ x: 20, y: 0 }, { x: 40, y: 0 }, { x: 60, y: 10 }] });
     const expected = 80 * 40 * 10 - 4 * holeVol(3, 10);

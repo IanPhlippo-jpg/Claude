@@ -2,7 +2,7 @@
 // (transparency, folders, feature history, bounding box, Insert into New Part, Delete/Keep), Save As STL/3MF/AMF options.
 import { menuPath } from './lib/menu.mjs';
 import { chromium } from 'playwright';
-import { exitCode, skip } from './lib/check.mjs';
+import { exitCode } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -91,13 +91,13 @@ await menuItem('Create New Folder').click();
 await page.waitForTimeout(300);
 const folders = (await doc()).featureFolders ?? [];
 check('Create New Folder makes Folder1 holding the feature', folders.length === 1 && folders[0].featureIds.includes('e2') && (await page.locator('.k-tree-row[data-id^="folder:"]').count()) === 1, JSON.stringify(folders));
-await page.locator('.k-tree-row[data-id^="folder:"] .caret').click().catch(skip('gb:93'));
+await page.locator('.k-tree-row[data-id^="folder:"] .caret').click();
 await page.waitForTimeout(200);
 check('the feature sits under the folder', (await page.locator('.k-tree-row[data-depth="2"][data-id="e2"]').count()) === 1);
 await page.screenshot({ path: `${OUT}/gb-tree.png` });
 
 // ---- body menu
-await page.locator('.k-tree-row[data-id="bodies"] .caret').click().catch(skip('gb:99'));
+await page.locator('.k-tree-row[data-id="bodies"] .caret').click();
 await page.waitForTimeout(200);
 const bodyRow = page.locator('.k-tree-row[data-id^="body-"]').first();
 await bodyRow.click({ button: 'right' });
@@ -135,7 +135,7 @@ check('ASCII STL downloads with facets', file.suggestedFilename() === 'Plaat.stl
 await page.waitForTimeout(300);
 await S(() => { window.__phlippoStore.setState({ exportFormat: '3mf' }); window.__phlippoStore.getState().setDialog('exportOptions'); });
 await page.waitForTimeout(300);
-await page.locator('[data-testid="export-showinfo"]').uncheck().catch(skip('gb:137'));
+await page.locator('[data-testid="export-showinfo"]').uncheck();
 const dl2 = page.waitForEvent('download', { timeout: 8000 });
 await page.locator('[data-testid="export-ok"]').click();
 const f2 = await dl2;
@@ -143,7 +143,7 @@ const buf = await (await f2.createReadStream()).toArray().then((b) => Buffer.con
 check('3MF downloads as a zip package', f2.suggestedFilename() === 'Plaat.3mf' && buf[0] === 0x50 && buf[1] === 0x4b && buf.toString('latin1').includes('3D/3dmodel.model'), f2.suggestedFilename());
 await S(() => { window.__phlippoStore.setState({ exportFormat: 'amf' }); window.__phlippoStore.getState().setDialog('exportOptions'); });
 await page.waitForTimeout(300);
-await page.locator('[data-testid="export-showinfo"]').uncheck().catch(skip('gb:145'));
+await page.locator('[data-testid="export-showinfo"]').uncheck();
 const dl3 = page.waitForEvent('download', { timeout: 8000 });
 await page.locator('[data-testid="export-ok"]').click();
 const f3 = await dl3;

@@ -2,7 +2,7 @@
 // Hide/Show Body, Material per body, Merge result off, Feature Scope, Combine.
 import { menuPath } from './lib/menu.mjs';
 import { chromium } from 'playwright';
-import { exitCode, skip } from './lib/check.mjs';
+import { exitCode } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -90,7 +90,7 @@ await page.waitForTimeout(400);
 b = await B();
 check('material stored for body2 only', Object.keys(b.mats).length === 1 && Object.values(b.mats)[0].name === '1060 Alloy' && !(await page.evaluate(() => window.__phlippoStore.getState().doc.material)), JSON.stringify(b.mats));
 // the body's material is a row of its own under the body, by design
-await page.locator('.k-tree-row[data-id^="body-"]:has-text("Boss-Extrude2") .caret').first().click().catch(skip('multibody.mjs:93'));
+await page.locator('.k-tree-row[data-id^="body-"]:has-text("Boss-Extrude2") .caret').first().click();
 await page.waitForTimeout(150);
 check('tree shows the material as a row under the body', (await page.locator('.k-tree-row[data-id^="bodymat-"]:has-text("1060 Alloy")').count()) === 1);
 await shot('m3-body-material');
@@ -149,7 +149,7 @@ check('cut applied without errors; bodies unchanged', b.bodies.length === 2 && O
 // reload keeps hidden bodies / materials / combine
 await page.reload();
 await page.waitForSelector('.k-viewport');
-await page.locator('[data-testid="welcome-recent-0"]').click({ timeout: 4000 }).catch(skip('multibody:148')); // the autosave waits under Recent Documents, as the original
+await page.locator('[data-testid="welcome-recent-0"]').click({ timeout: 10000 }); // the autosave waits under Recent Documents, by design
 await page.waitForTimeout(800);
 b = await B();
 check('reload keeps the bodies, the material and Combine1', b.bodies.length === 2 && Object.keys(b.mats).length === 1 && b.features.includes('Combine1'), JSON.stringify(b));

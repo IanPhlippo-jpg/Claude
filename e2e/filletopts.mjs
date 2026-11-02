@@ -1,7 +1,7 @@
 // Fillet / Chamfer Property Panel options: asymmetric, conic profile, multi radius, variable size,
 // partial edge, Face Fillet, Full Round Fillet, FilletXpert and Chamfer Angle-Distance.
 import { chromium } from 'playwright';
-import { exitCode, skip } from './lib/check.mjs';
+import { exitCode } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -133,7 +133,7 @@ await undo();
 await startFillet();
 await pickTopEdges(1);
 await page.evaluate(() => window.__phlippoStore.getState().updateFeatureDraft({ size: 5 }));
-await page.click('.k-section-title:has-text("Partial Edge Parameters")').catch(skip('filletopts:136'));
+await page.click('.k-section-title:has-text("Partial Edge Parameters")');
 await page.click('[data-testid="fillet-partial"]');
 await ok();
 const partRemoved = V0 - (await volume());

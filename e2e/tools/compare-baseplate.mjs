@@ -1,5 +1,5 @@
-// Machine tool (design round): the BasePlate of the reference video (80 × 80, Ø35 hole, 15 mm) in the app, with the
-// Boss-Extrude Property Panel open (frame 111) and finished (frame 118); saves the app shots and side-by-side images
+// Machine tool (design round): the BasePlate tutorial part (80 × 80, Ø35 hole, 15 mm) in the app, with the
+// Boss-Extrude Property Panel open and finished; saves the app shots and side-by-side images
 // e2e-out/cmp-111.png and e2e-out/cmp-118.png (reference left, app right). Usage: dev server on 5173, then
 // node e2e/tools/compare-baseplate.mjs
 import { chromium } from 'playwright';
@@ -38,7 +38,7 @@ await page.waitForTimeout(300);
 await page.evaluate(() => { window.__phlippoStore.setState({ selectedFeatureId: 'k1' }); window.__phlippoStore.getState().startFeature('extrude', 'boss'); window.__phlippoStore.getState().updateFeatureDraft({ depth: 35 }); });
 await page.waitForTimeout(800);
 await page.screenshot({ path: 'e2e-out/app-111.png' });
-// the reference sets 10 mm before OK (frame 118)
+// the reference sets 10 mm before OK
 await page.evaluate(() => { window.__phlippoStore.getState().updateFeatureDraft({ depth: 10 }); window.__phlippoStore.getState().commitFeature(); });
 await page.waitForFunction(() => window.__phlippoStore.getState().rebuild.bodies.every((b) => b.exact), null, { timeout: 30000 }).catch(() => undefined);
 await page.waitForTimeout(600);

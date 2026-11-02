@@ -969,7 +969,7 @@
 .k-opt-row.disabled, .k-opt-radios.disabled { opacity: 0.5; }
 .k-tree-row.drop-below { box-shadow: inset 0 -2px 0 var(--accent); }
 
-/* Strict 1:1 pass against the 2026 reference frames at 1920 x 1080 (docs/26): window chrome #f7f7f7, ribbon tabs as
+/* Design pass at 1920 x 1080 (docs/26): window chrome #f7f7f7, ribbon tabs as
    grey boxes with the active one light and bold, square pressed buttons, menu-bar block row by row, Feature Tree text
    12 px, manager tabs as grey tiles */
 :root:not([data-theme='dark']) .k-cm-tabs { background: #fdfdfd; }

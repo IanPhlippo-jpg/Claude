@@ -31,7 +31,7 @@ check('Command Ribbon greyed without a document', (await page.locator('.k-cm.k-c
 check('no recent documents on a clean start', (await page.locator('.k-welcome').innerText()).includes('No recent documents'));
 await page.screenshot({ path: `${OUT}/qa1-startup.png` });
 
-// ---- a new part: Trimetric, as the original
+// ---- a new part: Trimetric, by design
 await page.click('.k-doctype:has-text("Part")');
 await page.waitForTimeout(500);
 s = await st();
@@ -138,7 +138,7 @@ check('Modify accepts 50', (await S((cid) => window.__phlippoStore.getState().do
 await S(() => window.__phlippoStore.getState().exitSketch());
 await page.waitForTimeout(300);
 
-// ---- Confirm Delete defaults: absorbed features on, child features off, as the original
+// ---- Confirm Delete defaults: absorbed features on, child features off, by design
 await S(() => window.__phlippoStore.getState().requestDeleteFeature('e1'));
 await page.waitForTimeout(300);
 check('Confirm Delete: "Also delete absorbed features" on, "Delete child features" off by default', (await page.locator('[data-testid="cdel-absorbed"]').isChecked()) === true && (await page.locator('[data-testid="cdel-childopt"]').isChecked()) === false);

@@ -1,4 +1,4 @@
-// Screenshots of Phlippo in the states of the main reference video (1920 x 1080), for side-by-side checks:
+// Screenshots of Phlippo in the states of the main calibration recording (1920 x 1080), for side-by-side checks:
 // audit-NN-*.png in e2e-out. Usage: E2E_URL=http://127.0.0.1:4173/ node e2e/tools/audit-shots.mjs [names...]
 import { chromium } from 'playwright';
 const OUT = process.env.E2E_OUT ?? 'e2e-out';

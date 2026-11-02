@@ -1,4 +1,4 @@
-// Confirm Delete as the original: Delete on a feature opens the dialog with its dependent items; Yes deletes the
+// Confirm Delete by design: Delete on a feature opens the dialog with its dependent items; Yes deletes the
 // feature and its children (no orphan Fillet left behind); Ctrl+Z restores; a crash shows the recovery box.
 import { chromium } from 'playwright';
 import { exitCode, skip } from './lib/check.mjs';
@@ -30,7 +30,7 @@ await page.waitForSelector('[data-testid="confirm-delete"]', { timeout: 3000 }).
 await page.waitForTimeout(600);
 const dlg = await page.evaluate(() => ({ items: document.querySelector('[data-testid="cdel-items"]')?.textContent, deps: document.querySelector('[data-testid="cdel-children"]')?.textContent }));
 check('Delete opens Confirm Delete with the feature', /Boss-Extrude1/.test(dlg.items ?? ''), JSON.stringify(dlg));
-// as the original: "Also delete absorbed features" is on by default, so the absorbed sketch sits with the feature itself
+// by design: "Also delete absorbed features" is on by default, so the absorbed sketch sits with the feature itself
 check('the dependent items list the fillet and the sketch on its face; the absorbed sketch goes with the feature', /Fillet1/.test(dlg.deps ?? '') && /Sketch2/.test(dlg.deps ?? '') && /Sketch1/.test(dlg.items ?? ''), JSON.stringify(dlg));
 await page.screenshot({ path: `${OUT}/cdel-1.png` });
 await page.click('[data-testid="cdel-yes"]');

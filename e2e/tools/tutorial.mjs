@@ -1,5 +1,5 @@
-// Replays the reference video's BasePlate tutorial (1920 x 1080, like the frames) and takes a screenshot at each moment
-// that has a reference frame: e2e-out/tut/NNNN.png next to referentie-video/frames/f_NNNN.jpg.
+// Replays the BasePlate tutorial of the calibration recording (1920 x 1080, like the frames) and takes a screenshot at each moment
+// that has a calibration frame: e2e-out/tut/NNNN.png next to referentie-video/frames/f_NNNN.jpg.
 import { chromium } from 'playwright';
 import { mkdirSync } from 'node:fs';
 mkdirSync('e2e-out/tut', { recursive: true });
@@ -110,7 +110,7 @@ await page.click('.k-pm-ok');
 await page.waitForTimeout(1200);
 await page.mouse.move(1500, 850);
 await shot(116);
-// hover the top face: its outline lights up and the feature name shows (frame 170)
+// hover the top face: its outline lights up and the feature name shows
 { const tp = await page.evaluate(() => window.__phlippoProjectWorld(66, 10, -66)); await page.mouse.move(tp.x, tp.y); await page.mouse.move(tp.x + 2, tp.y + 1); }
 await shot(170);
 // Fillet R10 on a vertical edge

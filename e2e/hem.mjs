@@ -1,6 +1,6 @@
 // Sheet metal Hem (videos 16/50): closed hem with Material Inside on the top edge of an L sheet, then Flatten.
 import { chromium } from 'playwright';
-import { exitCode } from './lib/check.mjs';
+import { exitCode, waitSettled } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -13,7 +13,7 @@ const check = (name, ok, info = '') => { results.push({ name, ok: !!ok, info });
 page.on('pageerror', (e) => errors.push('pageerror: ' + e.message));
 page.on('console', (m) => { if (m.type() === 'error') errors.push('console: ' + m.text()); });
 const shot = (n) => page.screenshot({ path: `${OUT}/${n}.png` });
-const volume = () => page.evaluate(() => { let v = 0; for (const b of window.__phlippoStore.getState().rebuild.bodies) { const p = b.geometry.attributes.position.array; for (let i = 0; i < p.length; i += 9) { const ax = p[i], ay = p[i + 1], az = p[i + 2], bx = p[i + 3], by = p[i + 4], bz = p[i + 5], cx = p[i + 6], cy = p[i + 7], cz = p[i + 8]; v += (ax * (by * cz - bz * cy) - ay * (bx * cz - bz * cx) + az * (bx * cy - by * cx)) / 6; } } return Math.abs(v); });
+const volume = async () => { await waitSettled(page); return page.evaluate(() => { let v = 0; for (const b of window.__phlippoStore.getState().rebuild.bodies) { const p = b.geometry.attributes.position.array; for (let i = 0; i < p.length; i += 9) { const ax = p[i], ay = p[i + 1], az = p[i + 2], bx = p[i + 3], by = p[i + 4], bz = p[i + 5], cx = p[i + 6], cy = p[i + 7], cz = p[i + 8]; v += (ax * (by * cz - bz * cy) - ay * (bx * cz - bz * cx) + az * (bx * cy - by * cx)) / 6; } } return Math.abs(v); }); };
 const S = () => page.evaluate(() => { const s = window.__phlippoStore.getState(); return { features: s.doc.features.map((f) => f.name + (f.suppressed ? '(s)' : '')), bodies: s.rebuild.bodies.length, errors: s.rebuild.errors, sm: s.doc.sheetMetal ?? null }; });
 
 await page.goto(process.env.E2E_URL ?? 'http://localhost:4173/');
@@ -66,7 +66,7 @@ check('Hem PM: Edges, Type and Size (Closed/Open), Material Inside', (await page
 const picked = await page.evaluate(() => {
   const s = window.__phlippoStore.getState();
   const b = s.rebuild.bodies[0];
-  const cands = b.edges.filter((e) => e.straight && Math.abs(e.length - 60) < 0.5).sort((a, c) => c.centroid.y - a.centroid.y);
+  const cands = b.edges.filter((e) => e.straight && Math.abs(e.length - 60) < 0.5).sort((a, c) => c.centroid.y - a.centroid.y || c.centroid.x - a.centroid.x); // the outer edge (x = 40), on both kernels
   if (!cands.length) return null;
   s.toggleSelectedEdge(cands[0].id);
   return !!window.__phlippoStore.getState().featureEdit?.draft?.edge;

@@ -75,3 +75,27 @@ describe('mate status (QA v0.5.1 F108)', () => {
     expect(Object.values(st.components).filter((x) => x === 'over')).toHaveLength(0);
   });
 });
+
+describe('conflicting and unsettled mates (QA 0.5.10 F141, F166)', () => {
+  it('two distance mates that disagree: the mate added last is the one marked, the first one is met', () => {
+    const A = comp('A', true), B = comp('B', false, 50);
+    const mates = [mate('distance', [top('A'), bottom('B')], { value: 10 }), mate('distance', [top('A'), bottom('B')], { value: 20 })];
+    const solved = solveMates([A, B], mates);
+    const st = mateStatus(solved, mates);
+    expect([...st.violated]).toEqual([mates[1].id]);
+    expect(st.unconverged.size).toBe(0);
+    expect(st.components.B).toBe('over');
+  });
+  it('mates the solver has not settled yet read as not converged, not as a conflict', () => {
+    const A = comp('A', true), C = comp('C', false, 40), B = comp('B', false, 100);
+    const mates = [mate('coincident', [top('A'), bottom('C')]), mate('distance', [bottom('B'), top('C')], { value: 5 })];
+    // no pass at all: nothing is met yet, and every mate would be met once the solver runs
+    const st = mateStatus(solveMates([A, C, B], mates, 0), mates);
+    expect(st.violated.size).toBe(0);
+    expect(st.unconverged.size).toBe(2);
+    expect(st.residual).toBeGreaterThan(1);
+    const st2 = mateStatus(solveMates([A, C, B], mates), mates);
+    expect(st2.unconverged.size).toBe(0);
+    expect(st2.residual).toBeLessThan(1e-3);
+  });
+});

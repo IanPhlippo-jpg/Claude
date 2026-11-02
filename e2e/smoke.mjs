@@ -1,5 +1,5 @@
 import { chromium } from 'playwright';
-import { checks, exitCode, skip } from './lib/check.mjs';
+import { checks, exitCode } from './lib/check.mjs';
 const { results, check } = checks();
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 const browser = await chromium.launch(process.platform === 'win32' ? { channel: process.env.PW_CHANNEL ?? 'msedge' } : { ...(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {}), args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
@@ -115,7 +115,7 @@ await page.screenshot({ path: `${OUT}/04-part-iso.png` });
 // autosave persisted?
 await page.reload();
 await page.waitForSelector('.k-viewport');
-await page.locator('[data-testid="welcome-recent-0"]').click({ timeout: 4000 }).catch(skip('smoke:118')); // the autosave waits under Recent Documents, as the original
+await page.locator('[data-testid="welcome-recent-0"]').click({ timeout: 10000 }); // the autosave waits under Recent Documents, by design
 const treeText = await page.locator('.k-tree').textContent();
 check('the autosave brings Sketch1 back after a reload', /Sketch1/.test(treeText), treeText.replace(/\s+/g, ' ').trim().slice(0, 160));
 console.log('errors:', errors);

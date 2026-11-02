@@ -131,7 +131,8 @@ export function App() {
         {managerSide === 'left' && manager && (st.managerCollapsed ? manager : <DockColumn side="left">{manager}</DockColumn>)}
         <div className="k-center">
           {!st.hasDocument ? <div className="k-viewport k-nodoc" data-testid="nodoc" /> : st.doc.kind === 'drawing' ? <DrawingSheetView /> : st.viewportLayout === 'single' ? <Viewport onEditDimension={onEditDimension} /> : (
-            <div className={`k-viewgrid k-viewgrid-${st.viewportLayout}`} data-testid="viewgrid">
+            // one column for Two View Horizontal: the class shares its name with the layout picker's three-column grid
+            <div className={`k-viewgrid k-viewgrid-${st.viewportLayout}`} data-testid="viewgrid" style={st.viewportLayout === 'twoH' ? { gridTemplateColumns: '1fr' } : undefined}>
               {st.viewportLayout === 'four' && <ViewPane view="front" />}
               {st.viewportLayout === 'four' && <ViewPane view="top" />}
               {st.viewportLayout !== 'twoH' && st.viewportLayout !== 'four' && <ViewPane view="front" />}

@@ -11,6 +11,7 @@ import { SHORTCUTS } from '../shortcuts';
 import { openFileDialog, withUnsavedCheck } from '../MenuBar';
 import { listAutosaves, loadAutosaveEntry, parseDocument } from '../../core/document/persistence';
 import { listDiskRecovery, readDiskRecovery } from '../autoRecover';
+import { setDocumentHandle, type RecoverEntry } from '../desktop';
 import { getPref } from '../prefs';
 import { FASTENER_NAMES, fastenerPart, LENGTHS, METRIC, type FastenerType } from '../../core/assembly/fasteners';
 
@@ -333,23 +334,31 @@ function ViewPalette() {
   );
 }
 
-/** Document Recovery: the auto-recover copy of the last session */
+/**
+ * Document Recovery: the recovery copies of earlier sessions. A recovered document opens with unsaved changes and
+ * "(Recovered)" after its name, without a file: Save asks where it goes (QA F154).
+ */
 function RecoveryPane() {
   const st = useStore(useShallow((s) => ({ hasDocument: s.hasDocument, doc: s.doc, dirty: s.dirty })));
   const list = listAutosaves();
+  const recover = (d: import('../../core/document/types').Document) => {
+    const seq = useStore.getState().openSeq;
+    useStore.getState().openDocument(d, { recovered: true });
+    if (useStore.getState().openSeq !== seq) setDocumentHandle(null);
+  };
   const open = (key: string) => withUnsavedCheck(() => {
     const d = loadAutosaveEntry(key);
     if (!d) return useStore.getState().pushMessage('The recovered document could not be read.', 'error');
-    useStore.getState().openDocument(d);
+    recover(d);
   });
   // the desktop app: the copies in the auto-recover folder (Options ▸ Backup/Recover)
-  const [disk, setDisk] = useState<{ name: string; time: number }[]>([]);
+  const [disk, setDisk] = useState<RecoverEntry[]>([]);
   useEffect(() => { void listDiskRecovery().then(setDisk); }, []);
   const openDisk = (name: string) => withUnsavedCheck(() => {
     void readDiskRecovery(name).then((text) => {
       try {
         if (!text) throw new Error('empty');
-        useStore.getState().openDocument(parseDocument(text));
+        recover(parseDocument(text));
       } catch {
         useStore.getState().pushMessage('The recovered document could not be read.', 'error');
       }
@@ -370,7 +379,7 @@ function RecoveryPane() {
           <p className="k-muted" style={{ margin: '8px 0 6px' }}>Auto-recover folder:</p>
           <ul className="k-list" data-testid="recovery-disk">
             {disk.map((r) => (
-              <li key={r.name} onClick={() => openDisk(r.name)} title="Open the auto-recover copy"><Icon.TPRecovery size={14} /> <span>{r.name}</span> <span className="k-muted" style={{ marginLeft: 'auto' }}>{new Date(r.time).toLocaleString()}</span></li>
+              <li key={r.name} onClick={() => openDisk(r.name)} title="Open the auto-recover copy"><Icon.TPRecovery size={14} /> <span>{r.label}.kcad</span> <span className="k-muted" style={{ marginLeft: 'auto' }}>{new Date(r.time).toLocaleString()}</span></li>
             ))}
           </ul>
         </>

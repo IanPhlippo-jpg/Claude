@@ -47,6 +47,10 @@ export interface BrepKernel {
    * `length`; the profile (world points at the start) keeps lying in a plane through the axis
    */
   helixSweep(center: [number, number, number], axis: [number, number, number], xdir: [number, number, number], radius: number, lead: number, length: number, sign: number, startAngle: number, profile: [number, number, number][]): BrepShape | null;
+  /** a ball of this radius about the centre (the dome of a plastic part is a segment of it) */
+  /** a sphere; with an axis its poles (and seam) lie on that axis, and with latitudes (radians, from the equator) only
+   * the band between them, closed by flat faces: a cap is sphere(c, R, axis, asin(1 - h / R), PI / 2) */
+  sphere(center: [number, number, number], radius: number, axis?: [number, number, number], lat1?: number, lat2?: number): BrepShape;
   /** the separate solids of a shape, largest volume first */
   solids(shape: BrepShape): BrepShape[];
   fuse(a: BrepShape, b: BrepShape): BrepShape;

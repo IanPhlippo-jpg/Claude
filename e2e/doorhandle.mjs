@@ -28,7 +28,7 @@ await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.
 await page.reload();
 await page.waitForSelector('.k-viewport');
 await page.waitForTimeout(500);
-await page.click('.k-doctype:has-text("Part")').catch(skip('doorhandle:27'));
+await page.click('.k-doctype:has-text("Part")');
 
 const docs = await page.evaluate(() => {
   const K = window.__phlippoKit;
@@ -355,6 +355,9 @@ const sd = await page.evaluate(() => {
   return { n: views.length, sec: sec && sec.name, det: det && det.name, flip: sec && sec.section.flip };
 });
 check('Section View A-A and Detail View B added', sd.n === 6 && sd.sec === 'Section View A-A' && /^Detail View B/.test(sd.det), JSON.stringify(sd));
+// Detail View B shows the collar whole: it gets a centre mark of its own on creation (QA F122)
+const detMark = await page.evaluate(() => { const sh = window.__phlippoStore.getState().doc.sheets[0]; const dv = sh.views.find((v) => v.detail); return { whole: dv ? window.__phlippoSheet.circles(dv.id).length : 0, marks: dv ? sh.centerMarks.filter((m) => m.viewId === dv.id).length : -1 }; });
+check('Detail View B has a centre mark on the collar it shows whole', detMark.whole >= 1 && detMark.marks >= 1, JSON.stringify(detMark));
 const secDom = await page.evaluate(() => ({ hatch: document.querySelectorAll('path[fill="url(#k-hatch)"]').length, line: document.querySelectorAll('.k-section-line').length, circ: document.querySelectorAll('.k-detail-circle').length, labels: [...document.querySelectorAll('text')].map((t) => t.textContent).filter((t) => /SECTION|DETAIL/.test(t)) }));
 check('section is hatched, cutting line and detail circle drawn on the front view', secDom.hatch === 1 && secDom.line === 1 && secDom.circ === 1 && secDom.labels.length === 2, JSON.stringify(secDom));
 drawing.sheets = (await page.evaluate(() => window.__phlippoStore.getState().doc.sheets)).map((sh) => ({ ...sh, views: sh.views.map((v) => ({ ...v, model: drawing.sheets[0].views[0].model })) }));
@@ -415,7 +418,7 @@ await page.keyboard.press('f');
 await page.waitForTimeout(300);
 await page.mouse.move(120, 1000);
 await shot('deurkruk-motion');
-await page.click('[data-testid="motion-tab"]').catch(skip('doorhandle:414'));
+await page.click('[data-testid="motion-tab"]');
 
 console.log(`
 ${results.filter((r) => r.ok).length}/${results.length} checks passed`);

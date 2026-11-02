@@ -14,11 +14,11 @@ export const weldmentsSlice = (set: StoreSet, get: StoreGet): Pick<State, Weldme
   startWeldment() {
     const { doc } = get();
     if (doc.weldment) {
-      get().pushMessage('This part is already a weldment.', 'info');
+      get().pushMessage('This part is already a frame.', 'info');
       set({ tab: 'weldments' });
       return;
     }
-    get().applyDocument('Weldment', addWeldmentConfigurations({ ...doc, weldment: true, features: [...doc.features, { id: newId('f'), type: 'weldment', name: 'Weldment', suppressed: false }] }));
+    get().applyDocument('Frame', addWeldmentConfigurations({ ...doc, weldment: true, features: [...doc.features, { id: newId('f'), type: 'weldment', name: 'Frame', suppressed: false }] }));
     set({ tab: 'weldments', managerTab: 'tree' });
   },
   startStructuralMember() {
@@ -29,7 +29,7 @@ export const weldmentsSlice = (set: StoreSet, get: StoreGet): Pick<State, Weldme
     const sketchId = last ? (last.type === 'sketch' ? last.sketchId : last.id) : '';
     const n = doc.features.filter((f) => f.type === 'structuralMember').length + 1;
     const draft: StructuralMemberFeature = { id: newId('f'), type: 'structuralMember', name: `Structural Member${n}`, suppressed: false, sketchId, standard: 'iso', profileType: 'square tube', size: '40 x 40 x 4', corner: 'endMiter', gap: 0, mergeArcs: false, rotation: 0, mirror: false, locate: { x: 0, y: 0 } };
-    const d = doc.weldment ? doc : addWeldmentConfigurations({ ...doc, weldment: true, features: [...doc.features, { id: newId('f'), type: 'weldment' as const, name: 'Weldment', suppressed: false }] });
+    const d = doc.weldment ? doc : addWeldmentConfigurations({ ...doc, weldment: true, features: [...doc.features, { id: newId('f'), type: 'weldment' as const, name: 'Frame', suppressed: false }] });
     set({ doc: d, featureEdit: { featureId: null, draft }, activeSketchId: null, tool: 'select', selection: [], tab: 'weldments', managerTab: 'tree', planePick: false });
   },
   startTrimExtend() {

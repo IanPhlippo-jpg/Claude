@@ -74,7 +74,8 @@ await S(() => window.__phlippoStore.getState().setSelectedFace(null));
 
 // ---- the context toolbar of Top Plane; F2 renames it
 await page.locator('.k-tree-row:has-text("Top Plane")').first().click();
-await page.waitForTimeout(700);
+// the toolbar follows the click after a short delay: wait for it (a slow runner, F144)
+await page.locator('[data-testid="ctx-plane-sketch"]').waitFor({ timeout: 6000 }).catch(() => undefined);
 check('Top Plane: context toolbar Sketch, Show, Zoom to Selection, Normal To', (await page.locator('[data-testid="ctx-plane-sketch"]').count()) === 1 && (await page.locator('[data-testid="ctx-plane-show"]').count()) === 1 && (await page.locator('[data-testid="ctx-zoom-selection"]').count()) === 1 && (await page.locator('[data-testid="ctx-normal-to"]').count()) === 1);
 const pb = await page.locator('[data-testid="tree-ctxbar"]').boundingBox();
 if (pb) { await page.mouse.move(pb.x + 30, pb.y + pb.height / 2); await page.waitForTimeout(150); }
@@ -91,7 +92,7 @@ await page.waitForTimeout(200);
 check('F2 renames Top Plane', (await page.locator('.k-tree').first().innerText()).includes('Top Plane-FLOOR PLANE'));
 
 // ---- a body renamed through its menu
-await page.locator('.k-tree-row:has-text("Solid Bodies") .caret').first().click().catch(skip('videos46.mjs:94'));
+await page.locator('.k-tree-row:has-text("Solid Bodies") .caret').first().click();
 await page.waitForTimeout(150);
 await page.locator('.k-tree-row[data-id^="body-"]').first().click({ button: 'right' });
 await page.waitForTimeout(150);

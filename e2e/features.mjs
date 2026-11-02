@@ -1,7 +1,7 @@
-// Phase 2 check: rebuild the BasePlate of the reference video (80x80, Ø35, extrude 10, cut), face selection, undo/redo, reload, wheel zoom at the pointer.
+// Phase 2 check: rebuild the BasePlate tutorial part (80x80, Ø35, extrude 10, cut), face selection, undo/redo, reload, wheel zoom at the pointer.
 import { menuPath } from './lib/menu.mjs';
 import fs from 'node:fs';
-import { exitCode, skip } from './lib/check.mjs';
+import { exitCode, skip, waitSettled } from './lib/check.mjs';
 import { chromium } from 'playwright';
 import { mkdirSync } from 'node:fs';
 
@@ -116,8 +116,8 @@ await page.click('.k-pm-ok');
 await page.waitForTimeout(600);
 const s2 = await S();
 check('Cut-Extrude1 through all', s2.features.length === 4 && Object.keys(s2.errors).length === 0, JSON.stringify(s2.errors));
-// total volume of all solid bodies (a boss that touches nothing is its own body, as in the original)
-const volume = () => page.evaluate(() => { let v = 0; for (const b of window.__phlippoStore.getState().rebuild.bodies) { const g = b.geometry; const a = g.getAttribute('position'); for (let i = 0; i + 2 < a.count; i += 3) { const x0 = a.getX(i), y0 = a.getY(i), z0 = a.getZ(i), x1 = a.getX(i + 1), y1 = a.getY(i + 1), z1 = a.getZ(i + 1), x2 = a.getX(i + 2), y2 = a.getY(i + 2), z2 = a.getZ(i + 2); v += (x0 * (y1 * z2 - z1 * y2) - y0 * (x1 * z2 - z1 * x2) + z0 * (x1 * y2 - y1 * x2)) / 6; } } return Math.abs(v); });
+// total volume of all solid bodies (a boss that touches nothing is its own body, by design)
+const volume = async () => { await waitSettled(page); return page.evaluate(() => { let v = 0; for (const b of window.__phlippoStore.getState().rebuild.bodies) { const g = b.geometry; const a = g.getAttribute('position'); for (let i = 0; i + 2 < a.count; i += 3) { const x0 = a.getX(i), y0 = a.getY(i), z0 = a.getZ(i), x1 = a.getX(i + 1), y1 = a.getY(i + 1), z1 = a.getZ(i + 1), x2 = a.getX(i + 2), y2 = a.getY(i + 2), z2 = a.getZ(i + 2); v += (x0 * (y1 * z2 - z1 * y2) - y0 * (x1 * z2 - z1 * x2) + z0 * (x1 * y2 - y1 * x2)) / 6; } } return Math.abs(v); }); };
 const volAfterCut = await volume();
 const plate = (6400 - Math.PI * 17.5 * 17.5) * 10;
 check('the cut removed material from the plate', volAfterCut < plate * 0.995, `volume ${volAfterCut.toFixed(0)} vs plate ${plate.toFixed(0)}`);
@@ -134,7 +134,7 @@ check('redo restores the cut', (await S()).features.length === 4);
 // reload: autosave rebuilds the solids
 await page.reload();
 await page.waitForSelector('.k-viewport');
-await page.locator('[data-testid="welcome-recent-0"]').click({ timeout: 4000 }).catch(skip('features:136')); // the autosave waits under Recent Documents, as the original
+await page.locator('[data-testid="welcome-recent-0"]').click({ timeout: 10000 }); // the autosave waits under Recent Documents, by design
 await page.waitForTimeout(800);
 const s3 = await S();
 check('autosave rebuilds the solids after reload', s3.bodies === 1 && s3.features.length === 4 && Object.keys(s3.errors).length === 0);
@@ -235,7 +235,7 @@ await page.locator('.k-field:has-text("Instances") input').fill('3');
 await page.locator('.k-field:has-text("Instances") input').press('Tab');
 await page.waitForTimeout(800);
 await shot('e13-pattern-preview');
-// Instances to Skip: click the marker of the second instance (as the original's yellow rings)
+// Instances to Skip: click the marker of the second instance (as the intended yellow rings)
 check('pattern instance markers shown', (await page.locator('.k-pattern-marker').count()) === 2);
 await page.locator('.k-pattern-marker').nth(1).click();
 await page.waitForTimeout(300);
@@ -292,21 +292,29 @@ await page.keyboard.press('Control+z');
 await page.waitForTimeout(800);
 check('undo removes the shell', (await S()).features.length === 4);
 
-// Sweep: a circle on the Front plane swept along a line on the Top plane (a tube across the plate, above it)
+// Sweep: a circle on the Front plane swept along a line on the Top plane (a tube across the plate, above it).
+// Every step waits for the app's state: on a slow runner the line was not always in the sketch before Exit Sketch,
+// and the sweep then had no path (QA 0.5.10 F145)
+const sketchOpen = () => page.waitForFunction(() => !!window.__phlippoStore.getState().activeSketchId, undefined, { timeout: 8000 });
+const sketchHas = (kind, n) => page.waitForFunction(([k, m]) => { const s = window.__phlippoStore.getState(); const sk = s.doc.sketches[s.activeSketchId]; return !!sk && Object.values(sk.entities).filter((e) => e.kind === k).length >= m; }, [kind, n], { timeout: 8000 });
+const sketchClosed = () => page.waitForFunction(() => !window.__phlippoStore.getState().activeSketchId && !window.__phlippoStore.getState().rebuild.pending, undefined, { timeout: 15000 });
 await page.keyboard.press('Escape');
 await page.click('.k-tree-row:has-text("Front Plane")', { clickCount: 2 });
-await page.waitForTimeout(700);
+await sketchOpen();
+await page.waitForTimeout(300);
 const pc = await page.evaluate(() => window.__phlippoProject({ x: 40, y: 20 }));
 const pr = await page.evaluate(() => window.__phlippoProject({ x: 44, y: 20 }));
 await page.click('.k-cm-iconbtn[data-tip="Circle"]');
 await page.mouse.click(pc.x, pc.y);
 await page.mouse.click(pr.x, pr.y);
+await sketchHas('circle', 1);
 await page.keyboard.press('Escape');
 await page.keyboard.press('Escape');
 await page.click('.k-confirm-ok');
-await page.waitForTimeout(500);
+await sketchClosed();
 await page.click('.k-tree-row:has-text("Top Plane")', { clickCount: 2 });
-await page.waitForTimeout(700);
+await sketchOpen();
+await page.waitForTimeout(300);
 await page.evaluate(() => window.__phlippoZoomFit());
 await page.waitForTimeout(400);
 const la = await page.evaluate(() => window.__phlippoProject({ x: 40, y: 0 }));
@@ -314,10 +322,11 @@ const lb = await page.evaluate(() => window.__phlippoProject({ x: 40, y: 60 }));
 await page.click('.k-cm-iconbtn[data-tip="Line (L)"]');
 await page.mouse.click(la.x, la.y);
 await page.mouse.click(lb.x, lb.y);
+await sketchHas('line', 1);
 await page.keyboard.press('Escape');
 await page.keyboard.press('Escape');
 await page.click('.k-confirm-ok');
-await page.waitForTimeout(500);
+await sketchClosed();
 const sBefore = await S();
 const volBeforeSweep = await volume();
 await page.click('.k-tree-row:has-text("Sketch3")');
@@ -328,7 +337,8 @@ await pathSel.selectOption({ label: 'Sketch4' });
 await page.waitForTimeout(800);
 await shot('e17-sweep-preview');
 await page.click('.k-pm-ok');
-await page.waitForTimeout(1000);
+await page.waitForFunction(() => { const s = window.__phlippoStore.getState(); return !s.featureEdit && !s.rebuild.pending; }, undefined, { timeout: 15000 });
+await page.waitForTimeout(300);
 const s10 = await S();
 check('Sweep1 added without errors', s10.features.length === sBefore.features.length + 1 && s10.features[s10.features.length - 1].type === 'sweep' && Object.keys(s10.errors).length === 0, JSON.stringify(s10.errors));
 const volAfterSweep = await volume();
@@ -367,7 +377,7 @@ await page.click('.k-mb-menu:has-text("File")');
 // since G-C the STL export shows its Export Options page first (Binary is the default)
 await menuPath(page, 'Save As ▸ STL').click();
 await page.waitForSelector('[data-testid="export-ok"]');
-await page.locator('[data-testid="export-showinfo"]').uncheck().catch(skip('features:368'));
+await page.locator('[data-testid="export-showinfo"]').uncheck();
 const [download] = await Promise.all([page.waitForEvent('download'), page.locator('[data-testid="export-ok"]').click()]);
 const stlPath = download.suggestedFilename();
 check('Save As STL downloads Part1.stl', stlPath === 'Part1.stl', stlPath);
@@ -433,7 +443,7 @@ await page.hover('.k-brand');
 await page.click('.k-mb-menu:has-text("Tools")');
 await page.click('.k-menu-item:has-text("Options")');
 await page.waitForTimeout(300);
-check('Options dialog titled as the original', (await page.locator('.k-options-title').innerText()).includes('System Options - General'));
+check('Options dialog titled by design', (await page.locator('.k-options-title').innerText()).includes('System Options - General'));
 check('Options category list present', (await page.locator('.k-opt-cat').count()) >= 20);
 await page.click('.k-opt-cat:text-is("View")');
 await page.waitForTimeout(150);
@@ -483,7 +493,7 @@ check('Mass Properties uses the material density', (await page.locator('.k-mass-
 await page.click('.k-mass-dialog button:has-text("Close")');
 await page.click('.k-cm-tab:has-text("Features")');
 
-// Thin Feature: an open L profile on the Front plane is extruded as a wall (Extrude-Thin1), as the original proposes
+// Thin Feature: an open L profile on the Front plane is extruded as a wall (Extrude-Thin1), as intended
 await page.keyboard.press('Escape');
 await page.click('.k-tree-row:has-text("Front Plane")', { clickCount: 2 });
 await page.waitForTimeout(700);
@@ -535,7 +545,7 @@ await page.click('[data-testid="ctx-plane-sketch"]');
 await page.waitForTimeout(500);
 check('sketch opens on Plane1', await page.evaluate(() => { const s = window.__phlippoStore.getState(); const sk = s.doc.sketches[s.activeSketchId]; return !!sk && s.doc.planes[sk.plane]?.name === 'Plane1'; }));
 await page.keyboard.press('Escape');
-await page.click('.k-confirm-cancel').catch(skip('features:533'));
+await page.click('.k-confirm-cancel');
 await page.waitForTimeout(300);
 
 // mouse wheel zooms about the pointer: the sketch point under the pointer stays put

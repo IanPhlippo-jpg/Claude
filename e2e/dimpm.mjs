@@ -1,4 +1,4 @@
-// Dimension Property Panel as the 2026 reference (frame f_0241): value of the selected dimension, OK only, Dimension Text with symbols.
+// Dimension Property Panel by design: value of the selected dimension, OK only, Dimension Text with symbols.
 import { chromium } from 'playwright';
 import { exitCode } from './lib/check.mjs';
 const results = [];
@@ -45,7 +45,7 @@ await page.keyboard.press('Control+7');
 await page.waitForTimeout(500);
 await page.screenshot({ path: 'e2e-out/look-dim.png' });
 check('the selected dimension shows its value (15.00mm) in Primary Value', (await page.locator('.k-pm-host input.k-num').first().inputValue()) === '15.00mm');
-check('the Dimension Property Panel has OK only, as the original', (await page.locator('.k-pm-host .k-pm-ok').count()) === 1 && (await page.locator('.k-pm-host .k-pm-cancel').count()) === 0);
+check('the Dimension Property Panel has OK only, by design', (await page.locator('.k-pm-host .k-pm-ok').count()) === 1 && (await page.locator('.k-pm-host .k-pm-cancel').count()) === 0);
 await page.fill('[data-testid="dim-text"]', '2X <DIM>');
 await page.waitForTimeout(300);
 const label = await page.evaluate(() => document.body.innerText.includes('2X Ø15.00'));

@@ -1,4 +1,4 @@
-// contact sheets of the reference frames: node e2e/contact.mjs <dir> <first> <last> <out-prefix>  (4 x 4 per sheet, numbered)
+// contact sheets of the calibration frames: node e2e/contact.mjs <dir> <first> <last> <out-prefix>  (4 x 4 per sheet, numbered)
 import { chromium } from 'playwright';
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 const [dir, first, last, prefix] = process.argv.slice(2);

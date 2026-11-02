@@ -1,8 +1,11 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { useStore } from './store';
 
-/** A crash in a panel must never leave a blank or frozen window: show the error, undo or reload. */
-export class ErrorBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
+/**
+ * A crash in a panel must never leave a blank or frozen window: show the error, undo or reload. With `fallback` the
+ * failure stays inside the wrapped part (a Two View / Four View pane): it shows that instead, the rest keeps working.
+ */
+export class ErrorBoundary extends Component<{ children: ReactNode; fallback?: (error: Error, retry: () => void) => ReactNode }, { error: Error | null }> {
   state = { error: null as Error | null };
   static getDerivedStateFromError(error: Error) {
     return { error };
@@ -22,6 +25,7 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, { error: E
   };
   render() {
     if (!this.state.error) return this.props.children;
+    if (this.props.fallback) return this.props.fallback(this.state.error, () => this.setState({ error: null }));
     return (
       <div className="k-crash" role="alert" data-testid="crash">
         <div className="k-dialog">

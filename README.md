@@ -3,7 +3,7 @@
 Phlippo CAD is een onafhankelijk product van Ian Phlippo. Het is niet verbonden met of goedgekeurd door Dassault Systèmes SolidWorks Corp. en bevat geen SOLIDWORKS-code, -bestanden of -artwork; de werkwijze is gemodelleerd naar publiek getoond gedrag van desktop-CAD-software (o.a. referentievideo's). SOLIDWORKS is een merk van Dassault Systèmes en wordt hier alleen ter referentie genoemd. Licentie: `LICENSE.txt`; gebruikte open-sourcepakketten: `THIRD-PARTY-NOTICES.txt`.
 
 Parametrische 3D-CAD-webapplicatie voor werktuigbouwkundig ontwerp (TypeScript, React, three.js), met een interface die het
-bekende desktop-CAD-pakket volgt (CommandManager, FeatureManager, PropertyManager, Heads-up View toolbar, Confirmation Corner).
+bekende desktop-CAD-pakket volgt (Command Ribbon, Feature Tree, Property Panel, heads-up werkbalk, bevestigingshoek).
 
 ![Schets](docs/screenshots/03-sketch-dimension.png)
 
@@ -31,17 +31,52 @@ Documentatie:
 - `docs/02-fase1-schetser.md` — architectuur, tests en demo van fase 1 (2D-schetser).
 - `docs/03-vergelijking-solidworks.md` — vergelijking met de SOLIDWORKS-handleiding en doorgevoerde aanpassingen.
 - `docs/05-vergelijking-video.md` — vergelijking met de YouTube-video (lokale frames) en gevonden verschillen.
+- `docs/28-qa-0.5.10.md` — verwerking van het QA-rapport over 0.5.10 (merken, docs, budgetten en splitsplan).
 - `docs/06-merken-en-auteursrecht.md` — wat van het origineel vrij is om na te maken en wat vermeden wordt (naam, logo, iconen, merknamen).
 
 Status per fase:
 1. 2D-schetser met constraint-solver — **gereed**
-2. Feature-modelleren (Extrude met draft en Up To Next/Surface, Cut, Revolve, Sweep, Loft, Rib, Fillet, Chamfer, Mirror, Linear/Circular Pattern, Hole Wizard, Shell, Combine; multi-body met materiaal per body; op een mesh-solidkern met booleans) — **gereed**
-3. Variabelen en vergelijkingen (Tools ▸ Equations, Σ-maten) en configuraties (ConfigurationManager, Modify Configurations, configuratie per component) — **gereed**; ontwerptabellen (Excel) gepland
+2. Feature-modelleren (Extrude met draft en Up To Next/Surface, Cut, Revolve, Sweep, Loft, Rib, Fillet, Chamfer, Mirror, Linear/Circular Pattern, Hole Tool, Shell, Combine; multi-body met materiaal per body; op een mesh-solidkern met booleans) — **gereed**
+3. Variabelen en vergelijkingen (Tools ▸ Equations, Σ-maten) en configuraties (Configurations, Modify Configurations, configuratie per component) — **gereed**; ontwerptabellen (Excel) gepland
 4. Assemblies (Insert Components, Mates, Move/Rotate, BOM, Interference Detection) — **basis gereed**
 5. 2D-tekeningen (Sheet Format/Size, Model View, Projected View, Smart Dimension, Center Mark, Note, titelblok) — **basis gereed**
 6. Import/export — STL in/uit en STEP in/uit (B-rep-kernel) **gereed**; tekeningen naar DXF en PDF; IGES niet (de meegeleverde OpenCascade-build heeft geen IGES-writer)
 8. Sheet metal (Base Flange/Tab, Edge Flange, Flatten met K-factor) — **basis gereed**; Hem/Jog/Miter/Unfold gepland
 7. Massa-eigenschappen en meten — **gereed** (Mass Properties, Measure); materialen en rendering gepland
+
+## Status 0.5.11 (in voorbereiding, 2026-11-02)
+
+Deze release verwerkt het QA-rapport over 0.5.10 (`qa-rapporten/QA-rapport-0.5.10.md`; verslag in
+`docs/28-qa-0.5.10.md`). Wat er sinds 0.5.4 bijkwam: zichtbaar resultaat van de plastics-features terwijl het paneel
+open is (0.5.5), gekalibreerde belichting en de beginnersworkflow als e2e-script (0.5.6), studiomateriaal en duidelijke
+planes (0.5.7), een plane onder de muis alleen in beeld (0.5.8), een uiterlijkcontrole op 1920 x 1080 (0.5.9) en een
+testronde op fouten (0.5.10).
+
+In 0.5.11 onder meer:
+- Geometrie: een fillet op een gatrand voegt geen volume meer toe (kettingtolerantie en de "Keep features"-hersnede,
+  F139); een wrap (Emboss/Deboss) op een exact lichaam houdt het lichaam exact (polyhedrale B-rep-tool); Dome is exact;
+  een exacte flens/hem die meer dan 0,5 % van het mesh-resultaat afwijkt, valt terug op mesh met een
+  Faceted-waarschuwing; elk lichaam krijgt een kruiscontrole exact tegen facet (F159). De strikte QA-tests met
+  gesloten formules staan in `src/qa/` (8 mesh + 13 B-rep) en draaien in `npm test`.
+- Assemblies: de nieuwste mate die niet convergeert staat gemarkeerd (`~` in de boom, "Not Converged" in de
+  statusbalk).
+- Desktop: AutoRecover met één map en één sleutel per document (geen tweede "Part1"), Software OpenGL slaat alleen de
+  keuze op; de installer meldt zelf dat hij ongesigneerd is en schrijft `signature-<versie>.txt`.
+- Vensters (Two/Four View) tekenen met de hoofdrenderer en vangen een ontbrekende WebGL-context op.
+- Namen: het frame-werk heet "Frames" (lint-tab, boom, menu's; oude .kcad-bestanden openen gewoon), de extra
+  materiaalbibliotheek "Additional Materials", oude "SW-Density"-vergelijkingen worden "Density"; de merk- en
+  neutral-comments-checks scannen ook de e2e-scripts.
+- CI: ubuntu-24.04, drie jobs (checks, desktop, regressie als matrix mesh/B-rep/release), één log per pass, skips
+  geteld met een budget per script.
+
+Welke platforms getest zijn:
+- **Windows 11 (lokaal):** unit-tests, typecheck, de tools-checks en de betrokken e2e-scripts tegen de dev-server.
+  De volledige regressie (mesh, B-rep en worker) volgt bij de release, met het ruwe log in `e2e-out/`.
+- **Linux (GitHub Actions, ubuntu-24.04):** zie Actions-run <link> (wordt ingevuld zodra de run op deze commit groen is).
+
+Regel voor elke claim in README, docs, TASKS en commitberichten: een getal als "98/98" noemt altijd het **platform**,
+de **commit** waarop het draaide en het **ruwe log** (bestand of Actions-run). Een claim zonder die drie telt niet als
+groen. Eerdere statussen hieronder noemen meestal alleen Windows-cijfers.
 
 ## Status 0.5.4 (2026-10-28)
 
@@ -52,8 +87,10 @@ De rest van het QA-rapport over 0.5.1 is verwerkt (docs/25-qa-rapport-v0.5.1.md)
 - De statusbalkprompts zijn in eigen woorden herschreven en de neutral-comments-check vangt frame-tags.
 - De e2e-scripts slikken geen fouten meer stil in: een optionele stap die faalt, verschijnt als `skip:` in de regressie.
 
-Over de CI: de branch wordt sinds 0.5.2 gepusht, maar de uitslag van GitHub Actions is van hieruit niet te lezen (private
-repo, geen `gh`). De regressiecijfers hieronder zijn Windows-cijfers; groen op Linux telt pas met een Actions-run.
+Over de CI: de branch wordt gepusht en de uitslag van GitHub Actions is met `gh run list` te lezen. Tot 0.5.10 was elke
+run rood omdat `ubuntu-latest` naar 26.04 ging (geen Playwright-Chromium); sinds 0.5.11 draait de CI op ubuntu-24.04 in
+drie jobs (checks, desktop, regressie als matrix). De regressiecijfers hieronder zijn Windows-cijfers; groen op Linux
+telt pas met een Actions-run (link bij de status hierboven).
 
 ## Status 0.5.1 (2026-10-27)
 

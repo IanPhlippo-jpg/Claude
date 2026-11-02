@@ -157,7 +157,8 @@ export const drawingSlice = (set: StoreSet, get: StoreGet): Pick<State, DrawingK
     const ps = parent.scale ?? sheet.scale;
     const scale: [number, number] = de.useCustomScale ? de.scale : [ps[0] * 2, ps[1]];
     const view: DrawingView = { id: newId('dv'), name: `Detail View ${label} (${scale[0]} : ${scale[1]})`, type: parent.type, position, scale, displayStyle: 'hiddenRemoved', model: parent.model, modelName: parent.modelName, detail: { parentId: parent.id, parentType: parent.type, center: de.detailCenter, radius: de.detailRadius, label, outline: de.detailOutline ?? 'none', pinned: de.detailPinned !== false, ...(de.detailStyle && de.detailStyle !== 'perStandard' ? { style: de.detailStyle } : {}), ...(de.detailProfile && de.detailRect ? { rect: de.detailRect } : {}) } };
-    const d: Document = { ...doc, sheets: [{ ...sheet, views: [...sheet.views, view] }] };
+    // a detail view gets its centre marks too (the holes it shows whole), QA 0.5.10 F122
+    const d: Document = withAutoMarks({ ...doc, sheets: [{ ...sheet, views: [...sheet.views, view] }] }, [view]);
     set({ doc: d, drawingEdit: null, selectedDrawingViewId: view.id, dirty: true, ...historyFlags() });
     autosave(d);
   },

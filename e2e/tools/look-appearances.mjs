@@ -1,4 +1,4 @@
-// look-dev: the Appearances, Scenes, and Decals task pane (SW fr. 250): Metal > Aluminum, right-click a swatch, apply
+// look-dev: the Appearances, Scenes, and Decals task pane: Metal > Aluminum, right-click a swatch, apply
 import { chromium } from 'playwright';
 const browser = await chromium.launch(process.platform === 'win32' ? { channel: process.env.PW_CHANNEL ?? 'msedge' } : { ...(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {}), args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
 const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } });

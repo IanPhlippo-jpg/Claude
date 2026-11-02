@@ -2,7 +2,7 @@
 // Component Pattern, Assembly Features (Revolved Cut, Hole, Fillet, Belt/Chain), Reference Geometry, Make Multibody
 // Part, Take Snapshot, Large Assembly Settings, Component Preview, Package Files, Share, Markup, Comments, advanced mates.
 import { chromium } from 'playwright';
-import { exitCode, skip } from './lib/check.mjs';
+import { exitCode } from './lib/check.mjs';
 import { mkdirSync, readFileSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -28,7 +28,7 @@ const n0 = (await S()).comps.length;
 
 // New Part / New Assembly
 await page.click('.k-cm-tab:has-text("Assembly")');
-await page.click('.k-cm-big:has-text("Insert Components") .k-cm-arrow').catch(skip('assembly2:31'));
+await page.click('.k-cm-big:has-text("Insert Components") .k-cm-arrow');
 await page.waitForTimeout(200);
 const fly = await page.evaluate(() => [...document.querySelectorAll('.k-menu .k-menu-item')].map((x) => ({ t: x.textContent.trim(), d: x.classList.contains('disabled') || x.getAttribute('aria-disabled') === 'true' })));
 check('Insert Components flyout: New Part, New Assembly, Copy with Mates enabled', ['New Part', 'New Assembly', 'Copy with Mates'].every((l) => fly.some((x) => x.t === l && !x.d)), JSON.stringify(fly));
@@ -40,7 +40,7 @@ check('New Assembly adds an empty sub-assembly', st.comps.length === n0 + 1 && s
 // Copy with Mates of the handle
 await page.evaluate(() => { const s = window.__phlippoStore.getState(); const c = s.doc.components.find((x) => /Kruk<1>/.test(x.name)); s.selectComponent(c.id); });
 const m0 = (await S()).mates;
-await page.click('.k-cm-big:has-text("Insert Components") .k-cm-arrow').catch(skip('assembly2:43'));
+await page.click('.k-cm-big:has-text("Insert Components") .k-cm-arrow');
 await page.click('.k-menu .k-menu-item:has-text("Copy with Mates")');
 await page.waitForTimeout(1200);
 st = await S();

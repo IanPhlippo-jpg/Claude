@@ -29,14 +29,16 @@ import { sketchChains, thinRegions } from './thin';
 import { ribGeometry } from './rib';
 import { foldGeometry, sheetMapping, unfoldGeometry } from './unfold';
 import { wrapSplineTool, wrapTool } from './wrap';
-import { threadSweeps, threadTool, type ThreadSpec } from './thread';
+import { threadSweeps, threadTool } from './thread';
 import { baseFlangeGeometry, baseFlangeLoop, baseFlangeRegion, bendAllowance, DEFAULT_SHEET_METAL, edgeFlangeGeometry, flangeLeg, flangeSetback, flatPatternGeometry, hemFlangeParams, tabGeometry, type SheetMetalParams } from './sheetmetal';
-import type { DraftFeature, PatternFeature, RevolveFeature, EdgeFlangeFeature, HemFeature, HoleFeature, JogFeature, MiterFlangeFeature, PlaneDef, SketchedBendFeature } from '../document/types';
+import type { DraftFeature, PatternFeature, RevolveFeature, EdgeFlangeFeature, HemFeature, JogFeature, MiterFlangeFeature, PlaneDef, SketchedBendFeature } from '../document/types';
 import { chainEdges, classifyVent, formToolGeometry, gussetTools, ripTool, sweptFlangeRegions, tabSlotTools, ventTool } from './sheetmetal4';
 import { bodyEdges as bodyEdgesOf, matchEdge as matchEdgeRef } from './edgesets';
 import { copyFaceNames, FACE_TAG, nameFeatureFaces } from './faceNames';
 import { pointDeform } from './deform';
 import { buildFastening, isFasteningFeature } from './fasteningBuild';
+import { brepHoleTool, meshToolOf, planarToolOf, threadSpecOf } from './rebuildTools';
+export { threadSpecOf } from './rebuildTools';
 import { endCapGeometry, faceOutline, findFaceOnBodies, findProfile, memberSegments, placedProfile, profileLoops, profileRegion, structuralMembers, trimByBodies, trimByPlane, weldBeadGeometry, weldGussetGeometry } from './weldments';
 
 export interface Body {
@@ -847,68 +849,12 @@ export function applyRoundFeature(geometry: THREE.BufferGeometry, f: RoundFeatur
 }
 
 /** Evaluate the feature history in order (up to the rollback index) into solid bodies. */
-/** the helix and profile of a Thread feature (null without its start edge) */
-export function threadSpecOf(f: Extract<Feature, { type: 'thread' }>): ThreadSpec | null {
-  if (!f.edge) return null;
-  const internal = f.internalOverride ?? f.edge.internal;
-  const ax = new THREE.Vector3(...f.edge.axis).normalize();
-  if (f.reverse) ax.negate();
-  const off = f.offset ? f.offsetDistance ?? 0 : 0;
-  const c0 = new THREE.Vector3(...f.edge.center);
-  // optional start face: the thread starts where the axis meets it
-  if (f.startFace) {
-    const n = new THREE.Vector3(...f.startFace.normal), p = new THREE.Vector3(...f.startFace.point);
-    const den = n.dot(ax);
-    if (Math.abs(den) > 1e-6) c0.addScaledVector(ax, n.dot(p.clone().sub(c0)) / den);
-  }
-  c0.addScaledVector(ax, off);
-  let length = f.endCondition === 'revolutions' ? (f.revolutions ?? 1) * f.pitch * Math.max(1, f.starts ?? 1) : f.length;
-  if (f.endCondition === 'upTo' && f.upTo) {
-    const n = new THREE.Vector3(...f.upTo.normal), p = new THREE.Vector3(...f.upTo.point);
-    const den = n.dot(ax);
-    if (Math.abs(den) > 1e-6) length = Math.max(f.pitch, p.clone().sub(c0).dot(n) / den);
-  }
-  return { center: [c0.x, c0.y, c0.z], axis: [ax.x, ax.y, ax.z], radius: internal ? (f.diameter - 1.0825 * f.pitch) / 2 : f.diameter / 2, internal, pitch: f.pitch, length, method: f.method, rightHand: f.rightHand, angle: f.angle, starts: f.starts, mirror: f.mirrorProfile };
-}
-
 /** wall-clock budget of one rebuild (ms); the features after it are marked instead of computed */
 export let rebuildBudgetMs = 45_000;
 export function setRebuildBudget(ms: number): void {
   rebuildBudgetMs = Math.max(0, ms);
 }
 
-/** the hole tool of holeTool() as an exact solid of revolution (same sizes; cylinders and cones are true surfaces) */
-function brepHoleTool(K: BrepKernel, f: HoleFeature, pl: PlaneDef, at: { x: number; y: number }, throughAll: number): BrepShape | null {
-  try {
-    const n: [number, number, number] = [-pl.n[0], -pl.n[1], -pl.n[2]];
-    const start: [number, number, number] = [pl.origin[0] + pl.u[0] * at.x + pl.v[0] * at.y, pl.origin[1] + pl.u[1] * at.x + pl.v[1] * at.y, pl.origin[2] + pl.u[2] * at.x + pl.v[2] * at.y];
-    const depth = f.depth > 0 ? f.depth : throughAll;
-    const EPS = 0.5;
-    const d2 = f.diameter / 2;
-    const parts: { t0: number; t1: number; r0: number; r1: number }[] = [{ t0: -EPS, t1: depth, r0: d2, r1: d2 }];
-    if (f.holeType === 'counterbore') {
-      const cbd = f.cbDepth + (f.headClearance ?? 0);
-      parts.push({ t0: -EPS, t1: cbd, r0: f.cbDiameter / 2, r1: f.cbDiameter / 2 });
-      if (f.underHeadCs && f.underHeadCs.diameter > f.diameter) {
-        const h = (f.underHeadCs.diameter / 2 - d2) / Math.tan((f.underHeadCs.angle * Math.PI) / 360);
-        parts.push({ t0: cbd - EPS, t1: cbd + h, r0: f.underHeadCs.diameter / 2, r1: d2 });
-      }
-    } else if (f.holeType === 'countersink') {
-      const r = f.csDiameter / 2;
-      const h = r / Math.tan((f.csAngle * Math.PI) / 360);
-      parts.push({ t0: -EPS, t1: h, r0: (r * (h + EPS)) / h, r1: 0 });
-    }
-    if (f.nearCs && f.nearCs.diameter > (f.holeType === 'counterbore' ? f.cbDiameter : f.diameter)) {
-      const r0 = (f.holeType === 'counterbore' ? f.cbDiameter : f.diameter) / 2;
-      const r = f.nearCs.diameter / 2;
-      const h = (r - r0) / Math.tan((f.nearCs.angle * Math.PI) / 360);
-      parts.push({ t0: -EPS, t1: h, r0: r + EPS * Math.tan((f.nearCs.angle * Math.PI) / 360), r1: r0 });
-    }
-    return K.axisymmetric(start, n, pl.u, parts);
-  } catch {
-    return null;
-  }
-}
 
 /** a fillet or chamfer the B-rep kernel builds: one constant size on picked edges (the other options: mesh kernel) */
 function brepRoundable(f: RoundFeature): boolean {
@@ -1163,19 +1109,7 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
   const isEmpty = (g: THREE.BufferGeometry) => !g.getAttribute('position') || g.getAttribute('position').count < 3;
   /** boss material: merge into the bodies it touches (several touching bodies become one), else a new body */
   /** a tool without a B-rep version whose faces are all planar becomes an exact solid (gussets, vents, slots …) */
-  const planarTool = (tool: THREE.BufferGeometry): BrepShape | null => {
-    if (!K) return null;
-    try {
-      const faces = planarFaces(tool, 'tool');
-      if (!faces.length || faces.some((x) => x.curved)) return null;
-      const sh = K.fromMesh(tool);
-      if (!sh) return null;
-      const mv = Math.abs(meshVolume(tool)), bv = Math.abs(K.volume(sh));
-      return mv > 0 && Math.abs(bv - mv) / mv < 1e-3 ? sh : null;
-    } catch {
-      return null;
-    }
-  };
+  const planarTool = (tool: THREE.BufferGeometry): BrepShape | null => planarToolOf(K, tool);
   const addMaterial = (tool: THREE.BufferGeometry, fid: Id, merge: boolean, scope?: Id[], toolShape?: BrepShape | null) => {
     featureTools.push(tool);
     const hits = merge ? touching(tool, scoped(scope)) : [];
@@ -1305,6 +1239,7 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
     }
     const t0 = clock();
     const before = new Map(bodies.map((b) => [b, b.geometry]));
+    const exactBefore = new Set(bodies.filter((b) => exactOf(b)));
     featureTools.length = 0;
     // one feature failing never takes the whole rebuild down: it is marked and the rest goes on
     try {
@@ -1661,7 +1596,13 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
               if (r.exact.trim) { const tr = prism(r.exact.trim); if (!tr) throw new Error('trim'); sh = K.cut(sh, tr); }
               const fl = prism(r.exact.flange);
               if (!fl) throw new Error('flange');
-              setExact(b, K.fuse(sh, fl));
+              const fused = K.fuse(sh, fl);
+              // the exact flange must agree with the mesh kernel's (the one the tests measure): the release pass showed
+              // an edge flange and a hem short of material on the exact path; a disagreement keeps the mesh result
+              const meshResult = csg(r.trim ? csg(b.geometry, r.trim, 'subtract') : b.geometry, r.geometry, 'union');
+              const mv = Math.abs(meshVolume(meshResult)), ev = Math.abs(K.volume(fused));
+              if (!(mv > 0) || Math.abs(ev - mv) / mv > 0.005) throw new Error(`exact flange ${ev.toFixed(1)} vs mesh ${mv.toFixed(1)}`);
+              setExact(b, fused);
               done = true;
             } catch {
               done = false;
@@ -2243,9 +2184,11 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
         errors[f.id] = 'Could not wrap the sketch.';
         continue;
       }
+      // an exact body keeps its exact cylinder: the patch becomes a polyhedral B-rep tool (else the mesh kernel)
+      const wrapShape = K && exactOf(body) ? meshToolOf(K, tool) : undefined;
       try {
-        if (f.kind === 'emboss') addMaterial(tool, f.id, true);
-        else if (!removeMaterial(tool, f.id)) errors[f.id] = 'The deboss does not touch the body.';
+        if (f.kind === 'emboss') addMaterial(tool, f.id, true, undefined, wrapShape);
+        else if (!removeMaterial(tool, f.id, undefined, wrapShape)) errors[f.id] = 'The deboss does not touch the body.';
       } catch (err) {
         errors[f.id] = `Boolean operation failed: ${(err as Error).message}`;
       }
@@ -2931,14 +2874,22 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
         if (f.keepFeatures !== false && r.tools && history.cuts.length) {
           const toolBox = new THREE.Box3();
           for (const t of [...r.tools.cutters, ...r.tools.adders]) { t.computeBoundingBox(); if (t.boundingBox) toolBox.union(t.boundingBox); }
-          const mids = f.edges.flatMap((ref) => matchEdges(r.edges, ref)).map((e) => e.centroid);
+          // a cut owns an edge when its tool passes through the edge itself: points along the edge, not its centroid
+          // (the centroid of the rim of a hole is the hole's axis, and the hole was cut again through its own
+          // fillet, which broke the body, QA 0.5.10 F139)
+          const samples = f.edges.flatMap((ref) => matchEdges(r.edges, ref)).map((e) => { const n = Math.min(12, e.points.length); return Array.from({ length: n }, (_, i) => e.points[Math.floor((i * (e.points.length - 1)) / Math.max(1, n - 1))]); });
           for (const c of history.cuts) {
             c.computeBoundingBox();
             if (!c.boundingBox || !c.boundingBox.intersectsBox(toolBox)) continue;
             const bvh = new MeshBVH(c.index ? c.toNonIndexed() : c);
-            const owns = mids.some((m) => { const h = bvh.closestPointToPoint(m); return !!h && h.distance < 1e-2; });
+            const owns = samples.some((pts) => pts.filter((m) => { const h = bvh.closestPointToPoint(m); return !!h && h.distance < 1e-2; }).length >= Math.ceil(pts.length * 0.8));
             if (owns) continue;
-            try { r.geometry = csg(r.geometry, c, 'subtract'); } catch { /* keep the fillet as it is */ }
+            // the cut is only kept when the boolean gives a closed body that did not grow: a tool whose faces
+            // coincide with the rounded body now and then breaks the boolean, and the fillet stays as it is then
+            try {
+              const again = csg(r.geometry, c, 'subtract');
+              if (!again.userData.openArea && Math.abs(meshVolume(again)) <= Math.abs(meshVolume(r.geometry)) + 1e-6) r.geometry = again;
+            } catch { /* keep the fillet as it is */ }
           }
         }
         target.geometry = r.geometry;
@@ -3359,6 +3310,8 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
         const prev = before.get(b);
         copyFaceNames(prev ? [prev, ...featureTools] : featureTools, b.geometry);
       }
+      // a body that was exact and is faceted from this feature on (no B-rep version of it): said once, here (QA F51)
+      if (K && !errors[f.id] && !warnings[f.id]) for (const b of bodies) if (b.featureIds[b.featureIds.length - 1] === f.id && !exactOf(b) && exactBefore.has(b)) warnings[f.id] = `${f.name} has no exact (B-rep) version: from here on this body is a faceted mesh (Faceted in the status bar); its mass properties and STEP are approximate.`;
       // the manifold gate (F48): a boolean of this feature left an opening in a body
       const open = bodies.filter((b) => b.featureIds[b.featureIds.length - 1] === f.id && b.geometry.userData.openArea);
       if (open.length && !errors[f.id]) warnings[f.id] = `The faceted result is not closed (an opening of about ${Math.max(...open.map((b) => b.geometry.userData.openArea as number)).toFixed(2)} mm²): mass properties and STEP of this body are approximate.`;

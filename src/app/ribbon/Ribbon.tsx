@@ -44,7 +44,7 @@ const TABS: { id: RibbonTab; label: string }[] = [
   { id: 'sketch', label: 'Sketch' },
   { id: 'surfaces', label: 'Surfaces' },
   { id: 'sheetmetal', label: 'Sheet Metal' },
-  { id: 'weldments', label: 'Weldments' },
+  { id: 'weldments', label: 'Frames' },
   { id: 'evaluate', label: 'Evaluate' },
   { id: 'mbd', label: 'Product Dimensions' },
   { id: 'render', label: 'Render Tools' },
@@ -473,7 +473,7 @@ export function Ribbon() {
     <>
       {menuBlock}
       <Group>
-        <BigButton label="Weldment" icon={<Icon.Weldment />} active={!!st.doc.weldment} onClick={st.startWeldment} />
+        <BigButton label="Frame" icon={<Icon.Weldment />} active={!!st.doc.weldment} onClick={st.startWeldment} />
         <BigButton label="Structural Member" icon={<Icon.StructuralMember />} active={st.featureEdit?.draft.type === 'structuralMember'} onClick={st.startStructuralMember} />
         <div className="k-cm-col">
           <SmallButton label="Trim/Extend" icon={<Icon.TrimExtend />} disabled={noBody} active={st.featureEdit?.draft.type === 'trimExtend'} onClick={st.startTrimExtend} />

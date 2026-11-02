@@ -1,6 +1,6 @@
 // The Delete key must never freeze the app: nothing selected, a feature, a sketch line, a dimension, a face, a component, a drawing view.
 import { chromium } from 'playwright';
-import { exitCode, skip } from './lib/check.mjs';
+import { exitCode } from './lib/check.mjs';
 import { readFileSync } from 'node:fs';
 
 const browser = await chromium.launch(process.platform === 'win32' ? { channel: process.env.PW_CHANNEL ?? 'msedge' } : { ...(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {}), args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
@@ -62,7 +62,7 @@ await page.keyboard.press('Delete');
 await page.waitForTimeout(400);
 if (!(await alive('a feature selected'))) process.exit(1);
 await page.keyboard.press('Escape');
-await page.keyboard.press('Enter').catch(skip('deletekey:65'));
+await page.keyboard.press('Enter');
 await page.waitForTimeout(300);
 
 // in the sketch: a line and the dimension

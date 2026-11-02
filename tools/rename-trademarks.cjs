@@ -21,19 +21,28 @@ const MAP = [
   // QA v0.3.4 F77: phrases the first rename left broken
   ['Feature Tree Tree Area', 'Feature Tree Area'], ['Feature Tree tree area', 'Feature Tree area'], ['Feature Tree tree', 'Feature Tree'],
   ['a Auto Tolerancing', 'an Auto Tolerancing'], ['A Auto Tolerancing', 'An Auto Tolerancing'],
+  // QA v0.5.10 F50/F94/F163: the frame workflow and the extra material library
+  ['Sustainability Extras', 'Additional Materials'], ['Sustainability', 'Environmental Class'],
+  ['Weldment Profiles', 'Frame Profiles'], ['Weldments', 'Frames'], ['Weldment', 'Frame'],
+  ['a weldment', 'a frame'], ['weldments', 'frames'], ['weldment', 'frame'],
 ];
+// lower-case words that are also data keys ('weldment' feature type, 'weldments' tab id, the 'sustainability' field):
+// only flagged in prose, i.e. in a source text that holds a space; the e2e scripts use them as keys, so not there
+const PROSE_ONLY = new Set(['a weldment', 'weldments', 'weldment']);
 const RE = new RegExp(MAP.map(([a]) => a.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|'), 'g');
 const TO = Object.fromEntries(MAP);
 const ROOT = path.join(__dirname, '..');
 let total = 0;
-function edits(text, start, end) {
+function edits(text, start, end, whole) {
   const out = [];
+  const prose = !whole && /\s/.test(text.slice(start, end));
   RE.lastIndex = 0;
   const seg = text.slice(start, end);
   let m;
   while ((m = RE.exec(seg))) {
     const s = start + m.index, e = s + m[0].length;
     if (/[A-Za-z0-9_]/.test(text[s - 1] ?? '') || /[A-Za-z0-9_]/.test(text[e] ?? '')) continue;
+    if (PROSE_ONLY.has(m[0]) && !prose) continue;
     out.push([s, e, m[0]]);
   }
   return out;
@@ -41,7 +50,7 @@ function edits(text, start, end) {
 function processFile(file, whole) {
   const text = fs.readFileSync(file, 'utf8');
   let list = [];
-  if (whole) list = edits(text, 0, text.length);
+  if (whole) list = edits(text, 0, text.length, true);
   else {
     const sf = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true, file.endsWith('x') ? ts.ScriptKind.TSX : ts.ScriptKind.TS);
     const visit = (node) => {

@@ -685,7 +685,7 @@ export class BodyScene {
       (o as THREE.Mesh).geometry.dispose();
       ((o as THREE.Mesh).material as THREE.Material).dispose();
     }
-    // the selection: an opaque cyan that is only mildly shaded (reference frames: a face turned to the light 64,240,250,
+    // the selection: an opaque cyan that is only mildly shaded (target colours: a face turned to the light 64,240,250,
     // a face turned away 30,200,251): part of it is its own glow, the rest is lit as the model
     const SEL_BLUE = 0x45b100, SEL_GLOW = 0x009cfc;
     const overlay = (ref: { bodyId: string; faceId: string }, color: string, opacity: number, shaded = false) => {

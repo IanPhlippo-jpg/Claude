@@ -1,7 +1,7 @@
 // Phase 5 check: a plate part is built, a drawing is created (Sheet Format/Size), the plate is inserted as a
 // Model View, projected views are placed, a dimension, a center mark and a note are added, the drawing reloads.
 import { chromium } from 'playwright';
-import { exitCode, skip } from './lib/check.mjs';
+import { exitCode, skip, dontSave } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -81,7 +81,7 @@ await page.click('.k-menu-item:has-text("New")');
 await page.waitForTimeout(200);
 await page.click('.k-doctype:has-text("Drawing")');
 await page.click('.k-dialog-actions button:has-text("OK")');
-await page.locator('[data-testid="ask-no"]').click({ timeout: 1500 }).catch(skip('drawing:84')); // Save changes? → Don't Save
+await dontSave(page); // Save changes? → Don't Save, when it asks
 await page.waitForTimeout(300);
 check('Sheet Format/Size dialog', (await page.locator('.k-dialog-title').innerText()).includes('Sheet Format/Size'));
 await page.click('.k-sheetfmt-list .k-selbox-row:has-text("A3 (ISO)")');
@@ -130,6 +130,21 @@ check('projected right and top views placed and aligned (first angle: top view b
 check('projected views share the parent row/column', d.sheet.views[1].position[1] === d.sheet.views[0].position[1] && d.sheet.views[2].position[0] === d.sheet.views[0].position[0], JSON.stringify(d.sheet.views.map((v) => v.position)));
 check('tree lists Sheet1 and the drawing views', (await page.locator('.k-tree-row:has-text("Drawing View1")').count()) === 1 && (await page.locator('.k-tree-row:has-text("Sheet Format1")').count()) === 1);
 await shot('e42-three-views');
+// the standard views carry what the intended design inserts on view creation (QA F122): a centre mark on the hole in
+// the view that looks down it, and the hole's hidden lines (dashed) in the views that look across it
+// (the default display style is Hidden Lines Removed, as in the intended design; Hidden Lines Visible shows them dashed)
+const hlr = await page.evaluate(async () => {
+  const s = window.__phlippoStore.getState();
+  const sheet = s.doc.sheets[0];
+  const dashedRemoved = document.querySelectorAll('.k-sheet-svg line[stroke-dasharray="5 3"]').length;
+  s.applyDocument('Hidden Lines Visible', { ...s.doc, sheets: [{ ...sheet, views: sheet.views.map((v) => ({ ...v, displayStyle: 'hiddenVisible' })) }, ...s.doc.sheets.slice(1)] });
+  await new Promise((ok) => requestAnimationFrame(() => requestAnimationFrame(ok)));
+  const dashed = document.querySelectorAll('.k-sheet-svg line[stroke-dasharray="5 3"]').length;
+  return { marks: sheet.centerMarks.length, markViews: [...new Set(sheet.centerMarks.map((m) => sheet.views.find((v) => v.id === m.viewId)?.type))], dashedRemoved, dashed };
+});
+check('the view down the hole got a centre mark; Hidden Lines Visible draws the hole dashed in the views across it', hlr.marks >= 1 && hlr.dashedRemoved === 0 && hlr.dashed >= 2, JSON.stringify(hlr));
+await page.keyboard.press('Control+z');
+await page.waitForTimeout(300);
 
 // ---- Smart Dimension on the front view's top edge (80 mm): the edge lies at y = 150 + 5 (half of 10 mm) on the sheet
 await page.click('.k-cm-tab:has-text("Annotation")');
@@ -203,7 +218,7 @@ await shot('e43-drawing');
 // ---- reload: the drawing with its embedded model, views, dimensions and notes is restored
 await page.reload();
 await page.waitForSelector('.k-viewport');
-await page.locator('[data-testid="welcome-recent-0"]').click({ timeout: 4000 }).catch(skip('drawing:188')); // the autosave waits under Recent Documents, as the original
+await page.locator('[data-testid="welcome-recent-0"]').click({ timeout: 10000 }); // the autosave waits under Recent Documents, by design
 await page.waitForSelector('.k-sheet-host');
 // wait for the restored drawing itself, not a fixed time (F10)
 await page.waitForFunction(() => { const s = window.__phlippoStore.getState(); return s.doc.kind === 'drawing' && (s.doc.sheets?.[0]?.views.length ?? 0) === 3; }, undefined, { timeout: 10000 }).catch(skip('drawing: restored drawing'));
@@ -251,6 +266,10 @@ await page.waitForTimeout(600);
 sv = await page.evaluate(() => window.__phlippoStore.getState().doc.sheets[0].views.filter((v) => v.detail).map((v) => ({ name: v.name, scale: v.scale, det: v.detail })));
 check('Detail View B (2 : 1) placed, radius 10', sv.length === 1 && sv[0].name === 'Detail View B (2 : 1)' && Math.abs(sv[0].det.radius - 10) < 0.5, JSON.stringify(sv));
 check('detail circle with letter on the parent, label DETAIL B', (await page.locator('.k-detail-circle').count()) === 1 && (await page.locator('text:has-text("DETAIL B")').count()) === 1);
+// the detail view shows the hole whole, so it gets its own centre mark on creation (QA F122)
+// (this detail circle cuts the hole into an arc: no whole circle, so no mark; a detail that shows a hole whole gets one, see doorhandle.mjs)
+const detMarks = await page.evaluate(() => { const sh = window.__phlippoStore.getState().doc.sheets[0]; const dv = sh.views.find((v) => v.detail); const whole = dv ? window.__phlippoSheet.circles(dv.id).length : 0; return { marks: dv ? sh.centerMarks.filter((m) => m.viewId === dv.id).length : -1, whole }; });
+check('a detail view gets a centre mark for every hole it shows whole', detMarks.marks === detMarks.whole, JSON.stringify(detMarks));
 await page.mouse.move(5, 500);
 await shot('e46-section-detail');
 

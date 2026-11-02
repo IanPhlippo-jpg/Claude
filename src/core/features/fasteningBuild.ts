@@ -7,7 +7,9 @@ import type { Id } from '../sketch/types';
 import type { BrepKernel, BrepShape } from './brepKernel';
 import type { Body } from './rebuild';
 import { resolvePlaneDef } from './planes';
-import { domeTool, faceLoops, indentGeometry, mountingBossTools, pickedFaceOn, rimBand, snapHookTool, type AxisPiece } from './plastics';
+import { area2, asCircle, domeTool, faceLoops, indentGeometry, mountingBossTools, pickedFaceOn, rimBand, snapHookTool, type AxisPiece } from './plastics';
+import type { PlaneDef } from '../document/types';
+import type { DomeFeature } from '../document/plasticsTypes';
 
 export interface FasteningContext {
   doc: Document;
@@ -65,8 +67,57 @@ function buildDome(f: Extract<PlasticsFeature, { type: 'dome' }>, c: FasteningCo
   if (!fl) { c.errors[f.id] = 'The outline of the face could not be found.'; return; }
   const tool = domeTool(fl.loops[0], fl.plane, f);
   if ('error' in tool) { c.errors[f.id] = tool.error; return; }
-  if (f.reverse) c.removeMaterial(tool, f.id, [hit.body.id]);
-  else c.addMaterial(tool, f.id, true, [hit.body.id]);
+  const shape = domeShape(c.K, fl.loops[0], fl.plane, f);
+  if (f.reverse) c.removeMaterial(tool, f.id, [hit.body.id], shape);
+  else c.addMaterial(tool, f.id, true, [hit.body.id], shape);
+}
+
+/**
+ * the exact dome (QA 0.5.10 F51): on a round face a segment of the sphere through the face's edge with the dome's
+ * height; on a polygon the sphere through the farthest corners, kept within the prism of the face (the dome rises
+ * straight up from the edges). The half ellipsoid and the continuous dome have no exact version: null, the mesh tool
+ * builds them and the body continues faceted (said in the rebuild warnings).
+ */
+function domeShape(K: BrepKernel | null, loop: [number, number][], plane: PlaneDef, f: Pick<DomeFeature, 'distance' | 'reverse' | 'elliptical' | 'continuous'>): BrepShape | null {
+  if (!K) return null;
+  try {
+    const circle = asCircle(loop);
+    if (circle && f.elliptical) return null;
+    if (!circle && f.continuous && loop.length !== 4) return null;
+    const h = f.distance > 0 ? f.distance : circle ? circle.r : 0;
+    if (!(h > 0)) return null;
+    const o = new THREE.Vector3(...plane.origin), u = new THREE.Vector3(...plane.u), v = new THREE.Vector3(...plane.v), n = new THREE.Vector3(...plane.n).normalize();
+    const sign = f.reverse ? -1 : 1;
+    const at = (p: [number, number], z: number) => o.clone().addScaledVector(u, p[0]).addScaledVector(v, p[1]).addScaledVector(n, z);
+    let centre2: [number, number], R: number;
+    if (circle) { centre2 = circle.c; R = circle.r; }
+    else {
+      const A = area2(loop);
+      const cc: [number, number] = [0, 0];
+      loop.forEach((a, i) => { const b = loop[(i + 1) % loop.length], w = a[0] * b[1] - b[0] * a[1]; cc[0] += (a[0] + b[0]) * w; cc[1] += (a[1] + b[1]) * w; });
+      centre2 = [cc[0] / (6 * A), cc[1] / (6 * A)];
+      R = Math.max(...loop.map((p) => Math.hypot(p[0] - centre2[0], p[1] - centre2[1])));
+    }
+    // the sphere through the rim circle of radius R at the face, rising h above it
+    const Rs = (R * R + h * h) / (2 * h);
+    // the cap is the band of the sphere from the rim's latitude up to the pole, with the sphere's axis along the
+    // dome's axis: with the poles (and the seam) elsewhere the boolean with the pad and its tessellation went wrong
+    // (release pass 0.5.11: exact 90 000 instead of 53 768, or a tessellation short of the dome). On a round face
+    // the cap sits exactly on the face; on a polygon it is sunk a hair, then kept within the prism of the face
+    const sink = circle ? 0 : 0.002;
+    const axis = n.clone().multiplyScalar(sign);
+    const lat1 = Math.asin(Math.max(-1, 1 - (h + sink) / Rs));
+    let seg = K.sphere(at(centre2, sign * (h - Rs)).toArray() as [number, number, number], Rs, axis.toArray() as [number, number, number], lat1, Math.PI / 2);
+    const sunk = at(centre2, -sign * sink);
+    if (!circle) {
+      const prism = K.extrudeLoop({ ...plane, origin: sunk.toArray() as PlaneDef['origin'], n: n.clone().multiplyScalar(sign).toArray() as PlaneDef['n'] }, loop.map((a, i) => ({ a: { x: a[0], y: a[1] }, b: { x: loop[(i + 1) % loop.length][0], y: loop[(i + 1) % loop.length][1] } })), 0, h + 1);
+      if (!prism) return null;
+      seg = K.common(seg, prism);
+    }
+    return seg;
+  } catch {
+    return null;
+  }
 }
 
 function buildIndent(f: Extract<PlasticsFeature, { type: 'indent' }>, c: FasteningContext): void {

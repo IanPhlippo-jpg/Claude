@@ -11,6 +11,7 @@ const { app, BrowserWindow, Menu, ipcMain, dialog, shell, session, protocol } = 
 const path = require('node:path');
 const fs = require('node:fs/promises');
 const { randomUUID } = require('node:crypto');
+const { registerRecover } = require('./recover.cjs');
 
 // the development switches (dev server, smoke screenshot, test hooks) are only read by an unpackaged app:
 // the installed program ignores its environment
@@ -30,14 +31,17 @@ const SELF_TEST_DIR = SELF_TEST ? require('node:fs').mkdtempSync(path.join(requi
 if (SELF_TEST) app.setPath('userData', path.join(SELF_TEST_DIR, 'profile'));
 // the desktop checks run in a profile of their own, never in the user's (unpackaged shell only)
 if (!PACKAGED && process.env.PHLIPPO_USER_DATA) app.setPath('userData', process.env.PHLIPPO_USER_DATA);
-// Software OpenGL (Options ▸ Performance ▸ Use software OpenGL, QA F115): on a computer without a usable graphics driver
-// (a virtual machine, a CI runner under xvfb) the 3D view is drawn by SwiftShader, Chromium's CPU renderer. The choice is
-// kept in gpu.json in the profile and read before Chromium starts, so it takes effect at the next start; --software-gl
-// turns it on for one run (and PHLIPPO_SOFTWARE_GL=1 in the unpackaged shell, for the checks). Chromium calls this
-// renderer "unsafe" because its JIT then runs for web content; this window only ever loads the app's own app:// pages.
+// Software OpenGL (Options ▸ Performance ▸ Use software OpenGL, QA F115/F162): on a computer without a usable graphics
+// driver (a virtual machine, a CI runner under xvfb) the 3D view is drawn by SwiftShader, Chromium's CPU renderer.
+// gpu.json in the profile keeps only the choice ({ "software": true }), never a Chromium switch: the switches below are
+// set by this process for the one run that starts with the choice on, and nothing else in that file is read. Turning the
+// choice off removes the file. --software-gl turns it on for one run (and PHLIPPO_SOFTWARE_GL=1 in the unpackaged shell,
+// for the checks). Chromium calls this renderer "unsafe" because its JIT then runs for web content; this window only
+// ever loads the app's own app:// pages. Options shows the state and a button back to the graphics card.
 const GPU_FILE = path.join(app.getPath('userData'), 'gpu.json');
 const readGpuPrefs = () => { try { return JSON.parse(require('node:fs').readFileSync(GPU_FILE, 'utf8')); } catch { return {}; } };
-const SOFTWARE_GL = process.argv.includes('--software-gl') || (!PACKAGED && process.env.PHLIPPO_SOFTWARE_GL === '1') || readGpuPrefs().software === true;
+const SOFTWARE_GL_SOURCE = process.argv.includes('--software-gl') ? 'argument' : !PACKAGED && process.env.PHLIPPO_SOFTWARE_GL === '1' ? 'environment' : readGpuPrefs().software === true ? 'options' : null;
+const SOFTWARE_GL = SOFTWARE_GL_SOURCE !== null;
 if (SOFTWARE_GL) {
   app.commandLine.appendSwitch('use-gl', 'angle');
   app.commandLine.appendSwitch('use-angle', 'swiftshader');
@@ -331,64 +335,20 @@ ipcMain.handle('file:saveAs', async (e, { defaultPath, filters, data }) => {
   }
 });
 
-// Auto-Recover (Options > Backup/Recover, QA v0.5.1 F112): a copy of the open document every few minutes in the
-// auto-recover folder. The shell makes the file names itself (<document>.autorecover.kcad) and only lists, reads and
-// removes such files in that folder.
-const RECOVER_SUFFIX = '.autorecover.kcad';
-function recoverDir(folder) {
-  const expanded = String(folder ?? '').replace(/%([^%]+)%/g, (_m, v) => process.env[v] ?? '');
-  return path.isAbsolute(expanded) ? path.normalize(expanded) : path.join(app.getPath('userData'), 'backup');
-}
-const recoverFile = (name) => (String(name ?? '').replace(/[^\w .()-]+/g, '_').trim().slice(0, 80) || 'Document') + RECOVER_SUFFIX;
-const isRecoverFile = (name) => typeof name === 'string' && name === path.basename(name) && name.endsWith(RECOVER_SUFFIX);
-ipcMain.handle('recover:write', async (e, { folder, name, data }) => {
-  if (!trusted(e)) return null;
-  if (!(data instanceof ArrayBuffer) || data.byteLength > MAX_FILE_BYTES) return { error: 'The document is too large.' };
-  const dir = recoverDir(folder), file = path.join(dir, recoverFile(name));
-  const tmp = `${file}.tmp-${process.pid}-${Date.now()}`;
-  try {
-    await fs.mkdir(dir, { recursive: true });
-    await fs.writeFile(tmp, Buffer.from(data));
-    await fs.rename(tmp, file);
-    return { name: path.basename(file) };
-  } catch (err) {
-    await fs.rm(tmp, { force: true }).catch(() => {});
-    return { error: String(err.message ?? err) };
-  }
-});
-ipcMain.handle('recover:list', async (e, folder) => {
-  if (!trusted(e)) return [];
-  const dir = recoverDir(folder);
-  try {
-    const names = (await fs.readdir(dir)).filter(isRecoverFile);
-    const out = [];
-    for (const n of names) out.push({ name: n, time: (await fs.stat(path.join(dir, n))).mtimeMs });
-    return out.sort((a, b) => b.time - a.time);
-  } catch {
-    return [];
-  }
-});
-ipcMain.handle('recover:read', async (e, { folder, name }) => {
-  if (!trusted(e) || !isRecoverFile(name)) return null;
-  try {
-    const buf = await fs.readFile(path.join(recoverDir(folder), name));
-    if (buf.byteLength > MAX_FILE_BYTES) return null;
-    return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
-  } catch {
-    return null;
-  }
-});
-ipcMain.handle('recover:remove', async (e, { folder, name }) => {
-  if (!trusted(e)) return;
-  await fs.rm(path.join(recoverDir(folder), recoverFile(name)), { force: true }).catch(() => {});
-});
+// Auto-Recover (Options ▸ Backup/Recover): the folder, the file names and the writes are decided in recover.cjs; the
+// renderer names a document (id, name, the handle of its file) and never a path
+registerRecover({ ipcMain, dialog, app, trusted, getWin: () => win, pathOf: (h) => handles.get(h) ?? null, maxBytes: MAX_FILE_BYTES });
 
 // software OpenGL: whether this run uses it, the choice for the next start, and a restart to apply it now
-ipcMain.handle('gpu:status', (e) => (trusted(e) ? { software: SOFTWARE_GL, next: readGpuPrefs().software === true } : null));
+ipcMain.handle('gpu:status', (e) => (trusted(e) ? { software: SOFTWARE_GL, source: SOFTWARE_GL_SOURCE, next: readGpuPrefs().software === true } : null));
 ipcMain.handle('gpu:setSoftware', async (e, on) => {
   if (!trusted(e)) return false;
+  if (on !== true) {
+    await fs.rm(GPU_FILE, { force: true });
+    return true;
+  }
   await fs.mkdir(path.dirname(GPU_FILE), { recursive: true });
-  await fs.writeFile(GPU_FILE, JSON.stringify({ software: on === true }));
+  await fs.writeFile(GPU_FILE, JSON.stringify({ software: true }));
   return true;
 });
 ipcMain.handle('gpu:restart', (e) => {

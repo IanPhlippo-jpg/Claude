@@ -5,7 +5,7 @@
 import { menuPath } from './lib/menu.mjs';
 import { chromium } from 'playwright';
 import { mkdirSync } from 'node:fs';
-import { checks, exitCode, track, skip } from './lib/check.mjs';
+import { checks, exitCode, track, skip, dontSave } from './lib/check.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -54,8 +54,9 @@ check('two lines selected: Total Length 140mm in the status bar', (await status(
 await S(() => window.__phlippoStore.getState().setSelection([]));
 const mid = await S(() => window.__phlippoProject({ x: 40, y: 0 }));
 await page.mouse.click(mid.x, mid.y);
-await page.waitForTimeout(600);
-check('a clicked line shows the context toolbar with Make Horizontal', (await page.locator('[data-testid="sketch-ctxbar"] [data-tip="Make Horizontal"]').count()) === 1);
+// the toolbar follows the click after a short delay; a slow runner (software GL) needs a real wait, not a fixed one (F144)
+const ctxShown = await page.locator('[data-testid="sketch-ctxbar"] [data-tip="Make Horizontal"]').waitFor({ timeout: 6000 }).then(() => true, () => false);
+check('a clicked line shows the context toolbar with Make Horizontal', ctxShown);
 await page.keyboard.press('Escape');
 
 // ---- the sketch shortcut menu: the dimension heading and the fly-outs
@@ -105,8 +106,8 @@ await page.waitForTimeout(400);
 
 // ---- the context toolbar of a tree item: shown after a short rest, Suppress through it
 await page.locator('.k-tree-row:has-text("Boss-Extrude1")').first().click();
-await page.waitForTimeout(600);
 const bar = page.locator('[data-testid="tree-ctxbar"]');
+await bar.waitFor({ timeout: 6000 }).catch(() => undefined);
 check('a click on Boss-Extrude1 shows its context toolbar (Edit Feature, Edit Sketch, Suppress, Normal To)', (await bar.count()) === 1 && (await page.locator('[data-testid="ctx-edit-feature"]').count()) === 1 && (await page.locator('[data-testid="ctx-normal-to"]').count()) === 1);
 const bb = await bar.boundingBox();
 if (bb) {
@@ -122,7 +123,7 @@ await page.waitForTimeout(300);
 // ---- bodies: [n] when one feature makes several
 await S(() => { const s = window.__phlippoStore.getState(); s.startMoveBody(); s.updateFeatureDraft({ copy: true, copies: 2, translate: [100, 0, 0] }); s.commitFeature(); });
 await page.waitForTimeout(600);
-await page.locator('.k-tree-row:has-text("Solid Bodies") .caret').first().click().catch(skip('inventory47.mjs:125'));
+await page.locator('.k-tree-row:has-text("Solid Bodies") .caret').first().click();
 await page.waitForTimeout(150);
 const names = await page.locator('.k-tree-row[data-id^="body-"]').allInnerTexts();
 check('two bodies of one feature are named Body-Move/Copy1[1] and [2]', names.some((n) => n.includes('Body-Move/Copy1[1]')) && names.some((n) => n.includes('Body-Move/Copy1[2]')), JSON.stringify(names));
@@ -168,7 +169,7 @@ await S(() => {
   d.features = [{ id: 'im1', type: 'imported', name: 'Imported1', suppressed: false, positions: tri, source: 'box.stl' }];
   window.__phlippoStore.getState().openDocument(d);
 });
-await page.locator('[data-testid="ask-no"]').click({ timeout: 1500 }).catch(skip('inventory47.mjs:171'));
+await dontSave(page); // Save changes? → Don't Save, when it asks
 await page.waitForTimeout(400);
 await S(() => window.__phlippoStore.getState().setDialog('importDiagnostics'));
 await page.waitForSelector('[data-testid="import-diagnostics"]', { timeout: 5000 }).catch(skip('inventory47.mjs:174'));
@@ -179,7 +180,7 @@ await page.waitForTimeout(400);
 const gaps1 = await gapsOf();
 check('Import Diagnostics finds the gaps and Attempt to Heal All closes them', Number(gaps0) > 0 && Number(gaps1) === 0, `${gaps0} → ${gaps1}`);
 await page.screenshot({ path: `${OUT}/inventory47.png` });
-await page.locator('[data-testid="import-diagnostics"] button:has-text("Close")').click().catch(skip('inventory47.mjs:182'));
+await page.locator('[data-testid="import-diagnostics"] button:has-text("Close")').click();
 
 // ---- sheet metal: a base flange from an open U profile shows BaseBend1 and BaseBend2 under it
 await S(() => {
@@ -194,9 +195,9 @@ await S(() => {
   d.features = [{ id: 'k1', type: 'sketch', name: 'Sketch1', sketchId: 'u1', suppressed: false }, { id: 'bf1', type: 'baseFlange', name: 'Base-Flange1', sketchId: 'u1', suppressed: false, depth: 60, midPlane: true, reverse: false, flipDir: false }];
   window.__phlippoStore.getState().openDocument(d);
 });
-await page.locator('[data-testid="ask-no"]').click({ timeout: 1500 }).catch(skip('inventory47.mjs:197'));
+await dontSave(page); // Save changes? → Don't Save, when it asks
 await page.waitForTimeout(500);
-await page.locator('.k-tree-row:has-text("Base-Flange1") .caret').first().click().catch(skip('inventory47.mjs:199'));
+await page.locator('.k-tree-row:has-text("Base-Flange1") .caret').first().click();
 await page.waitForTimeout(200);
 check('Base-Flange1 holds BaseBend1 and BaseBend2', (await page.locator('.k-tree-row:has-text("BaseBend1")').count()) === 1 && (await page.locator('.k-tree-row:has-text("BaseBend2")').count()) === 1);
 

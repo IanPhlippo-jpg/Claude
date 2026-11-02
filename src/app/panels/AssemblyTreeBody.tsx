@@ -84,7 +84,7 @@ export function AssemblyTreeBody() {
           {m.name} ({compName(m.refs[0].componentId)},{compName(m.refs[1].componentId)})
         </span>
       ),
-      tail: status.violated.has(m.id) ? <span className="status conflict" data-testid="mate-error" title="Over defined: this mate conflicts with others">!</span> : null,
+      tail: status.violated.has(m.id) ? <span className="status conflict" data-testid="mate-error" title="Over defined: this mate conflicts with others">!</span> : status.unconverged.has(m.id) ? <span className="status warn" data-testid="mate-unconverged" title="Not settled yet: the mate solver stopped before this chain of mates was met. Rebuild (Ctrl+B) runs it on.">~</span> : null,
       selected: st.selectedFeatureId === m.id,
       suppressed: m.suppressed,
       onClick: (e) => st.setSelectedFeature(e.ctrlKey && st.selectedFeatureId === m.id ? null : m.id),

@@ -2,7 +2,7 @@
 // segment, Reverse into the body), Mounting Boss with fins and a screw hole, Snap Hook, Indent of a plate around a
 // block, Lip/Groove on two shelled halves. Each feature lands in the tree with its own icon and survives a rebuild.
 import { chromium } from 'playwright';
-import { exitCode } from './lib/check.mjs';
+import { exitCode, waitSettled } from './lib/check.mjs';
 import { menuPath } from './lib/menu.mjs';
 import { mkdirSync } from 'node:fs';
 
@@ -18,12 +18,12 @@ page.on('console', (m) => { if (m.type() === 'error') errors.push('console: ' + 
 const S = (fn, arg) => page.evaluate(fn, arg);
 const errs = () => S(() => JSON.stringify(window.__phlippoStore.getState().rebuild.errors));
 /** volumes of the bodies (mm³), from their triangles */
-const volumes = () => S(() => window.__phlippoStore.getState().rebuild.bodies.map((b) => {
+const volumes = async () => { await waitSettled(page); return S(() => window.__phlippoStore.getState().rebuild.bodies.map((b) => {
   const g = b.geometry.index ? b.geometry.toNonIndexed() : b.geometry, p = g.getAttribute('position').array;
   let v = 0;
   for (let i = 0; i < p.length; i += 9) v += (p[i] * (p[i + 4] * p[i + 8] - p[i + 5] * p[i + 7]) - p[i + 1] * (p[i + 3] * p[i + 8] - p[i + 5] * p[i + 6]) + p[i + 2] * (p[i + 3] * p[i + 7] - p[i + 4] * p[i + 6])) / 6;
   return Math.round(v * 10) / 10;
-}));
+})); };
 /** selects the face of a body whose outward normal is n and that lies farthest along it (largest first) */
 const pickFace = (n, bodyIndex = 0, nearest = null) => S(({ n, bodyIndex, nearest }) => {
   const st = window.__phlippoStore.getState(), b = st.rebuild.bodies[bodyIndex];

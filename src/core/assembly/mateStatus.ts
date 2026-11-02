@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import type { Component, Mate } from '../document/types';
 import type { Id } from '../sketch/types';
-import { groundDistance, movingSide, solveMate, worldRef } from './assembly';
+import { groundDistance, movingSide, solveMate, solveMates, worldRef } from './assembly';
 
 /**
  * The state of the mates of an assembly, as the intended design shows it (QA v0.5.1 F108):
@@ -17,6 +17,13 @@ export type ComponentState = 'fixed' | 'under' | 'full' | 'over';
 export interface MateStatus {
   /** mates that are not met: they conflict with the others */
   violated: Set<Id>;
+  /**
+   * mates that are not met yet, but would be with more passes of the solver: the solver stopped before the chain
+   * settled (QA 0.5.10 F166); not a conflict, the assembly reads as not converged
+   */
+  unconverged: Set<Id>;
+  /** the largest remaining error of a mate (mm, plus a turn weighed as mm), 0 when every mate is met */
+  residual: number;
   components: Record<Id, ComponentState>;
 }
 
@@ -104,9 +111,33 @@ export function mateStatus(components: Component[], mates: Mate[]): MateStatus {
   const byId = new Map(components.map((c) => [c.id, c]));
   const ground = groundDistance(components, active);
   const violated = new Set<Id>();
-  for (const m of active) {
-    const a = byId.get(m.refs[0].componentId), b = byId.get(m.refs[1].componentId);
-    if (a && b && a !== b && mateError(m, a, b, ground) > 1e-3) violated.add(m.id);
+  let residual = 0;
+  const errorsOf = (comps: Map<Id, Component>) => {
+    const out = new Map<Id, number>();
+    for (const m of active) {
+      const a = comps.get(m.refs[0].componentId), b = comps.get(m.refs[1].componentId);
+      if (a && b && a !== b) out.set(m.id, mateError(m, a, b, ground));
+    }
+    return out;
+  };
+  for (const [id, e] of errorsOf(byId)) { residual = Math.max(residual, e); if (e > 1e-3) violated.add(id); }
+  // a mate that is met once the solver runs on is no conflict: the chain had not settled (F166)
+  const unconverged = new Set<Id>();
+  if (violated.size) {
+    const settled = new Map(solveMates(components, mates, 128).map((c) => [c.id, c]));
+    for (const [id, e] of errorsOf(settled)) if (violated.has(id) && e <= 1e-3) { violated.delete(id); unconverged.add(id); }
+  }
+  // the mate that conflicts is the one added last, as the intended design marks it (QA 0.5.10 F141): a violated
+  // older mate that is met once a newer mate on the same part is left out hands its mark to that newer mate
+  const order = new Map(mates.map((m, i) => [m.id, i]));
+  const shares = (x: Mate, y: Mate) => x.refs.some((r) => y.refs.some((q) => q.componentId === r.componentId && !byId.get(r.componentId)?.fixed));
+  for (const v of [...violated].sort((x, y) => order.get(x)! - order.get(y)!)) {
+    const vm = active.find((m) => m.id === v)!;
+    const newer = active.filter((m) => order.get(m.id)! > order.get(v)! && !violated.has(m.id) && shares(m, vm)).sort((x, y) => order.get(y.id)! - order.get(x.id)!);
+    for (const cand of newer) {
+      const without = new Map(solveMates(components, mates.filter((m) => m.id !== cand.id), 128).map((c) => [c.id, c]));
+      if ((errorsOf(without).get(v) ?? Infinity) <= 1e-3) { violated.delete(v); violated.add(cand.id); break; }
+    }
   }
   const state: Record<Id, ComponentState> = {};
   for (const c of components) if (c.fixed) state[c.id] = 'fixed';
@@ -121,5 +152,5 @@ export function mateStatus(components: Component[], mates: Mate[]): MateStatus {
     }
   }
   for (const c of components) if (!state[c.id]) state[c.id] = 'under';
-  return { violated, components: state };
+  return { violated, unconverged, residual, components: state };
 }

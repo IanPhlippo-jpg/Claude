@@ -1,4 +1,4 @@
-// Look-dev for the default part look (studioLook.ts): a box like the one of the 2025 reference frame (01/0062),
+// Look-dev for the default part look (studioLook.ts): a box like the one of the calibration frames,
 // isometric at 1920 x 1080, next to that frame -> e2e-out/studio-compare.png. Lighting and studio settings can be set
 // live: CFG='{"studio":{"metalness":0.4},"light":{"ambient":0.3}}' node e2e/tools/calib-studio.mjs
 import { chromium } from 'playwright';

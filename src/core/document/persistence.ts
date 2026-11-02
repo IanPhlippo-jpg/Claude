@@ -135,6 +135,10 @@ function renameOldFields(d: Raw): void {
     delete d.dimxpert;
   }
   if (d.version === 1) d.version = FILE_VERSION;
+  // QA v0.5.10 F165: files of 0.5.1 wrote the density file property with a vendor prefix; the equations are rewritten
+  if (Array.isArray(d.equations)) for (const e of d.equations) if (isObj(e) && typeof e.expression === 'string') e.expression = e.expression.replace(/\bSW-Density\b/g, 'Density');
+  // QA v0.5.10 F50: the frame feature had a program-specific default name; a name the user typed stays
+  if (Array.isArray(d.features)) for (const f of d.features) if (isObj(f) && f.type === 'weldment' && typeof f.name === 'string' && /^Weldment$/.test(f.name)) f.name = 'Frame';
 }
 
 /** every field the app relies on is checked, so a damaged file is refused instead of opening empty or half */

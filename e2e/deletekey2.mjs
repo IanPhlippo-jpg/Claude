@@ -1,6 +1,6 @@
 // Delete in a sketch with relations: a line of a (center) rectangle, the whole rectangle by box selection, a dimension
 import { chromium } from 'playwright';
-import { exitCode, skip } from './lib/check.mjs';
+import { exitCode } from './lib/check.mjs';
 
 const browser = await chromium.launch(process.platform === 'win32' ? { channel: process.env.PW_CHANNEL ?? 'msedge' } : { ...(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {}), args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
 const page = await browser.newPage({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1, colorScheme: 'light' });
@@ -61,7 +61,7 @@ check('everything is deleted', (await ents()) === 0, String(await ents()));
 await page.keyboard.press('Control+z');
 await page.waitForTimeout(500);
 await alive('undo after delete');
-await page.keyboard.press('Control+a').catch(skip('deletekey2:64'));
+await page.keyboard.press('Control+a');
 await page.keyboard.press('Delete');
 await page.waitForTimeout(800);
 await alive('select all + delete');

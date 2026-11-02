@@ -91,10 +91,10 @@ export function roundTool(s: CreaseSegment, kind: 'fillet' | 'chamfer', size: nu
  * Null when the chain is not one connected run or its joints are not all convex or all concave.
  */
 export function chainTool(e: BodyEdge, kind: 'fillet' | 'chamfer', size: number, nArc = 12): { geometry: THREE.BufferGeometry; convex: boolean } | null {
-  const segs = e.segments;
-  if (e.straight || segs.length < 3) return null;
-  for (let i = 0; i + 1 < segs.length; i++) if (segs[i].b.distanceTo(segs[i + 1].a) > 1e-4) return null;
-  const closed = e.closed && segs[segs.length - 1].b.distanceTo(segs[0].a) < 1e-4;
+  if (e.straight || e.segments.length < 3) return null;
+  const segs = tidyChain(e.segments, e.closed);
+  if (!segs || segs.length < 3) return null;
+  const closed = e.closed && segs[segs.length - 1].b.distanceTo(segs[0].a) < 1e-6;
   // face 1 of every segment on the same side as face 1 of the first
   const n1s: THREE.Vector3[] = [], n2s: THREE.Vector3[] = [];
   for (const sg of segs) {
@@ -128,6 +128,44 @@ export function chainTool(e: BodyEdge, kind: 'fillet' | 'chamfer', size: number,
     sections.push(profilePoly(o, t1, t2, n1, n2, cvx, outward, kind, d, d, Math.sin(phi / 2), kind === 'fillet' ? nArc : 1));
   }
   return { geometry: loftChain(sections, closed), convex: !!convex };
+}
+
+/** the gap the segments of one chain may leave between them (booleans leave chord junctions a little apart) */
+const CHAIN_GAP = 0.05;
+/** a segment shorter than this is a sliver a boolean left at a chord junction, not a facet of the edge */
+const SLIVER = 0.3;
+
+/**
+ * A crease chain as one connected run: the joints snapped together (a boolean leaves the facets of a rim a few
+ * thousandths apart, and the chain tool must not fall back to a tool per facet, QA 0.5.10 F139), and the slivers a
+ * boolean left at chord junctions merged into their neighbour (a joint every 0.07 mm folds the loft). Null when the
+ * run is not connected at all.
+ */
+function tidyChain(input: CreaseSegment[], closed: boolean): CreaseSegment[] | null {
+  const segs = input.map((s) => ({ ...s, a: s.a.clone(), b: s.b.clone() }));
+  const join = (p: CreaseSegment, q: CreaseSegment): boolean => {
+    const d = p.b.distanceTo(q.a);
+    if (d > CHAIN_GAP) return false;
+    if (d > 0) { const m = p.b.clone().add(q.a).multiplyScalar(0.5); p.b.copy(m); q.a.copy(m); }
+    return true;
+  };
+  for (let i = 0; i + 1 < segs.length; i++) if (!join(segs[i], segs[i + 1])) return null;
+  if (closed && !join(segs[segs.length - 1], segs[0])) return null;
+  // slivers go into the neighbour that continues them (the longer one keeps its normals)
+  const len = (s: CreaseSegment) => s.a.distanceTo(s.b);
+  const longest = Math.max(...segs.map(len));
+  const limit = Math.min(SLIVER, longest * 0.25);
+  let out = segs;
+  for (let guard = 0; guard < segs.length; guard++) {
+    const i = out.findIndex((s) => len(s) < limit);
+    if (i < 0 || out.length <= 3) break;
+    const prev = out[(i - 1 + out.length) % out.length], next = out[(i + 1) % out.length];
+    const intoPrev = (i > 0 || closed) && (!(i + 1 < out.length || closed) || len(prev) >= len(next));
+    if (intoPrev) prev.b.copy(out[i].b);
+    else next.a.copy(out[i].a);
+    out = out.filter((_, k) => k !== i);
+  }
+  return out;
 }
 
 /** a solid through cross-sections with the same number of points: ruled sides, end caps unless it closes on itself */

@@ -1,5 +1,5 @@
 // look-dev: renders the BasePlate (80x80x10, hole 35) in Trimetric under several lighting candidates and prints where
-// the three visible faces sit on screen, so the colours can be sampled against frame f_0118.
+// the three visible faces sit on screen, so the colours can be sampled against calibration frame 0118.
 import { chromium } from 'playwright';
 import { writeFileSync } from 'node:fs';
 const browser = await chromium.launch(process.platform === 'win32' ? { channel: process.env.PW_CHANNEL ?? 'msedge' } : { ...(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {}), args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });

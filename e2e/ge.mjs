@@ -1,8 +1,8 @@
-// Block G-E (Sheet Metal extras): the Sheet Metal tab in the original's order, Profile Sketch check, Vent, Forming Tool,
+// Block G-E (Sheet Metal extras): the Sheet Metal tab in the intended order, Profile Sketch check, Vent, Forming Tool,
 // Sheet Metal Gusset, Simple Hole, Extruded Cut sheet metal options (Link to thickness / Normal cut / Optimize geometry),
 // Insert Bends, Tab and Slot, Rip, Swept Flange.
 import { chromium } from 'playwright';
-import { exitCode, skip } from './lib/check.mjs';
+import { exitCode, skip, waitSettled } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -16,7 +16,7 @@ page.on('pageerror', (e) => errors.push('pageerror: ' + e.message));
 page.on('console', (m) => { if (m.type() === 'error') errors.push('console: ' + m.text()); });
 const S = (fn, arg) => page.evaluate(fn, arg);
 const shot = (n) => page.screenshot({ path: `${OUT}/${n}.png` });
-const vol = () => S(() => { const s = window.__phlippoStore.getState(); return s.rebuild.bodies.reduce((a, b) => { const p = b.geometry.getAttribute('position'); let v = 0; for (let i = 0; i < p.count; i += 3) { const ax = p.getX(i), ay = p.getY(i), az = p.getZ(i), bx = p.getX(i + 1), by = p.getY(i + 1), bz = p.getZ(i + 1), cx = p.getX(i + 2), cy = p.getY(i + 2), cz = p.getZ(i + 2); v += (ax * (by * cz - bz * cy) + bx * (cy * az - cz * ay) + cx * (ay * bz - az * by)) / 6; } return a + Math.abs(v); }, 0); });
+const vol = async () => { await waitSettled(page); return S(() => { const s = window.__phlippoStore.getState(); return s.rebuild.bodies.reduce((a, b) => { const p = b.geometry.getAttribute('position'); let v = 0; for (let i = 0; i < p.count; i += 3) { const ax = p.getX(i), ay = p.getY(i), az = p.getZ(i), bx = p.getX(i + 1), by = p.getY(i + 1), bz = p.getZ(i + 1), cx = p.getX(i + 2), cy = p.getY(i + 2), cz = p.getZ(i + 2); v += (ax * (by * cz - bz * cy) + bx * (cy * az - cz * ay) + cx * (ay * bz - az * by)) / 6; } return a + Math.abs(v); }, 0); }); };
 const errs = () => S(() => window.__phlippoStore.getState().rebuild.errors);
 const names = () => S(() => window.__phlippoStore.getState().doc.features.map((f) => f.name));
 
@@ -41,7 +41,7 @@ await page.mouse.click(p2.x, p2.y);
 await page.keyboard.press('Escape');
 await page.keyboard.press('Escape');
 await page.click('.k-cm-tab:has-text("Sheet Metal")');
-// the tab in the original's order
+// the tab in the intended order
 for (const l of ['Base Flange/Tab', 'Convert to Sheet Metal', 'Lofted-Bend', 'Swept Flange', 'Edge Flange', 'Miter Flange', 'Hem', 'Jog', 'Sketched Bend', 'Cross-Break', 'Corners', 'Forming Tool', 'Extruded Cut', 'Simple Hole', 'Vent', 'Sheet Metal Gusset', 'Tab and Slot', 'Rip', 'Flatten', 'Unfold', 'Fold', 'No Bends', 'Insert Bends']) {
   check(`Sheet Metal tab has ${l}`, (await page.locator(`.k-cm-group :text-is("${l}")`).count()) >= 1);
 }

@@ -121,7 +121,7 @@ export const DIN_LIBRARY: MaterialCategory[] = [
   ] },
 ];
 
-/** Sustainability Extras: materials with their environmental source noted */
+/** Additional Materials: materials with their environmental class noted */
 export const SUSTAINABILITY_LIBRARY: MaterialCategory[] = [
   { name: 'Plastics', materials: [
     m('ABS PC', 1070, '#e4d9b8', { elasticModulus: 2.41e9, poisson: 0.39, tensile: 4e7, conductivity: 0.26, specificHeat: 1900, sustainability: 'Plastics ▸ ABS/PC' }),
@@ -137,7 +137,7 @@ export const SUSTAINABILITY_LIBRARY: MaterialCategory[] = [
 export const MATERIAL_LIBRARIES: { name: string; categories: MaterialCategory[] }[] = [
   { name: 'DIN Materials', categories: DIN_LIBRARY },
   { name: 'Phlippo CAD Materials', categories: MATERIAL_LIBRARY },
-  { name: 'Sustainability Extras', categories: SUSTAINABILITY_LIBRARY },
+  { name: 'Additional Materials', categories: SUSTAINABILITY_LIBRARY },
 ];
 
 export function findMaterial(name: string): MaterialDef | undefined {

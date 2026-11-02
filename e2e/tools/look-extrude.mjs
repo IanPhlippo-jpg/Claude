@@ -1,4 +1,4 @@
-// look-dev: Boss-Extrude Property Panel on an 80 x 80 plate with a Ø35 circle, like reference frame f_0111
+// look-dev: Boss-Extrude Property Panel on an 80 x 80 plate with a Ø35 circle, like calibration frame 0111
 import { chromium } from 'playwright';
 const browser = await chromium.launch(process.platform === 'win32' ? { channel: process.env.PW_CHANNEL ?? 'msedge' } : { ...(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {}), args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
 const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } });

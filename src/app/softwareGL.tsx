@@ -1,7 +1,9 @@
-// Software OpenGL (Options ▸ Performance ▸ Use software OpenGL, QA v0.5.1 F115). In the desktop app the choice is kept
-// by the shell (gpu.json in the profile) and applied when Chromium starts: the 3D view is then drawn by SwiftShader on
-// the CPU, for computers without a usable graphics driver. The browser has no such switch; there the option only shows.
-import { desktop } from './desktop';
+// Software OpenGL (Options ▸ Performance ▸ Use software OpenGL, QA v0.5.1 F115, F162). In the desktop app the choice is
+// kept by the shell (only the choice, in gpu.json in the profile) and applied when Chromium starts: the 3D view is then
+// drawn by SwiftShader on the CPU, for computers without a usable graphics driver. The browser has no such switch;
+// there the option only shows. Options says what the current run uses and offers the way back to the graphics card.
+import { useEffect, useState } from 'react';
+import { desktop, type DesktopApi } from './desktop';
 import { getPref } from './prefs';
 import { useStore } from './store';
 
@@ -41,6 +43,33 @@ export function NoWebGL() {
       This computer cannot show 3D graphics (WebGL is off or the graphics driver is missing).{' '}
       {canSwitch ? 'Update the graphics driver, or draw the 3D view in software (slower).' : 'Update the graphics driver, or turn on hardware acceleration in the browser.'}
       {canSwitch && <div style={{ marginTop: 10 }}><button className="k-btn" data-testid="use-software-gl" onClick={() => void restart()}>Use software OpenGL and restart</button></div>}
+    </div>
+  );
+}
+
+type GpuStatus = NonNullable<Awaited<ReturnType<NonNullable<DesktopApi['gpuStatus']>>>>;
+
+/** Options ▸ Performance, under "Use software OpenGL": what this run uses, and a button back to the graphics card */
+export function SoftwareGLNote() {
+  const api = desktop();
+  const [status, setStatus] = useState<GpuStatus | null>(null);
+  useEffect(() => { void api?.gpuStatus?.().then((s) => setStatus(s ?? null)); }, [api]);
+  if (!status || (!status.software && !status.next)) return null;
+  const back = async () => {
+    const st = useStore.getState();
+    st.setPrefs({ ...st.prefs, 'perf.softwareOpenGL': false });
+    await api!.setSoftwareGL!(false);
+    await api!.restartApp!();
+  };
+  const why = status.source === 'argument' ? ' for this run (started with --software-gl)' : status.source === 'environment' ? ' for this run (PHLIPPO_SOFTWARE_GL)' : '';
+  return (
+    <div className="k-opt-note" data-testid="software-gl-note">
+      {status.software
+        ? `The 3D view is drawn in software (SwiftShader)${why}: slower than the graphics card, and Chromium runs its software renderer with a JIT it otherwise keeps off for web pages. This window only loads Phlippo CAD's own pages.`
+        : 'Software OpenGL is chosen and takes effect when Phlippo CAD starts again.'}
+      {status.next && api?.setSoftwareGL && api.restartApp && (
+        <div style={{ marginTop: 6 }}><button className="k-btn" data-testid="software-gl-off" onClick={() => void back()}>Use the graphics card again and restart</button></div>
+      )}
     </div>
   );
 }

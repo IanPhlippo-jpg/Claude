@@ -1,6 +1,6 @@
 // Sheet metal (videos 16/21/24): Base Flange/Tab from an open L sketch, Edge Flange on a straight edge, Flatten.
 import { chromium } from 'playwright';
-import { exitCode, skip } from './lib/check.mjs';
+import { exitCode, waitSettled } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -13,7 +13,7 @@ const check = (name, ok, info = '') => { results.push({ name, ok: !!ok, info });
 page.on('pageerror', (e) => errors.push('pageerror: ' + e.message));
 page.on('console', (m) => { if (m.type() === 'error') errors.push('console: ' + m.text()); });
 const shot = (n) => page.screenshot({ path: `${OUT}/${n}.png` });
-const volume = () => page.evaluate(() => { let v = 0; for (const b of window.__phlippoStore.getState().rebuild.bodies) { const p = b.geometry.attributes.position.array; for (let i = 0; i < p.length; i += 9) { const ax = p[i], ay = p[i + 1], az = p[i + 2], bx = p[i + 3], by = p[i + 4], bz = p[i + 5], cx = p[i + 6], cy = p[i + 7], cz = p[i + 8]; v += (ax * (by * cz - bz * cy) - ay * (bx * cz - bz * cx) + az * (bx * cy - by * cx)) / 6; } } return Math.abs(v); });
+const volume = async () => { await waitSettled(page); return page.evaluate(() => { let v = 0; for (const b of window.__phlippoStore.getState().rebuild.bodies) { const p = b.geometry.attributes.position.array; for (let i = 0; i < p.length; i += 9) { const ax = p[i], ay = p[i + 1], az = p[i + 2], bx = p[i + 3], by = p[i + 4], bz = p[i + 5], cx = p[i + 6], cy = p[i + 7], cz = p[i + 8]; v += (ax * (by * cz - bz * cy) - ay * (bx * cz - bz * cx) + az * (bx * cy - by * cx)) / 6; } } return Math.abs(v); }); };
 const S = () => page.evaluate(() => { const s = window.__phlippoStore.getState(); return { features: s.doc.features.map((f) => f.name + (f.suppressed ? '(s)' : '')), bodies: s.rebuild.bodies.length, errors: s.rebuild.errors, sm: s.doc.sheetMetal ?? null }; });
 
 await page.goto(process.env.E2E_URL ?? 'http://localhost:4173/');
@@ -68,7 +68,8 @@ const picked = await page.evaluate(() => {
   const b = s.rebuild.bodies[0];
   // the straight edge with the highest centroid (top of the vertical leg), 60 long
   const cands = b.edges.filter((e) => e.straight && Math.abs(e.length - 60) < 0.5);
-  cands.sort((a, c) => c.centroid.y - a.centroid.y);
+  // two edges share y = 30 (outer face x = 40, inner face x = 37): the outer one, on both kernels
+  cands.sort((a, c) => c.centroid.y - a.centroid.y || c.centroid.x - a.centroid.x);
   if (!cands.length) return null;
   s.toggleSelectedEdge(cands[0].id);
   return { y: cands[0].centroid.y, edge: !!window.__phlippoStore.getState().featureEdit?.draft?.edge };
@@ -120,7 +121,7 @@ check('thickness 2 gives a thinner sheet', (await volume()) < v2 * 0.8, String(a
 // reload keeps everything
 await page.reload();
 await page.waitForSelector('.k-viewport');
-await page.locator('[data-testid="welcome-recent-0"]').click({ timeout: 4000 }).catch(skip('sheetmetal:123')); // the autosave waits under Recent Documents, as the original
+await page.locator('[data-testid="welcome-recent-0"]').click({ timeout: 10000 }); // the autosave waits under Recent Documents, by design
 await page.waitForTimeout(800);
 s = await S();
 check('reload keeps Sheet-Metal1, the flanges and the flat pattern feature', s.sm && s.sm.thickness === 2 && s.features.includes('Edge-Flange1') && s.features.includes('Flat-Pattern1(s)'), JSON.stringify(s));

@@ -105,7 +105,10 @@ export function StatusBar({ hint: hint0 }: { hint: string }) {
   // an assembly: Under / Fully / Over Defined from its mates (QA v0.5.1 F108)
   const asmStatus = useMemo(() => {
     if (st.doc.kind !== 'assembly' || !(st.doc.components ?? []).length) return null;
-    const s = Object.values(mateStatus(st.doc.components ?? [], st.doc.mates ?? []).components);
+    const ms = mateStatus(st.doc.components ?? [], st.doc.mates ?? []);
+    const s = Object.values(ms.components);
+    // a chain the solver has not settled is said as such, not as a conflict (F166)
+    if (ms.unconverged.size) return `Not Converged (${ms.residual.toFixed(2)}mm)`;
     return s.includes('over') ? 'Over Defined' : s.includes('under') ? 'Under Defined' : 'Fully Defined';
   }, [st.doc]);
   const u = st.doc.units;
@@ -199,7 +202,7 @@ export function StatusBar({ hint: hint0 }: { hint: string }) {
       <span className="grow" />
       {readout && <span className="k-status-cell" data-testid="status-readout">{readout}</span>}
       {st.cursor && (st.activeSketchId || st.doc.kind === 'drawing') && (
-        // the pointer in sketch coordinates x, y and 0, as the reference status bar shows them while sketching
+        // the pointer in sketch coordinates x, y and 0, as the status bar shows them while sketching
         <span className="k-status-coords" data-testid="status-xyz">
           <span>{coord(st.cursor.x)}</span>
           <span>{coord(st.cursor.y)}</span>

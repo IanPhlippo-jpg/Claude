@@ -24,7 +24,7 @@ const alive = async (label) => {
   if (r !== 1) failures++;
   return r === 1;
 };
-await page.click('.k-doctype:has-text("Part")').catch(skip('desktop-delete.mjs:26'));
+await page.click('.k-doctype:has-text("Part")');
 await page.waitForTimeout(500);
 await page.keyboard.press('Delete');
 await alive('Delete in an empty part');
@@ -48,7 +48,7 @@ console.log('entities after delete:', n);
 await page.keyboard.press('Control+q').catch(skip('desktop-delete.mjs:47'));
 await page.evaluate(() => window.__phlippoStore.getState().exitSketch()).catch(skip('desktop-delete.mjs:48'));
 await page.waitForTimeout(400);
-await page.locator('.k-tree-row:has-text("Sketch1")').first().click().catch(skip('desktop-delete.mjs:50'));
+await page.locator('.k-tree-row:has-text("Sketch1")').first().click();
 await page.keyboard.press('Delete');
 await page.waitForTimeout(800);
 await alive('Delete the sketch feature');

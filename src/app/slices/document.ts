@@ -10,6 +10,7 @@ import { isAssembly, isDrawing } from '../../core/document/types';
 import type { State, StoreSet, StoreGet, Library } from '../store';
 import { initialSolve, initialRebuild, history, rebuildFor, rebuildNow, whenRebuilt, historyFlags, featureName, solveAll, saveLibraries } from '../store';
 import { reorderFeatures } from '../../core/features/reorder';
+import { recoveredName } from '../recovered';
 
 type DocumentKeys =
   | 'doc' | 'rebuild' | 'openSeq' | 'hasDocument' | 'sessionParts' | 'exportFormat' | 'dirty'
@@ -36,7 +37,8 @@ export const documentSlice = (set: StoreSet, get: StoreGet): Pick<State, Documen
     keepInSession(get, set);
     history.clear();
     const n = kind === 'assembly' ? 'Assem1' : kind === 'drawing' ? 'Draw1' : 'Part1';
-    const doc = createDocument(n, kind);
+    // every document has a stable id from the start (autosave and Auto-Recover keep one copy per id, QA F153)
+    const doc: Document = { ...createDocument(n, kind), id: newId('doc') };
     set({ doc, hasDocument: true, solve: {}, rebuild: rebuildFor(doc, null), activeSketchId: null, featureEdit: null, mateEdit: null, insertingComponent: kind === 'assembly', asmTool: 'select', selectedFeatureId: null, selectedFace: null, selectedFaces: [], selection: [], selectedConstraint: null, dirty: false, tab: kind === 'assembly' ? 'assembly' : kind === 'drawing' ? 'viewLayout' : 'features', drawingEdit: null, selectedDrawingViewId: null, rollbackIndex: null, ...historyFlags() });
     autosave(doc);
   },
@@ -70,7 +72,11 @@ export const documentSlice = (set: StoreSet, get: StoreGet): Pick<State, Documen
     set({ doc: d, rebuild: rebuildFor(d, get().rollbackIndex), dirty: true, ...historyFlags() });
     autosave(d);
   },
-  openDocument(doc, opts) {
+  openDocument(source, opts) {
+    // a document without an id (made in code, or by an older build) gets one; a recovered copy opens with unsaved
+    // changes and " (Recovered)" after its name: it is not the saved file (QA F154)
+    let doc = source;
+    if (!doc?.id || opts?.recovered) doc = { ...doc, id: doc?.id || newId('doc'), ...(opts?.recovered ? { name: recoveredName(doc?.name) } : {}) };
     // solved and rebuilt before anything changes: a document that cannot be opened leaves the current one (and its autosave) as it is
     let r: ReturnType<typeof solveAll>, rebuild: ReturnType<typeof rebuildFor>;
     try {
@@ -82,9 +88,9 @@ export const documentSlice = (set: StoreSet, get: StoreGet): Pick<State, Documen
       return;
     }
     if (!opts?.keepHistory) history.clear();
-    if (get().doc !== doc && get().doc.name !== doc.name) keepInSession(get, set);
+    if (get().doc !== source && get().doc.name !== doc.name) keepInSession(get, set);
     set({ prefs: { ...loadPrefs(), ...(doc.properties ?? {}) } });
-    set({ openSeq: get().openSeq + 1, hasDocument: true, doc: r.doc, solve: r.solve, rebuild, activeSketchId: null, featureEdit: null, mateEdit: null, insertingComponent: false, asmTool: 'select', selectedFeatureId: null, selectedFace: null, selectedFaces: [], selection: [], selectedConstraint: null, dirty: false, tab: isAssembly(r.doc) ? 'assembly' : isDrawing(r.doc) ? 'viewLayout' : 'features', drawingEdit: null, selectedDrawingViewId: null, rollbackIndex: null, editContext: null, messages: get().messages.filter((m) => m.level !== 'info'), whatsWrong: Object.keys(rebuild.errors).length > 0, ...historyFlags() });
+    set({ openSeq: get().openSeq + 1, hasDocument: true, doc: r.doc, solve: r.solve, rebuild, activeSketchId: null, featureEdit: null, mateEdit: null, insertingComponent: false, asmTool: 'select', selectedFeatureId: null, selectedFace: null, selectedFaces: [], selection: [], selectedConstraint: null, dirty: !!opts?.recovered, tab: isAssembly(r.doc) ? 'assembly' : isDrawing(r.doc) ? 'viewLayout' : 'features', drawingEdit: null, selectedDrawingViewId: null, rollbackIndex: null, editContext: null, messages: get().messages.filter((m) => m.level !== 'info'), whatsWrong: Object.keys(rebuild.errors).length > 0, ...historyFlags() });
     autosave(r.doc);
     if (rebuild.pending) whenRebuilt(rebuild, (rb) => { if (Object.keys(rb.errors).length) set({ whatsWrong: true }); });
   },

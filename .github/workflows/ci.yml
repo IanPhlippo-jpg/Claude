@@ -2,11 +2,16 @@ name: ci
 on:
   push:
   pull_request:
+# Three kinds of jobs that run side by side, so a red one never hides the others (QA F147):
+#   checks      typecheck, unit tests, the text checks and the release build
+#   desktop     the release build in the desktop shell: without hooks, the self-test, the autosave after a restart, AutoRecover
+#   regression  the browser regression as a matrix of passes, each with its own log (QA F158, F160)
+# Every job runs on ubuntu-24.04: ubuntu-latest moved to 26.04, for which Playwright has no Chromium (QA F54).
+# Inside a job the steps that test run on with continue-on-error, and the last step fails the job when one of them failed.
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    # the full regression takes about 35 minutes on a runner; a hang must not run for hours
-    timeout-minutes: 90
+  checks:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -14,16 +19,47 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
-      - run: npm run typecheck
-      - run: npm test
+      - id: typecheck
+        continue-on-error: true
+        run: npm run typecheck
+      - id: unit
+        continue-on-error: true
+        run: npm test
       # no program-specific names in the visible text and no wording that names the reference program (F50, F92)
-      - run: node tools/rename-trademarks.cjs --check && node tools/neutral-comments.cjs --check && node tools/line-budget.cjs
-      # the release build (no test hooks), then the e2e build (VITE_TEST_HOOKS=1) the regression drives
+      - id: text
+        continue-on-error: true
+        run: node tools/rename-trademarks.cjs --check && node tools/neutral-comments.cjs --check && node tools/line-budget.cjs
+      # the release build (no test hooks)
+      - id: build
+        continue-on-error: true
+        run: npm run build
+      # the build leaves the repository as it found it
+      - id: clean
+        continue-on-error: true
+        run: git diff --exit-code
+      - name: all checks passed
+        if: always()
+        run: |
+          echo "typecheck=${{ steps.typecheck.outcome }} unit=${{ steps.unit.outcome }} text=${{ steps.text.outcome }} build=${{ steps.build.outcome }} clean=${{ steps.clean.outcome }}"
+          test "${{ steps.typecheck.outcome }}" = success && test "${{ steps.unit.outcome }}" = success && test "${{ steps.text.outcome }}" = success && test "${{ steps.build.outcome }}" = success && test "${{ steps.clean.outcome }}" = success
+
+  desktop:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      # the libraries Electron's Chromium needs on a bare runner
+      - run: npx playwright install-deps chromium
       - run: npm run build
       # the release build without test hooks, in the desktop shell (F53, F97, F100): the functional checks without hooks,
-      # then the self-test (app://, the OpenCascade WASM worker, extrude, fillet, STEP, an atomic save). The runner has no
-      # GPU: the shell draws with software OpenGL (SwiftShader, F115/F128). A red desktop step does not hide the
-      # regression: both run on, and the last step fails the job when one of them failed.
+      # then the self-test (app://, the OpenCascade WASM worker, extrude, fillet, STEP, an atomic save), then the
+      # autosave in a profile of its own that is still there after a restart. The runner has no GPU: the shell draws
+      # with software OpenGL (SwiftShader, F115/F128).
       - id: nohooks
         continue-on-error: true
         run: PHLIPPO_SOFTWARE_GL=1 xvfb-run -a node e2e/desktop-nohooks.mjs
@@ -32,32 +68,83 @@ jobs:
         run: |
           code=0; xvfb-run -a npx electron . --self-test --software-gl --no-sandbox || code=$?
           cat /tmp/phlippo-self-test.json; exit $code
+      - id: autosave
+        continue-on-error: true
+        run: PHLIPPO_SOFTWARE_GL=1 PHLIPPO_USER_DATA="$(mktemp -d)" xvfb-run -a node e2e/desktop-restore-autosave.mjs e2e/fixtures/user-part1.json
+      # AutoRecover: copies per document, the folder chosen in main, a hard kill and Document Recovery (F153, F154, F156)
+      - id: recover
+        continue-on-error: true
+        run: PHLIPPO_SOFTWARE_GL=1 xvfb-run -a node e2e/desktop-recover.mjs
+      - id: clean
+        continue-on-error: true
+        run: git diff --exit-code
+      - name: desktop checks passed
+        if: always()
+        run: |
+          echo "nohooks=${{ steps.nohooks.outcome }} selftest=${{ steps.selftest.outcome }} autosave=${{ steps.autosave.outcome }} recover=${{ steps.recover.outcome }} clean=${{ steps.clean.outcome }}"
+          test "${{ steps.nohooks.outcome }}" = success && test "${{ steps.selftest.outcome }}" = success && test "${{ steps.autosave.outcome }}" = success && test "${{ steps.recover.outcome }}" = success && test "${{ steps.clean.outcome }}" = success
+
+  # The passes (docs/28, CI/testinfra):
+  #   release  every script on what a user gets: the B-rep kernel and the rebuild worker (?kernel=brep&rebuild=worker, F158)
+  #   mesh     every script on the mesh kernel and the UI thread (the e2e build's default, the fallback when OpenCascade fails)
+  #   brep     the B-rep scripts on the UI thread, the control pass of F105/F120 (the same 12 scripts as before)
+  # The worker-only pass (mesh kernel in the worker) is gone: the release pass runs every script in the worker.
+  regression:
+    runs-on: ubuntu-24.04
+    # the full mesh regression takes about 35 minutes on a runner; a hang must not run for hours
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - pass: release
+            query: '?kernel=brep&rebuild=worker'
+            scripts: ''
+          - pass: mesh
+            query: ''
+            scripts: ''
+          - pass: brep
+            query: '?kernel=brep'
+            scripts: features features2 filletopts endconditions multibody full doorhandle step bodies qa2 facenames plastics
+    name: regression (${{ matrix.pass }})
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      # the e2e build (VITE_TEST_HOOKS=1) the regression drives
       - run: npm run build:e2e
       - run: npx playwright install --with-deps chromium
-      # every script exits 1 on a failed check, a page error or an unexpected console error (e2e/lib/check.mjs)
-      - run: |
+      # every script exits 1 on a failed check, a page error, an unexpected console error (e2e/lib/check.mjs) or more
+      # skipped steps than its budget (F155); the log is e2e-out/regression-<version>[-<pass>][-partial].txt (F160)
+      - id: regression
+        continue-on-error: true
+        run: |
           npx vite preview --host 127.0.0.1 --port 4173 --strictPort &
           npx wait-on http://127.0.0.1:4173
           export PW_CHROMIUM="$(node -e "console.log(require('playwright').chromium.executablePath())")"
-          E2E_URL=http://127.0.0.1:4173/ node e2e/run-regression.mjs
-          # the same feature scripts once more on the B-rep kernel (OpenCascade WASM) instead of the mesh kernel (F105)
-          E2E_URL="http://127.0.0.1:4173/?kernel=brep" node e2e/run-regression.mjs features features2 filletopts endconditions multibody full doorhandle step bodies qa2 facenames plastics
-          # and the heavy scripts once more with the rebuild worker (F46)
-          E2E_URL="http://127.0.0.1:4173/?rebuild=worker" node e2e/run-regression.mjs rebuildworker features full doorhandle facenames bodies
+          E2E_URL="http://127.0.0.1:4173/${{ matrix.query }}" node e2e/run-regression.mjs ${{ matrix.scripts }}
       # the tests leave the repository as they found it (no rewritten examples, F84)
-      - run: git diff --exit-code
-      - name: desktop checks passed
-        run: test "${{ steps.nohooks.outcome }}" = success && test "${{ steps.selftest.outcome }}" = success
+      - id: clean
+        continue-on-error: true
+        run: git diff --exit-code
       # the regression log is the evidence of a run: a missing log fails the upload (F128)
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: e2e-regression-log
+          name: e2e-regression-log-${{ matrix.pass }}
           path: e2e-out/regression-*.txt
           if-no-files-found: error
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: e2e-screenshots
+          name: e2e-screenshots-${{ matrix.pass }}
           path: /tmp/phlippo-e2e
           if-no-files-found: ignore
+      - name: regression passed
+        if: always()
+        run: |
+          echo "regression=${{ steps.regression.outcome }} clean=${{ steps.clean.outcome }}"
+          test "${{ steps.regression.outcome }}" = success && test "${{ steps.clean.outcome }}" = success

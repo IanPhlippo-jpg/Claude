@@ -100,7 +100,7 @@ await len0.press('Tab');
 await page.waitForTimeout(150);
 r = await S(() => window.__phlippoStore.getState().sketch3dEdit.segments);
 check('Line1 typed to 60: its end and the line after it move along', r[0][1][0] === 60 && r[1][0][0] === 60 && r[1][1][0] === 60 && r[1][1][2] === 40, JSON.stringify(r));
-await page.click('.k-section-title:has-text("Sketch Fillet")').catch(skip('videos54.mjs:103'));
+await page.click('.k-section-title:has-text("Sketch Fillet")');
 await page.waitForTimeout(100);
 await page.click('[data-testid="sketch3d-fillet-all"]');
 await page.waitForTimeout(150);

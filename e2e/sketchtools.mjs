@@ -95,7 +95,7 @@ a = await P(0, 15);
 await page.mouse.click(a.x, a.y);
 await page.locator('.k-section:has-text("Parameters") input.k-num').first().fill('3');
 await page.locator('.k-section:has-text("Parameters") input.k-num').first().press('Tab');
-// Select chain is on by default (as the original); off: only the picked line is offset
+// Select chain is on by default (by design); off: only the picked line is offset
 await page.click('[data-testid="offset-chain"]');
 const linesBefore = await count('line');
 await page.click('.k-pm-ok');

@@ -1,6 +1,6 @@
 // Sheet metal commands that were "later": No Bends, Convert to Sheet Metal, Lofted-Bend, Closed / Welded Corner, Corner Relief.
 import { chromium } from 'playwright';
-import { exitCode, skip } from './lib/check.mjs';
+import { exitCode, waitSettled } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -12,7 +12,7 @@ const results = [];
 const check = (name, ok, info = '') => { results.push({ name, ok: !!ok, info }); if (!ok) console.log('FAIL', name, info); };
 page.on('pageerror', (e) => errors.push('pageerror: ' + e.message));
 page.on('console', (m) => { if (m.type() === 'error') errors.push('console: ' + m.text()); });
-const volume = () => page.evaluate(() => { let v = 0; for (const b of window.__phlippoStore.getState().rebuild.bodies) { const p = b.geometry.attributes.position.array; for (let i = 0; i < p.length; i += 9) { const ax = p[i], ay = p[i + 1], az = p[i + 2], bx = p[i + 3], by = p[i + 4], bz = p[i + 5], cx = p[i + 6], cy = p[i + 7], cz = p[i + 8]; v += (ax * (by * cz - bz * cy) - ay * (bx * cz - bz * cx) + az * (bx * cy - by * cx)) / 6; } } return Math.abs(v); });
+const volume = async () => { await waitSettled(page); return page.evaluate(() => { let v = 0; for (const b of window.__phlippoStore.getState().rebuild.bodies) { const p = b.geometry.attributes.position.array; for (let i = 0; i < p.length; i += 9) { const ax = p[i], ay = p[i + 1], az = p[i + 2], bx = p[i + 3], by = p[i + 4], bz = p[i + 5], cx = p[i + 6], cy = p[i + 7], cz = p[i + 8]; v += (ax * (by * cz - bz * cy) - ay * (bx * cz - bz * cx) + az * (bx * cy - by * cx)) / 6; } } return Math.abs(v); }); };
 const S = () => page.evaluate(() => { const s = window.__phlippoStore.getState(); return { names: s.doc.features.map((f) => f.name), errors: s.rebuild.errors, curves: (s.rebuild.curves ?? []).map((c) => c.name) }; });
 
 await page.goto(process.env.E2E_URL ?? 'http://localhost:4173/');
@@ -50,7 +50,7 @@ const flatOff = await page.evaluate(() => window.__phlippoStore.getState().doc.f
 check('No Bends again folds the sheet back', !flatOff);
 
 // Closed Corner and Corner Relief Property Panels take their faces
-await page.click('.k-cm-big:has-text("Corners") .k-cm-arrow').catch(skip('sheetmetal2:53'));
+await page.click('.k-cm-big:has-text("Corners") .k-cm-arrow');
 await page.evaluate(() => window.__phlippoStore.getState().startClosedCorner());
 await page.waitForTimeout(200);
 await page.evaluate(() => { const s = window.__phlippoStore.getState(); const b = s.rebuild.bodies[0]; const f = b.faces.filter((x) => !x.curved).sort((p, q) => p.area - q.area)[0]; s.setSelectedFace({ bodyId: b.id, faceId: f.id }); });

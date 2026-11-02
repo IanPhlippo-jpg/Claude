@@ -1,4 +1,4 @@
-// 3 Point Corner Rectangle, 3 Point Center Rectangle, Parallelogram and Midpoint Line, as the original
+// 3 Point Corner Rectangle, 3 Point Center Rectangle, Parallelogram and Midpoint Line, by design
 import { chromium } from 'playwright';
 import { exitCode } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';

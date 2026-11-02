@@ -1,9 +1,12 @@
 // File ▸ Save As ▸ DXF / Adobe PDF of a drawing (QA v0.5.1 F114): the Deurkruk drawing sheet as vectors, in mm,
 // with the views, dimensions and the sheet format; no selection highlight in the file.
+// skip-budget: 1 a headless Chromium (Linux CI) downloads a PDF instead of showing it; only the viewer screenshot needs it, the PDF checks read the file
 import { menuPath } from './lib/menu.mjs';
 import { chromium } from 'playwright';
 import { exitCode, skip } from './lib/check.mjs';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -69,7 +72,8 @@ check('PDF draws vectors and text', (s.match(/ l /g) ?? []).length > 100 && (s.m
 check('no selection blue in the file (black only)', !/0\.1\d* 0\.4\d* 0\.8\d* RG/.test(s));
 // the PDF as Edge shows it
 const viewer = await browser.newPage({ viewport: { width: 1400, height: 1000 } });
-await viewer.goto('file:///' + `${process.cwd()}/${OUT}/sheet.pdf`.replace(/\\/g, '/')).catch(skip('sheetexport.mjs:72'));
+// OUT is relative on Windows and absolute elsewhere: a proper file URL either way (QA F146)
+await viewer.goto(pathToFileURL(resolve(OUT, 'sheet.pdf')).href).catch(skip('sheetexport: the PDF in the browser viewer'));
 await viewer.waitForTimeout(2500);
 await viewer.screenshot({ path: `${OUT}/sheet-pdf.png` });
 await viewer.close();

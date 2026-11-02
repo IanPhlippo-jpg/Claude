@@ -1,4 +1,4 @@
-// look-dev: the Sketch tab with a rectangle sketch open -> e2e-out/look-sketchribbon.png (compare with frame f_0070)
+// look-dev: the Sketch tab with a rectangle sketch open -> e2e-out/look-sketchribbon.png (compare with calibration frame 0070)
 import { chromium } from 'playwright';
 const browser = await chromium.launch(process.platform === 'win32' ? { channel: process.env.PW_CHANNEL ?? 'msedge' } : { ...(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {}), args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
 const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } });

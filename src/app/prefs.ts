@@ -26,7 +26,7 @@ export const DEFAULT_PREFS: Record<string, PrefValue> = {
   'fm.scrollIntoView': true, 'fm.nameOnCreation': false, 'fm.arrowKeyNav': false, 'fm.dynamicHighlight': true, 'fm.transparentFlyout': true, 'fm.treeFilter': true, 'fm.renameComponents': false, 'fm.previewHidden': true, 'fm.slowDoubleClick': true, 'fm.translatedNames': false, 'fm.commentTimestamp': true, 'fm.commentsInPM': true,
   'spin.lengthEnglish': 0.1, 'spin.lengthMetric': 10, 'spin.angle': 1, 'spin.time': 0.1,
   'view.reverseWheel': false, 'view.zoomFitStandard': false, 'view.arrowKeys': 15, 'view.mouseSpeed': 50, 'view.transitionView': 50, 'view.transitionHide': 50, 'view.transitionIsolate': 50, 'view.transitionSelector': 50,
-  'backup.autoRecover': true, 'backup.autoRecoverMinutes': 10, 'backup.autoRecoverFolder': '%LOCALAPPDATA%\\PhlippoCAD\\backup', 'backup.enabled': false, 'backup.copies': 1, 'backup.folder': '%LOCALAPPDATA%\\PhlippoCAD\\backup', 'backup.sameLocation': false, 'backup.removeOld': true, 'backup.removeDays': 7, 'backup.saveNotify': false, 'backup.saveNotifyMinutes': 20, 'backup.saveNotifySeconds': 5,
+  'backup.autoRecover': true, 'backup.autoRecoverMinutes': 10, 'backup.autoRecoverFolder': '', 'backup.enabled': false, 'backup.copies': 1, 'backup.folder': '%LOCALAPPDATA%\\PhlippoCAD\\backup', 'backup.sameLocation': false, 'backup.removeOld': true, 'backup.removeDays': 7, 'backup.saveNotify': false, 'backup.saveNotifyMinutes': 20, 'backup.saveNotifySeconds': 5,
   'touch.enable': false, 'touch.hand': 'Right-handed',
   'hw.folder': 'C:\\PhlippoCAD Data', 'hw.makeReadOnly': true, 'hw.favorites': true,
   'fe.recent': true, 'fe.hidden': true, 'fe.samples': true, 'fe.restoreTree': true,

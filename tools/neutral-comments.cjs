@@ -1,5 +1,5 @@
 // Rewrites wording that names the reference program ("as the original", "as the 2026 original", video frame numbers)
-// into neutral descriptions of the intended behaviour (QA v0.3.4 F92). Uses of "original" that mean "the earlier state"
+// into neutral descriptions of the intended behaviour (QA v0.3.4 F92); src/, electron/ and e2e/ are scanned. Uses of "original" that mean "the earlier state"
 // (the original solid, the original endpoints) are left alone. Usage: node tools/neutral-comments.cjs [--apply]
 const fs = require('fs');
 const path = require('path');
@@ -29,30 +29,48 @@ const RULES = [
   [/\b(?:in|from|as in) the reference (?:videos?|frames?|program)\b/g, 'by design'],
   [/,? as the intended status bar(?: words it)?\b/g, ''],
 ];
+// wording that cannot be rewritten automatically: each hit is reported with its line and fails --check, so it is
+// rewritten by hand (QA v0.5.10 F136/F163). The legal notice and the checks that look for it keep the name on purpose.
+const FLAGS = [
+  /\bSOLIDWORKS\b/,
+  /\bSW (?:fr\.|frames?\b)/,
+  /\breference (?:frames?|videos?|program)\b/i,
+  /\b(?:the )?(?:2025|2026) reference\b/,
+  /\breference status bar\b/,
+  /(?<![\w/])f_\d{4}\b/,
+];
+const FLAG_EXEMPT = new Set(['legal.ts', 'uiText.test.ts', 'qa3.mjs']);
 let total = 0;
 const changed = [];
+const flagged = [];
 function walk(dir) {
   for (const f of fs.readdirSync(dir)) {
     const p = path.join(dir, f);
     if (fs.statSync(p).isDirectory()) walk(p);
-    else if (/\.(tsx?|css|cjs)$/.test(f)) {
+    else if (/\.(tsx?|css|cjs|mjs)$/.test(f)) {
       const text = fs.readFileSync(p, 'utf8');
       let t = text, n = 0;
       for (const [re, to] of RULES) t = t.replace(re, (...m) => { n++; return typeof to === 'string' ? to.replace(/\$(\d)/g, (_, i) => m[+i]) : to; });
       if (n) { total += n; changed.push(`${path.relative(ROOT, p)} ${n}`); if (APPLY) fs.writeFileSync(p, t); }
+      if (!FLAG_EXEMPT.has(f)) t.split('\n').forEach((l, i) => { if (FLAGS.some((re) => re.test(l))) flagged.push(`${path.relative(ROOT, p)}:${i + 1}: ${l.trim().slice(0, 140)}`); });
     }
   }
 }
 walk(path.join(ROOT, 'src'));
 walk(path.join(ROOT, 'electron'));
+// the e2e scripts and the look-dev tools under e2e/tools too (QA v0.5.10 F136)
+walk(path.join(ROOT, 'e2e'));
 console.log(changed.join('\n'));
+if (flagged.length) console.log('\nto rewrite by hand:\n' + flagged.join('\n'));
+total += flagged.length;
 console.log('total', total, APPLY ? 'applied' : 'dry run');
 // --check (CI): any hit is a failure
 if (process.argv.includes('--check') && total > 0) process.exit(1);
 // what is left of "original" in the sense of the reference program is reported for a manual look
 if (APPLY) {
   const left = [];
-  const scan = (dir) => { for (const f of fs.readdirSync(dir)) { const p = path.join(dir, f); if (fs.statSync(p).isDirectory()) scan(p); else if (/\.(tsx?|css)$/.test(f)) fs.readFileSync(p, 'utf8').split('\n').forEach((l, i) => { if (/\bthe original\b|\boriginal's\b|2026/.test(l)) left.push(`${path.relative(ROOT, p)}:${i + 1}: ${l.trim().slice(0, 140)}`); }); } };
+  const scan = (dir) => { for (const f of fs.readdirSync(dir)) { const p = path.join(dir, f); if (fs.statSync(p).isDirectory()) scan(p); else if (/\.(tsx?|css|mjs)$/.test(f)) fs.readFileSync(p, 'utf8').split('\n').forEach((l, i) => { if (/\bthe original\b|\boriginal's\b|2026/.test(l)) left.push(`${path.relative(ROOT, p)}:${i + 1}: ${l.trim().slice(0, 140)}`); }); } };
   scan(path.join(ROOT, 'src'));
+  scan(path.join(ROOT, 'e2e'));
   console.log('\nleft for review:\n' + left.join('\n'));
 }

@@ -12,7 +12,7 @@ import { desktop, getDocumentHandle, setDocumentHandle } from './desktop';
 import { viewerHtml } from '../core/document/viewerExport';
 import { applyUpAxis as setUpAxis } from './viewport/camera';
 import { getPref, loadPrefs } from './prefs';
-import { clearAutoRecover } from './autoRecover';
+import { clearAutoRecover, discardAutoRecover } from './autoRecover';
 import { exportSheet } from './drawing/sheetExport';
 import { isDrawing } from '../core/document/types';
 import { getCamera } from './viewport/Viewport';
@@ -60,7 +60,8 @@ export async function saveDocument(forceAsk = false, confirmedErrors = false): P
   const api = desktop();
   if (api) {
     const data = new TextEncoder().encode(text).buffer as ArrayBuffer;
-    const known = forceAsk ? undefined : getDocumentHandle() ?? undefined;
+    const previous = getDocumentHandle();
+    const known = forceAsk ? undefined : previous ?? undefined;
     const r = await api.saveFile({ defaultPath: `${doc.name}${FILE_EXTENSION}`, filters: KCAD_FILTERS, data, handle: known });
     if (!r) return false;
     if (r.error) {
@@ -72,13 +73,20 @@ export async function saveDocument(forceAsk = false, confirmedErrors = false): P
     const name = r.name.replace(/\.kcad$/i, '');
     if (name !== doc.name) useStore.getState().renameDocument(name);
     useStore.setState({ dirty: false });
-    clearAutoRecover(doc.name);
+    clearAutoRecover(doc, [previous, r.handle]);
     pushMessage(`${r.name} saved.`);
     return true;
   }
   download(`${doc.name}${FILE_EXTENSION}`, text, 'application/json');
   useStore.setState({ dirty: false });
   return true;
+}
+
+/** Don't Save: the auto-recover copies of the discarded changes go first (closing the window may follow at once) */
+function dontSave(then: () => void): void {
+  const removing = discardAutoRecover();
+  if (removing) void removing.finally(then);
+  else then();
 }
 
 /** Unsaved changes: "Save changes to Part1?" with Yes (save, then go on), No (go on) and Cancel, by design */
@@ -93,7 +101,7 @@ export function withUnsavedCheck(then: () => void): void {
       title: 'Phlippo CAD',
       text: `${ctx.componentName} is being edited in ${ctx.assembly.name}. Return to ${ctx.assembly.name} and save the changes?`,
       yes: () => { useStore.getState().returnToAssembly(); saveDocument().then((ok) => ok && then()); },
-      no: then,
+      no: () => dontSave(then),
       yesLabel: 'Save',
       noLabel: "Don't Save",
     });
@@ -104,7 +112,7 @@ export function withUnsavedCheck(then: () => void): void {
     title: 'Phlippo CAD',
     text: `Save changes to ${st.doc.name}?`,
     yes: () => { saveDocument().then((ok) => ok && then()); },
-    no: then,
+    no: () => dontSave(then),
     yesLabel: 'Save',
     noLabel: "Don't Save",
   });
@@ -370,12 +378,12 @@ export function MenuBar() {
       { label: 'Sheet Metal ▸ Rip…', icon: <Icon.Rip />, disabled: st.doc.kind !== 'part' && !!st.doc.kind, onSelect: () => st.startRip() },
       { label: 'Sheet Metal ▸ Swept Flange…', icon: <Icon.SweptFlange />, disabled: st.doc.kind !== 'part' && !!st.doc.kind, onSelect: () => st.startSweptFlange() },
       { label: 'Sheet Metal ▸ Insert Bends…', icon: <Icon.Sheet />, disabled: st.doc.kind !== 'part' && !!st.doc.kind, onSelect: () => st.startConvertSheet(true) },
-      { label: 'Weldments ▸ Weldment', icon: <Icon.Weldment />, disabled: st.doc.kind !== 'part' && !!st.doc.kind, onSelect: () => st.startWeldment() },
-      { label: 'Weldments ▸ Structural Member…', icon: <Icon.StructuralMember />, disabled: st.doc.kind !== 'part' && !!st.doc.kind, onSelect: () => st.startStructuralMember() },
-      { label: 'Weldments ▸ Trim/Extend…', icon: <Icon.TrimExtend />, disabled: st.doc.kind !== 'part' && !!st.doc.kind, onSelect: () => st.startTrimExtend() },
-      { label: 'Weldments ▸ End Cap…', icon: <Icon.EndCap />, disabled: st.doc.kind !== 'part' && !!st.doc.kind, onSelect: () => st.startEndCap() },
-      { label: 'Weldments ▸ Gusset…', icon: <Icon.Gusset />, disabled: st.doc.kind !== 'part' && !!st.doc.kind, onSelect: () => st.startWeldGusset() },
-      { label: 'Weldments ▸ Weld Bead…', icon: <Icon.WeldBead />, disabled: st.doc.kind !== 'part' && !!st.doc.kind, onSelect: () => st.startWeldBead() },
+      { label: 'Frames ▸ Frame', icon: <Icon.Weldment />, disabled: st.doc.kind !== 'part' && !!st.doc.kind, onSelect: () => st.startWeldment() },
+      { label: 'Frames ▸ Structural Member…', icon: <Icon.StructuralMember />, disabled: st.doc.kind !== 'part' && !!st.doc.kind, onSelect: () => st.startStructuralMember() },
+      { label: 'Frames ▸ Trim/Extend…', icon: <Icon.TrimExtend />, disabled: st.doc.kind !== 'part' && !!st.doc.kind, onSelect: () => st.startTrimExtend() },
+      { label: 'Frames ▸ End Cap…', icon: <Icon.EndCap />, disabled: st.doc.kind !== 'part' && !!st.doc.kind, onSelect: () => st.startEndCap() },
+      { label: 'Frames ▸ Gusset…', icon: <Icon.Gusset />, disabled: st.doc.kind !== 'part' && !!st.doc.kind, onSelect: () => st.startWeldGusset() },
+      { label: 'Frames ▸ Weld Bead…', icon: <Icon.WeldBead />, disabled: st.doc.kind !== 'part' && !!st.doc.kind, onSelect: () => st.startWeldBead() },
       { label: 'Reference Geometry ▸ Plane…', icon: <Icon.Plane />, disabled: st.doc.kind !== 'part' && !!st.doc.kind, onSelect: () => st.startPlane() },
     ],
     Tools: [

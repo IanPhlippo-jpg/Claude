@@ -8,9 +8,9 @@ import type { Region } from './regions';
 
 type P2 = [number, number];
 /** the tools start this far inside the body they stand on, so their base is never coplanar with its face */
-const SINK = 0.02;
+export const SINK = 0.02;
 
-const area2 = (p: P2[]) => p.reduce((s, q, i) => { const r = p[(i + 1) % p.length]; return s + q[0] * r[1] - r[0] * q[1]; }, 0) / 2;
+export const area2 = (p: P2[]) => p.reduce((s, q, i) => { const r = p[(i + 1) % p.length]; return s + q[0] * r[1] - r[0] * q[1]; }, 0) / 2;
 
 /** a planar face's boundary loops in the face's own plane (largest first, counter-clockwise), with that plane */
 export function faceLoops(g: THREE.BufferGeometry, face: PlanarFace): { plane: PlaneDef; loops: P2[][] } | null {
@@ -76,7 +76,7 @@ function simplify(p: P2[]): P2[] {
 }
 
 /** the centre and radius when the loop is a circle (all points at one distance from their mean) */
-function asCircle(loop: P2[]): { c: P2; r: number } | null {
+export function asCircle(loop: P2[]): { c: P2; r: number } | null {
   if (loop.length < 12) return null;
   const c: P2 = [loop.reduce((s, p) => s + p[0], 0) / loop.length, loop.reduce((s, p) => s + p[1], 0) / loop.length];
   const rs = loop.map((p) => Math.hypot(p[0] - c[0], p[1] - c[1]));

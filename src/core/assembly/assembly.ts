@@ -427,13 +427,16 @@ export function groundDistance(components: Component[], mates: Mate[]): Map<Id, 
   return d;
 }
 
+/** the passes the solver makes over the mates before it stops; mateStatus says when they were not enough (F166) */
+export const MATE_PASSES = 16;
+
 /**
  * All mates of an assembly, solved by moving the free components. Per mate the component further from the fixed
  * ones moves and the nearer one stays, whichever reference was picked first (QA v0.5.1 F109: a free part picked as the
  * first reference was never moved); the mates nearest the fixed components go first, and the passes repeat until
  * nothing moves any more.
  */
-export function solveMates(components: Component[], mates: Mate[], passes = 8): Component[] {
+export function solveMates(components: Component[], mates: Mate[], passes = MATE_PASSES): Component[] {
   const byId = new Map(components.map((c) => [c.id, { ...c }]));
   const ground = groundDistance(components, mates.filter((m) => !m.suppressed));
   const far = (m: Mate) => Math.max(ground.get(m.refs[0].componentId) ?? Infinity, ground.get(m.refs[1].componentId) ?? Infinity);

@@ -812,3 +812,58 @@ elease; README en docs/04 bijgewerkt
 - [x] Console-fouten en waarschuwingen nalopen (geen)
 - [x] Gevonden fouten oplossen met een test per fout (e2e/round2.mjs: Exit Sketch houdt de schets geselecteerd, donker thema tabrij/pictogrammen)
 - [x] Regressie, release 0.5.10 geïnstalleerd (19/19), push
+
+## QA-rapport 0.5.10 verwerken naar 10/10 (2026-11-02)
+- [x] P0 F140/F167/F111: zes opstellingen gereproduceerd, alle exact 30439,911; poort qaBrep.test.ts T3 (30439,91 ± 0,01) in npm test/CI; QA-opstelling niet na te spelen (bron niet in rapport)
+- [x] P0 F159: volumeCheck.ts + brepRefine: > 0,5 % → waarschuwing op de feature en melding
+- [x] P0 F139: gereproduceerd met het gat als aparte cut; twee oorzaken (kettingtolerantie, Keep-features-hersnede) opgelost; qaStrict T1 + varianten
+- [ ] P0 F147/F31/F120/F105: ci.yml op ubuntu-24.04 (Playwright kent 26.04 niet: alle runs sinds 0.5.6 rood), mesh/B-rep/worker als aparte stappen met eindgate, log per pass; groene Actions-run op deze HEAD
+- [ ] P0 F54/F144/F10/F146: Linux echt groen: drawing (Ø35), inventory47, videos46 (context-toolbar), sheetexport file-URL
+- [x] P1 F152: src/qa/qaStrict.test.ts (8) en qaBrep.test.ts (11) in npm test
+- [x] P1 F155/F119/F160: skipbudget per script en skips in de eindgate; regressielog per pass een eigen naam (commit + platform in de kop)
+- [x] P1 F158/F46: hoofdregressie in CI op het releasepad (worker + B-rep); mesh/UI-thread als extra pass; de vier rode releasepad-scripts uitgezocht (wrap exact via polyhedrale tool, thread meetrace, sheetmetal/hem randkeuze)
+- [x] P1 F153/F154/F156: electron/recover.cjs (map in main, sleutel id+pad, fsync, herstel als dirty "(Recovered)"), e2e/desktop-recover.mjs 21/21, gpu.json alleen de keuze (F162)
+- [x] P1 F145/F125: features.mjs wacht op toestand (sweep); contextwerkbalk-tests wachten op het element; rebuildworker-drempel bleef relatief
+- [x] P1 F143/F157: vensters tekenen met de hoofdrenderer (studio-look, randen), melding zonder WebGL, ErrorBoundary per venster; e2e/viewpanes.mjs 35/35
+- [x] P1 F50/F163/F94/F136: Weldments → Frames, Sustainability Extras → Additional Materials, checks uitgebreid (ook e2e/), docs/26 intern
+- [x] P1 F51/F121: Dome exact (bol + clip), boss/vinnen/snap hook waren al exact; waarschuwing per feature bij mesh-terugval; Faceted-cel getest (F99)
+- [ ] P1 F93/F148/F149/F126/F38/F129: claims met platform, commit en ruw log; README-status 0.5.11; desktop-installed log bewaren
+- [x] P2 F150/F49/F117: UNSIGNED-melding in desktop:build + tools/sign-report.cjs (signature-<versie>.txt); F151/F97: desktop-installed.mjs draait --self-test op de geïnstalleerde exe (packaged:true), log bewaard
+- [x] P2 F112 backup-opties echt (eenheden/grid/kleuren waren al gekoppeld), F114 IGES niet mogelijk in deze OCCT-build (gedocumenteerd), F122 HLR/centermarks e2e + centermarks in detailaanzichten, F141/F166 nieuwste mate gemarkeerd en Not Converged-status
+- [x] P3 F142 graphify-out uit de index, F138 audit fix (2 high weg), F137 bewust 45 s (gedocumenteerd), F118 bundelbudget 860 kB, F134 splitsplan, F161/F16/F21/F22 gedocumenteerd, F162, F164, F165, F99 gedaan
+- [~] Regressie (mesh + B-rep + worker, Windows én Linux-CI), release 0.5.11, push, docs/28
+
+## Merken, docs en kleine punten uit QA 0.5.10 (2026-11-02)
+- [x] F50/F94/F163: zichtbare "Weldments" → "Frames", "Sustainability Extras" → "Additional Materials"; merkcheck vangt beide; e2e-selectors bij
+- [x] F136/F163: neutral-comments scant ook e2e/ en vangt "reference frame/video"; commentaren herschreven
+- [x] F38/F129/F149: README-status 0.5.11, docs/25 5/10, docs/26 intern werkdocument
+- [x] F142: graphify-out/ in .gitignore
+- [x] F164/F165: dbg.test.ts weg; "SW-Density" → "Density" bij openen, met unit-test
+- [x] F138: npm audit fix (2 high weg; 15 moderate minimatch blijven, override zou electron-builder breken)
+- [x] F118/F134: tools/bundle-budget.cjs + "check:bundle"; splitsplan in docs/28
+
+## CI en testinfra uit QA 0.5.10 (2026-11-02)
+- [x] F31/F54: ci.yml op ubuntu-24.04
+- [x] F147: aparte jobs (checks, desktop, regressie-matrix) met continue-on-error en eindgates
+- [x] F158/F105/F120: release-pass (?kernel=brep&rebuild=worker) met de volledige lijst naast mesh; keuze B-rep/worker-sublijsten gedocumenteerd
+- [x] F160: regressielog per pass een eigen naam, kop met versie/commit/platform/URL/datum; artefact per pass
+- [x] F155/F119: skip-budget per script (`// skip-budget: N`) en DONE faalt bij overschrijding
+- [x] F155: alle skip(-aanroepen nagelopen; "Save changes?"-gevallen voorwaardelijk, klikfouten hersteld; scripts gedraaid
+- [x] F146: sheetexport file-URL via pathToFileURL
+- [x] docs/28 sectie "CI/testinfra"; neutral-comments, line-budget, typecheck groen
+
+## AutoRecover en security uit QA 0.5.10 (2026-11-02)
+- [x] F156: AutoRecover-map in main vastgelegd (userData/autorecover of via dialoog gekozen, bewaard in userData); renderer stuurt geen pad meer
+- [x] F153: kopie per document-id (+ pad als het document een bestand heeft); alle open documenten met wijzigingen schrijven
+- [x] F154: fsync vóór rename; herstel opent als dirty met " (Recovered)" in de naam
+- [x] F162: gpu.json bewaart alleen de keuze; Options toont uitleg en een knop "Use the graphics card again"
+- [x] F112: backup.*-opties werkend (aan/uit, minuten, map, saveNotify) en prefsWired.test.ts klopt
+- [x] e2e/desktop-recover.mjs (eigen profiel, herstart, Document Recovery) + unit-tests
+- [x] docs/28 sectie "AutoRecover en security"; typecheck, neutral-comments, line-budget groen
+
+## Multi-view vensters uit QA 0.5.10 (2026-11-02)
+- [x] F143: ViewPane zonder eigen WebGL-context; zonder WebGL een melding in het venster; ErrorBoundary per venster
+- [x] F157: vensters tekenen met de renderer van het hoofdvenster (studio-omgeving, belichting, randen, achtergrond van het thema)
+- [x] e2e/viewpanes.mjs: Four View pixels/randen + Chromium zonder WebGL; screenshot e2e-out/viewpanes-four.png
+- [x] F161: STEP-import als B-rep in de desktop-app nagekeken en genoteerd
+- [x] docs/28 sectie "Multi-view"; typecheck, neutral-comments, line-budget groen

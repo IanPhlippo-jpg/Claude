@@ -51,7 +51,7 @@ const COMMANDS = [
   ['Unfold', 'startUnfold', []], ['Cross-Break', 'startCrossBreak', []], ['Closed Corner', 'startClosedCorner', []], ['Corner Relief', 'startCornerRelief', []],
   ['Break Corner', 'startBreakCorner', []], ['Lofted Bend', 'startLoftedBend', [], true], ['Convert to Sheet Metal', 'startConvertSheet', []],
   ['Vent', 'startVent', [], true], ['Forming Tool', 'startFormTool', []], ['Gusset', 'startGusset', []], ['Tab and Slot', 'startTabSlot', []],
-  ['Rip', 'startRip', []], ['Swept Flange', 'startSweptFlange', [], true], ['Weldment', 'startWeldment', []], ['Structural Member', 'startStructuralMember', [], true],
+  ['Rip', 'startRip', []], ['Swept Flange', 'startSweptFlange', [], true], ['Frame', 'startWeldment', []], ['Structural Member', 'startStructuralMember', [], true],
   ['Trim/Extend', 'startTrimExtend', []], ['End Cap', 'startEndCap', []], ['Weld Gusset', 'startWeldGusset', []], ['Weld Bead', 'startWeldBead', []],
   ['Section View', 'startSectionView', []], ['Auto Tolerancing', 'startAutoTolerance', []],
 ];

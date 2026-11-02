@@ -1,6 +1,6 @@
-// Extrude end conditions (video 40): Offset From Surface with a picked face, then Up To Next; Sensors in the tree (video 31).
+// Extrude end conditions: Offset From Surface with a picked face, then Up To Next; Sensors in the tree.
 import { chromium } from 'playwright';
-import { exitCode, skip } from './lib/check.mjs';
+import { exitCode, skip, waitSettled } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -13,7 +13,7 @@ const check = (name, ok, info = '') => { results.push({ name, ok: !!ok, info });
 page.on('pageerror', (e) => errors.push('pageerror: ' + e.message));
 page.on('console', (m) => { if (m.type() === 'error') errors.push('console: ' + m.text()); });
 const shot = (n) => page.screenshot({ path: `${OUT}/${n}.png` });
-const volume = () => page.evaluate(() => { const b = window.__phlippoStore.getState().rebuild.bodies[0]; if (!b) return 0; const p = b.geometry.attributes.position.array; let v = 0; for (let i = 0; i < p.length; i += 9) { const ax = p[i], ay = p[i + 1], az = p[i + 2], bx = p[i + 3], by = p[i + 4], bz = p[i + 5], cx = p[i + 6], cy = p[i + 7], cz = p[i + 8]; v += (ax * (by * cz - bz * cy) - ay * (bx * cz - bz * cx) + az * (bx * cy - by * cx)) / 6; } return Math.abs(v); });
+const volume = async () => { await waitSettled(page); return page.evaluate(() => { const b = window.__phlippoStore.getState().rebuild.bodies[0]; if (!b) return 0; const p = b.geometry.attributes.position.array; let v = 0; for (let i = 0; i < p.length; i += 9) { const ax = p[i], ay = p[i + 1], az = p[i + 2], bx = p[i + 3], by = p[i + 4], bz = p[i + 5], cx = p[i + 6], cy = p[i + 7], cz = p[i + 8]; v += (ax * (by * cz - bz * cy) - ay * (bx * cz - bz * cx) + az * (bx * cy - by * cx)) / 6; } return Math.abs(v); }); };
 
 const expandTree = async () => { for (let k = 0; k < 8; k++) { const n = await page.evaluate(() => { const c = [...document.querySelectorAll('.k-tree-row .caret[data-open="false"]')]; c.forEach((x) => x.click()); return c.length; }); if (!n) break; await page.waitForTimeout(80); } };
 await page.goto(process.env.E2E_URL ?? 'http://localhost:4173/');
@@ -86,7 +86,7 @@ await page.click('[data-testid="ctx-edit-feature"]');
 await page.waitForTimeout(300);
 await page.locator('.k-section:has-text("Direction 1") select.k-input').first().selectOption('upToNext');
 await page.waitForTimeout(300);
-check('Up To Next hides the depth field (as the original)', (await page.locator('.k-section:has-text("Direction 1") .k-pm-valuerow input.k-num').count()) === 1);
+check('Up To Next hides the depth field (by design)', (await page.locator('.k-section:has-text("Direction 1") .k-pm-valuerow input.k-num').count()) === 1);
 await page.click('.k-pm-ok');
 await page.waitForTimeout(800);
 const v2 = await volume();

@@ -6,3 +6,5 @@ referentie-video
 e2e-out
 release
 *.tsbuildinfo
+# local knowledge graph (graphify); rebuilt with "graphify update ." (QA 0.5.10 F142)
+graphify-out/

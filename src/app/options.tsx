@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useState } from 'react';
+import { Fragment, useEffect, useMemo, useState } from 'react';
 import { WIRED_PREFS } from './prefsWired';
 
-import { applySoftwareGL } from './softwareGL';
+import { applySoftwareGL, SoftwareGLNote } from './softwareGL';
+import { RecoverFolderRow } from './recoverFolder';
 /** the length unit of each unit system (Document Properties ▸ Units) */
 const SYSTEM_LENGTH: Record<string, string> = { MKS: 'meters', CGS: 'centimeters', MMGS: 'millimeters', IPS: 'inches' };
 import { useStore } from './store';
@@ -84,11 +85,14 @@ export function OptionsDialog() {
     switch (ctl.kind) {
       case 'check':
         return (
-          <label key={i} className={`k-opt-check ${ctl.disabled || off(ctl.key) ? 'disabled' : ''}`} style={indent} title={off(ctl.key) ? OFF_TIP : undefined}>
-            <input type="checkbox" checked={!!get(ctl.key)} disabled={ctl.disabled || off(ctl.key)} onChange={(e) => set(ctl.key, e.target.checked)} />
-            <span>{ctl.label}</span>
-            {ctl.textAfter && <input className="k-input k-opt-tiny" value={String(get(ctl.textAfter) ?? '')} disabled={!get(ctl.key)} maxLength={1} onChange={(e) => set(ctl.textAfter!, e.target.value)} onKeyDown={(e) => e.stopPropagation()} />}
-          </label>
+          <Fragment key={i}>
+            <label className={`k-opt-check ${ctl.disabled || off(ctl.key) ? 'disabled' : ''}`} style={indent} title={off(ctl.key) ? OFF_TIP : undefined}>
+              <input type="checkbox" checked={!!get(ctl.key)} disabled={ctl.disabled || off(ctl.key)} onChange={(e) => set(ctl.key, e.target.checked)} />
+              <span>{ctl.label}</span>
+              {ctl.textAfter && <input className="k-input k-opt-tiny" value={String(get(ctl.textAfter) ?? '')} disabled={!get(ctl.key)} maxLength={1} onChange={(e) => set(ctl.textAfter!, e.target.value)} onKeyDown={(e) => e.stopPropagation()} />}
+            </label>
+            {ctl.key === 'perf.softwareOpenGL' && <SoftwareGLNote />}
+          </Fragment>
         );
       case 'select':
         return (
@@ -130,6 +134,8 @@ export function OptionsDialog() {
           </div>
         );
       case 'text':
+        // the auto-recover folder is kept by the desktop shell and chosen in its folder dialog (QA F156)
+        if (ctl.key === 'backup.autoRecoverFolder') return <RecoverFolderRow key={i} label={ctl.label} />;
         return (
           <div key={i} className={`k-opt-row ${off(ctl.key) ? 'disabled' : ''}`} title={off(ctl.key) ? OFF_TIP : undefined}>
             <label>{ctl.label}</label>

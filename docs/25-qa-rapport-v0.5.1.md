@@ -1,6 +1,6 @@
 # QA-rapport v0.5.1 verwerkt (0.5.2, 0.5.3)
 
-Bron: `qa-rapporten/QA-rapport-0.5.1.md` (eindcontrole, Grok Bot + team, 6/10, NO-GO voor release, GO voor eigen
+Bron: `qa-rapporten/QA-rapport-0.5.1.md` (eindcontrole, Grok Bot + team, 5/10 na de teamronde (eerst 6/10), NO-GO voor release, GO voor eigen
 gebruik met back-ups). De online versie van het rapport staat in een afgeschermd frame dat niet uit te lezen is; dit
 document volgt de lokale md, die dezelfde eindcontrole is.
 

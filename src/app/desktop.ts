@@ -22,6 +22,19 @@ export interface DesktopSaveResult {
   error?: string;
 }
 
+/** an auto-recover copy: its file name in the folder, the document name and when it was written */
+export interface RecoverEntry {
+  name: string;
+  label: string;
+  time: number;
+}
+
+export interface RecoverFolder {
+  folder: string;
+  /** chosen in the folder dialog (else the default folder in the profile) */
+  custom: boolean;
+}
+
 export interface DesktopApi {
   version: string;
   /** the shell was started with PHLIPPO_E2E=1: the test hooks exist */
@@ -44,13 +57,21 @@ export interface DesktopApi {
   openFile(filters: { name: string; extensions: string[] }[]): Promise<DesktopFile | null>;
   saveFile(opts: { defaultPath: string; filters: { name: string; extensions: string[] }[]; data: ArrayBuffer; handle?: string }): Promise<DesktopSaveResult | null>;
   saveFileAs(opts: { defaultPath: string; filters: { name: string; extensions: string[] }[]; data: ArrayBuffer }): Promise<DesktopSaveResult | null>;
-  /** Auto-Recover (Options ▸ Backup/Recover): copies of the open document in the auto-recover folder */
-  writeRecover?(opts: { folder: string; name: string; data: ArrayBuffer }): Promise<{ name?: string; error?: string } | null>;
-  listRecover?(folder: string): Promise<{ name: string; time: number }[]>;
-  readRecover?(opts: { folder: string; name: string }): Promise<ArrayBuffer | null>;
-  removeRecover?(opts: { folder: string; name: string }): Promise<void>;
-  /** software OpenGL (SwiftShader): this run's state and the choice for the next start */
-  gpuStatus?(): Promise<{ software: boolean; next: boolean } | null>;
+  /**
+   * Auto-Recover (Options ▸ Backup/Recover): copies of the open documents in the auto-recover folder. The shell decides
+   * the folder (QA F156); a copy is kept per document id and, with `handle`, per file of that document (QA F153).
+   */
+  writeRecover?(opts: { id: string; name: string; handle?: string | null; data: ArrayBuffer }): Promise<{ name?: string; error?: string } | null>;
+  listRecover?(): Promise<RecoverEntry[]>;
+  readRecover?(name: string): Promise<ArrayBuffer | null>;
+  /** the copies of document `id`: the one without a file and the ones at the files of `handles` */
+  removeRecover?(opts: { id: string; handles?: (string | null)[] }): Promise<void>;
+  recoverFolder?(): Promise<RecoverFolder | null>;
+  /** the folder dialog of the shell; null when cancelled */
+  chooseRecoverFolder?(): Promise<RecoverFolder | null>;
+  resetRecoverFolder?(): Promise<RecoverFolder | null>;
+  /** software OpenGL (SwiftShader): this run's state (and what turned it on) and the choice for the next start */
+  gpuStatus?(): Promise<{ software: boolean; source?: 'argument' | 'environment' | 'options' | null; next: boolean } | null>;
   setSoftwareGL?(on: boolean): Promise<boolean>;
   restartApp?(): Promise<void>;
 }

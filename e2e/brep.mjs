@@ -3,7 +3,7 @@
 // fillet stays exact; a shell (no B-rep version yet) falls back to the mesh kernel and the part still builds.
 import { chromium } from 'playwright';
 import { mkdirSync, readFileSync } from 'node:fs';
-import { checks, exitCode, track, skip } from './lib/check.mjs';
+import { checks, exitCode, track, skip, dontSave } from './lib/check.mjs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
 mkdirSync(OUT, { recursive: true });
@@ -33,8 +33,12 @@ await S(() => {
   d.features = [{ id: 'k1', type: 'sketch', name: 'Sketch1', sketchId: 's1', suppressed: false }, { id: 'e1', type: 'extrude', name: 'Boss-Extrude1', sketchId: 's1', suppressed: false, op: 'boss', end: 'blind', depth: 10, reverse: false }];
   window.__phlippoStore.getState().openDocument(d);
 });
+// the status bar says "Faceted 1/1" while the body is still the mesh result; the cell goes once the exact body arrives (QA F99)
+const facetedFirst = await page.locator('[data-testid="status-faceted"]').waitFor({ timeout: 4000 }).then(() => page.locator('[data-testid="status-faceted"]').innerText(), () => '');
 const ok1 = await waitExact();
 const s1 = await state();
+check('the status bar shows "Faceted 1/1" until the exact body arrives, then the cell goes', /Faceted 1\/1/.test(facetedFirst) && (await page.locator('[data-testid="status-faceted"]').count()) === 0, JSON.stringify({ facetedFirst }));
+check('the Solid Bodies row of the exact body carries data-exact="true"', await page.evaluate(() => { const s = window.__phlippoStore.getState(); return s.rebuild.bodies.every((b) => b.exact); }));
 const exact1 = 80 * 60 * 10 - Math.PI * 100 * 10;
 check('the plate becomes an exact B-rep body after the rebuild', ok1 && s1.bodies[0].exact, JSON.stringify(s1));
 check('its volume is exact', Math.abs(s1.bodies[0].vol - exact1) < 1e-6, String(s1.bodies[0].vol));
@@ -99,7 +103,7 @@ check('a linear pattern of the plate is exact: two exact bodies (docs/16)', okPa
 // an assembly: the door handle; every part is refined once and the assembly is rebuilt from the exact parts
 const asm = readFileSync('voorbeelden/deurkruk/Deurkruk.kcad', 'utf8');
 await page.evaluate((t) => { const d = JSON.parse(t); delete d.format; window.__phlippoStore.getState().openDocument(d); }, asm);
-await page.locator('[data-testid="ask-no"]').click({ timeout: 3000 }).catch(skip('brep.mjs:102'));
+await dontSave(page); // Save changes? → Don't Save, when it asks
 const okAsm = await page.waitForFunction(() => { const s = window.__phlippoStore.getState(); return s.doc.kind === 'assembly' && s.rebuild.bodies.length > 5 && s.rebuild.bodies.every((b) => b.exact); }, null, { timeout: 90000 }).then(() => true, () => false);
 const sa = await S(() => { const s = window.__phlippoStore.getState(); return { n: s.rebuild.bodies.length, exact: s.rebuild.bodies.filter((b) => b.exact).length, errors: Object.keys(s.rebuild.errors).length }; });
 check('the door handle assembly: every component is an exact body', okAsm && sa.n === sa.exact && !sa.errors, JSON.stringify(sa));

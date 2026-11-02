@@ -1,7 +1,7 @@
 // Assembly options (Block D): Mate options (preview, popup, new folder, positioning only, Analysis tab), Explode rotation /
 // auto-space / rotation rings, Instances to Skip, Insert Component options (virtual, envelope), sub-assembly and multibody components.
 import { chromium } from 'playwright';
-import { exitCode, skip } from './lib/check.mjs';
+import { exitCode } from './lib/check.mjs';
 import { mkdirSync, readFileSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -65,9 +65,9 @@ await page.waitForTimeout(150);
 await page.locator('.k-pm .k-section:has-text("Analysis") label:has-text("Friction") input').check();
 await shot('ao1-mate-analysis');
 // Add to new folder
-await page.locator('[data-testid="mate-newfolder"]').check().catch(skip('asmoptions:68'));
+await page.locator('[data-testid="mate-newfolder"]').check();
 let mopt = await page.evaluate(() => window.__phlippoStore.getState().mateOpts);
-if (!mopt.newFolder) await page.evaluate(() => window.__phlippoStore.setState({ mateOpts: { ...window.__phlippoStore.getState().mateOpts, newFolder: true } }));
+check('Add to new folder sets the mate option', mopt.newFolder === true, JSON.stringify(mopt));
 await page.evaluate(() => window.__phlippoStore.getState().commitMate());
 await page.waitForTimeout(400);
 let mates = await page.evaluate(() => window.__phlippoStore.getState().doc.mates);

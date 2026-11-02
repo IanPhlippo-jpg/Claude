@@ -1,7 +1,7 @@
 // Drawing commands that were "later": Relative / Empty / Predefined View, Spell Checker, Format Painter, Linear Note
 // Pattern, Magnetic Line, Blocks, Edit Sheet Format, Hole Table, General Table, Add Sheet.
 import { chromium } from 'playwright';
-import { exitCode, skip } from './lib/check.mjs';
+import { exitCode } from './lib/check.mjs';
 import { mkdirSync, readFileSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -60,7 +60,7 @@ await clickSheet(90, 40);
 st = await sheet();
 check('Empty View and Predefined View are placed', st.views.some((v) => v.empty) && st.views.some((v) => v.pre), JSON.stringify(st.views.map((v) => [v.empty, v.pre])));
 await page.waitForTimeout(300);
-await page.locator('[data-testid="insert-model"]').first().click().catch(skip('drawing2:63'));
+await page.locator('[data-testid="insert-model"]').first().click();
 await page.waitForTimeout(800);
 st = await sheet();
 check('Predefined View ▸ Insert Model fills the view', !st.views.some((v) => v.pre), JSON.stringify(st.views.map((v) => [v.pre, v.model])));
@@ -104,7 +104,7 @@ const ys = await page.evaluate(() => (window.__phlippoStore.getState().doc.sheet
 check('Magnetic Line lines the balloons up', st.ml >= 1 && (nBalloons === 0 || ys.every((y) => Math.abs(y - 200) < 0.05)), JSON.stringify({ nBalloons, ys }));
 
 // Tables
-await page.click('.k-cm-big:has-text("Tables") .k-cm-arrow').catch(skip('drawing2:107'));
+await page.click('.k-cm-big:has-text("Tables") .k-cm-arrow');
 await page.evaluate(() => window.__phlippoStore.getState().insertHoleTable());
 await page.evaluate(() => window.__phlippoStore.getState().setDialog('generalTable'));
 await page.click('[data-testid="gt-insert"]');

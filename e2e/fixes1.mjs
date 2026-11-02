@@ -23,7 +23,7 @@ await page.waitForSelector('.k-viewport');
 await page.waitForTimeout(500);
 await page.click('.k-doctype:has-text("Part")');
 await page.waitForTimeout(400);
-// since 0.3.2 (QA F15) the graphics area has no watermark, as the original
+// since 0.3.2 (QA F15) the graphics area has no watermark, by design
 check('an empty part shows no watermark logo in the graphics area', (await page.locator('[data-testid="bg-logo"], .k-bg-logo').count()) === 0);
 await shot('fx0-empty-logo');
 
@@ -77,7 +77,7 @@ const lbl = await page.evaluate(() => { const el = [...document.querySelectorAll
 const mid = await P(90, 85);
 check('the dimension text is centred between the arrows', lbl && Math.abs(lbl.cx - mid.x) < 6, JSON.stringify({ lbl, mid }));
 
-// the Modify box in the layout of the original
+// the Modify box in the layout of the intended design
 await page.evaluate(() => { const s = window.__phlippoStore.getState(); s.setModify({ id: 'dimT', x: 900, y: 400 }); });
 await page.waitForTimeout(300);
 const mod = await page.evaluate(() => { const m = document.querySelector('.k-modify'); if (!m) return null; const r = m.getBoundingClientRect(); const name = m.querySelector('[data-testid="modify-name"]'); const acts = m.querySelector('.k-modify-actions'); return { w: Math.round(r.width), value: m.querySelector('input.k-num')?.value, name: name?.textContent, actionsBeforeName: !!(acts && name && (acts.compareDocumentPosition(name) & Node.DOCUMENT_POSITION_FOLLOWING)) }; });

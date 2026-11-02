@@ -1,5 +1,5 @@
-// Machine tool (design round): the BasePlate sketch of the reference video next to the app, in sketch mode on the Top
-// Plane: the empty sketch (frame 57), the rectangle just drawn (frame 70), the 80 × 80 fully defined (frame 82) and the Ø35 circle added (frame 95).
+// Machine tool (design round): the BasePlate tutorial sketch next to the app, in sketch mode on the Top
+// Plane: the empty sketch, the rectangle just drawn, the 80 × 80 fully defined and the Ø35 circle added.
 // Saves e2e-out/cmp-sk-57.png, cmp-sk-70.png, cmp-sk-82.png and cmp-sk-95.png (reference left, app right). Usage: dev server on 5173,
 // then node e2e/tools/compare-sketch.mjs
 import { chromium } from 'playwright';

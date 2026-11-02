@@ -1,4 +1,4 @@
-// Block G-I: Material dialog fields (Compressive Strength, Description, Source, Sustainability, Favorites + the tree
+// Block G-I: Material dialog fields (Compressive Strength, Description, Source, Environmental Class, Favorites + the tree
 // material menu) and the Product Dimensions tab (Auto Dimension Scheme, Datum, Size Dimension, Geometric Tolerance,
 // Show Tolerance Status, Delete All Tolerances, Tolerance Tree, callouts).
 import { chromium } from 'playwright';
@@ -52,7 +52,7 @@ await page.waitForTimeout(400);
 await page.locator('.k-material-item:has-text("AISI 1020")').click();
 await page.waitForTimeout(200);
 check('Properties table has a Compressive Strength row', (await page.locator('.k-material-props tr:has-text("Compressive Strength")').count()) === 1);
-check('Description / Source / Sustainability shown for the library material', /Low carbon steel/.test(await page.locator('[data-testid="mat-description"]').inputValue()) && /Phlippo CAD Materials/.test(await page.locator('[data-testid="mat-source"]').inputValue()) && /Carbon steel/.test(await page.locator('[data-testid="mat-sustainability"]').inputValue()));
+check('Description / Source / Environmental Class shown for the library material', /Low carbon steel/.test(await page.locator('[data-testid="mat-description"]').inputValue()) && /Phlippo CAD Materials/.test(await page.locator('[data-testid="mat-source"]').inputValue()) && /Carbon steel/.test(await page.locator('[data-testid="mat-sustainability"]').inputValue()));
 await page.locator('.k-material-cat:has-text("Iron")').first().click();
 await page.locator('.k-material-item:has-text("Gray Cast Iron")').click();
 await page.waitForTimeout(200);

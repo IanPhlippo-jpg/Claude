@@ -84,7 +84,7 @@ await page.mouse.click(1000, 600);
 await page.keyboard.press('Control+s');
 await page.waitForTimeout(300);
 check('Save of a model with rebuild errors asks first (F40)', /could not be rebuilt/.test(await page.locator('[data-testid="ask"]').innerText().catch(skip('qa4.mjs:86', ''))));
-await page.locator('[data-testid="ask"] .k-btn:has-text("Cancel")').click().catch(skip('qa4: cancel save'));
+await page.locator('[data-testid="ask"] .k-btn:has-text("Cancel")').click();
 await S(() => window.__phlippoStore.setState({ dirty: false }));
 
 // ---- F74 / F41: Ctrl+N during Edit Component asks to save the assembly

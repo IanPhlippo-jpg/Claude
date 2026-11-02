@@ -986,8 +986,8 @@ export interface State extends PlasticsActions {
   setComponentConfiguration(id: Id, name: string): void;
   /** Edit Material: apply a material of the library (null = <not specified>) */
   setMaterial(m: { name: string; density: number; color: string } | null): void;
-  /** opens a document in place of the current one; the undo stack starts empty unless keepHistory is set (Return to Assembly) */
-  openDocument(doc: Document, opts?: { keepHistory?: boolean }): void;
+  /** opens a document in place of the current one; the undo stack starts empty unless keepHistory is set (Return to Assembly); recovered: Document Recovery (unsaved, "(Recovered)") */
+  openDocument(doc: Document, opts?: { keepHistory?: boolean; recovered?: boolean }): void;
   /** Rebuild (Ctrl+B): re-solve and rebuild the open document; undo history and the unsaved flag stay as they are */
   rebuildAll(): void;
   /** a document is shown; false at start-up until New / Open / a recent document, by design */

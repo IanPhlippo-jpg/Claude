@@ -1,6 +1,6 @@
 // Drag Handles: the end face of an extrusion gets a drag arrow; dragging it changes the depth (ruler readout).
 import { chromium } from 'playwright';
-import { exitCode, skip } from './lib/check.mjs';
+import { exitCode } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -57,7 +57,7 @@ await page.mouse.down();
 await page.mouse.move(gx + pxmm.dx * 5, gy + pxmm.dy * 5, { steps: 5 });
 await page.mouse.move(gx + pxmm.dx * 10, gy + pxmm.dy * 10, { steps: 5 });
 const readout = await page.locator('[data-testid="dragHandles-value"]').textContent();
-await page.mouse.move(5, 900, { steps: 1 }).catch(skip('dragHandles:60'));
+await page.mouse.move(5, 900, { steps: 1 });
 await page.mouse.move(gx + pxmm.dx * 10, gy + pxmm.dy * 10);
 await shot('i3-drag');
 await page.mouse.up();

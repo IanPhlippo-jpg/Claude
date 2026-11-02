@@ -11,7 +11,8 @@ import { partRebuild, setPartRebuild } from '../core/assembly/assembly';
 import type { Document } from '../core/document/types';
 import type { Body, RebuildResult } from '../core/features/rebuild';
 import { bodyEdges, edgeRef, matchEdge } from '../core/features/edgesets';
-import { planarFaces } from '../core/features/solid';
+import { meshVolume, planarFaces } from '../core/features/solid';
+import { volumeMismatch } from '../core/features/volumeCheck';
 import { splitFaces } from '../core/features/splitline';
 import { isAssembly, isDrawing } from '../core/document/types';
 import { getPref } from './prefs';
@@ -67,6 +68,15 @@ function refinedResult(sent: RebuildResult, bodies: import('../workers/occt.work
   // the openings of the faceted result (F48) are gone where the body is exact now
   const faceted = next.filter((b) => !b.exact);
   const warnings = Object.fromEntries(Object.entries(sent.warnings ?? {}).filter(([id]) => faceted.some((b) => b.featureIds.includes(id))));
+  // the exact volume is checked against the faceted one (QA F159): the two kernels build the same part, so a body
+  // whose volumes differ by more than the tessellation's margin got a wrong feature on one of them; the feature is
+  // marked (yellow in the tree, What's Wrong) and the mismatch is said
+  for (const [i, b] of next.entries()) {
+    const mismatch = b.exact ? volumeMismatch(Math.abs(meshVolume(sent.bodies[i].geometry)), b.exactVolume ?? 0) : null;
+    if (!mismatch) continue;
+    const fid = b.featureIds[b.featureIds.length - 1];
+    if (fid && !sent.errors[fid]) warnings[fid] = mismatch;
+  }
   return { ...sent, bodies: next, warnings: Object.keys(warnings).length ? warnings : undefined };
 }
 
@@ -76,6 +86,8 @@ function apply(sent: RebuildResult, bodies: import('../workers/occt.worker').Ref
   if (!result) return;
   refined.add(result);
   useStore.setState({ rebuild: result, ...carrySelection(sent, result) });
+  const added = Object.entries(result.warnings ?? {}).filter(([id, w]) => w.startsWith('Warning: the exact') && sent.warnings?.[id] !== w);
+  if (added.length) useStore.getState().pushMessage(`${added.length === 1 ? 'One feature differs' : `${added.length} features differ`} between the exact and the faceted result: see What's Wrong.`, 'warn');
 }
 
 /** an assembly: every part is refined once (by document identity), then the assembly is rebuilt from the exact parts */

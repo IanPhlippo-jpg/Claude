@@ -258,8 +258,8 @@ export interface EquationResult {
 export const FILE_PROPERTIES = ['Density'];
 export function fileProperty(doc: Pick<Document, 'material'>, name: string): number | undefined {
   const base = name.replace(/@.*$/, '');
-  // (files of 0.5.1 wrote it with a vendor prefix: still read)
-  if (/^(?:SW-)?Density$/.test(base) && doc.material) return doc.material.density / 1e6;
+  // (the vendor-prefixed name of 0.5.1 files is rewritten when the file is opened, see persistence.ts)
+  if (base === 'Density' && doc.material) return doc.material.density / 1e6;
   return undefined;
 }
 

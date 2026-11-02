@@ -1,4 +1,4 @@
-// The beginners' quick-start part done with the mouse and keyboard as in the reference video (02): right-click the
+// The beginners' quick-start part done with the mouse and keyboard as intended: right-click the
 // Front Plane (context toolbar above the menu), Sketch, an L of lines (the closing line gets Horizontal), Smart
 // Dimension 62 / 30 / 65 / 15 (Fully Defined), Extruded Boss/Base Mid Plane 30 with Enter as OK, Fillet R14.5 with
 // Enter as OK. Screenshots at each moment the video shows -> walk-NN-*.png (1920 x 1080, the reference screen).

@@ -1,4 +1,4 @@
-// Drawing as the original (Ian's screenshot 2026-10-21): Auto Balloon layouts without crossing leaders, magnetic lines
+// Drawing by design (Ian's screenshot 2026-10-21): Auto Balloon layouts without crossing leaders, magnetic lines
 // only while used, dragging balloons / notes / tables, balloons moving with their view, tables following the cursor,
 // the ISO title block, automatic sheet scale and Standard 3 View without overlapping views.
 import { chromium } from 'playwright';
@@ -130,7 +130,7 @@ await page.waitForTimeout(200);
 const nt = (await sheet()).notes.find((n) => n.id === 'ntx');
 check('a note is dragged with the mouse', nt.position[0] > 45, JSON.stringify(nt.position));
 
-// title block as the original's ISO sheet format
+// title block as the intended ISO sheet format
 const tbText = await page.locator('.k-sheet-format').textContent();
 check('ISO title block: DEBUR AND BREAK SHARP EDGES, DO NOT SCALE DRAWING, NAME/SIGNATURE/DATE, Q.A, size A3', ['DEBUR AND', 'BREAK SHARP', 'DO NOT SCALE', 'SIGNATURE', 'Q.A', 'MFG', 'REVISION', 'A3', 'SHEET 1 OF 1'].every((t) => tbText.includes(t)), tbText.slice(0, 200));
 await page.screenshot({ path: `${OUT}/drawfix-tables.png` });

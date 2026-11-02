@@ -1,5 +1,5 @@
 // Machine tool (design round): a new assembly right after the BasePlate part, with Insert Component open, next to
-// reference frame 320 -> e2e-out/cmp-320.png (reference left, app right). Usage: dev server on 5173, then
+// calibration frame 320 -> e2e-out/cmp-320.png (reference left, app right). Usage: dev server on 5173, then
 // node e2e/tools/compare-insert.mjs
 import { chromium } from 'playwright';
 import { execFileSync } from 'node:child_process';

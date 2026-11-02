@@ -1,6 +1,6 @@
-// Sheet Metal ▸ Unfold → Extruded Cut across the bend → Fold, and Flatten showing the cut (as the original).
+// Sheet Metal ▸ Unfold → Extruded Cut across the bend → Fold, and Flatten showing the cut (by design).
 import { chromium } from 'playwright';
-import { exitCode } from './lib/check.mjs';
+import { exitCode, waitSettled } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -13,7 +13,7 @@ const check = (name, ok, info = '') => { results.push({ name, ok: !!ok, info });
 page.on('pageerror', (e) => errors.push('pageerror: ' + e.message));
 page.on('console', (m) => { if (m.type() === 'error') errors.push('console: ' + m.text()); });
 const shot = (n) => page.screenshot({ path: `${OUT}/${n}.png` });
-const state = () => page.evaluate(() => {
+const state = async () => { await waitSettled(page); return page.evaluate(() => {
   const s = window.__phlippoStore.getState();
   let v = 0;
   const min = [Infinity, Infinity, Infinity], max = [-Infinity, -Infinity, -Infinity];
@@ -23,7 +23,7 @@ const state = () => page.evaluate(() => {
     for (let i = 0; i < p.length; i += 3) for (let k = 0; k < 3; k++) { min[k] = Math.min(min[k], p[i + k]); max[k] = Math.max(max[k], p[i + k]); }
   }
   return { v: Math.abs(v), size: max.map((x, k) => x - min[k]), errors: s.rebuild.errors, names: s.doc.features.map((f) => f.name) };
-});
+}); };
 
 await page.goto(process.env.E2E_URL ?? 'http://localhost:4173/');
 await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.theme', 'light'); });

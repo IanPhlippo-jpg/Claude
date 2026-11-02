@@ -1,4 +1,4 @@
-// Every keyboard shortcut of the original's list, in a part, in a sketch, in an assembly and in a drawing:
+// Every keyboard shortcut of the intended list, in a part, in a sketch, in an assembly and in a drawing:
 // no page error, no crash screen, and the expected effect for the main ones.
 import { chromium } from 'playwright';
 import { exitCode, skip } from './lib/check.mjs';
@@ -20,7 +20,7 @@ await page.click('.k-doctype:has-text("Part")');
 const load = (f) => { const d = JSON.parse(readFileSync(f, 'utf8')); delete d.format; return d; };
 const keys = ['f', 'F', 'Control+1', 'Control+2', 'Control+3', 'Control+4', 'Control+5', 'Control+6', 'Control+7', 'Control+8', ' ', 'Escape', 's', 'Escape', 'Control+b', 'Control+q', 'Control+r', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Shift+ArrowLeft', 'Alt+ArrowLeft', 'Control+ArrowLeft', 'Shift+c', 'Control+Shift+z', 'z', 'Shift+z', 'g', 'Control+z', 'Control+y', 'Enter', 'Escape', 'F9', 'Control+Space', 'Escape', 'l', 'Escape', 'd', 'Escape', 'Delete', 'Escape', 'Tab', 'Escape'];
 const run = async (label) => {
-  await page.locator('.k-viewport, .k-sheet-host').first().click({ position: { x: 200, y: 200 } }).catch(skip('keys:23'));
+  await page.locator('.k-viewport, .k-sheet-host').first().click({ position: { x: 200, y: 200 } });
   for (const k of keys) {
     await page.keyboard.press(k);
     await page.waitForTimeout(120);
