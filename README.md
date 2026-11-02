@@ -70,8 +70,9 @@ In 0.5.11 onder meer:
   geteld met een budget per script.
 
 Welke platforms getest zijn:
-- **Windows 11 (lokaal):** unit-tests, typecheck, de tools-checks en de betrokken e2e-scripts tegen de dev-server.
-  De volledige regressie (mesh, B-rep en worker) volgt bij de release, met het ruwe log in `e2e-out/`.
+- **Windows 11 (lokaal, commit 0495219):** unit-tests 487/487, typecheck, de tools-checks; regressie mesh 98/98,
+  release (B-rep + worker) 98/98, brep-controle 12/12, 0 skips; desktop 12/12 en 9/9 op de release-build;
+  geïnstalleerde 0.5.11 19/19. Ruwe logs: `qa-logs/0.5.11/`.
 - **Linux (GitHub Actions, ubuntu-24.04):** zie Actions-run <link> (wordt ingevuld zodra de run op deze commit groen is).
 
 Regel voor elke claim in README, docs, TASKS en commitberichten: een getal als "98/98" noemt altijd het **platform**,

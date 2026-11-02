@@ -1,0 +1,6 @@
+Phlippo CAD 0.5.11 — Authenticode signatures (2026-11-02T19:57:44.758Z)
+The build is not code-signed: there is no certificate. SmartScreen warns at the first start; see README.
+
+NotSigned    C:\Users\ianph\AppData\Local\PhlippoCAD\release\Phlippo CAD-0.5.11-portable.exe
+NotSigned    C:\Users\ianph\AppData\Local\PhlippoCAD\release\Phlippo CAD-Setup-0.5.11.exe
+NotSigned    C:\Users\ianph\AppData\Local\PhlippoCAD\release\win-unpacked\Phlippo CAD.exe

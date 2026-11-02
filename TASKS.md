@@ -827,11 +827,11 @@ elease; README en docs/04 bijgewerkt
 - [x] P1 F143/F157: vensters tekenen met de hoofdrenderer (studio-look, randen), melding zonder WebGL, ErrorBoundary per venster; e2e/viewpanes.mjs 35/35
 - [x] P1 F50/F163/F94/F136: Weldments → Frames, Sustainability Extras → Additional Materials, checks uitgebreid (ook e2e/), docs/26 intern
 - [x] P1 F51/F121: Dome exact (bol + clip), boss/vinnen/snap hook waren al exact; waarschuwing per feature bij mesh-terugval; Faceted-cel getest (F99)
-- [ ] P1 F93/F148/F149/F126/F38/F129: claims met platform, commit en ruw log; README-status 0.5.11; desktop-installed log bewaren
+- [x] P1 F93/F148/F149/F126/F38/F129: claims met platform, commit en ruw log (qa-logs/0.5.11/); README-status 0.5.11; desktop-installed-0.5.11.txt en signature-0.5.11.txt bewaard
 - [x] P2 F150/F49/F117: UNSIGNED-melding in desktop:build + tools/sign-report.cjs (signature-<versie>.txt); F151/F97: desktop-installed.mjs draait --self-test op de geïnstalleerde exe (packaged:true), log bewaard
 - [x] P2 F112 backup-opties echt (eenheden/grid/kleuren waren al gekoppeld), F114 IGES niet mogelijk in deze OCCT-build (gedocumenteerd), F122 HLR/centermarks e2e + centermarks in detailaanzichten, F141/F166 nieuwste mate gemarkeerd en Not Converged-status
 - [x] P3 F142 graphify-out uit de index, F138 audit fix (2 high weg), F137 bewust 45 s (gedocumenteerd), F118 bundelbudget 860 kB, F134 splitsplan, F161/F16/F21/F22 gedocumenteerd, F162, F164, F165, F99 gedaan
-- [~] Regressie (mesh + B-rep + worker, Windows én Linux-CI), release 0.5.11, push, docs/28
+- [~] Regressie (mesh 98/98 + release 98/98 Windows op 0495219; brep-pass en Linux-CI lopen), release 0.5.11 gebouwd en geïnstalleerd (19/19), push, docs/28
 
 ## Merken, docs en kleine punten uit QA 0.5.10 (2026-11-02)
 - [x] F50/F94/F163: zichtbare "Weldments" → "Frames", "Sustainability Extras" → "Additional Materials"; merkcheck vangt beide; e2e-selectors bij
