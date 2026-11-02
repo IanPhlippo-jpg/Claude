@@ -37,13 +37,21 @@ const boxOnTop = async (x0, y0, x1, y1, depth, merge = true) => {
   // corners in sketch millimetres, projected to the screen (zoom to fit changes the scale per sketch)
   const pa = await page.evaluate(([x, y]) => window.__phlippoProject({ x, y }), [x0, y0]);
   const pb = await page.evaluate(([x, y]) => window.__phlippoProject({ x, y }), [x1, y1]);
-  await page.click('.k-cm-iconbtn[data-tip="Corner Rectangle"]');
-  await page.mouse.click(pa.x, pa.y);
-  await page.mouse.click(pb.x, pb.y);
+  // a slow runner drops a click now and then: draw until the four lines of the rectangle are in the sketch
+  for (let k = 0; k < 3; k++) {
+    await page.click('.k-cm-iconbtn[data-tip="Corner Rectangle"]');
+    await page.mouse.click(pa.x, pa.y);
+    await page.mouse.click(pb.x, pb.y);
+    const drawn = await page.waitForFunction(() => { const s = window.__phlippoStore.getState(); const sk = s.doc.sketches[s.activeSketchId]; return !!sk && Object.values(sk.entities).filter((e) => e.kind === 'line').length >= 4; }, undefined, { timeout: 5000 }).then(() => true, () => false);
+    if (drawn) break;
+  }
+  const sketchId = await page.evaluate(() => window.__phlippoStore.getState().activeSketchId);
   await page.keyboard.press('Escape');
   await page.keyboard.press('Escape');
   // a slow runner: the sketch must be closed before the Features tab, and the PM takes a moment
   await page.waitForFunction(() => !window.__phlippoStore.getState().activeSketchId, undefined, { timeout: 15000 }).catch(() => undefined);
+  // the sketch just left is the one to extrude: said explicitly, so a lost selection on a slow runner does not matter
+  await page.evaluate((id) => { const s = window.__phlippoStore.getState(); const f = s.doc.features.find((x) => x.type === 'sketch' && x.sketchId === id); if (f) s.setSelectedFeature(f.id); }, sketchId);
   await page.click('.k-cm-tab:has-text("Features")');
   await page.click('.k-cm-big:has-text("Extruded Boss/Base") .k-cm-main');
   await page.locator('.k-pm-valuerow input.k-num').first().waitFor({ timeout: 20000 });

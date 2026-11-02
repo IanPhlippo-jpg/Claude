@@ -330,9 +330,13 @@ await page.evaluate(() => window.__phlippoZoomFit());
 await page.waitForTimeout(400);
 const la = await page.evaluate(() => window.__phlippoProject({ x: 40, y: 0 }));
 const lb = await page.evaluate(() => window.__phlippoProject({ x: 40, y: 60 }));
-await page.click('.k-cm-iconbtn[data-tip="Line (L)"]');
-await page.mouse.click(la.x, la.y);
-await page.mouse.click(lb.x, lb.y);
+for (let k = 0; k < 3; k++) {
+  await page.click('.k-cm-iconbtn[data-tip="Line (L)"]');
+  await page.mouse.click(la.x, la.y);
+  await page.mouse.click(lb.x, lb.y);
+  if (await sketchHas('line', 1).then(() => true, () => false)) break;
+  await page.keyboard.press('Escape');
+}
 await sketchHas('line', 1);
 await page.keyboard.press('Escape');
 await page.keyboard.press('Escape');
@@ -409,7 +413,9 @@ stl.writeUInt32LE(boxTris.length, 80);
 boxTris.forEach((t, i) => { const o = 84 + i * 50 + 12; t.flat().forEach((v, k) => stl.writeFloatLE(v, o + k * 4)); });
 const featuresBefore = (await S()).features.length;
 await page.setInputFiles('#phlippo-open-file', { name: 'box.stl', mimeType: 'model/stl', buffer: stl });
-await page.waitForTimeout(800);
+// the import sews the mesh into the exact body on the release path: wait for the feature, not 800 ms
+await page.waitForFunction((n) => window.__phlippoStore.getState().doc.features.length === n + 1 && !window.__phlippoStore.getState().rebuild.pending, featuresBefore, { timeout: 30000 }).catch(() => undefined);
+await waitSettled(page);
 const sImp = await S();
 check('Imported1 added from box.stl', sImp.features.length === featuresBefore + 1 && sImp.features[sImp.features.length - 1].type === 'imported' && Object.keys(sImp.errors).length === 0, JSON.stringify(sImp.errors));
 check('the imported box becomes a solid body (own body, as Insert ▸ Features ▸ Imported)', (await volume()) > volNow + 1000 * 0.5, String(await volume()));

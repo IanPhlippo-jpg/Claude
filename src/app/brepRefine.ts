@@ -174,7 +174,8 @@ async function run() {
     return;
   }
   // Split Lines split the faces after the rebuild: those parts stay on the mesh kernel for now
-  if (st.doc.features.some((f) => f.type === 'splitLine' && !f.suppressed)) return;
+  // (a document broken on purpose, e.g. the crash-box test, has no feature list: nothing to refine)
+  if (!Array.isArray(st.doc.features) || st.doc.features.some((f) => f.type === 'splitLine' && !f.suppressed)) return;
   busy = true;
   try {
     const { refineRebuild } = await import('../core/occt/occtClient');
