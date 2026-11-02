@@ -117,8 +117,8 @@ await page.waitForTimeout(600);
 const s0 = await S(() => { const c = window.__phlippoCamera; c.scale *= 8; c.update?.(); return c.scale; });
 await page.mouse.click(1000, 600);
 await page.keyboard.press('f');
-await page.waitForTimeout(700);
-check('after a drawing, F fits the part again (F61)', (await S(() => window.__phlippoCamera.scale)) < s0 * 0.5);
+const fitted = await page.waitForFunction((s) => window.__phlippoCamera.scale < s * 0.5, s0, { timeout: 10000 }).then(() => true, () => false);
+check('after a drawing, F fits the part again (F61)', fitted, String(await S(() => window.__phlippoCamera.scale)));
 
 // ---- F55 / F70: a damaged assembly or drawing is refused, the open document and its autosave stay
 const before55 = await S(() => ({ name: window.__phlippoStore.getState().doc.name, auto: localStorage.getItem('phlippo.autosave')?.length ?? 0 }));

@@ -273,9 +273,10 @@ await page.keyboard.press('Control+7');
 await page.waitForTimeout(300);
 await page.keyboard.press('f');
 await page.waitForTimeout(300);
+await waitSettled(page);
 const sf = await page.evaluate(() => window.__phlippoProjectWorld(5, 10, -40));
-await page.mouse.click(sf.x, sf.y);
-await page.waitForTimeout(150);
+// a slow runner draws the fitted view later: click until the face is selected
+for (let k = 0; k < 10; k++) { await page.mouse.click(sf.x, sf.y); await page.waitForTimeout(150); if ((await page.evaluate(() => window.__phlippoStore.getState().selectedFaces.length)) === 1) break; }
 console.log('before Shell:', JSON.stringify(await page.evaluate(() => { const s = window.__phlippoStore.getState(); const b = s.rebuild.bodies[0]; return { selectedFaces: s.selectedFaces.length, hoverEdge: s.hoverEdge, edges: b.edges.length, closed: b.edges.filter((e) => e.closed).length, straight: b.edges.filter((e) => e.straight).length }; })));
 await page.click('.k-cm-small:has-text("Shell")');
 await page.waitForTimeout(1200);
@@ -516,10 +517,12 @@ await page.click('.k-cm-iconbtn[data-tip="Line (L)"]');
 await page.mouse.click(l1.x, l1.y);
 await page.mouse.click(l2.x, l2.y);
 await page.mouse.click(l3.x, l3.y);
+await sketchHas('line', 2);
 await page.keyboard.press('Escape');
 await page.keyboard.press('Escape');
 await page.click('.k-cm-tab:has-text("Features")');
 await page.click('.k-cm-big:has-text("Extruded Boss/Base") .k-cm-main');
+await page.locator('.k-pm-host').waitFor({ timeout: 15000 }).catch(() => undefined);
 await page.waitForTimeout(400);
 const thinDraft = await page.evaluate(() => window.__phlippoStore.getState().featureEdit?.draft);
 check('open profile starts a Thin Feature extrude', thinDraft && thinDraft.thin && thinDraft.name === 'Extrude-Thin1', JSON.stringify(thinDraft && { thin: thinDraft.thin, name: thinDraft.name }));

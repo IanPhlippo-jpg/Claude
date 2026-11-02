@@ -114,11 +114,22 @@ jobs:
             query: '?kernel=brep&rebuild=worker'
             scripts: ''
             shard: '3/3'
+          # the mesh pass too: on a runner with software GL it ran past the 90 min limit as one job (73 scripts in 89 min)
           - pass: mesh
-            name: mesh
+            name: mesh-1of3
             query: ''
             scripts: ''
-            shard: ''
+            shard: '1/3'
+          - pass: mesh
+            name: mesh-2of3
+            query: ''
+            scripts: ''
+            shard: '2/3'
+          - pass: mesh
+            name: mesh-3of3
+            query: ''
+            scripts: ''
+            shard: '3/3'
           - pass: brep
             name: brep
             query: '?kernel=brep'

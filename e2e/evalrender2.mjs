@@ -77,8 +77,9 @@ await page.screenshot({ path: `${OUT}/er2-decal.png` });
 
 // Preview Window
 await page.click('.k-cm-big:has-text("Preview Window")');
-await page.waitForTimeout(800);
-check('Preview Window shows a rendered image', (await page.locator('[data-testid="preview-img"]').count()) === 1);
+// the image is rendered first; software GL on a runner takes seconds
+const previewShown = await page.locator('[data-testid="preview-img"]').waitFor({ timeout: 30000 }).then(() => true, () => false);
+check('Preview Window shows a rendered image', previewShown);
 await page.screenshot({ path: `${OUT}/er2-preview.png` });
 await page.click('[data-testid="preview-window"] button[data-tip="Close"]');
 

@@ -42,8 +42,11 @@ const boxOnTop = async (x0, y0, x1, y1, depth, merge = true) => {
   await page.mouse.click(pb.x, pb.y);
   await page.keyboard.press('Escape');
   await page.keyboard.press('Escape');
+  // a slow runner: the sketch must be closed before the Features tab, and the PM takes a moment
+  await page.waitForFunction(() => !window.__phlippoStore.getState().activeSketchId, undefined, { timeout: 15000 }).catch(() => undefined);
   await page.click('.k-cm-tab:has-text("Features")');
   await page.click('.k-cm-big:has-text("Extruded Boss/Base") .k-cm-main');
+  await page.locator('.k-pm-valuerow input.k-num').first().waitFor({ timeout: 20000 });
   await page.waitForTimeout(400);
   await page.locator('.k-pm-valuerow input.k-num').first().fill(String(depth));
   await page.locator('.k-pm-valuerow input.k-num').first().press('Tab');
