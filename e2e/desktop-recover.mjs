@@ -67,6 +67,8 @@ const chosen = path.join(profile, 'chosen folder');
 await app.evaluate(({ dialog }, f) => { dialog.showOpenDialog = async () => ({ canceled: false, filePaths: [f] }); }, chosen);
 await page.evaluate(() => window.__phlippoStore.getState().setDialog('options'));
 await page.locator('.k-opt-cat:has-text("Backup/Recover")').click();
+// the field asks the shell for the folder after it mounts: on a slow runner (Linux CI) it is empty for a moment
+await page.waitForFunction(() => (document.querySelector('[data-testid="recover-folder"]')?.value ?? '') !== '', null, { timeout: 15000 }).catch(() => undefined);
 const shownBefore = await page.locator('[data-testid="recover-folder"]').inputValue();
 check('Options shows the folder of the shell, read-only', path.normalize(shownBefore) === defaultDir && (await page.locator('[data-testid="recover-folder"]').getAttribute('readonly')) !== null, shownBefore);
 await page.locator('[data-testid="recover-folder-browse"]').click();

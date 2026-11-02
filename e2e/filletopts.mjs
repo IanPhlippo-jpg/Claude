@@ -64,7 +64,7 @@ const pickTopEdges = async (n = 1) => {
   for (let i = 0; i < ids.length; i++) await page.evaluate(([id, add]) => window.__phlippoStore.getState().toggleSelectedEdge(id, add), [ids[i], i > 0]);
   await page.waitForTimeout(200);
 };
-const ok = async () => { await page.locator('.k-pm-ok').first().click({ timeout: 3000 }); await page.waitForTimeout(600); };
+const ok = async () => { await page.locator('.k-pm-ok').first().click({ timeout: 15000 }); await page.waitForTimeout(600); };
 const undo = async () => { await page.evaluate(() => window.__phlippoStore.getState().undo()); await page.waitForTimeout(500); };
 const V0 = await volume();
 check('block volume 80 x 40 x 20', Math.abs(V0 - 64000) < 1, String(V0));

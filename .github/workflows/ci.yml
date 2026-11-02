@@ -97,16 +97,34 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          # the release pass is the slowest on a runner (exact bodies in WASM, software GL): three shards, each a
+          # third of the list (E2E_SHARD k/n in run-regression.mjs), so every job stays well under the limit
           - pass: release
+            name: release-1of3
             query: '?kernel=brep&rebuild=worker'
             scripts: ''
+            shard: '1/3'
+          - pass: release
+            name: release-2of3
+            query: '?kernel=brep&rebuild=worker'
+            scripts: ''
+            shard: '2/3'
+          - pass: release
+            name: release-3of3
+            query: '?kernel=brep&rebuild=worker'
+            scripts: ''
+            shard: '3/3'
           - pass: mesh
+            name: mesh
             query: ''
             scripts: ''
+            shard: ''
           - pass: brep
+            name: brep
             query: '?kernel=brep'
             scripts: features features2 filletopts endconditions multibody full doorhandle step bodies qa2 facenames plastics
-    name: regression (${{ matrix.pass }})
+            shard: ''
+    name: regression (${{ matrix.name }})
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -125,7 +143,7 @@ jobs:
           npx vite preview --host 127.0.0.1 --port 4173 --strictPort &
           npx wait-on http://127.0.0.1:4173
           export PW_CHROMIUM="$(node -e "console.log(require('playwright').chromium.executablePath())")"
-          E2E_URL="http://127.0.0.1:4173/${{ matrix.query }}" node e2e/run-regression.mjs ${{ matrix.scripts }}
+          E2E_SHARD="${{ matrix.shard }}" E2E_URL="http://127.0.0.1:4173/${{ matrix.query }}" node e2e/run-regression.mjs ${{ matrix.scripts }}
       # the tests leave the repository as they found it (no rewritten examples, F84)
       - id: clean
         continue-on-error: true
@@ -134,13 +152,15 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: e2e-regression-log-${{ matrix.pass }}
-          path: e2e-out/regression-*.txt
+          name: e2e-regression-log-${{ matrix.name }}
+          path: |
+            e2e-out/regression-*.txt
+            e2e-out/*-output.txt
           if-no-files-found: error
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: e2e-screenshots-${{ matrix.pass }}
+          name: e2e-screenshots-${{ matrix.name }}
           path: /tmp/phlippo-e2e
           if-no-files-found: ignore
       - name: regression passed

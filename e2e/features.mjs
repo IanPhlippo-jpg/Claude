@@ -87,9 +87,11 @@ await shot('e3-part');
 console.log('tree:', (await page.locator('.k-tree').textContent()).replace(/\s+/g, ' ').slice(0, 200));
 
 // hover + select the top face, then Sketch on it and draw a circle, then Extruded Cut through all
-await page.keyboard.press('Control+5'); await page.waitForTimeout(400); await page.mouse.move(cx - 250, cy - 250);
-await page.waitForTimeout(200);
-check('hover highlights a face', !!(await page.evaluate(() => window.__phlippoStore.getState().hoverFace)));
+await page.keyboard.press('Control+5'); await page.waitForTimeout(400);
+// a slow runner (CI, software GL, the exact body still coming in) picks the face a little later: move again until it is lit
+let hovered = false;
+for (let k = 0; k < 25 && !hovered; k++) { await page.mouse.move(cx - 250 + (k % 2), cy - 250); await page.waitForTimeout(200); hovered = !!(await page.evaluate(() => window.__phlippoStore.getState().hoverFace)); }
+check('hover highlights a face', hovered);
 await shot('e4-hover-face');
 await page.mouse.click(cx - 250, cy - 250);
 await page.waitForTimeout(200);

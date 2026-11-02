@@ -55,7 +55,7 @@ const overBudget = [];
 let skipped = 0;
 for (const t of list) {
   const t0 = Date.now();
-  const r = spawnSync(process.execPath, [`e2e/${t}.mjs`], { env: { ...process.env, E2E_URL: url }, encoding: 'utf8', timeout: 400_000, maxBuffer: 64 * 1024 * 1024 });
+  const r = spawnSync(process.execPath, [`e2e/${t}.mjs`], { env: { ...process.env, E2E_URL: url }, encoding: 'utf8', timeout: Number(process.env.E2E_SCRIPT_TIMEOUT || 900_000), maxBuffer: 64 * 1024 * 1024 });
   const all = `${r.stdout ?? ''}${r.stderr ?? ''}`.split('\n');
   // optional steps that were skipped are counted and named, and more than the script's budget fails the run (QA F119, F155)
   const skips = all.filter((l) => l.startsWith('skip: '));
@@ -67,6 +67,8 @@ for (const t of list) {
   const out = all.filter((l) => !l.startsWith('BVH') && /FAIL|passed|ERRORS|Error|page errors/.test(l)).slice(0, 8).join(' | ') + (skips.length ? ` | ${skips.length} skipped (budget ${budget ?? '?'}): ${skips.map((l) => l.slice(6, 90)).join('; ')}` : '');
   const code = r.status ?? (r.signal ? `signal ${r.signal}` : 'timeout');
   if (code !== 0) failed.push(t);
+  // the whole output of a failed script is kept next to the log (the CI artifact carries it): the stack of a timeout, the page errors
+  if (code !== 0) writeFileSync(`e2e-out/${t}-output.txt`, [`${t}: exit=${code}`, ...all].join('\n'));
   const line = `${t}: exit=${code}${over ? ' OVER-SKIP-BUDGET' : ''} ${((Date.now() - t0) / 1000).toFixed(0)}s ${out}`;
   appendFileSync(log, line + '\n');
   console.log(line);
