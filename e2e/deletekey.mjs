@@ -10,10 +10,10 @@ const results = [];
 const check = (name, ok, info = '') => { results.push({ name, ok: !!ok, info }); if (!ok) console.log('FAIL', name, info); };
 page.on('pageerror', (e) => errors.push('pageerror: ' + e.message));
 page.on('console', (m) => { if (m.type() === 'error') errors.push('console: ' + m.text()); });
-// the page answers within 3 s after the key (a frozen page does not)
+// the page answers within 20 s after the key (a frozen page does not; a slow runner rebuilds for seconds)
 const alive = async (label) => {
   const t0 = Date.now();
-  const r = await Promise.race([page.evaluate(() => 1), new Promise((res) => setTimeout(() => res('timeout'), 3000))]);
+  const r = await Promise.race([page.evaluate(() => 1), new Promise((res) => setTimeout(() => res('timeout'), 20000))]);
   check(`Delete with ${label}: the app keeps responding`, r === 1, `${r} after ${Date.now() - t0} ms`);
   return r === 1;
 };

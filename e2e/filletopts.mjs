@@ -60,6 +60,8 @@ const startFillet = async (kind = 'fillet') => {
   await page.waitForTimeout(200);
 };
 const pickTopEdges = async (n = 1) => {
+  // the edge ids of the exact body differ from the mesh body's: read them once the exact body is in (slow runner)
+  await waitSettled(page);
   const ids = (await topLongEdges()).slice(0, n);
   for (let i = 0; i < ids.length; i++) await page.evaluate(([id, add]) => window.__phlippoStore.getState().toggleSelectedEdge(id, add), [ids[i], i > 0]);
   await page.waitForTimeout(200);

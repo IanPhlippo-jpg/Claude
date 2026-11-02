@@ -300,11 +300,18 @@ check('undo removes the shell', (await S()).features.length === 4);
 // Every step waits for the app's state: on a slow runner the line was not always in the sketch before Exit Sketch,
 // and the sweep then had no path (QA 0.5.10 F145)
 const sketchOpen = () => page.waitForFunction(() => !!window.__phlippoStore.getState().activeSketchId, undefined, { timeout: 8000 });
+// a double-click on a plane row while the tree re-renders (the exact body coming in) can miss: try again
+const openSketchOn = async (plane) => {
+  for (let k = 0; k < 3; k++) {
+    await page.click(`.k-tree-row:has-text("${plane}")`, { clickCount: 2 });
+    if (await sketchOpen().then(() => true, () => false)) return;
+  }
+  throw new Error(`the sketch on ${plane} did not open`);
+};
 const sketchHas = (kind, n) => page.waitForFunction(([k, m]) => { const s = window.__phlippoStore.getState(); const sk = s.doc.sketches[s.activeSketchId]; return !!sk && Object.values(sk.entities).filter((e) => e.kind === k).length >= m; }, [kind, n], { timeout: 8000 });
 const sketchClosed = () => page.waitForFunction(() => !window.__phlippoStore.getState().activeSketchId && !window.__phlippoStore.getState().rebuild.pending, undefined, { timeout: 15000 });
 await page.keyboard.press('Escape');
-await page.click('.k-tree-row:has-text("Front Plane")', { clickCount: 2 });
-await sketchOpen();
+await openSketchOn('Front Plane');
 await page.waitForTimeout(300);
 const pc = await page.evaluate(() => window.__phlippoProject({ x: 40, y: 20 }));
 const pr = await page.evaluate(() => window.__phlippoProject({ x: 44, y: 20 }));
@@ -316,8 +323,7 @@ await page.keyboard.press('Escape');
 await page.keyboard.press('Escape');
 await page.click('.k-confirm-ok');
 await sketchClosed();
-await page.click('.k-tree-row:has-text("Top Plane")', { clickCount: 2 });
-await sketchOpen();
+await openSketchOn('Top Plane');
 await page.waitForTimeout(300);
 await page.evaluate(() => window.__phlippoZoomFit());
 await page.waitForTimeout(400);

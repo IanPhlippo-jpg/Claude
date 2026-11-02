@@ -177,7 +177,10 @@ const topId = await page.evaluate(() => window.__phlippoStore.getState().doc.she
 await waitState((id) => !!window.__phlippoSheet.circles(id).find((c) => Math.abs(c.r - 17.5) < 1), topId);
 await page.evaluate(() => new Promise((ok) => { let last = '', same = 0; const tick = () => { const now = JSON.stringify([window.__phlippoSheet.zoom(), window.__phlippoSheet.toPx([0, 0])]); same = now === last ? same + 1 : 0; last = now; if (same >= 2) ok(); else requestAnimationFrame(tick); }; tick(); }));
 const hole = await page.evaluate((id) => window.__phlippoSheet.circles(id).find((c) => Math.abs(c.r - 17.5) < 1), topId);
-const circlePt = await px(hole ? [hole.c[0] + hole.r, hole.c[1]] : [topView.position[0] + 17.5, topView.position[1]]);
+// on the rim at 45 degrees: at 0 degrees the centre mark's extension line crosses the circle and a pick there can land on
+// that line instead of the circle (Linux CI, F10)
+const D45 = Math.SQRT1_2;
+const circlePt = await px(hole ? [hole.c[0] + hole.r * D45, hole.c[1] + hole.r * D45] : [topView.position[0] + 17.5 * D45, topView.position[1] + 17.5 * D45]);
 // what lies under the click, for the report when the pick fails
 const under = await page.evaluate((q) => { const e = document.elementFromPoint(q.x, q.y); return e ? `${e.tagName.toLowerCase()}.${String(e.getAttribute('class') ?? '').slice(0, 40)}` : null; }, circlePt);
 await page.mouse.move(circlePt.x, circlePt.y);

@@ -1,7 +1,7 @@
 // GPU memory over a long session (QA F01, F86): 75 feature edits and 10 New/Open cycles keep the renderer's
 // geometries, textures and shader programs flat. A leak shows as steady growth.
 import { chromium } from 'playwright';
-import { checks, exitCode, track } from './lib/check.mjs';
+import { checks, exitCode, track, waitSettled } from './lib/check.mjs';
 
 const browser = await chromium.launch(process.platform === 'win32' ? { channel: process.env.PW_CHANNEL ?? 'msedge' } : { ...(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {}), args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
 const page = await browser.newPage({ viewport: { width: 1600, height: 900 } });
@@ -35,12 +35,16 @@ await openBlock();
 await page.waitForTimeout(800);
 // warm-up: the first edits create the shared materials and programs
 for (let k = 0; k < 5; k++) { await S((d) => { const st = window.__phlippoStore.getState(); st.applyDocument('Depth', { ...st.doc, features: st.doc.features.map((f) => (f.id === 'e1' ? { ...f, depth: d } : f)) }); }, 10 + k); await page.waitForTimeout(60); }
+// on the release path the exact bodies arrive later and bring their own materials and programs: the baseline is
+// taken once they are in and one round trip is done (a slow runner showed 2 -> 10 textures as a one-time step)
+await waitSettled(page);
 await page.waitForTimeout(400);
 const m0 = await mem();
 for (let k = 0; k < 75; k++) {
   await S((d) => { const st = window.__phlippoStore.getState(); st.applyDocument('Depth', { ...st.doc, features: st.doc.features.map((f) => (f.id === 'e1' ? { ...f, depth: d } : f)) }); }, 12 + (k % 9));
   await page.waitForTimeout(40);
 }
+await waitSettled(page);
 await page.waitForTimeout(500);
 const m1 = await mem();
 check('75 feature edits keep the GPU geometries flat', m1.geometries <= m0.geometries + 2, `${JSON.stringify(m0)} -> ${JSON.stringify(m1)}`);
@@ -51,6 +55,7 @@ for (let k = 0; k < 10; k++) {
   await openBlock();
   await page.waitForTimeout(250);
 }
+await waitSettled(page);
 await page.waitForTimeout(500);
 const m2 = await mem();
 check('10 New/Open cycles keep the GPU memory flat', m2.geometries <= m0.geometries + 2 && m2.textures <= m0.textures + 1 && m2.programs <= m0.programs + 2, `${JSON.stringify(m0)} -> ${JSON.stringify(m2)}`);

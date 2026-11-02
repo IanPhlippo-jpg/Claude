@@ -53,9 +53,13 @@ check('two lines selected: Total Length 140mm in the status bar', (await status(
 // ---- a left-click on a line shows the relations toolbar beside the pointer ("Make Horizontal")
 await S(() => window.__phlippoStore.getState().setSelection([]));
 const mid = await S(() => window.__phlippoProject({ x: 40, y: 0 }));
-await page.mouse.click(mid.x, mid.y);
-// the toolbar follows the click after a short delay; a slow runner (software GL) needs a real wait, not a fixed one (F144)
-const ctxShown = await page.locator('[data-testid="sketch-ctxbar"] [data-tip="Make Horizontal"]').waitFor({ timeout: 6000 }).then(() => true, () => false);
+// the toolbar follows the click after a short delay; a slow runner (software GL) needs a real wait, not a fixed one (F144),
+// and a click that lands while the view still settles is tried again
+let ctxShown = false;
+for (let k = 0; k < 3 && !ctxShown; k++) {
+  await page.mouse.click(mid.x, mid.y);
+  ctxShown = await page.locator('[data-testid="sketch-ctxbar"] [data-tip="Make Horizontal"]').waitFor({ timeout: 6000 }).then(() => true, () => false);
+}
 check('a clicked line shows the context toolbar with Make Horizontal', ctxShown);
 await page.keyboard.press('Escape');
 
