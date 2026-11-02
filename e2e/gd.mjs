@@ -1,7 +1,7 @@
 // Block G-D (Surfaces): Thicken, Cut With Surface, Thickened Cut, Extend, Untrim/Delete Hole, Filled, Ruled, Flatten,
 // Replace Face — on a 60 x 40 x 20 block with planar surfaces on reference planes.
 import { chromium } from 'playwright';
-import { exitCode } from './lib/check.mjs';
+import { exitCode, waitSettled } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -14,8 +14,8 @@ const check = (name, ok, info = '') => { results.push({ name, ok: !!ok, info });
 page.on('pageerror', (e) => errors.push('pageerror: ' + e.message));
 page.on('console', (m) => { if (m.type() === 'error') errors.push('console: ' + m.text()); });
 const S = (fn, arg) => page.evaluate(fn, arg);
-const vol = () => S(() => { const s = window.__phlippoStore.getState(); return s.rebuild.bodies.reduce((a, b) => { const p = b.geometry.getAttribute('position'); let v = 0; for (let i = 0; i < p.count; i += 3) { const ax = p.getX(i), ay = p.getY(i), az = p.getZ(i), bx = p.getX(i + 1), by = p.getY(i + 1), bz = p.getZ(i + 1), cx = p.getX(i + 2), cy = p.getY(i + 2), cz = p.getZ(i + 2); v += (ax * (by * cz - bz * cy) - ay * (bx * cz - bz * cx) + az * (bx * cy - by * cx)) / 6; } return a + Math.abs(v); }, 0); });
-const surfArea = (idx) => S((idx) => { const s = window.__phlippoStore.getState(); const b = s.rebuild.surfaceBodies?.[idx]; if (!b) return -1; const p = b.geometry.getAttribute('position'); let a = 0; for (let i = 0; i + 2 < p.count; i += 3) { const ax = p.getX(i), ay = p.getY(i), az = p.getZ(i); const ux = p.getX(i + 1) - ax, uy = p.getY(i + 1) - ay, uz = p.getZ(i + 1) - az; const vx = p.getX(i + 2) - ax, vy = p.getY(i + 2) - ay, vz = p.getZ(i + 2) - az; const cx = uy * vz - uz * vy, cy = uz * vx - ux * vz, cz = ux * vy - uy * vx; a += Math.hypot(cx, cy, cz) / 2; } return a; }, idx);
+const vol = async () => { await waitSettled(page); return S(() => { const s = window.__phlippoStore.getState(); return s.rebuild.bodies.reduce((a, b) => { const p = b.geometry.getAttribute('position'); let v = 0; for (let i = 0; i < p.count; i += 3) { const ax = p.getX(i), ay = p.getY(i), az = p.getZ(i), bx = p.getX(i + 1), by = p.getY(i + 1), bz = p.getZ(i + 1), cx = p.getX(i + 2), cy = p.getY(i + 2), cz = p.getZ(i + 2); v += (ax * (by * cz - bz * cy) - ay * (bx * cz - bz * cx) + az * (bx * cy - by * cx)) / 6; } return a + Math.abs(v); }, 0); }); };
+const surfArea = async (idx) => { await waitSettled(page); return S((idx) => { const s = window.__phlippoStore.getState(); const b = s.rebuild.surfaceBodies?.[idx]; if (!b) return -1; const p = b.geometry.getAttribute('position'); let a = 0; for (let i = 0; i + 2 < p.count; i += 3) { const ax = p.getX(i), ay = p.getY(i), az = p.getZ(i); const ux = p.getX(i + 1) - ax, uy = p.getY(i + 1) - ay, uz = p.getZ(i + 1) - az; const vx = p.getX(i + 2) - ax, vy = p.getY(i + 2) - ay, vz = p.getZ(i + 2) - az; const cx = uy * vz - uz * vy, cy = uz * vx - ux * vz, cz = ux * vy - uy * vx; a += Math.hypot(cx, cy, cz) / 2; } return a; }, idx); };
 const errs = () => S(() => window.__phlippoStore.getState().rebuild.errors);
 const nSurf = () => S(() => (window.__phlippoStore.getState().rebuild.surfaceBodies ?? []).length);
 const rect = (K, sk, x0, y0, x1, y1) => { sk = K.addLine(sk, { x: x0, y: y0 }, { x: x1, y: y0 })[0]; sk = K.addLine(sk, { x: x1, y: y0 }, { x: x1, y: y1 })[0]; sk = K.addLine(sk, { x: x1, y: y1 }, { x: x0, y: y1 })[0]; sk = K.addLine(sk, { x: x0, y: y1 }, { x: x0, y: y0 })[0]; return sk; };

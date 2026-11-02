@@ -3,7 +3,7 @@
 // ▸ …), the 3D sketch with Sketch Fillet and line lengths, Curve Through XYZ Points as a sweep path, Override default
 // parameters when editing Base-Flange1 and the Zoom/Pan/Rotate fly-out in the right-click menu of a feature.
 import { chromium } from 'playwright';
-import { exitCode, skip } from './lib/check.mjs';
+import { exitCode, skip, waitSettled } from './lib/check.mjs';
 import { menuPath } from './lib/menu.mjs';
 import { mkdirSync } from 'node:fs';
 
@@ -160,7 +160,7 @@ await S(() => {
   window.__phlippoStore.getState().openDocument(d);
 });
 await page.waitForTimeout(600);
-const vol0 = await S(() => { const g = window.__phlippoStore.getState().rebuild.bodies[0].geometry; const p = (g.index ? g.toNonIndexed() : g).getAttribute('position'); let v = 0; for (let i = 0; i < p.count; i += 3) { const a = [p.getX(i), p.getY(i), p.getZ(i)], b = [p.getX(i + 1), p.getY(i + 1), p.getZ(i + 1)], c = [p.getX(i + 2), p.getY(i + 2), p.getZ(i + 2)]; v += (a[0] * (b[1] * c[2] - b[2] * c[1]) - a[1] * (b[0] * c[2] - b[2] * c[0]) + a[2] * (b[0] * c[1] - b[1] * c[0])) / 6; } return Math.abs(v); });
+await waitSettled(page); const vol0 = await S(() => { const g = window.__phlippoStore.getState().rebuild.bodies[0].geometry; const p = (g.index ? g.toNonIndexed() : g).getAttribute('position'); let v = 0; for (let i = 0; i < p.count; i += 3) { const a = [p.getX(i), p.getY(i), p.getZ(i)], b = [p.getX(i + 1), p.getY(i + 1), p.getZ(i + 1)], c = [p.getX(i + 2), p.getY(i + 2), p.getZ(i + 2)]; v += (a[0] * (b[1] * c[2] - b[2] * c[1]) - a[1] * (b[0] * c[2] - b[2] * c[0]) + a[2] * (b[0] * c[1] - b[1] * c[0])) / 6; } return Math.abs(v); });
 await S(() => {
   const st = window.__phlippoStore.getState();
   st.startEdgeFlange();

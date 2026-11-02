@@ -146,10 +146,12 @@ await page.keyboard.press('Control+7');
 await page.waitForTimeout(400);
 await page.keyboard.press('f');
 await page.waitForTimeout(400);
+// the exact body may still be coming in (release path) and a slow runner picks later: settle, then move until it is lit
+await waitSettled(page);
 const em = await page.evaluate(() => window.__phlippoProjectWorld(40, 10, 0));
-await page.mouse.move(em.x, em.y);
-await page.waitForTimeout(150);
-check('hover highlights an edge', !!(await page.evaluate(() => window.__phlippoStore.getState().hoverEdge)));
+let edgeLit = false;
+for (let k = 0; k < 25 && !edgeLit; k++) { await page.mouse.move(em.x + (k % 2), em.y); await page.waitForTimeout(150); edgeLit = !!(await page.evaluate(() => window.__phlippoStore.getState().hoverEdge)); }
+check('hover highlights an edge', edgeLit);
 await page.mouse.click(em.x, em.y);
 await page.waitForTimeout(150);
 check('click selects the edge', (await page.evaluate(() => window.__phlippoStore.getState().selectedEdges.length)) === 1);

@@ -2,7 +2,7 @@
 // profile (Face<1> in the Profiles list), End constraint Curvature To Face with Next Face, OK builds one body from the
 // circle down onto the block. Also Face Fillet ▸ Hold line and Insert Bends ▸ Ignore beveled faces in their panels.
 import { chromium } from 'playwright';
-import { exitCode } from './lib/check.mjs';
+import { exitCode, waitSettled } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -112,6 +112,7 @@ await page.waitForTimeout(300);
 check('the picked edge is the hold line', (await page.locator('[data-testid="fillet-holdline"]').innerText()).includes('Edge<1>'));
 await page.click('.k-pm-ok');
 await page.waitForTimeout(800);
+await waitSettled(page);
 r = await page.evaluate(() => {
   const s = window.__phlippoStore.getState();
   const f = s.doc.features.find((x) => x.type === 'fillet');

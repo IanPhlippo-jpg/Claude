@@ -1,7 +1,7 @@
 // QA report fixes, batch 2: units in value fields, no feature with a zero depth or an empty sketch, instance limit,
 // a boolean that produces nothing is an error of that feature only, dangling edge references warn, mouse gestures.
 import { chromium } from 'playwright';
-import { exitCode } from './lib/check.mjs';
+import { exitCode, waitSettled } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -126,7 +126,7 @@ const f0 = await S(() => { const s = window.__phlippoStore.getState(); const f =
 check('fillet on the four vertical edges builds clean', f0.edges === 4 && !f0.err, JSON.stringify(f0));
 await S(() => { const s = window.__phlippoStore.getState(); s.applyDocument('Depth', { ...s.doc, features: s.doc.features.map((f) => (f.id === 'e1' ? { ...f, depth: 40 } : f)) }); });
 await page.waitForTimeout(600);
-const volOf = () => S(() => window.__phlippoStore.getState().rebuild.bodies.reduce((a, b) => { const g = b.geometry.index ? b.geometry.toNonIndexed() : b.geometry; const p = g.getAttribute('position'); let v = 0; for (let k = 0; k < p.count; k += 3) { const ax = p.getX(k), ay = p.getY(k), az = p.getZ(k), bx = p.getX(k + 1), by = p.getY(k + 1), bz = p.getZ(k + 1), cx = p.getX(k + 2), cy = p.getY(k + 2), cz = p.getZ(k + 2); v += (ax * (by * cz - bz * cy) - ay * (bx * cz - bz * cx) + az * (bx * cy - by * cx)) / 6; } return a + Math.abs(v); }, 0));
+const volOf = async () => { await waitSettled(page); return S(() => window.__phlippoStore.getState().rebuild.bodies.reduce((a, b) => { const g = b.geometry.index ? b.geometry.toNonIndexed() : b.geometry; const p = g.getAttribute('position'); let v = 0; for (let k = 0; k < p.count; k += 3) { const ax = p.getX(k), ay = p.getY(k), az = p.getZ(k), bx = p.getX(k + 1), by = p.getY(k + 1), bz = p.getZ(k + 1), cx = p.getX(k + 2), cy = p.getY(k + 2), cz = p.getZ(k + 2); v += (ax * (by * cz - bz * cy) - ay * (bx * cz - bz * cx) + az * (bx * cy - by * cx)) / 6; } return a + Math.abs(v); }, 0)); };
 const f1 = await S(() => { const s = window.__phlippoStore.getState(); const f = s.doc.features.find((x) => x.type === 'fillet'); return { err: s.rebuild.errors[f?.id] ?? '', bodies: s.rebuild.bodies.length }; });
 const withFillet = await volOf();
 await S(() => { const s = window.__phlippoStore.getState(); s.applyDocument('Suppress', { ...s.doc, features: s.doc.features.map((f) => (f.type === 'fillet' ? { ...f, suppressed: true } : f)) }); });

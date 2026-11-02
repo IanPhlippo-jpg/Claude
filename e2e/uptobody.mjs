@@ -1,6 +1,6 @@
 // Extrude ▸ Up To Body: a block is edited to run up to a cylinder body (picked in the graphics area); its end follows the curved face.
 import { chromium } from 'playwright';
-import { exitCode } from './lib/check.mjs';
+import { exitCode, waitSettled } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -39,7 +39,7 @@ await page.evaluate(() => {
   window.__phlippoStore.getState().openDocument(d);
 });
 await page.waitForTimeout(800);
-const V = () => page.evaluate(() => { const s = window.__phlippoStore.getState(); return { errors: s.rebuild.errors, vols: s.rebuild.bodies.map((b) => { const g = b.geometry.index ? b.geometry.toNonIndexed() : b.geometry; const a = g.getAttribute('position'); let v = 0; for (let i = 0; i < a.count; i += 3) { const x0 = a.getX(i), y0 = a.getY(i), z0 = a.getZ(i), x1 = a.getX(i + 1), y1 = a.getY(i + 1), z1 = a.getZ(i + 1), x2 = a.getX(i + 2), y2 = a.getY(i + 2), z2 = a.getZ(i + 2); v += (x0 * (y1 * z2 - z1 * y2) - y0 * (x1 * z2 - z1 * x2) + z0 * (x1 * y2 - y1 * x2)) / 6; } return v; }) }; });
+const V = async () => { await waitSettled(page); return page.evaluate(() => { const s = window.__phlippoStore.getState(); return { errors: s.rebuild.errors, vols: s.rebuild.bodies.map((b) => { const g = b.geometry.index ? b.geometry.toNonIndexed() : b.geometry; const a = g.getAttribute('position'); let v = 0; for (let i = 0; i < a.count; i += 3) { const x0 = a.getX(i), y0 = a.getY(i), z0 = a.getZ(i), x1 = a.getX(i + 1), y1 = a.getY(i + 1), z1 = a.getZ(i + 1), x2 = a.getX(i + 2), y2 = a.getY(i + 2), z2 = a.getZ(i + 2); v += (x0 * (y1 * z2 - z1 * y2) - y0 * (x1 * z2 - z1 * x2) + z0 * (x1 * y2 - y1 * x2)) / 6; } return v; }) }; }); };
 let v = await V();
 check('start: cylinder and a separate 20 mm block', v.vols.length === 2 && Object.keys(v.errors).length === 0, JSON.stringify(v));
 await page.locator('.k-tree-row:has-text("Boss-Extrude2")').last().dblclick();

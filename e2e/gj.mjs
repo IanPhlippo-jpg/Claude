@@ -3,7 +3,7 @@
 // Deform (point), Save As options, Publish to Phlippo Viewer (.html), drawing bend lines / notes.
 import { menuPath } from './lib/menu.mjs';
 import { chromium } from 'playwright';
-import { exitCode, skip } from './lib/check.mjs';
+import { exitCode, skip, waitSettled } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -17,7 +17,7 @@ page.on('pageerror', (e) => errors.push('pageerror: ' + e.message));
 page.on('console', (m) => { if (m.type() === 'error') errors.push('console: ' + m.text()); });
 const S = (fn, arg) => page.evaluate(fn, arg);
 const shot = (n) => page.screenshot({ path: `${OUT}/${n}.png` });
-const vol = () => S(() => { const s = window.__phlippoStore.getState(); return s.rebuild.bodies.reduce((a, b) => { const p = b.geometry.getAttribute('position'); let v = 0; for (let i = 0; i < p.count; i += 3) { const ax = p.getX(i), ay = p.getY(i), az = p.getZ(i), bx = p.getX(i + 1), by = p.getY(i + 1), bz = p.getZ(i + 1), cx = p.getX(i + 2), cy = p.getY(i + 2), cz = p.getZ(i + 2); v += (ax * (by * cz - bz * cy) + bx * (cy * az - cz * ay) + cx * (ay * bz - az * by)) / 6; } return a + Math.abs(v); }, 0); });
+const vol = async () => { await waitSettled(page); return S(() => { const s = window.__phlippoStore.getState(); return s.rebuild.bodies.reduce((a, b) => { const p = b.geometry.getAttribute('position'); let v = 0; for (let i = 0; i < p.count; i += 3) { const ax = p.getX(i), ay = p.getY(i), az = p.getZ(i), bx = p.getX(i + 1), by = p.getY(i + 1), bz = p.getZ(i + 1), cx = p.getX(i + 2), cy = p.getY(i + 2), cz = p.getZ(i + 2); v += (ax * (by * cz - bz * cy) + bx * (cy * az - cz * ay) + cx * (ay * bz - az * by)) / 6; } return a + Math.abs(v); }, 0); }); };
 const errs = () => S(() => window.__phlippoStore.getState().rebuild.errors);
 const menuItem = (label) => menuPath(page, label);
 

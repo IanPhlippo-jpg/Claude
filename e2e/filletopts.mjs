@@ -1,7 +1,7 @@
 // Fillet / Chamfer Property Panel options: asymmetric, conic profile, multi radius, variable size,
 // partial edge, Face Fillet, Full Round Fillet, FilletXpert and Chamfer Angle-Distance.
 import { chromium } from 'playwright';
-import { exitCode } from './lib/check.mjs';
+import { exitCode, waitSettled } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -33,7 +33,7 @@ await page.evaluate(() => {
 });
 await page.waitForTimeout(1200);
 
-const volume = () => page.evaluate(() => {
+const volume = async () => { await waitSettled(page); return page.evaluate(() => {
   const g = window.__phlippoStore.getState().rebuild.bodies[0].geometry;
   const p = g.getAttribute('position');
   let v = 0;
@@ -42,7 +42,7 @@ const volume = () => page.evaluate(() => {
     v += (ax * (by * cz - bz * cy) - ay * (bx * cz - bz * cx) + az * (bx * cy - by * cx)) / 6;
   }
   return Math.abs(v);
-});
+}); };
 // the long top edges (length 80, at the top of the block)
 const topLongEdges = () => page.evaluate(() => {
   const b = window.__phlippoStore.getState().rebuild.bodies[0];

@@ -1,6 +1,6 @@
 // Surfaces tab: Extruded Surface, Planar Surface x2 and Knit Surface with Create solid -> a closed 40 x 20 x 10 solid.
 import { chromium } from 'playwright';
-import { exitCode } from './lib/check.mjs';
+import { exitCode, waitSettled } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -63,7 +63,7 @@ await page.locator('.k-section:has-text("Selections") .k-check:has-text("Create 
 await page.click('.k-pm-ok');
 await page.waitForTimeout(600);
 r = await R();
-const vol = await page.evaluate(() => { const g = window.__phlippoStore.getState().rebuild.bodies[0]?.geometry; if (!g) return 0; const a = (g.index ? g.toNonIndexed() : g).getAttribute('position'); let v = 0; for (let i = 0; i < a.count; i += 3) { const x0 = a.getX(i), y0 = a.getY(i), z0 = a.getZ(i), x1 = a.getX(i + 1), y1 = a.getY(i + 1), z1 = a.getZ(i + 1), x2 = a.getX(i + 2), y2 = a.getY(i + 2), z2 = a.getZ(i + 2); v += (x0 * (y1 * z2 - z1 * y2) - y0 * (x1 * z2 - z1 * x2) + z0 * (x1 * y2 - y1 * x2)) / 6; } return v; });
+await waitSettled(page); const vol = await page.evaluate(() => { const g = window.__phlippoStore.getState().rebuild.bodies[0]?.geometry; if (!g) return 0; const a = (g.index ? g.toNonIndexed() : g).getAttribute('position'); let v = 0; for (let i = 0; i < a.count; i += 3) { const x0 = a.getX(i), y0 = a.getY(i), z0 = a.getZ(i), x1 = a.getX(i + 1), y1 = a.getY(i + 1), z1 = a.getZ(i + 1), x2 = a.getX(i + 2), y2 = a.getY(i + 2), z2 = a.getZ(i + 2); v += (x0 * (y1 * z2 - z1 * y2) - y0 * (x1 * z2 - z1 * x2) + z0 * (x1 * y2 - y1 * x2)) / 6; } return v; });
 check('Surface-Knit1 with Create solid: a 8000 mm^3 solid, no surfaces left', r.solids === 1 && r.surfaces === 0 && Math.abs(vol - 8000) < 1, JSON.stringify({ r, vol }));
 await shot('sf2-knit-solid');
 
@@ -86,7 +86,7 @@ await page.waitForTimeout(250);
 await page.locator('[data-testid="surface-sketch2"]').selectOption('path');
 await page.click('.k-pm-ok');
 await page.waitForTimeout(500);
-const area = () => page.evaluate(() => { const g = window.__phlippoStore.getState().rebuild.surfaceBodies?.[0]?.geometry; if (!g) return 0; const a = (g.index ? g.toNonIndexed() : g).getAttribute('position'); let s = 0; for (let i = 0; i < a.count; i += 3) { const ux = a.getX(i + 1) - a.getX(i), uy = a.getY(i + 1) - a.getY(i), uz = a.getZ(i + 1) - a.getZ(i), vx = a.getX(i + 2) - a.getX(i), vy = a.getY(i + 2) - a.getY(i), vz = a.getZ(i + 2) - a.getZ(i); s += Math.hypot(uy * vz - uz * vy, uz * vx - ux * vz, ux * vy - uy * vx) / 2; } return s; });
+const area = async () => { await waitSettled(page); return page.evaluate(() => { const g = window.__phlippoStore.getState().rebuild.surfaceBodies?.[0]?.geometry; if (!g) return 0; const a = (g.index ? g.toNonIndexed() : g).getAttribute('position'); let s = 0; for (let i = 0; i < a.count; i += 3) { const ux = a.getX(i + 1) - a.getX(i), uy = a.getY(i + 1) - a.getY(i), uz = a.getZ(i + 1) - a.getZ(i), vx = a.getX(i + 2) - a.getX(i), vy = a.getY(i + 2) - a.getY(i), vz = a.getZ(i + 2) - a.getZ(i); s += Math.hypot(uy * vz - uz * vy, uz * vx - ux * vz, ux * vy - uy * vx) / 2; } return s; }); };
 let ar = await area();
 check('Surface-Sweep1: 10 x 50 = 500 mm^2', Math.abs(ar - 500) < 1, String(ar));
 await page.click('.k-cm-tab:has-text("Surfaces")');
