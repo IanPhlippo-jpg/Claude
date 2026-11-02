@@ -7,7 +7,8 @@ export const CONSOLE_ALLOW = [/favicon/i, /Failed to load resource/i, /WebGL|GL_
 
 /** collects page errors and console errors of a page, in the format the scripts already use */
 export function track(page, errors = []) {
-  page.on('pageerror', (e) => errors.push('pageerror: ' + e.message));
+  // the stack names the site (minified, but the chunk and function are enough to find it in a CI artifact)
+  page.on('pageerror', (e) => errors.push('pageerror: ' + e.message + (e.stack ? ' | ' + String(e.stack).split(/\r?\n/).slice(1, 4).join(' <- ').replace(/\s+/g, ' ') : '')));
   page.on('console', (m) => { if (m.type() === 'error') errors.push('console: ' + m.text()); });
   return errors;
 }

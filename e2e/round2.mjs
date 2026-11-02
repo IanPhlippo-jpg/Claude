@@ -9,7 +9,7 @@ const browser = await chromium.launch(process.platform === 'win32' ? { channel: 
 const errors = [];
 const open = async (w, h, theme = 'light') => {
   const page = await browser.newPage({ viewport: { width: w, height: h } });
-  page.on('pageerror', (e) => errors.push('pageerror: ' + e.message));
+  page.on('pageerror', (e) => errors.push('pageerror: ' + e.message + (e.stack ? ' | ' + String(e.stack).split(/\r?\n/).slice(1, 3).join(' <- ').replace(/\s+/g, ' ') : '')));
   page.on('console', (m) => { if (m.type() === 'error') errors.push('console: ' + m.text()); });
   await page.goto(URL);
   await page.evaluate((t) => { localStorage.clear(); localStorage.setItem('phlippo.theme', t); }, theme);

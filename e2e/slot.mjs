@@ -10,7 +10,7 @@ const page = await browser.newPage({ viewport: { width: 1920, height: 1080 }, de
 const errors = [];
 const results = [];
 const check = (name, ok, info = '') => { results.push({ name, ok: !!ok, info }); if (!ok) console.log('FAIL', name, info); };
-page.on('pageerror', (e) => errors.push('pageerror: ' + e.message));
+page.on('pageerror', (e) => errors.push('pageerror: ' + e.message + (e.stack ? ' | ' + String(e.stack).split(/\r?\n/).slice(1, 3).join(' <- ').replace(/\s+/g, ' ') : '')));
 page.on('console', (m) => { if (m.type() === 'error') errors.push('console: ' + m.text()); });
 const shot = (n) => page.screenshot({ path: `${OUT}/${n}.png` });
 const S = () => page.evaluate(() => { const s = window.__phlippoStore.getState(); const sk = s.doc.sketches[s.activeSketchId]; if (!sk) return null; return { kinds: sk.entityOrder.map((id) => sk.entities[id].kind + (sk.entities[id].construction ? '*' : '')), rels: sk.constraintOrder.map((id) => sk.constraints[id].kind), status: s.solve[sk.id]?.status, tool: s.tool }; });

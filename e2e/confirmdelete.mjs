@@ -11,7 +11,7 @@ const page = await browser.newPage({ viewport: { width: 1920, height: 1080 }, de
 const errors = [];
 const results = [];
 const check = (name, ok, info = '') => { results.push({ name, ok: !!ok, info }); if (!ok) console.log('FAIL', name, info); };
-page.on('pageerror', (e) => errors.push('pageerror: ' + e.message));
+page.on('pageerror', (e) => errors.push('pageerror: ' + e.message + (e.stack ? ' | ' + String(e.stack).split(/\r?\n/).slice(1, 3).join(' <- ').replace(/\s+/g, ' ') : '')));
 const names = () => page.evaluate(() => window.__phlippoStore.getState().doc.features.map((f) => f.name));
 
 await page.goto(process.env.E2E_URL ?? 'http://localhost:4173/');
@@ -26,8 +26,10 @@ await page.waitForTimeout(1200);
 // Delete Boss-Extrude1 from the tree with the Delete key
 await page.locator('.k-tree-row:has-text("Boss-Extrude1")').first().click();
 await page.keyboard.press('Delete');
-await page.waitForSelector('[data-testid="confirm-delete"]', { timeout: 3000 }).catch(skip('confirmdelete:29'));
-await page.waitForTimeout(600);
+await page.waitForSelector('[data-testid="confirm-delete"]', { timeout: 15000 }).catch(skip('confirmdelete:29'));
+// the dependent items come from a trial rebuild after the dialog is drawn ("Checking…"): wait for it, not a fixed 600 ms
+await page.waitForFunction(() => { const cd = window.__phlippoStore.getState().confirmDelete; return !!cd && !cd.checking; }, undefined, { timeout: 30000 }).catch(() => undefined);
+await page.waitForTimeout(200);
 const dlg = await page.evaluate(() => ({ items: document.querySelector('[data-testid="cdel-items"]')?.textContent, deps: document.querySelector('[data-testid="cdel-children"]')?.textContent }));
 check('Delete opens Confirm Delete with the feature', /Boss-Extrude1/.test(dlg.items ?? ''), JSON.stringify(dlg));
 // by design: "Also delete absorbed features" is on by default, so the absorbed sketch sits with the feature itself
