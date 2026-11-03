@@ -36,6 +36,7 @@ export const SHORTCUTS: Shortcut[] = [
   { keys: 'Alt+arrow keys', label: 'Rotate parallel to the screen (roll)', group: 'View' },
   { keys: 'Ctrl+arrow keys', label: 'Pan', group: 'View' },
   { keys: 'F', label: 'Zoom to Fit', group: 'View' },
+  { keys: 'G', label: 'Magnified Selection (G or Esc closes it)', group: 'View' },
   { keys: 'Z / Shift+Z', label: 'Zoom Out / Zoom In', group: 'View' },
   { keys: 'Ctrl+1 … 6', label: 'Front / Back / Left / Right / Top / Bottom', group: 'View' },
   { keys: 'Ctrl+7', label: 'Isometric', group: 'View' },

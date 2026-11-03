@@ -47,7 +47,12 @@ describe('fillet and chamfer', () => {
     // r² (1 - π/4) · L = 9 · 0.2146 · 80 ≈ 154.5
     expect(removed).toBeGreaterThan(154.5 * 0.85);
     expect(removed).toBeLessThan(154.5 * 1.15);
-    // the filleted body now has a smooth strip: more crease edges than before, none along the old edge
-    expect(bodyEdges(f, 'b').length).toBeGreaterThanOrEqual(10);
+    // the filleted body now has a smooth strip: none of its edges along the old edge; each end face's outline runs
+    // from its top edge through the round's arc into the front edge as one tangent chain (9 edges: chaining an open
+    // curve backwards stopped at the first arc facet before QA 0.5.11 T4, which left 10 or more pieces)
+    const after = bodyEdges(f, 'b');
+    expect(after.some((x) => x.straight && Math.abs(x.centroid.y - 5) < 1e-3 && Math.abs(x.centroid.z - 40) < 1e-3)).toBe(false);
+    expect(after).toHaveLength(9);
+    expect(after.filter((x) => !x.straight && Math.abs(Math.abs(x.centroid.x) - 40) < 1e-6)).toHaveLength(2);
   });
 });

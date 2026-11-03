@@ -819,7 +819,7 @@ elease; README en docs/04 bijgewerkt
 - [x] P0 F139: gereproduceerd met het gat als aparte cut; twee oorzaken (kettingtolerantie, Keep-features-hersnede) opgelost; qaStrict T1 + varianten
 - [ ] P0 F147/F31/F120/F105: ci.yml op ubuntu-24.04 (Playwright kent 26.04 niet: alle runs sinds 0.5.6 rood), mesh/B-rep/worker als aparte stappen met eindgate, log per pass; groene Actions-run op deze HEAD
 - [ ] P0 F54/F144/F10/F146: Linux echt groen: drawing (Ø35), inventory47, videos46 (context-toolbar), sheetexport file-URL
-- [x] P1 F152: src/qa/qaStrict.test.ts (8) en qaBrep.test.ts (11) in npm test
+- [x] P1 F152: src/qa/qaStrict.test.ts (8) en qaBrep.test.ts (13; eerst 11 genoemd, gecorrigeerd na QA 0.5.11 F129) in npm test
 - [x] P1 F155/F119/F160: skipbudget per script en skips in de eindgate; regressielog per pass een eigen naam (commit + platform in de kop)
 - [x] P1 F158/F46: hoofdregressie in CI op het releasepad (worker + B-rep); mesh/UI-thread als extra pass; de vier rode releasepad-scripts uitgezocht (wrap exact via polyhedrale tool, thread meetrace, sheetmetal/hem randkeuze)
 - [x] P1 F153/F154/F156: electron/recover.cjs (map in main, sleutel id+pad, fsync, herstel als dirty "(Recovered)"), e2e/desktop-recover.mjs 21/21, gpu.json alleen de keuze (F162)
@@ -869,3 +869,24 @@ elease; README en docs/04 bijgewerkt
 - [x] e2e/viewpanes.mjs: Four View pixels/randen + Chromium zonder WebGL; screenshot e2e-out/viewpanes-four.png
 - [x] F161: STEP-import als B-rep in de desktop-app nagekeken en genoteerd
 - [x] docs/28 sectie "Multi-view"; typecheck, neutral-comments, line-budget groen
+
+## QA 0.5.11 (6/10) naar 0.5.12 (2026-11-03)
+- [~] P0-1/P0-4 (F176, F97, F149): groene Actions-run op db0d4b2 vastgelegd met checks- en desktop-joblogs; commit in elke build, zelftest en log (ook uit git archive); desktop-installed-log met commit, tijd en elke check; Windows-jobs in CI (installer + regressie in Edge)
+- [x] P0-2 (F172, F159, F48): kruiscontrole op vormafwijking (afstand exact ↔ facet, beide kanten, ≥ 0,1 mm) naast 0,5 % volume; qaCrossCheck.test.ts 4/4 (overgeslagen fillet 0,83 mm, extra rand 10 mm R2 gevangen); in e2e-builds een consolefout
+- [~] P0-3 (F173, F130): qaStrict op 2 % van het verlies en 1,5 mm³ voor elke sleuf: vond een echte fout (stadium-sleuf + fillet: "Keep features" sneed opnieuw, 10 mm-uitsteeksel en 21 mm³ te weinig; nu alleen hersnijden waar de fillet materiaal toevoegt); mateStatus M3/M5 (agent)
+- [x] P0-5: sheetexport-schermafdruk van de PDF-viewer alleen op Windows (Edge), geen skip meer; skip-budget 0
+- [x] P1-1 (F175): ellipsen, splines, Style Splines en conics exact in B-rep (ellips 40×20×10 = 6283,185307; STEP met ELLIPSE/B_SPLINE_CURVE_WITH_KNOTS); exactVolume via shapeVolume (spline was 8 mm³ te groot)
+- [x] P1-7 + P2-5 + P2-7: mechanische mates met gedragstests (mechMates.test.ts 15, vier fouten opgelost: screw, rack-pinion, linear coupler, gear), M3/M5/nieuwste mate (solver liet de nieuwste mate winnen: opgelost), AlongX/Y/Z in 3D-schetsen, e2e/undo200.mjs 7/7
+- [x] P2-1 (F114, F171): Options toont alleen formaten met exporter (prefs.test.ts bewaakt het); IGES: de OCCT-WASM-build van replicad heeft geen enkele IGES-klasse (gedocumenteerd, F114 blijft open voor IGES)
+- [x] P2-3 design tables (CSV, ; of , en decimale komma, $STATE): designTable.test.ts 6/6, e2e/designtable.mjs 15/15
+- [x] P2-6 Instant3D: sleephandvatten voor fillet-straal, chamfer-afstand en revolve-hoek (naast extrude/cut-diepte); e2e/dragHandles.mjs 14/14 op mesh en releasepad
+- [x] P1-5 naamgevingstests T4–T7 op beide kernels (qaNaming 12/12); drie fouten opgelost: mesh-loft sneed hoeken af, randketens braken, fillet sprong naar de overkant na een padwijziging
+- [x] P2-8 normdelen: 101 ISO 4762/4032/7089-delen in Standard Parts, Smart Fasteners via ISO 273 (Ø6,6 → M6), bout stond omgekeerd (opgelost); e2e/library 16/16
+- [x] P1-6/P2-11: plaatwerk tegen BA/BD/K-factor (16 tests; uitslag bij Reverse en BD-modus gerepareerd), frames met EN-profielen en juiste cut list (13 tests; End Butt, groepering, end cap)
+- [x] P2-4: Drag Dimensions live via de solver (Instant2D), vergrootglas G, 3D-schetsmaten met status; e2e instant2d 8/8, magnify 12/12, sketch3d2 14/14
+- [x] P1-2 plastics exact (Mounting Boss, Snap Hook, Lip/Groove, Indent; 7 tests binnen 1e-3); P1-4 loft met ≥ 3 profielen en Close loft exact (guide curves blijven mesh: OCCT-WASM bouwt ze niet betrouwbaar)
+- [x] Teamronde: F177 (gesplitste rand na langer worden: beide stukken, qaTeam), F178 (gebogen rand = één keten), F183 (brep-job 14 scripts), F188 (AutoRecover van 0.5.10), F189 (docs/06, docs/26 en vergelijkingsbeelden uit de repo, lokaal in intern/), F191 (vensters alleen bij wijziging), F193, F194, F196 (fuses-check), F198
+- [x] F46/F190: randen voor het beeld in de workers (rebuild en occt) en de interieurtest met een raster: 33,5 → 8,5 s bij 4× trager CPU, framepauze tijdens een rebuild van 21 s: 117 ms
+- [~] Kernelverschillen die de vormcontrole vond (deurkruk: verzinking, sweep, cut; ge: swept flange) (agent); volledige releasepass met dump loopt
+- [~] P3 (F38, F129, F138, F174): bundel 855 → 784 kB (budget 800, lazy panelen); tools/doc-counts.cjs in CI; TASKS (13) en docs/28 F142 rechtgezet; audit: minimatch < 11 zonder backport in electron-builder 26.18 (gedocumenteerd)
+- [ ] Regressie Windows + Actions op de release-commit, release 0.5.12, docs/29

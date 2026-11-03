@@ -361,8 +361,29 @@ const evaluator = new Evaluator();
 evaluator.attributes = ['position', 'normal', FACE_TAG];
 const csgMaterial = new THREE.MeshBasicMaterial();
 
+/**
+ * The triangles of a non-indexed geometry without the ones that have two coinciding corners (the poles of a lathe, the
+ * tip of a cone): they have no area, but the boolean connects the triangles around them through their zero-length
+ * edges and carries an inside/outside decision across the whole fan (a revolved part kept a lid over a cut through
+ * its axis). The surface stays closed: the neighbours of such a triangle share their edges with each other.
+ */
+export function withoutDegenerate(ng: THREE.BufferGeometry): THREE.BufferGeometry {
+  const p = ng.getAttribute('position');
+  const same = (i: number, j: number) => (p.getX(i) - p.getX(j)) ** 2 + (p.getY(i) - p.getY(j)) ** 2 + (p.getZ(i) - p.getZ(j)) ** 2 < 1e-18;
+  const keep: number[] = [];
+  for (let i = 0; i + 2 < p.count; i += 3) if (!same(i, i + 1) && !same(i + 1, i + 2) && !same(i, i + 2)) keep.push(i);
+  if (keep.length * 3 === p.count) return ng;
+  for (const name of Object.keys(ng.attributes)) {
+    const a = ng.getAttribute(name) as THREE.BufferAttribute;
+    const out = new (a.array.constructor as new (n: number) => THREE.TypedArray)(keep.length * 3 * a.itemSize);
+    keep.forEach((t, k) => out.set(a.array.subarray(t * a.itemSize, (t + 3) * a.itemSize), k * 3 * a.itemSize));
+    ng.setAttribute(name, new THREE.BufferAttribute(out, a.itemSize, a.normalized));
+  }
+  return ng;
+}
+
 function brush(g: THREE.BufferGeometry): Brush {
-  const ng = g.index ? g.toNonIndexed() : g.clone();
+  const ng = withoutDegenerate(g.index ? g.toNonIndexed() : g.clone());
   if (!ng.getAttribute('normal')) ng.computeVertexNormals();
   for (const name of Object.keys(ng.attributes)) if (name !== 'position' && name !== 'normal' && name !== FACE_TAG) ng.deleteAttribute(name);
   // both sides of a boolean carry the face names (0 where a face has none), so the result keeps them (F47)

@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import type { PlaneDef } from '../document/types';
 import type { SketchPoint } from '../sketch/types';
-import type { SheetMetalParams } from './sheetmetal';
+import { bendAllowance, type SheetMetalParams } from './sheetmetal';
 
 /**
  * Unfolding of a base flange made from an open chain, as the intended Flatten / Unfold / Fold:
@@ -35,7 +35,7 @@ const ARC_SPLITS = 12;
 
 export function sheetMapping(chain: SketchPoint[], plane: PlaneDef, p: SheetMetalParams, reverse = false): SheetMapping | null {
   if (chain.length < 2) return null;
-  const t = p.thickness, r = p.bendRadius, K = p.kFactor;
+  const t = p.thickness, r = p.bendRadius;
   const m = reverse ? -1 : 1;
   const sub = (a: SketchPoint, b: SketchPoint) => ({ x: a.x - b.x, y: a.y - b.y });
   const unit = (v: SketchPoint) => { const l = Math.hypot(v.x, v.y) || 1; return { x: v.x / l, y: v.y / l }; };
@@ -75,8 +75,9 @@ export function sheetMapping(chain: SketchPoint[], plane: PlaneDef, p: SheetMeta
     s += L;
     const b = bendAt[k + 1];
     if (b) {
-      const rn = r + K * t;
-      const BA = b.theta * rn;
+      // the bend allowance of the chosen type (K-factor, bend allowance, bend deduction, bend table); its neutral radius
+      const BA = bendAllowance((b.theta * 180) / Math.PI, r, p);
+      const rn = BA / b.theta;
       zones.push({ kind: 'bend', s0: s, L: BA, c: b.c, r0: b.r0, theta: b.theta, turn: b.turn, toward: b.toward, rn });
       bends.push([s, s + BA]);
       for (let q = 0; q <= ARC_SPLITS; q++) splits.push(s + (BA * q) / ARC_SPLITS);

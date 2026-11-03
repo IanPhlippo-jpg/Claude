@@ -13,7 +13,8 @@ import { viewerHtml } from '../core/document/viewerExport';
 import { applyUpAxis as setUpAxis } from './viewport/camera';
 import { getPref, loadPrefs } from './prefs';
 import { clearAutoRecover, discardAutoRecover } from './autoRecover';
-import { exportSheet } from './drawing/sheetExport';
+// the sheet exporter loads when a drawing is saved as DXF or PDF (QA 0.5.11 F174)
+const exportSheet = (kind: 'dxf' | 'pdf') => import('./drawing/sheetExport').then((m) => m.exportSheet(kind));
 import { isDrawing } from '../core/document/types';
 import { getCamera } from './viewport/Viewport';
 
@@ -456,7 +457,8 @@ export function MenuBar() {
     <div className="k-menubar" onMouseLeave={() => setHover(false)}>
       <div className="k-brand" onMouseEnter={() => setHover(true)}>
         <Icon.Logo size={18} />
-        <span>Phlippo<b>CAD</b> Design</span>
+        {/* one name everywhere: window, installer, About and this title row (QA 0.5.11 F194) */}
+        <span>Phlippo <b>CAD</b></span>
         {!showMenus && <Icon.ChevronRight size={11} className="k-brand-caret" />}
       </div>
       {showMenus && (

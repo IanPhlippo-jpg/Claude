@@ -396,7 +396,8 @@ async function finishSelfTest(result) {
   try {
     if (win && !win.isDestroyed()) await fs.writeFile(path.join(SELF_TEST_DIR, 'self-test.png'), (await win.webContents.capturePage()).toPNG());
   } catch { /* the screenshot is evidence only */ }
-  const out = { version: app.getVersion(), packaged: PACKAGED, url: win && !win.isDestroyed() ? win.webContents.getURL() : '', dir: SELF_TEST_DIR, steps };
+  const commit = typeof result?.commit === 'string' ? result.commit.slice(0, 64) : '';
+  const out = { version: app.getVersion(), commit, packaged: PACKAGED, url: win && !win.isDestroyed() ? win.webContents.getURL() : '', dir: SELF_TEST_DIR, steps };
   await fs.writeFile(path.join(require('node:os').tmpdir(), 'phlippo-self-test.json'), JSON.stringify(out, null, 1)).catch(() => {});
   app.exit(steps.length && steps.every((x) => x.ok) ? 0 : 1);
 }

@@ -78,6 +78,21 @@ export function outerSetback(angleDeg: number, r: number, p: SheetMetalParams): 
   return (r + p.thickness) * Math.tan((angleDeg * Math.PI / 180) / 2);
 }
 
+/** Inner setback of one bend (distance from the inner virtual sharp to the bend tangent line). */
+export function innerSetback(angleDeg: number, r: number): number {
+  return r * Math.tan((angleDeg * Math.PI / 180) / 2);
+}
+
+/** the note on a flange whose exact (B-rep) build disagrees with the faceted one: the faceted result is kept (QA 0.5.11 F197) */
+export function flangeMismatchWarning(exactVolume: number, facetedVolume: number): string {
+  return `Warning: B-rep and mesh disagree on this flange (exact ${exactVolume.toFixed(2)} vs faceted ${facetedVolume.toFixed(2)} mm³); the faceted result is kept: from here on this body is a faceted mesh (Faceted in the status bar), its mass properties and STEP are approximate.`;
+}
+
+/** Bend deduction of one bend: flat length = the two legs to the outer virtual sharp minus BD (BD = 2 * outer setback - BA). */
+export function bendDeduction(angleDeg: number, r: number, p: SheetMetalParams): number {
+  return 2 * outerSetback(angleDeg, r, p) - bendAllowance(angleDeg, r, p);
+}
+
 const sub = (a: SketchPoint, b: SketchPoint) => ({ x: a.x - b.x, y: a.y - b.y });
 const len = (v: SketchPoint) => Math.hypot(v.x, v.y);
 const unit = (v: SketchPoint) => { const l = len(v) || 1; return { x: v.x / l, y: v.y / l }; };
@@ -279,7 +294,7 @@ export interface ExactPrism {
   reverse: boolean;
 }
 
-export function edgeFlangeGeometry(input0: EdgeFlangeInput, p: SheetMetalParams): { geometry: THREE.BufferGeometry | null; error?: string; trim?: THREE.BufferGeometry | null; exact?: { flange: ExactPrism; trim?: ExactPrism } } {
+export function edgeFlangeGeometry(input0: EdgeFlangeInput, p: SheetMetalParams): { geometry: THREE.BufferGeometry | null; error?: string; trim?: THREE.BufferGeometry | null; exact?: { flange: ExactPrism; trim?: ExactPrism; reliefs?: ExactPrism[] } } {
   let input = input0;
   const A = new THREE.Vector3(...input.a), B = new THREE.Vector3(...input.b);
   const u = B.clone().sub(A);
@@ -287,7 +302,9 @@ export function edgeFlangeGeometry(input0: EdgeFlangeInput, p: SheetMetalParams)
   if (L < 1e-6) return { geometry: null, error: 'The edge has no length.' };
   u.normalize();
   const n = new THREE.Vector3(...input.faceNormal).normalize();
-  if (input.flip) n.negate();
+  // Reverse direction: the flange bends to the other side, from the opposite face of the sheet (the edge moved through
+  // the thickness), so the profile below keeps the sheet on its -n side: the mirror image of the unflipped flange
+  if (input.flip) { n.negate(); A.addScaledVector(n, p.thickness); B.addScaledVector(n, p.thickness); }
   // outward: perpendicular to the edge in the sheet plane, away from the face
   let v = new THREE.Vector3().crossVectors(n, u).normalize();
   const mid = A.clone().add(B).multiplyScalar(0.5);
@@ -373,6 +390,8 @@ export function edgeFlangeGeometry(input0: EdgeFlangeInput, p: SheetMetalParams)
   }
   // Auto Relief where the flange ends inside the edge: a notch behind each inner end of the bend
   const reliefs: THREE.BufferGeometry[] = [];
+  // the same notches as exact prisms: the box in the (outward, normal) plane along the edge, the obround's round end
+  const reliefPrisms: ExactPrism[] = [];
   const rw = p.reliefType === 'tear' ? 0.2 : p.useReliefRatio === false ? Math.max(0.1, p.reliefWidth ?? t) : Math.max(0.1, (p.reliefRatio ?? 0.5) * t);
   const rd = r + t + (p.reliefType === 'tear' ? 0 : rw / 2) - shift;
   for (const [at, dir, on] of [[A1, -1, (input.startOffset ?? 0) > 0], [B.clone().addScaledVector(eAB0, -s1), 1, (input.endOffset ?? 0) > 0]] as const) {
@@ -381,15 +400,21 @@ export function edgeFlangeGeometry(input0: EdgeFlangeInput, p: SheetMetalParams)
     const c0 = at.clone().addScaledVector(eAB0, (dir * rw) / 2);
     const box = new THREE.BoxGeometry(rw, rd + e, t + 2 * e).toNonIndexed();
     box.translate(0, -(rd + e) / 2 + e, -t / 2);
-    const m = new THREE.Matrix4().makeBasis(eAB0, v, n).setPosition(c0);
+    // a left-handed frame turns the box inside out (it then cut nothing and broke the union): the notch is symmetric along
+    // the edge, so that axis flips instead
+    const m = new THREE.Matrix4().makeBasis(eAB0.clone().cross(v).dot(n) < 0 ? eAB0.clone().negate() : eAB0, v, n).setPosition(c0);
     box.applyMatrix4(m);
     reliefs.push(box);
+    const bo = c0.clone().addScaledVector(eAB0, -rw / 2), bl = [{ x: -rd, y: -t - e }, { x: e, y: -t - e }, { x: e, y: e }, { x: -rd, y: e }];
+    reliefPrisms.push({ plane: { id: 'relief', name: 'relief', origin: [bo.x, bo.y, bo.z], u: [v.x, v.y, v.z], v: [n.x, n.y, n.z], n: [eAB0.x, eAB0.y, eAB0.z] }, loop: bl.map((q, i) => ({ a: q, b: bl[(i + 1) % 4] })), depth: rw, reverse: false });
     if (p.reliefType === 'obround') {
       const cyl = new THREE.CylinderGeometry(rw / 2, rw / 2, t + 2 * e, 24).toNonIndexed();
       cyl.rotateX(Math.PI / 2);
       cyl.translate(0, -rd + e, -t / 2);
       cyl.applyMatrix4(m);
       reliefs.push(cyl);
+      const co = c0.clone().addScaledVector(v, -rd + e).addScaledVector(n, -t - e), h = rw / 2;
+      reliefPrisms.push({ plane: { id: 'relief', name: 'relief', origin: [co.x, co.y, co.z], u: [eAB0.x, eAB0.y, eAB0.z], v: [v.x, v.y, v.z], n: [n.x, n.y, n.z] }, loop: [{ a: { x: h, y: 0 }, b: { x: -h, y: 0 }, m: { x: 0, y: h } }, { a: { x: -h, y: 0 }, b: { x: h, y: 0 }, m: { x: 0, y: -h } }], depth: t + 2 * e, reverse: false });
     }
   }
   // Material Inside: the sheet is cut back by the setback so the bend fits inside the original length
@@ -405,9 +430,9 @@ export function edgeFlangeGeometry(input0: EdgeFlangeInput, p: SheetMetalParams)
     trim = extrudeGeometry([{ outer: tp, holes: [], area: 0 }], tplane, { end: 'blind', depth: L - s0 - s1 + (full ? 2 * e : 0), reverse: along }, THROUGH_ALL, 0);
   }
   if (reliefs.length) trim = mergeGeometries(trim ? [trim, ...reliefs] : reliefs);
-  // the same flange as exact segments (true bend arcs) for the B-rep kernel; flanges with relief notches: mesh kernel
-  let exact: { flange: ExactPrism; trim?: ExactPrism } | undefined;
-  if (!reliefs.length && !prof) {
+  // the same flange as exact segments (true bend arcs) for the B-rep kernel, with its relief notches; an edited profile: mesh kernel
+  let exact: { flange: ExactPrism; trim?: ExactPrism; reliefs?: ExactPrism[] } | undefined;
+  if (!prof) {
     const phiMid = -Math.PI / 2 + theta / 2;
     const mi = { x: C.x + r * Math.cos(phiMid), y: C.y + r * Math.sin(phiMid) };
     const mo = { x: C.x + (r + t) * Math.cos(phiMid), y: C.y + (r + t) * Math.sin(phiMid) };
@@ -416,7 +441,7 @@ export function edgeFlangeGeometry(input0: EdgeFlangeInput, p: SheetMetalParams)
     if (leg > 1e-9) loop.push({ a: Ei, b: Li }, { a: Li, b: Lo }, { a: Lo, b: Eo });
     else loop.push({ a: Ei, b: Eo });
     loop.push({ a: Eo, b: outer[0], m: mo }, { a: outer[0], b: inner[0] });
-    exact = { flange: { plane: flangePlane, loop, depth: L - s0 - s1, reverse: along } };
+    exact = { flange: { plane: flangePlane, loop, depth: L - s0 - s1, reverse: along }, ...(reliefPrisms.length ? { reliefs: reliefPrisms } : {}) };
     if (shift < -1e-9) {
       const e = 0.05;
       const tp = [{ x: shift, y: -t - e }, { x: e, y: -t - e }, { x: e, y: e }, { x: shift, y: e }];
@@ -440,7 +465,7 @@ export function flangeProfilePlane(input: EdgeFlangeInput, p: SheetMetalParams):
   const eAB = B.clone().sub(A).normalize();
   let u = eAB.clone();
   const n = new THREE.Vector3(...input.faceNormal).normalize();
-  if (input.flip) n.negate();
+  if (input.flip) { n.negate(); A.addScaledVector(n, p.thickness); B.addScaledVector(n, p.thickness); }
   let v = new THREE.Vector3().crossVectors(n, u).normalize();
   if (new THREE.Vector3(...input.faceCentroid).sub(A.clone().add(B).multiplyScalar(0.5)).dot(v) > 0) { v.negate(); u = u.negate(); }
   void u;
@@ -470,26 +495,30 @@ export function hemFlangeParams(h: { hemType: HemType; length: number; gap: numb
 }
 
 /**
- * Flat pattern of a base flange made from an open chain: the developed length of the outer face
- * (segments between the bend tangent lines plus the bend allowances), as a flat plate.
+ * Flat pattern of a base flange made from an open chain: the developed length (segments between the bend tangent
+ * lines plus the bend allowances), as a flat plate. The sketch lines are one face of the sheet: the outer face of a
+ * bend that turns towards the material side (legs to the outer virtual sharp), the inner face of one that turns away
+ * (legs to the inner virtual sharp); reverse puts the material on the other side, as baseFlangeRegion.
  */
-export function flatLength(chain: SketchPoint[], p: SheetMetalParams): number {
+export function flatLength(chain: SketchPoint[], p: SheetMetalParams, reverse = false): number {
   let total = 0;
   for (let i = 1; i < chain.length; i++) total += len(sub(chain[i], chain[i - 1]));
   for (let i = 1; i < chain.length - 1; i++) {
     const d1 = unit(sub(chain[i], chain[i - 1])), d2 = unit(sub(chain[i + 1], chain[i]));
     const dot = Math.max(-1, Math.min(1, d1.x * d2.x + d1.y * d2.y));
     const deg = (Math.acos(dot) * 180) / Math.PI;
-    if (deg < 1e-6) continue;
-    total += bendAllowance(deg, p.bendRadius, p) - 2 * outerSetback(deg, p.bendRadius, p);
+    if (deg < 1e-6 || Math.abs(cross(d1, d2)) < 1e-12) continue;
+    const outside = (cross(d1, d2) > 0) === !reverse;
+    const setback = outside ? outerSetback(deg, p.bendRadius, p) : innerSetback(deg, p.bendRadius);
+    total += bendAllowance(deg, p.bendRadius, p) - 2 * setback;
   }
   return total;
 }
 
 /** Flat plate of the developed length x width x thickness on the sketch plane, starting at the chain's first point. */
-export function flatPatternGeometry(chain: SketchPoint[], plane: PlaneDef, p: SheetMetalParams, width: number, midPlane: boolean, flangeExtensions: number[] = []): THREE.BufferGeometry | null {
+export function flatPatternGeometry(chain: SketchPoint[], plane: PlaneDef, p: SheetMetalParams, width: number, midPlane: boolean, flangeExtensions: number[] = [], reverse = false): THREE.BufferGeometry | null {
   if (chain.length < 2) return null;
-  const Lflat = flatLength(chain, p) + flangeExtensions.reduce((a, b) => a + b, 0);
+  const Lflat = flatLength(chain, p, reverse) + flangeExtensions.reduce((a, b) => a + b, 0);
   const d = unit(sub(chain[1], chain[0]));
   const nrm = { x: -d.y, y: d.x };
   const a = chain[0];

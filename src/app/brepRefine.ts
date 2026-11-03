@@ -12,10 +12,11 @@ import type { Document } from '../core/document/types';
 import type { Body, RebuildResult } from '../core/features/rebuild';
 import { bodyEdges, edgeRef, matchEdge } from '../core/features/edgesets';
 import { meshVolume, planarFaces } from '../core/features/solid';
-import { volumeMismatch } from '../core/features/volumeCheck';
+import { shapeMismatch, volumeMismatch } from '../core/features/volumeCheck';
 import { splitFaces } from '../core/features/splitline';
 import { isAssembly, isDrawing } from '../core/document/types';
 import { getPref } from './prefs';
+import { serializeDocument } from '../core/document/persistence';
 import { TEST_HOOKS } from './testHooks';
 
 const refined = new WeakSet<RebuildResult>();
@@ -50,7 +51,7 @@ function nearestFace(body: Body, old: { normal: [number, number, number]; centro
 }
 
 /** the mesh result with its exact bodies swapped in (null when the worker's bodies do not line up) */
-function refinedResult(sent: RebuildResult, bodies: import('../workers/occt.worker').RefinedBody[]): RebuildResult | null {
+function refinedResult(sent: RebuildResult, bodies: import('../workers/occt.worker').RefinedBody[], doc?: Document): RebuildResult | null {
   if (bodies.length !== sent.bodies.length || bodies.some((b, i) => b.id !== sent.bodies[i].id)) return null;
   if (!bodies.some((b) => b.exact && b.positions)) return null;
   const next: Body[] = sent.bodies.map((b, i) => {
@@ -63,17 +64,28 @@ function refinedResult(sent: RebuildResult, bodies: import('../workers/occt.work
     // the exact body takes the face names of its mesh twin (F47)
     copyFaceNames([b.geometry], g);
     const sf = splitFaces(g, planarFaces(g, b.id), []);
-    return { ...b, geometry: g, faces: sf.faces, edges: bodyEdges(g, b.id, 20, sf.segments), exact: true, exactVolume: r.exactVolume };
+    // the display of the exact body comes from the worker (never the mesh body's: it would draw the faceted edges)
+    const geo = (a: Float32Array, n?: Float32Array) => { const x = new THREE.BufferGeometry(); x.setAttribute('position', new THREE.BufferAttribute(a, 3)); if (n) x.setAttribute('normal', new THREE.BufferAttribute(n, 3)); return x; };
+    const display = r.display ? { geometry: geo(r.display.positions, r.display.normals), edges: geo(r.display.edges), tangentEdges: geo(r.display.tangentEdges) } : undefined;
+    return { ...b, geometry: g, faces: sf.faces, edges: bodyEdges(g, b.id, 20, sf.segments), exact: true, exactVolume: r.exactVolume, display };
   });
   // the openings of the faceted result (F48) are gone where the body is exact now
   const faceted = next.filter((b) => !b.exact);
   const warnings = Object.fromEntries(Object.entries(sent.warnings ?? {}).filter(([id]) => faceted.some((b) => b.featureIds.includes(id))));
-  // the exact volume is checked against the faceted one (QA F159): the two kernels build the same part, so a body
-  // whose volumes differ by more than the tessellation's margin got a wrong feature on one of them; the feature is
-  // marked (yellow in the tree, What's Wrong) and the mismatch is said
+  // the exact body is checked against the faceted one (QA F159, F172): the two kernels build the same part, so a
+  // body whose surfaces lie farther apart than the tessellation's margin (or whose volumes differ by more than 0.5 %)
+  // got a wrong feature on one of them; the feature is marked (yellow in the tree, What's Wrong) and the mismatch is said
   for (const [i, b] of next.entries()) {
-    const mismatch = b.exact ? volumeMismatch(Math.abs(meshVolume(sent.bodies[i].geometry)), b.exactVolume ?? 0) : null;
+    const mismatch = !b.exact ? null : volumeMismatch(Math.abs(meshVolume(sent.bodies[i].geometry)), b.exactVolume ?? 0) ?? shapeMismatch(sent.bodies[i].geometry, b.geometry);
     if (!mismatch) continue;
+    // in the test builds a mismatch is an error in the console, so every e2e script on the B-rep kernel fails on one
+    if (TEST_HOOKS) {
+      console.error(`kernel cross-check (body ${b.id}): ${mismatch}`);
+      // a test run can keep the document, to build it again on both kernels in a unit test (e2e/lib/dump-mismatch.mjs)
+      const keep = (window as unknown as { __phlippoOnMismatch?: (kcad: string, info: string) => void }).__phlippoOnMismatch;
+      if (keep && doc) keep(serializeDocument(doc), `body ${b.id} features ${b.featureIds.join(',')}
+${mismatch}`);
+    }
     const fid = b.featureIds[b.featureIds.length - 1];
     if (fid && !sent.errors[fid]) warnings[fid] = mismatch;
   }
@@ -82,11 +94,11 @@ function refinedResult(sent: RebuildResult, bodies: import('../workers/occt.work
 
 function apply(sent: RebuildResult, bodies: import('../workers/occt.worker').RefinedBody[]) {
   if (useStore.getState().rebuild !== sent) return; // rebuilt meanwhile: the next refinement follows
-  const result = refinedResult(sent, bodies);
+  const result = refinedResult(sent, bodies, useStore.getState().doc);
   if (!result) return;
   refined.add(result);
   useStore.setState({ rebuild: result, ...carrySelection(sent, result) });
-  const added = Object.entries(result.warnings ?? {}).filter(([id, w]) => w.startsWith('Warning: the exact') && sent.warnings?.[id] !== w);
+  const added = Object.entries(result.warnings ?? {}).filter(([id, w]) => w.startsWith('Warning: B-rep and mesh disagree') && sent.warnings?.[id] !== w);
   if (added.length) useStore.getState().pushMessage(`${added.length === 1 ? 'One feature differs' : `${added.length} features differ`} between the exact and the faceted result: see What's Wrong.`, 'warn');
 }
 
@@ -108,7 +120,7 @@ async function refineAssembly(doc: Document): Promise<boolean> {
     if (part.features.some((f) => f.type === 'splitLine' && !f.suppressed)) continue;
     const mesh = partRebuild(part);
     if (!mesh.bodies.length) continue;
-    const r = refinedResult(mesh, await refineRebuild(part, null));
+    const r = refinedResult(mesh, await refineRebuild(part, null), part);
     if (r) { setPartRebuild(part, r); changed = true; }
   }
   return changed;

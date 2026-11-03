@@ -104,6 +104,7 @@
 .k-pm-stylerow { display: flex; gap: 2px; margin-bottom: 4px; }
 .k-pm-stylebtn { width: 24px; height: 22px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--border); background: var(--bg-panel-alt); color: var(--icon); }
 .k-pm-stylebtn:disabled { opacity: 0.6; cursor: default; }
+.k-pm-stylebtn.active { border-color: var(--accent); background: var(--bg-selected); color: var(--accent); }
 .k-pm-valuerow { display: flex; align-items: center; gap: 6px; margin: 6px 0; color: var(--icon); }
 .k-check { display: flex; align-items: center; gap: 6px; margin: 4px 0; color: var(--text); }
 .k-pm-dimtext { height: 44px; resize: none; padding: 4px 6px; font-family: var(--font-ui); }
@@ -360,7 +361,8 @@
 .k-options-cats { width: 190px; overflow: auto; border-right: 1px solid var(--border); background: var(--bg-input, #fff); padding: 4px 0; }
 .k-opt-cat { padding: 3px 10px; font-size: 12px; cursor: default; white-space: nowrap; }
 .k-opt-cat.child { padding-left: 26px; }
-.k-opt-cat.active { background: var(--bg-selected); color: var(--accent-text, inherit); }
+/* the selected page: the panel text colour on the selection colour, readable in both themes (QA 0.5.11 F193) */
+.k-opt-cat.active { background: var(--bg-selected); color: var(--text); }
 .k-opt-cat.dim { color: var(--text-faint); }
 .k-options-page { flex: 1; overflow: auto; padding: 10px 16px; font-size: 12px; }
 .k-opt-section { margin: 0 0 10px; border: none; padding: 0; min-width: 0; }
@@ -462,7 +464,9 @@
 .k-material-item .swatch { width: 12px; height: 12px; border: 1px solid #888; display: inline-block; }
 .k-material-right { flex: 1; display: flex; flex-direction: column; min-width: 0; }
 .k-material-tabs { display: flex; gap: 2px; padding: 6px 8px 0; border-bottom: 1px solid var(--border); }
-.k-material-tabs button { padding: 3px 8px; border: 1px solid var(--border); border-bottom: none; background: var(--bg-panel-alt); font-size: 12px; }
+.k-material-tabs button { padding: 3px 8px; border: 1px solid var(--border); border-bottom: none; background: var(--bg-panel-alt); font-size: 12px; white-space: nowrap; flex: none; }
+/* seven tabs on one line: the row scrolls sideways instead of breaking a tab over two lines (QA 0.5.11 F193) */
+.k-material-tabs { overflow-x: auto; scrollbar-width: thin; }
 .k-material-tabs button.active { background: var(--bg-panel); font-weight: 600; }
 .k-material-page { flex: 1; overflow: auto; padding: 10px 12px; font-size: 12px; display: flex; flex-direction: column; gap: 6px; }
 .k-material-empty { color: var(--text-muted); text-align: center; margin-top: 120px; }

@@ -12,6 +12,7 @@ import * as THREE from 'three';
 import { MeshBVH } from 'three-mesh-bvh';
 import type { PlaneDef, SketchBasedFeature } from '../document/types';
 import type { Sketch } from '../sketch/types';
+import type { FaceSource } from './sweep';
 import { distanceToEntity, entityLoops, sampleEntity } from '../sketch/geometry';
 
 export const FACE_TAG = 'ftag';
@@ -47,9 +48,15 @@ const segDist = (p: { x: number; y: number }, a: { x: number; y: number }, b: { 
   return Math.hypot(p.x - a.x - t * dx, p.y - a.y - t * dy);
 };
 
-/** the named geometry of a sketched feature; From ▸ Offset is named by the extrusion it moves, thin walls not at all */
+/**
+ * the named geometry of a sketched feature; From ▸ Offset is named by the extrusion it moves, thin walls not at all; a
+ * sweep or a loft by the profile point each triangle was swept from (QA 0.5.11 T4: a fillet on a sweep edge went to
+ * the edge on the other side of the profile after the path changed)
+ */
 export function nameFeatureFaces(g: THREE.BufferGeometry, f: SketchBasedFeature, sketch: Sketch, plane: PlaneDef): THREE.BufferGeometry {
   if (f.type === 'extrude' && !f.fromOffset && !f.thin) return nameExtrudedFaces(g, f.id, sketch, plane);
+  const src = g.userData.faceSrc as FaceSource[] | undefined;
+  if ((f.type === 'sweep' || f.type === 'loft') && src && !g.index) return nameFaces(g, f.id, sketch, null, (_c, _n, t) => src[t]);
   const axis = f.type === 'revolve' && !f.thin ? sketch.entities[f.axisEntityId] : null;
   if (f.type === 'revolve' && axis?.kind === 'line') return nameRevolvedFaces(g, f.id, sketch, plane, f.axisEntityId, { a: sketch.points[axis.p1], b: sketch.points[axis.p2] });
   return g;
@@ -108,7 +115,7 @@ export function nameRevolvedFaces(g: THREE.BufferGeometry, featureId: string, sk
  * The tags of a solid made from a sketch: `where` gives per triangle (centroid, unit normal) a cap side or the sketch
  * point it came from, and that point takes the name of the nearest sketch entity.
  */
-function nameFaces(g: THREE.BufferGeometry, featureId: string, sketch: Sketch, skip: string | null, where: (centroid: THREE.Vector3, normal: THREE.Vector3) => '+' | '-' | { x: number; y: number }): THREE.BufferGeometry {
+function nameFaces(g: THREE.BufferGeometry, featureId: string, sketch: Sketch, skip: string | null, where: (centroid: THREE.Vector3, normal: THREE.Vector3, t: number) => '+' | '-' | { x: number; y: number }): THREE.BufferGeometry {
   const ng = g.index ? g.toNonIndexed() : g;
   const pos = ng.getAttribute('position');
   const tris = Math.floor(pos.count / 3);
@@ -140,7 +147,7 @@ function nameFaces(g: THREE.BufferGeometry, featureId: string, sketch: Sketch, s
     const l = tn.length();
     if (l < 1e-12) { tags.push(0); continue; }
     c.copy(p0).add(p1).add(p2).divideScalar(3);
-    const q = where(c, tn.divideScalar(l));
+    const q = where(c, tn.divideScalar(l), t);
     if (q === '+' || q === '-') { tags.push(q === '+' ? capPlus : capMinus); continue; }
     let best = '', bd = Infinity;
     for (const [id, e] of entities) {

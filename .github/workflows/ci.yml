@@ -7,7 +7,8 @@ on:
 #   checks      typecheck, unit tests, the text checks and the release build
 #   desktop     the release build in the desktop shell: without hooks, the self-test, the autosave after a restart, AutoRecover
 #   regression  the browser regression as a matrix of passes, each with its own log (QA F158, F160)
-# Every job runs on ubuntu-24.04: ubuntu-latest moved to 26.04, for which Playwright has no Chromium (QA F54).
+#   windows-installer, regression-windows  the installer installed and tested, and the regression in Edge on Windows
+# The Linux jobs run on ubuntu-24.04: ubuntu-latest moved to 26.04, for which Playwright has no Chromium (QA F54).
 # Inside a job the steps that test run on with continue-on-error, and the last step fails the job when one of them failed.
 jobs:
   checks:
@@ -34,6 +35,10 @@ jobs:
       - id: build
         continue-on-error: true
         run: npm run build
+      # the start-up script stays under its budget (F118, F174) and the README's test counts are what vitest finds (F129)
+      - id: budgets
+        continue-on-error: true
+        run: node tools/bundle-budget.cjs && node tools/doc-counts.cjs
       # the build leaves the repository as it found it
       - id: clean
         continue-on-error: true
@@ -41,8 +46,8 @@ jobs:
       - name: all checks passed
         if: always()
         run: |
-          echo "typecheck=${{ steps.typecheck.outcome }} unit=${{ steps.unit.outcome }} text=${{ steps.text.outcome }} build=${{ steps.build.outcome }} clean=${{ steps.clean.outcome }}"
-          test "${{ steps.typecheck.outcome }}" = success && test "${{ steps.unit.outcome }}" = success && test "${{ steps.text.outcome }}" = success && test "${{ steps.build.outcome }}" = success && test "${{ steps.clean.outcome }}" = success
+          echo "typecheck=${{ steps.typecheck.outcome }} unit=${{ steps.unit.outcome }} text=${{ steps.text.outcome }} build=${{ steps.build.outcome }} budgets=${{ steps.budgets.outcome }} clean=${{ steps.clean.outcome }}"
+          test "${{ steps.typecheck.outcome }}" = success && test "${{ steps.unit.outcome }}" = success && test "${{ steps.text.outcome }}" = success && test "${{ steps.build.outcome }}" = success && test "${{ steps.budgets.outcome }}" = success && test "${{ steps.clean.outcome }}" = success
 
   desktop:
     runs-on: ubuntu-24.04
@@ -88,7 +93,7 @@ jobs:
   # The passes (docs/28, CI/testinfra):
   #   release  every script on what a user gets: the B-rep kernel and the rebuild worker (?kernel=brep&rebuild=worker, F158)
   #   mesh     every script on the mesh kernel and the UI thread (the e2e build's default, the fallback when OpenCascade fails)
-  #   brep     the B-rep scripts on the UI thread, the control pass of F105/F120 (the same 12 scripts as before)
+  #   brep     the B-rep scripts on the UI thread, the control pass of F105/F120 (14 scripts, as the QA box runs them, F183)
   # The worker-only pass (mesh kernel in the worker) is gone: the release pass runs every script in the worker.
   regression:
     runs-on: ubuntu-24.04
@@ -134,7 +139,7 @@ jobs:
           - pass: brep
             name: brep
             query: '?kernel=brep'
-            scripts: features features2 filletopts endconditions multibody full doorhandle step bodies qa2 facenames plastics
+            scripts: features features2 filletopts endconditions multibody full doorhandle step bodies qa2 facenames plastics loftface pmsweep
             shard: ''
     name: regression (${{ matrix.name }})
     steps:
@@ -175,6 +180,107 @@ jobs:
           name: e2e-screenshots-${{ matrix.name }}
           path: /tmp/phlippo-e2e
           if-no-files-found: ignore
+      - name: regression passed
+        if: always()
+        run: |
+          echo "regression=${{ steps.regression.outcome }} clean=${{ steps.clean.outcome }}"
+          test "${{ steps.regression.outcome }}" = success && test "${{ steps.clean.outcome }}" = success
+
+  # Windows (QA 0.5.11 F97, F151, P0-4, P2-13): the installer is built, installed silently as a user would, and the
+  # installed program is tested from the outside (desktop-installed.mjs: window, version, licences, no debugging port,
+  # --self-test on app:// with the OpenCascade WASM worker); the log names the commit and every check. The runner has
+  # no graphics card: the self-test draws with software GL.
+  windows-installer:
+    runs-on: windows-2025
+    timeout-minutes: 60
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx electron-builder --win nsis --x64 --publish never --config.directories.output=release
+      - id: signature
+        continue-on-error: true
+        run: node tools/sign-report.cjs release
+      - id: install
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          $v = (Get-Content package.json | ConvertFrom-Json).version
+          $setup = Join-Path (Resolve-Path release) "Phlippo CAD-Setup-$v.exe"
+          $p = Start-Process -FilePath $setup -ArgumentList '/S' -Wait -PassThru
+          "installer exit $($p.ExitCode)"
+          Test-Path "$env:LOCALAPPDATA\Programs\Phlippo CAD\Phlippo CAD.exe"
+      - id: installed
+        continue-on-error: true
+        run: PHLIPPO_SELFTEST_ARGS=--software-gl node e2e/desktop-installed.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: windows-installer-logs
+          path: |
+            e2e-out/desktop-installed-*.txt
+            e2e-out/desktop-*.png
+            release/signature-*.txt
+          if-no-files-found: error
+      - name: windows installer checks passed
+        if: always()
+        run: |
+          echo "signature=${{ steps.signature.outcome }} install=${{ steps.install.outcome }} installed=${{ steps.installed.outcome }}"
+          test "${{ steps.install.outcome }}" = success && test "${{ steps.installed.outcome }}" = success
+
+  # the regression on Windows in Edge (the platform the program ships for), release and mesh pass in three shards each;
+  # Edge gets SwiftShader for WebGL through e2e/lib/launch-args.mjs (the runner has no graphics card)
+  regression-windows:
+    runs-on: windows-2025
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: win-release-1of3, query: '?kernel=brep&rebuild=worker', shard: '1/3' }
+          - { name: win-release-2of3, query: '?kernel=brep&rebuild=worker', shard: '2/3' }
+          - { name: win-release-3of3, query: '?kernel=brep&rebuild=worker', shard: '3/3' }
+          - { name: win-mesh-1of3, query: '', shard: '1/3' }
+          - { name: win-mesh-2of3, query: '', shard: '2/3' }
+          - { name: win-mesh-3of3, query: '', shard: '3/3' }
+    name: regression (${{ matrix.name }})
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run build:e2e
+      - id: regression
+        continue-on-error: true
+        run: |
+          npx vite preview --host 127.0.0.1 --port 4173 --strictPort &
+          npx wait-on http://127.0.0.1:4173
+          export NODE_OPTIONS="--import ./e2e/lib/launch-args.mjs"
+          export E2E_BROWSER_ARGS="--use-angle=swiftshader --enable-unsafe-swiftshader --ignore-gpu-blocklist"
+          E2E_SCRIPT_TIMEOUT=1500000 E2E_SHARD="${{ matrix.shard }}" E2E_URL="http://127.0.0.1:4173/${{ matrix.query }}" node e2e/run-regression.mjs
+      - id: clean
+        continue-on-error: true
+        run: git diff --exit-code
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: e2e-regression-log-${{ matrix.name }}
+          path: |
+            e2e-out/regression-*.txt
+            e2e-out/*-output.txt
+          if-no-files-found: error
       - name: regression passed
         if: always()
         run: |

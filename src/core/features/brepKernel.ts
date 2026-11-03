@@ -31,8 +31,9 @@ export interface BrepKernel {
   transform(shape: BrepShape, m: ArrayLike<number>): BrepShape | null;
   /** the mirror image about the plane through origin with this normal */
   mirror(shape: BrepShape, origin: [number, number, number], normal: [number, number, number]): BrepShape;
-  /** a loft between the outer contours of two profile regions (one region each) */
-  loft(s1: Sketch, p1: PlaneDef, r1: ContourRegion, s2: Sketch, p2: PlaneDef, r2: ContourRegion): BrepShape | null;
+  /** a loft through the outer contours of two or more profile regions (one region each) in loft order: ruled (straight
+   * between consecutive profiles) or smooth (one surface through all), closed (back to the first) with three or more */
+  loft(sections: { sketch: Sketch; plane: PlaneDef; region: ContourRegion }[], opts?: { ruled?: boolean; closed?: boolean }): BrepShape | null;
   /** the shape without what lies on the side of the plane the normal points to */
   clipByPlane(shape: BrepShape, point: [number, number, number], normal: [number, number, number]): BrepShape;
   /** the solids of `a` minus `b` that touch the plane (Up To Body: the piece from the sketch plane to the body) */
@@ -64,6 +65,9 @@ export interface BrepKernel {
   filletEach(shape: BrepShape, items: { edge: BodyEdge; r1: number; r2?: number }[]): BrepShape;
   /** hollow the solid: wall `thickness` inward (outward when set), the faces at these planes left open */
   shell(shape: BrepShape, openFaces: { normal: [number, number, number]; point: [number, number, number] }[], thickness: number, outward: boolean): BrepShape;
+  /** the solid grown by `distance` (shrunk when negative): every face moves along its normal, faces meeting at a sharp
+   * edge are extended until they meet again (sharp corners, like the mesh kernel's offset) */
+  offset(shape: BrepShape, distance: number): BrepShape;
   /**
    * draft faces about a neutral plane: the faces at these planes, or 'sides' = every face parallel to the pull direction;
    * the angle in degrees (its sign follows OpenCascade's convention; the rebuild checks it against the mesh kernel)

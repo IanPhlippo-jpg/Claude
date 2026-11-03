@@ -8,7 +8,8 @@
 import { spawnSync } from 'node:child_process';
 import { mkdirSync, readFileSync, writeFileSync, appendFileSync } from 'node:fs';
 import { release } from 'node:os';
-const SCRIPTS = ['smoke', 'relations', 'features', 'full', 'assembly', 'drawing', 'configurations', 'rib', 'endconditions', 'multibody', 'slot', 'sheetmetal', 'section', 'sketchtools', 'helix', 'hem', 'explode', 'doorhandle', 'ellipsetext', 'componentpattern', 'uptobody', 'jogmiter', 'sketch3d', 'sketchpattern', 'faceappearance', 'draftcheck', 'editcomponent', 'arcslot', 'sketchtools2', 'surfaces', 'annotations', 'annotations2', 'annotations3', 'viewlayout', 'corners', 'unfoldfold', 'wrap', 'motion', 'thickness', 'dragHandles', 'dimpm', 'thread', 'confirmdelete', 'deletekey', 'deletekey2', 'rect3', 'sketchcurves', 'features2', 'sheetmetal2', 'evalrender2', 'assembly2', 'drawing2', 'misc7', 'filletopts', 'drawingfix', 'drawopts', 'keys', 'asmoptions', 'sectionopts', 'dwgopts', 'dialogopts', 'motion2', 'triad', 'blockf', 'fixes1', 'asmcut', 'qa1', 'qa2', 'qa3', 'qa4', 'leak', 'ga1', 'ga2', 'gb', 'gd', 'ge', 'gf', 'gg', 'gh', 'gi', 'gj', 'step', 'brep', 'bodies', 'pmsweep', 'inventory47', 'rebuildworker', 'facenames', 'appearance2', 'loftface', 'videos56', 'videos46', 'videos54', 'reorder', 'sheetexport', 'plastics', 'quickstart', 'round2'];
+import { commitOf } from './lib/provenance.mjs';
+const SCRIPTS = ['smoke', 'relations', 'features', 'full', 'assembly', 'drawing', 'configurations', 'rib', 'endconditions', 'multibody', 'slot', 'sheetmetal', 'section', 'sketchtools', 'helix', 'hem', 'explode', 'doorhandle', 'ellipsetext', 'componentpattern', 'uptobody', 'jogmiter', 'sketch3d', 'sketchpattern', 'faceappearance', 'draftcheck', 'editcomponent', 'arcslot', 'sketchtools2', 'surfaces', 'annotations', 'annotations2', 'annotations3', 'viewlayout', 'corners', 'unfoldfold', 'wrap', 'motion', 'thickness', 'dragHandles', 'dimpm', 'thread', 'confirmdelete', 'deletekey', 'deletekey2', 'rect3', 'sketchcurves', 'features2', 'sheetmetal2', 'evalrender2', 'assembly2', 'drawing2', 'misc7', 'filletopts', 'drawingfix', 'drawopts', 'keys', 'asmoptions', 'sectionopts', 'dwgopts', 'dialogopts', 'motion2', 'triad', 'blockf', 'fixes1', 'asmcut', 'qa1', 'qa2', 'qa3', 'qa4', 'leak', 'ga1', 'ga2', 'gb', 'gd', 'ge', 'gf', 'gg', 'gh', 'gi', 'gj', 'step', 'brep', 'bodies', 'pmsweep', 'inventory47', 'rebuildworker', 'facenames', 'appearance2', 'loftface', 'videos56', 'videos46', 'videos54', 'reorder', 'sheetexport', 'plastics', 'quickstart', 'round2', 'undo200', 'designtable', 'library', 'instant2d', 'magnify', 'sketch3d2'];
 
 const git = (...args) => spawnSync('git', args, { encoding: 'utf8' }).stdout?.trim() ?? '';
 
@@ -47,9 +48,9 @@ const name = ['regression', version, pass, shard && `shard${shard.replace('/', '
 mkdirSync('e2e-out', { recursive: true });
 const log = `e2e-out/${name}.txt`;
 // the head names what was tested (QA F148): version, commit (and whether the tree had uncommitted changes), platform
-const commit = git('rev-parse', '--short', 'HEAD') || 'unknown';
-const dirty = git('status', '--porcelain', '--untracked-files=no') ? ' (uncommitted changes)' : '';
-writeFileSync(log, `regression ${version} pass ${pass || 'default'}${shard ? ` shard ${shard}` : ''}\ncommit ${commit}${dirty}\nplatform ${process.platform} ${release()}\nurl ${url}\ndate ${new Date().toISOString()}\n(${list.length} scripts)\n`);
+// (an exported tree without .git takes the commit that `git archive` wrote into e2e/lib/commit.txt, F176)
+const commit = commitOf();
+writeFileSync(log, `regression ${version} pass ${pass || 'default'}${shard ? ` shard ${shard}` : ''}\ncommit ${commit}\nplatform ${process.platform} ${release()}\nurl ${url}\ndate ${new Date().toISOString()}\n(${list.length} scripts)\n`);
 const failed = [];
 const overBudget = [];
 let skipped = 0;

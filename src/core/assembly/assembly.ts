@@ -365,20 +365,24 @@ export function solveMate(mate: Mate, fixed: Component, mov: Component, movIdx: 
       const dq = qNow.clone().multiply(q0.clone().invert());
       const ang = 2 * Math.atan2(new THREE.Vector3(dq.x, dq.y, dq.z).dot(drvAxis.n), dq.w);
       const moved = new THREE.Vector3(...fixed.position).sub(new THREE.Vector3(...drvBase.position)).dot(drvAxis.n);
-      const ratio = mate.ratio ?? 1;
+      // the ratio is the second reference's motion per motion of the first; the first one driven by the second takes 1/ratio
+      const ratio = movIdx === 1 ? mate.ratio ?? 1 : 1 / (mate.ratio || 1);
       let next: Component = { ...out, position: [...movBase.position] as [number, number, number], rotation: [...movBase.rotation] as [number, number, number, number] };
       if (mate.type === 'gear' || mate.type === 'universalJoint') {
         const turn = mate.type === 'gear' ? -ratio * ang : ang;
         next = rotateAbout(next, new THREE.Quaternion().setFromAxisAngle(movAxis0.n, turn), movAxis0.p);
       } else if (mate.type === 'rackPinion') {
-        // the rack (moving) travels pitch per revolution of the pinion
-        const per = mate.pitch ?? 2 * Math.PI * (rf.radius ?? 10);
-        next = translate(next, movAxis0.n.clone().multiplyScalar((per * ang) / (2 * Math.PI)));
+        // the rack travels pitch per revolution of the pinion (the round reference); either one drives the other
+        const pinionMoves = !!rm.cylindrical && !rf.cylindrical;
+        const per = mate.pitch ?? 2 * Math.PI * ((pinionMoves ? rm.radius : rf.radius) ?? 10);
+        if (pinionMoves) next = rotateAbout(next, new THREE.Quaternion().setFromAxisAngle(movAxis0.n, (2 * Math.PI * moved) / per), movAxis0.p);
+        else next = translate(next, movAxis0.n.clone().multiplyScalar((per * ang) / (2 * Math.PI)));
       } else if (mate.type === 'screw') {
         out = solveMate({ ...mate, type: 'concentric' }, fixed, out, movIdx, lookup);
         const qm = new THREE.Quaternion(...out.rotation).multiply(new THREE.Quaternion(...movBase.rotation).invert());
         const own = 2 * Math.atan2(new THREE.Vector3(qm.x, qm.y, qm.z).dot(movAxis0.n), qm.w);
-        const axial = ((mate.pitch ?? 1) * (own - ang)) / (2 * Math.PI);
+        // the moving part goes along with the driver's shift along the axis, plus pitch per turn of the one against the other
+        const axial = moved * drvAxis.n.dot(movAxis0.n) + ((mate.pitch ?? 1) * (own - ang)) / (2 * Math.PI);
         const cur = new THREE.Vector3(...out.position).sub(new THREE.Vector3(...movBase.position)).dot(movAxis0.n);
         out = translate(out, movAxis0.n.clone().multiplyScalar(axial - cur));
         break;
@@ -429,20 +433,18 @@ export function groundDistance(components: Component[], mates: Mate[]): Map<Id, 
 
 /** the passes the solver makes over the mates before it stops; mateStatus says when they were not enough (F166) */
 export const MATE_PASSES = 16;
+/** the passes after which a solver that still moves parts by more than a micron per pass has mates that conflict */
+const CONFLICT_PASSES = 128;
 
-/**
- * All mates of an assembly, solved by moving the free components. Per mate the component further from the fixed
- * ones moves and the nearer one stays, whichever reference was picked first (QA v0.5.1 F109: a free part picked as the
- * first reference was never moved); the mates nearest the fixed components go first, and the passes repeat until
- * nothing moves any more.
- */
-export function solveMates(components: Component[], mates: Mate[], passes = MATE_PASSES): Component[] {
+/** passes over the mates; `last` is the largest move of the last pass made (0 once nothing moves any more) */
+function runPasses(components: Component[], mates: Mate[], passes: number): { out: Component[]; last: number } {
   const byId = new Map(components.map((c) => [c.id, { ...c }]));
   const ground = groundDistance(components, mates.filter((m) => !m.suppressed));
   const far = (m: Mate) => Math.max(ground.get(m.refs[0].componentId) ?? Infinity, ground.get(m.refs[1].componentId) ?? Infinity);
   const active = mates.filter((m) => !m.suppressed).sort((x, y) => far(x) - far(y));
+  let last = passes > 0 ? Infinity : 0;
   for (let pass = 0; pass < passes; pass++) {
-    let moved = 0;
+    last = 0;
     for (const m of active) {
       const a = byId.get(m.refs[0].componentId), b = byId.get(m.refs[1].componentId);
       if (!a || !b || a === b || (a.fixed && b.fixed)) continue;
@@ -450,12 +452,35 @@ export function solveMates(components: Component[], mates: Mate[], passes = MATE
       const fixed = idx === 1 ? a : b, mov = idx === 1 ? b : a;
       const next = solveMate(m, fixed, mov, idx, (id) => byId.get(id));
       const delta = Math.hypot(next.position[0] - mov.position[0], next.position[1] - mov.position[1], next.position[2] - mov.position[2]) + Math.abs(1 - Math.abs(next.rotation[0] * mov.rotation[0] + next.rotation[1] * mov.rotation[1] + next.rotation[2] * mov.rotation[2] + next.rotation[3] * mov.rotation[3]));
-      if (delta > 1e-7) moved++;
+      if (delta > 1e-7) last = Math.max(last, delta);
       byId.set(mov.id, next);
     }
-    if (!moved) break;
+    if (!last) break;
   }
-  return components.map((c) => byId.get(c.id)!);
+  return { out: components.map((c) => byId.get(c.id)!), last };
+}
+
+/**
+ * All mates of an assembly, solved by moving the free components. Per mate the component further from the fixed
+ * ones moves and the nearer one stays, whichever reference was picked first (QA v0.5.1 F109: a free part picked as the
+ * first reference was never moved); the mates nearest the fixed components go first, and the passes repeat until
+ * nothing moves any more.
+ * Mates that conflict keep moving the parts back and forth: then the older mates hold and the newest mate that cannot
+ * be met is left unmet, the one mateStatus marks (QA 0.5.11 F141: the part followed the newest, marked mate and the
+ * older mate, shown as met, was not).
+ */
+export function solveMates(components: Component[], mates: Mate[], passes = MATE_PASSES): Component[] {
+  const first = runPasses(components, mates, passes);
+  if (!first.last || passes < MATE_PASSES) return first.out;
+  // still moving: a long chain settles with more passes, mates that conflict never do
+  const more = runPasses(first.out, mates, CONFLICT_PASSES);
+  if (more.last < 1e-3) return more.out;
+  const active = mates.filter((m) => !m.suppressed);
+  for (let i = active.length - 1; i >= Math.max(0, active.length - 8); i--) {
+    const without = runPasses(components, mates.filter((m) => m !== active[i]), CONFLICT_PASSES);
+    if (!without.last) return without.out;
+  }
+  return more.out;
 }
 
 // ---------- rebuild ----------

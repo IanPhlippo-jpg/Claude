@@ -67,6 +67,29 @@ async function removeKeys(dir, keys) {
 }
 
 /**
+ * Copies written by 0.5.10 and older (QA 0.5.11 F188): named <document>.autorecover.kcad, without a key, in
+ * <profile>/backup (the old default) or in the current folder. They are given a key of their own and moved into the
+ * current folder once, so Document Recovery lists them like any other copy. Returns how many were taken over.
+ */
+async function adoptLegacyCopies(userData, dir) {
+  let moved = 0;
+  const legacy = (n) => typeof n === 'string' && n.endsWith(RECOVER_SUFFIX) && !isRecoverFile(n) && !n.includes('~') && n === path.basename(n);
+  for (const from of [path.join(userData, 'backup'), dir]) {
+    let names = [];
+    try { names = await fs.readdir(from); } catch { continue; }
+    for (const n of names.filter(legacy)) {
+      const target = path.join(dir, recoverFileName(n.slice(0, -RECOVER_SUFFIX.length), recoverKey(`legacy:${from}`, n)));
+      try {
+        await fs.mkdir(dir, { recursive: true });
+        await fs.rename(path.join(from, n), target);
+        moved++;
+      } catch { /* left where it was */ }
+    }
+  }
+  return moved;
+}
+
+/**
  * The recover:* IPC. `pathOf(handle)` gives the file of a handle this process handed out (or null); `trusted(e)`
  * checks the sender; `getWin()` the window for the folder dialog.
  */
@@ -92,9 +115,12 @@ function registerRecover({ ipcMain, dialog, app, trusted, getWin, pathOf, maxByt
       return { error: String(err.message ?? err) };
     }
   });
+  let adopted = null;
   ipcMain.handle('recover:list', async (e) => {
     if (!trusted(e)) return [];
     const d = dir();
+    adopted ??= adoptLegacyCopies(userData(), d).catch(() => 0);
+    await adopted;
     try {
       const names = (await fs.readdir(d)).filter(isRecoverFile);
       const out = [];
@@ -140,4 +166,4 @@ function registerRecover({ ipcMain, dialog, app, trusted, getWin, pathOf, maxByt
   });
 }
 
-module.exports = { registerRecover, recoverKey, recoverFileName, recoverLabel, isRecoverFile, recoverDir, writeSynced, RECOVER_SUFFIX };
+module.exports = { registerRecover, adoptLegacyCopies, recoverKey, recoverFileName, recoverLabel, isRecoverFile, recoverDir, writeSynced, RECOVER_SUFFIX };

@@ -127,8 +127,8 @@ export interface Sketch3DFeature {
   name: string;
   suppressed: boolean;
   segments: [[number, number, number], [number, number, number]][];
-  /** Sketch Fillet: the corner at `at` (where two lines meet) rounded with radius r */
-  fillets?: { at: [number, number, number]; r: number }[];
+  /** Sketch Fillet: the corner at `at` (where two lines meet) rounded with radius r; relations: Along X/Y/Z of a line */
+  fillets?: { at: [number, number, number]; r: number }[]; relations?: { kind: 'alongX' | 'alongY' | 'alongZ'; line: number }[]; dims?: import('../sketch/sketch3d').Dim3D[];
 }
 
 /** Sheet Metal ▸ Miter Flange: an open profile swept along a chain of sheet edges, mitered at the corners. */
@@ -1021,18 +1021,18 @@ export interface LoftFeature {
   startType?: 'normal' | 'direction' | 'tangent' | 'curvature';
   endType?: 'normal' | 'direction' | 'tangent' | 'curvature';
   /** Tangency / Curvature To Face ▸ Next Face: which of the faces next to the profile the loft follows */
-  startFace?: number;
-  endFace?: number;
+  startFace?: number; endFace?: number;
   /** the second profile is a planar face of the model instead of a sketch (sketchId2 then empty) */
   face2?: { point: [number, number, number]; normal: [number, number, number] };
-  startDir?: [number, number, number];
-  endDir?: [number, number, number];
+  startDir?: [number, number, number]; endDir?: [number, number, number];
+  /** Profiles 3, 4, … after sketchId2, in loft order; ruled: straight between consecutive profiles (else one smooth surface through all) */
+  profiles?: Id[]; ruled?: boolean;
   endNormal?: number;
   /** Guide tangency type: None (default) or Normal to profile (the guides leave the profiles at right angles) */
   guideTangency?: 'none' | 'normal';
   /** Centerline Parameters: a sketch whose curve the section centres follow */
   centerline?: Id;
-  /** Options: Merge tangent faces, Close loft (needs three or more profiles), Show preview */
+  /** Options: Merge tangent faces, Close loft (needs three or more profiles: the last one lofts back to the first), Show preview */
   mergeTangent?: boolean;
   closeLoft?: boolean;
   /** Start/End Constraints ▸ Apply to all: the same constraint for every profile */

@@ -590,7 +590,8 @@ describe('B-rep kernel in the rebuild (OpenCascade)', () => {
     const rw = rebuildDocument(w);
     expect(rw.errors.tr).toBeUndefined();
     expect(rw.bodies[0].exact).toBe(true);
-    expect(Math.abs(rw.bodies[0].exactVolume! - (40 * 40 - 32 * 32) * 70)).toBeLessThan(1e-3);
+    // the ISO tube has the EN 10219-2 corner radii (ro 8, ri 4) as true arcs
+    expect(Math.abs(rw.bodies[0].exactVolume! - (40 * 40 - 32 * 32 - (4 - PI) * (64 - 16)) * 70)).toBeLessThan(1e-3);
   });
 
   it('an end cap on a square tube is an exact plate', () => {

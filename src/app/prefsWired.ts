@@ -38,6 +38,7 @@ export const WIRED_PREFS: ReadonlySet<string> = new Set([
   'general.inputDimensionValue',
   'perf.brepKernel',
   'perf.rebuildWorker',
+  'perf.magnifiedSelection',
   'perf.softwareOpenGL',
   'sketch.entityPoints',
   'sketch.numericInput',

@@ -7,7 +7,9 @@ import type { Id } from '../sketch/types';
 import type { BrepKernel, BrepShape } from './brepKernel';
 import type { Body } from './rebuild';
 import { resolvePlaneDef } from './planes';
-import { area2, asCircle, domeTool, faceLoops, indentGeometry, mountingBossTools, pickedFaceOn, rimBand, snapHookTool, type AxisPiece } from './plastics';
+import { csg } from './solid';
+import { area2, asCircle, domeTool, faceLoops, indentGeometry, mountingBossTools, pickedFaceOn, prismGeometry, rimBandGeometry, rimBandPiece, snapHookPiece, type AxisPiece } from './plastics';
+import { bandShape, indentShape, prismShape } from './plasticsExact';
 import type { PlaneDef } from '../document/types';
 import type { DomeFeature } from '../document/plasticsTypes';
 
@@ -23,6 +25,9 @@ export interface FasteningContext {
   addMaterial(tool: THREE.BufferGeometry, fid: Id, merge: boolean, scope?: Id[], toolShape?: BrepShape | null): void;
   removeMaterial(tool: THREE.BufferGeometry, fid: Id, scope?: Id[], toolShape?: BrepShape | null): boolean;
   addBoss(g: THREE.BufferGeometry): void;
+  /** the B-rep solid of a body while it is exact, and making a body exact (the Indent changes a body in place) */
+  exactOf(b: Body): BrepShape | null;
+  setExact(b: Body, shape: BrepShape): void;
 }
 
 export const isFasteningFeature = (f: Feature): f is StudFeature | PlasticsFeature => ['stud', 'dome', 'indent', 'mountingBoss', 'snapHook', 'lipGroove'].includes(f.type);
@@ -124,7 +129,11 @@ function buildIndent(f: Extract<PlasticsFeature, { type: 'indent' }>, c: Fasteni
   const target = c.bodies.find((b) => b.id === f.target), tool = c.bodies.find((b) => b.id === f.tool);
   if (!target || !tool) { c.errors[f.id] = 'Select the target body and the tool body.'; return; }
   if (target === tool) { c.errors[f.id] = 'The tool body must be another body than the target.'; return; }
-  target.geometry = indentGeometry(target.geometry, tool.geometry, Math.max(0, f.clearance), f.thickness, f.cut);
+  const clearance = Math.max(0, f.clearance);
+  // exact (QA 0.5.11 F51): the same booleans on the B-rep solids with their exact offsets; the mesh kernel otherwise
+  const shape = indentShape(c.K, c.exactOf(target), c.exactOf(tool), clearance, f.thickness, f.cut);
+  if (shape) c.setExact(target, shape);
+  else target.geometry = indentGeometry(target.geometry, tool.geometry, clearance, f.thickness, f.cut);
   target.featureIds.push(f.id);
 }
 
@@ -132,15 +141,35 @@ function buildMountingBoss(f: Extract<PlasticsFeature, { type: 'mountingBoss' }>
   if (!c.body) { c.errors[f.id] = 'A mounting boss needs an existing solid body.'; return; }
   const t = mountingBossTools(f, resolvePlaneDef(c.doc, f.plane));
   if ('error' in t) { c.errors[f.id] = t.error; return; }
-  for (const p of t.add) { c.addMaterial(p.tool, f.id, true, undefined, p.axis ? axisShape(c.K, p.axis) : undefined); c.addBoss(p.tool); }
+  // the boss and its fins become one tool first, then that is added to the body once: added piece by piece, the mesh
+  // boolean left a sliver of the face under a fin next to the boss (0.18 mm out, e2e model of 0.5.11)
+  let tool: THREE.BufferGeometry | null = t.add[0].tool;
+  try {
+    for (const p of t.add.slice(1)) tool = csg(tool, p.tool, 'union');
+  } catch {
+    tool = null;
+  }
+  const shapes = t.add.map((p) => (p.axis ? axisShape(c.K, p.axis) : p.prism ? prismShape(c.K, p.prism) : null));
+  if (tool) {
+    let shape: BrepShape | null = null;
+    try {
+      if (c.K && shapes.every((x) => x)) shape = shapes.slice(1).reduce<BrepShape>((u, x) => c.K!.fuse(u, x!), shapes[0]!);
+    } catch {
+      shape = null;
+    }
+    c.addMaterial(tool, f.id, true, undefined, shape);
+    c.addBoss(tool);
+  } else t.add.forEach((p, i) => { c.addMaterial(p.tool, f.id, true, undefined, shapes[i]); c.addBoss(p.tool); });
   for (const p of t.cut) c.removeMaterial(p.tool, f.id, undefined, axisShape(c.K, p.axis));
 }
 
 function buildSnapHook(f: Extract<PlasticsFeature, { type: 'snapHook' }>, c: FasteningContext): void {
   if (!c.body) { c.errors[f.id] = 'A snap hook needs an existing solid body.'; return; }
-  const t = snapHookTool(f, resolvePlaneDef(c.doc, f.plane));
-  if ('error' in t) { c.errors[f.id] = t.error; return; }
-  c.addMaterial(t, f.id, true);
+  const p = snapHookPiece(f, resolvePlaneDef(c.doc, f.plane));
+  if ('error' in p) { c.errors[f.id] = p.error; return; }
+  const t = prismGeometry(p);
+  if (!t) { c.errors[f.id] = 'Could not build the hook.'; return; }
+  c.addMaterial(t, f.id, true, undefined, prismShape(c.K, p));
   c.addBoss(t);
 }
 
@@ -149,12 +178,14 @@ function buildLipGroove(f: Extract<PlasticsFeature, { type: 'lipGroove' }>, c: F
   const lip = faceOnBodies(c, f.lipFace), groove = faceOnBodies(c, f.grooveFace);
   if (!lip || !groove) { c.errors[f.id] = 'A rim face of the lip or the groove is no longer there.'; return; }
   if (lip.body === groove.body) { c.errors[f.id] = 'The lip and the groove go on two different bodies.'; return; }
-  const g = rimBand(groove.body.geometry, groove.face, f.width + f.clearance, f.height + f.clearance, true);
-  if ('error' in g) { c.errors[f.id] = g.error; return; }
-  const l = rimBand(lip.body.geometry, lip.face, f.width, f.height, false);
-  if ('error' in l) { c.errors[f.id] = l.error; return; }
-  c.removeMaterial(g, f.id, [groove.body.id]);
-  c.addMaterial(l, f.id, true, [lip.body.id]);
+  const gp = rimBandPiece(groove.body.geometry, groove.face, f.width + f.clearance, f.height + f.clearance, true);
+  if ('error' in gp) { c.errors[f.id] = gp.error; return; }
+  const lp = rimBandPiece(lip.body.geometry, lip.face, f.width, f.height, false);
+  if ('error' in lp) { c.errors[f.id] = lp.error; return; }
+  const g = rimBandGeometry(gp), l = rimBandGeometry(lp);
+  if (!g || !l) { c.errors[f.id] = 'Could not build the lip.'; return; }
+  c.removeMaterial(g, f.id, [groove.body.id], bandShape(c.K, gp));
+  c.addMaterial(l, f.id, true, [lip.body.id], bandShape(c.K, lp));
 }
 
 function buildStud(f: StudFeature, c: FasteningContext): void {

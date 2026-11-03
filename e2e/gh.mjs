@@ -66,7 +66,7 @@ check('preview: two members along the path', /2 member\(s\)/.test(await page.loc
 await shot('gh1-structural-member-pm');
 await page.click('.k-pm-ok');
 await page.waitForTimeout(900);
-const area = 40 * 40 - 32 * 32;
+const area = 40 * 40 - 32 * 32 - (4 - Math.PI) * (64 - 16); // EN 10219-2 corner radii ro 8, ri 4
 const v1 = await vol();
 check('Structural Member1: two mitered tubes, volume = area × (300 + 200)', Math.abs(v1 - area * 500) < area * 500 * 0.03 && (await nBodies()) === 2 && !Object.keys(await errs()).length, `${v1.toFixed(0)} vs ${area * 500} ${JSON.stringify(await errs())}`);
 check('tree: Cut list(2) with two Cut-List-Items (different lengths)', (await page.locator('.k-tree-row:has-text("Cut list(2)")').count()) === 1);
@@ -91,8 +91,8 @@ await shot('gh3-endcap-pm');
 await page.click('.k-pm-ok');
 await page.waitForTimeout(900);
 const v2 = await vol();
-// offset 2 on each side: (40 - 4) x (40 - 4) x 5 = 6480
-check('End Cap1: a plate of 36 x 36 x 5 as a new body', Math.abs(v2 - v1 - 36 * 36 * 5) < 200 && (await nBodies()) === 3 && !Object.keys(await errs()).length, `${(v2 - v1).toFixed(0)} ${JSON.stringify(await errs())}`);
+// offset 2 on each side: (40 - 4) x (40 - 4) with the R8 corners of the tube come in to R6, 5 thick
+check('End Cap1: a plate of 36 x 36 (R6 corners) x 5 as a new body', Math.abs(v2 - v1 - (36 * 36 - (4 - Math.PI) * 36) * 5) < 60 && (await nBodies()) === 3 && !Object.keys(await errs()).length, `${(v2 - v1).toFixed(0)} ${JSON.stringify(await errs())}`);
 
 // ---- Gusset between the top of the horizontal member and the inner face of the vertical one
 await page.click('.k-cm-tab:has-text("Frames")');
@@ -133,7 +133,7 @@ await page.click('.k-cm-small:has-text("Cut List")');
 await page.waitForTimeout(400);
 const rows = await page.locator('[data-testid="cutlist-table"] tbody tr').count();
 const table = (await page.locator('[data-testid="cutlist-table"]').innerText()).replace(/\s+/g, ' ');
-check('Cut-List Properties: 4 items (2 tubes, cap, gusset) with description, length and the 45° miter angles', rows === 4 && /SQUARE TUBE 40 x 40 x 4/.test(table) && /300 mm/.test(table) && /45°/.test(table) && /End cap/.test(table) && /Gusset/.test(table), table.slice(0, 300));
+check('Cut-List Properties: 4 items (2 tubes, cap, gusset) with description, length (to the long edge of the miter: 320 and 220) and the 45° miter angles', rows === 4 && /SQUARE TUBE 40 x 40 x 4/.test(table) && /320 mm/.test(table) && /220 mm/.test(table) && /45°/.test(table) && /End cap/.test(table) && /Gusset/.test(table), table.slice(0, 300));
 await shot('gh7-cutlist');
 await page.locator('[data-testid="cutlist-dialog"] .k-btn:has-text("OK")').click();
 

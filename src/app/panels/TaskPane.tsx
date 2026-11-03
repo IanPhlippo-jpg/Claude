@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { lazyNamed } from '../lazy';
 const AppearancesPane = lazyNamed(() => import('./AppearancesPane'), 'AppearancesPane', true);
+const StandardPartsFolder = lazyNamed(() => import('./StandardPartsPane'), 'StandardPartsFolder');
 import { useActiveSketch, useActiveSolve, useStore } from '../store';
 import { useShallow } from 'zustand/react/shallow';
 import { Button } from '../../ui/components';
@@ -12,8 +13,6 @@ import { openFileDialog, withUnsavedCheck } from '../MenuBar';
 import { listAutosaves, loadAutosaveEntry, parseDocument } from '../../core/document/persistence';
 import { listDiskRecovery, readDiskRecovery } from '../autoRecover';
 import { setDocumentHandle, type RecoverEntry } from '../desktop';
-import { getPref } from '../prefs';
-import { FASTENER_NAMES, fastenerPart, LENGTHS, METRIC, type FastenerType } from '../../core/assembly/fasteners';
 
 /**
  * Display/Delete Relations, by design: the filter (All in this sketch, Dangling, Overdefining/Not Solved, External,
@@ -86,38 +85,6 @@ function RelationsPane() {
       <div className="k-selbox" style={{ margin: '0 4px', minHeight: 40 }} data-testid="relations-entities">
         {sel ? sel.refs.map((r) => <div key={r} className="k-selbox-row"><Icon.Line size={12} /> {entityName(r)} <span className="k-muted">· {sketch.points[r] ? 'Point' : sketch.entities[r]?.kind ?? 'missing'} · Fully Defined · {sketch.name}</span></div>) : <span className="k-muted">Select a relation to list its entities.</span>}
       </div>
-    </div>
-  );
-}
-
-/** Part Library ▸ Standard Parts (with the Standard Parts add-in): ISO screws and bolts made to size, inserted or opened */
-function StandardPartsFolder() {
-  const st = useStore(useShallow((s) => ({ doc: s.doc, startInsertComponent: s.startInsertComponent, setInsertGhost: s.setInsertGhost })));
-  const [open, setOpen] = useState(true);
-  const [type, setType] = useState<FastenerType>('shcs');
-  const [size, setSize] = useState('M6');
-  const [len, setLen] = useState(20);
-  const part = () => fastenerPart(type, size, len);
-  return (
-    <div className={`k-library-folder ${open ? 'open' : ''}`} data-testid="toolbox-folder">
-      <div className="k-library-folder-row" onClick={() => setOpen(!open)}>
-        {open ? <Icon.ChevronDown size={11} /> : <Icon.ChevronRight size={11} />}
-        <Icon.Folder />
-        <span className="grow">Standard Parts <span className="k-muted">(ISO)</span></span>
-      </div>
-      {open && (
-        <div className="k-library-items" style={{ padding: 6 }}>
-          <div className="k-field"><label>Bolts and Screws</label><select className="k-input" data-testid="toolbox-type" value={type} onChange={(e) => setType(e.target.value as FastenerType)}>{(Object.keys(FASTENER_NAMES) as FastenerType[]).map((k) => <option key={k} value={k}>{FASTENER_NAMES[k]}</option>)}</select></div>
-          <div className="k-pm-valuerow">
-            <select className="k-input" data-testid="toolbox-size" value={size} onChange={(e) => setSize(e.target.value)}>{METRIC.map((m) => <option key={m.size}>{m.size}</option>)}</select>
-            <select className="k-input" value={len} onChange={(e) => setLen(Number(e.target.value))}>{LENGTHS.map((l) => <option key={l} value={l}>{l}</option>)}</select>
-          </div>
-          <div className="k-pm-valuerow" style={{ marginTop: 4 }}>
-            <Button variant="primary" data-testid="toolbox-insert" disabled={st.doc.kind !== 'assembly'} tip="Insert into the assembly (click to place)" onClick={() => { st.startInsertComponent(); st.setInsertGhost({ part: part(), rotation: [0, 0, 0, 1] }); }}>Insert</Button>
-            <Button tip="Open the part" onClick={() => withUnsavedCheck(() => useStore.getState().openDocument(part()))}>Open</Button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
@@ -237,7 +204,7 @@ function DesignLibrary() {
         <input ref={fileRef} type="file" accept=".kcadlib,.json" style={{ display: 'none' }} onChange={async (e) => { const f = e.target.files?.[0]; if (f) st.importLibrary(await f.text()); e.target.value = ''; }} />
       </div>
       <div className="k-library-folders">
-        {getPref('addin.standardParts') === true && <StandardPartsFolder />}
+        <StandardPartsFolder />
         {st.libraries.length === 0 && <p className="k-muted" style={{ padding: '6px 10px' }}>No libraries yet. Create one above, then add sketch blocks to it.</p>}
         {st.libraries.map((l) => (
           <div key={l.id} className={`k-library-folder ${open === l.id ? 'open' : ''}`}>

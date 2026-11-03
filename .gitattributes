@@ -1,0 +1,2 @@
+# git archive writes the commit into this file (QA 0.5.11, F176: logs of an exported tree name their commit)
+e2e/lib/commit.txt export-subst

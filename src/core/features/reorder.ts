@@ -16,7 +16,7 @@ export interface ReorderResult {
 
 const sketchIds = (f: Feature): Id[] => {
   const r = f as unknown as Record<string, unknown>;
-  return [r.sketchId, r.pathSketchId, r.sketchId2, ...((r.guides as unknown[] | undefined) ?? [])].filter((x): x is Id => typeof x === 'string' && !!x);
+  return [r.sketchId, r.pathSketchId, r.sketchId2, ...((r.profiles as unknown[] | undefined) ?? []), ...((r.guides as unknown[] | undefined) ?? [])].filter((x): x is Id => typeof x === 'string' && !!x);
 };
 
 /** the feature and the sketch features that only it uses */

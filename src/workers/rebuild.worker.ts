@@ -4,6 +4,7 @@
  */
 import { rebuildDocument, setRebuildBudget } from '../core/features/rebuild';
 import { packRebuild } from '../core/features/rebuildWire';
+import { displayOf } from '../core/features/edges';
 import type { Document } from '../core/document/types';
 
 export interface RebuildRequest { id: number; doc: Document; upTo: number | null; budgetMs: number }
@@ -15,6 +16,8 @@ self.onmessage = (ev: MessageEvent<RebuildRequest>) => {
     const t0 = performance.now();
     const r = rebuildDocument(req.doc, req.upTo);
     const ms = performance.now() - t0;
+    // the smoothed geometry and the edges the viewport draws, here instead of in the window (QA 0.5.11 F46)
+    for (const b of r.bodies) b.display = displayOf(b.geometry);
     const { wire, transfer } = packRebuild(r);
     (self as unknown as Worker).postMessage({ id: req.id, result: wire, ms }, transfer);
   } catch (err) {

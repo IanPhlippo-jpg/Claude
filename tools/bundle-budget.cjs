@@ -5,7 +5,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
-const BUDGET_KB = 860; // 0.5.10: 849.4 kB; the goal is not to grow
+const BUDGET_KB = 800; // 0.5.10: 849.4 kB; 0.5.12: 784 kB after the assembly, drawing and render panels went to chunks of their own (QA 0.5.11 F174)
 const dir = path.join(__dirname, '..', 'dist', 'assets');
 const files = fs.existsSync(dir) ? fs.readdirSync(dir).filter((f) => /^index-[\w-]+\.js$/.test(f)) : [];
 if (!files.length) {

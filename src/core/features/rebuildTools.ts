@@ -8,6 +8,7 @@ import type { Feature } from '../document/types';
 import type { BrepKernel, BrepShape } from './brepKernel';
 import type { ThreadSpec } from './thread';
 import { meshVolume, planarFaces } from './solid';
+import { holeParts } from './pattern';
 
 /** the helix and profile of a Thread feature (null without its start edge) */
 export function threadSpecOf(f: Extract<Feature, { type: 'thread' }>): ThreadSpec | null {
@@ -34,33 +35,12 @@ export function threadSpecOf(f: Extract<Feature, { type: 'thread' }>): ThreadSpe
 }
 
 
-/** the hole tool of holeTool() as an exact solid of revolution (same sizes; cylinders and cones are true surfaces) */
+/** the hole tool of holeTool() as an exact solid of revolution (the same parts; cylinders and cones are true surfaces) */
 export function brepHoleTool(K: BrepKernel, f: HoleFeature, pl: PlaneDef, at: { x: number; y: number }, throughAll: number): BrepShape | null {
   try {
     const n: [number, number, number] = [-pl.n[0], -pl.n[1], -pl.n[2]];
     const start: [number, number, number] = [pl.origin[0] + pl.u[0] * at.x + pl.v[0] * at.y, pl.origin[1] + pl.u[1] * at.x + pl.v[1] * at.y, pl.origin[2] + pl.u[2] * at.x + pl.v[2] * at.y];
-    const depth = f.depth > 0 ? f.depth : throughAll;
-    const EPS = 0.5;
-    const d2 = f.diameter / 2;
-    const parts: { t0: number; t1: number; r0: number; r1: number }[] = [{ t0: -EPS, t1: depth, r0: d2, r1: d2 }];
-    if (f.holeType === 'counterbore') {
-      const cbd = f.cbDepth + (f.headClearance ?? 0);
-      parts.push({ t0: -EPS, t1: cbd, r0: f.cbDiameter / 2, r1: f.cbDiameter / 2 });
-      if (f.underHeadCs && f.underHeadCs.diameter > f.diameter) {
-        const h = (f.underHeadCs.diameter / 2 - d2) / Math.tan((f.underHeadCs.angle * Math.PI) / 360);
-        parts.push({ t0: cbd - EPS, t1: cbd + h, r0: f.underHeadCs.diameter / 2, r1: d2 });
-      }
-    } else if (f.holeType === 'countersink') {
-      const r = f.csDiameter / 2;
-      const h = r / Math.tan((f.csAngle * Math.PI) / 360);
-      parts.push({ t0: -EPS, t1: h, r0: (r * (h + EPS)) / h, r1: 0 });
-    }
-    if (f.nearCs && f.nearCs.diameter > (f.holeType === 'counterbore' ? f.cbDiameter : f.diameter)) {
-      const r0 = (f.holeType === 'counterbore' ? f.cbDiameter : f.diameter) / 2;
-      const r = f.nearCs.diameter / 2;
-      const h = (r - r0) / Math.tan((f.nearCs.angle * Math.PI) / 360);
-      parts.push({ t0: -EPS, t1: h, r0: r + EPS * Math.tan((f.nearCs.angle * Math.PI) / 360), r1: r0 });
-    }
+    const parts = holeParts(f, throughAll);
     return K.axisymmetric(start, n, pl.u, parts);
   } catch {
     return null;

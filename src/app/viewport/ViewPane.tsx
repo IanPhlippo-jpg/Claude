@@ -99,11 +99,17 @@ function Pane({ view }: { view: PaneView }) {
   }, []);
   useEffect(() => {
     if (!gl) return;
+    // drawn when something it shows changes, when its size changes, and twice shortly after (the studio environment
+    // and an exact body swapped in a moment later); no drawing and no pixel read-back while nothing changes
+    // (QA 0.5.11 F191: it redrew every 1.5 s)
     let raf = 0;
-    const draw = () => { if (ref.current) drawPane(ref.current, view); };
-    raf = requestAnimationFrame(draw);
-    const t = setInterval(draw, 1500);
-    return () => { cancelAnimationFrame(raf); clearInterval(t); };
+    const draw = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => { if (ref.current) drawPane(ref.current, view); }); };
+    draw();
+    const later = [setTimeout(draw, 400), setTimeout(draw, 1500)];
+    const box = ref.current?.parentElement;
+    const ro = box && typeof ResizeObserver !== 'undefined' ? new ResizeObserver(draw) : null;
+    if (box) ro?.observe(box);
+    return () => { cancelAnimationFrame(raf); later.forEach(clearTimeout); ro?.disconnect(); };
   }, [gl, view, st.rebuild, st.doc, st.displayStyle, st.theme]);
   return (
     <div className="k-viewpane" data-testid={`viewpane-${view}`} style={{ background: paneBackground(st.doc.scene) }} onDoubleClick={() => bridge.camera?.setView(view)}>

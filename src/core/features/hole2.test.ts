@@ -13,8 +13,8 @@ describe('Hole Tool options of the intended design', () => {
   it('Head clearance makes the counterbore deeper; the countersinks add cones', () => {
     const plain = vol(holeTool(base, REFERENCE_PLANE_DEFS.top, { x: 0, y: 0 }, 100));
     const clear = vol(holeTool({ ...base, headClearance: 1 }, REFERENCE_PLANE_DEFS.top, { x: 0, y: 0 }, 100));
-    // the tool parts are summed (not unioned): the counterbore cylinder is 1 mm longer
-    expect(clear - plain).toBeCloseTo(Math.PI * 5.5 * 5.5 * 1, -1);
+    // the tool is one solid (the union of its parts): the counterbore ring around the hole is 1 mm longer
+    expect(clear - plain).toBeCloseTo(Math.PI * (5.5 * 5.5 - 3.3 * 3.3) * 1, -1);
     expect(vol(holeTool({ ...base, nearCs: { diameter: 13, angle: 90 } }, REFERENCE_PLANE_DEFS.top, { x: 0, y: 0 }, 100))).toBeGreaterThan(plain);
     expect(vol(holeTool({ ...base, underHeadCs: { diameter: 8, angle: 90 } }, REFERENCE_PLANE_DEFS.top, { x: 0, y: 0 }, 100))).toBeGreaterThan(plain);
   });

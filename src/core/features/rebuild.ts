@@ -22,6 +22,7 @@ import { closedCornerTool, cornerReliefTool, findFace } from './smcorners';
 import { thickenSurface } from './surfaces';
 import { applyShellFromHistory, applyShellOutward, type BuildHistory } from './shell';
 import { helixPath, loftGeometry, sketch3DChains, sketchPath, sweepGeometry } from './sweep';
+import { loftProfileIds, loftShape, loftThroughFeature } from './loftThrough';
 import { compositePath, curveThroughPoints, sweepPathOf } from './compositeCurve';
 import { extrudedSurface, fitPlane, loftedSurface, offsetSurface, openEdges, orientShell, planarSurface, revolvedSurface, surfaceCentroid, sweptSurface, trimSurface } from './surfaces';
 import { geometryFromPositions } from '../document/stl';
@@ -30,16 +31,16 @@ import { ribGeometry } from './rib';
 import { foldGeometry, sheetMapping, unfoldGeometry } from './unfold';
 import { wrapSplineTool, wrapTool } from './wrap';
 import { threadSweeps, threadTool } from './thread';
-import { baseFlangeGeometry, baseFlangeLoop, baseFlangeRegion, bendAllowance, DEFAULT_SHEET_METAL, edgeFlangeGeometry, flangeLeg, flangeSetback, flatPatternGeometry, hemFlangeParams, tabGeometry, type SheetMetalParams } from './sheetmetal';
+import { baseFlangeGeometry, baseFlangeLoop, baseFlangeRegion, bendAllowance, DEFAULT_SHEET_METAL, edgeFlangeGeometry, flangeLeg, flangeMismatchWarning, flangeSetback, flatPatternGeometry, hemFlangeParams, tabGeometry, type SheetMetalParams } from './sheetmetal';
 import type { DraftFeature, PatternFeature, RevolveFeature, EdgeFlangeFeature, HemFeature, JogFeature, MiterFlangeFeature, PlaneDef, SketchedBendFeature } from '../document/types';
-import { chainEdges, classifyVent, formToolGeometry, gussetTools, ripTool, sweptFlangeRegions, tabSlotTools, ventTool } from './sheetmetal4';
+import { chainEdges, classifyVent, formToolGeometry, gussetTools, ripTool, sheetFaceOfEdge, sweptFlangeRegions, tabSlotTools, ventTool } from './sheetmetal4';
 import { bodyEdges as bodyEdgesOf, matchEdge as matchEdgeRef } from './edgesets';
 import { copyFaceNames, FACE_TAG, nameFeatureFaces } from './faceNames';
 import { pointDeform } from './deform';
 import { buildFastening, isFasteningFeature } from './fasteningBuild';
 import { brepHoleTool, meshToolOf, planarToolOf, threadSpecOf } from './rebuildTools';
 export { threadSpecOf } from './rebuildTools';
-import { endCapGeometry, faceOutline, findFaceOnBodies, findProfile, memberSegments, placedProfile, profileLoops, profileRegion, structuralMembers, trimByBodies, trimByPlane, weldBeadGeometry, weldGussetGeometry } from './weldments';
+import { endCapGeometry, endCapPrism, faceOutline, findFaceOnBodies, findProfile, memberSegments, placedProfile, profileLoops, profileRegion, structuralMembers, trimByBodies, trimByPlane, weldBeadGeometry, weldGussetGeometry } from './weldments';
 
 export interface Body {
   id: Id;
@@ -51,6 +52,8 @@ export interface Body {
   exact?: boolean;
   /** the volume of the B-rep solid (mm³) when exact */
   exactVolume?: number;
+  /** what the viewport draws, worked out in the rebuild worker so the window does not (edges.ts displayOf) */
+  display?: import('./edges').BodyDisplay;
 }
 
 export interface RebuildResult {
@@ -276,6 +279,7 @@ function sketchedGeometry(doc: Document, f: SketchBasedFeature, extent = THROUGH
     return g ? { geometry: g } : { geometry: null, error: 'Could not sweep the profile along the path.' };
   }
   if (f.type === 'loft') {
+    if (f.profiles?.length) return loftThroughFeature(doc, f);
     // the second profile: a sketch, or a planar face of the model
     let region2: Region, plane2: PlaneDef;
     if (f.face2) {
@@ -358,11 +362,7 @@ export function edgeFlangeOnBody(geometry: THREE.BufferGeometry, bodyId: string,
   const edges = bodyEdges(geometry, bodyId);
   const e = matchEdge(edges, f.edge);
   if (!e || !e.straight || e.points.length < 2) return { geometry: null, error: 'The selected edge no longer exists on the sheet (or is not straight).' };
-  const faces = planarFaces(geometry, bodyId);
-  const seg = e.segments[0];
-  const pick = (n: THREE.Vector3) => faces.filter((face) => new THREE.Vector3(...face.normal).dot(n) > 0.999).reduce((best, face) => (face.area > (best?.area ?? -1) ? face : best), null as PlanarFace | null);
-  const f1 = pick(seg.n1), f2 = pick(seg.n2);
-  const face = (f1?.area ?? 0) >= (f2?.area ?? 0) ? f1 : f2;
+  const face = sheetFaceOfEdge(planarFaces(geometry, bodyId), e);
   if (!face) return { geometry: null, error: 'Could not find the sheet face of the edge.' };
   const a = e.points[0], b = e.points[e.points.length - 1];
   const r = edgeFlangeGeometry({ a: [a.x, a.y, a.z], b: [b.x, b.y, b.z], faceNormal: face.normal, faceCentroid: face.centroid, angle: f.angle, length: f.length, lengthMode: f.lengthMode, position: f.position, flip: f.flip, radius: f.radius, startOffset: f.startOffset, endOffset: f.endOffset, gap: f.gap, trimSideBends: f.trimSideBends, offset: f.offset, angleFace: f.angleFace, upToVertex: f.lengthEnd === 'upToVertex' ? f.vertex?.point : undefined, profile: f.profile }, params);
@@ -400,10 +400,7 @@ export function miterFlangeOnBody(doc: Document, geometry: THREE.BufferGeometry,
   const P3 = chain.points.map((p) => new THREE.Vector3(p.x, p.y, 0).applyMatrix4(pm));
   // the first edge starts at the end nearest to the sketch plane
   const sheetNormal = (e: BodyEdge): THREE.Vector3 | null => {
-    const seg = e.segments[0];
-    const pick = (n: THREE.Vector3) => faces.filter((face) => new THREE.Vector3(...face.normal).dot(n) > 0.999).reduce((best, face) => (face.area > (best?.area ?? -1) ? face : best), null as PlanarFace | null);
-    const f1 = pick(seg.n1), f2 = pick(seg.n2);
-    const face = (f1?.area ?? 0) >= (f2?.area ?? 0) ? f1 : f2;
+    const face = sheetFaceOfEdge(faces, e);
     return face ? new THREE.Vector3(...face.normal) : null;
   };
   interface Leg { a: THREE.Vector3; b: THREE.Vector3; dir: THREE.Vector3; n: THREE.Vector3 }
@@ -886,13 +883,8 @@ function brepTool(K: BrepKernel, doc: Document, f: Feature, extent: number, mesh
     return shape;
   }
   if (f.type === 'loft') {
-    // a loft between two single-region profiles; guides, centerline, end constraints and boundary: mesh kernel
-    if (f.boundary || f.face2 || f.guides?.length || f.centerline || f.closeLoft || f.startNormal || f.endNormal || (f.startType && f.startType !== 'normal') || (f.endType && f.endType !== 'normal')) return null;
-    const s1 = doc.sketches[f.sketchId], s2 = doc.sketches[f.sketchId2];
-    if (!s1 || !s2) return null;
-    const r1 = sketchContourRegions(s1), r2 = sketchContourRegions(s2);
-    if (r1.length !== 1 || r2.length !== 1) return null;
-    const shape = K.loft(s1, resolvePlaneDef(doc, s1.plane), r1[0], s2, resolvePlaneDef(doc, s2.plane), r2[0]);
+    // a loft through single-region profiles (./loftThrough.ts); guides, centerline, end constraints and boundary: mesh kernel
+    const shape = loftShape(K, doc, f);
     if (shape && meshTool) {
       const mv = Math.abs(meshVolume(meshTool)), bv = Math.abs(K.volume(shape));
       if (!(mv > 0) || Math.abs(bv - mv) / mv > 0.03) return null;
@@ -1075,6 +1067,7 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
     const e = shapes.get(b);
     return e && e.geometry === b.geometry && e.version === posVersion(b.geometry) ? e.shape : null;
   };
+  const approxBodies = new Set<Body>(); // exact shapes with a faceted part (a wrapped patch): kept for STEP, not called exact
   function setExact(b: Body, shape: BrepShape) {
     b.geometry = K!.tessellate(shape);
     shapes.set(b, { shape, geometry: b.geometry, version: posVersion(b.geometry) });
@@ -1247,7 +1240,7 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
     if (f.type === 'sweep') consumedSketches.add(f.pathSketchId);
     if (f.type === 'edgeFlange' && f.profileSketchId) consumedSketches.add(f.profileSketchId);
     if (f.type === 'loft') {
-      consumedSketches.add(f.sketchId2);
+      for (const id of loftProfileIds(f)) consumedSketches.add(id);
       for (const g of f.guides ?? []) consumedSketches.add(g);
     }
     if (f.suppressed) continue;
@@ -1593,15 +1586,14 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
             try {
               const prism = (x: NonNullable<typeof r.exact>['flange']) => K.extrudeLoop(x.plane, x.loop, x.reverse ? -x.depth : 0, x.depth);
               let sh = exF;
-              if (r.exact.trim) { const tr = prism(r.exact.trim); if (!tr) throw new Error('trim'); sh = K.cut(sh, tr); }
+              for (const x of [r.exact.trim, ...(r.exact.reliefs ?? [])]) if (x) { const tr = prism(x); if (!tr) throw new Error('trim'); sh = K.cut(sh, tr); }
               const fl = prism(r.exact.flange);
               if (!fl) throw new Error('flange');
               const fused = K.fuse(sh, fl);
-              // the exact flange must agree with the mesh kernel's (the one the tests measure): the release pass showed
-              // an edge flange and a hem short of material on the exact path; a disagreement keeps the mesh result
-              const meshResult = csg(r.trim ? csg(b.geometry, r.trim, 'subtract') : b.geometry, r.geometry, 'union');
-              const mv = Math.abs(meshVolume(meshResult)), ev = Math.abs(K.volume(fused));
-              if (!(mv > 0) || Math.abs(ev - mv) / mv > 0.005) throw new Error(`exact flange ${ev.toFixed(1)} vs mesh ${mv.toFixed(1)}`);
+              // the exact flange must agree with the mesh kernel's (within its chords); a disagreement keeps the mesh result and
+              // says so on the feature (QA 0.5.11 F197); a faceted boolean that fails itself leaves the exact flange standing
+              const mv = (() => { try { return Math.abs(meshVolume(csg(r.trim ? csg(b.geometry, r.trim, 'subtract') : b.geometry, r.geometry, 'union'))); } catch { return NaN; } })(), ev = Math.abs(K.volume(fused));
+              if (Number.isFinite(mv) && (!(mv > 0) || Math.abs(ev - mv) / mv > 0.005)) { warnings[f.id] = flangeMismatchWarning(ev, mv); throw new Error('exact flange'); }
               setExact(b, fused);
               done = true;
             } catch {
@@ -1664,7 +1656,7 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
         continue;
       }
       const params = doc.sheetMetal ?? DEFAULT_SHEET_METAL;
-      const flat = flatPatternGeometry(sheet.chain, sheet.plane, params, sheet.depth, sheet.midPlane, sheet.extensions);
+      const flat = flatPatternGeometry(sheet.chain, sheet.plane, params, sheet.depth, sheet.midPlane, sheet.extensions, sheet.reverse);
       if (!flat) {
         errors[f.id] = 'Could not unfold the sheet.';
         continue;
@@ -2189,6 +2181,8 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
       try {
         if (f.kind === 'emboss') addMaterial(tool, f.id, true, undefined, wrapShape);
         else if (!removeMaterial(tool, f.id, undefined, wrapShape)) errors[f.id] = 'The deboss does not touch the body.';
+        // the patch is made of flat facets: the body is not called exact (QA 0.5.11 F175, P0-1), its STEP keeps the rest exact
+        if (wrapShape && !errors[f.id]) { approxBodies.add(body); warnings[f.id] = `Warning: the wrapped patch of ${f.name} is made of flat facets: this body counts as faceted (Faceted in the status bar), its mass properties are approximate; the rest of it stays exact in STEP.`; }
       } catch (err) {
         errors[f.id] = `Boolean operation failed: ${(err as Error).message}`;
       }
@@ -2662,11 +2656,11 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
           const offset = f.useRatio ? Math.max(0, f.ratio) * (bodyMeta[owner?.id ?? '']?.kind === 'member' ? wall : 1) * 1 : Math.max(0, f.offset);
           const cap = endCapGeometry(hit.body, hit.face, f.thickness, offset, f.outward, f.chamfer);
           if (!cap) continue;
-          // B-rep: the cap of a straight-sided tube (a polygon outline) is an exact plate
+          // B-rep: the cap is a prism of its outline (straight sides, the norm corner radii as chords)
           let capShape: BrepShape | null = null;
           if (K && owner && exactOf(owner)) {
-            const outline = faceOutline(hit.body, hit.face);
-            if (outline && outline.region.outer.length <= 16) { try { capShape = K.fromMesh(cap); } catch { capShape = null; } }
+            const pr = endCapPrism(hit.body, hit.face, f.thickness, offset, f.outward, f.chamfer);
+            if (pr) { try { capShape = K.extrudeLoop(pr.plane, pr.loop, pr.zStart, pr.depth); } catch { capShape = null; } }
           }
           const b = newBody(cap, f.id, capShape);
           bodyMeta[b.id] = { kind: 'cap', description: `End cap ${f.thickness} mm`, length: f.thickness, angle1: 0, angle2: 0 };
@@ -2753,7 +2747,7 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
       continue;
     }
     if (isFasteningFeature(f)) {
-      buildFastening(f, { doc, bodies, body, visibleBodies, errors, curves, K, addMaterial, removeMaterial, addBoss });
+      buildFastening(f, { doc, bodies, body, visibleBodies, errors, curves, K, addMaterial, removeMaterial, addBoss, exactOf, setExact });
       continue;
     }
     if (f.type === 'hole') {
@@ -2869,11 +2863,13 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
       else {
         // dangling references: the feature builds with the edges that are left and says so (yellow in the tree)
         if (r.lost) errors[f.id] = `Warning: ${r.lost} of the ${f.edges.length} edge references could not be found after the rebuild; the feature uses the rest.`;
-        // Keep features (default on): earlier cuts that a fillet would fill or swallow are cut again,
-        // unless the cut owns the filleted edges
-        if (f.keepFeatures !== false && r.tools && history.cuts.length) {
+        // Keep features (default on): earlier cuts that a fillet would fill are cut again, unless the cut owns the
+        // filleted edges. Only material the fillet added (a concave round) can fill a cut: a fillet that only takes
+        // material away leaves every cut as it was, and cutting again with a tool whose faceted walls coincide with
+        // the body's own broke the body (a stadium slot: a 10 mm spike and 21 mm³ too little, QA 0.5.11 F173)
+        if (f.keepFeatures !== false && r.tools && r.tools.adders.length && history.cuts.length) {
           const toolBox = new THREE.Box3();
-          for (const t of [...r.tools.cutters, ...r.tools.adders]) { t.computeBoundingBox(); if (t.boundingBox) toolBox.union(t.boundingBox); }
+          for (const t of r.tools.adders) { t.computeBoundingBox(); if (t.boundingBox) toolBox.union(t.boundingBox); }
           // a cut owns an edge when its tool passes through the edge itself: points along the edge, not its centroid
           // (the centroid of the rim of a hole is the hole's axis, and the hole was cut again through its own
           // fillet, which broke the body, QA 0.5.10 F139)
@@ -3321,7 +3317,7 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
   for (const b of bodies) {
     const ex = exactOf(b);
     if (ex && K) {
-      b.exact = true;
+      b.exact = !approxBodies.has(b);
       brep[b.id] = ex;
       try { b.exactVolume = K.volume(ex); } catch { /* the tessellation's volume is used */ }
     }

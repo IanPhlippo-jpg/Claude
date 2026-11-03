@@ -9,12 +9,12 @@ import { curveEndNormal, referencePlane, resolvePlaneDef } from '../../core/feat
 import { helixPath, sketch3DChains } from '../../core/features/sweep';
 import { matchFaceAppearances } from '../../core/features/faceAppearance';
 import { MatePopup } from './MatePopup';
-import { DragHandlesHandle } from './DragHandles';
+import { ModelHandles } from './FeatureHandles';
 import { ExtrudeHandle } from './ExtrudeHandle';
 import { SelectionToolbar } from './SelectionToolbar';
 import { Breadcrumbs } from './Breadcrumbs';
 import { InsertRotateBar } from './InsertRotateBar';
-import { DragDimensionsHandle } from './DragDimensions';
+import { DragDimensionsHandle } from './DragDimensions'; import { Magnifier } from './Magnifier'; import { sketch3DColor, Sketch3DOverlay } from './Sketch3DOverlay';
 import { NumericInput } from './NumericInput';
 import { filterAllows } from '../SelectionFilterBar';
 import { cancelAO, disposeAO, renderWithAO } from './ao';
@@ -93,10 +93,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const camera = useMemo(() => getCamera(), []);
   const scene = useMemo(() => new SketchScene(), []);
-  const bodies = useMemo(() => {
-    const b = new BodyScene();
-    return b;
-  }, []);
+  const bodies = useMemo(() => new BodyScene(), []);
   const tools = useMemo(() => new ToolController(), []);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
   const [noWebGL, setNoWebGL] = useState(false);
@@ -324,7 +321,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
     const e3 = st.sketch3dEdit;
     if (e3) {
       const out = base.filter((c) => !e3.featureId || !c.id.startsWith(e3.featureId));
-      sketch3DChains(e3.segments, e3.fillets).forEach((chain, i) => out.push({ id: `s3d-draft-${i}`, name: e3.name, points: chain }));
+      sketch3DChains(e3.segments, e3.fillets).forEach((chain, i) => out.push({ id: `s3d-draft-${i}`, name: e3.name, points: chain, ...sketch3DColor(e3) }));
       const anchor = new THREE.Vector3(...(e3.last ?? [0, 0, 0]));
       if (e3.last && cursor3d) out.push({ id: 's3d-rubber', name: '', points: [anchor.clone(), new THREE.Vector3(...cursor3d)] });
       // the space handle: a square of the active plane around the last point
@@ -1492,7 +1489,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
       <Hud camera={camera} zoomFit={zoomFit} onZoomArea={() => setZoomArea({ active: !zoomArea.active })} zoomAreaActive={zoomArea.active} />
       <MatePopup at={cursorPxRef.current} />
       {hoverTag && cursorPxRef.current && <div className="k-face-tag" data-testid="face-tag" style={{ left: cursorPxRef.current.x + 26, top: cursorPxRef.current.y + 30 }}>{hoverTag}</div>}
-      <DragHandlesHandle project={(v) => camera.worldToPixel(v)} />
+      <ModelHandles project={(v) => camera.worldToPixel(v)} />
       <ExtrudeHandle project={(v) => camera.worldToPixel(v)} />
       <SelectionToolbar project={(v) => camera.worldToPixel(v)} />
       <Breadcrumbs />
@@ -1500,6 +1497,8 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
       <MarkupLayer />
       {st.isolated && <div className="k-isolate-bar" data-testid="isolate-bar"><span>Isolate</span><button className="k-btn" onClick={() => st.setIsolated(null)}>Exit Isolate</button></div>}
       {sketch && plane && <DragDimensionsHandle project={(p) => camera.worldToPixel(sketchToWorld(plane, p.x, p.y))} />}
+      <Sketch3DOverlay camera={camera} />
+      <Magnifier camera={camera} renderer={rendererRef} scene={scene.scene} host={hostRef} />
       {sketch && plane && <NumericInput tools={tools} ctx={ctx} project={(p) => camera.worldToPixel(sketchToWorld(plane, p.x, p.y))} onDone={refreshTool} />}
       {st.editContext && (
         <div className="k-editcontext" data-testid="edit-context">

@@ -1,8 +1,8 @@
 /**
  * The OpenCascade implementation of the B-rep kernel of the rebuild (src/core/features/brepKernel.ts, QA F51).
  * Profiles become exact wires: lines, circular arcs and circles stay lines, arcs and circles (cylinders after an
- * extrude, not facets); ellipses and splines are followed by short segments for now. Every OpenCascade object made
- * during a rebuild is tracked and freed by `release()`.
+ * extrude, not facets); ellipses and partial ellipses become elliptic edges, splines and conics B-spline edges
+ * (./curves.ts, QA 0.5.11 F175). Every OpenCascade object made during a rebuild is tracked and freed by `release()`.
  */
 import * as THREE from 'three';
 import type { PlaneDef } from '../document/types';
@@ -12,7 +12,8 @@ import type { ContourRegion } from '../features/regions';
 import type { BodyEdge } from '../features/edgesets';
 import type { BrepKernel, BrepShape } from '../features/brepKernel';
 import type { Contour } from '../sketch/contours';
-import { meshToSolid } from './step';
+import { meshToSolid, shapeVolume } from './step';
+import { exactCurveEdges } from './curves';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 type OC = any;
@@ -65,7 +66,9 @@ export function occtKernel(oc: OC, replicad: Replicad, opts: { tolerance?: numbe
       const ax = t(new oc.gp_Ax2(pnt(to3(plane, c, z)), dir(plane.n), dir(plane.u)));
       return [t(new oc.BRepBuilderAPI_MakeEdge(t(new oc.gp_Circ(ax, r)))).Edge()];
     }
-    // ellipse, ellipse arc, conic, spline: short segments along the curve (exact curves follow later)
+    // ellipse, partial ellipse, conic, spline: the exact curve; short segments only when it has no exact form
+    const exact = exactCurveEdges({ oc, track: t, lift: (p) => to3(plane, p, z), u: plane.u, v: plane.v }, sketch, e, rev);
+    if (exact) return exact;
     let poly = sampleEntity(sketch, e, 96);
     if (e.kind === 'ellipse' || (poly.length > 2 && same(poly[0], poly[poly.length - 1]))) {
       if (!same(poly[0], poly[poly.length - 1])) poly = [...poly, poly[0]];
@@ -208,9 +211,18 @@ export function occtKernel(oc: OC, replicad: Replicad, opts: { tolerance?: numbe
   };
   /** faces split by the booleans on one surface become one face again (as a desktop CAD program shows them) */
   const clean = (s: any) => {
-    const u = t(new oc.ShapeUpgrade_UnifySameDomain(s, true, true, false));
-    u.Build();
-    return t(u.Shape());
+    const unify = (edges: boolean) => {
+      const u = t(new oc.ShapeUpgrade_UnifySameDomain(s, edges, true, false));
+      u.Build();
+      return t(u.Shape());
+    };
+    const valid = (x: any) => t(new oc.BRepCheck_Analyzer(x, true, false)).IsValid();
+    const u = unify(true);
+    if (valid(u) || !valid(s)) return u;
+    // joining the edges can break a face the boolean left valid: a ball fused onto the end of a tube kept a half sphere
+    // between two meridians, joined into one edge through both poles, and the face was meshed flat (QA F172)
+    const f = unify(false);
+    return valid(f) ? f : s;
   };
 
   /** one solid per region: the outer prism minus the prisms of its holes */
@@ -343,13 +355,15 @@ export function occtKernel(oc: OC, replicad: Replicad, opts: { tolerance?: numbe
       tr.SetMirror(t(new oc.gp_Ax2(pnt(origin), dir(normal))));
       return S(t(t(new oc.BRepBuilderAPI_Transform(R(shape), tr, true, false)).Shape()));
     },
-    loft(s1, p1, r1, s2, p2, r2) {
-      if (r1.holes.length || r2.holes.length) return null;
-      const w1 = contourWire(s1, p1, r1.outer, 0), w2 = contourWire(s2, p2, r2.outer, 0);
-      if (!w1 || !w2) return null;
-      const ts = t(new oc.BRepOffsetAPI_ThruSections(true, false, 1e-6));
-      ts.AddWire(w1);
-      ts.AddWire(w2);
+    loft(sections, opts = {}) {
+      if (sections.length < 2 || sections.some((s) => s.region.holes.length)) return null;
+      const wires = sections.map((s) => contourWire(s.sketch, s.plane, s.region.outer, 0));
+      if (wires.some((w) => !w)) return null;
+      // smooth: one B-spline surface through the sections (a polynomial in the loft direction up to nine of them)
+      const ts = t(new oc.BRepOffsetAPI_ThruSections(true, !!opts.ruled, 1e-6));
+      for (const w of wires) ts.AddWire(w);
+      // Close loft: the first profile once more at the end (the same wire, so the loft closes on itself without end faces)
+      if (opts.closed && wires.length >= 3) ts.AddWire(wires[0]);
       ts.Build(progress());
       if (!ts.IsDone()) return null;
       return S(clean(t(ts.Shape())));
@@ -509,6 +523,12 @@ export function occtKernel(oc: OC, replicad: Replicad, opts: { tolerance?: numbe
       if (!mk.IsDone()) throw new Error('the shell failed');
       return S(t(mk.Shape()));
     },
+    offset(shape, distance) {
+      const mk = t(new oc.BRepOffsetAPI_MakeOffsetShape());
+      mk.PerformByJoin(R(shape), distance, 1e-6, oc.BRepOffset_Mode.BRepOffset_Skin, false, false, oc.GeomAbs_JoinType.GeomAbs_Intersection, false, progress());
+      if (!mk.IsDone()) throw new Error('the offset failed');
+      return S(t(mk.Shape()));
+    },
     tessellate(shape) {
       const m = (replicad.cast(R(shape)) as any).mesh({ tolerance: opts.tolerance ?? 0.01, angularTolerance: opts.angularTolerance ?? 0.1 });
       const n = m.triangles.length;
@@ -524,7 +544,7 @@ export function occtKernel(oc: OC, replicad: Replicad, opts: { tolerance?: numbe
       return g;
     },
     volume(shape) {
-      return replicad.measureVolume(replicad.cast(R(shape)) as never);
+      return shapeVolume(oc, R(shape));
     },
     release(keep = []) {
       const kept = new Set<unknown>(keep);

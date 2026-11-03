@@ -210,19 +210,26 @@ function cone(fr: Frame, z0: number, z1: number, r0: number, r1: number): THREE.
   return t;
 }
 
-/** a prism of a profile (x along `ax`, y along the frame normal) with the given width centred on the profile plane */
-function profilePrism(fr: Frame, ax: THREE.Vector3, profile: P2[], width: number): THREE.BufferGeometry | null {
+/** a straight prism of a counter-clockwise outline in a plane, from the plane along its normal over `depth` (a tool
+ * piece that the mesh kernel and the B-rep kernel build from the same numbers) */
+export interface PrismPiece { plane: PlaneDef; loop: P2[]; depth: number }
+
+/** the prism of a profile (x along `ax`, y along the frame normal) with the given width centred on the profile plane */
+function profilePiece(fr: Frame, ax: THREE.Vector3, profile: P2[], width: number): PrismPiece {
   const nrm = ax.clone().cross(fr.n).normalize();
   const plane: PlaneDef = { id: 'p', name: 'p', origin: fr.o.clone().addScaledVector(nrm, -width / 2).toArray() as PlaneDef['origin'], u: ax.toArray() as PlaneDef['u'], v: fr.n.toArray() as PlaneDef['v'], n: nrm.toArray() as PlaneDef['n'] };
-  const pts = area2(profile) < 0 ? [...profile].reverse() : profile;
-  const region: Region = { outer: pts.map(([x, y]) => ({ x, y })), holes: [], area: Math.abs(area2(profile)) };
-  return extrudeGeometry([region], plane, { end: 'blind', depth: width, reverse: false });
+  return { plane, loop: area2(profile) < 0 ? [...profile].reverse() : profile, depth: width };
+}
+
+export function prismGeometry(p: PrismPiece): THREE.BufferGeometry | null {
+  const region: Region = { outer: p.loop.map(([x, y]) => ({ x, y })), holes: [], area: Math.abs(area2(p.loop)) };
+  return extrudeGeometry([region], p.plane, { end: 'blind', depth: p.depth, reverse: false });
 }
 
 /** a round piece of a tool along an axis (for an exact B-rep version: a cone or cylinder segment) */
 export interface AxisPiece { base: THREE.Vector3; n: THREE.Vector3; u: THREE.Vector3; z0: number; z1: number; r0: number; r1: number }
 export interface FeatureTools {
-  add: { tool: THREE.BufferGeometry; axis?: AxisPiece }[];
+  add: { tool: THREE.BufferGeometry; axis?: AxisPiece; prism?: PrismPiece }[];
   cut: { tool: THREE.BufferGeometry; axis?: AxisPiece }[];
 }
 
@@ -232,8 +239,12 @@ export function mountingBossTools(f: MountingBossFeature, plane: PlaneDef): Feat
   const fr = frame(plane, f.point, f.finAngle);
   const tan = (deg: number) => Math.tan((Math.max(0, Math.min(45, deg)) * Math.PI) / 180);
   const r0 = f.diameter / 2, r1 = Math.max(0.05, r0 - f.height * tan(f.draft));
-  const piece = (z0: number, z1: number, a: number, b: number) => ({ tool: cone(fr, z0, z1, a, b), axis: { base: fr.o, n: fr.n, u: fr.u, z0, z1, r0: a, r1: b } });
-  const out: FeatureTools = { add: [piece(-SINK, f.height, r0, r1)], cut: [] };
+  // a drafted piece starts below (or ends above) the face it belongs to. The exact piece continues the draft there, so
+  // its diameters are the given ones at the faces and its wall has exactly the draft angle (ea, eb); the mesh piece
+  // keeps the given radii at its ends (less than 0.01 mm apart): with the exact ones the mesh boolean of the 0.5.11
+  // e2e model (Ø8 boss, 1° draft, 4 fins) left a needle triangle 28 mm long on the face under the boss
+  const piece = (z0: number, z1: number, a: number, b: number, ea = a, eb = b) => ({ tool: cone(fr, z0, z1, a, b), axis: { base: fr.o, n: fr.n, u: fr.u, z0, z1, r0: ea, r1: eb } });
+  const out: FeatureTools = { add: [piece(-SINK, f.height, r0, r1, r0 + SINK * tan(f.draft))], cut: [] };
   const fins = Math.max(0, Math.min(16, Math.round(f.fins)));
   if (fins && f.finLength > 0 && f.finHeight > 0 && f.finWidth > 0) {
     const hf = Math.min(f.finHeight, f.height);
@@ -242,43 +253,61 @@ export function mountingBossTools(f: MountingBossFeature, plane: PlaneDef): Feat
       const a = (i * 2 * Math.PI) / fins;
       const ax = fr.u.clone().multiplyScalar(Math.cos(a)).addScaledVector(fr.w, Math.sin(a)).normalize();
       // from inside the boss wall out to the fin length: full fin height at the boss, down to the face at its end
-      const g = profilePrism(fr, ax, [[rin, -SINK], [r0 + f.finLength, -SINK], [r0 + f.finLength, 0], [rb, hf], [rin, hf]], f.finWidth);
-      if (g) out.add.push({ tool: g });
+      const prism = profilePiece(fr, ax, [[rin, -SINK], [r0 + f.finLength, -SINK], [r0 + f.finLength, 0], [rb, hf], [rin, hf]], f.finWidth);
+      const g = prismGeometry(prism);
+      if (g) out.add.push({ tool: g, prism });
     }
   }
   const hd = f.holeDiameter / 2;
   if (hd > 0 && hd < r1) {
-    const rb = Math.max(0.05, hd - f.holeDepth * tan(f.holeDraft));
-    if (f.bossType === 'pin' && f.pin === 'pin') out.add.push(piece(f.height - SINK, f.height + f.holeDepth, hd, rb));
+    const th = tan(f.holeDraft), rb = Math.max(0.05, hd - f.holeDepth * th);
+    if (f.bossType === 'pin' && f.pin === 'pin') out.add.push(piece(f.height - SINK, f.height + f.holeDepth, hd, rb, hd + SINK * th));
     // head side: the screw goes through, the clearance hole runs through the boss and the wall under it
     else if (f.bossType === 'hardware' && f.hardware === 'head') out.cut.push(piece(-1e3, f.height + 1, hd, hd));
-    else { const z0 = Math.max(-SINK, f.height - f.holeDepth); out.cut.push(piece(z0, f.height + 1, rb, hd)); }
+    else { const z0 = Math.max(-SINK, f.height - f.holeDepth); out.cut.push(piece(z0, f.height + 1, rb, hd, Math.max(0.05, hd - (f.height - z0) * th), hd + th)); }
   }
   return out;
 }
 
 /** Snap Hook: a beam of the given thickness and width with a hook lip that overhangs at its top, with a lead-in slope */
 export function snapHookTool(f: SnapHookFeature, plane: PlaneDef): THREE.BufferGeometry | { error: string } {
+  const p = snapHookPiece(f, plane);
+  if ('error' in p) return p;
+  return prismGeometry(p) ?? { error: 'Could not build the hook.' };
+}
+
+/** the hook as one prism: the beam with the lip on its side (the lip's top slopes back to the beam: the lead-in) */
+export function snapHookPiece(f: SnapHookFeature, plane: PlaneDef): PrismPiece | { error: string } {
   const { height: H, thickness: T, lipHeight: L, overhang: O } = f;
   if (!(H > 0 && T > 0 && f.width > 0)) return { error: 'Enter the height, thickness and width of the hook.' };
   if (!(L > 0 && L < H && O > 0)) return { error: 'The hook lip must be lower than the hook and overhang it.' };
   const fr = frame(plane, f.point, f.angle);
-  const g = profilePrism(fr, fr.u, [[-T / 2, -SINK], [T / 2, -SINK], [T / 2, H - L], [T / 2 + O, H - L], [T / 2 + O, H - L + L * 0.2], [T / 2, H], [-T / 2, H]], f.width);
-  return g ?? { error: 'Could not build the hook.' };
+  return profilePiece(fr, fr.u, [[-T / 2, -SINK], [T / 2, -SINK], [T / 2, H - L], [T / 2 + O, H - L], [T / 2 + O, H - L + L * 0.2], [T / 2, H], [-T / 2, H]], f.width);
 }
+
+/** the band of a lip or groove in the rim face's plane: between the opening (inner) and the grown outline, from z0 to z1 */
+export interface RimBandPiece { plane: PlaneDef; inner: P2[]; outer: P2[]; width: number; z0: number; z1: number }
 
 /** Lip/Groove: on a rim face (outer loop and inner loop), a band along the inner loop, `width` wide, `depth` high (or deep) */
 export function rimBand(g: THREE.BufferGeometry, face: PlanarFace, width: number, depth: number, into: boolean): THREE.BufferGeometry | { error: string } {
+  const b = rimBandPiece(g, face, width, depth, into);
+  return 'error' in b ? b : rimBandGeometry(b) ?? { error: 'Could not build the lip.' };
+}
+
+export function rimBandGeometry(b: RimBandPiece): THREE.BufferGeometry | null {
+  const region: Region = { outer: b.outer.map(([x, y]) => ({ x, y })), holes: [[...b.inner].reverse().map(([x, y]) => ({ x, y }))], area: Math.abs(area2(b.outer)) - Math.abs(area2(b.inner)) };
+  const pl: PlaneDef = { ...b.plane, origin: new THREE.Vector3(...b.plane.origin).addScaledVector(new THREE.Vector3(...b.plane.n), b.z0).toArray() as PlaneDef['origin'] };
+  return extrudeGeometry([region], pl, { end: 'blind', depth: b.z1 - b.z0, reverse: false });
+}
+
+export function rimBandPiece(g: THREE.BufferGeometry, face: PlanarFace, width: number, depth: number, into: boolean): RimBandPiece | { error: string } {
   const fl = faceLoops(g, face);
   if (!fl || fl.loops.length < 2) return { error: 'Select the rim face of a shelled body (a face around an opening).' };
   const inner = fl.loops[1];
-  const grown = growPolygon(inner, width);
-  if (Math.abs(area2(grown)) >= Math.abs(area2(fl.loops[0]))) return { error: 'The lip is wider than the rim.' };
-  const region: Region = { outer: grown.map(([x, y]) => ({ x, y })), holes: [[...inner].reverse().map(([x, y]) => ({ x, y }))], area: Math.abs(area2(grown)) - Math.abs(area2(inner)) };
-  const n = new THREE.Vector3(...fl.plane.n);
-  const pl: PlaneDef = { ...fl.plane, origin: new THREE.Vector3(...fl.plane.origin).addScaledVector(n, into ? SINK : -SINK).toArray() as PlaneDef['origin'] };
-  const t = extrudeGeometry([region], pl, { end: 'blind', depth: depth + SINK, reverse: into });
-  return t ?? { error: 'Could not build the lip.' };
+  const outer = growPolygon(inner, width);
+  if (Math.abs(area2(outer)) >= Math.abs(area2(fl.loops[0]))) return { error: 'The lip is wider than the rim.' };
+  // the lip stands on the face (from just inside the body), the groove goes into it (from just outside)
+  return { plane: fl.plane, inner, outer, width, z0: into ? -depth : -SINK, z1: into ? SINK : depth };
 }
 
 /** the polygon moved outwards by d (counter-clockwise polygon; mitred corners) */

@@ -9,6 +9,7 @@ import { bridge } from './viewport/bridge';
 import { sampleEntity } from '../core/sketch/geometry';
 import { faceMeasure } from '../core/features/measure';
 import { mateStatus } from '../core/assembly/mateStatus';
+import { status3D } from '../core/sketch/sketch3d';
 
 const STATUS_TEXT: Record<string, string> = {
   under: 'Under Defined',
@@ -102,6 +103,9 @@ export function StatusBar({ hint: hint0 }: { hint: string }) {
   const msg = st.messages[st.messages.length - 1];
   const sketchName = sketch?.name ?? null;
   const status = sketchStatus(sketch, solve);
+  // a 3D sketch being edited reports its definition from its relations and dimensions
+  const e3 = useStore((s) => s.sketch3dEdit);
+  const status3 = useMemo(() => (e3 ? status3D(e3.segments, e3.relations, e3.dims) : null), [e3]);
   // an assembly: Under / Fully / Over Defined from its mates (QA v0.5.1 F108)
   const asmStatus = useMemo(() => {
     if (st.doc.kind !== 'assembly' || !(st.doc.components ?? []).length) return null;
@@ -214,6 +218,7 @@ export function StatusBar({ hint: hint0 }: { hint: string }) {
           {STATUS_TEXT[status]}
         </span>
       )}
+      {status3 && <span className={`k-status-cell status ${status3}`} data-testid="status-sketch3d">{STATUS_TEXT[status3]}</span>}
       {st.doc.kind === 'drawing' && !st.activeSketchId && <span className="k-status-cell status under">Under Defined</span>}
       {asmStatus && !st.activeSketchId && <span className={`k-status-cell status ${asmStatus === 'Over Defined' ? 'over' : asmStatus === 'Fully Defined' ? 'full' : 'under'}`} data-testid="status-assembly">{asmStatus}</span>}
       {st.rebuild.pending && (

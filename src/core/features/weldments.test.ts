@@ -14,7 +14,8 @@ describe('weldments', () => {
     const p = findProfile('iso', 'square tube', '40 x 40 x 4');
     const r = profileRegion(p);
     expect(r.holes.length).toBe(1);
-    expect(Math.abs(r.area - (1600 - 32 * 32))).toBeLessThan(1e-9);
+    // EN 10219-2 corner radii ro = 8, ri = 4: 1600 - 32 * 32 - (4 - pi) * (64 - 16); the arcs as chords lose a little
+    expect(Math.abs(r.area - (1600 - 32 * 32 - (4 - Math.PI) * 48))).toBeLessThan(1.5);
     const rot = placedProfile(profileRegion(findProfile('iso', 'rectangular tube', '80 x 40 x 5')), 90, false);
     // a 90 degree rotation swaps the extents
     const xs = rot.outer.map((q) => q.x), ys = rot.outer.map((q) => q.y);
@@ -64,10 +65,10 @@ describe('weldments', () => {
     expect(end).toBeDefined();
     const cap = endCapGeometry(m.geometry, end, 5, 0, false)!;
     expect(cap).not.toBeNull();
-    // the cap spans the full 40 x 40 outline (hole filled) and is 5 thick (+ a hair of overlap)
-    expect(Math.abs(vol(cap) - 40 * 40 * 5)).toBeLessThan(40 * 40 * 0.1);
+    // the cap spans the full 40 x 40 outline with its R8 corners (hole filled) and is 5 thick
+    expect(Math.abs(vol(cap) - (1600 - (4 - Math.PI) * 64) * 5)).toBeLessThan(10);
     const inset = endCapGeometry(m.geometry, end, 5, 4, false)!;
-    expect(Math.abs(vol(inset) - 32 * 32 * 5)).toBeLessThan(32 * 32 * 0.1);
+    expect(Math.abs(vol(inset) - (32 * 32 - (4 - Math.PI) * 16) * 5)).toBeLessThan(10);
   });
 
   it('Gusset and Weld Bead sit in the corner between two members', () => {
@@ -87,9 +88,9 @@ describe('weldments', () => {
     const w = weldBeadGeometry(fa!, fb!, { size: 5 });
     expect('error' in w).toBe(false);
     if ('error' in w) return;
-    // the corner is 40 long (the member width); the bead a 5 x 5 triangle (plus a small bulge) along it
-    expect(Math.abs(w.length - 40)).toBeLessThan(0.5);
-    expect(vol(w.geometry)).toBeGreaterThan(0.5 * 5 * 5 * 40 * 0.9);
+    // the corner runs along the flat of the faces: the member width less the R8 corners (24); the bead a 5 x 5 triangle (plus a small bulge) along it
+    expect(Math.abs(w.length - 24)).toBeLessThan(0.5);
+    expect(vol(w.geometry)).toBeGreaterThan(0.5 * 5 * 5 * 24 * 0.9);
     const wi = weldBeadGeometry(fa!, fb!, { size: 5, intermittent: { length: 10, pitch: 20 } });
     if (!('error' in wi)) expect(wi.pieces).toBe(2);
   });

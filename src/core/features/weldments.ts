@@ -31,35 +31,44 @@ export interface ProfileDef {
   t: number;
   /** flange thickness for channels and beams */
   tf?: number;
+  /** hollow sections: the outer and inner corner radii (EN 10219-2: ro = 2t, ri = t up to t = 6 mm) */
+  ro?: number;
+  ri?: number;
+  /** rolled sections: the root radius (web to flange, inside corner of an angle) and the toe radius of an angle */
+  r1?: number;
+  r2?: number;
 }
+
+/** an ISO cold formed hollow section (EN 10219-2) with its corner radii: ro / ri = 2t / t, 2.5t / 1.5t, 3t / 2t */
+const hss = (type: 'square tube' | 'rectangular tube', a: number, b: number, t: number): ProfileDef => {
+  const [ko, ki] = t <= 6 ? [2, 1] : t <= 10 ? [2.5, 1.5] : [3, 2];
+  return { standard: 'iso', type, size: `${a} x ${b} x ${t}`, a, b, t, ro: ko * t, ri: ki * t };
+};
 
 const inch = 25.4;
 export const PROFILE_LIBRARY: ProfileDef[] = [
-  { standard: 'iso', type: 'square tube', size: '20 x 20 x 2', a: 20, b: 20, t: 2 },
-  { standard: 'iso', type: 'square tube', size: '40 x 40 x 4', a: 40, b: 40, t: 4 },
-  { standard: 'iso', type: 'square tube', size: '60 x 60 x 5', a: 60, b: 60, t: 5 },
-  { standard: 'iso', type: 'square tube', size: '80 x 80 x 5', a: 80, b: 80, t: 5 },
-  { standard: 'iso', type: 'square tube', size: '100 x 100 x 8', a: 100, b: 100, t: 8 },
-  { standard: 'iso', type: 'rectangular tube', size: '50 x 30 x 2.6', a: 50, b: 30, t: 2.6 },
-  { standard: 'iso', type: 'rectangular tube', size: '70 x 40 x 5', a: 70, b: 40, t: 5 },
-  { standard: 'iso', type: 'rectangular tube', size: '80 x 40 x 5', a: 80, b: 40, t: 5 },
-  { standard: 'iso', type: 'rectangular tube', size: '100 x 50 x 5', a: 100, b: 50, t: 5 },
+  // cold formed hollow sections (EN 10219-2) with the corner radii
+  hss('square tube', 20, 20, 2), hss('square tube', 40, 40, 3), hss('square tube', 40, 40, 4), hss('square tube', 60, 60, 5), hss('square tube', 80, 80, 5), hss('square tube', 100, 100, 8),
+  hss('rectangular tube', 50, 30, 2.6), hss('rectangular tube', 50, 30, 3), hss('rectangular tube', 70, 40, 5), hss('rectangular tube', 80, 40, 5), hss('rectangular tube', 100, 50, 5),
   { standard: 'iso', type: 'pipe', size: '21.3 x 2.3', a: 21.3, b: 21.3, t: 2.3 },
   { standard: 'iso', type: 'pipe', size: '26.9 x 2.3', a: 26.9, b: 26.9, t: 2.3 },
   { standard: 'iso', type: 'pipe', size: '33.7 x 4.0', a: 33.7, b: 33.7, t: 4 },
   { standard: 'iso', type: 'pipe', size: '48.3 x 4.0', a: 48.3, b: 48.3, t: 4 },
   { standard: 'iso', type: 'pipe', size: '60.3 x 4.0', a: 60.3, b: 60.3, t: 4 },
-  { standard: 'iso', type: 'angle iron', size: '25 x 25 x 3', a: 25, b: 25, t: 3 },
-  { standard: 'iso', type: 'angle iron', size: '40 x 40 x 4', a: 40, b: 40, t: 4 },
-  { standard: 'iso', type: 'angle iron', size: '50 x 50 x 5', a: 50, b: 50, t: 5 },
-  { standard: 'iso', type: 'angle iron', size: '75 x 75 x 8', a: 75, b: 75, t: 8 },
+  // equal leg angles (EN 10056-1) with the root and toe radii
+  { standard: 'iso', type: 'angle iron', size: '25 x 25 x 3', a: 25, b: 25, t: 3, r1: 3.5, r2: 2 },
+  { standard: 'iso', type: 'angle iron', size: '40 x 40 x 4', a: 40, b: 40, t: 4, r1: 6, r2: 3 },
+  { standard: 'iso', type: 'angle iron', size: '50 x 50 x 5', a: 50, b: 50, t: 5, r1: 7, r2: 3.5 },
+  { standard: 'iso', type: 'angle iron', size: '75 x 75 x 8', a: 75, b: 75, t: 8, r1: 10, r2: 5 },
+  // channels with the sizes of UPN 80 / 100 / 120 (EN 10279): parallel flanges of the mean flange thickness
   { standard: 'iso', type: 'c channel', size: 'CH 80 x 8', a: 80, b: 45, t: 6, tf: 8 },
   { standard: 'iso', type: 'c channel', size: 'CH 100 x 10', a: 100, b: 50, t: 6, tf: 8.5 },
   { standard: 'iso', type: 'c channel', size: 'CH 120 x 12', a: 120, b: 55, t: 7, tf: 9 },
-  { standard: 'iso', type: 'sb beam', size: 'IPE 80', a: 80, b: 46, t: 3.8, tf: 5.2 },
-  { standard: 'iso', type: 'sb beam', size: 'IPE 100', a: 100, b: 55, t: 4.1, tf: 5.7 },
-  { standard: 'iso', type: 'sb beam', size: 'IPE 120', a: 120, b: 64, t: 4.4, tf: 6.3 },
-  { standard: 'iso', type: 'sb beam', size: 'IPE 160', a: 160, b: 82, t: 5, tf: 7.4 },
+  // IPE beams (EN 10365) with the root radius
+  { standard: 'iso', type: 'sb beam', size: 'IPE 80', a: 80, b: 46, t: 3.8, tf: 5.2, r1: 5 },
+  { standard: 'iso', type: 'sb beam', size: 'IPE 100', a: 100, b: 55, t: 4.1, tf: 5.7, r1: 7 },
+  { standard: 'iso', type: 'sb beam', size: 'IPE 120', a: 120, b: 64, t: 4.4, tf: 6.3, r1: 7 },
+  { standard: 'iso', type: 'sb beam', size: 'IPE 160', a: 160, b: 82, t: 5, tf: 7.4, r1: 9 },
   { standard: 'ansi inch', type: 'square tube', size: '1 x 1 x 0.065', a: inch, b: inch, t: 0.065 * inch },
   { standard: 'ansi inch', type: 'square tube', size: '2 x 2 x 0.25', a: 2 * inch, b: 2 * inch, t: 0.25 * inch },
   { standard: 'ansi inch', type: 'square tube', size: '3 x 3 x 0.25', a: 3 * inch, b: 3 * inch, t: 0.25 * inch },
@@ -82,36 +91,95 @@ export const findProfile = (standard: ProfileDef['standard'], type: ProfileType,
 const rect = (w: number, h: number, cx = 0, cy = 0): SketchPoint[] => [{ x: cx - w / 2, y: cy - h / 2 }, { x: cx + w / 2, y: cy - h / 2 }, { x: cx + w / 2, y: cy + h / 2 }, { x: cx - w / 2, y: cy + h / 2 }];
 const circle = (r: number) => { const n = Math.max(32, circleSegments(r, 48)); return Array.from({ length: n }, (_, i) => ({ x: r * Math.cos((2 * Math.PI * i) / n), y: r * Math.sin((2 * Math.PI * i) / n) })); };
 
-/** The profile region, centred on the path point (the member's pierce point in the middle of the profile). */
-export function profileRegion(p: ProfileDef): Region {
+type ProfileSeg = { a: SketchPoint; b: SketchPoint; m?: SketchPoint };
+
+/** a closed polygon with rounded corners (a radius per vertex, 0 = sharp) as exact segments: lines and arcs (m = arc middle) */
+export function roundedLoop(pts: SketchPoint[], radii: number[]): ProfileSeg[] {
+  const n = pts.length;
+  const unit = (x: number, y: number) => { const l = Math.hypot(x, y) || 1; return { x: x / l, y: y / l }; };
+  const corners = pts.map((p, i) => {
+    const r = radii[i] ?? 0;
+    const prev = pts[(i - 1 + n) % n], next = pts[(i + 1) % n];
+    const d1 = unit(p.x - prev.x, p.y - prev.y), d2 = unit(next.x - p.x, next.y - p.y);
+    const turn = d1.x * d2.y - d1.y * d2.x;
+    if (r <= 0 || Math.abs(turn) < 1e-9) return { t1: p, t2: p };
+    const td = r * Math.tan(Math.acos(Math.max(-1, Math.min(1, d1.x * d2.x + d1.y * d2.y))) / 2);
+    const t1 = { x: p.x - d1.x * td, y: p.y - d1.y * td }, t2 = { x: p.x + d2.x * td, y: p.y + d2.y * td };
+    const s = turn > 0 ? 1 : -1;
+    const c = { x: t1.x - d1.y * s * r, y: t1.y + d1.x * s * r };
+    const u = unit(p.x - c.x, p.y - c.y);
+    return { t1, t2, m: { x: c.x + u.x * r, y: c.y + u.y * r } };
+  });
+  const segs: ProfileSeg[] = [];
+  corners.forEach((k, i) => {
+    if (k.m) segs.push({ a: k.t1, b: k.t2, m: k.m });
+    const to = corners[(i + 1) % n].t1;
+    if (Math.hypot(to.x - k.t2.x, to.y - k.t2.y) > 1e-9) segs.push({ a: k.t2, b: to });
+  });
+  return segs;
+}
+
+/** the polygon of a loop of segments: every arc as short chords (8 per quarter turn) */
+export function loopPolygon(segs: ProfileSeg[]): SketchPoint[] {
+  const out: SketchPoint[] = [];
+  for (const g of segs) {
+    out.push(g.a);
+    if (!g.m) continue;
+    // the circle through a, m and b
+    const { a, m, b } = g;
+    const d = 2 * (a.x * (m.y - b.y) + m.x * (b.y - a.y) + b.x * (a.y - m.y));
+    const sq = (q: SketchPoint) => q.x * q.x + q.y * q.y;
+    const c = { x: (sq(a) * (m.y - b.y) + sq(m) * (b.y - a.y) + sq(b) * (a.y - m.y)) / d, y: (sq(a) * (b.x - m.x) + sq(m) * (a.x - b.x) + sq(b) * (m.x - a.x)) / d };
+    const r = Math.hypot(a.x - c.x, a.y - c.y);
+    const a0 = Math.atan2(a.y - c.y, a.x - c.x), am = Math.atan2(m.y - c.y, m.x - c.x);
+    let half = am - a0;
+    while (half > Math.PI) half -= 2 * Math.PI;
+    while (half < -Math.PI) half += 2 * Math.PI;
+    const steps = Math.max(2, Math.ceil((Math.abs(2 * half) / (Math.PI / 2)) * 8));
+    for (let k = 1; k < steps; k++) { const t = a0 + (2 * half * k) / steps; out.push({ x: c.x + r * Math.cos(t), y: c.y + r * Math.sin(t) }); }
+  }
+  return out;
+}
+
+const shoelace = (p: SketchPoint[]) => Math.abs(p.reduce((s, q, i) => { const r = p[(i + 1) % p.length]; return s + q.x * r.y - r.x * q.y; }, 0) / 2);
+
+/** the profile as exact loops in profile coordinates (corner, root and toe radii as arcs; not for the pipe) */
+function profileSegs(p: ProfileDef): { outer: ProfileSeg[]; holes: ProfileSeg[][] } {
   const { a, b, t } = p;
-  const tf = p.tf ?? t;
+  const tf = p.tf ?? t, r1 = p.r1 ?? 0, r2 = p.r2 ?? 0;
   switch (p.type) {
     case 'square tube':
     case 'rectangular tube':
-      return { outer: rect(a, b), holes: [rect(a - 2 * t, b - 2 * t)], area: a * b - (a - 2 * t) * (b - 2 * t) };
     case 'pipe':
-      return { outer: circle(a / 2), holes: [circle(a / 2 - t)], area: Math.PI * ((a / 2) ** 2 - (a / 2 - t) ** 2) };
+      return { outer: roundedLoop(rect(a, b), [0, 1, 2, 3].map(() => p.ro ?? 0)), holes: [roundedLoop(rect(a - 2 * t, b - 2 * t), [0, 1, 2, 3].map(() => p.ri ?? 0))] };
     case 'angle iron': {
-      // an L: legs a (vertical) and b (horizontal) of thickness t, the corner at the lower left
+      // an L: legs a (vertical) and b (horizontal) of thickness t, the heel at the lower left; toe radii at the leg ends, root radius inside
       const pts: SketchPoint[] = [{ x: -b / 2, y: -a / 2 }, { x: b / 2, y: -a / 2 }, { x: b / 2, y: -a / 2 + t }, { x: -b / 2 + t, y: -a / 2 + t }, { x: -b / 2 + t, y: a / 2 }, { x: -b / 2, y: a / 2 }];
-      return { outer: pts, holes: [], area: a * t + (b - t) * t };
+      return { outer: roundedLoop(pts, [0, 0, r2, r1, r2, 0]), holes: [] };
     }
     case 'c channel': {
       // a C open to the right: web of thickness t on the left, flanges of width b and thickness tf
       const pts: SketchPoint[] = [{ x: -b / 2, y: -a / 2 }, { x: b / 2, y: -a / 2 }, { x: b / 2, y: -a / 2 + tf }, { x: -b / 2 + t, y: -a / 2 + tf }, { x: -b / 2 + t, y: a / 2 - tf }, { x: b / 2, y: a / 2 - tf }, { x: b / 2, y: a / 2 }, { x: -b / 2, y: a / 2 }];
-      return { outer: pts, holes: [], area: a * t + 2 * (b - t) * tf };
+      return { outer: roundedLoop(pts, [0, 0, 0, r1, r1, 0, 0, 0]), holes: [] };
     }
     case 'sb beam': {
-      // an I: flanges of width b and thickness tf, web of thickness t
+      // an I: flanges of width b and thickness tf, web of thickness t, root radii where the web meets the flanges
       const w = t / 2;
       const pts: SketchPoint[] = [
         { x: -b / 2, y: -a / 2 }, { x: b / 2, y: -a / 2 }, { x: b / 2, y: -a / 2 + tf }, { x: w, y: -a / 2 + tf }, { x: w, y: a / 2 - tf }, { x: b / 2, y: a / 2 - tf }, { x: b / 2, y: a / 2 }, { x: -b / 2, y: a / 2 },
         { x: -b / 2, y: a / 2 - tf }, { x: -w, y: a / 2 - tf }, { x: -w, y: -a / 2 + tf }, { x: -b / 2, y: -a / 2 + tf },
       ];
-      return { outer: pts, holes: [], area: 2 * b * tf + (a - 2 * tf) * t };
+      return { outer: roundedLoop(pts, [0, 0, 0, r1, r1, 0, 0, 0, 0, r1, r1, 0]), holes: [] };
     }
   }
+}
+
+/** The profile region, centred on the path point (the member's pierce point in the middle of the profile). */
+export function profileRegion(p: ProfileDef): Region {
+  if (p.type === 'pipe') return { outer: circle(p.a / 2), holes: [circle(p.a / 2 - p.t)], area: Math.PI * ((p.a / 2) ** 2 - (p.a / 2 - p.t) ** 2) };
+  const sg = profileSegs(p);
+  const outer = loopPolygon(sg.outer), holes = sg.holes.map(loopPolygon);
+  return { outer, holes, area: shoelace(outer) - holes.reduce((s, h) => s + shoelace(h), 0) };
 }
 
 /** one point of a profile with the Settings applied (as placedProfile) */
@@ -132,9 +200,13 @@ export function profileLoops(p: ProfileDef, rotation: number, mirror: boolean, o
     return [{ a: e, b: w, m: n }, { a: w, b: e, m: s }];
   };
   if (p.type === 'pipe') return { outer: ring(p.a / 2), holes: [ring(p.a / 2 - p.t)] };
-  const reg = placedProfile(profileRegion(p), rotation, mirror, offset);
-  const lines = (pts: SketchPoint[]) => pts.map((q, i) => ({ a: q, b: pts[(i + 1) % pts.length] }));
-  return { outer: lines(reg.outer), holes: reg.holes.map(lines) };
+  // the rounded corners as true arcs; a mirror flips the winding, so the loops are reversed as placedProfile does
+  const sg = profileSegs(p);
+  const place = (loop: ProfileSeg[]) => {
+    const out = loop.map((g) => ({ a: P(g.a), b: P(g.b), ...(g.m ? { m: P(g.m) } : {}) }));
+    return mirror ? out.reverse().map((g) => ({ ...g, a: g.b, b: g.a })) : out;
+  };
+  return { outer: place(sg.outer), holes: sg.holes.map(place) };
 }
 
 /** the profile with the Settings applied: rotation (degrees), mirror, locate-profile offset (in profile coordinates) */
@@ -184,7 +256,10 @@ export interface MemberBuild {
   geometry: THREE.BufferGeometry;
   /** the member for the B-rep kernel: its plane and length, and the half-spaces cut away at mitered corners (absent: a curved member) */
   exact?: { plane: PlaneDef; length: number; clips: { point: V3; normal: V3 }[] };
+  /** the cut list length: the member's extent along its axis after the corner treatment (a miter counts to its long edge) */
   length: number;
+  /** the length of its path segment(s) */
+  pathLength: number;
   /** the miter angles at the two ends (degrees, 0 = square cut) */
   angle1: number;
   angle2: number;
@@ -223,9 +298,15 @@ export function structuralMembers(region: Region, segments0: MemberSegment[], co
     const g = sweepGeometry([region], memberPlane(path[0], path[1]), path);
     if (!g) continue;
     const length = run.reduce((a, x) => a + x.a.distanceTo(x.b), 0);
-    out.push({ geometry: g, length, angle1: 0, angle2: 0, segment: run[0] });
+    out.push({ geometry: g, length, pathLength: length, angle1: 0, angle2: 0, segment: run[0] });
   }
   const segments = segments0;
+  // how far the (placed) profile of a member reaches along the world direction w from its path
+  const reach = (m: MemberSegment, w: THREE.Vector3) => {
+    const pl = memberPlane(m.a, m.b);
+    const cu = new THREE.Vector3(...pl.u).dot(w), cv = new THREE.Vector3(...pl.v).dot(w);
+    return Math.max(...region.outer.map((q) => q.x * cu + q.y * cv));
+  };
   for (const seg of segments) {
     if (inCurve.has(seg)) continue;
     // a closed path (its last point is its first): the first and the last member meet at a corner too
@@ -239,7 +320,7 @@ export function structuralMembers(region: Region, segments0: MemberSegment[], co
     let angle1 = 0, angle2 = 0;
     const cuts: THREE.BufferGeometry[] = [];
     const clips: { point: V3; normal: V3 }[] = [];
-    const cornerCut = (p: THREE.Vector3, dIn: THREE.Vector3, dOut: THREE.Vector3, atStart: boolean) => {
+    const cornerCut = (p: THREE.Vector3, dIn: THREE.Vector3, dOut: THREE.Vector3, atStart: boolean, other: MemberSegment) => {
       // the miter plane of the corner: its normal bisects the two member axes (dIn + dOut); a U-turn has no miter
       const bis = dIn.clone().add(dOut);
       if (bis.length() < 1e-6) return 0;
@@ -260,14 +341,20 @@ export function structuralMembers(region: Region, segments0: MemberSegment[], co
         return miter;
       }
       if (corner === 'endButt1' || corner === 'endButt2') {
-        // End Butt 1: the first member runs through, the second stops at it; End Butt 2 the other way round
-        const runsThrough = corner === 'endButt1' ? !atStart : atStart;
+        // End Butt 1: the corner's first member runs through, the second stops at it; End Butt 2 the other way round. The
+        // first and every other member of a chain count as first (a closed rectangle: two members run through at both
+        // ends, the two others fit between them); where that does not decide (an odd closed chain), the earlier one
+        const evenSelf = seg.index % 2 === 0, evenOther = other.index % 2 === 0;
+        const first = evenSelf !== evenOther ? evenSelf : !atStart;
+        const runsThrough = corner === 'endButt1' ? first : !first;
+        // the other member's faces across this member's axis: run out to its far face, or stop at its near face
+        const out = atStart ? d.clone().negate() : d.clone();
         if (runsThrough) {
-          const ext = half - 1; // out to the far face of the other member (its half size)
+          const ext = reach(other, out);
           if (atStart) a = seg.a.clone().addScaledVector(d, -ext);
           else b = seg.b.clone().addScaledVector(d, ext);
         } else {
-          const back = half - 1 + gap;
+          const back = reach(other, out.clone().negate()) + gap;
           if (atStart) a = seg.a.clone().addScaledVector(d, back);
           else b = seg.b.clone().addScaledVector(d, -back);
         }
@@ -275,17 +362,25 @@ export function structuralMembers(region: Region, segments0: MemberSegment[], co
       }
       return 0;
     };
-    if (prev) angle1 = cornerCut(seg.a, prev.b.clone().sub(prev.a).normalize(), d, true);
-    if (next) angle2 = cornerCut(seg.b, d, next.b.clone().sub(next.a).normalize(), false);
+    if (prev) angle1 = cornerCut(seg.a, prev.b.clone().sub(prev.a).normalize(), d, true, prev);
+    if (next) angle2 = cornerCut(seg.b, d, next.b.clone().sub(next.a).normalize(), false, next);
     const len = a.distanceTo(b);
     if (len < TOL.point) continue;
     const plane = memberPlane(a, b);
     let g = extrudeGeometry([region], plane, { end: 'blind', depth: len, reverse: false }, 0, 0);
     if (!g) continue;
     for (const c of cuts) g = csg(g, c, 'subtract');
-    out.push({ geometry: g, length: seg.a.distanceTo(seg.b), angle1, angle2, segment: seg, exact: { plane, length: len, clips } });
+    out.push({ geometry: g, length: axialExtent(g, d), pathLength: seg.a.distanceTo(seg.b), angle1, angle2, segment: seg, exact: { plane, length: len, clips } });
   }
   return out;
+}
+
+/** the extent of a body along a direction (the cut length of a straight member) */
+export function axialExtent(g: THREE.BufferGeometry, d: THREE.Vector3): number {
+  const pos = g.getAttribute('position');
+  let lo = Infinity, hi = -Infinity;
+  for (let i = 0; i < pos.count; i++) { const s = pos.getX(i) * d.x + pos.getY(i) * d.y + pos.getZ(i) * d.z; lo = Math.min(lo, s); hi = Math.max(hi, s); }
+  return hi > lo ? hi - lo : 0;
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -357,29 +452,46 @@ export function shrinkPolygon(poly: SketchPoint[], d: number): SketchPoint[] {
   });
 }
 
-/** End Cap: a plate of the thickness over the end face of a tube, inset by the offset, inward (into the tube) or outward. */
-export function endCapGeometry(g: THREE.BufferGeometry, face: PlanarFace, thickness: number, offset: number, outward: boolean, chamfer = 0): THREE.BufferGeometry | null {
+/** the outline of an end cap: the end face's outer boundary inset by the offset, its sharp corners chamfered */
+function endCapOutline(g: THREE.BufferGeometry, face: PlanarFace, offset: number, chamfer: number): { outer: SketchPoint[]; plane: PlaneDef; area: number } | null {
   const o = faceOutline(g, face);
   if (!o) return null;
   let outer = shrinkPolygon(o.region.outer, offset);
   if (chamfer > 0) {
-    // chamfered corners: every corner replaced by two points
+    // chamfered corners: every sharp corner (not the chords of a corner radius) replaced by two points
     const n = outer.length;
     const pts: SketchPoint[] = [];
     for (let i = 0; i < n; i++) {
       const p = outer[i], prev = outer[(i - 1 + n) % n], next = outer[(i + 1) % n];
       const l1 = Math.hypot(p.x - prev.x, p.y - prev.y) || 1, l2 = Math.hypot(next.x - p.x, next.y - p.y) || 1;
+      const turn = ((p.x - prev.x) * (next.x - p.x) + (p.y - prev.y) * (next.y - p.y)) / (l1 * l2);
+      if (turn > Math.cos(Math.PI / 6)) { pts.push(p); continue; }
       const c = Math.min(chamfer, l1 / 2.5, l2 / 2.5);
       pts.push({ x: p.x - ((p.x - prev.x) / l1) * c, y: p.y - ((p.y - prev.y) / l1) * c }, { x: p.x + ((next.x - p.x) / l2) * c, y: p.y + ((next.y - p.y) / l2) * c });
     }
     outer = pts;
   }
-  const region: Region = { outer, holes: [], area: o.region.area };
-  // inward: from the face plane into the tube (−n); the cap overlaps the wall a hair so it merges
-  const cap = extrudeGeometry([region], o.plane, { end: 'blind', depth: thickness + EPS, reverse: !outward }, 0, 0);
+  return { outer, plane: o.plane, area: o.region.area };
+}
+
+/**
+ * End Cap as a prism along the end face's normal: inward from the face into the tube (z from -thickness to 0, flush with
+ * the end); outward on the end face (z from -EPS, a hair into the tube so it touches, to thickness). For the B-rep kernel.
+ */
+export function endCapPrism(g: THREE.BufferGeometry, face: PlanarFace, thickness: number, offset: number, outward: boolean, chamfer = 0): { plane: PlaneDef; loop: { a: SketchPoint; b: SketchPoint }[]; zStart: number; depth: number; outer: SketchPoint[]; area: number } | null {
+  const o = endCapOutline(g, face, offset, chamfer);
+  if (!o) return null;
+  return { plane: o.plane, outer: o.outer, area: o.area, loop: o.outer.map((q, i) => ({ a: q, b: o.outer[(i + 1) % o.outer.length] })), zStart: outward ? -EPS : -thickness, depth: outward ? thickness + EPS : thickness };
+}
+
+/** End Cap: a plate of the thickness over the end face of a tube, inset by the offset, inward (into the tube) or outward. */
+export function endCapGeometry(g: THREE.BufferGeometry, face: PlanarFace, thickness: number, offset: number, outward: boolean, chamfer = 0): THREE.BufferGeometry | null {
+  const pr = endCapPrism(g, face, thickness, offset, outward, chamfer);
+  if (!pr) return null;
+  const cap = extrudeGeometry([{ outer: pr.outer, holes: [], area: pr.area }], pr.plane, { end: 'blind', depth: pr.depth, reverse: false }, 0, 0);
   if (!cap) return null;
-  if (!outward) { const n = new THREE.Vector3(...o.plane.n).multiplyScalar(EPS); cap.translate(n.x, n.y, n.z); }
-  else { const n = new THREE.Vector3(...o.plane.n).multiplyScalar(-EPS); cap.translate(n.x, n.y, n.z); }
+  const n = new THREE.Vector3(...pr.plane.n).multiplyScalar(pr.zStart);
+  cap.translate(n.x, n.y, n.z);
   return cap;
 }
 
@@ -512,25 +624,29 @@ export interface CutListItem {
   volume: number;
 }
 
-/** identical bodies (same volume and bounding size) grouped into cut list items, as the intended Cut-List-Item folders */
+/**
+ * identical bodies (same description, bounding size within 0.05 mm and volume within 0.1 %) grouped into cut list items,
+ * as the intended Cut-List-Item folders; a tolerance, not rounding, so two members that differ only by the boolean's
+ * triangulation still land in one item
+ */
 export function cutList(bodies: { id: string; geometry: THREE.BufferGeometry; description?: string; length?: number; angle1?: number; angle2?: number }[]): CutListItem[] {
-  const items: CutListItem[] = [];
+  const items: (CutListItem & { size: number[] })[] = [];
   const keyOf = (b: (typeof bodies)[number]) => {
     b.geometry.computeBoundingBox();
-    const size = b.geometry.boundingBox!.getSize(new THREE.Vector3()).toArray().map((x) => Math.round(x * 10) / 10).sort((x, y) => x - y);
+    const size = b.geometry.boundingBox!.getSize(new THREE.Vector3()).toArray().sort((x, y) => x - y);
     const pos = b.geometry.getAttribute('position');
     let v = 0;
     for (let i = 0; i + 2 < pos.count; i += 3) {
       const ax = pos.getX(i), ay = pos.getY(i), az = pos.getZ(i), bx = pos.getX(i + 1), by = pos.getY(i + 1), bz = pos.getZ(i + 1), cx = pos.getX(i + 2), cy = pos.getY(i + 2), cz = pos.getZ(i + 2);
       v += (ax * (by * cz - bz * cy) + bx * (cy * az - cz * ay) + cx * (ay * bz - az * by)) / 6;
     }
-    return { key: `${size.join('x')}|${Math.round(Math.abs(v))}|${b.description ?? ''}`, volume: Math.abs(v) };
+    return { key: `${size.map((x) => x.toFixed(1)).join('x')}|${Math.round(Math.abs(v))}|${b.description ?? ''}`, size, volume: Math.abs(v) };
   };
   for (const b of bodies) {
-    const { key, volume } = keyOf(b);
-    const it = items.find((x) => x.id === key);
+    const { key, size, volume } = keyOf(b);
+    const it = items.find((x) => x.description === (b.description ?? '') && x.size.every((s, i) => Math.abs(s - size[i]) < 0.05) && Math.abs(x.volume - volume) <= 1e-3 * Math.max(x.volume, volume));
     if (it) { it.bodyIds.push(b.id); it.quantity++; }
-    else items.push({ id: key, name: `Cut-List-Item${items.length + 1}`, bodyIds: [b.id], quantity: 1, description: b.description ?? '', length: b.length ?? 0, angle1: b.angle1 ?? 0, angle2: b.angle2 ?? 0, volume });
+    else items.push({ id: key, name: `Cut-List-Item${items.length + 1}`, bodyIds: [b.id], quantity: 1, description: b.description ?? '', length: b.length ?? 0, angle1: b.angle1 ?? 0, angle2: b.angle2 ?? 0, volume, size });
   }
-  return items;
+  return items.map(({ size, ...it }) => { void size; return it; });
 }

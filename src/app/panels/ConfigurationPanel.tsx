@@ -5,6 +5,13 @@ import { Menu, Section, TreeView, type TreeNode } from '../../ui/components';
 import { Icon } from '../../ui/icons';
 import { activeConfiguration, configurations } from '../../core/document/configurations';
 
+// Design Table commands: their own chunk, loaded on first use
+const designTable = () => import('../designTableCommands');
+const designTableItems = [
+  { label: 'Insert Design Table…', icon: <Icon.Open />, onSelect: () => void designTable().then((m) => m.insertDesignTableFile()) },
+  { label: 'Export Design Table…', icon: <Icon.Save />, onSelect: () => void designTable().then((m) => m.exportDesignTableFile()) },
+];
+
 /**
  * Configurations panel (third tab of the manager pane), by design:
  *   Part1 Configuration(s) (Default)
@@ -63,12 +70,13 @@ export function ConfigurationPanelBody() {
               setMenu({ x: e.clientX, y: e.clientY, configId: c.id });
             },
           })),
-        { id: 'cfg-tables', icon: <Icon.Folder />, label: <span className="k-muted">Tables</span>, onDoubleClick: () => st.openConfigure({}) },
+        { id: 'cfg-tables', icon: <Icon.Folder />, label: <span className="k-muted">Tables</span>, onDoubleClick: () => st.openConfigure({}), onContextMenu: (e) => { e.preventDefault(); setMenu({ x: e.clientX, y: e.clientY, configId: '__tables' }); } },
       ],
     },
   ];
   const menuCfg = menu?.configId ? list.find((c) => c.id === menu.configId) : undefined;
   const explMenu = menu?.configId === '__expl';
+  const tablesMenu = menu?.configId === '__tables';
   return (
     <div style={{ position: 'relative' }} className="k-cfg-manager">
       <TreeView nodes={nodes} />
@@ -79,6 +87,8 @@ export function ConfigurationPanelBody() {
           items={[
             { label: 'Add Configuration…', icon: <Icon.Config />, onSelect: () => st.startAddConfiguration() },
             { label: 'Modify Configurations…', icon: <Icon.Properties />, onSelect: () => st.openConfigure({}) },
+            { separator: true },
+            ...designTableItems,
             { separator: true },
             { label: 'Document Properties…', icon: <Icon.Options />, onSelect: () => st.setDialog('options') },
           ]}
@@ -94,6 +104,9 @@ export function ConfigurationPanelBody() {
             { label: 'Animate collapse', icon: <Icon.Explode />, disabled: !st.doc.exploded, onSelect: () => st.animateCollapse() },
           ]}
         />
+      )}
+      {menu && tablesMenu && (
+        <Menu style={{ position: 'fixed', left: menu.x, top: menu.y }} onClose={() => setMenu(null)} items={[...designTableItems, { label: 'Modify Configurations…', icon: <Icon.Properties />, onSelect: () => st.openConfigure({}) }]} />
       )}
       {menu && menuCfg && (
         <Menu

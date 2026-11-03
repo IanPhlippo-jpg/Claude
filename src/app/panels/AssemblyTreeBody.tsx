@@ -7,19 +7,9 @@ import { Icon } from '../../ui/icons';
 import { restoreSnapshot } from '../assemblyCommands';
 import { activeConfiguration, configurations } from '../../core/document/configurations';
 import { PLANE_LABELS } from '../viewport/camera';
-import type { Mate } from '../../core/document/types';
 import { mateStatus } from '../../core/assembly/mateStatus';
 
-export const MATE_ICON: Partial<Record<Mate['type'], React.ReactNode>> = {
-  coincident: <Icon.MateCoincident />,
-  parallel: <Icon.MateParallel />,
-  perpendicular: <Icon.MatePerpendicular />,
-  tangent: <Icon.MateTangent />,
-  concentric: <Icon.MateConcentric />,
-  lock: <Icon.MateLock />,
-  distance: <Icon.MateDistance />,
-  angle: <Icon.MateAngle />,
-};
+import { MATE_ICON } from './mateIcons';
 
 /**
  * Feature Tree of an assembly by design:

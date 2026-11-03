@@ -5,7 +5,7 @@ import { useShallow } from 'zustand/react/shallow';
 import { getPref } from '../prefs';
 import { Icon } from '../../ui/icons';
 import { featureIcon } from '../panels/featureIcon';
-import { MATE_ICON } from '../panels/AssemblyTreeBody';
+import { MATE_ICON } from '../panels/mateIcons';
 import { faceOwner } from '../../core/features/faceOwner';
 import { isSketchBased, type Feature } from '../../core/document/types';
 

@@ -2,6 +2,7 @@
 import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import { readFileSync } from 'node:fs';
+import { execSync } from 'node:child_process';
 
 const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf-8')) as { version: string };
 
@@ -13,9 +14,23 @@ const csp = (): Plugin => ({
   transformIndexHtml: (html) => html.replace('<meta charset="UTF-8" />', `<meta charset="UTF-8" />\n    <meta http-equiv="Content-Security-Policy" content="${CSP}" />`),
 });
 
+/** the commit of the build (QA 0.5.11 F97): git, else what `git archive` wrote into e2e/lib/commit.txt, else unknown */
+function buildCommit(): string {
+  try {
+    const head = execSync('git rev-parse --short HEAD', { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+    const dirty = execSync('git status --porcelain --untracked-files=no', { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+    if (head) return dirty ? `${head}+changes` : head;
+  } catch { /* no git */ }
+  try {
+    const exported = readFileSync(new URL('./e2e/lib/commit.txt', import.meta.url), 'utf-8').trim().split(/\s+/)[0];
+    if (exported && !exported.includes('$')) return exported;
+  } catch { /* no file */ }
+  return 'unknown';
+}
+
 export default defineConfig({
   base: './',
-  define: { __APP_VERSION__: JSON.stringify(pkg.version) },
+  define: { __APP_VERSION__: JSON.stringify(pkg.version), __APP_COMMIT__: JSON.stringify(buildCommit()) },
   plugins: [react(), csp()],
   worker: { format: 'es' },
   build: {

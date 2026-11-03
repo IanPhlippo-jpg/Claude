@@ -324,8 +324,8 @@ export interface Sketch3DEdit {
   last: [number, number, number] | null;
   /** Insert Line ▸ Orientation: as sketched, or along a world axis from the last point */
   orientation?: 'free' | 'x' | 'y' | 'z';
-  /** Sketch Fillet corners and the radius the next ones get */
-  fillets?: Sketch3DFeature['fillets'];
+  /** Sketch Fillet corners and the radius the next ones get; the Along X/Y/Z relations of the lines */
+  fillets?: Sketch3DFeature['fillets']; relations?: Sketch3DFeature['relations']; dims?: Sketch3DFeature['dims'];
   filletRadius?: number;
 }
 export interface ExplodeEdit {

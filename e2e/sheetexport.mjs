@@ -1,9 +1,8 @@
 // File ▸ Save As ▸ DXF / Adobe PDF of a drawing (QA v0.5.1 F114): the Deurkruk drawing sheet as vectors, in mm,
 // with the views, dimensions and the sheet format; no selection highlight in the file.
-// skip-budget: 1 a headless Chromium (Linux CI) downloads a PDF instead of showing it; only the viewer screenshot needs it, the PDF checks read the file
 import { menuPath } from './lib/menu.mjs';
 import { chromium } from 'playwright';
-import { exitCode, skip } from './lib/check.mjs';
+import { exitCode } from './lib/check.mjs';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -70,13 +69,17 @@ const box = /\/MediaBox \[0 0 ([\d.]+) ([\d.]+)\]/.exec(s);
 check('PDF page is the sheet size in points', !!box && Math.abs(Number(box[1]) - extMax[0] * 72 / 25.4) < 1 && Math.abs(Number(box[2]) - extMax[1] * 72 / 25.4) < 1, box?.[0]);
 check('PDF draws vectors and text', (s.match(/ l /g) ?? []).length > 100 && (s.match(/\) Tj/g) ?? []).length > 10);
 check('no selection blue in the file (black only)', !/0\.1\d* 0\.4\d* 0\.8\d* RG/.test(s));
-// the PDF as Edge shows it
-const viewer = await browser.newPage({ viewport: { width: 1400, height: 1000 } });
-// OUT is relative on Windows and absolute elsewhere: a proper file URL either way (QA F146)
-await viewer.goto(pathToFileURL(resolve(OUT, 'sheet.pdf')).href).catch(skip('sheetexport: the PDF in the browser viewer'));
-await viewer.waitForTimeout(2500);
-await viewer.screenshot({ path: `${OUT}/sheet-pdf.png` });
-await viewer.close();
+// the PDF as Edge shows it: a picture for the eye only, the checks above read the file. Only where the browser has a
+// PDF viewer (Edge on Windows); a headless Chromium (Linux CI) downloads the file instead, so the step is not taken
+// there at all rather than counted as skipped (QA 0.5.11 P0-5)
+if (process.platform === 'win32') {
+  const viewer = await browser.newPage({ viewport: { width: 1400, height: 1000 } });
+  // OUT is relative on Windows and absolute elsewhere: a proper file URL either way (QA F146)
+  await viewer.goto(pathToFileURL(resolve(OUT, 'sheet.pdf')).href);
+  await viewer.waitForTimeout(2500);
+  await viewer.screenshot({ path: `${OUT}/sheet-pdf.png` });
+  await viewer.close();
+}
 await page.screenshot({ path: `${OUT}/sheet-screen.png` });
 check('the drawing had views', info.views > 0, JSON.stringify(info));
 

@@ -2,6 +2,7 @@
  * OpenCascade in a worker of its own (QA F51): STEP import and export, and the rebuild with the B-rep kernel, without
  * blocking the window. The 23 MB WebAssembly module loads on the first request, not at start-up.
  */
+import { displayOf } from '../core/features/edges';
 import wasmUrl from 'replicad-opencascadejs/wasm?url';
 import { meshesToStep, shapesToStep, stepToMeshes } from '../core/occt/step';
 import { occtKernel } from '../core/occt/brep';
@@ -22,6 +23,8 @@ export interface RefinedBody {
   exactVolume?: number;
   positions?: Float32Array;
   normals?: Float32Array;
+  /** what the viewport draws of the exact body, worked out here instead of in the window (QA 0.5.11 F46) */
+  display?: { positions: Float32Array; normals: Float32Array; edges: Float32Array; tangentEdges: Float32Array };
 }
 
 let ready: Promise<typeof import('replicad')> | null = null;
@@ -72,7 +75,11 @@ self.onmessage = async (ev: MessageEvent<OcctRequest>) => {
         const normals = nAttr ? new Float32Array(nAttr.array) : undefined;
         transfer.push(positions.buffer);
         if (normals) transfer.push(normals.buffer);
-        return { id: b.id, exact: true, exactVolume: b.exactVolume, positions, normals };
+        const d = displayOf(b.geometry);
+        const arr = (g: import('three').BufferGeometry, name: string) => new Float32Array(g.getAttribute(name).array);
+        const display = { positions: arr(d.geometry, 'position'), normals: arr(d.geometry, 'normal'), edges: arr(d.edges, 'position'), tangentEdges: arr(d.tangentEdges, 'position') };
+        transfer.push(display.positions.buffer, display.normals.buffer, display.edges.buffer, display.tangentEdges.buffer);
+        return { id: b.id, exact: true, exactVolume: b.exactVolume, positions, normals, display };
       });
       post({ id: req.id, bodies }, transfer);
     }

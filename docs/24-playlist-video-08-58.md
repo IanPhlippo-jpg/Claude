@@ -40,10 +40,23 @@ verschillen weggewerkt, met de e2e-tests `videos56`, `videos46` en `videos54`.
   zeker genoeg. Een gok zou verkeerde onderdelen geven.
 - **Live "Length:" bij het slepen van de flens.** Phlippo heeft voor de flenshoogte geen sleephandgreep.
 - **Plane ▸ Project bij een punt.** Het Plane-PM kent nog geen punten als referentie.
-- **Magnified Selection (G).** Daarvoor moet het WebGL-beeld rond de aanwijzer worden uitvergroot. Dat is niet
-  betrouwbaar zonder `preserveDrawingBuffer`.
 - **Customize ▸ Shortcut Bars per werkbalk** (slepen naar de balk), het slotje bij de flenshoek, "Customize…" onder de
   contextwerkbalk van een schets en de eenheid "Custom".
-- **Instant2D** bestaat al als *Drag Dimensions*; de naam is bewust anders (handelsmerkregel).
-- **Equations op 3D-schetsmaten** en bogen in een 3D-schets: de hoeken worden afgerond met Sketch Fillet, maar een vrije
-  3D-boog en 3D-maten in de solver zijn er niet.
+- **Equations op 3D-schetsmaten** en vrije bogen in een 3D-schets: de hoeken worden afgerond met Sketch Fillet; 3D-maten
+  staan sinds 0.5.11 in de solver (zie hieronder), maar ze hebben nog geen naam voor Equations.
+
+## Gesloten in 0.5.11 (F124, pariteitsrijen 6 en 7)
+
+Details in `docs/29-parts/instant2d-magnify-3ddims.md`.
+
+- **Instant2D** heet in Phlippo *Drag Dimensions* (handelsmerkregel, `docs/06`). De maat volgt nu live: de geometrie
+  gaat mee via de solver tijdens het slepen, stappen van 0,5 mm (Alt: 0,1 mm), ook in een volledig bepaalde schets;
+  loslaten is één Undo-stap (Modify dimension). e2e `instant2d` (8 checks).
+- **Magnified Selection (G).** Het vergrootglas (3×, wiel 2×–8×) rendert de scène opnieuw met dezelfde renderer via
+  een view offset van de camera in een hoek van het canvas en kopieert dat in dezelfde taak, dus zonder
+  `preserveDrawingBuffer`. Klikken gaat door het glas: het midden wordt geselecteerd. G of Esc sluit. e2e `magnify`
+  (12 checks).
+- **3D-schetsmaten.** Lengte van een 3D-lijn en afstand tussen twee eindpunten, drijvend; de solver (Newton met de
+  kleinste verplaatsing) houdt ze bij het slepen van een eindpunt, het typen van coördinaten of een waarde en bij
+  Along X/Y/Z. Status Under / Fully / Over Defined in het Property Panel en de statusbalk, lijnen zwart als volledig
+  bepaald. Unit `sketch3d.test` (12), e2e `sketch3d2` (14 checks).

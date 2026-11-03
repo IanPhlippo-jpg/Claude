@@ -8,6 +8,34 @@ import * as THREE from 'three';
  */
 export type TangentMode = 'visible' | 'phantom' | 'removed';
 
+/**
+ * What the viewport draws of a body: the smoothed geometry and its crease and tangent edges (phantom sets), worked
+ * out where the body is built (the rebuild worker), so a large part does not freeze the window (QA 0.5.11 F46: a
+ * plate with 64 holes took the window seconds after every rebuild).
+ */
+export interface BodyDisplay { geometry: THREE.BufferGeometry; edges: THREE.BufferGeometry; tangentEdges: THREE.BufferGeometry }
+
+/** the display of a body geometry */
+export function displayOf(g: THREE.BufferGeometry): BodyDisplay {
+  const geometry = smoothNormals(g, 30);
+  const sets = featureEdgeSets(geometry, 20, 'phantom');
+  return { geometry, edges: sets.edges, tangentEdges: sets.tangentEdges };
+}
+
+/** the edge sets of a display for a tangent mode: visible = both sets as one, phantom = apart, removed = creases only */
+export function displayEdgeSets(d: BodyDisplay, tangent: TangentMode): { edges: THREE.BufferGeometry; tangentEdges: THREE.BufferGeometry } {
+  const empty = () => { const e = new THREE.BufferGeometry(); e.setAttribute('position', new THREE.Float32BufferAttribute([], 3)); return e; };
+  if (tangent === 'phantom') return { edges: d.edges.clone(), tangentEdges: d.tangentEdges.clone() };
+  if (tangent === 'removed') return { edges: d.edges.clone(), tangentEdges: empty() };
+  const a = d.edges.getAttribute('position').array as Float32Array, b = d.tangentEdges.getAttribute('position').array as Float32Array;
+  const all = new Float32Array(a.length + b.length);
+  all.set(a, 0);
+  all.set(b, a.length);
+  const e = new THREE.BufferGeometry();
+  e.setAttribute('position', new THREE.BufferAttribute(all, 3));
+  return { edges: e, tangentEdges: empty() };
+}
+
 /** Feature edges as one geometry; tangent edges follow the mode (visible, phantom = drawn dashed by the caller, removed). */
 export function featureEdges(g: THREE.BufferGeometry, thresholdDeg = 20, tangent: TangentMode = 'visible'): THREE.BufferGeometry {
   return featureEdgeSets(g, thresholdDeg, tangent).edges;
@@ -26,6 +54,8 @@ export function featureEdgeSets(g: THREE.BufferGeometry, thresholdDeg = 20, tang
     b: THREE.Vector3;
     dir: THREE.Vector3;
     len: number;
+    /** the line's cell, worked out once (lineGroup looks at the 27 cells around it for every edge) */
+    cell?: { dk: string; x: number; y: number; z: number };
   }
   const edges: Edge[] = [];
   // lines: key by the infinite line the edge lies on -> edges on it
@@ -43,13 +73,24 @@ export function featureEdgeSets(g: THREE.BufferGeometry, thresholdDeg = 20, tang
     const r = (v: number) => Math.round(v / 0.02);
     return `${r(d.x)},${r(d.y)},${r(d.z)}`;
   };
+  const cellOf = (e: Edge) => {
+    if (!e.cell) {
+      const q = e.a.clone().addScaledVector(e.dir, -e.a.dot(e.dir));
+      e.cell = { dk: dirKey(e), x: Math.round(q.x / CELL), y: Math.round(q.y / CELL), z: Math.round(q.z / CELL) };
+    }
+    return e.cell;
+  };
   const lineKey = (e: Edge, dx = 0, dy = 0, dz = 0): string => {
-    const q = e.a.clone().addScaledVector(e.dir, -e.a.dot(e.dir));
-    return `${dirKey(e)}|${Math.round(q.x / CELL) + dx},${Math.round(q.y / CELL) + dy},${Math.round(q.z / CELL) + dz}`;
+    const c = cellOf(e);
+    return `${c.dk}|${c.x + dx},${c.y + dy},${c.z + dz}`;
   };
   const NEAR: [number, number, number][] = [];
   for (const dx of [-1, 0, 1]) for (const dy of [-1, 0, 1]) for (const dz of [-1, 0, 1]) NEAR.push([dx, dy, dz]);
-  const lineGroup = (e: Edge): Edge[] => { const out: Edge[] = []; for (const [dx, dy, dz] of NEAR) { const g2 = lines.get(lineKey(e, dx, dy, dz)); if (g2) out.push(...g2); } return out; };
+  const lineGroup = (e: Edge): Edge[] => {
+    const out: Edge[] = [];
+    for (const [dx, dy, dz] of NEAR) { const g2 = lines.get(lineKey(e, dx, dy, dz)); if (g2) for (const x of g2) out.push(x); }
+    return out;
+  };
   const distToLine = (p: THREE.Vector3, e: Edge) => p.clone().sub(e.a).cross(e.dir).length();
   const collinear = (o: Edge, e: Edge) => distToLine(o.a, e) < 0.02 && distToLine(o.b, e) < 0.02;
   void Q;
@@ -132,6 +173,38 @@ export function featureEdgeSets(g: THREE.BufferGeometry, thresholdDeg = 20, tang
     if (idx >= 0) (planeTris.get(idx) ?? planeTris.set(idx, []).get(idx)!).push(t);
   }
   const triOf = (t: number) => [P(t * 3), P(t * 3 + 1), P(t * 3 + 2)];
+  // the triangles of a plane in a grid of cells, so the interior test looks only at those near its probe point
+  // (it looked at every triangle of the plane for every edge: a plate with 64 holes froze the window for seconds,
+  // QA 0.5.11 F46/F190). Triangles that span very many cells stay in a list that is always looked at.
+  const grids = new Map<number, { cell: number; cells: Map<string, number[]>; wide: number[] }>();
+  const cellKey = (x: number, y: number, z: number, s: number) => `${Math.floor(x / s)},${Math.floor(y / s)},${Math.floor(z / s)}`;
+  const gridOf = (idx: number) => {
+    const hit = grids.get(idx);
+    if (hit) return hit;
+    const tris = planeTris.get(idx) ?? [];
+    const box = new THREE.Box3();
+    for (const t of tris) for (let k = 0; k < 3; k++) box.expandByPoint(P(t * 3 + k));
+    const size = box.isEmpty() ? 1 : box.getSize(new THREE.Vector3()).length();
+    const cell = Math.max(0.25, size / 48);
+    const g = { cell, cells: new Map<string, number[]>(), wide: [] as number[] };
+    for (const t of tris) {
+      const tb = new THREE.Box3().setFromPoints(triOf(t)).expandByScalar(0.06);
+      const lo = tb.min.clone().divideScalar(cell).floor(), hi = tb.max.clone().divideScalar(cell).floor();
+      const n = (hi.x - lo.x + 1) * (hi.y - lo.y + 1) * (hi.z - lo.z + 1);
+      if (n > 400) { g.wide.push(t); continue; }
+      for (let x = lo.x; x <= hi.x; x++) for (let y = lo.y; y <= hi.y; y++) for (let z = lo.z; z <= hi.z; z++) {
+        const k = `${x},${y},${z}`;
+        (g.cells.get(k) ?? g.cells.set(k, []).get(k)!).push(t);
+      }
+    }
+    grids.set(idx, g);
+    return g;
+  };
+  const nearTris = (idx: number, p: THREE.Vector3): number[] => {
+    const g = gridOf(idx);
+    const here = g.cells.get(cellKey(p.x, p.y, p.z, g.cell)) ?? [];
+    return g.wide.length ? [...here, ...g.wide] : here;
+  };
   const inTriangle = (p: THREE.Vector3, a: THREE.Vector3, b: THREE.Vector3, c: THREE.Vector3, n: THREE.Vector3) => {
     const s1 = b.clone().sub(a).cross(p.clone().sub(a)).dot(n);
     const s2 = c.clone().sub(b).cross(p.clone().sub(b)).dot(n);
@@ -151,7 +224,7 @@ export function featureEdgeSets(g: THREE.BufferGeometry, thresholdDeg = 20, tang
     const centroid = t0.clone().add(t1).add(t2).divideScalar(3);
     const side = Math.sign(centroid.clone().sub(mid).dot(w)) || 1;
     const probe = mid.clone().addScaledVector(w, -side * 0.05);
-    for (const o of planeTris.get(idx) ?? []) {
+    for (const o of nearTris(idx, probe)) {
       if (o === t) continue;
       const [a0, a1, a2] = triOf(o);
       if (inTriangle(probe, a0, a1, a2, n)) return true;

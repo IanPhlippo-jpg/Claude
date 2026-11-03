@@ -32,7 +32,7 @@ Documentatie:
 - `docs/03-vergelijking-solidworks.md` — vergelijking met de SOLIDWORKS-handleiding en doorgevoerde aanpassingen.
 - `docs/05-vergelijking-video.md` — vergelijking met de YouTube-video (lokale frames) en gevonden verschillen.
 - `docs/28-qa-0.5.10.md` — verwerking van het QA-rapport over 0.5.10 (merken, docs, budgetten en splitsplan).
-- `docs/06-merken-en-auteursrecht.md` — wat van het origineel vrij is om na te maken en wat vermeden wordt (naam, logo, iconen, merknamen).
+- Merken en auteursrecht: de eigen namen, iconen en de disclaimer (`src/app/legal.ts`); de interne werkdocumenten en vergelijkingsbeelden blijven buiten de publieke repo (QA 0.5.11 F189).
 
 Status per fase:
 1. 2D-schetser met constraint-solver — **gereed**

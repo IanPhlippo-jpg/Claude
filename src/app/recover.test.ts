@@ -14,6 +14,7 @@ const rec = require('../../electron/recover.cjs') as {
   isRecoverFile(name: unknown): boolean;
   recoverDir(userData: string): string;
   writeSynced(file: string, data: ArrayBuffer | Uint8Array): Promise<void>;
+  adoptLegacyCopies(userData: string, dir: string): Promise<number>;
 };
 
 describe('Auto-Recover copies are kept per document (QA F153)', () => {
@@ -69,5 +70,25 @@ describe('a recovered document is named "(Recovered)" (QA F154)', () => {
     expect(recoveredName('Part1')).toBe('Part1 (Recovered)');
     expect(recoveredName('Part1 (Recovered)')).toBe('Part1 (Recovered)');
     expect(recoveredName('')).toBe('Document (Recovered)');
+  });
+});
+
+describe('copies of 0.5.10 appear in Document Recovery (QA 0.5.11 F188)', () => {
+  it('a keyless copy in <profile>/backup or in the folder is given a key and moved into the folder', async () => {
+    const userData = fs.mkdtempSync(path.join(os.tmpdir(), 'phlippo-legacy-'));
+    const dir = rec.recoverDir(userData);
+    fs.mkdirSync(path.join(userData, 'backup'), { recursive: true });
+    fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(path.join(userData, 'backup', 'Part1.autorecover.kcad'), '{"old":1}');
+    fs.writeFileSync(path.join(dir, 'Bracket.autorecover.kcad'), '{"old":2}');
+    fs.writeFileSync(path.join(dir, 'notes.txt'), 'not a copy');
+    expect(await rec.adoptLegacyCopies(userData, dir)).toBe(2);
+    const names = fs.readdirSync(dir).filter((n) => rec.isRecoverFile(n));
+    expect(names.map((n) => rec.recoverLabel(n)).sort()).toEqual(['Bracket', 'Part1']);
+    expect(fs.readFileSync(path.join(dir, names.find((n) => rec.recoverLabel(n) === 'Part1')!), 'utf8')).toBe('{"old":1}');
+    expect(fs.existsSync(path.join(dir, 'notes.txt'))).toBe(true);
+    // a second start takes nothing over again
+    expect(await rec.adoptLegacyCopies(userData, dir)).toBe(0);
+    fs.rmSync(userData, { recursive: true, force: true });
   });
 });

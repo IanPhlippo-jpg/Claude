@@ -90,9 +90,30 @@ function orient(region: Region): Region {
   return { outer: ccw(region.outer), holes: region.holes.map(cw), area: region.area };
 }
 
-function finish(pos: number[]): THREE.BufferGeometry {
+/**
+ * where each triangle of a sweep or loft came from (QA F47): a cap ('-' at the start, '+' at the end) or the point of
+ * the (first) profile, in its sketch coordinates, that its wall was swept from; kept as `userData.faceSrc` so that
+ * nameFeatureFaces can name the faces after the profile entities, as those of an extrusion
+ */
+export type FaceSource = '+' | '-' | SketchPoint;
+/** the sources of `rows` rows of walls of a loop (two triangles per side, in the order of wallTriangles) */
+function wallSources(loop: SketchPoint[], rows: number, src: FaceSource[]): void {
+  const n = loop.length;
+  for (let k = 0; k < rows; k++) for (let i = 0; i < n; i++) {
+    const a = loop[i], b = loop[(i + 1) % n], m = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+    src.push(m, m);
+  }
+}
+/** a cap's triangles added to the positions, with their source */
+function pushCap(tris: number[], side: '+' | '-', pos: number[], src: FaceSource[]): void {
+  pos.push(...tris);
+  for (let i = 0; i < tris.length / 9; i++) src.push(side);
+}
+
+function finish(pos: number[], src?: FaceSource[]): THREE.BufferGeometry {
   const g = new THREE.BufferGeometry();
   g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  if (src && src.length * 9 === pos.length) g.userData.faceSrc = src;
   // make the surface outward facing
   if (meshVolume(g) < 0) {
     const p = g.getAttribute('position');
@@ -105,6 +126,29 @@ function finish(pos: number[]): THREE.BufferGeometry {
   }
   g.computeVertexNormals();
   return g;
+}
+
+/**
+ * The tangent at an end of the path (index `e`, `s` = +1 at the start, -1 at the end) where the path ends on an arc:
+ * the last chord lies half a step off the arc's tangent there, so an end cap at right angles to the chord stood tilted
+ * (0.31 mm at the end of an R25 bend under a Ø16 profile, QA F172). On an arc sampled in equal steps (three equal
+ * chords turning by the same small angle about the same axis) the tangent at the end is the one at the next point
+ * mirrored in the chord between them; a polyline corner keeps its chord.
+ */
+function arcEndTangent(path: THREE.Vector3[], tangents: THREE.Vector3[], e: number, s: 1 | -1): void {
+  if (path.length < 4) return;
+  const c = [0, 1, 2].map((k) => path[e + s * (k + 1)].clone().sub(path[e + s * k]));
+  const len = c.map((x) => x.length());
+  if (!(len[0] > 1e-9) || len.some((l) => Math.abs(l - len[0]) > 1e-6 * len[0])) return;
+  const d = c.map((x) => x.clone().normalize());
+  const ax1 = d[0].clone().cross(d[1]), ax2 = d[1].clone().cross(d[2]);
+  const a1 = ax1.length(), a2 = ax2.length();
+  // a turn between 1e-6 and about 15° per step, the same at both points, about the same axis
+  if (!(a1 > 1e-6 && a1 < 0.26) || Math.abs(a1 - a2) > 1e-4 || ax1.dot(ax2) < a1 * a2 * (1 - 1e-6)) return;
+  // the tangent at the next point (central difference: exact on an evenly sampled arc), mirrored in the chord
+  const tn = tangents[e + s].clone().multiplyScalar(s);
+  const m = d[0].clone().multiplyScalar(2 * d[0].dot(tn)).sub(tn);
+  tangents[e] = m.multiplyScalar(s).normalize();
 }
 
 /**
@@ -123,15 +167,16 @@ export function sweepGeometry(regions: Region[], profilePlane: PlaneDef, path: T
     const a = path[Math.max(0, i - 1)], b = path[Math.min(path.length - 1, i + 1)];
     return b.clone().sub(a).normalize();
   });
+  arcEndTangent(path, tangents, 0, 1);
+  arcEndTangent(path, tangents, path.length - 1, -1);
   let u = pf.u.clone(), v = pf.v.clone();
   // start frame: align the profile normal with the first tangent
   const t0 = tangents[0];
   const q0 = new THREE.Quaternion().setFromUnitVectors(pf.n, t0.dot(pf.n) < 0 ? t0.clone().negate() : t0);
   u.applyQuaternion(q0);
   v.applyQuaternion(q0);
-  if (t0.dot(pf.n) < 0) {
-    u.negate();
-  }
+  // a path that leaves against the plane normal keeps the profile as drawn (finish() turns the faces outward); turning
+  // u round mirrored it: a Swept Flange along an edge whose points ran the other way stood on the other side (QA F172)
   const frames: { o: THREE.Vector3; u: THREE.Vector3; v: THREE.Vector3 }[] = [];
   let prevT = tangents[0];
   // Keep normal constant: the profile keeps the orientation of its plane along the whole path
@@ -158,23 +203,28 @@ export function sweepGeometry(regions: Region[], profilePlane: PlaneDef, path: T
     frames.push({ o: path[i], u: fu, v: fv });
     prevT = t;
   }
-  const pos: number[] = [];
+  const pos: number[] = [], src: FaceSource[] = [];
   for (const r0 of regions) {
     const r = orient(r0);
     const loops = [r.outer, ...r.holes];
     for (const loop of loops) {
       const rings = frames.map((f) => placeLoop(loop, f.o, f.u, f.v, offset));
       for (let i = 0; i + 1 < rings.length; i++) wallTriangles(rings[i], rings[i + 1], pos);
+      wallSources(loop, rings.length - 1, src);
     }
     const f0 = frames[0], f1 = frames[frames.length - 1];
     // ShapeGeometry triangles face -n of the (u, v) frame: the start cap keeps them, the end cap flips them
-    pos.push(...capTriangles(r, f0.o, f0.u, f0.v, offset, false));
-    pos.push(...capTriangles(r, f1.o, f1.u, f1.v, offset, true));
+    pushCap(capTriangles(r, f0.o, f0.u, f0.v, offset, false), '-', pos, src);
+    pushCap(capTriangles(r, f1.o, f1.u, f1.v, offset, true), '+', pos, src);
   }
-  return finish(pos);
+  return finish(pos, src);
 }
 
-/** resample a closed loop to n points by arc length, starting at the point nearest `start` */
+/**
+ * resample a closed loop to n points, starting at the point nearest `start`: a loop of at most n points keeps every
+ * point (its corners) and gets the rest on its sides in proportion to their lengths; a longer loop is resampled by arc
+ * length (a loft between two rectangles cut two of their corners off: 2 x 5.9 mm³ too little, QA 0.5.11 T5)
+ */
 function resample(loop: SketchPoint[], n: number, start?: SketchPoint): SketchPoint[] {
   const pts = loop.slice();
   if (start) {
@@ -185,6 +235,7 @@ function resample(loop: SketchPoint[], n: number, start?: SketchPoint): SketchPo
     });
     pts.push(...pts.splice(0, best));
   }
+  if (pts.length <= n) return keepCorners(pts, n);
   const closed = [...pts, pts[0]];
   const cum = [0];
   for (let i = 1; i < closed.length; i++) cum.push(cum[i - 1] + Math.hypot(closed[i].x - closed[i - 1].x, closed[i].y - closed[i - 1].y));
@@ -197,6 +248,23 @@ function resample(loop: SketchPoint[], n: number, start?: SketchPoint): SketchPo
     const t = (s - cum[k]) / ((cum[k + 1] - cum[k]) || 1);
     out.push({ x: closed[k].x + (closed[k + 1].x - closed[k].x) * t, y: closed[k].y + (closed[k + 1].y - closed[k].y) * t });
   }
+  return out;
+}
+
+/** the loop with n - (its points) more points on its sides, each side's share by its length (largest remainders) */
+function keepCorners(pts: SketchPoint[], n: number): SketchPoint[] {
+  const m = pts.length;
+  const len = pts.map((p, i) => Math.hypot(pts[(i + 1) % m].x - p.x, pts[(i + 1) % m].y - p.y));
+  const total = len.reduce((a, l) => a + l, 0) || 1;
+  const quota = len.map((l) => ((n - m) * l) / total);
+  const extra = quota.map(Math.floor);
+  const order = quota.map((q, i) => ({ r: q - extra[i], i })).sort((a, b) => b.r - a.r);
+  for (let k = 0, left = n - m - extra.reduce((a, e) => a + e, 0); k < left; k++) extra[order[k % m].i]++;
+  const out: SketchPoint[] = [];
+  pts.forEach((p, i) => {
+    const q = pts[(i + 1) % m];
+    for (let j = 0; j <= extra[i]; j++) out.push({ x: p.x + ((q.x - p.x) * j) / (extra[i] + 1), y: p.y + ((q.y - p.y) * j) / (extra[i] + 1) });
+  });
   return out;
 }
 
@@ -286,8 +354,11 @@ export function loftGeometry(a: Region, planeA: PlaneDef, b: Region, planeB: Pla
   const normalStart = constraints.start !== undefined, normalEnd = constraints.end !== undefined;
   // Centerline Parameters: the section centres follow this curve (by arc length) instead of the straight axis
   const cl = constraints.centerline && constraints.centerline.length >= 2 ? constraints.centerline : null;
-  if (!guides.length && !normalStart && !normalEnd && !cl) wallTriangles(ra, rbs, pos);
-  else {
+  const src: FaceSource[] = [];
+  if (!guides.length && !normalStart && !normalEnd && !cl) {
+    wallTriangles(ra, rbs, pos);
+    wallSources(la, 1, src);
+  } else {
     // Guide Curves: intermediate sections, each scaled in its plane so that its profile point nearest the
     // guide start runs along the guide (one guide: uniform scale; two: a linear map through both)
     const ca = centroidOf(ra), cb = centroidOf(rbs);
@@ -379,11 +450,113 @@ export function loftGeometry(a: Region, planeA: PlaneDef, b: Region, planeB: Pla
       wallTriangles(prev, sec, pos);
       prev = sec;
     }
+    wallSources(la, K, src);
   }
   const zero = { x: 0, y: 0 };
-  pos.push(...capTriangles({ outer: la, holes: [], area: 0 }, fa.o, fa.u, fa.v, zero, false));
-  pos.push(...capTriangles({ outer: lb, holes: [], area: 0 }, fb.o, fb.u, fb.v, zero, true));
-  return finish(pos);
+  pushCap(capTriangles({ outer: la, holes: [], area: 0 }, fa.o, fa.u, fa.v, zero, false), '-', pos, src);
+  pushCap(capTriangles({ outer: lb, holes: [], area: 0 }, fb.o, fb.u, fb.v, zero, true), '+', pos, src);
+  return finish(pos, src);
+}
+
+/** sections through which a smooth loft is one polynomial per point (OpenCascade's ThruSections: degree 8 at most) */
+export const LOFT_POLY_SECTIONS = 9;
+
+/**
+ * Loft through the outer loops of two or more profiles in loft order, each on its own plane (QA 0.5.11, parity row 10).
+ * Ruled: straight walls between consecutive profiles. Smooth: each point runs along the polynomial through its places
+ * on the profiles, at chord-length parameters measured as OpenCascade measures them (see KAPPA2), as
+ * OpenCascade's ThruSections lofts up to nine sections, so the mesh and the exact body agree; more sections: a
+ * Catmull-Rom curve through them. Closed: the last profile lofts back to the first, without end faces.
+ */
+export function loftThroughGeometry(profiles: { region: Region; plane: PlaneDef }[], opts: { ruled?: boolean; closed?: boolean } = {}, segments = 64): THREE.BufferGeometry | null {
+  const n = profiles.length;
+  if (n < 2) return null;
+  const closed = !!opts.closed && n >= 3;
+  const ccw = (loop: SketchPoint[]) => (polyArea(loop) < 0 ? loop.slice().reverse() : loop);
+  const frames = profiles.map((p) => frameOf(p.plane));
+  // polygons with as many corners each (OpenCascade lofts them corner to corner): as many points on every side, so the
+  // corners meet; otherwise points spread evenly along each outline
+  const corners = profiles[0].region.outer.length;
+  const polygons = corners <= 24 && profiles.every((p) => p.region.outer.length === corners);
+  const step = polygons ? Math.ceil(segments / corners) : 1;
+  const count = polygons ? step * corners : segments;
+  const flat = profiles.map((p) => {
+    const loop = ccw(p.region.outer);
+    if (!polygons) return resample(loop, count);
+    return loop.flatMap((a, i) => Array.from({ length: step }, (_, j) => {
+      const b = loop[(i + 1) % corners];
+      return { x: a.x + ((b.x - a.x) * j) / step, y: a.y + ((b.y - a.y) * j) / step };
+    }));
+  });
+  const centres = flat.map((l, k) => centroidOf(l.map((q) => toWorld(frames[k], q))));
+  // the direction the loft runs through each profile: every loop turns counter-clockwise about it
+  const along = (k: number) => centres[closed ? (k + 1) % n : Math.min(n - 1, k + 1)].clone().sub(centres[closed ? (k - 1 + n) % n : Math.max(0, k - 1)]);
+  const loops = flat.map((l, k) => (frames[k].n.dot(along(k)) < 0 ? [l[0], ...l.slice(1).reverse()] : l));
+  // each loop starts where the one before it starts (the rotation with the least twist)
+  const rings: THREE.Vector3[][] = [];
+  loops.forEach((l, k) => {
+    const w = l.map((q) => toWorld(frames[k], q));
+    if (!k) { rings.push(w); return; }
+    let best = 0, bd = Infinity;
+    for (let s = 0; s < count; s += step) {
+      let d = 0;
+      for (let i = 0; i < count; i += 2) d += rings[k - 1][i].distanceToSquared(w[(i + s) % count]);
+      if (d < bd) { bd = d; best = s; }
+    }
+    rings.push(w.map((_, i) => w[(i + best) % count]));
+  });
+  if (closed) rings.push(rings[0]);
+  const m = rings.length;
+  // OpenCascade measures the chord between two sections over the poles of their B-spline curves: the move of the centre
+  // and the change of shape about it, the latter over poles that spread KAPPA2 times wider about the centre than points
+  // spread evenly along the outline (a line's poles are its ends, a circle's lie outside it)
+  const KAPPA2 = 1.6;
+  const t = [0];
+  for (let k = 1; k < m; k++) {
+    const c0 = centroidOf(rings[k - 1]), dc = centroidOf(rings[k]).sub(c0);
+    const shape = rings[k].reduce((s, p, i) => s + p.clone().sub(rings[k - 1][i]).sub(dc).lengthSq(), 0);
+    t.push(t[k - 1] + Math.sqrt(count * dc.lengthSq() + KAPPA2 * shape));
+  }
+  const pos: number[] = [], src: FaceSource[] = [];
+  let rows = m - 1;
+  if (opts.ruled) for (let k = 1; k < m; k++) wallTriangles(rings[k - 1], rings[k], pos);
+  else {
+    const per = 16;
+    rows = per * (m - 1);
+    /** the section at parameter u: the weight of every profile (Lagrange) or of the four around u (Catmull-Rom) */
+    const section = (u: number): THREE.Vector3[] => {
+      const w = new Array<number>(m).fill(0);
+      if (m <= LOFT_POLY_SECTIONS) for (let k = 0; k < m; k++) w[k] = t.reduce((acc, tj, j) => (j === k ? acc : (acc * (u - tj)) / (t[k] - tj)), 1);
+      else {
+        let k = 1;
+        while (k < m - 1 && t[k] < u) k++;
+        const s = (u - t[k - 1]) / (t[k] - t[k - 1]), h = t[k] - t[k - 1];
+        const h00 = 2 * s ** 3 - 3 * s ** 2 + 1, h10 = s ** 3 - 2 * s ** 2 + s, h01 = -2 * s ** 3 + 3 * s ** 2, h11 = s ** 3 - s ** 2;
+        w[k - 1] += h00; w[k] += h01;
+        // tangents (P[j+1] - P[j-1]) / (t[j+1] - t[j-1]), one-sided at the ends
+        const tangent = (j: number, f: number) => {
+          const a = Math.max(0, j - 1), b = Math.min(m - 1, j + 1);
+          w[b] += (f * h) / (t[b] - t[a]); w[a] -= (f * h) / (t[b] - t[a]);
+        };
+        tangent(k - 1, h10); tangent(k, h11);
+      }
+      return rings[0].map((_, i) => rings.reduce((acc, r, k) => (w[k] ? acc.addScaledVector(r[i], w[k]) : acc), new THREE.Vector3()));
+    };
+    let prev = rings[0];
+    for (let k = 1; k < m; k++) for (let j = 1; j <= per; j++) {
+      const sec = j === per ? rings[k] : section(t[k - 1] + ((t[k] - t[k - 1]) * j) / per);
+      wallTriangles(prev, sec, pos);
+      prev = sec;
+    }
+  }
+  wallSources(loops[0], rows, src);
+  if (!closed) {
+    // the end faces turn the same way as the walls (finish() then turns the whole surface outward)
+    const zero = { x: 0, y: 0 }, fa = frames[0], fb = frames[n - 1];
+    pushCap(capTriangles({ outer: loops[0], holes: [], area: 0 }, fa.o, fa.u, fa.v, zero, fa.n.dot(along(0)) < 0), '-', pos, src);
+    pushCap(capTriangles({ outer: loops[n - 1], holes: [], area: 0 }, fb.o, fb.u, fb.v, zero, fb.n.dot(along(n - 1)) > 0), '+', pos, src);
+  }
+  return finish(pos, src);
 }
 
 /**

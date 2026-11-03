@@ -13,7 +13,7 @@ import { SketchScene } from './sketchScene';
 import { silhouette, smoothEdges, type SmoothEdges } from '../../core/features/silhouette';
 import type { Body } from '../../core/features/rebuild';
 import type { DisplayStyle } from '../store';
-import { featureEdgeSets, featureEdges, smoothNormals, type TangentMode } from '../../core/features/edges';
+import { displayEdgeSets, featureEdgeSets, featureEdges, smoothNormals, type TangentMode } from '../../core/features/edges';
 import { getPref } from '../prefs';
 import type { BodyEdge } from '../../core/features/edgesets';
 
@@ -331,7 +331,8 @@ export class BodyScene {
     }
     this.entries.clear();
     for (const b of bodies) {
-      const g = smoothNormals(b.geometry, 30);
+      // the worker's display when it made one (QA 0.5.11 F46), else worked out here
+      const g = b.display?.geometry ?? smoothNormals(b.geometry, 30);
       const triToFace: string[] = [];
       for (const f of b.faces) for (const t of f.triangles) triToFace[t] = f.id;
       let faceMat: THREE.Material = this.faceMat;
@@ -381,7 +382,7 @@ export class BodyScene {
       mesh.visible = style !== 'wireframe';
       mesh.name = b.id;
       const tangentMode: TangentMode = ({ 'As visible': 'visible', 'As phantom': 'phantom', Removed: 'removed' } as Record<string, TangentMode>)[String(getPref('display.tangentEdges'))] ?? 'visible';
-      const sets = featureEdgeSets(g, 20, tangentMode);
+      const sets = b.display ? displayEdgeSets(b.display, tangentMode) : featureEdgeSets(g, 20, tangentMode);
       // imprinted edges (Split Line) lie between coplanar faces: not creases, drawn from the body's edge list
       const imprint = (b.edges ?? []).filter((e) => e.segments.length && e.segments.every((sg) => sg.n1.dot(sg.n2) > 0.9999));
       if (imprint.length) {

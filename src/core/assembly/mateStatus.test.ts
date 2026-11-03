@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { solveMates } from './assembly';
-import { mateStatus } from './mateStatus';
+import { MATE_TOLERANCE, mateStatus } from './mateStatus';
 import { createDocument, type Component, type Mate, type MateRef } from '../document/types';
 
 // blocks 10 high: bottom face y = 0 (normal -y), top face y = 10 (normal +y), in their own frame
@@ -97,5 +97,77 @@ describe('conflicting and unsettled mates (QA 0.5.10 F141, F166)', () => {
     const st2 = mateStatus(solveMates([A, C, B], mates), mates);
     expect(st2.unconverged.size).toBe(0);
     expect(st2.residual).toBeLessThan(1e-3);
+  });
+});
+
+describe('chains and closed loops (QA 0.5.11 P0-3, F130, F141)', () => {
+  it('M3: a chain of four blocks is solved whatever the order of the mates and of their references', () => {
+    const parts = () => [comp('A', true), comp('B', false, 70), comp('C', false, -40), comp('D', false, 200)];
+    const ab = mate('coincident', [top('A'), bottom('B')]), bc = mate('coincident', [top('B'), bottom('C')]), cd = mate('coincident', [top('C'), bottom('D')]);
+    // the same chain with every mate's references the other way round
+    const ba = mate('coincident', [bottom('B'), top('A')]), cb = mate('coincident', [bottom('C'), top('B')]), dc = mate('coincident', [bottom('D'), top('C')]);
+    for (const mates of [[ab, bc, cd], [cd, bc, ab], [bc, cd, ab], [dc, cb, ba], [ba, dc, cb]]) {
+      const out = solveMates(parts(), mates);
+      expect(out.map((c) => c.position[1])).toEqual([0, 10, 20, 30].map((v) => expect.closeTo(v, 6)));
+      const st = mateStatus(out, mates);
+      expect(st.violated.size).toBe(0);
+      expect(st.unconverged.size).toBe(0);
+      // coincident faces leave every block free to slide and turn in the plane: (-)
+      expect([st.components.A, st.components.B, st.components.C, st.components.D]).toEqual(['fixed', 'under', 'under', 'under']);
+    }
+  });
+
+  it('M5: a closed loop that conflicts marks the newest mate; the part it moves is (+), the other one (-)', () => {
+    const parts = () => [comp('A', true), comp('B', false, 40), comp('C', false, 90)];
+    // B 10 above A, C on B (so 20 above A), and then C 25 above A: the loop A-B-C-A cannot close
+    const ab = mate('distance', [top('A'), bottom('B')], { value: 10 }), bc = mate('coincident', [top('B'), bottom('C')]);
+    const ac = mate('distance', [top('A'), bottom('C')], { value: 25 });
+    const st = mateStatus(solveMates(parts(), [ab, bc, ac]), [ab, bc, ac]);
+    expect([...st.violated]).toEqual([ac.id]);
+    expect(st.components.C).toBe('over');
+    expect(st.components.B).toBe('under');
+    expect(st.components.A).toBe('fixed');
+    // the loop made in another order: the mate added last is the one marked, the part it holds is (+)
+    const st2 = mateStatus(solveMates(parts(), [bc, ac, ab]), [bc, ac, ab]);
+    expect([...st2.violated]).toEqual([ab.id]);
+    expect(st2.components.B).toBe('over');
+    expect(st2.components.C).toBe('under');
+  });
+
+  it('F141: of two mates that disagree the newest is marked, whichever value it has', () => {
+    for (const [first, last] of [[10, 20], [20, 10]]) {
+      const A = comp('A', true), B = comp('B', false, 50);
+      const mates = [mate('distance', [top('A'), bottom('B')], { value: first }), mate('distance', [top('A'), bottom('B')], { value: last })];
+      const solved = solveMates([A, B], mates);
+      const st = mateStatus(solved, mates);
+      expect([...st.violated]).toEqual([mates[1].id]);
+      // the older mate is the one the part keeps
+      expect(solved[1].position[1]).toBeCloseTo(10 + first, 6);
+    }
+  });
+});
+
+describe('the convergence rule (QA 0.5.11 F186)', () => {
+  it('a mate the solver has not settled yet is "not converged", never a conflict', () => {
+    const A = comp('A', true), B = comp('B', false, 50);
+    const mates = [mate('coincident', [top('A'), bottom('B')])];
+    // the parts as they stand before any solve: B is 40 mm off
+    const st = mateStatus([A, B], mates);
+    expect(st.violated.size).toBe(0);
+    expect([...st.unconverged]).toEqual([mates[0].id]);
+    expect(st.residual).toBeGreaterThan(MATE_TOLERANCE);
+  });
+  it('a mate within the tolerance is met; just over it, not yet', () => {
+    const A = comp('A', true);
+    const met = [mate('coincident', [top('A'), bottom('B')])];
+    expect(mateStatus([A, comp('B', false, 10 + MATE_TOLERANCE * 0.5)], met).unconverged.size).toBe(0);
+    expect(mateStatus([A, comp('B', false, 10 + MATE_TOLERANCE * 2)], met).unconverged.size).toBe(1);
+  });
+  it('a conflict stays a conflict however long the solver runs', () => {
+    const A = comp('A', true), B = comp('B', false, 50);
+    const mates = [mate('distance', [top('A'), bottom('B')], { value: 10 }), mate('distance', [top('A'), bottom('B')], { value: 20 })];
+    const st = mateStatus(solveMates([A, B], mates, 1000), mates);
+    expect(st.violated.size).toBe(1);
+    expect(st.unconverged.size).toBe(0);
   });
 });

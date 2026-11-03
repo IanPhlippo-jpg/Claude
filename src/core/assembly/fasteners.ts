@@ -5,6 +5,8 @@ import { createDocument } from '../document/types';
 import { addLine, addPolygon, createSketch, newId } from '../sketch/model';
 import { resolvePlaneDef } from '../features/planes';
 import { componentMatrix } from './assembly';
+import { isLibrarySize, requiredScrewLength, screwLengthFor, sizeForClearanceHole, type ClearanceSeries } from '../library/iso';
+import { socketHeadCapScrew } from '../library/parts';
 
 type Id = string;
 
@@ -31,10 +33,21 @@ export const LENGTHS = [6, 8, 10, 12, 16, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65
 export const standardLength = (min: number) => LENGTHS.find((l) => l >= min - 1e-6) ?? LENGTHS[LENGTHS.length - 1];
 
 /**
+ * The length of a fastener through the grip: a tapped hole takes the grip, a clearance hole a washer, a nut and two
+ * pitches beyond it; a socket head cap screw of M3 to M12 takes a length of its standard's range (Standard Parts).
+ */
+export function fastenerLength(type: FastenerType, size: string, grip: number, tapped = false): number {
+  const need = requiredScrewLength(size, grip, tapped);
+  return type === 'shcs' && isLibrarySize(size) ? screwLengthFor(size, need) : standardLength(need);
+}
+
+/**
  * A fastener part as the toolbox makes it: axis along +Z, the bearing face of the head at Z = 0 (for a countersunk
  * screw the top of the head), the shank down to Z = -length; a hexagon socket (or a hexagon head for the bolt).
  */
 export function fastenerPart(type: FastenerType, size: string, length: number): Document {
+  // M3 to M12 socket head cap screws come from the Standard Parts (the dimensions of ISO 4762)
+  if (type === 'shcs' && isLibrarySize(size)) return socketHeadCapScrew(size, length);
   const m = METRIC.find((x) => x.size === size) ?? METRIC[3];
   const doc = createDocument(`${STD[type]} ${m.size} x ${length}`);
   const r = m.d / 2;
@@ -141,6 +154,9 @@ export interface FastenerSlot {
   size: string;
   type: FastenerType;
   length: number;
+  /** the ISO 273 series of the clearance hole the size was chosen from (absent for a tapped hole) */
+  series?: ClearanceSeries;
+  tapped?: boolean;
 }
 
 /** Group coaxial holes and choose the fastener for each group (size from the clearance hole, length from the grip). */
@@ -168,10 +184,11 @@ export function fastenerSlots(holes: AsmHole[]): FastenerSlot[] {
     const top = span.find((x) => Math.abs(x.a - lo) < 1e-3 && x.g.axis.dot(ax) > 0)?.g ?? h;
     const grip = hi - lo;
     const tapped = group.some((g) => g.holeType === 'tap');
-    const m = tapped ? METRIC.reduce((b, x) => (Math.abs(x.tap - top.diameter) < Math.abs(b.tap - top.diameter) ? x : b)) : [...METRIC].reverse().find((x) => x.clear <= top.diameter + 0.05) ?? METRIC[0];
+    // the size: the nearest tap drill, or the clearance hole of ISO 273 (fine, medium or coarse) the hole matches
+    const fit = tapped ? null : sizeForClearanceHole(top.diameter);
+    const m = tapped ? METRIC.reduce((b, x) => (Math.abs(x.tap - top.diameter) < Math.abs(b.tap - top.diameter) ? x : b)) : METRIC.find((x) => x.size === fit?.size) ?? METRIC[0];
     const type: FastenerType = top.holeType === 'countersink' ? 'csk' : 'shcs';
-    const cb = top.holeType === 'counterbore' ? 0 : 0;
-    slots.push({ holes: group, top, grip, size: m.size, type, length: standardLength(grip - cb + (tapped ? 0 : m.d)) });
+    slots.push({ holes: group, top, grip, size: m.size, type, length: fastenerLength(type, m.size, grip, tapped), tapped, ...(fit ? { series: fit.series } : {}) });
   }
   return slots;
 }
@@ -201,7 +218,8 @@ export function placeFasteners(doc: Document, slots: FastenerSlot[]): { componen
     const holeLabel = `Face<1>@${s.top.componentName}`;
     mates.push({ id: newId('m'), type: 'concentric', name: `Concentric${++nConc}`, aligned: true, suppressed: false,
       refs: [{ componentId: s.top.componentId, kind: 'face', label: holeLabel, normal: s.top.localAxis, point: s.top.localEntry, cylindrical: true, radius: s.top.diameter / 2 },
-        { componentId: id, kind: 'face', label: `Face<1>@${base}<${n}>`, normal: [0, 0, 1], point: [0, 0, 0], cylindrical: true, radius: m.d / 2 }] });
+        // the shank axis points down into the hole (-Z), as the hole axis does: aligned keeps the head out of the hole
+        { componentId: id, kind: 'face', label: `Face<1>@${base}<${n}>`, normal: [0, 0, -1], point: [0, 0, 0], cylindrical: true, radius: m.d / 2 }] });
     const outward: [number, number, number] = [-s.top.localAxis[0], -s.top.localAxis[1], -s.top.localAxis[2]];
     mates.push({ id: newId('m'), type: 'coincident', name: `Coincident${++nCoin}`, aligned: false, suppressed: false,
       refs: [{ componentId: s.top.componentId, kind: 'face', label: `Face<2>@${s.top.componentName}`, normal: outward, point: s.top.localEntry },

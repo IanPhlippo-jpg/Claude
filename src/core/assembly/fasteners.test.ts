@@ -35,7 +35,8 @@ describe('Assembly ▸ Auto Fasteners', () => {
     const withSocket = meshVolume(rebuildDocument(fastenerPart('shcs', 'M6', 30), null).bodies[0].geometry);
     const without = meshVolume(rebuildDocument(plain, null).bodies[0].geometry);
     const s = 5, hexArea = (3 * Math.sqrt(3) / 2) * (s / Math.sqrt(3)) ** 2;
-    expect(without - withSocket).toBeCloseTo(hexArea * 3.6, 0);
+    // the socket is t = 3 deep (ISO 4762, M6)
+    expect(without - withSocket).toBeCloseTo(hexArea * 3, 0);
   });
 
   it('two stacked plates with a Ø6.6 hole get an ISO 4762 M6 x 30 through both, mated concentric and on the top face', () => {

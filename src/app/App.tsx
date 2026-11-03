@@ -23,16 +23,19 @@ import { SHORTCUTS, useShortcuts } from './shortcuts';
 import { Dialog, Kbd } from '../ui/components';
 
 import { ViewPane } from './viewport/ViewPane';
-import { GeneralTableDialog, LinearNotePatternDialog, RelativeViewDialog, SpellCheckDialog } from './drawing/DrawingExtras';
 import { CommentsDialog, ComponentPreview, MirrorComponentsDialog, PackAndGoDialog, ShareDialog } from './lifecycleDialogs';
 import { AskDialog, ConfirmDeleteDialog, ModifyDialog, NewDocumentDialog, OrientationDialog, WelcomeDialog } from './dialogs';
-import { FinalRenderDialog } from './renderDialogs';
 import { ShortcutBar } from './ShortcutBar';
 import '../ui/tokens.css';
 import '../ui/components.css';
 import './app.css';
 
 // dialogs and the drawing view load when first shown (QA F34): they are not part of the start-up bundle
+const GeneralTableDialog = lazyNamed(() => import('./drawing/DrawingExtras'), 'GeneralTableDialog');
+const LinearNotePatternDialog = lazyNamed(() => import('./drawing/DrawingExtras'), 'LinearNotePatternDialog');
+const RelativeViewDialog = lazyNamed(() => import('./drawing/DrawingExtras'), 'RelativeViewDialog');
+const SpellCheckDialog = lazyNamed(() => import('./drawing/DrawingExtras'), 'SpellCheckDialog');
+const FinalRenderDialog = lazyNamed(() => import('./renderDialogs'), 'FinalRenderDialog');
 const CheckDialog = lazyNamed(() => import('./evaluateDialogs'), 'CheckDialog');
 const ImportDiagnosticsDialog = lazyNamed(() => import('./evaluateDialogs'), 'ImportDiagnosticsDialog');
 const RepairSketchDialog = lazyNamed(() => import('./evaluateDialogs'), 'RepairSketchDialog');

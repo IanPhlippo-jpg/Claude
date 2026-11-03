@@ -1,18 +1,23 @@
-import { ScenePM } from '../renderDialogs';
 import { CurveColorPM } from './CurveColorPM';
 import { isCommandActive, useStore } from '../store';
 import { useShallow } from 'zustand/react/shallow';
-import { AssemblyTreeBody } from './AssemblyTreeBody';
-import { PlanePM } from './PlanePM';
-import { DecalPM, OffsetOnSurfacePM, RefGeomPM } from './RefGeomPM';
 import { ToleranceTreeBody, DisplayPanelBody } from './ManagerExtra';
-import { SectionViewPM } from './SectionViewPM';
-import { ConfigurationPanelBody, ConfigurationPM } from './ConfigurationPanel';
 import { Icon } from '../../ui/icons';
 import { FeatureTreeBody } from './FeatureTreeBody';
 import { DockPanel } from './Dock';
 import { lazyNamed } from '../lazy';
 
+// panels of assemblies, configurations, reference geometry, section and render: chunks of their own, preloaded after
+// start-up (QA 0.5.11 F174: the start-up script stays under its budget)
+const ScenePM = lazyNamed(() => import('../renderDialogs'), 'ScenePM', true);
+const AssemblyTreeBody = lazyNamed(() => import('./AssemblyTreeBody'), 'AssemblyTreeBody', true);
+const PlanePM = lazyNamed(() => import('./PlanePM'), 'PlanePM', true);
+const DecalPM = lazyNamed(() => import('./RefGeomPM'), 'DecalPM', true);
+const OffsetOnSurfacePM = lazyNamed(() => import('./RefGeomPM'), 'OffsetOnSurfacePM', true);
+const RefGeomPM = lazyNamed(() => import('./RefGeomPM'), 'RefGeomPM', true);
+const SectionViewPM = lazyNamed(() => import('./SectionViewPM'), 'SectionViewPM', true);
+const ConfigurationPanelBody = lazyNamed(() => import('./ConfigurationPanel'), 'ConfigurationPanelBody', true);
+const ConfigurationPM = lazyNamed(() => import('./ConfigurationPanel'), 'ConfigurationPM', true);
 const MotorPM = lazyNamed(() => import('../viewport/MotionTimeline'), 'MotorPM', true);
 const MotionEditPM = lazyNamed(() => import('../viewport/MotionTimeline'), 'MotionEditPM', true);
 

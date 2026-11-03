@@ -51,17 +51,18 @@ await page.evaluate(() => {
   window.__phlippoStore.getState().openDocument(asm);
 });
 await page.waitForTimeout(1200);
+// the length (Standard Parts): grip 18 + washer 1.6 + nut 5.2 + 2 pitches = 26.8 -> 30 of the ISO 4762 series
 await page.click('.k-cm-big:has-text("Auto Fasteners") .k-cm-main');
 await page.waitForTimeout(600);
 const holes = await page.locator('[data-testid="fastener-holes"] .k-selbox-row').count();
 const groups = await page.locator('[data-testid="fastener-groups"]').innerText();
-check('Auto Fasteners finds the 4 holes as 2 groups of coaxial holes: Socket Head Cap Screw M6 x 25', holes === 4 && (groups.match(/Group/g) ?? []).length === 2 && /Socket Head Cap Screw M6 x 25/.test(groups), groups);
+check('Auto Fasteners finds the 4 holes as 2 groups of coaxial holes: Socket Head Cap Screw M6 x 30', holes === 4 && (groups.match(/Group/g) ?? []).length === 2 && /Socket Head Cap Screw M6 x 30/.test(groups), groups);
 await page.mouse.move(5, 900);
 await shot('sf1-smart-fasteners-pm');
 await page.click('[data-testid="fastener-pm"] .k-pm-ok');
 await page.waitForTimeout(1500);
 const st = await page.evaluate(() => { const s = window.__phlippoStore.getState(); return { comps: s.doc.components.map((c) => c.name), mates: s.doc.mates.map((m) => m.name), bodies: s.rebuild.bodies.length, pos: s.doc.components.slice(2).map((c) => c.position.map((x) => Math.round(x * 100) / 100)) }; });
-check('two ISO 4762 M6 x 25 screws inserted on the bracket, with Concentric and Coincident mates', st.comps.filter((n) => /^ISO 4762 M6 x 25<\d>$/.test(n)).length === 2 && st.mates.length === 4 && st.bodies === 4 && st.pos.every((p) => Math.abs(p[1] - 18) < 0.01), JSON.stringify(st));
+check('two ISO 4762 M6 x 30 screws inserted on the bracket, with Concentric and Coincident mates', st.comps.filter((n) => /^ISO 4762 M6 x 30<\d>$/.test(n)).length === 2 && st.mates.length === 4 && st.bodies === 4 && st.pos.every((p) => Math.abs(p[1] - 18) < 0.01), JSON.stringify(st));
 await page.keyboard.press('Control+7');
 await page.keyboard.press('f');
 await page.mouse.move(5, 900);

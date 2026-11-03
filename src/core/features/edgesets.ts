@@ -223,7 +223,10 @@ export function bodyEdges(g: THREE.BufferGeometry, bodyId: string, thresholdDeg 
           const s = segs[cj];
           const oriented = key(s.a) === key(end) ? s : { ...s, a: s.b, b: s.a };
           const d0 = dirOf(last), d1 = dirOf(oriented);
-          const turn = forward ? d0.dot(d1) : d1.dot(d0);
+          // `oriented` starts at the end point; walking backwards the chain's first segment starts there too, so a
+          // smooth join runs the opposite way (the sign was the same both ways: an open curve walked backwards from a
+          // segment in its middle stopped there, QA 0.5.11 T4)
+          const turn = forward ? d0.dot(d1) : -d1.dot(d0);
           if (turn > best && sameFaces(last, oriented)) {
             best = turn;
             j = cj;
@@ -307,7 +310,13 @@ export function matchEdge(edges: BodyEdge[], ref: EdgeRef, tol: number = TOL.ref
   if (ref.faces) {
     const named = edges.filter((e) => e.closed === ref.closed && e.straight === ref.straight && edgeFaces(e)?.[0] === ref.faces![0] && edgeFaces(e)?.[1] === ref.faces![1]);
     if (named.length === 1) return named[0];
-    if (named.length > 1) return named.reduce((a, b) => (b.centroid.distanceTo(c) < a.centroid.distanceTo(c) ? b : a));
+    if (named.length > 1) {
+      // the nearest, unless two lie about equally far and neither is where the edge was: then the reference is not
+      // guessed (QA 0.5.11 F177/F179: a silent pick of one of two pieces); the feature says an edge was lost instead
+      const byD = named.map((e) => ({ e, d: e.centroid.distanceTo(c) })).sort((x, y) => x.d - y.d);
+      if (byD[0].d > tol && byD[1].d - byD[0].d < Math.max(0.5, byD[0].d * 0.1)) return null;
+      return byD[0].e;
+    }
   }
   for (const e of edges) {
     if (e.closed !== ref.closed || e.straight !== ref.straight) continue;
@@ -324,8 +333,11 @@ export function matchEdge(edges: BodyEdge[], ref: EdgeRef, tol: number = TOL.ref
 
 /**
  * The edges a reference points to after a rebuild. A straight edge that a feature inserted before it split into pieces
- * (a slot across it) gives all of its pieces: the edges of the same kind on the same line, with the same faces, inside
- * the old edge (QA v0.5.1 F111: only the nearest piece was rounded). Otherwise the one edge `matchEdge` finds.
+ * (a slot across it) gives all of its pieces: the edges of the same kind on the same line, with the same faces, that
+ * overlap the old edge (QA v0.5.1 F111: only the nearest piece was rounded). A piece may reach beyond the old edge
+ * when an earlier dimension made the part longer (QA 0.5.11 F177: plate 80 -> 100, the far piece 45-100 was left out
+ * and the fillet silently rounded one piece). The same edge of another pattern instance does not overlap the old one.
+ * Otherwise the one edge `matchEdge` finds.
  */
 export function matchEdges(edges: BodyEdge[], ref: EdgeRef, tol: number = TOL.reference): BodyEdge[] {
   const pieces = splitPieces(edges, ref);
@@ -337,15 +349,16 @@ export function matchEdges(edges: BodyEdge[], ref: EdgeRef, tol: number = TOL.re
 function splitPieces(edges: BodyEdge[], ref: EdgeRef): BodyEdge[] {
   if (!ref.straight || ref.closed || !ref.dir) return [];
   const c = new THREE.Vector3(...ref.centroid), dir = new THREE.Vector3(...ref.dir).normalize();
-  const half = ref.length / 2 + 1e-3;
-  const inside = (q: THREE.Vector3) => {
-    const d = q.clone().sub(c);
-    const t = d.dot(dir);
-    return Math.abs(t) <= half && d.addScaledVector(dir, -t).length() < 1e-3;
+  const half = ref.length / 2;
+  const onLine = (q: THREE.Vector3) => { const d = q.clone().sub(c); return d.addScaledVector(dir, -d.dot(dir)).length() < 1e-3; };
+  // the piece's stretch along the line overlaps the old edge by more than a hair
+  const overlaps = (e: BodyEdge) => {
+    const ts = e.points.map((q) => q.clone().sub(c).dot(dir));
+    return Math.min(half, Math.max(...ts)) - Math.max(-half, Math.min(...ts)) > 1e-3;
   };
   const pieces = edges.filter((e) => {
-    if (!e.straight || e.closed || e.length > ref.length - 1e-3) return false;
-    if (Math.abs(edgeDir(e).dot(dir)) < 0.9999 || !e.points.every(inside)) return false;
+    if (!e.straight || e.closed) return false;
+    if (Math.abs(edgeDir(e).dot(dir)) < 0.9999 || !e.points.every(onLine) || !overlaps(e)) return false;
     if (ref.faces) {
       const f = edgeFaces(e);
       return !!f && f[0] === ref.faces[0] && f[1] === ref.faces[1];

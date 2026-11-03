@@ -106,6 +106,14 @@ function constrainedMotions(c: Component, mates: Mate[], byId: Map<Id, Component
 /** a mate whose references carry their geometry (a reference without a normal and a point cannot be measured) */
 const measurable = (m: Mate) => m.refs?.length === 2 && m.refs.every((r) => Array.isArray(r.normal) && Array.isArray(r.point));
 
+/**
+ * The convergence rule, explicit (QA 0.5.11 F186): a mate is met when its error is at most MATE_TOLERANCE (mm, a turn
+ * weighed as mm). A mate that is not met is "not converged" when SETTLE_PASSES more passes of the solver meet it, and a
+ * conflict when it is still not met after them.
+ */
+export const MATE_TOLERANCE = 1e-3;
+export const SETTLE_PASSES = 128;
+
 export function mateStatus(components: Component[], mates: Mate[]): MateStatus {
   const active = mates.filter((m) => !m.suppressed && measurable(m));
   const byId = new Map(components.map((c) => [c.id, c]));
@@ -120,12 +128,12 @@ export function mateStatus(components: Component[], mates: Mate[]): MateStatus {
     }
     return out;
   };
-  for (const [id, e] of errorsOf(byId)) { residual = Math.max(residual, e); if (e > 1e-3) violated.add(id); }
+  for (const [id, e] of errorsOf(byId)) { residual = Math.max(residual, e); if (e > MATE_TOLERANCE) violated.add(id); }
   // a mate that is met once the solver runs on is no conflict: the chain had not settled (F166)
   const unconverged = new Set<Id>();
   if (violated.size) {
-    const settled = new Map(solveMates(components, mates, 128).map((c) => [c.id, c]));
-    for (const [id, e] of errorsOf(settled)) if (violated.has(id) && e <= 1e-3) { violated.delete(id); unconverged.add(id); }
+    const settled = new Map(solveMates(components, mates, SETTLE_PASSES).map((c) => [c.id, c]));
+    for (const [id, e] of errorsOf(settled)) if (violated.has(id) && e <= MATE_TOLERANCE) { violated.delete(id); unconverged.add(id); }
   }
   // the mate that conflicts is the one added last, as the intended design marks it (QA 0.5.10 F141): a violated
   // older mate that is met once a newer mate on the same part is left out hands its mark to that newer mate

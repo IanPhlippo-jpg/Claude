@@ -20,6 +20,7 @@ import * as THREE from 'three';
 import { type RefSelection } from '../../core/features/refgeom';
 import { faceBoundary, offsetPolygon } from '../../core/features/patterns2';
 import type { State, StoreSet, StoreGet } from '../store';
+import { dimsWithoutLine, withoutLine } from '../../core/sketch/sketch3d';
 import { initialSolve, history, rebuildFor, historyFlags, pointLineDistance, withSpacingDimension, solveAll } from '../store';
 
 type SketchKeys =
@@ -282,7 +283,7 @@ export const sketchSlice = (set: StoreSet, get: StoreGet): Pick<State, SketchKey
   edit3DSketch(id) {
     const f = get().doc.features.find((x) => x.id === id);
     if (!f || f.type !== 'sketch3d') return;
-    set({ sketch3dEdit: { featureId: id, name: f.name, segments: f.segments.map((s) => [[...s[0]], [...s[1]]] as Sketch3DFeature['segments'][number]), fillets: f.fillets, plane: 'xy', last: null }, featureEdit: null, activeSketchId: null, tab: 'sketch', managerTab: 'tree' });
+    set({ sketch3dEdit: { featureId: id, name: f.name, segments: f.segments.map((s) => [[...s[0]], [...s[1]]] as Sketch3DFeature['segments'][number]), fillets: f.fillets, relations: f.relations, dims: f.dims, plane: 'xy', last: null }, featureEdit: null, activeSketchId: null, tab: 'sketch', managerTab: 'tree' });
   },
   add3DPoint(p) {
     const e = get().sketch3dEdit;
@@ -292,7 +293,10 @@ export const sketchSlice = (set: StoreSet, get: StoreGet): Pick<State, SketchKey
       return;
     }
     if (Math.hypot(p[0] - e.last[0], p[1] - e.last[1], p[2] - e.last[2]) < 1e-6) return;
-    set({ sketch3dEdit: { ...e, segments: [...e.segments, [e.last, p]], last: p } });
+    // a line drawn with Orientation along an axis gets the Along X/Y/Z relation
+    const along = e.orientation && e.orientation !== 'free' ? ({ x: 'alongX', y: 'alongY', z: 'alongZ' } as const)[e.orientation] : null;
+    const relations = along ? [...(e.relations ?? []), { kind: along, line: e.segments.length }] : e.relations;
+    set({ sketch3dEdit: { ...e, segments: [...e.segments, [e.last, p]], last: p, relations } });
   },
   end3DChain() {
     const e = get().sketch3dEdit;
@@ -308,7 +312,7 @@ export const sketchSlice = (set: StoreSet, get: StoreGet): Pick<State, SketchKey
     const e = get().sketch3dEdit;
     if (!e || !e.segments.length) return;
     const segs = e.segments.slice(0, -1);
-    set({ sketch3dEdit: { ...e, segments: segs, last: segs.length ? segs[segs.length - 1][1] : null } });
+    set({ sketch3dEdit: { ...e, segments: segs, relations: withoutLine(e.relations, segs.length), dims: dimsWithoutLine(e.dims, segs.length), last: segs.length ? segs[segs.length - 1][1] : null } });
   },
   commit3DSketch() {
     const e = get().sketch3dEdit;
@@ -319,7 +323,7 @@ export const sketchSlice = (set: StoreSet, get: StoreGet): Pick<State, SketchKey
       return;
     }
     history.push('3D Sketch', doc);
-    const f: Sketch3DFeature = { id: e.featureId ?? newId('f'), type: 'sketch3d', name: e.name, suppressed: false, segments: e.segments, ...(e.fillets?.length ? { fillets: e.fillets } : {}) };
+    const f: Sketch3DFeature = { id: e.featureId ?? newId('f'), type: 'sketch3d', name: e.name, suppressed: false, segments: e.segments, ...(e.fillets?.length ? { fillets: e.fillets } : {}), ...(e.relations?.length ? { relations: e.relations } : {}), ...(e.dims?.length ? { dims: e.dims } : {}) };
     const features = e.featureId ? doc.features.map((x) => (x.id === e.featureId ? f : x)) : [...doc.features, f];
     const d: Document = { ...doc, features };
     set({ doc: d, sketch3dEdit: null, rebuild: rebuildFor(d, null), selectedFeatureId: f.id, dirty: true, ...historyFlags() });

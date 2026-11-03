@@ -21,15 +21,18 @@ describe('QA T1: fillet R2 on the rim of a hole (mesh kernel)', { timeout: 60000
     doc.features.push(fillet('r1', 2, [rim]));
     const a = vol(doc);
     const loss35 = sharpOf(doc) - a.v;
-    expect(loss35, `loss at Ø35: ${loss35.toFixed(2)} (expected ${RIM_LOSS(17.5, 2).toFixed(2)})`).toBeGreaterThan(RIM_LOSS(17.5, 2) * 0.95);
-    expect(loss35).toBeLessThan(RIM_LOSS(17.5, 2) * 1.05);
+    expect(loss35, `loss at Ø35: ${loss35.toFixed(2)} (expected ${RIM_LOSS(17.5, 2).toFixed(2)})`).toBeGreaterThan(RIM_LOSS(17.5, 2) * 0.98);
+    expect(loss35).toBeLessThan(RIM_LOSS(17.5, 2) * 1.02);
+    // the whole part: the faceted plate without the fillet minus the exact loss, to 2 % of the loss (QA F173; the
+    // plate's own faceted hole differs from the round one by 14 mm³, more than the margin, so it is not compared)
+    expect(Math.abs(a.v - (sharpOf(doc) - RIM_LOSS(17.5, 2))), `${a.v.toFixed(2)} vs ${(sharpOf(doc) - RIM_LOSS(17.5, 2)).toFixed(2)}`).toBeLessThan(RIM_LOSS(17.5, 2) * 0.02);
     expect(Math.abs(a.v - T1_EXPECT(17.5)) / sharp).toBeLessThan(0.003);
     expect(a.r.warnings ?? {}).toEqual({});
     setCircleRadius(doc, 's1', 25);
     const b = vol(doc);
     const loss50 = sharpOf(doc) - b.v;
-    expect(loss50, `loss at Ø50: ${loss50.toFixed(2)} (expected ${RIM_LOSS(25, 2).toFixed(2)})`).toBeGreaterThan(RIM_LOSS(25, 2) * 0.95);
-    expect(loss50).toBeLessThan(RIM_LOSS(25, 2) * 1.05);
+    expect(loss50, `loss at Ø50: ${loss50.toFixed(2)} (expected ${RIM_LOSS(25, 2).toFixed(2)})`).toBeGreaterThan(RIM_LOSS(25, 2) * 0.98);
+    expect(loss50).toBeLessThan(RIM_LOSS(25, 2) * 1.02);
     expect(b.r.warnings ?? {}).toEqual({});
   });
 
@@ -41,15 +44,15 @@ describe('QA T1: fillet R2 on the rim of a hole (mesh kernel)', { timeout: 60000
       doc.features.push(fillet('r1', 2, [rim]));
       const a = vol(doc);
       const loss = sharpOf(doc) - a.v;
-      expect(loss, `loss: ${loss.toFixed(2)} (expected ${RIM_LOSS(17.5, 2).toFixed(2)})`).toBeGreaterThan(RIM_LOSS(17.5, 2) * 0.95);
-      expect(loss).toBeLessThan(RIM_LOSS(17.5, 2) * 1.05);
+      expect(loss, `loss: ${loss.toFixed(2)} (expected ${RIM_LOSS(17.5, 2).toFixed(2)})`).toBeGreaterThan(RIM_LOSS(17.5, 2) * 0.98);
+      expect(loss).toBeLessThan(RIM_LOSS(17.5, 2) * 1.02);
       expect(a.r.warnings ?? {}).toEqual({});
       if (how === 'cut') {
         setCircleRadius(doc, 's2', 25);
         const b = vol(doc);
         const loss50 = sharpOf(doc) - b.v;
-        expect(loss50, `loss at Ø50: ${loss50.toFixed(2)}`).toBeGreaterThan(RIM_LOSS(25, 2) * 0.95);
-        expect(loss50).toBeLessThan(RIM_LOSS(25, 2) * 1.05);
+        expect(loss50, `loss at Ø50: ${loss50.toFixed(2)}`).toBeGreaterThan(RIM_LOSS(25, 2) * 0.98);
+        expect(loss50).toBeLessThan(RIM_LOSS(25, 2) * 1.02);
         expect(b.r.warnings ?? {}).toEqual({});
       }
     });
@@ -65,8 +68,11 @@ describe('QA T3: fillet on an edge that a later inserted slot splits (mesh kerne
       doc.features.splice(1, 0, doc.features.pop()!);
       const { v } = vol(doc);
       const expect3 = T3_WITH_SLOT_EXPECT(slot);
-      // the facets of the round and of the half round of the stadium keep the mesh a little under the exact value
-      expect(Math.abs(v - expect3), `${v.toFixed(2)} vs ${expect3.toFixed(2)}`).toBeLessThan(slot === 'stadium' ? 25 : 1.5);
+      expect(Math.abs(v - expect3), `${v.toFixed(2)} vs ${expect3.toFixed(2)}`).toBeLessThan(1.5);
+      // against the part's own faceted slot (the stadium's half rounds are polygons on the mesh kernel): the two
+      // pieces of the edge lose exactly 70 mm of the corner, to 1.5 mm³ for every slot (QA F173)
+      const own = sharpOf(doc) - 2 * 35 * CORNER(2);
+      expect(Math.abs(v - own), `${v.toFixed(2)} vs ${own.toFixed(2)} (faceted slot)`).toBeLessThan(1.5);
       expect(v).toBeLessThan(T3_SHARP - 2 * 35 * CORNER(2) + 1.5);
     });
   }

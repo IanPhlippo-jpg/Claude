@@ -10,8 +10,13 @@ import { FORM_TOOL_LIBRARY } from '../../core/features/sheetmetal4';
 import { commandById } from '../commands';
 import { getCamera } from '../viewport/Viewport';
 import { openFileDialog, saveDocument } from '../MenuBar';
-import { AssemblyTab, ShareTab } from './AssemblyTab';
-import { AnnotationTab, SheetFormatTab, ViewLayoutTab } from './DrawingTabs';
+import { lazyNamed } from '../lazy';
+// the tabs of assemblies and drawings: chunks of their own, preloaded after start-up (QA 0.5.11 F174)
+const AssemblyTab = lazyNamed(() => import('./AssemblyTab'), 'AssemblyTab', true);
+const ShareTab = lazyNamed(() => import('./AssemblyTab'), 'ShareTab', true);
+const AnnotationTab = lazyNamed(() => import('./DrawingTabs'), 'AnnotationTab', true);
+const SheetFormatTab = lazyNamed(() => import('./DrawingTabs'), 'SheetFormatTab', true);
+const ViewLayoutTab = lazyNamed(() => import('./DrawingTabs'), 'ViewLayoutTab', true);
 
 /**
  * Command Ribbon laid out like the desktop original: a 3×3 block with the menu-bar

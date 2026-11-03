@@ -8,3 +8,5 @@ release
 *.tsbuildinfo
 # local knowledge graph (graphify); rebuilt with "graphify update ." (QA 0.5.10 F142)
 graphify-out/
+# internal working documents and comparison images (QA 0.5.11 F189): kept on this computer, never in the public repo
+intern/

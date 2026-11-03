@@ -54,7 +54,7 @@ export function ParentChildDialog() {
     if (typeof sid === 'string' && sid) { const sk = st.doc.features.find((x) => x.type === 'sketch' && x.sketchId === sid); if (sk) parents.push(sk.name); }
   }
   if (f.type === 'sketch') { const pl = st.doc.sketches[f.sketchId]?.plane; if (pl) parents.push(st.doc.planes[pl]?.name ?? ({ front: 'Front Plane', top: 'Top Plane', right: 'Right Plane' } as Record<string, string>)[pl] ?? pl); }
-  for (const g of (asRec.guides as string[] | undefined) ?? []) { const sk = st.doc.features.find((x) => x.type === 'sketch' && x.sketchId === g); if (sk) parents.push(sk.name); }
+  for (const g of [...((asRec.profiles as string[] | undefined) ?? []), ...((asRec.guides as string[] | undefined) ?? [])]) { const sk = st.doc.features.find((x) => x.type === 'sketch' && x.sketchId === g); if (sk) parents.push(sk.name); }
   const deps = featureDependents(st.doc, f.id);
   const childIds = [...new Set([...deps.children, ...deps.absorbed].map((x) => (typeof x === 'string' ? x : (x as { id: string }).id)))];
   const children = childIds.filter((id) => id !== f.id).map(nameOf);

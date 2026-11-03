@@ -10,9 +10,13 @@ import { serializeDocument } from '../core/document/persistence';
 import { rebuildNow, useStore } from './store';
 import { fitActive } from './viewport/bridge';
 
+const BUILD_COMMIT: string = typeof __APP_COMMIT__ === 'string' ? __APP_COMMIT__ : 'dev';
+
 export interface SelfTestResult {
   steps: { name: string; ok: boolean; info?: string }[];
   kcad: string;
+  /** the commit this bundle was built from */
+  commit: string;
 }
 
 const until = async (ok: () => boolean, ms: number) => {
@@ -68,9 +72,9 @@ export async function runSelfTest(): Promise<SelfTestResult> {
     const there = await rebuildInWorker(useStore.getState().doc, null, 45_000);
     const count = (r: typeof here) => r.bodies.reduce((n, b) => n + b.geometry.getAttribute('position').count, 0);
     step('the rebuild worker builds the same body', there.result.bodies.length === 1 && count(there.result) === count(here) && !Object.keys(there.result.errors).length, `${count(there.result)} / ${count(here)} vertices, ${Math.round(there.ms)} ms`);
-    return { steps, kcad: serializeDocument(useStore.getState().doc) };
+    return { steps, kcad: serializeDocument(useStore.getState().doc), commit: BUILD_COMMIT };
   } catch (err) {
     step('self-test ran to the end', false, err instanceof Error ? err.message : String(err));
-    return { steps, kcad: '' };
+    return { steps, kcad: '', commit: BUILD_COMMIT };
   }
 }

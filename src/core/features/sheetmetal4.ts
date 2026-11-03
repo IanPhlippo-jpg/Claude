@@ -65,16 +65,25 @@ export function prism(o: THREE.Vector3, u: THREE.Vector3, v: THREE.Vector3, w: T
   return g;
 }
 
+/**
+ * The sheet face of a straight edge: of the two faces that meet at it, the larger. Only a face whose plane holds the edge
+ * counts: a bigger face with the same normal elsewhere on the body (the top of the base leg of an L, for an edge at the
+ * end of its upright) is not the edge's face, and taking it built the flange on the end face instead (QA 0.5.11 F197).
+ */
+export function sheetFaceOfEdge(faces: PlanarFace[], e: BodyEdge, flatOnly = false): PlanarFace | null {
+  const seg = e.segments[0];
+  const onPlane = (face: PlanarFace) => Math.abs(new THREE.Vector3(...face.normal).dot(e.centroid.clone().sub(new THREE.Vector3(...face.centroid)))) < 0.01;
+  const pick = (n: THREE.Vector3) => faces.filter((face) => (!flatOnly || !face.curved) && new THREE.Vector3(...face.normal).dot(n) > 0.999 && onPlane(face)).reduce((best, face) => (face.area > (best?.area ?? -1) ? face : best), null as PlanarFace | null);
+  const f1 = pick(seg.n1), f2 = pick(seg.n2);
+  return (f1?.area ?? 0) >= (f2?.area ?? 0) ? f1 : f2;
+}
+
 /** The straight edge of a sheet and the (largest) sheet face it belongs to, with the in-plane direction away from the sheet. */
 export function edgeSheetFace(geometry: THREE.BufferGeometry, bodyId: string, ref: EdgeRef): { e: BodyEdge; face: PlanarFace; a: THREE.Vector3; b: THREE.Vector3; dir: THREE.Vector3; n: THREE.Vector3; out: THREE.Vector3 } | { error: string } {
   const edges = bodyEdges(geometry, bodyId);
   const e = matchEdge(edges, ref);
   if (!e || !e.straight || e.points.length < 2) return { error: 'The selected edge no longer exists on the sheet (or is not straight).' };
-  const faces = planarFaces(geometry, bodyId);
-  const seg = e.segments[0];
-  const pick = (n: THREE.Vector3) => faces.filter((face) => !face.curved && new THREE.Vector3(...face.normal).dot(n) > 0.999).reduce((best, face) => (face.area > (best?.area ?? -1) ? face : best), null as PlanarFace | null);
-  const f1 = pick(seg.n1), f2 = pick(seg.n2);
-  const face = (f1?.area ?? 0) >= (f2?.area ?? 0) ? f1 : f2;
+  const face = sheetFaceOfEdge(planarFaces(geometry, bodyId), e, true);
   if (!face) return { error: 'Could not find the sheet face of the edge.' };
   const a = e.points[0].clone(), b = e.points[e.points.length - 1].clone();
   const dir = b.clone().sub(a).normalize();
