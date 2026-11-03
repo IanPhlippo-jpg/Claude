@@ -833,7 +833,7 @@ elease; README en docs/04 bijgewerkt
 - [x] P3 F142 graphify-out uit de index, F138 audit fix (2 high weg), F137 bewust 45 s (gedocumenteerd), F118 bundelbudget 860 kB, F134 splitsplan, F161/F16/F21/F22 gedocumenteerd, F162, F164, F165, F99 gedaan
 - [x] Regressie Windows op 0495219 (mesh 98/98, release 98/98, brep 12/12), release 0.5.11 gebouwd en geïnstalleerd (19/19), push, docs/28
 - [x] Linux-CI: release 98/98 (c1fc039, run 41542259973), brep 12/12 en mesh-shard 2 (75ceeea, run 41551048560), mesh-shard 3 (c1fc039); logs in qa-logs/0.5.11/linux/
-- [~] Linux-CI: mesh-shard 1 (multibody) en features (shard 3, ook 900 s-timeout op het releasepad → 1500 s) gerepareerd in 772236a + volgende commit (lokaal groen) — run wacht op Actions-minuten (quotum privérepo op; verhogen of repo publiek maken; dan `gh workflow run ci --ref claude/fase1-schetser`)
+- [x] Linux-CI volledig groen op db0d4b2 (run 41600737843: release 98/98, mesh 98/98, brep 12/12, checks, desktop) na multibody/features-fix (772236a), scripttimeout 1500 s en repo publiek (Actions-minuten); logs in qa-logs/0.5.11/linux/
 
 ## Merken, docs en kleine punten uit QA 0.5.10 (2026-11-02)
 - [x] F50/F94/F163: zichtbare "Weldments" → "Frames", "Sustainability Extras" → "Additional Materials"; merkcheck vangt beide; e2e-selectors bij
