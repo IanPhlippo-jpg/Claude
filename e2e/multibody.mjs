@@ -38,16 +38,28 @@ const boxOnTop = async (x0, y0, x1, y1, depth, merge = true) => {
   // the same zoom for every sketch: 4 px per mm around the viewport centre
   await page.evaluate(() => { const c = window.__phlippoCamera; const vp = document.querySelector('.k-viewport').getBoundingClientRect(); c.zoomAt(vp.width / 2, vp.height / 2, 0.25 / c.scale); });
   await page.waitForTimeout(200);
-  // corners in sketch millimetres, projected to the screen (zoom to fit changes the scale per sketch)
-  const pa = await page.evaluate(([x, y]) => window.__phlippoProject({ x, y }), [x0, y0]);
-  const pb = await page.evaluate(([x, y]) => window.__phlippoProject({ x, y }), [x1, y1]);
-  // a slow runner drops a click now and then: draw until the four lines of the rectangle are in the sketch
-  for (let k = 0; k < 3; k++) {
+  // a slow runner drops a click now and then, and draws the view animation late: every attempt waits for the
+  // camera, projects the corners again (sketch millimetres to the screen), waits for the tool, and draws until the
+  // four lines of the rectangle are in the sketch (an empty sketch gives no Extruded Boss PM)
+  const lines = () => page.evaluate(() => { const s = window.__phlippoStore.getState(); const sk = s.doc.sketches[s.activeSketchId]; return sk ? Object.values(sk.entities).filter((e) => e.kind === 'line').length : -1; });
+  for (let k = 0; k < 5; k++) {
+    if (!(await page.evaluate(() => !!window.__phlippoStore.getState().activeSketchId))) {
+      await page.click('.k-tree-row:has-text("Top Plane")', { clickCount: 2 });
+      await page.waitForFunction(() => !!window.__phlippoStore.getState().activeSketchId, undefined, { timeout: 8000 }).catch(() => undefined);
+    }
+    await page.waitForFunction(() => !window.__phlippoCamera.anim, undefined, { timeout: 5000 }).catch(() => undefined);
+    await page.waitForTimeout(200);
+    const pa = await page.evaluate(([x, y]) => window.__phlippoProject({ x, y }), [x0, y0]);
+    const pb = await page.evaluate(([x, y]) => window.__phlippoProject({ x, y }), [x1, y1]);
     await page.click('.k-cm-iconbtn[data-tip="Corner Rectangle"]');
+    await page.waitForFunction(() => window.__phlippoStore.getState().tool === 'rectangle', undefined, { timeout: 5000 }).catch(() => undefined);
     await page.mouse.click(pa.x, pa.y);
+    await page.waitForTimeout(100);
     await page.mouse.click(pb.x, pb.y);
     const drawn = await page.waitForFunction(() => { const s = window.__phlippoStore.getState(); const sk = s.doc.sketches[s.activeSketchId]; return !!sk && Object.values(sk.entities).filter((e) => e.kind === 'line').length >= 4; }, undefined, { timeout: 5000 }).then(() => true, () => false);
     if (drawn) break;
+    console.log('rectangle attempt', k, JSON.stringify({ lines: await lines(), pa, pb, state: await page.evaluate(() => { const s = window.__phlippoStore.getState(); return { active: s.activeSketchId, tool: s.tool, tab: s.tab, anim: !!window.__phlippoCamera.anim }; }) }));
+    await page.evaluate(() => window.__phlippoStore.getState().setTool('select'));
   }
   const sketchId = await page.evaluate(() => window.__phlippoStore.getState().activeSketchId);
   await page.keyboard.press('Escape');

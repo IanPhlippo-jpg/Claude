@@ -328,14 +328,22 @@ await openSketchOn('Top Plane');
 await page.waitForTimeout(300);
 await page.evaluate(() => window.__phlippoZoomFit());
 await page.waitForTimeout(400);
-const la = await page.evaluate(() => window.__phlippoProject({ x: 40, y: 0 }));
-const lb = await page.evaluate(() => window.__phlippoProject({ x: 40, y: 60 }));
-for (let k = 0; k < 3; k++) {
+// a slow runner draws the Zoom to Fit animation late and drops a click now and then: every attempt waits for the
+// camera, projects the points again, waits for the Line tool, and says what it found when the line is missing
+for (let k = 0; k < 5; k++) {
+  if (!(await page.evaluate(() => !!window.__phlippoStore.getState().activeSketchId))) await openSketchOn('Top Plane');
+  await page.waitForFunction(() => !window.__phlippoCamera.anim, undefined, { timeout: 5000 }).catch(() => undefined);
+  await page.waitForTimeout(200);
+  const la = await page.evaluate(() => window.__phlippoProject({ x: 40, y: 0 }));
+  const lb = await page.evaluate(() => window.__phlippoProject({ x: 40, y: 60 }));
   await page.click('.k-cm-iconbtn[data-tip="Line (L)"]');
+  await page.waitForFunction(() => window.__phlippoStore.getState().tool === 'line', undefined, { timeout: 5000 }).catch(() => undefined);
   await page.mouse.click(la.x, la.y);
+  await page.waitForTimeout(100);
   await page.mouse.click(lb.x, lb.y);
   if (await sketchHas('line', 1).then(() => true, () => false)) break;
-  await page.keyboard.press('Escape');
+  console.log('path line attempt', k, JSON.stringify({ la, lb, state: await page.evaluate(() => { const s = window.__phlippoStore.getState(); const sk = s.doc.sketches[s.activeSketchId]; return { active: s.activeSketchId, tool: s.tool, tab: s.tab, n: sk ? Object.keys(sk.entities).length : -1, anim: !!window.__phlippoCamera.anim }; }) }));
+  await page.evaluate(() => window.__phlippoStore.getState().setTool('select'));
 }
 await sketchHas('line', 1);
 await page.keyboard.press('Escape');
