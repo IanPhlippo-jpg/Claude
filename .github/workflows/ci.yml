@@ -2,6 +2,7 @@ name: ci
 on:
   push:
   pull_request:
+  workflow_dispatch:
 # Three kinds of jobs that run side by side, so a red one never hides the others (QA F147):
 #   checks      typecheck, unit tests, the text checks and the release build
 #   desktop     the release build in the desktop shell: without hooks, the self-test, the autosave after a restart, AutoRecover
@@ -154,7 +155,7 @@ jobs:
           npx vite preview --host 127.0.0.1 --port 4173 --strictPort &
           npx wait-on http://127.0.0.1:4173
           export PW_CHROMIUM="$(node -e "console.log(require('playwright').chromium.executablePath())")"
-          E2E_SHARD="${{ matrix.shard }}" E2E_URL="http://127.0.0.1:4173/${{ matrix.query }}" node e2e/run-regression.mjs ${{ matrix.scripts }}
+          E2E_SCRIPT_TIMEOUT=1500000 E2E_SHARD="${{ matrix.shard }}" E2E_URL="http://127.0.0.1:4173/${{ matrix.query }}" node e2e/run-regression.mjs ${{ matrix.scripts }}
       # the tests leave the repository as they found it (no rewritten examples, F84)
       - id: clean
         continue-on-error: true

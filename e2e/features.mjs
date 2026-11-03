@@ -11,7 +11,10 @@ const browser = await chromium.launch(process.platform === 'win32' ? { channel: 
 const page = await browser.newPage({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1, colorScheme: 'light' });
 const errors = [];
 const results = [];
-const check = (name, ok, info = '') => { results.push({ name, ok: !!ok, info }); if (!ok) console.log('FAIL', name, info); };
+// every check says how long the script has run so far: on a slow runner (software GL, 829 s on the release path) the
+// output file of a timed-out run shows where the time went
+const t0 = Date.now();
+const check = (name, ok, info = '') => { results.push({ name, ok: !!ok, info }); console.log(`t+${((Date.now() - t0) / 1000).toFixed(0)}s ${ok ? 'ok' : 'FAIL'} ${name}${ok ? '' : ' ' + info}`); };
 page.on('pageerror', (e) => errors.push('pageerror: ' + e.message + (e.stack ? ' | ' + String(e.stack).split(/\r?\n/).slice(1, 3).join(' <- ').replace(/\s+/g, ' ') : '')));
 page.on('console', (m) => { if (m.type() === 'error') errors.push('console: ' + m.text()); });
 const shot = (n) => page.screenshot({ path: `${OUT}/${n}.png` });
