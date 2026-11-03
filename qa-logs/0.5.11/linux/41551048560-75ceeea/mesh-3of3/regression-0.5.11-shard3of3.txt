@@ -1,0 +1,39 @@
+regression 0.5.11 pass default shard 3/3
+commit 75ceeea
+platform linux 7.0.0-1017-azure
+url http://127.0.0.1:4173/
+date 2026-11-03T00:12:11.641Z
+(32 scripts)
+features: exit=1 271s   name: 'TimeoutError'
+drawing: exit=0 39s 28/28 checks passed
+endconditions: exit=0 75s 15/15 checks passed
+sheetmetal: exit=0 37s 14/14 checks passed
+helix: exit=0 21s 5/5 checks passed
+doorhandle: exit=0 95s 18/18 checks passed
+uptobody: exit=0 15s 4/4 checks passed
+sketchpattern: exit=0 25s 2/2 checks passed
+editcomponent: exit=0 20s 2/2 checks passed
+surfaces: exit=0 41s 7/7 checks passed
+annotations3: exit=0 10s 3/3 checks passed
+unfoldfold: exit=0 37s 5/5 checks passed
+thickness: exit=0 28s 2/2 checks passed
+thread: exit=0 20s 2/2 checks passed
+deletekey2: exit=0 20s 13/13 checks passed
+features2: exit=0 91s 15/15 checks passed
+assembly2: exit=0 74s 15/15 checks passed
+filletopts: exit=0 137s 16/16 checks passed
+keys: exit=0 183s 7/7 checks passed
+dwgopts: exit=0 11s 13/13 passed
+triad: exit=0 53s 5/5 passed
+asmcut: exit=0 30s 3/3 checks passed
+qa3: exit=0 57s 30/30 passed
+ga1: exit=0 16s 19/19 passed
+gd: exit=0 45s 23/23 passed
+gg: exit=0 40s 22/22 passed
+gj: exit=0 93s 37/37 passed
+bodies: exit=0 31s 7/7 checks passed
+rebuildworker: exit=0 173s 10/10 checks passed
+loftface: exit=0 32s 7/7 checks passed
+videos54: exit=0 33s 18/18 checks passed
+plastics: exit=0 97s 26/26 passed
+DONE 31/32 green, 0 optional step(s) skipped — failed: features

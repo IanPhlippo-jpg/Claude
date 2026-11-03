@@ -831,7 +831,9 @@ elease; README en docs/04 bijgewerkt
 - [x] P2 F150/F49/F117: UNSIGNED-melding in desktop:build + tools/sign-report.cjs (signature-<versie>.txt); F151/F97: desktop-installed.mjs draait --self-test op de geïnstalleerde exe (packaged:true), log bewaard
 - [x] P2 F112 backup-opties echt (eenheden/grid/kleuren waren al gekoppeld), F114 IGES niet mogelijk in deze OCCT-build (gedocumenteerd), F122 HLR/centermarks e2e + centermarks in detailaanzichten, F141/F166 nieuwste mate gemarkeerd en Not Converged-status
 - [x] P3 F142 graphify-out uit de index, F138 audit fix (2 high weg), F137 bewust 45 s (gedocumenteerd), F118 bundelbudget 860 kB, F134 splitsplan, F161/F16/F21/F22 gedocumenteerd, F162, F164, F165, F99 gedaan
-- [~] Regressie (mesh 98/98 + release 98/98 Windows op 0495219; brep-pass en Linux-CI lopen), release 0.5.11 gebouwd en geïnstalleerd (19/19), push, docs/28
+- [x] Regressie Windows op 0495219 (mesh 98/98, release 98/98, brep 12/12), release 0.5.11 gebouwd en geïnstalleerd (19/19), push, docs/28
+- [x] Linux-CI: release 98/98 (c1fc039, run 41542259973), brep 12/12 en mesh-shard 2 (75ceeea, run 41551048560), mesh-shard 3 (c1fc039); logs in qa-logs/0.5.11/linux/
+- [~] Linux-CI: mesh-shard 1 (multibody) en features (shard 3) gerepareerd in 772236a (lokaal groen) — run wacht op Actions-minuten (quotum privérepo op; verhogen of repo publiek maken)
 
 ## Merken, docs en kleine punten uit QA 0.5.10 (2026-11-02)
 - [x] F50/F94/F163: zichtbare "Weldments" → "Frames", "Sustainability Extras" → "Additional Materials"; merkcheck vangt beide; e2e-selectors bij

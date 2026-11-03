@@ -1,0 +1,40 @@
+regression 0.5.11 pass default shard 1/3
+commit 75ceeea
+platform linux 7.0.0-1017-azure
+url http://127.0.0.1:4173/
+date 2026-11-03T00:12:35.573Z
+(33 scripts)
+smoke: exit=0 24s 13/13 checks passed
+full: exit=0 117s 68/68 checks passed | page errors: []
+configurations: exit=0 117s 25/25 checks passed
+multibody: exit=1 130s   name: 'TimeoutError'
+section: exit=0 50s 9/9 checks passed
+hem: exit=0 43s 9/9 checks passed
+ellipsetext: exit=0 24s 6/6 checks passed
+jogmiter: exit=0 79s 7/7 checks passed
+faceappearance: exit=0 36s 2/2 checks passed
+arcslot: exit=0 22s 4/4 checks passed
+annotations: exit=0 19s 3/3 checks passed
+viewlayout: exit=0 21s 16/16 checks passed
+wrap: exit=0 45s 4/4 checks passed
+dragHandles: exit=0 39s 3/3 checks passed
+confirmdelete: exit=0 42s 11/11 checks passed
+rect3: exit=0 12s 8/8 checks passed
+sheetmetal2: exit=0 74s 7/7 checks passed
+drawing2: exit=0 27s 13/13 checks passed
+drawingfix: exit=0 31s 16/16 checks passed
+asmoptions: exit=0 113s 19/19 passed
+dialogopts: exit=0 97s 16/16 passed
+blockf: exit=0 36s 6/6 passed
+qa1: exit=0 91s 26/26 passed
+qa4: exit=0 100s 14/14 passed
+ga2: exit=0 54s 16/16 passed
+ge: exit=0 225s 59/59 passed
+gh: exit=0 85s 29/29 passed
+step: exit=0 50s 11/11 checks passed
+pmsweep: exit=0 638s 54/54 checks passed
+facenames: exit=0 64s 10/10 checks passed
+videos56: exit=0 122s 18/18 checks passed
+reorder: exit=0 66s 10/10 passed
+quickstart: exit=0 100s 9/9 passed
+DONE 32/33 green, 0 optional step(s) skipped — failed: multibody

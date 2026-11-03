@@ -1,0 +1,19 @@
+regression 0.5.11 pass brep
+commit 75ceeea
+platform linux 7.0.0-1017-azure
+url http://127.0.0.1:4173/?kernel=brep
+date 2026-11-03T00:12:20.098Z
+(12 scripts)
+features: exit=0 623s 65/65 checks passed
+features2: exit=0 218s 15/15 checks passed
+filletopts: exit=0 342s 16/16 checks passed
+endconditions: exit=0 78s 15/15 checks passed
+multibody: exit=0 114s 14/14 checks passed
+full: exit=0 69s 68/68 checks passed | page errors: []
+doorhandle: exit=0 115s 18/18 checks passed
+step: exit=0 93s 11/11 checks passed
+bodies: exit=0 34s 7/7 checks passed
+qa2: exit=0 35s 18/18 passed
+facenames: exit=0 31s 10/10 checks passed
+plastics: exit=0 230s 26/26 passed
+DONE 12/12 green, 0 optional step(s) skipped

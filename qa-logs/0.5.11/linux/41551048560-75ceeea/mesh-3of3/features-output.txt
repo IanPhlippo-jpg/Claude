@@ -1,0 +1,17 @@
+features: exit=1
+sketch status: 70mm70mm0mmUnder DefinedEditing Sketch1MMGS
+after Extrude click: {"features":[{"type":"sketch","name":"Sketch1"}],"bodies":0,"errors":{},"fe":{"id":"fmvzxocxzn","type":"extrude","name":"Boss-Extrude1","sketchId":"skmvzxo6qt2","suppressed":false,"op":"boss","end":"blind","depth":10,"reverse":false},"active":null,"selFace":null,"tab":"features"}
+tree: Part1 (Default) <<Default>_Display State 1>HistorySensorsAnnotationsSolid Bodies(1)Material <not specified>Front PlaneTop PlaneRight PlaneOriginBoss-Extrude1
+before Shell: {"selectedFaces":1,"hoverEdge":null,"edges":16,"closed":4,"straight":12}
+shell draft: {"id":"fmvzxsa9s7","type":"shell","name":"Shell1","suppressed":false,"thickness":2,"faces":[{"normal":[0,1,0],"point":[39.73919495316364,10,-40.260805049245434]}]}
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+page.waitForFunction: Timeout 8000ms exceeded.
+    at sketchHas (/home/runner/work/Claude/Claude/e2e/features.mjs:312:37)
+    at /home/runner/work/Claude/Claude/e2e/features.mjs:340:7 {
+  name: 'TimeoutError'
+}
+
+Node.js v22.23.4

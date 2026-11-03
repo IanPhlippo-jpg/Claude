@@ -1,0 +1,6 @@
+misc7: exit=1
+FAIL Select Other picks another face under the pointer null -> null
+
+7/8 checks passed
+ - Select Other picks another face under the pointer (null -> null)
+errors: none

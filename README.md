@@ -73,7 +73,13 @@ Welke platforms getest zijn:
 - **Windows 11 (lokaal, commit 0495219):** unit-tests 487/487, typecheck, de tools-checks; regressie mesh 98/98,
   release (B-rep + worker) 98/98, brep-controle 12/12, 0 skips; desktop 12/12 en 9/9 op de release-build;
   geïnstalleerde 0.5.11 19/19. Ruwe logs: `qa-logs/0.5.11/`.
-- **Linux (GitHub Actions, ubuntu-24.04):** zie Actions-run <link> (wordt ingevuld zodra de run op deze commit groen is).
+- **Linux (GitHub Actions, ubuntu-24.04, software-GL):** checks en desktop groen; release (B-rep + worker) 98/98 op
+  commit c1fc039 ([run 41542259973](https://github.com/IanPhlippo-jpg/Claude/actions/runs/41542259973), drie shards
+  33+33+32); brep-controle 12/12 en mesh-shard 2 33/33 op 75ceeea
+  ([run 41551048560](https://github.com/IanPhlippo-jpg/Claude/actions/runs/41551048560)); mesh-shard 3 32/32 op
+  c1fc039. Nog niet groen op Linux: mesh-shard 1 (`multibody`, 32/33) en `features` op shard 3 van 75ceeea (31/32);
+  beide zijn in 772236a gerepareerd (lokaal groen), maar die run kon niet starten omdat het Actions-minutenquotum van
+  de privérepo op was. Ruwe logs: `qa-logs/0.5.11/linux/`.
 
 Regel voor elke claim in README, docs, TASKS en commitberichten: een getal als "98/98" noemt altijd het **platform**,
 de **commit** waarop het draaide en het **ruwe log** (bestand of Actions-run). Een claim zonder die drie telt niet als

@@ -1,0 +1,40 @@
+regression 0.5.11 pass default shard 2/3
+commit 75ceeea
+platform linux 7.0.0-1017-azure
+url http://127.0.0.1:4173/
+date 2026-11-03T00:12:28.537Z
+(33 scripts)
+relations: exit=0 31s 14/14 checks passed
+assembly: exit=0 182s 21/21 checks passed
+rib: exit=0 101s 10/10 checks passed
+slot: exit=0 24s 9/9 checks passed
+sketchtools: exit=0 42s 13/13 checks passed
+explode: exit=0 68s 18/18 checks passed
+componentpattern: exit=0 97s 6/6 checks passed
+sketch3d: exit=0 35s 9/9 checks passed
+draftcheck: exit=0 98s 9/9 checks passed
+sketchtools2: exit=0 15s 4/4 checks passed
+annotations2: exit=0 12s 4/4 checks passed
+corners: exit=0 31s 4/4 checks passed
+motion: exit=0 26s 5/5 checks passed
+dimpm: exit=0 6s 3/3 checks passed
+deletekey: exit=0 91s 8/8 checks passed
+sketchcurves: exit=0 25s 13/13 checks passed
+evalrender2: exit=0 81s 11/11 checks passed
+misc7: exit=0 81s 8/8 checks passed
+drawopts: exit=0 45s 21/21 checks passed
+sectionopts: exit=0 23s 5/5 passed
+motion2: exit=0 37s 9/9 passed
+fixes1: exit=0 10s 6/6 checks passed
+qa2: exit=0 54s 18/18 passed
+leak: exit=0 137s 3/3 checks passed
+gb: exit=0 166s 32/32 passed
+gf: exit=0 68s 28/28 passed
+gi: exit=0 95s 29/29 passed
+brep: exit=0 114s 11/11 checks passed
+inventory47: exit=0 110s 18/18 checks passed
+appearance2: exit=0 35s 8/8 checks passed
+videos46: exit=0 106s 25/25 checks passed
+sheetexport: exit=0 20s 12/12 passed
+round2: exit=0 15s 6/6 checks passed
+DONE 33/33 green, 0 optional step(s) skipped

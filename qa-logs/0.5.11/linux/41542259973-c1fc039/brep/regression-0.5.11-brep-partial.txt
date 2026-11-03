@@ -1,0 +1,19 @@
+regression 0.5.11 pass brep
+commit c1fc039
+platform linux 7.0.0-1017-azure
+url http://127.0.0.1:4173/?kernel=brep
+date 2026-11-02T23:03:35.078Z
+(12 scripts)
+features: exit=0 649s 65/65 checks passed
+features2: exit=0 222s 15/15 checks passed
+filletopts: exit=0 338s 16/16 checks passed
+endconditions: exit=0 79s 15/15 checks passed
+multibody: exit=1 79s   name: 'TimeoutError'
+full: exit=0 71s 68/68 checks passed | page errors: []
+doorhandle: exit=0 108s 18/18 checks passed
+step: exit=0 92s 11/11 checks passed
+bodies: exit=0 34s 7/7 checks passed
+qa2: exit=0 36s 18/18 passed
+facenames: exit=0 32s 10/10 checks passed
+plastics: exit=0 239s 26/26 passed
+DONE 11/12 green, 0 optional step(s) skipped — failed: multibody

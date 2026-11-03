@@ -1,0 +1,39 @@
+regression 0.5.11 pass brep-worker shard 3/3
+commit c1fc039
+platform linux 7.0.0-1017-azure
+url http://127.0.0.1:4173/?kernel=brep&rebuild=worker
+date 2026-11-02T23:03:43.251Z
+(32 scripts)
+features: exit=0 829s 65/65 checks passed
+drawing: exit=0 45s 28/28 checks passed
+endconditions: exit=0 113s 15/15 checks passed
+sheetmetal: exit=0 93s 14/14 checks passed
+helix: exit=0 56s 5/5 checks passed
+doorhandle: exit=0 138s 18/18 checks passed
+uptobody: exit=0 25s 4/4 checks passed
+sketchpattern: exit=0 44s 2/2 checks passed
+editcomponent: exit=0 33s 2/2 checks passed
+surfaces: exit=0 85s 7/7 checks passed
+annotations3: exit=0 11s 3/3 checks passed
+unfoldfold: exit=0 137s 5/5 checks passed
+thickness: exit=0 45s 2/2 checks passed
+thread: exit=0 47s 2/2 checks passed
+deletekey2: exit=0 22s 13/13 checks passed
+features2: exit=0 248s 15/15 checks passed
+assembly2: exit=0 118s 15/15 checks passed
+filletopts: exit=0 414s 16/16 checks passed
+keys: exit=0 331s 7/7 checks passed
+dwgopts: exit=0 12s 13/13 passed
+triad: exit=0 80s 5/5 passed
+asmcut: exit=0 58s 3/3 checks passed
+qa3: exit=0 77s 30/30 passed
+ga1: exit=0 19s 19/19 passed
+gd: exit=0 182s 23/23 passed
+gg: exit=0 61s 22/22 passed
+gj: exit=0 170s 37/37 passed
+bodies: exit=0 47s 7/7 checks passed
+rebuildworker: exit=0 271s 10/10 checks passed
+loftface: exit=0 75s 7/7 checks passed
+videos54: exit=0 46s 18/18 checks passed
+plastics: exit=0 276s 26/26 passed
+DONE 32/32 green, 0 optional step(s) skipped
