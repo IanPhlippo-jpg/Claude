@@ -1,7 +1,7 @@
 // The last greyed-out items: Lasso Selection, Select Other, Isolate, Delete Body, Add Derived Configuration,
 // Animate collapse, sensor Notifications, Window ▸ Viewport ▸ Two / Four View.
 import { chromium } from 'playwright';
-import { exitCode } from './lib/check.mjs';
+import { exitCode, waitSettled } from './lib/check.mjs';
 import { mkdirSync, readFileSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -59,13 +59,19 @@ await page.evaluate(() => {
   ] };
   window.__phlippoStore.getState().openDocument(d);
 });
-await page.waitForTimeout(800);
+await waitSettled(page);
 await page.keyboard.press('Control+7');
 await page.keyboard.press('f');
 await page.waitForTimeout(500);
 // Select Other: right-click on the first body, then Select Other picks the face behind
-const c0 = await page.evaluate(() => window.__phlippoProjectWorld(15, 5, -15));
-await page.mouse.click(c0.x, c0.y);
+// (a slow runner draws the fitted view later: click until a face is selected)
+let c0 = await page.evaluate(() => window.__phlippoProjectWorld(15, 5, -15));
+for (let k = 0; k < 10; k++) {
+  c0 = await page.evaluate(() => window.__phlippoProjectWorld(15, 5, -15));
+  await page.mouse.click(c0.x, c0.y);
+  await page.waitForTimeout(200);
+  if (await page.evaluate(() => !!window.__phlippoStore.getState().selectedFace)) break;
+}
 await page.mouse.click(c0.x, c0.y, { button: 'right' });
 await page.waitForTimeout(200);
 const before = await page.evaluate(() => JSON.stringify(window.__phlippoStore.getState().selectedFace));
