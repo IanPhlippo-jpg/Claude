@@ -77,10 +77,11 @@ await page.waitForTimeout(200);
 check('tree shows MateGroup1', (await page.locator('.k-tree-row:has-text("MateGroup1")').count()) === 1);
 await shot('ao1b-mategroup');
 // Use for positioning only: no mate is stored, the component is moved
-await page.evaluate(() => window.__phlippoStore.setState({ mateOpts: { newFolder: false, popup: true, preview: true, positionOnly: true } }));
 await page.evaluate(() => { const s = window.__phlippoStore.getState(); s.openDocument({ ...s.doc, mates: [] }); });
 await page.waitForTimeout(300);
 await page.evaluate(() => window.__phlippoStore.getState().startMate());
+// the box in the Mate PM (a new mate starts from Document Properties ▸ Mates, so the option is set after Start)
+await page.evaluate(() => window.__phlippoStore.setState({ mateOpts: { newFolder: false, popup: true, preview: true, positionOnly: true } }));
 await pick('c1', [0, 1, 0]);
 await pick('c2', [0, -1, 0]);
 await page.evaluate(() => window.__phlippoStore.getState().commitMate());

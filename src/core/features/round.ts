@@ -282,6 +282,16 @@ export function roundToolOpts(s: CreaseSegment, kind: 'fillet' | 'chamfer', size
   return { geometry: loftPrism(sec(a, sizeA), sec(b, sizeB)), convex };
 }
 
+/**
+ * The size of a Variable Size fillet at the fraction s of its edge: a smooth transition from start to end, the law
+ * the B-rep kernel's fillet (OpenCascade, an interpolating law through the two end sizes) follows,
+ * start + (end - start) · (3s + 4(3s² - 2s³)) / 7: a slope of 3/7 of the straight transition at both ends, 9/7 in the
+ * middle. A straight transition here left the mesh fillet 0.15 mm off the exact one (QA F172).
+ */
+export function variableSize(v: { start: number; end: number }, s: number): number {
+  return v.start + (v.end - v.start) * ((3 * s + 4 * (3 * s * s - 2 * s * s * s)) / 7);
+}
+
 /** Fillet / chamfer tools with the options (multi radius, variable size, partial edge, asymmetric, conic). */
 export function roundToolsOpts(edges: BodyEdge[], kind: 'fillet' | 'chamfer', size: number, o2: RoundOptions): { cutters: THREE.BufferGeometry[]; adders: THREE.BufferGeometry[] } {
   const cutters: THREE.BufferGeometry[] = [];
@@ -305,11 +315,18 @@ export function roundToolsOpts(edges: BodyEdge[], kind: 'fillet' | 'chamfer', si
         f0 = f0 + (f1 - f0) * k0;
         f1 = f0 + (f1 - f0) * (k1 - k0);
       }
-      const rA = o2.variable ? o2.variable.start + (o2.variable.end - o2.variable.start) * f0 : base;
-      const rB = o2.variable ? o2.variable.start + (o2.variable.end - o2.variable.start) * f1 : base;
-      const t = roundToolOpts(s, kind, Math.max(0.01, rA), Math.max(0.01, rB), o2, e.straight ? 10 : 6);
-      if (!t) continue;
-      (t.convex ? cutters : adders).push(t.geometry);
+      // Variable Size: the size follows variableSize() along the edge, in pieces of at most 1/16 of it (the size between
+      // the ends of a piece is linear: 0.01 mm off the law at most for a size step of 6 mm)
+      const pieces = o2.variable ? Math.max(1, Math.ceil((f1 - f0) * 16 - 1e-9)) : 1;
+      for (let k = 0; k < pieces; k++) {
+        const g0 = f0 + ((f1 - f0) * k) / pieces, g1 = f0 + ((f1 - f0) * (k + 1)) / pieces;
+        const sk = pieces === 1 ? s : { ...s, a: s.a.clone().lerp(s.b, k / pieces), b: s.a.clone().lerp(s.b, (k + 1) / pieces) };
+        const rA = o2.variable ? variableSize(o2.variable, g0) : base;
+        const rB = o2.variable ? variableSize(o2.variable, g1) : base;
+        const t = roundToolOpts(sk, kind, Math.max(0.01, rA), Math.max(0.01, rB), o2, e.straight ? 10 : 6);
+        if (!t) continue;
+        (t.convex ? cutters : adders).push(t.geometry);
+      }
     }
   });
   return { cutters, adders };

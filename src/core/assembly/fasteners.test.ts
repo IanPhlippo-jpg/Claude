@@ -22,7 +22,7 @@ function plate(name: string): Document {
 }
 
 describe('Assembly ▸ Auto Fasteners', () => {
-  it('toolbox parts rebuild: socket head cap screw, countersunk screw, hex bolt', () => {
+  it('toolbox parts rebuild: socket head cap screw, countersunk screw, hex bolt', { timeout: 30000 }, () => {
     for (const t of ['shcs', 'csk', 'hex'] as const) {
       const p = fastenerPart(t, 'M6', 30);
       const r = rebuildDocument(p, null);

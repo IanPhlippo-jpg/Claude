@@ -3,7 +3,9 @@ import { slotGeometry, slotOutline } from './slotGeometry';
 export { slotGeometry, slotOutline } from './slotGeometry';
 import type { ConstraintKind, Id, Sketch, SketchPoint } from '../../core/sketch/types';
 import { addArc, addCircle, addConic, addConstraint, addEllipse, addEllipseArc, addLine, addPoint, addPolygon, addSpline, addText, entityPoints } from '../../core/sketch/model';
-import { dist, entityLoops, hitTest, sampleBezier, sampleConic, snap, type Snap } from '../../core/sketch/geometry';
+import { dist, entityLoops, hitTest, sampleBezier, sampleConic, type Snap } from '../../core/sketch/geometry';
+import { automaticRelations, gridPoint, snapPoint } from '../sketchSnaps';
+import { defaultLasso } from '../prefsEffects';
 import { cornerTrim, extendEntity, powerTrim, sketchChamfer, sketchFillet, trimBetween, trimEntity } from '../../core/sketch/edit';
 import { dimensionForSelection, measure, type SelectionItem } from '../../core/sketch/relations';
 import type { ToolId } from '../store';
@@ -12,7 +14,7 @@ import type { PreviewItem } from './sketchScene';
 export interface ToolContext {
   sketch: Sketch;
   tolerance: number;
-  snapGrid: boolean;
+  snapGrid: boolean; /** the grid is shown (Relations/Snaps ▸ Snap only when grid is displayed) */ gridShown?: boolean;
   gridSize: number;
   commit: (label: string, fn: (s: Sketch) => Sketch) => void;
   select: (items: SelectionItem[]) => void;
@@ -88,7 +90,7 @@ export class ToolController {
   /** Lasso Selection: the freehand path while dragging */
   private lasso: SketchPoint[] | null = null;
   /** set from the shortcut menu: drag selects with a lasso instead of a box */
-  lassoMode = false;
+  lassoMode = defaultLasso();
   private dimPlacing: { kind: ConstraintKind; refs: Id[]; value: number; arcCondition?: Record<number, { entityId: Id; mode: 'min' | 'max' }> } | null = null;
   private lastLineEnd: Id | null = null;
   private lastLineEndPt: SketchPoint | null = null;
@@ -301,14 +303,8 @@ export class ToolController {
 
   private applySnap(ctx: ToolContext, p: SketchPoint, ref: SketchPoint | null): { p: SketchPoint; snap: Snap | null } {
     if (this.exactNext) return { p, snap: null };
-    const exclude = new Set<Id>();
-    const s = snap(ctx.sketch, p, ctx.tolerance, ref, exclude);
-    if (s.length) return { p: s[0].point, snap: s[0] };
-    if (ctx.snapGrid) {
-      const g = ctx.gridSize;
-      return { p: { x: Math.round(p.x / g) * g, y: Math.round(p.y / g) * g }, snap: null };
-    }
-    return { p, snap: null };
+    // the snaps, grid and direction inference of System Options ▸ Sketch ▸ Relations/Snaps
+    return snapPoint(ctx.sketch, p, ctx.tolerance, ref, { quick: ctx.snapGrid, shown: !!ctx.gridShown, size: ctx.gridSize });
   }
 
   /** Ctrl held while sketching: automatic relations are turned off (by design) */
@@ -316,10 +312,10 @@ export class ToolController {
 
   /** relations implied by a snap for a newly created point id */
   private inferredRelations(s: Sketch, snapHit: Snap | null, pid: Id): Sketch {
-    if (!snapHit || this.noInfer) return s;
+    if (!snapHit || this.noInfer || !automaticRelations()) return s;
     if (snapHit.pointId && snapHit.pointId !== pid) return addConstraint(s, 'coincident', [pid, snapHit.pointId])[0];
     if (snapHit.kind === 'midpoint' && snapHit.entityId) return addConstraint(s, 'midpoint', [pid, snapHit.entityId])[0];
-    if (snapHit.kind === 'on' && snapHit.entityId) return addConstraint(s, 'pointOnEntity', [pid, snapHit.entityId])[0];
+    if ((snapHit.kind === 'on' || snapHit.kind === 'quadrant') && snapHit.entityId) return addConstraint(s, 'pointOnEntity', [pid, snapHit.entityId])[0];
     return s;
   }
 
@@ -1291,8 +1287,8 @@ export class ToolController {
     const out: ToolRender = { preview: [], previewPoints: [], snap: this.curSnap, hint: '' };
     const cur = this.cursor;
     const sn = this.curSnap;
-    const cp = cur ? (sn ? sn.point : ctx.snapGrid ? { x: Math.round(cur.x / ctx.gridSize) * ctx.gridSize, y: Math.round(cur.y / ctx.gridSize) * ctx.gridSize } : cur) : null;
-    if (sn) out.hint = { endpoint: 'Endpoint', midpoint: 'Midpoint', center: 'Center', on: 'On entity', horizontal: 'Horizontal', vertical: 'Vertical', origin: 'Origin', quadrant: 'Quadrant', align: '' }[sn.kind];
+    const cp = cur ? (sn ? sn.point : gridPoint(cur, { quick: ctx.snapGrid, shown: !!ctx.gridShown, size: ctx.gridSize })) : null;
+    if (sn) out.hint = { endpoint: 'Endpoint', midpoint: 'Midpoint', center: 'Center', on: 'On entity', horizontal: 'Horizontal', vertical: 'Vertical', origin: 'Origin', quadrant: 'Quadrant', align: '', intersection: 'Intersection', angle: 'Angle', parallel: 'Parallel', perpendicular: 'Perpendicular' }[sn.kind];
     if (this.powerPath && this.powerPath.length > 1) out.preview.push({ points: this.powerPath.slice(), dashed: true });
     if (this.boxStart && this.boxEnd && this.lassoMode && this.lasso) out.lasso = this.lasso.slice();
     else if (this.boxStart && this.boxEnd) out.box = { a: this.boxStart, b: this.boxEnd };

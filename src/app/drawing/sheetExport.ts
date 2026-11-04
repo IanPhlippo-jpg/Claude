@@ -4,13 +4,16 @@
  * what only the screen shows (selection frames and highlights, the paper shadow).
  */
 import { sheetSize } from '../../core/drawing/sheet';
+import { hatchSpec } from '../prefsFormat';
 import { hatchLines, toDxf, toPdf, type P2, type SheetPrims } from '../../core/drawing/export2d';
 import { desktop } from '../desktop';
 import { useStore } from '../store';
 
 /** the highlight colours of selection and preview: not part of the drawing */
 const UI_COLOURS = new Set(['rgb(30, 111, 217)', 'rgb(74, 144, 217)']);
-const HATCH: Record<string, { angle: number; spacing: number }> = { 'k-hatch': { angle: 45, spacing: 2.5 }, 'k-hatch-b': { angle: -45, spacing: 2.5 }, 'k-hatch-c': { angle: 45, spacing: 1.4 } };
+const HATCH: Record<string, { angle: number; spacing: number }> = { 'k-hatch-b': { angle: -45, spacing: 2.5 }, 'k-hatch-c': { angle: 45, spacing: 1.4 } };
+/** the section and Area Hatch patterns follow the options (Material Properties, Drawings ▸ Area Hatch/Fill) */
+const hatchOf = (id: string) => { if (id !== 'k-hatch' && id !== 'k-hatch-area') return HATCH[id]; const h = hatchSpec(id === 'k-hatch' ? 'section' : 'area'); return h.fill === 'hatch' ? { angle: h.angle, spacing: h.spacing } : undefined; };
 
 const alpha = (c: string) => { const m = /rgba\([^)]*,\s*([\d.]+)\)/.exec(c); return m ? Number(m[1]) : 1; };
 /** a light fill (paper, a table or balloon background) is no ink: only dark fills (arrowheads) are filled */
@@ -54,7 +57,7 @@ export function collectSheet(svg: SVGSVGElement, sheetMm: [number, number]): She
     const width = stroke ? (parseFloat(cs.strokeWidth) * scale) / k : 0;
     const hatch = /url\("?#([\w-]+)"?\)/.exec(cs.fill)?.[1];
     const solid = !hatch && cs.fill !== 'none' && !isLight(cs.fill) && !UI_COLOURS.has(cs.fill) && alpha(cs.fill) >= 0.5;
-    if (!stroke && !solid && !(hatch && HATCH[hatch])) continue;
+    if (!stroke && !solid && !(hatch && hatchOf(hatch))) continue;
     const dashed = stroke && cs.strokeDasharray !== 'none';
     const loops: P2[][] = [];
     const add = (pts: P2[], closed: boolean) => {
@@ -77,7 +80,8 @@ export function collectSheet(svg: SVGSVGElement, sheetMm: [number, number]): She
     } else if (el instanceof SVGPathElement || el instanceof SVGEllipseElement || el instanceof SVGCircleElement) {
       for (const sub of subpaths(el)) add(sub.pts.map((q) => mm(q[0], q[1])), sub.closed);
     }
-    if (hatch && HATCH[hatch] && loops.length) for (const [a, b] of hatchLines(loops, HATCH[hatch].angle, HATCH[hatch].spacing)) out.paths.push({ pts: [a, b], closed: false, width: 0.18 });
+    const hs = hatch ? hatchOf(hatch) : undefined;
+    if (hs && loops.length) for (const [a, b] of hatchLines(loops, hs.angle, hs.spacing)) out.paths.push({ pts: [a, b], closed: false, width: 0.18 });
   }
   return out;
 }

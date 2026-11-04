@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { useStore } from '../store';
-import { getPref } from '../prefs';
+import { magnifiedSelection } from '../prefsEffects';
 import { renderWithAO } from './ao';
 import type { CadCamera } from './camera';
 
@@ -40,7 +40,7 @@ export function Magnifier({ camera, renderer, scene, host }: { camera: CadCamera
       }
       if (e.key.toLowerCase() !== 'g' || e.ctrlKey || e.metaKey || e.altKey || e.shiftKey) return;
       const st = useStore.getState();
-      if (!open && (!st.hasDocument || st.dialog || st.doc.kind === 'drawing' || getPref('perf.magnifiedSelection') === false)) return;
+      if (!open && (!st.hasDocument || st.dialog || st.doc.kind === 'drawing' || !magnifiedSelection())) return;
       e.preventDefault();
       e.stopImmediatePropagation();
       setOpen(!open);
@@ -113,6 +113,9 @@ export function Magnifier({ camera, renderer, scene, host }: { camera: CadCamera
     if (ctx) {
       ctx.clearRect(0, 0, px, px);
       ctx.drawImage(gl.domElement, 0, gl.domElement.height - px, px, px, 0, 0, px, px);
+      // where (screen pixel) and how far the glass was last painted, for the e2e scripts to wait on a fresh picture
+      const hr = host.current?.getBoundingClientRect();
+      out.dataset.at = `${Math.round(p.x + (hr?.left ?? 0))},${Math.round(p.y + (hr?.top ?? 0))},${zoom.current}`;
     }
     gl.setScissorTest(false);
     gl.setViewport(vp);

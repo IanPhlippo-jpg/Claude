@@ -8,6 +8,7 @@ import { Menu, nestMenu, type MenuItem } from '../ui/components';
 import { Icon } from '../ui/icons';
 import { FILE_EXTENSION, MAX_FILE_BYTES, parseDocument, serializeDocument } from '../core/document/persistence';
 import { exportStl, parseStl } from '../core/document/stl';
+import { backupPolicy, importScale, warnSaveWithErrors } from './prefsEffects';
 import { desktop, getDocumentHandle, setDocumentHandle } from './desktop';
 import { viewerHtml } from '../core/document/viewerExport';
 import { applyUpAxis as setUpAxis } from './viewport/camera';
@@ -48,7 +49,7 @@ export async function saveDocument(forceAsk = false, confirmedErrors = false): P
   if (!hasDocument) return false;
   // a model with rebuild errors (a damaged or half-repaired file) is only written after a confirmation (F40)
   const errs = Object.keys(useStore.getState().rebuild.errors);
-  if (errs.length && !confirmedErrors) {
+  if (errs.length && !confirmedErrors && warnSaveWithErrors()) {
     return new Promise<boolean>((resolve) => useStore.getState().setAsk({
       title: 'Phlippo CAD',
       text: `${doc.name} has ${errs.length} feature${errs.length === 1 ? '' : 's'} that could not be rebuilt (What's Wrong). Save the incomplete model anyway? The previous file is kept as .bak.`,
@@ -63,7 +64,7 @@ export async function saveDocument(forceAsk = false, confirmedErrors = false): P
     const data = new TextEncoder().encode(text).buffer as ArrayBuffer;
     const previous = getDocumentHandle();
     const known = forceAsk ? undefined : previous ?? undefined;
-    const r = await api.saveFile({ defaultPath: `${doc.name}${FILE_EXTENSION}`, filters: KCAD_FILTERS, data, handle: known });
+    const r = await api.saveFile({ defaultPath: `${doc.name}${FILE_EXTENSION}`, filters: KCAD_FILTERS, data, handle: known, backup: backupPolicy() });
     if (!r) return false;
     if (r.error) {
       pushMessage(`${r.name} could not be saved: ${r.error}. The previous file is unchanged.`, 'error');
@@ -191,7 +192,7 @@ export function openFileData(name: string, data: ArrayBuffer, handle: string | n
   try {
     if (data.byteLength > MAX_FILE_BYTES) throw new Error(`the file is larger than ${Math.round(MAX_FILE_BYTES / 1024 / 1024)} MB`);
     if (/\.(step|stp)$/i.test(name)) return openStep(name, data);
-    if (/\.stl$/i.test(name)) st.importMesh(name, parseStl(data));
+    if (/\.stl$/i.test(name)) st.importMesh(name, importScale(parseStl(data)));
     else if (st.doc.kind === 'drawing' && st.drawingEdit?.mode === 'modelView' && !st.drawingEdit.model) {
       const model = parseDocument(new TextDecoder().decode(data));
       if (model.kind === 'drawing') st.pushMessage('Choose a part or assembly file for the view.', 'warn');

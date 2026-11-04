@@ -77,14 +77,17 @@ const watchFrames = () => page.evaluate(() => {
 const stopFrames = () => page.evaluate(() => { window.__watching = false; return { gap: window.__gap, frames: window.__frames }; });
 
 // what one ordinary redraw of this part costs on this machine (a new document object, no rebuild): with software GL
-// (a CI runner without graphics card) drawing alone takes a few hundred ms. The rebuild may add at most 150 ms on top
-// of that; on a graphics card the limit stays 250 ms (QA v0.5.1 F125).
+// (a CI runner without graphics card) drawing alone takes seconds. The rebuild may add at most 150 ms on top of that;
+// on a graphics card the limit stays 250 ms (QA v0.5.1 F125). A gap of about two frames meant work on this thread: the
+// new floor materials compiled their shader programs again after every rebuild (bodyScene placeFloor, CI on Windows).
 const redraw = await page.evaluate(() => new Promise((ok) => {
   let last = performance.now(), gap = 0, n = 0;
   const tick = (t) => { gap = Math.max(gap, t - last); last = t; if (++n < 10) requestAnimationFrame(tick); else ok(gap); };
   requestAnimationFrame((t) => { last = t; const s = window.__phlippoStore; s.setState({ doc: { ...s.getState().doc } }); requestAnimationFrame(tick); });
 }));
 const limit = Math.max(250, redraw + 150);
+// the shader programs before the rebuild: the new model has to be drawn with them, on any graphics card
+const progs0 = await page.evaluate(() => window.__phlippoRenderer.info.programs.map((p) => p.id));
 await watchFrames();
 const t0 = Date.now();
 const applied = await page.evaluate(() => {
@@ -97,7 +100,10 @@ check('the edit returns at once and the rebuild runs in the worker', applied.pen
 check('the old model stays shown meanwhile', applied.bodies === 1);
 await page.waitForTimeout(200);
 check('status bar: Rebuilding…', (await page.locator('[data-testid="status-rebuilding"]').count()) === 1);
-await page.screenshot({ path: `${OUT}/rebuildworker-busy.png` });
+// with software GL one frame of this plate filling the window takes seconds (the main thread is idle meanwhile, the
+// GPU process draws): the screenshots wait longer than the default 30 s (the CI on Windows timed out on the last one)
+const SHOT_MS = 180_000;
+await page.screenshot({ path: `${OUT}/rebuildworker-busy.png`, timeout: SHOT_MS });
 await settled();
 const worker = Date.now() - t0;
 const frames = await stopFrames();
@@ -106,6 +112,10 @@ console.log('frames', JSON.stringify({ ...frames, workerMs: worker, redraw: Math
 s = await state();
 check('the new model replaces the old one (depth 12)', s.bodies === 1 && Math.abs(s.volume - expected(12)) / expected(12) < 0.01 && Object.keys(s.errors).length === 0, `${s.volume.toFixed(0)} vs ${expected(12).toFixed(0)}`);
 check('Rebuilding… is gone', (await page.locator('[data-testid="status-rebuilding"]').count()) === 0);
+// the floor materials used to compile their programs again after every rebuild: seconds with software GL (CI on Windows)
+const progs1 = await page.evaluate(() => new Promise((ok) => { let n = 0; const t = () => (++n < 3 ? requestAnimationFrame(t) : ok(window.__phlippoRenderer.info.programs.map((p) => p.id))); requestAnimationFrame(t); }));
+const fresh = progs1.filter((id) => !progs0.includes(id));
+check('the new model is drawn without compiling a shader program again', fresh.length === 0, JSON.stringify({ fresh, before: progs0.length, after: progs1.length }));
 
 // two edits in a row: the first rebuild becomes void, the last one wins
 await page.evaluate(() => {
@@ -126,7 +136,7 @@ s = await state();
 check('Undo rebuilds in the worker too (depth 14)', Math.abs(s.volume - expected(14)) / expected(14) < 0.01, `${s.volume.toFixed(0)} vs ${expected(14).toFixed(0)}`);
 await page.keyboard.press('f');
 await page.waitForTimeout(400);
-await page.screenshot({ path: `${OUT}/rebuildworker-done.png` });
+await page.screenshot({ path: `${OUT}/rebuildworker-done.png`, timeout: SHOT_MS });
 
 console.log(`\n${results.filter((r) => r.ok).length}/${results.length} checks passed`);
 process.exitCode = exitCode(results, errors);

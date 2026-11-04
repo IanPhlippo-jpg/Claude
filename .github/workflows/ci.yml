@@ -3,6 +3,13 @@ on:
   push:
   pull_request:
   workflow_dispatch:
+    inputs:
+      # flakiness (QA 0.5.11 F184): every e2e script N times, green only when all N runs are; started by hand, never on a
+      # push (N = 10 makes a shard take hours):  gh workflow run ci -f repeat=10
+      repeat:
+        description: 'runs per e2e script in the regression jobs (E2E_REPEAT)'
+        type: number
+        default: 1
 # Three kinds of jobs that run side by side, so a red one never hides the others (QA F147):
 #   checks      typecheck, unit tests, the text checks and the release build
 #   desktop     the release build in the desktop shell: without hooks, the self-test, the autosave after a restart, AutoRecover
@@ -27,6 +34,11 @@ jobs:
       - id: unit
         continue-on-error: true
         run: npm test
+      # the QA tests catch a planted fault (F184): four mutations (a split edge gives one piece, the cross-check limit x 10,
+      # the fillet radius x 1.01, the linear coupler ratio inverted) must each turn their tests red; the tree is not written
+      - id: mutation
+        continue-on-error: true
+        run: node tools/mutation-check.cjs
       # no program-specific names in the visible text and no wording that names the reference program (F50, F92)
       - id: text
         continue-on-error: true
@@ -46,8 +58,8 @@ jobs:
       - name: all checks passed
         if: always()
         run: |
-          echo "typecheck=${{ steps.typecheck.outcome }} unit=${{ steps.unit.outcome }} text=${{ steps.text.outcome }} build=${{ steps.build.outcome }} budgets=${{ steps.budgets.outcome }} clean=${{ steps.clean.outcome }}"
-          test "${{ steps.typecheck.outcome }}" = success && test "${{ steps.unit.outcome }}" = success && test "${{ steps.text.outcome }}" = success && test "${{ steps.build.outcome }}" = success && test "${{ steps.budgets.outcome }}" = success && test "${{ steps.clean.outcome }}" = success
+          echo "typecheck=${{ steps.typecheck.outcome }} unit=${{ steps.unit.outcome }} mutation=${{ steps.mutation.outcome }} text=${{ steps.text.outcome }} build=${{ steps.build.outcome }} budgets=${{ steps.budgets.outcome }} clean=${{ steps.clean.outcome }}"
+          test "${{ steps.typecheck.outcome }}" = success && test "${{ steps.unit.outcome }}" = success && test "${{ steps.mutation.outcome }}" = success && test "${{ steps.text.outcome }}" = success && test "${{ steps.build.outcome }}" = success && test "${{ steps.budgets.outcome }}" = success && test "${{ steps.clean.outcome }}" = success
 
   desktop:
     runs-on: ubuntu-24.04
@@ -97,8 +109,9 @@ jobs:
   # The worker-only pass (mesh kernel in the worker) is gone: the release pass runs every script in the worker.
   regression:
     runs-on: ubuntu-24.04
-    # the full mesh regression takes about 35 minutes on a runner; a hang must not run for hours
-    timeout-minutes: 90
+    # the full mesh regression takes about 35 minutes on a runner; a hang must not run for hours (a repeat run gets the
+    # 6 h maximum of a job)
+    timeout-minutes: ${{ (inputs.repeat || 1) > 1 && 360 || 90 }}
     strategy:
       fail-fast: false
       matrix:
@@ -160,7 +173,7 @@ jobs:
           npx vite preview --host 127.0.0.1 --port 4173 --strictPort &
           npx wait-on http://127.0.0.1:4173
           export PW_CHROMIUM="$(node -e "console.log(require('playwright').chromium.executablePath())")"
-          E2E_SCRIPT_TIMEOUT=1500000 E2E_SHARD="${{ matrix.shard }}" E2E_URL="http://127.0.0.1:4173/${{ matrix.query }}" node e2e/run-regression.mjs ${{ matrix.scripts }}
+          E2E_REPEAT="${{ inputs.repeat || 1 }}" E2E_SCRIPT_TIMEOUT=1500000 E2E_SHARD="${{ matrix.shard }}" E2E_URL="http://127.0.0.1:4173/${{ matrix.query }}" node e2e/run-regression.mjs ${{ matrix.scripts }}
       # the tests leave the repository as they found it (no rewritten examples, F84)
       - id: clean
         continue-on-error: true
@@ -239,7 +252,7 @@ jobs:
   # Edge gets SwiftShader for WebGL through e2e/lib/launch-args.mjs (the runner has no graphics card)
   regression-windows:
     runs-on: windows-2025
-    timeout-minutes: 120
+    timeout-minutes: ${{ (inputs.repeat || 1) > 1 && 360 || 120 }}
     strategy:
       fail-fast: false
       matrix:
@@ -269,7 +282,7 @@ jobs:
           npx wait-on http://127.0.0.1:4173
           export NODE_OPTIONS="--import ./e2e/lib/launch-args.mjs"
           export E2E_BROWSER_ARGS="--use-angle=swiftshader --enable-unsafe-swiftshader --ignore-gpu-blocklist"
-          E2E_SCRIPT_TIMEOUT=1500000 E2E_SHARD="${{ matrix.shard }}" E2E_URL="http://127.0.0.1:4173/${{ matrix.query }}" node e2e/run-regression.mjs
+          E2E_REPEAT="${{ inputs.repeat || 1 }}" E2E_SCRIPT_TIMEOUT=1500000 E2E_SHARD="${{ matrix.shard }}" E2E_URL="http://127.0.0.1:4173/${{ matrix.query }}" node e2e/run-regression.mjs
       - id: clean
         continue-on-error: true
         run: git diff --exit-code

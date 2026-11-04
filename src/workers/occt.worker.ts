@@ -25,6 +25,8 @@ export interface RefinedBody {
   normals?: Float32Array;
   /** what the viewport draws of the exact body, worked out here instead of in the window (QA 0.5.11 F46) */
   display?: { positions: Float32Array; normals: Float32Array; edges: Float32Array; tangentEdges: Float32Array };
+  /** the B-rep shape carries a faceted part (a wrapped patch): drawn from the shape, but not called exact; the warning */
+  approximate?: { featureId: string; warning: string };
 }
 
 let ready: Promise<typeof import('replicad')> | null = null;
@@ -69,7 +71,11 @@ self.onmessage = async (ev: MessageEvent<OcctRequest>) => {
       brepKernel()?.release();
       const transfer: Transferable[] = [];
       const bodies: RefinedBody[] = r.bodies.map((b) => {
-        if (!b.exact) return { id: b.id, exact: false };
+        // a body whose B-rep carries a faceted part is sent too (its shape is closer than the mesh kernel's), not exact
+        const shape = r.brep?.[b.id];
+        const hit = b.exact ? undefined : Object.entries(r.warnings ?? {}).find(([fid, w]) => b.featureIds.includes(fid) && /made of flat facets/.test(w));
+        const note = hit ? { featureId: hit[0], warning: hit[1] } : undefined;
+        if (!b.exact && !(shape && note)) return { id: b.id, exact: false };
         const positions = new Float32Array(b.geometry.getAttribute('position').array);
         const nAttr = b.geometry.getAttribute('normal');
         const normals = nAttr ? new Float32Array(nAttr.array) : undefined;
@@ -79,7 +85,7 @@ self.onmessage = async (ev: MessageEvent<OcctRequest>) => {
         const arr = (g: import('three').BufferGeometry, name: string) => new Float32Array(g.getAttribute(name).array);
         const display = { positions: arr(d.geometry, 'position'), normals: arr(d.geometry, 'normal'), edges: arr(d.edges, 'position'), tangentEdges: arr(d.tangentEdges, 'position') };
         transfer.push(display.positions.buffer, display.normals.buffer, display.edges.buffer, display.tangentEdges.buffer);
-        return { id: b.id, exact: true, exactVolume: b.exactVolume, positions, normals, display };
+        return { id: b.id, exact: !!b.exact, exactVolume: b.exactVolume, positions, normals, display, approximate: note };
       });
       post({ id: req.id, bodies }, transfer);
     }

@@ -382,6 +382,62 @@ export function withoutDegenerate(ng: THREE.BufferGeometry): THREE.BufferGeometr
   return ng;
 }
 
+/** how far (mm) a face of a cut tool that lies in a face of the body is moved off it, out of the body's material */
+const DETACH = 1e-4;
+
+/**
+ * A cut tool with faces lying in faces of the body (a chamfer cone whose flat side lies in the end face of a nut, a
+ * patterned hole drilled again where a hole already is): the boolean misjudged the triangles there and kept pieces of
+ * the tool or of the body (QA F172). Every tool triangle in the plane of the body triangle nearest to it is moved
+ * DETACH along that triangle's normal, out of the material: a face inside the body face moves out (the cut reaches
+ * the face), a face outside it moves away (it removed nothing there). The result changes by DETACH at most.
+ */
+function detachCoincident(tool: THREE.BufferGeometry, body: THREE.BufferGeometry): void {
+  const bvh = body.boundsTree as { closestPointToPoint(p: THREE.Vector3): { faceIndex: number; distance: number } | null } | undefined;
+  if (!bvh) return;
+  const tp = tool.getAttribute('position') as THREE.BufferAttribute, bp = body.getAttribute('position') as THREE.BufferAttribute;
+  const a = new THREE.Vector3(), b = new THREE.Vector3(), c = new THREE.Vector3(), n = new THREE.Vector3(), cen = new THREE.Vector3();
+  const p0 = new THREE.Vector3(), p1 = new THREE.Vector3(), p2 = new THREE.Vector3(), nb = new THREE.Vector3();
+  const key = (i: number) => `${tp.getX(i)},${tp.getY(i)},${tp.getZ(i)}`;
+  const moves = new Map<string, THREE.Vector3[]>();
+  for (let i = 0; i + 2 < tp.count; i += 3) {
+    a.fromBufferAttribute(tp, i); b.fromBufferAttribute(tp, i + 1); c.fromBufferAttribute(tp, i + 2);
+    n.subVectors(b, a).cross(c.clone().sub(a));
+    if (n.lengthSq() < 1e-20) continue;
+    n.normalize();
+    cen.copy(a).add(b).add(c).divideScalar(3);
+    const tol = 1e-6 * Math.max(10, Math.abs(cen.x), Math.abs(cen.y), Math.abs(cen.z));
+    // points spread over the triangle (a long wall triangle may touch the body face near one corner only)
+    const samples = [cen, ...[a, b, c].map((v) => v.clone().lerp(cen, 0.1)), ...[[a, b], [b, c], [c, a]].map(([u, w]) => u.clone().add(w).multiplyScalar(0.5).lerp(cen, 0.1))];
+    let on = false;
+    for (const q of samples) {
+      const hit = bvh.closestPointToPoint(q);
+      if (!hit || hit.distance > tol || hit.faceIndex < 0 || hit.faceIndex * 3 + 2 >= bp.count) continue;
+      p0.fromBufferAttribute(bp, hit.faceIndex * 3); p1.fromBufferAttribute(bp, hit.faceIndex * 3 + 1); p2.fromBufferAttribute(bp, hit.faceIndex * 3 + 2);
+      nb.subVectors(p1, p0).cross(p2.clone().sub(p0));
+      if (nb.lengthSq() < 1e-20) continue;
+      nb.normalize();
+      if (Math.abs(n.dot(nb)) < 1 - 1e-7 || [a, b, c].some((v) => Math.abs(nb.dot(v.clone().sub(p0))) > tol)) continue;
+      on = true;
+      break;
+    }
+    if (!on) continue;
+    for (const k of [i, i + 1, i + 2]) {
+      const list = moves.get(key(k)) ?? [];
+      if (!list.some((m) => m.dot(nb) > 1 - 1e-6)) list.push(nb.clone());
+      moves.set(key(k), list);
+    }
+  }
+  if (!moves.size) return;
+  for (let i = 0; i < tp.count; i++) {
+    const list = moves.get(key(i));
+    if (!list) continue;
+    const d = list.reduce((s, m) => s.add(m), new THREE.Vector3()).multiplyScalar(DETACH);
+    tp.setXYZ(i, tp.getX(i) + d.x, tp.getY(i) + d.y, tp.getZ(i) + d.z);
+  }
+  tp.needsUpdate = true;
+}
+
 function brush(g: THREE.BufferGeometry): Brush {
   const ng = withoutDegenerate(g.index ? g.toNonIndexed() : g.clone());
   if (!ng.getAttribute('normal')) ng.computeVertexNormals();
@@ -401,7 +457,12 @@ export function csg(a: THREE.BufferGeometry, b: THREE.BufferGeometry, op: 'union
   console.warn = (...args: unknown[]) => { if (typeof args[0] === 'string' && args[0].includes('"maxLeafSize" option has been deprecated')) return; warn(...args); };
   let r: Brush;
   try {
-    r = evaluator.evaluate(brush(a), brush(b), op === 'union' ? ADDITION : op === 'intersect' ? INTERSECTION : SUBTRACTION) as Brush;
+    const ba = brush(a), bb = brush(b);
+    if (op === 'subtract') {
+      ba.prepareGeometry();
+      detachCoincident(bb.geometry, ba.geometry);
+    }
+    r = evaluator.evaluate(ba, bb, op === 'union' ? ADDITION : op === 'intersect' ? INTERSECTION : SUBTRACTION) as Brush;
   } finally {
     console.warn = warn;
   }
@@ -574,8 +635,15 @@ export function planarFaces(g: THREE.BufferGeometry, bodyId: string): PlanarFace
     }
     const size = new Map<number, number>();
     planes.forEach((_, k) => size.set(root(k), (size.get(root(k)) ?? 0) + 1));
+    // a flat face the curved surface runs into at a tangent (the sheet beside a bend, the wall beside the round end
+    // of a slot) stays a flat face: it is far larger than the facets of the cluster (QA F172: the outer face of a base
+    // flange was taken for part of the bend, and an edge flange stood on the 3 mm end face instead of the sheet)
+    const areasOf = new Map<number, number[]>();
+    planes.forEach((pl, k) => (areasOf.get(root(k)) ?? areasOf.set(root(k), []).get(root(k))!).push(pl.area));
+    const median = (xs: number[]) => xs.slice().sort((p, q) => p - q)[Math.floor((xs.length - 1) / 2)];
     planes.forEach((pl, k) => {
       if ((size.get(root(k)) ?? 0) < 3) return;
+      if (pl.area > 4 * median(areasOf.get(root(k))!)) return;
       for (const t of pl.tris) { facetOf[t] = -1; if (normals[t]) leftovers.push(t); }
       pl.tris = [];
     });

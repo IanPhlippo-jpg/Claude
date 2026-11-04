@@ -1,5 +1,6 @@
 import { fitActive } from './viewport/bridge';
 import { getPref } from './prefs';
+import { arrowKeyStep } from './prefsEffects';
 import { useEffect } from 'react';
 import { useStore } from './store';
 import { withUnsavedCheck } from './MenuBar';
@@ -85,7 +86,7 @@ export function useShortcuts(handlers: { save: () => void; open: () => void; sho
       // ---- view rotation / pan with the arrow keys (15°, Shift 90°, Alt roll, Ctrl pan)
       if (e.key.startsWith('Arrow')) {
         e.preventDefault();
-        const step = e.shiftKey ? 90 : Number(getPref('view.arrowKeys')) || 15;
+        const step = arrowKeyStep(e.shiftKey);
         const panPx = Math.max(20, cam.width / 20);
         switch (e.key) {
           case 'ArrowLeft':

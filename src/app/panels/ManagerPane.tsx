@@ -1,5 +1,6 @@
 import { CurveColorPM } from './CurveColorPM';
 import { isCommandActive, useStore } from '../store';
+import { treeFilterShown } from '../prefsEffects';
 import { useShallow } from 'zustand/react/shallow';
 import { ToleranceTreeBody, DisplayPanelBody } from './ManagerExtra';
 import { Icon } from '../../ui/icons';
@@ -116,7 +117,7 @@ export function ManagerPane({ editDimensionId, onEditDone }: { editDimensionId: 
         </div>
       ) : (
         <>
-          {st.prefs['fm.treeFilter'] !== false && <div className="k-tree-filter">
+          {treeFilterShown(st.prefs) && <div className="k-tree-filter">
             <Icon.Filter size={18} />
             <input className="k-input" aria-label="Filter" title="Filter the Feature Tree" value={st.treeFilter} onChange={(e) => st.setTreeFilter(e.target.value)} onKeyDown={(e) => e.stopPropagation()} />
           </div>}

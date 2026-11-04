@@ -14,6 +14,7 @@ import { isAssembly, type ComponentPattern, type Component, type Mate, type Mate
 import { modelItems } from '../drawing/modelItems';
 import { assemblyHoles, fastenerSlots, placeFasteners } from '../../core/assembly/fasteners';
 import * as THREE from 'three';
+import { defaultMateAligned, fixFirstComponent, largeAssemblyDue, largeAssemblyLook, mateOptionDefaults } from '../prefsEffects';
 import type { State, StoreSet, StoreGet, MotionEdit, PatternEdit, ExplodeEdit } from '../store';
 import { history, withSolvedComponents, historyFlags, rebuildFor, mateRefCount, refreshMatePreview, splitMateRefs, COUPLING_MATES, joinMateRefs, previewPattern, previewExplode, explodeStepOf } from '../store';
 
@@ -274,7 +275,9 @@ export const assemblySlice = (set: StoreSet, get: StoreGet): Pick<State, Assembl
     autosave(get().doc);
   },
   setLargeAssembly(largeAssembly) {
-    set({ largeAssembly, show: largeAssembly ? { ...get().show, shadows: false, realisticShading: false } : get().show, displayStyle: largeAssembly ? 'shaded' : get().displayStyle });
+    // what the mode changes: Options ▸ Assemblies ▸ Large Assembly Settings
+    const look = largeAssembly ? largeAssemblyLook(get().show) : null;
+    set({ largeAssembly, show: look?.show ?? get().show, displayStyle: look?.displayStyle ?? get().displayStyle });
     get().pushMessage(largeAssembly ? 'Large Assembly Settings on: shaded display without edges, no shadows or Realistic Shading.' : 'Large Assembly Settings off.');
   },
   startBelt() {
@@ -347,7 +350,7 @@ export const assemblySlice = (set: StoreSet, get: StoreGet): Pick<State, Assembl
         m.decompose(p, q, new THREE.Vector3());
         const id = newId('comp');
         ids.set(c.id, id);
-        const nc: Component = { ...c, id, name: instanceName(d0, c.name.replace(/<\d+>$/, '')), position: [p.x, p.y, p.z], rotation: [q.x, q.y, q.z, q.w], fixed: added.length === 0 && (fixMode === 'fix' || (fixMode === 'first' && comps.length === 0)), subassembly: sub };
+        const nc: Component = { ...c, id, name: instanceName(d0, c.name.replace(/<\d+>$/, '')), position: [p.x, p.y, p.z], rotation: [q.x, q.y, q.z, q.w], fixed: added.length === 0 && (fixMode === 'fix' || (fixMode === 'first' && comps.length === 0 && fixFirstComponent())), subassembly: sub };
         added.push(nc);
         d0 = { ...d0, components: [...(d0.components ?? []), nc] };
       }
@@ -363,7 +366,7 @@ export const assemblySlice = (set: StoreSet, get: StoreGet): Pick<State, Assembl
       return;
     }
     const partDoc: Document = { ...part, kind: 'part' };
-    const comp: Component = { id: newId('comp'), name: instanceName(doc, part.name), part: partDoc, position: opts.position ?? [0, 0, 0], rotation: opts.rotation ?? [0, 0, 0, 1], fixed: fixMode === 'fix' || (fixMode === 'first' && comps.length === 0), suppressed: false, configuration: opts.configuration ?? activeConfiguration(partDoc).name, ...(opts.virtual ? { virtual: true } : {}), ...(opts.envelope ? { envelope: true } : {}) };
+    const comp: Component = { id: newId('comp'), name: instanceName(doc, part.name), part: partDoc, position: opts.position ?? [0, 0, 0], rotation: opts.rotation ?? [0, 0, 0, 1], fixed: fixMode === 'fix' || (fixMode === 'first' && comps.length === 0 && fixFirstComponent()), suppressed: false, configuration: opts.configuration ?? activeConfiguration(partDoc).name, ...(opts.virtual ? { virtual: true } : {}), ...(opts.envelope ? { envelope: true } : {}) };
     // later instances start next to the existing ones so they are visible (OK inserts at the origin)
     if (comps.length && !opts.atOrigin && !opts.position) {
       const r = get().rebuild;
@@ -378,6 +381,7 @@ export const assemblySlice = (set: StoreSet, get: StoreGet): Pick<State, Assembl
     const rebuild = rebuildFor(d, null);
     set({ doc: d, rebuild, selectedFeatureId: comp.id, insertingComponent: !!opts.keepOpen, dirty: true, tab: 'assembly', ...historyFlags() });
     get().pushMessage(`${comp.name} inserted${comp.fixed ? ' (fixed at the origin)' : ''}.`);
+    if (!get().largeAssembly && largeAssemblyDue(d.components!.length)) get().setLargeAssembly(true);
     autosave(d);
   },
   selectComponent(id) {
@@ -470,8 +474,9 @@ export const assemblySlice = (set: StoreSet, get: StoreGet): Pick<State, Assembl
       return;
     }
     const n = (doc.mates ?? []).length + 1;
-    const draft: Mate = { id: newId('mate'), type: 'coincident', name: `Coincident${n}`, refs: [] as unknown as [MateRef, MateRef], aligned: false, suppressed: false };
-    set({ mateEdit: { mateId: null, draft }, insertingComponent: false, featureEdit: null, selectedFace: null, selectedFaces: [], selectedEdges: [], asmTool: 'select', managerTab: 'tree', tab: 'assembly' });
+    // Document Properties ▸ Mates: the default alignment and the Options a new mate starts with
+    const draft: Mate = { id: newId('mate'), type: 'coincident', name: `Coincident${n}`, refs: [] as unknown as [MateRef, MateRef], aligned: defaultMateAligned(), suppressed: false };
+    set({ mateEdit: { mateId: null, draft }, mateOpts: { ...get().mateOpts, ...mateOptionDefaults() }, insertingComponent: false, featureEdit: null, selectedFace: null, selectedFaces: [], selectedEdges: [], asmTool: 'select', managerTab: 'tree', tab: 'assembly' });
   },
   cancelMate() {
     set({ mateEdit: null, selectedFace: null, selectedFaces: [], rebuild: rebuildFor(get().doc, null) });

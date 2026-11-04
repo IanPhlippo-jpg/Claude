@@ -91,3 +91,32 @@ Zonder stralen lag de koker 40×40×4 7,7 % te hoog en IPE 100 4 % te laag.
 Aangepaste verwachtingen door de normstralen: `weldments.test.ts` (oppervlakte, end cap, lasnaadlengte 24 = 40 − 2·8),
 `src/core/occt/brep.test.ts` (trim van een koker: volume met stralen), `e2e/gh.mjs` (volume, cut list 320/220 mm,
 end cap met R6-hoeken).
+
+## F197: exacte edge flange / hem tegen mesh en formule (`src/core/features/flangeExact.test.ts`, 5 tests, 42 gevallen + de waarschuwing)
+
+Methode: elk geval op beide kernels (OCCT geladen zoals `src/qa/qaBrep.test.ts`): exact volume = formule binnen
+1e-3 mm³, facet-volume = formule binnen 0,5 %, `shapeMismatch(mesh, exact)` = null, geen waarschuwing, lichaam exact.
+Formule: tab − setback·T·b + b·(θ/2·((R+T)² − R²) + been·T) − reliefs (rw·rd·T, obround + cirkelsegment).
+
+Gevallen: 90/120/45°, Material Inside/Outside/Bend Outside, beide richtingen (flip); zoom open/gesloten,
+Inside/Outside, beide richtingen; reliefs rechthoek/tear/obround (Inside/Outside); gap; zoom met offsets; L-plaat:
+alle vier eindranden (binnen- en buitenvlak, beide uiteinden) met flens en zoom.
+
+Gemeten vóór de fixes: op een eenvoudige tab week geen enkel geval > 0,5 % af. Het exacte pad was overal gelijk aan
+de formule; de mesh zat 0,03–0,1 % lager door de koorden van de bocht. De poort van 0,5 % ging dus nooit af. De
+oorzaak in de releasepass van 0.5.10 was de testselectie (een flens op de binnenrand). Wat de probe wel vond:
+
+| geval | wie fout | oorzaak | fix |
+|---|---|---|---|
+| flens/zoom op de eindrand van de staande kant van een L | beide kernels gelijk fout | de "plaatvlakken" van de rand werden gekozen als grootste vlak met dezelfde normaal *ergens* op het lichaam (de bovenkant van de basis), niet het vlak waar de rand op ligt: de flens werd op het kopse vlak gebouwd (8441 i.p.v. 8205 mm³) | `sheetFaceOfEdge` (sheetmetal4.ts): alleen vlakken waarvan het vlak de rand bevat; ook in edgeFlangeOnBody en de miter flange |
+| flip (Reverse direction), Material Inside / zoom | beide gelijk fout | de flens vertrok van hetzelfde vlak met de plaat aan de verkeerde kant: trim sneed lucht, flens één dikte verschoven (tab 90°: 7052,81 i.p.v. 6753,98) | bij flip vertrekt het profiel van het tegenoverliggende vlak (rand + T·n): spiegelbeeld, volumes = niet-geflipt |
+| reliefs (offsets), Material Inside | mesh fout (fout "volume check"), exact niet geprobeerd | relief-dozen met een linkshandig assenstelsel = binnenstebuiten (volume negatief), de mesh-trim sneed te weinig en de unie faalde | assenstelsel rechtshandig gemaakt (de as langs de rand omgedraaid) |
+| reliefs: exact pad | exact ontbrak (stille mesh + algemene melding) | `exact` werd niet gemaakt als er reliefs waren | relief-prisma's (doos, obround met echte cirkel) in `exact.reliefs`, rebuild snijdt ze mee |
+| reliefs: trim en notch raken elkaar op b = 47 | mesh: dunne restwand (1 mm afwijking in shapeMismatch) | twee sneden die elkaar enkel raken laten een vlak achter; doos + obround-cilinder overlappend in één samengevoegd gereedschap | trim reikt e = 0,05 in de notch; trim ∪ notches en doos ∪ cilinder als één gereedschap |
+| start/eind-offset | kernels verschillend | de B-rep-tessellatie geeft de rand in omgekeerde richting: offsets wisselden van kant (3 mm) | `edgeEnds`: volgorde volgens `EdgeRef.dir` (zoals gekozen), anders langs de grootste coördinaat |
+
+Poort in `rebuild.ts`: blijft 0,5 %, maar een afwijking zet nu een eigen waarschuwing op de feature
+(`flangeMismatchWarning`: "Warning: B-rep and mesh disagree on this flange (exact … vs faceted … mm³); the faceted
+result is kept …"), zichtbaar in What's Wrong in plaats van alleen de algemene "has no exact (B-rep) version".
+Faalt de mesh-boolean zelf, dan blijft het exacte resultaat staan. Getest met een kernel die het volume 10 % te klein
+meet. Nog op mesh (met de algemene melding): Edit Flange Profile (een getekend flensprofiel).

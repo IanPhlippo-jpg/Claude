@@ -3,6 +3,7 @@
 // plane); the selected plane in sky blue with round handles on its corners and edge middles; the plane under the
 // pointer in the highlight colour. No centre lines.
 import * as THREE from 'three';
+import { planeFillOpacity } from '../prefsEffects';
 
 export type PlaneState = 'normal' | 'hover' | 'selected';
 
@@ -72,7 +73,7 @@ export function addReferencePlane(group: THREE.Group, b: { o: THREE.Vector3; u: 
   const fill = new THREE.BufferGeometry();
   fill.setAttribute('position', new THREE.Float32BufferAttribute(corners.flatMap((c) => [c.x, c.y, c.z]), 3));
   fill.setIndex([0, 1, 2, 0, 2, 3]);
-  const fillMesh = new THREE.Mesh(fill, new THREE.MeshBasicMaterial({ color: state === 'hover' ? hoverColor : new THREE.Color(look.fill), transparent: true, opacity: state === 'hover' ? 0.1 : look.fillOpacity, side: THREE.DoubleSide, depthWrite: false }));
+  const fillMesh = new THREE.Mesh(fill, new THREE.MeshBasicMaterial({ color: state === 'hover' ? hoverColor : new THREE.Color(look.fill), transparent: true, opacity: state === 'hover' ? 0.1 : planeFillOpacity(look.fillOpacity), side: THREE.DoubleSide, depthWrite: false }));
   fillMesh.name = 'plane-fill';
   group.add(fillMesh);
   const outline = new THREE.BufferGeometry();

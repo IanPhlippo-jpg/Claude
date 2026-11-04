@@ -412,7 +412,8 @@ export function edgeFlangeGeometry(input0: EdgeFlangeInput, p: SheetMetalParams)
       cyl.rotateX(Math.PI / 2);
       cyl.translate(0, -rd + e, -t / 2);
       cyl.applyMatrix4(m);
-      reliefs.push(cyl);
+      // one notch: the box and its round end as one solid (an overlapping pair inside one tool confuses the boolean)
+      try { reliefs[reliefs.length - 1] = csg(box, cyl, 'union'); } catch { reliefs.push(cyl); }
       const co = c0.clone().addScaledVector(v, -rd + e).addScaledVector(n, -t - e), h = rw / 2;
       reliefPrisms.push({ plane: { id: 'relief', name: 'relief', origin: [co.x, co.y, co.z], u: [eAB0.x, eAB0.y, eAB0.z], v: [v.x, v.y, v.z], n: [n.x, n.y, n.z] }, loop: [{ a: { x: h, y: 0 }, b: { x: -h, y: 0 }, m: { x: 0, y: h } }, { a: { x: -h, y: 0 }, b: { x: h, y: 0 }, m: { x: 0, y: -h } }], depth: t + 2 * e, reverse: false });
     }
@@ -424,12 +425,17 @@ export function edgeFlangeGeometry(input0: EdgeFlangeInput, p: SheetMetalParams)
     const tp: SketchPoint[] = [{ x: shift, y: -t - e }, { x: e, y: -t - e }, { x: e, y: e }, { x: shift, y: e }];
     const eAB = B.clone().sub(A).normalize();
     // only over the flange's width (the whole edge when there are no offsets)
-    const full = s0 < 1e-9 && s1 < 1e-9;
-    const o = A1.clone().addScaledVector(eAB, full ? -e : 0);
+    // past the ends a hair where the edge ends or a relief notch follows: two cuts that only touch leave a sliver face
+    // between them (on both kernels), so the trim reaches into the notch and the two become one tool
+    const full = s0 < 1e-9 && s1 < 1e-9, x0 = full || (input.startOffset ?? 0) > 0 ? e : 0, x1 = full || (input.endOffset ?? 0) > 0 ? e : 0;
+    const o = A1.clone().addScaledVector(eAB, -x0);
     const tplane: PlaneDef = { ...plane, origin: [o.x, o.y, o.z] };
-    trim = extrudeGeometry([{ outer: tp, holes: [], area: 0 }], tplane, { end: 'blind', depth: L - s0 - s1 + (full ? 2 * e : 0), reverse: along }, THROUGH_ALL, 0);
+    trim = extrudeGeometry([{ outer: tp, holes: [], area: 0 }], tplane, { end: 'blind', depth: L - s0 - s1 + x0 + x1, reverse: along }, THROUGH_ALL, 0);
   }
-  if (reliefs.length) trim = mergeGeometries(trim ? [trim, ...reliefs] : reliefs);
+  if (reliefs.length) {
+    const t0 = trim;
+    try { trim = t0 ? reliefs.reduce((acc, g) => csg(acc, g, 'union'), t0) : mergeGeometries(reliefs); } catch { trim = mergeGeometries(t0 ? [t0, ...reliefs] : reliefs); }
+  }
   // the same flange as exact segments (true bend arcs) for the B-rep kernel, with its relief notches; an edited profile: mesh kernel
   let exact: { flange: ExactPrism; trim?: ExactPrism; reliefs?: ExactPrism[] } | undefined;
   if (!prof) {
@@ -446,9 +452,9 @@ export function edgeFlangeGeometry(input0: EdgeFlangeInput, p: SheetMetalParams)
       const e = 0.05;
       const tp = [{ x: shift, y: -t - e }, { x: e, y: -t - e }, { x: e, y: e }, { x: shift, y: e }];
       const eAB = B.clone().sub(A).normalize();
-      const full = s0 < 1e-9 && s1 < 1e-9;
-      const o = A1.clone().addScaledVector(eAB, full ? -e : 0);
-      exact.trim = { plane: { ...plane, origin: [o.x, o.y, o.z] }, loop: tp.map((q, i) => ({ a: q, b: tp[(i + 1) % 4] })), depth: L - s0 - s1 + (full ? 2 * e : 0), reverse: along };
+      const full = s0 < 1e-9 && s1 < 1e-9, x0 = full || (input.startOffset ?? 0) > 0 ? e : 0, x1 = full || (input.endOffset ?? 0) > 0 ? e : 0;
+      const o = A1.clone().addScaledVector(eAB, -x0);
+      exact.trim = { plane: { ...plane, origin: [o.x, o.y, o.z] }, loop: tp.map((q, i) => ({ a: q, b: tp[(i + 1) % 4] })), depth: L - s0 - s1 + x0 + x1, reverse: along };
     }
   }
   return { geometry: flange, trim, exact };

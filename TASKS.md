@@ -887,6 +887,13 @@ elease; README en docs/04 bijgewerkt
 - [x] P1-2 plastics exact (Mounting Boss, Snap Hook, Lip/Groove, Indent; 7 tests binnen 1e-3); P1-4 loft met ≥ 3 profielen en Close loft exact (guide curves blijven mesh: OCCT-WASM bouwt ze niet betrouwbaar)
 - [x] Teamronde: F177 (gesplitste rand na langer worden: beide stukken, qaTeam), F178 (gebogen rand = één keten), F183 (brep-job 14 scripts), F188 (AutoRecover van 0.5.10), F189 (docs/06, docs/26 en vergelijkingsbeelden uit de repo, lokaal in intern/), F191 (vensters alleen bij wijziging), F193, F194, F196 (fuses-check), F198
 - [x] F46/F190: randen voor het beeld in de workers (rebuild en occt) en de interieurtest met een raster: 33,5 → 8,5 s bij 4× trager CPU, framepauze tijdens een rebuild van 21 s: 117 ms
-- [~] Kernelverschillen die de vormcontrole vond (deurkruk: verzinking, sweep, cut; ge: swept flange) (agent); volledige releasepass met dump loopt
+- [x] Kernelverschillen die de vormcontrole vond: verzinking, sweep-eind, snede door de as, swept flange (mesh fout), bol (B-rep fout); qaCrossCheck 8 tests
+- [x] F197 exacte flens: zes fouten opgelost (L-plaat, Reverse, reliefs, trim/notch, offsets), afwijking geeft een eigen waarschuwing (flangeExact 42 gevallen)
+- [x] F192 extra vensters interactief (viewpanes 45/45), F184 mutatietests (4/4 gevangen) + E2E_REPEAT + 7 .kcad-fixtures van 0.5.10, F112 Options 46 → 148 bedraad (34 zonder betekenis weg), F186 convergentieregel
+- [x] CI 4526c24: Windows-installer 21/21 met commit; regressies section (display van de worker op een vervangen geometrie) en wrap (B-rep-beeld van een benaderd lichaam) opgelost; bundel weer onder 800 kB (782 kB); gh groen met de booleanfix; magnify robuust op SwiftShader
+- [x] Laatste kernelverschillen (curve pattern, variabele fillet, moerafschuining, flens/zoom op het verkeerde vlak): releasepass zonder één kernelverschil in 104 scripts
+- [x] Windows-scripts: vloershaders werden bij elke rebuild opnieuw gecompileerd (8–9 s → 1 s), camera-animatie/rebuild afwachten in jogmiter, misc7, gj, motion; Select Other gebruikt de straal van de rechtsklik
+- [x] F134 rebuild.ts 3390 → 2274 regels (sheetMetalBuild, frameBuild, surfaceBuild, buildContext); unit 736/736; mutatiecheck 4/4
+- [~] Release 0.5.12: regressie Windows op de commit, installer + installatietest, Actions-run (Linux + Windows), docs/29 en README met platform/commit/log
 - [~] P3 (F38, F129, F138, F174): bundel 855 → 784 kB (budget 800, lazy panelen); tools/doc-counts.cjs in CI; TASKS (13) en docs/28 F142 rechtgezet; audit: minimatch < 11 zonder backport in electron-builder 26.18 (gedocumenteerd)
 - [ ] Regressie Windows + Actions op de release-commit, release 0.5.12, docs/29

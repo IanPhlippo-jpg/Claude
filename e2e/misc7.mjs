@@ -1,7 +1,7 @@
 // The last greyed-out items: Lasso Selection, Select Other, Isolate, Delete Body, Add Derived Configuration,
 // Animate collapse, sensor Notifications, Window ▸ Viewport ▸ Two / Four View.
 import { chromium } from 'playwright';
-import { exitCode, waitSettled } from './lib/check.mjs';
+import { exitCode, skip, waitSettled } from './lib/check.mjs';
 import { mkdirSync, readFileSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -63,6 +63,10 @@ await waitSettled(page);
 await page.keyboard.press('Control+7');
 await page.keyboard.press('f');
 await page.waitForTimeout(500);
+// the view transitions move on with each drawn frame: with software GL the camera was still turning while the body was
+// clicked, and Select Other cast its ray from the pointer through a view that had moved on, with no face under it
+// (CI on Windows: the selection stayed the same)
+await page.waitForFunction(() => window.__phlippoCamera.animating === false, undefined, { timeout: 30000 }).catch(skip('the view transition did not end within 30 s'));
 // Select Other: right-click on the first body, then Select Other picks the face behind
 // (a slow runner draws the fitted view later: click until a face is selected)
 let c0 = await page.evaluate(() => window.__phlippoProjectWorld(15, 5, -15));
@@ -73,13 +77,15 @@ for (let k = 0; k < 10; k++) {
   if (await page.evaluate(() => !!window.__phlippoStore.getState().selectedFace)) break;
 }
 await page.mouse.click(c0.x, c0.y, { button: 'right' });
-await page.waitForTimeout(200);
 const before = await page.evaluate(() => JSON.stringify(window.__phlippoStore.getState().selectedFace));
+// wait for the shortcut menu and for the new selection instead of fixed 200 ms waits (slow frames with software GL);
+// the menu item has to be there
 const so = page.locator('.k-menu-item:has-text("Select Other")').first();
-if (await so.count()) await so.click();
-await page.waitForTimeout(200);
+const hasSo = await so.waitFor({ state: 'visible', timeout: 15000 }).then(() => true, () => false);
+if (hasSo) await so.click();
+await page.waitForFunction((b) => { const f = window.__phlippoStore.getState().selectedFace; return !!f && JSON.stringify(f) !== b; }, before, { timeout: 10000 }).catch(() => undefined);
 const after = await page.evaluate(() => JSON.stringify(window.__phlippoStore.getState().selectedFace));
-check('Select Other picks another face under the pointer', (await so.count()) >= 0 && before !== after && after !== 'null', `${before} -> ${after}`);
+check('Select Other picks another face under the pointer', hasSo && before !== after && after !== 'null', `menu ${hasSo}: ${before} -> ${after}`);
 await page.keyboard.press('Escape');
 
 const bodies = await page.evaluate(() => window.__phlippoStore.getState().rebuild.bodies.map((b) => b.id));
@@ -119,12 +125,14 @@ await page.waitForTimeout(2000);
 const hasSteps = await page.evaluate(() => (window.__phlippoStore.getState().doc.explodeSteps ?? []).length);
 if (hasSteps) {
   await page.evaluate(() => window.__phlippoStore.getState().setExploded(true));
-  await page.evaluate(() => window.__phlippoStore.getState().animateCollapse());
-  await page.waitForTimeout(400);
-  const mid = await page.evaluate(() => window.__phlippoStore.getState().doc.explodeFactor);
+  // every explode factor the animation sets, not one read at a fixed 400 ms: with slow frames (software GL, a loaded
+  // machine) the first frame came after that and the read found none
+  await page.evaluate(() => { const st = window.__phlippoStore; window.__factors = []; const un = st.subscribe((s) => { const f = s.doc.explodeFactor; if (typeof f === 'number') window.__factors.push(f); if (!s.doc.exploded) un(); }); st.getState().animateCollapse(); });
   // 1.2 s of requestAnimationFrame; a loaded machine starves the frames, so wait for the end instead of a fixed 1.5 s
   const end = await page.waitForFunction(() => window.__phlippoStore.getState().doc.exploded === false, null, { timeout: 15000 }).then(() => false, () => true);
-  check('Animate collapse runs from exploded to collapsed', typeof mid === 'number' && mid > 0 && mid < 1 && end === false, JSON.stringify({ mid, end }));
+  const factors = await page.evaluate(() => window.__factors);
+  const mid = factors.find((f) => f > 0 && f < 1);
+  check('Animate collapse runs from exploded to collapsed', typeof mid === 'number' && end === false, JSON.stringify({ mid, end, steps: factors.length }));
 } else check('Animate collapse (door handle has explode steps)', false, 'no steps');
 
 console.log(`

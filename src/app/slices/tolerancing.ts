@@ -5,6 +5,7 @@
 import { autoDimensionScheme, faceDistance, GTOL_SYMBOLS, type AutoToleranceData } from '../../core/document/autoTolerance';
 import { newId } from '../../core/sketch/model';
 import type { State, StoreSet, StoreGet } from '../store';
+import { blockTolerances } from '../prefsEffects';
 
 type TolerancingKeys =
   | 'autoToleranceEdit' | 'startAutoTolerance' | 'updateAutoTolerance' | 'cancelAutoTolerance' | 'setAutoToleranceData' | 'deleteAllTolerances'
@@ -18,7 +19,7 @@ export const tolerancingSlice = (set: StoreSet, get: StoreGet): Pick<State, Tole
       get().pushMessage('Product Dimensions need a solid body.', 'warn');
       return;
     }
-    const blockMinor = Number(get().prefs['doc.blockLength2'] ?? 0.25);
+    const blockMinor = blockTolerances(get().prefs).length2;
     const n = (get().doc.autoTolerance?.datums.length ?? 0);
     set({ autoToleranceEdit: { kind, faces: [], partType: 'prismatic', toleranceType: 'plusMinus', label: String.fromCharCode(65 + Math.min(25, n)), basic: false, plus: blockMinor, minus: blockMinor, symbol: 'position', value: 2 * blockMinor, datums: [] }, featureEdit: null, activeSketchId: null, tool: 'select', selection: [], tab: 'mbd', managerTab: 'autoTolerance', planePick: false, selectedFace: null, selectedFaces: [] });
   },
@@ -43,7 +44,7 @@ export const tolerancingSlice = (set: StoreSet, get: StoreGet): Pick<State, Tole
     const e = get().autoToleranceEdit;
     if (!e) return;
     const { doc, rebuild, prefs } = get();
-    const block = { length1: Number(prefs['doc.blockLength1'] ?? 0.5), length2: Number(prefs['doc.blockLength2'] ?? 0.25), length3: Number(prefs['doc.blockLength3'] ?? 0.1), angle: Number(prefs['doc.blockAngle'] ?? 0.5) };
+    const block = blockTolerances(prefs);
     const cur: AutoToleranceData = doc.autoTolerance ?? { partType: e.partType ?? 'prismatic', toleranceType: e.toleranceType ?? 'plusMinus', datums: [], dims: [], gtols: [] };
     const id = newId('dx');
     const r2 = (v: number) => Math.round(v * 100) / 100;

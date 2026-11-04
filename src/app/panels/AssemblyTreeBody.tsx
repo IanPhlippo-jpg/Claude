@@ -1,6 +1,7 @@
 import { sensorAlarm, sensorReading } from '../sensors';
 import { useMemo, useState } from 'react';
 import { useStore } from '../store';
+import { treeHoverHighlight } from '../prefsEffects';
 import { useShallow } from 'zustand/react/shallow';
 import { Menu, TreeView, type MenuItem, type TreeNode } from '../../ui/components';
 import { Icon } from '../../ui/icons';
@@ -50,7 +51,7 @@ export function AssemblyTreeBody() {
       suppressed: c.suppressed,
       tail: Object.keys(st.rebuild.errors).some((k) => k.startsWith(c.id + ':')) ? <span className="status conflict" title="The part has rebuild errors">!</span> : null,
       onClick: (e) => st.selectComponent(e.ctrlKey && st.selectedFeatureId === c.id ? null : c.id),
-      onHover: (on) => useStore.setState({ hoverFeatureId: on ? c.id : null }),
+      onHover: (on) => useStore.setState({ hoverFeatureId: on && treeHoverHighlight() ? c.id : null }),
       onContextMenu: (e) => {
         e.preventDefault();
         setMenu({ x: e.clientX, y: e.clientY, componentId: c.id });

@@ -4,33 +4,19 @@ import { useShallow } from 'zustand/react/shallow';
 import { NumberField, Section } from '../../ui/components';
 import { Icon } from '../../ui/icons';
 import type { Sketch3DEdit } from '../store';
-import { ALONG, addAlong, alongLabel, drag3DPoint, endPoints3D, measure3D, relationsOfLine, solve3D, status3D, type Dim3D, type End3D, type P3 } from '../../core/sketch/sketch3d';
+import { ALONG, addAlong, alongLabel, endPoints3D, measure3D, relationsOfLine, solve3D, status3D, type Dim3D, type End3D, type P3 } from '../../core/sketch/sketch3d';
 
 const same = (p: P3, q: P3) => Math.hypot(p[0] - q[0], p[1] - q[1], p[2] - q[2]) < 1e-6;
 const STATUS_TEXT = { under: 'Under Defined', full: 'Fully Defined', over: 'Over Defined', conflict: 'Over Defined (conflict)' } as const;
 const round6 = (v: number) => Math.round(v * 1e6) / 1e6;
+export { solved3D } from './sketch3dSolved';
+import { solved3D } from './sketch3dSolved';
 
 /** the corners of the lines: points where exactly two lines meet */
 function corners(segs: Sketch3DEdit['segments']): P3[] {
   const pts: { p: P3; n: number }[] = [];
   for (const s of segs) for (const p of s) { const h = pts.find((x) => same(x.p, p)); if (h) h.n++; else pts.push({ p, n: 1 }); }
   return pts.filter((x) => x.n === 2).map((x) => x.p);
-}
-
-/**
- * The 3D sketch after a change, solved with its relations and dimensions: with `drag` the end point at `from` goes to
- * `to` as far as the dimensions let it. Without dimensions the relations alone move the points (exactly, per
- * coordinate). Null when the dimensions cannot all hold (the change is refused).
- */
-export function solved3D(e: Sketch3DEdit, drag?: { from: P3; to: P3 }): Sketch3DEdit | null {
-  if (!e.dims?.length) {
-    if (!drag) return e;
-    const mv = drag3DPoint(e.segments, e.relations, drag.from, drag.to);
-    return { ...e, segments: mv.segments, last: e.last && (same(e.last, drag.from) ? drag.to : mv.map(e.last)), fillets: e.fillets?.map((f) => ({ ...f, at: mv.map(f.at) })) };
-  }
-  const r = solve3D(e.segments, e.relations, e.dims, drag);
-  if (!r.ok && !drag) return null;
-  return { ...e, segments: r.segments, last: e.last && r.map(e.last), fillets: e.fillets?.map((f) => ({ ...f, at: r.map(f.at) })) };
 }
 
 /** a dimension added (Smart Dimension in the 3D sketch) at the value it measures now; null when it would over define */

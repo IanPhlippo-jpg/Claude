@@ -268,7 +268,7 @@ export function hitTest(s: Sketch, p: Pt, tolerance: number, excludePoints: Set<
   return best;
 }
 
-export type SnapKind = 'endpoint' | 'midpoint' | 'center' | 'on' | 'horizontal' | 'vertical' | 'origin' | 'quadrant' | 'align';
+export type SnapKind = 'endpoint' | 'midpoint' | 'center' | 'on' | 'horizontal' | 'vertical' | 'origin' | 'quadrant' | 'align' | 'intersection' | 'angle' | 'parallel' | 'perpendicular';
 
 export interface Snap {
   kind: SnapKind;
@@ -279,11 +279,14 @@ export interface Snap {
   entityId?: Id;
   /** existing points the snapped point lines up with (shown as dotted inference lines; no relation is added) */
   align?: Pt[];
+  /** angle / parallel / perpendicular: the point the inferred direction starts from (drawn as a dotted line) */
+  from?: Pt;
 }
 
 /**
  * Inference snapping used while drawing: existing points, midpoints, curve
  * points and horizontal/vertical alignment relative to a reference point.
+ * `kinds`: only these snaps (System Options ▸ Sketch ▸ Relations/Snaps); absent = all.
  */
 export function snap(
   s: Sketch,
@@ -291,19 +294,28 @@ export function snap(
   tolerance: number,
   ref: Pt | null,
   excludePoints: Set<Id> = new Set(),
+  kinds?: ReadonlySet<SnapKind>,
 ): Snap[] {
+  const ok = (k: SnapKind) => !kinds || kinds.has(k);
   const snaps: Snap[] = [];
   const hit = hitTest(s, cursor, tolerance, excludePoints);
   if (hit && hit.kind === 'point') {
     const e = hit.entityId ? s.entities[hit.entityId] : undefined;
     const kind: SnapKind = hit.id === s.origin ? 'origin' : e && (e.kind === 'circle' || e.kind === 'arc') && e.center === hit.id ? 'center' : 'endpoint';
-    snaps.push({ kind, point: s.points[hit.id], pointId: hit.id, entityId: hit.entityId });
-    return snaps;
+    if (ok(kind)) {
+      snaps.push({ kind, point: s.points[hit.id], pointId: hit.id, entityId: hit.entityId });
+      return snaps;
+    }
+  }
+  // intersections of two lines near the pointer (no relation; the point lands exactly on both)
+  if (ok('intersection') && hit && hit.kind === 'entity') {
+    const x = lineIntersectionNear(s, cursor, tolerance);
+    if (x) return [{ kind: 'intersection', point: x }];
   }
   // midpoints of lines
   for (const eid of s.entityOrder) {
     const e = s.entities[eid];
-    if (e.kind === 'line') {
+    if (e.kind === 'line' && ok('midpoint')) {
       const m = mid(s.points[e.p1], s.points[e.p2]);
       if (dist(m, cursor) <= tolerance) {
         snaps.push({ kind: 'midpoint', point: m, entityId: eid });
@@ -326,13 +338,21 @@ export function snap(
       const d = sub(cursor, c);
       const l = len(d) || 1;
       pt = add(c, scale(d, r / l));
+      // the quadrant points of a circle or arc (0°, 90°, 180°, 270°) catch the pointer first
+      if (ok('quadrant')) {
+        for (const q of [{ x: c.x + r, y: c.y }, { x: c.x, y: c.y + r }, { x: c.x - r, y: c.y }, { x: c.x, y: c.y - r }]) {
+          if (dist(q, cursor) <= tolerance && distanceToEntity(s, e, q) <= tolerance * 0.05) return [{ kind: 'quadrant', point: q, entityId: hit.id }];
+        }
+      }
     }
-    snaps.push({ kind: 'on', point: pt, entityId: hit.id });
-    return snaps;
+    if (ok('on')) {
+      snaps.push({ kind: 'on', point: pt, entityId: hit.id });
+      return snaps;
+    }
   }
   const out = { ...cursor };
   let fixedX = false, fixedY = false;
-  if (ref) {
+  if (ref && ok('horizontal')) {
     if (Math.abs(cursor.y - ref.y) <= tolerance && Math.abs(cursor.x - ref.x) > tolerance) {
       out.y = ref.y;
       fixedY = true;
@@ -347,7 +367,7 @@ export function snap(
   // centre, the origin) and takes over its exact coordinate, by design; only a dotted line shows it, no relation
   const align: Pt[] = [];
   let bestX: Pt | null = null, bestY: Pt | null = null;
-  for (const id of inferencePoints(s)) {
+  for (const id of ok('align') ? inferencePoints(s) : []) {
     if (excludePoints.has(id)) continue;
     const q = s.points[id];
     if (!q || (ref && Math.abs(q.x - ref.x) < 1e-9 && Math.abs(q.y - ref.y) < 1e-9)) continue;
@@ -361,6 +381,28 @@ export function snap(
     else snaps.push({ kind: 'align', point: out, align });
   }
   return snaps;
+}
+
+/** the crossing of two sketch lines within `tolerance` of p (both segments, a little beyond their ends), if any */
+export function lineIntersectionNear(s: Sketch, p: Pt, tolerance: number): Pt | null {
+  const lines = s.entityOrder.map((id) => s.entities[id]).filter((e): e is Extract<Entity, { kind: 'line' }> => e.kind === 'line');
+  let best: Pt | null = null, bestD = tolerance;
+  for (let i = 0; i < lines.length; i++) {
+    for (let j = i + 1; j < lines.length; j++) {
+      const a = s.points[lines[i].p1], b = s.points[lines[i].p2], c = s.points[lines[j].p1], d = s.points[lines[j].p2];
+      const r = sub(b, a), q = sub(d, c), den = r.x * q.y - r.y * q.x;
+      if (Math.abs(den) < 1e-12) continue;
+      const t = ((c.x - a.x) * q.y - (c.y - a.y) * q.x) / den, u = ((c.x - a.x) * r.y - (c.y - a.y) * r.x) / den;
+      const x = add(a, scale(r, t));
+      // a shared end point is an end point snap, not an intersection
+      if ([a, b, c, d].some((e) => dist(e, x) < 1e-9)) continue;
+      const lr = len(r) || 1, lq = len(q) || 1;
+      if (t < -tolerance / lr || t > 1 + tolerance / lr || u < -tolerance / lq || u > 1 + tolerance / lq) continue;
+      const dd = dist(x, p);
+      if (dd <= bestD) { bestD = dd; best = x; }
+    }
+  }
+  return best;
 }
 
 /** the points a drawn point may line up with: the origin and the end points and centres of the entities */

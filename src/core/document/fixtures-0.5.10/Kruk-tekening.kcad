@@ -1,0 +1,3828 @@
+{
+  "format": "phlippo-cad",
+  "version": 1,
+  "name": "Kruk",
+  "units": "mm",
+  "sketches": {},
+  "features": [],
+  "planes": {},
+  "variables": {},
+  "equations": [],
+  "kind": "drawing",
+  "sheets": [
+    {
+      "id": "sheet1",
+      "name": "Sheet1",
+      "size": "A3",
+      "landscape": true,
+      "scale": [
+        1,
+        1
+      ],
+      "showFormat": true,
+      "views": [
+        {
+          "displayStyle": "hiddenRemoved",
+          "model": {
+            "version": 1,
+            "name": "Kruk",
+            "units": "mm",
+            "sketches": {
+              "s1": {
+                "id": "s1",
+                "name": "Sketch1",
+                "plane": "top",
+                "points": {
+                  "origin_s1": {
+                    "x": 0,
+                    "y": 0
+                  },
+                  "pmvobizd71x": {
+                    "x": 0,
+                    "y": 0
+                  },
+                  "pmvobizd71y": {
+                    "x": 13,
+                    "y": 0
+                  },
+                  "pmvobizd720": {
+                    "x": 13,
+                    "y": -2
+                  },
+                  "pmvobizd722": {
+                    "x": 11.5,
+                    "y": -4.5
+                  },
+                  "pmvobizd724": {
+                    "x": 10,
+                    "y": -8
+                  },
+                  "pmvobizd726": {
+                    "x": 10,
+                    "y": -42
+                  },
+                  "pmvobizd728": {
+                    "x": 9.5,
+                    "y": -44
+                  },
+                  "pmvobizd72a": {
+                    "x": 8,
+                    "y": -45.5
+                  },
+                  "pmvobizd72c": {
+                    "x": 5,
+                    "y": -46.5
+                  },
+                  "pmvobizd72e": {
+                    "x": 0,
+                    "y": -46.8
+                  },
+                  "pmvobizd72h": {
+                    "x": 0,
+                    "y": 5
+                  },
+                  "pmvobizd72i": {
+                    "x": 0,
+                    "y": -51.8
+                  }
+                },
+                "scalars": {},
+                "entities": {
+                  "lnmvobizd71z": {
+                    "id": "lnmvobizd71z",
+                    "kind": "line",
+                    "p1": "pmvobizd71x",
+                    "p2": "pmvobizd71y",
+                    "construction": false
+                  },
+                  "lnmvobizd721": {
+                    "id": "lnmvobizd721",
+                    "kind": "line",
+                    "p1": "pmvobizd71y",
+                    "p2": "pmvobizd720",
+                    "construction": false
+                  },
+                  "lnmvobizd723": {
+                    "id": "lnmvobizd723",
+                    "kind": "line",
+                    "p1": "pmvobizd720",
+                    "p2": "pmvobizd722",
+                    "construction": false
+                  },
+                  "lnmvobizd725": {
+                    "id": "lnmvobizd725",
+                    "kind": "line",
+                    "p1": "pmvobizd722",
+                    "p2": "pmvobizd724",
+                    "construction": false
+                  },
+                  "lnmvobizd727": {
+                    "id": "lnmvobizd727",
+                    "kind": "line",
+                    "p1": "pmvobizd724",
+                    "p2": "pmvobizd726",
+                    "construction": false
+                  },
+                  "lnmvobizd729": {
+                    "id": "lnmvobizd729",
+                    "kind": "line",
+                    "p1": "pmvobizd726",
+                    "p2": "pmvobizd728",
+                    "construction": false
+                  },
+                  "lnmvobizd72b": {
+                    "id": "lnmvobizd72b",
+                    "kind": "line",
+                    "p1": "pmvobizd728",
+                    "p2": "pmvobizd72a",
+                    "construction": false
+                  },
+                  "lnmvobizd72d": {
+                    "id": "lnmvobizd72d",
+                    "kind": "line",
+                    "p1": "pmvobizd72a",
+                    "p2": "pmvobizd72c",
+                    "construction": false
+                  },
+                  "lnmvobizd72f": {
+                    "id": "lnmvobizd72f",
+                    "kind": "line",
+                    "p1": "pmvobizd72c",
+                    "p2": "pmvobizd72e",
+                    "construction": false
+                  },
+                  "lnmvobizd72g": {
+                    "id": "lnmvobizd72g",
+                    "kind": "line",
+                    "p1": "pmvobizd72e",
+                    "p2": "pmvobizd71x",
+                    "construction": false
+                  },
+                  "lnmvobizd72j": {
+                    "id": "lnmvobizd72j",
+                    "kind": "line",
+                    "p1": "pmvobizd72h",
+                    "p2": "pmvobizd72i",
+                    "construction": true
+                  }
+                },
+                "constraints": {
+                  "dim1": {
+                    "id": "dim1",
+                    "kind": "hDistance",
+                    "refs": [
+                      "origin_s1",
+                      "pmvobizd71y"
+                    ],
+                    "value": 13,
+                    "labelOffset": {
+                      "x": 6.5,
+                      "y": 8
+                    }
+                  },
+                  "dim2": {
+                    "id": "dim2",
+                    "kind": "length",
+                    "refs": [
+                      "lnmvobizd727"
+                    ],
+                    "value": 34,
+                    "labelOffset": {
+                      "x": 18,
+                      "y": -25
+                    }
+                  },
+                  "dim3": {
+                    "id": "dim3",
+                    "kind": "vDistance",
+                    "refs": [
+                      "origin_s1",
+                      "pmvobizd72e"
+                    ],
+                    "value": 46.8,
+                    "labelOffset": {
+                      "x": -12,
+                      "y": -23
+                    }
+                  }
+                },
+                "entityOrder": [
+                  "lnmvobizd71z",
+                  "lnmvobizd721",
+                  "lnmvobizd723",
+                  "lnmvobizd725",
+                  "lnmvobizd727",
+                  "lnmvobizd729",
+                  "lnmvobizd72b",
+                  "lnmvobizd72d",
+                  "lnmvobizd72f",
+                  "lnmvobizd72g",
+                  "lnmvobizd72j"
+                ],
+                "constraintOrder": [
+                  "dim1",
+                  "dim2",
+                  "dim3"
+                ],
+                "origin": "origin_s1"
+              },
+              "s2": {
+                "id": "s2",
+                "name": "Sketch2",
+                "plane": "front",
+                "points": {
+                  "origin_s2": {
+                    "x": 0,
+                    "y": 0
+                  },
+                  "pmvobizd72k": {
+                    "x": -4,
+                    "y": -4
+                  },
+                  "pmvobizd72l": {
+                    "x": 4,
+                    "y": -4
+                  },
+                  "pmvobizd72n": {
+                    "x": 4,
+                    "y": 4
+                  },
+                  "pmvobizd72p": {
+                    "x": -4,
+                    "y": 4
+                  }
+                },
+                "scalars": {},
+                "entities": {
+                  "lnmvobizd72m": {
+                    "id": "lnmvobizd72m",
+                    "kind": "line",
+                    "p1": "pmvobizd72k",
+                    "p2": "pmvobizd72l",
+                    "construction": false
+                  },
+                  "lnmvobizd72o": {
+                    "id": "lnmvobizd72o",
+                    "kind": "line",
+                    "p1": "pmvobizd72l",
+                    "p2": "pmvobizd72n",
+                    "construction": false
+                  },
+                  "lnmvobizd72q": {
+                    "id": "lnmvobizd72q",
+                    "kind": "line",
+                    "p1": "pmvobizd72n",
+                    "p2": "pmvobizd72p",
+                    "construction": false
+                  },
+                  "lnmvobizd72r": {
+                    "id": "lnmvobizd72r",
+                    "kind": "line",
+                    "p1": "pmvobizd72p",
+                    "p2": "pmvobizd72k",
+                    "construction": false
+                  }
+                },
+                "constraints": {
+                  "dim4": {
+                    "id": "dim4",
+                    "kind": "length",
+                    "refs": [
+                      "lnmvobizd72m"
+                    ],
+                    "value": 8,
+                    "labelOffset": {
+                      "x": 0,
+                      "y": -10
+                    }
+                  },
+                  "dim5": {
+                    "id": "dim5",
+                    "kind": "length",
+                    "refs": [
+                      "lnmvobizd72o"
+                    ],
+                    "value": 8,
+                    "labelOffset": {
+                      "x": 10,
+                      "y": 0
+                    }
+                  }
+                },
+                "entityOrder": [
+                  "lnmvobizd72m",
+                  "lnmvobizd72o",
+                  "lnmvobizd72q",
+                  "lnmvobizd72r"
+                ],
+                "constraintOrder": [
+                  "dim4",
+                  "dim5"
+                ],
+                "origin": "origin_s2"
+              },
+              "s3": {
+                "id": "s3",
+                "name": "Sketch3",
+                "plane": "top",
+                "points": {
+                  "origin_s3": {
+                    "x": 0,
+                    "y": 0
+                  },
+                  "pmvobizd72s": {
+                    "x": 0,
+                    "y": -38
+                  },
+                  "pmvobizd72t": {
+                    "x": 92,
+                    "y": -38
+                  },
+                  "pmvobizd72v": {
+                    "x": 92,
+                    "y": -13
+                  },
+                  "pmvobizd72w": {
+                    "x": 117,
+                    "y": -13
+                  }
+                },
+                "scalars": {
+                  "smvobizd72x": 25
+                },
+                "entities": {
+                  "lnmvobizd72u": {
+                    "id": "lnmvobizd72u",
+                    "kind": "line",
+                    "p1": "pmvobizd72s",
+                    "p2": "pmvobizd72t",
+                    "construction": false
+                  },
+                  "armvobizd72y": {
+                    "id": "armvobizd72y",
+                    "kind": "arc",
+                    "center": "pmvobizd72v",
+                    "start": "pmvobizd72t",
+                    "end": "pmvobizd72w",
+                    "r": "smvobizd72x",
+                    "ccw": true,
+                    "construction": false
+                  }
+                },
+                "constraints": {
+                  "dim6": {
+                    "id": "dim6",
+                    "kind": "length",
+                    "refs": [
+                      "lnmvobizd72u"
+                    ],
+                    "value": 92,
+                    "labelOffset": {
+                      "x": 46,
+                      "y": -50
+                    }
+                  },
+                  "dim7": {
+                    "id": "dim7",
+                    "kind": "radius",
+                    "refs": [
+                      "armvobizd72y"
+                    ],
+                    "value": 25,
+                    "labelOffset": {
+                      "x": 112,
+                      "y": -36
+                    }
+                  }
+                },
+                "entityOrder": [
+                  "lnmvobizd72u",
+                  "armvobizd72y"
+                ],
+                "constraintOrder": [
+                  "dim6",
+                  "dim7"
+                ],
+                "origin": "origin_s3"
+              },
+              "s4": {
+                "id": "s4",
+                "name": "Sketch4",
+                "plane": "right",
+                "points": {
+                  "origin_s4": {
+                    "x": 0,
+                    "y": 0
+                  },
+                  "pmvobizd72z": {
+                    "x": -38,
+                    "y": 0
+                  }
+                },
+                "scalars": {
+                  "smvobizd730": 8
+                },
+                "entities": {
+                  "cimvobizd731": {
+                    "id": "cimvobizd731",
+                    "kind": "circle",
+                    "center": "pmvobizd72z",
+                    "r": "smvobizd730",
+                    "construction": false
+                  }
+                },
+                "constraints": {
+                  "dim8": {
+                    "id": "dim8",
+                    "kind": "diameter",
+                    "refs": [
+                      "cimvobizd731"
+                    ],
+                    "value": 16,
+                    "labelOffset": {
+                      "x": -26,
+                      "y": 12
+                    }
+                  }
+                },
+                "entityOrder": [
+                  "cimvobizd731"
+                ],
+                "constraintOrder": [
+                  "dim8"
+                ],
+                "origin": "origin_s4"
+              },
+              "s5": {
+                "id": "s5",
+                "name": "Sketch5",
+                "plane": "top",
+                "points": {
+                  "origin_s5": {
+                    "x": 0,
+                    "y": 0
+                  },
+                  "pmvobizd732": {
+                    "x": 117,
+                    "y": -13
+                  },
+                  "pmvobizd733": {
+                    "x": 125,
+                    "y": -13
+                  },
+                  "pmvobizd734": {
+                    "x": 109,
+                    "y": -13
+                  },
+                  "pmvobizd738": {
+                    "x": 100,
+                    "y": -13
+                  },
+                  "pmvobizd739": {
+                    "x": 134,
+                    "y": -13
+                  }
+                },
+                "scalars": {
+                  "smvobizd735": 8
+                },
+                "entities": {
+                  "armvobizd736": {
+                    "id": "armvobizd736",
+                    "kind": "arc",
+                    "center": "pmvobizd732",
+                    "start": "pmvobizd733",
+                    "end": "pmvobizd734",
+                    "r": "smvobizd735",
+                    "ccw": true,
+                    "construction": false
+                  },
+                  "lnmvobizd737": {
+                    "id": "lnmvobizd737",
+                    "kind": "line",
+                    "p1": "pmvobizd734",
+                    "p2": "pmvobizd733",
+                    "construction": false
+                  },
+                  "lnmvobizd73a": {
+                    "id": "lnmvobizd73a",
+                    "kind": "line",
+                    "p1": "pmvobizd738",
+                    "p2": "pmvobizd739",
+                    "construction": true
+                  }
+                },
+                "constraints": {
+                  "dim9": {
+                    "id": "dim9",
+                    "kind": "radius",
+                    "refs": [
+                      "armvobizd736"
+                    ],
+                    "value": 8,
+                    "labelOffset": {
+                      "x": 128,
+                      "y": -4
+                    }
+                  }
+                },
+                "entityOrder": [
+                  "armvobizd736",
+                  "lnmvobizd737",
+                  "lnmvobizd73a"
+                ],
+                "constraintOrder": [
+                  "dim9"
+                ],
+                "origin": "origin_s5"
+              }
+            },
+            "features": [
+              {
+                "id": "ks1",
+                "type": "sketch",
+                "name": "Sketch1",
+                "sketchId": "s1",
+                "suppressed": false
+              },
+              {
+                "id": "f1",
+                "type": "revolve",
+                "name": "Revolve1",
+                "sketchId": "s1",
+                "suppressed": false,
+                "op": "boss",
+                "axisEntityId": "lnmvobizd72j",
+                "angle": 360,
+                "reverse": false
+              },
+              {
+                "id": "ks2",
+                "type": "sketch",
+                "name": "Sketch2",
+                "sketchId": "s2",
+                "suppressed": false
+              },
+              {
+                "id": "f2",
+                "type": "extrude",
+                "name": "Cut-Extrude1",
+                "sketchId": "s2",
+                "suppressed": false,
+                "op": "cut",
+                "end": "blind",
+                "depth": 25,
+                "reverse": false
+              },
+              {
+                "id": "ks3",
+                "type": "sketch",
+                "name": "Sketch3",
+                "sketchId": "s3",
+                "suppressed": false
+              },
+              {
+                "id": "ks4",
+                "type": "sketch",
+                "name": "Sketch4",
+                "sketchId": "s4",
+                "suppressed": false
+              },
+              {
+                "id": "f3",
+                "type": "sweep",
+                "name": "Sweep1",
+                "sketchId": "s4",
+                "pathSketchId": "s3",
+                "suppressed": false,
+                "op": "boss"
+              },
+              {
+                "id": "ks5",
+                "type": "sketch",
+                "name": "Sketch5",
+                "sketchId": "s5",
+                "suppressed": false
+              },
+              {
+                "id": "f4",
+                "type": "revolve",
+                "name": "Revolve2",
+                "sketchId": "s5",
+                "suppressed": false,
+                "op": "boss",
+                "axisEntityId": "lnmvobizd73a",
+                "angle": 360,
+                "reverse": false
+              }
+            ],
+            "planes": {},
+            "variables": {},
+            "equations": [],
+            "material": {
+              "name": "AISI 304",
+              "density": 8000,
+              "color": "#c9ccd1"
+            },
+            "kind": "part"
+          },
+          "modelName": "Kruk<1>",
+          "id": "v1",
+          "name": "Drawing View1",
+          "type": "front",
+          "position": [
+            95,
+            150
+          ]
+        },
+        {
+          "displayStyle": "hiddenRemoved",
+          "model": {
+            "version": 1,
+            "name": "Kruk",
+            "units": "mm",
+            "sketches": {
+              "s1": {
+                "id": "s1",
+                "name": "Sketch1",
+                "plane": "top",
+                "points": {
+                  "origin_s1": {
+                    "x": 0,
+                    "y": 0
+                  },
+                  "pmvobizd71x": {
+                    "x": 0,
+                    "y": 0
+                  },
+                  "pmvobizd71y": {
+                    "x": 13,
+                    "y": 0
+                  },
+                  "pmvobizd720": {
+                    "x": 13,
+                    "y": -2
+                  },
+                  "pmvobizd722": {
+                    "x": 11.5,
+                    "y": -4.5
+                  },
+                  "pmvobizd724": {
+                    "x": 10,
+                    "y": -8
+                  },
+                  "pmvobizd726": {
+                    "x": 10,
+                    "y": -42
+                  },
+                  "pmvobizd728": {
+                    "x": 9.5,
+                    "y": -44
+                  },
+                  "pmvobizd72a": {
+                    "x": 8,
+                    "y": -45.5
+                  },
+                  "pmvobizd72c": {
+                    "x": 5,
+                    "y": -46.5
+                  },
+                  "pmvobizd72e": {
+                    "x": 0,
+                    "y": -46.8
+                  },
+                  "pmvobizd72h": {
+                    "x": 0,
+                    "y": 5
+                  },
+                  "pmvobizd72i": {
+                    "x": 0,
+                    "y": -51.8
+                  }
+                },
+                "scalars": {},
+                "entities": {
+                  "lnmvobizd71z": {
+                    "id": "lnmvobizd71z",
+                    "kind": "line",
+                    "p1": "pmvobizd71x",
+                    "p2": "pmvobizd71y",
+                    "construction": false
+                  },
+                  "lnmvobizd721": {
+                    "id": "lnmvobizd721",
+                    "kind": "line",
+                    "p1": "pmvobizd71y",
+                    "p2": "pmvobizd720",
+                    "construction": false
+                  },
+                  "lnmvobizd723": {
+                    "id": "lnmvobizd723",
+                    "kind": "line",
+                    "p1": "pmvobizd720",
+                    "p2": "pmvobizd722",
+                    "construction": false
+                  },
+                  "lnmvobizd725": {
+                    "id": "lnmvobizd725",
+                    "kind": "line",
+                    "p1": "pmvobizd722",
+                    "p2": "pmvobizd724",
+                    "construction": false
+                  },
+                  "lnmvobizd727": {
+                    "id": "lnmvobizd727",
+                    "kind": "line",
+                    "p1": "pmvobizd724",
+                    "p2": "pmvobizd726",
+                    "construction": false
+                  },
+                  "lnmvobizd729": {
+                    "id": "lnmvobizd729",
+                    "kind": "line",
+                    "p1": "pmvobizd726",
+                    "p2": "pmvobizd728",
+                    "construction": false
+                  },
+                  "lnmvobizd72b": {
+                    "id": "lnmvobizd72b",
+                    "kind": "line",
+                    "p1": "pmvobizd728",
+                    "p2": "pmvobizd72a",
+                    "construction": false
+                  },
+                  "lnmvobizd72d": {
+                    "id": "lnmvobizd72d",
+                    "kind": "line",
+                    "p1": "pmvobizd72a",
+                    "p2": "pmvobizd72c",
+                    "construction": false
+                  },
+                  "lnmvobizd72f": {
+                    "id": "lnmvobizd72f",
+                    "kind": "line",
+                    "p1": "pmvobizd72c",
+                    "p2": "pmvobizd72e",
+                    "construction": false
+                  },
+                  "lnmvobizd72g": {
+                    "id": "lnmvobizd72g",
+                    "kind": "line",
+                    "p1": "pmvobizd72e",
+                    "p2": "pmvobizd71x",
+                    "construction": false
+                  },
+                  "lnmvobizd72j": {
+                    "id": "lnmvobizd72j",
+                    "kind": "line",
+                    "p1": "pmvobizd72h",
+                    "p2": "pmvobizd72i",
+                    "construction": true
+                  }
+                },
+                "constraints": {
+                  "dim1": {
+                    "id": "dim1",
+                    "kind": "hDistance",
+                    "refs": [
+                      "origin_s1",
+                      "pmvobizd71y"
+                    ],
+                    "value": 13,
+                    "labelOffset": {
+                      "x": 6.5,
+                      "y": 8
+                    }
+                  },
+                  "dim2": {
+                    "id": "dim2",
+                    "kind": "length",
+                    "refs": [
+                      "lnmvobizd727"
+                    ],
+                    "value": 34,
+                    "labelOffset": {
+                      "x": 18,
+                      "y": -25
+                    }
+                  },
+                  "dim3": {
+                    "id": "dim3",
+                    "kind": "vDistance",
+                    "refs": [
+                      "origin_s1",
+                      "pmvobizd72e"
+                    ],
+                    "value": 46.8,
+                    "labelOffset": {
+                      "x": -12,
+                      "y": -23
+                    }
+                  }
+                },
+                "entityOrder": [
+                  "lnmvobizd71z",
+                  "lnmvobizd721",
+                  "lnmvobizd723",
+                  "lnmvobizd725",
+                  "lnmvobizd727",
+                  "lnmvobizd729",
+                  "lnmvobizd72b",
+                  "lnmvobizd72d",
+                  "lnmvobizd72f",
+                  "lnmvobizd72g",
+                  "lnmvobizd72j"
+                ],
+                "constraintOrder": [
+                  "dim1",
+                  "dim2",
+                  "dim3"
+                ],
+                "origin": "origin_s1"
+              },
+              "s2": {
+                "id": "s2",
+                "name": "Sketch2",
+                "plane": "front",
+                "points": {
+                  "origin_s2": {
+                    "x": 0,
+                    "y": 0
+                  },
+                  "pmvobizd72k": {
+                    "x": -4,
+                    "y": -4
+                  },
+                  "pmvobizd72l": {
+                    "x": 4,
+                    "y": -4
+                  },
+                  "pmvobizd72n": {
+                    "x": 4,
+                    "y": 4
+                  },
+                  "pmvobizd72p": {
+                    "x": -4,
+                    "y": 4
+                  }
+                },
+                "scalars": {},
+                "entities": {
+                  "lnmvobizd72m": {
+                    "id": "lnmvobizd72m",
+                    "kind": "line",
+                    "p1": "pmvobizd72k",
+                    "p2": "pmvobizd72l",
+                    "construction": false
+                  },
+                  "lnmvobizd72o": {
+                    "id": "lnmvobizd72o",
+                    "kind": "line",
+                    "p1": "pmvobizd72l",
+                    "p2": "pmvobizd72n",
+                    "construction": false
+                  },
+                  "lnmvobizd72q": {
+                    "id": "lnmvobizd72q",
+                    "kind": "line",
+                    "p1": "pmvobizd72n",
+                    "p2": "pmvobizd72p",
+                    "construction": false
+                  },
+                  "lnmvobizd72r": {
+                    "id": "lnmvobizd72r",
+                    "kind": "line",
+                    "p1": "pmvobizd72p",
+                    "p2": "pmvobizd72k",
+                    "construction": false
+                  }
+                },
+                "constraints": {
+                  "dim4": {
+                    "id": "dim4",
+                    "kind": "length",
+                    "refs": [
+                      "lnmvobizd72m"
+                    ],
+                    "value": 8,
+                    "labelOffset": {
+                      "x": 0,
+                      "y": -10
+                    }
+                  },
+                  "dim5": {
+                    "id": "dim5",
+                    "kind": "length",
+                    "refs": [
+                      "lnmvobizd72o"
+                    ],
+                    "value": 8,
+                    "labelOffset": {
+                      "x": 10,
+                      "y": 0
+                    }
+                  }
+                },
+                "entityOrder": [
+                  "lnmvobizd72m",
+                  "lnmvobizd72o",
+                  "lnmvobizd72q",
+                  "lnmvobizd72r"
+                ],
+                "constraintOrder": [
+                  "dim4",
+                  "dim5"
+                ],
+                "origin": "origin_s2"
+              },
+              "s3": {
+                "id": "s3",
+                "name": "Sketch3",
+                "plane": "top",
+                "points": {
+                  "origin_s3": {
+                    "x": 0,
+                    "y": 0
+                  },
+                  "pmvobizd72s": {
+                    "x": 0,
+                    "y": -38
+                  },
+                  "pmvobizd72t": {
+                    "x": 92,
+                    "y": -38
+                  },
+                  "pmvobizd72v": {
+                    "x": 92,
+                    "y": -13
+                  },
+                  "pmvobizd72w": {
+                    "x": 117,
+                    "y": -13
+                  }
+                },
+                "scalars": {
+                  "smvobizd72x": 25
+                },
+                "entities": {
+                  "lnmvobizd72u": {
+                    "id": "lnmvobizd72u",
+                    "kind": "line",
+                    "p1": "pmvobizd72s",
+                    "p2": "pmvobizd72t",
+                    "construction": false
+                  },
+                  "armvobizd72y": {
+                    "id": "armvobizd72y",
+                    "kind": "arc",
+                    "center": "pmvobizd72v",
+                    "start": "pmvobizd72t",
+                    "end": "pmvobizd72w",
+                    "r": "smvobizd72x",
+                    "ccw": true,
+                    "construction": false
+                  }
+                },
+                "constraints": {
+                  "dim6": {
+                    "id": "dim6",
+                    "kind": "length",
+                    "refs": [
+                      "lnmvobizd72u"
+                    ],
+                    "value": 92,
+                    "labelOffset": {
+                      "x": 46,
+                      "y": -50
+                    }
+                  },
+                  "dim7": {
+                    "id": "dim7",
+                    "kind": "radius",
+                    "refs": [
+                      "armvobizd72y"
+                    ],
+                    "value": 25,
+                    "labelOffset": {
+                      "x": 112,
+                      "y": -36
+                    }
+                  }
+                },
+                "entityOrder": [
+                  "lnmvobizd72u",
+                  "armvobizd72y"
+                ],
+                "constraintOrder": [
+                  "dim6",
+                  "dim7"
+                ],
+                "origin": "origin_s3"
+              },
+              "s4": {
+                "id": "s4",
+                "name": "Sketch4",
+                "plane": "right",
+                "points": {
+                  "origin_s4": {
+                    "x": 0,
+                    "y": 0
+                  },
+                  "pmvobizd72z": {
+                    "x": -38,
+                    "y": 0
+                  }
+                },
+                "scalars": {
+                  "smvobizd730": 8
+                },
+                "entities": {
+                  "cimvobizd731": {
+                    "id": "cimvobizd731",
+                    "kind": "circle",
+                    "center": "pmvobizd72z",
+                    "r": "smvobizd730",
+                    "construction": false
+                  }
+                },
+                "constraints": {
+                  "dim8": {
+                    "id": "dim8",
+                    "kind": "diameter",
+                    "refs": [
+                      "cimvobizd731"
+                    ],
+                    "value": 16,
+                    "labelOffset": {
+                      "x": -26,
+                      "y": 12
+                    }
+                  }
+                },
+                "entityOrder": [
+                  "cimvobizd731"
+                ],
+                "constraintOrder": [
+                  "dim8"
+                ],
+                "origin": "origin_s4"
+              },
+              "s5": {
+                "id": "s5",
+                "name": "Sketch5",
+                "plane": "top",
+                "points": {
+                  "origin_s5": {
+                    "x": 0,
+                    "y": 0
+                  },
+                  "pmvobizd732": {
+                    "x": 117,
+                    "y": -13
+                  },
+                  "pmvobizd733": {
+                    "x": 125,
+                    "y": -13
+                  },
+                  "pmvobizd734": {
+                    "x": 109,
+                    "y": -13
+                  },
+                  "pmvobizd738": {
+                    "x": 100,
+                    "y": -13
+                  },
+                  "pmvobizd739": {
+                    "x": 134,
+                    "y": -13
+                  }
+                },
+                "scalars": {
+                  "smvobizd735": 8
+                },
+                "entities": {
+                  "armvobizd736": {
+                    "id": "armvobizd736",
+                    "kind": "arc",
+                    "center": "pmvobizd732",
+                    "start": "pmvobizd733",
+                    "end": "pmvobizd734",
+                    "r": "smvobizd735",
+                    "ccw": true,
+                    "construction": false
+                  },
+                  "lnmvobizd737": {
+                    "id": "lnmvobizd737",
+                    "kind": "line",
+                    "p1": "pmvobizd734",
+                    "p2": "pmvobizd733",
+                    "construction": false
+                  },
+                  "lnmvobizd73a": {
+                    "id": "lnmvobizd73a",
+                    "kind": "line",
+                    "p1": "pmvobizd738",
+                    "p2": "pmvobizd739",
+                    "construction": true
+                  }
+                },
+                "constraints": {
+                  "dim9": {
+                    "id": "dim9",
+                    "kind": "radius",
+                    "refs": [
+                      "armvobizd736"
+                    ],
+                    "value": 8,
+                    "labelOffset": {
+                      "x": 128,
+                      "y": -4
+                    }
+                  }
+                },
+                "entityOrder": [
+                  "armvobizd736",
+                  "lnmvobizd737",
+                  "lnmvobizd73a"
+                ],
+                "constraintOrder": [
+                  "dim9"
+                ],
+                "origin": "origin_s5"
+              }
+            },
+            "features": [
+              {
+                "id": "ks1",
+                "type": "sketch",
+                "name": "Sketch1",
+                "sketchId": "s1",
+                "suppressed": false
+              },
+              {
+                "id": "f1",
+                "type": "revolve",
+                "name": "Revolve1",
+                "sketchId": "s1",
+                "suppressed": false,
+                "op": "boss",
+                "axisEntityId": "lnmvobizd72j",
+                "angle": 360,
+                "reverse": false
+              },
+              {
+                "id": "ks2",
+                "type": "sketch",
+                "name": "Sketch2",
+                "sketchId": "s2",
+                "suppressed": false
+              },
+              {
+                "id": "f2",
+                "type": "extrude",
+                "name": "Cut-Extrude1",
+                "sketchId": "s2",
+                "suppressed": false,
+                "op": "cut",
+                "end": "blind",
+                "depth": 25,
+                "reverse": false
+              },
+              {
+                "id": "ks3",
+                "type": "sketch",
+                "name": "Sketch3",
+                "sketchId": "s3",
+                "suppressed": false
+              },
+              {
+                "id": "ks4",
+                "type": "sketch",
+                "name": "Sketch4",
+                "sketchId": "s4",
+                "suppressed": false
+              },
+              {
+                "id": "f3",
+                "type": "sweep",
+                "name": "Sweep1",
+                "sketchId": "s4",
+                "pathSketchId": "s3",
+                "suppressed": false,
+                "op": "boss"
+              },
+              {
+                "id": "ks5",
+                "type": "sketch",
+                "name": "Sketch5",
+                "sketchId": "s5",
+                "suppressed": false
+              },
+              {
+                "id": "f4",
+                "type": "revolve",
+                "name": "Revolve2",
+                "sketchId": "s5",
+                "suppressed": false,
+                "op": "boss",
+                "axisEntityId": "lnmvobizd73a",
+                "angle": 360,
+                "reverse": false
+              }
+            ],
+            "planes": {},
+            "variables": {},
+            "equations": [],
+            "material": {
+              "name": "AISI 304",
+              "density": 8000,
+              "color": "#c9ccd1"
+            },
+            "kind": "part"
+          },
+          "modelName": "Kruk<1>",
+          "id": "v2",
+          "name": "Drawing View2",
+          "type": "top",
+          "position": [
+            95,
+            208.39999961853027
+          ],
+          "parentId": "v1"
+        },
+        {
+          "displayStyle": "hiddenRemoved",
+          "model": {
+            "version": 1,
+            "name": "Kruk",
+            "units": "mm",
+            "sketches": {
+              "s1": {
+                "id": "s1",
+                "name": "Sketch1",
+                "plane": "top",
+                "points": {
+                  "origin_s1": {
+                    "x": 0,
+                    "y": 0
+                  },
+                  "pmvobizd71x": {
+                    "x": 0,
+                    "y": 0
+                  },
+                  "pmvobizd71y": {
+                    "x": 13,
+                    "y": 0
+                  },
+                  "pmvobizd720": {
+                    "x": 13,
+                    "y": -2
+                  },
+                  "pmvobizd722": {
+                    "x": 11.5,
+                    "y": -4.5
+                  },
+                  "pmvobizd724": {
+                    "x": 10,
+                    "y": -8
+                  },
+                  "pmvobizd726": {
+                    "x": 10,
+                    "y": -42
+                  },
+                  "pmvobizd728": {
+                    "x": 9.5,
+                    "y": -44
+                  },
+                  "pmvobizd72a": {
+                    "x": 8,
+                    "y": -45.5
+                  },
+                  "pmvobizd72c": {
+                    "x": 5,
+                    "y": -46.5
+                  },
+                  "pmvobizd72e": {
+                    "x": 0,
+                    "y": -46.8
+                  },
+                  "pmvobizd72h": {
+                    "x": 0,
+                    "y": 5
+                  },
+                  "pmvobizd72i": {
+                    "x": 0,
+                    "y": -51.8
+                  }
+                },
+                "scalars": {},
+                "entities": {
+                  "lnmvobizd71z": {
+                    "id": "lnmvobizd71z",
+                    "kind": "line",
+                    "p1": "pmvobizd71x",
+                    "p2": "pmvobizd71y",
+                    "construction": false
+                  },
+                  "lnmvobizd721": {
+                    "id": "lnmvobizd721",
+                    "kind": "line",
+                    "p1": "pmvobizd71y",
+                    "p2": "pmvobizd720",
+                    "construction": false
+                  },
+                  "lnmvobizd723": {
+                    "id": "lnmvobizd723",
+                    "kind": "line",
+                    "p1": "pmvobizd720",
+                    "p2": "pmvobizd722",
+                    "construction": false
+                  },
+                  "lnmvobizd725": {
+                    "id": "lnmvobizd725",
+                    "kind": "line",
+                    "p1": "pmvobizd722",
+                    "p2": "pmvobizd724",
+                    "construction": false
+                  },
+                  "lnmvobizd727": {
+                    "id": "lnmvobizd727",
+                    "kind": "line",
+                    "p1": "pmvobizd724",
+                    "p2": "pmvobizd726",
+                    "construction": false
+                  },
+                  "lnmvobizd729": {
+                    "id": "lnmvobizd729",
+                    "kind": "line",
+                    "p1": "pmvobizd726",
+                    "p2": "pmvobizd728",
+                    "construction": false
+                  },
+                  "lnmvobizd72b": {
+                    "id": "lnmvobizd72b",
+                    "kind": "line",
+                    "p1": "pmvobizd728",
+                    "p2": "pmvobizd72a",
+                    "construction": false
+                  },
+                  "lnmvobizd72d": {
+                    "id": "lnmvobizd72d",
+                    "kind": "line",
+                    "p1": "pmvobizd72a",
+                    "p2": "pmvobizd72c",
+                    "construction": false
+                  },
+                  "lnmvobizd72f": {
+                    "id": "lnmvobizd72f",
+                    "kind": "line",
+                    "p1": "pmvobizd72c",
+                    "p2": "pmvobizd72e",
+                    "construction": false
+                  },
+                  "lnmvobizd72g": {
+                    "id": "lnmvobizd72g",
+                    "kind": "line",
+                    "p1": "pmvobizd72e",
+                    "p2": "pmvobizd71x",
+                    "construction": false
+                  },
+                  "lnmvobizd72j": {
+                    "id": "lnmvobizd72j",
+                    "kind": "line",
+                    "p1": "pmvobizd72h",
+                    "p2": "pmvobizd72i",
+                    "construction": true
+                  }
+                },
+                "constraints": {
+                  "dim1": {
+                    "id": "dim1",
+                    "kind": "hDistance",
+                    "refs": [
+                      "origin_s1",
+                      "pmvobizd71y"
+                    ],
+                    "value": 13,
+                    "labelOffset": {
+                      "x": 6.5,
+                      "y": 8
+                    }
+                  },
+                  "dim2": {
+                    "id": "dim2",
+                    "kind": "length",
+                    "refs": [
+                      "lnmvobizd727"
+                    ],
+                    "value": 34,
+                    "labelOffset": {
+                      "x": 18,
+                      "y": -25
+                    }
+                  },
+                  "dim3": {
+                    "id": "dim3",
+                    "kind": "vDistance",
+                    "refs": [
+                      "origin_s1",
+                      "pmvobizd72e"
+                    ],
+                    "value": 46.8,
+                    "labelOffset": {
+                      "x": -12,
+                      "y": -23
+                    }
+                  }
+                },
+                "entityOrder": [
+                  "lnmvobizd71z",
+                  "lnmvobizd721",
+                  "lnmvobizd723",
+                  "lnmvobizd725",
+                  "lnmvobizd727",
+                  "lnmvobizd729",
+                  "lnmvobizd72b",
+                  "lnmvobizd72d",
+                  "lnmvobizd72f",
+                  "lnmvobizd72g",
+                  "lnmvobizd72j"
+                ],
+                "constraintOrder": [
+                  "dim1",
+                  "dim2",
+                  "dim3"
+                ],
+                "origin": "origin_s1"
+              },
+              "s2": {
+                "id": "s2",
+                "name": "Sketch2",
+                "plane": "front",
+                "points": {
+                  "origin_s2": {
+                    "x": 0,
+                    "y": 0
+                  },
+                  "pmvobizd72k": {
+                    "x": -4,
+                    "y": -4
+                  },
+                  "pmvobizd72l": {
+                    "x": 4,
+                    "y": -4
+                  },
+                  "pmvobizd72n": {
+                    "x": 4,
+                    "y": 4
+                  },
+                  "pmvobizd72p": {
+                    "x": -4,
+                    "y": 4
+                  }
+                },
+                "scalars": {},
+                "entities": {
+                  "lnmvobizd72m": {
+                    "id": "lnmvobizd72m",
+                    "kind": "line",
+                    "p1": "pmvobizd72k",
+                    "p2": "pmvobizd72l",
+                    "construction": false
+                  },
+                  "lnmvobizd72o": {
+                    "id": "lnmvobizd72o",
+                    "kind": "line",
+                    "p1": "pmvobizd72l",
+                    "p2": "pmvobizd72n",
+                    "construction": false
+                  },
+                  "lnmvobizd72q": {
+                    "id": "lnmvobizd72q",
+                    "kind": "line",
+                    "p1": "pmvobizd72n",
+                    "p2": "pmvobizd72p",
+                    "construction": false
+                  },
+                  "lnmvobizd72r": {
+                    "id": "lnmvobizd72r",
+                    "kind": "line",
+                    "p1": "pmvobizd72p",
+                    "p2": "pmvobizd72k",
+                    "construction": false
+                  }
+                },
+                "constraints": {
+                  "dim4": {
+                    "id": "dim4",
+                    "kind": "length",
+                    "refs": [
+                      "lnmvobizd72m"
+                    ],
+                    "value": 8,
+                    "labelOffset": {
+                      "x": 0,
+                      "y": -10
+                    }
+                  },
+                  "dim5": {
+                    "id": "dim5",
+                    "kind": "length",
+                    "refs": [
+                      "lnmvobizd72o"
+                    ],
+                    "value": 8,
+                    "labelOffset": {
+                      "x": 10,
+                      "y": 0
+                    }
+                  }
+                },
+                "entityOrder": [
+                  "lnmvobizd72m",
+                  "lnmvobizd72o",
+                  "lnmvobizd72q",
+                  "lnmvobizd72r"
+                ],
+                "constraintOrder": [
+                  "dim4",
+                  "dim5"
+                ],
+                "origin": "origin_s2"
+              },
+              "s3": {
+                "id": "s3",
+                "name": "Sketch3",
+                "plane": "top",
+                "points": {
+                  "origin_s3": {
+                    "x": 0,
+                    "y": 0
+                  },
+                  "pmvobizd72s": {
+                    "x": 0,
+                    "y": -38
+                  },
+                  "pmvobizd72t": {
+                    "x": 92,
+                    "y": -38
+                  },
+                  "pmvobizd72v": {
+                    "x": 92,
+                    "y": -13
+                  },
+                  "pmvobizd72w": {
+                    "x": 117,
+                    "y": -13
+                  }
+                },
+                "scalars": {
+                  "smvobizd72x": 25
+                },
+                "entities": {
+                  "lnmvobizd72u": {
+                    "id": "lnmvobizd72u",
+                    "kind": "line",
+                    "p1": "pmvobizd72s",
+                    "p2": "pmvobizd72t",
+                    "construction": false
+                  },
+                  "armvobizd72y": {
+                    "id": "armvobizd72y",
+                    "kind": "arc",
+                    "center": "pmvobizd72v",
+                    "start": "pmvobizd72t",
+                    "end": "pmvobizd72w",
+                    "r": "smvobizd72x",
+                    "ccw": true,
+                    "construction": false
+                  }
+                },
+                "constraints": {
+                  "dim6": {
+                    "id": "dim6",
+                    "kind": "length",
+                    "refs": [
+                      "lnmvobizd72u"
+                    ],
+                    "value": 92,
+                    "labelOffset": {
+                      "x": 46,
+                      "y": -50
+                    }
+                  },
+                  "dim7": {
+                    "id": "dim7",
+                    "kind": "radius",
+                    "refs": [
+                      "armvobizd72y"
+                    ],
+                    "value": 25,
+                    "labelOffset": {
+                      "x": 112,
+                      "y": -36
+                    }
+                  }
+                },
+                "entityOrder": [
+                  "lnmvobizd72u",
+                  "armvobizd72y"
+                ],
+                "constraintOrder": [
+                  "dim6",
+                  "dim7"
+                ],
+                "origin": "origin_s3"
+              },
+              "s4": {
+                "id": "s4",
+                "name": "Sketch4",
+                "plane": "right",
+                "points": {
+                  "origin_s4": {
+                    "x": 0,
+                    "y": 0
+                  },
+                  "pmvobizd72z": {
+                    "x": -38,
+                    "y": 0
+                  }
+                },
+                "scalars": {
+                  "smvobizd730": 8
+                },
+                "entities": {
+                  "cimvobizd731": {
+                    "id": "cimvobizd731",
+                    "kind": "circle",
+                    "center": "pmvobizd72z",
+                    "r": "smvobizd730",
+                    "construction": false
+                  }
+                },
+                "constraints": {
+                  "dim8": {
+                    "id": "dim8",
+                    "kind": "diameter",
+                    "refs": [
+                      "cimvobizd731"
+                    ],
+                    "value": 16,
+                    "labelOffset": {
+                      "x": -26,
+                      "y": 12
+                    }
+                  }
+                },
+                "entityOrder": [
+                  "cimvobizd731"
+                ],
+                "constraintOrder": [
+                  "dim8"
+                ],
+                "origin": "origin_s4"
+              },
+              "s5": {
+                "id": "s5",
+                "name": "Sketch5",
+                "plane": "top",
+                "points": {
+                  "origin_s5": {
+                    "x": 0,
+                    "y": 0
+                  },
+                  "pmvobizd732": {
+                    "x": 117,
+                    "y": -13
+                  },
+                  "pmvobizd733": {
+                    "x": 125,
+                    "y": -13
+                  },
+                  "pmvobizd734": {
+                    "x": 109,
+                    "y": -13
+                  },
+                  "pmvobizd738": {
+                    "x": 100,
+                    "y": -13
+                  },
+                  "pmvobizd739": {
+                    "x": 134,
+                    "y": -13
+                  }
+                },
+                "scalars": {
+                  "smvobizd735": 8
+                },
+                "entities": {
+                  "armvobizd736": {
+                    "id": "armvobizd736",
+                    "kind": "arc",
+                    "center": "pmvobizd732",
+                    "start": "pmvobizd733",
+                    "end": "pmvobizd734",
+                    "r": "smvobizd735",
+                    "ccw": true,
+                    "construction": false
+                  },
+                  "lnmvobizd737": {
+                    "id": "lnmvobizd737",
+                    "kind": "line",
+                    "p1": "pmvobizd734",
+                    "p2": "pmvobizd733",
+                    "construction": false
+                  },
+                  "lnmvobizd73a": {
+                    "id": "lnmvobizd73a",
+                    "kind": "line",
+                    "p1": "pmvobizd738",
+                    "p2": "pmvobizd739",
+                    "construction": true
+                  }
+                },
+                "constraints": {
+                  "dim9": {
+                    "id": "dim9",
+                    "kind": "radius",
+                    "refs": [
+                      "armvobizd736"
+                    ],
+                    "value": 8,
+                    "labelOffset": {
+                      "x": 128,
+                      "y": -4
+                    }
+                  }
+                },
+                "entityOrder": [
+                  "armvobizd736",
+                  "lnmvobizd737",
+                  "lnmvobizd73a"
+                ],
+                "constraintOrder": [
+                  "dim9"
+                ],
+                "origin": "origin_s5"
+              }
+            },
+            "features": [
+              {
+                "id": "ks1",
+                "type": "sketch",
+                "name": "Sketch1",
+                "sketchId": "s1",
+                "suppressed": false
+              },
+              {
+                "id": "f1",
+                "type": "revolve",
+                "name": "Revolve1",
+                "sketchId": "s1",
+                "suppressed": false,
+                "op": "boss",
+                "axisEntityId": "lnmvobizd72j",
+                "angle": 360,
+                "reverse": false
+              },
+              {
+                "id": "ks2",
+                "type": "sketch",
+                "name": "Sketch2",
+                "sketchId": "s2",
+                "suppressed": false
+              },
+              {
+                "id": "f2",
+                "type": "extrude",
+                "name": "Cut-Extrude1",
+                "sketchId": "s2",
+                "suppressed": false,
+                "op": "cut",
+                "end": "blind",
+                "depth": 25,
+                "reverse": false
+              },
+              {
+                "id": "ks3",
+                "type": "sketch",
+                "name": "Sketch3",
+                "sketchId": "s3",
+                "suppressed": false
+              },
+              {
+                "id": "ks4",
+                "type": "sketch",
+                "name": "Sketch4",
+                "sketchId": "s4",
+                "suppressed": false
+              },
+              {
+                "id": "f3",
+                "type": "sweep",
+                "name": "Sweep1",
+                "sketchId": "s4",
+                "pathSketchId": "s3",
+                "suppressed": false,
+                "op": "boss"
+              },
+              {
+                "id": "ks5",
+                "type": "sketch",
+                "name": "Sketch5",
+                "sketchId": "s5",
+                "suppressed": false
+              },
+              {
+                "id": "f4",
+                "type": "revolve",
+                "name": "Revolve2",
+                "sketchId": "s5",
+                "suppressed": false,
+                "op": "boss",
+                "axisEntityId": "lnmvobizd73a",
+                "angle": 360,
+                "reverse": false
+              }
+            ],
+            "planes": {},
+            "variables": {},
+            "equations": [],
+            "material": {
+              "name": "AISI 304",
+              "density": 8000,
+              "color": "#c9ccd1"
+            },
+            "kind": "part"
+          },
+          "modelName": "Kruk<1>",
+          "id": "v3",
+          "name": "Drawing View3",
+          "type": "right",
+          "position": [
+            209.39999961853027,
+            150
+          ],
+          "parentId": "v1"
+        },
+        {
+          "displayStyle": "shadedEdges",
+          "model": {
+            "version": 1,
+            "name": "Kruk",
+            "units": "mm",
+            "sketches": {
+              "s1": {
+                "id": "s1",
+                "name": "Sketch1",
+                "plane": "top",
+                "points": {
+                  "origin_s1": {
+                    "x": 0,
+                    "y": 0
+                  },
+                  "pmvobizd71x": {
+                    "x": 0,
+                    "y": 0
+                  },
+                  "pmvobizd71y": {
+                    "x": 13,
+                    "y": 0
+                  },
+                  "pmvobizd720": {
+                    "x": 13,
+                    "y": -2
+                  },
+                  "pmvobizd722": {
+                    "x": 11.5,
+                    "y": -4.5
+                  },
+                  "pmvobizd724": {
+                    "x": 10,
+                    "y": -8
+                  },
+                  "pmvobizd726": {
+                    "x": 10,
+                    "y": -42
+                  },
+                  "pmvobizd728": {
+                    "x": 9.5,
+                    "y": -44
+                  },
+                  "pmvobizd72a": {
+                    "x": 8,
+                    "y": -45.5
+                  },
+                  "pmvobizd72c": {
+                    "x": 5,
+                    "y": -46.5
+                  },
+                  "pmvobizd72e": {
+                    "x": 0,
+                    "y": -46.8
+                  },
+                  "pmvobizd72h": {
+                    "x": 0,
+                    "y": 5
+                  },
+                  "pmvobizd72i": {
+                    "x": 0,
+                    "y": -51.8
+                  }
+                },
+                "scalars": {},
+                "entities": {
+                  "lnmvobizd71z": {
+                    "id": "lnmvobizd71z",
+                    "kind": "line",
+                    "p1": "pmvobizd71x",
+                    "p2": "pmvobizd71y",
+                    "construction": false
+                  },
+                  "lnmvobizd721": {
+                    "id": "lnmvobizd721",
+                    "kind": "line",
+                    "p1": "pmvobizd71y",
+                    "p2": "pmvobizd720",
+                    "construction": false
+                  },
+                  "lnmvobizd723": {
+                    "id": "lnmvobizd723",
+                    "kind": "line",
+                    "p1": "pmvobizd720",
+                    "p2": "pmvobizd722",
+                    "construction": false
+                  },
+                  "lnmvobizd725": {
+                    "id": "lnmvobizd725",
+                    "kind": "line",
+                    "p1": "pmvobizd722",
+                    "p2": "pmvobizd724",
+                    "construction": false
+                  },
+                  "lnmvobizd727": {
+                    "id": "lnmvobizd727",
+                    "kind": "line",
+                    "p1": "pmvobizd724",
+                    "p2": "pmvobizd726",
+                    "construction": false
+                  },
+                  "lnmvobizd729": {
+                    "id": "lnmvobizd729",
+                    "kind": "line",
+                    "p1": "pmvobizd726",
+                    "p2": "pmvobizd728",
+                    "construction": false
+                  },
+                  "lnmvobizd72b": {
+                    "id": "lnmvobizd72b",
+                    "kind": "line",
+                    "p1": "pmvobizd728",
+                    "p2": "pmvobizd72a",
+                    "construction": false
+                  },
+                  "lnmvobizd72d": {
+                    "id": "lnmvobizd72d",
+                    "kind": "line",
+                    "p1": "pmvobizd72a",
+                    "p2": "pmvobizd72c",
+                    "construction": false
+                  },
+                  "lnmvobizd72f": {
+                    "id": "lnmvobizd72f",
+                    "kind": "line",
+                    "p1": "pmvobizd72c",
+                    "p2": "pmvobizd72e",
+                    "construction": false
+                  },
+                  "lnmvobizd72g": {
+                    "id": "lnmvobizd72g",
+                    "kind": "line",
+                    "p1": "pmvobizd72e",
+                    "p2": "pmvobizd71x",
+                    "construction": false
+                  },
+                  "lnmvobizd72j": {
+                    "id": "lnmvobizd72j",
+                    "kind": "line",
+                    "p1": "pmvobizd72h",
+                    "p2": "pmvobizd72i",
+                    "construction": true
+                  }
+                },
+                "constraints": {
+                  "dim1": {
+                    "id": "dim1",
+                    "kind": "hDistance",
+                    "refs": [
+                      "origin_s1",
+                      "pmvobizd71y"
+                    ],
+                    "value": 13,
+                    "labelOffset": {
+                      "x": 6.5,
+                      "y": 8
+                    }
+                  },
+                  "dim2": {
+                    "id": "dim2",
+                    "kind": "length",
+                    "refs": [
+                      "lnmvobizd727"
+                    ],
+                    "value": 34,
+                    "labelOffset": {
+                      "x": 18,
+                      "y": -25
+                    }
+                  },
+                  "dim3": {
+                    "id": "dim3",
+                    "kind": "vDistance",
+                    "refs": [
+                      "origin_s1",
+                      "pmvobizd72e"
+                    ],
+                    "value": 46.8,
+                    "labelOffset": {
+                      "x": -12,
+                      "y": -23
+                    }
+                  }
+                },
+                "entityOrder": [
+                  "lnmvobizd71z",
+                  "lnmvobizd721",
+                  "lnmvobizd723",
+                  "lnmvobizd725",
+                  "lnmvobizd727",
+                  "lnmvobizd729",
+                  "lnmvobizd72b",
+                  "lnmvobizd72d",
+                  "lnmvobizd72f",
+                  "lnmvobizd72g",
+                  "lnmvobizd72j"
+                ],
+                "constraintOrder": [
+                  "dim1",
+                  "dim2",
+                  "dim3"
+                ],
+                "origin": "origin_s1"
+              },
+              "s2": {
+                "id": "s2",
+                "name": "Sketch2",
+                "plane": "front",
+                "points": {
+                  "origin_s2": {
+                    "x": 0,
+                    "y": 0
+                  },
+                  "pmvobizd72k": {
+                    "x": -4,
+                    "y": -4
+                  },
+                  "pmvobizd72l": {
+                    "x": 4,
+                    "y": -4
+                  },
+                  "pmvobizd72n": {
+                    "x": 4,
+                    "y": 4
+                  },
+                  "pmvobizd72p": {
+                    "x": -4,
+                    "y": 4
+                  }
+                },
+                "scalars": {},
+                "entities": {
+                  "lnmvobizd72m": {
+                    "id": "lnmvobizd72m",
+                    "kind": "line",
+                    "p1": "pmvobizd72k",
+                    "p2": "pmvobizd72l",
+                    "construction": false
+                  },
+                  "lnmvobizd72o": {
+                    "id": "lnmvobizd72o",
+                    "kind": "line",
+                    "p1": "pmvobizd72l",
+                    "p2": "pmvobizd72n",
+                    "construction": false
+                  },
+                  "lnmvobizd72q": {
+                    "id": "lnmvobizd72q",
+                    "kind": "line",
+                    "p1": "pmvobizd72n",
+                    "p2": "pmvobizd72p",
+                    "construction": false
+                  },
+                  "lnmvobizd72r": {
+                    "id": "lnmvobizd72r",
+                    "kind": "line",
+                    "p1": "pmvobizd72p",
+                    "p2": "pmvobizd72k",
+                    "construction": false
+                  }
+                },
+                "constraints": {
+                  "dim4": {
+                    "id": "dim4",
+                    "kind": "length",
+                    "refs": [
+                      "lnmvobizd72m"
+                    ],
+                    "value": 8,
+                    "labelOffset": {
+                      "x": 0,
+                      "y": -10
+                    }
+                  },
+                  "dim5": {
+                    "id": "dim5",
+                    "kind": "length",
+                    "refs": [
+                      "lnmvobizd72o"
+                    ],
+                    "value": 8,
+                    "labelOffset": {
+                      "x": 10,
+                      "y": 0
+                    }
+                  }
+                },
+                "entityOrder": [
+                  "lnmvobizd72m",
+                  "lnmvobizd72o",
+                  "lnmvobizd72q",
+                  "lnmvobizd72r"
+                ],
+                "constraintOrder": [
+                  "dim4",
+                  "dim5"
+                ],
+                "origin": "origin_s2"
+              },
+              "s3": {
+                "id": "s3",
+                "name": "Sketch3",
+                "plane": "top",
+                "points": {
+                  "origin_s3": {
+                    "x": 0,
+                    "y": 0
+                  },
+                  "pmvobizd72s": {
+                    "x": 0,
+                    "y": -38
+                  },
+                  "pmvobizd72t": {
+                    "x": 92,
+                    "y": -38
+                  },
+                  "pmvobizd72v": {
+                    "x": 92,
+                    "y": -13
+                  },
+                  "pmvobizd72w": {
+                    "x": 117,
+                    "y": -13
+                  }
+                },
+                "scalars": {
+                  "smvobizd72x": 25
+                },
+                "entities": {
+                  "lnmvobizd72u": {
+                    "id": "lnmvobizd72u",
+                    "kind": "line",
+                    "p1": "pmvobizd72s",
+                    "p2": "pmvobizd72t",
+                    "construction": false
+                  },
+                  "armvobizd72y": {
+                    "id": "armvobizd72y",
+                    "kind": "arc",
+                    "center": "pmvobizd72v",
+                    "start": "pmvobizd72t",
+                    "end": "pmvobizd72w",
+                    "r": "smvobizd72x",
+                    "ccw": true,
+                    "construction": false
+                  }
+                },
+                "constraints": {
+                  "dim6": {
+                    "id": "dim6",
+                    "kind": "length",
+                    "refs": [
+                      "lnmvobizd72u"
+                    ],
+                    "value": 92,
+                    "labelOffset": {
+                      "x": 46,
+                      "y": -50
+                    }
+                  },
+                  "dim7": {
+                    "id": "dim7",
+                    "kind": "radius",
+                    "refs": [
+                      "armvobizd72y"
+                    ],
+                    "value": 25,
+                    "labelOffset": {
+                      "x": 112,
+                      "y": -36
+                    }
+                  }
+                },
+                "entityOrder": [
+                  "lnmvobizd72u",
+                  "armvobizd72y"
+                ],
+                "constraintOrder": [
+                  "dim6",
+                  "dim7"
+                ],
+                "origin": "origin_s3"
+              },
+              "s4": {
+                "id": "s4",
+                "name": "Sketch4",
+                "plane": "right",
+                "points": {
+                  "origin_s4": {
+                    "x": 0,
+                    "y": 0
+                  },
+                  "pmvobizd72z": {
+                    "x": -38,
+                    "y": 0
+                  }
+                },
+                "scalars": {
+                  "smvobizd730": 8
+                },
+                "entities": {
+                  "cimvobizd731": {
+                    "id": "cimvobizd731",
+                    "kind": "circle",
+                    "center": "pmvobizd72z",
+                    "r": "smvobizd730",
+                    "construction": false
+                  }
+                },
+                "constraints": {
+                  "dim8": {
+                    "id": "dim8",
+                    "kind": "diameter",
+                    "refs": [
+                      "cimvobizd731"
+                    ],
+                    "value": 16,
+                    "labelOffset": {
+                      "x": -26,
+                      "y": 12
+                    }
+                  }
+                },
+                "entityOrder": [
+                  "cimvobizd731"
+                ],
+                "constraintOrder": [
+                  "dim8"
+                ],
+                "origin": "origin_s4"
+              },
+              "s5": {
+                "id": "s5",
+                "name": "Sketch5",
+                "plane": "top",
+                "points": {
+                  "origin_s5": {
+                    "x": 0,
+                    "y": 0
+                  },
+                  "pmvobizd732": {
+                    "x": 117,
+                    "y": -13
+                  },
+                  "pmvobizd733": {
+                    "x": 125,
+                    "y": -13
+                  },
+                  "pmvobizd734": {
+                    "x": 109,
+                    "y": -13
+                  },
+                  "pmvobizd738": {
+                    "x": 100,
+                    "y": -13
+                  },
+                  "pmvobizd739": {
+                    "x": 134,
+                    "y": -13
+                  }
+                },
+                "scalars": {
+                  "smvobizd735": 8
+                },
+                "entities": {
+                  "armvobizd736": {
+                    "id": "armvobizd736",
+                    "kind": "arc",
+                    "center": "pmvobizd732",
+                    "start": "pmvobizd733",
+                    "end": "pmvobizd734",
+                    "r": "smvobizd735",
+                    "ccw": true,
+                    "construction": false
+                  },
+                  "lnmvobizd737": {
+                    "id": "lnmvobizd737",
+                    "kind": "line",
+                    "p1": "pmvobizd734",
+                    "p2": "pmvobizd733",
+                    "construction": false
+                  },
+                  "lnmvobizd73a": {
+                    "id": "lnmvobizd73a",
+                    "kind": "line",
+                    "p1": "pmvobizd738",
+                    "p2": "pmvobizd739",
+                    "construction": true
+                  }
+                },
+                "constraints": {
+                  "dim9": {
+                    "id": "dim9",
+                    "kind": "radius",
+                    "refs": [
+                      "armvobizd736"
+                    ],
+                    "value": 8,
+                    "labelOffset": {
+                      "x": 128,
+                      "y": -4
+                    }
+                  }
+                },
+                "entityOrder": [
+                  "armvobizd736",
+                  "lnmvobizd737",
+                  "lnmvobizd73a"
+                ],
+                "constraintOrder": [
+                  "dim9"
+                ],
+                "origin": "origin_s5"
+              }
+            },
+            "features": [
+              {
+                "id": "ks1",
+                "type": "sketch",
+                "name": "Sketch1",
+                "sketchId": "s1",
+                "suppressed": false
+              },
+              {
+                "id": "f1",
+                "type": "revolve",
+                "name": "Revolve1",
+                "sketchId": "s1",
+                "suppressed": false,
+                "op": "boss",
+                "axisEntityId": "lnmvobizd72j",
+                "angle": 360,
+                "reverse": false
+              },
+              {
+                "id": "ks2",
+                "type": "sketch",
+                "name": "Sketch2",
+                "sketchId": "s2",
+                "suppressed": false
+              },
+              {
+                "id": "f2",
+                "type": "extrude",
+                "name": "Cut-Extrude1",
+                "sketchId": "s2",
+                "suppressed": false,
+                "op": "cut",
+                "end": "blind",
+                "depth": 25,
+                "reverse": false
+              },
+              {
+                "id": "ks3",
+                "type": "sketch",
+                "name": "Sketch3",
+                "sketchId": "s3",
+                "suppressed": false
+              },
+              {
+                "id": "ks4",
+                "type": "sketch",
+                "name": "Sketch4",
+                "sketchId": "s4",
+                "suppressed": false
+              },
+              {
+                "id": "f3",
+                "type": "sweep",
+                "name": "Sweep1",
+                "sketchId": "s4",
+                "pathSketchId": "s3",
+                "suppressed": false,
+                "op": "boss"
+              },
+              {
+                "id": "ks5",
+                "type": "sketch",
+                "name": "Sketch5",
+                "sketchId": "s5",
+                "suppressed": false
+              },
+              {
+                "id": "f4",
+                "type": "revolve",
+                "name": "Revolve2",
+                "sketchId": "s5",
+                "suppressed": false,
+                "op": "boss",
+                "axisEntityId": "lnmvobizd73a",
+                "angle": 360,
+                "reverse": false
+              }
+            ],
+            "planes": {},
+            "variables": {},
+            "equations": [],
+            "material": {
+              "name": "AISI 304",
+              "density": 8000,
+              "color": "#c9ccd1"
+            },
+            "kind": "part"
+          },
+          "modelName": "Kruk<1>",
+          "id": "v4",
+          "name": "Drawing View4",
+          "type": "isometric",
+          "position": [
+            350,
+            235
+          ],
+          "scale": [
+            1,
+            2
+          ]
+        },
+        {
+          "id": "dvmvobjjr487",
+          "name": "Section View A-A",
+          "type": "front",
+          "position": [
+            284.3999996185303,
+            150
+          ],
+          "displayStyle": "hiddenRemoved",
+          "model": {
+            "version": 1,
+            "name": "Kruk",
+            "units": "mm",
+            "sketches": {
+              "s1": {
+                "id": "s1",
+                "name": "Sketch1",
+                "plane": "top",
+                "points": {
+                  "origin_s1": {
+                    "x": 0,
+                    "y": 0
+                  },
+                  "pmvobizd71x": {
+                    "x": 0,
+                    "y": 0
+                  },
+                  "pmvobizd71y": {
+                    "x": 13,
+                    "y": 0
+                  },
+                  "pmvobizd720": {
+                    "x": 13,
+                    "y": -2
+                  },
+                  "pmvobizd722": {
+                    "x": 11.5,
+                    "y": -4.5
+                  },
+                  "pmvobizd724": {
+                    "x": 10,
+                    "y": -8
+                  },
+                  "pmvobizd726": {
+                    "x": 10,
+                    "y": -42
+                  },
+                  "pmvobizd728": {
+                    "x": 9.5,
+                    "y": -44
+                  },
+                  "pmvobizd72a": {
+                    "x": 8,
+                    "y": -45.5
+                  },
+                  "pmvobizd72c": {
+                    "x": 5,
+                    "y": -46.5
+                  },
+                  "pmvobizd72e": {
+                    "x": 0,
+                    "y": -46.8
+                  },
+                  "pmvobizd72h": {
+                    "x": 0,
+                    "y": 5
+                  },
+                  "pmvobizd72i": {
+                    "x": 0,
+                    "y": -51.8
+                  }
+                },
+                "scalars": {},
+                "entities": {
+                  "lnmvobizd71z": {
+                    "id": "lnmvobizd71z",
+                    "kind": "line",
+                    "p1": "pmvobizd71x",
+                    "p2": "pmvobizd71y",
+                    "construction": false
+                  },
+                  "lnmvobizd721": {
+                    "id": "lnmvobizd721",
+                    "kind": "line",
+                    "p1": "pmvobizd71y",
+                    "p2": "pmvobizd720",
+                    "construction": false
+                  },
+                  "lnmvobizd723": {
+                    "id": "lnmvobizd723",
+                    "kind": "line",
+                    "p1": "pmvobizd720",
+                    "p2": "pmvobizd722",
+                    "construction": false
+                  },
+                  "lnmvobizd725": {
+                    "id": "lnmvobizd725",
+                    "kind": "line",
+                    "p1": "pmvobizd722",
+                    "p2": "pmvobizd724",
+                    "construction": false
+                  },
+                  "lnmvobizd727": {
+                    "id": "lnmvobizd727",
+                    "kind": "line",
+                    "p1": "pmvobizd724",
+                    "p2": "pmvobizd726",
+                    "construction": false
+                  },
+                  "lnmvobizd729": {
+                    "id": "lnmvobizd729",
+                    "kind": "line",
+                    "p1": "pmvobizd726",
+                    "p2": "pmvobizd728",
+                    "construction": false
+                  },
+                  "lnmvobizd72b": {
+                    "id": "lnmvobizd72b",
+                    "kind": "line",
+                    "p1": "pmvobizd728",
+                    "p2": "pmvobizd72a",
+                    "construction": false
+                  },
+                  "lnmvobizd72d": {
+                    "id": "lnmvobizd72d",
+                    "kind": "line",
+                    "p1": "pmvobizd72a",
+                    "p2": "pmvobizd72c",
+                    "construction": false
+                  },
+                  "lnmvobizd72f": {
+                    "id": "lnmvobizd72f",
+                    "kind": "line",
+                    "p1": "pmvobizd72c",
+                    "p2": "pmvobizd72e",
+                    "construction": false
+                  },
+                  "lnmvobizd72g": {
+                    "id": "lnmvobizd72g",
+                    "kind": "line",
+                    "p1": "pmvobizd72e",
+                    "p2": "pmvobizd71x",
+                    "construction": false
+                  },
+                  "lnmvobizd72j": {
+                    "id": "lnmvobizd72j",
+                    "kind": "line",
+                    "p1": "pmvobizd72h",
+                    "p2": "pmvobizd72i",
+                    "construction": true
+                  }
+                },
+                "constraints": {
+                  "dim1": {
+                    "id": "dim1",
+                    "kind": "hDistance",
+                    "refs": [
+                      "origin_s1",
+                      "pmvobizd71y"
+                    ],
+                    "value": 13,
+                    "labelOffset": {
+                      "x": 6.5,
+                      "y": 8
+                    }
+                  },
+                  "dim2": {
+                    "id": "dim2",
+                    "kind": "length",
+                    "refs": [
+                      "lnmvobizd727"
+                    ],
+                    "value": 34,
+                    "labelOffset": {
+                      "x": 18,
+                      "y": -25
+                    }
+                  },
+                  "dim3": {
+                    "id": "dim3",
+                    "kind": "vDistance",
+                    "refs": [
+                      "origin_s1",
+                      "pmvobizd72e"
+                    ],
+                    "value": 46.8,
+                    "labelOffset": {
+                      "x": -12,
+                      "y": -23
+                    }
+                  }
+                },
+                "entityOrder": [
+                  "lnmvobizd71z",
+                  "lnmvobizd721",
+                  "lnmvobizd723",
+                  "lnmvobizd725",
+                  "lnmvobizd727",
+                  "lnmvobizd729",
+                  "lnmvobizd72b",
+                  "lnmvobizd72d",
+                  "lnmvobizd72f",
+                  "lnmvobizd72g",
+                  "lnmvobizd72j"
+                ],
+                "constraintOrder": [
+                  "dim1",
+                  "dim2",
+                  "dim3"
+                ],
+                "origin": "origin_s1"
+              },
+              "s2": {
+                "id": "s2",
+                "name": "Sketch2",
+                "plane": "front",
+                "points": {
+                  "origin_s2": {
+                    "x": 0,
+                    "y": 0
+                  },
+                  "pmvobizd72k": {
+                    "x": -4,
+                    "y": -4
+                  },
+                  "pmvobizd72l": {
+                    "x": 4,
+                    "y": -4
+                  },
+                  "pmvobizd72n": {
+                    "x": 4,
+                    "y": 4
+                  },
+                  "pmvobizd72p": {
+                    "x": -4,
+                    "y": 4
+                  }
+                },
+                "scalars": {},
+                "entities": {
+                  "lnmvobizd72m": {
+                    "id": "lnmvobizd72m",
+                    "kind": "line",
+                    "p1": "pmvobizd72k",
+                    "p2": "pmvobizd72l",
+                    "construction": false
+                  },
+                  "lnmvobizd72o": {
+                    "id": "lnmvobizd72o",
+                    "kind": "line",
+                    "p1": "pmvobizd72l",
+                    "p2": "pmvobizd72n",
+                    "construction": false
+                  },
+                  "lnmvobizd72q": {
+                    "id": "lnmvobizd72q",
+                    "kind": "line",
+                    "p1": "pmvobizd72n",
+                    "p2": "pmvobizd72p",
+                    "construction": false
+                  },
+                  "lnmvobizd72r": {
+                    "id": "lnmvobizd72r",
+                    "kind": "line",
+                    "p1": "pmvobizd72p",
+                    "p2": "pmvobizd72k",
+                    "construction": false
+                  }
+                },
+                "constraints": {
+                  "dim4": {
+                    "id": "dim4",
+                    "kind": "length",
+                    "refs": [
+                      "lnmvobizd72m"
+                    ],
+                    "value": 8,
+                    "labelOffset": {
+                      "x": 0,
+                      "y": -10
+                    }
+                  },
+                  "dim5": {
+                    "id": "dim5",
+                    "kind": "length",
+                    "refs": [
+                      "lnmvobizd72o"
+                    ],
+                    "value": 8,
+                    "labelOffset": {
+                      "x": 10,
+                      "y": 0
+                    }
+                  }
+                },
+                "entityOrder": [
+                  "lnmvobizd72m",
+                  "lnmvobizd72o",
+                  "lnmvobizd72q",
+                  "lnmvobizd72r"
+                ],
+                "constraintOrder": [
+                  "dim4",
+                  "dim5"
+                ],
+                "origin": "origin_s2"
+              },
+              "s3": {
+                "id": "s3",
+                "name": "Sketch3",
+                "plane": "top",
+                "points": {
+                  "origin_s3": {
+                    "x": 0,
+                    "y": 0
+                  },
+                  "pmvobizd72s": {
+                    "x": 0,
+                    "y": -38
+                  },
+                  "pmvobizd72t": {
+                    "x": 92,
+                    "y": -38
+                  },
+                  "pmvobizd72v": {
+                    "x": 92,
+                    "y": -13
+                  },
+                  "pmvobizd72w": {
+                    "x": 117,
+                    "y": -13
+                  }
+                },
+                "scalars": {
+                  "smvobizd72x": 25
+                },
+                "entities": {
+                  "lnmvobizd72u": {
+                    "id": "lnmvobizd72u",
+                    "kind": "line",
+                    "p1": "pmvobizd72s",
+                    "p2": "pmvobizd72t",
+                    "construction": false
+                  },
+                  "armvobizd72y": {
+                    "id": "armvobizd72y",
+                    "kind": "arc",
+                    "center": "pmvobizd72v",
+                    "start": "pmvobizd72t",
+                    "end": "pmvobizd72w",
+                    "r": "smvobizd72x",
+                    "ccw": true,
+                    "construction": false
+                  }
+                },
+                "constraints": {
+                  "dim6": {
+                    "id": "dim6",
+                    "kind": "length",
+                    "refs": [
+                      "lnmvobizd72u"
+                    ],
+                    "value": 92,
+                    "labelOffset": {
+                      "x": 46,
+                      "y": -50
+                    }
+                  },
+                  "dim7": {
+                    "id": "dim7",
+                    "kind": "radius",
+                    "refs": [
+                      "armvobizd72y"
+                    ],
+                    "value": 25,
+                    "labelOffset": {
+                      "x": 112,
+                      "y": -36
+                    }
+                  }
+                },
+                "entityOrder": [
+                  "lnmvobizd72u",
+                  "armvobizd72y"
+                ],
+                "constraintOrder": [
+                  "dim6",
+                  "dim7"
+                ],
+                "origin": "origin_s3"
+              },
+              "s4": {
+                "id": "s4",
+                "name": "Sketch4",
+                "plane": "right",
+                "points": {
+                  "origin_s4": {
+                    "x": 0,
+                    "y": 0
+                  },
+                  "pmvobizd72z": {
+                    "x": -38,
+                    "y": 0
+                  }
+                },
+                "scalars": {
+                  "smvobizd730": 8
+                },
+                "entities": {
+                  "cimvobizd731": {
+                    "id": "cimvobizd731",
+                    "kind": "circle",
+                    "center": "pmvobizd72z",
+                    "r": "smvobizd730",
+                    "construction": false
+                  }
+                },
+                "constraints": {
+                  "dim8": {
+                    "id": "dim8",
+                    "kind": "diameter",
+                    "refs": [
+                      "cimvobizd731"
+                    ],
+                    "value": 16,
+                    "labelOffset": {
+                      "x": -26,
+                      "y": 12
+                    }
+                  }
+                },
+                "entityOrder": [
+                  "cimvobizd731"
+                ],
+                "constraintOrder": [
+                  "dim8"
+                ],
+                "origin": "origin_s4"
+              },
+              "s5": {
+                "id": "s5",
+                "name": "Sketch5",
+                "plane": "top",
+                "points": {
+                  "origin_s5": {
+                    "x": 0,
+                    "y": 0
+                  },
+                  "pmvobizd732": {
+                    "x": 117,
+                    "y": -13
+                  },
+                  "pmvobizd733": {
+                    "x": 125,
+                    "y": -13
+                  },
+                  "pmvobizd734": {
+                    "x": 109,
+                    "y": -13
+                  },
+                  "pmvobizd738": {
+                    "x": 100,
+                    "y": -13
+                  },
+                  "pmvobizd739": {
+                    "x": 134,
+                    "y": -13
+                  }
+                },
+                "scalars": {
+                  "smvobizd735": 8
+                },
+                "entities": {
+                  "armvobizd736": {
+                    "id": "armvobizd736",
+                    "kind": "arc",
+                    "center": "pmvobizd732",
+                    "start": "pmvobizd733",
+                    "end": "pmvobizd734",
+                    "r": "smvobizd735",
+                    "ccw": true,
+                    "construction": false
+                  },
+                  "lnmvobizd737": {
+                    "id": "lnmvobizd737",
+                    "kind": "line",
+                    "p1": "pmvobizd734",
+                    "p2": "pmvobizd733",
+                    "construction": false
+                  },
+                  "lnmvobizd73a": {
+                    "id": "lnmvobizd73a",
+                    "kind": "line",
+                    "p1": "pmvobizd738",
+                    "p2": "pmvobizd739",
+                    "construction": true
+                  }
+                },
+                "constraints": {
+                  "dim9": {
+                    "id": "dim9",
+                    "kind": "radius",
+                    "refs": [
+                      "armvobizd736"
+                    ],
+                    "value": 8,
+                    "labelOffset": {
+                      "x": 128,
+                      "y": -4
+                    }
+                  }
+                },
+                "entityOrder": [
+                  "armvobizd736",
+                  "lnmvobizd737",
+                  "lnmvobizd73a"
+                ],
+                "constraintOrder": [
+                  "dim9"
+                ],
+                "origin": "origin_s5"
+              }
+            },
+            "features": [
+              {
+                "id": "ks1",
+                "type": "sketch",
+                "name": "Sketch1",
+                "sketchId": "s1",
+                "suppressed": false
+              },
+              {
+                "id": "f1",
+                "type": "revolve",
+                "name": "Revolve1",
+                "sketchId": "s1",
+                "suppressed": false,
+                "op": "boss",
+                "axisEntityId": "lnmvobizd72j",
+                "angle": 360,
+                "reverse": false
+              },
+              {
+                "id": "ks2",
+                "type": "sketch",
+                "name": "Sketch2",
+                "sketchId": "s2",
+                "suppressed": false
+              },
+              {
+                "id": "f2",
+                "type": "extrude",
+                "name": "Cut-Extrude1",
+                "sketchId": "s2",
+                "suppressed": false,
+                "op": "cut",
+                "end": "blind",
+                "depth": 25,
+                "reverse": false
+              },
+              {
+                "id": "ks3",
+                "type": "sketch",
+                "name": "Sketch3",
+                "sketchId": "s3",
+                "suppressed": false
+              },
+              {
+                "id": "ks4",
+                "type": "sketch",
+                "name": "Sketch4",
+                "sketchId": "s4",
+                "suppressed": false
+              },
+              {
+                "id": "f3",
+                "type": "sweep",
+                "name": "Sweep1",
+                "sketchId": "s4",
+                "pathSketchId": "s3",
+                "suppressed": false,
+                "op": "boss"
+              },
+              {
+                "id": "ks5",
+                "type": "sketch",
+                "name": "Sketch5",
+                "sketchId": "s5",
+                "suppressed": false
+              },
+              {
+                "id": "f4",
+                "type": "revolve",
+                "name": "Revolve2",
+                "sketchId": "s5",
+                "suppressed": false,
+                "op": "boss",
+                "axisEntityId": "lnmvobizd73a",
+                "angle": 360,
+                "reverse": false
+              }
+            ],
+            "planes": {},
+            "variables": {},
+            "equations": [],
+            "material": {
+              "name": "AISI 304",
+              "density": 8000,
+              "color": "#c9ccd1"
+            },
+            "kind": "part"
+          },
+          "modelName": "Kruk<1>",
+          "section": {
+            "parentId": "v1",
+            "parentType": "front",
+            "axis": "v",
+            "at": -3.9161012967284887e-16,
+            "flip": true,
+            "label": "A"
+          }
+        },
+        {
+          "id": "dvmvobjjr588",
+          "name": "Detail View B (2 : 1)",
+          "type": "front",
+          "position": [
+            365,
+            140
+          ],
+          "scale": [
+            2,
+            1
+          ],
+          "displayStyle": "hiddenRemoved",
+          "model": {
+            "version": 1,
+            "name": "Kruk",
+            "units": "mm",
+            "sketches": {
+              "s1": {
+                "id": "s1",
+                "name": "Sketch1",
+                "plane": "top",
+                "points": {
+                  "origin_s1": {
+                    "x": 0,
+                    "y": 0
+                  },
+                  "pmvobizd71x": {
+                    "x": 0,
+                    "y": 0
+                  },
+                  "pmvobizd71y": {
+                    "x": 13,
+                    "y": 0
+                  },
+                  "pmvobizd720": {
+                    "x": 13,
+                    "y": -2
+                  },
+                  "pmvobizd722": {
+                    "x": 11.5,
+                    "y": -4.5
+                  },
+                  "pmvobizd724": {
+                    "x": 10,
+                    "y": -8
+                  },
+                  "pmvobizd726": {
+                    "x": 10,
+                    "y": -42
+                  },
+                  "pmvobizd728": {
+                    "x": 9.5,
+                    "y": -44
+                  },
+                  "pmvobizd72a": {
+                    "x": 8,
+                    "y": -45.5
+                  },
+                  "pmvobizd72c": {
+                    "x": 5,
+                    "y": -46.5
+                  },
+                  "pmvobizd72e": {
+                    "x": 0,
+                    "y": -46.8
+                  },
+                  "pmvobizd72h": {
+                    "x": 0,
+                    "y": 5
+                  },
+                  "pmvobizd72i": {
+                    "x": 0,
+                    "y": -51.8
+                  }
+                },
+                "scalars": {},
+                "entities": {
+                  "lnmvobizd71z": {
+                    "id": "lnmvobizd71z",
+                    "kind": "line",
+                    "p1": "pmvobizd71x",
+                    "p2": "pmvobizd71y",
+                    "construction": false
+                  },
+                  "lnmvobizd721": {
+                    "id": "lnmvobizd721",
+                    "kind": "line",
+                    "p1": "pmvobizd71y",
+                    "p2": "pmvobizd720",
+                    "construction": false
+                  },
+                  "lnmvobizd723": {
+                    "id": "lnmvobizd723",
+                    "kind": "line",
+                    "p1": "pmvobizd720",
+                    "p2": "pmvobizd722",
+                    "construction": false
+                  },
+                  "lnmvobizd725": {
+                    "id": "lnmvobizd725",
+                    "kind": "line",
+                    "p1": "pmvobizd722",
+                    "p2": "pmvobizd724",
+                    "construction": false
+                  },
+                  "lnmvobizd727": {
+                    "id": "lnmvobizd727",
+                    "kind": "line",
+                    "p1": "pmvobizd724",
+                    "p2": "pmvobizd726",
+                    "construction": false
+                  },
+                  "lnmvobizd729": {
+                    "id": "lnmvobizd729",
+                    "kind": "line",
+                    "p1": "pmvobizd726",
+                    "p2": "pmvobizd728",
+                    "construction": false
+                  },
+                  "lnmvobizd72b": {
+                    "id": "lnmvobizd72b",
+                    "kind": "line",
+                    "p1": "pmvobizd728",
+                    "p2": "pmvobizd72a",
+                    "construction": false
+                  },
+                  "lnmvobizd72d": {
+                    "id": "lnmvobizd72d",
+                    "kind": "line",
+                    "p1": "pmvobizd72a",
+                    "p2": "pmvobizd72c",
+                    "construction": false
+                  },
+                  "lnmvobizd72f": {
+                    "id": "lnmvobizd72f",
+                    "kind": "line",
+                    "p1": "pmvobizd72c",
+                    "p2": "pmvobizd72e",
+                    "construction": false
+                  },
+                  "lnmvobizd72g": {
+                    "id": "lnmvobizd72g",
+                    "kind": "line",
+                    "p1": "pmvobizd72e",
+                    "p2": "pmvobizd71x",
+                    "construction": false
+                  },
+                  "lnmvobizd72j": {
+                    "id": "lnmvobizd72j",
+                    "kind": "line",
+                    "p1": "pmvobizd72h",
+                    "p2": "pmvobizd72i",
+                    "construction": true
+                  }
+                },
+                "constraints": {
+                  "dim1": {
+                    "id": "dim1",
+                    "kind": "hDistance",
+                    "refs": [
+                      "origin_s1",
+                      "pmvobizd71y"
+                    ],
+                    "value": 13,
+                    "labelOffset": {
+                      "x": 6.5,
+                      "y": 8
+                    }
+                  },
+                  "dim2": {
+                    "id": "dim2",
+                    "kind": "length",
+                    "refs": [
+                      "lnmvobizd727"
+                    ],
+                    "value": 34,
+                    "labelOffset": {
+                      "x": 18,
+                      "y": -25
+                    }
+                  },
+                  "dim3": {
+                    "id": "dim3",
+                    "kind": "vDistance",
+                    "refs": [
+                      "origin_s1",
+                      "pmvobizd72e"
+                    ],
+                    "value": 46.8,
+                    "labelOffset": {
+                      "x": -12,
+                      "y": -23
+                    }
+                  }
+                },
+                "entityOrder": [
+                  "lnmvobizd71z",
+                  "lnmvobizd721",
+                  "lnmvobizd723",
+                  "lnmvobizd725",
+                  "lnmvobizd727",
+                  "lnmvobizd729",
+                  "lnmvobizd72b",
+                  "lnmvobizd72d",
+                  "lnmvobizd72f",
+                  "lnmvobizd72g",
+                  "lnmvobizd72j"
+                ],
+                "constraintOrder": [
+                  "dim1",
+                  "dim2",
+                  "dim3"
+                ],
+                "origin": "origin_s1"
+              },
+              "s2": {
+                "id": "s2",
+                "name": "Sketch2",
+                "plane": "front",
+                "points": {
+                  "origin_s2": {
+                    "x": 0,
+                    "y": 0
+                  },
+                  "pmvobizd72k": {
+                    "x": -4,
+                    "y": -4
+                  },
+                  "pmvobizd72l": {
+                    "x": 4,
+                    "y": -4
+                  },
+                  "pmvobizd72n": {
+                    "x": 4,
+                    "y": 4
+                  },
+                  "pmvobizd72p": {
+                    "x": -4,
+                    "y": 4
+                  }
+                },
+                "scalars": {},
+                "entities": {
+                  "lnmvobizd72m": {
+                    "id": "lnmvobizd72m",
+                    "kind": "line",
+                    "p1": "pmvobizd72k",
+                    "p2": "pmvobizd72l",
+                    "construction": false
+                  },
+                  "lnmvobizd72o": {
+                    "id": "lnmvobizd72o",
+                    "kind": "line",
+                    "p1": "pmvobizd72l",
+                    "p2": "pmvobizd72n",
+                    "construction": false
+                  },
+                  "lnmvobizd72q": {
+                    "id": "lnmvobizd72q",
+                    "kind": "line",
+                    "p1": "pmvobizd72n",
+                    "p2": "pmvobizd72p",
+                    "construction": false
+                  },
+                  "lnmvobizd72r": {
+                    "id": "lnmvobizd72r",
+                    "kind": "line",
+                    "p1": "pmvobizd72p",
+                    "p2": "pmvobizd72k",
+                    "construction": false
+                  }
+                },
+                "constraints": {
+                  "dim4": {
+                    "id": "dim4",
+                    "kind": "length",
+                    "refs": [
+                      "lnmvobizd72m"
+                    ],
+                    "value": 8,
+                    "labelOffset": {
+                      "x": 0,
+                      "y": -10
+                    }
+                  },
+                  "dim5": {
+                    "id": "dim5",
+                    "kind": "length",
+                    "refs": [
+                      "lnmvobizd72o"
+                    ],
+                    "value": 8,
+                    "labelOffset": {
+                      "x": 10,
+                      "y": 0
+                    }
+                  }
+                },
+                "entityOrder": [
+                  "lnmvobizd72m",
+                  "lnmvobizd72o",
+                  "lnmvobizd72q",
+                  "lnmvobizd72r"
+                ],
+                "constraintOrder": [
+                  "dim4",
+                  "dim5"
+                ],
+                "origin": "origin_s2"
+              },
+              "s3": {
+                "id": "s3",
+                "name": "Sketch3",
+                "plane": "top",
+                "points": {
+                  "origin_s3": {
+                    "x": 0,
+                    "y": 0
+                  },
+                  "pmvobizd72s": {
+                    "x": 0,
+                    "y": -38
+                  },
+                  "pmvobizd72t": {
+                    "x": 92,
+                    "y": -38
+                  },
+                  "pmvobizd72v": {
+                    "x": 92,
+                    "y": -13
+                  },
+                  "pmvobizd72w": {
+                    "x": 117,
+                    "y": -13
+                  }
+                },
+                "scalars": {
+                  "smvobizd72x": 25
+                },
+                "entities": {
+                  "lnmvobizd72u": {
+                    "id": "lnmvobizd72u",
+                    "kind": "line",
+                    "p1": "pmvobizd72s",
+                    "p2": "pmvobizd72t",
+                    "construction": false
+                  },
+                  "armvobizd72y": {
+                    "id": "armvobizd72y",
+                    "kind": "arc",
+                    "center": "pmvobizd72v",
+                    "start": "pmvobizd72t",
+                    "end": "pmvobizd72w",
+                    "r": "smvobizd72x",
+                    "ccw": true,
+                    "construction": false
+                  }
+                },
+                "constraints": {
+                  "dim6": {
+                    "id": "dim6",
+                    "kind": "length",
+                    "refs": [
+                      "lnmvobizd72u"
+                    ],
+                    "value": 92,
+                    "labelOffset": {
+                      "x": 46,
+                      "y": -50
+                    }
+                  },
+                  "dim7": {
+                    "id": "dim7",
+                    "kind": "radius",
+                    "refs": [
+                      "armvobizd72y"
+                    ],
+                    "value": 25,
+                    "labelOffset": {
+                      "x": 112,
+                      "y": -36
+                    }
+                  }
+                },
+                "entityOrder": [
+                  "lnmvobizd72u",
+                  "armvobizd72y"
+                ],
+                "constraintOrder": [
+                  "dim6",
+                  "dim7"
+                ],
+                "origin": "origin_s3"
+              },
+              "s4": {
+                "id": "s4",
+                "name": "Sketch4",
+                "plane": "right",
+                "points": {
+                  "origin_s4": {
+                    "x": 0,
+                    "y": 0
+                  },
+                  "pmvobizd72z": {
+                    "x": -38,
+                    "y": 0
+                  }
+                },
+                "scalars": {
+                  "smvobizd730": 8
+                },
+                "entities": {
+                  "cimvobizd731": {
+                    "id": "cimvobizd731",
+                    "kind": "circle",
+                    "center": "pmvobizd72z",
+                    "r": "smvobizd730",
+                    "construction": false
+                  }
+                },
+                "constraints": {
+                  "dim8": {
+                    "id": "dim8",
+                    "kind": "diameter",
+                    "refs": [
+                      "cimvobizd731"
+                    ],
+                    "value": 16,
+                    "labelOffset": {
+                      "x": -26,
+                      "y": 12
+                    }
+                  }
+                },
+                "entityOrder": [
+                  "cimvobizd731"
+                ],
+                "constraintOrder": [
+                  "dim8"
+                ],
+                "origin": "origin_s4"
+              },
+              "s5": {
+                "id": "s5",
+                "name": "Sketch5",
+                "plane": "top",
+                "points": {
+                  "origin_s5": {
+                    "x": 0,
+                    "y": 0
+                  },
+                  "pmvobizd732": {
+                    "x": 117,
+                    "y": -13
+                  },
+                  "pmvobizd733": {
+                    "x": 125,
+                    "y": -13
+                  },
+                  "pmvobizd734": {
+                    "x": 109,
+                    "y": -13
+                  },
+                  "pmvobizd738": {
+                    "x": 100,
+                    "y": -13
+                  },
+                  "pmvobizd739": {
+                    "x": 134,
+                    "y": -13
+                  }
+                },
+                "scalars": {
+                  "smvobizd735": 8
+                },
+                "entities": {
+                  "armvobizd736": {
+                    "id": "armvobizd736",
+                    "kind": "arc",
+                    "center": "pmvobizd732",
+                    "start": "pmvobizd733",
+                    "end": "pmvobizd734",
+                    "r": "smvobizd735",
+                    "ccw": true,
+                    "construction": false
+                  },
+                  "lnmvobizd737": {
+                    "id": "lnmvobizd737",
+                    "kind": "line",
+                    "p1": "pmvobizd734",
+                    "p2": "pmvobizd733",
+                    "construction": false
+                  },
+                  "lnmvobizd73a": {
+                    "id": "lnmvobizd73a",
+                    "kind": "line",
+                    "p1": "pmvobizd738",
+                    "p2": "pmvobizd739",
+                    "construction": true
+                  }
+                },
+                "constraints": {
+                  "dim9": {
+                    "id": "dim9",
+                    "kind": "radius",
+                    "refs": [
+                      "armvobizd736"
+                    ],
+                    "value": 8,
+                    "labelOffset": {
+                      "x": 128,
+                      "y": -4
+                    }
+                  }
+                },
+                "entityOrder": [
+                  "armvobizd736",
+                  "lnmvobizd737",
+                  "lnmvobizd73a"
+                ],
+                "constraintOrder": [
+                  "dim9"
+                ],
+                "origin": "origin_s5"
+              }
+            },
+            "features": [
+              {
+                "id": "ks1",
+                "type": "sketch",
+                "name": "Sketch1",
+                "sketchId": "s1",
+                "suppressed": false
+              },
+              {
+                "id": "f1",
+                "type": "revolve",
+                "name": "Revolve1",
+                "sketchId": "s1",
+                "suppressed": false,
+                "op": "boss",
+                "axisEntityId": "lnmvobizd72j",
+                "angle": 360,
+                "reverse": false
+              },
+              {
+                "id": "ks2",
+                "type": "sketch",
+                "name": "Sketch2",
+                "sketchId": "s2",
+                "suppressed": false
+              },
+              {
+                "id": "f2",
+                "type": "extrude",
+                "name": "Cut-Extrude1",
+                "sketchId": "s2",
+                "suppressed": false,
+                "op": "cut",
+                "end": "blind",
+                "depth": 25,
+                "reverse": false
+              },
+              {
+                "id": "ks3",
+                "type": "sketch",
+                "name": "Sketch3",
+                "sketchId": "s3",
+                "suppressed": false
+              },
+              {
+                "id": "ks4",
+                "type": "sketch",
+                "name": "Sketch4",
+                "sketchId": "s4",
+                "suppressed": false
+              },
+              {
+                "id": "f3",
+                "type": "sweep",
+                "name": "Sweep1",
+                "sketchId": "s4",
+                "pathSketchId": "s3",
+                "suppressed": false,
+                "op": "boss"
+              },
+              {
+                "id": "ks5",
+                "type": "sketch",
+                "name": "Sketch5",
+                "sketchId": "s5",
+                "suppressed": false
+              },
+              {
+                "id": "f4",
+                "type": "revolve",
+                "name": "Revolve2",
+                "sketchId": "s5",
+                "suppressed": false,
+                "op": "boss",
+                "axisEntityId": "lnmvobizd73a",
+                "angle": 360,
+                "reverse": false
+              }
+            ],
+            "planes": {},
+            "variables": {},
+            "equations": [],
+            "material": {
+              "name": "AISI 304",
+              "density": 8000,
+              "color": "#c9ccd1"
+            },
+            "kind": "part"
+          },
+          "modelName": "Kruk<1>",
+          "detail": {
+            "parentId": "v1",
+            "parentType": "front",
+            "center": [
+              -3.9161012967284887e-16,
+              2.2979899970385924e-16
+            ],
+            "radius": 17.000000131242743,
+            "label": "B",
+            "outline": "none",
+            "pinned": true
+          }
+        }
+      ],
+      "dimensions": [
+        {
+          "id": "d1",
+          "viewId": "v1",
+          "kind": "linear",
+          "a": [
+            -13,
+            -13
+          ],
+          "b": [
+            125,
+            -13
+          ],
+          "label": [
+            56,
+            -25
+          ],
+          "value": 138,
+          "orientation": "h"
+        },
+        {
+          "id": "d2",
+          "viewId": "v2",
+          "kind": "linear",
+          "a": [
+            -13,
+            -46.79999923706055
+          ],
+          "b": [
+            -13,
+            0
+          ],
+          "label": [
+            -25,
+            -23.399999618530273
+          ],
+          "value": 46.79999923706055,
+          "orientation": "v"
+        },
+        {
+          "id": "d3",
+          "viewId": "v1",
+          "kind": "diameter",
+          "a": [
+            -3.9161012967284887e-16,
+            2.2979899970385924e-16
+          ],
+          "b": [
+            13.000000131242745,
+            2.2979899970385924e-16
+          ],
+          "label": [
+            -21.000000131242743,
+            23.000000131242743
+          ],
+          "value": 26.00000026248549
+        }
+      ],
+      "notes": [
+        {
+          "id": "n1",
+          "text": "MATERIAAL: AISI 304 (RVS), GEBORSTELD",
+          "position": [
+            20,
+            40
+          ]
+        },
+        {
+          "id": "n2",
+          "text": "VIERKANT GAT 8 x 8, DIEPTE 25",
+          "position": [
+            20,
+            33
+          ]
+        }
+      ],
+      "centerMarks": [
+        {
+          "id": "cm1",
+          "viewId": "v1",
+          "c": [
+            -3.9161012967284887e-16,
+            2.2979899970385924e-16
+          ],
+          "r": 13.000000131242745
+        }
+      ]
+    }
+  ]
+}

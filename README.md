@@ -44,7 +44,21 @@ Status per fase:
 8. Sheet metal (Base Flange/Tab, Edge Flange, Flatten met K-factor) — **basis gereed**; Hem/Jog/Miter/Unfold gepland
 7. Massa-eigenschappen en meten — **gereed** (Mass Properties, Measure); materialen en rendering gepland
 
-## Status 0.5.11 (in voorbereiding, 2026-11-02)
+## Status 0.5.12 (2026-11-04)
+
+QA-rapport 0.5.11 (5/10 na de teamronde, 3 Kritiek) verwerkt; per bevinding in `docs/29-qa-0.5.11.md`.
+- **Kritiek opgelost:** F177 (fillet op een gesplitste rand na een maatwijziging), F175 (ellipsen en splines exact,
+  wrap-patch eerlijk "Faceted"), F176 (commit in elke build en log; Windows-jobs in de CI).
+- **Kruiscontrole op vorm** tussen de kernels (0,1 mm) naast het volume; ze vond en hielp negen kernelfouten oplossen.
+- Exact in B-rep: plastics-features, loft met ≥ 3 profielen; naamgeving T4–T7; plaatwerk en frames tegen de formules.
+- Nieuw: Design Tables, Instant2D (Drag Dimensions), vergrootglas, 3D-schetsmaten, sleephandvatten voor fillet/chamfer/
+  revolve, normdelen (ISO 4762/4032/7089) met Smart Fasteners, interactieve extra vensters, 148 werkende Options.
+- De strikte QA-tests in `src/qa/`: qaStrict.test.ts (8), qaBrep.test.ts (34), qaCrossCheck.test.ts (12),
+  qaNaming.test.ts (12), qaTeam.test.ts (5), qaMismatch.test.ts (1); `tools/doc-counts.cjs` bewaakt die getallen.
+
+Welke platforms getest zijn: zie "Testresultaten" in `docs/29-qa-0.5.11.md` (platform, commit en ruw log per pass).
+
+## Status 0.5.11 (2026-11-02)
 
 Deze release verwerkt het QA-rapport over 0.5.10 (`qa-rapporten/QA-rapport-0.5.10.md`; verslag in
 `docs/28-qa-0.5.10.md`). Wat er sinds 0.5.4 bijkwam: zichtbaar resultaat van de plastics-features terwijl het paneel

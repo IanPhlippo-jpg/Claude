@@ -55,7 +55,7 @@ export interface DesktopApi {
   /** tell the shell whether the document has unsaved changes (closing then asks first) */
   setDirty?(value: boolean): void;
   openFile(filters: { name: string; extensions: string[] }[]): Promise<DesktopFile | null>;
-  saveFile(opts: { defaultPath: string; filters: { name: string; extensions: string[] }[]; data: ArrayBuffer; handle?: string }): Promise<DesktopSaveResult | null>;
+  saveFile(opts: { defaultPath: string; filters: { name: string; extensions: string[] }[]; data: ArrayBuffer; handle?: string; /** Options ▸ Backup/Recover */ backup?: { copies: number; removeDays: number } }): Promise<DesktopSaveResult | null>;
   saveFileAs(opts: { defaultPath: string; filters: { name: string; extensions: string[] }[]; data: ArrayBuffer }): Promise<DesktopSaveResult | null>;
   /**
    * Auto-Recover (Options ▸ Backup/Recover): copies of the open documents in the auto-recover folder. The shell decides

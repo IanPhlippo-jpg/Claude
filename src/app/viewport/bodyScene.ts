@@ -14,7 +14,7 @@ import { silhouette, smoothEdges, type SmoothEdges } from '../../core/features/s
 import type { Body } from '../../core/features/rebuild';
 import type { DisplayStyle } from '../store';
 import { displayEdgeSets, featureEdgeSets, featureEdges, smoothNormals, type TangentMode } from '../../core/features/edges';
-import { getPref } from '../prefs';
+import { hiddenEdgesDashed, tangentEdgeMode } from '../prefsEffects';
 import type { BodyEdge } from '../../core/features/edgesets';
 
 export interface BodySceneInput {
@@ -175,6 +175,8 @@ export class BodyScene {
     this.lastBodies = null;
     this.lastGhost = null;
     this.lastDecals = undefined;
+    for (const m of this.retiredFloorMats) m.dispose();
+    this.retiredFloorMats = [];
     this.floor.geometry.dispose();
     for (const t of this.textures.values()) t.dispose();
     this.textures.clear();
@@ -225,15 +227,23 @@ export class BodyScene {
   private lastFloorKey = '';
   /** Floor reflections: the model mirrored in the floor, faint */
   private reflectGroup = new THREE.Group();
+  /** the floor materials of the call before, disposed one call later (placeFloor) */
+  private retiredFloorMats: THREE.Material[] = [];
   private placeFloor(bodies: Body[], on: boolean, opts: { reflections?: boolean; align?: 'bottom' | 'top'; offset?: number } = {}): void {
     this.floor.visible = false;
     this.headlight.castShadow = on;
+    // Disposing a material frees its shader program once no other material uses it, and the new floor's materials
+    // would compile the very same programs again: with software GL (a computer without graphics driver) that took
+    // seconds after every rebuild. So the replaced materials go one call later, when the newer ones (drawn since) hold
+    // the programs.
+    for (const m of this.retiredFloorMats) m.dispose();
+    this.retiredFloorMats = [];
     for (const o of [...this.reflectGroup.children]) {
       this.reflectGroup.remove(o);
       // the reflection shares the body's geometry; only its cloned material is its own (the shadow owns its quad)
       if (o.name === 'floor-shadow') (o as THREE.Mesh).geometry.dispose();
       const m = (o as THREE.Mesh).material as THREE.Material;
-      if (m && m !== this.faceMat && m !== this.edgeMat && m !== depthPrepass) m.dispose();
+      if (m && m !== this.faceMat && m !== this.edgeMat && m !== depthPrepass) this.retiredFloorMats.push(m);
     }
     if (!this.reflectGroup.parent) this.group.add(this.reflectGroup);
     this.reflectGroup.userData.noAO = this.reflectGroup.userData.afterAO = true;
@@ -332,7 +342,8 @@ export class BodyScene {
     this.entries.clear();
     for (const b of bodies) {
       // the worker's display when it made one (QA 0.5.11 F46), else worked out here
-      const g = b.display?.geometry ?? smoothNormals(b.geometry, 30);
+      const display = b.display?.of === b.geometry ? b.display : undefined;
+      const g = display?.geometry ?? smoothNormals(b.geometry, 30);
       const triToFace: string[] = [];
       for (const f of b.faces) for (const t of f.triangles) triToFace[t] = f.id;
       let faceMat: THREE.Material = this.faceMat;
@@ -381,8 +392,8 @@ export class BodyScene {
       mesh.castShadow = look.shadows;
       mesh.visible = style !== 'wireframe';
       mesh.name = b.id;
-      const tangentMode: TangentMode = ({ 'As visible': 'visible', 'As phantom': 'phantom', Removed: 'removed' } as Record<string, TangentMode>)[String(getPref('display.tangentEdges'))] ?? 'visible';
-      const sets = b.display ? displayEdgeSets(b.display, tangentMode) : featureEdgeSets(g, 20, tangentMode);
+      const tangentMode: TangentMode = tangentEdgeMode();
+      const sets = display ? displayEdgeSets(display, tangentMode) : featureEdgeSets(g, 20, tangentMode);
       // imprinted edges (Split Line) lie between coplanar faces: not creases, drawn from the body's edge list
       const imprint = (b.edges ?? []).filter((e) => e.segments.length && e.segments.every((sg) => sg.n1.dot(sg.n2) > 0.9999));
       if (imprint.length) {
@@ -411,7 +422,7 @@ export class BodyScene {
       const extra: THREE.Object3D[] = [];
       if (style === 'hiddenVisible' || style === 'wireframe') {
         // Hidden Lines Visible: hidden parts solid or dashed (Display option), by design
-        const dashed = getPref('display.hiddenEdges') === 'Dashed' && style === 'hiddenVisible';
+        const dashed = hiddenEdgesDashed() && style === 'hiddenVisible';
         edges.material = new THREE.LineBasicMaterial({ color: 0x1a1a1a });
         const hiddenMat = dashed ? new THREE.LineDashedMaterial({ color: 0x5a5a5a, dashSize: 2, gapSize: 1.5, depthFunc: THREE.GreaterDepth, depthWrite: false }) : new THREE.LineBasicMaterial({ color: style === 'wireframe' ? 0x1a1a1a : 0x6a6a6a, depthFunc: THREE.GreaterDepth, depthWrite: false });
         const hidden = new THREE.LineSegments(sets.edges, hiddenMat);

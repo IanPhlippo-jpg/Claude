@@ -7,6 +7,9 @@ import type { Document, MateType } from '../../core/document/types';
 import { configurations } from '../../core/document/configurations';
 import { openFileDialog } from '../MenuBar';
 import { getPref, loadPrefs, savePrefs } from '../prefs';
+import { MATE_OPTION_KEYS } from '../prefsEffects';
+/** a box of the Mate Options is also the document setting (Document Properties ▸ Mates) for the next mate */
+const keepMateOpt = (k: keyof typeof MATE_OPTION_KEYS, v: boolean) => useStore.getState().setPrefs({ ...loadPrefs(), [MATE_OPTION_KEYS[k]]: v });
 
 /** Property Panel header (same look as the feature Property Panels). */
 function Header({ title, icon, onOk, onCancel, extra }: { title: string; icon: React.ReactNode; onOk?: () => void; onCancel: () => void; extra?: React.ReactNode }) {
@@ -190,9 +193,9 @@ export function MatePM() {
       </Section>
       <Section title="Options">
         <label className="k-check"><input type="checkbox" data-testid="mate-newfolder" checked={st.mateOpts.newFolder} onChange={(e) => useStore.setState({ mateOpts: { ...st.mateOpts, newFolder: e.target.checked } })} /> Add to new folder</label>
-        <label className="k-check"><input type="checkbox" data-testid="mate-popup-opt" checked={st.mateOpts.popup} onChange={(e) => useStore.setState({ mateOpts: { ...st.mateOpts, popup: e.target.checked } })} /> Show popup dialog</label>
-        <label className="k-check"><input type="checkbox" data-testid="mate-preview-opt" checked={st.mateOpts.preview} onChange={(e) => { useStore.setState({ mateOpts: { ...st.mateOpts, preview: e.target.checked } }); st.updateMateDraft({}); }} /> Show preview</label>
-        <label className="k-check"><input type="checkbox" data-testid="mate-positiononly" checked={st.mateOpts.positionOnly} onChange={(e) => useStore.setState({ mateOpts: { ...st.mateOpts, positionOnly: e.target.checked } })} /> Use for positioning only</label>
+        <label className="k-check"><input type="checkbox" data-testid="mate-popup-opt" checked={st.mateOpts.popup} onChange={(e) => { useStore.setState({ mateOpts: { ...st.mateOpts, popup: e.target.checked } }); keepMateOpt('popup', e.target.checked); }} /> Show popup dialog</label>
+        <label className="k-check"><input type="checkbox" data-testid="mate-preview-opt" checked={st.mateOpts.preview} onChange={(e) => { useStore.setState({ mateOpts: { ...st.mateOpts, preview: e.target.checked } }); keepMateOpt('preview', e.target.checked); st.updateMateDraft({}); }} /> Show preview</label>
+        <label className="k-check"><input type="checkbox" data-testid="mate-positiononly" checked={st.mateOpts.positionOnly} onChange={(e) => { useStore.setState({ mateOpts: { ...st.mateOpts, positionOnly: e.target.checked } }); keepMateOpt('positionOnly', e.target.checked); }} /> Use for positioning only</label>
         <label className="k-check"><input type="checkbox" data-testid="mate-transparent" checked={firstTransparent} onChange={(e) => { setFirstTransparent(e.target.checked); savePrefs({ ...loadPrefs(), 'assembly.mateFirstTransparent': e.target.checked }); useStore.setState({ mateEdit: st.mateEdit ? { ...st.mateEdit } : null }); }} /> Make first selection transparent</label>
       </Section>
     </div>

@@ -6,6 +6,7 @@ import { featureDependents } from '../core/features/dependents';
 import { exportMesh, type MeshExportOptions } from '../core/document/export3d';
 import { desktop } from './desktop';
 import { getPref } from './prefs';
+import { exportDefaults, exportPrefs } from './prefsEffects';
 
 /** Feature Properties: name, description, suppressed, the dates — as the intended dialog */
 export function FeaturePropertiesDialog() {
@@ -80,14 +81,15 @@ export function ParentChildDialog() {
 export function ExportOptionsDialog() {
   const st = useStore(useShallow((s) => ({ exportFormat: s.exportFormat, doc: s.doc, rebuild: s.rebuild, setPrefs: s.setPrefs, prefs: s.prefs, pushMessage: s.pushMessage, setDialog: s.setDialog, setAsk: s.setAsk })));
   const fmt = st.exportFormat;
-  const [ascii, setAscii] = useState(getPref<boolean>('export.ascii') === true);
-  const [unit, setUnit] = useState<MeshExportOptions['unit']>((getPref<string>('export.unit') as MeshExportOptions['unit']) || st.doc.units);
-  const [resolution, setResolution] = useState<'coarse' | 'fine' | 'custom'>((getPref<string>('export.resolution') as 'fine') || 'fine');
+  // the page starts from System Options ▸ Export and writes the choices back there
+  const [ascii, setAscii] = useState(() => exportDefaults().ascii);
+  const [unit, setUnit] = useState<MeshExportOptions['unit']>(() => exportDefaults().unit);
+  const [resolution, setResolution] = useState<'coarse' | 'fine' | 'custom'>(() => exportDefaults().resolution);
   const [deviation, setDeviation] = useState(Number(getPref('export.deviation')) || 0.02);
   const [angle, setAngle] = useState(Number(getPref('export.angle')) || 10);
-  const [showInfo, setShowInfo] = useState(getPref<boolean>('export.showInfo') !== false);
+  const [showInfo, setShowInfo] = useState(() => exportDefaults().showInfo);
   const [positive, setPositive] = useState(getPref<boolean>('export.keepPosition') !== true);
-  const [single, setSingle] = useState(getPref<boolean>('export.singleFile') !== false);
+  const [single, setSingle] = useState(() => exportDefaults().single);
   const bodies = st.rebuild.bodies.map((b, i) => ({ geometry: b.geometry, name: `Body${i + 1}` }));
   // STEP (QA F51): every body becomes a B-rep solid in OpenCascade (worker), planar faces merged
   const runStep = () => {
@@ -127,7 +129,7 @@ export function ExportOptionsDialog() {
       .catch((err: Error) => st.pushMessage(`Cannot write STEP: ${err.message}`, 'error'));
   };
   const run = () => {
-    st.setPrefs({ ...st.prefs, 'export.ascii': ascii, 'export.unit': unit ?? 'mm', 'export.resolution': resolution, 'export.deviation': deviation, 'export.angle': angle, 'export.showInfo': showInfo, 'export.keepPosition': !positive, 'export.singleFile': single });
+    st.setPrefs({ ...st.prefs, ...exportPrefs({ ascii, unit: unit ?? 'mm', resolution, showInfo }), 'export.deviation': deviation, 'export.angle': angle, 'export.keepPosition': !positive, 'export.singleFile': single });
     if (!bodies.length) return st.pushMessage('There is no solid body to export; create one first (Extruded Boss/Base).', 'warn');
     if (fmt === 'step') return runStep();
     const r = exportMesh(bodies, st.doc.name, { format: fmt, ascii, unit, keepPosition: !positive, singleFile: single });

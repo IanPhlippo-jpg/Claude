@@ -1,4 +1,4 @@
-import { getPref } from '../prefs';
+import { orbitSpeed, viewTransitionMs, zoomFitOnStandardView } from '../prefsEffects';
 import * as THREE from 'three';
 import type { Sketch } from '../../core/sketch/types';
 import type { PlaneDef } from '../../core/document/types';
@@ -264,9 +264,11 @@ export class CadCamera {
 
   orbit(dxPx: number, dyPx: number): void {
     if (this.viewName) this.setViewName('');
-    const yaw = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), -dxPx * 0.008);
+    // System Options ▸ View ▸ Mouse speed
+    const k = 0.008 * orbitSpeed();
+    const yaw = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), -dxPx * k);
     const right = new THREE.Vector3(1, 0, 0).applyQuaternion(this.rotation);
-    const pitch = new THREE.Quaternion().setFromAxisAngle(right, -dyPx * 0.008);
+    const pitch = new THREE.Quaternion().setFromAxisAngle(right, -dyPx * k);
     this.rotation.premultiply(pitch).premultiply(yaw).normalize();
     this.update();
   }
@@ -291,8 +293,15 @@ export class CadCamera {
   }
 
   animateTo(q: THREE.Quaternion, target: THREE.Vector3, scale: number, dur = 260): void {
-    this.anim = { t0: performance.now(), dur, q0: this.rotation.clone(), q1: q.clone().normalize(), c0: this.target.clone(), c1: target.clone(), s0: this.scale, s1: scale };
+    // System Options ▸ View ▸ Transitions ▸ View transition (Off: the view changes at once)
+    const ms = viewTransitionMs(dur);
+    this.anim = { t0: performance.now() - (ms > 0 ? 0 : 1), dur: Math.max(ms, 1e-3), q0: this.rotation.clone(), q1: q.clone().normalize(), c0: this.target.clone(), c1: target.clone(), s0: this.scale, s1: scale };
     this.tick();
+  }
+
+  /** a view transition is still running (it moves on with each drawn frame) */
+  get animating(): boolean {
+    return !!this.anim;
   }
 
   private tick = () => {
@@ -315,7 +324,7 @@ export class CadCamera {
     this.pushHistory();
     this.setViewName(view);
     this.animateTo(VIEW_QUATERNIONS[view], this.target, this.scale);
-    if (getPref('view.zoomFitStandard')) this.fitRequest?.();
+    if (zoomFitOnStandardView()) this.fitRequest?.();
   }
 
   normalTo(plane: PlaneId): void {

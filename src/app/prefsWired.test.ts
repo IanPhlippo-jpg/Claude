@@ -29,4 +29,20 @@ describe('Options that do nothing are greyed out (QA v0.5.1 F112)', () => {
     const read = [...keys].filter((k) => ["'", '"', '`'].some((q) => text.includes(q + k + q))).sort();
     expect([...WIRED_PREFS].sort()).toEqual(read);
   });
+
+  // QA v0.5.11 F112 (plan P2-2): an option that does something has a test that changes it and checks the effect
+  it('every option that does something has an effect test', () => {
+    const tests: string[] = [];
+    const walk = (d: string) => {
+      for (const f of fs.readdirSync(d)) {
+        const p = path.join(d, f);
+        if (fs.statSync(p).isDirectory()) walk(p);
+        else if (/\.test\.tsx?$/.test(f) && f !== 'prefsWired.test.ts') tests.push(fs.readFileSync(p, 'utf8'));
+      }
+    };
+    walk('src');
+    const text = tests.join('\n');
+    const untested = [...WIRED_PREFS].filter((k) => !new RegExp(`(?<![\\w.])${k.replace(/\./g, '\\.')}(?!\\w)`).test(text));
+    expect(untested).toEqual([]);
+  });
 });

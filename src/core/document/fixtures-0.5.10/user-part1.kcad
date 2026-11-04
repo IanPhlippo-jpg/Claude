@@ -1,0 +1,416 @@
+{
+  "format": "phlippo-cad",
+  "planes": {
+    "plmvib1f1b2r": {
+      "id": "plmvib1f1b2r",
+      "name": "Face1",
+      "origin": [
+        -1.3617280350573987e-11,
+        25.000000018298287,
+        25.00000001367294
+      ],
+      "u": [
+        0,
+        0,
+        -1
+      ],
+      "v": [
+        8.780568620154756e-14,
+        -1,
+        0
+      ],
+      "n": [
+        -1,
+        -8.780568620154756e-14,
+        0
+      ],
+      "kind": "face"
+    }
+  },
+  "variables": {},
+  "equations": [],
+  "version": 2,
+  "name": "Part1",
+  "units": "mm",
+  "sketches": {
+    "skmviaqit315": {
+      "id": "skmviaqit315",
+      "name": "Sketch1",
+      "plane": "front",
+      "points": {
+        "origin_skmviaqit315": {
+          "x": -5.985481470684967e-12,
+          "y": 3.3493520009976646e-12
+        },
+        "pmviaql9u17": {
+          "x": -1.1422360372557718e-11,
+          "y": 6.330724762086458e-12
+        },
+        "pmviaql9u18": {
+          "x": 999.9999999999801,
+          "y": 6.829091857357909e-12
+        },
+        "pmviaql9u1a": {
+          "x": 999.9999999999814,
+          "y": 50.00000000000853
+        },
+        "pmviaql9u1c": {
+          "x": -1.5812199674250948e-11,
+          "y": 50.00000000000788
+        }
+      },
+      "scalars": {},
+      "entities": {
+        "lnmviaql9u19": {
+          "id": "lnmviaql9u19",
+          "kind": "line",
+          "p1": "pmviaql9u17",
+          "p2": "pmviaql9u18",
+          "construction": false
+        },
+        "lnmviaql9u1b": {
+          "id": "lnmviaql9u1b",
+          "kind": "line",
+          "p1": "pmviaql9u18",
+          "p2": "pmviaql9u1a",
+          "construction": false
+        },
+        "lnmviaql9u1d": {
+          "id": "lnmviaql9u1d",
+          "kind": "line",
+          "p1": "pmviaql9u1a",
+          "p2": "pmviaql9u1c",
+          "construction": false
+        },
+        "lnmviaql9u1e": {
+          "id": "lnmviaql9u1e",
+          "kind": "line",
+          "p1": "pmviaql9u1c",
+          "p2": "pmviaql9u17",
+          "construction": false
+        }
+      },
+      "constraints": {
+        "cmviaql9u1f": {
+          "id": "cmviaql9u1f",
+          "kind": "horizontal",
+          "refs": [
+            "lnmviaql9u19"
+          ]
+        },
+        "cmviaql9u1g": {
+          "id": "cmviaql9u1g",
+          "kind": "vertical",
+          "refs": [
+            "lnmviaql9u1b"
+          ]
+        },
+        "cmviaql9u1h": {
+          "id": "cmviaql9u1h",
+          "kind": "horizontal",
+          "refs": [
+            "lnmviaql9u1d"
+          ]
+        },
+        "cmviaql9u1i": {
+          "id": "cmviaql9u1i",
+          "kind": "vertical",
+          "refs": [
+            "lnmviaql9u1e"
+          ]
+        },
+        "cmviaql9u1j": {
+          "id": "cmviaql9u1j",
+          "kind": "coincident",
+          "refs": [
+            "pmviaql9u17",
+            "origin_skmviaqit315"
+          ]
+        },
+        "cmviarar11x": {
+          "id": "cmviarar11x",
+          "kind": "length",
+          "refs": [
+            "lnmviaql9u1e"
+          ],
+          "value": 50,
+          "labelOffset": {
+            "x": -15.125000000000004,
+            "y": 13.833332061767578
+          }
+        },
+        "cmviargot1y": {
+          "id": "cmviargot1y",
+          "kind": "length",
+          "refs": [
+            "lnmviaql9u1d"
+          ],
+          "value": 1000,
+          "labelOffset": {
+            "x": 27.041671752929705,
+            "y": 61.25613805691103
+          },
+          "driven": false
+        }
+      },
+      "entityOrder": [
+        "lnmviaql9u19",
+        "lnmviaql9u1b",
+        "lnmviaql9u1d",
+        "lnmviaql9u1e"
+      ],
+      "constraintOrder": [
+        "cmviaql9u1f",
+        "cmviaql9u1g",
+        "cmviaql9u1h",
+        "cmviaql9u1i",
+        "cmviaql9u1j",
+        "cmviarar11x",
+        "cmviargot1y"
+      ],
+      "origin": "origin_skmviaqit315"
+    },
+    "skmvib1f1c2s": {
+      "id": "skmvib1f1c2s",
+      "name": "Sketch2",
+      "plane": "plmvib1f1b2r",
+      "points": {
+        "origin_skmvib1f1c2s": {
+          "x": -6.75423083729932e-19,
+          "y": 6.357384275716264e-10
+        },
+        "pmvib1p4b36": {
+          "x": -9.424498258077809e-9,
+          "y": -3.4011035470467905e-15
+        },
+        "pmvib8jax1": {
+          "x": -18.033658814551572,
+          "y": 7.745755984455579e-10
+        },
+        "pmvib8jax2": {
+          "x": 18.033658814551572,
+          "y": 9.880461002352486e-10
+        },
+        "pmvib8jax4": {
+          "x": 18.033658814551572,
+          "y": 3.3428099284372613e-9
+        },
+        "pmvib8jax6": {
+          "x": -18.033658814551572,
+          "y": 3.544557798049671e-9
+        },
+        "pmvib8jaxd": {
+          "x": -1.3010767674709072e-18,
+          "y": 1.22889374607104e-9
+        }
+      },
+      "scalars": {},
+      "entities": {
+        "ptmvib1p4b37": {
+          "id": "ptmvib1p4b37",
+          "kind": "point",
+          "p": "pmvib1p4b36",
+          "construction": true
+        },
+        "lnmvib8jax3": {
+          "id": "lnmvib8jax3",
+          "kind": "line",
+          "p1": "pmvib8jax1",
+          "p2": "pmvib8jax2",
+          "construction": false
+        },
+        "lnmvib8jax5": {
+          "id": "lnmvib8jax5",
+          "kind": "line",
+          "p1": "pmvib8jax2",
+          "p2": "pmvib8jax4",
+          "construction": false
+        },
+        "lnmvib8jax7": {
+          "id": "lnmvib8jax7",
+          "kind": "line",
+          "p1": "pmvib8jax4",
+          "p2": "pmvib8jax6",
+          "construction": false
+        },
+        "lnmvib8jax8": {
+          "id": "lnmvib8jax8",
+          "kind": "line",
+          "p1": "pmvib8jax6",
+          "p2": "pmvib8jax1",
+          "construction": false
+        },
+        "ptmvib8jaxe": {
+          "id": "ptmvib8jaxe",
+          "kind": "point",
+          "p": "pmvib8jaxd",
+          "construction": true
+        },
+        "lnmvib8jaxg": {
+          "id": "lnmvib8jaxg",
+          "kind": "line",
+          "p1": "pmvib8jax1",
+          "p2": "pmvib8jax4",
+          "construction": true
+        },
+        "lnmvib8jaxi": {
+          "id": "lnmvib8jaxi",
+          "kind": "line",
+          "p1": "pmvib8jax2",
+          "p2": "pmvib8jax6",
+          "construction": true
+        }
+      },
+      "constraints": {
+        "cmvib8jax9": {
+          "id": "cmvib8jax9",
+          "kind": "horizontal",
+          "refs": [
+            "lnmvib8jax3"
+          ]
+        },
+        "cmvib8jaxa": {
+          "id": "cmvib8jaxa",
+          "kind": "vertical",
+          "refs": [
+            "lnmvib8jax5"
+          ]
+        },
+        "cmvib8jaxb": {
+          "id": "cmvib8jaxb",
+          "kind": "horizontal",
+          "refs": [
+            "lnmvib8jax7"
+          ]
+        },
+        "cmvib8jaxc": {
+          "id": "cmvib8jaxc",
+          "kind": "vertical",
+          "refs": [
+            "lnmvib8jax8"
+          ]
+        },
+        "cmvib8jaxf": {
+          "id": "cmvib8jaxf",
+          "kind": "midpoint",
+          "refs": [
+            "ptmvib8jaxe",
+            "lnmvib8jax3"
+          ]
+        },
+        "cmvib8jaxh": {
+          "id": "cmvib8jaxh",
+          "kind": "midpoint",
+          "refs": [
+            "ptmvib8jaxe",
+            "lnmvib8jaxg"
+          ]
+        },
+        "cmvib8jaxj": {
+          "id": "cmvib8jaxj",
+          "kind": "coincident",
+          "refs": [
+            "pmvib8jaxd",
+            "origin_skmvib1f1c2s"
+          ]
+        }
+      },
+      "entityOrder": [
+        "ptmvib1p4b37",
+        "lnmvib8jax3",
+        "lnmvib8jax5",
+        "lnmvib8jax7",
+        "lnmvib8jax8",
+        "ptmvib8jaxe",
+        "lnmvib8jaxg",
+        "lnmvib8jaxi"
+      ],
+      "constraintOrder": [
+        "cmvib8jax9",
+        "cmvib8jaxa",
+        "cmvib8jaxb",
+        "cmvib8jaxc",
+        "cmvib8jaxf",
+        "cmvib8jaxh",
+        "cmvib8jaxj"
+      ],
+      "origin": "origin_skmvib1f1c2s"
+    }
+  },
+  "features": [
+    {
+      "id": "fmviaqit316",
+      "type": "sketch",
+      "name": "Sketch1",
+      "sketchId": "skmviaqit315",
+      "suppressed": false
+    },
+    {
+      "id": "fmviazpqt2p",
+      "type": "extrude",
+      "name": "Boss-Extrude1",
+      "sketchId": "skmviaqit315",
+      "suppressed": false,
+      "op": "boss",
+      "end": "blind",
+      "depth": 50,
+      "reverse": false
+    },
+    {
+      "id": "fmvib02oo2q",
+      "type": "fillet",
+      "name": "Fillet1",
+      "suppressed": false,
+      "size": 5,
+      "edges": [
+        {
+          "centroid": [
+            499.9999999999921,
+            50,
+            50
+          ],
+          "length": 1000.0000000000158,
+          "closed": false,
+          "straight": true
+        },
+        {
+          "centroid": [
+            499.99999999999426,
+            6.579908276224678e-12,
+            50.00000000000001
+          ],
+          "length": 1000.0000000000111,
+          "closed": false,
+          "straight": true
+        },
+        {
+          "centroid": [
+            499.9999999999921,
+            50,
+            0
+          ],
+          "length": 1000.0000000000158,
+          "closed": false,
+          "straight": true
+        },
+        {
+          "centroid": [
+            499.9999999999945,
+            6.579908276224678e-12,
+            0
+          ],
+          "length": 1000.0000000000111,
+          "closed": false,
+          "straight": true
+        }
+      ]
+    },
+    {
+      "id": "fmvib1f1c2t",
+      "type": "sketch",
+      "name": "Sketch2",
+      "sketchId": "skmvib1f1c2s",
+      "suppressed": false
+    }
+  ]
+}

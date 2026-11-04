@@ -9,7 +9,7 @@ import { findMaterial, MATERIAL_LIBRARY, type MaterialDef } from '../core/docume
 import { desktop } from './desktop';
 import { REFERENCE_PLANE_DEFS as PLANES } from '../core/features/planes';
 import type { Document } from '../core/document/types';
-import { cutList } from '../core/features/weldments';
+import { frameCutList as cutList } from './prefsTables';
 import { saveDocumentWith } from './MenuBar';
 
 const fmt = (v: number, d = 2) => (Number.isFinite(v) ? round(v, d).toLocaleString('en-US', { maximumFractionDigits: d }) : '∞');

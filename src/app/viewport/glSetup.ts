@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import type { BodyScene } from './bodyScene';
 import { makeStudioEnvironment } from './studioLook';
+import { rendererAntialias } from '../prefsEffects';
 
 /**
  * The renderer of the graphics area. Without a graphics card (a PC without driver, a remote desktop, the CI runner)
@@ -11,7 +12,7 @@ import { makeStudioEnvironment } from './studioLook';
 export function createRenderer(canvas: HTMLCanvasElement, bodies: BodyScene): THREE.WebGLRenderer | null {
   let renderer: THREE.WebGLRenderer;
   try {
-    renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    renderer = new THREE.WebGLRenderer({ canvas, antialias: rendererAntialias(), alpha: true });
   } catch {
     return null;
   }

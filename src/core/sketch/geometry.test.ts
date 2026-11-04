@@ -33,10 +33,15 @@ describe('geometry', () => {
     const m = snap(s, { x: 5.1, y: 0.1 }, 0.5, null);
     expect(m[0].kind).toBe('midpoint');
     expect(m[0].point).toEqual({ x: 5, y: 0 });
-    const on = snap(s, { x: 35.2, y: 30 }, 0.5, null);
+    const on = snap(s, { x: 33.6, y: 33.6 }, 0.5, null);
     expect(on[0].kind).toBe('on');
     expect(on[0].entityId).toBe(c.id);
-    expect(on[0].point.x).toBeCloseTo(35, 6);
+    expect(on[0].point.x).toBeCloseTo(30 + 5 * Math.SQRT1_2, 6);
+    // near a quadrant point the quadrant snap wins (Relations/Snaps ▸ Quadrant Points, QA v0.5.11 F112)
+    const q = snap(s, { x: 35.2, y: 30.1 }, 0.5, null);
+    expect(q[0].kind).toBe('quadrant');
+    expect(q[0].point).toEqual({ x: 35, y: 30 });
+    expect(snap(s, { x: 35.2, y: 30.1 }, 0.5, null, new Set(), new Set(['on']))[0].kind).toBe('on');
     const h = snap(s, { x: 50, y: 20.2 }, 0.5, { x: 40, y: 20 });
     expect(h[0].kind).toBe('horizontal');
     expect(h[0].point.y).toBe(20);

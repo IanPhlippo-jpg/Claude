@@ -1,4 +1,4 @@
-import { getPref } from '../prefs';
+import { gridDashed, gridSpacing, showEntityPoints, showSketchPoint } from '../prefsEffects';
 import * as THREE from 'three';
 import { LineSegments2 } from 'three/examples/jsm/lines/LineSegments2.js';
 import { LineSegmentsGeometry } from 'three/examples/jsm/lines/LineSegmentsGeometry.js';
@@ -134,11 +134,8 @@ export class SketchScene {
     this.clear(this.gridGroup);
     const b = getPlane(input.plane);
     // adaptive spacing: ~ every 40..100px
-    const target = 60 * input.scale;
-    const step = Math.pow(10, Math.floor(Math.log10(target)));
-    const minorPerMajor = Math.max(1, Math.round(Number(getPref('doc.gridMinor')) || 4));
     // Document Properties ▸ Grid/Snap: automatic scaling (adaptive) or the major spacing divided by the minor lines
-    const spacing = getPref('doc.gridAutoScale') === false ? Math.max(0.01, (Number(getPref('doc.gridMajor')) || 10) / minorPerMajor) : target / step >= 5 ? step * 5 : target / step >= 2 ? step * 2 : step;
+    const { spacing, minorPerMajor } = gridSpacing(input.scale);
     const extent = Math.max(input.scale * 4000, 200);
     const count = Math.min(400, Math.ceil(extent / spacing));
     const minor: number[] = [], major: number[] = [];
@@ -155,8 +152,12 @@ export class SketchScene {
       const g = new THREE.BufferGeometry();
       g.setAttribute('position', new THREE.Float32BufferAttribute(arr, 3));
       const { c, a } = rgba(css);
-      const m = new THREE.LineBasicMaterial({ color: c, transparent: true, opacity: a, depthWrite: false });
-      this.gridGroup.add(new THREE.LineSegments(g, m));
+      // Document Properties ▸ Grid/Snap ▸ Dash
+      const dash = gridDashed();
+      const m = dash ? new THREE.LineDashedMaterial({ color: c, transparent: true, opacity: a, depthWrite: false, dashSize: 3 * input.scale, gapSize: 3 * input.scale }) : new THREE.LineBasicMaterial({ color: c, transparent: true, opacity: a, depthWrite: false });
+      const ls = new THREE.LineSegments(g, m);
+      if (dash) ls.computeLineDistances();
+      this.gridGroup.add(ls);
     };
     if (minor.length) mk(minor, input.colors.grid);
     if (major.length) mk(major, input.colors.gridMajor);
@@ -256,7 +257,7 @@ export class SketchScene {
         const e = sk.entities[id];
         // an Equation Driven Curve shows only its end points (the samples are internal)
         const ids = e.kind === 'spline' && e.equation ? [e.points[0], e.points[e.points.length - 1]] : entityPoints(e);
-        for (const pid of ids) pushPt(pid, ptColor(pid, e));
+        for (const pid of ids) if (showSketchPoint(e, pid)) pushPt(pid, ptColor(pid, e));
       }
       pushPt(sk.origin, rgba(input.colors.full).c);
     };
@@ -371,7 +372,7 @@ export class SketchScene {
       g.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3));
       g.setAttribute('color', new THREE.Float32BufferAttribute(ptsCol, 3));
       const p = new THREE.Points(g, this.pointsMat);
-      p.visible = getPref('sketch.entityPoints') !== false;
+      p.visible = showEntityPoints();
       p.renderOrder = 10;
       this.group.add(p);
     }

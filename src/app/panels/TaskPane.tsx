@@ -13,6 +13,7 @@ import { openFileDialog, withUnsavedCheck } from '../MenuBar';
 import { listAutosaves, loadAutosaveEntry, parseDocument } from '../../core/document/persistence';
 import { listDiskRecovery, readDiskRecovery } from '../autoRecover';
 import { setDocumentHandle, type RecoverEntry } from '../desktop';
+import { explorerRecent, recentDocuments } from '../prefsEffects';
 
 /**
  * Display/Delete Relations, by design: the filter (All in this sketch, Dangling, Overdefining/Not Solved, External,
@@ -267,6 +268,22 @@ function BlockThumb({ block }: { block: import('../../core/sketch/blocks').Block
   );
 }
 
+/** File Explorer ▸ Recent Documents (as many as General ▸ Maximum recent documents allows) */
+function RecentInExplorer() {
+  const list = recentDocuments(listAutosaves());
+  const open = (key: string) => withUnsavedCheck(() => {
+    const d = loadAutosaveEntry(key);
+    if (d) useStore.getState().openDocument(d);
+    else useStore.getState().pushMessage('The document could not be read.', 'error');
+  });
+  return (
+    <>
+      <p style={{ margin: '10px 0 4px' }}><b>Recent Documents</b></p>
+      {list.length ? <ul className="k-list" data-testid="explorer-recent">{list.map((r) => <li key={r.key} onClick={() => open(r.key)}><Icon.Part size={14} /> <span>{r.name}</span></li>)}</ul> : <p className="k-muted">No recent documents.</p>}
+    </>
+  );
+}
+
 /** File Explorer: the open document and opening files from disk */
 function FileExplorer() {
   const st = useStore(useShallow((s) => ({ doc: s.doc, dirty: s.dirty })));
@@ -276,6 +293,8 @@ function FileExplorer() {
       <ul className="k-list">
         <li className="selected"><Icon.Part size={14} /> <span>{st.doc.name}{st.doc.kind === 'assembly' ? '.kasm' : st.doc.kind === 'drawing' ? '.kdrw' : '.kcad'}</span>{st.dirty && <span className="k-muted">*</span>}</li>
       </ul>
+      {/* Options ▸ File Explorer ▸ Recent Documents: the documents of earlier sessions */}
+      {explorerRecent() && <RecentInExplorer />}
       <p style={{ margin: '10px 0 4px' }}><b>This PC</b></p>
       <Button onClick={() => openFileDialog()}>Open…</Button>
     </div>

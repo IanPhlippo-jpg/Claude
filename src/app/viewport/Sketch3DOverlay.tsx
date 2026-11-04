@@ -2,7 +2,7 @@ import { useRef } from 'react';
 import * as THREE from 'three';
 import { useStore, type Sketch3DEdit } from '../store';
 import { endPoints3D, status3D, type P3 } from '../../core/sketch/sketch3d';
-import { solved3D } from '../panels/Sketch3DPM';
+import { solved3D } from '../panels/sketch3dSolved';
 import type { CadCamera } from './camera';
 
 /** the colour of the lines of the 3D sketch being edited: black when it is fully defined, otherwise the default blue */

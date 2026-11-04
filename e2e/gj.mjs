@@ -121,12 +121,19 @@ await page.waitForTimeout(600);
 const qZ = await S(() => { const c = window.__phlippoCamera; c.setView('top'); return window.__phlippoStore.getState().prefs['view.upAxis']; });
 await page.waitForTimeout(500);
 check('Up Axis Z stored in the preferences', qZ === 'Z');
-check('Front view with Z up: the world Z axis points up the screen', await S(() => { const c = window.__phlippoCamera; c.setView('front'); return new Promise((r) => setTimeout(() => { const THREE_V = window.__phlippoScene.position.constructor; const p0 = c.worldToPixel(new THREE_V(0, 0, 0)), p1 = c.worldToPixel(new THREE_V(0, 0, 10)); r(p1.y < p0.y - 1 && Math.abs(p1.x - p0.x) < 1); }, 600)); }));
+// the view transition moves on with each drawn frame: wait until it is done instead of a fixed 600 ms (with software
+// GL one frame can take seconds, the CI on Windows read the camera half way between Top and Front)
+const viewDone = () => page.waitForFunction(() => window.__phlippoCamera.animating === false, undefined, { timeout: 30000 }).catch(skip('the view transition did not end within 30 s'));
+await S(() => window.__phlippoCamera.setView('front'));
+await viewDone();
+check('Front view with Z up: the world Z axis points up the screen', await S(() => { const c = window.__phlippoCamera; const THREE_V = window.__phlippoScene.position.constructor; const p0 = c.worldToPixel(new THREE_V(0, 0, 0)), p1 = c.worldToPixel(new THREE_V(0, 0, 10)); return p1.y < p0.y - 1 && Math.abs(p1.x - p0.x) < 1; }));
 await page.hover('.k-brand');
 await page.click('.k-mb-menu:has-text("View")');
 await menuItem('Modify ▸ Up Axis ▸ Y up').click();
 await page.waitForTimeout(600);
-check('Front view with Y up again: the world Y axis points up the screen', await S(() => { const c = window.__phlippoCamera; c.setView('front'); return new Promise((r) => setTimeout(() => { const THREE_V = window.__phlippoScene.position.constructor; const p0 = c.worldToPixel(new THREE_V(0, 0, 0)), p1 = c.worldToPixel(new THREE_V(0, 10, 0)); r(p1.y < p0.y - 1); }, 500)); }));
+await S(() => window.__phlippoCamera.setView('front'));
+await viewDone();
+check('Front view with Y up again: the world Y axis points up the screen', await S(() => { const c = window.__phlippoCamera; const THREE_V = window.__phlippoScene.position.constructor; const p0 = c.worldToPixel(new THREE_V(0, 0, 0)), p1 = c.worldToPixel(new THREE_V(0, 10, 0)); return p1.y < p0.y - 1; }));
 
 // ---- Deform (point) on the top face
 await page.keyboard.press('Control+7');

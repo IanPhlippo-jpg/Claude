@@ -12,7 +12,7 @@
 import type { Document } from '../core/document/types';
 import { serializeDocument } from '../core/document/persistence';
 import { desktop, getDocumentHandle, type RecoverEntry } from './desktop';
-import { getPref } from './prefs';
+import { recoverSchedule } from './prefsEffects';
 import { useStore } from './store';
 import { TEST_HOOKS } from './testHooks';
 
@@ -70,18 +70,18 @@ function tick(now: number): void {
   const dirty = st.hasDocument && (st.dirty || !!st.editContext);
   if (!dirty) { dirtySince = 0; return; }
   if (!dirtySince) dirtySince = now;
-  const minutes = (key: string) => Math.max(1, Number(getPref(key)) || 1) * 60_000;
-  if (getPref('backup.autoRecover') !== false && now - Math.max(dirtySince, lastRecover) >= minutes('backup.autoRecoverMinutes')) {
+  // Options ▸ Backup/Recover: what is due now
+  const due = recoverSchedule(now, dirtySince, lastRecover, lastReminder);
+  if (due.recover) {
     lastRecover = now;
     void writeAutoRecover();
   }
-  if (getPref('backup.saveNotify') === true && now - Math.max(dirtySince, lastReminder) >= minutes('backup.saveNotifyMinutes')) {
+  if (due.remind) {
     lastReminder = now;
     const n = Math.round((now - dirtySince) / 60_000);
     const text = `${st.doc.name} has not been saved for ${n} minute${n === 1 ? '' : 's'}.`;
     st.pushMessage(text, 'warn');
-    const secs = Math.max(1, Number(getPref('backup.saveNotifySeconds')) || 5);
-    setTimeout(() => useStore.setState((s) => ({ messages: s.messages.filter((m) => m.text !== text) })), secs * 1000);
+    setTimeout(() => useStore.setState((s) => ({ messages: s.messages.filter((m) => m.text !== text) })), due.dismissMs);
   }
 }
 

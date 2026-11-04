@@ -5,15 +5,14 @@ import { useShallow } from 'zustand/react/shallow';
 import { Icon } from '../ui/icons';
 import { combineMassProperties, faceMeasure, massProperties, withExactVolume, massPropertiesInFrame, overrideMassProperties, polylineDistance } from '../core/features/measure';
 import { rebuildAssembly } from '../core/assembly/assembly';
-import { getPref, loadPrefs, savePrefs } from './prefs';
+import { getPref, lengthDecimals, loadPrefs, savePrefs } from './prefs';
+import { defaultDensity, docVolumeUnit, formatNumber, massDocUnits } from './prefsFormat';
 import { activeConfiguration } from '../core/document/configurations';
 import { sampleEntity } from '../core/sketch/geometry';
 import type { Sketch } from '../core/sketch/types';
 
-const fmt = (v: number, d = 2) => (Math.abs(v) < 0.5 * 10 ** -d ? (0).toFixed(d) : v.toFixed(d));
-
-/** Density for "Material <not specified>": 1000 kg/m³ = 0.001 g/mm³, by design assumes. */
-const DEFAULT_DENSITY = 0.001;
+// the rounding method of Document Properties ▸ Units applies here unless it is for dimensions only
+const fmt = (v: number, d = 2) => (Math.abs(v) < 0.5 * 10 ** -d ? (0).toFixed(d) : formatNumber(v, d, false));
 
 /**
  * Mass Properties: a modeless window (the model can still be rotated) with the report text in
@@ -59,7 +58,8 @@ export function MassPropertiesDialog() {
     const parts = bodies.filter((b) => !comps.some((c) => c.id === b.id && c.envelope)).map((b) => {
       const comp = comps.find((c) => c.id === b.id);
       const mat = comp ? comp.part.material : st.doc.bodyMaterials?.[b.id] ?? st.doc.material;
-      return withExactVolume(massProperties(b.geometry, mat ? mat.density / 1e6 : DEFAULT_DENSITY), b.exactVolume);
+      // Material <not specified>: the density of Document Properties ▸ Material Properties (1000 kg/m³ by default)
+      return withExactVolume(massProperties(b.geometry, mat ? mat.density / 1e6 : defaultDensity()), b.exactVolume);
     });
     let m = combineMassProperties(parts)!;
     // Show weld bead mass: welded corners add a bead (right-angle triangle, legs = sheet thickness) along their seam
@@ -78,10 +78,10 @@ export function MassPropertiesDialog() {
     const frame = frames.find((f) => f.id === frameId);
     if (frame?.x && frame.y && frame.z) m = massPropertiesInFrame(m, new THREE.Vector3(...frame.origin), new THREE.Vector3(...frame.x), new THREE.Vector3(...frame.y), new THREE.Vector3(...frame.z));
     // Options: units and decimals of the report (document settings: Units ▸ Mass/Section Properties, QA v0.5.1 F112)
-    const docLen = ({ millimeters: 'mm', centimeters: 'cm', meters: 'm', inches: 'in' } as const)[String(getPref('doc.massLengthUnit')) as 'millimeters'] ?? 'mm';
-    const docMass = ({ grams: 'g', kilograms: 'kg', pounds: 'lb' } as const)[String(getPref('doc.massUnit')) as 'grams'] ?? 'g';
+    const { len: docLen, mass: docMass } = massDocUnits();
     const L = LEN_UNITS[opts.useDoc ? docLen : opts.len], M = MASS_UNITS[opts.useDoc ? docMass : opts.mass];
-    const dec = opts.useDoc ? 2 : opts.decimals;
+    const dec = opts.useDoc ? lengthDecimals() : opts.decimals;
+    const V = LEN_UNITS[opts.useDoc ? docVolumeUnit() : opts.len];
     const f = (v: number) => fmt(v, dec);
     const fL = (v: number) => f(v * L.f), fI = (v: number) => f(v * M.f * L.f * L.f);
     const g = M.s;
@@ -97,7 +97,7 @@ export function MassPropertiesDialog() {
       `     Configuration: ${activeConfiguration(st.doc).name}`,
       `     Coordinate system: ${frame?.name ?? '-- default --'}`,
       ``,
-      `Density = ${((v) => (v !== 0 && Math.abs(v) < 0.001 ? v.toExponential(3) : v.toFixed(Math.max(3, dec))))((m.density * M.f) / (L.f * L.f * L.f))} ${g} per cubic ${L.s}`,
+      `Density = ${((v) => (v !== 0 && Math.abs(v) < 0.001 ? v.toExponential(3) : v.toFixed(Math.max(3, dec))))((m.density * M.f) / (V.f * V.f * V.f))} ${g} per cubic ${V.s}`,
       ``,
       `Mass = ${f(m.mass * M.f)} ${g}${over(ov.mass !== undefined)}`,
       ...(weld ? [``, `Weld bead mass = ${f(beadMass * M.f)} ${g}`] : []),
@@ -170,7 +170,7 @@ export function MassPropertiesDialog() {
           )}
           {panel === 'override' && (
             <div className="k-mass-sub" data-testid="mass-override-panel">
-              <label className="k-check"><input type="checkbox" data-testid="mass-ov-mass" checked={ov.mass !== undefined} onChange={(e) => setOverride({ ...ov, mass: e.target.checked ? Number(((combineMassProperties(st.rebuild.bodies.map((b) => withExactVolume(massProperties(b.geometry, st.doc.material ? st.doc.material.density / 1e6 : DEFAULT_DENSITY), b.exactVolume)))?.mass) ?? 0).toFixed(2)) : undefined })} /> Override mass</label>
+              <label className="k-check"><input type="checkbox" data-testid="mass-ov-mass" checked={ov.mass !== undefined} onChange={(e) => setOverride({ ...ov, mass: e.target.checked ? Number(((combineMassProperties(st.rebuild.bodies.map((b) => withExactVolume(massProperties(b.geometry, st.doc.material ? st.doc.material.density / 1e6 : defaultDensity()), b.exactVolume)))?.mass) ?? 0).toFixed(2)) : undefined })} /> Override mass</label>
               {ov.mass !== undefined && <div className="k-pm-valuerow"><input className="k-input" type="number" data-testid="mass-ov-value" value={ov.mass} onChange={(e) => setOverride({ ...ov, mass: Math.max(0, Number(e.target.value)) })} /> <span>grams</span></div>}
               <label className="k-check"><input type="checkbox" checked={!!ov.centroid} onChange={(e) => setOverride({ ...ov, centroid: e.target.checked ? [0, 0, 0] : undefined })} /> Override center of mass</label>
               {ov.centroid && <div className="k-pm-valuerow">{(['X', 'Y', 'Z'] as const).map((l, i) => <label key={l} style={{ display: 'inline-flex', gap: 2, alignItems: 'center' }}>{l}<input className="k-input" style={{ width: 64 }} type="number" value={ov.centroid![i]} onChange={(e) => { const c = [...ov.centroid!] as [number, number, number]; c[i] = Number(e.target.value); setOverride({ ...ov, centroid: c }); }} /></label>)}</div>}

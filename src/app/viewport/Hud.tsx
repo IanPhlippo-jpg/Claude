@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import * as THREE from 'three';
 import { useStore, type DisplayStyle } from '../store';
+import { confirmationCornerOn } from '../prefsEffects';
 import { useShallow } from 'zustand/react/shallow';
 import { Icon } from '../../ui/icons';
 import { Menu, type MenuItem } from '../../ui/components';
@@ -224,7 +225,7 @@ export function Hud({ camera, zoomFit, onZoomArea, zoomAreaActive }: { camera: C
  * green check and a red X. The D key moves it to the pointer.
  */
 export function ConfirmationCorner({ onOk, onCancel, sketch }: { onOk: () => void; onCancel: () => void; sketch: boolean }) {
-  const enabled = useStore((s) => s.prefs['general.confirmationCorner'] !== false);
+  const enabled = useStore((s) => confirmationCornerOn(s.prefs));
   if (!enabled) return null;
   const at = useStore((s) => s.confirmAtCursor);
   return (

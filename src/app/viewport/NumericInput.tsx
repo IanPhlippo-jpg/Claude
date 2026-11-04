@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { getPref } from '../prefs';
+import { numericInputOn } from '../prefsEffects';
 import type { SketchPoint } from '../../core/sketch/types';
 import type { ToolContext, ToolController } from './tools';
 
@@ -8,7 +8,7 @@ import type { ToolContext, ToolController } from './tools';
  * being drawn a small box beside the pointer shows its length or radius; a typed value and Enter places the end.
  */
 export function NumericInput({ tools, ctx, project, onDone }: { tools: ToolController; ctx: () => ToolContext | null; project: (p: SketchPoint) => { x: number; y: number }; onDone: () => void }) {
-  const anchor = getPref('sketch.numericInput') ? tools.numericAnchor() : null;
+  const anchor = numericInputOn() ? tools.numericAnchor() : null;
   const [text, setText] = useState<string | null>(null);
   const ref = useRef<HTMLInputElement>(null);
   // a digit typed while drawing starts the value

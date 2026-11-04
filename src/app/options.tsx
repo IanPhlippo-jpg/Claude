@@ -62,7 +62,6 @@ export function OptionsDialog() {
   const action = (name?: string) => {
     const msgs: Record<string, string> = {
       fileAssociations: 'File associations are set by the installer (.kcad opens with Phlippo CAD).',
-      sounds: 'Sounds are configured in Windows Settings ▸ Sound.',
       resetColors: 'Colors follow the Blue scheme of the intended design; Dark background switches the dark theme.',
       docColors: 'Switch to Document Properties ▸ Model Display for the model colors.',
       goSnaps: 'See System Options ▸ Sketch ▸ Relations/Snaps.',

@@ -4,6 +4,7 @@ import { useStore } from '../store';
 import { useShallow } from 'zustand/react/shallow';
 import { Icon } from '../../ui/icons';
 import { NumberField, Section } from '../../ui/components';
+import { timeStep } from '../prefsEffects';
 import { motionTransforms, motorValue, playbackTime, type MotionStudy } from '../../core/assembly/motion';
 import type { Component } from '../../core/document/types';
 
@@ -378,8 +379,8 @@ export function MotorPM() {
         {m.motion === 'distance' && (
           <>
             <div className="k-pm-valuerow" data-testid="motor-distance"><span className="k-muted" style={{ minWidth: 30 }}>{linear ? 'Dist.' : 'Angle'}</span><NumberField value={m.distance ?? 90} onChange={(v) => st.updateMotorDraft({ distance: v })} unit={u} step={5} /></div>
-            <div className="k-pm-valuerow"><span className="k-muted" style={{ minWidth: 30 }}>Start</span><NumberField value={m.start ?? 0} onChange={(v) => st.updateMotorDraft({ start: Math.max(0, v) })} unit=" sec" step={0.5} /></div>
-            <div className="k-pm-valuerow"><span className="k-muted" style={{ minWidth: 30 }}>Dur.</span><NumberField value={m.duration ?? 1} onChange={(v) => st.updateMotorDraft({ duration: Math.max(0.01, v) })} unit=" sec" step={0.5} /></div>
+            <div className="k-pm-valuerow"><span className="k-muted" style={{ minWidth: 30 }}>Start</span><NumberField value={m.start ?? 0} onChange={(v) => st.updateMotorDraft({ start: Math.max(0, v) })} unit=" sec" step={timeStep()} /></div>
+            <div className="k-pm-valuerow"><span className="k-muted" style={{ minWidth: 30 }}>Dur.</span><NumberField value={m.duration ?? 1} onChange={(v) => st.updateMotorDraft({ duration: Math.max(0.01, v) })} unit=" sec" step={timeStep()} /></div>
           </>
         )}
         {m.motion === 'segments' && (

@@ -2,7 +2,7 @@ import { useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { useStore } from '../store';
 import { useShallow } from 'zustand/react/shallow';
-import { getPref } from '../prefs';
+import { showBreadcrumbs } from '../prefsEffects';
 import { Icon } from '../../ui/icons';
 import { featureIcon } from '../panels/featureIcon';
 import { MATE_ICON } from '../panels/mateIcons';
@@ -17,7 +17,7 @@ import { isSketchBased, type Feature } from '../../core/document/types';
 export function Breadcrumbs() {
   const st = useStore(useShallow((s) => ({ selectedFeatureId: s.selectedFeatureId, doc: s.doc, selectedFace: s.selectedFace, rebuild: s.rebuild, mateEdit: s.mateEdit, insertingComponent: s.insertingComponent, setSelectedFeature: s.setSelectedFeature, selectComponent: s.selectComponent, activeSketchId: s.activeSketchId, featureEdit: s.featureEdit, editSketch: s.editSketch, editFeature: s.editFeature })));
   const ref = useRef<HTMLDivElement>(null);
-  const on = getPref<boolean>('display.breadcrumbs') !== false;
+  const on = showBreadcrumbs();
 
   // the feature of the selection: the selected feature, or the feature that made the selected face
   const feature: Feature | null = useMemo(() => {

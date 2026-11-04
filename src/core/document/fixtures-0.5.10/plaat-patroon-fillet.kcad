@@ -1,0 +1,316 @@
+{
+  "format": "phlippo-cad",
+  "version": 2,
+  "name": "Plaat-patroon-fillet",
+  "units": "mm",
+  "sketches": {
+    "sk1": {
+      "id": "sk1",
+      "name": "Sketch1",
+      "plane": "top",
+      "points": {
+        "origin_sk1": {
+          "x": 0,
+          "y": 0
+        },
+        "pmw0tei3z1": {
+          "x": 0,
+          "y": 0
+        },
+        "pmw0tei3z2": {
+          "x": 80,
+          "y": 0
+        },
+        "pmw0tei3z4": {
+          "x": 80,
+          "y": 0
+        },
+        "pmw0tei3z5": {
+          "x": 80,
+          "y": 40
+        },
+        "pmw0tei3z7": {
+          "x": 80,
+          "y": 40
+        },
+        "pmw0tei3z8": {
+          "x": 0,
+          "y": 40
+        },
+        "pmw0tei3za": {
+          "x": 0,
+          "y": 40
+        },
+        "pmw0tei3zb": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "scalars": {},
+      "entities": {
+        "lnmw0tei3z3": {
+          "id": "lnmw0tei3z3",
+          "kind": "line",
+          "p1": "pmw0tei3z1",
+          "p2": "pmw0tei3z2",
+          "construction": false
+        },
+        "lnmw0tei3z6": {
+          "id": "lnmw0tei3z6",
+          "kind": "line",
+          "p1": "pmw0tei3z4",
+          "p2": "pmw0tei3z5",
+          "construction": false
+        },
+        "lnmw0tei3z9": {
+          "id": "lnmw0tei3z9",
+          "kind": "line",
+          "p1": "pmw0tei3z7",
+          "p2": "pmw0tei3z8",
+          "construction": false
+        },
+        "lnmw0tei3zc": {
+          "id": "lnmw0tei3zc",
+          "kind": "line",
+          "p1": "pmw0tei3za",
+          "p2": "pmw0tei3zb",
+          "construction": false
+        }
+      },
+      "constraints": {},
+      "entityOrder": [
+        "lnmw0tei3z3",
+        "lnmw0tei3z6",
+        "lnmw0tei3z9",
+        "lnmw0tei3zc"
+      ],
+      "constraintOrder": [],
+      "origin": "origin_sk1"
+    },
+    "sk2": {
+      "id": "sk2",
+      "name": "Sketch2",
+      "plane": "top",
+      "points": {
+        "origin_sk2": {
+          "x": 0,
+          "y": 0
+        },
+        "pmw0tei3zd": {
+          "x": 10,
+          "y": 20
+        }
+      },
+      "scalars": {
+        "smw0tei3ze": 3
+      },
+      "entities": {
+        "cimw0tei3zf": {
+          "id": "cimw0tei3zf",
+          "kind": "circle",
+          "center": "pmw0tei3zd",
+          "r": "smw0tei3ze",
+          "construction": false
+        }
+      },
+      "constraints": {},
+      "entityOrder": [
+        "cimw0tei3zf"
+      ],
+      "constraintOrder": [],
+      "origin": "origin_sk2"
+    }
+  },
+  "features": [
+    {
+      "id": "f_sk1",
+      "type": "sketch",
+      "name": "Sketch1",
+      "sketchId": "sk1",
+      "suppressed": false
+    },
+    {
+      "id": "f1",
+      "type": "extrude",
+      "name": "Boss-Extrude1",
+      "sketchId": "sk1",
+      "suppressed": false,
+      "op": "boss",
+      "end": "blind",
+      "depth": 10,
+      "reverse": false
+    },
+    {
+      "id": "f_sk2",
+      "type": "sketch",
+      "name": "Sketch2",
+      "sketchId": "sk2",
+      "suppressed": false
+    },
+    {
+      "id": "f2",
+      "type": "extrude",
+      "name": "Cut-Extrude1",
+      "sketchId": "sk2",
+      "suppressed": false,
+      "op": "cut",
+      "end": "throughAll",
+      "depth": 0,
+      "reverse": false
+    },
+    {
+      "id": "f3",
+      "type": "linearPattern",
+      "name": "LPattern1",
+      "suppressed": false,
+      "featureIds": [
+        "f2"
+      ],
+      "dir1": {
+        "axis": [
+          1,
+          0,
+          0
+        ],
+        "spacing": 20,
+        "count": 4
+      }
+    },
+    {
+      "id": "f4",
+      "type": "fillet",
+      "name": "Fillet1",
+      "suppressed": false,
+      "size": 2,
+      "edges": [
+        {
+          "centroid": [
+            0,
+            5,
+            0
+          ],
+          "length": 10,
+          "closed": false,
+          "straight": true,
+          "dir": [
+            0,
+            -1,
+            0
+          ],
+          "normals": [
+            [
+              0,
+              0,
+              1
+            ],
+            [
+              -1,
+              0,
+              0
+            ]
+          ],
+          "faces": [
+            475781,
+            509941
+          ]
+        },
+        {
+          "centroid": [
+            0,
+            5,
+            -40
+          ],
+          "length": 10,
+          "closed": false,
+          "straight": true,
+          "dir": [
+            0,
+            -1,
+            0
+          ],
+          "normals": [
+            [
+              -1,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              -1
+            ]
+          ],
+          "faces": [
+            473779,
+            509941
+          ]
+        },
+        {
+          "centroid": [
+            80,
+            5,
+            -40
+          ],
+          "length": 10,
+          "closed": false,
+          "straight": true,
+          "dir": [
+            0,
+            -1,
+            0
+          ],
+          "normals": [
+            [
+              0,
+              0,
+              -1
+            ],
+            [
+              1,
+              0,
+              0
+            ]
+          ],
+          "faces": [
+            473779,
+            474650
+          ]
+        },
+        {
+          "centroid": [
+            80,
+            5,
+            0
+          ],
+          "length": 10,
+          "closed": false,
+          "straight": true,
+          "dir": [
+            0,
+            -1,
+            0
+          ],
+          "normals": [
+            [
+              1,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              1
+            ]
+          ],
+          "faces": [
+            474650,
+            475781
+          ]
+        }
+      ]
+    }
+  ],
+  "planes": {},
+  "variables": {},
+  "equations": []
+}

@@ -77,3 +77,75 @@ moeten zijn inhoud omsluiten. Elke test is nagekeken door de fix tijdelijk terug
 - **Test:** plaat 60 × 40 × 3, profiel 12 omhoog + 10 terug op het Front Plane, flens langs de rand: 7200 +
   (3·9 + 10·3)·40 = 9480 mm³, bbox x ≤ 30 en y ≤ 15 op beide kernels; daarnaast geeft `sweepGeometry` met het pad in
   beide richtingen hetzelfde lichaam.
+
+## Tweede ronde (volledige releasepass met dump, `e2e-out/mismatch-cases2/`)
+
+Na de fixes hierboven vond een volledige releasepass nog drie verschillen. Twee keer zat de fout in de mesh-boolean
+(vlakken van het gereedschap die in vlakken van het lichaam liggen), één keer op beide kernels in de richting van de
+rand en daarna in de mesh-kernel in de wet van de straal.
+
+### 5. features2-1: CrvPattern1 boort een gat opnieuw waar TPattern1 er al een boorde
+
+- **Fout: mesh.** Exact = 32000 − 5·π·3²·10 (gaten op x = 10, 30, 50, 70 en 40), op 0,001 mm³. De curve pattern zet
+  een instantie op x = 70, waar de table pattern al een gat maakte; het mesh-lichaam hield daar een stuk van het
+  gereedschap (tot y = 20, boven de plaat van 10 dik) en een open naad.
+- **Oorzaak:** de cilinderwand van het gereedschap viel vlak voor vlak samen met de wand van het bestaande gat
+  (dezelfde veelhoek). three-bvh-csg beoordeelt zulke samenvallende driehoeken verkeerd.
+- **Fix:** `detachCoincident()` in `csg()` (`src/core/features/solid.ts`), alleen bij aftrekken: elke driehoek van het
+  gereedschap die in het vlak ligt van de lichaamsdriehoek waar hij op rust (punten verspreid over de driehoek,
+  afstand ≤ 1e-6 × maat, normaal evenwijdig), wordt 1e-4 mm langs de normaal van dat lichaamsvlak uit het materiaal
+  geschoven. Ligt het gereedschapsvlak binnen het lichaam, dan reikt de snede zo tot net voorbij het vlak; ligt het
+  erbuiten (zoals hier), dan schuift het weg van het lichaam waar het niets wegnam. Het resultaat verandert hoogstens
+  1e-4 mm.
+- **Test:** plaat 80 × 40 × 10 met dezelfde gaten, de table pattern en de curve pattern; volume, vorm en bbox (y ≤ 10).
+
+### 6. filletopts-1: Variable Size fillet R2 → R8
+
+- **Twee fouten.** (a) De mesh-kernel zette R2 aan het andere uiteinde dan de B-rep (2,49 mm verschil bij x = 0). Elke
+  kernel nam de beginwaarde aan het begin van zijn eigen rand, en het mesh-lichaam en de tessellatie van het exacte
+  lichaam noemen de punten van dezelfde rand in tegengestelde volgorde. Juist is de richting waarin de rand liep toen
+  hij gekozen werd: die staat als `dir` in de randreferentie. (b) Daarna bleef 0,15 mm over: de mesh liet de straal
+  lineair verlopen, OpenCascade (`BRepFilletAPI_MakeFillet::Add(R1, R2, E)`) niet. Uitgelezen met `GetLaw` en
+  nagerekend voor drie randen (lengte 40/80/120, R oplopend en aflopend):
+  r(s) = R1 + (R2 − R1)·(3s + 4(3s² − 2s³))/7 (helling 3/7 van de lineaire aan de uiteinden,
+  9/7 in het midden): een vloeiende overgang, zoals de standaardkeuze "Smooth transition" van het
+  referentieprogramma (de precieze wet daarvan is niet nagegaan; de B-rep-wet is hier de maat).
+  De exacte inhoud volgt die wet met cirkelvormige doorsneden op 0,001 mm³:
+  (1 − π/4)·L·∫r², ∫h = 1/2, ∫h² = (3 + 18 + 96/5 − 32 + 64/7)/49.
+- **Fix:** `matchEdges` (`src/core/features/edgesets.ts`) geeft een rechte rand terug in de richting van zijn referentie
+  (`alongRef`), dus beide kernels krijgen dezelfde begin- en eindwaarde. `roundToolsOpts`
+  (`src/core/features/round.ts`) volgt `variableSize()` (dezelfde wet), in stukken van hoogstens 1/16 van de rand.
+- **Test:** blok 80 × 40 × 20, de bovenrand met de referentie in beide richtingen: de straal aan x = 0 is 8 of 2 op
+  beide kernels, het volume is 64000 − de gesloten vorm, en de vormen zijn gelijk.
+
+### 7. library-1: Cut-Revolve1, de afschuining van een zeskantmoer
+
+- **Fout: mesh.** Exact klopt met de gesloten vorm per plak (zeskant ∩ schijf met straal ρ(z) = 4,45 + z·√3, met zes
+  cirkelsegmenten voorbij de vlakken). Op het mesh-lichaam bleef één hoek van de moer aan z = 0 scherp (0,67 mm).
+- **Oorzaak:** de platte kant van de afschuifdriehoek ligt in het eindvlak van de moer (z = 0 en z = 5,2): de ring van
+  het omwentelingsgereedschap valt samen met het eindvlak van het lichaam.
+- **Fix:** dezelfde `detachCoincident()` als bij geval 5 (hier ligt het gereedschapsvlak binnen het lichaamsvlak en
+  wordt het naar buiten geschoven).
+- **Test:** zeskant SW 10 met een gat Ø6, dik 5,2, aan beide kanten afgeschuind onder 30°; het volume wordt per plak
+  numeriek geïntegreerd (20000 plakken).
+
+### 8. hem-1 en sheetmetal-1: Hem en Edge Flange op de bovenrand van een base flange
+
+- **Fout: mesh.** Base flange: L-profiel 40 × 30, dikte 3, buigstraal 3, 60 diep. De rand is de buitenste bovenrand van
+  de staande wand, met normalen +y (de eindvlak van 3 mm) en +x (de wand). Op het exacte lichaam stond de Edge Flange
+  (90°, 32) horizontaal naar buiten (x tot 69) en lag de Hem tegen de buitenkant van de wand (x tot 43, niets boven
+  y = 30), zoals het hoort: een flens buigt van de plaat af, niet van zijn dikte. Op het mesh-lichaam ging de flens
+  rechtop (y tot 59) en de hem omhoog: beide stonden op het eindvlak van 3 mm. Afwijking 23 mm en 11,3 mm.
+- **Oorzaak:** `sheetFaceOfEdge` kiest het grootste van de twee vlakken aan de rand, maar `planarFaces`
+  (`src/core/features/solid.ts`) gaf op het mesh-lichaam geen vlak +x en ook geen onderkant −y. De facetten van de bocht
+  (R3/R6, elk groter dan 0,5 % van het oppervlak) zijn vlakken die via randen onder een paar graden aan elkaar en aan
+  de raakvlakken hangen. De regel "drie of meer zulke vlakken zijn één gebogen vlak" nam daarom ook de wand en de
+  onderkant mee in het gebogen vlak. Op de tessellatie van het exacte lichaam zijn de bochtfacetten te klein om vlakken
+  te worden, dus daar ging het goed.
+- **Fix:** in die regel blijft een vlak dat meer dan 4 × de mediane oppervlakte van zijn groep heeft, een vlak: het is
+  de plaat (of de wand van een sleuf) waarin het gebogen vlak raakt, geen facet ervan.
+- **Test:** het mesh-lichaam van de base flange heeft een vlak +x van 24 × 60 en een vlak −y van 34 × 60 (gesloten
+  vorm). Edge Flange en Hem: dezelfde vorm op beide kernels (`shapeMismatch` null, inhoud op 0,2 %), de flens met x > 60
+  en y < 40, de hem met x > 42 en y = 30. De inhoud van flens en hem is hier niet in gesloten vorm nagerekend. Beide
+  kernels bouwen ze met dezelfde parameters uit `edgeFlangeGeometry` (domein van F197); de fout zat alleen in de keuze
+  van het vlak.

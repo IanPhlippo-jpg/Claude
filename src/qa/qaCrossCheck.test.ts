@@ -10,7 +10,7 @@ import { rebuildDocument } from '../core/features/rebuild';
 import { setBrepKernel } from '../core/features/brepKernel';
 import { occtKernel } from '../core/occt/brep';
 import { shapeDeviation, shapeMismatch, shapeTolerance, volumeMismatch } from '../core/features/volumeCheck';
-import { meshVolume } from '../core/features/solid';
+import { meshVolume, planarFaces } from '../core/features/solid';
 import { extrude, fillet, rect, t1, t3, t3Slot, TOP_FACE } from './qaModels';
 import * as THREE from 'three';
 import { addArc, addCircle, addLine, createSketch } from '../core/sketch/model';
@@ -201,5 +201,110 @@ describe('kernel disagreements found by the cross-check (QA F172)', { timeout: 1
     expect(round(boxes[1].min)).toEqual(round(boxes[0].min));
     expect(round(boxes[1].max)).toEqual(round(boxes[0].max));
     expect(boxes[0].max.x).toBeCloseTo(30, 4);
+  });
+
+  it('a curve pattern drills a hole again where a table pattern already drilled one: nothing changes there', () => {
+    const doc = createDocument();
+    doc.sketches.s1 = rect('s1', 'top', 0, 0, 80, 40);
+    doc.sketches.s2 = addCircle(createSketch('s2', 'Hole', 'top'), { x: 10, y: 20 }, 3)[0];
+    doc.sketches.s3 = addLine(createSketch('s3', 'Curve', 'top'), { x: 10, y: 20 }, { x: 70, y: 20 })[0];
+    doc.features.push(extrude('e1', 's1', 'boss', 10));
+    doc.features.push({ id: 'c1', type: 'extrude', name: 'Cut-Extrude1', sketchId: 's2', suppressed: false, op: 'cut', end: 'throughAll', depth: 0, reverse: false } as never);
+    // holes at x = 30, 50, 70; then along the line at x = 40 and again at 70
+    doc.features.push({ id: 'tp', type: 'tablePattern', name: 'TPattern1', suppressed: false, featureIds: ['c1'], table: [{ x: 20, y: 0 }, { x: 40, y: 0 }, { x: 60, y: 0 }] } as never);
+    doc.features.push({ id: 'cp', type: 'curvePattern', name: 'CrvPattern1', suppressed: false, featureIds: ['c1'], curve: { sketchId: 's3', count: 3, spacing: 20, equal: true, tangent: false } } as never);
+    const { m } = agree(doc, 80 * 40 * 10 - 5 * Math.PI * 9 * 10, 2e-3);
+    // the drilled-again hole left no piece of the tool standing above the plate
+    expect(new THREE.Box3().setFromBufferAttribute(m.geometry.getAttribute('position') as THREE.BufferAttribute).max.y).toBeCloseTo(10, 3);
+  });
+
+  it('Variable Size fillet R2 → R8: the start size where the edge started when it was picked, on both kernels', () => {
+    // the law of both kernels: start + (end - start)·h(s), h = (3s + 12s² - 8s³) / 7; ∫h = 1/2, ∫h² = (3 + 18 + 96/5 - 32 + 64/7) / 49
+    const ih2 = (3 + 18 + 96 / 5 - 32 + 64 / 7) / 49;
+    const removed = (r1: number, r2: number, L: number) => (1 - Math.PI / 4) * L * (r1 * r1 + r1 * (r2 - r1) + (r2 - r1) * (r2 - r1) * ih2);
+    for (const sign of [-1, 1]) {
+      const doc = createDocument();
+      doc.sketches.s1 = rect('s1', 'top', 0, 0, 80, 40);
+      doc.features.push(extrude('e1', 's1', 'boss', 20));
+      const edge = mesh(doc).edges.find((x) => x.straight && Math.abs(x.length - 80) < 1e-3 && Math.abs(x.centroid.y - 20) < 1e-3 && Math.abs(x.centroid.z) < 1e-3)!;
+      // the reference as picked running along -x (start at x = 80) or along +x (start at x = 0)
+      const ref = { ...edgeRef(edge), dir: [sign, 0, 0] as [number, number, number] };
+      doc.features.push({ id: 'vf', type: 'fillet', name: 'Fillet1', suppressed: false, size: 10, edges: [ref], roundType: 'variable', variable: { start: 2, end: 8 } } as never);
+      const { m, e } = agree(doc, 80 * 40 * 20 - removed(2, 8, 80), 2e-4);
+      // where the round meets the top face (y = 20) at the end x = 0: z = -R there
+      const atStart = sign < 0 ? 8 : 2;
+      for (const g of [m.geometry, e.geometry]) {
+        const p = g.getAttribute('position');
+        let zMax = -Infinity;
+        for (let i = 0; i < p.count; i++) if (Math.abs(p.getX(i)) < 1e-4 && Math.abs(p.getY(i) - 20) < 1e-4) zMax = Math.max(zMax, p.getZ(i));
+        expect(Math.abs(zMax + atStart)).toBeLessThan(0.1);
+      }
+    }
+  });
+
+  it('chamfered hex nut: the chamfer cones lying in the end faces cut every corner', () => {
+    const doc = createDocument();
+    const a = 10 / Math.sqrt(3);
+    let s1 = createSketch('s1', 'Hex', 'front');
+    const hex = [0, 1, 2, 3, 4, 5].map((k) => ({ x: a * Math.cos((k * Math.PI) / 3), y: a * Math.sin((k * Math.PI) / 3) }));
+    for (let k = 0; k < 6; k++) s1 = addLine(s1, hex[k], hex[(k + 1) % 6])[0];
+    doc.sketches.s1 = addCircle(s1, { x: 0, y: 0 }, 3)[0];
+    // two 30° chamfer triangles from r = 4.45 out past the corners, at both end faces (z = 0 and 5.2), turned about z
+    const r0 = 4.45, r1 = a + 0.5, h = (r1 - r0) / Math.sqrt(3);
+    let s2 = createSketch('s2', 'Chamfer', 'top');
+    for (const tri of [[{ x: r0, y: 0 }, { x: r1, y: 0 }, { x: r1, y: -h }], [{ x: r0, y: -5.2 }, { x: r1, y: -5.2 + h }, { x: r1, y: -5.2 }]]) {
+      const [t0, l0] = addLine(s2, tri[0], tri[1]);
+      const [t1, l1] = addLine(t0, l0.p2, tri[2]);
+      s2 = addLine(t1, l1.p2, l0.p1)[0];
+    }
+    const [s2a, axis] = addLine(s2, { x: 0, y: -10.2 }, { x: 0, y: 5 }, true);
+    doc.sketches.s2 = s2a;
+    doc.features.push(extrude('e1', 's1', 'boss', 5.2));
+    doc.features.push({ id: 'cr', type: 'revolve', name: 'Cut-Revolve1', sketchId: 's2', suppressed: false, op: 'cut', axisEntityId: axis.id, angle: 360, reverse: false } as never);
+    // per end: the slice at height z keeps the hexagon inside the cone radius ρ = r0 + z·√3 (6 segments past the flats)
+    const hexArea = 2 * Math.sqrt(3) * 25;
+    const kept = (rho: number) => (rho <= 5 ? Math.PI * rho * rho : Math.PI * rho * rho - 6 * (rho * rho * Math.acos(5 / rho) - 5 * Math.sqrt(rho * rho - 25)));
+    const zTop = (a - r0) / Math.sqrt(3), N = 20000;
+    let chamfer = 0;
+    for (let i = 0; i < N; i++) chamfer += (hexArea - kept(r0 + ((i + 0.5) / N) * zTop * Math.sqrt(3))) * (zTop / N);
+    agree(doc, (hexArea - Math.PI * 9) * 5.2 - 2 * chamfer, 5e-3);
+  });
+
+  it('Edge Flange and Hem on the top edge of a base flange stand on the sheet face, not on the 3 mm end face', () => {
+    const base = () => {
+      const doc = createDocument();
+      const [s0, l0] = addLine(createSketch('s1', 'Sketch1', 'front'), { x: 0, y: 0 }, { x: 40, y: 0 });
+      doc.sketches.s1 = addLine(s0, l0.p2, { x: 40, y: 30 })[0];
+      doc.sheetMetal = { thickness: 3, bendRadius: 3, kFactor: 0.5 };
+      doc.features.push({ id: 'bf', type: 'baseFlange', name: 'Base-Flange1', sketchId: 's1', suppressed: false, depth: 60, midPlane: true, reverse: false, flipDir: false } as never);
+      return doc;
+    };
+    // the faceted sheet keeps its flat faces beside the bend: the outer wall (y 6..30) and the underside (x 0..34)
+    const sheet = mesh(base()).geometry;
+    const flat = (n: [number, number, number]) => planarFaces(sheet, 'b').filter((f) => !f.curved && f.normal.every((v, i) => Math.abs(v - n[i]) < 1e-6)).map((f) => f.area);
+    expect(flat([1, 0, 0]).some((a) => Math.abs(a - 24 * 60) < 1e-6)).toBe(true);
+    expect(flat([0, -1, 0]).some((a) => Math.abs(a - 34 * 60) < 1e-6)).toBe(true);
+    const top = mesh(base()).edges.find((x) => x.straight && Math.abs(x.length - 60) < 1e-3 && Math.abs(x.centroid.x - 40) < 1e-3 && Math.abs(x.centroid.y - 30) < 1e-3)!;
+    expect(top).toBeTruthy();
+    const both = (doc: Document) => {
+      const m = mesh(doc), e = exact(doc);
+      expect(shapeMismatch(m.geometry, e.geometry)).toBeNull();
+      expect(Math.abs(Math.abs(meshVolume(m.geometry)) - e.exactVolume!) / e.exactVolume!).toBeLessThan(2e-3);
+      return [m.geometry, e.geometry].map((g) => new THREE.Box3().setFromBufferAttribute(g.getAttribute('position') as THREE.BufferAttribute));
+    };
+    // Edge Flange 90°: bent off the vertical wall, so it runs out horizontally (x past 60), not up (y stays under 40)
+    const ef = base();
+    ef.features.push({ id: 'ef', type: 'edgeFlange', name: 'Edge-Flange1', suppressed: false, edge: edgeRef(top), angle: 90, length: 32, lengthMode: 'outerSharp', position: 'materialOutside', flip: false } as never);
+    for (const bb of both(ef)) {
+      expect(bb.max.x).toBeGreaterThan(60);
+      expect(bb.max.y).toBeLessThan(40);
+    }
+    // closed Hem: folded back down along the outside of the wall (x past 40, nothing above y = 30)
+    const hm = base();
+    hm.features.push({ id: 'hm', type: 'hem', name: 'Hem1', suppressed: false, edge: edgeRef(top), hemType: 'closed', length: 10, gap: 2, position: 'materialInside', flip: false } as never);
+    for (const bb of both(hm)) {
+      expect(bb.max.x).toBeGreaterThan(42);
+      expect(bb.max.y).toBeCloseTo(30, 2);
+    }
   });
 });

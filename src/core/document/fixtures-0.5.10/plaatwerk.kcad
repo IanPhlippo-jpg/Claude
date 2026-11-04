@@ -1,0 +1,196 @@
+{
+  "format": "phlippo-cad",
+  "version": 2,
+  "name": "Plaatwerk",
+  "units": "mm",
+  "sketches": {
+    "s1": {
+      "id": "s1",
+      "name": "Sketch1",
+      "plane": "top",
+      "points": {
+        "origin_s1": {
+          "x": 0,
+          "y": 0
+        },
+        "pmw0teja8h": {
+          "x": 0,
+          "y": 0
+        },
+        "pmw0teja8i": {
+          "x": 60,
+          "y": 0
+        },
+        "pmw0teja8k": {
+          "x": 60,
+          "y": 0
+        },
+        "pmw0teja8l": {
+          "x": 60,
+          "y": 40
+        },
+        "pmw0teja8n": {
+          "x": 60,
+          "y": 40
+        },
+        "pmw0teja8o": {
+          "x": 0,
+          "y": 40
+        },
+        "pmw0teja8q": {
+          "x": 0,
+          "y": 40
+        },
+        "pmw0teja8r": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "scalars": {},
+      "entities": {
+        "lnmw0teja8j": {
+          "id": "lnmw0teja8j",
+          "kind": "line",
+          "p1": "pmw0teja8h",
+          "p2": "pmw0teja8i",
+          "construction": false
+        },
+        "lnmw0teja8m": {
+          "id": "lnmw0teja8m",
+          "kind": "line",
+          "p1": "pmw0teja8k",
+          "p2": "pmw0teja8l",
+          "construction": false
+        },
+        "lnmw0teja8p": {
+          "id": "lnmw0teja8p",
+          "kind": "line",
+          "p1": "pmw0teja8n",
+          "p2": "pmw0teja8o",
+          "construction": false
+        },
+        "lnmw0teja8s": {
+          "id": "lnmw0teja8s",
+          "kind": "line",
+          "p1": "pmw0teja8q",
+          "p2": "pmw0teja8r",
+          "construction": false
+        }
+      },
+      "constraints": {},
+      "entityOrder": [
+        "lnmw0teja8j",
+        "lnmw0teja8m",
+        "lnmw0teja8p",
+        "lnmw0teja8s"
+      ],
+      "constraintOrder": [],
+      "origin": "origin_s1"
+    }
+  },
+  "features": [
+    {
+      "id": "f_s1",
+      "type": "sketch",
+      "name": "Sketch1",
+      "sketchId": "s1",
+      "suppressed": false
+    },
+    {
+      "id": "tb",
+      "type": "baseFlange",
+      "name": "Base-Flange1",
+      "sketchId": "s1",
+      "suppressed": false,
+      "depth": 0,
+      "midPlane": false,
+      "reverse": false
+    },
+    {
+      "id": "ef",
+      "type": "edgeFlange",
+      "name": "Edge-Flange1",
+      "suppressed": false,
+      "edge": {
+        "centroid": [
+          30,
+          2,
+          -40
+        ],
+        "length": 60,
+        "closed": false,
+        "straight": true,
+        "dir": [
+          -1,
+          0,
+          0
+        ],
+        "normals": [
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            -1
+          ]
+        ]
+      },
+      "flip": false,
+      "angle": 90,
+      "length": 20,
+      "lengthMode": "outerSharp",
+      "position": "materialOutside"
+    },
+    {
+      "id": "hm",
+      "type": "hem",
+      "name": "Hem1",
+      "suppressed": false,
+      "edge": {
+        "centroid": [
+          30,
+          2,
+          0
+        ],
+        "length": 60,
+        "closed": false,
+        "straight": true,
+        "dir": [
+          1,
+          0,
+          0
+        ],
+        "normals": [
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      },
+      "flip": false,
+      "hemType": "closed",
+      "length": 10,
+      "gap": 0.5,
+      "position": "materialInside"
+    }
+  ],
+  "planes": {},
+  "variables": {},
+  "equations": [],
+  "sheetMetal": {
+    "thickness": 2,
+    "bendRadius": 3,
+    "kFactor": 0.5,
+    "reliefType": "rectangular",
+    "reliefRatio": 0.5
+  }
+}

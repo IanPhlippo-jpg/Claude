@@ -9,7 +9,8 @@ import { viewFrame } from '../../core/drawing/hlr';
 import { layoutBalloons, visibleAnchors } from '../../core/drawing/balloons';
 import { dimensionText } from '../../core/drawing/dimtext';
 import type { DrawingSheet, DrawingView } from '../../core/document/types';
-import { lengthDecimals } from '../prefs';
+import { annotationFont, dimFontFamily, formatNumber, lengthDecimals, noteText, tableFont, tableLine, tableText, uppercaseDims } from '../prefsFormat';
+import { HatchPattern } from './HatchPattern';
 import { partRebuild, rebuildAssembly } from '../../core/assembly/assembly';
 import * as THREE from 'three';
 import { massProperties } from '../../core/features/measure';
@@ -689,7 +690,7 @@ export function DrawingSheetView() {
   const renderSymbol = (sy: NonNullable<DrawingSheet['symbols']>[number]) => {
     const P = toPx(sy.position);
     const fs = 3.5 * mm;
-    const font = 'Century Gothic, Arial, sans-serif';
+    const font = annotationFont();
     const leader = (to: [number, number], from: [number, number], head: 'arrow' | 'dot' | 'triangle' | 'none') => {
       const T = toPx(to), F = toPx(from);
       return (
@@ -706,7 +707,7 @@ export function DrawingSheetView() {
       if (!hv) return null;
       const g = viewGeometry(hv);
       const d = sy.tris.map((t) => t.map((pt, k) => { const q = toPx(viewToSheet(sheet, hv, g, pt)); return `${k ? 'L' : 'M'}${q[0].toFixed(2)},${q[1].toFixed(2)}`; }).join('') + 'Z').join('');
-      return <path key={sy.id} className="k-area-hatch" d={d} fill="url(#k-hatch)" stroke="none" />;
+      return <path key={sy.id} className="k-area-hatch" d={d} fill="url(#k-hatch-area)" stroke="none" />;
     }
     if (sy.kind === 'revision') {
       // revision symbol: a triangle with the revision letter
@@ -842,17 +843,17 @@ export function DrawingSheetView() {
     const x0 = x1 - W;
     const cells: React.ReactElement[] = [];
     const a0 = toPx([x0, y1]), b0 = toPx([x1, y1 - rowH]);
-    cells.push(<rect key="hd" x={a0[0]} y={a0[1]} width={b0[0] - a0[0]} height={b0[1] - a0[1]} fill={PAPER} stroke="#000" strokeWidth={0.9} />);
+    cells.push(<rect key="hd" x={a0[0]} y={a0[1]} width={b0[0] - a0[0]} height={b0[1] - a0[1]} fill={PAPER} stroke="#000" strokeWidth={tableLine(true)} />);
     const hp = toPx([x0 + W / 2, y1 - rowH / 2 - 1.1]);
-    cells.push(<text key="hdt" x={hp[0]} y={hp[1]} fontSize={2.8 * mm} textAnchor="middle" fontFamily="Century Gothic, Arial, sans-serif" fontWeight={600}>REVISIONS</text>);
+    cells.push(<text key="hdt" x={hp[0]} y={hp[1]} fontSize={2.8 * mm} textAnchor="middle" fontFamily={tableFont()} fontWeight={600}>REVISIONS</text>);
     [['REV.', 'DESCRIPTION', 'DATE', 'APPROVED'], ...revs.map((r) => [r.rev, r.description, r.date, r.approved])].forEach((row, ri) => {
       const yTop = y1 - (ri + 1) * rowH;
       let x = x0;
       row.forEach((txt, ci) => {
         const a = toPx([x, yTop]), b = toPx([x + cols[ci], yTop - rowH]);
-        cells.push(<rect key={`r${ri}-${ci}`} x={a[0]} y={a[1]} width={b[0] - a[0]} height={b[1] - a[1]} fill={PAPER} stroke="#000" strokeWidth={ri === 0 ? 0.9 : 0.5} />);
+        cells.push(<rect key={`r${ri}-${ci}`} x={a[0]} y={a[1]} width={b[0] - a[0]} height={b[1] - a[1]} fill={PAPER} stroke="#000" strokeWidth={tableLine(ri === 0)} />);
         const tp = toPx([x + (ci === 1 ? 1.5 : cols[ci] / 2), yTop - rowH / 2 - 1.1]);
-        cells.push(<text key={`rt${ri}-${ci}`} x={tp[0]} y={tp[1]} fontSize={2.8 * mm} textAnchor={ci === 1 ? 'start' : 'middle'} fontFamily="Century Gothic, Arial, sans-serif" fontWeight={ri === 0 ? 600 : 400}>{txt}</text>);
+        cells.push(<text key={`rt${ri}-${ci}`} x={tp[0]} y={tp[1]} fontSize={2.8 * mm} textAnchor={ci === 1 ? 'start' : 'middle'} fontFamily={tableFont()} fontWeight={ri === 0 ? 600 : 400}>{tableText(txt)}</text>);
         x += cols[ci];
       });
     });
@@ -868,9 +869,9 @@ export function DrawingSheetView() {
       let x = pos[0];
       r.forEach((txt, ci) => {
         const a = toPx([x, yTop]), b = toPx([x + cols[ci], yTop - rowH]);
-        cells.push(<rect key={`${ri}-${ci}`} x={a[0]} y={a[1]} width={b[0] - a[0]} height={b[1] - a[1]} fill={PAPER} stroke="#000" strokeWidth={ri === 0 ? 0.9 : 0.5} />);
+        cells.push(<rect key={`${ri}-${ci}`} x={a[0]} y={a[1]} width={b[0] - a[0]} height={b[1] - a[1]} fill={PAPER} stroke="#000" strokeWidth={tableLine(ri === 0)} />);
         const tp = toPx([x + cols[ci] / 2, yTop - rowH / 2 - 1.1]);
-        cells.push(<text key={`t${ri}-${ci}`} x={tp[0]} y={tp[1]} fontSize={2.8 * mm} textAnchor="middle" fontFamily="Century Gothic, Arial, sans-serif" fontWeight={ri === 0 ? 600 : 400}>{txt}</text>);
+        cells.push(<text key={`t${ri}-${ci}`} x={tp[0]} y={tp[1]} fontSize={2.8 * mm} textAnchor="middle" fontFamily={tableFont()} fontWeight={ri === 0 ? 600 : 400}>{tableText(txt)}</text>);
         x += cols[ci];
       });
     });
@@ -897,9 +898,9 @@ export function DrawingSheetView() {
       let x = x0;
       r.forEach((txt, ci) => {
         const a = toPx([x, yTop]), b = toPx([x + cols[ci], yTop - rowH]);
-        cells.push(<rect key={`${ri}-${ci}`} x={a[0]} y={a[1]} width={b[0] - a[0]} height={b[1] - a[1]} fill={PAPER} stroke="#000" strokeWidth={ri === 0 ? 0.9 : 0.5} />);
+        cells.push(<rect key={`${ri}-${ci}`} x={a[0]} y={a[1]} width={b[0] - a[0]} height={b[1] - a[1]} fill={PAPER} stroke="#000" strokeWidth={tableLine(ri === 0)} />);
         const tp = toPx([x + (ci === 1 || ci === 2 ? 1.5 : cols[ci] / 2), yTop - rowH / 2 - 1.1]);
-        cells.push(<text key={`t${ri}-${ci}`} x={tp[0]} y={tp[1]} fontSize={2.8 * mm} textAnchor={ci === 1 || ci === 2 ? 'start' : 'middle'} fontFamily="Century Gothic, Arial, sans-serif" fontWeight={ri === 0 ? 600 : 400}>{txt}</text>);
+        cells.push(<text key={`t${ri}-${ci}`} x={tp[0]} y={tp[1]} fontSize={2.8 * mm} textAnchor={ci === 1 || ci === 2 ? 'start' : 'middle'} fontFamily={tableFont()} fontWeight={ri === 0 ? 600 : 400}>{tableText(txt)}</text>);
         x += cols[ci];
       });
     });
@@ -911,8 +912,8 @@ export function DrawingSheetView() {
     if (!v) return null;
     const v2d = viewGeometry(v);
     const A = toPx(viewToSheet(sheet, v, v2d, d.a)), B = toPx(viewToSheet(sheet, v, v2d, d.b)), L = toPx(viewToSheet(sheet, v, v2d, d.label));
-    const dt = dimensionText(d, decimals);
-    const text = dt.main;
+    const dt = dimensionText(d, decimals, formatNumber);
+    const text = uppercaseDims(dt.main);
     const fs = (d.fontSize ?? 3.5) * mm;
     const sel = st.selectedDrawingDimensionId === d.id;
     const col = sel ? '#1e6fd9' : '#1a3d8f';
@@ -923,9 +924,9 @@ export function DrawingSheetView() {
       return (
         <>
           {dt.boxed && <rect x={(anchor === 'middle' ? x - w / 2 : anchor === 'start' ? x : x - w) - 0.8 * mm} y={y - fs * 0.95} width={w + 1.6 * mm} height={fs * 1.25} fill="none" strokeWidth={0.6} />}
-          {dt.upper && <text x={dt.main ? right + 0.6 * mm : x} y={y - fs * (dt.main ? 0.45 : 0.55)} fontSize={dt.main ? fs * 0.7 : fs} textAnchor={dt.main ? 'start' : anchor} stroke="none" fontFamily="Century Gothic, Arial, sans-serif" data-testid="dim-tol-upper">{dt.upper}</text>}
-          {dt.lower && <text x={dt.main ? right + 0.6 * mm : x} y={y + fs * (dt.main ? 0.25 : 0.55)} fontSize={dt.main ? fs * 0.7 : fs} textAnchor={dt.main ? 'start' : anchor} stroke="none" fontFamily="Century Gothic, Arial, sans-serif" data-testid="dim-tol-lower">{dt.lower}</text>}
-          {dt.dual && <text x={x} y={y + fs * 1.15} fontSize={fs} textAnchor={anchor} stroke="none" fontFamily="Century Gothic, Arial, sans-serif" data-testid="dim-dual-text">{dt.dual}</text>}
+          {dt.upper && <text x={dt.main ? right + 0.6 * mm : x} y={y - fs * (dt.main ? 0.45 : 0.55)} fontSize={dt.main ? fs * 0.7 : fs} textAnchor={dt.main ? 'start' : anchor} stroke="none" fontFamily={dimFontFamily()} data-testid="dim-tol-upper">{dt.upper}</text>}
+          {dt.lower && <text x={dt.main ? right + 0.6 * mm : x} y={y + fs * (dt.main ? 0.25 : 0.55)} fontSize={dt.main ? fs * 0.7 : fs} textAnchor={dt.main ? 'start' : anchor} stroke="none" fontFamily={dimFontFamily()} data-testid="dim-tol-lower">{dt.lower}</text>}
+          {dt.dual && <text x={x} y={y + fs * 1.15} fontSize={fs} textAnchor={anchor} stroke="none" fontFamily={dimFontFamily()} data-testid="dim-dual-text">{dt.dual}</text>}
         </>
       );
     };
@@ -955,7 +956,7 @@ export function DrawingSheetView() {
           <line x1={A[0]} y1={A[1]} x2={pa[0]} y2={pa[1]} /><line x1={B[0]} y1={B[1]} x2={pb[0]} y2={pb[1]} />
           {outside ? <><line x1={oa[0]} y1={oa[1]} x2={ob[0]} y2={ob[1]} />{arrow(pa, oa, mm)}{arrowHead(pb, ob, mm, d.secondArrow)}</> : <><line x1={pa[0]} y1={pa[1]} x2={pb[0]} y2={pb[1]} />{arrow(pa, pb, mm)}{arrowHead(pb, pa, mm, d.secondArrow)}</>}
           <g transform={`rotate(${Math.abs(ang) > 90 ? ang + 180 : ang} ${mid[0]} ${mid[1]})`}>
-            <text x={mid[0]} y={mid[1] - 1.2 * mm} fontSize={fs} textAnchor="middle" stroke="none" fontFamily="Century Gothic, Arial, sans-serif">{text}</text>
+            <text x={mid[0]} y={mid[1] - 1.2 * mm} fontSize={fs} textAnchor="middle" stroke="none" fontFamily={dimFontFamily()}>{text}</text>
             {extras(mid[0], mid[1] - 1.2 * mm, 'middle')}
           </g>
         </g>
@@ -972,7 +973,7 @@ export function DrawingSheetView() {
         {arrow(onCircle, start, mm)}
         {d.kind === 'diameter' && arrow(start, onCircle, mm)}
         <line x1={L[0]} y1={L[1]} x2={L[0] + (dx >= 0 ? 6 * mm : -6 * mm)} y2={L[1]} />
-        <text x={L[0] + (dx >= 0 ? 1 : -1) * mm} y={L[1] - 0.8 * mm} fontSize={fs} textAnchor={dx >= 0 ? 'start' : 'end'} stroke="none" fontFamily="Century Gothic, Arial, sans-serif">{text}</text>
+        <text x={L[0] + (dx >= 0 ? 1 : -1) * mm} y={L[1] - 0.8 * mm} fontSize={fs} textAnchor={dx >= 0 ? 'start' : 'end'} stroke="none" fontFamily={dimFontFamily()}>{text}</text>
         {extras(L[0] + (dx >= 0 ? 1 : -1) * mm, L[1] - 0.8 * mm, dx >= 0 ? 'start' : 'end')}
       </g>
     );
@@ -1011,9 +1012,8 @@ export function DrawingSheetView() {
     >
       <svg width={size.w} height={Math.max(0, size.h - SHEET_TABS_H)} className="k-sheet-svg">
         <defs>
-          <pattern id="k-hatch" patternUnits="userSpaceOnUse" width={2.5 * mm} height={2.5 * mm} patternTransform="rotate(45)">
-            <line x1={0} y1={0} x2={0} y2={2.5 * mm} stroke="#000" strokeWidth={0.6} />
-          </pattern>
+          <HatchPattern id="k-hatch" kind="section" mm={mm} />
+          <HatchPattern id="k-hatch-area" kind="area" mm={mm} />
           <pattern id="k-hatch-b" patternUnits="userSpaceOnUse" width={2.5 * mm} height={2.5 * mm} patternTransform="rotate(-45)">
             <line x1={0} y1={0} x2={0} y2={2.5 * mm} stroke="#000" strokeWidth={0.6} />
           </pattern>
@@ -1198,7 +1198,7 @@ export function DrawingSheetView() {
         {sheet.notes.map((n) => {
           const p = toPx(n.position);
           const fs = (n.fontSize ?? 3.5) * mm;
-          const lines = n.text.split('\n');
+          const lines = noteText(n.text).split('\n');
           const w = Math.max(...lines.map((l) => l.length)) * fs * 0.56, h = lines.length * fs * 1.2;
           // the text block's box for the alignment (left / center / right of the click) and the border
           const x0 = n.align === 'center' ? p[0] - w / 2 : n.align === 'right' ? p[0] - w : p[0];
@@ -1211,7 +1211,7 @@ export function DrawingSheetView() {
               {n.border === 'box' && <rect x={x0 - 1.5 * mm} y={p[1] - fs - 1.2 * mm} width={w + 3 * mm} height={h + 2 * mm} fill="none" stroke="#000" strokeWidth={0.6} />}
               {n.border === 'circular' && <circle cx={cx} cy={cy} r={Math.max(w, h) / 2 + 2 * mm} fill="none" stroke="#000" strokeWidth={0.6} />}
               {n.border === 'triangle' && (() => { const s = Math.max(w, h) + 6 * mm; return <path d={`M${cx},${cy - s * 0.62} L${cx + s * 0.6},${cy + s * 0.42} L${cx - s * 0.6},${cy + s * 0.42} Z`} fill="none" stroke="#000" strokeWidth={0.6} />; })()}
-              <text x={n.align === 'center' ? cx : n.align === 'right' ? p[0] : p[0]} y={p[1]} textAnchor={anchor} fontSize={fs} fontWeight={n.bold ? 700 : 400} fontStyle={n.italic ? 'italic' : 'normal'} fill="#000" fontFamily="Century Gothic, Arial, sans-serif" data-testid="sheet-note" className={st.drawingTool?.kind === 'formatPainter' && st.drawingTool.source === n.id ? 'k-note-source' : ''}>
+              <text x={n.align === 'center' ? cx : n.align === 'right' ? p[0] : p[0]} y={p[1]} textAnchor={anchor} fontSize={fs} fontWeight={n.bold ? 700 : 400} fontStyle={n.italic ? 'italic' : 'normal'} fill="#000" fontFamily={annotationFont()} data-testid="sheet-note" className={st.drawingTool?.kind === 'formatPainter' && st.drawingTool.source === n.id ? 'k-note-source' : ''}>
                 {lines.map((l, i) => <tspan key={i} x={n.align === 'center' ? cx : p[0]} dy={i ? fs * 1.2 : 0}>{l}</tspan>)}
               </text>
             </g>

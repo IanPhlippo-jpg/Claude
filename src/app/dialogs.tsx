@@ -1,6 +1,7 @@
 import { LEGAL_NOTICE } from './legal';
 import { EquationMenu } from '../ui/equationMenu';
 import { getPref } from './prefs';
+import { recentDocuments, spinIncrement, welcomeTabs } from './prefsEffects';
 import { sketchDimensionName } from '../core/document/equations';
 import { useEffect, useRef, useState } from 'react';
 import { useStore } from './store';
@@ -26,7 +27,7 @@ export function WelcomeDialog() {
       return false;
     }
   })();
-  const recents = listAutosaves();
+  const recents = recentDocuments(listAutosaves());
   const newPart = () => withUnsavedCheck(() => { useStore.getState().openDocument(createDocument()); useStore.getState().setDialog(null); });
   const [hide, setHide] = useState(() => { try { return localStorage.getItem('phlippo.welcome.hide') === '1'; } catch { return false; } });
   const openRecent = (key: string) => withUnsavedCheck(() => {
@@ -38,7 +39,7 @@ export function WelcomeDialog() {
   return (
     <Dialog title="Welcome - Phlippo CAD" onClose={() => st.setDialog(null)}>
       <div className="k-welcome-tabs">
-        {(['home', 'recent', 'learn', 'alerts'] as const).map((id) => (
+        {welcomeTabs().map((id) => (
           <button key={id} className={`k-welcome-tab ${tab === id ? 'active' : ''}`} onClick={() => setTab(id)}>
             {{ home: 'Home', recent: 'Recent', learn: 'Learn', alerts: 'Alerts' }[id]}
           </button>
@@ -319,7 +320,7 @@ export function ModifyDialog() {
       <div className="k-modify-row k-modify-value k-tip" data-tip={`${c.kind === 'angle' ? 'Angle' : c.kind === 'radius' ? 'Radius' : c.kind === 'diameter' ? 'Diameter' : 'Distance'} (Enter a value or start with = to create an equation)`}>
         {eqText === null ? (
           <div onKeyDownCapture={(e) => { if (e.key === '=') { e.preventDefault(); e.stopPropagation(); setEqText('= '); } }}>
-            <NumberField value={Math.round(value * k * 1e6) / 1e6} onChange={(v) => setValue(v / k)} unit={c.kind === 'angle' ? (shownUnit === 'rad' ? 'rad' : '°') : shownUnit} step={c.kind === 'angle' ? Number(st.prefs['spin.angle']) || 1 : st.unitSystem === 'IPS' ? Number(st.prefs['spin.lengthEnglish']) || 0.1 : Number(st.prefs['spin.lengthMetric']) || 10} autoFocus onCommit={apply} />
+            <NumberField value={Math.round(value * k * 1e6) / 1e6} onChange={(v) => setValue(v / k)} unit={c.kind === 'angle' ? (shownUnit === 'rad' ? 'rad' : '°') : shownUnit} step={spinIncrement(st.prefs, c.kind === 'angle', st.unitSystem === 'IPS')} autoFocus onCommit={apply} />
           </div>
         ) : (
           <div style={{ position: 'relative', flex: 1 }}>

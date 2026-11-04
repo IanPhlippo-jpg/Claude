@@ -5,6 +5,8 @@ import { SelectionFilterBar } from './SelectionFilterBar';
 import { bridge } from './viewport/bridge';
 import { applyUpAxis } from './viewport/camera';
 import { getPref } from './prefs';
+import { openLastAtStartup } from './prefsEffects';
+const hasLastSession = () => { try { return !!localStorage.getItem('phlippo.autosave'); } catch { return false; } };
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { lazyNamed, preloadLazy } from './lazy';
 import { startBrepRefinement } from './brepRefine';
@@ -22,15 +24,21 @@ import { StatusBar } from './StatusBar';
 import { SHORTCUTS, useShortcuts } from './shortcuts';
 import { Dialog, Kbd } from '../ui/components';
 
-import { ViewPane } from './viewport/ViewPane';
 import { CommentsDialog, ComponentPreview, MirrorComponentsDialog, PackAndGoDialog, ShareDialog } from './lifecycleDialogs';
-import { AskDialog, ConfirmDeleteDialog, ModifyDialog, NewDocumentDialog, OrientationDialog, WelcomeDialog } from './dialogs';
 import { ShortcutBar } from './ShortcutBar';
 import '../ui/tokens.css';
 import '../ui/components.css';
 import './app.css';
 
 // dialogs and the drawing view load when first shown (QA F34): they are not part of the start-up bundle
+// the extra view panes and the common dialogs load right after start-up, outside the start-up script (QA 0.5.11 F174)
+const ViewPane = lazyNamed(() => import('./viewport/ViewPane'), 'ViewPane', true);
+const AskDialog = lazyNamed(() => import('./dialogs'), 'AskDialog', true);
+const ConfirmDeleteDialog = lazyNamed(() => import('./dialogs'), 'ConfirmDeleteDialog', true);
+const ModifyDialog = lazyNamed(() => import('./dialogs'), 'ModifyDialog', true);
+const NewDocumentDialog = lazyNamed(() => import('./dialogs'), 'NewDocumentDialog', true);
+const OrientationDialog = lazyNamed(() => import('./dialogs'), 'OrientationDialog', true);
+const WelcomeDialog = lazyNamed(() => import('./dialogs'), 'WelcomeDialog', true);
 const GeneralTableDialog = lazyNamed(() => import('./drawing/DrawingExtras'), 'GeneralTableDialog');
 const LinearNotePatternDialog = lazyNamed(() => import('./drawing/DrawingExtras'), 'LinearNotePatternDialog');
 const RelativeViewDialog = lazyNamed(() => import('./drawing/DrawingExtras'), 'RelativeViewDialog');
@@ -111,6 +119,8 @@ export function App() {
   useEffect(() => startBrepRefinement(), []);
   // View ▸ Modify ▸ Up Axis: the saved choice applies to the standard views from the start
   useEffect(() => { applyUpAxis(getPref('view.upAxis') === 'Z' ? 'Z' : 'Y'); }, []);
+  // General ▸ Open last used document(s) at startup: Always shows the document of the last session
+  useEffect(() => { if (openLastAtStartup(hasLastSession())) useStore.getState().showDocument(); }, []);
   // the command catalog (Customize) reaches Save and the shortcut bar through these hooks
   useEffect(() => {
     bridge.save = handlers.save;

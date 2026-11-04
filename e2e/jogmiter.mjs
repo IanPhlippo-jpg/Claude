@@ -1,6 +1,6 @@
 // Sheet Metal ▸ Jog and Miter Flange through the ribbon: a 100 x 60 tab, a jog line on its bottom face, then a miter flange along two top edges.
 import { chromium } from 'playwright';
-import { exitCode } from './lib/check.mjs';
+import { exitCode, waitSettled } from './lib/check.mjs';
 import { mkdirSync } from 'node:fs';
 
 const OUT = process.env.E2E_OUT ?? (process.platform === 'win32' ? 'e2e-out' : '/tmp/phlippo-e2e');
@@ -39,7 +39,7 @@ await page.evaluate(() => {
   ];
   window.__phlippoStore.getState().openDocument(d);
 });
-await page.waitForTimeout(700);
+await waitSettled(page);
 const B = () => page.evaluate(() => { const s = window.__phlippoStore.getState(); const g = s.rebuild.bodies[0]?.geometry; if (!g) return null; g.computeBoundingBox(); return { errors: s.rebuild.errors, min: g.boundingBox.min.toArray(), max: g.boundingBox.max.toArray(), feats: s.doc.features.map((f) => f.name) }; });
 
 // ---- Jog: select Sketch2, Sheet Metal ▸ Jog, offset 12, OK
@@ -53,7 +53,9 @@ await page.locator('.k-section:has-text("Jog Offset") input.k-num').first().pres
 await page.waitForTimeout(300);
 await shot('jm1-jog-pm');
 await page.click('.k-pm-ok');
-await page.waitForTimeout(800);
+// the rebuild has to be done before the body is read: on a slow runner (software GL, the worker and the exact kernel)
+// a fixed wait read the body of the step before (the CI on Windows read the tab without the miter flange)
+await waitSettled(page);
 let b = await B();
 check('Jog1 built: half of the tab 12 mm lower', b && Object.keys(b.errors).length === 0 && Math.abs(b.min[1] + 12) < 0.05 && b.feats.includes('Jog1'), JSON.stringify(b));
 
@@ -70,7 +72,7 @@ await page.evaluate((t) => {
   const d = { ...st.doc, sketches: { ...st.doc.sketches, sk3: s3 }, features: [...st.doc.features, { id: 'f9', type: 'sketch', name: 'Sketch3', sketchId: 'sk3', suppressed: false }] };
   st.openDocument(d);
 }, t);
-await page.waitForTimeout(700);
+await waitSettled(page);
 await page.click('.k-cm-tab:has-text("Sheet Metal")');
 await page.locator('.k-tree-row:has-text("Sketch3")').last().click();
 await page.click('.k-cm-small:has-text("Miter Flange")');
@@ -88,7 +90,7 @@ const picked = await page.evaluate(() => window.__phlippoStore.getState().featur
 check('two edges picked in the graphics area', picked === 2, String(picked));
 await shot('jm2-miter-pm');
 await page.click('.k-pm-ok');
-await page.waitForTimeout(900);
+await waitSettled(page);
 b = await B();
 check('Miter Flange1 built: a 20 mm wall on the top of the sheet', b && Object.keys(b.errors).length === 0 && Math.abs(b.max[1] - (t + 20)) < 0.1 && b.feats.includes('Miter Flange1'), JSON.stringify(b));
 await page.mouse.move(5, 600);
@@ -113,14 +115,14 @@ await page.evaluate(() => {
   ];
   window.__phlippoStore.getState().openDocument(d);
 });
-await page.waitForTimeout(700);
+await waitSettled(page);
 await page.click('.k-cm-tab:has-text("Sheet Metal")');
 await page.locator('.k-tree-row:has-text("Sketch2")').last().click();
 await page.click('.k-cm-small:has-text("Sketched Bend")');
 await page.waitForTimeout(300);
 check('Sketched Bend Property Panel (SketchBend1, 90.00deg)', (await page.locator('.k-pm-title:has-text("SketchBend1")').count()) === 1 && (await page.locator('.k-section:has-text("Bend Parameters") input.k-num').first().inputValue()) === '90.00deg');
 await page.click('.k-pm-ok');
-await page.waitForTimeout(800);
+await waitSettled(page);
 b = await B();
 check('SketchBend1 built: the 40 mm side hangs 90 degrees down', b && Object.keys(b.errors).length === 0 && b.min[1] < -35 && b.feats.includes('SketchBend1'), JSON.stringify(b));
 await page.keyboard.press('f');

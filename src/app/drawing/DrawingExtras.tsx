@@ -1,5 +1,6 @@
 import { magneticOrder } from '../../core/drawing/balloons';
-export { holeTableRows, tableGrid, freeSpot } from '../../core/drawing/tables';
+export { holeTableRows, freeSpot } from '../../core/drawing/tables';
+export { bomTableGrid as tableGrid } from '../prefsTables';
 import { useMemo, useState } from 'react';
 import { useStore } from '../store';
 import { useShallow } from 'zustand/react/shallow';

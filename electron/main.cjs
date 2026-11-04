@@ -12,6 +12,7 @@ const path = require('node:path');
 const fs = require('node:fs/promises');
 const { randomUUID } = require('node:crypto');
 const { registerRecover } = require('./recover.cjs');
+const { rotateBackups } = require('./backups.cjs');
 
 // the development switches (dev server, smoke screenshot, test hooks) are only read by an unpackaged app:
 // the installed program ignores its environment
@@ -124,7 +125,7 @@ async function readForOpen(file) {
  * .bak2, then swap. A failed save never damages the original and leaves no temp file; a backup that could not be
  * made is reported (warning) instead of ignored.
  */
-async function atomicWrite(file, data) {
+async function atomicWrite(file, data, backup) {
   const tmp = `${file}.tmp-${process.pid}-${Date.now()}`;
   let warning;
   try {
@@ -143,13 +144,8 @@ async function atomicWrite(file, data) {
     }
     if (hadPrevious) {
       try {
-        await fs.rm(`${file}.bak2`, { force: true });
-        try {
-          await fs.rename(`${file}.bak`, `${file}.bak2`);
-        } catch (err) {
-          if (err.code !== 'ENOENT') throw err;
-        }
-        await fs.copyFile(file, `${file}.bak`);
+        // Options ▸ Backup/Recover: the number of copies and their age (backups.cjs); two copies by default
+        await rotateBackups(file, backup?.copies ?? 2, backup?.removeDays ?? 0);
       } catch (err) {
         warning = `the backup copy (.bak) could not be made: ${err.message ?? err}`;
       }
@@ -161,6 +157,9 @@ async function atomicWrite(file, data) {
   }
   return warning;
 }
+
+/** the backup settings the renderer sends, as plain numbers (anything else: the default two copies) */
+const backupOf = (b) => (b && typeof b === 'object' ? { copies: Number(b.copies) || 2, removeDays: Number(b.removeDays) || 0 } : undefined);
 
 function sendOpen(file) {
   if (!win) return;
@@ -305,7 +304,7 @@ ipcMain.handle('file:open', async (e, filters) => {
     return { name: path.basename(r.filePaths[0]), handle: '', error: String(err.message ?? err) };
   }
 });
-ipcMain.handle('file:save', async (e, { defaultPath, filters, data, handle: known }) => {
+ipcMain.handle('file:save', async (e, { defaultPath, filters, data, handle: known, backup }) => {
   if (!trusted(e) || !win) return null;
   if (!(data instanceof ArrayBuffer) || data.byteLength > MAX_FILE_BYTES) return { name: String(defaultPath ?? ''), handle: '', error: 'The document is too large to save.' };
   // the renderer may only name a handle this process handed out before; anything else goes through the dialog
@@ -316,7 +315,7 @@ ipcMain.handle('file:save', async (e, { defaultPath, filters, data, handle: know
     file = r.filePath;
   }
   try {
-    const warning = await atomicWrite(file, data);
+    const warning = await atomicWrite(file, data, backupOf(backup));
     return { name: path.basename(file), handle: handleOf(file), warning };
   } catch (err) {
     return { name: path.basename(file), handle: '', error: String(err.message ?? err) };

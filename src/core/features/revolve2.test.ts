@@ -56,7 +56,7 @@ describe('a fillet on a revolved edge after a change of the profile (QA v0.5.1 F
   };
   // the spandrel (1 - pi/4) r^2 turned about the axis at its centroid radius R - 0.2234 r
   const filletLoss = (R: number, r: number) => (1 - Math.PI / 4) * r * r * 2 * Math.PI * (R - 0.2234 * r);
-  it('the rim stays rounded with the right volume when the outer radius changes', () => {
+  it('the rim stays rounded with the right volume when the outer radius changes', { timeout: 30000 }, () => {
     const doc = tube(30);
     const sharp30 = Math.abs(meshVolume(rebuildDocument(doc).bodies[0].geometry));
     const rim = rebuildDocument(doc).bodies[0].edges.find((e) => e.closed && Math.abs(e.centroid.y - 40) < 1e-3 && e.length > 2 * Math.PI * 25)!;

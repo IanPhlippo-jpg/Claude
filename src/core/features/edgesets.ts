@@ -341,9 +341,19 @@ export function matchEdge(edges: BodyEdge[], ref: EdgeRef, tol: number = TOL.ref
  */
 export function matchEdges(edges: BodyEdge[], ref: EdgeRef, tol: number = TOL.reference): BodyEdge[] {
   const pieces = splitPieces(edges, ref);
-  if (pieces.length > 1) return pieces;
+  if (pieces.length > 1) return pieces.map((e) => alongRef(e, ref));
   const e = matchEdge(edges, ref, tol);
-  return e ? [e] : [];
+  return e ? [alongRef(e, ref)] : [];
+}
+
+/**
+ * A straight edge as it ran when it was picked (the direction in its reference): the mesh body and the B-rep body list
+ * the points of the same edge in either order, and a Variable Size fillet put its start size at the other end on one
+ * kernel (QA F172). Other edges are given as found.
+ */
+function alongRef(e: BodyEdge, ref: EdgeRef): BodyEdge {
+  if (!ref.dir || !e.straight || e.closed || edgeDir(e).dot(new THREE.Vector3(...ref.dir)) >= 0) return e;
+  return { ...e, points: e.points.slice().reverse(), segments: e.segments.slice().reverse().map((x) => ({ ...x, a: x.b, b: x.a })) };
 }
 
 function splitPieces(edges: BodyEdge[], ref: EdgeRef): BodyEdge[] {

@@ -1,4 +1,5 @@
 import { lengthDecimals } from '../prefs';
+import { arrowSize, defaultArrowStyle, drivenText, formatAngle, formatNumber, lengthUnitSuffix, toleranceDecimals, uppercaseDims, withDual } from '../prefsFormat';
 import type { Constraint, Entity, Id, Sketch, SketchPoint } from '../../core/sketch/types';
 import { isDimension } from '../../core/sketch/types';
 import { arcAngles } from '../../core/sketch/model';
@@ -41,9 +42,10 @@ export interface GlyphDrawing {
 const P = (s: Sketch, id: Id): SketchPoint => (id in s.points ? s.points[id] : s.points[(s.entities[id] as { p: Id }).p]);
 
 /** dimension text by design shows it: two decimals, no unit ("80.00", "Ø35.00", "R15.00", "90.00°") */
-function fmt(v: number, _unit: string, kind: Constraint['kind'], decimals?: number): string {
-  const txt = v.toFixed(decimals ?? lengthDecimals());
-  if (kind === 'angle') return `${txt}°`;
+function fmt(v: number, unit: string, kind: Constraint['kind'], decimals?: number): string {
+  // the options: decimals, zeros, separator and rounding (Units, Annotations), the angle unit, Show units
+  if (kind === 'angle') return formatAngle(v, decimals);
+  const txt = formatNumber(v, decimals ?? lengthDecimals()) + lengthUnitSuffix(unit);
   if (kind === 'radius') return `R${txt}`;
   if (kind === 'diameter') return `Ø${txt}`;
   return txt;
@@ -60,32 +62,33 @@ const UNIT_SCALE: Record<string, number> = { mm: 1, cm: 0.1, in: 1 / 25.4 };
 export function dimensionDrawing(s: Sketch, c: Constraint, unit: string, driven: boolean, linked = false): DimensionDrawing | null {
   const d = dimensionDrawingBase(s, c, unit, driven, linked);
   if (!d) return d;
-  const out: DimensionDrawing = { ...d, fontSize: c.fontSize, justify: c.justify, arrowStyle: c.arrowStyle };
+  const out: DimensionDrawing = { ...d, fontSize: c.fontSize, justify: c.justify, arrowStyle: c.arrowStyle ?? defaultArrowStyle() };
   // tolerance of the intended Tolerance/Precision box
   const tol = c.tol;
-  const dec = c.precision ?? lengthDecimals();
+  const dec = c.precision ?? toleranceDecimals(lengthDecimals());
+  const fx = (n: number) => formatNumber(n, dec);
   const k = c.kind === 'angle' ? 1 : UNIT_SCALE[c.unitOverride ?? 'mm'] ?? 1;
   const v = (c.value ?? 0) * k;
   const plus = (tol?.plus ?? 0) * k, minus = (tol?.minus ?? 0) * k;
   if (tol && tol.type !== 'none') {
     if (tol.type === 'basic') out.basic = true;
-    else if (tol.type === 'symmetric') out.text = `${out.text} ±${plus.toFixed(dec)}`;
-    else if (tol.type === 'bilateral') out.tol = { upper: `+${plus.toFixed(dec)}`, lower: `-${minus.toFixed(dec)}` };
-    else if (tol.type === 'limit') { out.tol = { upper: (v + plus).toFixed(dec), lower: (v - minus).toFixed(dec), limit: true }; out.text = ''; }
+    else if (tol.type === 'symmetric') out.text = `${out.text} ±${fx(plus)}`;
+    else if (tol.type === 'bilateral') out.tol = { upper: `+${fx(plus)}`, lower: `-${fx(minus)}` };
+    else if (tol.type === 'limit') { out.tol = { upper: fx(v + plus), lower: fx(v - minus), limit: true }; out.text = ''; }
     else if (tol.type === 'min') out.text = `${out.text} MIN`;
     else if (tol.type === 'max') out.text = `${out.text} MAX`;
   }
-  // Dual Dimension: the value in inches as well, in brackets
-  if (c.dual && c.kind !== 'angle' && out.text) out.text = `${out.text} [${((c.value ?? 0) / 25.4).toFixed(Math.max(2, dec + 1))}]`;
-  // All uppercase: the text (and its unit) in capitals
-  if (c.uppercase) out.text = out.text.toUpperCase();
+  // Dual Dimension (its own box or Document Properties ▸ Dimensions): the value in the second unit, in brackets
+  if (c.kind !== 'angle') out.text = withDual(out.text, c.value ?? 0, c.precision ?? lengthDecimals(), c.dual);
+  // All uppercase (its own box or Drafting Standard ▸ Uppercase): the text in capitals, the exclusion list kept
+  out.text = uppercaseDims(out.text, c.uppercase);
   // Leaders > arrows outside: the arrows come in from outside the extension lines
   if (c.arrows === 'outside') {
     const i = out.lines.findIndex((l) => l.arrowA && l.arrowB);
     if (i >= 0) {
       const m = out.lines[i];
       const dx = m.b.x - m.a.x, dy = m.b.y - m.a.y, L = Math.hypot(dx, dy) || 1;
-      const stub = Math.max(2, L * 0.25);
+      const stub = Math.max(2, L * 0.25) * arrowSize().stubScale;
       const ux = dx / L, uy = dy / L;
       out.lines = [...out.lines.slice(0, i), { a: m.a, b: m.b }, { a: m.a, b: { x: m.a.x - ux * stub, y: m.a.y - uy * stub }, arrowA: true }, { a: m.b, b: { x: m.b.x + ux * stub, y: m.b.y + uy * stub }, arrowA: true }, ...out.lines.slice(i + 1)];
     }
@@ -104,11 +107,11 @@ function dimensionDrawingBase(s: Sketch, c: Constraint, unit: string, driven: bo
   const k = c.kind === 'angle' ? 1 : UNIT_SCALE[c.unitOverride ?? 'mm'] ?? 1;
   const value = (c.value ?? 0) * k;
   // a dimension driven by an equation shows the Σ prefix, by design
-  const core = fmt(value, c.kind === 'angle' ? '' : unit, c.kind, c.precision);
+  const core = fmt(value, c.kind === 'angle' ? '' : c.unitOverride ?? unit, c.kind, c.precision);
   // Dimension Text: <MOD-DIAM> is the diameter sign and R<DIM> a radius, by design (the value then goes in bare)
   const bare = c.dimText && ((c.kind === 'diameter' && c.dimText.includes('<MOD-DIAM>')) || (c.kind === 'radius' && c.dimText.includes('R<DIM>'))) ? core.replace(/^[ØR]/, '') : core;
   const shown = c.dimText && c.dimText.includes('<DIM>') ? c.dimText.replace('<MOD-DIAM>', 'Ø').replace('<DIM>', bare) : c.doubled ? `Ø${core}` : core;
-  const text = (linked ? 'Σ' : '') + (driven ? '(' : '') + shown + (driven ? ')' : '');
+  const text = (linked ? 'Σ' : '') + (driven ? drivenText(shown) : shown);
   const off = c.labelOffset;
   switch (c.kind) {
     case 'distance':

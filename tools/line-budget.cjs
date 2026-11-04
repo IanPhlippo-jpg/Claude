@@ -8,9 +8,11 @@ const path = require('node:path');
 const DEFAULT = 1000;
 // the caps are frozen at the size of each module (QA v0.5.1 F134): a module may shrink, never grow, and a cap is
 // lowered whenever code moves out (rebuild.ts 3500 -> 3441 in 0.5.4: the fastening features went to
-// fasteningBuild.ts). The goal for every module is DEFAULT; the run lists how far each one is from it.
+// fasteningBuild.ts; 3398 -> 2280 in 0.5.12: sheet metal, weldments and surfaces went to sheetMetalBuild.ts,
+// frameBuild.ts and surfaceBuild.ts, QA 0.5.11 F134). The goal for every module is DEFAULT; the run lists how far each
+// one is from it.
 const CAPS = {
-  'src/core/features/rebuild.ts': 3398,
+  'src/core/features/rebuild.ts': 2280,
   'src/app/viewport/Viewport.tsx': 1700,
   'src/app/viewport/tools.ts': 1621,
   'src/app/slices/features.ts': 1597,

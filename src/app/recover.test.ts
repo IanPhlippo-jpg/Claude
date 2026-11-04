@@ -42,7 +42,7 @@ describe('Auto-Recover copies are kept per document (QA F153)', () => {
   });
 });
 
-describe('the auto-recover folder is decided by the shell (QA F156)', () => {
+describe('the auto-recover folder (option backup.autoRecoverFolder) is decided by the shell (QA F156)', () => {
   it('defaults to <profile>/autorecover and follows only an absolute folder chosen in the dialog', () => {
     const profile = fs.mkdtempSync(path.join(os.tmpdir(), 'phlippo-rec-'));
     expect(rec.recoverDir(profile)).toBe(path.join(profile, 'autorecover'));

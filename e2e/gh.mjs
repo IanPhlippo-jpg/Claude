@@ -121,7 +121,10 @@ await page.waitForTimeout(400);
 check('Weld Bead PM: Weld Path, Settings with intermittent weld (length, pitch)', (await page.locator('[data-testid="wb-faces"] .k-selbox-row').count()) === 2 && (await page.locator('.k-section:has-text("Settings") input.k-num').count()) >= 4);
 await shot('gh5-weldbead-pm');
 await page.click('.k-pm-ok');
-await page.waitForTimeout(900);
+// the bead is built with the rebuild (worker, exact refine): wait for the body count and the folders, not 900 ms
+await page.waitForFunction(() => window.__phlippoStore.getState().rebuild.bodies.length === 5 && !window.__phlippoStore.getState().rebuild.pending, undefined, { timeout: 30000 }).catch(() => undefined);
+await waitSettled(page);
+await page.locator('.k-tree-row:has-text("Cut list(4)")').waitFor({ timeout: 15000 }).catch(() => undefined);
 check('Weld Bead1: Weld Folder(1) in the tree, the cut list counts the 4 other bodies', (await nBodies()) === 5 && (await page.locator('.k-tree-row:has-text("Weld Folder(1)")').count()) === 1 && (await page.locator('.k-tree-row:has-text("Cut list(4)")').count()) === 1 && !Object.keys(await errs()).length, JSON.stringify(await errs()));
 await page.keyboard.press('f');
 await page.waitForTimeout(300);

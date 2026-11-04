@@ -1,0 +1,215 @@
+{
+  "format": "phlippo-cad",
+  "version": 2,
+  "name": "Configuraties",
+  "units": "mm",
+  "sketches": {
+    "s1": {
+      "id": "s1",
+      "name": "Sketch1",
+      "plane": "top",
+      "points": {
+        "origin_s1": {
+          "x": 0,
+          "y": 0
+        },
+        "pmw0tejaju": {
+          "x": 0,
+          "y": 0
+        },
+        "pmw0tejajv": {
+          "x": 100,
+          "y": 0
+        },
+        "pmw0tejajx": {
+          "x": 100,
+          "y": 0
+        },
+        "pmw0tejajy": {
+          "x": 100,
+          "y": 50
+        },
+        "pmw0tejaj10": {
+          "x": 100,
+          "y": 50
+        },
+        "pmw0tejaj11": {
+          "x": 0,
+          "y": 50
+        },
+        "pmw0tejaj13": {
+          "x": 0,
+          "y": 50
+        },
+        "pmw0tejaj14": {
+          "x": 0,
+          "y": 0
+        }
+      },
+      "scalars": {},
+      "entities": {
+        "lnmw0tejajw": {
+          "id": "lnmw0tejajw",
+          "kind": "line",
+          "p1": "pmw0tejaju",
+          "p2": "pmw0tejajv",
+          "construction": false
+        },
+        "lnmw0tejajz": {
+          "id": "lnmw0tejajz",
+          "kind": "line",
+          "p1": "pmw0tejajx",
+          "p2": "pmw0tejajy",
+          "construction": false
+        },
+        "lnmw0tejaj12": {
+          "id": "lnmw0tejaj12",
+          "kind": "line",
+          "p1": "pmw0tejaj10",
+          "p2": "pmw0tejaj11",
+          "construction": false
+        },
+        "lnmw0tejaj15": {
+          "id": "lnmw0tejaj15",
+          "kind": "line",
+          "p1": "pmw0tejaj13",
+          "p2": "pmw0tejaj14",
+          "construction": false
+        }
+      },
+      "constraints": {},
+      "entityOrder": [
+        "lnmw0tejajw",
+        "lnmw0tejajz",
+        "lnmw0tejaj12",
+        "lnmw0tejaj15"
+      ],
+      "constraintOrder": [],
+      "origin": "origin_s1"
+    },
+    "s2": {
+      "id": "s2",
+      "name": "Sketch2",
+      "plane": "top",
+      "points": {
+        "origin_s2": {
+          "x": 0,
+          "y": 0
+        },
+        "pmw0tejaj16": {
+          "x": 50,
+          "y": 25
+        }
+      },
+      "scalars": {
+        "smw0tejaj17": 10
+      },
+      "entities": {
+        "cimw0tejaj18": {
+          "id": "cimw0tejaj18",
+          "kind": "circle",
+          "center": "pmw0tejaj16",
+          "r": "smw0tejaj17",
+          "construction": false
+        }
+      },
+      "constraints": {},
+      "entityOrder": [
+        "cimw0tejaj18"
+      ],
+      "constraintOrder": [],
+      "origin": "origin_s2"
+    }
+  },
+  "features": [
+    {
+      "id": "f_s1",
+      "type": "sketch",
+      "name": "Sketch1",
+      "sketchId": "s1",
+      "suppressed": false
+    },
+    {
+      "id": "f1",
+      "type": "extrude",
+      "name": "Boss-Extrude1",
+      "sketchId": "s1",
+      "suppressed": false,
+      "op": "boss",
+      "end": "blind",
+      "depth": 10,
+      "reverse": false
+    },
+    {
+      "id": "f_s2",
+      "type": "sketch",
+      "name": "Sketch2",
+      "sketchId": "s2",
+      "suppressed": false
+    },
+    {
+      "id": "f2",
+      "type": "extrude",
+      "name": "Cut-Extrude1",
+      "sketchId": "s2",
+      "suppressed": false,
+      "op": "cut",
+      "end": "throughAll",
+      "depth": 0,
+      "reverse": false
+    }
+  ],
+  "planes": {},
+  "variables": {},
+  "equations": [],
+  "configurations": [
+    {
+      "id": "cfg-default",
+      "name": "Default",
+      "dims": {
+        "D1@Boss-Extrude1": 10,
+        "D1@Cut-Extrude1": 0
+      },
+      "suppressed": [],
+      "known": [
+        "f_s1",
+        "f1",
+        "f_s2",
+        "f2"
+      ]
+    },
+    {
+      "id": "cfg-mw0tejak0",
+      "name": "Dik",
+      "dims": {
+        "D1@Boss-Extrude1": 20,
+        "D1@Cut-Extrude1": 0
+      },
+      "suppressed": [],
+      "known": [
+        "f_s1",
+        "f1",
+        "f_s2",
+        "f2"
+      ]
+    },
+    {
+      "id": "cfg-mw0tejam1",
+      "name": "Zonder gat",
+      "dims": {
+        "D1@Boss-Extrude1": 20,
+        "D1@Cut-Extrude1": 0
+      },
+      "suppressed": [
+        "f2"
+      ],
+      "known": [
+        "f_s1",
+        "f1",
+        "f_s2",
+        "f2"
+      ]
+    }
+  ],
+  "activeConfiguration": "cfg-default"
+}

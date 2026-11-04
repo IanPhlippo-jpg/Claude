@@ -5,6 +5,7 @@ import { rebuildAssembly } from '../../core/assembly/assembly';
 import { sketchDimensionName } from '../../core/document/equations';
 import { newId } from '../../core/sketch/model';
 import { getPref } from '../prefs';
+import { envelopeTransparent, hoverHighlight, promptDimensionValue, shadedPreview, showRefTriad, sketchAutoRotate } from '../prefsEffects';
 import { curveEndNormal, referencePlane, resolvePlaneDef } from '../../core/features/planes';
 import { helixPath, sketch3DChains } from '../../core/features/sweep';
 import { matchFaceAppearances } from '../../core/features/faceAppearance';
@@ -102,7 +103,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
   const [size, setSize] = useState({ w: 1, h: 1 });
   const [, bump] = useState(0);
   const [hoverConstraint, setHoverConstraint] = useState<string | null>(null);
-  const [ctxMenu, setCtxMenu] = useState<{ x: number; y: number } | null>(null);
+  const [ctxMenu, setCtxMenu] = useState<{ x: number; y: number; ray?: THREE.Ray } | null>(null);
   // the context toolbar after a left-click selection in a sketch, by design: the relations for the selection beside the
   // pointer, shown after a short rest and taking clicks once the pointer is on it
   const lastUp = useRef<{ x: number; y: number } | null>(null);
@@ -168,10 +169,8 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
   // orientation: normal to the sketch plane when a sketch opens
   const lastSketch = useRef<string | null>(null);
   useEffect(() => {
-    if (st.activeSketchId && st.activeSketchId !== lastSketch.current) {
-      camera.normalTo(plane);
-      setTimeout(() => zoomFit(), 280);
-    }
+    // Options ▸ Sketch ▸ Auto-rotate view normal to sketch plane
+    if (st.activeSketchId && st.activeSketchId !== lastSketch.current && sketchAutoRotate()) { camera.normalTo(plane); setTimeout(() => zoomFit(), 280); }
     lastSketch.current = st.activeSketchId;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [st.activeSketchId]);
@@ -558,7 +557,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
     });
     bodies.updateLight(camera.rotation);
     const faceColors = st.analysis?.kind === 'draft' ? draftAnalysis(st.rebuild.bodies, st.analysis.pull, st.analysis.angle, st.analysis.classify !== false).colors : st.analysis?.kind === 'parting' ? partingLineAnalysis(st.rebuild.bodies, st.analysis.pull, st.analysis.angle).colors : st.analysis?.kind === 'tolerance' ? toleranceStatus(st.rebuild.bodies, st.doc.autoTolerance).colors : st.analysis?.kind === 'thickness' ? thicknessAnalysis(st.rebuild.bodies, st.analysis.target, st.analysis.mode, st.analysis.resolution).colors : st.analysis?.kind === 'undercut' ? undercutAnalysis(st.rebuild.bodies, st.analysis.pull).colors : st.analysis?.kind === 'curvature' ? curvatureAnalysis(st.rebuild.bodies) : st.doc.faceAppearances?.length ? matchFaceAppearances({ faceAppearances: [...(st.doc.faceAppearances ?? []), ...(st.rebuild.extraAppearances ?? [])] }, st.rebuild.bodies) : undefined;
-    bodies.update({ zebra: st.show.zebra, faceColors, bodies: shownBodies, appearanceProps: st.doc.kind === 'assembly' ? undefined : st.doc.appearanceProps, displayStyle: st.displayStyle, hoverFace: st.hoverFace, selectedFace: st.selectedFace, selectedFaces: st.selectedFaces, preview: st.interferenceHighlight ?? (detailedBodies ? null : preview), previewOnTop: !!st.featureEdit && isRoundFeature(st.featureEdit.draft) && !detailedBodies, previewWire: st.handleDrag, featureFaces, mateFaces, featureHot: !!st.hoverFeatureId && st.hoverFeatureId === st.selectedFeatureId, hoverFeatureFaces, transparentBodies: [...(st.doc.transparentBodies ?? []), ...(st.mateEdit && st.mateEdit.draft.refs.length && getPref('assembly.mateFirstTransparent') !== false ? [st.mateEdit.draft.refs[0].componentId] : st.interferenceHighlight && st.dialog === 'interference' && st.interferenceOpts.transparent ? st.rebuild.bodies.map((b) => b.id) : []), ...(st.doc.components ?? []).filter((c) => c.envelope).map((c) => c.id)], replaceBody: detailedBodies ? null : roundPreview, hoverEdge: st.hoverEdge, selectedEdges: st.selectedEdges, scale: camera.scale, bodyColor: activeConfiguration(st.doc).color ?? st.doc.appearance ?? st.doc.material?.color, bodyColors: { ...Object.fromEntries((st.doc.components ?? []).map((c) => [c.id, (configurationByName(c.part, c.configuration)?.color ?? c.part.appearance ?? c.part.material?.color) as string | undefined]).filter((x) => !!x[1])), ...Object.fromEntries(Object.entries(st.doc.bodyMaterials ?? {}).map(([k, m]) => [k, m.color])), ...(st.doc.bodyAppearances ?? {}), ...(section?.capColor ? Object.fromEntries(st.rebuild.bodies.map((b) => [b.id + '~cap', section.capColor!])) : {}) }, hiddenBodies: st.isolated ? [...(st.doc.hiddenBodies ?? []), ...(st.rebuild.autoHidden ?? []), ...st.rebuild.bodies.map((b) => b.id).filter((id) => !st.isolated!.includes(id))] : [...(st.doc.hiddenBodies ?? []), ...(st.rebuild.autoHidden ?? [])], decals: [...(st.doc.decals ?? []).filter((x) => x.id !== st.decalEdit?.id), ...(st.decalEdit?.face ? [{ ...st.decalEdit, id: 'draft', face: st.decalEdit.face }] : [])], realisticShading: st.show.realisticShading, shadows: st.show.shadows, floor: { reflections: st.doc.scene?.floorReflections, align: st.doc.scene?.floorAlign, offset: st.doc.scene?.floorOffset }, woodBodies: (st.doc.components ?? []).filter((c) => isWood(c.part.material?.name)).map((c) => c.id), wooden: isWood(st.doc.material?.name), shinyBodies: (st.doc.components ?? []).filter((c) => (c.part.material?.density ?? 0) > 2500).map((c) => c.id), metallic: (st.doc.material?.density ?? 0) > 2500, curves: previewCurves, colors: { hover: colors.hover, selected: colors.selected } });
+    bodies.update({ zebra: st.show.zebra, faceColors, bodies: shownBodies, appearanceProps: st.doc.kind === 'assembly' ? undefined : st.doc.appearanceProps, displayStyle: st.displayStyle, hoverFace: hoverHighlight(st.hoverFace), selectedFace: st.selectedFace, selectedFaces: st.selectedFaces, preview: st.interferenceHighlight ?? (detailedBodies ? null : preview), previewOnTop: !!st.featureEdit && isRoundFeature(st.featureEdit.draft) && !detailedBodies, previewWire: st.handleDrag || !shadedPreview(), featureFaces, mateFaces, featureHot: !!st.hoverFeatureId && st.hoverFeatureId === st.selectedFeatureId, hoverFeatureFaces, transparentBodies: [...(st.doc.transparentBodies ?? []), ...(st.mateEdit && st.mateEdit.draft.refs.length && getPref('assembly.mateFirstTransparent') !== false ? [st.mateEdit.draft.refs[0].componentId] : st.interferenceHighlight && st.dialog === 'interference' && st.interferenceOpts.transparent ? st.rebuild.bodies.map((b) => b.id) : []), ...(st.doc.components ?? []).filter((c) => c.envelope && envelopeTransparent()).map((c) => c.id)], replaceBody: detailedBodies ? null : roundPreview, hoverEdge: hoverHighlight(st.hoverEdge), selectedEdges: st.selectedEdges, scale: camera.scale, bodyColor: activeConfiguration(st.doc).color ?? st.doc.appearance ?? st.doc.material?.color, bodyColors: { ...Object.fromEntries((st.doc.components ?? []).map((c) => [c.id, (configurationByName(c.part, c.configuration)?.color ?? c.part.appearance ?? c.part.material?.color) as string | undefined]).filter((x) => !!x[1])), ...Object.fromEntries(Object.entries(st.doc.bodyMaterials ?? {}).map(([k, m]) => [k, m.color])), ...(st.doc.bodyAppearances ?? {}), ...(section?.capColor ? Object.fromEntries(st.rebuild.bodies.map((b) => [b.id + '~cap', section.capColor!])) : {}) }, hiddenBodies: st.isolated ? [...(st.doc.hiddenBodies ?? []), ...(st.rebuild.autoHidden ?? []), ...st.rebuild.bodies.map((b) => b.id).filter((id) => !st.isolated!.includes(id))] : [...(st.doc.hiddenBodies ?? []), ...(st.rebuild.autoHidden ?? [])], decals: [...(st.doc.decals ?? []).filter((x) => x.id !== st.decalEdit?.id), ...(st.decalEdit?.face ? [{ ...st.decalEdit, id: 'draft', face: st.decalEdit.face }] : [])], realisticShading: st.show.realisticShading, shadows: st.show.shadows, floor: { reflections: st.doc.scene?.floorReflections, align: st.doc.scene?.floorAlign, offset: st.doc.scene?.floorOffset }, woodBodies: (st.doc.components ?? []).filter((c) => isWood(c.part.material?.name)).map((c) => c.id), wooden: isWood(st.doc.material?.name), shinyBodies: (st.doc.components ?? []).filter((c) => (c.part.material?.density ?? 0) > 2500).map((c) => c.id), metallic: (st.doc.material?.density ?? 0) > 2500, curves: previewCurves, colors: { hover: colors.hover, selected: colors.selected } });
     // Motion Study playback: the motors turn their components (display only)
     const ms = st.doc.motionStudy;
     bodies.setMotion(st.motionOpen && st.doc.kind === 'assembly' && ms && (ms.motors.length || ms.keys?.length || ms.wizard?.length || st.motionSim) ? motionTransforms(st.doc, (st.rebuild as { components?: import('../../core/document/types').Component[] }).components ?? st.doc.components ?? [], ms, st.motionTime, st.motionSim) : null);
@@ -738,7 +737,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
     return {
       sketch,
       tolerance: 8 * camera.scale,
-      snapGrid: st.snapGrid,
+      snapGrid: st.snapGrid, gridShown: st.show.grid,
       gridSize: st.gridSize,
       commit: st.commit,
       select: st.setSelection,
@@ -750,7 +749,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
         // Modify dialog at the pointer, like the manual describes
         const p = cursorPxRef.current ?? { x: size.w / 2, y: size.h / 2 };
         const r = hostRef.current!.getBoundingClientRect();
-        if (getPref('general.inputDimensionValue')) st.setModify({ id, x: r.left + p.x + 16, y: r.top + p.y + 16 });
+        if (promptDimensionValue()) st.setModify({ id, x: r.left + p.x + 16, y: r.top + p.y + 16 });
         onEditDimension(id);
       },
       message: (t) => st.pushMessage(t, 'warn'),
@@ -835,7 +834,8 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
   /** Select Other: the next face along the ray of the last right-click (behind the selected one) */
   const selectOther = () => {
     if (!ctxMenu) return;
-    const hits = bodies.pickAll(camera.pixelToRay(ctxMenu.x, ctxMenu.y));
+    // the ray of the right-click itself: the view may have moved since (an animation still running, QA 0.5.11)
+    const hits = bodies.pickAll(ctxMenu.ray ?? camera.pixelToRay(ctxMenu.x, ctxMenu.y));
     if (!hits.length) return;
     const cur = st.selectedFace ? hits.findIndex((h) => h.bodyId === st.selectedFace!.bodyId && h.faceId === st.selectedFace!.faceId) : -1;
     const next = hits[(cur + 1) % hits.length];
@@ -1202,7 +1202,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
   };
   const openContextMenu = (e: React.MouseEvent | React.PointerEvent) => {
     const r = hostRef.current!.getBoundingClientRect();
-    setCtxMenu({ x: e.clientX - r.left, y: e.clientY - r.top });
+    setCtxMenu({ x: e.clientX - r.left, y: e.clientY - r.top, ray: camera.pixelToRay(e.clientX - r.left, e.clientY - r.top) });
     if (sketch && !st.selection.length) {
       const info = toPointer(e);
       const h = hitTest(sketch, info.p, 8 * camera.scale);
@@ -1446,7 +1446,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
           const p = cursorPxRef.current ?? { x: 0, y: 0 };
           const r = hostRef.current!.getBoundingClientRect();
           st.selectConstraint(id);
-          if (getPref('general.inputDimensionValue')) st.setModify({ id, x: r.left + p.x + 16, y: r.top + p.y + 16 });
+          if (promptDimensionValue()) st.setModify({ id, x: r.left + p.x + 16, y: r.top + p.y + 16 });
           onEditDimension(id);
         }}
         width={size.w}
@@ -1512,7 +1512,7 @@ export function Viewport({ onEditDimension }: { onEditDimension: (id: string) =>
       {st.show.viewSelector && <ViewSelector camera={camera} onClose={() => st.toggleShow('viewSelector')} />}
       {st.triadComponentId && <MoveTriad camera={camera} width={size.w} height={size.h} />}
       <div className="k-triad-wrap">
-        <Triad camera={camera} />
+        {showRefTriad() && <Triad camera={camera} />}
         <span className="k-viewname">{st.viewName}</span>
       </div>
       {feedback && cursorPx && (

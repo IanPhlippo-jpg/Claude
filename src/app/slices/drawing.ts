@@ -4,10 +4,12 @@
  */
 import { type Document } from '../../core/document/types';
 import { autosave } from '../../core/document/persistence';
-import { freeSpot, tableGrid } from '../../core/drawing/tables';
+import { freeSpot } from '../../core/drawing/tables';
 import { newId } from '../../core/sketch/model';
 import { activateConfiguration, activeConfiguration, documentForConfiguration, addConfiguration as addConfig, configurations, setConfigurationDimension as setCfgDim, setConfigurationSuppressed as setCfgSup } from '../../core/document/configurations';
 import { getPref } from '../prefs';
+import { autoCenterMarksOn, autoScaleNewViews, eliminateDuplicateDims, firstAngleStandard, newViewDraft } from '../prefsEffects';
+import { bomTableGrid as tableGrid } from '../prefsTables';
 import { isDrawing, type DrawingView as DrawingViewT, type DrawingDimension, type DrawingSheet, type DrawingView } from '../../core/document/types';
 import { modelItems } from '../drawing/modelItems';
 import { trueLength, viewDepth } from '../../core/drawing/sheet';
@@ -32,7 +34,7 @@ type DrawingKeys =
 /** Auto insert on view creation ▸ Center marks-holes (Document Properties ▸ Detailing, QA v0.5.1 F122) */
 function withAutoMarks(d: Document, views: DrawingView[]): Document {
   const sheet = d.sheets?.[0];
-  if (!sheet || getPref('doc.autoCenterMarks') === false) return d;
+  if (!sheet || !autoCenterMarksOn()) return d;
   const marks = autoCenterMarks(views, sheet.centerMarks, () => newId('cm'));
   return marks.length ? { ...d, sheets: [{ ...sheet, centerMarks: [...sheet.centerMarks, ...marks] }, ...(d.sheets ?? []).slice(1)] } : d;
 }
@@ -58,7 +60,7 @@ export const drawingSlice = (set: StoreSet, get: StoreGet): Pick<State, DrawingK
     const part: Document = { ...model, kind: model.kind ?? 'part' };
     // Automatic scaling of new drawing views: an empty sheet takes the scale at which the standard views fit
     const sheet = get().doc.sheets?.[0];
-    if (sheet && !sheet.views.length && part.kind !== 'drawing') {
+    if (sheet && !sheet.views.length && part.kind !== 'drawing' && autoScaleNewViews()) {
       const scale = autoSheetScale(part, sheet);
       if (scale[0] !== sheet.scale[0] || scale[1] !== sheet.scale[1]) set({ doc: { ...get().doc, sheets: [{ ...sheet, scale }, ...(get().doc.sheets ?? []).slice(1)] } });
     }
@@ -80,10 +82,12 @@ export const drawingSlice = (set: StoreSet, get: StoreGet): Pick<State, DrawingK
     // Reference Configuration: the model as that configuration
     const model = drawingEdit.configuration ? documentForConfiguration(drawingEdit.model, drawingEdit.configuration) : drawingEdit.model;
     const view: DrawingView = { id: newId('dv'), name: nextViewName(sheet), type: drawingEdit.orientation, position, scale: drawingEdit.useCustomScale ? drawingEdit.scale : undefined, displayStyle: drawingEdit.displayStyle, model, modelName: `${drawingEdit.model.name}<1>`, relative: drawingEdit.relative, empty: drawingEdit.emptyView || undefined, predefined: drawingEdit.predefined || undefined, ...(drawingEdit.configuration ? { configuration: drawingEdit.configuration } : {}), ...(drawingEdit.draftQuality ? { draftQuality: true } : {}), ...(drawingEdit.trueDims ? { trueDims: true } : {}), ...(drawingEdit.threadDraft ? { threadDraft: true } : {}), ...(drawingEdit.bendLines !== false && drawingEdit.model.features.some((f) => f.type === 'flatPattern' && !f.suppressed) ? { bendLines: true } : {}), ...(drawingEdit.bendNotes ? { bendNotes: true } : {}) };
+    // Drawings ▸ Display Style ▸ Display quality for new views
+    if (newViewDraft()) view.draftQuality = true;
     let d: Document = withAutoMarks({ ...doc, sheets: [{ ...sheet, views: [...sheet.views, view] }] }, [view]);
     // Import options ▸ Import annotations: the model dimensions come into the new view
     if (drawingEdit.importAnnotations && !drawingEdit.emptyView && !drawingEdit.predefined) {
-      const dims = modelItems([view], { sketchDims: true, featureDims: true, holeDims: true, eliminateDuplicates: true }, sheet.dimensions);
+      const dims = modelItems([view], { sketchDims: true, featureDims: true, holeDims: true, eliminateDuplicates: eliminateDuplicateDims() }, sheet.dimensions);
       if (dims.length) d = { ...d, sheets: [{ ...d.sheets![0], dimensions: [...d.sheets![0].dimensions, ...dims] }] };
     }
     if (drawingEdit.emptyView || drawingEdit.predefined || drawingEdit.relative) {
@@ -201,9 +205,9 @@ export const drawingSlice = (set: StoreSet, get: StoreGet): Pick<State, DrawingK
       return;
     }
     history.push('Standard 3 View', doc);
-    const firstAngle = get().prefs['doc.standard'] === 'ISO' || get().prefs['doc.standard'] === 'DIN';
+    const firstAngle = firstAngleStandard(get().prefs['doc.standard']);
     const style = newViewStyle(getPref('drawings.displayStyle'));
-    const views: DrawingView[] = buildThreeViews(model, sheet, threeViewsCentre(model, sheet, firstAngle), firstAngle).map((v, i) => ({ ...v, displayStyle: style, id: newId('dv'), name: `Drawing View${sheet.views.length + i + 1}` }));
+    const views: DrawingView[] = buildThreeViews(model, sheet, threeViewsCentre(model, sheet, firstAngle), firstAngle).map((v, i) => ({ ...v, displayStyle: style, ...(newViewDraft() ? { draftQuality: true } : {}), id: newId('dv'), name: `Drawing View${sheet.views.length + i + 1}` }));
     views[1].parentId = views[0].id;
     views[2].parentId = views[0].id;
     const d: Document = withAutoMarks({ ...doc, sheets: [{ ...sheet, views: [...sheet.views, ...views] }] }, views);
@@ -353,7 +357,7 @@ export const drawingSlice = (set: StoreSet, get: StoreGet): Pick<State, DrawingK
       get().pushMessage('Insert a drawing view of a part first.', 'warn');
       return;
     }
-    set({ drawingEdit: { mode: 'modelItems', orientation: sheet.views[0].type, multiple: false, displayStyle: 'hiddenRemoved', useCustomScale: false, scale: [1, 1], modelItems: { source: 'entire', sketchDims: true, featureDims: true, holeDims: true } }, managerTab: 'tree', tab: 'annotation' });
+    set({ drawingEdit: { mode: 'modelItems', orientation: sheet.views[0].type, multiple: false, displayStyle: 'hiddenRemoved', useCustomScale: false, scale: [1, 1], modelItems: { source: 'entire', sketchDims: true, featureDims: true, holeDims: true, eliminateDuplicates: eliminateDuplicateDims() } }, managerTab: 'tree', tab: 'annotation' });
   },
   startAuxView() {
     const { doc, selectedDrawingViewId } = get();

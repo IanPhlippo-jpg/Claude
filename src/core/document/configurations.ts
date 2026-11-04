@@ -48,10 +48,19 @@ export function bomPartNumber(part: Document, cfgName?: string): string {
 }
 
 /** BOM description of a part in a configuration: the configuration description when Use in bill of materials is on */
-export function bomDescription(part: Document, cfgName?: string): string {
+export function bomDescription(part: Document, cfgName?: string, prop = 'Description'): string {
   const cfg = configurationByName(part, cfgName) ?? activeConfiguration(part);
+  // `prop`: the custom property used as component description (Options ▸ General); Description by default
+  if (prop !== 'Description') return descriptionProperty(part, prop);
   if (cfg.description && cfg.descriptionInBom !== false) return cfg.description;
   return String(part.properties?.Description ?? (cfg.name !== 'Default' ? cfg.name : ''));
+}
+
+/** a part's custom property as its description (Material falls back on the material of the part) */
+export function descriptionProperty(part: Document, prop: string): string {
+  const v = part.properties?.[prop];
+  if (v !== undefined && v !== '') return String(v);
+  return prop === 'Material' ? part.material?.name ?? '' : '';
 }
 
 export const DEFAULT_CONFIGURATION_ID = 'cfg-default';

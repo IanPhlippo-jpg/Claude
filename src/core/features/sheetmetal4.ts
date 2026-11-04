@@ -78,6 +78,18 @@ export function sheetFaceOfEdge(faces: PlanarFace[], e: BodyEdge, flatOnly = fal
   return (f1?.area ?? 0) >= (f2?.area ?? 0) ? f1 : f2;
 }
 
+/**
+ * The two ends of a straight edge in a fixed order: along the direction stored in its reference (as it was picked), else
+ * along its largest coordinate. The two kernels tessellate the same edge either way round, and the start / end offsets of
+ * a flange must not follow that (they swapped ends between the kernels: QA 0.5.11 F197).
+ */
+export function edgeEnds(e: BodyEdge, dir?: [number, number, number]): [THREE.Vector3, THREE.Vector3] {
+  const a = e.points[0].clone(), b = e.points[e.points.length - 1].clone();
+  const d = b.clone().sub(a);
+  const ax = Math.abs(d.x) >= Math.abs(d.y) && Math.abs(d.x) >= Math.abs(d.z) ? d.x : Math.abs(d.y) >= Math.abs(d.z) ? d.y : d.z;
+  return (dir ? d.dot(new THREE.Vector3(...dir)) : ax) < 0 ? [b, a] : [a, b];
+}
+
 /** The straight edge of a sheet and the (largest) sheet face it belongs to, with the in-plane direction away from the sheet. */
 export function edgeSheetFace(geometry: THREE.BufferGeometry, bodyId: string, ref: EdgeRef): { e: BodyEdge; face: PlanarFace; a: THREE.Vector3; b: THREE.Vector3; dir: THREE.Vector3; n: THREE.Vector3; out: THREE.Vector3 } | { error: string } {
   const edges = bodyEdges(geometry, bodyId);
@@ -85,7 +97,7 @@ export function edgeSheetFace(geometry: THREE.BufferGeometry, bodyId: string, re
   if (!e || !e.straight || e.points.length < 2) return { error: 'The selected edge no longer exists on the sheet (or is not straight).' };
   const face = sheetFaceOfEdge(planarFaces(geometry, bodyId), e, true);
   if (!face) return { error: 'Could not find the sheet face of the edge.' };
-  const a = e.points[0].clone(), b = e.points[e.points.length - 1].clone();
+  const [a, b] = edgeEnds(e, ref.dir);
   const dir = b.clone().sub(a).normalize();
   const n = new THREE.Vector3(...face.normal).normalize();
   const out = n.clone().cross(dir).normalize();

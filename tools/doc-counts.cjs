@@ -29,5 +29,5 @@ for (const m of readme.matchAll(/\b(qa\w+\.test\.ts) \((\d+)\)/g)) {
   console.log(`${ok ? 'ok  ' : 'DIFF'} README ${m[1]} (${m[2]}): vitest finds ${real}`);
 }
 for (const [f, n] of Object.entries(perFile)) if (!readme.includes(`${f} (`)) console.log(`note ${f}: ${n} tests, not named in README.md`);
-if (!seen) console.log('doc counts: README.md names no qa*.test.ts (N)');
+if (!seen) { console.log('doc counts: README.md names no qa*.test.ts (N)'); bad++; }
 process.exit(bad ? 1 : 0);

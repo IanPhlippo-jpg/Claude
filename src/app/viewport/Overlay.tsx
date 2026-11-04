@@ -6,6 +6,7 @@ import { useStore } from '../store';
 import { dimensionTable, sketchDimensionName } from '../../core/document/equations';
 import { RelationGlyph } from '../../ui/icons';
 import type { ToolRender } from './tools';
+import { arrowSize, dimFontFamily } from '../prefsFormat';
 
 export interface OverlayProps {
   sketch: Sketch | null;
@@ -49,8 +50,10 @@ export function Overlay(props: OverlayProps) {
     const l = Math.hypot(dir.x, dir.y) || 1;
     const d = { x: dir.x / l, y: dir.y / l };
     const n = { x: -d.y, y: d.x };
-    const p1 = { x: tip.x - d.x * ARROW + n.x * ARROW * 0.35, y: tip.y - d.y * ARROW + n.y * ARROW * 0.35 };
-    const p2 = { x: tip.x - d.x * ARROW - n.x * ARROW * 0.35, y: tip.y - d.y * ARROW - n.y * ARROW * 0.35 };
+    // Document Properties ▸ Dimensions ▸ Arrows: the head length and width
+    const { length: AL, halfWidth: AW } = arrowSize(ARROW);
+    const p1 = { x: tip.x - d.x * AL + n.x * AW, y: tip.y - d.y * AL + n.y * AW };
+    const p2 = { x: tip.x - d.x * AL - n.x * AW, y: tip.y - d.y * AL - n.y * AW };
     // Leaders > arrow style: filled (default), open, dot or architectural slash
     if (style === 'dot') return <circle key={key} cx={tip.x} cy={tip.y} r={ARROW * 0.3} fill={color} />;
     if (style === 'slash') return <line key={key} x1={tip.x - (d.x + n.x) * ARROW * 0.45} y1={tip.y - (d.y + n.y) * ARROW * 0.45} x2={tip.x + (d.x + n.x) * ARROW * 0.45} y2={tip.y + (d.y + n.y) * ARROW * 0.45} stroke={color} strokeWidth={1.5} />;
@@ -142,11 +145,11 @@ export function Overlay(props: OverlayProps) {
               {/* the text is picked through its box; it shows a frame only while hovered / selected */}
               {/* Basic tolerance: the value in a frame, by design */}
               <rect x={c.x - w / 2} y={c.y - h / 2} width={w} height={h} fill="transparent" stroke={hl || d.basic ? color : 'none'} strokeWidth={d.basic ? 1 : 0.75} data-testid={d.basic ? 'dim-basic' : undefined} />
-              <text x={d.justify === 'left' ? c.x - w / 2 + 2 : d.justify === 'right' ? c.x + w / 2 - 2 - tolW : c.x - tolW / 2} y={c.y + FS * 0.36 - ((lines.length - 1) * FS) / 2} textAnchor={d.justify === 'left' ? 'start' : d.justify === 'right' ? 'end' : 'middle'} fontSize={FS} fontFamily="'Century Gothic', 'Segoe UI', Arial, sans-serif" fill={color} data-testid="sketch-dim-text">
+              <text x={d.justify === 'left' ? c.x - w / 2 + 2 : d.justify === 'right' ? c.x + w / 2 - 2 - tolW : c.x - tolW / 2} y={c.y + FS * 0.36 - ((lines.length - 1) * FS) / 2} textAnchor={d.justify === 'left' ? 'start' : d.justify === 'right' ? 'end' : 'middle'} fontSize={FS} fontFamily={dimFontFamily()} fill={color} data-testid="sketch-dim-text">
                 {lines.length > 1 ? lines.map((l, i) => <tspan key={i} x={d.justify === 'left' ? c.x - w / 2 + 2 : d.justify === 'right' ? c.x + w / 2 - 2 - tolW : c.x - tolW / 2} dy={i ? FS : 0}>{l}</tspan>) : d.text}
               </text>
               {d.tol && (
-                <text x={d.tol.limit ? c.x : c.x + w / 2 - tolW + 2} textAnchor={d.tol.limit ? 'middle' : 'start'} fontSize={d.tol.limit ? FS * 0.8 : FS * 0.62} fontFamily="'Century Gothic', 'Segoe UI', Arial, sans-serif" fill={color} data-testid="dim-tol">
+                <text x={d.tol.limit ? c.x : c.x + w / 2 - tolW + 2} textAnchor={d.tol.limit ? 'middle' : 'start'} fontSize={d.tol.limit ? FS * 0.8 : FS * 0.62} fontFamily={dimFontFamily()} fill={color} data-testid="dim-tol">
                   <tspan x={d.tol.limit ? c.x : c.x + w / 2 - tolW + 2} y={c.y - FS * 0.08}>{d.tol.upper}</tspan>
                   <tspan x={d.tol.limit ? c.x : c.x + w / 2 - tolW + 2} y={c.y + FS * (d.tol.limit ? 0.72 : 0.52)}>{d.tol.lower}</tspan>
                 </text>
@@ -231,6 +234,11 @@ export function Overlay(props: OverlayProps) {
         const a = project(q), p = project(toolRender.snap!.point);
         return <line key={'al' + i} data-testid="inference-line" x1={a.x} y1={a.y} x2={p.x} y2={p.y} stroke="var(--sk-hover)" strokeWidth={1} strokeDasharray="2 3" />;
       })}
+      {toolRender?.snap?.from && (() => {
+        // angle / parallel / perpendicular inference: a dotted line along the inferred direction
+        const a = project(toolRender.snap.from), p = project(toolRender.snap.point);
+        return <line data-testid="direction-inference" x1={a.x} y1={a.y} x2={p.x} y2={p.y} stroke="var(--sk-hover)" strokeWidth={1} strokeDasharray="2 3" />;
+      })()}
       {toolRender?.snap && (() => {
         const p = project(toolRender.snap.point);
         const k = toolRender.snap.kind;
@@ -242,6 +250,8 @@ export function Overlay(props: OverlayProps) {
             {k === 'on' ? <path d="M-5,-5L5,5M-5,5L5,-5" /> : null}
             {k === 'horizontal' ? <path d="M-14,0H14" strokeDasharray="3 3" /> : null}
             {k === 'vertical' ? <path d="M0,-14V14" strokeDasharray="3 3" /> : null}
+            {k === 'quadrant' ? <polygon points="0,-6 6,0 0,6 -6,0" /> : null}
+            {k === 'intersection' ? <><circle r={6} /><path d="M-4,-4L4,4M-4,4L4,-4" /></> : null}
           </g>
         );
       })()}

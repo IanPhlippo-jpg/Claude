@@ -34,6 +34,8 @@ await page.goto(process.env.E2E_URL ?? 'http://localhost:4173/');
 await page.evaluate(() => localStorage.clear());
 await page.reload();
 await page.waitForSelector('.k-viewport');
+// Welcome loads right after the first paint (its own chunk, QA 0.5.11 F174): wait for it
+await page.locator('.k-dialog-title').first().waitFor({ timeout: 15000 }).catch(() => undefined);
 check('welcome dialog shown', (await page.locator('.k-dialog-title').count()) === 1);
 await page.click('.k-doctype:has-text("Part")');
 check('welcome closed', (await page.locator('.k-dialog').count()) === 0);

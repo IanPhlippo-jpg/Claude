@@ -3,6 +3,7 @@ import * as THREE from 'three';
 import { useStore } from './store';
 import { createDocument, type Component, type ComponentPattern, type Document, type Mate } from '../core/document/types';
 import { newId } from '../core/sketch/model';
+import { commentStamp } from './prefsEffects';
 import { instanceName } from '../core/assembly/assembly';
 import { resolvePlaneDef } from '../core/features/planes';
 import { serializeDocument } from '../core/document/persistence';
@@ -194,6 +195,6 @@ export function downloadText(name: string, text: string, type = 'application/jso
 export function addComment(text: string): void {
   const st = S();
   if (!text.trim()) return;
-  const c = { id: newId('cm'), featureId: st.selectedFeatureId ?? undefined, text: text.trim(), author: 'User', date: new Date().toISOString().slice(0, 16).replace('T', ' ') };
+  const c = { id: newId('cm'), featureId: st.selectedFeatureId ?? undefined, text: text.trim(), author: 'User', date: commentStamp() };
   st.applyDocument('Comment', { ...st.doc, comments: [...(st.doc.comments ?? []), c] });
 }

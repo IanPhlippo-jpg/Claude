@@ -82,6 +82,69 @@ const fourView = async (page) => {
   await page.waitForTimeout(2000);
 };
 
+// every extra pane is a viewport of its own (QA 0.5.11 F192): a click selects, the middle button turns that pane
+// only, the wheel zooms it; a click on nothing clears the selection; a double click still turns the large view
+const paneBox = (page, view) => page.locator(`[data-testid="viewpane-${view}"] canvas`).boundingBox();
+const paneCam = (page, view) => page.evaluate((v) => { const c = window.__phlippoPanes?.get(v); return c ? { q: c.rotation.toArray().map((x) => +x.toFixed(4)), scale: +c.scale.toFixed(5) } : null; }, view);
+const mainQ = (page) => page.evaluate(() => window.__phlippoCamera.rotation.toArray().map((x) => +x.toFixed(4)));
+const sameQ = (a, b) => a && b && a.every((x, i) => Math.abs(x - b[i]) < 1e-3);
+const interactive = async (page) => {
+  const store = (f) => page.evaluate(f);
+  // a click in the middle of the Top pane hits the top face of the box
+  const top = await paneBox(page, 'top');
+  await store(() => window.__phlippoStore.getState().setSelectedFace(null));
+  await page.mouse.click(top.x + top.width / 2, top.y + top.height / 2);
+  await page.waitForTimeout(300);
+  const sel = await store(() => window.__phlippoStore.getState().selectedFace);
+  check('Four View top: a click on the model in the pane selects a face', !!sel?.faceId, JSON.stringify(sel));
+  await page.waitForTimeout(300);
+  const lit = await paneStats(page, 'top');
+  check('Four View top: the pane redraws with the selected face (still drawn)', lit && lit.share > 0.005, JSON.stringify(lit));
+  // a click on empty space in the pane clears it
+  await page.mouse.click(top.x + top.width - 12, top.y + 12);
+  await page.waitForTimeout(300);
+  check('Four View top: a click on nothing clears the selection', (await store(() => window.__phlippoStore.getState().selectedFace)) === null);
+  // middle drag in the Front pane: that pane turns, the large view does not
+  const front = await paneBox(page, 'front');
+  const f0 = await paneCam(page, 'front'), m0 = await mainQ(page), s0 = await paneStats(page, 'front');
+  const cx = front.x + front.width / 2, cy = front.y + front.height / 2;
+  await page.mouse.move(cx, cy);
+  await page.mouse.down({ button: 'middle' });
+  for (let i = 1; i <= 8; i++) await page.mouse.move(cx + i * 10, cy + i * 6);
+  await page.mouse.up({ button: 'middle' });
+  await page.waitForTimeout(400);
+  const f1 = await paneCam(page, 'front'), m1 = await mainQ(page), s1 = await paneStats(page, 'front');
+  check('Four View front: a middle-button drag turns that pane', f0 && f1 && !sameQ(f0.q, f1.q), JSON.stringify({ f0: f0?.q, f1: f1?.q }));
+  check('Four View front: ...and not the large view', sameQ(m0, m1), JSON.stringify({ m0, m1 }));
+  check('Four View front: the turned pane is drawn anew (other picture, part still there)', s1 && s1.share > 0.005 && JSON.stringify(s0) !== JSON.stringify(s1), JSON.stringify({ s0, s1 }));
+  // the wheel zooms the Right pane only
+  const right = await paneBox(page, 'right');
+  const r0 = await paneCam(page, 'right'), main0 = await page.evaluate(() => window.__phlippoCamera.scale);
+  await page.mouse.move(right.x + right.width / 2, right.y + right.height / 2);
+  for (let i = 0; i < 3; i++) { await page.mouse.wheel(0, 100); await page.waitForTimeout(80); }
+  await page.waitForTimeout(300);
+  const r1 = await paneCam(page, 'right'), main1 = await page.evaluate(() => window.__phlippoCamera.scale);
+  check('Four View right: the wheel zooms that pane', r0 && r1 && Math.abs(r1.scale / r0.scale - 1) > 0.2, JSON.stringify({ r0: r0?.scale, r1: r1?.scale }));
+  check('Four View right: ...and not the large view', Math.abs(main1 - main0) < 1e-9, JSON.stringify({ main0, main1 }));
+  // Ctrl + middle drag pans the Right pane (its view direction stays)
+  const t0 = await page.evaluate(() => window.__phlippoPanes.get('right').target.toArray());
+  await page.keyboard.down('Control');
+  await page.mouse.down({ button: 'middle' });
+  for (let i = 1; i <= 5; i++) await page.mouse.move(right.x + right.width / 2 + i * 8, right.y + right.height / 2);
+  await page.mouse.up({ button: 'middle' });
+  await page.keyboard.up('Control');
+  await page.waitForTimeout(300);
+  const t1 = await page.evaluate(() => window.__phlippoPanes.get('right').target.toArray()), rq = await paneCam(page, 'right');
+  check('Four View right: Ctrl + middle drag pans that pane', Math.hypot(t1[0] - t0[0], t1[1] - t0[1], t1[2] - t0[2]) > 1 && sameQ(rq.q, r1.q), JSON.stringify({ t0, t1 }));
+  // a double click on the Top pane still turns the large view to Top
+  await page.mouse.dblclick(top.x + top.width / 2, top.y + top.height / 2);
+  await page.waitForTimeout(800);
+  const vn = await store(() => window.__phlippoCamera.viewName);
+  check('Four View top: a double click turns the large view to Top', vn === 'top', vn);
+  await store(() => window.__phlippoStore.getState().setSelectedFace(null));
+  await page.screenshot({ path: 'e2e-out/viewpanes-interactive.png' });
+};
+
 // 1. with a graphics card (software GL on other platforms): Four View, light and dark theme
 let browser = await chromium.launch(gpuLaunch);
 for (const theme of ['light', 'dark']) {
@@ -106,6 +169,7 @@ for (const theme of ['light', 'dark']) {
   check(`${theme}: the large view still shows the shaded part with its edges`, main.dark > 100 && main.mid > main.n * 0.05, JSON.stringify(main));
   check(`${theme}: no pane error message`, (await page.locator('[data-testid="viewpane-error"], [data-testid="crash"]').count()) === 0);
   await page.screenshot({ path: theme === 'light' ? 'e2e-out/viewpanes-four.png' : 'e2e-out/viewpanes-four-dark.png' });
+  if (theme === 'light') await interactive(page);
   // Two View: the pane and the large view split the whole area (Horizontal: one above the other)
   for (const [layout, view] of [['twoH', 'top'], ['twoV', 'front']]) {
     await page.evaluate((l) => window.__phlippoStore.getState().setViewportLayout(l), layout);

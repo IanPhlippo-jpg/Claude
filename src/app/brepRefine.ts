@@ -53,10 +53,10 @@ function nearestFace(body: Body, old: { normal: [number, number, number]; centro
 /** the mesh result with its exact bodies swapped in (null when the worker's bodies do not line up) */
 function refinedResult(sent: RebuildResult, bodies: import('../workers/occt.worker').RefinedBody[], doc?: Document): RebuildResult | null {
   if (bodies.length !== sent.bodies.length || bodies.some((b, i) => b.id !== sent.bodies[i].id)) return null;
-  if (!bodies.some((b) => b.exact && b.positions)) return null;
+  if (!bodies.some((b) => (b.exact || b.approximate) && b.positions)) return null;
   const next: Body[] = sent.bodies.map((b, i) => {
     const r = bodies[i];
-    if (!r.exact || !r.positions) return b;
+    if (!(r.exact || r.approximate) || !r.positions) return b;
     const g = new THREE.BufferGeometry();
     g.setAttribute('position', new THREE.BufferAttribute(r.positions, 3));
     if (r.normals) g.setAttribute('normal', new THREE.BufferAttribute(r.normals, 3));
@@ -66,12 +66,14 @@ function refinedResult(sent: RebuildResult, bodies: import('../workers/occt.work
     const sf = splitFaces(g, planarFaces(g, b.id), []);
     // the display of the exact body comes from the worker (never the mesh body's: it would draw the faceted edges)
     const geo = (a: Float32Array, n?: Float32Array) => { const x = new THREE.BufferGeometry(); x.setAttribute('position', new THREE.BufferAttribute(a, 3)); if (n) x.setAttribute('normal', new THREE.BufferAttribute(n, 3)); return x; };
-    const display = r.display ? { geometry: geo(r.display.positions, r.display.normals), edges: geo(r.display.edges), tangentEdges: geo(r.display.tangentEdges) } : undefined;
-    return { ...b, geometry: g, faces: sf.faces, edges: bodyEdges(g, b.id, 20, sf.segments), exact: true, exactVolume: r.exactVolume, display };
+    const display = r.display ? { geometry: geo(r.display.positions, r.display.normals), edges: geo(r.display.edges), tangentEdges: geo(r.display.tangentEdges), of: g } : undefined;
+    return { ...b, geometry: g, faces: sf.faces, edges: bodyEdges(g, b.id, 20, sf.segments), exact: !!r.exact, exactVolume: r.exact ? r.exactVolume : undefined, display };
   });
   // the openings of the faceted result (F48) are gone where the body is exact now
   const faceted = next.filter((b) => !b.exact);
   const warnings = Object.fromEntries(Object.entries(sent.warnings ?? {}).filter(([id]) => faceted.some((b) => b.featureIds.includes(id))));
+  // a B-rep with a faceted part (a wrapped patch) says so on the feature that made it (QA 0.5.11 F175)
+  for (const r of bodies) if (r.approximate && !r.exact && r.positions) warnings[r.approximate.featureId] = r.approximate.warning;
   // the exact body is checked against the faceted one (QA F159, F172): the two kernels build the same part, so a
   // body whose surfaces lie farther apart than the tessellation's margin (or whose volumes differ by more than 0.5 %)
   // got a wrong feature on one of them; the feature is marked (yellow in the tree, What's Wrong) and the mismatch is said

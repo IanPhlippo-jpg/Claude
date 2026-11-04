@@ -8,8 +8,9 @@ import { useShallow } from 'zustand/react/shallow';
 import { Menu, TreeView, type TreeNode } from '../../ui/components';
 import { Icon } from '../../ui/icons';
 import { createDocument } from '../../core/document/types';
-import { cutList } from '../../core/features/weldments';
+import { cutListsOn, frameCutList as cutList } from '../prefsTables';
 import { materialFavorites as loadFavorites } from '../prefs';
+import { commentStamp, scrollTreeSelection, showTreeWarning, treeHoverHighlight } from '../prefsEffects';
 import { MATERIAL_LIBRARY } from '../../core/document/materials';
 import { serializeDocument } from '../../core/document/persistence';
 import { withUnsavedCheck } from '../MenuBar';
@@ -56,6 +57,8 @@ export function FeatureTreeBody() {
     if (b) barTimer.current = window.setTimeout(() => setBar0({ ...b, shown: true }), 350);
   };
   const barRef = useRef<HTMLDivElement>(null);
+  // Options ▸ Feature Tree ▸ Scroll selected item into view
+  useEffect(() => { scrollTreeSelection(st.selectedFeatureId); }, [st.selectedFeatureId]);
   useEffect(() => {
     if (!bar) return;
     const away = (e: PointerEvent) => {
@@ -199,11 +202,11 @@ export function FeatureTreeBody() {
       selected: st.selectedFeatureId === f.id,
       active: st.featureEdit?.featureId === f.id,
       suppressed: f.suppressed || rolledBack,
-      tail: err ? <span className="status conflict" data-testid="tree-error" title={err} onClick={(e) => { e.stopPropagation(); useStore.setState({ whatsWrong: true }); }}>!</span> : warning ? <span className="status warning" data-testid="tree-warning" title={warning} onClick={(e) => { e.stopPropagation(); useStore.setState({ whatsWrong: true }); }}>!</span> : null,
+      tail: err ? <span className="status conflict" data-testid="tree-error" title={err} onClick={(e) => { e.stopPropagation(); useStore.setState({ whatsWrong: true }); }}>!</span> : warning && showTreeWarning() ? <span className="status warning" data-testid="tree-warning" title={warning} onClick={(e) => { e.stopPropagation(); useStore.setState({ whatsWrong: true }); }}>!</span> : null,
       children: [...(f.type === 'flatPattern' ? [{ id: f.id + ':fp', icon: <Icon.Sheet />, label: nameLabel(f), suppressed: f.suppressed } as TreeNode] : []), ...(sketchFeature && sketchFeature.type === 'sketch' ? [sketchNode(sketchFeature, sketchIndex)] : []), ...(bendRows.get(f.id) ?? []), ...(secondSketch && secondSketch.type === 'sketch' ? [sketchNode(secondSketch, st.doc.features.indexOf(secondSketch))] : []), ...(f.type === 'loft' ? (f.guides ?? []).map((gid) => st.doc.features.find((x) => x.type === 'sketch' && x.sketchId === gid)).filter((x): x is Extract<Feature, { type: 'sketch' }> => !!x && x.type === 'sketch').map((x) => sketchNode(x, st.doc.features.indexOf(x))) : [])],
       onDoubleClick: () => (f.type === 'sketch3d' ? st.edit3DSketch(f.id) : st.editFeature(f.id)),
       onClick: (e) => { st.setSelectedFeature(e.ctrlKey && st.selectedFeatureId === f.id ? null : f.id); if (!e.ctrlKey && !st.activeSketchId && !st.featureEdit) setBar({ x: e.clientX, y: e.clientY, featureId: f.id }); },
-      onHover: (on) => useStore.setState({ hoverFeatureId: on ? f.id : null }),
+      onHover: (on) => useStore.setState({ hoverFeatureId: on && treeHoverHighlight() ? f.id : null }),
       onContextMenu: (e) => featureMenu(e, f.id),
     };
   };
@@ -345,7 +348,7 @@ export function FeatureTreeBody() {
         },
         sys('annotations', <Icon.TreeFolder glyph="annotation" />, 'Annotations'),
         ...(bodies.length
-          ? [sys('bodies', <Icon.TreeFolder glyph="bodies" />, st.doc.sheetMetal || st.doc.weldment ? `Cut list(${bodies.filter((b) => st.rebuild.bodyMeta?.[b.id]?.kind !== 'bead').length})` : `Solid Bodies(${bodies.length})`, (st.doc.weldment ? withCutListItems : withBodyFolders)(bodies.filter((b) => !st.doc.weldment || st.rebuild.bodyMeta?.[b.id]?.kind !== 'bead').map((b): TreeNode => {
+          ? [sys('bodies', <Icon.TreeFolder glyph="bodies" />, st.doc.sheetMetal || (st.doc.weldment && cutListsOn()) ? `Cut list(${bodies.filter((b) => st.rebuild.bodyMeta?.[b.id]?.kind !== 'bead').length})` : `Solid Bodies(${bodies.length})`, (st.doc.weldment && cutListsOn() ? withCutListItems : withBodyFolders)(bodies.filter((b) => !st.doc.weldment || st.rebuild.bodyMeta?.[b.id]?.kind !== 'bead').map((b): TreeNode => {
               const hiddenBody = (st.doc.hiddenBodies ?? []).includes(b.id);
               const mat = st.doc.bodyMaterials?.[b.id];
               return {
@@ -682,7 +685,7 @@ export function FeatureTreeBody() {
             { label: 'Roll to end', onSelect: () => st.setRollback(null) },
             { label: 'Roll to previous', onSelect: () => st.setRollback(Math.max(0, st.doc.features.findIndex((f) => f.id === menu.featureId))) },
             { separator: true },
-            { label: 'Comment ▸ Add Comment…', icon: <Icon.Note />, onSelect: () => { const existing = (st.doc.comments ?? []).find((c) => c.featureId === menuFeature.id); st.setAsk({ title: `Comment on ${menuFeature.name}`, text: 'Comment', input: existing?.text ?? '', yes: (v) => { const rest = (st.doc.comments ?? []).filter((c) => c.featureId !== menuFeature.id); st.applyDocument('Comment', { ...st.doc, comments: v.trim() ? [...rest, { id: existing?.id ?? `cm${Date.now()}`, featureId: menuFeature.id, text: v.trim(), author: 'Ian', date: new Date().toISOString() }] : rest }); } }); } },
+            { label: 'Comment ▸ Add Comment…', icon: <Icon.Note />, onSelect: () => { const existing = (st.doc.comments ?? []).find((c) => c.featureId === menuFeature.id); st.setAsk({ title: `Comment on ${menuFeature.name}`, text: 'Comment', input: existing?.text ?? '', yes: (v) => { const rest = (st.doc.comments ?? []).filter((c) => c.featureId !== menuFeature.id); st.applyDocument('Comment', { ...st.doc, comments: v.trim() ? [...rest, { id: existing?.id ?? `cm${Date.now()}`, featureId: menuFeature.id, text: v.trim(), author: 'Ian', date: commentStamp() }] : rest }); } }); } },
             { label: 'Parent/Child…', icon: <Icon.Tree />, onSelect: () => { useStore.setState({ dialogFeatureId: menuFeature.id }); st.setDialog('parentChild'); } },
             { label: 'Configure Feature', icon: <Icon.Config />, onSelect: () => st.openConfigure({ features: [menuFeature.id] }) },
             { label: (st.doc.favorites ?? []).includes(menuFeature.id) ? 'Remove from Favorites' : 'Add to Favorites', icon: <Icon.Folder />, onSelect: () => { const favs = st.doc.favorites ?? []; st.applyDocument('Favorites', { ...st.doc, favorites: favs.includes(menuFeature.id) ? favs.filter((x) => x !== menuFeature.id) : [...favs, menuFeature.id] }); } },

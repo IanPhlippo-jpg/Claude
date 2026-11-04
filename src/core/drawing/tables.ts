@@ -1,5 +1,5 @@
 import type { Document } from '../document/types';
-import { bomDescription, bomPartNumber } from '../document/configurations';
+import { bomDescription, bomPartNumber, descriptionProperty } from '../document/configurations';
 import type { DrawingSheet, DrawingView } from '../document/types';
 import { sheetSize, viewBounds, viewGeometry } from './sheet';
 
@@ -25,7 +25,7 @@ function fitCols(rows: string[][], min: number[]): number[] {
 }
 
 /** A table's cells and frame on the sheet: top-left corner, column widths, rows (first row = header). */
-export function tableGrid(sheet: DrawingSheet, t: NonNullable<DrawingSheet['tables']>[number]): { pos: [number, number]; cols: number[]; rows: string[][]; rowH: number; w: number; h: number } | null {
+export function tableGrid(sheet: DrawingSheet, t: NonNullable<DrawingSheet['tables']>[number], descProp = 'Description'): { pos: [number, number]; cols: number[]; rows: string[][]; rowH: number; w: number; h: number } | null {
   const rowH = 6;
   const done = (pos: [number, number], cols: number[], rows: string[][]) => ({ pos, cols, rows, rowH, w: cols.reduce((a, b) => a + b, 0), h: rows.length * rowH });
   if (t.kind === 'general') {
@@ -48,8 +48,8 @@ export function tableGrid(sheet: DrawingSheet, t: NonNullable<DrawingSheet['tabl
       counts.set(pn, (counts.get(pn) ?? 0) + 1);
       if (!first.has(pn)) first.set(pn, { part: c.part, cfg: c.configuration });
     }
-    [...counts].forEach(([name, n], i) => rows.push([String(i + 1), name, bomDescription(first.get(name)!.part, first.get(name)!.cfg), String(n)]));
-  } else rows.push(['1', v.model.name, String(v.model.properties?.Description ?? ''), '1']);
+    [...counts].forEach(([name, n], i) => rows.push([String(i + 1), name, bomDescription(first.get(name)!.part, first.get(name)!.cfg, descProp), String(n)]));
+  } else rows.push(['1', v.model.name, descriptionProperty(v.model, descProp), '1']);
   const cols = fitCols(rows, [14, 50, 40, 12]);
   const W = cols.reduce((a, b) => a + b, 0);
   const [sw, sh] = sheetSize(sheet);

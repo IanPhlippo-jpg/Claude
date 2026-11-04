@@ -39,7 +39,9 @@ await page.waitForTimeout(300);
 let s = await page.evaluate(() => { const st = window.__phlippoStore.getState(); return { motors: st.doc.motionStudy?.motors.map((m) => m.name + ':' + m.componentId + ':' + m.motion) }; });
 check('RotaryMotor1 in the study and in the Motion Timeline tree', JSON.stringify(s.motors) === '["RotaryMotor1:c5:oscillating"]' && (await page.locator('.k-motion-row:has-text("RotaryMotor1")').count()) === 1, JSON.stringify(s));
 await page.click('[data-testid="motion-play"]');
-await page.waitForTimeout(1200);
+// the time bar moves on with each drawn frame: wait until it passed 0.5 s instead of a fixed 1.2 s (with software GL
+// one frame of the assembly can take longer than that, the CI on Windows read 0 and the next frame was at 2.7 s)
+await page.waitForFunction(() => window.__phlippoStore.getState().motionTime > 0.5, undefined, { timeout: 30000 }).catch(() => undefined);
 const t1 = await page.evaluate(() => window.__phlippoStore.getState().motionTime);
 await page.click('[data-testid="motion-stop"]');
 const t2 = await page.evaluate(() => window.__phlippoStore.getState().motionTime);
