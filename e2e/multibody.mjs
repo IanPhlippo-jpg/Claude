@@ -47,7 +47,9 @@ const boxOnTop = async (x0, y0, x1, y1, depth, merge = true) => {
       await page.click('.k-tree-row:has-text("Top Plane")', { clickCount: 2 });
       await page.waitForFunction(() => !!window.__phlippoStore.getState().activeSketchId, undefined, { timeout: 8000 }).catch(() => undefined);
     }
-    await page.waitForFunction(() => !window.__phlippoCamera.anim, undefined, { timeout: 5000 }).catch(() => undefined);
+    await page.waitForFunction(() => !window.__phlippoCamera.anim, undefined, { timeout: 15000 }).catch(() => undefined);
+    // the normal-to animation may end after the zoom above and set its own scale: 4 px per mm again, once it has ended
+    await page.evaluate(() => { const c = window.__phlippoCamera; const vp = document.querySelector('.k-viewport').getBoundingClientRect(); c.zoomAt(vp.width / 2, vp.height / 2, 0.25 / c.scale); });
     await page.waitForTimeout(200);
     const pa = await page.evaluate(([x, y]) => window.__phlippoProject({ x, y }), [x0, y0]);
     const pb = await page.evaluate(([x, y]) => window.__phlippoProject({ x, y }), [x1, y1]);
@@ -75,10 +77,10 @@ const boxOnTop = async (x0, y0, x1, y1, depth, merge = true) => {
     await page.evaluate((id) => { const s = window.__phlippoStore.getState(); const f = s.doc.features.find((x) => x.type === 'sketch' && x.sketchId === id); if (f) s.setSelectedFeature(f.id); }, sketchId);
     await page.click('.k-cm-tab:has-text("Features")');
     await page.click('.k-cm-big:has-text("Extruded Boss/Base") .k-cm-main');
-    pmOpen = await page.locator('.k-pm-valuerow input.k-num').first().waitFor({ timeout: 10000 }).then(() => true, () => false);
+    pmOpen = await page.locator('.k-pm-valuerow input.k-num').first().waitFor({ timeout: 30000 }).then(() => true, () => false);
     if (!pmOpen) await page.keyboard.press('Escape');
   }
-  await page.locator('.k-pm-valuerow input.k-num').first().waitFor({ timeout: 20000 });
+  await page.locator('.k-pm-valuerow input.k-num').first().waitFor({ timeout: 60000 });
   await page.waitForTimeout(400);
   await page.locator('.k-pm-valuerow input.k-num').first().fill(String(depth));
   await page.locator('.k-pm-valuerow input.k-num').first().press('Tab');

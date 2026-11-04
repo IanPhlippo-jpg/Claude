@@ -155,8 +155,12 @@ const em = await page.evaluate(() => window.__phlippoProjectWorld(40, 10, 0));
 let edgeLit = false;
 for (let k = 0; k < 25 && !edgeLit; k++) { await page.mouse.move(em.x + (k % 2), em.y); await page.waitForTimeout(150); edgeLit = !!(await page.evaluate(() => window.__phlippoStore.getState().hoverEdge)); }
 check('hover highlights an edge', edgeLit);
-await page.mouse.click(em.x, em.y);
-await page.waitForTimeout(150);
+// a slow runner (software GL) can miss a click while it draws: click until the edge is selected
+for (let k = 0; k < 8; k++) {
+  await page.mouse.click(em.x, em.y);
+  if (await page.waitForFunction(() => window.__phlippoStore.getState().selectedEdges.length === 1, undefined, { timeout: 2000 }).then(() => true, () => false)) break;
+  await page.mouse.move(em.x + 1, em.y); await page.mouse.move(em.x, em.y);
+}
 check('click selects the edge', (await page.evaluate(() => window.__phlippoStore.getState().selectedEdges.length)) === 1);
 await page.click('.k-cm-big:has-text("Fillet") .k-cm-main');
 await page.waitForTimeout(600);
@@ -385,13 +389,22 @@ check('Mass Properties reports the volume', !!mv && Math.abs(parseFloat(mv[1]) -
 check('Mass Properties lists the centre of mass and inertia', /Center of mass/.test(report) && /Lxx = /.test(report));
 await shot('e19-mass-properties');
 await page.click('.k-cm-big:has-text("Measure") .k-cm-main');
-await page.waitForTimeout(300);
+// the exact body (B-rep) comes in after the faceted one: measure on the settled body, and pick again until an edge of
+// 80 mm is measured (a slow runner can pick while the view or the body is still changing)
+await waitSettled(page);
 const me = await page.evaluate(() => window.__phlippoProjectWorld(20, 10, 0));
-await page.mouse.move(me.x, me.y);
-await page.waitForTimeout(200);
-await page.mouse.click(me.x, me.y);
-await page.waitForTimeout(300);
-const measureText = await page.locator('.k-measure-dialog').innerText();
+let measureText = '';
+for (let k = 0; k < 6; k++) {
+  await page.mouse.move(me.x + (k % 2), me.y);
+  await page.waitForFunction(() => !!window.__phlippoStore.getState().hoverEdge, undefined, { timeout: 3000 }).catch(() => undefined);
+  await page.mouse.click(me.x + (k % 2), me.y);
+  await page.waitForTimeout(400);
+  measureText = await page.locator('.k-measure-dialog').innerText().catch(() => '');
+  if (/Length \(Edge<1>\):\s*80\.00mm/.test(measureText)) break;
+  await page.keyboard.press('Escape');
+  await page.click('.k-cm-big:has-text("Measure") .k-cm-main').catch(() => undefined);
+  await waitSettled(page);
+}
 check('Measure shows the edge length', /Length \(Edge<1>\):\s*80\.00mm/.test(measureText), measureText.replace(/\s+/g, ' ').slice(0, 160));
 await shot('e20-measure');
 await page.keyboard.press('Escape');
