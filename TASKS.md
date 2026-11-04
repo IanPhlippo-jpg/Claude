@@ -752,7 +752,7 @@ elease; README en docs/04 bijgewerkt
 
 ## QA-rapport 0.5.1 verwerken (2026-10-27)
 - [x] Per bevinding een status in docs/25-qa-rapport-v0.5.1.md
-- [~] CI-waarheid: rebuildworker-framegap opgelost (software-GL: dunne randen, F125); qa2 + facenames + worker-pass in CI (F120); skips geteld (F119); drawing-test wacht op rust en meldt wat onder de klik ligt (F10, Linux niet lokaal te draaien); SwiftShader-schakelaar in de app wacht op Ians OK (F115)
+- [x] CI-waarheid (afgerond: QA 0.5.11 bevestigt F115/F125, Actions 41862412746 groen): rebuildworker-framegap opgelost (software-GL: dunne randen, F125); qa2 + facenames + worker-pass in CI (F120); skips geteld (F119); drawing-test wacht op rust en meldt wat onder de klik ligt (F10, Linux niet lokaal te draaien); SwiftShader-schakelaar in de app wacht op Ians OK (F115)
 - [x] Assembly: solver ordent vanaf de vaste componenten, beide kanten verplaatsbaar (F109); vrijheidsgraden gemeten → (-)/(+)/niets, conflicterende mate rood, statusbalk Under/Fully/Over Defined (F108); Lock rotation werkt echt; M1/M2 als unit-tests
 - [x] Topologie: gesplitste rand in al zijn stukken afgerond (F111); afronding van een gebogen rand als één gereedschap i.p.v. één boolean per facet (F110: 923 → 359 mm³); vlaknamen voor revolve; T2/T3 als unit-tests
 - [x] Options eerlijk: wat het programma niet leest staat grijs (lijst getest tegen de broncode); AutoRecover op schijf (desktop) met interval en map, in Document Recovery; herinnering niet-opgeslagen; Length-eenheid en Mass/Section-eenheden doorgevoerd (F112)
@@ -871,9 +871,9 @@ elease; README en docs/04 bijgewerkt
 - [x] docs/28 sectie "Multi-view"; typecheck, neutral-comments, line-budget groen
 
 ## QA 0.5.11 (6/10) naar 0.5.12 (2026-11-03)
-- [~] P0-1/P0-4 (F176, F97, F149): groene Actions-run op db0d4b2 vastgelegd met checks- en desktop-joblogs; commit in elke build, zelftest en log (ook uit git archive); desktop-installed-log met commit, tijd en elke check; Windows-jobs in CI (installer + regressie in Edge)
+- [x] P0-1/P0-4 (F176, F97, F149): groene Actions-run op db0d4b2 vastgelegd met checks- en desktop-joblogs; commit in elke build, zelftest en log (ook uit git archive); desktop-installed-log met commit, tijd en elke check; Windows-jobs in CI (installer + regressie in Edge)
 - [x] P0-2 (F172, F159, F48): kruiscontrole op vormafwijking (afstand exact ↔ facet, beide kanten, ≥ 0,1 mm) naast 0,5 % volume; qaCrossCheck.test.ts 4/4 (overgeslagen fillet 0,83 mm, extra rand 10 mm R2 gevangen); in e2e-builds een consolefout
-- [~] P0-3 (F173, F130): qaStrict op 2 % van het verlies en 1,5 mm³ voor elke sleuf: vond een echte fout (stadium-sleuf + fillet: "Keep features" sneed opnieuw, 10 mm-uitsteeksel en 21 mm³ te weinig; nu alleen hersnijden waar de fillet materiaal toevoegt); mateStatus M3/M5 (agent)
+- [x] P0-3 (F173, F130): qaStrict op 2 % van het verlies en 1,5 mm³ voor elke sleuf: vond een echte fout (stadium-sleuf + fillet: "Keep features" sneed opnieuw, 10 mm-uitsteeksel en 21 mm³ te weinig; nu alleen hersnijden waar de fillet materiaal toevoegt); mateStatus M3/M5 (agent)
 - [x] P0-5: sheetexport-schermafdruk van de PDF-viewer alleen op Windows (Edge), geen skip meer; skip-budget 0
 - [x] P1-1 (F175): ellipsen, splines, Style Splines en conics exact in B-rep (ellips 40×20×10 = 6283,185307; STEP met ELLIPSE/B_SPLINE_CURVE_WITH_KNOTS); exactVolume via shapeVolume (spline was 8 mm³ te groot)
 - [x] P1-7 + P2-5 + P2-7: mechanische mates met gedragstests (mechMates.test.ts 15, vier fouten opgelost: screw, rack-pinion, linear coupler, gear), M3/M5/nieuwste mate (solver liet de nieuwste mate winnen: opgelost), AlongX/Y/Z in 3D-schetsen, e2e/undo200.mjs 7/7
@@ -894,6 +894,6 @@ elease; README en docs/04 bijgewerkt
 - [x] Laatste kernelverschillen (curve pattern, variabele fillet, moerafschuining, flens/zoom op het verkeerde vlak): releasepass zonder één kernelverschil in 104 scripts
 - [x] Windows-scripts: vloershaders werden bij elke rebuild opnieuw gecompileerd (8–9 s → 1 s), camera-animatie/rebuild afwachten in jogmiter, misc7, gj, motion; Select Other gebruikt de straal van de rechtsklik
 - [x] F134 rebuild.ts 3390 → 2274 regels (sheetMetalBuild, frameBuild, surfaceBuild, buildContext); unit 736/736; mutatiecheck 4/4
-- [~] Release 0.5.12: regressie Windows op de commit, installer + installatietest, Actions-run (Linux + Windows), docs/29 en README met platform/commit/log
-- [~] P3 (F38, F129, F138, F174): bundel 855 → 784 kB (budget 800, lazy panelen); tools/doc-counts.cjs in CI; TASKS (13) en docs/28 F142 rechtgezet; audit: minimatch < 11 zonder backport in electron-builder 26.18 (gedocumenteerd)
-- [ ] Regressie Windows + Actions op de release-commit, release 0.5.12, docs/29
+- [x] Release 0.5.12 op 02e3b22: Actions-run 41862412746 alle 16 jobs groen (Linux en Windows: release 104/104, mesh 104/104, brep 14/14, installer 21/21); lokaal Windows idem; geïnstalleerd 21/21; logs in qa-logs/0.5.12; docs/29 en README
+- [x] P3 (F38, F129, F138, F174): bundel 855 → 784 kB (budget 800, lazy panelen); tools/doc-counts.cjs in CI; TASKS (13) en docs/28 F142 rechtgezet; audit: minimatch < 11 zonder backport in electron-builder 26.18 (gedocumenteerd)
+- [x] Regressie Windows + Actions op de release-commit, release 0.5.12, docs/29

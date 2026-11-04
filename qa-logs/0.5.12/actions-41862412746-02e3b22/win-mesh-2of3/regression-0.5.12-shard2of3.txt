@@ -1,0 +1,42 @@
+regression 0.5.12 pass default shard 2/3
+commit 02e3b22
+platform win32 10.0.26100
+url http://127.0.0.1:4173/
+date 2026-11-04T15:54:45.494Z
+(35 scripts)
+relations: exit=0 26s 14/14 checks passed
+assembly: exit=0 102s 21/21 checks passed
+rib: exit=0 58s 10/10 checks passed
+slot: exit=0 25s 9/9 checks passed
+sketchtools: exit=0 28s 13/13 checks passed
+explode: exit=0 56s 18/18 checks passed
+componentpattern: exit=0 52s 6/6 checks passed
+sketch3d: exit=0 36s 9/9 checks passed
+draftcheck: exit=0 61s 9/9 checks passed
+sketchtools2: exit=0 16s 4/4 checks passed
+annotations2: exit=0 16s 4/4 checks passed
+corners: exit=0 37s 4/4 checks passed
+motion: exit=0 23s 5/5 checks passed
+dimpm: exit=0 13s 3/3 checks passed
+deletekey: exit=0 65s 8/8 checks passed
+sketchcurves: exit=0 23s 13/13 checks passed
+evalrender2: exit=0 45s 11/11 checks passed
+misc7: exit=0 51s 8/8 checks passed
+drawopts: exit=0 42s 21/21 checks passed
+sectionopts: exit=0 22s 5/5 passed
+motion2: exit=0 34s 9/9 passed
+fixes1: exit=0 12s 6/6 checks passed
+qa2: exit=0 42s 18/18 passed
+leak: exit=0 105s 3/3 checks passed
+gb: exit=0 91s 32/32 passed
+gf: exit=0 47s 28/28 passed
+gi: exit=0 56s 29/29 passed
+brep: exit=0 73s 11/11 checks passed
+inventory47: exit=0 64s 18/18 checks passed
+appearance2: exit=0 26s 8/8 checks passed
+videos46: exit=0 68s 25/25 checks passed
+sheetexport: exit=0 17s 12/12 passed
+round2: exit=0 18s 6/6 checks passed
+library: exit=0 37s 16/16 checks passed
+sketch3d2: exit=0 18s 14/14 checks passed
+DONE 35/35 green, 0 optional step(s) skipped

@@ -1,0 +1,41 @@
+regression 0.5.12 pass default shard 3/3
+commit 02e3b22
+platform linux 7.0.0-1017-azure
+url http://127.0.0.1:4173/
+date 2026-11-04T15:55:05.575Z
+(34 scripts)
+features: exit=0 419s 65/65 checks passed
+drawing: exit=0 42s 28/28 checks passed
+endconditions: exit=0 77s 15/15 checks passed
+sheetmetal: exit=0 40s 14/14 checks passed
+helix: exit=0 22s 5/5 checks passed
+doorhandle: exit=0 97s 18/18 checks passed
+uptobody: exit=0 15s 4/4 checks passed
+sketchpattern: exit=0 26s 2/2 checks passed
+editcomponent: exit=0 23s 2/2 checks passed
+surfaces: exit=0 42s 7/7 checks passed
+annotations3: exit=0 10s 3/3 checks passed
+unfoldfold: exit=0 31s 5/5 checks passed
+thickness: exit=0 28s 2/2 checks passed
+thread: exit=0 24s 2/2 checks passed
+deletekey2: exit=0 22s 13/13 checks passed
+features2: exit=0 88s 15/15 checks passed
+assembly2: exit=0 77s 15/15 checks passed
+filletopts: exit=0 138s 16/16 checks passed
+keys: exit=0 187s 7/7 checks passed
+dwgopts: exit=0 12s 13/13 passed
+triad: exit=0 52s 5/5 passed
+asmcut: exit=0 31s 3/3 checks passed
+qa3: exit=0 55s 30/30 passed
+ga1: exit=0 19s 19/19 passed
+gd: exit=0 52s 23/23 passed
+gg: exit=0 44s 22/22 passed
+gj: exit=0 92s 37/37 passed
+bodies: exit=0 31s 7/7 checks passed
+rebuildworker: exit=0 91s 11/11 checks passed
+loftface: exit=0 34s 7/7 checks passed
+videos54: exit=0 34s 18/18 checks passed
+plastics: exit=0 100s 26/26 passed
+undo200: exit=0 18s 7/7 checks passed
+instant2d: exit=0 9s 8/8 checks passed
+DONE 34/34 green, 0 optional step(s) skipped

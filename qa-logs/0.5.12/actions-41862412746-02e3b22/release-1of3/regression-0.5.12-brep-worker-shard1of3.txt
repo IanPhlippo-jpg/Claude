@@ -1,0 +1,42 @@
+regression 0.5.12 pass brep-worker shard 1/3
+commit 02e3b22
+platform linux 7.0.0-1017-azure
+url http://127.0.0.1:4173/?kernel=brep&rebuild=worker
+date 2026-11-04T15:54:53.998Z
+(35 scripts)
+smoke: exit=0 16s 13/13 checks passed
+full: exit=0 93s 68/68 checks passed | page errors: []
+configurations: exit=0 83s 25/25 checks passed
+multibody: exit=0 122s 14/14 checks passed
+section: exit=0 35s 9/9 checks passed
+hem: exit=0 65s 9/9 checks passed
+ellipsetext: exit=0 22s 6/6 checks passed
+jogmiter: exit=0 60s 7/7 checks passed
+faceappearance: exit=0 24s 2/2 checks passed
+arcslot: exit=0 17s 4/4 checks passed
+annotations: exit=0 15s 3/3 checks passed
+viewlayout: exit=0 17s 16/16 checks passed
+wrap: exit=0 94s 4/4 checks passed
+dragHandles: exit=0 92s 14/14 checks passed
+confirmdelete: exit=0 35s 11/11 checks passed
+rect3: exit=0 9s 8/8 checks passed
+sheetmetal2: exit=0 138s 7/7 checks passed
+drawing2: exit=0 23s 13/13 checks passed
+drawingfix: exit=0 26s 16/16 checks passed
+asmoptions: exit=0 66s 19/19 passed
+dialogopts: exit=0 62s 16/16 passed
+blockf: exit=0 55s 6/6 passed
+qa1: exit=0 54s 26/26 passed
+qa4: exit=0 64s 14/14 passed
+ga2: exit=0 156s 16/16 passed
+ge: exit=0 351s 59/59 passed
+gh: exit=0 166s 29/29 passed
+step: exit=0 97s 11/11 checks passed
+pmsweep: exit=0 371s 54/54 checks passed
+facenames: exit=0 36s 10/10 checks passed
+videos56: exit=0 80s 18/18 checks passed
+reorder: exit=0 47s 10/10 passed
+quickstart: exit=0 83s 9/9 passed
+designtable: exit=0 33s 15/15 checks passed
+magnify: exit=0 38s 12/12 checks passed
+DONE 35/35 green, 0 optional step(s) skipped

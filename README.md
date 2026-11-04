@@ -56,7 +56,13 @@ QA-rapport 0.5.11 (5/10 na de teamronde, 3 Kritiek) verwerkt; per bevinding in `
 - De strikte QA-tests in `src/qa/`: qaStrict.test.ts (8), qaBrep.test.ts (34), qaCrossCheck.test.ts (12),
   qaNaming.test.ts (12), qaTeam.test.ts (5), qaMismatch.test.ts (1); `tools/doc-counts.cjs` bewaakt die getallen.
 
-Welke platforms getest zijn: zie "Testresultaten" in `docs/29-qa-0.5.11.md` (platform, commit en ruw log per pass).
+Welke platforms getest zijn (release-commit 02e3b22):
+- **Linux (GitHub Actions, ubuntu-24.04):** [run 41862412746](https://github.com/IanPhlippo-jpg/Claude/actions/runs/41862412746), alle 16 jobs
+  groen: release 104/104, mesh 104/104, brep 14/14, checks (unit 736/736, mutaties 4/4), desktop.
+- **Windows (Actions, windows-2025):** dezelfde run: release 104/104, mesh 104/104, installer stil geïnstalleerd en
+  getest 21/21.
+- **Windows 11 (lokaal):** mesh 104/104, release 104/104, brep 14/14; geïnstalleerde 0.5.12 21/21.
+Ruwe logs: `qa-logs/0.5.12/`; overzicht in `docs/29-qa-0.5.11.md`.
 
 ## Status 0.5.11 (2026-11-02)
 

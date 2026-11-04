@@ -1,0 +1,21 @@
+regression 0.5.12 pass brep
+commit 02e3b22
+platform win32 10.0.26200
+url http://localhost:5197/?kernel=brep
+date 2026-11-04T16:57:58.151Z
+(14 scripts)
+features: exit=0 260s 65/65 checks passed
+features2: exit=0 151s 15/15 checks passed
+filletopts: exit=0 215s 16/16 checks passed
+endconditions: exit=0 21s 15/15 checks passed
+multibody: exit=0 71s 14/14 checks passed
+full: exit=0 28s 68/68 checks passed | page errors: []
+doorhandle: exit=0 50s 18/18 checks passed
+step: exit=0 72s 11/11 checks passed
+bodies: exit=0 10s 7/7 checks passed
+qa2: exit=0 17s 18/18 passed
+facenames: exit=0 9s 10/10 checks passed
+plastics: exit=0 40s 26/26 passed
+loftface: exit=0 43s 7/7 checks passed
+pmsweep: exit=0 60s 54/54 checks passed
+DONE 14/14 green, 0 optional step(s) skipped

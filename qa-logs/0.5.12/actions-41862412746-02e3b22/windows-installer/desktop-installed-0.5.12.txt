@@ -1,0 +1,29 @@
+desktop-installed 0.5.12
+commit 02e3b22
+platform win32 10.0.26100
+date 2026-11-04T15:56:13.666Z
+exe C:\Users\runneradmin\AppData\Local\Programs\Phlippo CAD\Phlippo CAD.exe (file version 0.5.12.0)
+
+ok   the program is installed (C:\Users\runneradmin\AppData\Local\Programs\Phlippo CAD\Phlippo CAD.exe)
+ok   the installed program is version 0.5.12 (0.5.12.0)
+ok   LICENSE.txt and THIRD-PARTY-NOTICES.txt are installed
+ok   the Chromium licences ship with it (LICENSES.chromium.html, F91)
+ok   THIRD-PARTY-NOTICES points to the Chromium licences
+ok   the Electron fuses are set as configured (runAsNode, enableCookieEncryption, enableNodeOptionsEnvironmentVariable, enableNodeCliInspectArguments, enableEmbeddedAsarIntegrityValidation, onlyLoadAppFromAsar, grantFileProtocolExtraPrivileges)
+ok   the installed program starts and shows its window (Phlippo CAD)
+ok   the program is still running after start-up (no crash)
+ok   --remote-debugging-port is refused: the program exits with code 1 (exit 1)
+ok   --remote-debugging-port is refused: no debugging endpoint
+ok   --self-test runs and exits with code 0 (exit 0)
+ok   --self-test ran in the installed program on app:// ({"packaged":true,"version":"0.5.12","url":"app://phlippo/index.html"})
+ok   the installed build names a clean commit (build commit 02e3b22)
+ok   self-test: the app started (Welcome)
+ok   self-test: sketch and extrude build a body
+ok   self-test: the B-rep kernel (WASM) makes the body exact (44858.407346410204)
+ok   self-test: Fillet1 is exact (44742.52235464481)
+ok   self-test: no rebuild errors ({})
+ok   self-test: STEP is written with exact surfaces (23567 bytes, exact 1)
+ok   self-test: the rebuild worker builds the same body (1143 / 1143 vertices, 275 ms)
+ok   self-test: Save writes the .kcad atomically and keeps a .bak
+
+21/21 checks passed
