@@ -1,0 +1,262 @@
+{
+  "format": "phlippo-cad",
+  "version": 1,
+  "name": "ALEX kast",
+  "units": "mm",
+  "variables": {},
+  "equations": [],
+  "planes": {
+    "voorvlak": {
+      "id": "voorvlak",
+      "name": "Face<1>",
+      "origin": [
+        0,
+        0,
+        290
+      ],
+      "u": [
+        1,
+        0,
+        0
+      ],
+      "v": [
+        0,
+        1,
+        0
+      ],
+      "n": [
+        0,
+        0,
+        1
+      ],
+      "kind": "face"
+    }
+  },
+  "sketches": {
+    "s1": {
+      "id": "s1",
+      "name": "Sketch1",
+      "plane": "top",
+      "points": {
+        "origin_s1": {
+          "x": 0,
+          "y": 0
+        },
+        "s1p00": {
+          "x": -180,
+          "y": -290
+        },
+        "s1p01": {
+          "x": 180,
+          "y": -290
+        },
+        "s1p02": {
+          "x": 180,
+          "y": 290
+        },
+        "s1p03": {
+          "x": -180,
+          "y": 290
+        }
+      },
+      "scalars": {},
+      "entities": {
+        "s1l00": {
+          "id": "s1l00",
+          "kind": "line",
+          "p1": "s1p00",
+          "p2": "s1p01",
+          "construction": false
+        },
+        "s1l01": {
+          "id": "s1l01",
+          "kind": "line",
+          "p1": "s1p01",
+          "p2": "s1p02",
+          "construction": false
+        },
+        "s1l02": {
+          "id": "s1l02",
+          "kind": "line",
+          "p1": "s1p02",
+          "p2": "s1p03",
+          "construction": false
+        },
+        "s1l03": {
+          "id": "s1l03",
+          "kind": "line",
+          "p1": "s1p03",
+          "p2": "s1p00",
+          "construction": false
+        }
+      },
+      "constraints": {},
+      "entityOrder": [
+        "s1l00",
+        "s1l01",
+        "s1l02",
+        "s1l03"
+      ],
+      "constraintOrder": [],
+      "origin": "origin_s1"
+    },
+    "s2": {
+      "id": "s2",
+      "name": "Sketch2",
+      "plane": "voorvlak",
+      "points": {
+        "origin_s2": {
+          "x": 0,
+          "y": 0
+        },
+        "s2p00": {
+          "x": -166,
+          "y": 14
+        },
+        "s2p01": {
+          "x": 166,
+          "y": 14
+        },
+        "s2p02": {
+          "x": 166,
+          "y": 686
+        },
+        "s2p03": {
+          "x": -166,
+          "y": 686
+        },
+        "s2p10": {
+          "x": -164,
+          "y": 16
+        },
+        "s2p11": {
+          "x": 164,
+          "y": 16
+        },
+        "s2p12": {
+          "x": 164,
+          "y": 684
+        },
+        "s2p13": {
+          "x": -164,
+          "y": 684
+        }
+      },
+      "scalars": {},
+      "entities": {
+        "s2l00": {
+          "id": "s2l00",
+          "kind": "line",
+          "p1": "s2p00",
+          "p2": "s2p01",
+          "construction": false
+        },
+        "s2l01": {
+          "id": "s2l01",
+          "kind": "line",
+          "p1": "s2p01",
+          "p2": "s2p02",
+          "construction": false
+        },
+        "s2l02": {
+          "id": "s2l02",
+          "kind": "line",
+          "p1": "s2p02",
+          "p2": "s2p03",
+          "construction": false
+        },
+        "s2l03": {
+          "id": "s2l03",
+          "kind": "line",
+          "p1": "s2p03",
+          "p2": "s2p00",
+          "construction": false
+        },
+        "s2l10": {
+          "id": "s2l10",
+          "kind": "line",
+          "p1": "s2p10",
+          "p2": "s2p11",
+          "construction": false
+        },
+        "s2l11": {
+          "id": "s2l11",
+          "kind": "line",
+          "p1": "s2p11",
+          "p2": "s2p12",
+          "construction": false
+        },
+        "s2l12": {
+          "id": "s2l12",
+          "kind": "line",
+          "p1": "s2p12",
+          "p2": "s2p13",
+          "construction": false
+        },
+        "s2l13": {
+          "id": "s2l13",
+          "kind": "line",
+          "p1": "s2p13",
+          "p2": "s2p10",
+          "construction": false
+        }
+      },
+      "constraints": {},
+      "entityOrder": [
+        "s2l00",
+        "s2l01",
+        "s2l02",
+        "s2l03",
+        "s2l10",
+        "s2l11",
+        "s2l12",
+        "s2l13"
+      ],
+      "constraintOrder": [],
+      "origin": "origin_s2"
+    }
+  },
+  "features": [
+    {
+      "id": "ks1",
+      "type": "sketch",
+      "name": "Sketch1",
+      "sketchId": "s1",
+      "suppressed": false
+    },
+    {
+      "id": "f1",
+      "type": "extrude",
+      "name": "Boss-Extrude1",
+      "sketchId": "s1",
+      "suppressed": false,
+      "op": "boss",
+      "end": "blind",
+      "depth": 700,
+      "reverse": false
+    },
+    {
+      "id": "ks2",
+      "type": "sketch",
+      "name": "Sketch2",
+      "sketchId": "s2",
+      "suppressed": false
+    },
+    {
+      "id": "f2",
+      "type": "extrude",
+      "name": "Cut-Extrude1",
+      "sketchId": "s2",
+      "suppressed": false,
+      "op": "cut",
+      "end": "blind",
+      "depth": 3,
+      "reverse": true
+    }
+  ],
+  "material": {
+    "name": "Spaanplaat, wit gelakt",
+    "density": 650,
+    "color": "#f2f2ef"
+  }
+}

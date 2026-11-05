@@ -897,3 +897,12 @@ elease; README en docs/04 bijgewerkt
 - [x] Release 0.5.12 op 02e3b22: Actions-run 41862412746 alle 16 jobs groen (Linux en Windows: release 104/104, mesh 104/104, brep 14/14, installer 21/21); lokaal Windows idem; geïnstalleerd 21/21; logs in qa-logs/0.5.12; docs/29 en README
 - [x] P3 (F38, F129, F138, F174): bundel 855 → 784 kB (budget 800, lazy panelen); tools/doc-counts.cjs in CI; TASKS (13) en docs/28 F142 rechtgezet; audit: minimatch < 11 zonder backport in electron-builder 26.18 (gedocumenteerd)
 - [x] Regressie Windows + Actions op de release-commit, release 0.5.12, docs/29
+
+## Bureau naar foto, IKEA-maten (2026-11-05)
+- [x] Maten vastleggen: LAGKAPTEN-blad 1400 x 600 x 34 mm, twee ALEX-kasten 360 x 580 x 700 mm, totaal 734 mm hoog
+- [x] Generator `voorbeelden/bureau/maak-bureau.mjs` die drie .kcad-bestanden schrijft (Tafelblad, ALEX-kast, Bureau-assemblage)
+- [x] ALEX-kast met deur: voeg van 2 mm rond de deur in het voorvlak
+- [x] Assemblage: kasten flush met de zijkanten en achterkant van het blad, 20 mm overstek vooraan
+- [x] Controleren met een unit-test (volumes en maten na rebuild) en de voorbeeldentest
+- [x] Openen in de app, screenshot vergelijken met de foto
+- [x] Commit en push

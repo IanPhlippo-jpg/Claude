@@ -1,0 +1,21 @@
+// look: het bureau van de foto (voorbeelden/bureau) als assemblage, isometrisch, en de ALEX-kast los
+import { chromium } from 'playwright';
+import { readFileSync } from 'node:fs';
+const browser = await chromium.launch(process.platform === 'win32' ? { channel: process.env.PW_CHANNEL ?? 'msedge' } : { ...(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {}), args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
+const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } });
+const errors = [];
+page.on('pageerror', (e) => errors.push(e.message));
+page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
+await page.goto(process.env.E2E_URL ?? 'http://localhost:5184/');
+await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.theme', 'light'); });
+await page.reload();
+await page.waitForSelector('.k-viewport');
+await page.click('.k-doctype:has-text("Part")');
+const open = async (f) => { const d = JSON.parse(readFileSync(`voorbeelden/bureau/${f}`, 'utf8')); delete d.format; await page.evaluate((x) => window.__phlippoStore.getState().openDocument(x), d); await page.waitForTimeout(2500); };
+const shot = async (name) => { await page.keyboard.press('Control+7'); await page.waitForTimeout(600); await page.keyboard.press('f'); await page.mouse.move(700, 1000); await page.waitForTimeout(1500); await page.screenshot({ path: `e2e-out/${name}.png` }); };
+await open('Bureau.kcad');
+await shot('bureau-assemblage');
+await open('ALEX-kast.kcad');
+await shot('bureau-alex-kast');
+console.log('errors', errors);
+await browser.close();

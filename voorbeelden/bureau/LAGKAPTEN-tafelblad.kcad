@@ -1,0 +1,103 @@
+{
+  "format": "phlippo-cad",
+  "version": 1,
+  "name": "LAGKAPTEN tafelblad",
+  "units": "mm",
+  "planes": {},
+  "variables": {},
+  "equations": [],
+  "sketches": {
+    "s1": {
+      "id": "s1",
+      "name": "Sketch1",
+      "plane": "top",
+      "points": {
+        "origin_s1": {
+          "x": 0,
+          "y": 0
+        },
+        "s1p00": {
+          "x": -700,
+          "y": -300
+        },
+        "s1p01": {
+          "x": 700,
+          "y": -300
+        },
+        "s1p02": {
+          "x": 700,
+          "y": 300
+        },
+        "s1p03": {
+          "x": -700,
+          "y": 300
+        }
+      },
+      "scalars": {},
+      "entities": {
+        "s1l00": {
+          "id": "s1l00",
+          "kind": "line",
+          "p1": "s1p00",
+          "p2": "s1p01",
+          "construction": false
+        },
+        "s1l01": {
+          "id": "s1l01",
+          "kind": "line",
+          "p1": "s1p01",
+          "p2": "s1p02",
+          "construction": false
+        },
+        "s1l02": {
+          "id": "s1l02",
+          "kind": "line",
+          "p1": "s1p02",
+          "p2": "s1p03",
+          "construction": false
+        },
+        "s1l03": {
+          "id": "s1l03",
+          "kind": "line",
+          "p1": "s1p03",
+          "p2": "s1p00",
+          "construction": false
+        }
+      },
+      "constraints": {},
+      "entityOrder": [
+        "s1l00",
+        "s1l01",
+        "s1l02",
+        "s1l03"
+      ],
+      "constraintOrder": [],
+      "origin": "origin_s1"
+    }
+  },
+  "features": [
+    {
+      "id": "ks1",
+      "type": "sketch",
+      "name": "Sketch1",
+      "sketchId": "s1",
+      "suppressed": false
+    },
+    {
+      "id": "f1",
+      "type": "extrude",
+      "name": "Boss-Extrude1",
+      "sketchId": "s1",
+      "suppressed": false,
+      "op": "boss",
+      "end": "blind",
+      "depth": 34,
+      "reverse": false
+    }
+  ],
+  "material": {
+    "name": "Spaanplaat, wit gelakt",
+    "density": 650,
+    "color": "#f2f2ef"
+  }
+}
