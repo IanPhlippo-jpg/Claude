@@ -159,7 +159,7 @@ export class Onderdeel {
   }
 
   /** extrude van de laatste schets; op = 'boss' | 'cut'; omkeren = tegen de normaal in; terug = mm in de andere richting */
-  extrude(op, depth, { omkeren = false, terug = 0, naam } = {}) {
+  extrude(op, depth, { omkeren = false, terug = 0, naam, draft } = {}) {
     const n = op === 'cut' ? ++this.tel.cut : ++this.tel.boss;
     const sketchId = `s${this.tel.sketch}`;
     const f = {
@@ -167,6 +167,7 @@ export class Onderdeel {
       suppressed: false, op, end: 'blind', depth, reverse: omkeren,
     };
     if (terug) f.direction2 = { end: 'blind', depth: terug };
+    if (draft) f.draft = { angle: draft, outward: false }; // aflopend naar binnen (afschuining)
     this.features.push(f);
     return this;
   }

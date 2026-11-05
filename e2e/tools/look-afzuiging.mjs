@@ -18,10 +18,17 @@ const kijk = async (toets, naam) => { await page.keyboard.press(toets); await pa
 
 // assemblage met de lade 80 mm open
 const asm = lees('voorbeelden/afzuiging/Afzuiging.kcad');
-for (const c of asm.components) if (c.id === 'a3' || c.id === 'a4') c.position = [0, 0, 80];
+for (const c of asm.components) if (c.id === 'a3' || /^af\d/.test(c.id)) c.position = [0, 0, 80];
 await open(asm);
 await kijk('Control+7', 'afzuiging-iso');
 await kijk('Control+6', 'afzuiging-onder');
+// doorsnede door het midden (luchtweg: rooster, filterlagen, ventilator, lamellen) en door de klauwtorens
+const doorsnede = async (sv, toets, naam) => { await page.evaluate((x) => window.__phlippoStore.setState({ sectionView: x }), sv); await page.waitForTimeout(1500); await kijk(toets, naam); };
+await open(lees('voorbeelden/afzuiging/Afzuiging.kcad'));
+await doorsnede({ plane: 'right', offset: 0, flip: false, cap: true }, 'Control+4', 'afzuiging-doorsnede');
+await doorsnede({ plane: 'right', offset: 0, flip: false, cap: true }, 'Control+7', 'afzuiging-doorsnede-iso');
+await doorsnede({ plane: 'front', offset: 40, flip: false, cap: true }, 'Control+1', 'afzuiging-doorsnede-klauwen');
+await page.evaluate(() => window.__phlippoStore.setState({ sectionView: null }));
 // de module alleen
 await open(lees('voorbeelden/afzuiging/Inbouwmodule.kcad'));
 await kijk('Control+7', 'afzuiging-module');

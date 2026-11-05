@@ -1,15 +1,15 @@
 {
  "format": "phlippo-cad",
  "version": 1,
- "name": "Filtermat G4",
+ "name": "Voorfilter G4",
  "units": "mm",
  "planes": {
-  "mat": {
-   "id": "mat",
-   "name": "Plane mat",
+  "laagg4": {
+   "id": "laagg4",
+   "name": "Plane g4",
    "origin": [
     0,
-    -78,
+    -66,
     0
    ],
    "u": [
@@ -36,7 +36,7 @@
   "s1": {
    "id": "s1",
    "name": "Sketch1",
-   "plane": "mat",
+   "plane": "laagg4",
    "points": {
     "origin_s1": {
      "x": 0,
@@ -122,7 +122,7 @@
   }
  ],
  "material": {
-  "name": "Filtermat G4",
+  "name": "Voorfilter G4",
   "density": 60,
   "color": "#ebe8df"
  }

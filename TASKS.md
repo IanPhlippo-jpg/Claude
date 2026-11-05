@@ -925,3 +925,14 @@ elease; README en docs/04 bijgewerkt
 - [x] Elektronica: aansluitschema (aansluitschema.svg) en stuklijst (README)
 - [x] Firmware ESP32 (M5Dial): draaien = snelheid, drukken = aan/uit, lang = boost, toerental en storing op het ronde scherm; compileren met PlatformIO
 - [x] Tests (qaAfzuiging, qaBureau), STL's in printstand, screenshots, commit en push
+
+## Afzuiging v2: luchtdicht, fijnfilter, strakker design, ronde draaiknop (2026-11-05)
+- [x] Ventilator en filters kiezen: voorfilter + fijnfilter (+ koolstof) vraagt meer statische druk dan de NF-F12
+- [x] Luchtdicht kanaal: klauwen in gesloten torens (enkel open naar buiten), schroefgat dicht onder de kop, ladefront overlappend met schuimband
+- [x] Filterlade met voorfilter en fijnfilter in lagen; ventilator binnen de behuizing; onderplaat als uitblaasrooster met schuine lamellen naar achter
+- [x] Strakker design: afgeschuinde flens, afgeronde romp, ladefront met greepsleuf in plaats van blokje
+- [x] Ronde dialhouder (gatzaag Ø60) en een ronde M5Stack Dial
+- [x] Test: luchtdicht (flood-fill van het kanaal mag de buitenkant niet bereiken), botsing, B-rep, printbed; STL's en DXF
+- [x] Verschildrukmeting over de filters (Sensirion SDP810-500Pa, I2C op Port A): meetpunten in de module, slangen naar de elektronicabox
+- [x] Firmware: ijken op schone filters, melding "Filter vol" op het scherm, storing via de druk (Port B: G2 PWM, G1 aan/uit)
+- [x] README, aansluitschema bijwerken; tests, screenshots, commit en push

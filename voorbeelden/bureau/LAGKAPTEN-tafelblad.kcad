@@ -158,57 +158,13 @@
           "y": -65
         },
         "s2p21": {
-          "x": 225.5,
-          "y": -229.5
-        },
-        "s2p22": {
-          "x": 274.5,
-          "y": -229.5
-        },
-        "s2p23": {
-          "x": 279.5,
-          "y": -224.5
-        },
-        "s2p24": {
-          "x": 279.5,
-          "y": -175.5
-        },
-        "s2p25": {
-          "x": 274.5,
-          "y": -170.5
-        },
-        "s2p26": {
-          "x": 225.5,
-          "y": -170.5
-        },
-        "s2p27": {
-          "x": 220.5,
-          "y": -175.5
-        },
-        "s2p28": {
-          "x": 220.5,
-          "y": -224.5
-        },
-        "s2p29": {
-          "x": 274.5,
-          "y": -224.5
-        },
-        "s2p30": {
-          "x": 274.5,
-          "y": -175.5
-        },
-        "s2p31": {
-          "x": 225.5,
-          "y": -175.5
-        },
-        "s2p32": {
-          "x": 225.5,
-          "y": -224.5
+          "x": 250,
+          "y": -200
         }
       },
       "scalars": {
         "s2s12": 5,
-        "s2s33": 5
+        "s2s22": 30
       },
       "entities": {
         "s2e13": {
@@ -279,73 +235,12 @@
           "r": "s2s12",
           "ccw": true
         },
-        "s2e34": {
-          "id": "s2e34",
+        "s2e23": {
+          "id": "s2e23",
           "construction": false,
-          "kind": "line",
-          "p1": "s2p21",
-          "p2": "s2p22"
-        },
-        "s2e35": {
-          "id": "s2e35",
-          "construction": false,
-          "kind": "arc",
-          "center": "s2p29",
-          "start": "s2p22",
-          "end": "s2p23",
-          "r": "s2s33",
-          "ccw": true
-        },
-        "s2e36": {
-          "id": "s2e36",
-          "construction": false,
-          "kind": "line",
-          "p1": "s2p23",
-          "p2": "s2p24"
-        },
-        "s2e37": {
-          "id": "s2e37",
-          "construction": false,
-          "kind": "arc",
-          "center": "s2p30",
-          "start": "s2p24",
-          "end": "s2p25",
-          "r": "s2s33",
-          "ccw": true
-        },
-        "s2e38": {
-          "id": "s2e38",
-          "construction": false,
-          "kind": "line",
-          "p1": "s2p25",
-          "p2": "s2p26"
-        },
-        "s2e39": {
-          "id": "s2e39",
-          "construction": false,
-          "kind": "arc",
-          "center": "s2p31",
-          "start": "s2p26",
-          "end": "s2p27",
-          "r": "s2s33",
-          "ccw": true
-        },
-        "s2e40": {
-          "id": "s2e40",
-          "construction": false,
-          "kind": "line",
-          "p1": "s2p27",
-          "p2": "s2p28"
-        },
-        "s2e41": {
-          "id": "s2e41",
-          "construction": false,
-          "kind": "arc",
-          "center": "s2p32",
-          "start": "s2p28",
-          "end": "s2p21",
-          "r": "s2s33",
-          "ccw": true
+          "kind": "circle",
+          "center": "s2p21",
+          "r": "s2s22"
         }
       },
       "constraints": {},
@@ -358,14 +253,7 @@
         "s2e18",
         "s2e19",
         "s2e20",
-        "s2e34",
-        "s2e35",
-        "s2e36",
-        "s2e37",
-        "s2e38",
-        "s2e39",
-        "s2e40",
-        "s2e41"
+        "s2e23"
       ],
       "constraintOrder": [],
       "origin": "origin_s2"

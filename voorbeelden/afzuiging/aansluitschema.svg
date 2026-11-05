@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 640" font-family="Segoe UI, Arial, sans-serif" font-size="14">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 760" font-family="Segoe UI, Arial, sans-serif" font-size="14">
   <title>Aansluitschema afzuiging Lush Beauty</title>
-  <rect width="1100" height="640" fill="#ffffff"/>
+  <rect width="1100" height="760" fill="#ffffff"/>
   <style>
     .blok { fill: #f6f3ee; stroke: #5e4040; stroke-width: 2; rx: 8; }
     .kop { font-weight: 700; font-size: 16px; fill: #3b2a2a; }
@@ -9,54 +9,67 @@
     .gnd { stroke: #222; stroke-width: 3; fill: none; }
     .pwm { stroke: #2a6fd6; stroke-width: 3; fill: none; }
     .tacho { stroke: #2d9d4b; stroke-width: 3; fill: none; }
-    .dot { fill: #222; }
+    .aan { stroke: #d98a1c; stroke-width: 3; fill: none; }
+    .i2c { stroke: #8a4fc4; stroke-width: 3; fill: none; }
+    .slang { stroke: #9aa0a6; stroke-width: 5; fill: none; stroke-dasharray: 8 5; }
   </style>
 
   <!-- adapter -->
   <rect class="blok" x="30" y="60" width="200" height="110"/>
-  <text class="kop" x="45" y="88">Netadapter 12 V</text>
-  <text x="45" y="110">Mean Well GST25E12-P1J</text>
-  <text class="klein" x="45" y="130">12 V / 2,08 A, plug 5,5 x 2,1 mm</text>
+  <text class="kop" x="45" y="88">Netadapter 12 V / 5 A</text>
+  <text x="45" y="110">Mean Well GST60A12-P1J</text>
+  <text class="klein" x="45" y="130">plug 5,5 x 2,1 mm</text>
   <text class="klein" x="45" y="150">230 V blijft buiten het bureau</text>
 
   <!-- elektronicabox -->
-  <rect class="blok" x="300" y="40" width="420" height="440"/>
+  <rect class="blok" x="300" y="40" width="420" height="580"/>
   <text class="kop" x="315" y="66">Elektronicabox: interfaceprint</text>
-  <text class="klein" x="315" y="86">gaatjesprint 50 x 30 mm</text>
-  <text x="315" y="118">DC-bus 5,5 x 2,1</text>
-  <text x="315" y="148">F1 polyfuse 1 A</text>
-  <text x="315" y="178">C1 100 µF / 25 V tussen +12 V en GND</text>
-  <text x="315" y="236">Q1 BC547 (NPN)</text>
-  <text class="klein" x="315" y="256">basis via R1 1 kΩ naar G2, R2 10 kΩ basis naar GND</text>
-  <text class="klein" x="315" y="274">collector naar PWM (blauw), emitter naar GND</text>
-  <text x="315" y="320">R3 1 kΩ in serie in de tachodraad</text>
-  <text class="klein" x="315" y="340">pull-up: de interne van de ESP32 (3,3 V)</text>
-  <text x="315" y="392">Schroefklemmen: ventilator (4), dial (2 + 3)</text>
-  <text class="klein" x="315" y="412">de 5V-draad van de Grove-kabel blijft los</text>
-  <text class="klein" x="315" y="452">GND van adapter, ventilator en dial zit samen</text>
+  <text class="klein" x="315" y="86">gaatjesprint 60 x 40 mm</text>
+  <text x="315" y="116">DC-bus 5,5 x 2,1, zekering 4 A traag</text>
+  <text x="315" y="140">C1 470 µF / 25 V tussen +12 V en GND</text>
+  <text class="kop" x="315" y="178">Aan/uit (G1)</text>
+  <text class="klein" x="315" y="198">Q3 IRF4905 (P-MOSFET): source +12 V, drain naar ventilator +12 V</text>
+  <text class="klein" x="315" y="216">R4 10 kΩ gate naar +12 V: zonder signaal uit</text>
+  <text class="klein" x="315" y="234">Q2 BC547: collector op gate Q3, emitter GND, basis via R5 1 kΩ naar G1</text>
+  <text class="klein" x="315" y="252">R6 10 kΩ basis Q2 naar GND</text>
+  <text class="kop" x="315" y="290">Snelheid (G2)</text>
+  <text class="klein" x="315" y="310">Q1 BC547: collector naar PWM, emitter GND</text>
+  <text class="klein" x="315" y="328">basis via R1 1 kΩ naar G2, R2 10 kΩ basis naar GND</text>
+  <text class="kop" x="315" y="366">Verschildrukmeter (Port A, I2C)</text>
+  <text class="klein" x="315" y="386">Sensirion SDP810-500Pa, adres 0x25, ±500 Pa</text>
+  <text class="klein" x="315" y="404">gevoed met 3,3 V uit U1 MCP1700-3302 (van de 5 V van Port A)</text>
+  <text class="klein" x="315" y="422">R7, R8 4,7 kΩ: SDA en SCL naar 3,3 V</text>
+  <text class="klein" x="315" y="440">slangen 4 x 6 mm naar de twee meetpunten in de module</text>
+  <text x="315" y="486">Schroefklemmen: ventilator (4), dial (2), Port A en B</text>
+  <text class="klein" x="315" y="506">de 5V-draad van Port B blijft los; die van Port A voedt U1</text>
+  <text class="klein" x="315" y="526">draad naar de ventilator: minstens 0,5 mm² (2,7 A)</text>
+  <text class="klein" x="315" y="546">de toerentaldraad van de ventilator blijft los: de drukmeter bewaakt de luchtstroom</text>
+  <text class="klein" x="315" y="596">GND van adapter, ventilator en dial zit samen</text>
 
   <!-- ventilator -->
-  <rect class="blok" x="800" y="40" width="270" height="200"/>
-  <text class="kop" x="815" y="66">Ventilator 120 mm</text>
-  <text x="815" y="88">Noctua NF-F12 iPPC-3000 PWM</text>
-  <text class="klein" x="815" y="108">12 V, max 3,6 W, 186,7 m³/h, stopt bij 0 % PWM</text>
-  <text x="815" y="140">1 zwart  GND</text>
-  <text x="815" y="164">2 geel   +12 V</text>
-  <text x="815" y="188">3 groen  toerental (2 pulsen per toer)</text>
-  <text x="815" y="212">4 blauw  PWM 25 kHz</text>
+  <rect class="blok" x="800" y="40" width="270" height="210"/>
+  <text class="kop" x="815" y="66">Ventilator 120 x 38 mm</text>
+  <text x="815" y="88">Delta PFR1212UHE-SP00</text>
+  <text class="klein" x="815" y="108">12 V, 32 W, 389 m³/h vrij, 300 Pa, PWM 25 kHz</text>
+  <text x="815" y="140">GND</text>
+  <text x="815" y="164">+12 V (geschakeld)</text>
+  <text x="815" y="188">toerental (niet aangesloten)</text>
+  <text x="815" y="212">PWM</text>
+  <text class="klein" x="815" y="236">draadkleuren: zie het blad van Delta</text>
 
   <!-- dial -->
-  <rect class="blok" x="800" y="290" width="270" height="250"/>
+  <rect class="blok" x="800" y="290" width="270" height="300"/>
   <text class="kop" x="815" y="316">M5Stack Dial (ESP32-S3)</text>
-  <text class="klein" x="815" y="336">in de dialhouder in het blad</text>
+  <text class="klein" x="815" y="336">in de ronde dialhouder in het blad</text>
   <text x="815" y="368">Schroefklem achteraan:</text>
   <text x="830" y="390">+  12 V   (6 tot 36 V)</text>
   <text x="830" y="412">-  GND</text>
-  <text x="815" y="446">Port B (Grove-kabel):</text>
+  <text x="815" y="446">Port B:</text>
   <text x="830" y="468">zwart GND</text>
   <text x="830" y="490">geel  G2  -&gt; PWM</text>
-  <text x="830" y="512">wit   G1  &lt;- toerental</text>
-  <text class="klein" x="830" y="532">rood 5 V: niet aansluiten</text>
+  <text x="830" y="512">wit   G1  -&gt; aan/uit</text>
+  <text x="815" y="540">Port A (I2C):</text>
+  <text x="830" y="562">SDA, SCL, 5 V, GND -&gt; drukmeter</text>
 
   <!-- draden -->
   <path class="p12" d="M230 95 H300"/>
@@ -64,24 +77,35 @@
   <text class="klein" x="238" y="88">+12 V</text>
   <text class="klein" x="238" y="142">GND</text>
 
-  <path class="p12" d="M720 164 H800"/>
   <path class="gnd" d="M720 140 H800"/>
-  <path class="tacho" d="M720 188 H800"/>
+  <path class="p12" d="M720 164 H800"/>
   <path class="pwm" d="M720 212 H800"/>
 
   <path class="p12" d="M720 390 H800"/>
   <path class="gnd" d="M720 412 H800"/>
-  <path class="gnd" d="M720 468 H760 V470 H800"/>
+  <path class="gnd" d="M720 468 H800"/>
   <path class="pwm" d="M720 490 H800"/>
-  <path class="tacho" d="M720 512 H800"/>
+  <path class="aan" d="M720 512 H800"/>
+  <path class="i2c" d="M720 562 H800"/>
+
+  <!-- meetslangen -->
+  <rect class="blok" x="30" y="300" width="230" height="150"/>
+  <text class="kop" x="45" y="328">Module: meetpunten</text>
+  <text class="klein" x="45" y="350">linker zijwand, midden</text>
+  <text x="45" y="378">boven de filters (y -45)</text>
+  <text x="45" y="420">onder de filters (y -125)</text>
+  <path class="slang" d="M260 372 H300"/>
+  <path class="slang" d="M260 414 H300"/>
 
   <!-- legende -->
-  <g transform="translate(30 540)">
+  <g transform="translate(30 660)">
     <text class="kop" x="0" y="0">Legende</text>
     <path class="p12" d="M0 24 H40"/><text x="50" y="29">+12 V</text>
-    <path class="gnd" d="M130 24 H170"/><text x="180" y="29">GND</text>
-    <path class="pwm" d="M250 24 H290"/><text x="300" y="29">PWM (G2 via Q1)</text>
-    <path class="tacho" d="M450 24 H490"/><text x="500" y="29">toerental (G1)</text>
-    <text class="klein" x="0" y="64">Q1 keert het signaal om: G2 hoog trekt de PWM-draad laag. De firmware rekent dat om (0 % = G2 altijd hoog).</text>
+    <path class="gnd" d="M120 24 H160"/><text x="170" y="29">GND</text>
+    <path class="pwm" d="M240 24 H280"/><text x="290" y="29">PWM (G2 via Q1)</text>
+    <path class="aan" d="M430 24 H470"/><text x="480" y="29">aan/uit (G1 via Q2 en Q3)</text>
+    <path class="i2c" d="M660 24 H700"/><text x="710" y="29">I2C</text>
+    <path class="slang" d="M780 24 H820"/><text x="830" y="29">meetslang</text>
+    <text class="klein" x="0" y="64">Q1 keert het PWM-signaal om: G2 hoog trekt de PWM-draad laag. De firmware rekent dat om. Q3 schakelt de 12 V van de ventilator echt uit.</text>
   </g>
 </svg>

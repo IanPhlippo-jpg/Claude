@@ -43,137 +43,25 @@
      "y": 0
     },
     "s1p0": {
-     "x": -19.5,
-     "y": -25.5
-    },
-    "s1p1": {
-     "x": 19.5,
-     "y": -25.5
-    },
-    "s1p2": {
-     "x": 25.5,
-     "y": -19.5
-    },
-    "s1p3": {
-     "x": 25.5,
-     "y": 19.5
-    },
-    "s1p4": {
-     "x": 19.5,
-     "y": 25.5
-    },
-    "s1p5": {
-     "x": -19.5,
-     "y": 25.5
-    },
-    "s1p6": {
-     "x": -25.5,
-     "y": 19.5
-    },
-    "s1p7": {
-     "x": -25.5,
-     "y": -19.5
-    },
-    "s1p8": {
-     "x": 19.5,
-     "y": -19.5
-    },
-    "s1p9": {
-     "x": 19.5,
-     "y": 19.5
-    },
-    "s1p10": {
-     "x": -19.5,
-     "y": 19.5
-    },
-    "s1p11": {
-     "x": -19.5,
-     "y": -19.5
+     "x": 0,
+     "y": 0
     }
    },
    "scalars": {
-    "s1s12": 6
+    "s1s1": 25.5
    },
    "entities": {
-    "s1e13": {
-     "id": "s1e13",
+    "s1e2": {
+     "id": "s1e2",
      "construction": false,
-     "kind": "line",
-     "p1": "s1p0",
-     "p2": "s1p1"
-    },
-    "s1e14": {
-     "id": "s1e14",
-     "construction": false,
-     "kind": "arc",
-     "center": "s1p8",
-     "start": "s1p1",
-     "end": "s1p2",
-     "r": "s1s12",
-     "ccw": true
-    },
-    "s1e15": {
-     "id": "s1e15",
-     "construction": false,
-     "kind": "line",
-     "p1": "s1p2",
-     "p2": "s1p3"
-    },
-    "s1e16": {
-     "id": "s1e16",
-     "construction": false,
-     "kind": "arc",
-     "center": "s1p9",
-     "start": "s1p3",
-     "end": "s1p4",
-     "r": "s1s12",
-     "ccw": true
-    },
-    "s1e17": {
-     "id": "s1e17",
-     "construction": false,
-     "kind": "line",
-     "p1": "s1p4",
-     "p2": "s1p5"
-    },
-    "s1e18": {
-     "id": "s1e18",
-     "construction": false,
-     "kind": "arc",
-     "center": "s1p10",
-     "start": "s1p5",
-     "end": "s1p6",
-     "r": "s1s12",
-     "ccw": true
-    },
-    "s1e19": {
-     "id": "s1e19",
-     "construction": false,
-     "kind": "line",
-     "p1": "s1p6",
-     "p2": "s1p7"
-    },
-    "s1e20": {
-     "id": "s1e20",
-     "construction": false,
-     "kind": "arc",
-     "center": "s1p11",
-     "start": "s1p7",
-     "end": "s1p0",
-     "r": "s1s12",
-     "ccw": true
+     "kind": "circle",
+     "center": "s1p0",
+     "r": "s1s1"
     }
    },
    "constraints": {},
    "entityOrder": [
-    "s1e13",
-    "s1e14",
-    "s1e15",
-    "s1e16",
-    "s1e17",
-    "s1e18",
-    "s1e19",
-    "s1e20"
+    "s1e2"
    ],
    "constraintOrder": [],
    "origin": "origin_s1"
@@ -193,7 +81,7 @@
     }
    },
    "scalars": {
-    "s2s1": 23
+    "s2s1": 24.5
    },
    "entities": {
     "s2e2": {
@@ -241,12 +129,12 @@
   {
    "id": "f4",
    "type": "extrude",
-   "name": "Draaiknop met scherm",
+   "name": "Draairing met scherm",
    "sketchId": "s2",
    "suppressed": false,
    "op": "boss",
    "end": "blind",
-   "depth": 10.3,
+   "depth": 10.299999999999997,
    "reverse": false,
    "direction2": {
     "end": "blind",
