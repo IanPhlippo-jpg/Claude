@@ -16,60 +16,60 @@
           "x": 0,
           "y": 0
         },
-        "s1p00": {
+        "s1p0_0": {
           "x": -700,
           "y": -300
         },
-        "s1p01": {
+        "s1p0_1": {
           "x": 700,
           "y": -300
         },
-        "s1p02": {
+        "s1p0_2": {
           "x": 700,
           "y": 300
         },
-        "s1p03": {
+        "s1p0_3": {
           "x": -700,
           "y": 300
         }
       },
       "scalars": {},
       "entities": {
-        "s1l00": {
-          "id": "s1l00",
+        "s1l0_0": {
+          "id": "s1l0_0",
           "kind": "line",
-          "p1": "s1p00",
-          "p2": "s1p01",
+          "p1": "s1p0_0",
+          "p2": "s1p0_1",
           "construction": false
         },
-        "s1l01": {
-          "id": "s1l01",
+        "s1l0_1": {
+          "id": "s1l0_1",
           "kind": "line",
-          "p1": "s1p01",
-          "p2": "s1p02",
+          "p1": "s1p0_1",
+          "p2": "s1p0_2",
           "construction": false
         },
-        "s1l02": {
-          "id": "s1l02",
+        "s1l0_2": {
+          "id": "s1l0_2",
           "kind": "line",
-          "p1": "s1p02",
-          "p2": "s1p03",
+          "p1": "s1p0_2",
+          "p2": "s1p0_3",
           "construction": false
         },
-        "s1l03": {
-          "id": "s1l03",
+        "s1l0_3": {
+          "id": "s1l0_3",
           "kind": "line",
-          "p1": "s1p03",
-          "p2": "s1p00",
+          "p1": "s1p0_3",
+          "p2": "s1p0_0",
           "construction": false
         }
       },
       "constraints": {},
       "entityOrder": [
-        "s1l00",
-        "s1l01",
-        "s1l02",
-        "s1l03"
+        "s1l0_0",
+        "s1l0_1",
+        "s1l0_2",
+        "s1l0_3"
       ],
       "constraintOrder": [],
       "origin": "origin_s1"

@@ -906,3 +906,11 @@ elease; README en docs/04 bijgewerkt
 - [x] Controleren met een unit-test (volumes en maten na rebuild) en de voorbeeldentest
 - [x] Openen in de app, screenshot vergelijken met de foto
 - [x] Commit en push
+
+## Bureau: ALEX-ladekasten met lades op geleiders (2026-11-05)
+- [x] Kast wordt ALEX-ladekast: korpus 360 x 564 x 700 met holte en tien geleiders, vijf lades met front 356 x 136
+- [x] Lade: bak 296 x 100 x 520 met loopregels die op de geleiders rusten
+- [x] Mates per lade: Coincident op de geleider, Coincident op het Right Plane, Distance-limiet 0 tot 450 mm
+- [x] Test: onderdelen op beide kernels, lades schuiven alleen langs Z binnen 0 tot 450, geen botsing dicht en open
+- [x] In de app: lade slepen en screenshot met lades open
+- [x] Commit en push

@@ -1,0 +1,731 @@
+{
+  "format": "phlippo-cad",
+  "version": 1,
+  "name": "ALEX ladekast",
+  "units": "mm",
+  "planes": {
+    "voorvlak": {
+      "id": "voorvlak",
+      "name": "Face<1>",
+      "origin": [
+        0,
+        0,
+        274
+      ],
+      "u": [
+        1,
+        0,
+        0
+      ],
+      "v": [
+        0,
+        1,
+        0
+      ],
+      "n": [
+        0,
+        0,
+        1
+      ],
+      "kind": "face"
+    }
+  },
+  "variables": {},
+  "equations": [],
+  "sketches": {
+    "s1": {
+      "id": "s1",
+      "name": "Sketch1",
+      "plane": "top",
+      "points": {
+        "origin_s1": {
+          "x": 0,
+          "y": 0
+        },
+        "s1p0_0": {
+          "x": -180,
+          "y": -274
+        },
+        "s1p0_1": {
+          "x": 180,
+          "y": -274
+        },
+        "s1p0_2": {
+          "x": 180,
+          "y": 290
+        },
+        "s1p0_3": {
+          "x": -180,
+          "y": 290
+        }
+      },
+      "scalars": {},
+      "entities": {
+        "s1l0_0": {
+          "id": "s1l0_0",
+          "kind": "line",
+          "p1": "s1p0_0",
+          "p2": "s1p0_1",
+          "construction": false
+        },
+        "s1l0_1": {
+          "id": "s1l0_1",
+          "kind": "line",
+          "p1": "s1p0_1",
+          "p2": "s1p0_2",
+          "construction": false
+        },
+        "s1l0_2": {
+          "id": "s1l0_2",
+          "kind": "line",
+          "p1": "s1p0_2",
+          "p2": "s1p0_3",
+          "construction": false
+        },
+        "s1l0_3": {
+          "id": "s1l0_3",
+          "kind": "line",
+          "p1": "s1p0_3",
+          "p2": "s1p0_0",
+          "construction": false
+        }
+      },
+      "constraints": {},
+      "entityOrder": [
+        "s1l0_0",
+        "s1l0_1",
+        "s1l0_2",
+        "s1l0_3"
+      ],
+      "constraintOrder": [],
+      "origin": "origin_s1"
+    },
+    "s2": {
+      "id": "s2",
+      "name": "Sketch2",
+      "plane": "voorvlak",
+      "points": {
+        "origin_s2": {
+          "x": 0,
+          "y": 0
+        },
+        "s2p0_0": {
+          "x": -164,
+          "y": 16
+        },
+        "s2p0_1": {
+          "x": 164,
+          "y": 16
+        },
+        "s2p0_2": {
+          "x": 164,
+          "y": 684
+        },
+        "s2p0_3": {
+          "x": -164,
+          "y": 684
+        }
+      },
+      "scalars": {},
+      "entities": {
+        "s2l0_0": {
+          "id": "s2l0_0",
+          "kind": "line",
+          "p1": "s2p0_0",
+          "p2": "s2p0_1",
+          "construction": false
+        },
+        "s2l0_1": {
+          "id": "s2l0_1",
+          "kind": "line",
+          "p1": "s2p0_1",
+          "p2": "s2p0_2",
+          "construction": false
+        },
+        "s2l0_2": {
+          "id": "s2l0_2",
+          "kind": "line",
+          "p1": "s2p0_2",
+          "p2": "s2p0_3",
+          "construction": false
+        },
+        "s2l0_3": {
+          "id": "s2l0_3",
+          "kind": "line",
+          "p1": "s2p0_3",
+          "p2": "s2p0_0",
+          "construction": false
+        }
+      },
+      "constraints": {},
+      "entityOrder": [
+        "s2l0_0",
+        "s2l0_1",
+        "s2l0_2",
+        "s2l0_3"
+      ],
+      "constraintOrder": [],
+      "origin": "origin_s2"
+    },
+    "s3": {
+      "id": "s3",
+      "name": "Sketch3",
+      "plane": "voorvlak",
+      "points": {
+        "origin_s3": {
+          "x": 0,
+          "y": 0
+        },
+        "s3p0_0": {
+          "x": 150,
+          "y": 34
+        },
+        "s3p0_1": {
+          "x": 166,
+          "y": 34
+        },
+        "s3p0_2": {
+          "x": 166,
+          "y": 44
+        },
+        "s3p0_3": {
+          "x": 150,
+          "y": 44
+        },
+        "s3p1_0": {
+          "x": -166,
+          "y": 34
+        },
+        "s3p1_1": {
+          "x": -150,
+          "y": 34
+        },
+        "s3p1_2": {
+          "x": -150,
+          "y": 44
+        },
+        "s3p1_3": {
+          "x": -166,
+          "y": 44
+        },
+        "s3p2_0": {
+          "x": 150,
+          "y": 173
+        },
+        "s3p2_1": {
+          "x": 166,
+          "y": 173
+        },
+        "s3p2_2": {
+          "x": 166,
+          "y": 183
+        },
+        "s3p2_3": {
+          "x": 150,
+          "y": 183
+        },
+        "s3p3_0": {
+          "x": -166,
+          "y": 173
+        },
+        "s3p3_1": {
+          "x": -150,
+          "y": 173
+        },
+        "s3p3_2": {
+          "x": -150,
+          "y": 183
+        },
+        "s3p3_3": {
+          "x": -166,
+          "y": 183
+        },
+        "s3p4_0": {
+          "x": 150,
+          "y": 312
+        },
+        "s3p4_1": {
+          "x": 166,
+          "y": 312
+        },
+        "s3p4_2": {
+          "x": 166,
+          "y": 322
+        },
+        "s3p4_3": {
+          "x": 150,
+          "y": 322
+        },
+        "s3p5_0": {
+          "x": -166,
+          "y": 312
+        },
+        "s3p5_1": {
+          "x": -150,
+          "y": 312
+        },
+        "s3p5_2": {
+          "x": -150,
+          "y": 322
+        },
+        "s3p5_3": {
+          "x": -166,
+          "y": 322
+        },
+        "s3p6_0": {
+          "x": 150,
+          "y": 451
+        },
+        "s3p6_1": {
+          "x": 166,
+          "y": 451
+        },
+        "s3p6_2": {
+          "x": 166,
+          "y": 461
+        },
+        "s3p6_3": {
+          "x": 150,
+          "y": 461
+        },
+        "s3p7_0": {
+          "x": -166,
+          "y": 451
+        },
+        "s3p7_1": {
+          "x": -150,
+          "y": 451
+        },
+        "s3p7_2": {
+          "x": -150,
+          "y": 461
+        },
+        "s3p7_3": {
+          "x": -166,
+          "y": 461
+        },
+        "s3p8_0": {
+          "x": 150,
+          "y": 590
+        },
+        "s3p8_1": {
+          "x": 166,
+          "y": 590
+        },
+        "s3p8_2": {
+          "x": 166,
+          "y": 600
+        },
+        "s3p8_3": {
+          "x": 150,
+          "y": 600
+        },
+        "s3p9_0": {
+          "x": -166,
+          "y": 590
+        },
+        "s3p9_1": {
+          "x": -150,
+          "y": 590
+        },
+        "s3p9_2": {
+          "x": -150,
+          "y": 600
+        },
+        "s3p9_3": {
+          "x": -166,
+          "y": 600
+        }
+      },
+      "scalars": {},
+      "entities": {
+        "s3l0_0": {
+          "id": "s3l0_0",
+          "kind": "line",
+          "p1": "s3p0_0",
+          "p2": "s3p0_1",
+          "construction": false
+        },
+        "s3l0_1": {
+          "id": "s3l0_1",
+          "kind": "line",
+          "p1": "s3p0_1",
+          "p2": "s3p0_2",
+          "construction": false
+        },
+        "s3l0_2": {
+          "id": "s3l0_2",
+          "kind": "line",
+          "p1": "s3p0_2",
+          "p2": "s3p0_3",
+          "construction": false
+        },
+        "s3l0_3": {
+          "id": "s3l0_3",
+          "kind": "line",
+          "p1": "s3p0_3",
+          "p2": "s3p0_0",
+          "construction": false
+        },
+        "s3l1_0": {
+          "id": "s3l1_0",
+          "kind": "line",
+          "p1": "s3p1_0",
+          "p2": "s3p1_1",
+          "construction": false
+        },
+        "s3l1_1": {
+          "id": "s3l1_1",
+          "kind": "line",
+          "p1": "s3p1_1",
+          "p2": "s3p1_2",
+          "construction": false
+        },
+        "s3l1_2": {
+          "id": "s3l1_2",
+          "kind": "line",
+          "p1": "s3p1_2",
+          "p2": "s3p1_3",
+          "construction": false
+        },
+        "s3l1_3": {
+          "id": "s3l1_3",
+          "kind": "line",
+          "p1": "s3p1_3",
+          "p2": "s3p1_0",
+          "construction": false
+        },
+        "s3l2_0": {
+          "id": "s3l2_0",
+          "kind": "line",
+          "p1": "s3p2_0",
+          "p2": "s3p2_1",
+          "construction": false
+        },
+        "s3l2_1": {
+          "id": "s3l2_1",
+          "kind": "line",
+          "p1": "s3p2_1",
+          "p2": "s3p2_2",
+          "construction": false
+        },
+        "s3l2_2": {
+          "id": "s3l2_2",
+          "kind": "line",
+          "p1": "s3p2_2",
+          "p2": "s3p2_3",
+          "construction": false
+        },
+        "s3l2_3": {
+          "id": "s3l2_3",
+          "kind": "line",
+          "p1": "s3p2_3",
+          "p2": "s3p2_0",
+          "construction": false
+        },
+        "s3l3_0": {
+          "id": "s3l3_0",
+          "kind": "line",
+          "p1": "s3p3_0",
+          "p2": "s3p3_1",
+          "construction": false
+        },
+        "s3l3_1": {
+          "id": "s3l3_1",
+          "kind": "line",
+          "p1": "s3p3_1",
+          "p2": "s3p3_2",
+          "construction": false
+        },
+        "s3l3_2": {
+          "id": "s3l3_2",
+          "kind": "line",
+          "p1": "s3p3_2",
+          "p2": "s3p3_3",
+          "construction": false
+        },
+        "s3l3_3": {
+          "id": "s3l3_3",
+          "kind": "line",
+          "p1": "s3p3_3",
+          "p2": "s3p3_0",
+          "construction": false
+        },
+        "s3l4_0": {
+          "id": "s3l4_0",
+          "kind": "line",
+          "p1": "s3p4_0",
+          "p2": "s3p4_1",
+          "construction": false
+        },
+        "s3l4_1": {
+          "id": "s3l4_1",
+          "kind": "line",
+          "p1": "s3p4_1",
+          "p2": "s3p4_2",
+          "construction": false
+        },
+        "s3l4_2": {
+          "id": "s3l4_2",
+          "kind": "line",
+          "p1": "s3p4_2",
+          "p2": "s3p4_3",
+          "construction": false
+        },
+        "s3l4_3": {
+          "id": "s3l4_3",
+          "kind": "line",
+          "p1": "s3p4_3",
+          "p2": "s3p4_0",
+          "construction": false
+        },
+        "s3l5_0": {
+          "id": "s3l5_0",
+          "kind": "line",
+          "p1": "s3p5_0",
+          "p2": "s3p5_1",
+          "construction": false
+        },
+        "s3l5_1": {
+          "id": "s3l5_1",
+          "kind": "line",
+          "p1": "s3p5_1",
+          "p2": "s3p5_2",
+          "construction": false
+        },
+        "s3l5_2": {
+          "id": "s3l5_2",
+          "kind": "line",
+          "p1": "s3p5_2",
+          "p2": "s3p5_3",
+          "construction": false
+        },
+        "s3l5_3": {
+          "id": "s3l5_3",
+          "kind": "line",
+          "p1": "s3p5_3",
+          "p2": "s3p5_0",
+          "construction": false
+        },
+        "s3l6_0": {
+          "id": "s3l6_0",
+          "kind": "line",
+          "p1": "s3p6_0",
+          "p2": "s3p6_1",
+          "construction": false
+        },
+        "s3l6_1": {
+          "id": "s3l6_1",
+          "kind": "line",
+          "p1": "s3p6_1",
+          "p2": "s3p6_2",
+          "construction": false
+        },
+        "s3l6_2": {
+          "id": "s3l6_2",
+          "kind": "line",
+          "p1": "s3p6_2",
+          "p2": "s3p6_3",
+          "construction": false
+        },
+        "s3l6_3": {
+          "id": "s3l6_3",
+          "kind": "line",
+          "p1": "s3p6_3",
+          "p2": "s3p6_0",
+          "construction": false
+        },
+        "s3l7_0": {
+          "id": "s3l7_0",
+          "kind": "line",
+          "p1": "s3p7_0",
+          "p2": "s3p7_1",
+          "construction": false
+        },
+        "s3l7_1": {
+          "id": "s3l7_1",
+          "kind": "line",
+          "p1": "s3p7_1",
+          "p2": "s3p7_2",
+          "construction": false
+        },
+        "s3l7_2": {
+          "id": "s3l7_2",
+          "kind": "line",
+          "p1": "s3p7_2",
+          "p2": "s3p7_3",
+          "construction": false
+        },
+        "s3l7_3": {
+          "id": "s3l7_3",
+          "kind": "line",
+          "p1": "s3p7_3",
+          "p2": "s3p7_0",
+          "construction": false
+        },
+        "s3l8_0": {
+          "id": "s3l8_0",
+          "kind": "line",
+          "p1": "s3p8_0",
+          "p2": "s3p8_1",
+          "construction": false
+        },
+        "s3l8_1": {
+          "id": "s3l8_1",
+          "kind": "line",
+          "p1": "s3p8_1",
+          "p2": "s3p8_2",
+          "construction": false
+        },
+        "s3l8_2": {
+          "id": "s3l8_2",
+          "kind": "line",
+          "p1": "s3p8_2",
+          "p2": "s3p8_3",
+          "construction": false
+        },
+        "s3l8_3": {
+          "id": "s3l8_3",
+          "kind": "line",
+          "p1": "s3p8_3",
+          "p2": "s3p8_0",
+          "construction": false
+        },
+        "s3l9_0": {
+          "id": "s3l9_0",
+          "kind": "line",
+          "p1": "s3p9_0",
+          "p2": "s3p9_1",
+          "construction": false
+        },
+        "s3l9_1": {
+          "id": "s3l9_1",
+          "kind": "line",
+          "p1": "s3p9_1",
+          "p2": "s3p9_2",
+          "construction": false
+        },
+        "s3l9_2": {
+          "id": "s3l9_2",
+          "kind": "line",
+          "p1": "s3p9_2",
+          "p2": "s3p9_3",
+          "construction": false
+        },
+        "s3l9_3": {
+          "id": "s3l9_3",
+          "kind": "line",
+          "p1": "s3p9_3",
+          "p2": "s3p9_0",
+          "construction": false
+        }
+      },
+      "constraints": {},
+      "entityOrder": [
+        "s3l0_0",
+        "s3l0_1",
+        "s3l0_2",
+        "s3l0_3",
+        "s3l1_0",
+        "s3l1_1",
+        "s3l1_2",
+        "s3l1_3",
+        "s3l2_0",
+        "s3l2_1",
+        "s3l2_2",
+        "s3l2_3",
+        "s3l3_0",
+        "s3l3_1",
+        "s3l3_2",
+        "s3l3_3",
+        "s3l4_0",
+        "s3l4_1",
+        "s3l4_2",
+        "s3l4_3",
+        "s3l5_0",
+        "s3l5_1",
+        "s3l5_2",
+        "s3l5_3",
+        "s3l6_0",
+        "s3l6_1",
+        "s3l6_2",
+        "s3l6_3",
+        "s3l7_0",
+        "s3l7_1",
+        "s3l7_2",
+        "s3l7_3",
+        "s3l8_0",
+        "s3l8_1",
+        "s3l8_2",
+        "s3l8_3",
+        "s3l9_0",
+        "s3l9_1",
+        "s3l9_2",
+        "s3l9_3"
+      ],
+      "constraintOrder": [],
+      "origin": "origin_s3"
+    }
+  },
+  "features": [
+    {
+      "id": "ks1",
+      "type": "sketch",
+      "name": "Sketch1",
+      "sketchId": "s1",
+      "suppressed": false
+    },
+    {
+      "id": "f1",
+      "type": "extrude",
+      "name": "Boss-Extrude1",
+      "sketchId": "s1",
+      "suppressed": false,
+      "op": "boss",
+      "end": "blind",
+      "depth": 700,
+      "reverse": false
+    },
+    {
+      "id": "ks2",
+      "type": "sketch",
+      "name": "Sketch2",
+      "sketchId": "s2",
+      "suppressed": false
+    },
+    {
+      "id": "f2",
+      "type": "extrude",
+      "name": "Cut-Extrude1",
+      "sketchId": "s2",
+      "suppressed": false,
+      "op": "cut",
+      "end": "blind",
+      "depth": 556,
+      "reverse": true
+    },
+    {
+      "id": "ks3",
+      "type": "sketch",
+      "name": "Sketch3",
+      "sketchId": "s3",
+      "suppressed": false
+    },
+    {
+      "id": "f3",
+      "type": "extrude",
+      "name": "Geleiders",
+      "sketchId": "s3",
+      "suppressed": false,
+      "op": "boss",
+      "end": "blind",
+      "depth": 510,
+      "reverse": true
+    }
+  ],
+  "material": {
+    "name": "Spaanplaat, wit gelakt",
+    "density": 650,
+    "color": "#f2f2ef"
+  }
+}
