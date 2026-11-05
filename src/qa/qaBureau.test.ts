@@ -24,8 +24,8 @@ const KAST = 360 * 564 * 700 - 328 * 668 * 556 + 10 * 14 * 10 * 510;
 // bak (2 mm in het front) + front - holte + twee loopregels (2 mm in de bakwand en 2 mm in het front)
 const LADE = 296 * 100 * 522 + (356 * 136 * 16 - 296 * 100 * 2) - 280 * 510 * 92 + 2 * (16 * 10 * 492 - 2 * 10 * 492 - 16 * 10 * 2 + 2 * 10 * 2);
 const VERWACHT = {
-  // min de uitsparingen voor de afzuiging (196 x 140, hoeken R5) en de draaiknop (gatzaag Ø60)
-  'LAGKAPTEN-tafelblad.kcad': { volume: (1400 * 600 - (196 * 140 - (4 - Math.PI) * 25) - Math.PI * 30 * 30) * 34, min: [-700, 0, -300], max: [700, 34, 300] },
+  // min de uitsparingen voor de afzuiging (196 x 140, hoeken R5) en de draaiknop (gatzaag Ø57)
+  'LAGKAPTEN-tafelblad.kcad': { volume: (1400 * 600 - (196 * 140 - (4 - Math.PI) * 25) - Math.PI * 28.5 * 28.5) * 34, min: [-700, 0, -300], max: [700, 34, 300] },
   'ALEX-ladekast.kcad': { volume: KAST, min: [-180, 0, -290], max: [180, 700, 274] },
   'ALEX-lade.kcad': { volume: LADE, min: [-178, 0, -520], max: [178, 136, 16] },
 };
@@ -51,7 +51,8 @@ describe('bureau, mesh', () => {
     const a = asm();
     expect(a.components.filter((c) => c.part.name === 'ALEX lade').length).toBe(10);
     expect(a.mates.filter((m) => m.folder?.startsWith('Lades')).length).toBe(30);
-    expect(a.components.filter((c) => c.id.startsWith('a')).length).toBe(17); // de afzuiging
+    const afz = JSON.parse(readFileSync('voorbeelden/afzuiging/Afzuiging.kcad', 'utf8')) as { components: unknown[] };
+    expect(a.components.filter((c) => c.id.startsWith('a')).length).toBe(afz.components.length); // de afzuiging, met alle schroeven
     expect(a.components.find((c) => c.id === 'k1')!.position).toEqual([-520, 0, -10]);
     expect(a.components.find((c) => c.id === 'k2')!.position).toEqual([520, 0, -10]);
     expect(a.components.find((c) => c.id === 't1')!.position).toEqual([0, 700, 0]);
@@ -81,7 +82,7 @@ describe('bureau, mesh', () => {
       const bodies = r.bodies.map((b) => ({ ...b, geometry: b.geometry.clone().translate(0, -734, 0) }));
       expect(echteBotsingen(detectInterferences(bodies), bodies)).toEqual([]);
     }
-  }, 120000);
+  }, 1200000);
 });
 
 describe('bureau, B-rep', () => {

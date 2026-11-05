@@ -1,0 +1,197 @@
+{
+ "format": "phlippo-cad",
+ "version": 1,
+ "name": "Dialklauw",
+ "units": "mm",
+ "planes": {
+  "boven": {
+   "id": "boven",
+   "name": "Face boven",
+   "origin": [
+    0,
+    3,
+    0
+   ],
+   "u": [
+    1,
+    0,
+    0
+   ],
+   "v": [
+    0,
+    0,
+    -1
+   ],
+   "n": [
+    0,
+    1,
+    0
+   ],
+   "kind": "face"
+  }
+ },
+ "variables": {},
+ "equations": [],
+ "sketches": {
+  "s1": {
+   "id": "s1",
+   "name": "Sketch1",
+   "plane": "top",
+   "points": {
+    "origin_s1": {
+     "x": 0,
+     "y": 0
+    },
+    "s1p0": {
+     "x": 3.354102,
+     "y": -3
+    },
+    "s1p1": {
+     "x": 12,
+     "y": -3
+    },
+    "s1p3": {
+     "x": 12,
+     "y": 3
+    },
+    "s1p4": {
+     "x": 12,
+     "y": 0
+    },
+    "s1p7": {
+     "x": 3.354102,
+     "y": 3
+    },
+    "s1p9": {
+     "x": 0,
+     "y": 0
+    }
+   },
+   "scalars": {
+    "s1s5": 3,
+    "s1s10": 4.5
+   },
+   "entities": {
+    "s1e2": {
+     "id": "s1e2",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p0",
+     "p2": "s1p1"
+    },
+    "s1e6": {
+     "id": "s1e6",
+     "construction": false,
+     "kind": "arc",
+     "center": "s1p4",
+     "start": "s1p1",
+     "end": "s1p3",
+     "r": "s1s5",
+     "ccw": true
+    },
+    "s1e8": {
+     "id": "s1e8",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p3",
+     "p2": "s1p7"
+    },
+    "s1e11": {
+     "id": "s1e11",
+     "construction": false,
+     "kind": "arc",
+     "center": "s1p9",
+     "start": "s1p7",
+     "end": "s1p0",
+     "r": "s1s10",
+     "ccw": true
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s1e2",
+    "s1e6",
+    "s1e8",
+    "s1e11"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s1"
+  },
+  "s2": {
+   "id": "s2",
+   "name": "Sketch2",
+   "plane": "boven",
+   "points": {
+    "origin_s2": {
+     "x": 0,
+     "y": 0
+    },
+    "s2p0": {
+     "x": 0,
+     "y": 0
+    }
+   },
+   "scalars": {
+    "s2s1": 1.25
+   },
+   "entities": {
+    "s2e2": {
+     "id": "s2e2",
+     "construction": false,
+     "kind": "circle",
+     "center": "s2p0",
+     "r": "s2s1"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s2e2"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s2"
+  }
+ },
+ "features": [
+  {
+   "id": "ks1",
+   "type": "sketch",
+   "name": "Sketch1",
+   "sketchId": "s1",
+   "suppressed": false
+  },
+  {
+   "id": "f2",
+   "type": "extrude",
+   "name": "Klauw",
+   "sketchId": "s1",
+   "suppressed": false,
+   "op": "boss",
+   "end": "blind",
+   "depth": 3,
+   "reverse": false
+  },
+  {
+   "id": "ks2",
+   "type": "sketch",
+   "name": "Sketch2",
+   "sketchId": "s2",
+   "suppressed": false
+  },
+  {
+   "id": "f4",
+   "type": "extrude",
+   "name": "Gat M3 (tappen)",
+   "sketchId": "s2",
+   "suppressed": false,
+   "op": "cut",
+   "end": "blind",
+   "depth": 4,
+   "reverse": true
+  }
+ ],
+ "material": {
+  "name": "AISI 304",
+  "density": 8000,
+  "color": "#b8bcc2"
+ }
+}

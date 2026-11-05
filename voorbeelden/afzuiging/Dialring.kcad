@@ -1,12 +1,12 @@
 {
  "format": "phlippo-cad",
  "version": 1,
- "name": "Dialhouder",
+ "name": "Dialring",
  "units": "mm",
  "planes": {
-  "flens": {
-   "id": "flens",
-   "name": "Face flens",
+  "ringtop": {
+   "id": "ringtop",
+   "name": "Face ringtop",
    "origin": [
     0,
     3,
@@ -29,12 +29,12 @@
    ],
    "kind": "face"
   },
-  "bodem": {
-   "id": "bodem",
-   "name": "Face bodem",
+  "groef": {
+   "id": "groef",
+   "name": "Plane groef",
    "origin": [
     0,
-    -18.3,
+    0.5,
     0
    ],
    "u": [
@@ -52,7 +52,7 @@
     1,
     0
    ],
-   "kind": "face"
+   "kind": "reference"
   }
  },
  "variables": {},
@@ -73,7 +73,7 @@
     }
    },
    "scalars": {
-    "s1s1": 35
+    "s1s1": 31
    },
    "entities": {
     "s1e2": {
@@ -94,7 +94,7 @@
   "s2": {
    "id": "s2",
    "name": "Sketch2",
-   "plane": "top",
+   "plane": "ringtop",
    "points": {
     "origin_s2": {
      "x": 0,
@@ -106,7 +106,7 @@
     }
    },
    "scalars": {
-    "s2s1": 29
+    "s2s1": 26
    },
    "entities": {
     "s2e2": {
@@ -127,7 +127,7 @@
   "s3": {
    "id": "s3",
    "name": "Sketch3",
-   "plane": "flens",
+   "plane": "groef",
    "points": {
     "origin_s3": {
      "x": 0,
@@ -136,10 +136,15 @@
     "s3p0": {
      "x": 0,
      "y": 0
+    },
+    "s3p3": {
+     "x": 0,
+     "y": 0
     }
    },
    "scalars": {
-    "s3s1": 26
+    "s3s1": 27,
+    "s3s4": 26
    },
    "entities": {
     "s3e2": {
@@ -148,47 +153,22 @@
      "kind": "circle",
      "center": "s3p0",
      "r": "s3s1"
+    },
+    "s3e5": {
+     "id": "s3e5",
+     "construction": false,
+     "kind": "circle",
+     "center": "s3p3",
+     "r": "s3s4"
     }
    },
    "constraints": {},
    "entityOrder": [
-    "s3e2"
+    "s3e2",
+    "s3e5"
    ],
    "constraintOrder": [],
    "origin": "origin_s3"
-  },
-  "s4": {
-   "id": "s4",
-   "name": "Sketch4",
-   "plane": "bodem",
-   "points": {
-    "origin_s4": {
-     "x": 0,
-     "y": 0
-    },
-    "s4p0": {
-     "x": 0,
-     "y": 0
-    }
-   },
-   "scalars": {
-    "s4s1": 7
-   },
-   "entities": {
-    "s4e2": {
-     "id": "s4e2",
-     "construction": false,
-     "kind": "circle",
-     "center": "s4p0",
-     "r": "s4s1"
-    }
-   },
-   "constraints": {},
-   "entityOrder": [
-    "s4e2"
-   ],
-   "constraintOrder": [],
-   "origin": "origin_s4"
   }
  },
  "features": [
@@ -202,7 +182,7 @@
   {
    "id": "f2",
    "type": "extrude",
-   "name": "Flens",
+   "name": "Ring",
    "sketchId": "s1",
    "suppressed": false,
    "op": "boss",
@@ -224,17 +204,13 @@
   {
    "id": "f4",
    "type": "extrude",
-   "name": "Kuip",
+   "name": "Opening",
    "sketchId": "s2",
    "suppressed": false,
-   "op": "boss",
+   "op": "cut",
    "end": "blind",
-   "depth": 21,
-   "reverse": true,
-   "direction2": {
-    "end": "blind",
-    "depth": 2
-   }
+   "depth": 4,
+   "reverse": true
   },
   {
    "id": "ks3",
@@ -246,31 +222,13 @@
   {
    "id": "f6",
    "type": "extrude",
-   "name": "Kom",
+   "name": "Groef O-ring",
    "sketchId": "s3",
    "suppressed": false,
    "op": "cut",
    "end": "blind",
-   "depth": 21.3,
-   "reverse": true
-  },
-  {
-   "id": "ks4",
-   "type": "sketch",
-   "name": "Sketch4",
-   "sketchId": "s4",
-   "suppressed": false
-  },
-  {
-   "id": "f8",
-   "type": "extrude",
-   "name": "Kabelgat",
-   "sketchId": "s4",
-   "suppressed": false,
-   "op": "cut",
-   "end": "blind",
-   "depth": 4,
-   "reverse": true
+   "depth": 1.6,
+   "reverse": false
   }
  ],
  "material": {

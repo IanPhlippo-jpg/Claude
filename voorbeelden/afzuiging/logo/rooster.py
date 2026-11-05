@@ -1,4 +1,5 @@
-"""Ventilatierooster voor de inbouwafzuiging, lasergesneden uit RVS 304 van 1,5 mm (2026-11-05).
+"""Ventilatierooster voor de inbouwafzuiging, lasergesneden uit RVS 430 van 1,5 mm (magnetisch: het klikt op 4 magneten
+in het bovenframe), 2026-11-05.
 
 In het midden het LB-monogram van Lush Beauty (zonder de tekst, op vraag van Ian), rondom een patroon van
 chevronsleuven zoals bij ingebouwde nagelstofafzuigers.
@@ -27,9 +28,10 @@ from shapely.ops import nearest_points, unary_union
 HERE = Path(__file__).resolve().parent
 OUT = HERE.parent / 'laser'
 
-BREEDTE, HOOGTE, HOEK = 196.0, 140.0, 3.0  # plaat (mm), afgeronde hoeken
+BREEDTE, HOOGTE, HOEK = 206.0, 150.0, 4.0  # plaat (mm): even groot als het bovenframe, dat ze volledig bedekt
 DIKTE = 1.5
-RAND = 7.5  # rand zonder gaten (de plaat ligt 4 mm op de wanden van de bak)
+RAND = 7.5  # rand zonder gaten
+CASSETTE = (77.5, 61.0)  # binnenmaat van de filtercassette (halve breedte, halve diepte): daar gaat de lucht door
 LOGO_HOOGTE = 60.0
 BADGE_MARGE = 5.0  # vlak staal rond het logo
 MIN_STEG = 1.5
@@ -236,6 +238,7 @@ def controle(plaat_vorm, plaat, gaten):
         'gaten': len(gaten),
         'open_cm2': round(open_cm2, 1),
         'open_procent': round(100 * open_cm2 * 100 / plaat_vorm.area, 1),
+        'open_boven_cassette_cm2': round(sum(g.intersection(box(-CASSETTE[0], -CASSETTE[1], CASSETTE[0], CASSETTE[1])).area for g in gaten) / 100, 1),
         'stukken_staal_met_steg_onder_min': smalle_stegen,
         'sleuven_met_vernauwing_onder_min': smalle_sleuven,
         'massa_g': round(plaat.area * DIKTE * 8.0e-3, 0),
@@ -253,6 +256,30 @@ def ring_pts(ring):
     return out
 
 
+def klauw_vorm(naaf, arm, breed, gat):
+    w = breed / 2
+    punt = lambda x, r: LineString([(x, 0), (x, 0.001)]).buffer(r, quad_segs=48)
+    vorm = unary_union([Polygon([(0, -w), (arm - w, -w), (arm - w, w), (0, w)]), punt(arm - w, w), punt(0, naaf)])
+    return vorm, punt(0, gat / 2)
+
+
+def klauw_dxf():
+    """stalen klauwen, lasergesneden: 4 voor de module (RVS 304, 4 mm, naaf R6,5, arm 8 x 18, gat Ø4,2 tappen M5) en
+    2 voor de draaiknop (RVS 304, 3 mm, naaf R4,5, arm 6 x 15, gat Ø2,5 tappen M3)"""
+    for naam, (naaf, arm, breed, gat), n, stap in (('klauwen-4x-RVS304-4mm.dxf', (6.5, 18.0, 8.0, 4.2), 4, 32),
+                                                   ('dialklauwen-2x-RVS304-3mm.dxf', (4.5, 15.0, 6.0, 2.5), 2, 26)):
+        vorm, gatv = klauw_vorm(naaf, arm, breed, gat)
+        doc = ezdxf.new('R2010', setup=True)
+        doc.units = ezdxf.units.MM
+        doc.header['$INSUNITS'] = 4
+        doc.layers.add('SNIJDEN', color=1)
+        msp = doc.modelspace()
+        for k in range(n):
+            for ring in (vorm.exterior, gatv.exterior):
+                msp.add_lwpolyline([(x + k * stap, y) for x, y in ring.coords], close=True, dxfattribs={'layer': 'SNIJDEN'})
+        doc.saveas(OUT / naam)
+
+
 def schrijf(plaat_vorm, plaat, gaten, rapport):
     OUT.mkdir(exist_ok=True)
     gaten = [g.simplify(0.01, preserve_topology=True) for g in gaten]
@@ -266,6 +293,7 @@ def schrijf(plaat_vorm, plaat, gaten, rapport):
     for lp in [loops['outer'], *loops['holes']]:
         msp.add_lwpolyline(lp, close=True, dxfattribs={'layer': 'SNIJDEN'})
     doc.saveas(OUT / 'rooster.dxf')
+    klauw_dxf()
     # voorbeeld: staal op een witte filtermat, 8 px per mm, 4x groter getekend en verkleind (scherpe randen)
     k, ss = 8, 4
     W, H = int(BREEDTE * k) + 80, int(HOOGTE * k) + 80

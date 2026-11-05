@@ -1,0 +1,422 @@
+{
+ "format": "phlippo-cad",
+ "version": 1,
+ "name": "Bovenframe",
+ "units": "mm",
+ "planes": {
+  "bovenvlak": {
+   "id": "bovenvlak",
+   "name": "Face bovenvlak",
+   "origin": [
+    0,
+    2.5,
+    0
+   ],
+   "u": [
+    1,
+    0,
+    0
+   ],
+   "v": [
+    0,
+    0,
+    -1
+   ],
+   "n": [
+    0,
+    1,
+    0
+   ],
+   "kind": "face"
+  }
+ },
+ "variables": {},
+ "equations": [],
+ "sketches": {
+  "s1": {
+   "id": "s1",
+   "name": "Sketch1",
+   "plane": "top",
+   "points": {
+    "origin_s1": {
+     "x": 0,
+     "y": 0
+    },
+    "s1p0": {
+     "x": -99,
+     "y": -75
+    },
+    "s1p1": {
+     "x": 99,
+     "y": -75
+    },
+    "s1p2": {
+     "x": 103,
+     "y": -71
+    },
+    "s1p3": {
+     "x": 103,
+     "y": 71
+    },
+    "s1p4": {
+     "x": 99,
+     "y": 75
+    },
+    "s1p5": {
+     "x": -99,
+     "y": 75
+    },
+    "s1p6": {
+     "x": -103,
+     "y": 71
+    },
+    "s1p7": {
+     "x": -103,
+     "y": -71
+    },
+    "s1p8": {
+     "x": 99,
+     "y": -71
+    },
+    "s1p9": {
+     "x": 99,
+     "y": 71
+    },
+    "s1p10": {
+     "x": -99,
+     "y": 71
+    },
+    "s1p11": {
+     "x": -99,
+     "y": -71
+    },
+    "s1p21": {
+     "x": -89.5,
+     "y": -67
+    },
+    "s1p22": {
+     "x": 89.5,
+     "y": -67
+    },
+    "s1p23": {
+     "x": 92.5,
+     "y": -64
+    },
+    "s1p24": {
+     "x": 92.5,
+     "y": 64
+    },
+    "s1p25": {
+     "x": 89.5,
+     "y": 67
+    },
+    "s1p26": {
+     "x": -89.5,
+     "y": 67
+    },
+    "s1p27": {
+     "x": -92.5,
+     "y": 64
+    },
+    "s1p28": {
+     "x": -92.5,
+     "y": -64
+    },
+    "s1p29": {
+     "x": 89.5,
+     "y": -64
+    },
+    "s1p30": {
+     "x": 89.5,
+     "y": 64
+    },
+    "s1p31": {
+     "x": -89.5,
+     "y": 64
+    },
+    "s1p32": {
+     "x": -89.5,
+     "y": -64
+    }
+   },
+   "scalars": {
+    "s1s12": 4,
+    "s1s33": 3
+   },
+   "entities": {
+    "s1e13": {
+     "id": "s1e13",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p0",
+     "p2": "s1p1"
+    },
+    "s1e14": {
+     "id": "s1e14",
+     "construction": false,
+     "kind": "arc",
+     "center": "s1p8",
+     "start": "s1p1",
+     "end": "s1p2",
+     "r": "s1s12",
+     "ccw": true
+    },
+    "s1e15": {
+     "id": "s1e15",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p2",
+     "p2": "s1p3"
+    },
+    "s1e16": {
+     "id": "s1e16",
+     "construction": false,
+     "kind": "arc",
+     "center": "s1p9",
+     "start": "s1p3",
+     "end": "s1p4",
+     "r": "s1s12",
+     "ccw": true
+    },
+    "s1e17": {
+     "id": "s1e17",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p4",
+     "p2": "s1p5"
+    },
+    "s1e18": {
+     "id": "s1e18",
+     "construction": false,
+     "kind": "arc",
+     "center": "s1p10",
+     "start": "s1p5",
+     "end": "s1p6",
+     "r": "s1s12",
+     "ccw": true
+    },
+    "s1e19": {
+     "id": "s1e19",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p6",
+     "p2": "s1p7"
+    },
+    "s1e20": {
+     "id": "s1e20",
+     "construction": false,
+     "kind": "arc",
+     "center": "s1p11",
+     "start": "s1p7",
+     "end": "s1p0",
+     "r": "s1s12",
+     "ccw": true
+    },
+    "s1e34": {
+     "id": "s1e34",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p21",
+     "p2": "s1p22"
+    },
+    "s1e35": {
+     "id": "s1e35",
+     "construction": false,
+     "kind": "arc",
+     "center": "s1p29",
+     "start": "s1p22",
+     "end": "s1p23",
+     "r": "s1s33",
+     "ccw": true
+    },
+    "s1e36": {
+     "id": "s1e36",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p23",
+     "p2": "s1p24"
+    },
+    "s1e37": {
+     "id": "s1e37",
+     "construction": false,
+     "kind": "arc",
+     "center": "s1p30",
+     "start": "s1p24",
+     "end": "s1p25",
+     "r": "s1s33",
+     "ccw": true
+    },
+    "s1e38": {
+     "id": "s1e38",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p25",
+     "p2": "s1p26"
+    },
+    "s1e39": {
+     "id": "s1e39",
+     "construction": false,
+     "kind": "arc",
+     "center": "s1p31",
+     "start": "s1p26",
+     "end": "s1p27",
+     "r": "s1s33",
+     "ccw": true
+    },
+    "s1e40": {
+     "id": "s1e40",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p27",
+     "p2": "s1p28"
+    },
+    "s1e41": {
+     "id": "s1e41",
+     "construction": false,
+     "kind": "arc",
+     "center": "s1p32",
+     "start": "s1p28",
+     "end": "s1p21",
+     "r": "s1s33",
+     "ccw": true
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s1e13",
+    "s1e14",
+    "s1e15",
+    "s1e16",
+    "s1e17",
+    "s1e18",
+    "s1e19",
+    "s1e20",
+    "s1e34",
+    "s1e35",
+    "s1e36",
+    "s1e37",
+    "s1e38",
+    "s1e39",
+    "s1e40",
+    "s1e41"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s1"
+  },
+  "s2": {
+   "id": "s2",
+   "name": "Sketch2",
+   "plane": "bovenvlak",
+   "points": {
+    "origin_s2": {
+     "x": 0,
+     "y": 0
+    },
+    "s2p0": {
+     "x": 97.75,
+     "y": -45
+    },
+    "s2p3": {
+     "x": 97.75,
+     "y": 45
+    },
+    "s2p6": {
+     "x": -97.75,
+     "y": -45
+    },
+    "s2p9": {
+     "x": -97.75,
+     "y": 45
+    }
+   },
+   "scalars": {
+    "s2s1": 4.1,
+    "s2s4": 4.1,
+    "s2s7": 4.1,
+    "s2s10": 4.1
+   },
+   "entities": {
+    "s2e2": {
+     "id": "s2e2",
+     "construction": false,
+     "kind": "circle",
+     "center": "s2p0",
+     "r": "s2s1"
+    },
+    "s2e5": {
+     "id": "s2e5",
+     "construction": false,
+     "kind": "circle",
+     "center": "s2p3",
+     "r": "s2s4"
+    },
+    "s2e8": {
+     "id": "s2e8",
+     "construction": false,
+     "kind": "circle",
+     "center": "s2p6",
+     "r": "s2s7"
+    },
+    "s2e11": {
+     "id": "s2e11",
+     "construction": false,
+     "kind": "circle",
+     "center": "s2p9",
+     "r": "s2s10"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s2e2",
+    "s2e5",
+    "s2e8",
+    "s2e11"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s2"
+  }
+ },
+ "features": [
+  {
+   "id": "ks1",
+   "type": "sketch",
+   "name": "Sketch1",
+   "sketchId": "s1",
+   "suppressed": false
+  },
+  {
+   "id": "f2",
+   "type": "extrude",
+   "name": "Omranding",
+   "sketchId": "s1",
+   "suppressed": false,
+   "op": "boss",
+   "end": "blind",
+   "depth": 2.5,
+   "reverse": false
+  },
+  {
+   "id": "ks2",
+   "type": "sketch",
+   "name": "Sketch2",
+   "sketchId": "s2",
+   "suppressed": false
+  },
+  {
+   "id": "f4",
+   "type": "extrude",
+   "name": "Magneten",
+   "sketchId": "s2",
+   "suppressed": false,
+   "op": "cut",
+   "end": "blind",
+   "depth": 2.1,
+   "reverse": true
+  }
+ ],
+ "material": {
+  "name": "PLA, wit",
+  "density": 1240,
+  "color": "#f4f4f1"
+ }
+}

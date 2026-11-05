@@ -936,3 +936,32 @@ elease; README en docs/04 bijgewerkt
 - [x] Verschildrukmeting over de filters (Sensirion SDP810-500Pa, I2C op Port A): meetpunten in de module, slangen naar de elektronicabox
 - [x] Firmware: ijken op schone filters, melding "Filter vol" op het scherm, storing via de druk (Port B: G2 PWM, G1 aan/uit)
 - [x] README, aansluitschema bijwerken; tests, screenshots, commit en push
+
+## Afzuiging v3: compacter, filter langs boven, rooster met magneten, printbaar zonder support (2026-11-05)
+- [x] Romp (rechtop geprint) + bovenframe (plat geprint): klauwen trekken de romp tegen het frame; cassette met 3 filterlagen langs boven uitneembaar
+- [x] Ventilator direct onder de cassette: module hangt ~5 cm onder het blad (was 11,6); lade, richels en opening in de voorwand vervallen
+- [x] Rooster RVS 430 (magnetisch) 202 x 146 op het frame, 4 magneten Ø8 x 2 in het frame; effectieve luchtdoorlaat in het rapport
+- [x] Drukmeting: één meetpunt onder de filters, de andere poort open naar de kamer
+- [x] Tests: luchtdicht (met tegenproeven), cassette vrij uitneembaar, botsing, B-rep, printbed; STL's
+- [x] README, aansluitschema, screenshots, commit en push
+
+## Afzuiging v3.1: rooster bijna vlak, draaiknop met klauwen, alle schroeven zichtbaar (2026-11-05)
+- [x] Bovenframe 3 mm met verzonken rooster (3 mm boven het blad i.p.v. 6,5), op de romp gelijmd; magneten in de torentoppen
+- [x] Cassette-rand onder het rooster op de torens; greepuitsparingen boven de torens (geen omloop langs de filters)
+- [x] Dialhouder zonder schroeven in het blad: kuip met 2 stalen klauwen (M3) + vlakke sierring
+- [x] Alle schroeven, bouten en moeren als onderdelen in de assemblage (klauwen, uitblaasplaat, deksel, ventilator, print, dial)
+- [x] Tests (botsing met schroeven, luchtdicht, klauwen 10-50 mm), bureau-botsingstest nakijken, README/bestellijst, STL/DXF
+
+## Afzuiging v3.2: van boven alleen staal, dialpot dicht (2026-11-05)
+- [x] Bovenframe als smalle omranding van 2,5 mm; RVS-plaat even groot (206 x 150), magneten verzonken in het frame eronder
+- [x] Dialkuip dicht: bodem met kabeltule, O-ringgroef in de sierring
+- [x] Tests en STL's
+
+## Afzuiging v3.3: één bodemplaat, aan/uit-schakelaar, kleinere ring rond de Dial (2026-11-05)
+- [x] Uitblaasplaat en vakdeksel samen tot één bodemplaat over de hele onderkant (194 x 138), 6 x M3; DC-bus en kabeldoorvoer erin
+- [x] Wipschakelaar KCD1-101 verzonken in een kom in de linkerzijwand (wip 1 mm binnen de wand); print-onderdelen opzij
+- [x] Draaiknop: gatzaag Ø57, sierring Ø62 (was Ø76), kuipwand 2 mm
+- [x] Aansluitschema (-S1), bestellijst, README, tegenproef luchtdicht vervangen (zonder M5-schroeven)
+- [x] Schroeven van onderen verzonken (DIN 7991, conische verzinking): 6 x M3 x 16 en 4 x M4 x 45, koppen vlak in de bodemplaat
+- [~] Tests met STL-export (afzuiging, bureau, voorbeelden), screenshots, app op de pc openen
+- [ ] graphify update, commit en push

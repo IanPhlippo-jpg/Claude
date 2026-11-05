@@ -121,6 +121,27 @@ export class Schets {
     return this;
   }
 
+  /** zoals pad(), maar met punten [x, z] van het onderdeel op een vlak met normaal ±Y; een boog { boog: [x, z], naar:
+   *  [x, z] } is altijd de korte boog (de draairichting volgt uit de punten) */
+  padW(items) {
+    const y = this.plane.origin[1];
+    const sk = (p) => opVlak(this.plane, [p[0], y, p[1]]);
+    let vorig = sk(items[0]);
+    const uit = [vorig];
+    for (const it of items.slice(1)) {
+      if (Array.isArray(it)) {
+        vorig = sk(it);
+        uit.push(vorig);
+      } else {
+        const c = sk(it.boog), e = sk(it.naar);
+        const kruis = (vorig[0] - c[0]) * (e[1] - c[1]) - (vorig[1] - c[1]) * (e[0] - c[0]);
+        uit.push({ boog: c, naar: e, ccw: kruis > 0 });
+        vorig = e;
+      }
+    }
+    return this.pad(uit);
+  }
+
   json() {
     return {
       id: this.id, name: this.name, plane: this.plane.id, points: this.points, scalars: this.scalars, entities: this.entities,

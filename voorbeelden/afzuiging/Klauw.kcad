@@ -9,7 +9,7 @@
    "name": "Face boven",
    "origin": [
     0,
-    8,
+    4,
     0
    ],
    "u": [
@@ -43,28 +43,33 @@
      "y": 0
     },
     "s1p0": {
-     "x": 4.873397,
-     "y": -3.5
+     "x": 5.123475,
+     "y": -4
     },
     "s1p1": {
-     "x": 17,
-     "y": -3.5
+     "x": 14,
+     "y": -4
     },
     "s1p3": {
-     "x": 17,
-     "y": 3.5
+     "x": 14,
+     "y": 4
     },
-    "s1p5": {
-     "x": 4.873397,
-     "y": 3.5
+    "s1p4": {
+     "x": 14,
+     "y": 0
     },
     "s1p7": {
+     "x": 5.123475,
+     "y": 4
+    },
+    "s1p9": {
      "x": 0,
      "y": 0
     }
    },
    "scalars": {
-    "s1s8": 6
+    "s1s5": 4,
+    "s1s10": 6.5
    },
    "entities": {
     "s1e2": {
@@ -74,37 +79,40 @@
      "p1": "s1p0",
      "p2": "s1p1"
     },
-    "s1e4": {
-     "id": "s1e4",
-     "construction": false,
-     "kind": "line",
-     "p1": "s1p1",
-     "p2": "s1p3"
-    },
     "s1e6": {
      "id": "s1e6",
      "construction": false,
+     "kind": "arc",
+     "center": "s1p4",
+     "start": "s1p1",
+     "end": "s1p3",
+     "r": "s1s5",
+     "ccw": true
+    },
+    "s1e8": {
+     "id": "s1e8",
+     "construction": false,
      "kind": "line",
      "p1": "s1p3",
-     "p2": "s1p5"
+     "p2": "s1p7"
     },
-    "s1e9": {
-     "id": "s1e9",
+    "s1e11": {
+     "id": "s1e11",
      "construction": false,
      "kind": "arc",
-     "center": "s1p7",
-     "start": "s1p5",
+     "center": "s1p9",
+     "start": "s1p7",
      "end": "s1p0",
-     "r": "s1s8",
+     "r": "s1s10",
      "ccw": true
     }
    },
    "constraints": {},
    "entityOrder": [
     "s1e2",
-    "s1e4",
     "s1e6",
-    "s1e9"
+    "s1e8",
+    "s1e11"
    ],
    "constraintOrder": [],
    "origin": "origin_s1"
@@ -124,7 +132,7 @@
     }
    },
    "scalars": {
-    "s2s1": 2.25
+    "s2s1": 2.1
    },
    "entities": {
     "s2e2": {
@@ -141,97 +149,6 @@
    ],
    "constraintOrder": [],
    "origin": "origin_s2"
-  },
-  "s3": {
-   "id": "s3",
-   "name": "Sketch3",
-   "plane": "top",
-   "points": {
-    "origin_s3": {
-     "x": 0,
-     "y": 0
-    },
-    "s3p0": {
-     "x": 3.6,
-     "y": 2.078461
-    },
-    "s3p1": {
-     "x": 0,
-     "y": 4.156922
-    },
-    "s3p2": {
-     "x": -3.6,
-     "y": 2.078461
-    },
-    "s3p3": {
-     "x": -3.6,
-     "y": -2.078461
-    },
-    "s3p4": {
-     "x": 0,
-     "y": -4.156922
-    },
-    "s3p5": {
-     "x": 3.6,
-     "y": -2.078461
-    }
-   },
-   "scalars": {},
-   "entities": {
-    "s3e6": {
-     "id": "s3e6",
-     "construction": false,
-     "kind": "line",
-     "p1": "s3p0",
-     "p2": "s3p1"
-    },
-    "s3e7": {
-     "id": "s3e7",
-     "construction": false,
-     "kind": "line",
-     "p1": "s3p1",
-     "p2": "s3p2"
-    },
-    "s3e8": {
-     "id": "s3e8",
-     "construction": false,
-     "kind": "line",
-     "p1": "s3p2",
-     "p2": "s3p3"
-    },
-    "s3e9": {
-     "id": "s3e9",
-     "construction": false,
-     "kind": "line",
-     "p1": "s3p3",
-     "p2": "s3p4"
-    },
-    "s3e10": {
-     "id": "s3e10",
-     "construction": false,
-     "kind": "line",
-     "p1": "s3p4",
-     "p2": "s3p5"
-    },
-    "s3e11": {
-     "id": "s3e11",
-     "construction": false,
-     "kind": "line",
-     "p1": "s3p5",
-     "p2": "s3p0"
-    }
-   },
-   "constraints": {},
-   "entityOrder": [
-    "s3e6",
-    "s3e7",
-    "s3e8",
-    "s3e9",
-    "s3e10",
-    "s3e11"
-   ],
-   "constraintOrder": [],
-   "origin": "origin_s3"
   }
  },
  "features": [
@@ -250,7 +167,7 @@
    "suppressed": false,
    "op": "boss",
    "end": "blind",
-   "depth": 8,
+   "depth": 4,
    "reverse": false
   },
   {
@@ -263,36 +180,18 @@
   {
    "id": "f4",
    "type": "extrude",
-   "name": "Gat M4",
+   "name": "Gat M5 (tappen)",
    "sketchId": "s2",
    "suppressed": false,
    "op": "cut",
    "end": "blind",
-   "depth": 9,
+   "depth": 5,
    "reverse": true
-  },
-  {
-   "id": "ks3",
-   "type": "sketch",
-   "name": "Sketch3",
-   "sketchId": "s3",
-   "suppressed": false
-  },
-  {
-   "id": "f6",
-   "type": "extrude",
-   "name": "Moer M4",
-   "sketchId": "s3",
-   "suppressed": false,
-   "op": "cut",
-   "end": "blind",
-   "depth": 3.4,
-   "reverse": false
   }
  ],
  "material": {
-  "name": "PLA, wit",
-  "density": 1240,
-  "color": "#f4f4f1"
+  "name": "AISI 304",
+  "density": 8000,
+  "color": "#b8bcc2"
  }
 }

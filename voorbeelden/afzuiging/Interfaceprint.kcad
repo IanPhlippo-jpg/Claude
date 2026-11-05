@@ -4,93 +4,18 @@
  "name": "Interfaceprint",
  "units": "mm",
  "planes": {
-  "print": {
-   "id": "print",
+  "printvlak": {
+   "id": "printvlak",
    "name": "Plane print",
    "origin": [
+    -67,
     0,
-    -31,
     0
    ],
    "u": [
-    1,
-    0,
-    0
-   ],
-   "v": [
     0,
     0,
     -1
-   ],
-   "n": [
-    0,
-    1,
-    0
-   ],
-   "kind": "reference"
-  },
-  "klem": {
-   "id": "klem",
-   "name": "Plane klemmen",
-   "origin": [
-    0,
-    -29.8,
-    0
-   ],
-   "u": [
-    1,
-    0,
-    0
-   ],
-   "v": [
-    0,
-    0,
-    -1
-   ],
-   "n": [
-    0,
-    1,
-    0
-   ],
-   "kind": "reference"
-  },
-  "sdp": {
-   "id": "sdp",
-   "name": "Plane drukmeter",
-   "origin": [
-    0,
-    -29.8,
-    0
-   ],
-   "u": [
-    1,
-    0,
-    0
-   ],
-   "v": [
-    0,
-    0,
-    -1
-   ],
-   "n": [
-    0,
-    1,
-    0
-   ],
-   "kind": "reference"
-  },
-  "sdppoort": {
-   "id": "sdppoort",
-   "name": "Plane poorten",
-   "origin": [
-    0,
-    0,
-    6
-   ],
-   "u": [
-    1,
-    0,
-    0
    ],
    "v": [
     0,
@@ -98,9 +23,59 @@
     0
    ],
    "n": [
+    -1,
+    0,
+    0
+   ],
+   "kind": "reference"
+  },
+  "printgat": {
+   "id": "printgat",
+   "name": "Plane gaten print",
+   "origin": [
+    -68.6,
+    0,
+    0
+   ],
+   "u": [
     0,
     0,
     -1
+   ],
+   "v": [
+    0,
+    -1,
+    0
+   ],
+   "n": [
+    -1,
+    0,
+    0
+   ],
+   "kind": "reference"
+  },
+  "onderdelenvlak": {
+   "id": "onderdelenvlak",
+   "name": "Plane onderdelen",
+   "origin": [
+    -68.2,
+    0,
+    0
+   ],
+   "u": [
+    0,
+    0,
+    -1
+   ],
+   "v": [
+    0,
+    -1,
+    0
+   ],
+   "n": [
+    -1,
+    0,
+    0
    ],
    "kind": "reference"
   }
@@ -111,66 +86,144 @@
   "s1": {
    "id": "s1",
    "name": "Sketch1",
-   "plane": "print",
+   "plane": "printvlak",
    "points": {
     "origin_s1": {
      "x": 0,
      "y": 0
     },
     "s1p0": {
-     "x": -30,
-     "y": -18
+     "x": -34,
+     "y": 45
     },
     "s1p1": {
-     "x": 30,
-     "y": -18
+     "x": 34,
+     "y": 45
     },
     "s1p2": {
-     "x": 30,
-     "y": 18
+     "x": 35,
+     "y": 46
     },
     "s1p3": {
-     "x": -30,
-     "y": 18
+     "x": 35,
+     "y": 74
+    },
+    "s1p4": {
+     "x": 34,
+     "y": 75
+    },
+    "s1p5": {
+     "x": -34,
+     "y": 75
+    },
+    "s1p6": {
+     "x": -35,
+     "y": 74
+    },
+    "s1p7": {
+     "x": -35,
+     "y": 46
+    },
+    "s1p8": {
+     "x": 34,
+     "y": 46
+    },
+    "s1p9": {
+     "x": 34,
+     "y": 74
+    },
+    "s1p10": {
+     "x": -34,
+     "y": 74
+    },
+    "s1p11": {
+     "x": -34,
+     "y": 46
     }
    },
-   "scalars": {},
+   "scalars": {
+    "s1s12": 1
+   },
    "entities": {
-    "s1e4": {
-     "id": "s1e4",
+    "s1e13": {
+     "id": "s1e13",
      "construction": false,
      "kind": "line",
      "p1": "s1p0",
      "p2": "s1p1"
     },
-    "s1e5": {
-     "id": "s1e5",
+    "s1e14": {
+     "id": "s1e14",
      "construction": false,
-     "kind": "line",
-     "p1": "s1p1",
-     "p2": "s1p2"
+     "kind": "arc",
+     "center": "s1p8",
+     "start": "s1p1",
+     "end": "s1p2",
+     "r": "s1s12",
+     "ccw": true
     },
-    "s1e6": {
-     "id": "s1e6",
+    "s1e15": {
+     "id": "s1e15",
      "construction": false,
      "kind": "line",
      "p1": "s1p2",
      "p2": "s1p3"
     },
-    "s1e7": {
-     "id": "s1e7",
+    "s1e16": {
+     "id": "s1e16",
+     "construction": false,
+     "kind": "arc",
+     "center": "s1p9",
+     "start": "s1p3",
+     "end": "s1p4",
+     "r": "s1s12",
+     "ccw": true
+    },
+    "s1e17": {
+     "id": "s1e17",
      "construction": false,
      "kind": "line",
-     "p1": "s1p3",
-     "p2": "s1p0"
+     "p1": "s1p4",
+     "p2": "s1p5"
+    },
+    "s1e18": {
+     "id": "s1e18",
+     "construction": false,
+     "kind": "arc",
+     "center": "s1p10",
+     "start": "s1p5",
+     "end": "s1p6",
+     "r": "s1s12",
+     "ccw": true
+    },
+    "s1e19": {
+     "id": "s1e19",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p6",
+     "p2": "s1p7"
+    },
+    "s1e20": {
+     "id": "s1e20",
+     "construction": false,
+     "kind": "arc",
+     "center": "s1p11",
+     "start": "s1p7",
+     "end": "s1p0",
+     "r": "s1s12",
+     "ccw": true
     }
    },
    "constraints": {},
    "entityOrder": [
-    "s1e4",
-    "s1e5",
-    "s1e6",
-    "s1e7"
+    "s1e13",
+    "s1e14",
+    "s1e15",
+    "s1e16",
+    "s1e17",
+    "s1e18",
+    "s1e19",
+    "s1e20"
    ],
    "constraintOrder": [],
    "origin": "origin_s1"
@@ -178,162 +231,71 @@
   "s2": {
    "id": "s2",
    "name": "Sketch2",
-   "plane": "klem",
+   "plane": "printgat",
    "points": {
     "origin_s2": {
      "x": 0,
      "y": 0
     },
     "s2p0": {
-     "x": 12,
-     "y": -16
-    },
-    "s2p1": {
-     "x": 27,
-     "y": -16
-    },
-    "s2p2": {
-     "x": 27,
-     "y": 16
+     "x": -33,
+     "y": 47
     },
     "s2p3": {
-     "x": 12,
-     "y": 16
+     "x": -33,
+     "y": 73
     },
-    "s2p8": {
-     "x": -27,
-     "y": -6
+    "s2p6": {
+     "x": 33,
+     "y": 47
     },
     "s2p9": {
-     "x": -16,
-     "y": -6
-    },
-    "s2p10": {
-     "x": -16,
-     "y": 6
-    },
-    "s2p11": {
-     "x": -27,
-     "y": 6
-    },
-    "s2p16": {
-     "x": -6,
-     "y": 8
-    },
-    "s2p17": {
-     "x": 4,
-     "y": 8
-    },
-    "s2p18": {
-     "x": 4,
-     "y": 12.5
-    },
-    "s2p19": {
-     "x": -6,
-     "y": 12.5
+     "x": 33,
+     "y": 73
     }
    },
-   "scalars": {},
+   "scalars": {
+    "s2s1": 1.1,
+    "s2s4": 1.1,
+    "s2s7": 1.1,
+    "s2s10": 1.1
+   },
    "entities": {
-    "s2e4": {
-     "id": "s2e4",
+    "s2e2": {
+     "id": "s2e2",
      "construction": false,
-     "kind": "line",
-     "p1": "s2p0",
-     "p2": "s2p1"
+     "kind": "circle",
+     "center": "s2p0",
+     "r": "s2s1"
     },
     "s2e5": {
      "id": "s2e5",
      "construction": false,
-     "kind": "line",
-     "p1": "s2p1",
-     "p2": "s2p2"
+     "kind": "circle",
+     "center": "s2p3",
+     "r": "s2s4"
     },
-    "s2e6": {
-     "id": "s2e6",
+    "s2e8": {
+     "id": "s2e8",
      "construction": false,
-     "kind": "line",
-     "p1": "s2p2",
-     "p2": "s2p3"
+     "kind": "circle",
+     "center": "s2p6",
+     "r": "s2s7"
     },
-    "s2e7": {
-     "id": "s2e7",
+    "s2e11": {
+     "id": "s2e11",
      "construction": false,
-     "kind": "line",
-     "p1": "s2p3",
-     "p2": "s2p0"
-    },
-    "s2e12": {
-     "id": "s2e12",
-     "construction": false,
-     "kind": "line",
-     "p1": "s2p8",
-     "p2": "s2p9"
-    },
-    "s2e13": {
-     "id": "s2e13",
-     "construction": false,
-     "kind": "line",
-     "p1": "s2p9",
-     "p2": "s2p10"
-    },
-    "s2e14": {
-     "id": "s2e14",
-     "construction": false,
-     "kind": "line",
-     "p1": "s2p10",
-     "p2": "s2p11"
-    },
-    "s2e15": {
-     "id": "s2e15",
-     "construction": false,
-     "kind": "line",
-     "p1": "s2p11",
-     "p2": "s2p8"
-    },
-    "s2e20": {
-     "id": "s2e20",
-     "construction": false,
-     "kind": "line",
-     "p1": "s2p16",
-     "p2": "s2p17"
-    },
-    "s2e21": {
-     "id": "s2e21",
-     "construction": false,
-     "kind": "line",
-     "p1": "s2p17",
-     "p2": "s2p18"
-    },
-    "s2e22": {
-     "id": "s2e22",
-     "construction": false,
-     "kind": "line",
-     "p1": "s2p18",
-     "p2": "s2p19"
-    },
-    "s2e23": {
-     "id": "s2e23",
-     "construction": false,
-     "kind": "line",
-     "p1": "s2p19",
-     "p2": "s2p16"
+     "kind": "circle",
+     "center": "s2p9",
+     "r": "s2s10"
     }
    },
    "constraints": {},
    "entityOrder": [
-    "s2e4",
+    "s2e2",
     "s2e5",
-    "s2e6",
-    "s2e7",
-    "s2e12",
-    "s2e13",
-    "s2e14",
-    "s2e15",
-    "s2e20",
-    "s2e21",
-    "s2e22",
-    "s2e23"
+    "s2e8",
+    "s2e11"
    ],
    "constraintOrder": [],
    "origin": "origin_s2"
@@ -341,27 +303,75 @@
   "s3": {
    "id": "s3",
    "name": "Sketch3",
-   "plane": "sdp",
+   "plane": "onderdelenvlak",
    "points": {
     "origin_s3": {
      "x": 0,
      "y": 0
     },
     "s3p0": {
-     "x": 5,
-     "y": -6
+     "x": -30,
+     "y": 46
     },
     "s3p1": {
-     "x": 27,
-     "y": -6
+     "x": -13.5,
+     "y": 46
     },
     "s3p2": {
-     "x": 27,
-     "y": 4
+     "x": -13.5,
+     "y": 54
     },
     "s3p3": {
-     "x": 5,
-     "y": 4
+     "x": -30,
+     "y": 54
+    },
+    "s3p8": {
+     "x": -12,
+     "y": 47
+    },
+    "s3p9": {
+     "x": 8,
+     "y": 47
+    },
+    "s3p10": {
+     "x": 8,
+     "y": 62
+    },
+    "s3p11": {
+     "x": -12,
+     "y": 62
+    },
+    "s3p16": {
+     "x": 12,
+     "y": 58
+    },
+    "s3p17": {
+     "x": 30,
+     "y": 58
+    },
+    "s3p18": {
+     "x": 30,
+     "y": 73
+    },
+    "s3p19": {
+     "x": 12,
+     "y": 73
+    },
+    "s3p24": {
+     "x": -10,
+     "y": 65
+    },
+    "s3p25": {
+     "x": 10,
+     "y": 65
+    },
+    "s3p26": {
+     "x": 10,
+     "y": 73
+    },
+    "s3p27": {
+     "x": -10,
+     "y": 73
     }
    },
    "scalars": {},
@@ -393,6 +403,90 @@
      "kind": "line",
      "p1": "s3p3",
      "p2": "s3p0"
+    },
+    "s3e12": {
+     "id": "s3e12",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p8",
+     "p2": "s3p9"
+    },
+    "s3e13": {
+     "id": "s3e13",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p9",
+     "p2": "s3p10"
+    },
+    "s3e14": {
+     "id": "s3e14",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p10",
+     "p2": "s3p11"
+    },
+    "s3e15": {
+     "id": "s3e15",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p11",
+     "p2": "s3p8"
+    },
+    "s3e20": {
+     "id": "s3e20",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p16",
+     "p2": "s3p17"
+    },
+    "s3e21": {
+     "id": "s3e21",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p17",
+     "p2": "s3p18"
+    },
+    "s3e22": {
+     "id": "s3e22",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p18",
+     "p2": "s3p19"
+    },
+    "s3e23": {
+     "id": "s3e23",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p19",
+     "p2": "s3p16"
+    },
+    "s3e28": {
+     "id": "s3e28",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p24",
+     "p2": "s3p25"
+    },
+    "s3e29": {
+     "id": "s3e29",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p25",
+     "p2": "s3p26"
+    },
+    "s3e30": {
+     "id": "s3e30",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p26",
+     "p2": "s3p27"
+    },
+    "s3e31": {
+     "id": "s3e31",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p27",
+     "p2": "s3p24"
     }
    },
    "constraints": {},
@@ -400,56 +494,22 @@
     "s3e4",
     "s3e5",
     "s3e6",
-    "s3e7"
+    "s3e7",
+    "s3e12",
+    "s3e13",
+    "s3e14",
+    "s3e15",
+    "s3e20",
+    "s3e21",
+    "s3e22",
+    "s3e23",
+    "s3e28",
+    "s3e29",
+    "s3e30",
+    "s3e31"
    ],
    "constraintOrder": [],
    "origin": "origin_s3"
-  },
-  "s4": {
-   "id": "s4",
-   "name": "Sketch4",
-   "plane": "sdppoort",
-   "points": {
-    "origin_s4": {
-     "x": 0,
-     "y": 0
-    },
-    "s4p0": {
-     "x": 10,
-     "y": 23
-    },
-    "s4p3": {
-     "x": 22,
-     "y": 23
-    }
-   },
-   "scalars": {
-    "s4s1": 2.5,
-    "s4s4": 2.5
-   },
-   "entities": {
-    "s4e2": {
-     "id": "s4e2",
-     "construction": false,
-     "kind": "circle",
-     "center": "s4p0",
-     "r": "s4s1"
-    },
-    "s4e5": {
-     "id": "s4e5",
-     "construction": false,
-     "kind": "circle",
-     "center": "s4p3",
-     "r": "s4s4"
-    }
-   },
-   "constraints": {},
-   "entityOrder": [
-    "s4e2",
-    "s4e5"
-   ],
-   "constraintOrder": [],
-   "origin": "origin_s4"
   }
  },
  "features": [
@@ -481,13 +541,13 @@
   {
    "id": "f4",
    "type": "extrude",
-   "name": "Klemmen en MOSFET",
+   "name": "Gaten M2,5",
    "sketchId": "s2",
    "suppressed": false,
-   "op": "boss",
+   "op": "cut",
    "end": "blind",
-   "depth": 15,
-   "reverse": false
+   "depth": 3,
+   "reverse": true
   },
   {
    "id": "ks3",
@@ -499,30 +559,12 @@
   {
    "id": "f6",
    "type": "extrude",
-   "name": "Drukmeter SDP810",
+   "name": "Onderdelen",
    "sketchId": "s3",
    "suppressed": false,
    "op": "boss",
    "end": "blind",
-   "depth": 12,
-   "reverse": false
-  },
-  {
-   "id": "ks4",
-   "type": "sketch",
-   "name": "Sketch4",
-   "sketchId": "s4",
-   "suppressed": false
-  },
-  {
-   "id": "f8",
-   "type": "extrude",
-   "name": "Poorten drukmeter",
-   "sketchId": "s4",
-   "suppressed": false,
-   "op": "boss",
-   "end": "blind",
-   "depth": 16,
+   "depth": 11,
    "reverse": false
   }
  ],

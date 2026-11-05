@@ -167,7 +167,7 @@ void teken(uint32_t nu) {
     } else if (t.storing) {
       tekenTekst("geen luchtstroom", "ventilator of slang nakijken", ROOD);
     } else if (vol) {
-      tekenTekst("Filter vol", "lade legen", ORANJE);
+      tekenTekst("Filter vol", "filters uitkloppen", ORANJE);
     } else if (boost) {
       const uint32_t rest = (t.boostTot - nu) / 1000;
       snprintf(s, sizeof s, "BOOST %lu:%02lu", (unsigned long)(rest / 60), (unsigned long)(rest % 60));
