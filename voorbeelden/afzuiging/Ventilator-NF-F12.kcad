@@ -1,0 +1,975 @@
+{
+ "format": "phlippo-cad",
+ "version": 1,
+ "name": "Noctua NF-F12 iPPC-3000 PWM",
+ "units": "mm",
+ "planes": {
+  "fan": {
+   "id": "fan",
+   "name": "Plane ventilator",
+   "origin": [
+    0,
+    -128,
+    0
+   ],
+   "u": [
+    1,
+    0,
+    0
+   ],
+   "v": [
+    0,
+    0,
+    -1
+   ],
+   "n": [
+    0,
+    1,
+    0
+   ],
+   "kind": "reference"
+  },
+  "spaak": {
+   "id": "spaak",
+   "name": "Plane spaken",
+   "origin": [
+    0,
+    -127.5,
+    0
+   ],
+   "u": [
+    1,
+    0,
+    0
+   ],
+   "v": [
+    0,
+    0,
+    -1
+   ],
+   "n": [
+    0,
+    1,
+    0
+   ],
+   "kind": "reference"
+  },
+  "schoep": {
+   "id": "schoep",
+   "name": "Plane schoepen",
+   "origin": [
+    0,
+    -123,
+    0
+   ],
+   "u": [
+    1,
+    0,
+    0
+   ],
+   "v": [
+    0,
+    0,
+    -1
+   ],
+   "n": [
+    0,
+    1,
+    0
+   ],
+   "kind": "reference"
+  }
+ },
+ "variables": {},
+ "equations": [],
+ "sketches": {
+  "s1": {
+   "id": "s1",
+   "name": "Sketch1",
+   "plane": "fan",
+   "points": {
+    "origin_s1": {
+     "x": 0,
+     "y": 0
+    },
+    "s1p0": {
+     "x": -55,
+     "y": -60
+    },
+    "s1p1": {
+     "x": 55,
+     "y": -60
+    },
+    "s1p2": {
+     "x": 60,
+     "y": -55
+    },
+    "s1p3": {
+     "x": 60,
+     "y": 55
+    },
+    "s1p4": {
+     "x": 55,
+     "y": 60
+    },
+    "s1p5": {
+     "x": -55,
+     "y": 60
+    },
+    "s1p6": {
+     "x": -60,
+     "y": 55
+    },
+    "s1p7": {
+     "x": -60,
+     "y": -55
+    },
+    "s1p8": {
+     "x": 55,
+     "y": -55
+    },
+    "s1p9": {
+     "x": 55,
+     "y": 55
+    },
+    "s1p10": {
+     "x": -55,
+     "y": 55
+    },
+    "s1p11": {
+     "x": -55,
+     "y": -55
+    },
+    "s1p21": {
+     "x": 0,
+     "y": 0
+    },
+    "s1p24": {
+     "x": 52.5,
+     "y": 52.5
+    },
+    "s1p27": {
+     "x": 52.5,
+     "y": -52.5
+    },
+    "s1p30": {
+     "x": -52.5,
+     "y": 52.5
+    },
+    "s1p33": {
+     "x": -52.5,
+     "y": -52.5
+    }
+   },
+   "scalars": {
+    "s1s12": 5,
+    "s1s22": 56.5,
+    "s1s25": 2.15,
+    "s1s28": 2.15,
+    "s1s31": 2.15,
+    "s1s34": 2.15
+   },
+   "entities": {
+    "s1e13": {
+     "id": "s1e13",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p0",
+     "p2": "s1p1"
+    },
+    "s1e14": {
+     "id": "s1e14",
+     "construction": false,
+     "kind": "arc",
+     "center": "s1p8",
+     "start": "s1p1",
+     "end": "s1p2",
+     "r": "s1s12",
+     "ccw": true
+    },
+    "s1e15": {
+     "id": "s1e15",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p2",
+     "p2": "s1p3"
+    },
+    "s1e16": {
+     "id": "s1e16",
+     "construction": false,
+     "kind": "arc",
+     "center": "s1p9",
+     "start": "s1p3",
+     "end": "s1p4",
+     "r": "s1s12",
+     "ccw": true
+    },
+    "s1e17": {
+     "id": "s1e17",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p4",
+     "p2": "s1p5"
+    },
+    "s1e18": {
+     "id": "s1e18",
+     "construction": false,
+     "kind": "arc",
+     "center": "s1p10",
+     "start": "s1p5",
+     "end": "s1p6",
+     "r": "s1s12",
+     "ccw": true
+    },
+    "s1e19": {
+     "id": "s1e19",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p6",
+     "p2": "s1p7"
+    },
+    "s1e20": {
+     "id": "s1e20",
+     "construction": false,
+     "kind": "arc",
+     "center": "s1p11",
+     "start": "s1p7",
+     "end": "s1p0",
+     "r": "s1s12",
+     "ccw": true
+    },
+    "s1e23": {
+     "id": "s1e23",
+     "construction": false,
+     "kind": "circle",
+     "center": "s1p21",
+     "r": "s1s22"
+    },
+    "s1e26": {
+     "id": "s1e26",
+     "construction": false,
+     "kind": "circle",
+     "center": "s1p24",
+     "r": "s1s25"
+    },
+    "s1e29": {
+     "id": "s1e29",
+     "construction": false,
+     "kind": "circle",
+     "center": "s1p27",
+     "r": "s1s28"
+    },
+    "s1e32": {
+     "id": "s1e32",
+     "construction": false,
+     "kind": "circle",
+     "center": "s1p30",
+     "r": "s1s31"
+    },
+    "s1e35": {
+     "id": "s1e35",
+     "construction": false,
+     "kind": "circle",
+     "center": "s1p33",
+     "r": "s1s34"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s1e13",
+    "s1e14",
+    "s1e15",
+    "s1e16",
+    "s1e17",
+    "s1e18",
+    "s1e19",
+    "s1e20",
+    "s1e23",
+    "s1e26",
+    "s1e29",
+    "s1e32",
+    "s1e35"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s1"
+  },
+  "s2": {
+   "id": "s2",
+   "name": "Sketch2",
+   "plane": "fan",
+   "points": {
+    "origin_s2": {
+     "x": 0,
+     "y": 0
+    },
+    "s2p0": {
+     "x": 0,
+     "y": 0
+    }
+   },
+   "scalars": {
+    "s2s1": 21
+   },
+   "entities": {
+    "s2e2": {
+     "id": "s2e2",
+     "construction": false,
+     "kind": "circle",
+     "center": "s2p0",
+     "r": "s2s1"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s2e2"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s2"
+  },
+  "s3": {
+   "id": "s3",
+   "name": "Sketch3",
+   "plane": "spaak",
+   "points": {
+    "origin_s3": {
+     "x": 0,
+     "y": 0
+    },
+    "s3p0": {
+     "x": 19,
+     "y": -1.5
+    },
+    "s3p1": {
+     "x": 57.5,
+     "y": -1.5
+    },
+    "s3p2": {
+     "x": 57.5,
+     "y": 1.5
+    },
+    "s3p3": {
+     "x": 19,
+     "y": 1.5
+    },
+    "s3p8": {
+     "x": -57.5,
+     "y": -1.5
+    },
+    "s3p9": {
+     "x": -19,
+     "y": -1.5
+    },
+    "s3p10": {
+     "x": -19,
+     "y": 1.5
+    },
+    "s3p11": {
+     "x": -57.5,
+     "y": 1.5
+    },
+    "s3p16": {
+     "x": -1.5,
+     "y": 19
+    },
+    "s3p17": {
+     "x": 1.5,
+     "y": 19
+    },
+    "s3p18": {
+     "x": 1.5,
+     "y": 57.5
+    },
+    "s3p19": {
+     "x": -1.5,
+     "y": 57.5
+    },
+    "s3p24": {
+     "x": -1.5,
+     "y": -57.5
+    },
+    "s3p25": {
+     "x": 1.5,
+     "y": -57.5
+    },
+    "s3p26": {
+     "x": 1.5,
+     "y": -19
+    },
+    "s3p27": {
+     "x": -1.5,
+     "y": -19
+    }
+   },
+   "scalars": {},
+   "entities": {
+    "s3e4": {
+     "id": "s3e4",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p0",
+     "p2": "s3p1"
+    },
+    "s3e5": {
+     "id": "s3e5",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p1",
+     "p2": "s3p2"
+    },
+    "s3e6": {
+     "id": "s3e6",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p2",
+     "p2": "s3p3"
+    },
+    "s3e7": {
+     "id": "s3e7",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p3",
+     "p2": "s3p0"
+    },
+    "s3e12": {
+     "id": "s3e12",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p8",
+     "p2": "s3p9"
+    },
+    "s3e13": {
+     "id": "s3e13",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p9",
+     "p2": "s3p10"
+    },
+    "s3e14": {
+     "id": "s3e14",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p10",
+     "p2": "s3p11"
+    },
+    "s3e15": {
+     "id": "s3e15",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p11",
+     "p2": "s3p8"
+    },
+    "s3e20": {
+     "id": "s3e20",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p16",
+     "p2": "s3p17"
+    },
+    "s3e21": {
+     "id": "s3e21",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p17",
+     "p2": "s3p18"
+    },
+    "s3e22": {
+     "id": "s3e22",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p18",
+     "p2": "s3p19"
+    },
+    "s3e23": {
+     "id": "s3e23",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p19",
+     "p2": "s3p16"
+    },
+    "s3e28": {
+     "id": "s3e28",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p24",
+     "p2": "s3p25"
+    },
+    "s3e29": {
+     "id": "s3e29",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p25",
+     "p2": "s3p26"
+    },
+    "s3e30": {
+     "id": "s3e30",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p26",
+     "p2": "s3p27"
+    },
+    "s3e31": {
+     "id": "s3e31",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p27",
+     "p2": "s3p24"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s3e4",
+    "s3e5",
+    "s3e6",
+    "s3e7",
+    "s3e12",
+    "s3e13",
+    "s3e14",
+    "s3e15",
+    "s3e20",
+    "s3e21",
+    "s3e22",
+    "s3e23",
+    "s3e28",
+    "s3e29",
+    "s3e30",
+    "s3e31"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s3"
+  },
+  "s4": {
+   "id": "s4",
+   "name": "Sketch4",
+   "plane": "schoep",
+   "points": {
+    "origin_s4": {
+     "x": 0,
+     "y": 0
+    },
+    "s4p0": {
+     "x": 19,
+     "y": -1.2
+    },
+    "s4p1": {
+     "x": 54,
+     "y": -7.2
+    },
+    "s4p2": {
+     "x": 54,
+     "y": -4.8
+    },
+    "s4p3": {
+     "x": 19,
+     "y": 1.2
+    },
+    "s4p8": {
+     "x": 12.784504,
+     "y": 14.10661
+    },
+    "s4p9": {
+     "x": 39.297636,
+     "y": 37.729773
+    },
+    "s4p10": {
+     "x": 37.42124,
+     "y": 39.226149
+    },
+    "s4p11": {
+     "x": 10.908108,
+     "y": 15.602986
+    },
+    "s4p16": {
+     "x": -3.057984,
+     "y": 18.790655
+    },
+    "s4p17": {
+     "x": -4.996649,
+     "y": 54.248258
+    },
+    "s4p18": {
+     "x": -7.336476,
+     "y": 53.714208
+    },
+    "s4p19": {
+     "x": -5.397811,
+     "y": 18.256605
+    },
+    "s4p24": {
+     "x": -16.597748,
+     "y": 9.324954
+    },
+    "s4p25": {
+     "x": -45.528356,
+     "y": 29.916698
+    },
+    "s4p26": {
+     "x": -46.569677,
+     "y": 27.754372
+    },
+    "s4p27": {
+     "x": -17.639069,
+     "y": 7.162628
+    },
+    "s4p32": {
+     "x": -17.639069,
+     "y": -7.162628
+    },
+    "s4p33": {
+     "x": -51.776282,
+     "y": -16.942746
+    },
+    "s4p34": {
+     "x": -50.734961,
+     "y": -19.105071
+    },
+    "s4p35": {
+     "x": -16.597748,
+     "y": -9.324954
+    },
+    "s4p40": {
+     "x": -5.397811,
+     "y": -18.256605
+    },
+    "s4p41": {
+     "x": -19.035611,
+     "y": -51.043957
+    },
+    "s4p42": {
+     "x": -16.695784,
+     "y": -51.578007
+    },
+    "s4p43": {
+     "x": -3.057984,
+     "y": -18.790655
+    },
+    "s4p48": {
+     "x": 10.908108,
+     "y": -15.602986
+    },
+    "s4p49": {
+     "x": 28.039263,
+     "y": -46.708027
+    },
+    "s4p50": {
+     "x": 29.915658,
+     "y": -45.211651
+    },
+    "s4p51": {
+     "x": 12.784504,
+     "y": -14.10661
+    }
+   },
+   "scalars": {},
+   "entities": {
+    "s4e4": {
+     "id": "s4e4",
+     "construction": false,
+     "kind": "line",
+     "p1": "s4p0",
+     "p2": "s4p1"
+    },
+    "s4e5": {
+     "id": "s4e5",
+     "construction": false,
+     "kind": "line",
+     "p1": "s4p1",
+     "p2": "s4p2"
+    },
+    "s4e6": {
+     "id": "s4e6",
+     "construction": false,
+     "kind": "line",
+     "p1": "s4p2",
+     "p2": "s4p3"
+    },
+    "s4e7": {
+     "id": "s4e7",
+     "construction": false,
+     "kind": "line",
+     "p1": "s4p3",
+     "p2": "s4p0"
+    },
+    "s4e12": {
+     "id": "s4e12",
+     "construction": false,
+     "kind": "line",
+     "p1": "s4p8",
+     "p2": "s4p9"
+    },
+    "s4e13": {
+     "id": "s4e13",
+     "construction": false,
+     "kind": "line",
+     "p1": "s4p9",
+     "p2": "s4p10"
+    },
+    "s4e14": {
+     "id": "s4e14",
+     "construction": false,
+     "kind": "line",
+     "p1": "s4p10",
+     "p2": "s4p11"
+    },
+    "s4e15": {
+     "id": "s4e15",
+     "construction": false,
+     "kind": "line",
+     "p1": "s4p11",
+     "p2": "s4p8"
+    },
+    "s4e20": {
+     "id": "s4e20",
+     "construction": false,
+     "kind": "line",
+     "p1": "s4p16",
+     "p2": "s4p17"
+    },
+    "s4e21": {
+     "id": "s4e21",
+     "construction": false,
+     "kind": "line",
+     "p1": "s4p17",
+     "p2": "s4p18"
+    },
+    "s4e22": {
+     "id": "s4e22",
+     "construction": false,
+     "kind": "line",
+     "p1": "s4p18",
+     "p2": "s4p19"
+    },
+    "s4e23": {
+     "id": "s4e23",
+     "construction": false,
+     "kind": "line",
+     "p1": "s4p19",
+     "p2": "s4p16"
+    },
+    "s4e28": {
+     "id": "s4e28",
+     "construction": false,
+     "kind": "line",
+     "p1": "s4p24",
+     "p2": "s4p25"
+    },
+    "s4e29": {
+     "id": "s4e29",
+     "construction": false,
+     "kind": "line",
+     "p1": "s4p25",
+     "p2": "s4p26"
+    },
+    "s4e30": {
+     "id": "s4e30",
+     "construction": false,
+     "kind": "line",
+     "p1": "s4p26",
+     "p2": "s4p27"
+    },
+    "s4e31": {
+     "id": "s4e31",
+     "construction": false,
+     "kind": "line",
+     "p1": "s4p27",
+     "p2": "s4p24"
+    },
+    "s4e36": {
+     "id": "s4e36",
+     "construction": false,
+     "kind": "line",
+     "p1": "s4p32",
+     "p2": "s4p33"
+    },
+    "s4e37": {
+     "id": "s4e37",
+     "construction": false,
+     "kind": "line",
+     "p1": "s4p33",
+     "p2": "s4p34"
+    },
+    "s4e38": {
+     "id": "s4e38",
+     "construction": false,
+     "kind": "line",
+     "p1": "s4p34",
+     "p2": "s4p35"
+    },
+    "s4e39": {
+     "id": "s4e39",
+     "construction": false,
+     "kind": "line",
+     "p1": "s4p35",
+     "p2": "s4p32"
+    },
+    "s4e44": {
+     "id": "s4e44",
+     "construction": false,
+     "kind": "line",
+     "p1": "s4p40",
+     "p2": "s4p41"
+    },
+    "s4e45": {
+     "id": "s4e45",
+     "construction": false,
+     "kind": "line",
+     "p1": "s4p41",
+     "p2": "s4p42"
+    },
+    "s4e46": {
+     "id": "s4e46",
+     "construction": false,
+     "kind": "line",
+     "p1": "s4p42",
+     "p2": "s4p43"
+    },
+    "s4e47": {
+     "id": "s4e47",
+     "construction": false,
+     "kind": "line",
+     "p1": "s4p43",
+     "p2": "s4p40"
+    },
+    "s4e52": {
+     "id": "s4e52",
+     "construction": false,
+     "kind": "line",
+     "p1": "s4p48",
+     "p2": "s4p49"
+    },
+    "s4e53": {
+     "id": "s4e53",
+     "construction": false,
+     "kind": "line",
+     "p1": "s4p49",
+     "p2": "s4p50"
+    },
+    "s4e54": {
+     "id": "s4e54",
+     "construction": false,
+     "kind": "line",
+     "p1": "s4p50",
+     "p2": "s4p51"
+    },
+    "s4e55": {
+     "id": "s4e55",
+     "construction": false,
+     "kind": "line",
+     "p1": "s4p51",
+     "p2": "s4p48"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s4e4",
+    "s4e5",
+    "s4e6",
+    "s4e7",
+    "s4e12",
+    "s4e13",
+    "s4e14",
+    "s4e15",
+    "s4e20",
+    "s4e21",
+    "s4e22",
+    "s4e23",
+    "s4e28",
+    "s4e29",
+    "s4e30",
+    "s4e31",
+    "s4e36",
+    "s4e37",
+    "s4e38",
+    "s4e39",
+    "s4e44",
+    "s4e45",
+    "s4e46",
+    "s4e47",
+    "s4e52",
+    "s4e53",
+    "s4e54",
+    "s4e55"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s4"
+  }
+ },
+ "features": [
+  {
+   "id": "ks1",
+   "type": "sketch",
+   "name": "Sketch1",
+   "sketchId": "s1",
+   "suppressed": false
+  },
+  {
+   "id": "f2",
+   "type": "extrude",
+   "name": "Kader",
+   "sketchId": "s1",
+   "suppressed": false,
+   "op": "boss",
+   "end": "blind",
+   "depth": 25,
+   "reverse": false
+  },
+  {
+   "id": "ks2",
+   "type": "sketch",
+   "name": "Sketch2",
+   "sketchId": "s2",
+   "suppressed": false
+  },
+  {
+   "id": "f4",
+   "type": "extrude",
+   "name": "Naaf",
+   "sketchId": "s2",
+   "suppressed": false,
+   "op": "boss",
+   "end": "blind",
+   "depth": 22,
+   "reverse": false
+  },
+  {
+   "id": "ks3",
+   "type": "sketch",
+   "name": "Sketch3",
+   "sketchId": "s3",
+   "suppressed": false
+  },
+  {
+   "id": "f6",
+   "type": "extrude",
+   "name": "Spaken",
+   "sketchId": "s3",
+   "suppressed": false,
+   "op": "boss",
+   "end": "blind",
+   "depth": 3,
+   "reverse": false
+  },
+  {
+   "id": "ks4",
+   "type": "sketch",
+   "name": "Sketch4",
+   "sketchId": "s4",
+   "suppressed": false
+  },
+  {
+   "id": "f8",
+   "type": "extrude",
+   "name": "Schoepen",
+   "sketchId": "s4",
+   "suppressed": false,
+   "op": "boss",
+   "end": "blind",
+   "depth": 16,
+   "reverse": false
+  }
+ ],
+ "material": {
+  "name": "PBT, zwart",
+  "density": 1300,
+  "color": "#2c2c2e"
+ }
+}

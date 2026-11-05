@@ -1,0 +1,32 @@
+// look: de ingebouwde afzuiging (voorbeelden/afzuiging) in de app: de assemblage isometrisch met de lade half open,
+// van onderen (klauwen, ventilator), de module alleen, en het bureau met de afzuiging in het blad
+import { chromium } from 'playwright';
+import { readFileSync } from 'node:fs';
+const browser = await chromium.launch(process.platform === 'win32' ? { channel: process.env.PW_CHANNEL ?? 'msedge' } : { ...(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {}), args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
+const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } });
+const errors = [];
+page.on('pageerror', (e) => errors.push(e.message));
+page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
+await page.goto(process.env.E2E_URL ?? 'http://localhost:5184/');
+await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.theme', 'light'); });
+await page.reload();
+await page.waitForSelector('.k-viewport');
+await page.click('.k-doctype:has-text("Part")');
+const lees = (f) => { const d = JSON.parse(readFileSync(f, 'utf8')); delete d.format; return d; };
+const open = async (d) => { await page.evaluate((x) => window.__phlippoStore.getState().openDocument(x), d); await page.waitForTimeout(3000); };
+const kijk = async (toets, naam) => { await page.keyboard.press(toets); await page.waitForTimeout(700); await page.keyboard.press('f'); await page.mouse.move(700, 1000); await page.waitForTimeout(1800); await page.screenshot({ path: `e2e-out/${naam}.png` }); };
+
+// assemblage met de lade 80 mm open
+const asm = lees('voorbeelden/afzuiging/Afzuiging.kcad');
+for (const c of asm.components) if (c.id === 'a3' || c.id === 'a4') c.position = [0, 0, 80];
+await open(asm);
+await kijk('Control+7', 'afzuiging-iso');
+await kijk('Control+6', 'afzuiging-onder');
+// de module alleen
+await open(lees('voorbeelden/afzuiging/Inbouwmodule.kcad'));
+await kijk('Control+7', 'afzuiging-module');
+// het bureau
+await open(lees('voorbeelden/bureau/Bureau.kcad'));
+await kijk('Control+7', 'bureau-met-afzuiging');
+console.log('errors', errors);
+await browser.close();

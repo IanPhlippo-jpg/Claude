@@ -914,3 +914,14 @@ elease; README en docs/04 bijgewerkt
 - [x] Test: onderdelen op beide kernels, lades schuiven alleen langs Z binnen 0 tot 450, geen botsing dicht en open
 - [x] In de app: lade slepen en screenshot met lades open
 - [x] Commit en push
+
+## Ingebouwde nagelstofafzuiging voor het bureau (2026-11-05)
+- [x] LB-monogram van Lush Beauty overtrekken (zonder tekst, op vraag van Ian; B uit het grote beeld, halve manen als vloeiende krommen)
+- [x] Rooster RVS 1,5 mm, 196 x 140, LB in het midden + chevronsleuven (zoals ULKA X2F); geen eilanden, niets < 1,5 mm; DXF
+- [x] Inbouwmodule in PLA die van bovenaf in een gefreesde uitsparing zakt: flens + rooster bovenop, 4 klauwen zoals een Niko-inbouwdoos
+- [x] Filterlade (zoals Vento) op richels met G4-filtermat en steunschot; ventilatorplaat met Noctua NF-F12 iPPC-3000 PWM
+- [x] Houder voor de M5Stack Dial in het blad, elektronicabox met deksel en interfaceprint onder het blad
+- [x] Assemblage Afzuiging + in het bureau (uitsparingen 196 x 140 en 59 x 59 in het blad, lade met Distance-limiet 0-110)
+- [x] Elektronica: aansluitschema (aansluitschema.svg) en stuklijst (README)
+- [x] Firmware ESP32 (M5Dial): draaien = snelheid, drukken = aan/uit, lang = boost, toerental en storing op het ronde scherm; compileren met PlatformIO
+- [x] Tests (qaAfzuiging, qaBureau), STL's in printstand, screenshots, commit en push

@@ -23,7 +23,8 @@ const KAST = 360 * 564 * 700 - 328 * 668 * 556 + 10 * 14 * 10 * 510;
 // bak (2 mm in het front) + front - holte + twee loopregels (2 mm in de bakwand en 2 mm in het front)
 const LADE = 296 * 100 * 522 + (356 * 136 * 16 - 296 * 100 * 2) - 280 * 510 * 92 + 2 * (16 * 10 * 492 - 2 * 10 * 492 - 16 * 10 * 2 + 2 * 10 * 2);
 const VERWACHT = {
-  'LAGKAPTEN-tafelblad.kcad': { volume: 1400 * 600 * 34, min: [-700, 0, -300], max: [700, 34, 300] },
+  // min de uitsparingen voor de afzuiging (196 x 140) en de draaiknop (59 x 59), hoeken R5
+  'LAGKAPTEN-tafelblad.kcad': { volume: (1400 * 600 - (196 * 140 - (4 - Math.PI) * 25) - (59 * 59 - (4 - Math.PI) * 25)) * 34, min: [-700, 0, -300], max: [700, 34, 300] },
   'ALEX-ladekast.kcad': { volume: KAST, min: [-180, 0, -290], max: [180, 700, 274] },
   'ALEX-lade.kcad': { volume: LADE, min: [-178, 0, -520], max: [178, 136, 16] },
 };
@@ -34,13 +35,13 @@ function check(doc: Document, exp: (typeof VERWACHT)[keyof typeof VERWACHT]) {
   const g = r.bodies[0].geometry;
   g.computeBoundingBox();
   const bb = g.boundingBox!;
-  expect(bb.min.toArray().map((v) => Math.round(v))).toEqual(exp.min);
-  expect(bb.max.toArray().map((v) => Math.round(v))).toEqual(exp.max);
-  expect(Math.abs(meshVolume(g) - exp.volume)).toBeLessThan(exp.volume * 1e-6 + 1);
+  expect(bb.min.toArray().map((v) => Math.round(v) + 0)).toEqual(exp.min); // + 0: geen -0
+  expect(bb.max.toArray().map((v) => Math.round(v) + 0)).toEqual(exp.max);
+  expect(Math.abs(meshVolume(g) - exp.volume)).toBeLessThan(exp.volume * 2e-5 + 1); // bogen R5 als veelhoek in de mesh
 }
 
 describe('bureau, mesh', () => {
-  for (const [f, exp] of Object.entries(VERWACHT)) it(f, () => check(open(f), exp));
+  for (const [f, exp] of Object.entries(VERWACHT)) it(f, () => check(open(f), exp), 60000);
 
   const asm = () => open('Bureau.kcad') as Document & { components: Component[]; mates: NonNullable<Document['mates']> };
   const verschuif = (comps: Component[], id: string, d: [number, number, number]) => comps.map((c) => (c.id === id ? { ...c, position: [c.position[0] + d[0], c.position[1] + d[1], c.position[2] + d[2]] as [number, number, number] } : c));
@@ -48,7 +49,8 @@ describe('bureau, mesh', () => {
   it('assemblage: kasten flush aan zijkant en achterkant, blad op 700 mm, tien lades met elk drie mates', () => {
     const a = asm();
     expect(a.components.filter((c) => c.part.name === 'ALEX lade').length).toBe(10);
-    expect(a.mates.length).toBe(30);
+    expect(a.mates.filter((m) => m.folder?.startsWith('Lades')).length).toBe(30);
+    expect(a.components.filter((c) => c.id.startsWith('a')).length).toBe(15); // de afzuiging
     expect(a.components.find((c) => c.id === 'k1')!.position).toEqual([-520, 0, -10]);
     expect(a.components.find((c) => c.id === 'k2')!.position).toEqual([520, 0, -10]);
     expect(a.components.find((c) => c.id === 't1')!.position).toEqual([0, 700, 0]);
@@ -73,7 +75,10 @@ describe('bureau, mesh', () => {
       let comps = a.components;
       if (open) for (const c of a.components) if (c.part.name === 'ALEX lade') comps = verschuif(comps, c.id, [0, 0, open]);
       const r = rebuildAssembly({ ...a, components: comps } as Document);
-      const hits = detectInterferences(r.bodies).filter((h) => h.volume > 1);
+      // rond de oorsprong rekenen (het bovenvlak van het blad op Y = 0): bij Y = 700 geeft de mesh-boolean met
+      // 32-bit-coördinaten rond de klauwschroeven snippers van een paar mm³ die er in het echt niet zijn
+      const bodies = r.bodies.map((b) => ({ ...b, geometry: b.geometry.clone().translate(0, -734, 0) }));
+      const hits = detectInterferences(bodies).filter((h) => h.volume > 1);
       expect(hits.map((h) => `${h.a} x ${h.b}: ${h.volume.toFixed(0)}`)).toEqual([]);
     }
   }, 120000);

@@ -1,0 +1,182 @@
+{
+ "format": "phlippo-cad",
+ "version": 1,
+ "name": "Deksel elektronicabox",
+ "units": "mm",
+ "planes": {
+  "deksel": {
+   "id": "deksel",
+   "name": "Plane deksel",
+   "origin": [
+    0,
+    -32,
+    0
+   ],
+   "u": [
+    1,
+    0,
+    0
+   ],
+   "v": [
+    0,
+    0,
+    -1
+   ],
+   "n": [
+    0,
+    1,
+    0
+   ],
+   "kind": "reference"
+  }
+ },
+ "variables": {},
+ "equations": [],
+ "sketches": {
+  "s1": {
+   "id": "s1",
+   "name": "Sketch1",
+   "plane": "deksel",
+   "points": {
+    "origin_s1": {
+     "x": 0,
+     "y": 0
+    },
+    "s1p0": {
+     "x": -42,
+     "y": -27
+    },
+    "s1p1": {
+     "x": 42,
+     "y": -27
+    },
+    "s1p2": {
+     "x": 42,
+     "y": 27
+    },
+    "s1p3": {
+     "x": -42,
+     "y": 27
+    },
+    "s1p8": {
+     "x": 37.2,
+     "y": 22.2
+    },
+    "s1p11": {
+     "x": 37.2,
+     "y": -22.2
+    },
+    "s1p14": {
+     "x": -37.2,
+     "y": 22.2
+    },
+    "s1p17": {
+     "x": -37.2,
+     "y": -22.2
+    }
+   },
+   "scalars": {
+    "s1s9": 1.4,
+    "s1s12": 1.4,
+    "s1s15": 1.4,
+    "s1s18": 1.4
+   },
+   "entities": {
+    "s1e4": {
+     "id": "s1e4",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p0",
+     "p2": "s1p1"
+    },
+    "s1e5": {
+     "id": "s1e5",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p1",
+     "p2": "s1p2"
+    },
+    "s1e6": {
+     "id": "s1e6",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p2",
+     "p2": "s1p3"
+    },
+    "s1e7": {
+     "id": "s1e7",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p3",
+     "p2": "s1p0"
+    },
+    "s1e10": {
+     "id": "s1e10",
+     "construction": false,
+     "kind": "circle",
+     "center": "s1p8",
+     "r": "s1s9"
+    },
+    "s1e13": {
+     "id": "s1e13",
+     "construction": false,
+     "kind": "circle",
+     "center": "s1p11",
+     "r": "s1s12"
+    },
+    "s1e16": {
+     "id": "s1e16",
+     "construction": false,
+     "kind": "circle",
+     "center": "s1p14",
+     "r": "s1s15"
+    },
+    "s1e19": {
+     "id": "s1e19",
+     "construction": false,
+     "kind": "circle",
+     "center": "s1p17",
+     "r": "s1s18"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s1e4",
+    "s1e5",
+    "s1e6",
+    "s1e7",
+    "s1e10",
+    "s1e13",
+    "s1e16",
+    "s1e19"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s1"
+  }
+ },
+ "features": [
+  {
+   "id": "ks1",
+   "type": "sketch",
+   "name": "Sketch1",
+   "sketchId": "s1",
+   "suppressed": false
+  },
+  {
+   "id": "f2",
+   "type": "extrude",
+   "name": "Deksel",
+   "sketchId": "s1",
+   "suppressed": false,
+   "op": "boss",
+   "end": "blind",
+   "depth": 2,
+   "reverse": true
+  }
+ ],
+ "material": {
+  "name": "PLA, wit",
+  "density": 1240,
+  "color": "#f4f4f1"
+ }
+}

@@ -1,0 +1,287 @@
+{
+ "format": "phlippo-cad",
+ "version": 1,
+ "name": "Interfaceprint",
+ "units": "mm",
+ "planes": {
+  "print": {
+   "id": "print",
+   "name": "Plane print",
+   "origin": [
+    0,
+    -31,
+    0
+   ],
+   "u": [
+    1,
+    0,
+    0
+   ],
+   "v": [
+    0,
+    0,
+    -1
+   ],
+   "n": [
+    0,
+    1,
+    0
+   ],
+   "kind": "reference"
+  },
+  "klem": {
+   "id": "klem",
+   "name": "Plane klemmen",
+   "origin": [
+    0,
+    -29.8,
+    0
+   ],
+   "u": [
+    1,
+    0,
+    0
+   ],
+   "v": [
+    0,
+    0,
+    -1
+   ],
+   "n": [
+    0,
+    1,
+    0
+   ],
+   "kind": "reference"
+  }
+ },
+ "variables": {},
+ "equations": [],
+ "sketches": {
+  "s1": {
+   "id": "s1",
+   "name": "Sketch1",
+   "plane": "print",
+   "points": {
+    "origin_s1": {
+     "x": 0,
+     "y": 0
+    },
+    "s1p0": {
+     "x": -25,
+     "y": -15
+    },
+    "s1p1": {
+     "x": 25,
+     "y": -15
+    },
+    "s1p2": {
+     "x": 25,
+     "y": 15
+    },
+    "s1p3": {
+     "x": -25,
+     "y": 15
+    }
+   },
+   "scalars": {},
+   "entities": {
+    "s1e4": {
+     "id": "s1e4",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p0",
+     "p2": "s1p1"
+    },
+    "s1e5": {
+     "id": "s1e5",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p1",
+     "p2": "s1p2"
+    },
+    "s1e6": {
+     "id": "s1e6",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p2",
+     "p2": "s1p3"
+    },
+    "s1e7": {
+     "id": "s1e7",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p3",
+     "p2": "s1p0"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s1e4",
+    "s1e5",
+    "s1e6",
+    "s1e7"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s1"
+  },
+  "s2": {
+   "id": "s2",
+   "name": "Sketch2",
+   "plane": "klem",
+   "points": {
+    "origin_s2": {
+     "x": 0,
+     "y": 0
+    },
+    "s2p0": {
+     "x": 8,
+     "y": -14
+    },
+    "s2p1": {
+     "x": 23,
+     "y": -14
+    },
+    "s2p2": {
+     "x": 23,
+     "y": 14
+    },
+    "s2p3": {
+     "x": 8,
+     "y": 14
+    },
+    "s2p8": {
+     "x": -23,
+     "y": -6
+    },
+    "s2p9": {
+     "x": -12,
+     "y": -6
+    },
+    "s2p10": {
+     "x": -12,
+     "y": 6
+    },
+    "s2p11": {
+     "x": -23,
+     "y": 6
+    }
+   },
+   "scalars": {},
+   "entities": {
+    "s2e4": {
+     "id": "s2e4",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p0",
+     "p2": "s2p1"
+    },
+    "s2e5": {
+     "id": "s2e5",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p1",
+     "p2": "s2p2"
+    },
+    "s2e6": {
+     "id": "s2e6",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p2",
+     "p2": "s2p3"
+    },
+    "s2e7": {
+     "id": "s2e7",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p3",
+     "p2": "s2p0"
+    },
+    "s2e12": {
+     "id": "s2e12",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p8",
+     "p2": "s2p9"
+    },
+    "s2e13": {
+     "id": "s2e13",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p9",
+     "p2": "s2p10"
+    },
+    "s2e14": {
+     "id": "s2e14",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p10",
+     "p2": "s2p11"
+    },
+    "s2e15": {
+     "id": "s2e15",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p11",
+     "p2": "s2p8"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s2e4",
+    "s2e5",
+    "s2e6",
+    "s2e7",
+    "s2e12",
+    "s2e13",
+    "s2e14",
+    "s2e15"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s2"
+  }
+ },
+ "features": [
+  {
+   "id": "ks1",
+   "type": "sketch",
+   "name": "Sketch1",
+   "sketchId": "s1",
+   "suppressed": false
+  },
+  {
+   "id": "f2",
+   "type": "extrude",
+   "name": "Print",
+   "sketchId": "s1",
+   "suppressed": false,
+   "op": "boss",
+   "end": "blind",
+   "depth": 1.6,
+   "reverse": false
+  },
+  {
+   "id": "ks2",
+   "type": "sketch",
+   "name": "Sketch2",
+   "sketchId": "s2",
+   "suppressed": false
+  },
+  {
+   "id": "f4",
+   "type": "extrude",
+   "name": "Klemmen",
+   "sketchId": "s2",
+   "suppressed": false,
+   "op": "boss",
+   "end": "blind",
+   "depth": 10,
+   "reverse": false
+  }
+ ],
+ "material": {
+  "name": "FR4",
+  "density": 1850,
+  "color": "#2f7d4a"
+ }
+}

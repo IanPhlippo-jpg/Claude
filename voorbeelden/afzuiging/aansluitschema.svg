@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 640" font-family="Segoe UI, Arial, sans-serif" font-size="14">
+  <title>Aansluitschema afzuiging Lush Beauty</title>
+  <rect width="1100" height="640" fill="#ffffff"/>
+  <style>
+    .blok { fill: #f6f3ee; stroke: #5e4040; stroke-width: 2; rx: 8; }
+    .kop { font-weight: 700; font-size: 16px; fill: #3b2a2a; }
+    .klein { font-size: 12px; fill: #555; }
+    .p12 { stroke: #d33; stroke-width: 3; fill: none; }
+    .gnd { stroke: #222; stroke-width: 3; fill: none; }
+    .pwm { stroke: #2a6fd6; stroke-width: 3; fill: none; }
+    .tacho { stroke: #2d9d4b; stroke-width: 3; fill: none; }
+    .dot { fill: #222; }
+  </style>
+
+  <!-- adapter -->
+  <rect class="blok" x="30" y="60" width="200" height="110"/>
+  <text class="kop" x="45" y="88">Netadapter 12 V</text>
+  <text x="45" y="110">Mean Well GST25E12-P1J</text>
+  <text class="klein" x="45" y="130">12 V / 2,08 A, plug 5,5 x 2,1 mm</text>
+  <text class="klein" x="45" y="150">230 V blijft buiten het bureau</text>
+
+  <!-- elektronicabox -->
+  <rect class="blok" x="300" y="40" width="420" height="440"/>
+  <text class="kop" x="315" y="66">Elektronicabox: interfaceprint</text>
+  <text class="klein" x="315" y="86">gaatjesprint 50 x 30 mm</text>
+  <text x="315" y="118">DC-bus 5,5 x 2,1</text>
+  <text x="315" y="148">F1 polyfuse 1 A</text>
+  <text x="315" y="178">C1 100 µF / 25 V tussen +12 V en GND</text>
+  <text x="315" y="236">Q1 BC547 (NPN)</text>
+  <text class="klein" x="315" y="256">basis via R1 1 kΩ naar G2, R2 10 kΩ basis naar GND</text>
+  <text class="klein" x="315" y="274">collector naar PWM (blauw), emitter naar GND</text>
+  <text x="315" y="320">R3 1 kΩ in serie in de tachodraad</text>
+  <text class="klein" x="315" y="340">pull-up: de interne van de ESP32 (3,3 V)</text>
+  <text x="315" y="392">Schroefklemmen: ventilator (4), dial (2 + 3)</text>
+  <text class="klein" x="315" y="412">de 5V-draad van de Grove-kabel blijft los</text>
+  <text class="klein" x="315" y="452">GND van adapter, ventilator en dial zit samen</text>
+
+  <!-- ventilator -->
+  <rect class="blok" x="800" y="40" width="270" height="200"/>
+  <text class="kop" x="815" y="66">Ventilator 120 mm</text>
+  <text x="815" y="88">Noctua NF-F12 iPPC-3000 PWM</text>
+  <text class="klein" x="815" y="108">12 V, max 3,6 W, 186,7 m³/h, stopt bij 0 % PWM</text>
+  <text x="815" y="140">1 zwart  GND</text>
+  <text x="815" y="164">2 geel   +12 V</text>
+  <text x="815" y="188">3 groen  toerental (2 pulsen per toer)</text>
+  <text x="815" y="212">4 blauw  PWM 25 kHz</text>
+
+  <!-- dial -->
+  <rect class="blok" x="800" y="290" width="270" height="250"/>
+  <text class="kop" x="815" y="316">M5Stack Dial (ESP32-S3)</text>
+  <text class="klein" x="815" y="336">in de dialhouder in het blad</text>
+  <text x="815" y="368">Schroefklem achteraan:</text>
+  <text x="830" y="390">+  12 V   (6 tot 36 V)</text>
+  <text x="830" y="412">-  GND</text>
+  <text x="815" y="446">Port B (Grove-kabel):</text>
+  <text x="830" y="468">zwart GND</text>
+  <text x="830" y="490">geel  G2  -&gt; PWM</text>
+  <text x="830" y="512">wit   G1  &lt;- toerental</text>
+  <text class="klein" x="830" y="532">rood 5 V: niet aansluiten</text>
+
+  <!-- draden -->
+  <path class="p12" d="M230 95 H300"/>
+  <path class="gnd" d="M230 125 H300"/>
+  <text class="klein" x="238" y="88">+12 V</text>
+  <text class="klein" x="238" y="142">GND</text>
+
+  <path class="p12" d="M720 164 H800"/>
+  <path class="gnd" d="M720 140 H800"/>
+  <path class="tacho" d="M720 188 H800"/>
+  <path class="pwm" d="M720 212 H800"/>
+
+  <path class="p12" d="M720 390 H800"/>
+  <path class="gnd" d="M720 412 H800"/>
+  <path class="gnd" d="M720 468 H760 V470 H800"/>
+  <path class="pwm" d="M720 490 H800"/>
+  <path class="tacho" d="M720 512 H800"/>
+
+  <!-- legende -->
+  <g transform="translate(30 540)">
+    <text class="kop" x="0" y="0">Legende</text>
+    <path class="p12" d="M0 24 H40"/><text x="50" y="29">+12 V</text>
+    <path class="gnd" d="M130 24 H170"/><text x="180" y="29">GND</text>
+    <path class="pwm" d="M250 24 H290"/><text x="300" y="29">PWM (G2 via Q1)</text>
+    <path class="tacho" d="M450 24 H490"/><text x="500" y="29">toerental (G1)</text>
+    <text class="klein" x="0" y="64">Q1 keert het signaal om: G2 hoog trekt de PWM-draad laag. De firmware rekent dat om (0 % = G2 altijd hoog).</text>
+  </g>
+</svg>

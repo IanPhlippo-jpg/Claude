@@ -1,11 +1,14 @@
 // Schrijft het bureau van de foto (2026-11-05) als Phlippo CAD-documenten, met de maten van IKEA:
-// LAGKAPTEN-tafelblad 1400 x 600 x 34 mm op twee ALEX-ladekasten 360 x 580 x 700 mm (samen 734 mm hoog).
+// LAGKAPTEN-tafelblad 1400 x 600 x 34 mm op twee ALEX-ladekasten 360 x 580 x 700 mm (samen 734 mm hoog),
+// met in het blad de ingebouwde nagelstofafzuiging en haar draaiknop (voorbeelden/afzuiging).
 // Elke ladekast heeft vijf lades die op geleiders lopen: een lade rust met haar loopregels op de geleiders van de kast
 // (Coincident), staat in het midden (Coincident op het Right Plane) en schuift tussen dicht en open (Distance-limiet).
 // Gebruik: node voorbeelden/bureau/maak-bureau.mjs
 import { existsSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { Onderdeel, TOP } from '../lib/schets.mjs';
+import { afzuigingComponenten, bladUitsparingen } from '../afzuiging/maak-afzuiging.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 
@@ -59,8 +62,12 @@ export const korpusVoor = () => MATEN.kast.diepte / 2 - MATEN.kast.front;
 export function tafelblad() {
   const { breedte: b, diepte: d, dikte: t } = MATEN.blad;
   // Top Plane: schets-x = X, schets-y = -Z; uitgetrokken naar boven (+Y)
-  const s1 = rechthoekSchets('s1', 'Sketch1', 'top', [[-b / 2, -d / 2, b / 2, d / 2]]);
-  return deel('LAGKAPTEN tafelblad', WIT, { s1 }, [schetsFeature(1), extrude('f1', 'Boss-Extrude1', 1, 'boss', t, false)]);
+  const o = new Onderdeel('LAGKAPTEN tafelblad', WIT);
+  o.schets(TOP, (s) => s.rrect(-b / 2, -d / 2, b / 2, d / 2));
+  o.extrude('boss', t);
+  // de uitsparingen voor de ingebouwde afzuiging en de draaiknop (voorbeelden/afzuiging), te frezen met een frees Ø10
+  bladUitsparingen(o);
+  return o.doc();
 }
 
 /** het korpus van de ALEX-ladekast met de geleiders; oorsprong onder in het midden, de lades komen aan +Z */
@@ -152,6 +159,10 @@ export function bureau() {
     }
   });
   components.push(comp('t1', 'LAGKAPTEN tafelblad<1>', tafelblad(), [0, k.hoogte, 0], true));
+  // de ingebouwde afzuiging: oorsprong van de module op het bovenvlak van het blad, in het midden
+  const afz = afzuigingComponenten([0, k.hoogte + blad.dikte, 0], 'a');
+  components.push(...afz.components);
+  mates.push(...afz.mates);
   return { format: 'phlippo-cad', version: 1, name: 'Bureau', units: 'mm', sketches: {}, features: [], planes: {}, variables: {}, equations: [], kind: 'assembly', components, mates };
 }
 

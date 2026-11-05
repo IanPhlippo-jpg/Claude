@@ -1,0 +1,324 @@
+{
+ "format": "phlippo-cad",
+ "version": 1,
+ "name": "Ventilatorplaat",
+ "units": "mm",
+ "planes": {
+  "plaat": {
+   "id": "plaat",
+   "name": "Plane ventilatorplaat",
+   "origin": [
+    0,
+    -100,
+    0
+   ],
+   "u": [
+    1,
+    0,
+    0
+   ],
+   "v": [
+    0,
+    0,
+    -1
+   ],
+   "n": [
+    0,
+    1,
+    0
+   ],
+   "kind": "reference"
+  }
+ },
+ "variables": {},
+ "equations": [],
+ "sketches": {
+  "s1": {
+   "id": "s1",
+   "name": "Sketch1",
+   "plane": "plaat",
+   "points": {
+    "origin_s1": {
+     "x": 0,
+     "y": 0
+    },
+    "s1p0": {
+     "x": -93,
+     "y": -69
+    },
+    "s1p1": {
+     "x": 93,
+     "y": -69
+    },
+    "s1p2": {
+     "x": 97,
+     "y": -65
+    },
+    "s1p3": {
+     "x": 97,
+     "y": 65
+    },
+    "s1p4": {
+     "x": 93,
+     "y": 69
+    },
+    "s1p5": {
+     "x": -93,
+     "y": 69
+    },
+    "s1p6": {
+     "x": -97,
+     "y": 65
+    },
+    "s1p7": {
+     "x": -97,
+     "y": -65
+    },
+    "s1p8": {
+     "x": 93,
+     "y": -65
+    },
+    "s1p9": {
+     "x": 93,
+     "y": 65
+    },
+    "s1p10": {
+     "x": -93,
+     "y": 65
+    },
+    "s1p11": {
+     "x": -93,
+     "y": -65
+    },
+    "s1p21": {
+     "x": 0,
+     "y": 0
+    },
+    "s1p24": {
+     "x": 52.5,
+     "y": 52.5
+    },
+    "s1p27": {
+     "x": 88.75,
+     "y": 60
+    },
+    "s1p30": {
+     "x": 52.5,
+     "y": -52.5
+    },
+    "s1p33": {
+     "x": 88.75,
+     "y": -60
+    },
+    "s1p36": {
+     "x": -52.5,
+     "y": 52.5
+    },
+    "s1p39": {
+     "x": -88.75,
+     "y": 60
+    },
+    "s1p42": {
+     "x": -52.5,
+     "y": -52.5
+    },
+    "s1p45": {
+     "x": -88.75,
+     "y": -60
+    }
+   },
+   "scalars": {
+    "s1s12": 4,
+    "s1s22": 58,
+    "s1s25": 2.25,
+    "s1s28": 1.7,
+    "s1s31": 2.25,
+    "s1s34": 1.7,
+    "s1s37": 2.25,
+    "s1s40": 1.7,
+    "s1s43": 2.25,
+    "s1s46": 1.7
+   },
+   "entities": {
+    "s1e13": {
+     "id": "s1e13",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p0",
+     "p2": "s1p1"
+    },
+    "s1e14": {
+     "id": "s1e14",
+     "construction": false,
+     "kind": "arc",
+     "center": "s1p8",
+     "start": "s1p1",
+     "end": "s1p2",
+     "r": "s1s12",
+     "ccw": true
+    },
+    "s1e15": {
+     "id": "s1e15",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p2",
+     "p2": "s1p3"
+    },
+    "s1e16": {
+     "id": "s1e16",
+     "construction": false,
+     "kind": "arc",
+     "center": "s1p9",
+     "start": "s1p3",
+     "end": "s1p4",
+     "r": "s1s12",
+     "ccw": true
+    },
+    "s1e17": {
+     "id": "s1e17",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p4",
+     "p2": "s1p5"
+    },
+    "s1e18": {
+     "id": "s1e18",
+     "construction": false,
+     "kind": "arc",
+     "center": "s1p10",
+     "start": "s1p5",
+     "end": "s1p6",
+     "r": "s1s12",
+     "ccw": true
+    },
+    "s1e19": {
+     "id": "s1e19",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p6",
+     "p2": "s1p7"
+    },
+    "s1e20": {
+     "id": "s1e20",
+     "construction": false,
+     "kind": "arc",
+     "center": "s1p11",
+     "start": "s1p7",
+     "end": "s1p0",
+     "r": "s1s12",
+     "ccw": true
+    },
+    "s1e23": {
+     "id": "s1e23",
+     "construction": false,
+     "kind": "circle",
+     "center": "s1p21",
+     "r": "s1s22"
+    },
+    "s1e26": {
+     "id": "s1e26",
+     "construction": false,
+     "kind": "circle",
+     "center": "s1p24",
+     "r": "s1s25"
+    },
+    "s1e29": {
+     "id": "s1e29",
+     "construction": false,
+     "kind": "circle",
+     "center": "s1p27",
+     "r": "s1s28"
+    },
+    "s1e32": {
+     "id": "s1e32",
+     "construction": false,
+     "kind": "circle",
+     "center": "s1p30",
+     "r": "s1s31"
+    },
+    "s1e35": {
+     "id": "s1e35",
+     "construction": false,
+     "kind": "circle",
+     "center": "s1p33",
+     "r": "s1s34"
+    },
+    "s1e38": {
+     "id": "s1e38",
+     "construction": false,
+     "kind": "circle",
+     "center": "s1p36",
+     "r": "s1s37"
+    },
+    "s1e41": {
+     "id": "s1e41",
+     "construction": false,
+     "kind": "circle",
+     "center": "s1p39",
+     "r": "s1s40"
+    },
+    "s1e44": {
+     "id": "s1e44",
+     "construction": false,
+     "kind": "circle",
+     "center": "s1p42",
+     "r": "s1s43"
+    },
+    "s1e47": {
+     "id": "s1e47",
+     "construction": false,
+     "kind": "circle",
+     "center": "s1p45",
+     "r": "s1s46"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s1e13",
+    "s1e14",
+    "s1e15",
+    "s1e16",
+    "s1e17",
+    "s1e18",
+    "s1e19",
+    "s1e20",
+    "s1e23",
+    "s1e26",
+    "s1e29",
+    "s1e32",
+    "s1e35",
+    "s1e38",
+    "s1e41",
+    "s1e44",
+    "s1e47"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s1"
+  }
+ },
+ "features": [
+  {
+   "id": "ks1",
+   "type": "sketch",
+   "name": "Sketch1",
+   "sketchId": "s1",
+   "suppressed": false
+  },
+  {
+   "id": "f2",
+   "type": "extrude",
+   "name": "Plaat",
+   "sketchId": "s1",
+   "suppressed": false,
+   "op": "boss",
+   "end": "blind",
+   "depth": 3,
+   "reverse": true
+  }
+ ],
+ "material": {
+  "name": "PLA, wit",
+  "density": 1240,
+  "color": "#f4f4f1"
+ }
+}

@@ -1,0 +1,129 @@
+{
+ "format": "phlippo-cad",
+ "version": 1,
+ "name": "Filtermat G4",
+ "units": "mm",
+ "planes": {
+  "mat": {
+   "id": "mat",
+   "name": "Plane mat",
+   "origin": [
+    0,
+    -78,
+    0
+   ],
+   "u": [
+    1,
+    0,
+    0
+   ],
+   "v": [
+    0,
+    0,
+    -1
+   ],
+   "n": [
+    0,
+    1,
+    0
+   ],
+   "kind": "reference"
+  }
+ },
+ "variables": {},
+ "equations": [],
+ "sketches": {
+  "s1": {
+   "id": "s1",
+   "name": "Sketch1",
+   "plane": "mat",
+   "points": {
+    "origin_s1": {
+     "x": 0,
+     "y": 0
+    },
+    "s1p0": {
+     "x": -88.8,
+     "y": -62.8
+    },
+    "s1p1": {
+     "x": 88.8,
+     "y": -62.8
+    },
+    "s1p2": {
+     "x": 88.8,
+     "y": 62.3
+    },
+    "s1p3": {
+     "x": -88.8,
+     "y": 62.3
+    }
+   },
+   "scalars": {},
+   "entities": {
+    "s1e4": {
+     "id": "s1e4",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p0",
+     "p2": "s1p1"
+    },
+    "s1e5": {
+     "id": "s1e5",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p1",
+     "p2": "s1p2"
+    },
+    "s1e6": {
+     "id": "s1e6",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p2",
+     "p2": "s1p3"
+    },
+    "s1e7": {
+     "id": "s1e7",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p3",
+     "p2": "s1p0"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s1e4",
+    "s1e5",
+    "s1e6",
+    "s1e7"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s1"
+  }
+ },
+ "features": [
+  {
+   "id": "ks1",
+   "type": "sketch",
+   "name": "Sketch1",
+   "sketchId": "s1",
+   "suppressed": false
+  },
+  {
+   "id": "f2",
+   "type": "extrude",
+   "name": "Mat",
+   "sketchId": "s1",
+   "suppressed": false,
+   "op": "boss",
+   "end": "blind",
+   "depth": 10,
+   "reverse": false
+  }
+ ],
+ "material": {
+  "name": "Filtermat G4",
+  "density": 60,
+  "color": "#ebe8df"
+ }
+}
