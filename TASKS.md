@@ -984,3 +984,9 @@ elease; README en docs/04 bijgewerkt
 - [x] Firmware: één PlatformIO-project met twee omgevingen (knop en module), ESP-NOW tussen beide; compileren
 - [x] Schema, stuklijst, README en bestellijst (USB-C-kabel 0,5 m haaks, ESP32-C3 SuperMini, regelaar 1 A)
 - [x] Tests (72/72 groen), screenshots, app openen, commit en push
+
+## Afzuiging v4.2: alles printbaar zonder support (2026-11-06)
+- [x] Tuitje drukmeter: geen hangend tuitje meer maar een bus bovenop het plafond met een messingbuisje Ø3 erin
+- [x] Filtercassette in twee delen: bak rechtop (roosterbodem op het bed) en een vlakke rand met kraag die erop gelijmd wordt
+- [x] Tests (luchtdicht met rand, cassette uittillen, botsingen, STL-standen), printgewicht per deel
+- [x] README (printtabel, bestellijst messingbuisje, montage), screenshots, commit en push

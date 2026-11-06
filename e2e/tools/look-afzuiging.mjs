@@ -35,7 +35,7 @@ await page.evaluate(() => window.__phlippoStore.setState({ sectionView: null }))
 const uit = lees('voorbeelden/afzuiging/Afzuiging.kcad');
 for (const c of uit.components) {
   if (c.id === 'a2') c.position = [0, 140, 0];
-  if (c.id === 'a3' || /^af\d/.test(c.id)) c.position = [0, 70, 0];
+  if (c.id === 'a3' || c.id === 'a3r' || /^af\d/.test(c.id)) c.position = [0, 70, 0];
 }
 await open(uit);
 await kijk('Control+7', 'afzuiging-cassette-uit');

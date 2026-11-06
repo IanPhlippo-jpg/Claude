@@ -211,7 +211,7 @@ function blad4() {
   i.push(L([[180, y3], [180, by + 30], [bx, by + 30]], { kleur: '#7c3aed', w: 0.45 }), punt(180, y3));
   i.push(L([[bx + 62, by + 66], [262, by + 66], [262, ym]], { w: 0.45 }), punt(262, ym));
   const poort = (y, tekst1, tekst2) => [L([[bx + 62, y], [bx + 74, y]], { w: 1.4, kleur: '#9aa0a6', streep: '3 2' }), `<circle cx="${bx + 75.5}" cy="${y}" r="1.5" fill="#fff" stroke="#9aa0a6" stroke-width="0.6"/>`, T(bx + 3, y - 1, tekst1, { size: 2.2, kleur: '#555' }), T(bx + 3, y + 2.6, tekst2, { size: 2.2, kleur: '#555' })].join('');
-  i.push(poort(by + 22, 'poort "+": open in het vak', '(kamerdruk)'), poort(by + 44, 'poort "-": slang naar het tuitje', 'in het plafond (onder de filters)'));
+  i.push(poort(by + 22, 'poort "+": open in het vak', '(kamerdruk)'), poort(by + 44, 'poort "-": slang naar het messingbuisje', 'in het plafond (onder de filters)'));
   // USB-C-koppeling naar de knop: -X8 in de module, kabel -W1, -X7 in de knophouder, knop -A1
   const xu = 290, yu = 150;
   i.push(rect(xu, yu, 22, 40, { w2: 0.45 }), T(xu + 11, yu - 3, '-X8', { anchor: 'middle', size: 2.8, bold: true }), T(xu + 11, yu + 46, 'USB-C-bus', { anchor: 'middle', size: 2.2, kleur: '#555' }), T(xu + 11, yu + 49.5, 'in de bodemplaat', { anchor: 'middle', size: 2.2, kleur: '#555' }));

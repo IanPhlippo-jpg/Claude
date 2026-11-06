@@ -79,12 +79,12 @@
    ],
    "kind": "reference"
   },
-  "ondplafond": {
-   "id": "ondplafond",
-   "name": "Plane onder het plafond",
+  "bovplafond": {
+   "id": "bovplafond",
+   "name": "Plane boven het plafond",
    "origin": [
     0,
-    -42.5,
+    -41,
     0
    ],
    "u": [
@@ -104,12 +104,12 @@
    ],
    "kind": "reference"
   },
-  "bovplafond": {
-   "id": "bovplafond",
-   "name": "Plane boven het plafond",
+  "busplafond": {
+   "id": "busplafond",
+   "name": "Plane bovenkant bus",
    "origin": [
     0,
-    -40,
+    -38,
     0
    ],
    "u": [
@@ -1114,7 +1114,7 @@
   "s6": {
    "id": "s6",
    "name": "Sketch6",
-   "plane": "ondplafond",
+   "plane": "bovplafond",
    "points": {
     "origin_s6": {
      "x": 0,
@@ -1126,7 +1126,7 @@
     }
    },
    "scalars": {
-    "s6s1": 2.2
+    "s6s1": 3
    },
    "entities": {
     "s6e2": {
@@ -1147,7 +1147,7 @@
   "s7": {
    "id": "s7",
    "name": "Sketch7",
-   "plane": "bovplafond",
+   "plane": "busplafond",
    "points": {
     "origin_s7": {
      "x": 0,
@@ -1159,7 +1159,7 @@
     }
    },
    "scalars": {
-    "s7s1": 1.1
+    "s7s1": 1.55
    },
    "entities": {
     "s7e2": {
@@ -3140,13 +3140,13 @@
   {
    "id": "f12",
    "type": "extrude",
-   "name": "Tuitje drukmeter",
+   "name": "Bus messingbuisje",
    "sketchId": "s6",
    "suppressed": false,
    "op": "boss",
    "end": "blind",
-   "depth": 7,
-   "reverse": true,
+   "depth": 3,
+   "reverse": false,
    "direction2": {
     "end": "blind",
     "depth": 0.5
@@ -3162,12 +3162,12 @@
   {
    "id": "f14",
    "type": "extrude",
-   "name": "Gat tuitje",
+   "name": "Gat messingbuisje",
    "sketchId": "s7",
    "suppressed": false,
    "op": "cut",
    "end": "blind",
-   "depth": 10.5,
+   "depth": 5.5,
    "reverse": true
   },
   {

@@ -98,7 +98,7 @@ describe('afzuiging, assemblage', () => {
   it('de filtercassette gaat met de filters vrij naar boven uit de module (zonder rooster)', () => {
     const a = asm();
     const zonder = a.components.filter((c) => c.id !== 'a2');
-    for (const dy of [10, 60]) expect(botsingen(verschuif(zonder, ['a3', 'af1', 'af2', 'af3'], [0, dy, 0])), String(dy)).toEqual([]);
+    for (const dy of [10, 60]) expect(botsingen(verschuif(zonder, ['a3', 'a3r', 'af1', 'af2', 'af3'], [0, dy, 0])), String(dy)).toEqual([]);
   }, 900000);
 
   it('de klauwen passen bij elke bladdikte van 10 tot 50 mm en reiken voorbij de uitsparing', () => {
@@ -206,7 +206,7 @@ describe('afzuiging, luchtdicht', () => {
   const g = (f: string) => (rebuildDocument(open(f)) as unknown as R).bodies[0].geometry;
   // het slangetje op het tuitje (naar de drukmeter) en de tule in de doorvoer van de ventilatorkabel
   const dicht = [
-    new THREE.CylinderGeometry(1.3, 1.3, 12, 16).translate(-72, -44, -50),
+    new THREE.CylinderGeometry(1.6, 1.6, 12, 16).translate(-72, -44, -50), // messingbuisje met de slang erop
     new THREE.CylinderGeometry(3.2, 3.2, 4, 24).rotateZ(Math.PI / 2).translate(-61.25, -70, 50),
     // de M5-schroeven: de kop dicht de verzinking in het frame af, de schacht het gat
     ...[[88.5, 40], [88.5, -40], [-88.5, 40], [-88.5, -40]].flatMap(([x, z]) => [
@@ -215,17 +215,17 @@ describe('afzuiging, luchtdicht', () => {
     ]),
   ];
   it('lucht kan alleen langs het rooster in en langs de bodemplaat uit', () => {
-    const r = lek([g('Romp.kcad'), g('Bovenframe.kcad'), g('Filtercassette.kcad'), ...dicht]);
+    const r = lek([g('Romp.kcad'), g('Bovenframe.kcad'), g('Filtercassette.kcad'), g('Cassetterand.kcad'), ...dicht]);
     expect(r.lek, JSON.stringify(r.waar)).toBe(false);
     expect(r.vrij).toBeGreaterThan(400000);
   }, 180000);
   it('tegenproef: zonder slangetje lekt het langs het tuitje het elektronicavak in', () => {
-    const r = lek([g('Romp.kcad'), g('Bovenframe.kcad'), g('Filtercassette.kcad'), dicht[1]]);
+    const r = lek([g('Romp.kcad'), g('Bovenframe.kcad'), g('Filtercassette.kcad'), g('Cassetterand.kcad'), dicht[1]]);
     expect(r.lek).toBe(true);
     expect(r.waar![0]).toBeLessThan(-62.5);
   }, 180000);
   it('tegenproef: zonder tule lekt het langs de doorvoer van de ventilatorkabel het elektronicavak in', () => {
-    const r = lek([g('Romp.kcad'), g('Bovenframe.kcad'), g('Filtercassette.kcad'), dicht[0], ...dicht.slice(2)]);
+    const r = lek([g('Romp.kcad'), g('Bovenframe.kcad'), g('Filtercassette.kcad'), g('Cassetterand.kcad'), dicht[0], ...dicht.slice(2)]);
     expect(r.lek).toBe(true);
     expect(r.waar![0]).toBeLessThan(-60);
   }, 180000);
@@ -250,7 +250,7 @@ describe('afzuiging, B-rep', () => {
   }, 300000);
 
   // AFZUIGING_STL=1 npx vitest run src/qa/qaAfzuiging.test.ts: de STL's voor de printer, uit de exacte vorm, in printstand
-  // (Z omhoog): de romp rechtop, het frame en de platen plat, de cassette en de knophouder met de rand op het bed.
+  // (Z omhoog): de romp en de bak van de cassette rechtop, het frame, de rand en de platen plat, de knophouder met de plaat op het bed.
   it.skipIf(!process.env.AFZUIGING_STL)('STL voor de printer', async () => {
     const { mkdirSync, writeFileSync, rmSync, existsSync } = await import('node:fs');
     const { prepareTriangles, stlBinary } = await import('../core/document/export3d');
@@ -258,7 +258,7 @@ describe('afzuiging, B-rep', () => {
     const rand = new THREE.Matrix4().set(1, 0, 0, 0, 0, 0, 1, 0, 0, -1, 0, 0, 0, 0, 0, 1); // (x, y, z) -> (x, z, -y)
     const stand: Record<string, THREE.Matrix4> = {
       'Romp.kcad': plat, 'Bovenframe.kcad': plat, 'Bodemplaat.kcad': plat,
-      'Filtercassette.kcad': rand, 'Knophouder.kcad': rand, 'Knopdeksel.kcad': plat,
+      'Filtercassette.kcad': plat, 'Cassetterand.kcad': plat, 'Knophouder.kcad': rand, 'Knopdeksel.kcad': plat,
     };
     if (existsSync(`${DIR}/print`)) rmSync(`${DIR}/print`, { recursive: true });
     mkdirSync(`${DIR}/print`, { recursive: true });

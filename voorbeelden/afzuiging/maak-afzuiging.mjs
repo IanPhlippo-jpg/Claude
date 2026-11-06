@@ -1,4 +1,4 @@
-// Ingebouwde nagelstofafzuiging voor het bureau (versie 4.1, 2026-11-06), als Phlippo CAD-documenten.
+// Ingebouwde nagelstofafzuiging voor het bureau (versie 4.2, 2026-11-06), als Phlippo CAD-documenten.
 //
 // Opbouw (van boven naar onder):
 // - RVS-plaat (AISI 430, magnetisch, lasergesneden, LB-monogram) ligt op het bovenframe en is er even groot als het:
@@ -43,7 +43,8 @@ export const M = {
   uitsparing: { b: 196, d: 140, r: 5 }, // te frezen in het blad
   klauw: { x: 88.5, z: 40, naaf: 6.5, arm: 18, breed: 8, dik: 4 }, // RVS 4 mm, M5-draad
   toren: { binnen: 79.5, top: -9, zwaai: -55, bodem: -61 }, // sleuf van top tot bodem, zwaaivenster onderaan
-  cassette: { x: 79, z: 62.5, rand: { x: 92.25, z: 66.75, dikte: 2.5 }, onder: -37, wand: 1.5, bodem: 2 },
+  // filtercassette in twee delen: de bak (rechtop geprint, de roosterbodem op het bed) en een vlakke rand die erop gelijmd wordt
+  cassette: { x: 79, z: 62.5, rand: { x: 92.25, z: 66.75, dikte: 2.5 }, onder: -37, wand: 2, bodem: 2 },
   richel: { x: 91, z: 63, dikte: 1.5 },
   lip: { x: 83, z: 6 }, // lippen van het bovenframe boven de torens, voor de kop van de M5-schroef // binnenrichel bovenaan de romp: de cassetterand rust er rondom op (geen omloop)
   filters: [
@@ -122,11 +123,12 @@ export function romp() {
   // bussen onderaan de tussenwand voor de bodemplaat
   o.schets(yv('onderkant', R.onder, 'reference', 'Plane onderkant'), (s) => bussenTussenwand().forEach(([x, z]) => s.rrectW([xw - 4.5, 0, z - 4], [V.binnen, 0, z + 4])));
   o.extrude('boss', 14, { naam: 'Bussen tussenwand' });
-  // tuitje in het plafond: de drukmeter meet de onderdruk onder de filters (slang 3 x 5 mm)
-  o.schets(yv('ondplafond', V.plafond - V.dikte, 'reference', 'Plane onder het plafond'), (s) => s.cirkelW([V.tuit.x, 0, V.tuit.z], 2.2));
-  o.extrude('boss', 7, { omkeren: true, terug: 0.5, naam: 'Tuitje drukmeter' });
-  o.schets(yv('bovplafond', V.plafond + 1, 'reference', 'Plane boven het plafond'), (s) => s.cirkelW([V.tuit.x, 0, V.tuit.z], 1.1));
-  o.extrude('cut', V.dikte + 9, { omkeren: true, naam: 'Gat tuitje' });
+  // meetpunt van de drukmeter in het plafond: een bus bovenop het plafond (staat op het plafond: geen support) met een
+  // messingbuisje Ø3 x 12 erin gelijmd; de slang 3 x 5 mm gaat er onderaan op
+  o.schets(yv('bovplafond', V.plafond, 'reference', 'Plane boven het plafond'), (s) => s.cirkelW([V.tuit.x, 0, V.tuit.z], 3));
+  o.extrude('boss', 3, { terug: 0.5, naam: 'Bus messingbuisje' });
+  o.schets(yv('busplafond', V.plafond + 3, 'reference', 'Plane bovenkant bus'), (s) => s.cirkelW([V.tuit.x, 0, V.tuit.z], 1.55));
+  o.extrude('cut', 3 + V.dikte + 1, { omkeren: true, naam: 'Gat messingbuisje' });
   // doorvoer voor de ventilatorkabel in de tussenwand (dichten met een tule of lijm)
   o.schets(vlak('tussenwand', 'Face tussenwand', [V.binnen, 0, 0], [1, 0, 0]), (s) => s.cirkelW([V.binnen, V.kabel.y, V.kabel.z], 3));
   o.extrude('cut', V.wand + 1, { omkeren: true, naam: 'Doorvoer ventilatorkabel' });
@@ -226,18 +228,16 @@ export function rooster() {
   return o.doc();
 }
 
-/** de filtercassette: rand (1,5 mm) op de torentoppen onder het rooster, bak in het kanaal; print met de rand op het
- *  bed; greepuitsparingen boven twee torens (eronder is het dicht: geen lucht langs de filters) */
+/** de bak van de filtercassette: rechtop geprint met de roosterbodem op het bed (geen bruggen), wanden van 2 mm; de
+ *  rand wordt erop gelijmd */
 export function cassette() {
   const { cassette: K } = M;
   const o = new Onderdeel('Filtercassette', PETG);
-  o.schets(yv('rand', 0, 'reference', 'Plane rand'), (s) => s.rrect(-K.rand.x, -K.rand.z, K.rand.x, K.rand.z, 2.75));
-  o.extrude('boss', K.rand.dikte, { naam: 'Rand' });
   o.schets(yv('rand', 0, 'reference', 'Plane rand'), (s) => s.rrect(-K.x, -K.z, K.x, K.z, 1.75));
-  o.extrude('boss', -K.onder, { omkeren: true, terug: 0.5, naam: 'Bak' });
+  o.extrude('boss', -K.onder, { omkeren: true, naam: 'Bak' });
   const xi = K.x - K.wand, zi = K.z - K.wand;
-  o.schets(yv('bovenvlak', K.rand.dikte), (s) => s.rrect(-xi, -zi, xi, zi));
-  o.extrude('cut', K.rand.dikte - K.onder - K.bodem, { omkeren: true, naam: 'Holte' });
+  o.schets(yv('bovenvlak', 0), (s) => s.rrect(-xi, -zi, xi, zi));
+  o.extrude('cut', -K.onder - K.bodem, { omkeren: true, naam: 'Holte' });
   o.schets(yv('bodem', K.onder + K.bodem), (s) => {
     const nx = 7, nz = 5, p = 21, c = 18;
     const x0 = -(nx * p - 3) / 2, z0 = -(nz * p - 3) / 2;
@@ -245,8 +245,18 @@ export function cassette() {
     for (let i = 0; i < nx; i++) for (let j = 0; j < nz; j++) s.rrectW([x0 + i * p, 0, z0 + j * p], [x0 + i * p + c, 0, z0 + j * p + c]);
   });
   o.extrude('cut', K.bodem + 1, { omkeren: true, naam: 'Roosterbodem' });
-  // uitsparingen voor de lippen van het frame (M5-koppen) en twee greepuitsparingen in de vrije hoek van een toren;
-  // eronder is de toren dicht en de rand rust er nog 3 mm breed op: geen lucht langs de filters
+  return o.doc();
+}
+
+/** de rand van de filtercassette (plat geprint, 2,5 mm): ligt op de torentoppen en de richel onder het rooster en is
+ *  over de hele wandbovenkant van de bak gelijmd (luchtdichte naad); uitsparingen voor de lippen van het frame
+ *  (M5-koppen) en twee greepuitsparingen in de vrije hoek van een toren (eronder is de toren dicht) */
+export function cassetterand() {
+  const { cassette: K } = M;
+  const o = new Onderdeel('Cassetterand', PETG);
+  const xi = K.x - K.wand, zi = K.z - K.wand;
+  o.schets(yv('rand', 0, 'reference', 'Plane rand'), (s) => { s.rrect(-K.rand.x, -K.rand.z, K.rand.x, K.rand.z, 2.75); s.rrect(-xi, -zi, xi, zi); });
+  o.extrude('boss', K.rand.dikte, { naam: 'Rand' });
   o.schets(yv('bovenvlak', K.rand.dikte), (s) => assen().forEach(([x, z]) => {
     const k = Math.sign(x);
     s.rrectW([k * (M.lip.x - 0.5), 0, z - M.lip.z - 0.5], [k * (K.rand.x + 1), 0, z + M.lip.z + 0.5]);
@@ -548,6 +558,14 @@ export function interfaceprint() {
   return o.doc();
 }
 
+/** messingbuisje Ø3 x 0,5 x 12 (meetpunt van de drukmeter); oorsprong bovenaan, buis langs -Y */
+export function messingbuisje() {
+  const o = new Onderdeel('Messingbuisje', { name: 'Messing', density: 8500, color: '#c9a64b' });
+  o.schets(TOP, (s) => { s.cirkel(0, 0, 1.5); s.cirkel(0, 0, 1); });
+  o.extrude('boss', 12, { omkeren: true, naam: 'Buis' });
+  return o.doc();
+}
+
 /** ESP32-C3 SuperMini (-A4, 22,5 x 18): staat in de rails tegen de linkerwand, onderdelen naar het vak, de USB-C
  *  onderaan (door de bodemplaat: de module flashen zonder iets los te maken) */
 export function esp32c3() {
@@ -610,6 +628,7 @@ export function afzuigingComponenten(o = [0, 0, 0], prefix = 'a', blad = M.blad)
     component(`${prefix}6`, 'Bovenframe<1>', bovenframe(), at([0, 0, 0])),
     component(`${prefix}2`, 'Rooster LB<1>', rooster(), at([0, 0, 0])),
     component(`${prefix}3`, 'Filtercassette<1>', cassette(), at([0, 0, 0])),
+    component(`${prefix}3r`, 'Cassetterand<1>', cassetterand(), at([0, 0, 0])),
     ...M.filters.map((f, i) => component(`${prefix}f${i + 1}`, `${f.naam}<1>`, filterlaag(i), at([0, 0, 0]))),
     component(`${prefix}4`, 'Bodemplaat<1>', uitblaasplaat(), at([0, 0, 0])),
     component(`${prefix}5`, 'Delta PFR1212UHE-SP00<1>', ventilator(), at([0, 0, 0])),
@@ -654,6 +673,7 @@ export function afzuigingComponenten(o = [0, 0, 0], prefix = 'a', blad = M.blad)
   comps.push(component(`${prefix}11`, 'Interfaceprint<1>', interfaceprint(), at([0, 0, 0])));
   comps.push(component(`${prefix}13`, 'Wipschakelaar KCD1-101<1>', schakelaar(), at([0, 0, 0])));
   comps.push(component(`${prefix}16`, 'ESP32-C3 SuperMini<1>', esp32c3(), at([0, 0, 0])));
+  comps.push(component(`${prefix}18`, 'Messingbuisje Ø3 x 12<1>', messingbuisje(), at([M.vak.tuit.x, M.vak.plafond + 3, M.vak.tuit.z])));
   comps.push(component(`${prefix}17`, 'USB-C-bus module<1>', usbBusModule(), at([0, 0, 0])));
   const m2 = schroefCilinder('M2 x 5 cilinderkop', 3.8, 1.6, 1.6, 5);
   const naarVoor = [-Math.SQRT1_2, 0, 0, Math.SQRT1_2]; // -90° om X: schacht naar +Z
@@ -688,6 +708,7 @@ export const ONDERDELEN = {
   'Bovenframe.kcad': bovenframe,
   'Rooster-LB.kcad': rooster,
   'Filtercassette.kcad': cassette,
+  'Cassetterand.kcad': cassetterand,
   'Voorfilter-G4.kcad': () => filterlaag(0),
   'Fijnstoffilter-M5.kcad': () => filterlaag(1),
   'Actieve-koolmat.kcad': () => filterlaag(2),
