@@ -160,7 +160,7 @@ Prijzen per stuk incl. 21 % btw, zonder verzendkosten: een indicatie van novembe
 | Filament PETG: 2 rollen wit en 1 rol zwart | € 60,00 |
 | **Eindtotaal** | **€ 555,78** |
 
-Het filament dat echt opgaat (ca. 1,2 kg) kost ongeveer € 24,00. De duurste posten zijn de ventilator (ongeveer de helft), de knop, de netadapter en de drukmeter. Een set nieuwe filters (G4 + M5 + kool, 170 x 190 mm) kost minder dan € 1,50.
+Het filament dat echt opgaat (ca. 1,2 kg) kost ongeveer € 24,00. Het duurste onderdeel is de ventilator (ca. € 160, bijna 30 % van het totaal), daarna het rooster (€ 45), de knop (€ 34), de netadapter (€ 33) en de drukmeter (€ 30). Een set nieuwe filters (G4 + M5 + kool, 170 x 190 mm) kost minder dan € 1,50.
 
 ## Maken en monteren
 
