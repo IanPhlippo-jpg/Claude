@@ -28,11 +28,11 @@ from shapely.ops import nearest_points, unary_union
 HERE = Path(__file__).resolve().parent
 OUT = HERE.parent / 'laser'
 
-BREEDTE, HOOGTE, HOEK = 206.0, 150.0, 4.0  # plaat (mm): even groot als het bovenframe, dat ze volledig bedekt
+BREEDTE, HOOGTE, HOEK = 222.0, 222.0, 6.0  # plaat (mm): even groot als het bovenframe, dat ze volledig bedekt
 DIKTE = 1.5
-RAND = 7.5  # rand zonder gaten
-CASSETTE = (77.5, 61.0)  # binnenmaat van de filtercassette (halve breedte, halve diepte): daar gaat de lucht door
-LOGO_HOOGTE = 60.0
+RAND = 11.0  # rand zonder gaten: de gaten liggen alleen boven de opening van het frame
+CASSETTE = (85.0, 95.0)  # binnenmaat van de filtercassette (halve breedte, halve diepte): daar gaat de lucht door
+LOGO_HOOGTE = 75.0
 BADGE_MARGE = 5.0  # vlak staal rond het logo
 MIN_STEG = 1.5
 SLEUF, STEG = 3.5, 3.0  # chevronsleuven en de stegen ertussen (loodrecht gemeten)

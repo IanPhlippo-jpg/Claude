@@ -1,11 +1,12 @@
 /**
- * De ingebouwde nagelstofafzuiging (voorbeelden/afzuiging, versie 3.2, 2026-11-05):
+ * De ingebouwde nagelstofafzuiging (voorbeelden/afzuiging, versie 5, 2026-11-06): radiale ventilator San Ace C175 in
+ * een vierkante romp, voedingsbox apart onder het blad.
  * - elk onderdeel bouwt op beide kernels tot één body met dezelfde vorm; het rooster is lasersnijbaar;
- * - de PETG-delen passen op een printbed van 220 x 220; de module hangt hoogstens 52 mm onder een blad van 34 mm;
- * - niets botst; de klauwen passen bij elke bladdikte van 10 tot 50 mm en liggen ingetrokken binnen de romp;
- * - de filtercassette gaat vrij naar boven uit de module;
- * - het luchtkanaal is dicht: lucht kan er alleen in langs het rooster en uit langs de uitblaasplaat, en het
- *   elektronicavak hoort niet bij het kanaal.
+ * - de PETG-delen passen op een printbed van 225 x 225 (de Centauri Carbon heeft 256 x 256); de module hangt
+ *   hoogstens 86 mm onder een blad van 34 mm;
+ * - niets botst (ook de voedingsbox); de klauwen passen bij elke bladdikte van 10 tot 50 mm en liggen ingetrokken
+ *   binnen de romp; de filtercassette gaat vrij naar boven uit de module;
+ * - het luchtkanaal is dicht: lucht kan er alleen in langs het rooster en uit langs de bodemplaat.
  */
 import { afterAll, describe, expect, it } from 'vitest';
 import { readFileSync, readdirSync } from 'node:fs';
@@ -42,28 +43,31 @@ describe('afzuiging, onderdelen (mesh)', () => {
     expect(mesh[f].n).toBe(1);
   }, 60000);
 
-  it('maten: romp, frame, rooster, klauw, ventilator; de module hangt hoogstens 52 mm onder een blad van 34 mm', () => {
-    expect(rond(mesh['Romp.kcad'].bb.min)).toEqual([-97, -79, -69]);
-    expect(rond(mesh['Romp.kcad'].bb.max)).toEqual([97, 0, 69]);
-    expect(rond(mesh['Bovenframe.kcad'].bb.min)).toEqual([-103, 0, -75]);
-    expect(rond(mesh['Bovenframe.kcad'].bb.max)).toEqual([103, 2.5, 75]);
+  it('maten: romp, frame, rooster, klauw, ventilator; de module hangt hoogstens 86 mm onder een blad van 34 mm', () => {
+    expect(rond(mesh['Romp.kcad'].bb.min)).toEqual([-105, -114, -105]);
+    expect(rond(mesh['Romp.kcad'].bb.max)).toEqual([105, 0, 105]);
+    expect(rond(mesh['Bovenframe.kcad'].bb.min)).toEqual([-111, 0, -111]);
+    expect(rond(mesh['Bovenframe.kcad'].bb.max)).toEqual([111, 2.5, 111]);
     // de RVS-plaat ligt op het frame en is er even groot als het: bovenkant 4 mm boven het blad
-    expect(rond(mesh['Rooster-LB.kcad'].bb.min)).toEqual([-103, 2.5, -75]);
-    expect(rond(mesh['Rooster-LB.kcad'].bb.max)).toEqual([103, 4, 75]);
+    expect(rond(mesh['Rooster-LB.kcad'].bb.min)).toEqual([-111, 2.5, -111]);
+    expect(rond(mesh['Rooster-LB.kcad'].bb.max)).toEqual([111, 4, 111]);
     expect(rond(mesh['Klauw.kcad'].bb.max)).toEqual([18, 4, 6.5]);
-    expect(rond(mesh['Ventilator-Delta-PFR1212UHE.kcad'].bb.min)).toEqual([-60, -79, -60]);
+    // de waaier staat 2 mm onder de instroomplaat, de motor op de bodemplaat
+    expect(rond(mesh['Ventilator-San-Ace-C175.kcad'].bb.min)).toEqual([-87.5, -114, -87.5]);
+    expect(rond(mesh['Ventilator-San-Ace-C175.kcad'].bb.max)).toEqual([87.5, -45, 87.5]);
+    expect(rond(mesh['Instroomplaat.kcad'].bb.min)).toEqual([-100.7, -43, -100.7]);
     const onder = mesh['Bodemplaat.kcad'].bb.min.y;
-    expect(rond(mesh['Bodemplaat.kcad'].bb.min)).toEqual([-97, -85, -69]); // één plaat over de hele onderkant
-    expect(rond(mesh['Bodemplaat.kcad'].bb.max)).toEqual([97, -79, 69]);
-    expect(-onder - 34).toBeLessThanOrEqual(52);
+    expect(rond(mesh['Bodemplaat.kcad'].bb.min)).toEqual([-105, -120, -105]); // één plaat over de hele onderkant
+    expect(rond(mesh['Bodemplaat.kcad'].bb.max)).toEqual([105, -114, 105]);
+    expect(-onder - 34).toBeLessThanOrEqual(86);
   });
 
-  it('PETG-delen passen op een printbed van 220 x 220 mm (en 250 hoog)', () => {
+  it('PETG-delen passen op een printbed van 225 x 225 mm (en 250 hoog)', () => {
     for (const f of DELEN) {
       const doc = open(f);
       if (!/^PETG/.test(doc.material?.name ?? '')) continue;
       const s = mesh[f].bb.getSize(new THREE.Vector3()).toArray().sort((a, b) => b - a);
-      expect(s[0], f).toBeLessThanOrEqual(220);
+      expect(s[0], f).toBeLessThanOrEqual(225);
       expect(s[2], f).toBeLessThanOrEqual(250);
     }
   });
@@ -77,7 +81,7 @@ describe('afzuiging, onderdelen (mesh)', () => {
     expect(L.rapport.stukken_staal).toBe(1);
     expect(L.rapport.stukken_staal_met_steg_onder_min).toBe(0);
     expect(L.rapport.sleuven_met_vernauwing_onder_min).toBe(0);
-    expect(L.rapport.open_boven_cassette_cm2).toBeGreaterThan(75);
+    expect(L.rapport.open_boven_cassette_cm2).toBeGreaterThan(135);
   });
 });
 
@@ -113,7 +117,7 @@ describe('afzuiging, assemblage', () => {
     for (const id of klauwen) {
       const g = r.bodies.find((b) => b.id === id)!.geometry;
       g.computeBoundingBox();
-      expect(Math.max(Math.abs(g.boundingBox!.min.x), Math.abs(g.boundingBox!.max.x)), id).toBeGreaterThan(104); // uitsparing tot 98
+      expect(Math.max(Math.abs(g.boundingBox!.min.x), Math.abs(g.boundingBox!.max.x)), id).toBeGreaterThan(112); // uitsparing tot 106
     }
   }, 900000);
 
@@ -148,19 +152,19 @@ describe('afzuiging, assemblage', () => {
     for (const b of r.bodies.filter((b) => /^ak/.test(b.id))) {
       b.geometry.computeBoundingBox();
       const bb = b.geometry.boundingBox!;
-      expect(Math.max(Math.abs(bb.min.x), Math.abs(bb.max.x)), b.id).toBeLessThan(97);
-      expect(Math.max(Math.abs(bb.min.z), Math.abs(bb.max.z)), b.id).toBeLessThan(69);
+      expect(Math.max(Math.abs(bb.min.x), Math.abs(bb.max.x)), b.id).toBeLessThan(105);
+      expect(Math.max(Math.abs(bb.min.z), Math.abs(bb.max.z)), b.id).toBeLessThan(105);
     }
   }, 180000);
 });
 
 /**
- * Luchtdicht: de onderdelen in kubusjes van 1 mm; vanuit de ruimte onder de filters vloeit de lucht naar alle buren
- * die geen materiaal zijn. Ze mag de buitenkant van de romp (|x| > 97,5 of |z| > 69,5) en het elektronicavak
- * (x < -62,5 onder het plafond) nergens bereiken. Boven stopt het bij het rooster, onder bij de uitblaasplaat.
+ * Luchtdicht: de onderdelen in kubusjes van 1 mm; vanuit de ruimte onder de filters (boven de instroomplaat) vloeit de
+ * lucht naar alle buren die geen materiaal zijn. Ze mag de buitenkant van de romp (|x| of |z| > 105,5) onder het blad
+ * nergens bereiken. Boven stopt het bij het rooster, onder bij de bodemplaat.
  */
 function lek(geoms: THREE.BufferGeometry[]): { lek: boolean; waar?: number[]; vrij: number } {
-  const X0 = -110, Z0 = -90, Y0 = -78.73, nx = 220, nz = 180, ny = 82, off = 0.27; // tot net onder de bovenkant van het frame
+  const X0 = -115, Z0 = -115, Y0 = -113.73, nx = 230, nz = 230, ny = 116, off = 0.27; // tot net onder de bovenkant van het frame
   const vast = new Uint8Array(nx * ny * nz);
   const idx = (i: number, j: number, k: number) => (j * nz + k) * nx + i;
   const ray = new THREE.Ray();
@@ -180,7 +184,7 @@ function lek(geoms: THREE.BufferGeometry[]): { lek: boolean; waar?: number[]; vr
     }
   }
   const zien = new Uint8Array(nx * ny * nz);
-  const start = idx(110, Math.round(-38 - Y0), 90); // (0, -38, 0): onder de filters, boven de ventilator
+  const start = idx(115, Math.round(-38.73 - Y0), 115); // (0, -38,7, 0): onder de filters, boven de instroomplaat
   if (vast[start]) throw new Error('startpunt zit in materiaal');
   const q = [start];
   zien[start] = 1;
@@ -190,8 +194,8 @@ function lek(geoms: THREE.BufferGeometry[]): { lek: boolean; waar?: number[]; vr
     vrij++;
     const i = c % nx, k = Math.floor(c / nx) % nz, j = Math.floor(c / (nx * nz));
     const x = X0 + i + off, y = Y0 + j, z = Z0 + k + off;
-    // boven het blad is alles binnen het frame inlaat; een lek is buiten de romp onder het blad of in het elektronicavak
-    if ((y < -0.5 && (Math.abs(x) > 97.5 || Math.abs(z) > 69.5)) || (x < -62.5 && y < -42.5)) return { lek: true, waar: [x, y, z], vrij };
+    // boven het blad is alles binnen het frame inlaat; een lek is buiten de romp onder het blad
+    if (y < -0.5 && (Math.abs(x) > 105.5 || Math.abs(z) > 105.5)) return { lek: true, waar: [x, y, z], vrij };
     for (const [di, dj, dk] of [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]]) {
       const a = i + di, b = j + dj, e = k + dk;
       if (a < 0 || a >= nx || b < 0 || b >= ny || e < 0 || e >= nz) continue;
@@ -204,31 +208,27 @@ function lek(geoms: THREE.BufferGeometry[]): { lek: boolean; waar?: number[]; vr
 
 describe('afzuiging, luchtdicht', () => {
   const g = (f: string) => (rebuildDocument(open(f)) as unknown as R).bodies[0].geometry;
-  // het slangetje op het tuitje (naar de drukmeter) en de tule in de doorvoer van de ventilatorkabel
+  // de M8-bus en het messingbuisje in de achterwand
   const dicht = [
-    new THREE.CylinderGeometry(1.6, 1.6, 12, 16).translate(-72, -44, -50), // messingbuisje met de slang erop
-    new THREE.CylinderGeometry(3.2, 3.2, 4, 24).rotateZ(Math.PI / 2).translate(-61.25, -70, 50),
+    new THREE.CylinderGeometry(6.6, 6.6, 6, 24).rotateX(Math.PI / 2).translate(-60, -95, -105), // M8-bus
+    new THREE.CylinderGeometry(1.8, 1.8, 8, 16).rotateX(Math.PI / 2).translate(-75, -100, -105), // messingbuisje
     // de M5-schroeven: de kop dicht de verzinking in het frame af, de schacht het gat
-    ...[[88.5, 40], [88.5, -40], [-88.5, 40], [-88.5, -40]].flatMap(([x, z]) => [
+    ...[[100.5, 72], [100.5, -72], [-100.5, 72], [-100.5, -72]].flatMap(([x, z]) => [
       new THREE.CylinderGeometry(5.3, 5.3, 2.5, 24).translate(x, 1.25, z), // de kop zit in de lip van het frame
       new THREE.CylinderGeometry(3, 3, 66, 16).translate(x, -33, z),
     ]),
   ];
+  const delen = () => [g('Romp.kcad'), g('Bovenframe.kcad'), g('Filtercassette.kcad'), g('Cassetterand.kcad'), g('Instroomplaat.kcad')];
   it('lucht kan alleen langs het rooster in en langs de bodemplaat uit', () => {
-    const r = lek([g('Romp.kcad'), g('Bovenframe.kcad'), g('Filtercassette.kcad'), g('Cassetterand.kcad'), ...dicht]);
+    const r = lek([...delen(), ...dicht]);
     expect(r.lek, JSON.stringify(r.waar)).toBe(false);
-    expect(r.vrij).toBeGreaterThan(400000);
-  }, 180000);
-  it('tegenproef: zonder slangetje lekt het langs het tuitje het elektronicavak in', () => {
-    const r = lek([g('Romp.kcad'), g('Bovenframe.kcad'), g('Filtercassette.kcad'), g('Cassetterand.kcad'), dicht[1]]);
+    expect(r.vrij).toBeGreaterThan(1000000);
+  }, 300000);
+  it('tegenproef: zonder de M8-bus lekt het door het gat in de achterwand', () => {
+    const r = lek([...delen(), ...dicht.slice(1)]);
     expect(r.lek).toBe(true);
-    expect(r.waar![0]).toBeLessThan(-62.5);
-  }, 180000);
-  it('tegenproef: zonder tule lekt het langs de doorvoer van de ventilatorkabel het elektronicavak in', () => {
-    const r = lek([g('Romp.kcad'), g('Bovenframe.kcad'), g('Filtercassette.kcad'), g('Cassetterand.kcad'), dicht[0], ...dicht.slice(2)]);
-    expect(r.lek).toBe(true);
-    expect(r.waar![0]).toBeLessThan(-60);
-  }, 180000);
+    expect(r.waar![2]).toBeLessThan(-105);
+  }, 300000);
 });
 
 describe('afzuiging, B-rep', () => {
@@ -257,7 +257,7 @@ describe('afzuiging, B-rep', () => {
     const plat = new THREE.Matrix4().set(1, 0, 0, 0, 0, 0, -1, 0, 0, 1, 0, 0, 0, 0, 0, 1); // (x, y, z) -> (x, -z, y)
     const rand = new THREE.Matrix4().set(1, 0, 0, 0, 0, 0, 1, 0, 0, -1, 0, 0, 0, 0, 0, 1); // (x, y, z) -> (x, z, -y)
     const stand: Record<string, THREE.Matrix4> = {
-      'Romp.kcad': plat, 'Bovenframe.kcad': plat, 'Bodemplaat.kcad': plat,
+      'Romp.kcad': plat, 'Bovenframe.kcad': plat, 'Bodemplaat.kcad': plat, 'Instroomplaat.kcad': plat, 'Voedingsbox.kcad': plat,
       'Filtercassette.kcad': plat, 'Cassetterand.kcad': plat, 'Knophouder.kcad': rand, 'Knopdeksel.kcad': plat,
     };
     if (existsSync(`${DIR}/print`)) rmSync(`${DIR}/print`, { recursive: true });
@@ -269,7 +269,7 @@ describe('afzuiging, B-rep', () => {
       writeFileSync(`${DIR}/print/${f.replace('.kcad', '.stl')}`, new Uint8Array(stlBinary(tris[0], f.replace('.kcad', ''))));
       geo.computeBoundingBox();
       const s = geo.boundingBox!.getSize(new THREE.Vector3());
-      expect(Math.max(s.x, s.y), f).toBeLessThanOrEqual(220);
+      expect(Math.max(s.x, s.y), f).toBeLessThanOrEqual(225);
     }
   }, 300000);
 });

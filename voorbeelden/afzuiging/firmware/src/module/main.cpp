@@ -1,18 +1,19 @@
-// Afzuiging Lush Beauty, module: een ESP32-C3 SuperMini in het elektronicavak stuurt de ventilator (Delta
-// PFR1212UHE-SP00, 12 V, 32 W, 300 Pa, PWM) en bewaakt de filters met een verschildrukmeter (Sensirion SDP810-500Pa)
-// over het filterpakket. De knop in het blad stuurt de opdrachten draadloos (ESP-NOW, zie protocol.h) en toont de
-// status die de module terugstuurt.
+// Afzuiging Lush Beauty, module: een ESP32-C3 SuperMini in de voedingsbox onder het blad stuurt de radiale
+// ventilator in de afzuiging (San Ace C175 9TG24P0S01, 24 V, 56 W, PWM 25 kHz: 0 % = stil) en bewaakt de filters
+// met een verschildrukmeter (Sensirion SDP810-500Pa, een slangetje naar de ruimte onder de filters). De knop in het
+// blad stuurt de opdrachten draadloos (ESP-NOW, zie protocol.h) en toont de status die de module terugstuurt.
 //
 // Filterbewaking: bij het ijken (op schone filters, gevraagd vanaf de knop) loopt de ventilator 20 -> 100 % en onthoudt
 // de module het drukverschil bij elke snelheid. Is het drukverschil bij dezelfde snelheid verdubbeld, dan zijn de
-// filters vol; valt het weg terwijl de ventilator hoort te draaien, dan is er een storing (ventilator of slang).
+// filters vol; valt het weg terwijl de ventilator hoort te draaien, dan is er een storing (slang of filters weg);
+// geeft de tacho geen toeren, dan draait de ventilator niet (kabel, stekker).
 //
 // Aansluiting (zie ../../schema/Aansluitschema-afzuiging.pdf):
 //   GPIO5 SDA, GPIO6 SCL -> SDP810 (adres 0x25, 3,3 V uit de 3V3-pin, pull-ups 4,7 kOhm naar 3,3 V)
-//   GPIO3 -> 1 kOhm -> basis Q1 (BC547); collector -> PWM-draad van de ventilator; emitter -> GND
-//   GPIO4 -> 1 kOhm -> basis Q2 (BC547) die de gate van Q3 (IRF4905, P-MOSFET) laag trekt: +12 V naar de ventilator.
-//            Gate 10 kOhm naar +12 V: zonder signaal (opstarten) staat de ventilator uit.
-//   5V-pin uit de regelaar D24V10F5 (L5), GND gemeenschappelijk.
+//   GPIO3 -> 1 kOhm -> basis Q1 (BC547); collector -> PWM-draad van de ventilator (bruin); emitter -> GND.
+//            Basis 10 kOhm naar 3,3 V: bij het opstarten geleidt Q1, de PWM-draad is laag, de ventilator staat stil.
+//   GPIO4 <- tacho van de ventilator (geel, open collector), 10 kOhm naar 3,3 V; 2 pulsen per omwenteling.
+//   5V-pin uit de regelaar D24V10F5 (L5), GND gemeenschappelijk; de ventilator op 24 V (L+) via de M8-kabel.
 // Q1 keert het PWM-signaal om: hoog op GPIO3 trekt de PWM-draad laag. De firmware rekent dat om.
 
 #include <Arduino.h>
@@ -30,7 +31,9 @@ using namespace afzuiging;
 
 constexpr int PIN_SDA = 5, PIN_SCL = 6;
 constexpr int PIN_PWM = 3;
-constexpr int PIN_AAN = 4; // voeding van de ventilator aan/uit (via Q2/Q3)
+constexpr int PIN_TACHO = 4;
+constexpr int PULSEN_PER_OMW = 2;
+constexpr uint16_t MIN_TOEREN = 300;    // lager terwijl hij hoort te draaien = de ventilator draait niet
 constexpr int PWM_KANAAL = 0;
 constexpr int PWM_FREQ = 25000; // Intel-specificatie voor 4-draads ventilatoren
 constexpr int PWM_BITS = 8;
@@ -57,6 +60,7 @@ float dp = NAN;
 float schoon[IJK_PUNTEN] = {0};
 uint32_t snelheidSinds = 0;
 int vorigDoel = -1;
+bool geenLucht = false, stil = false; // de twee soorten storing, apart bijgehouden
 
 // ijken (zonder te blokkeren)
 int ijkStap = 0; // 0 = niet aan het ijken
@@ -64,11 +68,13 @@ uint32_t ijkStart = 0;
 float ijkSom = 0;
 int ijkN = 0;
 
+volatile uint32_t tachoPulsen = 0;
+void IRAM_ATTR tachoIsr() { tachoPulsen++; }
+
 void zetPwm(int pct) {
-  // voeding uit bij 0 %; het PWM-signaal is omgekeerd door Q1 (0 % op de ventilator = GPIO altijd hoog)
-  digitalWrite(PIN_AAN, pct > 0 ? HIGH : LOW);
+  // het PWM-signaal is omgekeerd door Q1: 0 % op de ventilator (stil) = GPIO altijd hoog
   const int max = (1 << PWM_BITS) - 1;
-  ledcWrite(PWM_KANAAL, pct > 0 ? max - (pct * max) / 100 : 0);
+  ledcWrite(PWM_KANAAL, max - (constrain(pct, 0, 100) * max) / 100);
 }
 
 // ---- Sensirion SDP810: continu meten (gemiddeld tot uitlezen), 9 bytes met CRC-8 (polynoom 0x31, start 0xFF) ----
@@ -164,8 +170,9 @@ void ijkVerder(uint32_t nu, bool gemeten, float pa) {
 
 void setup() {
   // eerst de ventilator uit houden (de gate-weerstand doet dat al tot hier), dan de PWM
-  pinMode(PIN_AAN, OUTPUT);
-  digitalWrite(PIN_AAN, LOW);
+  // eerst de ventilator stil houden (de basisweerstand van Q1 doet dat al tot hier), dan de PWM
+  pinMode(PIN_TACHO, INPUT_PULLUP);
+  attachInterrupt(PIN_TACHO, tachoIsr, FALLING);
   ledcSetup(PWM_KANAAL, PWM_FREQ, PWM_BITS);
   ledcAttachPin(PIN_PWM, PWM_KANAAL);
   zetPwm(0);
@@ -232,9 +239,18 @@ void loop() {
     if (gemeten && status.geijkt && status.meter && stabiel && !isnan(dp)) {
       const float ref = schoonBij(doel);
       status.vol = constrain((dp / ref - 1.0f) / (VOL_FACTOR - 1.0f), 0.0f, 1.2f);
-      status.storing = dp < ref * STORING_FACTOR;
+      geenLucht = dp < ref * STORING_FACTOR;
     }
-    if (!opdracht.aan) status.storing = 0;
+    // het toerental (elke seconde) en of de ventilator draait als hij moet
+    static uint32_t vorigeTacho = 0, pulsenVorig = 0;
+    if (nu - vorigeTacho >= 1000) {
+      const uint32_t p = tachoPulsen;
+      status.toeren = (uint16_t)((p - pulsenVorig) * 60000UL / ((nu - vorigeTacho) * PULSEN_PER_OMW));
+      pulsenVorig = p;
+      vorigeTacho = nu;
+      stil = doel >= 30 && nu - snelheidSinds > 5000 && status.toeren < MIN_TOEREN;
+    }
+    status.storing = !opdracht.aan ? 0 : stil ? 2 : geenLucht ? 1 : 0;
   }
 
   static uint32_t vorigeStatus = 0;
@@ -246,7 +262,7 @@ void loop() {
   static uint32_t vorigLog = 0;
   if (nu - vorigLog >= 1000) {
     vorigLog = nu;
-    Serial.printf("aan=%d pct=%d dp=%.1f vol=%.2f storing=%d geijkt=%d ijken=%d\n", opdracht.aan, opdracht.pct, dp, status.vol, status.storing, status.geijkt, ijkStap);
+    Serial.printf("aan=%d pct=%d toeren=%u dp=%.1f vol=%.2f storing=%d geijkt=%d ijken=%d\n", opdracht.aan, opdracht.pct, status.toeren, dp, status.vol, status.storing, status.geijkt, ijkStap);
   }
   delay(5);
 }

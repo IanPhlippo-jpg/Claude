@@ -27,7 +27,8 @@ struct __attribute__((packed)) Status {
   uint8_t soort = SOORT_STATUS;
   uint8_t meter = 0;    // drukmeter gevonden
   uint8_t geijkt = 0;   // ijking op schone filters bewaard
-  uint8_t storing = 0;  // geen luchtstroom terwijl de ventilator draait
+  uint8_t storing = 0;  // 0 = geen, 1 = geen luchtstroom (filters, slang), 2 = de ventilator draait niet
+  uint16_t toeren = 0;  // toerental van de ventilator (omw/min, uit de tacho)
   uint8_t ijken = 0;    // 0 = niet aan het ijken, anders de stap 1..5
   uint8_t ijkVoortgang = 0; // 0..100 %
   float dp = 0;         // drukverschil over de filters (Pa), NAN als onbekend

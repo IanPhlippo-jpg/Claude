@@ -994,3 +994,12 @@ elease; README en docs/04 bijgewerkt
 ## Afzuiging v4.3: geen dunne stukjes meer in de cassetterand (2026-11-06)
 - [x] Lip- en greepuitsparing samenvoegen tot één uitsparing (strookje van 1,5 mm weg); andere dunne plekken nakijken
 - [x] Tests (74/74), screenshot, commit en push
+
+## Afzuiging v5: radiale ventilator (stiller en sterker) en aparte voedingsbox (2026-11-06)
+- [x] Ventilator kiezen: San Ace C175 9TG24P0S01 (Ø175 x 69, 24 V, PWM 25 kHz, ~500 m³/h bij 200 Pa)
+- [x] Module hertekenen: vierkant 210 x 210, klauwen in de hoeken, instroomplaat met trechter, grotere cassette, ventilator op de bodemplaat (4 x M4), uitblaas rondom; geen elektronica meer in de module
+- [x] Bovenframe 222 x 222 en RVS-rooster opnieuw (logo, lasercontrole), uitsparing 212 x 212
+- [x] Voedingsbox: 15 mm ingefreesd met rand en 4 pluggen voor holle deuren; netadapter 24 V met IEC-koppeling, schakelaar, ESP32-C3, drukmeter, 5V-regelaar, USB-C naar de knop, M8-bus naar de ventilator
+- [x] Bureau: uitsparingen en sleuven (box -> module: M8-kabel en slangetje; box -> knop: USB-C)
+- [x] Firmware (tacho, PWM 0 % = stil), schema, stuklijst, README
+- [x] Tests (81/81: luchtdicht met tegenproef, botsingen incl. box, klauwen 10-50 mm, printbed 225 x 225, B-rep, STL), screenshots, commit en push

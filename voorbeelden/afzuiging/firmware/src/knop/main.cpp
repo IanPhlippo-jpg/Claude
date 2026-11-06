@@ -168,8 +168,10 @@ void teken(uint32_t nu) {
       tekenTekst("geen verbinding", "met de module", ORANJE);
     } else if (!st.meter) {
       tekenTekst("drukmeter niet gevonden", "bedrading in de module nakijken", ORANJE);
+    } else if (storing && st.storing == 2) {
+      tekenTekst("ventilator draait niet", "M8-kabel nakijken", ROOD);
     } else if (storing) {
-      tekenTekst("geen luchtstroom", "ventilator of slang nakijken", ROOD);
+      tekenTekst("geen luchtstroom", "slang en filters nakijken", ROOD);
     } else if (vol) {
       tekenTekst("Filter vol", "filters uitkloppen", ORANJE);
     } else if (boost) {

@@ -1,55 +1,80 @@
 {
  "format": "phlippo-cad",
  "version": 1,
- "name": "ESP32-C3 SuperMini",
+ "name": "USB-C-bus knop",
  "units": "mm",
  "planes": {
-  "c3print": {
-   "id": "c3print",
+  "usbprint": {
+   "id": "usbprint",
    "name": "Plane print",
    "origin": [
-    -92.5,
     0,
+    -27.9,
     0
    ],
    "u": [
+    1,
+    0,
+    0
+   ],
+   "v": [
     0,
     0,
     -1
    ],
-   "v": [
-    0,
-    1,
-    0
-   ],
    "n": [
-    1,
     0,
+    1,
     0
    ],
    "kind": "reference"
   },
-  "c3voor": {
-   "id": "c3voor",
-   "name": "Plane onderdelen",
+  "usbbus": {
+   "id": "usbbus",
+   "name": "Plane bus",
    "origin": [
-    -90.9,
     0,
+    -26.299999999999997,
     0
    ],
    "u": [
+    1,
+    0,
+    0
+   ],
+   "v": [
     0,
     0,
     -1
    ],
-   "v": [
+   "n": [
     0,
     1,
     0
    ],
-   "n": [
+   "kind": "reference"
+  },
+  "usbgat": {
+   "id": "usbgat",
+   "name": "Plane gaten",
+   "origin": [
+    0,
+    -26.299999999999997,
+    0
+   ],
+   "u": [
     1,
     0,
+    0
+   ],
+   "v": [
+    0,
+    0,
+    -1
+   ],
+   "n": [
+    0,
+    1,
     0
    ],
    "kind": "reference"
@@ -61,27 +86,27 @@
   "s1": {
    "id": "s1",
    "name": "Sketch1",
-   "plane": "c3print",
+   "plane": "usbprint",
    "points": {
     "origin_s1": {
      "x": 0,
      "y": 0
     },
     "s1p0": {
-     "x": -3,
-     "y": -78.5
+     "x": 83,
+     "y": 22
     },
     "s1p1": {
-     "x": 15,
-     "y": -78.5
+     "x": 93.6,
+     "y": 22
     },
     "s1p2": {
-     "x": 15,
-     "y": -56
+     "x": 93.6,
+     "y": 36
     },
     "s1p3": {
-     "x": -3,
-     "y": -56
+     "x": 83,
+     "y": 36
     }
    },
    "scalars": {},
@@ -128,75 +153,59 @@
   "s2": {
    "id": "s2",
    "name": "Sketch2",
-   "plane": "c3voor",
+   "plane": "usbbus",
    "points": {
     "origin_s2": {
      "x": 0,
      "y": 0
     },
     "s2p0": {
-     "x": 2.5,
-     "y": -78.5
+     "x": 90.6,
+     "y": 24.55
     },
     "s2p1": {
-     "x": 9.5,
-     "y": -78.5
+     "x": 98.9,
+     "y": 24.55
     },
     "s2p2": {
-     "x": 10.5,
-     "y": -77.5
+     "x": 99.9,
+     "y": 25.55
     },
     "s2p3": {
-     "x": 10.5,
-     "y": -72
+     "x": 99.9,
+     "y": 32.45
     },
     "s2p4": {
-     "x": 9.5,
-     "y": -71
+     "x": 98.9,
+     "y": 33.45
     },
     "s2p5": {
-     "x": 2.5,
-     "y": -71
+     "x": 90.6,
+     "y": 33.45
     },
     "s2p6": {
-     "x": 1.5,
-     "y": -72
+     "x": 89.6,
+     "y": 32.45
     },
     "s2p7": {
-     "x": 1.5,
-     "y": -77.5
+     "x": 89.6,
+     "y": 25.55
     },
     "s2p8": {
-     "x": 9.5,
-     "y": -77.5
+     "x": 98.9,
+     "y": 25.55
     },
     "s2p9": {
-     "x": 9.5,
-     "y": -72
+     "x": 98.9,
+     "y": 32.45
     },
     "s2p10": {
-     "x": 2.5,
-     "y": -72
+     "x": 90.6,
+     "y": 32.45
     },
     "s2p11": {
-     "x": 2.5,
-     "y": -77.5
-    },
-    "s2p21": {
-     "x": 1,
-     "y": -68.5
-    },
-    "s2p22": {
-     "x": 11,
-     "y": -68.5
-    },
-    "s2p23": {
-     "x": 11,
-     "y": -58.5
-    },
-    "s2p24": {
-     "x": 1,
-     "y": -58.5
+     "x": 90.6,
+     "y": 25.55
     }
    },
    "scalars": {
@@ -270,34 +279,6 @@
      "end": "s2p0",
      "r": "s2s12",
      "ccw": true
-    },
-    "s2e25": {
-     "id": "s2e25",
-     "construction": false,
-     "kind": "line",
-     "p1": "s2p21",
-     "p2": "s2p22"
-    },
-    "s2e26": {
-     "id": "s2e26",
-     "construction": false,
-     "kind": "line",
-     "p1": "s2p22",
-     "p2": "s2p23"
-    },
-    "s2e27": {
-     "id": "s2e27",
-     "construction": false,
-     "kind": "line",
-     "p1": "s2p23",
-     "p2": "s2p24"
-    },
-    "s2e28": {
-     "id": "s2e28",
-     "construction": false,
-     "kind": "line",
-     "p1": "s2p24",
-     "p2": "s2p21"
     }
    },
    "constraints": {},
@@ -309,14 +290,56 @@
     "s2e17",
     "s2e18",
     "s2e19",
-    "s2e20",
-    "s2e25",
-    "s2e26",
-    "s2e27",
-    "s2e28"
+    "s2e20"
    ],
    "constraintOrder": [],
    "origin": "origin_s2"
+  },
+  "s3": {
+   "id": "s3",
+   "name": "Sketch3",
+   "plane": "usbgat",
+   "points": {
+    "origin_s3": {
+     "x": 0,
+     "y": 0
+    },
+    "s3p0": {
+     "x": 89,
+     "y": 35
+    },
+    "s3p3": {
+     "x": 89,
+     "y": 23
+    }
+   },
+   "scalars": {
+    "s3s1": 1.1,
+    "s3s4": 1.1
+   },
+   "entities": {
+    "s3e2": {
+     "id": "s3e2",
+     "construction": false,
+     "kind": "circle",
+     "center": "s3p0",
+     "r": "s3s1"
+    },
+    "s3e5": {
+     "id": "s3e5",
+     "construction": false,
+     "kind": "circle",
+     "center": "s3p3",
+     "r": "s3s4"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s3e2",
+    "s3e5"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s3"
   }
  },
  "features": [
@@ -348,17 +371,35 @@
   {
    "id": "f4",
    "type": "extrude",
-   "name": "Onderdelen",
+   "name": "USB-C",
    "sketchId": "s2",
    "suppressed": false,
    "op": "boss",
    "end": "blind",
-   "depth": 3.2,
+   "depth": 3.3,
    "reverse": false,
    "direction2": {
     "end": "blind",
-    "depth": 0.2
+    "depth": 0.1
    }
+  },
+  {
+   "id": "ks3",
+   "type": "sketch",
+   "name": "Sketch3",
+   "sketchId": "s3",
+   "suppressed": false
+  },
+  {
+   "id": "f6",
+   "type": "extrude",
+   "name": "Gaten M2",
+   "sketchId": "s3",
+   "suppressed": false,
+   "op": "cut",
+   "end": "blind",
+   "depth": 2,
+   "reverse": true
   }
  ],
  "material": {
