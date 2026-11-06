@@ -24,8 +24,8 @@ const KAST = 360 * 564 * 700 - 328 * 668 * 556 + 10 * 14 * 10 * 510;
 // bak (2 mm in het front) + front - holte + twee loopregels (2 mm in de bakwand en 2 mm in het front)
 const LADE = 296 * 100 * 522 + (356 * 136 * 16 - 296 * 100 * 2) - 280 * 510 * 92 + 2 * (16 * 10 * 492 - 2 * 10 * 492 - 16 * 10 * 2 + 2 * 10 * 2);
 const VERWACHT = {
-  // min de uitsparingen voor de afzuiging (196 x 140, hoeken R5) en de draaiknop (gatzaag Ø57)
-  'LAGKAPTEN-tafelblad.kcad': { volume: (1400 * 600 - (196 * 140 - (4 - Math.PI) * 25) - Math.PI * 28.5 * 28.5) * 34, min: [-700, 0, -300], max: [700, 34, 300] },
+  // min de uitsparingen voor de afzuiging (196 x 140, hoeken R5) en de knop (gatzaag Ø44)
+  'LAGKAPTEN-tafelblad.kcad': { volume: (1400 * 600 - (196 * 140 - (4 - Math.PI) * 25) - Math.PI * 22 * 22) * 34, min: [-700, 0, -300], max: [700, 34, 300] },
   'ALEX-ladekast.kcad': { volume: KAST, min: [-180, 0, -290], max: [180, 700, 274] },
   'ALEX-lade.kcad': { volume: LADE, min: [-178, 0, -520], max: [178, 136, 16] },
 };

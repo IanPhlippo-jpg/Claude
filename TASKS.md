@@ -963,5 +963,15 @@ elease; README en docs/04 bijgewerkt
 - [x] Draaiknop: gatzaag Ø57, sierring Ø62 (was Ø76), kuipwand 2 mm
 - [x] Aansluitschema (-S1), bestellijst, README, tegenproef luchtdicht vervangen (zonder M5-schroeven)
 - [x] Schroeven van onderen verzonken (DIN 7991, conische verzinking): 6 x M3 x 16 en 4 x M4 x 45, koppen vlak in de bodemplaat
-- [~] Tests met STL-export (afzuiging, bureau, voorbeelden), screenshots, app op de pc openen
-- [ ] graphify update, commit en push
+- [x] Tests met STL-export (afzuiging, bureau, voorbeelden), screenshots
+- [x] graphify update, commit en push
+
+## Afzuiging v4: VIEWE-knop 1,5", M5-koppen in het frame, PETG (2026-11-05)
+- [x] Conische zitting voor de M5- en M3-koppen; M5-kop in een lip van het bovenframe (drukt het hele frame op het blad), cassette met uitsparingen
+- [x] Knophouder voor de VIEWE UEDX46460015-MD50E (maten uit de maattekening): plaat Ø51,6 = knop, buis in gat Ø44, 2 klauwen M3, naafkom met 2 x M2,5 en pennen, FPC-sleuf
+- [x] Adapterprint -A3 in groeven, USB-C onderaan, deksel met tule; knop, print en schroeven als onderdelen
+- [x] Firmware naar de VIEWE-knop (CO5300 QSPI, encoder 6/5, knop 0, I2C 44/43, PWM 39, aan/uit 40) - compileert
+- [x] Schema: -A1 knop, -A3, -W1 Cat 6, -X4 6-polig, 5V-regelaar -T3; stuklijst en klemmenplan
+- [x] PETG i.p.v. PLA (kruip, warmte, aceton); README en bestellijst
+- [x] Tests (botsingen, klauwen knop 10-50 mm, luchtdicht, B-rep, STL): 68/68 groen; screenshots; app op de pc geopend
+- [x] graphify update, commit en push

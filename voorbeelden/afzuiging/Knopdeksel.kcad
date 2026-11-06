@@ -1,0 +1,390 @@
+{
+ "format": "phlippo-cad",
+ "version": 1,
+ "name": "Knopdeksel",
+ "units": "mm",
+ "planes": {
+  "deksel": {
+   "id": "deksel",
+   "name": "Plane deksel",
+   "origin": [
+    0,
+    -60,
+    0
+   ],
+   "u": [
+    1,
+    0,
+    0
+   ],
+   "v": [
+    0,
+    0,
+    -1
+   ],
+   "n": [
+    0,
+    1,
+    0
+   ],
+   "kind": "reference"
+  },
+  "dekselonder": {
+   "id": "dekselonder",
+   "name": "Face onderkant deksel",
+   "origin": [
+    0,
+    -62,
+    0
+   ],
+   "u": [
+    1,
+    0,
+    0
+   ],
+   "v": [
+    0,
+    0,
+    1
+   ],
+   "n": [
+    0,
+    -1,
+    0
+   ],
+   "kind": "face"
+  }
+ },
+ "variables": {},
+ "equations": [],
+ "sketches": {
+  "s1": {
+   "id": "s1",
+   "name": "Sketch1",
+   "plane": "deksel",
+   "points": {
+    "origin_s1": {
+     "x": 0,
+     "y": 0
+    },
+    "s1p0": {
+     "x": 0,
+     "y": 0
+    }
+   },
+   "scalars": {
+    "s1s1": 21.5
+   },
+   "entities": {
+    "s1e2": {
+     "id": "s1e2",
+     "construction": false,
+     "kind": "circle",
+     "center": "s1p0",
+     "r": "s1s1"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s1e2"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s1"
+  },
+  "s2": {
+   "id": "s2",
+   "name": "Sketch2",
+   "plane": "dekselonder",
+   "points": {
+    "origin_s2": {
+     "x": 0,
+     "y": 0
+    },
+    "s2p0": {
+     "x": 0,
+     "y": 17
+    },
+    "s2p3": {
+     "x": 0,
+     "y": -17
+    }
+   },
+   "scalars": {
+    "s2s1": 2.6,
+    "s2s4": 2.6
+   },
+   "entities": {
+    "s2e2": {
+     "id": "s2e2",
+     "construction": false,
+     "kind": "circle",
+     "center": "s2p0",
+     "r": "s2s1"
+    },
+    "s2e5": {
+     "id": "s2e5",
+     "construction": false,
+     "kind": "circle",
+     "center": "s2p3",
+     "r": "s2s4"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s2e2",
+    "s2e5"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s2"
+  },
+  "s3": {
+   "id": "s3",
+   "name": "Sketch3",
+   "plane": "dekselonder",
+   "points": {
+    "origin_s3": {
+     "x": 0,
+     "y": 0
+    },
+    "s3p0": {
+     "x": 0,
+     "y": 17
+    },
+    "s3p3": {
+     "x": 0,
+     "y": -17
+    },
+    "s3p6": {
+     "x": -1.1,
+     "y": -4.8
+    },
+    "s3p7": {
+     "x": -0.2,
+     "y": -4.8
+    },
+    "s3p8": {
+     "x": 1.3,
+     "y": -3.3
+    },
+    "s3p9": {
+     "x": 1.3,
+     "y": 3.3
+    },
+    "s3p10": {
+     "x": -0.2,
+     "y": 4.8
+    },
+    "s3p11": {
+     "x": -1.1,
+     "y": 4.8
+    },
+    "s3p12": {
+     "x": -2.6,
+     "y": 3.3
+    },
+    "s3p13": {
+     "x": -2.6,
+     "y": -3.3
+    },
+    "s3p14": {
+     "x": -0.2,
+     "y": -3.3
+    },
+    "s3p15": {
+     "x": -0.2,
+     "y": 3.3
+    },
+    "s3p16": {
+     "x": -1.1,
+     "y": 3.3
+    },
+    "s3p17": {
+     "x": -1.1,
+     "y": -3.3
+    },
+    "s3p27": {
+     "x": -6,
+     "y": -11.5
+    }
+   },
+   "scalars": {
+    "s3s1": 1.4,
+    "s3s4": 1.4,
+    "s3s18": 1.5,
+    "s3s28": 5
+   },
+   "entities": {
+    "s3e2": {
+     "id": "s3e2",
+     "construction": false,
+     "kind": "circle",
+     "center": "s3p0",
+     "r": "s3s1"
+    },
+    "s3e5": {
+     "id": "s3e5",
+     "construction": false,
+     "kind": "circle",
+     "center": "s3p3",
+     "r": "s3s4"
+    },
+    "s3e19": {
+     "id": "s3e19",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p6",
+     "p2": "s3p7"
+    },
+    "s3e20": {
+     "id": "s3e20",
+     "construction": false,
+     "kind": "arc",
+     "center": "s3p14",
+     "start": "s3p7",
+     "end": "s3p8",
+     "r": "s3s18",
+     "ccw": true
+    },
+    "s3e21": {
+     "id": "s3e21",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p8",
+     "p2": "s3p9"
+    },
+    "s3e22": {
+     "id": "s3e22",
+     "construction": false,
+     "kind": "arc",
+     "center": "s3p15",
+     "start": "s3p9",
+     "end": "s3p10",
+     "r": "s3s18",
+     "ccw": true
+    },
+    "s3e23": {
+     "id": "s3e23",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p10",
+     "p2": "s3p11"
+    },
+    "s3e24": {
+     "id": "s3e24",
+     "construction": false,
+     "kind": "arc",
+     "center": "s3p16",
+     "start": "s3p11",
+     "end": "s3p12",
+     "r": "s3s18",
+     "ccw": true
+    },
+    "s3e25": {
+     "id": "s3e25",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p12",
+     "p2": "s3p13"
+    },
+    "s3e26": {
+     "id": "s3e26",
+     "construction": false,
+     "kind": "arc",
+     "center": "s3p17",
+     "start": "s3p13",
+     "end": "s3p6",
+     "r": "s3s18",
+     "ccw": true
+    },
+    "s3e29": {
+     "id": "s3e29",
+     "construction": false,
+     "kind": "circle",
+     "center": "s3p27",
+     "r": "s3s28"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s3e2",
+    "s3e5",
+    "s3e19",
+    "s3e20",
+    "s3e21",
+    "s3e22",
+    "s3e23",
+    "s3e24",
+    "s3e25",
+    "s3e26",
+    "s3e29"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s3"
+  }
+ },
+ "features": [
+  {
+   "id": "ks1",
+   "type": "sketch",
+   "name": "Sketch1",
+   "sketchId": "s1",
+   "suppressed": false
+  },
+  {
+   "id": "f2",
+   "type": "extrude",
+   "name": "Deksel",
+   "sketchId": "s1",
+   "suppressed": false,
+   "op": "boss",
+   "end": "blind",
+   "depth": 2,
+   "reverse": true
+  },
+  {
+   "id": "ks2",
+   "type": "sketch",
+   "name": "Sketch2",
+   "sketchId": "s2",
+   "suppressed": false
+  },
+  {
+   "id": "f4",
+   "type": "extrude",
+   "name": "Verzinking M2,5",
+   "sketchId": "s2",
+   "suppressed": false,
+   "op": "cut",
+   "end": "blind",
+   "depth": 1.25,
+   "reverse": true,
+   "draft": {
+    "angle": 45,
+    "outward": false
+   }
+  },
+  {
+   "id": "ks3",
+   "type": "sketch",
+   "name": "Sketch3",
+   "sketchId": "s3",
+   "suppressed": false
+  },
+  {
+   "id": "f6",
+   "type": "extrude",
+   "name": "Gaten",
+   "sketchId": "s3",
+   "suppressed": false,
+   "op": "cut",
+   "end": "blind",
+   "depth": 3,
+   "reverse": true
+  }
+ ],
+ "material": {
+  "name": "PETG, zwart",
+  "density": 1270,
+  "color": "#232325"
+ }
+}

@@ -2149,36 +2149,100 @@
      "y": 0
     },
     "s5p0": {
-     "x": 84,
-     "y": -48
+     "x": 82.5,
+     "y": -46.5
     },
     "s5p1": {
      "x": 93.25,
-     "y": -48
+     "y": -46.5
     },
     "s5p2": {
      "x": 93.25,
-     "y": -32
+     "y": -33.5
     },
     "s5p3": {
+     "x": 82.5,
+     "y": -33.5
+    },
+    "s5p8": {
      "x": 84,
      "y": -32
     },
-    "s5p8": {
-     "x": -93.25,
-     "y": 32
-    },
     "s5p9": {
-     "x": -84,
-     "y": 32
+     "x": 93.25,
+     "y": -32
     },
     "s5p10": {
-     "x": -84,
-     "y": 48
+     "x": 93.25,
+     "y": -22
     },
     "s5p11": {
+     "x": 84,
+     "y": -22
+    },
+    "s5p16": {
+     "x": 82.5,
+     "y": 33.5
+    },
+    "s5p17": {
+     "x": 93.25,
+     "y": 33.5
+    },
+    "s5p18": {
+     "x": 93.25,
+     "y": 46.5
+    },
+    "s5p19": {
+     "x": 82.5,
+     "y": 46.5
+    },
+    "s5p24": {
      "x": -93.25,
-     "y": 48
+     "y": -46.5
+    },
+    "s5p25": {
+     "x": -82.5,
+     "y": -46.5
+    },
+    "s5p26": {
+     "x": -82.5,
+     "y": -33.5
+    },
+    "s5p27": {
+     "x": -93.25,
+     "y": -33.5
+    },
+    "s5p32": {
+     "x": -93.25,
+     "y": 33.5
+    },
+    "s5p33": {
+     "x": -82.5,
+     "y": 33.5
+    },
+    "s5p34": {
+     "x": -82.5,
+     "y": 46.5
+    },
+    "s5p35": {
+     "x": -93.25,
+     "y": 46.5
+    },
+    "s5p40": {
+     "x": -93.25,
+     "y": 22
+    },
+    "s5p41": {
+     "x": -84,
+     "y": 22
+    },
+    "s5p42": {
+     "x": -84,
+     "y": 32
+    },
+    "s5p43": {
+     "x": -93.25,
+     "y": 32
     }
    },
    "scalars": {},
@@ -2238,6 +2302,118 @@
      "kind": "line",
      "p1": "s5p11",
      "p2": "s5p8"
+    },
+    "s5e20": {
+     "id": "s5e20",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p16",
+     "p2": "s5p17"
+    },
+    "s5e21": {
+     "id": "s5e21",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p17",
+     "p2": "s5p18"
+    },
+    "s5e22": {
+     "id": "s5e22",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p18",
+     "p2": "s5p19"
+    },
+    "s5e23": {
+     "id": "s5e23",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p19",
+     "p2": "s5p16"
+    },
+    "s5e28": {
+     "id": "s5e28",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p24",
+     "p2": "s5p25"
+    },
+    "s5e29": {
+     "id": "s5e29",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p25",
+     "p2": "s5p26"
+    },
+    "s5e30": {
+     "id": "s5e30",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p26",
+     "p2": "s5p27"
+    },
+    "s5e31": {
+     "id": "s5e31",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p27",
+     "p2": "s5p24"
+    },
+    "s5e36": {
+     "id": "s5e36",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p32",
+     "p2": "s5p33"
+    },
+    "s5e37": {
+     "id": "s5e37",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p33",
+     "p2": "s5p34"
+    },
+    "s5e38": {
+     "id": "s5e38",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p34",
+     "p2": "s5p35"
+    },
+    "s5e39": {
+     "id": "s5e39",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p35",
+     "p2": "s5p32"
+    },
+    "s5e44": {
+     "id": "s5e44",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p40",
+     "p2": "s5p41"
+    },
+    "s5e45": {
+     "id": "s5e45",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p41",
+     "p2": "s5p42"
+    },
+    "s5e46": {
+     "id": "s5e46",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p42",
+     "p2": "s5p43"
+    },
+    "s5e47": {
+     "id": "s5e47",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p43",
+     "p2": "s5p40"
     }
    },
    "constraints": {},
@@ -2249,7 +2425,23 @@
     "s5e12",
     "s5e13",
     "s5e14",
-    "s5e15"
+    "s5e15",
+    "s5e20",
+    "s5e21",
+    "s5e22",
+    "s5e23",
+    "s5e28",
+    "s5e29",
+    "s5e30",
+    "s5e31",
+    "s5e36",
+    "s5e37",
+    "s5e38",
+    "s5e39",
+    "s5e44",
+    "s5e45",
+    "s5e46",
+    "s5e47"
    ],
    "constraintOrder": [],
    "origin": "origin_s5"
@@ -2342,7 +2534,7 @@
   {
    "id": "f10",
    "type": "extrude",
-   "name": "Greepuitsparingen",
+   "name": "Uitsparingen lippen en greep",
    "sketchId": "s5",
    "suppressed": false,
    "op": "cut",
@@ -2352,8 +2544,8 @@
   }
  ],
  "material": {
-  "name": "PLA, wit",
-  "density": 1240,
+  "name": "PETG, wit",
+  "density": 1270,
   "color": "#f4f4f1"
  }
 }

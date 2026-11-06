@@ -100,13 +100,14 @@ function blad1() {
   const i = [];
   i.push(T(W / 2, 60, 'Afzuiging Lush Beauty', { anchor: 'middle', size: 12, bold: true }));
   i.push(T(W / 2, 74, 'Aansluitschema elektronica', { anchor: 'middle', size: 7 }));
-  i.push(T(W / 2, 84, 'Ventilator Delta PFR1212UHE-SP00 · besturing M5Stack Dial · verschildrukmeting Sensirion SDP810-500Pa', { anchor: 'middle', size: 3.6, kleur: '#444' }));
-  const inhoud = [['1', 'Titelblad en inhoud'], ['2', 'Voeding 12 V: netadapter, DC-bus, schakelaar, zekering'], ['3', 'Ventilator: aan/uit (-Q3) en snelheid PWM (-Q1)'], ['4', 'Besturing -A1 en verschildrukmeter -B1 (I2C, 3,3 V)'], ['5', 'Klemmenplan en bedrading'], ['6', 'Stuklijst']];
+  i.push(T(W / 2, 84, 'Ventilator Delta PFR1212UHE-SP00 · besturing VIEWE-knop 1,5" (ESP32-S3) · verschildrukmeting Sensirion SDP810-500Pa', { anchor: 'middle', size: 3.6, kleur: '#444' }));
+  const inhoud = [['1', 'Titelblad en inhoud'], ['2', 'Voeding 12 V en 5 V: netadapter, DC-bus, schakelaar, zekering, regelaar'], ['3', 'Ventilator: aan/uit (-Q3) en snelheid PWM (-Q1)'], ['4', 'Besturing -A1 (knop), kabel -W1 en verschildrukmeter -B1 (I2C, 3,3 V)'], ['5', 'Klemmenplan en bedrading'], ['6', 'Stuklijst']];
   i.push(T(120, 115, 'Inhoud', { size: 5, bold: true }));
   inhoud.forEach(([n, t], k) => { i.push(T(120, 127 + k * 9, `Blad ${n}`, { size: 4 }), T(150, 127 + k * 9, t, { size: 4 })); });
   i.push(T(120, 195, 'Leeswijzer', { size: 4, bold: true }));
-  ['Codes volgens IEC 81346: -T netadapter, -F zekering, -Q schakelaars, -R weerstanden, -C condensatoren,', '-M motor, -A besturing, -B sensor, -X klemmen en connectoren.', 'Potentialen: L+ = +12 V, L3 = +3,3 V (alleen voor de drukmeter), M = 0 V. Een verwijzing /3.2 betekent blad 3, kolom 2.',
-    'Alles behalve de netadapter zit in het elektronicavak van de romp, op één gaatjesprint van 30 x 70 mm (-A2).']
+  ['Codes volgens IEC 81346: -T netadapter, -F zekering, -Q schakelaars, -R weerstanden, -C condensatoren,', '-M motor, -A besturing, -B sensor, -X klemmen en connectoren.', 'Potentialen: L+ = +12 V, L5 = +5 V (knop), L3 = +3,3 V (drukmeter), M = 0 V. Een verwijzing /3.2 betekent blad 3, kolom 2.',
+    'Alles behalve de netadapter en de knop zit in het elektronicavak van de romp, op één gaatjesprint van 30 x 70 mm (-A2).',
+    'De knop -A1 zit in de knophouder in het blad, met de adapterprint -A3; een kabel -W1 verbindt -A3 met -A2.']
     .forEach((r, k) => i.push(T(120, 205 + k * 6.5, r, { size: 3.2, kleur: '#333' })));
   return kader(1, 'Titelblad', i);
 }
@@ -132,7 +133,11 @@ function blad2() {
   // buffercondensator
   i.push(punt(250, yp), L([[250, yp], [250, 132]]), condensator(250, 132, '-C1', '470 µF / 25 V'), L([[250, 148], [250, ym]]), punt(250, ym));
   i.push(T(270, 120, 'buffert de stroomstoot van de ventilator', { size: 2.4, kleur: '#444' }));
-  i.push(T(30, 230, 'Stroom: ventilator max. 2,7 A, Dial ca. 0,1 A. Draad L+ en M naar de ventilator minstens 0,5 mm².', { size: 3, kleur: '#333' }));
+  // 5V-regelaar voor de knop en de 3,3V-regelaar
+  i.push(punt(320, yp), L([[320, yp], [320, 140]]), toestel(310, 140, 40, 26, '-T3', ['Pololu D24V5F5', '12 V -> 5 V, 0,5 A'], [{ x: 10, y: 0, naam: 'VIN' }, { x: 40, y: 13, naam: 'VOUT' }, { x: 20, y: 26, naam: 'GND' }]));
+  i.push(L([[330, 166], [330, ym]], { w: 0.45 }), punt(330, ym));
+  i.push(L([[350, 153], [X1 - 5, 153]], { kleur: '#d97706', w: 0.5 }), T(358, 151, 'L5 5 V', { size: 2.6, kleur: '#d97706' }), ref(X1 - 6, 158, '/4.1', 'end'));
+  i.push(T(30, 230, 'Stroom: ventilator max. 2,7 A, knop ca. 0,1 A (5 V). Draad L+ en M naar de ventilator minstens 0,5 mm².', { size: 3, kleur: '#333' }));
   return kader(2, 'Voeding 12 V', i);
 }
 
@@ -151,7 +156,7 @@ function blad3() {
   const xq2 = 137, yq2 = 125;
   i.push(L([[xg, yq3], [xg, yq2 - 10]]), npn(xq2, yq2, '-Q2', 'BC547'), L([[xq2 + 3, yq2 + 10], [xq2 + 3, ym]]), punt(xq2 + 3, ym));
   i.push(weerstandH(xq2 - 40, yq2, '-R5', '1 kΩ'), L([[xq2 - 20, yq2], [xq2 - 10, yq2]]));
-  i.push(L([[xq2 - 40, yq2], [X0 + 5, yq2]], { kleur: '#d98a1c', w: 0.45 }), T(X0 + 5, yq2 - 2, 'aan/uit  G1 (Port B) ← /4.3', { size: 2.6, kleur: '#d98a1c' }));
+  i.push(L([[xq2 - 40, yq2], [X0 + 5, yq2]], { kleur: '#d98a1c', w: 0.45 }), T(X0 + 5, yq2 - 2, 'aan/uit  GPIO40 (-X4:6) ← /4.3', { size: 2.6, kleur: '#d98a1c' }));
   i.push(punt(xq2 - 13, yq2), L([[xq2 - 13, yq2], [xq2 - 13, 150]]), weerstand(xq2 - 13, 150, '-R6', '10 kΩ'), L([[xq2 - 13, 170], [xq2 - 13, ym]]), punt(xq2 - 13, ym));
   // drain -> klem X3:1
   const xk = 330;
@@ -160,7 +165,7 @@ function blad3() {
   const xq1 = 262, yq1 = 175;
   i.push(L([[xq1 + 3, yq1 - 10], [xq1 + 3, 145], [xk, 145]], { kleur: '#2a6fd6', w: 0.45 }), npn(xq1, yq1, '-Q1', 'BC547'), L([[xq1 + 3, yq1 + 10], [xq1 + 3, ym]]), punt(xq1 + 3, ym));
   i.push(weerstandH(xq1 - 40, yq1, '-R1', '1 kΩ'), L([[xq1 - 20, yq1], [xq1 - 10, yq1]]));
-  i.push(L([[xq1 - 40, yq1], [205, yq1]], { kleur: '#2a6fd6', w: 0.45 }), T(205, yq1 - 6, 'PWM  G2 (Port B) ← /4.3', { size: 2.6, kleur: '#2a6fd6' }));
+  i.push(L([[xq1 - 40, yq1], [205, yq1]], { kleur: '#2a6fd6', w: 0.45 }), T(205, yq1 - 6, 'PWM  GPIO39 (-X4:5) ← /4.3', { size: 2.6, kleur: '#2a6fd6' }));
   i.push(punt(xq1 - 13, yq1), L([[xq1 - 13, yq1], [xq1 - 13, 185]]), weerstand(xq1 - 13, 185, '-R2', '10 kΩ'), L([[xq1 - 13, 205], [xq1 - 13, ym]]), punt(xq1 - 13, ym));
   i.push(T(xq1 + 8, 200, 'Q1 keert het signaal om: de firmware rekent dat om', { size: 2.3, kleur: '#444' }));
   // klemmen X3 en de motor
@@ -177,42 +182,53 @@ function blad3() {
 // ---- blad 4: besturing en drukmeter ----
 function blad4() {
   const i = [];
-  const yp = 30, ym = 225;
-  i.push(rail(yp, X0, 120, 'L+ 12 V', '/2.8', ''), rail(ym, X0, X1 - 5, 'M 0 V', '/2.8', '', '#111'));
-  // Dial
-  const ax = 40, ay = 55;
-  i.push(toestel(ax, ay, 75, 150, '-A1', ['M5Stack Dial v1.1', 'ESP32-S3, rond scherm,', 'draaiknop, drukknop', 'in de dialhouder in het blad'], [
-    { x: 75, y: 30, naam: 'voeding + (6-36 V)' }, { x: 75, y: 42, naam: 'voeding -' },
-    { x: 75, y: 70, naam: 'Port A  5V' }, { x: 75, y: 80, naam: 'Port A  G13 SDA' }, { x: 75, y: 90, naam: 'Port A  G15 SCL' }, { x: 75, y: 100, naam: 'Port A  GND' },
-    { x: 75, y: 118, naam: 'Port B  G1' }, { x: 75, y: 128, naam: 'Port B  G2' }, { x: 75, y: 138, naam: 'Port B  GND' },
+  const y5 = 30, ym = 225;
+  i.push(rail(y5, 120, X1 - 5, 'L5 5 V', '/2.8', '', '#d97706'), rail(ym, X0, X1 - 5, 'M 0 V', '/2.8', '', '#111'));
+  // de knop met zijn FPC en de adapterprint in de knophouder
+  const ax = 22, ay = 50;
+  i.push(toestel(ax, ay, 62, 160, '-A1', ['VIEWE-knop 1,5"', 'UEDX46460015-MD50E', 'ESP32-S3, AMOLED', 'draaiknop, drukknop', 'FPC 10-polig 0,5 mm'], [
+    { x: 62, y: 30, naam: 'FPC 1  +5 V' }, { x: 62, y: 42, naam: 'FPC 3  GND' },
+    { x: 62, y: 80, naam: 'FPC 6  GPIO44' }, { x: 62, y: 90, naam: 'FPC 7  GPIO43' },
+    { x: 62, y: 118, naam: 'FPC 4  GPIO40' }, { x: 62, y: 128, naam: 'FPC 5  GPIO39' },
+    { x: 62, y: 146, naam: 'FPC 9/10  USB' },
   ]));
-  const px = ax + 75;
-  // voeding van de Dial via X6
-  i.push(punt(100, yp), L([[100, yp], [100, 40], [135, 40], [135, ay + 30], [px, ay + 30]], { kleur: '#b42318', w: 0.45 }), klem(135, ay + 30, '-X6', '1'));
-  i.push(L([[px, ay + 42], [140, ay + 42], [140, ym]], { w: 0.45 }), klem(140, ay + 42, '-X6', '2'), punt(140, ym));
-  // Port B naar blad 3
-  i.push(klem(150, ay + 118, '-X5', '4'), klem(150, ay + 128, '-X5', '3'), klem(150, ay + 138, '-X5', '1'));
-  i.push(L([[px, ay + 118], [148.7, ay + 118]], { kleur: '#d98a1c', w: 0.45 }), L([[151.3, ay + 118], [175, ay + 118]], { kleur: '#d98a1c', w: 0.45 }), T(176, ay + 119, 'aan/uit → /3.2 (-R5)', { size: 2.5, kleur: '#d98a1c' }));
-  i.push(L([[px, ay + 128], [148.7, ay + 128]], { kleur: '#2a6fd6', w: 0.45 }), L([[151.3, ay + 128], [175, ay + 128]], { kleur: '#2a6fd6', w: 0.45 }), T(176, ay + 129, 'PWM → /3.5 (-R1)', { size: 2.5, kleur: '#2a6fd6' }));
-  i.push(L([[px, ay + 138], [148.7, ay + 138]], { w: 0.45 }), L([[151.3, ay + 138], [160, ay + 138], [160, ym]], { w: 0.45 }), punt(160, ym));
-  i.push(T(168, ay + 152, '-X5 Grove-bus Port B (5V-draad niet aangesloten)', { size: 2.3, kleur: '#555' }));
-  // Port A: 5V -> T2 -> L3; SDA/SCL met pull-ups naar L3; naar B1
-  const ty = ay + 70;
-  [[ty, '2'], [ay + 80, '3'], [ay + 90, '4'], [ay + 100, '1']].forEach(([y, n]) => i.push(klem(150, y, '-X4', n)));
-  i.push(T(150, ay + 108, '-X4 Grove-bus Port A', { size: 2.3, kleur: '#555' }));
-  i.push(L([[px, ty], [148.7, ty]], { w: 0.45 }), L([[151.3, ty], [185, ty]], { kleur: '#b42318', w: 0.45 }), T(160, ty - 2, '+5 V', { size: 2.3, kleur: '#b42318' }));
+  const px = ax + 62, xa = 96, xk = 150;
+  i.push(rect(xa - 4, ay + 18, 12, 136, { streep: '2 1.5', w2: 0.3 }), T(xa + 2, ay + 14, '-A3', { anchor: 'middle', size: 2.8, bold: true }));
+  i.push(T(xa + 2, ay + 160, 'adapterprint', { anchor: 'middle', size: 2.2, kleur: '#555' }), T(xa + 2, ay + 163.5, 'in de knophouder', { anchor: 'middle', size: 2.2, kleur: '#555' }));
+  i.push(T(123, ay + 14, '-W1  kabel 4 x 2 x 0,2 mm² (Cat 6), 0,6 m', { anchor: 'middle', size: 2.3, kleur: '#555' }));
+  // USB-C op -A3 (flashen)
+  i.push(L([[px, ay + 146], [xa + 14, ay + 146]], { w: 0.45 }), T(xa + 16, ay + 147, '-X7 USB-C-bus (in het deksel)', { size: 2.4 }));
+  const draad = (y, kleur, nr) => {
+    i.push(L([[px, y], [xk - 1.3, y]], { kleur, w: 0.45 }), klem(xk, y, '-X4', nr));
+  };
+  // voeding van de knop uit L5
+  draad(ay + 30, '#d97706', '1');
+  i.push(L([[xk + 1.3, ay + 30], [170, ay + 30], [170, y5]], { kleur: '#d97706', w: 0.45 }), punt(170, y5));
+  draad(ay + 42, '#111', '2');
+  i.push(L([[xk + 1.3, ay + 42], [165, ay + 42], [165, ym]], { w: 0.45 }), punt(165, ym));
+  // aan/uit en PWM naar blad 3
+  draad(ay + 118, '#d98a1c', '6');
+  draad(ay + 128, '#2a6fd6', '5');
+  i.push(L([[xk + 1.3, ay + 118], [185, ay + 118]], { kleur: '#d98a1c', w: 0.45 }), T(186, ay + 119, 'aan/uit → /3.2 (-R5)', { size: 2.5, kleur: '#d98a1c' }));
+  i.push(L([[xk + 1.3, ay + 128], [185, ay + 128]], { kleur: '#2a6fd6', w: 0.45 }), T(186, ay + 129, 'PWM → /3.5 (-R1)', { size: 2.5, kleur: '#2a6fd6' }));
+  // L5 -> T2 -> L3; SDA/SCL met pull-ups naar L3; naar B1
+  const ty = ay + 50;
+  i.push(punt(190, y5), L([[190, y5], [190, ty - 10], [185, ty - 10], [185, ty]], { kleur: '#d97706', w: 0.45 }));
   i.push(toestel(185, ty - 10, 34, 24, '-T2', ['MCP1700-3302', '5 V -> 3,3 V'], [{ x: 0, y: 10, naam: 'in' }, { x: 34, y: 10, naam: 'uit' }, { x: 17, y: 24, naam: 'GND' }]));
   i.push(L([[202, ty + 14], [202, ym]], { w: 0.45 }), punt(202, ym));
-  i.push(punt(175, ty), L([[175, ty], [175, ty + 20]]), condensator(175, ty + 20, '-C2', '1 µF'), L([[175, ty + 36], [175, ym]]), punt(175, ym));
+  i.push(punt(178, ty), L([[178, ty], [178, ty + 20]]), condensator(178, ty + 20, '-C2', '1 µF'), L([[178, ty + 36], [178, ym]]), punt(178, ym));
+  i.push(L([[175, ty], [185, ty]], { kleur: '#d97706', w: 0.45 }));
   const y3 = 40;
   i.push(L([[219, ty], [232, ty], [232, y3], [X1 - 5, y3]], { kleur: '#7c3aed', w: 0.5 }), T(240, y3 - 1.5, 'L3 3,3 V', { size: 2.6, kleur: '#7c3aed' }));
   i.push(punt(232, ty), L([[232, ty], [232, ty + 20]]), condensator(232, ty + 20, '-C3', '1 µF'), L([[232, ty + 36], [232, ym]]), punt(232, ym));
-  // pull-ups
+  // I2C via -X4:3/4
+  draad(ay + 80, '#7c3aed', '3');
+  draad(ay + 90, '#7c3aed', '4');
   i.push(punt(255, y3), L([[255, y3], [255, 55]]), weerstand(255, 55, '-R7', '4,7 kΩ'), L([[255, 75], [255, ay + 80]]), punt(255, ay + 80));
   i.push(punt(270, y3), L([[270, y3], [270, 55]]), weerstand(270, 55, '-R8', '4,7 kΩ'), L([[270, 75], [270, ay + 90]]), punt(270, ay + 90));
-  i.push(L([[px, ay + 80], [148.7, ay + 80]], { w: 0.45 }), L([[151.3, ay + 80], [310, ay + 80]], { kleur: '#7c3aed', w: 0.45 }), T(285, ay + 78, 'SDA', { size: 2.4, kleur: '#7c3aed' }));
-  i.push(L([[px, ay + 90], [148.7, ay + 90]], { w: 0.45 }), L([[151.3, ay + 90], [310, ay + 90]], { kleur: '#7c3aed', w: 0.45 }), T(285, ay + 88, 'SCL', { size: 2.4, kleur: '#7c3aed' }));
-  i.push(L([[px, ay + 100], [148.7, ay + 100]], { w: 0.45 }), L([[151.3, ay + 100], [165, ay + 100], [165, ym]], { w: 0.45 }), punt(165, ym));
+  i.push(L([[xk + 1.3, ay + 80], [310, ay + 80]], { kleur: '#7c3aed', w: 0.45 }), T(285, ay + 78, 'SDA', { size: 2.4, kleur: '#7c3aed' }));
+  i.push(L([[xk + 1.3, ay + 90], [310, ay + 90]], { kleur: '#7c3aed', w: 0.45 }), T(285, ay + 88, 'SCL', { size: 2.4, kleur: '#7c3aed' }));
+  i.push(T(xk, ay + 172, '-X4 schroefklem 6-polig op -A2', { anchor: 'middle', size: 2.3, kleur: '#555' }));
   // drukmeter
   const bx = 310, by = ay + 20;
   i.push(toestel(bx, by, 70, 72, '-B1', ['Sensirion SDP810-500Pa', 'verschildruk ±500 Pa', 'I2C-adres 0x25'], [
@@ -223,7 +239,8 @@ function blad4() {
   // pneumatiek: twee slangpoorten
   const poort = (y, tekst1, tekst2) => [L([[bx + 70, y], [bx + 82, y]], { w: 1.4, kleur: '#9aa0a6', streep: '3 2' }), `<circle cx="${bx + 83.5}" cy="${y}" r="1.5" fill="#fff" stroke="#9aa0a6" stroke-width="0.6"/>`, T(bx + 3, y - 1, tekst1, { size: 2.3, kleur: '#555' }), T(bx + 3, y + 2.6, tekst2, { size: 2.3, kleur: '#555' })].join('');
   i.push(poort(by + 22, 'poort "+": open in het vak', '(kamerdruk)'), poort(by + 44, 'poort "-": slang 3 x 5 mm naar het', 'tuitje in het plafond (onder de filters)'));
-  return kader(4, 'Besturing en verschildrukmeter', i);
+  i.push(T(250, 205, 'GPIO43/44 zijn de UART0-lijnen van de knop: in rust hoog, net als I2C. De console loopt over USB.', { size: 2.4, kleur: '#444' }));
+  return kader(4, 'Besturing, kabel naar de knop en verschildrukmeter', i);
 }
 
 // ---- blad 5: klemmenplan ----
@@ -235,16 +252,12 @@ const KLEMMEN = [
   ['-X3', '2', '0 V', 'M', 'ventilatordraad', '-M1 GND'],
   ['-X3', '3', 'PWM', '-Q1 collector', 'ventilatordraad', '-M1 PWM'],
   ['-X3', '4', 'toerental', '—', '(niet aangesloten)', '-M1 toerental'],
-  ['-X4', '1', 'GND', 'M', 'Grove zwart', '-A1 Port A'],
-  ['-X4', '2', '5 V', '-T2 in', 'Grove rood', '-A1 Port A'],
-  ['-X4', '3', 'SDA (G13)', '-B1 SDA, -R7', 'Grove geel', '-A1 Port A'],
-  ['-X4', '4', 'SCL (G15)', '-B1 SCL, -R8', 'Grove wit', '-A1 Port A'],
-  ['-X5', '1', 'GND', 'M', 'Grove zwart', '-A1 Port B'],
-  ['-X5', '2', '5 V', '— (los)', 'Grove rood', '-A1 Port B'],
-  ['-X5', '3', 'G2 (PWM)', '-R1', 'Grove geel', '-A1 Port B'],
-  ['-X5', '4', 'G1 (aan/uit)', '-R5', 'Grove wit', '-A1 Port B'],
-  ['-X6', '1', '+12 V', 'L+', 'rood 0,5 mm²', '-A1 voeding +'],
-  ['-X6', '2', '0 V', 'M', 'zwart 0,5 mm²', '-A1 voeding -'],
+  ['-X4', '1', '+5 V', 'L5 (-T3)', 'W1 oranje + wit/oranje', '-A3 -> FPC 1'],
+  ['-X4', '2', '0 V', 'M', 'W1 bruin + wit/bruin', '-A3 -> FPC 3'],
+  ['-X4', '3', 'SDA (GPIO44)', '-B1 SDA, -R7', 'W1 groen', '-A3 -> FPC 6'],
+  ['-X4', '4', 'SCL (GPIO43)', '-B1 SCL, -R8', 'W1 wit/groen', '-A3 -> FPC 7'],
+  ['-X4', '5', 'PWM (GPIO39)', '-R1', 'W1 blauw', '-A3 -> FPC 5'],
+  ['-X4', '6', 'aan/uit (GPIO40)', '-R5', 'W1 wit/blauw', '-A3 -> FPC 4'],
 ];
 function tabel(x, y, kolommen, rijen) {
   const r = [];
@@ -260,8 +273,8 @@ function tabel(x, y, kolommen, rijen) {
 function blad5() {
   const i = [tabel(X0, 20, [['Klem', 18], ['Nr', 10], ['Functie', 40], ['Intern (print -A2)', 50], ['Draad', 45], ['Extern', 50]], KLEMMEN)];
   i.push(T(250, 30, 'Bedrading', { size: 4, bold: true }));
-  ['Alle klemmen zitten op de gaatjesprint -A2 (30 x 70 mm) in het elektronicavak.', 'Schroefklemmen met steek 3,5 mm; Grove-bussen HY2.0-4P voor -X4 en -X5.', 'De ventilatorkabel gaat door de doorvoer in de tussenwand (dichten met een tule).',
-    'De Grove-kabels en de voeding van de Dial gaan door de kabeldoorvoer in de bodemplaat', 'en onder het blad naar de dialkuip (kabeltule onderaan de kuip).', 'Draadkleuren van de Grove-kabels en de ventilator vóór het solderen nameten.']
+  ['Alle klemmen zitten op de gaatjesprint -A2 (30 x 70 mm) in het elektronicavak.', 'Schroefklemmen met steek 3,5 mm (-X3 4-polig, -X4 6-polig).', 'De ventilatorkabel gaat door de doorvoer in de tussenwand (dichten met een tule).',
+    'De kabel -W1 gaat door de kabeldoorvoer in de bodemplaat en onder het blad naar de', 'knophouder (tule in het deksel), naar de schroefklem op de adapterprint -A3.', 'Op -A3: FPC-bus 10-polig 0,5 mm voor de knop en de USB-C-bus -X7 (D+ FPC 9, D- FPC 10, GND).', 'Draadkleuren van de kabel en de ventilator vóór het solderen nameten.']
     .forEach((s, k) => i.push(T(250, 40 + k * 6, s, { size: 2.8, kleur: '#333' })));
   return kader(5, 'Klemmenplan', i);
 }
@@ -279,13 +292,17 @@ export const STUKLIJST = [
   ['-R2, -R4, -R6', '3', 'Weerstand 10 kΩ 0,25 W', '—'],
   ['-R7, -R8', '2', 'Weerstand 4,7 kΩ 0,25 W', '—'],
   ['-T2', '1', 'Spanningsregelaar 3,3 V (TO-92)', 'Microchip MCP1700-3302E/TO'],
+  ['-T3', '1', 'Schakelende regelaar 12 V -> 5 V, 0,5 A', 'Pololu D24V5F5'],
   ['-C2, -C3', '2', 'Keramische condensator 1 µF', '—'],
   ['-B1', '1', 'Verschildrukmeter ±500 Pa, I2C', 'Sensirion SDP810-500PA'],
-  ['-A1', '1', 'Besturing met rond scherm en draaiknop', 'M5Stack Dial v1.1 (K130-V11)'],
+  ['-A1', '1', 'Knop 1,5" met rond AMOLED-scherm, ESP32-S3', 'VIEWE UEDX46460015-MD50E (zwart)'],
+  ['-A3', '1', 'Adapterprint FPC 10-polig 0,5 mm naar 2,54 mm, 23 x 47 mm', 'FPC/FFC-breakout 10P'],
+  ['-X7', '1', 'USB-C-bus (breakout, USB 2.0: D+, D-, GND)', '—'],
+  ['-W1', '0,6 m', 'Kabel 4 x 2 x 0,2 mm² (Cat 6, soepel)', '—'],
   ['-M1', '1', 'Ventilator 120 x 38 mm, 12 V, PWM', 'Delta PFR1212UHE-SP00'],
   ['-A2', '1', 'Gaatjesprint 30 x 70 mm (gaten 2 mm)', '—'],
-  ['-X3, -X6', '1', 'Printschroefklemmen steek 3,5 mm (4 + 2 polig)', '—'],
-  ['-X4, -X5', '2', 'Grove-bus HY2.0-4P (print) + Grove-kabel 50 cm', 'M5Stack / Seeed'],
+  ['-X3, -X4', '2', 'Printschroefklemmen steek 3,5 mm (4- en 6-polig)', '—'],
+  ['—', '1', 'Printschroefklem 6-polig steek 3,5 mm op -A3', '—'],
   ['—', '1 m', 'Siliconeslang 3 x 5 mm (drukmeter)', '—'],
 ];
 function blad6() {

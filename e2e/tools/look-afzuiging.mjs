@@ -22,11 +22,16 @@ await open(asm);
 await kijk('Control+7', 'afzuiging-iso');
 await kijk('Control+6', 'afzuiging-onder');
 await kijk('Control+3', 'afzuiging-links'); // de wipschakelaar in de kom van de linkerzijwand
-// de draaiknop alleen: kuip, sierring, Dial, klauwen en schroeven
+// de draaiknop alleen: houder, deksel, VIEWE-knop, adapterprint, klauwen en schroeven
 const knop = lees('voorbeelden/afzuiging/Afzuiging.kcad');
-knop.components = knop.components.filter((c) => /^a(7|8|12|dk\d|sd\d)$/.test(c.id));
+knop.components = knop.components.filter((c) => /^a(7|8|12|14|dk\d|sd\d|sk\d|sdk\d)$/.test(c.id));
 await open(knop);
 await kijk('Control+7', 'afzuiging-draaiknop');
+await kijk('Control+6', 'afzuiging-draaiknop-onder');
+await page.evaluate(() => window.__phlippoStore.setState({ sectionView: { plane: 'front', offset: 200, flip: false, cap: true } }));
+await page.waitForTimeout(1500);
+await kijk('Control+1', 'afzuiging-draaiknop-doorsnede');
+await page.evaluate(() => window.__phlippoStore.setState({ sectionView: null }));
 const uit = lees('voorbeelden/afzuiging/Afzuiging.kcad');
 for (const c of uit.components) {
   if (c.id === 'a2') c.position = [0, 140, 0];

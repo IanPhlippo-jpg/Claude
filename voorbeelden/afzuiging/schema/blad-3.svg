@@ -58,7 +58,7 @@
 <polyline points="97,125 103,125" fill="none" stroke="#111" stroke-width="0.35"/><rect x="103" y="123.5" width="8" height="3" fill="none" stroke="#111" stroke-width="0.35"/><polyline points="111,125 117,125" fill="none" stroke="#111" stroke-width="0.35"/><text x="107" y="122" font-size="2.6" text-anchor="middle" fill="#111">-R5</text><text x="107" y="130" font-size="2.4" text-anchor="middle" fill="#444">1 kΩ</text>
 <polyline points="117,125 127,125" fill="none" stroke="#111" stroke-width="0.35"/>
 <polyline points="97,125 25,125" fill="none" stroke="#d98a1c" stroke-width="0.45"/>
-<text x="25" y="123" font-size="2.6" text-anchor="start" fill="#d98a1c">aan/uit  G1 (Port B) ← /4.3</text>
+<text x="25" y="123" font-size="2.6" text-anchor="start" fill="#d98a1c">aan/uit  GPIO40 (-X4:6) ← /4.3</text>
 <circle cx="124" cy="125" r="0.8" fill="#111"/>
 <polyline points="124,125 124,150" fill="none" stroke="#111" stroke-width="0.35"/>
 <polyline points="124,150 124,156" fill="none" stroke="#111" stroke-width="0.35"/><rect x="122.5" y="156" width="3" height="8" fill="none" stroke="#111" stroke-width="0.35"/><polyline points="124,164 124,170" fill="none" stroke="#111" stroke-width="0.35"/><text x="121" y="159" font-size="2.6" text-anchor="end" fill="#111">-R6</text><text x="121" y="162.5" font-size="2.4" text-anchor="end" fill="#444">10 kΩ</text>
@@ -73,7 +73,7 @@
 <polyline points="222,175 228,175" fill="none" stroke="#111" stroke-width="0.35"/><rect x="228" y="173.5" width="8" height="3" fill="none" stroke="#111" stroke-width="0.35"/><polyline points="236,175 242,175" fill="none" stroke="#111" stroke-width="0.35"/><text x="232" y="172" font-size="2.6" text-anchor="middle" fill="#111">-R1</text><text x="232" y="180" font-size="2.4" text-anchor="middle" fill="#444">1 kΩ</text>
 <polyline points="242,175 252,175" fill="none" stroke="#111" stroke-width="0.35"/>
 <polyline points="222,175 205,175" fill="none" stroke="#2a6fd6" stroke-width="0.45"/>
-<text x="205" y="169" font-size="2.6" text-anchor="start" fill="#2a6fd6">PWM  G2 (Port B) ← /4.3</text>
+<text x="205" y="169" font-size="2.6" text-anchor="start" fill="#2a6fd6">PWM  GPIO39 (-X4:5) ← /4.3</text>
 <circle cx="249" cy="175" r="0.8" fill="#111"/>
 <polyline points="249,175 249,185" fill="none" stroke="#111" stroke-width="0.35"/>
 <polyline points="249,185 249,191" fill="none" stroke="#111" stroke-width="0.35"/><rect x="247.5" y="191" width="3" height="8" fill="none" stroke="#111" stroke-width="0.35"/><polyline points="249,199 249,205" fill="none" stroke="#111" stroke-width="0.35"/><text x="246" y="194" font-size="2.6" text-anchor="end" fill="#111">-R2</text><text x="246" y="197.5" font-size="2.4" text-anchor="end" fill="#444">10 kΩ</text>

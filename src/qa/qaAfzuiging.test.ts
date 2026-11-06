@@ -1,7 +1,7 @@
 /**
  * De ingebouwde nagelstofafzuiging (voorbeelden/afzuiging, versie 3.2, 2026-11-05):
  * - elk onderdeel bouwt op beide kernels tot één body met dezelfde vorm; het rooster is lasersnijbaar;
- * - de PLA-delen passen op een printbed van 220 x 220; de module hangt hoogstens 52 mm onder een blad van 34 mm;
+ * - de PETG-delen passen op een printbed van 220 x 220; de module hangt hoogstens 52 mm onder een blad van 34 mm;
  * - niets botst; de klauwen passen bij elke bladdikte van 10 tot 50 mm en liggen ingetrokken binnen de romp;
  * - de filtercassette gaat vrij naar boven uit de module;
  * - het luchtkanaal is dicht: lucht kan er alleen in langs het rooster en uit langs de uitblaasplaat, en het
@@ -58,10 +58,10 @@ describe('afzuiging, onderdelen (mesh)', () => {
     expect(-onder - 34).toBeLessThanOrEqual(52);
   });
 
-  it('PLA-delen passen op een printbed van 220 x 220 mm (en 250 hoog)', () => {
+  it('PETG-delen passen op een printbed van 220 x 220 mm (en 250 hoog)', () => {
     for (const f of DELEN) {
       const doc = open(f);
-      if (!/^PLA/.test(doc.material?.name ?? '')) continue;
+      if (!/^PETG/.test(doc.material?.name ?? '')) continue;
       const s = mesh[f].bb.getSize(new THREE.Vector3()).toArray().sort((a, b) => b - a);
       expect(s[0], f).toBeLessThanOrEqual(220);
       expect(s[2], f).toBeLessThanOrEqual(250);
@@ -105,7 +105,6 @@ describe('afzuiging, assemblage', () => {
     const a = asm();
     const klauwen = a.components.filter((c) => /^ak/.test(c.id)).map((c) => c.id);
     for (const t of [10, 20, 34, 50]) {
-      // de draaiknop werkt vanaf 22 mm (de Dial zelf zit in de bovenste 21 mm)
       const comps = a.components.map((c) => (klauwen.includes(c.id) ? { ...c, position: [c.position[0], -t - 4, c.position[2]] as [number, number, number] } : c))
         .filter((c) => ['a1', 'a6', ...klauwen].includes(c.id));
       expect(botsingen(comps), `blad ${t} mm`).toEqual([]);
@@ -115,6 +114,23 @@ describe('afzuiging, assemblage', () => {
       const g = r.bodies.find((b) => b.id === id)!.geometry;
       g.computeBoundingBox();
       expect(Math.max(Math.abs(g.boundingBox!.min.x), Math.abs(g.boundingBox!.max.x)), id).toBeGreaterThan(104); // uitsparing tot 98
+    }
+  }, 900000);
+
+  it('de klauwen van de knophouder passen bij elke bladdikte van 10 tot 50 mm en reiken voorbij het gat', () => {
+    const a = asm();
+    const d = a.components.find((c) => c.id === 'a7')!.position;
+    const klauwen = a.components.filter((c) => /^adk/.test(c.id)).map((c) => c.id);
+    for (const t of [10, 20, 34, 50]) {
+      const comps = a.components.map((c) => (klauwen.includes(c.id) ? { ...c, position: [c.position[0], -t - 3, c.position[2]] as [number, number, number] } : c))
+        .filter((c) => ['a7', 'a12', 'a8', 'a14', ...klauwen].includes(c.id) || /^as(d|k|dk)\d/.test(c.id));
+      expect(botsingen(comps), `blad ${t} mm`).toEqual([]);
+    }
+    const r = rebuildAssembly(a);
+    for (const id of klauwen) {
+      const g = r.bodies.find((b) => b.id === id)!.geometry;
+      g.computeBoundingBox();
+      expect(Math.max(Math.abs(g.boundingBox!.min.x - d[0]), Math.abs(g.boundingBox!.max.x - d[0])), id).toBeGreaterThan(27); // gat Ø44
     }
   }, 900000);
 
@@ -192,9 +208,9 @@ describe('afzuiging, luchtdicht', () => {
   const dicht = [
     new THREE.CylinderGeometry(1.3, 1.3, 12, 16).translate(-72, -44, -50),
     new THREE.CylinderGeometry(3.2, 3.2, 4, 24).rotateZ(Math.PI / 2).translate(-61.25, -70, 50),
-    // de M5-schroeven: de kop dicht de verzinking af, de schacht het gat
+    // de M5-schroeven: de kop dicht de verzinking in het frame af, de schacht het gat
     ...[[88.5, 40], [88.5, -40], [-88.5, 40], [-88.5, -40]].flatMap(([x, z]) => [
-      new THREE.CylinderGeometry(5.3, 5.3, 3, 24).translate(x, -1.5, z),
+      new THREE.CylinderGeometry(5.3, 5.3, 2.5, 24).translate(x, 1.25, z), // de kop zit in de lip van het frame
       new THREE.CylinderGeometry(3, 3, 66, 16).translate(x, -33, z),
     ]),
   ];
@@ -234,7 +250,7 @@ describe('afzuiging, B-rep', () => {
   }, 300000);
 
   // AFZUIGING_STL=1 npx vitest run src/qa/qaAfzuiging.test.ts: de STL's voor de printer, uit de exacte vorm, in printstand
-  // (Z omhoog): de romp en de dialkuip rechtop, het frame, de ring en de platen plat, de cassette met de rand op het bed.
+  // (Z omhoog): de romp rechtop, het frame en de platen plat, de cassette en de knophouder met de rand op het bed.
   it.skipIf(!process.env.AFZUIGING_STL)('STL voor de printer', async () => {
     const { mkdirSync, writeFileSync, rmSync, existsSync } = await import('node:fs');
     const { prepareTriangles, stlBinary } = await import('../core/document/export3d');
@@ -242,7 +258,7 @@ describe('afzuiging, B-rep', () => {
     const rand = new THREE.Matrix4().set(1, 0, 0, 0, 0, 0, 1, 0, 0, -1, 0, 0, 0, 0, 0, 1); // (x, y, z) -> (x, z, -y)
     const stand: Record<string, THREE.Matrix4> = {
       'Romp.kcad': plat, 'Bovenframe.kcad': plat, 'Bodemplaat.kcad': plat,
-      'Filtercassette.kcad': rand, 'Dialkuip.kcad': plat, 'Dialring.kcad': plat,
+      'Filtercassette.kcad': rand, 'Knophouder.kcad': rand, 'Knopdeksel.kcad': plat,
     };
     if (existsSync(`${DIR}/print`)) rmSync(`${DIR}/print`, { recursive: true });
     mkdirSync(`${DIR}/print`, { recursive: true });

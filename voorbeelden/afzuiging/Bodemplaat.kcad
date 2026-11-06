@@ -1428,8 +1428,8 @@
   }
  ],
  "material": {
-  "name": "PLA, wit",
-  "density": 1240,
+  "name": "PETG, wit",
+  "density": 1270,
   "color": "#f4f4f1"
  }
 }

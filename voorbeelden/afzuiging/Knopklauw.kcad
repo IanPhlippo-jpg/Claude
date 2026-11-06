@@ -1,7 +1,7 @@
 {
  "format": "phlippo-cad",
  "version": 1,
- "name": "Dialklauw",
+ "name": "Knopklauw",
  "units": "mm",
  "planes": {
   "boven": {

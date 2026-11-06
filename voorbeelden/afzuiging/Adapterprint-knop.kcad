@@ -1,0 +1,372 @@
+{
+ "format": "phlippo-cad",
+ "version": 1,
+ "name": "Adapterprint knop",
+ "units": "mm",
+ "planes": {
+  "adapter": {
+   "id": "adapter",
+   "name": "Plane adapterprint",
+   "origin": [
+    1,
+    0,
+    0
+   ],
+   "u": [
+    0,
+    0,
+    -1
+   ],
+   "v": [
+    0,
+    1,
+    0
+   ],
+   "n": [
+    1,
+    0,
+    0
+   ],
+   "kind": "reference"
+  },
+  "adaptervoor": {
+   "id": "adaptervoor",
+   "name": "Plane onderdelen",
+   "origin": [
+    1.3,
+    0,
+    0
+   ],
+   "u": [
+    0,
+    0,
+    -1
+   ],
+   "v": [
+    0,
+    -1,
+    0
+   ],
+   "n": [
+    -1,
+    0,
+    0
+   ],
+   "kind": "reference"
+  }
+ },
+ "variables": {},
+ "equations": [],
+ "sketches": {
+  "s1": {
+   "id": "s1",
+   "name": "Sketch1",
+   "plane": "adapter",
+   "points": {
+    "origin_s1": {
+     "x": 0,
+     "y": 0
+    },
+    "s1p0": {
+     "x": -11.4,
+     "y": -59.5
+    },
+    "s1p1": {
+     "x": 11.4,
+     "y": -59.5
+    },
+    "s1p2": {
+     "x": 11.4,
+     "y": -12
+    },
+    "s1p3": {
+     "x": -11.4,
+     "y": -12
+    }
+   },
+   "scalars": {},
+   "entities": {
+    "s1e4": {
+     "id": "s1e4",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p0",
+     "p2": "s1p1"
+    },
+    "s1e5": {
+     "id": "s1e5",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p1",
+     "p2": "s1p2"
+    },
+    "s1e6": {
+     "id": "s1e6",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p2",
+     "p2": "s1p3"
+    },
+    "s1e7": {
+     "id": "s1e7",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p3",
+     "p2": "s1p0"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s1e4",
+    "s1e5",
+    "s1e6",
+    "s1e7"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s1"
+  },
+  "s2": {
+   "id": "s2",
+   "name": "Sketch2",
+   "plane": "adaptervoor",
+   "points": {
+    "origin_s2": {
+     "x": 0,
+     "y": 0
+    },
+    "s2p0": {
+     "x": -7,
+     "y": 13
+    },
+    "s2p1": {
+     "x": 7,
+     "y": 13
+    },
+    "s2p2": {
+     "x": 7,
+     "y": 17
+    },
+    "s2p3": {
+     "x": -7,
+     "y": 17
+    },
+    "s2p8": {
+     "x": -10.5,
+     "y": 37.5
+    },
+    "s2p9": {
+     "x": 10.5,
+     "y": 37.5
+    },
+    "s2p10": {
+     "x": 10.5,
+     "y": 45
+    },
+    "s2p11": {
+     "x": -10.5,
+     "y": 45
+    }
+   },
+   "scalars": {},
+   "entities": {
+    "s2e4": {
+     "id": "s2e4",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p0",
+     "p2": "s2p1"
+    },
+    "s2e5": {
+     "id": "s2e5",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p1",
+     "p2": "s2p2"
+    },
+    "s2e6": {
+     "id": "s2e6",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p2",
+     "p2": "s2p3"
+    },
+    "s2e7": {
+     "id": "s2e7",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p3",
+     "p2": "s2p0"
+    },
+    "s2e12": {
+     "id": "s2e12",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p8",
+     "p2": "s2p9"
+    },
+    "s2e13": {
+     "id": "s2e13",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p9",
+     "p2": "s2p10"
+    },
+    "s2e14": {
+     "id": "s2e14",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p10",
+     "p2": "s2p11"
+    },
+    "s2e15": {
+     "id": "s2e15",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p11",
+     "p2": "s2p8"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s2e4",
+    "s2e5",
+    "s2e6",
+    "s2e7",
+    "s2e12",
+    "s2e13",
+    "s2e14",
+    "s2e15"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s2"
+  },
+  "s3": {
+   "id": "s3",
+   "name": "Sketch3",
+   "plane": "adaptervoor",
+   "points": {
+    "origin_s3": {
+     "x": 0,
+     "y": 0
+    },
+    "s3p0": {
+     "x": -4.45,
+     "y": 52
+    },
+    "s3p1": {
+     "x": 4.45,
+     "y": 52
+    },
+    "s3p2": {
+     "x": 4.45,
+     "y": 59
+    },
+    "s3p3": {
+     "x": -4.45,
+     "y": 59
+    }
+   },
+   "scalars": {},
+   "entities": {
+    "s3e4": {
+     "id": "s3e4",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p0",
+     "p2": "s3p1"
+    },
+    "s3e5": {
+     "id": "s3e5",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p1",
+     "p2": "s3p2"
+    },
+    "s3e6": {
+     "id": "s3e6",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p2",
+     "p2": "s3p3"
+    },
+    "s3e7": {
+     "id": "s3e7",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p3",
+     "p2": "s3p0"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s3e4",
+    "s3e5",
+    "s3e6",
+    "s3e7"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s3"
+  }
+ },
+ "features": [
+  {
+   "id": "ks1",
+   "type": "sketch",
+   "name": "Sketch1",
+   "sketchId": "s1",
+   "suppressed": false
+  },
+  {
+   "id": "f2",
+   "type": "extrude",
+   "name": "Print",
+   "sketchId": "s1",
+   "suppressed": false,
+   "op": "boss",
+   "end": "blind",
+   "depth": 1.6,
+   "reverse": false
+  },
+  {
+   "id": "ks2",
+   "type": "sketch",
+   "name": "Sketch2",
+   "sketchId": "s2",
+   "suppressed": false
+  },
+  {
+   "id": "f4",
+   "type": "extrude",
+   "name": "Onderdelen",
+   "sketchId": "s2",
+   "suppressed": false,
+   "op": "boss",
+   "end": "blind",
+   "depth": 5,
+   "reverse": false
+  },
+  {
+   "id": "ks3",
+   "type": "sketch",
+   "name": "Sketch3",
+   "sketchId": "s3",
+   "suppressed": false
+  },
+  {
+   "id": "f6",
+   "type": "extrude",
+   "name": "USB-C-bus",
+   "sketchId": "s3",
+   "suppressed": false,
+   "op": "boss",
+   "end": "blind",
+   "depth": 3.5,
+   "reverse": false
+  }
+ ],
+ "material": {
+  "name": "FR4",
+  "density": 1850,
+  "color": "#2f7d4a"
+ }
+}

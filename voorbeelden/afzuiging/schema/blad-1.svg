@@ -43,16 +43,16 @@
 <polyline points="365,253 365,292" fill="none" stroke="#111" stroke-width="0.25"/><text x="367" y="258" font-size="2.2" text-anchor="start" fill="#666">Blad</text><text x="367" y="269" font-size="5.5" text-anchor="start" fill="#111" font-weight="700">1 / 6</text>
 <text x="210" y="60" font-size="12" text-anchor="middle" fill="#111" font-weight="700">Afzuiging Lush Beauty</text>
 <text x="210" y="74" font-size="7" text-anchor="middle" fill="#111">Aansluitschema elektronica</text>
-<text x="210" y="84" font-size="3.6" text-anchor="middle" fill="#444">Ventilator Delta PFR1212UHE-SP00 · besturing M5Stack Dial · verschildrukmeting Sensirion SDP810-500Pa</text>
+<text x="210" y="84" font-size="3.6" text-anchor="middle" fill="#444">Ventilator Delta PFR1212UHE-SP00 · besturing VIEWE-knop 1,5" (ESP32-S3) · verschildrukmeting Sensirion SDP810-500Pa</text>
 <text x="120" y="115" font-size="5" text-anchor="start" fill="#111" font-weight="700">Inhoud</text>
 <text x="120" y="127" font-size="4" text-anchor="start" fill="#111">Blad 1</text>
 <text x="150" y="127" font-size="4" text-anchor="start" fill="#111">Titelblad en inhoud</text>
 <text x="120" y="136" font-size="4" text-anchor="start" fill="#111">Blad 2</text>
-<text x="150" y="136" font-size="4" text-anchor="start" fill="#111">Voeding 12 V: netadapter, DC-bus, schakelaar, zekering</text>
+<text x="150" y="136" font-size="4" text-anchor="start" fill="#111">Voeding 12 V en 5 V: netadapter, DC-bus, schakelaar, zekering, regelaar</text>
 <text x="120" y="145" font-size="4" text-anchor="start" fill="#111">Blad 3</text>
 <text x="150" y="145" font-size="4" text-anchor="start" fill="#111">Ventilator: aan/uit (-Q3) en snelheid PWM (-Q1)</text>
 <text x="120" y="154" font-size="4" text-anchor="start" fill="#111">Blad 4</text>
-<text x="150" y="154" font-size="4" text-anchor="start" fill="#111">Besturing -A1 en verschildrukmeter -B1 (I2C, 3,3 V)</text>
+<text x="150" y="154" font-size="4" text-anchor="start" fill="#111">Besturing -A1 (knop), kabel -W1 en verschildrukmeter -B1 (I2C, 3,3 V)</text>
 <text x="120" y="163" font-size="4" text-anchor="start" fill="#111">Blad 5</text>
 <text x="150" y="163" font-size="4" text-anchor="start" fill="#111">Klemmenplan en bedrading</text>
 <text x="120" y="172" font-size="4" text-anchor="start" fill="#111">Blad 6</text>
@@ -60,6 +60,7 @@
 <text x="120" y="195" font-size="4" text-anchor="start" fill="#111" font-weight="700">Leeswijzer</text>
 <text x="120" y="205" font-size="3.2" text-anchor="start" fill="#333">Codes volgens IEC 81346: -T netadapter, -F zekering, -Q schakelaars, -R weerstanden, -C condensatoren,</text>
 <text x="120" y="211.5" font-size="3.2" text-anchor="start" fill="#333">-M motor, -A besturing, -B sensor, -X klemmen en connectoren.</text>
-<text x="120" y="218" font-size="3.2" text-anchor="start" fill="#333">Potentialen: L+ = +12 V, L3 = +3,3 V (alleen voor de drukmeter), M = 0 V. Een verwijzing /3.2 betekent blad 3, kolom 2.</text>
-<text x="120" y="224.5" font-size="3.2" text-anchor="start" fill="#333">Alles behalve de netadapter zit in het elektronicavak van de romp, op één gaatjesprint van 30 x 70 mm (-A2).</text>
+<text x="120" y="218" font-size="3.2" text-anchor="start" fill="#333">Potentialen: L+ = +12 V, L5 = +5 V (knop), L3 = +3,3 V (drukmeter), M = 0 V. Een verwijzing /3.2 betekent blad 3, kolom 2.</text>
+<text x="120" y="224.5" font-size="3.2" text-anchor="start" fill="#333">Alles behalve de netadapter en de knop zit in het elektronicavak van de romp, op één gaatjesprint van 30 x 70 mm (-A2).</text>
+<text x="120" y="231" font-size="3.2" text-anchor="start" fill="#333">De knop -A1 zit in de knophouder in het blad, met de adapterprint -A3; een kabel -W1 verbindt -A3 met -A2.</text>
 </svg>
