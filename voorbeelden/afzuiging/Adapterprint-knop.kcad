@@ -69,11 +69,11 @@
     },
     "s1p0": {
      "x": -11.4,
-     "y": -59.5
+     "y": -54
     },
     "s1p1": {
      "x": 11.4,
-     "y": -59.5
+     "y": -54
     },
     "s1p2": {
      "x": 11.4,
@@ -191,73 +191,6 @@
    ],
    "constraintOrder": [],
    "origin": "origin_s2"
-  },
-  "s3": {
-   "id": "s3",
-   "name": "Sketch3",
-   "plane": "adaptervoor",
-   "points": {
-    "origin_s3": {
-     "x": 0,
-     "y": 0
-    },
-    "s3p0": {
-     "x": -4.45,
-     "y": 52
-    },
-    "s3p1": {
-     "x": 4.45,
-     "y": 52
-    },
-    "s3p2": {
-     "x": 4.45,
-     "y": 59
-    },
-    "s3p3": {
-     "x": -4.45,
-     "y": 59
-    }
-   },
-   "scalars": {},
-   "entities": {
-    "s3e4": {
-     "id": "s3e4",
-     "construction": false,
-     "kind": "line",
-     "p1": "s3p0",
-     "p2": "s3p1"
-    },
-    "s3e5": {
-     "id": "s3e5",
-     "construction": false,
-     "kind": "line",
-     "p1": "s3p1",
-     "p2": "s3p2"
-    },
-    "s3e6": {
-     "id": "s3e6",
-     "construction": false,
-     "kind": "line",
-     "p1": "s3p2",
-     "p2": "s3p3"
-    },
-    "s3e7": {
-     "id": "s3e7",
-     "construction": false,
-     "kind": "line",
-     "p1": "s3p3",
-     "p2": "s3p0"
-    }
-   },
-   "constraints": {},
-   "entityOrder": [
-    "s3e4",
-    "s3e5",
-    "s3e6",
-    "s3e7"
-   ],
-   "constraintOrder": [],
-   "origin": "origin_s3"
   }
  },
  "features": [
@@ -295,24 +228,6 @@
    "op": "boss",
    "end": "blind",
    "depth": 5,
-   "reverse": false
-  },
-  {
-   "id": "ks3",
-   "type": "sketch",
-   "name": "Sketch3",
-   "sketchId": "s3",
-   "suppressed": false
-  },
-  {
-   "id": "f6",
-   "type": "extrude",
-   "name": "USB-C-bus",
-   "sketchId": "s3",
-   "suppressed": false,
-   "op": "boss",
-   "end": "blind",
-   "depth": 3.5,
    "reverse": false
   }
  ],

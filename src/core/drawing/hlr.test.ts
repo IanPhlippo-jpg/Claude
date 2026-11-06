@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { addCircle, addLine, createSketch } from '../sketch/model';
+import { addArc, addCircle, addLine, addPointParam, createSketch } from '../sketch/model';
 import { createDocument, type ExtrudeFeature, type SketchFeature } from '../document/types';
 import { rebuildDocument } from '../features/rebuild';
 import { cleanLines, mergeLines, projectView, viewFrame } from './hlr';
@@ -62,5 +62,31 @@ describe('drawing projection', () => {
     const v = projectView(bodies, viewFrame('isometric'));
     expect(v.lines.length).toBeGreaterThan(10);
     expect(v.lines.some((l) => l.silhouette && !l.hidden)).toBe(true);
+  });
+  it('a rounded rectangular hole is not taken for a circle (only real circles get center marks)', () => {
+    const doc = createDocument('Plate with slot');
+    let s = createSketch('sk1', 'Sketch1', 'top');
+    const c = [{ x: 0, y: 0 }, { x: 300, y: 0 }, { x: 300, y: -300 }, { x: 0, y: -300 }];
+    for (let i = 0; i < 4; i++) s = addLine(s, c[i], c[(i + 1) % 4])[0];
+    // 200 x 200 hole with R5 corners, centered at (150, -150): four lines and four tangent arcs sharing their end points;
+    // its corner points lie within 1 % of one radius from the center, so only an exact roundness test rejects it
+    const ids: string[] = [];
+    const pts = [[55, -50], [245, -50], [250, -55], [250, -245], [245, -250], [55, -250], [50, -245], [50, -55]];
+    for (const [x, y] of pts) { let id: string; [s, id] = addPointParam(s, { x, y }); ids.push(id); }
+    const centers = [[245, -55], [245, -245], [55, -245], [55, -55]];
+    for (let i = 0; i < 4; i++) {
+      s = addLine(s, ids[2 * i], ids[2 * i + 1])[0];
+      s = addArc(s, { x: centers[i][0], y: centers[i][1] }, ids[2 * i + 1], ids[(2 * i + 2) % 8], false)[0];
+    }
+    s = addCircle(s, { x: 280, y: -280 }, 4)[0];
+    doc.sketches.sk1 = s;
+    doc.features = [
+      { id: 'f1', type: 'sketch', name: 'Sketch1', sketchId: 'sk1', suppressed: false } as SketchFeature,
+      { id: 'f2', type: 'extrude', name: 'Boss-Extrude1', sketchId: 'sk1', suppressed: false, op: 'boss', end: 'blind', depth: 10, reverse: false } as ExtrudeFeature,
+    ];
+    const v = projectView(rebuildDocument(doc, null).bodies, viewFrame('top'));
+    const visible = v.circles.filter((k) => !k.hidden);
+    expect(visible.length).toBe(1);
+    expect(visible[0].r).toBeCloseTo(4, 1);
   });
 });

@@ -57,7 +57,7 @@ De netadapter en de elektronica zitten in een aparte voedingsbox onder het blad;
 | Netsnoer C13 naar stopcontact (randaarde) | 1 | gewoon pc-netsnoer |
 | Knop met rond AMOLED-scherm 1,5", ESP32-S3 | 1 | VIEWE UEDX46460015-MD50E, variant 1.5-Black-Knob (AliExpress, VIEWE Store) |
 | Adapterprint FPC 10-polig 0,5 mm naar 2,54 mm | 1 | FPC/FFC-breakout 10P, past in 23 x 47 mm |
-| USB-C-bus, breakout 16-polig (USB 2.0, 5,1 kΩ op CC) | 1 | in de knophouder: 5 V van de box, of de computer om de knop te flashen |
+| USB-C-bus, breakout 16-polig (USB 2.0, 5,1 kΩ op CC), ca. 14 x 10,6 mm | 1 | in de knophouder op 2 palen, de bus opzij door de achterwand (kant van de sleuf): 5 V van de box, of de computer om de knop te flashen |
 | USB-C-bus, breakout 6-polig (VBUS, GND, CC1, CC2) | 1 | in de box, levert 5 V aan de knop |
 | USB-C-kabel C-C, 1 m, haakse stekkers | 1 | USB 2.0 volstaat |
 | M8-inbouwbus 4-polig, A-codering, achterwandmontage (PG7) | 1 | in de achterwand van de afzuiging |
@@ -90,7 +90,7 @@ De netadapter en de elektronica zitten in een aparte voedingsbox onder het blad;
 | M3 x 16 verzonken (DIN 7991, A2) | 8 | bodemplaat; de kop ligt vlak in de plaat, draait zelf in PETG |
 | M4 x 10 verzonken (DIN 7991, A2) | 4 | ventilator op de bodemplaat (4 tot 6 mm in de motor) |
 | M2,5 x 6 zelftappend | 4 | print in de box |
-| M2 x 5 zelftappend | 2 | USB-C-bus in de box |
+| M2 x 5 zelftappend | 4 | USB-C-bus in de box en USB-C-printje in de knophouder |
 
 ### Laten lasersnijden
 
@@ -158,6 +158,8 @@ Overhangen: alleen korte bruggen (de vensters van de klauwen, de kom van de scha
    | Sleuf naar de afzuiging, 29 x 7 mm, onderaan | frees Ø10 | van de box recht naar de achterkant van de uitsparing, 53 tot 82 mm links van het midden |
    | Sleuf naar de knop, 5 x 5 mm, onderaan | frees Ø5 | van de rechterkant van de box schuin naar het knopgat, rechts langs de afzuiging |
 
+   Druk de freesmallen in `schema/` (één PDF per doos: `Freesmal-afzuiging`, `-knop` en `-voedingsbox`) af op 100 % en meet de controlemaat van 100 mm na. De mal voor het knopgat legt je in de hoek van de uitsparing, die voor de onderkant tegen de achterrand ervan.
+
    LAGKAPTEN is vanbinnen een honingraat: de uitsparing voor de box geeft geen houvast in de zijkanten, de rand van de box drukt op de onderhuid.
 2. **Magneten:** lijm de vier magneten in het bovenframe, vlak met de bovenkant en allemaal met dezelfde pool naar boven.
 3. **Lijmen:** lijm het bovenframe op de bovenrand van de romp, rondom (luchtdicht). Lijm de rand op de bak van de cassette, over de hele wandbovenkant. Lijm een messingbuisje in de instroomplaat (meetpunt) en een in de achterwand (doorvoer). Laat de lijm een nacht uitharden.
@@ -168,7 +170,8 @@ Overhangen: alleen korte bruggen (de vensters van de klauwen, de kom van de scha
 8. **Inbouwen:** laat de module in de uitsparing zakken en draai de vier M5-schroeven rechtsom aan. Elke klauw zwaait naar buiten en trekt zich tegen de onderkant van het blad.
 9. **Filters en plaat:** knip de drie filters op 170 x 190 mm. Leg ze in de cassette, G4 bovenaan. Zet de cassette in het frame en leg de RVS-plaat erop.
 10. **Voedingsbox:** bouw de print volgens `schema/Aansluitschema-afzuiging.pdf` en schroef ze op de bussen. Zet de netadapter op de bodem tegen de aanslagen. Kort de DC-kabel van de adapter in en klem hem op -X1. Zet de schakelaar, de M8-stekker, het messingbuisje en de USB-C-bus in de wanden. Duw de box in de uitsparing en zet de rand vast met 4 pluggen voor holle deuren.
-11. **Knop:** steek de twee knopklauwen van onderen in hun kanaal en draai de M3 x 60 van bovenaf in. Zet de houder in het gat van Ø44 en draai beide schroeven aan. Steek de FPC door de sleuf in de kom, zet de knop in de kom en schroef hem van onderen vast met 2 x M2,5 x 6. Steek de FPC in de adapterprint, schuif de print in de groeven en schroef het deksel vast.
+11. **Knop:** steek de twee knopklauwen van onderen in hun kanaal en draai de M3 x 60 van bovenaf in. Zet de houder in het gat van Ø44 en draai beide schroeven aan. Steek de FPC door de sleuf in de kom, zet de knop in de kom en schroef hem van onderen vast met 2 x M2,5 x 6. Soldeer 4 draden (VBUS, GND, D+, D-) van de adapterprint naar het USB-C-printje. Steek de FPC in de adapterprint en schuif de print in de groeven. Schroef het USB-C-printje met 2 x M2 x 5 onder de palen: de bus steekt opzij door de achterwand, naar de sleuf. Schroef het deksel vast (het deksel is dicht).
+    De USB-C zit 18 tot 26 mm onder het bovenvlak van een blad van 34 mm: tot een blad van 48 mm past de stekker onder het blad.
 12. **Kabels:** leg de M8-kabel en het slangetje in de sleuf tussen de box en de afzuiging, de USB-C-kabel in de sleuf naar de knop, en steek ze in.
 13. **Opstarten:** steek het netsnoer in de box en in het stopcontact, flash de firmware (zie hieronder), zet de schakelaar aan en houd de knop 5 seconden ingedrukt om te ijken.
 
@@ -217,7 +220,9 @@ De knop gebruikt GFX Library for Arduino (CO5300-driver) en U8g2-lettertypes; he
 | `Afzuiging.kcad` | assemblage van de afzuiging, de voedingsbox en de knop |
 | `../bureau/Bureau.kcad` | het bureau met alles en de uitsparingen en sleuven in het blad |
 | `laser/`, `print/` | DXF's en STL's |
-| `schema/` | aansluitschema (PDF en SVG) |
+| `schema/` | aansluitschema (PDF en SVG) en de freesmallen op ware grootte, per doos een PDF: `Freesmal-afzuiging-1op1-A4.pdf` (uitsparing, 2 bladen), `Freesmal-knop-1op1-A4.pdf` (knopgat) en `Freesmal-voedingsbox-1op1-A4.pdf` (onderkant: box en sleuven) |
+| `tekeningen/Werktekeningen-afzuiging.pdf` | werktekeningen A3 (ISO E): samenstelling met stuklijst (AFZ-00), doorsnede, alle zelfgemaakte delen (AFZ-01 tot AFZ-12) en de bewerkingen in het blad (AFZ-20); losse SVG's en `stuklijst.csv` ernaast |
+| `tekeningen/Bouwschema-afzuiging.pdf` | bouwschema A4 in 13 stappen, met beelden uit Phlippo CAD |
 | `firmware/` | PlatformIO-project voor de knop en de box |
 | `maak-afzuiging.mjs`, `logo/*.py`, `schema/maak-schema.mjs` | generators; alle maten staan bovenaan in `maak-afzuiging.mjs` |
 

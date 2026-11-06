@@ -213,7 +213,9 @@ export function projectView(bodies: Body[], frame: ViewFrame, sampleStep = 0.75)
         const c = e.centroid;
         const r = e.points.reduce((s, p) => s + p.distanceTo(c), 0) / e.points.length;
         const n = e.points[1].clone().sub(e.points[0]).cross(e.points[2].clone().sub(e.points[0])).normalize();
-        if (Math.abs(n.dot(frame.w)) > 0.999) {
+        // only a real circle: a closed tangent loop (a rounded rectangle, a slot) is not one, however smooth it is
+        const rond = e.points.every((p) => Math.abs(p.distanceTo(c) - r) <= Math.max(0.01, r * 0.002));
+        if (rond && Math.abs(n.dot(frame.w)) > 0.999) {
           // visible when the midpoints of a few samples are visible
           const probes = [0, Math.floor(e.points.length / 3), Math.floor((2 * e.points.length) / 3)].map((i) => visibleAt(e.points[i].clone().addScaledVector(frame.w, eps * 0.6)));
           circles.push({ c: to2(c), r, hidden: !probes.some(Boolean), axis: [n.x, n.y, n.z] });

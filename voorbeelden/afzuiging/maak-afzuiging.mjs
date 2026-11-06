@@ -79,12 +79,14 @@ export const M = {
   sleuven: { module: { x: [-82, -53], diep: 7 }, knop: { z: -30, breed: 5, diep: 5 } },
   // VIEWE-knop 1,5" (UEDX46460015-MD50E, Ø51,6 x 14, naaf achteraan, FPC 10-polig) op een houder die niet breder is
   // dan de knop: plaat Ø51,6 x 2 op het blad, buis Ø43 in een gat van Ø44 (gatzaag), 2 stalen klauwen (M3) en een
-  // deksel onderaan met de USB-C-bus en de kabeltule. Maten van de knop uit de maattekening van VIEWE.
+  // dicht deksel onderaan. De USB-C zit in de achterwand van de buis (de kant waar de sleuf van de box aankomt), op een
+  // printje (-X7) op 2 palen net boven het deksel. Maten van de knop uit de maattekening van VIEWE.
   dial: { x: 250, z: 200, d: 51.6, hoogte: 14, voet: 2.5, gat: 44, plaat: 2, buis: 21.5, wand: 2, onder: -60, deksel: 2,
     naaf: [[12.2, 4.9], [10.9, 3]], vloer: 2.5, // kom voor de naaf (straal, diepte) en de vloer eronder
     schroeven: [[-2.9, 5.2], [-2.9, -5.2]], pennen: [[2.77, 7.05], [2.77, -7.05]], fpc: { x: -5.9, b: 5.5 },
     klauw: { x: 16, naaf: 4.5, arm: 15, breed: 6, dik: 3, top: -10, bodem: -60 },
-    adapter: { x: 1, b: 23, h: 47.5, top: -12 }, rib: 13, bus: 17 },
+    adapter: { x: 1, b: 23, h: 42, top: -12 }, rib: 13, bus: [[13, 13], [-13, -13]],
+    usb: { voor: -20.9, print: [-17, -6.4], y: -57, paal: { x: 5.5, z: -11 }, gat: { b: 9.5, y: [-55.7, -51.8] } } },
 };
 
 const PETG = { name: 'PETG, wit', density: 1270, color: '#f4f4f1' };
@@ -406,17 +408,32 @@ export function knophouder() {
   o.extrude('cut', yv1 - D.onder + 1, { omkeren: true, naam: 'Holte' });
   o.schets(yv('holte', yv1, 'reference', 'Plane holte'), (s) => {
     for (const k of [1, -1]) s.rrectW([k * (C.x - C.naaf - 2), 0, -C.naaf - 2], [k * (Ri + 0.5), 0, C.naaf + 2]);
-    for (const k of [1, -1]) s.rrectW([D.adapter.x - 1.5, 0, k * (D.adapter.b / 2 - 0.9)], [D.adapter.x + 3.1, 0, k * D.rib]);
-    for (const k of [1, -1]) s.cirkelW([0, 0, k * D.bus], 3);
+    D.bus.forEach(([x, z]) => s.cirkelW([x, 0, z], 3));
   });
   o.extrude('boss', yv1 - D.onder, { omkeren: true, terug: 0.5, naam: 'Behuizingen' });
+  // ribben met de groeven voor de adapterprint, tot net onder de print (eronder zit het USB-C-printje)
+  const U = D.usb, printOnder = D.adapter.top - D.adapter.h;
+  o.schets(yv('holte', yv1, 'reference', 'Plane holte'), (s) => {
+    for (const k of [1, -1]) s.rrectW([D.adapter.x - 1.5, 0, k * (D.adapter.b / 2 - 0.9)], [D.adapter.x + 3.1, 0, k * D.rib]);
+  });
+  o.extrude('boss', yv1 - printOnder + 0.5, { omkeren: true, terug: 0.5, naam: 'Ribben adapterprint' });
+  // 2 palen voor het USB-C-printje (M2 zelftappend van onderen), van de vloer tot op het printje
+  const paalOnder = U.y + 1.6;
+  o.schets(yv('holte', yv1, 'reference', 'Plane holte'), (s) => [1, -1].forEach((k) => s.cirkelW([k * U.paal.x, 0, U.paal.z], 2.5)));
+  o.extrude('boss', yv1 - paalOnder, { omkeren: true, terug: 0.5, naam: 'Palen USB-C-printje' });
+  o.schets(yv('paalonder', paalOnder, 'reference', 'Plane onderkant palen'), (s) => [1, -1].forEach((k) => s.cirkelW([k * U.paal.x, 0, U.paal.z], 0.8)));
+  o.extrude('cut', 6, { naam: 'Gaten M2' });
+  // opening voor de USB-C in de achterwand (naar de box), net boven het deksel
+  const achter = vlak('dusb', 'Plane achterwand USB-C', [0, 0, -(R + 1)], [0, 0, -1], 'reference');
+  o.schets(achter, (s) => s.rrectW([-U.gat.b / 2, U.gat.y[0], -(R + 1)], [U.gat.b / 2, U.gat.y[1], -(R + 1)], 1));
+  o.extrude('cut', 4, { omkeren: true, naam: 'Opening USB-C' });
   // geleidegroeven voor de adapterprint (1,6 mm, van onderen inschuiven)
   o.schets(yv('onderkant', D.onder, 'reference', 'Plane onderkant'), (s) => {
     for (const k of [1, -1]) s.rrectW([D.adapter.x - 0.1, 0, k * (D.adapter.b / 2 - 1.6)], [D.adapter.x + 1.7, 0, k * (D.adapter.b / 2 + 0.1)]);
   });
   o.extrude('cut', D.adapter.top - D.onder, { naam: 'Groeven adapterprint' });
   // schroefgaten voor het deksel (M2,5 zelftappend)
-  o.schets(yv('onderkant', D.onder, 'reference', 'Plane onderkant'), (s) => [1, -1].forEach((k) => s.cirkelW([0, 0, k * D.bus], 1.05)));
+  o.schets(yv('onderkant', D.onder, 'reference', 'Plane onderkant'), (s) => D.bus.forEach(([x, z]) => s.cirkelW([x, 0, z], 1.05)));
   o.extrude('cut', 8, { naam: 'Gaten deksel' });
   // klauwen: verzonken M3 van bovenaf door de plaat (conische zitting, de koppen liggen onder de voet van de knop)
   const as = [[C.x, 0], [-C.x, 0]];
@@ -444,8 +461,8 @@ export function knophouder() {
   return o.doc();
 }
 
-/** deksel onderaan de knophouder (plat geprint): 2 x M2,5 verzonken en de opening voor de USB-C-bus (de koppeling:
- *  5 V van de module, of de computer om de knop te flashen); los te schroeven voor de knop en de adapterprint */
+/** deksel onderaan de knophouder (plat geprint): dicht, 2 x M2,5 verzonken; los te schroeven voor de knop, de
+ *  adapterprint en het USB-C-printje (de USB-C zelf zit in de achterwand van de houder) */
 export function knopdeksel() {
   const { dial: D } = M;
   const o = new Onderdeel('Knopdeksel', PETG_ZWART);
@@ -453,12 +470,9 @@ export function knopdeksel() {
   o.schets(yv('deksel', D.onder, 'reference', 'Plane deksel'), (s) => s.cirkel(0, 0, D.buis));
   o.extrude('boss', D.deksel, { omkeren: true, naam: 'Deksel' });
   const onder = vlak('dekselonder', 'Face onderkant deksel', [0, y0, 0], [0, -1, 0]);
-  o.schets(onder, (s) => [1, -1].forEach((k) => s.cirkelW([0, y0, k * D.bus], 2.6)));
+  o.schets(onder, (s) => D.bus.forEach(([x, z]) => s.cirkelW([x, y0, z], 2.6)));
   o.extrude('cut', 1.25, { omkeren: true, naam: 'Verzinking M2,5', draft: 45 });
-  o.schets(onder, (s) => {
-    [1, -1].forEach((k) => s.cirkelW([0, y0, k * D.bus], 1.4));
-    s.rrectW([D.adapter.x - 3.6, y0, -4.8], [D.adapter.x + 0.3, y0, 4.8], 1.5); // USB-C-bus onderaan de adapterprint
-  });
+  o.schets(onder, (s) => D.bus.forEach(([x, z]) => s.cirkelW([x, y0, z], 1.4)));
   o.extrude('cut', D.deksel + 1, { omkeren: true, naam: 'Gaten' });
   return o.doc();
 }
@@ -532,8 +546,8 @@ export function vieweKnop() {
   return o.doc();
 }
 
-/** adapterprint in de knophouder (-A3): FPC-bus 10-polig 0,5 mm bovenaan, onderaan de USB-C-bus -X7 (in het deksel:
- *  5 V van de module of de computer om te flashen); schuift van onderen in de groeven van de houder, onderdelen naar -X */
+/** adapterprint in de knophouder (-A3): FPC-bus 10-polig 0,5 mm bovenaan, onderaan 4 draden naar het USB-C-printje
+ *  -X7 (5 V van de box of de computer om te flashen); schuift van onderen in de groeven van de houder, onderdelen naar -X */
 export function knopadapter() {
   const { dial: D } = M;
   const A = D.adapter;
@@ -545,9 +559,20 @@ export function knopadapter() {
     s.rrectW([A.x, A.top - 5, -7], [A.x, A.top - 1, 7]); // FPC-bus 10-polig, 0,5 mm
   });
   o.extrude('boss', 5, { naam: 'Onderdelen' });
-  o.schets(vlak('adaptervoor', 'Plane onderdelen', [A.x + 0.3, 0, 0], [-1, 0, 0], 'reference'), (s) =>
-    s.rrectW([A.x, A.top - A.h + 0.5, -4.45], [A.x, A.top - A.h + 7.5, 4.45])); // USB-C-bus, opening naar beneden
-  o.extrude('boss', 3.5, { naam: 'USB-C-bus' });
+  return o.doc();
+}
+
+/** USB-C-printje in de knophouder (-X7, breakout 16-polig): liggend onder 2 palen, de bus door de achterwand naar
+ *  de sleuf; oorsprong zoals de knophouder (midden van het gat, bovenvlak van het blad) */
+export function usbBusKnop() {
+  const U = M.dial.usb;
+  const o = new Onderdeel('USB-C-bus knophouder', PCB);
+  o.schets(yv('kusbprint', U.y, 'reference', 'Plane print'), (s) => s.rrectW([-7, 0, U.print[0]], [7, 0, U.print[1]]));
+  o.extrude('boss', 1.6, { naam: 'Print' });
+  o.schets(yv('kusbbus', U.y + 1.6, 'reference', 'Plane bus'), (s) => s.rrectW([-4.45, 0, U.voor], [4.45, 0, U.voor + 7.4], 1));
+  o.extrude('boss', 3.3, { terug: 0.1, naam: 'USB-C' });
+  o.schets(yv('kusbgat', U.y + 1.6, 'reference', 'Plane gaten'), (s) => [1, -1].forEach((k) => s.cirkelW([k * U.paal.x, 0, U.paal.z], 1.1)));
+  o.extrude('cut', 2.6, { omkeren: true, naam: 'Gaten M2' });
   return o.doc();
 }
 
@@ -719,6 +744,7 @@ export function afzuigingComponenten(o = [0, 0, 0], prefix = 'a', blad = M.blad)
   comps.push(component(`${prefix}12`, 'Knopdeksel<1>', knopdeksel(), at([d.x, 0, d.z])));
   comps.push(component(`${prefix}8`, 'VIEWE-knop 1,5"<1>', vieweKnop(), at([d.x, d.plaat, d.z])));
   comps.push(component(`${prefix}14`, 'Adapterprint knop<1>', knopadapter(), at([d.x, 0, d.z])));
+  comps.push(component(`${prefix}15`, 'USB-C-bus knophouder<1>', usbBusKnop(), at([d.x, 0, d.z])));
   const dk = dialklauw();
   [DC.x, -DC.x].forEach((x, i) => comps.push(component(`${prefix}dk${i + 1}`, `Knopklauw<${i + 1}>`, dk, at([d.x + x, -blad - DC.dik, d.z]), { rotation: x > 0 ? [0, 0, 0, 1] : halfY })));
   // normdelen
@@ -739,7 +765,7 @@ export function afzuigingComponenten(o = [0, 0, 0], prefix = 'a', blad = M.blad)
   const vloerOnder = d.plaat - d.naaf.reduce((a2, [, dd]) => a2 + dd, 0) - d.vloer;
   d.schroeven.forEach(([x, z], i) => comps.push(component(`${prefix}sk${i + 1}`, `M2,5 x 6 cilinderkop<${i + 1}>`, m25k, at([d.x + x, vloerOnder, d.z + z]), { rotation: omhoog })));
   const m25d = schroefVerzonken('M2,5 x 8 DIN 7991', 2.5, 2, 8);
-  [1, -1].forEach((k2, i) => comps.push(component(`${prefix}sdk${i + 1}`, `M2,5 x 8 DIN 7991<${i + 1}>`, m25d, at([d.x, d.onder - d.deksel, d.z + k2 * d.bus]), { rotation: omhoog })));
+  d.bus.forEach(([x, z], i) => comps.push(component(`${prefix}sdk${i + 1}`, `M2,5 x 8 DIN 7991<${i + 1}>`, m25d, at([d.x + x, d.onder - d.deksel, d.z + z]), { rotation: omhoog })));
   // drukmeting: messingbuisje in de instroomplaat (meetpunt) en een door de achterwand (slang naar de voedingsbox)
   const A = M.achter;
   comps.push(component(`${prefix}18`, 'Messingbuisje Ø3 x 12<1>', messingbuisje(12), at([A.meet[0], M.inlaat.top, A.meet[1]])));
@@ -761,6 +787,9 @@ export function afzuigingComponenten(o = [0, 0, 0], prefix = 'a', blad = M.blad)
   const m2 = schroefCilinder('M2 x 5 zelftappend', 3.8, 1.6, 1.6, 5);
   const ixb = B.b / 2 - B.wand;
   [-6, 6].forEach((dz, i) => comps.push(component(`${prefix}s2${i + 1}`, `M2 x 5 zelftappend<${i + 1}>`, m2, bat([ixb - 8, P.y + 0.1 + 1.6, B.usb.z + dz]))));
+  // het USB-C-printje in de knophouder: 2 x M2 x 5 van onderen in de palen
+  const KU = d.usb;
+  [1, -1].forEach((k2, i) => comps.push(component(`${prefix}su${i + 1}`, `M2 x 5 zelftappend<${i + 3}>`, m2, at([d.x + k2 * KU.paal.x, KU.y, d.z + KU.paal.z]), { rotation: omhoog })));
   return { components: comps, mates: [] };
 }
 
@@ -809,6 +838,7 @@ export const ONDERDELEN = {
   'Netadapter-GST90A24.kcad': netadapter,
   'Voedingsprint.kcad': voedingsprint,
   'USB-C-bus-knop.kcad': usbBusBox,
+  'USB-C-bus-knophouder.kcad': usbBusKnop,
   'Wipschakelaar-KCD1.kcad': schakelaar,
   'M8-inbouwstekker.kcad': m8stekker,
   'Klauw.kcad': klauw,

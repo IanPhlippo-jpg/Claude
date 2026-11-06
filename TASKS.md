@@ -1003,3 +1003,14 @@ elease; README en docs/04 bijgewerkt
 - [x] Bureau: uitsparingen en sleuven (box -> module: M8-kabel en slangetje; box -> knop: USB-C)
 - [x] Firmware (tacho, PWM 0 % = stil), schema, stuklijst, README
 - [x] Tests (81/81: luchtdicht met tegenproef, botsingen incl. box, klauwen 10-50 mm, printbed 225 x 225, B-rep, STL), screenshots, commit en push
+
+## Afzuiging: technische tekeningen en bouwschema (2026-11-06)
+- [x] Generator voor werktekeningen (A3, Europese projectie): aanzichten met verborgen lijnen, doorsnede, hoofdmaten, maattabel, titelblok
+- [x] Tekenmodule: een afgeronde rechthoek werd als cirkel herkend (valse cirkel met hartlijnen), met test
+- [x] Knop: USB-C in de achterkant van de buis (kant van de sleuf) i.p.v. onderaan in het deksel: printje op 2 palen, opening in de wand, deksel zonder opening
+- [x] Knop: botsingen, lek- en printtests, schema en README bijwerken
+- [x] Tekeningen van alle zelfgemaakte onderdelen (print, laser, filtermatten) en van de bewerkingen in het tafelblad
+- [x] Samenstellingstekening: opengewerkt aanzicht met ballonnen en stuklijst (met de koopdelen)
+- [x] Bouwschema: stappen met beelden uit Phlippo CAD en uitleg, als PDF
+- [x] Freesmallen 1:1 op A4 bij het aansluitschema: uitsparing afzuiging (2 bladen met paspunten), knopgat, voedingsbox met sleufaanzet, controlemaat 100 mm
+- [x] Controleren (maten tegen het model), README, commit en push

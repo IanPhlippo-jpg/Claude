@@ -59,6 +59,8 @@
 <text x="150" y="163" font-size="4" text-anchor="start" fill="#111">Klemmenplan en bedrading</text>
 <text x="120" y="172" font-size="4" text-anchor="start" fill="#111">Blad 6</text>
 <text x="150" y="172" font-size="4" text-anchor="start" fill="#111">Stuklijst</text>
+<text x="120" y="181" font-size="4" text-anchor="start" fill="#111">Bijlage</text>
+<text x="150" y="181" font-size="4" text-anchor="start" fill="#111">Freesmallen 1:1 op A4, per doos een PDF: Freesmal-afzuiging, -knop en -voedingsbox (op 100 % afdrukken)</text>
 <text x="120" y="195" font-size="4" text-anchor="start" fill="#111" font-weight="700">Leeswijzer</text>
 <text x="120" y="205" font-size="3.2" text-anchor="start" fill="#333">Codes volgens IEC 81346: -T netadapter, -F zekering, -Q schakelaars, -R weerstanden, -C condensatoren,</text>
 <text x="120" y="211.5" font-size="3.2" text-anchor="start" fill="#333">-M motor, -A besturing, -B sensor, -X klemmen en connectoren.</text>
@@ -358,14 +360,15 @@
 <text x="326" y="195.5" font-size="2.2" text-anchor="middle" fill="#555">1 m, in de sleuf</text>
 <rect x="340" y="150" width="18" height="40" fill="none" stroke="#111" stroke-width="0.45"/>
 <text x="349" y="147" font-size="2.8" text-anchor="middle" fill="#111" font-weight="700">-X7</text>
-<text x="349" y="199.5" font-size="2.2" text-anchor="middle" fill="#555">op -A3</text>
+<text x="349" y="196" font-size="2.2" text-anchor="middle" fill="#555">achterwand</text>
+<text x="349" y="199.5" font-size="2.2" text-anchor="middle" fill="#555">knophouder</text>
 <rect x="366" y="144" width="40" height="56" fill="#fbfaf7" stroke="#111" stroke-width="0.35" stroke-dasharray="2 1.2"/><text x="368" y="142" font-size="3.2" text-anchor="start" fill="#111" font-weight="700">-A1</text><text x="368.5" y="149" font-size="2.5" text-anchor="start" fill="#333">VIEWE-knop 1,5"</text><text x="368.5" y="152.6" font-size="2.5" text-anchor="start" fill="#333">ESP32-S3, AMOLED</text><text x="368.5" y="156.2" font-size="2.5" text-anchor="start" fill="#333">in de knophouder</text><circle cx="366" cy="158" r="0.9" fill="#111"/><text x="368" y="162" font-size="2.2" text-anchor="start" fill="#222">FPC 1 +5V</text><circle cx="366" cy="170" r="0.9" fill="#111"/><text x="368" y="174" font-size="2.2" text-anchor="start" fill="#222">FPC 9/10 USB</text><circle cx="366" cy="184" r="0.9" fill="#111"/><text x="368" y="182" font-size="2.2" text-anchor="start" fill="#222">FPC 3 GND</text>
 <polyline points="358,158 366,158" fill="none" stroke="#d97706" stroke-width="0.45"/>
 <polyline points="358,170 366,170" fill="none" stroke="#111" stroke-width="0.45"/>
 <polyline points="358,184 366,184" fill="none" stroke="#111" stroke-width="0.45"/>
 <polyline points="75,180 75,206 386,206 386,200" fill="none" stroke="#0ea5e9" stroke-width="0.4" stroke-dasharray="2.5 1.5"/>
 <text x="160" y="204" font-size="2.5" text-anchor="middle" fill="#0ea5e9">ESP-NOW (2,4 GHz): opdrachten van -A1 naar -A4, status terug</text>
-<text x="30" y="213" font-size="2.3" text-anchor="start" fill="#444">-A3: adapterprint in de knophouder; USB-C -X7 met 5,1 kΩ op CC (op de breakout): VBUS -&gt; FPC 1, GND -&gt; FPC 3, D+ -&gt; FPC 9, D- -&gt; FPC 10.</text>
+<text x="30" y="213" font-size="2.3" text-anchor="start" fill="#444">-X7: USB-C-printje (5,1 kΩ op CC) in de achterwand van de knophouder, 4 draden naar -A3: VBUS -&gt; FPC 1, GND -&gt; FPC 3, D+ -&gt; FPC 9, D- -&gt; FPC 10.</text>
 <text x="30" y="219" font-size="2.3" text-anchor="start" fill="#444">Met de kabel naar -X8 krijgt de knop 5 V; op een computer aangesloten wordt hij geflasht. D+/D- van -X8 blijven los.</text>
 </svg></div>
 <div class="blad"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 297" font-family="Arial, Helvetica, sans-serif">
@@ -419,7 +422,7 @@
 <text x="250" y="58" font-size="2.8" text-anchor="start" fill="#333">In de box: -X9 (M8-stekker), -X8 (USB-C naar de knop) en de USB-C van -A4.</text>
 <text x="250" y="64" font-size="2.8" text-anchor="start" fill="#333">Kabels in de sleuven onder het blad: -W2 (M8, 0,5 m) en het slangetje naar de module,</text>
 <text x="250" y="70" font-size="2.8" text-anchor="start" fill="#333">-W1 (USB-C, 1 m) naar de knop. Een andere lengte = een andere kabel: niets knippen.</text>
-<text x="250" y="76" font-size="2.8" text-anchor="start" fill="#333">Op -A3: FPC-bus 10-polig 0,5 mm voor de knop en de USB-C-bus -X7.</text>
+<text x="250" y="76" font-size="2.8" text-anchor="start" fill="#333">Op -A3: FPC-bus 10-polig 0,5 mm voor de knop; -X7 zit apart in de achterwand van de houder.</text>
 <text x="250" y="82" font-size="2.8" text-anchor="start" fill="#333">Draadkleuren van de ventilator vóór het solderen nameten (datasheet San Ace).</text>
 </svg></div>
 <div class="blad"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 297" font-family="Arial, Helvetica, sans-serif">

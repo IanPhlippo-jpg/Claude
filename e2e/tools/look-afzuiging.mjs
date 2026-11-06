@@ -24,7 +24,7 @@ await kijk('Control+6', 'afzuiging-onder');
 await kijk('Control+3', 'afzuiging-links'); // de wipschakelaar in de kom van de linkerzijwand
 // de draaiknop alleen: houder, deksel, VIEWE-knop, adapterprint, klauwen en schroeven
 const knop = lees('voorbeelden/afzuiging/Afzuiging.kcad');
-knop.components = knop.components.filter((c) => /^a(7|8|12|14|dk\d|sd\d|sk\d|sdk\d)$/.test(c.id));
+knop.components = knop.components.filter((c) => /^a(7|8|12|14|15|dk\d|sd\d|sk\d|sdk\d|su\d)$/.test(c.id));
 await open(knop);
 await kijk('Control+7', 'afzuiging-draaiknop');
 await kijk('Control+6', 'afzuiging-draaiknop-onder');

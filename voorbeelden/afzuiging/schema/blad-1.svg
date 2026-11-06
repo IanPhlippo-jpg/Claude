@@ -57,6 +57,8 @@
 <text x="150" y="163" font-size="4" text-anchor="start" fill="#111">Klemmenplan en bedrading</text>
 <text x="120" y="172" font-size="4" text-anchor="start" fill="#111">Blad 6</text>
 <text x="150" y="172" font-size="4" text-anchor="start" fill="#111">Stuklijst</text>
+<text x="120" y="181" font-size="4" text-anchor="start" fill="#111">Bijlage</text>
+<text x="150" y="181" font-size="4" text-anchor="start" fill="#111">Freesmallen 1:1 op A4, per doos een PDF: Freesmal-afzuiging, -knop en -voedingsbox (op 100 % afdrukken)</text>
 <text x="120" y="195" font-size="4" text-anchor="start" fill="#111" font-weight="700">Leeswijzer</text>
 <text x="120" y="205" font-size="3.2" text-anchor="start" fill="#333">Codes volgens IEC 81346: -T netadapter, -F zekering, -Q schakelaars, -R weerstanden, -C condensatoren,</text>
 <text x="120" y="211.5" font-size="3.2" text-anchor="start" fill="#333">-M motor, -A besturing, -B sensor, -X klemmen en connectoren.</text>

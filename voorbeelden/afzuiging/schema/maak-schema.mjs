@@ -101,9 +101,9 @@ function blad1() {
   i.push(T(W / 2, 60, 'Afzuiging Lush Beauty', { anchor: 'middle', size: 12, bold: true }));
   i.push(T(W / 2, 74, 'Aansluitschema elektronica', { anchor: 'middle', size: 7 }));
   i.push(T(W / 2, 84, 'Radiale ventilator San Ace C175 (24 V) · voedingsbox met ESP32-C3 · knop VIEWE 1,5" (draadloos) · drukmeting Sensirion SDP810', { anchor: 'middle', size: 3.6, kleur: '#444' }));
-  const inhoud = [['1', 'Titelblad en inhoud'], ['2', 'Voeding 24 V en 5 V: netadapter, schakelaar, zekering, regelaar (voedingsbox)'], ['3', 'Ventilator: M8-kabel, snelheid PWM (-Q1) en toerental (tacho)'], ['4', 'Besturing -A4, verschildrukmeter -B1 en de knop -A1 (5 V over USB-C, draadloos gestuurd)'], ['5', 'Klemmenplan en bedrading'], ['6', 'Stuklijst']];
+  const inhoud = [['1', 'Titelblad en inhoud'], ['2', 'Voeding 24 V en 5 V: netadapter, schakelaar, zekering, regelaar (voedingsbox)'], ['3', 'Ventilator: M8-kabel, snelheid PWM (-Q1) en toerental (tacho)'], ['4', 'Besturing -A4, verschildrukmeter -B1 en de knop -A1 (5 V over USB-C, draadloos gestuurd)'], ['5', 'Klemmenplan en bedrading'], ['6', 'Stuklijst'], ['+', 'Freesmallen 1:1 op A4, per doos een PDF: Freesmal-afzuiging, -knop en -voedingsbox (op 100 % afdrukken)']];
   i.push(T(120, 115, 'Inhoud', { size: 5, bold: true }));
-  inhoud.forEach(([n, t], k) => { i.push(T(120, 127 + k * 9, `Blad ${n}`, { size: 4 }), T(150, 127 + k * 9, t, { size: 4 })); });
+  inhoud.forEach(([n, t], k) => { i.push(T(120, 127 + k * 9, n === '+' ? 'Bijlage' : `Blad ${n}`, { size: 4 }), T(150, 127 + k * 9, t, { size: 4 })); });
   i.push(T(120, 195, 'Leeswijzer', { size: 4, bold: true }));
   ['Codes volgens IEC 81346: -T netadapter, -F zekering, -Q schakelaars, -R weerstanden, -C condensatoren,', '-M motor, -A besturing, -B sensor, -X klemmen en connectoren.', 'Potentialen: L+ = +24 V, L5 = +5 V (-A4 en de knop), L3 = +3,3 V (uit -A4), M = 0 V. /3.2 = blad 3, kolom 2.',
     'De voedingsbox (onder het blad) bevat de netadapter -T1, de schakelaar -S1 en de print -A2 met -A4 en -B1.',
@@ -219,7 +219,7 @@ function blad4() {
   // kabel en knop
   i.push(L([[xu + 22, yu + 8], [340, yu + 8]], { kleur: '#d97706', w: 0.6 }), L([[xu + 22, yu + 34], [340, yu + 34]], { w: 0.6 }));
   i.push(T(326, yu + 4, '-W1', { anchor: 'middle', size: 2.6, bold: true }), T(326, yu + 42, 'USB-C-kabel, C-C', { anchor: 'middle', size: 2.2, kleur: '#555' }), T(326, yu + 45.5, '1 m, in de sleuf', { anchor: 'middle', size: 2.2, kleur: '#555' }));
-  i.push(rect(340, yu, 18, 40, { w2: 0.45 }), T(349, yu - 3, '-X7', { anchor: 'middle', size: 2.8, bold: true }), T(349, yu + 49.5, 'op -A3', { anchor: 'middle', size: 2.2, kleur: '#555' }));
+  i.push(rect(340, yu, 18, 40, { w2: 0.45 }), T(349, yu - 3, '-X7', { anchor: 'middle', size: 2.8, bold: true }), T(349, yu + 46, 'achterwand', { anchor: 'middle', size: 2.2, kleur: '#555' }), T(349, yu + 49.5, 'knophouder', { anchor: 'middle', size: 2.2, kleur: '#555' }));
   i.push(toestel(366, yu - 6, 40, 56, '-A1', ['VIEWE-knop 1,5"', 'ESP32-S3, AMOLED', 'in de knophouder'], [
     { x: 0, y: 14, naam: 'FPC 1 +5V' }, { x: 0, y: 26, naam: 'FPC 9/10 USB' }, { x: 0, y: 40, naam: 'FPC 3 GND' },
   ]));
@@ -227,7 +227,7 @@ function blad4() {
   // draadloos
   i.push(L([[ax + 35, ay + 120], [ax + 35, 206], [386, 206], [386, yu + 50]], { kleur: '#0ea5e9', w: 0.4, streep: '2.5 1.5' }));
   i.push(T(160, 204, 'ESP-NOW (2,4 GHz): opdrachten van -A1 naar -A4, status terug', { anchor: 'middle', size: 2.5, kleur: '#0ea5e9' }));
-  i.push(T(30, 213, '-A3: adapterprint in de knophouder; USB-C -X7 met 5,1 kΩ op CC (op de breakout): VBUS -> FPC 1, GND -> FPC 3, D+ -> FPC 9, D- -> FPC 10.', { size: 2.3, kleur: '#444' }));
+  i.push(T(30, 213, '-X7: USB-C-printje (5,1 kΩ op CC) in de achterwand van de knophouder, 4 draden naar -A3: VBUS -> FPC 1, GND -> FPC 3, D+ -> FPC 9, D- -> FPC 10.', { size: 2.3, kleur: '#444' }));
   i.push(T(30, 219, 'Met de kabel naar -X8 krijgt de knop 5 V; op een computer aangesloten wordt hij geflasht. D+/D- van -X8 blijven los.', { size: 2.3, kleur: '#444' }));
   return kader(4, 'Besturing, drukmeter en de knop', i);
 }
@@ -264,7 +264,7 @@ function blad5() {
   const i = [tabel(X0, 20, [['Klem', 16], ['Nr', 20], ['Functie', 34], ['Intern (print -A2)', 50], ['Draad', 34], ['Extern', 50]], KLEMMEN)];
   i.push(T(250, 30, 'Bedrading', { size: 4, bold: true }));
   ['Alle klemmen zitten op de gaatjesprint -A2 (40 x 50 mm) in de voedingsbox.', '-X1 is een schroefklem 2-polig; de DC-kabel van de adapter wordt ingekort.', 'In de afzuiging: de ventilatordraden op de M8-bus -X10 (solderen, krimpkous).',
-    'In de box: -X9 (M8-stekker), -X8 (USB-C naar de knop) en de USB-C van -A4.', 'Kabels in de sleuven onder het blad: -W2 (M8, 0,5 m) en het slangetje naar de module,', '-W1 (USB-C, 1 m) naar de knop. Een andere lengte = een andere kabel: niets knippen.', 'Op -A3: FPC-bus 10-polig 0,5 mm voor de knop en de USB-C-bus -X7.', 'Draadkleuren van de ventilator vóór het solderen nameten (datasheet San Ace).']
+    'In de box: -X9 (M8-stekker), -X8 (USB-C naar de knop) en de USB-C van -A4.', 'Kabels in de sleuven onder het blad: -W2 (M8, 0,5 m) en het slangetje naar de module,', '-W1 (USB-C, 1 m) naar de knop. Een andere lengte = een andere kabel: niets knippen.', 'Op -A3: FPC-bus 10-polig 0,5 mm voor de knop; -X7 zit apart in de achterwand van de houder.', 'Draadkleuren van de ventilator vóór het solderen nameten (datasheet San Ace).']
     .forEach((s, k) => i.push(T(250, 40 + k * 6, s, { size: 2.8, kleur: '#333' })));
   return kader(5, 'Klemmenplan', i);
 }

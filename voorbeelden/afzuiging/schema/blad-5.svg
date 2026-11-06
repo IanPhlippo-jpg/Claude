@@ -49,6 +49,6 @@
 <text x="250" y="58" font-size="2.8" text-anchor="start" fill="#333">In de box: -X9 (M8-stekker), -X8 (USB-C naar de knop) en de USB-C van -A4.</text>
 <text x="250" y="64" font-size="2.8" text-anchor="start" fill="#333">Kabels in de sleuven onder het blad: -W2 (M8, 0,5 m) en het slangetje naar de module,</text>
 <text x="250" y="70" font-size="2.8" text-anchor="start" fill="#333">-W1 (USB-C, 1 m) naar de knop. Een andere lengte = een andere kabel: niets knippen.</text>
-<text x="250" y="76" font-size="2.8" text-anchor="start" fill="#333">Op -A3: FPC-bus 10-polig 0,5 mm voor de knop en de USB-C-bus -X7.</text>
+<text x="250" y="76" font-size="2.8" text-anchor="start" fill="#333">Op -A3: FPC-bus 10-polig 0,5 mm voor de knop; -X7 zit apart in de achterwand van de houder.</text>
 <text x="250" y="82" font-size="2.8" text-anchor="start" fill="#333">Draadkleuren van de ventilator vóór het solderen nameten (datasheet San Ace).</text>
 </svg>
