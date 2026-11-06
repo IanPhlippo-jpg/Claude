@@ -227,7 +227,7 @@ Box: steek een USB-C-kabel in de USB-C van de ESP32-C3, aan de rechterkant van d
 python -m platformio run -e module -t upload
 ```
 
-De knop gebruikt GFX Library for Arduino (CO5300-driver) en U8g2-lettertypes; het protocol staat in `firmware/include/protocol.h`.
+De knop gebruikt GFX Library for Arduino (CO5300-driver). Tekst en cijfers zijn in Inter (SIL OFL), vooraf anti-aliased gerenderd met `logo/knopfont.py` naar `src/knop/fonts.h`; het LB-logo komt uit `logo/knoplogo.py`. Een voorbeeld van alle schermen staat in `firmware/ui/schermen.html`. Het protocol staat in `firmware/include/protocol.h`.
 
 ## Bestanden
 

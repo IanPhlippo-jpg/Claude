@@ -16,13 +16,13 @@
 // het USB-C-printje -X7 in de achterwand van de knophouder: VBUS -> FPC 1 (+5 V), GND -> FPC 3, D+ -> FPC 9,
 // D- -> FPC 10. De andere lijnen blijven los.
 
-#include <U8g2lib.h> // lettertypes (vóór de GFX-bibliotheek)
 #include <Arduino_GFX_Library.h>
 #include <Preferences.h>
 #include <WiFi.h>
 #include <esp_now.h>
 #include <esp_wifi.h>
 
+#include "fonts.h"
 #include "logo.h"
 #include "protocol.h"
 
@@ -122,14 +122,50 @@ void stuurOpdracht(uint32_t nu) {
 constexpr float K = SCHERM / 240.0f;
 int S(float v) { return (int)lroundf(v * K); }
 
-void tekst(const String &s, int x, int y, const uint8_t *font, uint16_t kleur) {
-  canvas->setFont(font);
-  canvas->setTextColor(kleur);
-  int16_t bx, by;
-  uint16_t w, h;
-  canvas->getTextBounds(s.c_str(), 0, 0, &bx, &by, &w, &h);
-  canvas->setCursor(x - w / 2 - bx, y - h / 2 - by);
-  canvas->print(s);
+// ---- tekst in Inter, anti-aliased (fonts.h) ----
+
+const Letter &letter(const Lettertype &f, char ch) {
+  uint8_t c = (uint8_t)ch;
+  if (c < f.eerste || c > f.laatste) c = f.eerste;
+  return f.letters[c - f.eerste];
+}
+
+int breedte(const Lettertype &f, const char *s) {
+  int w = 0;
+  for (; *s; s++) w += letter(f, *s).voort;
+  return w;
+}
+
+// mengen gaat via meng() hieronder; de achtergrond is overal zwart
+uint16_t meng(uint16_t a, uint16_t b, float t);
+
+// tekst vanaf x op de basislijn
+void schrijf(const Lettertype &f, const char *s, int x, int basis, uint16_t kleur) {
+  for (; *s; s++) {
+    const Letter &l = letter(f, *s);
+    const uint8_t *p = f.pix + l.begin;
+    for (int j = 0; j < l.h; j++)
+      for (int i = 0; i < l.b; i++) {
+        const uint8_t d = p[j * l.b + i];
+        if (d) canvas->drawPixel(x + l.dx + i, basis + l.dy + j, d == 255 ? kleur : meng(ZWART, kleur, d / 255.0f));
+      }
+    x += l.voort;
+  }
+}
+
+// tekst gecentreerd op (cx, cy): cy is het midden van de hoofdletters
+void tekst(const Lettertype &f, const char *s, int cx, int cy, uint16_t kleur) {
+  schrijf(f, s, cx - breedte(f, s) / 2, cy + f.cap / 2, kleur);
+}
+
+// de zuigkracht: het getal vet, het procentteken kleiner en bovenaan gelijk met de cijfers
+void procent(int pct, int cy) {
+  char n[5];
+  snprintf(n, sizeof n, "%d", pct);
+  const int wn = breedte(GROOT, n), wp = breedte(PROCENT, "%"), tussen = S(1.5f);
+  const int x0 = S(120) - (wn + tussen + wp) / 2, basis = cy + GROOT.cap / 2;
+  schrijf(GROOT, n, x0, basis, WIT);
+  schrijf(PROCENT, "%", x0 + wn + tussen, basis - (GROOT.cap - PROCENT.cap), LICHT);
 }
 
 // twee RGB565-kleuren mengen (t = 0: a, t = 1: b)
@@ -194,8 +230,8 @@ void logo(int cx, int cy, uint16_t kleur) {
 }
 
 void tekenTekst(const char *a, const char *b, uint16_t kleur) {
-  tekst(a, S(120), S(158), u8g2_font_helvR18_tf, kleur);
-  if (b) tekst(b, S(120), S(178), u8g2_font_helvR18_tf, kleur);
+  tekst(TEKST, a, S(120), S(158), kleur);
+  if (b) tekst(TEKST, b, S(120), S(178), kleur);
 }
 
 void teken(uint32_t nu) {
@@ -209,8 +245,8 @@ void teken(uint32_t nu) {
   if (verbonden && st.ijken) {
     ring(BOOG * st.ijkVoortgang / 100.0f, &V_BEIGE);
     logo(S(120), S(52), BEIGE);
-    tekst("IJKEN", S(120), S(104), u8g2_font_helvB24_tf, WIT);
-    tekst(String("schone filters, ") + (20 * st.ijken) + " %", S(120), S(136), u8g2_font_helvR18_tf, WIT);
+    tekst(TITEL, "IJKEN", S(120), S(104), WIT);
+    tekst(TEKST, (String("schone filters, ") + (20 * st.ijken) + " %").c_str(), S(120), S(136), WIT);
     canvas->flush();
     return;
   }
@@ -222,10 +258,10 @@ void teken(uint32_t nu) {
   ring(t.aan ? BOOG * pct / 100.0f : 0, t.aan ? verloop : nullptr);
   logo(S(120), S(52), BEIGE);
   if (!t.aan) {
-    tekst("UIT", S(120), S(116), u8g2_font_logisoso58_tr, MIDDEN);
+    tekst(GROOT, "UIT", S(120), S(112), MIDDEN);
     tekenTekst("druk om te starten", verbonden ? nullptr : "geen verbinding met de box", MIDDEN);
   } else {
-    tekst(String(pct) + "%", S(120), S(110), u8g2_font_logisoso58_tr, WIT);
+    procent(pct, S(110));
     char s[32];
     if (!verbonden) {
       tekenTekst("geen verbinding", "met de voedingsbox", ORANJE);

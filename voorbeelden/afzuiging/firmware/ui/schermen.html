@@ -7,6 +7,7 @@
 <!-- Nabootsing van de schermen van de VIEWE-knop 1,5" (466 x 466) zoals src/knop/main.cpp ze tekent: zelfde
      posities (ontwerp op 240 x 240, geschaald), kleuren en teksten. De lettertypes lijken op die van U8g2. -->
 <style>
+  @font-face { font-family: 'InterKnop'; src: url('../../logo/fonts/inter-latin-wght-normal.woff2') format('woff2'); font-weight: 100 900; }
   :root { --bg: #f4f1ec; --tekst: #2b2723; --zacht: #6f675e; --kaart: #fff; --rand: #e2dbd1; }
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--bg); color: var(--tekst); font-family: Inter, Arial, Helvetica, sans-serif; }
@@ -71,19 +72,22 @@ function balk(vol, v) {
   return `<defs><linearGradient id="${id}" gradientUnits="userSpaceOnUse" x1="${x0}" x2="${x0 + w}"><stop offset="0" stop-color="${v[0]}"/><stop offset="1" stop-color="${v[1]}"/></linearGradient></defs>`
     + `<rect x="${x0}" y="${y0}" width="${w}" height="${h}" rx="${r}" fill="${SPOOR}"/><rect x="${x0}" y="${y0}" width="${lang}" height="${h}" rx="${r}" fill="url(#${id})"/>`;
 }
-const tekst = (s, y, kleur, size = 20, vet = false) => `<text x="${S(120)}" y="${S(y)}" font-size="${size}" fill="${kleur}" text-anchor="middle" dominant-baseline="central" font-family="Helvetica, Arial, sans-serif"${vet ? ' font-weight="700"' : ''}>${s}</text>`;
-const groot = (s, y, kleur) => `<g transform="translate(${S(120)} ${S(y)}) scale(0.8 1)"><text x="0" y="0" font-size="76" fill="${kleur}" text-anchor="middle" dominant-baseline="central" font-family="'Arial Narrow', 'Roboto Condensed', Arial, sans-serif">${s}</text></g>`;
+// zoals fonts.h: Inter, y = midden van de hoofdletters (basislijn = y + hoofdletterhoogte / 2)
+const FONT = { TEKST: [22, 500, 16], TITEL: [30, 600, 22], GROOT: [104, 700, 76], PROCENT: [50, 700, 37] };
+const tekst = (s, y, kleur, f = FONT.TEKST) => `<text x="${S(120)}" y="${(S(y) + f[2] / 2).toFixed(1)}" font-size="${f[0]}" font-weight="${f[1]}" fill="${kleur}" text-anchor="middle" font-family="InterKnop">${s}</text>`;
+const groot = (s, y, kleur) => tekst(s, y, kleur, FONT.GROOT);
+const procent = (pct, y) => `<text x="${S(120)}" y="${(S(y) + FONT.GROOT[2] / 2).toFixed(1)}" text-anchor="middle" font-family="InterKnop" font-weight="700"><tspan font-size="104" fill="#FFFFFF">${pct}</tspan><tspan font-size="50" fill="${C.licht}" dx="3" dy="${-(FONT.GROOT[2] - FONT.PROCENT[2])}">%</tspan></text>`;
 const regels = (a, b, kleur) => tekst(a, 158, kleur) + (b ? tekst(b, 178, kleur) : '');
 // het LB-logo (logo-knop.png, 76 x 56 px, uit logo/knoplogo.py) gecentreerd op y = 52
 const kop = `<image href="logo-knop.png" x="${S(120) - 38}" y="${S(52) - 28}" width="76" height="56"/>`;
-const aan = (pct, v) => ring((BOOG * pct) / 100, v) + kop + groot(`${pct}%`, 110, C.wit);
-const uit = (b) => ring(0, null) + kop + groot('UIT', 116, C.midden) + regels('druk om te starten', b, C.midden);
+const aan = (pct, v) => ring((BOOG * pct) / 100, v) + kop + procent(pct, 110);
+const uit = (b) => ring(0, null) + kop + groot('UIT', 112, C.midden) + regels('druk om te starten', b, C.midden);
 
 const gewoon = [
   ['Uit', 'kort drukken of draaien zet hem aan', uit(null)],
   ['Aan', 'draaien: 20 tot 100 % in stappen van 5 %; balkje = hoe vol de filters zijn', aan(65, V.beige) + regels('118 Pa over de filters', null, C.licht) + balk(0.4, V.beige)],
   ['Boost', '1 s vasthouden: 2 minuten 100 %, met aftelklok', aan(100, V.beige) + regels('BOOST 1:42', null, C.beige) + balk(0.45, V.beige)],
-  ['IJken', '5 s vasthouden met schone filters: 20 tot 100 %', ring(BOOG * 0.6, V.beige) + kop + tekst('IJKEN', 104, C.wit, 26, true) + tekst('schone filters, 60 %', 136, C.wit)],
+  ['IJken', '5 s vasthouden met schone filters: 20 tot 100 %', ring(BOOG * 0.6, V.beige) + kop + tekst('IJKEN', 104, C.wit, FONT.TITEL) + tekst('schone filters, 60 %', 136, C.wit)],
 ];
 const meldingen = [
   ['Nieuwe filters?', 'nog niet geijkt: 5 s vasthouden', aan(50, V.beige) + regels('nieuwe filters?', 'knop 5 s vasthouden', C.licht)],

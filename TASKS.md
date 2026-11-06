@@ -1030,3 +1030,8 @@ elease; README en docs/04 bijgewerkt
 - [x] Ring met meer pit: donker spoor, dikkere boog met kleurverloop, ronde kappen begin en einde, handvat op het einde
 - [x] Filterbalk in dezelfde stijl (spoor, verloop, ronde einden)
 - [x] Firmware compileren, voorbeeldpagina bijwerken, PNG sturen, commit en push
+
+## Afzuiging: lettertypes van de knop (2026-11-06)
+- [x] Inter (OFL) in het project; generator voor anti-aliased fonts (procenten vet, tekst medium, titel semibold)
+- [x] Firmware: eigen tekenroutine voor deze fonts i.p.v. U8g2 (procenten vet, % kleiner en bovenaan uitgelijnd)
+- [x] Compileren, voorbeeldpagina met dezelfde fonts, PNG sturen, commit en push
