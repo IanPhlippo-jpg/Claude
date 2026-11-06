@@ -12,8 +12,9 @@
 // drukverschil bij dezelfde snelheid verdubbeld, dan meldt het scherm "Filter vol" (oranje ring). Valt het
 // drukverschil weg terwijl de ventilator hoort te draaien, dan meldt het een storing (rode ring).
 //
-// Aansluiting (zie ../../schema/Aansluitschema-afzuiging.pdf): FPC van de knop op de adapterprint -A3 met de USB-C-bus
-// -X7 in het deksel: VBUS -> FPC 1 (+5 V), GND -> FPC 3, D+ -> FPC 9, D- -> FPC 10. De andere lijnen blijven los.
+// Aansluiting (zie ../../schema/Aansluitschema-afzuiging.pdf): FPC van de knop op de adapterprint -A3, 4 draden naar
+// het USB-C-printje -X7 in de achterwand van de knophouder: VBUS -> FPC 1 (+5 V), GND -> FPC 3, D+ -> FPC 9,
+// D- -> FPC 10. De andere lijnen blijven los.
 
 #include <U8g2lib.h> // lettertypes (vóór de GFX-bibliotheek)
 #include <Arduino_GFX_Library.h>
