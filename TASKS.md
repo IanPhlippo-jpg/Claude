@@ -990,3 +990,7 @@ elease; README en docs/04 bijgewerkt
 - [x] Filtercassette in twee delen: bak rechtop (roosterbodem op het bed) en een vlakke rand met kraag die erop gelijmd wordt
 - [x] Tests (luchtdicht met rand, cassette uittillen, botsingen, STL-standen), printgewicht per deel
 - [x] README (printtabel, bestellijst messingbuisje, montage), screenshots, commit en push
+
+## Afzuiging v4.3: geen dunne stukjes meer in de cassetterand (2026-11-06)
+- [x] Lip- en greepuitsparing samenvoegen tot één uitsparing (strookje van 1,5 mm weg); andere dunne plekken nakijken
+- [x] Tests (74/74), screenshot, commit en push

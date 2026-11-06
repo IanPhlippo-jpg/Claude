@@ -259,8 +259,10 @@ export function cassetterand() {
   o.extrude('boss', K.rand.dikte, { naam: 'Rand' });
   o.schets(yv('bovenvlak', K.rand.dikte), (s) => assen().forEach(([x, z]) => {
     const k = Math.sign(x);
-    s.rrectW([k * (M.lip.x - 0.5), 0, z - M.lip.z - 0.5], [k * (K.rand.x + 1), 0, z + M.lip.z + 0.5]);
-    if (x * z > 0) s.rrectW([k * 84, 0, z + intrek(x) * 13 - 5], [k * (K.rand.x + 1), 0, z + intrek(x) * 13 + 5]);
+    // bij twee torens loopt de uitsparing door tot de greep (één uitsparing: geen dun strookje rand ertussen)
+    const d = intrek(x), greep = x * z > 0 ? 11.5 : 0; // tot 3 mm binnen de toren (eronder is het dicht)
+    const za = d < 0 ? z - M.lip.z - 0.5 - greep : z - M.lip.z - 0.5, zb = d < 0 ? z + M.lip.z + 0.5 : z + M.lip.z + 0.5 + greep;
+    s.rrectW([k * (M.lip.x - 0.5), 0, za], [k * (K.rand.x + 1), 0, zb]);
   }));
   o.extrude('cut', K.rand.dikte + 0.5, { omkeren: true, naam: 'Uitsparingen lippen en greep' });
   return o.doc();
