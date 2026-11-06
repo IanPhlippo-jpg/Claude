@@ -201,17 +201,12 @@
     "s3p17": {
      "x": -1.1,
      "y": -3.3
-    },
-    "s3p27": {
-     "x": -6,
-     "y": -11.5
     }
    },
    "scalars": {
     "s3s1": 1.4,
     "s3s4": 1.4,
-    "s3s18": 1.5,
-    "s3s28": 5
+    "s3s18": 1.5
    },
    "entities": {
     "s3e2": {
@@ -295,13 +290,6 @@
      "end": "s3p6",
      "r": "s3s18",
      "ccw": true
-    },
-    "s3e29": {
-     "id": "s3e29",
-     "construction": false,
-     "kind": "circle",
-     "center": "s3p27",
-     "r": "s3s28"
     }
    },
    "constraints": {},
@@ -315,8 +303,7 @@
     "s3e23",
     "s3e24",
     "s3e25",
-    "s3e26",
-    "s3e29"
+    "s3e26"
    ],
    "constraintOrder": [],
    "origin": "origin_s3"

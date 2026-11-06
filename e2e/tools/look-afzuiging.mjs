@@ -53,5 +53,6 @@ await kijk('Control+7', 'afzuiging-module');
 // het bureau
 await open(lees('voorbeelden/bureau/Bureau.kcad'));
 await kijk('Control+7', 'bureau-met-afzuiging');
+await kijk('Control+6', 'bureau-onder'); // de kabelsleuf onderaan het blad
 console.log('errors', errors);
 await browser.close();

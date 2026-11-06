@@ -82,11 +82,11 @@ function kader(nr, titel, inhoud) {
   const ty = Y1 + 3;
   k.push(rect(X0 - 5, ty, X1 - X0 + 5, H - 5 - ty, { w2: 0.5 }));
   const vak = (x, w, kop, waarde, groot = false) => [L([[x, ty], [x, H - 5]], { w: 0.25 }), T(x + 2, ty + 5, kop, { size: 2.2, kleur: '#666' }), T(x + 2, ty + (groot ? 16 : 13), waarde, { size: groot ? 5.5 : 3.2, bold: groot })].join('');
-  k.push(vak(X0 - 5, 70, 'Project', 'Afzuiging Lush Beauty'), T(X0 - 3, ty + 20, 'inbouw nagelstofafzuiging, versie 3', { size: 2.4, kleur: '#444' }));
+  k.push(vak(X0 - 5, 70, 'Project', 'Afzuiging Lush Beauty'), T(X0 - 3, ty + 20, 'inbouw nagelstofafzuiging, versie 4.1', { size: 2.4, kleur: '#444' }));
   k.push(vak(X0 + 65, 120, 'Bladtitel', titel, true));
   k.push(vak(X0 + 185, 60, 'Installatie / plaats', '=AFZ +ROMP'), T(X0 + 187, ty + 20, 'elektronicavak in de romp', { size: 2.4, kleur: '#444' }));
   k.push(vak(X0 + 245, 50, 'Norm', 'IEC 81346 / 60617'), T(X0 + 247, ty + 20, 'EPLAN-stijl', { size: 2.4, kleur: '#444' }));
-  k.push(vak(X0 + 295, 50, 'Datum / getekend', '2026-11-05'), T(X0 + 297, ty + 20, 'Phlippo CAD', { size: 2.4, kleur: '#444' }));
+  k.push(vak(X0 + 295, 50, 'Datum / getekend', '2026-11-06'), T(X0 + 297, ty + 20, 'Phlippo CAD', { size: 2.4, kleur: '#444' }));
   k.push(vak(X0 + 345, 45, 'Blad', `${nr} / ${BLADEN}`, true));
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}mm" height="${H}mm" font-family="Arial, Helvetica, sans-serif">
 <rect width="${W}" height="${H}" fill="#fff"/>
@@ -100,14 +100,14 @@ function blad1() {
   const i = [];
   i.push(T(W / 2, 60, 'Afzuiging Lush Beauty', { anchor: 'middle', size: 12, bold: true }));
   i.push(T(W / 2, 74, 'Aansluitschema elektronica', { anchor: 'middle', size: 7 }));
-  i.push(T(W / 2, 84, 'Ventilator Delta PFR1212UHE-SP00 · besturing VIEWE-knop 1,5" (ESP32-S3) · verschildrukmeting Sensirion SDP810-500Pa', { anchor: 'middle', size: 3.6, kleur: '#444' }));
-  const inhoud = [['1', 'Titelblad en inhoud'], ['2', 'Voeding 12 V en 5 V: netadapter, DC-bus, schakelaar, zekering, regelaar'], ['3', 'Ventilator: aan/uit (-Q3) en snelheid PWM (-Q1)'], ['4', 'Besturing -A1 (knop), kabel -W1 en verschildrukmeter -B1 (I2C, 3,3 V)'], ['5', 'Klemmenplan en bedrading'], ['6', 'Stuklijst']];
+  i.push(T(W / 2, 84, 'Ventilator Delta PFR1212UHE-SP00 · module ESP32-C3 · knop VIEWE 1,5" (draadloos) · verschildrukmeting Sensirion SDP810-500Pa', { anchor: 'middle', size: 3.6, kleur: '#444' }));
+  const inhoud = [['1', 'Titelblad en inhoud'], ['2', 'Voeding 12 V en 5 V: netadapter, DC-bus, schakelaar, zekering, regelaar'], ['3', 'Ventilator: aan/uit (-Q3) en snelheid PWM (-Q1)'], ['4', 'Besturing -A4, verschildrukmeter -B1 en de knop -A1 (5 V over USB-C, draadloos gestuurd)'], ['5', 'Klemmenplan en bedrading'], ['6', 'Stuklijst']];
   i.push(T(120, 115, 'Inhoud', { size: 5, bold: true }));
   inhoud.forEach(([n, t], k) => { i.push(T(120, 127 + k * 9, `Blad ${n}`, { size: 4 }), T(150, 127 + k * 9, t, { size: 4 })); });
   i.push(T(120, 195, 'Leeswijzer', { size: 4, bold: true }));
-  ['Codes volgens IEC 81346: -T netadapter, -F zekering, -Q schakelaars, -R weerstanden, -C condensatoren,', '-M motor, -A besturing, -B sensor, -X klemmen en connectoren.', 'Potentialen: L+ = +12 V, L5 = +5 V (knop), L3 = +3,3 V (drukmeter), M = 0 V. Een verwijzing /3.2 betekent blad 3, kolom 2.',
-    'Alles behalve de netadapter en de knop zit in het elektronicavak van de romp, op één gaatjesprint van 30 x 70 mm (-A2).',
-    'De knop -A1 zit in de knophouder in het blad, met de adapterprint -A3; een kabel -W1 verbindt -A3 met -A2.']
+  ['Codes volgens IEC 81346: -T netadapter, -F zekering, -Q schakelaars, -R weerstanden, -C condensatoren,', '-M motor, -A besturing, -B sensor, -X klemmen en connectoren.', 'Potentialen: L+ = +12 V, L5 = +5 V (-A4 en de knop), L3 = +3,3 V (uit -A4, voor de drukmeter), M = 0 V. /3.2 = blad 3, kolom 2.',
+    'Alles behalve de netadapter en de knop zit in het elektronicavak van de romp (gaatjesprint -A2 van 30 x 70 mm en -A4).',
+    'De knop -A1 zit in de knophouder in het blad; hij krijgt 5 V over een USB-C-kabel -W1 (-X8 -> -X7) en stuurt -A4 draadloos (ESP-NOW).']
     .forEach((r, k) => i.push(T(120, 205 + k * 6.5, r, { size: 3.2, kleur: '#333' })));
   return kader(1, 'Titelblad', i);
 }
@@ -134,10 +134,10 @@ function blad2() {
   i.push(punt(250, yp), L([[250, yp], [250, 132]]), condensator(250, 132, '-C1', '470 µF / 25 V'), L([[250, 148], [250, ym]]), punt(250, ym));
   i.push(T(270, 120, 'buffert de stroomstoot van de ventilator', { size: 2.4, kleur: '#444' }));
   // 5V-regelaar voor de knop en de 3,3V-regelaar
-  i.push(punt(320, yp), L([[320, yp], [320, 140]]), toestel(310, 140, 40, 26, '-T3', ['Pololu D24V5F5', '12 V -> 5 V, 0,5 A'], [{ x: 10, y: 0, naam: 'VIN' }, { x: 40, y: 13, naam: 'VOUT' }, { x: 20, y: 26, naam: 'GND' }]));
+  i.push(punt(320, yp), L([[320, yp], [320, 140]]), toestel(310, 140, 40, 26, '-T3', ['Pololu D24V10F5', '12 V -> 5 V, 1 A'], [{ x: 10, y: 0, naam: 'VIN' }, { x: 40, y: 13, naam: 'VOUT' }, { x: 20, y: 26, naam: 'GND' }]));
   i.push(L([[330, 166], [330, ym]], { w: 0.45 }), punt(330, ym));
   i.push(L([[350, 153], [X1 - 5, 153]], { kleur: '#d97706', w: 0.5 }), T(358, 151, 'L5 5 V', { size: 2.6, kleur: '#d97706' }), ref(X1 - 6, 158, '/4.1', 'end'));
-  i.push(T(30, 230, 'Stroom: ventilator max. 2,7 A, knop ca. 0,1 A (5 V). Draad L+ en M naar de ventilator minstens 0,5 mm².', { size: 3, kleur: '#333' }));
+  i.push(T(30, 230, 'Stroom: ventilator max. 2,7 A; op 5 V de knop ca. 0,1 A en -A4 tot 0,35 A (zenden). Draad naar de ventilator minstens 0,5 mm².', { size: 3, kleur: '#333' }));
   return kader(2, 'Voeding 12 V', i);
 }
 
@@ -156,7 +156,7 @@ function blad3() {
   const xq2 = 137, yq2 = 125;
   i.push(L([[xg, yq3], [xg, yq2 - 10]]), npn(xq2, yq2, '-Q2', 'BC547'), L([[xq2 + 3, yq2 + 10], [xq2 + 3, ym]]), punt(xq2 + 3, ym));
   i.push(weerstandH(xq2 - 40, yq2, '-R5', '1 kΩ'), L([[xq2 - 20, yq2], [xq2 - 10, yq2]]));
-  i.push(L([[xq2 - 40, yq2], [X0 + 5, yq2]], { kleur: '#d98a1c', w: 0.45 }), T(X0 + 5, yq2 - 2, 'aan/uit  GPIO40 (-X4:6) ← /4.3', { size: 2.6, kleur: '#d98a1c' }));
+  i.push(L([[xq2 - 40, yq2], [X0 + 5, yq2]], { kleur: '#d98a1c', w: 0.45 }), T(X0 + 5, yq2 - 2, 'aan/uit  GPIO4 (-A4) ← /4.3', { size: 2.6, kleur: '#d98a1c' }));
   i.push(punt(xq2 - 13, yq2), L([[xq2 - 13, yq2], [xq2 - 13, 150]]), weerstand(xq2 - 13, 150, '-R6', '10 kΩ'), L([[xq2 - 13, 170], [xq2 - 13, ym]]), punt(xq2 - 13, ym));
   // drain -> klem X3:1
   const xk = 330;
@@ -165,7 +165,7 @@ function blad3() {
   const xq1 = 262, yq1 = 175;
   i.push(L([[xq1 + 3, yq1 - 10], [xq1 + 3, 145], [xk, 145]], { kleur: '#2a6fd6', w: 0.45 }), npn(xq1, yq1, '-Q1', 'BC547'), L([[xq1 + 3, yq1 + 10], [xq1 + 3, ym]]), punt(xq1 + 3, ym));
   i.push(weerstandH(xq1 - 40, yq1, '-R1', '1 kΩ'), L([[xq1 - 20, yq1], [xq1 - 10, yq1]]));
-  i.push(L([[xq1 - 40, yq1], [205, yq1]], { kleur: '#2a6fd6', w: 0.45 }), T(205, yq1 - 6, 'PWM  GPIO39 (-X4:5) ← /4.3', { size: 2.6, kleur: '#2a6fd6' }));
+  i.push(L([[xq1 - 40, yq1], [205, yq1]], { kleur: '#2a6fd6', w: 0.45 }), T(205, yq1 - 6, 'PWM  GPIO3 (-A4) ← /4.3', { size: 2.6, kleur: '#2a6fd6' }));
   i.push(punt(xq1 - 13, yq1), L([[xq1 - 13, yq1], [xq1 - 13, 185]]), weerstand(xq1 - 13, 185, '-R2', '10 kΩ'), L([[xq1 - 13, 205], [xq1 - 13, ym]]), punt(xq1 - 13, ym));
   i.push(T(xq1 + 8, 200, 'Q1 keert het signaal om: de firmware rekent dat om', { size: 2.3, kleur: '#444' }));
   // klemmen X3 en de motor
@@ -182,65 +182,58 @@ function blad3() {
 // ---- blad 4: besturing en drukmeter ----
 function blad4() {
   const i = [];
-  const y5 = 30, ym = 225;
-  i.push(rail(y5, 120, X1 - 5, 'L5 5 V', '/2.8', '', '#d97706'), rail(ym, X0, X1 - 5, 'M 0 V', '/2.8', '', '#111'));
-  // de knop met zijn FPC en de adapterprint in de knophouder
-  const ax = 22, ay = 50;
-  i.push(toestel(ax, ay, 62, 160, '-A1', ['VIEWE-knop 1,5"', 'UEDX46460015-MD50E', 'ESP32-S3, AMOLED', 'draaiknop, drukknop', 'FPC 10-polig 0,5 mm'], [
-    { x: 62, y: 30, naam: 'FPC 1  +5 V' }, { x: 62, y: 42, naam: 'FPC 3  GND' },
-    { x: 62, y: 80, naam: 'FPC 6  GPIO44' }, { x: 62, y: 90, naam: 'FPC 7  GPIO43' },
-    { x: 62, y: 118, naam: 'FPC 4  GPIO40' }, { x: 62, y: 128, naam: 'FPC 5  GPIO39' },
-    { x: 62, y: 146, naam: 'FPC 9/10  USB' },
+  const y5 = 30, ym = 225, y3 = 40;
+  i.push(rail(y5, X0, X1 - 5, 'L5 5 V', '/2.8', '', '#d97706'), rail(ym, X0, X1 - 5, 'M 0 V', '/2.8', '', '#111'));
+  // -A4: ESP32-C3 in de module
+  const ax = 40, ay = 60;
+  i.push(toestel(ax, ay, 70, 120, '-A4', ['ESP32-C3 SuperMini', 'in het elektronicavak', 'USB-C onderaan', '(module flashen)'], [
+    { x: 0, y: 20, naam: '5V' }, { x: 0, y: 100, naam: 'GND' }, { x: 70, y: 20, naam: '3V3' },
+    { x: 70, y: 50, naam: 'GPIO5  SDA' }, { x: 70, y: 60, naam: 'GPIO6  SCL' },
+    { x: 70, y: 85, naam: 'GPIO4  aan/uit' }, { x: 70, y: 95, naam: 'GPIO3  PWM' },
   ]));
-  const px = ax + 62, xa = 96, xk = 150;
-  i.push(rect(xa - 4, ay + 18, 12, 136, { streep: '2 1.5', w2: 0.3 }), T(xa + 2, ay + 14, '-A3', { anchor: 'middle', size: 2.8, bold: true }));
-  i.push(T(xa + 2, ay + 160, 'adapterprint', { anchor: 'middle', size: 2.2, kleur: '#555' }), T(xa + 2, ay + 163.5, 'in de knophouder', { anchor: 'middle', size: 2.2, kleur: '#555' }));
-  i.push(T(123, ay + 14, '-W1  kabel 4 x 2 x 0,2 mm² (Cat 6), 0,6 m', { anchor: 'middle', size: 2.3, kleur: '#555' }));
-  // USB-C op -A3 (flashen)
-  i.push(L([[px, ay + 146], [xa + 14, ay + 146]], { w: 0.45 }), T(xa + 16, ay + 147, '-X7 USB-C-bus (in het deksel)', { size: 2.4 }));
-  const draad = (y, kleur, nr) => {
-    i.push(L([[px, y], [xk - 1.3, y]], { kleur, w: 0.45 }), klem(xk, y, '-X4', nr));
-  };
-  // voeding van de knop uit L5
-  draad(ay + 30, '#d97706', '1');
-  i.push(L([[xk + 1.3, ay + 30], [170, ay + 30], [170, y5]], { kleur: '#d97706', w: 0.45 }), punt(170, y5));
-  draad(ay + 42, '#111', '2');
-  i.push(L([[xk + 1.3, ay + 42], [165, ay + 42], [165, ym]], { w: 0.45 }), punt(165, ym));
+  i.push(punt(30, y5), L([[30, y5], [30, ay + 20], [ax, ay + 20]], { kleur: '#d97706', w: 0.45 }));
+  i.push(L([[ax, ay + 100], [30, ay + 100], [30, ym]], { w: 0.45 }), punt(30, ym));
+  // 3V3 van -A4 -> L3
+  const px = ax + 70;
+  i.push(L([[px, ay + 20], [125, ay + 20], [125, y3], [300, y3]], { kleur: '#7c3aed', w: 0.5 }), T(130, y3 - 1.5, 'L3 3,3 V (uit -A4)', { size: 2.6, kleur: '#7c3aed' }));
   // aan/uit en PWM naar blad 3
-  draad(ay + 118, '#d98a1c', '6');
-  draad(ay + 128, '#2a6fd6', '5');
-  i.push(L([[xk + 1.3, ay + 118], [185, ay + 118]], { kleur: '#d98a1c', w: 0.45 }), T(186, ay + 119, 'aan/uit → /3.2 (-R5)', { size: 2.5, kleur: '#d98a1c' }));
-  i.push(L([[xk + 1.3, ay + 128], [185, ay + 128]], { kleur: '#2a6fd6', w: 0.45 }), T(186, ay + 129, 'PWM → /3.5 (-R1)', { size: 2.5, kleur: '#2a6fd6' }));
-  // L5 -> T2 -> L3; SDA/SCL met pull-ups naar L3; naar B1
-  const ty = ay + 50;
-  i.push(punt(190, y5), L([[190, y5], [190, ty - 10], [185, ty - 10], [185, ty]], { kleur: '#d97706', w: 0.45 }));
-  i.push(toestel(185, ty - 10, 34, 24, '-T2', ['MCP1700-3302', '5 V -> 3,3 V'], [{ x: 0, y: 10, naam: 'in' }, { x: 34, y: 10, naam: 'uit' }, { x: 17, y: 24, naam: 'GND' }]));
-  i.push(L([[202, ty + 14], [202, ym]], { w: 0.45 }), punt(202, ym));
-  i.push(punt(178, ty), L([[178, ty], [178, ty + 20]]), condensator(178, ty + 20, '-C2', '1 µF'), L([[178, ty + 36], [178, ym]]), punt(178, ym));
-  i.push(L([[175, ty], [185, ty]], { kleur: '#d97706', w: 0.45 }));
-  const y3 = 40;
-  i.push(L([[219, ty], [232, ty], [232, y3], [X1 - 5, y3]], { kleur: '#7c3aed', w: 0.5 }), T(240, y3 - 1.5, 'L3 3,3 V', { size: 2.6, kleur: '#7c3aed' }));
-  i.push(punt(232, ty), L([[232, ty], [232, ty + 20]]), condensator(232, ty + 20, '-C3', '1 µF'), L([[232, ty + 36], [232, ym]]), punt(232, ym));
-  // I2C via -X4:3/4
-  draad(ay + 80, '#7c3aed', '3');
-  draad(ay + 90, '#7c3aed', '4');
-  i.push(punt(255, y3), L([[255, y3], [255, 55]]), weerstand(255, 55, '-R7', '4,7 kΩ'), L([[255, 75], [255, ay + 80]]), punt(255, ay + 80));
-  i.push(punt(270, y3), L([[270, y3], [270, 55]]), weerstand(270, 55, '-R8', '4,7 kΩ'), L([[270, 75], [270, ay + 90]]), punt(270, ay + 90));
-  i.push(L([[xk + 1.3, ay + 80], [310, ay + 80]], { kleur: '#7c3aed', w: 0.45 }), T(285, ay + 78, 'SDA', { size: 2.4, kleur: '#7c3aed' }));
-  i.push(L([[xk + 1.3, ay + 90], [310, ay + 90]], { kleur: '#7c3aed', w: 0.45 }), T(285, ay + 88, 'SCL', { size: 2.4, kleur: '#7c3aed' }));
-  i.push(T(xk, ay + 172, '-X4 schroefklem 6-polig op -A2', { anchor: 'middle', size: 2.3, kleur: '#555' }));
-  // drukmeter
-  const bx = 310, by = ay + 20;
-  i.push(toestel(bx, by, 70, 72, '-B1', ['Sensirion SDP810-500Pa', 'verschildruk ±500 Pa', 'I2C-adres 0x25'], [
-    { x: 0, y: 30, naam: 'VDD' }, { x: 0, y: 60, naam: 'SDA' }, { x: 0, y: 70, naam: 'SCL' }, { x: 70, y: 66, naam: 'GND' },
+  i.push(L([[px, ay + 85], [150, ay + 85]], { kleur: '#d98a1c', w: 0.45 }), T(152, ay + 86, 'aan/uit → /3.2 (-R5)', { size: 2.5, kleur: '#d98a1c' }));
+  i.push(L([[px, ay + 95], [150, ay + 95]], { kleur: '#2a6fd6', w: 0.45 }), T(152, ay + 96, 'PWM → /3.5 (-R1)', { size: 2.5, kleur: '#2a6fd6' }));
+  // I2C met pull-ups naar L3 en de drukmeter
+  i.push(punt(140, y3), L([[140, y3], [140, 55]]), weerstand(140, 55, '-R7', '4,7 kΩ'), L([[140, 75], [140, ay + 50]]), punt(140, ay + 50));
+  i.push(punt(155, y3), L([[155, y3], [155, 55]]), weerstand(155, 55, '-R8', '4,7 kΩ'), L([[155, 75], [155, ay + 60]]), punt(155, ay + 60));
+  i.push(L([[px, ay + 50], [190, ay + 50]], { kleur: '#7c3aed', w: 0.45 }), T(165, ay + 48, 'SDA', { size: 2.4, kleur: '#7c3aed' }));
+  i.push(L([[px, ay + 60], [190, ay + 60]], { kleur: '#7c3aed', w: 0.45 }), T(165, ay + 58, 'SCL', { size: 2.4, kleur: '#7c3aed' }));
+  const bx = 190, by = ay - 10;
+  i.push(toestel(bx, by, 62, 72, '-B1', ['Sensirion SDP810-500Pa', 'verschildruk ±500 Pa', 'I2C-adres 0x25'], [
+    { x: 0, y: 30, naam: 'VDD' }, { x: 0, y: 60, naam: 'SDA' }, { x: 0, y: 70, naam: 'SCL' }, { x: 62, y: 66, naam: 'GND' },
   ]));
-  i.push(L([[290, y3], [290, by + 30], [bx, by + 30]], { kleur: '#7c3aed', w: 0.45 }), punt(290, y3));
-  i.push(L([[bx + 70, by + 66], [392, by + 66], [392, ym]], { w: 0.45 }), punt(392, ym));
-  // pneumatiek: twee slangpoorten
-  const poort = (y, tekst1, tekst2) => [L([[bx + 70, y], [bx + 82, y]], { w: 1.4, kleur: '#9aa0a6', streep: '3 2' }), `<circle cx="${bx + 83.5}" cy="${y}" r="1.5" fill="#fff" stroke="#9aa0a6" stroke-width="0.6"/>`, T(bx + 3, y - 1, tekst1, { size: 2.3, kleur: '#555' }), T(bx + 3, y + 2.6, tekst2, { size: 2.3, kleur: '#555' })].join('');
-  i.push(poort(by + 22, 'poort "+": open in het vak', '(kamerdruk)'), poort(by + 44, 'poort "-": slang 3 x 5 mm naar het', 'tuitje in het plafond (onder de filters)'));
-  i.push(T(250, 205, 'GPIO43/44 zijn de UART0-lijnen van de knop: in rust hoog, net als I2C. De console loopt over USB.', { size: 2.4, kleur: '#444' }));
-  return kader(4, 'Besturing, kabel naar de knop en verschildrukmeter', i);
+  i.push(L([[180, y3], [180, by + 30], [bx, by + 30]], { kleur: '#7c3aed', w: 0.45 }), punt(180, y3));
+  i.push(L([[bx + 62, by + 66], [262, by + 66], [262, ym]], { w: 0.45 }), punt(262, ym));
+  const poort = (y, tekst1, tekst2) => [L([[bx + 62, y], [bx + 74, y]], { w: 1.4, kleur: '#9aa0a6', streep: '3 2' }), `<circle cx="${bx + 75.5}" cy="${y}" r="1.5" fill="#fff" stroke="#9aa0a6" stroke-width="0.6"/>`, T(bx + 3, y - 1, tekst1, { size: 2.2, kleur: '#555' }), T(bx + 3, y + 2.6, tekst2, { size: 2.2, kleur: '#555' })].join('');
+  i.push(poort(by + 22, 'poort "+": open in het vak', '(kamerdruk)'), poort(by + 44, 'poort "-": slang naar het tuitje', 'in het plafond (onder de filters)'));
+  // USB-C-koppeling naar de knop: -X8 in de module, kabel -W1, -X7 in de knophouder, knop -A1
+  const xu = 290, yu = 150;
+  i.push(rect(xu, yu, 22, 40, { w2: 0.45 }), T(xu + 11, yu - 3, '-X8', { anchor: 'middle', size: 2.8, bold: true }), T(xu + 11, yu + 46, 'USB-C-bus', { anchor: 'middle', size: 2.2, kleur: '#555' }), T(xu + 11, yu + 49.5, 'in de bodemplaat', { anchor: 'middle', size: 2.2, kleur: '#555' }));
+  [['VBUS', 8], ['CC1', 18], ['CC2', 26], ['GND', 34]].forEach(([n, dy]) => i.push(T(xu + 2, yu + dy + 1, n, { size: 2.2 })));
+  i.push(punt(282, y5), L([[282, y5], [282, yu + 8], [xu, yu + 8]], { kleur: '#d97706', w: 0.45 }));
+  i.push(punt(276, y5), L([[276, y5], [276, yu - 12]]), weerstand(276, yu - 12, '-R9', '56 kΩ'), L([[276, yu + 8], [276, yu + 18], [xu, yu + 18]]));
+  i.push(punt(270, y5), L([[270, y5], [270, yu - 30]]), weerstand(270, yu - 30, '-R10', '56 kΩ'), L([[270, yu - 10], [270, yu + 26], [xu, yu + 26]]));
+  i.push(L([[xu, yu + 34], [285, yu + 34], [285, ym]], { w: 0.45 }), punt(285, ym));
+  // kabel en knop
+  i.push(L([[xu + 22, yu + 8], [340, yu + 8]], { kleur: '#d97706', w: 0.6 }), L([[xu + 22, yu + 34], [340, yu + 34]], { w: 0.6 }));
+  i.push(T(326, yu + 4, '-W1', { anchor: 'middle', size: 2.6, bold: true }), T(326, yu + 42, 'USB-C-kabel, C-C', { anchor: 'middle', size: 2.2, kleur: '#555' }), T(326, yu + 45.5, '0,5 m, in de sleuf', { anchor: 'middle', size: 2.2, kleur: '#555' }));
+  i.push(rect(340, yu, 18, 40, { w2: 0.45 }), T(349, yu - 3, '-X7', { anchor: 'middle', size: 2.8, bold: true }), T(349, yu + 49.5, 'op -A3', { anchor: 'middle', size: 2.2, kleur: '#555' }));
+  i.push(toestel(366, yu - 6, 40, 56, '-A1', ['VIEWE-knop 1,5"', 'ESP32-S3, AMOLED', 'in de knophouder'], [
+    { x: 0, y: 14, naam: 'FPC 1 +5V' }, { x: 0, y: 26, naam: 'FPC 9/10 USB' }, { x: 0, y: 40, naam: 'FPC 3 GND' },
+  ]));
+  i.push(L([[358, yu + 8], [366, yu + 8]], { kleur: '#d97706', w: 0.45 }), L([[358, yu + 20], [366, yu + 20]], { w: 0.45 }), L([[358, yu + 34], [366, yu + 34]], { w: 0.45 }));
+  // draadloos
+  i.push(L([[ax + 35, ay + 120], [ax + 35, 206], [386, 206], [386, yu + 50]], { kleur: '#0ea5e9', w: 0.4, streep: '2.5 1.5' }));
+  i.push(T(160, 204, 'ESP-NOW (2,4 GHz): opdrachten van -A1 naar -A4, status terug', { anchor: 'middle', size: 2.5, kleur: '#0ea5e9' }));
+  i.push(T(30, 213, '-A3: adapterprint in de knophouder; USB-C -X7 met 5,1 kΩ op CC (op de breakout): VBUS -> FPC 1, GND -> FPC 3, D+ -> FPC 9, D- -> FPC 10.', { size: 2.3, kleur: '#444' }));
+  i.push(T(30, 219, 'Met de kabel naar -X8 krijgt de knop 5 V; op een computer aangesloten wordt hij geflasht. D+/D- van -X8 blijven los.', { size: 2.3, kleur: '#444' }));
+  return kader(4, 'Besturing, drukmeter en de knop', i);
 }
 
 // ---- blad 5: klemmenplan ----
@@ -252,12 +245,14 @@ const KLEMMEN = [
   ['-X3', '2', '0 V', 'M', 'ventilatordraad', '-M1 GND'],
   ['-X3', '3', 'PWM', '-Q1 collector', 'ventilatordraad', '-M1 PWM'],
   ['-X3', '4', 'toerental', '—', '(niet aangesloten)', '-M1 toerental'],
-  ['-X4', '1', '+5 V', 'L5 (-T3)', 'W1 oranje + wit/oranje', '-A3 -> FPC 1'],
-  ['-X4', '2', '0 V', 'M', 'W1 bruin + wit/bruin', '-A3 -> FPC 3'],
-  ['-X4', '3', 'SDA (GPIO44)', '-B1 SDA, -R7', 'W1 groen', '-A3 -> FPC 6'],
-  ['-X4', '4', 'SCL (GPIO43)', '-B1 SCL, -R8', 'W1 wit/groen', '-A3 -> FPC 7'],
-  ['-X4', '5', 'PWM (GPIO39)', '-R1', 'W1 blauw', '-A3 -> FPC 5'],
-  ['-X4', '6', 'aan/uit (GPIO40)', '-R5', 'W1 wit/blauw', '-A3 -> FPC 4'],
+  ['-X8', 'VBUS', '+5 V', 'L5 (-T3)', 'draad 0,5 mm²', '-W1 -> knop'],
+  ['-X8', 'CC1/2', 'bron 5 V', '-R9/-R10 56 kΩ naar L5', '—', '-W1'],
+  ['-X8', 'GND', '0 V', 'M', 'draad 0,5 mm²', '-W1 -> knop'],
+  ['-A4', '5V', '+5 V', 'L5 (-T3)', 'draad 0,25 mm²', '—'],
+  ['-A4', '3V3', '+3,3 V', 'L3: -B1 VDD, -R7, -R8', 'draad 0,25 mm²', '—'],
+  ['-A4', 'GPIO5/6', 'SDA / SCL', '-B1', 'draad 0,25 mm²', '—'],
+  ['-A4', 'GPIO3', 'PWM', '-R1', 'draad 0,25 mm²', '—'],
+  ['-A4', 'GPIO4', 'aan/uit', '-R5', 'draad 0,25 mm²', '—'],
 ];
 function tabel(x, y, kolommen, rijen) {
   const r = [];
@@ -271,10 +266,10 @@ function tabel(x, y, kolommen, rijen) {
   return r.join('');
 }
 function blad5() {
-  const i = [tabel(X0, 20, [['Klem', 18], ['Nr', 10], ['Functie', 40], ['Intern (print -A2)', 50], ['Draad', 45], ['Extern', 50]], KLEMMEN)];
+  const i = [tabel(X0, 20, [['Klem', 18], ['Nr', 20], ['Functie', 34], ['Intern (print -A2)', 46], ['Draad', 45], ['Extern', 50]], KLEMMEN)];
   i.push(T(250, 30, 'Bedrading', { size: 4, bold: true }));
-  ['Alle klemmen zitten op de gaatjesprint -A2 (30 x 70 mm) in het elektronicavak.', 'Schroefklemmen met steek 3,5 mm (-X3 4-polig, -X4 6-polig).', 'De ventilatorkabel gaat door de doorvoer in de tussenwand (dichten met een tule).',
-    'De kabel -W1 gaat door de kabeldoorvoer in de bodemplaat en onder het blad naar de', 'knophouder (tule in het deksel), naar de schroefklem op de adapterprint -A3.', 'Op -A3: FPC-bus 10-polig 0,5 mm voor de knop en de USB-C-bus -X7 (D+ FPC 9, D- FPC 10, GND).', 'Draadkleuren van de kabel en de ventilator vóór het solderen nameten.']
+  ['Alle klemmen zitten op de gaatjesprint -A2 (30 x 70 mm) in het elektronicavak.', 'Schroefklem -X3 (ventilator) met steek 3,5 mm. -A4 en -X8 met draadjes op -A2.', 'De ventilatorkabel gaat door de doorvoer in de tussenwand (dichten met een tule).',
+    '-X8 en de USB-C van -A4 zitten onderaan de module, in de bodemplaat.', 'De USB-C-kabel -W1 (C-C, 0,5 m, liefst haaks) loopt in de sleuf onder het blad naar het', 'deksel van de knophouder (-X7). Een andere lengte = een andere kabel: niets knippen.', 'Op -A3: FPC-bus 10-polig 0,5 mm voor de knop en de USB-C-bus -X7.', 'Draadkleuren van de ventilator vóór het solderen nameten.']
     .forEach((s, k) => i.push(T(250, 40 + k * 6, s, { size: 2.8, kleur: '#333' })));
   return kader(5, 'Klemmenplan', i);
 }
@@ -291,18 +286,18 @@ export const STUKLIJST = [
   ['-R1, -R5', '2', 'Weerstand 1 kΩ 0,25 W', '—'],
   ['-R2, -R4, -R6', '3', 'Weerstand 10 kΩ 0,25 W', '—'],
   ['-R7, -R8', '2', 'Weerstand 4,7 kΩ 0,25 W', '—'],
-  ['-T2', '1', 'Spanningsregelaar 3,3 V (TO-92)', 'Microchip MCP1700-3302E/TO'],
-  ['-T3', '1', 'Schakelende regelaar 12 V -> 5 V, 0,5 A', 'Pololu D24V5F5'],
-  ['-C2, -C3', '2', 'Keramische condensator 1 µF', '—'],
+  ['-T3', '1', 'Schakelende regelaar 12 V -> 5 V, 1 A', 'Pololu D24V10F5'],
+  ['-A4', '1', 'ESP32-C3 SuperMini (22,5 x 18 mm, USB-C)', '—'],
+  ['-X8', '1', 'USB-C-bus (breakout, 6-polig: VBUS, GND, CC1, CC2)', '—'],
+  ['-R9, -R10', '2', 'Weerstand 56 kΩ 0,25 W (USB-C-bron)', '—'],
   ['-B1', '1', 'Verschildrukmeter ±500 Pa, I2C', 'Sensirion SDP810-500PA'],
   ['-A1', '1', 'Knop 1,5" met rond AMOLED-scherm, ESP32-S3', 'VIEWE UEDX46460015-MD50E (zwart)'],
   ['-A3', '1', 'Adapterprint FPC 10-polig 0,5 mm naar 2,54 mm, 23 x 47 mm', 'FPC/FFC-breakout 10P'],
-  ['-X7', '1', 'USB-C-bus (breakout, USB 2.0: D+, D-, GND)', '—'],
-  ['-W1', '0,6 m', 'Kabel 4 x 2 x 0,2 mm² (Cat 6, soepel)', '—'],
+  ['-X7', '1', 'USB-C-bus (breakout 16-polig, USB 2.0, 5,1 kΩ op CC)', '—'],
+  ['-W1', '1', 'USB-C-kabel C-C, 0,5 m, haaks (USB 2.0 volstaat)', '—'],
   ['-M1', '1', 'Ventilator 120 x 38 mm, 12 V, PWM', 'Delta PFR1212UHE-SP00'],
   ['-A2', '1', 'Gaatjesprint 30 x 70 mm (gaten 2 mm)', '—'],
-  ['-X3, -X4', '2', 'Printschroefklemmen steek 3,5 mm (4- en 6-polig)', '—'],
-  ['—', '1', 'Printschroefklem 6-polig steek 3,5 mm op -A3', '—'],
+  ['-X3', '1', 'Printschroefklem 4-polig steek 3,5 mm', '—'],
   ['—', '1 m', 'Siliconeslang 3 x 5 mm (drukmeter)', '—'],
 ];
 function blad6() {

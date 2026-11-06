@@ -28,6 +28,31 @@
         0
       ],
       "kind": "face"
+    },
+    "bladonder": {
+      "id": "bladonder",
+      "name": "Face ondervlak",
+      "origin": [
+        0,
+        0,
+        0
+      ],
+      "u": [
+        1,
+        0,
+        0
+      ],
+      "v": [
+        0,
+        0,
+        1
+      ],
+      "n": [
+        0,
+        -1,
+        0
+      ],
+      "kind": "face"
     }
   },
   "variables": {},
@@ -257,6 +282,73 @@
       ],
       "constraintOrder": [],
       "origin": "origin_s2"
+    },
+    "s3": {
+      "id": "s3",
+      "name": "Sketch3",
+      "plane": "bladonder",
+      "points": {
+        "origin_s3": {
+          "x": 0,
+          "y": 0
+        },
+        "s3p0": {
+          "x": -72.96052,
+          "y": 68.308116
+        },
+        "s3p1": {
+          "x": 249.03948,
+          "y": 202.308116
+        },
+        "s3p2": {
+          "x": 250.96052,
+          "y": 197.691884
+        },
+        "s3p3": {
+          "x": -71.03948,
+          "y": 63.691884
+        }
+      },
+      "scalars": {},
+      "entities": {
+        "s3e4": {
+          "id": "s3e4",
+          "construction": false,
+          "kind": "line",
+          "p1": "s3p0",
+          "p2": "s3p1"
+        },
+        "s3e5": {
+          "id": "s3e5",
+          "construction": false,
+          "kind": "line",
+          "p1": "s3p1",
+          "p2": "s3p2"
+        },
+        "s3e6": {
+          "id": "s3e6",
+          "construction": false,
+          "kind": "line",
+          "p1": "s3p2",
+          "p2": "s3p3"
+        },
+        "s3e7": {
+          "id": "s3e7",
+          "construction": false,
+          "kind": "line",
+          "p1": "s3p3",
+          "p2": "s3p0"
+        }
+      },
+      "constraints": {},
+      "entityOrder": [
+        "s3e4",
+        "s3e5",
+        "s3e6",
+        "s3e7"
+      ],
+      "constraintOrder": [],
+      "origin": "origin_s3"
     }
   },
   "features": [
@@ -294,6 +386,24 @@
       "op": "cut",
       "end": "blind",
       "depth": 35,
+      "reverse": true
+    },
+    {
+      "id": "ks3",
+      "type": "sketch",
+      "name": "Sketch3",
+      "sketchId": "s3",
+      "suppressed": false
+    },
+    {
+      "id": "f6",
+      "type": "extrude",
+      "name": "Kabelsleuf",
+      "sketchId": "s3",
+      "suppressed": false,
+      "op": "cut",
+      "end": "blind",
+      "depth": 5,
       "reverse": true
     }
   ],

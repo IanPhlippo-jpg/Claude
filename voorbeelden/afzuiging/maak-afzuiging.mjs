@@ -1,4 +1,4 @@
-// Ingebouwde nagelstofafzuiging voor het bureau (versie 4, 2026-11-05), als Phlippo CAD-documenten.
+// Ingebouwde nagelstofafzuiging voor het bureau (versie 4.1, 2026-11-06), als Phlippo CAD-documenten.
 //
 // Opbouw (van boven naar onder):
 // - RVS-plaat (AISI 430, magnetisch, lasergesneden, LB-monogram) ligt op het bovenframe en is er even groot als het:
@@ -19,7 +19,9 @@
 // schroef in het blad. Alle schroeven, bouten en moeren staan als onderdelen in de assemblage.
 // Elektronica: in een eigen vak links in de romp (naast de ventilator, onder de cassette), afgesloten van het
 // luchtkanaal; een staande gaatjesprint van 30 x 70 mm op vier bussen; van onderen bereikbaar via de bodemplaat met de
-// DC-bus en de kabeldoorvoer naar de knop; aan/uit-schakelaar in de linkerzijwand. De drukmeter meet via een tuitje in het plafond van het vak.
+// DC-bus en de USB-C-bus voor de knop; aan/uit-schakelaar in de linkerzijwand. Een ESP32-C3 in de module stuurt de
+// ventilator en leest de drukmeter; de knop praat er draadloos mee (ESP-NOW) en krijgt alleen 5 V over een gewone
+// USB-C-kabel, die in een sleuf onder het blad loopt (elke lengte, niets knippen). De drukmeter meet via een tuitje in het plafond van het vak.
 //
 // Assenstelsel van de module: oorsprong in het midden van de uitsparing op het bovenvlak van het blad, Y omhoog,
 // +Z naar de voorkant van het bureau. Alle PETG-delen passen op een printbed van 220 x 220 mm en printen zonder support.
@@ -59,6 +61,13 @@ export const M = {
   // wipschakelaar KCD1-101 (21 x 15 mm, inbouwgat 19 x 13) in een kom in de linkerzijwand: de wip ligt 1 mm dieper dan
   // de wand, zodat hij niet per ongeluk omgaat; de kom zit onder het blad (ook bij 50 mm) en naast de print
   schakelaar: { z: 20, y: -65, gat: [13, 19], kom: [19, 25, 3], diep: 6, paneel: 2 },
+  // ESP32-C3 SuperMini (22,5 x 18) staand tegen de linkerwand in twee rails, USB-C naar beneden door de bodemplaat
+  c3: { x: -92.5, z: [-15, 3], h: 22.5, rail: [[-17.5, -14], [2, 5.5]] },
+  // USB-C-bus (breakout 11 x 12,5) tegen de voorwand van het vak: 5 V voor de knop, de stekker van onderen
+  usb: { x: [-77.5, -66.5], z: 63.4, h: 12.5, schroeven: [-76, -68] },
+  dcbus: [-72, 48.5], // DC-bus 5,5 x 2,1 in de bodemplaat, vooraan in het vak
+  // kabelsleuf onderaan het blad: van de uitsparing (voorkant, bij de USB-C-bus) recht naar het gat van de knop
+  sleuf: { van: [-72, 66], breed: 5, diep: 5 },
   // VIEWE-knop 1,5" (UEDX46460015-MD50E, Ø51,6 x 14, naaf achteraan, FPC 10-polig) op een houder die niet breder is
   // dan de knop: plaat Ø51,6 x 2 op het blad, buis Ø43 in een gat van Ø44 (gatzaag), 2 stalen klauwen (M3) en een
   // deksel onderaan met de USB-C-bus en de kabeltule. Maten van de knop uit de maattekening van VIEWE.
@@ -140,6 +149,16 @@ export function romp() {
   o.schets(vlak('schakelpaneel', 'Face paneel schakelaar', [xk, 0, 0], [-1, 0, 0]), (s) =>
     s.rrectW([xk, S.y - S.gat[1] / 2, S.z - S.gat[0] / 2], [xk, S.y + S.gat[1] / 2, S.z + S.gat[0] / 2]));
   o.extrude('cut', S.paneel + 1, { omkeren: true, naam: 'Inbouwgat schakelaar' });
+  // rails voor de ESP32-C3 tegen de linkerwand (de print schuift er van onderen in) en schroefgaten voor de USB-C-bus
+  const C3 = M.c3, U = M.usb;
+  o.schets(vlak('c3wand', 'Plane rails ESP32-C3', [-xi, 0, 0], [1, 0, 0], 'reference'), (s) =>
+    C3.rail.forEach(([a, b]) => s.rrectW([-xi, R.onder, a], [-xi, R.onder + C3.h + 2.5, b])));
+  o.extrude('boss', 3.6, { terug: 0.5, naam: 'Rails ESP32-C3' });
+  o.schets(yv('onderkant', R.onder, 'reference', 'Plane onderkant'), (s) =>
+    [[C3.z[0] - 0.2, C3.z[0] + 1], [C3.z[1] - 1, C3.z[1] + 0.2]].forEach(([a, b]) => s.rrectW([C3.x - 0.2, 0, a], [C3.x + 1.8, 0, b])));
+  o.extrude('cut', C3.h + 2.5, { naam: 'Groeven ESP32-C3' });
+  o.schets(vlak('voorwandvak', 'Face voorwand vak', [0, 0, zi], [0, 0, -1]), (s) => U.schroeven.forEach((x) => s.cirkelW([x, R.onder + U.h - 2.5, zi], 0.8)));
+  o.extrude('cut', 3.5, { omkeren: true, naam: 'Gaten USB-C-bus' });
   // binnenrichel rondom bovenaan: de cassetterand ligt erop, zodat er geen lucht langs de filters glipt
   o.schets(yv('boven', 0), (s) => { s.rrect(-xi - 0.5, -zi - 0.5, xi + 0.5, zi + 0.5); s.rrect(-M.richel.x, -M.richel.z, M.richel.x, M.richel.z); });
   o.extrude('boss', M.richel.dikte, { omkeren: true, naam: 'Richel cassette' });
@@ -250,8 +269,8 @@ export function filterlaag(i) {
 }
 
 /** bodemplaat over de hele onderkant (één vorm): onder de ventilator de lamellen die de lucht naar achteren sturen,
- *  onder het elektronicavak de DC-bus en de kabeldoorvoer naar de draaiknop; 6 schroeven in de torens en de bussen
- *  van de tussenwand. Losschroeven geeft toegang tot de elektronica (de ventilator zit op de plaat). */
+ *  onder het elektronicavak de DC-bus, de USB-C-bus voor de knop en de USB-C van de ESP32-C3 (flashen); 6 schroeven in
+ *  de torens en de bussen van de tussenwand. Losschroeven geeft toegang tot de elektronica (de ventilator zit op de plaat). */
 const plaatSchroeven = () => [...m3onder(), ...bussenTussenwand()];
 const fanGaten = () => [[1, 1], [1, -1], [-1, 1], [-1, -1]].map(([kx, kz]) => [kx * M.fan.gat / 2, kz * M.fan.gat / 2]);
 export function uitblaasplaat() {
@@ -276,8 +295,11 @@ export function uitblaasplaat() {
   o.schets(yv('plaat', y1, 'reference', 'Plane bodemplaat'), (s) => {
     fanGaten().forEach(([x, z]) => s.cirkelW([x, 0, z], 2.25));
     plaatSchroeven().forEach(([x, z]) => s.cirkelW([x, 0, z], 1.7));
-    s.cirkelW([-86, 0, 2], 4); // DC-bus 5,5 x 2,1 (inbouw, moer), naast de print
-    s.cirkelW([-86, 0, -13], 5); // kabeldoorvoer naar de draaiknop (kabeltule)
+    s.cirkelW([M.dcbus[0], 0, M.dcbus[1]], 4); // DC-bus 5,5 x 2,1 (inbouw, moer)
+    // openingen voor de USB-C-stekkers (overmold 12,6 x 6,6): de bus voor de knop en de ESP32-C3
+    const ux = (M.usb.x[0] + M.usb.x[1]) / 2, uz = M.usb.z - 1.65, cz = (M.c3.z[0] + M.c3.z[1]) / 2, cx = M.c3.x + 3.25;
+    s.rrectW([ux - 6.3, 0, uz - 3.3], [ux + 6.3, 0, uz + 3.3], 1.5);
+    s.rrectW([cx - 3.3, 0, cz - 6.3], [cx + 3.3, 0, cz + 6.3], 1.5);
   });
   o.extrude('cut', U.dikte + 1, { omkeren: true, naam: 'Gaten' });
   return o.doc();
@@ -395,8 +417,8 @@ export function knophouder() {
   return o.doc();
 }
 
-/** deksel onderaan de knophouder (plat geprint): 2 x M2,5 verzonken, de USB-C-bus om de knop te flashen en de tule
- *  voor de kabel naar de module; los te schroeven voor de schroeven van de knop en de adapterprint */
+/** deksel onderaan de knophouder (plat geprint): 2 x M2,5 verzonken en de opening voor de USB-C-bus (de koppeling:
+ *  5 V van de module, of de computer om de knop te flashen); los te schroeven voor de knop en de adapterprint */
 export function knopdeksel() {
   const { dial: D } = M;
   const o = new Onderdeel('Knopdeksel', PETG_ZWART);
@@ -409,7 +431,6 @@ export function knopdeksel() {
   o.schets(onder, (s) => {
     [1, -1].forEach((k) => s.cirkelW([0, y0, k * D.bus], 1.4));
     s.rrectW([D.adapter.x - 3.6, y0, -4.8], [D.adapter.x + 0.3, y0, 4.8], 1.5); // USB-C-bus onderaan de adapterprint
-    s.cirkelW([-6, y0, -11.5], 5); // kabeltule Ø10 voor de kabel naar de module
   });
   o.extrude('cut', D.deksel + 1, { omkeren: true, naam: 'Gaten' });
   return o.doc();
@@ -484,9 +505,8 @@ export function vieweKnop() {
   return o.doc();
 }
 
-/** adapterprint in de knophouder (-A3): FPC-bus 10-polig 0,5 mm bovenaan, schroefklem 6-polig voor de kabel naar de
- *  module, onderaan een USB-C-bus (in het deksel: flashen zonder iets los te maken); schuift van onderen in de groeven
- *  van de houder, onderdelen naar -X (naar de FPC toe) */
+/** adapterprint in de knophouder (-A3): FPC-bus 10-polig 0,5 mm bovenaan, onderaan de USB-C-bus -X7 (in het deksel:
+ *  5 V van de module of de computer om te flashen); schuift van onderen in de groeven van de houder, onderdelen naar -X */
 export function knopadapter() {
   const { dial: D } = M;
   const A = D.adapter;
@@ -496,7 +516,6 @@ export function knopadapter() {
   o.extrude('boss', 1.6, { naam: 'Print' });
   o.schets(vlak('adaptervoor', 'Plane onderdelen', [A.x + 0.3, 0, 0], [-1, 0, 0], 'reference'), (s) => {
     s.rrectW([A.x, A.top - 5, -7], [A.x, A.top - 1, 7]); // FPC-bus 10-polig, 0,5 mm
-    s.rrectW([A.x, A.top - 33, -10.5], [A.x, A.top - 25.5, 10.5]); // schroefklem 6-polig, steek 3,5 mm
   });
   o.extrude('boss', 5, { naam: 'Onderdelen' });
   o.schets(vlak('adaptervoor', 'Plane onderdelen', [A.x + 0.3, 0, 0], [-1, 0, 0], 'reference'), (s) =>
@@ -506,7 +525,7 @@ export function knopadapter() {
 }
 
 /** interfaceprint: gaatjesprint 30 x 70 mm staand op de bussen van de tussenwand, onderdelen naar het vak toe:
- *  IRF4905 plat, 2 x BC547, MCP1700 (3,3 V), zekeringhouder, schroefklemmen (-X3, -X4), 5V-regelaar D24V5F5 en de drukmeter SDP810
+ *  IRF4905 plat, 2 x BC547, zekeringhouder, schroefklem -X3 (ventilator), 5V-regelaar D24V10F5 en de drukmeter SDP810
  *  (poort "-" met een slangetje naar het tuitje in het plafond, poort "+" open in het vak = kamerdruk) */
 export function interfaceprint() {
   const { vak: V, print: P } = M;
@@ -526,6 +545,41 @@ export function interfaceprint() {
     s.rrectW([xp, P.y - 13, P.z - 10], [xp, P.y - 5, P.z + 10]); // zekeringhouder
   });
   o.extrude('boss', 11, { naam: 'Onderdelen' });
+  return o.doc();
+}
+
+/** ESP32-C3 SuperMini (-A4, 22,5 x 18): staat in de rails tegen de linkerwand, onderdelen naar het vak, de USB-C
+ *  onderaan (door de bodemplaat: de module flashen zonder iets los te maken) */
+export function esp32c3() {
+  const { c3: C } = M;
+  const o = new Onderdeel('ESP32-C3 SuperMini', PCB);
+  const y0 = M.romp.onder + 0.5;
+  o.schets(vlak('c3print', 'Plane print', [C.x, 0, 0], [1, 0, 0], 'reference'), (s) => s.rrectW([C.x, y0, C.z[0]], [C.x, y0 + C.h, C.z[1]]));
+  o.extrude('boss', 1.6, { naam: 'Print' });
+  const cz = (C.z[0] + C.z[1]) / 2;
+  o.schets(vlak('c3voor', 'Plane onderdelen', [C.x + 1.6, 0, 0], [1, 0, 0], 'reference'), (s) => {
+    s.rrectW([C.x + 1.6, y0, cz - 4.5], [C.x + 1.6, y0 + 7.5, cz + 4.5], 1); // USB-C
+    s.rrectW([C.x + 1.6, y0 + 10, cz - 5], [C.x + 1.6, y0 + 20, cz + 5]); // ESP32-C3 met antenne
+  });
+  o.extrude('boss', 3.2, { terug: 0.2, naam: 'Onderdelen' });
+  return o.doc();
+}
+
+/** USB-C-bus (-X8, breakout 11 x 12,5): tegen de voorwand van het vak geschroefd (2 x M2 x 5), de bus wijst naar
+ *  beneden door de bodemplaat; geeft 5 V aan de kabel naar de knop */
+export function usbBusModule() {
+  const { usb: U } = M;
+  const o = new Onderdeel('USB-C-bus module', PCB);
+  const y0 = M.romp.onder + 0.5;
+  o.schets(vlak('usbprint', 'Plane print', [0, 0, U.z], [0, 0, 1], 'reference'), (s) => s.rrectW([U.x[0], y0, U.z], [U.x[1], y0 + U.h, U.z]));
+  o.extrude('boss', 1.6, { naam: 'Print' });
+  o.schets(vlak('usbbus', 'Plane bus', [0, 0, U.z], [0, 0, -1], 'reference'), (s) => {
+    const ux = (U.x[0] + U.x[1]) / 2;
+    s.rrectW([ux - 4.5, y0, U.z], [ux + 4.5, y0 + 7.5, U.z], 1);
+  });
+  o.extrude('boss', 3.3, { terug: 0.2, naam: 'USB-C' });
+  o.schets(vlak('usbgat', 'Plane gaten', [0, 0, U.z + 1.6], [0, 0, -1], 'reference'), (s) => U.schroeven.forEach((x) => s.cirkelW([x, y0 + U.h - 3, U.z], 1.1)));
+  o.extrude('cut', 1.6, { naam: 'Gaten M2' });
   return o.doc();
 }
 
@@ -599,6 +653,11 @@ export function afzuigingComponenten(o = [0, 0, 0], prefix = 'a', blad = M.blad)
   [1, -1].forEach((k, i) => comps.push(component(`${prefix}sdk${i + 1}`, `M2,5 x 8 DIN 7991<${i + 1}>`, m25d, at([d.x, d.onder - d.deksel, d.z + k * d.bus]), { rotation: omhoog })));
   comps.push(component(`${prefix}11`, 'Interfaceprint<1>', interfaceprint(), at([0, 0, 0])));
   comps.push(component(`${prefix}13`, 'Wipschakelaar KCD1-101<1>', schakelaar(), at([0, 0, 0])));
+  comps.push(component(`${prefix}16`, 'ESP32-C3 SuperMini<1>', esp32c3(), at([0, 0, 0])));
+  comps.push(component(`${prefix}17`, 'USB-C-bus module<1>', usbBusModule(), at([0, 0, 0])));
+  const m2 = schroefCilinder('M2 x 5 cilinderkop', 3.8, 1.6, 1.6, 5);
+  const naarVoor = [-Math.SQRT1_2, 0, 0, Math.SQRT1_2]; // -90° om X: schacht naar +Z
+  M.usb.schroeven.forEach((x, i) => comps.push(component(`${prefix}s2${i + 1}`, `M2 x 5 cilinderkop<${i + 1}>`, m2, at([x, M.romp.onder + 0.5 + M.usb.h - 3, M.usb.z]), { rotation: naarVoor })));
   return { components: comps, mates: [] };
 }
 
@@ -610,12 +669,18 @@ export function afzuiging() {
 
 /** de uitsparingen in het tafelblad (assenstelsel van het blad: bovenvlak op Y = blad): frezen (Ø10) en gatzaag Ø44 */
 export function bladUitsparingen(o, x0 = 0, z0 = 0, blad = M.blad) {
-  const { uitsparing: U, dial: D } = M;
+  const { uitsparing: U, dial: D, sleuf: K } = M;
   o.schets(vlak('bladtop', 'Face bovenvlak', [0, blad, 0], [0, 1, 0]), (s) => {
     s.rrectW([x0 - U.b / 2, 0, z0 - U.d / 2], [x0 + U.b / 2, 0, z0 + U.d / 2], U.r);
     s.cirkelW([x0 + D.x, 0, z0 + D.z], D.gat / 2);
   });
   o.extrude('cut', blad + 1, { omkeren: true, naam: 'Uitsparingen afzuiging' });
+  // kabelsleuf onderaan: recht van de uitsparing (bij de USB-C-bus) naar het gat van de knop
+  const [ax, az] = [x0 + K.van[0], z0 + K.van[1]], [bx, bz] = [x0 + D.x, z0 + D.z];
+  const l = Math.hypot(bx - ax, bz - az), nx = (-(bz - az) / l) * K.breed / 2, nz = ((bx - ax) / l) * K.breed / 2;
+  o.schets(vlak('bladonder', 'Face ondervlak', [0, 0, 0], [0, -1, 0]), (s) =>
+    s.lusW([[ax + nx, 0, az + nz], [bx + nx, 0, bz + nz], [bx - nx, 0, bz - nz], [ax - nx, 0, az - nz]]));
+  o.extrude('cut', K.diep, { omkeren: true, naam: 'Kabelsleuf' });
 }
 
 export const ONDERDELEN = {
@@ -636,6 +701,8 @@ export const ONDERDELEN = {
   'Adapterprint-knop.kcad': knopadapter,
   'Interfaceprint.kcad': interfaceprint,
   'Wipschakelaar-KCD1.kcad': schakelaar,
+  'ESP32-C3-SuperMini.kcad': esp32c3,
+  'USB-C-bus-module.kcad': usbBusModule,
 };
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {

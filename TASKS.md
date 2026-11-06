@@ -975,3 +975,12 @@ elease; README en docs/04 bijgewerkt
 - [x] PETG i.p.v. PLA (kruip, warmte, aceton); README en bestellijst
 - [x] Tests (botsingen, klauwen knop 10-50 mm, luchtdicht, B-rep, STL): 68/68 groen; screenshots; app op de pc geopend
 - [x] graphify update, commit en push
+
+## Afzuiging v4.1: USB-C-koppeling knop-module, draadloze besturing, kabelsleuf in het blad (2026-11-06)
+- [x] Module: ESP32-C3 SuperMini (-A4) in rails op de linkerwand (USB-C naar beneden door de bodemplaat), stuurt ventilator en drukmeter
+- [x] Module: USB-C-bus -X8 (5 V voor de knop) tegen de voorwand, door de bodemplaat; DC-bus naar voren; kabeldoorvoer en 6-polige klem weg
+- [x] Knophouder: adapterprint zonder schroefklem, deksel zonder tule (de USB-C-bus is de koppeling)
+- [x] Bureau: kabelsleuf 5 x 5 mm onderaan het blad van de uitsparing naar het knopgat
+- [x] Firmware: één PlatformIO-project met twee omgevingen (knop en module), ESP-NOW tussen beide; compileren
+- [x] Schema, stuklijst, README en bestellijst (USB-C-kabel 0,5 m haaks, ESP32-C3 SuperMini, regelaar 1 A)
+- [x] Tests (72/72 groen), screenshots, app openen, commit en push

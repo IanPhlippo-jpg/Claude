@@ -1,0 +1,369 @@
+{
+ "format": "phlippo-cad",
+ "version": 1,
+ "name": "ESP32-C3 SuperMini",
+ "units": "mm",
+ "planes": {
+  "c3print": {
+   "id": "c3print",
+   "name": "Plane print",
+   "origin": [
+    -92.5,
+    0,
+    0
+   ],
+   "u": [
+    0,
+    0,
+    -1
+   ],
+   "v": [
+    0,
+    1,
+    0
+   ],
+   "n": [
+    1,
+    0,
+    0
+   ],
+   "kind": "reference"
+  },
+  "c3voor": {
+   "id": "c3voor",
+   "name": "Plane onderdelen",
+   "origin": [
+    -90.9,
+    0,
+    0
+   ],
+   "u": [
+    0,
+    0,
+    -1
+   ],
+   "v": [
+    0,
+    1,
+    0
+   ],
+   "n": [
+    1,
+    0,
+    0
+   ],
+   "kind": "reference"
+  }
+ },
+ "variables": {},
+ "equations": [],
+ "sketches": {
+  "s1": {
+   "id": "s1",
+   "name": "Sketch1",
+   "plane": "c3print",
+   "points": {
+    "origin_s1": {
+     "x": 0,
+     "y": 0
+    },
+    "s1p0": {
+     "x": -3,
+     "y": -78.5
+    },
+    "s1p1": {
+     "x": 15,
+     "y": -78.5
+    },
+    "s1p2": {
+     "x": 15,
+     "y": -56
+    },
+    "s1p3": {
+     "x": -3,
+     "y": -56
+    }
+   },
+   "scalars": {},
+   "entities": {
+    "s1e4": {
+     "id": "s1e4",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p0",
+     "p2": "s1p1"
+    },
+    "s1e5": {
+     "id": "s1e5",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p1",
+     "p2": "s1p2"
+    },
+    "s1e6": {
+     "id": "s1e6",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p2",
+     "p2": "s1p3"
+    },
+    "s1e7": {
+     "id": "s1e7",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p3",
+     "p2": "s1p0"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s1e4",
+    "s1e5",
+    "s1e6",
+    "s1e7"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s1"
+  },
+  "s2": {
+   "id": "s2",
+   "name": "Sketch2",
+   "plane": "c3voor",
+   "points": {
+    "origin_s2": {
+     "x": 0,
+     "y": 0
+    },
+    "s2p0": {
+     "x": 2.5,
+     "y": -78.5
+    },
+    "s2p1": {
+     "x": 9.5,
+     "y": -78.5
+    },
+    "s2p2": {
+     "x": 10.5,
+     "y": -77.5
+    },
+    "s2p3": {
+     "x": 10.5,
+     "y": -72
+    },
+    "s2p4": {
+     "x": 9.5,
+     "y": -71
+    },
+    "s2p5": {
+     "x": 2.5,
+     "y": -71
+    },
+    "s2p6": {
+     "x": 1.5,
+     "y": -72
+    },
+    "s2p7": {
+     "x": 1.5,
+     "y": -77.5
+    },
+    "s2p8": {
+     "x": 9.5,
+     "y": -77.5
+    },
+    "s2p9": {
+     "x": 9.5,
+     "y": -72
+    },
+    "s2p10": {
+     "x": 2.5,
+     "y": -72
+    },
+    "s2p11": {
+     "x": 2.5,
+     "y": -77.5
+    },
+    "s2p21": {
+     "x": 1,
+     "y": -68.5
+    },
+    "s2p22": {
+     "x": 11,
+     "y": -68.5
+    },
+    "s2p23": {
+     "x": 11,
+     "y": -58.5
+    },
+    "s2p24": {
+     "x": 1,
+     "y": -58.5
+    }
+   },
+   "scalars": {
+    "s2s12": 1
+   },
+   "entities": {
+    "s2e13": {
+     "id": "s2e13",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p0",
+     "p2": "s2p1"
+    },
+    "s2e14": {
+     "id": "s2e14",
+     "construction": false,
+     "kind": "arc",
+     "center": "s2p8",
+     "start": "s2p1",
+     "end": "s2p2",
+     "r": "s2s12",
+     "ccw": true
+    },
+    "s2e15": {
+     "id": "s2e15",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p2",
+     "p2": "s2p3"
+    },
+    "s2e16": {
+     "id": "s2e16",
+     "construction": false,
+     "kind": "arc",
+     "center": "s2p9",
+     "start": "s2p3",
+     "end": "s2p4",
+     "r": "s2s12",
+     "ccw": true
+    },
+    "s2e17": {
+     "id": "s2e17",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p4",
+     "p2": "s2p5"
+    },
+    "s2e18": {
+     "id": "s2e18",
+     "construction": false,
+     "kind": "arc",
+     "center": "s2p10",
+     "start": "s2p5",
+     "end": "s2p6",
+     "r": "s2s12",
+     "ccw": true
+    },
+    "s2e19": {
+     "id": "s2e19",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p6",
+     "p2": "s2p7"
+    },
+    "s2e20": {
+     "id": "s2e20",
+     "construction": false,
+     "kind": "arc",
+     "center": "s2p11",
+     "start": "s2p7",
+     "end": "s2p0",
+     "r": "s2s12",
+     "ccw": true
+    },
+    "s2e25": {
+     "id": "s2e25",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p21",
+     "p2": "s2p22"
+    },
+    "s2e26": {
+     "id": "s2e26",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p22",
+     "p2": "s2p23"
+    },
+    "s2e27": {
+     "id": "s2e27",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p23",
+     "p2": "s2p24"
+    },
+    "s2e28": {
+     "id": "s2e28",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p24",
+     "p2": "s2p21"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s2e13",
+    "s2e14",
+    "s2e15",
+    "s2e16",
+    "s2e17",
+    "s2e18",
+    "s2e19",
+    "s2e20",
+    "s2e25",
+    "s2e26",
+    "s2e27",
+    "s2e28"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s2"
+  }
+ },
+ "features": [
+  {
+   "id": "ks1",
+   "type": "sketch",
+   "name": "Sketch1",
+   "sketchId": "s1",
+   "suppressed": false
+  },
+  {
+   "id": "f2",
+   "type": "extrude",
+   "name": "Print",
+   "sketchId": "s1",
+   "suppressed": false,
+   "op": "boss",
+   "end": "blind",
+   "depth": 1.6,
+   "reverse": false
+  },
+  {
+   "id": "ks2",
+   "type": "sketch",
+   "name": "Sketch2",
+   "sketchId": "s2",
+   "suppressed": false
+  },
+  {
+   "id": "f4",
+   "type": "extrude",
+   "name": "Onderdelen",
+   "sketchId": "s2",
+   "suppressed": false,
+   "op": "boss",
+   "end": "blind",
+   "depth": 3.2,
+   "reverse": false,
+   "direction2": {
+    "end": "blind",
+    "depth": 0.2
+   }
+  }
+ ],
+ "material": {
+  "name": "FR4",
+  "density": 1850,
+  "color": "#2f7d4a"
+ }
+}

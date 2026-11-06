@@ -279,6 +279,56 @@
    ],
    "kind": "face"
   },
+  "c3wand": {
+   "id": "c3wand",
+   "name": "Plane rails ESP32-C3",
+   "origin": [
+    -93,
+    0,
+    0
+   ],
+   "u": [
+    0,
+    0,
+    -1
+   ],
+   "v": [
+    0,
+    1,
+    0
+   ],
+   "n": [
+    1,
+    0,
+    0
+   ],
+   "kind": "reference"
+  },
+  "voorwandvak": {
+   "id": "voorwandvak",
+   "name": "Face voorwand vak",
+   "origin": [
+    0,
+    0,
+    65
+   ],
+   "u": [
+    1,
+    0,
+    0
+   ],
+   "v": [
+    0,
+    -1,
+    0
+   ],
+   "n": [
+    0,
+    0,
+    -1
+   ],
+   "kind": "face"
+  },
   "kanaal": {
    "id": "kanaal",
    "name": "Plane top klauwkanaal",
@@ -1586,43 +1636,43 @@
   "s14": {
    "id": "s14",
    "name": "Sketch14",
-   "plane": "boven",
+   "plane": "c3wand",
    "points": {
     "origin_s14": {
      "x": 0,
      "y": 0
     },
     "s14p0": {
-     "x": -93.5,
-     "y": -65.5
+     "x": 14,
+     "y": -79
     },
     "s14p1": {
-     "x": 93.5,
-     "y": -65.5
+     "x": 17.5,
+     "y": -79
     },
     "s14p2": {
-     "x": 93.5,
-     "y": 65.5
+     "x": 17.5,
+     "y": -54
     },
     "s14p3": {
-     "x": -93.5,
-     "y": 65.5
+     "x": 14,
+     "y": -54
     },
     "s14p8": {
-     "x": -91,
-     "y": -63
+     "x": -5.5,
+     "y": -79
     },
     "s14p9": {
-     "x": 91,
-     "y": -63
+     "x": -2,
+     "y": -79
     },
     "s14p10": {
-     "x": 91,
-     "y": 63
+     "x": -2,
+     "y": -54
     },
     "s14p11": {
-     "x": -91,
-     "y": 63
+     "x": -5.5,
+     "y": -54
     }
    },
    "scalars": {},
@@ -1701,71 +1751,114 @@
   "s15": {
    "id": "s15",
    "name": "Sketch15",
-   "plane": "boven",
+   "plane": "onderkant",
    "points": {
     "origin_s15": {
      "x": 0,
      "y": 0
     },
     "s15p0": {
-     "x": 88.5,
-     "y": -40
+     "x": -92.7,
+     "y": 14
+    },
+    "s15p1": {
+     "x": -90.7,
+     "y": 14
+    },
+    "s15p2": {
+     "x": -90.7,
+     "y": 15.2
     },
     "s15p3": {
-     "x": 88.5,
-     "y": 40
+     "x": -92.7,
+     "y": 15.2
     },
-    "s15p6": {
-     "x": -88.5,
-     "y": -40
+    "s15p8": {
+     "x": -92.7,
+     "y": -3.2
     },
     "s15p9": {
-     "x": -88.5,
-     "y": 40
+     "x": -90.7,
+     "y": -3.2
+    },
+    "s15p10": {
+     "x": -90.7,
+     "y": -2
+    },
+    "s15p11": {
+     "x": -92.7,
+     "y": -2
     }
    },
-   "scalars": {
-    "s15s1": 2.9,
-    "s15s4": 2.9,
-    "s15s7": 2.9,
-    "s15s10": 2.9
-   },
+   "scalars": {},
    "entities": {
-    "s15e2": {
-     "id": "s15e2",
+    "s15e4": {
+     "id": "s15e4",
      "construction": false,
-     "kind": "circle",
-     "center": "s15p0",
-     "r": "s15s1"
+     "kind": "line",
+     "p1": "s15p0",
+     "p2": "s15p1"
     },
     "s15e5": {
      "id": "s15e5",
      "construction": false,
-     "kind": "circle",
-     "center": "s15p3",
-     "r": "s15s4"
+     "kind": "line",
+     "p1": "s15p1",
+     "p2": "s15p2"
     },
-    "s15e8": {
-     "id": "s15e8",
+    "s15e6": {
+     "id": "s15e6",
      "construction": false,
-     "kind": "circle",
-     "center": "s15p6",
-     "r": "s15s7"
+     "kind": "line",
+     "p1": "s15p2",
+     "p2": "s15p3"
     },
-    "s15e11": {
-     "id": "s15e11",
+    "s15e7": {
+     "id": "s15e7",
      "construction": false,
-     "kind": "circle",
-     "center": "s15p9",
-     "r": "s15s10"
+     "kind": "line",
+     "p1": "s15p3",
+     "p2": "s15p0"
+    },
+    "s15e12": {
+     "id": "s15e12",
+     "construction": false,
+     "kind": "line",
+     "p1": "s15p8",
+     "p2": "s15p9"
+    },
+    "s15e13": {
+     "id": "s15e13",
+     "construction": false,
+     "kind": "line",
+     "p1": "s15p9",
+     "p2": "s15p10"
+    },
+    "s15e14": {
+     "id": "s15e14",
+     "construction": false,
+     "kind": "line",
+     "p1": "s15p10",
+     "p2": "s15p11"
+    },
+    "s15e15": {
+     "id": "s15e15",
+     "construction": false,
+     "kind": "line",
+     "p1": "s15p11",
+     "p2": "s15p8"
     }
    },
    "constraints": {},
    "entityOrder": [
-    "s15e2",
+    "s15e4",
     "s15e5",
-    "s15e8",
-    "s15e11"
+    "s15e6",
+    "s15e7",
+    "s15e12",
+    "s15e13",
+    "s15e14",
+    "s15e15"
    ],
    "constraintOrder": [],
    "origin": "origin_s15"
@@ -1773,210 +1866,45 @@
   "s16": {
    "id": "s16",
    "name": "Sketch16",
-   "plane": "kanaal",
+   "plane": "voorwandvak",
    "points": {
     "origin_s16": {
      "x": 0,
      "y": 0
     },
     "s16p0": {
-     "x": 81.5,
-     "y": -47
-    },
-    "s16p1": {
-     "x": 95.5,
-     "y": -47
-    },
-    "s16p2": {
-     "x": 95.5,
-     "y": -33
+     "x": -76,
+     "y": 69
     },
     "s16p3": {
-     "x": 81.5,
-     "y": -33
-    },
-    "s16p8": {
-     "x": 81.5,
-     "y": 33
-    },
-    "s16p9": {
-     "x": 95.5,
-     "y": 33
-    },
-    "s16p10": {
-     "x": 95.5,
-     "y": 47
-    },
-    "s16p11": {
-     "x": 81.5,
-     "y": 47
-    },
-    "s16p16": {
-     "x": -95.5,
-     "y": -47
-    },
-    "s16p17": {
-     "x": -81.5,
-     "y": -47
-    },
-    "s16p18": {
-     "x": -81.5,
-     "y": -33
-    },
-    "s16p19": {
-     "x": -95.5,
-     "y": -33
-    },
-    "s16p24": {
-     "x": -95.5,
-     "y": 33
-    },
-    "s16p25": {
-     "x": -81.5,
-     "y": 33
-    },
-    "s16p26": {
-     "x": -81.5,
-     "y": 47
-    },
-    "s16p27": {
-     "x": -95.5,
-     "y": 47
+     "x": -68,
+     "y": 69
     }
    },
-   "scalars": {},
+   "scalars": {
+    "s16s1": 0.8,
+    "s16s4": 0.8
+   },
    "entities": {
-    "s16e4": {
-     "id": "s16e4",
+    "s16e2": {
+     "id": "s16e2",
      "construction": false,
-     "kind": "line",
-     "p1": "s16p0",
-     "p2": "s16p1"
+     "kind": "circle",
+     "center": "s16p0",
+     "r": "s16s1"
     },
     "s16e5": {
      "id": "s16e5",
      "construction": false,
-     "kind": "line",
-     "p1": "s16p1",
-     "p2": "s16p2"
-    },
-    "s16e6": {
-     "id": "s16e6",
-     "construction": false,
-     "kind": "line",
-     "p1": "s16p2",
-     "p2": "s16p3"
-    },
-    "s16e7": {
-     "id": "s16e7",
-     "construction": false,
-     "kind": "line",
-     "p1": "s16p3",
-     "p2": "s16p0"
-    },
-    "s16e12": {
-     "id": "s16e12",
-     "construction": false,
-     "kind": "line",
-     "p1": "s16p8",
-     "p2": "s16p9"
-    },
-    "s16e13": {
-     "id": "s16e13",
-     "construction": false,
-     "kind": "line",
-     "p1": "s16p9",
-     "p2": "s16p10"
-    },
-    "s16e14": {
-     "id": "s16e14",
-     "construction": false,
-     "kind": "line",
-     "p1": "s16p10",
-     "p2": "s16p11"
-    },
-    "s16e15": {
-     "id": "s16e15",
-     "construction": false,
-     "kind": "line",
-     "p1": "s16p11",
-     "p2": "s16p8"
-    },
-    "s16e20": {
-     "id": "s16e20",
-     "construction": false,
-     "kind": "line",
-     "p1": "s16p16",
-     "p2": "s16p17"
-    },
-    "s16e21": {
-     "id": "s16e21",
-     "construction": false,
-     "kind": "line",
-     "p1": "s16p17",
-     "p2": "s16p18"
-    },
-    "s16e22": {
-     "id": "s16e22",
-     "construction": false,
-     "kind": "line",
-     "p1": "s16p18",
-     "p2": "s16p19"
-    },
-    "s16e23": {
-     "id": "s16e23",
-     "construction": false,
-     "kind": "line",
-     "p1": "s16p19",
-     "p2": "s16p16"
-    },
-    "s16e28": {
-     "id": "s16e28",
-     "construction": false,
-     "kind": "line",
-     "p1": "s16p24",
-     "p2": "s16p25"
-    },
-    "s16e29": {
-     "id": "s16e29",
-     "construction": false,
-     "kind": "line",
-     "p1": "s16p25",
-     "p2": "s16p26"
-    },
-    "s16e30": {
-     "id": "s16e30",
-     "construction": false,
-     "kind": "line",
-     "p1": "s16p26",
-     "p2": "s16p27"
-    },
-    "s16e31": {
-     "id": "s16e31",
-     "construction": false,
-     "kind": "line",
-     "p1": "s16p27",
-     "p2": "s16p24"
+     "kind": "circle",
+     "center": "s16p3",
+     "r": "s16s4"
     }
    },
    "constraints": {},
    "entityOrder": [
-    "s16e4",
-    "s16e5",
-    "s16e6",
-    "s16e7",
-    "s16e12",
-    "s16e13",
-    "s16e14",
-    "s16e15",
-    "s16e20",
-    "s16e21",
-    "s16e22",
-    "s16e23",
-    "s16e28",
-    "s16e29",
-    "s16e30",
-    "s16e31"
+    "s16e2",
+    "s16e5"
    ],
    "constraintOrder": [],
    "origin": "origin_s16"
@@ -1984,75 +1912,43 @@
   "s17": {
    "id": "s17",
    "name": "Sketch17",
-   "plane": "zwaai",
+   "plane": "boven",
    "points": {
     "origin_s17": {
      "x": 0,
      "y": 0
     },
     "s17p0": {
-     "x": 84,
-     "y": -40
+     "x": -93.5,
+     "y": -65.5
     },
     "s17p1": {
-     "x": 93,
-     "y": -40
+     "x": 93.5,
+     "y": -65.5
     },
     "s17p2": {
-     "x": 93,
-     "y": -21.5
+     "x": 93.5,
+     "y": 65.5
     },
     "s17p3": {
-     "x": 84,
-     "y": -21.5
+     "x": -93.5,
+     "y": 65.5
     },
     "s17p8": {
-     "x": 84,
-     "y": 40
+     "x": -91,
+     "y": -63
     },
     "s17p9": {
-     "x": 93,
-     "y": 40
+     "x": 91,
+     "y": -63
     },
     "s17p10": {
-     "x": 93,
-     "y": 58.5
+     "x": 91,
+     "y": 63
     },
     "s17p11": {
-     "x": 84,
-     "y": 58.5
-    },
-    "s17p16": {
-     "x": -93,
-     "y": -58.5
-    },
-    "s17p17": {
-     "x": -84,
-     "y": -58.5
-    },
-    "s17p18": {
-     "x": -84,
-     "y": -40
-    },
-    "s17p19": {
-     "x": -93,
-     "y": -40
-    },
-    "s17p24": {
-     "x": -93,
-     "y": 21.5
-    },
-    "s17p25": {
-     "x": -84,
-     "y": 21.5
-    },
-    "s17p26": {
-     "x": -84,
-     "y": 40
-    },
-    "s17p27": {
-     "x": -93,
-     "y": 40
+     "x": -91,
+     "y": 63
     }
    },
    "scalars": {},
@@ -2112,62 +2008,6 @@
      "kind": "line",
      "p1": "s17p11",
      "p2": "s17p8"
-    },
-    "s17e20": {
-     "id": "s17e20",
-     "construction": false,
-     "kind": "line",
-     "p1": "s17p16",
-     "p2": "s17p17"
-    },
-    "s17e21": {
-     "id": "s17e21",
-     "construction": false,
-     "kind": "line",
-     "p1": "s17p17",
-     "p2": "s17p18"
-    },
-    "s17e22": {
-     "id": "s17e22",
-     "construction": false,
-     "kind": "line",
-     "p1": "s17p18",
-     "p2": "s17p19"
-    },
-    "s17e23": {
-     "id": "s17e23",
-     "construction": false,
-     "kind": "line",
-     "p1": "s17p19",
-     "p2": "s17p16"
-    },
-    "s17e28": {
-     "id": "s17e28",
-     "construction": false,
-     "kind": "line",
-     "p1": "s17p24",
-     "p2": "s17p25"
-    },
-    "s17e29": {
-     "id": "s17e29",
-     "construction": false,
-     "kind": "line",
-     "p1": "s17p25",
-     "p2": "s17p26"
-    },
-    "s17e30": {
-     "id": "s17e30",
-     "construction": false,
-     "kind": "line",
-     "p1": "s17p26",
-     "p2": "s17p27"
-    },
-    "s17e31": {
-     "id": "s17e31",
-     "construction": false,
-     "kind": "line",
-     "p1": "s17p27",
-     "p2": "s17p24"
     }
    },
    "constraints": {},
@@ -2179,15 +2019,7 @@
     "s17e12",
     "s17e13",
     "s17e14",
-    "s17e15",
-    "s17e20",
-    "s17e21",
-    "s17e22",
-    "s17e23",
-    "s17e28",
-    "s17e29",
-    "s17e30",
-    "s17e31"
+    "s17e15"
    ],
    "constraintOrder": [],
    "origin": "origin_s17"
@@ -2195,210 +2027,71 @@
   "s18": {
    "id": "s18",
    "name": "Sketch18",
-   "plane": "wandR",
+   "plane": "boven",
    "points": {
     "origin_s18": {
      "x": 0,
      "y": 0
     },
     "s18p0": {
-     "x": -21.5,
-     "y": -61.5
-    },
-    "s18p1": {
-     "x": -47.5,
-     "y": -61.5
-    },
-    "s18p2": {
-     "x": -47.5,
-     "y": -55
+     "x": 88.5,
+     "y": -40
     },
     "s18p3": {
-     "x": -44.5,
-     "y": -55
-    },
-    "s18p4": {
-     "x": -44.5,
-     "y": -9
-    },
-    "s18p5": {
-     "x": -35.5,
-     "y": -9
+     "x": 88.5,
+     "y": 40
     },
     "s18p6": {
-     "x": -35.5,
-     "y": -55
+     "x": -88.5,
+     "y": -40
     },
-    "s18p7": {
-     "x": -21.5,
-     "y": -55
-    },
-    "s18p16": {
-     "x": 58.5,
-     "y": -61.5
-    },
-    "s18p17": {
-     "x": 32.5,
-     "y": -61.5
-    },
-    "s18p18": {
-     "x": 32.5,
-     "y": -55
-    },
-    "s18p19": {
-     "x": 35.5,
-     "y": -55
-    },
-    "s18p20": {
-     "x": 35.5,
-     "y": -9
-    },
-    "s18p21": {
-     "x": 44.5,
-     "y": -9
-    },
-    "s18p22": {
-     "x": 44.5,
-     "y": -55
-    },
-    "s18p23": {
-     "x": 58.5,
-     "y": -55
+    "s18p9": {
+     "x": -88.5,
+     "y": 40
     }
    },
-   "scalars": {},
+   "scalars": {
+    "s18s1": 2.9,
+    "s18s4": 2.9,
+    "s18s7": 2.9,
+    "s18s10": 2.9
+   },
    "entities": {
+    "s18e2": {
+     "id": "s18e2",
+     "construction": false,
+     "kind": "circle",
+     "center": "s18p0",
+     "r": "s18s1"
+    },
+    "s18e5": {
+     "id": "s18e5",
+     "construction": false,
+     "kind": "circle",
+     "center": "s18p3",
+     "r": "s18s4"
+    },
     "s18e8": {
      "id": "s18e8",
      "construction": false,
-     "kind": "line",
-     "p1": "s18p0",
-     "p2": "s18p1"
-    },
-    "s18e9": {
-     "id": "s18e9",
-     "construction": false,
-     "kind": "line",
-     "p1": "s18p1",
-     "p2": "s18p2"
-    },
-    "s18e10": {
-     "id": "s18e10",
-     "construction": false,
-     "kind": "line",
-     "p1": "s18p2",
-     "p2": "s18p3"
+     "kind": "circle",
+     "center": "s18p6",
+     "r": "s18s7"
     },
     "s18e11": {
      "id": "s18e11",
      "construction": false,
-     "kind": "line",
-     "p1": "s18p3",
-     "p2": "s18p4"
-    },
-    "s18e12": {
-     "id": "s18e12",
-     "construction": false,
-     "kind": "line",
-     "p1": "s18p4",
-     "p2": "s18p5"
-    },
-    "s18e13": {
-     "id": "s18e13",
-     "construction": false,
-     "kind": "line",
-     "p1": "s18p5",
-     "p2": "s18p6"
-    },
-    "s18e14": {
-     "id": "s18e14",
-     "construction": false,
-     "kind": "line",
-     "p1": "s18p6",
-     "p2": "s18p7"
-    },
-    "s18e15": {
-     "id": "s18e15",
-     "construction": false,
-     "kind": "line",
-     "p1": "s18p7",
-     "p2": "s18p0"
-    },
-    "s18e24": {
-     "id": "s18e24",
-     "construction": false,
-     "kind": "line",
-     "p1": "s18p16",
-     "p2": "s18p17"
-    },
-    "s18e25": {
-     "id": "s18e25",
-     "construction": false,
-     "kind": "line",
-     "p1": "s18p17",
-     "p2": "s18p18"
-    },
-    "s18e26": {
-     "id": "s18e26",
-     "construction": false,
-     "kind": "line",
-     "p1": "s18p18",
-     "p2": "s18p19"
-    },
-    "s18e27": {
-     "id": "s18e27",
-     "construction": false,
-     "kind": "line",
-     "p1": "s18p19",
-     "p2": "s18p20"
-    },
-    "s18e28": {
-     "id": "s18e28",
-     "construction": false,
-     "kind": "line",
-     "p1": "s18p20",
-     "p2": "s18p21"
-    },
-    "s18e29": {
-     "id": "s18e29",
-     "construction": false,
-     "kind": "line",
-     "p1": "s18p21",
-     "p2": "s18p22"
-    },
-    "s18e30": {
-     "id": "s18e30",
-     "construction": false,
-     "kind": "line",
-     "p1": "s18p22",
-     "p2": "s18p23"
-    },
-    "s18e31": {
-     "id": "s18e31",
-     "construction": false,
-     "kind": "line",
-     "p1": "s18p23",
-     "p2": "s18p16"
+     "kind": "circle",
+     "center": "s18p9",
+     "r": "s18s10"
     }
    },
    "constraints": {},
    "entityOrder": [
+    "s18e2",
+    "s18e5",
     "s18e8",
-    "s18e9",
-    "s18e10",
-    "s18e11",
-    "s18e12",
-    "s18e13",
-    "s18e14",
-    "s18e15",
-    "s18e24",
-    "s18e25",
-    "s18e26",
-    "s18e27",
-    "s18e28",
-    "s18e29",
-    "s18e30",
-    "s18e31"
+    "s18e11"
    ],
    "constraintOrder": [],
    "origin": "origin_s18"
@@ -2406,206 +2099,206 @@
   "s19": {
    "id": "s19",
    "name": "Sketch19",
-   "plane": "wandL",
+   "plane": "kanaal",
    "points": {
     "origin_s19": {
      "x": 0,
      "y": 0
     },
     "s19p0": {
-     "x": -32.5,
-     "y": 61.5
+     "x": 81.5,
+     "y": -47
     },
     "s19p1": {
-     "x": -58.5,
-     "y": 61.5
+     "x": 95.5,
+     "y": -47
     },
     "s19p2": {
-     "x": -58.5,
-     "y": 55
+     "x": 95.5,
+     "y": -33
     },
     "s19p3": {
-     "x": -44.5,
-     "y": 55
+     "x": 81.5,
+     "y": -33
     },
-    "s19p4": {
-     "x": -44.5,
-     "y": 9
+    "s19p8": {
+     "x": 81.5,
+     "y": 33
     },
-    "s19p5": {
-     "x": -35.5,
-     "y": 9
+    "s19p9": {
+     "x": 95.5,
+     "y": 33
     },
-    "s19p6": {
-     "x": -35.5,
-     "y": 55
+    "s19p10": {
+     "x": 95.5,
+     "y": 47
     },
-    "s19p7": {
-     "x": -32.5,
-     "y": 55
+    "s19p11": {
+     "x": 81.5,
+     "y": 47
     },
     "s19p16": {
-     "x": 47.5,
-     "y": 61.5
+     "x": -95.5,
+     "y": -47
     },
     "s19p17": {
-     "x": 21.5,
-     "y": 61.5
+     "x": -81.5,
+     "y": -47
     },
     "s19p18": {
-     "x": 21.5,
-     "y": 55
+     "x": -81.5,
+     "y": -33
     },
     "s19p19": {
-     "x": 35.5,
-     "y": 55
+     "x": -95.5,
+     "y": -33
     },
-    "s19p20": {
-     "x": 35.5,
-     "y": 9
+    "s19p24": {
+     "x": -95.5,
+     "y": 33
     },
-    "s19p21": {
-     "x": 44.5,
-     "y": 9
+    "s19p25": {
+     "x": -81.5,
+     "y": 33
     },
-    "s19p22": {
-     "x": 44.5,
-     "y": 55
+    "s19p26": {
+     "x": -81.5,
+     "y": 47
     },
-    "s19p23": {
-     "x": 47.5,
-     "y": 55
+    "s19p27": {
+     "x": -95.5,
+     "y": 47
     }
    },
    "scalars": {},
    "entities": {
-    "s19e8": {
-     "id": "s19e8",
+    "s19e4": {
+     "id": "s19e4",
      "construction": false,
      "kind": "line",
      "p1": "s19p0",
      "p2": "s19p1"
     },
-    "s19e9": {
-     "id": "s19e9",
+    "s19e5": {
+     "id": "s19e5",
      "construction": false,
      "kind": "line",
      "p1": "s19p1",
      "p2": "s19p2"
     },
-    "s19e10": {
-     "id": "s19e10",
+    "s19e6": {
+     "id": "s19e6",
      "construction": false,
      "kind": "line",
      "p1": "s19p2",
      "p2": "s19p3"
     },
-    "s19e11": {
-     "id": "s19e11",
+    "s19e7": {
+     "id": "s19e7",
      "construction": false,
      "kind": "line",
      "p1": "s19p3",
-     "p2": "s19p4"
+     "p2": "s19p0"
     },
     "s19e12": {
      "id": "s19e12",
      "construction": false,
      "kind": "line",
-     "p1": "s19p4",
-     "p2": "s19p5"
+     "p1": "s19p8",
+     "p2": "s19p9"
     },
     "s19e13": {
      "id": "s19e13",
      "construction": false,
      "kind": "line",
-     "p1": "s19p5",
-     "p2": "s19p6"
+     "p1": "s19p9",
+     "p2": "s19p10"
     },
     "s19e14": {
      "id": "s19e14",
      "construction": false,
      "kind": "line",
-     "p1": "s19p6",
-     "p2": "s19p7"
+     "p1": "s19p10",
+     "p2": "s19p11"
     },
     "s19e15": {
      "id": "s19e15",
      "construction": false,
      "kind": "line",
-     "p1": "s19p7",
-     "p2": "s19p0"
+     "p1": "s19p11",
+     "p2": "s19p8"
     },
-    "s19e24": {
-     "id": "s19e24",
+    "s19e20": {
+     "id": "s19e20",
      "construction": false,
      "kind": "line",
      "p1": "s19p16",
      "p2": "s19p17"
     },
-    "s19e25": {
-     "id": "s19e25",
+    "s19e21": {
+     "id": "s19e21",
      "construction": false,
      "kind": "line",
      "p1": "s19p17",
      "p2": "s19p18"
     },
-    "s19e26": {
-     "id": "s19e26",
+    "s19e22": {
+     "id": "s19e22",
      "construction": false,
      "kind": "line",
      "p1": "s19p18",
      "p2": "s19p19"
     },
-    "s19e27": {
-     "id": "s19e27",
+    "s19e23": {
+     "id": "s19e23",
      "construction": false,
      "kind": "line",
      "p1": "s19p19",
-     "p2": "s19p20"
+     "p2": "s19p16"
     },
     "s19e28": {
      "id": "s19e28",
      "construction": false,
      "kind": "line",
-     "p1": "s19p20",
-     "p2": "s19p21"
+     "p1": "s19p24",
+     "p2": "s19p25"
     },
     "s19e29": {
      "id": "s19e29",
      "construction": false,
      "kind": "line",
-     "p1": "s19p21",
-     "p2": "s19p22"
+     "p1": "s19p25",
+     "p2": "s19p26"
     },
     "s19e30": {
      "id": "s19e30",
      "construction": false,
      "kind": "line",
-     "p1": "s19p22",
-     "p2": "s19p23"
+     "p1": "s19p26",
+     "p2": "s19p27"
     },
     "s19e31": {
      "id": "s19e31",
      "construction": false,
      "kind": "line",
-     "p1": "s19p23",
-     "p2": "s19p16"
+     "p1": "s19p27",
+     "p2": "s19p24"
     }
    },
    "constraints": {},
    "entityOrder": [
-    "s19e8",
-    "s19e9",
-    "s19e10",
-    "s19e11",
+    "s19e4",
+    "s19e5",
+    "s19e6",
+    "s19e7",
     "s19e12",
     "s19e13",
     "s19e14",
     "s19e15",
-    "s19e24",
-    "s19e25",
-    "s19e26",
-    "s19e27",
+    "s19e20",
+    "s19e21",
+    "s19e22",
+    "s19e23",
     "s19e28",
     "s19e29",
     "s19e30",
@@ -2617,100 +2310,733 @@
   "s20": {
    "id": "s20",
    "name": "Sketch20",
-   "plane": "onder",
+   "plane": "zwaai",
    "points": {
     "origin_s20": {
      "x": 0,
      "y": 0
     },
     "s20p0": {
-     "x": 86,
-     "y": 40
-    },
-    "s20p3": {
-     "x": 86,
+     "x": 84,
      "y": -40
     },
-    "s20p6": {
-     "x": -86,
+    "s20p1": {
+     "x": 93,
+     "y": -40
+    },
+    "s20p2": {
+     "x": 93,
+     "y": -21.5
+    },
+    "s20p3": {
+     "x": 84,
+     "y": -21.5
+    },
+    "s20p8": {
+     "x": 84,
      "y": 40
     },
     "s20p9": {
+     "x": 93,
+     "y": 40
+    },
+    "s20p10": {
+     "x": 93,
+     "y": 58.5
+    },
+    "s20p11": {
+     "x": 84,
+     "y": 58.5
+    },
+    "s20p16": {
+     "x": -93,
+     "y": -58.5
+    },
+    "s20p17": {
+     "x": -84,
+     "y": -58.5
+    },
+    "s20p18": {
+     "x": -84,
+     "y": -40
+    },
+    "s20p19": {
+     "x": -93,
+     "y": -40
+    },
+    "s20p24": {
+     "x": -93,
+     "y": 21.5
+    },
+    "s20p25": {
+     "x": -84,
+     "y": 21.5
+    },
+    "s20p26": {
+     "x": -84,
+     "y": 40
+    },
+    "s20p27": {
+     "x": -93,
+     "y": 40
+    }
+   },
+   "scalars": {},
+   "entities": {
+    "s20e4": {
+     "id": "s20e4",
+     "construction": false,
+     "kind": "line",
+     "p1": "s20p0",
+     "p2": "s20p1"
+    },
+    "s20e5": {
+     "id": "s20e5",
+     "construction": false,
+     "kind": "line",
+     "p1": "s20p1",
+     "p2": "s20p2"
+    },
+    "s20e6": {
+     "id": "s20e6",
+     "construction": false,
+     "kind": "line",
+     "p1": "s20p2",
+     "p2": "s20p3"
+    },
+    "s20e7": {
+     "id": "s20e7",
+     "construction": false,
+     "kind": "line",
+     "p1": "s20p3",
+     "p2": "s20p0"
+    },
+    "s20e12": {
+     "id": "s20e12",
+     "construction": false,
+     "kind": "line",
+     "p1": "s20p8",
+     "p2": "s20p9"
+    },
+    "s20e13": {
+     "id": "s20e13",
+     "construction": false,
+     "kind": "line",
+     "p1": "s20p9",
+     "p2": "s20p10"
+    },
+    "s20e14": {
+     "id": "s20e14",
+     "construction": false,
+     "kind": "line",
+     "p1": "s20p10",
+     "p2": "s20p11"
+    },
+    "s20e15": {
+     "id": "s20e15",
+     "construction": false,
+     "kind": "line",
+     "p1": "s20p11",
+     "p2": "s20p8"
+    },
+    "s20e20": {
+     "id": "s20e20",
+     "construction": false,
+     "kind": "line",
+     "p1": "s20p16",
+     "p2": "s20p17"
+    },
+    "s20e21": {
+     "id": "s20e21",
+     "construction": false,
+     "kind": "line",
+     "p1": "s20p17",
+     "p2": "s20p18"
+    },
+    "s20e22": {
+     "id": "s20e22",
+     "construction": false,
+     "kind": "line",
+     "p1": "s20p18",
+     "p2": "s20p19"
+    },
+    "s20e23": {
+     "id": "s20e23",
+     "construction": false,
+     "kind": "line",
+     "p1": "s20p19",
+     "p2": "s20p16"
+    },
+    "s20e28": {
+     "id": "s20e28",
+     "construction": false,
+     "kind": "line",
+     "p1": "s20p24",
+     "p2": "s20p25"
+    },
+    "s20e29": {
+     "id": "s20e29",
+     "construction": false,
+     "kind": "line",
+     "p1": "s20p25",
+     "p2": "s20p26"
+    },
+    "s20e30": {
+     "id": "s20e30",
+     "construction": false,
+     "kind": "line",
+     "p1": "s20p26",
+     "p2": "s20p27"
+    },
+    "s20e31": {
+     "id": "s20e31",
+     "construction": false,
+     "kind": "line",
+     "p1": "s20p27",
+     "p2": "s20p24"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s20e4",
+    "s20e5",
+    "s20e6",
+    "s20e7",
+    "s20e12",
+    "s20e13",
+    "s20e14",
+    "s20e15",
+    "s20e20",
+    "s20e21",
+    "s20e22",
+    "s20e23",
+    "s20e28",
+    "s20e29",
+    "s20e30",
+    "s20e31"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s20"
+  },
+  "s21": {
+   "id": "s21",
+   "name": "Sketch21",
+   "plane": "wandR",
+   "points": {
+    "origin_s21": {
+     "x": 0,
+     "y": 0
+    },
+    "s21p0": {
+     "x": -21.5,
+     "y": -61.5
+    },
+    "s21p1": {
+     "x": -47.5,
+     "y": -61.5
+    },
+    "s21p2": {
+     "x": -47.5,
+     "y": -55
+    },
+    "s21p3": {
+     "x": -44.5,
+     "y": -55
+    },
+    "s21p4": {
+     "x": -44.5,
+     "y": -9
+    },
+    "s21p5": {
+     "x": -35.5,
+     "y": -9
+    },
+    "s21p6": {
+     "x": -35.5,
+     "y": -55
+    },
+    "s21p7": {
+     "x": -21.5,
+     "y": -55
+    },
+    "s21p16": {
+     "x": 58.5,
+     "y": -61.5
+    },
+    "s21p17": {
+     "x": 32.5,
+     "y": -61.5
+    },
+    "s21p18": {
+     "x": 32.5,
+     "y": -55
+    },
+    "s21p19": {
+     "x": 35.5,
+     "y": -55
+    },
+    "s21p20": {
+     "x": 35.5,
+     "y": -9
+    },
+    "s21p21": {
+     "x": 44.5,
+     "y": -9
+    },
+    "s21p22": {
+     "x": 44.5,
+     "y": -55
+    },
+    "s21p23": {
+     "x": 58.5,
+     "y": -55
+    }
+   },
+   "scalars": {},
+   "entities": {
+    "s21e8": {
+     "id": "s21e8",
+     "construction": false,
+     "kind": "line",
+     "p1": "s21p0",
+     "p2": "s21p1"
+    },
+    "s21e9": {
+     "id": "s21e9",
+     "construction": false,
+     "kind": "line",
+     "p1": "s21p1",
+     "p2": "s21p2"
+    },
+    "s21e10": {
+     "id": "s21e10",
+     "construction": false,
+     "kind": "line",
+     "p1": "s21p2",
+     "p2": "s21p3"
+    },
+    "s21e11": {
+     "id": "s21e11",
+     "construction": false,
+     "kind": "line",
+     "p1": "s21p3",
+     "p2": "s21p4"
+    },
+    "s21e12": {
+     "id": "s21e12",
+     "construction": false,
+     "kind": "line",
+     "p1": "s21p4",
+     "p2": "s21p5"
+    },
+    "s21e13": {
+     "id": "s21e13",
+     "construction": false,
+     "kind": "line",
+     "p1": "s21p5",
+     "p2": "s21p6"
+    },
+    "s21e14": {
+     "id": "s21e14",
+     "construction": false,
+     "kind": "line",
+     "p1": "s21p6",
+     "p2": "s21p7"
+    },
+    "s21e15": {
+     "id": "s21e15",
+     "construction": false,
+     "kind": "line",
+     "p1": "s21p7",
+     "p2": "s21p0"
+    },
+    "s21e24": {
+     "id": "s21e24",
+     "construction": false,
+     "kind": "line",
+     "p1": "s21p16",
+     "p2": "s21p17"
+    },
+    "s21e25": {
+     "id": "s21e25",
+     "construction": false,
+     "kind": "line",
+     "p1": "s21p17",
+     "p2": "s21p18"
+    },
+    "s21e26": {
+     "id": "s21e26",
+     "construction": false,
+     "kind": "line",
+     "p1": "s21p18",
+     "p2": "s21p19"
+    },
+    "s21e27": {
+     "id": "s21e27",
+     "construction": false,
+     "kind": "line",
+     "p1": "s21p19",
+     "p2": "s21p20"
+    },
+    "s21e28": {
+     "id": "s21e28",
+     "construction": false,
+     "kind": "line",
+     "p1": "s21p20",
+     "p2": "s21p21"
+    },
+    "s21e29": {
+     "id": "s21e29",
+     "construction": false,
+     "kind": "line",
+     "p1": "s21p21",
+     "p2": "s21p22"
+    },
+    "s21e30": {
+     "id": "s21e30",
+     "construction": false,
+     "kind": "line",
+     "p1": "s21p22",
+     "p2": "s21p23"
+    },
+    "s21e31": {
+     "id": "s21e31",
+     "construction": false,
+     "kind": "line",
+     "p1": "s21p23",
+     "p2": "s21p16"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s21e8",
+    "s21e9",
+    "s21e10",
+    "s21e11",
+    "s21e12",
+    "s21e13",
+    "s21e14",
+    "s21e15",
+    "s21e24",
+    "s21e25",
+    "s21e26",
+    "s21e27",
+    "s21e28",
+    "s21e29",
+    "s21e30",
+    "s21e31"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s21"
+  },
+  "s22": {
+   "id": "s22",
+   "name": "Sketch22",
+   "plane": "wandL",
+   "points": {
+    "origin_s22": {
+     "x": 0,
+     "y": 0
+    },
+    "s22p0": {
+     "x": -32.5,
+     "y": 61.5
+    },
+    "s22p1": {
+     "x": -58.5,
+     "y": 61.5
+    },
+    "s22p2": {
+     "x": -58.5,
+     "y": 55
+    },
+    "s22p3": {
+     "x": -44.5,
+     "y": 55
+    },
+    "s22p4": {
+     "x": -44.5,
+     "y": 9
+    },
+    "s22p5": {
+     "x": -35.5,
+     "y": 9
+    },
+    "s22p6": {
+     "x": -35.5,
+     "y": 55
+    },
+    "s22p7": {
+     "x": -32.5,
+     "y": 55
+    },
+    "s22p16": {
+     "x": 47.5,
+     "y": 61.5
+    },
+    "s22p17": {
+     "x": 21.5,
+     "y": 61.5
+    },
+    "s22p18": {
+     "x": 21.5,
+     "y": 55
+    },
+    "s22p19": {
+     "x": 35.5,
+     "y": 55
+    },
+    "s22p20": {
+     "x": 35.5,
+     "y": 9
+    },
+    "s22p21": {
+     "x": 44.5,
+     "y": 9
+    },
+    "s22p22": {
+     "x": 44.5,
+     "y": 55
+    },
+    "s22p23": {
+     "x": 47.5,
+     "y": 55
+    }
+   },
+   "scalars": {},
+   "entities": {
+    "s22e8": {
+     "id": "s22e8",
+     "construction": false,
+     "kind": "line",
+     "p1": "s22p0",
+     "p2": "s22p1"
+    },
+    "s22e9": {
+     "id": "s22e9",
+     "construction": false,
+     "kind": "line",
+     "p1": "s22p1",
+     "p2": "s22p2"
+    },
+    "s22e10": {
+     "id": "s22e10",
+     "construction": false,
+     "kind": "line",
+     "p1": "s22p2",
+     "p2": "s22p3"
+    },
+    "s22e11": {
+     "id": "s22e11",
+     "construction": false,
+     "kind": "line",
+     "p1": "s22p3",
+     "p2": "s22p4"
+    },
+    "s22e12": {
+     "id": "s22e12",
+     "construction": false,
+     "kind": "line",
+     "p1": "s22p4",
+     "p2": "s22p5"
+    },
+    "s22e13": {
+     "id": "s22e13",
+     "construction": false,
+     "kind": "line",
+     "p1": "s22p5",
+     "p2": "s22p6"
+    },
+    "s22e14": {
+     "id": "s22e14",
+     "construction": false,
+     "kind": "line",
+     "p1": "s22p6",
+     "p2": "s22p7"
+    },
+    "s22e15": {
+     "id": "s22e15",
+     "construction": false,
+     "kind": "line",
+     "p1": "s22p7",
+     "p2": "s22p0"
+    },
+    "s22e24": {
+     "id": "s22e24",
+     "construction": false,
+     "kind": "line",
+     "p1": "s22p16",
+     "p2": "s22p17"
+    },
+    "s22e25": {
+     "id": "s22e25",
+     "construction": false,
+     "kind": "line",
+     "p1": "s22p17",
+     "p2": "s22p18"
+    },
+    "s22e26": {
+     "id": "s22e26",
+     "construction": false,
+     "kind": "line",
+     "p1": "s22p18",
+     "p2": "s22p19"
+    },
+    "s22e27": {
+     "id": "s22e27",
+     "construction": false,
+     "kind": "line",
+     "p1": "s22p19",
+     "p2": "s22p20"
+    },
+    "s22e28": {
+     "id": "s22e28",
+     "construction": false,
+     "kind": "line",
+     "p1": "s22p20",
+     "p2": "s22p21"
+    },
+    "s22e29": {
+     "id": "s22e29",
+     "construction": false,
+     "kind": "line",
+     "p1": "s22p21",
+     "p2": "s22p22"
+    },
+    "s22e30": {
+     "id": "s22e30",
+     "construction": false,
+     "kind": "line",
+     "p1": "s22p22",
+     "p2": "s22p23"
+    },
+    "s22e31": {
+     "id": "s22e31",
+     "construction": false,
+     "kind": "line",
+     "p1": "s22p23",
+     "p2": "s22p16"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s22e8",
+    "s22e9",
+    "s22e10",
+    "s22e11",
+    "s22e12",
+    "s22e13",
+    "s22e14",
+    "s22e15",
+    "s22e24",
+    "s22e25",
+    "s22e26",
+    "s22e27",
+    "s22e28",
+    "s22e29",
+    "s22e30",
+    "s22e31"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s22"
+  },
+  "s23": {
+   "id": "s23",
+   "name": "Sketch23",
+   "plane": "onder",
+   "points": {
+    "origin_s23": {
+     "x": 0,
+     "y": 0
+    },
+    "s23p0": {
+     "x": 86,
+     "y": 40
+    },
+    "s23p3": {
+     "x": 86,
+     "y": -40
+    },
+    "s23p6": {
+     "x": -86,
+     "y": 40
+    },
+    "s23p9": {
      "x": -86,
      "y": -40
     },
-    "s20p12": {
+    "s23p12": {
      "x": -63.5,
      "y": 50
     },
-    "s20p15": {
+    "s23p15": {
      "x": -63.5,
      "y": -50
     }
    },
    "scalars": {
-    "s20s1": 1.25,
-    "s20s4": 1.25,
-    "s20s7": 1.25,
-    "s20s10": 1.25,
-    "s20s13": 1.25,
-    "s20s16": 1.25
+    "s23s1": 1.25,
+    "s23s4": 1.25,
+    "s23s7": 1.25,
+    "s23s10": 1.25,
+    "s23s13": 1.25,
+    "s23s16": 1.25
    },
    "entities": {
-    "s20e2": {
-     "id": "s20e2",
+    "s23e2": {
+     "id": "s23e2",
      "construction": false,
      "kind": "circle",
-     "center": "s20p0",
-     "r": "s20s1"
+     "center": "s23p0",
+     "r": "s23s1"
     },
-    "s20e5": {
-     "id": "s20e5",
+    "s23e5": {
+     "id": "s23e5",
      "construction": false,
      "kind": "circle",
-     "center": "s20p3",
-     "r": "s20s4"
+     "center": "s23p3",
+     "r": "s23s4"
     },
-    "s20e8": {
-     "id": "s20e8",
+    "s23e8": {
+     "id": "s23e8",
      "construction": false,
      "kind": "circle",
-     "center": "s20p6",
-     "r": "s20s7"
+     "center": "s23p6",
+     "r": "s23s7"
     },
-    "s20e11": {
-     "id": "s20e11",
+    "s23e11": {
+     "id": "s23e11",
      "construction": false,
      "kind": "circle",
-     "center": "s20p9",
-     "r": "s20s10"
+     "center": "s23p9",
+     "r": "s23s10"
     },
-    "s20e14": {
-     "id": "s20e14",
+    "s23e14": {
+     "id": "s23e14",
      "construction": false,
      "kind": "circle",
-     "center": "s20p12",
-     "r": "s20s13"
+     "center": "s23p12",
+     "r": "s23s13"
     },
-    "s20e17": {
-     "id": "s20e17",
+    "s23e17": {
+     "id": "s23e17",
      "construction": false,
      "kind": "circle",
-     "center": "s20p15",
-     "r": "s20s16"
+     "center": "s23p15",
+     "r": "s23s16"
     }
    },
    "constraints": {},
    "entityOrder": [
-    "s20e2",
-    "s20e5",
-    "s20e8",
-    "s20e11",
-    "s20e14",
-    "s20e17"
+    "s23e2",
+    "s23e5",
+    "s23e8",
+    "s23e11",
+    "s23e14",
+    "s23e17"
    ],
    "constraintOrder": [],
-   "origin": "origin_s20"
+   "origin": "origin_s23"
   }
  },
  "features": [
@@ -2970,13 +3296,17 @@
   {
    "id": "f28",
    "type": "extrude",
-   "name": "Richel cassette",
+   "name": "Rails ESP32-C3",
    "sketchId": "s14",
    "suppressed": false,
    "op": "boss",
    "end": "blind",
-   "depth": 1.5,
-   "reverse": true
+   "depth": 3.6,
+   "reverse": false,
+   "direction2": {
+    "end": "blind",
+    "depth": 0.5
+   }
   },
   {
    "id": "ks15",
@@ -2988,13 +3318,13 @@
   {
    "id": "f30",
    "type": "extrude",
-   "name": "Gaten M5",
+   "name": "Groeven ESP32-C3",
    "sketchId": "s15",
    "suppressed": false,
    "op": "cut",
    "end": "blind",
-   "depth": 67,
-   "reverse": true
+   "depth": 25,
+   "reverse": false
   },
   {
    "id": "ks16",
@@ -3006,12 +3336,12 @@
   {
    "id": "f32",
    "type": "extrude",
-   "name": "Klauwkanalen",
+   "name": "Gaten USB-C-bus",
    "sketchId": "s16",
    "suppressed": false,
    "op": "cut",
    "end": "blind",
-   "depth": 52,
+   "depth": 3.5,
    "reverse": true
   },
   {
@@ -3024,12 +3354,12 @@
   {
    "id": "f34",
    "type": "extrude",
-   "name": "Klauwen ingetrokken",
+   "name": "Richel cassette",
    "sketchId": "s17",
    "suppressed": false,
-   "op": "cut",
+   "op": "boss",
    "end": "blind",
-   "depth": 6,
+   "depth": 1.5,
    "reverse": true
   },
   {
@@ -3042,12 +3372,12 @@
   {
    "id": "f36",
    "type": "extrude",
-   "name": "Sleuven rechts",
+   "name": "Gaten M5",
    "sketchId": "s18",
    "suppressed": false,
    "op": "cut",
    "end": "blind",
-   "depth": 5,
+   "depth": 67,
    "reverse": true
   },
   {
@@ -3060,12 +3390,12 @@
   {
    "id": "f38",
    "type": "extrude",
-   "name": "Sleuven links",
+   "name": "Klauwkanalen",
    "sketchId": "s19",
    "suppressed": false,
    "op": "cut",
    "end": "blind",
-   "depth": 5,
+   "depth": 52,
    "reverse": true
   },
   {
@@ -3078,8 +3408,62 @@
   {
    "id": "f40",
    "type": "extrude",
-   "name": "Gaten bodemplaat",
+   "name": "Klauwen ingetrokken",
    "sketchId": "s20",
+   "suppressed": false,
+   "op": "cut",
+   "end": "blind",
+   "depth": 6,
+   "reverse": true
+  },
+  {
+   "id": "ks21",
+   "type": "sketch",
+   "name": "Sketch21",
+   "sketchId": "s21",
+   "suppressed": false
+  },
+  {
+   "id": "f42",
+   "type": "extrude",
+   "name": "Sleuven rechts",
+   "sketchId": "s21",
+   "suppressed": false,
+   "op": "cut",
+   "end": "blind",
+   "depth": 5,
+   "reverse": true
+  },
+  {
+   "id": "ks22",
+   "type": "sketch",
+   "name": "Sketch22",
+   "sketchId": "s22",
+   "suppressed": false
+  },
+  {
+   "id": "f44",
+   "type": "extrude",
+   "name": "Sleuven links",
+   "sketchId": "s22",
+   "suppressed": false,
+   "op": "cut",
+   "end": "blind",
+   "depth": 5,
+   "reverse": true
+  },
+  {
+   "id": "ks23",
+   "type": "sketch",
+   "name": "Sketch23",
+   "sketchId": "s23",
+   "suppressed": false
+  },
+  {
+   "id": "f46",
+   "type": "extrude",
+   "name": "Gaten bodemplaat",
+   "sketchId": "s23",
    "suppressed": false,
    "op": "cut",
    "end": "blind",

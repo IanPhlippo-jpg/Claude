@@ -149,22 +149,6 @@
     "s2p3": {
      "x": -7,
      "y": 17
-    },
-    "s2p8": {
-     "x": -10.5,
-     "y": 37.5
-    },
-    "s2p9": {
-     "x": 10.5,
-     "y": 37.5
-    },
-    "s2p10": {
-     "x": 10.5,
-     "y": 45
-    },
-    "s2p11": {
-     "x": -10.5,
-     "y": 45
     }
    },
    "scalars": {},
@@ -196,34 +180,6 @@
      "kind": "line",
      "p1": "s2p3",
      "p2": "s2p0"
-    },
-    "s2e12": {
-     "id": "s2e12",
-     "construction": false,
-     "kind": "line",
-     "p1": "s2p8",
-     "p2": "s2p9"
-    },
-    "s2e13": {
-     "id": "s2e13",
-     "construction": false,
-     "kind": "line",
-     "p1": "s2p9",
-     "p2": "s2p10"
-    },
-    "s2e14": {
-     "id": "s2e14",
-     "construction": false,
-     "kind": "line",
-     "p1": "s2p10",
-     "p2": "s2p11"
-    },
-    "s2e15": {
-     "id": "s2e15",
-     "construction": false,
-     "kind": "line",
-     "p1": "s2p11",
-     "p2": "s2p8"
     }
    },
    "constraints": {},
@@ -231,11 +187,7 @@
     "s2e4",
     "s2e5",
     "s2e6",
-    "s2e7",
-    "s2e12",
-    "s2e13",
-    "s2e14",
-    "s2e15"
+    "s2e7"
    ],
    "constraintOrder": [],
    "origin": "origin_s2"
