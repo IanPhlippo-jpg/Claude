@@ -50,55 +50,58 @@ De netadapter en de elektronica zitten in een aparte voedingsbox onder het blad;
 
 ### Kopen
 
-| Onderdeel | Aantal | Type of bestelnummer |
-|---|---|---|
-| Radiale ventilator Ø175, 24 V, PWM, tacho | 1 | San Ace C175 9TG24P0S01 (Sanyo Denki), of 9TG24P0G01 (verschil eerst nakijken) |
-| Netadapter 24 V, 3,75 A, C14-inlaat | 1 | Mean Well GST90A24-P1M |
-| Netsnoer C13 naar stopcontact (randaarde) | 1 | gewoon pc-netsnoer |
-| Knop met rond AMOLED-scherm 1,5", ESP32-S3 | 1 | VIEWE UEDX46460015-MD50E, variant 1.5-Black-Knob (AliExpress, VIEWE Store) |
-| Adapterprint FPC 10-polig 0,5 mm naar 2,54 mm | 1 | FPC/FFC-breakout 10P, past in 23 x 47 mm |
-| USB-C-bus, breakout 16-polig (USB 2.0, 5,1 kΩ op CC), ca. 14 x 10,6 mm | 1 | in de knophouder op 2 palen, de bus opzij door de achterwand (kant van de sleuf): 5 V van de box, of de computer om de knop te flashen |
-| USB-C-bus, breakout 6-polig (VBUS, GND, CC1, CC2) | 1 | in de box, levert 5 V aan de knop |
-| USB-C-kabel C-C, 1 m, haakse stekkers | 1 | USB 2.0 volstaat |
-| M8-inbouwbus 4-polig, A-codering, achterwandmontage (PG7) | 1 | in de achterwand van de afzuiging |
-| M8-inbouwstekker 4-polig, A-codering, achterwandmontage (PG7) | 1 | in de voorkant van de box |
-| M8-kabel 4-polig stekker-bus, 0,5 m | 1 | verlengkabel; elke lengte past |
-| ESP32-C3 SuperMini | 1 | in de box: stuurt de ventilator en leest de drukmeter |
-| Schakelende regelaar 24 V naar 5 V, 1 A | 1 | Pololu D24V10F5 |
-| Verschildrukmeter ±500 Pa, I2C | 1 | Sensirion SDP810-500PA |
-| Wipschakelaar aan/uit, 1-polig, 21 x 15 mm | 1 | KCD1-101, inbouwgat 19 x 13 mm, 6 A |
-| Vlakstekerhulzen 4,8 mm, geïsoleerd | 2 | draden op de schakelaar |
-| NPN-transistor | 1 | BC547B (TO-92) |
-| Weerstanden 0,25 W | 7 | 1 x 1 kΩ, 2 x 10 kΩ, 2 x 4,7 kΩ, 2 x 56 kΩ |
-| Elco 470 µF / 35 V | 1 | buffer voor de ventilator |
-| Zekering 3,15 A traag 5 x 20 mm + printzekeringhouder | 1 | |
-| Gaatjesprint 40 x 50 mm | 1 | gaten 2 mm in de hoeken |
-| Printschroefklem 2-polig, steek 5 mm | 1 | de DC-kabel van de adapter (ingekort) |
-| Montagedraad 0,25 mm² en 0,75 mm² | 1 m | |
-| Siliconeslang 3 x 5 mm | 1 m | drukmeting: van de afzuiging naar de box, en binnen de afzuiging |
-| Messingbuisje Ø3 x 0,5 mm | 40 mm | 3 stukjes van 12 mm: meetpunt in de instroomplaat en doorvoer in de afzuiging en de box |
-| G4-voorfilter, mat 10 mm | rol | knippen op 170 x 190 mm |
-| M5-fijnstofmat 15 mm | rol | knippen op 170 x 190 mm |
-| Actieve koolmat 10 mm | rol | knippen op 170 x 190 mm |
-| Neodymiummagneet Ø8 x 2 mm, N42 | 4 | inlijmen in het bovenframe, vlak met de bovenkant |
-| Tweecomponentenlijm voor kunststof | 1 | magneten, bovenframe op de romp, rand op de cassette, instroomplaat, messingbuisjes |
-| Plug voor holle deuren, M4 | 4 | de voedingsbox onder het blad |
-| M5 x 65 verzonken (DIN 7991, A2) | 4 | klauwen van de module |
-| M3 x 60 verzonken (DIN 7991, A2) | 2 | klauwen van de knophouder (de koppen liggen onder de voet van de knop) |
-| M2,5 x 6 cilinderkop | 2 | knop in de houder (gaten in de naaf) |
-| M2,5 x 8 verzonken (DIN 7991) | 2 | deksel van de knophouder |
-| M3 x 16 verzonken (DIN 7991, A2) | 8 | bodemplaat; de kop ligt vlak in de plaat, draait zelf in PETG |
-| M4 x 10 verzonken (DIN 7991, A2) | 4 | ventilator op de bodemplaat (4 tot 6 mm in de motor) |
-| M2,5 x 6 zelftappend | 4 | print in de box |
-| M2 x 5 zelftappend | 4 | USB-C-bus in de box en USB-C-printje in de knophouder |
+| Onderdeel | Aantal | Type of bestelnummer | Prijs per stuk | Totaal |
+|---|---|---|--:|--:|
+| Radiale ventilator Ø175, 24 V, PWM, tacho | 1 | San Ace C175 9TG24P0S01 (Sanyo Denki), of 9TG24P0G01 (verschil eerst nakijken) | € 160,00 | € 160,00 |
+| Netadapter 24 V, 3,75 A, C14-inlaat | 1 | Mean Well GST90A24-P1M | € 33,00 | € 33,00 |
+| Netsnoer C13 naar stopcontact (randaarde) | 1 | gewoon pc-netsnoer | € 5,00 | € 5,00 |
+| Knop met rond AMOLED-scherm 1,5", ESP32-S3 | 1 | VIEWE UEDX46460015-MD50E, variant 1.5-Black-Knob (AliExpress, VIEWE Store) | € 34,00 | € 34,00 |
+| Adapterprint FPC 10-polig 0,5 mm naar 2,54 mm | 1 | FPC/FFC-breakout 10P, past in 23 x 47 mm | € 2,00 | € 2,00 |
+| USB-C-bus, breakout 16-polig (USB 2.0, 5,1 kΩ op CC), ca. 14 x 10,6 mm | 1 | in de knophouder op 2 palen, de bus opzij door de achterwand (kant van de sleuf): 5 V van de box, of de computer om de knop te flashen | € 1,50 | € 1,50 |
+| USB-C-bus, breakout 6-polig (VBUS, GND, CC1, CC2) | 1 | in de box, levert 5 V aan de knop | € 1,00 | € 1,00 |
+| USB-C-kabel C-C, 1 m, haakse stekkers | 1 | USB 2.0 volstaat | € 9,00 | € 9,00 |
+| M8-inbouwbus 4-polig, A-codering, achterwandmontage (PG7) | 1 | in de achterwand van de afzuiging | € 13,00 | € 13,00 |
+| M8-inbouwstekker 4-polig, A-codering, achterwandmontage (PG7) | 1 | in de voorkant van de box | € 13,00 | € 13,00 |
+| M8-kabel 4-polig stekker-bus, 0,5 m | 1 | verlengkabel; elke lengte past | € 12,00 | € 12,00 |
+| ESP32-C3 SuperMini | 1 | in de box: stuurt de ventilator en leest de drukmeter | € 7,00 | € 7,00 |
+| Schakelende regelaar 24 V naar 5 V, 1 A | 1 | Pololu D24V10F5 | € 10,50 | € 10,50 |
+| Verschildrukmeter ±500 Pa, I2C | 1 | Sensirion SDP810-500PA | € 30,00 | € 30,00 |
+| Wipschakelaar aan/uit, 1-polig, 21 x 15 mm | 1 | KCD1-101, inbouwgat 19 x 13 mm, 6 A | € 1,00 | € 1,00 |
+| Vlakstekerhulzen 4,8 mm, geïsoleerd | 2 | draden op de schakelaar | € 0,15 | € 0,30 |
+| NPN-transistor | 1 | BC547B (TO-92) | € 0,20 | € 0,20 |
+| Weerstanden 0,25 W | 7 | 1 x 1 kΩ, 2 x 10 kΩ, 2 x 4,7 kΩ, 2 x 56 kΩ | € 0,10 | € 0,70 |
+| Elco 470 µF / 35 V | 1 | buffer voor de ventilator | € 0,50 | € 0,50 |
+| Zekering 3,15 A traag 5 x 20 mm + printzekeringhouder | 1 |  | € 2,00 | € 2,00 |
+| Gaatjesprint 40 x 50 mm | 1 | gaten 2 mm in de hoeken | € 1,00 | € 1,00 |
+| Printschroefklem 2-polig, steek 5 mm | 1 | de DC-kabel van de adapter (ingekort) | € 0,50 | € 0,50 |
+| Montagedraad 0,25 mm² en 0,75 mm² | 1 m |  | € 3,00 | € 3,00 |
+| Siliconeslang 3 x 5 mm | 1 m | drukmeting: van de afzuiging naar de box, en binnen de afzuiging | € 3,00 | € 3,00 |
+| Messingbuisje Ø3 x 0,5 mm | 40 mm | 3 stukjes van 12 mm: meetpunt in de instroomplaat en doorvoer in de afzuiging en de box | € 3,00 | € 3,00 |
+| G4-voorfilter, mat 10 mm | rol | knippen op 170 x 190 mm | € 12,00 | € 12,00 |
+| M5-fijnstofmat 15 mm | rol | knippen op 170 x 190 mm | € 15,00 | € 15,00 |
+| Actieve koolmat 10 mm | rol | knippen op 170 x 190 mm | € 15,00 | € 15,00 |
+| Neodymiummagneet Ø8 x 2 mm, N42 | 4 | inlijmen in het bovenframe, vlak met de bovenkant | € 0,50 | € 2,00 |
+| Tweecomponentenlijm voor kunststof | 1 | magneten, bovenframe op de romp, rand op de cassette, instroomplaat, messingbuisjes | € 9,00 | € 9,00 |
+| Plug voor holle deuren, M4 | 4 | de voedingsbox onder het blad | € 0,50 | € 2,00 |
+| M5 x 65 verzonken (DIN 7991, A2) | 4 | klauwen van de module | € 0,60 | € 2,40 |
+| M3 x 60 verzonken (DIN 7991, A2) | 2 | klauwen van de knophouder (de koppen liggen onder de voet van de knop) | € 0,35 | € 0,70 |
+| M2,5 x 6 cilinderkop | 2 | knop in de houder (gaten in de naaf) | € 0,10 | € 0,20 |
+| M2,5 x 8 verzonken (DIN 7991) | 2 | deksel van de knophouder | € 0,10 | € 0,20 |
+| M3 x 16 verzonken (DIN 7991, A2) | 8 | bodemplaat; de kop ligt vlak in de plaat, draait zelf in PETG | € 0,10 | € 0,80 |
+| M4 x 10 verzonken (DIN 7991, A2) | 4 | ventilator op de bodemplaat (4 tot 6 mm in de motor) | € 0,12 | € 0,48 |
+| M2,5 x 6 zelftappend | 4 | print in de box | € 0,10 | € 0,40 |
+| M2 x 5 zelftappend | 4 | USB-C-bus in de box en USB-C-printje in de knophouder | € 0,10 | € 0,40 |
+| **Totaal kopen** | | | | **€ 406,78** |
 
 ### Laten lasersnijden
 
-| Bestand | Materiaal | Aantal |
-|---|---|---|
-| `laser/rooster.dxf` | RVS 430, 1,5 mm, geborsteld (magnetisch), 222 x 222 mm | 1 |
-| `laser/klauwen-4x-RVS304-4mm.dxf` | RVS 304, 4 mm; gat Ø4,2 laten tappen M5 | 4 (staan alle 4 in het bestand) |
-| `laser/dialklauwen-2x-RVS304-3mm.dxf` | RVS 304, 3 mm; gat Ø2,5 laten tappen M3 (klauwen van de knophouder) | 2 |
+| Bestand | Materiaal | Aantal | Prijs per stuk | Totaal |
+|---|---|---|--:|--:|
+| `laser/rooster.dxf` | RVS 430, 1,5 mm, geborsteld (magnetisch), 222 x 222 mm | 1 | € 45,00 | € 45,00 |
+| `laser/klauwen-4x-RVS304-4mm.dxf` | RVS 304, 4 mm; gat Ø4,2 laten tappen M5 | 4 (staan alle 4 in het bestand) | € 6,00 | € 24,00 |
+| `laser/dialklauwen-2x-RVS304-3mm.dxf` | RVS 304, 3 mm; gat Ø2,5 laten tappen M3 (klauwen van de knophouder) | 2 | € 5,00 | € 10,00 |
+| opstart en verzending | | 1 | € 10,00 | € 10,00 |
+| **Totaal lasersnijden** | | | | **€ 89,00** |
 
 Het rooster is één stuk, zonder losse eilanden, en geen steg of sleuf is smaller dan 1,5 mm. Boven de cassette is 141 cm² open.
 
@@ -145,6 +148,19 @@ Overhangen: alleen korte bruggen (de vensters van de klauwen, de kom van de scha
 - **Boor voor de pluggen voor holle deuren:** de maat staat op de verpakking.
 - **Soldeerbout:** voor de gaatjesprint en de M8-bus.
 - **Tap M5:** alleen als de lasersnijder de klauwen niet tapt.
+
+### Wat het kost
+
+Prijzen per stuk incl. 21 % btw, zonder verzendkosten: een indicatie van november 2026 bij de winkels in `tekeningen/prijslijst.csv`. Losse schroeven koop je meestal per zakje; de prijs per stuk is dan het zakje gedeeld door het aantal.
+
+| Groep | Totaal |
+|---|--:|
+| Kopen (elektronica, ventilator, filters, schroeven) | € 406,78 |
+| Laten lasersnijden (rooster en 6 klauwen) | € 89,00 |
+| Filament PETG: 2 rollen wit en 1 rol zwart | € 60,00 |
+| **Eindtotaal** | **€ 555,78** |
+
+Het filament dat echt opgaat (ca. 1,2 kg) kost ongeveer € 24,00. De duurste posten zijn de ventilator (ongeveer de helft), de knop, de netadapter en de drukmeter. Een set nieuwe filters (G4 + M5 + kool, 170 x 190 mm) kost minder dan € 1,50.
 
 ## Maken en monteren
 
@@ -221,7 +237,7 @@ De knop gebruikt GFX Library for Arduino (CO5300-driver) en U8g2-lettertypes; he
 | `../bureau/Bureau.kcad` | het bureau met alles en de uitsparingen en sleuven in het blad |
 | `laser/`, `print/` | DXF's en STL's |
 | `schema/` | aansluitschema (PDF en SVG) en de freesmallen op ware grootte, per doos een PDF: `Freesmal-afzuiging-1op1-A4.pdf` (uitsparing, 2 bladen), `Freesmal-knop-1op1-A4.pdf` (knopgat) en `Freesmal-voedingsbox-1op1-A4.pdf` (onderkant: box en sleuven) |
-| `tekeningen/Werktekeningen-afzuiging.pdf` | werktekeningen A3 (ISO E): samenstelling met stuklijst (AFZ-00), doorsnede, alle zelfgemaakte delen (AFZ-01 tot AFZ-12) en de bewerkingen in het blad (AFZ-20); losse SVG's en `stuklijst.csv` ernaast |
+| `tekeningen/Werktekeningen-afzuiging.pdf` | werktekeningen A3 (ISO E): samenstelling met stuklijst (AFZ-00), doorsnede, alle zelfgemaakte delen (AFZ-01 tot AFZ-12) en de bewerkingen in het blad (AFZ-20); losse SVG's, `stuklijst.csv` en `prijslijst.csv` (prijs per stuk, totaal per regel en eindtotaal) ernaast |
 | `tekeningen/Bouwschema-afzuiging.pdf` | bouwschema A4 in 13 stappen, met beelden uit Phlippo CAD |
 | `firmware/` | PlatformIO-project voor de knop en de box |
 | `maak-afzuiging.mjs`, `logo/*.py`, `schema/maak-schema.mjs` | generators; alle maten staan bovenaan in `maak-afzuiging.mjs` |

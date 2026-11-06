@@ -1014,3 +1014,8 @@ elease; README en docs/04 bijgewerkt
 - [x] Bouwschema: stappen met beelden uit Phlippo CAD en uitleg, als PDF
 - [x] Freesmallen 1:1 op A4 bij het aansluitschema: uitsparing afzuiging (2 bladen met paspunten), knopgat, voedingsbox met sleufaanzet, controlemaat 100 mm
 - [x] Controleren (maten tegen het model), README, commit en push
+
+## Afzuiging: prijzen in de bestellijst (2026-11-06)
+- [x] Prijzen opzoeken (excl. en incl. btw, winkel) voor de koopdelen, laserwerk en printfilament
+- [x] Bestellijst in de README: prijs per stuk, totaal per regel, totaal per groep en eindtotaal
+- [x] Prijslijst ook als CSV naast de stuklijst; commit en push
