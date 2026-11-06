@@ -23,6 +23,7 @@
 #include <esp_now.h>
 #include <esp_wifi.h>
 
+#include "logo.h"
 #include "protocol.h"
 
 namespace {
@@ -45,6 +46,10 @@ constexpr uint32_t STILTE_MS = 3000;         // zonder status van de module: "ge
 constexpr uint16_t rgb(uint32_t c) { return ((c >> 8) & 0xF800) | ((c >> 5) & 0x07E0) | ((c >> 3) & 0x001F); }
 constexpr uint16_t BEIGE = rgb(0xDCCBB3), ROOD = rgb(0xE0533F), ORANJE = rgb(0xE89A3C), GRIJS = rgb(0x55585E);
 constexpr uint16_t WIT = rgb(0xFFFFFF), LICHT = rgb(0xC8C8C8), MIDDEN = rgb(0xA0A0A0), ZWART = 0;
+constexpr uint16_t SPOOR = rgb(0x2A2B2F); // het spoor van de ring en de filterbalk
+// kleurverloop van de ring en de filterbalk: van donker (begin) naar licht (einde)
+struct Verloop { uint16_t van, tot; };
+constexpr Verloop V_BEIGE{rgb(0x9C7A50), rgb(0xF5E8D5)}, V_ORANJE{rgb(0xA8561A), rgb(0xF7B865)}, V_ROOD{rgb(0x962A1F), rgb(0xF47A66)};
 
 Preferences prefs;
 Arduino_DataBus *bus = new Arduino_ESP32QSPI(LCD_CS, LCD_SCK, LCD_D0, LCD_D1, LCD_D2, LCD_D3);
@@ -127,8 +132,65 @@ void tekst(const String &s, int x, int y, const uint8_t *font, uint16_t kleur) {
   canvas->print(s);
 }
 
-void ring(float tot, uint16_t kleur) {
-  if (tot > 0) canvas->fillArc(S(120), S(120), S(116), S(104), 135, 135 + tot, kleur);
+// twee RGB565-kleuren mengen (t = 0: a, t = 1: b)
+uint16_t meng(uint16_t a, uint16_t b, float t) {
+  t = constrain(t, 0.0f, 1.0f);
+  const int ra = a >> 11, ga = (a >> 5) & 63, ba = a & 31, rb = b >> 11, gb = (b >> 5) & 63, bb = b & 31;
+  return (uint16_t)((lroundf(ra + (rb - ra) * t) << 11) | (lroundf(ga + (gb - ga) * t) << 5) | lroundf(ba + (bb - ba) * t));
+}
+
+// de ring loopt over 270°, van linksonder (135°) met de klok mee tot rechtsonder
+constexpr float BEGIN = 135, BOOG = 270;
+
+void opRing(float hoek, float r, int &x, int &y) {
+  const float a = hoek * DEG_TO_RAD;
+  x = S(120) + (int)lroundf(r * cosf(a));
+  y = S(120) + (int)lroundf(r * sinf(a));
+}
+
+// boog van BEGIN over tot graden tussen de stralen ro en ri (ontwerpeenheden), kleurverloop c0 -> c1 en ronde kappen
+void boog(float tot, float ro, float ri, uint16_t c0, uint16_t c1) {
+  if (tot <= 0) return;
+  const int Ro = S(ro), Ri = S(ri);
+  const float stap = 2.0f;
+  for (float a = 0; a < tot; a += stap) canvas->fillArc(S(120), S(120), Ro, Ri, BEGIN + a, BEGIN + fminf(a + stap + 0.5f, tot), meng(c0, c1, a / tot));
+  const float rm = (Ro + Ri) / 2.0f;
+  const int rk = (Ro - Ri) / 2;
+  int x, y;
+  opRing(BEGIN, rm, x, y);
+  canvas->fillCircle(x, y, rk, c0);
+  opRing(BEGIN + tot, rm, x, y);
+  canvas->fillCircle(x, y, rk, c1);
+}
+
+// het spoor en daarop de zuigkracht: dikker, met kleurverloop, ronde kappen en een wit handvat op het einde
+void ring(float tot, const Verloop *v) {
+  boog(BOOG, 115, 105, SPOOR, SPOOR);
+  if (!v || tot <= 0) return;
+  boog(tot, 117, 103, v->van, meng(v->van, v->tot, tot / BOOG));
+  int x, y;
+  opRing(BEGIN + tot, S(110), x, y);
+  canvas->fillCircle(x, y, S(3.6f), WIT);
+}
+
+// filterbalk: spoor, gevuld deel met kleurverloop en ronde einden
+void balk(float vol, const Verloop &v) {
+  const int r = S(4.5f), w = S(110), x0 = S(120) - w / 2, y0 = S(195), h = 2 * r + 1;
+  canvas->fillRoundRect(x0, y0, w, h, r, SPOOR);
+  const int lang = constrain((int)lroundf(w * constrain(vol, 0.0f, 1.0f)), h, w);
+  for (int i = r; i < lang - r; i++) canvas->drawFastVLine(x0 + i, y0, h, meng(v.van, v.tot, (float)i / w));
+  canvas->fillCircle(x0 + r, y0 + r, r, v.van);
+  canvas->fillCircle(x0 + lang - r - 1, y0 + r, r, meng(v.van, v.tot, (float)lang / w));
+}
+
+// het LB-logo (logo.h: dekking per pixel) in de gegeven kleur op de zwarte achtergrond
+void logo(int cx, int cy, uint16_t kleur) {
+  const int x0 = cx - LOGO_B / 2, y0 = cy - LOGO_H / 2;
+  for (int j = 0; j < LOGO_H; j++)
+    for (int i = 0; i < LOGO_B; i++) {
+      const uint8_t d = pgm_read_byte(&LOGO_DEKKING[j * LOGO_B + i]);
+      if (d) canvas->drawPixel(x0 + i, y0 + j, meng(ZWART, kleur, d / 255.0f));
+    }
 }
 
 void tekenTekst(const char *a, const char *b, uint16_t kleur) {
@@ -145,7 +207,8 @@ void teken(uint32_t nu) {
 
   canvas->fillScreen(ZWART);
   if (verbonden && st.ijken) {
-    ring(270.0f * st.ijkVoortgang / 100.0f, BEIGE);
+    ring(BOOG * st.ijkVoortgang / 100.0f, &V_BEIGE);
+    logo(S(120), S(52), BEIGE);
     tekst("IJKEN", S(120), S(104), u8g2_font_helvB24_tf, WIT);
     tekst(String("schone filters, ") + (20 * st.ijken) + " %", S(120), S(136), u8g2_font_helvR18_tf, WIT);
     canvas->flush();
@@ -155,10 +218,9 @@ void teken(uint32_t nu) {
   const int pct = doelPct(nu);
   const bool vol = verbonden && t.aan && !isnan(st.vol) && st.vol >= 1.0f;
   const bool storing = verbonden && t.aan && st.storing;
-  const uint16_t kleur = storing ? ROOD : vol ? ORANJE : BEIGE;
-  ring(270, GRIJS);
-  if (t.aan) ring(270.0f * pct / 100.0f, kleur);
-  tekst("LUSH BEAUTY", S(120), S(50), u8g2_font_helvR18_tf, BEIGE);
+  const Verloop *verloop = storing ? &V_ROOD : vol ? &V_ORANJE : &V_BEIGE;
+  ring(t.aan ? BOOG * pct / 100.0f : 0, t.aan ? verloop : nullptr);
+  logo(S(120), S(52), BEIGE);
   if (!t.aan) {
     tekst("UIT", S(120), S(116), u8g2_font_logisoso58_tr, MIDDEN);
     tekenTekst("druk om te starten", verbonden ? nullptr : "geen verbinding met de box", MIDDEN);
@@ -186,11 +248,7 @@ void teken(uint32_t nu) {
       tekenTekst(s, nullptr, LICHT);
     }
     // filterbalk: hoe vol de filters zijn
-    if (verbonden && st.geijkt && !isnan(st.vol)) {
-      const int w = S(110), x0 = S(120) - w / 2, y0 = S(196);
-      canvas->drawRoundRect(x0, y0, w, S(8), S(4), GRIJS);
-      canvas->fillRoundRect(x0, y0, max(1, (int)(w * constrain(st.vol, 0.0f, 1.0f))), S(8), S(4), vol ? ORANJE : BEIGE);
-    }
+    if (verbonden && st.geijkt && !isnan(st.vol)) balk(st.vol, vol ? V_ORANJE : V_BEIGE);
   }
   canvas->flush();
 }

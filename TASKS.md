@@ -1024,3 +1024,9 @@ elease; README en docs/04 bijgewerkt
 - [x] Voorbeeldpagina met alle schermen en meldingen uit de firmware (uit, aan, boost, ijken, filter vol, storingen, geen verbinding, drukmeter)
 - [x] Meldingen in de firmware: "module" wordt "voedingsbox" (daar zit de ESP32-C3 sinds v5)
 - [x] PNG maken, versturen, commit en push
+
+## Afzuiging: knop-UI aantrekkelijker (2026-11-06)
+- [x] LB-logo als bitmap voor de knop (uit logo/lb-monogram.png, anti-aliased, in beige) in plaats van de tekst LUSH BEAUTY
+- [x] Ring met meer pit: donker spoor, dikkere boog met kleurverloop, ronde kappen begin en einde, handvat op het einde
+- [x] Filterbalk in dezelfde stijl (spoor, verloop, ronde einden)
+- [x] Firmware compileren, voorbeeldpagina bijwerken, PNG sturen, commit en push
