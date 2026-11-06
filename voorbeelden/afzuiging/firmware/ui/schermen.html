@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Schermen van de knop</title>
+<!-- Nabootsing van de schermen van de VIEWE-knop 1,5" (466 x 466) zoals src/knop/main.cpp ze tekent: zelfde
+     posities (ontwerp op 240 x 240, geschaald), kleuren en teksten. De lettertypes lijken op die van U8g2. -->
+<style>
+  :root { --bg: #f4f1ec; --tekst: #2b2723; --zacht: #6f675e; --kaart: #fff; --rand: #e2dbd1; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--tekst); font-family: Inter, Arial, Helvetica, sans-serif; }
+  main { max-width: 1180px; margin: 0 auto; padding: 32px 16px 40px; }
+  h1 { font-size: 26px; font-weight: 600; margin: 0 0 4px; }
+  .sub { color: var(--zacht); margin: 0 0 28px; font-size: 15px; }
+  .rooster { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 22px; }
+  figure { margin: 0; background: var(--kaart); border: 1px solid var(--rand); border-radius: 14px; padding: 18px 16px 14px; text-align: center; }
+  svg { width: 100%; max-width: 220px; display: block; margin: 0 auto; }
+  figcaption b { display: block; font-size: 15px; margin-top: 10px; }
+  figcaption span { display: block; color: var(--zacht); font-size: 13px; margin-top: 2px; }
+  .groep { font-size: 13px; letter-spacing: .04em; color: var(--zacht); margin: 28px 0 10px; }
+  .bediening { text-align: left; }
+  .bediening table { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 6px; }
+  .bediening td { padding: 6px 4px; border-bottom: 1px solid var(--rand); vertical-align: top; }
+  .bediening td:first-child { white-space: nowrap; font-weight: 600; padding-right: 10px; }
+  .stip { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: -1px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Schermen van de draaiknop</h1>
+  <p class="sub">VIEWE-knop 1,5", rond AMOLED-scherm 466 x 466. Nabootsing van wat de firmware tekent (src/knop/main.cpp).</p>
+  <div class="groep">GEWOON GEBRUIK</div>
+  <div class="rooster" id="gewoon"></div>
+  <div class="groep">MELDINGEN</div>
+  <div class="rooster" id="meldingen"></div>
+</main>
+<script>
+const K = 466 / 240, S = (v) => v * K;
+const C = { beige: '#DCCBB3', rood: '#E0533F', oranje: '#E89A3C', grijs: '#55585E', wit: '#FFFFFF', licht: '#C8C8C8', midden: '#A0A0A0' };
+// ring: fillArc(120, 120, 116, 104, 135, 135 + tot), hoeken met de klok mee vanaf rechts
+function ring(tot, kleur) {
+  if (tot <= 0) return '';
+  const cx = S(120), cy = S(120), ro = S(116), ri = S(104), a0 = (135 * Math.PI) / 180, a1 = ((135 + tot) * Math.PI) / 180, g = tot > 180 ? 1 : 0;
+  const p = (r, a) => [cx + r * Math.cos(a), cy + r * Math.sin(a)].map((v) => v.toFixed(1)).join(',');
+  return `<path d="M${p(ro, a0)} A${ro},${ro} 0 ${g} 1 ${p(ro, a1)} L${p(ri, a1)} A${ri},${ri} 0 ${g} 0 ${p(ri, a0)} Z" fill="${kleur}"/>`;
+}
+const tekst = (s, y, kleur, size = 20, vet = false) => `<text x="${S(120)}" y="${S(y)}" font-size="${size}" fill="${kleur}" text-anchor="middle" dominant-baseline="central" font-family="Helvetica, Arial, sans-serif"${vet ? ' font-weight="700"' : ''}>${s}</text>`;
+const groot = (s, y, kleur) => `<g transform="translate(${S(120)} ${S(y)}) scale(0.8 1)"><text x="0" y="0" font-size="76" fill="${kleur}" text-anchor="middle" dominant-baseline="central" font-family="'Arial Narrow', 'Roboto Condensed', Arial, sans-serif">${s}</text></g>`;
+const regels = (a, b, kleur) => tekst(a, 158, kleur) + (b ? tekst(b, 178, kleur) : '');
+function balk(vol, kleur) {
+  const w = S(110), x = S(120) - w / 2, y = S(196), h = S(8);
+  return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${S(4)}" fill="none" stroke="${C.grijs}" stroke-width="2"/><rect x="${x}" y="${y}" width="${Math.max(2, w * vol)}" height="${h}" rx="${S(4)}" fill="${kleur}"/>`;
+}
+const kop = tekst('LUSH BEAUTY', 50, C.beige);
+const aan = (pct, kleur) => ring(270, C.grijs) + ring((270 * pct) / 100, kleur) + kop + groot(`${pct}%`, 110, C.wit);
+const uit = (b) => ring(270, C.grijs) + kop + groot('UIT', 116, C.midden) + regels('druk om te starten', b, C.midden);
+
+const gewoon = [
+  ['Uit', 'kort drukken of draaien zet hem aan', uit(null)],
+  ['Aan', 'draaien: 20 tot 100 % in stappen van 5 %; balkje = hoe vol de filters zijn', aan(65, C.beige) + regels('118 Pa over de filters', null, C.licht) + balk(0.4, C.beige)],
+  ['Boost', '1 s vasthouden: 2 minuten 100 %, met aftelklok', aan(100, C.beige) + regels('BOOST 1:42', null, C.beige) + balk(0.45, C.beige)],
+  ['IJken', '5 s vasthouden met schone filters: 20 tot 100 %', ring(270 * 0.6, C.beige) + tekst('IJKEN', 104, C.wit, 26, true) + tekst('schone filters, 60 %', 136, C.wit)],
+];
+const meldingen = [
+  ['Nieuwe filters?', 'nog niet geijkt: 5 s vasthouden', aan(50, C.beige) + regels('nieuwe filters?', 'knop 5 s vasthouden', C.licht)],
+  ['Filter vol', 'drukverschil verdubbeld t.o.v. schone filters', aan(65, C.oranje) + regels('Filter vol', 'filters uitkloppen', C.oranje) + balk(1, C.oranje)],
+  ['Geen luchtstroom', 'drukverschil valt weg: slang los of filters eruit', aan(65, C.rood) + regels('geen luchtstroom', 'slang en filters nakijken', C.rood) + balk(0.05, C.beige)],
+  ['Ventilator draait niet', 'tacho geeft geen toeren', aan(65, C.rood) + regels('ventilator draait niet', 'M8-kabel nakijken', C.rood) + balk(0.4, C.beige)],
+  ['Geen verbinding (aan)', '3 s geen bericht van de ESP32-C3 in de box', aan(65, C.beige) + regels('geen verbinding', 'met de voedingsbox', C.oranje)],
+  ['Geen verbinding (uit)', 'box uit, schakelaar uit of te ver weg', uit('geen verbinding met de box')],
+  ['Drukmeter niet gevonden', 'SDP810 antwoordt niet op I2C', aan(65, C.beige) + regels('drukmeter niet gevonden', 'bedrading in de box nakijken', C.oranje)],
+];
+const kaart = ([naam, uitleg, inhoud]) => `<figure><svg viewBox="0 0 466 466" role="img" aria-label="${naam}"><circle cx="233" cy="233" r="233" fill="#000"/>${inhoud}</svg><figcaption><b>${naam}</b><span>${uitleg}</span></figcaption></figure>`;
+document.getElementById('gewoon').innerHTML = gewoon.map(kaart).join('');
+document.getElementById('meldingen').innerHTML = meldingen.map(kaart).join('') + `<figure class="bediening"><b style="font-size:15px">Bediening en kleuren</b><table>
+<tr><td>Draaien</td><td>zuigkracht 20 tot 100 %</td></tr>
+<tr><td>Kort drukken</td><td>aan / uit</td></tr>
+<tr><td>1 s vasthouden</td><td>boost, 2 minuten 100 %</td></tr>
+<tr><td>5 s vasthouden</td><td>ijken op schone filters</td></tr>
+<tr><td><span class="stip" style="background:${C.beige}"></span>Beige</td><td>alles in orde</td></tr>
+<tr><td><span class="stip" style="background:${C.oranje}"></span>Oranje</td><td>aandacht: filters, verbinding</td></tr>
+<tr><td><span class="stip" style="background:${C.rood}"></span>Rood</td><td>storing: geen lucht of ventilator stil</td></tr></table></figure>`;
+</script>
+</body>
+</html>

@@ -161,14 +161,14 @@ void teken(uint32_t nu) {
   tekst("LUSH BEAUTY", S(120), S(50), u8g2_font_helvR18_tf, BEIGE);
   if (!t.aan) {
     tekst("UIT", S(120), S(116), u8g2_font_logisoso58_tr, MIDDEN);
-    tekenTekst("druk om te starten", verbonden ? nullptr : "geen verbinding met de module", MIDDEN);
+    tekenTekst("druk om te starten", verbonden ? nullptr : "geen verbinding met de box", MIDDEN);
   } else {
     tekst(String(pct) + "%", S(120), S(110), u8g2_font_logisoso58_tr, WIT);
     char s[32];
     if (!verbonden) {
-      tekenTekst("geen verbinding", "met de module", ORANJE);
+      tekenTekst("geen verbinding", "met de voedingsbox", ORANJE);
     } else if (!st.meter) {
-      tekenTekst("drukmeter niet gevonden", "bedrading in de module nakijken", ORANJE);
+      tekenTekst("drukmeter niet gevonden", "bedrading in de box nakijken", ORANJE);
     } else if (storing && st.storing == 2) {
       tekenTekst("ventilator draait niet", "M8-kabel nakijken", ROOD);
     } else if (storing) {

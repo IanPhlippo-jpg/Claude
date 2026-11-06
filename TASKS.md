@@ -1019,3 +1019,8 @@ elease; README en docs/04 bijgewerkt
 - [x] Prijzen opzoeken (excl. en incl. btw, winkel) voor de koopdelen, laserwerk en printfilament
 - [x] Bestellijst in de README: prijs per stuk, totaal per regel, totaal per groep en eindtotaal
 - [x] Prijslijst ook als CSV naast de stuklijst; commit en push
+
+## Afzuiging: voorbeeld van de schermen van de knop (2026-11-06)
+- [x] Voorbeeldpagina met alle schermen en meldingen uit de firmware (uit, aan, boost, ijken, filter vol, storingen, geen verbinding, drukmeter)
+- [x] Meldingen in de firmware: "module" wordt "voedingsbox" (daar zit de ESP32-C3 sinds v5)
+- [x] PNG maken, versturen, commit en push
