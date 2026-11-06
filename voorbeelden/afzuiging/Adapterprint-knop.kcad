@@ -68,19 +68,19 @@
      "y": 0
     },
     "s1p0": {
-     "x": -11.4,
-     "y": -54
+     "x": -9.9,
+     "y": -38
     },
     "s1p1": {
-     "x": 11.4,
-     "y": -54
+     "x": 9.9,
+     "y": -38
     },
     "s1p2": {
-     "x": 11.4,
+     "x": 9.9,
      "y": -12
     },
     "s1p3": {
-     "x": -11.4,
+     "x": -9.9,
      "y": -12
     }
    },
@@ -135,19 +135,19 @@
      "y": 0
     },
     "s2p0": {
-     "x": -7,
+     "x": -6,
      "y": 13
     },
     "s2p1": {
-     "x": 7,
+     "x": 6,
      "y": 13
     },
     "s2p2": {
-     "x": 7,
+     "x": 6,
      "y": 17
     },
     "s2p3": {
-     "x": -7,
+     "x": -6,
      "y": 17
     }
    },
@@ -191,6 +191,91 @@
    ],
    "constraintOrder": [],
    "origin": "origin_s2"
+  },
+  "s3": {
+   "id": "s3",
+   "name": "Sketch3",
+   "plane": "adaptervoor",
+   "points": {
+    "origin_s3": {
+     "x": 0,
+     "y": 0
+    },
+    "s3p0": {
+     "x": 5.08,
+     "y": 35
+    },
+    "s3p3": {
+     "x": 2.54,
+     "y": 35
+    },
+    "s3p6": {
+     "x": 0,
+     "y": 35
+    },
+    "s3p9": {
+     "x": -2.54,
+     "y": 35
+    },
+    "s3p12": {
+     "x": -5.08,
+     "y": 35
+    }
+   },
+   "scalars": {
+    "s3s1": 0.8,
+    "s3s4": 0.8,
+    "s3s7": 0.8,
+    "s3s10": 0.8,
+    "s3s13": 0.8
+   },
+   "entities": {
+    "s3e2": {
+     "id": "s3e2",
+     "construction": false,
+     "kind": "circle",
+     "center": "s3p0",
+     "r": "s3s1"
+    },
+    "s3e5": {
+     "id": "s3e5",
+     "construction": false,
+     "kind": "circle",
+     "center": "s3p3",
+     "r": "s3s4"
+    },
+    "s3e8": {
+     "id": "s3e8",
+     "construction": false,
+     "kind": "circle",
+     "center": "s3p6",
+     "r": "s3s7"
+    },
+    "s3e11": {
+     "id": "s3e11",
+     "construction": false,
+     "kind": "circle",
+     "center": "s3p9",
+     "r": "s3s10"
+    },
+    "s3e14": {
+     "id": "s3e14",
+     "construction": false,
+     "kind": "circle",
+     "center": "s3p12",
+     "r": "s3s13"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s3e2",
+    "s3e5",
+    "s3e8",
+    "s3e11",
+    "s3e14"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s3"
   }
  },
  "features": [
@@ -222,12 +307,30 @@
   {
    "id": "f4",
    "type": "extrude",
-   "name": "Onderdelen",
+   "name": "FPC-bus",
    "sketchId": "s2",
    "suppressed": false,
    "op": "boss",
    "end": "blind",
-   "depth": 5,
+   "depth": 2.4,
+   "reverse": false
+  },
+  {
+   "id": "ks3",
+   "type": "sketch",
+   "name": "Sketch3",
+   "sketchId": "s3",
+   "suppressed": false
+  },
+  {
+   "id": "f6",
+   "type": "extrude",
+   "name": "Soldeereilanden",
+   "sketchId": "s3",
+   "suppressed": false,
+   "op": "boss",
+   "end": "blind",
+   "depth": 0.6,
    "reverse": false
   }
  ],

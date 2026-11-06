@@ -1035,3 +1035,34 @@ elease; README en docs/04 bijgewerkt
 - [x] Inter (OFL) in het project; generator voor anti-aliased fonts (procenten vet, tekst medium, titel semibold)
 - [x] Firmware: eigen tekenroutine voor deze fonts i.p.v. U8g2 (procenten vet, % kleiner en bovenaan uitgelijnd)
 - [x] Compileren, voorbeeldpagina met dezelfde fonts, PNG sturen, commit en push
+
+## Afzuiging v6: goedkoper, één filter, kunststof klauwen, nieuwe voedingsbox, echte maten (2026-11-06)
+- [x] Eén M5-filter (20 mm) i.p.v. drie lagen: cassette 15 mm minder diep, module 71 mm onder het blad
+- [x] Klauwen in PETG met een ingeperste moer (M5 module, M4 knop); M4 x 65 bij de knop; schuin plafond (45°) in de zwaaikamer zodat de klauw vanzelf uitzwaait
+- [x] Alle schroeven verzonken behalve die van printplaten; klemmen voor de netadapter, ringen voor slang en draden
+- [x] Printplaten op echte maat (SDP810, ESP32-C3, D24V10F5, TR5, elco, klem), M8 binder 718 (M10 x 0,75), USB-C-printjes en FPC-adapter
+- [x] Koopdelen gedetailleerder (connectoren, schakelaar, knop, adapter, USB-C, inbus/kruiskop)
+- [x] Voedingsbox zonder rand en trapjes: rechte bak in de uitsparing, deksel bovenin, 4 x M4 x 60 in inlijmmoeren, ventilatie, schakelaar voor
+- [~] Tests, tekeningen, bouwschema, mallen, STL's, prijslijst, README; commit en push
+
+## Afzuiging: eindverslag v1 (3,1/10) verwerken (2026-11-06)
+- [x] Firmware: meetversheid en sensorherstel, ijking alleen met geldige samples (oude referentie behouden), stop/annuleren met voorrang, bewaking vanaf 20 %, start na stroomuitval UIT, bevestigde toestand op het scherm, koppeling per set (MAC + sleutel), boostdeadline in de module, radioverlies expliciet, "uitkloppen" weg
+- [x] Testbare regel-logica (regel.h) met 14 hosttests; native testomgeving in PlatformIO (draaien vraagt gcc)
+- [~] Exports: STL's uit de exacte vorm (B-rep), dicht en manifold met controle; alle 15 printtypen; oude exports weg; revisie-ID op tekeningen, mallen, bouwschema en README
+- [ ] (wacht op de filterkeuze van Ian) Afdichting: pakking onder de cassetterand met vastgelegde compressie, filter geklemd in een raam; stofarme filterwissel (zak), geen uitkloppen
+- [x] Beschermingsconcept (docs/Vrijgave-en-meetplan.md): filterkeuze met gegevens (F7/ePM1 geplooid), bypass/retour, damp apart; G01 geschrapt
+- [x] Draagconstructie: box met rand en pluggen (Ian: geen inlijmmoeren); proefplan M1/M2
+- [x] Meet- en vrijgaveplan (Q-dp, RPM, vangst, lek, geluid, warmte, elektrisch, uittrek, mors, ergonomie) met acceptatiecriteria
+- [ ] Alles opnieuw genereren en testen; commit en push; rapport voor Ian
+
+## Afzuiging: eindverslag v2 (5,0/10) verwerken (2026-11-06)
+- [~] Testreeks van v6 groen; alle 13 printtypen als dichte STL; overlapkandidaten in de exacte kernel nagaan en benoemen
+- [x] Rekenblad (docs/Berekeningen.md + script): fancurve S01 tegen filter- en roosterverliezen, werkpunt, mediavlak, vangst op 10 cm, geluid naar toerental en afstand
+- [x] Rekenblad elektrisch en warmte: zekering, draad en M8, 5V-budget, warmte in de box; bevestiging: klem- en plugbelasting, moerkamerdak
+- [x] Maakdetails: magneetpocket met 0,8 mm bodem, moerkamerdaken, fanschroef 5 mm indraaiing, puntuitsteek knopschroef met speling
+- [x] Documentatie gelijktrekken (freesmaten, schakelaar, USB-print, zekering TR5) en revisie op alle uitvoer
+- [ ] Filter en afdichting: voorstel met berekening aan Ian voorleggen (keuze is van Ian)
+- [x] Firmware: gewone standen tot 80 % (100 % alleen boost), zachte start 50 %/s, 2 tests erbij
+- [x] Box-rand opzij 7,5 (printbed 225), schroeven voor/achter, pluggaten 28 diep met 2 mm hout naast de uitsparing
+- [ ] Tekeningen, mallen, bouwschema opnieuw; commit en push; rapport voor Ian
+- [ ] MORGEN: volledige testreeks opnieuw (gestopt op 2026-11-07), daarna STL's, tekeningen, bouwschema; filterkeuze aan Ian vragen

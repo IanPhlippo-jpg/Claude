@@ -121,11 +121,11 @@ function blad2() {
   // DC-kabel van de adapter op de schroefklem -X1
   i.push(L([[92, yp], [130, yp]], { w: 0.5, kleur: '#b42318' }), L([[92, 120], [110, 120], [110, ym], [130, ym]], { w: 0.5 }));
   i.push(klem(130, yp, '-X1', '1'), klem(130, ym, '-X1', '2'), T(112, yp - 16, '-X1  schroefklem op -A2', { size: 2.6 }), T(112, yp - 12.5, '(DC-kabel ingekort)', { size: 2.4, kleur: '#444' }));
-  // aan/uit-schakelaar in de achterwand van de box (maakcontact, getekend in de stand uit)
+  // aan/uit-schakelaar in de voorwand van de box (maakcontact, getekend in de stand uit)
   i.push(L([[131.3, yp], [140, yp]], { w: 0.5, kleur: '#b42318' }), punt(140, yp), L([[140, yp], [149, yp - 5]], { w: 0.5 }), L([[150, yp], [160, yp]], { w: 0.5, kleur: '#b42318' }), punt(150, yp),
     L([[144.5, yp - 2.5], [144.5, yp - 9]], { w: 0.3, streep: '1.2 1' }), L([[142.5, yp - 9], [146.5, yp - 9]], { w: 0.35 }),
     T(145, yp + 6, '-S1', { anchor: 'middle', size: 2.6 }), T(145, yp + 9.5, 'aan/uit, box', { anchor: 'middle', size: 2.4, kleur: '#444' }));
-  i.push(zekering(160, yp, '-F1', '3,15 A traag (5 x 20)'), L([[180, yp], [205, yp]], { w: 0.5, kleur: '#b42318' }));
+  i.push(zekering(160, yp, '-F1', '3,15 A traag (TR5)'), L([[180, yp], [205, yp]], { w: 0.5, kleur: '#b42318' }));
   i.push(L([[131.3, ym], [205, ym]], { w: 0.5 }));
   i.push(rail(yp, 205, X1 - 5, 'L+ 24 V', '', '/3.1  /4.1'), rail(ym, 205, X1 - 5, 'M 0 V', '', '/3.1  /4.1', '#111'));
   i.push(punt(250, yp), L([[250, yp], [250, 132]]), condensator(250, 132, '-C1', '470 µF / 35 V'), L([[250, 148], [250, ym]]), punt(250, ym));
@@ -208,7 +208,7 @@ function blad4() {
   i.push(L([[bx + 62, by + 66], [262, by + 66], [262, ym]], { w: 0.45 }), punt(262, ym));
   const poort = (y, tekst1, tekst2) => [L([[bx + 62, y], [bx + 74, y]], { w: 1.4, kleur: '#9aa0a6', streep: '3 2' }), `<circle cx="${bx + 75.5}" cy="${y}" r="1.5" fill="#fff" stroke="#9aa0a6" stroke-width="0.6"/>`, T(bx + 3, y - 1, tekst1, { size: 2.2, kleur: '#555' }), T(bx + 3, y + 2.6, tekst2, { size: 2.2, kleur: '#555' })].join('');
   i.push(poort(by + 22, 'poort "+": open in het vak', '(kamerdruk)'), poort(by + 44, 'poort "-": slang naar de afzuiging', '(ruimte onder de filters)'));
-  // USB-C-koppeling naar de knop: -X8 in de module, kabel -W1, -X7 in de knophouder, knop -A1
+  // USB-C-koppeling naar de knop: -X8 in de voedingsbox, kabel -W1, -X7 in de knophouder, knop -A1
   const xu = 290, yu = 150;
   i.push(rect(xu, yu, 22, 40, { w2: 0.45 }), T(xu + 11, yu - 3, '-X8', { anchor: 'middle', size: 2.8, bold: true }), T(xu + 11, yu + 46, 'USB-C-bus', { anchor: 'middle', size: 2.2, kleur: '#555' }), T(xu + 11, yu + 49.5, 'in de voedingsbox', { anchor: 'middle', size: 2.2, kleur: '#555' }));
   [['VBUS', 8], ['CC1', 18], ['CC2', 26], ['GND', 34]].forEach(([n, dy]) => i.push(T(xu + 2, yu + dy + 1, n, { size: 2.2 })));
@@ -219,7 +219,7 @@ function blad4() {
   // kabel en knop
   i.push(L([[xu + 22, yu + 8], [340, yu + 8]], { kleur: '#d97706', w: 0.6 }), L([[xu + 22, yu + 34], [340, yu + 34]], { w: 0.6 }));
   i.push(T(326, yu + 4, '-W1', { anchor: 'middle', size: 2.6, bold: true }), T(326, yu + 42, 'USB-C-kabel, C-C', { anchor: 'middle', size: 2.2, kleur: '#555' }), T(326, yu + 45.5, '1 m, in de sleuf', { anchor: 'middle', size: 2.2, kleur: '#555' }));
-  i.push(rect(340, yu, 18, 40, { w2: 0.45 }), T(349, yu - 3, '-X7', { anchor: 'middle', size: 2.8, bold: true }), T(349, yu + 46, 'achterwand', { anchor: 'middle', size: 2.2, kleur: '#555' }), T(349, yu + 49.5, 'knophouder', { anchor: 'middle', size: 2.2, kleur: '#555' }));
+  i.push(rect(340, yu, 18, 40, { w2: 0.45 }), T(349, yu - 3, '-X7', { anchor: 'middle', size: 2.8, bold: true }), T(349, yu + 46, 'zijwand onder', { anchor: 'middle', size: 2.2, kleur: '#555' }), T(349, yu + 49.5, 'knophouder', { anchor: 'middle', size: 2.2, kleur: '#555' }));
   i.push(toestel(366, yu - 6, 40, 56, '-A1', ['VIEWE-knop 1,5"', 'ESP32-S3, AMOLED', 'in de knophouder'], [
     { x: 0, y: 14, naam: 'FPC 1 +5V' }, { x: 0, y: 26, naam: 'FPC 9/10 USB' }, { x: 0, y: 40, naam: 'FPC 3 GND' },
   ]));
@@ -227,7 +227,7 @@ function blad4() {
   // draadloos
   i.push(L([[ax + 35, ay + 120], [ax + 35, 206], [386, 206], [386, yu + 50]], { kleur: '#0ea5e9', w: 0.4, streep: '2.5 1.5' }));
   i.push(T(160, 204, 'ESP-NOW (2,4 GHz): opdrachten van -A1 naar -A4, status terug', { anchor: 'middle', size: 2.5, kleur: '#0ea5e9' }));
-  i.push(T(30, 213, '-X7: USB-C-printje (5,1 kΩ op CC) in de achterwand van de knophouder, 4 draden naar -A3: VBUS -> FPC 1, GND -> FPC 3, D+ -> FPC 9, D- -> FPC 10.', { size: 2.3, kleur: '#444' }));
+  i.push(T(30, 213, '-X7: USB-C-printje (5,1 kΩ op CC) in de zijwand onderaan de knophouder, 4 draden naar -A3: VBUS -> FPC 1, GND -> FPC 3, D+ -> FPC 9, D- -> FPC 10.', { size: 2.3, kleur: '#444' }));
   i.push(T(30, 219, 'Met de kabel naar -X8 krijgt de knop 5 V; op een computer aangesloten wordt hij geflasht. D+/D- van -X8 blijven los.', { size: 2.3, kleur: '#444' }));
   return kader(4, 'Besturing, drukmeter en de knop', i);
 }
@@ -274,7 +274,7 @@ export const STUKLIJST = [
   ['-T1', '1', 'Netadapter 24 V DC, 3,75 A (90 W), C14-inlaat', 'Mean Well GST90A24-P1M'],
   ['—', '1', 'Netsnoer C13 naar stopcontact (randaarde), 1,5 m', '—'],
   ['-S1', '1', 'Wipschakelaar 1-polig aan/uit, 21 x 15 mm, inbouwgat 19 x 13 mm', 'KCD1-101 (6 A)'],
-  ['-F1', '1', 'Zekering 3,15 A traag 5 x 20 mm + printzekeringhouder', '—'],
+  ['-F1', '1', 'Zekering TR5 3,15 A traag (Ø8,4 x 7,6, op de print)', '—'],
   ['-C1', '1', 'Elco 470 µF / 35 V', '—'],
   ['-Q1', '1', 'NPN-transistor BC547B (TO-92)', '—'],
   ['-R1', '1', 'Weerstand 1 kΩ 0,25 W', '—'],
@@ -284,14 +284,14 @@ export const STUKLIJST = [
   ['-T3', '1', 'Schakelende regelaar 24 V -> 5 V, 1 A', 'Pololu D24V10F5'],
   ['-A4', '1', 'ESP32-C3 SuperMini (22,5 x 18 mm, USB-C)', '—'],
   ['-B1', '1', 'Verschildrukmeter ±500 Pa, I2C', 'Sensirion SDP810-500PA'],
-  ['-X8', '1', 'USB-C-bus (breakout, 6-polig: VBUS, GND, CC1, CC2)', '—'],
-  ['-X9', '1', 'M8-inbouwstekker 4-polig, A-codering, achterwandmontage (PG7)', '—'],
-  ['-X10', '1', 'M8-inbouwbus 4-polig, A-codering, achterwandmontage (PG7)', '—'],
+  ['-X8', '1', 'USB-C-bus (breakout 6-polig, 20,3 x 12,7, 2 gaten M2)', '—'],
+  ['-X9', '1', 'M8-inbouwstekker 4-polig, binder 718, achterwandmontage (M10 x 0,75)', '—'],
+  ['-X10', '1', 'M8-inbouwbus 4-polig, binder 718, achterwandmontage (M10 x 0,75)', '—'],
   ['-W2', '1', 'M8-kabel 4-polig stekker-bus, 0,5 m (verlengkabel)', '—'],
   ['-M1', '1', 'Radiale ventilator Ø175, 24 V, 56 W, PWM, tacho', 'San Ace C175 9TG24P0S01'],
   ['-A1', '1', 'Knop 1,5" met rond AMOLED-scherm, ESP32-S3', 'VIEWE UEDX46460015-MD50E (zwart)'],
   ['-A3', '1', 'Adapterprint FPC 10-polig 0,5 mm naar 2,54 mm, 23 x 47 mm', 'FPC/FFC-breakout 10P'],
-  ['-X7', '1', 'USB-C-bus (breakout 16-polig, USB 2.0, 5,1 kΩ op CC)', '—'],
+  ['-X7', '1', 'USB-C-bus (breakout 16-polig, 12 x 15, USB 2.0, 5,1 kΩ op CC)', '—'],
   ['-W1', '1', 'USB-C-kabel C-C, 1 m, haaks (USB 2.0 volstaat)', '—'],
   ['-A2', '1', 'Gaatjesprint 40 x 50 mm (gaten 2 mm)', '—'],
   ['-X1', '1', 'Printschroefklem 2-polig steek 5 mm', '—'],

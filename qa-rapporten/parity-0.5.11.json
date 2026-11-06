@@ -1,0 +1,515 @@
+{
+ "rows": [
+  {
+   "area": "Sketcher",
+   "item": "Lijn/rechthoek/cirkel/boog/spline/ellips/sleuf/polygoon/tekst",
+   "status": "aanwezig",
+   "ev": "model.ts add*; smoke 13/13, slot 9/9, sketchcurves 13/13, ellipsetext 6/6 (logs/regression-mesh.log); shots/walk-12-dimensioned.png",
+   "old": "aanwezig"
+  },
+  {
+   "area": "Sketcher",
+   "item": "Relaties (16 soorten) + glyphs, blauw/zwart-status",
+   "status": "aanwezig",
+   "ev": "solver.ts; relations 14/14 (logs/regression-mesh.log); shots/gj1-relations.png",
+   "old": "aanwezig"
+  },
+  {
+   "area": "Sketcher",
+   "item": "Intersection/Merge/Equal curvature/AlongXYZ",
+   "status": "deels",
+   "ev": "Intersection/Merge/Equal Curvature: equations.ts:307-323 + relations2.test.ts (AlongXYZ = 3D-schets, rij 5) — Teamronde: deels (Strati, Riki, Risk, Webi): AlongXYZ komt 0× voor in src; bewijs alleen code + unit-test (relations2.test.ts)",
+   "old": "deels",
+   "status_qa": "aanwezig"
+  },
+  {
+   "area": "Sketcher",
+   "item": "Over-/conflict-detectie (redundant/conflicting/driven)",
+   "status": "aanwezig",
+   "ev": "solver.test.ts over/conflict in vitest 487/487 (logs/vitest.log)",
+   "old": "aanwezig"
+  },
+  {
+   "area": "Sketcher",
+   "item": "Trim/Extend/Offset/Mirror/Convert/patterns",
+   "status": "aanwezig",
+   "ev": "sketchtools 13/13, sketchtools2 4/4 (logs/regression-mesh.log)",
+   "old": "aanwezig"
+  },
+  {
+   "area": "Sketcher",
+   "item": "3D-schets met maten/relaties",
+   "status": "deels",
+   "ev": "docs/24: geen 3D-maten (F124)",
+   "old": "deels"
+  },
+  {
+   "area": "Sketcher",
+   "item": "Instant2D / Magnified Selection",
+   "status": "ontbreekt",
+   "ev": "docs/24",
+   "old": "ontbreekt"
+  },
+  {
+   "area": "Features",
+   "item": "Extrude boss/cut + alle eindcondities, draft, thin, 2 richtingen",
+   "status": "aanwezig",
+   "ev": "endconditions 15/15 mesh én B-rep (logs/regression-mesh.log, logs/regression-brep.log); features 65/65 mesh en B-rep (één run) (logs/regression-mesh.log); shots/walk-15-extruded.png",
+   "old": "aanwezig"
+  },
+  {
+   "area": "Features",
+   "item": "Revolve",
+   "status": "aanwezig",
+   "ev": "Revolve-fillet na maatwijziging OK: QA T2 mesh+B-rep (logs/qa-ext-tests.log, logs/qa-ext-tests.log)",
+   "old": "aanwezig"
+  },
+  {
+   "area": "Features",
+   "item": "Sweep / Loft (loft B-rep alleen 2 profielen)",
+   "status": "deels",
+   "ev": "Sweep/Loft aanwezig (shots/e18-sweep.png, pmsweep 54/54, loftface 7/7 in logs/regression-mesh.log); B-rep-loft nog 2 profielen; Sweep1 faalde 1× in features (F145)",
+   "old": "deels"
+  },
+  {
+   "area": "Features",
+   "item": "Fillet/Chamfer (const, variabel, face, full round)",
+   "status": "deels",
+   "ev": "Constante fillet T1–T3 correct; maar gesplitste rand na maatwijziging stil fout onder exact (F177: 38469,956 vs 38422,743, logs/qa-team.json), gebogen rand 10× fout via mesh (F178, logs/qa-curved.log), face fillet/full round/setback alleen mesh (rebuild.ts:858-864); filletopts 16/16 mesh (logs/regression-mesh.log) en B-rep (logs/regression-brep.log)",
+   "old": "kapot",
+   "status_qa": "deels",
+   "team": "Strati, Riki + box-test"
+  },
+  {
+   "area": "Features",
+   "item": "Shell/Draft/Rib",
+   "status": "aanwezig",
+   "ev": "rib 10/10 (logs/regression-mesh.log); shots/e16-shell.png",
+   "old": "aanwezig"
+  },
+  {
+   "area": "Features",
+   "item": "Hole Tool (simple/cbore/csk/tap) + Advanced Hole + Thread",
+   "status": "aanwezig",
+   "ev": "Hole Tool: shots/e12-hole-preview.png; gj 37/37 incl. ANSI-gat (logs/regression-mesh.log)",
+   "old": "aanwezig"
+  },
+  {
+   "area": "Features",
+   "item": "Patterns (linear/circular/curve/sketch/fill/table/variable) + Mirror",
+   "status": "aanwezig",
+   "ev": "features 65/65 (logs/regression-mesh.log), componentpattern 6/6, sketchpattern 2/2 (logs/regression-mesh.log)",
+   "old": "aanwezig"
+  },
+  {
+   "area": "Features",
+   "item": "Wrap/Deform/Flex/Freeform",
+   "status": "deels",
+   "ev": "wrap 4/4, gj (deform) 37/37 (logs/regression-mesh.log); mesh-terugval, Faceted",
+   "old": "deels"
+  },
+  {
+   "area": "Features",
+   "item": "Dome/Indent/Mounting Boss/Snap Hook/Lip-Groove",
+   "status": "deels",
+   "ev": "Aanwezig (plastics.ts, 12 unit-tests, e2e plastics) maar alleen mesh-kernel, vereenvoudigd (F121)",
+   "old": "deels"
+  },
+  {
+   "area": "Features",
+   "item": "Instant3D (drag-handles op model)",
+   "status": "deels",
+   "ev": "Drag Handles (hernoemd van Instant3D): alleen diepte van blind extrude (store.ts:828-839); geen e2e of unit-test gevonden",
+   "old": "deels"
+  },
+  {
+   "area": "Features",
+   "item": "Surfaces (extrude/revolve/loft/knit/trim/thicken)",
+   "status": "deels",
+   "ev": "surfaces 7/7, gd 23/23 (logs/regression-mesh.log); mesh-terugval",
+   "old": "deels"
+  },
+  {
+   "area": "Features",
+   "item": "Sheet metal (base/edge flange/hem/bend/flat pattern)",
+   "status": "deels",
+   "ev": "sheetmetal 14/14, sheetmetal2 7/7, ge 59/59 (logs/regression-mesh.log); shots/ge14-sweptflange.png; geen virtual sharp",
+   "old": "deels"
+  },
+  {
+   "area": "Features",
+   "item": "Weldments (structural member, trim)",
+   "status": "deels",
+   "ev": "Naam nu \"Frames\" en gh 29/29 eerder; profielbibliotheek, end caps/gussets niet tegen SOLIDWORKS gemeten",
+   "old": "deels"
+  },
+  {
+   "area": "Features",
+   "item": "Multibody (combine/split/move-copy/scope)",
+   "status": "aanwezig",
+   "ev": "multibody 14/14 mesh én B-rep (logs/regression-mesh.log, logs/regression-brep.log); shots/m5-combined.png",
+   "old": "aanwezig"
+  },
+  {
+   "area": "FeatureManager",
+   "item": "Boom met history/sensors/annotations/materials/planes",
+   "status": "aanwezig",
+   "ev": "shots/walk-18-done.png (History, Sensors, Annotations, Solid Bodies, Material, vlakken, Origin)",
+   "old": "aanwezig"
+  },
+  {
+   "area": "FeatureManager",
+   "item": "Rollback-bar",
+   "status": "aanwezig",
+   "ev": "FeatureTreeBody.tsx rollback; full 68/68 en relations 14/14 (logs/regression-mesh.log)",
+   "old": "aanwezig"
+  },
+  {
+   "area": "FeatureManager",
+   "item": "Suppress/unsuppress, edit feature/sketch",
+   "status": "aanwezig",
+   "ev": "features 65/65 (logs/regression-mesh.log), qa1 26/26 (logs/regression-mesh.log)",
+   "old": "aanwezig"
+  },
+  {
+   "area": "FeatureManager",
+   "item": "Reorder (slepen)",
+   "status": "aanwezig",
+   "ev": "e2e/reorder.mjs sleept met dragTo, reorder 10/10 (logs/regression-mesh.log); FeatureTreeBody.tsx:213 + reorder.test.ts. Teamronde: blijft aanwezig (e2e-bewijs, niet alleen code)",
+   "old": "aanwezig"
+  },
+  {
+   "area": "FeatureManager",
+   "item": "Parent/child-weergave",
+   "status": "aanwezig",
+   "ev": "gb 32/32 (logs/regression-mesh.log); shots/gb-parentchild.png",
+   "old": "aanwezig"
+  },
+  {
+   "area": "FeatureManager",
+   "item": "Undo/redo (200 stappen)",
+   "status": "deels",
+   "ev": "history.ts:5 limit=200; undo in e2e gebruikt, maar 200 stappen nergens getest [Risk]",
+   "old": "deels"
+  },
+  {
+   "area": "Topologie",
+   "item": "Randreferenties overleven maatwijziging (extrude)",
+   "status": "aanwezig",
+   "ev": "T1 Ø35→Ø50: rand teruggevonden en correct afgerond op mesh én B-rep (logs/qa-ext-tests.log)",
+   "old": "deels"
+  },
+  {
+   "area": "Topologie",
+   "item": "Gesplitste randen / revolve / sweep / loft",
+   "status": "deels",
+   "ev": "Gesplitste rand (T3) en revolve (T2) correct op beide kernels; sweep/loft-randen na maatwijziging niet getest",
+   "old": "deels"
+  },
+  {
+   "area": "Kernel",
+   "item": "Exacte B-rep (OCCT) op desktop",
+   "status": "deels",
+   "ev": "Self-test 8/8 (logs/self-test-*.json) maar \"packaged\": false; ellips/spline/wrap heten exact terwijl ze facetten zijn (F175: ellips 6278,700 vs 6283,185, STEP 0 ELLIPSE)",
+   "old": "deels",
+   "status_qa": "aanwezig",
+   "team": "Strati, Riki, Risk, Webi + box-test"
+  },
+  {
+   "area": "Kernel",
+   "item": "Exacte B-rep in browser / voor alle features",
+   "status": "deels",
+   "ev": "Plastics behalve Dome nog mesh (F51/F121); ellips/spline als segmenten (F175); wrap-patch polyhedraal",
+   "old": "deels"
+  },
+  {
+   "area": "Assembly",
+   "item": "Insert component / patterns / configuraties per instantie",
+   "status": "aanwezig",
+   "ev": "assembly 21/21, assembly2 15/15, configurations 25/25 (logs/regression-mesh.log); shots/deurkruk-assembly.png",
+   "old": "aanwezig"
+  },
+  {
+   "area": "Assembly",
+   "item": "Standaard + geavanceerde + mechanische mates (typen)",
+   "status": "deels",
+   "ev": "Typen aanwezig (types.ts) en solver nu correct voor M1/M3/M5 (logs/qa-ext-tests.log); mechanische mates (cam/hinge/screw/rack-pinion/linear coupler) nog zonder gedragstests",
+   "old": "deels"
+  },
+  {
+   "area": "Assembly",
+   "item": "Mate-solver (simultaan, beide kanten)",
+   "status": "aanwezig",
+   "ev": "QA M1 beide volgordes, M3 keten-4, M5 gesloten lus correct (logs/qa-ext-tests.log)",
+   "old": "aanwezig"
+  },
+  {
+   "area": "Assembly",
+   "item": "Over-/onderbepaald (+)/(-), mate-fouten",
+   "status": "aanwezig",
+   "ev": "M2: nieuwste mate gemarkeerd (F141 opgelost), M5 over/onder, \"Not Converged\" in statusbalk (StatusBar.tsx:111)",
+   "old": "deels"
+  },
+  {
+   "area": "Assembly",
+   "item": "Interference detection / exploded view",
+   "status": "aanwezig",
+   "ev": "explode 18/18, asmcut 3/3 (logs/regression-mesh.log); shots/deurkruk-exploded.png",
+   "old": "aanwezig"
+  },
+  {
+   "area": "Assembly",
+   "item": "Smart Fasteners / Toolbox",
+   "status": "deels",
+   "ev": "Auto Fasteners (store.ts:461); geen Toolbox-bibliotheek",
+   "old": "deels"
+  },
+  {
+   "area": "Tekeningen",
+   "item": "Standaard/projected/section/detail/aux/broken/crop",
+   "status": "aanwezig",
+   "ev": "drawing2 13/13, section 9/9, drawingfix 16/16, viewlayout 16/16 (logs/regression-mesh.log); shots/drawfix-three.png, shots/deurkruk-tekening.png",
+   "old": "aanwezig"
+  },
+  {
+   "area": "Tekeningen",
+   "item": "Maten plaatsen (Smart Dimension op tekening)",
+   "status": "aanwezig",
+   "ev": "drawing 28/28 op Linux HEAD (F10 opgelost; logs/regression-mesh.log)",
+   "old": "deels"
+  },
+  {
+   "area": "Tekeningen",
+   "item": "BOM/hole table/revisietabel/balloons/GD&T",
+   "status": "aanwezig",
+   "ev": "drawingfix 16/16, drawopts 21/21, annotations 3/3+4/4+3/3 (logs/regression-mesh.log); shots/drawfix-tables.png",
+   "old": "aanwezig"
+  },
+  {
+   "area": "Tekeningen",
+   "item": "Auto centermarks / verborgen lijnen",
+   "status": "deels",
+   "ev": "core/drawing/autoMarks.ts + hlr.ts met unit-tests — Teamronde: deels (Strati, Risk, Webi): alleen unit-tests (autoMarks.test.ts, hlr.test.ts); geen verborgen lijnen in de shots; centermarks ontbreken in Detail B (shots/deurkruk-tekening.png)",
+   "old": "deels",
+   "status_qa": "aanwezig"
+  },
+  {
+   "area": "Tekeningen",
+   "item": "PDF/DXF/DWG export",
+   "status": "deels",
+   "ev": "PDF/DXF: sheetExport.ts, export2d.test.ts, e2e/sheetexport.mjs; DWG ontbreekt",
+   "old": "deels"
+  },
+  {
+   "area": "Configuraties",
+   "item": "ConfigurationManager, per-config waarden/suppress",
+   "status": "aanwezig",
+   "ev": "configurations 25/25 (logs/regression-mesh.log)",
+   "old": "aanwezig"
+  },
+  {
+   "area": "Configuraties",
+   "item": "Design tables (Excel)",
+   "status": "ontbreekt",
+   "ev": "rg \"design table\" = alleen tree-filterlabel",
+   "old": "ontbreekt"
+  },
+  {
+   "area": "Configuraties",
+   "item": "Equations/global variables/circulair",
+   "status": "aanwezig",
+   "ev": "shots/e22-equations-applied.png; QA E1 circulair gemeld (logs/qa-ext-tests.log)",
+   "old": "aanwezig"
+  },
+  {
+   "area": "Evaluate",
+   "item": "Measure / Mass Properties / Section Properties",
+   "status": "aanwezig",
+   "ev": "shots/e19-mass-properties.png, shots/e20-measure.png",
+   "old": "aanwezig"
+  },
+  {
+   "area": "Evaluate",
+   "item": "Draft/undercut/thickness analysis",
+   "status": "deels",
+   "ev": "draftcheck 9/9, thickness 2/2 (logs/regression-mesh.log); geen numerieke assert op undercut/thickness",
+   "old": "deels"
+  },
+  {
+   "area": "Import/Export",
+   "item": "Native .kcad (atomair + .bak)",
+   "status": "aanwezig",
+   "ev": "self-test: \"Save writes the .kcad atomically and keeps a .bak\" (logs/self-test-nogpu.json)",
+   "old": "aanwezig"
+  },
+  {
+   "area": "Import/Export",
+   "item": "STEP AP214 in/uit (exact)",
+   "status": "deels",
+   "ev": "step 11/11 mesh (logs/regression-mesh.log) en B-rep (logs/regression-brep.log), self-test STEP; maar \"exacte\" STEP van een ellips bevat 864 LINE en 0 ELLIPSE (F175, logs/qa-team.json)",
+   "old": "aanwezig",
+   "team": "Riki, MT5D + box-test"
+  },
+  {
+   "area": "Import/Export",
+   "item": "STL/3MF/AMF",
+   "status": "aanwezig",
+   "ev": "MenuBar.tsx:149-153 STL, MenuBar.tsx:278 \"Save As ▸ 3MF\"; gb (exportopties) 32/32 (logs/regression-mesh.log)",
+   "old": "aanwezig"
+  },
+  {
+   "area": "Import/Export",
+   "item": "IGES / DXF / DWG / Parasolid",
+   "status": "ontbreekt",
+   "ev": "IGES/DWG/Parasolid ontbreken nog (DXF alleen 2D-tekening, rij 41)",
+   "old": "ontbreekt"
+  },
+  {
+   "area": "UI/UX",
+   "item": "CommandManager/tabs/heads-up toolbar/taakvenster/statusbalk",
+   "status": "deels",
+   "ev": "Context-toolbar nu groen op Linux (F144), maar CommandManager/taakvenster niet pixel- of gedragsgewijs naast SOLIDWORKS gelegd",
+   "old": "deels",
+   "status_qa": "aanwezig"
+  },
+  {
+   "area": "UI/UX",
+   "item": "Options-dialoog werkend",
+   "status": "deels",
+   "ev": "Ongewijzigd: 45/379 opties werken (F112); Export biedt IGES/DWG zonder exporter (F171)",
+   "old": "deels"
+  },
+  {
+   "area": "UI/UX",
+   "item": "Iconen/lettertype pixelgelijk",
+   "status": "deels",
+   "ev": "Niet naast SOLIDWORKS geverifieerd (F16/F21/F22)",
+   "old": "deels"
+  },
+  {
+   "area": "UI/UX",
+   "item": "Handelsmerk-vrij",
+   "status": "deels",
+   "ev": "Code-bewaking ok (rename-trademarks.cjs, logs/trademark-check.log, logs/ci-checks.log; disclaimer shots/home-brep.png), maar geen juridische toets; docs/26 en docs/06 met SW-inhoud in de repo; materiaalnamen volgen SW (F189)",
+   "old": "deels",
+   "team": "Strati, Risk"
+  },
+  {
+   "area": "Performance",
+   "item": "Rebuild-worker / UI vloeiend",
+   "status": "deels",
+   "ev": "Release: worker standaard; box rebuildworker 10/10 in 152 s (logs/regression-mesh.log) en release-pass 98/98 met worker (logs/regression-release.log); budget 45 s (F137); browser-mesh-CSG op de UI-thread (F46). Geen herhaalde runs.",
+   "old": "deels",
+   "team": "MT5D-17 (bewijs ververst)"
+  },
+  {
+   "area": "Robuustheid",
+   "item": "Autosave + crash-herstel",
+   "status": "aanwezig",
+   "ev": "desktop-recover 21/21 (crash-herstel, eigen kopie per document, opent dirty), desktop-autosave ok",
+   "old": "deels"
+  },
+  {
+   "area": "Robuustheid",
+   "item": "Zonder WebGL / zonder GPU",
+   "status": "aanwezig",
+   "ev": "viewpanes 35/35 incl. zonder WebGL, self-test zonder GPU 8/8 en softGL 8/8, desktop-nohooks 10/10",
+   "old": "deels"
+  },
+  {
+   "area": "Installer",
+   "item": "NSIS + portable, .kcad-associatie",
+   "status": "deels",
+   "ev": "NSIS + portable gebouwd (win/desktop-build.log); ongesigneerd",
+   "old": "deels"
+  },
+  {
+   "area": "Installer",
+   "item": "Code-signing",
+   "status": "ontbreekt",
+   "ev": "Get-AuthenticodeSignature: NotSigned",
+   "old": "ontbreekt"
+  },
+  {
+   "area": "Testen/CI",
+   "item": "Unit + e2e + B-rep + worker",
+   "status": "deels",
+   "ev": "vitest 487/487 (logs/vitest.log); box mesh 98/98, B-rep 14/14, release 98/98 (logs/regression-*.log) — maar alleen box, één run per pass (F184), CI-brep 12/14 scripts (F183), QA-diagnosetests zonder asserts (F185), toleranties te ruim (F173)",
+   "old": "deels",
+   "team": "Strati, Webi"
+  },
+  {
+   "area": "Testen/CI",
+   "item": "Groene CI op Linux bewezen",
+   "status": "ontbreekt",
+   "ev": "Geen enkele groene GitHub Actions-run op HEAD db0d4b2 (quotum); laatste runs 41542259973/41551048560 op andere commits met rode shards (F176, F195). Box-groen is geen CI.",
+   "old": "kapot",
+   "team": "Riki"
+  }
+ ],
+ "counts": {
+  "aanwezig": 30,
+  "deels": 27,
+  "ontbreekt": 5
+ },
+ "pct": 70.2,
+ "pct_0_5_10": 66.1,
+ "sw_ref_nodig": [
+  3,
+  6,
+  7,
+  10,
+  15,
+  16,
+  17,
+  18,
+  19,
+  20,
+  33,
+  37,
+  41,
+  47,
+  52,
+  54,
+  56
+ ],
+ "pct_eerste_versie_0511": 75.0,
+ "log_refs_hersteld": [
+  1,
+  2,
+  4,
+  5,
+  8,
+  9,
+  10,
+  12,
+  13,
+  14,
+  15,
+  18,
+  19,
+  21,
+  23,
+  24,
+  25,
+  26,
+  32,
+  33,
+  34,
+  36,
+  38,
+  40,
+  43,
+  45,
+  47,
+  50
+ ],
+ "team_pct": {
+  "Strati": 71.8,
+  "Riki": 71.8,
+  "Webi": 73.4,
+  "MT5D": 74.2,
+  "Risk": 74.2,
+  "QA (unie, deze revisie)": 70.2
+ }
+}

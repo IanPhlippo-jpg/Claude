@@ -29,9 +29,9 @@
    ],
    "kind": "reference"
   },
-  "usbbus": {
-   "id": "usbbus",
-   "name": "Plane bus",
+  "busbbus": {
+   "id": "busbbus",
+   "name": "Plane bus busb",
    "origin": [
     0,
     -26.299999999999997,
@@ -50,6 +50,31 @@
    "n": [
     0,
     1,
+    0
+   ],
+   "kind": "reference"
+  },
+  "busbmond": {
+   "id": "busbmond",
+   "name": "Plane mond busb",
+   "origin": [
+    103.2,
+    0,
+    0
+   ],
+   "u": [
+    0,
+    0,
+    -1
+   ],
+   "v": [
+    0,
+    1,
+    0
+   ],
+   "n": [
+    1,
+    0,
     0
    ],
    "kind": "reference"
@@ -78,6 +103,31 @@
     0
    ],
    "kind": "reference"
+  },
+  "usbpads": {
+   "id": "usbpads",
+   "name": "Face usbpads",
+   "origin": [
+    0,
+    -26.299999999999997,
+    0
+   ],
+   "u": [
+    1,
+    0,
+    0
+   ],
+   "v": [
+    0,
+    0,
+    -1
+   ],
+   "n": [
+    0,
+    1,
+    0
+   ],
+   "kind": "face"
   }
  },
  "variables": {},
@@ -93,20 +143,20 @@
      "y": 0
     },
     "s1p0": {
-     "x": 83,
-     "y": 22
+     "x": 81.7,
+     "y": 22.65
     },
     "s1p1": {
-     "x": 93.6,
-     "y": 22
+     "x": 101.9,
+     "y": 22.65
     },
     "s1p2": {
-     "x": 93.6,
-     "y": 36
+     "x": 101.9,
+     "y": 35.35
     },
     "s1p3": {
-     "x": 83,
-     "y": 36
+     "x": 81.7,
+     "y": 35.35
     }
    },
    "scalars": {},
@@ -153,59 +203,59 @@
   "s2": {
    "id": "s2",
    "name": "Sketch2",
-   "plane": "usbbus",
+   "plane": "busbbus",
    "points": {
     "origin_s2": {
      "x": 0,
      "y": 0
     },
     "s2p0": {
-     "x": 90.6,
-     "y": 24.55
+     "x": 96.85,
+     "y": 24.53
     },
     "s2p1": {
-     "x": 98.9,
-     "y": 24.55
+     "x": 102.2,
+     "y": 24.53
     },
     "s2p2": {
-     "x": 99.9,
-     "y": 25.55
+     "x": 103.2,
+     "y": 25.53
     },
     "s2p3": {
-     "x": 99.9,
-     "y": 32.45
+     "x": 103.2,
+     "y": 32.47
     },
     "s2p4": {
-     "x": 98.9,
-     "y": 33.45
+     "x": 102.2,
+     "y": 33.47
     },
     "s2p5": {
-     "x": 90.6,
-     "y": 33.45
+     "x": 96.85,
+     "y": 33.47
     },
     "s2p6": {
-     "x": 89.6,
-     "y": 32.45
+     "x": 95.85,
+     "y": 32.47
     },
     "s2p7": {
-     "x": 89.6,
-     "y": 25.55
+     "x": 95.85,
+     "y": 25.53
     },
     "s2p8": {
-     "x": 98.9,
-     "y": 25.55
+     "x": 102.2,
+     "y": 25.53
     },
     "s2p9": {
-     "x": 98.9,
-     "y": 32.45
+     "x": 102.2,
+     "y": 32.47
     },
     "s2p10": {
-     "x": 90.6,
-     "y": 32.45
+     "x": 96.85,
+     "y": 32.47
     },
     "s2p11": {
-     "x": 90.6,
-     "y": 25.55
+     "x": 96.85,
+     "y": 25.53
     }
    },
    "scalars": {
@@ -298,48 +348,471 @@
   "s3": {
    "id": "s3",
    "name": "Sketch3",
-   "plane": "usbgat",
+   "plane": "busbmond",
    "points": {
     "origin_s3": {
      "x": 0,
      "y": 0
     },
     "s3p0": {
-     "x": 89,
-     "y": 35
+     "x": 25.83,
+     "y": -25.95
+    },
+    "s3p1": {
+     "x": 32.17,
+     "y": -25.95
+    },
+    "s3p2": {
+     "x": 33.17,
+     "y": -24.95
     },
     "s3p3": {
-     "x": 89,
-     "y": 23
+     "x": 33.17,
+     "y": -24.39
+    },
+    "s3p4": {
+     "x": 32.17,
+     "y": -23.39
+    },
+    "s3p5": {
+     "x": 25.83,
+     "y": -23.39
+    },
+    "s3p6": {
+     "x": 24.83,
+     "y": -24.39
+    },
+    "s3p7": {
+     "x": 24.83,
+     "y": -24.95
+    },
+    "s3p8": {
+     "x": 32.17,
+     "y": -24.95
+    },
+    "s3p9": {
+     "x": 32.17,
+     "y": -24.39
+    },
+    "s3p10": {
+     "x": 25.83,
+     "y": -24.39
+    },
+    "s3p11": {
+     "x": 25.83,
+     "y": -24.95
     }
    },
    "scalars": {
-    "s3s1": 1.1,
-    "s3s4": 1.1
+    "s3s12": 1
    },
    "entities": {
-    "s3e2": {
-     "id": "s3e2",
+    "s3e13": {
+     "id": "s3e13",
      "construction": false,
-     "kind": "circle",
-     "center": "s3p0",
-     "r": "s3s1"
+     "kind": "line",
+     "p1": "s3p0",
+     "p2": "s3p1"
     },
-    "s3e5": {
-     "id": "s3e5",
+    "s3e14": {
+     "id": "s3e14",
      "construction": false,
-     "kind": "circle",
-     "center": "s3p3",
-     "r": "s3s4"
+     "kind": "arc",
+     "center": "s3p8",
+     "start": "s3p1",
+     "end": "s3p2",
+     "r": "s3s12",
+     "ccw": true
+    },
+    "s3e15": {
+     "id": "s3e15",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p2",
+     "p2": "s3p3"
+    },
+    "s3e16": {
+     "id": "s3e16",
+     "construction": false,
+     "kind": "arc",
+     "center": "s3p9",
+     "start": "s3p3",
+     "end": "s3p4",
+     "r": "s3s12",
+     "ccw": true
+    },
+    "s3e17": {
+     "id": "s3e17",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p4",
+     "p2": "s3p5"
+    },
+    "s3e18": {
+     "id": "s3e18",
+     "construction": false,
+     "kind": "arc",
+     "center": "s3p10",
+     "start": "s3p5",
+     "end": "s3p6",
+     "r": "s3s12",
+     "ccw": true
+    },
+    "s3e19": {
+     "id": "s3e19",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p6",
+     "p2": "s3p7"
+    },
+    "s3e20": {
+     "id": "s3e20",
+     "construction": false,
+     "kind": "arc",
+     "center": "s3p11",
+     "start": "s3p7",
+     "end": "s3p0",
+     "r": "s3s12",
+     "ccw": true
     }
    },
    "constraints": {},
    "entityOrder": [
-    "s3e2",
-    "s3e5"
+    "s3e13",
+    "s3e14",
+    "s3e15",
+    "s3e16",
+    "s3e17",
+    "s3e18",
+    "s3e19",
+    "s3e20"
    ],
    "constraintOrder": [],
    "origin": "origin_s3"
+  },
+  "s4": {
+   "id": "s4",
+   "name": "Sketch4",
+   "plane": "busbmond",
+   "points": {
+    "origin_s4": {
+     "x": 0,
+     "y": 0
+    },
+    "s4p0": {
+     "x": 25.7,
+     "y": -24.97
+    },
+    "s4p1": {
+     "x": 32.3,
+     "y": -24.97
+    },
+    "s4p2": {
+     "x": 32.3,
+     "y": -24.37
+    },
+    "s4p3": {
+     "x": 25.7,
+     "y": -24.37
+    }
+   },
+   "scalars": {},
+   "entities": {
+    "s4e4": {
+     "id": "s4e4",
+     "construction": false,
+     "kind": "line",
+     "p1": "s4p0",
+     "p2": "s4p1"
+    },
+    "s4e5": {
+     "id": "s4e5",
+     "construction": false,
+     "kind": "line",
+     "p1": "s4p1",
+     "p2": "s4p2"
+    },
+    "s4e6": {
+     "id": "s4e6",
+     "construction": false,
+     "kind": "line",
+     "p1": "s4p2",
+     "p2": "s4p3"
+    },
+    "s4e7": {
+     "id": "s4e7",
+     "construction": false,
+     "kind": "line",
+     "p1": "s4p3",
+     "p2": "s4p0"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s4e4",
+    "s4e5",
+    "s4e6",
+    "s4e7"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s4"
+  },
+  "s5": {
+   "id": "s5",
+   "name": "Sketch5",
+   "plane": "usbgat",
+   "points": {
+    "origin_s5": {
+     "x": 0,
+     "y": 0
+    },
+    "s5p0": {
+     "x": 84.2,
+     "y": 32.85
+    },
+    "s5p3": {
+     "x": 84.2,
+     "y": 25.15
+    }
+   },
+   "scalars": {
+    "s5s1": 1.1,
+    "s5s4": 1.1
+   },
+   "entities": {
+    "s5e2": {
+     "id": "s5e2",
+     "construction": false,
+     "kind": "circle",
+     "center": "s5p0",
+     "r": "s5s1"
+    },
+    "s5e5": {
+     "id": "s5e5",
+     "construction": false,
+     "kind": "circle",
+     "center": "s5p3",
+     "r": "s5s4"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s5e2",
+    "s5e5"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s5"
+  },
+  "s6": {
+   "id": "s6",
+   "name": "Sketch6",
+   "plane": "usbpads",
+   "points": {
+    "origin_s6": {
+     "x": 0,
+     "y": 0
+    },
+    "s6p0": {
+     "x": 88.7,
+     "y": 32.21
+    },
+    "s6p1": {
+     "x": 90.7,
+     "y": 32.21
+    },
+    "s6p2": {
+     "x": 90.7,
+     "y": 33.41
+    },
+    "s6p3": {
+     "x": 88.7,
+     "y": 33.41
+    },
+    "s6p8": {
+     "x": 88.7,
+     "y": 29.67
+    },
+    "s6p9": {
+     "x": 90.7,
+     "y": 29.67
+    },
+    "s6p10": {
+     "x": 90.7,
+     "y": 30.87
+    },
+    "s6p11": {
+     "x": 88.7,
+     "y": 30.87
+    },
+    "s6p16": {
+     "x": 88.7,
+     "y": 27.13
+    },
+    "s6p17": {
+     "x": 90.7,
+     "y": 27.13
+    },
+    "s6p18": {
+     "x": 90.7,
+     "y": 28.33
+    },
+    "s6p19": {
+     "x": 88.7,
+     "y": 28.33
+    },
+    "s6p24": {
+     "x": 88.7,
+     "y": 24.59
+    },
+    "s6p25": {
+     "x": 90.7,
+     "y": 24.59
+    },
+    "s6p26": {
+     "x": 90.7,
+     "y": 25.79
+    },
+    "s6p27": {
+     "x": 88.7,
+     "y": 25.79
+    }
+   },
+   "scalars": {},
+   "entities": {
+    "s6e4": {
+     "id": "s6e4",
+     "construction": false,
+     "kind": "line",
+     "p1": "s6p0",
+     "p2": "s6p1"
+    },
+    "s6e5": {
+     "id": "s6e5",
+     "construction": false,
+     "kind": "line",
+     "p1": "s6p1",
+     "p2": "s6p2"
+    },
+    "s6e6": {
+     "id": "s6e6",
+     "construction": false,
+     "kind": "line",
+     "p1": "s6p2",
+     "p2": "s6p3"
+    },
+    "s6e7": {
+     "id": "s6e7",
+     "construction": false,
+     "kind": "line",
+     "p1": "s6p3",
+     "p2": "s6p0"
+    },
+    "s6e12": {
+     "id": "s6e12",
+     "construction": false,
+     "kind": "line",
+     "p1": "s6p8",
+     "p2": "s6p9"
+    },
+    "s6e13": {
+     "id": "s6e13",
+     "construction": false,
+     "kind": "line",
+     "p1": "s6p9",
+     "p2": "s6p10"
+    },
+    "s6e14": {
+     "id": "s6e14",
+     "construction": false,
+     "kind": "line",
+     "p1": "s6p10",
+     "p2": "s6p11"
+    },
+    "s6e15": {
+     "id": "s6e15",
+     "construction": false,
+     "kind": "line",
+     "p1": "s6p11",
+     "p2": "s6p8"
+    },
+    "s6e20": {
+     "id": "s6e20",
+     "construction": false,
+     "kind": "line",
+     "p1": "s6p16",
+     "p2": "s6p17"
+    },
+    "s6e21": {
+     "id": "s6e21",
+     "construction": false,
+     "kind": "line",
+     "p1": "s6p17",
+     "p2": "s6p18"
+    },
+    "s6e22": {
+     "id": "s6e22",
+     "construction": false,
+     "kind": "line",
+     "p1": "s6p18",
+     "p2": "s6p19"
+    },
+    "s6e23": {
+     "id": "s6e23",
+     "construction": false,
+     "kind": "line",
+     "p1": "s6p19",
+     "p2": "s6p16"
+    },
+    "s6e28": {
+     "id": "s6e28",
+     "construction": false,
+     "kind": "line",
+     "p1": "s6p24",
+     "p2": "s6p25"
+    },
+    "s6e29": {
+     "id": "s6e29",
+     "construction": false,
+     "kind": "line",
+     "p1": "s6p25",
+     "p2": "s6p26"
+    },
+    "s6e30": {
+     "id": "s6e30",
+     "construction": false,
+     "kind": "line",
+     "p1": "s6p26",
+     "p2": "s6p27"
+    },
+    "s6e31": {
+     "id": "s6e31",
+     "construction": false,
+     "kind": "line",
+     "p1": "s6p27",
+     "p2": "s6p24"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s6e4",
+    "s6e5",
+    "s6e6",
+    "s6e7",
+    "s6e12",
+    "s6e13",
+    "s6e14",
+    "s6e15",
+    "s6e20",
+    "s6e21",
+    "s6e22",
+    "s6e23",
+    "s6e28",
+    "s6e29",
+    "s6e30",
+    "s6e31"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s6"
   }
  },
  "features": [
@@ -371,16 +844,16 @@
   {
    "id": "f4",
    "type": "extrude",
-   "name": "USB-C",
+   "name": "USB-C busb",
    "sketchId": "s2",
    "suppressed": false,
    "op": "boss",
    "end": "blind",
-   "depth": 3.3,
+   "depth": 3.26,
    "reverse": false,
    "direction2": {
     "end": "blind",
-    "depth": 0.1
+    "depth": 0.05
    }
   },
   {
@@ -393,13 +866,75 @@
   {
    "id": "f6",
    "type": "extrude",
-   "name": "Gaten M2",
+   "name": "Mond busb",
    "sketchId": "s3",
+   "suppressed": false,
+   "op": "cut",
+   "end": "blind",
+   "depth": 6,
+   "reverse": true
+  },
+  {
+   "id": "ks4",
+   "type": "sketch",
+   "name": "Sketch4",
+   "sketchId": "s4",
+   "suppressed": false
+  },
+  {
+   "id": "f8",
+   "type": "extrude",
+   "name": "Tong busb",
+   "sketchId": "s4",
+   "suppressed": false,
+   "op": "boss",
+   "end": "blind",
+   "depth": 5.4,
+   "reverse": true,
+   "direction2": {
+    "end": "blind",
+    "depth": 0.2
+   }
+  },
+  {
+   "id": "ks5",
+   "type": "sketch",
+   "name": "Sketch5",
+   "sketchId": "s5",
+   "suppressed": false
+  },
+  {
+   "id": "f10",
+   "type": "extrude",
+   "name": "Gaten M2",
+   "sketchId": "s5",
    "suppressed": false,
    "op": "cut",
    "end": "blind",
    "depth": 2,
    "reverse": true
+  },
+  {
+   "id": "ks6",
+   "type": "sketch",
+   "name": "Sketch6",
+   "sketchId": "s6",
+   "suppressed": false
+  },
+  {
+   "id": "f12",
+   "type": "extrude",
+   "name": "Soldeereilanden",
+   "sketchId": "s6",
+   "suppressed": false,
+   "op": "boss",
+   "end": "blind",
+   "depth": 0.1,
+   "reverse": false,
+   "direction2": {
+    "end": "blind",
+    "depth": 0.05
+   }
   }
  ],
  "material": {

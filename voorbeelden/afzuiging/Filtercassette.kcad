@@ -59,7 +59,7 @@
    "name": "Face bodem",
    "origin": [
     0,
-    -35,
+    -20,
     0
    ],
    "u": [
@@ -3019,7 +3019,7 @@
    "suppressed": false,
    "op": "boss",
    "end": "blind",
-   "depth": 37,
+   "depth": 22,
    "reverse": true
   },
   {
@@ -3037,7 +3037,7 @@
    "suppressed": false,
    "op": "cut",
    "end": "blind",
-   "depth": 35,
+   "depth": 20,
    "reverse": true
   },
   {

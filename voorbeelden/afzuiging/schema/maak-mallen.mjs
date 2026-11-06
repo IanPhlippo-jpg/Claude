@@ -130,12 +130,16 @@ function onderkant() {
   s.push(lijn([a[0], a[1] - 4], [b2[0], b2[1] + 4], 0.6));
   s.push(tekst([ux0 + 8, Y0 - 30], 'uitsparing afzuiging', 2.8), tekst([ux0 + 8, Y0 - 26], '(al gefreesd): wegknippen', 2.8));
   s.push(tekst([ux0 - 1.5, Y0 + U.b / 2 + 6], 'achterrand uitsparing', 2.6, 'end'));
-  // de box: 202 x 92 x 15 diep, R5
+  // de box: 212 x 102 x 15 diep, R5 (maten uit M.box.frees)
   const b0 = P(B.x - F.b / 2, B.z - F.d / 2), b1 = P(B.x + F.b / 2, B.z + F.d / 2);
   s.push(pad(rr(Math.min(b0[0], b1[0]), Math.min(b0[1], b1[1]), Math.max(b0[0], b1[0]), Math.max(b0[1], b1[1]), F.r), 0.6));
   s.push(pad(rr(Math.min(b0[0], b1[0]) + 5, Math.min(b0[1], b1[1]) + 5, Math.max(b0[0], b1[0]) - 5, Math.max(b0[1], b1[1]) - 5, Math.max(F.r - 5, 0.01)), 0.18, 'stroke-dasharray="2 1.5"'));
   const bc = P(B.x, B.z);
   s.push(tekst([bc[0], bc[1] - 6], 'voedingsbox', 3.2, 'middle', 'font-weight="bold"'), tekst([bc[0], bc[1] - 1.5], `${F.b} x ${F.d}, R${F.r}`, 2.8, 'middle'), tekst([bc[0], bc[1] + 3], `${F.diep} diep (3 gangen)`, 2.8, 'middle'));
+  // de 4 gaten Ø8 voor de pluggen voor holle deuren, naast de uitsparing (onder de rand van de box)
+  const gx = B.plug.x, gz = B.plug.z;
+  [[1, 1], [1, -1], [-1, 1], [-1, -1]].forEach(([kx, kz]) => { const c = P(B.x + kx * gx, B.z + kz * gz); s.push(cirkel(c, B.plug.gat / 2, 0.4), kruis(c, 3)); });
+  s.push(tekst([bc[0], bc[1] + 8], `4 gaten Ø${B.plug.gat} x ${B.plug.diep} voor en achter de uitsparing (pluggen voor holle deuren)`, 2.6, 'middle'));
   // sleuf naar de afzuiging: 29 breed, 7 diep, van de box tot in de uitsparing
   const m0 = P(K.module.x[0], B.z + F.d / 2), m1 = P(K.module.x[1], -U.d / 2);
   s.push(pad(`M${m0[0]},${m0[1]} H${m1[0]} M${m0[0]},${m1[1]} H${m1[0]}`, 0.6));

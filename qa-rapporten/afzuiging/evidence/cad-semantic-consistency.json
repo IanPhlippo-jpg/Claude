@@ -1,0 +1,8 @@
+{
+  "components": 77,
+  "standalone_semantic_mismatches": [
+    "Adapterklem<2>"
+  ],
+  "mates": 0,
+  "explanation": "Adapterklem<2> heeft doelbewust 55 mm verschoven lokale schetspunten (generator adapterklem(i)); geen bewezen mismatch na normalisatie op eigen oorsprong."
+}

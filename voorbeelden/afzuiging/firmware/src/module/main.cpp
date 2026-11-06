@@ -1,12 +1,10 @@
 // Afzuiging Lush Beauty, module: een ESP32-C3 SuperMini in de voedingsbox onder het blad stuurt de radiale
-// ventilator in de afzuiging (San Ace C175 9TG24P0S01, 24 V, 56 W, PWM 25 kHz: 0 % = stil) en bewaakt de filters
-// met een verschildrukmeter (Sensirion SDP810-500Pa, een slangetje naar de ruimte onder de filters). De knop in het
+// ventilator in de afzuiging (San Ace C175 9TG24P0S01, 24 V, 56 W, PWM 25 kHz: 0 % = stil) en bewaakt het filter
+// met een verschildrukmeter (Sensirion SDP810-500Pa, een slangetje naar de ruimte onder het filter). De knop in het
 // blad stuurt de opdrachten draadloos (ESP-NOW, zie protocol.h) en toont de status die de module terugstuurt.
 //
-// Filterbewaking: bij het ijken (op schone filters, gevraagd vanaf de knop) loopt de ventilator 20 -> 100 % en onthoudt
-// de module het drukverschil bij elke snelheid. Is het drukverschil bij dezelfde snelheid verdubbeld, dan zijn de
-// filters vol; valt het weg terwijl de ventilator hoort te draaien, dan is er een storing (slang of filters weg);
-// geeft de tacho geen toeren, dan draait de ventilator niet (kabel, stekker).
+// Alle beslissingen (aan/uit, boost, ijken, meetgeldigheid, storingen) zitten in regel.h en zijn op de pc getest
+// (test/test_regel). Dit bestand doet alleen de hardware: PWM, tacho, I2C, ESP-NOW en het NVS.
 //
 // Aansluiting (zie ../../schema/Aansluitschema-afzuiging.pdf):
 //   GPIO5 SDA, GPIO6 SCL -> SDP810 (adres 0x25, 3,3 V uit de 3V3-pin, pull-ups 4,7 kOhm naar 3,3 V)
@@ -24,6 +22,7 @@
 #include <esp_wifi.h>
 
 #include "protocol.h"
+#include "regel.h"
 
 namespace {
 
@@ -33,40 +32,26 @@ constexpr int PIN_SDA = 5, PIN_SCL = 6;
 constexpr int PIN_PWM = 3;
 constexpr int PIN_TACHO = 4;
 constexpr int PULSEN_PER_OMW = 2;
-constexpr uint16_t MIN_TOEREN = 300;    // lager terwijl hij hoort te draaien = de ventilator draait niet
 constexpr int PWM_KANAAL = 0;
 constexpr int PWM_FREQ = 25000; // Intel-specificatie voor 4-draads ventilatoren
 constexpr int PWM_BITS = 8;
-
 constexpr uint8_t SDP_ADRES = 0x25;
-constexpr float SDP_SCHAAL = 60.0f;     // SDP810-500Pa: 60 per Pa (de meter stuurt de factor ook mee)
-constexpr int IJK_PUNTEN = 5;           // 20, 40, 60, 80, 100 %
-constexpr uint32_t IJK_STAP_MS = 8000;  // per punt: 6 s stabiliseren, 2 s meten
-constexpr float VOL_FACTOR = 2.0f;      // drukverschil verdubbeld = filter vol
-constexpr float STORING_FACTOR = 0.25f; // minder dan een kwart van schoon = ventilator of slang stuk
-constexpr uint32_t STABIEL_MS = 6000;   // na een snelheidswijziging eerst 6 s wachten
-
-Preferences prefs;
+constexpr float SDP_SCHAAL = 60.0f; // SDP810-500Pa: 60 per Pa (de meter stuurt de factor ook mee)
+// gemeenschappelijke hoofdsleutel van ESP-NOW (PMK); de sleutel per set (LMK) komt van de knop bij het koppelen
+const uint8_t PMK[16] = {'L', 'u', 's', 'h', 'B', 'e', 'a', 'u', 't', 'y', '-', 'A', 'F', 'Z', 'v', '2'};
 const uint8_t IEDEREEN[6] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 
-// de laatste opdracht van de knop (geschreven in de ontvangst-callback)
-volatile bool nieuweOpdracht = false;
-Opdracht ontvangen;
+Preferences prefs;
+Regelaar regel;
+Koppeling koppeling;
+
+// ontvangen in de callback, verwerkt in loop()
 portMUX_TYPE slot = portMUX_INITIALIZER_UNLOCKED;
-
-Opdracht opdracht; // in gebruik
-Status status;
-float dp = NAN;
-float schoon[IJK_PUNTEN] = {0};
-uint32_t snelheidSinds = 0;
-int vorigDoel = -1;
-bool geenLucht = false, stil = false; // de twee soorten storing, apart bijgehouden
-
-// ijken (zonder te blokkeren)
-int ijkStap = 0; // 0 = niet aan het ijken
-uint32_t ijkStart = 0;
-float ijkSom = 0;
-int ijkN = 0;
+volatile bool nieuweOpdracht = false, nieuweKoppeling = false;
+Opdracht ontvangen;
+uint8_t ontvangenVan[6];
+Koppel koppelVraag;
+uint8_t koppelVan[6];
 
 volatile uint32_t tachoPulsen = 0;
 void IRAM_ATTR tachoIsr() { tachoPulsen++; }
@@ -106,70 +91,40 @@ bool sdpLees(float &pa) {
   return true;
 }
 
-/** drukverschil van schone filters bij deze snelheid (lineair tussen de ijkpunten) */
-float schoonBij(int pct) {
-  const float p = constrain((pct - 20) / 20.0f, 0.0f, (float)(IJK_PUNTEN - 1));
-  const int i = min((int)p, IJK_PUNTEN - 2);
-  return schoon[i] + (schoon[i + 1] - schoon[i]) * (p - i);
-}
-
 // ---- ESP-NOW ----
 
-void bijOntvangst(const uint8_t *, const uint8_t *data, int len) {
-  if (len != (int)sizeof(Opdracht)) return;
-  Opdracht o;
-  memcpy(&o, data, sizeof o);
-  if (o.magie != MAGIE || o.soort != SOORT_OPDRACHT) return;
-  portENTER_CRITICAL(&slot);
-  ontvangen = o;
-  nieuweOpdracht = true;
-  portEXIT_CRITICAL(&slot);
-}
-
-void stuurStatus() {
-  status.dp = dp;
-  status.ijken = ijkStap;
-  status.ijkVoortgang = ijkStap ? (uint8_t)min<uint32_t>(100, ((ijkStap - 1) * IJK_STAP_MS + millis() - ijkStart) * 100 / (IJK_PUNTEN * IJK_STAP_MS)) : 0;
-  esp_now_send(IEDEREEN, (const uint8_t *)&status, sizeof status);
-}
-
-void startIjken() {
-  if (!status.meter) return;
-  ijkStap = 1;
-  ijkStart = millis();
-  ijkSom = 0;
-  ijkN = 0;
-}
-
-/** één stap van het ijken: per punt 6 s stabiliseren en 2 s meten, daarna het volgende punt */
-void ijkVerder(uint32_t nu, bool gemeten, float pa) {
-  const int pct = 20 + 20 * (ijkStap - 1);
-  zetPwm(pct);
-  if (gemeten && nu - ijkStart > 6000) {
-    ijkSom += pa;
-    ijkN++;
+void bijOntvangst(const uint8_t *mac, const uint8_t *data, int len) {
+  if (len == (int)sizeof(Opdracht)) {
+    portENTER_CRITICAL(&slot);
+    memcpy(&ontvangen, data, sizeof ontvangen);
+    memcpy(ontvangenVan, mac, 6);
+    nieuweOpdracht = true;
+    portEXIT_CRITICAL(&slot);
+  } else if (len == (int)sizeof(Koppel)) {
+    Koppel k;
+    memcpy(&k, data, sizeof k);
+    if (k.magie != MAGIE || k.versie != VERSIE || k.soort != SOORT_KOPPEL) return;
+    portENTER_CRITICAL(&slot);
+    koppelVraag = k;
+    memcpy(koppelVan, mac, 6);
+    nieuweKoppeling = true;
+    portEXIT_CRITICAL(&slot);
   }
-  if (nu - ijkStart < IJK_STAP_MS) return;
-  schoon[ijkStap - 1] = ijkN ? ijkSom / ijkN : 0;
-  ijkSom = 0;
-  ijkN = 0;
-  ijkStart = nu;
-  if (++ijkStap <= IJK_PUNTEN) return;
-  // klaar: stijgend en niet nul (een te kleine waarde zou elke meting 'vol' maken)
-  for (int i = 0; i < IJK_PUNTEN; i++) schoon[i] = max(schoon[i], i ? schoon[i - 1] : 1.0f);
-  prefs.putBytes("schoon", schoon, sizeof schoon);
-  prefs.putBool("geijkt", true);
-  status.geijkt = 1;
-  status.vol = 0;
-  ijkStap = 0;
-  snelheidSinds = nu;
-  vorigDoel = -1;
+}
+
+void voegKnopToe() {
+  esp_now_del_peer(koppeling.mac);
+  esp_now_peer_info_t peer = {};
+  memcpy(peer.peer_addr, koppeling.mac, 6);
+  peer.channel = KANAAL;
+  peer.encrypt = true;
+  memcpy(peer.lmk, koppeling.sleutel, 16);
+  esp_now_add_peer(&peer);
 }
 
 } // namespace
 
 void setup() {
-  // eerst de ventilator uit houden (de gate-weerstand doet dat al tot hier), dan de PWM
   // eerst de ventilator stil houden (de basisweerstand van Q1 doet dat al tot hier), dan de PWM
   pinMode(PIN_TACHO, INPUT_PULLUP);
   attachInterrupt(PIN_TACHO, tachoIsr, FALLING);
@@ -179,90 +134,101 @@ void setup() {
   Serial.begin(115200);
 
   Wire.begin(PIN_SDA, PIN_SCL, 100000);
-  status.meter = sdpStart();
-  status.dp = NAN;
-  status.vol = NAN;
+  if (sdpStart()) regel.meterHersteld();
 
   prefs.begin("afzuiging", false);
-  status.geijkt = prefs.getBool("geijkt", false) && prefs.getBytes("schoon", schoon, sizeof schoon) == sizeof schoon;
-  opdracht.aan = 0; // tot de knop iets zegt
+  float w[5];
+  if (prefs.getBytes("schoon", w, sizeof w) == sizeof w) regel.laadIjking(w, 5); // alleen geldige waarden worden geladen
+  uint8_t m[6], k[16];
+  if (prefs.getBytes("knopmac", m, 6) == 6 && prefs.getBytes("knopsleutel", k, 16) == 16) koppeling.laad(m, k);
 
   WiFi.mode(WIFI_STA);
   esp_wifi_set_channel(KANAAL, WIFI_SECOND_CHAN_NONE);
   if (esp_now_init() != ESP_OK) Serial.println("ESP-NOW start niet");
+  esp_now_set_pmk(PMK);
   esp_now_peer_info_t peer = {};
-  memcpy(peer.peer_addr, IEDEREEN, 6);
+  memcpy(peer.peer_addr, IEDEREEN, 6); // alleen voor KOPPEL_OK in het koppelvenster
   peer.channel = KANAAL;
-  peer.encrypt = false;
   esp_now_add_peer(&peer);
+  if (koppeling.gekoppeld) voegKnopToe();
   esp_now_register_recv_cb(bijOntvangst);
-  snelheidSinds = millis();
 }
 
 void loop() {
   const uint32_t nu = millis();
 
+  // koppelen (alleen in de eerste 60 s na het aanzetten van de box)
+  if (nieuweKoppeling) {
+    portENTER_CRITICAL(&slot);
+    const Koppel k = koppelVraag;
+    uint8_t van[6];
+    memcpy(van, koppelVan, 6);
+    nieuweKoppeling = false;
+    portEXIT_CRITICAL(&slot);
+    if (koppeling.vraag(van, k, nu)) {
+      prefs.putBytes("knopmac", koppeling.mac, 6);
+      prefs.putBytes("knopsleutel", koppeling.sleutel, 16);
+      voegKnopToe();
+      Koppel ok;
+      ok.soort = SOORT_KOPPEL_OK;
+      esp_now_send(IEDEREEN, (const uint8_t *)&ok, sizeof ok);
+      Serial.println("knop gekoppeld");
+    }
+  }
+
+  // opdrachten: alleen van de gekoppelde knop, met een stijgend volgnummer
   if (nieuweOpdracht) {
     portENTER_CRITICAL(&slot);
     const Opdracht o = ontvangen;
+    uint8_t van[6];
+    memcpy(van, ontvangenVan, 6);
     nieuweOpdracht = false;
     portEXIT_CRITICAL(&slot);
-    // een nieuwe ijkvraag binnen dezelfde sessie van de knop: ijken (een herstart van de knop telt niet)
-    if (o.sessie == opdracht.sessie && o.ijk != opdracht.ijk) startIjken();
-    opdracht = o;
+    if (koppeling.aanvaard(van, o)) regel.opdracht(o, nu);
   }
 
-  // drukverschil over de filters, 4 keer per seconde, laagdoorlaatfilter
-  static uint32_t vorigeMeting = 0;
-  bool gemeten = false;
-  float pa = 0;
+  // drukverschil 4 keer per seconde; een weggevallen meter elke seconde opnieuw starten
+  static uint32_t vorigeMeting = 0, vorigeHerstart = 0;
   if (nu - vorigeMeting >= 250) {
     vorigeMeting = nu;
-    if (status.meter && sdpLees(pa)) {
-      gemeten = true;
-      dp = isnan(dp) ? pa : dp + 0.15f * (pa - dp);
-    } else if (!status.meter) {
-      status.meter = sdpStart();
+    float pa = NAN;
+    const bool ok = sdpLees(pa);
+    regel.meting(ok, pa, nu);
+    if (!regel.meter && nu - vorigeHerstart >= 1000) {
+      vorigeHerstart = nu;
+      if (sdpStart()) regel.meterHersteld();
     }
   }
 
-  if (ijkStap) {
-    ijkVerder(nu, gemeten, pa);
-  } else {
-    const int doel = opdracht.aan ? constrain((int)opdracht.pct, 20, 100) : 0;
-    if (doel != vorigDoel) {
-      snelheidSinds = nu; // na een wijziging eerst stabiliseren
-      vorigDoel = doel;
-    }
-    zetPwm(doel);
-    const bool stabiel = doel >= 30 && nu - snelheidSinds > STABIEL_MS;
-    if (gemeten && status.geijkt && status.meter && stabiel && !isnan(dp)) {
-      const float ref = schoonBij(doel);
-      status.vol = constrain((dp / ref - 1.0f) / (VOL_FACTOR - 1.0f), 0.0f, 1.2f);
-      geenLucht = dp < ref * STORING_FACTOR;
-    }
-    // het toerental (elke seconde) en of de ventilator draait als hij moet
-    static uint32_t vorigeTacho = 0, pulsenVorig = 0;
-    if (nu - vorigeTacho >= 1000) {
-      const uint32_t p = tachoPulsen;
-      status.toeren = (uint16_t)((p - pulsenVorig) * 60000UL / ((nu - vorigeTacho) * PULSEN_PER_OMW));
-      pulsenVorig = p;
-      vorigeTacho = nu;
-      stil = doel >= 30 && nu - snelheidSinds > 5000 && status.toeren < MIN_TOEREN;
-    }
-    status.storing = !opdracht.aan ? 0 : stil ? 2 : geenLucht ? 1 : 0;
+  // toerental elke seconde
+  static uint32_t vorigeTacho = 0, pulsenVorig = 0;
+  if (nu - vorigeTacho >= 1000) {
+    const uint32_t p = tachoPulsen;
+    regel.tacho((uint16_t)((p - pulsenVorig) * 60000UL / ((nu - vorigeTacho) * PULSEN_PER_OMW)));
+    pulsenVorig = p;
+    vorigeTacho = nu;
+  }
+
+  zetPwm(regel.stap(nu));
+
+  if (regel.nieuweIjking) {
+    prefs.putBytes("schoon", regel.ijking(), 5 * sizeof(float));
+    regel.nieuweIjking = false;
   }
 
   static uint32_t vorigeStatus = 0;
-  if (nu - vorigeStatus >= 250) {
+  if (koppeling.gekoppeld && nu - vorigeStatus >= 250) {
     vorigeStatus = nu;
-    stuurStatus();
+    Status s;
+    regel.vulStatus(s, nu);
+    esp_now_send(koppeling.mac, (const uint8_t *)&s, sizeof s);
   }
 
   static uint32_t vorigLog = 0;
   if (nu - vorigLog >= 1000) {
     vorigLog = nu;
-    Serial.printf("aan=%d pct=%d toeren=%u dp=%.1f vol=%.2f storing=%d geijkt=%d ijken=%d\n", opdracht.aan, opdracht.pct, status.toeren, dp, status.vol, status.storing, status.geijkt, ijkStap);
+    Serial.printf("aan=%d pct=%d gegeven=%d toeren=%u dp=%.1f vers=%d vol=%.2f storing=%d geijkt=%d ijken=%d fout=%d\n", regel.aan, regel.pct,
+                  regel.gegeven, regel.toeren, regel.dp, regel.meetVers(nu), regel.vol, regel.storing, regel.geijkt, regel.ijkStap, regel.ijkFout);
   }
   delay(5);
 }

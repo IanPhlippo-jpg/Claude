@@ -1,0 +1,254 @@
+[
+  {
+    "file": "print/Bodemplaat.stl",
+    "boundary_edges": 19435,
+    "nonmanifold_edges": 1522,
+    "degenerate_faces": 1922,
+    "merge_tests": [
+      {
+        "merge_decimals": 6,
+        "watertight": false,
+        "winding": false
+      },
+      {
+        "merge_decimals": 5,
+        "watertight": false,
+        "winding": false
+      },
+      {
+        "merge_decimals": 4,
+        "watertight": false,
+        "winding": false
+      },
+      {
+        "merge_decimals": 3,
+        "watertight": false,
+        "winding": false
+      }
+    ]
+  },
+  {
+    "file": "print/Bovenframe.stl",
+    "boundary_edges": 11413,
+    "nonmanifold_edges": 72,
+    "degenerate_faces": 107,
+    "merge_tests": [
+      {
+        "merge_decimals": 6,
+        "watertight": false,
+        "winding": false
+      },
+      {
+        "merge_decimals": 5,
+        "watertight": false,
+        "winding": false
+      },
+      {
+        "merge_decimals": 4,
+        "watertight": false,
+        "winding": false
+      },
+      {
+        "merge_decimals": 3,
+        "watertight": false,
+        "winding": false
+      }
+    ]
+  },
+  {
+    "file": "print/Cassetterand.stl",
+    "boundary_edges": 0,
+    "nonmanifold_edges": 0,
+    "degenerate_faces": 0,
+    "merge_tests": [
+      {
+        "merge_decimals": 6,
+        "watertight": true,
+        "winding": true
+      },
+      {
+        "merge_decimals": 5,
+        "watertight": true,
+        "winding": true
+      },
+      {
+        "merge_decimals": 4,
+        "watertight": true,
+        "winding": true
+      },
+      {
+        "merge_decimals": 3,
+        "watertight": true,
+        "winding": true
+      }
+    ]
+  },
+  {
+    "file": "print/Filtercassette.stl",
+    "boundary_edges": 0,
+    "nonmanifold_edges": 0,
+    "degenerate_faces": 0,
+    "merge_tests": [
+      {
+        "merge_decimals": 6,
+        "watertight": true,
+        "winding": true
+      },
+      {
+        "merge_decimals": 5,
+        "watertight": true,
+        "winding": true
+      },
+      {
+        "merge_decimals": 4,
+        "watertight": true,
+        "winding": true
+      },
+      {
+        "merge_decimals": 3,
+        "watertight": true,
+        "winding": true
+      }
+    ]
+  },
+  {
+    "file": "print/Instroomplaat.stl",
+    "boundary_edges": 0,
+    "nonmanifold_edges": 0,
+    "degenerate_faces": 0,
+    "merge_tests": [
+      {
+        "merge_decimals": 6,
+        "watertight": true,
+        "winding": true
+      },
+      {
+        "merge_decimals": 5,
+        "watertight": true,
+        "winding": true
+      },
+      {
+        "merge_decimals": 4,
+        "watertight": true,
+        "winding": true
+      },
+      {
+        "merge_decimals": 3,
+        "watertight": true,
+        "winding": true
+      }
+    ]
+  },
+  {
+    "file": "print/Knopdeksel.stl",
+    "boundary_edges": 3123,
+    "nonmanifold_edges": 116,
+    "degenerate_faces": 132,
+    "merge_tests": [
+      {
+        "merge_decimals": 6,
+        "watertight": false,
+        "winding": true
+      },
+      {
+        "merge_decimals": 5,
+        "watertight": false,
+        "winding": true
+      },
+      {
+        "merge_decimals": 4,
+        "watertight": false,
+        "winding": true
+      },
+      {
+        "merge_decimals": 3,
+        "watertight": false,
+        "winding": true
+      }
+    ]
+  },
+  {
+    "file": "print/Knophouder.stl",
+    "boundary_edges": 5139,
+    "nonmanifold_edges": 225,
+    "degenerate_faces": 251,
+    "merge_tests": [
+      {
+        "merge_decimals": 6,
+        "watertight": false,
+        "winding": false
+      },
+      {
+        "merge_decimals": 5,
+        "watertight": false,
+        "winding": false
+      },
+      {
+        "merge_decimals": 4,
+        "watertight": false,
+        "winding": false
+      },
+      {
+        "merge_decimals": 3,
+        "watertight": false,
+        "winding": false
+      }
+    ]
+  },
+  {
+    "file": "print/Romp.stl",
+    "boundary_edges": 0,
+    "nonmanifold_edges": 0,
+    "degenerate_faces": 0,
+    "merge_tests": [
+      {
+        "merge_decimals": 6,
+        "watertight": true,
+        "winding": true
+      },
+      {
+        "merge_decimals": 5,
+        "watertight": true,
+        "winding": true
+      },
+      {
+        "merge_decimals": 4,
+        "watertight": true,
+        "winding": true
+      },
+      {
+        "merge_decimals": 3,
+        "watertight": true,
+        "winding": true
+      }
+    ]
+  },
+  {
+    "file": "print/Voedingsbox.stl",
+    "boundary_edges": 0,
+    "nonmanifold_edges": 0,
+    "degenerate_faces": 0,
+    "merge_tests": [
+      {
+        "merge_decimals": 6,
+        "watertight": true,
+        "winding": true
+      },
+      {
+        "merge_decimals": 5,
+        "watertight": true,
+        "winding": true
+      },
+      {
+        "merge_decimals": 4,
+        "watertight": true,
+        "winding": true
+      },
+      {
+        "merge_decimals": 3,
+        "watertight": true,
+        "winding": true
+      }
+    ]
+  }
+]

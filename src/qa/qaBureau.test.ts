@@ -25,10 +25,11 @@ const KAST = 360 * 564 * 700 - 328 * 668 * 556 + 10 * 14 * 10 * 510;
 const LADE = 296 * 100 * 522 + (356 * 136 * 16 - 296 * 100 * 2) - 280 * 510 * 92 + 2 * (16 * 10 * 492 - 2 * 10 * 492 - 16 * 10 * 2 + 2 * 10 * 2);
 const VERWACHT = {
   // min de uitsparingen voor de afzuiging (212 x 212, hoeken R6) en de knop (gatzaag Ø44); onderaan de uitsparing voor de
-  // voedingsbox (202 x 92 x 15, R5), de sleuf naar de module (29 x 7 over 43 mm) en die naar de knop (5 x 5, schuin)
+  // voedingsbox (212 x 102 x 15, R5) met 4 gaten Ø8 x 28 voor de pluggen van de rand, de sleuf naar de
+  // module (29 x 7 over 38 mm) en die naar de knop (5 x 5, schuin)
   'LAGKAPTEN-tafelblad.kcad': {
-    volume: (1400 * 600 - (212 * 212 - (4 - Math.PI) * 36) - Math.PI * 22 * 22) * 34 - (202 * 92 - (4 - Math.PI) * 25) * 15 - 29 * 43 * 7
-      - 25 * (Math.hypot(151, 425) * (1 - 2 / 151) - 22),
+    volume: (1400 * 600 - (212 * 212 - (4 - Math.PI) * 36) - Math.PI * 22 * 22) * 34 - (212 * 102 - (4 - Math.PI) * 25) * 15 - 4 * Math.PI * 16 * 28
+      - 29 * 38 * 7 - 25 * (Math.hypot(146, 425) * (1 - 2 / 146) - 22),
     min: [-700, 0, -300], max: [700, 34, 300],
   },
   'ALEX-ladekast.kcad': { volume: KAST, min: [-180, 0, -290], max: [180, 700, 274] },

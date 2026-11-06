@@ -1,0 +1,294 @@
+{
+  "version": "1",
+  "time_zone": "Europe/Brussels",
+  "snapshot_copied": "2026-11-06 23:07 CET",
+  "scope": "102 bronbestanden, read-only snapshot; .pio en externe libraries uitgesloten",
+  "overall_score": 4.3,
+  "verdict": "NIET VRIJGEGEVEN VOOR PRODUCTIE OF SALONGEBRUIK",
+  "counts": {
+    "Kritiek": 1,
+    "Major": 17,
+    "Minor": 5,
+    "Info": 2
+  },
+  "scores": [
+    {
+      "area": "CAD-opzet en nominale maatvoering",
+      "score": 6.5,
+      "weight_percent": 15
+    },
+    {
+      "area": "Productie-export en revisieconsistentie",
+      "score": 2,
+      "weight_percent": 15
+    },
+    {
+      "area": "Luchttechniek en geluid",
+      "score": 4,
+      "weight_percent": 20
+    },
+    {
+      "area": "Fijnstoffiltratie en blootstellingsbeheersing",
+      "score": 2,
+      "weight_percent": 15
+    },
+    {
+      "area": "Elektrisch en thermisch ontwerp",
+      "score": 6,
+      "weight_percent": 10
+    },
+    {
+      "area": "Firmware en foutgedrag",
+      "score": 6,
+      "weight_percent": 10
+    },
+    {
+      "area": "Ergonomie",
+      "score": 6,
+      "weight_percent": 5
+    },
+    {
+      "area": "Onderhoud en reinigbaarheid",
+      "score": 4,
+      "weight_percent": 5
+    },
+    {
+      "area": "Documentatie en reproduceerbaarheid",
+      "score": 4,
+      "weight_percent": 5
+    }
+  ],
+  "findings": [
+    {
+      "id": "AFZ-01",
+      "severity": "Kritiek",
+      "title": "Gezondheidsbescherming door één M5-mat is niet aangetoond",
+      "status": "Ontbrekend veiligheidsbewijs; M5-keuze vastgesteld",
+      "impact": "De lucht wordt naar de werkruimte teruggeblazen. M5 is geen HEPA; zonder fijnstofefficiëntie en systeemlektest is niet bewezen dat schadelijke fijne nagelstof wordt tegengehouden. Een hoge volumestroom lost dit niet op.",
+      "evidence": "README.md:5,17,21,80,252; maak-afzuiging.mjs:51-54. Geen filterspecifiek certificaat of emissiemeting in de 102 bestanden.",
+      "fix": "Kies een exact, getest filter met gedocumenteerde efficiëntie voor de relevante deeltjes, bij voorkeur een passend gecertificeerd HEPA-concept (bijvoorbeeld H13), met afdichting en voldoende plooivlak. Herbereken het werkpunt. Laat recirculatie/bronvangst en blootstelling deskundig valideren; alternatief: geschikte afvoer naar buiten. Tot die tijd geen salongebruik."
+    },
+    {
+      "id": "AFZ-02",
+      "severity": "Major",
+      "title": "Productiebestanden en tekeningen zijn niet dezelfde revisie als de CAD",
+      "status": "Vastgesteld",
+      "impact": "Wie de STL en bouwtekeningen volgt, bouwt een andere uitvoering. Onderdelen kunnen niet zonder meer gemengd worden.",
+      "evidence": "Romp.kcad / feature f2: 99 mm, print/Romp.stl: 114 mm; Filtercassette.kcad / f2: 22 mm, STL: 37 mm; Voedingsbox CAD kuip 210×100, STL totale begrenzing 218×108×50 met oude rand. Werktekeningen PDF/AFZ-01 vermeldt 114; AFZ-04 37; doorsnede vermeldt G4/M5/koolmat en totale breedte 229. stuklijst.csv:6-9,14,20,24 heeft oude filters, stalen klauwen en M3×60; actuele assemblage heeft één M5, PETG-klauwen, M4×65. README.md:151 noemt boxfreesmaat 202×92 maar :178 212×102.",
+      "fix": "Bevries één revisie en regenereer ALLE STL, DXF, SVG, PDF, BOM, freesmallen en README uit die bron. Voeg revisienummer en geometriehash toe; CI moet maatverschillen afvangen. Trek de oude productieset expliciet in."
+    },
+    {
+      "id": "AFZ-03",
+      "severity": "Major",
+      "title": "Vier van de negen STL zijn geen gesloten consistente solids",
+      "status": "Vastgesteld",
+      "impact": "De aangeleverde bestanden zijn niet betrouwbaar printklaar. Automatisch herstellen door een slicer kan gaten/kanalen wijzigen.",
+      "evidence": "print/Bodemplaat.stl, Bovenframe.stl, Knophouder.stl: niet watertight én inconsistente winding; Knopdeksel.stl: niet watertight. Audit ook na vertexmerge op 0,001 mm nog onvoldoende. mesh-audit.json en mesh-edge-audit.json.",
+      "fix": "Herstel de bron/exportbooleans, exporteer opnieuw en eis per onderdeel gesloten manifold, consistente normals en exact één bedoelde solid. Controleer daarna snijlagen in de echte slicer. Niet stilzwijgend auto-repairen."
+    },
+    {
+      "id": "AFZ-04",
+      "severity": "Major",
+      "title": "Vier voorgeschreven printbestanden ontbreken",
+      "status": "Vastgesteld",
+      "impact": "Het voorgeschreven bouwpakket is niet compleet.",
+      "evidence": "README.md:138,141-143 noemt print/Deksel-voedingsbox.stl, Klauw.stl, Knopklauw.stl en Adapterklem.stl; alle vier ontbreken in bronbewijs-v1.zip. Er zijn wel KCAD-bestanden.",
+      "fix": "Exporteer deze vier typen, aantallen respectievelijk 1/4/2/2, uit de vrijgegeven revisie; valideer maten en sliceroriëntatie."
+    },
+    {
+      "id": "AFZ-05",
+      "severity": "Major",
+      "title": "Cassette-oplegging is niet hetzelfde als bewezen luchtdichtheid",
+      "status": "Vastgesteld",
+      "impact": "Lekkage langs een filter kan fijne stof ongefilterd naar de ventilator en terug de ruimte in sturen. FDM en lijmnaden voegen lekpaden toe.",
+      "evidence": "README.md:32 beweert luchtdicht; maak-afzuiging.mjs:48-49,139-141,247-264 toont een uitneembare rand op een richel, zonder gespecificeerde pakking/compressie of lekdebiet. De genoemde bemonsteringstest is niet meegeleverd als uitvoerbaar testbestand.",
+      "fix": "Ontwerp vervangbare gesloten-cel pakking met gecontroleerde compressie en retentie; dicht lijm-/doorvoernaden. Meet bypass met gemonteerd rooster, schone en beladen filter en na herhaald uitnemen. Een geometrische rastertest bewijst geen luchtdichtheid."
+    },
+    {
+      "id": "AFZ-06",
+      "severity": "Major",
+      "title": "500 m³/h, dagelijks 40–60% en stilte zijn onbewezen systeemprestaties",
+      "status": "Vastgesteld",
+      "impact": "Het echte werkpunt kan fors lager zijn; onvoldoende bronvangst terwijl de gebruiker op de claims vertrouwt.",
+      "evidence": "README.md:39-42. Fanwaarden kloppen als catalogusmaxima, maar geen systeemcurve/filterdrukcurve, meetrapport of akoestische meting. De cataloguswaarden gelden met optionele inlaatnozzle; maak-afzuiging.mjs:310-325 gebruikt een eigen getrapte plaat.",
+      "fix": "Meet Q–Δp op de complete unit, schoon én beladen; leg per PWM de minimale werkstand vast via vangst-/blootstellingsproeven met handen en frees. Meet geluid op oorpositie. Geef gemeten, niet geschatte bedrijfswaarden."
+    },
+    {
+      "id": "AFZ-07",
+      "severity": "Major",
+      "title": "Sensorfout na succesvolle start laat oude meetwaarde geldig staan",
+      "status": "Statische code-trace; geen fysieke foutinjectie",
+      "impact": "Filter-/luchtstroombewaking kan stoppen terwijl de status een werkende meter blijft tonen.",
+      "evidence": "firmware/src/module/main.cpp:181-184,219-226: bij status.meter=true en sdpLees=false wordt meter niet false, dp niet ongeldig en geen fouttijd bijgehouden; :239 vereist gemeten, waardoor alarmberekening stilvalt.",
+      "fix": "Houd laatste geldige meettijd bij; maak waarden ongeldig na timeout, toon sensorstoring, herinitialiseer gecontroleerd en blokkeer ijken met ongeldige data. Voeg disconnect/CRC/NACK/hersteltests toe."
+    },
+    {
+      "id": "AFZ-08",
+      "severity": "Major",
+      "title": "IJking zonder geldige samples wordt toch opgeslagen als geslaagd",
+      "status": "Statische code-trace; geen fysieke foutinjectie",
+      "impact": "Een ongeldige referentie kan een onterechte filtermelding of onbetrouwbare bescherming opleveren.",
+      "evidence": "firmware/src/module/main.cpp:145-164: ijkN=0 geeft 0, vervolgens max met 1 en monotone correctie; geijkt wordt zonder kwaliteitscontrole true. Bij vijf lege stappen wordt de referentie [1,1,1,1,1] Pa.",
+      "fix": "Eis per punt minimum aantal samples, valide sensor/RPM, plausibel positief bereik, herhaalbaarheid en geen clipping; verwerp een foutieve ijking en behoud de vorige geldige referentie."
+    },
+    {
+      "id": "AFZ-09",
+      "severity": "Major",
+      "title": "Uit-opdracht onderbreekt ijkcyclus niet",
+      "status": "Vastgesteld",
+      "impact": "De ventilator blijft tijdens de circa 40 seconden ijking doorlopen/opschakelen ondanks softwarematig uitzetten. De fysieke schakelaar blijft wel een uitschakelmogelijkheid.",
+      "evidence": "firmware/src/module/main.cpp:229-237: zolang ijkStap actief is, wordt ijkVerder uitgevoerd; :145-147 zet PWM op de ijkstap zonder opdracht.aan te controleren.",
+      "fix": "Maak annuleren/stoppen expliciet en prioritair; onderscheid start-ijken van normale uitstand zodat de gewenste gebruikersinteractie ondubbelzinnig is. Test stop op elk ijkpunt."
+    },
+    {
+      "id": "AFZ-10",
+      "severity": "Major",
+      "title": "Bij 20% en 25% ontbreken stilstand- en luchtstroomcontroles",
+      "status": "Vastgesteld",
+      "impact": "Dat zijn toegestane werkstanden, maar een losgekoppelde/stilstaande ventilator of ontbrekende stroming wordt daar niet op dezelfde manier bewaakt.",
+      "evidence": "firmware/src/module/main.cpp:232,238-242,251: doel mag vanaf 20, beide bewakingen vereisen doel>=30.",
+      "fix": "Valideer het bruikbare toerentalbereik, verbied onvoldoende vangststanden en maak alarmdrempels afhankelijk van gemeten RPM/werkpunt in het volledige toegestane bereik."
+    },
+    {
+      "id": "AFZ-11",
+      "severity": "Major",
+      "title": "Iedere gelijksoortige ESP-NOW-zender kan deze module besturen",
+      "status": "Vastgesteld",
+      "impact": "Twee tafels kunnen elkaar beïnvloeden; een vreemd bericht met de bekende magic kan aan/uit, snelheid of ijking beïnvloeden. Magic en sessie zijn geen authenticatie.",
+      "evidence": "firmware/src/module/main.cpp:118-126 negeert afzender-MAC; :193-198 broadcast, encrypt=false. firmware/src/knop/main.cpp:81-89 idem status; protocol.h:12-22 geen apparaat-ID of authenticatie.",
+      "fix": "Koppel uniek knop en module, controleer afzender en apparaat-ID; gebruik passende ESP-NOW-beveiliging, volgnummer/replaybescherming en gevalideerde waarden. Test twee units naast elkaar."
+    },
+    {
+      "id": "AFZ-12",
+      "severity": "Major",
+      "title": "Boost kan na verbindingsverlies onbeperkt op 100% blijven",
+      "status": "Vastgesteld",
+      "impact": "De beloofde twee minuten gelden alleen als de knop de terugschakelopdracht nog verstuurt. Vasthouden van laatste stand is bewust gekozen, maar de module kent geen boosttimer.",
+      "evidence": "protocol.h:5-6,16-23 heeft alleen pct/aan/ijk/sessie; knop/main.cpp:40,95-108 bepaalt de timer; module/main.cpp:205-237 houdt laatste opdracht.",
+      "fix": "Verplaats boost-deadline naar de module of stuur een lease/tijdsduur. Leg expliciet vast welke veilige blijvende zuigstand geldt bij radiostoring; niet blind na timeout de stofvangst uitzetten."
+    },
+    {
+      "id": "AFZ-13",
+      "severity": "Major",
+      "title": "Voorgesteld alternatief 9TG24P0G01 past niet op de 90W-voeding",
+      "status": "Vastgesteld",
+      "impact": "Het alternatief is geen uitwisselbare keuze: 93,6 W / 3,9 A nominaal alleen voor de fan overschrijdt 90 W / 3,75 A, nog zonder de besturing.",
+      "evidence": "README.md:55-56; prijslijst.csv:2; officiële San Ace familiecatalogus: G01 93,6 W/3,9 A versus S01 56,4 W/2,35 A.",
+      "fix": "Schrap het alternatief uit dit ontwerp of kwalificeer voeding, zekering, kabels, connectoren, warmte en werkpunt opnieuw voor die fan. Houd het exacte S01-bestelnummer aan."
+    },
+    {
+      "id": "AFZ-14",
+      "severity": "Major",
+      "title": "Drukmeting en vol-algoritme zijn niet over het hele bereik onderbouwd",
+      "status": "Ontwerprisico; daadwerkelijke overrange niet gemeten",
+      "impact": "±500 Pa kan het volledige mogelijke 609Pa-fanbereik niet gekalibreerd afdekken. Boven 250 Pa schoon zou een verdubbelingsgrens buiten 500 Pa vallen. De meting omvat ook rooster-/inlaatverliezen; handen kunnen die beïnvloeden.",
+      "evidence": "README.md:39,46; module/main.cpp:41-47,239-242; schema/blad-4.svg: referentie kamerdruk, slang onder filters; Sensirion nominale meetrange ±500 Pa.",
+      "fix": "Kies bereik/resolutie op basis van gemeten schoon/vuil-curve met marge, detecteer overrange en bepaal een gevalideerde onderhoudsgrens op basis van minimale vangst. Gebruik eventueel twee meetpunten werkelijk over het filter; noem de waarde niet zonder bewijs een nauwkeurige volheidsmeting."
+    },
+    {
+      "id": "AFZ-15",
+      "severity": "Major",
+      "title": "Draagkracht op honingraatblad en langdurige PETG-klemkracht niet gevalideerd",
+      "status": "Vastgesteld",
+      "impact": "De module kan loskomen of het blad lokaal indeuken; een insert in epoxy in een hol blad heeft geen bekende uittreksterkte zonder uitgewerkt anker.",
+      "evidence": "README.md:33,83,178,184,193; maak-afzuiging.mjs:44-45,68-75. Geen bladopbouw, ankerproef, momentlimiet of kruiptest.",
+      "fix": "Voorzie aantoonbaar dragende houten/inzetblokken of rug-/verdeelconstructie, definieer lijmvoorbereiding en aandraaimomenten. Proef op werkelijk blad, langdurige belasting, warmte en herhaalde montage. Bereken klauwbuiging en de dunne zone boven de moerkamer."
+    },
+    {
+      "id": "AFZ-16",
+      "severity": "Major",
+      "title": "Elektrische en thermische eindveiligheid niet bewezen",
+      "status": "Ontbrekend veiligheidsbewijs; geen vastgestelde 230V-bedradingsfout",
+      "impact": "Een gekeurde adapter maakt de volledige ingebouwde unit niet automatisch veilig. Box, bedrading, USB-bron en foutcondities moeten samen worden getest.",
+      "evidence": "README.md:31,74,77,112,193; schema/maak-schema.mjs:128-136,212-231. Wel DC-zekering en massa; geen draad-/connector-derating, temperatuurmeting, trekontlastingsproef, foutstroom/USB-bronkwalificatie of eindinspectierecord.",
+      "fix": "Houd C13/C14-aarde intact; laat de adapter gesloten. Controleer exacte M8-stroomrating, zekering-tijd/stroom en foutlus, stroompaden van gaatjesprint, trekontlasting, soldeerisolatie, ompoling en 5V-overbelasting. Kwalificeer USB-C-source (Rp/CC, foutbeveiliging en terugvoeding bij flashen). Meet temperaturen in de ingebouwde box op hoogste last en bij geblokkeerde ventilatie."
+    },
+    {
+      "id": "AFZ-17",
+      "severity": "Major",
+      "title": "Filter uitkloppen als standaardonderhoud verspreidt stof opnieuw",
+      "status": "Vastgesteld",
+      "impact": "De gebruiker kan juist tijdens reinigen een geconcentreerde stofwolk inademen; filterprestaties na uitkloppen zijn onbekend.",
+      "evidence": "README.md:27,46,252. Geen gesloten afval-/wisselprocedure of filterfabrikantinstructie.",
+      "fix": "Schrijf een stofarme wisselprocedure: uitschakelen, gecontroleerd uitnemen, direct verpakken en afvoeren. Niet uitkloppen of uitblazen in de salon. Reinig/hergebruik alleen als de exacte filterfabrikant dat toestaat; bescherm gebruiker en omgeving."
+    },
+    {
+      "id": "AFZ-18",
+      "severity": "Major",
+      "title": "Vinger-, vloeistof- en gebruik-zonder-filterbeveiliging ontbreken als bewijs",
+      "status": "Ontwerprisico; geen fysieke probe-/morsproef",
+      "impact": "Magnetisch afneembaar rooster geeft snelle toegang; morsen kan via rooster naar fan, en veilig bereik via de uitblaas is niet aangetoond.",
+      "evidence": "README.md:15,21,27,253; maak-afzuiging.mjs:61,216-225,279-307. Geen interlock, morsproef of bereikbaarheidstest in de set.",
+      "fix": "Onderzoek bereikbaarheid van bewegende delen met passende testprobes en alle toegankelijke openingen, ook bij onderhoud. Voorzie waar nodig vaste afscherming/interlock, morspad/lekopvang en filteraanwezigheidsdetectie of onderbouwde gelijkwaardige maatregelen. Een sensorreferentie is geen fysieke afscherming."
+    },
+    {
+      "id": "AFZ-19",
+      "severity": "Minor",
+      "title": "Montage-instructies USB-printje en kabelpositie spreken elkaar tegen",
+      "status": "Vastgesteld",
+      "impact": "De bouwer kan gaten maken/schroeven plaatsen in een print die juist geen gaten heeft, of een stekkerpositie verkeerd begrijpen.",
+      "evidence": "README.md:60 zegt 12×15 zonder gaten/klemmen; :194 zegt schroeven met 2×M2×5; :195 noemt USB 18–26 mm onder bovenvlak. maak-afzuiging.mjs:93,488-499 zet opening op Y=-55,7..-51,8 vanaf bovenvlak (bij 34mm blad circa 18–22mm onder ONDERVLAK).",
+      "fix": "Herschrijf instructie volgens de echte uitvoering: klemconstructie en correcte datumvlakken. Voeg doorsnede met stekker, kabelbocht en montagevolgorde toe."
+    },
+    {
+      "id": "AFZ-20",
+      "severity": "Minor",
+      "title": "Passingen zijn nominaal maar niet procesmatig gekwalificeerd",
+      "status": "Vastgesteld",
+      "impact": "Krappe FDM-passingen kunnen klemmen; te losse passingen veroorzaken lekken. Ingelijmde magneten hebben maar circa 0,4 mm bodem in 2,5mm-frame.",
+      "evidence": "maak-afzuiging.mjs:38,48-49,87,90,207-212: opening 201 mm en rand 200,5 mm = 0,25 mm speling/zijde; knopbuis Ø43 in gat44 = 0,5 mm radiaal; moerkamers +0,2/+0,3 mm.",
+      "fix": "Maak passingscoupons voor gekozen PETG/printer, definieer maat- en vlakheidstoleranties, nazorg, lijmspleten en magneetretentie. Bewijs demontage na vervuiling en warmte. Gebruik niet alleen algemene tekeningtolerantie voor lek-/lijmvlakken."
+    },
+    {
+      "id": "AFZ-21",
+      "severity": "Minor",
+      "title": "Materiaal- en reinigbaarheidclaims zijn te algemeen",
+      "status": "Vastgesteld",
+      "impact": "FDM-ribbels, poriën en lijmnaden zijn lastig consistent te reinigen; chemische bestendigheid van elk filament/epoxy is niet gegarandeerd door alleen de naam PETG.",
+      "evidence": "README.md:112 noemt PETG bestand tegen aceton en circa 75°C; specifieke filament-/epoxydatasheets en desinfectieproeven ontbreken.",
+      "fix": "Kies exact materiaal, definieer reinigingsmiddel/contactduur en test coupons en belaste lijmnaden. Werk stof-/contactvlakken glad en bereikbaar; beoordeel kruip/brandgedrag afzonderlijk van temperatuurclaims."
+    },
+    {
+      "id": "AFZ-22",
+      "severity": "Minor",
+      "title": "Ergonomie is niet gevalideerd aan de echte tafel",
+      "status": "Vastgesteld",
+      "impact": "71mm onderhang en de knopplaats kunnen op papier passen, maar knieën, polsen, zuigpositie en achterwaartse luchtstraal zijn nog niet getest.",
+      "evidence": "README.md:25-26,177,242 verwijst naar ../bureau/Bureau.kcad buiten deze set. Nieuwste nominale module onderzijde Y=-105, bladonderzijde=-34 geeft 71 mm; rooster 4 mm boven blad.",
+      "fix": "Maak een schaal-1:1 mock-up met klant én stylist, echte stoelen, armsteunen en handposities; test vangst met handen 0/5/10 cm boven rooster, tocht, trillingen en achterwaartse uitblaas. Meet vrije kniehoogte op de echte tafel."
+    },
+    {
+      "id": "AFZ-23",
+      "severity": "Minor",
+      "title": "Generatoren zijn niet zelfstandig reproduceerbaar vanuit deze map",
+      "status": "Scopebeperking vastgesteld; geen bewezen fout in gedeelde projectroot",
+      "impact": "De meegeleverde set mist een gedeelde afhankelijkheid. Dat bewijst niet dat de generator op de laptop stuk is, maar een reviewer kan hem uit alleen deze map niet draaien.",
+      "evidence": "maak-afzuiging.mjs:29 importeert ../lib/schets.mjs, niet in deze map/het bronbewijs. CAD-generator en maak-mallen.mjs stoppen op ERR_MODULE_NOT_FOUND op de box; maak-schema.mjs werkt.",
+      "fix": "Lever een gecontroleerde minimale gedeelde library mee of een dependencymanifest plus werkende reproduceeropdracht vanuit de projectroot. Voeg de genoemde lek-/geometrie-/regressietests als bestanden en rapportages toe."
+    },
+    {
+      "id": "AFZ-24",
+      "severity": "Info",
+      "title": "Kostprijs is een rekenindicatie, geen gecontroleerde offerte",
+      "status": "Vastgesteld",
+      "impact": "495,08 euro telt rekenkundig op, maar leveranciers, leverbaarheid, verzendkosten, lijmverlies, iteraties en arbeid zijn niet geverifieerd. CSV laserrijen hebben materiaal/aantal andersom dan kop suggereert.",
+      "evidence": "prijslijst.py:24-36 reproduceert 495,08; prijslijst.csv:43-44 kolom Aantal bevat materiaal/leeg en type bevat 1. README.md:159 verwijst naar winkels in CSV, maar die CSV bevat geen leveranciers-URL-kolom.",
+      "fix": "Voeg bronlink/datum/BTW/verzending/verpakking en exacte bestelnummers toe, herstel CSV-kolomvolgorde; onderscheid verbruikskosten, volledige inkoop en prototype-iteraties. Geen aankoop uitgevoerd."
+    },
+    {
+      "id": "AFZ-25",
+      "severity": "Info",
+      "title": "Digitale review is geen bedrijfs- of conformiteitskeuring",
+      "status": "Vastgesteld",
+      "impact": "Alleen de meegeleverde bestanden zijn beoordeeld. Er is geen fysieke unit, echte SolidWorks-rebuild, rook-/stof-/geluid-/temperatuurproef of gecertificeerde LEV-inbedrijfstelling uitgevoerd.",
+      "evidence": "Afzuiging.kcad bevat 77 geplaatste componenten en 0 mates. De andere bestanden zijn KCAD/mesh, geen STEP/SLDPRT/SLDASM. Host-foutinjectieharnas voorbereid maar niet uitgevoerd: g++ ontbreekt; installatie mislukte. Twee ESP32-builds slagen wel.",
+      "fix": "Laat na revisie een maat-/botsingscontrole in de daadwerkelijke CAD-kernel, slicercontrole en fysieke veiligheids-/vangstvalidatie doen. Rapporteer onbekend als onbekend; niet presenteren als 100% werkend."
+    }
+  ],
+  "limitations": [
+    "Geen fysieke tests",
+    "Geen officiële Phlippo CAD/SolidWorks-kernelherbouw of exacte 3D-botsingsanalyse",
+    "Host-C++ foutinjectie niet uitgevoerd wegens ontbrekende compiler; echte ESP32 cross-builds wel geslaagd",
+    "Geen blinde vierdenkersreview in dit deelrapport"
+  ]
+}

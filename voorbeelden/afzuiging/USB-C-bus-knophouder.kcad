@@ -31,7 +31,7 @@
   },
   "kusbbus": {
    "id": "kusbbus",
-   "name": "Plane bus",
+   "name": "Plane bus kusb",
    "origin": [
     0,
     -55.4,
@@ -54,9 +54,34 @@
    ],
    "kind": "reference"
   },
-  "kusbgat": {
-   "id": "kusbgat",
-   "name": "Plane gaten",
+  "kusbmond": {
+   "id": "kusbmond",
+   "name": "Plane mond kusb",
+   "origin": [
+    0,
+    0,
+    -19.4
+   ],
+   "u": [
+    1,
+    0,
+    0
+   ],
+   "v": [
+    0,
+    -1,
+    0
+   ],
+   "n": [
+    0,
+    0,
+    -1
+   ],
+   "kind": "reference"
+  },
+  "kusbpads": {
+   "id": "kusbpads",
+   "name": "Face kusbpads",
    "origin": [
     0,
     -55.4,
@@ -77,7 +102,7 @@
     1,
     0
    ],
-   "kind": "reference"
+   "kind": "face"
   }
  },
  "variables": {},
@@ -93,20 +118,20 @@
      "y": 0
     },
     "s1p0": {
-     "x": -7,
-     "y": 6.4
+     "x": -6,
+     "y": 3.4
     },
     "s1p1": {
-     "x": 7,
-     "y": 6.4
+     "x": 6,
+     "y": 3.4
     },
     "s1p2": {
-     "x": 7,
-     "y": 17
+     "x": 6,
+     "y": 18.4
     },
     "s1p3": {
-     "x": -7,
-     "y": 17
+     "x": -6,
+     "y": 18.4
     }
    },
    "scalars": {},
@@ -160,52 +185,52 @@
      "y": 0
     },
     "s2p0": {
-     "x": -3.45,
-     "y": 13.5
+     "x": -3.47,
+     "y": 12.05
     },
     "s2p1": {
-     "x": 3.45,
-     "y": 13.5
+     "x": 3.47,
+     "y": 12.05
     },
     "s2p2": {
-     "x": 4.45,
-     "y": 14.5
+     "x": 4.47,
+     "y": 13.05
     },
     "s2p3": {
-     "x": 4.45,
-     "y": 19.9
+     "x": 4.47,
+     "y": 18.4
     },
     "s2p4": {
-     "x": 3.45,
-     "y": 20.9
+     "x": 3.47,
+     "y": 19.4
     },
     "s2p5": {
-     "x": -3.45,
-     "y": 20.9
+     "x": -3.47,
+     "y": 19.4
     },
     "s2p6": {
-     "x": -4.45,
-     "y": 19.9
+     "x": -4.47,
+     "y": 18.4
     },
     "s2p7": {
-     "x": -4.45,
-     "y": 14.5
+     "x": -4.47,
+     "y": 13.05
     },
     "s2p8": {
-     "x": 3.45,
-     "y": 14.5
+     "x": 3.47,
+     "y": 13.05
     },
     "s2p9": {
-     "x": 3.45,
-     "y": 19.9
+     "x": 3.47,
+     "y": 18.4
     },
     "s2p10": {
-     "x": -3.45,
-     "y": 19.9
+     "x": -3.47,
+     "y": 18.4
     },
     "s2p11": {
-     "x": -3.45,
-     "y": 14.5
+     "x": -3.47,
+     "y": 13.05
     }
    },
    "scalars": {
@@ -298,48 +323,521 @@
   "s3": {
    "id": "s3",
    "name": "Sketch3",
-   "plane": "kusbgat",
+   "plane": "kusbmond",
    "points": {
     "origin_s3": {
      "x": 0,
      "y": 0
     },
     "s3p0": {
-     "x": 5.5,
-     "y": 11
+     "x": -3.17,
+     "y": 52.49
+    },
+    "s3p1": {
+     "x": 3.17,
+     "y": 52.49
+    },
+    "s3p2": {
+     "x": 4.17,
+     "y": 53.49
     },
     "s3p3": {
-     "x": -5.5,
-     "y": 11
+     "x": 4.17,
+     "y": 54.05
+    },
+    "s3p4": {
+     "x": 3.17,
+     "y": 55.05
+    },
+    "s3p5": {
+     "x": -3.17,
+     "y": 55.05
+    },
+    "s3p6": {
+     "x": -4.17,
+     "y": 54.05
+    },
+    "s3p7": {
+     "x": -4.17,
+     "y": 53.49
+    },
+    "s3p8": {
+     "x": 3.17,
+     "y": 53.49
+    },
+    "s3p9": {
+     "x": 3.17,
+     "y": 54.05
+    },
+    "s3p10": {
+     "x": -3.17,
+     "y": 54.05
+    },
+    "s3p11": {
+     "x": -3.17,
+     "y": 53.49
     }
    },
    "scalars": {
-    "s3s1": 1.1,
-    "s3s4": 1.1
+    "s3s12": 1
    },
    "entities": {
-    "s3e2": {
-     "id": "s3e2",
+    "s3e13": {
+     "id": "s3e13",
      "construction": false,
-     "kind": "circle",
-     "center": "s3p0",
-     "r": "s3s1"
+     "kind": "line",
+     "p1": "s3p0",
+     "p2": "s3p1"
     },
-    "s3e5": {
-     "id": "s3e5",
+    "s3e14": {
+     "id": "s3e14",
      "construction": false,
-     "kind": "circle",
-     "center": "s3p3",
-     "r": "s3s4"
+     "kind": "arc",
+     "center": "s3p8",
+     "start": "s3p1",
+     "end": "s3p2",
+     "r": "s3s12",
+     "ccw": true
+    },
+    "s3e15": {
+     "id": "s3e15",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p2",
+     "p2": "s3p3"
+    },
+    "s3e16": {
+     "id": "s3e16",
+     "construction": false,
+     "kind": "arc",
+     "center": "s3p9",
+     "start": "s3p3",
+     "end": "s3p4",
+     "r": "s3s12",
+     "ccw": true
+    },
+    "s3e17": {
+     "id": "s3e17",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p4",
+     "p2": "s3p5"
+    },
+    "s3e18": {
+     "id": "s3e18",
+     "construction": false,
+     "kind": "arc",
+     "center": "s3p10",
+     "start": "s3p5",
+     "end": "s3p6",
+     "r": "s3s12",
+     "ccw": true
+    },
+    "s3e19": {
+     "id": "s3e19",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p6",
+     "p2": "s3p7"
+    },
+    "s3e20": {
+     "id": "s3e20",
+     "construction": false,
+     "kind": "arc",
+     "center": "s3p11",
+     "start": "s3p7",
+     "end": "s3p0",
+     "r": "s3s12",
+     "ccw": true
     }
    },
    "constraints": {},
    "entityOrder": [
-    "s3e2",
-    "s3e5"
+    "s3e13",
+    "s3e14",
+    "s3e15",
+    "s3e16",
+    "s3e17",
+    "s3e18",
+    "s3e19",
+    "s3e20"
    ],
    "constraintOrder": [],
    "origin": "origin_s3"
+  },
+  "s4": {
+   "id": "s4",
+   "name": "Sketch4",
+   "plane": "kusbmond",
+   "points": {
+    "origin_s4": {
+     "x": 0,
+     "y": 0
+    },
+    "s4p0": {
+     "x": -3.3,
+     "y": 53.47
+    },
+    "s4p1": {
+     "x": 3.3,
+     "y": 53.47
+    },
+    "s4p2": {
+     "x": 3.3,
+     "y": 54.07
+    },
+    "s4p3": {
+     "x": -3.3,
+     "y": 54.07
+    }
+   },
+   "scalars": {},
+   "entities": {
+    "s4e4": {
+     "id": "s4e4",
+     "construction": false,
+     "kind": "line",
+     "p1": "s4p0",
+     "p2": "s4p1"
+    },
+    "s4e5": {
+     "id": "s4e5",
+     "construction": false,
+     "kind": "line",
+     "p1": "s4p1",
+     "p2": "s4p2"
+    },
+    "s4e6": {
+     "id": "s4e6",
+     "construction": false,
+     "kind": "line",
+     "p1": "s4p2",
+     "p2": "s4p3"
+    },
+    "s4e7": {
+     "id": "s4e7",
+     "construction": false,
+     "kind": "line",
+     "p1": "s4p3",
+     "p2": "s4p0"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s4e4",
+    "s4e5",
+    "s4e6",
+    "s4e7"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s4"
+  },
+  "s5": {
+   "id": "s5",
+   "name": "Sketch5",
+   "plane": "kusbpads",
+   "points": {
+    "origin_s5": {
+     "x": 0,
+     "y": 0
+    },
+    "s5p0": {
+     "x": -5.1,
+     "y": 4.4
+    },
+    "s5p1": {
+     "x": -4.1,
+     "y": 4.4
+    },
+    "s5p2": {
+     "x": -4.1,
+     "y": 6.4
+    },
+    "s5p3": {
+     "x": -5.1,
+     "y": 6.4
+    },
+    "s5p8": {
+     "x": -3.26,
+     "y": 4.4
+    },
+    "s5p9": {
+     "x": -2.26,
+     "y": 4.4
+    },
+    "s5p10": {
+     "x": -2.26,
+     "y": 6.4
+    },
+    "s5p11": {
+     "x": -3.26,
+     "y": 6.4
+    },
+    "s5p16": {
+     "x": -1.42,
+     "y": 4.4
+    },
+    "s5p17": {
+     "x": -0.42,
+     "y": 4.4
+    },
+    "s5p18": {
+     "x": -0.42,
+     "y": 6.4
+    },
+    "s5p19": {
+     "x": -1.42,
+     "y": 6.4
+    },
+    "s5p24": {
+     "x": 0.42,
+     "y": 4.4
+    },
+    "s5p25": {
+     "x": 1.42,
+     "y": 4.4
+    },
+    "s5p26": {
+     "x": 1.42,
+     "y": 6.4
+    },
+    "s5p27": {
+     "x": 0.42,
+     "y": 6.4
+    },
+    "s5p32": {
+     "x": 2.26,
+     "y": 4.4
+    },
+    "s5p33": {
+     "x": 3.26,
+     "y": 4.4
+    },
+    "s5p34": {
+     "x": 3.26,
+     "y": 6.4
+    },
+    "s5p35": {
+     "x": 2.26,
+     "y": 6.4
+    },
+    "s5p40": {
+     "x": 4.1,
+     "y": 4.4
+    },
+    "s5p41": {
+     "x": 5.1,
+     "y": 4.4
+    },
+    "s5p42": {
+     "x": 5.1,
+     "y": 6.4
+    },
+    "s5p43": {
+     "x": 4.1,
+     "y": 6.4
+    }
+   },
+   "scalars": {},
+   "entities": {
+    "s5e4": {
+     "id": "s5e4",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p0",
+     "p2": "s5p1"
+    },
+    "s5e5": {
+     "id": "s5e5",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p1",
+     "p2": "s5p2"
+    },
+    "s5e6": {
+     "id": "s5e6",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p2",
+     "p2": "s5p3"
+    },
+    "s5e7": {
+     "id": "s5e7",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p3",
+     "p2": "s5p0"
+    },
+    "s5e12": {
+     "id": "s5e12",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p8",
+     "p2": "s5p9"
+    },
+    "s5e13": {
+     "id": "s5e13",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p9",
+     "p2": "s5p10"
+    },
+    "s5e14": {
+     "id": "s5e14",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p10",
+     "p2": "s5p11"
+    },
+    "s5e15": {
+     "id": "s5e15",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p11",
+     "p2": "s5p8"
+    },
+    "s5e20": {
+     "id": "s5e20",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p16",
+     "p2": "s5p17"
+    },
+    "s5e21": {
+     "id": "s5e21",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p17",
+     "p2": "s5p18"
+    },
+    "s5e22": {
+     "id": "s5e22",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p18",
+     "p2": "s5p19"
+    },
+    "s5e23": {
+     "id": "s5e23",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p19",
+     "p2": "s5p16"
+    },
+    "s5e28": {
+     "id": "s5e28",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p24",
+     "p2": "s5p25"
+    },
+    "s5e29": {
+     "id": "s5e29",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p25",
+     "p2": "s5p26"
+    },
+    "s5e30": {
+     "id": "s5e30",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p26",
+     "p2": "s5p27"
+    },
+    "s5e31": {
+     "id": "s5e31",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p27",
+     "p2": "s5p24"
+    },
+    "s5e36": {
+     "id": "s5e36",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p32",
+     "p2": "s5p33"
+    },
+    "s5e37": {
+     "id": "s5e37",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p33",
+     "p2": "s5p34"
+    },
+    "s5e38": {
+     "id": "s5e38",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p34",
+     "p2": "s5p35"
+    },
+    "s5e39": {
+     "id": "s5e39",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p35",
+     "p2": "s5p32"
+    },
+    "s5e44": {
+     "id": "s5e44",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p40",
+     "p2": "s5p41"
+    },
+    "s5e45": {
+     "id": "s5e45",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p41",
+     "p2": "s5p42"
+    },
+    "s5e46": {
+     "id": "s5e46",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p42",
+     "p2": "s5p43"
+    },
+    "s5e47": {
+     "id": "s5e47",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p43",
+     "p2": "s5p40"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s5e4",
+    "s5e5",
+    "s5e6",
+    "s5e7",
+    "s5e12",
+    "s5e13",
+    "s5e14",
+    "s5e15",
+    "s5e20",
+    "s5e21",
+    "s5e22",
+    "s5e23",
+    "s5e28",
+    "s5e29",
+    "s5e30",
+    "s5e31",
+    "s5e36",
+    "s5e37",
+    "s5e38",
+    "s5e39",
+    "s5e44",
+    "s5e45",
+    "s5e46",
+    "s5e47"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s5"
   }
  },
  "features": [
@@ -371,16 +869,16 @@
   {
    "id": "f4",
    "type": "extrude",
-   "name": "USB-C",
+   "name": "USB-C kusb",
    "sketchId": "s2",
    "suppressed": false,
    "op": "boss",
    "end": "blind",
-   "depth": 3.3,
+   "depth": 3.26,
    "reverse": false,
    "direction2": {
     "end": "blind",
-    "depth": 0.1
+    "depth": 0.05
    }
   },
   {
@@ -393,13 +891,57 @@
   {
    "id": "f6",
    "type": "extrude",
-   "name": "Gaten M2",
+   "name": "Mond kusb",
    "sketchId": "s3",
    "suppressed": false,
    "op": "cut",
    "end": "blind",
-   "depth": 2.6,
+   "depth": 6,
    "reverse": true
+  },
+  {
+   "id": "ks4",
+   "type": "sketch",
+   "name": "Sketch4",
+   "sketchId": "s4",
+   "suppressed": false
+  },
+  {
+   "id": "f8",
+   "type": "extrude",
+   "name": "Tong kusb",
+   "sketchId": "s4",
+   "suppressed": false,
+   "op": "boss",
+   "end": "blind",
+   "depth": 5.4,
+   "reverse": true,
+   "direction2": {
+    "end": "blind",
+    "depth": 0.2
+   }
+  },
+  {
+   "id": "ks5",
+   "type": "sketch",
+   "name": "Sketch5",
+   "sketchId": "s5",
+   "suppressed": false
+  },
+  {
+   "id": "f10",
+   "type": "extrude",
+   "name": "Soldeereilanden",
+   "sketchId": "s5",
+   "suppressed": false,
+   "op": "boss",
+   "end": "blind",
+   "depth": 0.1,
+   "reverse": false,
+   "direction2": {
+    "end": "blind",
+    "depth": 0.05
+   }
   }
  ],
  "material": {

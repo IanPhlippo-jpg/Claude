@@ -84,19 +84,22 @@ const aan = (pct, v) => ring((BOOG * pct) / 100, v) + kop + procent(pct, 110);
 const uit = (b) => ring(0, null) + kop + groot('UIT', 112, C.midden) + regels('druk om te starten', b, C.midden);
 
 const gewoon = [
-  ['Uit', 'kort drukken of draaien zet hem aan', uit(null)],
-  ['Aan', 'draaien: 20 tot 100 % in stappen van 5 %; balkje = hoe vol de filters zijn', aan(65, V.beige) + regels('118 Pa over de filters', null, C.licht) + balk(0.4, V.beige)],
-  ['Boost', '1 s vasthouden: 2 minuten 100 %, met aftelklok', aan(100, V.beige) + regels('BOOST 1:42', null, C.beige) + balk(0.45, V.beige)],
-  ['IJken', '5 s vasthouden met schone filters: 20 tot 100 %', ring(BOOG * 0.6, V.beige) + kop + tekst('IJKEN', 104, C.wit, FONT.TITEL) + tekst('schone filters, 60 %', 136, C.wit)],
+  ['Uit', 'kort drukken of draaien zet hem aan; na een stroomonderbreking altijd uit', uit(null)],
+  ['Aan', 'de stand die de box bevestigt; drukverschil en toerental; balkje = hoe vol het filter is', aan(65, V.beige) + regels('118 Pa, 2350 tpm', null, C.licht) + balk(0.4, V.beige)],
+  ['Boost', '1 s vasthouden: 2 minuten 100 %; de box telt de tijd', aan(100, V.beige) + regels('BOOST 1:42', null, C.beige) + balk(0.45, V.beige)],
+  ['IJken', '5 tot 10 s vasthouden met een schoon filter: 20 tot 100 %', ring(BOOG * 0.6, V.beige) + kop + tekst('IJKEN', 104, C.wit, FONT.TITEL) + tekst('schoon filter, 60 %', 136, C.wit)],
 ];
 const meldingen = [
-  ['Nieuwe filters?', 'nog niet geijkt: 5 s vasthouden', aan(50, V.beige) + regels('nieuwe filters?', 'knop 5 s vasthouden', C.licht)],
-  ['Filter vol', 'drukverschil verdubbeld t.o.v. schone filters', aan(65, V.oranje) + regels('Filter vol', 'filters uitkloppen', C.oranje) + balk(1, V.oranje)],
-  ['Geen luchtstroom', 'drukverschil valt weg: slang los of filters eruit', aan(65, V.rood) + regels('geen luchtstroom', 'slang en filters nakijken', C.rood) + balk(0.05, V.beige)],
-  ['Ventilator draait niet', 'tacho geeft geen toeren', aan(65, V.rood) + regels('ventilator draait niet', 'M8-kabel nakijken', C.rood) + balk(0.4, V.beige)],
-  ['Geen verbinding (aan)', '3 s geen bericht van de ESP32-C3 in de box', aan(65, V.beige) + regels('geen verbinding', 'met de voedingsbox', C.oranje)],
-  ['Geen verbinding (uit)', 'box uit, schakelaar uit of te ver weg', uit('geen verbinding met de box')],
-  ['Drukmeter niet gevonden', 'SDP810 antwoordt niet op I2C', aan(65, V.beige) + regels('drukmeter niet gevonden', 'bedrading in de box nakijken', C.oranje)],
+  ['Nieuw filter?', 'nog niet geijkt: 5 s vasthouden', aan(50, V.beige) + regels('nieuw filter?', 'knop 5 s vasthouden', C.licht)],
+  ['Filter vervangen', 'drukverschil verdubbeld t.o.v. een schoon filter', aan(65, V.oranje) + regels('filter vervangen', 'in een zak, niet uitkloppen', C.oranje) + balk(1, V.oranje)],
+  ['Geen luchtstroom', 'drukverschil valt weg: slang los of filter eruit', aan(65, V.rood) + regels('geen luchtstroom', 'slang en filter nakijken', C.rood)],
+  ['Ventilator draait niet', 'tacho geeft geen toeren (op elke stand)', aan(65, V.rood) + regels('ventilator draait niet', 'M8-kabel nakijken', C.rood)],
+  ['Geen verbinding (aan)', 'niets van de box: de stand is niet bevestigd', ring(0, null) + kop + tekst('AAN?', 108, C.midden, FONT.TITEL) + regels('geen verbinding met de box', 'stand niet bevestigd', C.oranje)],
+  ['Geen verbinding (uit)', 'box uit, schakelaar uit of te ver weg', ring(0, null) + kop + groot('UIT', 112, C.midden) + regels('geen verbinding met de box', null, C.oranje)],
+  ['Drukmeter niet gevonden', 'SDP810 antwoordt niet; de box start hem opnieuw', aan(65, V.beige) + regels('drukmeter niet gevonden', 'bedrading in de box nakijken', C.oranje)],
+  ['Meting niet actueel', 'laatste meting ouder dan 1 s: geen drukwaarde, geen filterbalk', aan(65, V.beige) + regels('meting niet actueel', 'filterbewaking even uit', C.oranje)],
+  ['IJken mislukt', 'geen, foute of te hoge metingen: de vorige ijking blijft', aan(50, V.beige) + regels('ijken mislukt', 'vorige ijking blijft', C.oranje)],
+  ['Koppelen', 'nieuwe knop of 10 s vasthouden: zet de box uit en aan', ring(0, null) + kop + tekst('KOPPELEN', 104, C.wit, FONT.TITEL) + regels('zet de voedingsbox', 'uit en weer aan', C.licht)],
 ];
 const kaart = ([naam, uitleg, inhoud]) => `<figure><svg viewBox="0 0 466 466" role="img" aria-label="${naam}"><circle cx="233" cy="233" r="233" fill="#000"/>${inhoud}</svg><figcaption><b>${naam}</b><span>${uitleg}</span></figcaption></figure>`;
 document.getElementById('gewoon').innerHTML = gewoon.map(kaart).join('');
@@ -104,7 +107,8 @@ document.getElementById('meldingen').innerHTML = meldingen.map(kaart).join('') +
 <tr><td>Draaien</td><td>zuigkracht 20 tot 100 %</td></tr>
 <tr><td>Kort drukken</td><td>aan / uit</td></tr>
 <tr><td>1 s vasthouden</td><td>boost, 2 minuten 100 %</td></tr>
-<tr><td>5 s vasthouden</td><td>ijken op schone filters</td></tr>
+<tr><td>5-10 s vasthouden</td><td>ijken op een schoon filter</td></tr>
+<tr><td>10 s vasthouden</td><td>opnieuw koppelen met de box</td></tr>
 <tr><td><span class="stip" style="background:${C.beige}"></span>Beige</td><td>alles in orde</td></tr>
 <tr><td><span class="stip" style="background:${C.oranje}"></span>Oranje</td><td>aandacht: filters, verbinding</td></tr>
 <tr><td><span class="stip" style="background:${C.rood}"></span>Rood</td><td>storing: geen lucht of ventilator stil</td></tr></table></figure>`;

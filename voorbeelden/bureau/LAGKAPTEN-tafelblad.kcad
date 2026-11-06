@@ -293,52 +293,52 @@
           "y": 0
         },
         "s3p0": {
-          "x": -96,
-          "y": -241
+          "x": -101,
+          "y": -246
         },
         "s3p1": {
-          "x": 96,
-          "y": -241
+          "x": 101,
+          "y": -246
         },
         "s3p2": {
-          "x": 101,
-          "y": -236
+          "x": 106,
+          "y": -241
         },
         "s3p3": {
-          "x": 101,
-          "y": -154
+          "x": 106,
+          "y": -149
         },
         "s3p4": {
-          "x": 96,
-          "y": -149
+          "x": 101,
+          "y": -144
         },
         "s3p5": {
-          "x": -96,
-          "y": -149
+          "x": -101,
+          "y": -144
         },
         "s3p6": {
-          "x": -101,
-          "y": -154
+          "x": -106,
+          "y": -149
         },
         "s3p7": {
-          "x": -101,
-          "y": -236
+          "x": -106,
+          "y": -241
         },
         "s3p8": {
-          "x": 96,
-          "y": -236
+          "x": 101,
+          "y": -241
         },
         "s3p9": {
-          "x": 96,
-          "y": -154
+          "x": 101,
+          "y": -149
         },
         "s3p10": {
-          "x": -96,
-          "y": -154
+          "x": -101,
+          "y": -149
         },
         "s3p11": {
-          "x": -96,
-          "y": -236
+          "x": -101,
+          "y": -241
         }
       },
       "scalars": {
@@ -438,59 +438,64 @@
           "y": 0
         },
         "s4p0": {
-          "x": -82,
-          "y": -151
-        },
-        "s4p1": {
-          "x": -53,
-          "y": -151
-        },
-        "s4p2": {
-          "x": -53,
-          "y": -104
+          "x": 85,
+          "y": -138
         },
         "s4p3": {
-          "x": -82,
-          "y": -104
+          "x": 85,
+          "y": -252
+        },
+        "s4p6": {
+          "x": -85,
+          "y": -138
+        },
+        "s4p9": {
+          "x": -85,
+          "y": -252
         }
       },
-      "scalars": {},
+      "scalars": {
+        "s4s1": 4,
+        "s4s4": 4,
+        "s4s7": 4,
+        "s4s10": 4
+      },
       "entities": {
-        "s4e4": {
-          "id": "s4e4",
+        "s4e2": {
+          "id": "s4e2",
           "construction": false,
-          "kind": "line",
-          "p1": "s4p0",
-          "p2": "s4p1"
+          "kind": "circle",
+          "center": "s4p0",
+          "r": "s4s1"
         },
         "s4e5": {
           "id": "s4e5",
           "construction": false,
-          "kind": "line",
-          "p1": "s4p1",
-          "p2": "s4p2"
+          "kind": "circle",
+          "center": "s4p3",
+          "r": "s4s4"
         },
-        "s4e6": {
-          "id": "s4e6",
+        "s4e8": {
+          "id": "s4e8",
           "construction": false,
-          "kind": "line",
-          "p1": "s4p2",
-          "p2": "s4p3"
+          "kind": "circle",
+          "center": "s4p6",
+          "r": "s4s7"
         },
-        "s4e7": {
-          "id": "s4e7",
+        "s4e11": {
+          "id": "s4e11",
           "construction": false,
-          "kind": "line",
-          "p1": "s4p3",
-          "p2": "s4p0"
+          "kind": "circle",
+          "center": "s4p9",
+          "r": "s4s10"
         }
       },
       "constraints": {},
       "entityOrder": [
-        "s4e4",
+        "s4e2",
         "s4e5",
-        "s4e6",
-        "s4e7"
+        "s4e8",
+        "s4e11"
       ],
       "constraintOrder": [],
       "origin": "origin_s4"
@@ -505,20 +510,20 @@
           "y": 0
         },
         "s5p0": {
-          "x": 96.644269,
-          "y": -224.163023
+          "x": -82,
+          "y": -146
         },
         "s5p1": {
-          "x": 247.644269,
-          "y": 200.836977
+          "x": -53,
+          "y": -146
         },
         "s5p2": {
-          "x": 252.355731,
-          "y": 199.163023
+          "x": -53,
+          "y": -104
         },
         "s5p3": {
-          "x": 101.355731,
-          "y": -225.836977
+          "x": -82,
+          "y": -104
         }
       },
       "scalars": {},
@@ -561,6 +566,73 @@
       ],
       "constraintOrder": [],
       "origin": "origin_s5"
+    },
+    "s6": {
+      "id": "s6",
+      "name": "Sketch6",
+      "plane": "bladonder",
+      "points": {
+        "origin_s6": {
+          "x": 0,
+          "y": 0
+        },
+        "s6p0": {
+          "x": 101.635623,
+          "y": -224.187767
+        },
+        "s6p1": {
+          "x": 247.635623,
+          "y": 200.812233
+        },
+        "s6p2": {
+          "x": 252.364377,
+          "y": 199.187767
+        },
+        "s6p3": {
+          "x": 106.364377,
+          "y": -225.812233
+        }
+      },
+      "scalars": {},
+      "entities": {
+        "s6e4": {
+          "id": "s6e4",
+          "construction": false,
+          "kind": "line",
+          "p1": "s6p0",
+          "p2": "s6p1"
+        },
+        "s6e5": {
+          "id": "s6e5",
+          "construction": false,
+          "kind": "line",
+          "p1": "s6p1",
+          "p2": "s6p2"
+        },
+        "s6e6": {
+          "id": "s6e6",
+          "construction": false,
+          "kind": "line",
+          "p1": "s6p2",
+          "p2": "s6p3"
+        },
+        "s6e7": {
+          "id": "s6e7",
+          "construction": false,
+          "kind": "line",
+          "p1": "s6p3",
+          "p2": "s6p0"
+        }
+      },
+      "constraints": {},
+      "entityOrder": [
+        "s6e4",
+        "s6e5",
+        "s6e6",
+        "s6e7"
+      ],
+      "constraintOrder": [],
+      "origin": "origin_s6"
     }
   },
   "features": [
@@ -628,12 +700,12 @@
     {
       "id": "f8",
       "type": "extrude",
-      "name": "Sleuf naar de module",
+      "name": "Gaten pluggen box",
       "sketchId": "s4",
       "suppressed": false,
       "op": "cut",
       "end": "blind",
-      "depth": 7,
+      "depth": 28,
       "reverse": true
     },
     {
@@ -646,8 +718,26 @@
     {
       "id": "f10",
       "type": "extrude",
-      "name": "Sleuf naar de knop",
+      "name": "Sleuf naar de module",
       "sketchId": "s5",
+      "suppressed": false,
+      "op": "cut",
+      "end": "blind",
+      "depth": 7,
+      "reverse": true
+    },
+    {
+      "id": "ks6",
+      "type": "sketch",
+      "name": "Sketch6",
+      "sketchId": "s6",
+      "suppressed": false
+    },
+    {
+      "id": "f12",
+      "type": "extrude",
+      "name": "Sleuf naar de knop",
+      "sketchId": "s6",
       "suppressed": false,
       "op": "cut",
       "end": "blind",

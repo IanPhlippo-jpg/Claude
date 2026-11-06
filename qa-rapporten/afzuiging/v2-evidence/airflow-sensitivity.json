@@ -1,0 +1,121 @@
+{
+  "curve": "manual graphical read; approx \u00b115-25Pa, not numeric manufacturer points",
+  "Q100_m3h": [
+    0,
+    60,
+    120,
+    180,
+    240,
+    300,
+    360,
+    420,
+    480,
+    540,
+    600,
+    660,
+    696
+  ],
+  "P100_Pa": [
+    609,
+    530,
+    497,
+    469,
+    430,
+    386,
+    340,
+    286,
+    225,
+    160,
+    103,
+    40,
+    0
+  ],
+  "Q50_m3h": [
+    0,
+    60,
+    120,
+    180,
+    240,
+    300,
+    360,
+    420,
+    480
+  ],
+  "P50_Pa": [
+    290,
+    246,
+    225,
+    200,
+    170,
+    132,
+    85,
+    45,
+    0
+  ],
+  "scenarios": [
+    {
+      "filter_reference": "V400S 20mm:47Pa at0.5m/s",
+      "filter_extrapolation_exponent": 1,
+      "other_loss_Pa_at_500m3h": 60,
+      "PWM_percent": 100,
+      "estimated_Q_m3h": 369.5,
+      "dp_Pa": 331.5
+    },
+    {
+      "filter_reference": "V400S 20mm:47Pa at0.5m/s",
+      "filter_extrapolation_exponent": 1,
+      "other_loss_Pa_at_500m3h": 60,
+      "PWM_percent": 50,
+      "estimated_Q_m3h": 213.3,
+      "dp_Pa": 183.3
+    },
+    {
+      "filter_reference": "V400S 20mm:47Pa at0.5m/s",
+      "filter_extrapolation_exponent": 1,
+      "other_loss_Pa_at_500m3h": 200,
+      "PWM_percent": 100,
+      "estimated_Q_m3h": 334.3,
+      "dp_Pa": 359.7
+    },
+    {
+      "filter_reference": "V400S 20mm:47Pa at0.5m/s",
+      "filter_extrapolation_exponent": 1,
+      "other_loss_Pa_at_500m3h": 200,
+      "PWM_percent": 50,
+      "estimated_Q_m3h": 197.7,
+      "dp_Pa": 191.1
+    },
+    {
+      "filter_reference": "V400S 20mm:47Pa at0.5m/s",
+      "filter_extrapolation_exponent": 2,
+      "other_loss_Pa_at_500m3h": 60,
+      "PWM_percent": 100,
+      "estimated_Q_m3h": 181.9,
+      "dp_Pa": 467.8
+    },
+    {
+      "filter_reference": "V400S 20mm:47Pa at0.5m/s",
+      "filter_extrapolation_exponent": 2,
+      "other_loss_Pa_at_500m3h": 60,
+      "PWM_percent": 50,
+      "estimated_Q_m3h": 125.5,
+      "dp_Pa": 222.7
+    },
+    {
+      "filter_reference": "V400S 20mm:47Pa at0.5m/s",
+      "filter_extrapolation_exponent": 2,
+      "other_loss_Pa_at_500m3h": 200,
+      "PWM_percent": 100,
+      "estimated_Q_m3h": 178.7,
+      "dp_Pa": 469.6
+    },
+    {
+      "filter_reference": "V400S 20mm:47Pa at0.5m/s",
+      "filter_extrapolation_exponent": 2,
+      "other_loss_Pa_at_500m3h": 200,
+      "PWM_percent": 50,
+      "estimated_Q_m3h": 123.3,
+      "dp_Pa": 223.6
+    }
+  ]
+}

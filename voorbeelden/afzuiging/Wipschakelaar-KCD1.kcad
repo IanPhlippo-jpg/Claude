@@ -10,7 +10,57 @@
    "origin": [
     0,
     0,
-    -39.1
+    44.1
+   ],
+   "u": [
+    1,
+    0,
+    0
+   ],
+   "v": [
+    0,
+    -1,
+    0
+   ],
+   "n": [
+    0,
+    0,
+    -1
+   ],
+   "kind": "reference"
+  },
+  "stekers": {
+   "id": "stekers",
+   "name": "Plane stekers",
+   "origin": [
+    0,
+    0,
+    31.7
+   ],
+   "u": [
+    1,
+    0,
+    0
+   ],
+   "v": [
+    0,
+    -1,
+    0
+   ],
+   "n": [
+    0,
+    0,
+    -1
+   ],
+   "kind": "reference"
+  },
+  "rand": {
+   "id": "rand",
+   "name": "Plane rand",
+   "origin": [
+    0,
+    0,
+    44.1
    ],
    "u": [
     1,
@@ -29,38 +79,13 @@
    ],
    "kind": "reference"
   },
-  "rand": {
-   "id": "rand",
-   "name": "Plane rand",
-   "origin": [
-    0,
-    0,
-    -39.1
-   ],
-   "u": [
-    1,
-    0,
-    0
-   ],
-   "v": [
-    0,
-    -1,
-    0
-   ],
-   "n": [
-    0,
-    0,
-    -1
-   ],
-   "kind": "reference"
-  },
   "wip": {
    "id": "wip",
    "name": "Plane wip",
    "origin": [
     0,
     0,
-    -41.1
+    46.1
    ],
    "u": [
     1,
@@ -69,13 +94,38 @@
    ],
    "v": [
     0,
-    -1,
+    1,
     0
    ],
    "n": [
     0,
     0,
-    -1
+    1
+   ],
+   "kind": "reference"
+  },
+  "wiptop": {
+   "id": "wiptop",
+   "name": "Plane bovenkant wip",
+   "origin": [
+    0,
+    0,
+    49
+   ],
+   "u": [
+    1,
+    0,
+    0
+   ],
+   "v": [
+    0,
+    1,
+    0
+   ],
+   "n": [
+    0,
+    0,
+    1
    ],
    "kind": "reference"
   }
@@ -93,20 +143,20 @@
      "y": 0
     },
     "s1p0": {
-     "x": 64.7,
-     "y": -23.3
+     "x": 30.7,
+     "y": 10.7
     },
     "s1p1": {
-     "x": 83.3,
-     "y": -23.3
+     "x": 49.3,
+     "y": 10.7
     },
     "s1p2": {
-     "x": 83.3,
-     "y": -10.7
+     "x": 49.3,
+     "y": 23.3
     },
     "s1p3": {
-     "x": 64.7,
-     "y": -10.7
+     "x": 30.7,
+     "y": 23.3
     }
    },
    "scalars": {},
@@ -153,144 +203,114 @@
   "s2": {
    "id": "s2",
    "name": "Sketch2",
-   "plane": "rand",
+   "plane": "stekers",
    "points": {
     "origin_s2": {
      "x": 0,
      "y": 0
     },
     "s2p0": {
-     "x": 64.5,
-     "y": 9.5
+     "x": 33.6,
+     "y": 16.6
     },
     "s2p1": {
-     "x": 83.5,
-     "y": 9.5
+     "x": 38.4,
+     "y": 16.6
     },
     "s2p2": {
-     "x": 84.5,
-     "y": 10.5
+     "x": 38.4,
+     "y": 17.4
     },
     "s2p3": {
-     "x": 84.5,
-     "y": 23.5
-    },
-    "s2p4": {
-     "x": 83.5,
-     "y": 24.5
-    },
-    "s2p5": {
-     "x": 64.5,
-     "y": 24.5
-    },
-    "s2p6": {
-     "x": 63.5,
-     "y": 23.5
-    },
-    "s2p7": {
-     "x": 63.5,
-     "y": 10.5
+     "x": 33.6,
+     "y": 17.4
     },
     "s2p8": {
-     "x": 83.5,
-     "y": 10.5
+     "x": 41.6,
+     "y": 16.6
     },
     "s2p9": {
-     "x": 83.5,
-     "y": 23.5
+     "x": 46.4,
+     "y": 16.6
     },
     "s2p10": {
-     "x": 64.5,
-     "y": 23.5
+     "x": 46.4,
+     "y": 17.4
     },
     "s2p11": {
-     "x": 64.5,
-     "y": 10.5
+     "x": 41.6,
+     "y": 17.4
     }
    },
-   "scalars": {
-    "s2s12": 1
-   },
+   "scalars": {},
    "entities": {
-    "s2e13": {
-     "id": "s2e13",
+    "s2e4": {
+     "id": "s2e4",
      "construction": false,
      "kind": "line",
      "p1": "s2p0",
      "p2": "s2p1"
     },
-    "s2e14": {
-     "id": "s2e14",
+    "s2e5": {
+     "id": "s2e5",
      "construction": false,
-     "kind": "arc",
-     "center": "s2p8",
-     "start": "s2p1",
-     "end": "s2p2",
-     "r": "s2s12",
-     "ccw": true
+     "kind": "line",
+     "p1": "s2p1",
+     "p2": "s2p2"
     },
-    "s2e15": {
-     "id": "s2e15",
+    "s2e6": {
+     "id": "s2e6",
      "construction": false,
      "kind": "line",
      "p1": "s2p2",
      "p2": "s2p3"
     },
-    "s2e16": {
-     "id": "s2e16",
-     "construction": false,
-     "kind": "arc",
-     "center": "s2p9",
-     "start": "s2p3",
-     "end": "s2p4",
-     "r": "s2s12",
-     "ccw": true
-    },
-    "s2e17": {
-     "id": "s2e17",
+    "s2e7": {
+     "id": "s2e7",
      "construction": false,
      "kind": "line",
-     "p1": "s2p4",
-     "p2": "s2p5"
+     "p1": "s2p3",
+     "p2": "s2p0"
     },
-    "s2e18": {
-     "id": "s2e18",
-     "construction": false,
-     "kind": "arc",
-     "center": "s2p10",
-     "start": "s2p5",
-     "end": "s2p6",
-     "r": "s2s12",
-     "ccw": true
-    },
-    "s2e19": {
-     "id": "s2e19",
+    "s2e12": {
+     "id": "s2e12",
      "construction": false,
      "kind": "line",
-     "p1": "s2p6",
-     "p2": "s2p7"
+     "p1": "s2p8",
+     "p2": "s2p9"
     },
-    "s2e20": {
-     "id": "s2e20",
+    "s2e13": {
+     "id": "s2e13",
      "construction": false,
-     "kind": "arc",
-     "center": "s2p11",
-     "start": "s2p7",
-     "end": "s2p0",
-     "r": "s2s12",
-     "ccw": true
+     "kind": "line",
+     "p1": "s2p9",
+     "p2": "s2p10"
+    },
+    "s2e14": {
+     "id": "s2e14",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p10",
+     "p2": "s2p11"
+    },
+    "s2e15": {
+     "id": "s2e15",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p11",
+     "p2": "s2p8"
     }
    },
    "constraints": {},
    "entityOrder": [
+    "s2e4",
+    "s2e5",
+    "s2e6",
+    "s2e7",
+    "s2e12",
     "s2e13",
     "s2e14",
-    "s2e15",
-    "s2e16",
-    "s2e17",
-    "s2e18",
-    "s2e19",
-    "s2e20"
+    "s2e15"
    ],
    "constraintOrder": [],
    "origin": "origin_s2"
@@ -298,59 +318,59 @@
   "s3": {
    "id": "s3",
    "name": "Sketch3",
-   "plane": "wip",
+   "plane": "rand",
    "points": {
     "origin_s3": {
      "x": 0,
      "y": 0
     },
     "s3p0": {
-     "x": 66,
-     "y": 11
+     "x": 30.5,
+     "y": -24.5
     },
     "s3p1": {
-     "x": 82,
-     "y": 11
+     "x": 49.5,
+     "y": -24.5
     },
     "s3p2": {
-     "x": 83,
-     "y": 12
+     "x": 50.5,
+     "y": -23.5
     },
     "s3p3": {
-     "x": 83,
-     "y": 22
+     "x": 50.5,
+     "y": -10.5
     },
     "s3p4": {
-     "x": 82,
-     "y": 23
+     "x": 49.5,
+     "y": -9.5
     },
     "s3p5": {
-     "x": 66,
-     "y": 23
+     "x": 30.5,
+     "y": -9.5
     },
     "s3p6": {
-     "x": 65,
-     "y": 22
+     "x": 29.5,
+     "y": -10.5
     },
     "s3p7": {
-     "x": 65,
-     "y": 12
+     "x": 29.5,
+     "y": -23.5
     },
     "s3p8": {
-     "x": 82,
-     "y": 12
+     "x": 49.5,
+     "y": -23.5
     },
     "s3p9": {
-     "x": 82,
-     "y": 22
+     "x": 49.5,
+     "y": -10.5
     },
     "s3p10": {
-     "x": 66,
-     "y": 22
+     "x": 30.5,
+     "y": -10.5
     },
     "s3p11": {
-     "x": 66,
-     "y": 12
+     "x": 30.5,
+     "y": -23.5
     }
    },
    "scalars": {
@@ -439,6 +459,285 @@
    ],
    "constraintOrder": [],
    "origin": "origin_s3"
+  },
+  "s4": {
+   "id": "s4",
+   "name": "Sketch4",
+   "plane": "wip",
+   "points": {
+    "origin_s4": {
+     "x": 0,
+     "y": 0
+    },
+    "s4p0": {
+     "x": 32,
+     "y": -23
+    },
+    "s4p1": {
+     "x": 48,
+     "y": -23
+    },
+    "s4p2": {
+     "x": 49,
+     "y": -22
+    },
+    "s4p3": {
+     "x": 49,
+     "y": -12
+    },
+    "s4p4": {
+     "x": 48,
+     "y": -11
+    },
+    "s4p5": {
+     "x": 32,
+     "y": -11
+    },
+    "s4p6": {
+     "x": 31,
+     "y": -12
+    },
+    "s4p7": {
+     "x": 31,
+     "y": -22
+    },
+    "s4p8": {
+     "x": 48,
+     "y": -22
+    },
+    "s4p9": {
+     "x": 48,
+     "y": -12
+    },
+    "s4p10": {
+     "x": 32,
+     "y": -12
+    },
+    "s4p11": {
+     "x": 32,
+     "y": -22
+    }
+   },
+   "scalars": {
+    "s4s12": 1
+   },
+   "entities": {
+    "s4e13": {
+     "id": "s4e13",
+     "construction": false,
+     "kind": "line",
+     "p1": "s4p0",
+     "p2": "s4p1"
+    },
+    "s4e14": {
+     "id": "s4e14",
+     "construction": false,
+     "kind": "arc",
+     "center": "s4p8",
+     "start": "s4p1",
+     "end": "s4p2",
+     "r": "s4s12",
+     "ccw": true
+    },
+    "s4e15": {
+     "id": "s4e15",
+     "construction": false,
+     "kind": "line",
+     "p1": "s4p2",
+     "p2": "s4p3"
+    },
+    "s4e16": {
+     "id": "s4e16",
+     "construction": false,
+     "kind": "arc",
+     "center": "s4p9",
+     "start": "s4p3",
+     "end": "s4p4",
+     "r": "s4s12",
+     "ccw": true
+    },
+    "s4e17": {
+     "id": "s4e17",
+     "construction": false,
+     "kind": "line",
+     "p1": "s4p4",
+     "p2": "s4p5"
+    },
+    "s4e18": {
+     "id": "s4e18",
+     "construction": false,
+     "kind": "arc",
+     "center": "s4p10",
+     "start": "s4p5",
+     "end": "s4p6",
+     "r": "s4s12",
+     "ccw": true
+    },
+    "s4e19": {
+     "id": "s4e19",
+     "construction": false,
+     "kind": "line",
+     "p1": "s4p6",
+     "p2": "s4p7"
+    },
+    "s4e20": {
+     "id": "s4e20",
+     "construction": false,
+     "kind": "arc",
+     "center": "s4p11",
+     "start": "s4p7",
+     "end": "s4p0",
+     "r": "s4s12",
+     "ccw": true
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s4e13",
+    "s4e14",
+    "s4e15",
+    "s4e16",
+    "s4e17",
+    "s4e18",
+    "s4e19",
+    "s4e20"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s4"
+  },
+  "s5": {
+   "id": "s5",
+   "name": "Sketch5",
+   "plane": "wiptop",
+   "points": {
+    "origin_s5": {
+     "x": 0,
+     "y": 0
+    },
+    "s5p0": {
+     "x": 31,
+     "y": -23
+    },
+    "s5p1": {
+     "x": 40,
+     "y": -23
+    },
+    "s5p2": {
+     "x": 40,
+     "y": -11
+    },
+    "s5p3": {
+     "x": 31,
+     "y": -11
+    }
+   },
+   "scalars": {},
+   "entities": {
+    "s5e4": {
+     "id": "s5e4",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p0",
+     "p2": "s5p1"
+    },
+    "s5e5": {
+     "id": "s5e5",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p1",
+     "p2": "s5p2"
+    },
+    "s5e6": {
+     "id": "s5e6",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p2",
+     "p2": "s5p3"
+    },
+    "s5e7": {
+     "id": "s5e7",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p3",
+     "p2": "s5p0"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s5e4",
+    "s5e5",
+    "s5e6",
+    "s5e7"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s5"
+  },
+  "s6": {
+   "id": "s6",
+   "name": "Sketch6",
+   "plane": "wiptop",
+   "points": {
+    "origin_s6": {
+     "x": 0,
+     "y": 0
+    },
+    "s6p0": {
+     "x": 44,
+     "y": -19.5
+    },
+    "s6p1": {
+     "x": 44.6,
+     "y": -19.5
+    },
+    "s6p2": {
+     "x": 44.6,
+     "y": -14.5
+    },
+    "s6p3": {
+     "x": 44,
+     "y": -14.5
+    }
+   },
+   "scalars": {},
+   "entities": {
+    "s6e4": {
+     "id": "s6e4",
+     "construction": false,
+     "kind": "line",
+     "p1": "s6p0",
+     "p2": "s6p1"
+    },
+    "s6e5": {
+     "id": "s6e5",
+     "construction": false,
+     "kind": "line",
+     "p1": "s6p1",
+     "p2": "s6p2"
+    },
+    "s6e6": {
+     "id": "s6e6",
+     "construction": false,
+     "kind": "line",
+     "p1": "s6p2",
+     "p2": "s6p3"
+    },
+    "s6e7": {
+     "id": "s6e7",
+     "construction": false,
+     "kind": "line",
+     "p1": "s6p3",
+     "p2": "s6p0"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s6e4",
+    "s6e5",
+    "s6e6",
+    "s6e7"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s6"
   }
  },
  "features": [
@@ -452,12 +751,12 @@
   {
    "id": "f2",
    "type": "extrude",
-   "name": "Huis en stekers",
+   "name": "Huis",
    "sketchId": "s1",
    "suppressed": false,
    "op": "boss",
    "end": "blind",
-   "depth": 19.1,
+   "depth": 12.5,
    "reverse": false
   },
   {
@@ -470,17 +769,13 @@
   {
    "id": "f4",
    "type": "extrude",
-   "name": "Rand",
+   "name": "Vlakstekers 4,8",
    "sketchId": "s2",
    "suppressed": false,
    "op": "boss",
    "end": "blind",
-   "depth": 2,
-   "reverse": false,
-   "direction2": {
-    "end": "blind",
-    "depth": 0.05
-   }
+   "depth": 6.8,
+   "reverse": false
   },
   {
    "id": "ks3",
@@ -492,8 +787,30 @@
   {
    "id": "f6",
    "type": "extrude",
-   "name": "Wip",
+   "name": "Rand",
    "sketchId": "s3",
+   "suppressed": false,
+   "op": "boss",
+   "end": "blind",
+   "depth": 2,
+   "reverse": false,
+   "direction2": {
+    "end": "blind",
+    "depth": 0.05
+   }
+  },
+  {
+   "id": "ks4",
+   "type": "sketch",
+   "name": "Sketch4",
+   "sketchId": "s4",
+   "suppressed": false
+  },
+  {
+   "id": "f8",
+   "type": "extrude",
+   "name": "Wip",
+   "sketchId": "s4",
    "suppressed": false,
    "op": "boss",
    "end": "blind",
@@ -503,6 +820,42 @@
     "end": "blind",
     "depth": 0.3
    }
+  },
+  {
+   "id": "ks5",
+   "type": "sketch",
+   "name": "Sketch5",
+   "sketchId": "s5",
+   "suppressed": false
+  },
+  {
+   "id": "f10",
+   "type": "extrude",
+   "name": "Helling wip",
+   "sketchId": "s5",
+   "suppressed": false,
+   "op": "cut",
+   "end": "blind",
+   "depth": 0.8,
+   "reverse": true
+  },
+  {
+   "id": "ks6",
+   "type": "sketch",
+   "name": "Sketch6",
+   "sketchId": "s6",
+   "suppressed": false
+  },
+  {
+   "id": "f12",
+   "type": "extrude",
+   "name": "Teken I",
+   "sketchId": "s6",
+   "suppressed": false,
+   "op": "cut",
+   "end": "blind",
+   "depth": 0.3,
+   "reverse": true
   }
  ],
  "material": {

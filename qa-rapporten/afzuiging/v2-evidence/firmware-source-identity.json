@@ -1,0 +1,52 @@
+[
+  {
+    "file": "platformio.ini",
+    "same": true,
+    "sha256": "f0ac1e6d5249764dfafed458f267fb50e88acee544c6ea762b032b5f2370b1fb"
+  },
+  {
+    "file": ".gitignore",
+    "same": true,
+    "sha256": "692b1af4436043e2e965c8d563bbf90d648cda3a6afa9bba38e1c38af1d38919"
+  },
+  {
+    "file": "ui/schermen.html",
+    "same": true,
+    "sha256": "6a3569434c34a220337c124ef5087d92041dd18c5ad2f97a7f3469fb83c91b35"
+  },
+  {
+    "file": "ui/schermen.png",
+    "same": true,
+    "sha256": "1b3d38d4d1ca6bb9b18a21696663ba3c61febd342605e5a7ebc8f88e89a4bed6"
+  },
+  {
+    "file": "ui/logo-knop.png",
+    "same": true,
+    "sha256": "e540d3c7bcf8363dc01199e862a8c558f2f284a4083200a5771ba9fea8f0bb34"
+  },
+  {
+    "file": "include/protocol.h",
+    "same": true,
+    "sha256": "be004e9c0aa2d85e4ddb1e42183d9af3f236cf660c0f88bd1f0ddb4fc3a91061"
+  },
+  {
+    "file": "src/knop/logo.h",
+    "same": true,
+    "sha256": "8b3613f0433b4874d4132b1e22249d8268b987d1ce3daed5d16bc096097c25b5"
+  },
+  {
+    "file": "src/knop/main.cpp",
+    "same": true,
+    "sha256": "9aa4dc6af0790b25a7a8453e300a1ee8e4e6d560c090a1240d858e284108ec2c"
+  },
+  {
+    "file": "src/knop/fonts.h",
+    "same": true,
+    "sha256": "0b91a687ccefdb207009ffa2aee75c383c8d7d461afd3dc290ced9f79c187c49"
+  },
+  {
+    "file": "src/module/main.cpp",
+    "same": true,
+    "sha256": "d866646fc55c7055d60e02903e66c47379923e087f9fcb5169a2654e72b0d5a2"
+  }
+]

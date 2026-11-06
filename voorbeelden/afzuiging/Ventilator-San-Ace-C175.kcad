@@ -9,7 +9,7 @@
    "name": "Plane waaier",
    "origin": [
     0,
-    -105.5,
+    -90.5,
     0
    ],
    "u": [
@@ -34,7 +34,7 @@
    "name": "Face oog",
    "origin": [
     0,
-    -45,
+    -30,
     0
    ],
    "u": [
@@ -59,7 +59,7 @@
    "name": "Plane schoepen",
    "origin": [
     0,
-    -48,
+    -33,
     0
    ],
    "u": [
@@ -84,7 +84,7 @@
    "name": "Plane motor",
    "origin": [
     0,
-    -114,
+    -99,
     0
    ],
    "u": [
@@ -109,7 +109,7 @@
    "name": "Face onderkant motor",
    "origin": [
     0,
-    -114,
+    -99,
     0
    ],
    "u": [

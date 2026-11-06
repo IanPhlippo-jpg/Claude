@@ -1,0 +1,69 @@
+{
+  "scope": "engineering/design only; no physical-test penalty",
+  "overall": 5.0,
+  "scores": [
+    {
+      "area": "CAD / geometrie en nominale passing",
+      "v1": 6,
+      "v2": 8,
+      "weight_percent": 15,
+      "reason": "Nu 77 actuele componentplaatsingen onafhankelijk geometrisch gereconstrueerd; hoofdmaatketens sluiten. Geen aftrek voor ontbreken proefmontage. Toleranties, klem-/ankercalculatie en enkele kleine overlapkandidaten blijven ontwerpwerk."
+    },
+    {
+      "area": "Exports / revisieconsistentie",
+      "v1": 2,
+      "v2": 2,
+      "weight_percent": 15,
+      "reason": "Geen fysieke test nodig om oude maatvoering, vier slechte meshes en vier ontbrekende exporttypen vast te stellen."
+    },
+    {
+      "area": "Luchttechniek / geluidraming",
+      "v1": 3,
+      "v2": 5,
+      "weight_percent": 20,
+      "reason": "Werkelijke fabrikantfanplot en referentiefilterdata geven een ontwerpgevoeligheidsberekening; de generieke filterkeuze en stellige 500m³/h-belofte blijven onvoldoende berekend."
+    },
+    {
+      "area": "Filterkeuze / stofbeheersingsconcept",
+      "v1": 1,
+      "v2": 2,
+      "weight_percent": 15,
+      "reason": "M5 als enige retourlucht-eindtrap blijft inhoudelijk ongeschikte ontwerpkeuze voor de beoogde fijnstofbescherming; geen puntenaftrek wegens nog ontbrekende prototype-emissietest."
+    },
+    {
+      "area": "Elektrisch / thermisch ontwerp",
+      "v1": 4,
+      "v2": 7,
+      "weight_percent": 10,
+      "reason": "24V-architectuur, geaarde gesloten adapter, zekering en signaalregeling zijn op papier coherent. Nog exactere componentratings, foutcoördinatie en warmteberekening nodig; ontbrekende fysieke test telt niet."
+    },
+    {
+      "area": "Firmware / statische logica en build",
+      "v1": 3,
+      "v2": 5,
+      "weight_percent": 10,
+      "reason": "Echte functionele code en opnieuw beide builds succesvol; concrete statische foutpaden blijven. Geen aftrek wegens ontbreken hardwaretest."
+    },
+    {
+      "area": "Ergonomie als ontwerp",
+      "v1": 4,
+      "v2": 8,
+      "weight_percent": 5,
+      "reason": "Compacte 71mm-onderhang, bovenwissel en losse bediening verdienen ontwerpkrediet. Onbekend proefpersooncomfort telt niet als gebrek; maatcontext tafel/stoel blijft vast te leggen."
+    },
+    {
+      "area": "Onderhoudbaarheid als ontwerp",
+      "v1": 2,
+      "v2": 6,
+      "weight_percent": 5,
+      "reason": "Boventoegang en modulaire cassette zijn positief; uitklopinstructie, ontbrekende pakkingdetails en generieke materiaalkeuze moeten op tekening/instructie worden aangepast."
+    },
+    {
+      "area": "Ontwerpdocumentatie / reproduceerbaarheid",
+      "v1": 3,
+      "v2": 6,
+      "weight_percent": 5,
+      "reason": "Uitgebreid bouw-/schema-/parameterpakket. Revisieconflicten en claims zonder berekening blijven; geen aftrek voor nog niet uitgevoerde prototypeproeven."
+    }
+  ]
+}

@@ -9,7 +9,7 @@
    "name": "Plane m5",
    "origin": [
     0,
-    -25,
+    -20,
     0
    ],
    "u": [
@@ -117,7 +117,7 @@
    "suppressed": false,
    "op": "boss",
    "end": "blind",
-   "depth": 15,
+   "depth": 20,
    "reverse": false
   }
  ],

@@ -1,0 +1,2405 @@
+[
+  {
+    "component": "Romp<1>",
+    "part": "Romp",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": [
+      [
+        "Romp",
+        false
+      ]
+    ]
+  },
+  {
+    "component": "Bovenframe<1>",
+    "part": "Bovenframe",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": [
+      [
+        "Bovenframe",
+        false
+      ]
+    ]
+  },
+  {
+    "component": "Rooster LB<1>",
+    "part": "Rooster LB",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": [
+      [
+        "Rooster-LB",
+        false
+      ]
+    ]
+  },
+  {
+    "component": "Filtercassette<1>",
+    "part": "Filtercassette",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": [
+      [
+        "Filtercassette",
+        false
+      ]
+    ]
+  },
+  {
+    "component": "Cassetterand<1>",
+    "part": "Cassetterand",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": [
+      [
+        "Cassetterand",
+        false
+      ]
+    ]
+  },
+  {
+    "component": "Fijnstoffilter M5<1>",
+    "part": "Fijnstoffilter M5",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": [
+      [
+        "Fijnstoffilter-M5",
+        false
+      ]
+    ]
+  },
+  {
+    "component": "Instroomplaat<1>",
+    "part": "Instroomplaat",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": [
+      [
+        "Instroomplaat",
+        false
+      ]
+    ]
+  },
+  {
+    "component": "Bodemplaat<1>",
+    "part": "Bodemplaat",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": [
+      [
+        "Bodemplaat",
+        false
+      ]
+    ]
+  },
+  {
+    "component": "San Ace C175 9TG24P0S01<1>",
+    "part": "San Ace C175 9TG24P0S01",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": [
+      [
+        "Ventilator-San-Ace-C175",
+        false
+      ]
+    ]
+  },
+  {
+    "component": "M8-inbouwbus 4-polig<1>",
+    "part": "M8-inbouwbus 4-polig",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": [
+      [
+        "M8-inbouwbus",
+        false
+      ]
+    ]
+  },
+  {
+    "component": "Klauw<1>",
+    "part": "Klauw",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        96.5,
+        -40,
+        72
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": [
+      [
+        "Klauw",
+        false
+      ]
+    ]
+  },
+  {
+    "component": "Klauw<2>",
+    "part": "Klauw",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        96.5,
+        -40,
+        -72
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": [
+      [
+        "Klauw",
+        false
+      ]
+    ]
+  },
+  {
+    "component": "Klauw<3>",
+    "part": "Klauw",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        -96.5,
+        -40,
+        72
+      ],
+      "rotation": [
+        0,
+        1,
+        0,
+        0
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": [
+      [
+        "Klauw",
+        false
+      ]
+    ]
+  },
+  {
+    "component": "Klauw<4>",
+    "part": "Klauw",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        -96.5,
+        -40,
+        -72
+      ],
+      "rotation": [
+        0,
+        1,
+        0,
+        0
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": [
+      [
+        "Klauw",
+        false
+      ]
+    ]
+  },
+  {
+    "component": "M5 zeskantmoer DIN 934<1>",
+    "part": "M5 zeskantmoer DIN 934",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        96.5,
+        -39.8,
+        72
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": []
+  },
+  {
+    "component": "M5 zeskantmoer DIN 934<2>",
+    "part": "M5 zeskantmoer DIN 934",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        96.5,
+        -39.8,
+        -72
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": []
+  },
+  {
+    "component": "M5 zeskantmoer DIN 934<3>",
+    "part": "M5 zeskantmoer DIN 934",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        -96.5,
+        -39.8,
+        72
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": []
+  },
+  {
+    "component": "M5 zeskantmoer DIN 934<4>",
+    "part": "M5 zeskantmoer DIN 934",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        -96.5,
+        -39.8,
+        -72
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": []
+  },
+  {
+    "component": "Knophouder<1>",
+    "part": "Knophouder",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        250,
+        0,
+        200
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": [
+      [
+        "Knophouder",
+        false
+      ]
+    ]
+  },
+  {
+    "component": "Knopdeksel<1>",
+    "part": "Knopdeksel",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        250,
+        0,
+        200
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": [
+      [
+        "Knopdeksel",
+        false
+      ]
+    ]
+  },
+  {
+    "component": "VIEWE-knop 1,5\"<1>",
+    "part": "VIEWE-knop 1,5\"",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        250,
+        2,
+        200
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": [
+      [
+        "VIEWE-knop-1.5",
+        false
+      ]
+    ]
+  },
+  {
+    "component": "Adapterprint knop<1>",
+    "part": "Adapterprint knop",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        250,
+        0,
+        200
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": [
+      [
+        "Adapterprint-knop",
+        false
+      ]
+    ]
+  },
+  {
+    "component": "USB-C-bus knophouder<1>",
+    "part": "USB-C-bus knophouder",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        250,
+        0,
+        200
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": [
+      [
+        "USB-C-bus-knophouder",
+        false
+      ]
+    ]
+  },
+  {
+    "component": "Knopklauw<1>",
+    "part": "Knopklauw",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        266.5,
+        -39,
+        200
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": [
+      [
+        "Knopklauw",
+        false
+      ]
+    ]
+  },
+  {
+    "component": "Knopklauw<2>",
+    "part": "Knopklauw",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        233.5,
+        -39,
+        200
+      ],
+      "rotation": [
+        0,
+        1,
+        0,
+        0
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": [
+      [
+        "Knopklauw",
+        false
+      ]
+    ]
+  },
+  {
+    "component": "M4 zeskantmoer DIN 934<1>",
+    "part": "M4 zeskantmoer DIN 934",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        266.5,
+        -38.8,
+        200
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": []
+  },
+  {
+    "component": "M4 zeskantmoer DIN 934<2>",
+    "part": "M4 zeskantmoer DIN 934",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        233.5,
+        -38.8,
+        200
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": []
+  },
+  {
+    "component": "M5 x 65 DIN 7991<1>",
+    "part": "M5 x 65 DIN 7991",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        96.5,
+        2.5,
+        72
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": []
+  },
+  {
+    "component": "M5 x 65 DIN 7991<2>",
+    "part": "M5 x 65 DIN 7991",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        96.5,
+        2.5,
+        -72
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": []
+  },
+  {
+    "component": "M5 x 65 DIN 7991<3>",
+    "part": "M5 x 65 DIN 7991",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        -96.5,
+        2.5,
+        72
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": []
+  },
+  {
+    "component": "M5 x 65 DIN 7991<4>",
+    "part": "M5 x 65 DIN 7991",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        -96.5,
+        2.5,
+        -72
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": []
+  },
+  {
+    "component": "M3 x 16 DIN 7991<1>",
+    "part": "M3 x 16 DIN 7991",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        98,
+        -105,
+        72
+      ],
+      "rotation": [
+        1,
+        0,
+        0,
+        0
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": []
+  },
+  {
+    "component": "M3 x 16 DIN 7991<2>",
+    "part": "M3 x 16 DIN 7991",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        98,
+        -105,
+        -72
+      ],
+      "rotation": [
+        1,
+        0,
+        0,
+        0
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": []
+  },
+  {
+    "component": "M3 x 16 DIN 7991<3>",
+    "part": "M3 x 16 DIN 7991",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        -98,
+        -105,
+        72
+      ],
+      "rotation": [
+        1,
+        0,
+        0,
+        0
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": []
+  },
+  {
+    "component": "M3 x 16 DIN 7991<4>",
+    "part": "M3 x 16 DIN 7991",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        -98,
+        -105,
+        -72
+      ],
+      "rotation": [
+        1,
+        0,
+        0,
+        0
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": []
+  },
+  {
+    "component": "M3 x 16 DIN 7991<5>",
+    "part": "M3 x 16 DIN 7991",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        98,
+        -105,
+        0
+      ],
+      "rotation": [
+        1,
+        0,
+        0,
+        0
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": []
+  },
+  {
+    "component": "M3 x 16 DIN 7991<6>",
+    "part": "M3 x 16 DIN 7991",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        -98,
+        -105,
+        0
+      ],
+      "rotation": [
+        1,
+        0,
+        0,
+        0
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": []
+  },
+  {
+    "component": "M3 x 16 DIN 7991<7>",
+    "part": "M3 x 16 DIN 7991",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        0,
+        -105,
+        98
+      ],
+      "rotation": [
+        1,
+        0,
+        0,
+        0
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": []
+  },
+  {
+    "component": "M3 x 16 DIN 7991<8>",
+    "part": "M3 x 16 DIN 7991",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        0,
+        -105,
+        -98
+      ],
+      "rotation": [
+        1,
+        0,
+        0,
+        0
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": []
+  },
+  {
+    "component": "M4 x 10 DIN 7991<1>",
+    "part": "M4 x 10 DIN 7991",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        20.506,
+        -105,
+        20.506
+      ],
+      "rotation": [
+        1,
+        0,
+        0,
+        0
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": []
+  },
+  {
+    "component": "M4 x 10 DIN 7991<2>",
+    "part": "M4 x 10 DIN 7991",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        20.506,
+        -105,
+        -20.506
+      ],
+      "rotation": [
+        1,
+        0,
+        0,
+        0
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": []
+  },
+  {
+    "component": "M4 x 10 DIN 7991<3>",
+    "part": "M4 x 10 DIN 7991",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        -20.506,
+        -105,
+        20.506
+      ],
+      "rotation": [
+        1,
+        0,
+        0,
+        0
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": []
+  },
+  {
+    "component": "M4 x 10 DIN 7991<4>",
+    "part": "M4 x 10 DIN 7991",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        -20.506,
+        -105,
+        -20.506
+      ],
+      "rotation": [
+        1,
+        0,
+        0,
+        0
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": []
+  },
+  {
+    "component": "M4 x 65 DIN 7991<1>",
+    "part": "M4 x 65 DIN 7991",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        266.5,
+        2,
+        200
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": []
+  },
+  {
+    "component": "M4 x 65 DIN 7991<2>",
+    "part": "M4 x 65 DIN 7991",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        233.5,
+        2,
+        200
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": []
+  },
+  {
+    "component": "M2,5 x 6 DIN 7991<1>",
+    "part": "M2,5 x 6 DIN 7991",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        247.1,
+        -8.4,
+        205.2
+      ],
+      "rotation": [
+        1,
+        0,
+        0,
+        0
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": []
+  },
+  {
+    "component": "M2,5 x 6 DIN 7991<2>",
+    "part": "M2,5 x 6 DIN 7991",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        247.1,
+        -8.4,
+        194.8
+      ],
+      "rotation": [
+        1,
+        0,
+        0,
+        0
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": []
+  },
+  {
+    "component": "M2,5 x 8 DIN 7991<1>",
+    "part": "M2,5 x 8 DIN 7991",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        263,
+        -62,
+        213
+      ],
+      "rotation": [
+        1,
+        0,
+        0,
+        0
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": []
+  },
+  {
+    "component": "M2,5 x 8 DIN 7991<2>",
+    "part": "M2,5 x 8 DIN 7991",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        237,
+        -62,
+        187
+      ],
+      "rotation": [
+        1,
+        0,
+        0,
+        0
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": []
+  },
+  {
+    "component": "Messingbuisje \u00d83 x 12<1>",
+    "part": "Messingbuisje \u00d83 x 12",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        -85,
+        -25,
+        -85
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": []
+  },
+  {
+    "component": "Messingbuisje \u00d83 x 12<2>",
+    "part": "Messingbuisje \u00d83 x 12",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        -75,
+        -85,
+        -109
+      ],
+      "rotation": [
+        -0.7071067811865476,
+        0,
+        0,
+        0.7071067811865476
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": []
+  },
+  {
+    "component": "Voedingsbox<1>",
+    "part": "Voedingsbox",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        0,
+        -34,
+        -195
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": [
+      [
+        "Voedingsbox",
+        false
+      ]
+    ]
+  },
+  {
+    "component": "Deksel voedingsbox<1>",
+    "part": "Deksel voedingsbox",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        0,
+        -34,
+        -195
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": [
+      [
+        "Deksel-voedingsbox",
+        false
+      ]
+    ]
+  },
+  {
+    "component": "Inlijmmoer M4<1>",
+    "part": "Inlijmmoer M4",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        97,
+        -18,
+        -153
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": [
+      [
+        "Inlijmmoer-M4",
+        false
+      ]
+    ]
+  },
+  {
+    "component": "M4 x 60 DIN 7991<1>",
+    "part": "M4 x 60 DIN 7991",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        97,
+        -70,
+        -153
+      ],
+      "rotation": [
+        1,
+        0,
+        0,
+        0
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": []
+  },
+  {
+    "component": "Inlijmmoer M4<2>",
+    "part": "Inlijmmoer M4",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        97,
+        -18,
+        -237
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": [
+      [
+        "Inlijmmoer-M4",
+        false
+      ]
+    ]
+  },
+  {
+    "component": "M4 x 60 DIN 7991<2>",
+    "part": "M4 x 60 DIN 7991",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        97,
+        -70,
+        -237
+      ],
+      "rotation": [
+        1,
+        0,
+        0,
+        0
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": []
+  },
+  {
+    "component": "Inlijmmoer M4<3>",
+    "part": "Inlijmmoer M4",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        -97,
+        -18,
+        -153
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": [
+      [
+        "Inlijmmoer-M4",
+        false
+      ]
+    ]
+  },
+  {
+    "component": "M4 x 60 DIN 7991<3>",
+    "part": "M4 x 60 DIN 7991",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        -97,
+        -70,
+        -153
+      ],
+      "rotation": [
+        1,
+        0,
+        0,
+        0
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": []
+  },
+  {
+    "component": "Inlijmmoer M4<4>",
+    "part": "Inlijmmoer M4",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        -97,
+        -18,
+        -237
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": [
+      [
+        "Inlijmmoer-M4",
+        false
+      ]
+    ]
+  },
+  {
+    "component": "M4 x 60 DIN 7991<4>",
+    "part": "M4 x 60 DIN 7991",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        -97,
+        -70,
+        -237
+      ],
+      "rotation": [
+        1,
+        0,
+        0,
+        0
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": []
+  },
+  {
+    "component": "Mean Well GST90A24-P1M<1>",
+    "part": "Mean Well GST90A24-P1M",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        0,
+        -34,
+        -195
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": [
+      [
+        "Netadapter-GST90A24",
+        false
+      ]
+    ]
+  },
+  {
+    "component": "Voedingsprint<1>",
+    "part": "Voedingsprint",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        0,
+        -34,
+        -195
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": [
+      [
+        "Voedingsprint",
+        false
+      ]
+    ]
+  },
+  {
+    "component": "USB-C-bus knop<1>",
+    "part": "USB-C-bus knop",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        0,
+        -34,
+        -195
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": [
+      [
+        "USB-C-bus-knop",
+        false
+      ]
+    ]
+  },
+  {
+    "component": "Wipschakelaar KCD1-101<1>",
+    "part": "Wipschakelaar KCD1-101",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        0,
+        -34,
+        -195
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": [
+      [
+        "Wipschakelaar-KCD1",
+        false
+      ]
+    ]
+  },
+  {
+    "component": "M8-inbouwstekker 4-polig<1>",
+    "part": "M8-inbouwstekker 4-polig",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        0,
+        -34,
+        -195
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": [
+      [
+        "M8-inbouwstekker",
+        false
+      ]
+    ]
+  },
+  {
+    "component": "Adapterklem<1>",
+    "part": "Adapterklem",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        0,
+        -34,
+        -195
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": [
+      [
+        "Adapterklem",
+        false
+      ]
+    ]
+  },
+  {
+    "component": "Adapterklem<2>",
+    "part": "Adapterklem",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        0,
+        -34,
+        -195
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": [
+      [
+        "Adapterklem",
+        false
+      ]
+    ]
+  },
+  {
+    "component": "M3 x 10 DIN 7991<1>",
+    "part": "M3 x 10 DIN 7991",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        -60,
+        -29.9,
+        -166.5
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": []
+  },
+  {
+    "component": "M3 x 10 DIN 7991<2>",
+    "part": "M3 x 10 DIN 7991",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        -5,
+        -29.9,
+        -166.5
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": []
+  },
+  {
+    "component": "Messingbuisje \u00d83 x 12<3>",
+    "part": "Messingbuisje \u00d83 x 12",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        -75,
+        -61,
+        -141
+      ],
+      "rotation": [
+        0.7071067811865476,
+        0,
+        0,
+        0.7071067811865476
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": []
+  },
+  {
+    "component": "M2,5 x 6 zelftappend<1>",
+    "part": "M2,5 x 6 zelftappend",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        63,
+        -60.4,
+        -205
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": []
+  },
+  {
+    "component": "M2,5 x 6 zelftappend<2>",
+    "part": "M2,5 x 6 zelftappend",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        97,
+        -60.4,
+        -205
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": []
+  },
+  {
+    "component": "M2,5 x 6 zelftappend<3>",
+    "part": "M2,5 x 6 zelftappend",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        63,
+        -60.4,
+        -161
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": []
+  },
+  {
+    "component": "M2,5 x 6 zelftappend<4>",
+    "part": "M2,5 x 6 zelftappend",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        97,
+        -60.4,
+        -161
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": []
+  },
+  {
+    "component": "M2 x 5 zelftappend<1>",
+    "part": "M2 x 5 zelftappend",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        84.2,
+        -60.3,
+        -227.85
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": []
+  },
+  {
+    "component": "M2 x 5 zelftappend<2>",
+    "part": "M2 x 5 zelftappend",
+    "keys": [
+      "id",
+      "name",
+      "part",
+      "position",
+      "rotation",
+      "fixed",
+      "suppressed"
+    ],
+    "transform": {
+      "position": [
+        84.2,
+        -60.3,
+        -220.15
+      ],
+      "rotation": [
+        0,
+        0,
+        0,
+        1
+      ],
+      "fixed": true,
+      "suppressed": false
+    },
+    "standalone_matches": []
+  }
+]

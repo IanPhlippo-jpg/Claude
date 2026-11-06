@@ -4,13 +4,88 @@
  "name": "M8-inbouwstekker 4-polig",
  "units": "mm",
  "planes": {
-  "m8wand": {
-   "id": "m8wand",
-   "name": "Plane wand",
+  "m8flens": {
+   "id": "m8flens",
+   "name": "Plane flens",
    "origin": [
     0,
     0,
-    41.9
+    46.9
+   ],
+   "u": [
+    1,
+    0,
+    0
+   ],
+   "v": [
+    0,
+    -1,
+    0
+   ],
+   "n": [
+    0,
+    0,
+    -1
+   ],
+   "kind": "reference"
+  },
+  "m8huis": {
+   "id": "m8huis",
+   "name": "Plane huis",
+   "origin": [
+    0,
+    0,
+    45
+   ],
+   "u": [
+    1,
+    0,
+    0
+   ],
+   "v": [
+    0,
+    -1,
+    0
+   ],
+   "n": [
+    0,
+    0,
+    -1
+   ],
+   "kind": "reference"
+  },
+  "m8bekers": {
+   "id": "m8bekers",
+   "name": "Plane bekers",
+   "origin": [
+    0,
+    0,
+    40
+   ],
+   "u": [
+    1,
+    0,
+    0
+   ],
+   "v": [
+    0,
+    -1,
+    0
+   ],
+   "n": [
+    0,
+    0,
+    -1
+   ],
+   "kind": "reference"
+  },
+  "m8draad": {
+   "id": "m8draad",
+   "name": "Plane draad",
+   "origin": [
+    0,
+    0,
+    46.8
    ],
    "u": [
     1,
@@ -35,32 +110,7 @@
    "origin": [
     0,
     0,
-    41.9
-   ],
-   "u": [
-    1,
-    0,
-    0
-   ],
-   "v": [
-    0,
-    -1,
-    0
-   ],
-   "n": [
-    0,
-    0,
-    -1
-   ],
-   "kind": "reference"
-  },
-  "m8flens": {
-   "id": "m8flens",
-   "name": "Plane flens",
-   "origin": [
-    0,
-    0,
-    45.1
+    50.1
    ],
    "u": [
     1,
@@ -79,13 +129,63 @@
    ],
    "kind": "reference"
   },
-  "m8kop": {
-   "id": "m8kop",
+  "m8koppeling": {
+   "id": "m8koppeling",
    "name": "Plane koppeling",
    "origin": [
     0,
     0,
-    47.1
+    53.1
+   ],
+   "u": [
+    1,
+    0,
+    0
+   ],
+   "v": [
+    0,
+    1,
+    0
+   ],
+   "n": [
+    0,
+    0,
+    1
+   ],
+   "kind": "reference"
+  },
+  "m8front": {
+   "id": "m8front",
+   "name": "Plane front",
+   "origin": [
+    0,
+    0,
+    61.1
+   ],
+   "u": [
+    1,
+    0,
+    0
+   ],
+   "v": [
+    0,
+    1,
+    0
+   ],
+   "n": [
+    0,
+    0,
+    1
+   ],
+   "kind": "reference"
+  },
+  "m8pennen": {
+   "id": "m8pennen",
+   "name": "Plane pennen",
+   "origin": [
+    0,
+    0,
+    56.1
    ],
    "u": [
     1,
@@ -111,32 +211,90 @@
   "s1": {
    "id": "s1",
    "name": "Sketch1",
-   "plane": "m8wand",
+   "plane": "m8flens",
    "points": {
     "origin_s1": {
      "x": 0,
      "y": 0
     },
     "s1p0": {
-     "x": -60,
-     "y": -20
+     "x": -53.071797,
+     "y": 20
+    },
+    "s1p1": {
+     "x": -56.535898,
+     "y": 14
+    },
+    "s1p2": {
+     "x": -63.464102,
+     "y": 14
+    },
+    "s1p3": {
+     "x": -66.928203,
+     "y": 20
+    },
+    "s1p4": {
+     "x": -63.464102,
+     "y": 26
+    },
+    "s1p5": {
+     "x": -56.535898,
+     "y": 26
     }
    },
-   "scalars": {
-    "s1s1": 6.2
-   },
+   "scalars": {},
    "entities": {
-    "s1e2": {
-     "id": "s1e2",
+    "s1e6": {
+     "id": "s1e6",
      "construction": false,
-     "kind": "circle",
-     "center": "s1p0",
-     "r": "s1s1"
+     "kind": "line",
+     "p1": "s1p0",
+     "p2": "s1p1"
+    },
+    "s1e7": {
+     "id": "s1e7",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p1",
+     "p2": "s1p2"
+    },
+    "s1e8": {
+     "id": "s1e8",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p2",
+     "p2": "s1p3"
+    },
+    "s1e9": {
+     "id": "s1e9",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p3",
+     "p2": "s1p4"
+    },
+    "s1e10": {
+     "id": "s1e10",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p4",
+     "p2": "s1p5"
+    },
+    "s1e11": {
+     "id": "s1e11",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p5",
+     "p2": "s1p0"
     }
    },
    "constraints": {},
    "entityOrder": [
-    "s1e2"
+    "s1e6",
+    "s1e7",
+    "s1e8",
+    "s1e9",
+    "s1e10",
+    "s1e11"
    ],
    "constraintOrder": [],
    "origin": "origin_s1"
@@ -144,7 +302,7 @@
   "s2": {
    "id": "s2",
    "name": "Sketch2",
-   "plane": "m8moer",
+   "plane": "m8huis",
    "points": {
     "origin_s2": {
      "x": 0,
@@ -156,7 +314,7 @@
     }
    },
    "scalars": {
-    "s2s1": 8.5
+    "s2s1": 4.5
    },
    "entities": {
     "s2e2": {
@@ -177,19 +335,34 @@
   "s3": {
    "id": "s3",
    "name": "Sketch3",
-   "plane": "m8flens",
+   "plane": "m8bekers",
    "points": {
     "origin_s3": {
      "x": 0,
      "y": 0
     },
     "s3p0": {
-     "x": -60,
-     "y": -20
+     "x": -61.7,
+     "y": 20.98
+    },
+    "s3p3": {
+     "x": -58.3,
+     "y": 20.98
+    },
+    "s3p6": {
+     "x": -61.7,
+     "y": 19.02
+    },
+    "s3p9": {
+     "x": -58.3,
+     "y": 19.02
     }
    },
    "scalars": {
-    "s3s1": 8.5
+    "s3s1": 0.65,
+    "s3s4": 0.65,
+    "s3s7": 0.65,
+    "s3s10": 0.65
    },
    "entities": {
     "s3e2": {
@@ -198,11 +371,35 @@
      "kind": "circle",
      "center": "s3p0",
      "r": "s3s1"
+    },
+    "s3e5": {
+     "id": "s3e5",
+     "construction": false,
+     "kind": "circle",
+     "center": "s3p3",
+     "r": "s3s4"
+    },
+    "s3e8": {
+     "id": "s3e8",
+     "construction": false,
+     "kind": "circle",
+     "center": "s3p6",
+     "r": "s3s7"
+    },
+    "s3e11": {
+     "id": "s3e11",
+     "construction": false,
+     "kind": "circle",
+     "center": "s3p9",
+     "r": "s3s10"
     }
    },
    "constraints": {},
    "entityOrder": [
-    "s3e2"
+    "s3e2",
+    "s3e5",
+    "s3e8",
+    "s3e11"
    ],
    "constraintOrder": [],
    "origin": "origin_s3"
@@ -210,7 +407,7 @@
   "s4": {
    "id": "s4",
    "name": "Sketch4",
-   "plane": "m8kop",
+   "plane": "m8draad",
    "points": {
     "origin_s4": {
      "x": 0,
@@ -222,7 +419,7 @@
     }
    },
    "scalars": {
-    "s4s1": 4
+    "s4s1": 4.95
    },
    "entities": {
     "s4e2": {
@@ -239,6 +436,235 @@
    ],
    "constraintOrder": [],
    "origin": "origin_s4"
+  },
+  "s5": {
+   "id": "s5",
+   "name": "Sketch5",
+   "plane": "m8moer",
+   "points": {
+    "origin_s5": {
+     "x": 0,
+     "y": 0
+    },
+    "s5p0": {
+     "x": -54.226497,
+     "y": -20
+    },
+    "s5p1": {
+     "x": -57.113249,
+     "y": -15
+    },
+    "s5p2": {
+     "x": -62.886751,
+     "y": -15
+    },
+    "s5p3": {
+     "x": -65.773503,
+     "y": -20
+    },
+    "s5p4": {
+     "x": -62.886751,
+     "y": -25
+    },
+    "s5p5": {
+     "x": -57.113249,
+     "y": -25
+    }
+   },
+   "scalars": {},
+   "entities": {
+    "s5e6": {
+     "id": "s5e6",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p0",
+     "p2": "s5p1"
+    },
+    "s5e7": {
+     "id": "s5e7",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p1",
+     "p2": "s5p2"
+    },
+    "s5e8": {
+     "id": "s5e8",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p2",
+     "p2": "s5p3"
+    },
+    "s5e9": {
+     "id": "s5e9",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p3",
+     "p2": "s5p4"
+    },
+    "s5e10": {
+     "id": "s5e10",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p4",
+     "p2": "s5p5"
+    },
+    "s5e11": {
+     "id": "s5e11",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p5",
+     "p2": "s5p0"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s5e6",
+    "s5e7",
+    "s5e8",
+    "s5e9",
+    "s5e10",
+    "s5e11"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s5"
+  },
+  "s6": {
+   "id": "s6",
+   "name": "Sketch6",
+   "plane": "m8koppeling",
+   "points": {
+    "origin_s6": {
+     "x": 0,
+     "y": 0
+    },
+    "s6p0": {
+     "x": -60,
+     "y": -20
+    }
+   },
+   "scalars": {
+    "s6s1": 4
+   },
+   "entities": {
+    "s6e2": {
+     "id": "s6e2",
+     "construction": false,
+     "kind": "circle",
+     "center": "s6p0",
+     "r": "s6s1"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s6e2"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s6"
+  },
+  "s7": {
+   "id": "s7",
+   "name": "Sketch7",
+   "plane": "m8front",
+   "points": {
+    "origin_s7": {
+     "x": 0,
+     "y": 0
+    },
+    "s7p0": {
+     "x": -60,
+     "y": -20
+    }
+   },
+   "scalars": {
+    "s7s1": 3
+   },
+   "entities": {
+    "s7e2": {
+     "id": "s7e2",
+     "construction": false,
+     "kind": "circle",
+     "center": "s7p0",
+     "r": "s7s1"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s7e2"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s7"
+  },
+  "s8": {
+   "id": "s8",
+   "name": "Sketch8",
+   "plane": "m8pennen",
+   "points": {
+    "origin_s8": {
+     "x": 0,
+     "y": 0
+    },
+    "s8p0": {
+     "x": -61.7,
+     "y": -20.98
+    },
+    "s8p3": {
+     "x": -58.3,
+     "y": -20.98
+    },
+    "s8p6": {
+     "x": -61.7,
+     "y": -19.02
+    },
+    "s8p9": {
+     "x": -58.3,
+     "y": -19.02
+    }
+   },
+   "scalars": {
+    "s8s1": 0.5,
+    "s8s4": 0.5,
+    "s8s7": 0.5,
+    "s8s10": 0.5
+   },
+   "entities": {
+    "s8e2": {
+     "id": "s8e2",
+     "construction": false,
+     "kind": "circle",
+     "center": "s8p0",
+     "r": "s8s1"
+    },
+    "s8e5": {
+     "id": "s8e5",
+     "construction": false,
+     "kind": "circle",
+     "center": "s8p3",
+     "r": "s8s4"
+    },
+    "s8e8": {
+     "id": "s8e8",
+     "construction": false,
+     "kind": "circle",
+     "center": "s8p6",
+     "r": "s8s7"
+    },
+    "s8e11": {
+     "id": "s8e11",
+     "construction": false,
+     "kind": "circle",
+     "center": "s8p9",
+     "r": "s8s10"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s8e2",
+    "s8e5",
+    "s8e8",
+    "s8e11"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s8"
   }
  },
  "features": [
@@ -252,12 +678,12 @@
   {
    "id": "f2",
    "type": "extrude",
-   "name": "Huis door de wand",
+   "name": "Flens SW12",
    "sketchId": "s1",
    "suppressed": false,
    "op": "boss",
    "end": "blind",
-   "depth": 3.2,
+   "depth": 2,
    "reverse": false
   },
   {
@@ -270,13 +696,17 @@
   {
    "id": "f4",
    "type": "extrude",
-   "name": "Moer binnen",
+   "name": "Huis",
    "sketchId": "s2",
    "suppressed": false,
    "op": "boss",
    "end": "blind",
-   "depth": 3,
-   "reverse": false
+   "depth": 5,
+   "reverse": false,
+   "direction2": {
+    "end": "blind",
+    "depth": 0.2
+   }
   },
   {
    "id": "ks3",
@@ -288,13 +718,17 @@
   {
    "id": "f6",
    "type": "extrude",
-   "name": "Flens",
+   "name": "Soldeerbekers",
    "sketchId": "s3",
    "suppressed": false,
    "op": "boss",
    "end": "blind",
-   "depth": 2,
-   "reverse": false
+   "depth": 3,
+   "reverse": false,
+   "direction2": {
+    "end": "blind",
+    "depth": 0.2
+   }
   },
   {
    "id": "ks4",
@@ -306,8 +740,44 @@
   {
    "id": "f8",
    "type": "extrude",
-   "name": "Koppeling M8",
+   "name": "Schroefdraad M10",
    "sketchId": "s4",
+   "suppressed": false,
+   "op": "boss",
+   "end": "blind",
+   "depth": 3.3,
+   "reverse": false
+  },
+  {
+   "id": "ks5",
+   "type": "sketch",
+   "name": "Sketch5",
+   "sketchId": "s5",
+   "suppressed": false
+  },
+  {
+   "id": "f10",
+   "type": "extrude",
+   "name": "Moer SW10",
+   "sketchId": "s5",
+   "suppressed": false,
+   "op": "boss",
+   "end": "blind",
+   "depth": 3,
+   "reverse": false
+  },
+  {
+   "id": "ks6",
+   "type": "sketch",
+   "name": "Sketch6",
+   "sketchId": "s6",
+   "suppressed": false
+  },
+  {
+   "id": "f12",
+   "type": "extrude",
+   "name": "Koppeling M8",
+   "sketchId": "s6",
    "suppressed": false,
    "op": "boss",
    "end": "blind",
@@ -315,7 +785,47 @@
    "reverse": false,
    "direction2": {
     "end": "blind",
-    "depth": 0.3
+    "depth": 0.2
+   }
+  },
+  {
+   "id": "ks7",
+   "type": "sketch",
+   "name": "Sketch7",
+   "sketchId": "s7",
+   "suppressed": false
+  },
+  {
+   "id": "f14",
+   "type": "extrude",
+   "name": "Kraag",
+   "sketchId": "s7",
+   "suppressed": false,
+   "op": "cut",
+   "end": "blind",
+   "depth": 5,
+   "reverse": true
+  },
+  {
+   "id": "ks8",
+   "type": "sketch",
+   "name": "Sketch8",
+   "sketchId": "s8",
+   "suppressed": false
+  },
+  {
+   "id": "f16",
+   "type": "extrude",
+   "name": "Pennen",
+   "sketchId": "s8",
+   "suppressed": false,
+   "op": "boss",
+   "end": "blind",
+   "depth": 4.5,
+   "reverse": false,
+   "direction2": {
+    "end": "blind",
+    "depth": 0.2
    }
   }
  ],

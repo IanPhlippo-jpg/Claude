@@ -6,10 +6,10 @@
  "planes": {
   "boven": {
    "id": "boven",
-   "name": "Face boven",
+   "name": "Plane boven",
    "origin": [
     0,
-    4,
+    6,
     0
    ],
    "u": [
@@ -25,6 +25,31 @@
    "n": [
     0,
     1,
+    0
+   ],
+   "kind": "reference"
+  },
+  "onder": {
+   "id": "onder",
+   "name": "Face onderkant",
+   "origin": [
+    0,
+    0,
+    0
+   ],
+   "u": [
+    1,
+    0,
+    0
+   ],
+   "v": [
+    0,
+    0,
+    1
+   ],
+   "n": [
+    0,
+    -1,
     0
    ],
    "kind": "face"
@@ -132,7 +157,7 @@
     }
    },
    "scalars": {
-    "s2s1": 2.1
+    "s2s1": 2.75
    },
    "entities": {
     "s2e2": {
@@ -149,6 +174,97 @@
    ],
    "constraintOrder": [],
    "origin": "origin_s2"
+  },
+  "s3": {
+   "id": "s3",
+   "name": "Sketch3",
+   "plane": "onder",
+   "points": {
+    "origin_s3": {
+     "x": 0,
+     "y": 0
+    },
+    "s3p0": {
+     "x": 4.792007,
+     "y": 0
+    },
+    "s3p1": {
+     "x": 2.396004,
+     "y": 4.15
+    },
+    "s3p2": {
+     "x": -2.396004,
+     "y": 4.15
+    },
+    "s3p3": {
+     "x": -4.792007,
+     "y": 0
+    },
+    "s3p4": {
+     "x": -2.396004,
+     "y": -4.15
+    },
+    "s3p5": {
+     "x": 2.396004,
+     "y": -4.15
+    }
+   },
+   "scalars": {},
+   "entities": {
+    "s3e6": {
+     "id": "s3e6",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p0",
+     "p2": "s3p1"
+    },
+    "s3e7": {
+     "id": "s3e7",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p1",
+     "p2": "s3p2"
+    },
+    "s3e8": {
+     "id": "s3e8",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p2",
+     "p2": "s3p3"
+    },
+    "s3e9": {
+     "id": "s3e9",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p3",
+     "p2": "s3p4"
+    },
+    "s3e10": {
+     "id": "s3e10",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p4",
+     "p2": "s3p5"
+    },
+    "s3e11": {
+     "id": "s3e11",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p5",
+     "p2": "s3p0"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s3e6",
+    "s3e7",
+    "s3e8",
+    "s3e9",
+    "s3e10",
+    "s3e11"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s3"
   }
  },
  "features": [
@@ -167,7 +283,7 @@
    "suppressed": false,
    "op": "boss",
    "end": "blind",
-   "depth": 4,
+   "depth": 6,
    "reverse": false
   },
   {
@@ -180,18 +296,36 @@
   {
    "id": "f4",
    "type": "extrude",
-   "name": "Gat M5 (tappen)",
+   "name": "Gat schroef",
    "sketchId": "s2",
    "suppressed": false,
    "op": "cut",
    "end": "blind",
-   "depth": 5,
+   "depth": 7,
+   "reverse": true
+  },
+  {
+   "id": "ks3",
+   "type": "sketch",
+   "name": "Sketch3",
+   "sketchId": "s3",
+   "suppressed": false
+  },
+  {
+   "id": "f6",
+   "type": "extrude",
+   "name": "Kamer moer",
+   "sketchId": "s3",
+   "suppressed": false,
+   "op": "cut",
+   "end": "blind",
+   "depth": 4.2,
    "reverse": true
   }
  ],
  "material": {
-  "name": "AISI 304",
-  "density": 8000,
-  "color": "#b8bcc2"
+  "name": "PETG, wit",
+  "density": 1270,
+  "color": "#f4f4f1"
  }
 }

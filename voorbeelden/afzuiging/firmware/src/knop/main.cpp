@@ -3,14 +3,15 @@
 // protocol.h) en toont wat de module terugmeldt. De knop krijgt alleen 5 V over een gewone USB-C-kabel.
 //
 // Bediening
-//   draaien                 zuigkracht in stappen van 5 % (20 tot 100 %); draaien als hij uit staat zet hem aan
-//   drukken                 aan / uit
-//   1 s vasthouden          boost: 2 minuten 100 %
-//   5 s vasthouden          ijken op schone filters (na het vervangen): de module laat de ventilator 20 -> 100 % lopen
-//                           en onthoudt het drukverschil van schone filters bij elke snelheid
-// Het scherm toont de zuigkracht (ring en %), het drukverschil over de filters en hoe vol de filters zijn. Is het
-// drukverschil bij dezelfde snelheid verdubbeld, dan meldt het scherm "Filter vol" (oranje ring). Valt het
-// drukverschil weg terwijl de ventilator hoort te draaien, dan meldt het een storing (rode ring).
+//   draaien                 zuigkracht in stappen van 5 % (20 tot 80 %); draaien als hij uit staat zet hem aan
+//   drukken                 aan / uit (UIT heeft voorrang: ook een ijking stopt meteen)
+//   1 s vasthouden          boost: 2 minuten 100 % (de module houdt de tijd zelf bij)
+//   5 tot 10 s vasthouden   ijken op een schoon filter (na het vervangen), bij het loslaten
+//   10 s vasthouden         opnieuw koppelen met de box (zet daarna de box uit en weer aan)
+// Het scherm toont wat de module bevestigt (niet wat de knop vraagt): de stand, het drukverschil over het filter en
+// hoe vol het filter is. Is het drukverschil bij dezelfde stand verdubbeld, dan meldt het scherm "filter vervangen"
+// (oranje ring). Valt het drukverschil weg of draait de ventilator niet, dan meldt het een storing (rode ring). Is de
+// meting niet actueel, dan toont het scherm geen drukwaarde. Na het aanzetten staat alles UIT.
 //
 // Aansluiting (zie ../../schema/Aansluitschema-afzuiging.pdf): FPC van de knop op de adapterprint -A3, 4 draden naar
 // het USB-C-printje -X7 in de achterwand van de knophouder: VBUS -> FPC 1 (+5 V), GND -> FPC 3, D+ -> FPC 9,
@@ -35,10 +36,9 @@ constexpr int LCD_CS = 12, LCD_SCK = 10, LCD_D0 = 13, LCD_D1 = 11, LCD_D2 = 14, 
 constexpr int ENC_A = 6, ENC_B = 5, KNOP = 0;
 constexpr int SCHERM = 466, KOLOM_OFFSET = 6; // het paneel is 472 breed: 6 kolommen verschuiven
 
-constexpr int MIN_PCT = 20, MAX_PCT = 100, STAP_PCT = 5;
+constexpr int MIN_PCT = 20, MAX_PCT = 80, STAP_PCT = 5; // 100 % alleen als boost (warmte box)
 constexpr int ENCODER_PER_STAP = 4;          // de encoder telt 4 flanken per klik
-constexpr uint32_t BOOST_MS = 2 * 60 * 1000; // boost: 2 minuten volle kracht
-constexpr uint32_t BOOST_HOUD_MS = 1000, IJK_HOUD_MS = 5000;
+constexpr uint32_t BOOST_HOUD_MS = 1000, IJK_HOUD_MS = 5000, KOPPEL_HOUD_MS = 10000; // de boost zelf (120 s) telt de module
 constexpr uint32_t BEWAAR_NA_MS = 3000;      // instelling bewaren 3 s na de laatste wijziging
 constexpr uint32_t STILTE_MS = 3000;         // zonder status van de module: "geen verbinding"
 
@@ -73,48 +73,75 @@ long encoderLees() {
   return v;
 }
 
-// status van de module (geschreven in de ontvangst-callback)
+// gemeenschappelijke hoofdsleutel van ESP-NOW (PMK, zoals in de module); de sleutel per set maakt de knop zelf
+const uint8_t PMK[16] = {'L', 'u', 's', 'h', 'B', 'e', 'a', 'u', 't', 'y', '-', 'A', 'F', 'Z', 'v', '2'};
+
+// koppeling met de module van deze set
+bool gekoppeld = false;
+uint8_t moduleMac[6];
+uint8_t sleutel[16];
+
+// status van de module (geschreven in de ontvangst-callback): alleen van de gekoppelde module
 Status ontvangen;
 volatile uint32_t laatsteStatus = 0;
+volatile bool koppelAntwoord = false;
+uint8_t koppelVan[6];
 portMUX_TYPE slot = portMUX_INITIALIZER_UNLOCKED;
 
-void bijOntvangst(const uint8_t *, const uint8_t *data, int len) {
-  if (len != (int)sizeof(Status)) return;
-  Status st;
-  memcpy(&st, data, sizeof st);
-  if (st.magie != MAGIE || st.soort != SOORT_STATUS) return;
-  portENTER_CRITICAL(&slot);
-  ontvangen = st;
-  laatsteStatus = millis();
-  portEXIT_CRITICAL(&slot);
+void bijOntvangst(const uint8_t *mac, const uint8_t *data, int len) {
+  if (len == (int)sizeof(Status)) {
+    if (!gekoppeld || memcmp(mac, moduleMac, 6) != 0) return;
+    Status st;
+    memcpy(&st, data, sizeof st);
+    if (st.magie != MAGIE || st.versie != VERSIE || st.soort != SOORT_STATUS) return;
+    portENTER_CRITICAL(&slot);
+    ontvangen = st;
+    laatsteStatus = millis();
+    portEXIT_CRITICAL(&slot);
+  } else if (len == (int)sizeof(Koppel) && !gekoppeld) {
+    Koppel k;
+    memcpy(&k, data, sizeof k);
+    if (k.magie != MAGIE || k.versie != VERSIE || k.soort != SOORT_KOPPEL_OK) return;
+    portENTER_CRITICAL(&slot);
+    memcpy(koppelVan, mac, 6);
+    koppelAntwoord = true;
+    portEXIT_CRITICAL(&slot);
+  }
+}
+
+void voegModuleToe() {
+  esp_now_del_peer(moduleMac);
+  esp_now_peer_info_t peer = {};
+  memcpy(peer.peer_addr, moduleMac, 6);
+  peer.channel = KANAAL;
+  peer.encrypt = true;
+  memcpy(peer.lmk, sleutel, 16);
+  esp_now_add_peer(&peer);
 }
 
 struct Toestand {
-  bool aan = false;
+  bool aan = false;    // wat de gebruiker wil (de module bevestigt)
   int pct = 50;
-  uint32_t boostTot = 0; // millis(); 0 = geen boost
-  uint8_t ijk = 0;       // teller voor de ijkvraag
-  uint16_t sessie = 0;   // willekeurig bij de start
+  uint8_t ijk = 0;     // teller voor de ijkvraag
+  uint8_t boost = 0;   // teller voor de boostvraag
+  uint16_t sessie = 0; // willekeurig bij de start
+  uint32_t volgnr = 0;
 } t;
 
 long encoderVorig = 0;
 uint32_t laatsteWijziging = 0;
 bool teBewaren = false, gewijzigd = true;
 
-bool boostActief(uint32_t nu) { return t.boostTot != 0 && (int32_t)(t.boostTot - nu) > 0; }
-
-int doelPct(uint32_t nu) {
-  if (!t.aan) return 0;
-  return boostActief(nu) ? MAX_PCT : t.pct;
-}
-
-void stuurOpdracht(uint32_t nu) {
+void stuurOpdracht() {
+  if (!gekoppeld) return;
   Opdracht o;
   o.aan = t.aan;
-  o.pct = t.aan ? doelPct(nu) : t.pct;
+  o.pct = t.pct;
   o.ijk = t.ijk;
+  o.boost = t.boost;
   o.sessie = t.sessie;
-  esp_now_send(IEDEREEN, (const uint8_t *)&o, sizeof o);
+  o.volgnr = ++t.volgnr;
+  esp_now_send(moduleMac, (const uint8_t *)&o, sizeof o);
 }
 
 // ---- scherm (466 x 466; het ontwerp is getekend op 240 x 240 en wordt geschaald) ----
@@ -242,6 +269,14 @@ void teken(uint32_t nu) {
   portEXIT_CRITICAL(&slot);
 
   canvas->fillScreen(ZWART);
+  if (!gekoppeld) {
+    ring(0, nullptr);
+    logo(S(120), S(52), BEIGE);
+    tekst(TITEL, "KOPPELEN", S(120), S(104), WIT);
+    tekenTekst("zet de voedingsbox", "uit en weer aan", LICHT);
+    canvas->flush();
+    return;
+  }
   if (verbonden && st.ijken) {
     ring(BOOG * st.ijkVoortgang / 100.0f, &V_BEIGE);
     logo(S(120), S(52), BEIGE);
@@ -250,48 +285,58 @@ void teken(uint32_t nu) {
     canvas->flush();
     return;
   }
-  const bool boost = t.aan && boostActief(nu);
-  const int pct = doelPct(nu);
-  const bool vol = verbonden && t.aan && !isnan(st.vol) && st.vol >= 1.0f;
-  const bool storing = verbonden && t.aan && st.storing;
+  // zonder verbinding: alleen wat de knop vraagt, uitdrukkelijk als niet bevestigd
+  if (!verbonden) {
+    ring(0, nullptr);
+    logo(S(120), S(52), BEIGE);
+    if (t.aan) tekst(TITEL, "AAN?", S(120), S(108), MIDDEN);
+    else tekst(GROOT, "UIT", S(120), S(112), MIDDEN);
+    tekenTekst("geen verbinding met de box", t.aan ? "stand niet bevestigd" : nullptr, ORANJE);
+    canvas->flush();
+    return;
+  }
+  const bool aan = st.aan;
+  const bool vol = aan && st.meetVers && !isnan(st.vol) && st.vol >= 1.0f;
+  const bool storing = aan && st.storing != STORING_GEEN;
   const Verloop *verloop = storing ? &V_ROOD : vol ? &V_ORANJE : &V_BEIGE;
-  ring(t.aan ? BOOG * pct / 100.0f : 0, t.aan ? verloop : nullptr);
+  ring(aan ? BOOG * st.pct / 100.0f : 0, aan ? verloop : nullptr);
   logo(S(120), S(52), BEIGE);
-  if (!t.aan) {
+  char s[40];
+  if (!aan) {
     tekst(GROOT, "UIT", S(120), S(112), MIDDEN);
-    tekenTekst("druk om te starten", verbonden ? nullptr : "geen verbinding met de box", MIDDEN);
+    if (st.ijkFout != IJK_OK && st.ijkFout != IJK_AFGEBROKEN) tekenTekst("ijken mislukt", "vorige ijking blijft", ORANJE);
+    else tekenTekst("druk om te starten", nullptr, MIDDEN);
   } else {
-    procent(pct, S(110));
-    char s[32];
-    if (!verbonden) {
-      tekenTekst("geen verbinding", "met de voedingsbox", ORANJE);
+    procent(st.pct, S(110));
+    if (st.storing == STORING_STIL) {
+      tekenTekst("ventilator draait niet", "M8-kabel nakijken", ROOD);
+    } else if (st.storing == STORING_GEEN_LUCHT) {
+      tekenTekst("geen luchtstroom", "slang en filter nakijken", ROOD);
     } else if (!st.meter) {
       tekenTekst("drukmeter niet gevonden", "bedrading in de box nakijken", ORANJE);
-    } else if (storing && st.storing == 2) {
-      tekenTekst("ventilator draait niet", "M8-kabel nakijken", ROOD);
-    } else if (storing) {
-      tekenTekst("geen luchtstroom", "slang en filters nakijken", ROOD);
+    } else if (!st.meetVers) {
+      tekenTekst("meting niet actueel", "filterbewaking even uit", ORANJE);
     } else if (vol) {
-      tekenTekst("Filter vol", "filters uitkloppen", ORANJE);
-    } else if (boost) {
-      const uint32_t rest = (t.boostTot - nu) / 1000;
-      snprintf(s, sizeof s, "BOOST %lu:%02lu", (unsigned long)(rest / 60), (unsigned long)(rest % 60));
+      tekenTekst("filter vervangen", "in een zak, niet uitkloppen", ORANJE);
+    } else if (st.ijkFout != IJK_OK && st.ijkFout != IJK_AFGEBROKEN) {
+      tekenTekst("ijken mislukt", "vorige ijking blijft", ORANJE);
+    } else if (st.boostRest) {
+      snprintf(s, sizeof s, "BOOST %u:%02u", st.boostRest / 60, st.boostRest % 60);
       tekenTekst(s, nullptr, BEIGE);
     } else if (!st.geijkt) {
-      tekenTekst("nieuwe filters?", "knop 5 s vasthouden", LICHT);
+      tekenTekst("nieuw filter?", "knop 5 s vasthouden", LICHT);
     } else {
-      snprintf(s, sizeof s, "%.0f Pa over de filters", st.dp);
+      snprintf(s, sizeof s, "%.0f Pa, %u tpm", st.dp, st.toeren);
       tekenTekst(s, nullptr, LICHT);
     }
-    // filterbalk: hoe vol de filters zijn
-    if (verbonden && st.geijkt && !isnan(st.vol)) balk(st.vol, vol ? V_ORANJE : V_BEIGE);
+    // filterbalk: hoe vol het filter is (alleen met een verse meting op een te bewaken stand)
+    if (st.geijkt && st.meetVers && !isnan(st.vol)) balk(st.vol, vol ? V_ORANJE : V_BEIGE);
   }
   canvas->flush();
 }
 
 void schakel() {
   t.aan = !t.aan;
-  t.boostTot = 0;
   teBewaren = true;
   gewijzigd = true;
   laatsteWijziging = millis();
@@ -318,18 +363,22 @@ void setup() {
 
   prefs.begin("afzuiging", false);
   t.pct = constrain(prefs.getInt("pct", 50), MIN_PCT, MAX_PCT);
-  t.aan = prefs.getBool("aan", false);
+  t.aan = false; // na het aanzetten (ook na een stroomonderbreking) altijd UIT
+  gekoppeld = prefs.getBytes("modulemac", moduleMac, 6) == 6 && prefs.getBytes("sleutel", sleutel, 16) == 16;
+  if (!gekoppeld) for (auto &b : sleutel) b = (uint8_t)esp_random();
   t.sessie = (uint16_t)esp_random();
   encoderVorig = encoderLees();
 
   WiFi.mode(WIFI_STA);
   esp_wifi_set_channel(KANAAL, WIFI_SECOND_CHAN_NONE);
   if (esp_now_init() != ESP_OK) Serial.println("ESP-NOW start niet");
+  esp_now_set_pmk(PMK);
   esp_now_peer_info_t peer = {};
-  memcpy(peer.peer_addr, IEDEREEN, 6);
+  memcpy(peer.peer_addr, IEDEREEN, 6); // alleen voor de koppelvraag
   peer.channel = KANAAL;
   peer.encrypt = false;
   esp_now_add_peer(&peer);
+  if (gekoppeld) voegModuleToe();
   esp_now_register_recv_cb(bijOntvangst);
 }
 
@@ -347,7 +396,6 @@ void loop() {
       const int nieuw = constrain(t.pct + (int)stappen * STAP_PCT, MIN_PCT, MAX_PCT);
       if (nieuw != t.pct) {
         t.pct = nieuw;
-        t.boostTot = 0;
         gewijzigd = true;
       }
       teBewaren = true;
@@ -355,7 +403,7 @@ void loop() {
     }
   }
 
-  // drukknop: kort = aan/uit, 1 s = boost (bij loslaten), 5 s = ijken (meteen)
+  // drukknop: kort = aan/uit, 1 s = boost, 5..10 s = ijken (bij het loslaten), 10 s = opnieuw koppelen
   static uint32_t knopSinds = 0;
   static bool knopGebruikt = false, knopVorig = false;
   const bool knop = digitalRead(KNOP) == LOW;
@@ -363,37 +411,57 @@ void loop() {
     knopSinds = nu;
     knopGebruikt = false;
   }
-  if (knop && !knopGebruikt && nu - knopSinds > IJK_HOUD_MS) {
-    knopGebruikt = true; // één keer per indrukken
-    t.ijk++;
-    gewijzigd = true;
+  if (knop && !knopGebruikt && nu - knopSinds > KOPPEL_HOUD_MS) {
+    knopGebruikt = true;
+    gekoppeld = false;
+    prefs.remove("modulemac");
+    prefs.remove("sleutel");
+    for (auto &b : sleutel) b = (uint8_t)esp_random();
   }
   if (!knop && knopVorig && !knopGebruikt && nu - knopSinds > 30) {
-    if (nu - knopSinds >= BOOST_HOUD_MS) {
-      if (!t.aan) schakel();
-      t.boostTot = nu + BOOST_MS;
-      gewijzigd = true;
+    const uint32_t duur = nu - knopSinds;
+    if (duur >= IJK_HOUD_MS) {
+      t.aan = true; // ijken gebeurt met de ventilator aan
+      t.ijk++;
+    } else if (duur >= BOOST_HOUD_MS) {
+      t.aan = true;
+      t.boost++;
     } else {
       schakel();
     }
+    gewijzigd = true;
   }
   knopVorig = knop;
-  if (t.boostTot != 0 && !boostActief(nu)) {
-    t.boostTot = 0;
-    gewijzigd = true;
+
+  // koppelen: vragen tot een module antwoordt (in haar koppelvenster)
+  static uint32_t vorigeVraag = 0;
+  if (!gekoppeld && nu - vorigeVraag >= 500) {
+    vorigeVraag = nu;
+    Koppel k;
+    memcpy(k.sleutel, sleutel, 16);
+    esp_now_send(IEDEREEN, (const uint8_t *)&k, sizeof k);
+  }
+  if (koppelAntwoord) {
+    portENTER_CRITICAL(&slot);
+    memcpy(moduleMac, koppelVan, 6);
+    koppelAntwoord = false;
+    portEXIT_CRITICAL(&slot);
+    prefs.putBytes("modulemac", moduleMac, 6);
+    prefs.putBytes("sleutel", sleutel, 16);
+    gekoppeld = true;
+    voegModuleToe();
   }
 
   // opdracht naar de module: meteen bij een wijziging, anders 4 keer per seconde
   static uint32_t vorigeOpdracht = 0;
   if (gewijzigd || nu - vorigeOpdracht >= 250) {
-    stuurOpdracht(nu);
+    stuurOpdracht();
     vorigeOpdracht = nu;
     gewijzigd = false;
   }
 
   if (teBewaren && nu - laatsteWijziging > BEWAAR_NA_MS) {
-    prefs.putInt("pct", t.pct);
-    prefs.putBool("aan", t.aan);
+    prefs.putInt("pct", t.pct); // alleen de stand; AAN wordt bewust niet bewaard
     teBewaren = false;
   }
 

@@ -3,7 +3,7 @@
  * een vierkante romp, voedingsbox apart onder het blad.
  * - elk onderdeel bouwt op beide kernels tot één body met dezelfde vorm; het rooster is lasersnijbaar;
  * - de PETG-delen passen op een printbed van 225 x 225 (de Centauri Carbon heeft 256 x 256); de module hangt
- *   hoogstens 86 mm onder een blad van 34 mm;
+ *   hoogstens 71 mm onder een blad van 34 mm;
  * - niets botst (ook de voedingsbox); de klauwen passen bij elke bladdikte van 10 tot 50 mm en liggen ingetrokken
  *   binnen de romp; de filtercassette gaat vrij naar boven uit de module;
  * - het luchtkanaal is dicht: lucht kan er alleen in langs het rooster en uit langs de bodemplaat.
@@ -43,31 +43,31 @@ describe('afzuiging, onderdelen (mesh)', () => {
     expect(mesh[f].n).toBe(1);
   }, 60000);
 
-  it('maten: romp, frame, rooster, klauw, ventilator; de module hangt hoogstens 86 mm onder een blad van 34 mm', () => {
-    expect(rond(mesh['Romp.kcad'].bb.min)).toEqual([-105, -114, -105]);
+  it('maten: romp, frame, rooster, klauw, ventilator; de module hangt hoogstens 71 mm onder een blad van 34 mm', () => {
+    expect(rond(mesh['Romp.kcad'].bb.min)).toEqual([-105, -99, -105]);
     expect(rond(mesh['Romp.kcad'].bb.max)).toEqual([105, 0, 105]);
     expect(rond(mesh['Bovenframe.kcad'].bb.min)).toEqual([-111, 0, -111]);
     expect(rond(mesh['Bovenframe.kcad'].bb.max)).toEqual([111, 2.5, 111]);
     // de RVS-plaat ligt op het frame en is er even groot als het: bovenkant 4 mm boven het blad
     expect(rond(mesh['Rooster-LB.kcad'].bb.min)).toEqual([-111, 2.5, -111]);
     expect(rond(mesh['Rooster-LB.kcad'].bb.max)).toEqual([111, 4, 111]);
-    expect(rond(mesh['Klauw.kcad'].bb.max)).toEqual([18, 4, 6.5]);
+    expect(rond(mesh['Klauw.kcad'].bb.max)).toEqual([18, 6, 6.5]);
     // de waaier staat 2 mm onder de instroomplaat, de motor op de bodemplaat
-    expect(rond(mesh['Ventilator-San-Ace-C175.kcad'].bb.min)).toEqual([-87.5, -114, -87.5]);
-    expect(rond(mesh['Ventilator-San-Ace-C175.kcad'].bb.max)).toEqual([87.5, -45, 87.5]);
-    expect(rond(mesh['Instroomplaat.kcad'].bb.min)).toEqual([-100.7, -43, -100.7]);
+    expect(rond(mesh['Ventilator-San-Ace-C175.kcad'].bb.min)).toEqual([-87.5, -99, -87.5]);
+    expect(rond(mesh['Ventilator-San-Ace-C175.kcad'].bb.max)).toEqual([87.5, -30, 87.5]);
+    expect(rond(mesh['Instroomplaat.kcad'].bb.min)).toEqual([-100.7, -28, -100.7]);
     const onder = mesh['Bodemplaat.kcad'].bb.min.y;
-    expect(rond(mesh['Bodemplaat.kcad'].bb.min)).toEqual([-105, -120, -105]); // één plaat over de hele onderkant
-    expect(rond(mesh['Bodemplaat.kcad'].bb.max)).toEqual([105, -114, 105]);
-    expect(-onder - 34).toBeLessThanOrEqual(86);
+    expect(rond(mesh['Bodemplaat.kcad'].bb.min)).toEqual([-105, -105, -105]); // één plaat over de hele onderkant
+    expect(rond(mesh['Bodemplaat.kcad'].bb.max)).toEqual([105, -99, 105]);
+    expect(-onder - 34).toBeLessThanOrEqual(71);
   });
 
-  it('PETG-delen passen op een printbed van 225 x 225 mm (en 250 hoog)', () => {
+  it('PETG-delen passen op het bed van de Centauri Carbon (256 x 256, 250 hoog; 3 mm marge)', () => {
     for (const f of DELEN) {
       const doc = open(f);
       if (!/^PETG/.test(doc.material?.name ?? '')) continue;
       const s = mesh[f].bb.getSize(new THREE.Vector3()).toArray().sort((a, b) => b - a);
-      expect(s[0], f).toBeLessThanOrEqual(225);
+      expect(s[0], f).toBeLessThanOrEqual(250);
       expect(s[2], f).toBeLessThanOrEqual(250);
     }
   });
@@ -102,14 +102,14 @@ describe('afzuiging, assemblage', () => {
   it('de filtercassette gaat met de filters vrij naar boven uit de module (zonder rooster)', () => {
     const a = asm();
     const zonder = a.components.filter((c) => c.id !== 'a2');
-    for (const dy of [10, 60]) expect(botsingen(verschuif(zonder, ['a3', 'a3r', 'af1', 'af2', 'af3'], [0, dy, 0])), String(dy)).toEqual([]);
+    for (const dy of [10, 60]) expect(botsingen(verschuif(zonder, ['a3', 'a3r', 'af1'], [0, dy, 0])), String(dy)).toEqual([]);
   }, 900000);
 
   it('de klauwen passen bij elke bladdikte van 10 tot 50 mm en reiken voorbij de uitsparing', () => {
     const a = asm();
     const klauwen = a.components.filter((c) => /^ak/.test(c.id)).map((c) => c.id);
     for (const t of [10, 20, 34, 50]) {
-      const comps = a.components.map((c) => (klauwen.includes(c.id) ? { ...c, position: [c.position[0], -t - 4, c.position[2]] as [number, number, number] } : c))
+      const comps = a.components.map((c) => (klauwen.includes(c.id) ? { ...c, position: [c.position[0], -t - 6, c.position[2]] as [number, number, number] } : c))
         .filter((c) => ['a1', 'a6', ...klauwen].includes(c.id));
       expect(botsingen(comps), `blad ${t} mm`).toEqual([]);
     }
@@ -126,7 +126,7 @@ describe('afzuiging, assemblage', () => {
     const d = a.components.find((c) => c.id === 'a7')!.position;
     const klauwen = a.components.filter((c) => /^adk/.test(c.id)).map((c) => c.id);
     for (const t of [10, 20, 34, 50]) {
-      const comps = a.components.map((c) => (klauwen.includes(c.id) ? { ...c, position: [c.position[0], -t - 3, c.position[2]] as [number, number, number] } : c))
+      const comps = a.components.map((c) => (klauwen.includes(c.id) ? { ...c, position: [c.position[0], -t - 5, c.position[2]] as [number, number, number] } : c))
         .filter((c) => ['a7', 'a12', 'a8', 'a14', ...klauwen].includes(c.id) || /^as(d|k|dk)\d/.test(c.id));
       expect(botsingen(comps), `blad ${t} mm`).toEqual([]);
     }
@@ -164,7 +164,7 @@ describe('afzuiging, assemblage', () => {
  * nergens bereiken. Boven stopt het bij het rooster, onder bij de bodemplaat.
  */
 function lek(geoms: THREE.BufferGeometry[]): { lek: boolean; waar?: number[]; vrij: number } {
-  const X0 = -115, Z0 = -115, Y0 = -113.73, nx = 230, nz = 230, ny = 116, off = 0.27; // tot net onder de bovenkant van het frame
+  const X0 = -115, Z0 = -115, Y0 = -98.73, nx = 230, nz = 230, ny = 101, off = 0.27; // tot net onder de bovenkant van het frame
   const vast = new Uint8Array(nx * ny * nz);
   const idx = (i: number, j: number, k: number) => (j * nz + k) * nx + i;
   const ray = new THREE.Ray();
@@ -184,7 +184,7 @@ function lek(geoms: THREE.BufferGeometry[]): { lek: boolean; waar?: number[]; vr
     }
   }
   const zien = new Uint8Array(nx * ny * nz);
-  const start = idx(115, Math.round(-38.73 - Y0), 115); // (0, -38,7, 0): onder de filters, boven de instroomplaat
+  const start = idx(115, Math.round(-23.73 - Y0), 115); // (0, -23,7, 0): onder het filter, boven de instroomplaat
   if (vast[start]) throw new Error('startpunt zit in materiaal');
   const q = [start];
   zien[start] = 1;
@@ -210,10 +210,10 @@ describe('afzuiging, luchtdicht', () => {
   const g = (f: string) => (rebuildDocument(open(f)) as unknown as R).bodies[0].geometry;
   // de M8-bus en het messingbuisje in de achterwand
   const dicht = [
-    new THREE.CylinderGeometry(6.6, 6.6, 6, 24).rotateX(Math.PI / 2).translate(-60, -95, -105), // M8-bus
-    new THREE.CylinderGeometry(1.8, 1.8, 8, 16).rotateX(Math.PI / 2).translate(-75, -100, -105), // messingbuisje
+    new THREE.CylinderGeometry(6.6, 6.6, 6, 24).rotateX(Math.PI / 2).translate(-60, -80, -105), // M8-bus
+    new THREE.CylinderGeometry(1.8, 1.8, 8, 16).rotateX(Math.PI / 2).translate(-75, -85, -105), // messingbuisje
     // de M5-schroeven: de kop dicht de verzinking in het frame af, de schacht het gat
-    ...[[100.5, 72], [100.5, -72], [-100.5, 72], [-100.5, -72]].flatMap(([x, z]) => [
+    ...[[96.5, 72], [96.5, -72], [-96.5, 72], [-96.5, -72]].flatMap(([x, z]) => [
       new THREE.CylinderGeometry(5.3, 5.3, 2.5, 24).translate(x, 1.25, z), // de kop zit in de lip van het frame
       new THREE.CylinderGeometry(3, 3, 66, 16).translate(x, -33, z),
     ]),
@@ -259,6 +259,8 @@ describe('afzuiging, B-rep', () => {
     const stand: Record<string, THREE.Matrix4> = {
       'Romp.kcad': plat, 'Bovenframe.kcad': plat, 'Bodemplaat.kcad': plat, 'Instroomplaat.kcad': plat, 'Voedingsbox.kcad': plat,
       'Filtercassette.kcad': plat, 'Cassetterand.kcad': plat, 'Knophouder.kcad': rand, 'Knopdeksel.kcad': plat,
+      // klauwen plat met de moerkamer op het bed (100 % vulling), de adapterklem plat
+      'Klauw.kcad': plat, 'Knopklauw.kcad': plat, 'Adapterklem.kcad': plat, 'Deksel-voedingsbox.kcad': plat,
     };
     if (existsSync(`${DIR}/print`)) rmSync(`${DIR}/print`, { recursive: true });
     mkdirSync(`${DIR}/print`, { recursive: true });
@@ -269,7 +271,27 @@ describe('afzuiging, B-rep', () => {
       writeFileSync(`${DIR}/print/${f.replace('.kcad', '.stl')}`, new Uint8Array(stlBinary(tris[0], f.replace('.kcad', ''))));
       geo.computeBoundingBox();
       const s = geo.boundingBox!.getSize(new THREE.Vector3());
-      expect(Math.max(s.x, s.y), f).toBeLessThanOrEqual(225);
+      expect(Math.max(s.x, s.y), f).toBeLessThanOrEqual(250);
+      // dicht en manifold: na het samenvoegen van gelijke hoekpunten hoort elke rand bij precies twee driehoeken, één
+      // keer in elke richting (dan kloppen ook de normalen); geen driehoeken zonder oppervlak
+      const pos = geo.getAttribute('position'), idx = geo.getIndex();
+      const n = idx ? idx.count : pos.count, sleutel = new Map<string, number>(), id: number[] = [];
+      for (let i = 0; i < pos.count; i++) {
+        const k = `${Math.round(pos.getX(i) * 1e4)},${Math.round(pos.getY(i) * 1e4)},${Math.round(pos.getZ(i) * 1e4)}`;
+        if (!sleutel.has(k)) sleutel.set(k, sleutel.size);
+        id.push(sleutel.get(k)!);
+      }
+      const randen = new Map<string, number>();
+      let plat = 0;
+      for (let i = 0; i < n; i += 3) {
+        const v = [0, 1, 2].map((j) => id[idx ? idx.getX(i + j) : i + j]);
+        if (v[0] === v[1] || v[1] === v[2] || v[0] === v[2]) { plat++; continue; }
+        for (let j = 0; j < 3; j++) { const k = `${v[j]}>${v[(j + 1) % 3]}`; randen.set(k, (randen.get(k) ?? 0) + 1); }
+      }
+      let open = 0, dubbel = 0;
+      for (const [k, c] of randen) { const [a, b] = k.split('>'); const terug = randen.get(`${b}>${a}`) ?? 0; if (c > 1) dubbel++; if (terug !== c) open++; }
+      expect({ f, open, dubbel }).toEqual({ f, open: 0, dubbel: 0 });
+      expect(plat, f).toBeLessThan(n / 3 / 100); // hoogstens enkele gedegenereerde driehoekjes
     }
-  }, 300000);
+  }, 600000);
 });

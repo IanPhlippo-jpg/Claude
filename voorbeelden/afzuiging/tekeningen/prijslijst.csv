@@ -1,47 +1,48 @@
-﻿Groep;Onderdeel;Aantal;Type / materiaal;Prijs per stuk (EUR, incl. btw);Totaal (EUR, incl. btw);Waar / opmerking
-Kopen;Radiale ventilator Ø175, 24 V, PWM, tacho;1;San Ace C175 9TG24P0S01 (Sanyo Denki), of 9TG24P0G01 (verschil eerst nakijken);160,00;160,00;Mouser (ca. $147 excl. btw, lange levertijd)
-Kopen;Netadapter 24 V, 3,75 A, C14-inlaat;1;Mean Well GST90A24-P1M;33,00;33,00;Lemona / Alimentatorishop
-Kopen;Netsnoer C13 naar stopcontact (randaarde);1;gewoon pc-netsnoer;5,00;5,00;elektrozaak
-Kopen;"Knop met rond AMOLED-scherm 1,5"", ESP32-S3";1;VIEWE UEDX46460015-MD50E, variant 1.5-Black-Knob (AliExpress, VIEWE Store);34,00;34,00;VIEWE Store (AliExpress) of viewedisplay.com
-Kopen;Adapterprint FPC 10-polig 0,5 mm naar 2,54 mm;1;FPC/FFC-breakout 10P, past in 23 x 47 mm;2,00;2,00;AliExpress
-Kopen;USB-C-bus, breakout 16-polig (USB 2.0, 5,1 kΩ op CC), ca. 14 x 10,6 mm;1;in de knophouder op 2 palen, de bus opzij door de achterwand (kant van de sleuf): 5 V van de box, of de computer om de knop te flashen;1,50;1,50;AliExpress
-Kopen;USB-C-bus, breakout 6-polig (VBUS, GND, CC1, CC2);1;in de box, levert 5 V aan de knop;1,00;1,00;AliExpress
-Kopen;USB-C-kabel C-C, 1 m, haakse stekkers;1;USB 2.0 volstaat;9,00;9,00;Amazon / Bol
-Kopen;M8-inbouwbus 4-polig, A-codering, achterwandmontage (PG7);1;in de achterwand van de afzuiging;13,00;13,00;Bürklin (binder 718)
-Kopen;M8-inbouwstekker 4-polig, A-codering, achterwandmontage (PG7);1;in de voorkant van de box;13,00;13,00;Bürklin (binder 718)
-Kopen;M8-kabel 4-polig stekker-bus, 0,5 m;1;"verlengkabel; elke lengte past";12,00;12,00;Bürklin / RS
-Kopen;ESP32-C3 SuperMini;1;in de box: stuurt de ventilator en leest de drukmeter;7,00;7,00;Fruugo / AliExpress (5 stuks ca. € 14)
-Kopen;Schakelende regelaar 24 V naar 5 V, 1 A;1;Pololu D24V10F5;10,50;10,50;Botland / EXP Tech
-Kopen;Verschildrukmeter ±500 Pa, I2C;1;Sensirion SDP810-500PA;30,00;30,00;Mouser / DigiKey
-Kopen;Wipschakelaar aan/uit, 1-polig, 21 x 15 mm;1;KCD1-101, inbouwgat 19 x 13 mm, 6 A;1,00;1,00;AliExpress / elektrozaak
-Kopen;Vlakstekerhulzen 4,8 mm, geïsoleerd;2;draden op de schakelaar;0,15;0,30;elektrozaak
-Kopen;NPN-transistor;1;BC547B (TO-92);0,20;0,20;elektrozaak
-Kopen;Weerstanden 0,25 W;7;1 x 1 kΩ, 2 x 10 kΩ, 2 x 4,7 kΩ, 2 x 56 kΩ;0,10;0,70;elektrozaak
-Kopen;Elco 470 µF / 35 V;1;buffer voor de ventilator;0,50;0,50;elektrozaak
-Kopen;Zekering 3,15 A traag 5 x 20 mm + printzekeringhouder;1;;2,00;2,00;elektrozaak
-Kopen;Gaatjesprint 40 x 50 mm;1;gaten 2 mm in de hoeken;1,00;1,00;elektrozaak
-Kopen;Printschroefklem 2-polig, steek 5 mm;1;de DC-kabel van de adapter (ingekort);0,50;0,50;elektrozaak
-Kopen;Montagedraad 0,25 mm² en 0,75 mm²;1 m;;3,00;3,00;elektrozaak
-Kopen;Siliconeslang 3 x 5 mm;1 m;drukmeting: van de afzuiging naar de box, en binnen de afzuiging;3,00;3,00;aquariumwinkel / AliExpress
-Kopen;Messingbuisje Ø3 x 0,5 mm;40 mm;3 stukjes van 12 mm: meetpunt in de instroomplaat en doorvoer in de afzuiging en de box;3,00;3,00;modelbouw (stang van 300 mm)
-Kopen;G4-voorfilter, mat 10 mm;rol;knippen op 170 x 190 mm;12,00;12,00;rol 1 x 1,5 m (ca. 40 keer vervangen)
-Kopen;M5-fijnstofmat 15 mm;rol;knippen op 170 x 190 mm;15,00;15,00;1 m² (ca. 30 keer vervangen)
-Kopen;Actieve koolmat 10 mm;rol;knippen op 170 x 190 mm;15,00;15,00;1 m² (ca. 30 keer vervangen)
-Kopen;Neodymiummagneet Ø8 x 2 mm, N42;4;inlijmen in het bovenframe, vlak met de bovenkant;0,50;2,00;pak van 10 ca. € 5
-Kopen;Tweecomponentenlijm voor kunststof;1;magneten, bovenframe op de romp, rand op de cassette, instroomplaat, messingbuisjes;9,00;9,00;bouwmarkt
-Kopen;Plug voor holle deuren, M4;4;de voedingsbox onder het blad;0,50;2,00;bouwmarkt
-Kopen;M5 x 65 verzonken (DIN 7991, A2);4;klauwen van de module;0,60;2,40;bouwmarkt / online
-Kopen;M3 x 60 verzonken (DIN 7991, A2);2;klauwen van de knophouder (de koppen liggen onder de voet van de knop);0,35;0,70;online
-Kopen;M2,5 x 6 cilinderkop;2;knop in de houder (gaten in de naaf);0,10;0,20;assortiment M2-M3
-Kopen;M2,5 x 8 verzonken (DIN 7991);2;deksel van de knophouder;0,10;0,20;assortiment M2-M3
-Kopen;M3 x 16 verzonken (DIN 7991, A2);8;"bodemplaat; de kop ligt vlak in de plaat, draait zelf in PETG";0,10;0,80;online
-Kopen;M4 x 10 verzonken (DIN 7991, A2);4;ventilator op de bodemplaat (4 tot 6 mm in de motor);0,12;0,48;online
-Kopen;M2,5 x 6 zelftappend;4;print in de box;0,10;0,40;assortiment M2-M3
-Kopen;M2 x 5 zelftappend;4;USB-C-bus in de box en USB-C-printje in de knophouder;0,10;0,40;assortiment M2-M3
-Lasersnijden;laser/rooster.dxf;1;RVS 430, 1,5 mm, geborsteld (magnetisch), 222 x 222 mm;45,00;45,00;online lasersnijder (bv. LaserBoost), offerte met de DXF
-Lasersnijden;laser/klauwen-4x-RVS304-4mm.dxf;4;"RVS 304, 4 mm; gat Ø4,2 laten tappen M5";6,00;24,00;online lasersnijder (bv. LaserBoost), offerte met de DXF
-Lasersnijden;laser/dialklauwen-2x-RVS304-3mm.dxf;2;"RVS 304, 3 mm; gat Ø2,5 laten tappen M3 (klauwen van de knophouder)";5,00;10,00;online lasersnijder (bv. LaserBoost), offerte met de DXF
-Lasersnijden;opstart en verzending;1;;10,00;10,00;indicatie
-Printen;PETG wit, rol 1 kg;2;romp, frame, cassette, rand, instroomplaat, bodemplaat, voedingsbox: ca. 1,15 kg;20,00;40,00;Elegoo / 3DJake
-Printen;PETG zwart, rol 1 kg;1;knophouder en deksel: ca. 50 g (de rest blijft over);20,00;20,00;Elegoo / 3DJake
-Eindtotaal;;;;;555,78;kopen + lasersnijden + filament
+﻿Groep;Onderdeel;Aantal;Type / materiaal;Prijs per stuk (EUR, incl. btw);Totaal (EUR, incl. btw)
+Kopen;Radiale ventilator Ø175, 24 V, PWM, tacho;1;San Ace C175 9TG24P0S01 (Sanyo Denki), of 9TG24P0G01 (verschil eerst nakijken);160,00;160,00
+Kopen;Netadapter 24 V, 3,75 A, C14-inlaat;1;Mean Well GST90A24-P1M;33,00;33,00
+Kopen;Netsnoer C13 naar stopcontact (randaarde);1;gewoon pc-netsnoer;5,00;5,00
+Kopen;"Knop met rond AMOLED-scherm 1,5"", ESP32-S3";1;VIEWE UEDX46460015-MD50E, variant 1.5-Black-Knob (AliExpress, VIEWE Store);34,00;34,00
+Kopen;Adapterprint FPC 10-polig 0,5 mm naar 2,54 mm;1;FPC/FFC-breakout 10P, past in 23 x 47 mm;2,00;2,00
+Kopen;USB-C-bus, breakout 16-polig (USB 2.0, 5,1 kΩ op CC), 12 x 15 mm zonder gaten;1;"in de knophouder, geklemd tussen 2 palen en het deksel; de bus opzij door de achterwand (kant van de sleuf): 5 V van de box, of de computer om de knop te flashen";1,50;1,50
+Kopen;USB-C-bus, breakout 6-polig (VBUS, GND, CC1, CC2), 20,3 x 12,7 mm met 2 gaten M2;1;"in de box, levert 5 V aan de knop; meet de gaten na en pas `M.box.usb` aan als ze anders liggen";1,00;1,00
+Kopen;USB-C-kabel C-C, 1 m, haakse stekkers;1;USB 2.0 volstaat;9,00;9,00
+Kopen;M8-inbouwbus 4-polig, achterwandmontage, binder 718 (M10 x 0,75, gat Ø10,2);1;in de achterwand van de afzuiging;13,00;13,00
+Kopen;M8-inbouwstekker 4-polig, achterwandmontage, binder 718 (M10 x 0,75, gat Ø10,2);1;in de voorkant van de box;13,00;13,00
+Kopen;M8-kabel 4-polig stekker-bus, 0,5 m;1;"verlengkabel; elke lengte past";12,00;12,00
+Kopen;ESP32-C3 SuperMini;1;in de box: stuurt de ventilator en leest de drukmeter;7,00;7,00
+Kopen;Schakelende regelaar 24 V naar 5 V, 1 A;1;Pololu D24V10F5;10,50;10,50
+Kopen;Verschildrukmeter ±500 Pa, I2C;1;Sensirion SDP810-500PA;30,00;30,00
+Kopen;Wipschakelaar aan/uit, 1-polig, 21 x 15 mm;1;KCD1-101, inbouwgat 19 x 13 mm, 6 A;1,00;1,00
+Kopen;Vlakstekerhulzen 4,8 mm, geïsoleerd;2;draden op de schakelaar;0,15;0,30
+Kopen;NPN-transistor;1;BC547B (TO-92);0,20;0,20
+Kopen;Weerstanden 0,25 W;7;1 x 1 kΩ, 2 x 10 kΩ, 2 x 4,7 kΩ, 2 x 56 kΩ;0,10;0,70
+Kopen;Elco 470 µF / 35 V;1;buffer voor de ventilator;0,50;0,50
+Kopen;Zekering TR5 3,15 A traag (Ø8,4 x 7,6, op de print);1;past op de kleine print (een houder 5 x 20 is 28 x 10 x 21);1,00;1,00
+Kopen;Gaatjesprint 40 x 50 mm;1;gaten 2 mm in de hoeken;1,00;1,00
+Kopen;Printschroefklem 2-polig, steek 5 mm;1;de DC-kabel van de adapter (ingekort);0,50;0,50
+Kopen;Montagedraad 0,25 mm² en 0,75 mm²;1 m;;3,00;3,00
+Kopen;Siliconeslang 3 x 5 mm;1 m;drukmeting: van de afzuiging naar de box, en binnen de afzuiging;3,00;3,00
+Kopen;Messingbuisje Ø3 x 0,5 mm;40 mm;3 stukjes van 12 mm: meetpunt in de instroomplaat en doorvoer in de afzuiging en de box;3,00;3,00
+Kopen;M5-fijnstofmat (F5) 20 mm;rol;"het enige filter; knippen op 170 x 190 mm (ca. 30 keer vervangen per m²)";15,00;15,00
+Kopen;Neodymiummagneet Ø8 x 2 mm, N42;4;inlijmen in het bovenframe, vlak met de bovenkant;0,50;2,00
+Kopen;Tweecomponentenlijm (epoxy);1;magneten, bovenframe op de romp, rand op de cassette, instroomplaat, messingbuisjes;9,00;9,00
+Kopen;Plug voor holle deuren M4 (gat Ø8);4;in de onderkant van het blad, naast de uitsparing van de box;0,50;2,00
+Kopen;M4 x 30 verzonken (DIN 7991, A2);4;de rand van de voedingsbox in de pluggen (i.p.v. de bijgeleverde schroeven);0,15;0,60
+Kopen;M3 x 8 verzonken (DIN 7991, A2);4;het deksel van de voedingsbox op de paaltjes;0,10;0,40
+Kopen;M5 x 65 verzonken (DIN 7991, A2);4;klauwen van de module;0,60;2,40
+Kopen;M5 zeskantmoer (DIN 934, A2);4;in de klauwen van de module;0,10;0,40
+Kopen;M4 x 65 verzonken (DIN 7991, A2);2;klauwen van de knophouder (de koppen liggen onder de voet van de knop);0,40;0,80
+Kopen;M4 zeskantmoer (DIN 934, A2);2;in de klauwen van de knophouder;0,10;0,20
+Kopen;M2,5 x 6 verzonken (DIN 7991);2;knop in de houder, van onderen in de naaf;0,10;0,20
+Kopen;M2,5 x 8 verzonken (DIN 7991);2;deksel van de knophouder;0,10;0,20
+Kopen;M3 x 16 verzonken (DIN 7991, A2);8;"bodemplaat; de kop ligt vlak in de plaat, draait zelf in PETG";0,10;0,80
+Kopen;M4 x 10 verzonken (DIN 7991, A2);4;ventilator op de bodemplaat (4 tot 6 mm in de motor);0,12;0,48
+Kopen;M3 x 10 verzonken (DIN 7991);2;klemmen van de netadapter;0,10;0,20
+Kopen;M2,5 x 6 zelftappend;4;print in de box (printplaat: gewone kop mag);0,10;0,40
+Kopen;M2 x 5 zelftappend;2;USB-C-bus in de box (printplaat);0,10;0,20
+Lasersnijden;laser/rooster.dxf;RVS 430, 1,5 mm, geborsteld (magnetisch), 222 x 222 mm;1;45,00;45,00
+Lasersnijden;opstart en verzending;;1;10,00;10,00
+Printen;PETG wit, rol 1 kg;2;romp, frame, cassette, platen, box, klauwen, klemmen: ca. 1,1 kg;20,00;40,00
+Printen;PETG zwart, rol 1 kg;1;knophouder, deksel, knopklauwen: ca. 55 g;20,00;20,00
+Eindtotaal;;;;;495,48

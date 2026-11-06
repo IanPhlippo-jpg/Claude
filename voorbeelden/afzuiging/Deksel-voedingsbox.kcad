@@ -1,0 +1,416 @@
+{
+ "format": "phlippo-cad",
+ "version": 1,
+ "name": "Deksel voedingsbox",
+ "units": "mm",
+ "planes": {
+  "dekselonder": {
+   "id": "dekselonder",
+   "name": "Plane onderkant deksel",
+   "origin": [
+    0,
+    12,
+    0
+   ],
+   "u": [
+    1,
+    0,
+    0
+   ],
+   "v": [
+    0,
+    0,
+    -1
+   ],
+   "n": [
+    0,
+    1,
+    0
+   ],
+   "kind": "reference"
+  },
+  "dekseltop": {
+   "id": "dekseltop",
+   "name": "Plane bovenkant deksel",
+   "origin": [
+    0,
+    14,
+    0
+   ],
+   "u": [
+    1,
+    0,
+    0
+   ],
+   "v": [
+    0,
+    0,
+    -1
+   ],
+   "n": [
+    0,
+    1,
+    0
+   ],
+   "kind": "reference"
+  }
+ },
+ "variables": {},
+ "equations": [],
+ "sketches": {
+  "s1": {
+   "id": "s1",
+   "name": "Sketch1",
+   "plane": "dekselonder",
+   "points": {
+    "origin_s1": {
+     "x": 0,
+     "y": 0
+    },
+    "s1p0": {
+     "x": -100,
+     "y": -46.8
+    },
+    "s1p1": {
+     "x": 100,
+     "y": -46.8
+    },
+    "s1p2": {
+     "x": 101.8,
+     "y": -45
+    },
+    "s1p3": {
+     "x": 101.8,
+     "y": 45
+    },
+    "s1p4": {
+     "x": 100,
+     "y": 46.8
+    },
+    "s1p5": {
+     "x": -100,
+     "y": 46.8
+    },
+    "s1p6": {
+     "x": -101.8,
+     "y": 45
+    },
+    "s1p7": {
+     "x": -101.8,
+     "y": -45
+    },
+    "s1p8": {
+     "x": 100,
+     "y": -45
+    },
+    "s1p9": {
+     "x": 100,
+     "y": 45
+    },
+    "s1p10": {
+     "x": -100,
+     "y": 45
+    },
+    "s1p11": {
+     "x": -100,
+     "y": -45
+    }
+   },
+   "scalars": {
+    "s1s12": 1.8
+   },
+   "entities": {
+    "s1e13": {
+     "id": "s1e13",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p0",
+     "p2": "s1p1"
+    },
+    "s1e14": {
+     "id": "s1e14",
+     "construction": false,
+     "kind": "arc",
+     "center": "s1p8",
+     "start": "s1p1",
+     "end": "s1p2",
+     "r": "s1s12",
+     "ccw": true
+    },
+    "s1e15": {
+     "id": "s1e15",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p2",
+     "p2": "s1p3"
+    },
+    "s1e16": {
+     "id": "s1e16",
+     "construction": false,
+     "kind": "arc",
+     "center": "s1p9",
+     "start": "s1p3",
+     "end": "s1p4",
+     "r": "s1s12",
+     "ccw": true
+    },
+    "s1e17": {
+     "id": "s1e17",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p4",
+     "p2": "s1p5"
+    },
+    "s1e18": {
+     "id": "s1e18",
+     "construction": false,
+     "kind": "arc",
+     "center": "s1p10",
+     "start": "s1p5",
+     "end": "s1p6",
+     "r": "s1s12",
+     "ccw": true
+    },
+    "s1e19": {
+     "id": "s1e19",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p6",
+     "p2": "s1p7"
+    },
+    "s1e20": {
+     "id": "s1e20",
+     "construction": false,
+     "kind": "arc",
+     "center": "s1p11",
+     "start": "s1p7",
+     "end": "s1p0",
+     "r": "s1s12",
+     "ccw": true
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s1e13",
+    "s1e14",
+    "s1e15",
+    "s1e16",
+    "s1e17",
+    "s1e18",
+    "s1e19",
+    "s1e20"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s1"
+  },
+  "s2": {
+   "id": "s2",
+   "name": "Sketch2",
+   "plane": "dekseltop",
+   "points": {
+    "origin_s2": {
+     "x": 0,
+     "y": 0
+    },
+    "s2p0": {
+     "x": 97,
+     "y": -42
+    },
+    "s2p3": {
+     "x": 97,
+     "y": 42
+    },
+    "s2p6": {
+     "x": -97,
+     "y": -42
+    },
+    "s2p9": {
+     "x": -97,
+     "y": 42
+    }
+   },
+   "scalars": {
+    "s2s1": 3.2,
+    "s2s4": 3.2,
+    "s2s7": 3.2,
+    "s2s10": 3.2
+   },
+   "entities": {
+    "s2e2": {
+     "id": "s2e2",
+     "construction": false,
+     "kind": "circle",
+     "center": "s2p0",
+     "r": "s2s1"
+    },
+    "s2e5": {
+     "id": "s2e5",
+     "construction": false,
+     "kind": "circle",
+     "center": "s2p3",
+     "r": "s2s4"
+    },
+    "s2e8": {
+     "id": "s2e8",
+     "construction": false,
+     "kind": "circle",
+     "center": "s2p6",
+     "r": "s2s7"
+    },
+    "s2e11": {
+     "id": "s2e11",
+     "construction": false,
+     "kind": "circle",
+     "center": "s2p9",
+     "r": "s2s10"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s2e2",
+    "s2e5",
+    "s2e8",
+    "s2e11"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s2"
+  },
+  "s3": {
+   "id": "s3",
+   "name": "Sketch3",
+   "plane": "dekseltop",
+   "points": {
+    "origin_s3": {
+     "x": 0,
+     "y": 0
+    },
+    "s3p0": {
+     "x": 97,
+     "y": -42
+    },
+    "s3p3": {
+     "x": 97,
+     "y": 42
+    },
+    "s3p6": {
+     "x": -97,
+     "y": -42
+    },
+    "s3p9": {
+     "x": -97,
+     "y": 42
+    }
+   },
+   "scalars": {
+    "s3s1": 1.7,
+    "s3s4": 1.7,
+    "s3s7": 1.7,
+    "s3s10": 1.7
+   },
+   "entities": {
+    "s3e2": {
+     "id": "s3e2",
+     "construction": false,
+     "kind": "circle",
+     "center": "s3p0",
+     "r": "s3s1"
+    },
+    "s3e5": {
+     "id": "s3e5",
+     "construction": false,
+     "kind": "circle",
+     "center": "s3p3",
+     "r": "s3s4"
+    },
+    "s3e8": {
+     "id": "s3e8",
+     "construction": false,
+     "kind": "circle",
+     "center": "s3p6",
+     "r": "s3s7"
+    },
+    "s3e11": {
+     "id": "s3e11",
+     "construction": false,
+     "kind": "circle",
+     "center": "s3p9",
+     "r": "s3s10"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s3e2",
+    "s3e5",
+    "s3e8",
+    "s3e11"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s3"
+  }
+ },
+ "features": [
+  {
+   "id": "ks1",
+   "type": "sketch",
+   "name": "Sketch1",
+   "sketchId": "s1",
+   "suppressed": false
+  },
+  {
+   "id": "f2",
+   "type": "extrude",
+   "name": "Deksel",
+   "sketchId": "s1",
+   "suppressed": false,
+   "op": "boss",
+   "end": "blind",
+   "depth": 2,
+   "reverse": false
+  },
+  {
+   "id": "ks2",
+   "type": "sketch",
+   "name": "Sketch2",
+   "sketchId": "s2",
+   "suppressed": false
+  },
+  {
+   "id": "f4",
+   "type": "extrude",
+   "name": "Verzinking M3",
+   "sketchId": "s2",
+   "suppressed": false,
+   "op": "cut",
+   "end": "blind",
+   "depth": 1.6,
+   "reverse": true,
+   "draft": {
+    "angle": 45,
+    "outward": false
+   }
+  },
+  {
+   "id": "ks3",
+   "type": "sketch",
+   "name": "Sketch3",
+   "sketchId": "s3",
+   "suppressed": false
+  },
+  {
+   "id": "f6",
+   "type": "extrude",
+   "name": "Gaten M3",
+   "sketchId": "s3",
+   "suppressed": false,
+   "op": "cut",
+   "end": "blind",
+   "depth": 3,
+   "reverse": true
+  }
+ ],
+ "material": {
+  "name": "PETG, wit",
+  "density": 1270,
+  "color": "#f4f4f1"
+ }
+}

@@ -4,32 +4,37 @@
 3;1;Rooster LB;AISI 430;AFZ-03
 4;1;Filtercassette;PETG, wit;AFZ-04
 5;1;Cassetterand;PETG, wit;AFZ-05
-6;1;Voorfilter G4;Voorfilter G4;koop
-7;1;Fijnstoffilter M5;Fijnstoffilter M5;koop
-8;1;Actieve koolmat;Actieve koolmat;koop
-9;1;Instroomplaat;PETG, wit;AFZ-06
-10;1;Bodemplaat;PETG, wit;AFZ-07
-11;1;San Ace C175 9TG24P0S01;PBT, zwart;koop
-12;1;M8-inbouwbus 4-polig;Messing vernikkeld;koop
-13;4;Klauw;AISI 304;AFZ-11
-14;1;Knophouder;PETG, zwart;AFZ-09
-15;1;Knopdeksel;PETG, zwart;AFZ-10
-16;1;"VIEWE-knop 1,5""";Aluminium, zwart;koop
-17;1;Adapterprint knop;FR4;koop
-18;1;USB-C-bus knophouder;FR4;koop
-19;2;Knopklauw;AISI 304;AFZ-12
+6;1;Fijnstoffilter M5;Fijnstoffilter M5;koop
+7;1;Instroomplaat;PETG, wit;AFZ-06
+8;1;Bodemplaat;PETG, wit;AFZ-07
+9;1;San Ace C175 9TG24P0S01;PBT, zwart;koop
+10;1;M8-inbouwbus 4-polig;Messing vernikkeld;koop
+11;4;Klauw;PETG, wit;AFZ-11
+12;4;M5 zeskantmoer DIN 934;Staal verzinkt;norm
+13;1;Knophouder;PETG, zwart;AFZ-09
+14;1;Knopdeksel;PETG, zwart;AFZ-10
+15;1;"VIEWE-knop 1,5""";Aluminium, zwart;koop
+16;1;Adapterprint knop;FR4;koop
+17;1;USB-C-bus knophouder;FR4;koop
+18;2;Knopklauw;PETG, zwart;AFZ-12
+19;2;M4 zeskantmoer DIN 934;Staal verzinkt;norm
 20;4;M5 x 65 DIN 7991;Staal A2;norm
 21;8;M3 x 16 DIN 7991;Staal A2;norm
 22;4;M4 x 10 DIN 7991;Staal A2;norm
-23;2;M3 x 60 DIN 7991;Staal A2;norm
-24;2;M2,5 x 6 cilinderkop;Staal verzinkt;norm
+23;2;M4 x 65 DIN 7991;Staal A2;norm
+24;2;M2,5 x 6 DIN 7991;Staal A2;norm
 25;2;M2,5 x 8 DIN 7991;Staal A2;norm
 26;3;Messingbuisje Ø3 x 12;Messing;koop
 27;1;Voedingsbox;PETG, wit;AFZ-08
-28;1;Mean Well GST90A24-P1M;PC, zwart;koop
-29;1;Voedingsprint;FR4;koop
-30;1;USB-C-bus knop;FR4;koop
-31;1;Wipschakelaar KCD1-101;PBT, zwart;koop
-32;1;M8-inbouwstekker 4-polig;Messing vernikkeld;koop
-33;4;M2,5 x 6 zelftappend;Staal verzinkt;norm
-34;4;M2 x 5 zelftappend;Staal verzinkt;norm
+28;1;Deksel voedingsbox;PETG, wit;AFZ-14
+29;4;Inlijmmoer M4;Messing;koop
+30;4;M4 x 60 DIN 7991;Staal A2;norm
+31;1;Mean Well GST90A24-P1M;PC, zwart;koop
+32;1;Voedingsprint;FR4;koop
+33;1;USB-C-bus knop;FR4;koop
+34;1;Wipschakelaar KCD1-101;PBT, zwart;koop
+35;1;M8-inbouwstekker 4-polig;Messing vernikkeld;koop
+36;2;Adapterklem;PETG, wit;AFZ-13
+37;2;M3 x 10 DIN 7991;Staal A2;norm
+38;4;M2,5 x 6 zelftappend;Staal verzinkt;norm
+39;2;M2 x 5 zelftappend;Staal verzinkt;norm
