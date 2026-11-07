@@ -1,0 +1,29 @@
+{
+  "warning": "Scenario sensitivity only. No Rittal resistance datasheet found; not a certified bound.",
+  "scenarios": [
+    {
+      "reference_pa_at_1_5m_s": 34,
+      "exponent": 1,
+      "Q_at_full_model_m3h": 430.24789651092203,
+      "n_for_250_model": 0.6197450788530569
+    },
+    {
+      "reference_pa_at_1_5m_s": 50,
+      "exponent": 1,
+      "Q_at_full_model_m3h": 409.40433299758047,
+      "n_for_250_model": 0.6595306107361644
+    },
+    {
+      "reference_pa_at_1_5m_s": 34,
+      "exponent": 2,
+      "Q_at_full_model_m3h": 373.92605237114344,
+      "n_for_250_model": 0.6685813903971056
+    }
+  ],
+  "dirty_Q_at_n_0_8": 166.43577248128534,
+  "media_end_Pa_claim": 250,
+  "model_dirty_filter_Pa_at_Q250": 395.8166298715527,
+  "A_grille_open_fraction_actual": 0.3108833939753966,
+  "cassette_open_fraction_actual": 0.709141274238227,
+  "omitted_local_heat_W": 0.52
+}

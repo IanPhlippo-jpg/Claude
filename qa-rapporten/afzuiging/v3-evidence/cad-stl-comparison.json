@@ -1,0 +1,210 @@
+[
+  {
+    "part": "Adapterklem",
+    "cad_dimensions_sorted": [
+      3.0,
+      9.0,
+      16.5
+    ],
+    "stl_dimensions_sorted": [
+      3.0,
+      9.0,
+      16.5
+    ],
+    "cad_volume": 396.8696842802863,
+    "stl_volume": 396.95018141727707,
+    "volume_difference_percent": 0.020283014848243575
+  },
+  {
+    "part": "Bodemplaat",
+    "cad_dimensions_sorted": [
+      6.0,
+      210.0,
+      210.0
+    ],
+    "stl_dimensions_sorted": [
+      6.0,
+      210.0,
+      210.0
+    ],
+    "cad_volume": 109293.51151292837,
+    "stl_volume": 109289.86152575775,
+    "volume_difference_percent": -0.0033396192693380122
+  },
+  {
+    "part": "Bovenframe",
+    "cad_dimensions_sorted": [
+      2.5,
+      222.0,
+      222.0
+    ],
+    "stl_dimensions_sorted": [
+      2.5,
+      222.0,
+      222.0
+    ],
+    "cad_volume": 22459.668824468004,
+    "stl_volume": 22458.984035137033,
+    "volume_difference_percent": -0.003048973412400624
+  },
+  {
+    "part": "Cassetterand",
+    "cad_dimensions_sorted": [
+      2.5,
+      200.5,
+      200.5
+    ],
+    "stl_dimensions_sorted": [
+      2.5,
+      200.5,
+      200.5
+    ],
+    "cad_volume": 25535.534553115787,
+    "stl_volume": 25535.61324718874,
+    "volume_difference_percent": 0.00030817476246447484
+  },
+  {
+    "part": "Deksel voedingsbox",
+    "cad_dimensions_sorted": [
+      2.0,
+      93.59999999403954,
+      203.59999999403954
+    ],
+    "stl_dimensions_sorted": [
+      2.0,
+      93.5999984741211,
+      203.60000610351562
+    ],
+    "cad_volume": 37973.70404989416,
+    "stl_volume": 37973.663422529695,
+    "volume_difference_percent": -0.00010698815267051742
+  },
+  {
+    "part": "Filtercassette",
+    "cad_dimensions_sorted": [
+      19.0,
+      174.20000000298023,
+      174.20000000298023
+    ],
+    "stl_dimensions_sorted": [
+      19.0,
+      174.1999969482422,
+      174.1999969482422
+    ],
+    "cad_volume": 37947.28477935258,
+    "stl_volume": 37948.07393538471,
+    "volume_difference_percent": 0.002079611325855879
+  },
+  {
+    "part": "Instroomplaat",
+    "cad_dimensions_sorted": [
+      3.0,
+      201.40000000596046,
+      201.40000000596046
+    ],
+    "stl_dimensions_sorted": [
+      3.0,
+      201.39999389648438,
+      201.39999389648438
+    ],
+    "cad_volume": 76791.75066236967,
+    "stl_volume": 76795.27507039106,
+    "volume_difference_percent": 0.004589565924706385
+  },
+  {
+    "part": "Klauw",
+    "cad_dimensions_sorted": [
+      6.0,
+      12.997726738452911,
+      24.495320707559586
+    ],
+    "stl_dimensions_sorted": [
+      6.0,
+      12.992887496948242,
+      24.492324829101562
+    ],
+    "cad_volume": 1034.7063013694565,
+    "stl_volume": 1033.635799100701,
+    "volume_difference_percent": -0.10345952927305335
+  },
+  {
+    "part": "Knopdeksel",
+    "cad_dimensions_sorted": [
+      4.899999999999999,
+      42.99855533987284,
+      42.99927766621113
+    ],
+    "stl_dimensions_sorted": [
+      4.900001525878906,
+      42.990047454833984,
+      43.0
+    ],
+    "cad_volume": 2832.155790085715,
+    "stl_volume": 2831.2606641481707,
+    "volume_difference_percent": -0.03160581563620424
+  },
+  {
+    "part": "Knophouder",
+    "cad_dimensions_sorted": [
+      51.598794631659985,
+      51.59939731657505,
+      62.0
+    ],
+    "stl_dimensions_sorted": [
+      51.599998474121094,
+      51.599998474121094,
+      62.0
+    ],
+    "cad_volume": 31258.03266686158,
+    "stl_volume": 31264.112161437446,
+    "volume_difference_percent": 0.01944938326943202
+  },
+  {
+    "part": "Knopklauw",
+    "cad_dimensions_sorted": [
+      5.0,
+      10.999252989888191,
+      20.49614952504635
+    ],
+    "stl_dimensions_sorted": [
+      5.0,
+      10.996262550354004,
+      20.493560791015625
+    ],
+    "cad_volume": 571.2049874873077,
+    "stl_volume": 570.6469746296967,
+    "volume_difference_percent": -0.09769047361887218
+  },
+  {
+    "part": "Romp",
+    "cad_dimensions_sorted": [
+      96.0,
+      210.0,
+      210.0
+    ],
+    "stl_dimensions_sorted": [
+      96.0,
+      210.0,
+      210.0
+    ],
+    "cad_volume": 428805.721497392,
+    "stl_volume": 428792.07085478684,
+    "volume_difference_percent": -0.003183409623708222
+  },
+  {
+    "part": "Voedingsbox",
+    "cad_dimensions_sorted": [
+      50.0,
+      124.0,
+      225.0
+    ],
+    "stl_dimensions_sorted": [
+      50.0,
+      124.0,
+      225.0
+    ],
+    "cad_volume": 208836.84541679674,
+    "stl_volume": 208837.97363425544,
+    "volume_difference_percent": 0.0005402386999531217
+  }
+]

@@ -1,0 +1,8 @@
+{
+  "components": 77,
+  "standalone_semantic_mismatches": [
+    "Adapterklem<2>"
+  ],
+  "mates": 0,
+  "interpretation": "Adapterklem<2> differs only by +55mm translation of sketch X-coordinates, same shape and volume. Not an unintended geometry/revision error."
+}

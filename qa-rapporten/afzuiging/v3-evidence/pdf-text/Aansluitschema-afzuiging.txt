@@ -1,0 +1,417 @@
+                            1                     2                             3                                  4                                        5                           6                           7          8
+
+
+
+
+A
+
+
+
+
+                                                                                    Afzuiging Lush Beauty
+B
+                                                                                                   Aansluitschema elektronica
+                                                        Radiale ventilator San Ace C175 (24 V) · voedingsbox met ESP32-C3 · knop VIEWE 1,5" (draadloos) · drukmeting Sensirion SDP810
+
+
+
+
+C
+                                                                 Inhoud
+
+                                                                 Blad 1               Titelblad en inhoud
+
+                                                                 Blad 2               Voeding 24 V en 5 V: netadapter, schakelaar, zekering, regelaar (voedingsbox)
+
+                                                                 Blad 3               Ventilator: M8-kabel, snelheid PWM (-Q1) en toerental (tacho)
+D
+                                                                 Blad 4               Besturing -A4, verschildrukmeter -B1 en de knop -A1 (5 V over USB-C, draadloos gestuurd)
+
+                                                                 Blad 5               Klemmenplan en bedrading
+
+                                                                 Blad 6               Stuklijst
+
+                                                                 Bijlage              Freesmallen 1:1 op A4, per doos een PDF: Freesmal-afzuiging, -knop en -voedingsbox (op 100 % afdrukken)
+
+E
+                                                                 Leeswijzer
+
+                                                                 Codes volgens IEC 81346: -T netadapter, -F zekering, -Q schakelaars, -R weerstanden, -C condensatoren,
+
+                                                                 -M motor, -A besturing, -B sensor, -X klemmen en connectoren.
+
+                                                                 Potentialen: L+ = +24 V, L5 = +5 V (-A4 en de knop), L3 = +3,3 V (uit -A4), M = 0 V. /3.2 = blad 3, kolom 2.
+
+                                                                 De voedingsbox (onder het blad) bevat de netadapter -T1, de schakelaar -S1 en de print -A2 met -A4 en -B1.
+
+F                                                                In de afzuiging zit alleen de ventilator -M1 (M8-kabel -W2). De knop -A1 krijgt 5 V over USB-C (-W1) en stuurt -A4 draadloos.
+
+
+
+
+    Project                                 Bladtitel                                                                          Installatie / plaats                       Norm                   Datum / getekend       Blad
+
+
+    Afzuiging Lush Beauty                                                                                                      =AFZ +BOX                                  IEC 81346 / 60617      2026-11-07
+                                            Titelblad                                                                                                                                                                   1/6
+    inbouw nagelstofafzuiging, versie 6.1                                                                                      voedingsbox onder het blad                 EPLAN-stijl            Phlippo CAD
+                            1                                    2                                        3                                 4                                   5                                   6                                               7                           8
+
+
+
+
+A
+
+
+
+
+                  -T1
+
+                  Netadapter (in de box)                                      -X1 schroefklem op -A2
+                  Mean Well GST90A24-P1M                                      (DC-kabel ingekort)
+
+B                 230 V AC / 24 V DC, 3,75 A
+                  C14-inlaat: netsnoer C13                                                                                    -F1
+                  naar het stopcontact                                                          -X1:1                                             L+ 24 V                                                                                                                                      L+ 24 V → /3.1 /4.1
+
+                                                            +
+                                                                                                              -S1      3,15 A traag (TR5)
+                                                                                                        aan/uit, box
+
+
+
+
+C
+                                                             -
+                                                                                                                                                                                                    buffert de aanloopstroom van de ventilator
+
+
+
+
+                                                                                                                                                                                    -C1
+                                                                                                                                                                                                                                           -T3
+                                                                                                                                                                                    470 µF / 35 V                                                  VIN
+                230 V AC alleen in de gekeurde adapter                                                                                                                                                                                     Pololu D24V10F5
+                (geen eigen bedrading op 230 V)                                                                                                                                                                                            24 V -> 5 V, 1 A
+D                                                                                                                                                                                                                                                                       VOUT   L5 5 V
+
+                                                                                                                                                                                                                                                                                                             /4.1
+
+                                                                                                                                                                                                                                                      GND
+
+
+
+
+E
+
+                                                                                                -X1:2                                             M0V                                                                                                                                           M 0 V → /3.1 /4.1
+
+
+
+
+F               Stroom: ventilator max. 2,35 A bij 24 V; op 5 V de knop ca. 0,1 A en -A4 tot 0,35 A (zenden). Draad naar de ventilator 0,5 mm².
+
+
+
+
+    Project                                                Bladtitel                                                                               Installatie / plaats                       Norm                                               Datum / getekend                       Blad
+
+
+    Afzuiging Lush Beauty                                                                                                                          =AFZ +BOX                                  IEC 81346 / 60617                                  2026-11-07
+                                                           Voeding 24 V                                                                                                                                                                                                                 2/6
+    inbouw nagelstofafzuiging, versie 6.1                                                                                                          voedingsbox onder het blad                 EPLAN-stijl                                        Phlippo CAD
+                             1                    2                3                            4                                              5                     6                                           7                                             8
+
+
+
+
+       L+ 24 V ← /2.8
+A
+
+
+         L3 3,3 V (uit -A4) /4.2
+
+
+
+
+                                                                                                                   -R3
+B                                                                                                               10 kΩ
+
+
+
+
+                                                                                                                                                                     -W2 M8-kabel 4-polig
+                                                                                                                                                                           (in de sleuf)
+                                                                                                                                                           -X9:1              +24 V                        -X10:1
+
+
+
+
+                                                                  -R2                                                                                      -X9:3               0V                          -X10:3
+C                                                                10 kΩ
+
+
+
+              tacho GPIO4 (-A4) → /4.3                                                                                                                     -X9:4              PWM                          -X10:4                                                  -M1
+                                                                                                                                                                                                                                                     M
+
+
+                                                                                                                                                                                                                                        San Ace C175
+              PWM GPIO3 (-A4) ← /4.3                       -R1
+                                                                         -Q1                                                                                                                                                            9TG24P0S01
+D                                                                        BC547                                                                                                                                                          24 V, 56 W
+                                                                                                                                                           -X9:2              tacho                        -X10:2
+                                                          1 kΩ
+
+
+
+
+                                                                         Q1 keert het signaal om: de firmware rekent dat om                        -X9 M8-stekker                                 -X10 M8-bus
+                                                                         R2 naar 3,3 V: bij het opstarten staat de ventilator stil                     (box)                                       (afzuiging)
+
+
+
+
+E
+
+
+
+
+                                                                                                                                                                                            draden van de ventilator: rood +, zwart -, bruin PWM (25 kHz, 0 % = stil), geel tacho
+
+
+       M 0 V ← /2.8
+
+F
+
+
+
+
+    Project                                 Bladtitel                                                             Installatie / plaats                 Norm                                 Datum / getekend                                  Blad
+
+
+    Afzuiging Lush Beauty                                                                                         =AFZ +BOX                            IEC 81346 / 60617                    2026-11-07
+                                            Ventilator: M8-kabel, PWM en tacho                                                                                                                                                                3/6
+    inbouw nagelstofafzuiging, versie 6.1                                                                         voedingsbox onder het blad           EPLAN-stijl                          Phlippo CAD
+                             1                                                2                                              3                                       4                                               5                               6                                           7                                  8
+
+
+
+
+       L5 5 V ← /2.8
+A
+                                                                                                                  L3 3,3 V (uit -A4)
+
+
+                                                                                                                                                                         -B1
+
+                                                                                                                                                                         Sensirion SDP810-500Pa
+                           -A4                                                                                                                                           verschildruk ±500 Pa
+                                                                                                                                                                         I2C-adres 0x25
+                            ESP32-C3 SuperMini                                                                       -R7           -R8
+                            in de voedingsbox                                                                     4,7 kΩ         4,7 kΩ
+                                                                                                                                                                         poort "+": open in het vak
+B                           USB-C rechts
+                                                                                                                                                                         (kamerdruk)
+                            (flashen)
+
+
+                           5V                                                              3V3                                                                           VDD
+
+
+
+                                                                                                                                                                         poort "-": slang naar de afzuiging
+                                                                                                                                                                         (ruimte onder de filters)
+
+
+
+
+                                                                                                                                                     SDA                 SDA
+C
+                                                                                    GPIO5 SDA                                                                                                                            GND
+                                                                                    GPIO6 SCL                                                        SCL                 SCL
+
+
+
+
+                                                                                                                                                                                                                               -R10
+                                                                                                                                                                                                                               56 kΩ
+
+
+
+                                                                                    GPIO4 tacho                                                                                                                                                                                                                      -A1
+                                                                                                                                          tacho ← /3.4 (-R3)                                                                            -R9                     -X8                                      -X7
+                                                                                                                                                                                                                                                                                                                      VIEWE-knop 1,5"
+                                                                                                                                                                                                                                   56 kΩ
+D                                                                                   GPIO3 PWM                                                                                                                                                                                                                         ESP32-S3, AMOLED
+                                                                                                                                                                                                                                                                                   -W1
+                                                                                                                                          PWM → /3.5 (-R1)                                                                                                                                                            in de knophouder
+                           GND                                                                                                                                                                                                                           VBUS
+                                                                                                                                                                                                                                                                                                                     FPC 1 +5V
+
+
+                                                                                                                                                                                                                                                         CC1
+
+                                                                                                                                                                                                                                                                                                                     FPC 9/10 USB
+                                                                                                                                                                                                                                                         CC2
+
+                                                                                                                                                                                                                                                                                                                     FPC 3 GND
+                                                                                                                                                                                                                                                         GND
+
+E                                                                                                                                                                                                                                                                            USB-C-kabel, C-C
+                                                                                                                                                                                                                                                            USB-C-bus         1 m, in de sleuf       zijwand onder
+                                                                                                                                                                                                                                                         in de voedingsbox                           knophouder
+
+                                                                                                            ESP-NOW (2,4 GHz): opdrachten van -A1 naar -A4, status terug
+
+
+                -X7: USB-C-printje (5,1 kΩ op CC) in de zijwand onderaan de knophouder, 4 draden naar -A3: VBUS -> FPC 1, GND -> FPC 3, D+ -> FPC 9, D- -> FPC 10.
+
+                Met de kabel naar -X8 krijgt de knop 5 V; op een computer aangesloten wordt hij geflasht. D+/D- van -X8 blijven los.
+       M 0 V ← /2.8
+
+F
+
+
+
+
+    Project                                                             Bladtitel                                                                                                       Installatie / plaats                           Norm                                  Datum / getekend                        Blad
+
+
+    Afzuiging Lush Beauty                                                                                                                                                               =AFZ +BOX                                      IEC 81346 / 60617                     2026-11-07
+                                                                        Besturing, drukmeter en de knop                                                                                                                                                                                                              4/6
+    inbouw nagelstofafzuiging, versie 6.1                                                                                                                                               voedingsbox onder het blad                     EPLAN-stijl                           Phlippo CAD
+                            1                                           2                                 3                             4                                            5                                6                                          7                        8
+
+
+
+
+         Klem          Nr                   Functie                    Intern (print -A2)                 Draad              Extern
+
+         -X1           1                    +24 V (adapter)            -S1:1 (draad)                      DC-kabel adapter   -T1 +
+                                                                                                                                                                                         Bedrading
+A
+         -X1           2                    0 V (adapter)              M                                  DC-kabel adapter   -T1 -                                                       Alle klemmen zitten op de gaatjesprint -A2 (40 x 50 mm) in de voedingsbox.
+
+         -S1           2                    +24 V na schakelaar        -F1                                rood 0,75 mm²      vlakstekers 4,8 mm                                          -X1 is een schroefklem 2-polig; de DC-kabel van de adapter wordt ingekort.
+
+         -X9           1                    +24 V ventilator           L+                                 aders M8-stekker   -W2 -> -X10 -> -M1 rood                                     In de afzuiging: de ventilatordraden op de M8-bus -X10 (solderen, krimpkous).
+
+                                                                                                                                                                                         In de box: -X9 (M8-stekker), -X8 (USB-C naar de knop) en de USB-C van -A4.
+         -X9           2                    tacho                      -R3, GPIO4                         aders M8-stekker   -W2 -> -X10 -> -M1 geel
+                                                                                                                                                                                         Kabels in de sleuven onder het blad: -W2 (M8, 0,5 m) en het slangetje naar de module,
+         -X9           3                    0V                         M                                  aders M8-stekker   -W2 -> -X10 -> -M1 zwart
+                                                                                                                                                                                         -W1 (USB-C, 1 m) naar de knop. Een andere lengte = een andere kabel: niets knippen.
+B        -X9           4                    PWM                        -Q1 collector                      aders M8-stekker   -W2 -> -X10 -> -M1 bruin
+                                                                                                                                                                                         Op -A3: FPC-bus 10-polig 0,5 mm voor de knop; -X7 zit apart in de achterwand van de houder.
+         -X8           VBUS                 +5 V                       L5 (-T3)                           draad 0,5 mm²      -W1 -> knop                                                 Draadkleuren van de ventilator vóór het solderen nameten (datasheet San Ace).
+
+         -X8           CC1/2                bron 5 V                   -R9/-R10 56 kΩ naar L5             —                  -W1
+
+         -X8           GND                  0V                         M                                  draad 0,5 mm²      -W1 -> knop
+
+         -A4           5V / 3V3             +5 V / +3,3 V              L5 / L3: -B1, -R2, -R3, -R7, -R8   draad 0,25 mm²     —
+
+         -A4           GPIO5/6              SDA / SCL                  -B1                                draad 0,25 mm²     —
+C
+         -A4           GPIO3                PWM                        -R1                                draad 0,25 mm²     —
+
+         -A4           GPIO4                tacho                      -R3                                draad 0,25 mm²     —
+
+
+
+
+D
+
+
+
+
+E
+
+
+
+
+F
+
+
+
+
+    Project                                                       Bladtitel                                                                             Installatie / plaats                          Norm                                    Datum / getekend                     Blad
+
+
+    Afzuiging Lush Beauty                                                                                                                               =AFZ +BOX                                     IEC 81346 / 60617                       2026-11-07
+                                                                  Klemmenplan                                                                                                                                                                                                      5/6
+    inbouw nagelstofafzuiging, versie 6.1                                                                                                               voedingsbox onder het blad                    EPLAN-stijl                             Phlippo CAD
+                            1                                       2                                     3             4                                5                        6                        7          8
+
+
+
+
+         Code                           Aantal   Omschrijving                                                                    Type / bestelnummer
+
+A        -T1                            1        Netadapter 24 V DC, 3,75 A (90 W), C14-inlaat                                   Mean Well GST90A24-P1M
+
+         —                              1        Netsnoer C13 naar stopcontact (randaarde), 1,5 m                                —
+
+         -S1                            1        Wipschakelaar 1-polig aan/uit, 21 x 15 mm, inbouwgat 19 x 13 mm                 KCD1-101 (6 A)
+
+         -F1                            1        Zekering TR5 3,15 A traag (Ø8,4 x 7,6, op de print)                             —
+
+         -C1                            1        Elco 470 µF / 35 V                                                              —
+
+         -Q1                            1        NPN-transistor BC547B (TO-92)                                                   —
+
+B        -R1                            1        Weerstand 1 kΩ 0,25 W                                                           —
+
+         -R2, -R3                       2        Weerstand 10 kΩ 0,25 W                                                          —
+
+         -R7, -R8                       2        Weerstand 4,7 kΩ 0,25 W                                                         —
+
+         -R9, -R10                      2        Weerstand 56 kΩ 0,25 W (USB-C-bron)                                             —
+
+         -T3                            1        Schakelende regelaar 24 V -> 5 V, 1 A                                           Pololu D24V10F5
+
+         -A4                            1        ESP32-C3 SuperMini (22,5 x 18 mm, USB-C)                                        —
+C
+         -B1                            1        Verschildrukmeter ±500 Pa, I2C                                                  Sensirion SDP810-500PA
+
+         -X8                            1        USB-C-bus (breakout 6-polig, 20,3 x 12,7, 2 gaten M2)                           —
+
+         -X9                            1        M8-inbouwstekker 4-polig, binder 718, achterwandmontage (M10 x 0,75)            —
+
+         -X10                           1        M8-inbouwbus 4-polig, binder 718, achterwandmontage (M10 x 0,75)                —
+
+         -W2                            1        M8-kabel 4-polig stekker-bus, 0,5 m (verlengkabel)                              —
+
+
+D        -M1                            1        Radiale ventilator Ø175, 24 V, 56 W, PWM, tacho                                 San Ace C175 9TG24P0S01
+
+         -A1                            1        Knop 1,5" met rond AMOLED-scherm, ESP32-S3                                      VIEWE UEDX46460015-MD50E (zwart)
+
+         -A3                            1        Adapterprint FPC 10-polig 0,5 mm naar 2,54 mm, 23 x 47 mm                       FPC/FFC-breakout 10P
+
+         -X7                            1        USB-C-bus (breakout 16-polig, 12 x 15, USB 2.0, 5,1 kΩ op CC)                   —
+
+         -W1                            1        USB-C-kabel C-C, 1 m, haaks (USB 2.0 volstaat)                                  —
+
+         -A2                            1        Gaatjesprint 40 x 50 mm (gaten 2 mm)                                            —
+
+E        -X1                            1        Printschroefklem 2-polig steek 5 mm                                             —
+
+         —                              1m       Siliconeslang 3 x 5 mm (drukmeter)                                              —
+
+
+
+
+F
+
+
+
+
+    Project                                                   Bladtitel                                                     Installatie / plaats                    Norm                Datum / getekend       Blad
+
+
+    Afzuiging Lush Beauty                                                                                                   =AFZ +BOX                               IEC 81346 / 60617   2026-11-07
+                                                              Stuklijst elektronica                                                                                                                            6/6
+    inbouw nagelstofafzuiging, versie 6.1                                                                                   voedingsbox onder het blad              EPLAN-stijl         Phlippo CAD
+

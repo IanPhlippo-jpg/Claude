@@ -1,0 +1,50 @@
+[
+  {
+    "file": "platformio.ini",
+    "unchanged": true
+  },
+  {
+    "file": ".gitignore",
+    "unchanged": true
+  },
+  {
+    "file": "ui/schermen.html",
+    "unchanged": true
+  },
+  {
+    "file": "ui/schermen.png",
+    "unchanged": true
+  },
+  {
+    "file": "ui/logo-knop.png",
+    "unchanged": true
+  },
+  {
+    "file": "include/protocol.h",
+    "unchanged": true
+  },
+  {
+    "file": "include/regel.h",
+    "unchanged": true
+  },
+  {
+    "file": "src/knop/logo.h",
+    "unchanged": true
+  },
+  {
+    "file": "src/knop/main.cpp",
+    "unchanged": true
+  },
+  {
+    "file": "src/knop/fonts.h",
+    "unchanged": true
+  },
+  {
+    "file": "src/module/main.cpp",
+    "unchanged": true
+  },
+  {
+    "file": "test/test_regel/test_regel.cpp",
+    "unchanged": true
+  }
+]

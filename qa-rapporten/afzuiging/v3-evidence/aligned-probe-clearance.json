@@ -1,0 +1,85 @@
+{
+  "description": "Straight projected common openings: steel grille, cassette bottom and inlet. Filter mat omitted: flexible service consumable, not credited as rigid finger guard. No physical IEC test claim.",
+  "largest": [
+    {
+      "grille_hole": 109,
+      "diameter_mm": 11.943,
+      "center_xz": [
+        7.4715,
+        29.932
+      ]
+    },
+    {
+      "grille_hole": 109,
+      "diameter_mm": 11.942999999999998,
+      "center_xz": [
+        7.471500000000001,
+        13.528500000000001
+      ]
+    },
+    {
+      "grille_hole": 109,
+      "diameter_mm": 11.942999999999998,
+      "center_xz": [
+        7.471500000000001,
+        -7.4715
+      ]
+    },
+    {
+      "grille_hole": 109,
+      "diameter_mm": 11.942999999999998,
+      "center_xz": [
+        7.471500000000001,
+        -28.4715
+      ]
+    },
+    {
+      "grille_hole": 157,
+      "diameter_mm": 9.142551457752134,
+      "center_xz": [
+        35.925932538006755,
+        6.65478515625
+      ]
+    },
+    {
+      "grille_hole": 157,
+      "diameter_mm": 8.762991068102115,
+      "center_xz": [
+        36.11464672851563,
+        29.537781982421876
+      ]
+    },
+    {
+      "grille_hole": 109,
+      "diameter_mm": 8.067503906250002,
+      "center_xz": [
+        -5.533751953125001,
+        -33.344119140625
+      ]
+    },
+    {
+      "grille_hole": 66,
+      "diameter_mm": 7.420999999999992,
+      "center_xz": [
+        -36.7895,
+        26.2105
+      ]
+    },
+    {
+      "grille_hole": 66,
+      "diameter_mm": 7.420999999999992,
+      "center_xz": [
+        -36.7895,
+        15.7895
+      ]
+    },
+    {
+      "grille_hole": 66,
+      "diameter_mm": 7.420999999999992,
+      "center_xz": [
+        -36.7895,
+        -5.2105
+      ]
+    }
+  ]
+}

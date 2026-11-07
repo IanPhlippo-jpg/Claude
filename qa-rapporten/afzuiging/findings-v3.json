@@ -1,0 +1,436 @@
+{
+  "version": "v3",
+  "date": "2026-11-07 Europe/Brussels CET",
+  "scope": "engineering/design only; no physical-test penalty",
+  "review_status": "completed anonymous four-report synthesis; strongest verified evidence wins, ties strictest; no vote averaging",
+  "overall": 5.6,
+  "overall_unrounded": 5.6,
+  "v2_overall": 5.0,
+  "delta_rounded": 0.6,
+  "areas": [
+    {
+      "area": "CAD / geometrie",
+      "v2": 8,
+      "technical_v3": 8,
+      "v3": 7,
+      "weight_percent": 15
+    },
+    {
+      "area": "Exports / revisies",
+      "v2": 2,
+      "technical_v3": 8,
+      "v3": 8,
+      "weight_percent": 15
+    },
+    {
+      "area": "Luchttechniek / geluid",
+      "v2": 5,
+      "technical_v3": 6,
+      "v3": 4.5,
+      "weight_percent": 20
+    },
+    {
+      "area": "Filtratie / beschermingsconcept",
+      "v2": 2,
+      "technical_v3": 3,
+      "v3": 3,
+      "weight_percent": 15
+    },
+    {
+      "area": "Elektrisch / thermisch",
+      "v2": 7,
+      "technical_v3": 7,
+      "v3": 6,
+      "weight_percent": 10
+    },
+    {
+      "area": "Firmware",
+      "v2": 5,
+      "technical_v3": 7,
+      "v3": 5,
+      "weight_percent": 10
+    },
+    {
+      "area": "Ergonomie als ontwerp",
+      "v2": 8,
+      "technical_v3": 8,
+      "v3": 7,
+      "weight_percent": 5
+    },
+    {
+      "area": "Onderhoud als ontwerp",
+      "v2": 6,
+      "technical_v3": 7,
+      "v3": 6,
+      "weight_percent": 5
+    },
+    {
+      "area": "Documentatie",
+      "v2": 6,
+      "technical_v3": 7,
+      "v3": 5,
+      "weight_percent": 5
+    }
+  ],
+  "severity_counts": {
+    "Kritiek": 1,
+    "Major": 9,
+    "Minor": 5
+  },
+  "old_findings": [
+    {
+      "id": "E01",
+      "status": "deels/open",
+      "evidence": "Exact G3-product en eerlijke begrenzing toegevoegd; fijnstof-/ventilatieconcept blijft ongesloten.",
+      "current_finding": "V3-01"
+    },
+    {
+      "id": "E02",
+      "status": "deels",
+      "evidence": "13 actuele STL’s en bijgewerkte tekeningen/BOM; grove CAD/STL-mix opgelost. README en restteksten blijven afwijkend.",
+      "current_finding": "V3-09"
+    },
+    {
+      "id": "E03",
+      "status": "opgelost",
+      "evidence": "Alle13 STL’s gesloten, consistente winding, positief volume, één verbonden component.",
+      "current_finding": ""
+    },
+    {
+      "id": "E04",
+      "status": "open",
+      "evidence": "EPDM-beschrijving is nog geen gewijzigde CAD-sluitmaat.",
+      "current_finding": "V3-02"
+    },
+    {
+      "id": "E05",
+      "status": "deels",
+      "evidence": "Nieuw rekenblad aanwezig; drukalarmtegenvoorbeelden,3mm-plenum, RPM/duty en gelijktijdig geluidsdoel laten concrete modelgaten zien.",
+      "current_finding": "V3-03/V3-06"
+    },
+    {
+      "id": "E06",
+      "status": "opgelost",
+      "evidence": "Versheid1s, NAN-status, herstelpad en originele hosttest bevestigd.",
+      "current_finding": ""
+    },
+    {
+      "id": "E07",
+      "status": "deels",
+      "evidence": "Geen lege ijking meer; verse/plausibele samples en RPM. Niet-bewaakbare standen/druktopologie blijven.",
+      "current_finding": "V3-06"
+    },
+    {
+      "id": "E08",
+      "status": "opgelost",
+      "evidence": "Oude hoofdfouten opgelost: UIT-prioriteit, lage-standbewaking en gezamenlijke stroomherstart UIT. Selectieve modulereset/hervatten en PWM versus rotorstilstand blijven expliciete beleidsgrenzen.",
+      "current_finding": ""
+    },
+    {
+      "id": "E09",
+      "status": "deels",
+      "evidence": "MAC/encryptie en module-eigen120s-boost toegevoegd. Opstartkoppeling blijft overschrijfbaar.",
+      "current_finding": "V3-05"
+    },
+    {
+      "id": "E10",
+      "status": "deels",
+      "evidence": "Klemkracht-/momentberekening toegevoegd; materiaalbron, bladanker en montagegrens nog niet gesloten.",
+      "current_finding": "V3-07"
+    },
+    {
+      "id": "E11",
+      "status": "deels",
+      "evidence": "G01 geschrapt; vermogens-, kabel- en thermiekrekenblad toegevoegd; selectie/coördinatie en USB blijven.",
+      "current_finding": "V3-08/V3-15"
+    },
+    {
+      "id": "E12",
+      "status": "deels/heropend",
+      "evidence": "README/UI verbeterd, maar bouwschema p.14 stap13.4 beveelt nog uitkloppen aan; isolatie vóór filterwissel niet expliciet.",
+      "current_finding": "V3-13"
+    },
+    {
+      "id": "E13",
+      "status": "deels",
+      "evidence": "Risicoscenario’s en later meetplan aanwezig; CAD-probe-/morsroute niet volledig. Geen fysieke-teststraf.",
+      "current_finding": "V3-11"
+    },
+    {
+      "id": "E14",
+      "status": "deels",
+      "evidence": "Freesmaat212×102, TR5, voorwandschakelaar en USB-klemming grotendeels consistent; README-resttekst en gedeelde library ontbreken in snapshot.",
+      "current_finding": "V3-09"
+    },
+    {
+      "id": "E15",
+      "status": "open",
+      "evidence": "Exacte filament-/epoxy-/reinigingsspecificatie niet gekozen.",
+      "current_finding": "V3-10"
+    },
+    {
+      "id": "E16",
+      "status": "deels",
+      "evidence": "Concrete werkplek en oorposities/doelen beschreven; enkele datumvlak-/kabeldetails en kostenconsistentie blijven. Geen aftrek voor ontbrekende personenproef.",
+      "current_finding": "V3-09/V3-11"
+    }
+  ],
+  "findings": [
+    {
+      "id": "V3-01",
+      "severity": "Kritiek",
+      "status_vs_v2": "deels/open",
+      "title": "Fijnstofbeheersingsconcept niet gesloten",
+      "evidence": "README.md:9,31,85; docs/Vrijgave-en-meetplan.md:25–47; Rittal fabrikantblad SK3171100",
+      "description": "G3/ISO Coarse 50% is nu exact en eerlijk als ventilatorbescherming gekozen, maar retourlucht met fijn stof blijft in de salon; algemene ventilatie is niet gedimensioneerd. Kritiek voor de beoogde beschermende salontoepassing, niet een bewezen grensoverschrijding.",
+      "action": "Kies een passende fijne eindtrap met systeemweerstand en afdichting, buitenafvoer, of een afzonderlijk berekend werkplekbeheersingsconcept.",
+      "acceptance": "Exacte systeemgrens, bronnen/stoffen, opvang-/retour-/buitenluchtbalans en componentprestaties gedocumenteerd; geen ongefundeerde beschermingsclaim."
+    },
+    {
+      "id": "V3-02",
+      "severity": "Major",
+      "status_vs_v2": "open",
+      "title": "EPDM-afdichting beschreven maar niet ingebouwd",
+      "evidence": "docs/Vrijgave-en-meetplan.md:41–43; maak-afzuiging.mjs:49–50,145–147,258–271",
+      "description": "De voorgestelde EPDM-band 3×9 mm staat alleen in een toekomstbeschrijving. Randonderkant en richelbovenkant liggen beide op Y=0: geen nominale ruimte voor de vereiste 1,5–2,1 mm samengedrukte pakking. De rechte opleg is slechts 100,25−99=1,25 mm breed. Een 9mm-band vraagt dus ook een ontworpen steunpad, niet alleen een hoogtewijziging. De werkelijke 173mm-mat en haar compressie zijn niet bewezen door het 170,5mm-CAD-blok.",
+      "action": "Integreer de pakking en sluitmaat in de generator/CAD/BOM.",
+      "acceptance": "Min/max maatketen geeft opgegeven compressie en retentie zonder botsing of bypass; CAD, BOM en tekeningen identiek."
+    },
+    {
+      "id": "V3-03",
+      "severity": "Major",
+      "status_vs_v2": "deels/nieuw",
+      "title": "Luchtmodel, 3mm-plenum, RPM/duty en geluidsdoel sluiten niet samen",
+      "evidence": "maak-afzuiging.mjs:49,60–62,328–341; docs/Berekeningen.md:18,38,54–56; docs/Vrijgave-en-meetplan.md:83; v3-evidence/team-merge/verified-models.json",
+      "description": "Er is nu een echte scenario-systeemcurve, maar geen bewezen curve van de gekozen Rittal-mat. RPM-fracties voeden warmte/geluid, terwijl de firmware duty stuurt. Het slechts 3mm-hoge plenum en niet-uniforme filterbenutting zijn niet expliciet gemodelleerd. Onder het eigen model vraagt het minimum189,54m³/h circa59,6dB(A) op0,5m, boven het gestelde55dB(A)-oorbudget. De vuilefilterfunctie geeft bij250m³/h circa396Pa, zodat de250Pa-eindgrens een expliciete referentiedefinitie nodig heeft. Dit zijn ontwerp-/modelconflicten, geen gemeten toestelprestaties.",
+      "action": "Kies één gekoppeld dagwerkpunt met echte of expliciet begrensde mediadata, RPM/duty-brug, filterbelading, plenumverdeling en oorafstand; ontwerp of specificeer de eisen vervolgens consistent.",
+      "acceptance": "Reproduceerbare nominale en ongunstige modelscenario’s dekken geometrie, mediainvoer, vervanggrens, minimumvangst, geluid en thermiek bij dezelfde implementeerbare stand; een dynamische drukschaal is geen automatisch toe te voegen verlies."
+    },
+    {
+      "id": "V3-04",
+      "severity": "Major",
+      "status_vs_v2": "nieuw",
+      "title": "Zachte start is bij de werkelijke lus viermaal te snel",
+      "evidence": "firmware/include/regel.h:120–125; firmware/src/module/main.cpp:212,233; firmware/test/test_regel/test_regel.cpp:24–30,208–218; v3-evidence/regression-v3.log",
+      "description": "Afronden naar boven per regelstap: bij dt=5ms telkens +1 procentpunt. De originele regelaar bereikt80% na400ms in plaats van minstens1600ms. De meegeleverde test gebruikt250ms-stappen.",
+      "action": "Gebruik tijdgebaseerde fractionele accumulatie of een vaste hellingreferentie; trek de ongefundeerde zekeringclaim in.",
+      "acceptance": "Tests bij1/5/10/20/250ms en jitter respecteren50 procentpunten/s (met expliciete afrondmarge), UIT direct; stroomcoördinatie afzonderlijk berekend."
+    },
+    {
+      "id": "V3-05",
+      "severity": "Major",
+      "status_vs_v2": "deels/nieuw",
+      "title": "Koppelvenster kan een bestaande set overschrijven",
+      "evidence": "firmware/include/regel.h:234–265; firmware/src/module/main.cpp:160–175; firmware/src/knop/main.cpp:101–108,436–452; v3-evidence/regression-v3.log",
+      "description": "Versleutelde unicast en MAC-controle zijn toegevoegd, maar iedere opstart opent60s waarin een andere koppelvraag direct de bestaande peer overschrijft. De ongerichte bevestiging bevat geen unieke uitdagings-/doelbinding. De applicatielaag accepteert ook een eerder gebruikte sessie nadat een andere sessie is gezien. Dat is op de originele C++ aangetoond, maar bewijst geen end-to-end radioreplay door ESP-NOW/CCMP heen. Selectieve MCU-resets krijgen een expliciet hervat-/bevestigingsbeleid.",
+      "action": "Alleen expliciet herpairen toestaan; bevestig unieke module/knop-uitdaging; controleer peerfouten en sessie/replaybeleid.",
+      "acceptance": "Twee gelijktijdige sets en herstarts behouden hun koppeling; geen vervanging zonder expliciete handeling; host-/protocoltests voor concurrerende vragen en verkeerd bevestigingsbericht."
+    },
+    {
+      "id": "V3-06",
+      "severity": "Major",
+      "status_vs_v2": "deels",
+      "title": "Filteralarm borgt het minimumdebiet niet; onbekende bewaking is onvoldoende expliciet",
+      "evidence": "firmware/include/regel.h:79–117,128–144; firmware/src/knop/main.cpp:298–333; v3-evidence/team-merge/verified-models.json; team-regressions.log",
+      "description": "Het drukpunt meet rooster+filter+cassetteverlies, niet pure filterdruk bij constant debiet. Met precies het bronmodel geeft2× de schone sensordruk bij60% werkelijk RPM pas alarm rond103,9m³/h en bij80% rond179,1, onder het eigen minimum189,54. Dit bewijst een tekort in de alarmredenering, niet de werkelijke apparaatdebieten. Met referenties boven225Pa wordt de factor2-grens450Pa onbewaakbaar zonder duidelijke status; aanhoudende overrange heeft evenmin een eigen protocolstatus. Ontbrekend/vuil filter en ongeijkt bedrijf zijn met één druksignaal niet uniek herkenbaar.",
+      "action": "Ontwerp de gemeten-grootheid/onderhouds-/minimumvangstlogica samen; sluit ongeschikte standen uit of label ze ondubbelzinnig. Toon onbekend, stabiliseren en overrange apart; documenteer detectiegrenzen en schone-filterijkprocedure.",
+      "acceptance": "Sweep van standen/filterweerstand/onzekerheden toont een waarschuwing vóór Q(model)<Qmin voor beschermende werkstanden; onbereikbare drempels en niet-bewaakte toestanden worden zichtbaar. Een normale UI mag geen gegarandeerde filteraanwezigheid, schone ijking of beladingsmassa suggereren."
+    },
+    {
+      "id": "V3-07",
+      "severity": "Major",
+      "status_vs_v2": "deels",
+      "title": "Klem-/bladberekening bevat nog ongefundeerde belastingsgrenzen",
+      "evidence": "docs/berekeningen.py:167–178; docs/Berekeningen.md:94–98; README.md:190,197; maak-afzuiging.mjs:44,96",
+      "description": "Berekeningen48N/31N en0,05/0,03Nm zijn toegevoegd, maar10MPa-kruipgrens en25MPa interlaagschuif zijn generieke invoer zonder exacte materiaal-/temperatuur-/tijdbron. Twee vingers is geen0,05Nm-momentbegrenzing. Huidankers blijven generiek.",
+      "action": "Kies werkelijk filament/printoriëntatie, belastingsgevallen en bladanker; begrens montagebelasting reproduceerbaar.",
+      "acceptance": "Rekenblad met materiaalbron, veiligheidsfactoren, contact- en netto doorsneden, lokale bladdruk, exacte ankerdata en controleerbare montagegrens."
+    },
+    {
+      "id": "V3-08",
+      "severity": "Major",
+      "status_vs_v2": "deels",
+      "title": "Elektrische selectie en warmtebegroting nog niet volledig sluitend",
+      "evidence": "README.md:74,79,82; docs/Berekeningen.md:58–90; docs/berekeningen.py:139–151,282–290; schema/maak-schema.mjs:129,217–218",
+      "description": "Juiste S01 en 24V-basis zijn behouden. Zekering en schakelaar missen exact DC-rated part/coördinatie. Lokale C3+sensor0,52W ontbreken in het boxverlies. RPM/duty-mix beperkt de thermische standclaim; USB-pad-/fout-/terugvoedingsontwerp niet uitgewerkt. De correctie van0,52W geeft binnen hetzelfde model circa5,337W bij80% RPM en9,090W bij100%. De40°C-volbelastingsgrens mag niet als universele uitvalgrens bij58W worden voorgesteld: gebruik de echte lastafhankelijke derating. De piekstroom van de C3 is daarnaast niet consistent tussen schema en rekenblad.",
+      "action": "Selecteer exacte DC-delen; sluit fout-/startstroom, kabel/connector/USB en lokaal warmtepad rekenkundig.",
+      "acceptance": "Datasheets/bedradingsplan, tijd-stroomcoördinatie, lokale verliesbalans en temperatuur-/deratingmarges uit dezelfde bedrijfsstanden; geen fictieve230V-printafstandseis."
+    },
+    {
+      "id": "V3-09",
+      "severity": "Minor",
+      "status_vs_v2": "nieuw/restant",
+      "title": "README en afgeleide teksten zijn nog niet consistent",
+      "evidence": "README.md:65,102,137–146,174,200–201; docs/Vrijgave-en-meetplan.md:3; tekeningen/prijslijst.csv; maak-afzuiging.mjs:40,99,561",
+      "description": "Romp staat nog99mm in README, actuele CAD/STL96mm. Filter/M5-verbruikstekst en USB-schroefmontage zijn oud. README495,48 versus reproduceerbare CSV502,69; koperijtotaal387,69 versus380,48. Ook het effectieve roosteroppervlak is125,595cm², niet141; het bouwschema gebruikt nog de oude USB-schroefmontage. De gewijzigde229mm-totaalmaat is daarentegen verklaarbaar door uitgezwaaide klauwen, niet opnieuw als verkeerde staalbreedte afkeuren.",
+      "action": "Genereer tabellen en montageproza uit dezelfde gevalideerde gegevens; verwijder oude laserklauwen of label obsolete.",
+      "acceptance": "Geautomatiseerde controle van alle maat-/prijs-/revisie-/montagevelden; juiste filterprijs en USB-klemming."
+    },
+    {
+      "id": "V3-10",
+      "severity": "Minor",
+      "status_vs_v2": "open",
+      "title": "Materiaal- en reinigingsspecificatie blijft generiek",
+      "evidence": "README.md:118–133; maak-afzuiging.mjs:102–108; docs/berekeningen.py:170",
+      "description": "Algemene PETG/aceton/75°C-claims onderbouwen exacte voorgespannen print, epoxy, magneten en reinigingsmiddel niet.",
+      "action": "Kies filament, lijm en schoonmaakproducten met brongegevens en ontwerpgrenzen.",
+      "acceptance": "Materiaalstaat met product-/datasheetreferenties, temperatuur-/chemische gebruiksgrenzen en printoriëntatie; latere duurproeven apart."
+    },
+    {
+      "id": "V3-11",
+      "severity": "Minor",
+      "status_vs_v2": "deels",
+      "title": "Bereikbaarheid, morsroute en werkplek-envelop nog niet volledig op papier",
+      "evidence": "docs/Vrijgave-en-meetplan.md:48–70; laser/rooster.loops; v3-evidence/aligned-probe-clearance.json",
+      "description": "Onder intacte afscherming laat een LB-opening lokaal18,28mm toe, maar de gemeenschappelijke rechte doorgang door rooster, cassettebodem en inlaat maximaal circa11,943mm. Een normale rechte12mm-doorgang is daarmee niet bewezen. Een volledige gelede probe-/tolerantieanalyse blijft ontwerpwerk, zonder een universele8mm-openingsnorm te verzinnen. De geopende onderhoudstoestand en isolatie vallen onderV3-13. Morsroute en werkplek-/kabelenvelop zijn nog niet volledig uitgewerkt.",
+      "action": "Voer CAD-probeenvelop en tolerantie-/servicetoestanden uit; teken mors-/afvoerroute en echte kabel-/knie-envelop.",
+      "acceptance": "CAD-probeenvelop met expliciet benoemde bedrijfs-, service- en tolerantietoestanden; geen ononderbouwde bereikclaim. Mors-/afvoerroute, kabel-/stekker- en gebruikersruimte expliciet vastgelegd; fysieke validatie later."
+    },
+    {
+      "id": "V3-12",
+      "severity": "Minor",
+      "status_vs_v2": "open/restant",
+      "title": "Eén kleine print/box-overlapkandidaat resteert",
+      "evidence": "v3-evidence/interferences.json; Voedingsbox/Voedingsprint",
+      "description": "Onafhankelijke reconstructie vindt0,649mm³ snijvolume. Drie eerdere knopkandidaten zijn verdwenen. Kleine waarde kan bedoeld contact of segmentatie zijn, geen bewezen grote botsing.",
+      "action": "Controleer exacte kernel ter plaatse en geef bedoelde contact-/spelingstoestand op.",
+      "acceptance": "Exacte-kerneldoorsnede en maatketen tonen geen ongewenste overlap; bedoelde passing expliciet gelabeld."
+    },
+    {
+      "id": "V3-13",
+      "severity": "Major",
+      "status_vs_v2": "heropend/nieuw",
+      "title": "Bouwschema beveelt nog uitkloppen aan; onderhoudsisolatie ontbreekt",
+      "evidence": "tekeningen/Bouwschema-afzuiging.pdf p.14 stap13.4; v3-evidence/pdf-text/Bouwschema-afzuiging.txt:340; README.md:31,198,258–260",
+      "description": "README en actieve UI zeggen niet uitkloppen, maar het geleverde bouwschema zegt letterlijk: “klop het filter uit of vervang het”. De filterwissel verwijdert rooster/cassette zonder expliciete voorafgaande voedingsisolatie en uitloopvoorwaarde. De netstekkerinstructie geldt nu alleen voor openen van de box. Een bevestigde PWM-UIT is geen mechanische stilstand of onderhoudsisolatie.",
+      "action": "Eén consistente stofarme wisselprocedure met isolatie/uitloop vóór openen; kies vaste afscherming/interlock waar nodig en documenteer onderhoudstoestand. Benoem matoriëntatie volgens het progressieve medium en reiniging van downstream-delen; alternatieve171mm-mat niet zonder compressieketen veilig verklaren.",
+      "acceptance": "Alle PDF/SVG/HTML/README/UI-controles vinden geen positieve uitklopinstructie; complete onderhoudsprocedure begint met dezelfde fysieke isolatie en stilstandvoorwaarde. CAD/schema/procedure beschrijven afscherming en stoftransfer; matoriëntatie en eventuele alternatiefpassing staan vast."
+    },
+    {
+      "id": "V3-14",
+      "severity": "Minor",
+      "status_vs_v2": "nieuw",
+      "title": "Oud filteroordeel blijft staan tijdens stabilisatie na standwisseling",
+      "evidence": "firmware/include/regel.h:108–117; v3-evidence/team-merge/team-regressions.log",
+      "description": "Bij een verse meting en geldige ijking maar nog niet verstreken stabilisatietijd valt de code door zonder vol/geenLucht te wissen. Een voorafgaande vol=1,20 blijft na40→80% dus aan de nieuwe stand gekoppeld. De andere teamclaim dat ijkvoortgang altijd0% is, is juist verworpen: originele C++ geeft50% na20s.",
+      "action": "Stabiliseren/onbekend expliciet maken en oude afgeleide alarmstatus bij referentiewisseling niet als actueel tonen.",
+      "acceptance": "Hosttests voor standwissels, oude vervang-/geen-luchtmelding en verse druk tonen onbekende afgeleide status tot de nieuwe berekening stabiel is; correcte ijkvoortgang behouden."
+    },
+    {
+      "id": "V3-15",
+      "severity": "Major",
+      "status_vs_v2": "nieuw",
+      "title": "Herhaalboost omzeilt de beoogde beperking tot120 seconden",
+      "evidence": "firmware/include/regel.h:68–71,100–106; docs/Berekeningen.md:88–90; v3-evidence/team-merge/team-regressions.log",
+      "description": "Elke nieuwe boostvraag schuift de deadline opnieuw120s vooruit. Een originele-codeproef met elke60s opnieuw boost houdt na360s nog100% en120s resterend over. Er is geen cumulatieve limiet of afkoelbeleid. Een individuele lokale lease bestaat dus wel, maar een thermisch beperkte totale100%-duur niet. Werkelijke oververhitting is hiermee niet aangetoond.",
+      "action": "Dimensioneer conservatief voor continu herhaalbaar100%, óf ontwerp een expliciet begrensd cumulatief boost-/afkoelbeleid op een passend stationair/transiëntmodel.",
+      "acceptance": "Deterministische tests voor herhaalde boost, warme start, radioverlies en reset respecteren het gekozen thermische budget; model, maximale duty en UI zijn consistent. De volledige adapterderating en lokale vermogensbalans zijn meegenomen."
+    }
+  ],
+  "technical_v3_overall": 6.6,
+  "technical_v3_unrounded": 6.55,
+  "delta_vs_technical_v3": -1.0,
+  "delta_vs_v2": 0.6,
+  "blind_matrix": [
+    {
+      "report": "Alpha",
+      "validity": 5,
+      "usefulness": 5,
+      "blind_spots": 5,
+      "reason": "Sterk OCCT-/document-/modelbewijs: achtergebleven uitklopadvies, smalle pakkingopleg en3mm-plenum. Beperkte historische toegang eerlijk benoemd. Prijsconclusie gecorrigeerd met werkelijk opgetelde regels.",
+      "fills": "Vult Beta/Gamma/Delta aan op onderhouds-PDF en geometrische luchtverdeling; krijgt historische en elektrische aanvulling van de andere rapporten."
+    },
+    {
+      "report": "Beta",
+      "validity": 4,
+      "usefulness": 5,
+      "blind_spots": 5,
+      "reason": "Breedste assemblage- en beperkte moduleklauwsweep, build/hosttests en ontwerpalternatieven. Warmte/uitkloppen ten onrechte als opgelost; bereikclaim sterker dan bewijs voor intacte toestand.",
+      "fills": "Vult Alpha/Delta aan met77 plaatsingen/sweep en opties; Alpha corrigeert PDF, Gamma/Alpha warmte en herhaalboost."
+    },
+    {
+      "report": "Gamma",
+      "validity": 4,
+      "usefulness": 5,
+      "blind_spots": 5,
+      "reason": "Sterke brontraces, druk-/geluid-/herhaalboostanalyse en duidelijke onderzoekslimieten. Claim ijkvoortgang altijd0 is fout; PDF-uitklopinstructie en prijsregels gemist.",
+      "fills": "Vult Alpha/Beta/Delta aan met cumulatieve boost en stabilisatiestatus; Alpha corrigeert onderhoud, eigen C++ verwerpt de voortgangsclaim."
+    },
+    {
+      "report": "Delta",
+      "validity": 4,
+      "usefulness": 4,
+      "blind_spots": 4,
+      "reason": "Werkelijk uitgevoerde hostkarakterisering en scherp onderscheid model/blootstelling. Sterk op alarmsessies/overrange/detectiegrenzen; mist softstartfout en verklaart warmte/uitkloppen te vroeg opgelost.",
+      "fills": "Vult andere rapporten aan met applicatiesessies, onbekende bewaking, matoriëntatie en alternatiefpassing; krijgt geometrie-/warmte-/PDF-aanvulling van Alpha/Beta/Gamma."
+    }
+  ],
+  "blind_method": {
+    "reading_order": [
+      "Gamma",
+      "Alpha",
+      "Delta",
+      "Beta"
+    ],
+    "role_and_numbered_workdir_attribution_removed": true,
+    "random_shuffle": "SystemRandom; no permutation/seed/mapping saved",
+    "authors_inferred": false,
+    "score_rule": "verified claims, not average of report totals"
+  },
+  "rejected_or_qualified_claims": [
+    {
+      "claim": "Gamma: ijkvoortgang is altijd0%",
+      "verdict": "verworpen",
+      "evidence": "Originele C++ bij20s: stap3,50%. minu begrenst het berekende percentage; verkeerde lezing van haakjes."
+    },
+    {
+      "claim": "Beta/Delta en technisch voorrapport: uitklopinstructie opgelost",
+      "verdict": "verworpen voor het complete pakket",
+      "evidence": "Bouwschema p.14 stap13.4 bevat positieve uitklopinstructie; alleen README/live UI zijn verbeterd."
+    },
+    {
+      "claim": "Beta/Delta: warmtebegroting opgelost/conservatief genoeg",
+      "verdict": "verworpen als gesloten ontwerp",
+      "evidence": "0,52W lokale dissipatie mist, duty/RPM onbekend en herhaalboost niet cumulatief beperkt."
+    },
+    {
+      "claim": "Beta: vingerbereik aangetoond met intact rooster en cassette",
+      "verdict": "niet aangetoond; onderhoudsrisico wel behouden",
+      "evidence": "Losse roostergaten groot, maar gemeenschappelijke rechte doorgang circa11,943mm; geen volledige gelede normproef. Na wegnemen afneembare delen is de route anders."
+    },
+    {
+      "claim": "507Pa plenumverlies of bewezen onhaalbaar250m3/h",
+      "verdict": "niet overgenomen",
+      "evidence": "507Pa is slechts dynamische schaal onder uniforme aanstromingsaanname; geen berekende irreversibele verliespost."
+    },
+    {
+      "claim": "Applicatiesessie-test bewijst replay van opgevangen radiopakket",
+      "verdict": "niet overgenomen",
+      "evidence": "Applicatielogica accepteert oude sessie; ESP-NOW/CCMP-transportbeveiliging niet end-to-end getest."
+    },
+    {
+      "claim": "Universele75%-zekeringregel,4A-fuse of8mm-rooster als verplichte norm",
+      "verdict": "niet overgenomen",
+      "evidence": "Exacte component-/productnormselectie ontbreekt; zulke getallen zijn hooguit te onderbouwen ontwerpopties."
+    },
+    {
+      "claim": "229mm in nieuwe doorsnede is automatisch een oude verkeerde staalbreedte",
+      "verdict": "verworpen",
+      "evidence": "Uitgezwentelde moduleklauwen tot±114,5mm; actuele staalplaat222mm blijft correct."
+    },
+    {
+      "claim": "Alleen ontbreken van officiële kernel, g++ of fysieke test maakt ontwerp fout",
+      "verdict": "verworpen",
+      "evidence": "Onderzoekslimiet is geen bronfout; geteste digitale ontwerpgebreken blijven wel meewegen."
+    }
+  ],
+  "team_changes": [
+    "E12 heropend: bouwschema p14 bevat nog positief uitklopadvies; isolatie/serviceprocedure ontbreekt.",
+    "Drukalarm nu kwantitatief weerlegd binnen bronmodel: bij60/80% RPM alarmQ103.9/179.1 onder Qmin189.54.",
+    "3mm-plenum en gelijktijdig akoestisch/vangstdoel als gekoppeld ontwerpgat meegenomen;507Pa niet als extra verlies gebruikt.",
+    "Herhaalboost kan100% langer dan120s vasthouden; correcte lokale warmtebalans sterker gewogen.",
+    "Oude alarmstatus tijdens stabilisatie en protocol-/bewakingsgrenzen aanvullend gecontroleerd.",
+    "Onjuiste claim ijkvoortgang altijd0 verworpen: originele C++ geeft50% na20s.",
+    "Beperkte548-standen moduleklauwsweep bevestigt nominale beweging; geen volledige officiële kernelclaim."
+  ]
+}

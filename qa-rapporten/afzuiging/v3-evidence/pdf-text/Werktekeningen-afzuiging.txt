@@ -1,0 +1,776 @@
+Opengewerkte isometrie (schaal vrij)                                                                    Stuklijst
+                                           26            3    7                                         Pos   Aant.   Benaming                                   Materiaal / type           Tek.
+                                                                                                        1     1       Romp                                       PETG, wit                  AFZ-01
+                                                                                     36                 2     1       Bovenframe                                 PETG, wit                  AFZ-02
+
+                                                                                                        3     1       Rooster LB                                 AISI 430                   AFZ-03
+                                                                                     37                 4     1       Filtercassette                             PETG, wit                  AFZ-04
+
+                                                                                                        5     1       Cassetterand                               PETG, wit                  AFZ-05
+                                                                                     35
+                                                                                                        6     1       Filtermat Rittal SK 3171.100               Filtermat Rittal SK…       koop
+
+                                                                                                        7     1       Instroomplaat                              PETG, wit                  AFZ-06
+                                                                                     28
+                                                                                                        8     1       Bodemplaat                                 PETG, wit                  AFZ-07
+
+                                                                                     31                 9     1       San Ace C175 9TG24P0S01                    PBT, zwart                 koop
+
+                                                                                                        10    1       M8-inbouwbus 4-polig                       Messing vernikkeld         koop
+                                                                                     27                 11    4       Klauw                                      PETG, wit                  AFZ-11
+
+                                                                                                        12    4       M5 zeskantmoer DIN 934                     Staal verzinkt             norm
+                                                                                     34
+                                                                                                        13    1       Knophouder                                 PETG, zwart                AFZ-09
+
+                                                                                                        14    1       Knopdeksel                                 PETG, zwart                AFZ-10
+                                                                                     30
+                                                                                                        15    1       VIEWE-knop 1,5"                            Aluminium, zwart           koop
+
+                    6                                                                29                 16    1       Adapterprint knop                          FR4                        koop
+
+                                                                                                        17    1       USB-C-bus knophouder                       FR4                        koop
+                    4                                                                38                 18    2       Knopklauw                                  PETG, zwart                AFZ-12
+
+                                                                                                        19    2       M4 zeskantmoer DIN 934                     Staal verzinkt             norm
+                                                                                     32                 20    4       M5 x 65 DIN 7991                           Staal A2                   norm
+
+                                                                                                        21    8       M3 x 16 DIN 7991                           Staal A2                   norm
+                    5                                                                15
+                                                                                                        22    4       M4 x 10 DIN 7991                           Staal A2                   norm
+
+                                                                                                        23    2       M4 x 65 DIN 7991                           Staal A2                   norm
+                                                                                     39
+                                                                                                        24    2       M2,5 x 6 DIN 7991                          Staal A2                   norm
+
+                                                                                     33                 25    2       M2,5 x 8 DIN 7991                          Staal A2                   norm
+
+                   10                                                                                   26    3       Messingbuisje Ø3 x 12                      Messing                    koop
+                                                                                     24                 27    1       Voedingsbox                                PETG, wit                  AFZ-08
+
+                                                                                                        28    1       Deksel voedingsbox                         PETG, wit                  AFZ-14
+                    2                                                                16                 29    4       M3 x 8 DIN 7991                            Staal A2                   norm
+
+                                                                                                        30    4       M4 x 30 DIN 7991                           Staal A2                   norm
+                                                                                     13
+                                                                                                        31    1       Mean Well GST90A24-P1M                     PC, zwart                  koop
+                   20
+                                                                                                        32    1       Voedingsprint                              FR4                        koop
+                                                                                     19
+                                                                                                        33    1       USB-C-bus knop                             FR4                        koop
+                    1                                                                18                 34    1       Wipschakelaar KCD1-101                     PBT, zwart                 koop
+
+                                                                                                        35    1       M8-inbouwstekker 4-polig                   Messing vernikkeld         koop
+                                                                                     17                 36    2       Adapterklem                                PETG, wit                  AFZ-13
+                                                                                                        37    2       M3 x 10 DIN 7991                           Staal A2                   norm
+                                                                                     23                 38    4       M2,5 x 6 zelftappend                       Staal verzinkt             norm
+
+                                                                                                        39    2       M2 x 5 zelftappend                         Staal verzinkt             norm
+                                                                                     14
+
+                                                                                     25
+
+
+
+
+                                       8   22   21   9   12   11   Project                                                             Benaming
+
+                                                                   Afzuiging Lush Beauty (versie 6.1)                                  Samenstelling afzuiging met voedingsbox en knop
+                                                                   Materiaal                                                           Tekeningnummer           Blad
+
+                                                                   zie stuklijst                                                       AFZ-00                   1 / 17
+                                                                   Maken                                                               Schaal                   Massa
+
+                                                                   Montage volgens het bouwschema                                      vrij                     —
+                                                                   Getekend                                                            Maten en toleranties
+                                                                                                                                                                                        ISO E
+                                                                   Phlippo CAD · 2026-11-07                                            mm · ISO 2768-m
+                   Doorsnede B-B door het midden (van voren gezien)
+
+                                                       229
+
+
+
+blad 34 mm
+             106
+
+
+
+
+                                                                                                           68
+                                                                                                                onder het blad
+                                                                                                                                 Van boven naar onder:
+
+                                                                                                                                 1 RVS-plaat met LB-rooster op het bovenframe (magneten)
+
+                                                                                                                                 2 bovenframe met de koppen van de M5-schroeven
+
+                                                                                                                                 3 filtercassette met één standaardmat Rittal SK 3171.100 (173 x 173 x 17)
+
+                                                                                                                                 4 instroomplaat met trechter boven de waaier
+
+                                                                                                                                 5 radiale ventilator San Ace C175
+
+                                                                                                                                 6 bodemplaat met lamellen, M4 en M3 verzonken
+
+                                                                                                                                 Klauwen in de vier hoeken klemmen onder het blad.
+
+                                                                                                                                 Koopdelen (ventilator, filters) niet gearceerd.
+
+
+
+
+                                                                      Project                                                       Benaming
+
+                                                                      Afzuiging Lush Beauty (versie 6.1)                            Samenstelling in doorsnede
+                                                                      Materiaal                                                     Tekeningnummer                          Blad
+
+                                                                      zie stuklijst                                                 AFZ-00                                  2 / 17
+                                                                      Maken                                                         Schaal                                  Massa
+
+                                                                      Montage volgens het bouwschema                                1:1                                     —
+                                                                      Getekend                                                      Maten en toleranties
+                                                                                                                                                                                                  ISO E
+                                                                      Phlippo CAD · 2026-11-07                                      mm · ISO 2768-m
+          Doorsnede A-A       Linkeraanzicht                                                                                                    Isometrie (schaal vrij)
+
+               210                 210
+96
+
+
+
+
+                                                                                                    Belangrijke maten en bewerkingen
+                                                                                                    Buitenmaat 210 x 210 x 96, wand 4, hoeken R6
+
+                                                                                                    4 torens met klauwkanaal, as op x ±96,5 en z ±72
+
+      A                   A                                                                         Gaten M5: Ø5,8 x 67 diep vanaf de bovenkant (in de torens)
+
+                                                                                                    Klauwkanaal 14 x 14 van -9 tot -61 (Y)
+210
+
+
+
+
+                                                                                                    Richel cassette: binnen 198 x 198, 1.5 dik bovenaan
+
+                                                                                                    Richel instroomplaat: 3 treden van 1 mm onder Y -25
+
+                                                                                                    8 gaten Ø2,5 x 12 van onderen (M3, bodemplaat)
+
+                                                                                                    Achterwand: Ø10,2 (M8-bus binder 718, M10 x 0,75) en Ø3,1 (messingbuisje)
+
+                                                                                                    Binnen tegen de achterwand: 2 ringen Ø5,6 (slangetje) en 1 ring Ø7 (draden ventilator)
+
+
+
+
+          Bovenaanzicht
+
+
+
+
+                                          Project                                                                        Benaming
+
+                                          Afzuiging Lush Beauty (versie 6.1)                                             Romp
+                                          Materiaal                                                                      Tekeningnummer                           Blad
+
+                                          PETG (wit)                                                                     AFZ-01                                   3 / 17
+                                          Maken                                                                          Schaal                                   Massa
+
+                                          3D-print rechtop, 5 wanden, 40 % gyroid, zonder support                        1:2                                      545 g (massief)
+                                          Getekend                                                                       Maten en toleranties
+                                                                                                                                                                                             ISO E
+                                          Phlippo CAD · 2026-11-07                                                       mm · ISO 2768-m
+      Vooraanzicht    Linkeraanzicht                                                                                   Isometrie (schaal vrij)
+
+           222             222
+2,5
+222
+
+
+
+
+                                                                           Belangrijke maten en bewerkingen
+                                                                           Buitenmaat 222 x 222 x 2.5, hoeken R6
+
+                                                                           Opening 201 x 201, hoeken R4
+
+                                                                           4 lippen boven de torens, met verzinking 90° Ø10,4 x 2 en gat Ø6 (M5)
+
+                                                                           4 magneetgaten Ø8,2 x 1,6 op x ±105,75, z ±30
+
+                                                                           Op de romp gelijmd (tweecomponentenlijm, rondom luchtdicht)
+
+
+
+
+      Bovenaanzicht
+
+
+
+
+                            Project                                                             Benaming
+
+                            Afzuiging Lush Beauty (versie 6.1)                                  Bovenframe
+                            Materiaal                                                           Tekeningnummer                           Blad
+
+                            PETG (wit)                                                          AFZ-02                                   4 / 17
+                            Maken                                                               Schaal                                   Massa
+
+                            3D-print plat, 5 wanden, 6 lagen boven/onder                        1:2                                      29 g (massief)
+                            Getekend                                                            Maten en toleranties
+                                                                                                                                                          ISO E
+                            Phlippo CAD · 2026-11-07                                            mm · ISO 2768-m
+      Vooraanzicht    Linkeraanzicht                                                                                Isometrie (schaal vrij)
+
+           222             222
+1,5
+222
+
+
+
+
+                                                                       Belangrijke maten en bewerkingen
+                                                                       Plaat 222 x 222 x 1,5, hoeken R6
+
+                                                                       Rand 11 mm zonder gaten; LB-monogram 75 mm hoog
+
+                                                                       Sleuven 3,5 mm, stegen 3 mm, nergens smaller dan 1,5 mm
+
+                                                                       Eén stuk staal, geen losse eilanden (zie het laserrapport)
+
+                                                                       Snijden volgens laser/rooster.dxf (laag SNIJDEN)
+
+
+
+
+      Bovenaanzicht
+
+
+
+
+                            Project                                                          Benaming
+
+                            Afzuiging Lush Beauty (versie 6.1)                               RVS-plaat met LB-rooster
+                            Materiaal                                                        Tekeningnummer                           Blad
+
+                            RVS 430 (magnetisch), 1,5 mm, geborsteld                         AFZ-03                                   5 / 17
+                            Maken                                                            Schaal                                   Massa
+
+                            Lasersnijden volgens laser/rooster.dxf                           1:2                                      373 g (massief)
+                            Getekend                                                         Maten en toleranties
+                                                                                                                                                        ISO E
+                            Phlippo CAD · 2026-11-07                                         mm · ISO 2768-m
+            Doorsnede A-A       Linkeraanzicht                                                                                             Isometrie (schaal vrij)
+
+                174,2               174,2
+19
+
+
+
+
+        A                   A
+174,2
+
+
+
+
+                                                                                                Belangrijke maten en bewerkingen
+                                                                                                Buitenmaat 174.2 x 174.2 x 19, wand 1.6, bodem 2
+
+                                                                                                Roosterbodem: vakken 18 x 18, ribben 3 mm
+
+                                                                                                Binnenmaat 171 x 171: één standaardmat Rittal SK 3171.100 (173 x 173 x 17, 1 mm aangedrukt)
+
+                                                                                                De rand (AFZ-05) wordt op de wandbovenkant gelijmd
+            Bovenaanzicht
+
+
+
+
+                                                 Project                                                            Benaming
+
+                                                 Afzuiging Lush Beauty (versie 6.1)                                 Filtercassette (bak)
+                                                 Materiaal                                                          Tekeningnummer                           Blad
+
+                                                 PETG (wit)                                                         AFZ-04                                   6 / 17
+                                                 Maken                                                              Schaal                                   Massa
+
+                                                 3D-print rechtop, de roosterbodem op het bed                       1:2                                      48 g (massief)
+                                                 Getekend                                                           Maten en toleranties
+                                                                                                                                                                                    ISO E
+                                                 Phlippo CAD · 2026-11-07                                           mm · ISO 2768-m
+        Vooraanzicht    Linkeraanzicht                                                                                    Isometrie (schaal vrij)
+
+            200,5           200,5
+2,5
+200,5
+
+
+
+
+                                                                              Belangrijke maten en bewerkingen
+                                                                              Buitenmaat 200.5 x 200.5 x 2.5, hoeken R4
+
+                                                                              Opening 171 x 171
+
+                                                                              Uitsparingen voor de 4 lippen van het frame, 2 met greep
+
+                                                                              Rondom gelijmd op de bak (AFZ-04)
+
+
+        Bovenaanzicht
+
+
+
+
+                                         Project                                                   Benaming
+
+                                         Afzuiging Lush Beauty (versie 6.1)                        Rand van de filtercassette
+                                         Materiaal                                                 Tekeningnummer                           Blad
+
+                                         PETG (wit)                                                AFZ-05                                   7 / 17
+                                         Maken                                                     Schaal                                   Massa
+
+                                         3D-print plat                                             1:2                                      32 g (massief)
+                                         Getekend                                                  Maten en toleranties
+                                                                                                                                                             ISO E
+                                         Phlippo CAD · 2026-11-07                                  mm · ISO 2768-m
+        Vooraanzicht    Linkeraanzicht                                                                                        Isometrie (schaal vrij)
+
+            201,4           201,4
+3
+201,4
+
+
+
+
+                                                                                 Belangrijke maten en bewerkingen
+                                                                                 Plaat 3 dik, past tussen de torens in de romp (0,3 speling)
+
+                                                                                 Trechter: Ø133 - Ø130 - Ø127 (treden van 1 mm)
+
+                                                                                 Gat Ø3,1 voor het messingbuisje op x -85, z -85
+
+                                                                                 Op de getrapte richel van de romp gelijmd
+
+
+
+        Bovenaanzicht
+
+
+
+
+                                         Project                                                       Benaming
+
+                                         Afzuiging Lush Beauty (versie 6.1)                            Instroomplaat
+                                         Materiaal                                                     Tekeningnummer                           Blad
+
+                                         PETG (wit)                                                    AFZ-06                                   8 / 17
+                                         Maken                                                         Schaal                                   Massa
+
+                                         3D-print plat, de trechter naar boven                         1:2                                      98 g (massief)
+                                         Getekend                                                      Maten en toleranties
+                                                                                                                                                                 ISO E
+                                         Phlippo CAD · 2026-11-07                                      mm · ISO 2768-m
+      Vooraanzicht    Linkeraanzicht                                                                                 Isometrie (schaal vrij)
+
+           210             210
+6
+210
+
+
+
+
+                                                                         Belangrijke maten en bewerkingen
+                                                                         Buitenmaat 210 x 210 x 6, hoeken R6
+
+                                                                         Lamellen 2 mm, steek 8, onder 45° naar achteren
+
+                                                                         Schijf Ø90 onder de motor
+
+                                                                         4 x M4 verzonken 90° (Ø8,2) op Ø58, onder 45°
+
+                                                                         8 x M3 verzonken 90° (Ø6,2) in de torens en de wandbussen
+
+
+
+      Bovenaanzicht
+
+
+
+
+                                  Project                                                     Benaming
+
+                                  Afzuiging Lush Beauty (versie 6.1)                          Bodemplaat
+                                  Materiaal                                                   Tekeningnummer                           Blad
+
+                                  PETG (wit)                                                  AFZ-07                                   9 / 17
+                                  Maken                                                       Schaal                                   Massa
+
+                                  3D-print plat, de lamellen onder 45°                        1:2                                      139 g (massief)
+                                  Getekend                                                    Maten en toleranties
+                                                                                                                                                         ISO E
+                                  Phlippo CAD · 2026-11-07                                    mm · ISO 2768-m
+          Doorsnede A-A       Linkeraanzicht                                                                                        Isometrie (schaal vrij)
+
+               225                 124
+50
+
+
+
+
+      A                   A
+124
+
+
+
+
+                                                                                       Belangrijke maten en bewerkingen
+                                                                                       Bak 210 x 100 x 50, wand 3; rand 225 x 124 x 3 met een schuine kant van 45°
+
+                                                                                       De bovenste 14 mm zit in de uitsparing van 212 x 102 x 15, los deksel bovenin (AFZ-14)
+
+          Bovenaanzicht                                                                4 gaten Ø4,5 in de rand, van onderen zitting Ø9 en verzinking 90° (M4 x 30 in pluggen voor holle deuren)
+
+                                                                                       4 paaltjes Ø10,4 in de hoeken met een gat Ø2,5 x 10 (M3 x 8, deksel)
+
+                                                                                       Ventilatie: sleuven 2,5 breed in de bodem en 2,5 x 12 achteraan (18 tot 30 onder het blad)
+
+                                                                                       Schuine kant uitgespaard voor C13, M8 en schakelaar (rand als brug)
+
+                                                                                       Aan/uit-schakelaar verzonken in de voorwand (kom 25 x 19 x 6, inbouwgat 19 x 13)
+
+                                                                                       2 paaltjes 9 x 8 tot de bovenkant van de adapter, gat Ø2,5 (M3, adapterklemmen)
+
+                                                                                       Ring Ø5,6 tegen de voorwand voor het slangetje naar de drukmeter
+
+                                                                                       Opening C13 32 x 24 (links), M8 Ø10,2 (M10 x 0,75) en buisje Ø3,1 (voor)
+
+                                                                                       USB-C 9,8 x 4 (knop) en 9,4 x 3,6 (ESP32-C3) (rechts)
+
+
+
+
+                                               Project                                                       Benaming
+
+                                               Afzuiging Lush Beauty (versie 6.1)                            Voedingsbox
+                                               Materiaal                                                     Tekeningnummer                           Blad
+
+                                               PETG (wit)                                                    AFZ-08                                   10 / 17
+                                               Maken                                                         Schaal                                   Massa
+
+                                               3D-print rechtop, de bodem op het bed                         1:2                                      265 g (massief)
+                                               Getekend                                                      Maten en toleranties
+                                                                                                                                                                                    ISO E
+                                               Phlippo CAD · 2026-11-07                                      mm · ISO 2768-m
+           Doorsnede A-A       Linkeraanzicht                                                                                              Isometrie (schaal vrij)
+
+               51,6                 51,6
+62
+
+
+
+
+                                                                                              Belangrijke maten en bewerkingen
+       A                   A
+                                                                                              Plaat Ø51.6 x 2, buis Ø43 tot -60 (in een gat Ø44)
+51,6
+
+
+
+
+                                                                                              Kom voor de naaf: Ø24.4 x 4.9 en Ø21.8 x 3
+
+                                                                                              2 x M2,5 verzonken van onderen (Ø2,8) en 2 pennen Ø1,7 in de vloer, sleuf voor de FPC
+
+                                                                                              2 klauwkanalen op x ±16,5, M4 verzonken 90° (Ø8,4) in de plaat
+
+                                                                                              Groeven voor de adapterprint, 2 bussen (M2,5) voor het deksel diagonaal
+
+                                                                                              Opening USB-C 9.5 x 3,9 in de achterwand (kant van de sleuf), onderkant op Y -55,7
+
+                                                                                              2 palen Ø5 met gat Ø1,6 x 6 (M2) voor het USB-C-printje, x ±6
+
+           Bovenaanzicht
+
+
+
+
+                                                Project                                                             Benaming
+
+                                                Afzuiging Lush Beauty (versie 6.1)                                  Knophouder
+                                                Materiaal                                                           Tekeningnummer                            Blad
+
+                                                PETG (zwart)                                                        AFZ-09                                    11 / 17
+                                                Maken                                                               Schaal                                    Massa
+
+                                                3D-print ondersteboven, de plaat op het bed                         1:1                                       40 g (massief)
+                                                Getekend                                                            Maten en toleranties
+                                                                                                                                                                                      ISO E
+                                                Phlippo CAD · 2026-11-07                                            mm · ISO 2768-m
+      Vooraanzicht    Linkeraanzicht                                                                                    Isometrie (schaal vrij)
+
+           43              43
+4,9
+43
+
+
+
+
+                                                                            Belangrijke maten en bewerkingen
+                                                                            Schijf Ø43 x 2
+
+                                                                            2 x M2,5 verzonken 90° (Ø5,2) op (13, 13) en (-13, -13)
+
+                                                                            Dicht: de USB-C zit in de wand van de houder
+
+                                                                            2 gaatjes Ø4 op x ±16,5 voor de punten van de M4 x 65
+      Bovenaanzicht
+
+
+
+
+                                       Project                                                   Benaming
+
+                                       Afzuiging Lush Beauty (versie 6.1)                        Deksel van de knophouder
+                                       Materiaal                                                 Tekeningnummer                           Blad
+
+                                       PETG (zwart)                                              AFZ-10                                   12 / 17
+                                       Maken                                                     Schaal                                   Massa
+
+                                       3D-print plat                                             2:1                                      4 g (massief)
+                                       Getekend                                                  Maten en toleranties
+                                                                                                                                                          ISO E
+                                       Phlippo CAD · 2026-11-07                                  mm · ISO 2768-m
+         Doorsnede A-A       Linkeraanzicht                                                                                     Isometrie (schaal vrij)
+
+             24,5                 13
+6
+
+
+
+
+     A                   A
+13
+
+
+
+
+                                                                                   Belangrijke maten en bewerkingen
+                                                                                   Naaf R6.5, arm 18 x 8, dikte 6
+
+                                                                                   Gat Ø5,5; van onderen zeskantkamer SW 8,3 x 4,2 voor een M5-moer (DIN 934)
+
+                                                                                   De moer van onderen inpersen: ze draait niet mee, de klauw draait met de schroef
+
+                                                                                   Aantal: 4
+         Bovenaanzicht
+
+
+
+
+                                          Project                                                        Benaming
+
+                                          Afzuiging Lush Beauty (versie 6.1)                             Klauw (module)
+                                          Materiaal                                                      Tekeningnummer                           Blad
+
+                                          PETG (wit), 100 % vulling                                      AFZ-11                                   13 / 17
+                                          Maken                                                          Schaal                                   Massa
+
+                                          3D-print plat, de moerkamer op het bed                         5:1                                      1 g (massief)
+                                          Getekend                                                       Maten en toleranties
+                                                                                                                                                                      ISO E
+                                          Phlippo CAD · 2026-11-07                                       mm · ISO 2768-m
+         Doorsnede A-A       Linkeraanzicht                                                                                         Isometrie (schaal vrij)
+
+             20,5                  11
+5
+
+
+
+
+     A                   A
+11
+
+
+
+
+                                                                                       Belangrijke maten en bewerkingen
+                                                                                       Naaf R5.5, arm 15 x 6, dikte 5
+         Bovenaanzicht                                                                 Gat Ø4,5; van onderen zeskantkamer SW 7,2 x 3,4 voor een M4-moer (DIN 934)
+
+                                                                                       Aantal: 2
+
+
+
+
+                                              Project                                                        Benaming
+
+                                              Afzuiging Lush Beauty (versie 6.1)                             Klauw (knophouder)
+                                              Materiaal                                                      Tekeningnummer                           Blad
+
+                                              PETG (zwart), 100 % vulling                                    AFZ-12                                   14 / 17
+                                              Maken                                                          Schaal                                   Massa
+
+                                              3D-print plat, de moerkamer op het bed                         5:1                                      1 g (massief)
+                                              Getekend                                                       Maten en toleranties
+                                                                                                                                                                      ISO E
+                                              Phlippo CAD · 2026-11-07                                       mm · ISO 2768-m
+       Vooraanzicht    Linkeraanzicht                                                                                     Isometrie (schaal vrij)
+
+             9              16,5
+3
+16,5
+
+
+
+
+                                                                             Belangrijke maten en bewerkingen
+                                                                             9 x 16.5 x 3, lip van 8 mm over de adapter
+
+                                                                             M3 verzonken 90° (Ø6,4) in het paaltje van de box (M3 x 10)
+
+                                                                             Aantal: 2
+
+
+
+       Bovenaanzicht
+
+
+
+
+                                        Project                                                    Benaming
+
+                                        Afzuiging Lush Beauty (versie 6.1)                         Klem van de netadapter
+                                        Materiaal                                                  Tekeningnummer                           Blad
+
+                                        PETG (wit)                                                 AFZ-13                                   16 / 17
+                                        Maken                                                      Schaal                                   Massa
+
+                                        3D-print plat                                              5:1                                      1 g (massief)
+                                        Getekend                                                   Maten en toleranties
+                                                                                                                                                            ISO E
+                                        Phlippo CAD · 2026-11-07                                   mm · ISO 2768-m
+       Vooraanzicht    Linkeraanzicht                                                                                     Isometrie (schaal vrij)
+
+           203,6            93,6
+2
+93,6
+
+
+
+
+       Bovenaanzicht
+
+
+
+
+                                                                             Belangrijke maten en bewerkingen
+                                                                             203,6 x 93,6 x 2, hoeken R1,8
+
+                                                                             Valt bovenin de bak op de 4 paaltjes; 4 x M3 verzonken 90° (Ø6,4)
+
+                                                                             Zit mee in de uitsparing van het blad (1 mm onder het plafond)
+
+
+
+
+                                        Project                                                    Benaming
+
+                                        Afzuiging Lush Beauty (versie 6.1)                         Deksel van de voedingsbox
+                                        Materiaal                                                  Tekeningnummer                             Blad
+
+                                        PETG (wit)                                                 AFZ-14                                     15 / 17
+                                        Maken                                                      Schaal                                     Massa
+
+                                        3D-print plat                                              1:2                                        48 g (massief)
+                                        Getekend                                                   Maten en toleranties
+                                                                                                                                                               ISO E
+                                        Phlippo CAD · 2026-11-07                                   mm · ISO 2768-m
+                                                                                                                                                      Bewerkingen
+            Bovenaanzicht (1:10, voorkant onderaan)                                                                                                   Bovenkant (doorgaand):
+                                                                                                   Detail onderkant (1:5)
+                              1400                                                                                                                    - uitsparing 212 x 212, hoeken R6 (frees Ø10), midden van het blad
+
+                                                                                                                                                      - gat Ø44 (gatzaag), 950 van links, 100 van voor
+
+                                                                                                                                                      Onderkant (niet doorgaand):
+
+                                                                                                                                                      - uitsparing voedingsbox 212 x 102 x 15 diep, R5,
+
+                                                                                                                                                      midden 700 van links, 495 van voor
+
+                                                                                                                                                      - 4 gaten Ø8 x 28 voor pluggen (holle deur), 170 x 114 hart op hart rond de box
+
+                                                                                                                                                      - sleuf naar de afzuiging 29 breed x 7 diep,
+
+                                                                                                                                                      618 tot 647 van links (box tot uitsparing)
+600
+
+
+
+
+                                                                                                                                                      - sleuf naar de knop 5 x 5, van de box naar het knopgat
+                                                                                                                                        sleuf 5 x 5
+                                                                                                                                                      Maten vanaf de linkerrand en de voorrand (waar je zit).
+
+                                                                                                                                                      LAGKAPTEN is vanbinnen een honingraat: frees
+
+                                                                                                                                                      rustig en in twee gangen, onderhuid ca. 3 mm.
+
+
+
+
+                                                              194
+
+                                                                    100
+      594
+
+
+
+
+                                                                                          38
+                950                                                        sleuf 29 x 7
+
+
+
+
+                                                                          102
+                                                                                               15 diep, R5
+
+
+
+
+                                                                                                  212
+
+      Onderaanzicht (1:10, blad omgedraaid, voorkant boven)
+
+
+
+
+                                                              495
+
+
+
+
+      594
+
+
+
+
+                                                                                                    Project                                                                  Benaming
+
+                                                                                                    Afzuiging Lush Beauty (versie 6.1)                                       Tafelblad LAGKAPTEN: bewerkingen
+                                                                                                    Materiaal                                                                Tekeningnummer                           Blad
+
+                                                                                                    LAGKAPTEN 1400 x 600 x 34 (IKEA)                                         AFZ-20                                   17 / 17
+                                                                                                    Maken                                                                    Schaal                                   Massa
+
+                                                                                                    Bovenfrees Ø10 en Ø5, gatzaag Ø44                                        1:10 en 1:5                              —
+                                                                                                    Getekend                                                                 Maten en toleranties
+                                                                                                                                                                                                                                        ISO E
+                                                                                                    Phlippo CAD · 2026-11-07                                                 mm · ISO 2768-m
+

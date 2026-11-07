@@ -1073,3 +1073,13 @@ elease; README en docs/04 bijgewerkt
 - [x] Module 3 mm minder diep (mat 17 i.p.v. 20): instroomplaat, ventilator, romp, bodemplaat 3 mm hoger
 - [x] Rekenblad, README, stuklijst, bouwschema, tekeningen en tests aanpassen (STL-export in een eigen testbestand)
 - [x] Testreeks, STL's, tekeningen, bouwschema; commit en push
+
+## Afzuiging: eindverslag v3 (5,6/10) verwerken (2026-11-07)
+- [x] V3-13: "uitkloppen" uit het bouwschema; onderhoud begint met uitschakelen en stilstand; matrichting; tekstcontrole over alle uitvoer
+- [x] V3-04/14/15: zachte start op tijd (niet per regelstap), oude filterstatus weg tijdens stabiliseren, boostbudget (geen herhaalde boost zonder afkoelen); tests 1/5/10/20/250 ms
+- [x] V3-05: koppelen alleen na een bewuste handeling; bevestiging met uitdaging; oude sessies weigeren; tests
+- [x] V3-06/03: filtermelding per stand uit het luchtmodel (vóór het minimumdebiet), lage standen gemarkeerd, stabiliseren/buiten bereik zichtbaar; geluidsdoel consistent
+- [ ] V3-02: EPDM-band 3 x 9 echt in het model (steunrand, sluitmaat, compressie), matpassing en toleranties
+- [ ] V3-08/12: 0,52 W in de warmte, boostbudget in de warmte, overlap box/print nagaan
+- [ ] V3-09/10/11: README en teksten uit dezelfde gegevens (romp 96, prijs 502,69, rooster 125,6 cm², USB-klemming), oude laserklauwen weg, materiaalstaat, bereikbaarheid en morsroute
+- [ ] Testreeks, firmwaretests, STL's, tekeningen, bouwschema; commit en push

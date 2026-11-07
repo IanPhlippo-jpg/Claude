@@ -33,7 +33,7 @@ ook nodig voor dampen van aceton en monomeer, die geen enkel deeltjesfilter vang
 1. **Filter (gekozen).** De kant-en-klare standaardmat Rittal SK 3171.100 van 173 x 173 x 17 mm (G3 / ISO coarse 50 %,
    EAN 4028177038059; per 5 of per 50, bij Rittal, RS en Lieske), vervangen zonder knippen. De cassette heeft een vak
    van 171 x 171: de mat zit rondom 1 mm aangedrukt, zodat er geen lucht langs gaat.
-   **Uitgerekend (Berekeningen.md):** zo'n grove mat kost bij 250 m³/h ongeveer 50 Pa (een M5-mat ongeveer 200 Pa), dus
+   **Uitgerekend (Berekeningen.md):** zo'n grove mat kost bij 250 m³/h ongeveer 50 Pa (een fijnere M5-filter ongeveer 200 Pa), dus
    meer debiet bij hetzelfde toerental. De andere filters (M5, geplooid F7/F9, H13) staan ter vergelijking in het
    rekenblad; ze filteren fijner maar zuigen minder of luider.
    **Ophoogte boven het rooster:** zie Berekeningen.md hoofdstuk 1: 0,5 m/s op 10 cm vraagt 190 m³/h, op 15 cm 360 m³/h.
@@ -41,8 +41,10 @@ ook nodig voor dampen van aceton en monomeer, die geen enkel deeltjesfilter vang
 2. **Afdichting.** Onder de rand van de cassette komt een zelfklevende EPDM-schuimband van 3 x 9 mm, 30 tot 50 %
    samengedrukt door de RVS-plaat. De richel en de rand zijn daarvoor 1,5 mm lager te zetten (`M.richel`).
    De mat ligt op de roosterbodem van de cassette, de cassetterand ligt erop.
-3. **Onderhoud.** Filter niet uitkloppen of uitblazen. Vervangen met handschoenen en een stofmasker FFP2, het oude
-   filter meteen in een zak, zak dicht, daarna ijken (knop 5 s).
+3. **Onderhoud.** Eén procedure (`onderhoud.mjs`, ook in de README en het bouwschema): knop uit, schakelaar op de box
+   uit, 10 s wachten tot de ventilator stilstaat (met de cassette eruit ligt het oog van de waaier open), dan de mat
+   horizontaal in een zak, cassette en instroomplaat vochtig afnemen, nieuwe mat met de open kant boven, ijken.
+   Niet uitkloppen of uitblazen. Een test controleert dat geen enkele uitvoer nog uitkloppen aanraadt.
 4. **Afvoer.** De lucht gaat onder het blad naar achteren, de salon in. Wie het fijne stof ook buiten wil: een slang
    van onder de module naar buiten (latere optie).
 5. **Morsen en bereikbaarheid.** De waaier zit 30 mm onder het rooster, achter het filter. Meet met een testvinger
@@ -80,7 +82,7 @@ filterproduct, de stand (%), het toerental en de omgeving vast.
 | L2 | vangst bij de bron | rookproef en anemometer op de plaats van de handen (10 cm boven de plaat), met handen en frees | rook gaat zichtbaar naar het rooster; luchtsnelheid ≥ 0,5 m/s op 10 cm |
 | L3 | lek langs het filter | deeltjesteller voor en na de unit, schoon en na 3 filterwissels | gemeten rendement ≥ 90 % van het filterproduct; geen daling na de wissels |
 | L4 | blootstelling | stofmeting op ademhoogte van klant en medewerker tijdens een normale behandeling | beoordeeld door een deskundige (preventieadviseur of arbeidshygiënist) volgens de Belgische regels |
-| G1 | geluid | dB(A) op oorhoogte van beide personen, achtergrond apart | dagstand ≤ 55 dB(A) op de oorpositie van de medewerker |
+| G1 | geluid | dB(A) op oorhoogte van beide personen, achtergrond apart | dagstand 70 %: ≤ 67 dB(A) op de oorpositie van de medewerker, 80 %: ≤ 70 dB(A) (Berekeningen.md 3d) |
 | E1 | warmte | 4 uur op 100 %: adapter, box, M8-connectoren, ventilatormotor | alle onderdelen binnen hun specificatie met ≥ 10 °C marge |
 | E2 | elektrische eindcontrole | door een elektricien: netsnoer en adapter, aarding, zekering TR5, kabels en trekontlasting | goedgekeurd; DC-schakelaar is geen netisolatie: stekker eruit voor onderhoud |
 | F1 | firmware op de hardware | foutinjectie: meter los, slang los of omgekeerd, stilstand, UIT tijdens ijken, radio weg tijdens boost, stroomuitval, tweede set | gedrag zoals de tests in `test_regel`; geen oude drukwaarde op het scherm |

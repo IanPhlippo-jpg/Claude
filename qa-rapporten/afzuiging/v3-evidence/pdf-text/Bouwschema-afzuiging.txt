@@ -1,0 +1,341 @@
+Bouwschema afzuiging Lush Beauty · versie 6.1 · 2026-11-07
+
+
+
+
+Bouwschema
+Ingebouwde afzuiging met voedingsbox en knop
+
+                                                                                                                 1. Uitsparingen in het tafelblad 1 uur
+                                                                                                                 2. Magneten in het bovenframe 15 min
+                                                                                                                 3. Lijmen: frame op de romp, rand op de cassette 30 min +
+                                                                                                                    een nacht drogen
+                                                                                                                 4. Klauwen en M5-schroeven 10 min
+                                                                                                                 5. Ventilator op de bodemplaat, M8-bus in de achterwand
+                                                                                                                    30 min
+                                                                                                                 6. Instroomplaat 20 min
+                                                                                                                 7. Bodemplaat met ventilator op de romp 10 min
+                                                                                                                 8. Module in het blad 5 min
+                                                                                                                 9. Filter en RVS-plaat 5 min
+                                                                                                                10. Voedingsbox 2 uur (print solderen)
+                                                                                                                11. Knop 30 min
+                                                                                                                12. Kabels in de sleuven 10 min
+                                                                                                                13. Opstarten en ijken 10 min
+
+
+
+
+De posnummers verwijzen naar de stuklijst op tekening AFZ-00. Maten staan op de werktekeningen AFZ-01 tot AFZ-20, de bedrading in het aansluitschema. Print alle
+delen in PETG op de Elegoo Centauri Carbon, zonder support (zie de README).
+Bouwschema afzuiging Lush Beauty · versie 6.1 · 2026-11-07                                                       stap 1 / 13
+
+
+
+
+                                                             1
+                                                             Uitsparingen in het tafelblad
+                                                             Tijd 1 uur
+                                                             Gereedschap Bovenfrees met Ø10 en Ø5, gatzaag Ø44, sjabloon
+                                                             of geleider, stofzuiger
+
+                                                             1. Bovenkant, doorgaand: de uitsparing 212 x 212 mm met
+                                                                hoeken R6 in het midden, en het gat Ø44 voor de knop
+                                                                (950 van links, 100 van voor).
+                                                             2. Onderkant, 15 mm diep: de uitsparing 212 x 102 mm
+                                                                voor de voedingsbox, met het midden 495 mm van de
+                                                                voorkant, en ernaast 4 gaten Ø8 voor de pluggen voor
+                                                                holle deuren.
+
+                                                             3. Onderkant: de sleuf 29 x 7 mm van de box naar de
+                                                                afzuiging en de sleuf 5 x 5 mm van de box naar het
+                                                                knopgat.
+                                                             4. Alle maten staan op tekening AFZ-20 en op de
+                                                                freesmallen (op 100 % afdrukken). Frees in twee
+                                                                gangen: LAGKAPTEN is vanbinnen een honingraat.
+
+                                                             Mal Freesmallen op ware grootte, per doos een PDF (A4, op 100
+                                                             % afdrukken): schema/Freesmal-afzuiging, -knop en -
+                                                             voedingsbox.
+Bouwschema afzuiging Lush Beauty · versie 6.1 · 2026-11-07                                                     stap 2 / 13
+
+
+
+
+                                                             2
+                                                             Magneten in het bovenframe
+                                                             Tijd 15 min
+                                                             Gereedschap Tweecomponentenlijm, een magneet als hulp voor
+                                                             de pool
+
+                                                             1. Lijm de vier magneten Ø8 x 1,5 in de gaten aan de
+                                                                bovenkant van het bovenframe, vlak met het oppervlak.
+
+                                                             2. Leg ze allemaal met dezelfde pool naar boven: zet ze
+                                                                eerst op een stapel en neem ze er één voor één af.
+
+                                                             Pos                Onderdeel
+                                                             2                  Bovenframe
+Bouwschema afzuiging Lush Beauty · versie 6.1 · 2026-11-07                                                        stap 3 / 13
+
+
+
+
+                                                             3
+                                                             Lijmen: frame op de romp, rand op
+                                                             de cassette
+                                                             Tijd 30 min + een nacht drogen
+                                                             Gereedschap Tweecomponentenlijm, lijmklemmen of gewichten
+
+                                                             1. Lijm het bovenframe rondom op de bovenrand van de
+                                                                romp: de naad moet luchtdicht zijn.
+                                                             2. Lijm een messingbuisje in het gaatje Ø3,1 in de
+                                                                achterwand (de doorvoer naar de drukmeter).
+                                                             3. Lijm de rand op de bak van de filtercassette, over de
+                                                                hele wandbovenkant.
+
+                                                             4. Laat alles een nacht uitharden voor je verder gaat.
+
+                                                             Pos         Onderdeel
+                                                             1           Romp
+                                                             2           Bovenframe
+                                                             26          Messingbuisje Ø3 x 12
+                                                             4           Filtercassette
+                                                             5           Cassetterand
+Bouwschema afzuiging Lush Beauty · versie 6.1 · 2026-11-07                                                     stap 4 / 13
+
+
+
+
+                                                             4
+                                                             Klauwen en M5-schroeven
+                                                             Tijd 10 min
+                                                             Gereedschap Inbussleutel 3 mm
+
+                                                             1. Druk in elke klauw van onderen een M5-moer in de
+                                                                zeskantkamer (eventueel met een tik of een warme
+                                                                bout).
+
+                                                             2. Schuif elke klauw liggend door het venster onderaan de
+                                                                zijwand in het kanaal van de toren, tot het gat onder de
+                                                                schroef zit.
+                                                             3. Draai de M5 x 65 van bovenaf door de lip van het frame
+                                                                een paar slagen in de moer: de klauw blijft ingeklapt
+                                                                binnen de romp liggen.
+
+                                                             Pos        Onderdeel
+                                                             11         Klauw
+                                                             12         M5 zeskantmoer DIN 934
+                                                             20         M5 x 65 DIN 7991
+Bouwschema afzuiging Lush Beauty · versie 6.1 · 2026-11-07                                                       stap 5 / 13
+
+
+
+
+                                                             5
+                                                             Ventilator op de bodemplaat, M8-bus
+                                                             in de achterwand
+                                                             Tijd 30 min
+                                                             Gereedschap Soldeerbout, krimpkous, kruiskop PH2, sleutel 13
+                                                             mm
+
+                                                             1. Soldeer de vier draden van de ventilator op de M8-bus:
+                                                                rood 1, geel 2, zwart 3, bruin 4. Meet de kleuren eerst na
+                                                                met de datasheet.
+                                                             2. Zet de bus met zijn moer in het gat Ø12,7 in de
+                                                                achterwand en leid de draden door de ring ernaast.
+                                                             3. Schroef de ventilator met 4 x M4 x 10 verzonken van
+                                                                onderen op de bodemplaat.
+
+                                                             Pos        Onderdeel
+                                                             9          San Ace C175 9TG24P0S01
+                                                             8          Bodemplaat
+                                                             22         M4 x 10 DIN 7991
+                                                             10         M8-inbouwbus 4-polig
+Bouwschema afzuiging Lush Beauty · versie 6.1 · 2026-11-07                                                      stap 6 / 13
+
+
+
+
+                                                             6
+                                                             Instroomplaat
+                                                             Tijd 20 min
+                                                             Gereedschap Tweecomponentenlijm, siliconeslangetje 2 x 4 mm
+
+                                                             1. Lijm het tweede messingbuisje in de instroomplaat: dat
+                                                                is het meetpunt onder het filter.
+                                                             2. Rijg een stukje siliconeslang door de twee ringen tegen
+                                                                de achterwand en schuif het van dat buisje naar de
+                                                                doorvoer.
+                                                             3. Leg de plaat op de getrapte richel in de romp, de
+                                                                trechter naar boven, en lijm ze rondom.
+
+                                                             Pos          Onderdeel
+                                                             7            Instroomplaat
+                                                             26           Messingbuisje Ø3 x 12
+Bouwschema afzuiging Lush Beauty · versie 6.1 · 2026-11-07                                                     stap 7 / 13
+
+
+
+
+                                                             7
+                                                             Bodemplaat met ventilator op de
+                                                             romp
+                                                             Tijd 10 min
+                                                             Gereedschap Kruiskop PH1
+
+                                                             1. Steek de M8-stekker van de ventilator nog niet in: de
+                                                                kabel loopt straks door de sleuf naar de box.
+                                                             2. Zet de bodemplaat met de ventilator tegen de romp, de
+                                                                lamellen naar achteren.
+                                                             3. Schroef hem vast met 8 x M3 x 16 verzonken in de
+                                                                torens en de wandbussen.
+
+                                                             Pos           Onderdeel
+                                                             21            M3 x 16 DIN 7991
+Bouwschema afzuiging Lush Beauty · versie 6.1 · 2026-11-07                                                            stap 8 / 13
+
+
+
+
+                                                             8
+                                                             Module in het blad
+                                                             Tijd 5 min
+                                                             Gereedschap Inbussleutel 3 mm
+
+                                                             1. Laat de module van bovenaf in de uitsparing zakken tot
+                                                                het frame op het blad ligt.
+                                                             2. Draai de vier M5-schroeven rechtsom aan: de klauw
+                                                                kruipt omhoog, de schuine kant van de kamer duwt hem
+                                                                vanzelf naar buiten door het venster, en daarna trekt hij
+                                                                zich in de sleuf tegen de onderkant van het blad.
+                                                             3. Draai kruislings en niet te vast (het blad is hol).
+Bouwschema afzuiging Lush Beauty · versie 6.1 · 2026-11-07                                                     stap 9 / 13
+
+
+
+
+                                                             9
+                                                             Filter en RVS-plaat
+                                                             Tijd 5 min
+                                                             Gereedschap Schaar, liniaal
+
+                                                             1. Leg een filtermat Rittal SK 3171.100 (173 x 173 x 17) in
+                                                                de cassette en druk ze rondom aan; niets te knippen.
+                                                             2. Zet de cassette in het frame (de grepen in de rand
+                                                                helpen) en leg de RVS-plaat erop: de magneten houden
+                                                                ze vast.
+
+                                                             Pos        Onderdeel
+                                                             6          Filtermat Rittal SK 3171.100
+                                                             3          Rooster LB
+Bouwschema afzuiging Lush Beauty · versie 6.1 · 2026-11-07                                                      stap 10 / 13
+
+
+
+
+                                                             10
+                                                             Voedingsbox
+                                                             Tijd 2 uur (print solderen)
+                                                             Gereedschap Soldeerbout, schroevendraaier, inbussleutels 2 en
+                                                             2,5 mm, boor Ø8, 4 pluggen voor holle deuren M4
+
+                                                             1. Bouw de voedingsprint volgens het aansluitschema en
+                                                                schroef ze met 4 x M2,5 op de bussen.
+
+                                                             2. Zet de netadapter op de bodem tegen de aanslagen en
+                                                                schroef de twee klemmen op de paaltjes (M3 x 10). Kort
+                                                                de DC-kabel in en klem hem op -X1.
+                                                             3. Zet de schakelaar, de M8-stekker, het messingbuisje en
+                                                                de USB-C-bus (2 x M2) in de wanden.
+                                                             4. Leid het slangetje door de ring tegen de voorwand en
+                                                                schroef het deksel op de paaltjes (4 x M3 x 8). Zet de 4
+                                                                pluggen in het blad, duw de box van onderen in de
+                                                                uitsparing en zet de rand vast met 4 x M4 x 30
+                                                                verzonken.
+
+                                                             Pos        Onderdeel
+                                                             27         Voedingsbox
+                                                             31         Mean Well GST90A24-P1M
+                                                             32         Voedingsprint
+                                                             33         USB-C-bus knop
+                                                             34         Wipschakelaar KCD1-101
+                                                             35         M8-inbouwstekker 4-polig
+                                                             36         Adapterklem
+                                                             37         M3 x 10 DIN 7991
+                                                             28         Deksel voedingsbox
+                                                             29         M3 x 8 DIN 7991
+                                                             30         M4 x 30 DIN 7991
+                                                             38         M2,5 x 6 zelftappend
+                                                             39         M2 x 5 zelftappend
+Bouwschema afzuiging Lush Beauty · versie 6.1 · 2026-11-07                                                     stap 11 / 13
+
+
+
+
+                                                             11
+                                                             Knop
+                                                             Tijd 30 min
+                                                             Gereedschap Inbussleutel 2 mm, kruiskop PH0, soldeerbout
+
+                                                             1. Druk een M4-moer in elke knopklauw. Zet de houder in
+                                                                het gat Ø44, schuif de klauwen van onderen in hun
+                                                                kanaal en draai de M4 x 65 van bovenaf in tot de
+                                                                klauwen tegen het blad trekken.
+                                                             2. Steek de FPC van de knop door de sleuf in de kom, zet
+                                                                de knop in de kom en schroef hem van onderen vast met
+                                                                2 x M2,5 x 6 verzonken.
+                                                             3. Soldeer 4 draden (VBUS, GND, D+, D-) van de
+                                                                adapterprint naar het USB-C-printje. Steek de FPC in de
+                                                                adapterprint en schuif de print in de groeven.
+                                                             4. Schroef het USB-C-printje met 2 x M2 x 5 onder de
+                                                                palen: de bus steekt door de achterwand, aan de kant
+                                                                van de sleuf. Schroef het deksel vast.
+
+                                                             Pos         Onderdeel
+                                                             13          Knophouder
+                                                             18          Knopklauw
+                                                             19          M4 zeskantmoer DIN 934
+                                                             23          M4 x 65 DIN 7991
+                                                             15          VIEWE-knop 1,5"
+                                                             24          M2,5 x 6 DIN 7991
+                                                             16          Adapterprint knop
+                                                             17          USB-C-bus knophouder
+                                                             39          M2 x 5 zelftappend
+                                                             14          Knopdeksel
+                                                             25          M2,5 x 8 DIN 7991
+Bouwschema afzuiging Lush Beauty · versie 6.1 · 2026-11-07                                                        stap 12 / 13
+
+
+
+
+                                                             12
+                                                             Kabels in de sleuven
+                                                             Tijd 10 min
+                                                             Gereedschap Eventueel een paar druppels lijm of tape in de sleuf
+
+                                                             1. Leg de M8-kabel en het siliconeslangetje in de brede
+                                                                sleuf tussen de box en de afzuiging en steek ze in.
+                                                             2. Leg de USB-C-kabel (haakse stekkers) in de smalle
+                                                                sleuf naar de knop en steek hem opzij in de knophouder.
+                                                             3. Een andere afstand is gewoon een andere kabel: er
+                                                                wordt niets geknipt.
+Bouwschema afzuiging Lush Beauty · versie 6.1 · 2026-11-07                                                        stap 13 / 13
+
+
+
+
+                                                             13
+                                                             Opstarten en ijken
+                                                             Tijd 10 min
+                                                             Gereedschap Computer met USB-C-kabel (alleen om te flashen)
+
+                                                             1. Flash de firmware van de knop en de module (zie de
+                                                                README, PlatformIO, envs knop en module).
+                                                             2. Steek het netsnoer in de box en in het stopcontact en
+                                                                zet de schakelaar aan.
+                                                             3. Houd de knop 5 seconden ingedrukt om te ijken, met
+                                                                een schoon filter: de drukmeter onthoudt de
+                                                                beginwaarde.
+                                                             4. Draaien regelt de zuigkracht, klikken zet aan en uit.
+                                                                Meldt de knop Filter vol, klop het filter uit of vervang het.
+

@@ -1,0 +1,9 @@
+{
+  "source_files": 114,
+  "all_sha256_match_initial_laptop_inventory": true,
+  "source_modified_by_reviewer": false,
+  "firmware_builds": "knop and module SUCCESS",
+  "original_host_tests": "16 PASS using Zig/Clang and Unity",
+  "independent_regressions": "one failed promised ramp; pairing overwrite and hidden filter-monitor loss reproduced",
+  "blind_team": "completed: four anonymised reports, shuffled with no mapping saved; independent source verification"
+}

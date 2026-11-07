@@ -1,0 +1,91 @@
+{
+  "alarm_scenarios": [
+    {
+      "rpm_fraction": 0.2,
+      "clean_Q": 57.87334308762159,
+      "clean_sensor_Pa": 14.328120984250305,
+      "alarm_Q": null,
+      "sensor_ratio_at_Qmin": null,
+      "Qmin": 189.54135,
+      "model_assumptions": "Source fan/scenario-medium; RPM fraction NOT PWM; no measured appliance prediction"
+    },
+    {
+      "rpm_fraction": 0.4,
+      "clean_Q": 147.65631227440096,
+      "clean_sensor_Pa": 43.94451155738587,
+      "alarm_Q": 30.70233037106332,
+      "sensor_ratio_at_Qmin": null,
+      "Qmin": 189.54135,
+      "model_assumptions": "Source fan/scenario-medium; RPM fraction NOT PWM; no measured appliance prediction"
+    },
+    {
+      "rpm_fraction": 0.6,
+      "clean_Q": 240.71703799720902,
+      "clean_sensor_Pa": 84.12494428630838,
+      "alarm_Q": 103.92233445223121,
+      "sensor_ratio_at_Qmin": 1.4191675740639964,
+      "Qmin": 189.54135,
+      "model_assumptions": "Source fan/scenario-medium; RPM fraction NOT PWM; no measured appliance prediction"
+    },
+    {
+      "rpm_fraction": 0.7,
+      "clean_Q": 287.83920498777456,
+      "clean_sensor_Pa": 108.15206745721665,
+      "alarm_Q": 141.36929997710564,
+      "sensor_ratio_at_Qmin": 1.7056705080930918,
+      "Qmin": 189.54135,
+      "model_assumptions": "Source fan/scenario-medium; RPM fraction NOT PWM; no measured appliance prediction"
+    },
+    {
+      "rpm_fraction": 0.8,
+      "clean_Q": 335.17502418600606,
+      "clean_sensor_Pa": 134.7799669982581,
+      "alarm_Q": 179.12212469741115,
+      "sensor_ratio_at_Qmin": 1.9420393173449286,
+      "Qmin": 189.54135,
+      "model_assumptions": "Source fan/scenario-medium; RPM fraction NOT PWM; no measured appliance prediction"
+    }
+  ],
+  "shallow_plenum": {
+    "outer_fraction_if_uniform": 0.5248825925126548,
+    "radial_flow_m3_s": 0.03645018003560103,
+    "ring_area_m2": 0.0012534954687823277,
+    "velocity_m_s": 29.07882871807228,
+    "dynamic_pressure_scale_Pa": 507.34696776899114,
+    "warning": "Uniform filter loading is conditional, not established. This is a velocity/pressure scale, NOT an added irreversible pressure loss or a proven delivered flow."
+  },
+  "noise_goal_conflict": {
+    "n_for_Qmin_source_model": 0.4905926152167938,
+    "model_dBA_at_0_5m": 59.55665024227139,
+    "target_dBA_at_ear": 55,
+    "warning": "Conditional free-field fan-law estimate. No measured absolute acoustic or impossibility claim."
+  },
+  "corrected_thermal_scenarios": [
+    {
+      "rpm_fraction": 0.8,
+      "original_box_loss_W": 4.817210695187169,
+      "corrected_box_loss_W": 5.337210695187169,
+      "original_ambient_C": [
+        40.57099633898597,
+        33.65158457224846
+      ],
+      "corrected_ambient_C": [
+        42.11922570570612,
+        34.5533980654248
+      ]
+    },
+    {
+      "rpm_fraction": 1.0,
+      "original_box_loss_W": 8.570374331550807,
+      "corrected_box_loss_W": 9.090374331550807,
+      "original_ambient_C": [
+        51.42590979194187,
+        40.073414754795884
+      ],
+      "corrected_ambient_C": [
+        52.879275416445246,
+        40.94896636742784
+      ]
+    }
+  ]
+}

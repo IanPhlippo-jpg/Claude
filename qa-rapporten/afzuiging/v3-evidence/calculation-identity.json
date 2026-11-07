@@ -1,0 +1,7 @@
+{
+  "identical": false,
+  "source_sha256": "99d365e80402fd714113140fdb659952ab5dcb73f3b57b8743e169bedf52f4c8",
+  "regenerated_sha256": "a8f23a4c5a9a4cc0264ab9ad4c6e49477255c17e469c370d7a095d4172354848",
+  "identical_after_CRLF_normalization": true,
+  "interpretation": "Only Windows/Linux line endings differ; no arithmetic/output discrepancy"
+}

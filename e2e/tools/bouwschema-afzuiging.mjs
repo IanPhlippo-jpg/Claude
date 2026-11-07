@@ -7,6 +7,7 @@ import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { REVISIE_TEKST } from '../../voorbeelden/afzuiging/revisie.mjs';
+import { ONDERHOUD } from '../../voorbeelden/afzuiging/onderhoud.mjs';
 
 const UIT = 'voorbeelden/afzuiging/tekeningen';
 const BEELD = 'e2e-out/bouwschema';
@@ -117,10 +118,10 @@ const STAPPEN = [
     delen: [],
   },
   {
-    titel: 'Filter en RVS-plaat', tijd: '5 min', gereedschap: 'Schaar, liniaal',
+    titel: 'Filter en RVS-plaat', tijd: '5 min', gereedschap: 'Geen',
     beelden: [beeld([G.blad, ...MODULE, ...FILTERS], [[G.cassette, [0, 110, 0]], [G.filters, [0, 150, 0]], [G.rooster, [0, 230, 0]]])],
     tekst: [
-      'Leg een filtermat Rittal SK 3171.100 (173 x 173 x 17) in de cassette en druk ze rondom aan; niets te knippen.',
+      'Leg een filtermat Rittal SK 3171.100 (173 x 173 x 17) in de cassette, de open (grove) kant boven, en druk ze rondom aan; niets te knippen.',
       'Zet de cassette in het frame (de grepen in de rand helpen) en leg de RVS-plaat erop: de magneten houden ze vast.',
     ],
     delen: ['Filtermat Rittal SK 3171.100', 'Rooster LB'],
@@ -144,9 +145,9 @@ const STAPPEN = [
       'Druk een M4-moer in elke knopklauw. Zet de houder in het gat Ø44, schuif de klauwen van onderen in hun kanaal en draai de M4 x 65 van bovenaf in tot de klauwen tegen het blad trekken.',
       'Steek de FPC van de knop door de sleuf in de kom, zet de knop in de kom en schroef hem van onderen vast met 2 x M2,5 x 6 verzonken.',
       'Soldeer 4 draden (VBUS, GND, D+, D-) van de adapterprint naar het USB-C-printje. Steek de FPC in de adapterprint en schuif de print in de groeven.',
-      'Schroef het USB-C-printje met 2 x M2 x 5 onder de palen: de bus steekt door de achterwand, aan de kant van de sleuf. Schroef het deksel vast.',
+      'Leg het USB-C-printje (zonder gaten) tussen de 2 palen: de bus steekt opzij onderaan door de wand, aan de kant van de sleuf. Schroef het deksel vast: de 2 pennetjes van het deksel klemmen het printje.',
     ],
-    delen: ['Knophouder', 'Knopklauw', 'M4 zeskantmoer DIN 934', 'M4 x 65 DIN 7991', 'VIEWE-knop 1,5"', 'M2,5 x 6 DIN 7991', 'Adapterprint knop', 'USB-C-bus knophouder', 'M2 x 5 zelftappend', 'Knopdeksel', 'M2,5 x 8 DIN 7991'],
+    delen: ['Knophouder', 'Knopklauw', 'M4 zeskantmoer DIN 934', 'M4 x 65 DIN 7991', 'VIEWE-knop 1,5"', 'M2,5 x 6 DIN 7991', 'Adapterprint knop', 'USB-C-bus knophouder', 'Knopdeksel', 'M2,5 x 8 DIN 7991'],
   },
   {
     titel: 'Kabels in de sleuven', tijd: '10 min', gereedschap: 'Eventueel een paar druppels lijm of tape in de sleuf',
@@ -165,9 +166,15 @@ const STAPPEN = [
       'Flash de firmware van de knop en de module (zie de README, PlatformIO, envs knop en module).',
       'Steek het netsnoer in de box en in het stopcontact en zet de schakelaar aan.',
       'Houd de knop 5 seconden ingedrukt om te ijken, met een schoon filter: de drukmeter onthoudt de beginwaarde.',
-      'Draaien regelt de zuigkracht, klikken zet aan en uit. Meldt de knop Filter vol, klop het filter uit of vervang het.',
+      'Draaien regelt de zuigkracht, klikken zet aan en uit. Meldt de knop Filter vervangen, volg dan de volgende stap.',
     ],
     delen: [],
+  },
+  {
+    titel: 'Onderhoud: de filtermat vervangen', tijd: '5 min', gereedschap: 'Handschoenen, stofmasker FFP2, vuilniszak, vochtige doek',
+    beelden: [beeld([G.blad, ...MODULE, ...FILTERS], [[G.cassette, [0, 110, 0]], [G.filters, [0, 150, 0]], [G.rooster, [0, 230, 0]]])],
+    tekst: ONDERHOUD,
+    delen: ['Filtermat Rittal SK 3171.100'],
   },
 ];
 

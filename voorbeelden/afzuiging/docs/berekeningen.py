@@ -137,6 +137,22 @@ U_DC = 24.0
 ADAPTER = dict(naam='Mean Well GST90A24-P1M', w=90, a=3.75, eta=0.88)  # η: gemiddeld, Level VI (≥ 88 %)
 ZEKERING = 3.15  # A traag, TR5
 P_5V = dict(knop_esp32s3_scherm=1.2, module_esp32c3=0.5, sdp810=0.02)  # W, piek (radio aan), AANNAME uit datasheets
+P_IN_BOX = P_5V['module_esp32c3'] + P_5V['sdp810']  # W: de knop zit in het blad, niet in de box
+BOOST_DEEL = 1 / 5  # hoogstens 1/5 van de tijd op 100 % (boosttegoed in regel.h: 1 s boost = 4 s afkoelen)
+# vervangfactoren in de firmware (regel.h, Instellingen::vervangStand/vervangFactor): moeten onder 0,9 x de berekende
+# grens liggen (hoofdstuk 3b); vervangen_en_geluid() controleert dat, ook tussen de punten
+FIRMWARE_VOLFACTOR = {0.7: 1.10, 0.8: 1.58, 1.0: 1.88}
+
+
+def firmware_factor(r):
+    ks = sorted(FIRMWARE_VOLFACTOR)
+    if r < ks[0]:
+        return None
+    for a, b in zip(ks, ks[1:]):
+        if r <= b:
+            return FIRMWARE_VOLFACTOR[a] + (FIRMWARE_VOLFACTOR[b] - FIRMWARE_VOLFACTOR[a]) * (r - a) / (b - a)
+    return FIRMWARE_VOLFACTOR[ks[-1]]
+FIRMWARE_BESCHERM_VANAF = 0.7
 ETA_BUCK = 0.85  # Pololu D24V10F5 bij 24 -> 5 V, 0,3 A
 RHO_CU = 0.0175  # Ω mm²/m bij 20 °C
 KABELS = [  # (naam, doorsnede mm², lengte enkel m, stroom A)
@@ -177,6 +193,106 @@ def klauw(K, d):
     f_dak = PETG['tau'] * 6 * K['moer_s'] / math.sqrt(3) * K['dak']  # afschuiving van het dak rond de moer
     return f_kruip, f_dak, K_SCHROEF * f_kruip * d / 1000
 
+
+
+def sensor_dp(q, m=1.0, k=1.0):
+    """wat de drukmeter ziet: rooster + mat (m x schoon) + cassettebodem (het meetpunt zit onder de mat)"""
+    f, v = FILTERS['G4'], q / 3600
+    rooster = k * VERLIEZEN[0][1] * 0.5 * RHO * (v / VERLIEZEN[0][2]) ** 2
+    bodem = k * VERLIEZEN[1][1] * 0.5 * RHO * (v / VERLIEZEN[1][2]) ** 2
+    return rooster + bodem + m * f['dp_ref'] * ((v / A_FILTER) / f['v_ref']) ** f['n']
+
+
+def plenum():
+    """verdeelruimte onder de mat: hoogte, ringdoorsnede bij het oog, deel van het debiet dat er radiaal door moet en de
+    bovengrens van het verlies (ζ = 0,5 op de ringsnelheid) bij 250 m³/h"""
+    hoogte = 0.003 + 0.002 * 0.64  # 3 mm vrij onder de roosterbodem + de bodem van 2 mm (64 % open)
+    ring = 2 * math.pi * 0.0665 * hoogte
+    buiten = 1 - math.pi * 0.0635 ** 2 / A_FILTER
+    v250 = buiten * 250 / 3600 / ring
+    return hoogte, ring, buiten, v250, 0.5 * 0.5 * RHO * v250 ** 2
+
+
+def vervangfactor(r, k, extra=0.0):
+    """bij welke verhouding sensordruk/schoon zakt het debiet op stand r tot het minimum voor de vangst?
+    extra = verlies van de verdeelruimte bij 250 m³/h (kwadratisch; stroomafwaarts van het meetpunt)"""
+    s, qmin = filter_dp(FILTERS['G4']), q_voor_vang()
+    pl = lambda q: extra * (q / 250) ** 2
+    q0 = werkpunt(lambda q: s(q) + pl(q), r, k)
+    if q0 < qmin:
+        return q0, None
+    lo, hi = 1.0, 50.0
+    for _ in range(60):
+        m = (lo + hi) / 2
+        lo, hi = (m, hi) if werkpunt(lambda q: m * s(q) + pl(q), r, k) > qmin else (lo, m)
+    return q0, sensor_dp(qmin, lo, k) / sensor_dp(q0, 1.0, k)
+
+
+def vervangen_en_geluid():
+    boven = plenum()[4]
+    scen = [(k, e) for e in (0.0, boven) for k in (RUIM[0], 1.0, RUIM[1])]
+    L = ['### 3b. Melding "filter vervangen" per stand', '',
+         'De drukmeter ziet rooster + mat + cassettebodem. Bij een vollere mat zakt het debiet; de melding moet komen vóór '
+         f'het debiet onder het minimum voor de vangst ({f0(q_voor_vang())} m³/h) zakt. Zes scenario\'s per stand: de verliesband '
+         '0,7x / 1x / 1,5x, telkens zonder en met de bovengrens van de verdeelruimte (hoofdstuk 3c). De firmware neemt het '
+         'ongunstigste scenario met 10 % marge.', '',
+         rij('stand (toerental)', 'schoon debiet (m³/h)', 'grens: x de schone sensordruk (laagste)', 'firmware (regel.h)', 'oordeel'),
+         rij('---:', '---:', '---:', '---:', '---')]
+    fout = []
+    for r in (0.4, 0.5, 0.6, 0.7, 0.75, 0.8, 0.9, 1.0):
+        res = [vervangfactor(r, k, e) for k, e in scen]
+        q0s = f'{f0(min(q for q, _ in res))}–{f0(max(q for q, _ in res))}'
+        grens = [g for _, g in res]
+        fw = firmware_factor(r)
+        if r < FIRMWARE_BESCHERM_VANAF - 1e-9:
+            L.append(rij(f'{r * 100:.0f} %', q0s, '—', 'lage stand', '"lage stand": geen bescherming beloofd, geen filteroordeel'))
+            continue
+        if any(g is None for g in grens):
+            fout.append(r)
+            L.append(rij(f'{r * 100:.0f} %', q0s, '—', f2(fw) if fw else '—', '**haalt het minimum niet: FOUT**'))
+            continue
+        gmin = min(grens)
+        ok = fw is not None and fw <= 0.9 * gmin + 1e-9
+        if not ok:
+            fout.append(r)
+        L.append(rij(f'{r * 100:.0f} %', q0s, f2(gmin), f2(fw) if fw else '—', 'melding op tijd (marge ≥ 10 %)' if ok else '**TE LAAT**'))
+    assert not fout, f'vervangfactoren of beschermVanaf in regel.h kloppen niet met het model: {fout}'
+    L += ['', f'De firmware meldt onder {f0(FIRMWARE_BESCHERM_VANAF * 100)} % "lage stand" (geen bescherming beloofd). '
+          'Dit rekenblad faalt als de waarden in regel.h niet meer kloppen met het model. Poort L1 (Q–Δp gemeten) mag de '
+          'grenzen later verruimen; tot dan gelden deze.', '']
+    hoogte, ring, buiten, v250, boven = plenum()
+    s = filter_dp(FILTERS['G4'])
+    met = lambda q: s(q) + boven * (q / 250) ** 2
+    L += ['### 3c. Verdeelruimte tussen mat en instroomplaat', '',
+          f'Tussen de onderkant van de mat en de instroomplaat zit {f1(hoogte * 1000)} mm (3 mm vrij plus de open roosterbodem). '
+          f'Als de mat overal even veel lucht doorlaat, moet {f0(buiten * 100)} % van het debiet radiaal naar het oog (Ø127): door '
+          f'een ring van {f0(ring * 1e6)} mm² is dat bij 250 m³/h {f1(v250)} m/s. In werkelijkheid gaat meer lucht door het midden '
+          'van de mat (boven het oog), waar de weg het kortst is: de mat wordt niet gelijk benut, en de dynamische druk in de '
+          'ring is **geen** verlies dat zomaar bij de rest opgeteld mag worden. Daarom twee grenzen: verwaarloosbaar (gelijke '
+          f'benutting) en een bovengrens van ζ = 0,5 op de ringsnelheid ({f0(boven)} Pa bij 250 m³/h, kwadratisch met het debiet).', '',
+          rij('stand', 'debiet zonder (m³/h)', 'debiet met de bovengrens (m³/h)', 'v op 10 cm met de bovengrens (m/s)', 'boven het minimum?'),
+          rij('---:', '---:', '---:', '---:', '---')]
+    for r in (0.6, 0.7, 0.8, 1.0):
+        q0, q1 = werkpunt(s, r), werkpunt(met, r)
+        L.append(rij(f'{r * 100:.0f} %', f0(q0), f0(q1), f2(v_vang(q1)), 'ja' if q1 >= q_voor_vang() else '**nee**'))
+    L += ['', 'Met de bovengrens haalt 60 % het minimum niet: daarom is **70 % de laagste beschermende stand** (`beschermVanaf` '
+          'in regel.h) en houdt de melding "filter vervangen" rekening met de bovengrens (hoofdstuk 3b). Wat het echt is, meet '
+          'poort L1 (Q–Δp bij elke stand, met en zonder mat); blijkt het verlies klein, dan mag 60 % weer meetellen. Een '
+          'hogere verdeelruimte (de instroomplaat lager) kost diepte onder het blad: niet gekozen.', '']
+    # geluid
+    L += ['### 3d. Geluidsdoel bij het dagwerkpunt', '',
+          'Werkpunt: de medewerker zit tegenover de klant, het oor op ± 0,5 m van het rooster (vrije puntbron, zonder '
+          'roosterfluit of galm). Dagstand: 70 %, de laagste beschermende stand.', '',
+          rij('stand', 'debiet (m³/h)', 'dB(A) op 1 m', 'dB(A) op 0,5 m (oor)'), rij('---:', '---:', '---:', '---:')]
+    g = filter_dp(FILTERS['G4'])
+    for r in (0.7, 0.8, 1.0):
+        L.append(rij(f'{r * 100:.0f} %' + (' (boost)' if r == 1 else ''), f0(werkpunt(g, r)), f0(db(r)), f0(db(r, 0.5))))
+    L += ['', '**Doel (projectdoel, geen norm):** dagstand 70 %: ≤ 67 dB(A) op de oorpositie (model 67); 80 %: ≤ 70 dB(A); '
+          'boost kort luider. Het vroegere doel van 55 dB(A) op het oor is met deze ventilator op een beschermende stand niet '
+          'haalbaar en is geschrapt. Stiller kan alleen met een grotere, langzamere ventilator of geluiddemping in de uitblaas '
+          '(niet gekozen: dieper en duurder). Alle gehoorgrenzen voor werknemers (vanaf 80 dB(A) gemiddeld over 8 uur) liggen '
+          'ver boven deze waarden; het doel gaat over comfort. Poort G1 meet het.', '']
+    return L
 
 # ---------------------------------------------------------------- uitvoer
 def rij(*c):
@@ -245,12 +361,13 @@ def maak():
     for r in (0.4, 0.6, 0.7, 0.8, 1.0):
         q = werkpunt(g, r)
         L.append(rij(f'{r * 100:.0f} %' + (' (boost)' if r == 1 else ''), f0(q), f2(v_vang(q, 0.10)), f2(v_vang(q, 0.15)), f2(v_vang(q, 0.20)), f0(db(r))))
-    L += ['', 'Vervangen: de firmware meldt "filter vervangen" bij het dubbele van de schone drukval (ongeveer 100 Pa bij 250 '
-          'm³/h), ruim vóór de einddrukval van 250 Pa. 20 cm boven het rooster haalt geen enkele stand 0,5 m/s: dat vraagt '
-          'ongeveer 600 m³/h, meer dan deze ventilator met rooster en filter levert.']
-    L += ['', 'Toerental is de fractie van het volle toerental, niet de PWM-waarde: de firmware moet het toerental '
-          '(tacho) regelen of de PWM-stand per filter ijken. Het geluid volgt ΔL = 50 log10(n/n_vol) en een vrije puntbron; '
-          'roosterfluit, kastresonantie en galm komen erbij (meten: poort G1).', '']
+    L += ['', '20 cm boven het rooster haalt geen enkele stand 0,5 m/s: dat vraagt ongeveer 600 m³/h, meer dan deze '
+          'ventilator met rooster en filter levert.']
+    L += ['', 'De stand is een fractie van het volle **toerental**: de firmware regelt het toerental (ijktabel PWM -> '
+          'toerental plus bijregeling op de tacho, regel.h). Debiet, geluid en warmte in dit rekenblad gebruiken dezelfde '
+          'grootheid. Het geluid volgt ΔL = 50 log10(n/n_vol) en een vrije puntbron; roosterfluit, kastresonantie en galm '
+          'komen erbij (meten: poort G1).', '']
+    L += vervangen_en_geluid()
 
     L += ['## 4. Elektriek', '']
     p5 = sum(P_5V.values()) / ETA_BUCK
@@ -279,16 +396,29 @@ def maak():
           'P_uit (1/η − 1).', '',
           rij('stand', 'P naar de module (W)', 'verlies in de box (W)', 'ΔT lucht in de box (K)', f'adapter-omgeving bij {f0(T_KAMER)} °C'),
           rij('---', '---:', '---:', '---:', '---:')]
-    for naam, r in (('40 % toerental', 0.4), ('60 %', 0.6), ('70 % (dagstand met F7, hoofdstuk 3)', 0.7), ('80 %', 0.8), ('100 % (boost, 120 s)', 1.0)):
+    def boxverlies(r):
         p = FAN_W * r ** 3 + p5
-        verlies = p * (1 / ADAPTER['eta'] - 1) + sum(P_5V.values()) * (1 / ETA_BUCK - 1) + 0.3  # + zekering en draden
+        # adapter, buck (over de hele 5 V-last) en wat in de box zelf verbruikt wordt (ESP32-C3 + drukmeter), plus zekering en draden
+        return p, p * (1 / ADAPTER['eta'] - 1) + sum(P_5V.values()) * (1 / ETA_BUCK - 1) + P_IN_BOX + 0.3
+    rijen = [('40 % toerental', 0.4), ('60 %', 0.6), ('70 % (dagstand, laagste beschermende stand)', 0.7), ('80 % (hoogste gewone stand)', 0.8),
+             ('100 % (boost)', 1.0)]
+    for naam, r in rijen:
+        p, verlies = boxverlies(r)
         dts = [box_dt(verlies, h) for h in H_WAND]
-        L.append(rij(naam, f1(p), f1(verlies), f'{f0(dts[1])}–{f0(dts[0])}', f'{f0(T_KAMER + dts[1])}–{f0(T_KAMER + dts[0])} °C'))
-    L += ['', f'De adapter mag vol vermogen leveren tot {f0(T_ADAPTER_MAX)} °C omgeving. Tot 70 % toerental blijft de box daar '
-          'ruim onder. Op 80 % (de hoogste gewone stand) komt het ongunstigste geval (h = 5) net op de grens: dat meet '
-          'poort E1; wordt het te warm, dan zakt de hoogste gewone stand naar 70 % (`dagMaxPct` in regel.h). 100 % is alleen '
-          'boost en duurt 120 s. PETG blijft onder 60 °C. '
-          'Model: wanden (h = 5 tot 10 W/m²K) plus de schoorsteenstroom door de bodem- en achterwandsleuven.', '']
+        L.append(rij(naam, f1(p), f2(verlies), f'{f0(dts[1])}–{f0(dts[0])}', f'{f0(T_KAMER + dts[1])}–{f0(T_KAMER + dts[0])} °C'))
+    gem = (1 - BOOST_DEEL) * boxverlies(0.8)[1] + BOOST_DEEL * boxverlies(1.0)[1]
+    dts = [box_dt(gem, h) for h in H_WAND]
+    L.append(rij('80 % met zoveel boost als het tegoed toelaat (1/5 op 100 %, gemiddeld)', '—', f2(gem), f'{f0(dts[1])}–{f0(dts[0])}',
+                 f'{f0(T_KAMER + dts[1])}–{f0(T_KAMER + dts[0])} °C'))
+    L += ['', f'In de box: de adapter, de regelaar en {f2(P_IN_BOX)} W van de ESP32-C3 en de drukmeter (de knop zit in het blad). '
+          'De warmte in de box bereikt geen evenwicht in de 120 s van één boost; het gemiddelde met het boosttegoed (hoogstens '
+          '1/5 van de tijd op 100 %, regel.h, getest) is het geval om op te rekenen.', '',
+          f'**Grens:** de adapter levert vol vermogen tot {f0(T_ADAPTER_MAX)} °C omgeving; bij minder last laat de fabrikant volgens '
+          'de deratingcurve meer toe, maar die cijfers zijn hier niet overgenomen: we rekenen met 40 °C als grens (veilige kant). '
+          'Tot 70 % blijft de box daar onder. Op 80 % met boost komt het ongunstigste geval (h = 5 W/m²K) er 1 à 3 K boven: '
+          'poort E1 meet het (4 uur, adapter en box); is het te warm, dan wordt `dagMaxPct` in regel.h 70 % en daalt het boosttegoed. '
+          'PETG blijft ruim onder zijn verwekingstemperatuur (± 70 °C). Model: wanden (h = 5 tot 10 W/m²K) plus de '
+          'schoorsteenstroom door de bodem- en achterwandsleuven.', '']
 
     L += ['## 6. Bevestiging', '']
     for naam, K, d in (('moduleklauw (M5)', KLAUW, 5), ('knopklauw (M4)', KNOPKLAUW, 4)):

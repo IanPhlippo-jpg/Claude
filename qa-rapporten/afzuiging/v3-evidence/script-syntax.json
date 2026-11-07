@@ -1,0 +1,46 @@
+[
+  {
+    "file": "maak-afzuiging.mjs",
+    "status": 0,
+    "stderr": ""
+  },
+  {
+    "file": "revisie.mjs",
+    "status": 0,
+    "stderr": ""
+  },
+  {
+    "file": "prijslijst.py",
+    "status": "Python AST OK"
+  },
+  {
+    "file": "docs/berekeningen.py",
+    "status": "Python AST OK"
+  },
+  {
+    "file": "logo/trace.py",
+    "status": "Python AST OK"
+  },
+  {
+    "file": "logo/knopfont.py",
+    "status": "Python AST OK"
+  },
+  {
+    "file": "logo/knoplogo.py",
+    "status": "Python AST OK"
+  },
+  {
+    "file": "logo/rooster.py",
+    "status": "Python AST OK"
+  },
+  {
+    "file": "schema/maak-schema.mjs",
+    "status": 0,
+    "stderr": ""
+  },
+  {
+    "file": "schema/maak-mallen.mjs",
+    "status": 0,
+    "stderr": ""
+  }
+]

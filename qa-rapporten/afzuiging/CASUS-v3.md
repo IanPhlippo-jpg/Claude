@@ -1,0 +1,9 @@
+# CASUS v3 — nageltafelafzuiging, ontwerpbeoordeling
+
+De map `/workspace/afzuiging/src-v3/` is een onveranderde, met SHA256 gecontroleerde kopie van 114 bronbestanden van Ians laptop. Het betreft revisie 6.1 van een inbouw-nagelstofafzuiging: CAD-onderdelen/assemblage, STL/DXF, tekeningen, BOM, schema, firmware en ontwerpberekeningen. Oudere baseline: `/workspace/afzuiging/src/`; eerder eindverslag: `/workspace/afzuiging/report/AFZUIGING-eindverslag-v2.md`.
+
+Beoordeel uitsluitend engineering-/ontwerpmaturiteit: geometrie, passing, tolerantie, wanddikte, printbaarheid, lucht/filter/druk/geluid, elektrische en thermische berekeningen, firmware (statisch plus builds/tests), ergonomische envelop, onderhoud en documentconsistentie. Ontbrekende fysieke tests geven GEEN scoreaftrek; fysieke validatie hoort in een afzonderlijk ongescoord plan. Vertrouw claims in docs niet zonder bewijs. Exacte filterkeuze is nu Rittal SK3171.100 (173×173×17); stel zelf vast wat dit voor het beschermingsconcept betekent. Nieuwe regel.h, native tests en berekeningen moeten onafhankelijk worden gecontroleerd.
+
+Onderzoek wijzigingen en elke v2-bevinding (opgelost/deels/open/niet vast te stellen). Meld nieuwe fouten. Geef file:line/part, concrete actie en digitaal toetsbaar acceptatiecriterium. Maak onderscheid tussen nominale geometrie, onafhankelijke reconstructie en officiële CAD-kernel. Gebruik gratis tools en leg reproduceerbare uitkomsten vast. Werk alleen op eigen kopieën, nooit bron of laptop aanpassen. Geen fysieke proef eisen om een ontwerpactie af te tekenen.
+
+Werk onafhankelijk: lees geen andere teamrapporten, geen team/in-map van eerdere reviews, en raad geen auteurs. Neem geen contact op met Ian of Claude; alleen de coördinator ontvangt jouw resultaat. Lees FORMAAT-v3.md voor de uitvoer.

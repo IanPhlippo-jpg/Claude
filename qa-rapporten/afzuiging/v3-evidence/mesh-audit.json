@@ -1,0 +1,379 @@
+[
+  {
+    "file": "print/Adapterklem.stl",
+    "dimensions": [
+      9.0,
+      16.5,
+      3.0
+    ],
+    "bounds": [
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        9.0,
+        16.5,
+        3.0
+      ]
+    ],
+    "faces": 1662,
+    "watertight": true,
+    "winding_consistent": true,
+    "positive_volume": true,
+    "volume_mm3": 396.95018141727707,
+    "components": 1,
+    "component_volumes": [
+      396.95018141727707
+    ]
+  },
+  {
+    "file": "print/Bodemplaat.stl",
+    "dimensions": [
+      210.0,
+      210.0,
+      6.0
+    ],
+    "bounds": [
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        210.0,
+        210.0,
+        6.0
+      ]
+    ],
+    "faces": 24478,
+    "watertight": true,
+    "winding_consistent": true,
+    "positive_volume": true,
+    "volume_mm3": 109289.86152575775,
+    "components": 1,
+    "component_volumes": [
+      109289.86152575775
+    ]
+  },
+  {
+    "file": "print/Bovenframe.stl",
+    "dimensions": [
+      222.0,
+      222.0,
+      2.5
+    ],
+    "bounds": [
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        222.0,
+        222.0,
+        2.5
+      ]
+    ],
+    "faces": 8696,
+    "watertight": true,
+    "winding_consistent": true,
+    "positive_volume": true,
+    "volume_mm3": 22458.984035137033,
+    "components": 1,
+    "component_volumes": [
+      22458.984035137033
+    ]
+  },
+  {
+    "file": "print/Cassetterand.stl",
+    "dimensions": [
+      200.5,
+      200.5,
+      2.5
+    ],
+    "bounds": [
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        200.5,
+        200.5,
+        2.5
+      ]
+    ],
+    "faces": 608,
+    "watertight": true,
+    "winding_consistent": true,
+    "positive_volume": true,
+    "volume_mm3": 25535.61324718874,
+    "components": 1,
+    "component_volumes": [
+      25535.61324718874
+    ]
+  },
+  {
+    "file": "print/Deksel-voedingsbox.stl",
+    "dimensions": [
+      203.60000610351562,
+      93.5999984741211,
+      2.0
+    ],
+    "bounds": [
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        203.60000610351562,
+        93.5999984741211,
+        2.0
+      ]
+    ],
+    "faces": 5076,
+    "watertight": true,
+    "winding_consistent": true,
+    "positive_volume": true,
+    "volume_mm3": 37973.663422529695,
+    "components": 1,
+    "component_volumes": [
+      37973.663422529695
+    ]
+  },
+  {
+    "file": "print/Filtercassette.stl",
+    "dimensions": [
+      174.1999969482422,
+      174.1999969482422,
+      19.0
+    ],
+    "bounds": [
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        174.1999969482422,
+        174.1999969482422,
+        19.0
+      ]
+    ],
+    "faces": 1820,
+    "watertight": true,
+    "winding_consistent": true,
+    "positive_volume": true,
+    "volume_mm3": 37948.07393538471,
+    "components": 1,
+    "component_volumes": [
+      37948.07393538471
+    ]
+  },
+  {
+    "file": "print/Instroomplaat.stl",
+    "dimensions": [
+      201.39999389648438,
+      201.39999389648438,
+      3.0
+    ],
+    "bounds": [
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        201.39999389648438,
+        201.39999389648438,
+        3.0
+      ]
+    ],
+    "faces": 3636,
+    "watertight": true,
+    "winding_consistent": true,
+    "positive_volume": true,
+    "volume_mm3": 76795.27507039106,
+    "components": 1,
+    "component_volumes": [
+      76795.27507039106
+    ]
+  },
+  {
+    "file": "print/Klauw.stl",
+    "dimensions": [
+      24.492324829101562,
+      12.992887496948242,
+      6.0
+    ],
+    "bounds": [
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        24.492324829101562,
+        12.992887496948242,
+        6.0
+      ]
+    ],
+    "faces": 868,
+    "watertight": true,
+    "winding_consistent": true,
+    "positive_volume": true,
+    "volume_mm3": 1033.635799100701,
+    "components": 1,
+    "component_volumes": [
+      1033.635799100701
+    ]
+  },
+  {
+    "file": "print/Knopdeksel.stl",
+    "dimensions": [
+      43.0,
+      42.990047454833984,
+      4.900001525878906
+    ],
+    "bounds": [
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        43.0,
+        42.990047454833984,
+        4.900001525878906
+      ]
+    ],
+    "faces": 4880,
+    "watertight": true,
+    "winding_consistent": true,
+    "positive_volume": true,
+    "volume_mm3": 2831.2606641481707,
+    "components": 1,
+    "component_volumes": [
+      2831.2606641481707
+    ]
+  },
+  {
+    "file": "print/Knophouder.stl",
+    "dimensions": [
+      51.599998474121094,
+      51.599998474121094,
+      62.0
+    ],
+    "bounds": [
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        51.599998474121094,
+        51.599998474121094,
+        62.0
+      ]
+    ],
+    "faces": 12740,
+    "watertight": true,
+    "winding_consistent": true,
+    "positive_volume": true,
+    "volume_mm3": 31264.112161437446,
+    "components": 1,
+    "component_volumes": [
+      31264.112161437446
+    ]
+  },
+  {
+    "file": "print/Knopklauw.stl",
+    "dimensions": [
+      20.493560791015625,
+      10.996262550354004,
+      5.0
+    ],
+    "bounds": [
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        20.493560791015625,
+        10.996262550354004,
+        5.0
+      ]
+    ],
+    "faces": 876,
+    "watertight": true,
+    "winding_consistent": true,
+    "positive_volume": true,
+    "volume_mm3": 570.6469746296967,
+    "components": 1,
+    "component_volumes": [
+      570.6469746296967
+    ]
+  },
+  {
+    "file": "print/Romp.stl",
+    "dimensions": [
+      210.0,
+      210.0,
+      96.0
+    ],
+    "bounds": [
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        210.0,
+        210.0,
+        96.0
+      ]
+    ],
+    "faces": 12038,
+    "watertight": true,
+    "winding_consistent": true,
+    "positive_volume": true,
+    "volume_mm3": 428792.07085478684,
+    "components": 1,
+    "component_volumes": [
+      428792.07085478684
+    ]
+  },
+  {
+    "file": "print/Voedingsbox.stl",
+    "dimensions": [
+      225.0,
+      124.0,
+      50.0
+    ],
+    "bounds": [
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        225.0,
+        124.0,
+        50.0
+      ]
+    ],
+    "faces": 51022,
+    "watertight": true,
+    "winding_consistent": true,
+    "positive_volume": true,
+    "volume_mm3": 208837.97363425544,
+    "components": 1,
+    "component_volumes": [
+      208837.97363425544
+    ]
+  }
+]

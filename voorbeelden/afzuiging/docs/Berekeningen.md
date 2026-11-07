@@ -51,9 +51,51 @@ Snijpunt van de ventilatorcurve (100 % en lager toerental, Q ~ n, p ~ n²) met f
 | 80 % | 335 | 0,88 | 0,47 | 0,28 | 64 |
 | 100 % (boost) | 430 | 1,13 | 0,60 | 0,36 | 69 |
 
-Vervangen: de firmware meldt "filter vervangen" bij het dubbele van de schone drukval (ongeveer 100 Pa bij 250 m³/h), ruim vóór de einddrukval van 250 Pa. 20 cm boven het rooster haalt geen enkele stand 0,5 m/s: dat vraagt ongeveer 600 m³/h, meer dan deze ventilator met rooster en filter levert.
+20 cm boven het rooster haalt geen enkele stand 0,5 m/s: dat vraagt ongeveer 600 m³/h, meer dan deze ventilator met rooster en filter levert.
 
-Toerental is de fractie van het volle toerental, niet de PWM-waarde: de firmware moet het toerental (tacho) regelen of de PWM-stand per filter ijken. Het geluid volgt ΔL = 50 log10(n/n_vol) en een vrije puntbron; roosterfluit, kastresonantie en galm komen erbij (meten: poort G1).
+De stand is een fractie van het volle **toerental**: de firmware regelt het toerental (ijktabel PWM -> toerental plus bijregeling op de tacho, regel.h). Debiet, geluid en warmte in dit rekenblad gebruiken dezelfde grootheid. Het geluid volgt ΔL = 50 log10(n/n_vol) en een vrije puntbron; roosterfluit, kastresonantie en galm komen erbij (meten: poort G1).
+
+### 3b. Melding "filter vervangen" per stand
+
+De drukmeter ziet rooster + mat + cassettebodem. Bij een vollere mat zakt het debiet; de melding moet komen vóór het debiet onder het minimum voor de vangst (190 m³/h) zakt. Zes scenario's per stand: de verliesband 0,7x / 1x / 1,5x, telkens zonder en met de bovengrens van de verdeelruimte (hoofdstuk 3c). De firmware neemt het ongunstigste scenario met 10 % marge.
+
+| stand (toerental) | schoon debiet (m³/h) | grens: x de schone sensordruk (laagste) | firmware (regel.h) | oordeel |
+| ---: | ---: | ---: | ---: | --- |
+| 40 % | 106–156 | — | lage stand | "lage stand": geen bescherming beloofd, geen filteroordeel |
+| 50 % | 137–205 | — | lage stand | "lage stand": geen bescherming beloofd, geen filteroordeel |
+| 60 % | 169–256 | — | lage stand | "lage stand": geen bescherming beloofd, geen filteroordeel |
+| 70 % | 200–307 | 1,22 | 1,10 | melding op tijd (marge ≥ 10 %) |
+| 75 % | 215–332 | 1,53 | 1,34 | melding op tijd (marge ≥ 10 %) |
+| 80 % | 231–358 | 1,76 | 1,58 | melding op tijd (marge ≥ 10 %) |
+| 90 % | 262–409 | 1,94 | 1,73 | melding op tijd (marge ≥ 10 %) |
+| 100 % | 294–461 | 2,09 | 1,88 | melding op tijd (marge ≥ 10 %) |
+
+De firmware meldt onder 70 % "lage stand" (geen bescherming beloofd). Dit rekenblad faalt als de waarden in regel.h niet meer kloppen met het model. Poort L1 (Q–Δp gemeten) mag de grenzen later verruimen; tot dan gelden deze.
+
+### 3c. Verdeelruimte tussen mat en instroomplaat
+
+Tussen de onderkant van de mat en de instroomplaat zit 4,3 mm (3 mm vrij plus de open roosterbodem). Als de mat overal even veel lucht doorlaat, moet 57 % van het debiet radiaal naar het oog (Ø127): door een ring van 1788 mm² is dat bij 250 m³/h 22,0 m/s. In werkelijkheid gaat meer lucht door het midden van de mat (boven het oog), waar de weg het kortst is: de mat wordt niet gelijk benut, en de dynamische druk in de ring is **geen** verlies dat zomaar bij de rest opgeteld mag worden. Daarom twee grenzen: verwaarloosbaar (gelijke benutting) en een bovengrens van ζ = 0,5 op de ringsnelheid (145 Pa bij 250 m³/h, kwadratisch met het debiet).
+
+| stand | debiet zonder (m³/h) | debiet met de bovengrens (m³/h) | v op 10 cm met de bovengrens (m/s) | boven het minimum? |
+| ---: | ---: | ---: | ---: | --- |
+| 60 % | 241 | 176 | 0,46 | **nee** |
+| 70 % | 288 | 209 | 0,55 | ja |
+| 80 % | 335 | 242 | 0,64 | ja |
+| 100 % | 430 | 308 | 0,81 | ja |
+
+Met de bovengrens haalt 60 % het minimum niet: daarom is **70 % de laagste beschermende stand** (`beschermVanaf` in regel.h) en houdt de melding "filter vervangen" rekening met de bovengrens (hoofdstuk 3b). Wat het echt is, meet poort L1 (Q–Δp bij elke stand, met en zonder mat); blijkt het verlies klein, dan mag 60 % weer meetellen. Een hogere verdeelruimte (de instroomplaat lager) kost diepte onder het blad: niet gekozen.
+
+### 3d. Geluidsdoel bij het dagwerkpunt
+
+Werkpunt: de medewerker zit tegenover de klant, het oor op ± 0,5 m van het rooster (vrije puntbron, zonder roosterfluit of galm). Dagstand: 70 %, de laagste beschermende stand.
+
+| stand | debiet (m³/h) | dB(A) op 1 m | dB(A) op 0,5 m (oor) |
+| ---: | ---: | ---: | ---: |
+| 70 % | 288 | 61 | 67 |
+| 80 % | 335 | 64 | 70 |
+| 100 % (boost) | 430 | 69 | 75 |
+
+**Doel (projectdoel, geen norm):** dagstand 70 %: ≤ 67 dB(A) op de oorpositie (model 67); 80 %: ≤ 70 dB(A); boost kort luider. Het vroegere doel van 55 dB(A) op het oor is met deze ventilator op een beschermende stand niet haalbaar en is geschrapt. Stiller kan alleen met een grotere, langzamere ventilator of geluiddemping in de uitblaas (niet gekozen: dieper en duurder). Alle gehoorgrenzen voor werknemers (vanaf 80 dB(A) gemiddeld over 8 uur) liggen ver boven deze waarden; het doel gaat over comfort. Poort G1 meet het.
 
 ## 4. Elektriek
 
@@ -81,13 +123,16 @@ In de box zit alleen de adapter en de kleine elektronica; de ventilator zit in d
 
 | stand | P naar de module (W) | verlies in de box (W) | ΔT lucht in de box (K) | adapter-omgeving bij 25 °C |
 | --- | ---: | ---: | ---: | ---: |
-| 40 % toerental | 5,6 | 1,4 | 3–5 | 28–30 °C |
-| 60 % | 14,2 | 2,5 | 5–9 | 30–34 °C |
-| 70 % (dagstand met F7, hoofdstuk 3) | 21,4 | 3,5 | 6–12 | 31–37 °C |
-| 80 % | 30,9 | 4,8 | 9–16 | 34–41 °C |
-| 100 % (boost, 120 s) | 58,4 | 8,6 | 15–26 | 40–51 °C |
+| 40 % toerental | 5,6 | 1,89 | 3–6 | 28–31 °C |
+| 60 % | 14,2 | 3,06 | 6–10 | 31–35 °C |
+| 70 % (dagstand, laagste beschermende stand) | 21,4 | 4,04 | 7–13 | 32–38 °C |
+| 80 % (hoogste gewone stand) | 30,9 | 5,34 | 10–17 | 35–42 °C |
+| 100 % (boost) | 58,4 | 9,09 | 16–28 | 41–53 °C |
+| 80 % met zoveel boost als het tegoed toelaat (1/5 op 100 %, gemiddeld) | — | 6,09 | 11–19 | 36–44 °C |
 
-De adapter mag vol vermogen leveren tot 40 °C omgeving. Tot 70 % toerental blijft de box daar ruim onder. Op 80 % (de hoogste gewone stand) komt het ongunstigste geval (h = 5) net op de grens: dat meet poort E1; wordt het te warm, dan zakt de hoogste gewone stand naar 70 % (`dagMaxPct` in regel.h). 100 % is alleen boost en duurt 120 s. PETG blijft onder 60 °C. Model: wanden (h = 5 tot 10 W/m²K) plus de schoorsteenstroom door de bodem- en achterwandsleuven.
+In de box: de adapter, de regelaar en 0,52 W van de ESP32-C3 en de drukmeter (de knop zit in het blad). De warmte in de box bereikt geen evenwicht in de 120 s van één boost; het gemiddelde met het boosttegoed (hoogstens 1/5 van de tijd op 100 %, regel.h, getest) is het geval om op te rekenen.
+
+**Grens:** de adapter levert vol vermogen tot 40 °C omgeving; bij minder last laat de fabrikant volgens de deratingcurve meer toe, maar die cijfers zijn hier niet overgenomen: we rekenen met 40 °C als grens (veilige kant). Tot 70 % blijft de box daar onder. Op 80 % met boost komt het ongunstigste geval (h = 5 W/m²K) er 1 à 3 K boven: poort E1 meet het (4 uur, adapter en box); is het te warm, dan wordt `dagMaxPct` in regel.h 70 % en daalt het boosttegoed. PETG blijft ruim onder zijn verwekingstemperatuur (± 70 °C). Model: wanden (h = 5 tot 10 W/m²K) plus de schoorsteenstroom door de bodem- en achterwandsleuven.
 
 ## 6. Bevestiging
 

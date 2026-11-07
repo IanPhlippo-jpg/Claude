@@ -85,13 +85,17 @@ const uit = (b) => ring(0, null) + kop + groot('UIT', 112, C.midden) + regels('d
 
 const gewoon = [
   ['Uit', 'kort drukken of draaien zet hem aan; na een stroomonderbreking altijd uit', uit(null)],
-  ['Aan', 'de stand die de box bevestigt; drukverschil en toerental; balkje = hoe vol het filter is', aan(65, V.beige) + regels('118 Pa, 2350 tpm', null, C.licht) + balk(0.4, V.beige)],
-  ['Boost', '1 s vasthouden: 2 minuten 100 %; de box telt de tijd', aan(100, V.beige) + regels('BOOST 1:42', null, C.beige) + balk(0.45, V.beige)],
-  ['IJken', '5 tot 10 s vasthouden met een schoon filter: 20 tot 100 %', ring(BOOG * 0.6, V.beige) + kop + tekst('IJKEN', 104, C.wit, FONT.TITEL) + tekst('schoon filter, 60 %', 136, C.wit)],
+  ['Aan', 'de stand die de box bevestigt (% van het maximale toerental); drukverschil en toerental; balkje = hoe vol de mat is', aan(65, V.beige) + regels('118 Pa, 2350 tpm', null, C.licht) + balk(0.4, V.beige)],
+  ['Boost', '1 s vasthouden: 100 % uit een tegoed van 2 minuten, daarna afkoelen (1 s boost = 4 s); de box telt de tijd', aan(100, V.beige) + regels('BOOST 1:42', null, C.beige) + balk(0.45, V.beige)],
+  ['IJken', '5 tot 10 s vasthouden met een schone mat: 20 tot 100 %', ring(BOOG * 0.6, V.beige) + kop + tekst('IJKEN', 104, C.wit, FONT.TITEL) + tekst('schone mat, 60 %', 136, C.wit)],
 ];
 const meldingen = [
-  ['Nieuw filter?', 'nog niet geijkt: 5 s vasthouden', aan(50, V.beige) + regels('nieuw filter?', 'knop 5 s vasthouden', C.licht)],
-  ['Filter vervangen', 'drukverschil verdubbeld t.o.v. een schoon filter', aan(65, V.oranje) + regels('filter vervangen', 'in een zak, niet uitkloppen', C.oranje) + balk(1, V.oranje)],
+  ['Nieuwe mat?', 'nog niet geijkt: 5 s vasthouden', aan(60, V.beige) + regels('nieuwe mat?', 'knop 5 s vasthouden', C.licht)],
+  ['Lage stand', 'onder 70 % haalt de afzuiging het minimum voor de vangst niet zeker: geen filteroordeel', aan(50, V.beige) + regels('lage stand', 'weinig vangst, minstens 70 %', C.licht)],
+  ['Even meten', 'na een standwissel: 6 s geen oordeel (geen oude melding)', aan(70, V.beige) + regels('even meten...', null, C.midden)],
+  ['Boost even niet', 'het tegoed is op: eerst afkoelen', aan(65, V.beige) + regels('boost even niet', 'nog aan het afkoelen', C.licht)],
+  ['Buiten meetbereik', 'de druk of de vervanggrens valt boven het bereik van de meter', aan(80, V.beige) + regels('druk buiten meetbereik', 'filter nakijken', C.oranje)],
+  ['Filter vervangen', 'per stand vóór het debiet onder het minimum voor de vangst zakt; eerst uitschakelen', aan(65, V.oranje) + regels('filter vervangen', 'eerst uit, mat in een zak', C.oranje) + balk(1, V.oranje)],
   ['Geen luchtstroom', 'drukverschil valt weg: slang los of filter eruit', aan(65, V.rood) + regels('geen luchtstroom', 'slang en filter nakijken', C.rood)],
   ['Ventilator draait niet', 'tacho geeft geen toeren (op elke stand)', aan(65, V.rood) + regels('ventilator draait niet', 'M8-kabel nakijken', C.rood)],
   ['Geen verbinding (aan)', 'niets van de box: de stand is niet bevestigd', ring(0, null) + kop + tekst('AAN?', 108, C.midden, FONT.TITEL) + regels('geen verbinding met de box', 'stand niet bevestigd', C.oranje)],
@@ -99,7 +103,7 @@ const meldingen = [
   ['Drukmeter niet gevonden', 'SDP810 antwoordt niet; de box start hem opnieuw', aan(65, V.beige) + regels('drukmeter niet gevonden', 'bedrading in de box nakijken', C.oranje)],
   ['Meting niet actueel', 'laatste meting ouder dan 1 s: geen drukwaarde, geen filterbalk', aan(65, V.beige) + regels('meting niet actueel', 'filterbewaking even uit', C.oranje)],
   ['IJken mislukt', 'geen, foute of te hoge metingen: de vorige ijking blijft', aan(50, V.beige) + regels('ijken mislukt', 'vorige ijking blijft', C.oranje)],
-  ['Koppelen', 'nieuwe knop of 10 s vasthouden: zet de box uit en aan', ring(0, null) + kop + tekst('KOPPELEN', 104, C.wit, FONT.TITEL) + regels('zet de voedingsbox', 'uit en weer aan', C.licht)],
+  ['Koppelen', 'nieuwe knop of 10 s vasthouden; de box aanvaardt een nieuwe knop alleen na 3 x kort aan en uit', ring(0, null) + kop + tekst('KOPPELEN', 104, C.wit, FONT.TITEL) + regels('schakelaar box 3 x', 'kort aan en uit', C.licht)],
 ];
 const kaart = ([naam, uitleg, inhoud]) => `<figure><svg viewBox="0 0 466 466" role="img" aria-label="${naam}"><circle cx="233" cy="233" r="233" fill="#000"/>${inhoud}</svg><figcaption><b>${naam}</b><span>${uitleg}</span></figcaption></figure>`;
 document.getElementById('gewoon').innerHTML = gewoon.map(kaart).join('');

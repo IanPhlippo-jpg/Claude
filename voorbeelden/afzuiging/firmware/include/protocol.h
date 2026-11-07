@@ -1,21 +1,26 @@
-// Berichten tussen de knop en de module (ESP-NOW op kanaal 1), versie 2.
+// Berichten tussen de knop en de module (ESP-NOW op kanaal 1), versie 3.
 //
-// Koppeling per set: een nieuwe knop zendt KOPPEL (broadcast) met een willekeurige sleutel van 16 bytes. De module
-// aanvaardt dat alleen in de eerste 60 s na het aanzetten van de voedingsbox (koppelvenster) en bewaart het MAC-adres
-// van de knop en de sleutel; ze antwoordt KOPPEL_OK. Daarna praten beide alleen nog met elkaar, versleuteld (ESP-NOW
-// CCMP met die sleutel), en weigert de module elke andere afzender. Een tweede set in dezelfde salon stoort dus niet.
-//   knop -> module  Opdracht, 4 keer per seconde en meteen bij een wijziging (volgnummer: geen herhaalde berichten)
+// Koppeling per set: een knop die (opnieuw) wil koppelen zendt KOPPEL (broadcast) met een willekeurige sleutel van 16
+// bytes en een willekeurige uitdaging. De module aanvaardt dat alleen in de eerste 60 s na het aanzetten van de
+// voedingsbox én alleen als ze nog geen knop heeft of na een bewuste handeling (de schakelaar van de box 3 keer kort
+// aan en uit). Ze bewaart het MAC-adres van de knop en de sleutel en antwoordt KOPPEL_OK met dezelfde uitdaging; de
+// knop aanvaardt alleen dat antwoord. Daarna praten beide alleen nog met elkaar, versleuteld (ESP-NOW CCMP met die
+// sleutel), en weigert de module elke andere afzender. Een tweede set in dezelfde salon stoort dus niet, en een
+// bestaande set wordt niet overschreven.
+//   knop -> module  Opdracht, 4 keer per seconde en meteen bij een wijziging. De sessie is een teller die de knop bij
+//                   elke start verhoogt (NVS); binnen een sessie stijgt het volgnummer. De module weigert vroegere
+//                   sessies en herhaalde berichten.
 //   module -> knop  Status, 4 keer per seconde: de bevestigde toestand van de module (niet wat de knop wil)
 // Verbindingsverlies: de module draait verder op de laatste gewone stand (de stofvangst valt niet weg tijdens het
-// werk); een boost vervalt in de module zelf na 120 s. De schakelaar op de box zet alles altijd uit (geen netisolatie:
-// trek de stekker uit voor onderhoud).
+// werk); een boost vervalt in de module zelf. De schakelaar op de box zet de ventilator spanningsloos; netisolatie
+// is de stekker (alleen nodig om de box te openen).
 #pragma once
 #include <stdint.h>
 
 namespace afzuiging {
 
 constexpr uint32_t MAGIE = 0x5A41424C; // "LBAZ"
-constexpr uint8_t VERSIE = 2;
+constexpr uint8_t VERSIE = 3;
 constexpr uint8_t KANAAL = 1;
 constexpr uint8_t SOORT_OPDRACHT = 1, SOORT_STATUS = 2, SOORT_KOPPEL = 3, SOORT_KOPPEL_OK = 4;
 
@@ -24,10 +29,10 @@ struct __attribute__((packed)) Opdracht {
   uint8_t versie = VERSIE;
   uint8_t soort = SOORT_OPDRACHT;
   uint8_t aan = 0;      // de gebruiker wil de afzuiging aan
-  uint8_t pct = 50;     // gewone stand 20..100 %
+  uint8_t pct = 70;     // gewone stand 20..80 % van het maximale toerental
   uint8_t ijk = 0;      // teller: verhoogt bij elke vraag om te ijken
-  uint8_t boost = 0;    // teller: verhoogt bij elke vraag om boost (de module houdt zelf de 120 s bij)
-  uint16_t sessie = 0;  // willekeurig bij elke start van de knop: een herstart is geen ijk- of boostvraag
+  uint8_t boost = 0;    // teller: verhoogt bij elke vraag om boost (de module houdt tijd en tegoed bij)
+  uint16_t sessie = 0;  // stijgt bij elke start van de knop: een herstart is geen ijk- of boostvraag
   uint32_t volgnr = 0;  // stijgt per bericht binnen een sessie
 };
 
@@ -35,31 +40,46 @@ struct __attribute__((packed)) Koppel {
   uint32_t magie = MAGIE;
   uint8_t versie = VERSIE;
   uint8_t soort = SOORT_KOPPEL;
-  uint8_t sleutel[16] = {0};
+  uint32_t uitdaging = 0;   // willekeurig (niet 0); KOPPEL_OK stuurt dezelfde terug
+  uint8_t sleutel[16] = {0}; // alleen in KOPPEL; in KOPPEL_OK nullen
 };
 
 // fout bij het ijken (de vorige geldige ijking blijft dan bewaard)
 enum IjkFout : uint8_t { IJK_OK = 0, IJK_GEEN_METING = 1, IJK_ONPLAUSIBEL = 2, IJK_BUITEN_BEREIK = 3, IJK_GEEN_TOEREN = 4, IJK_AFGEBROKEN = 5 };
 // storing tijdens het werk
 enum Storing : uint8_t { STORING_GEEN = 0, STORING_GEEN_LUCHT = 1, STORING_STIL = 2 };
+// wat de filterbewaking op dit moment weet (alleen bij BEW_OK is vol een geldige waarde)
+enum Bewaking : uint8_t {
+  BEW_UIT = 0,           // de ventilator staat stil
+  BEW_OK = 1,            // vol is geldig
+  BEW_STABILISEREN = 2,  // na een standwissel: nog geen oordeel (geen oude melding)
+  BEW_NIET_GEIJKT = 3,   // nog geen ijking op een schone mat
+  BEW_GEEN_METING = 4,   // drukmeter weg of meting niet vers
+  BEW_BUITEN_BEREIK = 5, // de meting of de vervanggrens valt boven het meetbereik
+  BEW_LAGE_STAND = 6,    // deze stand haalt het minimumdebiet voor de vangst niet: geen bescherming beloofd
+  BEW_IJKEN = 7,
+};
 
 struct __attribute__((packed)) Status {
   uint32_t magie = MAGIE;
   uint8_t versie = VERSIE;
   uint8_t soort = SOORT_STATUS;
   uint8_t aan = 0;          // bevestigd: de module stuurt de ventilator aan
-  uint8_t pct = 0;          // de stand die de module nu werkelijk geeft (0 = stil)
+  uint8_t pct = 0;          // de stand die de module nu geeft (% van het maximale toerental; 0 = stil)
+  uint8_t pwm = 0;          // de PWM die daarvoor nodig is (0..100 %)
   uint8_t boostRest = 0;    // resterende boost in s (0 = geen)
+  uint8_t boostTegoed = 0;  // 0..100 % van het boosttegoed (120 s); onder 8 % geen nieuwe boost
   uint8_t meter = 0;        // drukmeter antwoordt
-  uint8_t meetVers = 0;     // de laatste meting is jonger dan 1 s (anders zijn dp en vol ongeldig)
-  uint8_t geijkt = 0;       // een geldige ijking op een schoon filter is bewaard
+  uint8_t meetVers = 0;     // de laatste meting is jonger dan 1 s (anders is dp ongeldig)
+  uint8_t geijkt = 0;       // een geldige ijking op een schone mat is bewaard
   uint8_t storing = STORING_GEEN;
+  uint8_t bewaking = BEW_UIT;
   uint8_t ijken = 0;        // 0 = niet aan het ijken, anders de stap 1..5
   uint8_t ijkVoortgang = 0; // 0..100 %
   uint8_t ijkFout = IJK_OK; // uitkomst van de laatste ijking
   uint16_t toeren = 0;      // gemeten toerental (omw/min, uit de tacho)
-  float dp = 0;             // drukverschil over het filter (Pa), NAN als niet vers
-  float vol = 0;            // 0 = schoon, 1 = vervangen, NAN als onbekend of op deze stand niet te bewaken
+  float dp = 0;             // drukverschil rooster + mat (Pa), NAN als niet vers
+  float vol = 0;            // 0 = schoon, 1 = vervangen; NAN tenzij bewaking == BEW_OK
 };
 
 } // namespace afzuiging

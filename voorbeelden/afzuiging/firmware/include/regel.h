@@ -2,19 +2,27 @@
 // hardware (geen Arduino-functies). main.cpp geeft de tijd, de opdrachten, de metingen en het toerental door en zet
 // de PWM die stap() teruggeeft. Zo is alles op de pc te testen (test/test_regel, pio test -e native).
 //
-// Beleid:
+// Beleid (versie 6.1, eindverslag v3):
+//  - een STAND is een percentage van het gemeten maximale toerental (niet van de PWM): na een ijking kent de module
+//    bij elke PWM-stap het toerental en regelt ze het toerental bij (voorwaarts uit de ijktabel plus een trage
+//    bijregeling op de tacho). Zo zijn stand, debiet, geluid en warmte in docs/Berekeningen.md dezelfde grootheid.
+//    Zonder ijking is de stand de PWM (en meldt de bewaking "niet geijkt");
 //  - na het aanzetten (ook na een stroomonderbreking) staat de ventilator UIT tot de knop iets vraagt;
 //  - UIT en annuleren hebben voorrang: een UIT-opdracht breekt een ijking meteen af (de PWM is in dezelfde stap 0);
-//  - een meting is alleen geldig als ze jonger is dan MEET_VERS_MS; anders zijn dp en vol onbekend (NAN), nooit oud;
-//  - na SENSOR_FOUTEN mislukte metingen op rij geldt de drukmeter als weg (main.cpp start hem opnieuw);
-//  - ijken alleen met verse, plausibele metingen binnen het bereik en met toerental op elk punt; anders blijft de
-//    vorige geldige ijking bewaard en meldt ijkFout waarom;
-//  - de filterbewaking werkt alleen op standen waar het dubbele van de schone waarde nog binnen het meetbereik valt;
-//  - stilstand van de ventilator wordt op elke toegestane stand (vanaf 20 %) bewaakt;
-//  - gewone standen 20 tot 80 %; 100 % alleen als boost (warmte in de voedingsbox, zie docs/Berekeningen.md);
-//  - zachte start: de PWM stijgt hooguit 50 % per seconde (aanloopstroom binnen de trage zekering); omlaag en UIT
-//    gaan meteen;
-//  - boost duurt 120 s en vervalt in de module zelf, ook zonder knop;
+//  - zachte start: de PWM stijgt hooguit oploopPctPerS per seconde, op de verstreken tijd (niet per regelstap);
+//    omlaag en UIT gaan meteen;
+//  - gewone standen 20 tot 80 %; 100 % alleen als boost. Boost komt uit een tegoed van 120 s dat tijdens een boost
+//    opgaat en daarna aan 1/4 van de tijd terugkomt (120 s boost = 480 s afkoelen): hoogstens 1/5 van de tijd op 100 %,
+//    ook als de knop telkens opnieuw boost vraagt (de warmte in de box is daarop gerekend);
+//  - een meting is alleen geldig als ze jonger is dan meetVersMs; anders zijn dp en vol onbekend (NAN), nooit oud;
+//  - na sensorFouten mislukte metingen op rij geldt de drukmeter als weg (main.cpp start hem opnieuw);
+//  - ijken alleen met verse, plausibele metingen binnen het bereik en met toerental op elk punt; druk en toerental
+//    moeten met de PWM stijgen; anders blijft de vorige geldige ijking bewaard en meldt ijkFout waarom;
+//  - "filter vervangen" komt per stand bij vervangFactor (uit het luchtmodel): vóór het debiet onder het minimum voor de
+//    vangst zakt. Standen onder beschermVanaf (70 %) halen dat minimum niet zeker: bewaking "lage stand";
+//  - de bewaking zegt altijd wat ze weet: uit, ijken, stabiliseren (na een standwissel: geen oude melding), niet
+//    geijkt, geen meting, buiten bereik (de grens valt boven het meetbereik of de meting zit erboven), lage stand, ok;
+//  - stilstand van de ventilator wordt op elke stand bewaakt;
 //  - verbindingsverlies: de module draait verder op de laatste gewone stand (geen boost).
 #pragma once
 #include <math.h>
@@ -27,28 +35,38 @@ namespace afzuiging {
 
 struct Instellingen {
   int minPct = 20, dagMaxPct = 80, maxPct = 100; // gewone standen tot dagMaxPct, boost op maxPct
-  int oploopPctPerS = 50;
-  uint32_t boostMs = 120000;
+  float oploopPctPerS = 50;
+  uint32_t boostMs = 120000;     // tegoed van de boost
+  uint32_t boostHerstel = 4;     // 1 s boost kost 4 s afkoelen
+  uint32_t boostMinMs = 10000;   // minder tegoed: geen nieuwe boost
   uint32_t meetVersMs = 1000;    // een meting is 1 s geldig (de module meet 4 keer per seconde)
   int sensorFouten = 4;          // 4 mislukte metingen op rij (1 s) = drukmeter weg
   float bereikPa = 500;          // SDP810-500Pa
   float geldigPa = 450;          // daarboven wordt een meting niet meer vertrouwd (marge op het bereik)
   float minPa = 0.5f;            // minder bij het ijken = slang los of verkeerd om
-  int ijkPunten = 5;             // 20, 40, 60, 80, 100 %
+  int ijkPunten = 5;             // PWM 20, 40, 60, 80, 100 %
   uint32_t ijkStapMs = 8000;     // per punt: 6 s stabiliseren, 2 s meten
   uint32_t ijkStabielMs = 6000;
   int ijkMinMetingen = 4;        // van de 8 mogelijke in 2 s
-  float volFactor = 2.0f;        // het dubbele van schoon = filter vervangen
+  // melding "filter vervangen" bij dit veelvoud van de schone druk, lineair tussen deze standen (% toerental)
+  // (docs/Berekeningen.md, hoofdstuk 3b: het ongunstigste van zes scenario's, met 10 % marge; het rekenblad controleert
+  // deze waarden)
+  int vervangStand[3] = {70, 80, 100};
+  float vervangFactor[3] = {1.10f, 1.58f, 1.88f};
+  int beschermVanaf = 70;        // lagere standen halen het minimumdebiet voor de vangst niet zeker
   float storingFactor = 0.25f;   // minder dan een kwart van schoon = geen luchtstroom
   uint32_t stabielMs = 6000;     // na een standwijziging eerst stabiliseren
   uint16_t minToeren = 300;      // lager terwijl hij hoort te draaien = de ventilator draait niet
   uint32_t stilNaMs = 5000;
+  float regelKi = 0.004f;        // bijregeling: % PWM per (omw/min x s)
+  float regelMax = 15;           // hoogstens zoveel % PWM bijregelen boven of onder de ijktabel
 };
 
 class Regelaar {
  public:
   explicit Regelaar(const Instellingen &i = Instellingen()) : I(i) {
-    for (int k = 0; k < 5; k++) schoon[k] = 0;
+    for (int k = 0; k < 5; k++) { schoon[k] = 0; tpm[k] = 0; }
+    boostTegoed = I.boostMs;
   }
 
   // ---- ingangen ----
@@ -67,7 +85,7 @@ class Regelaar {
       const int nieuw = beperk((int)o.pct, I.minPct, I.dagMaxPct);
       if (nieuw != pct) boostTot = 0; // een andere stand kiezen beëindigt de boost
       pct = nieuw;
-      if (zelfdeSessie && o.boost != boostTeller) boostTot = nu + I.boostMs;
+      if (zelfdeSessie && o.boost != boostTeller) startBoost(nu);
       if (zelfdeSessie && o.ijk != ijkTeller) startIjken(nu);
     }
     sessie = o.sessie;
@@ -87,80 +105,116 @@ class Regelaar {
     buitenBereik = false;
     dp = (laatsteMeting && nu - laatsteMeting <= I.meetVersMs && isfinite(dp)) ? dp + 0.15f * (pa - dp) : pa;
     laatsteMeting = nu ? nu : 1;
-    if (ijkStap && nu - ijkStart > I.ijkStabielMs) { ijkSom += pa; ijkN++; }
+    if (ijkStap && nu - ijkStart > I.ijkStabielMs) { ijkSom += pa; ijkN++; ijkTpmSom += toeren; }
   }
 
   /** de drukmeter is opnieuw gestart (main.cpp): weer proberen */
   void meterHersteld() { fouten = 0; meter = true; }
 
-  void tacho(uint16_t rpm) { toeren = rpm; }
+  /** een nieuw toerental uit de tacho (main.cpp: elke seconde) */
+  void tacho(uint16_t rpm, uint32_t nu) {
+    toeren = rpm;
+    tachoDt = vorigeTacho ? nu - vorigeTacho : 0;
+    vorigeTacho = nu ? nu : 1;
+    tachoNieuw = true;
+  }
 
   // ---- de regeling: één stap, geeft de PWM-stand (0..100 %) ----
 
   int stap(uint32_t nu) {
-    if (boostTot && (int32_t)(nu - boostTot) >= 0) boostTot = 0;
-    int doel;
-    if (ijkStap) {
-      doel = ijkVerder(nu);
-    } else {
-      doel = aan ? (boostTot ? I.maxPct : pct) : 0;
-    }
-    if (doel != vorigDoel) { snelheidSinds = nu; vorigDoel = doel; }
-    const bool vers = meetVers(nu);
-    if (!ijkStap && doel > 0 && vers && geijkt && nu - snelheidSinds > I.stabielMs) {
-      const float ref = schoonBij(doel);
-      vol = (ref * I.volFactor <= I.geldigPa) ? beperkf((dp / ref - 1.0f) / (I.volFactor - 1.0f), 0.0f, 1.2f) : NAN;
-      geenLucht = dp < ref * I.storingFactor;
-    } else if (!vers || doel == 0 || !geijkt) {
-      vol = NAN;
-      geenLucht = false;
-    }
-    stil = doel > 0 && nu - snelheidSinds > I.stilNaMs && toeren < I.minToeren;
-    storing = doel == 0 ? STORING_GEEN : stil ? STORING_STIL : geenLucht ? STORING_GEEN_LUCHT : STORING_GEEN;
-    // zachte start: omhoog hooguit oploopPctPerS, omlaag meteen
     const uint32_t dt = vorigeStap ? nu - vorigeStap : 0;
     vorigeStap = nu ? nu : 1;
-    const int max = gegeven + (int)((dt * (uint32_t)I.oploopPctPerS + 999) / 1000);
-    gegeven = doel > gegeven && I.oploopPctPerS > 0 ? (doel < max ? doel : max) : doel;
+    // boosttegoed: op tijdens een boost, terug (1/boostHerstel) daarna
+    if (boostTot) {
+      boostTegoed = dt >= boostTegoed ? 0 : boostTegoed - dt;
+      if ((int32_t)(nu - boostTot) >= 0 || boostTegoed == 0) boostTot = 0;
+    } else {
+      herstelRest += dt;
+      boostTegoed += herstelRest / I.boostHerstel;
+      herstelRest %= I.boostHerstel;
+      if (boostTegoed > I.boostMs) boostTegoed = I.boostMs;
+    }
+    int doelPwm;
+    if (ijkStap) {
+      doelPwm = ijkVerder(nu);
+      stand = ijkStap ? doelPwm : (aan ? pct : 0);
+    } else {
+      stand = aan ? (boostTot ? I.maxPct : pct) : 0;
+      doelPwm = stand ? pwmVoor(stand) : 0;
+    }
+    if (stand != vorigeStand) { snelheidSinds = nu; vorigeStand = stand; bijregeling = 0; }
+    // bewaking
+    const bool vers = meetVers(nu);
+    vol = NAN;
+    geenLucht = false;
+    if (stand == 0) bewaking = BEW_UIT;
+    else if (ijkStap) bewaking = BEW_IJKEN;
+    else if (!geijkt) bewaking = BEW_NIET_GEIJKT;
+    else if (buitenBereik) bewaking = BEW_BUITEN_BEREIK;
+    else if (!vers) bewaking = BEW_GEEN_METING;
+    else if (nu - snelheidSinds <= I.stabielMs) bewaking = BEW_STABILISEREN; // geen oude melding na een standwissel
+    else {
+      const float ref = schoonBij(stand), f = factorBij(stand);
+      geenLucht = dp < ref * I.storingFactor;
+      if (stand < I.beschermVanaf || f <= 1.0f) bewaking = BEW_LAGE_STAND;
+      else if (ref * f > I.geldigPa) bewaking = BEW_BUITEN_BEREIK; // de grens valt boven het meetbereik
+      else {
+        bewaking = BEW_OK;
+        vol = beperkf((dp / ref - 1.0f) / (f - 1.0f), 0.0f, 1.2f);
+      }
+    }
+    stil = stand > 0 && nu - snelheidSinds > I.stilNaMs && toeren < I.minToeren;
+    storing = stand == 0 ? STORING_GEEN : stil ? STORING_STIL : geenLucht ? STORING_GEEN_LUCHT : STORING_GEEN;
+    // zachte start op de verstreken tijd; omlaag en UIT meteen
+    if (doelPwm <= uitF) uitF = (float)doelPwm;
+    else uitF = fminf((float)doelPwm, uitF + I.oploopPctPerS * dt / 1000.0f);
+    gegeven = (int)uitF;
     return gegeven;
   }
 
   void vulStatus(Status &s, uint32_t nu) const {
     s.aan = gegeven > 0;
-    s.pct = (uint8_t)gegeven;
+    s.pct = (uint8_t)stand;
+    s.pwm = (uint8_t)gegeven;
     s.boostRest = boostTot ? (uint8_t)((boostTot - nu + 999) / 1000) : 0;
+    s.boostTegoed = (uint8_t)(boostTegoed * 100 / I.boostMs);
     s.meter = meter;
     s.meetVers = meetVers(nu);
     s.geijkt = geijkt;
     s.storing = storing;
+    s.bewaking = bewaking;
     s.ijken = (uint8_t)ijkStap;
     s.ijkVoortgang = ijkStap ? (uint8_t)minu(100, ((ijkStap - 1) * I.ijkStapMs + (nu - ijkStart)) * 100 / (I.ijkPunten * I.ijkStapMs)) : 0;
     s.ijkFout = ijkFout;
     s.toeren = toeren;
     s.dp = s.meetVers ? dp : NAN;
-    s.vol = s.meetVers ? vol : NAN;
+    s.vol = vol;
   }
 
   bool meetVers(uint32_t nu) const { return meter && laatsteMeting && nu - laatsteMeting <= I.meetVersMs && isfinite(dp); }
 
   // ---- ijking: bewaren en laden (main.cpp schrijft naar het NVS als nieuweIjking waar is) ----
-  void laadIjking(const float *w, int n) {
+  /** w = 5 drukwaarden, t = 5 toerentallen bij PWM 20..100 %; alleen geldige, stijgende waarden worden geladen */
+  void laadIjking(const float *w, const float *t, int n) {
     if (n != I.ijkPunten) return;
-    for (int k = 0; k < n; k++) if (!(w[k] >= I.minPa && w[k] <= I.geldigPa)) return; // ongeldige opslag: niet laden
-    for (int k = 0; k < n; k++) schoon[k] = w[k];
+    for (int k = 0; k < n; k++) if (!(w[k] >= I.minPa && w[k] <= I.geldigPa)) return;
+    for (int k = 0; k < n; k++) if (!(t[k] >= I.minToeren) || (k && !(t[k] > t[k - 1]))) return;
+    for (int k = 0; k < n; k++) { schoon[k] = w[k]; tpm[k] = t[k]; }
     geijkt = true;
   }
   const float *ijking() const { return schoon; }
+  const float *ijkToeren() const { return tpm; }
   bool nieuweIjking = false; // gezet na een geslaagde ijking; main.cpp bewaart en zet terug op false
 
   // toestand (voor tests en het logboek)
   bool aan = false;
-  int pct = 50;
-  uint32_t boostTot = 0;
+  int pct = 50, stand = 0;
+  uint32_t boostTot = 0, boostTegoed = 0;
+  bool boostGeweigerd = false;
   bool meter = false, buitenBereik = false, geijkt = false;
   float dp = NAN, vol = NAN;
   uint16_t toeren = 0;
-  uint8_t storing = STORING_GEEN, ijkFout = IJK_OK;
+  uint8_t storing = STORING_GEEN, ijkFout = IJK_OK, bewaking = BEW_UIT;
   int ijkStap = 0, gegeven = 0;
 
  private:
@@ -168,10 +222,48 @@ class Regelaar {
   static float beperkf(float v, float a, float b) { return v < a ? a : v > b ? b : v; }
   static uint32_t minu(uint32_t a, uint32_t b) { return a < b ? a : b; }
 
-  float schoonBij(int p) const {
-    const float f = beperkf((p - 20) / 20.0f, 0.0f, (float)(I.ijkPunten - 1));
-    const int i = (int)f < I.ijkPunten - 2 ? (int)f : I.ijkPunten - 2;
-    return schoon[i] + (schoon[i + 1] - schoon[i]) * (f - i);
+  void startBoost(uint32_t nu) {
+    boostGeweigerd = boostTegoed < I.boostMinMs;
+    if (!boostGeweigerd) boostTot = nu + boostTegoed;
+  }
+
+  /** stand (% van het maximale toerental) -> PWM: voorwaarts uit de ijktabel, plus de bijregeling op de tacho */
+  int pwmVoor(int s) {
+    if (!geijkt) return s; // zonder ijking: de stand is de PWM
+    const float doel = tpm[I.ijkPunten - 1] * s / 100.0f;
+    float voor;
+    if (doel <= tpm[0]) voor = 20.0f * doel / tpm[0];
+    else {
+      int i = 0;
+      while (i < I.ijkPunten - 2 && doel > tpm[i + 1]) i++;
+      voor = 20.0f * (i + 1) + 20.0f * (doel - tpm[i]) / (tpm[i + 1] - tpm[i]);
+    }
+    // bijregelen alleen met een nieuw toerental en als de PWM de voorwaartse waarde al bereikt heeft (na de oploop)
+    if (tachoNieuw) {
+      tachoNieuw = false;
+      if (uitF >= voor + bijregeling - 1.0f && toeren >= I.minToeren && tachoDt > 0)
+        bijregeling = beperkf(bijregeling + I.regelKi * (doel - toeren) * tachoDt / 1000.0f, -I.regelMax, I.regelMax);
+    }
+    return beperk((int)lroundf(voor + bijregeling), 1, 100);
+  }
+
+  /** schone druk bij een stand: tussen de ijkpunten op het toerental */
+  float schoonBij(int s) const {
+    const float doel = tpm[I.ijkPunten - 1] * s / 100.0f;
+    if (doel <= tpm[0]) return schoon[0];
+    int i = 0;
+    while (i < I.ijkPunten - 2 && doel > tpm[i + 1]) i++;
+    const float f = beperkf((doel - tpm[i]) / (tpm[i + 1] - tpm[i]), 0.0f, 1.0f);
+    return schoon[i] + (schoon[i + 1] - schoon[i]) * f;
+  }
+
+  /** vervangfactor bij een stand (lineair tussen de standen van de tabel; eronder 0 = niet beschermend) */
+  float factorBij(int s) const {
+    if (s < I.vervangStand[0]) return 0;
+    for (int i = 0; i < 2; i++)
+      if (s <= I.vervangStand[i + 1])
+        return I.vervangFactor[i] + (I.vervangFactor[i + 1] - I.vervangFactor[i]) * (s - I.vervangStand[i]) / (float)(I.vervangStand[i + 1] - I.vervangStand[i]);
+    return I.vervangFactor[2];
   }
 
   void startIjken(uint32_t nu) {
@@ -179,6 +271,7 @@ class Regelaar {
     ijkStap = 1;
     ijkStart = nu;
     ijkSom = 0;
+    ijkTpmSom = 0;
     ijkN = 0;
     ijkFout = IJK_OK;
   }
@@ -186,78 +279,97 @@ class Regelaar {
   void ijkAfbreken(uint8_t fout) {
     ijkStap = 0;
     ijkFout = fout;
-    vorigDoel = -1; // na het ijken eerst opnieuw stabiliseren
+    vorigeStand = -1; // na het ijken eerst opnieuw stabiliseren
   }
 
-  /** één stap van het ijken; geeft de stand van dit punt */
+  /** één stap van het ijken; geeft de PWM van dit punt */
   int ijkVerder(uint32_t nu) {
     const int p = 20 + 20 * (ijkStap - 1);
     if (nu - ijkStart < I.ijkStapMs) return p;
     // dit punt is klaar: genoeg verse, plausibele metingen en toeren?
-    if (ijkN < I.ijkMinMetingen) { ijkAfbreken(IJK_GEEN_METING); return aan ? pct : 0; }
-    const float gem = ijkSom / ijkN;
-    if (gem < I.minPa) { ijkAfbreken(IJK_ONPLAUSIBEL); return aan ? pct : 0; }
-    if (gem > I.geldigPa) { ijkAfbreken(IJK_BUITEN_BEREIK); return aan ? pct : 0; }
-    if (toeren < I.minToeren) { ijkAfbreken(IJK_GEEN_TOEREN); return aan ? pct : 0; }
-    if (ijkStap > 1 && gem < punten[ijkStap - 2] * 0.9f) { ijkAfbreken(IJK_ONPLAUSIBEL); return aan ? pct : 0; } // moet stijgen
+    const int terug = aan ? pct : 0;
+    if (ijkN < I.ijkMinMetingen) { ijkAfbreken(IJK_GEEN_METING); return terug; }
+    const float gem = ijkSom / ijkN, rpm = ijkTpmSom / ijkN;
+    if (gem < I.minPa) { ijkAfbreken(IJK_ONPLAUSIBEL); return terug; }
+    if (gem > I.geldigPa) { ijkAfbreken(IJK_BUITEN_BEREIK); return terug; }
+    if (rpm < I.minToeren) { ijkAfbreken(IJK_GEEN_TOEREN); return terug; }
+    if (ijkStap > 1 && gem < punten[ijkStap - 2] * 0.9f) { ijkAfbreken(IJK_ONPLAUSIBEL); return terug; } // moet stijgen
+    if (ijkStap > 1 && !(rpm > tpmPunten[ijkStap - 2])) { ijkAfbreken(IJK_GEEN_TOEREN); return terug; } // toeren ook
     punten[ijkStap - 1] = gem;
+    tpmPunten[ijkStap - 1] = rpm;
     ijkSom = 0;
+    ijkTpmSom = 0;
     ijkN = 0;
     ijkStart = nu;
     if (++ijkStap <= I.ijkPunten) return 20 + 20 * (ijkStap - 1);
     // geslaagd: stijgend maken en bewaren
-    for (int k = 0; k < I.ijkPunten; k++) schoon[k] = k && punten[k] < schoon[k - 1] ? schoon[k - 1] : punten[k];
+    for (int k = 0; k < I.ijkPunten; k++) {
+      schoon[k] = k && punten[k] < schoon[k - 1] ? schoon[k - 1] : punten[k];
+      tpm[k] = tpmPunten[k];
+    }
     geijkt = true;
     nieuweIjking = true;
     ijkStap = 0;
     ijkFout = IJK_OK;
-    vorigDoel = -1;
-    return aan ? (boostTot ? I.maxPct : pct) : 0;
+    vorigeStand = -1;
+    return terug;
   }
 
   Instellingen I;
   bool heeftOpdracht = false;
   uint16_t sessie = 0;
   uint8_t boostTeller = 0, ijkTeller = 0;
-  uint32_t laatsteMeting = 0;
+  uint32_t laatsteMeting = 0, herstelRest = 0;
   int fouten = 0;
-  float schoon[5];
-  float punten[5] = {0, 0, 0, 0, 0};
+  float schoon[5], tpm[5];
+  float punten[5] = {0, 0, 0, 0, 0}, tpmPunten[5] = {0, 0, 0, 0, 0};
   uint32_t ijkStart = 0;
-  float ijkSom = 0;
+  float ijkSom = 0, ijkTpmSom = 0;
   int ijkN = 0;
-  uint32_t snelheidSinds = 0, vorigeStap = 0;
-  int vorigDoel = -1;
+  uint32_t snelheidSinds = 0, vorigeStap = 0, vorigeTacho = 0, tachoDt = 0;
+  int vorigeStand = -1;
+  float uitF = 0, bijregeling = 0;
+  bool tachoNieuw = false;
   bool geenLucht = false, stil = false;
 };
 
-/** koppeling: de module aanvaardt alleen de knop die zich in het koppelvenster aanmeldde */
+/** koppeling: de module aanvaardt alleen de knop die zich in een geopend koppelvenster aanmeldde.
+ *  Het venster gaat alleen open als de module nog niet gekoppeld is, of na een bewuste handeling (de schakelaar van de
+ *  box 3 keer kort aan en uit: main.cpp zet dan herkoppelen). Een bestaande set kan dus niet zomaar overschreven
+ *  worden door een andere knop die toevallig in de eerste minuut zendt. */
 class Koppeling {
  public:
   static constexpr uint32_t VENSTER_MS = 60000;
   bool gekoppeld = false;
+  bool herkoppelen = false; // bewuste handeling gedaan (main.cpp)
   uint8_t mac[6] = {0};
   uint8_t sleutel[16] = {0};
 
   void laad(const uint8_t *m, const uint8_t *k) { memcpy(mac, m, 6); memcpy(sleutel, k, 16); gekoppeld = true; }
 
-  /** een KOPPEL-vraag: alleen in de eerste 60 s na het aanzetten; geeft true als de knop nu gekoppeld is */
+  /** een KOPPEL-vraag: geeft true als de knop nu gekoppeld is (antwoord dan met dezelfde uitdaging) */
   bool vraag(const uint8_t *afzender, const Koppel &k, uint32_t nuSindsStart) {
     if (nuSindsStart > VENSTER_MS) return false;
+    if (gekoppeld && !herkoppelen) return false;
+    if (k.magie != MAGIE || k.versie != VERSIE || k.soort != SOORT_KOPPEL || k.uitdaging == 0) return false;
     memcpy(mac, afzender, 6);
     memcpy(sleutel, k.sleutel, 16);
     gekoppeld = true;
-    volgnr = 0;
-    sessie = 0;
+    herkoppelen = false; // één nieuwe knop per handeling
     heeftSessie = false;
     return true;
   }
 
-  /** een opdracht aanvaarden? alleen van de gekoppelde knop en met een stijgend volgnummer binnen een sessie */
+  /** een opdracht aanvaarden? alleen van de gekoppelde knop; sessies stijgen (de knop telt ze in zijn NVS), binnen een
+   *  sessie stijgt het volgnummer: oude of herhaalde berichten en vroegere sessies worden geweigerd */
   bool aanvaard(const uint8_t *afzender, const Opdracht &o) {
     if (!gekoppeld || memcmp(afzender, mac, 6) != 0) return false;
     if (o.magie != MAGIE || o.versie != VERSIE || o.soort != SOORT_OPDRACHT) return false;
-    if (heeftSessie && o.sessie == sessie && o.volgnr <= volgnr) return false; // herhaald of oud bericht
+    if (heeftSessie) {
+      const int16_t d = (int16_t)(o.sessie - sessie);
+      if (d < 0) return false;                        // een vroegere sessie
+      if (d == 0 && o.volgnr <= volgnr) return false; // herhaald of oud bericht
+    }
     heeftSessie = true;
     sessie = o.sessie;
     volgnr = o.volgnr;
@@ -269,5 +381,14 @@ class Koppeling {
   uint16_t sessie = 0;
   bool heeftSessie = false;
 };
+
+/** knop: een KOPPEL_OK aanvaarden alleen als het de eigen uitdaging terugstuurt */
+inline bool koppelOkGeldig(const Koppel &k, uint32_t eigenUitdaging) {
+  return k.magie == MAGIE && k.versie == VERSIE && k.soort == SOORT_KOPPEL_OK && eigenUitdaging != 0 && k.uitdaging == eigenUitdaging;
+}
+
+/** module: de bewuste handeling voor opnieuw koppelen: 3 keer opstarten die elk korter dan 5 s duurden. main.cpp
+ *  bewaart de teller in het NVS: bij elke start +1, na 5 s draaien terug naar 0. */
+inline bool herkoppelHandeling(uint8_t snelleStarts) { return snelleStarts >= 3; }
 
 } // namespace afzuiging

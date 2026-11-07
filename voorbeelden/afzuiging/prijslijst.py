@@ -23,14 +23,27 @@ def tabel(kop):
 
 regels = [['Groep', 'Onderdeel', 'Aantal', 'Type / materiaal', 'Prijs per stuk (EUR, incl. btw)', 'Totaal (EUR, incl. btw)']]
 totaal = 0.0
+groepen = {}
 for groep, kop in [('Kopen', '### Kopen'), ('Lasersnijden', '### Laten lasersnijden')]:
     for c in tabel(kop):
         regels.append([groep, c[0].strip('`'), c[1], c[2], fmt(getal(c[3])), fmt(getal(c[4]))])
         totaal += getal(c[4])
+        groepen[groep] = groepen.get(groep, 0.0) + getal(c[4])
 for naam, n, w in [('PETG wit, rol 1 kg', 2, 'romp, frame, cassette, platen, box, klauwen, klemmen: ca. 1,1 kg'), ('PETG zwart, rol 1 kg', 1, 'knophouder, deksel, knopklauwen: ca. 55 g')]:
     regels.append(['Printen', naam, str(n), w, fmt(20), fmt(20 * n)])
     totaal += 20 * n
 regels.append(['Eindtotaal', '', '', '', '', fmt(totaal)])
 q = lambda v: f'"{v.replace(chr(34), chr(34) * 2)}"' if (';' in v or '"' in v) else v
 (HIER / 'tekeningen/prijslijst.csv').write_text('﻿' + '\r\n'.join(';'.join(q(c) for c in r) for r in regels) + '\r\n', encoding='utf-8')
-print('eindtotaal', fmt(totaal))
+# de totalen in de README zelf bijwerken (één bron: de tabellen; zo kan de README niet afwijken van de CSV)
+e = lambda v: f'€ {fmt(v)}'
+r = t
+r = re.sub(r'(\| \*\*Totaal kopen\*\* \| \| \| \| )\*\*€ [\d.,]+\*\*', lambda m: m.group(1) + f'**{e(groepen["Kopen"])}**', r)
+r = re.sub(r'(\| \*\*Totaal lasersnijden\*\* \| \| \| \| )\*\*€ [\d.,]+\*\*', lambda m: m.group(1) + f'**{e(groepen["Lasersnijden"])}**', r)
+r = re.sub(r'(\| Kopen \(elektronica, ventilator, filter, schroeven en moeren\) \| )€ [\d.,]+', lambda m: m.group(1) + e(groepen['Kopen']), r)
+r = re.sub(r'(\| Laten lasersnijden \(rooster\) \| )€ [\d.,]+', lambda m: m.group(1) + e(groepen['Lasersnijden']), r)
+r = re.sub(r'(\| \*\*Eindtotaal\*\* \| )\*\*€ [\d.,]+\*\*', lambda m: m.group(1) + f'**{e(totaal)}**', r)
+if r != t:
+    with open(HIER / 'README.md', 'w', encoding='utf-8', newline='\n') as f:
+        f.write(r)
+print('eindtotaal', fmt(totaal), '| kopen', fmt(groepen['Kopen']), '| laser', fmt(groepen['Lasersnijden']))

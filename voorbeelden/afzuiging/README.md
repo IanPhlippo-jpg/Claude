@@ -28,7 +28,7 @@ De netadapter en de elektronica zitten in een aparte voedingsbox die onderaan in
 
 - **Diepte onder het blad:** de module hangt 68 mm onder een blad van 34 mm, de voedingsbox 36 mm.
 - **Van boven alleen staal:** de RVS-plaat bedekt het frame volledig. Van opzij zie je een randje PETG van 2,5 mm en de plaat van 1,5 mm, samen 4 mm boven het blad.
-- **Filter vervangen:** neem het rooster eraf, til de cassette aan de twee greepuitsparingen uit en vervang het filter: met handschoenen en een FFP2-masker, het oude filter meteen in een zak. Niet uitkloppen of uitblazen.
+- **Filter vervangen:** zie [Onderhoud](#onderhoud-de-filtermat-vervangen): eerst uitschakelen en de ventilator laten stilvallen, dan de mat stofarm in een zak.
 - **Kabels:** tussen de box en de afzuiging lopen een M8-kabel (de ventilator) en een siliconeslangetje (de drukmeting). Tussen de box en de knop loopt een USB-C-kabel. Alle drie liggen ze in gefreesde sleuven onderaan het blad en hebben ze aan beide kanten een koppeling: een andere lengte is gewoon een andere kabel.
 - **Draadloos:** de knop en de ESP32-C3 in de box praten met elkaar via ESP-NOW. Valt de verbinding weg, dan blijft de ventilator op zijn laatste stand en meldt de knop "geen verbinding".
 - **Aan/uit:** een wipschakelaar zit verzonken in een kom in de voorwand van de box. De wip ligt 1 mm binnen de wand, zodat je hem niet per ongeluk omzet.
@@ -99,7 +99,7 @@ De netadapter en de elektronica zitten in een aparte voedingsbox die onderaan in
 | M3 x 10 verzonken (DIN 7991) | 2 | klemmen van de netadapter | € 0,10 | € 0,20 |
 | M2,5 x 6 zelftappend | 4 | print in de box (printplaat: gewone kop mag) | € 0,10 | € 0,40 |
 | M2 x 5 zelftappend | 2 | USB-C-bus in de box (printplaat) | € 0,10 | € 0,20 |
-| **Totaal kopen** | | | | **€ 380,48** |
+| **Totaal kopen** | | | | **€ 387,69** |
 
 ### Laten lasersnijden
 
@@ -111,7 +111,7 @@ De netadapter en de elektronica zitten in een aparte voedingsbox die onderaan in
 
 De klauwen worden geprint (met een moer); alleen het rooster gaat naar de lasersnijder.
 
-Het rooster is één stuk, zonder losse eilanden, en geen steg of sleuf is smaller dan 1,5 mm. Boven de cassette is 141 cm² open.
+Het rooster is één stuk, zonder losse eilanden, en geen steg of sleuf is smaller dan 1,5 mm. Boven het vak van de cassette (171 x 171) is 125,6 cm² open (laser-rapport).
 
 ### Printen (Elegoo Centauri Carbon, PETG, zonder support)
 
@@ -134,7 +134,7 @@ Droog PETG vooraf (4 uur op 65 °C) als de rol open heeft gelegen: vocht maakt h
 
 | Bestand | Stand op het bed | Maat (mm) |
 |---|---|---|
-| `print/Romp.stl` | rechtop | 210 x 210 x 99 |
+| `print/Romp.stl` | rechtop | 210 x 210 x 96 |
 | `print/Bovenframe.stl` | plat | 222 x 222 x 2,5 |
 | `print/Filtercassette.stl` | rechtop, de roosterbodem op het bed | 174,2 x 174,2 x 19 |
 | `print/Cassetterand.stl` | plat | 200 x 200 x 2,5 |
@@ -166,12 +166,12 @@ Prijzen per stuk incl. 21 % btw, zonder verzendkosten: een indicatie van novembe
 
 | Groep | Totaal |
 |---|--:|
-| Kopen (elektronica, ventilator, filter, schroeven en moeren) | € 380,48 |
+| Kopen (elektronica, ventilator, filter, schroeven en moeren) | € 387,69 |
 | Laten lasersnijden (rooster) | € 55,00 |
 | Filament PETG: 2 rollen wit en 1 rol zwart | € 60,00 |
-| **Eindtotaal** | **€ 495,48** |
+| **Eindtotaal** | **€ 502,69** |
 
-Het filament dat echt opgaat (ca. 1,2 kg) kost ongeveer € 24,00. Het duurste onderdeel is de ventilator (ca. € 160, bijna 30 % van het totaal), daarna het rooster (€ 45), de knop (€ 34), de netadapter (€ 33) en de drukmeter (€ 30). Een nieuw filter (M5, 170 x 190 mm) kost ongeveer € 0,50.
+Het filament dat echt opgaat (ca. 1,2 kg) kost ongeveer € 24,00. Het duurste onderdeel is de ventilator (ca. € 160, bijna een derde van het totaal), daarna het rooster (€ 45), de knop (€ 34), de netadapter (€ 33) en de drukmeter (€ 30). Een nieuwe filtermat (Rittal SK 3171.100) kost ongeveer € 4,45 (pak van 5).
 
 ## Maken en monteren
 
@@ -197,7 +197,7 @@ Het filament dat echt opgaat (ca. 1,2 kg) kost ongeveer € 24,00. Het duurste o
 8. **Inbouwen:** laat de module in de uitsparing zakken en draai de vier M5-schroeven rechtsom aan. Elke klauw zwaait naar buiten en trekt zich tegen de onderkant van het blad. Stop zodra de klauw voelbaar aanligt (twee vingers aan de korte kant van de inbussleutel): de klauwen houden de module alleen tegen optillen, het gewicht rust op het frame (zie docs/Berekeningen.md).
 9. **Filter en plaat:** leg een filtermat Rittal SK 3171.100 in de cassette en druk ze rondom aan. Zet de cassette in het frame en leg de RVS-plaat erop.
 10. **Voedingsbox:** bouw de print volgens `schema/Aansluitschema-afzuiging.pdf` en schroef ze op de bussen. Zet de netadapter op de bodem tegen de aanslagen en schroef de twee klemmen op de paaltjes (M3 x 10 verzonken). Kort de DC-kabel van de adapter in en klem hem op -X1. Zet de schakelaar (voorwand), de M8-stekker, het messingbuisje en de USB-C-bus in de wanden. Leid het slangetje door de ring tegen de voorwand. Schroef het deksel met 4 x M3 x 8 op de paaltjes. Zet de 4 pluggen voor holle deuren in het blad, duw de box van onderen in de uitsparing en zet de rand vast met 4 x M4 x 30 verzonken.
-11. **Knop:** druk een M4-moer in elke knopklauw. Zet de houder in het gat van Ø44, schuif de klauwen van onderen in hun kanaal en draai de M4 x 65 van bovenaf in tot de klauwen tegen het blad trekken. Steek de FPC door de sleuf in de kom, zet de knop in de kom en schroef hem van onderen vast met 2 x M2,5 x 6 verzonken. Soldeer 4 draden (VBUS, GND, D+, D-) van de adapterprint naar het USB-C-printje. Steek de FPC in de adapterprint en schuif de print in de groeven. Schroef het USB-C-printje met 2 x M2 x 5 onder de palen: de bus steekt opzij door de achterwand, naar de sleuf. Schroef het deksel vast (het deksel is dicht).
+11. **Knop:** druk een M4-moer in elke knopklauw. Zet de houder in het gat van Ø44, schuif de klauwen van onderen in hun kanaal en draai de M4 x 65 van bovenaf in tot de klauwen tegen het blad trekken. Steek de FPC door de sleuf in de kom, zet de knop in de kom en schroef hem van onderen vast met 2 x M2,5 x 6 verzonken. Soldeer 4 draden (VBUS, GND, D+, D-) van de adapterprint naar het USB-C-printje. Steek de FPC in de adapterprint en schuif de print in de groeven. Leg het USB-C-printje (zonder gaten) tussen de 2 palen: de bus steekt opzij onderaan door de wand, naar de sleuf. Schroef het deksel vast: de 2 pennetjes van het deksel klemmen het printje (het deksel is dicht).
     De USB-C zit 18 tot 26 mm onder het bovenvlak van een blad van 34 mm: tot een blad van 48 mm past de stekker onder het blad.
 12. **Kabels:** leg de M8-kabel en het slangetje in de sleuf tussen de box en de afzuiging, de USB-C-kabel in de sleuf naar de knop, en steek ze in.
 13. **Opstarten:** steek het netsnoer in de box en in het stopcontact, flash de firmware (zie hieronder), zet de schakelaar aan en houd de knop 5 seconden ingedrukt om te ijken.
@@ -216,6 +216,19 @@ Het aansluitschema staat in `schema/Aansluitschema-afzuiging.pdf`, in EPLAN-stij
 | 6 | stuklijst elektronica |
 
 Meet de draadkleuren van de ventilator na voor het solderen (datasheet van San Ace).
+
+## Onderhoud: de filtermat vervangen
+
+Dezelfde stappen staan in het bouwschema (uit `onderhoud.mjs`).
+
+1. Zet de afzuiging uit met de knop en daarna met de schakelaar op de voorkant van de voedingsbox (de ventilator is dan spanningsloos).
+2. Wacht 10 seconden tot de ventilator stilstaat. Grijp nooit in de module zolang je hem nog hoort draaien.
+3. Doe handschoenen en een stofmasker FFP2 aan en houd een vuilniszak open naast het rooster.
+4. Neem de RVS-plaat eraf en til de cassette aan de twee grepen recht omhoog en horizontaal eruit: het stof blijft bovenop de mat.
+5. Kantel de mat meteen in de zak en sluit de zak. Niet uitkloppen, niet uitblazen, geen perslucht.
+6. Neem de cassette, de roosterbodem en de bovenkant van de instroomplaat af met een vochtige doek.
+7. Leg een nieuwe mat Rittal SK 3171.100 in de cassette, de open (grove) kant boven, en druk ze rondom aan.
+8. Zet de cassette terug, leg de RVS-plaat erop, zet de schakelaar aan en houd de knop 5 seconden ingedrukt om te ijken met de schone mat.
 
 ## Firmware
 

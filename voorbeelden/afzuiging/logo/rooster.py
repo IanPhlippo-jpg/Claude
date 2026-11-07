@@ -293,7 +293,7 @@ def schrijf(plaat_vorm, plaat, gaten, rapport):
     for lp in [loops['outer'], *loops['holes']]:
         msp.add_lwpolyline(lp, close=True, dxfattribs={'layer': 'SNIJDEN'})
     doc.saveas(OUT / 'rooster.dxf')
-    klauw_dxf()
+    # de stalen klauwen (klauw_dxf) zijn vervangen door geprinte PETG-klauwen: geen laserbestanden meer
     # voorbeeld: staal op een witte filtermat, 8 px per mm, 4x groter getekend en verkleind (scherpe randen)
     k, ss = 8, 4
     W, H = int(BREEDTE * k) + 80, int(HOOGTE * k) + 80

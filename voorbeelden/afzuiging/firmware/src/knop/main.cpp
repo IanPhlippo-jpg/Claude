@@ -7,11 +7,13 @@
 //   drukken                 aan / uit (UIT heeft voorrang: ook een ijking stopt meteen)
 //   1 s vasthouden          boost: 2 minuten 100 % (de module houdt de tijd zelf bij)
 //   5 tot 10 s vasthouden   ijken op een schoon filter (na het vervangen), bij het loslaten
-//   10 s vasthouden         opnieuw koppelen met de box (zet daarna de box uit en weer aan)
+//   10 s vasthouden         opnieuw koppelen: zet daarna de schakelaar van de box 3 keer kort aan en uit (< 5 s)
 // Het scherm toont wat de module bevestigt (niet wat de knop vraagt): de stand, het drukverschil over het filter en
-// hoe vol het filter is. Is het drukverschil bij dezelfde stand verdubbeld, dan meldt het scherm "filter vervangen"
-// (oranje ring). Valt het drukverschil weg of draait de ventilator niet, dan meldt het een storing (rode ring). Is de
-// meting niet actueel, dan toont het scherm geen drukwaarde. Na het aanzetten staat alles UIT.
+// hoe vol het filter is. De stand is een percentage van het maximale toerental. "Filter vervangen" (oranje ring) komt
+// per stand vóór het debiet onder het minimum voor de vangst zakt; onder 70 % meldt het scherm "lage stand". De
+// bewaking zegt altijd wat ze weet (stabiliseren, niet geijkt, geen meting, buiten bereik). Valt het drukverschil weg of
+// draait de ventilator niet, dan meldt het een storing (rode ring). Boost komt uit een tegoed (2 min, daarna afkoelen).
+// Na het aanzetten staat alles UIT.
 //
 // Aansluiting (zie ../../schema/Aansluitschema-afzuiging.pdf): FPC van de knop op de adapterprint -A3, 4 draden naar
 // het USB-C-printje -X7 in de achterwand van de knophouder: VBUS -> FPC 1 (+5 V), GND -> FPC 3, D+ -> FPC 9,
@@ -26,6 +28,7 @@
 #include "fonts.h"
 #include "logo.h"
 #include "protocol.h"
+#include "regel.h" // koppelOkGeldig
 
 namespace {
 
@@ -85,6 +88,8 @@ uint8_t sleutel[16];
 Status ontvangen;
 volatile uint32_t laatsteStatus = 0;
 volatile bool koppelAntwoord = false;
+uint32_t uitdaging = 0;  // van de lopende koppelvraag
+uint32_t boostVraag = 0; // wanneer de laatste boost gevraagd werd
 uint8_t koppelVan[6];
 portMUX_TYPE slot = portMUX_INITIALIZER_UNLOCKED;
 
@@ -101,7 +106,7 @@ void bijOntvangst(const uint8_t *mac, const uint8_t *data, int len) {
   } else if (len == (int)sizeof(Koppel) && !gekoppeld) {
     Koppel k;
     memcpy(&k, data, sizeof k);
-    if (k.magie != MAGIE || k.versie != VERSIE || k.soort != SOORT_KOPPEL_OK) return;
+    if (!koppelOkGeldig(k, uitdaging)) return; // alleen het antwoord op de eigen vraag
     portENTER_CRITICAL(&slot);
     memcpy(koppelVan, mac, 6);
     koppelAntwoord = true;
@@ -124,7 +129,7 @@ struct Toestand {
   int pct = 50;
   uint8_t ijk = 0;     // teller voor de ijkvraag
   uint8_t boost = 0;   // teller voor de boostvraag
-  uint16_t sessie = 0; // willekeurig bij de start
+  uint16_t sessie = 0; // stijgt bij elke start (NVS): de module weigert vroegere sessies
   uint32_t volgnr = 0;
 } t;
 
@@ -273,7 +278,7 @@ void teken(uint32_t nu) {
     ring(0, nullptr);
     logo(S(120), S(52), BEIGE);
     tekst(TITEL, "KOPPELEN", S(120), S(104), WIT);
-    tekenTekst("zet de voedingsbox", "uit en weer aan", LICHT);
+    tekenTekst("schakelaar box 3 x", "kort aan en uit", LICHT);
     canvas->flush();
     return;
   }
@@ -281,7 +286,7 @@ void teken(uint32_t nu) {
     ring(BOOG * st.ijkVoortgang / 100.0f, &V_BEIGE);
     logo(S(120), S(52), BEIGE);
     tekst(TITEL, "IJKEN", S(120), S(104), WIT);
-    tekst(TEKST, (String("schone filters, ") + (20 * st.ijken) + " %").c_str(), S(120), S(136), WIT);
+    tekst(TEKST, (String("schone mat, ") + (20 * st.ijken) + " %").c_str(), S(120), S(136), WIT);
     canvas->flush();
     return;
   }
@@ -296,7 +301,7 @@ void teken(uint32_t nu) {
     return;
   }
   const bool aan = st.aan;
-  const bool vol = aan && st.meetVers && !isnan(st.vol) && st.vol >= 1.0f;
+  const bool vol = aan && st.bewaking == BEW_OK && !isnan(st.vol) && st.vol >= 1.0f;
   const bool storing = aan && st.storing != STORING_GEEN;
   const Verloop *verloop = storing ? &V_ROOD : vol ? &V_ORANJE : &V_BEIGE;
   ring(aan ? BOOG * st.pct / 100.0f : 0, aan ? verloop : nullptr);
@@ -314,23 +319,31 @@ void teken(uint32_t nu) {
       tekenTekst("geen luchtstroom", "slang en filter nakijken", ROOD);
     } else if (!st.meter) {
       tekenTekst("drukmeter niet gevonden", "bedrading in de box nakijken", ORANJE);
-    } else if (!st.meetVers) {
+    } else if (st.bewaking == BEW_GEEN_METING) {
       tekenTekst("meting niet actueel", "filterbewaking even uit", ORANJE);
+    } else if (st.bewaking == BEW_BUITEN_BEREIK) {
+      tekenTekst("druk buiten meetbereik", "filter nakijken", ORANJE);
     } else if (vol) {
-      tekenTekst("filter vervangen", "in een zak, niet uitkloppen", ORANJE);
+      tekenTekst("filter vervangen", "eerst uit, mat in een zak", ORANJE);
     } else if (st.ijkFout != IJK_OK && st.ijkFout != IJK_AFGEBROKEN) {
       tekenTekst("ijken mislukt", "vorige ijking blijft", ORANJE);
     } else if (st.boostRest) {
       snprintf(s, sizeof s, "BOOST %u:%02u", st.boostRest / 60, st.boostRest % 60);
       tekenTekst(s, nullptr, BEIGE);
-    } else if (!st.geijkt) {
-      tekenTekst("nieuw filter?", "knop 5 s vasthouden", LICHT);
+    } else if (boostVraag && nu - boostVraag < 3000 && !st.boostRest && st.boostTegoed < 8) {
+      tekenTekst("boost even niet", "nog aan het afkoelen", LICHT);
+    } else if (st.bewaking == BEW_NIET_GEIJKT) {
+      tekenTekst("nieuwe mat?", "knop 5 s vasthouden", LICHT);
+    } else if (st.bewaking == BEW_LAGE_STAND) {
+      tekenTekst("lage stand", "weinig vangst, minstens 70 %", LICHT);
+    } else if (st.bewaking == BEW_STABILISEREN) {
+      tekenTekst("even meten...", nullptr, MIDDEN);
     } else {
       snprintf(s, sizeof s, "%.0f Pa, %u tpm", st.dp, st.toeren);
       tekenTekst(s, nullptr, LICHT);
     }
     // filterbalk: hoe vol het filter is (alleen met een verse meting op een te bewaken stand)
-    if (st.geijkt && st.meetVers && !isnan(st.vol)) balk(st.vol, vol ? V_ORANJE : V_BEIGE);
+    if (st.bewaking == BEW_OK && !isnan(st.vol)) balk(st.vol, vol ? V_ORANJE : V_BEIGE);
   }
   canvas->flush();
 }
@@ -362,11 +375,12 @@ void setup() {
   attachInterrupt(ENC_B, encIsr, CHANGE);
 
   prefs.begin("afzuiging", false);
-  t.pct = constrain(prefs.getInt("pct", 50), MIN_PCT, MAX_PCT);
+  t.pct = constrain(prefs.getInt("pct", 70), MIN_PCT, MAX_PCT); // 70 %: de laagste beschermende stand
   t.aan = false; // na het aanzetten (ook na een stroomonderbreking) altijd UIT
   gekoppeld = prefs.getBytes("modulemac", moduleMac, 6) == 6 && prefs.getBytes("sleutel", sleutel, 16) == 16;
   if (!gekoppeld) for (auto &b : sleutel) b = (uint8_t)esp_random();
-  t.sessie = (uint16_t)esp_random();
+  t.sessie = (uint16_t)(prefs.getUShort("sessie", 0) + 1);
+  prefs.putUShort("sessie", t.sessie);
   encoderVorig = encoderLees();
 
   WiFi.mode(WIFI_STA);
@@ -426,6 +440,7 @@ void loop() {
     } else if (duur >= BOOST_HOUD_MS) {
       t.aan = true;
       t.boost++;
+      boostVraag = nu;
     } else {
       schakel();
     }
@@ -438,6 +453,8 @@ void loop() {
   if (!gekoppeld && nu - vorigeVraag >= 500) {
     vorigeVraag = nu;
     Koppel k;
+    if (!uitdaging) uitdaging = esp_random() | 1; // niet 0
+    k.uitdaging = uitdaging;
     memcpy(k.sleutel, sleutel, 16);
     esp_now_send(IEDEREEN, (const uint8_t *)&k, sizeof k);
   }

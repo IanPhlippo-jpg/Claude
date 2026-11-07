@@ -1,0 +1,32 @@
+[
+  {
+    "file": "tekeningen/Bouwschema-afzuiging.pdf",
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "file": "tekeningen/Werktekeningen-afzuiging.pdf",
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "file": "schema/Freesmal-voedingsbox-1op1-A4.pdf",
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "file": "schema/Aansluitschema-afzuiging.pdf",
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "file": "schema/Freesmal-afzuiging-1op1-A4.pdf",
+    "returncode": 0,
+    "stderr": ""
+  },
+  {
+    "file": "schema/Freesmal-knop-1op1-A4.pdf",
+    "returncode": 0,
+    "stderr": ""
+  }
+]
