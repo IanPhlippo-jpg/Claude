@@ -167,7 +167,7 @@ void test_filter_vol_en_niet_te_bewaken_stand() {
   uint32_t nu = 1000;
   ijk(r, nu); // 20, 50, 80, 110, 140 Pa bij 20..100 %
   r.opdracht(cmd(true, 40, 1, 0, 7, 30), nu);
-  loop(r, nu, nu + 8000, 100); // het dubbele van 50
+  loop(r, nu, nu + 8000, 110); // 10 % boven het dubbele van 50 (de meting wordt gladgestreken)
   TEST_ASSERT_TRUE(r.vol >= 1.0f);
   r.opdracht(cmd(true, 80, 1, 0, 7, 31), nu);
   loop(r, nu, nu + 8000, 300); // 2 x 110 = 220 < 450: nog te bewaken

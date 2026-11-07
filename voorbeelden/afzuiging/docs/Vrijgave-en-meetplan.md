@@ -20,7 +20,7 @@ elke poort hieronder groen is, is de afzuiging een **ontwikkelprototype**: niet 
 | E14 instructies | freesmaten, USB-printjes, schakelaar in de voorwand, TR5-zekering, M8 binder 718 overal gelijk |
 
 De firmwarebeslissingen zitten in `firmware/include/regel.h` en zijn beschreven in 14 tests (`firmware/test/test_regel`).
-Die tests draaien op de pc met `python -m platformio test -e native`. Daarvoor is een C++-compiler (gcc) nodig.
+Die tests draaien op de pc met `python -m platformio test -e native` (GCC 16.2, WinLibs): 16 van de 16 geslaagd op 2026-11-07.
 
 ## 2. Beschermingsconcept (E01, E04, E12, E13)
 
@@ -96,4 +96,4 @@ firmware de minimale toegestane stand in op de bewezen minimumstand (nu 20 %, `I
 
 - ~~Filtervariant~~: beslist op 2026-11-07, standaardmat Rittal SK 3171.100 (bescherming van de ventilator, geen luchtreiniger).
 - Of een deskundige de blootstelling meet (aanbevolen voor gebruik met klanten).
-- Of er een C++-compiler op de pc mag komen om de firmwaretests te draaien.
+- ~~C++-compiler~~: geïnstalleerd (WinLibs GCC 16.2, 2026-11-07); de firmwaretests slagen.
