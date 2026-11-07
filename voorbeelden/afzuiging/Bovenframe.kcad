@@ -6,7 +6,7 @@
  "planes": {
   "bovenvlak": {
    "id": "bovenvlak",
-   "name": "Face bovenvlak",
+   "name": "Plane bovenkant frame",
    "origin": [
     0,
     2.5,
@@ -27,7 +27,7 @@
     1,
     0
    ],
-   "kind": "face"
+   "kind": "reference"
   }
  },
  "variables": {},
@@ -613,10 +613,10 @@
     }
    },
    "scalars": {
-    "s4s1": 2.9,
-    "s4s4": 2.9,
-    "s4s7": 2.9,
-    "s4s10": 2.9
+    "s4s1": 3,
+    "s4s4": 3,
+    "s4s7": 3,
+    "s4s10": 3
    },
    "entities": {
     "s4e2": {
@@ -783,7 +783,7 @@
    "suppressed": false,
    "op": "cut",
    "end": "blind",
-   "depth": 2.5,
+   "depth": 2,
    "reverse": true,
    "draft": {
     "angle": 45,

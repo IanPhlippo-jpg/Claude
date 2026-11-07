@@ -4,7 +4,7 @@
 3;1;Rooster LB;AISI 430;AFZ-03
 4;1;Filtercassette;PETG, wit;AFZ-04
 5;1;Cassetterand;PETG, wit;AFZ-05
-6;1;Fijnstoffilter M5;Fijnstoffilter M5;koop
+6;1;Filtermat Rittal SK 3171.100;Filtermat Rittal SK 3171.100;koop
 7;1;Instroomplaat;PETG, wit;AFZ-06
 8;1;Bodemplaat;PETG, wit;AFZ-07
 9;1;San Ace C175 9TG24P0S01;PBT, zwart;koop
@@ -27,8 +27,8 @@
 26;3;Messingbuisje Ø3 x 12;Messing;koop
 27;1;Voedingsbox;PETG, wit;AFZ-08
 28;1;Deksel voedingsbox;PETG, wit;AFZ-14
-29;4;Inlijmmoer M4;Messing;koop
-30;4;M4 x 60 DIN 7991;Staal A2;norm
+29;4;M3 x 8 DIN 7991;Staal A2;norm
+30;4;M4 x 30 DIN 7991;Staal A2;norm
 31;1;Mean Well GST90A24-P1M;PC, zwart;koop
 32;1;Voedingsprint;FR4;koop
 33;1;USB-C-bus knop;FR4;koop

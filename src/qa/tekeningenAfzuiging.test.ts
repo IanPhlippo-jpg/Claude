@@ -19,11 +19,12 @@ import { rebuildAssembly } from '../core/assembly/assembly';
 import { meshVolume } from '../core/features/solid';
 // @ts-expect-error: het generatorscript is plain JavaScript
 import { M } from '../../voorbeelden/afzuiging/maak-afzuiging.mjs';
+import { REVISIE } from '../../voorbeelden/afzuiging/revisie.mjs';
 
 const DIR = 'voorbeelden/afzuiging';
 const UIT = `${DIR}/tekeningen`;
 const W = 420, H = 297; // A3 liggend
-const DATUM = '2026-11-06';
+const DATUM = REVISIE.datum;
 type P = [number, number];
 
 const open = (f: string): Document => parseDocument(readFileSync(f, 'utf8'));
@@ -74,7 +75,7 @@ function kader(b: Blad, t: { nr: string; naam: string; materiaal: string; maken:
   for (const y of rij.slice(1, 4)) b.lijn([x0, y], [x0 + 190, y], 0.25);
   b.lijn([kol[1], y0], [kol[1], y0 + h], 0.25); b.lijn([kol[2], y0], [kol[2], y0 + 30], 0.25);
   const veld = (x: number, y: number, label: string, waarde: string, h2 = 3.2, vet = false) => { b.tekst([x + 1.5, y + 7.3], label, 1.8, 'start', { kleur: '#666' }); b.tekst([x + 1.5, y + 2.8], waarde, h2, 'start', { vet }); };
-  veld(kol[0], rij[3], 'Project', 'Afzuiging Lush Beauty (versie 5)', 3.4, true);
+  veld(kol[0], rij[3], 'Project', `Afzuiging Lush Beauty (versie ${REVISIE.versie})`, 3.4, true);
   veld(kol[1], rij[3], 'Benaming', t.naam, 3.4, true);
   veld(kol[0], rij[2], 'Materiaal', t.materiaal);
   veld(kol[0], rij[1], 'Maken', t.maken, 2.6);
@@ -211,7 +212,7 @@ const DELEN: Deel[] = [
   { f: 'Bovenframe.kcad', nr: 'AFZ-02', naam: 'Bovenframe', materiaal: 'PETG (wit)', maken: '3D-print plat, 5 wanden, 6 lagen boven/onder', dichtheid: PET, maten: [
     `Buitenmaat ${m.frame.b} x ${m.frame.d} x ${m.frame.dikte}, hoeken R${m.frame.r}`,
     `Opening ${2 * m.frame.opening.x} x ${2 * m.frame.opening.z}, hoeken R${m.frame.opening.r}`,
-    `4 lippen boven de torens, met verzinking 90° Ø10,4 en gat Ø5,8 (M5)`,
+    `4 lippen boven de torens, met verzinking 90° Ø10,4 x 2 en gat Ø6 (M5)`,
     `4 magneetgaten Ø${getal(m.magneten.d + 0.2)} x ${getal(m.magneten.h + 0.1)} op x ±${getal(m.magneten.plaats[0][0], 2)}, z ±${m.magneten.plaats[0][1]}`,
     'Op de romp gelijmd (tweecomponentenlijm, rondom luchtdicht)',
   ] },
@@ -225,7 +226,7 @@ const DELEN: Deel[] = [
   { f: 'Filtercassette.kcad', nr: 'AFZ-04', naam: 'Filtercassette (bak)', materiaal: 'PETG (wit)', maken: '3D-print rechtop, de roosterbodem op het bed', snede: true, dichtheid: PET, maten: [
     `Buitenmaat ${2 * m.cassette.x} x ${2 * m.cassette.z} x ${-m.cassette.onder}, wand ${m.cassette.wand}, bodem ${m.cassette.bodem}`,
     'Roosterbodem: vakken 18 x 18, ribben 3 mm',
-    `Binnenmaat ${2 * (m.cassette.x - m.cassette.wand)} x ${2 * (m.cassette.z - m.cassette.wand)}: één M5-mat 170 x 190 x ${m.filters[0].dikte}`,
+    `Binnenmaat ${2 * (m.cassette.x - m.cassette.wand)} x ${2 * (m.cassette.z - m.cassette.wand)}: één standaardmat Rittal SK 3171.100 (173 x 173 x 17, 1 mm aangedrukt)`,
     'De rand (AFZ-05) wordt op de wandbovenkant gelijmd',
   ] },
   { f: 'Cassetterand.kcad', nr: 'AFZ-05', naam: 'Rand van de filtercassette', materiaal: 'PETG (wit)', maken: '3D-print plat', dichtheid: PET, maten: [
@@ -252,7 +253,8 @@ const DELEN: Deel[] = [
     `De bovenste ${m.box.boven} mm zit in de uitsparing van ${m.box.frees.b} x ${m.box.frees.d} x ${m.box.frees.diep}, los deksel bovenin (AFZ-14)`,
     '4 gaten Ø4,5 in de rand, van onderen zitting Ø9 en verzinking 90° (M4 x 30 in pluggen voor holle deuren)',
     '4 paaltjes Ø10,4 in de hoeken met een gat Ø2,5 x 10 (M3 x 8, deksel)',
-    'Ventilatie: sleuven 2,5 breed in de bodem (onder de adapter) en bovenaan in de achterwand; 2 ribben onder de adapter',
+    'Ventilatie: sleuven 2,5 breed in de bodem en 2,5 x 12 achteraan (18 tot 30 onder het blad)',
+    'Schuine kant uitgespaard voor C13, M8 en schakelaar (rand als brug)',
     'Aan/uit-schakelaar verzonken in de voorwand (kom 25 x 19 x 6, inbouwgat 19 x 13)',
     `2 paaltjes ${m.box.klem.b} x ${m.box.klem.d} tot de bovenkant van de adapter, gat Ø2,5 (M3, adapterklemmen)`,
     'Ring Ø5,6 tegen de voorwand voor het slangetje naar de drukmeter',
@@ -467,7 +469,7 @@ function doorsnedeBlad(blad: string): string {
     'Van boven naar onder:',
     '1  RVS-plaat met LB-rooster op het bovenframe (magneten)',
     '2  bovenframe met de koppen van de M5-schroeven',
-    '3  filtercassette met één M5-fijnstofmat van 20 mm',
+    '3  filtercassette met één standaardmat Rittal SK 3171.100 (173 x 173 x 17)',
     '4  instroomplaat met trechter boven de waaier',
     '5  radiale ventilator San Ace C175',
     '6  bodemplaat met lamellen, M4 en M3 verzonken',

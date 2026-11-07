@@ -1,10 +1,10 @@
 ﻿Groep;Onderdeel;Aantal;Type / materiaal;Prijs per stuk (EUR, incl. btw);Totaal (EUR, incl. btw)
-Kopen;Radiale ventilator Ø175, 24 V, PWM, tacho;1;San Ace C175 9TG24P0S01 (Sanyo Denki), of 9TG24P0G01 (verschil eerst nakijken);160,00;160,00
+Kopen;Radiale ventilator Ø175, 24 V, PWM, tacho;1;"San Ace C175 9TG24P0S01 (Sanyo Denki); niet de 9TG24P0G01 (93,6 W: te veel voor de adapter van 90 W)";160,00;160,00
 Kopen;Netadapter 24 V, 3,75 A, C14-inlaat;1;Mean Well GST90A24-P1M;33,00;33,00
 Kopen;Netsnoer C13 naar stopcontact (randaarde);1;gewoon pc-netsnoer;5,00;5,00
 Kopen;"Knop met rond AMOLED-scherm 1,5"", ESP32-S3";1;VIEWE UEDX46460015-MD50E, variant 1.5-Black-Knob (AliExpress, VIEWE Store);34,00;34,00
 Kopen;Adapterprint FPC 10-polig 0,5 mm naar 2,54 mm;1;FPC/FFC-breakout 10P, past in 23 x 47 mm;2,00;2,00
-Kopen;USB-C-bus, breakout 16-polig (USB 2.0, 5,1 kΩ op CC), 12 x 15 mm zonder gaten;1;"in de knophouder, geklemd tussen 2 palen en het deksel; de bus opzij door de achterwand (kant van de sleuf): 5 V van de box, of de computer om de knop te flashen";1,50;1,50
+Kopen;USB-C-bus, breakout 16-polig (USB 2.0, 5,1 kΩ op CC), 12 x 15 mm zonder gaten;1;"in de knophouder, geklemd tussen 2 palen en het deksel; de bus opzij onderaan door de wand (kant van de sleuf): 5 V van de box, of de computer om de knop te flashen";1,50;1,50
 Kopen;USB-C-bus, breakout 6-polig (VBUS, GND, CC1, CC2), 20,3 x 12,7 mm met 2 gaten M2;1;"in de box, levert 5 V aan de knop; meet de gaten na en pas `M.box.usb` aan als ze anders liggen";1,00;1,00
 Kopen;USB-C-kabel C-C, 1 m, haakse stekkers;1;USB 2.0 volstaat;9,00;9,00
 Kopen;M8-inbouwbus 4-polig, achterwandmontage, binder 718 (M10 x 0,75, gat Ø10,2);1;in de achterwand van de afzuiging;13,00;13,00
@@ -24,8 +24,8 @@ Kopen;Printschroefklem 2-polig, steek 5 mm;1;de DC-kabel van de adapter (ingekor
 Kopen;Montagedraad 0,25 mm² en 0,75 mm²;1 m;;3,00;3,00
 Kopen;Siliconeslang 3 x 5 mm;1 m;drukmeting: van de afzuiging naar de box, en binnen de afzuiging;3,00;3,00
 Kopen;Messingbuisje Ø3 x 0,5 mm;40 mm;3 stukjes van 12 mm: meetpunt in de instroomplaat en doorvoer in de afzuiging en de box;3,00;3,00
-Kopen;M5-fijnstofmat (F5) 20 mm;rol;"het enige filter; knippen op 170 x 190 mm (ca. 30 keer vervangen per m²)";15,00;15,00
-Kopen;Neodymiummagneet Ø8 x 2 mm, N42;4;inlijmen in het bovenframe, vlak met de bovenkant;0,50;2,00
+Kopen;Filtermat Rittal SK 3171.100 (173 x 173 x 17, G3 / ISO coarse 50 %, EAN 4028177038059);1 pak van 5;"het enige filter, kant-en-klaar; vervangen zonder knippen (ook als pak van 50: SK 3171.105)";22,21;22,21
+Kopen;Neodymiummagneet Ø8 x 1,5 mm, N42;4;inlijmen in het bovenframe, vlak met de bovenkant (gat Ø8,2 x 1,6, bodem 0,9 mm);0,50;2,00
 Kopen;Tweecomponentenlijm (epoxy);1;magneten, bovenframe op de romp, rand op de cassette, instroomplaat, messingbuisjes;9,00;9,00
 Kopen;Plug voor holle deuren M4 (gat Ø8);4;in de onderkant van het blad, naast de uitsparing van de box;0,50;2,00
 Kopen;M4 x 30 verzonken (DIN 7991, A2);4;de rand van de voedingsbox in de pluggen (i.p.v. de bijgeleverde schroeven);0,15;0,60
@@ -45,4 +45,4 @@ Lasersnijden;laser/rooster.dxf;RVS 430, 1,5 mm, geborsteld (magnetisch), 222 x 2
 Lasersnijden;opstart en verzending;;1;10,00;10,00
 Printen;PETG wit, rol 1 kg;2;romp, frame, cassette, platen, box, klauwen, klemmen: ca. 1,1 kg;20,00;40,00
 Printen;PETG zwart, rol 1 kg;1;knophouder, deksel, knopklauwen: ca. 55 g;20,00;20,00
-Eindtotaal;;;;;495,48
+Eindtotaal;;;;;502,69

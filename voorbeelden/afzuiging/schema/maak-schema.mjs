@@ -7,6 +7,7 @@
 import { writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { REVISIE } from '../revisie.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const W = 420, H = 297; // A3 liggend, mm
@@ -82,11 +83,11 @@ function kader(nr, titel, inhoud) {
   const ty = Y1 + 3;
   k.push(rect(X0 - 5, ty, X1 - X0 + 5, H - 5 - ty, { w2: 0.5 }));
   const vak = (x, w, kop, waarde, groot = false) => [L([[x, ty], [x, H - 5]], { w: 0.25 }), T(x + 2, ty + 5, kop, { size: 2.2, kleur: '#666' }), T(x + 2, ty + (groot ? 16 : 13), waarde, { size: groot ? 5.5 : 3.2, bold: groot })].join('');
-  k.push(vak(X0 - 5, 70, 'Project', 'Afzuiging Lush Beauty'), T(X0 - 3, ty + 20, 'inbouw nagelstofafzuiging, versie 5', { size: 2.4, kleur: '#444' }));
+  k.push(vak(X0 - 5, 70, 'Project', 'Afzuiging Lush Beauty'), T(X0 - 3, ty + 20, `inbouw nagelstofafzuiging, versie ${REVISIE.versie}`, { size: 2.4, kleur: '#444' }));
   k.push(vak(X0 + 65, 120, 'Bladtitel', titel, true));
   k.push(vak(X0 + 185, 60, 'Installatie / plaats', '=AFZ +BOX'), T(X0 + 187, ty + 20, 'voedingsbox onder het blad', { size: 2.4, kleur: '#444' }));
   k.push(vak(X0 + 245, 50, 'Norm', 'IEC 81346 / 60617'), T(X0 + 247, ty + 20, 'EPLAN-stijl', { size: 2.4, kleur: '#444' }));
-  k.push(vak(X0 + 295, 50, 'Datum / getekend', '2026-11-06'), T(X0 + 297, ty + 20, 'Phlippo CAD', { size: 2.4, kleur: '#444' }));
+  k.push(vak(X0 + 295, 50, 'Datum / getekend', REVISIE.datum), T(X0 + 297, ty + 20, 'Phlippo CAD', { size: 2.4, kleur: '#444' }));
   k.push(vak(X0 + 345, 45, 'Blad', `${nr} / ${BLADEN}`, true));
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}mm" height="${H}mm" font-family="Arial, Helvetica, sans-serif">
 <rect width="${W}" height="${H}" fill="#fff"/>

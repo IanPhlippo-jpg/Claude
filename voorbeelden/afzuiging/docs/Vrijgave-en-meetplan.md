@@ -24,26 +24,27 @@ Die tests draaien op de pc met `python -m platformio test -e native`. Daarvoor i
 
 ## 2. Beschermingsconcept (E01, E04, E12, E13)
 
-**Doel:** nagelstof bij de bron vangen en de lucht gefilterd terug in de ruimte blazen, zonder lek langs het filter.
-Dampen van oplosmiddelen (aceton, monomeer) vangt dit filter niet; daarvoor is ventilatie van de ruimte nodig.
+**Doel:** nagelstof bij de bron wegzuigen, weg van het gezicht van klant en medewerker. Het filter beschermt de
+ventilator; het is **geen luchtreiniger**. Ontwerpbesluit van Ian (2026-11-07): een goedkope, makkelijk te vervangen
+filtermat die veel lucht doorlaat, zodat de zuigkracht boven het rooster zo groot mogelijk blijft. Gevolg: het fijnste
+stof gaat door de mat en komt onder het blad terug in de salon. De salon moet daarom goed geventileerd zijn (en dat is
+ook nodig voor dampen van aceton en monomeer, die geen enkel deeltjesfilter vangt).
 
-1. **Filter.** Een vlakke M5-mat van 170 x 190 mm is bij een hoog debiet te snel doorstroomd (bij 500 m³/h ongeveer
-   4,3 m/s): het rendement op fijn stof is dan onbekend. Kies één van deze twee en leg het product vast:
-   - **A (aanbevolen):** een geplooid paneelfilter ePM1 50–65 % (F7) van 170 x 190 x 25 mm, op maat, met opgegeven
-     drukval bij 150, 250 en 350 m³/h. Geplooid geeft 8 tot 12 keer meer filteroppervlak.
-   - **B:** een M5-mat (ePM10 50 %) als voorfilter én afvoer naar buiten.
-   De cassette heeft 20 mm ruimte; een filter van 25 mm vraagt 5 mm meer cassettehoogte (één maat in `M.cassette`).
-   **Uitgerekend (Berekeningen.md, hoofdstuk 3):** voor 250 m³/h (0,66 m/s op 10 cm boven het rooster) vraagt de
-   M5-mat 80 tot 86 % toerental (64 tot 66 dB(A) op 1 m). Een minipleat ePM1 65 % van 48 mm (TROX MFP-PLA op maat,
-   vlakke pakking FNU) haalt hetzelfde op 68 tot 74 % (61 tot 63 dB(A)) en filtert fijn stof veel beter; de module
-   wordt dan 28 mm dieper (99 mm onder het blad). H13 past niet: op dit front haalt het maar 128 tot 211 m³/h.
+1. **Filter (gekozen).** De kant-en-klare standaardmat Rittal SK 3171.100 van 173 x 173 x 17 mm (G3 / ISO coarse 50 %,
+   EAN 4028177038059; per 5 of per 50, bij Rittal, RS en Lieske), vervangen zonder knippen. De cassette heeft een vak
+   van 171 x 171: de mat zit rondom 1 mm aangedrukt, zodat er geen lucht langs gaat.
+   **Uitgerekend (Berekeningen.md):** zo'n grove mat kost bij 250 m³/h ongeveer 50 Pa (een M5-mat ongeveer 200 Pa), dus
+   meer debiet bij hetzelfde toerental. De andere filters (M5, geplooid F7/F9, H13) staan ter vergelijking in het
+   rekenblad; ze filteren fijner maar zuigen minder of luider.
+   **Ophoogte boven het rooster:** zie Berekeningen.md hoofdstuk 1: 0,5 m/s op 10 cm vraagt 190 m³/h, op 15 cm 360 m³/h.
+   Een laag schermpje aan de overkant van het rooster verbetert de vangst op 15 cm zonder meer lucht (optie).
 2. **Afdichting.** Onder de rand van de cassette komt een zelfklevende EPDM-schuimband van 3 x 9 mm, 30 tot 50 %
    samengedrukt door de RVS-plaat. De richel en de rand zijn daarvoor 1,5 mm lager te zetten (`M.richel`).
-   Het filter zelf wordt geklemd met een raam (het paneelfilter heeft een eigen kader).
+   De mat ligt op de roosterbodem van de cassette, de cassetterand ligt erop.
 3. **Onderhoud.** Filter niet uitkloppen of uitblazen. Vervangen met handschoenen en een stofmasker FFP2, het oude
    filter meteen in een zak, zak dicht, daarna ijken (knop 5 s).
-4. **Afvoer.** De lucht gaat onder het blad naar achteren. Bij variant B of bij twijfel na de metingen: een slang naar
-   buiten.
+4. **Afvoer.** De lucht gaat onder het blad naar achteren, de salon in. Wie het fijne stof ook buiten wil: een slang
+   van onder de module naar buiten (latere optie).
 5. **Morsen en bereikbaarheid.** De waaier zit 30 mm onder het rooster, achter het filter. Meet met een testvinger
    (IEC 61032, probe B) dat de waaier niet bereikbaar is met de plaat erop. Gemorste vloeistof valt in de cassette op
    het filter: gebruik geen open vlam en geen verwarmd gereedschap boven het rooster.
@@ -54,6 +55,19 @@ Dampen van oplosmiddelen (aceton, monomeer) vangt dit filter niet; daarvoor is v
   vanbinnen een honingraat; de klemkracht moet dus beperkt blijven. Draai de M5-schroeven aan tot de klauw voelbaar aanligt, niet verder (± 0,05 Nm, kruipgrens PETG; het gewicht rust op het frame).
 - **Voedingsbox:** 4 pluggen voor holle deuren in de onderhuid naast de uitsparing; de box weegt ongeveer 0,7 kg.
 - **Te bewijzen:** zie poort M hieronder (uittrekken, kruip, warmte).
+
+## 3b. Werkplek (maten uit het model, bureau LAGKAPTEN 1400 x 600 x 34 op twee ALEX, blad 734 mm hoog)
+
+| Wat | Maat | Gevolg / controle in W1 |
+|---|---|---|
+| module | midden van het blad: 300 mm van de voorrand, 189 mm vrije rand voor het frame | de onderarm van de klant ligt op het blad of het rooster, de nagel 50 tot 100 mm boven het rooster (vangst: Berekeningen.md, hoofdstuk 1) |
+| onderkant module | 102 mm onder het blad, dus 632 mm boven de vloer, tussen 189 en 411 mm vanaf de voorrand | dijen en knieën van de medewerker aan de voorkant: vrij als de knie niet verder dan 190 mm onder het blad komt of onder 632 mm blijft; proef met de grootste gebruiker en de stoel op werkhoogte |
+| vrije ruimte tussen de ladekasten | 680 mm breed | de module (210 breed) staat in het midden, beide knieën ernaast is niet mogelijk: knieën vóór de module |
+| knop | 250 mm rechts van het midden, 100 mm van de voorrand, 16 mm boven het blad | met de rechterhand te bereiken zonder te leunen; linkshandig: de mal en `M.dial` spiegelen (x = -250) |
+| voedingsbox | 495 mm van de voorrand, 71 mm onder het blad (rand + bak) | achter de knieën, buiten de beenruimte; netsnoer langs de achterpoot |
+| kabels | M8 en slangetje in een sleuf van 29 x 7 onder het blad, USB-C van de knop in een sleuf van 5 x 5 | geen kabel in de beenruimte; buigradius USB-C (haaks) en M8 ≥ 5 x kabeldiameter aan de connector |
+| uitblaas | onder de module naar achteren, op 632 mm hoogte | geen tocht op de benen van de klant (W1: hand op kniehoogte aan de klantkant) |
+| armsteun | geen: de onderarm rust op het blad of op de RVS-plaat (4 mm hoger, randen afgerond R6) | geen drukplek op de pols (W1) |
 
 ## 4. Meetplan en acceptatie
 
@@ -80,6 +94,6 @@ firmware de minimale toegestane stand in op de bewezen minimumstand (nu 20 %, `I
 
 ## 5. Wat Ian beslist
 
-- Filtervariant A of B (en het product).
+- ~~Filtervariant~~: beslist op 2026-11-07, standaardmat Rittal SK 3171.100 (bescherming van de ventilator, geen luchtreiniger).
 - Of een deskundige de blootstelling meet (aanbevolen voor gebruik met klanten).
 - Of er een C++-compiler op de pc mag komen om de firmwaretests te draaien.

@@ -889,12 +889,8 @@
    "suppressed": false,
    "op": "boss",
    "end": "blind",
-   "depth": 5.4,
-   "reverse": true,
-   "direction2": {
-    "end": "blind",
-    "depth": 0.2
-   }
+   "depth": 6.3,
+   "reverse": true
   },
   {
    "id": "ks5",

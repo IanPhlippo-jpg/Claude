@@ -1,8 +1,12 @@
-# Ingebouwde nagelstofafzuiging (Lush Beauty), versie 5
+# Ingebouwde nagelstofafzuiging (Lush Beauty), versie 6.1 (2026-11-07)
+
+Alle uitvoer (KCAD, STL, tekeningen, bouwschema, schema, freesmallen, prijslijst) komt uit dezelfde generator en draagt dit
+revisienummer (`revisie.mjs`). De berekeningen staan in `docs/Berekeningen.md`, het meet- en vrijgaveplan in
+`docs/Vrijgave-en-meetplan.md`.
 
 Een krachtige, stille afzuiging voor in het bureaublad, met het LB-monogram in het RVS-rooster.
 De module zakt van bovenaf in een gefreesde uitsparing en klemt zich vast met vier geprinte klauwen (met een M5-moer erin), voor een blad van 10 tot 50 mm dik.
-Een radiale ventilator met achterwaarts gebogen schoepen zuigt door één fijnstoffilter (M5) en houdt zijn kracht ook als de filters voller worden.
+Een radiale ventilator met achterwaarts gebogen schoepen zuigt door één kant-en-klare standaardfiltermat (Rittal SK 3171.100) en houdt zijn kracht ook als de mat voller wordt. De mat beschermt de ventilator tegen vijlsel; ze is geen luchtreiniger: het fijnste stof komt onder het blad terug in de salon, zorg dus voor ventilatie.
 Een VIEWE-knop van 1,5" (rond AMOLED-scherm) zit in het blad, regelt de zuigkracht en meldt wanneer het filter vol is.
 De netadapter en de elektronica zitten in een aparte voedingsbox die onderaan in het blad is ingefreesd; er komt geen enkele schroef door het bovenvlak van het bureau.
 
@@ -14,7 +18,7 @@ De netadapter en de elektronica zitten in een aparte voedingsbox die onderaan in
 |---|---|
 | RVS-plaat | RVS 430 (magnetisch), 222 x 222 mm, even groot als het frame; klikt op 4 verzonken magneten |
 | Bovenframe | PETG, smalle omranding van 2,5 mm, op de romp gelijmd; de magneten en de koppen van de M5-schroeven zitten erin, onder de plaat |
-| Filtercassette | bak met roosterbodem en een gelijmde rand; één M5-fijnstofmat van 170 x 190 x 20 mm, zoals in de meeste nagelafzuigingen; langs boven uitneembaar |
+| Filtercassette | bak met roosterbodem en een gelijmde rand; één standaardfiltermat Rittal SK 3171.100 van 173 x 173 x 17 mm (niets te knippen), zoals in de meeste nagelafzuigingen; langs boven uitneembaar |
 | Romp | vierkant 210 x 210 mm; de klauwen zitten in de vier hoeken |
 | Instroomplaat | met een trechter boven het oog van de ventilator; het meetpunt van de drukmeter zit erin |
 | Ventilator | San Ace C175 (Ø175 mm, 24 V, 56 W), staat op de bodemplaat |
@@ -22,7 +26,7 @@ De netadapter en de elektronica zitten in een aparte voedingsbox die onderaan in
 | Voedingsbox | bak van 210 x 100 x 50, de bovenste 14 mm in een uitsparing onderaan het blad; een vlakke rand op de onderkant van het blad met 4 x M4 verzonken in pluggen voor holle deuren; een los deksel bovenin (4 x M3); ventilatie onderaan en in de achterwand; netadapter, ESP32-C3, drukmeter, de USB-C voor de knop en de aan/uit-schakelaar in de voorwand |
 | Knop | VIEWE 1,5" op een houder die niet breder is dan de knop, in een gat van Ø44 |
 
-- **Diepte onder het blad:** de module hangt 71 mm onder een blad van 34 mm, de voedingsbox 36 mm.
+- **Diepte onder het blad:** de module hangt 68 mm onder een blad van 34 mm, de voedingsbox 36 mm.
 - **Van boven alleen staal:** de RVS-plaat bedekt het frame volledig. Van opzij zie je een randje PETG van 2,5 mm en de plaat van 1,5 mm, samen 4 mm boven het blad.
 - **Filter vervangen:** neem het rooster eraf, til de cassette aan de twee greepuitsparingen uit en vervang het filter: met handschoenen en een FFP2-masker, het oude filter meteen in een zak. Niet uitkloppen of uitblazen.
 - **Kabels:** tussen de box en de afzuiging lopen een M8-kabel (de ventilator) en een siliconeslangetje (de drukmeting). Tussen de box en de knop loopt een USB-C-kabel. Alle drie liggen ze in gefreesde sleuven onderaan het blad en hebben ze aan beide kanten een koppeling: een andere lengte is gewoon een andere kabel.
@@ -78,7 +82,7 @@ De netadapter en de elektronica zitten in een aparte voedingsbox die onderaan in
 | Montagedraad 0,25 mm² en 0,75 mm² | 1 m |  | € 3,00 | € 3,00 |
 | Siliconeslang 3 x 5 mm | 1 m | drukmeting: van de afzuiging naar de box, en binnen de afzuiging | € 3,00 | € 3,00 |
 | Messingbuisje Ø3 x 0,5 mm | 40 mm | 3 stukjes van 12 mm: meetpunt in de instroomplaat en doorvoer in de afzuiging en de box | € 3,00 | € 3,00 |
-| M5-fijnstofmat (F5) 20 mm | rol | het enige filter; knippen op 170 x 190 mm (ca. 30 keer vervangen per m²) | € 15,00 | € 15,00 |
+| Filtermat Rittal SK 3171.100 (173 x 173 x 17, G3 / ISO coarse 50 %, EAN 4028177038059) | 1 pak van 5 | het enige filter, kant-en-klaar; vervangen zonder knippen (ook als pak van 50: SK 3171.105) | € 22,21 | € 22,21 |
 | Neodymiummagneet Ø8 x 1,5 mm, N42 | 4 | inlijmen in het bovenframe, vlak met de bovenkant (gat Ø8,2 x 1,6, bodem 0,9 mm) | € 0,50 | € 2,00 |
 | Tweecomponentenlijm (epoxy) | 1 | magneten, bovenframe op de romp, rand op de cassette, instroomplaat, messingbuisjes | € 9,00 | € 9,00 |
 | Plug voor holle deuren M4 (gat Ø8) | 4 | in de onderkant van het blad, naast de uitsparing van de box | € 0,50 | € 2,00 |
@@ -132,7 +136,7 @@ Droog PETG vooraf (4 uur op 65 °C) als de rol open heeft gelegen: vocht maakt h
 |---|---|---|
 | `print/Romp.stl` | rechtop | 210 x 210 x 99 |
 | `print/Bovenframe.stl` | plat | 222 x 222 x 2,5 |
-| `print/Filtercassette.stl` | rechtop, de roosterbodem op het bed | 174 x 194 x 22 |
+| `print/Filtercassette.stl` | rechtop, de roosterbodem op het bed | 174,2 x 174,2 x 19 |
 | `print/Cassetterand.stl` | plat | 200 x 200 x 2,5 |
 | `print/Instroomplaat.stl` | plat, de trechter naar boven | 202 x 202 x 3 |
 | `print/Bodemplaat.stl` | plat, de lamellen staan onder 45° | 210 x 210 x 6 |
@@ -191,7 +195,7 @@ Het filament dat echt opgaat (ca. 1,2 kg) kost ongeveer € 24,00. Het duurste o
 6. **Instroomplaat:** schuif een stukje siliconeslang van het messingbuisje in de instroomplaat naar dat in de achterwand. Leg de plaat op de getrapte richel en lijm ze rondom.
 7. **Bodemplaat:** schroef de plaat met de ventilator met 8 x M3 aan de romp.
 8. **Inbouwen:** laat de module in de uitsparing zakken en draai de vier M5-schroeven rechtsom aan. Elke klauw zwaait naar buiten en trekt zich tegen de onderkant van het blad. Stop zodra de klauw voelbaar aanligt (twee vingers aan de korte kant van de inbussleutel): de klauwen houden de module alleen tegen optillen, het gewicht rust op het frame (zie docs/Berekeningen.md).
-9. **Filter en plaat:** knip de M5-mat op 170 x 190 mm en leg ze in de cassette. Zet de cassette in het frame en leg de RVS-plaat erop.
+9. **Filter en plaat:** leg een filtermat Rittal SK 3171.100 in de cassette en druk ze rondom aan. Zet de cassette in het frame en leg de RVS-plaat erop.
 10. **Voedingsbox:** bouw de print volgens `schema/Aansluitschema-afzuiging.pdf` en schroef ze op de bussen. Zet de netadapter op de bodem tegen de aanslagen en schroef de twee klemmen op de paaltjes (M3 x 10 verzonken). Kort de DC-kabel van de adapter in en klem hem op -X1. Zet de schakelaar (voorwand), de M8-stekker, het messingbuisje en de USB-C-bus in de wanden. Leid het slangetje door de ring tegen de voorwand. Schroef het deksel met 4 x M3 x 8 op de paaltjes. Zet de 4 pluggen voor holle deuren in het blad, duw de box van onderen in de uitsparing en zet de rand vast met 4 x M4 x 30 verzonken.
 11. **Knop:** druk een M4-moer in elke knopklauw. Zet de houder in het gat van Ø44, schuif de klauwen van onderen in hun kanaal en draai de M4 x 65 van bovenaf in tot de klauwen tegen het blad trekken. Steek de FPC door de sleuf in de kom, zet de knop in de kom en schroef hem van onderen vast met 2 x M2,5 x 6 verzonken. Soldeer 4 draden (VBUS, GND, D+, D-) van de adapterprint naar het USB-C-printje. Steek de FPC in de adapterprint en schuif de print in de groeven. Schroef het USB-C-printje met 2 x M2 x 5 onder de palen: de bus steekt opzij door de achterwand, naar de sleuf. Schroef het deksel vast (het deksel is dicht).
     De USB-C zit 18 tot 26 mm onder het bovenvlak van een blad van 34 mm: tot een blad van 48 mm past de stekker onder het blad.

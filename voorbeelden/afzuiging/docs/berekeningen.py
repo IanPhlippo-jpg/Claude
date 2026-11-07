@@ -30,9 +30,9 @@ def fan_p(q, r=1.0):
 
 # ---------------------------------------------------------------- invoer: luchtweg (maten uit maak-afzuiging.mjs)
 A_OPENING = 0.201 * 0.201  # m², opening van het bovenframe onder de RVS-plaat
-A_ROOSTER = 140.669e-4  # m², open oppervlak van de lasersnede in de RVS-plaat (LB-monogram + sleuven)
-A_FILTER = 0.170 * 0.190  # m², front van het filter
-A_CASBODEM = 56 * 0.018 * 0.018  # m², 7 x 8 vensters van 18 x 18 in de cassettebodem
+A_ROOSTER = 125.6e-4  # m², open oppervlak van de lasersnede boven het vak van de cassette (laser-rapport, 171 x 171)
+A_FILTER = 0.171 * 0.171  # m², front van de filtermat in het vak (Rittal SK 3171.100, 173 x 173 x 17)
+A_CASBODEM = 64 * 0.018 * 0.018  # m², 8 x 8 vensters van 18 x 18 in de cassettebodem
 A_INLAAT = math.pi * 0.0635 ** 2  # m², oog Ø127 in de instroomplaat
 A_LAMELLEN = (0.202 * 0.202 - math.pi * 0.045 ** 2) * 0.6  # m², vrije doorgang van de schuine lamellen (60 %)
 
@@ -61,6 +61,11 @@ def dp_rest(q, k=1.0):
 # dp(v) = dp_ref * (v / v_ref) ** n, v = snelheid over het front van het filter. n = 1 (vezelmedia, laminair) tenzij
 # de fabrikant meer punten geeft. eind = aanbevolen einddrukval (vervangen), of 2 x schoon als die er niet is.
 FILTERS = {
+    # GEKOZEN (Ian, 2026-11-07): Rittal SK 3171.100, 173 x 173 x 17, G3 / ISO coarse 50 %. Rittal geeft geen drukval;
+    # AANNAME aan de veilige kant: zoals een G4-mat van 20 mm (Onninen/General Filter A40: 34 Pa bij 1,5 m/s; RS PRO
+    # 827-9529: 35 Pa; Camfil: 50 Pa), einddrukval 250 Pa. Een G3-mat van 17 mm heeft minder weerstand.
+    'G4': dict(naam='**gekozen:** Rittal SK 3171.100 (G3), 17 mm, gerekend als G4 (veilige kant)', dp_ref=34, v_ref=1.5,
+               n=1.0, eind=250, klasse='ISO coarse 50 % (G3)', diepte=17),
     'M5': dict(naam='vlakke mat M5 (ePM10 50 %), 20 mm, referentie Nittmann V400S', dp_ref=47, v_ref=0.5, n=1.0,
                eind=None, klasse='ISO ePM10 50 % (M5)', diepte=20),
     # TROX MFP-PLA minipleat, kunststof frame, 48 mm (plooi 40), maat op aanvraag, vlakke pakking FNU aan de
@@ -143,7 +148,7 @@ KABELS = [  # (naam, doorsnede mm², lengte enkel m, stroom A)
 # ---------------------------------------------------------------- warmte in de voedingsbox
 BOX_A_WAND = 0.052  # m², bodem en zijwanden (de bovenkant zit tegen het blad)
 H_WAND = (5.0, 10.0)  # W/m²K, AANNAME natuurlijke convectie + straling
-A_IN, A_UIT, H_SCHOORSTEEN = 28.5e-4, 5.5e-4, 0.03  # m², m²; bodemsleuven, achterwandsleuven, hoogteverschil (m)
+A_IN, A_UIT, H_SCHOORSTEEN = 28.5e-4, 21 * 2.5e-3 * 12e-3, 0.012  # m², m²; bodemsleuven, 21 sleuven 2,5 x 12 achter (18 tot 30 mm onder het blad), hoogteverschil (m)
 T_KAMER, T_ADAPTER_MAX = 25.0, 40.0  # °C; adapter vol vermogen tot 40 °C omgeving (fabrikant, daarboven derating)
 
 
@@ -233,6 +238,16 @@ def maak():
         geluid = '—' if rs[1] is None else f'{f0(db(rs[0]))}–{f0(db(rs[1]))} / {f0(db(rs[0], 0.5))}–{f0(db(rs[1], 0.5))}'
         L.append(rij(f['naam'], f0(s(250)), f'{f0(qs[1])}–{f0(qs[0])}', f'{f0(qb[1])}–{f0(qb[0])}',
                      f'{pct(rs[0])}–{pct(rs[1])}', f'{pct(rb[0])}–{pct(rb[1])}', geluid))
+    g = filter_dp(FILTERS['G4'])
+    L += ['', '**Met de gekozen mat (schoon), per stand:** debiet en luchtsnelheid boven het midden van het rooster.', '',
+          rij('toerental', 'debiet (m³/h)', 'op 10 cm', 'op 15 cm', 'op 20 cm', 'dB(A) op 1 m'),
+          rij('---:', '---:', '---:', '---:', '---:', '---:')]
+    for r in (0.4, 0.6, 0.7, 0.8, 1.0):
+        q = werkpunt(g, r)
+        L.append(rij(f'{r * 100:.0f} %' + (' (boost)' if r == 1 else ''), f0(q), f2(v_vang(q, 0.10)), f2(v_vang(q, 0.15)), f2(v_vang(q, 0.20)), f0(db(r))))
+    L += ['', 'Vervangen: de firmware meldt "filter vervangen" bij het dubbele van de schone drukval (ongeveer 100 Pa bij 250 '
+          'm³/h), ruim vóór de einddrukval van 250 Pa. 20 cm boven het rooster haalt geen enkele stand 0,5 m/s: dat vraagt '
+          'ongeveer 600 m³/h, meer dan deze ventilator met rooster en filter levert.']
     L += ['', 'Toerental is de fractie van het volle toerental, niet de PWM-waarde: de firmware moet het toerental '
           '(tacho) regelen of de PWM-stand per filter ijken. Het geluid volgt ΔL = 50 log10(n/n_vol) en een vrije puntbron; '
           'roosterfluit, kastresonantie en galm komen erbij (meten: poort G1).', '']
@@ -264,13 +279,15 @@ def maak():
           'P_uit (1/η − 1).', '',
           rij('stand', 'P naar de module (W)', 'verlies in de box (W)', 'ΔT lucht in de box (K)', f'adapter-omgeving bij {f0(T_KAMER)} °C'),
           rij('---', '---:', '---:', '---:', '---:')]
-    for naam, r in (('40 % toerental', 0.4), ('60 %', 0.6), ('80 %', 0.8), ('100 % (boost, 120 s)', 1.0)):
+    for naam, r in (('40 % toerental', 0.4), ('60 %', 0.6), ('70 % (dagstand met F7, hoofdstuk 3)', 0.7), ('80 %', 0.8), ('100 % (boost, 120 s)', 1.0)):
         p = FAN_W * r ** 3 + p5
         verlies = p * (1 / ADAPTER['eta'] - 1) + sum(P_5V.values()) * (1 / ETA_BUCK - 1) + 0.3  # + zekering en draden
         dts = [box_dt(verlies, h) for h in H_WAND]
         L.append(rij(naam, f1(p), f1(verlies), f'{f0(dts[1])}–{f0(dts[0])}', f'{f0(T_KAMER + dts[1])}–{f0(T_KAMER + dts[0])} °C'))
-    L += ['', f'De adapter mag vol vermogen leveren tot {f0(T_ADAPTER_MAX)} °C omgeving. Op de dagstanden (tot 80 % toerental) '
-          'blijft de box daar ruim onder; 100 % is alleen boost en duurt 120 s. PETG blijft onder 60 °C. '
+    L += ['', f'De adapter mag vol vermogen leveren tot {f0(T_ADAPTER_MAX)} °C omgeving. Tot 70 % toerental blijft de box daar '
+          'ruim onder. Op 80 % (de hoogste gewone stand) komt het ongunstigste geval (h = 5) net op de grens: dat meet '
+          'poort E1; wordt het te warm, dan zakt de hoogste gewone stand naar 70 % (`dagMaxPct` in regel.h). 100 % is alleen '
+          'boost en duurt 120 s. PETG blijft onder 60 °C. '
           'Model: wanden (h = 5 tot 10 W/m²K) plus de schoorsteenstroom door de bodem- en achterwandsleuven.', '']
 
     L += ['## 6. Bevestiging', '']

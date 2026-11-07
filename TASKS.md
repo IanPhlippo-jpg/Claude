@@ -1056,13 +1056,20 @@ elease; README en docs/04 bijgewerkt
 - [ ] Alles opnieuw genereren en testen; commit en push; rapport voor Ian
 
 ## Afzuiging: eindverslag v2 (5,0/10) verwerken (2026-11-06)
-- [~] Testreeks van v6 groen; alle 13 printtypen als dichte STL; overlapkandidaten in de exacte kernel nagaan en benoemen
+- [x] Testreeks van v6 groen; alle 13 printtypen als dichte STL; overlapkandidaten in de exacte kernel nagaan en benoemen
 - [x] Rekenblad (docs/Berekeningen.md + script): fancurve S01 tegen filter- en roosterverliezen, werkpunt, mediavlak, vangst op 10 cm, geluid naar toerental en afstand
 - [x] Rekenblad elektrisch en warmte: zekering, draad en M8, 5V-budget, warmte in de box; bevestiging: klem- en plugbelasting, moerkamerdak
 - [x] Maakdetails: magneetpocket met 0,8 mm bodem, moerkamerdaken, fanschroef 5 mm indraaiing, puntuitsteek knopschroef met speling
 - [x] Documentatie gelijktrekken (freesmaten, schakelaar, USB-print, zekering TR5) en revisie op alle uitvoer
-- [ ] Filter en afdichting: voorstel met berekening aan Ian voorleggen (keuze is van Ian)
+- [x] Filter: voorgelegd; Ian koos een goedkope G4-mat van de rol die veel lucht doorlaat (bescherming ventilator, geen luchtreiniger); rekenblad met ophoogte 10/15/20 cm
 - [x] Firmware: gewone standen tot 80 % (100 % alleen boost), zachte start 50 %/s, 2 tests erbij
 - [x] Box-rand opzij 7,5 (printbed 225), schroeven voor/achter, pluggaten 28 diep met 2 mm hout naast de uitsparing
-- [ ] Tekeningen, mallen, bouwschema opnieuw; commit en push; rapport voor Ian
-- [ ] MORGEN: volledige testreeks opnieuw (gestopt op 2026-11-07), daarna STL's, tekeningen, bouwschema; filterkeuze aan Ian vragen
+- [x] Tekeningen, mallen, bouwschema opnieuw; commit en push; rapport voor Ian
+- [x] Box: ventilatie onder de schuine kant, uitsparingen voor C13/M8/schakelaar, USB-tong vast; 3 verzinkingen exact (B-rep) en alle 13 STL's dicht; revisie 6.1 overal; werkplek in het meetplan
+- [x] Laatste testreeks, STL's, tekeningen en bouwschema (vervangen door de Rittal-mat hieronder)
+
+## Afzuiging: standaardfilter Rittal SK 3171.100 (2026-11-07)
+- [x] Cassette vierkant voor de mat 173 x 173 x 17 (vak 172 x 172: de mat zit 0,5 mm aangedrukt rondom, geen lek)
+- [x] Module 3 mm minder diep (mat 17 i.p.v. 20): instroomplaat, ventilator, romp, bodemplaat 3 mm hoger
+- [x] Rekenblad, README, stuklijst, bouwschema, tekeningen en tests aanpassen (STL-export in een eigen testbestand)
+- [x] Testreeks, STL's, tekeningen, bouwschema; commit en push

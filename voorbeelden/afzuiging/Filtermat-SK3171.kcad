@@ -1,15 +1,15 @@
 {
  "format": "phlippo-cad",
  "version": 1,
- "name": "Fijnstoffilter M5",
+ "name": "Filtermat Rittal SK 3171.100",
  "units": "mm",
  "planes": {
-  "laagm5": {
-   "id": "laagm5",
-   "name": "Plane m5",
+  "laagsk3171": {
+   "id": "laagsk3171",
+   "name": "Plane sk3171",
    "origin": [
     0,
-    -20,
+    -17,
     0
    ],
    "u": [
@@ -36,27 +36,27 @@
   "s1": {
    "id": "s1",
    "name": "Sketch1",
-   "plane": "laagm5",
+   "plane": "laagsk3171",
    "points": {
     "origin_s1": {
      "x": 0,
      "y": 0
     },
     "s1p0": {
-     "x": -84.75,
-     "y": -94.75
+     "x": -85.25,
+     "y": -85.25
     },
     "s1p1": {
-     "x": 84.75,
-     "y": -94.75
+     "x": 85.25,
+     "y": -85.25
     },
     "s1p2": {
-     "x": 84.75,
-     "y": 94.75
+     "x": 85.25,
+     "y": 85.25
     },
     "s1p3": {
-     "x": -84.75,
-     "y": 94.75
+     "x": -85.25,
+     "y": 85.25
     }
    },
    "scalars": {},
@@ -117,12 +117,12 @@
    "suppressed": false,
    "op": "boss",
    "end": "blind",
-   "depth": 20,
+   "depth": 17,
    "reverse": false
   }
  ],
  "material": {
-  "name": "Fijnstoffilter M5",
+  "name": "Filtermat Rittal SK 3171.100",
   "density": 60,
   "color": "#f6f6f2"
  }

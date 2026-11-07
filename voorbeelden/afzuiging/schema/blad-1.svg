@@ -32,13 +32,13 @@
 <text x="10" y="231.16666666666666" font-size="3" text-anchor="middle" fill="#111">F</text>
 <rect x="15" y="253" width="395" height="39" fill="none" stroke="#111" stroke-width="0.5"/>
 <polyline points="15,253 15,292" fill="none" stroke="#111" stroke-width="0.25"/><text x="17" y="258" font-size="2.2" text-anchor="start" fill="#666">Project</text><text x="17" y="266" font-size="3.2" text-anchor="start" fill="#111">Afzuiging Lush Beauty</text>
-<text x="17" y="273" font-size="2.4" text-anchor="start" fill="#444">inbouw nagelstofafzuiging, versie 5</text>
+<text x="17" y="273" font-size="2.4" text-anchor="start" fill="#444">inbouw nagelstofafzuiging, versie 6.1</text>
 <polyline points="85,253 85,292" fill="none" stroke="#111" stroke-width="0.25"/><text x="87" y="258" font-size="2.2" text-anchor="start" fill="#666">Bladtitel</text><text x="87" y="269" font-size="5.5" text-anchor="start" fill="#111" font-weight="700">Titelblad</text>
 <polyline points="205,253 205,292" fill="none" stroke="#111" stroke-width="0.25"/><text x="207" y="258" font-size="2.2" text-anchor="start" fill="#666">Installatie / plaats</text><text x="207" y="266" font-size="3.2" text-anchor="start" fill="#111">=AFZ +BOX</text>
 <text x="207" y="273" font-size="2.4" text-anchor="start" fill="#444">voedingsbox onder het blad</text>
 <polyline points="265,253 265,292" fill="none" stroke="#111" stroke-width="0.25"/><text x="267" y="258" font-size="2.2" text-anchor="start" fill="#666">Norm</text><text x="267" y="266" font-size="3.2" text-anchor="start" fill="#111">IEC 81346 / 60617</text>
 <text x="267" y="273" font-size="2.4" text-anchor="start" fill="#444">EPLAN-stijl</text>
-<polyline points="315,253 315,292" fill="none" stroke="#111" stroke-width="0.25"/><text x="317" y="258" font-size="2.2" text-anchor="start" fill="#666">Datum / getekend</text><text x="317" y="266" font-size="3.2" text-anchor="start" fill="#111">2026-11-06</text>
+<polyline points="315,253 315,292" fill="none" stroke="#111" stroke-width="0.25"/><text x="317" y="258" font-size="2.2" text-anchor="start" fill="#666">Datum / getekend</text><text x="317" y="266" font-size="3.2" text-anchor="start" fill="#111">2026-11-07</text>
 <text x="317" y="273" font-size="2.4" text-anchor="start" fill="#444">Phlippo CAD</text>
 <polyline points="365,253 365,292" fill="none" stroke="#111" stroke-width="0.25"/><text x="367" y="258" font-size="2.2" text-anchor="start" fill="#666">Blad</text><text x="367" y="269" font-size="5.5" text-anchor="start" fill="#111" font-weight="700">1 / 6</text>
 <text x="210" y="60" font-size="12" text-anchor="middle" fill="#111" font-weight="700">Afzuiging Lush Beauty</text>

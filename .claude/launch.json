@@ -4,8 +4,20 @@
     {
       "name": "phlippo-cad-dev",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
+      "runtimeArgs": [
+        "run",
+        "dev"
+      ],
       "port": 5173
+    },
+    {
+      "name": "testhooks-5184",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": [
+        "/c",
+        "set VITE_TEST_HOOKS=1&& npx vite --port 5184 --strictPort"
+      ],
+      "port": 5184
     }
   ]
 }

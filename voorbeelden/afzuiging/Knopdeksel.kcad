@@ -29,6 +29,31 @@
    ],
    "kind": "reference"
   },
+  "dekselonderR": {
+   "id": "dekselonderR",
+   "name": "Plane onderkant deksel",
+   "origin": [
+    0,
+    -62,
+    0
+   ],
+   "u": [
+    1,
+    0,
+    0
+   ],
+   "v": [
+    0,
+    0,
+    1
+   ],
+   "n": [
+    0,
+    -1,
+    0
+   ],
+   "kind": "reference"
+  },
   "dekselonder": {
    "id": "dekselonder",
    "name": "Face onderkant deksel",
@@ -119,7 +144,7 @@
   "s2": {
    "id": "s2",
    "name": "Sketch2",
-   "plane": "dekselonder",
+   "plane": "dekselonderR",
    "points": {
     "origin_s2": {
      "x": 0,
@@ -315,7 +340,7 @@
    "suppressed": false,
    "op": "cut",
    "end": "blind",
-   "depth": 1.25,
+   "depth": 1.6,
    "reverse": true,
    "draft": {
     "angle": 45,

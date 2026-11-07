@@ -34,7 +34,7 @@
    "name": "Plane richel instroomplaat 1",
    "origin": [
     0,
-    -28,
+    -25,
     0
    ],
    "u": [
@@ -59,7 +59,7 @@
    "name": "Plane richel instroomplaat 2",
    "origin": [
     0,
-    -29,
+    -26,
     0
    ],
    "u": [
@@ -84,7 +84,7 @@
    "name": "Plane richel instroomplaat 3",
    "origin": [
     0,
-    -30,
+    -27,
     0
    ],
    "u": [
@@ -109,7 +109,7 @@
    "name": "Plane onderkant",
    "origin": [
     0,
-    -99,
+    -96,
     0
    ],
    "u": [
@@ -459,7 +459,7 @@
    "name": "Face onderkant",
    "origin": [
     0,
-    -99,
+    -96,
     0
    ],
    "u": [
@@ -3043,7 +3043,7 @@
    "suppressed": false,
    "op": "boss",
    "end": "blind",
-   "depth": 99,
+   "depth": 96,
    "reverse": true
   },
   {
@@ -3061,7 +3061,7 @@
    "suppressed": false,
    "op": "cut",
    "end": "blind",
-   "depth": 100,
+   "depth": 97,
    "reverse": true
   },
   {

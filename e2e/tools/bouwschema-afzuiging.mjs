@@ -6,6 +6,7 @@ import { chromium } from 'playwright';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { REVISIE_TEKST } from '../../voorbeelden/afzuiging/revisie.mjs';
 
 const UIT = 'voorbeelden/afzuiging/tekeningen';
 const BEELD = 'e2e-out/bouwschema';
@@ -119,10 +120,10 @@ const STAPPEN = [
     titel: 'Filter en RVS-plaat', tijd: '5 min', gereedschap: 'Schaar, liniaal',
     beelden: [beeld([G.blad, ...MODULE, ...FILTERS], [[G.cassette, [0, 110, 0]], [G.filters, [0, 150, 0]], [G.rooster, [0, 230, 0]]])],
     tekst: [
-      'Knip de M5-filtermat (20 mm) op 170 x 190 mm en leg ze in de cassette.',
+      'Leg een filtermat Rittal SK 3171.100 (173 x 173 x 17) in de cassette en druk ze rondom aan; niets te knippen.',
       'Zet de cassette in het frame (de grepen in de rand helpen) en leg de RVS-plaat erop: de magneten houden ze vast.',
     ],
-    delen: ['Fijnstoffilter M5', 'Rooster LB'],
+    delen: ['Filtermat Rittal SK 3171.100', 'Rooster LB'],
   },
   {
     titel: 'Voedingsbox', tijd: '2 uur (print solderen)', gereedschap: 'Soldeerbout, schroevendraaier, inbussleutels 2 en 2,5 mm, boor Ø8, 4 pluggen voor holle deuren M4',
@@ -237,8 +238,8 @@ for (const [i, s] of STAPPEN.entries()) {
 const esc = (t) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;');
 const img = (f) => `data:image/jpeg;base64,${readFileSync(f).toString('base64')}`;
 const N = STAPPEN.length;
-const kop = (t) => `<div class="kop"><span>Bouwschema afzuiging Lush Beauty · versie 5</span><span>${t}</span></div>`;
-const voorblad = `<section class="blad voor">${kop('2026-11-06')}
+const kop = (t) => `<div class="kop"><span>Bouwschema afzuiging Lush Beauty · ${REVISIE_TEKST}</span><span>${t}</span></div>`;
+const voorblad = `<section class="blad voor">${kop('')}
   <h1>Bouwschema<br><small>Ingebouwde afzuiging met voedingsbox en knop</small></h1>
   <div class="voorinhoud"><img src="${img(STAPPEN[N - 1].foto[0])}">
   <ol>${STAPPEN.map((s) => `<li>${esc(s.titel)} <em>${esc(s.tijd)}</em></li>`).join('')}</ol></div>

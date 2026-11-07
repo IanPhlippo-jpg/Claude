@@ -9,6 +9,7 @@ import { writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { M } from '../maak-afzuiging.mjs';
+import { REVISIE_TEKST } from '../revisie.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const W = 210, H = 297;
@@ -44,7 +45,7 @@ function kader(nr, titel, uitleg) {
   for (let i = 0; i <= 10; i++) s.push(lijn([10 + i * 10, y], [10 + i * 10, y - (i % 5 ? 2 : 3.5)], 0.25));
   s.push(tekst([60, y + 4.5], 'controlemaat 100 mm: meet na voor je begint', 2.8, 'middle'));
   s.push(tekst([200, y + 4.5], 'afdrukken op 100 % (ware grootte), niet "passend maken"', 2.6, 'end'));
-  s.push(tekst([200, y - 1.5], `Afzuiging Lush Beauty v5 · 2026-11-06 · maten in mm`, 2.4, 'end', 'fill="#666"'));
+  s.push(tekst([200, y - 1.5], `Afzuiging Lush Beauty ${REVISIE_TEKST} · maten in mm`, 2.4, 'end', 'fill="#666"'));
   return s.join('\n');
 }
 

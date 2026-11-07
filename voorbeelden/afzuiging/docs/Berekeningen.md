@@ -21,11 +21,11 @@ Vangst bij de bron: 0,5 m/s op 10 cm boven het rooster (Dalla Valle, opening met
 
 | onderdeel | ζ | oppervlak (cm²) | Δp bij 250 m³/h (Pa) |
 | --- | ---: | ---: | ---: |
-| RVS-rooster (f = 0,35) | 12,97 | 404 | 23 |
-| cassettebodem (f = 0,56) | 2,90 | 323 | 8 |
+| RVS-rooster (f = 0,35) | 17,59 | 404 | 31 |
+| cassettebodem (f = 0,56) | 1,08 | 292 | 4 |
 | instroom naar het oog Ø127 (trechter 45°) | 0,50 | 127 | 9 |
 | uitblaas door de schuine lamellen | 2,50 | 207 | 17 |
-| **samen** |  |  | **57** (40 tot 86) |
+| **samen** |  |  | **61** (43 tot 91) |
 
 ζ van de platen volgens Idelchik (dunne geperforeerde plaat); de instroom en de lamellen zijn schattingen. Daarom staat overal een band van 0,7x tot 1,5x.
 
@@ -35,10 +35,23 @@ Snijpunt van de ventilatorcurve (100 % en lager toerental, Q ~ n, p ~ n²) met f
 
 | filter | Δp filter bij 250 (Pa) | max. debiet schoon | max. debiet vol | toerental voor 250 schoon | toerental voor 190 vol | dB(A) op 1 m / 0,5 m bij 250 |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| vlakke mat M5 (ePM10 50 %), 20 mm, referentie Nittmann V400S | 202 | 308–343 | 228–242 | 80 %–86 % | 86 %–89 % | 64–66 / 70–72 |
-| minipleat ePM1 65 % (F7), 48 mm, TROX MFP-PLA op maat | 113 | 360–410 | 296–328 | 68 %–74 % | 69 %–73 % | 61–63 / 67–69 |
-| minipleat ePM1 90 % (F9), 48 mm, TROX MFP-PLA op maat | 192 | 313–350 | 234–250 | 79 %–85 % | 84 %–87 % | 64–65 / 70–71 |
-| H13 (EN 1822), 150 mm, Freudenberg SF13 (ter vergelijking, past niet) | 487 | 211 | 128 | — | — | — |
+| **gekozen:** Rittal SK 3171.100 (G3), 17 mm, gerekend als G4 (veilige kant) | 54 | 392–461 | 229–244 | 59 %–67 % | 86 %–89 % | 57–60 / 64–66 |
+| vlakke mat M5 (ePM10 50 %), 20 mm, referentie Nittmann V400S | 223 | 294–327 | 214–227 | 83 %–89 % | 90 %–93 % | 65–66 / 71–72 |
+| minipleat ePM1 65 % (F7), 48 mm, TROX MFP-PLA op maat | 125 | 347–397 | 283–311 | 70 %–77 % | 72 %–76 % | 61–63 / 67–69 |
+| minipleat ePM1 90 % (F9), 48 mm, TROX MFP-PLA op maat | 212 | 300–334 | 220–234 | 82 %–88 % | 88 %–91 % | 65–66 / 71–72 |
+| H13 (EN 1822), 150 mm, Freudenberg SF13 (ter vergelijking, past niet) | 538 | 197 | 118 | — | — | — |
+
+**Met de gekozen mat (schoon), per stand:** debiet en luchtsnelheid boven het midden van het rooster.
+
+| toerental | debiet (m³/h) | op 10 cm | op 15 cm | op 20 cm | dB(A) op 1 m |
+| ---: | ---: | ---: | ---: | ---: | ---: |
+| 40 % | 148 | 0,39 | 0,21 | 0,12 | 49 |
+| 60 % | 241 | 0,63 | 0,34 | 0,20 | 58 |
+| 70 % | 288 | 0,76 | 0,40 | 0,24 | 61 |
+| 80 % | 335 | 0,88 | 0,47 | 0,28 | 64 |
+| 100 % (boost) | 430 | 1,13 | 0,60 | 0,36 | 69 |
+
+Vervangen: de firmware meldt "filter vervangen" bij het dubbele van de schone drukval (ongeveer 100 Pa bij 250 m³/h), ruim vóór de einddrukval van 250 Pa. 20 cm boven het rooster haalt geen enkele stand 0,5 m/s: dat vraagt ongeveer 600 m³/h, meer dan deze ventilator met rooster en filter levert.
 
 Toerental is de fractie van het volle toerental, niet de PWM-waarde: de firmware moet het toerental (tacho) regelen of de PWM-stand per filter ijken. Het geluid volgt ΔL = 50 log10(n/n_vol) en een vrije puntbron; roosterfluit, kastresonantie en galm komen erbij (meten: poort G1).
 
@@ -69,11 +82,12 @@ In de box zit alleen de adapter en de kleine elektronica; de ventilator zit in d
 | stand | P naar de module (W) | verlies in de box (W) | ΔT lucht in de box (K) | adapter-omgeving bij 25 °C |
 | --- | ---: | ---: | ---: | ---: |
 | 40 % toerental | 5,6 | 1,4 | 3–5 | 28–30 °C |
-| 60 % | 14,2 | 2,5 | 5–8 | 30–33 °C |
-| 80 % | 30,9 | 4,8 | 8–15 | 33–40 °C |
-| 100 % (boost, 120 s) | 58,4 | 8,6 | 15–25 | 40–50 °C |
+| 60 % | 14,2 | 2,5 | 5–9 | 30–34 °C |
+| 70 % (dagstand met F7, hoofdstuk 3) | 21,4 | 3,5 | 6–12 | 31–37 °C |
+| 80 % | 30,9 | 4,8 | 9–16 | 34–41 °C |
+| 100 % (boost, 120 s) | 58,4 | 8,6 | 15–26 | 40–51 °C |
 
-De adapter mag vol vermogen leveren tot 40 °C omgeving. Op de dagstanden (tot 80 % toerental) blijft de box daar ruim onder; 100 % is alleen boost en duurt 120 s. PETG blijft onder 60 °C. Model: wanden (h = 5 tot 10 W/m²K) plus de schoorsteenstroom door de bodem- en achterwandsleuven.
+De adapter mag vol vermogen leveren tot 40 °C omgeving. Tot 70 % toerental blijft de box daar ruim onder. Op 80 % (de hoogste gewone stand) komt het ongunstigste geval (h = 5) net op de grens: dat meet poort E1; wordt het te warm, dan zakt de hoogste gewone stand naar 70 % (`dagMaxPct` in regel.h). 100 % is alleen boost en duurt 120 s. PETG blijft onder 60 °C. Model: wanden (h = 5 tot 10 W/m²K) plus de schoorsteenstroom door de bodem- en achterwandsleuven.
 
 ## 6. Bevestiging
 
