@@ -19,7 +19,7 @@ elke poort hieronder groen is, is de afzuiging een **ontwikkelprototype**: niet 
 | E12 uitkloppen | geschrapt in de UI en de handleiding: filter in een zak vervangen |
 | E14 instructies | freesmaten, USB-printjes, schakelaar in de voorwand, TR5-zekering, M8 binder 718 overal gelijk |
 
-De firmwarebeslissingen zitten in `firmware/include/regel.h` en zijn beschreven in 14 tests (`firmware/test/test_regel`).
+De firmwarebeslissingen zitten in `firmware/include/regel.h` en zijn beschreven in 16 tests (`firmware/test/test_regel`).
 Die tests draaien op de pc met `python -m platformio test -e native` (GCC 16.2, WinLibs): 16 van de 16 geslaagd op 2026-11-07.
 
 ## 2. Beschermingsconcept (E01, E04, E12, E13)
