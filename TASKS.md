@@ -1116,10 +1116,11 @@ elease; README en docs/04 bijgewerkt
 
 ## Treinverlichting: doos met ESP, 16 lichtgroepen, knoppen en sensoren, webdashboard (2026-11-08)
 - [x] Eisenlijst met Ian (voorbeelden/treinverlichting/EISEN.md): hotspot, 16 groepen = 16 Modelbouwled-bordjes, 12 V DC, aan/uit + dimmen + effecten, knoppen en sensoren, doos onder de baan
-- [ ] Elektronica kiezen en rekenen: adapter 12 V (gekeurd), ESP32-S3, PCA9685 + 16 MOSFET-uitgangen met polyfuse, 16 ingangen via optocouplers + MCP23017; stroom, warmte, zekeringen (docs/Berekeningen.md)
-- [ ] Firmware (PlatformIO): hotspot + webdashboard (groepen, dimmen, effecten, scènes, functies, ingangen -> functie), opslag in flash, hosttests
-- [ ] Aansluitschema (EPLAN-stijl, zoals de afzuiging) en klemmenplan
-- [ ] Doos in Phlippo CAD (PETG, zonder support, onder de baan te schroeven), STL's en werktekening
+- [x] Elektronica kiezen en rekenen: adapter 12 V (gekeurd), ESP32-S3, PCA9685 + 16 MOSFET-uitgangen met polyfuse, 16 ingangen via optocouplers + MCP23017; stroom, warmte, zekeringen (docs/Berekeningen.md)
+- [x] Firmware (PlatformIO): hotspot + webdashboard (groepen, dimmen, effecten, scènes, functies, ingangen -> functie), opslag in flash, hosttests
+- [x] Aansluitschema (EPLAN-stijl, zoals de afzuiging) en klemmenplan
+- [x] Doos in Phlippo CAD (PETG, zonder support, sleutelgaten onder de baan): kaders per rij, kabelgoten, lippen, binderspleten, drukribben; 0 botsingen, bak 32 s rebuild
+- [ ] STL's en werktekening van bak en deksel
 - [ ] README met bestellijst en prijzen, bouwschema met beelden, handleiding voor de schoonvader
 - [ ] Tests, foto's, alles-in-één-PDF; commit en push
 

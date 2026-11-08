@@ -1,0 +1,1149 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#fbf9f4" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1b2124" media="(prefers-color-scheme: dark)">
+<title>Treinbaan</title>
+<!--
+  Dashboard van de lichtsturing. Eén bestand, zonder internet (geen CDN).
+  In de doos: ui/maak-header.py pakt dit bestand in (gzip) als src/dashboard.h.
+  Demo: dit bestand rechtstreeks in een browser openen (file://): er is dan geen doos, en het dashboard toont
+  voorbeeldgegevens die zich gedragen zoals de echte doos.
+-->
+<style>
+:root {
+  --bg: #f2efe7; --vlak: #fbf9f4; --vlak2: #e8e3d7; --rand: #d6cfbf; --inkt: #1e292c; --zacht: #5b6567;
+  --groen: #2c5b4e; --groen-inkt: #ffffff; --groen-zacht: #d9e7e0;
+  --amber: 226, 160, 28; --rood: #b02a20; --rood-zacht: #f5dfdb; --geel-zacht: #f6ebcd;
+  --schaduw: 0 1px 0 rgba(40, 30, 10, .04), 0 3px 10px rgba(40, 30, 10, .06);
+  --knopje: #ffffff;
+  --r: 14px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #131719; --vlak: #1b2124; --vlak2: #252c30; --rand: #333c41; --inkt: #ebe7de; --zacht: #a3aaa9;
+    --groen: #82baa8; --groen-inkt: #0e1916; --groen-zacht: #213430;
+    --amber: 244, 184, 64; --rood: #e86a60; --rood-zacht: #3b2422; --geel-zacht: #3a321f;
+    --schaduw: 0 1px 0 rgba(0, 0, 0, .3);
+    --knopje: #d9d4c9;
+  }
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--inkt);
+  font: 18px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 3px solid var(--groen); outline-offset: 2px; }
+[hidden] { display: none !important; }
+h2 { font-size: 22px; margin: 6px 0 12px; letter-spacing: .01em; }
+h3 { font-size: 19px; margin: 0; line-height: 1.25; }
+p { margin: 6px 0; }
+.klein { font-size: 15px; color: var(--zacht); }
+.leeg { color: var(--zacht); font-style: italic; }
+
+/* kop: titel, verbinding en "Alles uit"; de onderrand is een spoor met dwarsliggers */
+.kop { position: sticky; top: 0; z-index: 10; background: var(--vlak); padding: 10px 16px 0; }
+.kop::after {
+  content: ""; display: block; height: 9px; margin: 10px -16px 0;
+  background:
+    linear-gradient(var(--rand), var(--rand)) 0 1px / 100% 2px no-repeat,
+    linear-gradient(var(--rand), var(--rand)) 0 6px / 100% 2px no-repeat,
+    repeating-linear-gradient(90deg, var(--rand) 0 4px, transparent 4px 22px);
+  opacity: .9;
+}
+.kop-rij { display: flex; align-items: center; gap: 12px; max-width: 1100px; margin: 0 auto; }
+.merk { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 21px; letter-spacing: .02em; }
+.merk svg { width: 26px; height: 26px; }
+.verbinding { display: flex; align-items: center; gap: 6px; font-size: 14px; color: var(--zacht); min-width: 0; }
+.verbinding i { width: 10px; height: 10px; border-radius: 50%; background: var(--rand); flex: none; }
+.verbinding.ok i { background: #3d9a6f; }
+.verbinding.weg i { background: var(--rood); }
+.verbinding.demo i { background: rgb(var(--amber)); }
+.knop-uit {
+  margin-left: auto; flex: none; min-height: 52px; padding: 0 20px; border: 0; border-radius: 12px;
+  background: var(--rood); color: #fff; font-weight: 800; font-size: 18px; letter-spacing: .02em;
+}
+.knop-uit:active { transform: translateY(1px); }
+
+/* tabbladen: bovenaan op een tablet, onderaan (bij de duim) op een gsm */
+.tabs { display: flex; gap: 6px; max-width: 1100px; margin: 10px auto 0; }
+.tabs button {
+  flex: 1; min-height: 52px; border: 0; border-radius: 10px; background: transparent; color: var(--zacht);
+  display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600; font-size: 17px;
+}
+.tabs svg { width: 24px; height: 24px; flex: none; }
+.tabs button[aria-selected="true"] { background: var(--groen-zacht); color: var(--groen); font-weight: 800; }
+@media (max-width: 699px) {
+  .tabs {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; margin: 0; gap: 0; background: var(--vlak);
+    border-top: 1px solid var(--rand); padding: 4px 4px calc(4px + env(safe-area-inset-bottom));
+  }
+  .tabs button { flex-direction: column; gap: 2px; font-size: 13px; min-height: 60px; padding: 4px 0; }
+  .knop-uit { padding: 0 16px; }
+  .verbinding span { display: none; }
+}
+
+main { max-width: 1100px; margin: 0 auto; padding: 14px 16px 120px; }
+.uitleg { color: var(--zacht); font-size: 16px; margin: -4px 0 14px; max-width: 60ch; }
+.rooster { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 14px; }
+.tegel { background: var(--vlak); border: 1px solid var(--rand); border-radius: var(--r); padding: 14px; box-shadow: var(--schaduw); }
+.blok { margin-bottom: 26px; }
+
+/* nummerbordje zoals op een perron */
+.nr {
+  flex: none; min-width: 34px; height: 34px; padding: 0 6px; border-radius: 8px; background: var(--inkt);
+  color: var(--vlak); font-weight: 800; font-size: 17px; display: inline-grid; place-items: center;
+  font-variant-numeric: tabular-nums;
+}
+
+/* groepen */
+.tegel-kop { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.tegel-kop h3 { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.label { display: inline-block; font-size: 12px; font-weight: 700; color: var(--groen); background: var(--groen-zacht); border-radius: 6px; padding: 1px 6px; margin-left: 6px; vertical-align: 2px; }
+.lamp {
+  --l: 0; flex: none; width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--rand);
+  background: radial-gradient(circle at 40% 35%, rgba(255, 250, 230, calc(var(--l) * .95)), rgba(var(--amber), calc(var(--l))) 70%), var(--vlak2);
+  box-shadow: 0 0 calc(4px + var(--l) * 16px) calc(var(--l) * 4px) rgba(var(--amber), calc(var(--l) * .75));
+}
+.schakel {
+  flex: none; position: relative; width: 70px; height: 44px; border-radius: 22px; border: 2px solid var(--rand);
+  background: var(--vlak2); padding: 0; transition: background .15s;
+}
+.schakel span {
+  position: absolute; top: 4px; left: 4px; width: 32px; height: 32px; border-radius: 50%; background: var(--knopje);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .3); transition: transform .15s;
+}
+.schakel[aria-checked="true"] { background: var(--groen); border-color: var(--groen); }
+.schakel[aria-checked="true"] span { transform: translateX(26px); }
+.rij { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-top: 4px; }
+.waarde { font-weight: 700; font-variant-numeric: tabular-nums; }
+input[type="range"] { width: 100%; height: 44px; margin: 0; background: transparent; -webkit-appearance: none; appearance: none; }
+input[type="range"]::-webkit-slider-runnable-track { height: 10px; border-radius: 5px; background: linear-gradient(90deg, var(--vlak2), rgba(var(--amber), .9)); }
+input[type="range"]::-moz-range-track { height: 10px; border-radius: 5px; background: linear-gradient(90deg, var(--vlak2), rgba(var(--amber), .9)); }
+input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 32px; height: 32px; margin-top: -11px; border-radius: 50%; background: var(--vlak); border: 3px solid var(--groen); }
+input[type="range"]::-moz-range-thumb { width: 26px; height: 26px; border-radius: 50%; background: var(--vlak); border: 3px solid var(--groen); }
+select, input[type="text"], input[type="password"] {
+  width: 100%; min-height: 50px; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--rand);
+  background: var(--vlak); font-size: 17px;
+}
+select {
+  -webkit-appearance: none; appearance: none; padding-right: 40px;
+  background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position: calc(100% - 20px) 22px, calc(100% - 14px) 22px; background-size: 6px 6px; background-repeat: no-repeat;
+}
+.veld { display: grid; gap: 4px; margin-top: 10px; }
+.params { display: grid; gap: 4px; }
+.stapper { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 10px; }
+.stapper .klein { flex: 1; }
+.stap-knoppen { display: flex; align-items: center; border: 1px solid var(--rand); border-radius: 12px; overflow: hidden; background: var(--vlak); flex: none; }
+.stap-knoppen button { width: 50px; height: 48px; border: 0; background: var(--vlak2); font-size: 24px; font-weight: 700; line-height: 1; }
+.stap-knoppen output { min-width: 88px; text-align: center; font-weight: 700; font-variant-numeric: tabular-nums; padding: 0 6px; }
+
+/* knoppen */
+.knop {
+  min-height: 48px; padding: 0 18px; border-radius: 12px; border: 1px solid var(--rand); background: var(--vlak);
+  font-weight: 650; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+}
+.knop.hoofd { background: var(--groen); color: var(--groen-inkt); border-color: var(--groen); }
+.knop.gevaar { color: var(--rood); border-color: var(--rood); background: transparent; }
+.knop:disabled { opacity: .5; }
+.knoppen { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+.groot-knop {
+  width: 100%; min-height: 88px; border-radius: var(--r); border: 1px solid var(--rand); background: var(--vlak);
+  box-shadow: var(--schaduw); text-align: left; padding: 14px 16px; display: flex; align-items: center; gap: 14px;
+  font-size: 20px; font-weight: 750;
+}
+.groot-knop:active { transform: translateY(1px); }
+.groot-knop svg { width: 30px; height: 30px; flex: none; color: var(--groen); }
+.functie-blok { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+.functie-blok > .knop { min-width: 64px; padding: 0 12px; font-size: 15px; color: var(--zacht); }
+.functie .tekst { display: grid; gap: 2px; min-width: 0; }
+.functie .status { font-size: 15px; font-weight: 500; color: var(--zacht); }
+.functie.loopt { background: var(--groen); color: var(--groen-inkt); border-color: var(--groen); }
+.functie.loopt svg, .functie.loopt .status { color: var(--groen-inkt); }
+.functie.loopt .puls { animation: puls 1.2s ease-in-out infinite; }
+@keyframes puls { 50% { opacity: .35; } }
+@media (prefers-reduced-motion: reduce) { .functie.loopt .puls { animation: none; } }
+
+/* dag en nacht */
+.dn-balk {
+  position: relative; height: 16px; border-radius: 8px; margin: 14px 0 6px;
+  background: linear-gradient(90deg, #e9d48a 0 40%, #d98a4e 40% 55%, #2d3f63 55% 85%, #b7a0c9 85% 97%, #e9d48a 97%);
+}
+.dn-balk i { position: absolute; top: -6px; width: 6px; height: 28px; margin-left: -3px; border-radius: 3px; background: var(--inkt); box-shadow: 0 0 0 2px var(--vlak); }
+.dn-fasen { display: flex; justify-content: space-between; font-size: 13px; color: var(--zacht); }
+.dn-fasen span:nth-child(1) { width: 40%; } .dn-fasen span:nth-child(2) { width: 15%; }
+.dn-fasen span:nth-child(3) { width: 30%; } .dn-fasen span:nth-child(4) { width: 15%; }
+.dn-status { font-size: 19px; font-weight: 750; }
+.raster4 { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; margin-top: 8px; }
+#scenes-lijst { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+#scenes-lijst .groot-knop { min-height: 76px; font-size: 19px; }
+
+/* ingangen */
+.ingangen { display: grid; gap: 10px; }
+.ingang-kop { display: flex; align-items: center; gap: 12px; }
+.ingang-tekst { flex: 1; min-width: 0; display: grid; }
+.ingang-tekst strong { overflow-wrap: anywhere; }
+.stip { flex: none; width: 20px; height: 20px; border-radius: 50%; border: 3px solid var(--rand); background: transparent; }
+.stip.aan { background: #3d9a6f; border-color: #3d9a6f; box-shadow: 0 0 0 4px rgba(61, 154, 111, .25); }
+.toestand { font-size: 15px; font-weight: 700; color: var(--zacht); text-align: right; }
+.ingang .knop { flex: none; }
+@media (max-width: 520px) {
+  .ingang-kop { flex-wrap: wrap; }
+  .ingang-tekst { flex-basis: calc(100% - 90px); }
+  .toestand { flex: 1; text-align: left; padding-left: 32px; }
+}
+.keuze { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
+.keuze button { min-height: 52px; border-radius: 12px; border: 1px solid var(--rand); background: var(--vlak); font-weight: 650; }
+.keuze button[aria-pressed="true"] { background: var(--groen); color: var(--groen-inkt); border-color: var(--groen); }
+.vink { display: flex; align-items: center; gap: 12px; min-height: 48px; margin-top: 8px; }
+.vink input { width: 28px; height: 28px; accent-color: var(--groen); flex: none; }
+.editor { margin-top: 14px; padding-top: 14px; border-top: 1px dashed var(--rand); }
+
+/* instellingen */
+.lijst-groepen { display: grid; gap: 10px; }
+.groep-rij { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--vlak2); }
+.groep-rij .opties { grid-column: 2; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 18px; }
+.groep-rij .stapper { margin-top: 0; }
+.over dt { font-size: 15px; color: var(--zacht); }
+.over dd { margin: 0 0 10px; font-weight: 650; }
+
+/* functie-editor: een blad over het hele scherm */
+.blad { position: fixed; inset: 0; z-index: 30; background: var(--bg); overflow-y: auto; padding: 0 16px 40px; }
+.blad-kop { position: sticky; top: 0; background: var(--bg); display: flex; align-items: center; gap: 10px; padding: 12px 0; z-index: 1; border-bottom: 1px solid var(--rand); margin-bottom: 14px; }
+.blad-kop h2 { flex: 1; margin: 0; }
+.blad-binnen { max-width: 760px; margin: 0 auto; }
+.stap-kaart { margin-top: 12px; }
+.stap-kop { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.stap-kop h3 { flex: 1; }
+.ikoonknop { width: 48px; height: 48px; border-radius: 12px; border: 1px solid var(--rand); background: var(--vlak); display: grid; place-items: center; padding: 0; }
+.ikoonknop svg { width: 22px; height: 22px; }
+.chips { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 6px; margin-top: 4px; }
+.chip { min-height: 52px; border-radius: 10px; border: 1px solid var(--rand); background: var(--vlak); padding: 4px; display: grid; justify-items: center; align-content: center; line-height: 1.1; }
+.chip b { font-size: 17px; }
+.chip small { font-size: 12px; color: var(--zacht); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chip[aria-pressed="true"] { background: var(--groen); border-color: var(--groen); color: var(--groen-inkt); }
+.chip[aria-pressed="true"] small { color: var(--groen-inkt); }
+
+.melding { max-width: 1100px; margin: 12px auto 0; padding: 0 16px; }
+.melding div { background: var(--geel-zacht); border-left: 6px solid rgb(var(--amber)); border-radius: 10px; padding: 12px 14px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.melding p { flex: 1; min-width: 200px; margin: 0; }
+.toast {
+  position: fixed; left: 50%; bottom: 96px; transform: translate(-50%, 20px); z-index: 40; max-width: calc(100% - 32px);
+  background: var(--inkt); color: var(--vlak); padding: 12px 18px; border-radius: 12px; font-weight: 650;
+  opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s;
+}
+.toast.toon { opacity: 1; transform: translate(-50%, 0); }
+.toast.fout { background: var(--rood); color: #fff; }
+@media (min-width: 700px) { .toast { bottom: 28px; } }
+</style>
+</head>
+<body>
+<header class="kop">
+  <div class="kop-rij">
+    <div class="merk">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="7.5" y="2" width="9" height="13" rx="4.5"/><circle cx="12" cy="6.2" r="1.5" fill="currentColor"/><circle cx="12" cy="10.8" r="1.5"/><path d="M12 15v7M8 22h8"/></svg>
+      <span>Treinbaan</span>
+    </div>
+    <div id="verbinding" class="verbinding" role="status"><i></i><span>verbinden…</span></div>
+    <button id="allesUit" class="knop-uit" type="button">Alles uit</button>
+  </div>
+  <nav class="tabs" role="tablist" aria-label="Onderdelen">
+    <button type="button" role="tab" data-tab="groepen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.6 10.8c.7.6 1.1 1.3 1.1 2.2h5c0-.9.4-1.6 1.1-2.2A6 6 0 0 0 12 3z"/></svg>Groepen</button>
+    <button type="button" role="tab" data-tab="scenes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 18h18M6 18a6 6 0 0 1 12 0M12 5v3M5.6 8.6l1.8 1.8M18.4 8.6l-1.8 1.8M8 21h8"/></svg>Scènes</button>
+    <button type="button" role="tab" data-tab="functies"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M10 8.5v7l6-3.5z"/></svg>Functies</button>
+    <button type="button" role="tab" data-tab="ingangen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="7" width="18" height="10" rx="5"/><circle cx="16" cy="12" r="2.5" fill="currentColor"/></svg>Ingangen</button>
+    <button type="button" role="tab" data-tab="instellingen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/></svg>Instellingen</button>
+  </nav>
+</header>
+
+<div id="melding" class="melding" hidden><div><p></p><button class="knop" type="button">Begrepen</button></div></div>
+
+<main>
+  <section id="tab-groepen">
+    <h2>Groepen</h2>
+    <p class="uitleg">Elke groep is één bordje op de baan. Tik op de schakelaar om aan of uit te zetten.</p>
+    <div id="groepen-lijst" class="rooster"></div>
+  </section>
+
+  <section id="tab-scenes" hidden>
+    <div class="blok tegel" id="dagnacht">
+      <h2>Dag en nacht</h2>
+      <div class="dn-status" id="dn-status">…</div>
+      <div class="dn-balk" aria-hidden="true"><i id="dn-wijzer"></i></div>
+      <div class="dn-fasen" aria-hidden="true"><span>dag</span><span>avond</span><span>nacht</span><span>ochtend</span></div>
+      <p class="klein" id="dn-info"></p>
+      <p class="klein" style="margin-top:12px">Beginnen bij:</p>
+      <div class="raster4" id="dn-knoppen"></div>
+      <div class="knoppen"><button class="knop" type="button" id="dn-stop">Dag en nacht stoppen</button></div>
+    </div>
+
+    <div class="blok">
+      <h2>Scènes</h2>
+      <p class="uitleg">Eén tik zet alle lampen zoals ze bewaard zijn.</p>
+      <div id="scenes-lijst" class="rooster"></div>
+    </div>
+
+    <div class="blok tegel">
+      <h3>Huidige stand bewaren</h3>
+      <p class="klein">Zet eerst alle lampen zoals u wilt. Geef dan een naam en tik op Bewaren.</p>
+      <div class="veld"><input type="text" id="scene-naam" maxlength="31" placeholder="bv. Avond" aria-label="Naam van de nieuwe scène"></div>
+      <div class="knoppen">
+        <button class="knop hoofd" type="button" id="scene-bewaar">Bewaren als nieuwe scène</button>
+        <button class="knop" type="button" id="scene-beheer">Scènes wijzigen of wissen</button>
+      </div>
+      <div id="scenes-beheer" class="editor" hidden></div>
+    </div>
+  </section>
+
+  <section id="tab-functies" hidden>
+    <h2>Functies</h2>
+    <p class="uitleg">Een functie doet een reeks stappen na elkaar, bv. een overweg die 30 seconden knippert. Tik om te starten, nog eens om te stoppen.</p>
+    <div id="functies-lijst" class="rooster"></div>
+    <div class="knoppen"><button class="knop hoofd" type="button" id="functie-nieuw">+ Nieuwe functie</button></div>
+  </section>
+
+  <section id="tab-ingangen" hidden>
+    <h2>Ingangen</h2>
+    <p class="uitleg">Knoppen, schakelaars en sensoren op de baan. Het bolletje wordt groen zolang de ingang actief is.</p>
+    <div id="ingangen-lijst" class="ingangen"></div>
+  </section>
+
+  <section id="tab-instellingen" hidden>
+    <h2>Instellingen</h2>
+    <div class="blok tegel">
+      <h3>Namen van de groepen</h3>
+      <p class="klein">Maximum: hoe fel de groep hoogstens mag branden. Dag en nacht: de groep gaat 's avonds vanzelf aan en 's ochtends uit.</p>
+      <div id="inst-groepen" class="lijst-groepen"></div>
+      <div class="knoppen"><button class="knop hoofd" type="button" id="inst-groepen-bewaar">Namen bewaren</button></div>
+    </div>
+    <div class="blok tegel" id="inst-algemeen"></div>
+    <div class="blok tegel">
+      <h3>Wifi</h3>
+      <p class="klein">Naam van het wifi-netwerk: <strong id="inst-hotspot">Treinbaan</strong>. Het wachtwoord heeft minstens 8 tekens (geen é of ë).</p>
+      <div class="veld"><span class="klein">Nieuw wachtwoord</span><input type="password" id="ww1" autocomplete="new-password" maxlength="63"></div>
+      <div class="veld"><span class="klein">Nog eens</span><input type="password" id="ww2" autocomplete="new-password" maxlength="63"></div>
+      <label class="vink"><input type="checkbox" id="ww-toon"> Wachtwoord tonen</label>
+      <div class="knoppen"><button class="knop hoofd" type="button" id="ww-bewaar">Wachtwoord wijzigen</button></div>
+    </div>
+    <div class="blok tegel">
+      <h3>Over de doos</h3>
+      <dl class="over">
+        <dt>Firmware</dt><dd id="inst-versie">–</dd>
+        <dt>Adres van dit dashboard</dt><dd>http://192.168.4.1 of http://treinbaan.local</dd>
+      </dl>
+      <div class="knoppen"><button class="knop gevaar" type="button" id="fabriek">Fabrieksinstellingen terugzetten</button></div>
+    </div>
+  </section>
+</main>
+
+<div id="blad" class="blad" hidden></div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<noscript><p style="padding:16px">Dit dashboard heeft JavaScript nodig.</p></noscript>
+
+<script>
+'use strict';
+// ------------------------------------------------------------------------------------------------ tabellen
+// dezelfde grenzen als include/licht.h (effectInfo); "ms": opgeslagen in ms, getoond in seconden
+const EFFECTEN = [
+  { id: 'geen', naam: 'Geen effect' },
+  { id: 'knipperen', naam: 'Knipperen', p: [
+    { n: 'Aan', e: 's', ms: true, min: 50, max: 10000, std: 500 }, { n: 'Uit', e: 's', ms: true, min: 50, max: 10000, std: 500 }] },
+  { id: 'overweg', naam: 'Om beurten (overweg)', p: [
+    { n: 'Tempo', e: 's', ms: true, min: 100, max: 5000, std: 600 }, { n: 'Om beurten met groep', groep: true, min: 0, max: 16, std: 0 }] },
+  { id: 'vuur', naam: 'Flikkerend vuur', p: [
+    { n: 'Onrust', e: '%', min: 5, max: 100, std: 60, stap: 5 }, { n: 'Snelheid (1 tot 10)', min: 1, max: 10, std: 5 }] },
+  { id: 'tv', naam: 'Tv-licht', p: [
+    { n: 'Onrust', e: '%', min: 5, max: 100, std: 50, stap: 5 }, { n: 'Ander beeld na', e: 's', min: 1, max: 20, std: 3 }] },
+  { id: 'lasvlam', naam: 'Lasvlam', p: [
+    { n: 'Flitsen per reeks', min: 2, max: 30, std: 12 }, { n: 'Pauze', e: 's', min: 1, max: 60, std: 5 }] },
+  { id: 'tl', naam: 'Tl-buis springt aan', p: [
+    { n: 'Aantal flikkers', min: 0, max: 20, std: 4 }, { n: 'Duur van het aanspringen', e: 's', ms: true, min: 200, max: 10000, std: 1500 }] },
+  { id: 'ademen', naam: 'Langzaam ademen', p: [
+    { n: 'Eén ademhaling', e: 's', min: 1, max: 60, std: 4 }, { n: 'Zwakste licht', e: '%', min: 0, max: 90, std: 10, stap: 5 }] },
+];
+const FASEN = [['dag', 'Dag'], ['avond', 'Avond'], ['nacht', 'Nacht'], ['ochtend', 'Ochtend']];
+const ACTIES = [['aan', 'Aan'], ['uit', 'Uit'], ['helderheid', 'Helderheid'], ['effect', 'Effect'], ['scene', 'Scène oproepen'], ['dagnacht', 'Dag en nacht']];
+const GEDRAG = [['geen', 'Niet gebruikt'], ['drukknop', 'Drukknop'], ['schakelaar', 'Schakelaar'], ['sensor', 'Sensor']];
+const fxInfo = id => EFFECTEN.find(e => e.id === id) || EFFECTEN[0];
+
+// ------------------------------------------------------------------------------------------------- hulp
+const $ = (s, el = document) => el.querySelector(s);
+function h(tag, a, ...kinderen) {
+  const el = document.createElement(tag);
+  if (a) for (const [k, v] of Object.entries(a)) {
+    if (v == null || v === false) continue;
+    if (k === 'class') el.className = v;
+    else if (k.startsWith('on')) el.addEventListener(k.slice(2), v);
+    else el.setAttribute(k, v === true ? '' : String(v));
+  }
+  for (const k of kinderen.flat(3)) if (k != null && k !== false) el.append(k.nodeType ? k : document.createTextNode(String(k)));
+  return el;
+}
+const ICOON = {
+  scene: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 18h18M6 18a6 6 0 0 1 12 0M12 5v3M5.6 8.6l1.8 1.8M18.4 8.6l-1.8 1.8M8 21h8"/></svg>',
+  speel: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M10 8.5v7l6-3.5z"/></svg>',
+  loopt: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><rect class="puls" x="9" y="9" width="6" height="6" rx="1" fill="currentColor"/></svg>',
+  op: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg>',
+  neer: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>',
+  weg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+};
+const ikoon = n => { const s = document.createElement('span'); s.style.display = 'contents'; s.innerHTML = ICOON[n]; return s; };
+const getal = (v, d = 1) => Number(v).toLocaleString('nl-BE', { maximumFractionDigits: d });
+function duur(s) {
+  if (s < 60) return getal(s) + ' s';
+  const m = Math.floor(s / 60), r = Math.round(s % 60);
+  return m + ' min' + (r ? ' ' + r + ' s' : '');
+}
+let toastKlok;
+function toast(t, fout) {
+  const el = $('#toast');
+  el.textContent = t;
+  el.className = 'toast toon' + (fout ? ' fout' : '');
+  clearTimeout(toastKlok);
+  toastKlok = setTimeout(() => { el.className = 'toast' + (fout ? ' fout' : ''); }, fout ? 5000 : 2200);
+}
+
+/** − waarde + : grote knoppen in plaats van typen. Waarden in de eenheid van de doos (ms als p.ms). */
+function stapper(o) {
+  let v = o.waarde;
+  const toon = x => o.toon ? o.toon(x) : (o.ms ? getal(x / 1000, 2) : getal(x)) + (o.e ? ' ' + o.e : '');
+  const veld = h('output', null, toon(v));
+  const stap = (x, op) => typeof o.stap === 'function' ? o.stap(x, op) : o.ms ? (op ? (x < 1000 ? 50 : x < 5000 ? 100 : 500) : (x <= 1000 ? 50 : x <= 5000 ? 100 : 500)) : (o.stap || 1);
+  const zet = nv => {
+    nv = Math.min(o.max, Math.max(o.min, Math.round(nv * 1000) / 1000));
+    if (nv === v) return;
+    v = nv;
+    veld.textContent = toon(v);
+    o.opWijzig(v);
+  };
+  return h('div', { class: 'stapper' }, h('span', { class: 'klein' }, o.n),
+    h('div', { class: 'stap-knoppen' },
+      h('button', { type: 'button', 'aria-label': o.n + ' minder', onclick: () => zet(v - stap(v, false)) }, '−'), veld,
+      h('button', { type: 'button', 'aria-label': o.n + ' meer', onclick: () => zet(v + stap(v, true)) }, '+')));
+}
+
+// ------------------------------------------------------------------------------------------- verbinding
+let S = null;              // de volledige staat van de doos
+let demo = !/^https?:$/.test(location.protocol); // file:// (of een voorbeeldweergave): geen doos
+let bezig = false;
+
+async function api(pad, body) {
+  if (demo) return Demo.vraag(pad, body);
+  const r = await fetch(pad, body ? { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) } : { cache: 'no-store' });
+  if (r.status === 404 && !S) { demo = true; return Demo.vraag(pad, body); } // geopend zonder doos
+  let j;
+  try { j = await r.json(); } catch (e) { if (!S) { demo = true; return Demo.vraag(pad, body); } throw e; }
+  if (!r.ok && j.ok !== false) j.ok = false;
+  return j;
+}
+
+/** iets aan de doos vragen; bij een fout een rode melding. Daarna meteen de nieuwe stand ophalen. */
+async function stuur(pad, body, gelukt, stil) {
+  try {
+    const j = await api(pad, body);
+    if (j.ok === false) { toast(j.fout || 'Dat lukte niet.', true); peil(); return null; }
+    if (gelukt) toast(gelukt);
+    if (!stil) peil();
+    return j;
+  } catch (e) {
+    toast('Geen verbinding met de doos. Is de gsm nog met wifi "Treinbaan" verbonden?', true);
+    return null;
+  }
+}
+
+function verbinding(ok) {
+  const el = $('#verbinding');
+  el.className = 'verbinding ' + (demo ? 'demo' : ok ? 'ok' : 'weg');
+  $('span', el).textContent = demo ? 'voorbeeld (geen doos)' : ok ? 'verbonden' : 'geen verbinding';
+}
+
+async function peil() {
+  if (bezig) return;
+  bezig = true;
+  try {
+    const k = await api('/api/staat?kort=1');
+    if (!S || k.rev !== S.rev) { S = await api('/api/staat'); bouwAlles(); }
+    else samenvoegen(k);
+    werkLiveBij();
+    verbinding(true);
+  } catch (e) {
+    verbinding(false);
+  } finally {
+    bezig = false;
+  }
+}
+
+function samenvoegen(k) {
+  k.groepen.forEach((g, i) => Object.assign(S.groepen[i], g));
+  k.ingangen.forEach((x, i) => Object.assign(S.ingangen[i], { actief: x.actief, toestand: x.toestand, vrijOver: x.vrijOver }));
+  S.lopend = k.lopend;
+  S.dagnacht = k.dagnacht;
+  S.melding = k.melding;
+}
+
+function lus() {
+  if (!document.hidden) peil();
+  setTimeout(lus, 1000);
+}
+
+// -------------------------------------------------------------------------------------------- tabbladen
+let tab = 'groepen';
+try { tab = localStorage.getItem('treinbaan-tab') || 'groepen'; } catch (e) { /* geen opslag: niet erg */ }
+function kiesTab(id) {
+  if (!$('#tab-' + id)) id = 'groepen';
+  tab = id;
+  try { localStorage.setItem('treinbaan-tab', id); } catch (e) { /* niet erg */ }
+  document.querySelectorAll('.tabs button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === id)));
+  document.querySelectorAll('main > section').forEach(s => { s.hidden = s.id !== 'tab-' + id; });
+  window.scrollTo(0, 0);
+}
+
+function bouwAlles() {
+  bouwGroepen();
+  bouwScenes();
+  bouwFuncties();
+  bouwIngangen();
+  bouwInstellingen();
+  $('#inst-versie').textContent = S.versie || '–';
+  $('#inst-hotspot').textContent = S.hotspot || 'Treinbaan';
+}
+
+let weggeklikt = '';
+function werkLiveBij() {
+  S.groepen.forEach((g, i) => werkGroepBij(i));
+  werkFunctiesBij();
+  werkIngangenBij();
+  werkDagnachtBij();
+  const m = $('#melding');
+  m.hidden = !S.melding || S.melding === weggeklikt;
+  $('p', m).textContent = S.melding || '';
+}
+
+// ---------------------------------------------------------------------------------------------- groepen
+const tegels = [];
+function bouwGroepen() {
+  $('#groepen-lijst').replaceChildren(...S.groepen.map(groepTegel));
+  S.groepen.forEach((g, i) => werkGroepBij(i));
+}
+
+function groepTegel(g, i) {
+  const lamp = h('span', { class: 'lamp', 'aria-hidden': 'true' });
+  const sw = h('button', { class: 'schakel', type: 'button', role: 'switch', 'aria-label': g.naam + ' aan of uit',
+    onclick: () => zetGroep(i, { aan: !S.groepen[i].aan }) }, h('span'));
+  const waarde = h('output', { class: 'waarde' });
+  let laatst = 0;
+  const schuif = h('input', { type: 'range', min: 1, max: 100, step: 1, 'aria-label': 'Helderheid van ' + g.naam,
+    oninput: e => {
+      waarde.textContent = e.target.value + ' %';
+      if (Date.now() - laatst > 200) { laatst = Date.now(); zetGroep(i, { helderheid: +e.target.value, aan: true }, true); }
+    },
+    onchange: e => zetGroep(i, { helderheid: +e.target.value, aan: true }) });
+  const keuze = h('select', { 'aria-label': 'Effect van ' + g.naam, onchange: e => {
+    const fx = fxInfo(e.target.value), w = { effect: fx.id, aan: true };
+    if (fx.p) { w.p1 = fx.p[0].std; w.p2 = fx.p[1].std; }
+    zetGroep(i, w);
+  } }, EFFECTEN.map(x => h('option', { value: x.id }, x.naam)));
+  const params = h('div', { class: 'params' });
+  const t = h('article', { class: 'tegel groep' },
+    h('div', { class: 'tegel-kop' }, h('span', { class: 'nr' }, g.nr),
+      h('h3', null, g.naam, g.dagnacht ? h('span', { class: 'label', title: 'Doet mee aan dag en nacht' }, 'dag/nacht') : null), lamp, sw),
+    h('div', { class: 'rij' }, h('span', { class: 'klein' }, 'Helderheid'), waarde), schuif,
+    h('div', { class: 'veld' }, h('span', { class: 'klein' }, 'Effect'), keuze), params);
+  tegels[i] = { lamp, sw, waarde, schuif, keuze, params, fx: null };
+  return t;
+}
+
+function werkGroepBij(i) {
+  const g = S.groepen[i], t = tegels[i];
+  if (!t) return;
+  t.lamp.style.setProperty('--l', (g.lamp / 100).toFixed(2));
+  t.sw.setAttribute('aria-checked', String(!!g.aan));
+  if (document.activeElement !== t.schuif) { t.schuif.value = g.helderheid; t.waarde.textContent = g.helderheid + ' %'; }
+  if (document.activeElement !== t.keuze) t.keuze.value = g.effect;
+  const sleutel = g.effect + '|' + g.p1 + '|' + g.p2;
+  if (t.fx !== sleutel && !t.params.contains(document.activeElement)) { t.fx = sleutel; vulParams(t.params, g, i); }
+}
+
+function vulParams(el, g, i) {
+  const fx = fxInfo(g.effect);
+  el.replaceChildren();
+  if (!fx.p) return;
+  fx.p.forEach((p, k) => {
+    const s = k ? 'p2' : 'p1';
+    if (p.groep) {
+      const kies = h('select', { 'aria-label': p.n, onchange: e => zetGroep(i, { [s]: +e.target.value }) },
+        h('option', { value: 0 }, 'geen'), S.groepen.filter((x, j) => j !== i).map(x => h('option', { value: x.nr }, x.nr + ' · ' + x.naam)));
+      kies.value = String(g[s]);
+      el.append(h('div', { class: 'veld' }, h('span', { class: 'klein' }, p.n), kies));
+    } else {
+      el.append(stapper(Object.assign({}, p, { waarde: g[s], opWijzig: v => zetGroep(i, { [s]: v }) })));
+    }
+  });
+}
+
+function zetGroep(i, w, stil) {
+  Object.assign(S.groepen[i], w);
+  werkGroepBij(i);
+  stuur('/api/groep', Object.assign({ nr: i + 1 }, w), null, stil);
+}
+
+// ----------------------------------------------------------------------------------------------- scènes
+let beheer = false;
+function bouwScenes() {
+  const sc = S.scenes.filter(Boolean);
+  const l = $('#scenes-lijst');
+  l.replaceChildren(...sc.map(s => h('button', { class: 'groot-knop', type: 'button',
+    onclick: () => stuur('/api/scene', { actie: 'oproepen', nr: s.nr }, '“' + s.naam + '” staat aan') }, ikoon('scene'), s.naam)));
+  if (!sc.length) l.append(h('p', { class: 'leeg' }, 'Nog geen scènes. Zet de lampen zoals u wilt en bewaar ze hieronder.'));
+  const b = $('#scenes-beheer');
+  b.hidden = !beheer;
+  $('#scene-beheer').textContent = beheer ? 'Klaar met wijzigen' : 'Scènes wijzigen of wissen';
+  b.replaceChildren(...sc.map(s => h('div', { class: 'groep-rij' }, h('span', { class: 'nr' }, s.nr), h('strong', null, s.naam),
+    h('div', { class: 'opties' },
+      h('button', { class: 'knop', type: 'button', onclick: () => {
+        if (confirm('De huidige stand van alle lampen bewaren als “' + s.naam + '”? De oude stand gaat verloren.'))
+          stuur('/api/scene', { actie: 'bewaren', nr: s.nr, naam: s.naam }, '“' + s.naam + '” is bijgewerkt');
+      } }, 'Huidige stand erin'),
+      h('button', { class: 'knop', type: 'button', onclick: () => {
+        const n = prompt('Nieuwe naam voor “' + s.naam + '”:', s.naam);
+        if (n && n.trim()) stuur('/api/scene', { actie: 'hernoemen', nr: s.nr, naam: n.trim() }, 'Naam gewijzigd');
+      } }, 'Andere naam'),
+      h('button', { class: 'knop gevaar', type: 'button', onclick: () => {
+        if (confirm('Scène “' + s.naam + '” wissen?')) stuur('/api/scene', { actie: 'wissen', nr: s.nr }, 'Gewist');
+      } }, 'Wissen')))));
+  // dag en nacht: de knoppen één keer
+  const k = $('#dn-knoppen');
+  if (!k.children.length) k.append(...FASEN.map(([id, naam]) => h('button', { class: 'knop', type: 'button',
+    onclick: () => stuur('/api/dagnacht', { loopt: true, vanaf: id }, 'Dag en nacht loopt') }, naam)));
+}
+
+function werkDagnachtBij() {
+  const d = S.dagnacht, n = S.groepen.filter(g => g.dagnacht).length, min = S.instellingen.dagnachtMin;
+  const fase = (FASEN.find(f => f[0] === d.fase) || ['', ''])[1].toLowerCase();
+  $('#dn-status').textContent = d.loopt ? 'Loopt · het is nu ' + fase : 'Staat stil';
+  $('#dn-wijzer').style.left = (d.loopt ? d.pos * 100 : 0) + '%';
+  $('#dn-wijzer').hidden = !d.loopt;
+  $('#dn-info').textContent = (n ? n + (n === 1 ? ' groep doet' : ' groepen doen') + ' mee' : 'Nog geen groep doet mee (kies bij Instellingen)') +
+    ' · een hele dag duurt ' + min + ' minuten.';
+  $('#dn-stop').disabled = !d.loopt;
+}
+
+// ---------------------------------------------------------------------------------------------- functies
+const fKnoppen = [];
+function bouwFuncties() {
+  const fs = S.functies.filter(Boolean);
+  fKnoppen.length = 0;
+  $('#functies-lijst').replaceChildren(...fs.map(f => {
+    const status = h('span', { class: 'status' });
+    const b = h('button', { class: 'groot-knop functie', type: 'button', onclick: () => {
+      const loopt = S.lopend[f.nr - 1];
+      S.lopend[f.nr - 1] = !loopt;
+      werkFunctiesBij();
+      stuur('/api/functie', { actie: 'wissel', nr: f.nr }, loopt ? '“' + f.naam + '” gestopt' : '“' + f.naam + '” loopt');
+    } }, h('span', { class: 'ik' }), h('span', { class: 'tekst' }, h('span', null, f.naam), status));
+    fKnoppen[f.nr - 1] = { b, status, f };
+    return h('div', { class: 'functie-blok' }, b,
+      h('button', { class: 'knop', type: 'button', onclick: () => openEditor(f.nr) }, 'Bewerken'));
+  }));
+  if (!fs.length) $('#functies-lijst').append(h('p', { class: 'leeg' }, 'Nog geen functies.'));
+  werkFunctiesBij();
+}
+
+function werkFunctiesBij() {
+  fKnoppen.forEach((k, i) => {
+    if (!k) return;
+    const loopt = !!S.lopend[i];
+    if (k.b.classList.contains('loopt') !== loopt || !k.b.firstChild.firstChild) {
+      k.b.classList.toggle('loopt', loopt);
+      k.b.firstChild.replaceChildren(ikoon(loopt ? 'loopt' : 'speel'));
+    }
+    const n = k.f.stappen.length;
+    k.status.textContent = loopt ? 'Loopt · tik om te stoppen' : n + (n === 1 ? ' stap' : ' stappen') + (k.f.herhalen ? ', herhaalt' : '') + ' · tik om te starten';
+  });
+}
+
+// de functie-editor (een blad over het hele scherm)
+let concept = null;
+function openEditor(nr) {
+  const f = nr ? JSON.parse(JSON.stringify(S.functies[nr - 1])) : { naam: '', herhalen: false, stopUit: true, stappen: [{ groepen: [], actie: 'aan', wacht: 0 }] };
+  concept = Object.assign(f, { nr: nr || 0 });
+  tekenEditor();
+  $('#blad').hidden = false;
+  document.body.style.overflow = 'hidden';
+}
+function sluitEditor() {
+  concept = null;
+  $('#blad').hidden = true;
+  document.body.style.overflow = '';
+}
+
+function tekenEditor() {
+  const c = concept;
+  const naam = h('input', { type: 'text', maxlength: 31, value: c.naam, placeholder: 'bv. Overweg', 'aria-label': 'Naam van de functie', oninput: e => { c.naam = e.target.value; } });
+  const vink = (tekst, sleutel) => h('label', { class: 'vink' }, h('input', { type: 'checkbox', checked: c[sleutel], onchange: e => { c[sleutel] = e.target.checked; } }), tekst);
+  const stappen = c.stappen.map((s, k) => stapKaart(s, k));
+  const blad = $('#blad');
+  blad.replaceChildren(h('div', { class: 'blad-binnen' },
+    h('div', { class: 'blad-kop' }, h('h2', null, c.nr ? 'Functie bewerken' : 'Nieuwe functie'),
+      h('button', { class: 'knop', type: 'button', onclick: sluitEditor }, 'Annuleren'),
+      h('button', { class: 'knop hoofd', type: 'button', onclick: bewaarFunctie }, 'Bewaren')),
+    h('div', { class: 'tegel' }, h('div', { class: 'veld', style: 'margin-top:0' }, h('span', { class: 'klein' }, 'Naam'), naam),
+      vink('Herhalen: na de laatste stap opnieuw beginnen', 'herhalen'),
+      vink('Bij stoppen gaan de lampen van deze functie uit', 'stopUit')),
+    stappen,
+    h('div', { class: 'knoppen' },
+      h('button', { class: 'knop hoofd', type: 'button', disabled: c.stappen.length >= 12, onclick: () => {
+        const v = c.stappen[c.stappen.length - 1];
+        c.stappen.push({ groepen: v ? v.groepen.slice() : [], actie: 'uit', wacht: 0 });
+        tekenEditor();
+      } }, '+ Stap toevoegen'),
+      c.nr ? h('button', { class: 'knop gevaar', type: 'button', onclick: () => {
+        if (confirm('Functie “' + (c.naam || 'zonder naam') + '” wissen? Knoppen die haar startten, doen dan niets meer.'))
+          stuur('/api/functie', { actie: 'wissen', nr: c.nr }, 'Functie gewist').then(j => { if (j) sluitEditor(); });
+      } }, 'Functie wissen') : null)));
+}
+
+function stapKaart(s, k) {
+  const c = concept;
+  const opnieuw = () => tekenEditor();
+  const kop = h('div', { class: 'stap-kop' }, h('span', { class: 'nr' }, k + 1), h('h3', null, 'Stap ' + (k + 1)),
+    h('button', { class: 'ikoonknop', type: 'button', 'aria-label': 'Stap omhoog', disabled: k === 0, onclick: () => { c.stappen.splice(k - 1, 0, c.stappen.splice(k, 1)[0]); opnieuw(); } }, ikoon('op')),
+    h('button', { class: 'ikoonknop', type: 'button', 'aria-label': 'Stap omlaag', disabled: k === c.stappen.length - 1, onclick: () => { c.stappen.splice(k + 1, 0, c.stappen.splice(k, 1)[0]); opnieuw(); } }, ikoon('neer')),
+    h('button', { class: 'ikoonknop', type: 'button', 'aria-label': 'Stap weghalen', onclick: () => { c.stappen.splice(k, 1); opnieuw(); } }, ikoon('weg')));
+  const actie = h('select', { 'aria-label': 'Wat doen', onchange: e => {
+    s.actie = e.target.value;
+    if (s.actie === 'helderheid' && !s.waarde) s.waarde = 50;
+    if (s.actie === 'scene') s.waarde = (S.scenes.find(Boolean) || { nr: 1 }).nr;
+    if (s.actie === 'dagnacht') s.waarde = 1;
+    if (s.actie === 'effect' && !s.effect) { s.effect = 'knipperen'; s.p1 = 500; s.p2 = 500; }
+    opnieuw();
+  } }, ACTIES.map(([id, n]) => h('option', { value: id }, n)));
+  actie.value = s.actie;
+  const delen = [kop];
+  if (s.actie !== 'scene' && s.actie !== 'dagnacht') {
+    delen.push(h('span', { class: 'klein' }, 'Welke groepen?'), h('div', { class: 'chips' }, S.groepen.map(g => {
+      const aan = s.groepen.includes(g.nr);
+      return h('button', { class: 'chip', type: 'button', 'aria-pressed': String(aan), title: g.naam, onclick: e => {
+        const i = s.groepen.indexOf(g.nr);
+        if (i >= 0) s.groepen.splice(i, 1); else s.groepen.push(g.nr);
+        s.groepen.sort((a, b) => a - b);
+        e.currentTarget.setAttribute('aria-pressed', String(i < 0));
+      } }, h('b', null, g.nr), h('small', null, g.naam));
+    })));
+  }
+  delen.push(h('div', { class: 'veld' }, h('span', { class: 'klein' }, 'Wat doen?'), actie));
+  if (s.actie === 'helderheid')
+    delen.push(stapper({ n: 'Helderheid', e: '%', min: 1, max: 100, stap: 5, waarde: s.waarde || 50, opWijzig: v => { s.waarde = v; } }));
+  if (s.actie === 'effect') {
+    const fx = h('select', { 'aria-label': 'Welk effect', onchange: e => {
+      const f = fxInfo(e.target.value);
+      s.effect = f.id;
+      s.p1 = f.p ? f.p[0].std : 0;
+      s.p2 = f.p ? f.p[1].std : 0;
+      opnieuw();
+    } }, EFFECTEN.map(x => h('option', { value: x.id }, x.naam)));
+    fx.value = s.effect;
+    delen.push(h('div', { class: 'veld' }, h('span', { class: 'klein' }, 'Welk effect?'), fx));
+    const f = fxInfo(s.effect);
+    if (f.p) f.p.forEach((p, k2) => {
+      const sl = k2 ? 'p2' : 'p1';
+      if (p.groep) {
+        delen.push(h('p', { class: 'klein' }, 'Kies twee of meer groepen hierboven: ze knipperen om beurten.'));
+        return;
+      }
+      delen.push(stapper(Object.assign({}, p, { waarde: s[sl] != null ? s[sl] : p.std, opWijzig: v => { s[sl] = v; } })));
+    });
+  }
+  if (s.actie === 'scene') {
+    const sc = S.scenes.filter(Boolean);
+    const kies = h('select', { 'aria-label': 'Welke scène', onchange: e => { s.waarde = +e.target.value; } }, sc.map(x => h('option', { value: x.nr }, x.naam)));
+    kies.value = String(s.waarde);
+    delen.push(h('div', { class: 'veld' }, h('span', { class: 'klein' }, 'Welke scène?'), sc.length ? kies : h('p', { class: 'leeg' }, 'Er zijn nog geen scènes.')));
+  }
+  if (s.actie === 'dagnacht') {
+    const kies = h('select', { 'aria-label': 'Dag en nacht', onchange: e => { s.waarde = +e.target.value; } },
+      h('option', { value: 1 }, 'Starten'), h('option', { value: 0 }, 'Stoppen'));
+    kies.value = String(s.waarde);
+    delen.push(h('div', { class: 'veld' }, kies));
+  }
+  delen.push(stapper({ n: 'Daarna wachten', min: 0, max: 3600, waarde: s.wacht || 0, toon: duur,
+    stap: (x, op) => { const y = op ? x : x - 0.001; return y < 10 ? 0.5 : y < 60 ? 1 : y < 600 ? 10 : 60; },
+    opWijzig: v => { s.wacht = v; } }));
+  return h('div', { class: 'tegel stap-kaart' }, delen);
+}
+
+async function bewaarFunctie() {
+  const c = concept;
+  if (!c.naam.trim()) { toast('Geef de functie een naam.', true); return; }
+  const leeg = c.stappen.findIndex(s => s.actie !== 'scene' && s.actie !== 'dagnacht' && !s.groepen.length);
+  if (leeg >= 0) { toast('Kies bij stap ' + (leeg + 1) + ' minstens één groep.', true); return; }
+  const f = { naam: c.naam.trim(), herhalen: c.herhalen, stopUit: c.stopUit, stappen: c.stappen };
+  const j = await stuur('/api/functie', c.nr ? { actie: 'bewaren', nr: c.nr, functie: f } : { actie: 'bewaren', functie: f }, 'Functie bewaard');
+  if (j) sluitEditor();
+}
+
+// ---------------------------------------------------------------------------------------------- ingangen
+let openIngang = -1, ingConcept = null;
+const iRijen = [];
+const fNaam = nr => { const f = nr > 0 && S.functies[nr - 1]; return f ? '“' + f.naam + '”' : 'niets'; };
+function koppeling(g) {
+  switch (g.gedrag) {
+    case 'drukknop': return 'Drukknop: start ' + fNaam(g.functieA) + (g.wisselen && g.functieA ? ', nog eens = stop' : '');
+    case 'schakelaar': return 'Schakelaar: aan = ' + fNaam(g.functieA) + ', uit = ' + fNaam(g.functieB);
+    case 'sensor': return 'Sensor: bezet = ' + fNaam(g.functieA) + ', ' + g.nalopen + ' s vrij = ' + fNaam(g.functieB);
+    default: return 'Niet gebruikt';
+  }
+}
+
+function bouwIngangen() {
+  $('#ingangen-lijst').replaceChildren(...S.ingangen.map((g, i) => {
+    const stip = h('span', { class: 'stip', 'aria-hidden': 'true' }), toestand = h('span', { class: 'toestand' });
+    iRijen[i] = { stip, toestand };
+    const open = openIngang === i;
+    const rij = h('div', { class: 'tegel ingang' }, h('div', { class: 'ingang-kop' }, stip, h('span', { class: 'nr' }, g.nr),
+      h('div', { class: 'ingang-tekst' }, h('strong', null, g.naam), h('span', { class: 'klein' }, koppeling(g))), toestand,
+      h('button', { class: 'knop', type: 'button', 'aria-expanded': String(open), onclick: () => {
+        openIngang = open ? -1 : i;
+        ingConcept = open ? null : JSON.parse(JSON.stringify(S.ingangen[i]));
+        bouwIngangen();
+      } }, open ? 'Sluiten' : 'Instellen')));
+    if (open) rij.append(ingangEditor(i));
+    return rij;
+  }));
+  werkIngangenBij();
+}
+
+function ingangEditor(i) {
+  const c = ingConcept;
+  const fKeuze = (sleutel) => {
+    const s = h('select', { onchange: e => { c[sleutel] = +e.target.value; } }, h('option', { value: 0 }, 'niets'),
+      S.functies.filter(Boolean).map(f => h('option', { value: f.nr }, f.naam)));
+    s.value = String(c[sleutel] || 0);
+    return s;
+  };
+  const delen = [
+    h('div', { class: 'veld', style: 'margin-top:0' }, h('span', { class: 'klein' }, 'Naam'),
+      h('input', { type: 'text', maxlength: 31, value: c.naam, oninput: e => { c.naam = e.target.value; } })),
+    h('div', { class: 'veld' }, h('span', { class: 'klein' }, 'Wat hangt eraan?'), h('div', { class: 'keuze' }, GEDRAG.map(([id, n]) =>
+      h('button', { type: 'button', 'aria-pressed': String(c.gedrag === id), onclick: () => { c.gedrag = id; bouwIngangen(); } }, n))))];
+  if (c.gedrag === 'drukknop') {
+    delen.push(h('div', { class: 'veld' }, h('span', { class: 'klein' }, 'Bij indrukken starten:'), fKeuze('functieA')),
+      h('label', { class: 'vink' }, h('input', { type: 'checkbox', checked: c.wisselen, onchange: e => { c.wisselen = e.target.checked; } }), 'Nog eens drukken = stoppen'));
+  }
+  if (c.gedrag === 'schakelaar') {
+    delen.push(h('div', { class: 'veld' }, h('span', { class: 'klein' }, 'Schakelaar aan: start'), fKeuze('functieA')),
+      h('div', { class: 'veld' }, h('span', { class: 'klein' }, 'Schakelaar uit: start'), fKeuze('functieB')));
+  }
+  if (c.gedrag === 'sensor') {
+    delen.push(h('div', { class: 'veld' }, h('span', { class: 'klein' }, 'Bezet (trein komt): start'), fKeuze('functieA')),
+      stapper({ n: 'Zo lang vrij voor "weg"', min: 0, max: 3600, waarde: c.nalopen, toon: duur,
+        stap: (x, op) => { const y = op ? x : x - 1; return y < 30 ? 1 : y < 120 ? 5 : 30; }, opWijzig: v => { c.nalopen = v; } }),
+      h('div', { class: 'veld' }, h('span', { class: 'klein' }, 'Daarna (trein weg): start'), fKeuze('functieB')));
+  }
+  delen.push(h('div', { class: 'knoppen' },
+    h('button', { class: 'knop hoofd', type: 'button', onclick: async () => {
+      if (!c.naam.trim()) { toast('Geef de ingang een naam.', true); return; }
+      const j = await stuur('/api/ingang', { nr: i + 1, naam: c.naam.trim(), gedrag: c.gedrag, functieA: c.functieA || 0,
+        functieB: c.functieB || 0, wisselen: c.wisselen, nalopen: c.nalopen }, 'Ingang bewaard');
+      if (j) { openIngang = -1; ingConcept = null; }
+    } }, 'Bewaren'),
+    h('button', { class: 'knop', type: 'button', onclick: () => { openIngang = -1; ingConcept = null; bouwIngangen(); } }, 'Annuleren')));
+  return h('div', { class: 'editor' }, delen);
+}
+
+function werkIngangenBij() {
+  S.ingangen.forEach((g, i) => {
+    const r = iRijen[i];
+    if (!r) return;
+    r.stip.classList.toggle('aan', !!g.actief);
+    r.toestand.textContent = g.gedrag === 'geen' && !g.actief ? '' : (g.vrijOver != null ? 'vrij over ' + g.vrijOver + ' s' : g.toestand);
+  });
+}
+
+// ------------------------------------------------------------------------------------------ instellingen
+let instVuil = false, instConcept = null;
+function vuil() { instVuil = true; }
+function bouwInstellingen() {
+  if (instVuil) return;
+  instConcept = {
+    groepen: S.groepen.map(g => ({ naam: g.naam, max: g.max, dagnacht: g.dagnacht })),
+    faduur: S.instellingen.faduur, dagnachtMin: S.instellingen.dagnachtMin, opstart: S.instellingen.opstart,
+  };
+  const c = instConcept;
+  $('#inst-groepen').replaceChildren(...c.groepen.map((g, i) => h('div', { class: 'groep-rij' },
+    h('span', { class: 'nr' }, i + 1),
+    h('input', { type: 'text', maxlength: 31, value: g.naam, 'aria-label': 'Naam van groep ' + (i + 1), oninput: e => { g.naam = e.target.value; vuil(); } }),
+    h('div', { class: 'opties' },
+      stapper({ n: 'Maximum', e: '%', min: 5, max: 100, stap: 5, waarde: g.max, opWijzig: v => { g.max = v; vuil(); } }),
+      h('label', { class: 'vink' }, h('input', { type: 'checkbox', checked: g.dagnacht, onchange: e => { g.dagnacht = e.target.checked; vuil(); } }), 'Dag en nacht')))));
+  const radio = (waarde, tekst) => h('label', { class: 'vink' }, h('input', { type: 'radio', name: 'opstart', value: waarde, checked: c.opstart === waarde,
+    onchange: () => { c.opstart = waarde; vuil(); } }), tekst);
+  $('#inst-algemeen').replaceChildren(
+    h('h3', null, 'Algemeen'),
+    stapper({ n: 'Lampen gaan zacht aan en uit in', min: 0, max: 10, waarde: c.faduur, toon: v => v ? getal(v) + ' s' : 'meteen',
+      stap: (x, op) => { const y = op ? x : x - 0.001; return y < 2 ? 0.1 : 0.5; }, opWijzig: v => { c.faduur = v; vuil(); } }),
+    stapper({ n: 'Een hele dag (dag en nacht) duurt', min: 2, max: 240, waarde: c.dagnachtMin, toon: v => v + ' min',
+      stap: (x, op) => { const y = op ? x : x - 1; return y < 30 ? 1 : 5; }, opWijzig: v => { c.dagnachtMin = v; vuil(); } }),
+    h('p', { class: 'klein', style: 'margin-top:16px' }, 'Na een stroomonderbreking:'),
+    radio('laatste', 'De lampen zoals ze waren'), radio('uit', 'Alles uit'),
+    h('div', { class: 'knoppen' }, h('button', { class: 'knop hoofd', type: 'button', onclick: async () => {
+      const j = await stuur('/api/instellingen', { faduur: c.faduur, dagnachtMin: c.dagnachtMin, opstart: c.opstart }, 'Instellingen bewaard');
+      if (j) { instVuil = false; S.rev = -1; peil(); }
+    } }, 'Bewaren')));
+}
+
+async function bewaarNamen() {
+  const c = instConcept;
+  for (let i = 0; i < c.groepen.length; i++) {
+    const g = c.groepen[i], o = S.groepen[i];
+    if (!g.naam.trim()) { toast('Groep ' + (i + 1) + ' heeft geen naam.', true); return; }
+    if (g.naam.trim() === o.naam && g.max === o.max && g.dagnacht === o.dagnacht) continue;
+    const j = await stuur('/api/groep', { nr: i + 1, naam: g.naam.trim(), max: g.max, dagnacht: g.dagnacht }, null, true);
+    if (!j) return;
+  }
+  instVuil = false;
+  toast('Namen bewaard');
+  S.rev = -1;
+  peil();
+}
+
+async function bewaarWachtwoord() {
+  const a = $('#ww1').value, b = $('#ww2').value;
+  if (!/^[\x20-\x7e]{8,63}$/.test(a)) { toast('Het wachtwoord moet 8 tot 63 tekens hebben, zonder é of ë.', true); return; }
+  if (a !== b) { toast('De twee wachtwoorden zijn niet gelijk.', true); return; }
+  if (!confirm('Na het wijzigen start de wifi van de doos opnieuw. Verbind de gsm daarna opnieuw met "Treinbaan" en het nieuwe wachtwoord.')) return;
+  const j = await stuur('/api/instellingen', { wachtwoord: a }, 'Wachtwoord gewijzigd. Verbind opnieuw met de wifi.');
+  if (j) { $('#ww1').value = ''; $('#ww2').value = ''; }
+}
+
+// ----------------------------------------------------------------------------------------------- starten
+document.querySelectorAll('.tabs button').forEach(b => b.addEventListener('click', () => kiesTab(b.dataset.tab)));
+$('#allesUit').addEventListener('click', () => {
+  if (S) { S.groepen.forEach(g => { g.aan = false; }); S.lopend = S.lopend.map(() => false); werkLiveBij(); }
+  stuur('/api/groep', { allesUit: true }, 'Alles is uit');
+});
+$('#melding button').addEventListener('click', () => { weggeklikt = S.melding; $('#melding').hidden = true; });
+$('#dn-stop').addEventListener('click', () => stuur('/api/dagnacht', { loopt: false }, 'Dag en nacht staat stil'));
+$('#scene-bewaar').addEventListener('click', async () => {
+  const n = $('#scene-naam').value.trim();
+  if (!n) { toast('Geef de scène eerst een naam.', true); $('#scene-naam').focus(); return; }
+  const j = await stuur('/api/scene', { actie: 'bewaren', naam: n }, 'Scène “' + n + '” bewaard');
+  if (j) $('#scene-naam').value = '';
+});
+$('#scene-beheer').addEventListener('click', () => { beheer = !beheer; bouwScenes(); });
+$('#functie-nieuw').addEventListener('click', () => openEditor(0));
+$('#inst-groepen-bewaar').addEventListener('click', bewaarNamen);
+$('#ww-bewaar').addEventListener('click', bewaarWachtwoord);
+$('#ww-toon').addEventListener('change', e => { $('#ww1').type = $('#ww2').type = e.target.checked ? 'text' : 'password'; });
+$('#fabriek').addEventListener('click', () => {
+  if (confirm('Alle namen, scènes, functies, ingangen en het wifi-wachtwoord gaan terug naar de beginwaarden. Doorgaan?'))
+    stuur('/api/instellingen', { fabrieksinstellingen: true }, 'Fabrieksinstellingen staan terug').then(j => { if (j) { instVuil = false; S.rev = -1; peil(); } });
+});
+// ------------------------------------------------------------------------------------------------ demo
+// Zonder doos (bestand rechtstreeks geopend): nepgegevens die zich gedragen zoals de doos (zelfde API).
+const Demo = (() => {
+  const namen = ['Station', 'Perron', 'Overweg links', 'Overweg rechts', 'Kerk', 'Café De Zwaan', 'Huizen dorp', 'Straatlampen',
+    'Werkplaats lasser', 'Kampvuur', 'Tv woonkamer', 'Seinhuis', 'Loods', 'Boerderij', 'Kasteel', 'Tunnel'];
+  const std = id => { const f = fxInfo(id); return f.p ? [f.p[0].std, f.p[1].std] : [0, 0]; };
+  const st = {
+    rev: 1, melding: '', versie: '1.0.0 (voorbeeld)', hotspot: 'Treinbaan',
+    instellingen: { faduur: 0.5, dagnachtMin: 20, opstart: 'laatste' },
+    groepen: namen.map((n, i) => ({ nr: i + 1, naam: n, max: 100, dagnacht: [0, 1, 4, 5, 6, 7, 11, 13, 14].includes(i),
+      aan: false, helderheid: 100, effect: 'geen', p1: 0, p2: 0, fase: 0, lamp: 0 })),
+    scenes: Array(12).fill(null), functies: Array(16).fill(null), lopend: Array(16).fill(false),
+    ingangen: Array.from({ length: 16 }, (x, i) => ({ nr: i + 1, naam: 'Ingang ' + (i + 1), gedrag: 'geen', functieA: 0, functieB: 0, wisselen: false, nalopen: 10, actief: false, toestand: 'rust' })),
+    dagnacht: { loopt: true, fase: 'avond', pos: 0 },
+  };
+  let dnStart = Date.now() - 0.47 * 20 * 60000;
+  const zet = (i, w) => {
+    const g = st.groepen[i];
+    if (w.effect && w.effect !== g.effect) { [g.p1, g.p2] = std(w.effect); g.fase = 0; g.start = Date.now(); }
+    Object.assign(g, w);
+    if (g.effect === 'overweg' && g.p2 > 0 && g.p2 - 1 !== i)
+      Object.assign(st.groepen[g.p2 - 1], { aan: g.aan, helderheid: g.helderheid, effect: 'overweg', p1: g.p1, p2: i + 1, fase: 1 - g.fase });
+  };
+  // een gezellige avond om mee te beginnen
+  [[0, 85], [1, 70], [4, 40], [5, 90], [6, 60], [7, 100], [11, 50]].forEach(([i, h_]) => zet(i, { aan: true, helderheid: h_ }));
+  zet(8, { aan: true, effect: 'lasvlam' });
+  zet(9, { aan: true, effect: 'vuur', helderheid: 80 });
+  zet(10, { aan: true, effect: 'tv', helderheid: 45 });
+  zet(5, { effect: 'tl' });
+  const scene = (naam, f) => ({ naam, groepen: st.groepen.map((g, i) => Object.assign({ aan: false, helderheid: 100, effect: 'geen', p1: 0, p2: 0, fase: 0 }, f(i))) });
+  st.scenes[0] = scene('Alles aan', () => ({ aan: true }));
+  st.scenes[1] = scene('Alles uit', () => ({}));
+  st.scenes[2] = scene('Avond', i => ({ aan: [0, 1, 4, 5, 6, 7, 10].includes(i), helderheid: 70 }));
+  st.scenes[3] = scene('Nacht', i => ({ aan: [7, 11].includes(i), helderheid: 35 }));
+  st.scenes[4] = scene('Zondagmorgen', i => ({ aan: [4].includes(i) }));
+  st.scenes.forEach((s, i) => { if (s) s.nr = i + 1; });
+  st.functies[0] = { nr: 1, naam: 'Overweg', herhalen: false, stopUit: true, stappen: [
+    { groepen: [3, 4], actie: 'effect', effect: 'overweg', p1: 600, p2: 0, wacht: 30 }, { groepen: [3, 4], actie: 'uit', wacht: 0 }] };
+  st.functies[1] = { nr: 2, naam: 'Avond valt', herhalen: false, stopUit: false, stappen: [
+    { groepen: [], actie: 'scene', waarde: 3, wacht: 5 }, { groepen: [], actie: 'dagnacht', waarde: 1, wacht: 0 }] };
+  st.functies[2] = { nr: 3, naam: 'Lasser aan het werk', herhalen: false, stopUit: true, stappen: [
+    { groepen: [9], actie: 'effect', effect: 'lasvlam', p1: 12, p2: 5, wacht: 120 }, { groepen: [9], actie: 'uit', wacht: 0 }] };
+  st.functies[3] = { nr: 4, naam: 'Kermis', herhalen: true, stopUit: true, stappen: [
+    { groepen: [13, 14], actie: 'aan', wacht: 0.5 }, { groepen: [13], actie: 'uit', wacht: 0.5 }, { groepen: [14], actie: 'uit', wacht: 1 }] };
+  Object.assign(st.ingangen[0], { naam: 'Knop perron', gedrag: 'drukknop', functieA: 1, wisselen: true });
+  Object.assign(st.ingangen[1], { naam: 'Schakelaar dorp', gedrag: 'schakelaar', functieA: 2, functieB: 0, actief: true });
+  Object.assign(st.ingangen[2], { naam: 'Sensor voor de overweg', gedrag: 'sensor', functieA: 1, functieB: 0, nalopen: 8 });
+  Object.assign(st.ingangen[3], { naam: 'Reedcontact tunnel', gedrag: 'sensor', functieA: 0, functieB: 0, nalopen: 5 });
+  Object.assign(st.ingangen[4], { naam: 'Knop werkplaats', gedrag: 'drukknop', functieA: 3 });
+
+  // functies echt afspelen (met de echte wachttijden)
+  const klok = {};
+  const voerUit = s => {
+    const gs = s.groepen.map(n => n - 1);
+    if (s.actie === 'aan' || s.actie === 'uit') gs.forEach(i => zet(i, { aan: s.actie === 'aan' }));
+    if (s.actie === 'helderheid') gs.forEach(i => zet(i, { aan: true, helderheid: s.waarde }));
+    if (s.actie === 'effect') gs.forEach((i, k) => {
+      zet(i, { aan: true, effect: s.effect });
+      Object.assign(st.groepen[i], { p1: s.p1, p2: s.effect === 'overweg' && gs.length > 1 ? (gs[k ^ 1] != null ? gs[k ^ 1] + 1 : 0) : s.p2, fase: s.effect === 'overweg' ? k & 1 : 0, start: Date.now() });
+    });
+    if (s.actie === 'scene') roepOp(s.waarde - 1);
+    if (s.actie === 'dagnacht') { st.dagnacht.loopt = !!s.waarde; dnStart = Date.now(); }
+  };
+  const roepOp = i => { const s = st.scenes[i]; if (s) s.groepen.forEach((g, j) => Object.assign(st.groepen[j], g, { start: 0 })); };
+  const stop = (f, licht) => {
+    clearTimeout(klok[f]);
+    if (!st.lopend[f]) return;
+    st.lopend[f] = false;
+    const fn = st.functies[f];
+    if (licht && fn && fn.stopUit) fn.stappen.forEach(s => { if (s.actie !== 'scene' && s.actie !== 'dagnacht') s.groepen.forEach(n => zet(n - 1, { aan: false })); });
+  };
+  const start = f => {
+    stop(f, false);
+    const fn = st.functies[f];
+    if (!fn || !fn.stappen.length) return;
+    st.lopend[f] = true;
+    let k = 0;
+    const volgende = () => {
+      if (k >= fn.stappen.length) { if (fn.herhalen) k = 0; else { st.lopend[f] = false; return; } }
+      const s = fn.stappen[k++];
+      voerUit(s);
+      klok[f] = setTimeout(volgende, s.wacht * 1000);
+    };
+    volgende();
+  };
+  start(0);
+  // de sensor voor de overweg wisselt af en toe (een trein rijdt voorbij)
+  let sensorSinds = Date.now(), vrijSinds = 0;
+  const ingangenBijwerken = t => {
+    const s = st.ingangen[2], fase = ((t - sensorSinds) / 1000) % 24;
+    const was = s.actief;
+    s.actief = fase < 6;
+    if (was && !s.actief) vrijSinds = t;
+    const over = Math.ceil(s.nalopen - (t - vrijSinds) / 1000);
+    s.vrijOver = !s.actief && vrijSinds && over > 0 ? over : undefined;
+    s.toestand = s.actief ? 'bezet' : s.vrijOver ? 'nalopen' : 'vrij';
+    st.ingangen.forEach(x => { if (x !== s) x.toestand = { drukknop: x.actief ? 'ingedrukt' : 'los', schakelaar: x.actief ? 'aan' : 'uit', sensor: x.actief ? 'bezet' : 'vrij' }[x.gedrag] || (x.actief ? 'actief' : 'rust'); });
+  };
+  const lamp = (g, t) => {
+    if (!g.aan) return 0;
+    const d = t - (g.start || 0);
+    let f = 1;
+    switch (g.effect) {
+      case 'knipperen': f = d % (g.p1 + g.p2) < g.p1 ? 1 : 0; break;
+      case 'overweg': f = Math.floor(t / g.p1) % 2 === g.fase ? 1 : 0; break;
+      case 'vuur': f = 1 - g.p1 / 100 * Math.random(); break;
+      case 'tv': f = 0.55 + 0.45 * Math.random(); break;
+      case 'lasvlam': f = Math.random() < 0.35 ? 0.7 + 0.3 * Math.random() : 0; break;
+      case 'tl': f = d > g.p2 || Math.random() < 0.5 ? 1 : 0.1; break;
+      case 'ademen': f = g.p2 / 100 + (1 - g.p2 / 100) * (0.5 - 0.5 * Math.cos(2 * Math.PI * d / 1000 / g.p1)); break;
+    }
+    return Math.round(g.helderheid * g.max / 100 * f);
+  };
+  const fout = t => ({ ok: false, fout: t });
+  const vrijePlaats = lijst => lijst.findIndex(x => !x);
+
+  async function vraag(pad, b) {
+    await new Promise(r => setTimeout(r, 40));
+    const t = Date.now();
+    if (pad.startsWith('/api/staat')) {
+      st.groepen.forEach(g => { g.lamp = lamp(g, t); });
+      const min = st.instellingen.dagnachtMin, pos = ((t - dnStart) / (min * 60000)) % 1;
+      st.dagnacht.pos = st.dagnacht.loopt ? pos : 0;
+      st.dagnacht.fase = !st.dagnacht.loopt ? '' : pos < 0.40 ? 'dag' : pos < 0.55 ? 'avond' : pos < 0.85 ? 'nacht' : pos < 0.97 ? 'ochtend' : 'dag';
+      ingangenBijwerken(t);
+      return JSON.parse(JSON.stringify(st));
+    }
+    b = b || {};
+    switch (pad) {
+      case '/api/groep': {
+        if (b.allesUit) { st.lopend.forEach((x, f) => stop(f, false)); st.groepen.forEach(g => { g.aan = false; }); st.dagnacht.loopt = false; break; }
+        const w = Object.assign({}, b);
+        delete w.nr;
+        if ('naam' in w || 'max' in w || 'dagnacht' in w) st.rev++;
+        [].concat(b.nr).forEach(n => zet(n - 1, w));
+        break;
+      }
+      case '/api/scene': {
+        const i = (b.nr || 0) - 1;
+        if (b.actie === 'oproepen') { if (!st.scenes[i]) return fout('Deze scène bestaat niet.'); roepOp(i); }
+        if (b.actie === 'bewaren') {
+          const p = i >= 0 ? i : vrijePlaats(st.scenes);
+          if (p < 0) return fout('Alle 12 plaatsen voor scènes zijn bezet. Wis eerst een scène.');
+          st.scenes[p] = { nr: p + 1, naam: b.naam || (st.scenes[p] && st.scenes[p].naam) || 'Scène ' + (p + 1),
+            groepen: st.groepen.map(g => ({ aan: g.aan, helderheid: g.helderheid, effect: g.effect, p1: g.p1, p2: g.p2, fase: g.fase })) };
+          st.rev++;
+          return { ok: true, nr: p + 1 };
+        }
+        if (b.actie === 'hernoemen') { st.scenes[i].naam = b.naam; st.rev++; }
+        if (b.actie === 'wissen') { st.scenes[i] = null; st.rev++; }
+        break;
+      }
+      case '/api/functie': {
+        const f = (b.nr || 0) - 1;
+        if (b.actie === 'start') start(f);
+        if (b.actie === 'stop') stop(f, true);
+        if (b.actie === 'wissel') { if (st.lopend[f]) stop(f, true); else start(f); }
+        if (b.actie === 'bewaren') {
+          const p = f >= 0 ? f : vrijePlaats(st.functies);
+          if (p < 0) return fout('Alle 16 plaatsen voor functies zijn bezet.');
+          stop(p, true);
+          st.functies[p] = Object.assign({ nr: p + 1 }, b.functie);
+          st.rev++;
+          return { ok: true, nr: p + 1 };
+        }
+        if (b.actie === 'wissen') {
+          stop(f, true);
+          st.functies[f] = null;
+          st.ingangen.forEach(x => { if (x.functieA === f + 1) x.functieA = 0; if (x.functieB === f + 1) x.functieB = 0; });
+          st.rev++;
+        }
+        break;
+      }
+      case '/api/ingang': Object.assign(st.ingangen[b.nr - 1], b); st.rev++; break;
+      case '/api/instellingen':
+        if (b.fabrieksinstellingen) return fout('In het voorbeeld kan dat niet.');
+        ['faduur', 'dagnachtMin', 'opstart'].forEach(k => { if (k in b) st.instellingen[k] = b[k]; });
+        st.rev++;
+        break;
+      case '/api/dagnacht': {
+        if (!b.loopt) { st.dagnacht.loopt = false; break; }
+        if (!st.groepen.some(g => g.dagnacht)) return fout('Er doet nog geen groep mee. Vink bij Instellingen aan welke groepen meedoen.');
+        const begin = { dag: 0, avond: 0.40, nacht: 0.55, ochtend: 0.85 }[b.vanaf] || 0;
+        dnStart = t - begin * st.instellingen.dagnachtMin * 60000;
+        st.dagnacht.loopt = true;
+        break;
+      }
+      default: return fout('Onbekende vraag.');
+    }
+    return { ok: true };
+  }
+  return { vraag };
+})();
+
+kiesTab(tab);
+verbinding(false);
+lus();
+</script>
+</body>
+</html>

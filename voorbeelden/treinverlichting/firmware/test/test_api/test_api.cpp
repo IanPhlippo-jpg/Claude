@@ -1,0 +1,262 @@
+// Tests van de JSON-API (include/api.h) op de pc:  python -m platformio test -e native
+// Elk eindpunt met geldige en foute verzoeken, zoals het dashboard ze stuurt.
+#include <unity.h>
+
+#include <string>
+
+#include "api.h"
+
+using namespace trein;
+
+void setUp() {}
+void tearDown() {}
+
+namespace {
+
+Antwoord groep(Baan &b, const std::string &j, uint32_t nu = 0) { return apiGroep(b, j.data(), j.size(), nu); }
+Antwoord scene(Baan &b, const std::string &j, uint32_t nu = 0) { return apiScene(b, j.data(), j.size(), nu); }
+Antwoord functie(Baan &b, const std::string &j, uint32_t nu = 0) { return apiFunctie(b, j.data(), j.size(), nu); }
+Antwoord ingang(Baan &b, const std::string &j) { return apiIngang(b, j.data(), j.size(), 0); }
+Antwoord inst(Baan &b, const std::string &j) { return apiInstellingen(b, j.data(), j.size(), 0); }
+Antwoord dagnacht(Baan &b, const std::string &j) { return apiDagnacht(b, j.data(), j.size(), 0); }
+
+} // namespace
+
+void test_groep_zetten() {
+  Baan b;
+  Antwoord a = groep(b, R"({"nr":3,"aan":true,"helderheid":40})");
+  TEST_ASSERT_EQUAL(200, a.code);
+  TEST_ASSERT_EQUAL_STRING("{\"ok\":true}", a.json.c_str());
+  TEST_ASSERT_TRUE(b.lampen.stand[2].aan);
+  TEST_ASSERT_EQUAL(40, b.lampen.stand[2].helderheid);
+  // effect zonder instellingen: de standaardwaarden
+  groep(b, R"({"nr":3,"effect":"vuur"})");
+  TEST_ASSERT_EQUAL(FX_VUUR, b.lampen.stand[2].effect);
+  TEST_ASSERT_EQUAL(effectInfo(FX_VUUR).p1Std, b.lampen.stand[2].p1);
+  groep(b, R"({"nr":3,"p2":9})");
+  TEST_ASSERT_EQUAL(9, b.lampen.stand[2].p2);
+  TEST_ASSERT_EQUAL(FX_VUUR, b.lampen.stand[2].effect);
+  // meer groepen tegelijk
+  groep(b, R"({"nr":[1,2,16],"aan":true})");
+  TEST_ASSERT_TRUE(b.lampen.stand[0].aan && b.lampen.stand[1].aan && b.lampen.stand[15].aan);
+  // te fel: begrensd
+  groep(b, R"({"nr":1,"helderheid":900})");
+  TEST_ASSERT_EQUAL(100, b.lampen.stand[0].helderheid);
+  // overweg met een tweede groep
+  groep(b, R"({"nr":5,"aan":true,"effect":"overweg","p2":6})");
+  TEST_ASSERT_EQUAL(FX_OVERWEG, b.lampen.stand[5].effect);
+  TEST_ASSERT_EQUAL(1, b.lampen.stand[5].fase);
+  TEST_ASSERT_EQUAL(5, b.lampen.stand[5].p2);
+}
+
+void test_groep_fouten() {
+  Baan b;
+  uint32_t rev = b.cfgRev;
+  const char *fout_[] = {R"({"nr":0,"aan":true})",   R"({"nr":17,"aan":true})", R"({"aan":true})",
+                         R"({"nr":[1,99]})",         R"({"nr":2,"effect":"disco"})",
+                         R"({"nr":2,"naam":""})",    "geen json",               "[1]",
+                         ""};
+  for (const char *f : fout_) {
+    Antwoord a = groep(b, f);
+    TEST_ASSERT_EQUAL_MESSAGE(400, a.code, f);
+    TEST_ASSERT_TRUE(a.json.find("\"ok\":false") != std::string::npos);
+    TEST_ASSERT_TRUE(a.json.find("\"fout\"") != std::string::npos);
+  }
+  std::string lang = "{\"nr\":1,\"naam\":\"" + std::string(MAX_VERZOEK, 'x') + "\"}";
+  TEST_ASSERT_EQUAL(400, groep(b, lang).code);
+  TEST_ASSERT_EQUAL_UINT32(rev, b.cfgRev);
+  for (int g = 0; g < N_GROEPEN; g++) TEST_ASSERT_FALSE(b.lampen.stand[g].aan);
+}
+
+void test_groep_naam_maximum_dagnacht() {
+  Baan b;
+  uint32_t rev = b.cfgRev;
+  groep(b, R"({"nr":2,"naam":"Kerk","max":60,"dagnacht":true})");
+  TEST_ASSERT_EQUAL_STRING("Kerk", b.cfg.groep[1].naam);
+  TEST_ASSERT_EQUAL(60, b.cfg.groep[1].max);
+  TEST_ASSERT_EQUAL(60, b.lampen.maxPct[1]);
+  TEST_ASSERT_TRUE(b.cfg.groep[1].dagnacht);
+  TEST_ASSERT_TRUE(b.cfgRev > rev);
+  // alleen de stand veranderen telt niet als instellingenwijziging
+  rev = b.cfgRev;
+  groep(b, R"({"nr":2,"aan":true})");
+  TEST_ASSERT_EQUAL_UINT32(rev, b.cfgRev);
+}
+
+void test_alles_uit() {
+  Baan b;
+  b.functieStart(0, 0);
+  b.cfg.groep[0].dagnacht = true;
+  dagnacht(b, R"({"loopt":true,"vanaf":"nacht"})");
+  groep(b, R"({"nr":[7,8],"aan":true})");
+  TEST_ASSERT_EQUAL(200, groep(b, R"({"allesUit":true})").code);
+  TEST_ASSERT_FALSE(b.seq.loopt(0));
+  TEST_ASSERT_FALSE(b.dn.loopt);
+  for (int g = 0; g < N_GROEPEN; g++) TEST_ASSERT_FALSE(b.lampen.stand[g].aan);
+}
+
+void test_scenes() {
+  Baan b;
+  groep(b, R"({"nr":4,"aan":true,"helderheid":30})");
+  Antwoord a = scene(b, R"({"actie":"bewaren","naam":"Avond"})");
+  TEST_ASSERT_EQUAL(200, a.code);
+  TEST_ASSERT_EQUAL_STRING("{\"ok\":true,\"nr\":3}", a.json.c_str());
+  groep(b, R"({"allesUit":true})");
+  TEST_ASSERT_EQUAL(200, scene(b, R"({"actie":"oproepen","nr":3})").code);
+  TEST_ASSERT_TRUE(b.lampen.stand[3].aan);
+  TEST_ASSERT_EQUAL(30, b.lampen.stand[3].helderheid);
+  TEST_ASSERT_EQUAL(200, scene(b, R"({"actie":"hernoemen","nr":3,"naam":"Late avond"})").code);
+  TEST_ASSERT_EQUAL_STRING("Late avond", b.cfg.scene[2].naam);
+  TEST_ASSERT_EQUAL(400, scene(b, R"({"actie":"hernoemen","nr":3,"naam":"  "})").code);
+  TEST_ASSERT_EQUAL(200, scene(b, R"({"actie":"wissen","nr":3})").code);
+  TEST_ASSERT_EQUAL(400, scene(b, R"({"actie":"oproepen","nr":3})").code);
+  TEST_ASSERT_EQUAL(400, scene(b, R"({"actie":"wissen","nr":3})").code);
+  TEST_ASSERT_EQUAL(400, scene(b, R"({"actie":"dansen","nr":1})").code);
+  TEST_ASSERT_EQUAL(400, scene(b, R"({"actie":"bewaren","nr":40,"naam":"x"})").code);
+  for (int i = 0; i < 10; i++) scene(b, R"({"actie":"bewaren","naam":"x"})");
+  a = scene(b, R"({"actie":"bewaren","naam":"te veel"})");
+  TEST_ASSERT_EQUAL(400, a.code);
+  TEST_ASSERT_TRUE(a.json.find("12") != std::string::npos);
+}
+
+void test_functies() {
+  Baan b;
+  Antwoord a = functie(b, R"({"actie":"bewaren","functie":{"naam":"Kermis","herhalen":true,"stappen":[
+      {"groepen":[9],"actie":"aan","wacht":0.5},{"groepen":[9],"actie":"uit","wacht":0.5}]}})");
+  TEST_ASSERT_EQUAL(200, a.code);
+  TEST_ASSERT_EQUAL_STRING("{\"ok\":true,\"nr\":2}", a.json.c_str());
+  TEST_ASSERT_EQUAL_STRING("Kermis", b.cfg.functie[1].naam);
+  TEST_ASSERT_EQUAL(500u, b.cfg.functie[1].stap[0].wachtMs);
+  TEST_ASSERT_EQUAL(200, functie(b, R"({"actie":"start","nr":2})").code);
+  TEST_ASSERT_TRUE(b.seq.loopt(1));
+  TEST_ASSERT_TRUE(b.lampen.stand[8].aan);
+  functie(b, R"({"actie":"wissel","nr":2})");
+  TEST_ASSERT_FALSE(b.seq.loopt(1));
+  functie(b, R"({"actie":"wissel","nr":2})");
+  TEST_ASSERT_TRUE(b.seq.loopt(1));
+  functie(b, R"({"actie":"stop","nr":2})");
+  TEST_ASSERT_FALSE(b.seq.loopt(1));
+  // overschrijven
+  functie(b, R"({"actie":"bewaren","nr":2,"functie":{"naam":"Kermis 2","stappen":[]}})");
+  TEST_ASSERT_EQUAL_STRING("Kermis 2", b.cfg.functie[1].naam);
+  TEST_ASSERT_EQUAL(0, b.cfg.functie[1].nStappen);
+  // fouten
+  TEST_ASSERT_EQUAL(400, functie(b, R"({"actie":"start","nr":9})").code);
+  TEST_ASSERT_EQUAL(400, functie(b, R"({"actie":"bewaren","nr":2})").code);
+  TEST_ASSERT_EQUAL(400, functie(b, R"({"actie":"bewaren","nr":99,"functie":{}})").code);
+  TEST_ASSERT_EQUAL(400, functie(b, R"({"actie":"vliegen","nr":1})").code);
+  // wissen haalt de koppeling bij de ingangen weg
+  ingang(b, R"({"nr":1,"gedrag":"drukknop","functieA":2})");
+  TEST_ASSERT_EQUAL(1, b.cfg.ingang[0].functieA);
+  TEST_ASSERT_EQUAL(200, functie(b, R"({"actie":"wissen","nr":2})").code);
+  TEST_ASSERT_EQUAL(-1, b.cfg.ingang[0].functieA);
+  TEST_ASSERT_FALSE(b.cfg.functie[1].gebruikt);
+}
+
+void test_ingangen() {
+  Baan b;
+  Antwoord a = ingang(b, R"({"nr":4,"naam":"Sensor tunnel","gedrag":"sensor","functieA":1,"functieB":0,"nalopen":12})");
+  TEST_ASSERT_EQUAL(200, a.code);
+  const IngangCfg &c = b.cfg.ingang[3];
+  TEST_ASSERT_EQUAL_STRING("Sensor tunnel", c.naam);
+  TEST_ASSERT_EQUAL(GEDRAG_SENSOR, c.gedrag);
+  TEST_ASSERT_EQUAL(0, c.functieA);
+  TEST_ASSERT_EQUAL(-1, c.functieB);
+  TEST_ASSERT_EQUAL(12, c.naloopS);
+  TEST_ASSERT_EQUAL(400, ingang(b, R"({"nr":17,"gedrag":"sensor"})").code);
+  TEST_ASSERT_EQUAL(400, ingang(b, R"({"nr":1,"gedrag":"lift"})").code);
+  TEST_ASSERT_EQUAL(400, ingang(b, R"({"nr":1,"functieA":5})").code); // functie 5 bestaat niet
+}
+
+void test_instellingen_en_wachtwoord() {
+  Baan b;
+  Antwoord a = inst(b, R"({"faduur":1.5,"dagnachtMin":30,"opstart":"uit"})");
+  TEST_ASSERT_EQUAL(200, a.code);
+  TEST_ASSERT_FALSE(a.hotspotOpnieuw);
+  TEST_ASSERT_EQUAL(1500u, b.cfg.inst.faduurMs);
+  TEST_ASSERT_EQUAL(1500u, b.lampen.faduurMs);
+  TEST_ASSERT_EQUAL(30u * 60000u, b.dn.duurMs);
+  TEST_ASSERT_FALSE(b.cfg.inst.opstartLaatste);
+  TEST_ASSERT_EQUAL(400, inst(b, R"({"wachtwoord":"kort"})").code);
+  TEST_ASSERT_EQUAL(400, inst(b, R"({"wachtwoord":"wachtwoordé"})").code);
+  TEST_ASSERT_EQUAL(400, inst(b, R"({"opstart":"soms"})").code);
+  TEST_ASSERT_EQUAL_STRING(STD_WACHTWOORD, b.cfg.inst.wachtwoord);
+  a = inst(b, R"({"wachtwoord":"stoomtrein"})");
+  TEST_ASSERT_EQUAL(200, a.code);
+  TEST_ASSERT_TRUE(a.hotspotOpnieuw);
+  TEST_ASSERT_EQUAL_STRING("stoomtrein", b.cfg.inst.wachtwoord);
+  // het wachtwoord staat nooit in /api/staat
+  TEST_ASSERT_TRUE(apiStaat(b, 0, false).find("stoomtrein") == std::string::npos);
+  // fabrieksinstellingen: alles terug, ook het wachtwoord
+  groep(b, R"({"nr":1,"naam":"Molen","aan":true})");
+  a = inst(b, R"({"fabrieksinstellingen":true})");
+  TEST_ASSERT_TRUE(a.hotspotOpnieuw);
+  TEST_ASSERT_EQUAL_STRING("Groep 1", b.cfg.groep[0].naam);
+  TEST_ASSERT_EQUAL_STRING(STD_WACHTWOORD, b.cfg.inst.wachtwoord);
+  TEST_ASSERT_FALSE(b.lampen.stand[0].aan);
+}
+
+void test_dagnacht() {
+  Baan b;
+  TEST_ASSERT_EQUAL(400, dagnacht(b, R"({"loopt":true})").code); // nog geen deelnemers
+  b.cfg.groep[2].dagnacht = true;
+  TEST_ASSERT_EQUAL(400, dagnacht(b, R"({"loopt":true,"vanaf":"middag"})").code);
+  TEST_ASSERT_EQUAL(400, dagnacht(b, R"({"vanaf":"avond"})").code);
+  TEST_ASSERT_EQUAL(200, dagnacht(b, R"({"loopt":true,"vanaf":"nacht"})").code);
+  TEST_ASSERT_TRUE(b.dn.loopt);
+  TEST_ASSERT_EQUAL(NACHT, b.dn.fase(0));
+  TEST_ASSERT_TRUE(b.lampen.stand[2].aan);
+  TEST_ASSERT_EQUAL(200, dagnacht(b, R"({"loopt":false})").code);
+  TEST_ASSERT_FALSE(b.dn.loopt);
+}
+
+void test_staat_volledig_en_kort() {
+  Baan b;
+  b.melding = "Testmelding";
+  groep(b, R"({"nr":1,"aan":true})");
+  b.tick(0, 0x0005);
+  b.tick(100, 0x0005);
+  std::string vol = apiStaat(b, 100, false), kort = apiStaat(b, 100, true);
+  JsonDocument d;
+  TEST_ASSERT_FALSE(deserializeJson(d, vol));
+  TEST_ASSERT_EQUAL(16, (int)d["groepen"].size());
+  TEST_ASSERT_EQUAL(16, (int)d["ingangen"].size());
+  TEST_ASSERT_EQUAL(12, (int)d["scenes"].size());
+  TEST_ASSERT_EQUAL(16, (int)d["functies"].size());
+  TEST_ASSERT_EQUAL(16, (int)d["lopend"].size());
+  TEST_ASSERT_EQUAL_STRING("Groep 1", d["groepen"][0]["naam"]);
+  TEST_ASSERT_EQUAL_STRING("Alles aan", d["scenes"][0]["naam"]);
+  TEST_ASSERT_TRUE(d["scenes"][2].isNull());
+  TEST_ASSERT_EQUAL_STRING("Overweg", d["functies"][0]["naam"]);
+  TEST_ASSERT_EQUAL_STRING(FW_VERSIE, d["versie"]);
+  TEST_ASSERT_EQUAL_STRING("Testmelding", d["melding"]);
+  TEST_ASSERT_TRUE(d["groepen"][0]["aan"].as<bool>());
+  TEST_ASSERT_TRUE(d["ingangen"][0]["actief"].as<bool>());
+  TEST_ASSERT_FALSE(d["ingangen"][1]["actief"].as<bool>());
+  TEST_ASSERT_TRUE(d["ingangen"][2]["actief"].as<bool>());
+  TEST_ASSERT_EQUAL(0.5, d["instellingen"]["faduur"].as<double>());
+  TEST_ASSERT_TRUE(d["instellingen"]["wachtwoord"].isNull());
+  // kort: geen namen, wel de live stand en "rev"
+  JsonDocument k;
+  TEST_ASSERT_FALSE(deserializeJson(k, kort));
+  TEST_ASSERT_TRUE(kort.size() < vol.size() / 2);
+  TEST_ASSERT_TRUE(k["groepen"][0]["naam"].isNull());
+  TEST_ASSERT_TRUE(k["scenes"].isNull());
+  TEST_ASSERT_EQUAL(b.cfgRev, k["rev"].as<uint32_t>());
+  TEST_ASSERT_TRUE(k["groepen"][0]["lamp"].as<int>() > 0);
+}
+
+int main() {
+  UNITY_BEGIN();
+  RUN_TEST(test_groep_zetten);
+  RUN_TEST(test_groep_fouten);
+  RUN_TEST(test_groep_naam_maximum_dagnacht);
+  RUN_TEST(test_alles_uit);
+  RUN_TEST(test_scenes);
+  RUN_TEST(test_functies);
+  RUN_TEST(test_ingangen);
+  RUN_TEST(test_instellingen_en_wachtwoord);
+  RUN_TEST(test_dagnacht);
+  RUN_TEST(test_staat_volledig_en_kort);
+  return UNITY_END();
+}
