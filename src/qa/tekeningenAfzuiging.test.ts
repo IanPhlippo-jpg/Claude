@@ -202,8 +202,7 @@ const DELEN: Deel[] = [
     `Buitenmaat ${m.romp.b} x ${m.romp.d} x ${-m.romp.onder}, wand ${m.romp.wand}, hoeken R${m.romp.r}`,
     `4 torens met klauwkanaal, as op x ±${getal(m.klauw.x)} en z ±${m.klauw.z}`,
     `Gaten M5: Ø5,8 x 67 diep vanaf de bovenkant (in de torens)`,
-    `Klauwkanaal ${2 * (m.klauw.naaf + 0.5)} x ${2 * (m.klauw.naaf + 0.5)} van ${m.toren.top} tot ${m.toren.bodem} (Y)`,
-    `Richel cassette: binnen ${2 * m.richel.x} x ${2 * m.richel.z}, ${m.richel.dikte} dik bovenaan`,
+    `Klauwkanaal ${2 * (m.klauw.naaf + 0.5)} x ${2 * (m.klauw.naaf + 0.5)} van ${m.toren.top} tot ${m.toren.bodem} (Y), zwaaivenster tot ${m.toren.zwaai} (klauw met rubber)`,
     `Richel instroomplaat: 3 treden van 1 mm onder Y ${m.inlaat.top - m.inlaat.dikte}`,
     `8 gaten Ø2,5 x 12 van onderen (M3, bodemplaat)`,
     `Achterwand: Ø10,2 (M8-bus binder 718, M10 x 0,75) en Ø3,1 (messingbuisje)`,
@@ -223,45 +222,36 @@ const DELEN: Deel[] = [
     'Eén stuk staal, geen losse eilanden (zie het laserrapport)',
     'Snijden volgens laser/rooster.dxf (laag SNIJDEN)',
   ] },
-  { f: 'Filtercassette.kcad', nr: 'AFZ-04', naam: 'Filtercassette (bak)', materiaal: 'PETG (wit)', maken: '3D-print rechtop, de roosterbodem op het bed', snede: true, dichtheid: PET, maten: [
-    `Buitenmaat ${2 * m.cassette.x} x ${2 * m.cassette.z} x ${-m.cassette.onder}, wand ${m.cassette.wand}, bodem ${m.cassette.bodem}`,
-    'Roosterbodem: vakken 18 x 18, ribben 3 mm',
-    `Binnenmaat ${2 * (m.cassette.x - m.cassette.wand)} x ${2 * (m.cassette.z - m.cassette.wand)}: één standaardmat Rittal SK 3171.100 (173 x 173 x 17, 1 mm aangedrukt)`,
-    'De rand (AFZ-05) wordt op de wandbovenkant gelijmd',
-  ] },
-  { f: 'Cassetterand.kcad', nr: 'AFZ-05', naam: 'Rand van de filtercassette', materiaal: 'PETG (wit)', maken: '3D-print plat', dichtheid: PET, maten: [
-    `Buitenmaat ${2 * m.cassette.rand.x} x ${2 * m.cassette.rand.z} x ${m.cassette.rand.dikte}, hoeken R${m.frame.opening.r}`,
-    `Opening ${2 * (m.cassette.x - m.cassette.wand)} x ${2 * (m.cassette.z - m.cassette.wand)}`,
-    'Uitsparingen voor de 4 lippen van het frame, 2 met greep',
-    'Rondom gelijmd op de bak (AFZ-04)',
-  ] },
-  { f: 'Instroomplaat.kcad', nr: 'AFZ-06', naam: 'Instroomplaat', materiaal: 'PETG (wit)', maken: '3D-print plat, de trechter naar boven', dichtheid: PET, maten: [
+  { f: 'Instroomplaat.kcad', nr: 'AFZ-04', naam: 'Instroomplaat', materiaal: 'PETG (wit)', maken: '3D-print plat, de trechter en de randen naar boven', snede: true, dichtheid: PET, maten: [
     `Plaat ${m.inlaat.dikte} dik, past tussen de torens in de romp (0,3 speling)`,
+    `Steunrand ${m.filter.foam.b} breed en ${m.filter.rand} hoog, buitenmaat ${2 * (m.filter.x + m.filter.speling)} x ${2 * (m.filter.z + m.filter.speling)}: foamband ${m.filter.foam.b} x ${m.filter.foam.h} erop`,
+    `Geleiderand ${m.filter.gids.dik} dik rondom, tot ${getal(m.filter.steun + m.filter.foam.h + m.filter.gids.h)} (Y): het filter ${2 * m.filter.z} x ${2 * m.filter.x} x ${m.filter.h} met ${m.filter.speling} mm speling`,
+    `Vingerrooster in het oog: ${2 * m.inlaat.vinger.n} ribben ${getal(m.inlaat.vinger.rib)} mm op steek ${m.inlaat.vinger.steek} en een dwarsrib, ${m.inlaat.dikte} hoog (spleten ${getal(m.inlaat.vinger.steek - m.inlaat.vinger.rib)})`,
     `Trechter: Ø${2 * m.inlaat.kraag} - Ø${2 * (m.inlaat.kraag + m.inlaat.gat) / 2} - Ø${2 * m.inlaat.gat} (treden van 1 mm)`,
     `Gat Ø3,1 voor het messingbuisje op x ${m.achter.meet[0]}, z ${m.achter.meet[1]}`,
     'Op de getrapte richel van de romp gelijmd',
   ] },
-  { f: 'Bodemplaat.kcad', nr: 'AFZ-07', naam: 'Bodemplaat', materiaal: 'PETG (wit)', maken: '3D-print plat, de lamellen onder 45°', dichtheid: PET, maten: [
+  { f: 'Bodemplaat.kcad', nr: 'AFZ-05', naam: 'Bodemplaat', materiaal: 'PETG (wit)', maken: '3D-print plat, de lamellen onder 45°', dichtheid: PET, maten: [
     `Buitenmaat ${m.romp.b} x ${m.romp.d} x ${m.uitblaas.dikte}, hoeken R${m.romp.r}`,
     `Lamellen 2 mm, steek ${m.uitblaas.steek}, onder 45° naar achteren`,
     `Schijf Ø${2 * m.uitblaas.schijf} onder de motor`,
     `4 x M4 verzonken 90° (Ø8,2) op Ø${2 * m.fan.gat}, onder 45°`,
     '8 x M3 verzonken 90° (Ø6,2) in de torens en de wandbussen',
   ] },
-  { f: 'Voedingsbox.kcad', nr: 'AFZ-08', naam: 'Voedingsbox', materiaal: 'PETG (wit)', maken: '3D-print rechtop, de bodem op het bed', snede: true, dichtheid: PET, maten: [
+  { f: 'Voedingsbox.kcad', nr: 'AFZ-06', naam: 'Voedingsbox', materiaal: 'PETG (wit)', maken: '3D-print rechtop, de bodem op het bed', snede: true, dichtheid: PET, maten: [
     `Bak ${m.box.b} x ${m.box.d} x ${m.box.boven - m.box.onder}, wand ${m.box.wand}; rand ${m.box.b + 2 * m.box.flens.x} x ${m.box.d + 2 * m.box.flens.z} x ${m.box.flensDik} met een schuine kant van 45°`,
-    `De bovenste ${m.box.boven} mm zit in de uitsparing van ${m.box.frees.b} x ${m.box.frees.d} x ${m.box.frees.diep}, los deksel bovenin (AFZ-14)`,
+    `De bovenste ${m.box.boven} mm zit in de uitsparing van ${m.box.frees.b} x ${m.box.frees.d} x ${m.box.frees.diep}, los deksel bovenin (AFZ-12)`,
     '4 gaten Ø4,5 in de rand, van onderen zitting Ø9 en verzinking 90° (M4 x 30 in pluggen voor holle deuren)',
     '4 paaltjes Ø10,4 in de hoeken met een gat Ø2,5 x 10 (M3 x 8, deksel)',
     'Ventilatie: sleuven 2,5 breed in de bodem en 2,5 x 12 achteraan (18 tot 30 onder het blad)',
     'Schuine kant uitgespaard voor C13, M8 en schakelaar (rand als brug)',
-    'Aan/uit-schakelaar verzonken in de voorwand (kom 25 x 19 x 6, inbouwgat 19 x 13)',
+    'Aan/uit-schakelaar C&K D502 verzonken in de voorwand (kom 25 x 19 x 6, inbouwgat 19,41 x 12,90)',
     `2 paaltjes ${m.box.klem.b} x ${m.box.klem.d} tot de bovenkant van de adapter, gat Ø2,5 (M3, adapterklemmen)`,
     'Ring Ø5,6 tegen de voorwand voor het slangetje naar de drukmeter',
     'Opening C13 32 x 24 (links), M8 Ø10,2 (M10 x 0,75) en buisje Ø3,1 (voor)',
     'USB-C 9,8 x 4 (knop) en 9,4 x 3,6 (ESP32-C3) (rechts)',
   ] },
-  { f: 'Knophouder.kcad', nr: 'AFZ-09', naam: 'Knophouder', materiaal: 'PETG (zwart)', maken: '3D-print ondersteboven, de plaat op het bed', snede: true, dichtheid: PET, maten: [
+  { f: 'Knophouder.kcad', nr: 'AFZ-07', naam: 'Knophouder', materiaal: 'PETG (zwart)', maken: '3D-print ondersteboven, de plaat op het bed', snede: true, dichtheid: PET, maten: [
     `Plaat Ø${m.dial.d} x ${m.dial.plaat}, buis Ø${2 * m.dial.buis} tot ${m.dial.onder} (in een gat Ø${m.dial.gat})`,
     `Kom voor de naaf: Ø${2 * m.dial.naaf[0][0]} x ${m.dial.naaf[0][1]} en Ø${2 * m.dial.naaf[1][0]} x ${m.dial.naaf[1][1]}`,
     '2 x M2,5 verzonken van onderen (Ø2,8) en 2 pennen Ø1,7 in de vloer, sleuf voor de FPC',
@@ -270,29 +260,30 @@ const DELEN: Deel[] = [
     `Opening USB-C ${m.dial.usb.gat.b} x ${getal(m.dial.usb.gat.y[1] - m.dial.usb.gat.y[0])} in de achterwand (kant van de sleuf), onderkant op Y ${getal(m.dial.usb.gat.y[0])}`,
     `2 palen Ø5 met gat Ø1,6 x 6 (M2) voor het USB-C-printje, x ±${getal(m.dial.usb.paal.x)}`,
   ] },
-  { f: 'Knopdeksel.kcad', nr: 'AFZ-10', naam: 'Deksel van de knophouder', materiaal: 'PETG (zwart)', maken: '3D-print plat', dichtheid: PET, maten: [
+  { f: 'Knopdeksel.kcad', nr: 'AFZ-08', naam: 'Deksel van de knophouder', materiaal: 'PETG (zwart)', maken: '3D-print plat', dichtheid: PET, maten: [
     `Schijf Ø${2 * m.dial.buis} x ${m.dial.deksel}`,
     `2 x M2,5 verzonken 90° (Ø5,2) op (${m.dial.bus[0].join(', ')}) en (${m.dial.bus[1].join(', ')})`,
     'Dicht: de USB-C zit in de wand van de houder',
     `2 gaatjes Ø4 op x ±${getal(m.dial.klauw.x)} voor de punten van de M4 x 65`,
   ] },
-  { f: 'Klauw.kcad', nr: 'AFZ-11', naam: 'Klauw (module)', materiaal: 'PETG (wit), 100 % vulling', maken: '3D-print plat, de moerkamer op het bed', snede: true, dichtheid: PET, maten: [
+  { f: 'Klauw.kcad', nr: 'AFZ-09', naam: 'Klauw (module)', materiaal: 'PETG (wit), 100 % vulling', maken: '3D-print plat, de moerkamer op het bed', snede: true, dichtheid: PET, maten: [
     `Naaf R${m.klauw.naaf}, arm ${m.klauw.arm} x ${m.klauw.breed}, dikte ${m.klauw.dik}`,
     `Gat Ø5,5; van onderen zeskantkamer SW ${getal(m.klauw.moer.s + m.klauw.moer.speling)} x ${getal(m.klauw.moer.m + 0.2)} voor een M5-moer (DIN 934)`,
     'De moer van onderen inpersen: ze draait niet mee, de klauw draait met de schroef',
+    `Rubberkussen neopreen Shore A 40, ${m.klauw.rubber.x[1] - m.klauw.rubber.x[0]} x ${m.klauw.breed} x ${m.klauw.rubber.h}, op de arm van ${m.klauw.rubber.x[0]} tot ${m.klauw.rubber.x[1]} mm (secondelijm)`,
     'Aantal: 4',
   ] },
-  { f: 'Knopklauw.kcad', nr: 'AFZ-12', naam: 'Klauw (knophouder)', materiaal: 'PETG (zwart), 100 % vulling', maken: '3D-print plat, de moerkamer op het bed', snede: true, dichtheid: PET, maten: [
+  { f: 'Knopklauw.kcad', nr: 'AFZ-10', naam: 'Klauw (knophouder)', materiaal: 'PETG (zwart), 100 % vulling', maken: '3D-print plat, de moerkamer op het bed', snede: true, dichtheid: PET, maten: [
     `Naaf R${m.dial.klauw.naaf}, arm ${m.dial.klauw.arm} x ${m.dial.klauw.breed}, dikte ${m.dial.klauw.dik}`,
     `Gat Ø4,5; van onderen zeskantkamer SW ${getal(m.dial.klauw.moer.s + m.dial.klauw.moer.speling)} x ${getal(m.dial.klauw.moer.m + 0.2)} voor een M4-moer (DIN 934)`,
     'Aantal: 2',
   ] },
-  { f: 'Deksel-voedingsbox.kcad', nr: 'AFZ-14', naam: 'Deksel van de voedingsbox', materiaal: 'PETG (wit)', maken: '3D-print plat', dichtheid: PET, maten: [
+  { f: 'Deksel-voedingsbox.kcad', nr: 'AFZ-12', naam: 'Deksel van de voedingsbox', materiaal: 'PETG (wit)', maken: '3D-print plat', dichtheid: PET, maten: [
     `${getal(m.box.b - 2 * m.box.wand - 0.4)} x ${getal(m.box.d - 2 * m.box.wand - 0.4)} x ${m.box.deksel}, hoeken R1,8`,
     'Valt bovenin de bak op de 4 paaltjes; 4 x M3 verzonken 90° (Ø6,4)',
     'Zit mee in de uitsparing van het blad (1 mm onder het plafond)',
   ] },
-  { f: 'Adapterklem.kcad', nr: 'AFZ-13', naam: 'Klem van de netadapter', materiaal: 'PETG (wit)', maken: '3D-print plat', dichtheid: PET, maten: [
+  { f: 'Adapterklem.kcad', nr: 'AFZ-11', naam: 'Klem van de netadapter', materiaal: 'PETG (wit)', maken: '3D-print plat', dichtheid: PET, maten: [
     `${m.box.klem.b} x ${m.box.klem.d + 8.5} x 3, lip van 8 mm over de adapter`,
     'M3 verzonken 90° (Ø6,4) in het paaltje van de box (M3 x 10)',
     'Aantal: 2',
@@ -381,14 +372,15 @@ function tafelbladBlad(blad: string): string {
 /** samenstelling: opengewerkte isometrie met ballonnen en de stuklijst */
 function samenstellingBlad(blad: string): { svg: string; stuklijst: string[][] } {
   const asm = open(`${DIR}/Afzuiging.kcad`) as Document & { components: Component[] };
-  // opengewerkt: rooster, cassette en filters omhoog, bodemplaat met ventilator omlaag, de box en de knop uit elkaar
+  // opengewerkt: rooster en filter omhoog, bodemplaat met ventilator omlaag, de box en de knop uit elkaar
   const op = (c: Component): [number, number, number] => {
     const [x, y, z] = c.position;
     const id = c.id;
     if (id === 'a2') return [x, y + 190, z];
-    if (/^a3|^af\d/.test(id)) return [x, y + 120, z];
+    if (id === 'a3') return [x, y + 120, z];
+    if (id === 'a3f') return [x, y + 70, z];
     if (['a4', 'a5'].includes(id) || /^as3\d|^as4\d/.test(id)) return [x, y - 120, z];
-    if (id === 'a9' || id === 'a18') return [x, y + 60, z];
+    if (id === 'a9' || id === 'a18') return [x, y + 45, z];
     if (/^a2\d|^as25|^as2\d$|^asa\d$|^asbd?\d$/.test(id)) return [x, y - 60, z - 40];
     if (/^a(7|8|12|14|15|dk\d|dn\d|sd\d|sk\d|sdk\d|su\d)$/.test(id)) return [x, y + 40, z - 250];
     if (/^as5\d/.test(id)) return [x, y + 60, z];
@@ -448,7 +440,7 @@ function doorsnedeBlad(blad: string): string {
   const doc = { ...asm, components: asm.components.filter((c) => !/^a(7|8|12|14|15|dk\d|dn\d|sd\d|sk\d|sdk\d|su\d)$/.test(c.id) && !/^a2\d|^as25|^as2\d$|^asa\d$|^asbd?\d$/.test(c.id)) } as Document;
   const sec = { parentId: 't', parentType: 'top' as DrawingViewType, axis: 'h' as const, at: 0, flip: true, label: 'B', autoHatch: true };
   const alles = sectionGeometry(doc, sec);
-  const koop = /^(a5|af\d|a10|a18|a19|as\d.*)$/;
+  const koop = /^(a5|a3|a3f|akr\d|a10|a18|a19|as\d.*)$/;
   const eigen = sectionGeometry({ ...doc, components: (doc as Document & { components: Component[] }).components.filter((c) => !koop.test(c.id)) } as Document, sec);
   const g: ViewGeo = { ...alles, hatch: eigen.hatch, hatchVar: eigen.hatchVar };
   const b = new Blad();
@@ -469,14 +461,14 @@ function doorsnedeBlad(blad: string): string {
     'Van boven naar onder:',
     '1  RVS-plaat met LB-rooster op het bovenframe (magneten)',
     '2  bovenframe met de koppen van de M5-schroeven',
-    '3  filtercassette met één standaardmat Rittal SK 3171.100 (173 x 173 x 17)',
-    '4  instroomplaat met trechter boven de waaier',
+    '3  interieurfilter MANN CU 20 013 (195 x 145 x 30) op de foamband',
+    '4  instroomplaat met steunrand, geleiderand, trechter en vingerrooster',
     '5  radiale ventilator San Ace C175',
     '6  bodemplaat met lamellen, M4 en M3 verzonken',
-    'Klauwen in de vier hoeken klemmen onder het blad.',
+    'Klauwen met rubber in de vier hoeken klemmen onder het blad.',
   ];
   let ty = 120;
-  regels.push('Koopdelen (ventilator, filters) niet gearceerd.');
+  regels.push('Koopdelen (ventilator, filter, foam, rubber) niet gearceerd.');
   for (const r of regels) { b.tekst([312, ty], r, 2.7); ty -= 5.5; }
   kader(b, { nr: 'AFZ-00', naam: 'Samenstelling in doorsnede', materiaal: 'zie stuklijst', maken: 'Montage volgens het bouwschema', massa: '—', schaal: '1:1', blad });
   return b.svg();

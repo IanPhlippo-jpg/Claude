@@ -16,7 +16,7 @@ const lees = (f) => { const d = JSON.parse(readFileSync(f, 'utf8')); delete d.fo
 const open = async (d) => { await page.evaluate((x) => window.__phlippoStore.getState().openDocument(x), d); await page.waitForTimeout(3000); };
 const kijk = async (toets, naam) => { await page.keyboard.press(toets); await page.waitForTimeout(700); await page.keyboard.press('f'); await page.mouse.move(700, 1000); await page.waitForTimeout(1800); await page.screenshot({ path: `e2e-out/${naam}.png` }); };
 
-// assemblage, en met het rooster eraf en de cassette half uitgetild
+// assemblage, en met het rooster eraf en het filter half uitgetild
 const asm = lees('voorbeelden/afzuiging/Afzuiging.kcad');
 await open(asm);
 await kijk('Control+7', 'afzuiging-iso');
@@ -35,10 +35,10 @@ await page.evaluate(() => window.__phlippoStore.setState({ sectionView: null }))
 const uit = lees('voorbeelden/afzuiging/Afzuiging.kcad');
 for (const c of uit.components) {
   if (c.id === 'a2') c.position = [0, 140, 0];
-  if (c.id === 'a3' || c.id === 'a3r' || /^af\d/.test(c.id)) c.position = [0, 70, 0];
+  if (c.id === 'a3') c.position = [0, 70, 0];
 }
 await open(uit);
-await kijk('Control+7', 'afzuiging-cassette-uit');
+await kijk('Control+7', 'afzuiging-filter-uit');
 // doorsnede door het midden (luchtweg: rooster, filterlagen, ventilator, lamellen) en door de klauwtorens
 const doorsnede = async (sv, toets, naam) => { await page.evaluate((x) => window.__phlippoStore.setState({ sectionView: x }), sv); await page.waitForTimeout(1500); await kijk(toets, naam); };
 await open(lees('voorbeelden/afzuiging/Afzuiging.kcad'));

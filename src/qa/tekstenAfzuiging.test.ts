@@ -10,7 +10,7 @@ import { ONDERHOUD } from '../../voorbeelden/afzuiging/onderhoud.mjs';
 const DIR = 'voorbeelden/afzuiging';
 const lees = (p: string) => readFileSync(p, 'utf8');
 const bestanden = [
-  `${DIR}/README.md`, `${DIR}/docs/Vrijgave-en-meetplan.md`, `${DIR}/docs/Berekeningen.md`, `${DIR}/docs/Besparingen.md`,
+  `${DIR}/README.md`, `${DIR}/docs/Vrijgave-en-meetplan.md`, `${DIR}/docs/Berekeningen.md`, `${DIR}/docs/Besparingen.md`, `${DIR}/docs/Materiaalstaat.md`,
   'e2e/tools/bouwschema-afzuiging.mjs', `${DIR}/firmware/ui/schermen.html`, `${DIR}/firmware/src/knop/main.cpp`,
   `${DIR}/schema/schema.html`, 'src/qa/tekeningenAfzuiging.test.ts', `${DIR}/onderhoud.mjs`,
   ...readdirSync(`${DIR}/tekeningen`).filter((f) => f.endsWith('.svg')).map((f) => join(`${DIR}/tekeningen`, f)),
@@ -42,7 +42,8 @@ describe('afzuiging, teksten', () => {
 
   it('geen oude maten of onderdelen meer', () => {
     const fout: string[] = [];
-    const oud = [/210 x 210 x 99/, /M5-(fijnstof)?mat/i, /170 x 190/, /141 cm²/, /€ 495,48/, /klauwen-4x-RVS/, /M2 x 5 onder de palen/];
+    const oud = [/210 x 210 x 99/, /M5-(fijnstof)?mat/i, /170 x 190/, /141 cm²/, /€ 495,48/, /klauwen-4x-RVS/, /M2 x 5 onder de palen/,
+      /KCD1/, /TR5/, /kan tegen aceton/i, /tot ongeveer 75 °C/];
     for (const p of bestanden) {
       lees(p).split(/\r?\n/).forEach((regel, i) => { for (const o of oud) if (o.test(regel)) fout.push(`${p}:${i + 1}: ${o}`); });
     }

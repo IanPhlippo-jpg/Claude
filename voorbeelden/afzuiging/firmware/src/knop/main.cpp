@@ -10,7 +10,7 @@
 //   10 s vasthouden         opnieuw koppelen: zet daarna de schakelaar van de box 3 keer kort aan en uit (< 5 s)
 // Het scherm toont wat de module bevestigt (niet wat de knop vraagt): de stand, het drukverschil over het filter en
 // hoe vol het filter is. De stand is een percentage van het maximale toerental. "Filter vervangen" (oranje ring) komt
-// per stand vóór het debiet onder het minimum voor de vangst zakt; onder 70 % meldt het scherm "lage stand". De
+// per stand vóór het debiet onder het minimum voor de vangst zakt; onder 75 % meldt het scherm "lage stand". De
 // bewaking zegt altijd wat ze weet (stabiliseren, niet geijkt, geen meting, buiten bereik). Valt het drukverschil weg of
 // draait de ventilator niet, dan meldt het een storing (rode ring). Boost komt uit een tegoed (2 min, daarna afkoelen).
 // Na het aanzetten staat alles UIT.
@@ -286,7 +286,7 @@ void teken(uint32_t nu) {
     ring(BOOG * st.ijkVoortgang / 100.0f, &V_BEIGE);
     logo(S(120), S(52), BEIGE);
     tekst(TITEL, "IJKEN", S(120), S(104), WIT);
-    tekst(TEKST, (String("schone mat, ") + (20 * st.ijken) + " %").c_str(), S(120), S(136), WIT);
+    tekst(TEKST, (String("schoon filter, ") + (20 * st.ijken) + " %").c_str(), S(120), S(136), WIT);
     canvas->flush();
     return;
   }
@@ -324,7 +324,7 @@ void teken(uint32_t nu) {
     } else if (st.bewaking == BEW_BUITEN_BEREIK) {
       tekenTekst("druk buiten meetbereik", "filter nakijken", ORANJE);
     } else if (vol) {
-      tekenTekst("filter vervangen", "eerst uit, mat in een zak", ORANJE);
+      tekenTekst("filter vervangen", "eerst uit, filter in een zak", ORANJE);
     } else if (st.ijkFout != IJK_OK && st.ijkFout != IJK_AFGEBROKEN) {
       tekenTekst("ijken mislukt", "vorige ijking blijft", ORANJE);
     } else if (st.boostRest) {
@@ -333,9 +333,9 @@ void teken(uint32_t nu) {
     } else if (boostVraag && nu - boostVraag < 3000 && !st.boostRest && st.boostTegoed < 8) {
       tekenTekst("boost even niet", "nog aan het afkoelen", LICHT);
     } else if (st.bewaking == BEW_NIET_GEIJKT) {
-      tekenTekst("nieuwe mat?", "knop 5 s vasthouden", LICHT);
+      tekenTekst("nieuw filter?", "knop 5 s vasthouden", LICHT);
     } else if (st.bewaking == BEW_LAGE_STAND) {
-      tekenTekst("lage stand", "weinig vangst, minstens 70 %", LICHT);
+      tekenTekst("lage stand", "weinig vangst, minstens 75 %", LICHT);
     } else if (st.bewaking == BEW_STABILISEREN) {
       tekenTekst("even meten...", nullptr, MIDDEN);
     } else {
@@ -375,7 +375,7 @@ void setup() {
   attachInterrupt(ENC_B, encIsr, CHANGE);
 
   prefs.begin("afzuiging", false);
-  t.pct = constrain(prefs.getInt("pct", 70), MIN_PCT, MAX_PCT); // 70 %: de laagste beschermende stand
+  t.pct = constrain(prefs.getInt("pct", 80), MIN_PCT, MAX_PCT); // 80 %: de dagstand (75 % is de laagste beschermende)
   t.aan = false; // na het aanzetten (ook na een stroomonderbreking) altijd UIT
   gekoppeld = prefs.getBytes("modulemac", moduleMac, 6) == 6 && prefs.getBytes("sleutel", sleutel, 16) == 16;
   if (!gekoppeld) for (auto &b : sleutel) b = (uint8_t)esp_random();

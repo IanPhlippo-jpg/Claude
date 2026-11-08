@@ -1,11 +1,11 @@
 /**
- * De ingebouwde nagelstofafzuiging (voorbeelden/afzuiging, versie 5, 2026-11-06): radiale ventilator San Ace C175 in
- * een vierkante romp, voedingsbox apart onder het blad.
+ * De ingebouwde nagelstofafzuiging (voorbeelden/afzuiging, versie 7, 2026-11-08): radiale ventilator San Ace C175 in
+ * een vierkante romp onder een interieurfilter (MANN CU 20 013), voedingsbox apart onder het blad.
  * - elk onderdeel bouwt op beide kernels tot één body met dezelfde vorm; het rooster is lasersnijbaar;
  * - de PETG-delen passen op een printbed van 225 x 225 (de Centauri Carbon heeft 256 x 256); de module hangt
- *   hoogstens 68 mm onder een blad van 34 mm;
+ *   hoogstens 82 mm onder een blad van 34 mm;
  * - niets botst (ook de voedingsbox); de klauwen passen bij elke bladdikte van 10 tot 50 mm en liggen ingetrokken
- *   binnen de romp; de filtercassette gaat vrij naar boven uit de module;
+ *   binnen de romp (met hun rubber); het filter gaat vrij naar boven uit de module;
  * - het luchtkanaal is dicht: lucht kan er alleen in langs het rooster en uit langs de bodemplaat.
  */
 import { afterAll, describe, expect, it } from 'vitest';
@@ -38,9 +38,9 @@ const bouw = (f: string) => {
 const rond = (v: THREE.Vector3) => v.toArray().map((x) => Math.round(x * 10) / 10 + 0); // + 0: geen -0
 
 const mesh: Record<string, ReturnType<typeof bouw>> = {};
-// de 13 geprinte onderdelen: exact (B-rep) en als dichte STL
-const PRINT = ['Romp.kcad', 'Bovenframe.kcad', 'Bodemplaat.kcad', 'Instroomplaat.kcad', 'Voedingsbox.kcad', 'Filtercassette.kcad',
-  'Cassetterand.kcad', 'Knophouder.kcad', 'Knopdeksel.kcad', 'Klauw.kcad', 'Knopklauw.kcad', 'Adapterklem.kcad', 'Deksel-voedingsbox.kcad'];
+// de 11 geprinte onderdelen: exact (B-rep) en als dichte STL
+const PRINT = ['Romp.kcad', 'Bovenframe.kcad', 'Bodemplaat.kcad', 'Instroomplaat.kcad', 'Voedingsbox.kcad',
+  'Knophouder.kcad', 'Knopdeksel.kcad', 'Klauw.kcad', 'Knopklauw.kcad', 'Adapterklem.kcad', 'Deksel-voedingsbox.kcad'];
 
 describe('afzuiging, onderdelen (mesh)', () => {
   it.each(DELEN)('%s is één body', (f) => {
@@ -48,8 +48,8 @@ describe('afzuiging, onderdelen (mesh)', () => {
     expect(mesh[f].n).toBe(1);
   }, 60000);
 
-  it('maten: romp, frame, rooster, klauw, ventilator; de module hangt hoogstens 68 mm onder een blad van 34 mm', () => {
-    expect(rond(mesh['Romp.kcad'].bb.min)).toEqual([-105, -96, -105]);
+  it('maten: romp, frame, rooster, klauw, filter, ventilator; de module hangt hoogstens 82 mm onder een blad van 34 mm', () => {
+    expect(rond(mesh['Romp.kcad'].bb.min)).toEqual([-105, -110, -105]);
     expect(rond(mesh['Romp.kcad'].bb.max)).toEqual([105, 0, 105]);
     expect(rond(mesh['Bovenframe.kcad'].bb.min)).toEqual([-111, 0, -111]);
     expect(rond(mesh['Bovenframe.kcad'].bb.max)).toEqual([111, 2.5, 111]);
@@ -57,14 +57,21 @@ describe('afzuiging, onderdelen (mesh)', () => {
     expect(rond(mesh['Rooster-LB.kcad'].bb.min)).toEqual([-111, 2.5, -111]);
     expect(rond(mesh['Rooster-LB.kcad'].bb.max)).toEqual([111, 4, 111]);
     expect(rond(mesh['Klauw.kcad'].bb.max)).toEqual([18, 6, 6.5]);
+    expect(rond(mesh['Klauwrubber.kcad'].bb.min)).toEqual([9.5, 6, -4]);
+    expect(rond(mesh['Klauwrubber.kcad'].bb.max)).toEqual([17, 10, 4]);
+    // het filter (195 x 145 x 30) op de foamband (4 mm) op de steunrand; in rust 1 mm onder de RVS-plaat (2,5)
+    expect(rond(mesh['Interieurfilter-CU20013.kcad'].bb.min)).toEqual([-72.5, -28.5, -97.5]);
+    expect(rond(mesh['Interieurfilter-CU20013.kcad'].bb.max)).toEqual([72.5, 1.5, 97.5]);
+    expect(rond(mesh['Foamband.kcad'].bb.min)).toEqual([-73.5, -32.5, -98.5]);
     // de waaier staat 2 mm onder de instroomplaat, de motor op de bodemplaat
-    expect(rond(mesh['Ventilator-San-Ace-C175.kcad'].bb.min)).toEqual([-87.5, -96, -87.5]);
-    expect(rond(mesh['Ventilator-San-Ace-C175.kcad'].bb.max)).toEqual([87.5, -27, 87.5]);
-    expect(rond(mesh['Instroomplaat.kcad'].bb.min)).toEqual([-100.7, -25, -100.7]);
+    expect(rond(mesh['Ventilator-San-Ace-C175.kcad'].bb.min)).toEqual([-87.5, -110, -87.5]);
+    expect(rond(mesh['Ventilator-San-Ace-C175.kcad'].bb.max)).toEqual([87.5, -41, 87.5]);
+    expect(rond(mesh['Instroomplaat.kcad'].bb.min)).toEqual([-100.7, -39, -100.7]);
+    expect(rond(mesh['Instroomplaat.kcad'].bb.max)).toEqual([100.7, -22.5, 100.7]);
     const onder = mesh['Bodemplaat.kcad'].bb.min.y;
-    expect(rond(mesh['Bodemplaat.kcad'].bb.min)).toEqual([-105, -102, -105]); // één plaat over de hele onderkant
-    expect(rond(mesh['Bodemplaat.kcad'].bb.max)).toEqual([105, -96, 105]);
-    expect(-onder - 34).toBeLessThanOrEqual(68);
+    expect(rond(mesh['Bodemplaat.kcad'].bb.min)).toEqual([-105, -116, -105]); // één plaat over de hele onderkant
+    expect(rond(mesh['Bodemplaat.kcad'].bb.max)).toEqual([105, -110, 105]);
+    expect(-onder - 34).toBeLessThanOrEqual(82);
   });
 
   it('PETG-delen passen op het bed van de Centauri Carbon (256 x 256, 250 hoog; 3 mm marge)', () => {
@@ -77,7 +84,7 @@ describe('afzuiging, onderdelen (mesh)', () => {
     }
   });
 
-  it('rooster: volume = (plaat - gaten) x 1,5, het laserrapport is schoon en er is genoeg open boven de cassette', () => {
+  it('rooster: volume = (plaat - gaten) x 1,5, het laserrapport is schoon en er is genoeg open boven het filter', () => {
     const L = JSON.parse(readFileSync(`${DIR}/laser/rooster.loops`, 'utf8')) as { outer: number[][]; holes: number[][][]; dikte: number; rapport: Record<string, number> };
     const area = (p: number[][]) => Math.abs(p.reduce((a, q, i) => a + q[0] * p[(i + 1) % p.length][1] - p[(i + 1) % p.length][0] * q[1], 0) / 2);
     const v = (area(L.outer) - L.holes.reduce((a, h) => a + area(h), 0)) * L.dikte;
@@ -86,7 +93,7 @@ describe('afzuiging, onderdelen (mesh)', () => {
     expect(L.rapport.stukken_staal).toBe(1);
     expect(L.rapport.stukken_staal_met_steg_onder_min).toBe(0);
     expect(L.rapport.sleuven_met_vernauwing_onder_min).toBe(0);
-    expect(L.rapport.open_boven_cassette_cm2).toBeGreaterThan(120); // vak 171 x 171 (standaardmat)
+    expect(L.rapport.open_boven_filter_cm2).toBeGreaterThan(100); // filter 145 x 195
   });
 });
 
@@ -104,17 +111,18 @@ describe('afzuiging, assemblage', () => {
     expect(botsingen(asm().components)).toEqual([]);
   }, 900000);
 
-  it('de filtercassette gaat met de filters vrij naar boven uit de module (zonder rooster)', () => {
+  it('het filter gaat vrij naar boven uit de module (zonder rooster)', () => {
     const a = asm();
     const zonder = a.components.filter((c) => c.id !== 'a2');
-    for (const dy of [10, 60]) expect(botsingen(verschuif(zonder, ['a3', 'a3r', 'af1'], [0, dy, 0])), String(dy)).toEqual([]);
+    for (const dy of [10, 60]) expect(botsingen(verschuif(zonder, ['a3'], [0, dy, 0])), String(dy)).toEqual([]);
   }, 900000);
 
   it('de klauwen passen bij elke bladdikte van 10 tot 50 mm en reiken voorbij de uitsparing', () => {
     const a = asm();
     const klauwen = a.components.filter((c) => /^ak/.test(c.id)).map((c) => c.id);
     for (const t of [10, 20, 34, 50]) {
-      const comps = a.components.map((c) => (klauwen.includes(c.id) ? { ...c, position: [c.position[0], -t - 6, c.position[2]] as [number, number, number] } : c))
+      // klauw en rubber samen: het rubber (4 mm) tegen het blad
+      const comps = a.components.map((c) => (klauwen.includes(c.id) ? { ...c, position: [c.position[0], -t - 10, c.position[2]] as [number, number, number] } : c))
         .filter((c) => ['a1', 'a6', ...klauwen].includes(c.id));
       expect(botsingen(comps), `blad ${t} mm`).toEqual([]);
     }
@@ -169,7 +177,7 @@ describe('afzuiging, assemblage', () => {
  * nergens bereiken. Boven stopt het bij het rooster, onder bij de bodemplaat.
  */
 function lek(geoms: THREE.BufferGeometry[]): { lek: boolean; waar?: number[]; vrij: number } {
-  const X0 = -115, Z0 = -115, Y0 = -95.73, nx = 230, nz = 230, ny = 98, off = 0.27; // tot net onder de bovenkant van het frame
+  const X0 = -115, Z0 = -115, Y0 = -109.73, nx = 230, nz = 230, ny = 112, off = 0.27; // tot net onder de bovenkant van het frame
   const vast = new Uint8Array(nx * ny * nz);
   const idx = (i: number, j: number, k: number) => (j * nz + k) * nx + i;
   const ray = new THREE.Ray();
@@ -189,7 +197,7 @@ function lek(geoms: THREE.BufferGeometry[]): { lek: boolean; waar?: number[]; vr
     }
   }
   const zien = new Uint8Array(nx * ny * nz);
-  const start = idx(115, Math.round(-20.73 - Y0), 115); // (0, -20,7, 0): onder het filter, boven de instroomplaat
+  const start = idx(115, Math.round(-33.73 - Y0), 115); // (0, -33,7, 0): onder het filter, boven de instroomplaat
   if (vast[start]) throw new Error('startpunt zit in materiaal');
   const q = [start];
   zien[start] = 1;
@@ -223,7 +231,7 @@ describe('afzuiging, luchtdicht', () => {
       new THREE.CylinderGeometry(3, 3, 66, 16).translate(x, -33, z),
     ]),
   ];
-  const delen = () => [g('Romp.kcad'), g('Bovenframe.kcad'), g('Filtercassette.kcad'), g('Cassetterand.kcad'), g('Instroomplaat.kcad')];
+  const delen = () => [g('Romp.kcad'), g('Bovenframe.kcad'), g('Instroomplaat.kcad')];
   it('lucht kan alleen langs het rooster in en langs de bodemplaat uit', () => {
     const r = lek([...delen(), ...dicht]);
     expect(r.lek, JSON.stringify(r.waar)).toBe(false);

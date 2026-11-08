@@ -31,7 +31,7 @@ OUT = HERE.parent / 'laser'
 BREEDTE, HOOGTE, HOEK = 222.0, 222.0, 6.0  # plaat (mm): even groot als het bovenframe, dat ze volledig bedekt
 DIKTE = 1.5
 RAND = 11.0  # rand zonder gaten: de gaten liggen alleen boven de opening van het frame
-CASSETTE = (85.5, 85.5)  # binnenmaat (Rittal SK 3171.100, vak 171 x 171) van de filtercassette (halve breedte, halve diepte): daar gaat de lucht door
+FILTER = (72.5, 97.5)  # interieurfilter MANN CU 20 013 (145 x 195, halve breedte, halve diepte): daar gaat de lucht door
 LOGO_HOOGTE = 75.0
 BADGE_MARGE = 5.0  # vlak staal rond het logo
 MIN_STEG = 1.5
@@ -238,7 +238,7 @@ def controle(plaat_vorm, plaat, gaten):
         'gaten': len(gaten),
         'open_cm2': round(open_cm2, 1),
         'open_procent': round(100 * open_cm2 * 100 / plaat_vorm.area, 1),
-        'open_boven_cassette_cm2': round(sum(g.intersection(box(-CASSETTE[0], -CASSETTE[1], CASSETTE[0], CASSETTE[1])).area for g in gaten) / 100, 1),
+        'open_boven_filter_cm2': round(sum(g.intersection(box(-FILTER[0], -FILTER[1], FILTER[0], FILTER[1])).area for g in gaten) / 100, 1),
         'stukken_staal_met_steg_onder_min': smalle_stegen,
         'sleuven_met_vernauwing_onder_min': smalle_sleuven,
         'massa_g': round(plaat.area * DIKTE * 8.0e-3, 0),

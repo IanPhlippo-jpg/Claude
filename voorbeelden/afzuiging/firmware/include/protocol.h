@@ -29,7 +29,7 @@ struct __attribute__((packed)) Opdracht {
   uint8_t versie = VERSIE;
   uint8_t soort = SOORT_OPDRACHT;
   uint8_t aan = 0;      // de gebruiker wil de afzuiging aan
-  uint8_t pct = 70;     // gewone stand 20..80 % van het maximale toerental
+  uint8_t pct = 80;     // gewone stand 20..80 % van het maximale toerental (80 = dagstand)
   uint8_t ijk = 0;      // teller: verhoogt bij elke vraag om te ijken
   uint8_t boost = 0;    // teller: verhoogt bij elke vraag om boost (de module houdt tijd en tegoed bij)
   uint16_t sessie = 0;  // stijgt bij elke start van de knop: een herstart is geen ijk- of boostvraag
@@ -53,7 +53,7 @@ enum Bewaking : uint8_t {
   BEW_UIT = 0,           // de ventilator staat stil
   BEW_OK = 1,            // vol is geldig
   BEW_STABILISEREN = 2,  // na een standwissel: nog geen oordeel (geen oude melding)
-  BEW_NIET_GEIJKT = 3,   // nog geen ijking op een schone mat
+  BEW_NIET_GEIJKT = 3,   // nog geen ijking op een schoon filter
   BEW_GEEN_METING = 4,   // drukmeter weg of meting niet vers
   BEW_BUITEN_BEREIK = 5, // de meting of de vervanggrens valt boven het meetbereik
   BEW_LAGE_STAND = 6,    // deze stand haalt het minimumdebiet voor de vangst niet: geen bescherming beloofd
@@ -71,14 +71,14 @@ struct __attribute__((packed)) Status {
   uint8_t boostTegoed = 0;  // 0..100 % van het boosttegoed (120 s); onder 8 % geen nieuwe boost
   uint8_t meter = 0;        // drukmeter antwoordt
   uint8_t meetVers = 0;     // de laatste meting is jonger dan 1 s (anders is dp ongeldig)
-  uint8_t geijkt = 0;       // een geldige ijking op een schone mat is bewaard
+  uint8_t geijkt = 0;       // een geldige ijking op een schoon filter is bewaard
   uint8_t storing = STORING_GEEN;
   uint8_t bewaking = BEW_UIT;
   uint8_t ijken = 0;        // 0 = niet aan het ijken, anders de stap 1..5
   uint8_t ijkVoortgang = 0; // 0..100 %
   uint8_t ijkFout = IJK_OK; // uitkomst van de laatste ijking
   uint16_t toeren = 0;      // gemeten toerental (omw/min, uit de tacho)
-  float dp = 0;             // drukverschil rooster + mat (Pa), NAN als niet vers
+  float dp = 0;             // drukverschil rooster + filter (Pa), NAN als niet vers
   float vol = 0;            // 0 = schoon, 1 = vervangen; NAN tenzij bewaking == BEW_OK
 };
 

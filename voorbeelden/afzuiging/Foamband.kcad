@@ -1,0 +1,332 @@
+{
+ "format": "phlippo-cad",
+ "version": 1,
+ "name": "Foamband 6 x 4",
+ "units": "mm",
+ "planes": {
+  "foam": {
+   "id": "foam",
+   "name": "Plane steunrand",
+   "origin": [
+    0,
+    -32.5,
+    0
+   ],
+   "u": [
+    1,
+    0,
+    0
+   ],
+   "v": [
+    0,
+    0,
+    -1
+   ],
+   "n": [
+    0,
+    1,
+    0
+   ],
+   "kind": "reference"
+  }
+ },
+ "variables": {},
+ "equations": [],
+ "sketches": {
+  "s1": {
+   "id": "s1",
+   "name": "Sketch1",
+   "plane": "foam",
+   "points": {
+    "origin_s1": {
+     "x": 0,
+     "y": 0
+    },
+    "s1p0": {
+     "x": -71.5,
+     "y": -98.5
+    },
+    "s1p1": {
+     "x": 71.5,
+     "y": -98.5
+    },
+    "s1p2": {
+     "x": 73.5,
+     "y": -96.5
+    },
+    "s1p3": {
+     "x": 73.5,
+     "y": 96.5
+    },
+    "s1p4": {
+     "x": 71.5,
+     "y": 98.5
+    },
+    "s1p5": {
+     "x": -71.5,
+     "y": 98.5
+    },
+    "s1p6": {
+     "x": -73.5,
+     "y": 96.5
+    },
+    "s1p7": {
+     "x": -73.5,
+     "y": -96.5
+    },
+    "s1p8": {
+     "x": 71.5,
+     "y": -96.5
+    },
+    "s1p9": {
+     "x": 71.5,
+     "y": 96.5
+    },
+    "s1p10": {
+     "x": -71.5,
+     "y": 96.5
+    },
+    "s1p11": {
+     "x": -71.5,
+     "y": -96.5
+    },
+    "s1p21": {
+     "x": -66.5,
+     "y": -92.5
+    },
+    "s1p22": {
+     "x": 66.5,
+     "y": -92.5
+    },
+    "s1p23": {
+     "x": 67.5,
+     "y": -91.5
+    },
+    "s1p24": {
+     "x": 67.5,
+     "y": 91.5
+    },
+    "s1p25": {
+     "x": 66.5,
+     "y": 92.5
+    },
+    "s1p26": {
+     "x": -66.5,
+     "y": 92.5
+    },
+    "s1p27": {
+     "x": -67.5,
+     "y": 91.5
+    },
+    "s1p28": {
+     "x": -67.5,
+     "y": -91.5
+    },
+    "s1p29": {
+     "x": 66.5,
+     "y": -91.5
+    },
+    "s1p30": {
+     "x": 66.5,
+     "y": 91.5
+    },
+    "s1p31": {
+     "x": -66.5,
+     "y": 91.5
+    },
+    "s1p32": {
+     "x": -66.5,
+     "y": -91.5
+    }
+   },
+   "scalars": {
+    "s1s12": 2,
+    "s1s33": 1
+   },
+   "entities": {
+    "s1e13": {
+     "id": "s1e13",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p0",
+     "p2": "s1p1"
+    },
+    "s1e14": {
+     "id": "s1e14",
+     "construction": false,
+     "kind": "arc",
+     "center": "s1p8",
+     "start": "s1p1",
+     "end": "s1p2",
+     "r": "s1s12",
+     "ccw": true
+    },
+    "s1e15": {
+     "id": "s1e15",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p2",
+     "p2": "s1p3"
+    },
+    "s1e16": {
+     "id": "s1e16",
+     "construction": false,
+     "kind": "arc",
+     "center": "s1p9",
+     "start": "s1p3",
+     "end": "s1p4",
+     "r": "s1s12",
+     "ccw": true
+    },
+    "s1e17": {
+     "id": "s1e17",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p4",
+     "p2": "s1p5"
+    },
+    "s1e18": {
+     "id": "s1e18",
+     "construction": false,
+     "kind": "arc",
+     "center": "s1p10",
+     "start": "s1p5",
+     "end": "s1p6",
+     "r": "s1s12",
+     "ccw": true
+    },
+    "s1e19": {
+     "id": "s1e19",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p6",
+     "p2": "s1p7"
+    },
+    "s1e20": {
+     "id": "s1e20",
+     "construction": false,
+     "kind": "arc",
+     "center": "s1p11",
+     "start": "s1p7",
+     "end": "s1p0",
+     "r": "s1s12",
+     "ccw": true
+    },
+    "s1e34": {
+     "id": "s1e34",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p21",
+     "p2": "s1p22"
+    },
+    "s1e35": {
+     "id": "s1e35",
+     "construction": false,
+     "kind": "arc",
+     "center": "s1p29",
+     "start": "s1p22",
+     "end": "s1p23",
+     "r": "s1s33",
+     "ccw": true
+    },
+    "s1e36": {
+     "id": "s1e36",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p23",
+     "p2": "s1p24"
+    },
+    "s1e37": {
+     "id": "s1e37",
+     "construction": false,
+     "kind": "arc",
+     "center": "s1p30",
+     "start": "s1p24",
+     "end": "s1p25",
+     "r": "s1s33",
+     "ccw": true
+    },
+    "s1e38": {
+     "id": "s1e38",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p25",
+     "p2": "s1p26"
+    },
+    "s1e39": {
+     "id": "s1e39",
+     "construction": false,
+     "kind": "arc",
+     "center": "s1p31",
+     "start": "s1p26",
+     "end": "s1p27",
+     "r": "s1s33",
+     "ccw": true
+    },
+    "s1e40": {
+     "id": "s1e40",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p27",
+     "p2": "s1p28"
+    },
+    "s1e41": {
+     "id": "s1e41",
+     "construction": false,
+     "kind": "arc",
+     "center": "s1p32",
+     "start": "s1p28",
+     "end": "s1p21",
+     "r": "s1s33",
+     "ccw": true
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s1e13",
+    "s1e14",
+    "s1e15",
+    "s1e16",
+    "s1e17",
+    "s1e18",
+    "s1e19",
+    "s1e20",
+    "s1e34",
+    "s1e35",
+    "s1e36",
+    "s1e37",
+    "s1e38",
+    "s1e39",
+    "s1e40",
+    "s1e41"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s1"
+  }
+ },
+ "features": [
+  {
+   "id": "ks1",
+   "type": "sketch",
+   "name": "Sketch1",
+   "sketchId": "s1",
+   "suppressed": false
+  },
+  {
+   "id": "f2",
+   "type": "extrude",
+   "name": "Band",
+   "sketchId": "s1",
+   "suppressed": false,
+   "op": "boss",
+   "end": "blind",
+   "depth": 4,
+   "reverse": false
+  }
+ ],
+ "material": {
+  "name": "EPDM-cel, zwart",
+  "density": 150,
+  "color": "#2a2a2c"
+ }
+}

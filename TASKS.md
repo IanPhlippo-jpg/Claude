@@ -1080,6 +1080,24 @@ elease; README en docs/04 bijgewerkt
 - [x] V3-05: koppelen alleen na een bewuste handeling; bevestiging met uitdaging; oude sessies weigeren; tests
 - [x] V3-06/03: filtermelding per stand uit het luchtmodel (vóór het minimumdebiet), lage standen gemarkeerd, stabiliseren/buiten bereik zichtbaar; geluidsdoel consistent
 - [ ] V3-02: EPDM-band 3 x 9 echt in het model (steunrand, sluitmaat, compressie), matpassing en toleranties
-- [ ] V3-08/12: 0,52 W in de warmte, boostbudget in de warmte, overlap box/print nagaan
-- [ ] V3-09/10/11: README en teksten uit dezelfde gegevens (romp 96, prijs 502,69, rooster 125,6 cm², USB-klemming), oude laserklauwen weg, materiaalstaat, bereikbaarheid en morsroute
+- [x] V3-08/12: 0,52 W in de warmte, boostbudget in de warmte, overlap box/print nagaan
+- [x] V3-09/10/11: README en teksten uit dezelfde gegevens (romp 96, prijs 502,69, rooster 125,6 cm², USB-klemming), oude laserklauwen weg, materiaalstaat, bereikbaarheid en morsroute
 - [ ] Testreeks, firmwaretests, STL's, tekeningen, bouwschema; commit en push
+
+### Vervolg zonder keuze van Ian (2026-11-08)
+- [x] V3-12: overlap Voedingsbox/Voedingsprint met de exacte kernel meten en oplossen of als bedoeld contact labelen
+- [x] V3-08: exacte DC-zekering en DC-schakelaar met datablad, C3-piekstroom gelijk in schema en rekenblad, echte deratingcurve adapter, USB-pad (kortsluiting, terugvoeding bij flashen)
+- [x] V3-10: materiaalstaat (filament, epoxy, magneten, reinigingsmiddel) met datasheets en grenzen; aceton-claim nakijken
+- [x] V3-11: probe-envelop (welke plaat houdt een vinger tegen), morsroute, kabel- en knie-envelop uit de modelmaten
+- [x] V3-07: klauwberekening met materiaalbron; montagegrens (keuze voorleggen als het geld of ontwerp vraagt)
+- [x] Rekenblad en README bijwerken, tekstcontrole uitbreiden
+
+## Afzuiging 7.0: interieurfilter MANN CU 20 013, foamband, rubber onder de klauwen (keuzes Ian, 2026-11-08)
+- [x] Filter: CU 20 013 (195 x 145 x 30) rechtstreeks op een steunrand van de instroomplaat met een zachte foamband; cassette en cassetterand vervallen; module zo weinig mogelijk dieper
+- [x] Romp, ventilator, bodemplaat, torens, achterwand en lekrooster mee naar onder; rooster/frame ongewijzigd
+- [x] Klauw: rubberkussen (Shore A 40, 4 mm) op de arm; montage "tot contact + 1 slag"; berekening van de kracht
+- [x] Luchtmodel: filter CU 20 013 (band 55-115 Pa schoon, 300 Pa vol), plenum, sensor; vervangfactoren en beschermVanaf opnieuw; firmware-constanten en tests
+- [x] V3-11: probe-envelop (vast vingerrooster in het oog), morsroute, knie- en kabelenvelop met de nieuwe diepte
+- [x] README, bouwschema, onderhoud, prijslijst, meetplan, materiaalstaat, Besparingen; tekstcontrole
+- [x] Tests (qa, STL, overlap, teksten, firmware), STLs, tekeningen, schema, mallen, beelden; graphify; commit en push
+- [x] Alles in één PDF om af te drukken (Afzuiging-alles-afdrukken.pdf, e2e/tools/alles-afzuiging-pdf.mjs)

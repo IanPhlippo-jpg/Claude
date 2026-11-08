@@ -2,21 +2,21 @@
 1;1;Romp;PETG, wit;AFZ-01
 2;1;Bovenframe;PETG, wit;AFZ-02
 3;1;Rooster LB;AISI 430;AFZ-03
-4;1;Filtercassette;PETG, wit;AFZ-04
-5;1;Cassetterand;PETG, wit;AFZ-05
-6;1;Filtermat Rittal SK 3171.100;Filtermat Rittal SK 3171.100;koop
-7;1;Instroomplaat;PETG, wit;AFZ-06
-8;1;Bodemplaat;PETG, wit;AFZ-07
-9;1;San Ace C175 9TG24P0S01;PBT, zwart;koop
-10;1;M8-inbouwbus 4-polig;Messing vernikkeld;koop
-11;4;Klauw;PETG, wit;AFZ-11
+4;1;Interieurfilter MANN CU 20 013;Polyester-vlies, wit;koop
+5;1;Foamband 6 x 4;EPDM-cel, zwart;koop
+6;1;Instroomplaat;PETG, wit;AFZ-04
+7;1;Bodemplaat;PETG, wit;AFZ-05
+8;1;San Ace C175 9TG24P0S01;PBT, zwart;koop
+9;1;M8-inbouwbus 4-polig;Messing vernikkeld;koop
+10;4;Klauw;PETG, wit;AFZ-09
+11;4;Klauwrubber;Neopreen (CR) Shore A 40;koop
 12;4;M5 zeskantmoer DIN 934;Staal verzinkt;norm
-13;1;Knophouder;PETG, zwart;AFZ-09
-14;1;Knopdeksel;PETG, zwart;AFZ-10
+13;1;Knophouder;PETG, zwart;AFZ-07
+14;1;Knopdeksel;PETG, zwart;AFZ-08
 15;1;"VIEWE-knop 1,5""";Aluminium, zwart;koop
 16;1;Adapterprint knop;FR4;koop
 17;1;USB-C-bus knophouder;FR4;koop
-18;2;Knopklauw;PETG, zwart;AFZ-12
+18;2;Knopklauw;PETG, zwart;AFZ-10
 19;2;M4 zeskantmoer DIN 934;Staal verzinkt;norm
 20;4;M5 x 65 DIN 7991;Staal A2;norm
 21;8;M3 x 16 DIN 7991;Staal A2;norm
@@ -25,16 +25,16 @@
 24;2;M2,5 x 6 DIN 7991;Staal A2;norm
 25;2;M2,5 x 8 DIN 7991;Staal A2;norm
 26;3;Messingbuisje Ø3 x 12;Messing;koop
-27;1;Voedingsbox;PETG, wit;AFZ-08
-28;1;Deksel voedingsbox;PETG, wit;AFZ-14
+27;1;Voedingsbox;PETG, wit;AFZ-06
+28;1;Deksel voedingsbox;PETG, wit;AFZ-12
 29;4;M3 x 8 DIN 7991;Staal A2;norm
 30;4;M4 x 30 DIN 7991;Staal A2;norm
 31;1;Mean Well GST90A24-P1M;PC, zwart;koop
 32;1;Voedingsprint;FR4;koop
 33;1;USB-C-bus knop;FR4;koop
-34;1;Wipschakelaar KCD1-101;PBT, zwart;koop
+34;1;Wipschakelaar C&K D502;PBT, zwart;koop
 35;1;M8-inbouwstekker 4-polig;Messing vernikkeld;koop
-36;2;Adapterklem;PETG, wit;AFZ-13
+36;2;Adapterklem;PETG, wit;AFZ-11
 37;2;M3 x 10 DIN 7991;Staal A2;norm
 38;4;M2,5 x 6 zelftappend;Staal verzinkt;norm
 39;2;M2 x 5 zelftappend;Staal verzinkt;norm

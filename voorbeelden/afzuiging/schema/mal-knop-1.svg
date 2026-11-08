@@ -18,7 +18,7 @@
 <line x1="110.00" y1="280.00" x2="110.00" y2="276.50" stroke="#111" stroke-width="0.25" />
 <text x="60.00" y="284.50" font-size="2.8" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" >controlemaat 100 mm: meet na voor je begint</text>
 <text x="200.00" y="284.50" font-size="2.6" text-anchor="end" font-family="Arial, Helvetica, sans-serif" >afdrukken op 100 % (ware grootte), niet "passend maken"</text>
-<text x="200.00" y="278.50" font-size="2.4" text-anchor="end" font-family="Arial, Helvetica, sans-serif" fill="#666">Afzuiging Lush Beauty versie 6.1 · 2026-11-07 · maten in mm</text>
+<text x="200.00" y="278.50" font-size="2.4" text-anchor="end" font-family="Arial, Helvetica, sans-serif" fill="#666">Afzuiging Lush Beauty versie 7.0 · 2026-11-08 · maten in mm</text>
 <path d="M10,30 H32 V89 A6,6 0 0 1 26,95 H10 Z" fill="#e7e2dc" stroke="none"/>
 <path d="M32,30 V89 A6,6 0 0 1 26,95 H10" fill="none" stroke="#111" stroke-width="0.6" />
 <text x="20.00" y="50.00" font-size="2.8" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" >uitsparing</text>

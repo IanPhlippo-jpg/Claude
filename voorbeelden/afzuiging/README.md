@@ -1,4 +1,4 @@
-# Ingebouwde nagelstofafzuiging (Lush Beauty), versie 6.1 (2026-11-07)
+# Ingebouwde nagelstofafzuiging (Lush Beauty), versie 7.0 (2026-11-08)
 
 Alle uitvoer (KCAD, STL, tekeningen, bouwschema, schema, freesmallen, prijslijst) komt uit dezelfde generator en draagt dit
 revisienummer (`revisie.mjs`). De berekeningen staan in `docs/Berekeningen.md`, het meet- en vrijgaveplan in
@@ -6,7 +6,7 @@ revisienummer (`revisie.mjs`). De berekeningen staan in `docs/Berekeningen.md`, 
 
 Een krachtige, stille afzuiging voor in het bureaublad, met het LB-monogram in het RVS-rooster.
 De module zakt van bovenaf in een gefreesde uitsparing en klemt zich vast met vier geprinte klauwen (met een M5-moer erin), voor een blad van 10 tot 50 mm dik.
-Een radiale ventilator met achterwaarts gebogen schoepen zuigt door één kant-en-klare standaardfiltermat (Rittal SK 3171.100) en houdt zijn kracht ook als de mat voller wordt. De mat beschermt de ventilator tegen vijlsel; ze is geen luchtreiniger: het fijnste stof komt onder het blad terug in de salon, zorg dus voor ventilatie.
+Een radiale ventilator met achterwaarts gebogen schoepen zuigt door een gewoon interieurfilter van een auto (pollenfilter MANN CU 20 013 voor de Toyota Aygo, Peugeot 108 en Citroën C1, ook van Bosch, Valeo en Purflux) en houdt zijn kracht ook als het filter voller wordt. Het geplooide filter houdt vijlsel en het meeste fijne stof tegen (bij 0,3 µm ongeveer 50 tot 70 %, vanaf 3 µm meer dan 90 %), maar het is geen HEPA-filter en houdt geen dampen tegen: zorg voor ventilatie in de salon.
 Een VIEWE-knop van 1,5" (rond AMOLED-scherm) zit in het blad, regelt de zuigkracht en meldt wanneer het filter vol is.
 De netadapter en de elektronica zitten in een aparte voedingsbox die onderaan in het blad is ingefreesd; er komt geen enkele schroef door het bovenvlak van het bureau.
 
@@ -18,23 +18,23 @@ De netadapter en de elektronica zitten in een aparte voedingsbox die onderaan in
 |---|---|
 | RVS-plaat | RVS 430 (magnetisch), 222 x 222 mm, even groot als het frame; klikt op 4 verzonken magneten |
 | Bovenframe | PETG, smalle omranding van 2,5 mm, op de romp gelijmd; de magneten en de koppen van de M5-schroeven zitten erin, onder de plaat |
-| Filtercassette | bak met roosterbodem en een gelijmde rand; één standaardfiltermat Rittal SK 3171.100 van 173 x 173 x 17 mm (niets te knippen), zoals in de meeste nagelafzuigingen; langs boven uitneembaar |
+| Filter | interieurfilter MANN CU 20 013, 195 x 145 x 30 mm (overal te koop, niets te knippen); ligt los op een zachte foamband op de steunrand van de instroomplaat, langs boven uitneembaar |
 | Romp | vierkant 210 x 210 mm; de klauwen zitten in de vier hoeken |
-| Instroomplaat | met een trechter boven het oog van de ventilator; het meetpunt van de drukmeter zit erin |
+| Instroomplaat | met een trechter boven het oog van de ventilator, een steunrand met foamband en een geleiderand voor het filter; het meetpunt van de drukmeter zit erin, onder het filter |
 | Ventilator | San Ace C175 (Ø175 mm, 24 V, 56 W), staat op de bodemplaat |
 | Bodemplaat | één plaat over de hele onderkant; schuine lamellen sturen de lucht naar achteren |
 | Voedingsbox | bak van 210 x 100 x 50, de bovenste 14 mm in een uitsparing onderaan het blad; een vlakke rand op de onderkant van het blad met 4 x M4 verzonken in pluggen voor holle deuren; een los deksel bovenin (4 x M3); ventilatie onderaan en in de achterwand; netadapter, ESP32-C3, drukmeter, de USB-C voor de knop en de aan/uit-schakelaar in de voorwand |
 | Knop | VIEWE 1,5" op een houder die niet breder is dan de knop, in een gat van Ø44 |
 
-- **Diepte onder het blad:** de module hangt 68 mm onder een blad van 34 mm, de voedingsbox 36 mm.
+- **Diepte onder het blad:** de module hangt 82 mm onder een blad van 34 mm (onderkant 618 mm boven de vloer bij een bureau van 734 mm), de voedingsbox 36 mm.
 - **Van boven alleen staal:** de RVS-plaat bedekt het frame volledig. Van opzij zie je een randje PETG van 2,5 mm en de plaat van 1,5 mm, samen 4 mm boven het blad.
-- **Filter vervangen:** zie [Onderhoud](#onderhoud-de-filtermat-vervangen): eerst uitschakelen en de ventilator laten stilvallen, dan de mat stofarm in een zak.
+- **Filter vervangen:** zie [Onderhoud](#onderhoud-het-filter-vervangen): eerst uitschakelen en de ventilator laten stilvallen, dan het filter stofarm in een zak.
 - **Kabels:** tussen de box en de afzuiging lopen een M8-kabel (de ventilator) en een siliconeslangetje (de drukmeting). Tussen de box en de knop loopt een USB-C-kabel. Alle drie liggen ze in gefreesde sleuven onderaan het blad en hebben ze aan beide kanten een koppeling: een andere lengte is gewoon een andere kabel.
 - **Draadloos:** de knop en de ESP32-C3 in de box praten met elkaar via ESP-NOW. Valt de verbinding weg, dan blijft de ventilator op zijn laatste stand en meldt de knop "geen verbinding".
 - **Aan/uit:** een wipschakelaar zit verzonken in een kom in de voorwand van de box. De wip ligt 1 mm binnen de wand, zodat je hem niet per ongeluk omzet.
 - **Veilig:** 230 V zit alleen in de gekeurde netadapter, die je met een gewoon netsnoer (C13) op het stopcontact aansluit. Er is geen eigen bedrading op 230 V.
-- **Luchtdicht:** lucht kan alleen langs het rooster binnen en langs de bodemplaat buiten. De cassetterand rust rondom op een richel, zodat er geen lucht langs de filters glipt. Een test bemonstert het geheel per mm, met een tegenproef.
-- **Stevig:** de kop van elke M5-schroef zit in het bovenframe en drukt het hele frame op het blad. De klauwen zijn geprint in PETG (6 mm, 100 % vulling) met een ingeperste M5-moer. Alle schroeven zijn verzonken en zitten in een conische zitting, behalve die van de printplaten.
+- **Luchtdicht:** lucht kan alleen langs het rooster binnen en langs de bodemplaat buiten. Het filter ligt rondom op een zachte foamband; zodra de ventilator draait, trekt de onderdruk het erin, zodat er geen lucht langs het filter glipt. Een test bemonstert het geheel per mm, met een tegenproef.
+- **Stevig:** de kop van elke M5-schroef zit in het bovenframe en drukt het hele frame op het blad. De klauwen zijn geprint in PETG (6 mm, 100 % vulling) met een ingeperste M5-moer en een rubberkussen (neopreen Shore A 40, 4 mm) op de arm: aandraaien tot het rubber het blad raakt en dan precies één slag; het rubber begrenst de kracht (zie docs/Berekeningen.md). Alle schroeven zijn verzonken en zitten in een conische zitting, behalve die van de printplaten.
 
 ## Zuigkracht en bediening
 
@@ -43,12 +43,12 @@ De netadapter en de elektronica zitten in een aparte voedingsbox die onderaan in
 | San Ace C175 9TG24P0S01 | 696 m³/h | 609 Pa | 69 dB(A) | 56 W |
 
 - **Met rooster en filter:** niet gemeten. De cijfers in de tabel zijn de grenzen van de ventilator (vrij uitblazend en dichtgedrukt), geen werkpunt. Debiet, vangst en geluid worden gemeten volgens `docs/Vrijgave-en-meetplan.md`.
-- **Draaien:** de zuigkracht gaat van 20 tot 80 % in stappen van 5 % (100 % alleen als boost: dan blijft de adapter in de box koel genoeg, zie docs/Berekeningen.md). De ventilator start zacht (50 % per seconde). De minimale stand voor dagelijks gebruik volgt uit de vangstmeting (poort L2 in het meetplan).
+- **Draaien:** de zuigkracht gaat van 20 tot 80 % in stappen van 5 % (100 % alleen als boost: dan blijft de adapter in de box koel genoeg, zie docs/Berekeningen.md). De ventilator start zacht (50 % per seconde). Dagstand: 80 %. Onder 75 % is de vangst met een vol filter niet zeker; de knop zegt dan "lage stand" (docs/Berekeningen.md, hoofdstuk 3c; de vangstmeting, poort L2, kan dat bijstellen).
 - **Drukken:** aan of uit. Na een stroomonderbreking staat alles UIT.
 - **1 seconde indrukken:** boost, 2 minuten op 100 % (de box telt de tijd, ook zonder knop).
 - **5 tot 10 seconden indrukken:** ijken op een schoon filter, bij het loslaten. Doe dat na elke filterwissel. Lukt het niet, dan meldt de knop "ijken mislukt" en blijft de vorige ijking.
 - **10 seconden indrukken:** opnieuw koppelen met de box; zet daarna de box uit en aan (koppelvenster 60 s).
-- **Filtermelding:** de drukmeter vergelijkt de weerstand van het filter met die van een schoon filter. Bij het dubbele wordt de ring oranje met "filter vervangen". Is de meting ouder dan 1 s, dan toont de knop geen drukwaarde ("meting niet actueel").
+- **Filtermelding:** de drukmeter vergelijkt de weerstand van het filter met die van een schoon filter. De ring wordt oranje met "filter vervangen" voor het debiet onder het minimum voor de vangst zakt: op 75 % bij 1,08 x de schone waarde, op 80 % bij 1,19 x, op 100 % bij 1,44 x. Is de meting ouder dan 1 s, dan toont de knop geen drukwaarde ("meting niet actueel").
 - **Storing:** de ring wordt rood bij "geen luchtstroom" (slangetje of filters) of bij "ventilator draait niet" (het toerental blijft weg; kijk de M8-kabel na).
 
 ## Bestellijst
@@ -71,20 +71,24 @@ De netadapter en de elektronica zitten in een aparte voedingsbox die onderaan in
 | ESP32-C3 SuperMini | 1 | in de box: stuurt de ventilator en leest de drukmeter | € 7,00 | € 7,00 |
 | Schakelende regelaar 24 V naar 5 V, 1 A | 1 | Pololu D24V10F5 | € 10,50 | € 10,50 |
 | Verschildrukmeter ±500 Pa, I2C | 1 | Sensirion SDP810-500PA | € 30,00 | € 30,00 |
-| Wipschakelaar aan/uit, 1-polig, 21 x 15 mm | 1 | KCD1-101, inbouwgat 19 x 13 mm, 6 A | € 1,00 | € 1,00 |
+| Wipschakelaar aan/uit, 1-polig, 10 A bij 30 V DC | 1 | C&K D502J12S215PQA, rand 20,8 x 15, inbouwgat 19,41 x 12,90 (paneel 2 mm), vlaksteker 4,75 | € 8,50 | € 8,50 |
 | Vlakstekerhulzen 4,8 mm, geïsoleerd | 2 | draden op de schakelaar | € 0,15 | € 0,30 |
 | NPN-transistor | 1 | BC547B (TO-92) | € 0,20 | € 0,20 |
 | Weerstanden 0,25 W | 7 | 1 x 1 kΩ, 2 x 10 kΩ, 2 x 4,7 kΩ, 2 x 56 kΩ | € 0,10 | € 0,70 |
 | Elco 470 µF / 35 V | 1 | buffer voor de ventilator | € 0,50 | € 0,50 |
-| Zekering TR5 3,15 A traag (Ø8,4 x 7,6, op de print) | 1 | past op de kleine print (een houder 5 x 20 is 28 x 10 x 21) | € 1,00 | € 1,00 |
+| Zekering traag 3,15 A, 72 V DC (TE5, 8,35 x 4,0, op de print) | 1 | Bel Fuse 0697W3150-01; past op de kleine print (een houder 5 x 20 is 28 x 10 x 21) | € 0,70 | € 0,70 |
+| Schottky-diode 1 A, 40 V | 1 | 1N5819, in de 5 V naar de ESP32-C3 (geen terugvoeding als ze aan een computer hangt) | € 0,20 | € 0,20 |
 | Gaatjesprint 40 x 50 mm | 1 | gaten 2 mm in de hoeken | € 1,00 | € 1,00 |
 | Printschroefklem 2-polig, steek 5 mm | 1 | de DC-kabel van de adapter (ingekort) | € 0,50 | € 0,50 |
 | Montagedraad 0,25 mm² en 0,75 mm² | 1 m |  | € 3,00 | € 3,00 |
 | Siliconeslang 3 x 5 mm | 1 m | drukmeting: van de afzuiging naar de box, en binnen de afzuiging | € 3,00 | € 3,00 |
 | Messingbuisje Ø3 x 0,5 mm | 40 mm | 3 stukjes van 12 mm: meetpunt in de instroomplaat en doorvoer in de afzuiging en de box | € 3,00 | € 3,00 |
-| Filtermat Rittal SK 3171.100 (173 x 173 x 17, G3 / ISO coarse 50 %, EAN 4028177038059) | 1 pak van 5 | het enige filter, kant-en-klaar; vervangen zonder knippen (ook als pak van 50: SK 3171.105) | € 22,21 | € 22,21 |
+| Interieurfilter (pollenfilter) 195 x 145 x 30 | 2 | MANN CU 20 013; gelijk: Bosch 1 987 435 066, Valeo 715828, Purflux AH495, Filtron K 1347A (vanaf ± € 6); een in gebruik, een in reserve | € 14,00 | € 28,00 |
+| Zachte zelfklevende foamband 6 x 4 mm (EPDM- of PE-cel, tochtband) | 1 rol van 5 m | 0,7 m op de steunrand van de instroomplaat; bij elke wissel nakijken | € 6,00 | € 6,00 |
+| Neopreen (CR) Shore A 40, 4 mm dik | 1 strook van 50 x 50 mm | 4 kussentjes van 7,5 x 8 op de arm van de klauwen (snijden met een mes) | € 5,00 | € 5,00 |
+| Secondelijm gel (cyanoacrylaat) | 1 | de rubberkussentjes op de klauwen | € 4,00 | € 4,00 |
 | Neodymiummagneet Ø8 x 1,5 mm, N42 | 4 | inlijmen in het bovenframe, vlak met de bovenkant (gat Ø8,2 x 1,6, bodem 0,9 mm) | € 0,50 | € 2,00 |
-| Tweecomponentenlijm (epoxy) | 1 | magneten, bovenframe op de romp, rand op de cassette, instroomplaat, messingbuisjes | € 9,00 | € 9,00 |
+| Tweecomponentenlijm (epoxy) | 1 | UHU plus endfest 300: magneten, bovenframe op de romp, instroomplaat, messingbuisjes; schuren (korrel 100) en ontvetten met alcohol | € 9,00 | € 9,00 |
 | Plug voor holle deuren M4 (gat Ø8) | 4 | in de onderkant van het blad, naast de uitsparing van de box | € 0,50 | € 2,00 |
 | M4 x 30 verzonken (DIN 7991, A2) | 4 | de rand van de voedingsbox in de pluggen (i.p.v. de bijgeleverde schroeven) | € 0,15 | € 0,60 |
 | M3 x 8 verzonken (DIN 7991, A2) | 4 | het deksel van de voedingsbox op de paaltjes | € 0,10 | € 0,40 |
@@ -99,7 +103,7 @@ De netadapter en de elektronica zitten in een aparte voedingsbox die onderaan in
 | M3 x 10 verzonken (DIN 7991) | 2 | klemmen van de netadapter | € 0,10 | € 0,20 |
 | M2,5 x 6 zelftappend | 4 | print in de box (printplaat: gewone kop mag) | € 0,10 | € 0,40 |
 | M2 x 5 zelftappend | 2 | USB-C-bus in de box (printplaat) | € 0,10 | € 0,20 |
-| **Totaal kopen** | | | | **€ 387,69** |
+| **Totaal kopen** | | | | **€ 415,88** |
 
 ### Laten lasersnijden
 
@@ -111,11 +115,11 @@ De netadapter en de elektronica zitten in een aparte voedingsbox die onderaan in
 
 De klauwen worden geprint (met een moer); alleen het rooster gaat naar de lasersnijder.
 
-Het rooster is één stuk, zonder losse eilanden, en geen steg of sleuf is smaller dan 1,5 mm. Boven het vak van de cassette (171 x 171) is 125,6 cm² open (laser-rapport).
+Het rooster is één stuk, zonder losse eilanden, en geen steg of sleuf is smaller dan 1,5 mm. Recht boven het filter (145 x 195) is 121,1 cm² open, in totaal 177,8 cm² (laser-rapport).
 
 ### Printen (Elegoo Centauri Carbon, PETG, zonder support)
 
-PETG is taaier dan PLA, kruipt minder onder de klemkracht van de schroeven, kan tot ongeveer 75 °C en kan tegen aceton (nagellakremover). ABS en ASA lossen op in aceton. Met de geharde spuitmond van de Centauri Carbon kan ook PETG-CF: stijver en het kruipt nog minder, goed voor de romp en het bovenframe. De knophouder en het deksel in zwart, de rest in wit.
+PETG is taaier dan PLA, kruipt minder onder de klemkracht van de schroeven en kan tot 68 °C (Prusament PETG, HDT). Het kan **niet** tegen aceton (nagellakremover, gelremover): het zwelt. Reinig en ontsmet met een middel op alcohol, nooit met aceton; een spat meteen droog deppen. Van bovenaf zie je alleen staal; ABS en ASA lossen nog sneller op in aceton. Materialen, lijm en reinigingsmiddel met hun grenzen: `docs/Materiaalstaat.md`. Met de geharde spuitmond van de Centauri Carbon kan ook PETG-CF: stijver en het kruipt nog minder, goed voor de romp en het bovenframe. De knophouder en het deksel in zwart, de rest in wit.
 
 Instellingen voor een zo sterk mogelijk resultaat:
 
@@ -134,11 +138,9 @@ Droog PETG vooraf (4 uur op 65 °C) als de rol open heeft gelegen: vocht maakt h
 
 | Bestand | Stand op het bed | Maat (mm) |
 |---|---|---|
-| `print/Romp.stl` | rechtop | 210 x 210 x 96 |
+| `print/Romp.stl` | rechtop | 210 x 210 x 110 |
 | `print/Bovenframe.stl` | plat | 222 x 222 x 2,5 |
-| `print/Filtercassette.stl` | rechtop, de roosterbodem op het bed | 174,2 x 174,2 x 19 |
-| `print/Cassetterand.stl` | plat | 200 x 200 x 2,5 |
-| `print/Instroomplaat.stl` | plat, de trechter naar boven | 202 x 202 x 3 |
+| `print/Instroomplaat.stl` | plat, de trechter en de randen naar boven | 201,4 x 201,4 x 16,5 |
 | `print/Bodemplaat.stl` | plat, de lamellen staan onder 45° | 210 x 210 x 6 |
 | `print/Voedingsbox.stl` | rechtop, de bodem op het bed; de rand rust op een schuine kant van 45° | 225 x 124 x 50 |
 | `print/Deksel-voedingsbox.stl` | plat | 203,6 x 93,6 x 2 |
@@ -166,12 +168,12 @@ Prijzen per stuk incl. 21 % btw, zonder verzendkosten: een indicatie van novembe
 
 | Groep | Totaal |
 |---|--:|
-| Kopen (elektronica, ventilator, filter, schroeven en moeren) | € 387,69 |
+| Kopen (elektronica, ventilator, filter, schroeven en moeren) | € 415,88 |
 | Laten lasersnijden (rooster) | € 55,00 |
 | Filament PETG: 2 rollen wit en 1 rol zwart | € 60,00 |
-| **Eindtotaal** | **€ 502,69** |
+| **Eindtotaal** | **€ 530,88** |
 
-Het filament dat echt opgaat (ca. 1,2 kg) kost ongeveer € 24,00. Het duurste onderdeel is de ventilator (ca. € 160, bijna een derde van het totaal), daarna het rooster (€ 45), de knop (€ 34), de netadapter (€ 33) en de drukmeter (€ 30). Een nieuwe filtermat (Rittal SK 3171.100) kost ongeveer € 4,45 (pak van 5).
+Het filament dat echt opgaat (ca. 1,2 kg) kost ongeveer € 24,00. Het duurste onderdeel is de ventilator (ca. € 160, bijna een derde van het totaal), daarna het rooster (€ 45), de knop (€ 34), de netadapter (€ 33) en de drukmeter (€ 30). Een nieuw interieurfilter kost € 6 tot € 14 (MANN CU 20 013 of gelijk).
 
 ## Maken en monteren
 
@@ -189,13 +191,13 @@ Het filament dat echt opgaat (ca. 1,2 kg) kost ongeveer € 24,00. Het duurste o
 
    LAGKAPTEN is vanbinnen een honingraat: de uitsparing voor de box geeft geen houvast in de zijkanten, de rand van de box drukt op de onderhuid.
 2. **Magneten:** lijm de vier magneten in het bovenframe, vlak met de bovenkant en allemaal met dezelfde pool naar boven.
-3. **Lijmen:** lijm het bovenframe op de bovenrand van de romp, rondom (luchtdicht). Lijm de rand op de bak van de cassette, over de hele wandbovenkant. Lijm een messingbuisje in de instroomplaat (meetpunt) en een in de achterwand (doorvoer). Laat de lijm een nacht uitharden.
-4. **Klauwen:** druk in elke klauw van onderen een M5-moer in de zeskantkamer (een tik met een hamer, of de moer even opwarmen). Schuif elke klauw liggend door het venster onderaan de zijwand, tot het gat onder de schroef zit. Draai de M5 x 65 van bovenaf door de lip van het bovenframe in en draai hem een paar slagen terug.
+3. **Lijmen:** lijm het bovenframe op de bovenrand van de romp, rondom (luchtdicht). Lijm een messingbuisje in de instroomplaat (meetpunt) en een in de achterwand (doorvoer). Laat de lijm een nacht uitharden.
+4. **Klauwen:** druk in elke klauw van onderen een M5-moer in de zeskantkamer (een tik met een hamer, of de moer even opwarmen). Lijm met secondelijm een rubberkussen van 7,5 x 8 x 4 mm op de bovenkant van de arm, aan het uiteinde (tussen 9,5 en 17 mm van het schroefgat). Schuif elke klauw liggend door het venster onderaan de zijwand, tot het gat onder de schroef zit. Draai de M5 x 65 van bovenaf door de lip van het bovenframe in en draai hem een paar slagen terug.
 5. **Ventilator:** soldeer de vier draden van de ventilator op de M8-bus (rood 1, geel 2, zwart 3, bruin 4) en zet de bus met zijn moer in de achterwand. Schroef de ventilator met 4 x M4 x 10 van onderen op de bodemplaat.
-6. **Instroomplaat:** schuif een stukje siliconeslang van het messingbuisje in de instroomplaat naar dat in de achterwand. Leg de plaat op de getrapte richel en lijm ze rondom.
+6. **Instroomplaat:** schuif een stukje siliconeslang van het messingbuisje in de instroomplaat naar dat in de achterwand. Leg de plaat op de getrapte richel en lijm ze rondom. Kleef de foamband op de steunrand (6 mm breed, binnen de geleiderand), de naad op een korte kant en zonder kier.
 7. **Bodemplaat:** schroef de plaat met de ventilator met 8 x M3 aan de romp.
-8. **Inbouwen:** laat de module in de uitsparing zakken en draai de vier M5-schroeven rechtsom aan. Elke klauw zwaait naar buiten en trekt zich tegen de onderkant van het blad. Stop zodra de klauw voelbaar aanligt (twee vingers aan de korte kant van de inbussleutel): de klauwen houden de module alleen tegen optillen, het gewicht rust op het frame (zie docs/Berekeningen.md).
-9. **Filter en plaat:** leg een filtermat Rittal SK 3171.100 in de cassette en druk ze rondom aan. Zet de cassette in het frame en leg de RVS-plaat erop.
+8. **Inbouwen:** laat de module in de uitsparing zakken en draai de vier M5-schroeven rechtsom aan. Elke klauw zwaait naar buiten en schuift omhoog tot het rubber de onderkant van het blad raakt (de schroef gaat dan zwaarder). Draai daarna precies **één volle slag** verder (één rondje van de inbussleutel) en stop: het rubber is dan ongeveer 0,8 mm ingedrukt en de klauw duwt met ongeveer 27 N, ver onder zijn grens van 45 N. De klauwen houden de module alleen tegen optillen; het gewicht rust op het frame (zie docs/Berekeningen.md).
+9. **Filter en plaat:** leg het interieurfilter op de foamband, de lange kant van voor naar achter en de pijl (luchtrichting) naar onder. Leg de RVS-plaat erop.
 10. **Voedingsbox:** bouw de print volgens `schema/Aansluitschema-afzuiging.pdf` en schroef ze op de bussen. Zet de netadapter op de bodem tegen de aanslagen en schroef de twee klemmen op de paaltjes (M3 x 10 verzonken). Kort de DC-kabel van de adapter in en klem hem op -X1. Zet de schakelaar (voorwand), de M8-stekker, het messingbuisje en de USB-C-bus in de wanden. Leid het slangetje door de ring tegen de voorwand. Schroef het deksel met 4 x M3 x 8 op de paaltjes. Zet de 4 pluggen voor holle deuren in het blad, duw de box van onderen in de uitsparing en zet de rand vast met 4 x M4 x 30 verzonken.
 11. **Knop:** druk een M4-moer in elke knopklauw. Zet de houder in het gat van Ø44, schuif de klauwen van onderen in hun kanaal en draai de M4 x 65 van bovenaf in tot de klauwen tegen het blad trekken. Steek de FPC door de sleuf in de kom, zet de knop in de kom en schroef hem van onderen vast met 2 x M2,5 x 6 verzonken. Soldeer 4 draden (VBUS, GND, D+, D-) van de adapterprint naar het USB-C-printje. Steek de FPC in de adapterprint en schuif de print in de groeven. Leg het USB-C-printje (zonder gaten) tussen de 2 palen: de bus steekt opzij onderaan door de wand, naar de sleuf. Schroef het deksel vast: de 2 pennetjes van het deksel klemmen het printje (het deksel is dicht).
     De USB-C zit 18 tot 26 mm onder het bovenvlak van een blad van 34 mm: tot een blad van 48 mm past de stekker onder het blad.
@@ -217,18 +219,18 @@ Het aansluitschema staat in `schema/Aansluitschema-afzuiging.pdf`, in EPLAN-stij
 
 Meet de draadkleuren van de ventilator na voor het solderen (datasheet van San Ace).
 
-## Onderhoud: de filtermat vervangen
+## Onderhoud: het filter vervangen
 
 Dezelfde stappen staan in het bouwschema (uit `onderhoud.mjs`).
 
 1. Zet de afzuiging uit met de knop en daarna met de schakelaar op de voorkant van de voedingsbox (de ventilator is dan spanningsloos).
 2. Wacht 10 seconden tot de ventilator stilstaat. Grijp nooit in de module zolang je hem nog hoort draaien.
 3. Doe handschoenen en een stofmasker FFP2 aan en houd een vuilniszak open naast het rooster.
-4. Neem de RVS-plaat eraf en til de cassette aan de twee grepen recht omhoog en horizontaal eruit: het stof blijft bovenop de mat.
-5. Kantel de mat meteen in de zak en sluit de zak. Niet uitkloppen, niet uitblazen, geen perslucht.
-6. Neem de cassette, de roosterbodem en de bovenkant van de instroomplaat af met een vochtige doek.
-7. Leg een nieuwe mat Rittal SK 3171.100 in de cassette, de open (grove) kant boven, en druk ze rondom aan.
-8. Zet de cassette terug, leg de RVS-plaat erop, zet de schakelaar aan en houd de knop 5 seconden ingedrukt om te ijken met de schone mat.
+4. Neem de RVS-plaat eraf en til het filter aan de randen recht omhoog en horizontaal eruit: het stof blijft bovenop.
+5. Leg het filter meteen in de zak en sluit de zak. Niet uitkloppen, niet uitblazen, geen perslucht.
+6. Neem de foamband en de instroomplaat af met een vochtige doek; is de foamband beschadigd of plat, vervang hem.
+7. Leg een nieuw interieurfilter MANN CU 20 013 (of gelijk: Bosch 1 987 435 066, Valeo 715828) op de foamband, de lange kant van voor naar achter en de pijl naar onder.
+8. Leg de RVS-plaat erop, zet de schakelaar aan en houd de knop 5 seconden ingedrukt om te ijken met het schone filter.
 
 ## Firmware
 
@@ -257,6 +259,7 @@ De knop gebruikt GFX Library for Arduino (CO5300-driver). Tekst en cijfers zijn 
 
 | Bestand | Wat |
 |---|---|
+| `Afzuiging-alles-afdrukken.pdf` | **alles in één PDF om af te drukken** (61 bladen): deze README, het bouwschema, de werktekeningen, het aansluitschema, de freesmallen op ware grootte, de knopschermen, de materiaalstaat, het rekenblad, het meetplan en de besparingen; afdrukken op 100 % (`node e2e/tools/alles-afzuiging-pdf.mjs`) |
 | `Afzuiging.kcad` | assemblage van de afzuiging, de voedingsbox en de knop |
 | `../bureau/Bureau.kcad` | het bureau met alles en de uitsparingen en sleuven in het blad |
 | `laser/`, `print/` | DXF's en STL's |

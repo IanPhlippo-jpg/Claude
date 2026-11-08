@@ -20,17 +20,17 @@ const pos = new Map(readFileSync(`${UIT}/stuklijst.csv`, 'utf8').replace(/^﻿/,
 // groepen onderdelen (id's zoals in Bureau.kcad)
 const G = {
   blad: /^t1$/,
-  romp: /^a1$/, frame: /^a6$/, rooster: /^a2$/, cassette: /^a3r?$/, filters: /^af\d$/, instroom: /^a9$/, bodem: /^a4$/, fan: /^a5$/,
-  m8bus: /^a10$/, klauwen: /^ak\d$/, moeren: /^an\d$/, m5: /^as5\d$/, m3: /^as3\d$/, m4: /^as4\d$/, meetbuis: /^a18$/, doorvoer: /^a19$/,
+  romp: /^a1$/, frame: /^a6$/, rooster: /^a2$/, filter: /^a3$/, foam: /^a3f$/, instroom: /^a9$/, bodem: /^a4$/, fan: /^a5$/,
+  m8bus: /^a10$/, klauwen: /^ak\d$/, rubber: /^akr\d$/, moeren: /^an\d$/, m5: /^as5\d$/, m3: /^as3\d$/, m4: /^as4\d$/, meetbuis: /^a18$/, doorvoer: /^a19$/,
   box: /^a20$/, boxdeksel: /^a28$/, dekselschroeven: /^asbd\d$/, boxschroeven: /^asb\d$/, boxinhoud: /^(a2[1-7]b?|as25\d|as2\d|asa\d)$/,
   knophouder: /^a7$/, knopdeksel: /^a12$/, knop: /^a8$/, adapter: /^a14$/, usbknop: /^a15$/, knopklauwen: /^adk\d$/, knopmoeren: /^adn\d$/, m4knop: /^asd\d$/, m25knop: /^ask\d$/, m25deksel: /^asdk\d$/, m2knop: /^asu\d$/,
   kasten: /^[kl]\d+$/,
 };
 const of = (...namen) => namen.map((n) => G[n]);
-const MODULE = of('romp', 'frame', 'klauwen', 'moeren', 'm5', 'instroom', 'meetbuis', 'doorvoer', 'm8bus', 'bodem', 'fan', 'm4', 'm3');
+const MODULE = of('romp', 'frame', 'klauwen', 'rubber', 'moeren', 'm5', 'instroom', 'foam', 'meetbuis', 'doorvoer', 'm8bus', 'bodem', 'fan', 'm4', 'm3');
 const BOX = of('box', 'boxinhoud', 'boxdeksel', 'dekselschroeven', 'boxschroeven');
 const KNOP = of('knophouder', 'knopdeksel', 'knop', 'adapter', 'usbknop', 'knopklauwen', 'knopmoeren', 'm4knop', 'm25knop', 'm25deksel', 'm2knop');
-const FILTERS = of('cassette', 'filters', 'rooster');
+const FILTERS = of('filter', 'rooster');
 
 /** een beeld: welke groepen, welke verschoven (dx, dy, dz in mm), van onderen bekeken (180° om Z gedraaid) en de toets van het aanzicht */
 const beeld = (toon, schuif = [], opts = {}) => ({ toon, schuif, ...opts });
@@ -57,25 +57,25 @@ const STAPPEN = [
     delen: ['Bovenframe'],
   },
   {
-    titel: 'Lijmen: frame op de romp, rand op de cassette', tijd: '30 min + een nacht drogen', gereedschap: 'Tweecomponentenlijm, lijmklemmen of gewichten',
-    beelden: [beeld(of('romp', 'frame', 'doorvoer'), [[G.frame, [0, 45, 0]], [G.doorvoer, [0, 0, -45]]]), beeld(of('cassette'), [[/^a3r$/, [0, 35, 0]]])],
+    titel: 'Lijmen: frame op de romp', tijd: '30 min + een nacht drogen', gereedschap: 'Tweecomponentenlijm, lijmklemmen of gewichten',
+    beelden: [beeld(of('romp', 'frame', 'doorvoer'), [[G.frame, [0, 45, 0]], [G.doorvoer, [0, 0, -45]]])],
     tekst: [
       'Lijm het bovenframe rondom op de bovenrand van de romp: de naad moet luchtdicht zijn.',
       'Lijm een messingbuisje in het gaatje Ø3,1 in de achterwand (de doorvoer naar de drukmeter).',
-      'Lijm de rand op de bak van de filtercassette, over de hele wandbovenkant.',
       'Laat alles een nacht uitharden voor je verder gaat.',
     ],
-    delen: ['Romp', 'Bovenframe', 'Messingbuisje Ø3 x 12', 'Filtercassette', 'Cassetterand'],
+    delen: ['Romp', 'Bovenframe', 'Messingbuisje Ø3 x 12'],
   },
   {
-    titel: 'Klauwen en M5-schroeven', tijd: '10 min', gereedschap: 'Inbussleutel 3 mm',
-    beelden: [beeld(of('romp', 'frame', 'klauwen', 'moeren', 'm5'), [[G.moeren, [0, -15, 0]], [G.m5, [0, 70, 0]]], { ingeklapt: true })],
+    titel: 'Klauwen met rubber en M5-schroeven', tijd: '15 min', gereedschap: 'Inbussleutel 3 mm, secondelijm-gel, mes',
+    beelden: [beeld(of('romp', 'frame', 'klauwen', 'rubber', 'moeren', 'm5'), [[G.moeren, [0, -15, 0]], [G.m5, [0, 70, 0]]], { ingeklapt: true })],
     tekst: [
+      'Snij vier kussentjes van 7,5 x 8 mm uit het neopreen van 4 mm en lijm er één met secondelijm op de bovenkant van elke arm, aan het uiteinde (9,5 tot 17 mm van het schroefgat).',
       'Druk in elke klauw van onderen een M5-moer in de zeskantkamer (eventueel met een tik of een warme bout).',
       'Schuif elke klauw liggend door het venster onderaan de zijwand in het kanaal van de toren, tot het gat onder de schroef zit.',
       'Draai de M5 x 65 van bovenaf door de lip van het frame een paar slagen in de moer: de klauw blijft ingeklapt binnen de romp liggen.',
     ],
-    delen: ['Klauw', 'M5 zeskantmoer DIN 934', 'M5 x 65 DIN 7991'],
+    delen: ['Klauw', 'Klauwrubber', 'M5 zeskantmoer DIN 934', 'M5 x 65 DIN 7991'],
   },
   {
     titel: 'Ventilator op de bodemplaat, M8-bus in de achterwand', tijd: '30 min', gereedschap: 'Soldeerbout, krimpkous, kruiskop PH2, sleutel 13 mm',
@@ -88,14 +88,15 @@ const STAPPEN = [
     delen: ['San Ace C175 9TG24P0S01', 'Bodemplaat', 'M4 x 10 DIN 7991', 'M8-inbouwbus 4-polig'],
   },
   {
-    titel: 'Instroomplaat', tijd: '20 min', gereedschap: 'Tweecomponentenlijm, siliconeslangetje 2 x 4 mm',
-    beelden: [beeld(of('romp', 'frame', 'klauwen', 'm5', 'doorvoer', 'm8bus', 'instroom', 'meetbuis'), [[G.instroom, [0, 90, 0]], [G.meetbuis, [0, 90, 0]]])],
+    titel: 'Instroomplaat en foamband', tijd: '20 min', gereedschap: 'Tweecomponentenlijm, siliconeslangetje 2 x 4 mm, schaar',
+    beelden: [beeld(of('romp', 'frame', 'klauwen', 'm5', 'doorvoer', 'm8bus', 'instroom', 'foam', 'meetbuis'), [[G.instroom, [0, 90, 0]], [G.meetbuis, [0, 90, 0]], [G.foam, [0, 120, 0]]])],
     tekst: [
       'Lijm het tweede messingbuisje in de instroomplaat: dat is het meetpunt onder het filter.',
       'Rijg een stukje siliconeslang door de twee ringen tegen de achterwand en schuif het van dat buisje naar de doorvoer.',
-      'Leg de plaat op de getrapte richel in de romp, de trechter naar boven, en lijm ze rondom.',
+      'Leg de plaat op de getrapte richel in de romp, de trechter en de randen naar boven, en lijm ze rondom.',
+      'Kleef de foamband (6 x 4) rondom op de steunrand, binnen de geleiderand; de naad op een korte kant, zonder kier.',
     ],
-    delen: ['Instroomplaat', 'Messingbuisje Ø3 x 12'],
+    delen: ['Instroomplaat', 'Messingbuisje Ø3 x 12', 'Foamband 6 x 4'],
   },
   {
     titel: 'Bodemplaat met ventilator op de romp', tijd: '10 min', gereedschap: 'Kruiskop PH1',
@@ -112,19 +113,19 @@ const STAPPEN = [
     beelden: [beeld([G.blad, ...MODULE], MODULE.map((g) => [g, [0, 260, 0]]), { ingeklapt: true }), beeld([G.blad, ...MODULE], [], { onder: true })],
     tekst: [
       'Laat de module van bovenaf in de uitsparing zakken tot het frame op het blad ligt.',
-      'Draai de vier M5-schroeven rechtsom aan: de klauw kruipt omhoog, de schuine kant van de kamer duwt hem vanzelf naar buiten door het venster, en daarna trekt hij zich in de sleuf tegen de onderkant van het blad.',
-      'Draai kruislings en niet te vast (het blad is hol).',
+      'Draai de vier M5-schroeven rechtsom aan: de klauw kruipt omhoog, de schuine kant van de kamer duwt hem vanzelf naar buiten door het venster, en daarna schuift hij in de sleuf omhoog tot het rubber de onderkant van het blad raakt (de schroef gaat dan zwaarder).',
+      'Draai daarna elke schroef precies één volle slag verder (één rondje van de inbussleutel) en stop: het rubber begrenst de kracht (het blad is hol).',
     ],
     delen: [],
   },
   {
     titel: 'Filter en RVS-plaat', tijd: '5 min', gereedschap: 'Geen',
-    beelden: [beeld([G.blad, ...MODULE, ...FILTERS], [[G.cassette, [0, 110, 0]], [G.filters, [0, 150, 0]], [G.rooster, [0, 230, 0]]])],
+    beelden: [beeld([G.blad, ...MODULE, ...FILTERS], [[G.filter, [0, 120, 0]], [G.rooster, [0, 230, 0]]])],
     tekst: [
-      'Leg een filtermat Rittal SK 3171.100 (173 x 173 x 17) in de cassette, de open (grove) kant boven, en druk ze rondom aan; niets te knippen.',
-      'Zet de cassette in het frame (de grepen in de rand helpen) en leg de RVS-plaat erop: de magneten houden ze vast.',
+      'Leg het interieurfilter MANN CU 20 013 (195 x 145 x 30, of gelijk) op de foamband, de lange kant van voor naar achter en de pijl (luchtrichting) naar onder; niets te knippen.',
+      'Leg de RVS-plaat erop: de magneten houden ze vast. Het filter ligt los; de onderdruk trekt het in de foam zodra de ventilator draait.',
     ],
-    delen: ['Filtermat Rittal SK 3171.100', 'Rooster LB'],
+    delen: ['Interieurfilter MANN CU 20 013', 'Rooster LB'],
   },
   {
     titel: 'Voedingsbox', tijd: '2 uur (print solderen)', gereedschap: 'Soldeerbout, schroevendraaier, inbussleutels 2 en 2,5 mm, boor Ø8, 4 pluggen voor holle deuren M4',
@@ -135,7 +136,7 @@ const STAPPEN = [
       'Zet de schakelaar, de M8-stekker, het messingbuisje en de USB-C-bus (2 x M2) in de wanden.',
       'Leid het slangetje door de ring tegen de voorwand en schroef het deksel op de paaltjes (4 x M3 x 8). Zet de 4 pluggen in het blad, duw de box van onderen in de uitsparing en zet de rand vast met 4 x M4 x 30 verzonken.',
     ],
-    delen: ['Voedingsbox', 'Mean Well GST90A24-P1M', 'Voedingsprint', 'USB-C-bus knop', 'Wipschakelaar KCD1-101', 'M8-inbouwstekker 4-polig', 'Adapterklem', 'M3 x 10 DIN 7991', 'Deksel voedingsbox', 'M3 x 8 DIN 7991', 'M4 x 30 DIN 7991', 'M2,5 x 6 zelftappend', 'M2 x 5 zelftappend'],
+    delen: ['Voedingsbox', 'Mean Well GST90A24-P1M', 'Voedingsprint', 'USB-C-bus knop', 'Wipschakelaar C&K D502', 'M8-inbouwstekker 4-polig', 'Adapterklem', 'M3 x 10 DIN 7991', 'Deksel voedingsbox', 'M3 x 8 DIN 7991', 'M4 x 30 DIN 7991', 'M2,5 x 6 zelftappend', 'M2 x 5 zelftappend'],
   },
   {
     titel: 'Knop', tijd: '30 min', gereedschap: 'Inbussleutel 2 mm, kruiskop PH0, soldeerbout',
@@ -171,10 +172,10 @@ const STAPPEN = [
     delen: [],
   },
   {
-    titel: 'Onderhoud: de filtermat vervangen', tijd: '5 min', gereedschap: 'Handschoenen, stofmasker FFP2, vuilniszak, vochtige doek',
-    beelden: [beeld([G.blad, ...MODULE, ...FILTERS], [[G.cassette, [0, 110, 0]], [G.filters, [0, 150, 0]], [G.rooster, [0, 230, 0]]])],
+    titel: 'Onderhoud: het filter vervangen', tijd: '5 min', gereedschap: 'Handschoenen, stofmasker FFP2, vuilniszak, vochtige doek',
+    beelden: [beeld([G.blad, ...MODULE, ...FILTERS], [[G.filter, [0, 120, 0]], [G.rooster, [0, 230, 0]]])],
     tekst: ONDERHOUD,
-    delen: ['Filtermat Rittal SK 3171.100'],
+    delen: ['Interieurfilter MANN CU 20 013'],
   },
 ];
 
@@ -202,7 +203,7 @@ function samenstelling(b) {
   const hoek = (deg) => { const h = (deg * Math.PI) / 360; return [0, Math.sin(h), 0, Math.cos(h)]; };
   const blad = bureau.components.find((c) => c.id === 'a1').position[1]; // bovenkant van het blad
   for (const c of doc.components) {
-    if (b.ingeklapt && /^a[kn]\d$/.test(c.id)) {
+    if (b.ingeklapt && /^a(k|n|kr)\d$/.test(c.id)) {
       // ingeklapt: de arm langs de wand van de toren, onderaan in de zwaaikamer (zoals de test in qaAfzuiging)
       const rechts = c.position[0] > 0;
       c.position = [c.position[0], blad - 60.5 + (/^an/.test(c.id) ? 0.2 : 0), c.position[2]];

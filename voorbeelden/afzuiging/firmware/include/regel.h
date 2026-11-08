@@ -19,7 +19,7 @@
 //  - ijken alleen met verse, plausibele metingen binnen het bereik en met toerental op elk punt; druk en toerental
 //    moeten met de PWM stijgen; anders blijft de vorige geldige ijking bewaard en meldt ijkFout waarom;
 //  - "filter vervangen" komt per stand bij vervangFactor (uit het luchtmodel): vóór het debiet onder het minimum voor de
-//    vangst zakt. Standen onder beschermVanaf (70 %) halen dat minimum niet zeker: bewaking "lage stand";
+//    vangst zakt. Standen onder beschermVanaf (75 %) halen dat minimum niet zeker: bewaking "lage stand";
 //  - de bewaking zegt altijd wat ze weet: uit, ijken, stabiliseren (na een standwissel: geen oude melding), niet
 //    geijkt, geen meting, buiten bereik (de grens valt boven het meetbereik of de meting zit erboven), lage stand, ok;
 //  - stilstand van de ventilator wordt op elke stand bewaakt;
@@ -51,9 +51,9 @@ struct Instellingen {
   // melding "filter vervangen" bij dit veelvoud van de schone druk, lineair tussen deze standen (% toerental)
   // (docs/Berekeningen.md, hoofdstuk 3b: het ongunstigste van zes scenario's, met 10 % marge; het rekenblad controleert
   // deze waarden)
-  int vervangStand[3] = {70, 80, 100};
-  float vervangFactor[3] = {1.10f, 1.58f, 1.88f};
-  int beschermVanaf = 70;        // lagere standen halen het minimumdebiet voor de vangst niet zeker
+  int vervangStand[3] = {75, 80, 100};
+  float vervangFactor[3] = {1.08f, 1.19f, 1.44f};
+  int beschermVanaf = 75;        // lagere standen halen het minimumdebiet voor de vangst niet zeker
   float storingFactor = 0.25f;   // minder dan een kwart van schoon = geen luchtstroom
   uint32_t stabielMs = 6000;     // na een standwijziging eerst stabiliseren
   uint16_t minToeren = 300;      // lager terwijl hij hoort te draaien = de ventilator draait niet

@@ -85,17 +85,17 @@ const uit = (b) => ring(0, null) + kop + groot('UIT', 112, C.midden) + regels('d
 
 const gewoon = [
   ['Uit', 'kort drukken of draaien zet hem aan; na een stroomonderbreking altijd uit', uit(null)],
-  ['Aan', 'de stand die de box bevestigt (% van het maximale toerental); drukverschil en toerental; balkje = hoe vol de mat is', aan(65, V.beige) + regels('118 Pa, 2350 tpm', null, C.licht) + balk(0.4, V.beige)],
+  ['Aan', 'de stand die de box bevestigt (% van het maximale toerental); drukverschil en toerental; balkje = hoe vol het filter is', aan(65, V.beige) + regels('118 Pa, 2350 tpm', null, C.licht) + balk(0.4, V.beige)],
   ['Boost', '1 s vasthouden: 100 % uit een tegoed van 2 minuten, daarna afkoelen (1 s boost = 4 s); de box telt de tijd', aan(100, V.beige) + regels('BOOST 1:42', null, C.beige) + balk(0.45, V.beige)],
-  ['IJken', '5 tot 10 s vasthouden met een schone mat: 20 tot 100 %', ring(BOOG * 0.6, V.beige) + kop + tekst('IJKEN', 104, C.wit, FONT.TITEL) + tekst('schone mat, 60 %', 136, C.wit)],
+  ['IJken', '5 tot 10 s vasthouden met een schoon filter: 20 tot 100 %', ring(BOOG * 0.6, V.beige) + kop + tekst('IJKEN', 104, C.wit, FONT.TITEL) + tekst('schoon filter, 60 %', 136, C.wit)],
 ];
 const meldingen = [
-  ['Nieuwe mat?', 'nog niet geijkt: 5 s vasthouden', aan(60, V.beige) + regels('nieuwe mat?', 'knop 5 s vasthouden', C.licht)],
-  ['Lage stand', 'onder 70 % haalt de afzuiging het minimum voor de vangst niet zeker: geen filteroordeel', aan(50, V.beige) + regels('lage stand', 'weinig vangst, minstens 70 %', C.licht)],
+  ['Nieuw filter?', 'nog niet geijkt: 5 s vasthouden', aan(60, V.beige) + regels('nieuw filter?', 'knop 5 s vasthouden', C.licht)],
+  ['Lage stand', 'onder 75 % haalt de afzuiging het minimum voor de vangst niet zeker: geen filteroordeel', aan(50, V.beige) + regels('lage stand', 'weinig vangst, minstens 75 %', C.licht)],
   ['Even meten', 'na een standwissel: 6 s geen oordeel (geen oude melding)', aan(70, V.beige) + regels('even meten...', null, C.midden)],
   ['Boost even niet', 'het tegoed is op: eerst afkoelen', aan(65, V.beige) + regels('boost even niet', 'nog aan het afkoelen', C.licht)],
   ['Buiten meetbereik', 'de druk of de vervanggrens valt boven het bereik van de meter', aan(80, V.beige) + regels('druk buiten meetbereik', 'filter nakijken', C.oranje)],
-  ['Filter vervangen', 'per stand vóór het debiet onder het minimum voor de vangst zakt; eerst uitschakelen', aan(65, V.oranje) + regels('filter vervangen', 'eerst uit, mat in een zak', C.oranje) + balk(1, V.oranje)],
+  ['Filter vervangen', 'per stand vóór het debiet onder het minimum voor de vangst zakt; eerst uitschakelen', aan(65, V.oranje) + regels('filter vervangen', 'eerst uit, filter in een zak', C.oranje) + balk(1, V.oranje)],
   ['Geen luchtstroom', 'drukverschil valt weg: slang los of filter eruit', aan(65, V.rood) + regels('geen luchtstroom', 'slang en filter nakijken', C.rood)],
   ['Ventilator draait niet', 'tacho geeft geen toeren (op elke stand)', aan(65, V.rood) + regels('ventilator draait niet', 'M8-kabel nakijken', C.rood)],
   ['Geen verbinding (aan)', 'niets van de box: de stand is niet bevestigd', ring(0, null) + kop + tekst('AAN?', 108, C.midden, FONT.TITEL) + regels('geen verbinding met de box', 'stand niet bevestigd', C.oranje)],

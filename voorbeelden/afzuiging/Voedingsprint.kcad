@@ -454,9 +454,9 @@
    ],
    "kind": "reference"
   },
-  "tr5": {
-   "id": "tr5",
-   "name": "Plane Zekering TR5",
+  "te5": {
+   "id": "te5",
+   "name": "Plane Zekering Bel 0697W",
    "origin": [
     0,
     -26.4,
@@ -475,6 +475,31 @@
    "n": [
     0,
     1,
+    0
+   ],
+   "kind": "reference"
+  },
+  "diode": {
+   "id": "diode",
+   "name": "Plane diode",
+   "origin": [
+    94.2,
+    0,
+    0
+   ],
+   "u": [
+    0,
+    0,
+    -1
+   ],
+   "v": [
+    0,
+    1,
+    0
+   ],
+   "n": [
+    1,
+    0,
     0
    ],
    "kind": "reference"
@@ -594,51 +619,51 @@
     },
     "s1p0": {
      "x": 61,
-     "y": -37
+     "y": -36.5
     },
     "s1p1": {
      "x": 99,
-     "y": -37
+     "y": -36.5
     },
     "s1p2": {
      "x": 100,
-     "y": -36
+     "y": -35.5
     },
     "s1p3": {
      "x": 100,
-     "y": 12
+     "y": 12.5
     },
     "s1p4": {
      "x": 99,
-     "y": 13
+     "y": 13.5
     },
     "s1p5": {
      "x": 61,
-     "y": 13
+     "y": 13.5
     },
     "s1p6": {
      "x": 60,
-     "y": 12
+     "y": 12.5
     },
     "s1p7": {
      "x": 60,
-     "y": -36
+     "y": -35.5
     },
     "s1p8": {
      "x": 99,
-     "y": -36
+     "y": -35.5
     },
     "s1p9": {
      "x": 99,
-     "y": 12
+     "y": 12.5
     },
     "s1p10": {
      "x": 61,
-     "y": 12
+     "y": 12.5
     },
     "s1p11": {
      "x": 61,
-     "y": -36
+     "y": -35.5
     }
    },
    "scalars": {
@@ -739,19 +764,19 @@
     },
     "s2p0": {
      "x": 63,
-     "y": 10
+     "y": 10.5
     },
     "s2p3": {
      "x": 97,
-     "y": 10
+     "y": 10.5
     },
     "s2p6": {
      "x": 63,
-     "y": -34
+     "y": -33.5
     },
     "s2p9": {
      "x": 97,
-     "y": -34
+     "y": -33.5
     }
    },
    "scalars": {
@@ -1648,51 +1673,51 @@
     },
     "s12p0": {
      "x": 62,
-     "y": -31
+     "y": -30.5
     },
     "s12p1": {
      "x": 77,
-     "y": -31
+     "y": -30.5
     },
     "s12p2": {
      "x": 78.5,
-     "y": -29.5
+     "y": -29
     },
     "s12p3": {
      "x": 78.5,
-     "y": -3.5
+     "y": -3
     },
     "s12p4": {
      "x": 77,
-     "y": -2
+     "y": -1.5
     },
     "s12p5": {
      "x": 62,
-     "y": -2
+     "y": -1.5
     },
     "s12p6": {
      "x": 60.5,
-     "y": -3.5
+     "y": -3
     },
     "s12p7": {
      "x": 60.5,
-     "y": -29.5
+     "y": -29
     },
     "s12p8": {
      "x": 77,
-     "y": -29.5
+     "y": -29
     },
     "s12p9": {
      "x": 77,
-     "y": -3.5
+     "y": -3
     },
     "s12p10": {
      "x": 62,
-     "y": -3.5
+     "y": -3
     },
     "s12p11": {
      "x": 62,
-     "y": -29.5
+     "y": -29
     }
    },
    "scalars": {
@@ -1793,7 +1818,7 @@
     },
     "s13p0": {
      "x": 69.5,
-     "y": -10.2
+     "y": -9.7
     }
    },
    "scalars": {
@@ -1826,7 +1851,7 @@
     },
     "s14p0": {
      "x": 69.5,
-     "y": -10.2
+     "y": -9.7
     }
    },
    "scalars": {
@@ -1859,7 +1884,7 @@
     },
     "s15p0": {
      "x": 69.5,
-     "y": -22.8
+     "y": -22.3
     }
    },
    "scalars": {
@@ -1892,7 +1917,7 @@
     },
     "s16p0": {
      "x": 69.5,
-     "y": -22.8
+     "y": -22.3
     }
    },
    "scalars": {
@@ -1925,19 +1950,19 @@
     },
     "s17p0": {
      "x": 67.5,
-     "y": -0.7
+     "y": -0.2
     },
     "s17p1": {
      "x": 69.5,
-     "y": -0.7
+     "y": -0.2
     },
     "s17p2": {
      "x": 69.5,
-     "y": 11.5
+     "y": 12
     },
     "s17p3": {
      "x": 67.5,
-     "y": 11.5
+     "y": 12
     }
    },
    "scalars": {},
@@ -1992,51 +2017,51 @@
     },
     "s18p0": {
      "x": 67.5,
-     "y": -0.7
+     "y": -0.2
     },
     "s18p1": {
      "x": 84.3,
-     "y": -0.7
+     "y": -0.2
     },
     "s18p2": {
      "x": 84.8,
-     "y": -0.2
+     "y": 0.3
     },
     "s18p3": {
      "x": 84.8,
-     "y": 11.5
+     "y": 12
     },
     "s18p4": {
      "x": 84.3,
-     "y": 12
+     "y": 12.5
     },
     "s18p5": {
      "x": 67.5,
-     "y": 12
+     "y": 12.5
     },
     "s18p6": {
      "x": 67,
-     "y": 11.5
+     "y": 12
     },
     "s18p7": {
      "x": 67,
-     "y": -0.2
+     "y": 0.3
     },
     "s18p8": {
      "x": 84.3,
-     "y": -0.2
+     "y": 0.3
     },
     "s18p9": {
      "x": 84.3,
-     "y": 11.5
+     "y": 12
     },
     "s18p10": {
      "x": 67.5,
-     "y": 11.5
+     "y": 12
     },
     "s18p11": {
      "x": 67.5,
-     "y": -0.2
+     "y": 0.3
     }
    },
    "scalars": {
@@ -2137,19 +2162,19 @@
     },
     "s19p0": {
      "x": 76,
-     "y": 3.5
+     "y": 4
     },
     "s19p1": {
      "x": 81,
-     "y": 3.5
+     "y": 4
     },
     "s19p2": {
      "x": 81,
-     "y": 8.5
+     "y": 9
     },
     "s19p3": {
      "x": 76,
-     "y": 8.5
+     "y": 9
     }
    },
    "scalars": {},
@@ -2196,32 +2221,144 @@
   "s20": {
    "id": "s20",
    "name": "Sketch20",
-   "plane": "tr5",
+   "plane": "te5",
    "points": {
     "origin_s20": {
      "x": 0,
      "y": 0
     },
     "s20p0": {
-     "x": 89.5,
-     "y": 7
+     "x": 85.8,
+     "y": 5.5
+    },
+    "s20p1": {
+     "x": 93.15,
+     "y": 5.5
+    },
+    "s20p2": {
+     "x": 93.65,
+     "y": 6
+    },
+    "s20p3": {
+     "x": 93.65,
+     "y": 9
+    },
+    "s20p4": {
+     "x": 93.15,
+     "y": 9.5
+    },
+    "s20p5": {
+     "x": 85.8,
+     "y": 9.5
+    },
+    "s20p6": {
+     "x": 85.3,
+     "y": 9
+    },
+    "s20p7": {
+     "x": 85.3,
+     "y": 6
+    },
+    "s20p8": {
+     "x": 93.15,
+     "y": 6
+    },
+    "s20p9": {
+     "x": 93.15,
+     "y": 9
+    },
+    "s20p10": {
+     "x": 85.8,
+     "y": 9
+    },
+    "s20p11": {
+     "x": 85.8,
+     "y": 6
     }
    },
    "scalars": {
-    "s20s1": 4.2
+    "s20s12": 0.5
    },
    "entities": {
-    "s20e2": {
-     "id": "s20e2",
+    "s20e13": {
+     "id": "s20e13",
      "construction": false,
-     "kind": "circle",
-     "center": "s20p0",
-     "r": "s20s1"
+     "kind": "line",
+     "p1": "s20p0",
+     "p2": "s20p1"
+    },
+    "s20e14": {
+     "id": "s20e14",
+     "construction": false,
+     "kind": "arc",
+     "center": "s20p8",
+     "start": "s20p1",
+     "end": "s20p2",
+     "r": "s20s12",
+     "ccw": true
+    },
+    "s20e15": {
+     "id": "s20e15",
+     "construction": false,
+     "kind": "line",
+     "p1": "s20p2",
+     "p2": "s20p3"
+    },
+    "s20e16": {
+     "id": "s20e16",
+     "construction": false,
+     "kind": "arc",
+     "center": "s20p9",
+     "start": "s20p3",
+     "end": "s20p4",
+     "r": "s20s12",
+     "ccw": true
+    },
+    "s20e17": {
+     "id": "s20e17",
+     "construction": false,
+     "kind": "line",
+     "p1": "s20p4",
+     "p2": "s20p5"
+    },
+    "s20e18": {
+     "id": "s20e18",
+     "construction": false,
+     "kind": "arc",
+     "center": "s20p10",
+     "start": "s20p5",
+     "end": "s20p6",
+     "r": "s20s12",
+     "ccw": true
+    },
+    "s20e19": {
+     "id": "s20e19",
+     "construction": false,
+     "kind": "line",
+     "p1": "s20p6",
+     "p2": "s20p7"
+    },
+    "s20e20": {
+     "id": "s20e20",
+     "construction": false,
+     "kind": "arc",
+     "center": "s20p11",
+     "start": "s20p7",
+     "end": "s20p0",
+     "r": "s20s12",
+     "ccw": true
     }
    },
    "constraints": {},
    "entityOrder": [
-    "s20e2"
+    "s20e13",
+    "s20e14",
+    "s20e15",
+    "s20e16",
+    "s20e17",
+    "s20e18",
+    "s20e19",
+    "s20e20"
    ],
    "constraintOrder": [],
    "origin": "origin_s20"
@@ -2229,19 +2366,19 @@
   "s21": {
    "id": "s21",
    "name": "Sketch21",
-   "plane": "elco",
+   "plane": "diode",
    "points": {
     "origin_s21": {
      "x": 0,
      "y": 0
     },
     "s21p0": {
-     "x": 84,
-     "y": -26
+     "x": 7,
+     "y": -25.25
     }
    },
    "scalars": {
-    "s21s1": 5
+    "s21s1": 1.35
    },
    "entities": {
     "s21e2": {
@@ -2262,66 +2399,32 @@
   "s22": {
    "id": "s22",
    "name": "Sketch22",
-   "plane": "klem",
+   "plane": "elco",
    "points": {
     "origin_s22": {
      "x": 0,
      "y": 0
     },
     "s22p0": {
-     "x": 90,
-     "y": -28.5
-    },
-    "s22p1": {
-     "x": 99.5,
-     "y": -28.5
-    },
-    "s22p2": {
-     "x": 99.5,
-     "y": -21
-    },
-    "s22p3": {
-     "x": 90,
-     "y": -21
+     "x": 84,
+     "y": -25.5
     }
    },
-   "scalars": {},
+   "scalars": {
+    "s22s1": 5
+   },
    "entities": {
-    "s22e4": {
-     "id": "s22e4",
+    "s22e2": {
+     "id": "s22e2",
      "construction": false,
-     "kind": "line",
-     "p1": "s22p0",
-     "p2": "s22p1"
-    },
-    "s22e5": {
-     "id": "s22e5",
-     "construction": false,
-     "kind": "line",
-     "p1": "s22p1",
-     "p2": "s22p2"
-    },
-    "s22e6": {
-     "id": "s22e6",
-     "construction": false,
-     "kind": "line",
-     "p1": "s22p2",
-     "p2": "s22p3"
-    },
-    "s22e7": {
-     "id": "s22e7",
-     "construction": false,
-     "kind": "line",
-     "p1": "s22p3",
-     "p2": "s22p0"
+     "kind": "circle",
+     "center": "s22p0",
+     "r": "s22s1"
     }
    },
    "constraints": {},
    "entityOrder": [
-    "s22e4",
-    "s22e5",
-    "s22e6",
-    "s22e7"
+    "s22e2"
    ],
    "constraintOrder": [],
    "origin": "origin_s22"
@@ -2329,45 +2432,66 @@
   "s23": {
    "id": "s23",
    "name": "Sketch23",
-   "plane": "klemtop",
+   "plane": "klem",
    "points": {
     "origin_s23": {
      "x": 0,
      "y": 0
     },
     "s23p0": {
-     "x": 92.5,
-     "y": -24.75
+     "x": 90,
+     "y": -28
+    },
+    "s23p1": {
+     "x": 99.5,
+     "y": -28
+    },
+    "s23p2": {
+     "x": 99.5,
+     "y": -20.5
     },
     "s23p3": {
-     "x": 97,
-     "y": -24.75
+     "x": 90,
+     "y": -20.5
     }
    },
-   "scalars": {
-    "s23s1": 1.4,
-    "s23s4": 1.4
-   },
+   "scalars": {},
    "entities": {
-    "s23e2": {
-     "id": "s23e2",
+    "s23e4": {
+     "id": "s23e4",
      "construction": false,
-     "kind": "circle",
-     "center": "s23p0",
-     "r": "s23s1"
+     "kind": "line",
+     "p1": "s23p0",
+     "p2": "s23p1"
     },
     "s23e5": {
      "id": "s23e5",
      "construction": false,
-     "kind": "circle",
-     "center": "s23p3",
-     "r": "s23s4"
+     "kind": "line",
+     "p1": "s23p1",
+     "p2": "s23p2"
+    },
+    "s23e6": {
+     "id": "s23e6",
+     "construction": false,
+     "kind": "line",
+     "p1": "s23p2",
+     "p2": "s23p3"
+    },
+    "s23e7": {
+     "id": "s23e7",
+     "construction": false,
+     "kind": "line",
+     "p1": "s23p3",
+     "p2": "s23p0"
     }
    },
    "constraints": {},
    "entityOrder": [
-    "s23e2",
-    "s23e5"
+    "s23e4",
+    "s23e5",
+    "s23e6",
+    "s23e7"
    ],
    "constraintOrder": [],
    "origin": "origin_s23"
@@ -2375,69 +2499,115 @@
   "s24": {
    "id": "s24",
    "name": "Sketch24",
-   "plane": "to92",
+   "plane": "klemtop",
    "points": {
     "origin_s24": {
      "x": 0,
      "y": 0
     },
     "s24p0": {
-     "x": 66,
-     "y": -36.1
-    },
-    "s24p1": {
-     "x": 70.6,
-     "y": -36.1
-    },
-    "s24p2": {
-     "x": 70.6,
-     "y": -32.5
+     "x": 92.5,
+     "y": -24.25
     },
     "s24p3": {
-     "x": 66,
-     "y": -32.5
+     "x": 97,
+     "y": -24.25
     }
    },
-   "scalars": {},
+   "scalars": {
+    "s24s1": 1.4,
+    "s24s4": 1.4
+   },
    "entities": {
-    "s24e4": {
-     "id": "s24e4",
+    "s24e2": {
+     "id": "s24e2",
      "construction": false,
-     "kind": "line",
-     "p1": "s24p0",
-     "p2": "s24p1"
+     "kind": "circle",
+     "center": "s24p0",
+     "r": "s24s1"
     },
     "s24e5": {
      "id": "s24e5",
      "construction": false,
-     "kind": "line",
-     "p1": "s24p1",
-     "p2": "s24p2"
-    },
-    "s24e6": {
-     "id": "s24e6",
-     "construction": false,
-     "kind": "line",
-     "p1": "s24p2",
-     "p2": "s24p3"
-    },
-    "s24e7": {
-     "id": "s24e7",
-     "construction": false,
-     "kind": "line",
-     "p1": "s24p3",
-     "p2": "s24p0"
+     "kind": "circle",
+     "center": "s24p3",
+     "r": "s24s4"
     }
    },
    "constraints": {},
    "entityOrder": [
-    "s24e4",
-    "s24e5",
-    "s24e6",
-    "s24e7"
+    "s24e2",
+    "s24e5"
    ],
    "constraintOrder": [],
    "origin": "origin_s24"
+  },
+  "s25": {
+   "id": "s25",
+   "name": "Sketch25",
+   "plane": "to92",
+   "points": {
+    "origin_s25": {
+     "x": 0,
+     "y": 0
+    },
+    "s25p0": {
+     "x": 66,
+     "y": -35.6
+    },
+    "s25p1": {
+     "x": 70.6,
+     "y": -35.6
+    },
+    "s25p2": {
+     "x": 70.6,
+     "y": -32
+    },
+    "s25p3": {
+     "x": 66,
+     "y": -32
+    }
+   },
+   "scalars": {},
+   "entities": {
+    "s25e4": {
+     "id": "s25e4",
+     "construction": false,
+     "kind": "line",
+     "p1": "s25p0",
+     "p2": "s25p1"
+    },
+    "s25e5": {
+     "id": "s25e5",
+     "construction": false,
+     "kind": "line",
+     "p1": "s25p1",
+     "p2": "s25p2"
+    },
+    "s25e6": {
+     "id": "s25e6",
+     "construction": false,
+     "kind": "line",
+     "p1": "s25p2",
+     "p2": "s25p3"
+    },
+    "s25e7": {
+     "id": "s25e7",
+     "construction": false,
+     "kind": "line",
+     "p1": "s25p3",
+     "p2": "s25p0"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s25e4",
+    "s25e5",
+    "s25e6",
+    "s25e7"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s25"
   }
  },
  "features": [
@@ -2853,12 +3023,12 @@
   {
    "id": "f40",
    "type": "extrude",
-   "name": "Zekering TR5",
+   "name": "Zekering Bel 0697W",
    "sketchId": "s20",
    "suppressed": false,
    "op": "boss",
    "end": "blind",
-   "depth": 7.6,
+   "depth": 7.8,
    "reverse": false,
    "direction2": {
     "end": "blind",
@@ -2875,17 +3045,13 @@
   {
    "id": "f42",
    "type": "extrude",
-   "name": "Elco 470 µF",
+   "name": "Schottky 1N5819",
    "sketchId": "s21",
    "suppressed": false,
    "op": "boss",
    "end": "blind",
-   "depth": 20,
-   "reverse": false,
-   "direction2": {
-    "end": "blind",
-    "depth": 0.05
-   }
+   "depth": 5.2,
+   "reverse": false
   },
   {
    "id": "ks22",
@@ -2897,12 +3063,12 @@
   {
    "id": "f44",
    "type": "extrude",
-   "name": "Schroefklem",
+   "name": "Elco 470 µF",
    "sketchId": "s22",
    "suppressed": false,
    "op": "boss",
    "end": "blind",
-   "depth": 10,
+   "depth": 20,
    "reverse": false,
    "direction2": {
     "end": "blind",
@@ -2919,13 +3085,17 @@
   {
    "id": "f46",
    "type": "extrude",
-   "name": "Schroefjes klem",
+   "name": "Schroefklem",
    "sketchId": "s23",
    "suppressed": false,
-   "op": "cut",
+   "op": "boss",
    "end": "blind",
-   "depth": 2,
-   "reverse": true
+   "depth": 10,
+   "reverse": false,
+   "direction2": {
+    "end": "blind",
+    "depth": 0.05
+   }
   },
   {
    "id": "ks24",
@@ -2937,8 +3107,26 @@
   {
    "id": "f48",
    "type": "extrude",
-   "name": "Transistor",
+   "name": "Schroefjes klem",
    "sketchId": "s24",
+   "suppressed": false,
+   "op": "cut",
+   "end": "blind",
+   "depth": 2,
+   "reverse": true
+  },
+  {
+   "id": "ks25",
+   "type": "sketch",
+   "name": "Sketch25",
+   "sketchId": "s25",
+   "suppressed": false
+  },
+  {
+   "id": "f50",
+   "type": "extrude",
+   "name": "Transistor",
+   "sketchId": "s25",
    "suppressed": false,
    "op": "boss",
    "end": "blind",

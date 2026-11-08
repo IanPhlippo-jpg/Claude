@@ -176,18 +176,25 @@ void test_filter_vervangen_per_stand_en_lage_stand() {
   Regelaar r;
   uint32_t nu = 1000;
   ijk(r, nu); // 20, 50, 80, 110, 140 Pa bij 900..4500 omw/min
-  // 80 %: schoon 110 Pa, vervangen bij 1,58 x = 174 Pa
+  // 80 %: schoon 110 Pa, vervangen bij 1,19 x = 131 Pa
   r.opdracht(cmd(true, 80, 1, 0, 7, 30), nu);
-  loop(r, nu, nu + 8000, 150);
+  loop(r, nu, nu + 8000, 125);
   TEST_ASSERT_EQUAL(BEW_OK, r.bewaking);
   TEST_ASSERT_TRUE(r.vol > 0.5f && r.vol < 1.0f);
-  loop(r, nu, nu + 8000, 185);
+  loop(r, nu, nu + 8000, 140);
   TEST_ASSERT_TRUE(r.vol >= 1.0f);
-  // 40 %: haalt het minimumdebiet niet: geen oordeel, wel gezegd
+  // 40 % en 70 %: halen het minimumdebiet niet zeker: geen oordeel, wel gezegd
   r.opdracht(cmd(true, 40, 1, 0, 7, 31), nu);
   loop(r, nu, nu + 8000, 60);
   TEST_ASSERT_EQUAL(BEW_LAGE_STAND, r.bewaking);
   TEST_ASSERT_TRUE(isnan(r.vol));
+  r.opdracht(cmd(true, 70, 1, 0, 7, 32), nu);
+  loop(r, nu, nu + 8000, 95);
+  TEST_ASSERT_EQUAL(BEW_LAGE_STAND, r.bewaking);
+  // 75 %: de laagste beschermende stand
+  r.opdracht(cmd(true, 75, 1, 0, 7, 33), nu);
+  loop(r, nu, nu + 8000, 100);
+  TEST_ASSERT_EQUAL(BEW_OK, r.bewaking);
 }
 
 void test_geen_oude_melding_tijdens_stabiliseren() {
@@ -209,7 +216,7 @@ void test_geen_oude_melding_tijdens_stabiliseren() {
 void test_grens_boven_het_meetbereik_wordt_gemeld() {
   Regelaar r;
   uint32_t nu = 1000;
-  ijk(r, nu, 100, 50); // 100..300 Pa: bij 100 % is 1,88 x 300 = 564 Pa > 450
+  ijk(r, nu, 150, 50); // 150..350 Pa: bij 100 % is 1,44 x 350 = 504 Pa > 450
   r.opdracht(cmd(true, 80, 1, 1, 7, 30), nu); // boost
   loop(r, nu, nu + 9000, 300);
   TEST_ASSERT_EQUAL(100, r.stand);
