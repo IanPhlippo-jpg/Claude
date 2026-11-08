@@ -1,0 +1,47 @@
+[
+  {
+    "rpm": 0.75,
+    "k": 0.7,
+    "ratio_without_filter": 0.33625778239825815
+  },
+  {
+    "rpm": 0.75,
+    "k": 1,
+    "ratio_without_filter": 0.4073488317961568
+  },
+  {
+    "rpm": 0.75,
+    "k": 1.5,
+    "ratio_without_filter": 0.48735423482061846
+  },
+  {
+    "rpm": 0.8,
+    "k": 0.7,
+    "ratio_without_filter": 0.34617001127391245
+  },
+  {
+    "rpm": 0.8,
+    "k": 1,
+    "ratio_without_filter": 0.4180192867625369
+  },
+  {
+    "rpm": 0.8,
+    "k": 1.5,
+    "ratio_without_filter": 0.4990295668619248
+  },
+  {
+    "rpm": 1,
+    "k": 0.7,
+    "ratio_without_filter": 0.38429883693520556
+  },
+  {
+    "rpm": 1,
+    "k": 1,
+    "ratio_without_filter": 0.4580407107825139
+  },
+  {
+    "rpm": 1,
+    "k": 1.5,
+    "ratio_without_filter": 0.5407798102767217
+  }
+]

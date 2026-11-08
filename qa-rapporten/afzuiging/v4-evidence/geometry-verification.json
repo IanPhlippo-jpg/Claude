@@ -1,0 +1,106 @@
+{
+  "cad_stl": [
+    {
+      "file": "Knophouder.stl",
+      "stl_volume": 31264.112161437446,
+      "cad_volume": 31258.032666861596,
+      "difference_percent": 0.0194493832693925
+    },
+    {
+      "file": "Romp.stl",
+      "stl_volume": 492974.7970285476,
+      "cad_volume": 492988.40672540857,
+      "difference_percent": 0.0027606525174393316
+    },
+    {
+      "file": "Bodemplaat.stl",
+      "stl_volume": 109289.86152774312,
+      "cad_volume": 109293.51151292838,
+      "difference_percent": 0.003339617452793665
+    },
+    {
+      "file": "Instroomplaat.stl",
+      "stl_volume": 110207.41997629567,
+      "cad_volume": 110204.9996681287,
+      "difference_percent": 0.002196187263969738
+    },
+    {
+      "file": "Klauw.stl",
+      "stl_volume": 1033.635799100701,
+      "cad_volume": 1034.7063013694567,
+      "difference_percent": 0.10345952927307818
+    },
+    {
+      "file": "Bovenframe.stl",
+      "stl_volume": 22458.984035137033,
+      "cad_volume": 22459.668824468004,
+      "difference_percent": 0.003048973412401234
+    },
+    {
+      "file": "Knopdeksel.stl",
+      "stl_volume": 2831.2606641481707,
+      "cad_volume": 2832.1557900857156,
+      "difference_percent": 0.03160581563621537
+    },
+    {
+      "file": "Knopklauw.stl",
+      "stl_volume": 570.6469746296967,
+      "cad_volume": 571.2049874873077,
+      "difference_percent": 0.09769047361886814
+    },
+    {
+      "file": "Deksel-voedingsbox.stl",
+      "stl_volume": 37973.663422529695,
+      "cad_volume": 37973.70404989418,
+      "difference_percent": 0.00010698815272424341
+    },
+    {
+      "file": "Adapterklem.stl",
+      "stl_volume": 396.95018141727707,
+      "cad_volume": 396.8696842802864,
+      "difference_percent": 0.020283014848228136
+    },
+    {
+      "file": "Voedingsbox.stl",
+      "stl_volume": 208830.64742123647,
+      "cad_volume": 208829.55777587503,
+      "difference_percent": 0.0005217869410085827
+    }
+  ],
+  "max_difference_percent": 0.10345952927307818,
+  "reconstruction_microcomponents": [
+    {
+      "part": "Instroomplaat<1>",
+      "raw_components": 45,
+      "largest_volumes": [
+        110204.9996681287,
+        2.123301534595612e-15,
+        2.0539125955565396e-15,
+        1.942890293094024e-15,
+        1.7208456881689926e-15
+      ],
+      "secondary_total_mm3": 3.061439990403869e-14
+    },
+    {
+      "part": "Voedingsbox<1>",
+      "raw_components": 3,
+      "largest_volumes": [
+        208927.10293699513,
+        48.77258056004294,
+        48.772580560042904
+      ],
+      "secondary_total_mm3": 97.54516112008585
+    }
+  ],
+  "laser_open_over_new_filter_cm2": 121.06570625846862,
+  "module_bottom_y": -116,
+  "underhang_below34mm_board": 82,
+  "bottom_floor_at734mm_tabletop": 618,
+  "filter_bottom_y": -28.5,
+  "filter_top_y": 1.5,
+  "steel_bottom_y": 2.5,
+  "rest_top_gap_mm": 1,
+  "guard_to_rotor_gap_mm": 2.05,
+  "guard_slot_nominal_mm": 10.4,
+  "scope": "Independent tessellation; near-zero fragments may be numerical, not production STL disconnections."
+}

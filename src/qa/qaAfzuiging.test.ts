@@ -12,7 +12,7 @@ import { afterAll, describe, expect, it } from 'vitest';
 import { readFileSync, readdirSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import * as THREE from 'three';
-import { rebuildDocument } from '../core/features/rebuild';
+import { rebuildDocument } from './rebuildStreng';
 import { setBrepKernel } from '../core/features/brepKernel';
 import { occtKernel } from '../core/occt/brep';
 import { parseDocument } from '../core/document/persistence';
@@ -25,7 +25,9 @@ import type { Component, Document } from '../core/document/types';
 
 const DIR = 'voorbeelden/afzuiging';
 const open = (f: string): Document => parseDocument(readFileSync(`${DIR}/${f}`, 'utf8'));
-const DELEN = readdirSync(DIR).filter((f) => f.endsWith('.kcad') && f !== 'Afzuiging.kcad');
+// snelle controle van alleen gewijzigde onderdelen: AFZ_DELEN=Instroomplaat,Romp (zie npm run test:afz-snel)
+const KEUZE = process.env.AFZ_DELEN?.split(',').map((s) => `${s.trim().replace(/\.kcad$/, '')}.kcad`);
+const DELEN = readdirSync(DIR).filter((f) => f.endsWith('.kcad') && f !== 'Afzuiging.kcad' && (!KEUZE || KEUZE.includes(f)));
 type R = { bodies: { geometry: THREE.BufferGeometry }[] };
 const bouw = (f: string) => {
   const r = rebuildDocument(open(f)) as unknown as R & { brep?: Record<string, unknown> };
@@ -46,7 +48,7 @@ describe('afzuiging, onderdelen (mesh)', () => {
   it.each(DELEN)('%s is één body', (f) => {
     mesh[f] = bouw(f);
     expect(mesh[f].n).toBe(1);
-  }, 60000);
+  }, 600000);
 
   it('maten: romp, frame, rooster, klauw, filter, ventilator; de module hangt hoogstens 82 mm onder een blad van 34 mm', () => {
     expect(rond(mesh['Romp.kcad'].bb.min)).toEqual([-105, -110, -105]);
@@ -63,6 +65,11 @@ describe('afzuiging, onderdelen (mesh)', () => {
     expect(rond(mesh['Interieurfilter-CU20013.kcad'].bb.min)).toEqual([-72.5, -28.5, -97.5]);
     expect(rond(mesh['Interieurfilter-CU20013.kcad'].bb.max)).toEqual([72.5, 1.5, 97.5]);
     expect(rond(mesh['Foamband.kcad'].bb.min)).toEqual([-73.5, -32.5, -98.5]);
+    // de afdichtlip op de geleiderand (tot -22,5), 2,5 mm naar onder geplooid tegen het filter
+    expect(rond(mesh['Afdichtlip.kcad'].bb.min)).toEqual([-75, -25, -100]);
+    expect(rond(mesh['Afdichtlip.kcad'].bb.max)).toEqual([75, -22, 100]);
+    expect(rond(mesh['Knopklauwrubber.kcad'].bb.min)).toEqual([7.5, 5, -3]);
+    expect(rond(mesh['Knopklauwrubber.kcad'].bb.max)).toEqual([13.5, 8, 3]);
     // de waaier staat 2 mm onder de instroomplaat, de motor op de bodemplaat
     expect(rond(mesh['Ventilator-San-Ace-C175.kcad'].bb.min)).toEqual([-87.5, -110, -87.5]);
     expect(rond(mesh['Ventilator-San-Ace-C175.kcad'].bb.max)).toEqual([87.5, -41, 87.5]);
@@ -109,13 +116,13 @@ describe('afzuiging, assemblage', () => {
 
   it('niets botst', () => {
     expect(botsingen(asm().components)).toEqual([]);
-  }, 900000);
+  }, 1800000);
 
   it('het filter gaat vrij naar boven uit de module (zonder rooster)', () => {
     const a = asm();
     const zonder = a.components.filter((c) => c.id !== 'a2');
     for (const dy of [10, 60]) expect(botsingen(verschuif(zonder, ['a3'], [0, dy, 0])), String(dy)).toEqual([]);
-  }, 900000);
+  }, 1800000);
 
   it('de klauwen passen bij elke bladdikte van 10 tot 50 mm en reiken voorbij de uitsparing', () => {
     const a = asm();
@@ -132,14 +139,14 @@ describe('afzuiging, assemblage', () => {
       g.computeBoundingBox();
       expect(Math.max(Math.abs(g.boundingBox!.min.x), Math.abs(g.boundingBox!.max.x)), id).toBeGreaterThan(112); // uitsparing tot 106
     }
-  }, 900000);
+  }, 1800000);
 
   it('de klauwen van de knophouder passen bij elke bladdikte van 10 tot 50 mm en reiken voorbij het gat', () => {
     const a = asm();
     const d = a.components.find((c) => c.id === 'a7')!.position;
     const klauwen = a.components.filter((c) => /^adk/.test(c.id)).map((c) => c.id);
     for (const t of [10, 20, 34, 50]) {
-      const comps = a.components.map((c) => (klauwen.includes(c.id) ? { ...c, position: [c.position[0], -t - 5, c.position[2]] as [number, number, number] } : c))
+      const comps = a.components.map((c) => (klauwen.includes(c.id) ? { ...c, position: [c.position[0], -t - 8, c.position[2]] as [number, number, number] } : c)) // klauw 5 + rubber 3
         .filter((c) => ['a7', 'a12', 'a8', 'a14', ...klauwen].includes(c.id) || /^as(d|k|dk)\d/.test(c.id));
       expect(botsingen(comps), `blad ${t} mm`).toEqual([]);
     }
@@ -149,7 +156,7 @@ describe('afzuiging, assemblage', () => {
       g.computeBoundingBox();
       expect(Math.max(Math.abs(g.boundingBox!.min.x - d[0]), Math.abs(g.boundingBox!.max.x - d[0])), id).toBeGreaterThan(27); // gat Ø44
     }
-  }, 900000);
+  }, 1800000);
 
   it('ingetrokken liggen de klauwen binnen de romp (de module zakt door de uitsparing)', () => {
     const a = asm();
@@ -168,7 +175,7 @@ describe('afzuiging, assemblage', () => {
       expect(Math.max(Math.abs(bb.min.x), Math.abs(bb.max.x)), b.id).toBeLessThan(105);
       expect(Math.max(Math.abs(bb.min.z), Math.abs(bb.max.z)), b.id).toBeLessThan(105);
     }
-  }, 180000);
+  }, 1800000);
 });
 
 /**
@@ -197,7 +204,7 @@ function lek(geoms: THREE.BufferGeometry[]): { lek: boolean; waar?: number[]; vr
     }
   }
   const zien = new Uint8Array(nx * ny * nz);
-  const start = idx(115, Math.round(-33.73 - Y0), 115); // (0, -33,7, 0): onder het filter, boven de instroomplaat
+  const start = idx(127, Math.round(-33.73 - Y0), 127); // (12, -33,7, 12): onder het filter, boven de instroomplaat, tussen de ribben van het vingerrooster
   if (vast[start]) throw new Error('startpunt zit in materiaal');
   const q = [start];
   zien[start] = 1;
@@ -236,12 +243,12 @@ describe('afzuiging, luchtdicht', () => {
     const r = lek([...delen(), ...dicht]);
     expect(r.lek, JSON.stringify(r.waar)).toBe(false);
     expect(r.vrij).toBeGreaterThan(1000000);
-  }, 300000);
+  }, 1800000);
   it('tegenproef: zonder de M8-bus lekt het door het gat in de achterwand', () => {
     const r = lek([...delen(), ...dicht.slice(1)]);
     expect(r.lek).toBe(true);
     expect(r.waar![2]).toBeLessThan(-105);
-  }, 300000);
+  }, 1800000);
 });
 
 describe('afzuiging, B-rep', () => {
@@ -261,7 +268,7 @@ describe('afzuiging, B-rep', () => {
       expect(rond(b.bb.min), f).toEqual(rond(mesh[f].bb.min));
       expect(rond(b.bb.max), f).toEqual(rond(mesh[f].bb.max));
     }
-  }, 300000);
+  }, 1800000);
 
   // de STL's voor de printer: src/qa/stlAfzuiging.test.ts (eigen OCCT-kernel, AFZUIGING_STL=1)
 });

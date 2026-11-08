@@ -1,0 +1,418 @@
+{
+  "version": 4,
+  "status": "definitieve blinde synthese",
+  "source_files": 111,
+  "source_revision": "7.0",
+  "source_sha256_verified": true,
+  "previous_final_score": 5.6,
+  "overall": 6.4,
+  "overall_unrounded": 6.4,
+  "delta_vs_v3_final": 0.8,
+  "areas": [
+    {
+      "area": "CAD / geometrie",
+      "weight_percent": 15,
+      "v4_provisional": 8,
+      "v4_final": 7.5,
+      "v3_final": 7,
+      "delta_vs_v3_final": 0.5
+    },
+    {
+      "area": "Exports / revisies",
+      "weight_percent": 15,
+      "v4_provisional": 9,
+      "v4_final": 8.5,
+      "v3_final": 8,
+      "delta_vs_v3_final": 0.5
+    },
+    {
+      "area": "Luchttechniek / geluid",
+      "weight_percent": 20,
+      "v4_provisional": 6,
+      "v4_final": 5.5,
+      "v3_final": 4.5,
+      "delta_vs_v3_final": 1.0
+    },
+    {
+      "area": "Filtratie / beschermingsconcept",
+      "weight_percent": 15,
+      "v4_provisional": 5,
+      "v4_final": 4.5,
+      "v3_final": 3,
+      "delta_vs_v3_final": 1.5
+    },
+    {
+      "area": "Elektrisch / thermisch",
+      "weight_percent": 10,
+      "v4_provisional": 7,
+      "v4_final": 6,
+      "v3_final": 6,
+      "delta_vs_v3_final": 0
+    },
+    {
+      "area": "Firmware",
+      "weight_percent": 10,
+      "v4_provisional": 7,
+      "v4_final": 6,
+      "v3_final": 5,
+      "delta_vs_v3_final": 1
+    },
+    {
+      "area": "Ergonomie als ontwerp",
+      "weight_percent": 5,
+      "v4_provisional": 7,
+      "v4_final": 7,
+      "v3_final": 7,
+      "delta_vs_v3_final": 0
+    },
+    {
+      "area": "Onderhoud als ontwerp",
+      "weight_percent": 5,
+      "v4_provisional": 8,
+      "v4_final": 7,
+      "v3_final": 6,
+      "delta_vs_v3_final": 1
+    },
+    {
+      "area": "Documentatie",
+      "weight_percent": 5,
+      "v4_provisional": 7,
+      "v4_final": 6.5,
+      "v3_final": 5,
+      "delta_vs_v3_final": 1.5
+    }
+  ],
+  "severity_counts": {
+    "Kritiek": 0,
+    "Major": 10,
+    "Minor": 4
+  },
+  "old_findings": [
+    {
+      "id": "V3-01",
+      "status": "deels",
+      "evidence": "G3 vervangen door CU20013; kritieke grove-filterkeuze vervallen, exacte rendement-/retourluchtclaims blijven Major V4-01."
+    },
+    {
+      "id": "V3-02",
+      "status": "deels",
+      "evidence": "Foam en steunpad werkelijk CAD; kracht/curve/tolerantie nog V4-02."
+    },
+    {
+      "id": "V3-03",
+      "status": "deels",
+      "evidence": "Meer plenum, RPM-regeling, gekoppeld model, gewijzigd geluidsdoel; resterende bandonderbouwing V4-03."
+    },
+    {
+      "id": "V3-04",
+      "status": "opgelost",
+      "evidence": "Fractionele tijdramp; originele tests met 1/5/10/20/250ms en jitter slagen."
+    },
+    {
+      "id": "V3-05",
+      "status": "deels",
+      "evidence": "Bewuste herkoppeling, challenge en sessievolgorde toegevoegd; commissioning/peerbeleid V4-11."
+    },
+    {
+      "id": "V3-06",
+      "status": "deels",
+      "evidence": "Factor2 vervangen door modelspecifieke factoren, lage stand en overrange expliciet; aannames en RPM-volgfout V4-03/04."
+    },
+    {
+      "id": "V3-07",
+      "status": "deels",
+      "evidence": "Rubber, materiaalbron en slagprocedure toegevoegd; actuele contact-/ankerketen V4-06."
+    },
+    {
+      "id": "V3-08",
+      "status": "deels",
+      "evidence": "Exact DC-fuse/schakelaar, diode, lokale warmte en derating toegevoegd; besturingsvoedingsfout V4-05."
+    },
+    {
+      "id": "V3-09",
+      "status": "deels",
+      "evidence": "Prijs en hoofdmaat herleidbaar; staal/koppel-/modelteksten V4-08."
+    },
+    {
+      "id": "V3-10",
+      "status": "opgelost voor oorspronkelijke specificatiekeuze",
+      "evidence": "Prusament, UHU, N42 en exact reinigingsmiddel benoemd; foam en staalconflict apart V4-02/08, niet dubbel als oude generieke keuze tellen."
+    },
+    {
+      "id": "V3-11",
+      "status": "deels",
+      "evidence": "Vast rooster en werkplek-/morsroute toegevoegd; structurele afschermingscontrole V4-07."
+    },
+    {
+      "id": "V3-12",
+      "status": "opgelost",
+      "evidence": "Box/print-overlap verdwenen na verplaatsing; nieuwe 0,042mm³ print/schroefkandidaat is geen bewezen ongewenste botsing."
+    },
+    {
+      "id": "V3-13",
+      "status": "deels",
+      "evidence": "Positief uitklopadvies en ontbrekende isolatie opgelost; downstream-service nog V4-09."
+    },
+    {
+      "id": "V3-14",
+      "status": "opgelost",
+      "evidence": "Oude vol-status wordt NAN tijdens stabiliseren; originele hosttest slaagt."
+    },
+    {
+      "id": "V3-15",
+      "status": "deels",
+      "evidence": "Herhaalboost tijdens run echt begrensd; reset-/thermische modelscope V4-10."
+    }
+  ],
+  "findings": [
+    {
+      "id": "V4-01",
+      "severity": "Major",
+      "title": "CU 20 013-rendement en retourluchtconcept nog niet productspecifiek onderbouwd",
+      "evidence": [
+        "README.md:9",
+        "docs/Vrijgave-en-meetplan.md:27–40,50–51",
+        "docs/berekeningen.py:65–71",
+        "v4-evidence/Johansson-1999.txt:118–122"
+      ],
+      "description": "De keuze is wezenlijk verbeterd: een echt geplooid interieur-deeltjesfilter vervangt de grove ventilatormat. OEM MANN bevestigt 195×145×30 mm en de toepassing. De exacte claims 50–70% bij 0,3 µm en >90% vanaf 3 µm volgen echter niet uit een CU 20 013-fractierendementcurve. De aangehaalde studie uit 1999 noemt circa 55% penetratie bij betere filters in 0,1–0,35 µm, dus circa 45% afvang; dat bewijst niet dat de moderne MANN slecht is, maar evenmin de gekozen cijfers. Algemene salonventilatie is nog niet gedimensioneerd.",
+      "action": "Koppel beschermingsclaim aan exacte media-/productgegevens, een aantoonbaar passende conservatieve specificatie of een anders afgebakend werkplekconcept. Benoem retourlucht, dampen en aanvullende ventilatie expliciet.",
+      "acceptance_criterion": "Een bron-/eisenmatrix onderscheidt OEM-gegevens, andere literatuur en aannames; het berekende afvang-/retourluchtconcept sluit op de beoogde stoffen aan. Geen HEPA-verplichting of onbewezen medische garantie."
+    },
+    {
+      "id": "V4-02",
+      "severity": "Major",
+      "title": "Zelfaanzuigende foamafdichting is geometrisch aanwezig, maar de compressieketen is ongesloten",
+      "evidence": [
+        "maak-afzuiging.mjs:58–65,223–230,311–316",
+        "docs/Materiaalstaat.md:55–58",
+        "README.md:36"
+      ],
+      "description": "Er is nu werkelijk een 6×4 mm-foamband met steun- en geleiderand. Het filter ligt nominaal 1 mm onder de staalplaat, dus er is geen gedwongen voorspanning van boven. De gekozen generieke tochtband moet al rond 1 kPa contactdruk inveren. Een exacte compressie-/hersteldrukcurve, filterrandvlakheid en tolerantieketen ontbreken. De nominale CAD-aanwezigheid bewijst niet de absolute claim dat er geen bypass kan zijn.",
+      "action": "Specificeer één exact foamtype en modelleer belasting, vervorming, herstel, randaansluiting en filtervarianten; voeg indien nodig geometrisch beheerste voorspanning/retentie toe.",
+      "acceptance_criterion": "Min/max CAD-maatketen en kracht-vervormingsberekening tonen rondom contact en voldoende resterende plenumhoogte, bij de laagste toegelaten stand én ongunstige filtermaten; geen ongedefinieerde botsing of bypass."
+    },
+    {
+      "id": "V4-03",
+      "severity": "Major",
+      "title": "Lucht-/plenum-/alarmmodel is nu gekoppeld, maar de grenzen zijn nog scenario’s, geen bewezen bovengrenzen",
+      "evidence": [
+        "docs/berekeningen.py:14–16,65–71,248–255,273–337",
+        "docs/Berekeningen.md:58–101",
+        "v4-evidence/independent-checks.json",
+        "docs/Berekeningen.md:18,34–38,75,89",
+        "v4-evidence/team-merge/full-filter-contract.json",
+        "v4-evidence/team-merge/header-mutation.log"
+      ],
+      "description": "De oude factor2-fout is binnen het nieuwe model werkelijk hersteld: de laagste beschermende stand is 75%, met factoren 1,08/1,19/1,44. Zelf nagerekende minimumverhoudingen zijn 1,205/1,330/1,633 bij 75/80/100%. Maar 115 Pa uit andere filters en ζ=0,5 als plenum-bovengrens zijn niet aangetoond voor deze geometrie/media. De fan-afleesonzekerheid en ruimtelijke mediabenutting zijn niet volledig gepropageerd. Het comfortdoel is versoepeld van 55 naar 70 dB(A), niet akoestisch verbeterd. De ongeronde puntbronuitkomst bij 80% op 0,5 m is circa 70,18 dB(A), zonder marge voor rooster, galm of modelonzekerheid. Nieuw bevestigd: de eis “190 m³/h ook met vol filter” is niet hetzelfde als vroeg waarschuwen. Met het in de bron gedefinieerde volle filter en de ongunstige bestaande verlies-/plenuminstelling geeft het model bij75/80/100% circa141,1/155,9/217,9 m³/h. Alleen100% haalt dan Qmin, maar dat is tijdelijk. Een vervangmelding kan een goed gekozen eerder eindpunt zijn, niet een bewijs dat de huidige volfiltereis is gehaald.",
+      "action": "Benoem aannames als scenario in plaats van gegarandeerde grens; onderbouw of verruim de weerstand-/verdeelband en voeg fan-, media-, RPM- en akoestische onzekerheden toe. Lees firmwaregrenzen automatisch uit in plaats van ze in Python te dupliceren. Kies expliciet of het onderhoudseindpunt de vroege bewakingsgrens of de bron-einddruk is; maak gebruiksbeperking, vervangactie en minimumdebiet tot dat punt consistent.",
+      "acceptance_criterion": "Een reproduceerbare sweep over de onderbouwde invoerbanden en alle implementeerbare beschermende standen toont tijdig alarm en de gekozen vangst-/geluidscriteria met expliciete marge. Een gewijzigde headerfactor laat de controle aantoonbaar falen. Het gekozen eindpunt haalt Qmin binnen dezelfde onderbouwde envelop; “ook met vol filter” wordt niet behouden voor een ander of later eindpunt."
+    },
+    {
+      "id": "V4-04",
+      "severity": "Major",
+      "title": "Toerentaldoel niet gehaald, toch bewaking OK en filterbalk leeg",
+      "evidence": [
+        "firmware/include/regel.h:143–167,235–251",
+        "v4-evidence/regression-v4.cpp",
+        "v4-evidence/regression-v4.log:1"
+      ],
+      "description": "Nieuw en op de originele C++ gereproduceerd: bij doel 80% van 3900 rpm en geïnjecteerd werkelijk toerental 1950 rpm loopt de PWM op tot 95%, maar status blijft BEW_OK, storing=0, vol=0. De regelaar bewaakt stilstand (<300 rpm), niet blijvende afwijking/saturatie. In het eigen nominale bronmodel hoort bij 50% werkelijk toerental circa 145,2 m³/h, onder Qmin 189,54. Dit is een adversariële toestandinjectie, geen voorspelling dat de echte motor bij 95% PWM op 1950 rpm loopt.",
+      "action": "Ontwerp een tijdgebonden toerentalvolg-/saturatiebewaking en maak de beschermings-/filterstatus ongeldig wanneer het werkelijke toerental buiten de modelband valt.",
+      "acceptance_criterion": "Hosttests voor achterblijvend/te hoog toerental, ontbrekende tacho, verzadigde PWM, opstart en herstel tonen geen normale beschermingsstatus buiten de toegelaten RPM-band. Tijd/marges zijn op het model en de gewenste foutreactie afgestemd."
+    },
+    {
+      "id": "V4-05",
+      "severity": "Major",
+      "title": "Uitval van de besturingsvoeding is elektrisch nog geen gesloten fouttoestand",
+      "evidence": [
+        "schema/maak-schema.mjs:147–153,194–220",
+        "firmware/src/module/main.cpp:13–17,61–65",
+        "docs/Berekeningen.md:119–120",
+        "docs/Vrijgave-en-meetplan.md:107"
+      ],
+      "description": "De 3,3V-pull-up houdt Q1 tijdens een normale MCU-boot terecht aan: geen opstartfout geclaimd. Valt echter 5V/3,3V weg terwijl 24V aanwezig blijft (bijvoorbeeld kortsluiting in de knopkabel), dan verdwijnt ook die basisaandrijving en wordt de open-collector-PWM ongedreven. Sanyo beschrijft open PWM algemeen als 100%, met modelvoorbehoud. De bron schuift de reactie door naar een latere proef. Een voedings-/PWM-fouttoestand en continu-volbedrijf moeten al op schema/modelniveau gekozen worden. De precieze SuperMini-boardrevisie en de USB-VBUS-route zijn niet gespecificeerd: één diode bewijst niet elke terugvoedingsrichting. Pololu adviseert bij meer dan20V een lokale elco van minstens33µF/50V; de aanwezige470µF/35V is niet zonder plaatsings-/transiëntanalyse gelijkwaardig. Nominale2,35A is geen aangetoonde universele start-/foutstroomgrens.",
+      "action": "Maak een voeding/fout/PWM-waarheidstabel. Borg de gekozen veilige toestand hardwarematig of dimensioneer en documenteer het plausibele continue-volscenario; controleer ook de exacte variant en USB-/diodepaden.",
+      "acceptance_criterion": "Schema-/componentanalyse dekt 24V aan met 5V/3,3V afwezig, MCU-reset/flash, USB-kortsluiting en normale UIT. De gekozen reactie past bij afscherming, thermiek en onderhoud; geen ongefundeerde garantie uit alleen werkende firmware. Exact board-powerpath en inputtransiënten bij VIN van de buck zijn uitgewerkt; component-/kabel-/zekeringcoördinatie gebruikt relevante nominale én fout-/piekgevallen."
+    },
+    {
+      "id": "V4-06",
+      "severity": "Major",
+      "title": "Klauw-/rubberberekening is beter, maar maat- en belastingsgrenzen sluiten niet volledig",
+      "evidence": [
+        "maak-afzuiging.mjs:42–45",
+        "docs/berekeningen.py:205–237",
+        "docs/Berekeningen.md:149–155"
+      ],
+      "description": "Neopreen en contact+één slag maken de montage veel reproduceerbaarder dan “twee vingers”. Het model gebruikt echter een hefboom van 10 mm terwijl het gemodelleerde rubber van 9,5 tot 17 mm vanaf de as ligt (midden 13,25). Kracht én armvervorming moeten gekoppeld over de werkelijke contactzone worden doorgerekend; niet simpelweg de oude kracht maal een andere arm nemen. De kruipgrens blijft expliciet een vijfde van de vloeigrens, geen gepubliceerde duurwaarde. Het bladanker is nog een generieke holledeurplug zonder exact type/draagwaarde in 3 mm vezelhuid.",
+      "action": "Gebruik de actuele contactzone, materiaal-/temperatuurbanden en realistische montageafwijking. Selecteer het echte bladanker en beoordeel de knopklauw/montageregio’s afzonderlijk.",
+      "acceptance_criterion": "Herleidbare min/max-berekening omvat rubber en PETG in serie, contactresultante, lokale huiddruk, dak/buiging/kruip en anker. De montage-instructie begrenst het berekende geval; aangenomen langetermijngrenzen worden niet als datasheetfeit gepresenteerd."
+    },
+    {
+      "id": "V4-07",
+      "severity": "Major",
+      "title": "Nieuw vast vingerrooster: nominale opening gecontroleerd, structurele rotorafstand nog niet",
+      "evidence": [
+        "maak-afzuiging.mjs:327–336",
+        "docs/Vrijgave-en-meetplan.md:54–62",
+        "v4-evidence/independent-checks.json"
+      ],
+      "description": "Het vaste rooster blijft bij filterservice zitten: een echte veiligheidsverbetering. Nominale spleten zijn 10,4 mm, ribhoogte 2,9 mm, rotorafstand circa 2,05 mm. Een eenvoudige losse-ribscreening (60 mm overspanning, E=1500 MPa, 10 N als gekozen scenario, geen vastgestelde normkracht) geeft zelfs bij tweezijdige inklemming circa 2,31 mm doorbuiging. Dat is geen volledige rasterberekening en bewijst geen werkelijk falen, maar laat zien dat alleen een diametervergelijking de afscherming niet sluit.",
+      "action": "Dimensioneer het volledige rib-/dwarsrib-/randraster en rotorvrije ruimte onder een gemotiveerde belasting, printtolerantie en gekozen toepasselijke probe-eis; versterk waar nodig.",
+      "acceptance_criterion": "Een conservatieve raster-/balk-/FEM-berekening plus CAD-envelop houdt afscherming en probe van de rotor weg met marge. De opgelegde kracht en randvoorwaarden zijn expliciet; fysieke probevalidatie volgt later, ongescoord."
+    },
+    {
+      "id": "V4-08",
+      "severity": "Minor",
+      "title": "Resterende bron-/instructieconflicten",
+      "evidence": [
+        "docs/Materiaalstaat.md:75",
+        "README.md:19,50,112,153",
+        "firmware/src/module/main.cpp:8–9,147–154",
+        "docs/Berekeningen.md:24",
+        "docs/berekeningen.py:159,283–304",
+        "schema/maak-schema.mjs:125–129",
+        "docs/Berekeningen.md:118",
+        "README.md:148,203",
+        "docs/Vrijgave-en-meetplan.md:86,89"
+      ],
+      "description": "Materiaalstaat noemt RVS304/316 voor het magnetisch vastgehouden rooster; README, KCAD en stuklijst specificeren AISI430. README zegt na lang drukken eenmaal de box herstarten, maar een bestaande koppeling wordt pas na drie korte starts vrijgegeven. Het berekende roosterlabel f=0,35 is oud: de invoer gebruikt circa 0,30. De box-STL van 225×124 past nominaal wel op 225×225, maar zonder marge langs één as; dat vraagt een expliciete slicer-/bedrandvoorwaarde, geen automatische afkeur. De als actuele headercontrole beschreven zelfcheck gebruikt gekopieerde constanten (hoofdfout en acceptatie onder V4-03). Verder: schema plaatst S1 vóór F1, tekst zegt ná F1. Het knopdeksel is inclusief pennen4,9mm hoog, niet de tabel-envelop2mm;2mm is de plaatdikte. Box/module/USB-maten mengen boven- en ondervlak van het34mm-blad. Dit is geen verkeerde618mm-vloerhoogte: dat getal klopt.",
+      "action": "Genereer materiaal-, koppel-, maat- en modelvelden uit één bron en verwijder absolute fabricageclaims zonder marge.",
+      "acceptance_criterion": "Tekst-/gegevenscontrole vindt één magneetgeschikte staalkeuze, dezelfde koppelhandeling, correcte openfractie en expliciete printermarges. Prijsinhoud blijft €530,88."
+    },
+    {
+      "id": "V4-09",
+      "severity": "Major",
+      "title": "Mors-/schadeherstel en downstream-service onvoldoende ontworpen",
+      "evidence": [
+        "onderhoud.mjs:10–18",
+        "docs/Vrijgave-en-meetplan.md:46–49",
+        "docs/Vrijgave-en-meetplan.md:63–69",
+        "docs/Materiaalstaat.md:28,33–35"
+      ],
+      "description": "De hoofd-filterwisselprocedure is echt verbeterd: geen positief uitklopadvies, schakelaar UIT, stilstand, zak en pijlrichting. Maar de eigen morsroute voert vloeistof via filter en vingerrooster naar waaier/motor en PETG. “24V” en “daar zit geen elektronica” sluiten materiaal-, BLDC-motor- of verspreidingsschade niet af. Alleen laten drogen en een filter vervangen geeft geen inspectie-/afkeur-/herstartbeslissing voor rotor, lijm of afscherming. Periodieke reiniging van downstreamdelen ontbreekt eveneens. Geen brand, ontsteking of werkelijk defect bewezen.",
+      "action": "Kies een redelijk begrensd morsscenario en ontwerp een veilige route of aantoonbaar begrensde blootstelling; voeg een afzonderlijke isolatie-, inspectie-, afkeur-/vervang- en herstartprocedure toe. Maak ook downstreamdelen servicebaar zonder draaiende of onder spanning staande delen te benaderen.",
+      "acceptance_criterion": "CAD-/foutenboom volgt de gekozen vloeistof-/stofroute. Kwetsbare motor-/materiaalzones zijn beschermd of krijgen expliciete veilige inspectie-/afkeurcriteria en gecontroleerde herstart; toegang en hermontage zijn getekend. Extra luchtweerstand keert terug in het model. Geen fictieve ATEX-plicht of verplichte fysieke proef om dit ontwerpwerk te sluiten."
+    },
+    {
+      "id": "V4-10",
+      "severity": "Minor",
+      "title": "Boosttegoed begrenst herhaling tijdens bedrijf, maar herstartbeleid ontbreekt in thermische redenering",
+      "evidence": [
+        "firmware/include/regel.h:67–69,124–135",
+        "docs/Berekeningen.md:141–145",
+        "v4-evidence/regression-v4.log:2–3"
+      ],
+      "description": "De 22 tests bevestigen het cumulatieve krediet tijdens één continue run. Een nieuwe Regelaar krijgt echter meteen opnieuw 120000 ms tegoed: reset herstelt de volle beginvoorraad. Het gemiddelde van 1/5 is dus geen onvoorwaardelijke grens over resets. Dat bewijst geen oververhitting: het statische model voor continu100% geeft bij 25°C kamer circa 53°C boxlucht.",
+      "action": "Maak de reset-/warme-startaanname expliciet; bewijs het continue foutgeval of ontwerp persistent/behoudend budgetherstel op een passend thermisch model.",
+      "acceptance_criterion": "Model en tests dekken warme herstarts en maximale omgeving, niet alleen één uur zonder reset. Uit de ontwerpgrenzen volgt de gekozen thermische marge zonder onbewezen gemiddelde."
+    },
+    {
+      "id": "V4-11",
+      "severity": "Minor",
+      "title": "Gelijktijdige eerste koppeling en handleiding nog niet exclusief per module",
+      "evidence": [
+        "firmware/include/regel.h:354–370",
+        "firmware/src/module/main.cpp:179–186",
+        "firmware/src/knop/main.cpp:451–469"
+      ],
+      "description": "Bestaande sets kunnen niet meer in elke opstartminuut worden overschreven en de challenge bindt het antwoord aan de knop. Twee verse, nog ongekoppelde modules kunnen echter dezelfde broadcastvraag aannemen; de challenge selecteert geen unieke bedoelde module. Peer-toevoegfouten worden nog niet expliciet verwerkt. Dit is geen aangetoonde radioreplay of internetdreiging.",
+      "action": "Kies en documenteer één-module-per-commissioning of voeg doel-/selectiebevestiging toe; handel radio-peerfouten af.",
+      "acceptance_criterion": "Een tweesets-commissioningscenario resulteert deterministisch in twee correcte sets, of de beschreven procedure voorkomt overlap; mislukte peertoevoeging wordt niet als succesvolle verbinding behandeld."
+    },
+    {
+      "id": "V4-12",
+      "severity": "Major",
+      "title": "Selectieve moduleherstart en UIT-weergave missen één expliciet bevestigd herstelcontract",
+      "evidence": [
+        "firmware/src/knop/main.cpp:293–300,435–447,472–477",
+        "firmware/src/module/main.cpp:197–205",
+        "firmware/include/regel.h:75–94",
+        "v4-evidence/team-merge/counterchecks.log:3–4"
+      ],
+      "description": "Een nieuwe regelaar begint UIT, maar de nog gevoede knop herhaalt AAN viermaal per seconde. De originele C++ accepteert zo een bestaande AAN-vraag na een selectieve modulereset en bereikt weerPWM80, zonder nieuwe gebruikershandeling. Dit kan een bewust hervatbeleid zijn, maar is niet hetzelfde als de onvoorwaardelijke tekst “na stroomonderbreking UIT”. Bij radioverlies en een gevraagde UIT toont de UI groot “UIT”, mét een oranje waarschuwing “geen verbinding”; “stand niet bevestigd” wordt alleen bij AAN? geschreven. Niet beweren dat de UI helemaal geen verbindingswaarschuwing geeft.",
+      "action": "Leg gezamenlijk/afzonderlijk booten, commandobevestiging en hervatten in één protocol-/UI-toestandsmachine vast. Toon UIT? of UIT niet bevestigd zolang geen actuele modulebevestiging bestaat; kies expliciet een veilig hervatbeleid.",
+      "acceptance_criterion": "Tests voor afzonderlijke controllerresets, gezamenlijke spanningsuitval, radioverlies tijdens UIT, herstel en herhaalde oude opdrachten laten alleen het vastgelegde hervatgedrag toe. Geen bevestigde UIT uit alleen een knopwens; mechanische stilstand/onderhoudsisolatie blijven afzonderlijke voorwaarden."
+    },
+    {
+      "id": "V4-13",
+      "severity": "Major",
+      "title": "Schone referentie, filteraanwezigheid en drukdiagnose worden te gemakkelijk als zekerheid geïnterpreteerd",
+      "evidence": [
+        "firmware/include/regel.h:97–108,147–167,269–315",
+        "firmware/src/knop/main.cpp:318–346,420–449",
+        "v4-evidence/team-merge/absent-filter-model.json",
+        "v4-evidence/team-merge/counterchecks.log:5",
+        "v4-evidence/team-merge/absent-filter-model-extended.json",
+        "v4-evidence/team-merge/reproduce_model_checks.py"
+      ],
+      "description": "Een verse drukwaarde van0,6× schoon wordt met correct doel-RPM als BEW_OK, storing0 en vol0 getoond; het eigen model zonder filter geeft circa0,271–0,541× schoon (18 scenario’s met/zonder bestaande plenumtoeslag) in de beschermende standen, boven de0,25-storingsgrens. Eén druksignaal bewijst dus geen aanwezig of goed afgedicht filter. Herijken accepteert plausibel stijgende profielen van een vuil/verkeerd gemonteerd filter en normaliseert zo de referentie; de lange-drukbediening heeft geen afzonderlijke bevestiging van werkelijk nieuw filter. De balk is drukreserve, geen beladingsmassa; “geen luchtstroom” is geen unieke oorzaakdiagnose. Dit is een Major ontwerp-/kenniscontract, geen bewezen catastrofe en geen universele plicht tot een extra sensor.",
+      "action": "Maak ijken een bewuste annuleerbare onderhoudsmodus met nieuw-filterbevestiging en duidelijke grenzen. Ontwerp een onderbouwde plausibiliteits-/retentie-/aanwezigheidsborging of leg aantoonbaar de beperkingen en procedurele beheersing vast; formuleer diagnose en balk eerlijk.",
+      "acceptance_criterion": "Host-/UI-/modeltests dekken ontbrekend/verschoven filter, bypassscenario, vuile referentie, sensor-/slangvarianten en1/5/10s-bedieningsgrenzen. Zij tonen geen gegarandeerde aanwezigheid, schoonheids- of massa-uitspraak uit één drukwaarde. Elk toegevoegd detectiecriterium heeft een scenario-/tolerantieonderbouwing; geen willekeurige0,75-grens als universele oplossing."
+    },
+    {
+      "id": "V4-14",
+      "severity": "Minor",
+      "title": "Laden van opgeslagen ijking valideert RPM-eindigheid en drukmonotonie niet",
+      "evidence": [
+        "firmware/include/regel.h:197–203",
+        "v4-evidence/team-merge/counterchecks.log:1–2"
+      ],
+      "description": "Zelf uitgevoerd op originele C++: een dalende drukarray wordt geladen als geijkt; ook een laatste RPM van+Inf wordt geaccepteerd. De bronclaim “geldige, stijgende waarden” is dus niet volledig geïmplementeerd. Er is geen werkelijke NVS-corruptie of platformcrash aangetoond.",
+      "action": "Valideer beide arrays geheel vóór overname: eindigheid, plausibel bereik en consistentie met het gedefinieerde kalibratiemodel. Bewaar een bestaande geldige set bij afwijzing.",
+      "acceptance_criterion": "Tests voor NaN/±Inf, te hoge RPM, dalende druk/RPM en onvolledige opslag weigeren de foutieve set; toegestane quantisatie-/ruismarges zijn expliciet. Beide firmwarebuilds en22 bestaande tests blijven groen."
+    }
+  ],
+  "physical_tests_scored": false,
+  "blind_round": "completed; Gamma Alpha Delta Beta; no mapping saved",
+  "provisional_score": 7.0,
+  "delta_vs_provisional": -0.6,
+  "verdict_matrix": [
+    {
+      "report": "Alpha",
+      "validiteit": 4,
+      "bruikbaarheid": 5,
+      "blinde_vlekken_aanvulling": 5,
+      "reason": "Sterke onafhankelijke rekencontrole, volfiltereindpunt, morsroute, Pololu en documentdatums. Geen hosttests uitgevoerd; historische IDs niet volledig afgetekend. Klemkrachtvergelijking vereist gekoppelde arm-/rubberherberekening."
+    },
+    {
+      "report": "Beta",
+      "validiteit": 5,
+      "bruikbaarheid": 5,
+      "blinde_vlekken_aanvulling": 5,
+      "reason": "Eigen builds/22 hosttests en negatieve codeproeven; doorslaggevend op selectieve boot, onbevestigde UIT, onderhoudsbediening en schadeherstel. Geometrie deels herhaalde methode, eerlijk aangegeven."
+    },
+    {
+      "report": "Gamma",
+      "validiteit": 3,
+      "bruikbaarheid": 4,
+      "blinde_vlekken_aanvulling": 4,
+      "reason": "Nuttige bypass-/vuil-ijk-/plenumtegenvoorbeelden en echte tests. Kritiek-classificatie ontbrekend filter te stellig; gegarandeerd foamlek, verplichte drempels/hoogtes en conclusie dat dagstand vanafζ1 faalt niet gedragen."
+    },
+    {
+      "report": "Delta",
+      "validiteit": 5,
+      "bruikbaarheid": 5,
+      "blinde_vlekken_aanvulling": 5,
+      "reason": "Breed herhaald geometrie-/buildbewijs met onafhankelijke aanvullende tests; NVS-validatie, resetbudget, primaire sensor/buckdata en knopklauwsweep vullen andere rapporten aan. Metadata-blootstelling eerlijk gemeld, geen perfecte-blindheidsclaim."
+    }
+  ],
+  "team_changes": [
+    "Volfilter-eindpunt versus vroege waarschuwing als harde modeltegenstrijdigheid toegevoegd.",
+    "Selectieve reset en grote onbevestigde UIT geverifieerd; nieuwe V4-12.",
+    "Drukdiagnose/vuile referentie/ontbrekend filter verder begrensd; nieuwe V4-13, niet Kritiek.",
+    "NVS accepteert dalende druk en oneindige RPM; nieuwe V4-14.",
+    "Mors-/schadeherstel verhoogt V4-09 vanMinor naarMajor.",
+    "Buck-/USB-/schema-/maatdetails uitgebreid en274 knopklauwstanden herhaald."
+  ],
+  "rejected_team_claims": [
+    "Gamma: Kritiek als noodzakelijke ernst voor ontbrekend-filterdetectie; geen gegarandeerde aanwezigheid uit1druk, maar ernst en concrete borging vereisen expliciet functie-/gebruikscontract.",
+    "Gamma: vanafζ1 falen beide beschermstanden; eigen getallen tonen75% bijζ1 nog200.7 en80% bijζ1.5 nog204.1m3/h schoon.",
+    "Gamma: bewezen20m3/h bypass of gegarandeerd onvermogen van iedere zachte foam; geen exacte foam-/lekroutegegevens.",
+    "Universele15mm plenum,25–40% foamcompressie,0.75-drukgrens,640mm kniehoogte of75%-zekeringregel; hooguit te onderbouwen opties.",
+    "Sensor/koolstof/HEPA/afvoer/temperatuursensor als automatisch wettelijk verplicht; geen passende norm- of productonderbouwing.",
+    "Ongekoppelde vergelijking32N metFmax bij17mm als bewezen bezwijken; kracht en armcompliance veranderen samen.",
+    "Eerste120s boostvoorraad bewijst altijdexact1/5 in elk tijdvenster; alleenbegrensde voorraad plus asymptotisch herstel binneneenrun."
+  ],
+  "evidence_artifacts": "v4-evidence/team-merge/"
+}

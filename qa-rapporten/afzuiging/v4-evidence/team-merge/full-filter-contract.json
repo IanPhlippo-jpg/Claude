@@ -1,0 +1,18 @@
+{
+  "Qmin": 189.54135,
+  "full_filter_Q": [
+    {
+      "rpm": 0.75,
+      "full_filter_Q_worst": 141.10736585066903
+    },
+    {
+      "rpm": 0.8,
+      "full_filter_Q_worst": 155.91300702276834
+    },
+    {
+      "rpm": 1,
+      "full_filter_Q_worst": 217.8840789030468
+    }
+  ],
+  "meaning": "Full filter at source-declared end pressure, not the earlier replacement-warning threshold."
+}

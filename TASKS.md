@@ -1101,3 +1101,34 @@ elease; README en docs/04 bijgewerkt
 - [x] README, bouwschema, onderhoud, prijslijst, meetplan, materiaalstaat, Besparingen; tekstcontrole
 - [x] Tests (qa, STL, overlap, teksten, firmware), STLs, tekeningen, schema, mallen, beelden; graphify; commit en push
 - [x] Alles in één PDF om af te drukken (Afzuiging-alles-afdrukken.pdf, e2e/tools/alles-afzuiging-pdf.mjs)
+
+## Afzuiging 7.1: eindverslag v4 (6,4/10) verwerken (2026-11-08)
+- [x] Snelle testset (alleen het gewijzigde onderdeel) naast de volledige set
+- [x] Firmware: één bewakingscontract: toerentalvolging/verzadiging (V4-04), herstart en onbevestigde UIT (V4-12), ijken als bevestigde onderhoudsmodus + filter ontbreekt/lekt (V4-13), NVS-validatie (V4-14), koppelen per module (V4-11), boosttegoed na herstart (V4-10); tests
+- [x] Rekenblad leest regel.h zelf (mutatie 9/9/9 wordt rood); onderhoudseindpunt = vervangmelding, Qmin tot dat punt per stand; onzekerheidsbanden en geluidsmarge (V4-03)
+- [x] Filter/foam: exacte foamband met drukcurve, geometrische voorspanning door de RVS-plaat, min/max maatketen (V4-02); bron-/eisenmatrix filter en retourlucht (V4-01)
+- [x] Vingerrooster sterker met rasterberekening en rotorvrije ruimte (V4-07); klauw met echte contactzone en exact bladanker (V4-06)
+- [x] Morsen: opvanggoot rond het oog, inspectie/afkeur/herstart, toegang tot de ventilator (V4-09)
+- [x] Elektriek: waarheidstabel voeding/fout/PWM, elco 50 V aan de buck-VIN, TVS, USB-pad (V4-05)
+- [x] Tegenstrijdigheden: RVS 430, herkoppelen, f=0,30, printbed, S1/F1, dekselhoogte, referentievlak blad (V4-08)
+  - Onderweg anders gekozen: afdichting met een siliconenlip (geen voorspanning door de plaat: de magneten houden gesloten-cel foam niet), geen opvanggoot (de helft van het filter ligt boven het oog; het filter houdt 15 ml vast), geen TVS (elco 47 µF/50 V volgens Pololu), schroeven 4 x 16 i.p.v. pluggen, vingerrooster 7 mm hoog met twee ringen, halve slag na contact
+- [~] Volledige testreeks, STL's, tekeningen, bouwschema, alles-PDF, foto's; commit en push
+
+## Treinverlichting: doos met ESP, 16 lichtgroepen, knoppen en sensoren, webdashboard (2026-11-08)
+- [x] Eisenlijst met Ian (voorbeelden/treinverlichting/EISEN.md): hotspot, 16 groepen = 16 Modelbouwled-bordjes, 12 V DC, aan/uit + dimmen + effecten, knoppen en sensoren, doos onder de baan
+- [ ] Elektronica kiezen en rekenen: adapter 12 V (gekeurd), ESP32-S3, PCA9685 + 16 MOSFET-uitgangen met polyfuse, 16 ingangen via optocouplers + MCP23017; stroom, warmte, zekeringen (docs/Berekeningen.md)
+- [ ] Firmware (PlatformIO): hotspot + webdashboard (groepen, dimmen, effecten, scènes, functies, ingangen -> functie), opslag in flash, hosttests
+- [ ] Aansluitschema (EPLAN-stijl, zoals de afzuiging) en klemmenplan
+- [ ] Doos in Phlippo CAD (PETG, zonder support, onder de baan te schroeven), STL's en werktekening
+- [ ] README met bestellijst en prijzen, bouwschema met beelden, handleiding voor de schoonvader
+- [ ] Tests, foto's, alles-in-één-PDF; commit en push
+
+## Phlippo CAD 0.5.13: QA-rapport 0.5.12 (5/10, 51 open) verwerken (2026-11-08)
+- [x] F200: de drie typefouten in src/qa/tekeningenAfzuiging.test.ts (ongebruikte import, revisie.d.mts, tuple-type); npm run typecheck exit 0
+- [~] F54/F176/F31: features.mjs robuuster op trage runners (rand pas klikken als ze oplicht, Measure-venster eerst open); volledige lokale poort (typecheck, unit, mutatie, tekst, build, budgets) vóór de push; CI op de nieuwe SHA groen krijgen
+- [ ] F180/F93/F149: bewijsketen per SHA (manifest met node/npm, commando's, exitcodes, volledige logs, skipredenen) in qa-logs/0.5.13
+- [ ] F38/F129: README-tellingen uit vitest (doc-counts), fasekoppen bijwerken
+- [ ] F172/F198/F202/F179: strengere vormcontrole (volumegrens, bemonstering), test die blindheid vastlegde omdraaien, onafhankelijke randkeuze
+- [ ] F201: Sketch Text exact (letterkrommen) of eerlijk als benaderd gemarkeerd
+- [ ] F97/F151/F196/F49: installer en packaged self-test op de nieuwe SHA; ongesigneerd eerlijk vermelden
+- [ ] Rest van het register (F112 opties, F193/F194 UI, F134 line budget, F137 rebuild-budget) waar tijd over is; versie 0.5.13, commit en push

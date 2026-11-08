@@ -54,8 +54,9 @@ zijn gat te wrikken).
 
 | Onderdeel | Materiaal | Grenzen |
 |---|---|---|
-| kussentjes op de klauwen (4 x 7,5 x 8 x 4) | neopreen (CR) Shore A 40 ± 5, gelijmd met secondelijm-gel (cyanoacrylaat hecht goed op neopreen en op geschuurd PETG) | -30 tot +90 °C; de veer volgt uit de hardheid (rekenblad, hoofdstuk 6). Geen siliconen: dat hecht met geen enkele gewone lijm |
-| afdichting onder het filter | zachte zelfklevende foamband 6 x 4 mm, EPDM- of PE-cel (tochtband) | moet onder ongeveer 1 kPa al inveren (het filter drukt met 3,7 N op 0,004 m²); vervangen als hij plat of gescheurd is |
+| kussentjes op de klauwen (4 x 7,5 x 8 x 4 op de module, 2 x 6 x 6 x 3 op de knop) | neopreen (CR) Shore A 40 ± 5, gelijmd met secondelijm-gel (cyanoacrylaat hecht goed op neopreen en op geschuurd PETG) | -30 tot +90 °C; de veer volgt uit de hardheid (rekenblad, hoofdstuk 6). Geen losse siliconen voor de kussentjes: die hechten met geen enkele gewone lijm |
+| afdichtlip rond het filter (150 x 200, 5 mm breed) | siliconenrubber 0,5 mm, Shore A 50 tot 60, **met fabriekskleeflaag** (de kleeflaag is voor siliconen gemaakt; op schoon, ontvet PETG) | -40 tot +200 °C; bestand tegen aceton en alcohol (zwelt kort, geen blijvende schade). Vervangen als ze gescheurd, gezwollen of los is |
+| draagband onder het filter | zachte zelfklevende foamband 6 x 4 mm, EPDM-cel (tochtband) | draagt het filter alleen (de afdichting is de lip); vervangen als hij plat of gescheurd is |
 
 ## Filter
 
@@ -72,7 +73,7 @@ sommige leveranciers maar tot 60 °C).
 
 | Onderdeel | Materiaal |
 |---|---|
-| rooster (lasersnede) | RVS 304, 1,5 mm (316 als de salon met chloorhoudende middelen werkt) |
+| rooster (lasersnede) | RVS 430 (1.4016), 1,5 mm, geborsteld: **magnetisch**, de plaat klikt op de magneten. 304 en 316 zijn niet magnetisch en vallen dus af. 430 roest iets sneller dan 304: met een middel op alcohol reinigen, geen chloor |
 | schroeven en moeren | RVS A2 (DIN 7991, DIN 934) |
 | meetbuisjes | messing Ø3 x 0,5 |
 

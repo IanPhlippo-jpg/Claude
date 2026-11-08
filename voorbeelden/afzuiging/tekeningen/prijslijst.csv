@@ -15,9 +15,11 @@ Kopen;Schakelende regelaar 24 V naar 5 V, 1 A;1;Pololu D24V10F5;10,50;10,50
 Kopen;Verschildrukmeter ±500 Pa, I2C;1;Sensirion SDP810-500PA;30,00;30,00
 Kopen;Wipschakelaar aan/uit, 1-polig, 10 A bij 30 V DC;1;C&K D502J12S215PQA, rand 20,8 x 15, inbouwgat 19,41 x 12,90 (paneel 2 mm), vlaksteker 4,75;8,50;8,50
 Kopen;Vlakstekerhulzen 4,8 mm, geïsoleerd;2;draden op de schakelaar;0,15;0,30
-Kopen;NPN-transistor;1;BC547B (TO-92);0,20;0,20
-Kopen;Weerstanden 0,25 W;7;1 x 1 kΩ, 2 x 10 kΩ, 2 x 4,7 kΩ, 2 x 56 kΩ;0,10;0,70
-Kopen;Elco 470 µF / 35 V;1;buffer voor de ventilator;0,50;0,50
+Kopen;NPN-transistor;2;BC547B (TO-92): -Q1 (PWM) en -Q3 (driver van -Q2);0,20;0,40
+Kopen;P-kanaal-MOSFET 55 V, TO-220;1;"Infineon IRF4905PBF (-Q2): schakelt de 24 V naar de ventilator; zonder besturing staat hij stil";1,50;1,50
+Kopen;Weerstanden 0,25 W;11;2 x 1 kΩ, 5 x 10 kΩ, 2 x 4,7 kΩ, 2 x 56 kΩ;0,10;1,10
+Kopen;Elco 470 µF / 50 V;1;buffer voor de ventilator (-C1);0,60;0,60
+Kopen;Elco 47 µF / 50 V;1;vlak bij VIN van de regelaar (-C2, Pololu: minstens 33 µF boven 20 V);0,30;0,30
 Kopen;Zekering traag 3,15 A, 72 V DC (TE5, 8,35 x 4,0, op de print);1;"Bel Fuse 0697W3150-01; past op de kleine print (een houder 5 x 20 is 28 x 10 x 21)";0,70;0,70
 Kopen;Schottky-diode 1 A, 40 V;1;1N5819, in de 5 V naar de ESP32-C3 (geen terugvoeding als ze aan een computer hangt);0,20;0,20
 Kopen;Gaatjesprint 40 x 50 mm;1;gaten 2 mm in de hoeken;1,00;1,00
@@ -26,13 +28,14 @@ Kopen;Montagedraad 0,25 mm² en 0,75 mm²;1 m;;3,00;3,00
 Kopen;Siliconeslang 3 x 5 mm;1 m;drukmeting: van de afzuiging naar de box, en binnen de afzuiging;3,00;3,00
 Kopen;Messingbuisje Ø3 x 0,5 mm;40 mm;3 stukjes van 12 mm: meetpunt in de instroomplaat en doorvoer in de afzuiging en de box;3,00;3,00
 Kopen;Interieurfilter (pollenfilter) 195 x 145 x 30;2;"MANN CU 20 013; gelijk: Bosch 1 987 435 066, Valeo 715828, Purflux AH495, Filtron K 1347A (vanaf ± € 6); een in gebruik, een in reserve";14,00;28,00
-Kopen;Zachte zelfklevende foamband 6 x 4 mm (EPDM- of PE-cel, tochtband);1 rol van 5 m;"0,7 m op de steunrand van de instroomplaat; bij elke wissel nakijken";6,00;6,00
-Kopen;Neopreen (CR) Shore A 40, 4 mm dik;1 strook van 50 x 50 mm;4 kussentjes van 7,5 x 8 op de arm van de klauwen (snijden met een mes);5,00;5,00
-Kopen;Secondelijm gel (cyanoacrylaat);1;de rubberkussentjes op de klauwen;4,00;4,00
+Kopen;Zachte zelfklevende foamband 6 x 4 mm (EPDM-cel, tochtband);1 rol van 5 m;0,7 m op de steunrand: het filter rust erop (de afdichting is de lip);6,00;6,00
+Kopen;Siliconenrubber 0,5 mm, Shore A 60, zelfklevend, 200 x 300 mm;1;"de afdichtlip (150 x 200, uitsnijden met `schema/Snijmal-afdichtlip-1op1-A4.pdf`); bestand tegen aceton";12,00;12,00
+Kopen;Neopreen (CR) Shore A 40, 4 mm dik;1 strook van 50 x 50 mm;4 kussentjes van 7,5 x 8 op de arm van de moduleklauwen (snijden met een mes);5,00;5,00
+Kopen;Neopreen (CR) Shore A 40, 3 mm dik;1 strook van 50 x 50 mm;2 kussentjes van 6 x 6 op de knopklauwen;4,00;4,00
+Kopen;Secondelijm gel (cyanoacrylaat);1;de rubberkussentjes op de klauwen (module en knop);4,00;4,00
 Kopen;Neodymiummagneet Ø8 x 1,5 mm, N42;4;inlijmen in het bovenframe, vlak met de bovenkant (gat Ø8,2 x 1,6, bodem 0,9 mm);0,50;2,00
 Kopen;Tweecomponentenlijm (epoxy);1;"UHU plus endfest 300: magneten, bovenframe op de romp, instroomplaat, messingbuisjes; schuren (korrel 100) en ontvetten met alcohol";9,00;9,00
-Kopen;Plug voor holle deuren M4 (gat Ø8);4;in de onderkant van het blad, naast de uitsparing van de box;0,50;2,00
-Kopen;M4 x 30 verzonken (DIN 7991, A2);4;de rand van de voedingsbox in de pluggen (i.p.v. de bijgeleverde schroeven);0,15;0,60
+Kopen;Spaanplaatschroef 4 x 16 verzonken (bv. SPAX);4;de rand van de voedingsbox in de onderhuid van het blad (voorboren Ø2,5 x 14);0,05;0,20
 Kopen;M3 x 8 verzonken (DIN 7991, A2);4;het deksel van de voedingsbox op de paaltjes;0,10;0,40
 Kopen;M5 x 65 verzonken (DIN 7991, A2);4;klauwen van de module;0,60;2,40
 Kopen;M5 zeskantmoer (DIN 934, A2);4;in de klauwen van de module;0,10;0,40
@@ -49,4 +52,4 @@ Lasersnijden;laser/rooster.dxf;RVS 430, 1,5 mm, geborsteld (magnetisch), 222 x 2
 Lasersnijden;opstart en verzending;;1;10,00;10,00
 Printen;PETG wit, rol 1 kg;2;romp, frame, cassette, platen, box, klauwen, klemmen: ca. 1,1 kg;20,00;40,00
 Printen;PETG zwart, rol 1 kg;1;knophouder, deksel, knopklauwen: ca. 55 g;20,00;20,00
-Eindtotaal;;;;;530,88
+Eindtotaal;;;;;546,98

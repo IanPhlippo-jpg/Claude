@@ -14,8 +14,7 @@ import { projectedView, sectionGeometry, modelBodies, type ViewGeo } from '../co
 import { hatchLines } from '../core/drawing/export2d';
 import { viewFrame } from '../core/drawing/hlr';
 import { visibleAnchors, layoutBalloons } from '../core/drawing/balloons';
-import { rebuildDocument } from '../core/features/rebuild';
-import { rebuildAssembly } from '../core/assembly/assembly';
+import { rebuildDocument } from './rebuildStreng';
 import { meshVolume } from '../core/features/solid';
 // @ts-expect-error: het generatorscript is plain JavaScript
 import { M } from '../../voorbeelden/afzuiging/maak-afzuiging.mjs';
@@ -226,7 +225,8 @@ const DELEN: Deel[] = [
     `Plaat ${m.inlaat.dikte} dik, past tussen de torens in de romp (0,3 speling)`,
     `Steunrand ${m.filter.foam.b} breed en ${m.filter.rand} hoog, buitenmaat ${2 * (m.filter.x + m.filter.speling)} x ${2 * (m.filter.z + m.filter.speling)}: foamband ${m.filter.foam.b} x ${m.filter.foam.h} erop`,
     `Geleiderand ${m.filter.gids.dik} dik rondom, tot ${getal(m.filter.steun + m.filter.foam.h + m.filter.gids.h)} (Y): het filter ${2 * m.filter.z} x ${2 * m.filter.x} x ${m.filter.h} met ${m.filter.speling} mm speling`,
-    `Vingerrooster in het oog: ${2 * m.inlaat.vinger.n} ribben ${getal(m.inlaat.vinger.rib)} mm op steek ${m.inlaat.vinger.steek} en een dwarsrib, ${m.inlaat.dikte} hoog (spleten ${getal(m.inlaat.vinger.steek - m.inlaat.vinger.rib)})`,
+    `Vingerrooster in het oog: ${2 * m.inlaat.vinger.n} ribben ${getal(m.inlaat.vinger.rib)} mm op steek ${m.inlaat.vinger.steek}, een dwarsrib en ringen r ${m.inlaat.vinger.ringen.join(' en ')}, ${m.inlaat.vinger.h} hoog vanaf de onderkant (spleten ${getal(m.inlaat.vinger.steek - m.inlaat.vinger.rib)})`,
+    `Afdichtlip (siliconenrubber ${getal(m.filter.lip.dik)}) op de geleiderand, ${getal(m.filter.lip.over)} over de rand van het filter: snijmal schema/Snijmal-afdichtlip`,
     `Trechter: Ø${2 * m.inlaat.kraag} - Ø${2 * (m.inlaat.kraag + m.inlaat.gat) / 2} - Ø${2 * m.inlaat.gat} (treden van 1 mm)`,
     `Gat Ø3,1 voor het messingbuisje op x ${m.achter.meet[0]}, z ${m.achter.meet[1]}`,
     'Op de getrapte richel van de romp gelijmd',
@@ -241,7 +241,7 @@ const DELEN: Deel[] = [
   { f: 'Voedingsbox.kcad', nr: 'AFZ-06', naam: 'Voedingsbox', materiaal: 'PETG (wit)', maken: '3D-print rechtop, de bodem op het bed', snede: true, dichtheid: PET, maten: [
     `Bak ${m.box.b} x ${m.box.d} x ${m.box.boven - m.box.onder}, wand ${m.box.wand}; rand ${m.box.b + 2 * m.box.flens.x} x ${m.box.d + 2 * m.box.flens.z} x ${m.box.flensDik} met een schuine kant van 45°`,
     `De bovenste ${m.box.boven} mm zit in de uitsparing van ${m.box.frees.b} x ${m.box.frees.d} x ${m.box.frees.diep}, los deksel bovenin (AFZ-12)`,
-    '4 gaten Ø4,5 in de rand, van onderen zitting Ø9 en verzinking 90° (M4 x 30 in pluggen voor holle deuren)',
+    '4 gaten Ø4,5 in de rand, van onderen zitting Ø9 en verzinking 90° (spaanplaatschroef 4 x 16 in de onderhuid)',
     '4 paaltjes Ø10,4 in de hoeken met een gat Ø2,5 x 10 (M3 x 8, deksel)',
     'Ventilatie: sleuven 2,5 breed in de bodem en 2,5 x 12 achteraan (18 tot 30 onder het blad)',
     'Schuine kant uitgespaard voor C13, M8 en schakelaar (rand als brug)',
@@ -354,7 +354,7 @@ function tafelbladBlad(blad: string): string {
     'Onderkant (niet doorgaand):',
     `- uitsparing voedingsbox ${F.b} x ${F.d} x ${F.diep} diep, R${F.r},`,
     `  midden ${700 + B.x} van links, ${300 - B.z} van voor`,
-    `- 4 gaten Ø${B.plug.gat} x ${B.plug.diep} voor pluggen (holle deur), ${2 * B.plug.x} x ${2 * B.plug.z} hart op hart rond de box`,
+    `- 4 voorboorgaten Ø${getal(B.plug.gat)} x ${B.plug.diep} (spaanplaatschroeven 4 x 16), ${2 * B.plug.x} x ${2 * B.plug.z} hart op hart rond de box`,
     `- sleuf naar de afzuiging ${K.module.x[1] - K.module.x[0]} breed x ${K.module.diep} diep,`,
     `  ${700 + K.module.x[0]} tot ${700 + K.module.x[1]} van links (box tot uitsparing)`,
     `- sleuf naar de knop ${K.knop.breed} x ${K.knop.diep}, van de box naar het knopgat`,
@@ -379,10 +379,11 @@ function samenstellingBlad(blad: string): { svg: string; stuklijst: string[][] }
     if (id === 'a2') return [x, y + 190, z];
     if (id === 'a3') return [x, y + 120, z];
     if (id === 'a3f') return [x, y + 70, z];
+    if (id === 'a3l') return [x, y + 95, z];
     if (['a4', 'a5'].includes(id) || /^as3\d|^as4\d/.test(id)) return [x, y - 120, z];
     if (id === 'a9' || id === 'a18') return [x, y + 45, z];
     if (/^a2\d|^as25|^as2\d$|^asa\d$|^asbd?\d$/.test(id)) return [x, y - 60, z - 40];
-    if (/^a(7|8|12|14|15|dk\d|dn\d|sd\d|sk\d|sdk\d|su\d)$/.test(id)) return [x, y + 40, z - 250];
+    if (/^a(7|8|12|14|15|dkr?\d|dn\d|sd\d|sk\d|sdk\d|su\d)$/.test(id)) return [x, y + 40, z - 250];
     if (/^as5\d/.test(id)) return [x, y + 60, z];
     return [x, y, z];
   };
@@ -408,7 +409,7 @@ function samenstellingBlad(blad: string): { svg: string; stuklijst: string[][] }
   const bodies = modelBodies(doc);
   const fr = viewFrame('isometric');
   const anchors = visibleAnchors(bodies.map((x) => ({ id: x.id, geometry: x.geometry })), fr);
-  const ankers = rijen.map((r) => anchors.get(r.ids[0]) ?? anchors.get(r.ids.find((id) => anchors.has(id)) ?? '') ?? [0, 0]).map((a) => T.to(a));
+  const ankers = rijen.map((r) => anchors.get(r.ids[0]) ?? anchors.get(r.ids.find((id) => anchors.has(id)) ?? '') ?? ([0, 0] as [number, number])).map((a) => T.to(a));
   const lay = layoutBalloons(ankers, { x: T.x0 - 6, y: T.y0 - 6, w: T.x1 - T.x0 + 12, h: T.y1 - T.y0 + 12 }, 'square', { offset: 8, gap: 7.5 });
   lay.positions.forEach((p, i) => {
     b.lijn(ankers[i], p, 0.18); b.cirkel(ankers[i], 0.5, 0.5);
@@ -437,10 +438,10 @@ function samenstellingBlad(blad: string): { svg: string; stuklijst: string[][] }
 /** samenstelling in doorsnede (vlak z = 0, van voren gezien): hoe alles in elkaar zit */
 function doorsnedeBlad(blad: string): string {
   const asm = open(`${DIR}/Afzuiging.kcad`) as Document & { components: Component[] };
-  const doc = { ...asm, components: asm.components.filter((c) => !/^a(7|8|12|14|15|dk\d|dn\d|sd\d|sk\d|sdk\d|su\d)$/.test(c.id) && !/^a2\d|^as25|^as2\d$|^asa\d$|^asbd?\d$/.test(c.id)) } as Document;
+  const doc = { ...asm, components: asm.components.filter((c) => !/^a(7|8|12|14|15|dkr?\d|dn\d|sd\d|sk\d|sdk\d|su\d)$/.test(c.id) && !/^a2\d|^as25|^as2\d$|^asa\d$|^asbd?\d$/.test(c.id)) } as Document;
   const sec = { parentId: 't', parentType: 'top' as DrawingViewType, axis: 'h' as const, at: 0, flip: true, label: 'B', autoHatch: true };
   const alles = sectionGeometry(doc, sec);
-  const koop = /^(a5|a3|a3f|akr\d|a10|a18|a19|as\d.*)$/;
+  const koop = /^(a5|a3|a3f|a3l|akr\d|adkr\d|a10|a18|a19|as\d.*)$/;
   const eigen = sectionGeometry({ ...doc, components: (doc as Document & { components: Component[] }).components.filter((c) => !koop.test(c.id)) } as Document, sec);
   const g: ViewGeo = { ...alles, hatch: eigen.hatch, hatchVar: eigen.hatchVar };
   const b = new Blad();
@@ -461,8 +462,8 @@ function doorsnedeBlad(blad: string): string {
     'Van boven naar onder:',
     '1  RVS-plaat met LB-rooster op het bovenframe (magneten)',
     '2  bovenframe met de koppen van de M5-schroeven',
-    '3  interieurfilter MANN CU 20 013 (195 x 145 x 30) op de foamband',
-    '4  instroomplaat met steunrand, geleiderand, trechter en vingerrooster',
+    '3  interieurfilter MANN CU 20 013 (195 x 145 x 30) op de foamband, rondom afgedicht met de lip',
+    '4  instroomplaat met steunrand, geleiderand met lip, trechter en vingerrooster (7 mm, twee ringen)',
     '5  radiale ventilator San Ace C175',
     '6  bodemplaat met lamellen, M4 en M3 verzonken',
     'Klauwen met rubber in de vier hoeken klemmen onder het blad.',

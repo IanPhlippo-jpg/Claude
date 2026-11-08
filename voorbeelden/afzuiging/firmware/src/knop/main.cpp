@@ -2,18 +2,21 @@
 // draaiknop en drukknop) in het blad. Hij stuurt de module in het elektronicavak draadloos aan (ESP-NOW, zie
 // protocol.h) en toont wat de module terugmeldt. De knop krijgt alleen 5 V over een gewone USB-C-kabel.
 //
-// Bediening
+// Bediening (de logica staat in include/bediening.h en is op de pc getest)
 //   draaien                 zuigkracht in stappen van 5 % (20 tot 80 %); draaien als hij uit staat zet hem aan
 //   drukken                 aan / uit (UIT heeft voorrang: ook een ijking stopt meteen)
-//   1 s vasthouden          boost: 2 minuten 100 % (de module houdt de tijd zelf bij)
-//   5 tot 10 s vasthouden   ijken op een schoon filter (na het vervangen), bij het loslaten
+//   1 s vasthouden          boost: 2 minuten 100 % (de module houdt de tijd en het tegoed zelf bij)
+//   5 tot 10 s vasthouden   "Nieuw filter geplaatst?": kort drukken = ijken op het nieuwe filter, draaien of 10 s
+//                           niets doen = annuleren
 //   10 s vasthouden         opnieuw koppelen: zet daarna de schakelaar van de box 3 keer kort aan en uit (< 5 s)
-// Het scherm toont wat de module bevestigt (niet wat de knop vraagt): de stand, het drukverschil over het filter en
-// hoe vol het filter is. De stand is een percentage van het maximale toerental. "Filter vervangen" (oranje ring) komt
-// per stand vóór het debiet onder het minimum voor de vangst zakt; onder 75 % meldt het scherm "lage stand". De
-// bewaking zegt altijd wat ze weet (stabiliseren, niet geijkt, geen meting, buiten bereik). Valt het drukverschil weg of
-// draait de ventilator niet, dan meldt het een storing (rode ring). Boost komt uit een tegoed (2 min, daarna afkoelen).
-// Na het aanzetten staat alles UIT.
+// Het scherm toont wat de module bevestigt (niet wat de knop vraagt): de stand, het drukverschil over het filter en de
+// verbruikte drukreserve (balk: van schoon tot de vervanggrens, geen maat voor de belading). De stand is een
+// percentage van het maximale toerental. "Filter vervangen" (oranje ring) komt per stand vóór het debiet onder het
+// minimum voor de vangst zakt; onder 80 % meldt het scherm "lage stand". De bewaking zegt altijd wat ze weet
+// (stabiliseren, niet geijkt, geen meting, buiten bereik, filter ontbreekt). Valt het drukverschil weg, draait de
+// ventilator niet of klopt het toerental niet, dan meldt het een storing (rode ring). Boost komt uit een tegoed.
+// Na het aanzetten staat de module UIT; een herstart van de box toont "afzuiging herstart". Zonder verse status (2 s)
+// is niets bevestigd: "UIT?" of "AAN?".
 //
 // Aansluiting (zie ../../schema/Aansluitschema-afzuiging.pdf): FPC van de knop op de adapterprint -A3, 4 draden naar
 // het USB-C-printje -X7 in de achterwand van de knophouder: VBUS -> FPC 1 (+5 V), GND -> FPC 3, D+ -> FPC 9,
@@ -25,10 +28,11 @@
 #include <esp_now.h>
 #include <esp_wifi.h>
 
+#include "bediening.h"
 #include "fonts.h"
 #include "logo.h"
 #include "protocol.h"
-#include "regel.h" // koppelOkGeldig
+#include "regel.h" // KnopKoppeling
 
 namespace {
 
@@ -39,11 +43,8 @@ constexpr int LCD_CS = 12, LCD_SCK = 10, LCD_D0 = 13, LCD_D1 = 11, LCD_D2 = 14, 
 constexpr int ENC_A = 6, ENC_B = 5, KNOP = 0;
 constexpr int SCHERM = 466, KOLOM_OFFSET = 6; // het paneel is 472 breed: 6 kolommen verschuiven
 
-constexpr int MIN_PCT = 20, MAX_PCT = 80, STAP_PCT = 5; // 100 % alleen als boost (warmte box)
 constexpr int ENCODER_PER_STAP = 4;          // de encoder telt 4 flanken per klik
-constexpr uint32_t BOOST_HOUD_MS = 1000, IJK_HOUD_MS = 5000, KOPPEL_HOUD_MS = 10000; // de boost zelf (120 s) telt de module
 constexpr uint32_t BEWAAR_NA_MS = 3000;      // instelling bewaren 3 s na de laatste wijziging
-constexpr uint32_t STILTE_MS = 3000;         // zonder status van de module: "geen verbinding"
 
 // huisstijl Lush Beauty (RGB565)
 constexpr uint16_t rgb(uint32_t c) { return ((c >> 8) & 0xF800) | ((c >> 5) & 0x07E0) | ((c >> 3) & 0x001F); }
@@ -83,15 +84,19 @@ const uint8_t PMK[16] = {'L', 'u', 's', 'h', 'B', 'e', 'a', 'u', 't', 'y', '-', 
 bool gekoppeld = false;
 uint8_t moduleMac[6];
 uint8_t sleutel[16];
+KnopKoppeling kk;
 
-// status van de module (geschreven in de ontvangst-callback): alleen van de gekoppelde module
-Status ontvangen;
-volatile uint32_t laatsteStatus = 0;
-volatile bool koppelAntwoord = false;
-uint32_t uitdaging = 0;  // van de lopende koppelvraag
-uint32_t boostVraag = 0; // wanneer de laatste boost gevraagd werd
-uint8_t koppelVan[6];
+Bediening b;           // wens, schermkeuze en wat de knop met de status doet (bediening.h)
+uint16_t sessie = 0;   // stijgt bij elke start (NVS): de module weigert vroegere sessies
+uint32_t volgnr = 0;
+
+// ontvangen in de callbacks, verwerkt in loop()
 portMUX_TYPE slot = portMUX_INITIALIZER_UNLOCKED;
+Status binnen;
+volatile bool nieuweStatus = false, koppelAntwoord = false;
+volatile int8_t bevestigZend = -1; // uitkomst van de laatste KOPPEL_BEVESTIG: -1 onbekend, 0 mislukt, 1 ontvangen
+Koppel antwoord;
+uint8_t antwoordVan[6];
 
 void bijOntvangst(const uint8_t *mac, const uint8_t *data, int len) {
   if (len == (int)sizeof(Status)) {
@@ -100,53 +105,108 @@ void bijOntvangst(const uint8_t *mac, const uint8_t *data, int len) {
     memcpy(&st, data, sizeof st);
     if (st.magie != MAGIE || st.versie != VERSIE || st.soort != SOORT_STATUS) return;
     portENTER_CRITICAL(&slot);
-    ontvangen = st;
-    laatsteStatus = millis();
+    binnen = st;
+    nieuweStatus = true;
     portEXIT_CRITICAL(&slot);
   } else if (len == (int)sizeof(Koppel) && !gekoppeld) {
     Koppel k;
     memcpy(&k, data, sizeof k);
-    if (!koppelOkGeldig(k, uitdaging)) return; // alleen het antwoord op de eigen vraag
+    if (k.soort != SOORT_KOPPEL_OK) return;
     portENTER_CRITICAL(&slot);
-    memcpy(koppelVan, mac, 6);
+    antwoord = k;
+    memcpy(antwoordVan, mac, 6);
     koppelAntwoord = true;
     portEXIT_CRITICAL(&slot);
   }
 }
 
-void voegModuleToe() {
+// de radio meldt of een unicast aankwam (ACK); alleen nodig voor de bevestiging bij het koppelen
+void bijZenden(const uint8_t *mac, esp_now_send_status_t s) {
+  if (kk.gekozen && memcmp(mac, kk.module, 6) == 0) bevestigZend = s == ESP_NOW_SEND_SUCCESS ? 1 : 0;
+}
+
+/** de module als versleutelde peer; false = lukt niet (dan is er geen verbinding) */
+bool voegModuleToe() {
   esp_now_del_peer(moduleMac);
   esp_now_peer_info_t peer = {};
   memcpy(peer.peer_addr, moduleMac, 6);
   peer.channel = KANAAL;
   peer.encrypt = true;
   memcpy(peer.lmk, sleutel, 16);
-  esp_now_add_peer(&peer);
+  return esp_now_add_peer(&peer) == ESP_OK;
 }
 
-struct Toestand {
-  bool aan = false;    // wat de gebruiker wil (de module bevestigt)
-  int pct = 50;
-  uint8_t ijk = 0;     // teller voor de ijkvraag
-  uint8_t boost = 0;   // teller voor de boostvraag
-  uint16_t sessie = 0; // stijgt bij elke start (NVS): de module weigert vroegere sessies
-  uint32_t volgnr = 0;
-} t;
+void wisKoppeling() {
+  if (gekoppeld) esp_now_del_peer(moduleMac);
+  gekoppeld = false;
+  prefs.remove("modulemac");
+  prefs.remove("sleutel");
+  for (auto &x : sleutel) x = (uint8_t)esp_random();
+  kk.nieuw(esp_random());
+}
 
-long encoderVorig = 0;
-uint32_t laatsteWijziging = 0;
-bool teBewaren = false, gewijzigd = true;
+/** koppelen: KOPPEL rondsturen, het eerste geldige antwoord kiezen en die module gericht bevestigen */
+void koppelen(uint32_t nu) {
+  static uint32_t vorigeVraag = 0, vorigeBevestig = 0;
+  if (gekoppeld) return;
+  if (koppelAntwoord) {
+    portENTER_CRITICAL(&slot);
+    const Koppel k = antwoord;
+    uint8_t van[6];
+    memcpy(van, antwoordVan, 6);
+    koppelAntwoord = false;
+    portEXIT_CRITICAL(&slot);
+    if (kk.antwoord(van, k, nu)) {
+      // de gekozen module: onversleuteld toevoegen voor de bevestiging (lukt dat niet: opnieuw beginnen)
+      esp_now_peer_info_t peer = {};
+      memcpy(peer.peer_addr, kk.module, 6);
+      peer.channel = KANAAL;
+      peer.encrypt = false;
+      bevestigZend = -1;
+      if (esp_now_add_peer(&peer) != ESP_OK) kk.nieuw(esp_random());
+    }
+  }
+  if (!kk.gekozen) {
+    if (nu - vorigeVraag >= 500) {
+      vorigeVraag = nu;
+      Koppel k;
+      k.uitdaging = kk.uitdaging;
+      memcpy(k.sleutel, sleutel, 16);
+      esp_now_send(IEDEREEN, (const uint8_t *)&k, sizeof k); // mislukt: de volgende vraag komt over 0,5 s
+    }
+    return;
+  }
+  if (bevestigZend == 1) {
+    // de module kreeg de bevestiging: nu versleuteld en bewaren
+    memcpy(moduleMac, kk.module, 6);
+    if (voegModuleToe()) {
+      prefs.putBytes("modulemac", moduleMac, 6);
+      prefs.putBytes("sleutel", sleutel, 16);
+      gekoppeld = true;
+    } else {
+      esp_now_del_peer(kk.module);
+      kk.nieuw(esp_random());
+    }
+    return;
+  }
+  if (kk.verlopen(nu)) { // geen bevestiging aangekomen: opnieuw beginnen
+    esp_now_del_peer(kk.module);
+    kk.nieuw(esp_random());
+    return;
+  }
+  if (nu - vorigeBevestig >= 300) {
+    vorigeBevestig = nu;
+    const Koppel bev = kk.bevestiging();
+    esp_now_send(kk.module, (const uint8_t *)&bev, sizeof bev); // gericht aan de gekozen module
+  }
+}
 
-void stuurOpdracht() {
-  if (!gekoppeld) return;
-  Opdracht o;
-  o.aan = t.aan;
-  o.pct = t.pct;
-  o.ijk = t.ijk;
-  o.boost = t.boost;
-  o.sessie = t.sessie;
-  o.volgnr = ++t.volgnr;
-  esp_now_send(moduleMac, (const uint8_t *)&o, sizeof o);
+/** een opdracht sturen; false = niet verzonden (geen verbinding: opnieuw proberen) */
+bool stuur(const Opdracht &basis) {
+  Opdracht o = basis;
+  o.sessie = sessie;
+  o.volgnr = ++volgnr;
+  return esp_now_send(moduleMac, (const uint8_t *)&o, sizeof o) == ESP_OK;
 }
 
 // ---- scherm (466 x 466; het ontwerp is getekend op 240 x 240 en wordt geschaald) ----
@@ -261,98 +321,109 @@ void logo(int cx, int cy, uint16_t kleur) {
     }
 }
 
-void tekenTekst(const char *a, const char *b, uint16_t kleur) {
+void tekenTekst(const char *a, const char *b2, uint16_t kleur) {
   tekst(TEKST, a, S(120), S(158), kleur);
-  if (b) tekst(TEKST, b, S(120), S(178), kleur);
+  if (b2) tekst(TEKST, b2, S(120), S(178), kleur);
 }
 
 void teken(uint32_t nu) {
-  Status st;
-  portENTER_CRITICAL(&slot);
-  st = ontvangen;
-  const bool verbonden = laatsteStatus && nu - laatsteStatus < STILTE_MS;
-  portEXIT_CRITICAL(&slot);
-
+  const Status &st = b.st;
   canvas->fillScreen(ZWART);
-  if (!gekoppeld) {
-    ring(0, nullptr);
-    logo(S(120), S(52), BEIGE);
-    tekst(TITEL, "KOPPELEN", S(120), S(104), WIT);
-    tekenTekst("schakelaar box 3 x", "kort aan en uit", LICHT);
-    canvas->flush();
-    return;
-  }
-  if (verbonden && st.ijken) {
-    ring(BOOG * st.ijkVoortgang / 100.0f, &V_BEIGE);
-    logo(S(120), S(52), BEIGE);
-    tekst(TITEL, "IJKEN", S(120), S(104), WIT);
-    tekst(TEKST, (String("schoon filter, ") + (20 * st.ijken) + " %").c_str(), S(120), S(136), WIT);
-    canvas->flush();
-    return;
-  }
-  // zonder verbinding: alleen wat de knop vraagt, uitdrukkelijk als niet bevestigd
-  if (!verbonden) {
-    ring(0, nullptr);
-    logo(S(120), S(52), BEIGE);
-    if (t.aan) tekst(TITEL, "AAN?", S(120), S(108), MIDDEN);
-    else tekst(GROOT, "UIT", S(120), S(112), MIDDEN);
-    tekenTekst("geen verbinding met de box", t.aan ? "stand niet bevestigd" : nullptr, ORANJE);
-    canvas->flush();
-    return;
-  }
-  const bool aan = st.aan;
-  const bool vol = aan && st.bewaking == BEW_OK && !isnan(st.vol) && st.vol >= 1.0f;
-  const bool storing = aan && st.storing != STORING_GEEN;
-  const Verloop *verloop = storing ? &V_ROOD : vol ? &V_ORANJE : &V_BEIGE;
-  ring(aan ? BOOG * st.pct / 100.0f : 0, aan ? verloop : nullptr);
-  logo(S(120), S(52), BEIGE);
-  char s[40];
-  if (!aan) {
-    tekst(GROOT, "UIT", S(120), S(112), MIDDEN);
-    if (st.ijkFout != IJK_OK && st.ijkFout != IJK_AFGEBROKEN) tekenTekst("ijken mislukt", "vorige ijking blijft", ORANJE);
-    else tekenTekst("druk om te starten", nullptr, MIDDEN);
-  } else {
-    procent(st.pct, S(110));
-    if (st.storing == STORING_STIL) {
-      tekenTekst("ventilator draait niet", "M8-kabel nakijken", ROOD);
-    } else if (st.storing == STORING_GEEN_LUCHT) {
-      tekenTekst("geen luchtstroom", "slang en filter nakijken", ROOD);
-    } else if (!st.meter) {
-      tekenTekst("drukmeter niet gevonden", "bedrading in de box nakijken", ORANJE);
-    } else if (st.bewaking == BEW_GEEN_METING) {
-      tekenTekst("meting niet actueel", "filterbewaking even uit", ORANJE);
-    } else if (st.bewaking == BEW_BUITEN_BEREIK) {
-      tekenTekst("druk buiten meetbereik", "filter nakijken", ORANJE);
-    } else if (vol) {
-      tekenTekst("filter vervangen", "eerst uit, filter in een zak", ORANJE);
-    } else if (st.ijkFout != IJK_OK && st.ijkFout != IJK_AFGEBROKEN) {
-      tekenTekst("ijken mislukt", "vorige ijking blijft", ORANJE);
-    } else if (st.boostRest) {
-      snprintf(s, sizeof s, "BOOST %u:%02u", st.boostRest / 60, st.boostRest % 60);
-      tekenTekst(s, nullptr, BEIGE);
-    } else if (boostVraag && nu - boostVraag < 3000 && !st.boostRest && st.boostTegoed < 8) {
-      tekenTekst("boost even niet", "nog aan het afkoelen", LICHT);
-    } else if (st.bewaking == BEW_NIET_GEIJKT) {
-      tekenTekst("nieuw filter?", "knop 5 s vasthouden", LICHT);
-    } else if (st.bewaking == BEW_LAGE_STAND) {
-      tekenTekst("lage stand", "weinig vangst, minstens 75 %", LICHT);
-    } else if (st.bewaking == BEW_STABILISEREN) {
-      tekenTekst("even meten...", nullptr, MIDDEN);
-    } else {
-      snprintf(s, sizeof s, "%.0f Pa, %u tpm", st.dp, st.toeren);
-      tekenTekst(s, nullptr, LICHT);
+  switch (b.scherm(nu, gekoppeld)) {
+    case SCH_KOPPELEN:
+      ring(0, nullptr);
+      logo(S(120), S(52), BEIGE);
+      tekst(TITEL, "KOPPELEN", S(120), S(104), WIT);
+      tekenTekst("schakelaar box 3 x", "kort aan en uit", LICHT);
+      break;
+    case SCH_NIEUW_FILTER: // bevestigen voor het ijken; de ring loopt de 10 s af
+      ring(BOOG * b.nieuwFilterRest(nu), &V_BEIGE);
+      logo(S(120), S(52), BEIGE);
+      tekst(TITEL, "NIEUW FILTER?", S(120), S(104), WIT);
+      tekst(TEKST, "schoon filter geplaatst?", S(120), S(136), WIT);
+      tekenTekst("kort drukken: ijken", "draaien: annuleren", LICHT);
+      break;
+    case SCH_IJKEN:
+      ring(BOOG * st.ijkVoortgang / 100.0f, &V_BEIGE);
+      logo(S(120), S(52), BEIGE);
+      tekst(TITEL, "IJKEN", S(120), S(104), WIT);
+      tekst(TEKST, (String("schoon filter, ") + (20 * st.ijken) + " %").c_str(), S(120), S(136), WIT);
+      break;
+    case SCH_AAN_ONBEVESTIGD: // zonder verse status: alleen wat de knop vraagt, uitdrukkelijk niet bevestigd
+      ring(0, nullptr);
+      logo(S(120), S(52), BEIGE);
+      tekst(TITEL, "AAN?", S(120), S(108), MIDDEN);
+      tekenTekst("geen verbinding met de box", "stand niet bevestigd", ORANJE);
+      break;
+    case SCH_UIT_ONBEVESTIGD:
+      ring(0, nullptr);
+      logo(S(120), S(52), BEIGE);
+      tekst(TITEL, "UIT?", S(120), S(108), MIDDEN);
+      tekenTekst("niet bevestigd", "geen verbinding", ORANJE);
+      break;
+    case SCH_HERSTART: // de box is herstart terwijl de knop AAN wilde: zij staat UIT tot een nieuwe handeling
+      ring(0, nullptr);
+      logo(S(120), S(52), BEIGE);
+      tekst(GROOT, "UIT", S(120), S(112), MIDDEN);
+      tekenTekst("afzuiging herstart", "druk om aan te zetten", ORANJE);
+      break;
+    case SCH_UIT:
+      ring(0, nullptr);
+      logo(S(120), S(52), BEIGE);
+      tekst(GROOT, "UIT", S(120), S(112), MIDDEN);
+      if (st.ijkFout == IJK_TE_HOOG) tekenTekst("ijking geweigerd", "filter niet nieuw?", ORANJE);
+      else if (st.ijkFout != IJK_OK && st.ijkFout != IJK_AFGEBROKEN) tekenTekst("ijken mislukt", "vorige ijking blijft", ORANJE);
+      else tekenTekst("druk om te starten", nullptr, MIDDEN);
+      break;
+    case SCH_AAN: {
+      const bool vol = st.bewaking == BEW_OK && !isnan(st.vol) && st.vol >= 1.0f;
+      const bool storing = st.storing != STORING_GEEN;
+      const bool aandacht = vol || st.bewaking == BEW_FILTER_LEK;
+      ring(BOOG * st.pct / 100.0f, storing ? &V_ROOD : aandacht ? &V_ORANJE : &V_BEIGE);
+      logo(S(120), S(52), BEIGE);
+      procent(st.pct, S(110));
+      char s[40];
+      if (st.storing == STORING_STIL) {
+        tekenTekst("ventilator draait niet", "M8-kabel nakijken", ROOD);
+      } else if (st.storing == STORING_TOEREN) {
+        tekenTekst("toerental wijkt af", "ventilator nakijken", ROOD);
+      } else if (st.storing == STORING_GEEN_LUCHT) {
+        tekenTekst("geen luchtstroom", "slang en filter nakijken", ROOD);
+      } else if (!st.meter) {
+        tekenTekst("drukmeter niet gevonden", "bedrading in de box nakijken", ORANJE);
+      } else if (st.bewaking == BEW_GEEN_METING) {
+        tekenTekst("meting niet actueel", "filterbewaking even uit", ORANJE);
+      } else if (st.bewaking == BEW_BUITEN_BEREIK) {
+        tekenTekst("druk buiten meetbereik", "filter nakijken", ORANJE);
+      } else if (st.bewaking == BEW_FILTER_LEK) {
+        tekenTekst("filter ontbreekt", "of sluit niet af", ORANJE);
+      } else if (vol) {
+        tekenTekst("filter vervangen", "eerst uit, filter in een zak", ORANJE);
+      } else if (st.ijkFout == IJK_TE_HOOG) {
+        tekenTekst("ijking geweigerd", "filter niet nieuw?", ORANJE);
+      } else if (st.ijkFout != IJK_OK && st.ijkFout != IJK_AFGEBROKEN) {
+        tekenTekst("ijken mislukt", "vorige ijking blijft", ORANJE);
+      } else if (st.boostRest) {
+        snprintf(s, sizeof s, "BOOST %u:%02u", st.boostRest / 60, st.boostRest % 60);
+        tekenTekst(s, nullptr, BEIGE);
+      } else if (b.boostVraag && nu - b.boostVraag < 3000 && !st.boostRest && st.boostTegoed < 8) {
+        tekenTekst("boost even niet", "nog aan het afkoelen", LICHT);
+      } else if (st.bewaking == BEW_NIET_GEIJKT) {
+        tekenTekst("nieuw filter?", "knop 5 s vasthouden", LICHT);
+      } else if (st.bewaking == BEW_LAGE_STAND) {
+        tekenTekst("lage stand", "weinig vangst, minstens 80 %", LICHT);
+      } else if (st.bewaking == BEW_STABILISEREN) {
+        tekenTekst("even meten...", nullptr, MIDDEN);
+      } else {
+        snprintf(s, sizeof s, "%.0f Pa, %u tpm", st.dp, st.toeren);
+        tekenTekst(s, nullptr, LICHT);
+      }
+      // balk: verbruikte drukreserve (alleen met een verse meting op een te bewaken stand)
+      if (st.bewaking == BEW_OK && !isnan(st.vol)) balk(st.vol, vol ? V_ORANJE : V_BEIGE);
+      break;
     }
-    // filterbalk: hoe vol het filter is (alleen met een verse meting op een te bewaken stand)
-    if (st.bewaking == BEW_OK && !isnan(st.vol)) balk(st.vol, vol ? V_ORANJE : V_BEIGE);
   }
   canvas->flush();
-}
-
-void schakel() {
-  t.aan = !t.aan;
-  teBewaren = true;
-  gewijzigd = true;
-  laatsteWijziging = millis();
 }
 
 } // namespace
@@ -375,111 +446,92 @@ void setup() {
   attachInterrupt(ENC_B, encIsr, CHANGE);
 
   prefs.begin("afzuiging", false);
-  t.pct = constrain(prefs.getInt("pct", 80), MIN_PCT, MAX_PCT); // 80 %: de dagstand (75 % is de laagste beschermende)
-  t.aan = false; // na het aanzetten (ook na een stroomonderbreking) altijd UIT
+  b.pct = constrain(prefs.getInt("pct", 80), MIN_PCT, MAX_PCT); // 80 %: de dagstand en de laagste beschermende
+  // na het aanzetten: wens UIT en niets sturen; de eerste status van de module geeft de stand (bediening.h)
   gekoppeld = prefs.getBytes("modulemac", moduleMac, 6) == 6 && prefs.getBytes("sleutel", sleutel, 16) == 16;
-  if (!gekoppeld) for (auto &b : sleutel) b = (uint8_t)esp_random();
-  t.sessie = (uint16_t)(prefs.getUShort("sessie", 0) + 1);
-  prefs.putUShort("sessie", t.sessie);
-  encoderVorig = encoderLees();
+  if (!gekoppeld) for (auto &x : sleutel) x = (uint8_t)esp_random();
+  sessie = (uint16_t)(prefs.getUShort("sessie", 0) + 1);
+  prefs.putUShort("sessie", sessie);
 
   WiFi.mode(WIFI_STA);
   esp_wifi_set_channel(KANAAL, WIFI_SECOND_CHAN_NONE);
-  if (esp_now_init() != ESP_OK) Serial.println("ESP-NOW start niet");
-  esp_now_set_pmk(PMK);
-  esp_now_peer_info_t peer = {};
-  memcpy(peer.peer_addr, IEDEREEN, 6); // alleen voor de koppelvraag
-  peer.channel = KANAAL;
-  peer.encrypt = false;
-  esp_now_add_peer(&peer);
-  if (gekoppeld) voegModuleToe();
-  esp_now_register_recv_cb(bijOntvangst);
+  kk.nieuw(esp_random());
+  if (esp_now_init() != ESP_OK) {
+    Serial.println("ESP-NOW start niet: geen verbinding");
+  } else {
+    esp_now_set_pmk(PMK);
+    esp_now_peer_info_t peer = {};
+    memcpy(peer.peer_addr, IEDEREEN, 6); // alleen voor de koppelvraag
+    peer.channel = KANAAL;
+    peer.encrypt = false;
+    if (esp_now_add_peer(&peer) != ESP_OK) Serial.println("broadcast-peer niet toegevoegd: koppelen kan niet");
+    // lukt het toevoegen van de module niet, dan blijft het scherm "UIT?"/"AAN?" tonen (geen verse status)
+    if (gekoppeld && !voegModuleToe()) Serial.println("module niet toegevoegd: geen verbinding");
+    esp_now_register_recv_cb(bijOntvangst);
+    esp_now_register_send_cb(bijZenden);
+  }
 }
 
 void loop() {
   const uint32_t nu = millis();
 
-  // draaiknop: zuigkracht
-  const long enc = encoderLees();
-  const long stappen = (enc - encoderVorig) / ENCODER_PER_STAP;
+  // status van de module
+  if (nieuweStatus) {
+    portENTER_CRITICAL(&slot);
+    const Status st = binnen;
+    nieuweStatus = false;
+    portEXIT_CRITICAL(&slot);
+    b.status(st, nu);
+  }
+
+  // draaiknop
+  static long encoderVorig = encoderLees();
+  const long stappen = (encoderLees() - encoderVorig) / ENCODER_PER_STAP;
   if (stappen != 0) {
     encoderVorig += stappen * ENCODER_PER_STAP;
-    if (!t.aan) {
-      schakel();
-    } else {
-      const int nieuw = constrain(t.pct + (int)stappen * STAP_PCT, MIN_PCT, MAX_PCT);
-      if (nieuw != t.pct) {
-        t.pct = nieuw;
-        gewijzigd = true;
-      }
-      teBewaren = true;
-      laatsteWijziging = nu;
-    }
+    b.draai(stappen, nu);
   }
 
-  // drukknop: kort = aan/uit, 1 s = boost, 5..10 s = ijken (bij het loslaten), 10 s = opnieuw koppelen
-  static uint32_t knopSinds = 0;
-  static bool knopGebruikt = false, knopVorig = false;
-  const bool knop = digitalRead(KNOP) == LOW;
-  if (knop && !knopVorig) {
-    knopSinds = nu;
-    knopGebruikt = false;
-  }
-  if (knop && !knopGebruikt && nu - knopSinds > KOPPEL_HOUD_MS) {
-    knopGebruikt = true;
-    gekoppeld = false;
-    prefs.remove("modulemac");
-    prefs.remove("sleutel");
-    for (auto &b : sleutel) b = (uint8_t)esp_random();
-  }
-  if (!knop && knopVorig && !knopGebruikt && nu - knopSinds > 30) {
-    const uint32_t duur = nu - knopSinds;
-    if (duur >= IJK_HOUD_MS) {
-      t.aan = true; // ijken gebeurt met de ventilator aan
-      t.ijk++;
-    } else if (duur >= BOOST_HOUD_MS) {
-      t.aan = true;
-      t.boost++;
-      boostVraag = nu;
-    } else {
-      schakel();
-    }
-    gewijzigd = true;
-  }
-  knopVorig = knop;
-
-  // koppelen: vragen tot een module antwoordt (in haar koppelvenster)
-  static uint32_t vorigeVraag = 0;
-  if (!gekoppeld && nu - vorigeVraag >= 500) {
-    vorigeVraag = nu;
-    Koppel k;
-    if (!uitdaging) uitdaging = esp_random() | 1; // niet 0
-    k.uitdaging = uitdaging;
-    memcpy(k.sleutel, sleutel, 16);
-    esp_now_send(IEDEREEN, (const uint8_t *)&k, sizeof k);
-  }
-  if (koppelAntwoord) {
-    portENTER_CRITICAL(&slot);
-    memcpy(moduleMac, koppelVan, 6);
-    koppelAntwoord = false;
-    portEXIT_CRITICAL(&slot);
-    prefs.putBytes("modulemac", moduleMac, 6);
-    prefs.putBytes("sleutel", sleutel, 16);
-    gekoppeld = true;
-    voegModuleToe();
+  // drukknop: kort = aan/uit, 1 s = boost, 5..10 s = "Nieuw filter geplaatst?", 10 s = opnieuw koppelen
+  b.knop(digitalRead(KNOP) == LOW, nu);
+  if (b.koppelVraag) {
+    b.koppelVraag = false;
+    wisKoppeling();
   }
 
-  // opdracht naar de module: meteen bij een wijziging, anders 4 keer per seconde
+  koppelen(nu);
+
+  // opdracht naar de module: pas na de eerste handeling, dan meteen bij een wijziging en 4 keer per seconde.
+  // Mislukt het zenden, dan opnieuw in de volgende lus (de knop doet niet alsof het aankwam: zonder verse status
+  // toont hij "UIT?" of "AAN?").
   static uint32_t vorigeOpdracht = 0;
-  if (gewijzigd || nu - vorigeOpdracht >= 250) {
-    stuurOpdracht();
+  if (gekoppeld && b.zenden && (b.gewijzigd || nu - vorigeOpdracht >= 250)) {
+    Opdracht o;
+    bool ok = true;
+    if (b.basis) { // eerst de toestand van vóór de eerste handeling: zo telt een boost- of ijkvraag meteen
+      b.vulBasis(o);
+      ok = stuur(o);
+      if (ok) b.basis = false;
+    }
+    if (ok) {
+      b.vulOpdracht(o);
+      ok = stuur(o);
+    }
     vorigeOpdracht = nu;
-    gewijzigd = false;
+    b.gewijzigd = !ok;
   }
 
-  if (teBewaren && nu - laatsteWijziging > BEWAAR_NA_MS) {
-    prefs.putInt("pct", t.pct); // alleen de stand; AAN wordt bewust niet bewaard
-    teBewaren = false;
+  // de stand bewaren 3 s na de laatste wijziging (AAN wordt bewust niet bewaard)
+  static int bewaardPct = b.pct;
+  static uint32_t pctSinds = 0;
+  static int vorigePct = b.pct;
+  if (b.pct != vorigePct) {
+    vorigePct = b.pct;
+    pctSinds = nu;
+  }
+  if (b.pct != bewaardPct && nu - pctSinds > BEWAAR_NA_MS) {
+    prefs.putInt("pct", b.pct);
+    bewaardPct = b.pct;
   }
 
   static uint32_t vorigBeeld = 0;

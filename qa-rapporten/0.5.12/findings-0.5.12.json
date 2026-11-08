@@ -1,0 +1,530 @@
+[
+  {
+    "id": "F16",
+    "sev": "Major",
+    "status": "open",
+    "title": "Iconen en lettertype",
+    "area": "Visueel",
+    "evidence": "Niet opnieuw naast SolidWorks gelegd. De repo zegt bewust functioneel, niet pixelgelijk (docs/29). Geen screenshot-oordeel in deze ronde."
+  },
+  {
+    "id": "F21",
+    "sev": "Minor",
+    "status": "open",
+    "title": "Taakvenster-iconen",
+    "area": "Visueel",
+    "evidence": "Niet visueel herbeoordeeld."
+  },
+  {
+    "id": "F22",
+    "sev": "Minor",
+    "status": "open",
+    "title": "Body-randen",
+    "area": "Visueel",
+    "evidence": "Niet visueel herbeoordeeld."
+  },
+  {
+    "id": "F24",
+    "sev": "Minor",
+    "status": "open",
+    "title": "Extra rij in Modify",
+    "area": "Visueel",
+    "evidence": "Niet in de UI heropend. De Modify-dialoog heeft nog een eenhedenrij (dialogs.tsx, .k-modify-units)."
+  },
+  {
+    "id": "F28",
+    "sev": "Minor",
+    "status": "open",
+    "title": "Bestandsdialoog bij Insert Component",
+    "area": "UX",
+    "evidence": "Niet in Electron gedraaid."
+  },
+  {
+    "id": "F31",
+    "sev": "Major",
+    "status": "partial",
+    "title": "e2e-exitcodes / CI",
+    "area": "Proces",
+    "evidence": "run-regression.mjs eindigt met exit 1 bij rood en een DONE-regel. Lokaal mesh 104/104 exit 0 en brep 14/14 exit 0. Actions op e0c7283 (run 42502050109) is conclusion failure."
+  },
+  {
+    "id": "F38",
+    "sev": "Minor",
+    "status": "partial",
+    "title": "README/TASKS",
+    "area": "Docs",
+    "evidence": "De zes qa*.test.ts-tellingen in de README kloppen (vitest JSON: 8, 34, 12, 12, 5, 1). De kop 'unit 736/736' klopt niet: met voorbeelden 815 geslaagd en 2 overgeslagen. Fase 3 noemt ontwerptabellen nog 'gepland' en fase 8 Hem nog 'gepland', terwijl die paden groen zijn."
+  },
+  {
+    "id": "F46",
+    "sev": "Major",
+    "status": "partial",
+    "title": "CSG/solver op de UI-thread",
+    "area": "Performance",
+    "evidence": "Releasepad gebruikt de worker (CI-jobs release-* op deze SHA groen; lokaal niet de volledige release-pass). rebuildBudgetMs staat nog op 45000 (rebuild.ts). De mesh-browserbuild rekent op de UI-thread."
+  },
+  {
+    "id": "F47",
+    "sev": "Major",
+    "status": "partial",
+    "title": "Topologische naamgeving",
+    "area": "Geometrie",
+    "evidence": "qaNaming.test.ts 12/12 groen (T4–T7). Geen bewijs dat elke SolidWorks-randnaam overleeft."
+  },
+  {
+    "id": "F48",
+    "sev": "Major",
+    "status": "partial",
+    "title": "CSG ongecontroleerd",
+    "area": "Geometrie",
+    "evidence": "volumeCheck.ts heeft volume (0,5 %) én vorm (0,1 mm). qaCrossCheck 12/12 groen. De volumegrens en gedeelde randkeuze blijven (F172, F179)."
+  },
+  {
+    "id": "F49",
+    "sev": "Major",
+    "status": "open",
+    "title": "Release-hardening / niet gesigneerd",
+    "area": "Electron",
+    "evidence": "signature-0.5.12.txt (commit 02e3b22 én lokale installer fb63804): NotSigned voor setup, portable en exe. Op e0c7283 faalt de installer-job vóór een nieuwe meting."
+  },
+  {
+    "id": "F51",
+    "sev": "Major",
+    "status": "partial",
+    "title": "Mesh-kernel",
+    "area": "Geometrie",
+    "evidence": "Ellips/spline/conic exact (qaBrep). Plastics-blok in qaBrep groen. Face fillet, full round en setback vallen buiten brepRoundable (rebuild.ts:855-859). Guide curves: brepTool geeft null (rebuild.ts:870, 884)."
+  },
+  {
+    "id": "F54",
+    "sev": "Major",
+    "status": "open",
+    "title": "CI rood op de release-commit",
+    "area": "Proces",
+    "evidence": "Run 42502050109 op e0c7283: conclusion failure. Rood: checks, desktop, windows-installer, regression (brep), regression (win-mesh-3of3). Linux-mesh en de meeste release-shards zijn groen."
+  },
+  {
+    "id": "F93",
+    "sev": "Major",
+    "status": "partial",
+    "title": "Claims 98/98 zonder bewijs",
+    "area": "Bewijs",
+    "evidence": "De 104/104-logs van 02e3b22 zijn nagelezen (DONE-regels, commit 02e3b22) en de run is via de API success met 16 jobs. Ze horen niet bij e0c7283. qa-logs/README noemt checks/ en desktop/ die niet in de tree staan."
+  },
+  {
+    "id": "F97",
+    "sev": "Major",
+    "status": "partial",
+    "title": "Packaged app:// niet getest",
+    "area": "Electron",
+    "evidence": "Op 02e3b22: desktop-installed 21/21, packaged true, app://phlippo/index.html. Op e0c7283 faalt windows-installer op npm run build (typecheck)."
+  },
+  {
+    "id": "F98",
+    "sev": "Major",
+    "status": "partial",
+    "title": "Geen remote CI",
+    "area": "Proces",
+    "evidence": "Er zijn publieke runs. De laatste op deze SHA is rood (42502050109). Het gat 'nooit een remote run' is dicht; groen op HEAD niet."
+  },
+  {
+    "id": "F105",
+    "sev": "Major",
+    "status": "partial",
+    "title": "B-rep bijna nooit in regressie",
+    "area": "Tests",
+    "evidence": "ci.yml noemt 14 brep-scripts. Lokaal die 14: 14/14 exit 0. De Actions-job regression (brep) op e0c7283 is toch rood; de annotations noemen geen script en het log-artefact is 401."
+  },
+  {
+    "id": "F111",
+    "sev": "Major",
+    "status": "fixed",
+    "title": "Gesplitste fillet maar één stuk",
+    "area": "Topologie",
+    "evidence": "qaTeam: plaat 100×40×10 met sleuf, verwacht 38422,743, B-rep < 1e-3 en mesh < 1,5 mm³, geen warnings. Zelfde file 5/5 groen in de suite 815."
+  },
+  {
+    "id": "F112",
+    "sev": "Major",
+    "status": "partial",
+    "title": "Options doen niets",
+    "area": "UI",
+    "evidence": "prefsWired.ts: 148 sleutels. prefsSchema: 345 unieke keys, 198 niet bedraad (grijs volgens het commentaar). Was 45 van 379."
+  },
+  {
+    "id": "F114",
+    "sev": "Major",
+    "status": "partial",
+    "title": "Geen IGES/DWG/Parasolid",
+    "area": "Import/Export",
+    "evidence": "DXF en PDF van tekeningen bestaan (sheetExport.ts). IGES/DWG/Parasolid niet. Options toont geen IGES meer."
+  },
+  {
+    "id": "F117",
+    "sev": "Major",
+    "status": "open",
+    "title": "Installer niet code-signed",
+    "area": "Installer",
+    "evidence": "Zelfde NotSigned-rapport als F49. Geen certificaat in deze boom."
+  },
+  {
+    "id": "F121",
+    "sev": "Major",
+    "status": "partial",
+    "title": "Ontbrekende SolidWorks-features",
+    "area": "Features",
+    "evidence": "Plastics exact in qaBrep (file groen). Design tables, Instant2D, normdelen en drag handles hebben groene e2e. Geen volledige SolidWorks-dekking (Toolbox, guide curves, virtual sharp)."
+  },
+  {
+    "id": "F122",
+    "sev": "Major",
+    "status": "partial",
+    "title": "Centermarks en verborgen lijnen",
+    "area": "Tekeningen",
+    "evidence": "drawing 28/28 en drawingfix 16/16 lokaal groen. Geen aparte assert dat elk standaardaanzicht centermarks en verborgen lijnen zet zoals SolidWorks."
+  },
+  {
+    "id": "F124",
+    "sev": "Minor",
+    "status": "partial",
+    "title": "Gaten uit docs/24",
+    "area": "Scope",
+    "evidence": "instant2d 8/8, magnify 12/12, sketch3d2 14/14 lokaal groen. sketch.virtualSharps en doc.virtualSharp staan niet in WIRED_PREFS: de optie blijft grijs."
+  },
+  {
+    "id": "F126",
+    "sev": "Major",
+    "status": "partial",
+    "title": "Windows-log geplakt",
+    "area": "Bewijs",
+    "evidence": "De 0.5.12-logs hebben een kop met commit en platform en noemen scripts die in 0.5.9 niet bestonden (designtable, instant2d). Het blijven samenvattingen van één regel per script, en ze zijn van 02e3b22."
+  },
+  {
+    "id": "F129",
+    "sev": "Minor",
+    "status": "partial",
+    "title": "Verouderde docs en tellingen",
+    "area": "Docs",
+    "evidence": "Zelfde als F38: qa-tellingen kloppen, de totaalzin 736 en de fasekoppen niet. TASKS heeft [x] voor afzuiging; die bestanden zitten wel op de SHA, niet in de aangeleverde zip."
+  },
+  {
+    "id": "F130",
+    "sev": "Major",
+    "status": "partial",
+    "title": "Breedte boven correctheid",
+    "area": "Proces",
+    "evidence": "Mate-, naming- en mutatie-tests zijn groen. Daarna is de boom weer rood: tekeningenAfzuiging.test.ts haalt typecheck onderuit."
+  },
+  {
+    "id": "F134",
+    "sev": "Minor",
+    "status": "partial",
+    "title": "Line-budget is de huidige grootte",
+    "area": "Code",
+    "evidence": "line-budget.cjs exit 0. rebuild.ts 2273 regels, cap 2280 (was 3390). Het doel van 1000 blijft een tekst; de cap is nog een bevriezing."
+  },
+  {
+    "id": "F137",
+    "sev": "Major",
+    "status": "partial",
+    "title": "Rebuild-budget 45 s",
+    "area": "Performance",
+    "evidence": "rebuildBudgetMs = 45_000 (rebuild.ts:848). Workerpad bestaat. De 117 ms framepauze is niet zelf gemeten."
+  },
+  {
+    "id": "F138",
+    "sev": "Minor",
+    "status": "partial",
+    "title": "npm audit",
+    "area": "Build",
+    "evidence": "npm audit exit 1: 6 moderate, 0 high, 0 critical, alle via minimatch in de electron-builder-keten. npm audit --omit=dev: 0. Was 15 moderate en 2 high."
+  },
+  {
+    "id": "F145",
+    "sev": "Minor",
+    "status": "partial",
+    "title": "features niet-deterministisch",
+    "area": "Testen",
+    "evidence": "Eén lokale run: features exit 0, 65/65, 201 s (mesh) en 385 s (brep). Geen herhaling (E2E_REPEAT=1)."
+  },
+  {
+    "id": "F147",
+    "sev": "Major",
+    "status": "fixed",
+    "title": "CI-stappen verbergen B-rep",
+    "area": "Testen",
+    "evidence": "ci.yml: aparte jobs checks, desktop, regression-matrix, windows-installer. Op run 42502050109 faalde brep terwijl mesh-shards groen bleven: de verberging is weg."
+  },
+  {
+    "id": "F148",
+    "sev": "Major",
+    "status": "partial",
+    "title": "Windows-log is een kopie",
+    "area": "Bewijs",
+    "evidence": "De 0.5.12-logs zijn geen byte-kopie van het 0.5.9-log (andere scripts en commit 02e3b22). Ruwe volledige runner-stdout zit er niet bij."
+  },
+  {
+    "id": "F149",
+    "sev": "Major",
+    "status": "partial",
+    "title": "Claims zonder platform of log",
+    "area": "Bewijs",
+    "evidence": "README 0.5.12 noemt platform, commit 02e3b22 en run-URL. qa-logs/0.5.12/README belooft mappen checks/ en desktop/ die niet in de git-tree staan (21 bestanden, alleen regressie en installer)."
+  },
+  {
+    "id": "F151",
+    "sev": "Minor",
+    "status": "partial",
+    "title": "Self-test ongepackaged",
+    "area": "Testen",
+    "evidence": "Log 02e3b22: packaged true. Deze SHA bouwt de installer niet (typecheck). Lokaal geen packaged self-test gedraaid."
+  },
+  {
+    "id": "F159",
+    "sev": "Major",
+    "status": "fixed",
+    "title": "Geen volumekruiscontrole",
+    "area": "Kernel",
+    "evidence": "volumeMismatch en shapeMismatch worden gebruikt; qaCrossCheck 12/12 en mutatie b (drempel ×10) wordt gevangen."
+  },
+  {
+    "id": "F161",
+    "sev": "Minor",
+    "status": "partial",
+    "title": "Shading-naad en STEP-import als mesh",
+    "area": "Weergave",
+    "evidence": "Niet visueel bekeken. Self-test op 02e3b22 schrijft STEP met exact 1. Geen nieuwe meting van de naad."
+  },
+  {
+    "id": "F171",
+    "sev": "Minor",
+    "status": "fixed",
+    "title": "Options toont IGES zonder exporter",
+    "area": "UI",
+    "evidence": "prefs.test.ts verwacht dat export.format geen IGES bevat. Schema: STL, 3MF, AMF, STEP, DXF, PDF. 3MF/AMF in export3d.ts; DXF/PDF in sheetExport.ts."
+  },
+  {
+    "id": "F172",
+    "sev": "Major",
+    "status": "partial",
+    "title": "Volumegrens 0,5 % te ruim",
+    "area": "Kernel",
+    "evidence": "VOLUME_MISMATCH is nog 0,005 (volumeCheck.ts:18). SHAPE_MISMATCH_MM = 0,1 vangt een gemiste fillet R2 (0,83 mm) als er een vertex in de buurt ligt. volumeCheck.test.ts:9 verwacht nog steeds géén volumewaarschuwing voor 8,58 mm³."
+  },
+  {
+    "id": "F173",
+    "sev": "Minor",
+    "status": "fixed",
+    "title": "QA-toleranties te ruim",
+    "area": "Testen",
+    "evidence": "qaStrict: verlies binnen 2 % van de formule (regels 24-28) en de suite is groen."
+  },
+  {
+    "id": "F174",
+    "sev": "Minor",
+    "status": "partial",
+    "title": "Bundel bijna op",
+    "area": "Performance",
+    "evidence": "vite build: index-ByIVbH-0.js 782,72 kB, budget 800, marge 17,28 kB (check:bundle exit 0). npm run build zelf faalt vóór de bundel."
+  },
+  {
+    "id": "F175",
+    "sev": "Kritiek",
+    "status": "fixed",
+    "title": "Facet onder het label exact",
+    "area": "Kernel",
+    "evidence": "qaBrep: ellips 40×20×10 binnen 1e-3 van π·20·10·10; STEP minstens 2 ELLIPSE, 3 EDGE_CURVE; spline minstens 2 B_SPLINE_CURVE_WITH_KNOTS. Wrap: exact false en waarschuwing 'flat facets'. File 34/34 groen."
+  },
+  {
+    "id": "F176",
+    "sev": "Kritiek",
+    "status": "open",
+    "title": "Geen groene CI op de release-commit",
+    "area": "Testen",
+    "evidence": "Run 41862412746 op 02e3b22 is success (16/16). Run 42502050109 op de geaudite SHA e0c7283 is failure. Een groene run op een eerdere commit telt niet voor deze HEAD."
+  },
+  {
+    "id": "F177",
+    "sev": "Kritiek",
+    "status": "fixed",
+    "title": "Fillet na maatwijziging stil één stuk",
+    "area": "Topologie",
+    "evidence": "Zelfde test als F111. Formule 100·40·10 − 10·15·10 − 90·CORNER(2) = 38422,743. Geen fout en geen waarschuwing, volume binnen 1e-3 (B-rep)."
+  },
+  {
+    "id": "F178",
+    "sev": "Major",
+    "status": "fixed",
+    "title": "Gebogen rand 32 segmenten, fillet 10× fout",
+    "area": "Kernel",
+    "evidence": "qaTeam: één ketting van 70+5π+30 mm, filletverlies binnen 1e-4 (B-rep) en 2 % (mesh) van 100·CORNER(2)+Pappus."
+  },
+  {
+    "id": "F179",
+    "sev": "Major",
+    "status": "partial",
+    "title": "Kruiscontrole structureel blind",
+    "area": "Kernel",
+    "evidence": "matchEdges is nog gedeeld (rebuild roept dezelfde functie voor beide kernels). Twee gelijke foute resultaten geven shapeDeviation 0. Ambiguïteit geeft nu null in plaats van een gok (edgesets.ts:317, 400)."
+  },
+  {
+    "id": "F180",
+    "sev": "Major",
+    "status": "partial",
+    "title": "Herkomst QA niet sluitend",
+    "area": "QA",
+    "evidence": "e2e/lib/commit.txt is e0c7283. Zonder bovenliggende .git zegt de logkop 'e0c7283 (git archive)'. De zip miste qa-logs en voorbeelden die wel op die SHA staan."
+  },
+  {
+    "id": "F183",
+    "sev": "Minor",
+    "status": "fixed",
+    "title": "CI-brep mist 2 scripts",
+    "area": "Testen",
+    "evidence": "ci.yml brep-scripts: features features2 filletopts endconditions multibody full doorhandle step bodies qa2 facenames plastics loftface pmsweep = 14."
+  },
+  {
+    "id": "F184",
+    "sev": "Major",
+    "status": "partial",
+    "title": "Geen mutatie, herhaling of compat",
+    "area": "Testen",
+    "evidence": "mutation-check.cjs: 4/4 gevangen, tree unchanged, exit 0. compat0510.test.ts 7/7 groen. E2E_REPEAT niet op 10 gedraaid."
+  },
+  {
+    "id": "F185",
+    "sev": "Major",
+    "status": "fixed",
+    "title": "QA-tests zonder asserts",
+    "area": "QA",
+    "evidence": "qaTeam 8 expects, qaBrep 57, qaStrict 18, qaCrossCheck 34, qaNaming 14. De bestanden zijn groen, met echte expect()."
+  },
+  {
+    "id": "F186",
+    "sev": "Minor",
+    "status": "partial",
+    "title": "unconverged via tweede solve van 128",
+    "area": "Assembly",
+    "evidence": "MATE_TOLERANCE = 1e-3 en SETTLE_PASSES = 128 (mateStatus.ts:114-115). Er is een test op de grens. Het blijft een tweede solve, geen status uit de echte pass. CONFLICT_PASSES = 128 blijft."
+  },
+  {
+    "id": "F188",
+    "sev": "Minor",
+    "status": "fixed",
+    "title": "AutoRecover 0.5.10 niet getoond",
+    "area": "Robuustheid",
+    "evidence": "recover.test.ts: adoptLegacyCopies van twee oude kopieën geeft 2, de tweede keer 0. In de groene suite."
+  },
+  {
+    "id": "F189",
+    "sev": "Major",
+    "status": "partial",
+    "title": "SW-documenten in de repo",
+    "area": "Juridisch",
+    "evidence": "docs/06 en docs/26 zitten niet in deze zip en niet in de top van de publieke tree. Geen juridische toets. Materiaalnamen en de disclaimer blijven."
+  },
+  {
+    "id": "F190",
+    "sev": "Major",
+    "status": "fixed",
+    "title": "Geen Windows-job",
+    "area": "Testen",
+    "evidence": "ci.yml heeft windows-installer en regression-windows. Op 02e3b22 groen. Op e0c7283 draait de job en faalt hij op de build, niet omdat hij ontbreekt."
+  },
+  {
+    "id": "F191",
+    "sev": "Minor",
+    "status": "fixed",
+    "title": "Extra views elke 1500 ms",
+    "area": "Performance",
+    "evidence": "ViewPane.tsx:200-205: één draw bij wijziging plus twee eenmalige timeouts (400 en 1500 ms), geen setInterval."
+  },
+  {
+    "id": "F192",
+    "sev": "Major",
+    "status": "partial",
+    "title": "Extra views niet interactief",
+    "area": "UI",
+    "evidence": "ViewPane heeft pointer-orbit, pan en zoom. viewpanes.mjs zit niet in de 104 regressiescripts en niet in ci.yml. De claim 45/45 is niet in de nagelezen logs."
+  },
+  {
+    "id": "F193",
+    "sev": "Minor",
+    "status": "partial",
+    "title": "Units onleesbaar, material-tabs",
+    "area": "UI",
+    "evidence": "app.css:639 opacity 0 op de select; zichtbaar blijven het woord Units en een '>'. De gekozen eenheid staat niet in de tekst. Material-tabs: overflow-x auto (regel 469)."
+  },
+  {
+    "id": "F194",
+    "sev": "Minor",
+    "status": "partial",
+    "title": "Productnaam in drie vormen",
+    "area": "UI",
+    "evidence": "Vensters en menu's zeggen 'Phlippo CAD'. Paden blijven PhlippoCAD (prefs.ts, installerlog)."
+  },
+  {
+    "id": "F195",
+    "sev": "Major",
+    "status": "fixed",
+    "title": "Multibody rood, features op de timeout",
+    "area": "Testen",
+    "evidence": "Lokaal multibody 14/14 (mesh 84 s, brep 85 s) en features 65/65 (201 s en 385 s), ver onder 900 s. Linux-mesh op deze SHA is groen volgens de API."
+  },
+  {
+    "id": "F196",
+    "sev": "Minor",
+    "status": "partial",
+    "title": "Fuses niet getest in de package",
+    "area": "Installer",
+    "evidence": "Log 02e3b22 noemt de fuses ok. Op e0c7283 komt de installer niet voorbij de build, dus deze SHA is niet opnieuw gemeten."
+  },
+  {
+    "id": "F197",
+    "sev": "Major",
+    "status": "fixed",
+    "title": "Flens stil vervangen door mesh",
+    "area": "Kernel",
+    "evidence": "flangeExact.test.ts groen, inclusief de test die bij 10 % afwijking de faceted waarschuwing eist en het mesh-resultaat houdt. sheetmetalFormulas 16/16 groen."
+  },
+  {
+    "id": "F198",
+    "sev": "Major",
+    "status": "partial",
+    "title": "Test legt blindheid vast",
+    "area": "Testen",
+    "evidence": "volumeCheck.test.ts:9 verwacht nog null voor 30439,07 tegen 30431,33. Het commentaar wijst naar qaCrossCheck. De volumecontrole alleen is dus nog blind; de vormtest eist wel een melding."
+  },
+  {
+    "id": "F199",
+    "sev": "Minor",
+    "status": "open",
+    "title": "OCCT zonder IGES-writer",
+    "area": "Import/Export",
+    "evidence": "Geen IGESControl in de gebruikte code. README en docs/29 zeggen dat de meegeleverde WASM-build geen IGES-klasse heeft. Niet opnieuw in de binary geteld; de bron bevestigt dat er geen writer wordt aangeroepen."
+  },
+  {
+    "id": "F200",
+    "sev": "Major",
+    "status": "open",
+    "title": "typecheck blokkeert de releasebuild",
+    "area": "Build",
+    "evidence": "npm run typecheck en npm run build exit 2. Drie fouten in src/qa/tekeningenAfzuiging.test.ts: ongebruikte rebuildAssembly (TS6133), revisie.mjs zonder declaratie (TS7016), number[] niet assignable aan P (TS2345). Dezelfde drie staan in de annotations van checks, desktop en windows-installer op run 42502050109."
+  },
+  {
+    "id": "F201",
+    "sev": "Minor",
+    "status": "open",
+    "title": "Sketch Text is een grove polylijn",
+    "area": "Kernel",
+    "evidence": "text.ts:46-48: generateShapes + getPoints(6) per contour en gat. De B-rep extrudeert die polylijn. SolidWorks houdt de letterkromme. Geen volumemeting in deze ronde."
+  },
+  {
+    "id": "F202",
+    "sev": "Minor",
+    "status": "open",
+    "title": "Vormcontrole bemonstert grote lichamen",
+    "area": "Kernel",
+    "evidence": "volumeCheck.ts: farthest stapt met max(1, count/80000). shapeTolerance is max(0,1 mm, 0,02 % van de diagonaal). Een klein verschil zonder vertex in de steekproef blijft stil."
+  }
+]

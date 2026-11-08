@@ -603,6 +603,81 @@
     0
    ],
    "kind": "reference"
+  },
+  "q2": {
+   "id": "q2",
+   "name": "Plane MOSFET IRF4905",
+   "origin": [
+    0,
+    -26.4,
+    0
+   ],
+   "u": [
+    1,
+    0,
+    0
+   ],
+   "v": [
+    0,
+    0,
+    -1
+   ],
+   "n": [
+    0,
+    1,
+    0
+   ],
+   "kind": "reference"
+  },
+  "q3": {
+   "id": "q3",
+   "name": "Plane Transistor -Q3",
+   "origin": [
+    0,
+    -26.4,
+    0
+   ],
+   "u": [
+    1,
+    0,
+    0
+   ],
+   "v": [
+    0,
+    0,
+    -1
+   ],
+   "n": [
+    0,
+    1,
+    0
+   ],
+   "kind": "reference"
+  },
+  "c2": {
+   "id": "c2",
+   "name": "Plane Elco 47 µF",
+   "origin": [
+    0,
+    -26.4,
+    0
+   ],
+   "u": [
+    1,
+    0,
+    0
+   ],
+   "v": [
+    0,
+    0,
+    -1
+   ],
+   "n": [
+    0,
+    1,
+    0
+   ],
+   "kind": "reference"
   }
  },
  "variables": {},
@@ -2608,6 +2683,173 @@
    ],
    "constraintOrder": [],
    "origin": "origin_s25"
+  },
+  "s26": {
+   "id": "s26",
+   "name": "Sketch26",
+   "plane": "q2",
+   "points": {
+    "origin_s26": {
+     "x": 0,
+     "y": 0
+    },
+    "s26p0": {
+     "x": 82.5,
+     "y": -35.6
+    },
+    "s26p1": {
+     "x": 92.9,
+     "y": -35.6
+    },
+    "s26p2": {
+     "x": 92.9,
+     "y": -31
+    },
+    "s26p3": {
+     "x": 82.5,
+     "y": -31
+    }
+   },
+   "scalars": {},
+   "entities": {
+    "s26e4": {
+     "id": "s26e4",
+     "construction": false,
+     "kind": "line",
+     "p1": "s26p0",
+     "p2": "s26p1"
+    },
+    "s26e5": {
+     "id": "s26e5",
+     "construction": false,
+     "kind": "line",
+     "p1": "s26p1",
+     "p2": "s26p2"
+    },
+    "s26e6": {
+     "id": "s26e6",
+     "construction": false,
+     "kind": "line",
+     "p1": "s26p2",
+     "p2": "s26p3"
+    },
+    "s26e7": {
+     "id": "s26e7",
+     "construction": false,
+     "kind": "line",
+     "p1": "s26p3",
+     "p2": "s26p0"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s26e4",
+    "s26e5",
+    "s26e6",
+    "s26e7"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s26"
+  },
+  "s27": {
+   "id": "s27",
+   "name": "Sketch27",
+   "plane": "q3",
+   "points": {
+    "origin_s27": {
+     "x": 0,
+     "y": 0
+    },
+    "s27p0": {
+     "x": 72,
+     "y": -35.6
+    },
+    "s27p1": {
+     "x": 76.6,
+     "y": -35.6
+    },
+    "s27p2": {
+     "x": 76.6,
+     "y": -32
+    },
+    "s27p3": {
+     "x": 72,
+     "y": -32
+    }
+   },
+   "scalars": {},
+   "entities": {
+    "s27e4": {
+     "id": "s27e4",
+     "construction": false,
+     "kind": "line",
+     "p1": "s27p0",
+     "p2": "s27p1"
+    },
+    "s27e5": {
+     "id": "s27e5",
+     "construction": false,
+     "kind": "line",
+     "p1": "s27p1",
+     "p2": "s27p2"
+    },
+    "s27e6": {
+     "id": "s27e6",
+     "construction": false,
+     "kind": "line",
+     "p1": "s27p2",
+     "p2": "s27p3"
+    },
+    "s27e7": {
+     "id": "s27e7",
+     "construction": false,
+     "kind": "line",
+     "p1": "s27p3",
+     "p2": "s27p0"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s27e4",
+    "s27e5",
+    "s27e6",
+    "s27e7"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s27"
+  },
+  "s28": {
+   "id": "s28",
+   "name": "Sketch28",
+   "plane": "c2",
+   "points": {
+    "origin_s28": {
+     "x": 0,
+     "y": 0
+    },
+    "s28p0": {
+     "x": 63.5,
+     "y": 4.5
+    }
+   },
+   "scalars": {
+    "s28s1": 3.15
+   },
+   "entities": {
+    "s28e2": {
+     "id": "s28e2",
+     "construction": false,
+     "kind": "circle",
+     "center": "s28p0",
+     "r": "s28s1"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s28e2"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s28"
   }
  },
  "features": [
@@ -3131,6 +3373,72 @@
    "op": "boss",
    "end": "blind",
    "depth": 4.6,
+   "reverse": false,
+   "direction2": {
+    "end": "blind",
+    "depth": 0.05
+   }
+  },
+  {
+   "id": "ks26",
+   "type": "sketch",
+   "name": "Sketch26",
+   "sketchId": "s26",
+   "suppressed": false
+  },
+  {
+   "id": "f52",
+   "type": "extrude",
+   "name": "MOSFET IRF4905",
+   "sketchId": "s26",
+   "suppressed": false,
+   "op": "boss",
+   "end": "blind",
+   "depth": 18,
+   "reverse": false,
+   "direction2": {
+    "end": "blind",
+    "depth": 0.05
+   }
+  },
+  {
+   "id": "ks27",
+   "type": "sketch",
+   "name": "Sketch27",
+   "sketchId": "s27",
+   "suppressed": false
+  },
+  {
+   "id": "f54",
+   "type": "extrude",
+   "name": "Transistor -Q3",
+   "sketchId": "s27",
+   "suppressed": false,
+   "op": "boss",
+   "end": "blind",
+   "depth": 4.6,
+   "reverse": false,
+   "direction2": {
+    "end": "blind",
+    "depth": 0.05
+   }
+  },
+  {
+   "id": "ks28",
+   "type": "sketch",
+   "name": "Sketch28",
+   "sketchId": "s28",
+   "suppressed": false
+  },
+  {
+   "id": "f56",
+   "type": "extrude",
+   "name": "Elco 47 µF",
+   "sketchId": "s28",
+   "suppressed": false,
+   "op": "boss",
+   "end": "blind",
+   "depth": 11,
    "reverse": false,
    "direction2": {
     "end": "blind",

@@ -13,7 +13,7 @@ import { REVISIE_TEKST } from '../revisie.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const W = 210, H = 297;
-const { uitsparing: U, dial: D, box: B, sleuven: K } = M;
+const { uitsparing: U, dial: D, box: B, sleuven: K, filter: FI } = M;
 const f = (v) => (Math.round(v * 10) / 10).toString().replace('.', ',');
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
 
@@ -34,9 +34,9 @@ const pijl = (a, b) => {
 const grijs = (d) => `<path d="${d}" fill="#e7e2dc" stroke="none"/>`;
 
 /** kop, controlemaat van 100 mm en voetregel */
-function kader(nr, titel, uitleg) {
+function kader(nr, titel, uitleg, soort = 'Freesmal') {
   const s = [];
-  s.push(tekst([10, 13], `Freesmal 1:1 · ${titel}`, 4.2, 'start', 'font-weight="bold"'));
+  s.push(tekst([10, 13], `${soort} 1:1 · ${titel}`, 4.2, 'start', 'font-weight="bold"'));
   s.push(tekst([200, 13], `blad ${nr} / §TOTAAL§`, 3.2, 'end'));
   uitleg.forEach((t, i) => s.push(tekst([10, 20 + i * 4.4], t, 2.9)));
   // controlemaat
@@ -137,10 +137,10 @@ function onderkant() {
   s.push(pad(rr(Math.min(b0[0], b1[0]) + 5, Math.min(b0[1], b1[1]) + 5, Math.max(b0[0], b1[0]) - 5, Math.max(b0[1], b1[1]) - 5, Math.max(F.r - 5, 0.01)), 0.18, 'stroke-dasharray="2 1.5"'));
   const bc = P(B.x, B.z);
   s.push(tekst([bc[0], bc[1] - 6], 'voedingsbox', 3.2, 'middle', 'font-weight="bold"'), tekst([bc[0], bc[1] - 1.5], `${F.b} x ${F.d}, R${F.r}`, 2.8, 'middle'), tekst([bc[0], bc[1] + 3], `${F.diep} diep (3 gangen)`, 2.8, 'middle'));
-  // de 4 gaten Ø8 voor de pluggen voor holle deuren, naast de uitsparing (onder de rand van de box)
+  // de 4 voorboorgaten voor de schroeven van de rand van de box, naast de uitsparing
   const gx = B.plug.x, gz = B.plug.z;
   [[1, 1], [1, -1], [-1, 1], [-1, -1]].forEach(([kx, kz]) => { const c = P(B.x + kx * gx, B.z + kz * gz); s.push(cirkel(c, B.plug.gat / 2, 0.4), kruis(c, 3)); });
-  s.push(tekst([bc[0], bc[1] + 8], `4 gaten Ø${B.plug.gat} x ${B.plug.diep} voor en achter de uitsparing (pluggen voor holle deuren)`, 2.6, 'middle'));
+  s.push(tekst([bc[0], bc[1] + 8], `4 voorboorgaten Ø${f(B.plug.gat)} x ${B.plug.diep} voor en achter de uitsparing (schroeven 4 x 16)`, 2.6, 'middle'));
   // sleuf naar de afzuiging: 29 breed, 7 diep, van de box tot in de uitsparing
   const m0 = P(K.module.x[0], B.z + F.d / 2), m1 = P(K.module.x[1], -U.d / 2);
   s.push(pad(`M${m0[0]},${m0[1]} H${m1[0]} M${m0[0]},${m1[1]} H${m1[0]}`, 0.6));
@@ -164,8 +164,24 @@ function onderkant() {
   return kader(1, 'voedingsbox en sleuven (onderkant)', uitleg) + '\n' + s.join('\n');
 }
 
+// ---- snijmal voor de afdichtlip (siliconenrubber 0,5 mm): buitenmaat = buitenkant van de geleiderand, binnenmaat 2,5 mm
+// binnen de nominale rand van het filter (maak-afzuiging.mjs, M.filter.lip) ----
+function snijmalLip() {
+  const xg = FI.x + FI.speling + FI.gids.dik, zg = FI.z + FI.speling + FI.gids.dik, xi = FI.x - FI.lip.over, zi = FI.z - FI.lip.over;
+  const cx = 105, cy = 152, s = [];
+  s.push(`<path d="${rr(cx - xg, cy - zg, cx + xg, cy + zg, 2 + FI.gids.dik)} ${rr(cx - xi, cy - zi, cx + xi, cy + zi, 1)}" fill="#e7e2dc" fill-rule="evenodd" stroke="none"/>`);
+  s.push(pad(rr(cx - xg, cy - zg, cx + xg, cy + zg, 2 + FI.gids.dik), 0.5), pad(rr(cx - xi, cy - zi, cx + xi, cy + zi, 1), 0.5));
+  s.push(tekst([cx, cy - 6], 'binnenstuk: weg', 3, 'middle'), tekst([cx, cy - 1.5], `${f(2 * xi)} x ${f(2 * zi)}`, 2.8, 'middle'));
+  s.push(tekst([cx, cy - zg - 2], `buitenmaat ${f(2 * xg)} x ${f(2 * zg)} (= buitenkant van de geleiderand)`, 2.6, 'middle'));
+  s.push(tekst([cx, cy + zg + 5], `lip ${f(xg - xi)} mm breed: ${f(FI.gids.dik)} op de rand, ${f(xg - xi - FI.gids.dik)} steekt naar binnen uit`, 2.6, 'middle'));
+  const uitleg = ['Leg de mal op de zelfklevende siliconenplaat (0,5 mm, kleeflaag onder) en snij met een scherp mes en een lat langs',
+    'beide dikke lijnen: één stuk rondom, zonder naad. Het grijze kader is de lip.',
+    'Trek de beschermfolie af en kleef de lip op de geleiderand van de instroomplaat, de buitenrand gelijk met de buitenkant van de rand.'];
+  return `${kader(1, 'afdichtlip (siliconenrubber 0,5 mm)', uitleg, 'Snijmal')}\n${s.join('\n')}`;
+}
+
 // per doos een eigen set bladen met een eigen nummering
-export const DOZEN = { afzuiging: [uitsparingHelft(-1), uitsparingHelft(1)], knop: [knopgat()], voedingsbox: [onderkant()] };
+export const DOZEN = { afzuiging: [uitsparingHelft(-1), uitsparingHelft(1)], knop: [knopgat()], voedingsbox: [onderkant()], afdichtlip: [snijmalLip()] };
 const svg = (b) => `<svg xmlns="http://www.w3.org/2000/svg" width="210mm" height="297mm" viewBox="0 0 ${W} ${H}"><rect width="${W}" height="${H}" fill="#fff"/>\n${b}\n</svg>`;
 for (const [doos, bladen] of Object.entries(DOZEN)) {
   const genummerd = bladen.map((b) => b.replace('§TOTAAL§', String(bladen.length)));
@@ -176,4 +192,4 @@ ${genummerd.map((b) => `<div class="blad">${svg(b)}</div>`).join('\n')}
 </body></html>`);
   genummerd.forEach((b, i) => writeFileSync(join(HERE, `mal-${doos}-${i + 1}.svg`), `${svg(b)}\n`));
 }
-console.log('geschreven: mal-afzuiging, mal-knop en mal-voedingsbox (html en svg)');
+console.log('geschreven: mal-afzuiging, mal-knop, mal-voedingsbox en mal-afdichtlip (html en svg)');

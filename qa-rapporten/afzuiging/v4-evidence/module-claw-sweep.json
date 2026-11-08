@@ -1,0 +1,41 @@
+{
+  "scope": "Independent tessellated module-claw plus new rubber versus Romp only; 1deg swing at bottomY=-61 and 1mm vertical deployed slide to bottomY=-16. No knob-claw, screw threads, print tolerance, assembled whole-path or official kernel certification.",
+  "results": [
+    {
+      "pivot_xz": [
+        96.5,
+        72.0
+      ],
+      "poses": 137,
+      "maximum_intersection_mm3": 3.5312031076983885e-14,
+      "hits_over_0_02": []
+    },
+    {
+      "pivot_xz": [
+        96.5,
+        -72.0
+      ],
+      "poses": 137,
+      "maximum_intersection_mm3": 3.417275143413612e-14,
+      "hits_over_0_02": []
+    },
+    {
+      "pivot_xz": [
+        -96.5,
+        72.0
+      ],
+      "poses": 137,
+      "maximum_intersection_mm3": 3.0670344736138944e-14,
+      "hits_over_0_02": []
+    },
+    {
+      "pivot_xz": [
+        -96.5,
+        -72.0
+      ],
+      "poses": 137,
+      "maximum_intersection_mm3": 3.0670344736138944e-14,
+      "hits_over_0_02": []
+    }
+  ]
+}

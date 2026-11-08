@@ -15,9 +15,9 @@ for (let i = 0; i < n; i++) await page.locator('.blad').nth(i).screenshot({ path
 // freesmallen, apart per doos: A4, schaal 1 (1 mm in de SVG = 1 mm op papier)
 await page.setViewportSize({ width: 794, height: 1123 });
 const mallen = [];
-for (const doos of ['afzuiging', 'knop', 'voedingsbox']) {
+for (const doos of ['afzuiging', 'knop', 'voedingsbox', 'afdichtlip']) {
   await page.goto(pathToFileURL(resolve(`${DIR}/mal-${doos}.html`)).href);
-  await page.pdf({ path: `${DIR}/Freesmal-${doos}-1op1-A4.pdf`, width: '210mm', height: '297mm', scale: 1, printBackground: true, margin: { top: 0, right: 0, bottom: 0, left: 0 } });
+  await page.pdf({ path: `${DIR}/${doos === 'afdichtlip' ? 'Snijmal' : 'Freesmal'}-${doos}-1op1-A4.pdf`, width: '210mm', height: '297mm', scale: 1, printBackground: true, margin: { top: 0, right: 0, bottom: 0, left: 0 } });
   const m = await page.locator('.blad').count();
   for (let i = 0; i < m; i++) await page.locator('.blad').nth(i).screenshot({ path: `e2e-out/mal-${doos}-${i + 1}.png` });
   mallen.push(`${doos} ${m}`);

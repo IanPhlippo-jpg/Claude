@@ -1,0 +1,62 @@
+﻿[
+    {
+        "path":  "AFZUIGING-eindverslag-v1.md",
+        "sha256":  "688a46e8b3320a3a2de98801443fd791f38f657db7f1e3c65ca7395aa9a8258b"
+    },
+    {
+        "path":  "AFZUIGING-eindverslag-v2.md",
+        "sha256":  "2d7490d467d3054e922d472a912ef61cdf564f9f71d8e14e0249448eb88f4c85"
+    },
+    {
+        "path":  "AFZUIGING-eindverslag-v3.md",
+        "sha256":  "79b8ea3c87860f4037b894856d4c378d5e9437cad8bceb1414901d9060cd2918"
+    },
+    {
+        "path":  "AFZUIGING-QA-rapport-v1.md",
+        "sha256":  "1ec54d3670fc2a958a97313deaaadc30c20204d296790b2107b45aa41634c504"
+    },
+    {
+        "path":  "findings-v1.json",
+        "sha256":  "ac5082719e3e12532ac44e4c76e2c8f4a97b1a05f0668843bfd6e471f01668e8"
+    },
+    {
+        "path":  "findings-v3.json",
+        "sha256":  "3e7cd486da116b9805e53bfebacf655b646cccbaf7d8e8bdd2a4cc8790e657af"
+    },
+    {
+        "path":  "team-blind\\Rapport-Alpha.md",
+        "sha256":  "73d84e53f7e5100cd1d8cb57dee4c031e19e90cf7a82614abea30655cb3746e9"
+    },
+    {
+        "path":  "team-blind\\Rapport-Beta.md",
+        "sha256":  "67d87d9bdc960ac590564e4bbdc3f9a61b5afb66148009ea0a61ef0cdea2eca7"
+    },
+    {
+        "path":  "team-blind\\Rapport-Delta.md",
+        "sha256":  "121c19c61c51342b222d0fcf690eefd7c0dcc9fd2b6b75d00c89e1fbcbb7a4e7"
+    },
+    {
+        "path":  "team-blind\\Rapport-Gamma.md",
+        "sha256":  "ff9c69870859dfc689605369ef1df95ec4954be7b1adbf1f91a2101bfc4590fd"
+    },
+    {
+        "path":  "team-blind\\SHA256.json",
+        "sha256":  "9c1615273f8e71e1266e7905633c99e254deeed3b712efd4fb32de13b6069b47"
+    },
+    {
+        "path":  "team-blind\\v3\\Rapport-Alpha.md",
+        "sha256":  "9752952616b581eac5347f91ac890d2182d690f4042b4c2383bce80f19cae23d"
+    },
+    {
+        "path":  "team-blind\\v3\\Rapport-Beta.md",
+        "sha256":  "784663a5e6f0582723b5e64c9e8f815a59659184ed6fb2574f56793c887be754"
+    },
+    {
+        "path":  "team-blind\\v3\\Rapport-Delta.md",
+        "sha256":  "c5e3138b640e2f5bcb0fed8f76e7dc5a9016344ed5802dec04f4f5059c422306"
+    },
+    {
+        "path":  "team-blind\\v3\\Rapport-Gamma.md",
+        "sha256":  "ae58ec6c34abe46c189e92a5c2c2bd2c84de9628b26cbf3f1a421db4f1646696"
+    }
+]

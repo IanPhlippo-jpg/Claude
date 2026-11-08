@@ -1,0 +1,113 @@
+{
+  "scope": "No filter media;with/without existing source upper-plenum scenario;nominal source pressure observation;not a physical filter detector validation.",
+  "rows": [
+    {
+      "rpm": 0.75,
+      "k": 0.7,
+      "plenum_extra_Pa_at_250": 0,
+      "ratio_without_filter": 0.33625778239825815
+    },
+    {
+      "rpm": 0.75,
+      "k": 1,
+      "plenum_extra_Pa_at_250": 0,
+      "ratio_without_filter": 0.4073488317961568
+    },
+    {
+      "rpm": 0.75,
+      "k": 1.5,
+      "plenum_extra_Pa_at_250": 0,
+      "ratio_without_filter": 0.48735423482061846
+    },
+    {
+      "rpm": 0.8,
+      "k": 0.7,
+      "plenum_extra_Pa_at_250": 0,
+      "ratio_without_filter": 0.34617001127391245
+    },
+    {
+      "rpm": 0.8,
+      "k": 1,
+      "plenum_extra_Pa_at_250": 0,
+      "ratio_without_filter": 0.4180192867625369
+    },
+    {
+      "rpm": 0.8,
+      "k": 1.5,
+      "plenum_extra_Pa_at_250": 0,
+      "ratio_without_filter": 0.4990295668619248
+    },
+    {
+      "rpm": 1,
+      "k": 0.7,
+      "plenum_extra_Pa_at_250": 0,
+      "ratio_without_filter": 0.38429883693520556
+    },
+    {
+      "rpm": 1,
+      "k": 1,
+      "plenum_extra_Pa_at_250": 0,
+      "ratio_without_filter": 0.4580407107825139
+    },
+    {
+      "rpm": 1,
+      "k": 1.5,
+      "plenum_extra_Pa_at_250": 0,
+      "ratio_without_filter": 0.5407798102767217
+    },
+    {
+      "rpm": 0.75,
+      "k": 0.7,
+      "plenum_extra_Pa_at_250": 47.63015876879686,
+      "ratio_without_filter": 0.27118889005741686
+    },
+    {
+      "rpm": 0.75,
+      "k": 1,
+      "plenum_extra_Pa_at_250": 47.63015876879686,
+      "ratio_without_filter": 0.3410600822866152
+    },
+    {
+      "rpm": 0.75,
+      "k": 1.5,
+      "plenum_extra_Pa_at_250": 47.63015876879686,
+      "ratio_without_filter": 0.4277850265715105
+    },
+    {
+      "rpm": 0.8,
+      "k": 0.7,
+      "plenum_extra_Pa_at_250": 47.63015876879686,
+      "ratio_without_filter": 0.28044384712389153
+    },
+    {
+      "rpm": 0.8,
+      "k": 1,
+      "plenum_extra_Pa_at_250": 47.63015876879686,
+      "ratio_without_filter": 0.35183641462732906
+    },
+    {
+      "rpm": 0.8,
+      "k": 1.5,
+      "plenum_extra_Pa_at_250": 47.63015876879686,
+      "ratio_without_filter": 0.4399271526276702
+    },
+    {
+      "rpm": 1,
+      "k": 0.7,
+      "plenum_extra_Pa_at_250": 47.63015876879686,
+      "ratio_without_filter": 0.31530762645270427
+    },
+    {
+      "rpm": 1,
+      "k": 1,
+      "plenum_extra_Pa_at_250": 47.63015876879686,
+      "ratio_without_filter": 0.3917195965317353
+    },
+    {
+      "rpm": 1,
+      "k": 1.5,
+      "plenum_extra_Pa_at_250": 47.63015876879686,
+      "ratio_without_filter": 0.4838765572365289
+    }
+  ]
+}

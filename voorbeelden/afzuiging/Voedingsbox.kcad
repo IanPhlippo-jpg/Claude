@@ -9035,7 +9035,7 @@
   {
    "id": "f12",
    "type": "extrude",
-   "name": "Gaten pluggen",
+   "name": "Gaten schroeven",
    "sketchId": "s6",
    "suppressed": false,
    "op": "cut",
@@ -9053,7 +9053,7 @@
   {
    "id": "f14",
    "type": "extrude",
-   "name": "Zitting pluggen",
+   "name": "Zitting schroeven",
    "sketchId": "s7",
    "suppressed": false,
    "op": "cut",

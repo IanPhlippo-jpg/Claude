@@ -1,0 +1,17 @@
+{
+  "scope": "Nominal knob claw against holder only;1deg swing atbottomY-60 then1mm deployed translation to-15. No thread/tolerance/full-table path certification.",
+  "results": [
+    {
+      "x": 16.5,
+      "poses": 137,
+      "maximum_intersection_mm3": 5.938039773431547e-15,
+      "hits": []
+    },
+    {
+      "x": -16.5,
+      "poses": 137,
+      "maximum_intersection_mm3": 0,
+      "hits": []
+    }
+  ]
+}

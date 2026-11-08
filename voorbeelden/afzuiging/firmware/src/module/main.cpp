@@ -3,17 +3,21 @@
 // met een verschildrukmeter (Sensirion SDP810-500Pa, een slangetje naar de ruimte onder het filter). De knop in het
 // blad stuurt de opdrachten draadloos (ESP-NOW, zie protocol.h) en toont de status die de module terugstuurt.
 //
-// Alle beslissingen (aan/uit, toerentalregeling, boosttegoed, ijken, meetgeldigheid, bewaking, koppelen) zitten in
-// regel.h en zijn op de pc getest (test/test_regel). Dit bestand doet alleen de hardware: PWM, tacho, I2C, ESP-NOW
-// en het NVS. Een nieuwe knop koppelen: de schakelaar van de box 3 keer kort aan en uit (telkens < 5 s), dan staat het
-// koppelvenster 60 s open.
+// Alle beslissingen (aan/uit, toerentalregeling, boosttegoed, ijken, meetgeldigheid, bewaking, koppelen, voeding van
+// de ventilator) zitten in regel.h en zijn op de pc getest (test/test_regel). Dit bestand doet alleen de hardware: PWM,
+// voeding, tacho, I2C, ESP-NOW en het NVS. Een nieuwe knop koppelen: de schakelaar van de box 3 keer kort aan en uit
+// (telkens < 5 s), dan staat het koppelvenster 60 s open; dezelfde handeling wist ook de eerste ijking (de volgende
+// geldige ijking wordt de nieuwe referentie).
 //
 // Aansluiting (zie ../../schema/Aansluitschema-afzuiging.pdf):
 //   GPIO5 SDA, GPIO6 SCL -> SDP810 (adres 0x25, 3,3 V uit de 3V3-pin, pull-ups 4,7 kOhm naar 3,3 V)
 //   GPIO3 -> 1 kOhm -> basis Q1 (BC547); collector -> PWM-draad van de ventilator (bruin); emitter -> GND.
 //            Basis 10 kOhm naar 3,3 V: bij het opstarten geleidt Q1, de PWM-draad is laag, de ventilator staat stil.
+//   GPIO7 -> basis -Q3 (BC547), die de hoge-zijde-schakelaar -Q2 (IRF4905) in de 24 V naar de ventilator aanstuurt.
+//            Hoog = 24 V aan. Een weerstand trekt de basis van -Q3 laag: bij reset, flashen of zonder 5 V/3,3 V is de
+//            ventilator spanningsloos (veilige toestand = stil). GPIO2, 8 en 9 zijn strapping-pinnen: niet gebruikt.
 //   GPIO4 <- tacho van de ventilator (geel, open collector), 10 kOhm naar 3,3 V; 2 pulsen per omwenteling.
-//   5V-pin uit de regelaar D24V10F5 (L5), GND gemeenschappelijk; de ventilator op 24 V (L+) via de M8-kabel.
+//   5V-pin uit de regelaar D24V10F5 (L5), GND gemeenschappelijk; de ventilator op 24 V (via -Q2) via de M8-kabel.
 // Q1 keert het PWM-signaal om: hoog op GPIO3 trekt de PWM-draad laag. De firmware rekent dat om.
 
 #include <Arduino.h>
@@ -32,6 +36,7 @@ using namespace afzuiging;
 
 constexpr int PIN_SDA = 5, PIN_SCL = 6;
 constexpr int PIN_PWM = 3;
+constexpr int PIN_VOEDING = 7; // -Q3/-Q2: 24 V naar de ventilator (hoog = aan)
 constexpr int PIN_TACHO = 4;
 constexpr int PULSEN_PER_OMW = 2;
 constexpr int PWM_KANAAL = 0;
@@ -46,13 +51,14 @@ const uint8_t IEDEREEN[6] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 Preferences prefs;
 Regelaar regel;
 Koppeling koppeling;
+bool radioOk = false; // ESP-NOW draait en de knop staat als peer: anders is er geen verbinding (logboek)
 
 // ontvangen in de callback, verwerkt in loop()
 portMUX_TYPE slot = portMUX_INITIALIZER_UNLOCKED;
 volatile bool nieuweOpdracht = false, nieuweKoppeling = false;
 Opdracht ontvangen;
 uint8_t ontvangenVan[6];
-Koppel koppelVraag;
+Koppel koppelBericht;
 uint8_t koppelVan[6];
 
 volatile uint32_t tachoPulsen = 0;
@@ -62,6 +68,7 @@ void zetPwm(int pct) {
   // het PWM-signaal is omgekeerd door Q1: 0 % op de ventilator (stil) = GPIO altijd hoog
   const int max = (1 << PWM_BITS) - 1;
   ledcWrite(PWM_KANAAL, max - (constrain(pct, 0, 100) * max) / 100);
+  digitalWrite(PIN_VOEDING, voedingAan(pct) ? HIGH : LOW); // UIT = ook spanningsloos
 }
 
 // ---- Sensirion SDP810: continu meten (gemiddeld tot uitlezen), 9 bytes met CRC-8 (polynoom 0x31, start 0xFF) ----
@@ -105,29 +112,65 @@ void bijOntvangst(const uint8_t *mac, const uint8_t *data, int len) {
   } else if (len == (int)sizeof(Koppel)) {
     Koppel k;
     memcpy(&k, data, sizeof k);
-    if (k.magie != MAGIE || k.versie != VERSIE || k.soort != SOORT_KOPPEL) return;
+    if (k.magie != MAGIE || k.versie != VERSIE || (k.soort != SOORT_KOPPEL && k.soort != SOORT_KOPPEL_BEVESTIG)) return;
     portENTER_CRITICAL(&slot);
-    koppelVraag = k;
+    koppelBericht = k;
     memcpy(koppelVan, mac, 6);
     nieuweKoppeling = true;
     portEXIT_CRITICAL(&slot);
   }
 }
 
-void voegKnopToe() {
+/** de gekoppelde knop als versleutelde peer; false = lukt niet (dan is er geen verbinding) */
+bool voegKnopToe() {
   esp_now_del_peer(koppeling.mac);
   esp_now_peer_info_t peer = {};
   memcpy(peer.peer_addr, koppeling.mac, 6);
   peer.channel = KANAAL;
   peer.encrypt = true;
   memcpy(peer.lmk, koppeling.sleutel, 16);
-  esp_now_add_peer(&peer);
+  radioOk = esp_now_add_peer(&peer) == ESP_OK;
+  if (!radioOk) Serial.println("knop niet toegevoegd: geen verbinding");
+  return radioOk;
+}
+
+void koppelen(uint32_t nu) {
+  if (koppeling.tik(nu) && koppeling.gekoppeld) voegKnopToe(); // geen bevestiging: de vorige knop terug
+  if (!nieuweKoppeling) return;
+  portENTER_CRITICAL(&slot);
+  const Koppel k = koppelBericht;
+  uint8_t van[6];
+  memcpy(van, koppelVan, 6);
+  nieuweKoppeling = false;
+  portEXIT_CRITICAL(&slot);
+  if (k.soort == SOORT_KOPPEL) {
+    // alleen kandidaat; nog niets bewaren. Is het de al gekoppelde knop (opnieuw koppelen met een nieuwe sleutel), dan
+    // even zonder versleutelde peer, zodat zijn onversleutelde bevestiging binnenkomt.
+    if (!koppeling.vraag(van, k, nu)) return;
+    if (koppeling.gekoppeld && memcmp(van, koppeling.mac, 6) == 0) esp_now_del_peer(van);
+    Koppel ok; // dezelfde uitdaging en ons eigen MAC-adres terug, zonder sleutel
+    ok.soort = SOORT_KOPPEL_OK;
+    ok.uitdaging = k.uitdaging;
+    memcpy(ok.mac, koppeling.eigen, 6);
+    if (esp_now_send(IEDEREEN, (const uint8_t *)&ok, sizeof ok) != ESP_OK) Serial.println("KOPPEL_OK niet verzonden");
+  } else if (koppeling.bevestig(van, k, nu)) {
+    // de knop koos deze module: nu pas toevoegen en bewaren (lukt het toevoegen niet, dan niets bewaren)
+    if (voegKnopToe()) {
+      prefs.putBytes("knopmac", koppeling.mac, 6);
+      prefs.putBytes("knopsleutel", koppeling.sleutel, 16);
+      Serial.println("knop gekoppeld");
+    } else {
+      koppeling.gekoppeld = false;
+    }
+  }
 }
 
 } // namespace
 
 void setup() {
-  // eerst de ventilator stil houden (de basisweerstand van Q1 doet dat al tot hier), dan de PWM
+  // eerst de ventilator spanningsloos en stil (de weerstanden van -Q3 en Q1 doen dat al tot hier), dan de PWM
+  pinMode(PIN_VOEDING, OUTPUT);
+  digitalWrite(PIN_VOEDING, LOW);
   pinMode(PIN_TACHO, INPUT_PULLUP);
   attachInterrupt(PIN_TACHO, tachoIsr, FALLING);
   ledcSetup(PWM_KANAAL, PWM_FREQ, PWM_BITS);
@@ -139,54 +182,45 @@ void setup() {
   if (sdpStart()) regel.meterHersteld();
 
   prefs.begin("afzuiging", false);
-  float w[5], tp[5];
-  if (prefs.getBytes("schoon", w, sizeof w) == sizeof w && prefs.getBytes("toeren", tp, sizeof tp) == sizeof tp)
-    regel.laadIjking(w, tp, 5); // alleen geldige, stijgende waarden worden geladen
-  uint8_t m[6], k[16];
-  if (prefs.getBytes("knopmac", m, 6) == 6 && prefs.getBytes("knopsleutel", k, 16) == 16) koppeling.laad(m, k);
-  // bewuste handeling om een nieuwe knop te koppelen: de schakelaar 3 keer kort (< 5 s) aan en uit
+  // bewuste handeling: de schakelaar 3 keer kort (< 5 s) aan en uit: nieuwe knop koppelen en de eerste ijking wissen
   const uint8_t snel = prefs.getUChar("snelstart", 0) + 1;
   prefs.putUChar("snelstart", snel);
   if (herkoppelHandeling(snel)) {
     koppeling.herkoppelen = true;
     prefs.putUChar("snelstart", 0);
-    Serial.println("koppelvenster open voor een nieuwe knop (60 s)");
+    prefs.remove("eerste");
+    Serial.println("koppelvenster open voor een nieuwe knop (60 s); eerste ijking gewist");
   }
+  float w[5], tp[5], e[5];
+  if (prefs.getBytes("schoon", w, sizeof w) == sizeof w && prefs.getBytes("toeren", tp, sizeof tp) == sizeof tp)
+    if (!regel.laadIjking(w, tp, 5)) Serial.println("bewaarde ijking ongeldig: niet geladen");
+  if (prefs.getBytes("eerste", e, sizeof e) == sizeof e && !regel.laadEerste(e, 5)) Serial.println("eerste ijking ongeldig");
+  uint8_t m[6], k[16];
+  if (prefs.getBytes("knopmac", m, 6) == 6 && prefs.getBytes("knopsleutel", k, 16) == 16) koppeling.laad(m, k);
 
   WiFi.mode(WIFI_STA);
   esp_wifi_set_channel(KANAAL, WIFI_SECOND_CHAN_NONE);
-  if (esp_now_init() != ESP_OK) Serial.println("ESP-NOW start niet");
-  esp_now_set_pmk(PMK);
-  esp_now_peer_info_t peer = {};
-  memcpy(peer.peer_addr, IEDEREEN, 6); // alleen voor KOPPEL_OK in het koppelvenster
-  peer.channel = KANAAL;
-  esp_now_add_peer(&peer);
-  if (koppeling.gekoppeld) voegKnopToe();
-  esp_now_register_recv_cb(bijOntvangst);
+  esp_wifi_get_mac(WIFI_IF_STA, koppeling.eigen);
+  // startnummer van deze start (met de radio aan is esp_random echt willekeurig); nooit 0
+  regel.startId = esp_random() | 1;
+  if (esp_now_init() != ESP_OK) {
+    Serial.println("ESP-NOW start niet: geen verbinding");
+  } else {
+    esp_now_set_pmk(PMK);
+    esp_now_peer_info_t peer = {};
+    memcpy(peer.peer_addr, IEDEREEN, 6); // alleen voor KOPPEL_OK in het koppelvenster
+    peer.channel = KANAAL;
+    if (esp_now_add_peer(&peer) != ESP_OK) Serial.println("broadcast-peer niet toegevoegd: koppelen kan niet");
+    if (koppeling.gekoppeld) voegKnopToe();
+    esp_now_register_recv_cb(bijOntvangst);
+  }
 }
 
 void loop() {
   const uint32_t nu = millis();
 
-  // koppelen (alleen in de eerste 60 s na het aanzetten van de box)
-  if (nieuweKoppeling) {
-    portENTER_CRITICAL(&slot);
-    const Koppel k = koppelVraag;
-    uint8_t van[6];
-    memcpy(van, koppelVan, 6);
-    nieuweKoppeling = false;
-    portEXIT_CRITICAL(&slot);
-    if (koppeling.vraag(van, k, nu)) {
-      prefs.putBytes("knopmac", koppeling.mac, 6);
-      prefs.putBytes("knopsleutel", koppeling.sleutel, 16);
-      Koppel ok; // dezelfde uitdaging terug, zonder sleutel; de knop aanvaardt alleen zijn eigen uitdaging
-      ok.soort = SOORT_KOPPEL_OK;
-      ok.uitdaging = k.uitdaging;
-      esp_now_send(IEDEREEN, (const uint8_t *)&ok, sizeof ok);
-      voegKnopToe();
-      Serial.println("knop gekoppeld");
-    }
-  }
+  // koppelen (alleen in de eerste 60 s na het aanzetten van de box, en pas na de bevestiging van de knop)
+  koppelen(nu);
   // na 5 s draaien is dit geen snelle start meer
   static bool snelGewist = false;
   if (!snelGewist && nu > 5000) {
@@ -194,7 +228,7 @@ void loop() {
     snelGewist = true;
   }
 
-  // opdrachten: alleen van de gekoppelde knop, met een stijgend volgnummer
+  // opdrachten: alleen van de gekoppelde knop, met een stijgend volgnummer (AAN alleen met ons startnummer: regel.h)
   if (nieuweOpdracht) {
     portENTER_CRITICAL(&slot);
     const Opdracht o = ontvangen;
@@ -227,28 +261,32 @@ void loop() {
     vorigeTacho = nu;
   }
 
-  zetPwm(regel.stap(nu));
+  zetPwm(regel.stap(nu)); // PWM en 24 V samen
 
   if (regel.nieuweIjking) {
     prefs.putBytes("schoon", regel.ijking(), 5 * sizeof(float));
     prefs.putBytes("toeren", regel.ijkToeren(), 5 * sizeof(float));
     regel.nieuweIjking = false;
   }
+  if (regel.nieuweEerste) {
+    prefs.putBytes("eerste", regel.eersteIjking(), 5 * sizeof(float));
+    regel.nieuweEerste = false;
+  }
 
-  static uint32_t vorigeStatus = 0;
-  if (koppeling.gekoppeld && nu - vorigeStatus >= 250) {
+  static uint32_t vorigeStatus = 0, statusFouten = 0;
+  if (koppeling.gekoppeld && radioOk && nu - vorigeStatus >= 250) {
     vorigeStatus = nu;
     Status s;
     regel.vulStatus(s, nu);
-    esp_now_send(koppeling.mac, (const uint8_t *)&s, sizeof s);
+    if (esp_now_send(koppeling.mac, (const uint8_t *)&s, sizeof s) != ESP_OK) statusFouten++; // de knop ziet dan geen verse status
   }
 
   static uint32_t vorigLog = 0;
   if (nu - vorigLog >= 1000) {
     vorigLog = nu;
-    Serial.printf("aan=%d stand=%d pwm=%d toeren=%u dp=%.1f vers=%d vol=%.2f bewaking=%d storing=%d geijkt=%d ijken=%d fout=%d tegoed=%lu\n",
+    Serial.printf("aan=%d stand=%d pwm=%d toeren=%u dp=%.1f vers=%d vol=%.2f bewaking=%d storing=%d geijkt=%d ijken=%d fout=%d tegoed=%lu radio=%d zendfouten=%lu\n",
                   regel.aan, regel.stand, regel.gegeven, regel.toeren, regel.dp, regel.meetVers(nu), regel.vol, regel.bewaking, regel.storing,
-                  regel.geijkt, regel.ijkStap, regel.ijkFout, (unsigned long)regel.boostTegoed);
+                  regel.geijkt, regel.ijkStap, regel.ijkFout, (unsigned long)regel.boostTegoed, radioOk, (unsigned long)statusFouten);
   }
   delay(5);
 }

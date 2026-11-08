@@ -1,0 +1,770 @@
+[
+  {
+    "file": "Adapterklem.kcad",
+    "bytes": 4981,
+    "sha256": "316383d7d50938bebdfb647891d7c73b2f6469db33232291c7e4b576658c620c",
+    "result": "JSON parse OK",
+    "features": 6,
+    "sketches": 3,
+    "reference_errors": []
+  },
+  {
+    "file": "Adapterprint-knop.kcad",
+    "bytes": 5076,
+    "sha256": "dc6f748c510adff767f617e413edd6aef363b71d0cd30a19489033eec9553092",
+    "result": "JSON parse OK",
+    "features": 6,
+    "sketches": 3,
+    "reference_errors": []
+  },
+  {
+    "file": "Afzuiging-alles-afdrukken.pdf",
+    "bytes": 2737243,
+    "sha256": "b491778777c8b6f12dc59b4dc296d21348c3415f795dffbc05b75818266591d5",
+    "result": "PDF text extracted via pdftotext; see derived txt"
+  },
+  {
+    "file": "Afzuiging.kcad",
+    "bytes": 1299203,
+    "sha256": "fe5d55ac33dba96b6c5a4ef83a8d3edecea93f982b77294f6a4c2b91d69397c6",
+    "result": "JSON parse OK",
+    "features": 0,
+    "sketches": 0,
+    "reference_errors": []
+  },
+  {
+    "file": "Bodemplaat.kcad",
+    "bytes": 36473,
+    "sha256": "a966bbcae4f723991c2b1f8802462ffd0f6b693b5e7c0bd718145b8187d98105",
+    "result": "JSON parse OK",
+    "features": 14,
+    "sketches": 7,
+    "reference_errors": []
+  },
+  {
+    "file": "Bovenframe.kcad",
+    "bytes": 13188,
+    "sha256": "0e61d4034c55b699f1805245af2cc3a38aadeb566839d8959ee4e4387c533b25",
+    "result": "JSON parse OK",
+    "features": 10,
+    "sketches": 5,
+    "reference_errors": []
+  },
+  {
+    "file": "Deksel-voedingsbox.kcad",
+    "bytes": 6294,
+    "sha256": "9571d0f0ef1f911ec4cb60730213189cb972889acf006d91c7af7c5b84b65a0c",
+    "result": "JSON parse OK",
+    "features": 6,
+    "sketches": 3,
+    "reference_errors": []
+  },
+  {
+    "file": "Foamband.kcad",
+    "bytes": 5180,
+    "sha256": "03f83aba23dc70bbec88fcbf6983cab1771246d5ce8f80e939db9cdcf713dae6",
+    "result": "JSON parse OK",
+    "features": 2,
+    "sketches": 1,
+    "reference_errors": []
+  },
+  {
+    "file": "Instroomplaat.kcad",
+    "bytes": 28712,
+    "sha256": "7edab813fdaed226b43c390e487c347951d306490587e8757263231d1fe1fbe5",
+    "result": "JSON parse OK",
+    "features": 16,
+    "sketches": 8,
+    "reference_errors": []
+  },
+  {
+    "file": "Interieurfilter-CU20013.kcad",
+    "bytes": 75543,
+    "sha256": "475516c34b33199b3ee366e64367685d8adbc06ae44c20a6598004d180d2bef4",
+    "result": "JSON parse OK",
+    "features": 6,
+    "sketches": 3,
+    "reference_errors": []
+  },
+  {
+    "file": "Klauw.kcad",
+    "bytes": 4841,
+    "sha256": "3523c1e87577364ecc03eba72b1cad8ecb39212d108e404e87fe15f93f28be8c",
+    "result": "JSON parse OK",
+    "features": 6,
+    "sketches": 3,
+    "reference_errors": []
+  },
+  {
+    "file": "Klauwrubber.kcad",
+    "bytes": 3066,
+    "sha256": "71e4656e665d2db3d39df86807d2d54343ca7995e5a261e21b5c47d676ef975b",
+    "result": "JSON parse OK",
+    "features": 2,
+    "sketches": 1,
+    "reference_errors": []
+  },
+  {
+    "file": "Knopdeksel.kcad",
+    "bytes": 5623,
+    "sha256": "9044b5908e8567ca11117a404842de64f4d209d1e4a36cf357b68d6aecd1d0bb",
+    "result": "JSON parse OK",
+    "features": 8,
+    "sketches": 4,
+    "reference_errors": []
+  },
+  {
+    "file": "Knophouder.kcad",
+    "bytes": 36626,
+    "sha256": "38577e867e1107e7989c99b8c4f9e03ed19a30fbe95861fe7315431a9e61fa2e",
+    "result": "JSON parse OK",
+    "features": 42,
+    "sketches": 21,
+    "reference_errors": []
+  },
+  {
+    "file": "Knopklauw.kcad",
+    "bytes": 4858,
+    "sha256": "99b86d8c26a0042995aec7a88de9f9ce069b425b13e2cf1151397bcd1bb64cbe",
+    "result": "JSON parse OK",
+    "features": 6,
+    "sketches": 3,
+    "reference_errors": []
+  },
+  {
+    "file": "M8-inbouwbus.kcad",
+    "bytes": 10985,
+    "sha256": "1e8eb22c03da0f14f279f1b6f707b3a64d47e790241a2d42951862071bf86efe",
+    "result": "JSON parse OK",
+    "features": 14,
+    "sketches": 7,
+    "reference_errors": []
+  },
+  {
+    "file": "M8-inbouwstekker.kcad",
+    "bytes": 12065,
+    "sha256": "b9e5bf68883a7ab032b48a13d5d481f0fb9a7e4edb8191ef882e01e482471e4a",
+    "result": "JSON parse OK",
+    "features": 16,
+    "sketches": 8,
+    "reference_errors": []
+  },
+  {
+    "file": "maak-afzuiging.mjs",
+    "bytes": 84846,
+    "sha256": "83510a206fdf581e336997a8c4564a3ba9f8202cbbc25e39663feb479ec7e2fe",
+    "result": "UTF-8 read OK"
+  },
+  {
+    "file": "Netadapter-GST90A24.kcad",
+    "bytes": 12890,
+    "sha256": "7a516ced7e8db708a67216f5970da15b47155157f1c3cad5bc160db5f5599846",
+    "result": "JSON parse OK",
+    "features": 10,
+    "sketches": 5,
+    "reference_errors": []
+  },
+  {
+    "file": "onderhoud.mjs",
+    "bytes": 1824,
+    "sha256": "7c97c5e40608b79c055ec2578985ea25038df17224ee365d2564fdc581d4c6d9",
+    "result": "UTF-8 read OK"
+  },
+  {
+    "file": "prijslijst.py",
+    "bytes": 2870,
+    "sha256": "21a96a914aef7339e922c08e40f9b2beba45c56deb114f2e4992e6c3ad49905f",
+    "result": "UTF-8 read OK"
+  },
+  {
+    "file": "README.md",
+    "bytes": 26589,
+    "sha256": "d5acf212c9199cba3e93cb8cfde3a5298ac9bd1321fb28fb596d34b47fe1e180",
+    "result": "UTF-8 read OK"
+  },
+  {
+    "file": "revisie.mjs",
+    "bytes": 371,
+    "sha256": "405a271153dbc5a246ad1e52417523a090c3799b0853cb0fb418be8e1120d559",
+    "result": "UTF-8 read OK"
+  },
+  {
+    "file": "Romp.kcad",
+    "bytes": 50712,
+    "sha256": "0d20d4097e0fe1229ea8a3f382578f22b20d01a4cb069ea683bcef37d26c314c",
+    "result": "JSON parse OK",
+    "features": 44,
+    "sketches": 22,
+    "reference_errors": []
+  },
+  {
+    "file": "Rooster-LB.kcad",
+    "bytes": 260603,
+    "sha256": "dc77955417664a47d35499789d532948309a158d526b66d059370290a656820d",
+    "result": "JSON parse OK",
+    "features": 2,
+    "sketches": 1,
+    "reference_errors": []
+  },
+  {
+    "file": "USB-C-bus-knop.kcad",
+    "bytes": 14340,
+    "sha256": "528ca58ed8fe017a60e6883dfa84e75cdb43942297f01926290f64cf322e646b",
+    "result": "JSON parse OK",
+    "features": 12,
+    "sketches": 6,
+    "reference_errors": []
+  },
+  {
+    "file": "USB-C-bus-knophouder.kcad",
+    "bytes": 14539,
+    "sha256": "6beece7b9c7d35f76d44f2fce739f555ebd82d5d9d0502308a4d0982cabfa4fd",
+    "result": "JSON parse OK",
+    "features": 10,
+    "sketches": 5,
+    "reference_errors": []
+  },
+  {
+    "file": "Ventilator-San-Ace-C175.kcad",
+    "bytes": 13298,
+    "sha256": "b1f9e70faf8e63c9b34b872350cf5cc0a2661677a5ab1c3b3c344083f7438e07",
+    "result": "JSON parse OK",
+    "features": 10,
+    "sketches": 5,
+    "reference_errors": []
+  },
+  {
+    "file": "VIEWE-knop-1.5.kcad",
+    "bytes": 39986,
+    "sha256": "020ab48f424690833d03040e6316d55329a9dfd7b19022cc4d4d89be66f4ec77",
+    "result": "JSON parse OK",
+    "features": 18,
+    "sketches": 9,
+    "reference_errors": []
+  },
+  {
+    "file": "Voedingsbox.kcad",
+    "bytes": 155697,
+    "sha256": "d88cf8795151fbe904b6f61143f32397a562c1ddcd59481fa9deb81e1585c4e9",
+    "result": "JSON parse OK",
+    "features": 52,
+    "sketches": 26,
+    "reference_errors": []
+  },
+  {
+    "file": "Voedingsprint.kcad",
+    "bytes": 46864,
+    "sha256": "622399c132b03dbc309aa4e69222899b9df9a8642bf0d372d2babb988c383000",
+    "result": "JSON parse OK",
+    "features": 50,
+    "sketches": 25,
+    "reference_errors": []
+  },
+  {
+    "file": "Wipschakelaar-D502.kcad",
+    "bytes": 12920,
+    "sha256": "69f17f84e0b5a12dda3d4b981e5ff498035b8fe2487736c84e66241e987a6be7",
+    "result": "JSON parse OK",
+    "features": 12,
+    "sketches": 6,
+    "reference_errors": []
+  },
+  {
+    "file": "docs/Berekeningen.md",
+    "bytes": 14556,
+    "sha256": "de87cdc533236cde63d9ca1e754184c4b6ded6efbcbd8f9efb32141fe39d3136",
+    "result": "UTF-8 read OK"
+  },
+  {
+    "file": "docs/berekeningen.py",
+    "bytes": 34125,
+    "sha256": "d2b286363a4376cc4d18bdc6b5e3da52bb5dba932cc5e91eeb5c9e8145c00c22",
+    "result": "UTF-8 read OK"
+  },
+  {
+    "file": "docs/Besparingen.md",
+    "bytes": 3940,
+    "sha256": "9bc0559cac4b18af206a2587f9181a0447a173214e0563b9300fb2968cc31b78",
+    "result": "UTF-8 read OK"
+  },
+  {
+    "file": "docs/Materiaalstaat.md",
+    "bytes": 5215,
+    "sha256": "0efec52cb0e1c1777c7b514c10bcb7720f80d1e75a388ac3980c4550f1be2212",
+    "result": "UTF-8 read OK"
+  },
+  {
+    "file": "docs/Vrijgave-en-meetplan.md",
+    "bytes": 12964,
+    "sha256": "b77c67b4b8e1ec9babad566f67165ba09b273ca02543c26d3d23273dc035cd3c",
+    "result": "UTF-8 read OK"
+  },
+  {
+    "file": "firmware/.gitignore",
+    "bytes": 6,
+    "sha256": "692b1af4436043e2e965c8d563bbf90d648cda3a6afa9bba38e1c38af1d38919",
+    "result": "UTF-8 read OK"
+  },
+  {
+    "file": "firmware/platformio.ini",
+    "bytes": 1460,
+    "sha256": "6fd4f996a02874963af0182edd884bfa5038bd58807cc4a72fce7ac23a2528c3",
+    "result": "UTF-8 read OK"
+  },
+  {
+    "file": "firmware/include/protocol.h",
+    "bytes": 4913,
+    "sha256": "8ff1ff84b5318b07e832cbd765675ed2e8b984ee22659a41faaa4f6e5fd2fca8",
+    "result": "UTF-8 read OK"
+  },
+  {
+    "file": "firmware/include/regel.h",
+    "bytes": 18119,
+    "sha256": "d1b9620992616a3fed532bdc0753820f666d1b53231bf2659e6ff87b70fe0992",
+    "result": "UTF-8 read OK"
+  },
+  {
+    "file": "firmware/src/knop/fonts.h",
+    "bytes": 478886,
+    "sha256": "0b91a687ccefdb207009ffa2aee75c383c8d7d461afd3dc290ced9f79c187c49",
+    "result": "UTF-8 read OK"
+  },
+  {
+    "file": "firmware/src/knop/logo.h",
+    "bytes": 17510,
+    "sha256": "8b3613f0433b4874d4132b1e22249d8268b987d1ce3daed5d16bc096097c25b5",
+    "result": "UTF-8 read OK"
+  },
+  {
+    "file": "firmware/src/knop/main.cpp",
+    "bytes": 19179,
+    "sha256": "5d7308e4ef5269f303d56e12510caab87dfca3391113f20398b3f96da4a8ae3c",
+    "result": "UTF-8 read OK"
+  },
+  {
+    "file": "firmware/src/module/main.cpp",
+    "bytes": 9406,
+    "sha256": "e921b1f361c47f9ca049335f3c377e3dee3e0db0b76416f3dcc2dfb85a8fb8b6",
+    "result": "UTF-8 read OK"
+  },
+  {
+    "file": "firmware/test/test_regel/test_regel.cpp",
+    "bytes": 14639,
+    "sha256": "007251e154376b9815beff881f87b130a7b59e7a7023d0a484d26fb2479a9488",
+    "result": "UTF-8 read OK"
+  },
+  {
+    "file": "firmware/ui/logo-knop.png",
+    "bytes": 1679,
+    "sha256": "e540d3c7bcf8363dc01199e862a8c558f2f284a4083200a5771ba9fea8f0bb34",
+    "dimensions": [
+      76,
+      56
+    ],
+    "result": "PNG decode OK"
+  },
+  {
+    "file": "firmware/ui/schermen.html",
+    "bytes": 10587,
+    "sha256": "7d46e6aa723f8d130ace7da89d325a054422565da706232623212c7d5f2ef3af",
+    "result": "UTF-8 read OK"
+  },
+  {
+    "file": "firmware/ui/schermen.png",
+    "bytes": 695079,
+    "sha256": "0076e1157a48f98d905959967e2776d6b2da0e6a4a5b323a4378ba035c93f60e",
+    "dimensions": [
+      2360,
+      4086
+    ],
+    "result": "PNG decode OK"
+  },
+  {
+    "file": "laser/rooster-voorbeeld.png",
+    "bytes": 146032,
+    "sha256": "51a011e40777189ec3476d2daef2bdc2fc38dd5e0a79f394331a1ae4852fa3e1",
+    "dimensions": [
+      1856,
+      1856
+    ],
+    "result": "PNG decode OK"
+  },
+  {
+    "file": "laser/rooster.dxf",
+    "bytes": 97529,
+    "sha256": "88bc36369fcd13b5f68337e0fc8beb94c3c9fa3c7ae9135fd0a8f1d154b64645",
+    "result": "DXF parse/audit",
+    "errors": 0,
+    "fixes": 0,
+    "units": 4,
+    "entities": 219
+  },
+  {
+    "file": "laser/rooster.loops",
+    "bytes": 23434,
+    "sha256": "9e1268a56158f05a0e1e52abb069c0ff7f194957e56627d0d54bc9cff7e7a321",
+    "result": "JSON parse OK"
+  },
+  {
+    "file": "logo/b-detail.png",
+    "bytes": 143864,
+    "sha256": "bedc2269362f3bf1e47e0ee95757bc164ab5745a0bbcac33886899b6a9d63976",
+    "dimensions": [
+      1290,
+      2796
+    ],
+    "result": "PNG decode OK"
+  },
+  {
+    "file": "logo/knopfont.py",
+    "bytes": 3359,
+    "sha256": "b6b427207d093255b4ed02ab7e504613d203d2ef6925d91228951973c4ca7191",
+    "result": "UTF-8 read OK"
+  },
+  {
+    "file": "logo/knoplogo.py",
+    "bytes": 2012,
+    "sha256": "a2b25940a92d8d6080159aa0ac462b882a0ce8f915b50fe0db55f6ace298d742",
+    "result": "UTF-8 read OK"
+  },
+  {
+    "file": "logo/lb-monogram.png",
+    "bytes": 188719,
+    "sha256": "4046df35412667514f09359e1aa234a850664d60d6652014435624c425e313a9",
+    "dimensions": [
+      1005,
+      650
+    ],
+    "result": "PNG decode OK"
+  },
+  {
+    "file": "logo/logo-px.loops",
+    "bytes": 9977,
+    "sha256": "20401ff68b818e3cf823ffb479580bccb28735abae226e069e5aa2f9e2382c91",
+    "result": "JSON parse OK"
+  },
+  {
+    "file": "logo/rooster.py",
+    "bytes": 14695,
+    "sha256": "932bb3a54f6e9add860c1d121fd0d053e31841775aa1ef51c09dc5dd542cd98a",
+    "result": "UTF-8 read OK"
+  },
+  {
+    "file": "logo/trace.py",
+    "bytes": 5605,
+    "sha256": "752b67fa2f19505bb8fd93b3e4f5a69e7022cdfa1fbb8af6bdb14c9f25087a89",
+    "result": "UTF-8 read OK"
+  },
+  {
+    "file": "logo/fonts/inter-latin-wght-normal.woff2",
+    "bytes": 48256,
+    "sha256": "3100e775e8616cd2611beecfa23a4263d7037586789b43f035236a2e6fbd4c62",
+    "result": "Font parse OK"
+  },
+  {
+    "file": "logo/fonts/Inter-OFL.txt",
+    "bytes": 4477,
+    "sha256": "3b0a5fca3d17942cde889069889dedbbbd075e9b599968c82a95f4d944e9b345",
+    "result": "UTF-8 read OK"
+  },
+  {
+    "file": "print/Adapterklem.stl",
+    "bytes": 83184,
+    "sha256": "5003cad8315cc0216ed13d68f3b2377066635966712116b125ece55b8fca8374",
+    "result": "Mesh audited separately"
+  },
+  {
+    "file": "print/Bodemplaat.stl",
+    "bytes": 1223984,
+    "sha256": "dcec7ac48e6d16a8fcecddec43de99511d5f1e96f78d6e44419e72623898e86c",
+    "result": "Mesh audited separately"
+  },
+  {
+    "file": "print/Bovenframe.stl",
+    "bytes": 434884,
+    "sha256": "3ba0123e3b9d45039e8c771824126ef1fc7771547c1c1053332ee8e5cfff4d2d",
+    "result": "Mesh audited separately"
+  },
+  {
+    "file": "print/Deksel-voedingsbox.stl",
+    "bytes": 253884,
+    "sha256": "5469501d6d3acc8dc21a2ec47c771827cbc2fc78f233b166b67b91f5556b85af",
+    "result": "Mesh audited separately"
+  },
+  {
+    "file": "print/Instroomplaat.stl",
+    "bytes": 292384,
+    "sha256": "04948214a090b712c61e44b5e9f3dd132a2fb969c33d20eb51bb6e4214a176fa",
+    "result": "Mesh audited separately"
+  },
+  {
+    "file": "print/Klauw.stl",
+    "bytes": 43484,
+    "sha256": "484f56a8aef1f7198b46061d7ad3b5285e373d54e4f9ee2831258b775b22dd7b",
+    "result": "Mesh audited separately"
+  },
+  {
+    "file": "print/Knopdeksel.stl",
+    "bytes": 244084,
+    "sha256": "4d23c11dfb8621ddbc05f3f1c0eccd1a9ef06b50db88c2efcd8465b88ee1183b",
+    "result": "Mesh audited separately"
+  },
+  {
+    "file": "print/Knophouder.stl",
+    "bytes": 637084,
+    "sha256": "639c19d573bd9e2d81992f38100aad0b91388da59868a5aee30ae0da14526072",
+    "result": "Mesh audited separately"
+  },
+  {
+    "file": "print/Knopklauw.stl",
+    "bytes": 43884,
+    "sha256": "a3ae6956a95a90639864ca8053efbe51795615ca5d16841fddab062289aec0f8",
+    "result": "Mesh audited separately"
+  },
+  {
+    "file": "print/Romp.stl",
+    "bytes": 599584,
+    "sha256": "b374ac0a0d615b4e42b11da6849e610ccdfac7cfee4180d1b6d6ce5b4cb12d6b",
+    "result": "Mesh audited separately"
+  },
+  {
+    "file": "print/Voedingsbox.stl",
+    "bytes": 2553584,
+    "sha256": "28c7e43956f9e731c67d9c7c82caa602da604f7d73ca59dbfdf32868d565bb4c",
+    "result": "Mesh audited separately"
+  },
+  {
+    "file": "schema/Aansluitschema-afzuiging.pdf",
+    "bytes": 119755,
+    "sha256": "8317b5260b360d7198bd82548618a802bb6689666cdf3f50524077d34b684f9b",
+    "result": "PDF text extracted via pdftotext; see derived txt"
+  },
+  {
+    "file": "schema/blad-1.svg",
+    "bytes": 7883,
+    "sha256": "8760f39d7222defb8393b0364432f484f81a2af4df149ac01bf0da963aaafb03",
+    "result": "SVG XML parse OK"
+  },
+  {
+    "file": "schema/blad-2.svg",
+    "bytes": 11153,
+    "sha256": "20fbf87fa2bfeed378e1347778f79384d7570c437e095a22e10ce2e53694925f",
+    "result": "SVG XML parse OK"
+  },
+  {
+    "file": "schema/blad-3.svg",
+    "bytes": 12982,
+    "sha256": "b2ff6151376a037e2df8540a5303df2103537d13c36431e2d9097a11d1740c67",
+    "result": "SVG XML parse OK"
+  },
+  {
+    "file": "schema/blad-4.svg",
+    "bytes": 16686,
+    "sha256": "d9128160ab509a54f08d820e5228e5f68dd659a27304f0f49d5aef3fea42e532",
+    "result": "SVG XML parse OK"
+  },
+  {
+    "file": "schema/blad-5.svg",
+    "bytes": 22150,
+    "sha256": "bb36609370e3dac58fd04a314214adab1f869fbc1b7b2915be2913a5b4e26a97",
+    "result": "SVG XML parse OK"
+  },
+  {
+    "file": "schema/blad-6.svg",
+    "bytes": 24676,
+    "sha256": "880ba0a9a66cd4d216d7380363cca5e42556aeaca00bb4bcb2b5243ce6a9fcf7",
+    "result": "SVG XML parse OK"
+  },
+  {
+    "file": "schema/Freesmal-afzuiging-1op1-A4.pdf",
+    "bytes": 76060,
+    "sha256": "1554e999a06318f0e55971870519605eef97e87a62557f013a6b28dd8ea2849f",
+    "result": "PDF text extracted via pdftotext; see derived txt"
+  },
+  {
+    "file": "schema/Freesmal-knop-1op1-A4.pdf",
+    "bytes": 51764,
+    "sha256": "07a8ad1f1265fc738cbd41167a44388f8c4b87ec02c3c620db9096312c5fd8e2",
+    "result": "PDF text extracted via pdftotext; see derived txt"
+  },
+  {
+    "file": "schema/Freesmal-voedingsbox-1op1-A4.pdf",
+    "bytes": 57227,
+    "sha256": "e2afb36b6101d2cea6393671bada8bd701d5e8309c4aae279a933121c1c25549",
+    "result": "PDF text extracted via pdftotext; see derived txt"
+  },
+  {
+    "file": "schema/maak-mallen.mjs",
+    "bytes": 14883,
+    "sha256": "29f2e0e13a86fd000e16b69952ab197575aaa12f633bed5172547060d20a3be2",
+    "result": "UTF-8 read OK"
+  },
+  {
+    "file": "schema/maak-schema.mjs",
+    "bytes": 28621,
+    "sha256": "3cdca9a1f2296fa0959fbc7672c0904b2ca7bbe4826bbfb70a9d9c9f8fff9cf3",
+    "result": "UTF-8 read OK"
+  },
+  {
+    "file": "schema/mal-afzuiging-1.svg",
+    "bytes": 7498,
+    "sha256": "6d2e18d416faae8e8fa6a5941b7585ce1c0c3a2d94b93a2bb870d54f08401480",
+    "result": "SVG XML parse OK"
+  },
+  {
+    "file": "schema/mal-afzuiging-2.svg",
+    "bytes": 7196,
+    "sha256": "2ff0cd83e209c7d1b9cf214f3f6ef3112c694f0c4b4412b94f5b436fad6c183f",
+    "result": "SVG XML parse OK"
+  },
+  {
+    "file": "schema/mal-afzuiging.html",
+    "bytes": 15026,
+    "sha256": "1468fcaafc62c57f5dc86c01e5d83c181a99e6e7d8d318157e28b8c520f7b2c7",
+    "result": "UTF-8 read OK"
+  },
+  {
+    "file": "schema/mal-knop-1.svg",
+    "bytes": 5550,
+    "sha256": "a609ceed2227cc34abf114d829cf5495dc508a1672d46e0422b7974248799733",
+    "result": "SVG XML parse OK"
+  },
+  {
+    "file": "schema/mal-knop.html",
+    "bytes": 5853,
+    "sha256": "f0a9de68a34b201c848097ce7b0b9a30af63249d02edd9644c0d1bb92fa598e0",
+    "result": "UTF-8 read OK"
+  },
+  {
+    "file": "schema/mal-voedingsbox-1.svg",
+    "bytes": 7153,
+    "sha256": "d3a21c42de7534820d6c627b5286099b640f6a595f457e48d130f62e7d82c31a",
+    "result": "SVG XML parse OK"
+  },
+  {
+    "file": "schema/mal-voedingsbox.html",
+    "bytes": 7463,
+    "sha256": "4595e5309365f422c13a96ce0fb6ab32df9778fc0bd6860083fac49144ca1c76",
+    "result": "UTF-8 read OK"
+  },
+  {
+    "file": "schema/schema.html",
+    "bytes": 95857,
+    "sha256": "839b0a8d057a80d7b0418e7d03daf6b256c15f63e43c803e18dfc75047d1c3bf",
+    "result": "UTF-8 read OK"
+  },
+  {
+    "file": "tekeningen/AFZ-00-doorsnede.svg",
+    "bytes": 83214,
+    "sha256": "4e9091df728a32c875f8f82142b29fd1bcef4bcc5d7596e6c7d6823d0868b0c3",
+    "result": "SVG XML parse OK"
+  },
+  {
+    "file": "tekeningen/AFZ-00-samenstelling.svg",
+    "bytes": 1054078,
+    "sha256": "7d3be0b403dbd0b5c32c008275c094e2d2455d3f77d3c17071354517321306ed",
+    "result": "SVG XML parse OK"
+  },
+  {
+    "file": "tekeningen/AFZ-01-romp.svg",
+    "bytes": 229417,
+    "sha256": "63c5cf6fdf813a6f347aebe9376b0db69503e8be840cb2f795ff3118a09074d9",
+    "result": "SVG XML parse OK"
+  },
+  {
+    "file": "tekeningen/AFZ-02-bovenframe.svg",
+    "bytes": 298810,
+    "sha256": "e402404e95dfce54045343f8d4f0eb4eaa364192e2669d7d86c6f736ad0ebc10",
+    "result": "SVG XML parse OK"
+  },
+  {
+    "file": "tekeningen/AFZ-03-rvs-plaat-met-lb-rooster.svg",
+    "bytes": 362927,
+    "sha256": "9ed09f63498bf58ec0cecb009d002e5aeecbf9ad3c114cdb1549b97c1fcd7ad6",
+    "result": "SVG XML parse OK"
+  },
+  {
+    "file": "tekeningen/AFZ-04-instroomplaat.svg",
+    "bytes": 262351,
+    "sha256": "7e2a0ac678b8f1a8de9dff8ff75c1d994e8221e130213e4094d7a16a5b4ef2ea",
+    "result": "SVG XML parse OK"
+  },
+  {
+    "file": "tekeningen/AFZ-05-bodemplaat.svg",
+    "bytes": 380354,
+    "sha256": "76a9f0d83da8ea39a3ac88a71bd5b9b393c7e67c7d33540408677a5d6b0dbcf1",
+    "result": "SVG XML parse OK"
+  },
+  {
+    "file": "tekeningen/AFZ-06-voedingsbox.svg",
+    "bytes": 1099758,
+    "sha256": "1b52284fa5d8a7e732a273f959cfe697b10527da7321ef5d1611aadf47cbc29d",
+    "result": "SVG XML parse OK"
+  },
+  {
+    "file": "tekeningen/AFZ-07-knophouder.svg",
+    "bytes": 227774,
+    "sha256": "6b5c86c4b85773c73b37107f8654227241558ae233a3c02691da7d30fec169c6",
+    "result": "SVG XML parse OK"
+  },
+  {
+    "file": "tekeningen/AFZ-08-deksel-van-de-knophouder.svg",
+    "bytes": 143662,
+    "sha256": "9e938a289197ae879e66506a74935f7b50651c444f9f018badf952d531e9aae5",
+    "result": "SVG XML parse OK"
+  },
+  {
+    "file": "tekeningen/AFZ-09-klauw-module.svg",
+    "bytes": 59587,
+    "sha256": "f7f6814096ac748ba832347f8800823dfa529fed13183e2c95ed15704c474508",
+    "result": "SVG XML parse OK"
+  },
+  {
+    "file": "tekeningen/AFZ-10-klauw-knophouder.svg",
+    "bytes": 58811,
+    "sha256": "5f1ace04827a4542c9e5b40ef5a9a909dbe989a2bd2283731d1e0f20c71df15a",
+    "result": "SVG XML parse OK"
+  },
+  {
+    "file": "tekeningen/AFZ-11-klem-van-de-netadapter.svg",
+    "bytes": 57925,
+    "sha256": "6ae3a6be084bc8a1f8e28e175fef75b81b1d886dbb33341220f1bb40d1cf795f",
+    "result": "SVG XML parse OK"
+  },
+  {
+    "file": "tekeningen/AFZ-12-deksel-van-de-voedingsbox.svg",
+    "bytes": 152639,
+    "sha256": "c85f750d4190f65d40198d9d0687b4e19d4decc2d7330a2f3cf1498b8d7b5fe5",
+    "result": "SVG XML parse OK"
+  },
+  {
+    "file": "tekeningen/AFZ-20-tafelblad.svg",
+    "bytes": 142496,
+    "sha256": "b66ee4d09e5004cbe28e6803cb34d747c449f2ec123c6c2506f1338a702e2046",
+    "result": "SVG XML parse OK"
+  },
+  {
+    "file": "tekeningen/Bouwschema-afzuiging.pdf",
+    "bytes": 1178469,
+    "sha256": "aa5e7c83b2f4bd1edf66382dead3d1d8265d94b3dc91c7d116c4b2b5217d0c90",
+    "result": "PDF text extracted via pdftotext; see derived txt"
+  },
+  {
+    "file": "tekeningen/prijslijst.csv",
+    "bytes": 5664,
+    "sha256": "6d54cac07b93fc0a841583248ceb2f1a78aa942f19deb965f97570279c238ec5",
+    "result": "UTF-8 read OK"
+  },
+  {
+    "file": "tekeningen/stuklijst.csv",
+    "bytes": 1590,
+    "sha256": "05e36ae5ccf2fcb8f6b726a28340aefd027f0c1b9a2eb42d2263287c2d2c4cbf",
+    "result": "UTF-8 read OK"
+  },
+  {
+    "file": "tekeningen/Werktekeningen-afzuiging.pdf",
+    "bytes": 616419,
+    "sha256": "e469697b1853b39863ff5da3dcd394db6ed515f1a64dc8b50ecf8b498fc86145",
+    "result": "PDF text extracted via pdftotext; see derived txt"
+  }
+]

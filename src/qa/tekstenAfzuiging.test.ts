@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 // @ts-expect-error: JavaScript-module zonder typen
-import { ONDERHOUD } from '../../voorbeelden/afzuiging/onderhoud.mjs';
+import { JAARLIJKS, NA_MORSEN, ONDERHOUD } from '../../voorbeelden/afzuiging/onderhoud.mjs';
 
 const DIR = 'voorbeelden/afzuiging';
 const lees = (p: string) => readFileSync(p, 'utf8');
@@ -30,7 +30,7 @@ describe('afzuiging, teksten', () => {
 
   it('de onderhoudsstappen staan letterlijk in de README (dezelfde bron als het bouwschema)', () => {
     const readme = lees(`${DIR}/README.md`);
-    for (const stap of ONDERHOUD as string[]) expect(readme, stap).toContain(stap);
+    for (const stap of [...ONDERHOUD, ...NA_MORSEN, ...JAARLIJKS] as string[]) expect(readme, stap).toContain(stap);
     expect(lees('e2e/tools/bouwschema-afzuiging.mjs')).toContain('tekst: ONDERHOUD');
   });
 
@@ -43,7 +43,9 @@ describe('afzuiging, teksten', () => {
   it('geen oude maten of onderdelen meer', () => {
     const fout: string[] = [];
     const oud = [/210 x 210 x 99/, /M5-(fijnstof)?mat/i, /170 x 190/, /141 cm²/, /€ 495,48/, /klauwen-4x-RVS/, /M2 x 5 onder de palen/,
-      /KCD1/, /TR5/, /kan tegen aceton/i, /tot ongeveer 75 °C/];
+      /KCD1/, /TR5/, /kan tegen aceton/i, /tot ongeveer 75 °C/,
+      // versie 7.1 (verslag v4): halve slag, schroeven i.p.v. pluggen, RVS 430, nieuwe vervangfactoren, open fractie 0,30
+      /één volle slag/, /holle deur/i, /M4 x 30/, /RVS 304/, /1,19 x/, /1,08 x/, /f = 0,35/, /contact \+ 1 slag/];
     for (const p of bestanden) {
       lees(p).split(/\r?\n/).forEach((regel, i) => { for (const o of oud) if (o.test(regel)) fout.push(`${p}:${i + 1}: ${o}`); });
     }

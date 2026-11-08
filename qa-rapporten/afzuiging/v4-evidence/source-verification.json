@@ -1,0 +1,24 @@
+{
+  "source_files_verified": 111,
+  "firmware_input_files_verified": 12,
+  "v3_source_and_final_report_unchanged": true,
+  "laptop_sourceset_matches_after_review": true,
+  "laptop_sourceset_sha256": "22457d8eea4bdc83608fea5baf408bd04ebc98b61846e1230c12e69488a82ae6",
+  "laptop_verified_at": "2026-11-08T19:33:09+01:00",
+  "old_finding_counts": {
+    "deels": 11,
+    "opgelost_voor_oorspronkelijke_fout": 4
+  },
+  "physical_tests_scored": false,
+  "csv_nonblank_content_identical": true,
+  "technical_stage_score": 7.0,
+  "final_blind_score": 6.4,
+  "team_reports_merged": 4,
+  "team_dispatch_sent_by_this_executor": false,
+  "box_sources_reverified_at": "2026-11-08T19:53:52.200663+01:00",
+  "final_severity_counts": {
+    "Kritiek": 0,
+    "Major": 10,
+    "Minor": 4
+  }
+}

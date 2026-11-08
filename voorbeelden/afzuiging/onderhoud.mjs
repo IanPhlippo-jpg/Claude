@@ -1,19 +1,40 @@
-// De ene onderhoudsprocedure van de afzuiging: het bouwschema neemt deze stappen over en de README toont dezelfde tekst
+// De onderhoudsprocedures van de afzuiging: het bouwschema neemt deze stappen over en de README toont dezelfde tekst
 // (src/qa/tekstenAfzuiging.test.ts controleert dat, en dat geen enkele uitvoer nog "uitkloppen" aanraadt).
 //
-// Waarom zo: met het filter eruit ligt het oog van de ventilator open onder de instroomplaat (gat Ø127). Een bevestigde
-// UIT van de knop is geen spanningsloze motor: eerst de schakelaar op de box uit (24 V naar de ventilator onderbroken) en
+// Waarom zo: met het filter eruit ligt het oog van de ventilator open onder de instroomplaat (gat Ø127, met het vaste
+// vingerrooster). Een UIT van de knop is geen spanningsloze motor: eerst de schakelaar op de box uit (24 V onderbroken) en
 // wachten tot de waaier stilstaat. Het interieurfilter (MANN CU 20 013 of gelijk) heeft een pijl voor de luchtrichting:
-// die wijst naar onder (naar de ventilator); het stof zit dan aan de bovenkant.
+// die wijst naar onder (naar de ventilator); het stof zit dan aan de bovenkant. De afdichting is een siliconenlip op de
+// geleiderand: die moet na elke wissel rondom tegen het filter liggen (een kleine kier ziet de drukmeter niet).
 export const STILSTAND_S = 10; // uitloop van de waaier na het uitschakelen: een schatting met marge, na te meten in poort F1
 
+/** filter vervangen (bij de melding "filter vervangen") */
 export const ONDERHOUD = [
   'Zet de afzuiging uit met de knop en daarna met de schakelaar op de voorkant van de voedingsbox (de ventilator is dan spanningsloos).',
   `Wacht ${STILSTAND_S} seconden tot de ventilator stilstaat. Grijp nooit in de module zolang je hem nog hoort draaien.`,
   'Doe handschoenen en een stofmasker FFP2 aan en houd een vuilniszak open naast het rooster.',
-  'Neem de RVS-plaat eraf en til het filter aan de randen recht omhoog en horizontaal eruit: het stof blijft bovenop.',
+  'Neem de RVS-plaat eraf en trek het filter aan de randen recht omhoog en horizontaal eruit (de lip buigt mee): het stof blijft bovenop.',
   'Leg het filter meteen in de zak en sluit de zak. Niet uitkloppen, niet uitblazen, geen perslucht.',
-  'Neem de foamband en de instroomplaat af met een vochtige doek; is de foamband beschadigd of plat, vervang hem.',
-  'Leg een nieuw interieurfilter MANN CU 20 013 (of gelijk: Bosch 1 987 435 066, Valeo 715828) op de foamband, de lange kant van voor naar achter en de pijl naar onder.',
-  'Leg de RVS-plaat erop, zet de schakelaar aan en houd de knop 5 seconden ingedrukt om te ijken met het schone filter.',
+  'Neem de lip, de foamband en de instroomplaat af met een vochtige doek. Is de lip gescheurd of los, of de foamband plat, vervang ze.',
+  'Duw een nieuw interieurfilter MANN CU 20 013 (of gelijk: Bosch 1 987 435 066, Valeo 715828) recht naar onder door de lip tot op de foamband, de lange kant van voor naar achter en de pijl naar onder.',
+  'Kijk en voel rondom: de lip ligt overal naar onder gebogen tegen de zijkant van het filter, zonder kier.',
+  'Leg de RVS-plaat erop en zet de schakelaar aan. Houd de knop 5 seconden ingedrukt, bevestig "Nieuw filter?" met kort drukken en wacht tot het ijken klaar is.',
+];
+
+/** na morsen (een fles valt om op het rooster) */
+export const NA_MORSEN = [
+  'Zet de schakelaar op de box meteen uit en wacht tot de ventilator stilstaat. Veeg het rooster droog met keukenpapier.',
+  'Neem de RVS-plaat eraf. Het natte filter gaat in een zak en weg (ook als het nog maar half vol was).',
+  'Kijk met een zaklamp door het vingerrooster: is de instroomplaat droog en de waaier droog en schoon, ga dan naar de laatste stap.',
+  'Is er vloeistof voorbij het filter gekomen: trek de M8-stekker onder het blad uit, draai de vier klauwschroeven los en til de module eruit. Schroef de bodemplaat los (8 x M3) en dep alles droog. Reinig met een middel op alcohol, nooit met aceton.',
+  'Afkeuren en vervangen: een PETG-deel dat wit, zacht of plakkerig is geworden (aceton), of een lip die gezwollen is. Draait de waaier met de hand niet vrij en stil rond, of ruikt de motor verbrand: nieuwe ventilator.',
+  'Laat alles minstens een uur open drogen. Bouw weer in (bodemplaat, module, klauwen: contact plus een halve slag, M8-stekker).',
+  'Leg een nieuw filter in zoals bij het filter vervangen en ijk. De knop moet daarna "x Pa, y tpm" tonen zonder rode of oranje melding; anders uit laten en nakijken.',
+];
+
+/** eens per jaar */
+export const JAARLIJKS = [
+  'Bij een filterwissel, met de schakelaar uit en de ventilator stil: zuig de instroomplaat en het vingerrooster af met een stofzuiger met een smal mondstuk.',
+  'Til de module eruit (zoals na morsen), schroef de bodemplaat los en zuig de waaier en de lamellen af. Kijk of de waaier vrij draait en of de klauwen en het rubber heel zijn.',
+  'Druk de knop na de inbouw 5 seconden in en ijk opnieuw met een nieuw filter.',
 ];

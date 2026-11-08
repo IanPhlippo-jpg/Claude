@@ -1,0 +1,97 @@
+--- v3/firmware/src/module/main.cpp
+
++++ v4/firmware/src/module/main.cpp
+
+@@ -3,8 +3,10 @@
+
+ // met een verschildrukmeter (Sensirion SDP810-500Pa, een slangetje naar de ruimte onder het filter). De knop in het
+ // blad stuurt de opdrachten draadloos (ESP-NOW, zie protocol.h) en toont de status die de module terugstuurt.
+ //
+-// Alle beslissingen (aan/uit, boost, ijken, meetgeldigheid, storingen) zitten in regel.h en zijn op de pc getest
+-// (test/test_regel). Dit bestand doet alleen de hardware: PWM, tacho, I2C, ESP-NOW en het NVS.
++// Alle beslissingen (aan/uit, toerentalregeling, boosttegoed, ijken, meetgeldigheid, bewaking, koppelen) zitten in
++// regel.h en zijn op de pc getest (test/test_regel). Dit bestand doet alleen de hardware: PWM, tacho, I2C, ESP-NOW
++// en het NVS. Een nieuwe knop koppelen: de schakelaar van de box 3 keer kort aan en uit (telkens < 5 s), dan staat het
++// koppelvenster 60 s open.
+ //
+ // Aansluiting (zie ../../schema/Aansluitschema-afzuiging.pdf):
+ //   GPIO5 SDA, GPIO6 SCL -> SDP810 (adres 0x25, 3,3 V uit de 3V3-pin, pull-ups 4,7 kOhm naar 3,3 V)
+@@ -137,10 +139,19 @@
+
+   if (sdpStart()) regel.meterHersteld();
+ 
+   prefs.begin("afzuiging", false);
+-  float w[5];
+-  if (prefs.getBytes("schoon", w, sizeof w) == sizeof w) regel.laadIjking(w, 5); // alleen geldige waarden worden geladen
++  float w[5], tp[5];
++  if (prefs.getBytes("schoon", w, sizeof w) == sizeof w && prefs.getBytes("toeren", tp, sizeof tp) == sizeof tp)
++    regel.laadIjking(w, tp, 5); // alleen geldige, stijgende waarden worden geladen
+   uint8_t m[6], k[16];
+   if (prefs.getBytes("knopmac", m, 6) == 6 && prefs.getBytes("knopsleutel", k, 16) == 16) koppeling.laad(m, k);
++  // bewuste handeling om een nieuwe knop te koppelen: de schakelaar 3 keer kort (< 5 s) aan en uit
++  const uint8_t snel = prefs.getUChar("snelstart", 0) + 1;
++  prefs.putUChar("snelstart", snel);
++  if (herkoppelHandeling(snel)) {
++    koppeling.herkoppelen = true;
++    prefs.putUChar("snelstart", 0);
++    Serial.println("koppelvenster open voor een nieuwe knop (60 s)");
++  }
+ 
+   WiFi.mode(WIFI_STA);
+   esp_wifi_set_channel(KANAAL, WIFI_SECOND_CHAN_NONE);
+@@ -168,12 +179,19 @@
+
+     if (koppeling.vraag(van, k, nu)) {
+       prefs.putBytes("knopmac", koppeling.mac, 6);
+       prefs.putBytes("knopsleutel", koppeling.sleutel, 16);
++      Koppel ok; // dezelfde uitdaging terug, zonder sleutel; de knop aanvaardt alleen zijn eigen uitdaging
++      ok.soort = SOORT_KOPPEL_OK;
++      ok.uitdaging = k.uitdaging;
++      esp_now_send(IEDEREEN, (const uint8_t *)&ok, sizeof ok);
+       voegKnopToe();
+-      Koppel ok;
+-      ok.soort = SOORT_KOPPEL_OK;
+-      esp_now_send(IEDEREEN, (const uint8_t *)&ok, sizeof ok);
+       Serial.println("knop gekoppeld");
+     }
++  }
++  // na 5 s draaien is dit geen snelle start meer
++  static bool snelGewist = false;
++  if (!snelGewist && nu > 5000) {
++    prefs.putUChar("snelstart", 0);
++    snelGewist = true;
+   }
+ 
+   // opdrachten: alleen van de gekoppelde knop, met een stijgend volgnummer
+@@ -204,7 +222,7 @@
+
+   static uint32_t vorigeTacho = 0, pulsenVorig = 0;
+   if (nu - vorigeTacho >= 1000) {
+     const uint32_t p = tachoPulsen;
+-    regel.tacho((uint16_t)((p - pulsenVorig) * 60000UL / ((nu - vorigeTacho) * PULSEN_PER_OMW)));
++    regel.tacho((uint16_t)((p - pulsenVorig) * 60000UL / ((nu - vorigeTacho) * PULSEN_PER_OMW)), nu);
+     pulsenVorig = p;
+     vorigeTacho = nu;
+   }
+@@ -213,6 +231,7 @@
+
+ 
+   if (regel.nieuweIjking) {
+     prefs.putBytes("schoon", regel.ijking(), 5 * sizeof(float));
++    prefs.putBytes("toeren", regel.ijkToeren(), 5 * sizeof(float));
+     regel.nieuweIjking = false;
+   }
+ 
+@@ -227,8 +246,9 @@
+
+   static uint32_t vorigLog = 0;
+   if (nu - vorigLog >= 1000) {
+     vorigLog = nu;
+-    Serial.printf("aan=%d pct=%d gegeven=%d toeren=%u dp=%.1f vers=%d vol=%.2f storing=%d geijkt=%d ijken=%d fout=%d\n", regel.aan, regel.pct,
+-                  regel.gegeven, regel.toeren, regel.dp, regel.meetVers(nu), regel.vol, regel.storing, regel.geijkt, regel.ijkStap, regel.ijkFout);
++    Serial.printf("aan=%d stand=%d pwm=%d toeren=%u dp=%.1f vers=%d vol=%.2f bewaking=%d storing=%d geijkt=%d ijken=%d fout=%d tegoed=%lu\n",
++                  regel.aan, regel.stand, regel.gegeven, regel.toeren, regel.dp, regel.meetVers(nu), regel.vol, regel.bewaking, regel.storing,
++                  regel.geijkt, regel.ijkStap, regel.ijkFout, (unsigned long)regel.boostTegoed);
+   }
+   delay(5);
+ }

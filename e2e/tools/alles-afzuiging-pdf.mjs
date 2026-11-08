@@ -86,7 +86,7 @@ const tekeningen = readdirSync(`${DIR}/tekeningen`).filter((f) => f.endsWith('.s
   .sort((a, b) => { const v = (f) => (f.startsWith('AFZ-00-samen') ? '0' : f.startsWith('AFZ-00') ? '1' : f); return v(a).localeCompare(v(b)); })
   .map((f) => a3(readFileSync(`${DIR}/tekeningen/${f}`, 'utf8')));
 const schema = svgUit(readFileSync(`${DIR}/schema/schema.html`, 'utf8')).map(a3);
-const mallen = ['afzuiging', 'knop', 'voedingsbox'].flatMap((d) => svgUit(readFileSync(`${DIR}/schema/mal-${d}.html`, 'utf8')))
+const mallen = ['afzuiging', 'knop', 'voedingsbox', 'afdichtlip'].flatMap((d) => svgUit(readFileSync(`${DIR}/schema/mal-${d}.html`, 'utf8')))
   .map((s) => `<div class="mal">${s.replace(/<svg /, '<svg style="display:block;width:210mm;height:297mm" ')}</div>`);
 // het bouwschema: de bladen uit e2e-out/bouwschema/bouwschema.html, met hun eigen stijl onder .bs
 const bsHtml = readFileSync('e2e-out/bouwschema/bouwschema.html', 'utf8');
@@ -99,7 +99,7 @@ const delen = [
   [`Bouwschema (${bsBladen.length} bladen)`, 'A4 liggend'],
   [`Werktekeningen (${tekeningen.length} bladen)`, 'A3 liggend'],
   [`Aansluitschema (${schema.length} bladen)`, 'A3 liggend'],
-  [`Freesmallen op ware grootte (${mallen.length} bladen)`, 'A4, afdrukken op 100 %'],
+  [`Freesmallen en snijmal op ware grootte (${mallen.length} bladen)`, 'A4, afdrukken op 100 %'],
   ['Schermen van de knop', 'A4'],
   ['Materiaalstaat', 'A4'],
   ['Rekenblad', 'A4'],

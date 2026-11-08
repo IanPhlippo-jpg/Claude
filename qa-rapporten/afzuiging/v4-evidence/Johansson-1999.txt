@@ -1,0 +1,290 @@
+PERFORMANCE              OF AUTOMOTIVE              CABIN AIR FILTERS
+
+
+J Johanssonl,   A Janssonl and L Olanderly 2
+
+lNationd hstitute for Working Life, Solna, Sweden
+‘Royal Institute of Technology, Stockholm, Sweden
+
+
+ABSTRACT
+
+The cabin air filter performance is of prime importance for the air quality in vehicles. New
+clean filters were tested but also filters loaded with actual traffic contaminants. Both
+laboratory and field measurements were included in the study. Direct reading instruments and
+filter sampling was used for the loading rate determinations. The filter performance includes
+particle filtration efficiency with regards to particle size, filter loading and flow rate as well
+as filter pressure drop related to filter loading. Test results for these parameters are presented.
+The results indicate that present car cabin fibre filters could be considerably improved, if
+restriction in fan power use could be overcome.
+
+INTRODUCTION
+
+EPAs new Ambient Air Quality Standard for Fine Particulate Matter (PM2,5) [1] emphasises
+the importance of the smaller particle sizes. The standard sets the annual limit at 15
+micrograms per cubic meter per day averaged over the whole year, with a 24-hour peak limit
+of 65 micrograms per cubic meter. Many people spend several hours a week in some kind of
+vehicle where they are exposed to high levels of different air contaminants. Despite harder
+regulations on engine exhaust in the future, road traffic will continue to provide a major
+pollution source, with people exposed in close proximity to the source.
+
+The aim of this work has been to develop a method for measuring the characteristics of cabin
+air filters and to test a number of actual filters both in laboratory air and in outdoor air in
+traffic. The test results are applicable for the actual use of filters in cars.
+
+METHODS
+
+The measurement strategy was based on the practical possibilities of determining the particle
+filtration efficiency and of loading the filters with actual traffic contaminants. A number of
+filter media mounted in standardised filter frames with a face area of 0.04 m’ were tested. The
+suppliers of the filter media were unknown and Volvo had made the technical specifications.
+We used the laboratory indoor air as the challenge aerosol for the fractional efficiency tests in
+our laboratory. This provided a more constant aerosol source than what is available in the
+ambient air.
+
+The particle concentration was measured simultaneously        with two different types of
+instruments. The first instrument was a TSI-3030, which measures an electromobility
+equivalent diameter between 0.01- 1.Opm in eight intervals [2]. The second instrument was a
+PMS LAS-X, which measures an optical diameter between 0.1- 6.5pm in 16 intervals [3].
+Two of each type of instrument was used, with one placed before and one after the filter. To
+normalise the instruments against each other, the test duct system was also collecting data
+without a filter before and after each filter was tested. It was therefore not so critical to keep
+the particle concentration constant during the laboratory testing. Air pressure drop and the
+filter fractional efficiency measurements were performed at flow rates of 70 L/s, 35 L/s and
+105 L/s. The air flow rate through the test system was determined by measuring the dynamic
+pressure drop across a calibrated measuring duct located after the filter but before the fan.
+Temperature and humidity was also recorded.
+
+After the measurements in the laboratory, each filter was exposed (loaded) to traffic
+contaminants. The filters were placed at the suction end of a separate fan system [4]. These
+systems were placed inside a trailer with open windows, which was specifically furnished for
+these measurements. The trailer was placed near one exit in one of Stockholm’s road tunnels
+(Soderledstunneln),  which has two separate parallel tunnels and is around 1500 m long.
+Normally there is no ventilation except from the cars’ movements and the temperature
+difference. The flow rate in the tunnel we used had earlier been measured and varies between
+200 and 300 m3/s.
+
+The higher concentrations of particles in the tunnel in comparison with outdoor streets made
+it possible to shorten the time necessary to find the filters’ lifetime and pressure-loading
+curve. The shorter time span still allowed the same composition of contaminants to which a
+normal car filter is exposed. h this way, the filters could be contaminant-loaded     rapidly,
+under the same conditions for all filters and in a heavy traffic environment. After each
+loading sequence, the airflow was adjusted back to the nominal 70 L/s and the pressure drop
+registered together with the loading rate.
+
+Direct reading instruments and filter sampling was used for the loading rate determinations.
+All cabin air filters were weighed at 25 ‘C and 50 % RH before loading. After the filters were
+loaded to an estimated lifetime of one year in a car, the filters were again taken to the
+laboratory, conditioned for at least one day, and weighed. In this way, the total collected
+amount on each filter was calculated. This was followed by a new penetration test with
+particle counters in the laboratory. By measuring before and after loading, the influence of
+filter loading on the pressure drop relation and on the filtration efficiency was also studied.
+The efficiency to remove the gases VOC, N02, NO and C02 of another group of filters that
+can filter both gases and particles was also measured in the road tunnel. These measurements
+and results will be published separately.
+
+
+RESULTS
+
+The measuring possibilities were limited by the traffic conditions during the field loading.
+However, a good set of data on pressure drop at a constant flow rate as related to filter
+loading in terms of PM1O and TSP could be obtained. The total cabin filter loading measured
+as an increase of the cabin filter weight, could not be used for estimating filtration efficiency
+or for ranking filtration performance.
+
+The initial pressure drop varied little between different specimens of the same filter type. The
+initial pressure drop for the new filters with an airflow rate of 70 L/s was 40 to 80 Pa. The
+increase of the pressure drop with increasing loading varied considerably between different
+filter types. A typical increase for a filter loading of up to 3-4 g PMIO was on the order of
+100 Pa, but with large differences between the filters. The increase of the pressure drop up to
+this loading was close to linear, but at higher loading the pressure drop increased more than
+linearly. Figure 1 illustrates some typical performances of different filters.
+
+
+
+                               T
+                             pressure
+                               drop
+
+
+
+
+                               o                           loading
+
+
+
+                       Figure 1. Pressure drop increase with filter loading
+
+As expected, the Most Penetrating Particle Size, MPPS, was around 0,1-0,35           ~m and the
+penetration was approximately the same in the whole interval. Unloaded filters of better
+quality showed a typical penetration of about 55 % in this particle size interval, at an air flow
+rate of 70 L/s. The differences in penetration are shown for the three air flows in Figure 2,
+after one of the better filters had been loaded with 6.9g PMIO.
+
+It is known from filter theory and verified in Figure 2 that, over the smaller and middle sized
+particle diameter ranges, a lower air flow rate gives a lower penetration. In addition, a loaded
+filter gives a lower penetration than a new filter.
+
+
+
+                ‘“”~
+
+
+
+
+                                                                                 +      New,35 L/s
+
+
+
+
+                                                                                E
+                                                                                 +      New,70 L/s
+                                                                                 .%
+                                                                                  ... . New,l 05 L/s
+                                                                                 +Loaded,35          L Is
+                                                                                 --4-   Loaded,70 L Is
+                                                                                 —      Loaded,l 05 L Is
+
+
+
+
+Figure 2. Penetratio~l of different particle sizes at different air flows on a new and loaded
+filter
+The penetration through new filters varied more with the airflow rate than the penetration
+through loaded filters. In general, for the better filters an increase of the flow rate to 105 L/s
+increased the pressure drop over the new filter with around 60 % and penetration increased
+from 55% to 60%. The same amount of decrease (from 70 to 35 L/s) resulted in a decrease in
+penetration to 35- 50%, while the pressure drop decreased by around 60%. The results were
+much less uniform after the loading. The temperature in the lab was 18 - 21 ‘C and the
+humidity was 15- 30% RH during the testing of new filters. During the testing of the loaded
+filters, the temperature in the lab was 18-22 Co and the humidity was 30- 60% RH.
+
+The spread in penetration between the unloaded filters from the same company was
+commonly small, which indicates a good test reproducibility, see Figure 3. The number of
+particles > 1.5pm in the laboratory was too little to make a reliable estimation of the
+penetration of those larger particles.
+
+In Figures 2 and 3, the horizontal axis includes two different types of particle diameters,
+because of the two different types of instrument principles. The overlap around 0.1 pm
+between the two instruments is displayed deliberately to show that the penetrations are similar
+despite the different measuring principles. This makes the results more reliable.
+
+
+
+
+                                                                                        ❑
+                 ..                                                                     +Fl,     35 L/s
+                                                                                        +Fl,     70 L/s
+                                                                                        ti-F2,   35 L IS
+                 50 -
+                                                                                        +F2,     70 L/s
+                                                                                        +F3,     35 L /S
+                 40-                                                                    —F3,     70 Lls
+
+
+                 30-
+
+
+                 20    -
+
+
+                 10-
+                                                                                    Y
+
+
+
+
+                            Particle   diameter,   pm (TSI-3030   and PM S-LAS-X)
+
+
+
+
+Figure 3. Penetration of different particle sizes at different air flows for three new filters from
+the same company
+
+Loaded filters showed in general a lower penetration than new unloaded filters. Some filters,
+probably with electret fibres, showed a higher penetration after loading or at some period
+during loading. Fi~re 4 illustrates an overview of the penetration and pressure drop qualities
+of the fibre filters that were tested. An ideal filter should perform close to the lower, left-hand
+corner during the whole lifetime of the filter. Today there are no cabin fibre filters with that
+ability.
+                        penetration,   %
+
+                       1001
+
+
+
+
+                              0                200                     400
+                                                            pressure     drop,   Pa
+
+
+Figure 4. The penetration for the particle size range (0.20 - 0.25pm) versus pressure drop for
+all the tested filters, unloaded + loaded filters. The lines connect two measured points at the
+beginning and end of each arrow and only signify the direction of penetration change
+
+
+DISCUSSION
+
+Maximum penetration typically occurred for 0.10-0.35       pm particles measured with PMS-
+LAS-X. For each filter, the size of the penetration varied little in this size range. Simplified
+testing would be possible to perform by measuring for one particle size.
+
+New filters of better quality and 70 L/s showed a penetration of about 50 % in this size range
+(0.10 -0.35 ~m particles). New filters of worse quality showed a penetration of more than
+90% in this size range. This means that the fibre filters in many vehicles today have a
+marginal effect on particles from vehicle exhaust. Other sources in this size range are
+atmospheric transformation products of NOX, S02, and organics including biogenic organics,
+e.g., terpenes [6].
+
+As a comparison, we also tested a high efficiency filter during the last loading experiments.
+The penetration for 0.2-0.25    ~m particles was less than 0.1 % but the pressure drop was as
+expected also very high. Loaded filters mostly showed a lower penetration but at significantly
+higher pressure drops. Particle filters with collected contaminants may emit compounds from
+the collected loading, which give off odours. This may necessitate the use of both gas and
+particle filter combinations. Gas filter in general is motivated in a heavy traffic environment.
+That means the pressure drops over the cabin air-filter system becomes even more
+demanding. Since all our measurements were performed as blind tests, except one high
+efficiency filter, we had no possibility to include detailed descriptions of the filters, other than
+through their performances.
+
+The laboratory indoor air as the challenge aerosol had not enough PMS-LAS-X particles
+>1 .5pm, but in practice it can be assumed that a good fibre filter will collect these bigger
+particles. The same situation exists for the TSI-3030 measurements for particles >0.32pm.
+The loading procedure used in the tunnel, with all the filters loaded simultaneously and in a
+real road traffic environment, is not a representative outdoor environment in any controlled
+way, but instead provides results in one real city situation.
+
+Contemporary cars are quite airtight, which means that the concentration of contaminants in
+incoming air has a very large influence on the concentrations of contaminants in the cabin.
+The air flow rate varies in a car, but a rather normal flow rate of 70 L/s (250 m3/h) gives an
+air exchange time constant of about 1 minute (60 air changes per hour). The concentration
+inside the cabin quickly follows the concentration of the incoming air pollution. It therefore
+makes sense to lower the fan rate when you are traveling in a heavy polluted area or a tunnel,
+and keep the distance to the vehicle in front of you not only for safety reasons.
+
+
+ACKNOWLEDGEMENTS
+
+
+The authors wish to thank for the assistance from A Paprocki, B Nilsson, S Lundstrom, B
+Christensson and G Bergman. The project was supported by the Swedish National Board for
+Industrial and Technical Development tid Volvo Technological Development Corporation.
+
+REFERENCES
+
+1. EPA’s Revised Particulate Matter Standards, July 1997.
+2. Liu, B Y H, Whitby K T, et al. 1974. A portable electrical analyzer for size distribution
+   measurement of submicron aerosols. Journal of the Air Pollution Control Association
+   24(1 1): pp 1067-1072.
+3. Hinds, W C and Kraske G. 1986. Performance of PMS Model LAS-X optical particle
+   counter. Journal of Aerosol Science 17(1): pp 67-72.
+4.   Olander, L. 1997. Description of the fan system used during loading of filters for car
+     cabins. ITV-rapport nr 533. National Institute for Working Life, Solna, Sweden.
+5. Spengler, J and Wilson, R. 1996. Emissions, Dispersion and Concentration of Particles. In
+   Particles in Our Air, Concentrations and Health E#ects. Wilson and R Spengler, J, eds.
+   Harvard University Press.
+6. Chan, C-C, Ozkaynak, H, Spengler, J and Sheldon L. 1991. Driver Exposure to Volatile
+   Compounds, CO, Ozone and N02 under Different Driving Conditions. In Environ. Sci.
+   Technol.25, 964-972.
+

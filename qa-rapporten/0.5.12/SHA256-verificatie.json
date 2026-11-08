@@ -1,0 +1,38 @@
+﻿[
+    {
+        "path":  "QA-rapport-0.5.12.md",
+        "expected":  "27e9c142179414ec6680c01be8bc2e3119b7faf3aac4280448a3a771a32dc405",
+        "actual":  "27e9c142179414ec6680c01be8bc2e3119b7faf3aac4280448a3a771a32dc405",
+        "match":  true
+    },
+    {
+        "path":  "findings-0.5.12.json",
+        "expected":  "5fcbfda483d0ea4ede51e5c20928d17a68c4974afea3ef9651cd0fdb5edce31f",
+        "actual":  "5fcbfda483d0ea4ede51e5c20928d17a68c4974afea3ef9651cd0fdb5edce31f",
+        "match":  true
+    },
+    {
+        "path":  "team-blind/Rapport-Alpha.md",
+        "expected":  "36e4e71984a0741cdfb6fbd922d118b82554cba8fbd63f9ee4edcbc2a1be0f0d",
+        "actual":  "36e4e71984a0741cdfb6fbd922d118b82554cba8fbd63f9ee4edcbc2a1be0f0d",
+        "match":  true
+    },
+    {
+        "path":  "team-blind/Rapport-Beta.md",
+        "expected":  "09249f828f54d4dc66e24ac157998796f7e80a55b1cfdfa253c0e3ff42b1c6f4",
+        "actual":  "09249f828f54d4dc66e24ac157998796f7e80a55b1cfdfa253c0e3ff42b1c6f4",
+        "match":  true
+    },
+    {
+        "path":  "team-blind/Rapport-Delta.md",
+        "expected":  "84b58af70807083a5618e293c06747673ae31173c65511a0b198bfa0a2980939",
+        "actual":  "84b58af70807083a5618e293c06747673ae31173c65511a0b198bfa0a2980939",
+        "match":  true
+    },
+    {
+        "path":  "team-blind/Rapport-Gamma.md",
+        "expected":  "293a86c6e871239c010c1676f5ca2010e88388b7534b26c4ad38cedff8b79ee7",
+        "actual":  "293a86c6e871239c010c1676f5ca2010e88388b7534b26c4ad38cedff8b79ee7",
+        "match":  true
+    }
+]

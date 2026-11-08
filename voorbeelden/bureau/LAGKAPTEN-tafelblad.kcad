@@ -455,10 +455,10 @@
         }
       },
       "scalars": {
-        "s4s1": 4,
-        "s4s4": 4,
-        "s4s7": 4,
-        "s4s10": 4
+        "s4s1": 1.25,
+        "s4s4": 1.25,
+        "s4s7": 1.25,
+        "s4s10": 1.25
       },
       "entities": {
         "s4e2": {
@@ -700,12 +700,12 @@
     {
       "id": "f8",
       "type": "extrude",
-      "name": "Gaten pluggen box",
+      "name": "Voorboorgaten box",
       "sketchId": "s4",
       "suppressed": false,
       "op": "cut",
       "end": "blind",
-      "depth": 28,
+      "depth": 14,
       "reverse": true
     },
     {

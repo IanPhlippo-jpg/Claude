@@ -1,0 +1,11 @@
+﻿{
+    "verified_at":  "2026-11-08T19:55:26+01:00",
+    "zone":  "Europe/Brussels",
+    "verified_files":  156,
+    "old_files_unchanged":  15,
+    "zip_sha256":  "711378f94b57eb3505c176c6ee3566cd8f52664cf22a1276a356c1076e94e214",
+    "report_sha256":  "df4d191bdc04885642d4b50511830880a0afff6b1a5b8ba188736f13b7bac7e3",
+    "findings_sha256":  "771516ac92680f68bdbe96cbf69bf0ad4f75bef21f4c18bd37ffd53a6cfe686f",
+    "blind_files":  4,
+    "source_folder_modified":  false
+}

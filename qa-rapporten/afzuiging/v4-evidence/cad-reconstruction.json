@@ -1,0 +1,1442 @@
+[
+  {
+    "id": "a1",
+    "name": "Romp<1>",
+    "part": "Romp",
+    "volume_mm3": 492988.40672540857,
+    "bounds": [
+      -105.0,
+      -110.0,
+      -105.0,
+      105.0,
+      0.0,
+      105.0
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/a1.stl"
+  },
+  {
+    "id": "a6",
+    "name": "Bovenframe<1>",
+    "part": "Bovenframe",
+    "volume_mm3": 22459.668824468004,
+    "bounds": [
+      -111.0,
+      0.0,
+      -111.0,
+      111.0,
+      2.5,
+      111.0
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/a6.stl"
+  },
+  {
+    "id": "a2",
+    "name": "Rooster LB<1>",
+    "part": "Rooster LB",
+    "volume_mm3": 47207.0132428996,
+    "bounds": [
+      -111.0,
+      2.5,
+      -111.0,
+      111.0,
+      4.0,
+      111.0
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/a2.stl"
+  },
+  {
+    "id": "a3",
+    "name": "Interieurfilter MANN CU 20 013<1>",
+    "part": "Interieurfilter MANN CU 20 013",
+    "volume_mm3": 788587.0427155928,
+    "bounds": [
+      -72.5,
+      -28.5,
+      -97.5,
+      72.5,
+      1.5,
+      97.5
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/a3.stl"
+  },
+  {
+    "id": "a3f",
+    "name": "Foamband 6 x 4<1>",
+    "part": "Foamband 6 x 4",
+    "volume_mm3": 15925.698349066513,
+    "bounds": [
+      -73.5,
+      -32.5,
+      -98.5,
+      73.5,
+      -28.5,
+      98.5
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/a3f.stl"
+  },
+  {
+    "id": "a9",
+    "name": "Instroomplaat<1>",
+    "part": "Instroomplaat",
+    "volume_mm3": 110204.9996681287,
+    "bounds": [
+      -100.70000000298023,
+      -39.0,
+      -100.70000000298023,
+      100.70000000298023,
+      -22.5,
+      100.70000000298023
+    ],
+    "bodies": 45,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/a9.stl"
+  },
+  {
+    "id": "a4",
+    "name": "Bodemplaat<1>",
+    "part": "Bodemplaat",
+    "volume_mm3": 109293.51151292838,
+    "bounds": [
+      -105.0,
+      -116.0,
+      -105.0,
+      105.0,
+      -110.0,
+      105.0
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/a4.stl"
+  },
+  {
+    "id": "a5",
+    "name": "San Ace C175 9TG24P0S01<1>",
+    "part": "San Ace C175 9TG24P0S01",
+    "volume_mm3": 626453.2931658399,
+    "bounds": [
+      -87.5,
+      -110.0,
+      -87.5,
+      87.5,
+      -41.0,
+      87.5
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/a5.stl"
+  },
+  {
+    "id": "a10",
+    "name": "M8-inbouwbus 4-polig<1>",
+    "part": "M8-inbouwbus 4-polig",
+    "volume_mm3": 1549.9033602501568,
+    "bounds": [
+      -66.92820300161839,
+      -86.0,
+      -116.1,
+      -53.071796998381615,
+      -74.0,
+      -91.0
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/a10.stl"
+  },
+  {
+    "id": "ak1",
+    "name": "Klauw<1>",
+    "part": "Klauw",
+    "volume_mm3": 1034.7063013694565,
+    "bounds": [
+      90.00174401700497,
+      -44.0,
+      65.50113663077354,
+      114.49706472456455,
+      -38.0,
+      78.49886336922646
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/ak1.stl"
+  },
+  {
+    "id": "akr1",
+    "name": "Klauwrubber<1>",
+    "part": "Klauwrubber",
+    "volume_mm3": 236.36067979124607,
+    "bounds": [
+      106.0,
+      -38.0,
+      68.0,
+      113.5,
+      -34.0,
+      76.0
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/akr1.stl"
+  },
+  {
+    "id": "ak2",
+    "name": "Klauw<2>",
+    "part": "Klauw",
+    "volume_mm3": 1034.7063013694567,
+    "bounds": [
+      90.00174401700497,
+      -44.0,
+      -78.49886336922646,
+      114.49706472456455,
+      -38.0,
+      -65.50113663077354
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/ak2.stl"
+  },
+  {
+    "id": "akr2",
+    "name": "Klauwrubber<2>",
+    "part": "Klauwrubber",
+    "volume_mm3": 236.36067979124607,
+    "bounds": [
+      106.0,
+      -38.0,
+      -76.0,
+      113.5,
+      -34.0,
+      -68.0
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/akr2.stl"
+  },
+  {
+    "id": "ak3",
+    "name": "Klauw<3>",
+    "part": "Klauw",
+    "volume_mm3": 1034.7063013694567,
+    "bounds": [
+      -114.49706472456455,
+      -44.0,
+      65.50113663077354,
+      -90.00174401700497,
+      -38.0,
+      78.49886336922646
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/ak3.stl"
+  },
+  {
+    "id": "akr3",
+    "name": "Klauwrubber<3>",
+    "part": "Klauwrubber",
+    "volume_mm3": 236.36067979124607,
+    "bounds": [
+      -113.5,
+      -38.0,
+      68.0,
+      -106.0,
+      -34.0,
+      76.0
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/akr3.stl"
+  },
+  {
+    "id": "ak4",
+    "name": "Klauw<4>",
+    "part": "Klauw",
+    "volume_mm3": 1034.7063013694565,
+    "bounds": [
+      -114.49706472456455,
+      -44.0,
+      -78.49886336922646,
+      -90.00174401700497,
+      -38.0,
+      -65.50113663077354
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/ak4.stl"
+  },
+  {
+    "id": "akr4",
+    "name": "Klauwrubber<4>",
+    "part": "Klauwrubber",
+    "volume_mm3": 236.36067979124607,
+    "bounds": [
+      -113.5,
+      -38.0,
+      -76.0,
+      -106.0,
+      -34.0,
+      -68.0
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/akr4.stl"
+  },
+  {
+    "id": "an1",
+    "name": "M5 zeskantmoer DIN 934<1>",
+    "part": "M5 zeskantmoer DIN 934",
+    "volume_mm3": 163.98697518774733,
+    "bounds": [
+      91.88119799643755,
+      -43.8,
+      68.0,
+      101.11880200356245,
+      -39.8,
+      76.0
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/an1.stl"
+  },
+  {
+    "id": "an2",
+    "name": "M5 zeskantmoer DIN 934<2>",
+    "part": "M5 zeskantmoer DIN 934",
+    "volume_mm3": 163.98697518774733,
+    "bounds": [
+      91.88119799643755,
+      -43.8,
+      -76.0,
+      101.11880200356245,
+      -39.8,
+      -68.0
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/an2.stl"
+  },
+  {
+    "id": "an3",
+    "name": "M5 zeskantmoer DIN 934<3>",
+    "part": "M5 zeskantmoer DIN 934",
+    "volume_mm3": 163.98697518774733,
+    "bounds": [
+      -101.11880200356245,
+      -43.8,
+      68.0,
+      -91.88119799643755,
+      -39.8,
+      76.0
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/an3.stl"
+  },
+  {
+    "id": "an4",
+    "name": "M5 zeskantmoer DIN 934<4>",
+    "part": "M5 zeskantmoer DIN 934",
+    "volume_mm3": 163.9869751877473,
+    "bounds": [
+      -101.11880200356245,
+      -43.8,
+      -76.0,
+      -91.88119799643755,
+      -39.8,
+      -68.0
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/an4.stl"
+  },
+  {
+    "id": "a7",
+    "name": "Knophouder<1>",
+    "part": "Knophouder",
+    "volume_mm3": 31258.03266686158,
+    "bounds": [
+      224.20120536535978,
+      -60.0,
+      174.20030134171247,
+      275.79999999701977,
+      2.0,
+      225.79969865828753
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/a7.stl"
+  },
+  {
+    "id": "a12",
+    "name": "Knopdeksel<1>",
+    "part": "Knopdeksel",
+    "volume_mm3": 2832.155790085715,
+    "bounds": [
+      228.50144466012716,
+      -62.0,
+      178.50036116689444,
+      271.5,
+      -57.1,
+      221.49963883310556
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/a12.stl"
+  },
+  {
+    "id": "a8",
+    "name": "VIEWE-knop 1,5\"<1>",
+    "part": "VIEWE-knop 1,5\"",
+    "volume_mm3": 30925.713162194406,
+    "bounds": [
+      224.20120536535978,
+      -19.9,
+      174.20030134171247,
+      275.79999999701977,
+      16.0,
+      225.79969865828753
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/a8.stl"
+  },
+  {
+    "id": "a14",
+    "name": "Adapterprint knop<1>",
+    "part": "Adapterprint knop",
+    "volume_mm3": 927.4765872235292,
+    "bounds": [
+      248.9,
+      -38.0,
+      190.10000000149012,
+      252.6,
+      -12.0,
+      209.89999999850988
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/a14.stl"
+  },
+  {
+    "id": "a15",
+    "name": "USB-C-bus knophouder<1>",
+    "part": "USB-C-bus knophouder",
+    "volume_mm3": 402.19868037802433,
+    "bounds": [
+      244.0,
+      -57.0,
+      180.6,
+      256.0,
+      -52.14,
+      196.60000000149012
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/a15.stl"
+  },
+  {
+    "id": "adk1",
+    "name": "Knopklauw<1>",
+    "part": "Knopklauw",
+    "volume_mm3": 571.2049874873077,
+    "bounds": [
+      261.0,
+      -39.0,
+      194.5003735050559,
+      281.49614952504635,
+      -34.0,
+      205.4996264949441
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/adk1.stl"
+  },
+  {
+    "id": "adk2",
+    "name": "Knopklauw<2>",
+    "part": "Knopklauw",
+    "volume_mm3": 571.2049874873073,
+    "bounds": [
+      218.50385047495365,
+      -39.0,
+      194.5003735050559,
+      239.0,
+      -34.0,
+      205.4996264949441
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/adk2.stl"
+  },
+  {
+    "id": "adn1",
+    "name": "M4 zeskantmoer DIN 934<1>",
+    "part": "M4 zeskantmoer DIN 934",
+    "volume_mm3": 105.20262470965845,
+    "bounds": [
+      262.458548001945,
+      -38.8,
+      196.5,
+      270.541451998055,
+      -35.599999999999994,
+      203.5
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/adn1.stl"
+  },
+  {
+    "id": "adn2",
+    "name": "M4 zeskantmoer DIN 934<2>",
+    "part": "M4 zeskantmoer DIN 934",
+    "volume_mm3": 105.20262470965827,
+    "bounds": [
+      229.45854800194502,
+      -38.8,
+      196.5,
+      237.54145199805498,
+      -35.599999999999994,
+      203.5
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/adn2.stl"
+  },
+  {
+    "id": "as51",
+    "name": "M5 x 65 DIN 7991<1>",
+    "part": "M5 x 65 DIN 7991",
+    "volume_mm3": 955.3303188657163,
+    "bounds": [
+      91.5,
+      -62.5,
+      67.0,
+      101.5,
+      2.5,
+      77.0
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/as51.stl"
+  },
+  {
+    "id": "as52",
+    "name": "M5 x 65 DIN 7991<2>",
+    "part": "M5 x 65 DIN 7991",
+    "volume_mm3": 955.330318865716,
+    "bounds": [
+      91.5,
+      -62.5,
+      -77.0,
+      101.5,
+      2.5,
+      -67.0
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/as52.stl"
+  },
+  {
+    "id": "as53",
+    "name": "M5 x 65 DIN 7991<3>",
+    "part": "M5 x 65 DIN 7991",
+    "volume_mm3": 955.3303188657161,
+    "bounds": [
+      -101.5,
+      -62.5,
+      67.0,
+      -91.5,
+      2.5,
+      77.0
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/as53.stl"
+  },
+  {
+    "id": "as54",
+    "name": "M5 x 65 DIN 7991<4>",
+    "part": "M5 x 65 DIN 7991",
+    "volume_mm3": 955.3303188657161,
+    "bounds": [
+      -101.5,
+      -62.5,
+      -77.0,
+      -91.5,
+      2.5,
+      -67.0
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/as54.stl"
+  },
+  {
+    "id": "as31",
+    "name": "M3 x 16 DIN 7991<1>",
+    "part": "M3 x 16 DIN 7991",
+    "volume_mm3": 90.22440817511439,
+    "bounds": [
+      95.0,
+      -116.0,
+      69.0,
+      101.0,
+      -100.0,
+      75.0
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/as31.stl"
+  },
+  {
+    "id": "as32",
+    "name": "M3 x 16 DIN 7991<2>",
+    "part": "M3 x 16 DIN 7991",
+    "volume_mm3": 90.22440817511439,
+    "bounds": [
+      95.0,
+      -116.0,
+      -75.0,
+      101.0,
+      -100.0,
+      -69.0
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/as32.stl"
+  },
+  {
+    "id": "as33",
+    "name": "M3 x 16 DIN 7991<3>",
+    "part": "M3 x 16 DIN 7991",
+    "volume_mm3": 90.2244081751144,
+    "bounds": [
+      -101.0,
+      -116.0,
+      69.0,
+      -95.0,
+      -100.0,
+      75.0
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/as33.stl"
+  },
+  {
+    "id": "as34",
+    "name": "M3 x 16 DIN 7991<4>",
+    "part": "M3 x 16 DIN 7991",
+    "volume_mm3": 90.2244081751144,
+    "bounds": [
+      -101.0,
+      -116.0,
+      -75.0,
+      -95.0,
+      -100.0,
+      -69.0
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/as34.stl"
+  },
+  {
+    "id": "as35",
+    "name": "M3 x 16 DIN 7991<5>",
+    "part": "M3 x 16 DIN 7991",
+    "volume_mm3": 90.22440817511435,
+    "bounds": [
+      95.0,
+      -116.0,
+      -3.0,
+      101.0,
+      -100.0,
+      3.0
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/as35.stl"
+  },
+  {
+    "id": "as36",
+    "name": "M3 x 16 DIN 7991<6>",
+    "part": "M3 x 16 DIN 7991",
+    "volume_mm3": 90.22440817511436,
+    "bounds": [
+      -101.0,
+      -116.0,
+      -3.0,
+      -95.0,
+      -100.0,
+      3.0
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/as36.stl"
+  },
+  {
+    "id": "as37",
+    "name": "M3 x 16 DIN 7991<7>",
+    "part": "M3 x 16 DIN 7991",
+    "volume_mm3": 90.22440817511435,
+    "bounds": [
+      -3.0,
+      -116.0,
+      95.0,
+      3.0,
+      -100.0,
+      101.0
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/as37.stl"
+  },
+  {
+    "id": "as38",
+    "name": "M3 x 16 DIN 7991<8>",
+    "part": "M3 x 16 DIN 7991",
+    "volume_mm3": 90.22440817511433,
+    "bounds": [
+      -3.0,
+      -116.0,
+      -101.0,
+      3.0,
+      -100.0,
+      -95.0
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/as38.stl"
+  },
+  {
+    "id": "as41",
+    "name": "M4 x 10 DIN 7991<1>",
+    "part": "M4 x 10 DIN 7991",
+    "volume_mm3": 119.92956046181149,
+    "bounds": [
+      16.506,
+      -115.0,
+      16.50671630932105,
+      24.503135019265326,
+      -105.0,
+      24.50528369067895
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/as41.stl"
+  },
+  {
+    "id": "as42",
+    "name": "M4 x 10 DIN 7991<2>",
+    "part": "M4 x 10 DIN 7991",
+    "volume_mm3": 119.92956046181149,
+    "bounds": [
+      16.506,
+      -115.0,
+      -24.50528369067895,
+      24.503135019265326,
+      -105.0,
+      -16.50671630932105
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/as42.stl"
+  },
+  {
+    "id": "as43",
+    "name": "M4 x 10 DIN 7991<3>",
+    "part": "M4 x 10 DIN 7991",
+    "volume_mm3": 119.92956046181149,
+    "bounds": [
+      -24.506,
+      -115.0,
+      16.50671630932105,
+      -16.508864980734675,
+      -105.0,
+      24.50528369067895
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/as43.stl"
+  },
+  {
+    "id": "as44",
+    "name": "M4 x 10 DIN 7991<4>",
+    "part": "M4 x 10 DIN 7991",
+    "volume_mm3": 119.92956046181149,
+    "bounds": [
+      -24.506,
+      -115.0,
+      -24.50528369067895,
+      -16.508864980734675,
+      -105.0,
+      -16.50671630932105
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/as44.stl"
+  },
+  {
+    "id": "asd1",
+    "name": "M4 x 65 DIN 7991<1>",
+    "part": "M4 x 65 DIN 7991",
+    "volume_mm3": 616.0832678331476,
+    "bounds": [
+      262.5,
+      -63.0,
+      196.00071630932104,
+      270.49713501926533,
+      2.0,
+      203.99928369067896
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/asd1.stl"
+  },
+  {
+    "id": "asd2",
+    "name": "M4 x 65 DIN 7991<2>",
+    "part": "M4 x 65 DIN 7991",
+    "volume_mm3": 616.0832678331474,
+    "bounds": [
+      229.5,
+      -63.0,
+      196.00071630932104,
+      237.49713501926533,
+      2.0,
+      203.99928369067896
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/asd2.stl"
+  },
+  {
+    "id": "ask1",
+    "name": "M2,5 x 6 DIN 7991<1>",
+    "part": "M2,5 x 6 DIN 7991",
+    "volume_mm3": 26.685334526760073,
+    "bounds": [
+      244.6,
+      -8.4,
+      202.7,
+      249.6,
+      -2.4000000000000004,
+      207.7
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/ask1.stl"
+  },
+  {
+    "id": "ask2",
+    "name": "M2,5 x 6 DIN 7991<2>",
+    "part": "M2,5 x 6 DIN 7991",
+    "volume_mm3": 26.68533452676013,
+    "bounds": [
+      244.6,
+      -8.4,
+      192.3,
+      249.6,
+      -2.4000000000000004,
+      197.3
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/ask2.stl"
+  },
+  {
+    "id": "asdk1",
+    "name": "M2,5 x 8 DIN 7991<1>",
+    "part": "M2,5 x 8 DIN 7991",
+    "volume_mm3": 32.928224833900416,
+    "bounds": [
+      260.5,
+      -62.0,
+      210.5,
+      265.5,
+      -54.0,
+      215.5
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/asdk1.stl"
+  },
+  {
+    "id": "asdk2",
+    "name": "M2,5 x 8 DIN 7991<2>",
+    "part": "M2,5 x 8 DIN 7991",
+    "volume_mm3": 32.928224833900444,
+    "bounds": [
+      234.5,
+      -62.0,
+      184.5,
+      239.5,
+      -54.0,
+      189.5
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/asdk2.stl"
+  },
+  {
+    "id": "a18",
+    "name": "Messingbuisje \u00d83 x 12<1>",
+    "part": "Messingbuisje \u00d83 x 12",
+    "volume_mm3": 46.821677231784726,
+    "bounds": [
+      -56.5,
+      -48.0,
+      -86.5,
+      -53.5,
+      -36.0,
+      -83.5
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/a18.stl"
+  },
+  {
+    "id": "a19",
+    "name": "Messingbuisje \u00d83 x 12<2>",
+    "part": "Messingbuisje \u00d83 x 12",
+    "volume_mm3": 46.82167723178477,
+    "bounds": [
+      -76.5,
+      -86.5,
+      -109.0,
+      -73.5,
+      -83.5,
+      -97.0
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/a19.stl"
+  },
+  {
+    "id": "a20",
+    "name": "Voedingsbox<1>",
+    "part": "Voedingsbox",
+    "volume_mm3": 208829.5577758751,
+    "bounds": [
+      -112.5,
+      -70.0,
+      -257.0,
+      112.5,
+      -20.0,
+      -133.0
+    ],
+    "bodies": 3,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/a20.stl"
+  },
+  {
+    "id": "a28",
+    "name": "Deksel voedingsbox<1>",
+    "part": "Deksel voedingsbox",
+    "volume_mm3": 37973.70404989416,
+    "bounds": [
+      -101.79999999701977,
+      -22.0,
+      -241.79999999701977,
+      101.79999999701977,
+      -20.0,
+      -148.20000000298023
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/a28.stl"
+  },
+  {
+    "id": "asbd1",
+    "name": "M3 x 8 DIN 7991<1>",
+    "part": "M3 x 8 DIN 7991",
+    "volume_mm3": 51.206343727080025,
+    "bounds": [
+      94.0,
+      -28.0,
+      -156.0,
+      100.0,
+      -20.0,
+      -150.0
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/asbd1.stl"
+  },
+  {
+    "id": "asbd2",
+    "name": "M3 x 8 DIN 7991<2>",
+    "part": "M3 x 8 DIN 7991",
+    "volume_mm3": 51.20634372708008,
+    "bounds": [
+      94.0,
+      -28.0,
+      -240.0,
+      100.0,
+      -20.0,
+      -234.0
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/asbd2.stl"
+  },
+  {
+    "id": "asbd3",
+    "name": "M3 x 8 DIN 7991<3>",
+    "part": "M3 x 8 DIN 7991",
+    "volume_mm3": 51.20634372708002,
+    "bounds": [
+      -100.0,
+      -28.0,
+      -156.0,
+      -94.0,
+      -20.0,
+      -150.0
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/asbd3.stl"
+  },
+  {
+    "id": "asbd4",
+    "name": "M3 x 8 DIN 7991<4>",
+    "part": "M3 x 8 DIN 7991",
+    "volume_mm3": 51.20634372708009,
+    "bounds": [
+      -100.0,
+      -28.0,
+      -240.0,
+      -94.0,
+      -20.0,
+      -234.0
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/asbd4.stl"
+  },
+  {
+    "id": "asb1",
+    "name": "M4 x 30 DIN 7991<1>",
+    "part": "M4 x 30 DIN 7991",
+    "volume_mm3": 300.3490904150247,
+    "bounds": [
+      81.0,
+      -37.0,
+      -141.99928369067896,
+      88.99713501926533,
+      -7.0,
+      -134.00071630932104
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/asb1.stl"
+  },
+  {
+    "id": "asb2",
+    "name": "M4 x 30 DIN 7991<2>",
+    "part": "M4 x 30 DIN 7991",
+    "volume_mm3": 300.34909041502476,
+    "bounds": [
+      81.0,
+      -37.0,
+      -255.99928369067896,
+      88.99713501926533,
+      -7.0,
+      -248.00071630932104
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/asb2.stl"
+  },
+  {
+    "id": "asb3",
+    "name": "M4 x 30 DIN 7991<3>",
+    "part": "M4 x 30 DIN 7991",
+    "volume_mm3": 300.3490904150247,
+    "bounds": [
+      -89.0,
+      -37.0,
+      -141.99928369067896,
+      -81.00286498073467,
+      -7.0,
+      -134.00071630932104
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/asb3.stl"
+  },
+  {
+    "id": "asb4",
+    "name": "M4 x 30 DIN 7991<4>",
+    "part": "M4 x 30 DIN 7991",
+    "volume_mm3": 300.34909041502476,
+    "bounds": [
+      -89.0,
+      -37.0,
+      -255.99928369067896,
+      -81.00286498073467,
+      -7.0,
+      -248.00071630932104
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/asb4.stl"
+  },
+  {
+    "id": "a21",
+    "name": "Mean Well GST90A24-P1M<1>",
+    "part": "Mean Well GST90A24-P1M",
+    "volume_mm3": 272829.30798200174,
+    "bounds": [
+      -101.0,
+      -65.0,
+      -231.0,
+      47.3,
+      -33.0,
+      -171.0
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/a21.stl"
+  },
+  {
+    "id": "a22",
+    "name": "Voedingsprint<1>",
+    "part": "Voedingsprint",
+    "volume_mm3": 13033.523699693507,
+    "bounds": [
+      60.0,
+      -62.0,
+      -208.5,
+      103.80000000000001,
+      -36.65,
+      -158.5
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/a22.stl"
+  },
+  {
+    "id": "a23",
+    "name": "USB-C-bus knop<1>",
+    "part": "USB-C-bus knop",
+    "volume_mm3": 512.4705444253425,
+    "bounds": [
+      81.70000000298023,
+      -61.9,
+      -230.35000000149012,
+      103.20000000298023,
+      -57.04,
+      -217.64999999850988
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/a23.stl"
+  },
+  {
+    "id": "a24",
+    "name": "Wipschakelaar C&K D502<1>",
+    "part": "Wipschakelaar C&K D502",
+    "volume_mm3": 4144.7207706664,
+    "bounds": [
+      29.58500000089407,
+      -58.5,
+      -170.1,
+      50.41499999910593,
+      -43.5,
+      -146.0
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/a24.stl"
+  },
+  {
+    "id": "a25",
+    "name": "M8-inbouwstekker 4-polig<1>",
+    "part": "M8-inbouwstekker 4-polig",
+    "volume_mm3": 1356.4856445016621,
+    "bounds": [
+      -66.92820300161839,
+      -60.0,
+      -158.0,
+      -53.071796998381615,
+      -48.0,
+      -133.9
+    ],
+    "bodies": 2,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/a25.stl"
+  },
+  {
+    "id": "a27",
+    "name": "Adapterklem<1>",
+    "part": "Adapterklem",
+    "volume_mm3": 396.8696842802863,
+    "bounds": [
+      -64.5,
+      -32.9,
+      -179.0,
+      -55.5,
+      -29.9,
+      -162.5
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/a27.stl"
+  },
+  {
+    "id": "a27b",
+    "name": "Adapterklem<2>",
+    "part": "Adapterklem",
+    "volume_mm3": 396.8696842802863,
+    "bounds": [
+      -9.5,
+      -32.9,
+      -179.0,
+      -0.5,
+      -29.9,
+      -162.5
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/a27b.stl"
+  },
+  {
+    "id": "asa1",
+    "name": "M3 x 10 DIN 7991<1>",
+    "part": "M3 x 10 DIN 7991",
+    "volume_mm3": 60.96085983908862,
+    "bounds": [
+      -63.0,
+      -39.9,
+      -169.5,
+      -57.0,
+      -29.9,
+      -163.5
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/asa1.stl"
+  },
+  {
+    "id": "asa2",
+    "name": "M3 x 10 DIN 7991<2>",
+    "part": "M3 x 10 DIN 7991",
+    "volume_mm3": 60.96085983908863,
+    "bounds": [
+      -8.0,
+      -39.9,
+      -169.5,
+      -2.0,
+      -29.9,
+      -163.5
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/asa2.stl"
+  },
+  {
+    "id": "a26",
+    "name": "Messingbuisje \u00d83 x 12<3>",
+    "part": "Messingbuisje \u00d83 x 12",
+    "volume_mm3": 46.82167723178475,
+    "bounds": [
+      -76.5,
+      -62.5,
+      -153.0,
+      -73.5,
+      -59.5,
+      -141.0
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/a26.stl"
+  },
+  {
+    "id": "as251",
+    "name": "M2,5 x 6 zelftappend<1>",
+    "part": "M2,5 x 6 zelftappend",
+    "volume_mm3": 45.97874311831301,
+    "bounds": [
+      60.75,
+      -66.4,
+      -207.75,
+      65.25,
+      -58.4,
+      -203.25
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/as251.stl"
+  },
+  {
+    "id": "as252",
+    "name": "M2,5 x 6 zelftappend<2>",
+    "part": "M2,5 x 6 zelftappend",
+    "volume_mm3": 45.97874311831305,
+    "bounds": [
+      94.75,
+      -66.4,
+      -207.75,
+      99.25,
+      -58.4,
+      -203.25
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/as252.stl"
+  },
+  {
+    "id": "as253",
+    "name": "M2,5 x 6 zelftappend<3>",
+    "part": "M2,5 x 6 zelftappend",
+    "volume_mm3": 45.97874311831306,
+    "bounds": [
+      60.75,
+      -66.4,
+      -163.75,
+      65.25,
+      -58.4,
+      -159.25
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/as253.stl"
+  },
+  {
+    "id": "as254",
+    "name": "M2,5 x 6 zelftappend<4>",
+    "part": "M2,5 x 6 zelftappend",
+    "volume_mm3": 45.97874311831305,
+    "bounds": [
+      94.75,
+      -66.4,
+      -163.75,
+      99.25,
+      -58.4,
+      -159.25
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/as254.stl"
+  },
+  {
+    "id": "as21",
+    "name": "M2 x 5 zelftappend<1>",
+    "part": "M2 x 5 zelftappend",
+    "volume_mm3": 25.533949617954313,
+    "bounds": [
+      82.30000000149012,
+      -65.3,
+      -229.74999999850988,
+      86.09999999850989,
+      -58.699999999999996,
+      -225.9500000014901
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/as21.stl"
+  },
+  {
+    "id": "as22",
+    "name": "M2 x 5 zelftappend<2>",
+    "part": "M2 x 5 zelftappend",
+    "volume_mm3": 25.533949617954367,
+    "bounds": [
+      82.30000000149012,
+      -65.3,
+      -222.0499999985099,
+      86.09999999850989,
+      -58.699999999999996,
+      -218.25000000149012
+    ],
+    "bodies": 1,
+    "status": "Error.NoError",
+    "notes": [],
+    "file": "/workspace/afzuiging/report/v4-evidence/reconstructed/as22.stl"
+  }
+]

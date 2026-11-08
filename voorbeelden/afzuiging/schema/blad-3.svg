@@ -32,7 +32,7 @@
 <text x="10" y="231.16666666666666" font-size="3" text-anchor="middle" fill="#111">F</text>
 <rect x="15" y="253" width="395" height="39" fill="none" stroke="#111" stroke-width="0.5"/>
 <polyline points="15,253 15,292" fill="none" stroke="#111" stroke-width="0.25"/><text x="17" y="258" font-size="2.2" text-anchor="start" fill="#666">Project</text><text x="17" y="266" font-size="3.2" text-anchor="start" fill="#111">Afzuiging Lush Beauty</text>
-<text x="17" y="273" font-size="2.4" text-anchor="start" fill="#444">inbouw nagelstofafzuiging, versie 7.0</text>
+<text x="17" y="273" font-size="2.4" text-anchor="start" fill="#444">inbouw nagelstofafzuiging, versie 7.1</text>
 <polyline points="85,253 85,292" fill="none" stroke="#111" stroke-width="0.25"/><text x="87" y="258" font-size="2.2" text-anchor="start" fill="#666">Bladtitel</text><text x="87" y="269" font-size="5.5" text-anchor="start" fill="#111" font-weight="700">Ventilator: M8-kabel, PWM en tacho</text>
 <polyline points="205,253 205,292" fill="none" stroke="#111" stroke-width="0.25"/><text x="207" y="258" font-size="2.2" text-anchor="start" fill="#666">Installatie / plaats</text><text x="207" y="266" font-size="3.2" text-anchor="start" fill="#111">=AFZ +BOX</text>
 <text x="207" y="273" font-size="2.4" text-anchor="start" fill="#444">voedingsbox onder het blad</text>
@@ -66,8 +66,33 @@
 <circle cx="215" cy="125" r="0.8" fill="#111"/>
 <polyline points="215,125 25,125" fill="none" stroke="#16a34a" stroke-width="0.45"/>
 <text x="25" y="123" font-size="2.6" text-anchor="start" fill="#16a34a">tacho  GPIO4 (-A4) → /4.3</text>
-<circle cx="250" cy="30" r="0.8" fill="#111"/>
-<polyline points="250,30 250,95 268.7,95" fill="none" stroke="#b42318" stroke-width="0.45"/>
+<circle cx="256" cy="30" r="0.8" fill="#111"/>
+<polyline points="256,30 256,48" fill="none" stroke="#b42318" stroke-width="0.45"/>
+<rect x="245" y="48" width="22" height="20" fill="#fbfaf7" stroke="#111" stroke-width="0.35" stroke-dasharray="2 1.2"/><text x="247" y="46" font-size="3.2" text-anchor="start" fill="#111" font-weight="700">-Q2</text><circle cx="256" cy="48" r="0.9" fill="#111"/><text x="254" y="52" font-size="2.2" text-anchor="end" fill="#222">S</text><circle cx="256" cy="68" r="0.9" fill="#111"/><text x="254" y="66" font-size="2.2" text-anchor="end" fill="#222">D</text><circle cx="245" cy="60" r="0.9" fill="#111"/><text x="247" y="58" font-size="2.2" text-anchor="start" fill="#222">G</text>
+<text x="270" y="54" font-size="2.5" text-anchor="start" fill="#333">IRF4905</text>
+<text x="270" y="57.6" font-size="2.5" text-anchor="start" fill="#333">P-kanaal</text>
+<polyline points="256,68 256,95 268.7,95" fill="none" stroke="#b42318" stroke-width="0.45"/>
+<circle cx="238" cy="30" r="0.8" fill="#111"/>
+<polyline points="238,30 238,34" fill="none" stroke="#111" stroke-width="0.35"/>
+<polyline points="238,34 238,40" fill="none" stroke="#111" stroke-width="0.35"/><rect x="236.5" y="40" width="3" height="8" fill="none" stroke="#111" stroke-width="0.35"/><polyline points="238,48 238,54" fill="none" stroke="#111" stroke-width="0.35"/><text x="235" y="43" font-size="2.6" text-anchor="end" fill="#111">-R4</text><text x="235" y="46.5" font-size="2.4" text-anchor="end" fill="#444">10 kΩ</text>
+<polyline points="238,54 238,60 245,60" fill="none" stroke="#111" stroke-width="0.35"/>
+<circle cx="238" cy="60" r="0.8" fill="#111"/>
+<polyline points="238,60 238,66" fill="none" stroke="#111" stroke-width="0.35"/><rect x="236.5" y="66" width="3" height="8" fill="none" stroke="#111" stroke-width="0.35"/><polyline points="238,74 238,80" fill="none" stroke="#111" stroke-width="0.35"/><text x="235" y="69" font-size="2.6" text-anchor="end" fill="#111">-R5</text><text x="235" y="72.5" font-size="2.4" text-anchor="end" fill="#444">10 kΩ</text>
+<polyline points="238,80 238,82" fill="none" stroke="#111" stroke-width="0.35"/>
+<circle cx="235.5" cy="92" r="6" fill="none" stroke="#111" stroke-width="0.35"/><polyline points="225,92 233,92" fill="none" stroke="#111" stroke-width="0.35"/><polyline points="233,88 233,96" fill="none" stroke="#111" stroke-width="0.6"/><polyline points="233,90.5 238,87 238,82" fill="none" stroke="#111" stroke-width="0.35"/><polyline points="233,93.5 238,97 238,102" fill="none" stroke="#111" stroke-width="0.35"/><polygon points="238,97 235.4,96.6 236.6,94.9" fill="#111"/><text x="243" y="91" font-size="2.8" text-anchor="start" fill="#111" font-weight="700">-Q3</text><text x="243" y="94.6" font-size="2.4" text-anchor="start" fill="#444">BC547</text>
+<polyline points="238,102 238,225" fill="none" stroke="#111" stroke-width="0.35"/>
+<circle cx="238" cy="225" r="0.8" fill="#111"/>
+<polyline points="203,92 209,92" fill="none" stroke="#111" stroke-width="0.35"/><rect x="209" y="90.5" width="8" height="3" fill="none" stroke="#111" stroke-width="0.35"/><polyline points="217,92 223,92" fill="none" stroke="#111" stroke-width="0.35"/><text x="213" y="89" font-size="2.6" text-anchor="middle" fill="#111">-R6</text><text x="213" y="97" font-size="2.4" text-anchor="middle" fill="#444">1 kΩ</text>
+<polyline points="223,92 225,92" fill="none" stroke="#111" stroke-width="0.35"/>
+<circle cx="223" cy="92" r="0.8" fill="#111"/>
+<polyline points="223,92 223,96" fill="none" stroke="#111" stroke-width="0.35"/>
+<polyline points="223,96 223,102" fill="none" stroke="#111" stroke-width="0.35"/><rect x="221.5" y="102" width="3" height="8" fill="none" stroke="#111" stroke-width="0.35"/><polyline points="223,110 223,116" fill="none" stroke="#111" stroke-width="0.35"/><text x="220" y="105" font-size="2.6" text-anchor="end" fill="#111">-R11</text><text x="220" y="108.5" font-size="2.4" text-anchor="end" fill="#444">10 kΩ</text>
+<polyline points="223,116 223,225" fill="none" stroke="#111" stroke-width="0.35"/>
+<circle cx="223" cy="225" r="0.8" fill="#111"/>
+<polyline points="203,92 25,92" fill="none" stroke="#2a6fd6" stroke-width="0.45"/>
+<text x="25" y="90" font-size="2.6" text-anchor="start" fill="#2a6fd6">aan/uit  GPIO7 (-A4) ← /4.3</text>
+<text x="270" y="63" font-size="2.2" text-anchor="start" fill="#444">zonder besturing (5 V weg, reset,</text>
+<text x="270" y="66.5" font-size="2.2" text-anchor="start" fill="#444">flashen): -Q2 open, ventilator stil</text>
 <polyline points="268.7,110 240,110 240,225" fill="none" stroke="#111" stroke-width="0.45"/>
 <circle cx="240" cy="225" r="0.8" fill="#111"/>
 <polyline points="163,140 163,140 268.7,140 268.7,125" fill="none" stroke="#2a6fd6" stroke-width="0.45"/>

@@ -1,0 +1,45 @@
+{
+  "clean_q_at_50pct_rpm": 145.2173442729342,
+  "sensor_pa_at_50pct_rpm": 87.20539454628494,
+  "qmin": 189.54135,
+  "baseline_calibration_pressures": [
+    18.606610009304216,
+    60.55167660322762,
+    117.0596103955771,
+    185.60436373636253,
+    264.66739856124417
+  ],
+  "meaning": "Adversarial lower-speed injection; not actual fan performance at95%PWM.",
+  "alarm_ratios_under_declared_assumptions": [
+    {
+      "rpm": 0.75,
+      "minimum_model_ratio": 1.2049322492091044,
+      "firmware_ratio": 1.08
+    },
+    {
+      "rpm": 0.8,
+      "minimum_model_ratio": 1.3301417436790022,
+      "firmware_ratio": 1.19
+    },
+    {
+      "rpm": 0.9,
+      "minimum_model_ratio": 1.4937409794391456,
+      "firmware_ratio": 1.315
+    },
+    {
+      "rpm": 1,
+      "minimum_model_ratio": 1.6333803011141725,
+      "firmware_ratio": 1.44
+    }
+  ],
+  "guard_beam_screening": {
+    "load_N_scenario_not_norm": 10,
+    "span_mm": 60,
+    "b_mm": 1.6,
+    "h_mm": 2.9,
+    "E_MPa": 1500,
+    "fixed_fixed_deflection_mm": 2.306367624748862,
+    "rotor_gap_mm": 2.05,
+    "limit": "One-rib beam screening only; grid action and boundary rigidity require structural model."
+  }
+}
