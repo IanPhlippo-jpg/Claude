@@ -61,6 +61,20 @@ jobs:
           echo "typecheck=${{ steps.typecheck.outcome }} unit=${{ steps.unit.outcome }} mutation=${{ steps.mutation.outcome }} text=${{ steps.text.outcome }} build=${{ steps.build.outcome }} budgets=${{ steps.budgets.outcome }} clean=${{ steps.clean.outcome }}"
           test "${{ steps.typecheck.outcome }}" = success && test "${{ steps.unit.outcome }}" = success && test "${{ steps.mutation.outcome }}" = success && test "${{ steps.text.outcome }}" = success && test "${{ steps.build.outcome }}" = success && test "${{ steps.budgets.outcome }}" = success && test "${{ steps.clean.outcome }}" = success
 
+  # the model tests of voorbeelden/ (extractor, desk, cable box): minutes of mesh and B-rep rebuilds, so a job of their own
+  # instead of the unit step (QA 0.5.12: no time budget, a rebuild error fails the test)
+  voorbeelden:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run test:voorbeelden -- --testTimeout=1800000
+
   desktop:
     runs-on: ubuntu-24.04
     timeout-minutes: 30

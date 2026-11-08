@@ -37,11 +37,11 @@ Documentatie:
 Status per fase:
 1. 2D-schetser met constraint-solver — **gereed**
 2. Feature-modelleren (Extrude met draft en Up To Next/Surface, Cut, Revolve, Sweep, Loft, Rib, Fillet, Chamfer, Mirror, Linear/Circular Pattern, Hole Tool, Shell, Combine; multi-body met materiaal per body; op een mesh-solidkern met booleans) — **gereed**
-3. Variabelen en vergelijkingen (Tools ▸ Equations, Σ-maten) en configuraties (Configurations, Modify Configurations, configuratie per component) — **gereed**; ontwerptabellen (Excel) gepland
+3. Variabelen en vergelijkingen (Tools ▸ Equations, Σ-maten) en configuraties (Configurations, Modify Configurations, configuratie per component) en ontwerptabellen (Design Tables als tabel en CSV; geen koppeling met Excel) — **gereed**
 4. Assemblies (Insert Components, Mates, Move/Rotate, BOM, Interference Detection) — **basis gereed**
 5. 2D-tekeningen (Sheet Format/Size, Model View, Projected View, Smart Dimension, Center Mark, Note, titelblok) — **basis gereed**
 6. Import/export — STL in/uit en STEP in/uit (B-rep-kernel) **gereed**; tekeningen naar DXF en PDF; IGES niet (de meegeleverde OpenCascade-build heeft geen IGES-writer)
-8. Sheet metal (Base Flange/Tab, Edge Flange, Flatten met K-factor) — **basis gereed**; Hem/Jog/Miter/Unfold gepland
+8. Sheet metal (Base Flange/Tab, Edge Flange, Flatten met K-factor, Hem, Jog, Miter Flange, Unfold/Fold) — **gereed** (e2e: sheetmetal, hem, jogmiter, unfoldfold)
 7. Massa-eigenschappen en meten — **gereed** (Mass Properties, Measure); materialen en rendering gepland
 
 ## Status 0.5.12 (2026-11-04)
@@ -58,7 +58,8 @@ QA-rapport 0.5.11 (5/10 na de teamronde, 3 Kritiek) verwerkt; per bevinding in `
 
 Welke platforms getest zijn (release-commit 02e3b22):
 - **Linux (GitHub Actions, ubuntu-24.04):** [run 41862412746](https://github.com/IanPhlippo-jpg/Claude/actions/runs/41862412746), alle 16 jobs
-  groen: release 104/104, mesh 104/104, brep 14/14, checks (unit 736/736, mutaties 4/4), desktop.
+  groen: release 104/104, mesh 104/104, brep 14/14, checks (unit 736/736 op die commit, mutaties 4/4), desktop. Sinds 0.5.13
+  staan de modeltests van `voorbeelden/` niet meer in `npm test` maar in een eigen CI-job (`npm run test:voorbeelden`).
 - **Windows (Actions, windows-2025):** dezelfde run: release 104/104, mesh 104/104, installer stil geïnstalleerd en
   getest 21/21.
 - **Windows 11 (lokaal):** mesh 104/104, release 104/104, brep 14/14; geïnstalleerde 0.5.12 21/21.

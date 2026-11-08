@@ -28,6 +28,10 @@ function buildCommit(): string {
   return 'unknown';
 }
 
+/** de zware modeltests van voorbeelden/ (eigen CI-job) */
+const VOORBEELD_TESTS = ['src/qa/qaAfzuiging.test.ts', 'src/qa/qaBureau.test.ts', 'src/qa/qaTrein.test.ts', 'src/qa/stlAfzuiging.test.ts',
+  'src/qa/overlapBoxAfzuiging.test.ts', 'src/qa/tekeningenAfzuiging.test.ts'];
+
 export default defineConfig({
   base: './',
   define: { __APP_VERSION__: JSON.stringify(pkg.version), __APP_COMMIT__: JSON.stringify(buildCommit()) },
@@ -53,5 +57,8 @@ export default defineConfig({
   test: {
     environment: 'node',
     include: ['src/**/*.test.ts'],
+    // de modeltests van de voorbeelden (afzuiging, bureau, kabeldoos) rekenen minuten: niet in `npm test`, wel verplicht
+    // in hun eigen CI-job (npm run test:voorbeelden, ci.yml job voorbeelden)
+    exclude: process.env.VOORBEELDEN ? [] : VOORBEELD_TESTS,
   },
 });

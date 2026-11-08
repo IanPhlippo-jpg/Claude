@@ -156,10 +156,13 @@ let edgeLit = false;
 for (let k = 0; k < 25 && !edgeLit; k++) { await page.mouse.move(em.x + (k % 2), em.y); await page.waitForTimeout(150); edgeLit = !!(await page.evaluate(() => window.__phlippoStore.getState().hoverEdge)); }
 check('hover highlights an edge', edgeLit);
 // a slow runner (software GL) can miss a click while it draws: click until the edge is selected
-for (let k = 0; k < 8; k++) {
-  await page.mouse.click(em.x, em.y);
+// before every click the edge must be lit again (a redraw between hover and click drops the pick: QA 0.5.12, F31/F54)
+for (let k = 0; k < 10; k++) {
+  await page.mouse.move(em.x + (k % 2), em.y);
+  await page.waitForFunction(() => !!window.__phlippoStore.getState().hoverEdge, undefined, { timeout: 3000 }).catch(() => undefined);
+  await page.mouse.click(em.x + (k % 2), em.y);
   if (await page.waitForFunction(() => window.__phlippoStore.getState().selectedEdges.length === 1, undefined, { timeout: 2000 }).then(() => true, () => false)) break;
-  await page.mouse.move(em.x + 1, em.y); await page.mouse.move(em.x, em.y);
+  await waitSettled(page);
 }
 check('click selects the edge', (await page.evaluate(() => window.__phlippoStore.getState().selectedEdges.length)) === 1);
 await page.click('.k-cm-big:has-text("Fillet") .k-cm-main');
@@ -395,6 +398,11 @@ await waitSettled(page);
 const me = await page.evaluate(() => window.__phlippoProjectWorld(20, 10, 0));
 let measureText = '';
 for (let k = 0; k < 6; k++) {
+  // the Measure dialog must be open before we pick (on a slow runner the first click on the command can be lost)
+  if (!(await page.locator('.k-measure-dialog').isVisible().catch(() => false))) {
+    await page.click('.k-cm-big:has-text("Measure") .k-cm-main').catch(() => undefined);
+    await page.locator('.k-measure-dialog').waitFor({ timeout: 5000 }).catch(() => undefined);
+  }
   await page.mouse.move(me.x + (k % 2), me.y);
   await page.waitForFunction(() => !!window.__phlippoStore.getState().hoverEdge, undefined, { timeout: 3000 }).catch(() => undefined);
   await page.mouse.click(me.x + (k % 2), me.y);

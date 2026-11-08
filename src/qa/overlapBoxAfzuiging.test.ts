@@ -4,7 +4,7 @@
 import { afterAll, describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
-import { rebuildDocument } from '../core/features/rebuild';
+import { rebuildDocument } from './rebuildStreng';
 import { setBrepKernel } from '../core/features/brepKernel';
 import { occtKernel } from '../core/occt/brep';
 import { parseDocument } from '../core/document/persistence';

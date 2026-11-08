@@ -7,7 +7,7 @@ import { afterAll, describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import * as THREE from 'three';
-import { rebuildDocument } from '../core/features/rebuild';
+import { rebuildDocument } from './rebuildStreng';
 import { setBrepKernel } from '../core/features/brepKernel';
 import { occtKernel } from '../core/occt/brep';
 import { parseDocument } from '../core/document/persistence';
@@ -25,10 +25,10 @@ const KAST = 360 * 564 * 700 - 328 * 668 * 556 + 10 * 14 * 10 * 510;
 const LADE = 296 * 100 * 522 + (356 * 136 * 16 - 296 * 100 * 2) - 280 * 510 * 92 + 2 * (16 * 10 * 492 - 2 * 10 * 492 - 16 * 10 * 2 + 2 * 10 * 2);
 const VERWACHT = {
   // min de uitsparingen voor de afzuiging (212 x 212, hoeken R6) en de knop (gatzaag Ø44); onderaan de uitsparing voor de
-  // voedingsbox (212 x 102 x 15, R5) met 4 gaten Ø8 x 28 voor de pluggen van de rand, de sleuf naar de
+  // voedingsbox (212 x 102 x 15, R5) met 4 voorboorgaten Ø2,5 x 14 voor de schroeven van de rand, de sleuf naar de
   // module (29 x 7 over 38 mm) en die naar de knop (5 x 5, schuin)
   'LAGKAPTEN-tafelblad.kcad': {
-    volume: (1400 * 600 - (212 * 212 - (4 - Math.PI) * 36) - Math.PI * 22 * 22) * 34 - (212 * 102 - (4 - Math.PI) * 25) * 15 - 4 * Math.PI * 16 * 28
+    volume: (1400 * 600 - (212 * 212 - (4 - Math.PI) * 36) - Math.PI * 22 * 22) * 34 - (212 * 102 - (4 - Math.PI) * 25) * 15 - 4 * Math.PI * 1.25 * 1.25 * 14
       - 29 * 38 * 7 - 25 * (Math.hypot(146, 425) * (1 - 2 / 146) - 22),
     min: [-700, 0, -300], max: [700, 34, 300],
   },
@@ -101,5 +101,5 @@ describe('bureau, B-rep', () => {
     replicad.setOC(OC as never);
     setBrepKernel(occtKernel(OC, replicad));
     for (const [f, exp] of Object.entries(VERWACHT)) check(open(f), exp);
-  }, 60000);
+  }, 600000);
 });
