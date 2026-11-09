@@ -288,8 +288,10 @@ const sf = await page.evaluate(() => window.__phlippoProjectWorld(5, 10, -40));
 // a slow runner draws the fitted view later: click until the face is selected
 for (let k = 0; k < 10; k++) { await page.mouse.click(sf.x, sf.y); await page.waitForTimeout(150); if ((await page.evaluate(() => window.__phlippoStore.getState().selectedFaces.length)) === 1) break; }
 console.log('before Shell:', JSON.stringify(await page.evaluate(() => { const s = window.__phlippoStore.getState(); const b = s.rebuild.bodies[0]; return { selectedFaces: s.selectedFaces.length, hoverEdge: s.hoverEdge, edges: b.edges.length, closed: b.edges.filter((e) => e.closed).length, straight: b.edges.filter((e) => e.straight).length }; })));
+check('top face selected before Shell', (await page.evaluate(() => window.__phlippoStore.getState().selectedFaces.length)) === 1);
 await page.click('.k-cm-small:has-text("Shell")');
-await page.waitForTimeout(1200);
+// a slow runner opens the property manager later: wait for the draft to take over the selected face
+await page.waitForFunction(() => (window.__phlippoStore.getState().featureEdit?.draft?.faces?.length ?? 0) === 1, undefined, { timeout: 8000 }).catch(() => undefined);
 console.log('shell draft:', JSON.stringify(await page.evaluate(() => window.__phlippoStore.getState().featureEdit?.draft)));
 check('shell draft has the selected face to remove', (await page.evaluate(() => window.__phlippoStore.getState().featureEdit?.draft.faces.length)) === 1);
 await shot('e15-shell-preview');
