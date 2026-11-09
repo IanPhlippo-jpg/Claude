@@ -113,4 +113,21 @@ describe('Relations/Snaps', () => {
     use({ 'snaps.automaticRelations': false });
     expect(automaticRelations()).toBe(false);
   });
+  // QA 0.5.12 F112: Tangent
+  it('snaps.tangent: a line from outside snaps to the tangent point of a circle, an arc only within its span', () => {
+    const from = { x: 50, y: 0 };
+    // circle centre (100, 0) radius 10: tangent points at x = 98, y = ±9.798
+    const hit = snapPoint(sketch().s, { x: 98.3, y: 9.6 }, 1, from, GRID);
+    expect(hit.snap?.kind).toBe('tangent');
+    expect(hit.p.x).toBeCloseTo(98, 9);
+    expect(hit.p.y).toBeCloseTo(Math.sqrt(96), 9);
+    // the line from `from` to the point touches the circle: it is perpendicular to the radius
+    expect((hit.p.x - from.x) * (hit.p.x - 100) + (hit.p.y - from.y) * hit.p.y).toBeCloseTo(0, 9);
+    expect(kind({ 'snaps.tangent': false }, { x: 98.3, y: 9.6 }, from)).toBe('on');
+    // arc centre (0, 100) radius 10 from 0° to 90°: from (50, 100) only the upper tangent point lies on the arc
+    expect(kind({}, { x: 2.2, y: 109.6 }, { x: 50, y: 100 })).toBe('tangent');
+    expect(kind({}, { x: 2.2, y: 90.4 }, { x: 50, y: 100 })).not.toBe('tangent');
+    // no tangent without a start point, and a point snap still wins
+    expect(kind({}, { x: 98.3, y: 9.6 })).toBe('on');
+  });
 });

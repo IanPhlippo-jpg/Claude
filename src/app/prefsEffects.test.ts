@@ -179,6 +179,15 @@ describe('Feature tree and messages', () => {
     use({ 'fm.commentTimestamp': false });
     expect(fx.commentStamp(t)).toBe('');
   });
+  it('fm.nameOnCreation: OK in a PropertyManager opens the new feature name for typing (QA 0.5.12 F112)', () => {
+    expect(fx.nameOnCreation(['a'], ['a', 'b'], true)).toBe(null);
+    use({ 'fm.nameOnCreation': true });
+    expect(fx.nameOnCreation(['a'], ['a', 'b'], true)).toBe('b');
+    // a redo or undo (no feature being edited), an edit of an existing feature and a delete name nothing
+    expect(fx.nameOnCreation(['a'], ['a', 'b'], false)).toBe(null);
+    expect(fx.nameOnCreation(['a', 'b'], ['a', 'b'], true)).toBe(null);
+    expect(fx.nameOnCreation(['a', 'b'], ['a'], true)).toBe(null);
+  });
   it('msg.displayOverDefined and msg.treeWarnings: the warning marks in the tree', () => {
     expect(fx.showTreeWarning()).toBe(true);
     use({ 'msg.treeWarnings': 'Never' });

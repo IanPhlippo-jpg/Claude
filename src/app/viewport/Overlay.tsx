@@ -252,6 +252,7 @@ export function Overlay(props: OverlayProps) {
             {k === 'vertical' ? <path d="M0,-14V14" strokeDasharray="3 3" /> : null}
             {k === 'quadrant' ? <polygon points="0,-6 6,0 0,6 -6,0" /> : null}
             {k === 'intersection' ? <><circle r={6} /><path d="M-4,-4L4,4M-4,4L4,-4" /></> : null}
+            {k === 'tangent' ? <g data-testid="snap-tangent"><circle cy={-5} r={5} /><path d="M-8,0H8" /></g> : null}
           </g>
         );
       })()}

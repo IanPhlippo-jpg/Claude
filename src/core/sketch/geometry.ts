@@ -268,7 +268,7 @@ export function hitTest(s: Sketch, p: Pt, tolerance: number, excludePoints: Set<
   return best;
 }
 
-export type SnapKind = 'endpoint' | 'midpoint' | 'center' | 'on' | 'horizontal' | 'vertical' | 'origin' | 'quadrant' | 'align' | 'intersection' | 'angle' | 'parallel' | 'perpendicular';
+export type SnapKind = 'endpoint' | 'midpoint' | 'center' | 'on' | 'horizontal' | 'vertical' | 'origin' | 'quadrant' | 'align' | 'intersection' | 'angle' | 'parallel' | 'perpendicular' | 'tangent';
 
 export interface Snap {
   kind: SnapKind;

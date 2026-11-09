@@ -1,7 +1,8 @@
 /**
  * Sketch snapping by System Options ▸ Sketch ▸ Relations/Snaps (QA v0.5.11 F112): which inference snaps are on, the
  * grid snap, the angle snap and the parallel / perpendicular inference while a line is drawn, and whether a snap
- * adds its automatic relation. The sketch tools call snapPoint(); sketchSnaps.test.ts proves each option.
+ * adds its automatic relation, and the tangent inference of a line to a circle or arc. The sketch tools call
+ * snapPoint(); sketchSnaps.test.ts proves each option.
  */
 import { getPref } from './prefs';
 import { snap, type Snap, type SnapKind } from '../core/sketch/geometry';
@@ -84,6 +85,41 @@ export function directionSnap(s: Sketch, p: SketchPoint, from: SketchPoint, tol:
   return null;
 }
 
+/** the point on the arc where the angle a lies within its span (counter-clockwise from start to end when ccw) */
+function inSpan(a: number, a0: number, a1: number, ccw: boolean): boolean {
+  const norm = (x: number) => ((x % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
+  return ccw ? norm(a - a0) <= norm(a1 - a0) + 1e-9 : norm(a0 - a) <= norm(a0 - a1) + 1e-9;
+}
+
+/**
+ * Relations/Snaps ▸ Tangent (QA 0.5.12 F112): a line drawn from `from` snaps to the point where it touches a circle or
+ * an arc, when the pointer is within the pick tolerance of that point. The snap names the curve, so the line gets a
+ * Tangent relation (with automatic relations on).
+ */
+export function tangentSnap(s: Sketch, p: SketchPoint, from: SketchPoint, tol: number): Snap | null {
+  if (!on('snaps.enableSnapping') || !on('snaps.tangent')) return null;
+  let best: Snap | null = null, bestD = tol;
+  for (const id of s.entityOrder) {
+    const e = s.entities[id];
+    if (e.kind !== 'circle' && e.kind !== 'arc') continue;
+    const c = s.points[e.center], r = s.scalars[e.r];
+    const dx = from.x - c.x, dy = from.y - c.y, d = Math.hypot(dx, dy);
+    if (!(r > 0) || d <= r * (1 + 1e-9)) continue;
+    // the two tangent points: at angle base ± acos(r/d) seen from the centre
+    const base = Math.atan2(dy, dx), half = Math.acos(r / d);
+    for (const a of [base + half, base - half]) {
+      if (e.kind === 'arc') {
+        const A = s.points[e.start], B = s.points[e.end];
+        if (!inSpan(a, Math.atan2(A.y - c.y, A.x - c.x), Math.atan2(B.y - c.y, B.x - c.x), e.ccw)) continue;
+      }
+      const q = { x: c.x + r * Math.cos(a), y: c.y + r * Math.sin(a) };
+      const dq = Math.hypot(p.x - q.x, p.y - q.y);
+      if (dq <= bestD) { bestD = dq; best = { kind: 'tangent', point: q, entityId: id }; }
+    }
+  }
+  return best;
+}
+
 export interface GridState { quick: boolean; shown: boolean; size: number }
 
 /** the pointer on the grid when the grid snap is on */
@@ -97,6 +133,9 @@ export function gridPoint(p: SketchPoint, grid: GridState): SketchPoint {
 export function snapPoint(s: Sketch, p: SketchPoint, tol: number, ref: SketchPoint | null, grid: GridState): { p: SketchPoint; snap: Snap | null } {
   const kinds = snapKinds();
   const hits = kinds ? snap(s, p, tol, ref, new Set(), kinds) : [];
+  // the tangent point beats a plain "on the curve" snap (both lie on the circle), not a point snap
+  const t = ref && (!hits.length || (!hits[0].pointId && hits[0].kind === 'on')) ? tangentSnap(s, p, ref, tol) : null;
+  if (t) return { p: t.point, snap: t };
   if (hits.length) return { p: hits[0].point, snap: hits[0] };
   const d = ref ? directionSnap(s, p, ref, tol) : null;
   if (d) return { p: d.point, snap: d };

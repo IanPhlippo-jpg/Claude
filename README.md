@@ -47,12 +47,14 @@ Status per fase:
 ## Status 0.5.13 (2026-11-09)
 
 QA-rapport 0.5.12 (5/10) verwerkt; per bevinding in `docs/30-qa-0.5.12.md`, het bewijs per commit in `qa-logs/0.5.13/`.
-- `npm test`: 783 tests (`tools/doc-counts.cjs` vergelijkt dit getal met vitest); de modeltests van `voorbeelden/`
+- `npm test`: 785 tests (`tools/doc-counts.cjs` vergelijkt dit getal met vitest); de modeltests van `voorbeelden/`
   draaien apart (`npm run test:voorbeelden`, CI-job "voorbeelden"). De strikte QA-tests in `src/qa/`:
   qaStrict.test.ts (8), qaBrep.test.ts (34), qaCrossCheck.test.ts (15), qaNaming.test.ts (12), qaTeam.test.ts (5),
   qaMismatch.test.ts (1).
 - Kruiscontrole tussen de kernels strenger: volumegrens per lichaam (F172/F198), elk hoekpunt in de vormcontrole (F202),
   een eigen randkeuze op de B-rep (F179). Sketch Text exact met de letterkrommen (F201). Details: `docs/30-qa-0.5.12.md`.
+- 150 werkende Options (Relations/Snaps ▸ Tangent en Feature Tree ▸ Name feature on creation erbij, e2e `prefs112`);
+  de sheet-metal-bewerkingen uit `rebuild.ts` in `sheetMetalOps.ts` (1909 regels, F134).
 - Bewijs per commit: `npm run bewijs` (lokaal) en `npm run bewijs -- --ci <run-id>` (Actions) schrijven een map in
   `qa-logs/<versie>/` met manifest, commando's, exitcodes, volledige logs en skipredenen (zie `qa-logs/README.md`).
 

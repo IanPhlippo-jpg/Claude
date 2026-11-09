@@ -10,7 +10,7 @@ import { Icon } from '../../ui/icons';
 import { createDocument } from '../../core/document/types';
 import { cutListsOn, frameCutList as cutList } from '../prefsTables';
 import { materialFavorites as loadFavorites } from '../prefs';
-import { commentStamp, scrollTreeSelection, showTreeWarning, treeHoverHighlight } from '../prefsEffects';
+import { commentStamp, nameOnCreation, scrollTreeSelection, showTreeWarning, treeHoverHighlight } from '../prefsEffects';
 import { MATERIAL_LIBRARY } from '../../core/document/materials';
 import { serializeDocument } from '../../core/document/persistence';
 import { withUnsavedCheck } from '../MenuBar';
@@ -29,6 +29,15 @@ const STATUS_LABEL: Record<string, string> = { under: 'under defined', full: '',
  * Material, Front/Top/Right Plane, Origin, features (a feature shows its sketch as a
  * child); with a draggable rollback bar.
  */
+// Feature Tree ▸ Name feature on creation (QA 0.5.12 F112): the tree is not shown while a PropertyManager is open, so the
+// feature OK just added is noted here and opened for typing when the tree comes back
+let pendingName: string | null = null;
+useStore.subscribe((s, p) => {
+  if (s.doc === p.doc) return;
+  const id = nameOnCreation(p.doc.features.map((f) => f.id), s.doc.features.map((f) => f.id), !!p.featureEdit);
+  if (id) pendingName = id;
+});
+
 export function FeatureTreeBody() {
   const st = useStore(useShallow((s) => ({ prefs: s.prefs, treeFilter: s.treeFilter, show: s.show, rebuild: s.rebuild, renameFeature: s.renameFeature, solve: s.solve, doc: s.doc, rollbackIndex: s.rollbackIndex, activeSketchId: s.activeSketchId, selectedFeatureId: s.selectedFeatureId, editSketch: s.editSketch, setSelection: s.setSelection, setSelectedFeature: s.setSelectedFeature, featureEdit: s.featureEdit, edit3DSketch: s.edit3DSketch, editFeature: s.editFeature, setHoverPlane: s.setHoverPlane, selectedPlane: s.selectedPlane, planePick: s.planePick, newSketch: s.newSketch, setSelectedPlane: s.setSelectedPlane, setDialog: s.setDialog, toggleShow: s.toggleShow, applyDocument: s.applyDocument, setSheetMetalEdit: s.setSheetMetalEdit, planeEdit: s.planeEdit, editPlane: s.editPlane, startRefGeom: s.startRefGeom, pushMessage: s.pushMessage, setRollback: s.setRollback, setMaterial: s.setMaterial, rebuildAll: s.rebuildAll, addSensor: s.addSensor, setAsk: s.setAsk, setBodyHidden: s.setBodyHidden, openMaterialFor: s.openMaterialFor, startCombine: s.startCombine, setIsolated: s.setIsolated, deleteBodies: s.deleteBodies, deleteSensor: s.deleteSensor, toggleSuppress: s.toggleSuppress, openConfigure: s.openConfigure, startFeature: s.startFeature, requestDeleteFeature: s.requestDeleteFeature })));
   const [menu, setMenu] = useState<{ x: number; y: number; featureId: string } | null>(null);
@@ -96,6 +105,11 @@ export function FeatureTreeBody() {
     window.addEventListener('keydown', key);
     return () => window.removeEventListener('keydown', key);
   }, []);
+  // Name feature on creation: the tree comes back when the PropertyManager closes and opens the new name for typing
+  useEffect(() => {
+    const f = pendingName ? st.doc.features.find((x) => x.id === pendingName) : null;
+    if (f) { pendingName = null; setRenaming({ id: f.id, value: f.name }); }
+  }, [st.doc]);
   // the rename box of a body or plane (their names live in the document, not in a feature)
   const renameBox = (id: string, current: string, save: (name: string) => void): ReactNode => (
     <input

@@ -315,7 +315,7 @@ export class ToolController {
     if (!snapHit || this.noInfer || !automaticRelations()) return s;
     if (snapHit.pointId && snapHit.pointId !== pid) return addConstraint(s, 'coincident', [pid, snapHit.pointId])[0];
     if (snapHit.kind === 'midpoint' && snapHit.entityId) return addConstraint(s, 'midpoint', [pid, snapHit.entityId])[0];
-    if ((snapHit.kind === 'on' || snapHit.kind === 'quadrant') && snapHit.entityId) return addConstraint(s, 'pointOnEntity', [pid, snapHit.entityId])[0];
+    if ((snapHit.kind === 'on' || snapHit.kind === 'quadrant' || snapHit.kind === 'tangent') && snapHit.entityId) return addConstraint(s, 'pointOnEntity', [pid, snapHit.entityId])[0];
     return s;
   }
 
@@ -818,6 +818,8 @@ export class ToolController {
             s1 = this.inferredRelations(s1, startSnap, mp.id);
           } else if (!prevEnd) s1 = this.inferredRelations(s1, startSnap, l.p1);
           s1 = this.inferredRelations(s1, sn, l.p2);
+          // a tangent snap also makes the line tangent to the curve (Relations/Snaps ▸ Tangent)
+          if (sn?.kind === 'tangent' && sn.entityId && !this.noInfer && automaticRelations()) s1 = addConstraint(s1, 'tangent', [l.id, sn.entityId])[0];
           // ending exactly level/plumb on an existing point or inference line also adds Horizontal/Vertical, by design
           const level = (k: 'horizontal' | 'vertical') => sn?.kind === k || !sn || ori === k || sn.kind === 'align' || !!sn.pointId;
           const hv = (horizontal || ori === 'horizontal') && level('horizontal') ? 'horizontal' : (vertical || ori === 'vertical') && level('vertical') ? 'vertical' : null;
@@ -1288,7 +1290,7 @@ export class ToolController {
     const cur = this.cursor;
     const sn = this.curSnap;
     const cp = cur ? (sn ? sn.point : gridPoint(cur, { quick: ctx.snapGrid, shown: !!ctx.gridShown, size: ctx.gridSize })) : null;
-    if (sn) out.hint = { endpoint: 'Endpoint', midpoint: 'Midpoint', center: 'Center', on: 'On entity', horizontal: 'Horizontal', vertical: 'Vertical', origin: 'Origin', quadrant: 'Quadrant', align: '', intersection: 'Intersection', angle: 'Angle', parallel: 'Parallel', perpendicular: 'Perpendicular' }[sn.kind];
+    if (sn) out.hint = { endpoint: 'Endpoint', midpoint: 'Midpoint', center: 'Center', on: 'On entity', horizontal: 'Horizontal', vertical: 'Vertical', origin: 'Origin', quadrant: 'Quadrant', align: '', intersection: 'Intersection', angle: 'Angle', parallel: 'Parallel', perpendicular: 'Perpendicular', tangent: 'Tangent' }[sn.kind];
     if (this.powerPath && this.powerPath.length > 1) out.preview.push({ points: this.powerPath.slice(), dashed: true });
     if (this.boxStart && this.boxEnd && this.lassoMode && this.lasso) out.lasso = this.lasso.slice();
     else if (this.boxStart && this.boxEnd) out.box = { a: this.boxStart, b: this.boxEnd };

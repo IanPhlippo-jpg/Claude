@@ -1126,11 +1126,12 @@ elease; README en docs/04 bijgewerkt
 
 ## Phlippo CAD 0.5.13: QA-rapport 0.5.12 (5/10, 51 open) verwerken (2026-11-08)
 - [x] F200: de drie typefouten in src/qa/tekeningenAfzuiging.test.ts (ongebruikte import, revisie.d.mts, tuple-type); npm run typecheck exit 0
-- [~] F54/F176/F31: features.mjs robuuster op trage runners (rand pas klikken als ze oplicht, Measure-venster eerst open); volledige lokale poort (typecheck, unit, mutatie, tekst, build, budgets) vóór de push; CI op de nieuwe SHA groen krijgen
+- [x] F54/F176/F31: features.mjs robuuster op trage runners (rand pas klikken als ze oplicht, Measure-venster eerst open); volledige lokale poort (typecheck, unit, mutatie, tekst, build, budgets) vóór de push; CI op de nieuwe SHA groen krijgen
 - [x] F180/F93/F149: bewijsketen per SHA (manifest met node/npm, commando's, exitcodes, volledige logs, skipredenen) in qa-logs/0.5.13
 - [x] F38/F129: README-tellingen uit vitest (doc-counts), fasekoppen bijwerken
 - [x] F172/F198/F202/F179: strengere vormcontrole (volumegrens per lichaam, geen bemonstering), test die blindheid vastlegde omgedraaid, onafhankelijke randkeuze op de B-rep
 - [x] F201: Sketch Text exact (letterkrommen als Bezier-randen); Earcut-fout in de mesh-kern (O te vol) opgelost
 - [x] B-rep-regressie (14 scripts) en volledige unit-run op de nieuwe kruiscontrole; README-tellingen; docs/30-qa-0.5.12.md
-- [ ] F97/F151/F196/F49: installer en packaged self-test op de nieuwe SHA; ongesigneerd eerlijk vermelden
-- [~] Rest van het register (F112 opties, F193/F194 UI, F134 line budget, F137 rebuild-budget) waar tijd over is; versie 0.5.13, commit en push
+- [x] F97/F151/F196/F49: installer en packaged self-test op de nieuwe SHA (CI-job windows-installer 21/21 op 7db76a0); ongesigneerd eerlijk vermeld
+- [x] Rest van het register: F134 (sheetMetalOps.ts, rebuild.ts 1909), F137 zelf gemeten (150-228 ms), F112 (Tangent-snap, Name feature on creation), F193; versie 0.5.13, commit en push
+- [~] CI groen op de eind-SHA en het Actions-bewijs in qa-logs/0.5.13
