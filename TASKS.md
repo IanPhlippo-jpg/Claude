@@ -1127,9 +1127,9 @@ elease; README en docs/04 bijgewerkt
 ## Phlippo CAD 0.5.13: QA-rapport 0.5.12 (5/10, 51 open) verwerken (2026-11-08)
 - [x] F200: de drie typefouten in src/qa/tekeningenAfzuiging.test.ts (ongebruikte import, revisie.d.mts, tuple-type); npm run typecheck exit 0
 - [~] F54/F176/F31: features.mjs robuuster op trage runners (rand pas klikken als ze oplicht, Measure-venster eerst open); volledige lokale poort (typecheck, unit, mutatie, tekst, build, budgets) vóór de push; CI op de nieuwe SHA groen krijgen
-- [~] F180/F93/F149: bewijsketen per SHA (manifest met node/npm, commando's, exitcodes, volledige logs, skipredenen) in qa-logs/0.5.13
-- [ ] F38/F129: README-tellingen uit vitest (doc-counts), fasekoppen bijwerken
-- [ ] F172/F198/F202/F179: strengere vormcontrole (volumegrens, bemonstering), test die blindheid vastlegde omdraaien, onafhankelijke randkeuze
+- [x] F180/F93/F149: bewijsketen per SHA (manifest met node/npm, commando's, exitcodes, volledige logs, skipredenen) in qa-logs/0.5.13
+- [x] F38/F129: README-tellingen uit vitest (doc-counts), fasekoppen bijwerken
+- [~] F172/F198/F202/F179: strengere vormcontrole (volumegrens, bemonstering), test die blindheid vastlegde omdraaien, onafhankelijke randkeuze
 - [ ] F201: Sketch Text exact (letterkrommen) of eerlijk als benaderd gemarkeerd
 - [ ] F97/F151/F196/F49: installer en packaged self-test op de nieuwe SHA; ongesigneerd eerlijk vermelden
 - [ ] Rest van het register (F112 opties, F193/F194 UI, F134 line budget, F137 rebuild-budget) waar tijd over is; versie 0.5.13, commit en push

@@ -41,8 +41,16 @@ Status per fase:
 4. Assemblies (Insert Components, Mates, Move/Rotate, BOM, Interference Detection) — **basis gereed**
 5. 2D-tekeningen (Sheet Format/Size, Model View, Projected View, Smart Dimension, Center Mark, Note, titelblok) — **basis gereed**
 6. Import/export — STL in/uit en STEP in/uit (B-rep-kernel) **gereed**; tekeningen naar DXF en PDF; IGES niet (de meegeleverde OpenCascade-build heeft geen IGES-writer)
+7. Massa-eigenschappen, meten en materialen — **gereed** (Mass Properties, Measure, Edit Material met dichtheid per body, Appearances); geen fotorealistische render (raytracing)
 8. Sheet metal (Base Flange/Tab, Edge Flange, Flatten met K-factor, Hem, Jog, Miter Flange, Unfold/Fold) — **gereed** (e2e: sheetmetal, hem, jogmiter, unfoldfold)
-7. Massa-eigenschappen en meten — **gereed** (Mass Properties, Measure); materialen en rendering gepland
+
+## Status 0.5.13 (in uitvoering, 2026-11-09)
+
+QA-rapport 0.5.12 (5/10) wordt verwerkt; de stappen staan in `TASKS.md`.
+- `npm test`: 777 tests (`tools/doc-counts.cjs` vergelijkt dit getal met vitest); de modeltests van `voorbeelden/`
+  draaien apart (`npm run test:voorbeelden`, CI-job "voorbeelden").
+- Bewijs per commit: `npm run bewijs` (lokaal) en `npm run bewijs -- --ci <run-id>` (Actions) schrijven een map in
+  `qa-logs/<versie>/` met manifest, commando's, exitcodes, volledige logs en skipredenen (zie `qa-logs/README.md`).
 
 ## Status 0.5.12 (2026-11-04)
 
@@ -58,8 +66,9 @@ QA-rapport 0.5.11 (5/10 na de teamronde, 3 Kritiek) verwerkt; per bevinding in `
 
 Welke platforms getest zijn (release-commit 02e3b22):
 - **Linux (GitHub Actions, ubuntu-24.04):** [run 41862412746](https://github.com/IanPhlippo-jpg/Claude/actions/runs/41862412746), alle 16 jobs
-  groen: release 104/104, mesh 104/104, brep 14/14, checks (unit 736/736 op die commit, mutaties 4/4), desktop. Sinds 0.5.13
-  staan de modeltests van `voorbeelden/` niet meer in `npm test` maar in een eigen CI-job (`npm run test:voorbeelden`).
+  groen: release 104/104, mesh 104/104, brep 14/14, checks (`npm test` 736/736 op die commit, zonder de modeltests van
+  `voorbeelden/`; die gaven met `VOORBEELDEN=1` 815 geslaagd en 2 overgeslagen), mutaties 4/4, desktop. Sinds 0.5.13 staan
+  de modeltests van `voorbeelden/` in een eigen CI-job (`npm run test:voorbeelden`).
 - **Windows (Actions, windows-2025):** dezelfde run: release 104/104, mesh 104/104, installer stil geïnstalleerd en
   getest 21/21.
 - **Windows 11 (lokaal):** mesh 104/104, release 104/104, brep 14/14; geïnstalleerde 0.5.12 21/21.
