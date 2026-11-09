@@ -199,7 +199,7 @@ ZEK_TIJD = {1.5: '≥ 60 min', 2.1: '≤ 120 s', 2.75: '0,4 tot 10 s', 4: '0,15 
 ADAPTER_OVERLAST = (1.10, 1.50)  # Mean Well: overlast vanaf 110 tot 150 % van 90 W, dan hiccup (herstelt vanzelf)
 # 5 V-verbruik (W). Gemiddeld: ESP-NOW 4 berichten per seconde, de radio luistert bijna altijd (ESP32-C3: RX 84 mA bij
 # 3,3 V; de LDO op het bordje zit op 5 V, dus 5 V x stroom). Piek: zenden 802.11b, ESP32-C3 335 mA, ESP32-S3 340 mA
-# (Espressif-datasheets, tabel 5-7), plus het scherm van de knop (AANNAME 0,1 A). De diode -V1 (1N5819) verliest 0,35 V.
+# (Espressif-datasheets, tabel 5-7), plus het scherm van de knop (AANNAME 0,1 A). De diode -R12 (1N5819) verliest 0,35 V.
 P_5V = dict(knop_esp32s3_scherm=1.2, module_esp32c3=5 * 0.090, sdp810=0.02, diode=0.35 * 0.090)  # W, gemiddeld
 I_5V_PIEK = dict(knop=0.34 + 0.10, module=0.335, sdp810=0.004)  # A, piek
 BUCK_A = 1.0  # Pololu D24V10F5: 1 A uit (kortsluit- en overstroombeveiliging, thermische uitschakeling)
@@ -689,20 +689,20 @@ def maak():
           f'{ZEK_TIJD[2.1]}): de adapter schakelt dus eerst af. De zekering is de reserve als de adapter zelf faalt of '
           'als er na de adapter een fout is die hij niet ziet. Inschakelen: de elco van 470 µF laden kost hoogstens '
           'C U² / 2R = 1,4 A²s (R ≥ 0,1 Ω), ver onder 66 A²s. De ventilator start met 50 % per seconde (regel.h, getest).',
-          '- **Schakelaar -S1:** C&K D502J12S215PQA, **10 A bij 30 V DC** (resistief), 10 000 schakelingen; de ventilator '
-          f'trekt hoogstens {f2(FAN_A)} A. Volgorde vanaf de adapter: -X1, -S1, -F1 (de schakelaar zit vóór de zekering). '
+          '- **Schakelaar -Q4:** C&K D502J12S215PQA, **10 A bij 30 V DC** (resistief), 10 000 schakelingen; de ventilator '
+          f'trekt hoogstens {f2(FAN_A)} A. Volgorde vanaf de adapter: -X1, -Q4, -F1 (de schakelaar zit vóór de zekering). '
           'Uit = ventilator, regelaar en ESP32-C3 spanningsloos.',
           '- **Ingang van de regelaar:** Pololu raadt boven 20 V een elco van minstens 33 µF dicht bij VIN aan (spanningspieken '
           'bij het inschakelen door de kabelinductie). Daarom -C2 47 µF / 50 V vlak bij VIN van -T3; de buffer -C1 is 470 µF / 50 V '
           '(niet 35 V: marge op 24 V plus piek). De regelaar mag tot 36 V aan de ingang.',
           '- **Ventilator spanningsloos zonder besturing:** -Q2 (IRF4905, P-kanaal, 55 V, 20 mΩ) schakelt de 24 V naar de '
-          'ventilator; -Q3 (BC547) trekt zijn gate laag via een deler (Vgs ≈ −12 V, binnen ±20 V) zodra GPIO7 van -A4 hoog is. '
+          'ventilator; -Q3 (BC547) trekt zijn gate laag via een deler (Vgs ≈ −12 V, binnen ±20 V) zodra GPIO7 van -K1 hoog is. '
           'Een weerstand van 10 kΩ houdt de basis van -Q3 laag: zonder 5 V of 3,3 V, tijdens een reset of bij het flashen staat '
           f'-Q2 open en krijgt de ventilator geen spanning. Verlies in -Q2: {f2(FAN_A) } A² x 0,02 Ω = {f2(FAN_A ** 2 * 0.02)} W (zonder koellichaam).',
           '- **5 V:** de D24V10F5 heeft een kortsluit- en overstroombeveiliging en schakelt af als ze te warm wordt. 1 A is een '
           'typische continue waarde die van de warmte afhangt; de piek van knop en module samen blijft eronder (tabel hierboven).',
-          '- **Terugvoeding:** de Schottky-diode -V1 (1N5819) zit tussen de 5 V en de 5V-pin van de ESP32-C3. Het ontwerp hangt '
-          'niet af van hoe het bordje intern zijn USB-poort met de 5V-pin verbindt (rechtstreeks of met een eigen diode): -V1 '
+          '- **Terugvoeding:** de Schottky-diode -R12 (1N5819) zit tussen de 5 V en de 5V-pin van de ESP32-C3. Het ontwerp hangt '
+          'niet af van hoe het bordje intern zijn USB-poort met de 5V-pin verbindt (rechtstreeks of met een eigen diode): -R12 '
           'spert in beide gevallen de weg terug naar de regelaar en de knop. De knop flash je met de kabel uit de box.', '',
           '**Waarheidstabel: wat doet de ventilator bij een fout?** (veilige toestand = stil en spanningsloos)', '',
           rij('toestand', '24 V', '5 V / 3,3 V', '-Q2 (24 V naar de ventilator)', 'PWM', 'ventilator', 'wat de gebruiker ziet'),
@@ -710,13 +710,13 @@ def maak():
           rij('normaal UIT', 'ja', 'ja', 'open (GPIO7 laag)', '0 %', 'stil, spanningsloos', 'knop: UIT'),
           rij('normaal AAN', 'ja', 'ja', 'dicht', 'geregeld', 'draait', 'knop: stand, Pa, tpm'),
           rij('5 V of 3,3 V valt weg (24 V blijft)', 'ja', 'nee', 'open (basis laag via 10 kΩ)', 'zwevend', 'stil, spanningsloos', 'knop zwart'),
-          rij('reset of flashen van -A4', 'ja', 'ja', 'open (pinnen hoogohmig)', 'zwevend', 'stil', 'knop: UIT? (geen status)'),
+          rij('reset of flashen van -K1', 'ja', 'ja', 'open (pinnen hoogohmig)', 'zwevend', 'stil', 'knop: UIT? (geen status)'),
           rij('kortsluiting in de USB-C-kabel naar de knop', 'ja', 'zakt (regelaar begrenst)', 'open', 'zwevend', 'stil', 'knop zwart'),
-          rij('radio weg, -A4 werkt', 'ja', 'ja', 'dicht', 'laatste gewone stand', 'draait verder (geen boost)', 'knop: AAN? / UIT?'),
+          rij('radio weg, -K1 werkt', 'ja', 'ja', 'dicht', 'laatste gewone stand', 'draait verder (geen boost)', 'knop: AAN? / UIT?'),
           rij('ventilator te traag of PWM verzadigd', 'ja', 'ja', 'dicht', 'geregeld', 'draait', 'knop: toerental wijkt af (geen filteroordeel)'),
-          rij('-S1 uit of zekering gesmolten', 'nee', 'nee', 'open', '—', 'stil', 'knop zwart'), '',
-          'Na elke herstart van -A4 staat de afzuiging UIT tot een nieuwe handeling op de knop (regel.h, getest).', '',
-          '- **Terugvoeding:** de Schottky-diode -V1 (1N5819) zit tussen de 5 V en de 5V-pin van de ESP32-C3. Hangt de box '
+          rij('-Q4 uit of zekering gesmolten', 'nee', 'nee', 'open', '—', 'stil', 'knop zwart'), '',
+          'Na elke herstart van -K1 staat de afzuiging UIT tot een nieuwe handeling op de knop (regel.h, getest).', '',
+          '- **Terugvoeding:** de Schottky-diode -R12 (1N5819) zit tussen de 5 V en de 5V-pin van de ESP32-C3. Hangt de box '
           'aan een computer om te flashen, dan voedt de computer alleen de ESP32-C3, niet de regelaar en niet de knop. '
           'De knop flash je met de kabel uit de box (in de computer): dan is er geen tweede bron.', '',
           rij('kabel', 'mm²', 'lus (m)', 'I (A)', 'R lus (Ω)', 'ΔU (V)', 'verlies (W)'),

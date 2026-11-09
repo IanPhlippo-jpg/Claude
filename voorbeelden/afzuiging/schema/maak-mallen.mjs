@@ -33,19 +33,38 @@ const pijl = (a, b) => {
 };
 const grijs = (d) => `<path d="${d}" fill="#e7e2dc" stroke="none"/>`;
 
-/** kop, controlemaat van 100 mm en voetregel */
+/**
+ * kader volgens ISO 5457 (A4 staand: archiefrand 20 mm links, 10 mm rondom, centreermerken), kop met uitleg,
+ * controlemaat van 100 mm en een smal titelblok rechtsonder met de velden van ISO 7200 (de mal staat op ware grootte en
+ * neemt bijna het hele blad, daarom twee regels)
+ */
 function kader(nr, titel, uitleg, soort = 'Freesmal') {
   const s = [];
-  s.push(tekst([10, 13], `${soort} 1:1 · ${titel}`, 4.2, 'start', 'font-weight="bold"'));
-  s.push(tekst([200, 13], `blad ${nr} / §TOTAAL§`, 3.2, 'end'));
-  uitleg.forEach((t, i) => s.push(tekst([10, 20 + i * 4.4], t, 2.9)));
+  s.push(`<rect x="20" y="10" width="180" height="277" fill="none" stroke="#111" stroke-width="0.5"/>`);
+  s.push(lijn([W / 2, 0], [W / 2, 15], 0.5), lijn([W / 2, H], [W / 2, H - 15], 0.5), lijn([0, H / 2], [25, H / 2], 0.5), lijn([W, H / 2], [W - 15, H / 2], 0.5));
+  s.push(tekst([23, 16], `${soort} 1:1 · ${titel}`, 4.2, 'start', 'font-weight="bold"'));
+  uitleg.forEach((t, i) => s.push(tekst([23, 22 + i * 4.4], t, 2.9)));
   // controlemaat
-  const y = 280;
-  s.push(lijn([10, y], [110, y], 0.35));
-  for (let i = 0; i <= 10; i++) s.push(lijn([10 + i * 10, y], [10 + i * 10, y - (i % 5 ? 2 : 3.5)], 0.25));
-  s.push(tekst([60, y + 4.5], 'controlemaat 100 mm: meet na voor je begint', 2.8, 'middle'));
-  s.push(tekst([200, y + 4.5], 'afdrukken op 100 % (ware grootte), niet "passend maken"', 2.6, 'end'));
-  s.push(tekst([200, y - 1.5], `Afzuiging Lush Beauty ${REVISIE_TEKST} · maten in mm`, 2.4, 'end', 'fill="#666"'));
+  const y = 266;
+  s.push(lijn([23, y], [123, y], 0.35));
+  for (let i = 0; i <= 10; i++) s.push(lijn([23 + i * 10, y], [23 + i * 10, y - (i % 5 ? 2 : 3.5)], 0.25));
+  s.push(tekst([73, y + 4.5], 'controlemaat 100 mm: meet na voor je begint', 2.6, 'middle'));
+  s.push(tekst([23, y + 9], 'afdrukken op 100 % (ware grootte), niet "passend maken"', 2.4));
+  // titelblok (ISO 7200): titel, tekeningnummer, blad; eigenaar, revisie en datum, schaal, documentsoort
+  const x0 = 110, y0 = 271, rh = 8;
+  s.push(`<rect x="${x0}" y="${y0}" width="90" height="16" fill="none" stroke="#111" stroke-width="0.5"/>`, lijn([x0, y0 + rh], [200, y0 + rh], 0.25));
+  const veld = (x, rij, label, waarde, h = 2.4, vet = false) => {
+    const yy = y0 + rij * rh;
+    if (x > x0) s.push(lijn([x, yy], [x, yy + rh], 0.25));
+    s.push(tekst([x + 1, yy + 2.4], label, 1.6, 'start', 'fill="#555"'), tekst([x + 1, yy + 6.6], waarde, h, 'start', vet ? 'font-weight="bold"' : ''));
+  };
+  veld(x0, 0, 'Titel', `${soort} ${titel.split(' (')[0]}`.slice(0, 34), 2.2, true);
+  veld(x0 + 56, 0, 'Tekeningnr.', '§NR§', 2.4, true);
+  veld(x0 + 77, 0, 'Blad', `${nr}/§TOTAAL§`, 2.2);
+  veld(x0, 1, 'Eigenaar', 'Phlippo CAD · Ian', 2.1);
+  veld(x0 + 30, 1, 'Rev. / uitgifte', REVISIE_TEKST.replace('versie ', ''), 1.9);
+  veld(x0 + 56, 1, 'Schaal', '1:1', 2.1);
+  veld(x0 + 69, 1, 'Soort / taal', 'mal · nl', 2.0);
   return s.join('\n');
 }
 
@@ -105,7 +124,7 @@ function knopgat() {
   const c = [xs(D.x), ys(D.z)];
   s.push(cirkel(c, D.gat / 2, 0.6), cirkel(c, 3, 0.25), kruis(c, D.gat / 2 + 6));
   s.push(tekst([c[0], c[1] + D.gat / 2 + 8], `gat Ø${D.gat} (gatzaag), doorgaand`, 3, 'middle', 'font-weight="bold"'));
-  s.push(tekst([c[0], c[1] + D.gat / 2 + 12.5], 'middelpunt: centreerboor van de gatzaag', 2.8, 'middle'));
+  s.push(tekst([197, c[1] + D.gat / 2 + 12.5], 'middelpunt: centreerboor van de gatzaag', 2.8, 'end'));
   // maten vanaf de hoek
   s.push(pijl([hx, c[1]], [c[0] - D.gat / 2 - 1, c[1]]), pijl([c[0] - D.gat / 2 - 1, c[1]], [hx, c[1]]), tekst([(hx + c[0] - D.gat / 2) / 2, c[1] - 1.5], `${f(D.x - U.b / 2)} tot het middelpunt`, 2.6, 'middle'));
   s.push(lijn([hx, c[1] - 3], [hx, c[1] + 3], 0.25));
@@ -129,7 +148,7 @@ function onderkant() {
   s.push(grijs(`M${ux0},${Y0 - U.b / 2} H200 V${Y0 + U.b / 2} H${ux0} Z`));
   const a = P(-U.b / 2, -U.d / 2), b2 = P(U.b / 2, -U.d / 2);
   s.push(lijn([a[0], a[1] - 4], [b2[0], b2[1] + 4], 0.6));
-  s.push(tekst([ux0 + 8, Y0 - 30], 'uitsparing afzuiging', 2.8), tekst([ux0 + 8, Y0 - 26], '(al gefreesd): wegknippen', 2.8));
+  s.push(tekst([ux0 + 3, Y0 - 34], 'uitsparing', 2.8), tekst([ux0 + 3, Y0 - 30], 'afzuiging', 2.8), tekst([ux0 + 3, Y0 - 26], '(gefreesd):', 2.8), tekst([ux0 + 3, Y0 - 22], 'wegknippen', 2.8));
   s.push(tekst([ux0 - 1.5, Y0 + U.b / 2 + 6], 'achterrand uitsparing', 2.6, 'end'));
   // de box: 212 x 102 x 15 diep, R5 (maten uit M.box.frees)
   const b0 = P(B.x - F.b / 2, B.z - F.d / 2), b1 = P(B.x + F.b / 2, B.z + F.d / 2);
@@ -184,7 +203,8 @@ function snijmalLip() {
 export const DOZEN = { afzuiging: [uitsparingHelft(-1), uitsparingHelft(1)], knop: [knopgat()], voedingsbox: [onderkant()], afdichtlip: [snijmalLip()] };
 const svg = (b) => `<svg xmlns="http://www.w3.org/2000/svg" width="210mm" height="297mm" viewBox="0 0 ${W} ${H}"><rect width="${W}" height="${H}" fill="#fff"/>\n${b}\n</svg>`;
 for (const [doos, bladen] of Object.entries(DOZEN)) {
-  const genummerd = bladen.map((b) => b.replace('§TOTAAL§', String(bladen.length)));
+  const nr = { afzuiging: 'AFZ-M1', knop: 'AFZ-M2', voedingsbox: 'AFZ-M3', afdichtlip: 'AFZ-M4' }[doos];
+  const genummerd = bladen.map((b) => b.replace('§TOTAAL§', String(bladen.length)).replace('§NR§', nr));
   writeFileSync(join(HERE, `mal-${doos}.html`), `<!doctype html><html lang="nl"><head><meta charset="utf-8"><title>Freesmal ${doos} 1:1</title><style>
 @page{size:210mm 297mm;margin:0} html,body{margin:0} .blad{width:210mm;height:297mm;page-break-after:always;overflow:hidden} svg{display:block}
 </style></head><body>

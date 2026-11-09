@@ -229,16 +229,24 @@ Het filament dat echt opgaat (ca. 1,2 kg) kost ongeveer € 24,00. Het duurste o
 
 ## Aansluitschema
 
-Het aansluitschema staat in `schema/Aansluitschema-afzuiging.pdf`, in EPLAN-stijl met de codes van IEC 81346. De bladen zijn ook los beschikbaar als `schema/blad-1.svg` tot `schema/blad-6.svg`.
+Het aansluitschema staat in `schema/Aansluitschema-afzuiging.pdf`, opgemaakt zoals EPLAN Electric P8 het afdrukt en
+volgens de Europese normen: IEC/EN 61082-1 (opbouw, kruisverwijzing /blad.kolom), IEC/EN 60617 (symbolen), IEC/EN
+81346-1/-2 (aanduidingen =AFZ +BOX -K1), IEC 61355 (documentsoort per blad), ISO 7200 (titelblok) en ISO 5457 (A3 met
+kader). De bladen zijn ook los beschikbaar als `schema/blad-1.svg` tot `schema/blad-11.svg`.
 
-| Blad | Inhoud |
-|---|---|
-| 1 | titelblad en inhoud |
-| 2 | voeding 24 V: -T1, -X1, -S1, -F1, -C1, -C2 en de 5V-regelaar -T3 |
-| 3 | ventilator: -Q2/-Q3 (24 V naar de ventilator, aan/uit vanaf GPIO7), M8-kabel -W2, PWM met -Q1 (0 % = stil), tacho naar -A4 |
-| 4 | besturing -A4 (ESP32-C3), drukmeter -B1, USB-C-koppeling -X8 / -W1 / -X7 naar de knop -A1 |
-| 5 | klemmenplan |
-| 6 | stuklijst elektronica |
+| Blad | Documentsoort | Inhoud |
+|---|---|---|
+| 1 | &EAA titelblad | project- en installatiegegevens, de normen |
+| 2 | &EAB inhoudsopgave | alle bladen |
+| 3 | &EFS schema | voeding 24 V en 5 V: -T1, -X1, hoofdschakelaar -Q4, -F1, -C1, -C2 en de regelaar -T3 |
+| 4 | &EFS schema | ventilator: -Q2/-Q3 (24 V naar de ventilator, aan/uit vanaf GPIO7), M8-kabel -W2, PWM met -Q1 (0 % = stil), tacho naar -K1 |
+| 5 | &EFS schema | besturing -K1 (ESP32-C3), drukmeter -B1, USB-C-koppeling -X8 / -W1 / -X7 naar de knop -S1 |
+| 6 tot 10 | &EMA klemmenplan | -X1, -X7, -X8, -X9, -X10, een rij per klem met de doelen buiten en binnen |
+| 11 | &EPC stuklijst | alle elektronica |
+
+Aanduidingen volgens ISO/IEC 81346-2: -B sensor, -C condensator, -F zekering, -K besturing, -M motor, -Q schakelen
+(hoofdschakelaar, transistoren, MOSFET), -R weerstand en diode, -S de knop, -T voeding en regelaar, -U de print,
+-W kabel, -X klem, stekker en adapterprint.
 
 Meet de draadkleuren van de ventilator na voor het solderen (datasheet van San Ace).
 

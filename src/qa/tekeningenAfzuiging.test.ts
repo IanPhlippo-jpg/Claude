@@ -19,7 +19,7 @@ import { REVISIE } from '../../voorbeelden/afzuiging/revisie.mjs';
 const DIR = 'voorbeelden/afzuiging';
 const UIT = `${DIR}/tekeningen`;
 const DATUM = REVISIE.datum;
-const PROJECT = { naam: `Afzuiging Lush Beauty (versie ${REVISIE.versie})`, datum: DATUM };
+const PROJECT = { naam: 'Afzuiging Lush Beauty', datum: DATUM, revisie: REVISIE.versie };
 const kader = (b: Blad, t: Parameters<typeof kaderBasis>[1]) => kaderBasis(b, t, PROJECT);
 const onderdeelBlad = (d: Deel, blad: string) => onderdeelBladBasis(d, blad, DIR, PROJECT);
 
@@ -131,8 +131,8 @@ function tafelbladBlad(blad: string): string {
   const kx = Math.sign(knopO.c[0]) || 1; // u = kx * x
   // bovenaanzicht 1:10 linksboven
   const s = 0.1;
-  const T = teken(b, boven, s, [100, 222], { mid: [0, 0] });
-  b.tekst([100, T.y1 + 15], 'Bovenaanzicht (1:10, voorkant onderaan)', 3.2, 'middle', { vet: true });
+  const T = teken(b, boven, s, [106, 222], { mid: [0, 0] });
+  b.tekst([106, T.y1 + 15], 'Bovenaanzicht (1:10, voorkant onderaan)', 3.2, 'middle', { vet: true });
   b.maatH(T.x0, T.x1, T.y1, T.y1 + 8, '1400');
   b.maatV(T.y0, T.y1, T.x0, T.x0 - 8, '600');
   const p = (x: number, z: number) => T.to([x, -z]);
@@ -142,8 +142,8 @@ function tafelbladBlad(blad: string): string {
   b.maatV(T.y0, ul[1], T.x1, T.x1 + 7, getal(300 - u.d / 2));
   b.maatV(T.y0, k[1], T.x1, T.x1 + 15, getal(300 - d.z));
   // onderaanzicht 1:10 linksonder (blad omgedraaid over de lange rand: de voorkant ligt nu boven)
-  const O = teken(b, onder, s, [100, 108], { mid: [0, 0] });
-  b.tekst([100, O.y1 + 6], 'Onderaanzicht (1:10, blad omgedraaid, voorkant boven)', 3.2, 'middle', { vet: true });
+  const O = teken(b, onder, s, [106, 108], { mid: [0, 0] });
+  b.tekst([106, O.y1 + 6], 'Onderaanzicht (1:10, blad omgedraaid, voorkant boven)', 3.2, 'middle', { vet: true });
   const q = (x: number, z: number) => O.to([kx * x, kz * z]);
   const bx = q(B.x - F.b / 2, B.z), bv = q(B.x, B.z + kz * 0 + (kz > 0 ? -F.d / 2 : F.d / 2));
   b.maatH(O.x0, Math.min(bx[0], q(B.x + F.b / 2, B.z)[0]), O.y0, O.y0 - 7, getal(700 - F.b / 2));
@@ -259,7 +259,7 @@ function samenstellingBlad(blad: string): { svg: string; stuklijst: string[][] }
     const kort = (t: string, n: number) => (t.length > n ? `${t.slice(0, n - 1)}…` : t);
     [String(r.pos), String(r.aantal), kort(r.naam, 34), kort(r.mat, 20), r.nr].forEach((t, i) => b.tekst([kol[i], y], t, 2.1));
   }
-  b.tekst([16, 280], 'Opengewerkte isometrie (schaal vrij)', 3.2, 'start', { vet: true });
+  b.tekst([24, 280], 'Opengewerkte isometrie (schaal vrij)', 3.2, 'start', { vet: true });
   kader(b, { nr: 'AFZ-00', naam: 'Samenstelling afzuiging met voedingsbox en knop', materiaal: 'zie stuklijst', maken: 'Montage volgens het bouwschema', massa: '—', schaal: 'vrij', blad });
   return { svg: b.svg(), stuklijst: rijen.map((r) => [String(r.pos), String(r.aantal), r.naam, r.mat, r.nr]) };
 }
@@ -297,9 +297,9 @@ function doorsnedeBlad(blad: string): string {
     '6  bodemplaat met lamellen, M4 en M3 verzonken',
     'Klauwen met rubber in de vier hoeken klemmen onder het blad.',
   ];
-  let ty = 120;
+  let ty = 92; // linksonder, onder de doorsnede en links van het titelblok (binnen het kader, ISO 5457)
   regels.push('Koopdelen (ventilator, filter, foam, rubber) niet gearceerd.');
-  for (const r of regels) { b.tekst([312, ty], r, 2.7); ty -= 5.5; }
+  for (const r of regels) { b.tekst([26, ty], r, 2.7); ty -= 5.5; }
   kader(b, { nr: 'AFZ-00', naam: 'Samenstelling in doorsnede', materiaal: 'zie stuklijst', maken: 'Montage volgens het bouwschema', massa: '—', schaal: '1:1', blad });
   return b.svg();
 }

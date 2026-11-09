@@ -680,7 +680,7 @@ export function vieweKnop() {
   return o.doc();
 }
 
-/** adapterprint in de knophouder (-A3): FPC-bus 10-polig 0,5 mm bovenaan, onderaan 4 draden naar het USB-C-printje
+/** adapterprint in de knophouder (-X11): FPC-bus 10-polig 0,5 mm bovenaan, onderaan 4 draden naar het USB-C-printje
  *  -X7 (5 V van de box of de computer om te flashen); schuift van onderen in de groeven van de houder, onderdelen naar -X */
 export function knopadapter() {
   const { dial: D } = M;
@@ -894,7 +894,7 @@ export function netadapter() {
   return o.doc();
 }
 
-/** print in de voedingsbox (-A2, gaatjesprint 40 x 50) met de echte maten van de onderdelen: ESP32-C3 SuperMini
+/** print in de voedingsbox (-U1, gaatjesprint 40 x 50) met de echte maten van de onderdelen: ESP32-C3 SuperMini
  *  (USB-C naar de rechterwand), drukmeter SDP810 (poorten naar boven), 5V-regelaar D24V10F5, zekering Bel 0697W
  *  (TE5), Schottky-diode naar de ESP32-C3, elco,
  *  schroefklem en transistor */

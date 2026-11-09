@@ -44,8 +44,8 @@ const STAPPEN = [
     beelden: [beeld(of('prints'))],
     tekst: [
       'Zaag uit één gaatjesprint de uitgangsprint (68 x 25), de ingangsprint (80 x 25), de voedingsprint (61 x 25) en de draagprint van de ESP (68 x 28).',
-      'Uitgangsprint: 16 MOSFETs IRLD024 en de klemmenrij van 16 (blad 3 van het schema). Ingangsprint: 4 x PC847, de weerstandsnetwerken en 20 klemmen (blad 4).',
-      'Voedingsprint: klem 12 V in, zekeringhouder met 7,5 A, 6 polyfuses (één per rij bordjes), de 5 V-regelaar en de elco (blad 2).',
+      'Uitgangsprint: 16 MOSFETs IRLD024 en de klemmenrij van 16 (blad 4 van het schema, klemmenplan -X3 op blad 9). Ingangsprint: 4 x PC847, de weerstandsnetwerken en 20 klemmen (blad 5).',
+      'Voedingsprint: klem 12 V in, zekeringhouder met 7,5 A, 6 polyfuses (één per rij bordjes), de 5 V-regelaar en de elco (blad 3).',
       'Draagprint: de 2 vrouwelijke pinrijen van 22, 22,86 mm hart op hart. De ESP en de PCA9685 hoeven niet gesoldeerd: de ESP steekt erin, de PCA krijgt de draden in zijn gaten.',
       'Meet voor je verder gaat: geen kortsluiting tussen +12 V en 0 V, en 5,0 V op de uitgang van de regelaar met 12 V erop.',
     ],

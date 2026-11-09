@@ -18,7 +18,7 @@
 // Na het aanzetten staat de module UIT; een herstart van de box toont "afzuiging herstart". Zonder verse status (2 s)
 // is niets bevestigd: "UIT?" of "AAN?".
 //
-// Aansluiting (zie ../../schema/Aansluitschema-afzuiging.pdf): FPC van de knop op de adapterprint -A3, 4 draden naar
+// Aansluiting (zie ../../schema/Aansluitschema-afzuiging.pdf): FPC van de knop op de adapterprint -X11, 4 draden naar
 // het USB-C-printje -X7 in de achterwand van de knophouder: VBUS -> FPC 1 (+5 V), GND -> FPC 3, D+ -> FPC 9,
 // D- -> FPC 10. De andere lijnen blijven los.
 

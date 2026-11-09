@@ -117,7 +117,7 @@ Past op het bed van 256 x 256. Instellingen zoals bij de afzuiging (0,2 mm, 4 wa
 | `tekeningen/Werktekeningen-kabeldoos.pdf` | boormal op ware grootte (TRN-00), bak (TRN-01) en deksel (TRN-02) |
 | `tekeningen/Bouwschema-kabeldoos.pdf` | 8 stappen met beelden, van printen tot aanzetten |
 | `Kabeldoos-alles-afdrukken.pdf` | alles samen om af te drukken (README, bouwschema, tekeningen, schema, dashboard, rekenblad) |
-| `schema/` | aansluitschema in 6 bladen |
+| `schema/` | aansluitschema (`Aansluitschema-kabeldoos.pdf` en per blad een SVG) in 11 bladen, opgemaakt zoals EPLAN Electric P8 en volgens IEC/EN 61082-1, 60617, 81346 en ISO 7200: titelblad, inhoudsopgave, 4 schemabladen (kruisverwijzing /blad.kolom), klemmenplannen -X1 tot -X4, stuklijst |
 | `firmware/` | PlatformIO-project met het dashboard, 61 tests |
 | `docs/` | rekenblad, maten met bronnen, de maattekening van de ESP |
 | `EISEN.md` | de eisen van Ian |

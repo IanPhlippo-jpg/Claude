@@ -150,11 +150,19 @@ DRAWINGS = [
 ]
 for no, f, *_ in DRAWINGS:
     add_file('svg-' + no, BOX / 'tekeningen' / f, 'svg/' + f, f, 'Tekening ' + no + ' als SVG')
-for n in range(1, 7):
+SCHEMA_N = len(list((BOX / 'schema').glob('blad-*.svg')))
+SCHEMA_TITELS = {}
+for n in range(1, SCHEMA_N + 1):
     shutil.copyfile(BOX / 'schema' / f'blad-{n}.svg', OUT / 'svg' / f'schema-blad-{n}.svg')
+    svg = (BOX / 'schema' / f'blad-{n}.svg').read_text(encoding='utf-8')
+    # de bladbenaming uit het titelblok (vet, 4 mm) en de tweede regel
+    t = re.findall(r'<text[^>]*font-size="4"[^>]*>([^<]*)</text>', svg)
+    SCHEMA_TITELS[n] = html.unescape(' · '.join(t[:2]))
+add_file('schema-pdf', BOX / 'schema' / 'Aansluitschema-kabeldoos.pdf', 'pdf/Aansluitschema-kabeldoos.pdf', 'Aansluitschema-kabeldoos.pdf',
+         f'Het aansluitschema in {SCHEMA_N} bladen A3, opgemaakt zoals EPLAN en volgens IEC 61082-1, 60617, 81346 en ISO 7200')
 add_file('schema-zip', None, 'dl/Aansluitschema-kabeldoos.zip', 'Aansluitschema-kabeldoos.zip',
-         'Het aansluitschema in 6 bladen (SVG) en als webpagina',
-         zip_bytes([(f'blad-{n}.svg', BOX / 'schema' / f'blad-{n}.svg') for n in range(1, 7)] + [('schema.html', BOX / 'schema' / 'schema.html')]))
+         f'Het aansluitschema in {SCHEMA_N} bladen (SVG) en als webpagina',
+         zip_bytes([(f'blad-{n}.svg', BOX / 'schema' / f'blad-{n}.svg') for n in range(1, SCHEMA_N + 1)] + [('schema.html', BOX / 'schema' / 'schema.html')]))
 
 # ---------- pictures ----------
 def cut_render(name: str, out: str, width=1400):
@@ -343,11 +351,12 @@ S.append(f'''<section class="sheet" id="bouwen" hidden>
 </section>''')
 
 sch = []
-for n in range(1, 7):
-    sch.append(f'<button class="shot" type="button" data-zoom="svg/schema-blad-{n}.svg" data-title="Aansluitschema blad {n}"><span class="img" style="background:#fff"><img src="svg/schema-blad-{n}.svg" alt="Aansluitschema blad {n}" loading="lazy"></span><span class="cap">Blad {n}</span></button>')
+for n in range(1, SCHEMA_N + 1):
+    sch.append(f'<button class="shot" type="button" data-zoom="svg/schema-blad-{n}.svg" data-title="Aansluitschema blad {n}: {esc(SCHEMA_TITELS[n])}"><span class="img" style="background:#fff"><img src="svg/schema-blad-{n}.svg" alt="Aansluitschema blad {n}" loading="lazy"></span><span class="cap">Blad {n} · {esc(SCHEMA_TITELS[n])}</span></button>')
 S.append(f'''<section class="sheet" id="schema" hidden>
-{titleblock("E", "Aansluiten", ("Schema", "6 bladen A3"))}
-<div class="actions">{btn("schema-zip", "Aansluitschema (6 bladen)", True)}</div>
+{titleblock("E", "Aansluiten", ("Schema", f"{SCHEMA_N} bladen A3"))}
+<p class="lead">Opgemaakt zoals EPLAN Electric P8, volgens IEC/EN 61082-1, 60617 en 81346 (aanduidingen), IEC 61355 (documentsoort per blad) en ISO 7200 (titelblok). Kruisverwijzing /blad.kolom.</p>
+<div class="actions">{btn("schema-pdf", f"Aansluitschema (PDF, {SCHEMA_N} bladen)", True)}{btn("schema-zip", "SVG's in een zip")}</div>
 <div class="gallery">{"".join(sch)}</div>
 <h3>Wat waar komt</h3>
 {md_table("Aansluiten")}
@@ -370,7 +379,7 @@ S.append(f'''<section class="sheet" id="dashboard" hidden>
 <button class="shot" type="button" data-zoom="img/tablet-groepen.webp" data-title="Het dashboard op een tablet"><span class="img" style="aspect-ratio:auto"><img src="img/tablet-groepen.webp" alt="Het dashboard op een tablet" loading="lazy"></span><span class="cap">Op een tablet</span></button>
 </section>''')
 
-order = ['alles-zip', 'alles-pdf', 'stl', 'werk-pdf', 'bouw-pdf', 'schema-zip', 'svg-TRN-00', 'svg-TRN-01', 'svg-TRN-02']
+order = ['alles-zip', 'alles-pdf', 'stl', 'werk-pdf', 'bouw-pdf', 'schema-pdf', 'schema-zip', 'svg-TRN-00', 'svg-TRN-01', 'svg-TRN-02']
 S.append(f'''<section class="sheet" id="bestanden" hidden>
 {titleblock("A", "Alle bestanden", ("Bestanden", str(len(order))))}
 <p class="lead">Elke knop vraagt eerst of je het bestand wilt bewaren. De STL's zitten in een zip: pak die uit en open ze in de slicer.</p>

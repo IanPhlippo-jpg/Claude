@@ -1,7 +1,9 @@
 /**
- * Gedeelde hulp voor werktekeningen (A3 liggend, Europese projectie): een blad in mm, het titelblok, aanzichten uit de
- * tekenmodule (HLR) met hartlijnen en arcering, en een werktekening per onderdeel. Gebruikt door tekeningenAfzuiging en
- * tekeningenTrein.
+ * Gedeelde hulp voor werktekeningen volgens de Europese normen: A3 liggend met kader, centreermerken en rasterverwijzing
+ * (ISO 5457), titelblok met de velden van ISO 7200, Europese projectie met symbool (ISO 5456-2, eerste hoek), lijnen
+ * volgens ISO 128 (zichtbare omtrek 0,35, maat- en hulplijnen 0,18, hartlijnen streep-punt 0,13), maten in mm volgens
+ * ISO 129-1, algemene toleranties ISO 2768-m, letters volgens ISO 3098 (Arial). Aanzichten uit de tekenmodule (HLR) met
+ * hartlijnen en arcering, en een werktekening per onderdeel. Gebruikt door tekeningenAfzuiging en tekeningenTrein.
  */
 import { readFileSync } from 'node:fs';
 import type * as THREE from 'three';
@@ -14,8 +16,8 @@ import { meshVolume } from '../core/features/solid';
 
 export const W = 420, H = 297; // A3 liggend
 export type P = [number, number];
-/** project en datum in het titelblok */
-export interface Project { naam: string; datum: string }
+/** project, datum van uitgifte en revisie in het titelblok (ISO 7200) */
+export interface Project { naam: string; datum: string; revisie?: string; eigenaar?: string; goedgekeurd?: string }
 export const open = (f: string): Document => parseDocument(readFileSync(f, 'utf8'));
 export const getal = (v: number, dec = 1) => (Math.round(v * 10 ** dec) / 10 ** dec).toString().replace('.', ',');
 export const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -55,30 +57,101 @@ export class Blad {
   }
 }
 
-/** kader, projectiesymbool en titelblok */
-export function kader(b: Blad, t: { nr: string; naam: string; materiaal: string; maken: string; massa: string; schaal: string; blad: string }, project: Project) {
-  b.rect(10, 10, W - 20, H - 20, 0.7);
-  const x0 = W - 10 - 190, y0 = 10, h = 40;
-  b.rect(x0, y0, 190, h, 0.5);
-  const kol = [x0, x0 + 95, x0 + 140, x0 + 190], rij = [y0, y0 + 10, y0 + 20, y0 + 30, y0 + 40];
-  for (const y of rij.slice(1, 4)) b.lijn([x0, y], [x0 + 190, y], 0.25);
-  b.lijn([kol[1], y0], [kol[1], y0 + h], 0.25); b.lijn([kol[2], y0], [kol[2], y0 + 30], 0.25);
-  const veld = (x: number, y: number, label: string, waarde: string, h2 = 3.2, vet = false) => { b.tekst([x + 1.5, y + 7.3], label, 1.8, 'start', { kleur: '#666' }); b.tekst([x + 1.5, y + 2.8], waarde, h2, 'start', { vet }); };
-  veld(kol[0], rij[3], 'Project', project.naam, 3.4, true);
-  veld(kol[1], rij[3], 'Benaming', t.naam, 3.4, true);
-  veld(kol[0], rij[2], 'Materiaal', t.materiaal);
-  veld(kol[0], rij[1], 'Maken', t.maken, 2.6);
-  veld(kol[0], rij[0], 'Getekend', `Phlippo CAD · ${project.datum}`);
-  veld(kol[1], rij[2], 'Tekeningnummer', t.nr, 3.4, true);
-  veld(kol[2], rij[2], 'Blad', t.blad);
-  veld(kol[1], rij[1], 'Schaal', t.schaal);
-  veld(kol[2], rij[1], 'Massa', t.massa);
-  veld(kol[1], rij[0], 'Maten en toleranties', 'mm · ISO 2768-m');
-  // projectiesymbool Europese projectie (ISO E): kegel links, cirkels rechts
-  const sx = kol[2] + 8, sy = rij[0] + 5;
+/** het kader (ISO 5457): archiefrand 20 mm links, 10 mm rondom, centreermerken en rasterverwijzing 1..8 / A..F */
+export const KADER = { x0: 20, y0: 10, x1: W - 10, y1: H - 10 };
+export function iso5457(b: Blad) {
+  const k = KADER;
+  b.rect(k.x0, k.y0, k.x1 - k.x0, k.y1 - k.y0, 0.7);
+  // centreermerken: midden van elke zijde, van de bladrand tot 5 mm in het tekenvlak
+  b.lijn([W / 2, 0], [W / 2, k.y0 + 5], 0.7); b.lijn([W / 2, H], [W / 2, k.y1 - 5], 0.7);
+  b.lijn([0, H / 2], [k.x0 + 5, H / 2], 0.7); b.lijn([W, H / 2], [k.x1 - 5, H / 2], 0.7);
+  // rasterverwijzing: velden van 50 mm vanaf de centreermerken, cijfers van links naar rechts, letters van boven naar onder
+  const nx = 8, ny = 6;
+  for (let i = 1; i < nx; i++) { const x = W / 2 + (i - nx / 2) * 50; b.lijn([x, k.y0 - 5], [x, k.y0], 0.35); b.lijn([x, k.y1], [x, k.y1 + 5], 0.35); }
+  for (let j = 1; j < ny; j++) { const y = H / 2 + (j - ny / 2) * 50; b.lijn([k.x0 - 5, y], [k.x0, y], 0.35); b.lijn([k.x1, y], [k.x1 + 5, y], 0.35); }
+  for (let i = 0; i < nx; i++) {
+    const xa = Math.max(k.x0, W / 2 + (i - nx / 2) * 50), xb = Math.min(k.x1, W / 2 + (i + 1 - nx / 2) * 50);
+    b.tekst([(xa + xb) / 2, k.y0 - 4], String(i + 1), 2.5, 'middle'); b.tekst([(xa + xb) / 2, k.y1 + 2], String(i + 1), 2.5, 'middle');
+  }
+  for (let j = 0; j < ny; j++) {
+    const ya = Math.max(k.y0, H / 2 + (j - ny / 2) * 50), yb = Math.min(k.y1, H / 2 + (j + 1 - ny / 2) * 50);
+    const letter = 'FEDCBA'[j]; // A bovenaan
+    b.tekst([k.x0 - 2.5, (ya + yb) / 2 - 1], letter, 2.5, 'middle'); b.tekst([k.x1 + 2.5, (ya + yb) / 2 - 1], letter, 2.5, 'middle');
+  }
+}
+
+/** projectiesymbool Europese projectie (ISO 5456-2, eerste hoek): afgeknotte kegel links, cirkels rechts */
+export function projectieSymbool(b: Blad, sx: number, sy: number) {
   b.lijn([sx, sy - 3], [sx + 9, sy - 1.5], 0.3); b.lijn([sx, sy + 3], [sx + 9, sy + 1.5], 0.3); b.lijn([sx, sy - 3], [sx, sy + 3], 0.3); b.lijn([sx + 9, sy - 1.5], [sx + 9, sy + 1.5], 0.3);
+  b.lijn([sx - 1.5, sy], [sx + 10.5, sy], 0.13, 'stroke-dasharray="3 0.8 0.6 0.8"');
   b.cirkel([sx + 17, sy], 3, 0.3); b.cirkel([sx + 17, sy], 1.5, 0.3);
-  b.tekst([sx + 24, sy - 1], 'ISO E', 2.2);
+}
+
+export interface Titel { nr: string; naam: string; materiaal: string; maken: string; massa: string; schaal: string; blad: string; soort?: string }
+/**
+ * kader en titelblok rechtsonder, 180 x 40 mm met de velden van ISO 7200: eigenaar, project, titel, documentsoort,
+ * tekeningnummer, revisie, datum van uitgifte, taal, schaal, blad, opgesteld door, goedgekeurd door, massa, toleranties en
+ * het projectiesymbool
+ */
+export function kader(b: Blad, t: Titel, project: Project) {
+  iso5457(b);
+  const x0 = KADER.x1 - 180, y0 = KADER.y0, rh = 8;
+  b.rect(x0, y0, 180, rh * 5, 0.5);
+  for (let n = 1; n < 5; n++) b.lijn([x0, y0 + rh * n], [x0 + 180, y0 + rh * n], 0.25);
+  const veld = (xa: number, rij: number, label: string, waarde: string, h2 = 2.6, vet = false) => {
+    const y = y0 + rh * rij;
+    if (xa > x0) b.lijn([xa, y], [xa, y + rh], 0.25);
+    b.tekst([xa + 1.2, y + rh - 2.2], label, 1.7, 'start', { kleur: '#555' });
+    b.tekst([xa + 1.2, y + 1.6], waarde, h2, 'start', { vet });
+  };
+  const X = (d: number) => x0 + d;
+  veld(X(0), 4, 'Eigenaar', `Phlippo CAD · ${project.eigenaar ?? 'Ian'}`, 2.6);
+  veld(X(70), 4, 'Project', project.naam, 2.8, true);
+  veld(X(0), 3, 'Titel', t.naam, 3.2, true);
+  veld(X(120), 3, 'Documentsoort', t.soort ?? 'Werktekening', 2.6);
+  veld(X(0), 2, 'Materiaal', t.materiaal, 2.4);
+  veld(X(70), 2, 'Maken', t.maken, 2.2);
+  veld(X(0), 1, 'Tekeningnummer', t.nr, 3.2, true);
+  veld(X(60), 1, 'Rev.', project.revisie ?? '0', 2.6);
+  veld(X(75), 1, 'Uitgifte', project.datum, 2.4);
+  veld(X(105), 1, 'Taal', 'nl', 2.6);
+  veld(X(120), 1, 'Schaal', t.schaal, 2.6);
+  veld(X(150), 1, 'Blad', t.blad, 2.6);
+  veld(X(0), 0, 'Opgesteld', 'Phlippo CAD', 2.3);
+  veld(X(35), 0, 'Goedgekeurd', project.goedgekeurd ?? 'Ian', 2.3);
+  veld(X(60), 0, 'Massa', t.massa, 2.3);
+  veld(X(105), 0, 'Maten en toleranties', 'mm · ISO 2768-m', 2.3);
+  b.lijn([X(150), y0], [X(150), y0 + rh], 0.25);
+  projectieSymbool(b, X(154), y0 + 4.4);
+}
+
+/** smal titelblok (112 x 48 mm) met dezelfde velden van ISO 7200, voor een blad dat op ware grootte bijna vol staat (boormal) */
+export function kaderSmal(b: Blad, t: Omit<Titel, 'massa' | 'materiaal' | 'maken'>, project: Project) {
+  iso5457(b);
+  const x0 = KADER.x1 - 112, y0 = KADER.y0, rh = 8, w = 112;
+  b.rect(x0, y0, w, rh * 6, 0.5);
+  for (let n = 1; n < 6; n++) b.lijn([x0, y0 + rh * n], [x0 + w, y0 + rh * n], 0.25);
+  const veld = (xa: number, rij: number, label: string, waarde: string, h2 = 2.6, vet = false) => {
+    const y = y0 + rh * rij;
+    if (xa > x0) b.lijn([xa, y], [xa, y + rh], 0.25);
+    b.tekst([xa + 1.2, y + rh - 2.2], label, 1.7, 'start', { kleur: '#555' });
+    b.tekst([xa + 1.2, y + 1.6], waarde, h2, 'start', { vet });
+  };
+  const X = (d: number) => x0 + d;
+  veld(X(0), 5, 'Eigenaar', `Phlippo CAD · ${project.eigenaar ?? 'Ian'}`, 2.4);
+  veld(X(56), 5, 'Project', project.naam, 2.4, true);
+  veld(X(0), 4, 'Titel', t.naam, 3, true);
+  veld(X(0), 3, 'Documentsoort', t.soort ?? 'Werktekening', 2.4);
+  veld(X(56), 3, 'Taal', 'nl', 2.4);
+  veld(X(76), 3, 'Schaal', t.schaal, 2.4);
+  veld(X(0), 2, 'Tekeningnummer', t.nr, 3, true);
+  veld(X(40), 2, 'Rev.', project.revisie ?? '0', 2.4);
+  veld(X(56), 2, 'Uitgifte', project.datum, 2.4);
+  veld(X(86), 2, 'Blad', t.blad, 2.4);
+  veld(X(0), 1, 'Opgesteld', 'Phlippo CAD', 2.3);
+  veld(X(40), 1, 'Goedgekeurd', project.goedgekeurd ?? 'Ian', 2.3);
+  veld(X(76), 1, 'Maten', 'mm', 2.3);
+  veld(X(0), 0, 'Normen', 'ISO 5457 · ISO 7200 · ISO 128 · ISO 129-1', 2.1);
 }
 
 /** een aanzicht op het blad: lijnen, cirkels met hartlijnen, arcering; geeft het kader op het blad terug */
@@ -148,10 +221,10 @@ export function onderdeelBlad(d: Deel, blad: string, dir: string, project: Proje
   const iso = projectedView(model, 'isometric');
   const w = (g: ViewGeo) => g.max[0] - g.min[0], h = (g: ViewGeo) => g.max[1] - g.min[1];
   // grootste schaal waarbij de drie aanzichten (met 30 mm voor maten) in 255 x 230 mm passen
-  const schaal = d.schaal ?? SCHALEN.find(([a, c]) => { const k = a / c; return (w(voor) + w(links)) * k + 52 <= 276 && (h(voor) + h(boven)) * k + 50 <= 255; }) ?? SCHALEN[SCHALEN.length - 1];
+  const schaal = d.schaal ?? SCHALEN.find(([a, c]) => { const k = a / c; return (w(voor) + w(links)) * k + 52 <= 266 && (h(voor) + h(boven)) * k + 50 <= 255; }) ?? SCHALEN[SCHALEN.length - 1];
   const s = schaal[0] / schaal[1];
   const b = new Blad();
-  const gx = 14, gy = 287 - 6; // linkerbovenhoek van het gebied voor de aanzichten
+  const gx = 24, gy = 287 - 6; // linkerbovenhoek van het gebied voor de aanzichten (binnen het kader, ISO 5457)
   const fv: P = [gx + 22 + (w(voor) * s) / 2, gy - 18 - (h(voor) * s) / 2];
   const F = teken(b, voor, s, fv);
   const T = teken(b, boven, s, [fv[0], F.y0 - 26 - (h(boven) * s) / 2]);

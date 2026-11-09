@@ -5,14 +5,14 @@
  */
 import { describe, expect, it } from 'vitest';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { Blad, onderdeelBlad, getal, type Deel, type P } from './werktekening';
+import { Blad, onderdeelBlad, kaderSmal, getal, type Deel, type P } from './werktekening';
 // @ts-expect-error: het generatorscript is plain JavaScript
 import { M, indeling, bevestigingsGaten } from '../../voorbeelden/treinverlichting/maak-kabeldoos.mjs';
 
 const DIR = 'voorbeelden/treinverlichting';
 const UIT = `${DIR}/tekeningen`;
 const datum = /\((\d{4}-\d{2}-\d{2})\)/.exec(readFileSync(`${DIR}/README.md`, 'utf8'))?.[1] ?? '';
-const PROJECT = { naam: 'Kabeldoos treinverlichting (versie 1)', datum };
+const PROJECT = { naam: 'Kabeldoos treinverlichting', datum, revisie: '1' };
 const m = M as Record<string, any>;
 const { rijen, binnenX, binnenZ } = indeling() as { rijen: unknown[]; binnenX: number; binnenZ: number };
 const D = m.doos, BX = binnenX + 2 * D.wand, BZ = binnenZ + 2 * D.wand, HOOG = D.bodem + D.h + D.deksel;
@@ -41,7 +41,7 @@ const DELEN: Deel[] = [
 /** boormal 1:1: de buitenmaat van de doos en de 4 schroeven onder de baan (van onderen gezien, het deksel naar je toe) */
 function boormalBlad(blad: string): string {
   const b = new Blad();
-  const c: P = [152, 148.5]; // midden van de doos op het blad (op ware grootte: 249 x 241 van de 277 x 400 binnen het kader)
+  const c: P = [156, 148.5]; // midden van de doos op het blad (op ware grootte: 249 x 241 binnen het kader van 390 x 277, ISO 5457)
   const to = (x: number, z: number): P => [c[0] + x, c[1] - z];
   const lo = to(-BX / 2, BZ / 2), hi = to(BX / 2, -BZ / 2);
   b.rect(lo[0], lo[1], BX, BZ, 0.5);
@@ -68,8 +68,8 @@ function boormalBlad(blad: string): string {
   t(-BX / 2 + 5, 30, 'wartel 12 V', 2.6, 'start', { hoek: 90 });
   t(BX / 2 - 3, 60, 'USB', 2.6, 'start', { hoek: 90 });
   // controlemaat
-  b.lijn([302, 62], [402, 62], 0.5); b.lijn([302, 59], [302, 65], 0.5); b.lijn([402, 59], [402, 65], 0.5);
-  b.tekst([352, 66], 'controle: 100 mm (afdrukken op 100 %)', 2.8, 'middle');
+  b.lijn([302, 72], [402, 72], 0.5); b.lijn([302, 69], [302, 75], 0.5); b.lijn([402, 69], [402, 75], 0.5);
+  b.tekst([352, 76], 'controle: 100 mm (afdrukken op 100 %)', 2.8, 'middle');
   const regels = [
     'Boormal op ware grootte, van onderen gezien',
     '(het deksel naar je toe, de bodem tegen de baan).',
@@ -89,18 +89,8 @@ function boormalBlad(blad: string): string {
   ];
   let ty = 270;
   for (const r of regels) { b.tekst([300, ty], r, 2.6, 'start', { vet: ty === 270 }); ty -= 5; }
-  // kader en een smal titelblok rechtsonder (de doos neemt op ware grootte bijna het hele blad)
-  b.rect(10, 10, 400, 277, 0.7);
-  b.rect(298, 10, 112, 42, 0.5);
-  for (const y of [20, 30, 40]) b.lijn([298, y], [410, y], 0.25);
-  b.lijn([360, 10], [360, 30], 0.25);
-  const veld = (x: number, y: number, label: string, waarde: string, vet = false) => { b.tekst([x + 1.5, y + 7.3], label, 1.8, 'start', { kleur: '#666' }); b.tekst([x + 1.5, y + 2.6], waarde, 3, 'start', { vet }); };
-  veld(298, 40, 'Project', PROJECT.naam, true);
-  veld(298, 30, 'Benaming', 'Boormal onder de baan', true);
-  veld(298, 20, 'Tekeningnummer', 'TRN-00', true);
-  veld(360, 20, 'Blad', blad);
-  veld(298, 10, 'Getekend', `Phlippo CAD · ${PROJECT.datum}`);
-  veld(360, 10, 'Schaal', '1:1 (A3)');
+  // kader (ISO 5457) en een smal titelblok rechtsonder (ISO 7200): de doos neemt op ware grootte bijna het hele blad
+  kaderSmal(b, { nr: 'TRN-00', naam: 'Boormal onder de baan', schaal: '1:1 (A3)', blad, soort: 'Boormal (mal 1:1)' }, PROJECT);
   return b.svg();
 }
 

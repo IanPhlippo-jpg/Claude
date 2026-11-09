@@ -129,11 +129,11 @@ Werkpunt: de medewerker zit tegenover de klant, het oor op ± 0,5 m van het roos
 
 - **Adapter:** overlast vanaf 110 tot 150 % van 90 W, dus 4,1 tot 5,6 A; dan hiccup (zet telkens even af en herstelt vanzelf). Overspanning en oververhitting: uit tot de stekker opnieuw in gaat (datablad Mean Well).
 - **Zekering -F1:** Bel Fuse 0697W3150-01, traag, 3,15 A, 350 V AC / **72 V DC**, I²t 66 A²s (IEC 60127-3 blad 4). Bij 1,3 tot 1,8 x In smelt ze pas na minuten (1,5 x In: ≥ 60 min; 2,1 x In: ≤ 120 s): de adapter schakelt dus eerst af. De zekering is de reserve als de adapter zelf faalt of als er na de adapter een fout is die hij niet ziet. Inschakelen: de elco van 470 µF laden kost hoogstens C U² / 2R = 1,4 A²s (R ≥ 0,1 Ω), ver onder 66 A²s. De ventilator start met 50 % per seconde (regel.h, getest).
-- **Schakelaar -S1:** C&K D502J12S215PQA, **10 A bij 30 V DC** (resistief), 10 000 schakelingen; de ventilator trekt hoogstens 2,35 A. Volgorde vanaf de adapter: -X1, -S1, -F1 (de schakelaar zit vóór de zekering). Uit = ventilator, regelaar en ESP32-C3 spanningsloos.
+- **Schakelaar -Q4:** C&K D502J12S215PQA, **10 A bij 30 V DC** (resistief), 10 000 schakelingen; de ventilator trekt hoogstens 2,35 A. Volgorde vanaf de adapter: -X1, -Q4, -F1 (de schakelaar zit vóór de zekering). Uit = ventilator, regelaar en ESP32-C3 spanningsloos.
 - **Ingang van de regelaar:** Pololu raadt boven 20 V een elco van minstens 33 µF dicht bij VIN aan (spanningspieken bij het inschakelen door de kabelinductie). Daarom -C2 47 µF / 50 V vlak bij VIN van -T3; de buffer -C1 is 470 µF / 50 V (niet 35 V: marge op 24 V plus piek). De regelaar mag tot 36 V aan de ingang.
-- **Ventilator spanningsloos zonder besturing:** -Q2 (IRF4905, P-kanaal, 55 V, 20 mΩ) schakelt de 24 V naar de ventilator; -Q3 (BC547) trekt zijn gate laag via een deler (Vgs ≈ −12 V, binnen ±20 V) zodra GPIO7 van -A4 hoog is. Een weerstand van 10 kΩ houdt de basis van -Q3 laag: zonder 5 V of 3,3 V, tijdens een reset of bij het flashen staat -Q2 open en krijgt de ventilator geen spanning. Verlies in -Q2: 2,35 A² x 0,02 Ω = 0,11 W (zonder koellichaam).
+- **Ventilator spanningsloos zonder besturing:** -Q2 (IRF4905, P-kanaal, 55 V, 20 mΩ) schakelt de 24 V naar de ventilator; -Q3 (BC547) trekt zijn gate laag via een deler (Vgs ≈ −12 V, binnen ±20 V) zodra GPIO7 van -K1 hoog is. Een weerstand van 10 kΩ houdt de basis van -Q3 laag: zonder 5 V of 3,3 V, tijdens een reset of bij het flashen staat -Q2 open en krijgt de ventilator geen spanning. Verlies in -Q2: 2,35 A² x 0,02 Ω = 0,11 W (zonder koellichaam).
 - **5 V:** de D24V10F5 heeft een kortsluit- en overstroombeveiliging en schakelt af als ze te warm wordt. 1 A is een typische continue waarde die van de warmte afhangt; de piek van knop en module samen blijft eronder (tabel hierboven).
-- **Terugvoeding:** de Schottky-diode -V1 (1N5819) zit tussen de 5 V en de 5V-pin van de ESP32-C3. Het ontwerp hangt niet af van hoe het bordje intern zijn USB-poort met de 5V-pin verbindt (rechtstreeks of met een eigen diode): -V1 spert in beide gevallen de weg terug naar de regelaar en de knop. De knop flash je met de kabel uit de box.
+- **Terugvoeding:** de Schottky-diode -R12 (1N5819) zit tussen de 5 V en de 5V-pin van de ESP32-C3. Het ontwerp hangt niet af van hoe het bordje intern zijn USB-poort met de 5V-pin verbindt (rechtstreeks of met een eigen diode): -R12 spert in beide gevallen de weg terug naar de regelaar en de knop. De knop flash je met de kabel uit de box.
 
 **Waarheidstabel: wat doet de ventilator bij een fout?** (veilige toestand = stil en spanningsloos)
 
@@ -142,15 +142,15 @@ Werkpunt: de medewerker zit tegenover de klant, het oor op ± 0,5 m van het roos
 | normaal UIT | ja | ja | open (GPIO7 laag) | 0 % | stil, spanningsloos | knop: UIT |
 | normaal AAN | ja | ja | dicht | geregeld | draait | knop: stand, Pa, tpm |
 | 5 V of 3,3 V valt weg (24 V blijft) | ja | nee | open (basis laag via 10 kΩ) | zwevend | stil, spanningsloos | knop zwart |
-| reset of flashen van -A4 | ja | ja | open (pinnen hoogohmig) | zwevend | stil | knop: UIT? (geen status) |
+| reset of flashen van -K1 | ja | ja | open (pinnen hoogohmig) | zwevend | stil | knop: UIT? (geen status) |
 | kortsluiting in de USB-C-kabel naar de knop | ja | zakt (regelaar begrenst) | open | zwevend | stil | knop zwart |
-| radio weg, -A4 werkt | ja | ja | dicht | laatste gewone stand | draait verder (geen boost) | knop: AAN? / UIT? |
+| radio weg, -K1 werkt | ja | ja | dicht | laatste gewone stand | draait verder (geen boost) | knop: AAN? / UIT? |
 | ventilator te traag of PWM verzadigd | ja | ja | dicht | geregeld | draait | knop: toerental wijkt af (geen filteroordeel) |
-| -S1 uit of zekering gesmolten | nee | nee | open | — | stil | knop zwart |
+| -Q4 uit of zekering gesmolten | nee | nee | open | — | stil | knop zwart |
 
-Na elke herstart van -A4 staat de afzuiging UIT tot een nieuwe handeling op de knop (regel.h, getest).
+Na elke herstart van -K1 staat de afzuiging UIT tot een nieuwe handeling op de knop (regel.h, getest).
 
-- **Terugvoeding:** de Schottky-diode -V1 (1N5819) zit tussen de 5 V en de 5V-pin van de ESP32-C3. Hangt de box aan een computer om te flashen, dan voedt de computer alleen de ESP32-C3, niet de regelaar en niet de knop. De knop flash je met de kabel uit de box (in de computer): dan is er geen tweede bron.
+- **Terugvoeding:** de Schottky-diode -R12 (1N5819) zit tussen de 5 V en de 5V-pin van de ESP32-C3. Hangt de box aan een computer om te flashen, dan voedt de computer alleen de ESP32-C3, niet de regelaar en niet de knop. De knop flash je met de kabel uit de box (in de computer): dan is er geen tweede bron.
 
 | kabel | mm² | lus (m) | I (A) | R lus (Ω) | ΔU (V) | verlies (W) |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |

@@ -1,66 +1,301 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 297" width="420mm" height="297mm" font-family="Arial, Helvetica, sans-serif">
 <rect width="420" height="297" fill="#fff"/>
-<rect x="5" y="5" width="410" height="287" fill="none" stroke="#111" stroke-width="0.7"/>
-<rect x="15" y="7" width="395" height="243" fill="none" stroke="#111" stroke-width="0.25"/>
-<polyline points="20,5 20,7" fill="none" stroke="#111" stroke-width="0.25"/>
-<text x="44.375" y="9.5" font-size="3" text-anchor="middle" fill="#111">1</text>
-<polyline points="68.75,5 68.75,7" fill="none" stroke="#111" stroke-width="0.25"/>
-<text x="93.125" y="9.5" font-size="3" text-anchor="middle" fill="#111">2</text>
-<polyline points="117.5,5 117.5,7" fill="none" stroke="#111" stroke-width="0.25"/>
-<text x="141.875" y="9.5" font-size="3" text-anchor="middle" fill="#111">3</text>
-<polyline points="166.25,5 166.25,7" fill="none" stroke="#111" stroke-width="0.25"/>
-<text x="190.625" y="9.5" font-size="3" text-anchor="middle" fill="#111">4</text>
-<polyline points="215,5 215,7" fill="none" stroke="#111" stroke-width="0.25"/>
-<text x="239.375" y="9.5" font-size="3" text-anchor="middle" fill="#111">5</text>
-<polyline points="263.75,5 263.75,7" fill="none" stroke="#111" stroke-width="0.25"/>
-<text x="288.125" y="9.5" font-size="3" text-anchor="middle" fill="#111">6</text>
-<polyline points="312.5,5 312.5,7" fill="none" stroke="#111" stroke-width="0.25"/>
-<text x="336.875" y="9.5" font-size="3" text-anchor="middle" fill="#111">7</text>
-<polyline points="361.25,5 361.25,7" fill="none" stroke="#111" stroke-width="0.25"/>
-<text x="385.625" y="9.5" font-size="3" text-anchor="middle" fill="#111">8</text>
-<polyline points="5,12 15,12" fill="none" stroke="#111" stroke-width="0.25"/>
-<text x="10" y="32.83333333333333" font-size="3" text-anchor="middle" fill="#111">A</text>
-<polyline points="5,51.666666666666664 15,51.666666666666664" fill="none" stroke="#111" stroke-width="0.25"/>
-<text x="10" y="72.5" font-size="3" text-anchor="middle" fill="#111">B</text>
-<polyline points="5,91.33333333333333 15,91.33333333333333" fill="none" stroke="#111" stroke-width="0.25"/>
-<text x="10" y="112.16666666666666" font-size="3" text-anchor="middle" fill="#111">C</text>
-<polyline points="5,131 15,131" fill="none" stroke="#111" stroke-width="0.25"/>
-<text x="10" y="151.83333333333334" font-size="3" text-anchor="middle" fill="#111">D</text>
-<polyline points="5,170.66666666666666 15,170.66666666666666" fill="none" stroke="#111" stroke-width="0.25"/>
-<text x="10" y="191.5" font-size="3" text-anchor="middle" fill="#111">E</text>
-<polyline points="5,210.33333333333331 15,210.33333333333331" fill="none" stroke="#111" stroke-width="0.25"/>
-<text x="10" y="231.16666666666666" font-size="3" text-anchor="middle" fill="#111">F</text>
-<rect x="15" y="253" width="395" height="39" fill="none" stroke="#111" stroke-width="0.5"/>
-<polyline points="15,253 15,292" fill="none" stroke="#111" stroke-width="0.25"/><text x="17" y="258" font-size="2.2" text-anchor="start" fill="#666">Project</text><text x="17" y="266" font-size="3.2" text-anchor="start" fill="#111">Treinbaan</text>
-<text x="17" y="273" font-size="2.4" text-anchor="start" fill="#444">kabeldoos verlichting, versie 1</text>
-<polyline points="85,253 85,292" fill="none" stroke="#111" stroke-width="0.25"/><text x="87" y="258" font-size="2.2" text-anchor="start" fill="#666">Bladtitel</text><text x="87" y="269" font-size="5.5" text-anchor="start" fill="#111" font-weight="700">Besturing: ESP32-S3</text>
-<polyline points="205,253 205,292" fill="none" stroke="#111" stroke-width="0.25"/><text x="207" y="258" font-size="2.2" text-anchor="start" fill="#666">Installatie / plaats</text><text x="207" y="266" font-size="3.2" text-anchor="start" fill="#111">=TREIN +DOOS</text>
-<text x="207" y="273" font-size="2.4" text-anchor="start" fill="#444">kabeldoos onder de baan</text>
-<polyline points="265,253 265,292" fill="none" stroke="#111" stroke-width="0.25"/><text x="267" y="258" font-size="2.2" text-anchor="start" fill="#666">Norm</text><text x="267" y="266" font-size="3.2" text-anchor="start" fill="#111">IEC 81346 / 60617</text>
-<text x="267" y="273" font-size="2.4" text-anchor="start" fill="#444">EPLAN-stijl</text>
-<polyline points="315,253 315,292" fill="none" stroke="#111" stroke-width="0.25"/><text x="317" y="258" font-size="2.2" text-anchor="start" fill="#666">Datum / getekend</text><text x="317" y="266" font-size="3.2" text-anchor="start" fill="#111">2026-11-08</text>
-<text x="317" y="273" font-size="2.4" text-anchor="start" fill="#444">Phlippo CAD</text>
-<polyline points="365,253 365,292" fill="none" stroke="#111" stroke-width="0.25"/><text x="367" y="258" font-size="2.2" text-anchor="start" fill="#666">Blad</text><text x="367" y="269" font-size="5.5" text-anchor="start" fill="#111" font-weight="700">5 / 6</text>
-<polyline points="20,30 405,30" fill="none" stroke="#d97706" stroke-width="0.5"/><text x="20" y="28.5" font-size="2.6" text-anchor="start" fill="#d97706">L5 5 V  ← /2.8</text>
-<polyline points="20,230 405,230" fill="none" stroke="#111" stroke-width="0.5"/><text x="20" y="228.5" font-size="2.6" text-anchor="start" fill="#111">M 0 V  ← /2.8</text>
-<rect x="60" y="45" width="80" height="160" fill="#fbfaf7" stroke="#111" stroke-width="0.35" stroke-dasharray="2 1.2"/><text x="62" y="43" font-size="3.2" text-anchor="start" fill="#111" font-weight="700">-A1</text><text x="62.5" y="50" font-size="2.5" text-anchor="start" fill="#333">ESP32-S3-DevKitC-1 v1.1 (N16R8)</text><text x="62.5" y="53.6" font-size="2.5" text-anchor="start" fill="#333">op de draagprint, 2 x 22 pinnen</text><text x="62.5" y="57.2" font-size="2.5" text-anchor="start" fill="#333">micro-USB "UART" en "USB"</text><text x="62.5" y="60.8" font-size="2.5" text-anchor="start" fill="#333">in de rechterwand (flashen)</text><text x="62.5" y="64.4" font-size="2.5" text-anchor="start" fill="#333"></text><text x="62.5" y="68" font-size="2.5" text-anchor="start" fill="#333">wifi-hotspot "Treinbaan"</text><text x="62.5" y="71.6" font-size="2.5" text-anchor="start" fill="#333">dashboard: 192.168.4.1</text><circle cx="60" cy="60" r="0.9" fill="#111"/><text x="62" y="64" font-size="2.2" text-anchor="start" fill="#222">5V</text><circle cx="60" cy="195" r="0.9" fill="#111"/><text x="62" y="193" font-size="2.2" text-anchor="start" fill="#222">G</text><circle cx="140" cy="60" r="0.9" fill="#111"/><text x="138" y="64" font-size="2.2" text-anchor="end" fill="#222">3V3</text><circle cx="140" cy="85" r="0.9" fill="#111"/><text x="138" y="89" font-size="2.2" text-anchor="end" fill="#222">GPIO8  SDA</text><circle cx="140" cy="95" r="0.9" fill="#111"/><text x="138" y="99" font-size="2.2" text-anchor="end" fill="#222">GPIO9  SCL</text><circle cx="140" cy="110" r="0.9" fill="#111"/><text x="138" y="114" font-size="2.2" text-anchor="end" fill="#222">GPIO10  OE</text><circle cx="140" cy="130" r="0.9" fill="#111"/><text x="138" y="128" font-size="2.2" text-anchor="end" fill="#222">GPIO 1..21, 40, 41: ingangen /4</text><circle cx="140" cy="150" r="0.9" fill="#111"/><text x="138" y="148" font-size="2.2" text-anchor="end" fill="#222">GPIO38  RGB-led (status)</text>
-<circle cx="45" cy="30" r="0.8" fill="#111"/>
-<polyline points="45,30 45,60 60,60" fill="none" stroke="#d97706" stroke-width="0.45"/>
-<polyline points="60,195 45,195 45,230" fill="none" stroke="#111" stroke-width="0.45"/>
-<circle cx="45" cy="230" r="0.8" fill="#111"/>
-<polyline points="140,60 175,60 175,40 405,40" fill="none" stroke="#7c3aed" stroke-width="0.5"/>
-<text x="180" y="38.5" font-size="2.6" text-anchor="start" fill="#7c3aed">L3 3,3 V → VCC -A2 /3</text>
-<polyline points="140,85 300,85" fill="none" stroke="#7c3aed" stroke-width="0.35"/>
-<polyline points="140,95 300,95" fill="none" stroke="#7c3aed" stroke-width="0.35"/>
-<text x="305" y="86" font-size="2.5" text-anchor="start" fill="#7c3aed">SDA → -A2 /3</text>
-<text x="305" y="96" font-size="2.5" text-anchor="start" fill="#7c3aed">SCL → -A2 /3</text>
-<polyline points="140,110 300,110" fill="none" stroke="#2a6fd6" stroke-width="0.35"/>
-<text x="305" y="111" font-size="2.5" text-anchor="start" fill="#2a6fd6">OE → -A2 /3 (actief laag)</text>
-<circle cx="260" cy="40" r="0.8" fill="#111"/>
-<polyline points="260,40 260,62" fill="none" stroke="#111" stroke-width="0.35"/>
-<polyline points="260,62 260,68" fill="none" stroke="#111" stroke-width="0.35"/><rect x="258.5" y="68" width="3" height="8" fill="none" stroke="#111" stroke-width="0.35"/><polyline points="260,76 260,82" fill="none" stroke="#111" stroke-width="0.35"/><text x="257" y="71" font-size="2.4" text-anchor="end" fill="#111">-R1</text><text x="257" y="74.5" font-size="2.2" text-anchor="end" fill="#444">10 kΩ</text>
-<polyline points="260,82 260,110" fill="none" stroke="#111" stroke-width="0.35"/>
-<circle cx="260" cy="110" r="0.8" fill="#111"/>
-<text x="200" y="125" font-size="2.4" text-anchor="start" fill="#444">-R1 houdt OE hoog bij reset of flashen: alle groepen uit tot de firmware de kanalen op 0 zet.</text>
-<text x="25" y="242" font-size="2.6" text-anchor="start" fill="#333">I2C van -A1 naar -A2 met de pull-ups op de PCA9685-print (10 kΩ). Statuslampje GPIO38: groen = wifi aan, rood = -A2 antwoordt niet.</text>
+<rect x="5" y="5" width="410" height="287" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="20" y="10" width="390" height="277" fill="none" stroke="#000" stroke-width="0.7"/>
+<polyline points="210,5 210,10" fill="none" stroke="#000" stroke-width="0.7"/>
+<polyline points="210,287 210,292" fill="none" stroke="#000" stroke-width="0.7"/>
+<polyline points="5,148.5 20,148.5" fill="none" stroke="#000" stroke-width="0.7"/>
+<polyline points="410,148.5 415,148.5" fill="none" stroke="#000" stroke-width="0.7"/>
+<polyline points="20,15 410,15" fill="none" stroke="#000" stroke-width="0.35"/>
+<text x="39.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">0</text>
+<polyline points="59,10 59,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="78.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">1</text>
+<polyline points="98,10 98,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="117.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">2</text>
+<polyline points="137,10 137,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="156.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">3</text>
+<polyline points="176,10 176,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="195.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">4</text>
+<polyline points="215,10 215,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="234.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">5</text>
+<polyline points="254,10 254,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="273.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">6</text>
+<polyline points="293,10 293,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="312.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">7</text>
+<polyline points="332,10 332,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="351.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">8</text>
+<polyline points="371,10 371,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="390.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">9</text>
+<text x="21.5" y="258.5" font-size="2.5" text-anchor="start" fill="#000">4</text>
+<text x="408.5" y="258.5" font-size="2.5" text-anchor="end" fill="#000">6</text>
+<polyline points="20,260 410,260" fill="none" stroke="#000" stroke-width="0.7"/>
+<polyline points="20,266.75 62,266.75" fill="none" stroke="#000" stroke-width="0.18"/>
+<polyline points="20,273.5 62,273.5" fill="none" stroke="#000" stroke-width="0.18"/>
+<polyline points="20,280.25 62,280.25" fill="none" stroke="#000" stroke-width="0.18"/>
+<polyline points="30,260 30,287" fill="none" stroke="#000" stroke-width="0.18"/>
+<polyline points="48,260 48,287" fill="none" stroke="#000" stroke-width="0.18"/>
+<text x="21" y="285.4" font-size="1.8" text-anchor="start" fill="#000">Wijz.</text>
+<text x="31" y="285.4" font-size="1.8" text-anchor="start" fill="#000">Datum</text>
+<text x="49" y="285.4" font-size="1.8" text-anchor="start" fill="#000">Naam</text>
+<text x="21" y="278.55" font-size="2.3" text-anchor="start" fill="#000">1</text>
+<text x="31" y="278.55" font-size="2" text-anchor="start" fill="#000">2026-11-09</text>
+<text x="49" y="278.55" font-size="2" text-anchor="start" fill="#000">PC</text>
+<polyline points="62,260 62,287" fill="none" stroke="#000" stroke-width="0.35"/>
+<polyline points="62,266.75 106,266.75" fill="none" stroke="#000" stroke-width="0.18"/>
+<polyline points="62,273.5 106,273.5" fill="none" stroke="#000" stroke-width="0.18"/>
+<polyline points="62,280.25 106,280.25" fill="none" stroke="#000" stroke-width="0.18"/>
+<polyline points="77,260 77,287" fill="none" stroke="#000" stroke-width="0.18"/>
+<text x="63" y="264.95" font-size="2" text-anchor="start" fill="#000">Datum</text>
+<text x="78" y="264.95" font-size="2.2" text-anchor="start" fill="#000">2026-11-08</text>
+<text x="63" y="271.7" font-size="2" text-anchor="start" fill="#000">Getek.</text>
+<text x="78" y="271.7" font-size="2.2" text-anchor="start" fill="#000">Phlippo CAD</text>
+<text x="63" y="278.45" font-size="2" text-anchor="start" fill="#000">Gecontr.</text>
+<text x="78" y="278.45" font-size="2.2" text-anchor="start" fill="#000">Ian</text>
+<text x="63" y="285.2" font-size="2" text-anchor="start" fill="#000">Norm</text>
+<text x="78" y="285.2" font-size="2.2" text-anchor="start" fill="#000">IEC 81346</text>
+<polyline points="106,260 106,287" fill="none" stroke="#000" stroke-width="0.35"/>
+<polyline points="106,280.25 206,280.25" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="146,260 146,280.25" fill="none" stroke="#000" stroke-width="0.18"/>
+<text x="107" y="262.3" font-size="1.8" text-anchor="start" fill="#000">Eigenaar</text>
+<text x="108" y="269.5" font-size="3.6" text-anchor="start" fill="#000" font-weight="700">Phlippo CAD</text>
+<text x="108" y="275" font-size="2.3" text-anchor="start" fill="#000">Ian</text>
+<text x="147" y="262.3" font-size="1.8" text-anchor="start" fill="#000">Project</text>
+<text x="148" y="269" font-size="3.2" text-anchor="start" fill="#000" font-weight="700">Treinbaan</text>
+<text x="148" y="274.5" font-size="2.3" text-anchor="start" fill="#000">kabeldoos verlichting, versie 1</text>
+<text x="107" y="285.2" font-size="1.8" text-anchor="start" fill="#000">Oorspr.</text>
+<text x="118" y="285.2" font-size="2" text-anchor="start" fill="#000"></text>
+<polyline points="139.33,280.25 139.33,287" fill="none" stroke="#000" stroke-width="0.18"/>
+<text x="140.33" y="285.2" font-size="1.8" text-anchor="start" fill="#000">Verv. v.</text>
+<text x="151.33" y="285.2" font-size="2" text-anchor="start" fill="#000"></text>
+<polyline points="172.67,280.25 172.67,287" fill="none" stroke="#000" stroke-width="0.18"/>
+<text x="173.67" y="285.2" font-size="1.8" text-anchor="start" fill="#000">Verv. d.</text>
+<text x="184.67" y="285.2" font-size="2" text-anchor="start" fill="#000"></text>
+<polyline points="206,260 206,287" fill="none" stroke="#000" stroke-width="0.35"/>
+<polyline points="206,280.25 306,280.25" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="256" y="266" font-size="4" text-anchor="middle" fill="#000" font-weight="700">Ingangen</text>
+<text x="256" y="271" font-size="4" text-anchor="middle" fill="#000">knoppen en sensoren</text>
+<text x="207" y="285.2" font-size="1.8" text-anchor="start" fill="#000">Documentsoort</text>
+<text x="228" y="285.2" font-size="2.2" text-anchor="start" fill="#000">&amp;EFS  Schema</text>
+<polyline points="306,260 306,287" fill="none" stroke="#000" stroke-width="0.35"/>
+<polyline points="306,273.5 350,273.5" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="307" y="262.3" font-size="1.8" text-anchor="start" fill="#000">Tekeningnr.</text>
+<text x="308" y="270" font-size="2.8" text-anchor="start" fill="#000" font-weight="700">TRN-E01</text>
+<text x="307" y="275.8" font-size="1.8" text-anchor="start" fill="#000">Revisie / taal</text>
+<text x="308" y="283" font-size="2.6" text-anchor="start" fill="#000">1 / nl</text>
+<polyline points="350,260 350,287" fill="none" stroke="#000" stroke-width="0.35"/>
+<polyline points="350,273.5 384,273.5" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="351.5" y="266" font-size="2.6" text-anchor="start" fill="#000">=</text>
+<text x="355" y="266" font-size="2.8" text-anchor="start" fill="#000" font-weight="700">TRN</text>
+<text x="351.5" y="271" font-size="1.9" text-anchor="start" fill="#000">verlichting modelbaan</text>
+<text x="351.5" y="279.5" font-size="2.6" text-anchor="start" fill="#000">+</text>
+<text x="355" y="279.5" font-size="2.8" text-anchor="start" fill="#000" font-weight="700">DOOS</text>
+<text x="351.5" y="284.5" font-size="1.9" text-anchor="start" fill="#000">onder de baan</text>
+<polyline points="384,260 384,287" fill="none" stroke="#000" stroke-width="0.35"/>
+<polyline points="384,280.25 410,280.25" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="385" y="262.3" font-size="1.8" text-anchor="start" fill="#000">Blad</text>
+<text x="397" y="275" font-size="8" text-anchor="middle" fill="#000" font-weight="700">5</text>
+<text x="408.5" y="285.2" font-size="2.3" text-anchor="end" fill="#000">11 Bl.</text>
+<polyline points="23,230 405,230" fill="none" stroke="#000" stroke-width="0.35"/><polygon points="23,230 25.2,228.9 25.2,231.1" fill="#000"/><text x="26" y="228.6" font-size="2.5" text-anchor="start" fill="#000">M</text><text x="26" y="233.2" font-size="2.3" text-anchor="start" fill="#000">/3.9</text>
+<polyline points="23,32 405,32" fill="none" stroke="#000" stroke-width="0.35"/><polygon points="23,32 25.2,30.9 25.2,33.1" fill="#000"/><text x="26" y="30.6" font-size="2.5" text-anchor="start" fill="#000">L+</text><text x="26" y="35.2" font-size="2.3" text-anchor="start" fill="#000">/3.9</text>
+<circle cx="30" cy="45" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="27.8" y="43.6" font-size="2.3" text-anchor="end" fill="#000">-X4</text><text x="27.8" y="47.6" font-size="2.3" text-anchor="end" fill="#000">17</text>
+<circle cx="42" cy="45" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="44.2" y="43.6" font-size="2.3" text-anchor="start" fill="#000">-X4</text><text x="44.2" y="47.6" font-size="2.3" text-anchor="start" fill="#000">18</text>
+<polyline points="30,32 30,43.8" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="42,32 42,43.8" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="30" cy="32" r="0.6" fill="#000"/>
+<circle cx="42" cy="32" r="0.6" fill="#000"/>
+<text x="50" y="47" font-size="2.3" text-anchor="start" fill="#000">+12 V voor drukknoppen en sensoren</text>
+<circle cx="34" cy="62" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="36.2" y="60.6" font-size="2.3" text-anchor="start" fill="#000">-X4</text><text x="36.2" y="64.6" font-size="2.3" text-anchor="start" fill="#000">1</text>
+<text x="34" y="56" font-size="2.2" text-anchor="middle" fill="#000">IN01</text>
+<polyline points="34,63.2 34,70" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="34,70 34,76" fill="none" stroke="#000" stroke-width="0.25"/><rect x="32.5" y="76" width="3" height="8" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="34,84 34,90" fill="none" stroke="#000" stroke-width="0.25"/><text x="31" y="79" font-size="2.8" text-anchor="end" fill="#000">-R4</text><text x="31" y="82.2" font-size="2.3" text-anchor="end" fill="#000">2,2 kΩ</text>
+<polyline points="34,90 34,104" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="30" y="106" width="16" height="12" fill="none" stroke="#000" stroke-width="0.25" stroke-dasharray="4 1 0.6 1"/><polyline points="34,104 34,109.5" fill="none" stroke="#000" stroke-width="0.25"/><polygon points="32,109.5 36,109.5 34,113" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="32,113 36,113" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="34,113 34,120" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="37,110.5 39,111.5" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="37,112.5 39,113.5" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="40.5,109 40.5,115" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="40.5,110.5 43,108 43,104" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="40.5,113.5 43,116 43,120" fill="none" stroke="#000" stroke-width="0.25"/><text x="29" y="105" font-size="2.4" text-anchor="end" fill="#000">-K3</text><text x="33" y="105.4" font-size="1.7" text-anchor="end" fill="#000">1</text><text x="33" y="120.2" font-size="1.7" text-anchor="end" fill="#000">2</text><text x="44" y="105.4" font-size="1.7" text-anchor="start" fill="#000">16</text><text x="44" y="120.2" font-size="1.7" text-anchor="start" fill="#000">15</text>
+<polyline points="34,120 34,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="34" cy="230" r="0.6" fill="#000"/>
+<polyline points="43,104 43,96 48,96 48,132" fill="none" stroke="#000" stroke-width="0.25"/>
+<polygon points="48,132 46.9,129.8 49.1,129.8" fill="#000"/><text x="48" y="135.2" font-size="2.2" text-anchor="middle" fill="#000">GPIO1</text><text x="48" y="138.2" font-size="2" text-anchor="middle" fill="#000">/6.3</text>
+<polyline points="43,120 43,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="43" cy="230" r="0.6" fill="#000"/>
+<circle cx="57.2" cy="62" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="59.4" y="60.6" font-size="2.3" text-anchor="start" fill="#000">-X4</text><text x="59.4" y="64.6" font-size="2.3" text-anchor="start" fill="#000">2</text>
+<text x="57.2" y="56" font-size="2.2" text-anchor="middle" fill="#000">IN02</text>
+<polyline points="57.2,63.2 57.2,70" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="57.2,70 57.2,76" fill="none" stroke="#000" stroke-width="0.25"/><rect x="55.7" y="76" width="3" height="8" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="57.2,84 57.2,90" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="57.2,90 57.2,104" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="53.2" y="106" width="16" height="12" fill="none" stroke="#000" stroke-width="0.25" stroke-dasharray="4 1 0.6 1"/><polyline points="57.2,104 57.2,109.5" fill="none" stroke="#000" stroke-width="0.25"/><polygon points="55.2,109.5 59.2,109.5 57.2,113" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="55.2,113 59.2,113" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="57.2,113 57.2,120" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="60.2,110.5 62.2,111.5" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="60.2,112.5 62.2,113.5" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="63.7,109 63.7,115" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="63.7,110.5 66.2,108 66.2,104" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="63.7,113.5 66.2,116 66.2,120" fill="none" stroke="#000" stroke-width="0.25"/><text x="56.2" y="105.4" font-size="1.7" text-anchor="end" fill="#000">3</text><text x="56.2" y="120.2" font-size="1.7" text-anchor="end" fill="#000">4</text><text x="67.2" y="105.4" font-size="1.7" text-anchor="start" fill="#000">14</text><text x="67.2" y="120.2" font-size="1.7" text-anchor="start" fill="#000">13</text>
+<polyline points="57.2,120 57.2,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="57.2" cy="230" r="0.6" fill="#000"/>
+<polyline points="66.2,104 66.2,96 71.2,96 71.2,132" fill="none" stroke="#000" stroke-width="0.25"/>
+<polygon points="71.2,132 70.10000000000001,129.8 72.3,129.8" fill="#000"/><text x="71.2" y="135.2" font-size="2.2" text-anchor="middle" fill="#000">GPIO2</text><text x="71.2" y="138.2" font-size="2" text-anchor="middle" fill="#000">/6.3</text>
+<polyline points="66.2,120 66.2,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="66.2" cy="230" r="0.6" fill="#000"/>
+<circle cx="80.4" cy="62" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="82.6" y="60.6" font-size="2.3" text-anchor="start" fill="#000">-X4</text><text x="82.6" y="64.6" font-size="2.3" text-anchor="start" fill="#000">3</text>
+<text x="80.4" y="56" font-size="2.2" text-anchor="middle" fill="#000">IN03</text>
+<polyline points="80.4,63.2 80.4,70" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="80.4,70 80.4,76" fill="none" stroke="#000" stroke-width="0.25"/><rect x="78.9" y="76" width="3" height="8" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="80.4,84 80.4,90" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="80.4,90 80.4,104" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="76.4" y="106" width="16" height="12" fill="none" stroke="#000" stroke-width="0.25" stroke-dasharray="4 1 0.6 1"/><polyline points="80.4,104 80.4,109.5" fill="none" stroke="#000" stroke-width="0.25"/><polygon points="78.4,109.5 82.4,109.5 80.4,113" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="78.4,113 82.4,113" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="80.4,113 80.4,120" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="83.4,110.5 85.4,111.5" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="83.4,112.5 85.4,113.5" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="86.9,109 86.9,115" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="86.9,110.5 89.4,108 89.4,104" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="86.9,113.5 89.4,116 89.4,120" fill="none" stroke="#000" stroke-width="0.25"/><text x="79.4" y="105.4" font-size="1.7" text-anchor="end" fill="#000">5</text><text x="79.4" y="120.2" font-size="1.7" text-anchor="end" fill="#000">6</text><text x="90.4" y="105.4" font-size="1.7" text-anchor="start" fill="#000">12</text><text x="90.4" y="120.2" font-size="1.7" text-anchor="start" fill="#000">11</text>
+<polyline points="80.4,120 80.4,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="80.4" cy="230" r="0.6" fill="#000"/>
+<polyline points="89.4,104 89.4,96 94.4,96 94.4,132" fill="none" stroke="#000" stroke-width="0.25"/>
+<polygon points="94.4,132 93.30000000000001,129.8 95.5,129.8" fill="#000"/><text x="94.4" y="135.2" font-size="2.2" text-anchor="middle" fill="#000">GPIO4</text><text x="94.4" y="138.2" font-size="2" text-anchor="middle" fill="#000">/6.3</text>
+<polyline points="89.4,120 89.4,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="89.4" cy="230" r="0.6" fill="#000"/>
+<circle cx="103.6" cy="62" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="105.8" y="60.6" font-size="2.3" text-anchor="start" fill="#000">-X4</text><text x="105.8" y="64.6" font-size="2.3" text-anchor="start" fill="#000">4</text>
+<text x="103.6" y="56" font-size="2.2" text-anchor="middle" fill="#000">IN04</text>
+<polyline points="103.6,63.2 103.6,70" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="103.6,70 103.6,76" fill="none" stroke="#000" stroke-width="0.25"/><rect x="102.1" y="76" width="3" height="8" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="103.6,84 103.6,90" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="103.6,90 103.6,104" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="99.6" y="106" width="16" height="12" fill="none" stroke="#000" stroke-width="0.25" stroke-dasharray="4 1 0.6 1"/><polyline points="103.6,104 103.6,109.5" fill="none" stroke="#000" stroke-width="0.25"/><polygon points="101.6,109.5 105.6,109.5 103.6,113" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="101.6,113 105.6,113" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="103.6,113 103.6,120" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="106.6,110.5 108.6,111.5" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="106.6,112.5 108.6,113.5" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="110.1,109 110.1,115" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="110.1,110.5 112.6,108 112.6,104" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="110.1,113.5 112.6,116 112.6,120" fill="none" stroke="#000" stroke-width="0.25"/><text x="102.6" y="105.4" font-size="1.7" text-anchor="end" fill="#000">7</text><text x="102.6" y="120.2" font-size="1.7" text-anchor="end" fill="#000">8</text><text x="113.6" y="105.4" font-size="1.7" text-anchor="start" fill="#000">10</text><text x="113.6" y="120.2" font-size="1.7" text-anchor="start" fill="#000">9</text>
+<polyline points="103.6,120 103.6,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="103.6" cy="230" r="0.6" fill="#000"/>
+<polyline points="112.6,104 112.6,96 117.6,96 117.6,132" fill="none" stroke="#000" stroke-width="0.25"/>
+<polygon points="117.6,132 116.5,129.8 118.69999999999999,129.8" fill="#000"/><text x="117.6" y="135.2" font-size="2.2" text-anchor="middle" fill="#000">GPIO5</text><text x="117.6" y="138.2" font-size="2" text-anchor="middle" fill="#000">/6.3</text>
+<polyline points="112.6,120 112.6,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="112.6" cy="230" r="0.6" fill="#000"/>
+<circle cx="126.8" cy="62" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="129" y="60.6" font-size="2.3" text-anchor="start" fill="#000">-X4</text><text x="129" y="64.6" font-size="2.3" text-anchor="start" fill="#000">5</text>
+<text x="126.8" y="56" font-size="2.2" text-anchor="middle" fill="#000">IN05</text>
+<polyline points="126.8,63.2 126.8,70" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="126.8,70 126.8,76" fill="none" stroke="#000" stroke-width="0.25"/><rect x="125.3" y="76" width="3" height="8" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="126.8,84 126.8,90" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="126.8,90 126.8,104" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="122.8" y="106" width="16" height="12" fill="none" stroke="#000" stroke-width="0.25" stroke-dasharray="4 1 0.6 1"/><polyline points="126.8,104 126.8,109.5" fill="none" stroke="#000" stroke-width="0.25"/><polygon points="124.80000000000001,109.5 128.8,109.5 126.80000000000001,113" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="124.8,113 128.8,113" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="126.8,113 126.8,120" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="129.8,110.5 131.8,111.5" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="129.8,112.5 131.8,113.5" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="133.3,109 133.3,115" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="133.3,110.5 135.8,108 135.8,104" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="133.3,113.5 135.8,116 135.8,120" fill="none" stroke="#000" stroke-width="0.25"/><text x="121.8" y="105" font-size="2.4" text-anchor="end" fill="#000">-K4</text><text x="125.8" y="105.4" font-size="1.7" text-anchor="end" fill="#000">1</text><text x="125.8" y="120.2" font-size="1.7" text-anchor="end" fill="#000">2</text><text x="136.8" y="105.4" font-size="1.7" text-anchor="start" fill="#000">16</text><text x="136.8" y="120.2" font-size="1.7" text-anchor="start" fill="#000">15</text>
+<polyline points="126.8,120 126.8,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="126.8" cy="230" r="0.6" fill="#000"/>
+<polyline points="135.8,104 135.8,96 140.8,96 140.8,132" fill="none" stroke="#000" stroke-width="0.25"/>
+<polygon points="140.8,132 139.70000000000002,129.8 141.9,129.8" fill="#000"/><text x="140.8" y="135.2" font-size="2.2" text-anchor="middle" fill="#000">GPIO6</text><text x="140.8" y="138.2" font-size="2" text-anchor="middle" fill="#000">/6.3</text>
+<polyline points="135.8,120 135.8,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="135.8" cy="230" r="0.6" fill="#000"/>
+<circle cx="150" cy="62" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="152.2" y="60.6" font-size="2.3" text-anchor="start" fill="#000">-X4</text><text x="152.2" y="64.6" font-size="2.3" text-anchor="start" fill="#000">6</text>
+<text x="150" y="56" font-size="2.2" text-anchor="middle" fill="#000">IN06</text>
+<polyline points="150,63.2 150,70" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="150,70 150,76" fill="none" stroke="#000" stroke-width="0.25"/><rect x="148.5" y="76" width="3" height="8" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="150,84 150,90" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="150,90 150,104" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="146" y="106" width="16" height="12" fill="none" stroke="#000" stroke-width="0.25" stroke-dasharray="4 1 0.6 1"/><polyline points="150,104 150,109.5" fill="none" stroke="#000" stroke-width="0.25"/><polygon points="148,109.5 152,109.5 150,113" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="148,113 152,113" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="150,113 150,120" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="153,110.5 155,111.5" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="153,112.5 155,113.5" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="156.5,109 156.5,115" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="156.5,110.5 159,108 159,104" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="156.5,113.5 159,116 159,120" fill="none" stroke="#000" stroke-width="0.25"/><text x="149" y="105.4" font-size="1.7" text-anchor="end" fill="#000">3</text><text x="149" y="120.2" font-size="1.7" text-anchor="end" fill="#000">4</text><text x="160" y="105.4" font-size="1.7" text-anchor="start" fill="#000">14</text><text x="160" y="120.2" font-size="1.7" text-anchor="start" fill="#000">13</text>
+<polyline points="150,120 150,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="150" cy="230" r="0.6" fill="#000"/>
+<polyline points="159,104 159,96 164,96 164,132" fill="none" stroke="#000" stroke-width="0.25"/>
+<polygon points="164,132 162.9,129.8 165.1,129.8" fill="#000"/><text x="164" y="135.2" font-size="2.2" text-anchor="middle" fill="#000">GPIO7</text><text x="164" y="138.2" font-size="2" text-anchor="middle" fill="#000">/6.3</text>
+<polyline points="159,120 159,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="159" cy="230" r="0.6" fill="#000"/>
+<circle cx="173.2" cy="62" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="175.4" y="60.6" font-size="2.3" text-anchor="start" fill="#000">-X4</text><text x="175.4" y="64.6" font-size="2.3" text-anchor="start" fill="#000">7</text>
+<text x="173.2" y="56" font-size="2.2" text-anchor="middle" fill="#000">IN07</text>
+<polyline points="173.2,63.2 173.2,70" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="173.2,70 173.2,76" fill="none" stroke="#000" stroke-width="0.25"/><rect x="171.7" y="76" width="3" height="8" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="173.2,84 173.2,90" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="173.2,90 173.2,104" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="169.2" y="106" width="16" height="12" fill="none" stroke="#000" stroke-width="0.25" stroke-dasharray="4 1 0.6 1"/><polyline points="173.2,104 173.2,109.5" fill="none" stroke="#000" stroke-width="0.25"/><polygon points="171.2,109.5 175.2,109.5 173.2,113" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="171.2,113 175.2,113" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="173.2,113 173.2,120" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="176.2,110.5 178.2,111.5" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="176.2,112.5 178.2,113.5" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="179.7,109 179.7,115" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="179.7,110.5 182.2,108 182.2,104" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="179.7,113.5 182.2,116 182.2,120" fill="none" stroke="#000" stroke-width="0.25"/><text x="172.2" y="105.4" font-size="1.7" text-anchor="end" fill="#000">5</text><text x="172.2" y="120.2" font-size="1.7" text-anchor="end" fill="#000">6</text><text x="183.2" y="105.4" font-size="1.7" text-anchor="start" fill="#000">12</text><text x="183.2" y="120.2" font-size="1.7" text-anchor="start" fill="#000">11</text>
+<polyline points="173.2,120 173.2,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="173.2" cy="230" r="0.6" fill="#000"/>
+<polyline points="182.2,104 182.2,96 187.2,96 187.2,132" fill="none" stroke="#000" stroke-width="0.25"/>
+<polygon points="187.2,132 186.1,129.8 188.29999999999998,129.8" fill="#000"/><text x="187.2" y="135.2" font-size="2.2" text-anchor="middle" fill="#000">GPIO12</text><text x="187.2" y="138.2" font-size="2" text-anchor="middle" fill="#000">/6.3</text>
+<polyline points="182.2,120 182.2,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="182.2" cy="230" r="0.6" fill="#000"/>
+<circle cx="196.4" cy="62" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="198.6" y="60.6" font-size="2.3" text-anchor="start" fill="#000">-X4</text><text x="198.6" y="64.6" font-size="2.3" text-anchor="start" fill="#000">8</text>
+<text x="196.4" y="56" font-size="2.2" text-anchor="middle" fill="#000">IN08</text>
+<polyline points="196.4,63.2 196.4,70" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="196.4,70 196.4,76" fill="none" stroke="#000" stroke-width="0.25"/><rect x="194.9" y="76" width="3" height="8" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="196.4,84 196.4,90" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="196.4,90 196.4,104" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="192.4" y="106" width="16" height="12" fill="none" stroke="#000" stroke-width="0.25" stroke-dasharray="4 1 0.6 1"/><polyline points="196.4,104 196.4,109.5" fill="none" stroke="#000" stroke-width="0.25"/><polygon points="194.4,109.5 198.4,109.5 196.4,113" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="194.4,113 198.4,113" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="196.4,113 196.4,120" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="199.4,110.5 201.4,111.5" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="199.4,112.5 201.4,113.5" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="202.9,109 202.9,115" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="202.9,110.5 205.4,108 205.4,104" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="202.9,113.5 205.4,116 205.4,120" fill="none" stroke="#000" stroke-width="0.25"/><text x="195.4" y="105.4" font-size="1.7" text-anchor="end" fill="#000">7</text><text x="195.4" y="120.2" font-size="1.7" text-anchor="end" fill="#000">8</text><text x="206.4" y="105.4" font-size="1.7" text-anchor="start" fill="#000">10</text><text x="206.4" y="120.2" font-size="1.7" text-anchor="start" fill="#000">9</text>
+<polyline points="196.4,120 196.4,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="196.4" cy="230" r="0.6" fill="#000"/>
+<polyline points="205.4,104 205.4,96 210.4,96 210.4,132" fill="none" stroke="#000" stroke-width="0.25"/>
+<polygon points="210.4,132 209.3,129.8 211.5,129.8" fill="#000"/><text x="210.4" y="135.2" font-size="2.2" text-anchor="middle" fill="#000">GPIO13</text><text x="210.4" y="138.2" font-size="2" text-anchor="middle" fill="#000">/6.3</text>
+<polyline points="205.4,120 205.4,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="205.4" cy="230" r="0.6" fill="#000"/>
+<circle cx="219.6" cy="62" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="221.8" y="60.6" font-size="2.3" text-anchor="start" fill="#000">-X4</text><text x="221.8" y="64.6" font-size="2.3" text-anchor="start" fill="#000">9</text>
+<text x="219.6" y="56" font-size="2.2" text-anchor="middle" fill="#000">IN09</text>
+<polyline points="219.6,63.2 219.6,70" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="219.6,70 219.6,76" fill="none" stroke="#000" stroke-width="0.25"/><rect x="218.1" y="76" width="3" height="8" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="219.6,84 219.6,90" fill="none" stroke="#000" stroke-width="0.25"/><text x="216.6" y="79" font-size="2.8" text-anchor="end" fill="#000">-R5</text><text x="216.6" y="82.2" font-size="2.3" text-anchor="end" fill="#000">2,2 kΩ</text>
+<polyline points="219.6,90 219.6,104" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="215.6" y="106" width="16" height="12" fill="none" stroke="#000" stroke-width="0.25" stroke-dasharray="4 1 0.6 1"/><polyline points="219.6,104 219.6,109.5" fill="none" stroke="#000" stroke-width="0.25"/><polygon points="217.6,109.5 221.6,109.5 219.6,113" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="217.6,113 221.6,113" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="219.6,113 219.6,120" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="222.6,110.5 224.6,111.5" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="222.6,112.5 224.6,113.5" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="226.1,109 226.1,115" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="226.1,110.5 228.6,108 228.6,104" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="226.1,113.5 228.6,116 228.6,120" fill="none" stroke="#000" stroke-width="0.25"/><text x="214.6" y="105" font-size="2.4" text-anchor="end" fill="#000">-K5</text><text x="218.6" y="105.4" font-size="1.7" text-anchor="end" fill="#000">1</text><text x="218.6" y="120.2" font-size="1.7" text-anchor="end" fill="#000">2</text><text x="229.6" y="105.4" font-size="1.7" text-anchor="start" fill="#000">16</text><text x="229.6" y="120.2" font-size="1.7" text-anchor="start" fill="#000">15</text>
+<polyline points="219.6,120 219.6,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="219.6" cy="230" r="0.6" fill="#000"/>
+<polyline points="228.6,104 228.6,96 233.6,96 233.6,132" fill="none" stroke="#000" stroke-width="0.25"/>
+<polygon points="233.6,132 232.5,129.8 234.7,129.8" fill="#000"/><text x="233.6" y="135.2" font-size="2.2" text-anchor="middle" fill="#000">GPIO14</text><text x="233.6" y="138.2" font-size="2" text-anchor="middle" fill="#000">/6.3</text>
+<polyline points="228.6,120 228.6,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="228.6" cy="230" r="0.6" fill="#000"/>
+<circle cx="242.79999999999998" cy="62" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="245" y="60.6" font-size="2.3" text-anchor="start" fill="#000">-X4</text><text x="245" y="64.6" font-size="2.3" text-anchor="start" fill="#000">10</text>
+<text x="242.8" y="56" font-size="2.2" text-anchor="middle" fill="#000">IN10</text>
+<polyline points="242.8,63.2 242.8,70" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="242.8,70 242.8,76" fill="none" stroke="#000" stroke-width="0.25"/><rect x="241.3" y="76" width="3" height="8" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="242.8,84 242.8,90" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="242.8,90 242.8,104" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="238.8" y="106" width="16" height="12" fill="none" stroke="#000" stroke-width="0.25" stroke-dasharray="4 1 0.6 1"/><polyline points="242.8,104 242.8,109.5" fill="none" stroke="#000" stroke-width="0.25"/><polygon points="240.79999999999998,109.5 244.79999999999998,109.5 242.79999999999998,113" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="240.8,113 244.8,113" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="242.8,113 242.8,120" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="245.8,110.5 247.8,111.5" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="245.8,112.5 247.8,113.5" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="249.3,109 249.3,115" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="249.3,110.5 251.8,108 251.8,104" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="249.3,113.5 251.8,116 251.8,120" fill="none" stroke="#000" stroke-width="0.25"/><text x="241.8" y="105.4" font-size="1.7" text-anchor="end" fill="#000">3</text><text x="241.8" y="120.2" font-size="1.7" text-anchor="end" fill="#000">4</text><text x="252.8" y="105.4" font-size="1.7" text-anchor="start" fill="#000">14</text><text x="252.8" y="120.2" font-size="1.7" text-anchor="start" fill="#000">13</text>
+<polyline points="242.8,120 242.8,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="242.79999999999998" cy="230" r="0.6" fill="#000"/>
+<polyline points="251.8,104 251.8,96 256.8,96 256.8,132" fill="none" stroke="#000" stroke-width="0.25"/>
+<polygon points="256.79999999999995,132 255.69999999999996,129.8 257.9,129.8" fill="#000"/><text x="256.8" y="135.2" font-size="2.2" text-anchor="middle" fill="#000">GPIO15</text><text x="256.8" y="138.2" font-size="2" text-anchor="middle" fill="#000">/6.3</text>
+<polyline points="251.8,120 251.8,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="251.79999999999998" cy="230" r="0.6" fill="#000"/>
+<circle cx="266" cy="62" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="268.2" y="60.6" font-size="2.3" text-anchor="start" fill="#000">-X4</text><text x="268.2" y="64.6" font-size="2.3" text-anchor="start" fill="#000">11</text>
+<text x="266" y="56" font-size="2.2" text-anchor="middle" fill="#000">IN11</text>
+<polyline points="266,63.2 266,70" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="266,70 266,76" fill="none" stroke="#000" stroke-width="0.25"/><rect x="264.5" y="76" width="3" height="8" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="266,84 266,90" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="266,90 266,104" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="262" y="106" width="16" height="12" fill="none" stroke="#000" stroke-width="0.25" stroke-dasharray="4 1 0.6 1"/><polyline points="266,104 266,109.5" fill="none" stroke="#000" stroke-width="0.25"/><polygon points="264,109.5 268,109.5 266,113" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="264,113 268,113" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="266,113 266,120" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="269,110.5 271,111.5" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="269,112.5 271,113.5" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="272.5,109 272.5,115" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="272.5,110.5 275,108 275,104" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="272.5,113.5 275,116 275,120" fill="none" stroke="#000" stroke-width="0.25"/><text x="265" y="105.4" font-size="1.7" text-anchor="end" fill="#000">5</text><text x="265" y="120.2" font-size="1.7" text-anchor="end" fill="#000">6</text><text x="276" y="105.4" font-size="1.7" text-anchor="start" fill="#000">12</text><text x="276" y="120.2" font-size="1.7" text-anchor="start" fill="#000">11</text>
+<polyline points="266,120 266,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="266" cy="230" r="0.6" fill="#000"/>
+<polyline points="275,104 275,96 280,96 280,132" fill="none" stroke="#000" stroke-width="0.25"/>
+<polygon points="280,132 278.9,129.8 281.1,129.8" fill="#000"/><text x="280" y="135.2" font-size="2.2" text-anchor="middle" fill="#000">GPIO16</text><text x="280" y="138.2" font-size="2" text-anchor="middle" fill="#000">/6.3</text>
+<polyline points="275,120 275,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="275" cy="230" r="0.6" fill="#000"/>
+<circle cx="289.2" cy="62" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="291.4" y="60.6" font-size="2.3" text-anchor="start" fill="#000">-X4</text><text x="291.4" y="64.6" font-size="2.3" text-anchor="start" fill="#000">12</text>
+<text x="289.2" y="56" font-size="2.2" text-anchor="middle" fill="#000">IN12</text>
+<polyline points="289.2,63.2 289.2,70" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="289.2,70 289.2,76" fill="none" stroke="#000" stroke-width="0.25"/><rect x="287.7" y="76" width="3" height="8" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="289.2,84 289.2,90" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="289.2,90 289.2,104" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="285.2" y="106" width="16" height="12" fill="none" stroke="#000" stroke-width="0.25" stroke-dasharray="4 1 0.6 1"/><polyline points="289.2,104 289.2,109.5" fill="none" stroke="#000" stroke-width="0.25"/><polygon points="287.2,109.5 291.2,109.5 289.2,113" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="287.2,113 291.2,113" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="289.2,113 289.2,120" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="292.2,110.5 294.2,111.5" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="292.2,112.5 294.2,113.5" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="295.7,109 295.7,115" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="295.7,110.5 298.2,108 298.2,104" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="295.7,113.5 298.2,116 298.2,120" fill="none" stroke="#000" stroke-width="0.25"/><text x="288.2" y="105.4" font-size="1.7" text-anchor="end" fill="#000">7</text><text x="288.2" y="120.2" font-size="1.7" text-anchor="end" fill="#000">8</text><text x="299.2" y="105.4" font-size="1.7" text-anchor="start" fill="#000">10</text><text x="299.2" y="120.2" font-size="1.7" text-anchor="start" fill="#000">9</text>
+<polyline points="289.2,120 289.2,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="289.2" cy="230" r="0.6" fill="#000"/>
+<polyline points="298.2,104 298.2,96 303.2,96 303.2,132" fill="none" stroke="#000" stroke-width="0.25"/>
+<polygon points="303.2,132 302.09999999999997,129.8 304.3,129.8" fill="#000"/><text x="303.2" y="135.2" font-size="2.2" text-anchor="middle" fill="#000">GPIO17</text><text x="303.2" y="138.2" font-size="2" text-anchor="middle" fill="#000">/6.3</text>
+<polyline points="298.2,120 298.2,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="298.2" cy="230" r="0.6" fill="#000"/>
+<circle cx="312.4" cy="62" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="314.6" y="60.6" font-size="2.3" text-anchor="start" fill="#000">-X4</text><text x="314.6" y="64.6" font-size="2.3" text-anchor="start" fill="#000">13</text>
+<text x="312.4" y="56" font-size="2.2" text-anchor="middle" fill="#000">IN13</text>
+<polyline points="312.4,63.2 312.4,70" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="312.4,70 312.4,76" fill="none" stroke="#000" stroke-width="0.25"/><rect x="310.9" y="76" width="3" height="8" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="312.4,84 312.4,90" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="312.4,90 312.4,104" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="308.4" y="106" width="16" height="12" fill="none" stroke="#000" stroke-width="0.25" stroke-dasharray="4 1 0.6 1"/><polyline points="312.4,104 312.4,109.5" fill="none" stroke="#000" stroke-width="0.25"/><polygon points="310.4,109.5 314.4,109.5 312.4,113" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="310.4,113 314.4,113" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="312.4,113 312.4,120" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="315.4,110.5 317.4,111.5" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="315.4,112.5 317.4,113.5" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="318.9,109 318.9,115" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="318.9,110.5 321.4,108 321.4,104" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="318.9,113.5 321.4,116 321.4,120" fill="none" stroke="#000" stroke-width="0.25"/><text x="307.4" y="105" font-size="2.4" text-anchor="end" fill="#000">-K6</text><text x="311.4" y="105.4" font-size="1.7" text-anchor="end" fill="#000">1</text><text x="311.4" y="120.2" font-size="1.7" text-anchor="end" fill="#000">2</text><text x="322.4" y="105.4" font-size="1.7" text-anchor="start" fill="#000">16</text><text x="322.4" y="120.2" font-size="1.7" text-anchor="start" fill="#000">15</text>
+<polyline points="312.4,120 312.4,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="312.4" cy="230" r="0.6" fill="#000"/>
+<polyline points="321.4,104 321.4,96 326.4,96 326.4,132" fill="none" stroke="#000" stroke-width="0.25"/>
+<polygon points="326.4,132 325.29999999999995,129.8 327.5,129.8" fill="#000"/><text x="326.4" y="135.2" font-size="2.2" text-anchor="middle" fill="#000">GPIO18</text><text x="326.4" y="138.2" font-size="2" text-anchor="middle" fill="#000">/6.3</text>
+<polyline points="321.4,120 321.4,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="321.4" cy="230" r="0.6" fill="#000"/>
+<circle cx="335.59999999999997" cy="62" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="337.8" y="60.6" font-size="2.3" text-anchor="start" fill="#000">-X4</text><text x="337.8" y="64.6" font-size="2.3" text-anchor="start" fill="#000">14</text>
+<text x="335.6" y="56" font-size="2.2" text-anchor="middle" fill="#000">IN14</text>
+<polyline points="335.6,63.2 335.6,70" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="335.6,70 335.6,76" fill="none" stroke="#000" stroke-width="0.25"/><rect x="334.1" y="76" width="3" height="8" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="335.6,84 335.6,90" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="335.6,90 335.6,104" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="331.6" y="106" width="16" height="12" fill="none" stroke="#000" stroke-width="0.25" stroke-dasharray="4 1 0.6 1"/><polyline points="335.6,104 335.6,109.5" fill="none" stroke="#000" stroke-width="0.25"/><polygon points="333.59999999999997,109.5 337.59999999999997,109.5 335.59999999999997,113" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="333.6,113 337.6,113" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="335.6,113 335.6,120" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="338.6,110.5 340.6,111.5" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="338.6,112.5 340.6,113.5" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="342.1,109 342.1,115" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="342.1,110.5 344.6,108 344.6,104" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="342.1,113.5 344.6,116 344.6,120" fill="none" stroke="#000" stroke-width="0.25"/><text x="334.6" y="105.4" font-size="1.7" text-anchor="end" fill="#000">3</text><text x="334.6" y="120.2" font-size="1.7" text-anchor="end" fill="#000">4</text><text x="345.6" y="105.4" font-size="1.7" text-anchor="start" fill="#000">14</text><text x="345.6" y="120.2" font-size="1.7" text-anchor="start" fill="#000">13</text>
+<polyline points="335.6,120 335.6,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="335.59999999999997" cy="230" r="0.6" fill="#000"/>
+<polyline points="344.6,104 344.6,96 349.6,96 349.6,132" fill="none" stroke="#000" stroke-width="0.25"/>
+<polygon points="349.59999999999997,132 348.49999999999994,129.8 350.7,129.8" fill="#000"/><text x="349.6" y="135.2" font-size="2.2" text-anchor="middle" fill="#000">GPIO21</text><text x="349.6" y="138.2" font-size="2" text-anchor="middle" fill="#000">/6.3</text>
+<polyline points="344.6,120 344.6,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="344.59999999999997" cy="230" r="0.6" fill="#000"/>
+<circle cx="358.8" cy="62" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="361" y="60.6" font-size="2.3" text-anchor="start" fill="#000">-X4</text><text x="361" y="64.6" font-size="2.3" text-anchor="start" fill="#000">15</text>
+<text x="358.8" y="56" font-size="2.2" text-anchor="middle" fill="#000">IN15</text>
+<polyline points="358.8,63.2 358.8,70" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="358.8,70 358.8,76" fill="none" stroke="#000" stroke-width="0.25"/><rect x="357.3" y="76" width="3" height="8" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="358.8,84 358.8,90" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="358.8,90 358.8,104" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="354.8" y="106" width="16" height="12" fill="none" stroke="#000" stroke-width="0.25" stroke-dasharray="4 1 0.6 1"/><polyline points="358.8,104 358.8,109.5" fill="none" stroke="#000" stroke-width="0.25"/><polygon points="356.8,109.5 360.8,109.5 358.8,113" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="356.8,113 360.8,113" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="358.8,113 358.8,120" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="361.8,110.5 363.8,111.5" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="361.8,112.5 363.8,113.5" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="365.3,109 365.3,115" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="365.3,110.5 367.8,108 367.8,104" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="365.3,113.5 367.8,116 367.8,120" fill="none" stroke="#000" stroke-width="0.25"/><text x="357.8" y="105.4" font-size="1.7" text-anchor="end" fill="#000">5</text><text x="357.8" y="120.2" font-size="1.7" text-anchor="end" fill="#000">6</text><text x="368.8" y="105.4" font-size="1.7" text-anchor="start" fill="#000">12</text><text x="368.8" y="120.2" font-size="1.7" text-anchor="start" fill="#000">11</text>
+<polyline points="358.8,120 358.8,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="358.8" cy="230" r="0.6" fill="#000"/>
+<polyline points="367.8,104 367.8,96 372.8,96 372.8,132" fill="none" stroke="#000" stroke-width="0.25"/>
+<polygon points="372.8,132 371.7,129.8 373.90000000000003,129.8" fill="#000"/><text x="372.8" y="135.2" font-size="2.2" text-anchor="middle" fill="#000">GPIO40</text><text x="372.8" y="138.2" font-size="2" text-anchor="middle" fill="#000">/6.3</text>
+<polyline points="367.8,120 367.8,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="367.8" cy="230" r="0.6" fill="#000"/>
+<circle cx="382" cy="62" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="384.2" y="60.6" font-size="2.3" text-anchor="start" fill="#000">-X4</text><text x="384.2" y="64.6" font-size="2.3" text-anchor="start" fill="#000">16</text>
+<text x="382" y="56" font-size="2.2" text-anchor="middle" fill="#000">IN16</text>
+<polyline points="382,63.2 382,70" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="382,70 382,76" fill="none" stroke="#000" stroke-width="0.25"/><rect x="380.5" y="76" width="3" height="8" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="382,84 382,90" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="382,90 382,104" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="378" y="106" width="16" height="12" fill="none" stroke="#000" stroke-width="0.25" stroke-dasharray="4 1 0.6 1"/><polyline points="382,104 382,109.5" fill="none" stroke="#000" stroke-width="0.25"/><polygon points="380,109.5 384,109.5 382,113" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="380,113 384,113" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="382,113 382,120" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="385,110.5 387,111.5" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="385,112.5 387,113.5" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="388.5,109 388.5,115" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="388.5,110.5 391,108 391,104" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="388.5,113.5 391,116 391,120" fill="none" stroke="#000" stroke-width="0.25"/><text x="381" y="105.4" font-size="1.7" text-anchor="end" fill="#000">7</text><text x="381" y="120.2" font-size="1.7" text-anchor="end" fill="#000">8</text><text x="392" y="105.4" font-size="1.7" text-anchor="start" fill="#000">10</text><text x="392" y="120.2" font-size="1.7" text-anchor="start" fill="#000">9</text>
+<polyline points="382,120 382,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="382" cy="230" r="0.6" fill="#000"/>
+<polyline points="391,104 391,96 396,96 396,132" fill="none" stroke="#000" stroke-width="0.25"/>
+<polygon points="396,132 394.9,129.8 397.1,129.8" fill="#000"/><text x="396" y="135.2" font-size="2.2" text-anchor="middle" fill="#000">GPIO41</text><text x="396" y="138.2" font-size="2" text-anchor="middle" fill="#000">/6.3</text>
+<polyline points="391,120 391,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="391" cy="230" r="0.6" fill="#000"/>
+<text x="25" y="238" font-size="2.5" text-anchor="start" fill="#000">Een drukknop tussen +12 V (-X4:17/18) en een ingang; een sensor met een uitgang op 12 V rechtstreeks op de ingang. Actief = de optocoupler trekt de GPIO naar 0 V (pull-up in de ESP).</text>
+<text x="25" y="244" font-size="2.5" text-anchor="start" fill="#000">-K3..-K6: PC847 (4 optocouplers per behuizing, pinnummers bij het symbool); -R4, -R5: 8 x 2,2 kΩ (DIP-16).</text>
 </svg>

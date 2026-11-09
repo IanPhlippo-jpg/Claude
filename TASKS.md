@@ -1124,6 +1124,16 @@ elease; README en docs/04 bijgewerkt
 - [x] README met bestellijst en prijzen, bouwschema (8 stappen met beelden), alles-in-één-PDF
 - [x] Tests, foto's, alles-in-één-PDF; commit en push (44bdda8, e565e5b)
 
+## Schema's en tekeningen volgens de Europese normen en zoals EPLAN: treinverlichting en afzuiging (2026-11-09)
+- [x] Bronnen: EPLAN-formulieren (normblad, voorblad, inhoudsopgave, klemmenplan, stuklijst) uit de Hamburg Airport-richtlijn, klassen ISO/IEC 81346-2 en documentsoorten IEC 61355 uit de Eplan-brochure
+- [x] Gedeelde EPLAN-module (voorbeelden/lib/eplan.mjs): normblad met kolommen 0-9 en EPLAN-titelblok (ISO 7200-velden), ISO 5457-kader, onderbrekingspunten met /blad.kolom, black boxes streep-punt, alles zwart; titelblad, inhoudsopgave, klemmenplan per strook, stuklijst
+- [x] Treinverlichting: schema op de module, 11 bladen, aanduidingen 81346-2 (-K1..-K6, -R2..-R5)
+- [x] Afzuiging: schema op de module (geen eigen kopie meer), 11 bladen, aanduidingen 81346-2 (-Q4, -S1, -U1, -X11, -K1, -R12), ook in README, rekenblad, firmware en generator
+- [x] Werktekeningen (src/qa/werktekening.ts): ISO 5457 (archiefrand, centreermerken, raster 1-8/A-F), titelblok ISO 7200, projectiesymbool ISO 5456-2; boormal met smal titelblok
+- [x] Freesmallen en snijmal: ISO 5457-kader en titelblok met de ISO 7200-velden
+- [x] Test src/qa/schemaNorm.test.ts (aanduidingen, kruisverwijzingen, titelblok, documentsoorten)
+- [x] Alles opnieuw maken: werktekeningen, PDF's (schema's van beide projecten, tekeningen, bouwschema, alles), de kabeldoos-app (versie 2)
+- [x] README's, nakijken met screenshots, test:voorbeelden 60/60; commit en push
 ## Treinverlichting: alle tekeningen en printbestanden in één app (2026-11-09)
 - [x] Materiaal verzamelen: STL's, werktekeningen (SVG + PDF), bouwschema, schema 6 bladen, beelden van de doos en het dashboard, PDF's
 - [x] App bouwen (app/maak-app.py + sjabloon.html): overzicht, printen met 3D-beeld op het bed, tekeningen, bouwschema, aansluitschema, bestellijst, dashboard, alle bestanden
