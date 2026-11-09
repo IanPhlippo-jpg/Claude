@@ -1,0 +1,576 @@
+regression (release-1of3)	Set up job	﻿2026-11-09T08:45:49.6445583Z Current runner version: '2.338.2'
+regression (release-1of3)	Set up job	2026-11-09T08:45:49.6471196Z ##[group]Runner Image Provisioner
+regression (release-1of3)	Set up job	2026-11-09T08:45:49.6472207Z Hosted Compute Agent
+regression (release-1of3)	Set up job	2026-11-09T08:45:49.6472872Z Version: 20261028.624
+regression (release-1of3)	Set up job	2026-11-09T08:45:49.6473596Z Commit: 54898b74c23fde5556c9b3c3a2290865feef0dfe
+regression (release-1of3)	Set up job	2026-11-09T08:45:49.6474362Z Build Date: 2026-10-28T21:51:42Z
+regression (release-1of3)	Set up job	2026-11-09T08:45:49.6475384Z Worker ID: {f8077617-359d-46b4-b103-31158e91915b}
+regression (release-1of3)	Set up job	2026-11-09T08:45:49.6476393Z Region: westus
+regression (release-1of3)	Set up job	2026-11-09T08:45:49.6477070Z Cloud: Azure
+regression (release-1of3)	Set up job	2026-11-09T08:45:49.6477699Z ##[endgroup]
+regression (release-1of3)	Set up job	2026-11-09T08:45:49.6479236Z ##[group]Operating System
+regression (release-1of3)	Set up job	2026-11-09T08:45:49.6479882Z Ubuntu
+regression (release-1of3)	Set up job	2026-11-09T08:45:49.6480966Z 24.04.5
+regression (release-1of3)	Set up job	2026-11-09T08:45:49.6481521Z LTS
+regression (release-1of3)	Set up job	2026-11-09T08:45:49.6482087Z ##[endgroup]
+regression (release-1of3)	Set up job	2026-11-09T08:45:49.6482683Z ##[group]Runner Image
+regression (release-1of3)	Set up job	2026-11-09T08:45:49.6483300Z Image: ubuntu-24.04
+regression (release-1of3)	Set up job	2026-11-09T08:45:49.6483940Z Version: 20261101.360.1
+regression (release-1of3)	Set up job	2026-11-09T08:45:49.6485690Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261101.360/images/ubuntu/Ubuntu2404-Readme.md
+regression (release-1of3)	Set up job	2026-11-09T08:45:49.6487635Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261101.360
+regression (release-1of3)	Set up job	2026-11-09T08:45:49.6488652Z ##[endgroup]
+regression (release-1of3)	Set up job	2026-11-09T08:45:49.6490002Z ##[group]GITHUB_TOKEN Permissions
+regression (release-1of3)	Set up job	2026-11-09T08:45:49.6492222Z Contents: read
+regression (release-1of3)	Set up job	2026-11-09T08:45:49.6492987Z Metadata: read
+regression (release-1of3)	Set up job	2026-11-09T08:45:49.6493587Z Packages: read
+regression (release-1of3)	Set up job	2026-11-09T08:45:49.6494212Z ##[endgroup]
+regression (release-1of3)	Set up job	2026-11-09T08:45:49.6497115Z Secret source: Actions
+regression (release-1of3)	Set up job	2026-11-09T08:45:49.6498219Z Cache mode: write
+regression (release-1of3)	Set up job	2026-11-09T08:45:49.6498985Z Prepare workflow directory
+regression (release-1of3)	Set up job	2026-11-09T08:45:49.6856402Z Prepare all required actions
+regression (release-1of3)	Set up job	2026-11-09T08:45:49.6931254Z Getting action download info
+regression (release-1of3)	Set up job	2026-11-09T08:45:50.0869601Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+regression (release-1of3)	Set up job	2026-11-09T08:45:50.1886346Z Download action repository 'actions/setup-node@v4' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+regression (release-1of3)	Set up job	2026-11-09T08:45:50.2765420Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+regression (release-1of3)	Set up job	2026-11-09T08:45:50.5097206Z Complete job name: regression (release-1of3)
+regression (release-1of3)	Run actions/checkout@v4	﻿2026-11-09T08:45:50.5991412Z ##[group]Run actions/checkout@v4
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:50.5992345Z with:
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:50.5992824Z   repository: IanPhlippo-jpg/Claude
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:50.5997036Z   token: ***
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:50.5997498Z   ssh-strict: true
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:50.5997942Z   ssh-user: git
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:50.5998392Z   persist-credentials: true
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:50.5998884Z   clean: true
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:50.5999331Z   sparse-checkout-cone-mode: true
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:50.5999853Z   fetch-depth: 1
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:50.6000290Z   fetch-tags: false
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:50.6000734Z   show-progress: true
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:50.6001197Z   lfs: false
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:50.6001615Z   submodules: false
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:50.6002072Z   set-safe-directory: true
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:50.6002583Z   allow-unsafe-pr-checkout: false
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:50.6003419Z ##[endgroup]
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:50.9278612Z Syncing repository: IanPhlippo-jpg/Claude
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:50.9282229Z ##[group]Getting Git version info
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:50.9283519Z Working directory is '/home/runner/work/Claude/Claude'
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:50.9286116Z [command]/usr/bin/git version
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:50.9378360Z git version 2.56.0
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:50.9408497Z ##[endgroup]
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:50.9457049Z Temporarily overriding HOME='/home/runner/work/_temp/212cc63e-34d7-4be4-bfc9-0d836ada1088' before making global git config changes
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:50.9466802Z Adding repository directory to the temporary git global config as a safe directory
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:50.9469272Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/Claude/Claude
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:50.9517149Z Deleting the contents of '/home/runner/work/Claude/Claude'
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:50.9522148Z ##[group]Initializing the repository
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:50.9527372Z [command]/usr/bin/git init /home/runner/work/Claude/Claude
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:50.9655436Z hint: Using 'master' as the name for the initial branch. This default branch name
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:50.9657371Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:50.9658397Z hint: to use in all of your new repositories, which will suppress this warning,
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:50.9659172Z hint: call:
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:50.9659580Z hint:
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:50.9660100Z hint: 	git config --global init.defaultBranch <name>
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:50.9660730Z hint:
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:50.9661339Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:50.9662288Z hint: 'development'. The just-created branch can be renamed via this command:
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:50.9663047Z hint:
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:50.9663471Z hint: 	git branch -m <name>
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:50.9663958Z hint:
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:50.9664583Z hint: Disable this message with "git config set advice.defaultBranchName false"
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:50.9680457Z Initialized empty Git repository in /home/runner/work/Claude/Claude/.git/
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:50.9699036Z [command]/usr/bin/git remote add origin https://github.com/IanPhlippo-jpg/Claude
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:50.9759101Z ##[endgroup]
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:50.9760063Z ##[group]Disabling automatic garbage collection
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:50.9764583Z [command]/usr/bin/git config --local gc.auto 0
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:50.9808676Z ##[endgroup]
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:50.9810077Z ##[group]Setting up auth
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:50.9817819Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:50.9871072Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:51.0331388Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:51.0378125Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:51.0633034Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:51.0682443Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:51.0936525Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:51.0989396Z ##[endgroup]
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:51.0990318Z ##[group]Fetching the repository
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:51.1004216Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +d5077ba162cb75592a10cff4b7049aff81292a64:refs/remotes/origin/claude/fase1-schetser
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:57.9301912Z From https://github.com/IanPhlippo-jpg/Claude
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:57.9303652Z  * [new ref]         d5077ba162cb75592a10cff4b7049aff81292a64 -> origin/claude/fase1-schetser
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:57.9307954Z ##[endgroup]
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:57.9309493Z ##[group]Determining the checkout info
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:57.9311299Z ##[endgroup]
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:57.9317290Z [command]/usr/bin/git sparse-checkout disable
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:57.9378933Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:57.9420762Z ##[group]Checking out the ref
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:57.9426566Z [command]/usr/bin/git checkout --progress --force -B claude/fase1-schetser refs/remotes/origin/claude/fase1-schetser
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:58.3788335Z Switched to a new branch 'claude/fase1-schetser'
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:58.3792750Z branch 'claude/fase1-schetser' set up to track 'origin/claude/fase1-schetser'.
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:58.3827075Z ##[endgroup]
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:58.3881603Z [command]/usr/bin/git log -1 --format=%H
+regression (release-1of3)	Run actions/checkout@v4	2026-11-09T08:45:58.3916035Z d5077ba162cb75592a10cff4b7049aff81292a64
+regression (release-1of3)	Run actions/setup-node@v4	﻿2026-11-09T08:45:58.4281021Z ##[group]Run actions/setup-node@v4
+regression (release-1of3)	Run actions/setup-node@v4	2026-11-09T08:45:58.4281447Z with:
+regression (release-1of3)	Run actions/setup-node@v4	2026-11-09T08:45:58.4281721Z   node-version-file: .nvmrc
+regression (release-1of3)	Run actions/setup-node@v4	2026-11-09T08:45:58.4282217Z   cache: npm
+regression (release-1of3)	Run actions/setup-node@v4	2026-11-09T08:45:58.4282469Z   always-auth: false
+regression (release-1of3)	Run actions/setup-node@v4	2026-11-09T08:45:58.4282754Z   check-latest: false
+regression (release-1of3)	Run actions/setup-node@v4	2026-11-09T08:45:58.4285461Z   token: ***
+regression (release-1of3)	Run actions/setup-node@v4	2026-11-09T08:45:58.4285737Z ##[endgroup]
+regression (release-1of3)	Run actions/setup-node@v4	2026-11-09T08:45:58.5783864Z Resolved .nvmrc as 22
+regression (release-1of3)	Run actions/setup-node@v4	2026-11-09T08:45:58.5854682Z Found in cache @ /opt/hostedtoolcache/node/22.23.4/x64
+regression (release-1of3)	Run actions/setup-node@v4	2026-11-09T08:45:58.5858602Z (node:2315) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+regression (release-1of3)	Run actions/setup-node@v4	2026-11-09T08:45:58.5860017Z (Use `node --trace-deprecation ...` to show where the warning was created)
+regression (release-1of3)	Run actions/setup-node@v4	2026-11-09T08:45:58.5861680Z ##[group]Environment details
+regression (release-1of3)	Run actions/setup-node@v4	2026-11-09T08:45:59.0227097Z node: v22.23.4
+regression (release-1of3)	Run actions/setup-node@v4	2026-11-09T08:45:59.0227974Z npm: 10.9.9
+regression (release-1of3)	Run actions/setup-node@v4	2026-11-09T08:45:59.0228397Z yarn: 1.22.22
+regression (release-1of3)	Run actions/setup-node@v4	2026-11-09T08:45:59.0229820Z ##[endgroup]
+regression (release-1of3)	Run actions/setup-node@v4	2026-11-09T08:45:59.0251523Z [command]/opt/hostedtoolcache/node/22.23.4/x64/bin/npm config get cache
+regression (release-1of3)	Run actions/setup-node@v4	2026-11-09T08:45:59.1421002Z /home/runner/.npm
+regression (release-1of3)	Run actions/setup-node@v4	2026-11-09T08:45:59.4151281Z Cache hit for: node-cache-Linux-x64-npm-2186e59f6422ca74a4c41788cfc3ccbb9a094adadb743d680f4073231b5fffbb
+regression (release-1of3)	Run actions/setup-node@v4	2026-11-09T08:45:59.4264225Z (node:2315) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+regression (release-1of3)	Run actions/setup-node@v4	2026-11-09T08:46:00.7054307Z Received 4194304 of 79437596 (5.3%), 4.0 MBs/sec
+regression (release-1of3)	Run actions/setup-node@v4	2026-11-09T08:46:01.3086927Z Received 79437596 of 79437596 (100.0%), 47.2 MBs/sec
+regression (release-1of3)	Run actions/setup-node@v4	2026-11-09T08:46:01.3087668Z Cache Size: ~76 MB (79437596 B)
+regression (release-1of3)	Run actions/setup-node@v4	2026-11-09T08:46:01.3121313Z [command]/usr/bin/tar -xf /home/runner/work/_temp/43ef1990-2b32-422d-9d33-70cea75383b8/cache.tzst -P -C /home/runner/work/Claude/Claude --use-compress-program unzstd
+regression (release-1of3)	Run actions/setup-node@v4	2026-11-09T08:46:01.5112626Z Cache restored successfully
+regression (release-1of3)	Run actions/setup-node@v4	2026-11-09T08:46:01.5151144Z Cache restored from key: node-cache-Linux-x64-npm-2186e59f6422ca74a4c41788cfc3ccbb9a094adadb743d680f4073231b5fffbb
+regression (release-1of3)	Run npm ci	﻿2026-11-09T08:46:01.5443613Z ##[group]Run npm ci
+regression (release-1of3)	Run npm ci	2026-11-09T08:46:01.5444000Z ^[[36;1mnpm ci^[[0m
+regression (release-1of3)	Run npm ci	2026-11-09T08:46:01.5475873Z shell: /usr/bin/bash -e {0}
+regression (release-1of3)	Run npm ci	2026-11-09T08:46:01.5476199Z ##[endgroup]
+regression (release-1of3)	Run npm ci	2026-11-09T08:46:04.1903610Z npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+regression (release-1of3)	Run npm ci	2026-11-09T08:46:04.2539067Z npm warn deprecated rimraf@2.6.3: Rimraf versions prior to v4 are no longer supported
+regression (release-1of3)	Run npm ci	2026-11-09T08:46:04.3479326Z npm warn deprecated whatwg-encoding@3.1.1: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+regression (release-1of3)	Run npm ci	2026-11-09T08:46:04.3525279Z npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+regression (release-1of3)	Run npm ci	2026-11-09T08:46:04.6753515Z npm warn deprecated boolean@3.2.0: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
+regression (release-1of3)	Run npm ci	2026-11-09T08:46:07.7887013Z 
+regression (release-1of3)	Run npm ci	2026-11-09T08:46:07.7888419Z added 463 packages, and audited 464 packages in 6s
+regression (release-1of3)	Run npm ci	2026-11-09T08:46:07.7889054Z 
+regression (release-1of3)	Run npm ci	2026-11-09T08:46:07.7889449Z 76 packages are looking for funding
+regression (release-1of3)	Run npm ci	2026-11-09T08:46:07.7890014Z   run `npm fund` for details
+regression (release-1of3)	Run npm ci	2026-11-09T08:46:07.8095709Z 
+regression (release-1of3)	Run npm ci	2026-11-09T08:46:07.8106586Z 6 moderate severity vulnerabilities
+regression (release-1of3)	Run npm ci	2026-11-09T08:46:07.8107502Z 
+regression (release-1of3)	Run npm ci	2026-11-09T08:46:07.8108171Z To address issues that do not require attention, run:
+regression (release-1of3)	Run npm ci	2026-11-09T08:46:07.8108823Z   npm audit fix
+regression (release-1of3)	Run npm ci	2026-11-09T08:46:07.8109063Z 
+regression (release-1of3)	Run npm ci	2026-11-09T08:46:07.8109489Z To address all issues (including breaking changes), run:
+regression (release-1of3)	Run npm ci	2026-11-09T08:46:07.8110126Z   npm audit fix --force
+regression (release-1of3)	Run npm ci	2026-11-09T08:46:07.8110443Z 
+regression (release-1of3)	Run npm ci	2026-11-09T08:46:07.8110687Z Run `npm audit` for details.
+regression (release-1of3)	Run npm run build:e2e	﻿2026-11-09T08:46:07.8954202Z ##[group]Run npm run build:e2e
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:07.8954556Z ^[[36;1mnpm run build:e2e^[[0m
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:07.8975871Z shell: /usr/bin/bash -e {0}
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:07.8976157Z ##[endgroup]
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:08.0062826Z 
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:08.0063350Z > phlippo-cad@0.5.13 build:e2e
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:08.0064173Z > cross-env VITE_TEST_HOOKS=1 vite build
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:08.0064559Z 
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:08.6518539Z ^[[36mvite v7.3.7 ^[[32mbuilding client environment for production...^[[36m^[[39m
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:08.7163703Z transforming...
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:14.1222436Z ^[[33m[plugin vite:resolve] Module "node:module" has been externalized for browser compatibility, imported by "/home/runner/work/Claude/Claude/node_modules/replicad-opencascadejs/dist/replicad_single.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.^[[39m
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:19.3334845Z ^[[32m✓^[[39m 396 modules transformed.
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:19.8306611Z rendering chunks...
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:20.3486293Z computing gzip size...
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:20.9657695Z ^[[2mdist/^[[22m^[[32mindex.html                              ^[[39m^[[1m^[[2m     1.10 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     0.50 kB^[[22m
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:20.9659338Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[32mreplicad_single-BfZpIs5k.js      ^[[39m^[[1m^[[2m    59.37 kB^[[22m^[[1m^[[22m
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:20.9660968Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[32mreplicad-DSoIoMtf.js             ^[[39m^[[1m^[[2m   372.71 kB^[[22m^[[1m^[[22m
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:20.9662467Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[32mrebuild.worker-Depm2qdd.js       ^[[39m^[[1m^[[2m   682.45 kB^[[22m^[[1m^[[22m
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:20.9663966Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[32mocct.worker-BZ9P_En5.js          ^[[39m^[[1m^[[2m   705.23 kB^[[22m^[[1m^[[22m
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:20.9665870Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[32mreplicad_single-B_1cTsn_.wasm    ^[[39m^[[1m^[[2m22,980.27 kB^[[22m^[[1m^[[22m^[[2m │ gzip: 7,267.29 kB^[[22m
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:20.9667688Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[35mindex-DI-Br2Gb.css               ^[[39m^[[1m^[[2m    84.38 kB^[[22m^[[1m^[[22m^[[2m │ gzip:    16.56 kB^[[22m
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:20.9669489Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mdesignTableCommands-lCohRNM9.js  ^[[39m^[[1m^[[2m     1.24 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     0.67 kB^[[22m
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:20.9671341Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mpreviewWindow-C6HDrO2z.js        ^[[39m^[[1m^[[2m     1.63 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     0.77 kB^[[22m
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:20.9673126Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mDrawingTreeBody-yEq0hgMc.js      ^[[39m^[[1m^[[2m     2.17 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     0.99 kB^[[22m
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:20.9674871Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mselfTest-BM_jTzUr.js             ^[[39m^[[1m^[[2m     3.24 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.56 kB^[[22m
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:20.9676820Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mSensorPM-CdB5MFi5.js             ^[[39m^[[1m^[[2m     3.32 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.15 kB^[[22m
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:20.9678558Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mFastenerPM-DM9ZbJ_R.js           ^[[39m^[[1m^[[2m     3.83 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.35 kB^[[22m
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:20.9680526Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mStandardPartsPane-ChIVVpOo.js    ^[[39m^[[1m^[[2m     4.08 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.67 kB^[[22m
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:20.9682340Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mdesignStudy-B0x5oIR8.js          ^[[39m^[[1m^[[2m     4.11 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.56 kB^[[22m
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:20.9684246Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mAnalysisPM2-B99EjSxV.js          ^[[39m^[[1m^[[2m     5.51 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.78 kB^[[22m
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:20.9726426Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mconfigureDialog-CGH73XBP.js      ^[[39m^[[1m^[[2m     5.54 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.13 kB^[[22m
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:20.9728311Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mrenderDialogs-BBLs_Age.js        ^[[39m^[[1m^[[2m     5.93 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.76 kB^[[22m
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:20.9730239Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36msheetExport-aXgZ7K0g.js          ^[[39m^[[1m^[[2m     5.97 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.75 kB^[[22m
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:20.9732455Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mPlanePM-2KO1wjDG.js              ^[[39m^[[1m^[[2m     6.01 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.67 kB^[[22m
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:20.9734401Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mSectionViewPM-CiKr0y85.js        ^[[39m^[[1m^[[2m     6.30 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.96 kB^[[22m
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:20.9736482Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mViewPane-CtsuAfW5.js             ^[[39m^[[1m^[[2m     6.46 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.93 kB^[[22m
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:20.9738390Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36massemblyDialogs-Dqa5UrPy.js      ^[[39m^[[1m^[[2m     6.53 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.14 kB^[[22m
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:20.9740189Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mAssemblyTab-DLxhjy5N.js          ^[[39m^[[1m^[[2m     7.11 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.97 kB^[[22m
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:20.9741987Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mAutoTolerancePM-B44EXwr9.js      ^[[39m^[[1m^[[2m     7.34 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.99 kB^[[22m
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:20.9743785Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mSheetDialogs-BVAIZN1j.js         ^[[39m^[[1m^[[2m     7.57 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.14 kB^[[22m
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:20.9745910Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mDrawingTabs-bHcr-1Cj.js          ^[[39m^[[1m^[[2m     8.08 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.93 kB^[[22m
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:20.9747706Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mSketch3DPM-s3hfxRLb.js           ^[[39m^[[1m^[[2m     8.57 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     3.05 kB^[[22m
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:20.9749450Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mRefGeomPM-BB8GmIuO.js            ^[[39m^[[1m^[[2m     8.60 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.39 kB^[[22m
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:20.9751300Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mequations-Dkckq8Qd.js            ^[[39m^[[1m^[[2m     9.21 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.98 kB^[[22m
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:20.9753117Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mConfigurationPanel-BE2xxggT.js   ^[[39m^[[1m^[[2m     9.32 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.73 kB^[[22m
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:20.9755317Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mappearanceDialog-KPV4J_p2.js     ^[[39m^[[1m^[[2m     9.61 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     3.08 kB^[[22m
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:20.9757235Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mDrawingExtras-CmYlFr4l.js        ^[[39m^[[1m^[[2m    10.05 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     3.50 kB^[[22m
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:20.9759216Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mAssemblyTreeBody-DRFqRJ_d.js     ^[[39m^[[1m^[[2m    10.19 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     3.12 kB^[[22m
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:20.9761279Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mDraftAnalysisPM-BXYONtFs.js      ^[[39m^[[1m^[[2m    10.92 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.59 kB^[[22m
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:20.9763254Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mevaluateDialogs-BAoyg5Yl.js      ^[[39m^[[1m^[[2m    11.43 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     3.33 kB^[[22m
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:20.9765594Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mAppearancesPane-CdHbt9ST.js      ^[[39m^[[1m^[[2m    11.68 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     4.04 kB^[[22m
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:20.9767592Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mtreeDialogs-CmcsTc-F.js          ^[[39m^[[1m^[[2m    12.44 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     3.91 kB^[[22m
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:20.9769534Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mmaterialDialog-CBe7E-BR.js       ^[[39m^[[1m^[[2m    13.03 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     3.93 kB^[[22m
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:20.9771462Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mcustomize-BAW-IeCN.js            ^[[39m^[[1m^[[2m    14.87 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     4.28 kB^[[22m
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:20.9773339Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mevaluate-BK19191F.js             ^[[39m^[[1m^[[2m    16.23 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     5.25 kB^[[22m
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:20.9775374Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mdialogs-6-HiS38x.js              ^[[39m^[[1m^[[2m    24.07 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     6.85 kB^[[22m
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:20.9777322Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mevaluateDialogs2-CTc7FgZL.js     ^[[39m^[[1m^[[2m    25.05 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     6.63 kB^[[22m
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:20.9779254Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mMotionTimeline-BEi-sG0-.js       ^[[39m^[[1m^[[2m    26.56 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     6.92 kB^[[22m
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:20.9781438Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mAssemblyPM-C96c0yA-.js           ^[[39m^[[1m^[[2m    27.46 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     6.51 kB^[[22m
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:20.9783601Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mDrawingSheetView-CNsV7ZPX.js     ^[[39m^[[1m^[[2m    51.45 kB^[[22m^[[1m^[[22m^[[2m │ gzip:    16.72 kB^[[22m
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:20.9785709Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36moptions-rtbRoky3.js              ^[[39m^[[1m^[[2m    52.93 kB^[[22m^[[1m^[[22m^[[2m │ gzip:    14.29 kB^[[22m
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:20.9787621Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mDrawingPM-BswQHqiU.js            ^[[39m^[[1m^[[2m    53.70 kB^[[22m^[[1m^[[22m^[[2m │ gzip:    11.21 kB^[[22m
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:20.9789594Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mcsg-DUo1x2C3.js                  ^[[39m^[[1m^[[2m   105.39 kB^[[22m^[[1m^[[22m^[[2m │ gzip:    32.47 kB^[[22m
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:20.9791425Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mreact-BgaH_3CY.js                ^[[39m^[[1m^[[2m   223.35 kB^[[22m^[[1m^[[22m^[[2m │ gzip:    69.70 kB^[[22m
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:20.9793310Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mPropertyPanel-BUIYdWna.js        ^[[39m^[[1m^[[2m   314.55 kB^[[22m^[[1m^[[22m^[[2m │ gzip:    56.43 kB^[[22m
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:20.9795367Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mkernel-Br-ya2kZ.js               ^[[39m^[[1m^[[2m   525.90 kB^[[22m^[[1m^[[22m^[[2m │ gzip:   182.46 kB^[[22m
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:20.9797264Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mthree-CCz4rHc3.js                ^[[39m^[[1m^[[2m   728.92 kB^[[22m^[[1m^[[22m^[[2m │ gzip:   197.58 kB^[[22m
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:20.9799158Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mindex-Cemu-VVJ.js                ^[[39m^[[1m^[[2m   784.23 kB^[[22m^[[1m^[[22m^[[2m │ gzip:   221.49 kB^[[22m
+regression (release-1of3)	Run npm run build:e2e	2026-11-09T08:46:20.9800260Z ^[[32m✓ built in 12.29s^[[39m
+regression (release-1of3)	Run npx playwright install --with-deps chromium	﻿2026-11-09T08:46:21.1377873Z ##[group]Run npx playwright install --with-deps chromium
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:21.1378591Z ^[[36;1mnpx playwright install --with-deps chromium^[[0m
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:21.1405130Z shell: /usr/bin/bash -e {0}
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:21.1405552Z ##[endgroup]
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:22.0513022Z Installing dependencies...
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:22.0581488Z Switching to root user to install dependencies...
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:22.1407260Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:22.1645181Z Get:6 https://packages.microsoft.com/ubuntu/24.04/prod noble InRelease [3600 B]
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:22.1770254Z Hit:2 http://azure.archive.ubuntu.com/ubuntu noble InRelease
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:22.1782425Z Get:3 http://azure.archive.ubuntu.com/ubuntu noble-updates InRelease [126 kB]
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:22.1806826Z Get:4 http://azure.archive.ubuntu.com/ubuntu noble-backports InRelease [126 kB]
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:22.1840101Z Get:5 http://azure.archive.ubuntu.com/ubuntu noble-security InRelease [126 kB]
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:22.2392882Z Get:7 https://packages.microsoft.com/ubuntu/24.04/prod noble/main arm64 Packages [675 kB]
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:22.2596016Z Get:8 https://packages.microsoft.com/ubuntu/24.04/prod noble/main amd64 Packages [743 kB]
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:22.3604451Z Get:9 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 Packages [1425 kB]
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:22.3681402Z Get:10 http://azure.archive.ubuntu.com/ubuntu noble-updates/main Translation-en [313 kB]
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:22.3702886Z Get:11 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 Packages [1711 kB]
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:22.3787922Z Get:12 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe Translation-en [344 kB]
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:22.3813009Z Get:13 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted amd64 Packages [1839 kB]
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:22.3915807Z Get:14 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted Translation-en [420 kB]
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:22.3938015Z Get:15 http://azure.archive.ubuntu.com/ubuntu noble-updates/multiverse amd64 Packages [50.7 kB]
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:22.3946279Z Get:16 http://azure.archive.ubuntu.com/ubuntu noble-updates/multiverse Translation-en [14.3 kB]
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:22.4698557Z Get:17 http://azure.archive.ubuntu.com/ubuntu noble-security/main amd64 Packages [1157 kB]
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:22.4747979Z Get:18 http://azure.archive.ubuntu.com/ubuntu noble-security/main Translation-en [234 kB]
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:22.5210129Z Get:19 http://azure.archive.ubuntu.com/ubuntu noble-security/universe amd64 Packages [1228 kB]
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:22.5268603Z Get:20 http://azure.archive.ubuntu.com/ubuntu noble-security/universe Translation-en [248 kB]
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:22.5289138Z Get:21 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted amd64 Packages [1721 kB]
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:22.5356880Z Get:22 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted Translation-en [394 kB]
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:22.5377643Z Get:23 http://azure.archive.ubuntu.com/ubuntu noble-security/multiverse amd64 Packages [45.4 kB]
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:22.5386546Z Get:24 http://azure.archive.ubuntu.com/ubuntu noble-security/multiverse Translation-en [12.4 kB]
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:25.7544340Z Fetched 13.0 MB in 1s (10.0 MB/s)
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:26.9450013Z Reading package lists...
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:26.9778486Z Reading package lists...
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.2143862Z Building dependency tree...
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.2151737Z Reading state information...
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.3636499Z libasound2t64 is already the newest version (1.2.11-1ubuntu0.3).
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.3637214Z libasound2t64 set to manually installed.
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.3637849Z libatk-bridge2.0-0t64 is already the newest version (2.52.0-1build1).
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.3638479Z libatk-bridge2.0-0t64 set to manually installed.
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.3639079Z libatk1.0-0t64 is already the newest version (2.52.0-1build1).
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.3639617Z libatk1.0-0t64 set to manually installed.
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.3640190Z libatspi2.0-0t64 is already the newest version (2.52.0-1build1).
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.3641418Z libatspi2.0-0t64 set to manually installed.
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.3642115Z libcairo2 is already the newest version (1.18.0-3build1).
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.3642622Z libcairo2 set to manually installed.
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.3643171Z libcups2t64 is already the newest version (2.4.7-1.2ubuntu7.14).
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.3643710Z libcups2t64 set to manually installed.
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.3644273Z libdbus-1-3 is already the newest version (1.14.10-4ubuntu4.1).
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.3644792Z libdbus-1-3 set to manually installed.
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.3646004Z libdrm2 is already the newest version (2.4.125-1ubuntu0.1~24.04.2).
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.3646597Z libdrm2 set to manually installed.
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.3647155Z libgbm1 is already the newest version (25.2.8-0ubuntu0.24.04.4).
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.3647779Z libgbm1 set to manually installed.
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.3648338Z libglib2.0-0t64 is already the newest version (2.80.0-6ubuntu3.10).
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.3648914Z libglib2.0-0t64 set to manually installed.
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.3649486Z libnspr4 is already the newest version (2:4.35-1.1build1).
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.3649993Z libnspr4 set to manually installed.
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.3650524Z libnss3 is already the newest version (2:3.98-1ubuntu0.3).
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.3651027Z libnss3 set to manually installed.
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.3651576Z libpango-1.0-0 is already the newest version (1.52.1+ds-1build1).
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.3652142Z libpango-1.0-0 set to manually installed.
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.3652693Z libx11-6 is already the newest version (2:1.8.7-1ubuntu0.1).
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.3653201Z libx11-6 set to manually installed.
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.3653692Z libxcb1 is already the newest version (1.15-1ubuntu2).
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.3654175Z libxcb1 set to manually installed.
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.3654721Z libxcomposite1 is already the newest version (1:0.4.5-1build3).
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.3655499Z libxcomposite1 set to manually installed.
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.3656066Z libxdamage1 is already the newest version (1:1.1.6-1build1).
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.3656597Z libxdamage1 set to manually installed.
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.3657115Z libxext6 is already the newest version (2:1.3.4-1build2).
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.3657625Z libxext6 set to manually installed.
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.3658143Z libxfixes3 is already the newest version (1:6.0.0-2build1).
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.3658579Z libxfixes3 set to manually installed.
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.3659192Z libxkbcommon0 is already the newest version (1.6.0-1build1).
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.3659588Z libxkbcommon0 set to manually installed.
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.3659991Z libxrandr2 is already the newest version (2:1.5.2-2build1).
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.3660380Z libxrandr2 set to manually installed.
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.3660776Z xvfb is already the newest version (2:21.1.12-1ubuntu1.9).
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.3661321Z fonts-noto-color-emoji is already the newest version (2.047-0ubuntu0.24.04.1).
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.3661894Z libfontconfig1 is already the newest version (2.15.0-1.1ubuntu2).
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.3662317Z libfontconfig1 set to manually installed.
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.3662770Z libfreetype6 is already the newest version (2.13.2+dfsg-1ubuntu0.2).
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.3663202Z libfreetype6 set to manually installed.
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.3663931Z fonts-liberation is already the newest version (1:2.1.5-3).
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.3664485Z fonts-liberation set to manually installed.
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.3665157Z The following additional packages will be installed:
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.3665592Z   xfonts-encodings xfonts-utils
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.3665890Z Recommended packages:
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.3666172Z   fonts-ipafont-mincho fonts-tlwg-loma
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.3838783Z The following NEW packages will be installed:
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.3839641Z   fonts-freefont-ttf fonts-ipafont-gothic fonts-tlwg-loma-otf fonts-unifont
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.3845924Z   fonts-wqy-zenhei xfonts-cyrillic xfonts-encodings xfonts-scalable
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.3846724Z   xfonts-utils
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.4055248Z 0 upgraded, 9 newly installed, 0 to remove and 27 not upgraded.
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.4056205Z Need to get 21.1 MB of archives.
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.4056675Z After this operation, 79.5 MB of additional disk space will be used.
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.4057185Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.4821879Z Get:2 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-ipafont-gothic all 00303-21ubuntu1 [3513 kB]
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:27.9423516Z Get:3 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 fonts-freefont-ttf all 20211204+svn4273-2 [5641 kB]
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:28.9895492Z Get:4 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-tlwg-loma-otf all 1:0.7.3-1 [107 kB]
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:29.0527016Z Get:5 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-unifont all 1:15.1.01-1build1 [2993 kB]
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:29.4466162Z Get:6 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-wqy-zenhei all 0.9.45-8 [7472 kB]
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:30.4029702Z Get:7 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 xfonts-encodings all 1:1.0.5-0ubuntu2 [578 kB]
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:30.5279842Z Get:8 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 xfonts-utils amd64 1:7.7+6build3 [94.4 kB]
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:30.5951120Z Get:9 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 xfonts-cyrillic all 1:1.0.5+nmu1 [384 kB]
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:30.6690414Z Get:10 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 xfonts-scalable all 1:1.0.3-1.3 [304 kB]
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:30.9492761Z Fetched 21.1 MB in 3s (6415 kB/s)
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:30.9752685Z Selecting previously unselected package fonts-ipafont-gothic.
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:31.0100933Z (Reading database ... 
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:31.0101651Z (Reading database ... 5%
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:31.0102318Z (Reading database ... 10%
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:31.0102918Z (Reading database ... 15%
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:31.0103323Z (Reading database ... 20%
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:31.0103725Z (Reading database ... 25%
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:31.0104114Z (Reading database ... 30%
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:31.0104524Z (Reading database ... 35%
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:31.0105190Z (Reading database ... 40%
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:31.0105659Z (Reading database ... 45%
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:31.0106036Z (Reading database ... 50%
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:31.0157318Z (Reading database ... 55%
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:31.1721161Z (Reading database ... 60%
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:31.3573514Z (Reading database ... 65%
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:31.5677788Z (Reading database ... 70%
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:31.7799028Z (Reading database ... 75%
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:31.8607602Z (Reading database ... 80%
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:32.0228903Z (Reading database ... 85%
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:32.1669531Z (Reading database ... 90%
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:32.3325972Z (Reading database ... 95%
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:32.3326494Z (Reading database ... 100%
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:32.3327231Z (Reading database ... 215960 files and directories currently installed.)
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:32.3368968Z Preparing to unpack .../0-fonts-ipafont-gothic_00303-21ubuntu1_all.deb ...
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:32.3475349Z Unpacking fonts-ipafont-gothic (00303-21ubuntu1) ...
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:32.5818835Z Selecting previously unselected package fonts-freefont-ttf.
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:32.5959428Z Preparing to unpack .../1-fonts-freefont-ttf_20211204+svn4273-2_all.deb ...
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:32.5974306Z Unpacking fonts-freefont-ttf (20211204+svn4273-2) ...
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:32.6831207Z Selecting previously unselected package fonts-tlwg-loma-otf.
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:32.6971971Z Preparing to unpack .../2-fonts-tlwg-loma-otf_1%3a0.7.3-1_all.deb ...
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:32.6982057Z Unpacking fonts-tlwg-loma-otf (1:0.7.3-1) ...
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:32.7223264Z Selecting previously unselected package fonts-unifont.
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:32.7364108Z Preparing to unpack .../3-fonts-unifont_1%3a15.1.01-1build1_all.deb ...
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:32.7372520Z Unpacking fonts-unifont (1:15.1.01-1build1) ...
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:32.8461696Z Selecting previously unselected package fonts-wqy-zenhei.
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:32.8603106Z Preparing to unpack .../4-fonts-wqy-zenhei_0.9.45-8_all.deb ...
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:32.8742916Z Unpacking fonts-wqy-zenhei (0.9.45-8) ...
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:33.3602255Z Selecting previously unselected package xfonts-encodings.
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:33.3742123Z Preparing to unpack .../5-xfonts-encodings_1%3a1.0.5-0ubuntu2_all.deb ...
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:33.3754617Z Unpacking xfonts-encodings (1:1.0.5-0ubuntu2) ...
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:33.4061684Z Selecting previously unselected package xfonts-utils.
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:33.4203813Z Preparing to unpack .../6-xfonts-utils_1%3a7.7+6build3_amd64.deb ...
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:33.4217029Z Unpacking xfonts-utils (1:7.7+6build3) ...
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:33.4640087Z Selecting previously unselected package xfonts-cyrillic.
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:33.4780697Z Preparing to unpack .../7-xfonts-cyrillic_1%3a1.0.5+nmu1_all.deb ...
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:33.4791574Z Unpacking xfonts-cyrillic (1:1.0.5+nmu1) ...
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:33.5177880Z Selecting previously unselected package xfonts-scalable.
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:33.5321292Z Preparing to unpack .../8-xfonts-scalable_1%3a1.0.3-1.3_all.deb ...
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:33.5333292Z Unpacking xfonts-scalable (1:1.0.3-1.3) ...
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:33.5794378Z Setting up fonts-wqy-zenhei (0.9.45-8) ...
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:33.5925267Z Setting up fonts-freefont-ttf (20211204+svn4273-2) ...
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:33.5948258Z Setting up fonts-tlwg-loma-otf (1:0.7.3-1) ...
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:33.5971920Z Setting up xfonts-encodings (1:1.0.5-0ubuntu2) ...
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:33.5994205Z Setting up fonts-ipafont-gothic (00303-21ubuntu1) ...
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:33.6064610Z update-alternatives: using /usr/share/fonts/opentype/ipafont-gothic/ipag.ttf to provide /usr/share/fonts/truetype/fonts-japanese-gothic.ttf (fonts-japanese-gothic.ttf) in auto mode
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:33.6088227Z Setting up fonts-unifont (1:15.1.01-1build1) ...
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:33.6109701Z Setting up xfonts-utils (1:7.7+6build3) ...
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:33.6155732Z Setting up xfonts-cyrillic (1:1.0.5+nmu1) ...
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:33.6478232Z Setting up xfonts-scalable (1:1.0.3-1.3) ...
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:33.6762136Z Processing triggers for man-db (2.12.0-4build2) ...
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:33.6784830Z Not building database; man-db/auto-update is not 'true'.
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:33.6799029Z Processing triggers for fontconfig (2.15.0-1.1ubuntu2) ...
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:34.4591435Z 
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:34.4592178Z Running kernel seems to be up-to-date.
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:34.4592717Z 
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:34.4592942Z No services need to be restarted.
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:34.4593634Z 
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:34.4593828Z No containers need to be restarted.
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:34.4594073Z 
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:34.4594325Z No user sessions are running outdated binaries.
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:34.4594623Z 
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:34.4595378Z No VM guests are running outdated hypervisor (qemu) binaries on this host.
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:35.4014842Z Downloading Chromium 141.0.7390.37 (playwright build v1194) from https://cdn.playwright.dev/dbazure/download/playwright/builds/chromium/1194/chromium-linux.zip
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:35.5396948Z |                                                                                |   0% of 173.9 MiB
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:35.6725226Z |■■■■■■■■                                                                        |  10% of 173.9 MiB
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:35.7634456Z |■■■■■■■■■■■■■■■■                                                                |  20% of 173.9 MiB
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:35.8430717Z |■■■■■■■■■■■■■■■■■■■■■■■■                                                        |  30% of 173.9 MiB
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:35.9068591Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                                |  40% of 173.9 MiB
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:35.9697922Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                        |  50% of 173.9 MiB
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:36.0323344Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                |  60% of 173.9 MiB
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:36.0955857Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                        |  70% of 173.9 MiB
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:36.1568982Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                |  80% of 173.9 MiB
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:36.2141294Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■        |  90% of 173.9 MiB
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:36.2724578Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■| 100% of 173.9 MiB
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:39.5402535Z Chromium 141.0.7390.37 (playwright build v1194) downloaded to /home/runner/.cache/ms-playwright/chromium-1194
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:39.5406618Z Downloading FFMPEG playwright build v1011 from https://cdn.playwright.dev/dbazure/download/playwright/builds/ffmpeg/1011/ffmpeg-linux.zip
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:39.6749124Z |                                                                                |   0% of 2.3 MiB
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:39.6797653Z |■■■■■■■■                                                                        |  10% of 2.3 MiB
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:39.6816608Z |■■■■■■■■■■■■■■■■                                                                |  20% of 2.3 MiB
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:39.6835574Z |■■■■■■■■■■■■■■■■■■■■■■■■                                                        |  30% of 2.3 MiB
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:39.6857579Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                                |  40% of 2.3 MiB
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:39.6877145Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                        |  50% of 2.3 MiB
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:39.6892614Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                |  60% of 2.3 MiB
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:39.6912793Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                        |  70% of 2.3 MiB
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:39.6933174Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                |  80% of 2.3 MiB
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:39.6950842Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■        |  90% of 2.3 MiB
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:39.6966146Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■| 100% of 2.3 MiB
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:39.7633523Z FFMPEG playwright build v1011 downloaded to /home/runner/.cache/ms-playwright/ffmpeg-1011
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:39.7636589Z Downloading Chromium Headless Shell 141.0.7390.37 (playwright build v1194) from https://cdn.playwright.dev/dbazure/download/playwright/builds/chromium/1194/chromium-headless-shell-linux.zip
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:39.9131898Z |                                                                                |   0% of 104.3 MiB
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:40.0055600Z |■■■■■■■■                                                                        |  10% of 104.3 MiB
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:40.0632924Z |■■■■■■■■■■■■■■■■                                                                |  20% of 104.3 MiB
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:40.1015286Z |■■■■■■■■■■■■■■■■■■■■■■■■                                                        |  30% of 104.3 MiB
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:40.1486836Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                                |  40% of 104.3 MiB
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:40.1880576Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                        |  50% of 104.3 MiB
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:40.2258181Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                |  60% of 104.3 MiB
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:40.2601960Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                        |  70% of 104.3 MiB
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:40.2935931Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                |  80% of 104.3 MiB
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:40.3270663Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■        |  90% of 104.3 MiB
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:40.3674373Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■| 100% of 104.3 MiB
+regression (release-1of3)	Run npx playwright install --with-deps chromium	2026-11-09T08:46:42.0853999Z Chromium Headless Shell 141.0.7390.37 (playwright build v1194) downloaded to /home/runner/.cache/ms-playwright/chromium_headless_shell-1194
+regression (release-1of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	﻿2026-11-09T08:46:42.1901715Z ##[group]Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &
+regression (release-1of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-09T08:46:42.1902312Z ^[[36;1mnpx vite preview --host 127.0.0.1 --port 4173 --strictPort &^[[0m
+regression (release-1of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-09T08:46:42.1902760Z ^[[36;1mnpx wait-on http://127.0.0.1:4173^[[0m
+regression (release-1of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-09T08:46:42.1903290Z ^[[36;1mexport PW_CHROMIUM="$(node -e "console.log(require('playwright').chromium.executablePath())")"^[[0m
+regression (release-1of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-09T08:46:42.1904138Z ^[[36;1mE2E_REPEAT="1" E2E_SCRIPT_TIMEOUT=1500000 E2E_SHARD="1/3" E2E_URL="http://127.0.0.1:4173/?kernel=brep&rebuild=worker" node e2e/run-regression.mjs ^[[0m
+regression (release-1of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-09T08:46:42.1925591Z shell: /usr/bin/bash -e {0}
+regression (release-1of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-09T08:46:42.1925876Z ##[endgroup]
+regression (release-1of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-09T08:46:42.7291584Z   ^[[32m➜^[[39m  ^[[1mLocal^[[22m:   ^[[36mhttp://127.0.0.1:^[[1m4173^[[22m/^[[39m
+regression (release-1of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-09T08:47:01.3903125Z smoke: exit=0 18s 13/13 checks passed
+regression (release-1of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-09T08:48:41.2666809Z full: exit=0 100s 68/68 checks passed | page errors: []
+regression (release-1of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-09T08:50:02.0943905Z configurations: exit=0 81s 25/25 checks passed
+regression (release-1of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-09T08:52:02.9912842Z multibody: exit=0 121s 14/14 checks passed
+regression (release-1of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-09T08:52:32.5236171Z section: exit=0 30s 9/9 checks passed
+regression (release-1of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-09T08:53:37.0632615Z hem: exit=0 65s 9/9 checks passed
+regression (release-1of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-09T08:54:00.8998556Z ellipsetext: exit=0 24s 6/6 checks passed
+regression (release-1of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-09T08:54:57.8758804Z jogmiter: exit=0 57s 7/7 checks passed
+regression (release-1of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-09T08:55:20.2378693Z faceappearance: exit=0 22s 2/2 checks passed
+regression (release-1of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-09T08:55:36.7570081Z arcslot: exit=0 17s 4/4 checks passed
+regression (release-1of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-09T08:55:51.9606551Z annotations: exit=0 15s 3/3 checks passed
+regression (release-1of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-09T08:56:08.9713409Z viewlayout: exit=0 17s 16/16 checks passed
+regression (release-1of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-09T08:57:42.4790309Z wrap: exit=0 94s 4/4 checks passed
+regression (release-1of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-09T08:59:08.4502938Z dragHandles: exit=0 86s 14/14 checks passed
+regression (release-1of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-09T08:59:40.3981006Z confirmdelete: exit=0 32s 11/11 checks passed
+regression (release-1of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-09T08:59:49.4095966Z rect3: exit=0 9s 8/8 checks passed
+regression (release-1of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-09T09:02:04.5923608Z sheetmetal2: exit=0 135s 7/7 checks passed
+regression (release-1of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-09T09:02:28.4139721Z drawing2: exit=0 24s 13/13 checks passed
+regression (release-1of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-09T09:02:55.2427335Z drawingfix: exit=0 27s 16/16 checks passed
+regression (release-1of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-09T09:03:58.0323678Z asmoptions: exit=0 63s 19/19 passed
+regression (release-1of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-09T09:04:54.9857489Z dialogopts: exit=0 57s 16/16 passed
+regression (release-1of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-09T09:05:49.7573060Z blockf: exit=0 55s 6/6 passed
+regression (release-1of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-09T09:06:45.9422031Z qa1: exit=0 56s 27/27 passed
+regression (release-1of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-09T09:07:45.9343098Z qa4: exit=0 60s 14/14 passed
+regression (release-1of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-09T09:10:22.1758922Z ga2: exit=0 156s 16/16 passed
+regression (release-1of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-09T09:16:12.6821647Z ge: exit=0 351s 59/59 passed
+regression (release-1of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-09T09:18:49.3330840Z gh: exit=0 157s 29/29 passed
+regression (release-1of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-09T09:20:21.7277968Z step: exit=0 92s 11/11 checks passed
+regression (release-1of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-09T09:26:14.9255397Z pmsweep: exit=0 353s 54/54 checks passed
+regression (release-1of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-09T09:26:46.4083447Z facenames: exit=0 31s 10/10 checks passed
+regression (release-1of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-09T09:28:00.0382733Z videos56: exit=0 74s 18/18 checks passed
+regression (release-1of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-09T09:28:47.3413165Z reorder: exit=0 47s 10/10 passed
+regression (release-1of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-09T09:30:10.5500010Z quickstart: exit=0 83s 9/9 passed
+regression (release-1of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-09T09:30:42.8637749Z designtable: exit=0 32s 15/15 checks passed
+regression (release-1of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-09T09:31:18.7204745Z magnify: exit=0 36s 12/12 checks passed
+regression (release-1of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-09T09:31:18.7205899Z DONE 35/35 green, 0 optional step(s) skipped
+regression (release-1of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-09T09:31:18.7206658Z log: e2e-out/regression-0.5.13-brep-worker-shard1of3.txt
+regression (release-1of3)	Run git diff --exit-code	﻿2026-11-09T09:31:23.7294374Z ##[group]Run git diff --exit-code
+regression (release-1of3)	Run git diff --exit-code	2026-11-09T09:31:23.7294729Z ^[[36;1mgit diff --exit-code^[[0m
+regression (release-1of3)	Run git diff --exit-code	2026-11-09T09:31:23.7314319Z shell: /usr/bin/bash -e {0}
+regression (release-1of3)	Run git diff --exit-code	2026-11-09T09:31:23.7314589Z ##[endgroup]
+regression (release-1of3)	Run actions/upload-artifact@v4	﻿2026-11-09T09:31:23.7459563Z ##[group]Run actions/upload-artifact@v4
+regression (release-1of3)	Run actions/upload-artifact@v4	2026-11-09T09:31:23.7459903Z with:
+regression (release-1of3)	Run actions/upload-artifact@v4	2026-11-09T09:31:23.7460128Z   name: e2e-regression-log-release-1of3
+regression (release-1of3)	Run actions/upload-artifact@v4	2026-11-09T09:31:23.7460481Z   path: e2e-out/regression-*.txt
+regression (release-1of3)	Run actions/upload-artifact@v4	e2e-out/*-output.txt
+regression (release-1of3)	Run actions/upload-artifact@v4	
+regression (release-1of3)	Run actions/upload-artifact@v4	2026-11-09T09:31:23.7460819Z   if-no-files-found: error
+regression (release-1of3)	Run actions/upload-artifact@v4	2026-11-09T09:31:23.7461065Z   compression-level: 6
+regression (release-1of3)	Run actions/upload-artifact@v4	2026-11-09T09:31:23.7461289Z   overwrite: false
+regression (release-1of3)	Run actions/upload-artifact@v4	2026-11-09T09:31:23.7461513Z   include-hidden-files: false
+regression (release-1of3)	Run actions/upload-artifact@v4	2026-11-09T09:31:23.7461759Z ##[endgroup]
+regression (release-1of3)	Run actions/upload-artifact@v4	2026-11-09T09:31:23.9233017Z (node:8112) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+regression (release-1of3)	Run actions/upload-artifact@v4	2026-11-09T09:31:23.9235569Z (Use `node --trace-deprecation ...` to show where the warning was created)
+regression (release-1of3)	Run actions/upload-artifact@v4	2026-11-09T09:31:24.0332080Z With the provided path, there will be 1 file uploaded
+regression (release-1of3)	Run actions/upload-artifact@v4	2026-11-09T09:31:24.0333079Z Artifact name is valid!
+regression (release-1of3)	Run actions/upload-artifact@v4	2026-11-09T09:31:24.0345437Z Root directory input is valid!
+regression (release-1of3)	Run actions/upload-artifact@v4	2026-11-09T09:31:24.2970330Z Beginning upload of artifact content to blob storage
+regression (release-1of3)	Run actions/upload-artifact@v4	2026-11-09T09:31:24.3213933Z (node:8112) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+regression (release-1of3)	Run actions/upload-artifact@v4	2026-11-09T09:31:24.5959698Z Uploaded bytes 850
+regression (release-1of3)	Run actions/upload-artifact@v4	2026-11-09T09:31:24.6704494Z Finished uploading artifact content to blob storage!
+regression (release-1of3)	Run actions/upload-artifact@v4	2026-11-09T09:31:24.6705884Z SHA256 digest of uploaded artifact zip is d7e7a194a6e1188156ec692cf3a95fb2657fe53d25800524fdfb80339b502995
+regression (release-1of3)	Run actions/upload-artifact@v4	2026-11-09T09:31:24.6706639Z Finalizing artifact upload
+regression (release-1of3)	Run actions/upload-artifact@v4	2026-11-09T09:31:25.1732742Z Artifact e2e-regression-log-release-1of3.zip successfully finalized. Artifact ID 13661589071
+regression (release-1of3)	Run actions/upload-artifact@v4	2026-11-09T09:31:25.1734844Z Artifact e2e-regression-log-release-1of3 has been successfully uploaded! Final size is 850 bytes. Artifact ID is 13661589071
+regression (release-1of3)	Run actions/upload-artifact@v4	2026-11-09T09:31:25.1737213Z Artifact download URL: https://github.com/IanPhlippo-jpg/Claude/actions/runs/42588296138/artifacts/13661589071
+regression (release-1of3)	Run actions/upload-artifact@v4	﻿2026-11-09T09:31:25.1866730Z ##[group]Run actions/upload-artifact@v4
+regression (release-1of3)	Run actions/upload-artifact@v4	2026-11-09T09:31:25.1867100Z with:
+regression (release-1of3)	Run actions/upload-artifact@v4	2026-11-09T09:31:25.1867374Z   name: e2e-screenshots-release-1of3
+regression (release-1of3)	Run actions/upload-artifact@v4	2026-11-09T09:31:25.1867706Z   path: /tmp/phlippo-e2e
+regression (release-1of3)	Run actions/upload-artifact@v4	2026-11-09T09:31:25.1867974Z   if-no-files-found: ignore
+regression (release-1of3)	Run actions/upload-artifact@v4	2026-11-09T09:31:25.1868242Z   compression-level: 6
+regression (release-1of3)	Run actions/upload-artifact@v4	2026-11-09T09:31:25.1868480Z   overwrite: false
+regression (release-1of3)	Run actions/upload-artifact@v4	2026-11-09T09:31:25.1868709Z   include-hidden-files: false
+regression (release-1of3)	Run actions/upload-artifact@v4	2026-11-09T09:31:25.1868963Z ##[endgroup]
+regression (release-1of3)	Run actions/upload-artifact@v4	2026-11-09T09:31:25.3678497Z (node:8125) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+regression (release-1of3)	Run actions/upload-artifact@v4	2026-11-09T09:31:25.3679630Z (Use `node --trace-deprecation ...` to show where the warning was created)
+regression (release-1of3)	Run actions/upload-artifact@v4	2026-11-09T09:31:25.3979894Z With the provided path, there will be 139 files uploaded
+regression (release-1of3)	Run actions/upload-artifact@v4	2026-11-09T09:31:25.3985387Z Artifact name is valid!
+regression (release-1of3)	Run actions/upload-artifact@v4	2026-11-09T09:31:25.3986266Z Root directory input is valid!
+regression (release-1of3)	Run actions/upload-artifact@v4	2026-11-09T09:31:25.7899337Z Beginning upload of artifact content to blob storage
+regression (release-1of3)	Run actions/upload-artifact@v4	2026-11-09T09:31:26.1231215Z (node:8125) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+regression (release-1of3)	Run actions/upload-artifact@v4	2026-11-09T09:31:26.9725708Z Uploaded bytes 8388608
+regression (release-1of3)	Run actions/upload-artifact@v4	2026-11-09T09:31:27.2691099Z Uploaded bytes 16777216
+regression (release-1of3)	Run actions/upload-artifact@v4	2026-11-09T09:31:27.7528609Z Uploaded bytes 25165824
+regression (release-1of3)	Run actions/upload-artifact@v4	2026-11-09T09:31:27.9783799Z Uploaded bytes 33154715
+regression (release-1of3)	Run actions/upload-artifact@v4	2026-11-09T09:31:28.0518571Z Finished uploading artifact content to blob storage!
+regression (release-1of3)	Run actions/upload-artifact@v4	2026-11-09T09:31:28.0521737Z SHA256 digest of uploaded artifact zip is e481b01a979fea20339213b05fe9d128e32e47c6172d95e3a5cd1ff5ba85084d
+regression (release-1of3)	Run actions/upload-artifact@v4	2026-11-09T09:31:28.0524728Z Finalizing artifact upload
+regression (release-1of3)	Run actions/upload-artifact@v4	2026-11-09T09:31:28.5299447Z Artifact e2e-screenshots-release-1of3.zip successfully finalized. Artifact ID 13663070457
+regression (release-1of3)	Run actions/upload-artifact@v4	2026-11-09T09:31:28.5300799Z Artifact e2e-screenshots-release-1of3 has been successfully uploaded! Final size is 33154715 bytes. Artifact ID is 13663070457
+regression (release-1of3)	Run actions/upload-artifact@v4	2026-11-09T09:31:28.5308375Z Artifact download URL: https://github.com/IanPhlippo-jpg/Claude/actions/runs/42588296138/artifacts/13663070457
+regression (release-1of3)	regression passed	﻿2026-11-09T09:31:28.5507144Z ##[group]Run echo "regression=success clean=success"
+regression (release-1of3)	regression passed	2026-11-09T09:31:28.5507576Z ^[[36;1mecho "regression=success clean=success"^[[0m
+regression (release-1of3)	regression passed	2026-11-09T09:31:28.5507969Z ^[[36;1mtest "success" = success && test "success" = success^[[0m
+regression (release-1of3)	regression passed	2026-11-09T09:31:28.5528450Z shell: /usr/bin/bash -e {0}
+regression (release-1of3)	regression passed	2026-11-09T09:31:28.5528747Z ##[endgroup]
+regression (release-1of3)	regression passed	2026-11-09T09:31:28.5570897Z regression=success clean=success
+regression (release-1of3)	Post Run actions/setup-node@v4	﻿2026-11-09T09:31:28.5647662Z Post job cleanup.
+regression (release-1of3)	Post Run actions/setup-node@v4	2026-11-09T09:31:28.6910738Z (node:8138) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+regression (release-1of3)	Post Run actions/setup-node@v4	2026-11-09T09:31:28.6911811Z (Use `node --trace-deprecation ...` to show where the warning was created)
+regression (release-1of3)	Post Run actions/setup-node@v4	2026-11-09T09:31:28.6915597Z Cache hit occurred on the primary key node-cache-Linux-x64-npm-2186e59f6422ca74a4c41788cfc3ccbb9a094adadb743d680f4073231b5fffbb, not saving cache.
+regression (release-1of3)	Post Run actions/checkout@v4	﻿2026-11-09T09:31:28.7058718Z Post job cleanup.
+regression (release-1of3)	Post Run actions/checkout@v4	2026-11-09T09:31:28.7997324Z [command]/usr/bin/git version
+regression (release-1of3)	Post Run actions/checkout@v4	2026-11-09T09:31:28.8045906Z git version 2.56.0
+regression (release-1of3)	Post Run actions/checkout@v4	2026-11-09T09:31:28.8111445Z Temporarily overriding HOME='/home/runner/work/_temp/c8a0e11a-a3f2-4719-94f8-817db75fa5a0' before making global git config changes
+regression (release-1of3)	Post Run actions/checkout@v4	2026-11-09T09:31:28.8121349Z Adding repository directory to the temporary git global config as a safe directory
+regression (release-1of3)	Post Run actions/checkout@v4	2026-11-09T09:31:28.8123194Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/Claude/Claude
+regression (release-1of3)	Post Run actions/checkout@v4	2026-11-09T09:31:28.8181666Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+regression (release-1of3)	Post Run actions/checkout@v4	2026-11-09T09:31:28.8221394Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+regression (release-1of3)	Post Run actions/checkout@v4	2026-11-09T09:31:28.8536105Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+regression (release-1of3)	Post Run actions/checkout@v4	2026-11-09T09:31:28.8574606Z http.https://github.com/.extraheader
+regression (release-1of3)	Post Run actions/checkout@v4	2026-11-09T09:31:28.8584916Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+regression (release-1of3)	Post Run actions/checkout@v4	2026-11-09T09:31:28.8625955Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+regression (release-1of3)	Post Run actions/checkout@v4	2026-11-09T09:31:28.8924259Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+regression (release-1of3)	Post Run actions/checkout@v4	2026-11-09T09:31:28.8972395Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+regression (release-1of3)	Complete job	﻿2026-11-09T09:31:28.9387904Z Cleaning up orphan processes
+regression (release-1of3)	Complete job	2026-11-09T09:31:28.9760630Z Terminate orphan process: pid (3255) (npm exec vite preview --host 127.0.0.1 --port 4173 --strictPort)
+regression (release-1of3)	Complete job	2026-11-09T09:31:28.9795772Z Terminate orphan process: pid (3280) (sh)
+regression (release-1of3)	Complete job	2026-11-09T09:31:28.9834353Z Terminate orphan process: pid (3282) (node)
+regression (release-1of3)	Complete job	2026-11-09T09:31:28.9863527Z Terminate orphan process: pid (3297) (esbuild)
+regression (release-1of3)	Complete job	2026-11-09T09:31:29.0060326Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-node@v4, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

@@ -1,0 +1,11 @@
+$ node tools/rename-trademarks.cjs --check && node tools/neutral-comments.cjs --check && node tools/line-budget.cjs
+# exit 0 after 2.8 s
+
+--- stdout ---
+total 0 dry run
+
+total 0 dry run
+line budget ok
+above the goal of 1000 lines: rebuild.ts 910, Viewport.tsx 700, tools.ts 616, features.ts 597, types.ts 591, store.ts 449, DrawingSheetView.tsx 277, icons.tsx 22
+
+--- stderr ---

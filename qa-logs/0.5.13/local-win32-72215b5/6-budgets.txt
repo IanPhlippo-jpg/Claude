@@ -1,0 +1,14 @@
+$ node tools/bundle-budget.cjs && node tools/doc-counts.cjs
+# exit 0 after 118.9 s
+
+--- stdout ---
+ok   index-CDlGoK4r.js: 784.34 kB (budget 800 kB, 15.66 kB left)
+ok   README qaStrict.test.ts (8): vitest finds 8
+ok   README qaBrep.test.ts (34): vitest finds 34
+ok   README qaCrossCheck.test.ts (15): vitest finds 15
+ok   README qaNaming.test.ts (12): vitest finds 12
+ok   README qaTeam.test.ts (5): vitest finds 5
+ok   README qaMismatch.test.ts (1): vitest finds 1
+ok   README `npm test`: 785 tests: vitest runs 785, 785 passed
+
+--- stderr ---

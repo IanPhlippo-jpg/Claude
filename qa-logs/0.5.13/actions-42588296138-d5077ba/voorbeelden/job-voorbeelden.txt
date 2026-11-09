@@ -1,0 +1,422 @@
+voorbeelden	UNKNOWN STEP	﻿2026-11-09T08:45:48.4173458Z Current runner version: '2.338.2'
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:48.4192403Z ##[group]Runner Image Provisioner
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:48.4192952Z Hosted Compute Agent
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:48.4193391Z Version: 20261028.624
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:48.4193778Z Commit: 54898b74c23fde5556c9b3c3a2290865feef0dfe
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:48.4194239Z Build Date: 2026-10-28T21:51:42Z
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:48.4194749Z Worker ID: {45ab1743-6089-4b2c-a63a-51d0f255c3f6}
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:48.4195182Z Region: centralus
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:48.4195593Z Cloud: Azure
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:48.4195938Z ##[endgroup]
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:48.4196783Z ##[group]Operating System
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:48.4197365Z Ubuntu
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:48.4197699Z 24.04.5
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:48.4198075Z LTS
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:48.4198462Z ##[endgroup]
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:48.4198805Z ##[group]Runner Image
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:48.4199256Z Image: ubuntu-24.04
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:48.4199624Z Version: 20261101.360.1
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:48.4200437Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261101.360/images/ubuntu/Ubuntu2404-Readme.md
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:48.4201314Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261101.360
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:48.4201957Z ##[endgroup]
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:48.4202692Z ##[group]GITHUB_TOKEN Permissions
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:48.4204147Z Contents: read
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:48.4204536Z Metadata: read
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:48.4205307Z Packages: read
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:48.4205653Z ##[endgroup]
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:48.4207048Z Secret source: Actions
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:48.4207969Z Cache mode: write
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:48.4208433Z Prepare workflow directory
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:48.4418440Z Prepare all required actions
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:48.4450418Z Getting action download info
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:48.6829947Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:48.7756750Z Download action repository 'actions/setup-node@v4' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:48.9418979Z Complete job name: voorbeelden
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:48.9926621Z ##[group]Run actions/checkout@v4
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:48.9927046Z with:
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:48.9927489Z   repository: IanPhlippo-jpg/Claude
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:48.9929417Z   token: ***
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:48.9929653Z   ssh-strict: true
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:48.9929891Z   ssh-user: git
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:48.9930137Z   persist-credentials: true
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:48.9930405Z   clean: true
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:48.9930650Z   sparse-checkout-cone-mode: true
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:48.9930929Z   fetch-depth: 1
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:48.9931164Z   fetch-tags: false
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:48.9931405Z   show-progress: true
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:48.9931649Z   lfs: false
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:48.9931876Z   submodules: false
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:48.9932119Z   set-safe-directory: true
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:48.9932393Z   allow-unsafe-pr-checkout: false
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:48.9932751Z ##[endgroup]
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:49.2162812Z Syncing repository: IanPhlippo-jpg/Claude
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:49.2163841Z ##[group]Getting Git version info
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:49.2164341Z Working directory is '/home/runner/work/Claude/Claude'
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:49.2165186Z [command]/usr/bin/git version
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:49.2243362Z git version 2.56.0
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:49.2255232Z ##[endgroup]
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:49.2266006Z Temporarily overriding HOME='/home/runner/work/_temp/be2c8fbf-7a7d-4813-9fe8-4a7ef5770ea9' before making global git config changes
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:49.2267370Z Adding repository directory to the temporary git global config as a safe directory
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:49.2269376Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/Claude/Claude
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:49.2319647Z Deleting the contents of '/home/runner/work/Claude/Claude'
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:49.2348138Z ##[group]Initializing the repository
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:49.2349641Z [command]/usr/bin/git init /home/runner/work/Claude/Claude
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:49.2439435Z hint: Using 'master' as the name for the initial branch. This default branch name
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:49.2440308Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:49.2441051Z hint: to use in all of your new repositories, which will suppress this warning,
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:49.2441439Z hint: call:
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:49.2441655Z hint:
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:49.2441931Z hint: 	git config --global init.defaultBranch <name>
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:49.2442254Z hint:
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:49.2442559Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:49.2443048Z hint: 'development'. The just-created branch can be renamed via this command:
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:49.2443433Z hint:
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:49.2443656Z hint: 	git branch -m <name>
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:49.2443906Z hint:
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:49.2444239Z hint: Disable this message with "git config set advice.defaultBranchName false"
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:49.2449225Z Initialized empty Git repository in /home/runner/work/Claude/Claude/.git/
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:49.2458662Z [command]/usr/bin/git remote add origin https://github.com/IanPhlippo-jpg/Claude
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:49.2503422Z ##[endgroup]
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:49.2504101Z ##[group]Disabling automatic garbage collection
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:49.2506575Z [command]/usr/bin/git config --local gc.auto 0
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:49.2536492Z ##[endgroup]
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:49.2537281Z ##[group]Setting up auth
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:49.2542668Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:49.2579456Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:49.2923388Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:49.2960780Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:49.3158156Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:49.3195715Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:49.3388261Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:49.3431163Z ##[endgroup]
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:49.3431743Z ##[group]Fetching the repository
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:49.3440944Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +d5077ba162cb75592a10cff4b7049aff81292a64:refs/remotes/origin/claude/fase1-schetser
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:53.0689548Z From https://github.com/IanPhlippo-jpg/Claude
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:53.0690419Z  * [new ref]         d5077ba162cb75592a10cff4b7049aff81292a64 -> origin/claude/fase1-schetser
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:53.0692084Z ##[endgroup]
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:53.0692620Z ##[group]Determining the checkout info
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:53.0698057Z ##[endgroup]
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:53.0698900Z [command]/usr/bin/git sparse-checkout disable
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:53.0755643Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:53.0795923Z ##[group]Checking out the ref
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:53.0799321Z [command]/usr/bin/git checkout --progress --force -B claude/fase1-schetser refs/remotes/origin/claude/fase1-schetser
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:53.3938814Z Switched to a new branch 'claude/fase1-schetser'
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:53.3941733Z branch 'claude/fase1-schetser' set up to track 'origin/claude/fase1-schetser'.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:53.3969367Z ##[endgroup]
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:53.4022592Z [command]/usr/bin/git log -1 --format=%H
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:53.4053409Z d5077ba162cb75592a10cff4b7049aff81292a64
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:53.4261824Z ##[group]Run actions/setup-node@v4
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:53.4262066Z with:
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:53.4262226Z   node-version-file: .nvmrc
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:53.4262388Z   cache: npm
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:53.4262529Z   always-auth: false
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:53.4262694Z   check-latest: false
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:53.4264223Z   token: ***
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:53.4264368Z ##[endgroup]
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:53.5191368Z Resolved .nvmrc as 22
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:53.5232197Z Found in cache @ /opt/hostedtoolcache/node/22.23.4/x64
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:53.5234841Z (node:2122) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:53.5235275Z (Use `node --trace-deprecation ...` to show where the warning was created)
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:53.5236499Z ##[group]Environment details
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:53.8364030Z node: v22.23.4
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:53.8364309Z npm: 10.9.9
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:53.8364449Z yarn: 1.22.22
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:53.8365309Z ##[endgroup]
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:53.8377631Z [command]/opt/hostedtoolcache/node/22.23.4/x64/bin/npm config get cache
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:53.9147311Z /home/runner/.npm
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:54.0560115Z Cache hit for: node-cache-Linux-x64-npm-2186e59f6422ca74a4c41788cfc3ccbb9a094adadb743d680f4073231b5fffbb
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:54.0626228Z (node:2122) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:54.9057432Z Received 79437596 of 79437596 (100.0%), 110.1 MBs/sec
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:54.9057935Z Cache Size: ~76 MB (79437596 B)
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:54.9148945Z [command]/usr/bin/tar -xf /home/runner/work/_temp/1693dc4e-d99c-4d42-b46c-20f92ce2eb69/cache.tzst -P -C /home/runner/work/Claude/Claude --use-compress-program unzstd
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:55.0522020Z Cache restored successfully
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:55.0558478Z Cache restored from key: node-cache-Linux-x64-npm-2186e59f6422ca74a4c41788cfc3ccbb9a094adadb743d680f4073231b5fffbb
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:55.0797509Z ##[group]Run npm ci
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:55.0797692Z ^[[36;1mnpm ci^[[0m
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:55.0823646Z shell: /usr/bin/bash -e {0}
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:55.0823815Z ##[endgroup]
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:56.6893825Z npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:56.7119848Z npm warn deprecated rimraf@2.6.3: Rimraf versions prior to v4 are no longer supported
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:56.7654766Z npm warn deprecated whatwg-encoding@3.1.1: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:56.7699218Z npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:56.9202128Z npm warn deprecated boolean@3.2.0: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:58.3082585Z 
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:58.3083312Z added 463 packages, and audited 464 packages in 3s
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:58.3083567Z 
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:58.3083675Z 76 packages are looking for funding
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:58.3083850Z   run `npm fund` for details
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:58.3200606Z 
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:58.3201250Z 6 moderate severity vulnerabilities
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:58.3201498Z 
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:58.3201705Z To address issues that do not require attention, run:
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:58.3202022Z   npm audit fix
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:58.3202139Z 
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:58.3202368Z To address all issues (including breaking changes), run:
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:58.3202670Z   npm audit fix --force
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:58.3202826Z 
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:58.3202961Z Run `npm audit` for details.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:58.3842927Z ##[group]Run npm run test:voorbeelden -- --testTimeout=1800000
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:58.3843200Z ^[[36;1mnpm run test:voorbeelden -- --testTimeout=1800000^[[0m
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:58.3860129Z shell: /usr/bin/bash -e {0}
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:58.3860277Z ##[endgroup]
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:58.4484440Z 
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:58.4485154Z > phlippo-cad@0.5.13 test:voorbeelden
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:58.4486904Z > cross-env VOORBEELDEN=1 vitest run src/qa/qaAfzuiging.test.ts src/qa/qaBureau.test.ts src/qa/qaTrein.test.ts src/qa/stlAfzuiging.test.ts src/qa/overlapBoxAfzuiging.test.ts src/qa/tekeningenAfzuiging.test.ts src/qa/tekeningenTrein.test.ts --testTimeout=1800000
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:58.4487609Z 
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:58.8796438Z 
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:58.8798978Z ^[[1m^[[30m^[[46m RUN ^[[49m^[[39m^[[22m ^[[36mv5.0.5 ^[[39m^[[90m/home/runner/work/Claude/Claude^[[39m
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:58.8799335Z 
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:59.7178860Z  ^[[2m^[[90m↓^[[39m^[[22m src/qa/tekeningenTrein.test.ts ^[[2m(^[[22m^[[2m1 test^[[22m^[[2m | ^[[22m^[[33m1 skipped^[[39m^[[2m)^[[22m
+voorbeelden	UNKNOWN STEP	2026-11-09T08:45:59.7306226Z  ^[[2m^[[90m↓^[[39m^[[22m src/qa/tekeningenAfzuiging.test.ts ^[[2m(^[[22m^[[2m1 test^[[22m^[[2m | ^[[22m^[[33m1 skipped^[[39m^[[2m)^[[22m
+voorbeelden	UNKNOWN STEP	2026-11-09T08:49:37.4974176Z  ^[[32m✓^[[39m src/qa/qaBureau.test.ts ^[[2m(^[[22m^[[2m7 tests^[[22m^[[2m)^[[22m^[[33m 217477^[[2mms^[[22m^[[39m
+voorbeelden	UNKNOWN STEP	2026-11-09T08:49:37.5048687Z    ^[[32m✓^[[39m bureau, mesh ^[[2m(6)^[[22m
+voorbeelden	UNKNOWN STEP	2026-11-09T08:49:37.5058754Z      ^[[33m^[[2m✓^[[22m^[[39m LAGKAPTEN-tafelblad.kcad^[[33m 932^[[2mms^[[22m^[[39m
+voorbeelden	UNKNOWN STEP	2026-11-09T08:49:37.5088192Z      ^[[33m^[[2m✓^[[22m^[[39m geen botsing tussen lades en kast, dicht en helemaal open^[[33m 214432^[[2mms^[[22m^[[39m
+voorbeelden	UNKNOWN STEP	2026-11-09T08:49:37.5117898Z    ^[[32m✓^[[39m bureau, B-rep ^[[2m(1)^[[22m
+voorbeelden	UNKNOWN STEP	2026-11-09T08:49:37.5132417Z      ^[[33m^[[2m✓^[[22m^[[39m alle onderdelen exact^[[33m 1823^[[2mms^[[22m^[[39m
+voorbeelden	UNKNOWN STEP	2026-11-09T08:49:37.8039531Z  ^[[2m^[[90m↓^[[39m^[[22m src/qa/stlAfzuiging.test.ts ^[[2m(^[[22m^[[2m1 test^[[22m^[[2m | ^[[22m^[[33m1 skipped^[[39m^[[2m)^[[22m
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:20.0293014Z  ^[[32m✓^[[39m src/qa/overlapBoxAfzuiging.test.ts ^[[2m(^[[22m^[[2m1 test^[[22m^[[2m)^[[22m^[[33m 41872^[[2mms^[[22m^[[39m
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:20.0351865Z    ^[[32m✓^[[39m afzuiging, voedingsbox exact ^[[2m(1)^[[22m
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:20.0352535Z      ^[[33m^[[2m✓^[[22m^[[39m geen onderdeel deelt volume met de box (exacte kernel)^[[33m 41869^[[2mms^[[22m^[[39m
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4653898Z ^[[90mstderr^[[2m | src/qa/qaTrein.test.ts^[[2m > ^[[22m^[[2mkabeldoos, assemblage^[[2m > ^[[22m^[[2mniets botst
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4655102Z ^[[22m^[[39mBVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4656038Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4657015Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4657844Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4658428Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4659022Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4659595Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4660164Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4660730Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4661309Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4661875Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4662444Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4663014Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4663592Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4664163Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4665318Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4665889Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4666457Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4667285Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4667849Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4668418Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4668981Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4669544Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4670118Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4670691Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4671258Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4671870Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4672435Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4673003Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4673567Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4674155Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4674718Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4675299Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4675872Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4676443Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4677018Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4677656Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4678125Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4678595Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4679091Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4679579Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4680056Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4680540Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4681036Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4681525Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4681997Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4682474Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4682971Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4683461Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4683956Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4684452Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4684952Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4685775Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4686300Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4686833Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4687555Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4688215Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4688734Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4689267Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4689804Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4690331Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4690856Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4691379Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4691901Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4692440Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4693033Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4693552Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4694062Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4694566Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4695083Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4695601Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4696129Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4696645Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4697344Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4697871Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4698394Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4698910Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4699442Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4699962Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4700502Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4701036Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4701562Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4702089Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4702616Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4703141Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4703648Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4704156Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4704683Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4705228Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4705754Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4706485Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4706998Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4707736Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4708303Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4709054Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4709617Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4710181Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4710745Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4711322Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4711893Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4712463Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4713030Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4713596Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4714166Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4714736Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4715299Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4715871Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4716442Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4717014Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4718027Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4718596Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4719158Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4719732Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4720306Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4720869Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4721433Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4721995Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4722562Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4723135Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4723696Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4724264Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4724830Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4725399Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4725962Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4726525Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4727211Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4727782Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4728474Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4729044Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4729611Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4730177Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4730860Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4731425Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4731991Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4732561Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4733127Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4733693Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4734321Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4734888Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4735457Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4736025Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4736593Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4737266Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4737751Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4738228Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4738783Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4739262Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4739737Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4740213Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4740695Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4741169Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4741641Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4742137Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4742631Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4743123Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4743619Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4744114Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4744605Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4745100Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4745595Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4746080Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4746572Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4747170Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4747660Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4748148Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4748770Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4749257Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4749745Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4750234Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4750816Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4751314Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4751803Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4752295Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4752791Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4753285Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4753542Z 
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4754182Z  ^[[32m✓^[[39m src/qa/qaTrein.test.ts ^[[2m(^[[22m^[[2m7 tests^[[22m^[[2m | ^[[22m^[[33m1 skipped^[[39m^[[2m)^[[22m^[[33m 295396^[[2mms^[[22m^[[39m
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4754784Z    ^[[32m✓^[[39m kabeldoos, onderdelen (mesh) ^[[2m(4)^[[22m
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4755229Z      ^[[33m^[[2m✓^[[22m^[[39m Bordje-PCB.kcad bouwt^[[33m 634^[[2mms^[[22m^[[39m
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4755815Z      ^[[33m^[[2m✓^[[22m^[[39m Kabeldoos-bak.kcad bouwt^[[33m 22890^[[2mms^[[22m^[[39m
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4756299Z      ^[[33m^[[2m✓^[[22m^[[39m Kabeldoos-deksel.kcad bouwt^[[33m 2286^[[2mms^[[22m^[[39m
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4756710Z    ^[[32m✓^[[39m kabeldoos, B-rep ^[[2m(2)^[[22m
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4757345Z      ^[[33m^[[2m✓^[[22m^[[39m de geprinte delen exact, zelfde volume als de mesh^[[33m 25917^[[2mms^[[22m^[[39m
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4757824Z    ^[[32m✓^[[39m kabeldoos, assemblage ^[[2m(1)^[[22m
+voorbeelden	UNKNOWN STEP	2026-11-09T08:50:55.4758237Z      ^[[33m^[[2m✓^[[22m^[[39m niets botst^[[33m 243662^[[2mms^[[22m^[[39m
+voorbeelden	UNKNOWN STEP	2026-11-09T08:55:49.4237507Z  ^[[32m✓^[[39m src/qa/qaAfzuiging.test.ts ^[[2m(^[[22m^[[2m38 tests^[[22m^[[2m)^[[22m^[[33m 589698^[[2mms^[[22m^[[39m
+voorbeelden	UNKNOWN STEP	2026-11-09T08:55:49.4238206Z    ^[[32m✓^[[39m afzuiging, onderdelen (mesh) ^[[2m(30)^[[22m
+voorbeelden	UNKNOWN STEP	2026-11-09T08:55:49.4238718Z      ^[[33m^[[2m✓^[[22m^[[39m Adapterklem.kcad is één body^[[33m 370^[[2mms^[[22m^[[39m
+voorbeelden	UNKNOWN STEP	2026-11-09T08:55:49.4239288Z      ^[[33m^[[2m✓^[[22m^[[39m Adapterprint-knop.kcad is één body^[[33m 472^[[2mms^[[22m^[[39m
+voorbeelden	UNKNOWN STEP	2026-11-09T08:55:49.4239876Z      ^[[33m^[[2m✓^[[22m^[[39m Bodemplaat.kcad is één body^[[33m 7866^[[2mms^[[22m^[[39m
+voorbeelden	UNKNOWN STEP	2026-11-09T08:55:49.4240393Z      ^[[33m^[[2m✓^[[22m^[[39m Bovenframe.kcad is één body^[[33m 701^[[2mms^[[22m^[[39m
+voorbeelden	UNKNOWN STEP	2026-11-09T08:55:49.4241108Z      ^[[33m^[[2m✓^[[22m^[[39m Deksel-voedingsbox.kcad is één body^[[33m 513^[[2mms^[[22m^[[39m
+voorbeelden	UNKNOWN STEP	2026-11-09T08:55:49.4241680Z      ^[[33m^[[2m✓^[[22m^[[39m Instroomplaat.kcad is één body^[[33m 1685^[[2mms^[[22m^[[39m
+voorbeelden	UNKNOWN STEP	2026-11-09T08:55:49.4242275Z      ^[[33m^[[2m✓^[[22m^[[39m Interieurfilter-CU20013.kcad is één body^[[33m 852^[[2mms^[[22m^[[39m
+voorbeelden	UNKNOWN STEP	2026-11-09T08:55:49.4242857Z      ^[[33m^[[2m✓^[[22m^[[39m Knopdeksel.kcad is één body^[[33m 410^[[2mms^[[22m^[[39m
+voorbeelden	UNKNOWN STEP	2026-11-09T08:55:49.4243376Z      ^[[33m^[[2m✓^[[22m^[[39m Knophouder.kcad is één body^[[33m 3554^[[2mms^[[22m^[[39m
+voorbeelden	UNKNOWN STEP	2026-11-09T08:55:49.4243907Z      ^[[33m^[[2m✓^[[22m^[[39m M8-inbouwbus.kcad is één body^[[33m 431^[[2mms^[[22m^[[39m
+voorbeelden	UNKNOWN STEP	2026-11-09T08:55:49.4244476Z      ^[[33m^[[2m✓^[[22m^[[39m M8-inbouwstekker.kcad is één body^[[33m 641^[[2mms^[[22m^[[39m
+voorbeelden	UNKNOWN STEP	2026-11-09T08:55:49.4245044Z      ^[[33m^[[2m✓^[[22m^[[39m Romp.kcad is één body^[[33m 1671^[[2mms^[[22m^[[39m
+voorbeelden	UNKNOWN STEP	2026-11-09T08:55:49.4245548Z      ^[[33m^[[2m✓^[[22m^[[39m Rooster-LB.kcad is één body^[[33m 376^[[2mms^[[22m^[[39m
+voorbeelden	UNKNOWN STEP	2026-11-09T08:55:49.4246060Z      ^[[33m^[[2m✓^[[22m^[[39m VIEWE-knop-1.5.kcad is één body^[[33m 551^[[2mms^[[22m^[[39m
+voorbeelden	UNKNOWN STEP	2026-11-09T08:55:49.4246418Z      ^[[33m^[[2m✓^[[22m^[[39m Ventilator-San-Ace-C175.kcad is één body^[[33m 371^[[2mms^[[22m^[[39m
+voorbeelden	UNKNOWN STEP	2026-11-09T08:55:49.4246761Z      ^[[33m^[[2m✓^[[22m^[[39m Voedingsbox.kcad is één body^[[33m 23555^[[2mms^[[22m^[[39m
+voorbeelden	UNKNOWN STEP	2026-11-09T08:55:49.4247749Z      ^[[33m^[[2m✓^[[22m^[[39m Voedingsprint.kcad is één body^[[33m 2245^[[2mms^[[22m^[[39m
+voorbeelden	UNKNOWN STEP	2026-11-09T08:55:49.4248239Z    ^[[32m✓^[[39m afzuiging, assemblage ^[[2m(5)^[[22m
+voorbeelden	UNKNOWN STEP	2026-11-09T08:55:49.4248609Z      ^[[33m^[[2m✓^[[22m^[[39m niets botst^[[33m 115331^[[2mms^[[22m^[[39m
+voorbeelden	UNKNOWN STEP	2026-11-09T08:55:49.4249181Z      ^[[33m^[[2m✓^[[22m^[[39m het filter gaat vrij naar boven uit de module (zonder rooster)^[[33m 170004^[[2mms^[[22m^[[39m
+voorbeelden	UNKNOWN STEP	2026-11-09T08:55:49.4250198Z      ^[[33m^[[2m✓^[[22m^[[39m de klauwen passen bij elke bladdikte van 10 tot 50 mm en reiken voorbij de uitsparing^[[33m 31675^[[2mms^[[22m^[[39m
+voorbeelden	UNKNOWN STEP	2026-11-09T08:55:49.4251145Z      ^[[33m^[[2m✓^[[22m^[[39m de klauwen van de knophouder passen bij elke bladdikte van 10 tot 50 mm en reiken voorbij het gat^[[33m 97802^[[2mms^[[22m^[[39m
+voorbeelden	UNKNOWN STEP	2026-11-09T08:55:49.4252105Z      ^[[33m^[[2m✓^[[22m^[[39m ingetrokken liggen de klauwen binnen de romp (de module zakt door de uitsparing)^[[33m 2528^[[2mms^[[22m^[[39m
+voorbeelden	UNKNOWN STEP	2026-11-09T08:55:49.4252672Z    ^[[32m✓^[[39m afzuiging, luchtdicht ^[[2m(2)^[[22m
+voorbeelden	UNKNOWN STEP	2026-11-09T08:55:49.4253248Z      ^[[33m^[[2m✓^[[22m^[[39m lucht kan alleen langs het rooster in en langs de bodemplaat uit^[[33m 3503^[[2mms^[[22m^[[39m
+voorbeelden	UNKNOWN STEP	2026-11-09T08:55:49.4254003Z      ^[[33m^[[2m✓^[[22m^[[39m tegenproef: zonder de M8-bus lekt het door het gat in de achterwand^[[33m 3443^[[2mms^[[22m^[[39m
+voorbeelden	UNKNOWN STEP	2026-11-09T08:55:49.4254507Z    ^[[32m✓^[[39m afzuiging, B-rep ^[[2m(1)^[[22m
+voorbeelden	UNKNOWN STEP	2026-11-09T08:55:49.4255007Z      ^[[33m^[[2m✓^[[22m^[[39m elk onderdeel exact, zelfde volume als de mesh^[[33m 118049^[[2mms^[[22m^[[39m
+voorbeelden	UNKNOWN STEP	2026-11-09T08:55:49.4275555Z 
+voorbeelden	UNKNOWN STEP	2026-11-09T08:55:49.4278725Z ^[[2m Test Files ^[[22m ^[[1m^[[32m4 passed^[[39m^[[22m^[[2m | ^[[22m^[[33m3 skipped^[[39m^[[90m (7)^[[39m
+voorbeelden	UNKNOWN STEP	2026-11-09T08:55:49.4279464Z ^[[2m      Tests ^[[22m ^[[1m^[[32m52 passed^[[39m^[[22m^[[2m | ^[[22m^[[33m4 skipped^[[39m^[[90m (56)^[[39m
+voorbeelden	UNKNOWN STEP	2026-11-09T08:55:49.4279909Z ^[[2m   Start at ^[[22m 08:45:58
+voorbeelden	UNKNOWN STEP	2026-11-09T08:55:49.4297915Z ^[[2m   Duration ^[[22m 590.54s^[[2m (tests 100%)^[[22m
+voorbeelden	UNKNOWN STEP	2026-11-09T08:55:49.4305944Z 
+voorbeelden	UNKNOWN STEP	2026-11-09T08:55:49.7862029Z Post job cleanup.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:55:49.8721231Z (node:2450) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:55:49.8722018Z (Use `node --trace-deprecation ...` to show where the warning was created)
+voorbeelden	UNKNOWN STEP	2026-11-09T08:55:49.8723548Z Cache hit occurred on the primary key node-cache-Linux-x64-npm-2186e59f6422ca74a4c41788cfc3ccbb9a094adadb743d680f4073231b5fffbb, not saving cache.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:55:49.8849351Z Post job cleanup.
+voorbeelden	UNKNOWN STEP	2026-11-09T08:55:49.9461140Z [command]/usr/bin/git version
+voorbeelden	UNKNOWN STEP	2026-11-09T08:55:49.9487797Z git version 2.56.0
+voorbeelden	UNKNOWN STEP	2026-11-09T08:55:49.9513843Z Temporarily overriding HOME='/home/runner/work/_temp/5935b2c7-510b-4275-ace5-f9a72456e871' before making global git config changes
+voorbeelden	UNKNOWN STEP	2026-11-09T08:55:49.9514712Z Adding repository directory to the temporary git global config as a safe directory
+voorbeelden	UNKNOWN STEP	2026-11-09T08:55:49.9517693Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/Claude/Claude
+voorbeelden	UNKNOWN STEP	2026-11-09T08:55:49.9567910Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+voorbeelden	UNKNOWN STEP	2026-11-09T08:55:49.9592273Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+voorbeelden	UNKNOWN STEP	2026-11-09T08:55:49.9812840Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+voorbeelden	UNKNOWN STEP	2026-11-09T08:55:49.9842781Z http.https://github.com/.extraheader
+voorbeelden	UNKNOWN STEP	2026-11-09T08:55:49.9852070Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+voorbeelden	UNKNOWN STEP	2026-11-09T08:55:49.9888961Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+voorbeelden	UNKNOWN STEP	2026-11-09T08:55:50.0131410Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+voorbeelden	UNKNOWN STEP	2026-11-09T08:55:50.0177936Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+voorbeelden	UNKNOWN STEP	2026-11-09T08:55:50.0547768Z Cleaning up orphan processes
+voorbeelden	UNKNOWN STEP	2026-11-09T08:55:50.1078587Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-node@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

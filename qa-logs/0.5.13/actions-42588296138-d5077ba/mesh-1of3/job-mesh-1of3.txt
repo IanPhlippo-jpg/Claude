@@ -1,0 +1,575 @@
+regression (mesh-1of3)	UNKNOWN STEP	﻿2026-11-09T08:45:48.7680091Z Current runner version: '2.338.2'
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:48.7697239Z ##[group]Runner Image Provisioner
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:48.7697776Z Hosted Compute Agent
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:48.7698186Z Version: 20261028.624
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:48.7698552Z Commit: 54898b74c23fde5556c9b3c3a2290865feef0dfe
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:48.7698989Z Build Date: 2026-10-28T21:51:42Z
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:48.7699421Z Worker ID: {192e1b68-033e-4b83-9c46-aea49e702e1c}
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:48.7699832Z Region: southcentralus
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:48.7700206Z Cloud: Azure
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:48.7700758Z ##[endgroup]
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:48.7701806Z ##[group]Operating System
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:48.7702297Z Ubuntu
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:48.7702632Z 24.04.5
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:48.7702962Z LTS
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:48.7703268Z ##[endgroup]
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:48.7703576Z ##[group]Runner Image
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:48.7703999Z Image: ubuntu-24.04
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:48.7704343Z Version: 20261101.360.1
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:48.7705115Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261101.360/images/ubuntu/Ubuntu2404-Readme.md
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:48.7705947Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261101.360
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:48.7706559Z ##[endgroup]
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:48.7707232Z ##[group]GITHUB_TOKEN Permissions
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:48.7708550Z Contents: read
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:48.7708888Z Metadata: read
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:48.7709280Z Packages: read
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:48.7709622Z ##[endgroup]
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:48.7711277Z Secret source: Actions
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:48.7711874Z Cache mode: write
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:48.7712275Z Prepare workflow directory
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:48.8031137Z Prepare all required actions
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:48.8073698Z Getting action download info
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.0537307Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.1423573Z Download action repository 'actions/setup-node@v4' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.2631076Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.4571051Z Complete job name: regression (mesh-1of3)
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.5064677Z ##[group]Run actions/checkout@v4
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.5065075Z with:
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.5065320Z   repository: IanPhlippo-jpg/Claude
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.5067430Z   token: ***
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.5067659Z   ssh-strict: true
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.5067889Z   ssh-user: git
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.5068124Z   persist-credentials: true
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.5068378Z   clean: true
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.5068615Z   sparse-checkout-cone-mode: true
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.5068890Z   fetch-depth: 1
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.5069116Z   fetch-tags: false
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.5069350Z   show-progress: true
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.5069585Z   lfs: false
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.5069804Z   submodules: false
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.5070042Z   set-safe-directory: true
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.5070315Z   allow-unsafe-pr-checkout: false
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.5070804Z ##[endgroup]
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.6871842Z Syncing repository: IanPhlippo-jpg/Claude
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.6872983Z ##[group]Getting Git version info
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.6873403Z Working directory is '/home/runner/work/Claude/Claude'
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.6873912Z [command]/usr/bin/git version
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.6939199Z git version 2.56.0
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.6957485Z ##[endgroup]
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.6962608Z Temporarily overriding HOME='/home/runner/work/_temp/bf33ba4c-f09b-4627-ba76-90dea338f64f' before making global git config changes
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.6963758Z Adding repository directory to the temporary git global config as a safe directory
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.6966324Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/Claude/Claude
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.7019054Z Deleting the contents of '/home/runner/work/Claude/Claude'
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.7024367Z ##[group]Initializing the repository
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.7027243Z [command]/usr/bin/git init /home/runner/work/Claude/Claude
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.7103468Z hint: Using 'master' as the name for the initial branch. This default branch name
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.7104637Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.7105126Z hint: to use in all of your new repositories, which will suppress this warning,
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.7105503Z hint: call:
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.7106069Z hint:
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.7106342Z hint: 	git config --global init.defaultBranch <name>
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.7106652Z hint:
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.7106945Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.7107413Z hint: 'development'. The just-created branch can be renamed via this command:
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.7107791Z hint:
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.7108004Z hint: 	git branch -m <name>
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.7108244Z hint:
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.7108563Z hint: Disable this message with "git config set advice.defaultBranchName false"
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.7117444Z Initialized empty Git repository in /home/runner/work/Claude/Claude/.git/
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.7126048Z [command]/usr/bin/git remote add origin https://github.com/IanPhlippo-jpg/Claude
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.7167536Z ##[endgroup]
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.7168179Z ##[group]Disabling automatic garbage collection
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.7171055Z [command]/usr/bin/git config --local gc.auto 0
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.7198947Z ##[endgroup]
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.7199729Z ##[group]Setting up auth
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.7204259Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.7233907Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.7526650Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.7563739Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.7747839Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.7782685Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.7962634Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.8031705Z ##[endgroup]
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.8032114Z ##[group]Fetching the repository
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:49.8039701Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +d5077ba162cb75592a10cff4b7049aff81292a64:refs/remotes/origin/claude/fase1-schetser
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:53.4320873Z From https://github.com/IanPhlippo-jpg/Claude
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:53.4322445Z  * [new ref]         d5077ba162cb75592a10cff4b7049aff81292a64 -> origin/claude/fase1-schetser
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:53.4324792Z ##[endgroup]
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:53.4325232Z ##[group]Determining the checkout info
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:53.4325956Z ##[endgroup]
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:53.4332061Z [command]/usr/bin/git sparse-checkout disable
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:53.4384749Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:53.4426166Z ##[group]Checking out the ref
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:53.4429228Z [command]/usr/bin/git checkout --progress --force -B claude/fase1-schetser refs/remotes/origin/claude/fase1-schetser
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:53.7611672Z Switched to a new branch 'claude/fase1-schetser'
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:53.7612975Z branch 'claude/fase1-schetser' set up to track 'origin/claude/fase1-schetser'.
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:53.7637312Z ##[endgroup]
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:53.7682984Z [command]/usr/bin/git log -1 --format=%H
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:53.7713344Z d5077ba162cb75592a10cff4b7049aff81292a64
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:53.8043759Z ##[group]Run actions/setup-node@v4
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:53.8044501Z with:
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:53.8045088Z   node-version-file: .nvmrc
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:53.8045903Z   cache: npm
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:53.8046487Z   always-auth: false
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:53.8047121Z   check-latest: false
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:53.8052540Z   token: ***
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:53.8053126Z ##[endgroup]
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:53.8951687Z Resolved .nvmrc as 22
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:53.8990027Z Found in cache @ /opt/hostedtoolcache/node/22.23.4/x64
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:53.8992681Z (node:2107) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:53.8994272Z (Use `node --trace-deprecation ...` to show where the warning was created)
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:53.8995707Z ##[group]Environment details
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:54.1725531Z node: v22.23.4
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:54.1725916Z npm: 10.9.9
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:54.1726162Z yarn: 1.22.22
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:54.1726805Z ##[endgroup]
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:54.1741047Z [command]/opt/hostedtoolcache/node/22.23.4/x64/bin/npm config get cache
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:54.2504795Z /home/runner/.npm
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:54.4284739Z Cache hit for: node-cache-Linux-x64-npm-2186e59f6422ca74a4c41788cfc3ccbb9a094adadb743d680f4073231b5fffbb
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:54.4354648Z (node:2107) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:55.3982473Z Received 79437596 of 79437596 (100.0%), 94.8 MBs/sec
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:55.3982976Z Cache Size: ~76 MB (79437596 B)
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:55.3999301Z [command]/usr/bin/tar -xf /home/runner/work/_temp/9fc6e37d-8450-414a-8158-cd49c4360c5f/cache.tzst -P -C /home/runner/work/Claude/Claude --use-compress-program unzstd
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:55.5389149Z Cache restored successfully
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:55.5425003Z Cache restored from key: node-cache-Linux-x64-npm-2186e59f6422ca74a4c41788cfc3ccbb9a094adadb743d680f4073231b5fffbb
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:55.5752080Z ##[group]Run npm ci
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:55.5752277Z ^[[36;1mnpm ci^[[0m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:55.5803776Z shell: /usr/bin/bash -e {0}
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:55.5803941Z ##[endgroup]
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:57.1848588Z npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:57.2066901Z npm warn deprecated rimraf@2.6.3: Rimraf versions prior to v4 are no longer supported
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:57.2509813Z npm warn deprecated whatwg-encoding@3.1.1: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:57.2532959Z npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:57.4174360Z npm warn deprecated boolean@3.2.0: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:58.9598809Z 
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:58.9599591Z added 463 packages, and audited 464 packages in 3s
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:58.9599887Z 
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:58.9600039Z 76 packages are looking for funding
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:58.9600307Z   run `npm fund` for details
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:58.9721041Z 
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:58.9723596Z 6 moderate severity vulnerabilities
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:58.9724111Z 
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:58.9735250Z To address issues that do not require attention, run:
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:58.9735863Z   npm audit fix
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:58.9736143Z 
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:58.9736500Z To address all issues (including breaking changes), run:
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:58.9736955Z   npm audit fix --force
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:58.9737223Z 
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:58.9737509Z Run `npm audit` for details.
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:59.0423479Z ##[group]Run npm run build:e2e
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:59.0423673Z ^[[36;1mnpm run build:e2e^[[0m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:59.0445179Z shell: /usr/bin/bash -e {0}
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:59.0445475Z ##[endgroup]
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:59.1074431Z 
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:59.1075105Z > phlippo-cad@0.5.13 build:e2e
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:59.1075532Z > cross-env VITE_TEST_HOOKS=1 vite build
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:59.1075764Z 
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:59.4854715Z ^[[36mvite v7.3.7 ^[[32mbuilding client environment for production...^[[36m^[[39m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:45:59.5229634Z transforming...
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:02.0196810Z ^[[33m[plugin vite:resolve] Module "node:module" has been externalized for browser compatibility, imported by "/home/runner/work/Claude/Claude/node_modules/replicad-opencascadejs/dist/replicad_single.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.^[[39m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:06.6999495Z ^[[32m✓^[[39m 396 modules transformed.
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:07.0960961Z rendering chunks...
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:07.4480540Z computing gzip size...
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:07.8545677Z ^[[2mdist/^[[22m^[[32mindex.html                              ^[[39m^[[1m^[[2m     1.10 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     0.50 kB^[[22m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:07.8546500Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[32mreplicad_single-BfZpIs5k.js      ^[[39m^[[1m^[[2m    59.37 kB^[[22m^[[1m^[[22m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:07.8547358Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[32mreplicad-DSoIoMtf.js             ^[[39m^[[1m^[[2m   372.71 kB^[[22m^[[1m^[[22m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:07.8548057Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[32mrebuild.worker-Depm2qdd.js       ^[[39m^[[1m^[[2m   682.45 kB^[[22m^[[1m^[[22m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:07.8548807Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[32mocct.worker-BZ9P_En5.js          ^[[39m^[[1m^[[2m   705.23 kB^[[22m^[[1m^[[22m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:07.8549610Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[32mreplicad_single-B_1cTsn_.wasm    ^[[39m^[[1m^[[2m22,980.27 kB^[[22m^[[1m^[[22m^[[2m │ gzip: 7,267.29 kB^[[22m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:07.8550599Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[35mindex-DI-Br2Gb.css               ^[[39m^[[1m^[[2m    84.38 kB^[[22m^[[1m^[[22m^[[2m │ gzip:    16.56 kB^[[22m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:07.8551449Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mdesignTableCommands-lCohRNM9.js  ^[[39m^[[1m^[[2m     1.24 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     0.67 kB^[[22m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:07.8552321Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mpreviewWindow-C6HDrO2z.js        ^[[39m^[[1m^[[2m     1.63 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     0.77 kB^[[22m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:07.8553164Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mDrawingTreeBody-yEq0hgMc.js      ^[[39m^[[1m^[[2m     2.17 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     0.99 kB^[[22m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:07.8553987Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mselfTest-BM_jTzUr.js             ^[[39m^[[1m^[[2m     3.24 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.56 kB^[[22m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:07.8554665Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mSensorPM-CdB5MFi5.js             ^[[39m^[[1m^[[2m     3.32 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.15 kB^[[22m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:07.8555158Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mFastenerPM-DM9ZbJ_R.js           ^[[39m^[[1m^[[2m     3.83 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.35 kB^[[22m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:07.8555657Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mStandardPartsPane-ChIVVpOo.js    ^[[39m^[[1m^[[2m     4.08 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.67 kB^[[22m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:07.8556369Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mdesignStudy-B0x5oIR8.js          ^[[39m^[[1m^[[2m     4.11 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.56 kB^[[22m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:07.8556863Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mAnalysisPM2-B99EjSxV.js          ^[[39m^[[1m^[[2m     5.51 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.78 kB^[[22m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:07.8557360Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mconfigureDialog-CGH73XBP.js      ^[[39m^[[1m^[[2m     5.54 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.13 kB^[[22m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:07.8557857Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mrenderDialogs-BBLs_Age.js        ^[[39m^[[1m^[[2m     5.93 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.76 kB^[[22m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:07.8558580Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36msheetExport-aXgZ7K0g.js          ^[[39m^[[1m^[[2m     5.97 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.75 kB^[[22m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:07.8559067Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mPlanePM-2KO1wjDG.js              ^[[39m^[[1m^[[2m     6.01 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.67 kB^[[22m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:07.8559678Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mSectionViewPM-CiKr0y85.js        ^[[39m^[[1m^[[2m     6.30 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.96 kB^[[22m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:07.8560173Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mViewPane-CtsuAfW5.js             ^[[39m^[[1m^[[2m     6.46 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.93 kB^[[22m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:07.8560792Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36massemblyDialogs-Dqa5UrPy.js      ^[[39m^[[1m^[[2m     6.53 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.14 kB^[[22m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:07.8561292Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mAssemblyTab-DLxhjy5N.js          ^[[39m^[[1m^[[2m     7.11 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.97 kB^[[22m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:07.8561787Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mAutoTolerancePM-B44EXwr9.js      ^[[39m^[[1m^[[2m     7.34 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.99 kB^[[22m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:07.8562290Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mSheetDialogs-BVAIZN1j.js         ^[[39m^[[1m^[[2m     7.57 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.14 kB^[[22m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:07.8562787Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mDrawingTabs-bHcr-1Cj.js          ^[[39m^[[1m^[[2m     8.08 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.93 kB^[[22m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:07.8563280Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mSketch3DPM-s3hfxRLb.js           ^[[39m^[[1m^[[2m     8.57 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     3.05 kB^[[22m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:07.8563779Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mRefGeomPM-BB8GmIuO.js            ^[[39m^[[1m^[[2m     8.60 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.39 kB^[[22m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:07.8564269Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mequations-Dkckq8Qd.js            ^[[39m^[[1m^[[2m     9.21 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.98 kB^[[22m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:07.8564768Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mConfigurationPanel-BE2xxggT.js   ^[[39m^[[1m^[[2m     9.32 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.73 kB^[[22m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:07.8565283Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mappearanceDialog-KPV4J_p2.js     ^[[39m^[[1m^[[2m     9.61 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     3.08 kB^[[22m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:07.8565787Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mDrawingExtras-CmYlFr4l.js        ^[[39m^[[1m^[[2m    10.05 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     3.50 kB^[[22m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:07.8566294Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mAssemblyTreeBody-DRFqRJ_d.js     ^[[39m^[[1m^[[2m    10.19 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     3.12 kB^[[22m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:07.8566799Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mDraftAnalysisPM-BXYONtFs.js      ^[[39m^[[1m^[[2m    10.92 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.59 kB^[[22m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:07.8567302Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mevaluateDialogs-BAoyg5Yl.js      ^[[39m^[[1m^[[2m    11.43 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     3.33 kB^[[22m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:07.8567807Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mAppearancesPane-CdHbt9ST.js      ^[[39m^[[1m^[[2m    11.68 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     4.04 kB^[[22m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:07.8568311Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mtreeDialogs-CmcsTc-F.js          ^[[39m^[[1m^[[2m    12.44 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     3.91 kB^[[22m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:07.8568807Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mmaterialDialog-CBe7E-BR.js       ^[[39m^[[1m^[[2m    13.03 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     3.93 kB^[[22m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:07.8569303Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mcustomize-BAW-IeCN.js            ^[[39m^[[1m^[[2m    14.87 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     4.28 kB^[[22m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:07.8569788Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mevaluate-BK19191F.js             ^[[39m^[[1m^[[2m    16.23 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     5.25 kB^[[22m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:07.8570271Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mdialogs-6-HiS38x.js              ^[[39m^[[1m^[[2m    24.07 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     6.85 kB^[[22m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:07.8571035Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mevaluateDialogs2-CTc7FgZL.js     ^[[39m^[[1m^[[2m    25.05 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     6.63 kB^[[22m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:07.8571667Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mMotionTimeline-BEi-sG0-.js       ^[[39m^[[1m^[[2m    26.56 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     6.92 kB^[[22m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:07.8572166Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mAssemblyPM-C96c0yA-.js           ^[[39m^[[1m^[[2m    27.46 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     6.51 kB^[[22m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:07.8572757Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mDrawingSheetView-CNsV7ZPX.js     ^[[39m^[[1m^[[2m    51.45 kB^[[22m^[[1m^[[22m^[[2m │ gzip:    16.72 kB^[[22m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:07.8573251Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36moptions-rtbRoky3.js              ^[[39m^[[1m^[[2m    52.93 kB^[[22m^[[1m^[[22m^[[2m │ gzip:    14.29 kB^[[22m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:07.8573738Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mDrawingPM-BswQHqiU.js            ^[[39m^[[1m^[[2m    53.70 kB^[[22m^[[1m^[[22m^[[2m │ gzip:    11.21 kB^[[22m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:07.8574217Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mcsg-DUo1x2C3.js                  ^[[39m^[[1m^[[2m   105.39 kB^[[22m^[[1m^[[22m^[[2m │ gzip:    32.47 kB^[[22m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:07.8574695Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mreact-BgaH_3CY.js                ^[[39m^[[1m^[[2m   223.35 kB^[[22m^[[1m^[[22m^[[2m │ gzip:    69.70 kB^[[22m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:07.8575185Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mPropertyPanel-BUIYdWna.js        ^[[39m^[[1m^[[2m   314.55 kB^[[22m^[[1m^[[22m^[[2m │ gzip:    56.43 kB^[[22m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:07.8575681Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mkernel-Br-ya2kZ.js               ^[[39m^[[1m^[[2m   525.90 kB^[[22m^[[1m^[[22m^[[2m │ gzip:   182.46 kB^[[22m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:07.8576160Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mthree-CCz4rHc3.js                ^[[39m^[[1m^[[2m   728.92 kB^[[22m^[[1m^[[22m^[[2m │ gzip:   197.58 kB^[[22m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:07.8576635Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mindex-Cemu-VVJ.js                ^[[39m^[[1m^[[2m   784.23 kB^[[22m^[[1m^[[22m^[[2m │ gzip:   221.49 kB^[[22m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:07.8576954Z ^[[32m✓ built in 8.35s^[[39m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:08.0337229Z ##[group]Run npx playwright install --with-deps chromium
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:08.0337627Z ^[[36;1mnpx playwright install --with-deps chromium^[[0m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:08.0357488Z shell: /usr/bin/bash -e {0}
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:08.0357707Z ##[endgroup]
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:08.5535475Z Installing dependencies...
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:08.5579045Z Switching to root user to install dependencies...
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:08.6254527Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:08.6599054Z Hit:2 http://azure.archive.ubuntu.com/ubuntu noble InRelease
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:08.6602421Z Get:6 https://packages.microsoft.com/ubuntu/24.04/prod noble InRelease [3600 B]
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:08.6737610Z Get:3 http://azure.archive.ubuntu.com/ubuntu noble-updates InRelease [126 kB]
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:08.6867670Z Get:4 http://azure.archive.ubuntu.com/ubuntu noble-backports InRelease [126 kB]
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:08.7281819Z Get:5 http://azure.archive.ubuntu.com/ubuntu noble-security InRelease [126 kB]
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:08.7574289Z Get:7 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 Packages [1425 kB]
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:08.7808205Z Get:8 http://azure.archive.ubuntu.com/ubuntu noble-updates/main Translation-en [313 kB]
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:08.7851987Z Get:9 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 Packages [1711 kB]
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:08.7997325Z Get:15 https://packages.microsoft.com/ubuntu/24.04/prod noble/main arm64 Packages [675 kB]
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:08.8056522Z Get:10 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe Translation-en [344 kB]
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:08.8083008Z Get:16 https://packages.microsoft.com/ubuntu/24.04/prod noble/main amd64 Packages [743 kB]
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:08.8392684Z Get:11 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted amd64 Packages [1839 kB]
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:08.8456419Z Get:12 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted Translation-en [420 kB]
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:08.8651997Z Get:13 http://azure.archive.ubuntu.com/ubuntu noble-updates/multiverse amd64 Packages [50.7 kB]
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:08.8750842Z Get:14 http://azure.archive.ubuntu.com/ubuntu noble-updates/multiverse Translation-en [14.3 kB]
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:08.8842333Z Get:17 http://azure.archive.ubuntu.com/ubuntu noble-security/main amd64 Packages [1157 kB]
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:08.8947523Z Get:18 http://azure.archive.ubuntu.com/ubuntu noble-security/main Translation-en [234 kB]
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:08.9791601Z Get:19 http://azure.archive.ubuntu.com/ubuntu noble-security/universe amd64 Packages [1228 kB]
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:09.0079272Z Get:20 http://azure.archive.ubuntu.com/ubuntu noble-security/universe Translation-en [248 kB]
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:09.0159500Z Get:21 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted amd64 Packages [1721 kB]
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:09.0362936Z Get:22 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted Translation-en [394 kB]
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:09.0563878Z Get:23 http://azure.archive.ubuntu.com/ubuntu noble-security/multiverse amd64 Packages [45.4 kB]
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:09.0564720Z Get:24 http://azure.archive.ubuntu.com/ubuntu noble-security/multiverse Translation-en [12.4 kB]
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:11.7897901Z Fetched 13.0 MB in 1s (13.1 MB/s)
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.4981111Z Reading package lists...
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.5236842Z Reading package lists...
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.7048403Z Building dependency tree...
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.7053020Z Reading state information...
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.8252140Z libasound2t64 is already the newest version (1.2.11-1ubuntu0.3).
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.8252701Z libasound2t64 set to manually installed.
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.8253178Z libatk-bridge2.0-0t64 is already the newest version (2.52.0-1build1).
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.8253678Z libatk-bridge2.0-0t64 set to manually installed.
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.8254177Z libatk1.0-0t64 is already the newest version (2.52.0-1build1).
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.8254610Z libatk1.0-0t64 set to manually installed.
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.8255577Z libatspi2.0-0t64 is already the newest version (2.52.0-1build1).
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.8255912Z libatspi2.0-0t64 set to manually installed.
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.8256231Z libcairo2 is already the newest version (1.18.0-3build1).
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.8256476Z libcairo2 set to manually installed.
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.8256695Z libcups2t64 is already the newest version (2.4.7-1.2ubuntu7.14).
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.8256906Z libcups2t64 set to manually installed.
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.8257125Z libdbus-1-3 is already the newest version (1.14.10-4ubuntu4.1).
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.8257337Z libdbus-1-3 set to manually installed.
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.8257600Z libdrm2 is already the newest version (2.4.125-1ubuntu0.1~24.04.2).
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.8257927Z libdrm2 set to manually installed.
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.8258140Z libgbm1 is already the newest version (25.2.8-0ubuntu0.24.04.4).
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.8258341Z libgbm1 set to manually installed.
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.8258559Z libglib2.0-0t64 is already the newest version (2.80.0-6ubuntu3.10).
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.8258780Z libglib2.0-0t64 set to manually installed.
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.8259002Z libnspr4 is already the newest version (2:4.35-1.1build1).
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.8259203Z libnspr4 set to manually installed.
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.8259487Z libnss3 is already the newest version (2:3.98-1ubuntu0.3).
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.8259681Z libnss3 set to manually installed.
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.8259895Z libpango-1.0-0 is already the newest version (1.52.1+ds-1build1).
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.8260107Z libpango-1.0-0 set to manually installed.
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.8260324Z libx11-6 is already the newest version (2:1.8.7-1ubuntu0.1).
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.8260712Z libx11-6 set to manually installed.
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.8260908Z libxcb1 is already the newest version (1.15-1ubuntu2).
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.8261149Z libxcb1 set to manually installed.
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.8261470Z libxcomposite1 is already the newest version (1:0.4.5-1build3).
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.8261803Z libxcomposite1 set to manually installed.
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.8262139Z libxdamage1 is already the newest version (1:1.1.6-1build1).
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.8262481Z libxdamage1 set to manually installed.
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.8262808Z libxext6 is already the newest version (2:1.3.4-1build2).
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.8263104Z libxext6 set to manually installed.
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.8263423Z libxfixes3 is already the newest version (1:6.0.0-2build1).
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.8263715Z libxfixes3 set to manually installed.
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.8263925Z libxkbcommon0 is already the newest version (1.6.0-1build1).
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.8264257Z libxkbcommon0 set to manually installed.
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.8264468Z libxrandr2 is already the newest version (2:1.5.2-2build1).
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.8264669Z libxrandr2 set to manually installed.
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.8264910Z xvfb is already the newest version (2:21.1.12-1ubuntu1.9).
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.8265354Z fonts-noto-color-emoji is already the newest version (2.047-0ubuntu0.24.04.1).
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.8265824Z libfontconfig1 is already the newest version (2.15.0-1.1ubuntu2).
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.8266180Z libfontconfig1 set to manually installed.
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.8266431Z libfreetype6 is already the newest version (2.13.2+dfsg-1ubuntu0.2).
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.8266650Z libfreetype6 set to manually installed.
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.8266867Z fonts-liberation is already the newest version (1:2.1.5-3).
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.8267078Z fonts-liberation set to manually installed.
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.8267296Z The following additional packages will be installed:
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.8267554Z   xfonts-encodings xfonts-utils
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.8267780Z Recommended packages:
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.8268015Z   fonts-ipafont-mincho fonts-tlwg-loma
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.8410504Z The following NEW packages will be installed:
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.8411105Z   fonts-freefont-ttf fonts-ipafont-gothic fonts-tlwg-loma-otf fonts-unifont
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.8414996Z   fonts-wqy-zenhei xfonts-cyrillic xfonts-encodings xfonts-scalable
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.8415401Z   xfonts-utils
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.8584048Z 0 upgraded, 9 newly installed, 0 to remove and 27 not upgraded.
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.8584470Z Need to get 21.1 MB of archives.
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.8584836Z After this operation, 79.5 MB of additional disk space will be used.
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.8585239Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.9279884Z Get:2 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-ipafont-gothic all 00303-21ubuntu1 [3513 kB]
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:12.9869145Z Get:3 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 fonts-freefont-ttf all 20211204+svn4273-2 [5641 kB]
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:13.0721573Z Get:4 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-tlwg-loma-otf all 1:0.7.3-1 [107 kB]
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:13.1009815Z Get:5 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-unifont all 1:15.1.01-1build1 [2993 kB]
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:13.1582336Z Get:6 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-wqy-zenhei all 0.9.45-8 [7472 kB]
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:13.2502275Z Get:7 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 xfonts-encodings all 1:1.0.5-0ubuntu2 [578 kB]
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:13.2804516Z Get:8 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 xfonts-utils amd64 1:7.7+6build3 [94.4 kB]
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:13.3088159Z Get:9 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 xfonts-cyrillic all 1:1.0.5+nmu1 [384 kB]
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:13.3386259Z Get:10 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 xfonts-scalable all 1:1.0.3-1.3 [304 kB]
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:13.5362502Z Fetched 21.1 MB in 0s (42.9 MB/s)
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:13.5544119Z Selecting previously unselected package fonts-ipafont-gothic.
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:13.5738027Z (Reading database ... 
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:13.5738254Z (Reading database ... 5%
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:13.5738653Z (Reading database ... 10%
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:13.5738833Z (Reading database ... 15%
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:13.5738981Z (Reading database ... 20%
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:13.5739124Z (Reading database ... 25%
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:13.5739290Z (Reading database ... 30%
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:13.5739427Z (Reading database ... 35%
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:13.5739561Z (Reading database ... 40%
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:13.5739697Z (Reading database ... 45%
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:13.5757723Z (Reading database ... 50%
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:13.5776953Z (Reading database ... 55%
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:13.7448739Z (Reading database ... 60%
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:13.9060872Z (Reading database ... 65%
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:14.1126565Z (Reading database ... 70%
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:14.3021977Z (Reading database ... 75%
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:14.4563545Z (Reading database ... 80%
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:14.6613671Z (Reading database ... 85%
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:14.8540610Z (Reading database ... 90%
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:15.0151149Z (Reading database ... 95%
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:15.0151488Z (Reading database ... 100%
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:15.0151863Z (Reading database ... 215960 files and directories currently installed.)
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:15.0189241Z Preparing to unpack .../0-fonts-ipafont-gothic_00303-21ubuntu1_all.deb ...
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:15.0278683Z Unpacking fonts-ipafont-gothic (00303-21ubuntu1) ...
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:15.2464480Z Selecting previously unselected package fonts-freefont-ttf.
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:15.2572791Z Preparing to unpack .../1-fonts-freefont-ttf_20211204+svn4273-2_all.deb ...
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:15.2579300Z Unpacking fonts-freefont-ttf (20211204+svn4273-2) ...
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:15.3701668Z Selecting previously unselected package fonts-tlwg-loma-otf.
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:15.3808753Z Preparing to unpack .../2-fonts-tlwg-loma-otf_1%3a0.7.3-1_all.deb ...
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:15.3814964Z Unpacking fonts-tlwg-loma-otf (1:0.7.3-1) ...
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:15.4019930Z Selecting previously unselected package fonts-unifont.
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:15.4126380Z Preparing to unpack .../3-fonts-unifont_1%3a15.1.01-1build1_all.deb ...
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:15.4131961Z Unpacking fonts-unifont (1:15.1.01-1build1) ...
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:15.6207604Z Selecting previously unselected package fonts-wqy-zenhei.
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:15.6313637Z Preparing to unpack .../4-fonts-wqy-zenhei_0.9.45-8_all.deb ...
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:15.6403298Z Unpacking fonts-wqy-zenhei (0.9.45-8) ...
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:16.0890854Z Selecting previously unselected package xfonts-encodings.
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:16.0997890Z Preparing to unpack .../5-xfonts-encodings_1%3a1.0.5-0ubuntu2_all.deb ...
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:16.1003898Z Unpacking xfonts-encodings (1:1.0.5-0ubuntu2) ...
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:16.1254422Z Selecting previously unselected package xfonts-utils.
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:16.1360037Z Preparing to unpack .../6-xfonts-utils_1%3a7.7+6build3_amd64.deb ...
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:16.1366650Z Unpacking xfonts-utils (1:7.7+6build3) ...
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:16.1666914Z Selecting previously unselected package xfonts-cyrillic.
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:16.1773621Z Preparing to unpack .../7-xfonts-cyrillic_1%3a1.0.5+nmu1_all.deb ...
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:16.1781287Z Unpacking xfonts-cyrillic (1:1.0.5+nmu1) ...
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:16.2109819Z Selecting previously unselected package xfonts-scalable.
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:16.2219018Z Preparing to unpack .../8-xfonts-scalable_1%3a1.0.3-1.3_all.deb ...
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:16.2226741Z Unpacking xfonts-scalable (1:1.0.3-1.3) ...
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:16.2739163Z Setting up fonts-wqy-zenhei (0.9.45-8) ...
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:16.2834943Z Setting up fonts-freefont-ttf (20211204+svn4273-2) ...
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:16.2850101Z Setting up fonts-tlwg-loma-otf (1:0.7.3-1) ...
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:16.2865786Z Setting up xfonts-encodings (1:1.0.5-0ubuntu2) ...
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:16.2881558Z Setting up fonts-ipafont-gothic (00303-21ubuntu1) ...
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:16.2930839Z update-alternatives: using /usr/share/fonts/opentype/ipafont-gothic/ipag.ttf to provide /usr/share/fonts/truetype/fonts-japanese-gothic.ttf (fonts-japanese-gothic.ttf) in auto mode
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:16.2944790Z Setting up fonts-unifont (1:15.1.01-1build1) ...
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:16.2960992Z Setting up xfonts-utils (1:7.7+6build3) ...
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:16.2994680Z Setting up xfonts-cyrillic (1:1.0.5+nmu1) ...
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:16.3218457Z Setting up xfonts-scalable (1:1.0.3-1.3) ...
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:16.3425910Z Processing triggers for man-db (2.12.0-4build2) ...
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:16.3441717Z Not building database; man-db/auto-update is not 'true'.
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:16.3453181Z Processing triggers for fontconfig (2.15.0-1.1ubuntu2) ...
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:16.8464086Z 
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:16.8464646Z Running kernel seems to be up-to-date.
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:16.8464847Z 
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:16.8464938Z No services need to be restarted.
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:16.8465044Z 
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:16.8465417Z No containers need to be restarted.
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:16.8465522Z 
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:16.8465620Z No user sessions are running outdated binaries.
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:16.8465732Z 
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:16.8465884Z No VM guests are running outdated hypervisor (qemu) binaries on this host.
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:17.6036423Z Downloading Chromium 141.0.7390.37 (playwright build v1194) from https://cdn.playwright.dev/dbazure/download/playwright/builds/chromium/1194/chromium-linux.zip
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:17.7585302Z |                                                                                |   0% of 173.9 MiB
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:17.8665522Z |■■■■■■■■                                                                        |  10% of 173.9 MiB
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:17.9047787Z |■■■■■■■■■■■■■■■■                                                                |  20% of 173.9 MiB
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:17.9438061Z |■■■■■■■■■■■■■■■■■■■■■■■■                                                        |  30% of 173.9 MiB
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:17.9924081Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                                |  40% of 173.9 MiB
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:18.0430775Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                        |  50% of 173.9 MiB
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:18.0970186Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                |  60% of 173.9 MiB
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:18.1471817Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                        |  70% of 173.9 MiB
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:18.1972440Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                |  80% of 173.9 MiB
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:18.2414415Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■        |  90% of 173.9 MiB
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:18.2864431Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■| 100% of 173.9 MiB
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:20.2652852Z Chromium 141.0.7390.37 (playwright build v1194) downloaded to /home/runner/.cache/ms-playwright/chromium-1194
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:20.2655035Z Downloading FFMPEG playwright build v1011 from https://cdn.playwright.dev/dbazure/download/playwright/builds/ffmpeg/1011/ffmpeg-linux.zip
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:20.3876494Z |                                                                                |   0% of 2.3 MiB
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:20.4124741Z |■■■■■■■■                                                                        |  10% of 2.3 MiB
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:20.4222489Z |■■■■■■■■■■■■■■■■                                                                |  20% of 2.3 MiB
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:20.4291873Z |■■■■■■■■■■■■■■■■■■■■■■■■                                                        |  30% of 2.3 MiB
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:20.4319187Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                                |  40% of 2.3 MiB
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:20.4338424Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                        |  50% of 2.3 MiB
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:20.4395649Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                |  60% of 2.3 MiB
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:20.4410300Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                        |  70% of 2.3 MiB
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:20.4424344Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                |  80% of 2.3 MiB
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:20.4439235Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■        |  90% of 2.3 MiB
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:20.4446818Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■| 100% of 2.3 MiB
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:20.4762976Z FFMPEG playwright build v1011 downloaded to /home/runner/.cache/ms-playwright/ffmpeg-1011
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:20.4765795Z Downloading Chromium Headless Shell 141.0.7390.37 (playwright build v1194) from https://cdn.playwright.dev/dbazure/download/playwright/builds/chromium/1194/chromium-headless-shell-linux.zip
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:20.6006475Z |                                                                                |   0% of 104.3 MiB
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:20.7040145Z |■■■■■■■■                                                                        |  10% of 104.3 MiB
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:20.7354894Z |■■■■■■■■■■■■■■■■                                                                |  20% of 104.3 MiB
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:20.7664543Z |■■■■■■■■■■■■■■■■■■■■■■■■                                                        |  30% of 104.3 MiB
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:20.7878442Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                                |  40% of 104.3 MiB
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:20.8147664Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                        |  50% of 104.3 MiB
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:20.8313842Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                |  60% of 104.3 MiB
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:20.8446064Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                        |  70% of 104.3 MiB
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:20.8589257Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                |  80% of 104.3 MiB
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:20.8761208Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■        |  90% of 104.3 MiB
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:20.8981554Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■| 100% of 104.3 MiB
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:21.9639510Z Chromium Headless Shell 141.0.7390.37 (playwright build v1194) downloaded to /home/runner/.cache/ms-playwright/chromium_headless_shell-1194
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:22.0333825Z ##[group]Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:22.0334154Z ^[[36;1mnpx vite preview --host 127.0.0.1 --port 4173 --strictPort &^[[0m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:22.0334395Z ^[[36;1mnpx wait-on http://127.0.0.1:4173^[[0m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:22.0334666Z ^[[36;1mexport PW_CHROMIUM="$(node -e "console.log(require('playwright').chromium.executablePath())")"^[[0m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:22.0335052Z ^[[36;1mE2E_REPEAT="1" E2E_SCRIPT_TIMEOUT=1500000 E2E_SHARD="1/3" E2E_URL="http://127.0.0.1:4173/" node e2e/run-regression.mjs ^[[0m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:22.0351934Z shell: /usr/bin/bash -e {0}
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:22.0352081Z ##[endgroup]
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:22.3623802Z   ^[[32m➜^[[39m  ^[[1mLocal^[[22m:   ^[[36mhttp://127.0.0.1:^[[1m4173^[[22m/^[[39m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:46:34.1296360Z smoke: exit=0 12s 13/13 checks passed
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:47:38.9224933Z full: exit=0 65s 68/68 checks passed | page errors: []
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:48:21.1159631Z configurations: exit=0 42s 25/25 checks passed
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:49:46.1986658Z multibody: exit=0 85s 14/14 checks passed
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:50:03.6142044Z section: exit=0 17s 9/9 checks passed
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:50:18.6303823Z hem: exit=0 15s 9/9 checks passed
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:50:30.0033459Z ellipsetext: exit=0 11s 6/6 checks passed
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:50:51.0570856Z jogmiter: exit=0 21s 7/7 checks passed
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:51:03.5918483Z faceappearance: exit=0 13s 2/2 checks passed
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:51:13.4903740Z arcslot: exit=0 10s 4/4 checks passed
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:51:24.6590954Z annotations: exit=0 11s 3/3 checks passed
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:51:37.6406152Z viewlayout: exit=0 13s 16/16 checks passed
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:51:51.3141104Z wrap: exit=0 14s 4/4 checks passed
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:52:21.4576106Z dragHandles: exit=0 30s 14/14 checks passed
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:52:37.1438903Z confirmdelete: exit=0 16s 11/11 checks passed
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:52:43.3398318Z rect3: exit=0 6s 8/8 checks passed
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:53:06.9325430Z sheetmetal2: exit=0 24s 7/7 checks passed
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:53:25.1691714Z drawing2: exit=0 18s 13/13 checks passed
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:53:44.4936939Z drawingfix: exit=0 19s 16/16 checks passed
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:54:18.5361959Z asmoptions: exit=0 34s 19/19 passed
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:54:47.6259118Z dialogopts: exit=0 29s 16/16 passed
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:54:59.3735914Z blockf: exit=0 12s 6/6 passed
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:55:32.1872096Z qa1: exit=0 33s 27/27 passed
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:56:05.5606546Z qa4: exit=0 33s 14/14 passed
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:56:25.2528108Z ga2: exit=0 20s 16/16 passed
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:57:32.2704606Z ge: exit=0 67s 59/59 passed
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:58:07.9813822Z gh: exit=0 36s 29/29 passed
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T08:58:24.4882862Z step: exit=0 17s 11/11 checks passed
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:00:42.8779509Z pmsweep: exit=0 138s 54/54 checks passed
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:00:59.8173495Z facenames: exit=0 17s 10/10 checks passed
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:01:35.8410120Z videos56: exit=0 36s 18/18 checks passed
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:01:56.0131632Z reorder: exit=0 20s 10/10 passed
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:02.7232944Z quickstart: exit=0 67s 9/9 passed
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:20.5719834Z designtable: exit=0 18s 15/15 checks passed
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:37.4750843Z magnify: exit=0 17s 12/12 checks passed
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:37.4751294Z DONE 35/35 green, 0 optional step(s) skipped
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:37.4751554Z log: e2e-out/regression-0.5.13-shard1of3.txt
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:42.4834290Z ##[group]Run git diff --exit-code
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:42.4834491Z ^[[36;1mgit diff --exit-code^[[0m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:42.4850300Z shell: /usr/bin/bash -e {0}
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:42.4850613Z ##[endgroup]
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:42.4981967Z ##[group]Run actions/upload-artifact@v4
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:42.4982127Z with:
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:42.4982253Z   name: e2e-regression-log-mesh-1of3
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:42.4982450Z   path: e2e-out/regression-*.txt
+regression (mesh-1of3)	UNKNOWN STEP	e2e-out/*-output.txt
+regression (mesh-1of3)	UNKNOWN STEP	
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:42.4982631Z   if-no-files-found: error
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:42.4982772Z   compression-level: 6
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:42.4982894Z   overwrite: false
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:42.4983021Z   include-hidden-files: false
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:42.4983159Z ##[endgroup]
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:42.6047274Z (node:7599) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:42.6047862Z (Use `node --trace-deprecation ...` to show where the warning was created)
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:42.6095757Z With the provided path, there will be 1 file uploaded
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:42.6106782Z Artifact name is valid!
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:42.6107220Z Root directory input is valid!
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:42.9109706Z Beginning upload of artifact content to blob storage
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:42.9242562Z (node:7599) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:43.0655086Z Uploaded bytes 790
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:43.1047201Z Finished uploading artifact content to blob storage!
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:43.1047690Z SHA256 digest of uploaded artifact zip is e1d683d3c1751c1215a856c2095352a5658b6340d2d43332eb10da17c7b42e45
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:43.1048022Z Finalizing artifact upload
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:43.5280664Z Artifact e2e-regression-log-mesh-1of3.zip successfully finalized. Artifact ID 13660419324
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:43.5281394Z Artifact e2e-regression-log-mesh-1of3 has been successfully uploaded! Final size is 790 bytes. Artifact ID is 13660419324
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:43.5282034Z Artifact download URL: https://github.com/IanPhlippo-jpg/Claude/actions/runs/42588296138/artifacts/13660419324
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:43.5425572Z ##[group]Run actions/upload-artifact@v4
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:43.5425750Z with:
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:43.5425874Z   name: e2e-screenshots-mesh-1of3
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:43.5426046Z   path: /tmp/phlippo-e2e
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:43.5426189Z   if-no-files-found: ignore
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:43.5426328Z   compression-level: 6
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:43.5426457Z   overwrite: false
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:43.5426584Z   include-hidden-files: false
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:43.5426722Z ##[endgroup]
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:43.6575784Z (node:7612) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:43.6579003Z (Use `node --trace-deprecation ...` to show where the warning was created)
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:43.6852135Z With the provided path, there will be 139 files uploaded
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:43.6852864Z Artifact name is valid!
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:43.6853172Z Root directory input is valid!
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:43.9900838Z Beginning upload of artifact content to blob storage
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:44.2106098Z (node:7612) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:44.6628208Z Uploaded bytes 8388608
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:44.8613567Z Uploaded bytes 16777216
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:45.1187263Z Uploaded bytes 25165824
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:45.3099384Z Uploaded bytes 33326820
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:45.3501729Z Finished uploading artifact content to blob storage!
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:45.3503680Z SHA256 digest of uploaded artifact zip is 1c6aef099c4ee8cbafefe60423e974deab095d50512c004a9a1d0ad25d9a56e0
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:45.3505314Z Finalizing artifact upload
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:45.8529194Z Artifact e2e-screenshots-mesh-1of3.zip successfully finalized. Artifact ID 13660992660
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:45.8531274Z Artifact e2e-screenshots-mesh-1of3 has been successfully uploaded! Final size is 33326820 bytes. Artifact ID is 13660992660
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:45.8541460Z Artifact download URL: https://github.com/IanPhlippo-jpg/Claude/actions/runs/42588296138/artifacts/13660992660
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:45.8848459Z ##[group]Run echo "regression=success clean=success"
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:45.8848849Z ^[[36;1mecho "regression=success clean=success"^[[0m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:45.8849186Z ^[[36;1mtest "success" = success && test "success" = success^[[0m
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:45.8872078Z shell: /usr/bin/bash -e {0}
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:45.8872326Z ##[endgroup]
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:45.8913604Z regression=success clean=success
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:45.8968364Z Post job cleanup.
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:45.9828995Z (node:7626) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:45.9829471Z (Use `node --trace-deprecation ...` to show where the warning was created)
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:45.9831371Z Cache hit occurred on the primary key node-cache-Linux-x64-npm-2186e59f6422ca74a4c41788cfc3ccbb9a094adadb743d680f4073231b5fffbb, not saving cache.
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:45.9936709Z Post job cleanup.
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:46.0506946Z [command]/usr/bin/git version
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:46.0542551Z git version 2.56.0
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:46.0569238Z Temporarily overriding HOME='/home/runner/work/_temp/6a1b50ca-620d-49a8-8210-2e9662237848' before making global git config changes
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:46.0570575Z Adding repository directory to the temporary git global config as a safe directory
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:46.0572254Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/Claude/Claude
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:46.0606409Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:46.0637791Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:46.0854369Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:46.0880250Z http.https://github.com/.extraheader
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:46.0888024Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:46.0922915Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:46.1133770Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:46.1182530Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:46.1501036Z Cleaning up orphan processes
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:46.1696936Z Terminate orphan process: pid (3044) (npm exec vite preview --host 127.0.0.1 --port 4173 --strictPort)
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:46.1712234Z Terminate orphan process: pid (3069) (sh)
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:46.1726397Z Terminate orphan process: pid (3071) (node)
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:46.1756058Z Terminate orphan process: pid (3086) (esbuild)
+regression (mesh-1of3)	UNKNOWN STEP	2026-11-09T09:03:46.1835856Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-node@v4, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

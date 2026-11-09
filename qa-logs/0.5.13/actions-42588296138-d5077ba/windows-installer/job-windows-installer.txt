@@ -1,0 +1,323 @@
+windows-installer	UNKNOWN STEP	﻿2026-11-09T08:45:51.6647549Z Current runner version: '2.338.2'
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:51.6944568Z ##[group]Runner Image Provisioner
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:51.6946150Z Hosted Compute Agent
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:51.6947163Z Version: 20261103.629
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:51.6948619Z Commit: 15dbd9ccb5dbf34fae002b6ed1a2670f52df37bc
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:51.6949362Z Build Date: 2026-11-03T17:26:59Z
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:51.6950052Z Worker ID: {685d4b29-eb06-47ee-922d-1dfc128730c7}
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:51.6950767Z Region: westus
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:51.6951330Z Cloud: Azure
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:51.6951853Z ##[endgroup]
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:51.6953604Z ##[group]Operating System
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:51.6954303Z Microsoft Windows Server 2025
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:51.6954892Z 10.0.26100
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:51.6955367Z Datacenter
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:51.6955881Z ##[endgroup]
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:51.6956440Z ##[group]Runner Image
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:51.6957049Z Image: windows-2025-vs2026
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:51.6957618Z Version: 20261103.298.1
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:51.6959085Z Included Software: https://github.com/actions/runner-images/blob/win25-vs2026/20261103.298/images/windows/Windows2025-VS2026-Readme.md
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:51.6961501Z Image Release: https://github.com/actions/runner-images/releases/tag/win25-vs2026%2F20261103.298
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:51.6963533Z ##[endgroup]
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:51.6965309Z ##[group]GITHUB_TOKEN Permissions
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:51.6967314Z Contents: read
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:51.6967914Z Metadata: read
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:51.6968433Z Packages: read
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:51.6968984Z ##[endgroup]
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:51.6971133Z Secret source: Actions
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:51.6972114Z Cache mode: write
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:51.6972821Z Prepare workflow directory
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:51.8399767Z Prepare all required actions
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:51.8447516Z Getting action download info
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:52.1772439Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:52.3485640Z Download action repository 'actions/setup-node@v4' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:52.5889169Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:53.3335639Z Complete job name: windows-installer
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:54.0982330Z ##[group]Run actions/checkout@v4
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:54.0983383Z with:
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:54.0983829Z   repository: IanPhlippo-jpg/Claude
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:54.0987825Z   token: ***
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:54.0988246Z   ssh-strict: true
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:54.0988646Z   ssh-user: git
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:54.0989072Z   persist-credentials: true
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:54.0989523Z   clean: true
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:54.0989929Z   sparse-checkout-cone-mode: true
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:54.0990874Z   fetch-depth: 1
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:54.0991320Z   fetch-tags: false
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:54.0991743Z   show-progress: true
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:54.0992169Z   lfs: false
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:54.0992556Z   submodules: false
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:54.0992969Z   set-safe-directory: true
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:54.0993433Z   allow-unsafe-pr-checkout: false
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:54.0994355Z ##[endgroup]
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:54.2889611Z Syncing repository: IanPhlippo-jpg/Claude
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:54.2891390Z ##[group]Getting Git version info
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:54.2892065Z Working directory is 'D:\a\Claude\Claude'
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:54.3826081Z [command]"C:\Program Files\Git\bin\git.exe" version
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:54.7038194Z git version 2.56.0.windows.4
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:54.7091906Z ##[endgroup]
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:54.7126672Z Temporarily overriding HOME='D:\a\_temp\e9296364-53e6-4856-8f32-d5ccae48d390' before making global git config changes
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:54.7128822Z Adding repository directory to the temporary git global config as a safe directory
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:54.7130844Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\Claude\Claude
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:54.7750137Z Deleting the contents of 'D:\a\Claude\Claude'
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:54.7756324Z ##[group]Initializing the repository
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:54.7764718Z [command]"C:\Program Files\Git\bin\git.exe" init D:\a\Claude\Claude
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:54.8583433Z Initialized empty Git repository in D:/a/Claude/Claude/.git/
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:54.8632443Z [command]"C:\Program Files\Git\bin\git.exe" remote add origin https://github.com/IanPhlippo-jpg/Claude
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:54.9291232Z ##[endgroup]
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:54.9292030Z ##[group]Disabling automatic garbage collection
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:54.9299760Z [command]"C:\Program Files\Git\bin\git.exe" config --local gc.auto 0
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:54.9671122Z ##[endgroup]
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:54.9671837Z ##[group]Setting up auth
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:54.9683376Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:55.0062094Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:56.3765055Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:56.4135261Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:57.0144573Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:57.0520058Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:57.6113232Z [command]"C:\Program Files\Git\bin\git.exe" config --local http.https://github.com/.extraheader "AUTHORIZATION: basic ***"
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:57.6499283Z ##[endgroup]
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:57.6499867Z ##[group]Fetching the repository
+windows-installer	UNKNOWN STEP	2026-11-09T08:45:57.6511353Z [command]"C:\Program Files\Git\bin\git.exe" -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +d5077ba162cb75592a10cff4b7049aff81292a64:refs/remotes/origin/claude/fase1-schetser
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:02.1765435Z From https://github.com/IanPhlippo-jpg/Claude
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:02.1766276Z  * [new ref]         d5077ba162cb75592a10cff4b7049aff81292a64 -> origin/claude/fase1-schetser
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:02.1807915Z ##[endgroup]
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:02.1809193Z ##[group]Determining the checkout info
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:02.1812002Z ##[endgroup]
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:02.1826604Z [command]"C:\Program Files\Git\bin\git.exe" sparse-checkout disable
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:02.2399049Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset-all extensions.worktreeConfig
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:02.2792071Z ##[group]Checking out the ref
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:02.2806040Z [command]"C:\Program Files\Git\bin\git.exe" checkout --progress --force -B claude/fase1-schetser refs/remotes/origin/claude/fase1-schetser
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:03.3417503Z Updating files:  99% (1467/1471)
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:03.3418142Z Updating files: 100% (1471/1471)
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:03.3418531Z Updating files: 100% (1471/1471), done.
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:03.3612680Z Switched to a new branch 'claude/fase1-schetser'
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:03.3744275Z branch 'claude/fase1-schetser' set up to track 'origin/claude/fase1-schetser'.
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:03.3876350Z ##[endgroup]
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:03.4625582Z [command]"C:\Program Files\Git\bin\git.exe" log -1 --format=%H
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:03.4982058Z d5077ba162cb75592a10cff4b7049aff81292a64
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:03.5641041Z ##[group]Run actions/setup-node@v4
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:03.5645034Z with:
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:03.5645677Z   node-version-file: .nvmrc
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:03.5647221Z   cache: npm
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:03.5647595Z   always-auth: false
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:03.5648366Z   check-latest: false
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:03.5651649Z   token: ***
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:03.5651869Z ##[endgroup]
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:03.7581579Z Resolved .nvmrc as 22
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:03.7805108Z Found in cache @ C:\hostedtoolcache\windows\node\22.23.4\x64
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:03.7811596Z (node:5760) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:03.7812384Z (Use `node --trace-deprecation ...` to show where the warning was created)
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:03.7815508Z ##[group]Environment details
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:07.9790803Z node: v22.23.4
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:07.9791061Z npm: 10.9.9
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:07.9791440Z yarn: 1.22.22
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:07.9791980Z ##[endgroup]
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:08.0644225Z [command]C:\Windows\system32\cmd.exe /D /S /C "C:\hostedtoolcache\windows\node\22.23.4\x64\npm.cmd config get cache"
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:08.5722750Z C:\npm\cache
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:09.0228516Z Cache hit for: node-cache-Windows-x64-npm-120fdb208d2755ced71755cfa56d9ff6a01df957442804f01facd4794ea5cbec
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:09.0358913Z (node:5760) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:10.3187837Z Received 33554432 of 79011081 (42.5%), 31.9 MBs/sec
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:10.6319610Z Received 79011081 of 79011081 (100.0%), 56.9 MBs/sec
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:10.6322931Z Cache Size: ~75 MB (79011081 B)
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:10.6397156Z [command]"C:\Program Files\Git\usr\bin\tar.exe" -xf D:/a/_temp/d553f2dc-33cd-4c1e-a066-bf8fc3434571/cache.tzst -P -C D:/a/Claude/Claude --force-local --use-compress-program "zstd -d"
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:13.3902565Z Cache restored successfully
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:13.3965404Z Cache restored from key: node-cache-Windows-x64-npm-120fdb208d2755ced71755cfa56d9ff6a01df957442804f01facd4794ea5cbec
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:13.4308175Z ##[group]Run npm ci
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:13.4308475Z ^[[36;1mnpm ci^[[0m
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:13.4331403Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:13.4331814Z ##[endgroup]
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:18.4662262Z npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:18.6062429Z npm warn deprecated rimraf@2.6.3: Rimraf versions prior to v4 are no longer supported
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:18.7581890Z npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:18.7922388Z npm warn deprecated whatwg-encoding@3.1.1: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:19.7866605Z npm warn deprecated boolean@3.2.0: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:29.1325720Z 
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:29.1326600Z added 462 packages, and audited 463 packages in 15s
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:29.1327081Z 
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:29.1327362Z 76 packages are looking for funding
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:29.1327860Z   run `npm fund` for details
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:29.1546535Z 
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:29.1547218Z 6 moderate severity vulnerabilities
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:29.1547996Z 
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:29.1548465Z To address issues that do not require attention, run:
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:29.1549038Z   npm audit fix
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:29.1549236Z 
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:29.1549599Z To address all issues (including breaking changes), run:
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:29.1550177Z   npm audit fix --force
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:29.1550417Z 
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:29.1550600Z Run `npm audit` for details.
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:30.5997047Z ##[group]Run npm run build
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:30.5997371Z ^[[36;1mnpm run build^[[0m
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:30.6013532Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:30.6013941Z ##[endgroup]
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:31.1961869Z 
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:31.1962253Z > phlippo-cad@0.5.13 build
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:31.1963068Z > tsc -b && vite build
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:31.1963323Z 
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:57.2942758Z ^[[36mvite v7.3.7 ^[[32mbuilding client environment for production...^[[36m^[[39m
+windows-installer	UNKNOWN STEP	2026-11-09T08:46:57.3844180Z transforming...
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:03.3353615Z ^[[33m[plugin vite:resolve] Module "node:module" has been externalized for browser compatibility, imported by "D:/a/Claude/Claude/node_modules/replicad-opencascadejs/dist/replicad_single.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.^[[39m
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:08.8006875Z ^[[32m✓^[[39m 396 modules transformed.
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:09.4312902Z rendering chunks...
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:09.8662107Z computing gzip size...
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:10.7693937Z ^[[2mdist/^[[22m^[[32mindex.html                              ^[[39m^[[1m^[[2m     1.11 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     0.52 kB^[[22m
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:10.7695436Z ^[[2mdist/^[[22m^[[32massets/replicad_single-BfZpIs5k.js      ^[[39m^[[1m^[[2m    59.37 kB^[[22m^[[1m^[[22m
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:10.7696767Z ^[[2mdist/^[[22m^[[32massets/replicad-DSoIoMtf.js             ^[[39m^[[1m^[[2m   372.71 kB^[[22m^[[1m^[[22m
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:10.7698356Z ^[[2mdist/^[[22m^[[32massets/rebuild.worker-Depm2qdd.js       ^[[39m^[[1m^[[2m   682.45 kB^[[22m^[[1m^[[22m
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:10.7700001Z ^[[2mdist/^[[22m^[[32massets/occt.worker-BZ9P_En5.js          ^[[39m^[[1m^[[2m   705.23 kB^[[22m^[[1m^[[22m
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:10.7701507Z ^[[2mdist/^[[22m^[[32massets/replicad_single-B_1cTsn_.wasm    ^[[39m^[[1m^[[2m22,980.27 kB^[[22m^[[1m^[[22m^[[2m │ gzip: 7,267.29 kB^[[22m
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:10.7703190Z ^[[2mdist/^[[22m^[[35massets/index-DI-Br2Gb.css               ^[[39m^[[1m^[[2m    84.38 kB^[[22m^[[1m^[[22m^[[2m │ gzip:    16.56 kB^[[22m
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:10.7705021Z ^[[2mdist/^[[22m^[[36massets/designTableCommands-6NIUOjKO.js  ^[[39m^[[1m^[[2m     1.24 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     0.67 kB^[[22m
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:10.7706913Z ^[[2mdist/^[[22m^[[36massets/previewWindow-Cl8yJfw9.js        ^[[39m^[[1m^[[2m     1.63 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     0.78 kB^[[22m
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:10.7708852Z ^[[2mdist/^[[22m^[[36massets/DrawingTreeBody-oQU73HHW.js      ^[[39m^[[1m^[[2m     2.17 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     0.99 kB^[[22m
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:10.7711058Z ^[[2mdist/^[[22m^[[36massets/selfTest-DIKaMlNP.js             ^[[39m^[[1m^[[2m     3.24 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.56 kB^[[22m
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:10.7712780Z ^[[2mdist/^[[22m^[[36massets/SensorPM-aiUuIfPc.js             ^[[39m^[[1m^[[2m     3.32 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.15 kB^[[22m
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:10.7714516Z ^[[2mdist/^[[22m^[[36massets/FastenerPM-xSUW8IHc.js           ^[[39m^[[1m^[[2m     3.83 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.35 kB^[[22m
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:10.7716342Z ^[[2mdist/^[[22m^[[36massets/StandardPartsPane-B09EruXs.js    ^[[39m^[[1m^[[2m     4.08 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.67 kB^[[22m
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:10.7718246Z ^[[2mdist/^[[22m^[[36massets/designStudy-jtUfvk9U.js          ^[[39m^[[1m^[[2m     4.11 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.56 kB^[[22m
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:10.7720093Z ^[[2mdist/^[[22m^[[36massets/AnalysisPM2-Bh3SB3EH.js          ^[[39m^[[1m^[[2m     5.51 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.78 kB^[[22m
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:10.7722011Z ^[[2mdist/^[[22m^[[36massets/configureDialog-CsfyCu7F.js      ^[[39m^[[1m^[[2m     5.54 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.13 kB^[[22m
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:10.7723881Z ^[[2mdist/^[[22m^[[36massets/renderDialogs-RRlLCcII.js        ^[[39m^[[1m^[[2m     5.93 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.76 kB^[[22m
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:10.7725217Z ^[[2mdist/^[[22m^[[36massets/sheetExport-ChYrSSbH.js          ^[[39m^[[1m^[[2m     5.97 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.75 kB^[[22m
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:10.7729979Z ^[[2mdist/^[[22m^[[36massets/PlanePM-CM3Lt8Ct.js              ^[[39m^[[1m^[[2m     6.01 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.67 kB^[[22m
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:10.7731439Z ^[[2mdist/^[[22m^[[36massets/SectionViewPM-ClvpkgUL.js        ^[[39m^[[1m^[[2m     6.31 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.96 kB^[[22m
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:10.7733090Z ^[[2mdist/^[[22m^[[36massets/ViewPane-B1kexApO.js             ^[[39m^[[1m^[[2m     6.47 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.94 kB^[[22m
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:10.7735040Z ^[[2mdist/^[[22m^[[36massets/assemblyDialogs-BXu8PNMs.js      ^[[39m^[[1m^[[2m     6.53 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.14 kB^[[22m
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:10.7736619Z ^[[2mdist/^[[22m^[[36massets/AssemblyTab-i1k_N8pQ.js          ^[[39m^[[1m^[[2m     7.11 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.97 kB^[[22m
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:10.7738239Z ^[[2mdist/^[[22m^[[36massets/AutoTolerancePM-DOHzWAHD.js      ^[[39m^[[1m^[[2m     7.34 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.00 kB^[[22m
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:10.7739967Z ^[[2mdist/^[[22m^[[36massets/SheetDialogs-C8z3vbx_.js         ^[[39m^[[1m^[[2m     7.57 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.14 kB^[[22m
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:10.7741790Z ^[[2mdist/^[[22m^[[36massets/DrawingTabs-DgFdHzVv.js          ^[[39m^[[1m^[[2m     8.08 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.93 kB^[[22m
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:10.7743003Z ^[[2mdist/^[[22m^[[36massets/Sketch3DPM-CkG-Fw7u.js           ^[[39m^[[1m^[[2m     8.57 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     3.05 kB^[[22m
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:10.7743946Z ^[[2mdist/^[[22m^[[36massets/RefGeomPM-D6yotK8g.js            ^[[39m^[[1m^[[2m     8.60 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.39 kB^[[22m
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:10.7744884Z ^[[2mdist/^[[22m^[[36massets/equations-T0aHCnSO.js            ^[[39m^[[1m^[[2m     9.21 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.98 kB^[[22m
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:10.7745818Z ^[[2mdist/^[[22m^[[36massets/ConfigurationPanel-CEECYOgW.js   ^[[39m^[[1m^[[2m     9.32 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.73 kB^[[22m
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:10.7746797Z ^[[2mdist/^[[22m^[[36massets/appearanceDialog-DUv1y1iz.js     ^[[39m^[[1m^[[2m     9.61 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     3.08 kB^[[22m
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:10.7748187Z ^[[2mdist/^[[22m^[[36massets/DrawingExtras-DlLxUS-_.js        ^[[39m^[[1m^[[2m    10.05 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     3.50 kB^[[22m
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:10.7749209Z ^[[2mdist/^[[22m^[[36massets/AssemblyTreeBody-BlbGmuaI.js     ^[[39m^[[1m^[[2m    10.19 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     3.12 kB^[[22m
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:10.7750196Z ^[[2mdist/^[[22m^[[36massets/DraftAnalysisPM-CzjjP4hC.js      ^[[39m^[[1m^[[2m    10.92 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.59 kB^[[22m
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:10.7751144Z ^[[2mdist/^[[22m^[[36massets/evaluateDialogs-DHb-HnNJ.js      ^[[39m^[[1m^[[2m    11.43 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     3.34 kB^[[22m
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:10.7752093Z ^[[2mdist/^[[22m^[[36massets/AppearancesPane-lL9DBTdJ.js      ^[[39m^[[1m^[[2m    11.68 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     4.04 kB^[[22m
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:10.7753030Z ^[[2mdist/^[[22m^[[36massets/treeDialogs-QNPsUIDH.js          ^[[39m^[[1m^[[2m    12.44 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     3.91 kB^[[22m
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:10.7753957Z ^[[2mdist/^[[22m^[[36massets/materialDialog-C2bfYv6x.js       ^[[39m^[[1m^[[2m    13.03 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     3.93 kB^[[22m
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:10.7754878Z ^[[2mdist/^[[22m^[[36massets/customize-DELHn7MO.js            ^[[39m^[[1m^[[2m    14.87 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     4.28 kB^[[22m
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:10.7755777Z ^[[2mdist/^[[22m^[[36massets/evaluate-DYDIWJJM.js             ^[[39m^[[1m^[[2m    16.23 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     5.25 kB^[[22m
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:10.7756683Z ^[[2mdist/^[[22m^[[36massets/dialogs-CXctiL60.js              ^[[39m^[[1m^[[2m    24.07 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     6.85 kB^[[22m
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:10.7757594Z ^[[2mdist/^[[22m^[[36massets/evaluateDialogs2-DgeOaSvX.js     ^[[39m^[[1m^[[2m    25.05 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     6.63 kB^[[22m
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:10.7758549Z ^[[2mdist/^[[22m^[[36massets/MotionTimeline-matxVOcV.js       ^[[39m^[[1m^[[2m    26.56 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     6.92 kB^[[22m
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:10.7759464Z ^[[2mdist/^[[22m^[[36massets/AssemblyPM-96TNXbh0.js           ^[[39m^[[1m^[[2m    27.45 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     6.51 kB^[[22m
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:10.7761163Z ^[[2mdist/^[[22m^[[36massets/DrawingSheetView-BATqaSAg.js     ^[[39m^[[1m^[[2m    51.45 kB^[[22m^[[1m^[[22m^[[2m │ gzip:    16.72 kB^[[22m
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:10.7762186Z ^[[2mdist/^[[22m^[[36massets/options-DW83-KuS.js              ^[[39m^[[1m^[[2m    52.93 kB^[[22m^[[1m^[[22m^[[2m │ gzip:    14.29 kB^[[22m
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:10.7763098Z ^[[2mdist/^[[22m^[[36massets/DrawingPM-Dopw8kPp.js            ^[[39m^[[1m^[[2m    53.70 kB^[[22m^[[1m^[[22m^[[2m │ gzip:    11.21 kB^[[22m
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:10.7764636Z ^[[2mdist/^[[22m^[[36massets/csg-DUo1x2C3.js                  ^[[39m^[[1m^[[2m   105.39 kB^[[22m^[[1m^[[22m^[[2m │ gzip:    32.47 kB^[[22m
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:10.7765511Z ^[[2mdist/^[[22m^[[36massets/react-BgaH_3CY.js                ^[[39m^[[1m^[[2m   223.35 kB^[[22m^[[1m^[[22m^[[2m │ gzip:    69.70 kB^[[22m
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:10.7766413Z ^[[2mdist/^[[22m^[[36massets/PropertyPanel-CQ8Mx00J.js        ^[[39m^[[1m^[[2m   314.55 kB^[[22m^[[1m^[[22m^[[2m │ gzip:    56.43 kB^[[22m
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:10.7767753Z ^[[2mdist/^[[22m^[[36massets/kernel-Br-ya2kZ.js               ^[[39m^[[1m^[[2m   525.90 kB^[[22m^[[1m^[[22m^[[2m │ gzip:   182.46 kB^[[22m
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:10.7768727Z ^[[2mdist/^[[22m^[[36massets/three-CCz4rHc3.js                ^[[39m^[[1m^[[2m   728.92 kB^[[22m^[[1m^[[22m^[[2m │ gzip:   197.58 kB^[[22m
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:10.7769630Z ^[[2mdist/^[[22m^[[36massets/index-CL57qDMB.js                ^[[39m^[[1m^[[2m   784.34 kB^[[22m^[[1m^[[22m^[[2m │ gzip:   221.53 kB^[[22m
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:10.7770219Z ^[[32m✓ built in 13.45s^[[39m
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:10.9041972Z ##[group]Run npx electron-builder --win nsis --x64 --publish never --config.directories.output=release
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:10.9042780Z ^[[36;1mnpx electron-builder --win nsis --x64 --publish never --config.directories.output=release^[[0m
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:10.9058877Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:10.9059282Z ##[endgroup]
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:12.5852844Z   • electron-builder  version=26.18.1 os=10.0.26100
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:12.5912972Z   • loaded configuration  file=package.json ("build" field)
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:13.5703765Z   • executing @electron/rebuild  electronVersion=44.9.2 arch=x64 buildFromSource=false workspaceRoot=D:\a\Claude\Claude projectDir=./ appDir=./
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:13.5706592Z   • installing native dependencies  arch=x64
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:13.8527693Z   • completed installing native dependencies
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:13.8589117Z   • packaging       platform=win32 arch=x64 electron=44.9.2 appOutDir=release\win-unpacked
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:14.0605089Z   • downloaded      label=electron progress=100%
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:19.0352424Z   • downloaded electron zip extracted successfully  output=D:\a\Claude\Claude\release\win-unpacked
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:19.0589115Z   • searching for node modules  pm=npm searchDir=D:\a\Claude\Claude
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:25.0999410Z   • updating asar integrity executable resource  executablePath=release\win-unpacked\Phlippo CAD.exe
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:25.1385514Z   • executing @electron/fuses  electronPath=release\win-unpacked\Phlippo CAD.exe
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:26.0266997Z   • downloaded      label=icons-bundle.tar.gz progress=100%
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:27.2541912Z   • no code signing certificate configured, signing is skipped  path=release\win-unpacked\Phlippo CAD.exe
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:27.2566918Z   • building        target=nsis file=release\Phlippo CAD-Setup-0.5.13.exe archs=x64 oneClick=false perMachine=false
+windows-installer	UNKNOWN STEP	2026-11-09T08:47:27.2902967Z   • downloaded      label=7zip-win-x64.tar.gz progress=100%
+windows-installer	UNKNOWN STEP	2026-11-09T08:48:16.2015049Z   • downloaded      label=nsis-3.0.4.1.7z progress=100%
+windows-installer	UNKNOWN STEP	2026-11-09T08:48:17.1278130Z   • no code signing certificate configured, signing is skipped  path=C:\Users\RUNNER~1\AppData\Local\Temp\t-x6gqSP\elevate-staging-1\resources\elevate.exe
+windows-installer	UNKNOWN STEP	2026-11-09T08:48:17.6225121Z   • downloaded      label=nsis-resources-3.4.1.7z progress=100%
+windows-installer	UNKNOWN STEP	2026-11-09T08:48:19.1544276Z   • no code signing certificate configured, signing is skipped  path=release\Phlippo CAD-Setup-0.5.13.__uninstaller.exe
+windows-installer	UNKNOWN STEP	2026-11-09T08:48:20.8829356Z   • no code signing certificate configured, signing is skipped  path=release\Phlippo CAD-Setup-0.5.13.exe
+windows-installer	UNKNOWN STEP	2026-11-09T08:48:20.8834237Z   • building block map  blockMapFile=release\Phlippo CAD-Setup-0.5.13.exe.blockmap
+windows-installer	UNKNOWN STEP	2026-11-09T08:48:26.2806031Z ##[group]Run node tools/sign-report.cjs release
+windows-installer	UNKNOWN STEP	2026-11-09T08:48:26.2806616Z ^[[36;1mnode tools/sign-report.cjs release^[[0m
+windows-installer	UNKNOWN STEP	2026-11-09T08:48:26.2825081Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+windows-installer	UNKNOWN STEP	2026-11-09T08:48:26.2825569Z ##[endgroup]
+windows-installer	UNKNOWN STEP	2026-11-09T08:48:29.0618222Z Phlippo CAD 0.5.13 — Authenticode signatures (2026-11-09T08:48:26.379Z)
+windows-installer	UNKNOWN STEP	2026-11-09T08:48:29.0619557Z The build is not code-signed: there is no certificate. SmartScreen warns at the first start; see README.
+windows-installer	UNKNOWN STEP	2026-11-09T08:48:29.0620349Z 
+windows-installer	UNKNOWN STEP	2026-11-09T08:48:29.0620687Z NotSigned    release\Phlippo CAD-Setup-0.5.13.exe
+windows-installer	UNKNOWN STEP	2026-11-09T08:48:29.0621367Z NotSigned    release\win-unpacked\Phlippo CAD.exe
+windows-installer	UNKNOWN STEP	2026-11-09T08:48:29.0621756Z 
+windows-installer	UNKNOWN STEP	2026-11-09T08:48:29.0917643Z ##[group]Run $v = (Get-Content package.json | ConvertFrom-Json).version
+windows-installer	UNKNOWN STEP	2026-11-09T08:48:29.0918237Z ^[[36;1m$v = (Get-Content package.json | ConvertFrom-Json).version^[[0m
+windows-installer	UNKNOWN STEP	2026-11-09T08:48:29.0918728Z ^[[36;1m$setup = Join-Path (Resolve-Path release) "Phlippo CAD-Setup-$v.exe"^[[0m
+windows-installer	UNKNOWN STEP	2026-11-09T08:48:29.0919295Z ^[[36;1m$p = Start-Process -FilePath $setup -ArgumentList '/S' -Wait -PassThru^[[0m
+windows-installer	UNKNOWN STEP	2026-11-09T08:48:29.0920114Z ^[[36;1m"installer exit $($p.ExitCode)"^[[0m
+windows-installer	UNKNOWN STEP	2026-11-09T08:48:29.0920520Z ^[[36;1mTest-Path "$env:LOCALAPPDATA\Programs\Phlippo CAD\Phlippo CAD.exe"^[[0m
+windows-installer	UNKNOWN STEP	2026-11-09T08:48:29.1538223Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+windows-installer	UNKNOWN STEP	2026-11-09T08:48:29.1539180Z ##[endgroup]
+windows-installer	UNKNOWN STEP	2026-11-09T08:48:44.7571550Z installer exit 0
+windows-installer	UNKNOWN STEP	2026-11-09T08:48:44.7595017Z True
+windows-installer	UNKNOWN STEP	2026-11-09T08:48:44.7963489Z ##[group]Run PHLIPPO_SELFTEST_ARGS=--software-gl node e2e/desktop-installed.mjs
+windows-installer	UNKNOWN STEP	2026-11-09T08:48:44.7964181Z ^[[36;1mPHLIPPO_SELFTEST_ARGS=--software-gl node e2e/desktop-installed.mjs^[[0m
+windows-installer	UNKNOWN STEP	2026-11-09T08:48:44.7981354Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+windows-installer	UNKNOWN STEP	2026-11-09T08:48:44.7981815Z ##[endgroup]
+windows-installer	UNKNOWN STEP	2026-11-09T08:49:05.6384202Z 
+windows-installer	UNKNOWN STEP	2026-11-09T08:49:05.6384757Z 21/21 checks passed
+windows-installer	UNKNOWN STEP	2026-11-09T08:49:05.7469419Z ##[group]Run actions/upload-artifact@v4
+windows-installer	UNKNOWN STEP	2026-11-09T08:49:05.7469942Z with:
+windows-installer	UNKNOWN STEP	2026-11-09T08:49:05.7470249Z   name: windows-installer-logs
+windows-installer	UNKNOWN STEP	2026-11-09T08:49:05.7471059Z   path: e2e-out/desktop-installed-*.txt
+windows-installer	UNKNOWN STEP	e2e-out/desktop-*.png
+windows-installer	UNKNOWN STEP	release/signature-*.txt
+windows-installer	UNKNOWN STEP	
+windows-installer	UNKNOWN STEP	2026-11-09T08:49:05.7471819Z   if-no-files-found: error
+windows-installer	UNKNOWN STEP	2026-11-09T08:49:05.7472195Z   compression-level: 6
+windows-installer	UNKNOWN STEP	2026-11-09T08:49:05.7472530Z   overwrite: false
+windows-installer	UNKNOWN STEP	2026-11-09T08:49:05.7473166Z   include-hidden-files: false
+windows-installer	UNKNOWN STEP	2026-11-09T08:49:05.7473551Z ##[endgroup]
+windows-installer	UNKNOWN STEP	2026-11-09T08:49:05.9661189Z (node:5584) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+windows-installer	UNKNOWN STEP	2026-11-09T08:49:05.9663240Z (Use `node --trace-deprecation ...` to show where the warning was created)
+windows-installer	UNKNOWN STEP	2026-11-09T08:49:05.9776777Z Multiple search paths detected. Calculating the least common ancestor of all paths
+windows-installer	UNKNOWN STEP	2026-11-09T08:49:05.9780850Z The least common ancestor is D:\a\Claude\Claude. This will be the root directory of the artifact
+windows-installer	UNKNOWN STEP	2026-11-09T08:49:05.9782127Z With the provided path, there will be 4 files uploaded
+windows-installer	UNKNOWN STEP	2026-11-09T08:49:05.9787189Z Artifact name is valid!
+windows-installer	UNKNOWN STEP	2026-11-09T08:49:05.9789255Z Root directory input is valid!
+windows-installer	UNKNOWN STEP	2026-11-09T08:49:06.3938928Z Beginning upload of artifact content to blob storage
+windows-installer	UNKNOWN STEP	2026-11-09T08:49:06.4360343Z (node:5584) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+windows-installer	UNKNOWN STEP	2026-11-09T08:49:06.9271615Z Uploaded bytes 207775
+windows-installer	UNKNOWN STEP	2026-11-09T08:49:06.9992181Z Finished uploading artifact content to blob storage!
+windows-installer	UNKNOWN STEP	2026-11-09T08:49:06.9993908Z SHA256 digest of uploaded artifact zip is 3775fce3c28d4c3052caa06285afa90f14ddbfad9debff001349b55c794c0476
+windows-installer	UNKNOWN STEP	2026-11-09T08:49:06.9996647Z Finalizing artifact upload
+windows-installer	UNKNOWN STEP	2026-11-09T08:49:07.4278364Z Artifact windows-installer-logs.zip successfully finalized. Artifact ID 13660525886
+windows-installer	UNKNOWN STEP	2026-11-09T08:49:07.4280018Z Artifact windows-installer-logs has been successfully uploaded! Final size is 207775 bytes. Artifact ID is 13660525886
+windows-installer	UNKNOWN STEP	2026-11-09T08:49:07.4293598Z Artifact download URL: https://github.com/IanPhlippo-jpg/Claude/actions/runs/42588296138/artifacts/13660525886
+windows-installer	UNKNOWN STEP	2026-11-09T08:49:07.4714112Z ##[group]Run echo "signature=success install=success installed=success"
+windows-installer	UNKNOWN STEP	2026-11-09T08:49:07.4714716Z ^[[36;1mecho "signature=success install=success installed=success"^[[0m
+windows-installer	UNKNOWN STEP	2026-11-09T08:49:07.4715153Z ^[[36;1mtest "success" = success && test "success" = success^[[0m
+windows-installer	UNKNOWN STEP	2026-11-09T08:49:07.4731175Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+windows-installer	UNKNOWN STEP	2026-11-09T08:49:07.4731579Z ##[endgroup]
+windows-installer	UNKNOWN STEP	2026-11-09T08:49:07.5114976Z signature=success install=success installed=success
+windows-installer	UNKNOWN STEP	2026-11-09T08:49:07.5404720Z Post job cleanup.
+windows-installer	UNKNOWN STEP	2026-11-09T08:49:07.7106926Z (node:3616) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+windows-installer	UNKNOWN STEP	2026-11-09T08:49:07.7108608Z (Use `node --trace-deprecation ...` to show where the warning was created)
+windows-installer	UNKNOWN STEP	2026-11-09T08:49:07.7114279Z Cache hit occurred on the primary key node-cache-Windows-x64-npm-120fdb208d2755ced71755cfa56d9ff6a01df957442804f01facd4794ea5cbec, not saving cache.
+windows-installer	UNKNOWN STEP	2026-11-09T08:49:07.7500642Z Post job cleanup.
+windows-installer	UNKNOWN STEP	2026-11-09T08:49:07.9928448Z [command]"C:\Program Files\Git\bin\git.exe" version
+windows-installer	UNKNOWN STEP	2026-11-09T08:49:08.0316064Z git version 2.56.0.windows.4
+windows-installer	UNKNOWN STEP	2026-11-09T08:49:08.0397103Z Temporarily overriding HOME='D:\a\_temp\00559656-03f2-4b35-b0e7-51f65ae1b56a' before making global git config changes
+windows-installer	UNKNOWN STEP	2026-11-09T08:49:08.0398657Z Adding repository directory to the temporary git global config as a safe directory
+windows-installer	UNKNOWN STEP	2026-11-09T08:49:08.0411433Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\Claude\Claude
+windows-installer	UNKNOWN STEP	2026-11-09T08:49:08.0832096Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+windows-installer	UNKNOWN STEP	2026-11-09T08:49:08.1283728Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+windows-installer	UNKNOWN STEP	2026-11-09T08:49:08.7204050Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+windows-installer	UNKNOWN STEP	2026-11-09T08:49:08.7548988Z http.https://github.com/.extraheader
+windows-installer	UNKNOWN STEP	2026-11-09T08:49:08.7607296Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset-all http.https://github.com/.extraheader
+windows-installer	UNKNOWN STEP	2026-11-09T08:49:08.8037982Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+windows-installer	UNKNOWN STEP	2026-11-09T08:49:09.4165836Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+windows-installer	UNKNOWN STEP	2026-11-09T08:49:09.4581883Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+windows-installer	UNKNOWN STEP	2026-11-09T08:49:10.0810789Z Cleaning up orphan processes
+windows-installer	UNKNOWN STEP	2026-11-09T08:49:10.1492881Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-node@v4, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

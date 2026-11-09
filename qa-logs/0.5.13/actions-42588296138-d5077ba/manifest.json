@@ -1,0 +1,1110 @@
+{
+  "kind": "GitHub Actions run",
+  "ok": true,
+  "run": {
+    "id": 42588296138,
+    "url": "https://github.com/IanPhlippo-jpg/Claude/actions/runs/42588296138",
+    "workflow": "ci",
+    "event": "push",
+    "branch": "claude/fase1-schetser",
+    "commit": "d5077ba162cb75592a10cff4b7049aff81292a64",
+    "status": "completed",
+    "conclusion": "success",
+    "created": "2026-11-09T08:45:45Z",
+    "updated": "2026-11-09T09:46:35Z"
+  },
+  "artifactsDownloaded": false,
+  "jobs": [
+    {
+      "name": "voorbeelden",
+      "id": 129063345700,
+      "conclusion": "success",
+      "started": "2026-11-09T08:45:47Z",
+      "completed": "2026-11-09T08:55:52Z",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/setup-node@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npm ci",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npm run test:voorbeelden -- --testTimeout=1800000",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/setup-node@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ],
+      "log": "voorbeelden/job-voorbeelden.txt"
+    },
+    {
+      "name": "checks",
+      "id": 129063345984,
+      "conclusion": "success",
+      "started": "2026-11-09T08:45:48Z",
+      "completed": "2026-11-09T08:49:29Z",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/setup-node@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npm ci",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npm run typecheck",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npm test",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run node tools/mutation-check.cjs",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run node tools/rename-trademarks.cjs --check && node tools/neutral-comments.cjs --check && node tools/line-budget.cjs",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npm run build",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run node tools/bundle-budget.cjs && node tools/doc-counts.cjs",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run git diff --exit-code",
+          "conclusion": "success"
+        },
+        {
+          "name": "all checks passed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/setup-node@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ],
+      "log": "checks/job-checks.txt",
+      "done": "DONE 4/4 mutation(s) caught, tree unchanged: yes (23 s)"
+    },
+    {
+      "name": "regression (win-release-3of3)",
+      "id": 129063345990,
+      "conclusion": "success",
+      "started": "2026-11-09T08:45:51Z",
+      "completed": "2026-11-09T09:41:36Z",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/setup-node@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npm ci",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npm run build:e2e",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run git diff --exit-code",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/upload-artifact@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "regression passed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/setup-node@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ],
+      "log": "win-release-3of3/job-win-release-3of3.txt",
+      "done": "DONE 35/35 green, 0 optional step(s) skipped"
+    },
+    {
+      "name": "regression (brep)",
+      "id": 129063346026,
+      "conclusion": "success",
+      "started": "2026-11-09T08:45:48Z",
+      "completed": "2026-11-09T09:27:51Z",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/setup-node@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npm ci",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npm run build:e2e",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npx playwright install --with-deps chromium",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run git diff --exit-code",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/upload-artifact@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/upload-artifact@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "regression passed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/setup-node@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ],
+      "log": "brep/job-brep.txt",
+      "done": "DONE 14/14 green, 0 optional step(s) skipped"
+    },
+    {
+      "name": "windows-installer",
+      "id": 129063346027,
+      "conclusion": "success",
+      "started": "2026-11-09T08:45:49Z",
+      "completed": "2026-11-09T08:49:11Z",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/setup-node@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npm ci",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npm run build",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npx electron-builder --win nsis --x64 --publish never --config.directories.output=release",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run node tools/sign-report.cjs release",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run $v = (Get-Content package.json | ConvertFrom-Json).version",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run PHLIPPO_SELFTEST_ARGS=--software-gl node e2e/desktop-installed.mjs",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/upload-artifact@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "windows installer checks passed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/setup-node@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ],
+      "log": "windows-installer/job-windows-installer.txt"
+    },
+    {
+      "name": "desktop",
+      "id": 129063346030,
+      "conclusion": "success",
+      "started": "2026-11-09T08:45:48Z",
+      "completed": "2026-11-09T08:47:38Z",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/setup-node@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npm ci",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npx playwright install-deps chromium",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npm run build",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run PHLIPPO_SOFTWARE_GL=1 xvfb-run -a node e2e/desktop-nohooks.mjs",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run code=0; xvfb-run -a npx electron . --self-test --software-gl --no-sandbox || code=$?",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run PHLIPPO_SOFTWARE_GL=1 PHLIPPO_USER_DATA=\"$(mktemp -d)\" xvfb-run -a node e2e/desktop-restore-autosave.mjs e2e/fixtures/user-part1.json",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run PHLIPPO_SOFTWARE_GL=1 xvfb-run -a node e2e/desktop-recover.mjs",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run git diff --exit-code",
+          "conclusion": "success"
+        },
+        {
+          "name": "desktop checks passed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/setup-node@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ],
+      "log": "desktop/job-desktop.txt"
+    },
+    {
+      "name": "regression (win-mesh-1of3)",
+      "id": 129063346034,
+      "conclusion": "success",
+      "started": "2026-11-09T08:45:48Z",
+      "completed": "2026-11-09T09:31:41Z",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/setup-node@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npm ci",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npm run build:e2e",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run git diff --exit-code",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/upload-artifact@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "regression passed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/setup-node@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ],
+      "log": "win-mesh-1of3/job-win-mesh-1of3.txt",
+      "done": "DONE 35/35 green, 0 optional step(s) skipped"
+    },
+    {
+      "name": "regression (release-3of3)",
+      "id": 129063346052,
+      "conclusion": "success",
+      "started": "2026-11-09T08:45:48Z",
+      "completed": "2026-11-09T09:39:16Z",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/setup-node@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npm ci",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npm run build:e2e",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npx playwright install --with-deps chromium",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run git diff --exit-code",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/upload-artifact@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/upload-artifact@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "regression passed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/setup-node@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ],
+      "log": "release-3of3/job-release-3of3.txt",
+      "done": "DONE 35/35 green, 0 optional step(s) skipped"
+    },
+    {
+      "name": "regression (win-release-1of3)",
+      "id": 129063346105,
+      "conclusion": "success",
+      "started": "2026-11-09T08:45:48Z",
+      "completed": "2026-11-09T09:46:34Z",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/setup-node@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npm ci",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npm run build:e2e",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run git diff --exit-code",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/upload-artifact@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "regression passed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/setup-node@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ],
+      "log": "win-release-1of3/job-win-release-1of3.txt",
+      "done": "DONE 35/35 green, 0 optional step(s) skipped"
+    },
+    {
+      "name": "regression (win-release-2of3)",
+      "id": 129063346117,
+      "conclusion": "success",
+      "started": "2026-11-09T08:45:50Z",
+      "completed": "2026-11-09T09:30:28Z",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/setup-node@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npm ci",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npm run build:e2e",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run git diff --exit-code",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/upload-artifact@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "regression passed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/setup-node@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ],
+      "log": "win-release-2of3/job-win-release-2of3.txt",
+      "done": "DONE 35/35 green, 0 optional step(s) skipped"
+    },
+    {
+      "name": "regression (win-mesh-2of3)",
+      "id": 129063346143,
+      "conclusion": "success",
+      "started": "2026-11-09T08:45:48Z",
+      "completed": "2026-11-09T09:20:40Z",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/setup-node@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npm ci",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npm run build:e2e",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run git diff --exit-code",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/upload-artifact@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "regression passed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/setup-node@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ],
+      "log": "win-mesh-2of3/job-win-mesh-2of3.txt",
+      "done": "DONE 35/35 green, 0 optional step(s) skipped"
+    },
+    {
+      "name": "regression (win-mesh-3of3)",
+      "id": 129063346171,
+      "conclusion": "success",
+      "started": "2026-11-09T08:45:47Z",
+      "completed": "2026-11-09T09:38:41Z",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/setup-node@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npm ci",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npm run build:e2e",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run git diff --exit-code",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/upload-artifact@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "regression passed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/setup-node@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ],
+      "log": "win-mesh-3of3/job-win-mesh-3of3.txt",
+      "done": "DONE 35/35 green, 0 optional step(s) skipped"
+    },
+    {
+      "name": "regression (mesh-3of3)",
+      "id": 129063346183,
+      "conclusion": "success",
+      "started": "2026-11-09T08:45:48Z",
+      "completed": "2026-11-09T09:06:21Z",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/setup-node@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npm ci",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npm run build:e2e",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npx playwright install --with-deps chromium",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run git diff --exit-code",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/upload-artifact@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/upload-artifact@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "regression passed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/setup-node@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ],
+      "log": "mesh-3of3/job-mesh-3of3.txt",
+      "done": "DONE 35/35 green, 0 optional step(s) skipped"
+    },
+    {
+      "name": "regression (mesh-2of3)",
+      "id": 129063346269,
+      "conclusion": "success",
+      "started": "2026-11-09T08:45:48Z",
+      "completed": "2026-11-09T09:08:46Z",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/setup-node@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npm ci",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npm run build:e2e",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npx playwright install --with-deps chromium",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run git diff --exit-code",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/upload-artifact@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/upload-artifact@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "regression passed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/setup-node@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ],
+      "log": "mesh-2of3/job-mesh-2of3.txt",
+      "done": "DONE 35/35 green, 0 optional step(s) skipped"
+    },
+    {
+      "name": "regression (mesh-1of3)",
+      "id": 129063346303,
+      "conclusion": "success",
+      "started": "2026-11-09T08:45:48Z",
+      "completed": "2026-11-09T09:03:48Z",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/setup-node@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npm ci",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npm run build:e2e",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npx playwright install --with-deps chromium",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run git diff --exit-code",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/upload-artifact@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/upload-artifact@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "regression passed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/setup-node@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ],
+      "log": "mesh-1of3/job-mesh-1of3.txt",
+      "done": "DONE 35/35 green, 0 optional step(s) skipped"
+    },
+    {
+      "name": "regression (release-2of3)",
+      "id": 129063346324,
+      "conclusion": "success",
+      "started": "2026-11-09T08:45:48Z",
+      "completed": "2026-11-09T09:06:15Z",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/setup-node@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npm ci",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npm run build:e2e",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npx playwright install --with-deps chromium",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run git diff --exit-code",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/upload-artifact@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/upload-artifact@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "regression passed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/setup-node@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ],
+      "log": "release-2of3/job-release-2of3.txt",
+      "done": "DONE 35/35 green, 0 optional step(s) skipped"
+    },
+    {
+      "name": "regression (release-1of3)",
+      "id": 129063346330,
+      "conclusion": "success",
+      "started": "2026-11-09T08:45:48Z",
+      "completed": "2026-11-09T09:31:32Z",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/setup-node@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npm ci",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npm run build:e2e",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npx playwright install --with-deps chromium",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run git diff --exit-code",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/upload-artifact@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/upload-artifact@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "regression passed",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/setup-node@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@v4",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ],
+      "log": "release-1of3/job-release-1of3.txt",
+      "done": "DONE 35/35 green, 0 optional step(s) skipped"
+    }
+  ],
+  "files": {
+    "brep/job-brep.txt": "1af365f19eeae326f964138853fec6bda6274da43f705a49c75a6cf2015f932b",
+    "checks/job-checks.txt": "59df9d2b46bf91e4195ce3dfe3999c71546ee6698d96f55ffe618de4244f4b25",
+    "desktop/job-desktop.txt": "1b4df6377499b76cd176856fcc4604947f02fad584a0f0a372b2d6e43db714ea",
+    "mesh-1of3/job-mesh-1of3.txt": "f26eaa48ba5059aed7fe455065aeb3d5429b8b958902e6017ce101ffa729609a",
+    "mesh-2of3/job-mesh-2of3.txt": "2319e28167e0866a35811a4d739bb2ba575b7188dcdcf6f6f4e79c239433c15b",
+    "mesh-3of3/job-mesh-3of3.txt": "f2d3e7fe4dd48280e46b3f9a9f9d6090d21f62c6b7f030eb989fed1eb44dd789",
+    "release-1of3/job-release-1of3.txt": "7720f90cc9524fcf74109d9f76211d9c7fba5cbb7c81f034c7152208f7c85385",
+    "release-2of3/job-release-2of3.txt": "3af9c2eace28b29ba0504bf2124012a9ac972a765ade44eb0c55add80c7333ef",
+    "release-3of3/job-release-3of3.txt": "400b2053e08729223e4462175f66af787961f58604e2533a7a4709adc25532fd",
+    "voorbeelden/job-voorbeelden.txt": "eb62a3b170a73b44f0eede8f316ce994cdf400ed58768ed58cda9a09881e5832",
+    "win-mesh-1of3/job-win-mesh-1of3.txt": "73e6560c52f5db84ce4e815b1fe82ef194c81153d4fc3df016518c793a73a1cd",
+    "win-mesh-2of3/job-win-mesh-2of3.txt": "d1cba0aa86ed5eab806fb1ca6f79f0d3a21711ac40e44e0b5c261f4831d3acbc",
+    "win-mesh-3of3/job-win-mesh-3of3.txt": "30e517c0c2c39ce257487208e46445be8f6c25e919901645a678ae7ef17ef17d",
+    "win-release-1of3/job-win-release-1of3.txt": "50f3d0cf6621bb72eb31de9edb8600d55aa3b5ae776445f6e7e3327481d7e851",
+    "win-release-2of3/job-win-release-2of3.txt": "010758efbce5abe6b715c3f105fc91af20e319c30f228433fc0188c3df1a9a3e",
+    "win-release-3of3/job-win-release-3of3.txt": "8ac04717a85d67c85a64ce5cdd712845b269056d281791bf6715206b3a6f5d62",
+    "windows-installer/job-windows-installer.txt": "9f5fa7cb7a30356df3368ace1328e9b5a51c45777111f335d2648000172f97ed"
+  }
+}

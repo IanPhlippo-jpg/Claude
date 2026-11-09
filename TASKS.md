@@ -1150,4 +1150,4 @@ elease; README en docs/04 bijgewerkt
 - [x] B-rep-regressie (14 scripts) en volledige unit-run op de nieuwe kruiscontrole; README-tellingen; docs/30-qa-0.5.12.md
 - [x] F97/F151/F196/F49: installer en packaged self-test op de nieuwe SHA (CI-job windows-installer 21/21 op 7db76a0); ongesigneerd eerlijk vermeld
 - [x] Rest van het register: F134 (sheetMetalOps.ts, rebuild.ts 1909), F137 zelf gemeten (150-228 ms), F112 (Tangent-snap, Name feature on creation), F193; versie 0.5.13, commit en push
-- [~] CI groen op de eind-SHA en het Actions-bewijs in qa-logs/0.5.13
+- [x] CI groen op de eind-SHA (d5077ba, run 42588296138, 17/17) en het Actions-bewijs in qa-logs/0.5.13

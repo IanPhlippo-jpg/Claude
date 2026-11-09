@@ -1,0 +1,10 @@
+$ npm run typecheck
+# exit 0 after 26.3 s
+
+--- stdout ---
+
+> phlippo-cad@0.5.13 typecheck
+> tsc -b
+
+
+--- stderr ---
