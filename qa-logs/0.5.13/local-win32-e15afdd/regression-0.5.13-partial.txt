@@ -1,0 +1,24 @@
+regression 0.5.13 pass default
+commit e15afdd
+platform win32 10.0.26300
+url http://127.0.0.1:4173/
+date 2026-11-09T05:20:55.754Z
+(17 scripts)
+smoke: exit=0 12s 13/13 checks passed
+relations: exit=0 10s 14/14 checks passed
+sketchtools: exit=0 16s 13/13 checks passed
+sketchtools2: exit=0 8s 4/4 checks passed
+slot: exit=0 11s 9/9 checks passed
+arcslot: exit=0 10s 4/4 checks passed
+rect3: exit=0 8s 8/8 checks passed
+sketchcurves: exit=0 14s 13/13 checks passed
+qa1: exit=0 18s 27/27 passed
+qa2: exit=0 17s 18/18 passed
+ellipsetext: exit=0 10s 6/6 checks passed
+corners: exit=0 11s 4/4 checks passed
+dimpm: exit=0 7s 3/3 checks passed
+instant2d: exit=0 8s 8/8 checks passed
+magnify: exit=0 7s 12/12 checks passed
+features: exit=0 74s 66/66 checks passed
+prefs112: exit=0 11s 7/7 checks passed
+DONE 17/17 green, 0 optional step(s) skipped

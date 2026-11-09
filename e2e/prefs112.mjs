@@ -1,7 +1,7 @@
 // QA 0.5.12 F112: two more options of Tools ▸ Options that do something, proved in the app with the mouse.
 // - Sketch ▸ Relations/Snaps ▸ Tangent: a line drawn from outside a circle snaps to the tangent point, the overlay
 //   shows the tangent mark, and the line gets a Tangent relation; with the option off the mark does not come.
-// - Feature Tree ▸ Name feature on creation: OK in the PropertyManager opens the new feature's name for typing.
+// - Feature Tree ▸ Name feature on creation: OK in the Property Panel opens the new feature's name for typing.
 import { chromium } from 'playwright';
 import { mkdirSync } from 'node:fs';
 import { exitCode } from './lib/check.mjs';

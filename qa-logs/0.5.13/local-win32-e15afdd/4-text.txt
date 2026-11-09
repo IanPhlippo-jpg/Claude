@@ -1,0 +1,8 @@
+$ node tools/rename-trademarks.cjs --check && node tools/neutral-comments.cjs --check && node tools/line-budget.cjs
+# exit 1 after 2.1 s
+
+--- stdout ---
+e2e\prefs112.mjs:4: PropertyManager | e ▸ Name feature on creation: OK in the PropertyManager opens the new feature's 
+total 1 dry run
+
+--- stderr ---

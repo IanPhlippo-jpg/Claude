@@ -1,0 +1,114 @@
+{
+  "kind": "local gate",
+  "ok": false,
+  "provenance": {
+    "commit": "e15afdd34a315ec65b416706613349c4c992f547",
+    "branch": "claude/fase1-schetser",
+    "cleanTree": true,
+    "changedFiles": [],
+    "version": "0.5.13",
+    "date": "2026-11-09T05:25:48.259Z",
+    "platform": "win32 10.0.26300 x64",
+    "cpu": "AMD Ryzen 5 5500U with Radeon Graphics          x 12",
+    "memoryGB": 15,
+    "node": "v24.18.0",
+    "npm": "11.16.0",
+    "git": "git version 2.55.0.windows.3",
+    "playwright": "Version 1.56.1"
+  },
+  "sources": {
+    "package-lock.json": "91e61e3207cef6bbf500a0a4c27a67d7e6ed98698932f4f67c9aad5a3db9026d",
+    "git ls-files -s (all tracked files)": "edbab0097a07fe297a99377841efbc479312797b3977c8c8d948fff700ea2028",
+    "trackedFiles": 1444,
+    "fixtures": {
+      "e2e/fixtures/plate-hole.step": "420f89c84c54714c6700899581186a8406fbd76ce688190149540d2376991e45",
+      "e2e/fixtures/user-part1.json": "63e6c546366ade420a78aec866138797e4cae36eef95b4e45e2bb822256e248c"
+    }
+  },
+  "steps": [
+    {
+      "name": "1-typecheck",
+      "cmd": "npm run typecheck",
+      "exit": 0,
+      "seconds": 26.9,
+      "log": "1-typecheck.txt",
+      "sha256": "21b59d9cdaad4054db23d6b65644fb8f241f22438192d4b9d9788db7fb07a47f"
+    },
+    {
+      "name": "2-unit",
+      "cmd": "npx vitest run --reporter=default --reporter=json --outputFile=qa-logs/.vitest.json",
+      "exit": 0,
+      "seconds": 126.1,
+      "log": "2-unit.txt",
+      "sha256": "8d89b443930b52568cbdb7b3226f07cec7c67f903685d8028d5381a690267c72"
+    },
+    {
+      "name": "3-mutation",
+      "cmd": "node tools/mutation-check.cjs",
+      "exit": 0,
+      "seconds": 46.3,
+      "log": "3-mutation.txt",
+      "sha256": "f277abf3f2f38403b5175f1d53ae9fbcf2ae72fd2bf9a6996ec7d5c8827b1847"
+    },
+    {
+      "name": "4-text",
+      "cmd": "node tools/rename-trademarks.cjs --check && node tools/neutral-comments.cjs --check && node tools/line-budget.cjs",
+      "exit": 1,
+      "seconds": 2.2,
+      "log": "4-text.txt",
+      "sha256": "08e1211b7b3307e7a00a82e91f0315b33724f77b42662d8d66b69f43471f83a4"
+    },
+    {
+      "name": "5-build",
+      "cmd": "npm run build",
+      "exit": 0,
+      "seconds": 42.4,
+      "log": "5-build.txt",
+      "sha256": "328ae8e07fbaa6ce27431de5c5ec23bb3af400b466fee3cef7998604a1382f37"
+    },
+    {
+      "name": "6-budgets",
+      "cmd": "node tools/bundle-budget.cjs && node tools/doc-counts.cjs",
+      "exit": 0,
+      "seconds": 124.6,
+      "log": "6-budgets.txt",
+      "sha256": "019b074d39aedb83093823db810e63eff10cf1ab86c5dc0782d24b85187fe974"
+    }
+  ],
+  "unit": {
+    "tests": 785,
+    "passed": 785,
+    "failed": 0,
+    "skipped": 0,
+    "files": 358,
+    "skips": [],
+    "excluded": {
+      "files": [
+        "src/qa/qaAfzuiging.test.ts",
+        "src/qa/qaBureau.test.ts",
+        "src/qa/qaTrein.test.ts",
+        "src/qa/stlAfzuiging.test.ts",
+        "src/qa/overlapBoxAfzuiging.test.ts",
+        "src/qa/tekeningenAfzuiging.test.ts",
+        "src/qa/tekeningenTrein.test.ts"
+      ],
+      "reason": "vite.config.ts leaves them out unless VOORBEELDEN=1 (slow: they rebuild the example models); run by `npm run test:voorbeelden` and the CI job \"voorbeelden\""
+    }
+  },
+  "regression": [
+    {
+      "log": "regression-0.5.13-partial.txt",
+      "done": "DONE 17/17 green, 0 optional step(s) skipped"
+    }
+  ],
+  "files": {
+    "1-typecheck.txt": "21b59d9cdaad4054db23d6b65644fb8f241f22438192d4b9d9788db7fb07a47f",
+    "2-unit.json": "499645ef7c15f3e48381f89e02dcf37aa2a9ba33668ba9fb7fa9041b60020c64",
+    "2-unit.txt": "8d89b443930b52568cbdb7b3226f07cec7c67f903685d8028d5381a690267c72",
+    "3-mutation.txt": "f277abf3f2f38403b5175f1d53ae9fbcf2ae72fd2bf9a6996ec7d5c8827b1847",
+    "4-text.txt": "08e1211b7b3307e7a00a82e91f0315b33724f77b42662d8d66b69f43471f83a4",
+    "5-build.txt": "328ae8e07fbaa6ce27431de5c5ec23bb3af400b466fee3cef7998604a1382f37",
+    "6-budgets.txt": "019b074d39aedb83093823db810e63eff10cf1ab86c5dc0782d24b85187fe974",
+    "regression-0.5.13-partial.txt": "eb2b6234e79c1de100b34160fb4898871fc2306803e7ca426c233ce08a2d36d7"
+  }
+}

@@ -29,7 +29,7 @@ const STATUS_LABEL: Record<string, string> = { under: 'under defined', full: '',
  * Material, Front/Top/Right Plane, Origin, features (a feature shows its sketch as a
  * child); with a draggable rollback bar.
  */
-// Feature Tree ▸ Name feature on creation (QA 0.5.12 F112): the tree is not shown while a PropertyManager is open, so the
+// Feature Tree ▸ Name feature on creation (QA 0.5.12 F112): the tree is not shown while a Property Panel is open, so the
 // feature OK just added is noted here and opened for typing when the tree comes back
 let pendingName: string | null = null;
 useStore.subscribe((s, p) => {
@@ -105,7 +105,7 @@ export function FeatureTreeBody() {
     window.addEventListener('keydown', key);
     return () => window.removeEventListener('keydown', key);
   }, []);
-  // Name feature on creation: the tree comes back when the PropertyManager closes and opens the new name for typing
+  // Name feature on creation: the tree comes back when the Property Panel closes and opens the new name for typing
   useEffect(() => {
     const f = pendingName ? st.doc.features.find((x) => x.id === pendingName) : null;
     if (f) { pendingName = null; setRenaming({ id: f.id, value: f.name }); }

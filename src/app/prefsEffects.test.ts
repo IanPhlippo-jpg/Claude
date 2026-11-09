@@ -179,7 +179,7 @@ describe('Feature tree and messages', () => {
     use({ 'fm.commentTimestamp': false });
     expect(fx.commentStamp(t)).toBe('');
   });
-  it('fm.nameOnCreation: OK in a PropertyManager opens the new feature name for typing (QA 0.5.12 F112)', () => {
+  it('fm.nameOnCreation: OK in a Property Panel opens the new feature name for typing (QA 0.5.12 F112)', () => {
     expect(fx.nameOnCreation(['a'], ['a', 'b'], true)).toBe(null);
     use({ 'fm.nameOnCreation': true });
     expect(fx.nameOnCreation(['a'], ['a', 'b'], true)).toBe('b');

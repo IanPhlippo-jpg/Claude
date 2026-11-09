@@ -124,7 +124,7 @@ export const commentStamp = (now: Date = new Date()): string => (on('fm.commentT
 export const timeStep = (): number => (num('spin.time', 0.1) > 0 ? num('spin.time', 0.1) : 0.1);
 
 /**
- * Feature Tree ▸ Name feature on creation (QA 0.5.12 F112): the feature a PropertyManager just added (one new id while a
+ * Feature Tree ▸ Name feature on creation (QA 0.5.12 F112): the feature a Property Panel just added (one new id while a
  * feature was being edited, so not an undo or redo) opens its name for typing in the tree; null when the option is off.
  */
 export function nameOnCreation(prevIds: readonly string[], nextIds: readonly string[], wasEditing: boolean): string | null {
