@@ -1187,4 +1187,4 @@ elease; README en docs/04 bijgewerkt
 - [x] HMI (web, aanraakscherm): overzicht, automaat/hand, stukken van de camera, zones, alarmen, statistieken (stuks per uur, cyclustijd, beschikbaarheid), onderhoud
 - [x] Besturingslogica: toestanden en cyclus in docs/Besturing.md, grijpplanner besturing/greep.py met controles (simulator in de HMI)
 - [x] Bestellijst met prijzen en bronnen, README, bouw- en inbedrijfstellingsplan, risicobeoordeling (EN ISO 12100 / 10218-2)
-- [~] Eén afdruk-PDF (Robotcel-alles-afdrukken.pdf), foto's naar Ian, commit en push
+- [x] Eén afdruk-PDF (Robotcel-alles-afdrukken.pdf), foto's naar Ian, commit en push
