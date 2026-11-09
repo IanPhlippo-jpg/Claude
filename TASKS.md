@@ -1120,9 +1120,9 @@ elease; README en docs/04 bijgewerkt
 - [x] Firmware (PlatformIO): hotspot + webdashboard (groepen, dimmen, effecten, scènes, functies, ingangen -> functie), opslag in flash, hosttests
 - [x] Aansluitschema (EPLAN-stijl, zoals de afzuiging) en klemmenplan
 - [x] Doos in Phlippo CAD (PETG, zonder support, sleutelgaten onder de baan): kaders per rij, kabelgoten, lippen, binderspleten, drukribben; 0 botsingen, bak 32 s rebuild
-- [ ] STL's en werktekening van bak en deksel
-- [ ] README met bestellijst en prijzen, bouwschema met beelden, handleiding voor de schoonvader
-- [ ] Tests, foto's, alles-in-één-PDF; commit en push
+- [x] STL's (dicht en manifold) en werktekeningen: boormal 1:1 (TRN-00), bak, deksel; gedeelde module src/qa/werktekening.ts
+- [x] README met bestellijst en prijzen, bouwschema (8 stappen met beelden), alles-in-één-PDF
+- [~] Tests, foto's, alles-in-één-PDF; commit en push
 
 ## Phlippo CAD 0.5.13: QA-rapport 0.5.12 (5/10, 51 open) verwerken (2026-11-08)
 - [x] F200: de drie typefouten in src/qa/tekeningenAfzuiging.test.ts (ongebruikte import, revisie.d.mts, tuple-type); npm run typecheck exit 0

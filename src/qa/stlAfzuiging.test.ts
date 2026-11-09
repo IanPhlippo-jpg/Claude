@@ -5,6 +5,7 @@ import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import * as THREE from 'three';
 import { rebuildDocument } from './rebuildStreng';
+import { stlControle } from './stlControle';
 import { setBrepKernel } from '../core/features/brepKernel';
 import { occtKernel } from '../core/occt/brep';
 import { parseDocument } from '../core/document/persistence';
@@ -46,26 +47,9 @@ describe('afzuiging, STL', () => {
       geo.computeBoundingBox();
       const s = geo.boundingBox!.getSize(new THREE.Vector3());
       expect(Math.max(s.x, s.y), f).toBeLessThanOrEqual(250);
-      // dicht en manifold: na het samenvoegen van gelijke hoekpunten hoort elke rand bij precies twee driehoeken, één
-      // keer in elke richting (dan kloppen ook de normalen); geen driehoeken zonder oppervlak
-      const pos = geo.getAttribute('position'), idx = geo.getIndex();
-      const n = idx ? idx.count : pos.count, sleutel = new Map<string, number>(), id: number[] = [];
-      for (let i = 0; i < pos.count; i++) {
-        const k = `${Math.round(pos.getX(i) * 1e4)},${Math.round(pos.getY(i) * 1e4)},${Math.round(pos.getZ(i) * 1e4)}`;
-        if (!sleutel.has(k)) sleutel.set(k, sleutel.size);
-        id.push(sleutel.get(k)!);
-      }
-      const randen = new Map<string, number>();
-      let plat = 0;
-      for (let i = 0; i < n; i += 3) {
-        const v = [0, 1, 2].map((j) => id[idx ? idx.getX(i + j) : i + j]);
-        if (v[0] === v[1] || v[1] === v[2] || v[0] === v[2]) { plat++; continue; }
-        for (let j = 0; j < 3; j++) { const k = `${v[j]}>${v[(j + 1) % 3]}`; randen.set(k, (randen.get(k) ?? 0) + 1); }
-      }
-      let openRand = 0, dubbel = 0;
-      for (const [k, c] of randen) { const [a, b] = k.split('>'); const terug = randen.get(`${b}>${a}`) ?? 0; if (c > 1) dubbel++; if (terug !== c) openRand++; }
-      expect({ f, open: openRand, dubbel }).toEqual({ f, open: 0, dubbel: 0 });
-      expect(plat, f).toBeLessThan(n / 3 / 100); // hoogstens enkele gedegenereerde driehoekjes
+      const c = stlControle(geo);
+      expect({ f, open: c.open, dubbel: c.dubbel }).toEqual({ f, open: 0, dubbel: 0 });
+      expect(c.plat, f).toBeLessThan(c.driehoeken / 100); // hoogstens enkele gedegenereerde driehoekjes
     }
   }, 600000);
 });

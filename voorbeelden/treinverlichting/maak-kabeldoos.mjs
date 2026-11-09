@@ -469,7 +469,7 @@ function rijKaders(rijen) {
 const gang = (rijen, i) => (rijen[i][0].cz + Math.max(...rijen[i].map((d) => d.z)) / 2 + rijen[i + 1][0].cz - Math.max(...rijen[i + 1].map((d) => d.z)) / 2) / 2;
 /** 4 sleutelgaten (het grote gat): in de draadgang tussen rij 1 en 2 en tussen rij 5 en 6; links 12 mm van de wand, rechts
  *  18 mm, zodat na het schuiven (+6 mm) de schroef links op 18 en rechts op 12 mm van de wand zit, naast de draadsleuven */
-function bevestigingsGaten(rijen, bx) {
+export function bevestigingsGaten(rijen, bx) {
   return [0, 4].flatMap((i) => [[-bx / 2 + 12, gang(rijen, i)], [bx / 2 - 18, gang(rijen, i)]]);
 }
 /** kabelinvoer in de wanden: uitsparingen van 8 breed en 11 diep vanaf de rand (de kant van het deksel): je legt de draden

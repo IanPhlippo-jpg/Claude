@@ -28,8 +28,8 @@ gekochte onderdelen met hun bron in `docs/Maten-en-bronnen.md`, de eisen van Ian
   kader steekt een lip van 1,6 mm uit over de draadgang tussen de rijen: schuif de leddraden eronder. Bij elke
   kabelinvoer in de zijwanden zitten twee spleten voor een kabelbinder (2,5 mm breed): bind elke bundel daar vast, dan trekt er
   niets aan de klemmen. Zie [Draden labelen](#draden-labelen).
-- **Monteren met alles erin:** de doos hangt aan 4 sleutelgaten in de bodem. Draai 4 bolkopschroeven 4 x 20 half in
-  de baan, hang de doos met de grote gaten over de koppen en schuif ze 6 mm opzij. De prints hoeven er niet uit.
+- **Monteren met alles erin:** de doos hangt aan 4 sleutelgaten in de bodem. Plak de boormal (TRN-00, A3 op 100 %
+  afdrukken) onder de baan en draai 4 bolkopschroeven 4 x 20 half in de baan, hang de doos met de grote gaten over de koppen en schuif ze 6 mm opzij. De prints hoeven er niet uit.
 - **Geen verluchting nodig:** alles samen hoogstens 1,9 W, dus ongeveer 3 °C warmer dan onder de baan
   (docs/Berekeningen.md, hoofdstuk 5).
 
@@ -102,8 +102,8 @@ De 16 Modelbouwled-bordjes heb je al; een extra kost € 9,75 (Modelbouwled.nl).
 
 | Bestand | Stand | Maat (mm) |
 |---|---|---|
-| `Kabeldoos-bak.kcad` (STL volgt) | de bodem op het bed | 248,9 x 240,6 x 26,4 |
-| `Kabeldoos-deksel.kcad` | de buitenkant op het bed | 248,9 x 240,6 x 3,9 |
+| `print/Kabeldoos-bak.stl` | de bodem op het bed | 248,9 x 240,6 x 26,4 |
+| `print/Kabeldoos-deksel.stl` | de buitenkant op het bed | 248,9 x 240,6 x 9,1 (met de drukribben) |
 
 Past op het bed van 256 x 256. Instellingen zoals bij de afzuiging (0,2 mm, 4 wanden, 30 % gyroid).
 
@@ -113,6 +113,11 @@ Past op het bed van 256 x 256. Instellingen zoals bij de afzuiging (0,2 mm, 4 wa
 |---|---|
 | `Kabeldoos.kcad` | de hele doos met alle prints, bordjes en schroeven |
 | `maak-kabeldoos.mjs` | de generator; alle maten bovenaan in `M` |
+| `print/` | de STL's (uit de exacte vorm, dicht en manifold) |
+| `tekeningen/Werktekeningen-kabeldoos.pdf` | boormal op ware grootte (TRN-00), bak (TRN-01) en deksel (TRN-02) |
+| `tekeningen/Bouwschema-kabeldoos.pdf` | 8 stappen met beelden, van printen tot aanzetten |
+| `Kabeldoos-alles-afdrukken.pdf` | alles samen om af te drukken (README, bouwschema, tekeningen, schema, dashboard, rekenblad) |
+| `schema/` | aansluitschema in 6 bladen |
 | `firmware/` | PlatformIO-project met het dashboard, 61 tests |
 | `docs/` | rekenblad, maten met bronnen, de maattekening van de ESP |
 | `EISEN.md` | de eisen van Ian |

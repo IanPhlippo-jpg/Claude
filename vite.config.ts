@@ -30,7 +30,7 @@ function buildCommit(): string {
 
 /** de zware modeltests van voorbeelden/ (eigen CI-job) */
 const VOORBEELD_TESTS = ['src/qa/qaAfzuiging.test.ts', 'src/qa/qaBureau.test.ts', 'src/qa/qaTrein.test.ts', 'src/qa/stlAfzuiging.test.ts',
-  'src/qa/overlapBoxAfzuiging.test.ts', 'src/qa/tekeningenAfzuiging.test.ts'];
+  'src/qa/overlapBoxAfzuiging.test.ts', 'src/qa/tekeningenAfzuiging.test.ts', 'src/qa/tekeningenTrein.test.ts'];
 
 export default defineConfig({
   base: './',

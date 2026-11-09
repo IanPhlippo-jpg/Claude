@@ -1,13 +1,14 @@
 /**
  * De kabeldoos van de treinverlichting (voorbeelden/treinverlichting): elk onderdeel bouwt (de geprinte delen als één
  * lichaam, exact op de B-rep-kernel), de doos past op het bed van de Centauri Carbon (256 x 256), en in de assemblage
- * botst niets. Snel alleen enkele onderdelen: TREIN_DELEN=Kabeldoos-bak.
+ * botst niets. Snel alleen enkele onderdelen: TREIN_DELEN=Kabeldoos-bak. De STL's voor de printer: TREIN_STL=1.
  */
 import { afterAll, describe, expect, it } from 'vitest';
 import { readFileSync, readdirSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import * as THREE from 'three';
 import { rebuildDocument } from './rebuildStreng';
+import { stlControle } from './stlControle';
 import { setBrepKernel } from '../core/features/brepKernel';
 import { occtKernel } from '../core/occt/brep';
 import { parseDocument } from '../core/document/persistence';
@@ -63,6 +64,28 @@ describe('kabeldoos, B-rep', () => {
       expect(Math.abs(b.volume - mesh[f].volume), f).toBeLessThan(mesh[f].volume * 2e-3);
     }
   }, 600000);
+
+  // de STL's uit de exacte vorm, in printstand (Z omhoog): de bak met de bodem op het bed, het deksel met de buitenkant op
+  // het bed (de drukribben en de centreerrand naar boven); elk bestand dicht en manifold
+  it.skipIf(!process.env.TREIN_STL)('STL voor de printer', async () => {
+    const { mkdirSync, writeFileSync } = await import('node:fs');
+    const { prepareTriangles, stlBinary } = await import('../core/document/export3d');
+    const rechtop = new THREE.Matrix4().set(1, 0, 0, 0, 0, 0, -1, 0, 0, 1, 0, 0, 0, 0, 0, 1); // (x, y, z) -> (x, -z, y)
+    const omgekeerd = new THREE.Matrix4().set(1, 0, 0, 0, 0, 0, 1, 0, 0, -1, 0, 0, 0, 0, 0, 1); // (x, y, z) -> (x, z, -y)
+    mkdirSync(`${DIR}/print`, { recursive: true });
+    for (const [f, m] of [['Kabeldoos-bak.kcad', rechtop], ['Kabeldoos-deksel.kcad', omgekeerd]] as const) {
+      const r = rebuildDocument(open(f)) as unknown as R;
+      expect(Object.keys(r.brep ?? {}).length, `${f}: STL niet uit de exacte vorm`).toBe(1);
+      const geo = r.bodies[0].geometry.clone().applyMatrix4(m);
+      geo.computeBoundingBox();
+      geo.translate(0, 0, -geo.boundingBox!.min.z); // op het bed
+      const { tris } = prepareTriangles([{ geometry: geo }], { format: 'stl' });
+      writeFileSync(`${DIR}/print/${f.replace('.kcad', '.stl')}`, new Uint8Array(stlBinary(tris[0], f.replace('.kcad', ''))));
+      const c = stlControle(geo);
+      expect({ f, open: c.open, dubbel: c.dubbel }).toEqual({ f, open: 0, dubbel: 0 });
+      expect(c.plat, f).toBeLessThan(c.driehoeken / 100);
+    }
+  }, 900000);
 });
 
 describe('kabeldoos, assemblage', () => {
