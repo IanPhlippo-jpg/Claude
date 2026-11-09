@@ -10,6 +10,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Onderdeel, component, vlak } from '../lib/schets.mjs';
 import { typenaam, asLabel, waarschuwing, typeplaat } from './opschriften.mjs';
+import { Plaat } from '../lib/printplaat.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 
@@ -23,10 +24,10 @@ export const M = {
   flens: { d: 160, pcd: 125, gaten: 6, centr: 80 }, // ISO 9409-1-A125: 6 x M10 op Ø125, centreerboring Ø80 H7
   band: { hoogte: 800, breed: 1200, lang: 7800, x: 1950 }, // rollenbaan langs Z, de deur ligt plat
   deur: { l: 2115, b: 1015, d: 54 },
+  stopZ: 1050, // stopper tussen twee rollen (hart op 975 en 1125): de voorkant van het stuk ligt hier, de grijpplaats
   // veiligheidshek (EN ISO 14120 / 13857): 2000 hoog, palen RAL 1003, panelen met gaas; de band loopt door twee
   // openingen met lichtschermen (muting); toegangsdeur met vergrendeling achteraan
   hek: { x0: -2000, x1: 3400, z0: -3500, z1: 3500, h: 2000, veld: 1350 },
-  grijper: { lang: 1700, breed: 640, profiel: 80, nappen: [-787.5, -562.5, -337.5, -112.5, 112.5, 337.5, 562.5, 787.5].flatMap((z) => [[z, -260], [z, 260]]), nap: { d: 110, h: 77 } },
 };
 
 // ---------------------------------------------------------------- materialen en kleuren
@@ -204,35 +205,124 @@ export function flens() {
   return o.doc();
 }
 
-// ---------------------------------------------------------------- vacuümgrijper (in de assen van de flens: +X = van de flens weg)
+// ---------------------------------------------------------------- vlakgrijper (in de assen van de flens: +X = van de flens weg)
+// Universeel voor deuren, panelen, plinten en kleine planken (Ian): drie balken naast elkaar, elk een zone met eigen
+// vacuüm. Buiten: 2 x Schmalz FA-M (1972 x 130, 3 rijen zuigcellen op 18 mm, schuim 20 mm, zelfsluitende SW-ventielen,
+// FA-Mc met ingebouwde ventielen voor vacuüm aan/uit en afblazen); midden: Schmalz FMP-60 (1972 x 60, 1 rij) voor plinten
+// en smalle stukken. Een onbedekte cel sluit zichzelf (SW): een klein stuk onder één balk houdt toch vast.
+export const BALKEN = [
+  { naam: 'FA-M 1972 x 130 (zone 1)', y: -185, b: 130, rijen: 3 },
+  { naam: 'FMP-60 1972 x 60 (zone 2)', y: 0, b: 60, rijen: 1 },
+  { naam: 'FA-M 1972 x 130 (zone 3)', y: 185, b: 130, rijen: 3 },
+];
+const VG = { lang: 1972, body: 90, schuim: 20, x0: 60 }; // balk van x0 tot x0 + body, schuim eronder
+export const TOOL = VG.x0 + VG.body + VG.schuim; // van de flens tot het schuim (zuigvlak)
 export function grijperRaam() {
-  const G = M.grijper, P = G.profiel, o = deel('Grijperraam (aluminium profiel 80 x 40)', ALU);
-  // adapterplaat Ø200 x 20 en een kruis van profielen: 2 langsliggers (Z) en een dwarsligger (Y)
+  const o = deel('Grijperraam (adapter ISO 9409-1-A125, profiel 80 x 40)', ALU);
   draaiX(o, [[0, 0], [0, 100], [20, 100], [20, 0]], 'Adapterplaat');
-  // eerst de dwarsligger op de adapter (0,5 erin: geen samenvallende vlakken), dan de langsliggers er 0,5 overlappend over
-  o.schets(xv(20, 'Plane dwarsligger'), (s) => s.rrectW([20, -G.breed / 2 + 35, -40], [20, G.breed / 2 - 35, 40], 4));
-  o.extrude('boss', P / 2, { terug: 0.5, naam: 'Dwarsligger' });
-  o.schets(xv(20.3, 'Plane langsliggers'), (s) => {
-    s.rrectW([20.3, -G.breed / 2 - 40, -G.lang / 2], [20.3, -G.breed / 2 + 40, G.lang / 2], 4);
-    s.rrectW([20.3, G.breed / 2 - 40, -G.lang / 2], [20.3, G.breed / 2 + 40, G.lang / 2], 4);
-  });
-  o.extrude('boss', P / 2 - 0.6, { naam: 'Langsliggers' });
+  // een langsligger (Z) en twee dwarsliggers (Y) waaraan de balken hangen; 0,5 overlap, geen samenvallende vlakken
+  o.schets(xv(20, 'Plane langsligger'), (s) => s.rrectW([20, -40, -900], [20, 40, 900], 4));
+  o.extrude('boss', 40, { terug: 0.5, naam: 'Langsligger' });
+  o.schets(xv(20.3, 'Plane dwarsliggers'), (s) => [-700, 700].forEach((z) => s.rrectW([20.3, -260, z - 40], [20.3, 260, z + 40], 4)));
+  o.extrude('boss', VG.x0 - 20.3, { naam: 'Dwarsliggers' });
   return o.doc();
 }
-export function nappen() {
-  const G = M.grijper, N = G.nap, o = deel('Balgzuignappen Ø95 (NBR, 1,5 balg)', RUBBER), x0 = 20 + G.profiel / 2;
-  o.schets(xv(x0, 'Plane nappen'), (s) => G.nappen.forEach(([z, y]) => s.cirkelW([x0, y, z], 22)));
-  o.extrude('boss', 35, { naam: 'Houders' });
-  o.schets(xv(x0 + 35, 'Plane balgen'), (s) => G.nappen.forEach(([z, y]) => s.cirkelW([x0 + 35, y, z], N.d / 2 - 8)));
-  o.extrude('boss', N.h - 45, { naam: 'Balgen' });
-  o.schets(xv(x0 + N.h - 10, 'Plane lippen'), (s) => G.nappen.forEach(([z, y]) => s.cirkelW([x0 + N.h - 10, y, z], N.d / 2)));
-  o.extrude('boss', 10, { naam: 'Lippen' });
+export function vlakBalken() {
+  const o = deel('Vlakgrijper: 2 x Schmalz FA-M + 1 x FMP-60 (aluminium)', { name: 'aluminium, blank', density: 2700, color: '#b9bec4' });
+  o.schets(xv(VG.x0, 'Plane balken'), (s) => BALKEN.forEach((k) => s.rrectW([VG.x0, k.y - k.b / 2, -VG.lang / 2], [VG.x0, k.y + k.b / 2, VG.lang / 2], 6)));
+  o.extrude('boss', VG.body, { naam: 'Balken' });
   return o.doc();
 }
+/** het schuim met de zuigcellen (decal: de gaten op 18 mm, 3 rijen of 1 rij) */
+export function schuim() {
+  const o = deel('Schuimplaat 20 mm, open cel (zuigvlak)', { name: 'schuim, zwart', density: 120, color: '#1c1d1f' });
+  o.schets(xv(VG.x0 + VG.body, 'Plane schuim'), (s) => BALKEN.forEach((k) => s.rrectW([0, k.y - k.b / 2 + 2, -VG.lang / 2 + 2], [0, k.y + k.b / 2 - 2, VG.lang / 2 - 2], 4)));
+  o.extrude('boss', VG.schuim, { naam: 'Schuim' });
+  // decal op de onderkant (normaal +X): beeld-x langs -Z van het onderdeel, beeld-y langs ... (zie bodyScene): we tekenen
+  // symmetrisch, de richting maakt niet uit
+  const W = VG.lang, H = 520, p = new Plaat(W, H, { masker: 'geen', ppm: 3 });
+  for (const k of BALKEN) for (let r = 0; r < k.rijen; r++) for (let i = 0; i < Math.floor((W - 30) / 18); i++) {
+    const v = H / 2 + k.y + (r - (k.rijen - 1) / 2) * 36;
+    p.eigen(`<circle cx="${(15 + i * 18).toFixed(1)}" cy="${v.toFixed(1)}" r="4.5" fill="#050505"/>`);
+  }
+  return met(o.doc(), p.decal('dc1', 'Zuigcellen', [TOOL, 0, 0], { normaal: [1, 0, 0] }));
+}
+/** 5 meertraps-ejectors Schmalz SBPL 100 HV (870 l/min elk): 2 per FA-M, 1 voor de FMP-60; met verdeelblok en schakelaar */
 export function ejectors() {
-  const G = M.grijper, o = deel('Vacuümejectors met spaarschakeling (4 x)', { name: 'aluminium, blauw geanodiseerd', density: 2700, color: '#2d63b5' });
-  o.schets(xv(-30, 'Plane ejectorhuis'), (s) => [[-500, -1], [500, -1], [-500, 1], [500, 1]].forEach(([z, k]) => s.rrectW([-30, k * (G.breed / 2 - 80), z - 55], [-30, k * (G.breed / 2 - 45), z + 55], 3)));
-  o.extrude('boss', 50, { naam: 'Ejectorhuis' });
+  const o = deel('Ejectors 5 x Schmalz SBPL 100 HV', { name: 'aluminium, blauw geanodiseerd', density: 2700, color: '#2d63b5' });
+  o.schets(xv(-40, 'Plane ejectors'), (s) => [[-500, -185], [-300, 0], [500, -185], [-500, 185], [500, 185]].forEach(([z, y]) => s.rrectW([-40, y - 30, z - 90], [-40, y + 30, z + 90], 6)));
+  o.extrude('boss', 59.4, { naam: 'Ejectors' }); // tot 0,6 onder het raam (geen samenvallende vlakken)
+  return o.doc();
+}
+
+// ---------------------------------------------------------------- kabels en slangen (zoals bij een industriële robot)
+// Motor- en encoderkabels lopen binnenin, door de holle assen van de RV-C-reductoren; buiten zichtbaar zijn het
+// aansluitpaneel op de voet (Harting Han-stekkers), het slangenpakket over de onderarm naar de grijper (perslucht, 24 V,
+// signaal, in een geribde beschermslang met klemmen) en de kabelbrug over de vloer naar de schakelkast.
+const KABEL = { name: 'PA6 geribde beschermslang, zwart', density: 1100, color: '#121314' };
+/** rechte buis langs +X van lengte l, straal r (een stuk slang of kabel) */
+export function buis(naam, l, r, mat = KABEL) {
+  const o = deel(naam, mat);
+  draaiX(o, [[0, 0], [0, r], [l, r], [l, 0]], 'Buis');
+  return o.doc();
+}
+export function aansluitpaneel() {
+  const o = deel('Aansluitpaneel voet: 3 x Harting Han (motoren, encoders, perslucht)', { name: 'aluminium, gelakt RAL 7016', density: 2700, color: '#3a3f44' });
+  // tegen de achterkant van de motoruitbouw A1 (x = -470), naar -X
+  o.schets(xv(-470, 'Plane paneel'), (s) => s.rrectW([-470, 60, -230], [-470, 115, 230], 6));
+  o.extrude('boss', 25, { omkeren: true, naam: 'Paneel' });
+  o.schets(xv(-495, 'Plane stekkers'), (s) => [-150, 0, 150].forEach((z) => s.rrectW([-495, 70, z - 55], [-495, 108, z + 55], 4)));
+  o.extrude('boss', 45, { omkeren: true, naam: 'Stekkers' });
+  return o.doc();
+}
+export function slangklem() {
+  const o = deel('Klem slangenpakket (PA, zwart)', KABEL);
+  draaiX(o, [[0, 0], [0, 38], [30, 38], [30, 0]], 'Klem');
+  return o.doc();
+}
+/** kabelbrug over de vloer (stalen goot 200 x 50 met afgeschuinde zijkanten), langs +X, lengte l */
+export function kabelbrug(l) {
+  const o = deel(`Kabelbrug vloer 200 x 50 (${Math.round(l)} mm)`, { name: 'staal, geel-zwart gelakt', density: 7850, color: '#e0b000' });
+  o.schets(zv(-100, 'Plane brug'), (s) => s.lus([[0, 0], [l, 0], [l, 50], [0, 50]]));
+  o.extrude('boss', 200, { naam: 'Brug' });
+  return o.doc();
+}
+
+// ---------------------------------------------------------------- camera boven de band (herkennen van elk stuk)
+// Portaal uit aluminium profiel 80 x 80 over de band, 2200 boven de rollen: Basler ace 2 a2A2448-23gmBAS (5 MP, GigE)
+// met een lens van 6 mm (beeld ±3,1 x 2,6 m, ±1,3 mm per pixel), 2 ledbalken, een laserafstandsmeter voor de dikte en
+// een reflectiefotocel die het stuk meldt.
+export function portaal(h, b) {
+  const o = deel('Cameraportaal (profiel 80 x 80)', ALU);
+  for (const x of [-b / 2, b / 2]) blok(o, [x - 40, 0, -40, x + 40, h, 40], 'Staander');
+  blok(o, [-b / 2 - 40, h - 0.5, -40, b / 2 + 40, h + 80, 40], 'Ligger');
+  return o.doc();
+}
+export function camera() {
+  const o = deel('Camera Basler ace 2 GigE + lens 6 mm', { name: 'aluminium, zwart', density: 2700, color: '#1a1b1d' });
+  blok(o, [-15, -60, -15, 15, 0, 15], 'Camera');
+  draaiY(o, [[0, -110], [16, -110], [16, -60], [0, -60]], 'Lens');
+  return o.doc();
+}
+export function ledbalk(l) {
+  const o = deel(`Ledbalk ${l} mm (wit, diffuus)`, { name: 'aluminium, zilver met witte diffusor', density: 2700, color: '#e9ecef' });
+  blok(o, [-l / 2, -40, -25, l / 2, 0, 25], 'Balk');
+  return o.doc();
+}
+export function laser() {
+  const o = deel('Laserafstandsmeter (dikte)', { name: 'zinkspuitgiet, blauw', density: 6000, color: '#2b5aa6' });
+  blok(o, [-30, -90, -25, 30, 0, 25], 'Laser');
+  return o.doc();
+}
+export function fotocel() {
+  const o = deel('Reflectiefotocel ifm O5P500 op beugel', { name: 'kunststof, grijs', density: 1300, color: '#5d6166' });
+  blok(o, [-20, 0, -20, 20, 60, 20], 'Fotocel');
+  return o.doc();
+}
+/** pneumatische stopper Festo DFST-50 tussen de rollen (kop omhoog = stuk staat stil op de grijpplaats) */
+export function stopper() {
+  const o = deel('Stopper Festo DFST-50-30', { name: 'aluminium, blank', density: 2700, color: '#c3c7cc' });
+  draaiY(o, [[0, -120], [30, -120], [30, 30], [0, 30]], 'Huis en kop');
   return o.doc();
 }
 
@@ -323,6 +413,16 @@ function quat(m) {
   return [x, y, z, w];
 }
 const pos = (m) => [m[3], m[7], m[11]];
+/** frame in a met de X-as naar b (voor een buis of slang tussen twee punten) */
+function richt(a, b) {
+  const x = [b[0] - a[0], b[1] - a[1], b[2] - a[2]], l = Math.hypot(...x);
+  x.forEach((v, i) => { x[i] = v / l; });
+  const hulp = Math.abs(x[1]) < 0.9 ? [0, 1, 0] : [1, 0, 0];
+  const z = [x[1] * hulp[2] - x[2] * hulp[1], x[2] * hulp[0] - x[0] * hulp[2], x[0] * hulp[1] - x[1] * hulp[0]], lz = Math.hypot(...z);
+  z.forEach((v, i) => { z[i] = v / lz; });
+  const y = [z[1] * x[2] - z[2] * x[1], z[2] * x[0] - z[0] * x[2], z[0] * x[1] - z[1] * x[0]];
+  return [x[0], y[0], z[0], a[0], x[1], y[1], z[1], a[1], x[2], y[2], z[2], a[2], 0, 0, 0, 1];
+}
 /** de frames van alle assen voor de hoeken q1..q6 (graden) */
 export function frames(q) {
   const F0 = RY(q[0]);
@@ -348,11 +448,11 @@ export function ikNaarBeneden(x, y) {
 
 // ---------------------------------------------------------------- de cel
 export function cel() {
-  const B = M.band, D = M.deur, G = M.grijper, comps = [];
+  const B = M.band, D = M.deur, comps = [];
   const at = (id, naam, doc, m) => comps.push(component(id, naam, doc, pos(m), { rotation: quat(m) }));
-  // de grijper ligt op de deur: lip van de nappen op de bovenkant van de deur
-  const boven = B.hoogte + D.d, tool = 20 + G.profiel / 2 + G.nap.h;
-  const q = ikNaarBeneden(B.x, boven + tool + M.d6);
+  // de grijper ligt op de deur: het schuim op de bovenkant van de deur
+  const boven = B.hoogte + D.d;
+  const q = ikNaarBeneden(B.x, boven + TOOL + M.d6);
   const { F0, F2, F3, F4, F5, F6 } = frames(q);
   at('r1', 'Voet<1>', voet(), I());
   at('r2', 'Servomotor A1<1>', motorA1(), T(0, 225, 0));
@@ -374,12 +474,38 @@ export function cel() {
   at('r13', 'Pols<1>', pols(), F5);
   at('r14', 'Toolflens<1>', flens(), F6);
   at('g1', 'Grijperraam<1>', grijperRaam(), F6);
-  at('g2', 'Zuignappen<1>', nappen(), F6);
-  at('g3', 'Vacuümejectors<1>', ejectors(), F6);
+  at('g2', 'Vlakgrijper balken<1>', vlakBalken(), F6);
+  at('g3', 'Schuimplaat<1>', schuim(), F6);
+  at('g4', 'Ejectors<1>', ejectors(), F6);
+  // kabels: aansluitpaneel op de voet, slangenpakket over de onderarm, kabelbrug naar de kast
+  at('c1', 'Aansluitpaneel<1>', aansluitpaneel(), I());
+  const P = (F, x, y, z) => pos(mul(F, T(x, y, z)));
+  // langs de bovenkant van de onderarm, dan opzij van de pols (z 250: vrij van de vork) naar de bovenkant van de grijper
+  const pad = [P(F3, -230, M.a3 + 190, 0), P(F4, 320, 205, 0), P(F4, M.d4 - 300, 180, 0), P(F4, M.d4 - 200, 180, 250), P(F6, -70, 0, 250)];
+  for (let i = 0; i < pad.length - 1; i++) {
+    const [a, b] = [pad[i], pad[i + 1]], l = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
+    at(`s${i + 1}`, `Slangenpakket ${i + 1}<1>`, buis(`Slangenpakket Ø70 (perslucht, 24 V, signaal) ${i + 1}`, l, 35), richt(a, b));
+  }
+  const klem = slangklem();
+  [P(F4, 320, 205, 0), P(F4, (M.d4 - 300 + 320) / 2, 192, 0), P(F4, M.d4 - 300, 180, 0)].forEach((p, i) => at(`s${10 + i}`, `Klem slangenpakket<${i + 1}>`, klem, mul(T(...p), RZ(0))));
+  const xK = M.hek.x0 - 700;
+  at('c2', 'Kabelbrug 1<1>', kabelbrug(740), mul(T(-560, 0, 0), RY(180)));
+  at('c3', 'Kabelbrug 2<1>', kabelbrug(1400), mul(T(-1300, 0, -100), RY(90)));
+  at('c4', 'Kabelbrug 3<1>', kabelbrug(-1400 - (xK + 300)), mul(T(-1400, 0, -1500), RY(180)));
+  // camera-portaal boven de band, stroomopwaarts van de grijpplaats; fotocel aan de ingang; stopper op de grijpplaats
+  const zc = -2600, hc = 3000;
+  at('v1', 'Cameraportaal<1>', portaal(hc, 1600), T(B.x, 0, zc));
+  at('v2', 'Camera<1>', camera(), T(B.x, hc - 0.6, zc));
+  const led = ledbalk(560);
+  at('v3', 'Ledbalk<1>', led, T(B.x - 450, hc - 0.6, zc));
+  at('v4', 'Ledbalk<2>', led, T(B.x + 450, hc - 0.6, zc));
+  at('v5', 'Laserafstandsmeter<1>', laser(), T(B.x + 100, hc - 0.6, zc));
+  at('v6', 'Fotocel ingang<1>', fotocel(), T(B.x - B.breed / 2 - 120, B.hoogte, -3150));
+  at('v7', 'Stopper<1>', stopper(), T(B.x, B.hoogte, M.stopZ));
   const band = T(B.x, 0, 0);
   at('b1', 'Rollenbaan<1>', rollenbaan(), band);
   at('b2', 'Rollen<1>', rollen(), band);
-  at('b3', 'Deur<1>', deur(), T(B.x, B.hoogte, 0));
+  at('b3', 'Deur<1>', deur(), T(B.x, B.hoogte, M.stopZ - 30.5 - D.l / 2)); // tegen de stopper
   // hek: palen om het veld, panelen ertussen; openingen voor de band (voor- en achterzijde) en een deur achteraan
   const H = M.hek, paal = hekpaal(H.h), lijn = (a, b, n) => Array.from({ length: n + 1 }, (_, i) => a + ((b - a) * i) / n);
   const transparant = [], panelen = new Map();

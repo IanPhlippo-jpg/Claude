@@ -12,8 +12,8 @@ g = 9.81
 a1, d1, a2, a3, d4, d6 = 0.350, 0.675, 1.150, 0.120, 1.200, 0.215
 # --- lasten
 deur = 60.0                      # kg, zware deur (Ian): 2115 x 1015 x 54
-grijper = 42.0                   # kg: raam 2 x 1,7 m + dwars 0,64 m profiel 80x40 (±5 kg/m), adapter, 16 nappen, 4 ejectors, slangen
-tool_z = 0.20                    # m: van de flens tot het zwaartepunt van grijper + deur (langs de flensas)
+grijper = 45.0                   # kg: raam (profiel 80x40), adapter, 2 x FA-M + 1 x FMP-60, 5 ejectors, slangen
+tool_z = 0.15                    # m: van de flens tot het zwaartepunt van grijper + deur (langs de flensas)
 last = deur + grijper
 # --- massa's van de armdelen (aanname) en de plaats van hun zwaartepunt
 m_bovenarm, r_bovenarm = 170.0, a2 / 2            # vanaf A2
@@ -95,19 +95,20 @@ def motor(a):
             return naam, Mn
     return 'te groot', 0
 motor_keuze = {a: motor(a) for a in M}
-# ---------------------------------------------------------------- vacuüm: houdkracht (Schmalz-rekenwijze, belastinggeval III: de deur rechtop, schuifkracht)
-# Schmalz SAB 100 NBR-60 (10.01.06.00678): zuigkracht 190 N bij -0,6 bar (catalogus); lineair met de onderdruk, de ejector
-# haalt -0,87 bar, we rekenen met -0,7
-n_nap, d_nap, p_vac = 16, 0.1008, 70e3
-F_nap = 190 * p_vac / 60e3
-F_th = n_nap * F_nap
-a_max = 4.0     # m/s², versnelling van de deur (de besturing begrenst de baanversnelling met last)
+# ---------------------------------------------------------------- vacuüm: vlakgrijper met 3 balken (Schmalz-rekenwijze)
+# 2 x FA-M 1972 x 130 (550 N bij -250 mbar per 442 mm) + 1 x FMP-60 1972 x 60 (433 N bij -250 mbar per 1234 mm); de deur
+# bedekt alle drie de balken volledig. Belastinggeval III (de deur rechtop, de kracht langs het vlak) is maatgevend.
+F_fam = 550 / 442 * 1972
+F_fmp = 433 / 1234 * 1972
+F_th = 2 * F_fam + F_fmp
+a_max = 4.0     # m/s², versnelling van het stuk (de besturing begrenst de baanversnelling met last)
 S = 2.0         # veiligheid (Schmalz: minstens 1,5; 2 bij draaiende bewegingen)
-mu = 0.5        # wrijving rubber op HPL
+mu = 0.5        # wrijving schuim op HPL/hout
 F_I = deur * (g + a_max) * S                 # plat, recht omhoog trekken
 F_III = deur * (g + a_max) / mu * S          # rechtop, de kracht langs het vlak (wrijving)
 ok_I, ok_III = F_th >= F_I, F_th >= F_III
-
+# perslucht: 5 meertraps-ejectors Schmalz SBPL 100 HV (2 per FA-M, 1 voor de FMP-60), elk 395 l/min lucht bij 870 l/min zuigen
+lucht = 5 * 395  # l/min zolang het vacuüm aan staat
 uit = []
 w = uit.append
 w('# Berekeningen robotarm\n')
@@ -123,10 +124,13 @@ for a in M:
     w(f'| {a} | {SNELHEID[a]} °/s | {math.degrees(alfa[a]):.0f} °/s² | {M[a]:.0f} (statisch {M_stat[a]:.0f}) | {n} | {nom} / {piek} | {overbrenging[a]:.0f} ({voortrap[a]:.2f}) | {Mmot[a]:.1f} / {Mmot_stat[a]:.1f} | {motor_keuze[a][0]} |')
 w('\nDe arm beweegt met servomotoren op elke as; de cilinder op de schouder is alleen een gewichtscompensatie (een gasveer die het eigen gewicht draagt), geen aandrijving. Daardoor kan A2 snel bewegen met een kleinere motor.\n')
 w('\nRegel: het toelaatbare koppel bij versnellen en remmen minstens 1,3 x het grootste koppel, het nominale minstens het statische koppel (catalogus Nabtesco RV-C).\n')
-w('## Vacuümgrijper (belastinggevallen volgens de rekenwijze van Schmalz)\n')
-w(f'| Wat | Waarde |\n|---|--:|\n| Zuignappen | {n_nap} x Schmalz SAB 100 (Ø{d_nap * 1000:.0f}), {p_vac / 1000:.0f} kPa onderdruk, {F_nap:.0f} N per nap |\n| Houdkracht | {F_th:.0f} N |\n'
-  f'| Nodig plat (I), S = {S} | {F_I:.0f} N ({"ok" if ok_I else "TE KLEIN"}) |\n| Nodig rechtop (III, µ = {mu}), S = {S} | {F_III:.0f} N ({"ok" if ok_III else "TE KLEIN"}) |\n')
-w('Bij het neerleggen in alle richtingen is geval III (de deur rechtop, de kracht langs het vlak) maatgevend. Elke ejector heeft een terugslagklep: bij het uitvallen van de perslucht blijft het vacuüm even staan, de robot stopt (vacuümschakelaar in het veiligheidscircuit).\n')
+w('## Vlakgrijper (belastinggevallen volgens de rekenwijze van Schmalz)\n')
+w(f'| Wat | Waarde |\n|---|--:|\n| Balken | 2 x Schmalz FA-M 1972 x 130 ({F_fam:.0f} N elk) + 1 x FMP-60 1972 x 60 ({F_fmp:.0f} N), bij -250 mbar |\n| Houdkracht, deur (alle balken bedekt) | {F_th:.0f} N |\n'
+  f'| Nodig plat (I), S = {S} | {F_I:.0f} N ({"ok" if ok_I else "TE KLEIN"}) |\n| Nodig rechtop (III, µ = {mu}), S = {S} | {F_III:.0f} N ({"ok" if ok_III else "TE KLEIN"}) |\n'
+  f'| Perslucht voor het vacuüm (5 x SBPL 100) | {lucht} l/min = {lucht * 60 / 1000:.0f} m³/h zolang de grijper zuigt |\n')
+w('Kleinere stukken (plinten, planken, latten): zie Grijpen.md; de grijpplanner kiest per stuk de balk(en) met de meeste houdkracht en begrenst de versnelling. '
+  'Elke balk heeft een terugslagklep en een vacuümschakelaar: bij het uitvallen van de perslucht blijft het vacuüm even staan en stopt de robot (veiligheidscircuit). '
+  f'Let op de compressor: {lucht * 60 / 1000:.0f} m³/h vraagt een schroefcompressor van ±15 kW, of kies een elektrische zijkanaalblazer (±4 kW) voor het vacuüm.\n')
 open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'Berekeningen.md'), 'w', encoding='utf-8').write('\n'.join(uit) + '\n')
 for a in M:
     print(a, round(M[a]), keuze[a][0], round(Mmot[a], 1))

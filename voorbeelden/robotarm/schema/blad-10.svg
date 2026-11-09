@@ -1,0 +1,228 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 297" width="420mm" height="297mm" font-family="Arial, Helvetica, sans-serif">
+<rect width="420" height="297" fill="#fff"/>
+<rect x="5" y="5" width="410" height="287" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="20" y="10" width="390" height="277" fill="none" stroke="#000" stroke-width="0.7"/>
+<polyline points="210,5 210,10" fill="none" stroke="#000" stroke-width="0.7"/>
+<polyline points="210,287 210,292" fill="none" stroke="#000" stroke-width="0.7"/>
+<polyline points="5,148.5 20,148.5" fill="none" stroke="#000" stroke-width="0.7"/>
+<polyline points="410,148.5 415,148.5" fill="none" stroke="#000" stroke-width="0.7"/>
+<polyline points="20,15 410,15" fill="none" stroke="#000" stroke-width="0.35"/>
+<text x="39.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">0</text>
+<polyline points="59,10 59,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="78.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">1</text>
+<polyline points="98,10 98,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="117.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">2</text>
+<polyline points="137,10 137,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="156.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">3</text>
+<polyline points="176,10 176,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="195.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">4</text>
+<polyline points="215,10 215,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="234.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">5</text>
+<polyline points="254,10 254,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="273.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">6</text>
+<polyline points="293,10 293,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="312.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">7</text>
+<polyline points="332,10 332,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="351.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">8</text>
+<polyline points="371,10 371,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="390.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">9</text>
+<text x="21.5" y="258.5" font-size="2.5" text-anchor="start" fill="#000">9</text>
+<text x="408.5" y="258.5" font-size="2.5" text-anchor="end" fill="#000">11</text>
+<polyline points="20,260 410,260" fill="none" stroke="#000" stroke-width="0.7"/>
+<polyline points="20,266.75 62,266.75" fill="none" stroke="#000" stroke-width="0.18"/>
+<polyline points="20,273.5 62,273.5" fill="none" stroke="#000" stroke-width="0.18"/>
+<polyline points="20,280.25 62,280.25" fill="none" stroke="#000" stroke-width="0.18"/>
+<polyline points="30,260 30,287" fill="none" stroke="#000" stroke-width="0.18"/>
+<polyline points="48,260 48,287" fill="none" stroke="#000" stroke-width="0.18"/>
+<text x="21" y="285.4" font-size="1.8" text-anchor="start" fill="#000">Wijz.</text>
+<text x="31" y="285.4" font-size="1.8" text-anchor="start" fill="#000">Datum</text>
+<text x="49" y="285.4" font-size="1.8" text-anchor="start" fill="#000">Naam</text>
+<text x="21" y="278.55" font-size="2.3" text-anchor="start" fill="#000">1</text>
+<text x="31" y="278.55" font-size="2" text-anchor="start" fill="#000">2026-11-09</text>
+<text x="49" y="278.55" font-size="2" text-anchor="start" fill="#000">PC</text>
+<polyline points="62,260 62,287" fill="none" stroke="#000" stroke-width="0.35"/>
+<polyline points="62,266.75 106,266.75" fill="none" stroke="#000" stroke-width="0.18"/>
+<polyline points="62,273.5 106,273.5" fill="none" stroke="#000" stroke-width="0.18"/>
+<polyline points="62,280.25 106,280.25" fill="none" stroke="#000" stroke-width="0.18"/>
+<polyline points="77,260 77,287" fill="none" stroke="#000" stroke-width="0.18"/>
+<text x="63" y="264.95" font-size="2" text-anchor="start" fill="#000">Datum</text>
+<text x="78" y="264.95" font-size="2.2" text-anchor="start" fill="#000">2026-11-09</text>
+<text x="63" y="271.7" font-size="2" text-anchor="start" fill="#000">Getek.</text>
+<text x="78" y="271.7" font-size="2.2" text-anchor="start" fill="#000">Phlippo CAD</text>
+<text x="63" y="278.45" font-size="2" text-anchor="start" fill="#000">Gecontr.</text>
+<text x="78" y="278.45" font-size="2.2" text-anchor="start" fill="#000">Ian</text>
+<text x="63" y="285.2" font-size="2" text-anchor="start" fill="#000">Norm</text>
+<text x="78" y="285.2" font-size="2.2" text-anchor="start" fill="#000">IEC 81346</text>
+<polyline points="106,260 106,287" fill="none" stroke="#000" stroke-width="0.35"/>
+<polyline points="106,280.25 206,280.25" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="146,260 146,280.25" fill="none" stroke="#000" stroke-width="0.18"/>
+<text x="107" y="262.3" font-size="1.8" text-anchor="start" fill="#000">Eigenaar</text>
+<text x="108" y="269.5" font-size="3.6" text-anchor="start" fill="#000" font-weight="700">Phlippo CAD</text>
+<text x="108" y="275" font-size="2.3" text-anchor="start" fill="#000">Ian</text>
+<text x="147" y="262.3" font-size="1.8" text-anchor="start" fill="#000">Project</text>
+<text x="148" y="269" font-size="3.2" text-anchor="start" fill="#000" font-weight="700">Robotcel deuren</text>
+<text x="148" y="274.5" font-size="2.3" text-anchor="start" fill="#000">robot PR 120 R2700 met vlakgrijper en camera</text>
+<text x="107" y="285.2" font-size="1.8" text-anchor="start" fill="#000">Oorspr.</text>
+<text x="118" y="285.2" font-size="2" text-anchor="start" fill="#000"></text>
+<polyline points="139.33,280.25 139.33,287" fill="none" stroke="#000" stroke-width="0.18"/>
+<text x="140.33" y="285.2" font-size="1.8" text-anchor="start" fill="#000">Verv. v.</text>
+<text x="151.33" y="285.2" font-size="2" text-anchor="start" fill="#000"></text>
+<polyline points="172.67,280.25 172.67,287" fill="none" stroke="#000" stroke-width="0.18"/>
+<text x="173.67" y="285.2" font-size="1.8" text-anchor="start" fill="#000">Verv. d.</text>
+<text x="184.67" y="285.2" font-size="2" text-anchor="start" fill="#000"></text>
+<polyline points="206,260 206,287" fill="none" stroke="#000" stroke-width="0.35"/>
+<polyline points="206,280.25 306,280.25" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="256" y="266" font-size="4" text-anchor="middle" fill="#000" font-weight="700">Uitgangen</text>
+<text x="256" y="271" font-size="4" text-anchor="middle" fill="#000">-K3 EL2809, 16 x 24 V / 0,5 A</text>
+<text x="207" y="285.2" font-size="1.8" text-anchor="start" fill="#000">Documentsoort</text>
+<text x="228" y="285.2" font-size="2.2" text-anchor="start" fill="#000">&amp;EFS  Schema</text>
+<polyline points="306,260 306,287" fill="none" stroke="#000" stroke-width="0.35"/>
+<polyline points="306,273.5 350,273.5" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="307" y="262.3" font-size="1.8" text-anchor="start" fill="#000">Tekeningnr.</text>
+<text x="308" y="270" font-size="2.8" text-anchor="start" fill="#000" font-weight="700">ROB-E01</text>
+<text x="307" y="275.8" font-size="1.8" text-anchor="start" fill="#000">Revisie / taal</text>
+<text x="308" y="283" font-size="2.6" text-anchor="start" fill="#000">1 / nl</text>
+<polyline points="350,260 350,287" fill="none" stroke="#000" stroke-width="0.35"/>
+<polyline points="350,273.5 384,273.5" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="351.5" y="266" font-size="2.6" text-anchor="start" fill="#000">=</text>
+<text x="355" y="266" font-size="2.8" text-anchor="start" fill="#000" font-weight="700">ROB</text>
+<text x="351.5" y="271" font-size="1.9" text-anchor="start" fill="#000">robotcel</text>
+<text x="351.5" y="279.5" font-size="2.6" text-anchor="start" fill="#000">+</text>
+<text x="355" y="279.5" font-size="2.8" text-anchor="start" fill="#000" font-weight="700">KAST</text>
+<text x="351.5" y="284.5" font-size="1.9" text-anchor="start" fill="#000">schakelkast VX25</text>
+<polyline points="384,260 384,287" fill="none" stroke="#000" stroke-width="0.35"/>
+<polyline points="384,280.25 410,280.25" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="385" y="262.3" font-size="1.8" text-anchor="start" fill="#000">Blad</text>
+<text x="397" y="275" font-size="8" text-anchor="middle" fill="#000" font-weight="700">10</text>
+<text x="408.5" y="285.2" font-size="2.3" text-anchor="end" fill="#000">19 Bl.</text>
+<polyline points="22,40 406,40" fill="none" stroke="#000" stroke-width="0.35"/><polygon points="22,40 24.2,38.9 24.2,41.1" fill="#000"/><text x="25" y="38.6" font-size="2.5" text-anchor="start" fill="#000">L+4</text><text x="25" y="43.2" font-size="2.3" text-anchor="start" fill="#000">/6.6</text>
+<polyline points="22,240 406,240" fill="none" stroke="#000" stroke-width="0.35"/><polygon points="22,240 24.2,238.9 24.2,241.1" fill="#000"/><text x="25" y="238.6" font-size="2.5" text-anchor="start" fill="#000">M</text><text x="25" y="243.2" font-size="2.3" text-anchor="start" fill="#000">/6.1</text>
+<rect x="30" y="112" width="366" height="22" fill="none" stroke="#000" stroke-width="0.3" stroke-dasharray="4 1 0.6 1"/><text x="30" y="110.4" font-size="2.8" text-anchor="start" fill="#000">-K3</text><text x="32.5" y="117" font-size="2.3" text-anchor="start" fill="#000"></text><text x="32.5" y="120.4" font-size="2.3" text-anchor="start" fill="#000">EtherCAT-I/O: EL2809, 16 digitale uitgangen 24 V, 0,5 A; EL3002 2 x 0..10 V (laser -B31)</text>
+<text x="40" y="110" font-size="2.2" text-anchor="middle" fill="#000">O1</text>
+<polyline points="40,134 40,148" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="40" cy="148" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="42.2" y="146.6" font-size="2.3" text-anchor="start" fill="#000">-X4</text><text x="42.2" y="150.6" font-size="2.3" text-anchor="start" fill="#000">33</text>
+<polyline points="40,149.2 40,156" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="40,156 40,161" fill="none" stroke="#000" stroke-width="0.25"/><rect x="35" y="161" width="10" height="6" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="40,167 40,172" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="35,167 45,161" fill="none" stroke="#000" stroke-width="0.35"/><text x="41" y="160.2" font-size="1.8" text-anchor="start" fill="#000">A1</text><text x="41" y="170.6" font-size="1.8" text-anchor="start" fill="#000">A2</text><text x="47" y="164" font-size="2.8" text-anchor="start" fill="#000">-Q21</text>
+<polyline points="40,172 40,240" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="40" cy="240" r="0.6" fill="#000"/>
+<text x="41" y="176" font-size="2" text-anchor="start" fill="#000" transform="rotate(90 41 176)">Zone 1 zuigen</text>
+<text x="63.5" y="110" font-size="2.2" text-anchor="middle" fill="#000">O2</text>
+<polyline points="63.5,134 63.5,148" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="63.5" cy="148" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="65.7" y="146.6" font-size="2.3" text-anchor="start" fill="#000">-X4</text><text x="65.7" y="150.6" font-size="2.3" text-anchor="start" fill="#000">34</text>
+<polyline points="63.5,149.2 63.5,156" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="63.5,156 63.5,161" fill="none" stroke="#000" stroke-width="0.25"/><rect x="58.5" y="161" width="10" height="6" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="63.5,167 63.5,172" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="58.5,167 68.5,161" fill="none" stroke="#000" stroke-width="0.35"/><text x="64.5" y="160.2" font-size="1.8" text-anchor="start" fill="#000">A1</text><text x="64.5" y="170.6" font-size="1.8" text-anchor="start" fill="#000">A2</text><text x="70.5" y="164" font-size="2.8" text-anchor="start" fill="#000">-Q22</text>
+<polyline points="63.5,172 63.5,240" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="63.5" cy="240" r="0.6" fill="#000"/>
+<text x="64.5" y="176" font-size="2" text-anchor="start" fill="#000" transform="rotate(90 64.5 176)">Zone 2 zuigen</text>
+<text x="87" y="110" font-size="2.2" text-anchor="middle" fill="#000">O3</text>
+<polyline points="87,134 87,148" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="87" cy="148" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="89.2" y="146.6" font-size="2.3" text-anchor="start" fill="#000">-X4</text><text x="89.2" y="150.6" font-size="2.3" text-anchor="start" fill="#000">35</text>
+<polyline points="87,149.2 87,156" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="87,156 87,161" fill="none" stroke="#000" stroke-width="0.25"/><rect x="82" y="161" width="10" height="6" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="87,167 87,172" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="82,167 92,161" fill="none" stroke="#000" stroke-width="0.35"/><text x="88" y="160.2" font-size="1.8" text-anchor="start" fill="#000">A1</text><text x="88" y="170.6" font-size="1.8" text-anchor="start" fill="#000">A2</text><text x="94" y="164" font-size="2.8" text-anchor="start" fill="#000">-Q23</text>
+<polyline points="87,172 87,240" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="87" cy="240" r="0.6" fill="#000"/>
+<text x="88" y="176" font-size="2" text-anchor="start" fill="#000" transform="rotate(90 88 176)">Zone 3 zuigen</text>
+<text x="110.5" y="110" font-size="2.2" text-anchor="middle" fill="#000">O4</text>
+<polyline points="110.5,134 110.5,148" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="110.5" cy="148" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="112.7" y="146.6" font-size="2.3" text-anchor="start" fill="#000">-X4</text><text x="112.7" y="150.6" font-size="2.3" text-anchor="start" fill="#000">36</text>
+<polyline points="110.5,149.2 110.5,156" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="110.5,156 110.5,161" fill="none" stroke="#000" stroke-width="0.25"/><rect x="105.5" y="161" width="10" height="6" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="110.5,167 110.5,172" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="105.5,167 115.5,161" fill="none" stroke="#000" stroke-width="0.35"/><text x="111.5" y="160.2" font-size="1.8" text-anchor="start" fill="#000">A1</text><text x="111.5" y="170.6" font-size="1.8" text-anchor="start" fill="#000">A2</text><text x="117.5" y="164" font-size="2.8" text-anchor="start" fill="#000">-Q24</text>
+<polyline points="110.5,172 110.5,240" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="110.5" cy="240" r="0.6" fill="#000"/>
+<text x="111.5" y="176" font-size="2" text-anchor="start" fill="#000" transform="rotate(90 111.5 176)">Afblazen (alle zones)</text>
+<text x="134" y="110" font-size="2.2" text-anchor="middle" fill="#000">O5</text>
+<polyline points="134,134 134,148" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="134" cy="148" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="136.2" y="146.6" font-size="2.3" text-anchor="start" fill="#000">-X4</text><text x="136.2" y="150.6" font-size="2.3" text-anchor="start" fill="#000">37</text>
+<polyline points="134,149.2 134,156" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="134,156 134,161" fill="none" stroke="#000" stroke-width="0.25"/><rect x="129" y="161" width="10" height="6" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="134,167 134,172" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="129,167 139,161" fill="none" stroke="#000" stroke-width="0.35"/><text x="135" y="160.2" font-size="1.8" text-anchor="start" fill="#000">A1</text><text x="135" y="170.6" font-size="1.8" text-anchor="start" fill="#000">A2</text><text x="141" y="164" font-size="2.8" text-anchor="start" fill="#000">-Q25</text>
+<polyline points="134,172 134,240" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="134" cy="240" r="0.6" fill="#000"/>
+<text x="135" y="176" font-size="2" text-anchor="start" fill="#000" transform="rotate(90 135 176)">Stopper omhoog</text>
+<text x="157.5" y="110" font-size="2.2" text-anchor="middle" fill="#000">O6</text>
+<polyline points="157.5,134 157.5,148" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="157.5" cy="148" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="159.7" y="146.6" font-size="2.3" text-anchor="start" fill="#000">-X4</text><text x="159.7" y="150.6" font-size="2.3" text-anchor="start" fill="#000">38</text>
+<polyline points="157.5,149.2 157.5,156" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="157.5,156 157.5,161" fill="none" stroke="#000" stroke-width="0.25"/><rect x="152.5" y="161" width="10" height="6" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="157.5,167 157.5,172" fill="none" stroke="#000" stroke-width="0.25"/><text x="158.5" y="160.2" font-size="1.8" text-anchor="start" fill="#000">A1</text><text x="158.5" y="170.6" font-size="1.8" text-anchor="start" fill="#000">A2</text><text x="164.5" y="164" font-size="2.8" text-anchor="start" fill="#000">-K11</text>
+<polyline points="157.5,172 157.5,240" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="157.5" cy="240" r="0.6" fill="#000"/>
+<text x="158.5" y="176" font-size="2" text-anchor="start" fill="#000" transform="rotate(90 158.5 176)">Toren rood</text>
+<text x="181" y="110" font-size="2.2" text-anchor="middle" fill="#000">O7</text>
+<polyline points="181,134 181,148" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="181" cy="148" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="183.2" y="146.6" font-size="2.3" text-anchor="start" fill="#000">-X4</text><text x="183.2" y="150.6" font-size="2.3" text-anchor="start" fill="#000">39</text>
+<polyline points="181,149.2 181,156" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="181,156 181,161" fill="none" stroke="#000" stroke-width="0.25"/><rect x="176" y="161" width="10" height="6" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="181,167 181,172" fill="none" stroke="#000" stroke-width="0.25"/><text x="182" y="160.2" font-size="1.8" text-anchor="start" fill="#000">A1</text><text x="182" y="170.6" font-size="1.8" text-anchor="start" fill="#000">A2</text><text x="188" y="164" font-size="2.8" text-anchor="start" fill="#000">-K12</text>
+<polyline points="181,172 181,240" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="181" cy="240" r="0.6" fill="#000"/>
+<text x="182" y="176" font-size="2" text-anchor="start" fill="#000" transform="rotate(90 182 176)">Toren oranje</text>
+<text x="204.5" y="110" font-size="2.2" text-anchor="middle" fill="#000">O8</text>
+<polyline points="204.5,134 204.5,148" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="204.5" cy="148" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="206.7" y="146.6" font-size="2.3" text-anchor="start" fill="#000">-X4</text><text x="206.7" y="150.6" font-size="2.3" text-anchor="start" fill="#000">40</text>
+<polyline points="204.5,149.2 204.5,156" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="204.5,156 204.5,161" fill="none" stroke="#000" stroke-width="0.25"/><rect x="199.5" y="161" width="10" height="6" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="204.5,167 204.5,172" fill="none" stroke="#000" stroke-width="0.25"/><text x="205.5" y="160.2" font-size="1.8" text-anchor="start" fill="#000">A1</text><text x="205.5" y="170.6" font-size="1.8" text-anchor="start" fill="#000">A2</text><text x="211.5" y="164" font-size="2.8" text-anchor="start" fill="#000">-K13</text>
+<polyline points="204.5,172 204.5,240" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="204.5" cy="240" r="0.6" fill="#000"/>
+<text x="205.5" y="176" font-size="2" text-anchor="start" fill="#000" transform="rotate(90 205.5 176)">Toren groen</text>
+<text x="228" y="110" font-size="2.2" text-anchor="middle" fill="#000">O9</text>
+<polyline points="228,134 228,148" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="228" cy="148" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="230.2" y="146.6" font-size="2.3" text-anchor="start" fill="#000">-X4</text><text x="230.2" y="150.6" font-size="2.3" text-anchor="start" fill="#000">41</text>
+<polyline points="228,149.2 228,156" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="228,156 228,161" fill="none" stroke="#000" stroke-width="0.25"/><rect x="223" y="161" width="10" height="6" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="228,167 228,172" fill="none" stroke="#000" stroke-width="0.25"/><text x="229" y="160.2" font-size="1.8" text-anchor="start" fill="#000">A1</text><text x="229" y="170.6" font-size="1.8" text-anchor="start" fill="#000">A2</text><text x="235" y="164" font-size="2.8" text-anchor="start" fill="#000">-K14</text>
+<polyline points="228,172 228,240" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="228" cy="240" r="0.6" fill="#000"/>
+<text x="229" y="176" font-size="2" text-anchor="start" fill="#000" transform="rotate(90 229 176)">Band stoppen (naar de bandbesturing)</text>
+<text x="251.5" y="110" font-size="2.2" text-anchor="middle" fill="#000">O10</text>
+<polyline points="251.5,134 251.5,148" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="251.5" cy="148" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="253.7" y="146.6" font-size="2.3" text-anchor="start" fill="#000">-X4</text><text x="253.7" y="150.6" font-size="2.3" text-anchor="start" fill="#000">42</text>
+<polyline points="251.5,149.2 251.5,156" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="251.5,156 251.5,160" fill="none" stroke="#000" stroke-width="0.25"/><circle cx="251.5" cy="164" r="4" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="248.7,161.2 254.3,166.8" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="248.7,166.8 254.3,161.2" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="251.5,168 251.5,172" fill="none" stroke="#000" stroke-width="0.25"/><text x="257.5" y="163" font-size="2.8" text-anchor="start" fill="#000">-P11</text><text x="257.5" y="166" font-size="2.1" text-anchor="start" fill="#000"></text>
+<polyline points="251.5,172 251.5,240" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="251.5" cy="240" r="0.6" fill="#000"/>
+<text x="252.5" y="176" font-size="2" text-anchor="start" fill="#000" transform="rotate(90 252.5 176)">Zoemer toren</text>
+<text x="275" y="110" font-size="2.2" text-anchor="middle" fill="#000">O11</text>
+<polyline points="275,134 275,148" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="275" cy="148" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="277.2" y="146.6" font-size="2.3" text-anchor="start" fill="#000">-X4</text><text x="277.2" y="150.6" font-size="2.3" text-anchor="start" fill="#000">43</text>
+<polyline points="275,149.2 275,156" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="275,156 275,160" fill="none" stroke="#000" stroke-width="0.25"/><circle cx="275" cy="164" r="4" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="272.2,161.2 277.8,166.8" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="272.2,166.8 277.8,161.2" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="275,168 275,172" fill="none" stroke="#000" stroke-width="0.25"/><text x="281" y="163" font-size="2.8" text-anchor="start" fill="#000">-P12</text><text x="281" y="166" font-size="2.1" text-anchor="start" fill="#000"></text>
+<polyline points="275,172 275,240" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="275" cy="240" r="0.6" fill="#000"/>
+<text x="276" y="176" font-size="2" text-anchor="start" fill="#000" transform="rotate(90 276 176)">Lamp start (groen)</text>
+<text x="298.5" y="110" font-size="2.2" text-anchor="middle" fill="#000">O12</text>
+<polyline points="298.5,134 298.5,148" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="298.5" cy="148" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="300.7" y="146.6" font-size="2.3" text-anchor="start" fill="#000">-X4</text><text x="300.7" y="150.6" font-size="2.3" text-anchor="start" fill="#000">44</text>
+<polyline points="298.5,149.2 298.5,156" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="298.5,156 298.5,160" fill="none" stroke="#000" stroke-width="0.25"/><circle cx="298.5" cy="164" r="4" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="295.7,161.2 301.3,166.8" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="295.7,166.8 301.3,161.2" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="298.5,168 298.5,172" fill="none" stroke="#000" stroke-width="0.25"/><text x="304.5" y="163" font-size="2.8" text-anchor="start" fill="#000">-P13</text><text x="304.5" y="166" font-size="2.1" text-anchor="start" fill="#000"></text>
+<polyline points="298.5,172 298.5,240" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="298.5" cy="240" r="0.6" fill="#000"/>
+<text x="299.5" y="176" font-size="2" text-anchor="start" fill="#000" transform="rotate(90 299.5 176)">Lamp reset (blauw)</text>
+<text x="322" y="110" font-size="2.2" text-anchor="middle" fill="#000">O13</text>
+<polyline points="322,134 322,148" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="322" cy="148" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="324.2" y="146.6" font-size="2.3" text-anchor="start" fill="#000">-X4</text><text x="324.2" y="150.6" font-size="2.3" text-anchor="start" fill="#000">45</text>
+<polyline points="322,149.2 322,156" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="322,156 322,161" fill="none" stroke="#000" stroke-width="0.25"/><rect x="317" y="161" width="10" height="6" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="322,167 322,172" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="317,167 327,161" fill="none" stroke="#000" stroke-width="0.35"/><text x="323" y="160.2" font-size="1.8" text-anchor="start" fill="#000">A1</text><text x="323" y="170.6" font-size="1.8" text-anchor="start" fill="#000">A2</text><text x="329" y="164" font-size="2.8" text-anchor="start" fill="#000">-Q26</text>
+<polyline points="322,172 322,240" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="322" cy="240" r="0.6" fill="#000"/>
+<text x="323" y="176" font-size="2" text-anchor="start" fill="#000" transform="rotate(90 323 176)">Perslucht grijper aan</text>
+<text x="345.5" y="110" font-size="2.2" text-anchor="middle" fill="#000">O14</text>
+<polyline points="345.5,134 345.5,148" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="345.5" cy="148" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="347.7" y="146.6" font-size="2.3" text-anchor="start" fill="#000">-X4</text><text x="347.7" y="150.6" font-size="2.3" text-anchor="start" fill="#000">46</text>
+<polyline points="345.5,149.2 345.5,156" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="345.5,156 345.5,160" fill="none" stroke="#000" stroke-width="0.25"/><circle cx="345.5" cy="164" r="4" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="342.7,161.2 348.3,166.8" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="342.7,166.8 348.3,161.2" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="345.5,168 345.5,172" fill="none" stroke="#000" stroke-width="0.25"/><text x="351.5" y="163" font-size="2.8" text-anchor="start" fill="#000">-E3</text><text x="351.5" y="166" font-size="2.1" text-anchor="start" fill="#000"></text>
+<polyline points="345.5,172 345.5,240" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="345.5" cy="240" r="0.6" fill="#000"/>
+<text x="346.5" y="176" font-size="2" text-anchor="start" fill="#000" transform="rotate(90 346.5 176)">Ledbalken camera</text>
+<text x="369" y="110" font-size="2.2" text-anchor="middle" fill="#000">O15</text>
+<polyline points="369,134 369,148" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="369" cy="148" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="371.2" y="146.6" font-size="2.3" text-anchor="start" fill="#000">-X4</text><text x="371.2" y="150.6" font-size="2.3" text-anchor="start" fill="#000">47</text>
+<polyline points="369,149.2 369,156" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="369,172 369,240" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="369" cy="240" r="0.6" fill="#000"/>
+<text x="370" y="176" font-size="2" text-anchor="start" fill="#000" transform="rotate(90 370 176)">reserve</text>
+<text x="392.5" y="110" font-size="2.2" text-anchor="middle" fill="#000">O16</text>
+<polyline points="392.5,134 392.5,148" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="392.5" cy="148" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="394.7" y="146.6" font-size="2.3" text-anchor="start" fill="#000">-X4</text><text x="394.7" y="150.6" font-size="2.3" text-anchor="start" fill="#000">48</text>
+<polyline points="392.5,149.2 392.5,156" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="392.5,172 392.5,240" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="392.5" cy="240" r="0.6" fill="#000"/>
+<text x="393.5" y="176" font-size="2" text-anchor="start" fill="#000" transform="rotate(90 393.5 176)">reserve</text>
+<text x="24" y="30" font-size="2.3" text-anchor="start" fill="#000">Ventielspoelen 24 V DC met led en vrijloopdiode; -Q21..-Q24 zitten in de FA-Mc-balken en het ventieleiland op de grijper (kabel in het slangenpakket).</text>
+</svg>

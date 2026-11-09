@@ -11,7 +11,7 @@ import { KLASSEN, controleerAanduiding } from '../../voorbeelden/lib/eplan.mjs';
 
 const teksten = (svg: string) => [...svg.matchAll(/<text[^>]*>([^<]*)<\/text>/g)].map((m) => m[1].replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>'));
 
-for (const project of ['afzuiging', 'treinverlichting']) {
+for (const project of ['afzuiging', 'treinverlichting', 'robotarm']) {
   const dir = `voorbeelden/${project}/schema`;
   const bladen = readdirSync(dir).filter((f) => /^blad-\d+\.svg$/.test(f)).sort((a, b) => parseInt(a.slice(5)) - parseInt(b.slice(5))).map((f) => readFileSync(`${dir}/${f}`, 'utf8'));
   describe(`aansluitschema ${project} volgens de normen`, () => {
@@ -22,6 +22,7 @@ for (const project of ['afzuiging', 'treinverlichting']) {
       expect(soorten).toContain('&EFS');
       expect(soorten).toContain('&EMA');
       expect(soorten[soorten.length - 1]).toBe('&EPC');
+      // opstellingsplannen (&ELU) mogen er tussen staan
     });
     it('elke productaanduiding hoort bij een klasse van ISO/IEC 81346-2', () => {
       const fout: string[] = [];

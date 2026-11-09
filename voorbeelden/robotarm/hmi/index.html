@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1366, height=768, initial-scale=1">
+<title>Robotcel PR 120 - bediening</title>
+<style>
+:root {
+  --bg: #e9ebee; --paneel: #ffffff; --lijn: #c9ced4; --tekst: #1b1f24; --zacht: #5b6470;
+  --blauw: #1f5fbf; --groen: #1e9e4a; --oranje: #e07b00; --rood: #d01c1c; --geel: #f2b705;
+  --hoog: 44px;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { width: 1366px; height: 768px; overflow: hidden; background: var(--bg); color: var(--tekst); font: 15px/1.35 "Segoe UI", Arial, sans-serif; user-select: none; }
+header { height: 56px; display: flex; align-items: center; gap: 14px; padding: 0 14px; background: #1b1f24; color: #fff; }
+header .naam { font-weight: 700; font-size: 17px; letter-spacing: .3px; }
+header .naam small { font-weight: 400; color: #aab3bd; margin-left: 6px; }
+.toestand { padding: 6px 14px; border-radius: 4px; font-weight: 700; font-size: 15px; min-width: 190px; text-align: center; }
+.t-auto { background: var(--groen); } .t-hand { background: var(--blauw); } .t-stop { background: var(--oranje); } .t-fout { background: var(--rood); }
+header .vak { color: #cfd6dd; font-size: 13px; }
+header .vak b { color: #fff; font-size: 15px; display: block; }
+header .rechts { margin-left: auto; display: flex; gap: 18px; align-items: center; }
+.toren { display: flex; flex-direction: column; gap: 3px; }
+.toren i { width: 30px; height: 9px; border-radius: 2px; background: #3a3f45; display: block; }
+.toren i.r.aan { background: var(--rood); } .toren i.o.aan { background: var(--oranje); } .toren i.g.aan { background: #2fd15a; }
+nav { position: absolute; left: 0; top: 56px; bottom: 0; width: 132px; background: #2a3038; display: flex; flex-direction: column; }
+nav button { height: 74px; border: 0; border-bottom: 1px solid #3a414b; background: none; color: #d7dde3; font: 600 14px "Segoe UI", Arial; text-align: left; padding: 0 14px; cursor: pointer; }
+nav button.actief { background: var(--bg); color: var(--tekst); }
+nav button .n { display: block; font-size: 11px; font-weight: 400; color: #9aa4ae; }
+nav button.actief .n { color: var(--zacht); }
+nav .alarm-teller { background: var(--rood); color: #fff; border-radius: 10px; padding: 0 7px; font-size: 12px; margin-left: 4px; }
+main { position: absolute; left: 132px; top: 56px; right: 0; bottom: 0; padding: 12px; }
+.scherm { display: none; height: 100%; }
+.scherm.actief { display: grid; gap: 12px; }
+.paneel { background: var(--paneel); border: 1px solid var(--lijn); border-radius: 6px; padding: 12px 14px; overflow: hidden; }
+.paneel h2 { margin: 0 0 10px; font-size: 15px; text-transform: uppercase; letter-spacing: .6px; color: var(--zacht); }
+.knop { height: var(--hoog); min-width: 120px; padding: 0 18px; border-radius: 5px; border: 1px solid #9aa4ae; background: #f4f6f8; font: 600 15px "Segoe UI", Arial; color: var(--tekst); cursor: pointer; }
+.knop.groen { background: var(--groen); color: #fff; border-color: #157a38; }
+.knop.rood { background: var(--rood); color: #fff; border-color: #a31515; }
+.knop.blauw { background: var(--blauw); color: #fff; border-color: #154a96; }
+.knop[disabled] { opacity: .45; }
+.rij { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th { text-align: left; color: var(--zacht); font-weight: 600; font-size: 12px; text-transform: uppercase; border-bottom: 2px solid var(--lijn); padding: 6px 6px; }
+td { border-bottom: 1px solid #e3e6ea; padding: 7px 6px; }
+.getal { font-variant-numeric: tabular-nums; text-align: right; }
+.kpi { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.kpi b { font-size: 30px; display: block; font-variant-numeric: tabular-nums; }
+.kpi span { color: var(--zacht); font-size: 13px; }
+.demo { background: #6b4fa0; color: #fff; padding: 3px 8px; border-radius: 3px; font-size: 12px; font-weight: 700; }
+.lamp { display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: #b9c0c7; vertical-align: -1px; margin-right: 6px; }
+.lamp.aan { background: var(--groen); } .lamp.uit { background: #b9c0c7; } .lamp.fout { background: var(--rood); } .lamp.let { background: var(--oranje); }
+.balk { height: 10px; background: #e3e6ea; border-radius: 5px; overflow: hidden; }
+.balk i { display: block; height: 100%; background: var(--blauw); }
+svg text { font-family: "Segoe UI", Arial, sans-serif; }
+.melding { padding: 8px 10px; border-left: 4px solid var(--oranje); background: #fff6e6; margin-bottom: 6px; font-size: 14px; }
+.melding.fout { border-color: var(--rood); background: #fdecec; }
+.melding small { color: var(--zacht); margin-right: 8px; }
+.jog { display: grid; grid-template-columns: 70px 64px 1fr 64px 110px; gap: 8px; align-items: center; margin-bottom: 8px; }
+.jog .knop { min-width: 0; padding: 0; height: 52px; font-size: 22px; }
+.wit { color: var(--zacht); font-size: 13px; }
+</style>
+</head>
+<body>
+<header>
+  <div class="naam">Robotcel deuren <small>PR 120 R2700 · =ROB +CEL</small></div>
+  <span class="demo" id="demo" title="Zonder verbinding met de IPC toont het scherm gesimuleerde waarden">SIMULATIE</span>
+  <div class="toestand t-stop" id="toestand">GESTOPT</div>
+  <div class="vak">Modus<b id="modus">Automaat</b></div>
+  <div class="vak">Stuk<b id="stuknu">—</b></div>
+  <div class="vak">Cyclus<b id="cyclus">0,0 s</b></div>
+  <div class="rechts">
+    <div class="vak">Vacuüm<b id="vacuum">0 mbar</b></div>
+    <div class="vak">Perslucht<b id="lucht">6,1 bar</b></div>
+    <div class="vak">Tijd<b id="klok">--:--</b></div>
+    <div class="toren"><i class="r"></i><i class="o aan" id="to"></i><i class="g" id="tg"></i></div>
+  </div>
+</header>
+<nav id="nav">
+  <button data-s="overzicht" class="actief">Overzicht<span class="n">cel en robot</span></button>
+  <button data-s="stukken">Stukken<span class="n">camera en grijpen</span></button>
+  <button data-s="hand">Handbediening<span class="n">assen en grijper</span></button>
+  <button data-s="statistiek">Statistiek<span class="n">productie en OEE</span></button>
+  <button data-s="alarmen">Alarmen <span class="alarm-teller" id="nalarm">0</span><span class="n">meldingen</span></button>
+  <button data-s="onderhoud">Onderhoud<span class="n">tellers en service</span></button>
+  <button data-s="veiligheid">Veiligheid<span class="n">noodstop, hek, licht</span></button>
+</nav>
+<main>
+  <!-- OVERZICHT -->
+  <section class="scherm actief" id="overzicht" style="grid-template-columns: 1.45fr 1fr; grid-template-rows: 1fr auto;">
+    <div class="paneel" style="grid-row: span 2; padding: 6px">
+      <svg id="celsvg" viewBox="0 0 760 640" width="100%" height="100%"></svg>
+    </div>
+    <div class="paneel">
+      <h2>Bediening</h2>
+      <div class="rij" style="margin-bottom:10px">
+        <button class="knop groen" id="start">Start</button>
+        <button class="knop" id="stop">Stop na cyclus</button>
+        <button class="knop blauw" id="reset">Reset</button>
+      </div>
+      <div class="rij" style="margin-bottom:12px">
+        <button class="knop" id="mauto">Automaat</button>
+        <button class="knop" id="mhand">Hand (T1, 250 mm/s)</button>
+      </div>
+      <h2>Assen</h2>
+      <table id="assen"><tr><th>As</th><th class="getal">Positie</th><th class="getal">Snelheid</th><th class="getal">Koppel</th><th class="getal">Temp.</th></tr></table>
+    </div>
+    <div class="paneel">
+      <h2>Vandaag</h2>
+      <div class="kpi" style="grid-template-columns: repeat(3, 1fr)">
+        <div><b id="k-stuks">0</b><span>stuks</span></div>
+        <div><b id="k-uur">0</b><span>stuks per uur</span></div>
+        <div><b id="k-oee">0 %</b><span>OEE</span></div>
+      </div>
+    </div>
+  </section>
+  <!-- STUKKEN -->
+  <section class="scherm" id="stukken" style="grid-template-columns: 1fr 1fr; grid-template-rows: auto 1fr;">
+    <div class="paneel" style="grid-column: span 2">
+      <h2>Laatste camerabeeld (boven de band) en grijpplan</h2>
+      <svg id="camsvg" viewBox="0 0 1180 250" width="100%" height="250"></svg>
+    </div>
+    <div class="paneel">
+      <h2>Herkende stukken</h2>
+      <table id="stuklijst"><tr><th>#</th><th>Soort</th><th class="getal">L x B x D</th><th class="getal">Massa</th><th>Zones</th><th>Leg</th></tr></table>
+    </div>
+    <div class="paneel">
+      <h2>Afleggen per soort</h2>
+      <table id="recepten"><tr><th>Soort</th><th>Neerleggen</th><th>Plaats</th><th class="getal">Versn.</th></tr></table>
+      <p class="wit">De camera meet elk stuk (omtrek, draaiing, dikte); de grijpplanner kiest de draaiing van A6, het grijppunt en de balken (zones), en begrenst de versnelling met veiligheid 2.</p>
+    </div>
+  </section>
+  <!-- HAND -->
+  <section class="scherm" id="hand" style="grid-template-columns: 1.2fr 1fr;">
+    <div class="paneel">
+      <h2>Assen verplaatsen (houd ingedrukt, modus hand, 250 mm/s)</h2>
+      <div id="jog"></div>
+      <div class="rij" style="margin-top:10px"><button class="knop" id="naarbasis">Naar basisstand</button><button class="knop" id="naaronderhoud">Naar onderhoudsstand</button></div>
+    </div>
+    <div class="paneel">
+      <h2>Grijper</h2>
+      <table id="zones"><tr><th>Zone</th><th>Balk</th><th class="getal">Vacuüm</th><th>Ventiel</th><th></th></tr></table>
+      <div class="rij" style="margin-top:12px"><button class="knop blauw" id="zuig">Alle zones zuigen</button><button class="knop" id="blaas">Afblazen</button></div>
+      <h2 style="margin-top:16px">Band</h2>
+      <div class="rij"><button class="knop" id="stopper">Stopper op/neer</button><span id="stopperst" class="wit"></span></div>
+    </div>
+  </section>
+  <!-- STATISTIEK -->
+  <section class="scherm" id="statistiek" style="grid-template-rows: auto 1fr 1fr; grid-template-columns: 1fr 1fr;">
+    <div class="kpi" style="grid-column: span 2">
+      <div class="paneel"><b id="s-stuks">0</b><span>stuks vandaag</span></div>
+      <div class="paneel"><b id="s-cyclus">0,0 s</b><span>gemiddelde cyclustijd</span></div>
+      <div class="paneel"><b id="s-besch">0 %</b><span>beschikbaarheid</span></div>
+      <div class="paneel"><b id="s-oee">0 %</b><span>OEE (beschikbaarheid x prestatie x kwaliteit)</span></div>
+    </div>
+    <div class="paneel"><h2>Stuks per uur (vandaag)</h2><svg id="grafuur" viewBox="0 0 560 200" width="100%" height="200"></svg></div>
+    <div class="paneel"><h2>Cyclustijd laatste 40 cycli (s)</h2><svg id="grafcyclus" viewBox="0 0 560 200" width="100%" height="200"></svg></div>
+    <div class="paneel"><h2>Per soort</h2><table id="persoort"><tr><th>Soort</th><th class="getal">Stuks</th><th class="getal">Gem. cyclus</th><th class="getal">Geweigerd</th></tr></table></div>
+    <div class="paneel"><h2>Stilstand (minuten)</h2><table id="stilstand"><tr><th>Oorzaak</th><th class="getal">Min.</th><th>Aandeel</th></tr></table></div>
+  </section>
+  <!-- ALARMEN -->
+  <section class="scherm" id="alarmen" style="grid-template-columns: 1fr;">
+    <div class="paneel"><h2>Actieve en recente meldingen</h2><div id="alarmlijst"></div>
+      <div class="rij" style="margin-top:10px"><button class="knop blauw" id="kwiteer">Alles kwiteren</button></div></div>
+  </section>
+  <!-- ONDERHOUD -->
+  <section class="scherm" id="onderhoud" style="grid-template-columns: 1fr 1fr;">
+    <div class="paneel"><h2>Tellers</h2><table id="tellers"><tr><th>Onderdeel</th><th class="getal">Stand</th><th class="getal">Interval</th><th style="width:30%">Tot service</th></tr></table></div>
+    <div class="paneel"><h2>Volgende taken</h2><table id="taken"><tr><th>Taak</th><th>Wanneer</th></tr></table>
+      <p class="wit">Intervallen volgens de fabrikanten: Nabtesco RV-C (smering), Schmalz (schuim en filters), Festo (stopper). Zie het onderhoudsplan in de documentatie.</p></div>
+  </section>
+  <!-- VEILIGHEID -->
+  <section class="scherm" id="veiligheid" style="grid-template-columns: 1fr 1fr;">
+    <div class="paneel"><h2>Veiligheidsfuncties (-K2, PL d)</h2><table id="veilig"><tr><th>Functie</th><th>Ingang</th><th>Toestand</th></tr></table></div>
+    <div class="paneel"><h2>Uitgangen</h2><table id="veiliguit"><tr><th>Uitgang</th><th>Doel</th><th>Toestand</th></tr></table>
+      <p class="wit">Herstarten kan pas na reset (-S3) met alle beveiligingen in orde. Muting van de lichtschermen alleen terwijl een stuk de opening passeert (-B13..-B16).</p></div>
+  </section>
+</main>
+<script>
+'use strict';
+// ---------------------------------------------------------------- simulatie van de cel (in de echte cel komen deze waarden van de IPC via een websocket)
+const $ = (s) => document.querySelector(s);
+const nl = (v, d = 1) => v.toLocaleString('nl-BE', { minimumFractionDigits: d, maximumFractionDigits: d });
+const SOORTEN = [
+  { soort: 'Deur', l: 2115, b: 1015, d: 54, m: 60.0, leg: 'plat', plaats: 'stapel A', zones: '1 2 3', a: 4.0, aandeel: 0.35 },
+  { soort: 'Plint', l: 2400, b: 70, d: 12, m: 1.4, leg: 'plat', plaats: 'bak plinten', zones: '1', a: 4.0, aandeel: 0.3 },
+  { soort: 'Plank', l: 600, b: 300, d: 18, m: 2.1, leg: 'rechtop', plaats: 'rek B', zones: '1', a: 4.0, aandeel: 0.25 },
+  { soort: 'Latje', l: 1000, b: 30, d: 20, m: 0.4, leg: 'plat', plaats: 'bak latten', zones: '2', a: 4.0, aandeel: 0.1 },
+];
+const AS = ['A1', 'A2', 'A3', 'A4', 'A5', 'A6'];
+const st = {
+  modus: 'Automaat', toestand: 'GESTOPT', cyclus: 0, stuks: 0, geweigerd: 0, start: Date.now() - 6.2 * 3600e3, stil: { 'Geen aanvoer': 41, 'Noodstop/deur': 12, 'Vacuüm te laag': 6, 'Ombouw/onderhoud': 15 },
+  q: [0, -25.3, -3.6, 0, -61.1, 0], vac: [0, 0, 0], stopper: true, lijst: [], cycli: [], uur: [], alarmen: [], tick: 0,
+};
+// startgegevens van vandaag (6 uur productie)
+for (let h = 0; h < 7; h++) st.uur.push(h < 6 ? 68 + Math.round(Math.sin(h * 1.7) * 9) : 31);
+st.stuks = st.uur.reduce((a, b) => a + b, 0);
+for (let i = 0; i < 40; i++) st.cycli.push(14.2 + Math.sin(i * 0.9) * 1.6 + (i % 7 === 3 ? 4.5 : 0));
+const persoort = SOORTEN.map((s) => ({ ...s, n: Math.round(st.stuks * s.aandeel), cyc: s.soort === 'Deur' ? 17.8 : s.soort === 'Plint' ? 12.4 : 11.6, wei: s.soort === 'Latje' ? 3 : s.soort === 'Plank' ? 1 : 0 }));
+st.alarmen = [
+  { t: '07:42', fout: false, tekst: 'Vacuüm zone 2 onder -200 mbar bij het opnemen (plint 2400 x 70): opnieuw geprobeerd, gelukt.' },
+  { t: '09:15', fout: true, tekst: 'Lichtscherm -B11 onderbroken zonder muting: stop categorie 1. Gekwiteerd 09:16.' },
+  { t: '10:03', fout: false, tekst: 'Stuk geweigerd: latje 1000 x 30 te smal voor veilige versnelling > 1 m/s² op één balk.' },
+];
+function laagste(a) { return a.reduce((x, y) => Math.min(x, y), Infinity); }
+// ---------------------------------------------------------------- tekenen: de cel van boven
+function cel() {
+  const s = $('#celsvg');
+  const sx = (x) => 380 + x * 0.105, sz = (z) => 320 + z * 0.075; // wereld (mm) -> svg, X naar rechts, Z naar beneden
+  const r = [];
+  r.push(`<rect x="${sx(-2000)}" y="${sz(-3500)}" width="${5400 * 0.105}" height="${7000 * 0.075}" fill="#fafbfc" stroke="#1b1f24" stroke-width="2" stroke-dasharray="8 4"/>`);
+  r.push(`<text x="${sx(-2000) + 6}" y="${sz(-3500) - 6}" font-size="12" fill="#5b6470">hek 2000 hoog, toegangsdeur links (vergrendeld)</text>`);
+  r.push(`<rect x="${sx(1350)}" y="${sz(-3900)}" width="${1200 * 0.105}" height="${7800 * 0.075}" fill="#dfe6ef" stroke="#1f4e8c"/>`);
+  for (let i = 0; i < 52; i++) r.push(`<line x1="${sx(1350)}" x2="${sx(2550)}" y1="${sz(-3825 + i * 150)}" y2="${sz(-3825 + i * 150)}" stroke="#a9b6c6" stroke-width="1"/>`);
+  r.push(`<text x="${sx(1950)}" y="${sz(-3900) - 4}" font-size="12" text-anchor="middle" fill="#1f4e8c">band in</text><text x="${sx(1950)}" y="${sz(3900) + 14}" font-size="12" text-anchor="middle" fill="#1f4e8c">band uit</text>`);
+  r.push(`<rect x="${sx(1150)}" y="${sz(-2640)}" width="${1600 * 0.105}" height="6" fill="#9aa4ae"/><text x="${sx(2850)}" y="${sz(-2600) + 4}" font-size="12" fill="#5b6470">camera</text>`);
+  const nu = st.lijst[0];
+  if (nu) r.push(`<rect x="${sx(1950 - nu.b / 2)}" y="${sz(1050 - nu.l)}" width="${nu.b * 0.105}" height="${nu.l * 0.075}" fill="#efe7d8" stroke="#8a6d3b"/>`);
+  r.push(`<line x1="${sx(1350)}" x2="${sx(2550)}" y1="${sz(1050)}" y2="${sz(1050)}" stroke="#e07b00" stroke-width="3"/><text x="${sx(2600)}" y="${sz(1050) + 4}" font-size="12" fill="#e07b00">stopper</text>`);
+  // reikwijdte en robot (A1 op de oorsprong), arm in de richting van A1
+  r.push(`<circle cx="${sx(0)}" cy="${sz(0)}" r="${2700 * 0.105}" fill="none" stroke="#1f5fbf" stroke-dasharray="4 4"/>`);
+  r.push(`<text x="${sx(0)}" y="${sz(0) - 2700 * 0.105 - 4}" font-size="12" text-anchor="middle" fill="#1f5fbf">bereik 2700 mm</text>`);
+  const a = (-st.q[0] * Math.PI) / 180, reik = 350 + 1150 * Math.sin((-st.q[1] * Math.PI) / 180 + 0.0) + 1200 * Math.cos(((st.q[1] + st.q[2]) * Math.PI) / 180);
+  const ex = sx(Math.cos(a) * reik), ez = sz(Math.sin(a) * reik);
+  r.push(`<rect x="${sx(-475)}" y="${sz(-475)}" width="${950 * 0.105}" height="${950 * 0.075}" fill="#33383d"/><line x1="${sx(0)}" y1="${sz(0)}" x2="${ex}" y2="${ez}" stroke="#e8641b" stroke-width="22" stroke-linecap="round"/><circle cx="${ex}" cy="${ez}" r="9" fill="#1b1f24"/>`);
+  r.push(`<rect x="${sx(-3000)}" y="${sz(-2100)}" width="${600 * 0.105}" height="${1200 * 0.075}" fill="#cfd1cb" stroke="#5b6470"/><text x="${sx(-2700)}" y="${sz(-2200)}" font-size="12" text-anchor="middle" fill="#5b6470">kast</text>`);
+  s.innerHTML = r.join('');
+}
+function camera() {
+  const s = $('#camsvg'), r = [];
+  r.push('<rect x="0" y="0" width="1180" height="250" fill="#1b1f24"/>');
+  const nu = st.lijst[0];
+  if (nu) {
+    const k = Math.min(1000 / nu.l, 200 / nu.b), w = nu.l * k, h = nu.b * k, x0 = 90, y0 = 125 - h / 2;
+    r.push(`<g transform="rotate(${nu.hoek} ${x0 + w / 2} 125)"><rect x="${x0}" y="${y0}" width="${w}" height="${h}" fill="#d9c7a3" stroke="#2fd15a" stroke-width="2"/>`);
+    // de drie balken van de grijper op het stuk
+    const L = 1972 * k, gx = x0 + w / 2 - L / 2;
+    [[-185, 130], [0, 60], [185, 130]].forEach(([v, bb], i) => {
+      const on = nu.zones.includes(String(i + 1));
+      r.push(`<rect x="${gx}" y="${125 + v * k - (bb * k) / 2}" width="${L}" height="${Math.max(2, bb * k)}" fill="${on ? 'rgba(31,95,191,.45)' : 'rgba(150,150,150,.15)'}" stroke="${on ? '#5ea0ff' : '#666'}" stroke-dasharray="${on ? '' : '5 4'}"/>`);
+    });
+    r.push(`<line x1="${x0 + w / 2 - 10}" x2="${x0 + w / 2 + 10}" y1="125" y2="125" stroke="#ff5" stroke-width="2"/><line y1="115" y2="135" x1="${x0 + w / 2}" x2="${x0 + w / 2}" stroke="#ff5" stroke-width="2"/></g>`);
+    r.push(`<text x="20" y="28" fill="#cfd6dd" font-size="15">${nu.soort} ${nu.l} x ${nu.b} x ${nu.d} mm · draaiing ${nl(nu.hoek, 1)}° · ${nl(nu.m, 1)} kg · zones ${nu.zones} · A6 ${nl(nu.hoek, 1)}°</text>`);
+    r.push(`<text x="20" y="236" fill="#9aa4ae" font-size="13">Basler ace 2 · 1,3 mm per pixel · dikte gemeten met de laser · geel kruis = grijppunt, blauw = zones aan</text>`);
+  }
+  s.innerHTML = r.join('');
+}
+function grafiek(id, waarden, { max, kleur = '#1f5fbf', staaf = true, label = (v) => v } = {}) {
+  const s = $(id), W = 560, H = 200, n = waarden.length, m = max ?? Math.max(...waarden) * 1.15, r = [];
+  for (let k = 0; k <= 4; k++) { const y = H - 20 - ((H - 30) * k) / 4; r.push(`<line x1="34" x2="${W}" y1="${y}" y2="${y}" stroke="#e3e6ea"/><text x="30" y="${y + 4}" font-size="11" text-anchor="end" fill="#5b6470">${label(Math.round((m * k) / 4))}</text>`); }
+  if (staaf) waarden.forEach((v, i) => { const bw = (W - 50) / n, h = ((H - 30) * v) / m; r.push(`<rect x="${40 + i * bw + 3}" y="${H - 20 - h}" width="${bw - 6}" height="${h}" fill="${kleur}"/><text x="${40 + i * bw + bw / 2}" y="${H - 6}" font-size="11" text-anchor="middle" fill="#5b6470">${6 + i}u</text>`); });
+  else r.push(`<polyline fill="none" stroke="${kleur}" stroke-width="2" points="${waarden.map((v, i) => `${40 + (i * (W - 50)) / (n - 1)},${H - 20 - ((H - 30) * v) / m}`).join(' ')}"/>`);
+  s.innerHTML = r.join('');
+}
+// ---------------------------------------------------------------- tabellen
+function tabellen() {
+  $('#assen').innerHTML = '<tr><th>As</th><th class="getal">Positie</th><th class="getal">Snelheid</th><th class="getal">Koppel</th><th class="getal">Temp.</th></tr>'
+    + AS.map((a, i) => `<tr><td>${a}</td><td class="getal">${nl(st.q[i], 1)}°</td><td class="getal">${st.toestand === 'AUTOMAAT' ? nl(Math.abs(Math.sin(st.tick / 6 + i)) * [130, 120, 120, 220, 220, 300][i] * 0.4, 0) : '0'} °/s</td><td class="getal">${nl([18, 42, 37, 9, 14, 6][i] + (st.toestand === 'AUTOMAAT' ? Math.sin(st.tick / 4 + i) * 6 : 0), 0)} %</td><td class="getal">${[41, 46, 44, 38, 39, 37][i]} °C</td></tr>`).join('');
+  $('#stuklijst').innerHTML = '<tr><th>#</th><th>Soort</th><th class="getal">L x B x D</th><th class="getal">Massa</th><th>Zones</th><th>Leg</th></tr>'
+    + st.lijst.slice(0, 9).map((s) => `<tr><td>${s.nr}</td><td>${s.soort}</td><td class="getal">${s.l} x ${s.b} x ${s.d}</td><td class="getal">${nl(s.m, 1)} kg</td><td>${s.zones}</td><td>${s.leg}</td></tr>`).join('');
+  $('#recepten').innerHTML = '<tr><th>Soort</th><th>Neerleggen</th><th>Plaats</th><th class="getal">Versn.</th></tr>' + SOORTEN.map((s) => `<tr><td>${s.soort}</td><td>${s.leg}</td><td>${s.plaats}</td><td class="getal">${nl(s.a, 1)} m/s²</td></tr>`).join('');
+  $('#zones').innerHTML = '<tr><th>Zone</th><th>Balk</th><th class="getal">Vacuüm</th><th>Ventiel</th><th></th></tr>'
+    + ['FA-M 1972 x 130', 'FMP-60 1972 x 60', 'FA-M 1972 x 130'].map((b, i) => `<tr><td>${i + 1}</td><td>${b}</td><td class="getal">${st.vac[i]} mbar</td><td><span class="lamp ${st.vac[i] < -200 ? 'aan' : 'uit'}"></span>${st.vac[i] < -200 ? 'zuigen' : 'dicht'}</td><td><button class="knop" style="min-width:90px;height:36px" data-zone="${i}">${st.vac[i] < -200 ? 'Uit' : 'Aan'}</button></td></tr>`).join('');
+  document.querySelectorAll('[data-zone]').forEach((k) => k.onclick = () => { const i = +k.dataset.zone; st.vac[i] = st.vac[i] < -200 ? 0 : -640; tabellen(); kop(); });
+  $('#stopperst').textContent = st.stopper ? 'stopper omhoog (stuk wacht op de grijpplaats)' : 'stopper omlaag (band vrij)';
+  const tot = st.stuks, cyc = st.cycli.reduce((a, b) => a + b, 0) / st.cycli.length;
+  $('#persoort').innerHTML = '<tr><th>Soort</th><th class="getal">Stuks</th><th class="getal">Gem. cyclus</th><th class="getal">Geweigerd</th></tr>' + persoort.map((s) => `<tr><td>${s.soort}</td><td class="getal">${s.n}</td><td class="getal">${nl(s.cyc, 1)} s</td><td class="getal">${s.wei}</td></tr>`).join('');
+  const stilTot = Object.values(st.stil).reduce((a, b) => a + b, 0);
+  $('#stilstand').innerHTML = '<tr><th>Oorzaak</th><th class="getal">Min.</th><th>Aandeel</th></tr>' + Object.entries(st.stil).map(([k, v]) => `<tr><td>${k}</td><td class="getal">${v}</td><td><div class="balk"><i style="width:${(100 * v) / stilTot}%"></i></div></td></tr>`).join('');
+  const looptijd = (Date.now() - st.start) / 60000, besch = Math.max(0, (looptijd - stilTot) / looptijd), prest = Math.min(1, (13.5 / cyc)), kwal = tot / (tot + persoort.reduce((a, s) => a + s.wei, 0));
+  const oee = besch * prest * kwal;
+  $('#s-stuks').textContent = tot; $('#k-stuks').textContent = tot;
+  $('#s-cyclus').textContent = `${nl(cyc, 1)} s`; $('#s-besch').textContent = `${nl(besch * 100, 0)} %`; $('#s-oee').textContent = `${nl(oee * 100, 0)} %`; $('#k-oee').textContent = `${nl(oee * 100, 0)} %`;
+  $('#k-uur').textContent = Math.round(tot / (looptijd / 60));
+  const tellers = [['Reductoren A1-A3 (smering)', 6420, 20000, 'h'], ['Reductoren A4-A6 (smering)', 6420, 20000, 'h'], ['Schuim zuigbalken', 182400, 500000, 'cycli'], ['Filters ejectors', 182400, 250000, 'cycli'], ['Stopper Festo DFST', 61300, 2000000, 'slagen'], ['Gewichtscompensatie (druk)', 6420, 8760, 'h'], ['Remmen (test)', 6420, 8000, 'h']];
+  $('#tellers').innerHTML = '<tr><th>Onderdeel</th><th class="getal">Stand</th><th class="getal">Interval</th><th style="width:30%">Tot service</th></tr>' + tellers.map(([n, v, i, e]) => `<tr><td>${n}</td><td class="getal">${v.toLocaleString('nl-BE')} ${e}</td><td class="getal">${i.toLocaleString('nl-BE')}</td><td><div class="balk"><i style="width:${(100 * v) / i}%;background:${v / i > 0.85 ? '#e07b00' : '#1f5fbf'}"></i></div></td></tr>`).join('');
+  $('#taken').innerHTML = '<tr><th>Taak</th><th>Wanneer</th></tr>' + [['Druk gewichtscompensatie nameten (stikstof)', 'over 98 dagen'], ['Remtest A2 en A3 (automatisch)', 'over 66 dagen'], ['Schuim zuigbalken nakijken', 'over 2 maanden'], ['Lichtschermen testen met teststaaf', 'elke maandag'], ['Noodstoppen en deurschakelaar testen', 'elke maand']].map(([a, b]) => `<tr><td>${a}</td><td>${b}</td></tr>`).join('');
+  const ok = st.toestand !== 'FOUT';
+  $('#veilig').innerHTML = '<tr><th>Functie</th><th>Ingang</th><th>Toestand</th></tr>' + [['Noodstop bedienpaneel', '-S1'], ['Noodstop kastdeur', '-S2'], ['Toegangsdeur dicht en vergrendeld', '-B10'], ['Lichtscherm ingang', '-B11'], ['Lichtscherm uitgang', '-B12'], ['Muting-sensoren', '-B13..-B16'], ['Vacuüm grijper (zones)', '-B21..-B23'], ['Perslucht ≥ 5 bar', '-B24']].map(([a, b]) => `<tr><td>${a}</td><td>${b}</td><td><span class="lamp ${ok ? 'aan' : 'fout'}"></span>${ok ? 'in orde' : 'onderbroken'}</td></tr>`).join('');
+  $('#veiliguit').innerHTML = '<tr><th>Uitgang</th><th>Doel</th><th>Toestand</th></tr>' + [['STO A1-A6', 'servoversterkers -T11..-T16'], ['Netmagneet', '-Q2'], ['Veilig ontluchten', 'ventiel -Q30'], ['Muting-lamp', '-P2']].map(([a, b]) => `<tr><td>${a}</td><td>${b}</td><td><span class="lamp ${ok ? 'aan' : 'uit'}"></span>${ok ? 'vrijgegeven' : 'afgeschakeld'}</td></tr>`).join('');
+  $('#alarmlijst').innerHTML = st.alarmen.slice().reverse().map((a) => `<div class="melding ${a.fout ? 'fout' : ''}"><small>${a.t}</small>${a.tekst}</div>`).join('') || '<p class="wit">Geen meldingen.</p>';
+  $('#nalarm').textContent = st.alarmen.length;
+  grafiek('#grafuur', st.uur, { max: 90 });
+  grafiek('#grafcyclus', st.cycli, { max: 25, staaf: false, kleur: '#e07b00' });
+}
+function kop() {
+  const t = $('#toestand');
+  t.textContent = st.toestand; t.className = 'toestand ' + ({ AUTOMAAT: 't-auto', HAND: 't-hand', GESTOPT: 't-stop', FOUT: 't-fout' }[st.toestand] ?? 't-stop');
+  $('#modus').textContent = st.modus;
+  $('#stuknu').textContent = st.lijst[0] ? `${st.lijst[0].soort} #${st.lijst[0].nr}` : '—';
+  $('#cyclus').textContent = `${nl(st.cyclus, 1)} s`;
+  $('#vacuum').textContent = `${laagste(st.vac)} mbar`;
+  $('#klok').textContent = new Date().toLocaleTimeString('nl-BE', { hour: '2-digit', minute: '2-digit' });
+  $('#tg').classList.toggle('aan', st.toestand === 'AUTOMAAT'); $('#to').classList.toggle('aan', st.toestand === 'GESTOPT' || st.toestand === 'HAND');
+}
+// ---------------------------------------------------------------- cyclus (gesimuleerd)
+let nr = 1840;
+function nieuwStuk() {
+  let t = Math.random(), s = SOORTEN[0];
+  for (const x of SOORTEN) { if (t < x.aandeel) { s = x; break; } t -= x.aandeel; }
+  st.lijst.unshift({ ...s, nr: ++nr, hoek: Math.round((Math.random() * 10 - 5) * 10) / 10 });
+  st.lijst.length = Math.min(st.lijst.length, 20);
+}
+function stap() {
+  st.tick++;
+  if (st.toestand === 'AUTOMAAT') {
+    st.cyclus += 0.5;
+    const fase = st.cyclus % 15;
+    st.vac = fase > 3 && fase < 11 ? st.lijst[0].zones.split(' ').reduce((v, z) => { v[+z - 1] = -640 - Math.round(Math.random() * 20); return v; }, [0, 0, 0]) : [0, 0, 0];
+    st.q = [Math.sin(st.tick / 8) * 35, -25 + Math.sin(st.tick / 5) * 12, -4 + Math.cos(st.tick / 5) * 10, 0, -61 + Math.sin(st.tick / 7) * 20, st.lijst[0]?.hoek ?? 0];
+    if (st.cyclus >= 15) { st.cyclus = 0; st.stuks++; st.uur[st.uur.length - 1]++; st.cycli.push(14 + Math.random() * 3); st.cycli.shift(); nieuwStuk(); const p = persoort.find((x) => x.soort === st.lijst[1].soort); if (p) p.n++; }
+  }
+  kop(); tabellen(); cel(); camera();
+}
+// ---------------------------------------------------------------- knoppen
+document.querySelectorAll('nav button').forEach((b) => b.onclick = () => {
+  document.querySelectorAll('nav button').forEach((x) => x.classList.toggle('actief', x === b));
+  document.querySelectorAll('.scherm').forEach((x) => x.classList.toggle('actief', x.id === b.dataset.s));
+});
+$('#start').onclick = () => { if (st.modus === 'Automaat') { st.toestand = 'AUTOMAAT'; stap(); } };
+$('#stop').onclick = () => { st.toestand = 'GESTOPT'; st.vac = [0, 0, 0]; stap(); };
+$('#reset').onclick = () => { if (st.toestand === 'FOUT') st.toestand = 'GESTOPT'; stap(); };
+$('#mauto').onclick = () => { st.modus = 'Automaat'; if (st.toestand === 'HAND') st.toestand = 'GESTOPT'; stap(); };
+$('#mhand').onclick = () => { st.modus = 'Hand'; st.toestand = 'HAND'; stap(); };
+$('#kwiteer').onclick = () => { st.alarmen = []; stap(); };
+$('#zuig').onclick = () => { st.vac = [-640, -640, -640]; stap(); };
+$('#blaas').onclick = () => { st.vac = [0, 0, 0]; stap(); };
+$('#stopper').onclick = () => { st.stopper = !st.stopper; stap(); };
+$('#jog').innerHTML = AS.map((a, i) => `<div class="jog"><b>${a}</b><button class="knop" data-j="${i}" data-r="-1">−</button><div class="balk"><i id="jb${i}" style="width:50%"></i></div><button class="knop" data-j="${i}" data-r="1">+</button><span class="getal" id="jv${i}">${nl(st.q[i], 1)}°</span></div>`).join('');
+document.querySelectorAll('[data-j]').forEach((k) => k.onclick = () => { if (st.modus !== 'Hand') return; const i = +k.dataset.j; st.q[i] += +k.dataset.r * 2; $(`#jv${i}`).textContent = `${nl(st.q[i], 1)}°`; $(`#jb${i}`).style.width = `${50 + st.q[i] / 3.6}%`; stap(); });
+for (let i = 0; i < 6; i++) nieuwStuk();
+// ?scherm=stukken&auto=1 opent een scherm en start de simulatie (voor schermafdrukken)
+const par = new URLSearchParams(location.search);
+if (par.get('auto')) { st.toestand = 'AUTOMAAT'; st.cyclus = 6; st.vac = [-641, -652, -638]; }
+if (par.get('scherm')) document.querySelector(`nav button[data-s="${par.get('scherm')}"]`)?.click();
+stap();
+if (!par.get('stil')) setInterval(stap, 500);
+</script>
+</body>
+</html>

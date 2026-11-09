@@ -1,0 +1,177 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 297" width="420mm" height="297mm" font-family="Arial, Helvetica, sans-serif">
+<rect width="420" height="297" fill="#fff"/>
+<rect x="5" y="5" width="410" height="287" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="20" y="10" width="390" height="277" fill="none" stroke="#000" stroke-width="0.7"/>
+<polyline points="210,5 210,10" fill="none" stroke="#000" stroke-width="0.7"/>
+<polyline points="210,287 210,292" fill="none" stroke="#000" stroke-width="0.7"/>
+<polyline points="5,148.5 20,148.5" fill="none" stroke="#000" stroke-width="0.7"/>
+<polyline points="410,148.5 415,148.5" fill="none" stroke="#000" stroke-width="0.7"/>
+<polyline points="20,15 410,15" fill="none" stroke="#000" stroke-width="0.35"/>
+<text x="39.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">0</text>
+<polyline points="59,10 59,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="78.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">1</text>
+<polyline points="98,10 98,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="117.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">2</text>
+<polyline points="137,10 137,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="156.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">3</text>
+<polyline points="176,10 176,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="195.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">4</text>
+<polyline points="215,10 215,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="234.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">5</text>
+<polyline points="254,10 254,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="273.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">6</text>
+<polyline points="293,10 293,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="312.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">7</text>
+<polyline points="332,10 332,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="351.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">8</text>
+<polyline points="371,10 371,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="390.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">9</text>
+<text x="21.5" y="258.5" font-size="2.5" text-anchor="start" fill="#000">5</text>
+<text x="408.5" y="258.5" font-size="2.5" text-anchor="end" fill="#000">7</text>
+<polyline points="20,260 410,260" fill="none" stroke="#000" stroke-width="0.7"/>
+<polyline points="20,266.75 62,266.75" fill="none" stroke="#000" stroke-width="0.18"/>
+<polyline points="20,273.5 62,273.5" fill="none" stroke="#000" stroke-width="0.18"/>
+<polyline points="20,280.25 62,280.25" fill="none" stroke="#000" stroke-width="0.18"/>
+<polyline points="30,260 30,287" fill="none" stroke="#000" stroke-width="0.18"/>
+<polyline points="48,260 48,287" fill="none" stroke="#000" stroke-width="0.18"/>
+<text x="21" y="285.4" font-size="1.8" text-anchor="start" fill="#000">Wijz.</text>
+<text x="31" y="285.4" font-size="1.8" text-anchor="start" fill="#000">Datum</text>
+<text x="49" y="285.4" font-size="1.8" text-anchor="start" fill="#000">Naam</text>
+<text x="21" y="278.55" font-size="2.3" text-anchor="start" fill="#000">1</text>
+<text x="31" y="278.55" font-size="2" text-anchor="start" fill="#000">2026-11-09</text>
+<text x="49" y="278.55" font-size="2" text-anchor="start" fill="#000">PC</text>
+<polyline points="62,260 62,287" fill="none" stroke="#000" stroke-width="0.35"/>
+<polyline points="62,266.75 106,266.75" fill="none" stroke="#000" stroke-width="0.18"/>
+<polyline points="62,273.5 106,273.5" fill="none" stroke="#000" stroke-width="0.18"/>
+<polyline points="62,280.25 106,280.25" fill="none" stroke="#000" stroke-width="0.18"/>
+<polyline points="77,260 77,287" fill="none" stroke="#000" stroke-width="0.18"/>
+<text x="63" y="264.95" font-size="2" text-anchor="start" fill="#000">Datum</text>
+<text x="78" y="264.95" font-size="2.2" text-anchor="start" fill="#000">2026-11-09</text>
+<text x="63" y="271.7" font-size="2" text-anchor="start" fill="#000">Getek.</text>
+<text x="78" y="271.7" font-size="2.2" text-anchor="start" fill="#000">Phlippo CAD</text>
+<text x="63" y="278.45" font-size="2" text-anchor="start" fill="#000">Gecontr.</text>
+<text x="78" y="278.45" font-size="2.2" text-anchor="start" fill="#000">Ian</text>
+<text x="63" y="285.2" font-size="2" text-anchor="start" fill="#000">Norm</text>
+<text x="78" y="285.2" font-size="2.2" text-anchor="start" fill="#000">IEC 81346</text>
+<polyline points="106,260 106,287" fill="none" stroke="#000" stroke-width="0.35"/>
+<polyline points="106,280.25 206,280.25" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="146,260 146,280.25" fill="none" stroke="#000" stroke-width="0.18"/>
+<text x="107" y="262.3" font-size="1.8" text-anchor="start" fill="#000">Eigenaar</text>
+<text x="108" y="269.5" font-size="3.6" text-anchor="start" fill="#000" font-weight="700">Phlippo CAD</text>
+<text x="108" y="275" font-size="2.3" text-anchor="start" fill="#000">Ian</text>
+<text x="147" y="262.3" font-size="1.8" text-anchor="start" fill="#000">Project</text>
+<text x="148" y="269" font-size="3.2" text-anchor="start" fill="#000" font-weight="700">Robotcel deuren</text>
+<text x="148" y="274.5" font-size="2.3" text-anchor="start" fill="#000">robot PR 120 R2700 met vlakgrijper en camera</text>
+<text x="107" y="285.2" font-size="1.8" text-anchor="start" fill="#000">Oorspr.</text>
+<text x="118" y="285.2" font-size="2" text-anchor="start" fill="#000"></text>
+<polyline points="139.33,280.25 139.33,287" fill="none" stroke="#000" stroke-width="0.18"/>
+<text x="140.33" y="285.2" font-size="1.8" text-anchor="start" fill="#000">Verv. v.</text>
+<text x="151.33" y="285.2" font-size="2" text-anchor="start" fill="#000"></text>
+<polyline points="172.67,280.25 172.67,287" fill="none" stroke="#000" stroke-width="0.18"/>
+<text x="173.67" y="285.2" font-size="1.8" text-anchor="start" fill="#000">Verv. d.</text>
+<text x="184.67" y="285.2" font-size="2" text-anchor="start" fill="#000"></text>
+<polyline points="206,260 206,287" fill="none" stroke="#000" stroke-width="0.35"/>
+<polyline points="206,280.25 306,280.25" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="256" y="266" font-size="4" text-anchor="middle" fill="#000" font-weight="700">Voeding 24 V DC</text>
+<text x="256" y="271" font-size="4" text-anchor="middle" fill="#000">verdeling met elektronische beveiligingen</text>
+<text x="207" y="285.2" font-size="1.8" text-anchor="start" fill="#000">Documentsoort</text>
+<text x="228" y="285.2" font-size="2.2" text-anchor="start" fill="#000">&amp;EFS  Schema</text>
+<polyline points="306,260 306,287" fill="none" stroke="#000" stroke-width="0.35"/>
+<polyline points="306,273.5 350,273.5" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="307" y="262.3" font-size="1.8" text-anchor="start" fill="#000">Tekeningnr.</text>
+<text x="308" y="270" font-size="2.8" text-anchor="start" fill="#000" font-weight="700">ROB-E01</text>
+<text x="307" y="275.8" font-size="1.8" text-anchor="start" fill="#000">Revisie / taal</text>
+<text x="308" y="283" font-size="2.6" text-anchor="start" fill="#000">1 / nl</text>
+<polyline points="350,260 350,287" fill="none" stroke="#000" stroke-width="0.35"/>
+<polyline points="350,273.5 384,273.5" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="351.5" y="266" font-size="2.6" text-anchor="start" fill="#000">=</text>
+<text x="355" y="266" font-size="2.8" text-anchor="start" fill="#000" font-weight="700">ROB</text>
+<text x="351.5" y="271" font-size="1.9" text-anchor="start" fill="#000">robotcel</text>
+<text x="351.5" y="279.5" font-size="2.6" text-anchor="start" fill="#000">+</text>
+<text x="355" y="279.5" font-size="2.8" text-anchor="start" fill="#000" font-weight="700">KAST</text>
+<text x="351.5" y="284.5" font-size="1.9" text-anchor="start" fill="#000">schakelkast VX25</text>
+<polyline points="384,260 384,287" fill="none" stroke="#000" stroke-width="0.35"/>
+<polyline points="384,280.25 410,280.25" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="385" y="262.3" font-size="1.8" text-anchor="start" fill="#000">Blad</text>
+<text x="397" y="275" font-size="8" text-anchor="middle" fill="#000" font-weight="700">6</text>
+<text x="408.5" y="285.2" font-size="2.3" text-anchor="end" fill="#000">19 Bl.</text>
+<polygon points="40,34 38.9,36.2 41.1,36.2" fill="#000"/><text x="40" y="29.6" font-size="2.2" text-anchor="middle" fill="#000">L1/N</text><text x="40" y="32.4" font-size="2" text-anchor="middle" fill="#000">/3.3</text>
+<polyline points="40,34 40,50" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="50,34 50,50" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="30" y="50" width="40" height="36" fill="none" stroke="#000" stroke-width="0.3" stroke-dasharray="4 1 0.6 1"/><text x="30" y="48.4" font-size="2.8" text-anchor="start" fill="#000">-T1</text><text x="39" y="55" font-size="2.3" text-anchor="start" fill="#000"></text><text x="39" y="58.4" font-size="2.3" text-anchor="start" fill="#000">Voeding 24 V</text><text x="39" y="61.8" font-size="2.3" text-anchor="start" fill="#000">SDR-480-24</text><text x="39" y="65.2" font-size="2.3" text-anchor="start" fill="#000">20 A</text><circle cx="40" cy="50" r="0.5" fill="#000"/><text x="41.6" y="48.8" font-size="2.1" text-anchor="start" fill="#000">L</text><circle cx="50" cy="50" r="0.5" fill="#000"/><text x="48.4" y="48.8" font-size="2.1" text-anchor="end" fill="#000">N</text><circle cx="40" cy="86" r="0.5" fill="#000"/><text x="41.6" y="84.8" font-size="2.1" text-anchor="start" fill="#000">+</text><circle cx="60" cy="86" r="0.5" fill="#000"/><text x="58.4" y="84.8" font-size="2.1" text-anchor="end" fill="#000">−</text>
+<polyline points="40,86 40,100 80,100" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="60,86 60,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="80" y="92" width="34" height="26" fill="none" stroke="#000" stroke-width="0.3" stroke-dasharray="4 1 0.6 1"/><text x="80" y="90.4" font-size="2.8" text-anchor="start" fill="#000">-G1</text><text x="89" y="97" font-size="2.3" text-anchor="start" fill="#000"></text><text x="89" y="100.4" font-size="2.3" text-anchor="start" fill="#000">Buffer 24 V</text><text x="89" y="103.8" font-size="2.3" text-anchor="start" fill="#000">DRB-480-24</text><circle cx="80" cy="100" r="0.5" fill="#000"/><text x="81.6" y="98.8" font-size="2.1" text-anchor="start" fill="#000">IN+</text><circle cx="114" cy="100" r="0.5" fill="#000"/><text x="112.4" y="98.8" font-size="2.1" text-anchor="end" fill="#000">OUT+</text>
+<polyline points="114,100 130,100" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="130,100 406,100" fill="none" stroke="#000" stroke-width="0.35"/><text x="131" y="98.6" font-size="2.5" text-anchor="start" fill="#000">L+</text>
+<circle cx="150" cy="100" r="0.6" fill="#000"/>
+<polyline points="150,100 150,120" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="146" y="120" width="8" height="14" fill="none" stroke="#000" stroke-width="0.35"/>
+<text x="144" y="125" font-size="2.6" text-anchor="end" fill="#000">-F21</text>
+<text x="144" y="128" font-size="2" text-anchor="end" fill="#000">CBM E4</text>
+<text x="150" y="129.5" font-size="2.4" text-anchor="middle" fill="#000">e</text>
+<polyline points="150,134 150,160" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="150" cy="160" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="152.2" y="158.6" font-size="2.3" text-anchor="start" fill="#000">-X2</text><text x="152.2" y="162.6" font-size="2.3" text-anchor="start" fill="#000">1</text>
+<polyline points="150,161.2 150,176" fill="none" stroke="#000" stroke-width="0.25"/>
+<polygon points="150,176 148.9,173.8 151.1,173.8" fill="#000"/><text x="150" y="179.2" font-size="2.2" text-anchor="middle" fill="#000">L+1</text><text x="150" y="182.2" font-size="2" text-anchor="middle" fill="#000">/8.1</text>
+<text x="150" y="188" font-size="2" text-anchor="middle" fill="#000">24 V IPC -K1</text>
+<circle cx="190" cy="100" r="0.6" fill="#000"/>
+<polyline points="190,100 190,120" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="186" y="120" width="8" height="14" fill="none" stroke="#000" stroke-width="0.35"/>
+<text x="184" y="125" font-size="2.6" text-anchor="end" fill="#000">-F22</text>
+<text x="184" y="128" font-size="2" text-anchor="end" fill="#000">CBM E4</text>
+<text x="190" y="129.5" font-size="2.4" text-anchor="middle" fill="#000">e</text>
+<polyline points="190,134 190,160" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="190" cy="160" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="192.2" y="158.6" font-size="2.3" text-anchor="start" fill="#000">-X2</text><text x="192.2" y="162.6" font-size="2.3" text-anchor="start" fill="#000">2</text>
+<polyline points="190,161.2 190,176" fill="none" stroke="#000" stroke-width="0.25"/>
+<polygon points="190,176 188.9,173.8 191.1,173.8" fill="#000"/><text x="190" y="179.2" font-size="2.2" text-anchor="middle" fill="#000">L+2</text><text x="190" y="182.2" font-size="2" text-anchor="middle" fill="#000">/7.1</text>
+<text x="190" y="188" font-size="2" text-anchor="middle" fill="#000">24 V veiligheid -K2</text>
+<circle cx="230" cy="100" r="0.6" fill="#000"/>
+<polyline points="230,100 230,120" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="226" y="120" width="8" height="14" fill="none" stroke="#000" stroke-width="0.35"/>
+<text x="224" y="125" font-size="2.6" text-anchor="end" fill="#000">-F23</text>
+<text x="224" y="128" font-size="2" text-anchor="end" fill="#000">CBM E4</text>
+<text x="230" y="129.5" font-size="2.4" text-anchor="middle" fill="#000">e</text>
+<polyline points="230,134 230,160" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="230" cy="160" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="232.2" y="158.6" font-size="2.3" text-anchor="start" fill="#000">-X2</text><text x="232.2" y="162.6" font-size="2.3" text-anchor="start" fill="#000">3</text>
+<polyline points="230,161.2 230,176" fill="none" stroke="#000" stroke-width="0.25"/>
+<polygon points="230,176 228.9,173.8 231.1,173.8" fill="#000"/><text x="230" y="179.2" font-size="2.2" text-anchor="middle" fill="#000">L+3</text><text x="230" y="182.2" font-size="2" text-anchor="middle" fill="#000">/9.1</text>
+<text x="230" y="188" font-size="2" text-anchor="middle" fill="#000">24 V I/O en sensoren -K3</text>
+<circle cx="270" cy="100" r="0.6" fill="#000"/>
+<polyline points="270,100 270,120" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="266" y="120" width="8" height="14" fill="none" stroke="#000" stroke-width="0.35"/>
+<text x="264" y="125" font-size="2.6" text-anchor="end" fill="#000">-F24</text>
+<text x="264" y="128" font-size="2" text-anchor="end" fill="#000">CBM E4</text>
+<text x="270" y="129.5" font-size="2.4" text-anchor="middle" fill="#000">e</text>
+<polyline points="270,134 270,160" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="270" cy="160" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="272.2" y="158.6" font-size="2.3" text-anchor="start" fill="#000">-X2</text><text x="272.2" y="162.6" font-size="2.3" text-anchor="start" fill="#000">4</text>
+<polyline points="270,161.2 270,176" fill="none" stroke="#000" stroke-width="0.25"/>
+<polygon points="270,176 268.9,173.8 271.1,173.8" fill="#000"/><text x="270" y="179.2" font-size="2.2" text-anchor="middle" fill="#000">L+4</text><text x="270" y="182.2" font-size="2" text-anchor="middle" fill="#000">/10.1</text>
+<text x="270" y="188" font-size="2" text-anchor="middle" fill="#000">24 V ventielen</text>
+<circle cx="310" cy="100" r="0.6" fill="#000"/>
+<polyline points="310,100 310,120" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="306" y="120" width="8" height="14" fill="none" stroke="#000" stroke-width="0.35"/>
+<text x="304" y="125" font-size="2.6" text-anchor="end" fill="#000">-F25</text>
+<text x="304" y="128" font-size="2" text-anchor="end" fill="#000">CBM E4</text>
+<text x="310" y="129.5" font-size="2.4" text-anchor="middle" fill="#000">e</text>
+<polyline points="310,134 310,160" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="310" cy="160" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="312.2" y="158.6" font-size="2.3" text-anchor="start" fill="#000">-X2</text><text x="312.2" y="162.6" font-size="2.3" text-anchor="start" fill="#000">5</text>
+<polyline points="310,161.2 310,176" fill="none" stroke="#000" stroke-width="0.25"/>
+<polygon points="310,176 308.9,173.8 311.1,173.8" fill="#000"/><text x="310" y="179.2" font-size="2.2" text-anchor="middle" fill="#000">L+5</text><text x="310" y="182.2" font-size="2" text-anchor="middle" fill="#000">/8.1</text>
+<text x="310" y="188" font-size="2" text-anchor="middle" fill="#000">24 V camera, switch</text>
+<circle cx="350" cy="100" r="0.6" fill="#000"/>
+<polyline points="350,100 350,120" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="346" y="120" width="8" height="14" fill="none" stroke="#000" stroke-width="0.35"/>
+<text x="344" y="125" font-size="2.6" text-anchor="end" fill="#000">-F26</text>
+<text x="344" y="128" font-size="2" text-anchor="end" fill="#000">CBM E4</text>
+<text x="350" y="129.5" font-size="2.4" text-anchor="middle" fill="#000">e</text>
+<polyline points="350,134 350,160" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="350" cy="160" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="352.2" y="158.6" font-size="2.3" text-anchor="start" fill="#000">-X2</text><text x="352.2" y="162.6" font-size="2.3" text-anchor="start" fill="#000">6</text>
+<polyline points="350,161.2 350,176" fill="none" stroke="#000" stroke-width="0.25"/>
+<polygon points="350,176 348.9,173.8 351.1,173.8" fill="#000"/><text x="350" y="179.2" font-size="2.2" text-anchor="middle" fill="#000">L+6</text><text x="350" y="182.2" font-size="2" text-anchor="middle" fill="#000">/8.1</text>
+<text x="350" y="188" font-size="2" text-anchor="middle" fill="#000">24 V HMI, kastlicht</text>
+<polyline points="60,230 406,230" fill="none" stroke="#000" stroke-width="0.35"/><text x="61" y="228.6" font-size="2.5" text-anchor="start" fill="#000">M</text><polygon points="406,230 403.8,228.9 403.8,231.1" fill="#000"/><text x="403" y="228.6" font-size="2.5" text-anchor="end" fill="#000">M</text><text x="403" y="233.2" font-size="2.3" text-anchor="end" fill="#000">/7.0  /9.0  /10.0</text>
+<polygon points="40,200 38.9,202.2 41.1,202.2" fill="#000"/><text x="40" y="195.6" font-size="2.2" text-anchor="middle" fill="#000">L1/N</text><text x="40" y="198.4" font-size="2" text-anchor="middle" fill="#000">/3.3</text>
+<text x="24" y="246" font-size="2.3" text-anchor="start" fill="#000">Remmen: aparte voeding -T2 (SDR-240-24) op dezelfde tak, zodat een kortsluiting in een remkabel de besturing niet stillegt; de servoversterkers schakelen BK+.</text>
+<text x="24" y="251" font-size="2.3" text-anchor="start" fill="#000">Stroombudget 24 V: IPC 2 A, -K2 0,5 A, I/O en sensoren 3 A, ventielen 4 A, camera en switch 1,5 A, HMI 1,5 A = 12,5 A van 20 A (63 %).</text>
+</svg>

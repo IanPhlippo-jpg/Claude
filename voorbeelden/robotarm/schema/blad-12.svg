@@ -1,0 +1,209 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 297" width="420mm" height="297mm" font-family="Arial, Helvetica, sans-serif">
+<rect width="420" height="297" fill="#fff"/>
+<rect x="5" y="5" width="410" height="287" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="20" y="10" width="390" height="277" fill="none" stroke="#000" stroke-width="0.7"/>
+<polyline points="210,5 210,10" fill="none" stroke="#000" stroke-width="0.7"/>
+<polyline points="210,287 210,292" fill="none" stroke="#000" stroke-width="0.7"/>
+<polyline points="5,148.5 20,148.5" fill="none" stroke="#000" stroke-width="0.7"/>
+<polyline points="410,148.5 415,148.5" fill="none" stroke="#000" stroke-width="0.7"/>
+<polyline points="20,15 410,15" fill="none" stroke="#000" stroke-width="0.35"/>
+<text x="39.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">0</text>
+<polyline points="59,10 59,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="78.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">1</text>
+<polyline points="98,10 98,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="117.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">2</text>
+<polyline points="137,10 137,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="156.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">3</text>
+<polyline points="176,10 176,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="195.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">4</text>
+<polyline points="215,10 215,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="234.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">5</text>
+<polyline points="254,10 254,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="273.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">6</text>
+<polyline points="293,10 293,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="312.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">7</text>
+<polyline points="332,10 332,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="351.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">8</text>
+<polyline points="371,10 371,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="390.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">9</text>
+<text x="21.5" y="258.5" font-size="2.5" text-anchor="start" fill="#000">11</text>
+<text x="408.5" y="258.5" font-size="2.5" text-anchor="end" fill="#000">13</text>
+<polyline points="20,260 410,260" fill="none" stroke="#000" stroke-width="0.7"/>
+<polyline points="20,266.75 62,266.75" fill="none" stroke="#000" stroke-width="0.18"/>
+<polyline points="20,273.5 62,273.5" fill="none" stroke="#000" stroke-width="0.18"/>
+<polyline points="20,280.25 62,280.25" fill="none" stroke="#000" stroke-width="0.18"/>
+<polyline points="30,260 30,287" fill="none" stroke="#000" stroke-width="0.18"/>
+<polyline points="48,260 48,287" fill="none" stroke="#000" stroke-width="0.18"/>
+<text x="21" y="285.4" font-size="1.8" text-anchor="start" fill="#000">Wijz.</text>
+<text x="31" y="285.4" font-size="1.8" text-anchor="start" fill="#000">Datum</text>
+<text x="49" y="285.4" font-size="1.8" text-anchor="start" fill="#000">Naam</text>
+<text x="21" y="278.55" font-size="2.3" text-anchor="start" fill="#000">1</text>
+<text x="31" y="278.55" font-size="2" text-anchor="start" fill="#000">2026-11-09</text>
+<text x="49" y="278.55" font-size="2" text-anchor="start" fill="#000">PC</text>
+<polyline points="62,260 62,287" fill="none" stroke="#000" stroke-width="0.35"/>
+<polyline points="62,266.75 106,266.75" fill="none" stroke="#000" stroke-width="0.18"/>
+<polyline points="62,273.5 106,273.5" fill="none" stroke="#000" stroke-width="0.18"/>
+<polyline points="62,280.25 106,280.25" fill="none" stroke="#000" stroke-width="0.18"/>
+<polyline points="77,260 77,287" fill="none" stroke="#000" stroke-width="0.18"/>
+<text x="63" y="264.95" font-size="2" text-anchor="start" fill="#000">Datum</text>
+<text x="78" y="264.95" font-size="2.2" text-anchor="start" fill="#000">2026-11-09</text>
+<text x="63" y="271.7" font-size="2" text-anchor="start" fill="#000">Getek.</text>
+<text x="78" y="271.7" font-size="2.2" text-anchor="start" fill="#000">Phlippo CAD</text>
+<text x="63" y="278.45" font-size="2" text-anchor="start" fill="#000">Gecontr.</text>
+<text x="78" y="278.45" font-size="2.2" text-anchor="start" fill="#000">Ian</text>
+<text x="63" y="285.2" font-size="2" text-anchor="start" fill="#000">Norm</text>
+<text x="78" y="285.2" font-size="2.2" text-anchor="start" fill="#000">IEC 81346</text>
+<polyline points="106,260 106,287" fill="none" stroke="#000" stroke-width="0.35"/>
+<polyline points="106,280.25 206,280.25" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="146,260 146,280.25" fill="none" stroke="#000" stroke-width="0.18"/>
+<text x="107" y="262.3" font-size="1.8" text-anchor="start" fill="#000">Eigenaar</text>
+<text x="108" y="269.5" font-size="3.6" text-anchor="start" fill="#000" font-weight="700">Phlippo CAD</text>
+<text x="108" y="275" font-size="2.3" text-anchor="start" fill="#000">Ian</text>
+<text x="147" y="262.3" font-size="1.8" text-anchor="start" fill="#000">Project</text>
+<text x="148" y="269" font-size="3.2" text-anchor="start" fill="#000" font-weight="700">Robotcel deuren</text>
+<text x="148" y="274.5" font-size="2.3" text-anchor="start" fill="#000">robot PR 120 R2700 met vlakgrijper en camera</text>
+<text x="107" y="285.2" font-size="1.8" text-anchor="start" fill="#000">Oorspr.</text>
+<text x="118" y="285.2" font-size="2" text-anchor="start" fill="#000"></text>
+<polyline points="139.33,280.25 139.33,287" fill="none" stroke="#000" stroke-width="0.18"/>
+<text x="140.33" y="285.2" font-size="1.8" text-anchor="start" fill="#000">Verv. v.</text>
+<text x="151.33" y="285.2" font-size="2" text-anchor="start" fill="#000"></text>
+<polyline points="172.67,280.25 172.67,287" fill="none" stroke="#000" stroke-width="0.18"/>
+<text x="173.67" y="285.2" font-size="1.8" text-anchor="start" fill="#000">Verv. d.</text>
+<text x="184.67" y="285.2" font-size="2" text-anchor="start" fill="#000"></text>
+<polyline points="206,260 206,287" fill="none" stroke="#000" stroke-width="0.35"/>
+<polyline points="206,280.25 306,280.25" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="256" y="266" font-size="4" text-anchor="middle" fill="#000" font-weight="700">Opstelling montageplaat</text>
+<text x="256" y="271" font-size="4" text-anchor="middle" fill="#000">schaal 1:8,5, met legende</text>
+<text x="207" y="285.2" font-size="1.8" text-anchor="start" fill="#000">Documentsoort</text>
+<text x="228" y="285.2" font-size="2.2" text-anchor="start" fill="#000">&amp;ELU  Opstellingsplan</text>
+<polyline points="306,260 306,287" fill="none" stroke="#000" stroke-width="0.35"/>
+<polyline points="306,273.5 350,273.5" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="307" y="262.3" font-size="1.8" text-anchor="start" fill="#000">Tekeningnr.</text>
+<text x="308" y="270" font-size="2.8" text-anchor="start" fill="#000" font-weight="700">ROB-E01</text>
+<text x="307" y="275.8" font-size="1.8" text-anchor="start" fill="#000">Revisie / taal</text>
+<text x="308" y="283" font-size="2.6" text-anchor="start" fill="#000">1 / nl</text>
+<polyline points="350,260 350,287" fill="none" stroke="#000" stroke-width="0.35"/>
+<polyline points="350,273.5 384,273.5" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="351.5" y="266" font-size="2.6" text-anchor="start" fill="#000">=</text>
+<text x="355" y="266" font-size="2.8" text-anchor="start" fill="#000" font-weight="700">ROB</text>
+<text x="351.5" y="271" font-size="1.9" text-anchor="start" fill="#000">robotcel</text>
+<text x="351.5" y="279.5" font-size="2.6" text-anchor="start" fill="#000">+</text>
+<text x="355" y="279.5" font-size="2.8" text-anchor="start" fill="#000" font-weight="700">KAST</text>
+<text x="351.5" y="284.5" font-size="1.9" text-anchor="start" fill="#000">schakelkast VX25</text>
+<polyline points="384,260 384,287" fill="none" stroke="#000" stroke-width="0.35"/>
+<polyline points="384,280.25 410,280.25" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="385" y="262.3" font-size="1.8" text-anchor="start" fill="#000">Blad</text>
+<text x="397" y="275" font-size="8" text-anchor="middle" fill="#000" font-weight="700">12</text>
+<text x="408.5" y="285.2" font-size="2.3" text-anchor="end" fill="#000">19 Bl.</text>
+<rect x="34" y="30" width="129.68" height="223.73" fill="none" stroke="#000" stroke-width="0.5"/>
+<text x="98.84" y="27" font-size="2.6" text-anchor="middle" fill="#000" font-weight="700">Montageplaat 1099 x 1896 (Rittal VX25 8206.000), schaal 1:8,5</text>
+<rect x="36.36" y="34.72" width="124.96199999999999" height="7.08" fill="#e6e6e6" stroke="#000" stroke-width="0.2"/>
+<rect x="36.36" y="74.84" width="124.96199999999999" height="7.08" fill="#e6e6e6" stroke="#000" stroke-width="0.2"/>
+<rect x="36.36" y="133.83999999999997" width="124.96199999999999" height="7.08" fill="#e6e6e6" stroke="#000" stroke-width="0.2"/>
+<rect x="36.36" y="176.32" width="124.96199999999999" height="7.08" fill="#e6e6e6" stroke="#000" stroke-width="0.2"/>
+<rect x="36.36" y="214.07999999999998" width="124.96199999999999" height="7.08" fill="#e6e6e6" stroke="#000" stroke-width="0.2"/>
+<rect x="36.36" y="242.39999999999998" width="124.96199999999999" height="7.08" fill="#e6e6e6" stroke="#000" stroke-width="0.2"/>
+<rect x="36.36" y="41.8" width="7.08" height="200.6" fill="#e6e6e6" stroke="#000" stroke-width="0.2"/>
+<rect x="154.242" y="41.8" width="7.08" height="200.6" fill="#e6e6e6" stroke="#000" stroke-width="0.2"/>
+<rect x="44.62" y="58.32" width="108.442" height="4.13" fill="none" stroke="#000" stroke-width="0.15" stroke-dasharray="1 0.6"/>
+<rect x="44.62" y="158.62" width="108.442" height="4.13" fill="none" stroke="#000" stroke-width="0.15" stroke-dasharray="1 0.6"/>
+<rect x="44.62" y="195.2" width="108.442" height="4.13" fill="none" stroke="#000" stroke-width="0.15" stroke-dasharray="1 0.6"/>
+<rect x="44.62" y="230.6" width="108.442" height="4.13" fill="none" stroke="#000" stroke-width="0.15" stroke-dasharray="1 0.6"/>
+<rect x="45.8" y="47.7" width="8.26" height="14.16" fill="#fff" stroke="#000" stroke-width="0.3"/>
+<text x="49.93" y="55.58" font-size="2.1" text-anchor="middle" fill="#000">-Q1</text>
+<rect x="55.83" y="53.01" width="8.495999999999999" height="10.62" fill="#fff" stroke="#000" stroke-width="0.3"/>
+<text x="60.08" y="59.12" font-size="2.1" text-anchor="middle" fill="#000">-F1</text>
+<rect x="66.44999999999999" y="42.98" width="11.209999999999999" height="30.68" fill="#fff" stroke="#000" stroke-width="0.3"/>
+<text x="72.06" y="59.12" font-size="2.1" text-anchor="middle" fill="#000">-R1</text>
+<rect x="80.02" y="52.42" width="5.31" height="12.036" fill="#fff" stroke="#000" stroke-width="0.3"/>
+<text x="83.47" y="58.44" font-size="1.6" text-anchor="middle" fill="#000" transform="rotate(-90 83.475 58.438)">-Q2</text>
+<rect x="87.1" y="53.01" width="6.372" height="10.62" fill="#fff" stroke="#000" stroke-width="0.3"/>
+<text x="90.29" y="59.12" font-size="2.1" text-anchor="middle" fill="#000">-F11</text>
+<rect x="94.18" y="53.01" width="6.372" height="10.62" fill="#fff" stroke="#000" stroke-width="0.3"/>
+<text x="97.37" y="59.12" font-size="2.1" text-anchor="middle" fill="#000">-F12</text>
+<rect x="101.25999999999999" y="53.01" width="6.372" height="10.62" fill="#fff" stroke="#000" stroke-width="0.3"/>
+<text x="104.45" y="59.12" font-size="2.1" text-anchor="middle" fill="#000">-F13</text>
+<rect x="108.33999999999999" y="53.01" width="6.372" height="10.62" fill="#fff" stroke="#000" stroke-width="0.3"/>
+<text x="111.53" y="59.12" font-size="2.1" text-anchor="middle" fill="#000">-F14</text>
+<rect x="115.42" y="53.01" width="6.372" height="10.62" fill="#fff" stroke="#000" stroke-width="0.3"/>
+<text x="118.61" y="59.12" font-size="2.1" text-anchor="middle" fill="#000">-F15</text>
+<rect x="122.5" y="53.01" width="6.372" height="10.62" fill="#fff" stroke="#000" stroke-width="0.3"/>
+<text x="125.69" y="59.12" font-size="2.1" text-anchor="middle" fill="#000">-F16</text>
+<rect x="130.76" y="53.01" width="2.1239999999999997" height="10.62" fill="#fff" stroke="#000" stroke-width="0.3"/>
+<text x="132.62" y="58.32" font-size="1.6" text-anchor="middle" fill="#000" transform="rotate(-90 132.622 58.32)">-F2</text>
+<rect x="133.70999999999998" y="53.01" width="2.1239999999999997" height="10.62" fill="#fff" stroke="#000" stroke-width="0.3"/>
+<text x="135.57" y="58.32" font-size="1.6" text-anchor="middle" fill="#000" transform="rotate(-90 135.572 58.32)">-F3</text>
+<rect x="136.66" y="53.01" width="4.247999999999999" height="10.62" fill="#fff" stroke="#000" stroke-width="0.3"/>
+<text x="139.58" y="58.32" font-size="1.6" text-anchor="middle" fill="#000" transform="rotate(-90 139.584 58.32)">-F4</text>
+<rect x="142.56" y="52.42" width="5.31" height="11.799999999999999" fill="#fff" stroke="#000" stroke-width="0.3"/>
+<text x="146.01" y="58.32" font-size="1.6" text-anchor="middle" fill="#000" transform="rotate(-90 146.015 58.32)">-X9</text>
+<rect x="45.8" y="86.64" width="10.62" height="38.94" fill="#fff" stroke="#000" stroke-width="0.3"/>
+<text x="51.11" y="106.91" font-size="2.1" text-anchor="middle" fill="#000">-T11</text>
+<rect x="60.55" y="86.64" width="10.62" height="38.94" fill="#fff" stroke="#000" stroke-width="0.3"/>
+<text x="65.86" y="106.91" font-size="2.1" text-anchor="middle" fill="#000">-T12</text>
+<rect x="75.3" y="86.64" width="11.799999999999999" height="41.3" fill="#fff" stroke="#000" stroke-width="0.3"/>
+<text x="81.2" y="108.09" font-size="2.1" text-anchor="middle" fill="#000">-T13</text>
+<rect x="91.22999999999999" y="86.64" width="6.489999999999999" height="29.5" fill="#fff" stroke="#000" stroke-width="0.3"/>
+<text x="94.47" y="102.19" font-size="2.1" text-anchor="middle" fill="#000">-T14</text>
+<rect x="101.85" y="86.64" width="6.489999999999999" height="29.5" fill="#fff" stroke="#000" stroke-width="0.3"/>
+<text x="105.09" y="102.19" font-size="2.1" text-anchor="middle" fill="#000">-T15</text>
+<rect x="112.47" y="86.64" width="6.489999999999999" height="29.5" fill="#fff" stroke="#000" stroke-width="0.3"/>
+<text x="115.71" y="102.19" font-size="2.1" text-anchor="middle" fill="#000">-T16</text>
+<rect x="123.67999999999999" y="86.64" width="9.44" height="38.94" fill="#fff" stroke="#000" stroke-width="0.3"/>
+<text x="128.4" y="106.91" font-size="2.1" text-anchor="middle" fill="#000">-R11</text>
+<rect x="45.8" y="146.82" width="10.148" height="14.75" fill="#fff" stroke="#000" stroke-width="0.3"/>
+<text x="50.87" y="155" font-size="2.1" text-anchor="middle" fill="#000">-T1</text>
+<rect x="57.599999999999994" y="146.82" width="10.148" height="14.75" fill="#fff" stroke="#000" stroke-width="0.3"/>
+<text x="62.67" y="155" font-size="2.1" text-anchor="middle" fill="#000">-G1</text>
+<rect x="69.4" y="151.54" width="1.4514" height="10.62" fill="#fff" stroke="#000" stroke-width="0.3"/>
+<text x="70.93" y="156.85" font-size="1.6" text-anchor="middle" fill="#000" transform="rotate(-90 70.92569999999999 156.85)">-F21</text>
+<rect x="71.05199999999999" y="151.54" width="1.4514" height="10.62" fill="#fff" stroke="#000" stroke-width="0.3"/>
+<text x="72.58" y="156.85" font-size="1.6" text-anchor="middle" fill="#000" transform="rotate(-90 72.5777 156.85)">-F22</text>
+<rect x="72.70400000000001" y="151.54" width="1.4514" height="10.62" fill="#fff" stroke="#000" stroke-width="0.3"/>
+<text x="74.23" y="156.85" font-size="1.6" text-anchor="middle" fill="#000" transform="rotate(-90 74.2297 156.85)">-F23</text>
+<rect x="74.356" y="151.54" width="1.4514" height="10.62" fill="#fff" stroke="#000" stroke-width="0.3"/>
+<text x="75.88" y="156.85" font-size="1.6" text-anchor="middle" fill="#000" transform="rotate(-90 75.8817 156.85)">-F24</text>
+<rect x="76.008" y="151.54" width="1.4514" height="10.62" fill="#fff" stroke="#000" stroke-width="0.3"/>
+<text x="77.53" y="156.85" font-size="1.6" text-anchor="middle" fill="#000" transform="rotate(-90 77.5337 156.85)">-F25</text>
+<rect x="77.66" y="151.54" width="1.4514" height="10.62" fill="#fff" stroke="#000" stroke-width="0.3"/>
+<text x="79.19" y="156.85" font-size="1.6" text-anchor="middle" fill="#000" transform="rotate(-90 79.18569999999998 156.85)">-F26</text>
+<rect x="81.19999999999999" y="148" width="10.62" height="11.799999999999999" fill="#fff" stroke="#000" stroke-width="0.3"/>
+<text x="86.51" y="154.7" font-size="2.1" text-anchor="middle" fill="#000">-K2</text>
+<rect x="94.18" y="148" width="11.799999999999999" height="11.799999999999999" fill="#fff" stroke="#000" stroke-width="0.3"/>
+<text x="100.08" y="154.7" font-size="2.1" text-anchor="middle" fill="#000">-K3</text>
+<rect x="108.33999999999999" y="148" width="5.31" height="14.16" fill="#fff" stroke="#000" stroke-width="0.3"/>
+<text x="111.79" y="155.08" font-size="1.6" text-anchor="middle" fill="#000" transform="rotate(-90 111.79499999999999 155.07999999999998)">-K4</text>
+<rect x="116.6" y="146.82" width="23.599999999999998" height="18.88" fill="#fff" stroke="#000" stroke-width="0.3"/>
+<text x="128.4" y="157.06" font-size="2.1" text-anchor="middle" fill="#000">-K1</text>
+<rect x="45.8" y="188.12" width="0.7316" height="9.44" fill="#fff" stroke="#000" stroke-width="0.3"/>
+<text x="46.97" y="192.84" font-size="1.6" text-anchor="middle" fill="#000" transform="rotate(-90 46.965799999999994 192.84)">-K11</text>
+<rect x="46.744" y="188.12" width="0.7316" height="9.44" fill="#fff" stroke="#000" stroke-width="0.3"/>
+<text x="47.91" y="192.84" font-size="1.6" text-anchor="middle" fill="#000" transform="rotate(-90 47.9098 192.84)">-K12</text>
+<rect x="47.688" y="188.12" width="0.7316" height="9.44" fill="#fff" stroke="#000" stroke-width="0.3"/>
+<text x="48.85" y="192.84" font-size="1.6" text-anchor="middle" fill="#000" transform="rotate(-90 48.85379999999999 192.84)">-K13</text>
+<rect x="48.632" y="188.12" width="0.7316" height="9.44" fill="#fff" stroke="#000" stroke-width="0.3"/>
+<text x="49.8" y="192.84" font-size="1.6" text-anchor="middle" fill="#000" transform="rotate(-90 49.797799999999995 192.84)">-K14</text>
+<rect x="52.879999999999995" y="186.94" width="7.433999999999999" height="14.75" fill="#fff" stroke="#000" stroke-width="0.3"/>
+<text x="56.6" y="195.12" font-size="2.1" text-anchor="middle" fill="#000">-T2</text>
+<rect x="45.8" y="223.51999999999998" width="7.1979999999999995" height="7.08" fill="#fff" stroke="#000" stroke-width="0.3"/>
+<text x="49.4" y="227.86" font-size="2.1" text-anchor="middle" fill="#000">-X1</text>
+<rect x="55.239999999999995" y="223.51999999999998" width="24.543999999999997" height="7.08" fill="#fff" stroke="#000" stroke-width="0.3"/>
+<text x="67.51" y="227.86" font-size="2.1" text-anchor="middle" fill="#000">-X2</text>
+<rect x="81.19999999999999" y="223.51999999999998" width="19.6352" height="7.08" fill="#fff" stroke="#000" stroke-width="0.3"/>
+<text x="91.02" y="227.86" font-size="2.1" text-anchor="middle" fill="#000">-X3</text>
+<rect x="102.44" y="223.51999999999998" width="29.4528" height="7.08" fill="#fff" stroke="#000" stroke-width="0.3"/>
+<text x="117.17" y="227.86" font-size="2.1" text-anchor="middle" fill="#000">-X4</text>
+<rect x="134.3" y="223.51999999999998" width="18.88" height="7.08" fill="#fff" stroke="#000" stroke-width="0.3"/>
+<text x="143.74" y="227.86" font-size="2.1" text-anchor="middle" fill="#000">-X10</text>
+<rect x="45.8" y="232.95999999999998" width="106.19999999999999" height="1.18" fill="#fff" stroke="#000" stroke-width="0.3"/>
+<text x="98.9" y="234.35" font-size="2.1" text-anchor="middle" fill="#000">-PE</text>
+<polyline points="34,259.73 163.68,259.73" fill="none" stroke="#000" stroke-width="0.18"/><path d="M 34 259.72799999999995 l 1.6 -0.8 l 0 1.6 z" fill="#000"/><path d="M 163.682 259.72799999999995 l -1.6 -0.8 l 0 1.6 z" fill="#000"/><text x="98.84" y="258.73" font-size="2.1" text-anchor="middle" fill="#000">1099</text>
+<polyline points="28,30 28,253.73" fill="none" stroke="#000" stroke-width="0.18"/><path d="M 28 30 l -0.8 1.6 l 1.6 0 z" fill="#000"/><path d="M 28 253.72799999999998 l -0.8 -1.6 l 1.6 0 z" fill="#000"/><text x="26.8" y="140.86" font-size="2.1" text-anchor="middle" fill="#000" transform="rotate(-90 26.8 140.86399999999998)">1896</text>
+<text x="166.68" y="48.52" font-size="2.1" text-anchor="start" fill="#000">rij 1: voeding 400 V</text>
+<text x="166.68" y="87.46" font-size="2.1" text-anchor="start" fill="#000">rij 2: servoversterkers</text>
+<text x="166.68" y="147.64" font-size="2.1" text-anchor="start" fill="#000">rij 3: 24 V, veiligheid, I/O, PC</text>
+<text x="166.68" y="187.76" font-size="2.1" text-anchor="start" fill="#000">rij 4: relais, remvoeding</text>
+<text x="166.68" y="224.34" font-size="2.1" text-anchor="start" fill="#000">rij 5: klemmen, PE</text>
+<rect x="205" y="22" width="194" height="208.95" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="205,28 399,28" fill="none" stroke="#000" stroke-width="0.35"/><text x="206.5" y="25.8" font-size="2.4" text-anchor="start" fill="#000" font-weight="700">Aand.</text><text x="220.5" y="25.8" font-size="2.4" text-anchor="start" fill="#000" font-weight="700">Benaming</text><polyline points="219,22 219,230.95" fill="none" stroke="#000" stroke-width="0.18"/><text x="306.5" y="25.8" font-size="2.4" text-anchor="start" fill="#000" font-weight="700">Type</text><polyline points="305,22 305,230.95" fill="none" stroke="#000" stroke-width="0.18"/><text x="372.5" y="25.8" font-size="2.4" text-anchor="start" fill="#000" font-weight="700">B x H x D</text><polyline points="371,22 371,230.95" fill="none" stroke="#000" stroke-width="0.18"/><polyline points="205,34.15 399,34.15" fill="none" stroke="#000" stroke-width="0.13"/><text x="206.5" y="31.72" font-size="1.85" text-anchor="start" fill="#000">-Q1</text><text x="220.5" y="31.72" font-size="1.85" text-anchor="start" fill="#000">Hoofdschakelaar 40 A, 3-polig, afsluitbaar (bediening door…</text><text x="306.5" y="31.72" font-size="1.85" text-anchor="start" fill="#000">ABB OT40FT3 + OHB65J6 + OXP6X290</text><text x="372.5" y="31.72" font-size="1.85" text-anchor="start" fill="#000">70 x 120 x 100 *</text><polyline points="205,40.3 399,40.3" fill="none" stroke="#000" stroke-width="0.13"/><text x="206.5" y="37.87" font-size="1.85" text-anchor="start" fill="#000">-F1</text><text x="220.5" y="37.87" font-size="1.85" text-anchor="start" fill="#000">Overspanningsbeveiliging type 2, 3+N</text><text x="306.5" y="37.87" font-size="1.85" text-anchor="start" fill="#000">Phoenix VAL-MS 230/3+1</text><text x="372.5" y="37.87" font-size="1.85" text-anchor="start" fill="#000">72 x 90 x 70 *</text><polyline points="205,46.45 399,46.45" fill="none" stroke="#000" stroke-width="0.13"/><text x="206.5" y="44.02" font-size="1.85" text-anchor="start" fill="#000">-R1</text><text x="220.5" y="44.02" font-size="1.85" text-anchor="start" fill="#000">Netfilter (EMC) 3 x 400 V, 36 A</text><text x="306.5" y="44.02" font-size="1.85" text-anchor="start" fill="#000">Schaffner FN3258-35-33</text><text x="372.5" y="44.02" font-size="1.85" text-anchor="start" fill="#000">95 x 260 x 120 *</text><polyline points="205,52.6 399,52.6" fill="none" stroke="#000" stroke-width="0.13"/><text x="206.5" y="50.17" font-size="1.85" text-anchor="start" fill="#000">-Q2</text><text x="220.5" y="50.17" font-size="1.85" text-anchor="start" fill="#000">Netmagneetschakelaar 18,5 kW (stopcategorie 1, via -K2)</text><text x="306.5" y="50.17" font-size="1.85" text-anchor="start" fill="#000">Siemens 3RT2026-1BB40 (24 V DC)</text><text x="372.5" y="50.17" font-size="1.85" text-anchor="start" fill="#000">45 x 102 x 97 *</text><polyline points="205,58.75 399,58.75" fill="none" stroke="#000" stroke-width="0.13"/><text x="206.5" y="56.32" font-size="1.85" text-anchor="start" fill="#000">-F11</text><text x="220.5" y="56.32" font-size="1.85" text-anchor="start" fill="#000">Installatieautomaat servoversterker A1</text><text x="306.5" y="56.32" font-size="1.85" text-anchor="start" fill="#000">ABB S203-C16 (3P, C16)</text><text x="372.5" y="56.32" font-size="1.85" text-anchor="start" fill="#000">54 x 90 x 70</text><polyline points="205,64.9 399,64.9" fill="none" stroke="#000" stroke-width="0.13"/><text x="206.5" y="62.47" font-size="1.85" text-anchor="start" fill="#000">-F12</text><text x="220.5" y="62.47" font-size="1.85" text-anchor="start" fill="#000">Installatieautomaat servoversterker A2</text><text x="306.5" y="62.47" font-size="1.85" text-anchor="start" fill="#000">ABB S203-C16 (3P, C16)</text><text x="372.5" y="62.47" font-size="1.85" text-anchor="start" fill="#000">54 x 90 x 70</text><polyline points="205,71.05 399,71.05" fill="none" stroke="#000" stroke-width="0.13"/><text x="206.5" y="68.62" font-size="1.85" text-anchor="start" fill="#000">-F13</text><text x="220.5" y="68.62" font-size="1.85" text-anchor="start" fill="#000">Installatieautomaat servoversterker A3</text><text x="306.5" y="68.62" font-size="1.85" text-anchor="start" fill="#000">ABB S203-C16 (3P, C16)</text><text x="372.5" y="68.62" font-size="1.85" text-anchor="start" fill="#000">54 x 90 x 70</text><polyline points="205,77.2 399,77.2" fill="none" stroke="#000" stroke-width="0.13"/><text x="206.5" y="74.77" font-size="1.85" text-anchor="start" fill="#000">-F14</text><text x="220.5" y="74.77" font-size="1.85" text-anchor="start" fill="#000">Installatieautomaat servoversterker A4</text><text x="306.5" y="74.77" font-size="1.85" text-anchor="start" fill="#000">ABB S203-C10 (3P, C10)</text><text x="372.5" y="74.77" font-size="1.85" text-anchor="start" fill="#000">54 x 90 x 70</text><polyline points="205,83.35 399,83.35" fill="none" stroke="#000" stroke-width="0.13"/><text x="206.5" y="80.92" font-size="1.85" text-anchor="start" fill="#000">-F15</text><text x="220.5" y="80.92" font-size="1.85" text-anchor="start" fill="#000">Installatieautomaat servoversterker A5</text><text x="306.5" y="80.92" font-size="1.85" text-anchor="start" fill="#000">ABB S203-C10 (3P, C10)</text><text x="372.5" y="80.92" font-size="1.85" text-anchor="start" fill="#000">54 x 90 x 70</text><polyline points="205,89.5 399,89.5" fill="none" stroke="#000" stroke-width="0.13"/><text x="206.5" y="87.07" font-size="1.85" text-anchor="start" fill="#000">-F16</text><text x="220.5" y="87.07" font-size="1.85" text-anchor="start" fill="#000">Installatieautomaat servoversterker A6</text><text x="306.5" y="87.07" font-size="1.85" text-anchor="start" fill="#000">ABB S203-C10 (3P, C10)</text><text x="372.5" y="87.07" font-size="1.85" text-anchor="start" fill="#000">54 x 90 x 70</text><polyline points="205,95.65 399,95.65" fill="none" stroke="#000" stroke-width="0.13"/><text x="206.5" y="93.22" font-size="1.85" text-anchor="start" fill="#000">-F2</text><text x="220.5" y="93.22" font-size="1.85" text-anchor="start" fill="#000">Installatieautomaat voeding 24 V (primair)</text><text x="306.5" y="93.22" font-size="1.85" text-anchor="start" fill="#000">ABB S201-C6 (1P)</text><text x="372.5" y="93.22" font-size="1.85" text-anchor="start" fill="#000">18 x 90 x 70</text><polyline points="205,101.8 399,101.8" fill="none" stroke="#000" stroke-width="0.13"/><text x="206.5" y="99.37" font-size="1.85" text-anchor="start" fill="#000">-F3</text><text x="220.5" y="99.37" font-size="1.85" text-anchor="start" fill="#000">Installatieautomaat kastventilatie en verlichting</text><text x="306.5" y="99.37" font-size="1.85" text-anchor="start" fill="#000">ABB S201-C6 (1P)</text><text x="372.5" y="99.37" font-size="1.85" text-anchor="start" fill="#000">18 x 90 x 70</text><polyline points="205,107.95 399,107.95" fill="none" stroke="#000" stroke-width="0.13"/><text x="206.5" y="105.52" font-size="1.85" text-anchor="start" fill="#000">-F4</text><text x="220.5" y="105.52" font-size="1.85" text-anchor="start" fill="#000">Aardlekautomaat servicestopcontact 30 mA</text><text x="306.5" y="105.52" font-size="1.85" text-anchor="start" fill="#000">ABB DS201 C10 A30</text><text x="372.5" y="105.52" font-size="1.85" text-anchor="start" fill="#000">36 x 90 x 70</text><polyline points="205,114.1 399,114.1" fill="none" stroke="#000" stroke-width="0.13"/><text x="206.5" y="111.67" font-size="1.85" text-anchor="start" fill="#000">-X9</text><text x="220.5" y="111.67" font-size="1.85" text-anchor="start" fill="#000">Servicestopcontact 230 V (DIN-rail)</text><text x="306.5" y="111.67" font-size="1.85" text-anchor="start" fill="#000">Phoenix EM-DUO 120/16/F</text><text x="372.5" y="111.67" font-size="1.85" text-anchor="start" fill="#000">45 x 100 x 60 *</text><polyline points="205,120.25 399,120.25" fill="none" stroke="#000" stroke-width="0.13"/><text x="206.5" y="117.82" font-size="1.85" text-anchor="start" fill="#000">-T11</text><text x="220.5" y="117.82" font-size="1.85" text-anchor="start" fill="#000">Servoversterker A1 (2,9 kW, EtherCAT, STO)</text><text x="306.5" y="117.82" font-size="1.85" text-anchor="start" fill="#000">Inovance SV660NT017I-FS-INT</text><text x="372.5" y="117.82" font-size="1.85" text-anchor="start" fill="#000">90 x 330 x 220 *</text><polyline points="205,126.4 399,126.4" fill="none" stroke="#000" stroke-width="0.13"/><text x="206.5" y="123.97" font-size="1.85" text-anchor="start" fill="#000">-T12</text><text x="220.5" y="123.97" font-size="1.85" text-anchor="start" fill="#000">Servoversterker A2 (2,9 kW, EtherCAT, STO)</text><text x="306.5" y="123.97" font-size="1.85" text-anchor="start" fill="#000">Inovance SV660NT017I-FS-INT</text><text x="372.5" y="123.97" font-size="1.85" text-anchor="start" fill="#000">90 x 330 x 220 *</text><polyline points="205,132.55 399,132.55" fill="none" stroke="#000" stroke-width="0.13"/><text x="206.5" y="130.12" font-size="1.85" text-anchor="start" fill="#000">-T13</text><text x="220.5" y="130.12" font-size="1.85" text-anchor="start" fill="#000">Servoversterker A3 (4,4 kW, EtherCAT, STO)</text><text x="306.5" y="130.12" font-size="1.85" text-anchor="start" fill="#000">Inovance SV660NT021I-FS-INT</text><text x="372.5" y="130.12" font-size="1.85" text-anchor="start" fill="#000">100 x 350 x 220 *</text><polyline points="205,138.7 399,138.7" fill="none" stroke="#000" stroke-width="0.13"/><text x="206.5" y="136.27" font-size="1.85" text-anchor="start" fill="#000">-T14</text><text x="220.5" y="136.27" font-size="1.85" text-anchor="start" fill="#000">Servoversterker A4 (1,3 kW, EtherCAT, STO)</text><text x="306.5" y="136.27" font-size="1.85" text-anchor="start" fill="#000">Inovance SV660NT5R4I-FS-INT</text><text x="372.5" y="136.27" font-size="1.85" text-anchor="start" fill="#000">55 x 250 x 220 *</text><polyline points="205,144.85 399,144.85" fill="none" stroke="#000" stroke-width="0.13"/><text x="206.5" y="142.42" font-size="1.85" text-anchor="start" fill="#000">-T15</text><text x="220.5" y="142.42" font-size="1.85" text-anchor="start" fill="#000">Servoversterker A5 (1,3 kW, EtherCAT, STO)</text><text x="306.5" y="142.42" font-size="1.85" text-anchor="start" fill="#000">Inovance SV660NT5R4I-FS-INT</text><text x="372.5" y="142.42" font-size="1.85" text-anchor="start" fill="#000">55 x 250 x 220 *</text><polyline points="205,151 399,151" fill="none" stroke="#000" stroke-width="0.13"/><text x="206.5" y="148.57" font-size="1.85" text-anchor="start" fill="#000">-T16</text><text x="220.5" y="148.57" font-size="1.85" text-anchor="start" fill="#000">Servoversterker A6 (1,3 kW, EtherCAT, STO)</text><text x="306.5" y="148.57" font-size="1.85" text-anchor="start" fill="#000">Inovance SV660NT5R4I-FS-INT</text><text x="372.5" y="148.57" font-size="1.85" text-anchor="start" fill="#000">55 x 250 x 220 *</text><polyline points="205,157.15 399,157.15" fill="none" stroke="#000" stroke-width="0.13"/><text x="206.5" y="154.72" font-size="1.85" text-anchor="start" fill="#000">-R11</text><text x="220.5" y="154.72" font-size="1.85" text-anchor="start" fill="#000">Remweerstand (gedeeld via DC-bus A1-A3)</text><text x="306.5" y="154.72" font-size="1.85" text-anchor="start" fill="#000">Inovance MDBUN-60 + 1 kW 32 Ω</text><text x="372.5" y="154.72" font-size="1.85" text-anchor="start" fill="#000">80 x 330 x 140 *</text><polyline points="205,163.3 399,163.3" fill="none" stroke="#000" stroke-width="0.13"/><text x="206.5" y="160.87" font-size="1.85" text-anchor="start" fill="#000">-T1</text><text x="220.5" y="160.87" font-size="1.85" text-anchor="start" fill="#000">Voeding 24 V DC, 20 A</text><text x="306.5" y="160.87" font-size="1.85" text-anchor="start" fill="#000">Mean Well SDR-480-24</text><text x="372.5" y="160.87" font-size="1.85" text-anchor="start" fill="#000">86 x 125 x 129</text><polyline points="205,169.45 399,169.45" fill="none" stroke="#000" stroke-width="0.13"/><text x="206.5" y="167.02" font-size="1.85" text-anchor="start" fill="#000">-G1</text><text x="220.5" y="167.02" font-size="1.85" text-anchor="start" fill="#000">Buffermodule 24 V (stroomonderbreking tot 1 s)</text><text x="306.5" y="167.02" font-size="1.85" text-anchor="start" fill="#000">Mean Well DRB-480-24 + 4 x 18650</text><text x="372.5" y="167.02" font-size="1.85" text-anchor="start" fill="#000">86 x 125 x 129 *</text><polyline points="205,175.6 399,175.6" fill="none" stroke="#000" stroke-width="0.13"/><text x="206.5" y="173.17" font-size="1.85" text-anchor="start" fill="#000">-F21</text><text x="220.5" y="173.17" font-size="1.85" text-anchor="start" fill="#000">24 V IPC</text><text x="306.5" y="173.17" font-size="1.85" text-anchor="start" fill="#000">Phoenix CBM E4 24DC/0.5-10A (1 kanaal)</text><text x="372.5" y="173.17" font-size="1.85" text-anchor="start" fill="#000">12.3 x 90 x 75 *</text><polyline points="205,181.75 399,181.75" fill="none" stroke="#000" stroke-width="0.13"/><text x="206.5" y="179.32" font-size="1.85" text-anchor="start" fill="#000">-F22</text><text x="220.5" y="179.32" font-size="1.85" text-anchor="start" fill="#000">24 V veiligheid</text><text x="306.5" y="179.32" font-size="1.85" text-anchor="start" fill="#000">Phoenix CBM E4 24DC/0.5-10A (1 kanaal)</text><text x="372.5" y="179.32" font-size="1.85" text-anchor="start" fill="#000">12.3 x 90 x 75 *</text><polyline points="205,187.9 399,187.9" fill="none" stroke="#000" stroke-width="0.13"/><text x="206.5" y="185.47" font-size="1.85" text-anchor="start" fill="#000">-F23</text><text x="220.5" y="185.47" font-size="1.85" text-anchor="start" fill="#000">24 V I/O en sensoren</text><text x="306.5" y="185.47" font-size="1.85" text-anchor="start" fill="#000">Phoenix CBM E4 24DC/0.5-10A (1 kanaal)</text><text x="372.5" y="185.47" font-size="1.85" text-anchor="start" fill="#000">12.3 x 90 x 75 *</text><polyline points="205,194.05 399,194.05" fill="none" stroke="#000" stroke-width="0.13"/><text x="206.5" y="191.62" font-size="1.85" text-anchor="start" fill="#000">-F24</text><text x="220.5" y="191.62" font-size="1.85" text-anchor="start" fill="#000">24 V ventielen</text><text x="306.5" y="191.62" font-size="1.85" text-anchor="start" fill="#000">Phoenix CBM E4 24DC/0.5-10A (1 kanaal)</text><text x="372.5" y="191.62" font-size="1.85" text-anchor="start" fill="#000">12.3 x 90 x 75 *</text><polyline points="205,200.2 399,200.2" fill="none" stroke="#000" stroke-width="0.13"/><text x="206.5" y="197.77" font-size="1.85" text-anchor="start" fill="#000">-F25</text><text x="220.5" y="197.77" font-size="1.85" text-anchor="start" fill="#000">24 V camera en PoE-switch</text><text x="306.5" y="197.77" font-size="1.85" text-anchor="start" fill="#000">Phoenix CBM E4 24DC/0.5-10A (1 kanaal)</text><text x="372.5" y="197.77" font-size="1.85" text-anchor="start" fill="#000">12.3 x 90 x 75 *</text><polyline points="205,206.35 399,206.35" fill="none" stroke="#000" stroke-width="0.13"/><text x="206.5" y="203.92" font-size="1.85" text-anchor="start" fill="#000">-F26</text><text x="220.5" y="203.92" font-size="1.85" text-anchor="start" fill="#000">24 V HMI en kastlicht</text><text x="306.5" y="203.92" font-size="1.85" text-anchor="start" fill="#000">Phoenix CBM E4 24DC/0.5-10A (1 kanaal)</text><text x="372.5" y="203.92" font-size="1.85" text-anchor="start" fill="#000">12.3 x 90 x 75 *</text><polyline points="205,212.5 399,212.5" fill="none" stroke="#000" stroke-width="0.13"/><text x="206.5" y="210.07" font-size="1.85" text-anchor="start" fill="#000">-K2</text><text x="220.5" y="210.07" font-size="1.85" text-anchor="start" fill="#000">Veiligheidsbesturing (noodstop, deur, lichtschermen, STO, …</text><text x="306.5" y="210.07" font-size="1.85" text-anchor="start" fill="#000">Pilz PNOZmulti 2 base 772100 + PNOZ m EF 16D…</text><text x="372.5" y="210.07" font-size="1.85" text-anchor="start" fill="#000">90 x 100 x 115 *</text><polyline points="205,218.65 399,218.65" fill="none" stroke="#000" stroke-width="0.13"/><text x="206.5" y="216.22" font-size="1.85" text-anchor="start" fill="#000">-K3</text><text x="220.5" y="216.22" font-size="1.85" text-anchor="start" fill="#000">EtherCAT-koppelaar + I/O (16 DI, 16 DO, 2 AI, eindklem)</text><text x="306.5" y="216.22" font-size="1.85" text-anchor="start" fill="#000">Beckhoff EK1100 + EL1809 + EL2809 + EL3002 +…</text><text x="372.5" y="216.22" font-size="1.85" text-anchor="start" fill="#000">100 x 100 x 70 *</text><polyline points="205,224.8 399,224.8" fill="none" stroke="#000" stroke-width="0.13"/><text x="206.5" y="222.37" font-size="1.85" text-anchor="start" fill="#000">-K4</text><text x="220.5" y="222.37" font-size="1.85" text-anchor="start" fill="#000">Industriële switch 5 poorten (2 x PoE+ voor de camera)</text><text x="306.5" y="222.37" font-size="1.85" text-anchor="start" fill="#000">Phoenix FL SWITCH 1001T-4POE-GT</text><text x="372.5" y="222.37" font-size="1.85" text-anchor="start" fill="#000">45 x 120 x 110 *</text><text x="206.5" y="228.52" font-size="1.85" text-anchor="start" fill="#000">-K1</text><text x="220.5" y="228.52" font-size="1.85" text-anchor="start" fill="#000">Industriële PC (LinuxCNC + EtherCAT-master, HMI-server)</text><text x="306.5" y="228.52" font-size="1.85" text-anchor="start" fill="#000">fanloos, Intel Core i5, 2 x Intel i210 LAN, …</text><text x="372.5" y="228.52" font-size="1.85" text-anchor="start" fill="#000">200 x 160 x 70 *</text>
+<text x="205" y="252" font-size="2.1" text-anchor="start" fill="#000">* maat indicatief: nameten bij levering (10 mm marge op de plaat). Goten 60 x 80 grijs, DIN-rails 35 x 7,5. Reserve op de plaat: ±25 %.</text>
+</svg>

@@ -21,19 +21,31 @@ g = 9.81
 
 
 @dataclass
+class Balk:
+    naam: str
+    v: float            # mm, hart van de balk dwars op de lengte (grijperassen)
+    b: float            # mm, breedte van het zuigvlak
+    n_per_mm: float     # N houdkracht per mm volledig bedekte lengte bij -250 mbar (catalogus Schmalz)
+
+
+@dataclass
 class Grijper:
-    lengte: float = 2000.0       # mm, langs de lange as
-    breedte: float = 500.0       # mm
-    zones_l: int = 4             # zones langs de lengte
-    zones_b: int = 2             # zones over de breedte
-    p_vac: float = 40e3          # Pa: werkonderdruk onder schuim (lager dan bij een zuignap: het schuim lekt een beetje)
-    rendement: float = 0.6       # deel van het bedekte oppervlak dat werkelijk zuigt (openingen en schuimrand)
-    drempel: float = 0.10        # zone gaat aan vanaf 10 % bedekking
+    lengte: float = 1972.0       # mm, zuigvlak van de balken
+    balken: tuple = (
+        Balk('FA-M 1972 x 130 (zone 1)', -185, 130, 550 / 442),   # 550 N bij -250 mbar voor 442 mm (Schmalz FA-M)
+        Balk('FMP-60 1972 x 60 (zone 2)', 0, 60, 433 / 1234),     # 433 N bij -250 mbar voor 1234 mm (Schmalz FMP-60)
+        Balk('FA-M 1972 x 130 (zone 3)', 185, 130, 550 / 442),
+    )
+    drempel: float = 0.10        # een balk gaat aan vanaf 10 % bedekking van zijn zuigvlak
     S: float = 2.0               # veiligheid (Schmalz: 2 bij draaiende bewegingen)
     mu: float = 0.5              # wrijving schuim op hout/HPL (rechtop: de kracht langs het vlak)
     a_nominaal: float = 4.0      # m/s², gewenste baanversnelling
-    massa: float = 55.0          # kg, de vlakgrijper zelf
+    massa: float = 45.0          # kg, de grijper (raam, 3 balken, ejectors, slangen)
     draagvermogen: float = 120.0 # kg aan de flens (robot PR 120)
+
+    @property
+    def breedte(self):
+        return max(abs(k.v) + k.b / 2 for k in self.balken) * 2
 
 
 GRIJPER = Grijper()
@@ -70,39 +82,29 @@ def plan(stuk: Stuk, G: Grijper = GRIJPER):
         hoek -= 180
     while hoek <= -90:
         hoek += 180
-    # 2. grijppunt: in de grijperassen (u langs de lengte, v over de breedte) ligt het stuk van -L/2..L/2 om zijn midden.
-    #    Schuif de grijper (binnen de randen van het stuk) zodat zo weinig mogelijk zones half bedekt raken.
-    zl, zb = G.lengte / G.zones_l, G.breedte / G.zones_b
+    # 2. grijppunt: in de grijperassen (u langs de lengte, v dwars) ligt het stuk van -L/2..L/2 om zijn midden. Schuif de
+    #    grijper (u binnen de randen van het stuk, v over de balken) zodat de houdkracht het grootst is bij zo weinig
+    #    mogelijk half bedekte balken (lek door de zelfsluitende ventielen is klein, maar niet nul).
     beste = None
-    stappen = [i * 10.0 for i in range(-int(G.lengte / 20), int(G.lengte / 20) + 1)]
-    for du in stappen:
-        for dv in ([0.0] if B >= G.breedte else [i * 10.0 for i in range(-int(G.breedte / 20), int(G.breedte / 20) + 1)]):
-            # het stuk in grijperassen: [du - L/2, du + L/2] x [dv - B/2, dv + B/2]; het mag niet buiten de grijper vallen
-            # als het kleiner is, en de grijper niet buiten het stuk als het groter is
-            if L <= G.lengte and (abs(du) + L / 2 > G.lengte / 2 + 1e-9):
-                continue
-            if L > G.lengte and (abs(du) > (L - G.lengte) / 2 + 1e-9):
-                continue
-            if B <= G.breedte and (abs(dv) + B / 2 > G.breedte / 2 + 1e-9):
-                continue
-            zones, bedekt = [], 0.0
-            for i in range(G.zones_l):
-                for j in range(G.zones_b):
-                    u0, v0 = -G.lengte / 2 + i * zl, -G.breedte / 2 + j * zb
-                    a = _overlap(u0, u0 + zl, du - L / 2, du + L / 2) * _overlap(v0, v0 + zb, dv - B / 2, dv + B / 2)
-                    if a >= G.drempel * zl * zb:
-                        zones.append((i, j))
-                        bedekt += a
+    us = [0.0] if L >= G.lengte else [i * 10.0 for i in range(-int((G.lengte - L) / 20), int((G.lengte - L) / 20) + 1)]
+    vs = [0.0] if B >= G.breedte else [k.v + d for k in G.balken for d in (-20.0, 0.0, 20.0)]
+    for du in us:
+        for dv in vs:
+            zones, F = [], 0.0
+            for i, k in enumerate(G.balken):
+                lu = _overlap(-G.lengte / 2, G.lengte / 2, du - L / 2, du + L / 2)
+                lv = _overlap(k.v - k.b / 2, k.v + k.b / 2, dv - B / 2, dv + B / 2)
+                if lu * lv >= G.drempel * G.lengte * k.b:
+                    zones.append(i)
+                    F += k.n_per_mm * lu * lv / k.b
             if not zones:
                 continue
-            lek = sum(zl * zb for _ in zones) - bedekt  # onbedekt oppervlak in de actieve zones
-            kost = (lek, abs(du) + abs(dv))
+            kost = (-round(F, 1), len(zones), abs(du) + abs(dv))
             if beste is None or kost < beste[0]:
-                beste = (kost, du, dv, zones, bedekt)
+                beste = (kost, du, dv, zones, F)
     if beste is None:
         return {'stuk': stuk.naam, 'pakbaar': False, 'reden': 'geen zone voldoende bedekt (stuk te klein of te smal)'}
-    _, du, dv, zones, bedekt = beste
-    F = bedekt * 1e-6 * G.p_vac * G.rendement           # N
+    _, du, dv, zones, F = beste
     m = stuk.massa
     a_plat = F / (m * G.S) - g                           # m/s², plat dragen
     a_recht = F * G.mu / (m * G.S) - g                    # m/s², rechtop (de kracht langs het vlak)
@@ -114,7 +116,7 @@ def plan(stuk: Stuk, G: Grijper = GRIJPER):
     gx, gz = stuk.x - (du * c - dv * s), stuk.z - (du * s + dv * c)
     return {
         'stuk': stuk.naam, 'pakbaar': pakbaar, 'massa': m, 'A6': hoek, 'grijppunt': (gx, gz), 'hoogte': stuk.dikte,
-        'zones': zones, 'bedekt_mm2': bedekt, 'houdkracht': F, 'a_plat': a_plat, 'a_rechtop': a_recht, 'a_toegelaten': a_toe,
+        'zones': zones, 'houdkracht': F, 'a_plat': a_plat, 'a_rechtop': a_recht, 'a_toegelaten': a_toe,
         'reden': '' if pakbaar else (f'te zwaar: {m:.0f} kg + grijper {G.massa:.0f} kg > {G.draagvermogen:.0f} kg' if te_zwaar else 'houdkracht te klein voor veilig bewegen'),
     }
 
@@ -137,9 +139,9 @@ if __name__ == '__main__':
         print(f"{st.naam:38s} {'ok ' if p['pakbaar'] else 'NEE'} m={p.get('massa', 0):5.1f} kg zones={len(p.get('zones', []))} F={p.get('houdkracht', 0):6.0f} N a={p.get('a_toegelaten', 0):4.1f} A6={p.get('A6', 0):5.1f}")
     # controles
     deur = rij[0]
-    assert deur['pakbaar'] and len(deur['zones']) == GRIJPER.zones_l * GRIJPER.zones_b and deur['a_toegelaten'] >= 4.0
+    assert deur['pakbaar'] and len(deur['zones']) == 3 and deur['a_toegelaten'] >= 4.0
     plint = rij[1]
-    assert plint['pakbaar'] and abs(plint['A6'] - 12) < 1e-9
+    assert plint['pakbaar'] and abs(plint['A6'] - 12) < 1e-9 and len(plint['zones']) == 1, plint['zones']  # één balk: de planner kiest die met de meeste houdkracht
     dwars = rij[2]
     assert dwars['pakbaar'] and abs(dwars['A6'] - 90) < 1e-9, dwars['A6']
     klein = rij[4]
@@ -149,7 +151,7 @@ if __name__ == '__main__':
     assert rij[6]['pakbaar'] is False or len(rij[6]['zones']) >= 1
     # md voor het boek
     uit = ['# Grijpen: welke stukken en hoe\n', 'Gemaakt door `besturing/greep.py`. De camera meet elk stuk; de planner kiest de draaiing van A6, het grijppunt en de zones, en rekent de toegelaten versnelling (veiligheid 2, plat en rechtop).\n',
-           f'Vlakgrijper {GRIJPER.lengte:.0f} x {GRIJPER.breedte:.0f} mm, {GRIJPER.zones_l} x {GRIJPER.zones_b} zones, werkonderdruk {GRIJPER.p_vac / 1000:.0f} kPa.\n',
+           f'Vlakgrijper {GRIJPER.lengte:.0f} x {GRIJPER.breedte:.0f} mm: ' + ', '.join(k.naam for k in GRIJPER.balken) + '; houdkracht volgens Schmalz bij -250 mbar. Zone = balk (0, 1, 2).\n',
            '| Stuk | Massa | Pakbaar | Zones aan | Houdkracht | Versnelling plat / rechtop / toegelaten | A6 |', '|---|--:|---|--:|--:|--:|--:|']
     for p in rij:
         if 'massa' not in p:

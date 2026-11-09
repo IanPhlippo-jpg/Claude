@@ -1181,10 +1181,10 @@ elease; README en docs/04 bijgewerkt
 - [ ] Foto's naar Ian, commit en push
 
 ## Robotcel als volledig werkend product: schakelkast, HMI, schema's, statistieken (2026-11-09)
-- [ ] Vlakgrijper met zones en camera-boog boven de band in het model (na het onderzoek naar producten)
-- [ ] Schakelkast Rittal VX25 1200 x 2000 x 600 in 3D: montageplaat met hoofdschakelaar, beveiligingen, voeding 24 V, veiligheids-PLC, 6 servoversterkers, industriële PC, EtherCAT-I/O, klemmen, goten, koeling; HMI-touchpanel in de deur
-- [ ] Aansluitschema's volgens EPLAN/IEC (vermogen, servo's, veiligheid, 24 V, EtherCAT, I/O, pneumatiek ISO 1219), klemmenplannen, stuklijst, opstellingstekening van de montageplaat
-- [ ] HMI (web, aanraakscherm): overzicht, automaat/hand, stukken van de camera, zones, alarmen, statistieken (stuks per uur, cyclustijd, beschikbaarheid), onderhoud
-- [ ] Besturingslogica: toestandsmachine van de cel (simulator met tests), grijpplanner gekoppeld
-- [ ] Bestellijst met prijzen en bronnen, README, bouw- en inbedrijfstellingsplan, risicobeoordeling (EN ISO 12100 / 10218-2)
-- [ ] Eén afdruk-PDF, foto's naar Ian, commit en push
+- [x] Vlakgrijper met zones en camera-boog boven de band in het model (na het onderzoek naar producten)
+- [x] Schakelkast Rittal VX25 1200 x 2000 x 600 in 3D: montageplaat met hoofdschakelaar, beveiligingen, voeding 24 V, veiligheids-PLC, 6 servoversterkers, industriële PC, EtherCAT-I/O, klemmen, goten, koeling; HMI-touchpanel in de deur
+- [x] Aansluitschema's volgens EPLAN/IEC (vermogen, servo's, veiligheid, 24 V, EtherCAT, I/O, pneumatiek ISO 1219), klemmenplannen, stuklijst, opstellingstekening van de montageplaat
+- [x] HMI (web, aanraakscherm): overzicht, automaat/hand, stukken van de camera, zones, alarmen, statistieken (stuks per uur, cyclustijd, beschikbaarheid), onderhoud
+- [x] Besturingslogica: toestanden en cyclus in docs/Besturing.md, grijpplanner besturing/greep.py met controles (simulator in de HMI)
+- [x] Bestellijst met prijzen en bronnen, README, bouw- en inbedrijfstellingsplan, risicobeoordeling (EN ISO 12100 / 10218-2)
+- [~] Eén afdruk-PDF (Robotcel-alles-afdrukken.pdf), foto's naar Ian, commit en push

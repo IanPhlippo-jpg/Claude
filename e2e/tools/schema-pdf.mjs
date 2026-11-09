@@ -18,6 +18,13 @@ await page.goto(pathToFileURL(resolve('voorbeelden/treinverlichting/schema/schem
 await page.pdf({ path: 'voorbeelden/treinverlichting/schema/Aansluitschema-kabeldoos.pdf', format: 'A3', landscape: true, printBackground: true, margin: { top: 0, right: 0, bottom: 0, left: 0 } });
 const nt = await page.locator('.blad').count();
 for (let i = 0; i < nt; i++) await page.locator('.blad').nth(i).screenshot({ path: `e2e-out/trein-schema-blad-${i + 1}.png` });
+// de schemaset van de robotcel
+await page.goto(pathToFileURL(resolve('voorbeelden/robotarm/schema/schema.html')).href);
+await page.pdf({ path: 'voorbeelden/robotarm/schema/Schemaset-robotcel.pdf', format: 'A3', landscape: true, printBackground: true, margin: { top: 0, right: 0, bottom: 0, left: 0 } });
+const nr = await page.locator('.blad').count();
+for (let i = 0; i < nr; i++) await page.locator('.blad').nth(i).screenshot({ path: `e2e-out/robot-schema-blad-${i + 1}.png` });
+console.log('pdf robotcel', nr, 'bladen');
+if (process.argv.includes('--alleen-robot')) { await browser.close(); process.exit(0); }
 // freesmallen, apart per doos: A4, schaal 1 (1 mm in de SVG = 1 mm op papier)
 await page.setViewportSize({ width: 794, height: 1123 });
 const mallen = [];

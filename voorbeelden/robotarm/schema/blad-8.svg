@@ -1,0 +1,142 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 297" width="420mm" height="297mm" font-family="Arial, Helvetica, sans-serif">
+<rect width="420" height="297" fill="#fff"/>
+<rect x="5" y="5" width="410" height="287" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="20" y="10" width="390" height="277" fill="none" stroke="#000" stroke-width="0.7"/>
+<polyline points="210,5 210,10" fill="none" stroke="#000" stroke-width="0.7"/>
+<polyline points="210,287 210,292" fill="none" stroke="#000" stroke-width="0.7"/>
+<polyline points="5,148.5 20,148.5" fill="none" stroke="#000" stroke-width="0.7"/>
+<polyline points="410,148.5 415,148.5" fill="none" stroke="#000" stroke-width="0.7"/>
+<polyline points="20,15 410,15" fill="none" stroke="#000" stroke-width="0.35"/>
+<text x="39.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">0</text>
+<polyline points="59,10 59,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="78.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">1</text>
+<polyline points="98,10 98,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="117.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">2</text>
+<polyline points="137,10 137,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="156.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">3</text>
+<polyline points="176,10 176,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="195.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">4</text>
+<polyline points="215,10 215,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="234.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">5</text>
+<polyline points="254,10 254,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="273.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">6</text>
+<polyline points="293,10 293,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="312.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">7</text>
+<polyline points="332,10 332,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="351.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">8</text>
+<polyline points="371,10 371,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="390.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">9</text>
+<text x="21.5" y="258.5" font-size="2.5" text-anchor="start" fill="#000">7</text>
+<text x="408.5" y="258.5" font-size="2.5" text-anchor="end" fill="#000">9</text>
+<polyline points="20,260 410,260" fill="none" stroke="#000" stroke-width="0.7"/>
+<polyline points="20,266.75 62,266.75" fill="none" stroke="#000" stroke-width="0.18"/>
+<polyline points="20,273.5 62,273.5" fill="none" stroke="#000" stroke-width="0.18"/>
+<polyline points="20,280.25 62,280.25" fill="none" stroke="#000" stroke-width="0.18"/>
+<polyline points="30,260 30,287" fill="none" stroke="#000" stroke-width="0.18"/>
+<polyline points="48,260 48,287" fill="none" stroke="#000" stroke-width="0.18"/>
+<text x="21" y="285.4" font-size="1.8" text-anchor="start" fill="#000">Wijz.</text>
+<text x="31" y="285.4" font-size="1.8" text-anchor="start" fill="#000">Datum</text>
+<text x="49" y="285.4" font-size="1.8" text-anchor="start" fill="#000">Naam</text>
+<text x="21" y="278.55" font-size="2.3" text-anchor="start" fill="#000">1</text>
+<text x="31" y="278.55" font-size="2" text-anchor="start" fill="#000">2026-11-09</text>
+<text x="49" y="278.55" font-size="2" text-anchor="start" fill="#000">PC</text>
+<polyline points="62,260 62,287" fill="none" stroke="#000" stroke-width="0.35"/>
+<polyline points="62,266.75 106,266.75" fill="none" stroke="#000" stroke-width="0.18"/>
+<polyline points="62,273.5 106,273.5" fill="none" stroke="#000" stroke-width="0.18"/>
+<polyline points="62,280.25 106,280.25" fill="none" stroke="#000" stroke-width="0.18"/>
+<polyline points="77,260 77,287" fill="none" stroke="#000" stroke-width="0.18"/>
+<text x="63" y="264.95" font-size="2" text-anchor="start" fill="#000">Datum</text>
+<text x="78" y="264.95" font-size="2.2" text-anchor="start" fill="#000">2026-11-09</text>
+<text x="63" y="271.7" font-size="2" text-anchor="start" fill="#000">Getek.</text>
+<text x="78" y="271.7" font-size="2.2" text-anchor="start" fill="#000">Phlippo CAD</text>
+<text x="63" y="278.45" font-size="2" text-anchor="start" fill="#000">Gecontr.</text>
+<text x="78" y="278.45" font-size="2.2" text-anchor="start" fill="#000">Ian</text>
+<text x="63" y="285.2" font-size="2" text-anchor="start" fill="#000">Norm</text>
+<text x="78" y="285.2" font-size="2.2" text-anchor="start" fill="#000">IEC 81346</text>
+<polyline points="106,260 106,287" fill="none" stroke="#000" stroke-width="0.35"/>
+<polyline points="106,280.25 206,280.25" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="146,260 146,280.25" fill="none" stroke="#000" stroke-width="0.18"/>
+<text x="107" y="262.3" font-size="1.8" text-anchor="start" fill="#000">Eigenaar</text>
+<text x="108" y="269.5" font-size="3.6" text-anchor="start" fill="#000" font-weight="700">Phlippo CAD</text>
+<text x="108" y="275" font-size="2.3" text-anchor="start" fill="#000">Ian</text>
+<text x="147" y="262.3" font-size="1.8" text-anchor="start" fill="#000">Project</text>
+<text x="148" y="269" font-size="3.2" text-anchor="start" fill="#000" font-weight="700">Robotcel deuren</text>
+<text x="148" y="274.5" font-size="2.3" text-anchor="start" fill="#000">robot PR 120 R2700 met vlakgrijper en camera</text>
+<text x="107" y="285.2" font-size="1.8" text-anchor="start" fill="#000">Oorspr.</text>
+<text x="118" y="285.2" font-size="2" text-anchor="start" fill="#000"></text>
+<polyline points="139.33,280.25 139.33,287" fill="none" stroke="#000" stroke-width="0.18"/>
+<text x="140.33" y="285.2" font-size="1.8" text-anchor="start" fill="#000">Verv. v.</text>
+<text x="151.33" y="285.2" font-size="2" text-anchor="start" fill="#000"></text>
+<polyline points="172.67,280.25 172.67,287" fill="none" stroke="#000" stroke-width="0.18"/>
+<text x="173.67" y="285.2" font-size="1.8" text-anchor="start" fill="#000">Verv. d.</text>
+<text x="184.67" y="285.2" font-size="2" text-anchor="start" fill="#000"></text>
+<polyline points="206,260 206,287" fill="none" stroke="#000" stroke-width="0.35"/>
+<polyline points="206,280.25 306,280.25" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="256" y="266" font-size="4" text-anchor="middle" fill="#000" font-weight="700">Besturing en netwerk</text>
+<text x="256" y="271" font-size="4" text-anchor="middle" fill="#000">IPC, EtherCAT, camera, HMI</text>
+<text x="207" y="285.2" font-size="1.8" text-anchor="start" fill="#000">Documentsoort</text>
+<text x="228" y="285.2" font-size="2.2" text-anchor="start" fill="#000">&amp;EFS  Schema</text>
+<polyline points="306,260 306,287" fill="none" stroke="#000" stroke-width="0.35"/>
+<polyline points="306,273.5 350,273.5" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="307" y="262.3" font-size="1.8" text-anchor="start" fill="#000">Tekeningnr.</text>
+<text x="308" y="270" font-size="2.8" text-anchor="start" fill="#000" font-weight="700">ROB-E01</text>
+<text x="307" y="275.8" font-size="1.8" text-anchor="start" fill="#000">Revisie / taal</text>
+<text x="308" y="283" font-size="2.6" text-anchor="start" fill="#000">1 / nl</text>
+<polyline points="350,260 350,287" fill="none" stroke="#000" stroke-width="0.35"/>
+<polyline points="350,273.5 384,273.5" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="351.5" y="266" font-size="2.6" text-anchor="start" fill="#000">=</text>
+<text x="355" y="266" font-size="2.8" text-anchor="start" fill="#000" font-weight="700">ROB</text>
+<text x="351.5" y="271" font-size="1.9" text-anchor="start" fill="#000">robotcel</text>
+<text x="351.5" y="279.5" font-size="2.6" text-anchor="start" fill="#000">+</text>
+<text x="355" y="279.5" font-size="2.8" text-anchor="start" fill="#000" font-weight="700">KAST</text>
+<text x="351.5" y="284.5" font-size="1.9" text-anchor="start" fill="#000">schakelkast VX25</text>
+<polyline points="384,260 384,287" fill="none" stroke="#000" stroke-width="0.35"/>
+<polyline points="384,280.25 410,280.25" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="385" y="262.3" font-size="1.8" text-anchor="start" fill="#000">Blad</text>
+<text x="397" y="275" font-size="8" text-anchor="middle" fill="#000" font-weight="700">8</text>
+<text x="408.5" y="285.2" font-size="2.3" text-anchor="end" fill="#000">19 Bl.</text>
+<polyline points="22,40 406,40" fill="none" stroke="#000" stroke-width="0.35"/><polygon points="22,40 24.2,38.9 24.2,41.1" fill="#000"/><text x="25" y="38.6" font-size="2.5" text-anchor="start" fill="#000">L+1</text><text x="25" y="43.2" font-size="2.3" text-anchor="start" fill="#000">/6.3</text>
+<polyline points="22,240 406,240" fill="none" stroke="#000" stroke-width="0.35"/><polygon points="22,240 24.2,238.9 24.2,241.1" fill="#000"/><text x="25" y="238.6" font-size="2.5" text-anchor="start" fill="#000">M</text><text x="25" y="243.2" font-size="2.3" text-anchor="start" fill="#000">/6.1</text>
+<rect x="40" y="70" width="90" height="70" fill="none" stroke="#000" stroke-width="0.3" stroke-dasharray="4 1 0.6 1"/><text x="40" y="68.4" font-size="2.8" text-anchor="start" fill="#000">-K1</text><text x="42.5" y="75" font-size="2.3" text-anchor="start" fill="#000"></text><text x="42.5" y="78.4" font-size="2.3" text-anchor="start" fill="#000">Industriële PC (fanloos)</text><text x="42.5" y="81.8" font-size="2.3" text-anchor="start" fill="#000">Linux + PREEMPT_RT, LinuxCNC</text><text x="42.5" y="85.2" font-size="2.3" text-anchor="start" fill="#000">EtherCAT-master (IgH)</text><text x="42.5" y="88.6" font-size="2.3" text-anchor="start" fill="#000">HMI-server, grijpplanner</text><text x="42.5" y="92" font-size="2.3" text-anchor="start" fill="#000">camera-software (OpenCV)</text><circle cx="130" cy="84" r="0.5" fill="#000"/><text x="128.4" y="82.8" font-size="2.1" text-anchor="end" fill="#000">LAN1 EtherCAT</text><circle cx="130" cy="98" r="0.5" fill="#000"/><text x="128.4" y="96.8" font-size="2.1" text-anchor="end" fill="#000">LAN2 GigE</text><circle cx="130" cy="112" r="0.5" fill="#000"/><text x="128.4" y="110.8" font-size="2.1" text-anchor="end" fill="#000">HDMI</text><circle cx="130" cy="120" r="0.5" fill="#000"/><text x="128.4" y="118.8" font-size="2.1" text-anchor="end" fill="#000">USB</text><circle cx="85" cy="140" r="0.5" fill="#000"/><text x="83.4" y="138.8" font-size="2.1" text-anchor="end" fill="#000">24 V</text>
+<polyline points="85,140 85,240" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="130,84 170,84" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="162" y="76" width="16" height="16" fill="none" stroke="#000" stroke-width="0.35" stroke-dasharray="4 1 0.6 1"/>
+<text x="170" y="73" font-size="2.4" text-anchor="middle" fill="#000">-T11</text>
+<text x="170" y="86" font-size="2.2" text-anchor="middle" fill="#000">A1</text>
+<polyline points="178,84 192,84" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="192" y="76" width="16" height="16" fill="none" stroke="#000" stroke-width="0.35" stroke-dasharray="4 1 0.6 1"/>
+<text x="200" y="73" font-size="2.4" text-anchor="middle" fill="#000">-T12</text>
+<text x="200" y="86" font-size="2.2" text-anchor="middle" fill="#000">A2</text>
+<polyline points="208,84 222,84" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="222" y="76" width="16" height="16" fill="none" stroke="#000" stroke-width="0.35" stroke-dasharray="4 1 0.6 1"/>
+<text x="230" y="73" font-size="2.4" text-anchor="middle" fill="#000">-T13</text>
+<text x="230" y="86" font-size="2.2" text-anchor="middle" fill="#000">A3</text>
+<polyline points="238,84 252,84" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="252" y="76" width="16" height="16" fill="none" stroke="#000" stroke-width="0.35" stroke-dasharray="4 1 0.6 1"/>
+<text x="260" y="73" font-size="2.4" text-anchor="middle" fill="#000">-T14</text>
+<text x="260" y="86" font-size="2.2" text-anchor="middle" fill="#000">A4</text>
+<polyline points="268,84 282,84" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="282" y="76" width="16" height="16" fill="none" stroke="#000" stroke-width="0.35" stroke-dasharray="4 1 0.6 1"/>
+<text x="290" y="73" font-size="2.4" text-anchor="middle" fill="#000">-T15</text>
+<text x="290" y="86" font-size="2.2" text-anchor="middle" fill="#000">A5</text>
+<polyline points="298,84 312,84" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="312" y="76" width="16" height="16" fill="none" stroke="#000" stroke-width="0.35" stroke-dasharray="4 1 0.6 1"/>
+<text x="320" y="73" font-size="2.4" text-anchor="middle" fill="#000">-T16</text>
+<text x="320" y="86" font-size="2.2" text-anchor="middle" fill="#000">A6</text>
+<polyline points="328,84 352,84" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="352" y="76" width="16" height="16" fill="none" stroke="#000" stroke-width="0.35" stroke-dasharray="4 1 0.6 1"/>
+<text x="360" y="73" font-size="2.4" text-anchor="middle" fill="#000">-K3</text>
+<text x="360" y="86" font-size="2.2" text-anchor="middle" fill="#000">I/O</text>
+<text x="250" y="66" font-size="2.3" text-anchor="middle" fill="#000">EtherCAT (CAT5e afgeschermd, -W30..-W36), cyclus 1 ms</text>
+<polyline points="130,98 170,98 170,120" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="150" y="120" width="60" height="36" fill="none" stroke="#000" stroke-width="0.3" stroke-dasharray="4 1 0.6 1"/><text x="150" y="118.4" font-size="2.8" text-anchor="start" fill="#000">-K4</text><text x="159" y="125" font-size="2.3" text-anchor="start" fill="#000"></text><text x="159" y="128.4" font-size="2.3" text-anchor="start" fill="#000">Switch 5 poorten</text><text x="159" y="131.8" font-size="2.3" text-anchor="start" fill="#000">FL SWITCH 1001T-4POE-GT</text><circle cx="170" cy="120" r="0.5" fill="#000"/><text x="171.6" y="118.8" font-size="2.1" text-anchor="start" fill="#000">P1</text><circle cx="210" cy="132" r="0.5" fill="#000"/><text x="208.4" y="130.8" font-size="2.1" text-anchor="end" fill="#000">P2 PoE</text><circle cx="210" cy="144" r="0.5" fill="#000"/><text x="208.4" y="142.8" font-size="2.1" text-anchor="end" fill="#000">P3</text>
+<polyline points="210,132 250,132" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="250" y="120" width="54" height="26" fill="none" stroke="#000" stroke-width="0.3" stroke-dasharray="4 1 0.6 1"/><text x="250" y="118.4" font-size="2.8" text-anchor="start" fill="#000">-B30</text><text x="259" y="125" font-size="2.3" text-anchor="start" fill="#000"></text><text x="259" y="128.4" font-size="2.3" text-anchor="start" fill="#000">Camera Basler ace 2</text><text x="259" y="131.8" font-size="2.3" text-anchor="start" fill="#000">a2A2448-23gmBAS, GigE</text><circle cx="250" cy="132" r="0.5" fill="#000"/><text x="251.6" y="130.8" font-size="2.1" text-anchor="start" fill="#000">PoE</text>
+<polyline points="210,144 330,144 330,160" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="310" y="160" width="60" height="30" fill="none" stroke="#000" stroke-width="0.3" stroke-dasharray="4 1 0.6 1"/><text x="310" y="158.4" font-size="2.8" text-anchor="start" fill="#000">-K5</text><text x="319" y="165" font-size="2.3" text-anchor="start" fill="#000"></text><text x="319" y="168.4" font-size="2.3" text-anchor="start" fill="#000">Netwerk fabriek</text><text x="319" y="171.8" font-size="2.3" text-anchor="start" fill="#000">(optioneel, VPN-router)</text><circle cx="330" cy="160" r="0.5" fill="#000"/><text x="331.6" y="158.8" font-size="2.1" text-anchor="start" fill="#000">LAN</text>
+<polyline points="130,112 140,112 140,200 170,200" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="130,120 136,120 136,206 170,206" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="170" y="190" width="60" height="30" fill="none" stroke="#000" stroke-width="0.3" stroke-dasharray="4 1 0.6 1"/><text x="170" y="188.4" font-size="2.8" text-anchor="start" fill="#000">-P10</text><text x="179" y="195" font-size="2.3" text-anchor="start" fill="#000"></text><text x="179" y="198.4" font-size="2.3" text-anchor="start" fill="#000">HMI 15,6" aanraak</text><text x="179" y="201.8" font-size="2.3" text-anchor="start" fill="#000">FPM-215W-P4BE</text><circle cx="170" cy="200" r="0.5" fill="#000"/><text x="171.6" y="198.8" font-size="2.1" text-anchor="start" fill="#000">HDMI</text><circle cx="170" cy="206" r="0.5" fill="#000"/><text x="171.6" y="204.8" font-size="2.1" text-anchor="start" fill="#000">USB</text><circle cx="200" cy="220" r="0.5" fill="#000"/><text x="198.4" y="218.8" font-size="2.1" text-anchor="end" fill="#000">24 V</text>
+<polygon points="200,232 198.9,234.2 201.1,234.2" fill="#000"/><text x="200" y="227.6" font-size="2.2" text-anchor="middle" fill="#000">L+6</text><text x="200" y="230.4" font-size="2" text-anchor="middle" fill="#000">/6.8</text>
+<text x="24" y="30" font-size="2.3" text-anchor="start" fill="#000">De IPC rekent de kinematica (6 assen), de baan en de grijpplanning; de HMI is een webpagina op de IPC (voorbeelden/robotarm/hmi). De veiligheid zit niet in de IPC maar in -K2.</text>
+</svg>

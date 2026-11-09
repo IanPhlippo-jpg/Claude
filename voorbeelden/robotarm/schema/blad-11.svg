@@ -1,0 +1,156 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 297" width="420mm" height="297mm" font-family="Arial, Helvetica, sans-serif">
+<rect width="420" height="297" fill="#fff"/>
+<rect x="5" y="5" width="410" height="287" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="20" y="10" width="390" height="277" fill="none" stroke="#000" stroke-width="0.7"/>
+<polyline points="210,5 210,10" fill="none" stroke="#000" stroke-width="0.7"/>
+<polyline points="210,287 210,292" fill="none" stroke="#000" stroke-width="0.7"/>
+<polyline points="5,148.5 20,148.5" fill="none" stroke="#000" stroke-width="0.7"/>
+<polyline points="410,148.5 415,148.5" fill="none" stroke="#000" stroke-width="0.7"/>
+<polyline points="20,15 410,15" fill="none" stroke="#000" stroke-width="0.35"/>
+<text x="39.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">0</text>
+<polyline points="59,10 59,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="78.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">1</text>
+<polyline points="98,10 98,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="117.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">2</text>
+<polyline points="137,10 137,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="156.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">3</text>
+<polyline points="176,10 176,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="195.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">4</text>
+<polyline points="215,10 215,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="234.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">5</text>
+<polyline points="254,10 254,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="273.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">6</text>
+<polyline points="293,10 293,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="312.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">7</text>
+<polyline points="332,10 332,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="351.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">8</text>
+<polyline points="371,10 371,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="390.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">9</text>
+<text x="21.5" y="258.5" font-size="2.5" text-anchor="start" fill="#000">10</text>
+<text x="408.5" y="258.5" font-size="2.5" text-anchor="end" fill="#000">12</text>
+<polyline points="20,260 410,260" fill="none" stroke="#000" stroke-width="0.7"/>
+<polyline points="20,266.75 62,266.75" fill="none" stroke="#000" stroke-width="0.18"/>
+<polyline points="20,273.5 62,273.5" fill="none" stroke="#000" stroke-width="0.18"/>
+<polyline points="20,280.25 62,280.25" fill="none" stroke="#000" stroke-width="0.18"/>
+<polyline points="30,260 30,287" fill="none" stroke="#000" stroke-width="0.18"/>
+<polyline points="48,260 48,287" fill="none" stroke="#000" stroke-width="0.18"/>
+<text x="21" y="285.4" font-size="1.8" text-anchor="start" fill="#000">Wijz.</text>
+<text x="31" y="285.4" font-size="1.8" text-anchor="start" fill="#000">Datum</text>
+<text x="49" y="285.4" font-size="1.8" text-anchor="start" fill="#000">Naam</text>
+<text x="21" y="278.55" font-size="2.3" text-anchor="start" fill="#000">1</text>
+<text x="31" y="278.55" font-size="2" text-anchor="start" fill="#000">2026-11-09</text>
+<text x="49" y="278.55" font-size="2" text-anchor="start" fill="#000">PC</text>
+<polyline points="62,260 62,287" fill="none" stroke="#000" stroke-width="0.35"/>
+<polyline points="62,266.75 106,266.75" fill="none" stroke="#000" stroke-width="0.18"/>
+<polyline points="62,273.5 106,273.5" fill="none" stroke="#000" stroke-width="0.18"/>
+<polyline points="62,280.25 106,280.25" fill="none" stroke="#000" stroke-width="0.18"/>
+<polyline points="77,260 77,287" fill="none" stroke="#000" stroke-width="0.18"/>
+<text x="63" y="264.95" font-size="2" text-anchor="start" fill="#000">Datum</text>
+<text x="78" y="264.95" font-size="2.2" text-anchor="start" fill="#000">2026-11-09</text>
+<text x="63" y="271.7" font-size="2" text-anchor="start" fill="#000">Getek.</text>
+<text x="78" y="271.7" font-size="2.2" text-anchor="start" fill="#000">Phlippo CAD</text>
+<text x="63" y="278.45" font-size="2" text-anchor="start" fill="#000">Gecontr.</text>
+<text x="78" y="278.45" font-size="2.2" text-anchor="start" fill="#000">Ian</text>
+<text x="63" y="285.2" font-size="2" text-anchor="start" fill="#000">Norm</text>
+<text x="78" y="285.2" font-size="2.2" text-anchor="start" fill="#000">IEC 81346</text>
+<polyline points="106,260 106,287" fill="none" stroke="#000" stroke-width="0.35"/>
+<polyline points="106,280.25 206,280.25" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="146,260 146,280.25" fill="none" stroke="#000" stroke-width="0.18"/>
+<text x="107" y="262.3" font-size="1.8" text-anchor="start" fill="#000">Eigenaar</text>
+<text x="108" y="269.5" font-size="3.6" text-anchor="start" fill="#000" font-weight="700">Phlippo CAD</text>
+<text x="108" y="275" font-size="2.3" text-anchor="start" fill="#000">Ian</text>
+<text x="147" y="262.3" font-size="1.8" text-anchor="start" fill="#000">Project</text>
+<text x="148" y="269" font-size="3.2" text-anchor="start" fill="#000" font-weight="700">Robotcel deuren</text>
+<text x="148" y="274.5" font-size="2.3" text-anchor="start" fill="#000">robot PR 120 R2700 met vlakgrijper en camera</text>
+<text x="107" y="285.2" font-size="1.8" text-anchor="start" fill="#000">Oorspr.</text>
+<text x="118" y="285.2" font-size="2" text-anchor="start" fill="#000"></text>
+<polyline points="139.33,280.25 139.33,287" fill="none" stroke="#000" stroke-width="0.18"/>
+<text x="140.33" y="285.2" font-size="1.8" text-anchor="start" fill="#000">Verv. v.</text>
+<text x="151.33" y="285.2" font-size="2" text-anchor="start" fill="#000"></text>
+<polyline points="172.67,280.25 172.67,287" fill="none" stroke="#000" stroke-width="0.18"/>
+<text x="173.67" y="285.2" font-size="1.8" text-anchor="start" fill="#000">Verv. d.</text>
+<text x="184.67" y="285.2" font-size="2" text-anchor="start" fill="#000"></text>
+<polyline points="206,260 206,287" fill="none" stroke="#000" stroke-width="0.35"/>
+<polyline points="206,280.25 306,280.25" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="256" y="266" font-size="4" text-anchor="middle" fill="#000" font-weight="700">Pneumatiek</text>
+<text x="256" y="271" font-size="4" text-anchor="middle" fill="#000">vacuüm, afblazen, stopper (ISO 1219-1)</text>
+<text x="207" y="285.2" font-size="1.8" text-anchor="start" fill="#000">Documentsoort</text>
+<text x="228" y="285.2" font-size="2.2" text-anchor="start" fill="#000">&amp;EFS  Schema</text>
+<polyline points="306,260 306,287" fill="none" stroke="#000" stroke-width="0.35"/>
+<polyline points="306,273.5 350,273.5" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="307" y="262.3" font-size="1.8" text-anchor="start" fill="#000">Tekeningnr.</text>
+<text x="308" y="270" font-size="2.8" text-anchor="start" fill="#000" font-weight="700">ROB-E01</text>
+<text x="307" y="275.8" font-size="1.8" text-anchor="start" fill="#000">Revisie / taal</text>
+<text x="308" y="283" font-size="2.6" text-anchor="start" fill="#000">1 / nl</text>
+<polyline points="350,260 350,287" fill="none" stroke="#000" stroke-width="0.35"/>
+<polyline points="350,273.5 384,273.5" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="351.5" y="266" font-size="2.6" text-anchor="start" fill="#000">=</text>
+<text x="355" y="266" font-size="2.8" text-anchor="start" fill="#000" font-weight="700">ROB</text>
+<text x="351.5" y="271" font-size="1.9" text-anchor="start" fill="#000">robotcel</text>
+<text x="351.5" y="279.5" font-size="2.6" text-anchor="start" fill="#000">+</text>
+<text x="355" y="279.5" font-size="2.8" text-anchor="start" fill="#000" font-weight="700">KAST</text>
+<text x="351.5" y="284.5" font-size="1.9" text-anchor="start" fill="#000">schakelkast VX25</text>
+<polyline points="384,260 384,287" fill="none" stroke="#000" stroke-width="0.35"/>
+<polyline points="384,280.25 410,280.25" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="385" y="262.3" font-size="1.8" text-anchor="start" fill="#000">Blad</text>
+<text x="397" y="275" font-size="8" text-anchor="middle" fill="#000" font-weight="700">11</text>
+<text x="408.5" y="285.2" font-size="2.3" text-anchor="end" fill="#000">19 Bl.</text>
+<circle cx="40" cy="60" r="4" fill="none" stroke="#000" stroke-width="0.35"/><path d="M 40 57.4 L 38 61.4 L 42 61.4 Z" fill="#000"/>
+<text x="40" y="70" font-size="2.2" text-anchor="middle" fill="#000">perslucht 6 bar</text>
+<polyline points="44,60 70,60" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="70" y="52" width="20" height="16" fill="none" stroke="#000" stroke-width="0.35"/>
+<polyline points="80,52 80,68" fill="none" stroke="#000" stroke-width="0.3" stroke-dasharray="1 1"/>
+<text x="80" y="49" font-size="2.6" text-anchor="middle" fill="#000">-Q29</text>
+<text x="80" y="74" font-size="2" text-anchor="middle" fill="#000">filter-regelaar 5 µm, 6 bar</text>
+<polyline points="90,60 110,60" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="118" y="55" width="12" height="10" fill="none" stroke="#000" stroke-width="0.35"/><rect x="130" y="55" width="12" height="10" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="121,65 127,55" fill="none" stroke="#000" stroke-width="0.3"/><polyline points="139,65 139,55" fill="none" stroke="#000" stroke-width="0.3"/><polyline points="133,57 136,57" fill="none" stroke="#000" stroke-width="0.3"/><rect x="110" y="57" width="8" height="6" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="110,63 118,57" fill="none" stroke="#000" stroke-width="0.3"/><polyline points="142,60 146,57 146,63 150,60" fill="none" stroke="#000" stroke-width="0.3"/><text x="130" y="53" font-size="2.6" text-anchor="middle" fill="#000">-Q30</text><text x="130" y="69" font-size="2" text-anchor="middle" fill="#000">veilig ontluchten + zachte start (ISO 4414), van -K2</text>
+<polyline points="150,60 176,60" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="180" cy="60" r="3.5" fill="none" stroke="#000" stroke-width="0.35"/><text x="180" y="61" font-size="2.2" text-anchor="middle" fill="#000">P</text><text x="185" y="61" font-size="2.4" text-anchor="start" fill="#000">-B24</text>
+<polyline points="184,60 210,60 210,100" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="212" y="80" font-size="2.2" text-anchor="start" fill="#000">slangenpakket robot (PU 12 x 8)</text>
+<polyline points="60,100 360,100" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="90" cy="100" r="0.6" fill="#000"/>
+<polyline points="90,100 90,112" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="78" y="112" width="12" height="10" fill="none" stroke="#000" stroke-width="0.35"/><rect x="90" y="112" width="12" height="10" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="81,122 87,112" fill="none" stroke="#000" stroke-width="0.3"/><polyline points="99,122 99,112" fill="none" stroke="#000" stroke-width="0.3"/><polyline points="93,114 96,114" fill="none" stroke="#000" stroke-width="0.3"/><rect x="70" y="114" width="8" height="6" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="70,120 78,114" fill="none" stroke="#000" stroke-width="0.3"/><polyline points="102,117 106,114 106,120 110,117" fill="none" stroke="#000" stroke-width="0.3"/><text x="90" y="110" font-size="2.6" text-anchor="middle" fill="#000">-Q21</text><text x="90" y="126" font-size="2" text-anchor="middle" fill="#000">zone 1 FA-M</text>
+<polyline points="90,122 90,140" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="81" y="140" width="18" height="14" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="81,144 88,147 81,150" fill="none" stroke="#000" stroke-width="0.3"/><polyline points="99,144 92,147 99,150" fill="none" stroke="#000" stroke-width="0.3"/><polyline points="90,154 90,160" fill="none" stroke="#000" stroke-width="0.25"/><text x="101" y="146" font-size="2.6" text-anchor="start" fill="#000">-K21</text><text x="101" y="149.5" font-size="2" text-anchor="start" fill="#000">2 x SBPL 100 HV</text>
+<polyline points="90,160 90,180" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="104" cy="170" r="3.5" fill="none" stroke="#000" stroke-width="0.35"/><text x="104" y="171" font-size="2.2" text-anchor="middle" fill="#000">P</text><text x="109" y="171" font-size="2.4" text-anchor="start" fill="#000">-B21</text>
+<polyline points="90,170 100.5,170" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="60" y="180" width="60" height="10" fill="none" stroke="#000" stroke-width="0.35"/>
+<text x="90" y="187" font-size="2.2" text-anchor="middle" fill="#000">zuigbalk zone 1 FA-M</text>
+<circle cx="200" cy="100" r="0.6" fill="#000"/>
+<polyline points="200,100 200,112" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="188" y="112" width="12" height="10" fill="none" stroke="#000" stroke-width="0.35"/><rect x="200" y="112" width="12" height="10" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="191,122 197,112" fill="none" stroke="#000" stroke-width="0.3"/><polyline points="209,122 209,112" fill="none" stroke="#000" stroke-width="0.3"/><polyline points="203,114 206,114" fill="none" stroke="#000" stroke-width="0.3"/><rect x="180" y="114" width="8" height="6" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="180,120 188,114" fill="none" stroke="#000" stroke-width="0.3"/><polyline points="212,117 216,114 216,120 220,117" fill="none" stroke="#000" stroke-width="0.3"/><text x="200" y="110" font-size="2.6" text-anchor="middle" fill="#000">-Q22</text><text x="200" y="126" font-size="2" text-anchor="middle" fill="#000">zone 2 FMP-60</text>
+<polyline points="200,122 200,140" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="191" y="140" width="18" height="14" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="191,144 198,147 191,150" fill="none" stroke="#000" stroke-width="0.3"/><polyline points="209,144 202,147 209,150" fill="none" stroke="#000" stroke-width="0.3"/><polyline points="200,154 200,160" fill="none" stroke="#000" stroke-width="0.25"/><text x="211" y="146" font-size="2.6" text-anchor="start" fill="#000">-K23</text><text x="211" y="149.5" font-size="2" text-anchor="start" fill="#000">1 x SBPL 100 HV</text>
+<polyline points="200,160 200,180" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="214" cy="170" r="3.5" fill="none" stroke="#000" stroke-width="0.35"/><text x="214" y="171" font-size="2.2" text-anchor="middle" fill="#000">P</text><text x="219" y="171" font-size="2.4" text-anchor="start" fill="#000">-B22</text>
+<polyline points="200,170 210.5,170" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="170" y="180" width="60" height="10" fill="none" stroke="#000" stroke-width="0.35"/>
+<text x="200" y="187" font-size="2.2" text-anchor="middle" fill="#000">zuigbalk zone 2 FMP-60</text>
+<circle cx="310" cy="100" r="0.6" fill="#000"/>
+<polyline points="310,100 310,112" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="298" y="112" width="12" height="10" fill="none" stroke="#000" stroke-width="0.35"/><rect x="310" y="112" width="12" height="10" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="301,122 307,112" fill="none" stroke="#000" stroke-width="0.3"/><polyline points="319,122 319,112" fill="none" stroke="#000" stroke-width="0.3"/><polyline points="313,114 316,114" fill="none" stroke="#000" stroke-width="0.3"/><rect x="290" y="114" width="8" height="6" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="290,120 298,114" fill="none" stroke="#000" stroke-width="0.3"/><polyline points="322,117 326,114 326,120 330,117" fill="none" stroke="#000" stroke-width="0.3"/><text x="310" y="110" font-size="2.6" text-anchor="middle" fill="#000">-Q23</text><text x="310" y="126" font-size="2" text-anchor="middle" fill="#000">zone 3 FA-M</text>
+<polyline points="310,122 310,140" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="301" y="140" width="18" height="14" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="301,144 308,147 301,150" fill="none" stroke="#000" stroke-width="0.3"/><polyline points="319,144 312,147 319,150" fill="none" stroke="#000" stroke-width="0.3"/><polyline points="310,154 310,160" fill="none" stroke="#000" stroke-width="0.25"/><text x="321" y="146" font-size="2.6" text-anchor="start" fill="#000">-K23</text><text x="321" y="149.5" font-size="2" text-anchor="start" fill="#000">2 x SBPL 100 HV</text>
+<polyline points="310,160 310,180" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="324" cy="170" r="3.5" fill="none" stroke="#000" stroke-width="0.35"/><text x="324" y="171" font-size="2.2" text-anchor="middle" fill="#000">P</text><text x="329" y="171" font-size="2.4" text-anchor="start" fill="#000">-B23</text>
+<polyline points="310,170 320.5,170" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="280" y="180" width="60" height="10" fill="none" stroke="#000" stroke-width="0.35"/>
+<text x="310" y="187" font-size="2.2" text-anchor="middle" fill="#000">zuigbalk zone 3 FA-M</text>
+<circle cx="360" cy="100" r="0.6" fill="#000"/>
+<polyline points="360,100 360,112" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="348" y="112" width="12" height="10" fill="none" stroke="#000" stroke-width="0.35"/><rect x="360" y="112" width="12" height="10" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="351,122 357,112" fill="none" stroke="#000" stroke-width="0.3"/><polyline points="369,122 369,112" fill="none" stroke="#000" stroke-width="0.3"/><polyline points="363,114 366,114" fill="none" stroke="#000" stroke-width="0.3"/><rect x="340" y="114" width="8" height="6" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="340,120 348,114" fill="none" stroke="#000" stroke-width="0.3"/><polyline points="372,117 376,114 376,120 380,117" fill="none" stroke="#000" stroke-width="0.3"/><text x="360" y="110" font-size="2.6" text-anchor="middle" fill="#000">-Q24</text><text x="360" y="126" font-size="2" text-anchor="middle" fill="#000">afblazen</text>
+<polyline points="360,122 360,176 330,176" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="362" y="160" font-size="2" text-anchor="start" fill="#000">naar de 3 balken</text>
+<circle cx="60" cy="100" r="0.6" fill="#000"/>
+<polyline points="60,100 60,200" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="48" y="200" width="12" height="10" fill="none" stroke="#000" stroke-width="0.35"/><rect x="60" y="200" width="12" height="10" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="51,210 57,200" fill="none" stroke="#000" stroke-width="0.3"/><polyline points="69,210 69,200" fill="none" stroke="#000" stroke-width="0.3"/><polyline points="63,202 66,202" fill="none" stroke="#000" stroke-width="0.3"/><rect x="40" y="202" width="8" height="6" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="40,208 48,202" fill="none" stroke="#000" stroke-width="0.3"/><polyline points="72,205 76,202 76,208 80,205" fill="none" stroke="#000" stroke-width="0.3"/><text x="60" y="198" font-size="2.6" text-anchor="middle" fill="#000">-Q25</text><text x="60" y="214" font-size="2" text-anchor="middle" fill="#000">stopper</text>
+<polyline points="60,210 60,222" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="48" y="222" width="24" height="10" fill="none" stroke="#000" stroke-width="0.35"/>
+<polyline points="60,222 60,216" fill="none" stroke="#000" stroke-width="0.5"/>
+<text x="76" y="228" font-size="2.2" text-anchor="start" fill="#000">stopper Festo DFST-50-30 (enkelwerkend, veer)</text>
+<text x="24" y="30" font-size="2.3" text-anchor="start" fill="#000">Pneumatiekschema volgens ISO 1219-1. Lucht: 5 x SBPL 100 HV = 1975 l/min (±119 m³/h) zolang er gezogen wordt; compressor ±15 kW of zijkanaalblazer voor het vacuüm (docs/Berekeningen.md).</text>
+<text x="24" y="34" font-size="2.3" text-anchor="start" fill="#000">Bij stroom- of luchtuitval: terugslagkleppen in de balken houden het vacuüm kort vast, -Q30 ontlucht de rest veilig; de robot remt (stop cat. 1) en laat het stuk niet los.</text>
+</svg>

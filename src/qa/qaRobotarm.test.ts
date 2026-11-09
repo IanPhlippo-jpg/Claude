@@ -19,6 +19,8 @@ const cel = parseDocument(readFileSync('voorbeelden/robotarm/Robotcel.kcad', 'ut
 const pos = (m: number[]) => [m[3], m[7], m[11]];
 // bedoelde contacten: de ogen en pennen van de gewichtscompensatie, de stang in de cilinder
 const BEDOELD = new Set(['r3|r7', 'r6|r8', 'r7|r8']);
+// het slangenpakket: de stukken lopen in elkaar over en de klemmen zitten om de slang
+const slang = (id: string) => /^s\d+$/.test(id);
 
 describe('robotcel', () => {
   const delen = [...new Map(cel.components.map((c) => [c.part.name, c])).values()];
@@ -43,10 +45,10 @@ describe('robotcel', () => {
     expect(M.a1 + M.a2 + M.d4).toBe(2700);
   });
 
-  it('de grijper ligt op de deur en de deur op de rollen', () => {
+  it('het schuim van de grijper ligt op de deur en de deur op de rollen', () => {
     const r = rebuildAssembly(cel);
     const box = (id: string) => { const b = r.bodies.find((x) => x.id === id)!; b.geometry.computeBoundingBox(); return b.geometry.boundingBox!; };
-    const deur = box('b3'), nappen = box('g2'), rollen = box('b2');
+    const deur = box('b3'), nappen = box('g3'), rollen = box('b2');
     expect(nappen.min.y).toBeCloseTo(deur.max.y, 1);
     expect(deur.min.y).toBeCloseTo(rollen.max.y, 1);
     // de deur ligt binnen het hek, de robot ook
@@ -59,7 +61,7 @@ describe('robotcel', () => {
     const r = rebuildAssembly(cel);
     const fout = echteBotsingen(detectInterferences(r.bodies), r.bodies).filter((t: string) => {
       const [a, b] = t.split(':')[0].split(' x ').map((s) => s.trim());
-      return !BEDOELD.has([a, b].sort().join('|'));
+      return !BEDOELD.has([a, b].sort().join('|')) && !(slang(a) && slang(b));
     });
     expect(fout).toEqual([]);
   }, 900000);
