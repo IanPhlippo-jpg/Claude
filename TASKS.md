@@ -1151,3 +1151,13 @@ elease; README en docs/04 bijgewerkt
 - [x] F97/F151/F196/F49: installer en packaged self-test op de nieuwe SHA (CI-job windows-installer 21/21 op 7db76a0); ongesigneerd eerlijk vermeld
 - [x] Rest van het register: F134 (sheetMetalOps.ts, rebuild.ts 1909), F137 zelf gemeten (150-228 ms), F112 (Tangent-snap, Name feature on creation), F193; versie 0.5.13, commit en push
 - [x] CI groen op de eind-SHA (d5077ba, run 42588296138, 17/17) en het Actions-bewijs in qa-logs/0.5.13
+
+## Printjes in detail: textuur, opdruk en koperbanen (2026-11-09)
+- [x] Decals van onderdelen ook tonen in een samenstelling (zoals SOLIDWORKS), per component getransformeerd en alleen op dat lichaam
+- [x] Gedeelde module voorbeelden/lib/printplaat.mjs: SVG-artwork per print (soldeermasker met textuur, koperbanen, pads, via's, opdruk)
+- [x] Artwork voor het Modelbouwled-bordje, de ESP32-S3-DevKitC-1, de WROOM-module (kap met opschrift) en de PCA9685
+- [x] Artwork voor de gaatjesprints (koperen eilandjes op 2,54) en de Pololu-regelaar
+- [x] Opschriften op de IC's en onderdelen (PC847, IRLD024, PCA9685, weerstanden)
+- [x] Unit-test voor de decals in een samenstelling; generator draaien, voorbeeldtests
+- [x] Close-ups renderen en controleren naast de echte prints; screenshots naar Ian
+- [x] graphify update, commit en push

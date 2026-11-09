@@ -19,6 +19,7 @@ import { writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Onderdeel, component, vlak } from '../lib/schets.mjs';
+import { bordjeArt, weerstandenArt, espArt, kapArt, pcaArt, pcaChipArt, gaatjesArt, pololuArt, rijOpschrift, elcoArt, zekeringArt } from './printjes.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 
@@ -93,6 +94,8 @@ function cirkels(o, y, h, cs, naam, op = 'boss') {
   return o;
 }
 const deel = (naam, mat) => new Onderdeel(naam, mat);
+/** het document van een onderdeel met zijn decals (opdruk, banen, opschrift: printjes.mjs) */
+const met = (doc, ...decals) => ({ ...doc, decals });
 
 // ---------------------------------------------------------------- het Modelbouwled-bordje (oorsprong: midden, onderkant print)
 export function bordjePcb() {
@@ -100,7 +103,7 @@ export function bordjePcb() {
   blokken(o, [[-B.x / 2, 0, -B.z / 2, B.x / 2, B.pcb, B.z / 2, 0.8]], 'Print');
   // 4 gaten in de hoeken (Ø2,2) zoals op de foto
   cirkels(o, B.pcb, B.pcb + 1, [[-B.x / 2 + 2.6, -B.z / 2 + 2.6, 1.1], [B.x / 2 - 2.6, -B.z / 2 + 2.6, 1.1], [-B.x / 2 + 2.6, B.z / 2 - 2.6, 1.1], [B.x / 2 - 2.6, B.z / 2 - 2.6, 1.1]], 'Gaten', 'cut');
-  return o.doc();
+  return met(o.doc(), bordjeArt(B));
 }
 /** een klemmenstrook (oorsprong: midden onderaan, draadingang naar -Z): n posities op steek p, diepte d, hoogte h */
 export function klemstrook(naam, n, p, d, h, mat = KLEM_GROEN) {
@@ -121,14 +124,15 @@ export function klemstrook(naam, n, p, d, h, mat = KLEM_GROEN) {
 export function smdRij(naam, n, steek, l = 2.0, b = 1.25, h = 0.5) {
   const o = deel(naam, ZWART), L = n * steek;
   blokken(o, Array.from({ length: n }, (_, i) => { const x = -L / 2 + steek * (i + 0.5); return [x - b / 2, 0, -l / 2, x + b / 2, h, l / 2]; }), 'Weerstanden');
-  return o.doc();
+  return met(o.doc(), weerstandenArt(n, steek, l, b, h));
 }
 
 // ---------------------------------------------------------------- ESP32-S3-DevKitC-1 v1.1 (oorsprong: midden van de print, onderkant print)
 // lengte langs X: -X = antennekant, +X = USB-kant; z = breedte. Posities uit de maattekening (afgelezen, ± 0,3 mm).
 const E = () => { const P = M.esp; return { P, x0: -P.x / 2, z0: -P.z / 2 }; };
-/** van tekeningcoördinaten (a = vanaf de antennerand, b = vanaf de linkerrand op de tekening) naar print-x/z */
-const ep = (a, b) => { const { x0, z0 } = E(); return [x0 + a, z0 + b]; };
+/** van tekeningcoördinaten (a = vanaf de antennerand, b = vanaf de linkerrand op de tekening, die het bovenaanzicht is)
+ * naar print-x/z: van boven gezien ligt de antenne links (-X) en de linkerrand van de tekening achteraan (-Z wordt +b) */
+const ep = (a, b) => { const { x0, z0 } = E(); return [x0 + a, -z0 - b]; };
 export function espPrint() {
   const { P, x0, z0 } = E(), o = deel('ESP32-S3-DevKitC-1 (print)', PCB_ZWART);
   blokken(o, [[x0, 0, z0, -x0, P.pcb, -z0, 0.6]], 'Print');
@@ -136,26 +140,25 @@ export function espPrint() {
   const gaten = [];
   for (let i = 0; i < P.pin.n; i++) for (const b of [P.pin.rand, P.z - P.pin.rand]) { const [x, z] = ep(P.pin.eerste + i * P.pin.steek, b); gaten.push([x, z, 0.5]); }
   cirkels(o, P.pcb, P.pcb + 1, gaten, 'Pingaten', 'cut');
-  return o.doc();
+  return met(o.doc(), espArt(P));
 }
 export function espModule() {
   const { P } = E(), o = deel('ESP32-S3-WROOM-1 (module-print)', PCB_ZWART), m = P.module;
-  const [xa, za] = ep(-m.voorbij, m.van), xb = xa + m.x, zb = za + m.z;
+  const [xa, za] = ep(-m.voorbij, m.van + m.z), xb = xa + m.x, zb = za + m.z;
   blokken(o, [[xa, P.pcb, za, xb, P.pcb + 0.8, zb, 0.3]], 'Modulepcb');
   return o.doc();
 }
 export function espKap() {
   const { P } = E(), o = deel('ESP32-S3-WROOM-1 (afschermkap)', METAAL), m = P.module;
-  const [xa, za] = ep(-m.voorbij, m.van);
+  const [xa, za] = ep(-m.voorbij, m.van + m.z);
   // de kap bedekt de module behalve de antenne (6,4 + 0,4 mm aan de antennekant)
   blokken(o, [[xa + 7.2, P.pcb + 0.8, za + 0.5, xa + m.x - 0.5, P.pcb + m.h, za + m.z - 0.5, 0.4]], 'Kap');
-  // ingeperst logo-vlak (0,05 diep) en de twee ronde uitwerpputjes
-  snede(o, P.pcb + m.h, 0.08, [[xa + 10, za + 3, xa + 18, za + 15, 0.5]], 'Opschrift');
-  return o.doc();
+  // het opschrift (lasergemarkeerd) als decal
+  return met(o.doc(), kapArt(P));
 }
 export function espAntenne() {
   const { P } = E(), o = deel('PCB-antenne (koperbaan)', GOUD), m = P.module;
-  const [xa, za] = ep(-m.voorbij, m.van), y = P.pcb + 0.8;
+  const [xa, za] = ep(-m.voorbij, m.van + m.z), y = P.pcb + 0.8;
   // meanderende antennebaan (MINI-ANT-TYPE B, vereenvoudigd): 0,5 breed, 0,05 dik
   const banen = [];
   const zl = za + 1.5, zr = za + m.z - 1.5;
@@ -233,12 +236,12 @@ export function pcaPrint() {
   for (let k = 0; k < 16; k++) for (let r = 0; r < 3; r++) gaten.push([-25.4 + k * 2.54 + Math.floor(k / 4) * 1.27, 3.5 + r * 2.54, 0.5]);
   for (const sx of [-1, 1]) for (let r = 0; r < 6; r++) gaten.push([sx * 29.2, -6.35 + r * 2.54, 0.5]);
   cirkels(o, P.pcb, P.pcb + 1, gaten, 'Gaten', 'cut');
-  return o.doc();
+  return met(o.doc(), pcaArt(P));
 }
 export function pcaChip() {
   const P = M.pca, o = deel('PCA9685 (TSSOP-28)', ZWART);
   blokken(o, [[-4.85, P.pcb, -7.6, 4.85, P.pcb + 1.1, -3.2], [-0.6, P.pcb, -2.6, 0.6, P.pcb + 0.6, -1.6], [2.0, P.pcb, -2.6, 3.2, P.pcb + 0.6, -1.6]], 'Chip en weerstanden');
-  return o.doc();
+  return met(o.doc(), pcaChipArt(P));
 }
 
 // ---------------------------------------------------------------- eigen gaatjesprints (oorsprong: midden, onderkant)
@@ -247,7 +250,7 @@ function gaatjesprint(naam, x, z) {
   blokken(o, [[-x / 2, 0, -z / 2, x / 2, 1.6, z / 2, 0.5]], 'Print');
   // 4 gaten M2,5 in de hoeken
   cirkels(o, 1.6, 2.6, [[-x / 2 + 2.54, -z / 2 + 2.54, 1.35], [x / 2 - 2.54, -z / 2 + 2.54, 1.35], [-x / 2 + 2.54, z / 2 - 2.54, 1.35], [x / 2 - 2.54, z / 2 - 2.54, 1.35]], 'Bevestigingsgaten', 'cut');
-  return o.doc();
+  return met(o.doc(), gaatjesArt(x, z));
 }
 export const uitgangPcb = () => gaatjesprint('Uitgangsprint (gaatjesprint)', M.uitgang.x, M.uitgang.z);
 export const ingangPcb = () => gaatjesprint('Ingangsprint (gaatjesprint)', M.ingang.x, M.ingang.z);
@@ -256,7 +259,7 @@ export function dragerPcb() {
   const o = deel('Draagprint ESP (gaatjesprint)', PCB_BRUIN), D = M.drager;
   blokken(o, [[-D.x / 2, 0, -D.z / 2, D.x / 2, 1.6, D.z / 2, 0.5]], 'Print');
   cirkels(o, 1.6, 2.6, [[-D.x / 2 + 3, 0, 1.35], [D.x / 2 - 3, 0, 1.35]], 'Bevestigingsgaten', 'cut');
-  return o.doc();
+  return met(o.doc(), gaatjesArt(D.x, D.z, { schroeven: 'midden' }));
 }
 /** n DIP-behuizingen (4 of 16 pinnen) op een rij; l x b x h van het lichaam; de pootjes als dunne strips eronder */
 export function dipRij(naam, n, steek, l, b, h, pootjes) {
@@ -282,13 +285,13 @@ export function zekeringHouder() {
 export function steekzekering() {
   const o = deel('Steekzekering ATO 7,5 A', { name: 'PA, lichtbruin', density: 1140, color: '#b5651d' });
   blokken(o, [[-9.25, 2.5, -2.6, 9.25, 15.0, 2.6, 0.6], [-9.25, 15.0 - 0.05, -1.9, 9.25, 15.8, 1.9, 0.4]], 'Zekering');
-  return o.doc();
+  return met(o.doc(), zekeringArt());
 }
 /** Pololu D24V10F5 (17,8 x 12,7) met de spoel en de pinrij */
 export function pololu() {
   const o = deel('Pololu D24V10F5 (print)', { name: 'FR4, groen', density: 1850, color: '#1f6b3a' });
   blokken(o, [[-8.9, 0, -6.35, 8.9, 1.0, 6.35, 0.4]], 'Print');
-  return o.doc();
+  return met(o.doc(), pololuArt());
 }
 export function spoel() {
   const o = deel('Spoel 4 x 4', { name: 'ferriet', density: 4800, color: '#3b3b3e' });
@@ -303,7 +306,7 @@ export function polyfuseRij(n, steek) {
 export function elco(d = 6.3, h = 11, naam = 'Elco 470 µF / 25 V') {
   const o = deel(naam, { name: 'aluminium, zwarte huls', density: 2700, color: '#1c2b4a' });
   cirkels(o, 0, h, [[0, 0, d / 2]], 'Elco');
-  return o.doc();
+  return met(o.doc(), elcoArt(d, h));
 }
 /** wartel M12 x 1,5 (kabel Ø3 tot 6,5): buitenmoer en dop, oorsprong op de wand, langs +X naar buiten */
 export function wartel() {
@@ -592,9 +595,9 @@ function espStapel(at, d) {
   at('e11', 'ESP-onderdelen<1>', espOnderdelen(), [xe, ye, d.cz]);
   at('e12', 'RGB-led<1>', rgbLed(), [xe, ye, d.cz]);
   const usb = microUsb(), knop = drukknop(), kn = knopje();
-  for (const [i, b] of [[1, 6.2], [2, 19.5]]) at(`e${12 + i}`, `Micro-USB ${i === 1 ? 'UART' : 'USB'}<${i}>`, usb, [xe + P.x / 2 + 0.8, ye + P.pcb, d.cz - P.z / 2 + b]);
+  for (const [i, b] of [[1, 6.2], [2, 19.5]]) at(`e${12 + i}`, `Micro-USB ${i === 1 ? 'UART' : 'USB'}<${i}>`, usb, [xe + P.x / 2 + 0.8, ye + P.pcb, d.cz + P.z / 2 - b]);
   for (const [i, b] of [[1, 7.7], [2, 18.1]]) {
-    const [x, z] = [xe - P.x / 2 + 48.8, d.cz - P.z / 2 + b];
+    const [x, z] = [xe - P.x / 2 + 48.8, d.cz + P.z / 2 - b];
     at(`e${14 + i}`, `Drukknop ${i === 1 ? 'BOOT' : 'RESET'}<${i}>`, knop, [x, ye + P.pcb, z]);
     at(`e${16 + i}`, `Knopje ${i === 1 ? 'BOOT' : 'RESET'}<${i}>`, kn, [x, ye + P.pcb, z]);
   }
@@ -603,7 +606,8 @@ function uitgangStapel(at, d) {
   const U = M.uitgang, y = M.voet + 1.6;
   at('u0', 'Uitgangsprint<1>', uitgangPcb(), [d.cx, M.voet, d.cz]);
   schroeven(at, 'u', hoekGaten(U).map(([x, z]) => [d.cx + x, y, d.cz + z]));
-  const [mos, poot] = dipRij('8 x IRLD024 (MOSFET)', 8, 6.35, 6.0, 4.8, 3.3, 2);
+  const [mos0, poot] = dipRij('8 x IRLD024 (MOSFET)', 8, 6.35, 6.0, 4.8, 3.3, 2);
+  const mos = met(mos0, rijOpschrift(8, 6.35, 6.0, 4.8, 0.5 + 3.3, [['IRLD024', 0.62], ['2341', 0.5]]));
   for (const [i, z] of [[1, -5.6], [2, 0.6]]) { at(`u${i}`, `MOSFET's IRLD024 rij ${i}<${i}>`, mos, [d.cx + 1.5, y, d.cz + z]); at(`u${i + 2}`, `Pootjes rij ${i}<${i}>`, poot, [d.cx + 1.5, y, d.cz + z]); }
   const sip = deel('Weerstandsnetwerk SIP-9 100 kΩ', ZWART);
   blokken(sip, [[-11.43, 0, -1.25, 11.43, 6, 1.25]], 'SIP');
@@ -616,8 +620,10 @@ function ingangStapel(at, d) {
   const I = M.ingang, y = M.voet + 1.6;
   at('i0', 'Ingangsprint<1>', ingangPcb(), [d.cx, M.voet, d.cz]);
   schroeven(at, 'i', hoekGaten(I).map(([x, z]) => [d.cx + x, y, d.cz + z]));
-  const [opto, poot] = dipRij('2 x PC847 (4 optocouplers)', 2, 21, 19.8, 6.4, 3.5, 8);
-  const [net, npoot] = dipRij('Weerstandsnetwerk DIP-16 2,2 kΩ (8 x)', 1, 21, 19.8, 6.4, 3.0, 8);
+  const [opto0, poot] = dipRij('2 x PC847 (4 optocouplers)', 2, 21, 19.8, 6.4, 3.5, 8);
+  const [net0, npoot] = dipRij('Weerstandsnetwerk DIP-16 2,2 kΩ (8 x)', 1, 21, 19.8, 6.4, 3.0, 8);
+  const opto = met(opto0, rijOpschrift(2, 21, 19.8, 6.4, 0.5 + 3.5, [['PC847', 1.1], ['2338  B', 0.75]], { kerf: false }));
+  const net = met(net0, rijOpschrift(1, 21, 19.8, 6.4, 0.5 + 3.0, [['4116R-1-222', 0.9], ['2228', 0.7]], { kerf: false }));
   for (const [i, z] of [[1, -7.6], [2, 0.6]]) {
     at(`i${i}`, `PC847 rij ${i}<${i}>`, opto, [d.cx - 10.5, y, d.cz + z]);
     at(`i${i + 2}`, `Pootjes PC847 rij ${i}<${i}>`, poot, [d.cx - 10.5, y, d.cz + z]);
@@ -635,7 +641,7 @@ function voedingStapel(at, d) {
   at('v3', 'Steekzekering 7,5 A<1>', steekzekering(), [x0 + 22, y, d.cz - 7.2]);
   at('v4', 'Pololu D24V10F5 (print)<1>', pololu(), [x0 + 46, y + 2.5, d.cz - 5.4]);
   at('v5', 'Pololu spoel<1>', spoel(), [x0 + 48, y + 2.5, d.cz - 5.4]);
-  at('v6', 'Pinrij Pololu<1>', pinStrip('Pinrij 5-polig (Pololu)', 5), [x0 + 46, y, d.cz - 5.4]);
+  at('v6', 'Pinrij Pololu<1>', pinStrip('Pinrij 5-polig (Pololu)', 5), [x0 + 46, y, d.cz - 5.4 + 5.08]); // langs de lange rand (EN VIN GND VOUT PG)
   at('v7', '6 polyfuses<1>', polyfuseRij(6, 6.2), [x0 + 37, y - 3, d.cz + 3.4]);
   at('v8', 'Klemstrook 8-polig 3,5 (+12 V rijen en 0 V)<1>', klemstrook('Klemstrook 8-polig 3,5', 8, 3.5, 7, 8.5, KLEM_BLAUW), [x0 + 40, y, d.cz + V.z / 2 - 3.6], draaiY(180));
   at('v9', 'Elco 470 µF / 25 V<1>', elco(), [x0 + 14, y, d.cz + 6.5]);

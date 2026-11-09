@@ -69,7 +69,7 @@ export interface BodySceneInput {
   /** Mate > Make first selection transparent: those bodies are drawn see-through */
   transparentBodies?: string[];
   /** Edit Decal: images on planar faces */
-  decals?: { id: string; face: { normal: [number, number, number]; point: [number, number, number] }; image: string; width: number; rotation: number; height?: number; lighting?: 'appearance' | 'custom'; brightness?: number; shininess?: number }[];
+  decals?: { id: string; face: { normal: [number, number, number]; point: [number, number, number] }; image: string; width: number; rotation: number; height?: number; lighting?: 'appearance' | 'custom'; brightness?: number; shininess?: number; /** only on these bodies (a part's decal in an assembly) */ bodies?: string[] }[];
   /** reference curves (Helix/Spiral) */
   curves?: { id: string; points: THREE.Vector3[]; dashed?: boolean; color?: string }[];
   /** world units per pixel, for the thickness of highlighted edges */
@@ -614,8 +614,10 @@ export class BodyScene {
         const n = new THREE.Vector3(...d.face.normal).normalize();
         const p0 = new THREE.Vector3(...d.face.point);
         for (const b of input.bodies) {
-          const face = b.faces.find((f) => !f.curved && new THREE.Vector3(...f.normal).dot(n) > 0.999 && Math.abs(n.dot(new THREE.Vector3(...f.centroid)) - n.dot(p0)) < 1e-3);
-          if (!face) continue;
+          if (d.bodies && !d.bodies.includes(b.id)) continue;
+          // every face of the body in the decal's plane (a row of chips: one decal over all their tops)
+          const faces = b.faces.filter((f) => !f.curved && new THREE.Vector3(...f.normal).dot(n) > 0.999 && Math.abs(n.dot(new THREE.Vector3(...f.centroid)) - n.dot(p0)) < 1e-3);
+          if (!faces.length) continue;
           const src = b.geometry.index ? b.geometry.toNonIndexed() : b.geometry;
           const pos = src.getAttribute('position');
           // image right along world X (or -Z on faces facing X), image up = normal x right: readable from outside
@@ -630,7 +632,7 @@ export class BodyScene {
           const aspect = img?.width && img?.height ? img.height / img.width : 1;
           const w = d.width, h = d.height ?? d.width * aspect;
           const out: number[] = [], uv: number[] = [];
-          for (const t of face.triangles) for (let k = 0; k < 3; k++) {
+          for (const face of faces) for (const t of face.triangles) for (let k = 0; k < 3; k++) {
             const q = new THREE.Vector3().fromBufferAttribute(pos, t * 3 + k);
             const r = q.clone().sub(p0);
             out.push(q.x + n.x * 0.03, q.y + n.y * 0.03, q.z + n.z * 0.03);

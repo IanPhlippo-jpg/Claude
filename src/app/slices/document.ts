@@ -39,7 +39,7 @@ export const documentSlice = (set: StoreSet, get: StoreGet): Pick<State, Documen
     const n = kind === 'assembly' ? 'Assem1' : kind === 'drawing' ? 'Draw1' : 'Part1';
     // every document has a stable id from the start (autosave and Auto-Recover keep one copy per id, QA F153)
     const doc: Document = { ...createDocument(n, kind), id: newId('doc') };
-    set({ doc, hasDocument: true, solve: {}, rebuild: rebuildFor(doc, null), activeSketchId: null, featureEdit: null, mateEdit: null, insertingComponent: kind === 'assembly', asmTool: 'select', selectedFeatureId: null, selectedFace: null, selectedFaces: [], selection: [], selectedConstraint: null, dirty: false, tab: kind === 'assembly' ? 'assembly' : kind === 'drawing' ? 'viewLayout' : 'features', drawingEdit: null, selectedDrawingViewId: null, rollbackIndex: null, ...historyFlags() });
+    set({ doc, hasDocument: true, solve: {}, rebuild: rebuildFor(doc, null), activeSketchId: null, featureEdit: null, mateEdit: null, insertingComponent: kind === 'assembly', asmTool: 'select', selectedFeatureId: null, selectedFace: null, selectedFaces: [], hoverFace: null, hoverEdge: null, selection: [], selectedConstraint: null, dirty: false, tab: kind === 'assembly' ? 'assembly' : kind === 'drawing' ? 'viewLayout' : 'features', drawingEdit: null, selectedDrawingViewId: null, rollbackIndex: null, ...historyFlags() });
     autosave(doc);
   },
   importMesh(source, positions) {
@@ -90,7 +90,7 @@ export const documentSlice = (set: StoreSet, get: StoreGet): Pick<State, Documen
     if (!opts?.keepHistory) history.clear();
     if (get().doc !== source && get().doc.name !== doc.name) keepInSession(get, set);
     set({ prefs: { ...loadPrefs(), ...(doc.properties ?? {}) } });
-    set({ openSeq: get().openSeq + 1, hasDocument: true, doc: r.doc, solve: r.solve, rebuild, activeSketchId: null, featureEdit: null, mateEdit: null, insertingComponent: false, asmTool: 'select', selectedFeatureId: null, selectedFace: null, selectedFaces: [], selection: [], selectedConstraint: null, dirty: !!opts?.recovered, tab: isAssembly(r.doc) ? 'assembly' : isDrawing(r.doc) ? 'viewLayout' : 'features', drawingEdit: null, selectedDrawingViewId: null, rollbackIndex: null, editContext: null, messages: get().messages.filter((m) => m.level !== 'info'), whatsWrong: Object.keys(rebuild.errors).length > 0, ...historyFlags() });
+    set({ openSeq: get().openSeq + 1, hasDocument: true, doc: r.doc, solve: r.solve, rebuild, activeSketchId: null, featureEdit: null, mateEdit: null, insertingComponent: false, asmTool: 'select', selectedFeatureId: null, selectedFace: null, selectedFaces: [], hoverFace: null, hoverEdge: null, selection: [], selectedConstraint: null, dirty: !!opts?.recovered, tab: isAssembly(r.doc) ? 'assembly' : isDrawing(r.doc) ? 'viewLayout' : 'features', drawingEdit: null, selectedDrawingViewId: null, rollbackIndex: null, editContext: null, messages: get().messages.filter((m) => m.level !== 'info'), whatsWrong: Object.keys(rebuild.errors).length > 0, ...historyFlags() });
     autosave(r.doc);
     if (rebuild.pending) whenRebuilt(rebuild, (rb) => { if (Object.keys(rb.errors).length) set({ whatsWrong: true }); });
   },

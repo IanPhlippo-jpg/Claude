@@ -19,6 +19,42 @@ export function componentMatrix(c: Pick<Component, 'position' | 'rotation'>): TH
   return new THREE.Matrix4().compose(new THREE.Vector3(...c.position), q, new THREE.Vector3(1, 1, 1));
 }
 
+/** the image axes of a decal on a face with normal n (as the graphics area lays it: right along X, or -Z on faces facing X) */
+function decalAxes(n: THREE.Vector3): [THREE.Vector3, THREE.Vector3] {
+  const ref = Math.abs(n.x) > 0.9 ? new THREE.Vector3(0, 0, -Math.sign(n.x)) : new THREE.Vector3(1, 0, 0);
+  const u = ref.addScaledVector(n, -ref.dot(n)).normalize();
+  return [u, n.clone().cross(u).normalize()];
+}
+type PlacedDecal = NonNullable<Document['decals']>[number] & { bodies: string[] };
+const placedDecals = new WeakMap<Component[], PlacedDecal[]>();
+const NO_DECALS: PlacedDecal[] = [];
+/**
+ * The decals of the parts in an assembly: a part's decals show in every assembly that uses it. Each decal
+ * moves with its component (face plane and image direction) and lies on that component's body only. One array per
+ * component list, so the graphics area rebuilds the decal meshes only when the assembly changes.
+ */
+export function assemblyDecals(doc: Pick<Document, 'kind' | 'components'>): PlacedDecal[] {
+  if (doc.kind !== 'assembly' || !doc.components?.length) return NO_DECALS;
+  const hit = placedDecals.get(doc.components);
+  if (hit) return hit;
+  const out: PlacedDecal[] = [];
+  for (const c of doc.components) {
+    if (c.hidden || !c.part.decals?.length) continue;
+    const m = componentMatrix(c), rot = new THREE.Matrix3().setFromMatrix4(m);
+    for (const d of c.part.decals) {
+      const n0 = new THREE.Vector3(...d.face.normal).normalize(), [u0, v0] = decalAxes(n0.clone());
+      const r = (d.rotation * Math.PI) / 180;
+      const uw = u0.multiplyScalar(Math.cos(r)).addScaledVector(v0, Math.sin(r)).applyMatrix3(rot);
+      const n = n0.applyMatrix3(rot).normalize(), [a, b] = decalAxes(n.clone());
+      const p = new THREE.Vector3(...d.face.point).applyMatrix4(m);
+      out.push({ ...d, id: `${c.id}/${d.id}`, face: { normal: [n.x, n.y, n.z], point: [p.x, p.y, p.z] }, rotation: (Math.atan2(uw.dot(b), uw.dot(a)) * 180) / Math.PI, bodies: [c.id] });
+    }
+  }
+  const res = out.length ? out : NO_DECALS;
+  placedDecals.set(doc.components, res);
+  return res;
+}
+
 export function matrixToTransform(m: THREE.Matrix4): { position: [number, number, number]; rotation: [number, number, number, number] } {
   const p = new THREE.Vector3(), q = new THREE.Quaternion(), s = new THREE.Vector3();
   m.decompose(p, q, s);
