@@ -1,0 +1,108 @@
+{
+  "kind": "local gate",
+  "ok": true,
+  "provenance": {
+    "commit": "35434fc3cc51d1d0ec8558d1322aaa8020a89637",
+    "branch": "claude/fase1-schetser",
+    "cleanTree": true,
+    "changedFiles": [],
+    "version": "0.5.13",
+    "date": "2026-11-09T05:33:42.191Z",
+    "platform": "win32 10.0.26300 x64",
+    "cpu": "AMD Ryzen 5 5500U with Radeon Graphics          x 12",
+    "memoryGB": 15,
+    "node": "v24.18.0",
+    "npm": "11.16.0",
+    "git": "git version 2.55.0.windows.3",
+    "playwright": "Version 1.56.1"
+  },
+  "sources": {
+    "package-lock.json": "91e61e3207cef6bbf500a0a4c27a67d7e6ed98698932f4f67c9aad5a3db9026d",
+    "git ls-files -s (all tracked files)": "2dfa75b148dea38d317bc22165e41f85c3fbb23f9f70543493ca42038bddf26e",
+    "trackedFiles": 1453,
+    "fixtures": {
+      "e2e/fixtures/plate-hole.step": "420f89c84c54714c6700899581186a8406fbd76ce688190149540d2376991e45",
+      "e2e/fixtures/user-part1.json": "63e6c546366ade420a78aec866138797e4cae36eef95b4e45e2bb822256e248c"
+    }
+  },
+  "steps": [
+    {
+      "name": "1-typecheck",
+      "cmd": "npm run typecheck",
+      "exit": 0,
+      "seconds": 27.7,
+      "log": "1-typecheck.txt",
+      "sha256": "addca8ceda3accec86ce97bba0dec89ad640d4cec01b8d941293da82a9359530"
+    },
+    {
+      "name": "2-unit",
+      "cmd": "npx vitest run --reporter=default --reporter=json --outputFile=qa-logs/.vitest.json",
+      "exit": 0,
+      "seconds": 122.7,
+      "log": "2-unit.txt",
+      "sha256": "623795810fbb034579a72ed6439d80ee6e1d65589cdb23f18457e7126467f606"
+    },
+    {
+      "name": "3-mutation",
+      "cmd": "node tools/mutation-check.cjs",
+      "exit": 0,
+      "seconds": 44.3,
+      "log": "3-mutation.txt",
+      "sha256": "24272a2739a5ebebad6ba4f2f2f4f3e8f95205e024657aaa7964939a04fd0a01"
+    },
+    {
+      "name": "4-text",
+      "cmd": "node tools/rename-trademarks.cjs --check && node tools/neutral-comments.cjs --check && node tools/line-budget.cjs",
+      "exit": 0,
+      "seconds": 2.7,
+      "log": "4-text.txt",
+      "sha256": "ed8e0180c4adcafb8e3e6bdcecf17856e6b0821f27c2eea455128b2bdbf918d5"
+    },
+    {
+      "name": "5-build",
+      "cmd": "npm run build",
+      "exit": 0,
+      "seconds": 41.5,
+      "log": "5-build.txt",
+      "sha256": "194c7772e02dc5c55cf7a1428eb61952fe87c2ba4beeb3abb314893c8b473389"
+    },
+    {
+      "name": "6-budgets",
+      "cmd": "node tools/bundle-budget.cjs && node tools/doc-counts.cjs",
+      "exit": 0,
+      "seconds": 120.1,
+      "log": "6-budgets.txt",
+      "sha256": "a27e5c035cf170694639c1db76a99bac4ecc837979b9152213d574f54d9be5fb"
+    }
+  ],
+  "unit": {
+    "tests": 785,
+    "passed": 785,
+    "failed": 0,
+    "skipped": 0,
+    "files": 358,
+    "skips": [],
+    "excluded": {
+      "files": [
+        "src/qa/qaAfzuiging.test.ts",
+        "src/qa/qaBureau.test.ts",
+        "src/qa/qaTrein.test.ts",
+        "src/qa/stlAfzuiging.test.ts",
+        "src/qa/overlapBoxAfzuiging.test.ts",
+        "src/qa/tekeningenAfzuiging.test.ts",
+        "src/qa/tekeningenTrein.test.ts"
+      ],
+      "reason": "vite.config.ts leaves them out unless VOORBEELDEN=1 (slow: they rebuild the example models); run by `npm run test:voorbeelden` and the CI job \"voorbeelden\""
+    }
+  },
+  "regression": [],
+  "files": {
+    "1-typecheck.txt": "addca8ceda3accec86ce97bba0dec89ad640d4cec01b8d941293da82a9359530",
+    "2-unit.json": "3cbb52ce72db472a70148d1a3da85c675d11036eb44682ce6beddf8da7527517",
+    "2-unit.txt": "623795810fbb034579a72ed6439d80ee6e1d65589cdb23f18457e7126467f606",
+    "3-mutation.txt": "24272a2739a5ebebad6ba4f2f2f4f3e8f95205e024657aaa7964939a04fd0a01",
+    "4-text.txt": "ed8e0180c4adcafb8e3e6bdcecf17856e6b0821f27c2eea455128b2bdbf918d5",
+    "5-build.txt": "194c7772e02dc5c55cf7a1428eb61952fe87c2ba4beeb3abb314893c8b473389",
+    "6-budgets.txt": "a27e5c035cf170694639c1db76a99bac4ecc837979b9152213d574f54d9be5fb"
+  }
+}

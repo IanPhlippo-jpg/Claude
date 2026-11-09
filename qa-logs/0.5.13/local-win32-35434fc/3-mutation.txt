@@ -1,0 +1,12 @@
+$ node tools/mutation-check.cjs
+# exit 0 after 44.3 s
+
+--- stdout ---
+baseline: 4 file(s), 0 failed test(s) green
+mutation a (matchEdges returns only the first piece of a split edge; src/core/features/edgesets.ts): caught — 10 failed test(s) in src/qa/qaStrict.test.ts src/qa/qaTeam.test.ts (6 s)
+mutation b (volumeCheck: SHAPE_MISMATCH_MM x 10 (0.1 -> 1.0 mm); src/core/features/volumeCheck.ts): caught — 4 failed test(s) in src/qa/qaCrossCheck.test.ts (15 s)
+mutation c (round.ts: every fillet radius x 1.01 (the mesh kernel tools); src/core/features/round.ts): caught — 11 failed test(s) in src/qa/qaStrict.test.ts (5 s)
+mutation d (mate solver: the linear coupler ratio the wrong way round; src/core/assembly/assembly.ts): caught — 6 failed test(s) in src/core/assembly/mechMates.test.ts (3 s)
+DONE 4/4 mutation(s) caught, tree unchanged: yes (44 s)
+
+--- stderr ---

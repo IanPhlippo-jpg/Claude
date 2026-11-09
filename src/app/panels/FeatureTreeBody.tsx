@@ -33,8 +33,9 @@ const STATUS_LABEL: Record<string, string> = { under: 'under defined', full: '',
 // feature OK just added is noted here and opened for typing when the tree comes back
 let pendingName: string | null = null;
 useStore.subscribe((s, p) => {
-  if (s.doc === p.doc) return;
-  const id = nameOnCreation(p.doc.features.map((f) => f.id), s.doc.features.map((f) => f.id), !!p.featureEdit);
+  // a broken document (no feature list) is left to the crash box, not thrown here inside setState
+  if (s.doc === p.doc || !p.featureEdit || !Array.isArray(p.doc?.features) || !Array.isArray(s.doc?.features)) return;
+  const id = nameOnCreation(p.doc.features.map((f) => f.id), s.doc.features.map((f) => f.id), true);
   if (id) pendingName = id;
 });
 
