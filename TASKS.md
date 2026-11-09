@@ -1124,6 +1124,12 @@ elease; README en docs/04 bijgewerkt
 - [x] README met bestellijst en prijzen, bouwschema (8 stappen met beelden), alles-in-één-PDF
 - [x] Tests, foto's, alles-in-één-PDF; commit en push (44bdda8, e565e5b)
 
+## Treinverlichting: alle tekeningen en printbestanden in één app (2026-11-09)
+- [x] Materiaal verzamelen: STL's, werktekeningen (SVG + PDF), bouwschema, schema 6 bladen, beelden van de doos en het dashboard, PDF's
+- [x] App bouwen (app/maak-app.py + sjabloon.html): overzicht, printen met 3D-beeld op het bed, tekeningen, bouwschema, aansluitschema, bestellijst, dashboard, alle bestanden
+- [x] Publiceren als artifact (https://claude.ai/artifact/DD87ZqJGL2BR3xDebRNukE), nagekeken op desktop en gsm (licht en donker), screenshots naar Ian
+- [x] Bouwscript en sjabloon in voorbeelden/treinverlichting/app/ (uit/ wordt gebouwd); commit en push
+
 ## Phlippo CAD 0.5.13: QA-rapport 0.5.12 (5/10, 51 open) verwerken (2026-11-08)
 - [x] F200: de drie typefouten in src/qa/tekeningenAfzuiging.test.ts (ongebruikte import, revisie.d.mts, tuple-type); npm run typecheck exit 0
 - [x] F54/F176/F31: features.mjs robuuster op trage runners (rand pas klikken als ze oplicht, Measure-venster eerst open); volledige lokale poort (typecheck, unit, mutatie, tekst, build, budgets) vóór de push; CI op de nieuwe SHA groen krijgen

@@ -12,3 +12,6 @@ release
 graphify-out/
 # internal working documents and comparison images (QA 0.5.11 F189): kept on this computer, never in the public repo
 intern/
+
+# de app van de kabeldoos wordt gebouwd door app/maak-app.py
+voorbeelden/treinverlichting/app/uit/

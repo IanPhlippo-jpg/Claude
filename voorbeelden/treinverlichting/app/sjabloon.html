@@ -1,0 +1,361 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kabeldoos treinverlichting</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: a workshop folder. A sticky bar with the box's name and one tab per sheet; every sheet opens with a
+   title block like a technical drawing (number, what, scale), then its content in one column of at most 1120 px. */
+:root {
+  --bg: #f2f3ef;          /* ballast-tinted paper */
+  --surface: #ffffff;
+  --ink: #1b221f;
+  --muted: #59635e;
+  --line: #d3d8d1;
+  --accent: #d9961a;      /* lamp amber: the box switches the lights */
+  --accent-ink: #1b1608;
+  --signal: #2c7a4b;      /* the green of the terminal strips */
+  --stage: #e7eae5;       /* behind renders and the 3D view */
+  --font-display: "Barlow Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  --radius: 6px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111513; --surface: #1a1f1c; --ink: #e6eae5; --muted: #9ba59f; --line: #2b332f;
+    --accent: #eeb23c; --accent-ink: #1b1608; --signal: #5fbd85; --stage: #202622; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111513; --surface: #1a1f1c; --ink: #e6eae5; --muted: #9ba59f; --line: #2b332f;
+  --accent: #eeb23c; --accent-ink: #1b1608; --signal: #5fbd85; --stage: #202622; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.55 var(--font-body); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--surface); }
+.wrap { max-width: 1120px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 600; line-height: 1.1; text-wrap: balance; margin: 0; }
+h2 { font-size: 2rem; }
+h3 { font-size: 1.35rem; }
+p { margin: 0; max-width: 68ch; }
+a { color: inherit; }
+code, .mono { font-family: var(--font-mono); font-size: .92em; }
+.num { font-variant-numeric: tabular-nums; }
+
+/* bar */
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--surface); border-bottom: 1px solid var(--line); }
+.bar .wrap { display: flex; align-items: center; gap: 20px; min-height: 56px; }
+.brand { font-family: var(--font-display); font-weight: 700; font-size: 1.3rem; letter-spacing: .01em; white-space: nowrap; display: flex; align-items: center; gap: 10px; }
+.lamp { width: 12px; height: 12px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 25%, transparent); flex: none; }
+.tabs { display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; min-width: 0; }
+.tabs::-webkit-scrollbar { display: none; }
+.tabs a { text-decoration: none; padding: 16px 12px 14px; font-weight: 500; color: var(--muted); white-space: nowrap; border-bottom: 3px solid transparent; }
+.tabs a:hover { color: var(--ink); }
+.tabs a[aria-current="page"] { color: var(--ink); border-bottom-color: var(--accent); }
+.tabs a:focus-visible, button:focus-visible, .shot:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (max-width: 760px) {
+  .bar .wrap { flex-direction: column; align-items: stretch; gap: 0; }
+  .brand { padding-top: 10px; }
+  .tabs a { padding: 10px 10px 9px; }
+}
+
+/* sheets */
+main { padding-block: 28px 64px; }
+.sheet { display: grid; gap: 28px; scroll-margin-top: 160px; }
+.titleblock { display: grid; grid-template-columns: auto 1fr auto; border: 1.5px solid var(--ink); background: var(--surface); }
+.titleblock > div { padding: 8px 14px; border-right: 1px solid var(--ink); display: grid; align-content: center; gap: 2px; min-width: 0; }
+.titleblock > div:last-child { border-right: 0; }
+.titleblock small { font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.titleblock .no { font-family: var(--font-mono); font-weight: 500; }
+@media (max-width: 560px) {
+  .titleblock { grid-template-columns: auto 1fr; }
+  .titleblock > div:last-child { display: none; }
+  .titleblock > div:nth-child(2) { border-right: 0; }
+  h2 { font-size: 1.6rem; }
+}
+.lead { font-size: 1.05rem; color: var(--muted); }
+
+/* buttons */
+.actions { display: flex; flex-wrap: wrap; gap: 10px; }
+button { font: inherit; cursor: pointer; }
+.btn { display: inline-flex; align-items: center; gap: 10px; padding: 10px 16px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--surface); color: var(--ink); text-align: left; }
+.btn:hover { border-color: var(--muted); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+.btn .sz { font-family: var(--font-mono); font-size: .8rem; opacity: .75; }
+.btn svg { width: 18px; height: 18px; flex: none; }
+.note { font-size: .88rem; color: var(--muted); }
+.toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: var(--radius); font-size: .9rem; z-index: 30; max-width: calc(100% - 32px); }
+
+/* overview */
+.hero { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 32px; align-items: center; }
+.hero h1 { font-size: clamp(2.4rem, 5vw, 3.6rem); }
+.hero .stage { background: var(--stage); border-radius: var(--radius); overflow: hidden; }
+.hero .copy { display: grid; gap: 18px; }
+@media (max-width: 860px) { .hero { grid-template-columns: 1fr; } }
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); border-top: 1.5px solid var(--ink); border-bottom: 1px solid var(--line); }
+.facts div { padding: 12px 14px 12px 0; display: grid; gap: 2px; }
+.facts b { font-family: var(--font-display); font-size: 1.6rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+.facts span { font-size: .85rem; color: var(--muted); }
+.gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
+.shot { display: grid; gap: 6px; margin: 0; cursor: zoom-in; background: none; border: 0; padding: 0; color: inherit; text-align: left; }
+.shot .img { background: var(--stage); border-radius: var(--radius); overflow: hidden; aspect-ratio: 16 / 10; display: grid; place-items: center; }
+.shot img { width: 100%; height: 100%; object-fit: contain; }
+.shot figcaption, .shot .cap { font-size: .86rem; color: var(--muted); }
+
+/* tables */
+.tablebox { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: .75rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 600; background: var(--bg); }
+tr:last-child td { border-bottom: 0; }
+td.r, th.r { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+tr.total td { font-weight: 600; border-top: 1.5px solid var(--ink); }
+
+/* print */
+.printgrid { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+@media (max-width: 860px) { .printgrid { grid-template-columns: 1fr; } }
+.viewer { position: relative; background: var(--stage); border-radius: var(--radius); aspect-ratio: 4 / 3; overflow: hidden; touch-action: none; }
+.viewer canvas { display: block; width: 100%; height: 100%; }
+.viewer .seg { position: absolute; top: 12px; left: 12px; display: flex; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+.seg button { border: 0; background: none; padding: 7px 14px; color: var(--muted); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.viewer .hint { position: absolute; right: 12px; bottom: 10px; font-size: .78rem; color: var(--muted); }
+.viewer .wait { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); font-size: .9rem; }
+.specs { display: grid; gap: 16px; }
+.specs dl { display: grid; grid-template-columns: auto 1fr; gap: 6px 16px; margin: 0; font-size: .92rem; }
+.specs dt { color: var(--muted); }
+.specs dd { margin: 0; }
+
+/* drawings */
+.drawings { display: grid; gap: 22px; }
+.drawing { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 20px; align-items: start; padding-bottom: 22px; border-bottom: 1px solid var(--line); }
+.drawing:last-child { border-bottom: 0; }
+.drawing .paper { background: #fff; border: 1px solid var(--line); border-radius: 2px; cursor: zoom-in; padding: 0; display: block; width: 100%; }
+.drawing .paper img { display: block; width: 100%; height: auto; }
+.drawing .meta { display: grid; gap: 10px; }
+.tag { display: inline-block; font-family: var(--font-mono); font-size: .78rem; padding: 2px 8px; border: 1px solid var(--line); border-radius: 3px; color: var(--muted); }
+.warn { border-left: 3px solid var(--accent); padding: 8px 12px; background: var(--surface); font-size: .9rem; }
+@media (max-width: 760px) { .drawing { grid-template-columns: 1fr; } }
+
+/* steps */
+.toc { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 6px 20px; counter-reset: s; padding: 0; margin: 0; list-style: none; }
+.toc a { display: flex; gap: 10px; align-items: baseline; text-decoration: none; padding: 6px 0; border-bottom: 1px dashed var(--line); }
+.toc a > span:nth-child(2) { flex: 1; min-width: 0; }
+.toc .n { font-family: var(--font-display); font-weight: 700; color: var(--signal); width: 1.2em; }
+.toc em { margin-left: auto; font-style: normal; color: var(--muted); font-size: .85rem; text-align: right; max-width: 45%; }
+.step { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 24px; padding-top: 22px; border-top: 1.5px solid var(--ink); scroll-margin-top: 120px; }
+.step .imgs { display: grid; gap: 12px; }
+.step .imgs .shot .img { aspect-ratio: auto; }
+.step .imgs img { height: auto; }
+.step .txt { display: grid; gap: 12px; align-content: start; }
+.step .nr { font-family: var(--font-display); font-weight: 700; font-size: 3.2rem; line-height: .9; color: var(--signal); }
+.step ol { margin: 0; padding-left: 1.3em; display: grid; gap: 8px; }
+.step .kv { font-size: .9rem; display: grid; gap: 2px; }
+.step .kv b { font-weight: 600; }
+.parts { display: flex; flex-wrap: wrap; gap: 6px; }
+@media (max-width: 760px) { .step { grid-template-columns: 1fr; } }
+
+/* phones */
+.phones { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
+.phones .shot .img { aspect-ratio: 780 / 1688; background: none; border: 1px solid var(--line); }
+.phones .shot img { object-fit: cover; }
+
+/* files */
+.files { display: grid; gap: 0; border-top: 1.5px solid var(--ink); }
+.file { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--line); }
+.file b { font-weight: 600; }
+.file p { color: var(--muted); font-size: .9rem; }
+.file .btn { min-width: 150px; justify-content: center; }
+@media (max-width: 560px) { .file { grid-template-columns: 1fr; gap: 8px; } .file .btn { justify-self: start; } }
+
+/* lightbox */
+.lb { position: fixed; inset: 0; z-index: 40; background: color-mix(in srgb, var(--bg) 96%, transparent); display: grid; grid-template-rows: auto 1fr; }
+.lb .top { display: flex; gap: 10px; align-items: center; padding: calc(10px + env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) 10px max(16px, env(safe-area-inset-left, 0px)); border-bottom: 1px solid var(--line); background: var(--surface); }
+.lb .top .t { margin-right: auto; font-weight: 600; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lb .pane { overflow: auto; padding: 16px; }
+.lb img { display: block; margin: 0 auto; background: #fff; max-width: none; }
+.lb.fit img { max-width: 100%; max-height: calc(100vh - 110px); width: auto; height: auto; }
+@media (prefers-reduced-motion: no-preference) { .tabs a, .btn { transition: color .15s, border-color .15s, background .15s; } }
+</style>
+
+<header class="bar">
+  <div class="wrap">
+    <div class="brand"><span class="lamp" aria-hidden="true"></span>Kabeldoos treinverlichting</div>
+    <nav class="tabs" aria-label="Bladen">
+      <a href="#overzicht">Overzicht</a>
+      <a href="#printen">Printen</a>
+      <a href="#tekeningen">Tekeningen</a>
+      <a href="#bouwen">Bouwen</a>
+      <a href="#schema">Aansluiten</a>
+      <a href="#bestellen">Bestellijst</a>
+      <a href="#dashboard">Dashboard</a>
+      <a href="#bestanden">Alle bestanden</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+{{SECTIES}}
+</main>
+
+<div class="toast" id="toast" role="status" hidden></div>
+<div class="lb fit" id="lb" hidden role="dialog" aria-modal="true" aria-label="Vergroot beeld">
+  <div class="top">
+    <span class="t" id="lb-t"></span>
+    <button class="btn" id="lb-fit" type="button">Passend</button>
+    <button class="btn" id="lb-100" type="button">Groot</button>
+    <button class="btn" id="lb-close" type="button">Sluiten</button>
+  </div>
+  <div class="pane" id="lb-pane"><img id="lb-img" alt=""></div>
+</div>
+
+<script id="bestandenlijst" type="application/json">{{BESTANDEN}}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+(() => {
+  const FILES = JSON.parse(document.getElementById('bestandenlijst').textContent);
+  const $ = (s, el = document) => el.querySelector(s);
+
+  // ---- tabs on the hash ----
+  const names = [...document.querySelectorAll('.sheet')].map((s) => s.id);
+  function show() {
+    const want = location.hash.slice(1);
+    const step = want.startsWith('stap-') ? want : null;
+    const id = step ? 'bouwen' : names.includes(want) ? want : 'overzicht';
+    for (const s of document.querySelectorAll('.sheet')) s.hidden = s.id !== id;
+    for (const a of document.querySelectorAll('.tabs a')) {
+      if (a.getAttribute('href') === '#' + id) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
+    }
+    // after the browser's own jump to the anchor (a sheet would land under the sticky bar)
+    setTimeout(() => { if (step) document.getElementById(step)?.scrollIntoView(); else window.scrollTo(0, 0); });
+    if (id === 'printen') startViewer();
+  }
+  window.addEventListener('hashchange', show);
+
+  // ---- downloads ----
+  const toast = $('#toast');
+  let tt = 0;
+  function say(t) { toast.textContent = t; toast.hidden = false; clearTimeout(tt); tt = setTimeout(() => (toast.hidden = true), 4200); }
+  let dl = null;
+  const dlReady = window.claude?.use ? window.claude.use('downloads').then((d) => (dl = d)).catch(() => null) : Promise.resolve(null);
+  document.addEventListener('click', async (e) => {
+    const b = e.target.closest('[data-file]');
+    if (!b) return;
+    const f = FILES[b.dataset.file];
+    await dlReady;
+    if (!dl) { say('Downloaden kan in deze weergave niet. Open de app op claude.ai.'); return; }
+    try {
+      b.disabled = true;
+      const res = await fetch(f.pad);
+      if (!res.ok) throw new Error('fetch');
+      let data;
+      if (f.b64) { const t = (await res.text()).trim(); const bin = atob(t); data = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) data[i] = bin.charCodeAt(i); }
+      else data = await res.blob();
+      await dl.save({ filename: f.naam, data });
+      say(f.naam + ' is bewaard.');
+    } catch (err) {
+      const c = err && err.code;
+      if (c === 'declined') say('Niet bewaard.');
+      else if (c === 'rate_limited') say('Er staat al een vraag open. Probeer zo opnieuw.');
+      else say(f.naam + ' kon niet bewaard worden.');
+    } finally { b.disabled = false; }
+  });
+
+  // ---- lightbox ----
+  const lb = $('#lb'), lbImg = $('#lb-img');
+  let opener = null;
+  document.addEventListener('click', (e) => {
+    const s = e.target.closest('[data-zoom]');
+    if (!s) return;
+    opener = s;
+    lbImg.src = s.dataset.zoom;
+    lbImg.alt = s.dataset.title || '';
+    $('#lb-t').textContent = s.dataset.title || '';
+    lb.classList.add('fit'); lbImg.style.width = '';
+    lb.hidden = false;
+    $('#lb-close').focus();
+  });
+  $('#lb-fit').onclick = () => { lb.classList.add('fit'); lbImg.style.width = ''; };
+  $('#lb-100').onclick = () => { lb.classList.remove('fit'); lbImg.style.width = Math.max(1600, lbImg.naturalWidth || 0) + 'px'; };
+  const close = () => { lb.hidden = true; lbImg.removeAttribute('src'); opener?.focus(); };
+  $('#lb-close').onclick = close;
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !lb.hidden) close(); });
+
+  // ---- 3D view of the print parts, on the 256 x 256 bed of the printer ----
+  let started = false;
+  function startViewer() {
+    if (started) return;
+    started = true;
+    const box = $('#viewer'), wait = $('#viewer-wait');
+    if (!window.THREE || !THREE.OrbitControls) { wait.textContent = 'Het 3D-beeld kon niet laden. De beelden en de STL-zip werken wel.'; return; }
+    const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+    box.prepend(renderer.domElement);
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(32, 4 / 3, 1, 5000);
+    camera.position.set(260, 330, 380);
+    const ctl = new THREE.OrbitControls(camera, renderer.domElement);
+    ctl.target.set(0, 10, 0); ctl.enableDamping = true; ctl.maxPolarAngle = Math.PI * 0.49; ctl.minDistance = 120; ctl.maxDistance = 1200;
+    scene.add(new THREE.HemisphereLight(0xffffff, 0x8a8f8a, 0.75));
+    const sun = new THREE.DirectionalLight(0xffffff, 0.7); sun.position.set(200, 400, 260); scene.add(sun);
+    const fill = new THREE.DirectionalLight(0xffffff, 0.25); fill.position.set(-300, 120, -200); scene.add(fill);
+    // the build plate: 256 x 256, with a 10 mm grid
+    const plate = new THREE.Group();
+    const lineCol = new THREE.Color(css('--muted'));
+    const g = new THREE.GridHelper(256, 16, lineCol, lineCol); // 16 mm squares
+    g.material.opacity = 0.25; g.material.transparent = true; plate.add(g);
+    const edge = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.PlaneGeometry(256, 256).rotateX(-Math.PI / 2)), new THREE.LineBasicMaterial({ color: new THREE.Color(css('--accent')) }));
+    plate.add(edge);
+    scene.add(plate);
+    const parts = {};
+    let current = 'bak';
+    function decode(m) {
+      const u16 = (b64) => { const s = atob(b64); const a = new Uint16Array(s.length / 2); for (let i = 0; i < a.length; i++) a[i] = s.charCodeAt(2 * i) | (s.charCodeAt(2 * i + 1) << 8); return a; };
+      const q = u16(m.p), idx = u16(m.i);
+      const pos = new Float32Array(q.length);
+      for (let i = 0; i < q.length; i++) { const k = i % 3; pos[i] = m.min[k] + (q[i] / 65535) * (m.max[k] - m.min[k]); }
+      let geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+      geo.setIndex(new THREE.BufferAttribute(idx, 1));
+      geo = geo.toNonIndexed(); geo.computeVertexNormals();
+      // the STL stands with z up: turn it to the bed (y up), centred on the plate
+      geo.rotateX(-Math.PI / 2);
+      geo.computeBoundingBox();
+      const bb = geo.boundingBox;
+      geo.translate(-(bb.min.x + bb.max.x) / 2, -bb.min.y, -(bb.min.z + bb.max.z) / 2);
+      return geo;
+    }
+    function resize() {
+      const w = box.clientWidth, h = box.clientHeight;
+      renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
+    }
+    new ResizeObserver(resize).observe(box);
+    resize();
+    function pick(name) {
+      current = name;
+      for (const [k, m] of Object.entries(parts)) m.visible = k === name;
+      for (const b of document.querySelectorAll('#viewer .seg button')) b.setAttribute('aria-pressed', String(b.dataset.part === name));
+      $('#part-spec').innerHTML = $('#spec-' + name).innerHTML;
+    }
+    fetch(FILES.net.pad).then((r) => r.json()).then((nets) => {
+      for (const [name, m] of Object.entries(nets)) {
+        const mat = new THREE.MeshStandardMaterial({ color: new THREE.Color(m.kleur), roughness: 0.62, metalness: 0.0, flatShading: true });
+        const mesh = new THREE.Mesh(decode(m), mat);
+        parts[name] = mesh; scene.add(mesh);
+      }
+      wait.remove();
+      pick(current);
+    }).catch(() => { wait.textContent = 'Het 3D-beeld kon niet laden. De beelden en de STL-zip werken wel.'; });
+    for (const b of document.querySelectorAll('#viewer .seg button')) b.addEventListener('click', () => pick(b.dataset.part));
+    (function loop() { requestAnimationFrame(loop); if (box.offsetParent === null) return; ctl.update(); renderer.render(scene, camera); })();
+  }
+
+  show();
+})();
+</script>
