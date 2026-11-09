@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="210mm" height="297mm" viewBox="0 0 210 297" font-family="Arial, Helvetica, sans-serif"><rect width="210" height="297" fill="#fff"/><rect x="10" y="10" width="190" height="277" fill="none" stroke="#000" stroke-width="0.35"/>
+<text x="13" y="16" font-size="4.2" font-weight="700">Ogen en kleine delen: OOG-B</text>
+<text x="197" y="16" font-size="3.4" text-anchor="end">Lastafel op heftafel · mallen 1:1 · A4 · blad 8 / 13</text>
+<text x="13" y="21.5" font-size="3" fill="#a00">Afdrukken op 100 % (werkelijke grootte), niet 'passend maken'. Meet eerst de controlemaat.</text>
+<line x1="14" y1="281" x2="114" y2="281" stroke="#000" stroke-width="0.5"/>
+<line x1="14" y1="281" x2="14" y2="278" stroke="#000" stroke-width="0.3"/>
+<line x1="24" y1="281" x2="24" y2="279.4" stroke="#000" stroke-width="0.3"/>
+<line x1="34" y1="281" x2="34" y2="279.4" stroke="#000" stroke-width="0.3"/>
+<line x1="44" y1="281" x2="44" y2="279.4" stroke="#000" stroke-width="0.3"/>
+<line x1="54" y1="281" x2="54" y2="279.4" stroke="#000" stroke-width="0.3"/>
+<line x1="64" y1="281" x2="64" y2="278" stroke="#000" stroke-width="0.3"/>
+<line x1="74" y1="281" x2="74" y2="279.4" stroke="#000" stroke-width="0.3"/>
+<line x1="84" y1="281" x2="84" y2="279.4" stroke="#000" stroke-width="0.3"/>
+<line x1="94" y1="281" x2="94" y2="279.4" stroke="#000" stroke-width="0.3"/>
+<line x1="104" y1="281" x2="104" y2="279.4" stroke="#000" stroke-width="0.3"/>
+<line x1="114" y1="281" x2="114" y2="278" stroke="#000" stroke-width="0.3"/>
+<text x="64" y="285.4" font-size="3" text-anchor="middle">controle: 100 mm</text>
+<line x1="196" y1="281" x2="196" y2="231" stroke="#000" stroke-width="0.5"/><text x="194" y="256" font-size="3" text-anchor="middle" transform="rotate(-90 194 256)">50 mm</text>
+<g><text x="14" y="34" font-size="4.6" font-weight="700">OOG-B · Oog cilinder (op de cilinderbuis Ø90)</text>
+<text x="14" y="39.2" font-size="3.4">4 x · S355, plaat 12 mm · armpaar B, 2 per stangoog</text>
+<text x="14" y="44.4" font-size="3.2" fill="#333">Onderkant = zadel R45: past op de cilinderbuis Ø90.</text>
+<text x="14" y="48.8" font-size="3.2" fill="#333">Hart boring 90 boven het hart van de buis.</text><path d="M38.00 163.30 L38.00 102.80 A34 34 0 0 1 106.00 102.80 L106.00 163.30 A45 45 0 0 0 38.00 163.30 Z" fill="#f1f3f4" stroke="#000" stroke-width="0.5"/>
+<circle cx="72" cy="102.8" r="20" fill="#fff" stroke="#000" stroke-width="0.5"/>
+<line x1="46" y1="102.8" x2="98" y2="102.8" stroke="#000" stroke-width="0.2"/><line x1="72" y1="76.8" x2="72" y2="128.8" stroke="#000" stroke-width="0.2"/>
+<circle cx="72" cy="102.8" r="0.9" fill="#000"/><text x="87.4" y="87.4" font-size="3.4" font-weight="700">Ø40 H8</text>
+<line x1="38" y1="52.8" x2="106" y2="52.8" stroke="#000" stroke-width="0.18"/>
+<polygon points="38,52.8 40.5,53.4 40.5,52.199999999999996" fill="#000"/>
+<polygon points="106,52.8 103.5,52.199999999999996 103.5,53.4" fill="#000"/>
+<text x="72" y="51.599999999999994" font-size="3.4" text-anchor="middle">68</text>
+<line x1="22" y1="192.8" x2="22" y2="102.8" stroke="#000" stroke-width="0.18"/>
+<polygon points="22,192.8 22.6,190.3 21.4,190.3" fill="#000"/>
+<polygon points="22,102.8 21.4,105.3 22.6,105.3" fill="#000"/>
+<text x="20.8" y="147.8" font-size="3.4" text-anchor="middle" transform="rotate(-90 20.8 147.8)">90 tot hart buis</text>
+<line x1="122" y1="102.8" x2="122" y2="68.8" stroke="#000" stroke-width="0.18"/>
+<polygon points="122,102.8 122.6,100.3 121.4,100.3" fill="#000"/>
+<polygon points="122,68.8 121.4,71.3 122.6,71.3" fill="#000"/>
+<text x="120.8" y="85.8" font-size="3.4" text-anchor="middle" transform="rotate(-90 120.8 85.8)">R34</text></g></svg>

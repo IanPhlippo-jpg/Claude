@@ -24,6 +24,8 @@ kleuren gemeten.
 | Hydrauliek | 2 cilinders Ø100/56 met gele valbeveiliging (kap met zaagtand en pal), aggregaat 2,2 kW, slangen | idem, [schema blad 5](schema/Schemaset-heftafel.pdf) |
 | Bediening | bedienkast RAL 7035 met wartels; dubbel voetpedaal (op/neer) met kap en noodstop | idem |
 | Berekeningen | schaar, cilinderkracht en druk over de hele slag, knik, pomp, motor, zakken, valbeveiliging, massa van de tafel | [docs/Berekeningen.md](docs/Berekeningen.md) |
+| Mallen 1:1 | A3 (armwang volledig) en A4 (kop- en middenmal), elk 13 bladen, om af te drukken en op de plaat te plakken: ogen en lippen met asgaten, scharnierbokken, hijsogen, kapzijde en palplaat met zaagtand, kopplaat | `mallen/maak-mallen.mjs` -> `mallen/Mallen-lastafel-A3-1op1.pdf`, `mallen/Mallen-lastafel-A4-1op1.pdf` |
+| Bouwplan en materiaal | 12 stappen met foto's; zaaglijst, plaatlijst, normdelen, kooponderdelen, verbruik, wat je moet bestellen | [docs/Bouwplan.md](docs/Bouwplan.md), [docs/Materiaallijst.md](docs/Materiaallijst.md) |
 | Schema's | 7 bladen zoals EPLAN: titelblad, inhoud, voeding 230 V, besturing 24 V, hydrauliek (ISO 1219-1), klemmenplan, stuklijst | `schema/maak-schema.mjs` -> `schema/Schemaset-heftafel.pdf` |
 
 ## Wat anders is dan bij DCT, en waarom
@@ -67,6 +69,9 @@ het CNC-boren van 750 gaten in S690QL is gespecialiseerd werk.
 node voorbeelden/lastafel/maak-lastafel.mjs
 python voorbeelden/lastafel/docs/berekeningen.py
 node voorbeelden/lastafel/schema/maak-schema.mjs
+node voorbeelden/lastafel/docs/materiaal.mjs
+node voorbeelden/lastafel/mallen/maak-mallen.mjs
+node voorbeelden/lastafel/web/maak-pagina.mjs
 ```
 
 Testen: `npx cross-env VOORBEELDEN=1 vitest run src/qa/qaLastafel.test.ts` (`SNEL=1` slaat de tafel over). Beelden:

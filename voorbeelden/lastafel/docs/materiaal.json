@@ -1,0 +1,748 @@
+{
+ "zaag": [
+  {
+   "groep": "Onderframe",
+   "pos": "Langsligger",
+   "prof": "UNP 100",
+   "l": 2390,
+   "n": 2,
+   "bew": "recht, open naar buiten",
+   "kg": 50.7
+  },
+  {
+   "groep": "Onderframe",
+   "pos": "Kopligger",
+   "prof": "UNP 100",
+   "l": 1100,
+   "n": 2,
+   "bew": "recht, tussen de langsliggers (in het lijf)",
+   "kg": 23.3
+  },
+  {
+   "groep": "Onderframe",
+   "pos": "Rolbaan onder (paar B)",
+   "prof": "Platstaal 40 x 20",
+   "l": 737,
+   "n": 2,
+   "bew": "bovenkant vlak, ontbramen",
+   "kg": 9.3
+  },
+  {
+   "groep": "Bovenframe",
+   "pos": "Langsligger boven",
+   "prof": "Koker 110 x 50 x 5",
+   "l": 2390,
+   "n": 2,
+   "bew": "recht",
+   "kg": 56.3
+  },
+  {
+   "groep": "Bovenframe",
+   "pos": "Kopligger boven",
+   "prof": "Koker 110 x 60 x 5",
+   "l": 1092,
+   "n": 2,
+   "bew": "recht, tussen de langsliggers",
+   "kg": 27.4
+  },
+  {
+   "groep": "Bovenframe",
+   "pos": "Rolbaan boven (paar A)",
+   "prof": "Platstaal 40 x 10",
+   "l": 686,
+   "n": 2,
+   "bew": "onderkant vlak",
+   "kg": 4.3
+  },
+  {
+   "groep": "Bovenframe",
+   "pos": "Ophanging rolbaan",
+   "prof": "Platstaal 30 x 8",
+   "l": 686,
+   "n": 2,
+   "bew": "",
+   "kg": 2.6
+  },
+  {
+   "groep": "Schaar A",
+   "pos": "Buis onder en boven",
+   "prof": "Buis Ø80 x 5",
+   "l": 984,
+   "n": 2,
+   "bew": "tussen de armen, 2 mm in de wang",
+   "kg": 18.2
+  },
+  {
+   "groep": "Schaar B",
+   "pos": "Buis boven en onder",
+   "prof": "Buis Ø80 x 5",
+   "l": 884,
+   "n": 2,
+   "bew": "",
+   "kg": 16.4
+  },
+  {
+   "groep": "Schaar B",
+   "pos": "Cilinderbuis",
+   "prof": "Buis Ø90 x 6",
+   "l": 884,
+   "n": 1,
+   "bew": "op 775 van het vaste scharnier",
+   "kg": 11
+  },
+  {
+   "groep": "Schaar",
+   "pos": "Omtrekband arm",
+   "prof": "Platstaal 45 x 5",
+   "l": 4560,
+   "n": 4,
+   "bew": "rond zetten op de wangen (R58 aan de kop)",
+   "kg": 32.2
+  },
+  {
+   "groep": "Scharnieren",
+   "pos": "Pennen Ø40 (scharnier A, B, cilinders, stangogen)",
+   "prof": "Rond Ø40 (42CrMo4)",
+   "l": 120,
+   "n": 8,
+   "bew": "draaien, inductiegehard, borggroef",
+   "kg": 9.5
+  },
+  {
+   "groep": "Scharnieren",
+   "pos": "Astappen rollen B",
+   "prof": "Rond Ø40 (42CrMo4)",
+   "l": 45,
+   "n": 2,
+   "bew": "draaien, slijpen h6",
+   "kg": 0.9
+  },
+  {
+   "groep": "Onderframe",
+   "pos": "Aanslagpennen",
+   "prof": "Draadeind M20 (8.8, verzinkt)",
+   "l": 140,
+   "n": 6,
+   "bew": "met dopmoer en contramoer",
+   "kg": 1.7
+  }
+ ],
+ "plaat": [
+  {
+   "groep": "Onderframe",
+   "pos": "Vloerplaat",
+   "mat": "S355",
+   "t": 10,
+   "b": 1190,
+   "l": 2390,
+   "n": 1,
+   "opm": "8 ankergaten Ø18",
+   "kg": 223.3
+  },
+  {
+   "groep": "Onderframe",
+   "pos": "Scharnierbok A",
+   "mat": "S355",
+   "t": 10,
+   "b": 120,
+   "l": 130,
+   "n": 2,
+   "opm": "boring Ø40 H8",
+   "kg": 2.4
+  },
+  {
+   "groep": "Onderframe",
+   "pos": "Hijsoog",
+   "mat": "S355",
+   "t": 16,
+   "b": 80,
+   "l": 70,
+   "n": 4,
+   "opm": "R40, gat Ø30",
+   "kg": 2.8
+  },
+  {
+   "groep": "Cilinderbok",
+   "pos": "Dwarsplaat",
+   "mat": "S355",
+   "t": 8,
+   "b": 100,
+   "l": 620,
+   "n": 1,
+   "opm": "",
+   "kg": 3.9
+  },
+  {
+   "groep": "Cilinderbok",
+   "pos": "Lipplaat",
+   "mat": "S355",
+   "t": 12,
+   "b": 80,
+   "l": 108,
+   "n": 4,
+   "opm": "boring Ø40 H8 op 60 hoogte",
+   "kg": 3.3
+  },
+  {
+   "groep": "Bovenframe",
+   "pos": "Scharnierblok B",
+   "mat": "S355",
+   "t": 20,
+   "b": 120,
+   "l": 127,
+   "n": 6,
+   "opm": "3 platen per blok, gelast, boring Ø40 H8",
+   "kg": 14.4
+  },
+  {
+   "groep": "Bovenframe",
+   "pos": "Steunvlak (na lassen vlakfrezen)",
+   "mat": "S355",
+   "t": 15,
+   "b": 100,
+   "l": 100,
+   "n": 6,
+   "opm": "boring M16, frezen tot 10",
+   "kg": 7.1
+  },
+  {
+   "groep": "Opvanglade",
+   "pos": "Bodem",
+   "mat": "DX51D+Z275 (sendzimir)",
+   "t": 3,
+   "b": 1090,
+   "l": 2270,
+   "n": 1,
+   "opm": "randen 6 omzetten",
+   "kg": 58.3
+  },
+  {
+   "groep": "Opvanglade",
+   "pos": "Tussenstrip",
+   "mat": "DX51D+Z275 (sendzimir)",
+   "t": 3,
+   "b": 40,
+   "l": 980,
+   "n": 3,
+   "opm": "",
+   "kg": 2.8
+  },
+  {
+   "groep": "Schaar",
+   "pos": "Armwang (taps 116 tot 160)",
+   "mat": "S355",
+   "t": 5,
+   "b": 160,
+   "l": 2196,
+   "n": 8,
+   "opm": "2 per arm; boring middenpen Ø31 H8 na lassen",
+   "kg": 110.3
+  },
+  {
+   "groep": "Schaar B",
+   "pos": "Oog cilinder",
+   "mat": "S355",
+   "t": 12,
+   "b": 80,
+   "l": 154,
+   "n": 4,
+   "opm": "boring Ø40 H8",
+   "kg": 4.6
+  },
+  {
+   "groep": "Valbeveiliging",
+   "pos": "Kapzijde met zaagtand",
+   "mat": "S355",
+   "t": 8,
+   "b": 128,
+   "l": 500,
+   "n": 4,
+   "opm": "zaagtand steek 30, diepte 14",
+   "kg": 16.1
+  },
+  {
+   "groep": "Valbeveiliging",
+   "pos": "Kapdak",
+   "mat": "S355",
+   "t": 6,
+   "b": 162,
+   "l": 503,
+   "n": 2,
+   "opm": "",
+   "kg": 7.7
+  },
+  {
+   "groep": "Valbeveiliging",
+   "pos": "Kopplaat",
+   "mat": "S355",
+   "t": 6,
+   "b": 162,
+   "l": 111,
+   "n": 2,
+   "opm": "doorvoer Ø57",
+   "kg": 1.7
+  },
+  {
+   "groep": "Valbeveiliging",
+   "pos": "Palplaat",
+   "mat": "S355 (C45 gehard voor de tanden)",
+   "t": 8,
+   "b": 38,
+   "l": 360,
+   "n": 4,
+   "opm": "zaagtand, scharniergat Ø16",
+   "kg": 3.4
+  },
+  {
+   "groep": "Lastafel",
+   "pos": "Blad 2400 x 1200",
+   "mat": "S690QL",
+   "t": 25,
+   "b": 1200,
+   "l": 2400,
+   "n": 1,
+   "opm": "541 gaten Ø28 na lassen boren",
+   "kg": 499.8
+  },
+  {
+   "groep": "Lastafel",
+   "pos": "Langswand",
+   "mat": "S690QL",
+   "t": 12,
+   "b": 175,
+   "l": 2400,
+   "n": 2,
+   "opm": "71 gaten Ø28",
+   "kg": 79.1
+  },
+  {
+   "groep": "Lastafel",
+   "pos": "Kopwand",
+   "mat": "S690QL",
+   "t": 12,
+   "b": 175,
+   "l": 1176,
+   "n": 2,
+   "opm": "35 gaten Ø28",
+   "kg": 38.8
+  },
+  {
+   "groep": "Lastafel",
+   "pos": "Langsrib",
+   "mat": "S355",
+   "t": 12,
+   "b": 175,
+   "l": 2376,
+   "n": 2,
+   "opm": "",
+   "kg": 78.3
+  },
+  {
+   "groep": "Lastafel",
+   "pos": "Dwarsrib midden",
+   "mat": "S355",
+   "t": 12,
+   "b": 175,
+   "l": 1039,
+   "n": 2,
+   "opm": "",
+   "kg": 34.3
+  },
+  {
+   "groep": "Lastafel",
+   "pos": "Dwarsrib buiten",
+   "mat": "S355",
+   "t": 12,
+   "b": 175,
+   "l": 58,
+   "n": 4,
+   "opm": "",
+   "kg": 3.8
+  }
+ ],
+ "staven": [
+  {
+   "prof": "UNP 100",
+   "stukken": 4,
+   "totaal": 6980,
+   "staven": 2,
+   "kgm": 10.6,
+   "kg": 127.2
+  },
+  {
+   "prof": "Koker 110 x 50 x 5",
+   "stukken": 2,
+   "totaal": 4780,
+   "staven": 1,
+   "kgm": 11.8,
+   "kg": 70.6
+  },
+  {
+   "prof": "Koker 110 x 60 x 5",
+   "stukken": 2,
+   "totaal": 2184,
+   "staven": 1,
+   "kgm": 12.6,
+   "kg": 75.4
+  },
+  {
+   "prof": "Buis Ø80 x 5",
+   "stukken": 4,
+   "totaal": 3736,
+   "staven": 1,
+   "kgm": 9.2,
+   "kg": 55.5
+  },
+  {
+   "prof": "Buis Ø90 x 6",
+   "stukken": 1,
+   "totaal": 884,
+   "staven": 1,
+   "kgm": 12.4,
+   "kg": 74.6
+  },
+  {
+   "prof": "Platstaal 40 x 20",
+   "stukken": 2,
+   "totaal": 1474,
+   "staven": 1,
+   "kgm": 6.3,
+   "kg": 37.7
+  },
+  {
+   "prof": "Platstaal 40 x 10",
+   "stukken": 2,
+   "totaal": 1372,
+   "staven": 1,
+   "kgm": 3.1,
+   "kg": 18.8
+  },
+  {
+   "prof": "Platstaal 30 x 8",
+   "stukken": 2,
+   "totaal": 1372,
+   "staven": 1,
+   "kgm": 1.9,
+   "kg": 11.3
+  },
+  {
+   "prof": "Platstaal 45 x 5",
+   "stukken": 4,
+   "totaal": 18240,
+   "staven": 4,
+   "kgm": 1.8,
+   "kg": 42.4
+  },
+  {
+   "prof": "Rond Ø40 (42CrMo4)",
+   "stukken": 10,
+   "totaal": 1050,
+   "staven": 1,
+   "kgm": 9.9,
+   "kg": 59.2
+  },
+  {
+   "prof": "Draadeind M20 (8.8, verzinkt)",
+   "stukken": 6,
+   "totaal": 840,
+   "staven": 1,
+   "kgm": 2,
+   "kg": 12
+  }
+ ],
+ "platen": [
+  {
+   "mat": "DX51D+Z275 (sendzimir)",
+   "t": 3,
+   "m2": 2.59,
+   "kg": 61.1,
+   "posities": "Bodem, Tussenstrip"
+  },
+  {
+   "mat": "S355",
+   "t": 5,
+   "m2": 2.81,
+   "kg": 110.3,
+   "posities": "Armwang (taps 116 tot 160)"
+  },
+  {
+   "mat": "S355",
+   "t": 6,
+   "m2": 0.2,
+   "kg": 9.4,
+   "posities": "Kapdak, Kopplaat"
+  },
+  {
+   "mat": "S355",
+   "t": 8,
+   "m2": 0.32,
+   "kg": 20,
+   "posities": "Dwarsplaat, Kapzijde met zaagtand"
+  },
+  {
+   "mat": "S355",
+   "t": 10,
+   "m2": 2.88,
+   "kg": 225.7,
+   "posities": "Vloerplaat, Scharnierbok A"
+  },
+  {
+   "mat": "S355",
+   "t": 12,
+   "m2": 1.32,
+   "kg": 124.3,
+   "posities": "Lipplaat, Oog cilinder, Langsrib, Dwarsrib midden, Dwarsrib buiten"
+  },
+  {
+   "mat": "S355",
+   "t": 15,
+   "m2": 0.06,
+   "kg": 7.1,
+   "posities": "Steunvlak (na lassen vlakfrezen)"
+  },
+  {
+   "mat": "S355",
+   "t": 16,
+   "m2": 0.02,
+   "kg": 2.8,
+   "posities": "Hijsoog"
+  },
+  {
+   "mat": "S355",
+   "t": 20,
+   "m2": 0.09,
+   "kg": 14.4,
+   "posities": "Scharnierblok B"
+  },
+  {
+   "mat": "S355 (C45 gehard voor de tanden)",
+   "t": 8,
+   "m2": 0.05,
+   "kg": 3.4,
+   "posities": "Palplaat"
+  },
+  {
+   "mat": "S690QL",
+   "t": 12,
+   "m2": 1.25,
+   "kg": 117.9,
+   "posities": "Langswand, Kopwand"
+  },
+  {
+   "mat": "S690QL",
+   "t": 25,
+   "m2": 2.88,
+   "kg": 499.8,
+   "posities": "Blad 2400 x 1200"
+  }
+ ],
+ "norm": [
+  {
+   "groep": "Schaar",
+   "oms": "Middenpen M30 x 140 met kop, moer en sluitring",
+   "type": "ISO 4014 8.8 + ISO 4032 + ISO 7089, verzinkt",
+   "n": 2
+  },
+  {
+   "groep": "Schaar",
+   "oms": "Glijlager Ø40/44 x 30 (in elke scharnierboring)",
+   "type": "iglidur G of brons CuSn8 met smeergroef",
+   "n": 12
+  },
+  {
+   "groep": "Schaar",
+   "oms": "Glijlager Ø30/34 x 20 (middenpen, per arm)",
+   "type": "iglidur G of CuSn8",
+   "n": 4
+  },
+  {
+   "groep": "Schaar",
+   "oms": "Rol Ø90 x 38 met naaldlager",
+   "type": "INA NUTR 40 (steunrol met as) of gelijkwaardig",
+   "n": 4
+  },
+  {
+   "groep": "Scharnieren",
+   "oms": "Borgplaat met bout M8 per pen",
+   "type": "S235 6 mm + ISO 4017 M8 x 16",
+   "n": 10
+  },
+  {
+   "groep": "Scharnieren",
+   "oms": "Smeernippel M8 x 1",
+   "type": "DIN 71412 A",
+   "n": 12
+  },
+  {
+   "groep": "Valbeveiliging",
+   "oms": "Scharnierbout pal M16 x 30 + veer",
+   "type": "ISO 7379 Ø16 + drukveer 1,6 x 12 x 30",
+   "n": 4
+  },
+  {
+   "groep": "Bovenframe",
+   "oms": "Bout M16 x 45 (tafel op steunvlakken)",
+   "type": "ISO 4017 8.8 + sluitring",
+   "n": 6
+  },
+  {
+   "groep": "Montage",
+   "oms": "Ankerbout M16 (vloer, optioneel)",
+   "type": "Fischer FAZ II 16/25",
+   "n": 8
+  },
+  {
+   "groep": "Montage",
+   "oms": "Ringogen M20 (heffen)",
+   "type": "DIN 580",
+   "n": 4
+  }
+ ],
+ "koop": [
+  {
+   "groep": "Hydrauliek",
+   "oms": "Hydraulisch aggregaat 230 V 2,2 kW, enkelwerkend, 210 bar, tank 8-12 l, met zak- en overdrukventiel",
+   "type": "Hansa-Flex HKK 230V 2.2 of gelijkwaardig",
+   "n": 1
+  },
+  {
+   "groep": "Hydrauliek",
+   "oms": "Cilinder enkelwerkend Ø100/56 slag 360, oog-oog 675, met leidingbreukventiel",
+   "type": "op maat (offerte)",
+   "n": 2
+  },
+  {
+   "groep": "Hydrauliek",
+   "oms": "Slang 2SN DN10 met DKOL-koppelingen, ± 1,4 m",
+   "type": "EN 853 2SN",
+   "n": 4
+  },
+  {
+   "groep": "Hydrauliek",
+   "oms": "Olie HLP 32",
+   "type": "DIN 51524-2",
+   "n": "15 l"
+  },
+  {
+   "groep": "Elektro",
+   "oms": "CEE-stekker 230 V 16 A 3-polig met 5 m kabel H07RN-F 3G2,5 (-X0)",
+   "type": "Mennekes 13001",
+   "n": "1"
+  },
+  {
+   "groep": "Elektro",
+   "oms": "Hoofdschakelaar 2-polig 25 A, rood/geel, afsluitbaar (-Q1)",
+   "type": "Siemens 3LD2003-0TK53",
+   "n": "1"
+  },
+  {
+   "groep": "Elektro",
+   "oms": "Motorbeveiligingsschakelaar 13-20 A (-F1)",
+   "type": "Siemens 3RV2021-4BA10",
+   "n": "1"
+  },
+  {
+   "groep": "Elektro",
+   "oms": "Installatieautomaat 2-polig C2 (-F2)",
+   "type": "Siemens 5SY6202-7",
+   "n": "1"
+  },
+  {
+   "groep": "Elektro",
+   "oms": "Magneetschakelaar 7,5 kW, spoel 24 V DC (-Q2)",
+   "type": "Siemens 3RT2025-1BB40",
+   "n": "1"
+  },
+  {
+   "groep": "Elektro",
+   "oms": "Voeding 24 V DC 2,5 A DIN-rail (-T1)",
+   "type": "Mean Well HDR-60-24",
+   "n": "1"
+  },
+  {
+   "groep": "Elektro",
+   "oms": "Noodstoprelais 24 V DC, 3 NO (-K1)",
+   "type": "Pilz PNOZ s3 750103",
+   "n": "1"
+  },
+  {
+   "groep": "Elektro",
+   "oms": "Signaallamp wit 230 V (-P1)",
+   "type": "Siemens 3SU1156-6AA60-1AA0",
+   "n": "1"
+  },
+  {
+   "groep": "Elektro",
+   "oms": "Drukknop blauw (reset) (-S4)",
+   "type": "Siemens 3SU1150-0AB50-1BA0",
+   "n": "1"
+  },
+  {
+   "groep": "Elektro",
+   "oms": "Dubbele voetschakelaar met beschermkap en noodstop, kabel 5 m (-S1/-S2/-S3)",
+   "type": "Herga 6226 / Steute GFSI 2 VD (gelijkwaardig)",
+   "n": "1"
+  },
+  {
+   "groep": "Elektro",
+   "oms": "Eindschakelaar boven, rolhefboom, 1 NO + 1 NC (-B1)",
+   "type": "Schmersal PS116-T11-RMS",
+   "n": "1"
+  },
+  {
+   "groep": "Elektro",
+   "oms": "Trekmagneet 24 V DC 50 N (ontgrendeling pal) (-Q12, -Q13)",
+   "type": "Kuhnke H 3.2 of gelijkwaardig",
+   "n": "2"
+  },
+  {
+   "groep": "Elektro",
+   "oms": "Kabels: 3G2,5 motor, 7G0,75 pedaal, 3G1 ventielen (H07RN-F / ÖLFLEX) (-W1..-W6)",
+   "type": "Lapp",
+   "n": "1"
+  },
+  {
+   "groep": "Elektro",
+   "oms": "Doorgangsklemmen 2,5 mm² + PE-klemmen (-X1)",
+   "type": "Phoenix Contact UT 2,5 / UT 2,5-PE",
+   "n": "24"
+  },
+  {
+   "groep": "Elektro",
+   "oms": "Bedienkast staalplaat 265 x 135 x 85 RAL 7035, IP55, 2 x wartel M20 (+KAST)",
+   "type": "Rittal KX 1528.000 of gelijkwaardig",
+   "n": "1"
+  }
+ ],
+ "verbruik": [
+  {
+   "oms": "Lasdraad G3Si1 Ø1,0 (MAG)",
+   "n": "± 8 kg"
+  },
+  {
+   "oms": "Menggas Ar/CO₂ 82/18",
+   "n": "1 fles 20 l"
+  },
+  {
+   "oms": "Stralen SA 2½ + poedercoat RAL 9005 mat (frames, armen)",
+   "n": "± 22 m²"
+  },
+  {
+   "oms": "Poedercoat RAL 1032 (kappen valbeveiliging)",
+   "n": "± 0,6 m²"
+  },
+  {
+   "oms": "Vet lithium EP2 (scharnieren, rollen)",
+   "n": "1 patroon 400 g"
+  },
+  {
+   "oms": "Schroefdraadborging Loctite 243",
+   "n": "1 flesje"
+  }
+ ],
+ "gewicht": {
+  "lift": 725.9,
+  "tafel": 734.1,
+  "totaal": 1460
+ }
+}

@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="210mm" height="297mm" viewBox="0 0 210 297" font-family="Arial, Helvetica, sans-serif"><rect width="210" height="297" fill="#fff"/><rect x="10" y="10" width="190" height="277" fill="none" stroke="#000" stroke-width="0.35"/>
+<text x="13" y="16" font-size="4.2" font-weight="700">Ogen en kleine delen: LIP</text>
+<text x="197" y="16" font-size="3.4" text-anchor="end">Lastafel op heftafel · mallen 1:1 · A4 · blad 9 / 13</text>
+<text x="13" y="21.5" font-size="3" fill="#a00">Afdrukken op 100 % (werkelijke grootte), niet 'passend maken'. Meet eerst de controlemaat.</text>
+<line x1="14" y1="281" x2="114" y2="281" stroke="#000" stroke-width="0.5"/>
+<line x1="14" y1="281" x2="14" y2="278" stroke="#000" stroke-width="0.3"/>
+<line x1="24" y1="281" x2="24" y2="279.4" stroke="#000" stroke-width="0.3"/>
+<line x1="34" y1="281" x2="34" y2="279.4" stroke="#000" stroke-width="0.3"/>
+<line x1="44" y1="281" x2="44" y2="279.4" stroke="#000" stroke-width="0.3"/>
+<line x1="54" y1="281" x2="54" y2="279.4" stroke="#000" stroke-width="0.3"/>
+<line x1="64" y1="281" x2="64" y2="278" stroke="#000" stroke-width="0.3"/>
+<line x1="74" y1="281" x2="74" y2="279.4" stroke="#000" stroke-width="0.3"/>
+<line x1="84" y1="281" x2="84" y2="279.4" stroke="#000" stroke-width="0.3"/>
+<line x1="94" y1="281" x2="94" y2="279.4" stroke="#000" stroke-width="0.3"/>
+<line x1="104" y1="281" x2="104" y2="279.4" stroke="#000" stroke-width="0.3"/>
+<line x1="114" y1="281" x2="114" y2="278" stroke="#000" stroke-width="0.3"/>
+<text x="64" y="285.4" font-size="3" text-anchor="middle">controle: 100 mm</text>
+<line x1="196" y1="281" x2="196" y2="231" stroke="#000" stroke-width="0.5"/><text x="194" y="256" font-size="3" text-anchor="middle" transform="rotate(-90 194 256)">50 mm</text>
+<g><text x="14" y="34" font-size="4.6" font-weight="700">LIP · Lipplaat cilinderbok</text>
+<text x="14" y="39.2" font-size="3.4">4 x · S355, plaat 12 mm · cilinderbok, 2 per cilinder</text>
+<text x="14" y="44.4" font-size="3.2" fill="#333">Onderkant op de dwarsplaat (8 mm): hart pen 60 boven de vloer.</text><path d="M38.00 146.90 L118.00 146.90 L118.00 104.40 L106.00 76.40 L78.00 64.40 L50.00 76.40 L38.00 104.40 Z" fill="#f1f3f4" stroke="#000" stroke-width="0.5"/>
+<circle cx="78" cy="104.4" r="20" fill="#fff" stroke="#000" stroke-width="0.5"/>
+<line x1="52" y1="104.4" x2="104" y2="104.4" stroke="#000" stroke-width="0.2"/><line x1="78" y1="78.4" x2="78" y2="130.4" stroke="#000" stroke-width="0.2"/>
+<circle cx="78" cy="104.4" r="0.9" fill="#000"/><text x="93.4" y="89" font-size="3.4" font-weight="700">Ø40 H8</text>
+<line x1="38" y1="160.4" x2="118" y2="160.4" stroke="#000" stroke-width="0.18"/>
+<polygon points="38,160.4 40.5,161 40.5,159.8" fill="#000"/>
+<polygon points="118,160.4 115.5,159.8 115.5,161" fill="#000"/>
+<text x="78" y="159.20000000000002" font-size="3.4" text-anchor="middle">80</text>
+<line x1="24" y1="146.9" x2="24" y2="104.4" stroke="#000" stroke-width="0.18"/>
+<polygon points="24,146.9 24.6,144.4 23.4,144.4" fill="#000"/>
+<polygon points="24,104.4 23.4,106.9 24.6,106.9" fill="#000"/>
+<text x="22.8" y="125.65" font-size="3.4" text-anchor="middle" transform="rotate(-90 22.8 125.65)">42,5</text>
+<line x1="132" y1="146.9" x2="132" y2="64.4" stroke="#000" stroke-width="0.18"/>
+<polygon points="132,146.9 132.6,144.4 131.4,144.4" fill="#000"/>
+<polygon points="132,64.4 131.4,66.9 132.6,66.9" fill="#000"/>
+<text x="130.8" y="105.65" font-size="3.4" text-anchor="middle" transform="rotate(-90 130.8 105.65)">82,5</text></g></svg>

@@ -1,0 +1,182 @@
+[
+ {
+  "id": "ARM",
+  "naam": "Armwang (volledig)",
+  "aantal": 8,
+  "mat": "S355, plaat 5 mm",
+  "waar": "schaararmen A en B, 2 wangen per arm",
+  "alleen": "A3",
+  "bladen": {
+   "A4": [],
+   "A3": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+   ]
+  }
+ },
+ {
+  "id": "ARM-KOP",
+  "naam": "Armwang: kopmal",
+  "aantal": 16,
+  "mat": "S355, plaat 5 mm (8 wangen, 2 koppen per wang)",
+  "waar": "schaararmen A en B; dezelfde mal voor beide koppen (omdraaien)",
+  "alleen": "A4",
+  "bladen": {
+   "A4": [
+    1
+   ],
+   "A3": []
+  }
+ },
+ {
+  "id": "ARM-MID",
+  "naam": "Armwang: middenmal (halve mal, spiegelen over de hartlijn)",
+  "aantal": 8,
+  "mat": "S355, plaat 5 mm",
+  "waar": "schaararmen A en B, boring van de middenpen",
+  "alleen": "A4",
+  "bladen": {
+   "A4": [
+    2
+   ],
+   "A3": []
+  }
+ },
+ {
+  "id": "OOG-B",
+  "naam": "Oog cilinder (op de cilinderbuis Ø90)",
+  "aantal": 4,
+  "mat": "S355, plaat 12 mm",
+  "waar": "armpaar B, 2 per stangoog",
+  "alleen": "",
+  "bladen": {
+   "A4": [
+    8
+   ],
+   "A3": [
+    11
+   ]
+  }
+ },
+ {
+  "id": "LIP",
+  "naam": "Lipplaat cilinderbok",
+  "aantal": 4,
+  "mat": "S355, plaat 12 mm",
+  "waar": "cilinderbok, 2 per cilinder",
+  "alleen": "",
+  "bladen": {
+   "A4": [
+    9
+   ],
+   "A3": [
+    11
+   ]
+  }
+ },
+ {
+  "id": "BOK-A",
+  "naam": "Scharnierbok armpaar A",
+  "aantal": 2,
+  "mat": "S355, plaat 10 mm",
+  "waar": "onderframe, tegen het lijf van de langsligger (z -1000)",
+  "alleen": "",
+  "bladen": {
+   "A4": [
+    10
+   ],
+   "A3": [
+    11
+   ]
+  }
+ },
+ {
+  "id": "BLOK-B",
+  "naam": "Plaat scharnierblok armpaar B",
+  "aantal": 6,
+  "mat": "S355, plaat 20 mm",
+  "waar": "bovenframe, 3 platen per blok (z -1000)",
+  "alleen": "",
+  "bladen": {
+   "A4": [
+    11
+   ],
+   "A3": [
+    12
+   ]
+  }
+ },
+ {
+  "id": "HIJS",
+  "naam": "Hijsoog",
+  "aantal": 4,
+  "mat": "S355, plaat 16 mm",
+  "waar": "onderframe, op de bovenflens (z ±800)",
+  "alleen": "",
+  "bladen": {
+   "A4": [
+    12
+   ],
+   "A3": [
+    12
+   ]
+  }
+ },
+ {
+  "id": "KAP",
+  "naam": "Kopplaat valbeveiliging",
+  "aantal": 2,
+  "mat": "S355, plaat 6 mm",
+  "waar": "gele kap, doorvoer van de stang Ø56",
+  "alleen": "",
+  "bladen": {
+   "A4": [
+    13
+   ],
+   "A3": [
+    13
+   ]
+  }
+ },
+ {
+  "id": "KAPZ",
+  "naam": "Kapzijde met zaagtand",
+  "aantal": 4,
+  "mat": "S355, plaat 8 mm",
+  "waar": "gele kap, 2 per cilinder (links en rechts gespiegeld)",
+  "alleen": "",
+  "bladen": {
+   "A4": [
+    3,
+    4,
+    5
+   ],
+   "A3": [
+    7,
+    8
+   ]
+  }
+ },
+ {
+  "id": "PAL",
+  "naam": "Palplaat valbeveiliging",
+  "aantal": 4,
+  "mat": "C45 (tanden gehard) of S355, plaat 8 mm",
+  "waar": "op de koker van de cilinder, 2 per cilinder",
+  "alleen": "",
+  "bladen": {
+   "A4": [
+    6,
+    7
+   ],
+   "A3": [
+    9,
+    10
+   ]
+  }
+ }
+]

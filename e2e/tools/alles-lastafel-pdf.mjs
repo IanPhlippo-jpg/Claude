@@ -25,7 +25,7 @@ const beelden = `<section class="tekst"><h1>De lastafel op de heftafel</h1>
   ${beeld('valbeveiliging', 'Valbeveiliging: gele kap met zaagtand en de pal op de cilinder')}
   ${beeld('steunvlak', 'Gefreesd steunvlak met boring M16 op de hoek van het bovenframe')}
   ${beeld('onderframe', 'Onderframe: UNP 100, aggregaat, rollen, aanslagpennen, bedienkast')}</section>`;
-const delen = ['README: bronnen, wat er is, bestellijst', 'Beelden', `Tekeningen (${tekeningen.length} bladen, A3 liggend)`, `Schemaset (${schema.length} bladen, A3 liggend)`, 'Berekeningen', 'Eisen'];
+const delen = ['README: bronnen, wat er is, bestellijst', 'Beelden', 'Bouwplan (12 stappen)', 'Materiaallijsten', `Tekeningen (${tekeningen.length} bladen, A3 liggend)`, `Schemaset (${schema.length} bladen, A3 liggend)`, 'Berekeningen', 'Eisen'];
 const voorblad = `<section class="voor"><p class="klein">Lastafel op heftafel · versie 1 (2026-11-09)</p><h1>Lastafel 2400 x 1200 op een schaarheftafel van 4 ton</h1>
   <p class="sub">Nagemaakt van de DCT-video: 3D-lastafel Ø28 DG op een elektrohydraulische heftafel, 570 tot 1625 mm werkhoogte.</p>
   ${existsSync(`${DIR}/beelden/tafel-zij.png`) ? `<img class="fig voorfoto" src="${dataUrl(`${DIR}/beelden/tafel-zij.png`)}">` : ''}
@@ -51,6 +51,8 @@ pre { font-family: Consolas, monospace; font-size: 8pt; background: #f4f4f4; pad
 ${voorblad}
 ${mdDoc(`${DIR}/README.md`, 'readme')}
 ${beelden}
+${mdDoc(`${DIR}/docs/Bouwplan.md`, 'bouwplan')}
+${mdDoc(`${DIR}/docs/Materiaallijst.md`, 'materiaal')}
 ${tekeningen.join('\n')}
 ${schema.join('\n')}
 ${mdDoc(`${DIR}/docs/Berekeningen.md`, 'rekenblad')}

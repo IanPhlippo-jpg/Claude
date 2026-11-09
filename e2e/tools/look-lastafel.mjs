@@ -1,6 +1,6 @@
 // look: de lastafel op de schaarheftafel (voorbeelden/lastafel) in de app: de lift zonder tafel (zoals DCT's foto's),
 // de tafel in de middelste, laagste en hoogste stand, en de details (valbeveiliging, steunvlak, badge, middenpen).
-// Nodig: de dev-server met VITE_TEST_HOOKS op poort 5184. Gebruik: node e2e/tools/look-lastafel.mjs [lift|tafel|standen|detail]
+// Nodig: de dev-server met VITE_TEST_HOOKS op poort 5184. Gebruik: node e2e/tools/look-lastafel.mjs [lift|tafel|standen|detail|bouw]
 import { chromium } from 'playwright';
 import { readFileSync } from 'node:fs';
 const browser = await chromium.launch(process.platform === 'win32' ? { channel: process.env.PW_CHANNEL ?? 'msedge' } : { args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader'] });
@@ -55,6 +55,11 @@ if (doe('tafel')) {
 }
 if (doe('standen')) {
   for (const s of ['laag', 'hoog']) { await open(lees(`Lastafel-${s}.kcad`, zonderPedaal)); await kijk(s, 'Control+3'); }
+}
+if (doe('bouw')) {
+  // het bouwplan: de onderdelen stap voor stap (stand midden), telkens hetzelfde aanzicht
+  const stappen = [/^o[1237]$/, /^(o[1237]|s\d)$/, /^(o[1237]|s\d|c\d)$/, /^(o[1237]|s\d|c\d|b\d)$/, /^(o\d|s\d|c\d|b\d|h\d|p\d)$/, /./];
+  for (const [i, f] of stappen.entries()) { await open(lees('Lastafel.kcad', f)); await kijk(`bouw-${i + 1}`, 'Control+4', { draai: ['ArrowRight', 'ArrowRight', 'ArrowDown'] }); }
 }
 console.log('errors', errors);
 await browser.close();

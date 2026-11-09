@@ -1200,3 +1200,12 @@ elease; README en docs/04 bijgewerkt
 - [x] Tekeningen (ISO), bestellijst met bronnen, README, foto's zoals de video, afdruk-PDF
 - [x] typecheck, tests, commit en push
 - [x] Tafel als lasconstructie (blad, wanden, ribben) met de gaten in de schets: 541 gaten in ± 14 s in plaats van > 25 min
+
+## Lastafel: bouwplan, materiaallijsten en een artifact met alles (2026-11-09)
+- [x] Materiaallijsten uit het model: zaaglijst profielen, plaatlijst (laser), normdelen, kooponderdelen, verbruik, gewichten
+- [x] Bouwplan stap voor stap: voorbereiden, snijden, lassen, nabewerken, coaten, monteren, hydrauliek, elektro, inbedrijfstellen, keuren (EN 1570-1)
+- [x] Bouwschema-PDF (A4) met beelden per stap, in de afdruk-PDF opnemen
+- [x] Mallen 1:1 in A3 (armwang volledig) en A4 (kop- en middenmal) (op 100 %, op 100 % afdrukken, op de plaat plakken): armwangen (over meerdere bladen met overlap en paspunten), ogen en lippen met de asgaten (hart met kruis), hijsogen, kapzijde en palplaat met zaagtand, kopplaat; maten erop en een controlemaat van 100 mm
+- [x] Oog cilinder in het model gelijk aan de mal (zadel R45 op de buis, kop R34 om de pen)
+- [x] Artifact-pagina met alles: foto's, specificaties, bouwplan, materiaallijsten, bestellijst, berekeningen, tekeningen, schema's, downloads
+- [x] Controleren (pagina op gsm-breedte en donker), commit en push

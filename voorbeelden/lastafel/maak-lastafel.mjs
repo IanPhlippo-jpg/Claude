@@ -258,7 +258,9 @@ export function armpaarB() {
   for (const s of [1, -1]) cilX(o, 0, M.arm, 20, s * (M.Bx[1] - 1), s * 524, 'Astap rol Ø40');
   cilX(o, 0, cil.s, 45, -M.Bx[0] - 2, M.Bx[0] + 2, 'Cilinderbuis Ø90');
   for (const xs of [cil.x, -cil.x]) for (const [a, b] of [[-38, -26], [26, 38]]) {
-    profX(o, xs + a, xs + b, [[0, cil.s - 40], [cil.n, cil.s - 34], [cil.n + 34, cil.s], [cil.n, cil.s + 34], [0, cil.s + 40], [-30, cil.s]], 'Oog cilinder');
+    // oog (mal OOG-B): zijden op ±34, kop R34 om de pen, onderaan tot het zadel R45 op de buis (y 30 bij z ±34)
+    const kop = [...Array(9)].map((_, k) => { const t = Math.PI * (k / 8); return [cil.n + 34 * Math.sin(t), cil.s - 34 * Math.cos(t)]; });
+    profX(o, xs + a, xs + b, [[30, cil.s - 34], ...kop, [30, cil.s + 34]], 'Oog cilinder');
   }
   for (const xs of [cil.x, -cil.x]) cilX(o, cil.n, cil.s, 19.5, xs - 40, xs + 40, 'Pen stangoog Ø40');
   return o.doc();
