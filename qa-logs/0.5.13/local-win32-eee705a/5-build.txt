@@ -1,0 +1,71 @@
+$ npm run build
+# exit 0 after 41.5 s
+
+--- stdout ---
+
+> phlippo-cad@0.5.13 build
+> tsc -b && vite build
+
+[36mvite v7.3.7 [32mbuilding client environment for production...[36m[39m
+transforming...
+[32m✓[39m 395 modules transformed.
+rendering chunks...
+computing gzip size...
+[2mdist/[22m[32mindex.html                              [39m[1m[2m     1.10 kB[22m[1m[22m[2m │ gzip:     0.51 kB[22m
+[2mdist/[22m[32massets/replicad_single-BfZpIs5k.js      [39m[1m[2m    59.37 kB[22m[1m[22m
+[2mdist/[22m[32massets/replicad-DSoIoMtf.js             [39m[1m[2m   372.71 kB[22m[1m[22m
+[2mdist/[22m[32massets/rebuild.worker-DWqVkkIq.js       [39m[1m[2m   682.45 kB[22m[1m[22m
+[2mdist/[22m[32massets/occt.worker-ByY8tuBD.js          [39m[1m[2m   705.23 kB[22m[1m[22m
+[2mdist/[22m[32massets/replicad_single-B_1cTsn_.wasm    [39m[1m[2m22,980.27 kB[22m[1m[22m[2m │ gzip: 7,267.29 kB[22m
+[2mdist/[22m[35massets/index-DI-Br2Gb.css               [39m[1m[2m    84.38 kB[22m[1m[22m[2m │ gzip:    16.56 kB[22m
+[2mdist/[22m[36massets/designTableCommands-BmhHWdCI.js  [39m[1m[2m     1.24 kB[22m[1m[22m[2m │ gzip:     0.67 kB[22m
+[2mdist/[22m[36massets/previewWindow-PQccAi5c.js        [39m[1m[2m     1.63 kB[22m[1m[22m[2m │ gzip:     0.77 kB[22m
+[2mdist/[22m[36massets/DrawingTreeBody-DMUaN_rV.js      [39m[1m[2m     2.17 kB[22m[1m[22m[2m │ gzip:     0.99 kB[22m
+[2mdist/[22m[36massets/selfTest-Cp3KFxtp.js             [39m[1m[2m     3.24 kB[22m[1m[22m[2m │ gzip:     1.56 kB[22m
+[2mdist/[22m[36massets/SensorPM-DyCmTEZm.js             [39m[1m[2m     3.32 kB[22m[1m[22m[2m │ gzip:     1.15 kB[22m
+[2mdist/[22m[36massets/FastenerPM-EAGxtQo1.js           [39m[1m[2m     3.83 kB[22m[1m[22m[2m │ gzip:     1.35 kB[22m
+[2mdist/[22m[36massets/StandardPartsPane-YTViN4RY.js    [39m[1m[2m     4.08 kB[22m[1m[22m[2m │ gzip:     1.67 kB[22m
+[2mdist/[22m[36massets/designStudy-CmKyi3TQ.js          [39m[1m[2m     4.11 kB[22m[1m[22m[2m │ gzip:     1.56 kB[22m
+[2mdist/[22m[36massets/AnalysisPM2-BkDWjEtd.js          [39m[1m[2m     5.51 kB[22m[1m[22m[2m │ gzip:     1.78 kB[22m
+[2mdist/[22m[36massets/configureDialog-C-bY_Frk.js      [39m[1m[2m     5.54 kB[22m[1m[22m[2m │ gzip:     2.13 kB[22m
+[2mdist/[22m[36massets/renderDialogs-AWCSz73g.js        [39m[1m[2m     5.93 kB[22m[1m[22m[2m │ gzip:     1.76 kB[22m
+[2mdist/[22m[36massets/sheetExport-DS9RU2gm.js          [39m[1m[2m     5.97 kB[22m[1m[22m[2m │ gzip:     2.75 kB[22m
+[2mdist/[22m[36massets/PlanePM-BADqVY4r.js              [39m[1m[2m     6.01 kB[22m[1m[22m[2m │ gzip:     1.67 kB[22m
+[2mdist/[22m[36massets/SectionViewPM-D2C0uGiF.js        [39m[1m[2m     6.31 kB[22m[1m[22m[2m │ gzip:     1.96 kB[22m
+[2mdist/[22m[36massets/ViewPane-NTcJhU8w.js             [39m[1m[2m     6.47 kB[22m[1m[22m[2m │ gzip:     2.94 kB[22m
+[2mdist/[22m[36massets/assemblyDialogs-B-HLjAW2.js      [39m[1m[2m     6.53 kB[22m[1m[22m[2m │ gzip:     2.14 kB[22m
+[2mdist/[22m[36massets/AssemblyTab-B0zsCSPi.js          [39m[1m[2m     7.11 kB[22m[1m[22m[2m │ gzip:     1.97 kB[22m
+[2mdist/[22m[36massets/AutoTolerancePM-BrQBXlUf.js      [39m[1m[2m     7.34 kB[22m[1m[22m[2m │ gzip:     2.00 kB[22m
+[2mdist/[22m[36massets/SheetDialogs-sGiJNIzB.js         [39m[1m[2m     7.57 kB[22m[1m[22m[2m │ gzip:     2.15 kB[22m
+[2mdist/[22m[36massets/DrawingTabs-CA9vq4Zf.js          [39m[1m[2m     8.08 kB[22m[1m[22m[2m │ gzip:     1.93 kB[22m
+[2mdist/[22m[36massets/Sketch3DPM-BxX0siQ2.js           [39m[1m[2m     8.57 kB[22m[1m[22m[2m │ gzip:     3.05 kB[22m
+[2mdist/[22m[36massets/RefGeomPM-DxolUhHy.js            [39m[1m[2m     8.60 kB[22m[1m[22m[2m │ gzip:     2.39 kB[22m
+[2mdist/[22m[36massets/equations-DlKFEOvN.js            [39m[1m[2m     9.21 kB[22m[1m[22m[2m │ gzip:     2.98 kB[22m
+[2mdist/[22m[36massets/ConfigurationPanel-UnEq8NW9.js   [39m[1m[2m     9.32 kB[22m[1m[22m[2m │ gzip:     2.73 kB[22m
+[2mdist/[22m[36massets/appearanceDialog-qsn08IHZ.js     [39m[1m[2m     9.61 kB[22m[1m[22m[2m │ gzip:     3.08 kB[22m
+[2mdist/[22m[36massets/DrawingExtras-Dqbzg3Cd.js        [39m[1m[2m    10.05 kB[22m[1m[22m[2m │ gzip:     3.50 kB[22m
+[2mdist/[22m[36massets/AssemblyTreeBody-BQVUcYGU.js     [39m[1m[2m    10.19 kB[22m[1m[22m[2m │ gzip:     3.12 kB[22m
+[2mdist/[22m[36massets/DraftAnalysisPM-CbxtfpGh.js      [39m[1m[2m    10.92 kB[22m[1m[22m[2m │ gzip:     2.59 kB[22m
+[2mdist/[22m[36massets/evaluateDialogs-BnoPoHtx.js      [39m[1m[2m    11.43 kB[22m[1m[22m[2m │ gzip:     3.34 kB[22m
+[2mdist/[22m[36massets/AppearancesPane-15JFz_g0.js      [39m[1m[2m    11.68 kB[22m[1m[22m[2m │ gzip:     4.04 kB[22m
+[2mdist/[22m[36massets/treeDialogs-DGqiq7ND.js          [39m[1m[2m    12.44 kB[22m[1m[22m[2m │ gzip:     3.91 kB[22m
+[2mdist/[22m[36massets/materialDialog-CTlOhB2a.js       [39m[1m[2m    13.03 kB[22m[1m[22m[2m │ gzip:     3.93 kB[22m
+[2mdist/[22m[36massets/customize-CHgxnPkR.js            [39m[1m[2m    14.87 kB[22m[1m[22m[2m │ gzip:     4.28 kB[22m
+[2mdist/[22m[36massets/evaluate-Ctn5nsA0.js             [39m[1m[2m    16.23 kB[22m[1m[22m[2m │ gzip:     5.25 kB[22m
+[2mdist/[22m[36massets/dialogs-CAu_S-RD.js              [39m[1m[2m    24.07 kB[22m[1m[22m[2m │ gzip:     6.86 kB[22m
+[2mdist/[22m[36massets/evaluateDialogs2-3NYg8yxz.js     [39m[1m[2m    25.05 kB[22m[1m[22m[2m │ gzip:     6.63 kB[22m
+[2mdist/[22m[36massets/MotionTimeline-C1VnqMRH.js       [39m[1m[2m    26.56 kB[22m[1m[22m[2m │ gzip:     6.92 kB[22m
+[2mdist/[22m[36massets/AssemblyPM-DduxsC_d.js           [39m[1m[2m    27.45 kB[22m[1m[22m[2m │ gzip:     6.51 kB[22m
+[2mdist/[22m[36massets/DrawingSheetView-Ch3446jD.js     [39m[1m[2m    51.45 kB[22m[1m[22m[2m │ gzip:    16.72 kB[22m
+[2mdist/[22m[36massets/options-CHVOW5MR.js              [39m[1m[2m    52.90 kB[22m[1m[22m[2m │ gzip:    14.28 kB[22m
+[2mdist/[22m[36massets/DrawingPM-DFxJKH3R.js            [39m[1m[2m    53.70 kB[22m[1m[22m[2m │ gzip:    11.21 kB[22m
+[2mdist/[22m[36massets/csg-DUo1x2C3.js                  [39m[1m[2m   105.39 kB[22m[1m[22m[2m │ gzip:    32.47 kB[22m
+[2mdist/[22m[36massets/react-BgaH_3CY.js                [39m[1m[2m   223.35 kB[22m[1m[22m[2m │ gzip:    69.70 kB[22m
+[2mdist/[22m[36massets/PropertyPanel-B6tVA4eV.js        [39m[1m[2m   314.55 kB[22m[1m[22m[2m │ gzip:    56.43 kB[22m
+[2mdist/[22m[36massets/kernel-F9Qq7Wi5.js               [39m[1m[2m   525.90 kB[22m[1m[22m[2m │ gzip:   182.60 kB[22m
+[2mdist/[22m[36massets/three-CCz4rHc3.js                [39m[1m[2m   728.92 kB[22m[1m[22m[2m │ gzip:   197.58 kB[22m
+[2mdist/[22m[36massets/index-Pia6lunB.js                [39m[1m[2m   782.72 kB[22m[1m[22m[2m │ gzip:   221.03 kB[22m
+[32m✓ built in 13.68s[39m
+
+--- stderr ---
+[33m[plugin vite:resolve] Module "node:module" has been externalized for browser compatibility, imported by "C:/Users/ianph/OneDrive/Bureaublad/Phlippo CAD/Claude/node_modules/replicad-opencascadejs/dist/replicad_single.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.[39m

@@ -1133,4 +1133,4 @@ elease; README en docs/04 bijgewerkt
 - [x] F201: Sketch Text exact (letterkrommen als Bezier-randen); Earcut-fout in de mesh-kern (O te vol) opgelost
 - [x] B-rep-regressie (14 scripts) en volledige unit-run op de nieuwe kruiscontrole; README-tellingen; docs/30-qa-0.5.12.md
 - [ ] F97/F151/F196/F49: installer en packaged self-test op de nieuwe SHA; ongesigneerd eerlijk vermelden
-- [ ] Rest van het register (F112 opties, F193/F194 UI, F134 line budget, F137 rebuild-budget) waar tijd over is; versie 0.5.13, commit en push
+- [~] Rest van het register (F112 opties, F193/F194 UI, F134 line budget, F137 rebuild-budget) waar tijd over is; versie 0.5.13, commit en push
