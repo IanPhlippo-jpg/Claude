@@ -1,6 +1,8 @@
 node_modules
 dist
 *.log
+# the CI job logs kept as evidence (QA 0.5.12 F93/F149)
+!qa-logs/**/*.log
 .DS_Store
 referentie-video
 e2e-out

@@ -1,0 +1,542 @@
+checks	UNKNOWN STEP	﻿2026-11-03T08:05:47.5860177Z Current runner version: '2.338.2'
+checks	UNKNOWN STEP	2026-11-03T08:05:47.5886193Z ##[group]Runner Image Provisioner
+checks	UNKNOWN STEP	2026-11-03T08:05:47.5887158Z Hosted Compute Agent
+checks	UNKNOWN STEP	2026-11-03T08:05:47.5887762Z Version: 20261021.618
+checks	UNKNOWN STEP	2026-11-03T08:05:47.5888511Z Commit: 21505ad2541d5be6135ed84fc33697146cf75b8e
+checks	UNKNOWN STEP	2026-11-03T08:05:47.5889347Z Build Date: 2026-10-21T00:45:21Z
+checks	UNKNOWN STEP	2026-11-03T08:05:47.5890102Z Worker ID: {6788b0a0-68ae-4c64-9dc0-16a16f22e585}
+checks	UNKNOWN STEP	2026-11-03T08:05:47.5890835Z Region: westus
+checks	UNKNOWN STEP	2026-11-03T08:05:47.5891432Z Cloud: Azure
+checks	UNKNOWN STEP	2026-11-03T08:05:47.5892054Z ##[endgroup]
+checks	UNKNOWN STEP	2026-11-03T08:05:47.5893707Z ##[group]Operating System
+checks	UNKNOWN STEP	2026-11-03T08:05:47.5894450Z Ubuntu
+checks	UNKNOWN STEP	2026-11-03T08:05:47.5895419Z 24.04.5
+checks	UNKNOWN STEP	2026-11-03T08:05:47.5896026Z LTS
+checks	UNKNOWN STEP	2026-11-03T08:05:47.5896622Z ##[endgroup]
+checks	UNKNOWN STEP	2026-11-03T08:05:47.5897278Z ##[group]Runner Image
+checks	UNKNOWN STEP	2026-11-03T08:05:47.5897956Z Image: ubuntu-24.04
+checks	UNKNOWN STEP	2026-11-03T08:05:47.5898570Z Version: 20261025.353.1
+checks	UNKNOWN STEP	2026-11-03T08:05:47.5899890Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261025.353/images/ubuntu/Ubuntu2404-Readme.md
+checks	UNKNOWN STEP	2026-11-03T08:05:47.5901538Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261025.353
+checks	UNKNOWN STEP	2026-11-03T08:05:47.5902576Z ##[endgroup]
+checks	UNKNOWN STEP	2026-11-03T08:05:47.5903856Z ##[group]GITHUB_TOKEN Permissions
+checks	UNKNOWN STEP	2026-11-03T08:05:47.5906335Z Contents: read
+checks	UNKNOWN STEP	2026-11-03T08:05:47.5907017Z Metadata: read
+checks	UNKNOWN STEP	2026-11-03T08:05:47.5907649Z Packages: read
+checks	UNKNOWN STEP	2026-11-03T08:05:47.5908655Z ##[endgroup]
+checks	UNKNOWN STEP	2026-11-03T08:05:47.5910999Z Secret source: Actions
+checks	UNKNOWN STEP	2026-11-03T08:05:47.5912087Z Cache mode: write
+checks	UNKNOWN STEP	2026-11-03T08:05:47.5912866Z Prepare workflow directory
+checks	UNKNOWN STEP	2026-11-03T08:05:47.6872431Z Prepare all required actions
+checks	UNKNOWN STEP	2026-11-03T08:05:47.6919915Z Getting action download info
+checks	UNKNOWN STEP	2026-11-03T08:05:48.0281998Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+checks	UNKNOWN STEP	2026-11-03T08:05:48.1636817Z Download action repository 'actions/setup-node@v4' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+checks	UNKNOWN STEP	2026-11-03T08:05:48.4402614Z Complete job name: checks
+checks	UNKNOWN STEP	2026-11-03T08:05:48.6642256Z ##[group]Run actions/checkout@v4
+checks	UNKNOWN STEP	2026-11-03T08:05:48.6643684Z with:
+checks	UNKNOWN STEP	2026-11-03T08:05:48.6644532Z   repository: IanPhlippo-jpg/Claude
+checks	UNKNOWN STEP	2026-11-03T08:05:48.6652629Z   token: ***
+checks	UNKNOWN STEP	2026-11-03T08:05:48.6653446Z   ssh-strict: true
+checks	UNKNOWN STEP	2026-11-03T08:05:48.6654305Z   ssh-user: git
+checks	UNKNOWN STEP	2026-11-03T08:05:48.6655353Z   persist-credentials: true
+checks	UNKNOWN STEP	2026-11-03T08:05:48.6656266Z   clean: true
+checks	UNKNOWN STEP	2026-11-03T08:05:48.6657091Z   sparse-checkout-cone-mode: true
+checks	UNKNOWN STEP	2026-11-03T08:05:48.6658033Z   fetch-depth: 1
+checks	UNKNOWN STEP	2026-11-03T08:05:48.6658807Z   fetch-tags: false
+checks	UNKNOWN STEP	2026-11-03T08:05:48.6659588Z   show-progress: true
+checks	UNKNOWN STEP	2026-11-03T08:05:48.6660352Z   lfs: false
+checks	UNKNOWN STEP	2026-11-03T08:05:48.6661089Z   submodules: false
+checks	UNKNOWN STEP	2026-11-03T08:05:48.6661891Z   set-safe-directory: true
+checks	UNKNOWN STEP	2026-11-03T08:05:48.6662853Z   allow-unsafe-pr-checkout: false
+checks	UNKNOWN STEP	2026-11-03T08:05:48.6664475Z ##[endgroup]
+checks	UNKNOWN STEP	2026-11-03T08:05:48.9631552Z Syncing repository: IanPhlippo-jpg/Claude
+checks	UNKNOWN STEP	2026-11-03T08:05:48.9634526Z ##[group]Getting Git version info
+checks	UNKNOWN STEP	2026-11-03T08:05:48.9636062Z Working directory is '/home/runner/work/Claude/Claude'
+checks	UNKNOWN STEP	2026-11-03T08:05:48.9637771Z [command]/usr/bin/git version
+checks	UNKNOWN STEP	2026-11-03T08:05:48.9722512Z git version 2.56.0
+checks	UNKNOWN STEP	2026-11-03T08:05:48.9747843Z ##[endgroup]
+checks	UNKNOWN STEP	2026-11-03T08:05:48.9767876Z Temporarily overriding HOME='/home/runner/work/_temp/791097b1-157b-455b-a719-a80f9e766e5b' before making global git config changes
+checks	UNKNOWN STEP	2026-11-03T08:05:48.9770224Z Adding repository directory to the temporary git global config as a safe directory
+checks	UNKNOWN STEP	2026-11-03T08:05:48.9789816Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/Claude/Claude
+checks	UNKNOWN STEP	2026-11-03T08:05:48.9860916Z Deleting the contents of '/home/runner/work/Claude/Claude'
+checks	UNKNOWN STEP	2026-11-03T08:05:48.9871325Z ##[group]Initializing the repository
+checks	UNKNOWN STEP	2026-11-03T08:05:48.9873288Z [command]/usr/bin/git init /home/runner/work/Claude/Claude
+checks	UNKNOWN STEP	2026-11-03T08:05:49.0032167Z hint: Using 'master' as the name for the initial branch. This default branch name
+checks	UNKNOWN STEP	2026-11-03T08:05:49.0034642Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+checks	UNKNOWN STEP	2026-11-03T08:05:49.0037515Z hint: to use in all of your new repositories, which will suppress this warning,
+checks	UNKNOWN STEP	2026-11-03T08:05:49.0039187Z hint: call:
+checks	UNKNOWN STEP	2026-11-03T08:05:49.0040269Z hint:
+checks	UNKNOWN STEP	2026-11-03T08:05:49.0041481Z hint: 	git config --global init.defaultBranch <name>
+checks	UNKNOWN STEP	2026-11-03T08:05:49.0042898Z hint:
+checks	UNKNOWN STEP	2026-11-03T08:05:49.0044158Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+checks	UNKNOWN STEP	2026-11-03T08:05:49.0046374Z hint: 'development'. The just-created branch can be renamed via this command:
+checks	UNKNOWN STEP	2026-11-03T08:05:49.0047771Z hint:
+checks	UNKNOWN STEP	2026-11-03T08:05:49.0048586Z hint: 	git branch -m <name>
+checks	UNKNOWN STEP	2026-11-03T08:05:49.0049530Z hint:
+checks	UNKNOWN STEP	2026-11-03T08:05:49.0050706Z hint: Disable this message with "git config set advice.defaultBranchName false"
+checks	UNKNOWN STEP	2026-11-03T08:05:49.0057458Z Initialized empty Git repository in /home/runner/work/Claude/Claude/.git/
+checks	UNKNOWN STEP	2026-11-03T08:05:49.0077580Z [command]/usr/bin/git remote add origin https://github.com/IanPhlippo-jpg/Claude
+checks	UNKNOWN STEP	2026-11-03T08:05:49.0149284Z ##[endgroup]
+checks	UNKNOWN STEP	2026-11-03T08:05:49.0151216Z ##[group]Disabling automatic garbage collection
+checks	UNKNOWN STEP	2026-11-03T08:05:49.0156361Z [command]/usr/bin/git config --local gc.auto 0
+checks	UNKNOWN STEP	2026-11-03T08:05:49.0234457Z ##[endgroup]
+checks	UNKNOWN STEP	2026-11-03T08:05:49.0236164Z ##[group]Setting up auth
+checks	UNKNOWN STEP	2026-11-03T08:05:49.0237501Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+checks	UNKNOWN STEP	2026-11-03T08:05:49.0286355Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+checks	UNKNOWN STEP	2026-11-03T08:05:49.0710906Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+checks	UNKNOWN STEP	2026-11-03T08:05:49.0762480Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+checks	UNKNOWN STEP	2026-11-03T08:05:49.1030132Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+checks	UNKNOWN STEP	2026-11-03T08:05:49.1078510Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+checks	UNKNOWN STEP	2026-11-03T08:05:49.1388463Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+checks	UNKNOWN STEP	2026-11-03T08:05:49.1417644Z ##[endgroup]
+checks	UNKNOWN STEP	2026-11-03T08:05:49.1419528Z ##[group]Fetching the repository
+checks	UNKNOWN STEP	2026-11-03T08:05:49.1438240Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +db0d4b27d857c42b898bcec68c65240b3fe855e9:refs/remotes/origin/claude/fase1-schetser
+checks	UNKNOWN STEP	2026-11-03T08:05:51.3157607Z From https://github.com/IanPhlippo-jpg/Claude
+checks	UNKNOWN STEP	2026-11-03T08:05:51.3158673Z  * [new ref]         db0d4b27d857c42b898bcec68c65240b3fe855e9 -> origin/claude/fase1-schetser
+checks	UNKNOWN STEP	2026-11-03T08:05:51.3163013Z ##[endgroup]
+checks	UNKNOWN STEP	2026-11-03T08:05:51.3164055Z ##[group]Determining the checkout info
+checks	UNKNOWN STEP	2026-11-03T08:05:51.3166302Z ##[endgroup]
+checks	UNKNOWN STEP	2026-11-03T08:05:51.3172513Z [command]/usr/bin/git sparse-checkout disable
+checks	UNKNOWN STEP	2026-11-03T08:05:51.3245808Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+checks	UNKNOWN STEP	2026-11-03T08:05:51.3296706Z ##[group]Checking out the ref
+checks	UNKNOWN STEP	2026-11-03T08:05:51.3303691Z [command]/usr/bin/git checkout --progress --force -B claude/fase1-schetser refs/remotes/origin/claude/fase1-schetser
+checks	UNKNOWN STEP	2026-11-03T08:05:51.4435386Z Switched to a new branch 'claude/fase1-schetser'
+checks	UNKNOWN STEP	2026-11-03T08:05:51.4445936Z branch 'claude/fase1-schetser' set up to track 'origin/claude/fase1-schetser'.
+checks	UNKNOWN STEP	2026-11-03T08:05:51.4450832Z ##[endgroup]
+checks	UNKNOWN STEP	2026-11-03T08:05:51.4510718Z [command]/usr/bin/git log -1 --format=%H
+checks	UNKNOWN STEP	2026-11-03T08:05:51.4548575Z db0d4b27d857c42b898bcec68c65240b3fe855e9
+checks	UNKNOWN STEP	2026-11-03T08:05:51.5662704Z ##[group]Run actions/setup-node@v4
+checks	UNKNOWN STEP	2026-11-03T08:05:51.5663145Z with:
+checks	UNKNOWN STEP	2026-11-03T08:05:51.5663422Z   node-version-file: .nvmrc
+checks	UNKNOWN STEP	2026-11-03T08:05:51.5663733Z   cache: npm
+checks	UNKNOWN STEP	2026-11-03T08:05:51.5663997Z   always-auth: false
+checks	UNKNOWN STEP	2026-11-03T08:05:51.5664284Z   check-latest: false
+checks	UNKNOWN STEP	2026-11-03T08:05:51.5667578Z   token: ***
+checks	UNKNOWN STEP	2026-11-03T08:05:51.5667874Z ##[endgroup]
+checks	UNKNOWN STEP	2026-11-03T08:05:51.7251767Z Resolved .nvmrc as 22
+checks	UNKNOWN STEP	2026-11-03T08:05:51.7346076Z Found in cache @ /opt/hostedtoolcache/node/22.23.4/x64
+checks	UNKNOWN STEP	2026-11-03T08:05:51.7352494Z (node:2331) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+checks	UNKNOWN STEP	2026-11-03T08:05:51.7353776Z (Use `node --trace-deprecation ...` to show where the warning was created)
+checks	UNKNOWN STEP	2026-11-03T08:05:51.7357829Z ##[group]Environment details
+checks	UNKNOWN STEP	2026-11-03T08:05:52.1829680Z node: v22.23.4
+checks	UNKNOWN STEP	2026-11-03T08:05:52.1830114Z npm: 10.9.9
+checks	UNKNOWN STEP	2026-11-03T08:05:52.1830464Z yarn: 1.22.22
+checks	UNKNOWN STEP	2026-11-03T08:05:52.1831530Z ##[endgroup]
+checks	UNKNOWN STEP	2026-11-03T08:05:52.1862838Z [command]/opt/hostedtoolcache/node/22.23.4/x64/bin/npm config get cache
+checks	UNKNOWN STEP	2026-11-03T08:05:52.3096038Z /home/runner/.npm
+checks	UNKNOWN STEP	2026-11-03T08:05:52.5908597Z Cache hit for: node-cache-Linux-x64-npm-7e50782abaabdfcbc792723b7c40a6f079de0dce14d505136bcdc0c470d819aa
+checks	UNKNOWN STEP	2026-11-03T08:05:52.6030843Z (node:2331) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+checks	UNKNOWN STEP	2026-11-03T08:05:53.8623387Z Received 25165824 of 79688756 (31.6%), 24.0 MBs/sec
+checks	UNKNOWN STEP	2026-11-03T08:05:54.2180006Z Received 79688756 of 79688756 (100.0%), 56.1 MBs/sec
+checks	UNKNOWN STEP	2026-11-03T08:05:54.2181129Z Cache Size: ~76 MB (79688756 B)
+checks	UNKNOWN STEP	2026-11-03T08:05:54.2243303Z [command]/usr/bin/tar -xf /home/runner/work/_temp/f7bbd205-630a-4270-a24f-c513117ba7bb/cache.tzst -P -C /home/runner/work/Claude/Claude --use-compress-program unzstd
+checks	UNKNOWN STEP	2026-11-03T08:05:54.4314173Z Cache restored successfully
+checks	UNKNOWN STEP	2026-11-03T08:05:54.4353941Z Cache restored from key: node-cache-Linux-x64-npm-7e50782abaabdfcbc792723b7c40a6f079de0dce14d505136bcdc0c470d819aa
+checks	UNKNOWN STEP	2026-11-03T08:05:54.4903968Z ##[group]Run npm ci
+checks	UNKNOWN STEP	2026-11-03T08:05:54.4904350Z ^[[36;1mnpm ci^[[0m
+checks	UNKNOWN STEP	2026-11-03T08:05:54.4935034Z shell: /usr/bin/bash -e {0}
+checks	UNKNOWN STEP	2026-11-03T08:05:54.4935342Z ##[endgroup]
+checks	UNKNOWN STEP	2026-11-03T08:05:57.0686686Z npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+checks	UNKNOWN STEP	2026-11-03T08:05:57.1098176Z npm warn deprecated rimraf@2.6.3: Rimraf versions prior to v4 are no longer supported
+checks	UNKNOWN STEP	2026-11-03T08:05:57.2017193Z npm warn deprecated whatwg-encoding@3.1.1: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+checks	UNKNOWN STEP	2026-11-03T08:05:57.2078229Z npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+checks	UNKNOWN STEP	2026-11-03T08:05:57.5692473Z npm warn deprecated boolean@3.2.0: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
+checks	UNKNOWN STEP	2026-11-03T08:06:00.7063527Z 
+checks	UNKNOWN STEP	2026-11-03T08:06:00.7064517Z added 463 packages, and audited 464 packages in 6s
+checks	UNKNOWN STEP	2026-11-03T08:06:00.7065552Z 
+checks	UNKNOWN STEP	2026-11-03T08:06:00.7066276Z 76 packages are looking for funding
+checks	UNKNOWN STEP	2026-11-03T08:06:00.7066836Z   run `npm fund` for details
+checks	UNKNOWN STEP	2026-11-03T08:06:00.7336246Z 
+checks	UNKNOWN STEP	2026-11-03T08:06:00.7366678Z 15 moderate severity vulnerabilities
+checks	UNKNOWN STEP	2026-11-03T08:06:00.7367330Z 
+checks	UNKNOWN STEP	2026-11-03T08:06:00.7368070Z To address all issues (including breaking changes), run:
+checks	UNKNOWN STEP	2026-11-03T08:06:00.7368698Z   npm audit fix --force
+checks	UNKNOWN STEP	2026-11-03T08:06:00.7368960Z 
+checks	UNKNOWN STEP	2026-11-03T08:06:00.7369170Z Run `npm audit` for details.
+checks	UNKNOWN STEP	2026-11-03T08:06:00.8260885Z ##[group]Run npm run typecheck
+checks	UNKNOWN STEP	2026-11-03T08:06:00.8261243Z ^[[36;1mnpm run typecheck^[[0m
+checks	UNKNOWN STEP	2026-11-03T08:06:00.8282157Z shell: /usr/bin/bash -e {0}
+checks	UNKNOWN STEP	2026-11-03T08:06:00.8282436Z ##[endgroup]
+checks	UNKNOWN STEP	2026-11-03T08:06:00.9330289Z 
+checks	UNKNOWN STEP	2026-11-03T08:06:00.9331120Z > phlippo-cad@0.5.11 typecheck
+checks	UNKNOWN STEP	2026-11-03T08:06:00.9331796Z > tsc -b
+checks	UNKNOWN STEP	2026-11-03T08:06:00.9332099Z 
+checks	UNKNOWN STEP	2026-11-03T08:06:24.9378255Z ##[group]Run npm test
+checks	UNKNOWN STEP	2026-11-03T08:06:24.9378785Z ^[[36;1mnpm test^[[0m
+checks	UNKNOWN STEP	2026-11-03T08:06:24.9399360Z shell: /usr/bin/bash -e {0}
+checks	UNKNOWN STEP	2026-11-03T08:06:24.9399632Z ##[endgroup]
+checks	UNKNOWN STEP	2026-11-03T08:06:25.0432952Z 
+checks	UNKNOWN STEP	2026-11-03T08:06:25.0434147Z > phlippo-cad@0.5.11 test
+checks	UNKNOWN STEP	2026-11-03T08:06:25.0435102Z > vitest run
+checks	UNKNOWN STEP	2026-11-03T08:06:25.0435384Z 
+checks	UNKNOWN STEP	2026-11-03T08:06:25.3582425Z 
+checks	UNKNOWN STEP	2026-11-03T08:06:25.3584520Z ^[[1m^[[30m^[[46m RUN ^[[49m^[[39m^[[22m ^[[36mv5.0.5 ^[[39m^[[90m/home/runner/work/Claude/Claude^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:25.3585568Z 
+checks	UNKNOWN STEP	2026-11-03T08:06:25.9036085Z  ^[[32m✓^[[39m src/core/solver/solver.test.ts ^[[2m(^[[22m^[[2m18 tests^[[22m^[[2m)^[[22m^[[32m 42^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:26.1917335Z  ^[[32m✓^[[39m src/core/document/persistence.test.ts ^[[2m(^[[22m^[[2m10 tests^[[22m^[[2m)^[[22m^[[32m 25^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:27.1137512Z  ^[[32m✓^[[39m src/core/features/plastics.test.ts ^[[2m(^[[22m^[[2m12 tests^[[22m^[[2m)^[[22m^[[33m 796^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:27.1139204Z    ^[[32m✓^[[39m Dome (QA v0.5.1 F121) ^[[2m(5)^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:06:27.1146164Z      ^[[33m^[[2m✓^[[22m^[[39m on a square face: rises straight up from the edges to the distance at the centre; Reverse cuts in^[[33m 562^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:27.5487340Z  ^[[32m✓^[[39m src/core/sketch/edit.test.ts ^[[2m(^[[22m^[[2m7 tests^[[22m^[[2m)^[[22m^[[32m 39^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:28.0837416Z  ^[[32m✓^[[39m src/core/features/edgesets.test.ts ^[[2m(^[[22m^[[2m5 tests^[[22m^[[2m)^[[22m^[[33m 938^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:28.0866099Z    ^[[32m✓^[[39m body edges after booleans ^[[2m(1)^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:06:28.0917362Z      ^[[33m^[[2m✓^[[22m^[[39m a plate with two holes has 12 straight edges and 4 closed rims, no fragments^[[33m 457^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:31.6826999Z  ^[[32m✓^[[39m src/core/features/patterns2.test.ts ^[[2m(^[[22m^[[2m7 tests^[[22m^[[2m)^[[22m^[[33m 3444^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:31.6956393Z    ^[[32m✓^[[39m more patterns ^[[2m(4)^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:06:31.6986729Z      ^[[33m^[[2m✓^[[22m^[[39m Table Driven Pattern: one hole per table row^[[33m 1657^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:31.7073701Z      ^[[33m^[[2m✓^[[22m^[[39m Curve Driven Pattern: equal spacing along a sketched line^[[33m 875^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:31.7117726Z      ^[[33m^[[2m✓^[[22m^[[39m Variable Pattern: instances with their own diameter^[[33m 727^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:32.4457333Z  ^[[32m✓^[[39m src/core/assembly/assembly.test.ts ^[[2m(^[[22m^[[2m5 tests^[[22m^[[2m)^[[22m^[[32m 183^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:33.7267084Z  ^[[32m✓^[[39m src/core/features/compositeCurve.test.ts ^[[2m(^[[22m^[[2m5 tests^[[22m^[[2m)^[[22m^[[33m 768^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:33.7326462Z    ^[[32m✓^[[39m composite curve ^[[2m(5)^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:06:33.7356670Z      ^[[33m^[[2m✓^[[22m^[[39m two top edges of a block make one curve, and a circle swept along it follows both^[[33m 354^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:33.7477047Z      ^[[33m^[[2m✓^[[22m^[[39m Curve Through XYZ Points runs through every point and can be a sweep path^[[33m 396^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:34.2881299Z  ^[[32m✓^[[39m src/core/features/surfaces.test.ts ^[[2m(^[[22m^[[2m4 tests^[[22m^[[2m)^[[22m^[[32m 47^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:35.1156888Z  ^[[32m✓^[[39m src/core/features/weldments.test.ts ^[[2m(^[[22m^[[2m7 tests^[[22m^[[2m)^[[22m^[[33m 302^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:35.9657456Z  ^[[32m✓^[[39m src/core/features/features.test.ts ^[[2m(^[[22m^[[2m8 tests^[[22m^[[2m)^[[22m^[[33m 360^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:36.5964216Z  ^[[32m✓^[[39m src/core/assembly/mateStatus.test.ts ^[[2m(^[[22m^[[2m9 tests^[[22m^[[2m)^[[22m^[[32m 77^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:37.7901974Z  ^[[32m✓^[[39m src/core/features/rib.test.ts ^[[2m(^[[22m^[[2m7 tests^[[22m^[[2m)^[[22m^[[33m 885^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:38.6922602Z  ^[[32m✓^[[39m src/core/features/sheetmetal4.test.ts ^[[2m(^[[22m^[[2m7 tests^[[22m^[[2m)^[[22m^[[33m 474^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:38.6966181Z    ^[[32m✓^[[39m sheet metal extras ^[[2m(7)^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:06:38.7026812Z      ^[[33m^[[2m✓^[[22m^[[39m Vent: the cut is the boundary minus the ribs and the spar^[[33m 304^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:39.6133471Z  ^[[32m✓^[[39m src/core/features/evaluate2.test.ts ^[[2m(^[[22m^[[2m7 tests^[[22m^[[2m)^[[22m^[[32m 228^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:41.1397484Z  ^[[32m✓^[[39m src/core/features/pattern.test.ts ^[[2m(^[[22m^[[2m7 tests^[[22m^[[2m)^[[22m^[[33m 897^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:41.1452019Z    ^[[32m✓^[[39m patterns ^[[2m(2)^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:06:41.1476264Z      ^[[33m^[[2m✓^[[22m^[[39m linear pattern of a cut hole makes 4 holes^[[33m 649^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:42.6197308Z  ^[[32m✓^[[39m src/core/features/jogmiter.test.ts ^[[2m(^[[22m^[[2m4 tests^[[22m^[[2m)^[[22m^[[33m 934^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:42.6199423Z    ^[[32m✓^[[39m Sheet metal Jog and Miter Flange ^[[2m(4)^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:06:42.6201411Z      ^[[33m^[[2m✓^[[22m^[[39m jog: a line across the bottom face moves one half down by the offset, with a web^[[33m 629^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:43.3636925Z  ^[[32m✓^[[39m src/core/features/sheetmetal.test.ts ^[[2m(^[[22m^[[2m6 tests^[[22m^[[2m)^[[22m^[[32m 201^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:44.4622889Z  ^[[32m✓^[[39m src/qa/qaBrep.test.ts ^[[2m(^[[22m^[[2m13 tests^[[22m^[[2m)^[[22m^[[33m 15664^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:44.4666359Z    ^[[32m✓^[[39m QA T1 on the B-rep kernel ^[[2m(5)^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:06:44.4668412Z      ^[[33m^[[2m✓^[[22m^[[39m fillet R2 on the rim of a Ø35 hole is exact and follows the hole to Ø50^[[33m 3763^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:44.4696607Z      ^[[33m^[[2m✓^[[22m^[[39m the same on the rim of a hole made by cut^[[33m 1395^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:44.4724077Z      ^[[33m^[[2m✓^[[22m^[[39m the same on the rim of a hole made by holeTool^[[33m 1425^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:44.4726252Z      ^[[33m^[[2m✓^[[22m^[[39m the same on the rim of a hole made by bottomRim^[[33m 1252^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:44.4728216Z      ^[[33m^[[2m✓^[[22m^[[39m an edge picked on the mesh body (its reference carries the face names) is found on the exact body^[[33m 1459^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:44.4729930Z    ^[[32m✓^[[39m plastic part features on the B-rep kernel (QA F51/F121) ^[[2m(1)^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:06:44.4731419Z      ^[[33m^[[2m✓^[[22m^[[39m a Dome on a round pad is an exact sphere segment^[[33m 3113^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:44.4732657Z    ^[[32m✓^[[39m QA wrap on the B-rep kernel ^[[2m(2)^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:06:44.4734393Z      ^[[33m^[[2m✓^[[22m^[[39m Emboss 2 mm keeps the roll exact and adds the wrapped patch (release path, was 138 of 210 as a faceted body)^[[33m 1130^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:44.4736775Z      ^[[33m^[[2m✓^[[22m^[[39m Deboss 2 mm keeps the roll exact and cuts the patch (was 262 of 190)^[[33m 823^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:45.2836256Z  ^[[32m✓^[[39m src/core/features/multibody.test.ts ^[[2m(^[[22m^[[2m5 tests^[[22m^[[2m)^[[22m^[[32m 253^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:45.5101773Z  ^[[32m✓^[[39m src/core/document/equations.test.ts ^[[2m(^[[22m^[[2m6 tests^[[22m^[[2m)^[[22m^[[32m 17^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:46.0892700Z  ^[[32m✓^[[39m src/core/features/edges.test.ts ^[[2m(^[[22m^[[2m3 tests^[[22m^[[2m)^[[22m^[[33m 2136^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:46.0894621Z    ^[[32m✓^[[39m feature edges ^[[2m(3)^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:06:46.0897053Z      ^[[33m^[[2m✓^[[22m^[[39m ignores T-junctions on a flat face split by a boolean cut^[[33m 426^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:46.0899706Z      ^[[33m^[[2m✓^[[22m^[[39m keeps the top face clean with counterbores and patterned holes^[[33m 1695^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:46.6647133Z  ^[[32m✓^[[39m src/core/drawing/section.test.ts ^[[2m(^[[22m^[[2m6 tests^[[22m^[[2m)^[[22m^[[33m 553^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:46.8907022Z  ^[[32m✓^[[39m src/core/solver/relations2.test.ts ^[[2m(^[[22m^[[2m5 tests^[[22m^[[2m)^[[22m^[[32m 23^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:47.4827063Z  ^[[32m✓^[[39m src/core/features/endconditions.test.ts ^[[2m(^[[22m^[[2m5 tests^[[22m^[[2m)^[[22m^[[32m 90^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:48.2097074Z  ^[[32m✓^[[39m src/core/features/revolve2.test.ts ^[[2m(^[[22m^[[2m3 tests^[[22m^[[2m)^[[22m^[[33m 1615^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:48.2136456Z    ^[[32m✓^[[39m a fillet on a revolved edge after a change of the profile (QA v0.5.1 F110, T2) ^[[2m(1)^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:06:48.2166993Z      ^[[33m^[[2m✓^[[22m^[[39m the rim stays rounded with the right volume when the outer radius changes^[[33m 1162^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:48.2196393Z  ^[[32m✓^[[39m src/core/features/curves2.test.ts ^[[2m(^[[22m^[[2m4 tests^[[22m^[[2m)^[[22m^[[32m 222^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:50.9220311Z  ^[[32m✓^[[39m src/core/features/loftFace.test.ts ^[[2m(^[[22m^[[2m4 tests^[[22m^[[2m)^[[22m^[[33m 2213^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:50.9221925Z    ^[[32m✓^[[39m Loft to a face of the model ^[[2m(4)^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:06:50.9238143Z      ^[[33m^[[2m✓^[[22m^[[39m a planar face is the second profile: the loft runs from the circle down to the top of the block^[[33m 459^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:50.9268261Z      ^[[33m^[[2m✓^[[22m^[[39m Tangency To Face: the block walls carry on into the loft (fuller just above the face)^[[33m 1732^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:52.2802745Z  ^[[32m✓^[[39m src/qa/qaStrict.test.ts ^[[2m(^[[22m^[[2m8 tests^[[22m^[[2m)^[[22m^[[33m 3699^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:52.2809798Z    ^[[32m✓^[[39m QA T1: fillet R2 on the rim of a hole (mesh kernel) ^[[2m(4)^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:06:52.2811809Z      ^[[33m^[[2m✓^[[22m^[[39m removes the Pappus volume at Ø35 and follows the hole to Ø50 (hole in the plate sketch)^[[33m 1179^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:52.2813864Z      ^[[33m^[[2m✓^[[22m^[[39m removes the Pappus volume on the rim of a hole made by an extruded cut^[[33m 1432^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:52.3178963Z  ^[[32m✓^[[39m src/core/features/loftguide.test.ts ^[[2m(^[[22m^[[2m3 tests^[[22m^[[2m)^[[22m^[[33m 1014^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:52.3180617Z    ^[[32m✓^[[39m Loft with guide curves ^[[2m(2)^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:06:52.3182315Z      ^[[33m^[[2m✓^[[22m^[[39m a guide curve makes the sections follow it (a vase, radius 20 half way)^[[33m 552^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:52.3183912Z    ^[[32m✓^[[39m Loft Start/End Constraints ^[[2m(1)^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:06:52.3191328Z      ^[[33m^[[2m✓^[[22m^[[39m Normal To Profile leaves the profile straight up (S-shaped loft)^[[33m 359^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:52.5081675Z  ^[[32m✓^[[39m src/core/document/configurations.test.ts ^[[2m(^[[22m^[[2m6 tests^[[22m^[[2m)^[[22m^[[32m 11^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:53.9667013Z  ^[[32m✓^[[39m src/core/features/pattern3.test.ts ^[[2m(^[[22m^[[2m4 tests^[[22m^[[2m)^[[22m^[[33m 1293^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:53.9696249Z    ^[[32m✓^[[39m pattern options of the intended design ^[[2m(4)^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:06:53.9697667Z      ^[[33m^[[2m✓^[[22m^[[39m Up to reference: four holes from x = 10 up to a plane at x = 70 (spacing 20)^[[33m 804^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:53.9699148Z      ^[[33m^[[2m✓^[[22m^[[39m Instances to Vary: each instance hole grows by the increment^[[33m 465^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:54.1032951Z  ^[[32m✓^[[39m src/core/assembly/fasteners.test.ts ^[[2m(^[[22m^[[2m2 tests^[[22m^[[2m)^[[22m^[[33m 1062^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:54.1034226Z    ^[[32m✓^[[39m Assembly ▸ Auto Fasteners ^[[2m(2)^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:06:54.1046550Z      ^[[33m^[[2m✓^[[22m^[[39m toolbox parts rebuild: socket head cap screw, countersunk screw, hex bolt^[[33m 936^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:54.1997042Z  ^[[32m✓^[[39m src/app/recover.test.ts ^[[2m(^[[22m^[[2m6 tests^[[22m^[[2m)^[[22m^[[32m 17^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:54.7451265Z  ^[[32m✓^[[39m src/core/assembly/motion2.test.ts ^[[2m(^[[22m^[[2m5 tests^[[22m^[[2m)^[[22m^[[32m 28^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:55.5313374Z  ^[[32m✓^[[39m src/core/features/reorder.test.ts ^[[2m(^[[22m^[[2m2 tests^[[22m^[[2m)^[[22m^[[33m 925^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:55.5356678Z    ^[[32m✓^[[39m feature reorder in the design tree (QA v0.5.1 F113) ^[[2m(2)^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:06:55.5396841Z      ^[[33m^[[2m✓^[[22m^[[39m a feature moves with its absorbed sketch^[[33m 739^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:55.5741053Z  ^[[32m✓^[[39m src/core/drawing/hlr.test.ts ^[[2m(^[[22m^[[2m3 tests^[[22m^[[2m)^[[22m^[[32m 183^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:55.7252192Z  ^[[32m✓^[[39m src/core/sketch/relations.test.ts ^[[2m(^[[22m^[[2m4 tests^[[22m^[[2m)^[[22m^[[32m 14^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:56.1126609Z  ^[[32m✓^[[39m src/core/assembly/mates2.test.ts ^[[2m(^[[22m^[[2m5 tests^[[22m^[[2m)^[[22m^[[32m 13^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:57.3618555Z ^[[90mstderr^[[2m | src/core/features/round3.test.ts^[[2m > ^[[22m^[[2mfillet options of the intended design^[[2m > ^[[22m^[[2mTangent propagation: on, the merged slot outline is one edge; off, only the straight run that was clicked
+checks	UNKNOWN STEP	2026-11-03T08:06:57.3630445Z ^[[22m^[[39mTHREE.BufferGeometry.toNonIndexed(): BufferGeometry is already non-indexed.
+checks	UNKNOWN STEP	2026-11-03T08:06:57.3646316Z  ^[[32m✓^[[39m src/core/features/round3.test.ts ^[[2m(^[[22m^[[2m4 tests^[[22m^[[2m)^[[22m^[[33m 770^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:57.3675319Z 
+checks	UNKNOWN STEP	2026-11-03T08:06:57.3716072Z    ^[[32m✓^[[39m fillet options of the intended design ^[[2m(4)^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:06:57.3736379Z      ^[[33m^[[2m✓^[[22m^[[39m Round corners: two top edges meeting at a corner get a round corner (less material than the mitre)^[[33m 437^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:57.6997542Z ^[[90mstdout^[[2m | src/core/occt/step.test.ts^[[2m > ^[[22m^[[2mSTEP through OpenCascade (F51)^[[2m > ^[[22m^[[2ma plate with a hole goes out as STEP and comes back with the same volume
+checks	UNKNOWN STEP	2026-11-03T08:06:57.7025714Z ^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:57.7055629Z *******************************************************************
+checks	UNKNOWN STEP	2026-11-03T08:06:57.7115773Z ******        Statistics on Transfer (Write)                 ******
+checks	UNKNOWN STEP	2026-11-03T08:06:57.7167770Z 
+checks	UNKNOWN STEP	2026-11-03T08:06:57.7225807Z *******************************************************************
+checks	UNKNOWN STEP	2026-11-03T08:06:57.7255703Z ******        Transfer Mode = 0  I.E.  As Is       ******
+checks	UNKNOWN STEP	2026-11-03T08:06:57.7275353Z 
+checks	UNKNOWN STEP	2026-11-03T08:06:57.7336233Z ******        Transferring Shape, ShapeType = 2                      ******
+checks	UNKNOWN STEP	2026-11-03T08:06:57.7385191Z 
+checks	UNKNOWN STEP	2026-11-03T08:06:57.7415753Z ** WorkSession : Sending all data
+checks	UNKNOWN STEP	2026-11-03T08:06:57.7475182Z 
+checks	UNKNOWN STEP	2026-11-03T08:06:57.7535955Z  Step File Name : export.step(5355 ents)  Write  Done
+checks	UNKNOWN STEP	2026-11-03T08:06:57.7565159Z 
+checks	UNKNOWN STEP	2026-11-03T08:06:57.7575173Z 
+checks	UNKNOWN STEP	2026-11-03T08:06:58.1916820Z  ^[[32m✓^[[39m src/core/features/fromoffset.test.ts ^[[2m(^[[22m^[[2m3 tests^[[22m^[[2m)^[[22m^[[32m 80^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:58.2207392Z ^[[90mstdout^[[2m | src/core/occt/step.test.ts^[[2m > ^[[22m^[[2mSTEP through OpenCascade (F51)^[[2m > ^[[22m^[[2ma file in inches comes in in millimetres
+checks	UNKNOWN STEP	2026-11-03T08:06:58.2208999Z ^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:58.2267206Z *******************************************************************
+checks	UNKNOWN STEP	2026-11-03T08:06:58.2315648Z ******        Statistics on Transfer (Write)                 ******
+checks	UNKNOWN STEP	2026-11-03T08:06:58.2384294Z 
+checks	UNKNOWN STEP	2026-11-03T08:06:58.2416042Z *******************************************************************
+checks	UNKNOWN STEP	2026-11-03T08:06:58.2445733Z ******        Transfer Mode = 0  I.E.  As Is       ******
+checks	UNKNOWN STEP	2026-11-03T08:06:58.2545340Z 
+checks	UNKNOWN STEP	2026-11-03T08:06:58.2575583Z ******        Transferring Shape, ShapeType = 2                      ******
+checks	UNKNOWN STEP	2026-11-03T08:06:58.2576192Z 
+checks	UNKNOWN STEP	2026-11-03T08:06:58.2576913Z ** WorkSession : Sending all data
+checks	UNKNOWN STEP	2026-11-03T08:06:58.2579773Z 
+checks	UNKNOWN STEP	2026-11-03T08:06:58.2580449Z  Step File Name : export.step(362 ents)  Write  Done
+checks	UNKNOWN STEP	2026-11-03T08:06:58.2581030Z 
+checks	UNKNOWN STEP	2026-11-03T08:06:58.2581178Z 
+checks	UNKNOWN STEP	2026-11-03T08:06:58.2582393Z  ^[[32m✓^[[39m src/core/occt/step.test.ts ^[[2m(^[[22m^[[2m3 tests^[[22m^[[2m)^[[22m^[[33m 2067^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:58.2583596Z    ^[[32m✓^[[39m STEP through OpenCascade (F51) ^[[2m(3)^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:06:58.2585619Z      ^[[33m^[[2m✓^[[22m^[[39m a plate with a hole goes out as STEP and comes back with the same volume^[[33m 1306^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:58.5347345Z  ^[[32m✓^[[39m src/core/sketch/curves.test.ts ^[[2m(^[[22m^[[2m6 tests^[[22m^[[2m)^[[22m^[[32m 38^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:58.8276839Z  ^[[32m✓^[[39m src/core/features/round2.test.ts ^[[2m(^[[22m^[[2m6 tests^[[22m^[[2m)^[[22m^[[32m 197^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:59.0187505Z  ^[[32m✓^[[39m src/core/features/surfaces2.test.ts ^[[2m(^[[22m^[[2m6 tests^[[22m^[[2m)^[[22m^[[32m 58^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:59.2354002Z  ^[[32m✓^[[39m src/core/document/autoTolerance.test.ts ^[[2m(^[[22m^[[2m5 tests^[[22m^[[2m)^[[22m^[[32m 29^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:59.5138226Z ^[[90mstderr^[[2m | src/core/features/smcorners.test.ts^[[2m > ^[[22m^[[2msheet metal corners and conversions^[[2m > ^[[22m^[[2mClosed Corner extends an end face up to the flange beside it
+checks	UNKNOWN STEP	2026-11-03T08:06:59.5166451Z ^[[22m^[[39mTHREE.BufferGeometry.toNonIndexed(): BufferGeometry is already non-indexed.
+checks	UNKNOWN STEP	2026-11-03T08:06:59.5185786Z 
+checks	UNKNOWN STEP	2026-11-03T08:06:59.6966824Z  ^[[32m✓^[[39m src/core/features/smcorners.test.ts ^[[2m(^[[22m^[[2m3 tests^[[22m^[[2m)^[[22m^[[32m 230^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:06:59.7056483Z  ^[[32m✓^[[39m src/core/sketch/polygon2.test.ts ^[[2m(^[[22m^[[2m8 tests^[[22m^[[2m)^[[22m^[[32m 80^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:00.1376821Z  ^[[32m✓^[[39m src/core/features/sweep.test.ts ^[[2m(^[[22m^[[2m3 tests^[[22m^[[2m)^[[22m^[[32m 37^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:00.2678724Z  ^[[32m✓^[[39m src/app/drawing/modelItems.test.ts ^[[2m(^[[22m^[[2m3 tests^[[22m^[[2m)^[[22m^[[32m 12^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:00.5450286Z  ^[[32m✓^[[39m src/core/drawing/balloons.test.ts ^[[2m(^[[22m^[[2m4 tests^[[22m^[[2m)^[[22m^[[32m 18^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:00.8127021Z  ^[[32m✓^[[39m src/core/features/draft2.test.ts ^[[2m(^[[22m^[[2m3 tests^[[22m^[[2m)^[[22m^[[32m 273^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:00.9827345Z  ^[[32m✓^[[39m src/core/drawing/export2d.test.ts ^[[2m(^[[22m^[[2m3 tests^[[22m^[[2m)^[[22m^[[32m 11^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:01.4397751Z  ^[[32m✓^[[39m src/core/features/sheetmetal3.test.ts ^[[2m(^[[22m^[[2m4 tests^[[22m^[[2m)^[[22m^[[32m 66^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:02.6677164Z  ^[[32m✓^[[39m src/core/features/tap.test.ts ^[[2m(^[[22m^[[2m1 test^[[22m^[[2m)^[[22m^[[33m 690^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:02.6678706Z    ^[[32m✓^[[39m Hole Tool ▸ Straight Tap ^[[2m(1)^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:07:02.6706844Z      ^[[33m^[[2m✓^[[22m^[[39m an M6 tapped hole drills the 5.0 mm tap drill and shows a 6 mm cosmetic thread^[[33m 686^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:03.2306824Z  ^[[32m✓^[[39m src/core/drawing/autoMarks.test.ts ^[[2m(^[[22m^[[2m2 tests^[[22m^[[2m)^[[22m^[[33m 2091^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:03.2386162Z    ^[[32m✓^[[39m auto insert center marks on view creation (QA v0.5.1 F122) ^[[2m(2)^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:07:03.2416569Z      ^[[33m^[[2m✓^[[22m^[[39m one mark per hole in the view that looks down the holes, the largest of a counterbore; none in the others^[[33m 2085^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:03.5536791Z  ^[[32m✓^[[39m src/core/features/wrap.test.ts ^[[2m(^[[22m^[[2m2 tests^[[22m^[[2m)^[[22m^[[32m 232^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:03.8909575Z  ^[[32m✓^[[39m src/core/assembly/asmfeature.test.ts ^[[2m(^[[22m^[[2m1 test^[[22m^[[2m)^[[22m^[[32m 136^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:03.9382092Z  ^[[32m✓^[[39m src/core/features/thin.test.ts ^[[2m(^[[22m^[[2m4 tests^[[22m^[[2m)^[[22m^[[32m 21^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:04.5377052Z  ^[[32m✓^[[39m src/core/features/holdline.test.ts ^[[2m(^[[22m^[[2m2 tests^[[22m^[[2m)^[[22m^[[32m 147^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:04.5396390Z  ^[[32m✓^[[39m src/core/features/inspect.test.ts ^[[2m(^[[22m^[[2m3 tests^[[22m^[[2m)^[[22m^[[32m 127^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:04.8186889Z  ^[[32m✓^[[39m src/core/features/measure.test.ts ^[[2m(^[[22m^[[2m5 tests^[[22m^[[2m)^[[22m^[[32m 24^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:05.0737080Z  ^[[32m✓^[[39m src/core/sketch/contours.test.ts ^[[2m(^[[22m^[[2m4 tests^[[22m^[[2m)^[[22m^[[32m 10^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:05.3317509Z  ^[[32m✓^[[39m src/core/sketch/trim2.test.ts ^[[2m(^[[22m^[[2m3 tests^[[22m^[[2m)^[[22m^[[32m 15^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:05.3578916Z  ^[[32m✓^[[39m src/core/features/uptobody.test.ts ^[[2m(^[[22m^[[2m2 tests^[[22m^[[2m)^[[22m^[[33m 412^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:05.3580289Z    ^[[32m✓^[[39m Extrude Up To Body ^[[2m(2)^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:07:05.3581791Z      ^[[33m^[[2m✓^[[22m^[[39m a block runs up to a cylinder and ends on its curved underside^[[33m 409^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:05.5971136Z  ^[[32m✓^[[39m src/core/sketch/edit2.test.ts ^[[2m(^[[22m^[[2m2 tests^[[22m^[[2m)^[[22m^[[32m 13^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:05.6996824Z  ^[[32m✓^[[39m src/core/features/section.test.ts ^[[2m(^[[22m^[[2m5 tests^[[22m^[[2m)^[[22m^[[32m 11^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:05.8956658Z  ^[[32m✓^[[39m src/core/sketch/geometry.test.ts ^[[2m(^[[22m^[[2m4 tests^[[22m^[[2m)^[[22m^[[32m 9^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:06.1106935Z  ^[[32m✓^[[39m src/core/document/configurations2.test.ts ^[[2m(^[[22m^[[2m3 tests^[[22m^[[2m)^[[22m^[[32m 8^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:06.1188284Z  ^[[32m✓^[[39m src/core/features/round.test.ts ^[[2m(^[[22m^[[2m4 tests^[[22m^[[2m)^[[22m^[[32m 135^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:06.3694079Z  ^[[32m✓^[[39m src/core/sketch/ellipsetext.test.ts ^[[2m(^[[22m^[[2m4 tests^[[22m^[[2m)^[[22m^[[32m 13^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:06.4267428Z  ^[[32m✓^[[39m src/app/uiText.test.ts ^[[2m(^[[22m^[[2m2 tests^[[22m^[[2m)^[[22m^[[32m 21^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:06.9323085Z  ^[[32m✓^[[39m src/core/features/rebuildWire.test.ts ^[[2m(^[[22m^[[2m1 test^[[22m^[[2m)^[[22m^[[32m 37^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:07.3147363Z  ^[[32m✓^[[39m src/core/features/wrap2.test.ts ^[[2m(^[[22m^[[2m1 test^[[22m^[[2m)^[[22m^[[33m 453^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:07.3176171Z    ^[[32m✓^[[39m Wrap > Spline Surface ^[[2m(1)^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:07:07.3177209Z      ^[[33m^[[2m✓^[[22m^[[39m a 10 x 10 square projected onto the top face of a plate: emboss 2 adds 200, deboss 2 removes 200^[[33m 450^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:07.4895979Z  ^[[32m✓^[[39m src/core/features/hole2.test.ts ^[[2m(^[[22m^[[2m2 tests^[[22m^[[2m)^[[22m^[[32m 76^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:07.5747043Z  ^[[32m✓^[[39m src/core/document/viewerExport.test.ts ^[[2m(^[[22m^[[2m3 tests^[[22m^[[2m)^[[22m^[[32m 10^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:08.4297094Z  ^[[32m✓^[[39m src/core/document/featureTypes.test.ts ^[[2m(^[[22m^[[2m1 test^[[22m^[[2m)^[[22m^[[32m 140^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:08.8707984Z  ^[[32m✓^[[39m src/core/features/sketchpattern.test.ts ^[[2m(^[[22m^[[2m1 test^[[22m^[[2m)^[[22m^[[33m 786^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:08.8736099Z    ^[[32m✓^[[39m Sketch Driven Pattern ^[[2m(1)^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:07:08.8746226Z      ^[[33m^[[2m✓^[[22m^[[39m a hole repeated at the points of a reference sketch^[[33m 783^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:09.1155530Z  ^[[32m✓^[[39m src/core/features/intersect.test.ts ^[[2m(^[[22m^[[2m2 tests^[[22m^[[2m)^[[22m^[[32m 182^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:09.3975635Z  ^[[32m✓^[[39m src/core/sketch/segment.test.ts ^[[2m(^[[22m^[[2m3 tests^[[22m^[[2m)^[[22m^[[32m 12^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:09.9605185Z  ^[[32m✓^[[39m src/core/features/deform.test.ts ^[[2m(^[[22m^[[2m3 tests^[[22m^[[2m)^[[22m^[[32m 164^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:10.0356235Z  ^[[32m✓^[[39m src/core/features/flangeProfile.test.ts ^[[2m(^[[22m^[[2m2 tests^[[22m^[[2m)^[[22m^[[33m 788^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:10.0385939Z    ^[[32m✓^[[39m Edit Flange Profile ^[[2m(2)^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:07:10.0391987Z      ^[[33m^[[2m✓^[[22m^[[39m a tab 20 wide and 25 high with a Ø8 hole: the flange takes that width, length and hole^[[33m 776^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:10.4082697Z  ^[[32m✓^[[39m src/core/features/helix.test.ts ^[[2m(^[[22m^[[2m2 tests^[[22m^[[2m)^[[22m^[[32m 11^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:10.4597048Z  ^[[32m✓^[[39m src/core/features/booleanCheck.test.ts ^[[2m(^[[22m^[[2m3 tests^[[22m^[[2m)^[[22m^[[32m 94^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:10.8827363Z  ^[[32m✓^[[39m src/core/features/rebuildBudget.test.ts ^[[2m(^[[22m^[[2m3 tests^[[22m^[[2m)^[[22m^[[32m 49^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:11.0354474Z  ^[[32m✓^[[39m src/core/features/draft.test.ts ^[[2m(^[[22m^[[2m1 test^[[22m^[[2m)^[[22m^[[32m 126^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:11.2403398Z  ^[[32m✓^[[39m src/core/sketch/blocks.test.ts ^[[2m(^[[22m^[[2m1 test^[[22m^[[2m)^[[22m^[[32m 9^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:11.3968433Z  ^[[32m✓^[[39m src/core/features/unfold.test.ts ^[[2m(^[[22m^[[2m2 tests^[[22m^[[2m)^[[22m^[[32m 116^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:11.8071330Z  ^[[32m✓^[[39m src/core/assembly/motion.test.ts ^[[2m(^[[22m^[[2m3 tests^[[22m^[[2m)^[[22m^[[32m 6^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:11.8286973Z  ^[[32m✓^[[39m src/core/features/analysis.test.ts ^[[2m(^[[22m^[[2m2 tests^[[22m^[[2m)^[[22m^[[32m 111^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:12.0026583Z  ^[[32m✓^[[39m src/core/document/legacyNames.test.ts ^[[2m(^[[22m^[[2m3 tests^[[22m^[[2m)^[[22m^[[32m 10^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:12.8787142Z  ^[[32m✓^[[39m src/core/features/flipside.test.ts ^[[2m(^[[22m^[[2m1 test^[[22m^[[2m)^[[22m^[[33m 582^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:12.8788977Z    ^[[32m✓^[[39m Extruded Cut ▸ Flip side to cut ^[[2m(1)^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:07:12.8791197Z      ^[[33m^[[2m✓^[[22m^[[39m a circle cut with the side flipped keeps only the cylinder inside the profile^[[33m 580^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:13.3926865Z  ^[[32m✓^[[39m src/core/features/insertBends.test.ts ^[[2m(^[[22m^[[2m1 test^[[22m^[[2m)^[[22m^[[32m 150^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:13.5748492Z  ^[[32m✓^[[39m src/core/features/thread.test.ts ^[[2m(^[[22m^[[2m2 tests^[[22m^[[2m)^[[22m^[[33m 1088^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:13.5750197Z    ^[[32m✓^[[39m Features ▸ Hole Tool ▸ Thread ^[[2m(2)^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:07:13.5752064Z      ^[[33m^[[2m✓^[[22m^[[39m a 30 mm M14x2.0 cut thread removes the V groove (about 540 mm³) along the helix^[[33m 1083^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:13.8806564Z  ^[[32m✓^[[39m src/core/features/shell.test.ts ^[[2m(^[[22m^[[2m3 tests^[[22m^[[2m)^[[22m^[[32m 137^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:14.0412847Z  ^[[32m✓^[[39m src/core/document/weldmentConfigs.test.ts ^[[2m(^[[22m^[[2m1 test^[[22m^[[2m)^[[22m^[[32m 6^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:14.2027747Z  ^[[32m✓^[[39m src/core/features/faceOwner.test.ts ^[[2m(^[[22m^[[2m1 test^[[22m^[[2m)^[[22m^[[32m 142^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:14.6033819Z  ^[[32m✓^[[39m src/core/features/thickness.test.ts ^[[2m(^[[22m^[[2m2 tests^[[22m^[[2m)^[[22m^[[32m 7^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:14.8586676Z  ^[[32m✓^[[39m src/core/features/silhouette.test.ts ^[[2m(^[[22m^[[2m2 tests^[[22m^[[2m)^[[22m^[[32m 35^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:15.2846903Z  ^[[32m✓^[[39m src/core/features/crossbreak.test.ts ^[[2m(^[[22m^[[2m1 test^[[22m^[[2m)^[[22m^[[32m 24^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:15.4508191Z  ^[[32m✓^[[39m src/core/features/planes2.test.ts ^[[2m(^[[22m^[[2m4 tests^[[22m^[[2m)^[[22m^[[32m 6^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:15.4616269Z  ^[[32m✓^[[39m src/app/prefsWired.test.ts ^[[2m(^[[22m^[[2m1 test^[[22m^[[2m)^[[22m^[[33m 1257^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:15.4626633Z    ^[[32m✓^[[39m Options that do nothing are greyed out (QA v0.5.1 F112) ^[[2m(1)^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:07:15.4628260Z      ^[[33m^[[2m✓^[[22m^[[39m WIRED_PREFS lists exactly the options the code reads^[[33m 1254^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:15.6466773Z  ^[[32m✓^[[39m src/core/document/history.test.ts ^[[2m(^[[22m^[[2m2 tests^[[22m^[[2m)^[[22m^[[32m 10^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:15.8329334Z  ^[[32m✓^[[39m src/core/document/stl.test.ts ^[[2m(^[[22m^[[2m3 tests^[[22m^[[2m)^[[22m^[[32m 14^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:16.1810610Z  ^[[32m✓^[[39m src/core/assembly/pattern.test.ts ^[[2m(^[[22m^[[2m3 tests^[[22m^[[2m)^[[22m^[[32m 8^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:16.2547047Z  ^[[32m✓^[[39m src/core/features/sketch3dFillet.test.ts ^[[2m(^[[22m^[[2m2 tests^[[22m^[[2m)^[[22m^[[32m 17^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:16.4620831Z  ^[[32m✓^[[39m src/core/sketch/pierce.test.ts ^[[2m(^[[22m^[[2m1 test^[[22m^[[2m)^[[22m^[[32m 10^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:16.6587583Z  ^[[32m✓^[[39m src/core/features/roundpreview.test.ts ^[[2m(^[[22m^[[2m1 test^[[22m^[[2m)^[[22m^[[32m 32^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:16.6819514Z  ^[[32m✓^[[39m src/core/assembly/belt.test.ts ^[[2m(^[[22m^[[2m2 tests^[[22m^[[2m)^[[22m^[[32m 6^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:16.9057572Z  ^[[32m✓^[[39m src/core/features/measure2.test.ts ^[[2m(^[[22m^[[2m2 tests^[[22m^[[2m)^[[22m^[[32m 6^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:16.9085294Z  ^[[32m✓^[[39m src/core/sketch/repair.test.ts ^[[2m(^[[22m^[[2m1 test^[[22m^[[2m)^[[22m^[[32m 7^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:17.0572713Z  ^[[32m✓^[[39m src/core/occt/occtClient.test.ts ^[[2m(^[[22m^[[2m1 test^[[22m^[[2m)^[[22m^[[32m 20^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:17.1417295Z  ^[[32m✓^[[39m src/core/document/examples.check.test.ts ^[[2m(^[[22m^[[2m9 tests^[[22m^[[2m)^[[22m^[[32m 45^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:17.6187309Z  ^[[32m✓^[[39m src/core/features/thread2.test.ts ^[[2m(^[[22m^[[2m2 tests^[[22m^[[2m)^[[22m^[[32m 6^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:17.6196687Z  ^[[32m✓^[[39m src/core/features/deleteface.test.ts ^[[2m(^[[22m^[[2m2 tests^[[22m^[[2m)^[[22m^[[32m 180^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:17.7797374Z  ^[[32m✓^[[39m src/core/features/volumeCheck.test.ts ^[[2m(^[[22m^[[2m2 tests^[[22m^[[2m)^[[22m^[[32m 4^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:18.0286867Z  ^[[32m✓^[[39m src/core/features/vertexchamfer.test.ts ^[[2m(^[[22m^[[2m2 tests^[[22m^[[2m)^[[22m^[[32m 38^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:18.2233920Z  ^[[32m✓^[[39m src/core/features/shellout.test.ts ^[[2m(^[[22m^[[2m1 test^[[22m^[[2m)^[[22m^[[32m 73^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:18.4094674Z  ^[[32m✓^[[39m src/app/prefs.test.ts ^[[2m(^[[22m^[[2m2 tests^[[22m^[[2m)^[[22m^[[32m 4^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:18.4872211Z  ^[[32m✓^[[39m src/core/features/thinfillet.test.ts ^[[2m(^[[22m^[[2m1 test^[[22m^[[2m)^[[22m^[[32m 4^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:29.6878356Z ^[[90mstdout^[[2m | src/core/occt/brep.test.ts^[[2m > ^[[22m^[[2mB-rep kernel in the rebuild (OpenCascade)^[[2m > ^[[22m^[[2mSTEP from the B-rep: the plate with a hole is 7 faces with a true cylinder, and reads back exactly
+checks	UNKNOWN STEP	2026-11-03T08:07:29.6915816Z ^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:29.6945561Z *******************************************************************
+checks	UNKNOWN STEP	2026-11-03T08:07:29.6946627Z ******        Statistics on Transfer (Write)                 ******
+checks	UNKNOWN STEP	2026-11-03T08:07:29.6975121Z 
+checks	UNKNOWN STEP	2026-11-03T08:07:29.7005553Z *******************************************************************
+checks	UNKNOWN STEP	2026-11-03T08:07:29.7006769Z ******        Transfer Mode = 0  I.E.  As Is       ******
+checks	UNKNOWN STEP	2026-11-03T08:07:29.7035154Z 
+checks	UNKNOWN STEP	2026-11-03T08:07:29.7096132Z ******        Transferring Shape, ShapeType = 0                      ******
+checks	UNKNOWN STEP	2026-11-03T08:07:29.7125277Z 
+checks	UNKNOWN STEP	2026-11-03T08:07:29.7155714Z ** WorkSession : Sending all data
+checks	UNKNOWN STEP	2026-11-03T08:07:29.7156288Z 
+checks	UNKNOWN STEP	2026-11-03T08:07:29.7185688Z  Step File Name : export.step(443 ents)  Write  Done
+checks	UNKNOWN STEP	2026-11-03T08:07:29.7215270Z 
+checks	UNKNOWN STEP	2026-11-03T08:07:29.7245134Z 
+checks	UNKNOWN STEP	2026-11-03T08:07:29.8166780Z  ^[[32m✓^[[39m src/core/occt/brep.test.ts ^[[2m(^[[22m^[[2m36 tests^[[22m^[[2m)^[[22m^[[33m 62600^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:29.8186065Z    ^[[32m✓^[[39m B-rep kernel in the rebuild (OpenCascade) ^[[2m(36)^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:07:29.8216224Z      ^[[33m^[[2m✓^[[22m^[[39m a plate with a hole is an exact solid: exact volume, the hole is one cylinder^[[33m 392^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:29.8218083Z      ^[[33m^[[2m✓^[[22m^[[39m a fillet on a top edge is a true round; it follows the edge when the plate gets thicker^[[33m 701^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:29.8219237Z      ^[[33m^[[2m✓^[[22m^[[39m a chamfer of 2 mm on the edges of the hole^[[33m 339^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:29.8220136Z      ^[[33m^[[2m✓^[[22m^[[39m a half revolve (180°) and a mid-plane revolve match the mesh kernel and are exact^[[33m 348^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:29.8221142Z      ^[[33m^[[2m✓^[[22m^[[39m Hole Tool holes are exact: a simple through hole, a counterbore and a countersink^[[33m 666^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:29.8222104Z      ^[[33m^[[2m✓^[[22m^[[39m the parts of the door handle example are all exact and agree with the mesh kernel^[[33m 6216^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:29.8223085Z      ^[[33m^[[2m✓^[[22m^[[39m linear and circular patterns of features are exact (every instance the seed tool moved)^[[33m 850^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:29.8223990Z      ^[[33m^[[2m✓^[[22m^[[39m mirror: a mirrored feature and a mirrored body are exact^[[33m 362^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:29.8225196Z      ^[[33m^[[2m✓^[[22m^[[39m a loft from a 40 mm square to a 20 mm square 30 mm higher is an exact frustum^[[33m 399^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:29.8226107Z      ^[[33m^[[2m✓^[[22m^[[39m extrude end conditions are exact and agree with the mesh kernel^[[33m 456^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:29.8226946Z      ^[[33m^[[2m✓^[[22m^[[39m a thin revolve of an open L is exact and equal to the mesh kernel^[[33m 367^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:29.8227740Z      ^[[33m^[[2m✓^[[22m^[[39m a rib in a U-channel is exact: 90 x 15 x 4 between the walls^[[33m 755^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:29.8228626Z      ^[[33m^[[2m✓^[[22m^[[39m edge flanges (material outside and inside) and a hem on a tab have true bend cylinders^[[33m 529^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:29.8229879Z      ^[[33m^[[2m✓^[[22m^[[39m multi radius and variable size fillets are built by OpenCascade^[[33m 874^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:29.8230926Z      ^[[33m^[[2m✓^[[22m^[[39m a sketched bend of 90° on a tab is exact^[[33m 599^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:29.8232111Z      ^[[33m^[[2m✓^[[22m^[[39m a jog on a tab is exact: the far side moved up, two true bends^[[33m 616^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:29.8235525Z      ^[[33m^[[2m✓^[[22m^[[39m weldment frames: square tube and pipe members with end miters are exact^[[33m 12937^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:29.8237651Z      ^[[33m^[[2m✓^[[22m^[[39m a modelled M10 thread (cut and extruded, one and two starts) follows a true helix and agrees with the mesh kernel^[[33m 29830^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:29.8239614Z      ^[[33m^[[2m✓^[[22m^[[39m a structural member along a circle is one curved member (not one per arc segment) and builds quickly^[[33m 1713^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:29.8240734Z      ^[[33m^[[2m✓^[[22m^[[39m a feature without a B-rep version continues on the mesh (fallback); the body is still built^[[33m 1059^[[2mms^[[22m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:29.8266067Z 
+checks	UNKNOWN STEP	2026-11-03T08:07:29.8276473Z ^[[2m Test Files ^[[22m ^[[1m^[[32m121 passed^[[39m^[[22m^[[90m (121)^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:29.8281368Z ^[[2m      Tests ^[[22m ^[[1m^[[32m487 passed^[[39m^[[22m^[[90m (487)^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:29.8282025Z ^[[2m   Start at ^[[22m 08:06:25
+checks	UNKNOWN STEP	2026-11-03T08:07:29.8288667Z ^[[2m   Duration ^[[22m 64.45s^[[2m (tests 79%, import 18%, transform 3%)^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:07:29.8315606Z 
+checks	UNKNOWN STEP	2026-11-03T08:07:29.8316593Z ^[[2m    Isolate ^[[22m ^[[33m121 workers spawned^[[39m^[[2m · ~142ms startup each (spawn + environment, per file)^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:07:29.8318050Z ^[[2m            ^[[22m ^[[2mat least ~5.57s faster with ^[[22m^[[33misolate: false^[[39m^[[2m — reuses workers across files instead of one per file^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:07:29.8318676Z 
+checks	UNKNOWN STEP	2026-11-03T08:07:29.9406851Z ##[group]Run node tools/rename-trademarks.cjs --check && node tools/neutral-comments.cjs --check && node tools/line-budget.cjs
+checks	UNKNOWN STEP	2026-11-03T08:07:29.9407804Z ^[[36;1mnode tools/rename-trademarks.cjs --check && node tools/neutral-comments.cjs --check && node tools/line-budget.cjs^[[0m
+checks	UNKNOWN STEP	2026-11-03T08:07:29.9428791Z shell: /usr/bin/bash -e {0}
+checks	UNKNOWN STEP	2026-11-03T08:07:29.9429057Z ##[endgroup]
+checks	UNKNOWN STEP	2026-11-03T08:07:31.5004606Z total 0 dry run
+checks	UNKNOWN STEP	2026-11-03T08:07:31.6998754Z 
+checks	UNKNOWN STEP	2026-11-03T08:07:31.7003779Z total 0 dry run
+checks	UNKNOWN STEP	2026-11-03T08:07:31.7500377Z line budget ok
+checks	UNKNOWN STEP	2026-11-03T08:07:31.7539546Z above the goal of 1000 lines: rebuild.ts 2394, Viewport.tsx 700, tools.ts 618, features.ts 597, types.ts 591, store.ts 449, DrawingSheetView.tsx 277, icons.tsx 22
+checks	UNKNOWN STEP	2026-11-03T08:07:31.7718669Z ##[group]Run npm run build
+checks	UNKNOWN STEP	2026-11-03T08:07:31.7719086Z ^[[36;1mnpm run build^[[0m
+checks	UNKNOWN STEP	2026-11-03T08:07:31.7739680Z shell: /usr/bin/bash -e {0}
+checks	UNKNOWN STEP	2026-11-03T08:07:31.7739990Z ##[endgroup]
+checks	UNKNOWN STEP	2026-11-03T08:07:31.8734299Z 
+checks	UNKNOWN STEP	2026-11-03T08:07:31.8735291Z > phlippo-cad@0.5.11 build
+checks	UNKNOWN STEP	2026-11-03T08:07:31.8735985Z > tsc -b && vite build
+checks	UNKNOWN STEP	2026-11-03T08:07:31.8736358Z 
+checks	UNKNOWN STEP	2026-11-03T08:07:54.3891679Z ^[[36mvite v7.3.7 ^[[32mbuilding client environment for production...^[[36m^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:07:54.4642665Z transforming...
+checks	UNKNOWN STEP	2026-11-03T08:07:59.7323581Z ^[[33m[plugin vite:resolve] Module "node:module" has been externalized for browser compatibility, imported by "/home/runner/work/Claude/Claude/node_modules/replicad-opencascadejs/dist/replicad_single.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:08:04.8199484Z ^[[32m✓^[[39m 374 modules transformed.
+checks	UNKNOWN STEP	2026-11-03T08:08:05.2329485Z rendering chunks...
+checks	UNKNOWN STEP	2026-11-03T08:08:05.6403247Z computing gzip size...
+checks	UNKNOWN STEP	2026-11-03T08:08:06.2380624Z ^[[2mdist/^[[22m^[[32mindex.html                            ^[[39m^[[1m^[[2m     1.10 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     0.51 kB^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:08:06.2382749Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[32mreplicad_single-BfZpIs5k.js    ^[[39m^[[1m^[[2m    59.37 kB^[[22m^[[1m^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:08:06.2385326Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[32mreplicad-DSoIoMtf.js           ^[[39m^[[1m^[[2m   372.71 kB^[[22m^[[1m^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:08:06.2387270Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[32mrebuild.worker-BGZyGNXF.js     ^[[39m^[[1m^[[2m   660.94 kB^[[22m^[[1m^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:08:06.2389227Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[32mocct.worker-Dr6atlk1.js        ^[[39m^[[1m^[[2m   677.46 kB^[[22m^[[1m^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:08:06.2391356Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[32mreplicad_single-B_1cTsn_.wasm  ^[[39m^[[1m^[[2m22,980.27 kB^[[22m^[[1m^[[22m^[[2m │ gzip: 7,267.29 kB^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:08:06.2393057Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[35mindex-hwRUupuS.css             ^[[39m^[[1m^[[2m    83.97 kB^[[22m^[[1m^[[22m^[[2m │ gzip:    16.47 kB^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:08:06.2396231Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mpreviewWindow-D4k7KS82.js      ^[[39m^[[1m^[[2m     1.63 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     0.77 kB^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:08:06.2397714Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mDrawingTreeBody-CUChwBAr.js    ^[[39m^[[1m^[[2m     2.17 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     0.99 kB^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:08:06.2398828Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mselfTest-CIJlrPjS.js           ^[[39m^[[1m^[[2m     3.21 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.55 kB^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:08:06.2399913Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mSensorPM-DMAwjwqR.js           ^[[39m^[[1m^[[2m     3.32 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.15 kB^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:08:06.2401053Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mFastenerPM-C_oNJptN.js         ^[[39m^[[1m^[[2m     3.57 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.24 kB^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:08:06.2402147Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mdesignStudy-B6GpRj0w.js        ^[[39m^[[1m^[[2m     4.11 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.56 kB^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:08:06.2403252Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mSketch3DPM-lm3LfwIF.js         ^[[39m^[[1m^[[2m     5.28 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.02 kB^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:08:06.2404336Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mAnalysisPM2-Lzk7v88c.js        ^[[39m^[[1m^[[2m     5.51 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.78 kB^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:08:06.2406080Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mconfigureDialog-Dig2UPE0.js    ^[[39m^[[1m^[[2m     5.54 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.13 kB^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:08:06.2407418Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36massemblyDialogs-BPO9Et-x.js    ^[[39m^[[1m^[[2m     6.53 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.14 kB^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:08:06.2408491Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mAutoTolerancePM-BLlqHpOs.js    ^[[39m^[[1m^[[2m     7.34 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.00 kB^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:08:06.2409511Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mSheetDialogs-YYGHKJya.js       ^[[39m^[[1m^[[2m     7.57 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.15 kB^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:08:06.2410782Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mequations-Bm3KvxDQ.js          ^[[39m^[[1m^[[2m     9.21 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.98 kB^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:08:06.2411862Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mappearanceDialog-COGz6hpP.js   ^[[39m^[[1m^[[2m     9.61 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     3.08 kB^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:08:06.2412918Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mDraftAnalysisPM-BtVPB2Ya.js    ^[[39m^[[1m^[[2m    10.92 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.59 kB^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:08:06.2413976Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mevaluateDialogs-C_ZtOKLE.js    ^[[39m^[[1m^[[2m    11.43 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     3.33 kB^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:08:06.2415374Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mAppearancesPane-DTV5TesW.js    ^[[39m^[[1m^[[2m    11.68 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     4.04 kB^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:08:06.2416425Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mtreeDialogs-CwYRVCSp.js        ^[[39m^[[1m^[[2m    12.49 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     3.91 kB^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:08:06.2417436Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mmaterialDialog-CGpLLJ3E.js     ^[[39m^[[1m^[[2m    13.02 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     3.93 kB^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:08:06.2418440Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mcustomize-JmHmUZc2.js          ^[[39m^[[1m^[[2m    14.87 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     4.28 kB^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:08:06.2419428Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mevaluate-PhFlSccn.js           ^[[39m^[[1m^[[2m    16.32 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     5.26 kB^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:08:06.2420425Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mevaluateDialogs2-CXXFyFYF.js   ^[[39m^[[1m^[[2m    25.05 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     6.63 kB^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:08:06.2421438Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mMotionTimeline-BcRT-lxB.js     ^[[39m^[[1m^[[2m    26.55 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     6.91 kB^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:08:06.2422435Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mAssemblyPM-DnMxHA29.js         ^[[39m^[[1m^[[2m    27.29 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     6.45 kB^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:08:06.2423434Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mDrawingSheetView-BxfKOfJI.js   ^[[39m^[[1m^[[2m    51.28 kB^[[22m^[[1m^[[22m^[[2m │ gzip:    16.38 kB^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:08:06.2424627Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mDrawingPM-TpXVTfWK.js          ^[[39m^[[1m^[[2m    53.62 kB^[[22m^[[1m^[[22m^[[2m │ gzip:    11.18 kB^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:08:06.2425898Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36moptions-cNuMUEQi.js            ^[[39m^[[1m^[[2m    54.46 kB^[[22m^[[1m^[[22m^[[2m │ gzip:    14.84 kB^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:08:06.2427087Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mcsg-DAu2N901.js                ^[[39m^[[1m^[[2m   105.39 kB^[[22m^[[1m^[[22m^[[2m │ gzip:    32.47 kB^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:08:06.2428186Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mreact-BgaH_3CY.js              ^[[39m^[[1m^[[2m   223.35 kB^[[22m^[[1m^[[22m^[[2m │ gzip:    69.70 kB^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:08:06.2429172Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mPropertyPanel-CEFJaKnt.js      ^[[39m^[[1m^[[2m   314.55 kB^[[22m^[[1m^[[22m^[[2m │ gzip:    56.42 kB^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:08:06.2430164Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mkernel-BFXQHbFn.js             ^[[39m^[[1m^[[2m   490.27 kB^[[22m^[[1m^[[22m^[[2m │ gzip:   167.26 kB^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:08:06.2431194Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mthree-Bfd7ReS2.js              ^[[39m^[[1m^[[2m   728.92 kB^[[22m^[[1m^[[22m^[[2m │ gzip:   197.58 kB^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:08:06.2432746Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mindex-kno0Zrud.js              ^[[39m^[[1m^[[2m   854.86 kB^[[22m^[[1m^[[22m^[[2m │ gzip:   235.99 kB^[[22m
+checks	UNKNOWN STEP	2026-11-03T08:08:06.2433736Z ^[[32m✓ built in 11.82s^[[39m
+checks	UNKNOWN STEP	2026-11-03T08:08:06.4049636Z ##[group]Run git diff --exit-code
+checks	UNKNOWN STEP	2026-11-03T08:08:06.4050001Z ^[[36;1mgit diff --exit-code^[[0m
+checks	UNKNOWN STEP	2026-11-03T08:08:06.4069930Z shell: /usr/bin/bash -e {0}
+checks	UNKNOWN STEP	2026-11-03T08:08:06.4070214Z ##[endgroup]
+checks	UNKNOWN STEP	2026-11-03T08:08:06.4848878Z ##[group]Run echo "typecheck=success unit=success text=success build=success clean=success"
+checks	UNKNOWN STEP	2026-11-03T08:08:06.4849571Z ^[[36;1mecho "typecheck=success unit=success text=success build=success clean=success"^[[0m
+checks	UNKNOWN STEP	2026-11-03T08:08:06.4850306Z ^[[36;1mtest "success" = success && test "success" = success && test "success" = success && test "success" = success && test "success" = success^[[0m
+checks	UNKNOWN STEP	2026-11-03T08:08:06.4870248Z shell: /usr/bin/bash -e {0}
+checks	UNKNOWN STEP	2026-11-03T08:08:06.4870510Z ##[endgroup]
+checks	UNKNOWN STEP	2026-11-03T08:08:06.4913509Z typecheck=success unit=success text=success build=success clean=success
+checks	UNKNOWN STEP	2026-11-03T08:08:06.5206088Z Post job cleanup.
+checks	UNKNOWN STEP	2026-11-03T08:08:06.6534014Z (node:3410) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+checks	UNKNOWN STEP	2026-11-03T08:08:06.6536329Z (Use `node --trace-deprecation ...` to show where the warning was created)
+checks	UNKNOWN STEP	2026-11-03T08:08:06.6538989Z Cache hit occurred on the primary key node-cache-Linux-x64-npm-7e50782abaabdfcbc792723b7c40a6f079de0dce14d505136bcdc0c470d819aa, not saving cache.
+checks	UNKNOWN STEP	2026-11-03T08:08:06.7034592Z Post job cleanup.
+checks	UNKNOWN STEP	2026-11-03T08:08:06.7958229Z [command]/usr/bin/git version
+checks	UNKNOWN STEP	2026-11-03T08:08:06.8009169Z git version 2.56.0
+checks	UNKNOWN STEP	2026-11-03T08:08:06.8051025Z Temporarily overriding HOME='/home/runner/work/_temp/64ac6cd1-f44c-4292-b3a1-86cd305e2f59' before making global git config changes
+checks	UNKNOWN STEP	2026-11-03T08:08:06.8052617Z Adding repository directory to the temporary git global config as a safe directory
+checks	UNKNOWN STEP	2026-11-03T08:08:06.8056573Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/Claude/Claude
+checks	UNKNOWN STEP	2026-11-03T08:08:06.8103710Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+checks	UNKNOWN STEP	2026-11-03T08:08:06.8158831Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+checks	UNKNOWN STEP	2026-11-03T08:08:06.8447076Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+checks	UNKNOWN STEP	2026-11-03T08:08:06.8492111Z http.https://github.com/.extraheader
+checks	UNKNOWN STEP	2026-11-03T08:08:06.8506997Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+checks	UNKNOWN STEP	2026-11-03T08:08:06.8567710Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+checks	UNKNOWN STEP	2026-11-03T08:08:06.8881109Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+checks	UNKNOWN STEP	2026-11-03T08:08:06.8938847Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+checks	UNKNOWN STEP	2026-11-03T08:08:06.9403217Z Cleaning up orphan processes
+checks	UNKNOWN STEP	2026-11-03T08:08:06.9774286Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-node@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

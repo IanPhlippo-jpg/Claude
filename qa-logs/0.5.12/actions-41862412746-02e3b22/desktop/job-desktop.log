@@ -1,0 +1,531 @@
+desktop	Set up job	﻿2026-11-04T15:54:01.8560709Z Current runner version: '2.338.2'
+desktop	Set up job	2026-11-04T15:54:01.8588775Z ##[group]Runner Image Provisioner
+desktop	Set up job	2026-11-04T15:54:01.8589809Z Hosted Compute Agent
+desktop	Set up job	2026-11-04T15:54:01.8590467Z Version: 20261028.624
+desktop	Set up job	2026-11-04T15:54:01.8591095Z Commit: 54898b74c23fde5556c9b3c3a2290865feef0dfe
+desktop	Set up job	2026-11-04T15:54:01.8591912Z Build Date: 2026-10-28T21:51:42Z
+desktop	Set up job	2026-11-04T15:54:01.8592992Z Worker ID: {25d43630-c14f-45fe-b960-c89b9b1ca58e}
+desktop	Set up job	2026-11-04T15:54:01.8593839Z Region: westus
+desktop	Set up job	2026-11-04T15:54:01.8594442Z Cloud: Azure
+desktop	Set up job	2026-11-04T15:54:01.8594979Z ##[endgroup]
+desktop	Set up job	2026-11-04T15:54:01.8596552Z ##[group]Operating System
+desktop	Set up job	2026-11-04T15:54:01.8597223Z Ubuntu
+desktop	Set up job	2026-11-04T15:54:01.8597853Z 24.04.5
+desktop	Set up job	2026-11-04T15:54:01.8598486Z LTS
+desktop	Set up job	2026-11-04T15:54:01.8599063Z ##[endgroup]
+desktop	Set up job	2026-11-04T15:54:01.8600095Z ##[group]Runner Image
+desktop	Set up job	2026-11-04T15:54:01.8600777Z Image: ubuntu-24.04
+desktop	Set up job	2026-11-04T15:54:01.8601392Z Version: 20261101.360.1
+desktop	Set up job	2026-11-04T15:54:01.8602810Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261101.360/images/ubuntu/Ubuntu2404-Readme.md
+desktop	Set up job	2026-11-04T15:54:01.8604677Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261101.360
+desktop	Set up job	2026-11-04T15:54:01.8605726Z ##[endgroup]
+desktop	Set up job	2026-11-04T15:54:01.8607012Z ##[group]GITHUB_TOKEN Permissions
+desktop	Set up job	2026-11-04T15:54:01.8609197Z Contents: read
+desktop	Set up job	2026-11-04T15:54:01.8609893Z Metadata: read
+desktop	Set up job	2026-11-04T15:54:01.8610498Z Packages: read
+desktop	Set up job	2026-11-04T15:54:01.8611072Z ##[endgroup]
+desktop	Set up job	2026-11-04T15:54:01.8613770Z Secret source: Actions
+desktop	Set up job	2026-11-04T15:54:01.8614781Z Cache mode: write
+desktop	Set up job	2026-11-04T15:54:01.8615595Z Prepare workflow directory
+desktop	Set up job	2026-11-04T15:54:01.8969084Z Prepare all required actions
+desktop	Set up job	2026-11-04T15:54:01.9019367Z Getting action download info
+desktop	Set up job	2026-11-04T15:54:02.2792088Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+desktop	Set up job	2026-11-04T15:54:02.3914853Z Download action repository 'actions/setup-node@v4' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+desktop	Set up job	2026-11-04T15:54:02.6364908Z Complete job name: desktop
+desktop	Run actions/checkout@v4	﻿2026-11-04T15:54:02.7267032Z ##[group]Run actions/checkout@v4
+desktop	Run actions/checkout@v4	2026-11-04T15:54:02.7268461Z with:
+desktop	Run actions/checkout@v4	2026-11-04T15:54:02.7269253Z   repository: IanPhlippo-jpg/Claude
+desktop	Run actions/checkout@v4	2026-11-04T15:54:02.7275981Z   token: ***
+desktop	Run actions/checkout@v4	2026-11-04T15:54:02.7276737Z   ssh-strict: true
+desktop	Run actions/checkout@v4	2026-11-04T15:54:02.7277470Z   ssh-user: git
+desktop	Run actions/checkout@v4	2026-11-04T15:54:02.7278218Z   persist-credentials: true
+desktop	Run actions/checkout@v4	2026-11-04T15:54:02.7278951Z   clean: true
+desktop	Run actions/checkout@v4	2026-11-04T15:54:02.7279419Z   sparse-checkout-cone-mode: true
+desktop	Run actions/checkout@v4	2026-11-04T15:54:02.7279949Z   fetch-depth: 1
+desktop	Run actions/checkout@v4	2026-11-04T15:54:02.7280405Z   fetch-tags: false
+desktop	Run actions/checkout@v4	2026-11-04T15:54:02.7281290Z   show-progress: true
+desktop	Run actions/checkout@v4	2026-11-04T15:54:02.7282049Z   lfs: false
+desktop	Run actions/checkout@v4	2026-11-04T15:54:02.7282945Z   submodules: false
+desktop	Run actions/checkout@v4	2026-11-04T15:54:02.7283705Z   set-safe-directory: true
+desktop	Run actions/checkout@v4	2026-11-04T15:54:02.7284565Z   allow-unsafe-pr-checkout: false
+desktop	Run actions/checkout@v4	2026-11-04T15:54:02.7285774Z ##[endgroup]
+desktop	Run actions/checkout@v4	2026-11-04T15:54:03.0837057Z Syncing repository: IanPhlippo-jpg/Claude
+desktop	Run actions/checkout@v4	2026-11-04T15:54:03.0839076Z ##[group]Getting Git version info
+desktop	Run actions/checkout@v4	2026-11-04T15:54:03.0839809Z Working directory is '/home/runner/work/Claude/Claude'
+desktop	Run actions/checkout@v4	2026-11-04T15:54:03.0840876Z [command]/usr/bin/git version
+desktop	Run actions/checkout@v4	2026-11-04T15:54:03.0983448Z git version 2.56.0
+desktop	Run actions/checkout@v4	2026-11-04T15:54:03.1013810Z ##[endgroup]
+desktop	Run actions/checkout@v4	2026-11-04T15:54:03.1022896Z Temporarily overriding HOME='/home/runner/work/_temp/94168974-d219-4a02-826f-019004a8ab85' before making global git config changes
+desktop	Run actions/checkout@v4	2026-11-04T15:54:03.1025195Z Adding repository directory to the temporary git global config as a safe directory
+desktop	Run actions/checkout@v4	2026-11-04T15:54:03.1028182Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/Claude/Claude
+desktop	Run actions/checkout@v4	2026-11-04T15:54:03.1096316Z Deleting the contents of '/home/runner/work/Claude/Claude'
+desktop	Run actions/checkout@v4	2026-11-04T15:54:03.1103633Z ##[group]Initializing the repository
+desktop	Run actions/checkout@v4	2026-11-04T15:54:03.1107255Z [command]/usr/bin/git init /home/runner/work/Claude/Claude
+desktop	Run actions/checkout@v4	2026-11-04T15:54:03.1254916Z hint: Using 'master' as the name for the initial branch. This default branch name
+desktop	Run actions/checkout@v4	2026-11-04T15:54:03.1256819Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+desktop	Run actions/checkout@v4	2026-11-04T15:54:03.1259035Z hint: to use in all of your new repositories, which will suppress this warning,
+desktop	Run actions/checkout@v4	2026-11-04T15:54:03.1260378Z hint: call:
+desktop	Run actions/checkout@v4	2026-11-04T15:54:03.1261218Z hint:
+desktop	Run actions/checkout@v4	2026-11-04T15:54:03.1262470Z hint: 	git config --global init.defaultBranch <name>
+desktop	Run actions/checkout@v4	2026-11-04T15:54:03.1263711Z hint:
+desktop	Run actions/checkout@v4	2026-11-04T15:54:03.1264746Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+desktop	Run actions/checkout@v4	2026-11-04T15:54:03.1266487Z hint: 'development'. The just-created branch can be renamed via this command:
+desktop	Run actions/checkout@v4	2026-11-04T15:54:03.1267576Z hint:
+desktop	Run actions/checkout@v4	2026-11-04T15:54:03.1268029Z hint: 	git branch -m <name>
+desktop	Run actions/checkout@v4	2026-11-04T15:54:03.1268533Z hint:
+desktop	Run actions/checkout@v4	2026-11-04T15:54:03.1269196Z hint: Disable this message with "git config set advice.defaultBranchName false"
+desktop	Run actions/checkout@v4	2026-11-04T15:54:03.1280647Z Initialized empty Git repository in /home/runner/work/Claude/Claude/.git/
+desktop	Run actions/checkout@v4	2026-11-04T15:54:03.1294088Z [command]/usr/bin/git remote add origin https://github.com/IanPhlippo-jpg/Claude
+desktop	Run actions/checkout@v4	2026-11-04T15:54:03.1349276Z ##[endgroup]
+desktop	Run actions/checkout@v4	2026-11-04T15:54:03.1350220Z ##[group]Disabling automatic garbage collection
+desktop	Run actions/checkout@v4	2026-11-04T15:54:03.1354239Z [command]/usr/bin/git config --local gc.auto 0
+desktop	Run actions/checkout@v4	2026-11-04T15:54:03.1390595Z ##[endgroup]
+desktop	Run actions/checkout@v4	2026-11-04T15:54:03.1391388Z ##[group]Setting up auth
+desktop	Run actions/checkout@v4	2026-11-04T15:54:03.1398909Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+desktop	Run actions/checkout@v4	2026-11-04T15:54:03.1439456Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+desktop	Run actions/checkout@v4	2026-11-04T15:54:03.1895457Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+desktop	Run actions/checkout@v4	2026-11-04T15:54:03.1937097Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+desktop	Run actions/checkout@v4	2026-11-04T15:54:03.2196318Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+desktop	Run actions/checkout@v4	2026-11-04T15:54:03.2242032Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+desktop	Run actions/checkout@v4	2026-11-04T15:54:03.2483145Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+desktop	Run actions/checkout@v4	2026-11-04T15:54:03.2532478Z ##[endgroup]
+desktop	Run actions/checkout@v4	2026-11-04T15:54:03.2533543Z ##[group]Fetching the repository
+desktop	Run actions/checkout@v4	2026-11-04T15:54:03.2546545Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +02e3b22e5d8feda5d4a170287f13c10fa754b21e:refs/remotes/origin/claude/fase1-schetser
+desktop	Run actions/checkout@v4	2026-11-04T15:54:05.4430332Z From https://github.com/IanPhlippo-jpg/Claude
+desktop	Run actions/checkout@v4	2026-11-04T15:54:05.4432872Z  * [new ref]         02e3b22e5d8feda5d4a170287f13c10fa754b21e -> origin/claude/fase1-schetser
+desktop	Run actions/checkout@v4	2026-11-04T15:54:05.4447881Z ##[endgroup]
+desktop	Run actions/checkout@v4	2026-11-04T15:54:05.4449748Z ##[group]Determining the checkout info
+desktop	Run actions/checkout@v4	2026-11-04T15:54:05.4451135Z ##[endgroup]
+desktop	Run actions/checkout@v4	2026-11-04T15:54:05.4451976Z [command]/usr/bin/git sparse-checkout disable
+desktop	Run actions/checkout@v4	2026-11-04T15:54:05.4514515Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+desktop	Run actions/checkout@v4	2026-11-04T15:54:05.4557320Z ##[group]Checking out the ref
+desktop	Run actions/checkout@v4	2026-11-04T15:54:05.4563510Z [command]/usr/bin/git checkout --progress --force -B claude/fase1-schetser refs/remotes/origin/claude/fase1-schetser
+desktop	Run actions/checkout@v4	2026-11-04T15:54:05.5721802Z Switched to a new branch 'claude/fase1-schetser'
+desktop	Run actions/checkout@v4	2026-11-04T15:54:05.5729189Z branch 'claude/fase1-schetser' set up to track 'origin/claude/fase1-schetser'.
+desktop	Run actions/checkout@v4	2026-11-04T15:54:05.5740631Z ##[endgroup]
+desktop	Run actions/checkout@v4	2026-11-04T15:54:05.5794219Z [command]/usr/bin/git log -1 --format=%H
+desktop	Run actions/checkout@v4	2026-11-04T15:54:05.5829039Z 02e3b22e5d8feda5d4a170287f13c10fa754b21e
+desktop	Run actions/setup-node@v4	﻿2026-11-04T15:54:05.6243852Z ##[group]Run actions/setup-node@v4
+desktop	Run actions/setup-node@v4	2026-11-04T15:54:05.6245158Z with:
+desktop	Run actions/setup-node@v4	2026-11-04T15:54:05.6246086Z   node-version-file: .nvmrc
+desktop	Run actions/setup-node@v4	2026-11-04T15:54:05.6247195Z   cache: npm
+desktop	Run actions/setup-node@v4	2026-11-04T15:54:05.6248127Z   always-auth: false
+desktop	Run actions/setup-node@v4	2026-11-04T15:54:05.6249162Z   check-latest: false
+desktop	Run actions/setup-node@v4	2026-11-04T15:54:05.6260486Z   token: ***
+desktop	Run actions/setup-node@v4	2026-11-04T15:54:05.6261429Z ##[endgroup]
+desktop	Run actions/setup-node@v4	2026-11-04T15:54:05.7756655Z Resolved .nvmrc as 22
+desktop	Run actions/setup-node@v4	2026-11-04T15:54:05.7827699Z Found in cache @ /opt/hostedtoolcache/node/22.23.4/x64
+desktop	Run actions/setup-node@v4	2026-11-04T15:54:05.7832559Z (node:2344) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+desktop	Run actions/setup-node@v4	2026-11-04T15:54:05.7834074Z (Use `node --trace-deprecation ...` to show where the warning was created)
+desktop	Run actions/setup-node@v4	2026-11-04T15:54:05.7836402Z ##[group]Environment details
+desktop	Run actions/setup-node@v4	2026-11-04T15:54:09.0360835Z node: v22.23.4
+desktop	Run actions/setup-node@v4	2026-11-04T15:54:09.0361643Z npm: 10.9.9
+desktop	Run actions/setup-node@v4	2026-11-04T15:54:09.0362539Z yarn: 1.22.22
+desktop	Run actions/setup-node@v4	2026-11-04T15:54:09.0364891Z ##[endgroup]
+desktop	Run actions/setup-node@v4	2026-11-04T15:54:09.0388466Z [command]/opt/hostedtoolcache/node/22.23.4/x64/bin/npm config get cache
+desktop	Run actions/setup-node@v4	2026-11-04T15:54:09.3688844Z /home/runner/.npm
+desktop	Run actions/setup-node@v4	2026-11-04T15:54:09.6529457Z Cache hit for: node-cache-Linux-x64-npm-0b8a2f1f8f8ef718914b89b4c64dfe6f2671acf19399f84e5500240edc4e41dc
+desktop	Run actions/setup-node@v4	2026-11-04T15:54:09.6644961Z (node:2344) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+desktop	Run actions/setup-node@v4	2026-11-04T15:54:10.9334862Z Received 29360128 of 79694631 (36.8%), 27.9 MBs/sec
+desktop	Run actions/setup-node@v4	2026-11-04T15:54:11.4755722Z Received 79694631 of 79694631 (100.0%), 49.2 MBs/sec
+desktop	Run actions/setup-node@v4	2026-11-04T15:54:11.4756887Z Cache Size: ~76 MB (79694631 B)
+desktop	Run actions/setup-node@v4	2026-11-04T15:54:11.4787175Z [command]/usr/bin/tar -xf /home/runner/work/_temp/40e42b05-0497-4bb7-953d-f4934fa5d5e1/cache.tzst -P -C /home/runner/work/Claude/Claude --use-compress-program unzstd
+desktop	Run actions/setup-node@v4	2026-11-04T15:54:11.6839443Z Cache restored successfully
+desktop	Run actions/setup-node@v4	2026-11-04T15:54:11.6878205Z Cache restored from key: node-cache-Linux-x64-npm-0b8a2f1f8f8ef718914b89b4c64dfe6f2671acf19399f84e5500240edc4e41dc
+desktop	Run npm ci	﻿2026-11-04T15:54:11.7190606Z ##[group]Run npm ci
+desktop	Run npm ci	2026-11-04T15:54:11.7190977Z ^[[36;1mnpm ci^[[0m
+desktop	Run npm ci	2026-11-04T15:54:11.7279197Z shell: /usr/bin/bash -e {0}
+desktop	Run npm ci	2026-11-04T15:54:11.7279538Z ##[endgroup]
+desktop	Run npm ci	2026-11-04T15:54:15.5322029Z npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+desktop	Run npm ci	2026-11-04T15:54:15.5729998Z npm warn deprecated rimraf@2.6.3: Rimraf versions prior to v4 are no longer supported
+desktop	Run npm ci	2026-11-04T15:54:15.6640465Z npm warn deprecated whatwg-encoding@3.1.1: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+desktop	Run npm ci	2026-11-04T15:54:15.6692961Z npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+desktop	Run npm ci	2026-11-04T15:54:16.0170186Z npm warn deprecated boolean@3.2.0: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
+desktop	Run npm ci	2026-11-04T15:54:19.1830053Z 
+desktop	Run npm ci	2026-11-04T15:54:19.1831127Z added 463 packages, and audited 464 packages in 7s
+desktop	Run npm ci	2026-11-04T15:54:19.1831788Z 
+desktop	Run npm ci	2026-11-04T15:54:19.1832128Z 76 packages are looking for funding
+desktop	Run npm ci	2026-11-04T15:54:19.1832973Z   run `npm fund` for details
+desktop	Run npm ci	2026-11-04T15:54:19.2041932Z 
+desktop	Run npm ci	2026-11-04T15:54:19.2042776Z 15 moderate severity vulnerabilities
+desktop	Run npm ci	2026-11-04T15:54:19.2043244Z 
+desktop	Run npm ci	2026-11-04T15:54:19.2043936Z To address all issues (including breaking changes), run:
+desktop	Run npm ci	2026-11-04T15:54:19.2044716Z   npm audit fix --force
+desktop	Run npm ci	2026-11-04T15:54:19.2045117Z 
+desktop	Run npm ci	2026-11-04T15:54:19.2045596Z Run `npm audit` for details.
+desktop	Run npx playwright install-deps chromium	﻿2026-11-04T15:54:19.2856605Z ##[group]Run npx playwright install-deps chromium
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:19.2857117Z ^[[36;1mnpx playwright install-deps chromium^[[0m
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:19.2878814Z shell: /usr/bin/bash -e {0}
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:19.2879110Z ##[endgroup]
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:20.1694832Z Installing dependencies...
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:20.1764605Z Switching to root user to install dependencies...
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:20.2594104Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:20.2950024Z Hit:2 http://azure.archive.ubuntu.com/ubuntu noble InRelease
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:20.2959540Z Get:6 https://packages.microsoft.com/ubuntu/24.04/prod noble InRelease [3600 B]
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:20.2974473Z Get:3 http://azure.archive.ubuntu.com/ubuntu noble-updates InRelease [126 kB]
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:20.3000600Z Get:4 http://azure.archive.ubuntu.com/ubuntu noble-backports InRelease [126 kB]
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:20.3028561Z Get:5 http://azure.archive.ubuntu.com/ubuntu noble-security InRelease [126 kB]
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:20.4399505Z Get:7 https://packages.microsoft.com/ubuntu/24.04/prod noble/main arm64 Packages [652 kB]
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:20.4564712Z Get:8 https://packages.microsoft.com/ubuntu/24.04/prod noble/main amd64 Packages [721 kB]
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:20.4959959Z Get:9 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 Packages [1408 kB]
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:20.5034243Z Get:10 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 Packages [1707 kB]
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:20.6085814Z Get:11 http://azure.archive.ubuntu.com/ubuntu noble-security/main amd64 Packages [1155 kB]
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:20.6135595Z Get:12 http://azure.archive.ubuntu.com/ubuntu noble-security/main Translation-en [233 kB]
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:20.6153672Z Get:13 http://azure.archive.ubuntu.com/ubuntu noble-security/universe amd64 Packages [1224 kB]
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:20.6210153Z Get:14 http://azure.archive.ubuntu.com/ubuntu noble-security/universe Translation-en [247 kB]
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:20.6231768Z Get:15 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted amd64 Packages [1721 kB]
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:20.6308711Z Get:16 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted Translation-en [394 kB]
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:20.6331480Z Get:17 http://azure.archive.ubuntu.com/ubuntu noble-security/multiverse Translation-en [12.4 kB]
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:23.9101917Z Fetched 9857 kB in 1s (9773 kB/s)
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.0906822Z Reading package lists...
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.1242446Z Reading package lists...
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.3733990Z Building dependency tree...
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.3741135Z Reading state information...
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.5233890Z libasound2t64 is already the newest version (1.2.11-1ubuntu0.3).
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.5235440Z libasound2t64 set to manually installed.
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.5236871Z libatk-bridge2.0-0t64 is already the newest version (2.52.0-1build1).
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.5238359Z libatk-bridge2.0-0t64 set to manually installed.
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.5239880Z libatk1.0-0t64 is already the newest version (2.52.0-1build1).
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.5241269Z libatk1.0-0t64 set to manually installed.
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.5242915Z libatspi2.0-0t64 is already the newest version (2.52.0-1build1).
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.5244023Z libatspi2.0-0t64 set to manually installed.
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.5245042Z libcairo2 is already the newest version (1.18.0-3build1).
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.5246089Z libcairo2 set to manually installed.
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.5247348Z libcups2t64 is already the newest version (2.4.7-1.2ubuntu7.14).
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.5248508Z libcups2t64 set to manually installed.
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.5249329Z libdbus-1-3 is already the newest version (1.14.10-4ubuntu4.1).
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.5250120Z libdbus-1-3 set to manually installed.
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.5251023Z libdrm2 is already the newest version (2.4.125-1ubuntu0.1~24.04.2).
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.5251881Z libdrm2 set to manually installed.
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.5253080Z libgbm1 is already the newest version (25.2.8-0ubuntu0.24.04.4).
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.5253980Z libgbm1 set to manually installed.
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.5254898Z libglib2.0-0t64 is already the newest version (2.80.0-6ubuntu3.10).
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.5256367Z libglib2.0-0t64 set to manually installed.
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.5257318Z libnspr4 is already the newest version (2:4.35-1.1build1).
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.5258158Z libnspr4 set to manually installed.
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.5258927Z libnss3 is already the newest version (2:3.98-1ubuntu0.3).
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.5259890Z libnss3 set to manually installed.
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.5260700Z libpango-1.0-0 is already the newest version (1.52.1+ds-1build1).
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.5261504Z libpango-1.0-0 set to manually installed.
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.5262583Z libx11-6 is already the newest version (2:1.8.7-1ubuntu0.1).
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.5263380Z libx11-6 set to manually installed.
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.5264046Z libxcb1 is already the newest version (1.15-1ubuntu2).
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.5264726Z libxcb1 set to manually installed.
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.5265524Z libxcomposite1 is already the newest version (1:0.4.5-1build3).
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.5266340Z libxcomposite1 set to manually installed.
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.5267145Z libxdamage1 is already the newest version (1:1.1.6-1build1).
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.5267920Z libxdamage1 set to manually installed.
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.5268683Z libxext6 is already the newest version (2:1.3.4-1build2).
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.5269430Z libxext6 set to manually installed.
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.5270175Z libxfixes3 is already the newest version (1:6.0.0-2build1).
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.5270924Z libxfixes3 set to manually installed.
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.5271702Z libxkbcommon0 is already the newest version (1.6.0-1build1).
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.5272724Z libxkbcommon0 set to manually installed.
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.5273491Z libxrandr2 is already the newest version (2:1.5.2-2build1).
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.5274243Z libxrandr2 set to manually installed.
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.5275000Z xvfb is already the newest version (2:21.1.12-1ubuntu1.9).
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.5276079Z fonts-noto-color-emoji is already the newest version (2.047-0ubuntu0.24.04.1).
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.5277261Z libfontconfig1 is already the newest version (2.15.0-1.1ubuntu2).
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.5278079Z libfontconfig1 set to manually installed.
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.5278933Z libfreetype6 is already the newest version (2.13.2+dfsg-1ubuntu0.2).
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.5279776Z libfreetype6 set to manually installed.
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.5280575Z fonts-liberation is already the newest version (1:2.1.5-3).
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.5281395Z fonts-liberation set to manually installed.
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.5282171Z The following additional packages will be installed:
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.5283147Z   xfonts-encodings xfonts-utils
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.5283664Z Recommended packages:
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.5284192Z   fonts-ipafont-mincho fonts-tlwg-loma
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.5469126Z The following NEW packages will be installed:
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.5470067Z   fonts-freefont-ttf fonts-ipafont-gothic fonts-tlwg-loma-otf fonts-unifont
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.5477161Z   fonts-wqy-zenhei xfonts-cyrillic xfonts-encodings xfonts-scalable
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.5477936Z   xfonts-utils
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.5686834Z 0 upgraded, 9 newly installed, 0 to remove and 12 not upgraded.
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.5687511Z Need to get 21.1 MB of archives.
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.5688009Z After this operation, 79.5 MB of additional disk space will be used.
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.5688582Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:25.6505419Z Get:2 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-ipafont-gothic all 00303-21ubuntu1 [3513 kB]
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:28.4854823Z Get:3 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 fonts-freefont-ttf all 20211204+svn4273-2 [5641 kB]
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:32.9798274Z Get:4 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-tlwg-loma-otf all 1:0.7.3-1 [107 kB]
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:33.0626948Z Get:5 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-unifont all 1:15.1.01-1build1 [2993 kB]
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:35.4345055Z Get:6 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-wqy-zenhei all 0.9.45-8 [7472 kB]
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:41.6755741Z Get:7 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 xfonts-encodings all 1:1.0.5-0ubuntu2 [578 kB]
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:42.1331377Z Get:8 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 xfonts-utils amd64 1:7.7+6build3 [94.4 kB]
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:42.2123833Z Get:9 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 xfonts-cyrillic all 1:1.0.5+nmu1 [384 kB]
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:42.5392126Z Get:10 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 xfonts-scalable all 1:1.0.3-1.3 [304 kB]
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:43.0173817Z Fetched 21.1 MB in 17s (1227 kB/s)
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:43.0448560Z Selecting previously unselected package fonts-ipafont-gothic.
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:43.0808892Z (Reading database ... 
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:43.0809583Z (Reading database ... 5%
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:43.0810064Z (Reading database ... 10%
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:43.0810520Z (Reading database ... 15%
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:43.0810963Z (Reading database ... 20%
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:43.0811445Z (Reading database ... 25%
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:43.0811885Z (Reading database ... 30%
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:43.0812745Z (Reading database ... 35%
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:43.0813485Z (Reading database ... 40%
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:43.0814108Z (Reading database ... 45%
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:43.0814546Z (Reading database ... 50%
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:43.0876217Z (Reading database ... 55%
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:43.2713370Z (Reading database ... 60%
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:43.4352414Z (Reading database ... 65%
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:43.6822474Z (Reading database ... 70%
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:43.8402564Z (Reading database ... 75%
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:44.0288843Z (Reading database ... 80%
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:44.2367875Z (Reading database ... 85%
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:44.4471787Z (Reading database ... 90%
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:44.5967474Z (Reading database ... 95%
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:44.5968471Z (Reading database ... 100%
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:44.5969915Z (Reading database ... 215960 files and directories currently installed.)
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:44.6013208Z Preparing to unpack .../0-fonts-ipafont-gothic_00303-21ubuntu1_all.deb ...
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:44.6121402Z Unpacking fonts-ipafont-gothic (00303-21ubuntu1) ...
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:44.8600104Z Selecting previously unselected package fonts-freefont-ttf.
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:44.8746975Z Preparing to unpack .../1-fonts-freefont-ttf_20211204+svn4273-2_all.deb ...
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:44.8756754Z Unpacking fonts-freefont-ttf (20211204+svn4273-2) ...
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:44.9635523Z Selecting previously unselected package fonts-tlwg-loma-otf.
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:44.9784565Z Preparing to unpack .../2-fonts-tlwg-loma-otf_1%3a0.7.3-1_all.deb ...
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:44.9794028Z Unpacking fonts-tlwg-loma-otf (1:0.7.3-1) ...
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:45.0044230Z Selecting previously unselected package fonts-unifont.
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:45.0188833Z Preparing to unpack .../3-fonts-unifont_1%3a15.1.01-1build1_all.deb ...
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:45.0198973Z Unpacking fonts-unifont (1:15.1.01-1build1) ...
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:45.1387621Z Selecting previously unselected package fonts-wqy-zenhei.
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:45.1532632Z Preparing to unpack .../4-fonts-wqy-zenhei_0.9.45-8_all.deb ...
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:45.1644187Z Unpacking fonts-wqy-zenhei (0.9.45-8) ...
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:45.6501994Z Selecting previously unselected package xfonts-encodings.
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:45.6644754Z Preparing to unpack .../5-xfonts-encodings_1%3a1.0.5-0ubuntu2_all.deb ...
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:45.6654839Z Unpacking xfonts-encodings (1:1.0.5-0ubuntu2) ...
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:45.7218492Z Selecting previously unselected package xfonts-utils.
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:45.7404965Z Preparing to unpack .../6-xfonts-utils_1%3a7.7+6build3_amd64.deb ...
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:45.7423151Z Unpacking xfonts-utils (1:7.7+6build3) ...
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:45.8021220Z Selecting previously unselected package xfonts-cyrillic.
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:45.8167934Z Preparing to unpack .../7-xfonts-cyrillic_1%3a1.0.5+nmu1_all.deb ...
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:45.8177404Z Unpacking xfonts-cyrillic (1:1.0.5+nmu1) ...
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:45.8572988Z Selecting previously unselected package xfonts-scalable.
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:45.8716783Z Preparing to unpack .../8-xfonts-scalable_1%3a1.0.3-1.3_all.deb ...
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:45.8726349Z Unpacking xfonts-scalable (1:1.0.3-1.3) ...
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:45.9187013Z Setting up fonts-wqy-zenhei (0.9.45-8) ...
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:45.9318028Z Setting up fonts-freefont-ttf (20211204+svn4273-2) ...
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:45.9342932Z Setting up fonts-tlwg-loma-otf (1:0.7.3-1) ...
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:45.9370314Z Setting up xfonts-encodings (1:1.0.5-0ubuntu2) ...
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:45.9396569Z Setting up fonts-ipafont-gothic (00303-21ubuntu1) ...
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:45.9466414Z update-alternatives: using /usr/share/fonts/opentype/ipafont-gothic/ipag.ttf to provide /usr/share/fonts/truetype/fonts-japanese-gothic.ttf (fonts-japanese-gothic.ttf) in auto mode
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:45.9484264Z Setting up fonts-unifont (1:15.1.01-1build1) ...
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:45.9559769Z Setting up xfonts-utils (1:7.7+6build3) ...
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:45.9606796Z Setting up xfonts-cyrillic (1:1.0.5+nmu1) ...
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:46.0020520Z Setting up xfonts-scalable (1:1.0.3-1.3) ...
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:46.0320770Z Processing triggers for man-db (2.12.0-4build2) ...
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:46.0348909Z Not building database; man-db/auto-update is not 'true'.
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:46.0364382Z Processing triggers for fontconfig (2.15.0-1.1ubuntu2) ...
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:46.9268776Z 
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:46.9269615Z Running kernel seems to be up-to-date.
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:46.9270428Z 
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:46.9270790Z No services need to be restarted.
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:46.9271199Z 
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:46.9271581Z No containers need to be restarted.
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:46.9272040Z 
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:46.9272792Z No user sessions are running outdated binaries.
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:46.9273406Z 
+desktop	Run npx playwright install-deps chromium	2026-11-04T15:54:46.9274119Z No VM guests are running outdated hypervisor (qemu) binaries on this host.
+desktop	Run npm run build	﻿2026-11-04T15:54:47.8988010Z ##[group]Run npm run build
+desktop	Run npm run build	2026-11-04T15:54:47.8988327Z ^[[36;1mnpm run build^[[0m
+desktop	Run npm run build	2026-11-04T15:54:47.9008530Z shell: /usr/bin/bash -e {0}
+desktop	Run npm run build	2026-11-04T15:54:47.9008797Z ##[endgroup]
+desktop	Run npm run build	2026-11-04T15:54:48.0047393Z 
+desktop	Run npm run build	2026-11-04T15:54:48.0047990Z > phlippo-cad@0.5.12 build
+desktop	Run npm run build	2026-11-04T15:54:48.0048644Z > tsc -b && vite build
+desktop	Run npm run build	2026-11-04T15:54:48.0048975Z 
+desktop	Run npm run build	2026-11-04T15:55:11.6665753Z ^[[36mvite v7.3.7 ^[[32mbuilding client environment for production...^[[36m^[[39m
+desktop	Run npm run build	2026-11-04T15:55:11.7315200Z transforming...
+desktop	Run npm run build	2026-11-04T15:55:15.6381862Z ^[[33m[plugin vite:resolve] Module "node:module" has been externalized for browser compatibility, imported by "/home/runner/work/Claude/Claude/node_modules/replicad-opencascadejs/dist/replicad_single.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.^[[39m
+desktop	Run npm run build	2026-11-04T15:55:22.1938255Z ^[[32m✓^[[39m 395 modules transformed.
+desktop	Run npm run build	2026-11-04T15:55:22.6313872Z rendering chunks...
+desktop	Run npm run build	2026-11-04T15:55:23.0290273Z computing gzip size...
+desktop	Run npm run build	2026-11-04T15:55:23.6388847Z ^[[2mdist/^[[22m^[[32mindex.html                              ^[[39m^[[1m^[[2m     1.10 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     0.50 kB^[[22m
+desktop	Run npm run build	2026-11-04T15:55:23.6390157Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[32mreplicad_single-BfZpIs5k.js      ^[[39m^[[1m^[[2m    59.37 kB^[[22m^[[1m^[[22m
+desktop	Run npm run build	2026-11-04T15:55:23.6391405Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[32mreplicad-DSoIoMtf.js             ^[[39m^[[1m^[[2m   372.71 kB^[[22m^[[1m^[[22m
+desktop	Run npm run build	2026-11-04T15:55:23.6393031Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[32mrebuild.worker-_UAk2dI9.js       ^[[39m^[[1m^[[2m   680.88 kB^[[22m^[[1m^[[22m
+desktop	Run npm run build	2026-11-04T15:55:23.6394606Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[32mocct.worker-B0d61LED.js          ^[[39m^[[1m^[[2m   701.05 kB^[[22m^[[1m^[[22m
+desktop	Run npm run build	2026-11-04T15:55:23.6396061Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[32mreplicad_single-B_1cTsn_.wasm    ^[[39m^[[1m^[[2m22,980.27 kB^[[22m^[[1m^[[22m^[[2m │ gzip: 7,267.29 kB^[[22m
+desktop	Run npm run build	2026-11-04T15:55:23.6398035Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[35mindex-fUqlWaX-.css               ^[[39m^[[1m^[[2m    84.30 kB^[[22m^[[1m^[[22m^[[2m │ gzip:    16.55 kB^[[22m
+desktop	Run npm run build	2026-11-04T15:55:23.6399808Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mdesignTableCommands-fpfuytY3.js  ^[[39m^[[1m^[[2m     1.24 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     0.67 kB^[[22m
+desktop	Run npm run build	2026-11-04T15:55:23.6401719Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mpreviewWindow-DuN5tj1r.js        ^[[39m^[[1m^[[2m     1.63 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     0.77 kB^[[22m
+desktop	Run npm run build	2026-11-04T15:55:23.6403870Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mDrawingTreeBody-t13-SLH3.js      ^[[39m^[[1m^[[2m     2.17 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     0.99 kB^[[22m
+desktop	Run npm run build	2026-11-04T15:55:23.6406376Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mselfTest-CgeadLXd.js             ^[[39m^[[1m^[[2m     3.24 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.56 kB^[[22m
+desktop	Run npm run build	2026-11-04T15:55:23.6407818Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mSensorPM-CqKhHB9m.js             ^[[39m^[[1m^[[2m     3.32 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.15 kB^[[22m
+desktop	Run npm run build	2026-11-04T15:55:23.6408865Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mFastenerPM-BRBfrvk6.js           ^[[39m^[[1m^[[2m     3.83 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.34 kB^[[22m
+desktop	Run npm run build	2026-11-04T15:55:23.6410364Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mStandardPartsPane-Cu2CGs63.js    ^[[39m^[[1m^[[2m     4.08 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.67 kB^[[22m
+desktop	Run npm run build	2026-11-04T15:55:23.6411444Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mdesignStudy-TtnPBP3v.js          ^[[39m^[[1m^[[2m     4.11 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.56 kB^[[22m
+desktop	Run npm run build	2026-11-04T15:55:23.6413136Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mAnalysisPM2-DDx5jEY1.js          ^[[39m^[[1m^[[2m     5.51 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.77 kB^[[22m
+desktop	Run npm run build	2026-11-04T15:55:23.6414871Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mconfigureDialog-BnEAZMaU.js      ^[[39m^[[1m^[[2m     5.54 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.13 kB^[[22m
+desktop	Run npm run build	2026-11-04T15:55:23.6416002Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mrenderDialogs-ChuYtzWr.js        ^[[39m^[[1m^[[2m     5.93 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.76 kB^[[22m
+desktop	Run npm run build	2026-11-04T15:55:23.6417015Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36msheetExport-CEnty5Dw.js          ^[[39m^[[1m^[[2m     5.97 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.75 kB^[[22m
+desktop	Run npm run build	2026-11-04T15:55:23.6417986Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mPlanePM-CeS6WkxW.js              ^[[39m^[[1m^[[2m     6.01 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.67 kB^[[22m
+desktop	Run npm run build	2026-11-04T15:55:23.6419292Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mSectionViewPM-Cl3yuF40.js        ^[[39m^[[1m^[[2m     6.31 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.96 kB^[[22m
+desktop	Run npm run build	2026-11-04T15:55:23.6420303Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mViewPane-B6bBWWXg.js             ^[[39m^[[1m^[[2m     6.47 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.94 kB^[[22m
+desktop	Run npm run build	2026-11-04T15:55:23.6421309Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36massemblyDialogs-D2A7JEJg.js      ^[[39m^[[1m^[[2m     6.53 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.14 kB^[[22m
+desktop	Run npm run build	2026-11-04T15:55:23.6422607Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mAssemblyTab-C8PsFeNI.js          ^[[39m^[[1m^[[2m     7.11 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.97 kB^[[22m
+desktop	Run npm run build	2026-11-04T15:55:23.6423681Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mAutoTolerancePM-Y6KjDyKC.js      ^[[39m^[[1m^[[2m     7.34 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.00 kB^[[22m
+desktop	Run npm run build	2026-11-04T15:55:23.6424703Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mSheetDialogs-B-73pgot.js         ^[[39m^[[1m^[[2m     7.57 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.14 kB^[[22m
+desktop	Run npm run build	2026-11-04T15:55:23.6425705Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mDrawingTabs-Ba4CB93W.js          ^[[39m^[[1m^[[2m     8.08 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.93 kB^[[22m
+desktop	Run npm run build	2026-11-04T15:55:23.6426683Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mSketch3DPM-DS6KQK3C.js           ^[[39m^[[1m^[[2m     8.57 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     3.05 kB^[[22m
+desktop	Run npm run build	2026-11-04T15:55:23.6427655Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mRefGeomPM-ITBcbIna.js            ^[[39m^[[1m^[[2m     8.60 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.39 kB^[[22m
+desktop	Run npm run build	2026-11-04T15:55:23.6428627Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mequations-Dkpk-TFk.js            ^[[39m^[[1m^[[2m     9.21 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.98 kB^[[22m
+desktop	Run npm run build	2026-11-04T15:55:23.6429625Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mConfigurationPanel-D5OsWGYr.js   ^[[39m^[[1m^[[2m     9.32 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.73 kB^[[22m
+desktop	Run npm run build	2026-11-04T15:55:23.6430647Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mappearanceDialog-ray26hPE.js     ^[[39m^[[1m^[[2m     9.61 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     3.07 kB^[[22m
+desktop	Run npm run build	2026-11-04T15:55:23.6431656Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mDrawingExtras-CguFs9Ed.js        ^[[39m^[[1m^[[2m    10.05 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     3.50 kB^[[22m
+desktop	Run npm run build	2026-11-04T15:55:23.6432902Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mAssemblyTreeBody-Ba8MlZtB.js     ^[[39m^[[1m^[[2m    10.19 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     3.12 kB^[[22m
+desktop	Run npm run build	2026-11-04T15:55:23.6433929Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mDraftAnalysisPM-D_w5V6r1.js      ^[[39m^[[1m^[[2m    10.92 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.59 kB^[[22m
+desktop	Run npm run build	2026-11-04T15:55:23.6435117Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mevaluateDialogs-Cg4pzFpJ.js      ^[[39m^[[1m^[[2m    11.43 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     3.33 kB^[[22m
+desktop	Run npm run build	2026-11-04T15:55:23.6436130Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mAppearancesPane-BR5HwjlR.js      ^[[39m^[[1m^[[2m    11.68 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     4.04 kB^[[22m
+desktop	Run npm run build	2026-11-04T15:55:23.6437122Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mtreeDialogs-BkqX7owp.js          ^[[39m^[[1m^[[2m    12.44 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     3.91 kB^[[22m
+desktop	Run npm run build	2026-11-04T15:55:23.6438123Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mmaterialDialog-CeGc8qro.js       ^[[39m^[[1m^[[2m    13.03 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     3.93 kB^[[22m
+desktop	Run npm run build	2026-11-04T15:55:23.6439118Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mcustomize-DHwaX81x.js            ^[[39m^[[1m^[[2m    14.87 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     4.28 kB^[[22m
+desktop	Run npm run build	2026-11-04T15:55:23.6440083Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mevaluate-ua5W6HFW.js             ^[[39m^[[1m^[[2m    16.23 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     5.25 kB^[[22m
+desktop	Run npm run build	2026-11-04T15:55:23.6441053Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mdialogs-BpgvuZpT.js              ^[[39m^[[1m^[[2m    23.88 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     6.78 kB^[[22m
+desktop	Run npm run build	2026-11-04T15:55:23.6442102Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mevaluateDialogs2-PrNNzzN0.js     ^[[39m^[[1m^[[2m    25.05 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     6.63 kB^[[22m
+desktop	Run npm run build	2026-11-04T15:55:23.6443360Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mMotionTimeline-DFTkCbNk.js       ^[[39m^[[1m^[[2m    26.56 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     6.92 kB^[[22m
+desktop	Run npm run build	2026-11-04T15:55:23.6444597Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mAssemblyPM-3BxljE4I.js           ^[[39m^[[1m^[[2m    27.45 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     6.50 kB^[[22m
+desktop	Run npm run build	2026-11-04T15:55:23.6445608Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mDrawingSheetView-D4e-LDmX.js     ^[[39m^[[1m^[[2m    51.45 kB^[[22m^[[1m^[[22m^[[2m │ gzip:    16.72 kB^[[22m
+desktop	Run npm run build	2026-11-04T15:55:23.6446608Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36moptions-BbL8dbKc.js              ^[[39m^[[1m^[[2m    52.90 kB^[[22m^[[1m^[[22m^[[2m │ gzip:    14.28 kB^[[22m
+desktop	Run npm run build	2026-11-04T15:55:23.6447592Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mDrawingPM-t2ui9TmB.js            ^[[39m^[[1m^[[2m    53.70 kB^[[22m^[[1m^[[22m^[[2m │ gzip:    11.21 kB^[[22m
+desktop	Run npm run build	2026-11-04T15:55:23.6448780Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mcsg-DUo1x2C3.js                  ^[[39m^[[1m^[[2m   105.39 kB^[[22m^[[1m^[[22m^[[2m │ gzip:    32.47 kB^[[22m
+desktop	Run npm run build	2026-11-04T15:55:23.6449749Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mreact-BgaH_3CY.js                ^[[39m^[[1m^[[2m   223.35 kB^[[22m^[[1m^[[22m^[[2m │ gzip:    69.70 kB^[[22m
+desktop	Run npm run build	2026-11-04T15:55:23.6450734Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mPropertyPanel-Cj91NmRh.js        ^[[39m^[[1m^[[2m   314.55 kB^[[22m^[[1m^[[22m^[[2m │ gzip:    56.43 kB^[[22m
+desktop	Run npm run build	2026-11-04T15:55:23.6451706Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mkernel-BCjojtfk.js               ^[[39m^[[1m^[[2m   523.19 kB^[[22m^[[1m^[[22m^[[2m │ gzip:   181.71 kB^[[22m
+desktop	Run npm run build	2026-11-04T15:55:23.6452931Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mthree-CCz4rHc3.js                ^[[39m^[[1m^[[2m   728.92 kB^[[22m^[[1m^[[22m^[[2m │ gzip:   197.58 kB^[[22m
+desktop	Run npm run build	2026-11-04T15:55:23.6453892Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mindex-B8O3bqtY.js                ^[[39m^[[1m^[[2m   782.72 kB^[[22m^[[1m^[[22m^[[2m │ gzip:   221.03 kB^[[22m
+desktop	Run npm run build	2026-11-04T15:55:23.6454486Z ^[[32m✓ built in 11.95s^[[39m
+desktop	Run PHLIPPO_SOFTWARE_GL=1 xvfb-run -a node e2e/desktop-nohooks.mjs	﻿2026-11-04T15:55:23.7979379Z ##[group]Run PHLIPPO_SOFTWARE_GL=1 xvfb-run -a node e2e/desktop-nohooks.mjs
+desktop	Run PHLIPPO_SOFTWARE_GL=1 xvfb-run -a node e2e/desktop-nohooks.mjs	2026-11-04T15:55:23.7979980Z ^[[36;1mPHLIPPO_SOFTWARE_GL=1 xvfb-run -a node e2e/desktop-nohooks.mjs^[[0m
+desktop	Run PHLIPPO_SOFTWARE_GL=1 xvfb-run -a node e2e/desktop-nohooks.mjs	2026-11-04T15:55:23.8000926Z shell: /usr/bin/bash -e {0}
+desktop	Run PHLIPPO_SOFTWARE_GL=1 xvfb-run -a node e2e/desktop-nohooks.mjs	2026-11-04T15:55:23.8001199Z ##[endgroup]
+desktop	Run PHLIPPO_SOFTWARE_GL=1 xvfb-run -a node e2e/desktop-nohooks.mjs	2026-11-04T15:55:24.5641472Z Downloading Electron binary...
+desktop	Run PHLIPPO_SOFTWARE_GL=1 xvfb-run -a node e2e/desktop-nohooks.mjs	2026-11-04T15:55:30.6213673Z ok   no test hooks without PHLIPPO_E2E
+desktop	Run PHLIPPO_SOFTWARE_GL=1 xvfb-run -a node e2e/desktop-nohooks.mjs	2026-11-04T15:55:30.6230022Z ok   bridge says testHooks is off
+desktop	Run PHLIPPO_SOFTWARE_GL=1 xvfb-run -a node e2e/desktop-nohooks.mjs	2026-11-04T15:55:30.6257142Z ok   Content-Security-Policy meta in the page
+desktop	Run PHLIPPO_SOFTWARE_GL=1 xvfb-run -a node e2e/desktop-nohooks.mjs	2026-11-04T15:55:30.6298736Z ok   no application menu (no DevTools / Reload entries in a menu, F67)
+desktop	Run PHLIPPO_SOFTWARE_GL=1 xvfb-run -a node e2e/desktop-nohooks.mjs	2026-11-04T15:55:31.6360677Z ok   software OpenGL: the shell reports it and WebGL runs on SwiftShader
+desktop	Run PHLIPPO_SOFTWARE_GL=1 xvfb-run -a node e2e/desktop-nohooks.mjs	2026-11-04T15:55:31.7379755Z ok   Use software OpenGL is kept for the next start
+desktop	Run PHLIPPO_SOFTWARE_GL=1 xvfb-run -a node e2e/desktop-nohooks.mjs	2026-11-04T15:55:31.7402979Z ok   permissions are refused (F87)
+desktop	Run PHLIPPO_SOFTWARE_GL=1 xvfb-run -a node e2e/desktop-nohooks.mjs	2026-11-04T15:55:38.7324036Z ok   Final Render works without the test hooks
+desktop	Run PHLIPPO_SOFTWARE_GL=1 xvfb-run -a node e2e/desktop-nohooks.mjs	2026-11-04T15:55:42.0523636Z ok   Zoom to Fit (F) runs without a page error
+desktop	Run PHLIPPO_SOFTWARE_GL=1 xvfb-run -a node e2e/desktop-nohooks.mjs	2026-11-04T15:55:42.2503821Z ok   About reports 0.5.12 with the notice and the licence files
+desktop	Run PHLIPPO_SOFTWARE_GL=1 xvfb-run -a node e2e/desktop-nohooks.mjs	2026-11-04T15:55:42.4183944Z 
+desktop	Run PHLIPPO_SOFTWARE_GL=1 xvfb-run -a node e2e/desktop-nohooks.mjs	2026-11-04T15:55:42.4184612Z 10/10 checks passed
+desktop	Run code=0; xvfb-run -a npx electron . --self-test --software-gl --no-sandbox || code=$?	﻿2026-11-04T15:55:42.4389307Z ##[group]Run code=0; xvfb-run -a npx electron . --self-test --software-gl --no-sandbox || code=$?
+desktop	Run code=0; xvfb-run -a npx electron . --self-test --software-gl --no-sandbox || code=$?	2026-11-04T15:55:42.4390512Z ^[[36;1mcode=0; xvfb-run -a npx electron . --self-test --software-gl --no-sandbox || code=$?^[[0m
+desktop	Run code=0; xvfb-run -a npx electron . --self-test --software-gl --no-sandbox || code=$?	2026-11-04T15:55:42.4391414Z ^[[36;1mcat /tmp/phlippo-self-test.json; exit $code^[[0m
+desktop	Run code=0; xvfb-run -a npx electron . --self-test --software-gl --no-sandbox || code=$?	2026-11-04T15:55:42.4418424Z shell: /usr/bin/bash -e {0}
+desktop	Run code=0; xvfb-run -a npx electron . --self-test --software-gl --no-sandbox || code=$?	2026-11-04T15:55:42.4418853Z ##[endgroup]
+desktop	Run code=0; xvfb-run -a npx electron . --self-test --software-gl --no-sandbox || code=$?	2026-11-04T15:55:42.9433009Z [3249:1104/155542.940554:ERROR:dbus/bus.cc:406] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+desktop	Run code=0; xvfb-run -a npx electron . --self-test --software-gl --no-sandbox || code=$?	2026-11-04T15:55:43.0259017Z [3249:1104/155543.025247:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+desktop	Run code=0; xvfb-run -a npx electron . --self-test --software-gl --no-sandbox || code=$?	2026-11-04T15:55:43.0265813Z [3249:1104/155543.026299:ERROR:dbus/bus.cc:406] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+desktop	Run code=0; xvfb-run -a npx electron . --self-test --software-gl --no-sandbox || code=$?	2026-11-04T15:55:43.0408952Z [3249:1104/155543.040629:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+desktop	Run code=0; xvfb-run -a npx electron . --self-test --software-gl --no-sandbox || code=$?	2026-11-04T15:55:54.3007387Z {
+desktop	Run code=0; xvfb-run -a npx electron . --self-test --software-gl --no-sandbox || code=$?	2026-11-04T15:55:54.3007888Z  "version": "0.5.12",
+desktop	Run code=0; xvfb-run -a npx electron . --self-test --software-gl --no-sandbox || code=$?	2026-11-04T15:55:54.3008324Z  "commit": "02e3b22",
+desktop	Run code=0; xvfb-run -a npx electron . --self-test --software-gl --no-sandbox || code=$?	2026-11-04T15:55:54.3008730Z  "packaged": false,
+desktop	Run code=0; xvfb-run -a npx electron . --self-test --software-gl --no-sandbox || code=$?	2026-11-04T15:55:54.3009202Z  "url": "app://phlippo/index.html",
+desktop	Run code=0; xvfb-run -a npx electron . --self-test --software-gl --no-sandbox || code=$?	2026-11-04T15:55:54.3009781Z  "dir": "/tmp/phlippo-self-test-blRpCZ",
+desktop	Run code=0; xvfb-run -a npx electron . --self-test --software-gl --no-sandbox || code=$?	2026-11-04T15:55:54.3010280Z  "steps": [
+desktop	Run code=0; xvfb-run -a npx electron . --self-test --software-gl --no-sandbox || code=$?	2026-11-04T15:55:54.3010594Z   {
+desktop	Run code=0; xvfb-run -a npx electron . --self-test --software-gl --no-sandbox || code=$?	2026-11-04T15:55:54.3011007Z    "name": "the app started (Welcome)",
+desktop	Run code=0; xvfb-run -a npx electron . --self-test --software-gl --no-sandbox || code=$?	2026-11-04T15:55:54.3011468Z    "ok": true
+desktop	Run code=0; xvfb-run -a npx electron . --self-test --software-gl --no-sandbox || code=$?	2026-11-04T15:55:54.3011793Z   },
+desktop	Run code=0; xvfb-run -a npx electron . --self-test --software-gl --no-sandbox || code=$?	2026-11-04T15:55:54.3012091Z   {
+desktop	Run code=0; xvfb-run -a npx electron . --self-test --software-gl --no-sandbox || code=$?	2026-11-04T15:55:54.3012702Z    "name": "sketch and extrude build a body",
+desktop	Run code=0; xvfb-run -a npx electron . --self-test --software-gl --no-sandbox || code=$?	2026-11-04T15:55:54.3013196Z    "ok": true
+desktop	Run code=0; xvfb-run -a npx electron . --self-test --software-gl --no-sandbox || code=$?	2026-11-04T15:55:54.3013514Z   },
+desktop	Run code=0; xvfb-run -a npx electron . --self-test --software-gl --no-sandbox || code=$?	2026-11-04T15:55:54.3013840Z   {
+desktop	Run code=0; xvfb-run -a npx electron . --self-test --software-gl --no-sandbox || code=$?	2026-11-04T15:55:54.3014329Z    "name": "the B-rep kernel (WASM) makes the body exact",
+desktop	Run code=0; xvfb-run -a npx electron . --self-test --software-gl --no-sandbox || code=$?	2026-11-04T15:55:54.3014928Z    "ok": true,
+desktop	Run code=0; xvfb-run -a npx electron . --self-test --software-gl --no-sandbox || code=$?	2026-11-04T15:55:54.3015337Z    "info": "44858.407346410204"
+desktop	Run code=0; xvfb-run -a npx electron . --self-test --software-gl --no-sandbox || code=$?	2026-11-04T15:55:54.3015750Z   },
+desktop	Run code=0; xvfb-run -a npx electron . --self-test --software-gl --no-sandbox || code=$?	2026-11-04T15:55:54.3016049Z   {
+desktop	Run code=0; xvfb-run -a npx electron . --self-test --software-gl --no-sandbox || code=$?	2026-11-04T15:55:54.3016453Z    "name": "Fillet1 is exact",
+desktop	Run code=0; xvfb-run -a npx electron . --self-test --software-gl --no-sandbox || code=$?	2026-11-04T15:55:54.3016871Z    "ok": true,
+desktop	Run code=0; xvfb-run -a npx electron . --self-test --software-gl --no-sandbox || code=$?	2026-11-04T15:55:54.3017248Z    "info": "44742.52235464481"
+desktop	Run code=0; xvfb-run -a npx electron . --self-test --software-gl --no-sandbox || code=$?	2026-11-04T15:55:54.3017639Z   },
+desktop	Run code=0; xvfb-run -a npx electron . --self-test --software-gl --no-sandbox || code=$?	2026-11-04T15:55:54.3017950Z   {
+desktop	Run code=0; xvfb-run -a npx electron . --self-test --software-gl --no-sandbox || code=$?	2026-11-04T15:55:54.3018317Z    "name": "no rebuild errors",
+desktop	Run code=0; xvfb-run -a npx electron . --self-test --software-gl --no-sandbox || code=$?	2026-11-04T15:55:54.3018744Z    "ok": true,
+desktop	Run code=0; xvfb-run -a npx electron . --self-test --software-gl --no-sandbox || code=$?	2026-11-04T15:55:54.3019093Z    "info": "{}"
+desktop	Run code=0; xvfb-run -a npx electron . --self-test --software-gl --no-sandbox || code=$?	2026-11-04T15:55:54.3019462Z   },
+desktop	Run code=0; xvfb-run -a npx electron . --self-test --software-gl --no-sandbox || code=$?	2026-11-04T15:55:54.3019765Z   {
+desktop	Run code=0; xvfb-run -a npx electron . --self-test --software-gl --no-sandbox || code=$?	2026-11-04T15:55:54.3020196Z    "name": "STEP is written with exact surfaces",
+desktop	Run code=0; xvfb-run -a npx electron . --self-test --software-gl --no-sandbox || code=$?	2026-11-04T15:55:54.3020835Z    "ok": true,
+desktop	Run code=0; xvfb-run -a npx electron . --self-test --software-gl --no-sandbox || code=$?	2026-11-04T15:55:54.3021267Z    "info": "23567 bytes, exact 1"
+desktop	Run code=0; xvfb-run -a npx electron . --self-test --software-gl --no-sandbox || code=$?	2026-11-04T15:55:54.3021700Z   },
+desktop	Run code=0; xvfb-run -a npx electron . --self-test --software-gl --no-sandbox || code=$?	2026-11-04T15:55:54.3022012Z   {
+desktop	Run code=0; xvfb-run -a npx electron . --self-test --software-gl --no-sandbox || code=$?	2026-11-04T15:55:54.3022721Z    "name": "the rebuild worker builds the same body",
+desktop	Run code=0; xvfb-run -a npx electron . --self-test --software-gl --no-sandbox || code=$?	2026-11-04T15:55:54.3023282Z    "ok": true,
+desktop	Run code=0; xvfb-run -a npx electron . --self-test --software-gl --no-sandbox || code=$?	2026-11-04T15:55:54.3023729Z    "info": "1143 / 1143 vertices, 414 ms"
+desktop	Run code=0; xvfb-run -a npx electron . --self-test --software-gl --no-sandbox || code=$?	2026-11-04T15:55:54.3024179Z   },
+desktop	Run code=0; xvfb-run -a npx electron . --self-test --software-gl --no-sandbox || code=$?	2026-11-04T15:55:54.3024472Z   {
+desktop	Run code=0; xvfb-run -a npx electron . --self-test --software-gl --no-sandbox || code=$?	2026-11-04T15:55:54.3024971Z    "name": "Save writes the .kcad atomically and keeps a .bak",
+desktop	Run code=0; xvfb-run -a npx electron . --self-test --software-gl --no-sandbox || code=$?	2026-11-04T15:55:54.3025555Z    "ok": true
+desktop	Run code=0; xvfb-run -a npx electron . --self-test --software-gl --no-sandbox || code=$?	2026-11-04T15:55:54.3025872Z   }
+desktop	Run code=0; xvfb-run -a npx electron . --self-test --software-gl --no-sandbox || code=$?	2026-11-04T15:55:54.3026166Z  ]
+desktop	Run code=0; xvfb-run -a npx electron . --self-test --software-gl --no-sandbox || code=$?	2026-11-04T15:55:54.3026484Z }
+desktop	Run PHLIPPO_SOFTWARE_GL=1 PHLIPPO_USER_DATA="$(mktemp -d)" xvfb-run -a node e2e/desktop-restore-autosave.mjs e2e/fixtures/user-part1.json	﻿2026-11-04T15:55:54.3069533Z ##[group]Run PHLIPPO_SOFTWARE_GL=1 PHLIPPO_USER_DATA="$(mktemp -d)" xvfb-run -a node e2e/desktop-restore-autosave.mjs e2e/fixtures/user-part1.json
+desktop	Run PHLIPPO_SOFTWARE_GL=1 PHLIPPO_USER_DATA="$(mktemp -d)" xvfb-run -a node e2e/desktop-restore-autosave.mjs e2e/fixtures/user-part1.json	2026-11-04T15:55:54.3070594Z ^[[36;1mPHLIPPO_SOFTWARE_GL=1 PHLIPPO_USER_DATA="$(mktemp -d)" xvfb-run -a node e2e/desktop-restore-autosave.mjs e2e/fixtures/user-part1.json^[[0m
+desktop	Run PHLIPPO_SOFTWARE_GL=1 PHLIPPO_USER_DATA="$(mktemp -d)" xvfb-run -a node e2e/desktop-restore-autosave.mjs e2e/fixtures/user-part1.json	2026-11-04T15:55:54.3091254Z shell: /usr/bin/bash -e {0}
+desktop	Run PHLIPPO_SOFTWARE_GL=1 PHLIPPO_USER_DATA="$(mktemp -d)" xvfb-run -a node e2e/desktop-restore-autosave.mjs e2e/fixtures/user-part1.json	2026-11-04T15:55:54.3091521Z ##[endgroup]
+desktop	Run PHLIPPO_SOFTWARE_GL=1 PHLIPPO_USER_DATA="$(mktemp -d)" xvfb-run -a node e2e/desktop-restore-autosave.mjs e2e/fixtures/user-part1.json	2026-11-04T15:55:55.2833952Z autosave now: [ 'Sketch1', 'Boss-Extrude1', 'Fillet1', 'Sketch2' ]
+desktop	Run PHLIPPO_SOFTWARE_GL=1 PHLIPPO_USER_DATA="$(mktemp -d)" xvfb-run -a node e2e/desktop-restore-autosave.mjs e2e/fixtures/user-part1.json	2026-11-04T15:55:57.0264878Z ok   the autosave is there after a restart (4 features)
+desktop	Run PHLIPPO_SOFTWARE_GL=1 xvfb-run -a node e2e/desktop-recover.mjs	﻿2026-11-04T15:55:58.2697525Z ##[group]Run PHLIPPO_SOFTWARE_GL=1 xvfb-run -a node e2e/desktop-recover.mjs
+desktop	Run PHLIPPO_SOFTWARE_GL=1 xvfb-run -a node e2e/desktop-recover.mjs	2026-11-04T15:55:58.2698134Z ^[[36;1mPHLIPPO_SOFTWARE_GL=1 xvfb-run -a node e2e/desktop-recover.mjs^[[0m
+desktop	Run PHLIPPO_SOFTWARE_GL=1 xvfb-run -a node e2e/desktop-recover.mjs	2026-11-04T15:55:58.2719359Z shell: /usr/bin/bash -e {0}
+desktop	Run PHLIPPO_SOFTWARE_GL=1 xvfb-run -a node e2e/desktop-recover.mjs	2026-11-04T15:55:58.2719631Z ##[endgroup]
+desktop	Run PHLIPPO_SOFTWARE_GL=1 xvfb-run -a node e2e/desktop-recover.mjs	2026-11-04T15:56:00.9770039Z ok   a new document has a stable id and unsaved changes
+desktop	Run PHLIPPO_SOFTWARE_GL=1 xvfb-run -a node e2e/desktop-recover.mjs	2026-11-04T15:56:00.9910406Z ok   the forced auto-recover write succeeds
+desktop	Run PHLIPPO_SOFTWARE_GL=1 xvfb-run -a node e2e/desktop-recover.mjs	2026-11-04T15:56:01.0695513Z ok   a second document with the same name has another id
+desktop	Run PHLIPPO_SOFTWARE_GL=1 xvfb-run -a node e2e/desktop-recover.mjs	2026-11-04T15:56:01.0812821Z ok   two documents named Part1 keep two copies in <profile>/autorecover (F153)
+desktop	Run PHLIPPO_SOFTWARE_GL=1 xvfb-run -a node e2e/desktop-recover.mjs	2026-11-04T15:56:01.0850969Z ok   Document Recovery lists both as Part1
+desktop	Run PHLIPPO_SOFTWARE_GL=1 xvfb-run -a node e2e/desktop-recover.mjs	2026-11-04T15:56:01.0902852Z ok   a folder sent by the renderer is ignored and not created (F156)
+desktop	Run PHLIPPO_SOFTWARE_GL=1 xvfb-run -a node e2e/desktop-recover.mjs	2026-11-04T15:56:01.1039961Z ok   the copy of a document is removed by its id
+desktop	Run PHLIPPO_SOFTWARE_GL=1 xvfb-run -a node e2e/desktop-recover.mjs	2026-11-04T15:56:02.1392875Z ok   Options shows the folder of the shell, read-only
+desktop	Run PHLIPPO_SOFTWARE_GL=1 xvfb-run -a node e2e/desktop-recover.mjs	2026-11-04T15:56:04.3893255Z ok   Browse… uses the folder dialog of the shell and the choice is kept in the profile
+desktop	Run PHLIPPO_SOFTWARE_GL=1 xvfb-run -a node e2e/desktop-recover.mjs	2026-11-04T15:56:04.3925253Z ok   the next copy goes to the chosen folder
+desktop	Run PHLIPPO_SOFTWARE_GL=1 xvfb-run -a node e2e/desktop-recover.mjs	2026-11-04T15:56:04.7180097Z ok   Default goes back to <profile>/autorecover
+desktop	Run PHLIPPO_SOFTWARE_GL=1 xvfb-run -a node e2e/desktop-recover.mjs	2026-11-04T15:56:04.7200907Z ok   software OpenGL keeps only the choice in gpu.json (F162)
+desktop	Run PHLIPPO_SOFTWARE_GL=1 xvfb-run -a node e2e/desktop-recover.mjs	2026-11-04T15:56:04.7853025Z ok   Options says software OpenGL takes effect at the next start, with a way back
+desktop	Run PHLIPPO_SOFTWARE_GL=1 xvfb-run -a node e2e/desktop-recover.mjs	2026-11-04T15:56:04.7878052Z ok   turning software OpenGL off removes the file
+desktop	Run PHLIPPO_SOFTWARE_GL=1 xvfb-run -a node e2e/desktop-recover.mjs	2026-11-04T15:56:08.1609349Z ok   after the crash Document Recovery opens by itself
+desktop	Run PHLIPPO_SOFTWARE_GL=1 xvfb-run -a node e2e/desktop-recover.mjs	2026-11-04T15:56:08.1696855Z ok   it lists both Part1 copies
+desktop	Run PHLIPPO_SOFTWARE_GL=1 xvfb-run -a node e2e/desktop-recover.mjs	2026-11-04T15:56:08.5728173Z ok   the recovered copy opens as "Part1 (Recovered)" with unsaved changes (F154)
+desktop	Run PHLIPPO_SOFTWARE_GL=1 xvfb-run -a node e2e/desktop-recover.mjs	2026-11-04T15:56:08.5735698Z ok   the recovered copy holds the change
+desktop	Run PHLIPPO_SOFTWARE_GL=1 xvfb-run -a node e2e/desktop-recover.mjs	2026-11-04T15:56:08.5767996Z ok   the title row shows "(Recovered)"
+desktop	Run PHLIPPO_SOFTWARE_GL=1 xvfb-run -a node e2e/desktop-recover.mjs	2026-11-04T15:56:10.2664256Z ok   Save asks for a file (no handle of an earlier document is reused)
+desktop	Run PHLIPPO_SOFTWARE_GL=1 xvfb-run -a node e2e/desktop-recover.mjs	2026-11-04T15:56:10.2674814Z ok   after Save only the other Part1 copy is left (F153)
+desktop	Run PHLIPPO_SOFTWARE_GL=1 xvfb-run -a node e2e/desktop-recover.mjs	2026-11-04T15:56:11.2925143Z 
+desktop	Run PHLIPPO_SOFTWARE_GL=1 xvfb-run -a node e2e/desktop-recover.mjs	2026-11-04T15:56:11.2925941Z 21/21 checks passed
+desktop	Run git diff --exit-code	﻿2026-11-04T15:56:11.3085336Z ##[group]Run git diff --exit-code
+desktop	Run git diff --exit-code	2026-11-04T15:56:11.3085678Z ^[[36;1mgit diff --exit-code^[[0m
+desktop	Run git diff --exit-code	2026-11-04T15:56:11.3105816Z shell: /usr/bin/bash -e {0}
+desktop	Run git diff --exit-code	2026-11-04T15:56:11.3106086Z ##[endgroup]
+desktop	desktop checks passed	﻿2026-11-04T15:56:11.3236050Z ##[group]Run echo "nohooks=success selftest=success autosave=success recover=success clean=success"
+desktop	desktop checks passed	2026-11-04T15:56:11.3236790Z ^[[36;1mecho "nohooks=success selftest=success autosave=success recover=success clean=success"^[[0m
+desktop	desktop checks passed	2026-11-04T15:56:11.3237574Z ^[[36;1mtest "success" = success && test "success" = success && test "success" = success && test "success" = success && test "success" = success^[[0m
+desktop	desktop checks passed	2026-11-04T15:56:11.3257402Z shell: /usr/bin/bash -e {0}
+desktop	desktop checks passed	2026-11-04T15:56:11.3257673Z ##[endgroup]
+desktop	desktop checks passed	2026-11-04T15:56:11.3298299Z nohooks=success selftest=success autosave=success recover=success clean=success
+desktop	Post Run actions/setup-node@v4	﻿2026-11-04T15:56:11.3407448Z Post job cleanup.
+desktop	Post Run actions/setup-node@v4	2026-11-04T15:56:11.4677805Z (node:3798) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+desktop	Post Run actions/setup-node@v4	2026-11-04T15:56:11.4679058Z (Use `node --trace-deprecation ...` to show where the warning was created)
+desktop	Post Run actions/setup-node@v4	2026-11-04T15:56:11.4682773Z Cache hit occurred on the primary key node-cache-Linux-x64-npm-0b8a2f1f8f8ef718914b89b4c64dfe6f2671acf19399f84e5500240edc4e41dc, not saving cache.
+desktop	Post Run actions/checkout@v4	﻿2026-11-04T15:56:11.4845006Z Post job cleanup.
+desktop	Post Run actions/checkout@v4	2026-11-04T15:56:11.5801274Z [command]/usr/bin/git version
+desktop	Post Run actions/checkout@v4	2026-11-04T15:56:11.5853024Z git version 2.56.0
+desktop	Post Run actions/checkout@v4	2026-11-04T15:56:11.5892917Z Temporarily overriding HOME='/home/runner/work/_temp/29089330-18d3-42cc-ba57-04b5fb842a56' before making global git config changes
+desktop	Post Run actions/checkout@v4	2026-11-04T15:56:11.5894603Z Adding repository directory to the temporary git global config as a safe directory
+desktop	Post Run actions/checkout@v4	2026-11-04T15:56:11.5898914Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/Claude/Claude
+desktop	Post Run actions/checkout@v4	2026-11-04T15:56:11.5944648Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+desktop	Post Run actions/checkout@v4	2026-11-04T15:56:11.5988046Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+desktop	Post Run actions/checkout@v4	2026-11-04T15:56:11.6265432Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+desktop	Post Run actions/checkout@v4	2026-11-04T15:56:11.6319050Z http.https://github.com/.extraheader
+desktop	Post Run actions/checkout@v4	2026-11-04T15:56:11.6331786Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+desktop	Post Run actions/checkout@v4	2026-11-04T15:56:11.6364642Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+desktop	Post Run actions/checkout@v4	2026-11-04T15:56:11.6674185Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+desktop	Post Run actions/checkout@v4	2026-11-04T15:56:11.6719919Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+desktop	Complete job	﻿2026-11-04T15:56:11.7200390Z Cleaning up orphan processes
+desktop	Complete job	2026-11-04T15:56:11.7579671Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-node@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

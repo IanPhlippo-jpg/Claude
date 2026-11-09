@@ -1,0 +1,524 @@
+desktop	UNKNOWN STEP	﻿2026-11-03T08:05:47.3844233Z Current runner version: '2.338.2'
+desktop	UNKNOWN STEP	2026-11-03T08:05:47.3870369Z ##[group]Runner Image Provisioner
+desktop	UNKNOWN STEP	2026-11-03T08:05:47.3871332Z Hosted Compute Agent
+desktop	UNKNOWN STEP	2026-11-03T08:05:47.3871928Z Version: 20261021.618
+desktop	UNKNOWN STEP	2026-11-03T08:05:47.3872696Z Commit: 21505ad2541d5be6135ed84fc33697146cf75b8e
+desktop	UNKNOWN STEP	2026-11-03T08:05:47.3873525Z Build Date: 2026-10-21T00:45:21Z
+desktop	UNKNOWN STEP	2026-11-03T08:05:47.3874709Z Worker ID: {d86b9434-2b4a-4ef4-a9bc-609f2f4241a9}
+desktop	UNKNOWN STEP	2026-11-03T08:05:47.3875479Z Region: westus2
+desktop	UNKNOWN STEP	2026-11-03T08:05:47.3876033Z Cloud: Azure
+desktop	UNKNOWN STEP	2026-11-03T08:05:47.3876655Z ##[endgroup]
+desktop	UNKNOWN STEP	2026-11-03T08:05:47.3878301Z ##[group]Operating System
+desktop	UNKNOWN STEP	2026-11-03T08:05:47.3879059Z Ubuntu
+desktop	UNKNOWN STEP	2026-11-03T08:05:47.3879626Z 24.04.5
+desktop	UNKNOWN STEP	2026-11-03T08:05:47.3880156Z LTS
+desktop	UNKNOWN STEP	2026-11-03T08:05:47.3880742Z ##[endgroup]
+desktop	UNKNOWN STEP	2026-11-03T08:05:47.3881354Z ##[group]Runner Image
+desktop	UNKNOWN STEP	2026-11-03T08:05:47.3882046Z Image: ubuntu-24.04
+desktop	UNKNOWN STEP	2026-11-03T08:05:47.3882711Z Version: 20261025.353.1
+desktop	UNKNOWN STEP	2026-11-03T08:05:47.3884405Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261025.353/images/ubuntu/Ubuntu2404-Readme.md
+desktop	UNKNOWN STEP	2026-11-03T08:05:47.3886115Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261025.353
+desktop	UNKNOWN STEP	2026-11-03T08:05:47.3887174Z ##[endgroup]
+desktop	UNKNOWN STEP	2026-11-03T08:05:47.3888405Z ##[group]GITHUB_TOKEN Permissions
+desktop	UNKNOWN STEP	2026-11-03T08:05:47.3891044Z Contents: read
+desktop	UNKNOWN STEP	2026-11-03T08:05:47.3891755Z Metadata: read
+desktop	UNKNOWN STEP	2026-11-03T08:05:47.3892341Z Packages: read
+desktop	UNKNOWN STEP	2026-11-03T08:05:47.3892972Z ##[endgroup]
+desktop	UNKNOWN STEP	2026-11-03T08:05:47.3895440Z Secret source: Actions
+desktop	UNKNOWN STEP	2026-11-03T08:05:47.3896566Z Cache mode: write
+desktop	UNKNOWN STEP	2026-11-03T08:05:47.3897302Z Prepare workflow directory
+desktop	UNKNOWN STEP	2026-11-03T08:05:47.4930459Z Prepare all required actions
+desktop	UNKNOWN STEP	2026-11-03T08:05:47.5004601Z Getting action download info
+desktop	UNKNOWN STEP	2026-11-03T08:05:47.9581457Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+desktop	UNKNOWN STEP	2026-11-03T08:05:48.0896966Z Download action repository 'actions/setup-node@v4' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+desktop	UNKNOWN STEP	2026-11-03T08:05:48.3611599Z Complete job name: desktop
+desktop	UNKNOWN STEP	2026-11-03T08:05:48.5713764Z ##[group]Run actions/checkout@v4
+desktop	UNKNOWN STEP	2026-11-03T08:05:48.5714934Z with:
+desktop	UNKNOWN STEP	2026-11-03T08:05:48.5715404Z   repository: IanPhlippo-jpg/Claude
+desktop	UNKNOWN STEP	2026-11-03T08:05:48.5719086Z   token: ***
+desktop	UNKNOWN STEP	2026-11-03T08:05:48.5719523Z   ssh-strict: true
+desktop	UNKNOWN STEP	2026-11-03T08:05:48.5719957Z   ssh-user: git
+desktop	UNKNOWN STEP	2026-11-03T08:05:48.5720400Z   persist-credentials: true
+desktop	UNKNOWN STEP	2026-11-03T08:05:48.5720895Z   clean: true
+desktop	UNKNOWN STEP	2026-11-03T08:05:48.5721343Z   sparse-checkout-cone-mode: true
+desktop	UNKNOWN STEP	2026-11-03T08:05:48.5721886Z   fetch-depth: 1
+desktop	UNKNOWN STEP	2026-11-03T08:05:48.5722325Z   fetch-tags: false
+desktop	UNKNOWN STEP	2026-11-03T08:05:48.5722778Z   show-progress: true
+desktop	UNKNOWN STEP	2026-11-03T08:05:48.5723235Z   lfs: false
+desktop	UNKNOWN STEP	2026-11-03T08:05:48.5723640Z   submodules: false
+desktop	UNKNOWN STEP	2026-11-03T08:05:48.5724272Z   set-safe-directory: true
+desktop	UNKNOWN STEP	2026-11-03T08:05:48.5724779Z   allow-unsafe-pr-checkout: false
+desktop	UNKNOWN STEP	2026-11-03T08:05:48.5725665Z ##[endgroup]
+desktop	UNKNOWN STEP	2026-11-03T08:05:48.8600175Z Syncing repository: IanPhlippo-jpg/Claude
+desktop	UNKNOWN STEP	2026-11-03T08:05:48.8603150Z ##[group]Getting Git version info
+desktop	UNKNOWN STEP	2026-11-03T08:05:48.8604849Z Working directory is '/home/runner/work/Claude/Claude'
+desktop	UNKNOWN STEP	2026-11-03T08:05:48.8606842Z [command]/usr/bin/git version
+desktop	UNKNOWN STEP	2026-11-03T08:05:48.8708883Z git version 2.56.0
+desktop	UNKNOWN STEP	2026-11-03T08:05:48.8732290Z ##[endgroup]
+desktop	UNKNOWN STEP	2026-11-03T08:05:48.8748251Z Temporarily overriding HOME='/home/runner/work/_temp/294469a5-8306-40b1-bce2-6f9bdab44332' before making global git config changes
+desktop	UNKNOWN STEP	2026-11-03T08:05:48.8750861Z Adding repository directory to the temporary git global config as a safe directory
+desktop	UNKNOWN STEP	2026-11-03T08:05:48.8753530Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/Claude/Claude
+desktop	UNKNOWN STEP	2026-11-03T08:05:48.8825604Z Deleting the contents of '/home/runner/work/Claude/Claude'
+desktop	UNKNOWN STEP	2026-11-03T08:05:48.8838863Z ##[group]Initializing the repository
+desktop	UNKNOWN STEP	2026-11-03T08:05:48.8844509Z [command]/usr/bin/git init /home/runner/work/Claude/Claude
+desktop	UNKNOWN STEP	2026-11-03T08:05:48.8989194Z hint: Using 'master' as the name for the initial branch. This default branch name
+desktop	UNKNOWN STEP	2026-11-03T08:05:48.8991486Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+desktop	UNKNOWN STEP	2026-11-03T08:05:48.8994338Z hint: to use in all of your new repositories, which will suppress this warning,
+desktop	UNKNOWN STEP	2026-11-03T08:05:48.8995981Z hint: call:
+desktop	UNKNOWN STEP	2026-11-03T08:05:48.8997118Z hint:
+desktop	UNKNOWN STEP	2026-11-03T08:05:48.8998314Z hint: 	git config --global init.defaultBranch <name>
+desktop	UNKNOWN STEP	2026-11-03T08:05:48.8999635Z hint:
+desktop	UNKNOWN STEP	2026-11-03T08:05:48.9001180Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+desktop	UNKNOWN STEP	2026-11-03T08:05:48.9003091Z hint: 'development'. The just-created branch can be renamed via this command:
+desktop	UNKNOWN STEP	2026-11-03T08:05:48.9005048Z hint:
+desktop	UNKNOWN STEP	2026-11-03T08:05:48.9006185Z hint: 	git branch -m <name>
+desktop	UNKNOWN STEP	2026-11-03T08:05:48.9007288Z hint:
+desktop	UNKNOWN STEP	2026-11-03T08:05:48.9008683Z hint: Disable this message with "git config set advice.defaultBranchName false"
+desktop	UNKNOWN STEP	2026-11-03T08:05:48.9010901Z Initialized empty Git repository in /home/runner/work/Claude/Claude/.git/
+desktop	UNKNOWN STEP	2026-11-03T08:05:48.9015226Z [command]/usr/bin/git remote add origin https://github.com/IanPhlippo-jpg/Claude
+desktop	UNKNOWN STEP	2026-11-03T08:05:48.9068210Z ##[endgroup]
+desktop	UNKNOWN STEP	2026-11-03T08:05:48.9069182Z ##[group]Disabling automatic garbage collection
+desktop	UNKNOWN STEP	2026-11-03T08:05:48.9073476Z [command]/usr/bin/git config --local gc.auto 0
+desktop	UNKNOWN STEP	2026-11-03T08:05:48.9110336Z ##[endgroup]
+desktop	UNKNOWN STEP	2026-11-03T08:05:48.9111582Z ##[group]Setting up auth
+desktop	UNKNOWN STEP	2026-11-03T08:05:48.9118342Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+desktop	UNKNOWN STEP	2026-11-03T08:05:48.9165691Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+desktop	UNKNOWN STEP	2026-11-03T08:05:48.9591999Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+desktop	UNKNOWN STEP	2026-11-03T08:05:48.9636861Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+desktop	UNKNOWN STEP	2026-11-03T08:05:48.9888342Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+desktop	UNKNOWN STEP	2026-11-03T08:05:48.9938201Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+desktop	UNKNOWN STEP	2026-11-03T08:05:49.0187849Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+desktop	UNKNOWN STEP	2026-11-03T08:05:49.0238655Z ##[endgroup]
+desktop	UNKNOWN STEP	2026-11-03T08:05:49.0239667Z ##[group]Fetching the repository
+desktop	UNKNOWN STEP	2026-11-03T08:05:49.0252886Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +db0d4b27d857c42b898bcec68c65240b3fe855e9:refs/remotes/origin/claude/fase1-schetser
+desktop	UNKNOWN STEP	2026-11-03T08:05:49.6289311Z From https://github.com/IanPhlippo-jpg/Claude
+desktop	UNKNOWN STEP	2026-11-03T08:05:49.6291097Z  * [new ref]         db0d4b27d857c42b898bcec68c65240b3fe855e9 -> origin/claude/fase1-schetser
+desktop	UNKNOWN STEP	2026-11-03T08:05:49.6296498Z ##[endgroup]
+desktop	UNKNOWN STEP	2026-11-03T08:05:49.6298290Z ##[group]Determining the checkout info
+desktop	UNKNOWN STEP	2026-11-03T08:05:49.6300164Z ##[endgroup]
+desktop	UNKNOWN STEP	2026-11-03T08:05:49.6302767Z [command]/usr/bin/git sparse-checkout disable
+desktop	UNKNOWN STEP	2026-11-03T08:05:49.6366938Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+desktop	UNKNOWN STEP	2026-11-03T08:05:49.6409703Z ##[group]Checking out the ref
+desktop	UNKNOWN STEP	2026-11-03T08:05:49.6415275Z [command]/usr/bin/git checkout --progress --force -B claude/fase1-schetser refs/remotes/origin/claude/fase1-schetser
+desktop	UNKNOWN STEP	2026-11-03T08:05:49.7539847Z Switched to a new branch 'claude/fase1-schetser'
+desktop	UNKNOWN STEP	2026-11-03T08:05:49.7545196Z branch 'claude/fase1-schetser' set up to track 'origin/claude/fase1-schetser'.
+desktop	UNKNOWN STEP	2026-11-03T08:05:49.7607849Z ##[endgroup]
+desktop	UNKNOWN STEP	2026-11-03T08:05:49.7611994Z [command]/usr/bin/git log -1 --format=%H
+desktop	UNKNOWN STEP	2026-11-03T08:05:49.7647901Z db0d4b27d857c42b898bcec68c65240b3fe855e9
+desktop	UNKNOWN STEP	2026-11-03T08:05:49.8977293Z ##[group]Run actions/setup-node@v4
+desktop	UNKNOWN STEP	2026-11-03T08:05:49.8978498Z with:
+desktop	UNKNOWN STEP	2026-11-03T08:05:49.8979373Z   node-version-file: .nvmrc
+desktop	UNKNOWN STEP	2026-11-03T08:05:49.8980397Z   cache: npm
+desktop	UNKNOWN STEP	2026-11-03T08:05:49.8981282Z   always-auth: false
+desktop	UNKNOWN STEP	2026-11-03T08:05:49.8982239Z   check-latest: false
+desktop	UNKNOWN STEP	2026-11-03T08:05:49.8992107Z   token: ***
+desktop	UNKNOWN STEP	2026-11-03T08:05:49.8993003Z ##[endgroup]
+desktop	UNKNOWN STEP	2026-11-03T08:05:50.0490648Z Resolved .nvmrc as 22
+desktop	UNKNOWN STEP	2026-11-03T08:05:50.0557766Z Found in cache @ /opt/hostedtoolcache/node/22.23.4/x64
+desktop	UNKNOWN STEP	2026-11-03T08:05:50.0561050Z (node:2515) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+desktop	UNKNOWN STEP	2026-11-03T08:05:50.0564624Z (Use `node --trace-deprecation ...` to show where the warning was created)
+desktop	UNKNOWN STEP	2026-11-03T08:05:50.0567057Z ##[group]Environment details
+desktop	UNKNOWN STEP	2026-11-03T08:05:50.4765005Z node: v22.23.4
+desktop	UNKNOWN STEP	2026-11-03T08:05:50.4765591Z npm: 10.9.9
+desktop	UNKNOWN STEP	2026-11-03T08:05:50.4785950Z yarn: 1.22.22
+desktop	UNKNOWN STEP	2026-11-03T08:05:50.4786877Z ##[endgroup]
+desktop	UNKNOWN STEP	2026-11-03T08:05:50.4787624Z [command]/opt/hostedtoolcache/node/22.23.4/x64/bin/npm config get cache
+desktop	UNKNOWN STEP	2026-11-03T08:05:50.5944907Z /home/runner/.npm
+desktop	UNKNOWN STEP	2026-11-03T08:05:50.8721434Z Cache hit for: node-cache-Linux-x64-npm-7e50782abaabdfcbc792723b7c40a6f079de0dce14d505136bcdc0c470d819aa
+desktop	UNKNOWN STEP	2026-11-03T08:05:50.8833202Z (node:2515) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+desktop	UNKNOWN STEP	2026-11-03T08:05:52.1719278Z Received 20971520 of 79688756 (26.3%), 20.0 MBs/sec
+desktop	UNKNOWN STEP	2026-11-03T08:05:52.6249054Z Received 79688756 of 79688756 (100.0%), 52.3 MBs/sec
+desktop	UNKNOWN STEP	2026-11-03T08:05:52.6252654Z Cache Size: ~76 MB (79688756 B)
+desktop	UNKNOWN STEP	2026-11-03T08:05:52.6331651Z [command]/usr/bin/tar -xf /home/runner/work/_temp/501fdcfb-873f-4201-b6c7-5f86059e42dd/cache.tzst -P -C /home/runner/work/Claude/Claude --use-compress-program unzstd
+desktop	UNKNOWN STEP	2026-11-03T08:05:52.8389742Z Cache restored successfully
+desktop	UNKNOWN STEP	2026-11-03T08:05:52.8428328Z Cache restored from key: node-cache-Linux-x64-npm-7e50782abaabdfcbc792723b7c40a6f079de0dce14d505136bcdc0c470d819aa
+desktop	UNKNOWN STEP	2026-11-03T08:05:52.8911600Z ##[group]Run npm ci
+desktop	UNKNOWN STEP	2026-11-03T08:05:52.8911948Z ^[[36;1mnpm ci^[[0m
+desktop	UNKNOWN STEP	2026-11-03T08:05:52.8943763Z shell: /usr/bin/bash -e {0}
+desktop	UNKNOWN STEP	2026-11-03T08:05:52.8944265Z ##[endgroup]
+desktop	UNKNOWN STEP	2026-11-03T08:05:55.5621088Z npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+desktop	UNKNOWN STEP	2026-11-03T08:05:55.6052554Z npm warn deprecated rimraf@2.6.3: Rimraf versions prior to v4 are no longer supported
+desktop	UNKNOWN STEP	2026-11-03T08:05:55.7103490Z npm warn deprecated whatwg-encoding@3.1.1: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+desktop	UNKNOWN STEP	2026-11-03T08:05:55.7155607Z npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+desktop	UNKNOWN STEP	2026-11-03T08:05:56.0739447Z npm warn deprecated boolean@3.2.0: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
+desktop	UNKNOWN STEP	2026-11-03T08:05:59.0159438Z 
+desktop	UNKNOWN STEP	2026-11-03T08:05:59.0160323Z added 463 packages, and audited 464 packages in 6s
+desktop	UNKNOWN STEP	2026-11-03T08:05:59.0160877Z 
+desktop	UNKNOWN STEP	2026-11-03T08:05:59.0161193Z 76 packages are looking for funding
+desktop	UNKNOWN STEP	2026-11-03T08:05:59.0161723Z   run `npm fund` for details
+desktop	UNKNOWN STEP	2026-11-03T08:05:59.0412011Z 
+desktop	UNKNOWN STEP	2026-11-03T08:05:59.0413157Z 15 moderate severity vulnerabilities
+desktop	UNKNOWN STEP	2026-11-03T08:05:59.0414320Z 
+desktop	UNKNOWN STEP	2026-11-03T08:05:59.0440940Z To address issues that do not require attention, run:
+desktop	UNKNOWN STEP	2026-11-03T08:05:59.0441669Z   npm audit fix
+desktop	UNKNOWN STEP	2026-11-03T08:05:59.0441960Z 
+desktop	UNKNOWN STEP	2026-11-03T08:05:59.0449357Z To address all issues (including breaking changes), run:
+desktop	UNKNOWN STEP	2026-11-03T08:05:59.0450129Z   npm audit fix --force
+desktop	UNKNOWN STEP	2026-11-03T08:05:59.0450478Z 
+desktop	UNKNOWN STEP	2026-11-03T08:05:59.0493478Z Run `npm audit` for details.
+desktop	UNKNOWN STEP	2026-11-03T08:05:59.1367099Z ##[group]Run npx playwright install-deps chromium
+desktop	UNKNOWN STEP	2026-11-03T08:05:59.1367547Z ^[[36;1mnpx playwright install-deps chromium^[[0m
+desktop	UNKNOWN STEP	2026-11-03T08:05:59.1388727Z shell: /usr/bin/bash -e {0}
+desktop	UNKNOWN STEP	2026-11-03T08:05:59.1388999Z ##[endgroup]
+desktop	UNKNOWN STEP	2026-11-03T08:05:59.9838849Z Installing dependencies...
+desktop	UNKNOWN STEP	2026-11-03T08:05:59.9905429Z Switching to root user to install dependencies...
+desktop	UNKNOWN STEP	2026-11-03T08:06:00.0669408Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+desktop	UNKNOWN STEP	2026-11-03T08:06:00.1038655Z Hit:2 http://azure.archive.ubuntu.com/ubuntu noble InRelease
+desktop	UNKNOWN STEP	2026-11-03T08:06:00.1057479Z Get:6 https://packages.microsoft.com/ubuntu/24.04/prod noble InRelease [3600 B]
+desktop	UNKNOWN STEP	2026-11-03T08:06:00.1085231Z Get:3 http://azure.archive.ubuntu.com/ubuntu noble-updates InRelease [126 kB]
+desktop	UNKNOWN STEP	2026-11-03T08:06:00.1115068Z Get:4 http://azure.archive.ubuntu.com/ubuntu noble-backports InRelease [126 kB]
+desktop	UNKNOWN STEP	2026-11-03T08:06:00.1116571Z Get:5 http://azure.archive.ubuntu.com/ubuntu noble-security InRelease [126 kB]
+desktop	UNKNOWN STEP	2026-11-03T08:06:00.2362879Z Get:7 https://packages.microsoft.com/ubuntu/24.04/prod noble/main arm64 Packages [617 kB]
+desktop	UNKNOWN STEP	2026-11-03T08:06:00.2526583Z Get:8 https://packages.microsoft.com/ubuntu/24.04/prod noble/main amd64 Packages [685 kB]
+desktop	UNKNOWN STEP	2026-11-03T08:06:00.2888628Z Get:9 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 Packages [1408 kB]
+desktop	UNKNOWN STEP	2026-11-03T08:06:00.2971496Z Get:10 http://azure.archive.ubuntu.com/ubuntu noble-updates/main Translation-en [311 kB]
+desktop	UNKNOWN STEP	2026-11-03T08:06:00.2985129Z Get:11 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 Packages [1707 kB]
+desktop	UNKNOWN STEP	2026-11-03T08:06:00.3083287Z Get:12 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe Translation-en [343 kB]
+desktop	UNKNOWN STEP	2026-11-03T08:06:00.3091464Z Get:13 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted amd64 Packages [1813 kB]
+desktop	UNKNOWN STEP	2026-11-03T08:06:00.3208310Z Get:14 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted Translation-en [412 kB]
+desktop	UNKNOWN STEP	2026-11-03T08:06:00.3215009Z Get:15 http://azure.archive.ubuntu.com/ubuntu noble-updates/multiverse Translation-en [14.3 kB]
+desktop	UNKNOWN STEP	2026-11-03T08:06:00.4048905Z Get:16 http://azure.archive.ubuntu.com/ubuntu noble-security/main amd64 Packages [1153 kB]
+desktop	UNKNOWN STEP	2026-11-03T08:06:00.4106954Z Get:17 http://azure.archive.ubuntu.com/ubuntu noble-security/main Translation-en [232 kB]
+desktop	UNKNOWN STEP	2026-11-03T08:06:00.4127032Z Get:18 http://azure.archive.ubuntu.com/ubuntu noble-security/universe amd64 Packages [1224 kB]
+desktop	UNKNOWN STEP	2026-11-03T08:06:00.4661539Z Get:19 http://azure.archive.ubuntu.com/ubuntu noble-security/universe Translation-en [246 kB]
+desktop	UNKNOWN STEP	2026-11-03T08:06:00.4681551Z Get:20 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted amd64 Packages [1721 kB]
+desktop	UNKNOWN STEP	2026-11-03T08:06:00.4761152Z Get:21 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted Translation-en [394 kB]
+desktop	UNKNOWN STEP	2026-11-03T08:06:00.4785196Z Get:22 http://azure.archive.ubuntu.com/ubuntu noble-security/multiverse Translation-en [12.4 kB]
+desktop	UNKNOWN STEP	2026-11-03T08:06:03.7590666Z Fetched 12.7 MB in 1s (9920 kB/s)
+desktop	UNKNOWN STEP	2026-11-03T08:06:04.8911859Z Reading package lists...
+desktop	UNKNOWN STEP	2026-11-03T08:06:04.9239229Z Reading package lists...
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.1730219Z Building dependency tree...
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.1738042Z Reading state information...
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.3492298Z libasound2t64 is already the newest version (1.2.11-1ubuntu0.3).
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.3493401Z libasound2t64 set to manually installed.
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.3494702Z libatk-bridge2.0-0t64 is already the newest version (2.52.0-1build1).
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.3495677Z libatk-bridge2.0-0t64 set to manually installed.
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.3496556Z libatk1.0-0t64 is already the newest version (2.52.0-1build1).
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.3497329Z libatk1.0-0t64 set to manually installed.
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.3498105Z libatspi2.0-0t64 is already the newest version (2.52.0-1build1).
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.3498837Z libatspi2.0-0t64 set to manually installed.
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.3499670Z libcairo2 is already the newest version (1.18.0-3build1).
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.3500430Z libcairo2 set to manually installed.
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.3501647Z libcups2t64 is already the newest version (2.4.7-1.2ubuntu7.14).
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.3502489Z libcups2t64 set to manually installed.
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.3503239Z libdbus-1-3 is already the newest version (1.14.10-4ubuntu4.1).
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.3504225Z libdbus-1-3 set to manually installed.
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.3505251Z libdrm2 is already the newest version (2.4.125-1ubuntu0.1~24.04.2).
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.3505734Z libdrm2 set to manually installed.
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.3506193Z libgbm1 is already the newest version (25.2.8-0ubuntu0.24.04.4).
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.3506692Z libgbm1 set to manually installed.
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.3507162Z libglib2.0-0t64 is already the newest version (2.80.0-6ubuntu3.10).
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.3507881Z libglib2.0-0t64 set to manually installed.
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.3508457Z libnspr4 is already the newest version (2:4.35-1.1build1).
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.3508895Z libnspr4 set to manually installed.
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.3509348Z libnss3 is already the newest version (2:3.98-1ubuntu0.3).
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.3509784Z libnss3 set to manually installed.
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.3510232Z libpango-1.0-0 is already the newest version (1.52.1+ds-1build1).
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.3510714Z libpango-1.0-0 set to manually installed.
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.3511140Z libx11-6 is already the newest version (2:1.8.7-1ubuntu0.1).
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.3511572Z libx11-6 set to manually installed.
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.3511952Z libxcb1 is already the newest version (1.15-1ubuntu2).
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.3512352Z libxcb1 set to manually installed.
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.3512982Z libxcomposite1 is already the newest version (1:0.4.5-1build3).
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.3513401Z libxcomposite1 set to manually installed.
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.3514420Z libxdamage1 is already the newest version (1:1.1.6-1build1).
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.3515200Z libxdamage1 set to manually installed.
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.3515918Z libxext6 is already the newest version (2:1.3.4-1build2).
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.3516583Z libxext6 set to manually installed.
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.3517294Z libxfixes3 is already the newest version (1:6.0.0-2build1).
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.3517990Z libxfixes3 set to manually installed.
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.3518466Z libxkbcommon0 is already the newest version (1.6.0-1build1).
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.3518869Z libxkbcommon0 set to manually installed.
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.3519288Z libxrandr2 is already the newest version (2:1.5.2-2build1).
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.3519678Z libxrandr2 set to manually installed.
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.3520073Z xvfb is already the newest version (2:21.1.12-1ubuntu1.9).
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.3520625Z fonts-noto-color-emoji is already the newest version (2.047-0ubuntu0.24.04.1).
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.3521188Z libfontconfig1 is already the newest version (2.15.0-1.1ubuntu2).
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.3521612Z libfontconfig1 set to manually installed.
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.3522064Z libfreetype6 is already the newest version (2.13.2+dfsg-1ubuntu0.2).
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.3522485Z libfreetype6 set to manually installed.
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.3522914Z fonts-liberation is already the newest version (1:2.1.5-3).
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.3523335Z fonts-liberation set to manually installed.
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.3523734Z The following additional packages will be installed:
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.3524537Z   xfonts-encodings xfonts-utils
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.3524837Z Recommended packages:
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.3525128Z   fonts-ipafont-mincho fonts-tlwg-loma
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.3859174Z The following NEW packages will be installed:
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.3859773Z   fonts-freefont-ttf fonts-ipafont-gothic fonts-tlwg-loma-otf fonts-unifont
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.3869797Z   fonts-wqy-zenhei xfonts-cyrillic xfonts-encodings xfonts-scalable
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.3870541Z   xfonts-utils
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.4114031Z 0 upgraded, 9 newly installed, 0 to remove and 6 not upgraded.
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.4114835Z Need to get 21.1 MB of archives.
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.4115615Z After this operation, 79.5 MB of additional disk space will be used.
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.4116680Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.5029387Z Get:2 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-ipafont-gothic all 00303-21ubuntu1 [3513 kB]
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.6485507Z Get:3 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 fonts-freefont-ttf all 20211204+svn4273-2 [5641 kB]
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.8576375Z Get:4 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-tlwg-loma-otf all 1:0.7.3-1 [107 kB]
+desktop	UNKNOWN STEP	2026-11-03T08:06:05.9289857Z Get:5 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-unifont all 1:15.1.01-1build1 [2993 kB]
+desktop	UNKNOWN STEP	2026-11-03T08:06:06.0564208Z Get:6 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-wqy-zenhei all 0.9.45-8 [7472 kB]
+desktop	UNKNOWN STEP	2026-11-03T08:06:06.2937733Z Get:7 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 xfonts-encodings all 1:1.0.5-0ubuntu2 [578 kB]
+desktop	UNKNOWN STEP	2026-11-03T08:06:06.3784725Z Get:8 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 xfonts-utils amd64 1:7.7+6build3 [94.4 kB]
+desktop	UNKNOWN STEP	2026-11-03T08:06:06.4492715Z Get:9 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 xfonts-cyrillic all 1:1.0.5+nmu1 [384 kB]
+desktop	UNKNOWN STEP	2026-11-03T08:06:06.5275970Z Get:10 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 xfonts-scalable all 1:1.0.3-1.3 [304 kB]
+desktop	UNKNOWN STEP	2026-11-03T08:06:06.8265324Z Fetched 21.1 MB in 1s (18.5 MB/s)
+desktop	UNKNOWN STEP	2026-11-03T08:06:06.8525925Z Selecting previously unselected package fonts-ipafont-gothic.
+desktop	UNKNOWN STEP	2026-11-03T08:06:06.8809883Z (Reading database ... 
+desktop	UNKNOWN STEP	2026-11-03T08:06:06.8810256Z (Reading database ... 5%
+desktop	UNKNOWN STEP	2026-11-03T08:06:06.8810570Z (Reading database ... 10%
+desktop	UNKNOWN STEP	2026-11-03T08:06:06.8810947Z (Reading database ... 15%
+desktop	UNKNOWN STEP	2026-11-03T08:06:06.8811253Z (Reading database ... 20%
+desktop	UNKNOWN STEP	2026-11-03T08:06:06.8811566Z (Reading database ... 25%
+desktop	UNKNOWN STEP	2026-11-03T08:06:06.8812192Z (Reading database ... 30%
+desktop	UNKNOWN STEP	2026-11-03T08:06:06.8813135Z (Reading database ... 35%
+desktop	UNKNOWN STEP	2026-11-03T08:06:06.8813612Z (Reading database ... 40%
+desktop	UNKNOWN STEP	2026-11-03T08:06:06.8814426Z (Reading database ... 45%
+desktop	UNKNOWN STEP	2026-11-03T08:06:06.8814884Z (Reading database ... 50%
+desktop	UNKNOWN STEP	2026-11-03T08:06:06.8885655Z (Reading database ... 55%
+desktop	UNKNOWN STEP	2026-11-03T08:06:07.0454266Z (Reading database ... 60%
+desktop	UNKNOWN STEP	2026-11-03T08:06:07.2300492Z (Reading database ... 65%
+desktop	UNKNOWN STEP	2026-11-03T08:06:07.4418578Z (Reading database ... 70%
+desktop	UNKNOWN STEP	2026-11-03T08:06:07.6486832Z (Reading database ... 75%
+desktop	UNKNOWN STEP	2026-11-03T08:06:07.7895410Z (Reading database ... 80%
+desktop	UNKNOWN STEP	2026-11-03T08:06:07.8956842Z (Reading database ... 85%
+desktop	UNKNOWN STEP	2026-11-03T08:06:08.0141442Z (Reading database ... 90%
+desktop	UNKNOWN STEP	2026-11-03T08:06:08.1359989Z (Reading database ... 95%
+desktop	UNKNOWN STEP	2026-11-03T08:06:08.1360503Z (Reading database ... 100%
+desktop	UNKNOWN STEP	2026-11-03T08:06:08.1361217Z (Reading database ... 215504 files and directories currently installed.)
+desktop	UNKNOWN STEP	2026-11-03T08:06:08.1408235Z Preparing to unpack .../0-fonts-ipafont-gothic_00303-21ubuntu1_all.deb ...
+desktop	UNKNOWN STEP	2026-11-03T08:06:08.1514750Z Unpacking fonts-ipafont-gothic (00303-21ubuntu1) ...
+desktop	UNKNOWN STEP	2026-11-03T08:06:08.3911875Z Selecting previously unselected package fonts-freefont-ttf.
+desktop	UNKNOWN STEP	2026-11-03T08:06:08.4056208Z Preparing to unpack .../1-fonts-freefont-ttf_20211204+svn4273-2_all.deb ...
+desktop	UNKNOWN STEP	2026-11-03T08:06:08.4065032Z Unpacking fonts-freefont-ttf (20211204+svn4273-2) ...
+desktop	UNKNOWN STEP	2026-11-03T08:06:08.4949390Z Selecting previously unselected package fonts-tlwg-loma-otf.
+desktop	UNKNOWN STEP	2026-11-03T08:06:08.5093647Z Preparing to unpack .../2-fonts-tlwg-loma-otf_1%3a0.7.3-1_all.deb ...
+desktop	UNKNOWN STEP	2026-11-03T08:06:08.5101808Z Unpacking fonts-tlwg-loma-otf (1:0.7.3-1) ...
+desktop	UNKNOWN STEP	2026-11-03T08:06:08.5351555Z Selecting previously unselected package fonts-unifont.
+desktop	UNKNOWN STEP	2026-11-03T08:06:08.5497559Z Preparing to unpack .../3-fonts-unifont_1%3a15.1.01-1build1_all.deb ...
+desktop	UNKNOWN STEP	2026-11-03T08:06:08.5508068Z Unpacking fonts-unifont (1:15.1.01-1build1) ...
+desktop	UNKNOWN STEP	2026-11-03T08:06:08.6621008Z Selecting previously unselected package fonts-wqy-zenhei.
+desktop	UNKNOWN STEP	2026-11-03T08:06:08.6766575Z Preparing to unpack .../4-fonts-wqy-zenhei_0.9.45-8_all.deb ...
+desktop	UNKNOWN STEP	2026-11-03T08:06:08.6882489Z Unpacking fonts-wqy-zenhei (0.9.45-8) ...
+desktop	UNKNOWN STEP	2026-11-03T08:06:09.1938971Z Selecting previously unselected package xfonts-encodings.
+desktop	UNKNOWN STEP	2026-11-03T08:06:09.2085402Z Preparing to unpack .../5-xfonts-encodings_1%3a1.0.5-0ubuntu2_all.deb ...
+desktop	UNKNOWN STEP	2026-11-03T08:06:09.2108429Z Unpacking xfonts-encodings (1:1.0.5-0ubuntu2) ...
+desktop	UNKNOWN STEP	2026-11-03T08:06:09.2458835Z Selecting previously unselected package xfonts-utils.
+desktop	UNKNOWN STEP	2026-11-03T08:06:09.2605030Z Preparing to unpack .../6-xfonts-utils_1%3a7.7+6build3_amd64.deb ...
+desktop	UNKNOWN STEP	2026-11-03T08:06:09.2613254Z Unpacking xfonts-utils (1:7.7+6build3) ...
+desktop	UNKNOWN STEP	2026-11-03T08:06:09.3022868Z Selecting previously unselected package xfonts-cyrillic.
+desktop	UNKNOWN STEP	2026-11-03T08:06:09.3169797Z Preparing to unpack .../7-xfonts-cyrillic_1%3a1.0.5+nmu1_all.deb ...
+desktop	UNKNOWN STEP	2026-11-03T08:06:09.3178399Z Unpacking xfonts-cyrillic (1:1.0.5+nmu1) ...
+desktop	UNKNOWN STEP	2026-11-03T08:06:09.3565796Z Selecting previously unselected package xfonts-scalable.
+desktop	UNKNOWN STEP	2026-11-03T08:06:09.3712087Z Preparing to unpack .../8-xfonts-scalable_1%3a1.0.3-1.3_all.deb ...
+desktop	UNKNOWN STEP	2026-11-03T08:06:09.3721495Z Unpacking xfonts-scalable (1:1.0.3-1.3) ...
+desktop	UNKNOWN STEP	2026-11-03T08:06:09.4209671Z Setting up fonts-wqy-zenhei (0.9.45-8) ...
+desktop	UNKNOWN STEP	2026-11-03T08:06:09.4342257Z Setting up fonts-freefont-ttf (20211204+svn4273-2) ...
+desktop	UNKNOWN STEP	2026-11-03T08:06:09.4363186Z Setting up fonts-tlwg-loma-otf (1:0.7.3-1) ...
+desktop	UNKNOWN STEP	2026-11-03T08:06:09.4383695Z Setting up xfonts-encodings (1:1.0.5-0ubuntu2) ...
+desktop	UNKNOWN STEP	2026-11-03T08:06:09.4405471Z Setting up fonts-ipafont-gothic (00303-21ubuntu1) ...
+desktop	UNKNOWN STEP	2026-11-03T08:06:09.4476128Z update-alternatives: using /usr/share/fonts/opentype/ipafont-gothic/ipag.ttf to provide /usr/share/fonts/truetype/fonts-japanese-gothic.ttf (fonts-japanese-gothic.ttf) in auto mode
+desktop	UNKNOWN STEP	2026-11-03T08:06:09.4495947Z Setting up fonts-unifont (1:15.1.01-1build1) ...
+desktop	UNKNOWN STEP	2026-11-03T08:06:09.4517806Z Setting up xfonts-utils (1:7.7+6build3) ...
+desktop	UNKNOWN STEP	2026-11-03T08:06:09.4563090Z Setting up xfonts-cyrillic (1:1.0.5+nmu1) ...
+desktop	UNKNOWN STEP	2026-11-03T08:06:09.4870831Z Setting up xfonts-scalable (1:1.0.3-1.3) ...
+desktop	UNKNOWN STEP	2026-11-03T08:06:09.5159921Z Processing triggers for man-db (2.12.0-4build2) ...
+desktop	UNKNOWN STEP	2026-11-03T08:06:09.5184590Z Not building database; man-db/auto-update is not 'true'.
+desktop	UNKNOWN STEP	2026-11-03T08:06:09.5201678Z Processing triggers for fontconfig (2.15.0-1.1ubuntu2) ...
+desktop	UNKNOWN STEP	2026-11-03T08:06:10.3093002Z 
+desktop	UNKNOWN STEP	2026-11-03T08:06:10.3093678Z Running kernel seems to be up-to-date.
+desktop	UNKNOWN STEP	2026-11-03T08:06:10.3094324Z 
+desktop	UNKNOWN STEP	2026-11-03T08:06:10.3094551Z No services need to be restarted.
+desktop	UNKNOWN STEP	2026-11-03T08:06:10.3094776Z 
+desktop	UNKNOWN STEP	2026-11-03T08:06:10.3094948Z No containers need to be restarted.
+desktop	UNKNOWN STEP	2026-11-03T08:06:10.3095177Z 
+desktop	UNKNOWN STEP	2026-11-03T08:06:10.3095386Z No user sessions are running outdated binaries.
+desktop	UNKNOWN STEP	2026-11-03T08:06:10.3095635Z 
+desktop	UNKNOWN STEP	2026-11-03T08:06:10.3095965Z No VM guests are running outdated hypervisor (qemu) binaries on this host.
+desktop	UNKNOWN STEP	2026-11-03T08:06:11.3270635Z ##[group]Run npm run build
+desktop	UNKNOWN STEP	2026-11-03T08:06:11.3270942Z ^[[36;1mnpm run build^[[0m
+desktop	UNKNOWN STEP	2026-11-03T08:06:11.3291182Z shell: /usr/bin/bash -e {0}
+desktop	UNKNOWN STEP	2026-11-03T08:06:11.3291455Z ##[endgroup]
+desktop	UNKNOWN STEP	2026-11-03T08:06:11.4308932Z 
+desktop	UNKNOWN STEP	2026-11-03T08:06:11.4309475Z > phlippo-cad@0.5.11 build
+desktop	UNKNOWN STEP	2026-11-03T08:06:11.4310080Z > tsc -b && vite build
+desktop	UNKNOWN STEP	2026-11-03T08:06:11.4310363Z 
+desktop	UNKNOWN STEP	2026-11-03T08:06:34.2955777Z ^[[36mvite v7.3.7 ^[[32mbuilding client environment for production...^[[36m^[[39m
+desktop	UNKNOWN STEP	2026-11-03T08:06:34.3710788Z transforming...
+desktop	UNKNOWN STEP	2026-11-03T08:06:39.4878400Z ^[[33m[plugin vite:resolve] Module "node:module" has been externalized for browser compatibility, imported by "/home/runner/work/Claude/Claude/node_modules/replicad-opencascadejs/dist/replicad_single.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.^[[39m
+desktop	UNKNOWN STEP	2026-11-03T08:06:44.3997288Z ^[[32m✓^[[39m 374 modules transformed.
+desktop	UNKNOWN STEP	2026-11-03T08:06:44.8415012Z rendering chunks...
+desktop	UNKNOWN STEP	2026-11-03T08:06:45.2287044Z computing gzip size...
+desktop	UNKNOWN STEP	2026-11-03T08:06:45.8197654Z ^[[2mdist/^[[22m^[[32mindex.html                            ^[[39m^[[1m^[[2m     1.10 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     0.51 kB^[[22m
+desktop	UNKNOWN STEP	2026-11-03T08:06:45.8198921Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[32mreplicad_single-BfZpIs5k.js    ^[[39m^[[1m^[[2m    59.37 kB^[[22m^[[1m^[[22m
+desktop	UNKNOWN STEP	2026-11-03T08:06:45.8200669Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[32mreplicad-DSoIoMtf.js           ^[[39m^[[1m^[[2m   372.71 kB^[[22m^[[1m^[[22m
+desktop	UNKNOWN STEP	2026-11-03T08:06:45.8202449Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[32mrebuild.worker-BGZyGNXF.js     ^[[39m^[[1m^[[2m   660.94 kB^[[22m^[[1m^[[22m
+desktop	UNKNOWN STEP	2026-11-03T08:06:45.8204034Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[32mocct.worker-Dr6atlk1.js        ^[[39m^[[1m^[[2m   677.46 kB^[[22m^[[1m^[[22m
+desktop	UNKNOWN STEP	2026-11-03T08:06:45.8206125Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[32mreplicad_single-B_1cTsn_.wasm  ^[[39m^[[1m^[[2m22,980.27 kB^[[22m^[[1m^[[22m^[[2m │ gzip: 7,267.29 kB^[[22m
+desktop	UNKNOWN STEP	2026-11-03T08:06:45.8209199Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[35mindex-hwRUupuS.css             ^[[39m^[[1m^[[2m    83.97 kB^[[22m^[[1m^[[22m^[[2m │ gzip:    16.47 kB^[[22m
+desktop	UNKNOWN STEP	2026-11-03T08:06:45.8210583Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mpreviewWindow-D4k7KS82.js      ^[[39m^[[1m^[[2m     1.63 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     0.77 kB^[[22m
+desktop	UNKNOWN STEP	2026-11-03T08:06:45.8211645Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mDrawingTreeBody-CUChwBAr.js    ^[[39m^[[1m^[[2m     2.17 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     0.99 kB^[[22m
+desktop	UNKNOWN STEP	2026-11-03T08:06:45.8212977Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mselfTest-CIJlrPjS.js           ^[[39m^[[1m^[[2m     3.21 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.55 kB^[[22m
+desktop	UNKNOWN STEP	2026-11-03T08:06:45.8214378Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mSensorPM-DMAwjwqR.js           ^[[39m^[[1m^[[2m     3.32 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.15 kB^[[22m
+desktop	UNKNOWN STEP	2026-11-03T08:06:45.8215890Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mFastenerPM-C_oNJptN.js         ^[[39m^[[1m^[[2m     3.57 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.24 kB^[[22m
+desktop	UNKNOWN STEP	2026-11-03T08:06:45.8216908Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mdesignStudy-B6GpRj0w.js        ^[[39m^[[1m^[[2m     4.11 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.56 kB^[[22m
+desktop	UNKNOWN STEP	2026-11-03T08:06:45.8217912Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mSketch3DPM-lm3LfwIF.js         ^[[39m^[[1m^[[2m     5.28 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.02 kB^[[22m
+desktop	UNKNOWN STEP	2026-11-03T08:06:45.8218963Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mAnalysisPM2-Lzk7v88c.js        ^[[39m^[[1m^[[2m     5.51 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.78 kB^[[22m
+desktop	UNKNOWN STEP	2026-11-03T08:06:45.8220057Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mconfigureDialog-Dig2UPE0.js    ^[[39m^[[1m^[[2m     5.54 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.13 kB^[[22m
+desktop	UNKNOWN STEP	2026-11-03T08:06:45.8221092Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36massemblyDialogs-BPO9Et-x.js    ^[[39m^[[1m^[[2m     6.53 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.14 kB^[[22m
+desktop	UNKNOWN STEP	2026-11-03T08:06:45.8222090Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mAutoTolerancePM-BLlqHpOs.js    ^[[39m^[[1m^[[2m     7.34 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.00 kB^[[22m
+desktop	UNKNOWN STEP	2026-11-03T08:06:45.8223115Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mSheetDialogs-YYGHKJya.js       ^[[39m^[[1m^[[2m     7.57 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.15 kB^[[22m
+desktop	UNKNOWN STEP	2026-11-03T08:06:45.8224954Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mequations-Bm3KvxDQ.js          ^[[39m^[[1m^[[2m     9.21 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.98 kB^[[22m
+desktop	UNKNOWN STEP	2026-11-03T08:06:45.8226053Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mappearanceDialog-COGz6hpP.js   ^[[39m^[[1m^[[2m     9.61 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     3.08 kB^[[22m
+desktop	UNKNOWN STEP	2026-11-03T08:06:45.8227089Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mDraftAnalysisPM-BtVPB2Ya.js    ^[[39m^[[1m^[[2m    10.92 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.59 kB^[[22m
+desktop	UNKNOWN STEP	2026-11-03T08:06:45.8228087Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mevaluateDialogs-C_ZtOKLE.js    ^[[39m^[[1m^[[2m    11.43 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     3.33 kB^[[22m
+desktop	UNKNOWN STEP	2026-11-03T08:06:45.8229138Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mAppearancesPane-DTV5TesW.js    ^[[39m^[[1m^[[2m    11.68 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     4.04 kB^[[22m
+desktop	UNKNOWN STEP	2026-11-03T08:06:45.8230127Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mtreeDialogs-CwYRVCSp.js        ^[[39m^[[1m^[[2m    12.49 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     3.91 kB^[[22m
+desktop	UNKNOWN STEP	2026-11-03T08:06:45.8231123Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mmaterialDialog-CGpLLJ3E.js     ^[[39m^[[1m^[[2m    13.02 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     3.93 kB^[[22m
+desktop	UNKNOWN STEP	2026-11-03T08:06:45.8232109Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mcustomize-JmHmUZc2.js          ^[[39m^[[1m^[[2m    14.87 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     4.28 kB^[[22m
+desktop	UNKNOWN STEP	2026-11-03T08:06:45.8233078Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mevaluate-PhFlSccn.js           ^[[39m^[[1m^[[2m    16.32 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     5.26 kB^[[22m
+desktop	UNKNOWN STEP	2026-11-03T08:06:45.8234349Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mevaluateDialogs2-CXXFyFYF.js   ^[[39m^[[1m^[[2m    25.05 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     6.63 kB^[[22m
+desktop	UNKNOWN STEP	2026-11-03T08:06:45.8235378Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mMotionTimeline-BcRT-lxB.js     ^[[39m^[[1m^[[2m    26.55 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     6.91 kB^[[22m
+desktop	UNKNOWN STEP	2026-11-03T08:06:45.8236367Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mAssemblyPM-DnMxHA29.js         ^[[39m^[[1m^[[2m    27.29 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     6.45 kB^[[22m
+desktop	UNKNOWN STEP	2026-11-03T08:06:45.8237627Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mDrawingSheetView-BxfKOfJI.js   ^[[39m^[[1m^[[2m    51.28 kB^[[22m^[[1m^[[22m^[[2m │ gzip:    16.38 kB^[[22m
+desktop	UNKNOWN STEP	2026-11-03T08:06:45.8238636Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mDrawingPM-TpXVTfWK.js          ^[[39m^[[1m^[[2m    53.62 kB^[[22m^[[1m^[[22m^[[2m │ gzip:    11.18 kB^[[22m
+desktop	UNKNOWN STEP	2026-11-03T08:06:45.8239617Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36moptions-cNuMUEQi.js            ^[[39m^[[1m^[[2m    54.46 kB^[[22m^[[1m^[[22m^[[2m │ gzip:    14.84 kB^[[22m
+desktop	UNKNOWN STEP	2026-11-03T08:06:45.8240598Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mcsg-DAu2N901.js                ^[[39m^[[1m^[[2m   105.39 kB^[[22m^[[1m^[[22m^[[2m │ gzip:    32.47 kB^[[22m
+desktop	UNKNOWN STEP	2026-11-03T08:06:45.8241538Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mreact-BgaH_3CY.js              ^[[39m^[[1m^[[2m   223.35 kB^[[22m^[[1m^[[22m^[[2m │ gzip:    69.70 kB^[[22m
+desktop	UNKNOWN STEP	2026-11-03T08:06:45.8242499Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mPropertyPanel-CEFJaKnt.js      ^[[39m^[[1m^[[2m   314.55 kB^[[22m^[[1m^[[22m^[[2m │ gzip:    56.42 kB^[[22m
+desktop	UNKNOWN STEP	2026-11-03T08:06:45.8243479Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mkernel-BFXQHbFn.js             ^[[39m^[[1m^[[2m   490.27 kB^[[22m^[[1m^[[22m^[[2m │ gzip:   167.26 kB^[[22m
+desktop	UNKNOWN STEP	2026-11-03T08:06:45.8244825Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mthree-Bfd7ReS2.js              ^[[39m^[[1m^[[2m   728.92 kB^[[22m^[[1m^[[22m^[[2m │ gzip:   197.58 kB^[[22m
+desktop	UNKNOWN STEP	2026-11-03T08:06:45.8245787Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mindex-kno0Zrud.js              ^[[39m^[[1m^[[2m   854.86 kB^[[22m^[[1m^[[22m^[[2m │ gzip:   235.99 kB^[[22m
+desktop	UNKNOWN STEP	2026-11-03T08:06:45.8246390Z ^[[32m✓ built in 11.49s^[[39m
+desktop	UNKNOWN STEP	2026-11-03T08:06:45.9827460Z ##[group]Run PHLIPPO_SOFTWARE_GL=1 xvfb-run -a node e2e/desktop-nohooks.mjs
+desktop	UNKNOWN STEP	2026-11-03T08:06:45.9828044Z ^[[36;1mPHLIPPO_SOFTWARE_GL=1 xvfb-run -a node e2e/desktop-nohooks.mjs^[[0m
+desktop	UNKNOWN STEP	2026-11-03T08:06:45.9848700Z shell: /usr/bin/bash -e {0}
+desktop	UNKNOWN STEP	2026-11-03T08:06:45.9848958Z ##[endgroup]
+desktop	UNKNOWN STEP	2026-11-03T08:06:46.6196161Z Downloading Electron binary...
+desktop	UNKNOWN STEP	2026-11-03T08:06:49.5417257Z ok   no test hooks without PHLIPPO_E2E
+desktop	UNKNOWN STEP	2026-11-03T08:06:49.5436725Z ok   bridge says testHooks is off
+desktop	UNKNOWN STEP	2026-11-03T08:06:49.5450631Z ok   Content-Security-Policy meta in the page
+desktop	UNKNOWN STEP	2026-11-03T08:06:49.5489232Z ok   no application menu (no DevTools / Reload entries in a menu, F67)
+desktop	UNKNOWN STEP	2026-11-03T08:06:50.8536075Z ok   software OpenGL: the shell reports it and WebGL runs on SwiftShader
+desktop	UNKNOWN STEP	2026-11-03T08:06:50.9124606Z ok   Use software OpenGL is kept for the next start
+desktop	UNKNOWN STEP	2026-11-03T08:06:50.9143198Z ok   permissions are refused (F87)
+desktop	UNKNOWN STEP	2026-11-03T08:06:57.4197567Z ok   Final Render works without the test hooks
+desktop	UNKNOWN STEP	2026-11-03T08:07:00.7365371Z ok   Zoom to Fit (F) runs without a page error
+desktop	UNKNOWN STEP	2026-11-03T08:07:00.9234042Z ok   About reports 0.5.11 with the notice and the licence files
+desktop	UNKNOWN STEP	2026-11-03T08:07:01.0534058Z 
+desktop	UNKNOWN STEP	2026-11-03T08:07:01.0534922Z 10/10 checks passed
+desktop	UNKNOWN STEP	2026-11-03T08:07:01.0805448Z ##[group]Run code=0; xvfb-run -a npx electron . --self-test --software-gl --no-sandbox || code=$?
+desktop	UNKNOWN STEP	2026-11-03T08:07:01.0806600Z ^[[36;1mcode=0; xvfb-run -a npx electron . --self-test --software-gl --no-sandbox || code=$?^[[0m
+desktop	UNKNOWN STEP	2026-11-03T08:07:01.0807478Z ^[[36;1mcat /tmp/phlippo-self-test.json; exit $code^[[0m
+desktop	UNKNOWN STEP	2026-11-03T08:07:01.0833739Z shell: /usr/bin/bash -e {0}
+desktop	UNKNOWN STEP	2026-11-03T08:07:01.0834352Z ##[endgroup]
+desktop	UNKNOWN STEP	2026-11-03T08:07:01.5893477Z [3407:1103/080701.588420:ERROR:dbus/bus.cc:406] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+desktop	UNKNOWN STEP	2026-11-03T08:07:01.6826548Z [3407:1103/080701.680499:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+desktop	UNKNOWN STEP	2026-11-03T08:07:01.6829756Z [3407:1103/080701.680686:ERROR:dbus/bus.cc:406] Failed to connect to the bus: Could not parse server address: Unknown address type (examples of valid types are "tcp" and on UNIX "unix")
+desktop	UNKNOWN STEP	2026-11-03T08:07:01.6961381Z [3407:1103/080701.695746:ERROR:dbus/object_proxy.cc:572] Failed to call method: org.freedesktop.DBus.NameHasOwner: object_path= /org/freedesktop/DBus: unknown error type: 
+desktop	UNKNOWN STEP	2026-11-03T08:07:14.9909835Z {
+desktop	UNKNOWN STEP	2026-11-03T08:07:14.9910267Z  "version": "0.5.11",
+desktop	UNKNOWN STEP	2026-11-03T08:07:14.9910720Z  "packaged": false,
+desktop	UNKNOWN STEP	2026-11-03T08:07:14.9911196Z  "url": "app://phlippo/index.html",
+desktop	UNKNOWN STEP	2026-11-03T08:07:14.9911752Z  "dir": "/tmp/phlippo-self-test-d17erI",
+desktop	UNKNOWN STEP	2026-11-03T08:07:14.9912225Z  "steps": [
+desktop	UNKNOWN STEP	2026-11-03T08:07:14.9912608Z   {
+desktop	UNKNOWN STEP	2026-11-03T08:07:14.9912997Z    "name": "the app started (Welcome)",
+desktop	UNKNOWN STEP	2026-11-03T08:07:14.9913468Z    "ok": true
+desktop	UNKNOWN STEP	2026-11-03T08:07:14.9914054Z   },
+desktop	UNKNOWN STEP	2026-11-03T08:07:14.9914380Z   {
+desktop	UNKNOWN STEP	2026-11-03T08:07:14.9914806Z    "name": "sketch and extrude build a body",
+desktop	UNKNOWN STEP	2026-11-03T08:07:14.9915299Z    "ok": true
+desktop	UNKNOWN STEP	2026-11-03T08:07:14.9915626Z   },
+desktop	UNKNOWN STEP	2026-11-03T08:07:14.9915926Z   {
+desktop	UNKNOWN STEP	2026-11-03T08:07:14.9916437Z    "name": "the B-rep kernel (WASM) makes the body exact",
+desktop	UNKNOWN STEP	2026-11-03T08:07:14.9917017Z    "ok": true,
+desktop	UNKNOWN STEP	2026-11-03T08:07:14.9917413Z    "info": "44858.407346410204"
+desktop	UNKNOWN STEP	2026-11-03T08:07:14.9917814Z   },
+desktop	UNKNOWN STEP	2026-11-03T08:07:14.9918114Z   {
+desktop	UNKNOWN STEP	2026-11-03T08:07:14.9918471Z    "name": "Fillet1 is exact",
+desktop	UNKNOWN STEP	2026-11-03T08:07:14.9918896Z    "ok": true,
+desktop	UNKNOWN STEP	2026-11-03T08:07:14.9919268Z    "info": "44742.52235464483"
+desktop	UNKNOWN STEP	2026-11-03T08:07:14.9919657Z   },
+desktop	UNKNOWN STEP	2026-11-03T08:07:14.9919961Z   {
+desktop	UNKNOWN STEP	2026-11-03T08:07:14.9920319Z    "name": "no rebuild errors",
+desktop	UNKNOWN STEP	2026-11-03T08:07:14.9920737Z    "ok": true,
+desktop	UNKNOWN STEP	2026-11-03T08:07:14.9921064Z    "info": "{}"
+desktop	UNKNOWN STEP	2026-11-03T08:07:14.9921390Z   },
+desktop	UNKNOWN STEP	2026-11-03T08:07:14.9921672Z   {
+desktop	UNKNOWN STEP	2026-11-03T08:07:14.9922105Z    "name": "STEP is written with exact surfaces",
+desktop	UNKNOWN STEP	2026-11-03T08:07:14.9922629Z    "ok": true,
+desktop	UNKNOWN STEP	2026-11-03T08:07:14.9923031Z    "info": "23567 bytes, exact 1"
+desktop	UNKNOWN STEP	2026-11-03T08:07:14.9923443Z   },
+desktop	UNKNOWN STEP	2026-11-03T08:07:14.9923738Z   {
+desktop	UNKNOWN STEP	2026-11-03T08:07:14.9924447Z    "name": "the rebuild worker builds the same body",
+desktop	UNKNOWN STEP	2026-11-03T08:07:14.9925049Z    "ok": true,
+desktop	UNKNOWN STEP	2026-11-03T08:07:14.9925475Z    "info": "1143 / 1143 vertices, 346 ms"
+desktop	UNKNOWN STEP	2026-11-03T08:07:14.9925920Z   },
+desktop	UNKNOWN STEP	2026-11-03T08:07:14.9926209Z   {
+desktop	UNKNOWN STEP	2026-11-03T08:07:14.9926703Z    "name": "Save writes the .kcad atomically and keeps a .bak",
+desktop	UNKNOWN STEP	2026-11-03T08:07:14.9927301Z    "ok": true
+desktop	UNKNOWN STEP	2026-11-03T08:07:14.9927726Z   }
+desktop	UNKNOWN STEP	2026-11-03T08:07:14.9928078Z  ]
+desktop	UNKNOWN STEP	2026-11-03T08:07:14.9928409Z }
+desktop	UNKNOWN STEP	2026-11-03T08:07:15.0095844Z ##[group]Run PHLIPPO_SOFTWARE_GL=1 PHLIPPO_USER_DATA="$(mktemp -d)" xvfb-run -a node e2e/desktop-restore-autosave.mjs e2e/fixtures/user-part1.json
+desktop	UNKNOWN STEP	2026-11-03T08:07:15.0096883Z ^[[36;1mPHLIPPO_SOFTWARE_GL=1 PHLIPPO_USER_DATA="$(mktemp -d)" xvfb-run -a node e2e/desktop-restore-autosave.mjs e2e/fixtures/user-part1.json^[[0m
+desktop	UNKNOWN STEP	2026-11-03T08:07:15.0117558Z shell: /usr/bin/bash -e {0}
+desktop	UNKNOWN STEP	2026-11-03T08:07:15.0117834Z ##[endgroup]
+desktop	UNKNOWN STEP	2026-11-03T08:07:15.9480110Z autosave now: [ 'Sketch1', 'Boss-Extrude1', 'Fillet1', 'Sketch2' ]
+desktop	UNKNOWN STEP	2026-11-03T08:07:17.8519436Z ok   the autosave is there after a restart (4 features)
+desktop	UNKNOWN STEP	2026-11-03T08:07:19.1789663Z ##[group]Run PHLIPPO_SOFTWARE_GL=1 xvfb-run -a node e2e/desktop-recover.mjs
+desktop	UNKNOWN STEP	2026-11-03T08:07:19.1790264Z ^[[36;1mPHLIPPO_SOFTWARE_GL=1 xvfb-run -a node e2e/desktop-recover.mjs^[[0m
+desktop	UNKNOWN STEP	2026-11-03T08:07:19.1810600Z shell: /usr/bin/bash -e {0}
+desktop	UNKNOWN STEP	2026-11-03T08:07:19.1810883Z ##[endgroup]
+desktop	UNKNOWN STEP	2026-11-03T08:07:21.7179771Z ok   a new document has a stable id and unsaved changes
+desktop	UNKNOWN STEP	2026-11-03T08:07:21.7299576Z ok   the forced auto-recover write succeeds
+desktop	UNKNOWN STEP	2026-11-03T08:07:22.6615859Z ok   a second document with the same name has another id
+desktop	UNKNOWN STEP	2026-11-03T08:07:22.6721251Z ok   two documents named Part1 keep two copies in <profile>/autorecover (F153)
+desktop	UNKNOWN STEP	2026-11-03T08:07:22.6747395Z ok   Document Recovery lists both as Part1
+desktop	UNKNOWN STEP	2026-11-03T08:07:22.6784454Z ok   a folder sent by the renderer is ignored and not created (F156)
+desktop	UNKNOWN STEP	2026-11-03T08:07:22.6895021Z ok   the copy of a document is removed by its id
+desktop	UNKNOWN STEP	2026-11-03T08:07:23.2926128Z ok   Options shows the folder of the shell, read-only
+desktop	UNKNOWN STEP	2026-11-03T08:07:25.3007734Z ok   Browse… uses the folder dialog of the shell and the choice is kept in the profile
+desktop	UNKNOWN STEP	2026-11-03T08:07:25.3038905Z ok   the next copy goes to the chosen folder
+desktop	UNKNOWN STEP	2026-11-03T08:07:25.6237537Z ok   Default goes back to <profile>/autorecover
+desktop	UNKNOWN STEP	2026-11-03T08:07:25.6281475Z ok   software OpenGL keeps only the choice in gpu.json (F162)
+desktop	UNKNOWN STEP	2026-11-03T08:07:25.7077899Z ok   Options says software OpenGL takes effect at the next start, with a way back
+desktop	UNKNOWN STEP	2026-11-03T08:07:25.7095774Z ok   turning software OpenGL off removes the file
+desktop	UNKNOWN STEP	2026-11-03T08:07:29.0905758Z ok   after the crash Document Recovery opens by itself
+desktop	UNKNOWN STEP	2026-11-03T08:07:29.1025254Z ok   it lists both Part1 copies
+desktop	UNKNOWN STEP	2026-11-03T08:07:29.5663030Z ok   the recovered copy opens as "Part1 (Recovered)" with unsaved changes (F154)
+desktop	UNKNOWN STEP	2026-11-03T08:07:29.5664205Z ok   the recovered copy holds the change
+desktop	UNKNOWN STEP	2026-11-03T08:07:29.5703278Z ok   the title row shows "(Recovered)"
+desktop	UNKNOWN STEP	2026-11-03T08:07:31.1067159Z ok   Save asks for a file (no handle of an earlier document is reused)
+desktop	UNKNOWN STEP	2026-11-03T08:07:31.1087899Z ok   after Save only the other Part1 copy is left (F153)
+desktop	UNKNOWN STEP	2026-11-03T08:07:32.1232365Z 
+desktop	UNKNOWN STEP	2026-11-03T08:07:32.1233030Z 21/21 checks passed
+desktop	UNKNOWN STEP	2026-11-03T08:07:32.1455698Z ##[group]Run git diff --exit-code
+desktop	UNKNOWN STEP	2026-11-03T08:07:32.1456036Z ^[[36;1mgit diff --exit-code^[[0m
+desktop	UNKNOWN STEP	2026-11-03T08:07:32.1475340Z shell: /usr/bin/bash -e {0}
+desktop	UNKNOWN STEP	2026-11-03T08:07:32.1475612Z ##[endgroup]
+desktop	UNKNOWN STEP	2026-11-03T08:07:32.2256285Z ##[group]Run echo "nohooks=success selftest=success autosave=success recover=success clean=success"
+desktop	UNKNOWN STEP	2026-11-03T08:07:32.2257021Z ^[[36;1mecho "nohooks=success selftest=success autosave=success recover=success clean=success"^[[0m
+desktop	UNKNOWN STEP	2026-11-03T08:07:32.2257785Z ^[[36;1mtest "success" = success && test "success" = success && test "success" = success && test "success" = success && test "success" = success^[[0m
+desktop	UNKNOWN STEP	2026-11-03T08:07:32.2277817Z shell: /usr/bin/bash -e {0}
+desktop	UNKNOWN STEP	2026-11-03T08:07:32.2278078Z ##[endgroup]
+desktop	UNKNOWN STEP	2026-11-03T08:07:32.2319913Z nohooks=success selftest=success autosave=success recover=success clean=success
+desktop	UNKNOWN STEP	2026-11-03T08:07:32.2606388Z Post job cleanup.
+desktop	UNKNOWN STEP	2026-11-03T08:07:32.3878796Z (node:3917) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+desktop	UNKNOWN STEP	2026-11-03T08:07:32.3880323Z (Use `node --trace-deprecation ...` to show where the warning was created)
+desktop	UNKNOWN STEP	2026-11-03T08:07:32.3883573Z Cache hit occurred on the primary key node-cache-Linux-x64-npm-7e50782abaabdfcbc792723b7c40a6f079de0dce14d505136bcdc0c470d819aa, not saving cache.
+desktop	UNKNOWN STEP	2026-11-03T08:07:32.4359675Z Post job cleanup.
+desktop	UNKNOWN STEP	2026-11-03T08:07:32.5248181Z [command]/usr/bin/git version
+desktop	UNKNOWN STEP	2026-11-03T08:07:32.5327046Z git version 2.56.0
+desktop	UNKNOWN STEP	2026-11-03T08:07:32.5367807Z Temporarily overriding HOME='/home/runner/work/_temp/d01b5926-14ea-4afd-856b-38bddb5354ec' before making global git config changes
+desktop	UNKNOWN STEP	2026-11-03T08:07:32.5369362Z Adding repository directory to the temporary git global config as a safe directory
+desktop	UNKNOWN STEP	2026-11-03T08:07:32.5375615Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/Claude/Claude
+desktop	UNKNOWN STEP	2026-11-03T08:07:32.5466028Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+desktop	UNKNOWN STEP	2026-11-03T08:07:32.5531778Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+desktop	UNKNOWN STEP	2026-11-03T08:07:32.5919126Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+desktop	UNKNOWN STEP	2026-11-03T08:07:32.5960960Z http.https://github.com/.extraheader
+desktop	UNKNOWN STEP	2026-11-03T08:07:32.5980076Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+desktop	UNKNOWN STEP	2026-11-03T08:07:32.6037572Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+desktop	UNKNOWN STEP	2026-11-03T08:07:32.6430525Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+desktop	UNKNOWN STEP	2026-11-03T08:07:32.6486020Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+desktop	UNKNOWN STEP	2026-11-03T08:07:32.6959975Z Cleaning up orphan processes
+desktop	UNKNOWN STEP	2026-11-03T08:07:32.7340052Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-node@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
