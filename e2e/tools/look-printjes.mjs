@@ -26,7 +26,7 @@ const open = async (d) => {
 const kijk = async (naam, toets, zoom = 0, punt = [960, 540]) => {
   await page.keyboard.press(toets); await page.waitForTimeout(700); await page.keyboard.press('f'); await page.waitForTimeout(1200);
   await page.mouse.move(...punt);
-  for (let i = 0; i < zoom; i++) { await page.mouse.wheel(0, -240); await page.waitForTimeout(200); }
+  for (let i = 0; i < zoom; i++) { await page.mouse.wheel(0, 240); await page.waitForTimeout(200); }
   // de muis naar een lege hoek van het tekenvlak en geen oude hover (anders oranje randen)
   await page.mouse.move(1700, 980); await page.evaluate(() => window.__phlippoStore.setState({ hoverFace: null, hoverEdge: null })); await page.waitForTimeout(2500);
   await page.screenshot({ path: `e2e-out/printje-${naam}.png` });

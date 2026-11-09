@@ -13,7 +13,7 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:voorbeelden": "cross-env VOORBEELDEN=1 vitest run src/qa/qaAfzuiging.test.ts src/qa/qaBureau.test.ts src/qa/qaTrein.test.ts src/qa/stlAfzuiging.test.ts src/qa/overlapBoxAfzuiging.test.ts src/qa/tekeningenAfzuiging.test.ts src/qa/tekeningenTrein.test.ts src/qa/schemaNorm.test.ts",
+    "test:voorbeelden": "cross-env VOORBEELDEN=1 vitest run src/qa/qaAfzuiging.test.ts src/qa/qaBureau.test.ts src/qa/qaTrein.test.ts src/qa/stlAfzuiging.test.ts src/qa/overlapBoxAfzuiging.test.ts src/qa/tekeningenAfzuiging.test.ts src/qa/tekeningenTrein.test.ts src/qa/schemaNorm.test.ts src/qa/qaRobotarm.test.ts",
     "test:afz-snel": "cross-env VOORBEELDEN=1 vitest run src/qa/qaAfzuiging.test.ts -t \"is één body|B-rep\"",
     "typecheck": "tsc -b",
     "e2e": "node e2e/smoke.mjs && node e2e/relations.mjs && node e2e/full.mjs && node e2e/features.mjs && node e2e/assembly.mjs && node e2e/drawing.mjs && node e2e/configurations.mjs && node e2e/rib.mjs && node e2e/endconditions.mjs && node e2e/multibody.mjs && node e2e/slot.mjs && node e2e/sheetmetal.mjs && node e2e/section.mjs && node e2e/sketchtools.mjs && node e2e/helix.mjs && node e2e/hem.mjs && node e2e/explode.mjs",

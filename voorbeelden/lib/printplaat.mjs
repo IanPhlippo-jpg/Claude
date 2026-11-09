@@ -87,8 +87,8 @@ export class Plaat {
   }
   dataUrl() { return 'data:image/svg+xml;base64,' + Buffer.from(this.svg(), 'utf8').toString('base64'); }
   /** de decal op het bovenvlak (normaal +Y) met het midden op (cx, y, cz) in het onderdeel */
-  decal(id, naam, [cx, y, cz]) {
-    return { id, name: naam, face: { normal: [0, 1, 0], point: [cx, y, cz] }, image: this.dataUrl(), width: this.w, height: this.h, rotation: 0 };
+  decal(id, naam, [cx, y, cz], { normaal = [0, 1, 0], draai = 0 } = {}) {
+    return { id, name: naam, face: { normal: normaal, point: [cx, y, cz] }, image: this.dataUrl(), width: this.w, height: this.h, rotation: draai };
   }
 }
 

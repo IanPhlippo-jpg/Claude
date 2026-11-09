@@ -89,6 +89,11 @@ export class Schets {
     return this.rrect(ax, ay, bx, by, r);
   }
 
+  /** hulplijn (constructie), bv. de as van een draaiing; geeft het id van de lijn terug */
+  as(x1, y1, x2, y2) {
+    return this.#ent({ kind: 'line', p1: this.pt(x1, y1), p2: this.pt(x2, y2), construction: true });
+  }
+
   cirkel(x, y, r) {
     this.#ent({ kind: 'circle', center: this.pt(x, y), r: this.#scalar(r) });
     return this;
@@ -190,6 +195,13 @@ export class Onderdeel {
     if (terug) f.direction2 = { end: 'blind', depth: terug };
     if (draft) f.draft = { angle: draft, outward: false }; // aflopend naar binnen (afschuining)
     this.features.push(f);
+    return this;
+  }
+
+  /** draaiing van de laatste schets om een hulplijn (Schets.as); op = 'boss' | 'cut', hoek in graden */
+  revolve(op, asId, hoek = 360, { naam } = {}) {
+    const n = op === 'cut' ? ++this.tel.cut : ++this.tel.boss;
+    this.features.push({ id: `f${this.features.length + 1}`, type: 'revolve', name: naam ?? `${op === 'cut' ? 'Cut' : 'Boss'}-Revolve${n}`, sketchId: `s${this.tel.sketch}`, suppressed: false, op, axisEntityId: asId, angle: hoek, reverse: false });
     return this;
   }
 

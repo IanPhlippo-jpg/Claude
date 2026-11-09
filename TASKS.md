@@ -1171,10 +1171,11 @@ elease; README en docs/04 bijgewerkt
 
 ## Robotarm die deuren van een lopende band neemt (2026-11-09)
 - [x] EISEN.md met de antwoorden van Ian (60 kg, alle richtingen, perslucht, €3.000-12.000)
-- [~] Rekenblad: reikwijdte, koppel per as (statisch + versnelling), keuze reductoren en motoren, vacuüm (zuignappen, ejector, veiligheid)
-- [ ] Kooponderdelen met bron en maten (reductoren, servo's, lagers, zuignappen, ejectors, besturing, veiligheid)
-- [ ] Generator voorbeelden/robotarm/maak-robotarm.mjs: voet, draaikrans, schouder, bovenarm, elleboog, onderarm, pols 3 assen, vacuümgrijper, hek
-- [ ] Snelle test (mesh, maten, botsing per deel) en volledige test (B-rep, STL, tekeningen)
+- [x] Rekenblad: reikwijdte, koppel per as (statisch + versnelling), keuze reductoren en motoren, snelheden, vacuüm
+- [x] Kooponderdelen met bron en maten (reductoren, servo's, besturing, veiligheid); [~] vlakgrijper en camera
+- [x] Generator voorbeelden/robotarm/maak-robotarm.mjs: voet, draaikrans, schouder, bovenarm, elleboog, onderarm, pols 3 assen, grijper, hek, lichtschermen, kast
+- [x] Test qaRobotarm: elk deel één lichaam, kinematica, bereik, geen botsingen
+- [~] Universele grijper (Ian: ook plinten en kleine planken, meer en grotere zuigopeningen): vlakgrijper met zones + camera; grijpplanner besturing/greep.py
 - [ ] Werktekeningen ISO 5457/7200 (lasersnijdelen, laswerk), schema's EPLAN (vermogen, besturing, veiligheid, pneumatiek ISO 1219)
 - [ ] Firmware/besturing, bestellijst, bouwschema, één afdruk-PDF
 - [ ] Foto's naar Ian, commit en push
