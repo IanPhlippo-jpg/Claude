@@ -165,15 +165,28 @@ const edgeSelected = (w) => page.evaluate((w) => {
   const e = st.rebuild.bodies.flatMap((b) => b.edges).find((x) => x.id === st.selectedEdges[0]);
   return !!e && Math.hypot(e.centroid.x - w[0], e.centroid.y - w[1], e.centroid.z - w[2]) < 1;
 }, w);
-for (let k = 0; k < 10 && !(await edgeSelected([40, 10, 0])); k++) {
-  await page.mouse.move(em.x + (k % 2), em.y);
-  await page.waitForFunction(() => !!window.__phlippoStore.getState().hoverEdge, undefined, { timeout: 3000 }).catch(() => undefined);
-  if (await edgeSelected([40, 10, 0])) break;
-  await page.mouse.click(em.x + (k % 2), em.y);
-  await page.waitForFunction(() => window.__phlippoStore.getState().selectedEdges.length > 0, undefined, { timeout: 4000 }).catch(() => undefined);
-  if (await edgeSelected([40, 10, 0])) break;
-  await waitSettled(page);
-}
+// one pick loop for an edge: the point is projected again on every try (the view may still be fitting), a wrong
+// selection (another edge) is cleared with a click in empty space, and every failed try is logged (14f3af6, win-mesh-3of3)
+const pickEdge = async (w, label) => {
+  for (let k = 0; k < 10 && !(await edgeSelected(w)); k++) {
+    if (await page.evaluate(() => window.__phlippoStore.getState().selectedEdges.length)) {
+      await page.mouse.click(1700, 950);
+      await page.waitForFunction(() => window.__phlippoStore.getState().selectedEdges.length === 0, undefined, { timeout: 3000 }).catch(() => undefined);
+      // the empty corner may hold part of the model on another screen size: then the selection is cleared directly
+      await page.evaluate(() => { if (window.__phlippoStore.getState().selectedEdges.length) window.__phlippoStore.setState({ selectedEdges: [] }); });
+    }
+    const p = await page.evaluate((w) => window.__phlippoProjectWorld(w[0], w[1], w[2]), w);
+    await page.mouse.move(p.x + (k % 2), p.y);
+    await page.waitForFunction(() => !!window.__phlippoStore.getState().hoverEdge, undefined, { timeout: 3000 }).catch(() => undefined);
+    if (await edgeSelected(w)) break;
+    await page.mouse.click(p.x + (k % 2), p.y);
+    await page.waitForFunction(() => window.__phlippoStore.getState().selectedEdges.length > 0, undefined, { timeout: 4000 }).catch(() => undefined);
+    if (await edgeSelected(w)) break;
+    console.log(label + ' edge try', k, JSON.stringify(p), JSON.stringify(await page.evaluate(() => { const s = window.__phlippoStore.getState(); const all = s.rebuild.bodies.flatMap((b) => b.edges); const at = (id) => { const e = all.find((x) => x.id === id); return e ? [e.centroid.x, e.centroid.y, e.centroid.z].map((v) => Math.round(v)) : id; }; return { selected: s.selectedEdges.map(at), hover: s.hoverEdge ? at(s.hoverEdge) : null, pending: !!s.rebuild.pending }; })));
+    await waitSettled(page);
+  }
+};
+await pickEdge([40, 10, 0], 'fillet');
 check('click selects the edge', await edgeSelected([40, 10, 0]));
 await page.click('.k-cm-big:has-text("Fillet") .k-cm-main');
 await page.waitForTimeout(600);
@@ -188,17 +201,7 @@ check('Fillet1 added without errors', s4.features.length === 5 && s4.features[4]
 await shot('e10-fillet');
 // chamfer on the opposite top edge (midpoint (40, 10, -80))
 await waitSettled(page);
-let s4sel = await page.evaluate(() => window.__phlippoStore.getState().selectedEdges.join());
-const em2 = await page.evaluate(() => window.__phlippoProjectWorld(40, 10, -80));
-for (let k = 0; k < 10 && !(await edgeSelected([40, 10, -80])); k++) {
-  await page.mouse.move(em2.x + (k % 2), em2.y);
-  await page.waitForFunction(() => !!window.__phlippoStore.getState().hoverEdge, undefined, { timeout: 3000 }).catch(() => undefined);
-  if (await edgeSelected([40, 10, -80])) break;
-  await page.mouse.click(em2.x + (k % 2), em2.y);
-  await page.waitForFunction((n) => window.__phlippoStore.getState().selectedEdges.join() !== n, s4sel, { timeout: 4000 }).catch(() => undefined);
-  if (await edgeSelected([40, 10, -80])) break;
-  await waitSettled(page);
-}
+await pickEdge([40, 10, -80], 'chamfer');
 await page.click('.k-cm-big:has-text("Fillet") .k-cm-arrow');
 await page.click('.k-menu-item:has-text("Chamfer")');
 await page.waitForTimeout(600);
