@@ -48,6 +48,12 @@ if (doe('prints')) {
   await kijk('prints', 'Control+7');
   await kijk('voeding', 'Control+5', 3, [560, 540]);
 }
+if (doe('tules')) {
+  // de membraantules in de voorwand en de linkerwand, van dichtbij (dicht, met het deksel)
+  await open(JSON.parse(readFileSync(F, 'utf8')));
+  await kijk('tules', 'Control+7', 4, [700, 640]);
+  await kijk('tules-voor', 'Control+1', 3, [900, 600]);
+}
 if (doe('doos')) {
   const d = JSON.parse(readFileSync(F, 'utf8')); delete d.format; d.components = d.components.filter((c) => !/^(d2|sd\d)$/.test(c.id));
   await open(d);

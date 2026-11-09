@@ -25,7 +25,7 @@ const DELEN: Deel[] = [
     `Per rij bordjes een kader: uitsparing ${getal(m.bordje.x + 2 * m.kader.speling)} x ${getal(m.bordje.z + 2 * m.kader.speling)}, ${getal(m.kader.h)} hoog, lip ${getal(m.kader.lip.b)} over de draadgang`,
     `Steunrail onder elk bordje (${m.voet} hoog); drukribben in het deksel houden de bordjes vast`,
     `Kabelgoot links en rechts: tussenwand ${getal(D.goot.dik)} op ${D.goot.x} van de wand, ${D.goot.h} hoog, opening ${D.goot.open} bij elke draadgang`,
-    `Kabelinvoer ${D.invoer.b} breed, ${D.invoer.diep} diep vanaf de rand (4 wanden); 2 binderspleten 1,8 x 3 per invoer`,
+    `Kabelinvoer: 18 gaten Ø${String(D.invoer.gat).replace('.', ',')} op ${String(D.invoer.y).replace('.', ',')} hoogte voor membraantule EMT 16 (4 wanden); 2 binderspleten 1,8 x 3 per invoer`,
     `Draadsleuven ${D.sleuf.b} x ${D.sleuf.l} in de bodem, tussen de rijen en langs de achterwand`,
     'Printpaaltjes Ø6, gat Ø2,2 (2,5 x 6); 6 dekselbussen Ø8, gat Ø2,6 (3 x 12)',
     'Links gat Ø12,2 (wartel M12 x 1,5); rechts opening voor de 2 USB-poorten',

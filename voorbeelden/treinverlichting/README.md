@@ -21,8 +21,9 @@ gekochte onderdelen met hun bron in `docs/Maten-en-bronnen.md`, de eisen van Ian
 | Netadapter | Mean Well GST90A12-P1M (12 V, 6,67 A), gekeurd; 230 V komt niet in de doos |
 
 - **Draden:** de leddraden komen van boven door de draadsleuven in de bodem (tussen de rijen), of langs de zijkanten door
-  de kabelinvoeren in de vier wanden: uitsparingen van 8 mm, open aan de kant van het deksel. Leg de draden erin; het
-  deksel sluit ze af.
+  de kabelinvoeren in de vier wanden: 18 ronde gaten Ø16,5 met elk een membraantule Wiska EMT 16 (TPE, IP66). Klik de
+  tule van buiten in het gat, prik de draden door het vlies: het rubber sluit rond de bundel (1 tot 9 mm). Zo komt er
+  geen stof binnen en schuurt er geen draad over een rand.
 - **Kabels ordenen:** langs de linker- en de rechterwand loopt een kabelgoot (rij 1 tot 6) met een opening bij elke rij:
   daarin lopen de draden van de uitgangsprint (de − van elk bordje) en van de voedingsprint (de + per rij). Langs elk
   kader steekt een lip van 1,6 mm uit over de draadgang tussen de rijen: schuif de leddraden eronder. Bij elke
@@ -87,13 +88,14 @@ de ESP: groen = wifi aan, rood = de PWM-print antwoordt niet. Meer: `firmware/RE
 | Gaatjesprint (2,54) | 4 | uitgang 68 x 25, ingang 80 x 25, voeding 61 x 25, drager 68 x 28 (uit één plaat) | € 1,50 | € 6,00 |
 | Vrouwelijke pinrij 22-polig | 2 | 2,54 | € 0,50 | € 1,00 |
 | Wartel M12 x 1,5 | 1 | kabel Ø3 tot 6,5 | € 0,80 | € 0,80 |
+| Membraantule Wiska EMT 16 LG (10062559) | 18 | M16, gat Ø16 tot 17,2, wand 2 tot 9,5, kabel 1 tot 9, IP66, lichtgrijs; per 100 verpakt (richtprijs, na te kijken) | € 0,40 | € 7,20 |
 | Plaatschroef 2,5 x 6 bolkop | 18 | prints op de schroefpaaltjes | € 0,05 | € 0,90 |
 | Plaatschroef 3 x 12 verzonken | 6 | deksel | € 0,08 | € 0,48 |
 | Bolkopschroef 4 x 20 (hout) | 4 | sleutelgaten | € 0,05 | € 0,20 |
 | Montagedraad 0,25 en 0,5 mm² | 1 | | € 5,00 | € 5,00 |
 | Kabelbinders 2,5 x 100 mm | 1 zakje | voor de binderogen | € 3,00 | € 3,00 |
 | Kabelmarkering (cijfers en letters) of vlaggetjes | 1 | de labels van [Draden labelen](#draden-labelen) | € 4,00 | € 4,00 |
-| **Totaal kopen** | | | | **€ 125,28** |
+| **Totaal kopen** | | | | **€ 132,48** |
 
 De 16 Modelbouwled-bordjes heb je al; een extra kost € 9,75 (Modelbouwled.nl). Filament: ongeveer 350 g PETG zwart
 (bak) en 120 g grijs (deksel), samen ongeveer € 10.
@@ -102,8 +104,8 @@ De 16 Modelbouwled-bordjes heb je al; een extra kost € 9,75 (Modelbouwled.nl).
 
 | Bestand | Stand | Maat (mm) |
 |---|---|---|
-| `print/Kabeldoos-bak.stl` | de bodem op het bed | 248,9 x 240,6 x 26,4 |
-| `print/Kabeldoos-deksel.stl` | de buitenkant op het bed | 248,9 x 240,6 x 9,1 (met de drukribben) |
+| `print/Kabeldoos-bak.stl` | de bodem op het bed | 248,9 x 245,6 x 26,4 |
+| `print/Kabeldoos-deksel.stl` | de buitenkant op het bed | 248,9 x 245,6 x 9,1 (met de drukribben) |
 
 Past op het bed van 256 x 256. Instellingen zoals bij de afzuiging (0,2 mm, 4 wanden, 30 % gyroid).
 

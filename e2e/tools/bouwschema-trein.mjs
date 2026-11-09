@@ -88,10 +88,10 @@ const STAPPEN = [
     beelden: [beeld([...ALLES_OPEN], [], { toets: 'Control+5' }), beeld([...ALLES_OPEN], [], { zoom: true })],
     tekst: [
       'Labels eerst: elke draad krijgt aan beide uiteinden zijn naam (G01− tot G16−, R1+ tot R6+, IN01 tot IN16), zoals in de README.',
-      'Leddraden van de baan: door de draadsleuf in de bodem of een kabelinvoer, onder de lip van het kader door, naar de klemmen van hun bordje.',
+      'Leddraden van de baan: door de draadsleuf in de bodem of door de membraantule van een kabelinvoer (prik ze door het vlies), onder de lip van het kader door, naar de klemmen van hun bordje.',
       'Per rij: R+ van de voedingsprint naar de + van het eerste bordje, doorlussen naar de andere bordjes van die rij. De − van elk bordje (Gnn−) apart naar klem nn van de uitgangsprint.',
       'Deze draden lopen door de kabelgoot langs de wand en verlaten ze bij de opening van hun rij.',
-      'Knoppen en sensoren: door de invoeren aan de voorkant naar de ingangsprint. Bind elke bundel vast in de 2 spleten naast de invoer.',
+      'Knoppen en sensoren: door de 4 membraantules aan de voorkant naar de klemmen van de ingangsprint.',
       'Netadapter: de kabel door de wartel naar de klem 12 V in (+ en − zie het schema), wartel dichtdraaien.',
     ],
     delen: ['Montagedraad 0,25 en 0,5 mm²', 'Kabelbinders, labels'],

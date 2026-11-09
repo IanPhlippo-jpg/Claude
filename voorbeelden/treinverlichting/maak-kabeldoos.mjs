@@ -40,9 +40,10 @@ export const M = {
   voeding: { x: 61, z: 25.4 },
   drager: { x: 68, z: 27.94 }, // draagprint van de ESP: 2 x 22 vrouwelijke pinrijen (22,86 hart op hart), 2 schroeven tussen de rijen
   // de doos
-  rij: { tussen: 12, kolom: 8, rand: 3, zij: 6 }, // zij: extra links en rechts, voor de schroefbussen van het deksel // ruimte tussen de rijen (draden), tussen de kolommen, tot de wand
+  // voor: aan de voorwand meer ruimte, de membraantules steken 6,6 mm naar binnen voor de klemstrook van de ingangsprint
+  rij: { tussen: 12, kolom: 8, rand: 3, voor: 8, zij: 6 }, // zij: extra links en rechts, voor de schroefbussen van het deksel // ruimte tussen de rijen (draden), tussen de kolommen, tot de wand
   voet: 3, // alle prints liggen 3 mm boven de bodem (op paaltjes of richels)
-  doos: { wand: 2.4, bodem: 2.4, h: 24, deksel: 2.4, r: 4, sleutelgat: { kop: 9.2, schacht: 4.6, slag: 6 }, sleuf: { b: 6, l: 40 }, invoer: { b: 8, diep: 11 },
+  doos: { wand: 2.4, bodem: 2.4, h: 24, deksel: 2.4, r: 4, sleutelgat: { kop: 9.2, schacht: 4.6, slag: 6 }, sleuf: { b: 6, l: 40 }, invoer: { gat: 16.5, y: 13.5, tule: { d: 21, flens: 2, l: 11 } },
     goot: { x: 8, dik: 1.2, h: 14, open: 10 } },
   // kader per rij bordjes: 2,2 rondom, tot 0,6 boven de print (onder de draadingangen van de klemmen); lip voor de draden
   kader: { rand: 2.2, speling: 0.3, h: 3 + 1.6 + 0.6, lip: { b: 1.6, h: 1.2 } },
@@ -308,6 +309,19 @@ export function elco(d = 6.3, h = 11, naam = 'Elco 470 µF / 25 V') {
   cirkels(o, 0, h, [[0, 0, d / 2]], 'Elco');
   return met(o.doc(), elcoArt(d, h));
 }
+/** membraantule Wiska EMT 16 LG (10062559): TPE, lichtgrijs RAL 7035, Ø21 x 11 lang, in een gat Ø16 tot 17,2; oorsprong
+ *  op de buitenkant van de wand, langs +X naar buiten: flens van 2 buiten, de rest steekt naar binnen (6,6 bij een wand
+ *  van 2,4); het vlies zit in de flens */
+export function tule() {
+  const T = M.doos.invoer.tule, o = deel('Membraantule Wiska EMT 16', { name: 'TPE, lichtgrijs (RAL 7035)', density: 1100, color: '#d7d6cf' });
+  o.schets(vlak('t1', 'Plane flens', [0, 0, 0], [1, 0, 0], 'reference'), (s) => s.cirkelW([0, 0, 0], T.d / 2));
+  o.extrude('boss', T.flens, { naam: 'Flens' });
+  o.schets(vlak('t2', 'Plane lijf', [0.01, 0, 0], [-1, 0, 0], 'reference'), (s) => s.cirkelW([0.01, 0, 0], M.doos.invoer.gat / 2 - 0.4)); // lijf met ribbels: in het model 0,4 vrij (de mesh van het gat is een veelhoek)
+  o.extrude('boss', T.l - T.flens + 0.01, { naam: 'Lijf' });
+  o.schets(vlak('t3', 'Plane binnen', [-(T.l - T.flens), 0, 0], [-1, 0, 0], 'reference'), (s) => s.cirkelW([-(T.l - T.flens), 0, 0], M.doos.invoer.gat / 2 - 1.6));
+  o.extrude('cut', T.l - T.flens - 0.6, { omkeren: true, naam: 'Holte' });
+  return o.doc();
+}
 /** wartel M12 x 1,5 (kabel Ø3 tot 6,5): buitenmoer en dop, oorsprong op de wand, langs +X naar buiten */
 export function wartel() {
   const o = deel('Wartel M12 x 1,5', { name: 'PA, zwart', density: 1140, color: '#202124' });
@@ -334,7 +348,7 @@ export function indeling() {
   // de ESP met haar antenne (6,4 voorbij de print) en de draagprint: plaats op de breedste van beide
   rijen.push(plaats([{ soort: 'voeding', x: M.voeding.x, z: M.voeding.z }, { soort: 'ingang', x: M.ingang.x, z: M.ingang.z }, { soort: 'esp', x: Math.max(M.esp.x + M.esp.module.voorbij, M.drager.x), z: M.drager.z }]));
   const diep = rijen.map((rij) => Math.max(...rij.map((d) => d.z)));
-  const binnenZ = diep.reduce((a, b) => a + b, 0) + (rijen.length - 1) * R.tussen + 2 * R.rand;
+  const binnenZ = diep.reduce((a, b) => a + b, 0) + (rijen.length - 1) * R.tussen + R.rand + R.voor;
   const binnenX = Math.max(...rijen.map((rij) => breed(rij.map((d) => d.x)))) + 2 * (R.rand + R.zij);
   let z = -binnenZ / 2 + R.rand;
   rijen.forEach((rij, i) => { const cz = z + diep[i] / 2; rij.forEach((d) => { d.cz = cz; }); z += diep[i] + R.tussen; });
@@ -427,15 +441,16 @@ export function bak() {
     }));
     o.extrude('cut', G.dik + 1, { naam: `Binderspleten ${k > 0 ? 'rechts' : 'links'}` });
   }
-  // kabelinvoer langs de zijkanten (Ian): open aan de kant van het deksel
-  const K = kabelInvoer(rs, bx, bz), yb = D.h - K.diep;
-  o.schets(vlak('kl', 'Plane kabelinvoer links', [-X, 0, 0], [-1, 0, 0], 'reference'), (s) => K.zijkant.forEach((z) => s.rrectW([-X, yb, z - K.b / 2], [-X, D.h + 2, z + K.b / 2], K.b / 2 - 0.01)));
+  // kabelinvoer (Ian, 2026-11-09): ronde gaten Ø16,5 voor een membraantule Wiska EMT 16 (M16, wand 2 tot 9,5, kabels 1 tot
+  // 9 mm, IP66): links en rechts bij elke draadgang, achter tussen de kolommen, voor de ingangsprint
+  const K = kabelInvoer(rs, bx, bz), yi = D.invoer.y, ri = D.invoer.gat / 2;
+  o.schets(vlak('kl', 'Plane kabelinvoer links', [-X, 0, 0], [-1, 0, 0], 'reference'), (s) => K.zijkant.forEach((z) => s.cirkelW([-X, yi, z], ri)));
   o.extrude('cut', w + 1, { omkeren: true, naam: 'Kabelinvoer links' });
-  o.schets(vlak('kr', 'Plane kabelinvoer rechts', [X, 0, 0], [1, 0, 0], 'reference'), (s) => K.zijkant.forEach((z) => s.rrectW([X, yb, z - K.b / 2], [X, D.h + 2, z + K.b / 2], K.b / 2 - 0.01)));
+  o.schets(vlak('kr', 'Plane kabelinvoer rechts', [X, 0, 0], [1, 0, 0], 'reference'), (s) => K.zijkant.forEach((z) => s.cirkelW([X, yi, z], ri)));
   o.extrude('cut', w + 1, { omkeren: true, naam: 'Kabelinvoer rechts' });
-  o.schets(vlak('ka', 'Plane kabelinvoer achter', [0, 0, -Z], [0, 0, -1], 'reference'), (s) => K.achter.forEach((x) => s.rrectW([x - K.b / 2, yb, -Z], [x + K.b / 2, D.h + 2, -Z], K.b / 2 - 0.01)));
+  o.schets(vlak('ka', 'Plane kabelinvoer achter', [0, 0, -Z], [0, 0, -1], 'reference'), (s) => K.achter.forEach((x) => s.cirkelW([x, yi, -Z], ri)));
   o.extrude('cut', w + 1, { omkeren: true, naam: 'Kabelinvoer achter' });
-  o.schets(vlak('kv', 'Plane kabelinvoer voor', [0, 0, Z], [0, 0, 1], 'reference'), (s) => K.voor.forEach((x) => s.rrectW([x - K.b / 2, yb, Z], [x + K.b / 2, D.h + 2, Z], K.b / 2 - 0.01)));
+  o.schets(vlak('kv', 'Plane kabelinvoer voor', [0, 0, Z], [0, 0, 1], 'reference'), (s) => K.voor.forEach((x) => s.cirkelW([x, yi, Z], ri)));
   o.extrude('cut', w + 1, { omkeren: true, naam: 'Kabelinvoer voor' });
   const u = usbOpening(ep);
   o.schets(vlak('wr', 'Plane rechterwand', [X, 0, 0], [1, 0, 0], 'reference'), (s) => s.rrectW([X, u.y0, u.z0], [X, u.y1, u.z1], 1));
@@ -475,16 +490,16 @@ const gang = (rijen, i) => (rijen[i][0].cz + Math.max(...rijen[i].map((d) => d.z
 export function bevestigingsGaten(rijen, bx) {
   return [0, 4].flatMap((i) => [[-bx / 2 + 12, gang(rijen, i)], [bx / 2 - 18, gang(rijen, i)]]);
 }
-/** kabelinvoer in de wanden: uitsparingen van 8 breed en 11 diep vanaf de rand (de kant van het deksel): je legt de draden
- *  erin en het deksel sluit ze af. Links en rechts bij elke draadgang, achter tussen de kolommen, voor de ingangsprint */
+/** kabelinvoer in de wanden: een membraantule per gat (Ø16,5 op 13,5 mm hoogte): je prikt de draden door het vlies, het
+ *  rubber sluit rond de bundel. Links en rechts bij elke draadgang, achter tussen de kolommen, voor de ingangsprint */
 function kabelInvoer(rijen, bx, bz) {
   const D = M.doos, bussen = dekselBussen(bx, bz), vrij = (x, z) => bussen.every(([bx2, bz2]) => Math.hypot(bx2 - x, bz2 - z) > 9);
   const zijkant = [];
   for (let i = 0; i < rijen.length - 1; i++) { const z = gang(rijen, i); if (vrij(-bx / 2, z)) zijkant.push(z); }
   const achter = [-1.5, -0.5, 0.5, 1.5].map((k) => k * (M.bordje.x + M.rij.kolom) / 1.0).filter((x) => Math.abs(x) < bx / 2 - 10 && vrij(x, -bz / 2));
   const ing = rijen[6].find((d) => d.soort === 'ingang');
-  const voor = [-24, -8, 8, 24].map((dx) => ing.cx + dx);
-  return { zijkant, achter, voor, b: D.invoer.b, diep: D.invoer.diep };
+  const voor = [-33, -11, 11, 33].map((dx) => ing.cx + dx); // 22 hart op hart: de flenzen (Ø21) raken elkaar niet
+  return { zijkant, achter, voor };
 }
 /** de x van de draagprint: rechts in de rij, de USB-kant van de ESP 1 mm van de rechterwand */
 const espDragerX = (d) => espX(d) - M.esp.x / 2 + M.esp.pin.eerste + ((M.esp.pin.n - 1) * M.esp.pin.steek) / 2;
@@ -679,6 +694,13 @@ export function kabeldoos() {
   // de wartel M12 in de linkerwand, de schroeven van het deksel en de bevestiging onder de baan
   const { binnenX: bx, binnenZ: bz } = indeling(), X = bx / 2 + M.doos.wand;
   at('w1', 'Wartel M12 x 1,5<1>', wartel(), [-X, wartelY(), rijen[6][0].cz], draai(180));
+  // de membraantules in alle kabelinvoeren (flens buiten, langs de normaal van de wand naar buiten)
+  const tl = tule(), K = kabelInvoer(rijen, bx, bz), Z = bz / 2 + M.doos.wand, yi = M.doos.invoer.y;
+  const rotY = (deg) => draai(deg);
+  let nt = 0;
+  for (const z of K.zijkant) { at(`t${++nt}`, `Membraantule EMT 16<${nt}>`, tl, [-X, yi, z], rotY(180)); at(`t${++nt}`, `Membraantule EMT 16<${nt}>`, tl, [X, yi, z]); }
+  for (const x of K.achter) at(`t${++nt}`, `Membraantule EMT 16<${nt}>`, tl, [x, yi, -Z], rotY(90));
+  for (const x of K.voor) at(`t${++nt}`, `Membraantule EMT 16<${nt}>`, tl, [x, yi, Z], rotY(-90));
   const kop3 = schroefVerzonken('Plaatschroef 3 x 12 verzonken', 3, 2.4, 12);
   dekselBussen(bx, bz).forEach(([x, z], i) => at(`sd${i + 1}`, `Plaatschroef 3 x 12 verzonken<${i + 1}>`, kop3, [x, M.doos.h + M.doos.deksel, z]));
   // de 4 bolkopschroeven 4 x 20 in de sleutelgaten, in de vergrendelde stand (aan het eind van de sleuf): de kop ligt op de bodem

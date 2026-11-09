@@ -1161,3 +1161,20 @@ elease; README en docs/04 bijgewerkt
 - [x] Unit-test voor de decals in een samenstelling; generator draaien, voorbeeldtests
 - [x] Close-ups renderen en controleren naast de echte prints; screenshots naar Ian
 - [x] graphify update, commit en push
+
+## Kabeldoos: membraantules in de kabelinvoeren (2026-11-09)
+- [x] Tule kiezen met bron: Wiska EMT 16 LG (10062559), wand 2-9,5, kabel 1-9, Ø21 x 11
+- [x] Open sleuven vervangen door gaten Ø16,5 op 13,5 hoogte; 18 tules in het model; voorrand 8 mm (vrij van de klemstrook)
+- [x] Botsingstest en exacte vorm groen; STL's en werktekeningen opnieuw
+- [x] Bouwschema en afdruk-PDF opnieuw; README en bestellijst (de app volgt bij de volgende publicatie)
+- [x] Commit en push (foto's later: Ian wil eerst de robotarm zien)
+
+## Robotarm die deuren van een lopende band neemt (2026-11-09)
+- [x] EISEN.md met de antwoorden van Ian (60 kg, alle richtingen, perslucht, €3.000-12.000)
+- [~] Rekenblad: reikwijdte, koppel per as (statisch + versnelling), keuze reductoren en motoren, vacuüm (zuignappen, ejector, veiligheid)
+- [ ] Kooponderdelen met bron en maten (reductoren, servo's, lagers, zuignappen, ejectors, besturing, veiligheid)
+- [ ] Generator voorbeelden/robotarm/maak-robotarm.mjs: voet, draaikrans, schouder, bovenarm, elleboog, onderarm, pols 3 assen, vacuümgrijper, hek
+- [ ] Snelle test (mesh, maten, botsing per deel) en volledige test (B-rep, STL, tekeningen)
+- [ ] Werktekeningen ISO 5457/7200 (lasersnijdelen, laswerk), schema's EPLAN (vermogen, besturing, veiligheid, pneumatiek ISO 1219)
+- [ ] Firmware/besturing, bestellijst, bouwschema, één afdruk-PDF
+- [ ] Foto's naar Ian, commit en push
