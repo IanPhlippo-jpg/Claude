@@ -13,7 +13,8 @@ const errors = track(page);
 const { results, check } = checks();
 const S = (fn, arg) => page.evaluate(fn, arg);
 const state = () => S(() => { const s = window.__phlippoStore.getState(); return { errors: s.rebuild.errors, bodies: s.rebuild.bodies.map((b) => ({ id: b.id, exact: !!b.exact, vol: b.exactVolume, closed: b.edges.filter((e) => e.closed).length, straight: b.edges.filter((e) => e.straight).length, faces: b.faces.length })) }; });
-const waitExact = (n = 1) => page.waitForFunction((k) => { const b = window.__phlippoStore.getState().rebuild.bodies; return b.length === k && b.every((x) => x.exact); }, n, { timeout: 60000 }).then(() => true, () => false);
+// a rebuild still running keeps the previous (exact) bodies on screen: wait until it is done (7db76a0, win-release-2of3)
+const waitExact = (n = 1) => page.waitForFunction((k) => { const r = window.__phlippoStore.getState().rebuild; return !r.pending && r.bodies.length === k && r.bodies.every((x) => x.exact); }, n, { timeout: 60000 }).then(() => true, () => false);
 
 await page.goto(process.env.E2E_URL ?? 'http://localhost:4173/');
 await page.evaluate(() => { localStorage.clear(); localStorage.setItem('phlippo.theme', 'light'); localStorage.setItem('phlippo.kernel', 'brep'); });
@@ -72,7 +73,7 @@ await S(() => {
 await page.waitForTimeout(200);
 await S(() => window.__phlippoStore.getState().commitFeature());
 await page.waitForTimeout(300);
-const ok2 = await page.waitForFunction(() => { const s = window.__phlippoStore.getState(); return s.doc.features.some((f) => f.type === 'fillet') && s.rebuild.bodies.every((b) => b.exact); }, null, { timeout: 60000 }).then(() => true, () => false);
+const ok2 = await page.waitForFunction(() => { const s = window.__phlippoStore.getState(); return s.doc.features.some((f) => f.type === 'fillet') && !s.rebuild.pending && s.rebuild.bodies.every((b) => b.exact); }, null, { timeout: 60000 }).then(() => true, () => false);
 const s2 = await state();
 const exact2 = exact1 - (1 - Math.PI / 4) * 9 * 60;
 check('Fillet1 is built by the B-rep kernel: exact volume', ok2 && !Object.keys(s2.errors).length && Math.abs(s2.bodies[0].vol - exact2) < 1e-4, JSON.stringify(s2));

@@ -44,9 +44,9 @@ Status per fase:
 7. Massa-eigenschappen, meten en materialen — **gereed** (Mass Properties, Measure, Edit Material met dichtheid per body, Appearances); geen fotorealistische render (raytracing)
 8. Sheet metal (Base Flange/Tab, Edge Flange, Flatten met K-factor, Hem, Jog, Miter Flange, Unfold/Fold) — **gereed** (e2e: sheetmetal, hem, jogmiter, unfoldfold)
 
-## Status 0.5.13 (in uitvoering, 2026-11-09)
+## Status 0.5.13 (2026-11-09)
 
-QA-rapport 0.5.12 (5/10) wordt verwerkt; de stappen staan in `TASKS.md`.
+QA-rapport 0.5.12 (5/10) verwerkt; per bevinding in `docs/30-qa-0.5.12.md`, het bewijs per commit in `qa-logs/0.5.13/`.
 - `npm test`: 783 tests (`tools/doc-counts.cjs` vergelijkt dit getal met vitest); de modeltests van `voorbeelden/`
   draaien apart (`npm run test:voorbeelden`, CI-job "voorbeelden"). De strikte QA-tests in `src/qa/`:
   qaStrict.test.ts (8), qaBrep.test.ts (34), qaCrossCheck.test.ts (15), qaNaming.test.ts (12), qaTeam.test.ts (5),

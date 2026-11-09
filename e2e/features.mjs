@@ -303,16 +303,19 @@ await page.waitForTimeout(300);
 await page.keyboard.press('f');
 await page.waitForTimeout(300);
 await waitSettled(page);
-const sf = await page.evaluate(() => window.__phlippoProjectWorld(5, 10, -40));
 // a slow runner draws the fitted view later: click until the face is selected
 // a click on a selected face deselects it: never click again while a late pick may still land (2ed4772, win-mesh-3of3)
+// the point is projected again on every try: the fit may still be animating when the loop starts (7db76a0, win-mesh-3of3)
 const faceSelected = () => page.evaluate(() => window.__phlippoStore.getState().selectedFaces.length === 1);
+let sf = await page.evaluate(() => window.__phlippoProjectWorld(5, 10, -40));
 for (let k = 0; k < 10 && !(await faceSelected()); k++) {
+  sf = await page.evaluate(() => window.__phlippoProjectWorld(5, 10, -40));
   await page.mouse.move(sf.x + (k % 2), sf.y);
   await page.waitForFunction(() => !!window.__phlippoStore.getState().hoverFace, undefined, { timeout: 3000 }).catch(() => undefined);
   if (await faceSelected()) break;
   await page.mouse.click(sf.x + (k % 2), sf.y);
   if (await page.waitForFunction(() => window.__phlippoStore.getState().selectedFaces.length === 1, undefined, { timeout: 4000 }).then(() => true, () => false)) break;
+  console.log('shell face try', k, JSON.stringify(sf), JSON.stringify(await page.evaluate(() => { const s = window.__phlippoStore.getState(); return { hoverFace: s.hoverFace, hoverEdge: s.hoverEdge, tool: s.tool, fe: s.featureEdit?.draft?.type ?? null, pending: !!s.rebuild.pending }; })));
   await waitSettled(page);
 }
 console.log('before Shell:', JSON.stringify(await page.evaluate(() => { const s = window.__phlippoStore.getState(); const b = s.rebuild.bodies[0]; return { selectedFaces: s.selectedFaces.length, hoverEdge: s.hoverEdge, edges: b.edges.length, closed: b.edges.filter((e) => e.closed).length, straight: b.edges.filter((e) => e.straight).length }; })));
