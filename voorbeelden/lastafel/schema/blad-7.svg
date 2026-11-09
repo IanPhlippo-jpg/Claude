@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 297" width="420mm" height="297mm" font-family="Arial, Helvetica, sans-serif">
+<rect width="420" height="297" fill="#fff"/>
+<rect x="5" y="5" width="410" height="287" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="20" y="10" width="390" height="277" fill="none" stroke="#000" stroke-width="0.7"/>
+<polyline points="210,5 210,10" fill="none" stroke="#000" stroke-width="0.7"/>
+<polyline points="210,287 210,292" fill="none" stroke="#000" stroke-width="0.7"/>
+<polyline points="5,148.5 20,148.5" fill="none" stroke="#000" stroke-width="0.7"/>
+<polyline points="410,148.5 415,148.5" fill="none" stroke="#000" stroke-width="0.7"/>
+<polyline points="20,15 410,15" fill="none" stroke="#000" stroke-width="0.35"/>
+<text x="39.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">0</text>
+<polyline points="59,10 59,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="78.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">1</text>
+<polyline points="98,10 98,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="117.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">2</text>
+<polyline points="137,10 137,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="156.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">3</text>
+<polyline points="176,10 176,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="195.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">4</text>
+<polyline points="215,10 215,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="234.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">5</text>
+<polyline points="254,10 254,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="273.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">6</text>
+<polyline points="293,10 293,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="312.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">7</text>
+<polyline points="332,10 332,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="351.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">8</text>
+<polyline points="371,10 371,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="390.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">9</text>
+<text x="21.5" y="258.5" font-size="2.5" text-anchor="start" fill="#000">6</text>
+<polyline points="20,260 410,260" fill="none" stroke="#000" stroke-width="0.7"/>
+<polyline points="20,266.75 62,266.75" fill="none" stroke="#000" stroke-width="0.18"/>
+<polyline points="20,273.5 62,273.5" fill="none" stroke="#000" stroke-width="0.18"/>
+<polyline points="20,280.25 62,280.25" fill="none" stroke="#000" stroke-width="0.18"/>
+<polyline points="30,260 30,287" fill="none" stroke="#000" stroke-width="0.18"/>
+<polyline points="48,260 48,287" fill="none" stroke="#000" stroke-width="0.18"/>
+<text x="21" y="285.4" font-size="1.8" text-anchor="start" fill="#000">Wijz.</text>
+<text x="31" y="285.4" font-size="1.8" text-anchor="start" fill="#000">Datum</text>
+<text x="49" y="285.4" font-size="1.8" text-anchor="start" fill="#000">Naam</text>
+<text x="21" y="278.55" font-size="2.3" text-anchor="start" fill="#000">1</text>
+<text x="31" y="278.55" font-size="2" text-anchor="start" fill="#000">2026-11-09</text>
+<text x="49" y="278.55" font-size="2" text-anchor="start" fill="#000">PC</text>
+<polyline points="62,260 62,287" fill="none" stroke="#000" stroke-width="0.35"/>
+<polyline points="62,266.75 106,266.75" fill="none" stroke="#000" stroke-width="0.18"/>
+<polyline points="62,273.5 106,273.5" fill="none" stroke="#000" stroke-width="0.18"/>
+<polyline points="62,280.25 106,280.25" fill="none" stroke="#000" stroke-width="0.18"/>
+<polyline points="77,260 77,287" fill="none" stroke="#000" stroke-width="0.18"/>
+<text x="63" y="264.95" font-size="2" text-anchor="start" fill="#000">Datum</text>
+<text x="78" y="264.95" font-size="2.2" text-anchor="start" fill="#000">2026-11-09</text>
+<text x="63" y="271.7" font-size="2" text-anchor="start" fill="#000">Getek.</text>
+<text x="78" y="271.7" font-size="2.2" text-anchor="start" fill="#000">Phlippo CAD</text>
+<text x="63" y="278.45" font-size="2" text-anchor="start" fill="#000">Gecontr.</text>
+<text x="78" y="278.45" font-size="2.2" text-anchor="start" fill="#000">Ian</text>
+<text x="63" y="285.2" font-size="2" text-anchor="start" fill="#000">Norm</text>
+<text x="78" y="285.2" font-size="2.2" text-anchor="start" fill="#000">IEC 81346</text>
+<polyline points="106,260 106,287" fill="none" stroke="#000" stroke-width="0.35"/>
+<polyline points="106,280.25 206,280.25" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="146,260 146,280.25" fill="none" stroke="#000" stroke-width="0.18"/>
+<text x="107" y="262.3" font-size="1.8" text-anchor="start" fill="#000">Eigenaar</text>
+<text x="108" y="269.5" font-size="3.6" text-anchor="start" fill="#000" font-weight="700">Phlippo CAD</text>
+<text x="108" y="275" font-size="2.3" text-anchor="start" fill="#000">Ian</text>
+<text x="147" y="262.3" font-size="1.8" text-anchor="start" fill="#000">Project</text>
+<text x="148" y="269" font-size="3.2" text-anchor="start" fill="#000" font-weight="700">Heftafel lastafel</text>
+<text x="148" y="274.5" font-size="2.3" text-anchor="start" fill="#000">schaarheftafel 4 t met lastafel 2400 x 1200 Ø28</text>
+<text x="107" y="285.2" font-size="1.8" text-anchor="start" fill="#000">Oorspr.</text>
+<text x="118" y="285.2" font-size="2" text-anchor="start" fill="#000"></text>
+<polyline points="139.33,280.25 139.33,287" fill="none" stroke="#000" stroke-width="0.18"/>
+<text x="140.33" y="285.2" font-size="1.8" text-anchor="start" fill="#000">Verv. v.</text>
+<text x="151.33" y="285.2" font-size="2" text-anchor="start" fill="#000"></text>
+<polyline points="172.67,280.25 172.67,287" fill="none" stroke="#000" stroke-width="0.18"/>
+<text x="173.67" y="285.2" font-size="1.8" text-anchor="start" fill="#000">Verv. d.</text>
+<text x="184.67" y="285.2" font-size="2" text-anchor="start" fill="#000"></text>
+<polyline points="206,260 206,287" fill="none" stroke="#000" stroke-width="0.35"/>
+<polyline points="206,280.25 306,280.25" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="256" y="268.5" font-size="4" text-anchor="middle" fill="#000" font-weight="700">Stuklijst</text>
+<text x="207" y="285.2" font-size="1.8" text-anchor="start" fill="#000">Documentsoort</text>
+<text x="228" y="285.2" font-size="2.2" text-anchor="start" fill="#000">&amp;EPC  Stuklijst</text>
+<polyline points="306,260 306,287" fill="none" stroke="#000" stroke-width="0.35"/>
+<polyline points="306,273.5 350,273.5" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="307" y="262.3" font-size="1.8" text-anchor="start" fill="#000">Tekeningnr.</text>
+<text x="308" y="270" font-size="2.8" text-anchor="start" fill="#000" font-weight="700">LFT-E01</text>
+<text x="307" y="275.8" font-size="1.8" text-anchor="start" fill="#000">Revisie / taal</text>
+<text x="308" y="283" font-size="2.6" text-anchor="start" fill="#000">1 / nl</text>
+<polyline points="350,260 350,287" fill="none" stroke="#000" stroke-width="0.35"/>
+<polyline points="350,273.5 384,273.5" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="351.5" y="266" font-size="2.6" text-anchor="start" fill="#000">=</text>
+<text x="355" y="266" font-size="2.8" text-anchor="start" fill="#000" font-weight="700">LFT</text>
+<text x="351.5" y="271" font-size="1.9" text-anchor="start" fill="#000">heftafel</text>
+<text x="351.5" y="279.5" font-size="2.6" text-anchor="start" fill="#000">+</text>
+<text x="355" y="279.5" font-size="2.8" text-anchor="start" fill="#000" font-weight="700">KAST</text>
+<text x="351.5" y="284.5" font-size="1.9" text-anchor="start" fill="#000">bedienkast onderframe</text>
+<polyline points="384,260 384,287" fill="none" stroke="#000" stroke-width="0.35"/>
+<polyline points="384,280.25 410,280.25" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="385" y="262.3" font-size="1.8" text-anchor="start" fill="#000">Blad</text>
+<text x="397" y="275" font-size="8" text-anchor="middle" fill="#000" font-weight="700">7</text>
+<text x="408.5" y="285.2" font-size="2.3" text-anchor="end" fill="#000">7 Bl.</text>
+<text x="23" y="26" font-size="7" text-anchor="start" fill="#000">Stuklijst</text>
+<rect x="23" y="32" width="384" height="115.8" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="23,39 407,39" fill="none" stroke="#000" stroke-width="0.35"/><text x="24.5" y="36.8" font-size="2.4" text-anchor="start" fill="#000" font-weight="700">Aanduiding</text><text x="64.5" y="36.8" font-size="2.4" text-anchor="start" fill="#000" font-weight="700">Aantal</text><polyline points="63,32 63,147.8" fill="none" stroke="#000" stroke-width="0.18"/><text x="80.5" y="36.8" font-size="2.4" text-anchor="start" fill="#000" font-weight="700">Benaming</text><polyline points="79,32 79,147.8" fill="none" stroke="#000" stroke-width="0.18"/><text x="285.5" y="36.8" font-size="2.4" text-anchor="start" fill="#000" font-weight="700">Type / artikelnummer</text><polyline points="284,32 284,147.8" fill="none" stroke="#000" stroke-width="0.18"/><polyline points="23,45.4 407,45.4" fill="none" stroke="#000" stroke-width="0.13"/><text x="24.5" y="43.04" font-size="2.4" text-anchor="start" fill="#000">-X0</text><text x="64.5" y="43.04" font-size="2.4" text-anchor="start" fill="#000">1</text><text x="80.5" y="43.04" font-size="2.4" text-anchor="start" fill="#000">CEE-stekker 230 V 16 A 3-polig met 5 m kabel H07RN-F 3G2,5</text><text x="285.5" y="43.04" font-size="2.4" text-anchor="start" fill="#000">Mennekes 13001</text><polyline points="23,51.8 407,51.8" fill="none" stroke="#000" stroke-width="0.13"/><text x="24.5" y="49.44" font-size="2.4" text-anchor="start" fill="#000">-Q1</text><text x="64.5" y="49.44" font-size="2.4" text-anchor="start" fill="#000">1</text><text x="80.5" y="49.44" font-size="2.4" text-anchor="start" fill="#000">Hoofdschakelaar 2-polig 25 A, rood/geel, afsluitbaar</text><text x="285.5" y="49.44" font-size="2.4" text-anchor="start" fill="#000">Siemens 3LD2003-0TK53</text><polyline points="23,58.2 407,58.2" fill="none" stroke="#000" stroke-width="0.13"/><text x="24.5" y="55.84" font-size="2.4" text-anchor="start" fill="#000">-F1</text><text x="64.5" y="55.84" font-size="2.4" text-anchor="start" fill="#000">1</text><text x="80.5" y="55.84" font-size="2.4" text-anchor="start" fill="#000">Motorbeveiligingsschakelaar 13-20 A</text><text x="285.5" y="55.84" font-size="2.4" text-anchor="start" fill="#000">Siemens 3RV2021-4BA10</text><polyline points="23,64.6 407,64.6" fill="none" stroke="#000" stroke-width="0.13"/><text x="24.5" y="62.24" font-size="2.4" text-anchor="start" fill="#000">-F2</text><text x="64.5" y="62.24" font-size="2.4" text-anchor="start" fill="#000">1</text><text x="80.5" y="62.24" font-size="2.4" text-anchor="start" fill="#000">Installatieautomaat 2-polig C2</text><text x="285.5" y="62.24" font-size="2.4" text-anchor="start" fill="#000">Siemens 5SY6202-7</text><polyline points="23,71 407,71" fill="none" stroke="#000" stroke-width="0.13"/><text x="24.5" y="68.64" font-size="2.4" text-anchor="start" fill="#000">-Q2</text><text x="64.5" y="68.64" font-size="2.4" text-anchor="start" fill="#000">1</text><text x="80.5" y="68.64" font-size="2.4" text-anchor="start" fill="#000">Magneetschakelaar 7,5 kW, spoel 24 V DC</text><text x="285.5" y="68.64" font-size="2.4" text-anchor="start" fill="#000">Siemens 3RT2025-1BB40</text><polyline points="23,77.4 407,77.4" fill="none" stroke="#000" stroke-width="0.13"/><text x="24.5" y="75.04" font-size="2.4" text-anchor="start" fill="#000">-T1</text><text x="64.5" y="75.04" font-size="2.4" text-anchor="start" fill="#000">1</text><text x="80.5" y="75.04" font-size="2.4" text-anchor="start" fill="#000">Voeding 24 V DC 2,5 A DIN-rail</text><text x="285.5" y="75.04" font-size="2.4" text-anchor="start" fill="#000">Mean Well HDR-60-24</text><polyline points="23,83.8 407,83.8" fill="none" stroke="#000" stroke-width="0.13"/><text x="24.5" y="81.44" font-size="2.4" text-anchor="start" fill="#000">-K1</text><text x="64.5" y="81.44" font-size="2.4" text-anchor="start" fill="#000">1</text><text x="80.5" y="81.44" font-size="2.4" text-anchor="start" fill="#000">Noodstoprelais 24 V DC, 3 NO</text><text x="285.5" y="81.44" font-size="2.4" text-anchor="start" fill="#000">Pilz PNOZ s3 750103</text><polyline points="23,90.2 407,90.2" fill="none" stroke="#000" stroke-width="0.13"/><text x="24.5" y="87.84" font-size="2.4" text-anchor="start" fill="#000">-P1</text><text x="64.5" y="87.84" font-size="2.4" text-anchor="start" fill="#000">1</text><text x="80.5" y="87.84" font-size="2.4" text-anchor="start" fill="#000">Signaallamp wit 230 V</text><text x="285.5" y="87.84" font-size="2.4" text-anchor="start" fill="#000">Siemens 3SU1156-6AA60-1AA0</text><polyline points="23,96.6 407,96.6" fill="none" stroke="#000" stroke-width="0.13"/><text x="24.5" y="94.24" font-size="2.4" text-anchor="start" fill="#000">-S4</text><text x="64.5" y="94.24" font-size="2.4" text-anchor="start" fill="#000">1</text><text x="80.5" y="94.24" font-size="2.4" text-anchor="start" fill="#000">Drukknop blauw (reset)</text><text x="285.5" y="94.24" font-size="2.4" text-anchor="start" fill="#000">Siemens 3SU1150-0AB50-1BA0</text><polyline points="23,103 407,103" fill="none" stroke="#000" stroke-width="0.13"/><text x="24.5" y="100.64" font-size="2.4" text-anchor="start" fill="#000">-S1/-S2/-S3</text><text x="64.5" y="100.64" font-size="2.4" text-anchor="start" fill="#000">1</text><text x="80.5" y="100.64" font-size="2.4" text-anchor="start" fill="#000">Dubbele voetschakelaar met beschermkap en noodstop, kabel 5 m</text><text x="285.5" y="100.64" font-size="2.4" text-anchor="start" fill="#000">Herga 6226 / Steute GFSI 2 VD (gelijkwaardig)</text><polyline points="23,109.4 407,109.4" fill="none" stroke="#000" stroke-width="0.13"/><text x="24.5" y="107.04" font-size="2.4" text-anchor="start" fill="#000">-B1</text><text x="64.5" y="107.04" font-size="2.4" text-anchor="start" fill="#000">1</text><text x="80.5" y="107.04" font-size="2.4" text-anchor="start" fill="#000">Eindschakelaar boven, rolhefboom, 1 NO + 1 NC</text><text x="285.5" y="107.04" font-size="2.4" text-anchor="start" fill="#000">Schmersal PS116-T11-RMS</text><polyline points="23,115.8 407,115.8" fill="none" stroke="#000" stroke-width="0.13"/><text x="24.5" y="113.44" font-size="2.4" text-anchor="start" fill="#000">-M1, -GP1</text><text x="64.5" y="113.44" font-size="2.4" text-anchor="start" fill="#000">1</text><text x="80.5" y="113.44" font-size="2.4" text-anchor="start" fill="#000">Hydraulisch aggregaat 230 V 2,2 kW, pomp 2,5 cm³, tank 12 l, ventielblok met -QM1, -RN1, -RN2, -RM1, -PG1</text><text x="285.5" y="113.44" font-size="2.4" text-anchor="start" fill="#000">offerte (bv. Hydro-Leduc / Bucher Mini Power Pack)</text><polyline points="23,122.2 407,122.2" fill="none" stroke="#000" stroke-width="0.13"/><text x="24.5" y="119.84" font-size="2.4" text-anchor="start" fill="#000">-MM1, -MM2</text><text x="64.5" y="119.84" font-size="2.4" text-anchor="start" fill="#000">2</text><text x="80.5" y="119.84" font-size="2.4" text-anchor="start" fill="#000">Hydraulische cilinder enkelwerkend Ø100/56 slag 360, oog-oog 675, met leidingbreukventiel</text><text x="285.5" y="119.84" font-size="2.4" text-anchor="start" fill="#000">offerte (cilinder op maat)</text><polyline points="23,128.6 407,128.6" fill="none" stroke="#000" stroke-width="0.13"/><text x="24.5" y="126.24" font-size="2.4" text-anchor="start" fill="#000">-Q12, -Q13</text><text x="64.5" y="126.24" font-size="2.4" text-anchor="start" fill="#000">2</text><text x="80.5" y="126.24" font-size="2.4" text-anchor="start" fill="#000">Trekmagneet 24 V DC 50 N (ontgrendeling pal)</text><text x="285.5" y="126.24" font-size="2.4" text-anchor="start" fill="#000">Kuhnke H 3.2 of gelijkwaardig</text><polyline points="23,135 407,135" fill="none" stroke="#000" stroke-width="0.13"/><text x="24.5" y="132.64" font-size="2.4" text-anchor="start" fill="#000">-W1..-W6</text><text x="64.5" y="132.64" font-size="2.4" text-anchor="start" fill="#000">1</text><text x="80.5" y="132.64" font-size="2.4" text-anchor="start" fill="#000">Kabels: 3G2,5 motor, 7G0,75 pedaal, 3G1 ventielen (H07RN-F / ÖLFLEX)</text><text x="285.5" y="132.64" font-size="2.4" text-anchor="start" fill="#000">Lapp</text><polyline points="23,141.4 407,141.4" fill="none" stroke="#000" stroke-width="0.13"/><text x="24.5" y="139.04" font-size="2.4" text-anchor="start" fill="#000">-X1</text><text x="64.5" y="139.04" font-size="2.4" text-anchor="start" fill="#000">24</text><text x="80.5" y="139.04" font-size="2.4" text-anchor="start" fill="#000">Doorgangsklemmen 2,5 mm² + PE-klemmen</text><text x="285.5" y="139.04" font-size="2.4" text-anchor="start" fill="#000">Phoenix Contact UT 2,5 / UT 2,5-PE</text><text x="24.5" y="145.44" font-size="2.4" text-anchor="start" fill="#000">+KAST</text><text x="64.5" y="145.44" font-size="2.4" text-anchor="start" fill="#000">1</text><text x="80.5" y="145.44" font-size="2.4" text-anchor="start" fill="#000">Bedienkast staalplaat 265 x 135 x 85 RAL 7035, IP55, 2 x wartel M20</text><text x="285.5" y="145.44" font-size="2.4" text-anchor="start" fill="#000">Rittal KX 1528.000 of gelijkwaardig</text>
+</svg>

@@ -9,6 +9,13 @@ const DIR = 'voorbeelden/afzuiging/schema';
 mkdirSync('e2e-out', { recursive: true });
 const browser = await chromium.launch(process.platform === 'win32' ? { channel: process.env.PW_CHANNEL ?? 'msedge' } : {});
 const page = await browser.newPage({ viewport: { width: 1587, height: 1123 } });
+// de schemaset van de heftafel (lastafel); --alleen-lastafel stopt daarna
+await page.goto(pathToFileURL(resolve('voorbeelden/lastafel/schema/schema.html')).href);
+await page.pdf({ path: 'voorbeelden/lastafel/schema/Schemaset-heftafel.pdf', format: 'A3', landscape: true, printBackground: true, margin: { top: 0, right: 0, bottom: 0, left: 0 } });
+const nl = await page.locator('.blad').count();
+for (let i = 0; i < nl; i++) await page.locator('.blad').nth(i).screenshot({ path: `e2e-out/lastafel-schema-blad-${i + 1}.png` });
+console.log('pdf heftafel', nl, 'bladen');
+if (process.argv.includes('--alleen-lastafel')) { await browser.close(); process.exit(0); }
 await page.goto(pathToFileURL(resolve(`${DIR}/schema.html`)).href);
 await page.pdf({ path: `${DIR}/Aansluitschema-afzuiging.pdf`, format: 'A3', landscape: true, printBackground: true, margin: { top: 0, right: 0, bottom: 0, left: 0 } });
 const n = await page.locator('.blad').count();

@@ -1,0 +1,146 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 297" width="420mm" height="297mm" font-family="Arial, Helvetica, sans-serif">
+<rect width="420" height="297" fill="#fff"/>
+<rect x="5" y="5" width="410" height="287" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="20" y="10" width="390" height="277" fill="none" stroke="#000" stroke-width="0.7"/>
+<polyline points="210,5 210,10" fill="none" stroke="#000" stroke-width="0.7"/>
+<polyline points="210,287 210,292" fill="none" stroke="#000" stroke-width="0.7"/>
+<polyline points="5,148.5 20,148.5" fill="none" stroke="#000" stroke-width="0.7"/>
+<polyline points="410,148.5 415,148.5" fill="none" stroke="#000" stroke-width="0.7"/>
+<polyline points="20,15 410,15" fill="none" stroke="#000" stroke-width="0.35"/>
+<text x="39.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">0</text>
+<polyline points="59,10 59,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="78.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">1</text>
+<polyline points="98,10 98,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="117.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">2</text>
+<polyline points="137,10 137,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="156.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">3</text>
+<polyline points="176,10 176,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="195.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">4</text>
+<polyline points="215,10 215,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="234.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">5</text>
+<polyline points="254,10 254,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="273.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">6</text>
+<polyline points="293,10 293,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="312.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">7</text>
+<polyline points="332,10 332,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="351.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">8</text>
+<polyline points="371,10 371,15" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="390.5" y="13.7" font-size="2.8" text-anchor="middle" fill="#000">9</text>
+<text x="21.5" y="258.5" font-size="2.5" text-anchor="start" fill="#000">4</text>
+<text x="408.5" y="258.5" font-size="2.5" text-anchor="end" fill="#000">6</text>
+<polyline points="20,260 410,260" fill="none" stroke="#000" stroke-width="0.7"/>
+<polyline points="20,266.75 62,266.75" fill="none" stroke="#000" stroke-width="0.18"/>
+<polyline points="20,273.5 62,273.5" fill="none" stroke="#000" stroke-width="0.18"/>
+<polyline points="20,280.25 62,280.25" fill="none" stroke="#000" stroke-width="0.18"/>
+<polyline points="30,260 30,287" fill="none" stroke="#000" stroke-width="0.18"/>
+<polyline points="48,260 48,287" fill="none" stroke="#000" stroke-width="0.18"/>
+<text x="21" y="285.4" font-size="1.8" text-anchor="start" fill="#000">Wijz.</text>
+<text x="31" y="285.4" font-size="1.8" text-anchor="start" fill="#000">Datum</text>
+<text x="49" y="285.4" font-size="1.8" text-anchor="start" fill="#000">Naam</text>
+<text x="21" y="278.55" font-size="2.3" text-anchor="start" fill="#000">1</text>
+<text x="31" y="278.55" font-size="2" text-anchor="start" fill="#000">2026-11-09</text>
+<text x="49" y="278.55" font-size="2" text-anchor="start" fill="#000">PC</text>
+<polyline points="62,260 62,287" fill="none" stroke="#000" stroke-width="0.35"/>
+<polyline points="62,266.75 106,266.75" fill="none" stroke="#000" stroke-width="0.18"/>
+<polyline points="62,273.5 106,273.5" fill="none" stroke="#000" stroke-width="0.18"/>
+<polyline points="62,280.25 106,280.25" fill="none" stroke="#000" stroke-width="0.18"/>
+<polyline points="77,260 77,287" fill="none" stroke="#000" stroke-width="0.18"/>
+<text x="63" y="264.95" font-size="2" text-anchor="start" fill="#000">Datum</text>
+<text x="78" y="264.95" font-size="2.2" text-anchor="start" fill="#000">2026-11-09</text>
+<text x="63" y="271.7" font-size="2" text-anchor="start" fill="#000">Getek.</text>
+<text x="78" y="271.7" font-size="2.2" text-anchor="start" fill="#000">Phlippo CAD</text>
+<text x="63" y="278.45" font-size="2" text-anchor="start" fill="#000">Gecontr.</text>
+<text x="78" y="278.45" font-size="2.2" text-anchor="start" fill="#000">Ian</text>
+<text x="63" y="285.2" font-size="2" text-anchor="start" fill="#000">Norm</text>
+<text x="78" y="285.2" font-size="2.2" text-anchor="start" fill="#000">IEC 81346</text>
+<polyline points="106,260 106,287" fill="none" stroke="#000" stroke-width="0.35"/>
+<polyline points="106,280.25 206,280.25" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="146,260 146,280.25" fill="none" stroke="#000" stroke-width="0.18"/>
+<text x="107" y="262.3" font-size="1.8" text-anchor="start" fill="#000">Eigenaar</text>
+<text x="108" y="269.5" font-size="3.6" text-anchor="start" fill="#000" font-weight="700">Phlippo CAD</text>
+<text x="108" y="275" font-size="2.3" text-anchor="start" fill="#000">Ian</text>
+<text x="147" y="262.3" font-size="1.8" text-anchor="start" fill="#000">Project</text>
+<text x="148" y="269" font-size="3.2" text-anchor="start" fill="#000" font-weight="700">Heftafel lastafel</text>
+<text x="148" y="274.5" font-size="2.3" text-anchor="start" fill="#000">schaarheftafel 4 t met lastafel 2400 x 1200 Ø28</text>
+<text x="107" y="285.2" font-size="1.8" text-anchor="start" fill="#000">Oorspr.</text>
+<text x="118" y="285.2" font-size="2" text-anchor="start" fill="#000"></text>
+<polyline points="139.33,280.25 139.33,287" fill="none" stroke="#000" stroke-width="0.18"/>
+<text x="140.33" y="285.2" font-size="1.8" text-anchor="start" fill="#000">Verv. v.</text>
+<text x="151.33" y="285.2" font-size="2" text-anchor="start" fill="#000"></text>
+<polyline points="172.67,280.25 172.67,287" fill="none" stroke="#000" stroke-width="0.18"/>
+<text x="173.67" y="285.2" font-size="1.8" text-anchor="start" fill="#000">Verv. d.</text>
+<text x="184.67" y="285.2" font-size="2" text-anchor="start" fill="#000"></text>
+<polyline points="206,260 206,287" fill="none" stroke="#000" stroke-width="0.35"/>
+<polyline points="206,280.25 306,280.25" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="256" y="266" font-size="4" text-anchor="middle" fill="#000" font-weight="700">Hydrauliek</text>
+<text x="256" y="271" font-size="4" text-anchor="middle" fill="#000">aggregaat, zakventiel, cilinders (ISO 1219-1)</text>
+<text x="207" y="285.2" font-size="1.8" text-anchor="start" fill="#000">Documentsoort</text>
+<text x="228" y="285.2" font-size="2.2" text-anchor="start" fill="#000">&amp;EFS  Schema</text>
+<polyline points="306,260 306,287" fill="none" stroke="#000" stroke-width="0.35"/>
+<polyline points="306,273.5 350,273.5" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="307" y="262.3" font-size="1.8" text-anchor="start" fill="#000">Tekeningnr.</text>
+<text x="308" y="270" font-size="2.8" text-anchor="start" fill="#000" font-weight="700">LFT-E01</text>
+<text x="307" y="275.8" font-size="1.8" text-anchor="start" fill="#000">Revisie / taal</text>
+<text x="308" y="283" font-size="2.6" text-anchor="start" fill="#000">1 / nl</text>
+<polyline points="350,260 350,287" fill="none" stroke="#000" stroke-width="0.35"/>
+<polyline points="350,273.5 384,273.5" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="351.5" y="266" font-size="2.6" text-anchor="start" fill="#000">=</text>
+<text x="355" y="266" font-size="2.8" text-anchor="start" fill="#000" font-weight="700">LFT</text>
+<text x="351.5" y="271" font-size="1.9" text-anchor="start" fill="#000">heftafel</text>
+<text x="351.5" y="279.5" font-size="2.6" text-anchor="start" fill="#000">+</text>
+<text x="355" y="279.5" font-size="2.8" text-anchor="start" fill="#000" font-weight="700">KAST</text>
+<text x="351.5" y="284.5" font-size="1.9" text-anchor="start" fill="#000">bedienkast onderframe</text>
+<polyline points="384,260 384,287" fill="none" stroke="#000" stroke-width="0.35"/>
+<polyline points="384,280.25 410,280.25" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="385" y="262.3" font-size="1.8" text-anchor="start" fill="#000">Blad</text>
+<text x="397" y="275" font-size="8" text-anchor="middle" fill="#000" font-weight="700">5</text>
+<text x="408.5" y="285.2" font-size="2.3" text-anchor="end" fill="#000">7 Bl.</text>
+<text x="24" y="30" font-size="2.3" text-anchor="start" fill="#000">Hydraulisch schema volgens ISO 1219-1/-2. Enkelwerkende cilinders: omhoog met de pomp, omlaag door het eigen gewicht via -QM1 en de drukgecompenseerde smoorklep -RN1.</text>
+<text x="24" y="34" font-size="2.3" text-anchor="start" fill="#000">Overdruk -RN2 op 140 bar (hoogste werkdruk 119 bar bij 4 t in de laagste stand). Olie HLP 32, 12 l. Alle slangen 2SN DN10, 250 bar.</text>
+<rect x="40" y="120" width="175" height="120" fill="none" stroke="#000" stroke-width="0.25" stroke-dasharray="4 1 0.6 1"/>
+<text x="42" y="125" font-size="2.2" text-anchor="start" fill="#000">-GP1 hydraulisch aggregaat 230 V 2,2 kW (één blok: motor, pomp, tank, ventielblok)</text>
+<polyline points="72,225 72,230 88,230 88,225" fill="none" stroke="#000" stroke-width="0.35"/><text x="91" y="229" font-size="2.6" text-anchor="start" fill="#000">-CM1</text><text x="91" y="232.2" font-size="2" text-anchor="start" fill="#000">tank 12 l</text>
+<polyline points="80,225 80,214" fill="none" stroke="#000" stroke-width="0.35"/>
+<rect x="76" y="204" width="8" height="10" fill="none" stroke="#000" stroke-width="0.35"/>
+<polyline points="76,209 84,209" fill="none" stroke="#000" stroke-width="0.3" stroke-dasharray="1 1"/>
+<text x="87" y="210" font-size="2" text-anchor="start" fill="#000">-HQ1 zuigfilter</text>
+<polyline points="80,204 80,196" fill="none" stroke="#000" stroke-width="0.35"/>
+<circle cx="80" cy="190" r="6" fill="none" stroke="#000" stroke-width="0.35"/><path d="M 80 184 L 77.6 188 L 82.4 188 Z" fill="#000"/><text x="71" y="191" font-size="2.6" text-anchor="end" fill="#000">-GP1</text><text x="71" y="194.2" font-size="2" text-anchor="end" fill="#000">2,5 cm³, 7 l/min</text>
+<circle cx="110" cy="190" r="5" fill="none" stroke="#000" stroke-width="0.35"/><text x="110" y="191.2" font-size="3.4" text-anchor="middle" fill="#000">M</text><text x="118" y="191" font-size="2.4" text-anchor="start" fill="#000">-M1 /3.1</text>
+<polyline points="86,190 105,190" fill="none" stroke="#000" stroke-width="0.3" stroke-dasharray="1.5 1"/>
+<polyline points="80,184 80,170" fill="none" stroke="#000" stroke-width="0.35"/>
+<circle cx="80" cy="167.5" r="1.8" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="77.4,164.5 80,165.7 82.6,164.5" fill="none" stroke="#000" stroke-width="0.35"/><text x="85" y="167" font-size="2.6" text-anchor="start" fill="#000">-RM1</text><text x="85" y="170" font-size="2" text-anchor="start" fill="#000">terugslagklep</text>
+<polyline points="80,164 80,140 190,140" fill="none" stroke="#000" stroke-width="0.35"/>
+<circle cx="120" cy="140" r="0.6" fill="#000"/>
+<polyline points="120,140 120,152" fill="none" stroke="#000" stroke-width="0.35"/>
+<rect x="115" y="152" width="10" height="12" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="120,162 120,154" fill="none" stroke="#000" stroke-width="0.3"/><path d="M 120 154 l -1.2 2.5 l 2.4 0 z" fill="#000"/><polyline points="125,158 128,156 128,160 131,158" fill="none" stroke="#000" stroke-width="0.3"/><text x="133" y="157" font-size="2.6" text-anchor="start" fill="#000">-RN2</text><text x="133" y="160.4" font-size="2" text-anchor="start" fill="#000">140 bar</text>
+<polyline points="120,164 120,170" fill="none" stroke="#000" stroke-width="0.35"/>
+<polyline points="112,170 112,175 128,175 128,170" fill="none" stroke="#000" stroke-width="0.35"/><text x="131" y="174" font-size="2.6" text-anchor="start" fill="#000"></text><text x="131" y="177.2" font-size="2" text-anchor="start" fill="#000"></text>
+<circle cx="150" cy="140" r="0.6" fill="#000"/>
+<polyline points="150,140 150,132" fill="none" stroke="#000" stroke-width="0.35"/>
+<circle cx="150" cy="128" r="4" fill="none" stroke="#000" stroke-width="0.35"/>
+<polyline points="147.5,130.5 152.5,125.5" fill="none" stroke="#000" stroke-width="0.3"/>
+<text x="156" y="129" font-size="2" text-anchor="start" fill="#000">-PG1 manometer 0-250 bar</text>
+<circle cx="175" cy="140" r="0.6" fill="#000"/>
+<polyline points="175,140 175,150" fill="none" stroke="#000" stroke-width="0.35"/>
+<rect x="169" y="150" width="12" height="10" fill="none" stroke="#000" stroke-width="0.35"/><rect x="169" y="160" width="12" height="10" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="175,151 175,159" fill="none" stroke="#000" stroke-width="0.3"/><path d="M 175 151 l -1.2 2.5 l 2.4 0 z" fill="#000"/><polyline points="173,165 177,165" fill="none" stroke="#000" stroke-width="0.3"/><polyline points="175,163 175,165" fill="none" stroke="#000" stroke-width="0.3"/><rect x="181" y="152" width="7" height="6" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="181,158 188,152" fill="none" stroke="#000" stroke-width="0.3"/><polyline points="169,163 166,165 169,167" fill="none" stroke="#000" stroke-width="0.3"/><text x="164" y="158" font-size="2.6" text-anchor="end" fill="#000">-QM1</text><text x="164" y="161.2" font-size="2" text-anchor="end" fill="#000">zitklep 2/2, lekvrij, 24 V</text><text x="164" y="164.4" font-size="2" text-anchor="end" fill="#000">spoel /4.6</text>
+<polyline points="175,170 175,180" fill="none" stroke="#000" stroke-width="0.35"/>
+<rect x="170" y="180" width="10" height="12" fill="none" stroke="#000" stroke-width="0.35"/><path d="M 173 180 q 2 6 0 12 M 177 180 q -2 6 0 12" fill="none" stroke="#000" stroke-width="0.3"/><polyline points="171,191 179,181" fill="none" stroke="#000" stroke-width="0.3"/><text x="183" y="185" font-size="2.6" text-anchor="start" fill="#000">-RN1</text><text x="183" y="188.4" font-size="2" text-anchor="start" fill="#000">9 l/min, drukgecompenseerd</text>
+<polyline points="175,192 175,205" fill="none" stroke="#000" stroke-width="0.35"/>
+<polyline points="167,205 167,210 183,210 183,205" fill="none" stroke="#000" stroke-width="0.35"/><text x="186" y="209" font-size="2.6" text-anchor="start" fill="#000"></text><text x="186" y="212.2" font-size="2" text-anchor="start" fill="#000"></text>
+<polyline points="190,140 215,140" fill="none" stroke="#000" stroke-width="0.35"/>
+<text x="196" y="137" font-size="2.2" text-anchor="start" fill="#000">P</text>
+<polyline points="215,140 300,140" fill="none" stroke="#000" stroke-width="0.35"/>
+<circle cx="270" cy="140" r="0.6" fill="#000"/>
+<text x="222" y="137" font-size="2" text-anchor="start" fill="#000">slang 2SN DN10</text>
+<polyline points="270,140 270,110" fill="none" stroke="#000" stroke-width="0.35"/>
+<circle cx="270" cy="107.5" r="1.8" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="267.4,104.5 270,105.7 272.6,104.5" fill="none" stroke="#000" stroke-width="0.35"/><text x="275" y="107" font-size="2.6" text-anchor="start" fill="#000">-RM2</text><text x="275" y="110" font-size="2" text-anchor="start" fill="#000">leidingbreukventiel</text>
+<polyline points="270,104 270,92" fill="none" stroke="#000" stroke-width="0.35"/>
+<rect x="261" y="52" width="18" height="40" fill="none" stroke="#000" stroke-width="0.35"/><rect x="263" y="82" width="14" height="3" fill="#000" stroke="#000" stroke-width="0"/><polyline points="270,82 270,40" fill="none" stroke="#000" stroke-width="0.7"/><text x="282" y="66" font-size="2.6" text-anchor="start" fill="#000">-MM1</text><text x="282" y="69.4" font-size="2" text-anchor="start" fill="#000">cilinder 1 Ø100/56 x 360</text>
+<polyline points="300,140 340,140 340,110" fill="none" stroke="#000" stroke-width="0.35"/>
+<circle cx="340" cy="107.5" r="1.8" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="337.4,104.5 340,105.7 342.6,104.5" fill="none" stroke="#000" stroke-width="0.35"/><text x="345" y="107" font-size="2.6" text-anchor="start" fill="#000">-RM3</text><text x="345" y="110" font-size="2" text-anchor="start" fill="#000">leidingbreukventiel</text>
+<polyline points="340,104 340,92" fill="none" stroke="#000" stroke-width="0.35"/>
+<rect x="331" y="52" width="18" height="40" fill="none" stroke="#000" stroke-width="0.35"/><rect x="333" y="82" width="14" height="3" fill="#000" stroke="#000" stroke-width="0"/><polyline points="340,82 340,40" fill="none" stroke="#000" stroke-width="0.7"/><text x="352" y="66" font-size="2.6" text-anchor="start" fill="#000">-MM2</text><text x="352" y="69.4" font-size="2" text-anchor="start" fill="#000">cilinder 2 Ø100/56 x 360</text>
+<text x="250" y="160" font-size="2.1" text-anchor="start" fill="#000">Leidingbreukventielen in het aansluitblok op de cilinder: sluiten bij ± 1,5 x de zakstroom (EN 1570-1).</text>
+<text x="250" y="164" font-size="2.1" text-anchor="start" fill="#000">Valbeveiliging: mechanische pal per cilinder, ontgrendeld door -Q12/-Q13 /4.7.</text>
+</svg>

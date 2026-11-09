@@ -11,7 +11,7 @@ import { KLASSEN, controleerAanduiding } from '../../voorbeelden/lib/eplan.mjs';
 
 const teksten = (svg: string) => [...svg.matchAll(/<text[^>]*>([^<]*)<\/text>/g)].map((m) => m[1].replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>'));
 
-for (const project of ['afzuiging', 'treinverlichting', 'robotarm']) {
+for (const project of ['afzuiging', 'treinverlichting', 'robotarm', 'lastafel']) {
   const dir = `voorbeelden/${project}/schema`;
   const bladen = readdirSync(dir).filter((f) => /^blad-\d+\.svg$/.test(f)).sort((a, b) => parseInt(a.slice(5)) - parseInt(b.slice(5))).map((f) => readFileSync(`${dir}/${f}`, 'utf8'));
   describe(`aansluitschema ${project} volgens de normen`, () => {

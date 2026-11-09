@@ -1188,3 +1188,15 @@ elease; README en docs/04 bijgewerkt
 - [x] Besturingslogica: toestanden en cyclus in docs/Besturing.md, grijpplanner besturing/greep.py met controles (simulator in de HMI)
 - [x] Bestellijst met prijzen en bronnen, README, bouw- en inbedrijfstellingsplan, risicobeoordeling (EN ISO 12100 / 10218-2)
 - [x] Eén afdruk-PDF (Robotcel-alles-afdrukken.pdf), foto's naar Ian, commit en push
+
+## Lastafel op schaarheftafel zoals de DCT-video (2026-11-09)
+- [x] Bronnen: video-frames, dctbv.nl (heftafel 370-1425 mm, 4 t, voetpedaal, 6 gefreesde steunvlakken, opvanglade), 3D-model van DCT gemeten (1190 x 2390, hoogte en onderdelen)
+- [x] EISEN.md met maten, keuzes (2400 x 1200, DG-raster Ø28, eigen badge i.p.v. DCT-logo) en bronnen
+- [x] Model: onderframe met vloerflenzen, geleidepennen en hijsogen; schaararmen met middenbout M30; bovenframe met opvanglade en 6 gefreesde steunvlakken
+- [x] Model: hydraulische cilinders, gele valbeveiliging met zaagtand, hydraulische unit, bedienkast RAL 7035, voetpedaal
+- [x] Model: lastafel 2400 x 1200 x 200 DG Ø28 (raster 100, diagonaal, gaten in de zijwanden, liniaal), eigen badge
+- [x] Standen laag (370), midden en hoog (1425) + tests (botsingen, hoogtes, raster)
+- [x] Berekeningen (cilinderkracht, druk, pomp, hefsnelheid), hydraulisch schema (ISO 1219) en elektrisch schema (EPLAN-stijl)
+- [x] Tekeningen (ISO), bestellijst met bronnen, README, foto's zoals de video, afdruk-PDF
+- [x] typecheck, tests, commit en push
+- [x] Tafel als lasconstructie (blad, wanden, ribben) met de gaten in de schets: 541 gaten in ± 14 s in plaats van > 25 min
