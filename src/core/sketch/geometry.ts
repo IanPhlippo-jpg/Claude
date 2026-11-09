@@ -1,6 +1,6 @@
 import { arcAngles } from './model';
 import type { EllipseArcEntity, EllipseEntity, Entity, Id, Sketch, SketchPoint } from './types';
-import { textOutlines } from './text';
+import { sampleBeziers, textBeziers } from './text';
 
 export type Pt = SketchPoint;
 
@@ -176,17 +176,17 @@ export function ellipseParams(s: Sketch, e: EllipseEntity): { c: Pt; a: number; 
 /** Closed and open polylines of an entity: one for curves, every glyph outline (and hole) for Sketch Text. */
 export function entityLoops(s: Sketch, e: Entity, segments = 48): Pt[][] {
   if (e.kind !== 'text') return [sampleEntity(s, e, segments)];
+  return textLoopBeziers(s, e).map((l) => sampleBeziers(l));
+}
+
+/** the glyph outlines of a Sketch Text placed in the sketch (anchor, angle, width factor) as loops of Bezier poles: an
+ * affine map of the poles is the same map of the curve (QA 0.5.12 F201) */
+export function textLoopBeziers(s: Sketch, e: Extract<Entity, { kind: 'text' }>): Pt[][][] {
   const o = s.points[e.anchor];
   const rot = ((e.angle ?? 0) * Math.PI) / 180;
   const wf = (e.widthFactor ?? 100) / 100;
-  const out: Pt[][] = [];
-  for (const loop of textOutlines(e.text, e.height, !!e.bold, e.spacing ?? 100)) {
-    out.push(loop.map((p) => {
-      const x = p.x * wf, y = p.y;
-      return { x: o.x + x * Math.cos(rot) - y * Math.sin(rot), y: o.y + x * Math.sin(rot) + y * Math.cos(rot) };
-    }));
-  }
-  return out;
+  const at = (p: Pt) => { const x = p.x * wf, y = p.y; return { x: o.x + x * Math.cos(rot) - y * Math.sin(rot), y: o.y + x * Math.sin(rot) + y * Math.cos(rot) }; };
+  return textBeziers(e.text, e.height, !!e.bold, e.spacing ?? 100).map((l) => l.map((seg) => seg.map(at)));
 }
 
 function distToSegment(p: Pt, a: Pt, b: Pt): number {

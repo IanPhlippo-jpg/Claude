@@ -18,10 +18,39 @@ export function planeMatrix(def: PlaneDef): THREE.Matrix4 {
 }
 
 const toShape = (r: Region): THREE.Shape => {
-  const shape = new THREE.Shape(r.outer.map((p) => new THREE.Vector2(p.x, p.y)));
-  for (const h of r.holes) shape.holes.push(new THREE.Path(h.map((p) => new THREE.Vector2(p.x, p.y))));
+  const holes = r.holes.map((h) => h.map((p) => new THREE.Vector2(p.x, p.y)));
+  const outer = earcutStart(r.outer.map((p) => new THREE.Vector2(p.x, p.y)), holes);
+  const shape = new THREE.Shape(outer);
+  for (const h of holes) shape.holes.push(new THREE.Path(h));
   return shape;
 };
+
+/**
+ * The outer loop starting where the triangulation of ExtrudeGeometry covers the region exactly. Earcut bridges a hole
+ * wrongly for some start points of the outer loop: the "O" of Sketch Text came out 1.03 mm² too full (its counter partly
+ * filled) until the start moved (found by the kernel cross-check, QA 0.5.12 F172/F201). The triangles must add up to
+ * the outer area minus the holes; else the start moves along the loop.
+ */
+function earcutStart(outer: THREE.Vector2[], holes: THREE.Vector2[][]): THREE.Vector2[] {
+  if (!holes.length || outer.length < 4) return outer;
+  const area = (l: THREE.Vector2[]) => Math.abs(THREE.ShapeUtils.area(l));
+  const want = area(outer) - holes.reduce((a, h) => a + area(h), 0);
+  const covered = (o: THREE.Vector2[]) => {
+    // as ExtrudeGeometry orders them: the outer clockwise, and then the holes against it
+    let v = o, hs = holes;
+    if (!THREE.ShapeUtils.isClockWise(v)) { v = v.slice().reverse(); hs = hs.map((h) => (THREE.ShapeUtils.isClockWise(h) ? h.slice().reverse() : h)); }
+    const all = [v, ...hs].flat();
+    return THREE.ShapeUtils.triangulateShape(v.map((p) => p.clone()), hs.map((h) => h.map((p) => p.clone()))).reduce((a, t) => a + Math.abs(THREE.ShapeUtils.area([all[t[0]], all[t[1]], all[t[2]]])), 0);
+  };
+  const ok = (o: THREE.Vector2[]) => Math.abs(covered(o) - want) <= 1e-6 * area(outer) + 1e-9;
+  if (ok(outer)) return outer;
+  const step = Math.max(1, Math.floor(outer.length / 16));
+  for (let k = step; k < outer.length; k += step) {
+    const o = [...outer.slice(k), ...outer.slice(0, k)];
+    if (ok(o)) return o;
+  }
+  return outer;
+}
 
 /** Depth of a "Through All" extrusion: well past the existing bodies. */
 export const THROUGH_ALL = 1e4;

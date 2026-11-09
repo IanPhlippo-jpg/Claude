@@ -2,7 +2,7 @@ import type * as THREE from 'three';
 import type { PlaneDef } from '../document/types';
 import type { Sketch } from '../sketch/types';
 import type { ContourRegion } from './regions';
-import type { BodyEdge } from './edgesets';
+import type { BodyEdge, EdgeRef } from './edgesets';
 
 /**
  * The B-rep kernel the rebuild can use next to the mesh kernel (QA F51, docs/14). The rebuild only sees this interface;
@@ -61,6 +61,12 @@ export interface BrepKernel {
   /** constant radius fillet / equal distance chamfer on the B-rep edges that lie on these mesh edges */
   fillet(shape: BrepShape, edges: BodyEdge[], radius: number): BrepShape;
   chamfer(shape: BrepShape, edges: BodyEdge[], distance: number): BrepShape;
+  /**
+   * the edges each reference points to, chosen again from the exact topology alone, against the edges the mesh matcher
+   * found (`found[i]` for `refs[i]`): a warning when they differ, null when they agree or the topology does not decide
+   * (QA 0.5.12 F179). Optional: a kernel without it is not cross-checked on the edge choice.
+   */
+  checkEdges?(shape: BrepShape, found: BodyEdge[][], refs: EdgeRef[]): string | null;
   /** fillet with a radius per edge; r2 makes it vary linearly from r1 at the start of the mesh edge to r2 at its end */
   filletEach(shape: BrepShape, items: { edge: BodyEdge; r1: number; r2?: number }[]): BrepShape;
   /** hollow the solid: wall `thickness` inward (outward when set), the faces at these planes left open */

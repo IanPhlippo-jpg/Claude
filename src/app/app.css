@@ -638,6 +638,7 @@
 .k-modify-units { justify-content: space-between; margin: 2px 6px 0; padding: 2px 5px; border: 1px solid var(--border-strong); height: 20px; font-size: 12px; position: relative; }
 .k-modify-unitsel { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
 .k-modify-units::after { content: '>'; color: var(--text); }
+.k-modify-unitname { margin-left: auto; margin-right: 6px; color: var(--text-muted); }
 
 /* Command Ribbon at 1920 px: body 80 px, big icons 24 px, labels Segoe UI 12 px, small rows 26 px,
    tab strip 20 px; the title bar holds the command search (no extra toolbar row) */

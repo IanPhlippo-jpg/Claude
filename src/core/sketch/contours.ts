@@ -1,5 +1,6 @@
 import type { Id, Sketch, SketchPoint } from './types';
-import { entityLoops, sampleEntity } from './geometry';
+import { sampleEntity, textLoopBeziers } from './geometry';
+import { sampleBeziers } from './text';
 
 /**
  * Closed-contour detection for "shaded sketch contours": builds a planar
@@ -15,6 +16,8 @@ export interface Contour {
   /** the entities in order around the contour (rev: walked from its end to its start), for an exact B-rep wire;
    *  absent when the polygon was cleaned (spurs) or comes from text */
   path?: { id: Id; rev: boolean }[];
+  /** a glyph outline of Sketch Text: its segments as Bezier poles in the order of `points`, for an exact B-rep wire */
+  beziers?: SketchPoint[][];
 }
 
 class DSU {
@@ -82,9 +85,10 @@ export function findContours(s: Sketch, tol = 1e-6): Contour[] {
       out.push({ points: poly, area: Math.abs(polygonArea(poly)), entityIds: [eid], path: [{ id: eid, rev: false }] });
     } else if (e.kind === 'text') {
       // every glyph outline and counter (the hole of an O) is a closed contour; nesting makes the holes
-      for (const loop of entityLoops(s, e)) {
-        const poly = loop.slice(0, -1);
-        if (poly.length >= 3) out.push({ points: poly, area: Math.abs(polygonArea(poly)), entityIds: [eid] });
+      // the letter curves go along for the exact kernel (F201)
+      for (const beziers of textLoopBeziers(s, e)) {
+        const poly = sampleBeziers(beziers).slice(0, -1);
+        if (poly.length >= 3) out.push({ points: poly, area: Math.abs(polygonArea(poly)), entityIds: [eid], beziers });
       }
     } else if (e.kind === 'line') {
       edges.push({ id: eid, a: dsu.find(e.p1), b: dsu.find(e.p2), poly: [s.points[e.p1], s.points[e.p2]] });

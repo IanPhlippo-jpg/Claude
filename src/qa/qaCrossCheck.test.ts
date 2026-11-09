@@ -9,11 +9,12 @@ import { createRequire } from 'node:module';
 import { rebuildDocument } from '../core/features/rebuild';
 import { setBrepKernel } from '../core/features/brepKernel';
 import { occtKernel } from '../core/occt/brep';
-import { shapeDeviation, shapeMismatch, shapeTolerance, volumeMismatch } from '../core/features/volumeCheck';
+import { kernelMismatch, shapeDeviation, shapeMismatch, shapeTolerance, volumeMismatch } from '../core/features/volumeCheck';
 import { meshVolume, planarFaces } from '../core/features/solid';
 import { extrude, fillet, rect, t1, t3, t3Slot, TOP_FACE } from './qaModels';
 import * as THREE from 'three';
-import { addArc, addCircle, addLine, createSketch } from '../core/sketch/model';
+import { addArc, addCircle, addLine, addText, createSketch } from '../core/sketch/model';
+import { textBeziers, textOutlines, TEXT_DEVIATION } from '../core/sketch/text';
 import { createDocument, type Document } from '../core/document/types';
 import { edgeRef, type BodyEdge } from '../core/features/edgesets';
 import { sweepGeometry } from '../core/features/sweep';
@@ -49,7 +50,7 @@ function exact(doc: Document) {
 }
 /** both checks as brepRefine runs them */
 const check = (m: ReturnType<typeof mesh>, e: ReturnType<typeof exact>) =>
-  volumeMismatch(Math.abs(meshVolume(m.geometry)), e.exactVolume ?? 0) ?? shapeMismatch(m.geometry, e.geometry);
+  kernelMismatch(m.geometry, Math.abs(meshVolume(m.geometry)), e.geometry, e.exactVolume ?? 0, m.faces);
 const dev = (m: ReturnType<typeof mesh>, e: ReturnType<typeof exact>) => shapeDeviation(m.geometry, e.geometry)!.distance;
 
 /** the vertical 10 mm edge of the T3 plate at the far corner (x 80, z 0) */
@@ -80,9 +81,10 @@ describe('kernel cross-check on the shape (QA F172)', { timeout: 120000 }, () =>
     const sharp = mesh(doc);
     doc.features.push(fillet('r1', 2, [edge]));
     const e = exact(doc);
+    // the flat 0.5 % was blind to it; the faceted body has no curved surface, so its own limit (0.01 %) is not (F172)
     expect(volumeMismatch(Math.abs(meshVolume(sharp.geometry)), e.exactVolume!)).toBeNull();
-    const w = check(sharp, e);
-    expect(w).toMatch(/B-rep and mesh disagree: the exact and the faceted surface lie 0\.\d\d mm apart/);
+    expect(check(sharp, e)).toMatch(/B-rep and mesh disagree: the exact volume .* differ by 0\.\d+ % \(the tessellation allows 0\.010 %\)/);
+    expect(shapeMismatch(sharp.geometry, e.geometry)).toMatch(/B-rep and mesh disagree: the exact and the faceted surface lie 0\.\d\d mm apart/);
     // the corner of the sharp edge lies R(√2 − 1) from the round
     expect(dev(sharp, e)).toBeCloseTo(2 * (Math.SQRT2 - 1), 1);
   });
@@ -306,5 +308,89 @@ describe('kernel disagreements found by the cross-check (QA F172)', { timeout: 1
       expect(bb.max.x).toBeGreaterThan(42);
       expect(bb.max.y).toBeCloseTo(30, 2);
     }
+  });
+});
+
+describe('independent edge choice on the exact kernel (QA 0.5.12 F179)', { timeout: 120000 }, () => {
+  /**
+   * checkEdges on the exact shape a fillet starts from, on its way into the kernel (the rebuild frees it afterwards);
+   * the answers are returned, not asserted inside: the rebuild would catch a failed assertion and fall back to the mesh
+   */
+  function atFillet(doc: Document, cases: [BodyEdge[], BodyEdge][]): (string | null)[] {
+    let out: (string | null)[] | null = null;
+    setBrepKernel({ ...kernel, fillet: (s, e, r) => { out = cases.map(([found, ref]) => kernel.checkEdges!(s, [found], [edgeRef(ref)])); return kernel.fillet(s, e, r); } });
+    const r = rebuildDocument(clone(doc));
+    setBrepKernel(null);
+    expect(Object.keys(r.errors), JSON.stringify(r.errors)).toHaveLength(0);
+    expect(out).not.toBeNull();
+    return out!;
+  }
+
+  it('agrees with the mesh matcher on a straight edge and on a hole rim, and speaks when the shared pick is wrong', () => {
+    // T3: the long top edge; the shared matcher handing the exact kernel the other long top edge is caught
+    const { doc, edge } = t3();
+    doc.features.push(fillet('r1', 2, [edge]));
+    const other = mesh(t3().doc).edges.find((e) => e.straight && Math.abs(e.length - 80) < 1e-3 && Math.abs(e.centroid.y - 10) < 1e-3 && e.centroid.distanceTo(edge.centroid) > 1)!;
+    expect(other).toBeTruthy();
+    const [same, wrong, none] = atFillet(doc, [[[edge], edge], [[other], edge], [[], edge]]);
+    expect(same).toBeNull();
+    expect(wrong).toMatch(/edge reference 1 of 1 as other edges/);
+    expect(none).toMatch(/other edges/);
+    // T1: the top rim of the Ø35 hole; the bottom rim (same length, 10 mm lower) is caught
+    const a = t1(17.5);
+    a.doc.features.push(fillet('r1', 2, [a.rim]));
+    const bottom = mesh(t1(17.5).doc).edges.filter((e) => e.closed).reduce((x, y) => (y.centroid.y < x.centroid.y ? y : x));
+    const [rim, low] = atFillet(a.doc, [[[a.rim], a.rim], [[bottom], a.rim]]);
+    expect(rim).toBeNull();
+    expect(low).toMatch(/other edges/);
+  });
+
+  it('stays quiet when a later cut split the edge (all pieces on both kernels)', () => {
+    const b = t3();
+    b.doc.features.push(fillet('r1', 2, [b.edge]));
+    t3Slot(b.doc, 'through');
+    b.doc.features.splice(1, 0, b.doc.features.pop()!);
+    const m = mesh({ ...clone(b.doc), features: b.doc.features.filter((f) => f.id !== 'r1') });
+    const pieces = m.edges.filter((e) => e.straight && Math.abs(e.length - 35) < 1e-3 && Math.abs(e.centroid.y - 10) < 1e-3 && Math.abs(e.centroid.z - b.edge.centroid.z) < 1e-3);
+    expect(pieces).toHaveLength(2);
+    const [both, one] = atFillet(b.doc, [[pieces, b.edge], [pieces.slice(0, 1), b.edge]]);
+    expect(both).toBeNull();
+    expect(one).toMatch(/other edges/);
+  });
+});
+
+describe('Sketch Text on the exact kernel follows the letter curves (QA 0.5.12 F201)', { timeout: 120000 }, () => {
+  /** the area inside loops of Bezier segments (Green: ½∮ x dy − y dx; 8-point Gauss is exact for these polynomials) */
+  function bezierArea(loops: { x: number; y: number }[][][]): number {
+    const G = [[-0.9602898565, 0.1012285363], [-0.7966664774, 0.2223810345], [-0.5255324099, 0.3137066459], [-0.1834346425, 0.3626837834], [0.1834346425, 0.3626837834], [0.5255324099, 0.3137066459], [0.7966664774, 0.2223810345], [0.9602898565, 0.1012285363]];
+    let a = 0;
+    for (const loop of loops) for (const p of loop) {
+      const d = p.length - 1;
+      const at = (t: number, q: { x: number; y: number }[]): { x: number; y: number } => (q.length === 1 ? q[0] : at(t, q.slice(1).map((b, i) => ({ x: q[i].x + (b.x - q[i].x) * t, y: q[i].y + (b.y - q[i].y) * t }))));
+      const dq = p.slice(1).map((b, i) => ({ x: d * (b.x - p[i].x), y: d * (b.y - p[i].y) }));
+      for (const [xg, w] of G) { const t = (xg + 1) / 2, P = at(t, p), D = at(t, dq); a += (w / 2) * 0.5 * (P.x * D.y - P.y * D.x); }
+    }
+    return Math.abs(a);
+  }
+  const polyArea = (loops: { x: number; y: number }[][]) => Math.abs(loops.reduce((a, l) => a + l.reduce((s, p, i) => { const q = l[(i + 1) % l.length]; return s + (p.x * q.y - q.x * p.y) / 2; }, 0), 0));
+
+  it('the exact volume is the area of the letter curves times the depth; the mesh stays within the text deviation', () => {
+    const doc = createDocument();
+    let s = createSketch('s1', 's1', 'top');
+    [s] = addText(s, { x: 0, y: 0 }, 'OBI', 10);
+    doc.sketches.s1 = s;
+    doc.features.push(extrude('e1', 's1', 'boss', 2));
+    const area = bezierArea(textBeziers('OBI', 10));
+    const poly = polyArea(textOutlines('OBI', 10));
+    // the polylines lie within 0.01 mm of the curves: their area differs, but by less than perimeter × deviation
+    expect(Math.abs(area - poly)).toBeGreaterThan(1e-4);
+    const e = exact(doc), m = mesh(doc);
+    // the exact body has the curves themselves, not the polylines (the B-rep before F201 extruded the polyline)
+    expect(Math.abs(e.exactVolume! - area * 2) / (area * 2)).toBeLessThan(1e-6);
+    expect(Math.abs(e.exactVolume! - poly * 2)).toBeGreaterThan(1e-4);
+    // the mesh body is the polylines extruded, exactly (Earcut once filled part of the counter of the O: solid.ts earcutStart)
+    expect(Math.abs(Math.abs(meshVolume(m.geometry)) - poly * 2)).toBeLessThan(1e-6 * poly * 2);
+    expect(Math.abs(poly - area)).toBeLessThan(150 * TEXT_DEVIATION);
+    expect(check(m, e)).toBeNull();
   });
 });

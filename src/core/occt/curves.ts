@@ -103,23 +103,48 @@ export function exactCurveEdges(ctx: CurveContext, sketch: Sketch, e: Entity, re
     }
     const data = entityBSpline(sketch, e);
     if (!data) return null;
-    const poles = t(new oc.NCollection_Array1_gp_Pnt(1, data.poles.length));
-    data.poles.forEach((p, i) => poles.SetValue(i + 1, pnt(lift(p))));
-    const knots = t(new oc.NCollection_Array1_double(1, data.knots.length));
-    data.knots.forEach((k, i) => knots.SetValue(i + 1, k));
-    const mults = t(new oc.NCollection_Array1_int(1, data.mults.length));
-    data.mults.forEach((m, i) => mults.SetValue(i + 1, m));
-    let curve: any;
-    if (data.weights) {
-      const w = t(new oc.NCollection_Array1_double(1, data.weights.length));
-      data.weights.forEach((x, i) => w.SetValue(i + 1, x));
-      curve = t(new oc.Geom_BSplineCurve(poles, w, knots, mults, data.degree, false, true));
-    } else curve = t(new oc.Geom_BSplineCurve(poles, knots, mults, data.degree, false));
-    const mk = t(new oc.BRepBuilderAPI_MakeEdge(curve));
-    if (!mk.IsDone()) return null;
-    const edge = t(mk.Edge());
+    const edge = bsplineEdge(ctx, data);
+    if (!edge) return null;
     return [rev ? reversed(edge) : edge];
   } catch {
     return null;
   }
+}
+
+/** the edge of a B-spline curve given in sketch coordinates (null when OpenCascade does not make it) */
+export function bsplineEdge(ctx: CurveContext, data: BSplineData): any | null {
+  const { oc, track: t, lift } = ctx;
+  const pnt = (c: number[]) => t(new oc.gp_Pnt(c[0], c[1], c[2]));
+  const poles = t(new oc.NCollection_Array1_gp_Pnt(1, data.poles.length));
+  data.poles.forEach((p, i) => poles.SetValue(i + 1, pnt(lift(p))));
+  const knots = t(new oc.NCollection_Array1_double(1, data.knots.length));
+  data.knots.forEach((k, i) => knots.SetValue(i + 1, k));
+  const mults = t(new oc.NCollection_Array1_int(1, data.mults.length));
+  data.mults.forEach((m, i) => mults.SetValue(i + 1, m));
+  let curve: any;
+  if (data.weights) {
+    const w = t(new oc.NCollection_Array1_double(1, data.weights.length));
+    data.weights.forEach((x, i) => w.SetValue(i + 1, x));
+    curve = t(new oc.Geom_BSplineCurve(poles, w, knots, mults, data.degree, false, true));
+  } else curve = t(new oc.Geom_BSplineCurve(poles, knots, mults, data.degree, false));
+  const mk = t(new oc.BRepBuilderAPI_MakeEdge(curve));
+  return mk.IsDone() ? t(mk.Edge()) : null;
+}
+
+/** the exact edges of a loop of Bezier segments (a Sketch Text glyph outline, QA 0.5.12 F201): lines and Bezier spans */
+export function bezierLoopEdges(ctx: CurveContext, loop: P[][]): any[] | null {
+  const { oc, track: t, lift } = ctx;
+  const pnt = (c: number[]) => t(new oc.gp_Pnt(c[0], c[1], c[2]));
+  const out: any[] = [];
+  try {
+    for (const seg of loop) {
+      const d = seg.length - 1;
+      const edge = d === 1 ? t(t(new oc.BRepBuilderAPI_MakeEdge(pnt(lift(seg[0])), pnt(lift(seg[1])))).Edge()) : bsplineEdge(ctx, { poles: seg, knots: [0, 1], mults: [d + 1, d + 1], degree: d });
+      if (!edge) return null;
+      out.push(edge);
+    }
+  } catch {
+    return null;
+  }
+  return out;
 }

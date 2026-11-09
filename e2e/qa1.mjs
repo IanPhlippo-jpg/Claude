@@ -121,6 +121,8 @@ const cid = await S(() => {
 await S((cid) => window.__phlippoStore.getState().setModify({ id: cid, x: 400, y: 300 }), cid);
 await page.waitForTimeout(300);
 const before = await S((cid) => window.__phlippoStore.getState().doc.sketches.s1.constraints[cid].value, cid);
+// the units row names the chosen unit (QA 0.5.12 F193: only "Units >" was readable)
+check('Modify names the length unit', (await page.locator('[data-testid="modify-unit-name"]').textContent()) === 'Millimeters');
 await page.fill('.k-modify input.k-num', '0');
 await page.keyboard.press('Enter');
 await page.waitForTimeout(300);

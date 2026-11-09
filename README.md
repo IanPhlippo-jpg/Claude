@@ -47,8 +47,12 @@ Status per fase:
 ## Status 0.5.13 (in uitvoering, 2026-11-09)
 
 QA-rapport 0.5.12 (5/10) wordt verwerkt; de stappen staan in `TASKS.md`.
-- `npm test`: 777 tests (`tools/doc-counts.cjs` vergelijkt dit getal met vitest); de modeltests van `voorbeelden/`
-  draaien apart (`npm run test:voorbeelden`, CI-job "voorbeelden").
+- `npm test`: 783 tests (`tools/doc-counts.cjs` vergelijkt dit getal met vitest); de modeltests van `voorbeelden/`
+  draaien apart (`npm run test:voorbeelden`, CI-job "voorbeelden"). De strikte QA-tests in `src/qa/`:
+  qaStrict.test.ts (8), qaBrep.test.ts (34), qaCrossCheck.test.ts (15), qaNaming.test.ts (12), qaTeam.test.ts (5),
+  qaMismatch.test.ts (1).
+- Kruiscontrole tussen de kernels strenger: volumegrens per lichaam (F172/F198), elk hoekpunt in de vormcontrole (F202),
+  een eigen randkeuze op de B-rep (F179). Sketch Text exact met de letterkrommen (F201). Details: `docs/30-qa-0.5.12.md`.
 - Bewijs per commit: `npm run bewijs` (lokaal) en `npm run bewijs -- --ci <run-id>` (Actions) schrijven een map in
   `qa-logs/<versie>/` met manifest, commando's, exitcodes, volledige logs en skipredenen (zie `qa-logs/README.md`).
 
@@ -61,8 +65,8 @@ QA-rapport 0.5.11 (5/10 na de teamronde, 3 Kritiek) verwerkt; per bevinding in `
 - Exact in B-rep: plastics-features, loft met ≥ 3 profielen; naamgeving T4–T7; plaatwerk en frames tegen de formules.
 - Nieuw: Design Tables, Instant2D (Drag Dimensions), vergrootglas, 3D-schetsmaten, sleephandvatten voor fillet/chamfer/
   revolve, normdelen (ISO 4762/4032/7089) met Smart Fasteners, interactieve extra vensters, 148 werkende Options.
-- De strikte QA-tests in `src/qa/`: qaStrict.test.ts (8), qaBrep.test.ts (34), qaCrossCheck.test.ts (12),
-  qaNaming.test.ts (12), qaTeam.test.ts (5), qaMismatch.test.ts (1); `tools/doc-counts.cjs` bewaakt die getallen.
+- De strikte QA-tests in `src/qa/` (qaStrict, qaBrep, qaCrossCheck, qaNaming, qaTeam, qaMismatch); de actuele aantallen
+  staan in de nieuwste statussectie.
 
 Welke platforms getest zijn (release-commit 02e3b22):
 - **Linux (GitHub Actions, ubuntu-24.04):** [run 41862412746](https://github.com/IanPhlippo-jpg/Claude/actions/runs/41862412746), alle 16 jobs

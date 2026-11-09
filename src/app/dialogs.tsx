@@ -17,6 +17,8 @@ import { ViewGrid } from './viewport/Hud';
 import { getCamera } from './viewport/Viewport';
 
 /** Welcome dialog at start-up: Home / Recent / Learn / Alerts, by design. */
+const UNIT_NAMES: Record<string, string> = { deg: 'Degrees', rad: 'Radians', mm: 'Millimeters', cm: 'Centimeters', m: 'Meters', in: 'Inches' };
+
 export function WelcomeDialog() {
   const st = useStore(useShallow((s) => ({ setDialog: s.setDialog, hasDocument: s.hasDocument, doc: s.doc, showDocument: s.showDocument, setTaskPane: s.setTaskPane, setPanel: s.setPanel })));
   const [tab, setTab] = useState<'home' | 'recent' | 'learn' | 'alerts'>('home');
@@ -353,8 +355,10 @@ export function ModifyDialog() {
       )}
       {/* thumbwheel by design: drag to change the value continuously */}
       <input className="k-modify-wheel" type="range" min={0} max={1000} value={500} onChange={(e) => { const dv = (parseFloat(e.target.value) - 500) / 100; setValue(Math.max(0, Math.round((value + dv * (c.kind === 'angle' ? 1 : 0.5)) * 100) / 100)); }} onPointerUp={(e) => { (e.target as HTMLInputElement).value = '500'; }} title="Thumbwheel" />
+      {/* the chosen unit stays readable: the select lies invisible over the row (QA 0.5.12 F193) */}
       <div className="k-modify-units">
         <span>Units</span>
+        <span className="k-modify-unitname" data-testid="modify-unit-name">{UNIT_NAMES[shownUnit] ?? shownUnit}</span>
         <select className="k-modify-unitsel" data-testid="modify-units" value={shownUnit} onChange={(e) => setUnit(e.target.value)} title="Units">
           {c.kind === 'angle' ? <><option value="deg">Degrees</option><option value="rad">Radians</option></> : <><option value="mm">Millimeters</option><option value="cm">Centimeters</option><option value="m">Meters</option><option value="in">Inches</option></>}
         </select>

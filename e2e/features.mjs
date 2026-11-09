@@ -305,7 +305,16 @@ await page.waitForTimeout(300);
 await waitSettled(page);
 const sf = await page.evaluate(() => window.__phlippoProjectWorld(5, 10, -40));
 // a slow runner draws the fitted view later: click until the face is selected
-for (let k = 0; k < 10; k++) { await page.mouse.click(sf.x, sf.y); await page.waitForTimeout(150); if ((await page.evaluate(() => window.__phlippoStore.getState().selectedFaces.length)) === 1) break; }
+// a click on a selected face deselects it: never click again while a late pick may still land (2ed4772, win-mesh-3of3)
+const faceSelected = () => page.evaluate(() => window.__phlippoStore.getState().selectedFaces.length === 1);
+for (let k = 0; k < 10 && !(await faceSelected()); k++) {
+  await page.mouse.move(sf.x + (k % 2), sf.y);
+  await page.waitForFunction(() => !!window.__phlippoStore.getState().hoverFace, undefined, { timeout: 3000 }).catch(() => undefined);
+  if (await faceSelected()) break;
+  await page.mouse.click(sf.x + (k % 2), sf.y);
+  if (await page.waitForFunction(() => window.__phlippoStore.getState().selectedFaces.length === 1, undefined, { timeout: 4000 }).then(() => true, () => false)) break;
+  await waitSettled(page);
+}
 console.log('before Shell:', JSON.stringify(await page.evaluate(() => { const s = window.__phlippoStore.getState(); const b = s.rebuild.bodies[0]; return { selectedFaces: s.selectedFaces.length, hoverEdge: s.hoverEdge, edges: b.edges.length, closed: b.edges.filter((e) => e.closed).length, straight: b.edges.filter((e) => e.straight).length }; })));
 check('top face selected before Shell', (await page.evaluate(() => window.__phlippoStore.getState().selectedFaces.length)) === 1);
 await page.click('.k-cm-small:has-text("Shell")');

@@ -1927,6 +1927,8 @@ export function rebuildDocument(doc: Document, upTo: number | null = null): Rebu
             b.featureIds.push(f.id);
             const lost = found.filter((x) => !x.length).length;
             if (lost) errors[f.id] = `Warning: ${lost} of the ${f.edges.length} edge references could not be found after the rebuild; the feature uses the rest.`;
+            // the edge choice checked independently on the exact topology (F179): same wrong pick, same wrong bodies
+            else { const other = K.checkEdges?.(ex, found, f.edges); if (other) errors[f.id] = other; }
             done = true;
           } catch {
             /* the mesh kernel below */

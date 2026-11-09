@@ -12,7 +12,7 @@ import type { Document } from '../core/document/types';
 import type { Body, RebuildResult } from '../core/features/rebuild';
 import { bodyEdges, edgeRef, matchEdge } from '../core/features/edgesets';
 import { meshVolume, planarFaces } from '../core/features/solid';
-import { shapeMismatch, volumeMismatch } from '../core/features/volumeCheck';
+import { kernelMismatch } from '../core/features/volumeCheck';
 import { splitFaces } from '../core/features/splitline';
 import { isAssembly, isDrawing } from '../core/document/types';
 import { getPref } from './prefs';
@@ -75,10 +75,10 @@ function refinedResult(sent: RebuildResult, bodies: import('../workers/occt.work
   // a B-rep with a faceted part (a wrapped patch) says so on the feature that made it (QA 0.5.11 F175)
   for (const r of bodies) if (r.approximate && !r.exact && r.positions) warnings[r.approximate.featureId] = r.approximate.warning;
   // the exact body is checked against the faceted one (QA F159, F172): the two kernels build the same part, so a
-  // body whose surfaces lie farther apart than the tessellation's margin (or whose volumes differ by more than 0.5 %)
-  // got a wrong feature on one of them; the feature is marked (yellow in the tree, What's Wrong) and the mismatch is said
+  // body whose surfaces lie farther apart than the tessellation's margin (or whose volumes differ by more than its curved
+  // surfaces allow, F172) got a wrong feature on one of them; the feature is marked (yellow in the tree, What's Wrong) and the mismatch is said
   for (const [i, b] of next.entries()) {
-    const mismatch = !b.exact ? null : volumeMismatch(Math.abs(meshVolume(sent.bodies[i].geometry)), b.exactVolume ?? 0) ?? shapeMismatch(sent.bodies[i].geometry, b.geometry);
+    const mismatch = !b.exact ? null : kernelMismatch(sent.bodies[i].geometry, Math.abs(meshVolume(sent.bodies[i].geometry)), b.geometry, b.exactVolume ?? 0, sent.bodies[i].faces);
     if (!mismatch) continue;
     // in the test builds a mismatch is an error in the console, so every e2e script on the B-rep kernel fails on one
     if (TEST_HOOKS) {

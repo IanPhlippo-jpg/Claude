@@ -9,11 +9,11 @@ import type { PlaneDef } from '../document/types';
 import type { Sketch, SketchPoint, Id } from '../sketch/types';
 import { sampleEntity } from '../sketch/geometry';
 import type { ContourRegion } from '../features/regions';
-import type { BodyEdge } from '../features/edgesets';
+import type { BodyEdge, EdgeRef } from '../features/edgesets';
 import type { BrepKernel, BrepShape } from '../features/brepKernel';
 import type { Contour } from '../sketch/contours';
 import { meshToSolid, shapeVolume } from './step';
-import { exactCurveEdges } from './curves';
+import { bezierLoopEdges, exactCurveEdges } from './curves';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 type OC = any;
@@ -99,6 +99,7 @@ export function occtKernel(oc: OC, replicad: Replicad, opts: { tolerance?: numbe
         edges.push(...es);
       }
     }
+    if ((!edges || !edges.length) && c.beziers) edges = bezierLoopEdges({ oc, track: t, lift: (p) => to3(plane, p, z), u: plane.u, v: plane.v }, c.beziers);
     if (edges && edges.length) {
       const mw = t(new oc.BRepBuilderAPI_MakeWire());
       for (const e of edges) mw.Add(e);
@@ -120,6 +121,8 @@ export function occtKernel(oc: OC, replicad: Replicad, opts: { tolerance?: numbe
         edges.push(...es);
       }
     }
+    // a glyph outline of Sketch Text: its letter curves (F201)
+    if ((!edges || !edges.length) && c.beziers) edges = bezierLoopEdges({ oc, track: t, lift: (p) => to3(plane, p, z), u: plane.u, v: plane.v }, c.beziers);
     if (!edges || !edges.length) edges = polygonEdges(plane, c.points, z);
     const mw = t(new oc.BRepBuilderAPI_MakeWire());
     for (const e of edges) mw.Add(e);
@@ -282,7 +285,71 @@ export function occtKernel(oc: OC, replicad: Replicad, opts: { tolerance?: numbe
     return found;
   }
 
+  /** the distinct edges of a shape with 17 points along each */
+  function topoEdges(shape: any): { edge: any; pts: THREE.Vector3[] }[] {
+    const out: { edge: any; pts: THREE.Vector3[] }[] = [];
+    const ex = t(new oc.TopExp_Explorer(shape, oc.TopAbs_ShapeEnum.TopAbs_EDGE, oc.TopAbs_ShapeEnum.TopAbs_SHAPE));
+    while (ex.More()) {
+      const edge = t(oc.TopoDS.Edge(ex.Current()));
+      ex.Next();
+      if (out.some((s) => s.edge.IsSame(edge))) continue;
+      const ad = t(new oc.BRepAdaptor_Curve(edge));
+      const a = ad.FirstParameter(), b = ad.LastParameter();
+      const pts = Array.from({ length: 17 }, (_, k) => { const p = t(ad.Value(a + ((b - a) * k) / 16)); return new THREE.Vector3(p.X(), p.Y(), p.Z()); });
+      out.push({ edge, pts });
+    }
+    return out;
+  }
+
+  /**
+   * The B-rep edges an edge reference points to, chosen from the exact topology alone (QA 0.5.12 F179: both kernels
+   * took the edges that the mesh matcher found, so the same wrong pick gave two equal, wrong bodies). A straight edge:
+   * every line edge on its line that overlaps its stretch (all pieces when a later feature split it); another edge: the
+   * edge of the same kind and length nearest its centroid. Null when the topology alone does not decide (the edge moved,
+   * a tangent chain of several B-rep edges, or two candidates about equally near).
+   */
+  function brepEdgesByRef(edges: { edge: any; pts: THREE.Vector3[] }[], ref: EdgeRef): any[] | null {
+    const c = new THREE.Vector3(...ref.centroid);
+    const info = edges.map(({ edge, pts }) => {
+      let len = 0;
+      const mid = new THREE.Vector3();
+      for (let i = 0; i + 1 < pts.length; i++) { const l = pts[i].distanceTo(pts[i + 1]); len += l; mid.addScaledVector(pts[i].clone().add(pts[i + 1]), l / 2); }
+      if (len > 0) mid.divideScalar(len);
+      const chord = pts[0].distanceTo(pts[16]);
+      const closed = chord < 1e-6 && len > 1e-6;
+      const dir = pts[16].clone().sub(pts[0]).normalize();
+      const straight = !closed && pts.every((p) => { const d = p.clone().sub(pts[0]); return d.addScaledVector(dir, -d.dot(dir)).length() < 1e-4 * Math.max(1, len); });
+      return { edge, pts, len, mid, closed, straight, dir };
+    });
+    if (ref.straight && !ref.closed && ref.dir) {
+      const dir = new THREE.Vector3(...ref.dir).normalize(), half = ref.length / 2;
+      const onLine = (q: THREE.Vector3) => { const d = q.clone().sub(c); return d.addScaledVector(dir, -d.dot(dir)).length() < 5e-3; };
+      const hits = info.filter((e) => {
+        if (!e.straight || Math.abs(e.dir.dot(dir)) < 0.9999 || !e.pts.every(onLine)) return false;
+        const ts = e.pts.map((q) => q.clone().sub(c).dot(dir));
+        return Math.min(half, Math.max(...ts)) - Math.max(-half, Math.min(...ts)) > 1e-3;
+      });
+      return hits.length ? hits.map((e) => e.edge) : null;
+    }
+    const cands = info.filter((e) => e.closed === ref.closed && !e.straight && Math.abs(e.len - ref.length) <= Math.max(0.5, ref.length * 0.05))
+      .map((e) => ({ e, d: e.mid.distanceTo(c) })).filter((x) => x.d < 0.5).sort((x, y) => x.d - y.d);
+    if (!cands.length || (cands.length > 1 && cands[1].d - cands[0].d < Math.max(0.05, cands[0].d * 0.1))) return null;
+    return [cands[0].e.edge];
+  }
+
   return {
+    checkEdges(shape, found, refs) {
+      const s = R(shape), all = topoEdges(s);
+      const bad: number[] = [];
+      refs.forEach((ref, i) => {
+        const own = brepEdgesByRef(all, ref);
+        if (!own) return;
+        const shared = found[i]?.length ? brepEdgesOn(s, found[i]) : [];
+        if (shared.length !== own.length || !own.every((e) => shared.some((x) => x.IsSame(e)))) bad.push(i + 1);
+      });
+      if (!bad.length) return null;
+      return `Warning: the exact kernel reads ${bad.length === 1 ? 'edge reference' : 'edge references'} ${bad.join(', ')} of ${refs.length} as other edges than the mesh kernel picked: check the selected edges (QA cross-check).`;
+    },
     extrude(sketch, plane, regions, zStart, total) {
       if (!regions.length || !(total > 1e-9)) return null;
       const v = t(new oc.gp_Vec(plane.n[0] * total, plane.n[1] * total, plane.n[2] * total));
