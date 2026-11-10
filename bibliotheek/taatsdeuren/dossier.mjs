@@ -3,6 +3,7 @@
 import { werkblad } from './blad.mjs';
 import { stukBladen } from './stukblad.mjs';
 import { explodeBlad } from './explode.mjs';
+import { detailBladen } from './detail.mjs';
 import { kostprijs, PRIJS, MARKT } from './prijzen.mjs';
 
 const esc = (t) => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -48,5 +49,5 @@ export function bladen(o, keuzes = {}, meta = {}) {
   const prijs = { regels: [['Materiaal', k.materiaal], [`Arbeid (${String(k.uren).replace('.', ',')} u)`, k.arbeid]], totaal: k.kostprijs };
   const kk = { ...keuzes, scharnierModel: k.scharnier }, s0 = stukBladen(o, kk, { ...meta, bladStart: 3 }), n = 2 + s0.bladen.length;
   const s = stukBladen(o, kk, { ...meta, bladStart: 3, bladTotaal: n });
-  return { a3: werkblad(o, { ...meta, prijs, blad: `1 / ${n}` }), stuk: [explodeBlad(o, kk, { ...meta, blad: `2 / ${n}` }), ...s.bladen], posities: s.posities, a4: a4(o, keuzes), kost: k };
+  return { a3: werkblad(o, { ...meta, prijs, blad: `1 / ${n}` }), stuk: [explodeBlad(o, kk, { ...meta, blad: `2 / ${n}` }), ...s.bladen], detail: detailBladen(o, kk, meta).bladen.map((b) => b.svg), posities: s.posities, a4: a4(o, keuzes), kost: k };
 }

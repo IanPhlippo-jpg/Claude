@@ -1258,3 +1258,11 @@ elease; README en docs/04 bijgewerkt
 - [x] Verbindingentabel: posities, aantal, naad en lasproces (ISO 2553-termen), kleine schets per soort
 - [x] Kolom Zagen (hoeken van beide uiteinden) in de stuklijst
 - [x] In het dossier, de PDF en de pagina Werkplaats; tests; alles opnieuw maken, commit en push
+
+## Stuk per stuk inzoomen (2026-11-10)
+- [x] detail.mjs: detailblad A4 per positie: hele stuk met alle maten, beide uiteinden vergroot (hoek, lengte lange en korte kant), doorsnede 1:1, gaten, waar het stuk in de deur zit, verbindingen van dit stuk
+- [x] 3D-vorm per stuk (koker hol met verstek, platstaal, rond, boog, plaat met gaten, glas) zonder three, voor de pagina en de test
+- [x] Pagina Werkplaats: klik op een stuk (kaart, ballon, opengewerkte tekening) of kies uit de lijst: venster met detailblad (zoomen, slepen, knijpen) en 3D (draaien), vorige/volgende, afdrukken
+- [x] Bladen Onderdelen: grotere schetsen (6 per A3 in plaats van 14, tekst en maten groeien mee)
+- [~] PDF per deur met de detailbladen (TD-xx-...-stukken.pdf), niet in de bibliotheek-PDF
+- [~] Tests: elk detailblad zonder NaN, 3D-volume klopt met het gewicht; foto's, commit en push

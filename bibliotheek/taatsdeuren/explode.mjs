@@ -111,7 +111,7 @@ export function explodeBlad(o, keuzes = {}, meta = {}) {
   el.push(T(26, 21.5, 'Rood: verstek 45° (zagen in verstek). Stippellijn: deze twee stukken komen hier aan elkaar; de code staat in de tabel rechts.', 2.1, { kleur: '#333' }));
   for (const s of stukken) {
     const [vx, vy] = uit.get(s), pts = s.poly.map(([x, y]) => [X(x + vx), Y(y + vy)]);
-    el.push(`<polygon points="${pts.map(([a, b]) => `${f(a)},${f(b)}`).join(' ')}" fill="${s.raamwerk ? '#c9cdd0' : '#e2e5e7'}" stroke="#111" stroke-width="0.22" stroke-linejoin="round"/>`);
+    el.push(`<polygon data-pos="${s.pos}" points="${pts.map(([a, b]) => `${f(a)},${f(b)}`).join(' ')}" fill="${s.raamwerk ? '#c9cdd0' : '#e2e5e7'}" stroke="#111" stroke-width="0.22" stroke-linejoin="round"/>`);
     if (s.d.a) {
       // de verstekken rood
       const p = veelhoek(s.d, s.w, s.B, s.H).map((q) => [X(q[0] + s.dx + vx), Y(q[1] + s.dy + vy)]);
@@ -129,7 +129,7 @@ export function explodeBlad(o, keuzes = {}, meta = {}) {
   for (const s of stukken) {
     if (gehad.has(s.pos)) continue; gehad.add(s.pos);
     const [vx, vy] = uit.get(s), c = [X(s.c[0] + vx), Y(s.c[1] + vy)];
-    el.push(`<circle cx="${f(c[0] + 4)}" cy="${f(c[1] - 4)}" r="2.6" fill="#fff" stroke="#111" stroke-width="0.25"/>`, L(c[0], c[1], c[0] + 2.2, c[1] - 2.2, 0.15), T(c[0] + 4, c[1] - 3.1, String(s.pos), 2.2, { anker: 'middle', vet: true }));
+    el.push(L(c[0], c[1], c[0] + 2.2, c[1] - 2.2, 0.15), `<g data-pos="${s.pos}"><circle cx="${f(c[0] + 4)}" cy="${f(c[1] - 4)}" r="2.6" fill="#fff" stroke="#111" stroke-width="0.25"/>`, T(c[0] + 4, c[1] - 3.1, String(s.pos), 2.2, { anker: 'middle', vet: true }), '</g>');
   }
   // rechts: de verbindingentabel en een schets per soort
   const naam = (p) => posities.find((x) => x.pos === p)?.naam ?? '';

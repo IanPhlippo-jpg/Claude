@@ -24,6 +24,8 @@ import { STAAF } from '../../bibliotheek/taatsdeuren/prijzen.mjs';
 import { verbindingen, explodeBlad } from '../../bibliotheek/taatsdeuren/explode.mjs';
 // @ts-expect-error: idem
 import { gewicht } from '../../bibliotheek/taatsdeuren/deuren.mjs';
+// @ts-expect-error: idem
+import { detailBladen, vorm3d, volume3d, profiel } from '../../bibliotheek/taatsdeuren/detail.mjs';
 
 type P = [number, number];
 // klein (net boven de kleinste maat), standaard en groot
@@ -72,7 +74,7 @@ describe('taatsdeuren', () => {
       expect(Math.abs(kg - G) / G, `${id} ${kg} tegen ${G}`).toBeLessThan(0.03);
       expect((posities as Pos[]).map((p) => p.pos)).toEqual((posities as Pos[]).map((_, i) => i + 1));
       const kaarten = (posities as Pos[]).filter((p) => p.soort !== 'inkoop').length;
-      expect(bladen.length).toBe(1 + (posities.length > 57 ? 1 : 0) + Math.ceil(kaarten / 14));
+      expect(bladen.length).toBe(1 + (posities.length > 57 ? 1 : 0) + Math.ceil(kaarten / 6));
       for (const b of bladen) expect(b).not.toMatch(/NaN|undefined/);
       // opengewerkte tekening: elk uiteinde (behalve de kozijnstijlen op de vloer) komt tegen een ander stuk; elke hoek
       // van het kader en de 2 bovenhoeken van een recht kozijn zijn een verstek
@@ -80,6 +82,18 @@ describe('taatsdeuren', () => {
       expect(v.los.map((l: { stuk: { d: { soort: string } }; q: P }) => `${l.stuk.d.soort}@${l.q.map(Math.round)}`), id).toEqual([]);
       expect(V, id).toBe(o.vleugels.reduce((t: number, l: { aanzet?: number }) => t + (l.aanzet !== undefined ? 2 : 4), 0) + (o.stijl.vorm === 'volleBoog' ? 0 : 2));
       expect(explodeBlad(o, k)).not.toMatch(/NaN|undefined/);
+      // stuk per stuk: een detailblad A4 per positie (geen inkoop); de 3D-vorm weegt wat de stuklijst zegt (een staaf met
+      // verstek of schuin uiteinde: gewicht per meter x gemiddelde lengte = oppervlakte van de vorm / zichtbreedte)
+      const det = detailBladen(o, k);
+      expect(det.bladen.length, id).toBe(kaarten);
+      for (const b of det.bladen) expect(b.svg, `${id} pos ${b.pos}`).not.toMatch(/NaN|undefined|Infinity/);
+      const opv = (q: P[]) => Math.abs(q.reduce((s2, a, i) => { const b = q[(i + 1) % q.length]; return s2 + a[0] * b[1] - b[0] * a[1]; }, 0)) / 2;
+      type PosV = Pos & { prof?: string; vorm?: { pts: P[]; V: number } };
+      for (const p of posities as PosV[]) {
+        if (p.soort === 'inkoop' || p.soort === 'glas' || (p.soort === 'staaf' && profiel(p.prof, p.vorm!.V).soort === 'systeem')) continue;
+        const kg3 = volume3d(vorm3d(p, o)) * 7.85e-6, verwacht = p.soort === 'staaf' ? (STAAF[p.prof!].kgm * opv(p.vorm!.pts)) / p.vorm!.V / 1000 : p.kg;
+        expect(Math.abs(kg3 - verwacht) / verwacht, `${id} pos ${p.pos} ${p.naam}: ${kg3} tegen ${verwacht}`).toBeLessThan(0.08);
+      }
     }
   });
 

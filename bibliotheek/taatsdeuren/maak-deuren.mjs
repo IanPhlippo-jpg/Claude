@@ -2,7 +2,9 @@
 // het werkblad (SVG), de DXF van de laserdelen en de ruiten, en één PDF per deur; daarna de bibliotheek-PDF.
 // Gebruik: node bibliotheek/taatsdeuren/maak-deuren.mjs                     (alle 100, standaardmaat)
 //          node bibliotheek/taatsdeuren/maak-deuren.mjs boog 1100 2500 [koker|systeem]   (één deur op maat)
-import { writeFileSync, mkdirSync, readFileSync, existsSync } from 'node:fs';
+import { writeFileSync as schrijfNu, mkdirSync, readFileSync, existsSync } from 'node:fs';
+// OneDrive houdt een bestand soms even vast: tot 10 keer opnieuw proberen
+const writeFileSync = (f, d) => { for (let i = 0; ; i++) { try { return schrijfNu(f, d); } catch (e) { if (i >= 9) throw e; Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 500); } } };
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { STIJLEN, ontwerp } from './deuren.mjs';
@@ -18,7 +20,7 @@ const [, , id, B, H, systeem = 'koker'] = process.argv;
 for (const d of ['modellen', 'tekeningen', 'dxf', 'pdf']) mkdirSync(join(HERE, d), { recursive: true });
 const lijst = id ? [{ s: STIJLEN.find((x) => x.id === id), B: +B, H: +H }] : STIJLEN.map((s) => ({ s, B: s.std.B, H: s.std.H }));
 const pagina = (titel, inhoud) => `<!doctype html><html lang="nl"><head><meta charset="utf-8"><title>${titel}</title><style>
-@page a3 { size: 420mm 297mm; margin: 0 } @page a4 { size: 210mm 297mm; margin: 14mm }
+@page a3 { size: 420mm 297mm; margin: 0 } @page a4l { size: 297mm 210mm; margin: 0 } .a4l { page: a4l; width: 297mm; height: 210mm; overflow: hidden; page-break-after: always } .a4l svg { display: block; width: 297mm; height: 210mm } @page a4 { size: 210mm 297mm; margin: 14mm }
 html, body { margin: 0 } .a3 { page: a3; width: 420mm; height: 297mm; overflow: hidden; page-break-after: always } .a3 svg { display: block; width: 420mm; height: 297mm }
 .a4 { page: a4; page-break-after: always } ${CSS}
 .voor { page: a4; page-break-after: always; font: 10pt Arial } .voor h1 { font-size: 22pt; margin: 0 0 2mm } .raster { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 2.5mm 2.5mm; margin-top: 5mm } .voor + .voor h1 { display: none }
@@ -33,13 +35,15 @@ for (const { s, B: b, H: h } of lijst) {
   const o = ontwerp(s.id, b, h, { systeem });
   const nr = `TD-${String(STIJLEN.indexOf(s) + 1).padStart(2, '0')}`, naam = `${nr}-${s.id}-${b}x${h}`;
   writeFileSync(join(HERE, 'modellen', `${naam}.kcad`), JSON.stringify(samenstelling(o, `Taatsdeur ${s.naam} ${b} x ${h}`)) + '\n');
-  const { a3, a4, kost, stuk } = bladen(o, { systeem }, { nr, datum: DATUM });
+  const { a3, a4, kost, stuk, detail } = bladen(o, { systeem }, { nr, datum: DATUM });
   writeFileSync(join(HERE, 'tekeningen', `${naam}.svg`), a3);
   stuk.forEach((s, i) => writeFileSync(join(HERE, 'tekeningen', `${naam}-${i ? `stuklijst-${i}` : 'opengewerkt'}.svg`), s));
   writeFileSync(join(HERE, 'dxf', `${naam}-laser.dxf`), laserDxf(o));
   writeFileSync(join(HERE, 'dxf', `${naam}-glas.dxf`), glasDxf(o));
   const deel = `<div class="a3">${a3}</div>${stuk.map((s) => `<div class="a3">${s}</div>`).join('')}${a4}`;
   await pdf(pagina(`Taatsdeur ${s.naam}`, deel), join(HERE, 'pdf', `${naam}.pdf`));
+  // elk stuk apart op A4 (niet in de bibliotheek-PDF: te veel bladen)
+  await pdf(pagina(`Taatsdeur ${s.naam}: stuk per stuk`, detail.map((x) => `<div class="a4l">${x}</div>`).join('')), join(HERE, 'pdf', `${naam}-stukken.pdf`));
   alle.push(deel);
   overzicht.push(`<figure>${losseTekening(o, 120, 200, { maten: false, assen: false })}<figcaption><b>${nr} ${s.naam}</b><br>${b} x ${h} · kost ${eur(kost.kostprijs)}</figcaption></figure>`);
   console.log(naam, 'kostprijs', kost.kostprijs, 'verkoop', kost.verkoop);

@@ -66,6 +66,11 @@ input[type="range"] { width: 100%; accent-color: var(--amber) }
 .knop { font: 600 13.5px var(--tekst); padding: 8px 12px; border: 1px solid var(--inkt); background: transparent; color: var(--inkt); cursor: pointer }
 .knop:hover { background: var(--inkt); color: var(--bg) } .knop:disabled { opacity: .45; cursor: not-allowed; background: transparent; color: var(--inkt) }
 .status { font-size: 12.5px; color: var(--zacht); min-height: 1.3em } .blad, .stukbladen > div { background: #fff; border: 1px solid var(--lijn); overflow: auto } .stukbladen { display: grid; gap: 12px } .stukbladen svg { display: block; width: 100%; height: auto; min-width: 640px } .blad svg { display: block; width: 100%; height: auto; min-width: 640px }
+.stukknoppen { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 6px }
+.stukknop { display: flex; gap: 9px; align-items: center; text-align: left; padding: 7px 9px; border: 1px solid var(--lijn); background: var(--vlak); color: var(--inkt); font: 13.5px/1.3 var(--tekst); cursor: zoom-in; min-height: 44px }
+.stukknop:hover { border-color: var(--inkt) } .stukknop .nr { flex: none; display: inline-grid; place-items: center; width: 27px; height: 27px; border: 1.5px solid var(--inkt); border-radius: 50%; font: 600 12px var(--mono) }
+.stukknop small { display: block; color: var(--zacht); font-size: 12px }
+.stukbladen [data-pos] { cursor: zoom-in } .stukbladen polygon[data-pos]:hover { fill: #f2c48d } .stukbladen g[data-pos]:hover > circle, .stukbladen g[data-pos]:hover > rect { stroke: #b8760f; stroke-width: .9 }
 .tegels { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; margin: 12px 0 }
 .tegel { background: var(--vlak); border: 1px solid var(--lijn); padding: 10px 12px } .tegel span { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: .07em; color: var(--zacht) }
 .tegel b { font-family: var(--kop); font-stretch: 80%; font-size: 22px; font-variant-numeric: tabular-nums }
@@ -94,7 +99,7 @@ footer { color: var(--zacht); font-size: 13px; padding-block: 30px }
 <div class="wrap">
 <!-- ============ DEUR (voor de klant) ============ -->
 <div id="v-deur" data-view="deur">
-  <header class="kop"><h1>Taatsdeuren op maat</h1><p>Stalen taatsdeuren met glas, in uw maat. Kies een van de 50 stijlen, geef de maat van de opening in en bekijk de deur in een kamer.</p></header>
+  <header class="kop"><h1>Taatsdeuren op maat</h1><p>Stalen taatsdeuren met glas, in uw maat. Kies een van de 100 stijlen, geef de maat van de opening in en bekijk de deur in een kamer.</p></header>
   <div class="filter" id="filter" role="group" aria-label="Soort"></div>
   <div class="stijlen" id="stijlen" role="group" aria-label="Stijl"></div>
   <div class="deur">
@@ -135,7 +140,7 @@ footer { color: var(--zacht); font-size: 13px; padding-block: 30px }
   <header class="kop"><h1 id="w-titel">Werkplaats</h1><p>Het werkblad om te maken: maten, zaaglijst, laser- en glaslijst, de werkwijze en de kostprijs per regel. Dezelfde deur als op de pagina Deur.</p></header>
   <div class="knoppen">
     <button class="knop" type="button" data-dl="svg">Werkblad (SVG)</button>
-    <button class="knop" type="button" data-dl="stuk">Opengewerkt, stuklijst en onderdelen (SVG)</button>
+    <button class="knop" type="button" data-dl="stuk">Opengewerkt, stuklijst, onderdelen en elk stuk apart (SVG)</button>
     <button class="knop" type="button" data-dl="html">Dossier om af te drukken (HTML)</button>
     <button class="knop" type="button" data-dl="csv">Lijsten (CSV)</button>
     <button class="knop" type="button" data-dl="zip">DXF laser + glas (ZIP)</button>
@@ -149,6 +154,7 @@ footer { color: var(--zacht); font-size: 13px; padding-block: 30px }
     <div class="tegel"><span>Uren</span><b id="t-uren"></b></div>
     <div class="tegel"><span>Kostprijs</span><b id="t-kost"></b></div>
   </div>
+  <section class="deel"><h2>Stuk per stuk</h2><p class="status">Klik op een stuk om het groot te zien: de tekening met alle maten, beide uiteinden vergroot en de doorsnede, en het stuk in 3D. In de tekeningen hieronder kan je ook op een stuk of een nummer klikken.</p><div class="stukknoppen" id="stukknoppen"></div></section>
   <section class="deel"><h2>Opengewerkte tekening</h2><p class="status">De stalen delen uit elkaar: rood is een verstek, de stippellijnen tonen welke stukken aan elkaar komen, met de code van de verbinding (naad en lasproces in de tabel).</p><div id="explode" class="stukbladen"></div></section>
   <section class="deel"><h2>Stuklijst en onderdelen</h2><p class="status">Elk onderdeel met zijn nummer op de samenstelling, en per onderdeel een schets: de echte vorm (verstek, schuin), de lengte, de doorsnede, stralen en gaten.</p><div id="stukbladen" class="stukbladen"></div></section>
   <section class="deel"><h2>Kostprijs</h2><div class="tabelvak"><table id="prijs"></table></div></section>
@@ -186,12 +192,15 @@ footer { color: var(--zacht); font-size: 13px; padding-block: 30px }
 <footer>Elke prijs heeft een bron (pagina Werkplaats); "schatting" betekent dat er geen prijs gevonden werd. Prijzen 2026-11-10.</footer>
 </div>
 
+<dialog id="stukvenster" aria-labelledby="sv-titel"></dialog>
 <script type="module">
 import { STIJLEN, GRENZEN, minMaat, ontwerp, lijsten, SYSTEMEN } from './js/deuren.mjs';
 import { RAL, AFWERKINGEN, GLAS, SCHARNIEREN } from './js/opties.mjs';
 import { werkblad } from './js/blad.mjs';
 import { stukBladen } from './js/stukblad.mjs';
-import { explodeBlad } from './js/explode.mjs';
+import { explodeBlad, verbindingen } from './js/explode.mjs';
+import { detailBlad } from './js/detail.mjs';
+import { stukVenster } from './js/stukvenster.mjs';
 import { losseTekening, vooraanzicht } from './js/teken.mjs';
 import { MUREN, VLOEREN } from './js/kamer.mjs';
 import { kostprijs, PRIJS, MARKT, STAAF } from './js/prijzen.mjs';
@@ -306,6 +315,8 @@ function teken() {
   const n0 = stukBladen(o, kk, { ...meta, bladStart: 3 }).bladen.length, stuk = stukBladen(o, kk, { ...meta, bladStart: 3, bladTotaal: 2 + n0 });
   $('explode').innerHTML = `<div>${explodeBlad(o, kk, { ...meta, blad: `2 / ${2 + n0}` })}</div>`;
   $('stukbladen').innerHTML = stuk.bladen.map((s) => `<div>${s}</div>`).join('');
+  const ctx = verbindingen(o, kk), stukLijst = ctx.posities.filter((p) => p.soort !== 'inkoop');
+  $('stukknoppen').innerHTML = stukLijst.map((p) => `<button type="button" class="stukknop" data-pos="${p.pos}"><span class="nr">${p.pos}</span><span>${esc(p.naam)}<small>${p.n} st · ${esc(p.maat || p.mat)}${p.zagen ? ` · ${esc(p.zagen)}` : ''}</small></span></button>`).join('');
   $('blad').innerHTML = werkblad(o, { blad: `1 / ${2 + n0}`, nr: `TD-${String(i + 1).padStart(2, '0')}`, datum: new Date().toISOString().slice(0, 10), prijs: { regels: [['Materiaal', k.materiaal], [`Arbeid (${g(k.uren, 1)} u)`, k.arbeid]], totaal: k.kostprijs } });
   $('t-vleugel').textContent = o.vleugels.map((v) => `${Math.round(v.B)} x ${Math.round(v.H)}`).join(' + ');
   $('t-kg').textContent = k.gewicht.vleugels.map((x) => `${Math.round(x)} kg`).join(' + ');
@@ -317,10 +328,25 @@ function teken() {
   $('laser').innerHTML = `<thead><tr><th>Wat</th><th>Maat</th><th>n</th></tr></thead><tbody>${L.laser.map((r) => `<tr><td>${esc(r.wat)}</td><td class="n">${r.vorm === 'boog' ? `R${g(r.r)} · ${r.zicht} · ${g(r.hoek)}°` : `${r.b} x ${r.l}`}</td><td class="n">${r.n}</td></tr>`).join('')}</tbody>`;
   $('glas').innerHTML = `<thead><tr><th>Vorm</th><th>b x h</th><th>m²</th><th>n</th></tr></thead><tbody>${L.glas.map((r) => `<tr><td>${esc(r.vorm)}</td><td class="n">${r.b} x ${r.h}</td><td class="n">${g(r.m2, 2)}</td><td class="n">${r.n}</td></tr>`).join('')}</tbody>`;
   $('markt').innerHTML = `<thead><tr><th>Verkoopprijs elders</th><th>Prijs</th><th>Bron</th></tr></thead><tbody>${MARKT.map((m) => `<tr><td>${esc(m.wat)}</td><td class="n">${eur(m.prijs)}</td><td class="bron">${bron(m.bron)}</td></tr>`).join('')}</tbody>`;
-  huidig = { o, k, L, s, keuzes };
+  huidig = { o, k, L, s, keuzes, kk, meta, ctx, stukLijst };
+  if ($('stukvenster').open) { if (stukLijst.some((p) => p.pos === openPos)) openStuk(openPos); else venster.sluit(); }
   kamerVuil = true; if (zichtbaar('deur')) toonKamer(o);
   try { localStorage.setItem('taatsdeuren-keuze', JSON.stringify(staat)); } catch {}
 }
+
+// ---------- stuk per stuk: detailblad en 3D in een venster
+let openPos = null;
+const venster = stukVenster($('stukvenster'), {
+  naar: (r) => { const l = huidig.stukLijst, i = l.findIndex((p) => p.pos === openPos) + r; if (i >= 0 && i < l.length) openStuk(l[i].pos); },
+  bewaar: async (svg, p) => { await klaar; if (!dl) return; try { await dl.save({ filename: `taatsdeur-${huidig.s.id}-${huidig.o.B}x${huidig.o.H}-pos-${p.pos}.svg`, data: svg }); } catch {} },
+});
+function openStuk(pos) {
+  const { o, ctx, kk, meta, stukLijst } = huidig, i = stukLijst.findIndex((p) => p.pos === pos);
+  if (i < 0) return;
+  openPos = pos;
+  venster.toon({ p: stukLijst[i], o, i, n: stukLijst.length, svg: detailBlad(o, stukLijst[i], ctx, kk, { ...meta, blad: `${i + 1} / ${stukLijst.length}` }) });
+}
+for (const id of ['stukknoppen', 'explode', 'stukbladen']) $(id).addEventListener('click', (e) => { const x = e.target.closest('[data-pos]'); if (x && huidig) openStuk(+x.dataset.pos); });
 
 // ---------- 3D-kamer (three.js, pas geladen als de pagina er is)
 var kamerApi = null, kamerVuil = true;
@@ -397,8 +423,8 @@ document.querySelectorAll('[data-dl]').forEach((b) => b.addEventListener('click'
   const { o, k, L, s, keuzes } = huidig, nm = `taatsdeur-${s.id}-${o.B}x${o.H}`;
   let filename, data;
   if (b.dataset.dl === 'svg') { filename = `${nm}-werkblad.svg`; data = $('blad').innerHTML; }
-  else if (b.dataset.dl === 'stuk') { filename = `${nm}-stuklijst.zip`; data = zip([[`${nm}-opengewerkt.svg`, $('explode').querySelector('svg').outerHTML], ...[...$('stukbladen').querySelectorAll('svg')].map((x, j) => [`${nm}-stuklijst-${j + 1}.svg`, x.outerHTML])]); }
-  else if (b.dataset.dl === 'html') { const { a3, a4, stuk } = bladen(o, keuzes, { nr: `TD-${String(STIJLEN.indexOf(s) + 1).padStart(2, '0')}`, datum: new Date().toISOString().slice(0, 10) }); filename = `${nm}-dossier.html`; data = `<!doctype html><html lang="nl"><head><meta charset="utf-8"><title>${esc(nm)}</title><style>@page a3{size:420mm 297mm;margin:0}@page a4{size:210mm 297mm;margin:14mm}body{margin:0}.a3{page:a3;width:420mm;height:297mm;page-break-after:always}.a3 svg{width:420mm;height:297mm;display:block}.a4{page:a4}${CSS}</style></head><body><div class="a3">${a3}</div>${stuk.map((x) => `<div class="a3">${x}</div>`).join('')}${a4}</body></html>`; }
+  else if (b.dataset.dl === 'stuk') { filename = `${nm}-stuklijst.zip`; data = zip([[`${nm}-opengewerkt.svg`, $('explode').querySelector('svg').outerHTML], ...[...$('stukbladen').querySelectorAll('svg')].map((x, j) => [`${nm}-stuklijst-${j + 1}.svg`, x.outerHTML]), ...huidig.stukLijst.map((p, j) => [`${nm}-pos-${String(p.pos).padStart(2, '0')}.svg`, detailBlad(o, p, huidig.ctx, huidig.kk, { ...huidig.meta, blad: `${j + 1} / ${huidig.stukLijst.length}` })])]); }
+  else if (b.dataset.dl === 'html') { const { a3, a4, stuk, detail } = bladen(o, keuzes, { nr: `TD-${String(STIJLEN.indexOf(s) + 1).padStart(2, '0')}`, datum: new Date().toISOString().slice(0, 10) }); filename = `${nm}-dossier.html`; data = `<!doctype html><html lang="nl"><head><meta charset="utf-8"><title>${esc(nm)}</title><style>@page a3{size:420mm 297mm;margin:0}@page a4{size:210mm 297mm;margin:14mm}@page a4l{size:297mm 210mm;margin:0}.a4l{page:a4l;width:297mm;height:210mm;overflow:hidden;page-break-after:always}.a4l svg{width:297mm;height:210mm;display:block}body{margin:0}.a3{page:a3;width:420mm;height:297mm;page-break-after:always}.a3 svg{width:420mm;height:297mm;display:block}.a4{page:a4}${CSS}</style></head><body><div class="a3">${a3}</div>${stuk.map((x) => `<div class="a3">${x}</div>`).join('')}${detail.map((x) => `<div class="a4l">${x}</div>`).join('')}${a4}</body></html>`; }
   else if (b.dataset.dl === 'csv') { filename = `${nm}-lijsten.csv`; const P = stukBladen(o, keuzes).posities; data = csv([['Stuklijst'], ['Pos', 'Aantal', 'Benaming', 'Materiaal', 'Maat', 'kg/st', 'Opmerking'], ...P.map((p) => [p.pos, p.n, p.naam, p.mat, p.maat, Math.round(p.kg * 100) / 100, p.opm]), [], ['Zaaglijst'], ['Wat', 'Staaf', 'Lengte mm', 'Aantal', 'Bewerking'], ...L.zaag.map((r) => [r.wat, STAAF[r.prof]?.naam ?? r.prof, r.l, r.n, r.bew]), [], ['Laserlijst'], ['Wat', 'Vorm', 'Maat', 'Aantal', 'Plaat'], ...L.laser.map((r) => [r.wat, r.vorm, r.vorm === 'boog' ? `R${r.r} x ${r.zicht}, ${r.hoek} gr` : `${r.b} x ${r.l}`, r.n, r.mat]), [], ['Glaslijst'], ['Deel', 'Vorm', 'Breedte', 'Hoogte', 'm2', 'Aantal'], ...L.glas.map((r) => [r.deel, r.vorm, r.b, r.h, Math.round(r.m2 * 100) / 100, r.n]), [], ['Kostprijs'], ...k.regels.map((r) => [r.wat, r.bedrag, r.bron]), ['Arbeid', k.arbeid], ['Kostprijs', k.kostprijs], ['Verkoop excl. btw', k.verkoop]]); }
   else { filename = `${nm}-dxf.zip`; data = zip([[`${nm}-laser.dxf`, laserDxf(o)], [`${nm}-glas.dxf`, glasDxf(o)]]); }
   $('status').textContent = 'Bezig…';
