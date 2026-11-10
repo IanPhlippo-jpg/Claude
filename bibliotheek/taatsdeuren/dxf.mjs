@@ -3,7 +3,7 @@
 import { lijsten, kaderVan } from './deuren.mjs';
 
 const n4 = (x) => (Math.round(x * 1e4) / 1e4).toString();
-function schrijver() {
+export function schrijver() {
   const e = [];
   const ent = (type, laag, kv) => e.push('0', type, '8', laag, ...kv.flatMap(([k, v]) => [String(k), typeof v === 'number' ? n4(v) : v]));
   return {
