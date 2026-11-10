@@ -98,6 +98,23 @@ export async function kamer(houder) {
     t.x = k(t.x, -W / 2 + 0.5, W / 2 - 0.5); t.y = k(t.y, 0.1, MH - 0.2); t.z = k(t.z, -dik, voor - 1);
   };
   controls.addEventListener('change', () => { binnen(); teken(); });
+  // gsm en tablet: de kamer staat vast zodat vegen de pagina scrollt; met de knop zet je ze los om te draaien en te
+  // knijpen (zoals een kaart op een gsm). Met een muis blijft alles altijd aan.
+  if (matchMedia('(pointer: coarse)').matches) {
+    const knop = document.createElement('button');
+    knop.type = 'button';
+    knop.style.cssText = 'position:absolute;right:8px;top:8px;z-index:3;font:600 14px system-ui,sans-serif;padding:10px 14px;min-height:44px;border:1px solid #14171a;background:rgba(255,255,255,.92);color:#14171a;border-radius:2px';
+    const slot = (aan) => {
+      controls.enabled = aan;
+      for (const el of [renderer.domElement, houder]) el.style.touchAction = aan ? 'none' : 'pan-y';
+      knop.textContent = aan ? 'Klaar' : 'Draaien in 3D';
+      knop.setAttribute('aria-pressed', String(aan));
+      houder.style.outline = aan ? '3px solid #b8760f' : '';
+    };
+    knop.addEventListener('click', () => slot(!controls.enabled));
+    houder.append(knop);
+    slot(false);
+  }
   scene.add(new THREE.HemisphereLight('#ffffff', '#8a7f70', 0.35));
   const zon = new THREE.DirectionalLight('#fff6e8', 2.6); zon.position.set(3.2, 4.2, 4.5); zon.castShadow = true;
   Object.assign(zon.shadow.camera, { left: -3, right: 3, top: 3.5, bottom: -1, near: 0.5, far: 14 }); zon.shadow.mapSize.set(2048, 2048); zon.shadow.bias = -0.0004; zon.shadow.normalBias = 0.02;

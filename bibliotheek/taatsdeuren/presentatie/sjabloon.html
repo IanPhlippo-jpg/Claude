@@ -31,7 +31,7 @@ main { display: grid; grid-template-columns: minmax(0, 1fr) 430px; gap: 0; min-h
 .tabs { display: flex; gap: 4px } .tabs button { border: 1px solid var(--lijn); background: var(--vlak); padding: 6px 14px; cursor: pointer; font-weight: 600; font-size: 13.5px; border-radius: 2px }
 .tabs button[aria-selected="true"] { background: var(--inkt); color: var(--bg); border-color: var(--inkt) }
 .beeld { position: relative; flex: 1; min-height: 420px; border: 1px solid var(--lijn); background: var(--kamer); overflow: hidden }
-.beeld > div { position: absolute; inset: 0 } #kamer canvas { display: block; cursor: grab; touch-action: none }
+.beeld > div { position: absolute; inset: 0 } #kamer canvas { display: block; cursor: grab }
 #laden { position: absolute; inset: 45% 0 auto; text-align: center; color: #555; margin: 0 }
 .hint { position: absolute; left: 10px; bottom: 8px; right: 10px; width: max-content; max-width: calc(100% - 20px); font-size: 12px; color: #333; background: rgba(255,255,255,.78); padding: 3px 8px; pointer-events: none }
 #tekening { background: #fbfaf7; display: flex; align-items: center; justify-content: center; padding: 14px } #tekening svg { width: 100%; height: 100%; max-height: 100% }
@@ -82,7 +82,7 @@ dialog { border: 1px solid var(--lijn); background: var(--vlak); color: var(--in
     <div class="kop"><h1 id="titel">…</h1><p id="uitleg"></p></div>
     <div class="tabs" role="tablist" aria-label="Weergave"><button type="button" role="tab" data-tab="kamer" aria-selected="true">3D in de kamer</button><button type="button" role="tab" data-tab="tekening" aria-selected="false">Tekening 2D</button></div>
     <div class="beeld">
-      <div id="kamer" data-paneel="kamer" aria-label="De deur in een kamer, in 3D"><p id="laden">De kamer wordt geladen…</p><span class="hint">Slepen om rond te kijken · Ctrl + scroll of knijpen om te zoomen</span></div>
+      <div id="kamer" data-paneel="kamer" aria-label="De deur in een kamer, in 3D"><p id="laden">De kamer wordt geladen…</p><span class="hint">Slepen om rond te kijken · Ctrl + scroll of knijpen om te zoomen (gsm: eerst "Draaien in 3D")</span></div>
       <div id="tekening" data-paneel="tekening" hidden></div>
     </div>
     <div class="kamerbalk" id="kamerbalk">

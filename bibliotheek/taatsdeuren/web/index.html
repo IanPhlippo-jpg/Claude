@@ -54,7 +54,7 @@ fieldset { border: 0; padding: 0; margin: 0 0 10px } .keuze { display: flex; fle
 .prijsvak small { color: var(--zacht); font-size: 13px }
 .tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--lijn) } .tabs button { font: 700 15px var(--kop); font-stretch: 85%; text-transform: uppercase; letter-spacing: .05em; color: var(--zacht); background: none; border: 0; border-bottom: 3px solid transparent; padding: 8px 12px 6px; cursor: pointer } .tabs button[aria-selected="true"] { color: var(--inkt); border-bottom-color: var(--amber) }
 .toon { background: var(--vlak); border: 1px solid var(--lijn); border-top: 0 }
-.kamer { position: relative; aspect-ratio: 4 / 3; max-height: 74vh; width: 100%; background: #d9d6cf; touch-action: none } .kamer canvas { display: block; cursor: grab } .kamer .laden { position: absolute; inset: auto 0 45% 0; text-align: center; color: #555; margin: 0 }
+.kamer { position: relative; aspect-ratio: 4 / 3; max-height: 74vh; width: 100%; background: #d9d6cf; touch-action: pan-y } .kamer canvas { display: block; cursor: grab } .kamer .laden { position: absolute; inset: auto 0 45% 0; text-align: center; color: #555; margin: 0 }
 .kamer .hint { position: absolute; left: 10px; bottom: 8px; font-size: 12px; color: #333; background: rgba(255,255,255,.75); padding: 3px 8px; pointer-events: none }
 .kamerknoppen { display: grid; grid-template-columns: minmax(160px, 1fr) auto; gap: 4px 18px; align-items: end; padding: 12px 0 0 } .kamerknoppen fieldset { margin: 0 } .kamerknoppen .knoppen { margin: 0; grid-column: 1 / -1 }
 input[type="range"] { width: 100%; accent-color: var(--amber) }
@@ -122,7 +122,7 @@ footer { color: var(--zacht); font-size: 13px; padding-block: 30px }
     <div>
       <div class="tabs" role="tablist" aria-label="Weergave"><button type="button" role="tab" aria-selected="true" data-tab="kamer">In de kamer</button><button type="button" role="tab" aria-selected="false" data-tab="tek">Vooraanzicht</button></div>
       <div class="toon">
-        <div class="kamer" id="kamer" data-paneel="kamer" aria-label="De deur in een kamer, in 3D"><p class="laden" id="kamerLaden">De kamer wordt geladen…</p><span class="hint">Slepen om rond te kijken · Ctrl + scroll of knijpen om te zoomen</span></div>
+        <div class="kamer" id="kamer" data-paneel="kamer" aria-label="De deur in een kamer, in 3D"><p class="laden" id="kamerLaden">De kamer wordt geladen…</p><span class="hint">Slepen om rond te kijken · Ctrl + scroll of knijpen om te zoomen (gsm: eerst "Draaien in 3D")</span></div>
         <div class="tek" id="deurtekening" data-paneel="tek" aria-label="Vooraanzicht van de deur" hidden></div>
       </div>
       <div class="kamerknoppen" id="kamerknoppen">
