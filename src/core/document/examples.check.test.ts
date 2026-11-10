@@ -12,6 +12,8 @@ describe('example documents', () => {
     if (f === '(none)') return;
     const text = readFileSync(f, 'utf8');
     const raw = JSON.parse(text);
+    // data files next to the examples (material lists, template overviews) are not documents
+    if (raw.format !== 'phlippo-cad' && (Array.isArray(raw) || !['features', 'sketches', 'components'].some((k) => k in raw))) return;
     if (raw.format === 'phlippo-cad') expect(() => parseDocument(text)).not.toThrow();
     else expect(() => validateDocument({ planes: {}, variables: {}, equations: [], ...raw })).not.toThrow();
   });

@@ -32,6 +32,20 @@
         "voorbeelden/treinverlichting/app/uit"
       ],
       "port": 8765
+    },
+    {
+      "name": "deuren-web",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "8790",
+        "--bind",
+        "127.0.0.1",
+        "--directory",
+        "C:/Users/ianph/AppData/Local/Temp/claude/db4b568e22bf3a28/89d8d793-f0ea-4467-813d-a66f7610fca6/scratchpad/deuren-web"
+      ],
+      "port": 8790
     }
   ]
 }

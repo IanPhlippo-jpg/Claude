@@ -1,0 +1,389 @@
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Taatsdeuren op maat</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..800&family=Inter+Tight:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+<style>
+/* Atelierkaart: de deur groot voor de klant, de werkplaats en de instellingen apart; zwart staal, glasgrijs, één amber accent voor de prijs */
+:root {
+  --bg: #f1f2f0; --vlak: #ffffff; --vlak2: #f7f8f6; --inkt: #14171a; --zacht: #5a636b; --lijn: #d3d8d6; --lijn2: #e4e8e6;
+  --staal: #23272b; --glas: #dbe6e9; --amber: #b8760f; --amber-vlak: #fbefd9; --amber-inkt: #4a2f04; --fout: #b3261e;
+  --kop: "Archivo", "Arial Narrow", Arial, sans-serif; --tekst: "Inter Tight", "Segoe UI", Arial, sans-serif; --mono: "IBM Plex Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #121416; --vlak: #1b1e21; --vlak2: #212528; --inkt: #e9ecec; --zacht: #9aa3aa; --lijn: #343a3f; --lijn2: #2a2f33;
+  --staal: #d9dde0; --glas: #31434a; --amber: #e5a43c; --amber-vlak: #3a2c13; --amber-inkt: #f8dfb4; --fout: #f08a80; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #121416; --vlak: #1b1e21; --vlak2: #212528; --inkt: #e9ecec; --zacht: #9aa3aa; --lijn: #343a3f; --lijn2: #2a2f33;
+  --staal: #d9dde0; --glas: #31434a; --amber: #e5a43c; --amber-vlak: #3a2c13; --amber-inkt: #f8dfb4; --fout: #f08a80; color-scheme: dark }
+* { box-sizing: border-box } [hidden] { display: none !important }
+body { background: var(--bg); color: var(--inkt); font: 15px/1.5 var(--tekst) }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--vlak) }
+.wrap { max-width: 1320px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)) }
+h1, h2, h3 { font-family: var(--kop); font-stretch: 78%; letter-spacing: .005em; line-height: 1.08; margin: 0; text-wrap: balance }
+h1 { font-size: clamp(32px, 5vw, 52px); font-weight: 800 } h2 { font-size: 26px; font-weight: 700 } h3 { font-size: 18px; font-weight: 700 }
+a { color: inherit; text-decoration-color: var(--amber); text-underline-offset: 3px }
+:focus-visible { outline: 3px solid var(--amber); outline-offset: 2px }
+nav.menu { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 9; background: var(--vlak); border-bottom: 1px solid var(--lijn) }
+nav.menu .wrap { display: flex; gap: 2px; align-items: center }
+nav.menu a { font: 700 16px var(--kop); font-stretch: 85%; text-transform: uppercase; letter-spacing: .05em; text-decoration: none; color: var(--zacht); padding: 12px 12px 9px; border-bottom: 3px solid transparent }
+nav.menu a[aria-current="page"] { color: var(--inkt); border-bottom-color: var(--amber) }
+nav.menu .merk { margin-right: auto; font: 800 18px var(--kop); font-stretch: 78%; color: var(--inkt); text-transform: none; letter-spacing: 0; padding-left: 0 }
+header.kop { padding-block: 22px 14px } header.kop p { margin: 6px 0 0; color: var(--zacht); max-width: 64ch }
+/* stijlen */
+.filter { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 8px } .filter button { font: 500 13.5px var(--tekst); padding: 5px 10px; border: 1px solid var(--lijn); background: var(--vlak); color: var(--inkt); cursor: pointer } .filter button[aria-pressed="true"] { border-color: var(--amber); background: var(--amber-vlak); color: var(--amber-inkt); font-weight: 600 } .filter small { color: var(--zacht); font-size: 12px }
+.stijlen { display: flex; gap: 8px; overflow-x: auto; scroll-snap-type: x proximity; padding-bottom: 8px; margin-bottom: 14px; scrollbar-width: thin }
+.stijl { flex: 0 0 116px; scroll-snap-align: start; border: 1px solid var(--lijn); background: var(--vlak); padding: 0; cursor: pointer; text-align: left; color: inherit; font: inherit; display: flex; flex-direction: column }
+.stijl .duim { display: block; aspect-ratio: 100 / 125; background: #f6f7f5 } .stijl .duim svg { display: block; width: 100%; height: 100% } .stijl i { font: 11px var(--mono); color: var(--zacht); font-style: normal; display: block }
+.stijl span { padding: 6px 8px 8px; font-size: 13px; line-height: 1.25 } .stijl b { display: block; font-family: var(--kop); font-stretch: 80%; font-size: 14.5px }
+.stijl[aria-pressed="true"] { outline: 2px solid var(--amber); outline-offset: -2px; background: var(--amber-vlak) }
+/* deur */
+.deur { display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: 16px; align-items: start } .deur > *, .werk > * { min-width: 0 }
+.bon { background: var(--vlak); border: 1px solid var(--lijn); padding: 14px } .bon h2 { font-size: 24px } .bon .uitleg { color: var(--zacht); font-size: 14px; margin: 4px 0 12px }
+.veld { display: grid; gap: 4px; margin-bottom: 10px } .veld label, fieldset legend { font-size: 12px; text-transform: uppercase; letter-spacing: .07em; color: var(--zacht) }
+.twee { display: grid; grid-template-columns: 1fr 1fr; gap: 8px }
+input[type="number"] { width: 100%; font: 500 16px var(--mono); padding: 8px 10px; border: 1px solid var(--lijn); background: var(--vlak2); color: var(--inkt) }
+fieldset { border: 0; padding: 0; margin: 0 0 10px } .keuze { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px }
+.keuze label { border: 1px solid var(--lijn); padding: 6px 10px; cursor: pointer; font-size: 14px; background: var(--vlak2); position: relative }
+.keuze input { position: absolute; opacity: 0; pointer-events: none } .keuze label:has(input:checked) { border-color: var(--amber); background: var(--amber-vlak); color: var(--amber-inkt); font-weight: 600 }
+.keuze label:has(input:focus-visible) { outline: 3px solid var(--amber) }
+.melding { font-size: 13px; padding: 8px 10px; margin: 8px 0 0; border-left: 3px solid var(--fout); background: var(--vlak2) }
+.prijsvak { border-top: 2px solid var(--inkt); margin-top: 12px; padding-top: 12px } .prijsvak span { font-size: 12px; text-transform: uppercase; letter-spacing: .07em; color: var(--zacht) }
+.prijsvak b { display: block; font: 800 44px var(--kop); font-stretch: 80%; color: var(--amber); font-variant-numeric: tabular-nums; line-height: 1.05 }
+.prijsvak small { color: var(--zacht); font-size: 13px }
+.tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--lijn) } .tabs button { font: 700 15px var(--kop); font-stretch: 85%; text-transform: uppercase; letter-spacing: .05em; color: var(--zacht); background: none; border: 0; border-bottom: 3px solid transparent; padding: 8px 12px 6px; cursor: pointer } .tabs button[aria-selected="true"] { color: var(--inkt); border-bottom-color: var(--amber) }
+.toon { background: var(--vlak); border: 1px solid var(--lijn); border-top: 0 }
+.kamer { position: relative; aspect-ratio: 4 / 3; max-height: 74vh; width: 100%; background: #d9d6cf; touch-action: none } .kamer canvas { display: block; cursor: grab } .kamer .laden { position: absolute; inset: auto 0 45% 0; text-align: center; color: #555; margin: 0 }
+.kamer .hint { position: absolute; left: 10px; bottom: 8px; font-size: 12px; color: #333; background: rgba(255,255,255,.75); padding: 3px 8px; pointer-events: none }
+.kamerknoppen { display: grid; grid-template-columns: minmax(160px, 1fr) auto; gap: 4px 18px; align-items: end; padding: 12px 0 0 } .kamerknoppen fieldset { margin: 0 } .kamerknoppen .knoppen { margin: 0; grid-column: 1 / -1 }
+input[type="range"] { width: 100%; accent-color: var(--amber) }
+.toon .tek { padding: 18px; background: #f6f7f5; align-items: center; display: flex; justify-content: center } .toon .tek svg { max-height: 640px; width: auto; max-width: 100%; height: auto }
+
+.maten { display: flex; gap: 18px; flex-wrap: wrap; margin-top: 10px; font: 13px var(--mono); color: var(--zacht) }
+/* werkplaats */
+.knoppen { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 12px }
+.knop { font: 600 13.5px var(--tekst); padding: 8px 12px; border: 1px solid var(--inkt); background: transparent; color: var(--inkt); cursor: pointer }
+.knop:hover { background: var(--inkt); color: var(--bg) } .knop:disabled { opacity: .45; cursor: not-allowed; background: transparent; color: var(--inkt) }
+.status { font-size: 12.5px; color: var(--zacht); min-height: 1.3em } .blad { background: #fff; border: 1px solid var(--lijn); overflow: auto } .blad svg { display: block; width: 100%; height: auto; min-width: 640px }
+.tegels { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; margin: 12px 0 }
+.tegel { background: var(--vlak); border: 1px solid var(--lijn); padding: 10px 12px } .tegel span { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: .07em; color: var(--zacht) }
+.tegel b { font-family: var(--kop); font-stretch: 80%; font-size: 22px; font-variant-numeric: tabular-nums }
+section.deel { margin-top: 22px } section.deel > h2 { border-bottom: 2px solid var(--inkt); padding-bottom: 6px; margin-bottom: 10px }
+.tabelvak { overflow-x: auto; border: 1px solid var(--lijn); background: var(--vlak) }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px } th { text-align: left; font-size: 11.5px; text-transform: uppercase; letter-spacing: .06em; color: var(--zacht); background: var(--vlak2); padding: 7px 9px; border-bottom: 1px solid var(--lijn); white-space: nowrap }
+td { padding: 6px 9px; border-bottom: 1px solid var(--lijn2); vertical-align: top } tr:last-child td { border-bottom: 0 }
+td.n { text-align: right; font: 13px var(--mono); white-space: nowrap } td.bron { font-size: 12px; color: var(--zacht); word-break: break-word }
+.stappen { margin: 0; padding-left: 22px; display: grid; gap: 8px; max-width: 80ch } .stappen b { font-weight: 600 } .stappen .uur { font: 12px var(--mono); color: var(--amber) }
+.drie { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px } .drie > div { min-width: 0 } .drie h3 { margin-bottom: 6px }
+/* instellingen */
+.inst { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: start } .inst > div { min-width: 0 }
+.inst table input { width: 96px; padding: 5px 8px; font-size: 14px; text-align: right }
+.inst td.uitl { font-size: 12.5px; color: var(--zacht) }
+footer { color: var(--zacht); font-size: 13px; padding-block: 30px }
+@media (max-width: 1100px) { .drie, .inst { grid-template-columns: 1fr } .tegels { grid-template-columns: repeat(3, minmax(0, 1fr)) } }
+@media (max-width: 860px) { .deur { grid-template-columns: 1fr } .kamer { aspect-ratio: 4 / 5 } .kamerknoppen { grid-template-columns: 1fr } }
+@media (max-width: 520px) { .stijl { flex-basis: 100px } .tegels { grid-template-columns: 1fr 1fr } nav.menu a { padding-inline: 8px; font-size: 14px } }
+</style>
+
+<nav class="menu" aria-label="Pagina's"><div class="wrap">
+  <span class="merk">Taatsdeuren</span>
+  <a href="#deur">Deur</a><a href="#werkplaats">Werkplaats</a><a href="#instellingen">Instellingen</a>
+</div></nav>
+
+<div class="wrap">
+<!-- ============ DEUR (voor de klant) ============ -->
+<div id="v-deur" data-view="deur">
+  <header class="kop"><h1>Taatsdeuren op maat</h1><p>Stalen taatsdeuren met glas, in uw maat. Kies een van de 50 stijlen, geef de maat van de opening in en bekijk de deur in een kamer.</p></header>
+  <div class="filter" id="filter" role="group" aria-label="Soort"></div>
+  <div class="stijlen" id="stijlen" role="group" aria-label="Stijl"></div>
+  <div class="deur">
+    <aside class="bon" aria-label="Keuzes">
+      <h2 id="naam">…</h2><p class="uitleg" id="uitleg"></p>
+      <div class="twee">
+        <div class="veld"><label for="B">Breedte opening (mm)</label><input id="B" type="number" step="10"></div>
+        <div class="veld"><label for="H">Hoogte opening (mm)</label><input id="H" type="number" step="10"></div>
+      </div>
+      <div class="veld" id="zijlichtVeld" hidden><label for="Z">Breedte zijlicht (mm)</label><input id="Z" type="number" step="10" value="400"></div>
+      <fieldset><legend>Profielen</legend><div class="keuze" id="k-systeem"></div></fieldset>
+      <fieldset><legend>Glas</legend><div class="keuze" id="k-glas"></div></fieldset>
+      <fieldset><legend>Scharnier</legend><div class="keuze" id="k-scharnier"></div></fieldset>
+      <fieldset><legend>Afwerking</legend><div class="keuze" id="k-afwerking"></div></fieldset>
+      <fieldset><legend>Kleur</legend><div class="keuze" id="k-kleur"></div></fieldset>
+      <p class="melding" id="melding" hidden></p>
+      <div class="prijsvak"><span id="p-label">Kostprijs om te maken</span><b id="p-bedrag">…</b><small id="p-sub"></small></div>
+    </aside>
+    <div>
+      <div class="tabs" role="tablist" aria-label="Weergave"><button type="button" role="tab" aria-selected="true" data-tab="kamer">In de kamer</button><button type="button" role="tab" aria-selected="false" data-tab="tek">Vooraanzicht</button></div>
+      <div class="toon">
+        <div class="kamer" id="kamer" data-paneel="kamer" aria-label="De deur in een kamer, in 3D"><p class="laden" id="kamerLaden">De kamer wordt geladen…</p><span class="hint">Slepen om rond te kijken · scrollen of knijpen om te zoomen</span></div>
+        <div class="tek" id="deurtekening" data-paneel="tek" aria-label="Vooraanzicht van de deur" hidden></div>
+      </div>
+      <div class="kamerknoppen" id="kamerknoppen">
+        <div class="veld"><label for="open">Deur open: <span id="openW">0°</span></label><input type="range" id="open" min="0" max="90" step="1" value="0"></div>
+        <fieldset><legend>Muur</legend><div class="keuze" id="k-muur"></div></fieldset>
+        <fieldset><legend>Vloer</legend><div class="keuze" id="k-vloer"></div></fieldset>
+        <div class="knoppen"><button class="knop" type="button" id="herstel">Zicht herstellen</button><button class="knop" type="button" id="foto">Beeld opslaan (JPG)</button></div>
+      </div>
+      <div class="maten" id="maten"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ WERKPLAATS (tekeningen, lijsten, werkwijze) ============ -->
+<div id="v-werkplaats" data-view="werkplaats" hidden>
+  <header class="kop"><h1 id="w-titel">Werkplaats</h1><p>Het werkblad om te maken: maten, zaaglijst, laser- en glaslijst, de werkwijze en de kostprijs per regel. Dezelfde deur als op de pagina Deur.</p></header>
+  <div class="knoppen">
+    <button class="knop" type="button" data-dl="svg">Werkblad (SVG)</button>
+    <button class="knop" type="button" data-dl="html">Dossier om af te drukken (HTML)</button>
+    <button class="knop" type="button" data-dl="csv">Lijsten (CSV)</button>
+    <button class="knop" type="button" data-dl="zip">DXF laser + glas (ZIP)</button>
+  </div>
+  <p class="status" id="status" aria-live="polite"></p>
+  <div class="blad" id="blad" aria-label="Werkblad A3"></div>
+  <div class="tegels">
+    <div class="tegel"><span>Vleugel</span><b id="t-vleugel"></b></div>
+    <div class="tegel"><span>Gewicht per vleugel</span><b id="t-kg"></b></div>
+    <div class="tegel"><span>Glas</span><b id="t-glas"></b></div>
+    <div class="tegel"><span>Uren</span><b id="t-uren"></b></div>
+    <div class="tegel"><span>Kostprijs</span><b id="t-kost"></b></div>
+  </div>
+  <section class="deel"><h2>Kostprijs</h2><div class="tabelvak"><table id="prijs"></table></div></section>
+  <section class="deel"><h2>Werkwijze</h2><ol class="stappen" id="stappen"></ol></section>
+  <section class="deel"><h2>Lijsten</h2><div class="drie">
+    <div><h3>Zaaglijst</h3><div class="tabelvak"><table id="zaag"></table></div></div>
+    <div><h3>Laserlijst</h3><div class="tabelvak"><table id="laser"></table></div></div>
+    <div><h3>Glaslijst</h3><div class="tabelvak"><table id="glas"></table></div></div>
+  </div></section>
+  <section class="deel"><h2>Ter vergelijking</h2><div class="tabelvak"><table id="markt"></table></div></section>
+</div>
+
+<!-- ============ INSTELLINGEN ============ -->
+<div id="v-instellingen" data-view="instellingen" hidden>
+  <header class="kop"><h1>Instellingen</h1><p>Je standaarduren per handeling, je uurloon en marge, je eigen prijzen, en welke prijs de klant op de pagina Deur ziet. Wijzigingen worden meteen bewaard.</p></header>
+  <div class="knoppen"><button class="knop" type="button" id="terug">Alles terug naar de standaard</button></div>
+  <p class="status" id="i-status" aria-live="polite"></p>
+  <div class="inst">
+    <div>
+      <section class="deel" style="margin-top:0"><h2>Tarief en prijs</h2>
+        <div class="tabelvak"><table><tbody>
+          <tr><td>Uurloon (€ per uur)</td><td class="n"><input type="number" step="1" data-i="uurloon"></td></tr>
+          <tr><td>Marge (%)</td><td class="n"><input type="number" step="1" data-i="marge"></td></tr>
+        </tbody></table></div>
+        <fieldset style="margin-top:10px"><legend>De klant ziet op de pagina Deur</legend><div class="keuze" id="k-toon"></div></fieldset>
+      </section>
+      <section class="deel"><h2>Standaarduren</h2><p class="status">Uren per handeling; de werkwijze telt ze per deur op (hoeken, roeden, bogen, meters lat, ruiten).</p>
+        <div class="tabelvak"><table id="i-uren"></table></div></section>
+    </div>
+    <div>
+      <section class="deel" style="margin-top:0"><h2>Materiaalprijzen (excl. btw)</h2><div class="tabelvak"><table id="i-prijzen"></table></div></section>
+    </div>
+  </div>
+</div>
+<footer>Elke prijs heeft een bron (pagina Werkplaats); "schatting" betekent dat er geen prijs gevonden werd. Prijzen 2026-11-10.</footer>
+</div>
+
+<script type="module">
+import { STIJLEN, GRENZEN, ontwerp, lijsten } from './js/deuren.mjs';
+import { werkblad } from './js/blad.mjs';
+import { losseTekening, vooraanzicht } from './js/teken.mjs';
+import { MUREN, VLOEREN, KLEUREN } from './js/kamer.mjs';
+import { kostprijs, PRIJS, MARKT, STAAF } from './js/prijzen.mjs';
+import { UREN } from './js/werkwijze.mjs';
+import { bladen, CSS } from './js/dossier.mjs';
+import { laserDxf, glasDxf } from './js/dxf.mjs';
+
+const $ = (id) => document.getElementById(id), esc = (t) => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const eur = (v) => `€ ${(Math.round(v * 100) / 100).toLocaleString('nl-BE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+const g = (v, d = 0) => (Math.round(v * 10 ** d) / 10 ** d).toLocaleString('nl-BE');
+const KEUZES = {
+  systeem: [['koker', 'Koker en strip'], ['systeem', 'Stalen deurprofielen']],
+  glas: [['helder', 'Helder'], ['grijs', 'Grijs (fumé)']],
+  scharnier: [['budget', 'Standaard'], ['premium', 'FritsJurgens']],
+  afwerking: [['poedercoat', 'Poedercoat'], ['natlak', 'Natlak']],
+};
+const TOON = [['kostprijs', 'Kostprijs'], ['verkoop', 'Verkoop excl. btw'], ['verkoopBtw', 'Verkoop incl. btw']];
+const UUR_LABEL = {
+  voorbereiden: ['Voorbereiden', 'per deur'], zaagPerStuk: ['Zagen', 'per stuk'], opspannen: ['Opspannen op de lastafel', 'per vleugel of zijlicht'],
+  hoekTig: ['Verstekhoek lassen (TIG) en slijpen', 'per hoek'], tVerbinding: ['Roede inlassen', 'per uiteinde'], boogVerbinding: ['Boog inlassen', 'per uiteinde'],
+  boogLagenPerM: ['Boog van het kader (4 lagen)', 'per meter'], latPerM: ['Latten hechten', 'per meter'], tappenPerGat: ['M4 tappen', 'per gat'],
+  taatsplaten: ['Taatsplaten en greephouders', 'per vleugel'], richten: ['Richten en nameten', 'per vleugel'], coatKlaar: ['Klaarmaken voor de coater', 'per deur'],
+  natlakken: ['Zelf natlakken', 'per deur'], glasPerRuit: ['Glas plaatsen', 'per ruit'], paneel: ['Stalen paneel inlassen', 'per paneel'], plaatsen: ['Plaatsen (standaardscharnier)', 'per deur'], plaatsenPremium: ['Plaatsen (FritsJurgens)', 'per deur'],
+};
+// de prijzen die je kan aanpassen: [sleutel, naam, eenheid, lezen, schrijven]
+const PRIJZEN = [
+  ...Object.entries(STAAF).map(([k, s]) => [`staaf.${k}`, s.naam, '€/m', () => s.prijs, (v) => { s.prijs = v; }]),
+  ['glas.helder', 'Glas 44.2 helder', '€/m²', () => PRIJS.glas.helder.v, (v) => { PRIJS.glas.helder.v = v; }],
+  ['glas.grijs', 'Glas 44.2 grijs', '€/m²', () => PRIJS.glas.grijs.v, (v) => { PRIJS.glas.grijs.v = v; }],
+  ['scharnier.budget', 'Scharnier standaard (Pivotica 150)', '€/st', () => PRIJS.scharnier.budget.v, (v) => { PRIJS.scharnier.budget.v = v; }],
+  ['scharnier.premium', 'Scharnier FritsJurgens', '€/st', () => PRIJS.scharnier.premium.v, (v) => { PRIJS.scharnier.premium.v = v; }],
+  ['poedercoat', 'Poedercoaten', '€/m²', () => PRIJS.poedercoat.v, (v) => { PRIJS.poedercoat.v = v; }],
+  ['stralen', 'Stralen', '€/m²', () => PRIJS.stralen.v, (v) => { PRIJS.stralen.v = v; }],
+  ['coatMin', 'Coaten, minimum per deur', '€', () => PRIJS.coatMin.v, (v) => { PRIJS.coatMin.v = v; }],
+  ['natlak', 'Natlak (primer + 2K)', '€/m²', () => PRIJS.natlakPerM2.v, (v) => { PRIJS.natlakPerM2.v = v; }],
+  ['laserKg', 'Lasersnijden', '€/kg', () => PRIJS.laserPerKg.v, (v) => { PRIJS.laserPerKg.v = v; }],
+  ['laserDeel', 'Lasersnijden, per onderdeel', '€', () => PRIJS.laserPerDeel.v, (v) => { PRIJS.laserPerDeel.v = v; }],
+  ['klein', 'Kit, blokjes, schroeven', '€/deur', () => PRIJS.klein.v, (v) => { PRIJS.klein.v = v; }],
+];
+const STD = { uurloon: 45, marge: 35, toon: 'kostprijs', uren: { ...UREN }, prijzen: Object.fromEntries(PRIJZEN.map(([k, , , lees]) => [k, lees()])) };
+let inst = JSON.parse(JSON.stringify(STD));
+let staat = { stijl: 'boog', B: 1000, H: 2400, Z: 400, systeem: 'koker', glas: 'helder', scharnier: 'budget', afwerking: 'poedercoat', kleur: 'zwart' };
+let kamerStand = { open: 0, muur: 'wit', vloer: 'eik' }, filterGroep = 'Alle';
+try { kamerStand = { ...kamerStand, ...JSON.parse(localStorage.getItem('taatsdeuren-kamer') || '{}') }; } catch {}
+try { const s = JSON.parse(localStorage.getItem('taatsdeuren-keuze') || 'null'); if (s && STIJLEN.some((x) => x.id === s.stijl)) staat = { ...staat, ...s }; } catch {}
+const pasPrijzenToe = () => { for (const [k, , , , schrijf] of PRIJZEN) if (typeof inst.prijzen[k] === 'number') schrijf(inst.prijzen[k]); };
+
+// ---------- opbouw van de knoppen
+$('stijlen').innerHTML = STIJLEN.map((s, i) => `<button type="button" class="stijl" data-stijl="${s.id}" data-groep="${esc(s.groep)}" aria-pressed="false"><span class="duim" id="duim-${s.id}"></span><span><i>TD-${String(i + 1).padStart(2, '0')}</i><b>${esc(s.naam)}</b></span></button>`).join('');
+const GRP = ['Alle', ...new Set(STIJLEN.map((s) => s.groep))];
+$('filter').innerHTML = GRP.map((g) => `<button type="button" data-filter="${esc(g)}" aria-pressed="${g === 'Alle'}">${esc(g)} <small>${g === 'Alle' ? STIJLEN.length : STIJLEN.filter((s) => s.groep === g).length}</small></button>`).join('');
+$('filter').addEventListener('click', (e) => { const b = e.target.closest('[data-filter]'); if (!b) return; filterGroep = b.dataset.filter; document.querySelectorAll('[data-filter]').forEach((x) => x.setAttribute('aria-pressed', x === b)); document.querySelectorAll('[data-stijl]').forEach((x) => { x.hidden = filterGroep !== 'Alle' && x.dataset.groep !== filterGroep; }); $('stijlen').scrollLeft = 0; });
+// kleine tekening per stijl (standaardmaat), in stukjes zodat de pagina meteen klaar is
+const duim = (o) => { const W = 100, Hh = 125, s = Math.min((W - 12) / o.kozijn.B, (Hh - 12) / o.kozijn.H), ox = (W - o.kozijn.B * s) / 2; return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${Hh}" aria-hidden="true">${vooraanzicht(o, s, ox, Hh - 6, { maten: false, assen: false })}</svg>`; };
+(function vulDuimen(i = 0) { const t0 = performance.now(); while (i < STIJLEN.length && performance.now() - t0 < 30) { const s = STIJLEN[i++]; try { $(`duim-${s.id}`).innerHTML = duim(ontwerp(s.id, s.std.B, s.std.H)); } catch {} } if (i < STIJLEN.length) setTimeout(() => vulDuimen(i), 0); })();
+const keuzeHtml = (naam, lijst) => Object.entries(lijst).map(([v, [t]]) => `<label><input type="radio" name="${naam}" value="${v}" id="${naam}-${v}"><span>${esc(t)}</span></label>`).join('');
+$('k-kleur').innerHTML = keuzeHtml('kleur', KLEUREN); $('k-muur').innerHTML = keuzeHtml('muur', MUREN); $('k-vloer').innerHTML = keuzeHtml('vloer', VLOEREN);
+for (const [k, opties] of Object.entries(KEUZES)) $(`k-${k}`).innerHTML = opties.map(([v, t]) => `<label><input type="radio" name="${k}" value="${v}" id="${k}-${v}"><span>${esc(t)}</span></label>`).join('');
+$('k-toon').innerHTML = TOON.map(([v, t]) => `<label><input type="radio" name="toon" value="${v}" id="toon-${v}"><span>${esc(t)}</span></label>`).join('');
+$('i-uren').innerHTML = `<thead><tr><th>Handeling</th><th>Per</th><th>Uur</th></tr></thead><tbody>${Object.keys(UREN).map((k) => `<tr><td>${esc(UUR_LABEL[k]?.[0] ?? k)}</td><td class="uitl">${esc(UUR_LABEL[k]?.[1] ?? '')}</td><td class="n"><input type="number" step="0.01" min="0" id="u-${k}" data-u="${k}"></td></tr>`).join('')}</tbody>`;
+$('i-prijzen').innerHTML = `<thead><tr><th>Wat</th><th>Eenheid</th><th>Prijs</th></tr></thead><tbody>${PRIJZEN.map(([k, n, e]) => `<tr><td>${esc(n)}</td><td class="uitl">${esc(e)}</td><td class="n"><input type="number" step="0.01" min="0" id="p-${k.replace('.', '-')}" data-p="${k}"></td></tr>`).join('')}</tbody>`;
+
+$('stijlen').addEventListener('click', (e) => { const b = e.target.closest('[data-stijl]'); if (!b) return; const s = STIJLEN.find((x) => x.id === b.dataset.stijl); staat = { ...staat, stijl: s.id, B: s.std.B, H: s.std.H }; teken(); b.scrollIntoView({ block: 'nearest', inline: 'nearest' }); });
+for (const id of ['B', 'H', 'Z']) $(id).addEventListener('change', () => { staat[id] = +$(id).value; teken(); });
+for (const k of [...Object.keys(KEUZES), 'kleur']) $(`k-${k}`).addEventListener('change', (e) => { staat[k] = e.target.value; teken(); });
+document.querySelectorAll('[data-i]').forEach((el) => el.addEventListener('change', () => { inst[el.dataset.i] = +el.value; bewaar(); teken(); }));
+$('k-toon').addEventListener('change', (e) => { inst.toon = e.target.value; bewaar(); teken(); });
+document.querySelectorAll('[data-u]').forEach((el) => el.addEventListener('change', () => { inst.uren[el.dataset.u] = Math.max(0, +el.value); bewaar(); teken(); }));
+document.querySelectorAll('[data-p]').forEach((el) => el.addEventListener('change', () => { inst.prijzen[el.dataset.p] = Math.max(0, +el.value); pasPrijzenToe(); bewaar(); teken(); }));
+$('terug').addEventListener('click', () => { inst = JSON.parse(JSON.stringify(STD)); pasPrijzenToe(); bewaar(); vulInstellingen(); teken(); $('i-status').textContent = 'Alles staat terug op de standaard.'; });
+
+function vulInstellingen() {
+  document.querySelectorAll('[data-i]').forEach((el) => { el.value = inst[el.dataset.i]; });
+  const t = document.getElementById(`toon-${inst.toon}`); if (t) t.checked = true;
+  document.querySelectorAll('[data-u]').forEach((el) => { el.value = inst.uren[el.dataset.u]; });
+  document.querySelectorAll('[data-p]').forEach((el) => { el.value = inst.prijzen[el.dataset.p]; });
+}
+
+// ---------- tekenen
+let huidig = null;
+function teken() {
+  const s = STIJLEN.find((x) => x.id === staat.stijl), i = STIJLEN.indexOf(s);
+  const [b0, b1] = GRENZEN.B, [h0, h1] = GRENZEN.H, min = s.vleugels === 2 ? 1300 : s.zijlicht ? 1100 : b0;
+  const B = Math.min(b1, Math.max(min, staat.B || s.std.B)), H = Math.min(h1, Math.max(h0, staat.H || s.std.H)), melding = [];
+  if (B !== staat.B || H !== staat.H) melding.push(`Maat aangepast tot ${B} x ${H} (mogelijk: breedte ${min} tot ${b1}, hoogte ${h0} tot ${h1} mm).`);
+  staat.B = B; staat.H = H;
+  document.querySelectorAll('[data-stijl]').forEach((x) => x.setAttribute('aria-pressed', x.dataset.stijl === s.id));
+  $('naam').textContent = s.naam; $('uitleg').textContent = s.uitleg;
+  $('B').value = B; $('H').value = H; $('Z').value = staat.Z; $('zijlichtVeld').hidden = !s.zijlicht;
+  for (const k of [...Object.keys(KEUZES), 'kleur']) { const r = document.getElementById(`${k}-${staat[k]}`); if (r) r.checked = true; }
+  let o;
+  try { o = ontwerp(s.id, B, H, { systeem: staat.systeem, zijlicht: staat.Z }); } catch (e) { $('melding').hidden = false; $('melding').textContent = `Deze maat lukt niet: ${e.message}`; return; }
+  const keuzes = { systeem: staat.systeem, glas: staat.glas, scharnier: staat.scharnier, afwerking: staat.afwerking, uurloon: inst.uurloon, marge: inst.marge, uren: inst.uren };
+  const k = kostprijs(o, keuzes), L = lijsten(o), maxKg = staat.scharnier === 'premium' ? 350 : 150;
+  if (k.gewicht.vleugels.some((x) => x > maxKg)) melding.push(`De vleugel weegt ${k.gewicht.vleugels.map(Math.round).join(' en ')} kg: meer dan het scharnier draagt (${maxKg} kg). Kies FritsJurgens.`);
+  $('melding').hidden = !melding.length; $('melding').textContent = melding.join(' ');
+  // pagina Deur: de deur en één prijs
+  $('deurtekening').innerHTML = losseTekening(o, 200, 300, { maten: false, assen: false }).replace('<rect width="200" height="300" fill="#fff"/>', '').replace(/width="200mm" height="300mm"/, '');
+  const toon = { kostprijs: ['Kostprijs om te maken', k.kostprijs, 'excl. btw, met plaatsen'], verkoop: ['Prijs', k.verkoop, 'excl. btw, geplaatst'], verkoopBtw: ['Prijs', k.verkoop * 1.21, 'incl. 21 % btw, geplaatst'] }[inst.toon] ?? ['Kostprijs om te maken', k.kostprijs, ''];
+  $('p-label').textContent = toon[0]; $('p-bedrag').textContent = eur(toon[1]); $('p-sub').textContent = toon[2];
+  $('maten').innerHTML = [`opening ${B} x ${H} mm`, `vleugel ${o.vleugels.map((v) => `${Math.round(v.B)} x ${Math.round(v.H)}`).join(' + ')}`, `glas ${g(L.glas.reduce((t, r) => t + r.n, 0))} ruiten`].map((x) => `<span>${esc(x)}</span>`).join('');
+  // pagina Werkplaats
+  $('w-titel').textContent = `Werkplaats: ${s.naam}`;
+  $('blad').innerHTML = werkblad(o, { nr: `TD-${String(i + 1).padStart(2, '0')}`, datum: new Date().toISOString().slice(0, 10), prijs: { regels: [['Materiaal', k.materiaal], [`Arbeid (${g(k.uren, 1)} u)`, k.arbeid]], totaal: k.kostprijs } });
+  $('t-vleugel').textContent = o.vleugels.map((v) => `${Math.round(v.B)} x ${Math.round(v.H)}`).join(' + ');
+  $('t-kg').textContent = k.gewicht.vleugels.map((x) => `${Math.round(x)} kg`).join(' + ');
+  $('t-glas').textContent = `${g(L.glas.reduce((t, r) => t + r.m2 * r.n, 0), 2)} m²`; $('t-uren').textContent = `${g(k.uren, 1)} u`; $('t-kost').textContent = eur(k.kostprijs);
+  const bron = (b) => (/^https?:/.test(b) ? `<a href="${esc(b)}" target="_blank" rel="noopener">${esc(b.replace(/^https?:\/\/(www\.)?/, '').split('/')[0])}</a>` : esc(b));
+  $('prijs').innerHTML = `<thead><tr><th>Wat</th><th>Bedrag</th><th>Bron</th></tr></thead><tbody>${k.regels.map((r) => `<tr><td>${esc(r.wat)}</td><td class="n">${eur(r.bedrag)}</td><td class="bron">${bron(r.bron)}</td></tr>`).join('')}<tr><td><b>Materiaal</b></td><td class="n">${eur(k.materiaal)}</td><td></td></tr><tr><td><b>Arbeid</b> ${g(k.uren, 1)} u x ${eur(inst.uurloon)}</td><td class="n">${eur(k.arbeid)}</td><td class="bron">standaarduren uit de instellingen</td></tr><tr><td><b>Kostprijs</b></td><td class="n"><b>${eur(k.kostprijs)}</b></td><td></td></tr><tr><td>Verkoop met ${inst.marge} % marge</td><td class="n">${eur(k.verkoop)}</td><td class="bron">incl. btw ${eur(k.verkoop * 1.21)}</td></tr></tbody>`;
+  $('stappen').innerHTML = k.stappen.map((x) => `<li><b>${esc(x.titel)}</b> <span class="uur">${g(x.uren, 2)} u${x.proces ? ` · ${esc(x.proces)}` : ''}</span><br>${esc(x.tekst)}</li>`).join('');
+  $('zaag').innerHTML = `<thead><tr><th>Wat</th><th>Staaf</th><th>mm</th><th>n</th></tr></thead><tbody>${L.zaag.map((r) => `<tr><td>${esc(r.wat)}</td><td>${esc(STAAF[r.prof]?.naam ?? r.prof)}</td><td class="n">${r.l}</td><td class="n">${r.n}</td></tr>`).join('')}</tbody>`;
+  $('laser').innerHTML = `<thead><tr><th>Wat</th><th>Maat</th><th>n</th></tr></thead><tbody>${L.laser.map((r) => `<tr><td>${esc(r.wat)}</td><td class="n">${r.vorm === 'boog' ? `R${g(r.r)} · ${r.zicht} · ${g(r.hoek)}°` : `${r.b} x ${r.l}`}</td><td class="n">${r.n}</td></tr>`).join('')}</tbody>`;
+  $('glas').innerHTML = `<thead><tr><th>Vorm</th><th>b x h</th><th>m²</th><th>n</th></tr></thead><tbody>${L.glas.map((r) => `<tr><td>${esc(r.vorm)}</td><td class="n">${r.b} x ${r.h}</td><td class="n">${g(r.m2, 2)}</td><td class="n">${r.n}</td></tr>`).join('')}</tbody>`;
+  $('markt').innerHTML = `<thead><tr><th>Verkoopprijs elders</th><th>Prijs</th><th>Bron</th></tr></thead><tbody>${MARKT.map((m) => `<tr><td>${esc(m.wat)}</td><td class="n">${eur(m.prijs)}</td><td class="bron">${bron(m.bron)}</td></tr>`).join('')}</tbody>`;
+  huidig = { o, k, L, s, keuzes };
+  kamerVuil = true; if (zichtbaar('deur')) toonKamer(o);
+  try { localStorage.setItem('taatsdeuren-keuze', JSON.stringify(staat)); } catch {}
+}
+
+// ---------- 3D-kamer (three.js, pas geladen als de pagina er is)
+var kamerApi = null, kamerVuil = true;
+function zichtbaar(p) { return !document.querySelector(`[data-view="${p}"]`).hidden; }
+function toonKamer(o) { if (!kamerApi || !o) return; kamerApi.toon(o, { glas: staat.glas }); kamerApi.zet({ ...kamerStand, kleur: staat.kleur }); kamerVuil = false; }
+const tab = (t) => { document.querySelectorAll('[data-tab]').forEach((b) => b.setAttribute('aria-selected', b.dataset.tab === t)); document.querySelectorAll('[data-paneel]').forEach((p) => { p.hidden = p.dataset.paneel !== t; }); $('kamerknoppen').hidden = t !== 'kamer'; };
+document.querySelectorAll('[data-tab]').forEach((b) => b.addEventListener('click', () => tab(b.dataset.tab)));
+const vulKamerKnoppen = () => { $('open').value = kamerStand.open; $('openW').textContent = `${kamerStand.open}°`; for (const k of ['muur', 'vloer']) { const r = document.getElementById(`${k}-${kamerStand[k]}`); if (r) r.checked = true; } };
+const bewaarKamer = () => { try { localStorage.setItem('taatsdeuren-kamer', JSON.stringify(kamerStand)); } catch {} };
+$('open').addEventListener('input', () => { kamerStand.open = +$('open').value; $('openW').textContent = `${kamerStand.open}°`; kamerApi?.zet({ open: kamerStand.open }); });
+$('open').addEventListener('change', bewaarKamer);
+for (const k of ['muur', 'vloer']) $(`k-${k}`).addEventListener('change', (e) => { kamerStand[k] = e.target.value; kamerApi?.zet({ [k]: e.target.value }); bewaarKamer(); });
+$('herstel').addEventListener('click', () => kamerApi?.herstel());
+$('foto').addEventListener('click', async () => { await klaar; if (!dl || !kamerApi || !huidig) return; const url = kamerApi.beeld(), bin = atob(url.split(',')[1]), u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); try { await dl.save({ filename: `taatsdeur-${huidig.s.id}-${huidig.o.B}x${huidig.o.H}-kamer.jpg`, data: new Blob([u], { type: 'image/jpeg' }) }); } catch {} });
+vulKamerKnoppen();
+(async () => {
+  try { const { kamer } = await import('./js/kamer.mjs'); kamerApi = await kamer($('kamer')); $('kamerLaden').remove(); if (huidig) toonKamer(huidig.o); }
+  catch (e) { $('kamerLaden').textContent = '3D lukt niet in deze browser; het vooraanzicht staat klaar.'; tab('tek'); console.warn(e); }
+})();
+
+// ---------- pagina's (#deur, #werkplaats, #instellingen)
+function toonPagina() {
+  const p = ['deur', 'werkplaats', 'instellingen'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'deur';
+  document.querySelectorAll('[data-view]').forEach((v) => { v.hidden = v.dataset.view !== p; });
+  document.querySelectorAll('nav.menu a').forEach((a) => { if (a.getAttribute('href') === `#${p}`) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
+  if (p === 'deur' && kamerVuil && huidig) toonKamer(huidig.o);
+}
+addEventListener('hashchange', toonPagina);
+toonPagina(); vulInstellingen(); teken();
+
+// ---------- instellingen bewaren: op het account (db, privé per persoon), anders in deze browser
+let db = null, uid = null, wacht = null;
+function bewaar() {
+  clearTimeout(wacht);
+  wacht = setTimeout(async () => {
+    try { localStorage.setItem('taatsdeuren-instellingen', JSON.stringify(inst)); } catch {}
+    if (db && uid) { try { await db.doc(`data/users/${uid}/instellingen/taatsdeuren`).set(JSON.parse(JSON.stringify(inst))); $('i-status').textContent = 'Bewaard op je account.'; } catch { $('i-status').textContent = 'Bewaren op je account lukte niet; ze staan wel in deze browser.'; } }
+    else $('i-status').textContent = 'Bewaard in deze browser.';
+  }, 600);
+}
+const laad = (d) => { if (!d) return; inst = { ...JSON.parse(JSON.stringify(STD)), ...d, uren: { ...STD.uren, ...(d.uren ?? {}) }, prijzen: { ...STD.prijzen, ...(d.prijzen ?? {}) } }; pasPrijzenToe(); vulInstellingen(); teken(); };
+try { laad(JSON.parse(localStorage.getItem('taatsdeuren-instellingen') || 'null')); } catch {}
+(async () => {
+  try {
+    const user = await window.claude?.use?.('user'); db = await window.claude?.use?.('db');
+    uid = user ? await user.id() : null;
+    if (db && uid) { const s = await db.doc(`data/users/${uid}/instellingen/taatsdeuren`).get(); if (s.exists) laad(s.data()); $('i-status').textContent = 'Je instellingen staan op je account (ook op je gsm).'; }
+    else $('i-status').textContent = 'Je instellingen worden in deze browser bewaard.';
+  } catch { $('i-status').textContent = 'Je instellingen worden in deze browser bewaard.'; }
+})();
+
+// ---------- downloads (werkplaats); de DXF's samen in een zip zonder compressie
+let dl = null;
+const klaar = (async () => { try { dl = await window.claude?.use?.('downloads'); } catch { dl = null; } if (!dl) { document.querySelectorAll('[data-dl]').forEach((b) => { b.disabled = true; }); $('status').textContent = 'Downloaden kan niet in deze weergave.'; } })();
+const crcT = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let q = 0; q < 8; q++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+const crc32 = (u) => { let c = 0xffffffff; for (const x of u) c = crcT[(c ^ x) & 255] ^ (c >>> 8); return (c ^ 0xffffffff) >>> 0; };
+function zip(best) {
+  const enc = new TextEncoder(), delen = [], cen = []; let off = 0;
+  for (const [naam, tekst] of best) {
+    const n = enc.encode(naam), d = enc.encode(tekst), crc = crc32(d), h = new DataView(new ArrayBuffer(30));
+    h.setUint32(0, 0x04034b50, true); h.setUint16(4, 20, true); h.setUint32(14, crc, true); h.setUint32(18, d.length, true); h.setUint32(22, d.length, true); h.setUint16(26, n.length, true);
+    delen.push(new Uint8Array(h.buffer), n, d);
+    const c = new DataView(new ArrayBuffer(46));
+    c.setUint32(0, 0x02014b50, true); c.setUint16(4, 20, true); c.setUint16(6, 20, true); c.setUint32(16, crc, true); c.setUint32(20, d.length, true); c.setUint32(24, d.length, true); c.setUint16(28, n.length, true); c.setUint32(42, off, true);
+    cen.push(new Uint8Array(c.buffer), n); off += 30 + n.length + d.length;
+  }
+  const gr = cen.reduce((a, x) => a + x.length, 0), e = new DataView(new ArrayBuffer(22));
+  e.setUint32(0, 0x06054b50, true); e.setUint16(8, best.length, true); e.setUint16(10, best.length, true); e.setUint32(12, gr, true); e.setUint32(16, off, true);
+  return new Blob([...delen, ...cen, new Uint8Array(e.buffer)]);
+}
+const csv = (rijen) => '﻿' + rijen.map((r) => r.map((c) => (/[;"\n]/.test(String(c)) ? `"${String(c).replace(/"/g, '""')}"` : String(c).replace(/^(\d+)\.(\d+)$/, '$1,$2'))).join(';')).join('\r\n');
+document.querySelectorAll('[data-dl]').forEach((b) => b.addEventListener('click', async () => {
+  await klaar; if (!dl || !huidig) return;
+  const { o, k, L, s, keuzes } = huidig, nm = `taatsdeur-${s.id}-${o.B}x${o.H}`;
+  let filename, data;
+  if (b.dataset.dl === 'svg') { filename = `${nm}-werkblad.svg`; data = $('blad').innerHTML; }
+  else if (b.dataset.dl === 'html') { const { a3, a4 } = bladen(o, keuzes, { datum: new Date().toISOString().slice(0, 10) }); filename = `${nm}-dossier.html`; data = `<!doctype html><html lang="nl"><head><meta charset="utf-8"><title>${esc(nm)}</title><style>@page a3{size:420mm 297mm;margin:0}@page a4{size:210mm 297mm;margin:14mm}body{margin:0}.a3{page:a3;width:420mm;height:297mm;page-break-after:always}.a3 svg{width:420mm;height:297mm;display:block}.a4{page:a4}${CSS}</style></head><body><div class="a3">${a3}</div>${a4}</body></html>`; }
+  else if (b.dataset.dl === 'csv') { filename = `${nm}-lijsten.csv`; data = csv([['Zaaglijst'], ['Wat', 'Staaf', 'Lengte mm', 'Aantal', 'Bewerking'], ...L.zaag.map((r) => [r.wat, STAAF[r.prof]?.naam ?? r.prof, r.l, r.n, r.bew]), [], ['Laserlijst'], ['Wat', 'Vorm', 'Maat', 'Aantal', 'Plaat'], ...L.laser.map((r) => [r.wat, r.vorm, r.vorm === 'boog' ? `R${r.r} x ${r.zicht}, ${r.hoek} gr` : `${r.b} x ${r.l}`, r.n, r.mat]), [], ['Glaslijst'], ['Deel', 'Vorm', 'Breedte', 'Hoogte', 'm2', 'Aantal'], ...L.glas.map((r) => [r.deel, r.vorm, r.b, r.h, Math.round(r.m2 * 100) / 100, r.n]), [], ['Kostprijs'], ...k.regels.map((r) => [r.wat, r.bedrag, r.bron]), ['Arbeid', k.arbeid], ['Kostprijs', k.kostprijs], ['Verkoop excl. btw', k.verkoop]]); }
+  else { filename = `${nm}-dxf.zip`; data = zip([[`${nm}-laser.dxf`, laserDxf(o)], [`${nm}-glas.dxf`, glasDxf(o)]]); }
+  $('status').textContent = 'Bezig…';
+  try { await dl.save({ filename, data }); $('status').textContent = `${filename} opgeslagen.`; } catch (e) { $('status').textContent = e && e.code === 'declined' ? 'Niet opgeslagen.' : `Opslaan lukte niet (${e && e.code || 'fout'}).`; }
+}));
+</script>

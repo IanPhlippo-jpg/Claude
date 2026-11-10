@@ -1216,3 +1216,31 @@ elease; README en docs/04 bijgewerkt
 - [x] CE-dossier: risicobeoordeling EN ISO 12100 / EN 1570-1, handleiding (gebruik, onderhoud, keuring), EU-conformiteitsverklaring, CE-plaat en waarschuwingen op het model
 - [x] Offerteaanvragen (laserwerk, cilinders, aggregaat, tafel) klaar om te versturen
 - [x] Pagina en afdruk-PDF bijwerken, tests, commit en push
+
+## Bibliotheek: 10 stalen taatsdeuren, maten aanpasbaar (2026-11-10)
+- [x] EISEN.md met de inspiratie (stalen glasdeuren met boog) en de open vragen in één ronde
+- [x] Bronnen: profielen en prijzen (koker, T, strip), gelaagd glas, taatsscharnieren, poedercoaten, lasdraad/gas
+- [x] Eén parametrische generator (breedte, hoogte, stijl) voor 10 stijlen: model (.kcad), zaaglijst, plaatlijst, glaslijst, kostprijs
+- [x] Tekeningen per deur (ISO, maatvoering volgens de gekozen maten) en mallen 1:1 voor de bogen
+- [x] Werkwijze per deur: zagen, mal/opspannen op de lastafel, hechten, lassen (MIG/MAG en TIG), slijpen, coaten, glas, plaatsen van het taatsscharnier
+- [x] Configurator-pagina: stijl kiezen, maten invullen, tekening, lijsten en prijs meteen; downloads
+- [x] Tests (alle stijlen en een reeks maten bouwen zonder fouten), foto's, commit en push
+- [x] Configurator in drie pagina's: Deur (klant, enkel deur en prijs), Werkplaats (tekeningen, lijsten), Instellingen (standaarduren, uurloon, prijzen)
+
+## Taatsdeuren: 50 stijlen en een 3D-kamer (2026-11-10)
+- [x] Stijlen als bouwstenen (bovenkant, roeden, paneel onderaan) en 50 stijlen met naam en uitleg
+- [x] Paneel (plaat) onderaan: tekening, lijsten, model, werkwijze, kostprijs
+- [x] Tests voor alle 50 stijlen (geometrie op 3 maten, model bouwt zonder botsingen)
+- [x] 3D-kamer in de configurator: muur met opening, vloer, de deur in 3D, deur open draaien, kleuren muur en vloer
+- [x] Stijlkaarten als tekening (geen foto per stijl nodig), filter per soort
+- [x] Bibliotheek-PDF en bestanden voor alle 50, README
+- [~] Artifact bijwerken, gsm en donker controleren, commit en push, foto's naar Ian
+
+## Deurenconfigurator voor klanten, los van de CAD (2026-11-10)
+- [ ] Eisen en bronnen: verdekte scharnieren voor staal, bekendste RAL-kleuren poedercoat, veiligheidsglas (kleur en structuur), dubbel glas en profieldiepte
+- [ ] Scharnier: pivot (taats) of verdekte scharnieren (draaideur) in tekening, 3D, lijsten, kostprijs en werkwijze
+- [ ] Glas: altijd veiligheidsglas; enkel (gelaagd) of dubbel (isolerend), dieper profiel bij dubbel glas; glaskleuren en structuren
+- [ ] RAL-kleuren met structuur (fijnstructuur, mat, glans) in de prijs en in 3D
+- [ ] 50 extra stijlen (TD-51 tot TD-100), tests voor alle 100
+- [ ] Presentatietool in een eigen map buiten de CAD (offline te openen): 2D en 3D, deurgat ingeven -> kamer, alle keuzes, RAL-kaart
+- [ ] Dezelfde tool online als pagina; foto's, commit en push
