@@ -87,7 +87,17 @@ export async function kamer(houder) {
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.minDistance = 0.6; controls.maxDistance = 7.5; controls.maxPolarAngle = Math.PI * 0.53; controls.enablePan = true;
   const teken = () => renderer.render(scene, camera);
-  controls.addEventListener('change', teken);
+  // gewoon scrollen = de pagina scrollen; zoomen met Ctrl + scroll (of knijpen op een gsm of touchpad, dat geeft ook Ctrl)
+  houder.addEventListener('wheel', (e) => { if (!e.ctrlKey && !e.metaKey) e.stopPropagation(); }, { capture: true });
+  // de camera en het kijkpunt blijven in de kamer, voor de muur (anders kijk je door de muur en zie je enkel wit)
+  let ruimte = null;
+  const binnen = () => {
+    if (!ruimte) return;
+    const { W, MH, voor, dik } = ruimte, p = camera.position, t = controls.target, k = (v, a, b) => Math.min(b, Math.max(a, v));
+    p.x = k(p.x, -W / 2 + 0.25, W / 2 - 0.25); p.y = k(p.y, 0.15, MH - 0.15); p.z = k(p.z, dik / 2 + 0.35, voor - 0.25);
+    t.x = k(t.x, -W / 2 + 0.5, W / 2 - 0.5); t.y = k(t.y, 0.1, MH - 0.2); t.z = k(t.z, -dik, voor - 1);
+  };
+  controls.addEventListener('change', () => { binnen(); teken(); });
   scene.add(new THREE.HemisphereLight('#ffffff', '#8a7f70', 0.35));
   const zon = new THREE.DirectionalLight('#fff6e8', 2.6); zon.position.set(3.2, 4.2, 4.5); zon.castShadow = true;
   Object.assign(zon.shadow.camera, { left: -3, right: 3, top: 3.5, bottom: -1, near: 0.5, far: 14 }); zon.shadow.mapSize.set(2048, 2048); zon.shadow.bias = -0.0004; zon.shadow.normalBias = 0.02;
@@ -124,7 +134,7 @@ export async function kamer(houder) {
     vak(0.1, MH, voor, -W / 2 - 0.05, MH / 2, voor / 2, mat.muur); vak(0.1, MH, voor, W / 2 + 0.05, MH / 2, voor / 2, mat.muur);
     vak(W, MH, 0.1, 0, MH / 2, -achter - 0.05, mat.muurAchter); vak(0.1, MH, achter, -W / 2 - 0.05, MH / 2, -achter / 2, mat.muurAchter); vak(0.1, MH, achter, W / 2 + 0.05, MH / 2, -achter / 2, mat.muurAchter);
     for (const s of [-1, 1]) vak(W / 2 - B / 2, 0.07, 0.012, s * (B / 2 + (W / 2 - B / 2) / 2), 0.035, dik / 2 + 0.006, mat.plint);
-    kamerGroep = G; scene.add(G);
+    kamerGroep = G; scene.add(G); ruimte = { W, MH, voor, dik };
   }
 
   function zetUiterlijk(k = {}) {
