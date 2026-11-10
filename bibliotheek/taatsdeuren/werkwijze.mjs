@@ -83,8 +83,10 @@ export function stappen(o, keuzes = {}, U = UREN) {
   const V = o.sys.verwerking;
   if (V) for (const s of S) {
     if (s.titel === 'Voorbereiden en zagen') s.tekst = `Zaag de ${t.stukken} stukken volgens de zaaglijst en het zaagplan (staven van 6 m, bestellijst). ${V.zagen} Merk elk stuk met zijn positienummer uit de stuklijst.`;
-    else if (s.titel === 'Kader hechten en lassen') { s.tekst = `${t.hoeken} verstekhoeken. ${V.lassen} Meet de diagonalen voor en na het lassen.`; s.proces = 'MAG / puls-TIG'; }
-    else if (s.titel === 'Roeden plaatsen') { s.tekst = `${t.tees / 2} roeden. ${V.roeden}`; s.proces = 'MAG / puls-TIG'; }
+    else if (s.titel === 'Kader hechten en lassen') { s.tekst = `${t.hoeken} verstekhoeken. ${V.lassen}${V.uurHoek ? '' : ' Meet de diagonalen voor en na het lassen.'}`; s.proces = V.proces ?? 'MAG / puls-TIG'; if (V.lassenTitel) s.titel = V.lassenTitel; if (V.uurHoek) s.uren = Math.round(t.hoeken * V.uurHoek * 100) / 100; }
+    else if (s.titel === 'Roeden plaatsen') { s.tekst = `${t.tees / 2} roeden. ${V.roeden}`; s.proces = V.proces ?? 'MAG / puls-TIG'; if (V.roedenTitel) s.titel = V.roedenTitel; if (V.uurTee) s.uren = Math.round(t.tees * V.uurTee * 100) / 100; }
+    else if (s.titel === 'Taatsplaten en greephouders' && V.taats) { s.titel = 'Pivot en greep monteren'; s.uren = Math.round(0.6 * o.vleugels.length * 100) / 100; s.tekst = V.taats; }
+    else if (s.titel === 'Klaarmaken voor de coater' && V.coat) s.tekst = V.coat;
     else if (s.titel === 'Glaslatten en latten op de roeden') { s.titel = 'Glaslatten op maat'; s.uren = Math.round(t.latM * U.latPerM * 0.5 * 100) / 100; s.tekst = `Zaag de glaslatten op maat per ruitzijde (${(Math.round(t.latM * 10) / 10).toString().replace('.', ',')} m, zie de stuklijst) en merk ze; ze worden bij het glazen vastgezet. ${o.sys.glaslat.uitleg}.`; }
     else if (s.titel === 'Glazen') s.tekst = `${t.ruiten} ruiten ${o.opbouw === 'dubbel' ? 'isolerend glas 44.2 | 14 | 6 gehard' : 'veiligheidsglas 44.2'}. ${V.glas}`;
   }

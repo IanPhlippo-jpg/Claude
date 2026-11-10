@@ -316,6 +316,7 @@ function teken() {
   if (staat.systeem !== 'auto' && o.sysKey !== staat.systeem) melding.push(`Het profiel ${SYSTEMEN[staat.systeem].kort} past niet bij ${SYSTEMEN[staat.systeem].geenBoog && s.boven !== 'recht' ? 'een boog (een geïsoleerd profiel buigen kan alleen bij de fabrikant)' : 'dit glas of scharnier'}: ${o.sys.kort} genomen.`);
   if (staat.gebruik === 'buiten' && !o.sys.iso) melding.push(`Buiten vraagt geïsoleerde deurprofielen (Janisol Arte 2.0 of Forster unico); die bestaan niet met een boog: ${o.sys.kort} genomen (niet geïsoleerd).`);
   if (o.opbouw !== staat.opbouw) melding.push('Buiten en bij geïsoleerde deurprofielen altijd isolerend glas: dubbel glas genomen.');
+  if (o.sys.pivot && k.scharnier !== staat.scharnier) melding.push(`${o.sys.kort}: ${SCHARNIEREN[k.scharnier].naam.replace(/^Pivot: /, 'pivot ')}, uit de webshop van Du Pont.`);
   const mv = o.sys.maxVleugel; if (mv && o.vleugels.some((v) => v.B > mv.B || v.H > mv.H)) melding.push(`De vleugel is groter dan ${o.sys.kort} toelaat (${mv.B} x ${mv.H} mm).`);
   if (k.gewicht.vleugels.some((x) => x > maxKg)) melding.push(`De vleugel weegt ${k.gewicht.vleugels.map(Math.round).join(' en ')} kg: meer dan ${SCHARNIEREN[k.scharnier].kort.toLowerCase()} draagt (${maxKg} kg).`);
   $('melding').hidden = !melding.length; $('melding').textContent = melding.join(' ');

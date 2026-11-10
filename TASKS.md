@@ -1279,3 +1279,10 @@ elease; README en docs/04 bijgewerkt
 - [x] Profielen zichtbaar: doorsnede per profiel met sponning en artikelnummer op de opengewerkte tekening, het werkblad en elk stukblad; verstekken rood
 - [x] Plannen per deur in deurprofielen (pdf-koop per systeem): werkblad, opengewerkt, stuklijst, onderdelen, bestellijst en stuk per stuk
 - [x] Tests, pagina en presentatietool bijwerken, foto's, commit en push
+
+## Deuren uit de profielen van Darby Doors (aluminium) (2026-11-10)
+- [x] Catalogus van Darby Doors (Du Pont) opzoeken: deurprofielen niet los te koop; losse alu-profielen en pivots wel
+- [x] Vragen aan Ian: verbinden met hoekverbinders en schroeven
+- [x] Systeem 'Alu Du Pont': koker 50x25x2 en 60x30x2, L 20x10x2, Revolta-pivot, hoek- en T-verbinders (doorsneden, kg/m, prijzen, montage)
+- [x] Plannen: werkblad, profielen, opengewerkt, stuklijst, bestellijst en stuk per stuk met de Du Pont-artikelen
+- [x] Configurator, presentatietool, tests, PDF's, foto's, commit en push

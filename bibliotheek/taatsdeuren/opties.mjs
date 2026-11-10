@@ -71,6 +71,10 @@ export const SCHARNIEREN = {
   budget: { soort: 'pivot', naam: 'Pivot: Argenta Pivotica Pro 150', kort: 'Pivot', maxKg: 150, prijs: 242.37, per: 'vleugel', bron: 'https://www.beslist.be/products/klussen/klussen_486170_6356938/r/*_set/page_8; tot 150 kg: arlu.be/nl/producten/pivotica' },
   premium: { soort: 'pivot', naam: 'Pivot: FritsJurgens System M+ (System One bij 60 diep)', kort: 'Pivot premium', maxKg: 150, maxKgDiep: 500, prijs: 800, per: 'vleugel', bron: 'schatting: alleen via partners (fritsjurgens.com, 80-150 kg bij 40 mm); Galaxus.be toonde € 559 (System M 32)' },
   verdekt: { soort: 'verdekt', naam: 'Verdekt: 3 x Argenta Invisible Neo L-7 met RVS-lasbak', kort: 'Verdekte scharnieren', maxKg: 145, aantal: 3, prijs: 75 + 35, per: 'scharnier', bron: 'Neo vanaf € 51,58 (bricozor.com), L-7 schatting € 75; lasbak voor staal (Argenta) schatting € 35; 145 kg met 3 bij 1030 breed (santens.be, technische fiche Neo L7)' },
+  // pivots uit de webshop van Du Pont (Darby Doors), voor de aluminium deur
+  revolta100: { soort: 'pivot', naam: 'Pivot: Revolta SLIM tot 100 kg, zwart, voor metalen deuren (REV.100.ZWART.ALU)', kort: 'Revolta 100', maxKg: 100, prijs: 134, per: 'vleugel', bron: 'webshop.du-pont.be, F04 Pivoterende scharnieren, lijstprijs excl. btw (10/11/2026)' },
+  revolta120: { soort: 'pivot', naam: 'Pivot: Revolta tot 120 kg, zwart (REV.120.ZWART)', kort: 'Revolta 120', maxKg: 120, prijs: 155, per: 'vleugel', bron: 'idem' },
+  pivotica150: { soort: 'pivot', naam: 'Pivot: Argenta Pivotica PRO tot 150 kg (0218 91500028)', kort: 'Pivotica PRO 150', maxKg: 150, prijs: 298.48, per: 'vleugel', bron: 'idem' },
   verdektZwaar: { soort: 'verdekt', naam: 'Verdekt: 3 x Simonswerk Tectus TE 640 3D met stalen delen', kort: 'Verdekt zwaar', maxKg: 250, aantal: 3, prijs: 260, per: 'scharnier', bron: 'schatting: TE 540 3D £ 122-199 (priceandoliver.co.uk); TE 640 200 kg met 2 (schreuderenco.nl productblad)' },
 };
 export const SCHARNIER_UITLEG = {

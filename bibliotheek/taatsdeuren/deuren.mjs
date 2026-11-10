@@ -29,6 +29,27 @@ export const SYSTEMEN = {
     verwerking: { zagen: 'Zaag de profielen op een koude cirkelzaag of lintzaag (verstek 45°), ontbramen.', lassen: 'Las de verstekken op de lastafel met MAG of puls-TIG (± 40-60 A, wand 1,5 mm), kort en beurtelings; gebruik een koperen lasmal tegen doorzakken. Slijp de zichtkant vlak.', roeden: 'Las de roeden 30.006 Z stomp tegen het kader (rondom, MAG of puls-TIG), op dezelfde diepte als de sponning.', glas: 'Leg het glas op blokjes in de sponning, glaslatten 402.120 Z op de tapeinden 450.009, dichting 455.027-029.' },
     // Economy 50: glas 5-27 mm bij deuren, 5-35 mm bij ramen; vleugel tot 230 kg, 530-2440 x 1915-2500 (heinze.de); Uf 5,1
   },
+  darby: {
+    naam: 'Aluminium Du Pont (Darby Doors), geschroefd',
+    kader: { zicht: 25, diepte: 50, staaf: 'dupontKoker5025', uitleg: 'koker 50x25x2 alu (0709 RH502520A), 25 in zicht en 50 diep, hoeken in verstek met hoekverbinders' },
+    roede: { zicht: 25, diepte: 50, staaf: 'dupontKoker5025', lat: null, uitleg: 'dezelfde koker 50x25x2 als roede, met T-verbinders' },
+    glaslat: { staaf: 'dupontL2010', uitleg: 'L-profiel 20x10x2 alu (0709 L201020A) voor en achter rond elke ruit, met kleefkit en RVS-boorschroefjes' },
+    kozijn: { zicht: 30, diepte: 60, staaf: 'dupontKoker6030', uitleg: 'koker 60x30x2 alu (0709 RH603020A)' },
+    boog: { kern: 10, lagenKader: 5, uitleg: 'geen bogen: aluminiumprofiel buigen kan alleen bij een walserij' },
+    glasMax: 10, kort: 'Alu Du Pont', koop: true, alu: true, gebruik: 'binnen', geenBoog: true, geenVerdekt: true, glaslatRondom: 2, pivot: true,
+    maxVleugel: { B: 1250, H: 2700, kg: 150 }, leverancier: 'Du Pont bv (Darby Doors), Grobbendonk: webshop.du-pont.be, info@du-pont.be, 03 464 00 91',
+    verwerking: {
+      zagen: 'Zaag de kokers en L-profielen op een afkortzaag met een aluminiumblad (negatieve spaanhoek), verstek 45°; ontbramen en de zaagsnede ontvetten.',
+      lassenTitel: 'Kader samenbouwen (hoekverbinders)', uurHoek: 0.25, proces: 'geschroefd',
+      lassen: 'Steek in elke hoek een hoekverbinder in beide kokers, smeer de verstekvlakken in met 2K-lijm of MS-kit, druk de hoek dicht op de lastafel (haakse aanslagen) en zet de stelschroeven vast. Diagonalen gelijk (± 1 mm).',
+      roedenTitel: 'Roeden plaatsen (T-verbinders)', uurTee: 0.2,
+      roeden: 'Zaag de roede recht op de daglichtmaat, schroef een T-verbinder in elk uiteinde en zet hem vast in het kader (stelschroef van achter); kit de naad.',
+      glas: 'Kit de vaste L-profielen voor rond elke ruit, leg het glas op blokjes, zet de achterste L-profielen met kit en RVS-boorschroefjes 3,5 mm om de 300 mm.',
+      coat: 'Ontvetten en laten voorbehandelen voor aluminium (beitsen en conversielaag), daarna poedercoaten in RAL; of de geanodiseerde kleur laten.',
+      taats: 'Monteer de Revolta-pivot: het bovenplaatje in de bovenregel van de vleugel, het bodemplaatje op de vloer; as 100 mm uit de scharnierkant.',
+    },
+    // geschroefd aluminium (Ian: hoekverbinders en schroeven); profielen en pivots van webshop.du-pont.be
+  },
   janisol: {
     naam: 'Jansen Janisol Arte 2.0 (koopprofielen, buiten, geïsoleerd)',
     kader: { zicht: 40, diepte: 60, staaf: 'janisol603611', uitleg: 'Janisol Arte 2.0, vleugel 603.611 Z (40 x 60, geïsoleerd)' },
@@ -570,7 +591,7 @@ export function lijsten(o) {
       const zelfde = (Math.abs(a[0] - b[0]) < 0.01 && (Math.abs(a[0] - k) < 0.01 || Math.abs(a[0] - xi1) < 0.01)) || (Math.abs(a[1] - b[1]) < 0.01 && Math.abs(a[1] - k) < 0.01);
       return t + (op(a) && op(b) && zelfde ? Math.hypot(b[0] - a[0], b[1] - a[1]) : 0); }, 0), 0);
     // koopprofielen: één glaslat rondom elke ruit (de andere kant is de sponning van het profiel, ook bij de roeden)
-    if (sys.koop) staaf(`${deel}: glaslatten rondom elke ruit`, sys.glaslat.staaf, v.ruiten.reduce((s, p) => s + p.reduce((t, a, i) => { const b = p[(i + 1) % p.length]; return t + (Math.abs(a[0] - b[0]) < 0.01 || Math.abs(a[1] - b[1]) < 0.01 ? Math.hypot(b[0] - a[0], b[1] - a[1]) : 0); }, 0), 0), 1, sys.glaslat.uitleg);
+    if (sys.koop) staaf(`${deel}: glaslatten rondom elke ruit`, sys.glaslat.staaf, v.ruiten.reduce((s, p) => s + p.reduce((t, a, i) => { const b = p[(i + 1) % p.length]; return t + (Math.abs(a[0] - b[0]) < 0.01 || Math.abs(a[1] - b[1]) < 0.01 ? Math.hypot(b[0] - a[0], b[1] - a[1]) : 0); }, 0), 0), sys.glaslatRondom ?? 1, sys.glaslat.uitleg);
     else staaf(`${deel}: glaslatten in het kader (voor en achter)`, sys.glaslat.staaf, recht - langsPaneel, 2, 'in stukken op maat zagen bij het glazen');
     for (const p of v.panelen ?? []) { const [x0, y0, x1, y1] = kaderVan(p); voeg(laser, `paneel|${deel}|${Math.round(x1 - x0)}|${Math.round(y1 - y0)}`, { wat: `${deel}: paneel (ingelast)`, vorm: 'plaat', b: Math.round(y1 - y0 - 2), l: Math.round(x1 - x0 - 2), t: 3, n: 1, mat: 'S235, plaat 3 mm', opm: '1 mm speling rondom, hechten om de 100' }); }
     if (rond) voeg(laser, `glaslat boog|${deel}`, { wat: `${deel}: glaslat in de boog van het kader`, vorm: 'boog', r: v.B / 2 - k - 7.5, zicht: 15, hoek: 180, t: 4, n: 2, mat: 'S235, plaat 4 mm', opm: 'voor gelast, achter geschroefd' });
@@ -582,8 +603,8 @@ export function lijsten(o) {
   for (const v of o.vleugels) {
     staaf('greep voor en achter', 'rond25', MATEN.greep.lengte, 2, 'uiteinden rond slijpen; 2 gaten M8 per greep');
     if (o.scharnier === 'verdekt' && !sys.koop) staaf('kozijn: aanslag (boven en 2 zijden)', 'plat15x4', 2 * v.H + v.B, 1, 'op het kozijn gelast, de deur valt ertegen');
-    else if (o.scharnier !== 'verdekt') voeg(laser, 'taatsplaat onder', { wat: 'taatsplaat onder (in de onderregel)', vorm: 'plaat', b: 36, l: 220, t: 8, n: 1, mat: 'S235, plaat 8 mm', opm: '2 gaten M8 voor het scharnier' });
-    if (o.scharnier !== 'verdekt') voeg(laser, 'taatsplaat boven', { wat: 'taatsplaat boven (in de bovenregel)', vorm: 'plaat', b: 36, l: 140, t: 8, n: 1, mat: 'S235, plaat 8 mm', opm: 'boring Ø20 voor de bovenpen' });
+    else if (o.scharnier !== 'verdekt' && !sys.pivot) voeg(laser, 'taatsplaat onder', { wat: 'taatsplaat onder (in de onderregel)', vorm: 'plaat', b: 36, l: 220, t: 8, n: 1, mat: 'S235, plaat 8 mm', opm: '2 gaten M8 voor het scharnier' });
+    if (o.scharnier !== 'verdekt' && !sys.pivot) voeg(laser, 'taatsplaat boven', { wat: 'taatsplaat boven (in de bovenregel)', vorm: 'plaat', b: 36, l: 140, t: 8, n: 1, mat: 'S235, plaat 8 mm', opm: 'boring Ø20 voor de bovenpen' });
     voeg(laser, 'greephouder', { wat: 'greephouder (afstandsstuk)', vorm: 'plaat', b: 25, l: 40, t: 10, n: o.stijl.vleugels === 2 ? 2 : 2, mat: 'S235, plaat 10 mm', opm: 'boring M8 voor de greep' });
   }
   return { zaag, laser, glas };

@@ -1,7 +1,7 @@
 // Prijzen en kostprijs van een taatsdeur (excl. btw). Elke prijs heeft een bron; 'schatting' = geen prijs gevonden,
 // vraag een offerte. Opgezocht op 2026-11-10. Werkt in Node en in de browser.
 import { lijsten, laserKg, gewicht } from './deuren.mjs';
-import { stappen, UREN } from './werkwijze.mjs';
+import { stappen, UREN, telling } from './werkwijze.mjs';
 import { GLAS, OPBOUW, SCHARNIEREN, RAL, METALLIC } from './opties.mjs';
 import { zaagplan } from './bestel.mjs';
 
@@ -28,6 +28,10 @@ export const STAAF = {
   janisol603611: { naam: 'Jansen 603.611 Z (Janisol Arte 2.0, vleugel 40 x 60)', artikel: '603.611 Z', koop: true, zicht: 40, diepte: 60, wand: 1.5, iso: [20, 40], lengte: 6000, kgm: 2.25, prijs: 40.5, omtrek: 200, bron: 'idem; schatting € 18/kg' },
   janisol601615: { naam: 'Jansen 601.615 Z (Janisol Arte 2.0, T-profiel 40 x 60)', artikel: '601.615 Z', koop: true, zicht: 40, diepte: 60, wand: 1.5, iso: [20, 40], lengte: 6000, kgm: 3.02, prijs: 54.36, omtrek: 220, bron: 'idem; schatting € 18/kg' },
   janisol405022: { naam: 'Jansen glaslat 405.022 (15 x 20, met clip 450.026)', artikel: '405.022', koop: true, lengte: 6000, kgm: 0.2, prijs: 6, omtrek: 50, bron: 'gewicht 0,16-0,26 kg/m (Feon 08/2020, Janisol Arte); prijs: schatting' },
+  // ---- aluminium uit de webshop van Du Pont (Darby Doors, Grobbendonk), staven van 6 m, per meter; kg/m berekend (2,7 kg/dm³)
+  dupontKoker5025: { naam: 'koker 50x25x2 alu (Du Pont 0709 RH502520A)', artikel: '0709 RH502520A', koop: true, alu: true, mat: 'aluminium, geanodiseerd', zicht: 25, diepte: 50, wand: 2, lengte: 6000, kgm: 0.77, prijs: 12.27, omtrek: 150, bron: 'webshop.du-pont.be, D22 Profielen ALU, lijstprijs excl. btw (10/11/2026)' },
+  dupontKoker6030: { naam: 'koker 60x30x2 alu (Du Pont 0709 RH603020A)', artikel: '0709 RH603020A', koop: true, alu: true, mat: 'aluminium, geanodiseerd', zicht: 30, diepte: 60, wand: 2, lengte: 6000, kgm: 0.93, prijs: 15.0, omtrek: 180, bron: 'webshop.du-pont.be, D22 Profielen ALU, lijstprijs excl. btw (10/11/2026)' },
+  dupontL2010: { naam: 'L-profiel 20x10x2 alu (Du Pont 0709 L201020A)', artikel: '0709 L201020A', koop: true, alu: true, mat: 'aluminium, geanodiseerd', L: [20, 10, 2], lengte: 6000, kgm: 0.151, prijs: 3.56, omtrek: 60, bron: 'webshop.du-pont.be, D22 Profielen ALU, lijstprijs excl. btw (10/11/2026)' },
   forster531755: { naam: 'Forster 531.755 (unico, deurkozijn 90 x 70)', artikel: '531.755', koop: true, zicht: 90, diepte: 70, wand: 1.5, iso: [20, 50], lengte: 6000, kgm: 4.87, prijs: 87.66, omtrek: 320, bron: 'Forster-planningsdocument 988320 unico (03/21), p. 146-154 (forster-profile.ch); breedte uit de doorsnede afgelezen; prijs: schatting € 18/kg, offerte via Forster Belux (Duffel)' },
   forster533751: { naam: 'Forster 533.751 (unico, vleugel 65 x 70)', artikel: '533.751', koop: true, zicht: 65, diepte: 70, wand: 1.5, iso: [20, 50], lengte: 6000, kgm: 3.95, prijs: 71.1, omtrek: 270, bron: 'idem; schatting € 18/kg' },
   forster531722: { naam: 'Forster 531.722 (unico, T-profiel 60 x 70)', artikel: '531.722', koop: true, zicht: 60, diepte: 70, wand: 1.5, iso: [20, 50], lengte: 6000, kgm: 2.919, prijs: 52.54, omtrek: 260, bron: 'idem; schatting € 18/kg' },
@@ -51,6 +55,8 @@ export const PRIJS = {
   gasMenggasPerL: { v: 40.5 / 4000, bron: 'K15 20 l (± 4000 l gas) € 49 incl. btw: https://www.weld-toorts.be/category/55/Gasflessen' },
   gasArgonPerL: { v: 44.5 / 4000, bron: 'argon 20 l € 53,85 incl. btw: https://www.weld-toorts.be/category/55/Gasflessen' },
   tigDraad: { v: 7.14, bron: 'SG2 Ø2,4, 5 kg € 35,70: https://www.valkenpower.com/de_DE/shop/inetig24m5-schweißstab-tig-stahl-sg2-24mm-1-meter-5kg-51470' },
+  hoekverbinder: { v: 3.5, bron: 'schatting: hoekverbinder voor koker 50x25x2 / 60x30x2 (aluminium of zamak met stelschroeven); Du Pont verkoopt ze niet, vraag een aluminiumhandel' },
+  tVerbinder: { v: 3, bron: 'schatting: T-verbinder voor koker 50x25x2' },
   klein: { v: 25, bron: 'schatting: glaskit, glasblokjes, RVS-schroeven M4, ankers voor het kozijn' },
   schijven: { v: 10, bron: 'schatting: slijp- en fiberschijven, wolfraam' },
 };
@@ -90,18 +96,24 @@ export function kostprijs(o, k = {}) {
   const G0 = gewicht(o, STAAF), zwaarste = Math.max(...G0.vleugels);
   let sk = SCHARNIEREN[K.scharnier] ? K.scharnier : 'budget';
   if (sk === 'verdekt' && zwaarste > SCHARNIEREN.verdekt.maxKg) sk = 'verdektZwaar';
+  // aluminium deur: de pivot van Du Pont die het gewicht draagt
+  if (o.sys.pivot && SCHARNIEREN[sk].soort === 'pivot') sk = ['revolta100', 'revolta120', 'pivotica150'].find((x) => zwaarste <= SCHARNIEREN[x].maxKg) ?? 'pivotica150';
   const sch = PRIJS.scharnier[sk], aantal = (SCHARNIEREN[sk].aantal ?? 1) * o.vleugels.length;
   regel(`Scharnier: ${sch.naam}${SCHARNIEREN[sk].aantal ? ` (${aantal} stuks)` : ` x ${o.vleugels.length}`}`, sch.v * aantal, sch.bron);
   const m2 = oppervlak(L);
   if (K.afwerking === 'natlak') regel(`Natlak zelf (${r2(m2)} m², primer + 2K)`, m2 * PRIJS.natlakPerM2.v + 15, PRIJS.natlakPerM2.bron);
   else {
     const kleur = RAL.find((c) => c.code === K.ral) ?? RAL[0], meer = kleur.metallic ? 1 + PRIJS.metallic.v : 1;
-    regel(`Stralen en poedercoaten RAL ${kleur.code} ${kleur.naam} (${r2(m2)} m²)`, Math.max(PRIJS.coatMin.v, m2 * (PRIJS.poedercoat.v * meer + PRIJS.stralen.v)), kleur.metallic ? `${PRIJS.poedercoat.bron}; ${PRIJS.metallic.bron}` : PRIJS.poedercoat.bron);
+    regel(`${o.sys.alu ? 'Voorbehandelen (aluminium) en poedercoaten' : 'Stralen en poedercoaten'} RAL ${kleur.code} ${kleur.naam} (${r2(m2)} m²)`, Math.max(PRIJS.coatMin.v, m2 * (PRIJS.poedercoat.v * meer + (o.sys.alu ? 0 : PRIJS.stralen.v))), kleur.metallic ? `${PRIJS.poedercoat.bron}; ${PRIJS.metallic.bron}` : PRIJS.poedercoat.bron);
   }
   // lassen: draad ± 1 % van het staalgewicht, gas en wolfraam/TIG-draad naar de lasuren
   // K.uren: eigen standaarduren per handeling (instellingen), anders die uit werkwijze.mjs
   const G = G0, S = stappen(o, { ...K, scharnierModel: sk }, { ...UREN, ...(K.uren ?? {}) }), lasUren = S.filter((s) => /lassen|Roeden|Bogen|Taats|latten/i.test(s.titel)).reduce((t, s) => t + s.uren, 0);
-  regel('Lasdraad, gas, TIG-draad', G.staal * 0.012 * PRIJS.lasdraad.v + lasUren * 0.5 * 60 * 12 * PRIJS.gasMenggasPerL.v + lasUren * 0.5 * 60 * 8 * PRIJS.gasArgonPerL.v + lasUren * 0.1 * PRIJS.tigDraad.v, `${PRIJS.lasdraad.bron}; ${PRIJS.gasMenggasPerL.bron}`);
+  if (o.sys.alu) {
+    // geschroefd: hoekverbinders in de kokers, T-verbinders voor de roeden, RVS-schroeven (niet bij Du Pont: schatting)
+    const tl = telling(o);
+    regel(`Hoekverbinders (${tl.hoeken}) en T-verbinders (${tl.tees}) voor de kokers, RVS-schroeven en kleefkit`, tl.hoeken * PRIJS.hoekverbinder.v + tl.tees * PRIJS.tVerbinder.v + 15, PRIJS.hoekverbinder.bron);
+  } else regel('Lasdraad, gas, TIG-draad', G.staal * 0.012 * PRIJS.lasdraad.v + lasUren * 0.5 * 60 * 12 * PRIJS.gasMenggasPerL.v + lasUren * 0.5 * 60 * 8 * PRIJS.gasArgonPerL.v + lasUren * 0.1 * PRIJS.tigDraad.v, `${PRIJS.lasdraad.bron}; ${PRIJS.gasMenggasPerL.bron}`);
   regel('Kit, blokjes, schroeven, schijven', PRIJS.klein.v + PRIJS.schijven.v, 'schatting');
   const materiaal = regels.reduce((s, r) => s + r.bedrag, 0);
   const uren = S.reduce((t, s) => t + s.uren, 0);

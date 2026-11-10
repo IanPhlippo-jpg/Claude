@@ -185,11 +185,18 @@ Elke stijl is een combinatie van bouwstenen in `deuren.mjs` (STIJLEN). Een nieuw
   | Jansen Economy 50 (binnen) | 30.007 Z, 50 x 50 | 30.407 Z, 50 x 50 | 30.006 Z, 25 x 50 | 402.120 Z | 5-27 mm | Feon-profiellijst 08/2020, heinze.de |
   | Janisol Arte 2.0 (buiten) | 602.611 Z, 40 x 60 | 603.611 Z, 40 x 60 | T 601.615 Z, 40 x 60 | 405.022 + clip 450.026 | 20-47 mm | Janisol Arte 2.0-catalogus, Feon |
   | Forster unico (buiten) | 531.755, 90 x 70 | 533.751, 65 x 70 | T 531.722, 60 x 70 | 901227 + clip 906577 | 20-54,5 mm | Forster 988320 (03/21) |
+  | Aluminium Du Pont / Darby Doors (binnen, geschroefd) | koker 60x30x2 alu, 0709 RH603020A | koker 50x25x2 alu, 0709 RH502520A | dezelfde koker 50x25x2 | L 20x10x2 alu, 0709 L201020A, voor en achter | 44.2 (8,8 mm) | webshop.du-pont.be (lijstprijs per meter, 10/11/2026) |
 
   Prijs per meter is nergens publiek: gerekend met het gewicht en een geschatte € 12/kg (Economy) en € 18/kg
   (geïsoleerd), in hele staven volgens het zaagplan. Offerte: Jansen (Breda) info.belgium@jansen.com, Forster Belux
   (Reynaers, Duffel) info.belux@forstersystems.com. Hoeken in verstek gelast (Forster: lasmal 989210); bij een
   geïsoleerd profiel enkel de stalen schalen lassen. De uiteinden van de roeden passend uitzagen rond de sponning.
+- **Aluminium uit de webshop van Du Pont (Darby Doors, Grobbendonk):** Darby verkoopt zijn deurprofielen (SAS-001,
+  SAS-007, SAS-020) niet los, enkel afgewerkte deuren; daarom een geschroefde deur uit hun losse aluminium profielen
+  (kokers en L-profielen per meter, staven van 6 m): verstek met hoekverbinders en 2K-lijm, roeden met T-verbinders,
+  het glas tussen twee L-profielen. Pivot van Du Pont: Revolta SLIM tot 100 kg (REV.100.ZWART.ALU, € 134), daarboven
+  Revolta 120 kg of Argenta Pivotica PRO 150 kg. Hoek- en T-verbinders verkoopt Du Pont niet: schatting € 3,50 en € 3.
+  Aluminium wordt voorbehandeld (niet gestraald) en gepoedercoat. Geen bogen.
 - **Bogen:** lasergesneden uit plaat 10 mm (kern 20 breed) met latten van 3 mm; de boog van het kader en het kozijn
   is 4 lagen van 10 mm op elkaar gelast.
 - **Paneel:** plaat 3 mm, 1 mm kleiner dan het vak, op afstandsblokken in het midden van de diepte, gehecht om de

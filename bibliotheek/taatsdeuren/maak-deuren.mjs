@@ -37,7 +37,8 @@ const alle = [], overzicht = [];
 if (KOOP) {
   // de deurprofielen: per systeem een map, per deur één PDF (werkblad, opengewerkt, profielen, stuklijst, onderdelen,
   // bestellijst, dossier A4 en elk stuk apart op A4)
-  for (const key of ['systeem', 'janisol', 'forster']) {
+  const welke = process.argv.slice(process.argv.indexOf('--koop') + 1);
+  for (const key of welke.length ? welke : ['systeem', 'janisol', 'forster', 'darby']) {
     const sys = SYSTEMEN[key], map = join(HERE, 'pdf-koop', sys.kort.replace(/\s+/g, '-'));
     mkdirSync(map, { recursive: true });
     let n = 0;

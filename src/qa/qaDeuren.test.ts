@@ -69,7 +69,7 @@ describe('taatsdeuren', () => {
     const s = STIJLEN.find((x: { id: string }) => x.id === id);
     // eigen kokers (enkel, dubbel glas met verdekte scharnieren) en de deurprofielen: Jansen Economy 50 (binnen), buiten
     // automatisch (Janisol Arte 2.0, of een koker als de stijl een boog heeft) en Forster unico met FritsJurgens
-    for (const k of [{}, { scharnier: 'verdekt', opbouw: 'dubbel' }, { systeem: 'systeem' }, { gebruik: 'buiten' }, { systeem: 'forster', scharnier: 'premium' }]) {
+    for (const k of [{}, { scharnier: 'verdekt', opbouw: 'dubbel' }, { systeem: 'systeem' }, { gebruik: 'buiten' }, { systeem: 'forster', scharnier: 'premium' }, { systeem: 'darby' }]) {
       const o = ontwerp(id, s.std.B, s.std.H, k), { bladen, posities } = stukBladen(o, k);
       type Pos = { soort: string; naam: string; n: number; kg: number; pos: number };
       const delen = [o.kozijn, ...o.vleugels, ...o.vast].flatMap((g: { delen: { a?: P; soort: string }[] }) => g.delen.filter((d) => d.a));
