@@ -14,6 +14,7 @@ export const UREN = {
   latPerM: 0.12, // glaslat of lat op de roede: hechten om de 150, per meter
   tappenPerGat: 0.03, // M4 tappen voor de losse latten
   taatsplaten: 0.6, // taatsplaten inlassen en boren, greephouders
+  verdekt: 0.5, // per verdekt scharnier: uitsparing in stijl en kozijn, lasbak inlassen in lijn, scharnier passen
   richten: 0.5, // per vleugel: richten op de lastafel, vlakheid nameten
   coatKlaar: 0.8, // ontvetten, maskeren, naar de coater (poedercoat)
   natlakken: 3.0, // zelf: ontvetten, primer, 2 lagen 2K, droogtijd niet meegeteld
@@ -21,6 +22,7 @@ export const UREN = {
   paneel: 0.6, // stalen paneel passen, in het midden van de diepte hechten, rondom lassen en slijpen
   plaatsen: 3.0, // kozijn stellen en verankeren, taatspot boren en stellen, deur hangen (budget)
   plaatsenPremium: 4.0, // idem met FritsJurgens (frezen van de pot, afstellen)
+  plaatsenVerdekt: 2.5, // kozijn stellen en verankeren, deur hangen en de scharnieren in 3D afstellen
 };
 
 /** aantal verbindingen en lengtes uit het ontwerp */
@@ -29,7 +31,9 @@ export function telling(o) {
   const alle = [...o.vleugels, ...o.vast];
   let hoeken = 0, tees = 0, boogV = 0, boogKaderM = 0;
   for (const v of o.vleugels) hoeken += v.delen.filter((d) => d.soort === 'kader').length; // 4 hoeken bij 4 kaderdelen
-  hoeken += o.kozijn.delen.filter((d) => d.soort === 'kozijn' && d.a && Math.abs(d.a[1] - d.b[1]) < 1e-6).length * 2; // regel van het kozijn: 2 hoeken
+  const kozijnRegels = o.kozijn.delen.filter((d) => d.soort === 'kozijn' && d.a && Math.abs(d.a[1] - d.b[1]) < 1e-6);
+  hoeken += kozijnRegels.filter((d) => d.a[1] > o.kozijn.H - o.sys.kozijn.zicht).length * 2; // bovenregel van het kozijn: 2 hoeken
+  tees += (kozijnRegels.length - kozijnRegels.filter((d) => d.a[1] > o.kozijn.H - o.sys.kozijn.zicht).length) * 2 + o.kozijn.delen.filter((d) => d.soort === 'kozijn' && d.a && Math.abs(d.a[0] - d.b[0]) < 1e-6 && d.a[0] > o.sys.kozijn.zicht && d.a[0] < o.kozijn.B - o.sys.kozijn.zicht).length * 2; // kalf, onderregel en tussenstijl
   for (const v of alle) for (const d of v.delen) {
     if (d.soort === 'roede') tees += 2;
     if (d.soort === 'boog') boogV += 2;
@@ -61,7 +65,10 @@ export function stappen(o, keuzes = {}, U = UREN) {
     `${t.boogV / 2 === 1 ? "1 boog" : `${t.boogV / 2} bogen`}. Leg de lasergesneden boog op de mal 1:1 en hecht hem op de poten, het kalf of de staanders.${t.boogKaderM ? ` De boog van het kader en het kozijn bestaat uit lagen van 10 mm: klem de lagen op elkaar, hecht ze om de 100 mm en las de naden aan de buitenkant met MIG. Slijp ze daarna rond tot één geheel (${(Math.round(t.boogKaderM * 10) / 10).toString().replace('.', ',')} m boog).` : ''}`, 'TIG zichtkant · MIG lagen');
   if (t.panelen) stap('Paneel inlassen', t.panelen * (U.paneel ?? 0.6),
     `${t.panelen === 1 ? 'Het paneel' : `De ${t.panelen} panelen`} (plaat 3 mm, 1 mm kleiner dan het vak): leg ${t.panelen === 1 ? 'het' : 'ze'} op afstandsblokken van ${String((o.sys.kader.diepte - 3) / 2).replace('.', ',')} mm, zodat ${t.panelen === 1 ? 'het' : 'ze'} in het midden van de diepte ligt. Hecht om de 100 mm aan beide kanten en las beurtelings, kort (MIG, 17 V), zodat de plaat niet trekt. Slijp de zichtkant vlak.`, 'MIG');
-  stap('Taatsplaten en greephouders', U.taatsplaten * o.vleugels.length,
+  const verdekt = o.scharnier === 'verdekt', n3 = 3 * o.vleugels.length, zwaar = keuzes.scharnierModel === 'verdektZwaar';
+  if (verdekt) stap('Verdekte scharnieren inbouwen', n3 * (U.verdekt ?? 0.5) + 0.3 * o.vleugels.length,
+    `${n3} scharnieren (${zwaar ? 'Simonswerk Tectus TE 640 3D met de stalen delen' : 'Argenta Invisible Neo L-7 met de RVS-lasbak'}): 250 mm onder de bovenkant, 250 mm boven de onderkant en één in het midden. Teken de uitsparing in de scharnierstijl en in het kozijn af met de mal (${zwaar ? '240 x 32' : '170 x 32'} mm), boor de hoeken en zaag uit. Las de lasbakken in met een richtlat door alle drie, zodat ze in één lijn staan. Las 2 greephouders op de staander aan de sluitkant en het aanslagprofiel op het kozijn.`, 'TIG');
+  if (!verdekt) stap('Taatsplaten en greephouders', U.taatsplaten * o.vleugels.length,
     `Las de taatsplaat onder in de onderregel en de taatsplaat boven in de bovenregel. Leg ze op het hart van de taatsas: ${'100'} mm uit de scharnierkant. Boor en tap de gaten volgens het scharnier. Las 2 greephouders op de staander aan de sluitkant (hart 20 uit de rand).`, 'MIG');
   stap('Glaslatten en latten op de roeden', t.latM * U.latPerM + t.gaten * U.tappenPerGat,
     `Hecht de vaste latten aan de voorkant om de 150 mm (${(Math.round(t.latM * 10) / 10).toString().replace('.', ',')} m lat). Boor de losse latten aan de achterkant Ø3,3 en verzink ze. Tap in de kern en het kader M4 om de 250 mm (${t.gaten} gaten).`, 'TIG punten');
@@ -69,8 +76,8 @@ export function stappen(o, keuzes = {}, U = UREN) {
   if (nat) stap('Zelf natlakken', U.natlakken, 'Ontvetten met siliconenverwijderaar, 2K-epoxyprimer, 2 lagen 2K-PU-lak zwart mat. Laat 24 uur drogen voor het glazen.');
   else stap('Klaarmaken voor de coater', U.coatKlaar, 'Ontvetten, de getapte gaten afstoppen (siliconenpluggen), merken. Laten stralen (SA 2½) en poedercoaten in RAL 9005 structuur.');
   stap('Glazen', 0.5 + t.ruiten * U.glasPerRuit,
-    `${t.ruiten} ruiten 44.2. Leg glasblokjes (3 mm) onder elke ruit, kit tegen de vaste lat (transparante glaskit), zet de losse latten met M4 verzonken RVS.`);
-  stap('Plaatsen', premium ? U.plaatsenPremium : U.plaatsen,
-    `Stel het kozijn waterpas en loodrecht in de opening en veranker het (6 x 8 mm). Boor de taatspot in de vloer op het hart van de as, monteer de bovenpen in het kozijn, en hang en stel de deur. ${premium ? 'FritsJurgens: volgens de handleiding van het systeem frezen en de demping instellen.' : 'Budgetscharnier: de stelschroef op 1-2 mm speling onder de deur.'}`);
+    `${t.ruiten} ruiten ${o.opbouw === 'dubbel' ? 'dubbel glas 44.2 | 14 | 6 gehard (veiligheidsglas aan beide kanten)' : 'veiligheidsglas'}. Leg glasblokjes (3 mm) onder elke ruit, kit tegen de vaste lat (transparante glaskit), zet de losse latten met M4 verzonken RVS.`);
+  stap('Plaatsen', verdekt ? (U.plaatsenVerdekt ?? 2.5) : premium ? U.plaatsenPremium : U.plaatsen,
+    verdekt ? 'Stel het kozijn waterpas en loodrecht in de opening en veranker het (6 x 8 mm). Hang de deur aan de scharnieren en stel ze af in de drie richtingen (spleet rondom 4 mm, 10 mm onder de deur).' : `Stel het kozijn waterpas en loodrecht in de opening en veranker het (6 x 8 mm). Boor de taatspot in de vloer op het hart van de as, monteer de bovenpen in het kozijn, en hang en stel de deur. ${premium ? 'FritsJurgens: volgens de handleiding van het systeem frezen en de demping instellen.' : 'Budgetscharnier: de stelschroef op 1-2 mm speling onder de deur.'}`);
   return S;
 }

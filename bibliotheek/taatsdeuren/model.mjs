@@ -49,8 +49,8 @@ export function samenstelling(o, naam) {
     else at(nm, boogDeel(nm, STAAL, d, w, -t / 2, t / 2, dx, dy));
   };
   for (const d of o.kozijn.delen) deel(d, 0, 0, o.kozijn.B, o.kozijn.H, 'Kozijn');
-  const glasT = 8.8;
-  for (const [wat, groep] of [['Vleugel', o.vleugels], ['Zijlicht', o.vast]]) for (const [i, v] of groep.entries()) {
+  const glasT = o.glasDikte ?? 8.8;
+  for (const [wat, groep] of [['Vleugel', o.vleugels], ['Vast', o.vast]]) for (const [i, v] of groep.entries()) {
     for (const d of v.delen) deel(d, v.x, v.y, v.B, v.H, `${wat}${groep.length > 1 ? ` ${i + 1}` : ''}`);
     for (const [j, p] of v.ruiten.entries()) {
       const nm = `Glas ${wat.toLowerCase()} ${i + 1}.${j + 1}`;
@@ -72,12 +72,14 @@ export function samenstelling(o, naam) {
       // voet van 16 x 16 van het kader tot net in de greep
       for (const y of [y0 + 80, y0 + G.lengte - 80]) at('Greepvoet', blokZ('Greepvoet 16 x 16', RVS, xg - 8, y - 8, xg + 8, y + 8, s > 0 ? kd : -kd - G.voet - 2, s > 0 ? kd + G.voet + 2 : -kd));
     }
+    if (o.scharnier === 'verdekt') continue;
     const xa = v.taats === 'links' ? v.x + MATEN.taats : v.x + v.B - MATEN.taats;
     at('Taatspot (vloer)', cilinderY('Taatspot Ø60 (vloer)', BESLAG, xa, 0, 30, -40, 0));
     at('Taatsas onder', cilinderY('Taatsas Ø20 onder', BESLAG, xa, 0, 10, 0, v.y));
     // bovenpen tot onder het kozijn (bij een rond kozijn: tot onder de boog op de plaats van de as)
     const boog = o.kozijn.delen.find((d) => d.soort === 'boogkozijn');
-    const boven = boog ? boog.c[1] + Math.sqrt((boog.r - sys.kozijn.zicht / 2) ** 2 - (xa - boog.c[0]) ** 2) : o.kozijn.H - sys.kozijn.zicht;
+    const regels = o.kozijn.delen.filter((d) => d.a && Math.abs(d.a[1] - d.b[1]) < 1e-6 && d.a[1] > v.y + v.H && Math.min(d.a[0], d.b[0]) <= xa && Math.max(d.a[0], d.b[0]) >= xa);
+    const boven = boog ? boog.c[1] + Math.sqrt((boog.r - sys.kozijn.zicht / 2) ** 2 - (xa - boog.c[0]) ** 2) : Math.min(o.kozijn.H - sys.kozijn.zicht, ...regels.map((d) => d.a[1] - sys.kozijn.zicht / 2));
     const vTop = boog ? v.y + (v.H - v.B / 2) + Math.sqrt((v.B / 2) ** 2 - (xa - v.x - v.B / 2) ** 2) : v.y + v.H;
     // bij een ronde deur een vrije ruimte van 15 tegen het schuine vlak (de bovenpen zit daar in een beugel)
     const vrij = boog ? 15 : 0;

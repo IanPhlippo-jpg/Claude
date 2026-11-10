@@ -1,0 +1,21 @@
+Deurenconfigurator
+==================
+
+Dubbelklik op Deurenconfigurator.html: hij opent in je browser (Edge, Chrome, Firefox of Safari). Er is geen
+internet nodig en er hoeft niets geïnstalleerd te worden. Werkt ook op een laptop of tablet: kopieer dit ene bestand.
+
+Wat je kan doen:
+1. Model: 100 stalen deuren, per soort te filteren.
+2. Deurgat: breedte, hoogte en de dikte van de muur. De deur en de kamer passen zich meteen aan.
+3. Openen: pivot (taats) of verdekte scharnieren, met de scharnierkant links of rechts.
+4. Glas: enkel of dubbel glas, altijd veiligheidsglas; helder, extra helder, grijs, brons, mat, geribd, kathedraal of chinchilla.
+5. Kleur: de bekendste RAL-kleuren om te poedercoaten, in fijnstructuur, glad mat of zijdeglans.
+6. Profiel: automatisch het slankste profiel dat past, of zelf kiezen.
+
+Bovenaan: 3D in de kamer (slepen om rond te kijken, de deur open draaien, muur en vloer kiezen) of de tekening in 2D
+met de maten. Onderaan rechts: afdrukken of als PDF bewaren voor de klant, en het beeld opslaan.
+
+Instellingen (knop rechtsboven): de naam van je zaak, je contact, welke prijs de klant ziet (geen, kostprijs, of
+prijs excl. of incl. btw), je uurloon en je marge. Ze worden op dit toestel bewaard.
+
+Prijzen: opgezocht op 2026-11-10; "schatting" in de bronnen betekent dat er geen publieke prijs was.

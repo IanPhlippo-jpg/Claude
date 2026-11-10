@@ -24,20 +24,20 @@ function tabel(x, y, kol, rijen, h = 4.6, size = 2.3) {
   return [uit.join(''), h * (rijen.length + 1)];
 }
 
-/** doorsnede van de vleugel: kader met glas, glaslatten en een roede (schaal 1:2) */
-function doorsnede(sys, x, y) {
-  const s = 0.5, k = sys.kader, r = sys.roede, el = [];
+/** doorsnede van de vleugel: kader met glas (enkel of dubbel), glaslatten en een roede (schaal 1:2) */
+function doorsnede(o, x, y) {
+  const sys = o.sys, s = 0.5, k = sys.kader, r = sys.roede, el = [], gd = o.glasDikte ?? 8.8, m = k.diepte / 2;
   const R = (x0, y0, w, h, vul = '#2b2e31') => el.push(`<rect x="${x + x0 * s}" y="${y + y0 * s}" width="${w * s}" height="${h * s}" fill="${vul}" stroke="#111" stroke-width="0.2"/>`);
-  // kader (koker of profiel), glas 8,8 in het midden, latten 15x4 voor en achter
+  // glas in het midden: enkel = één ruit; dubbel = 44.2 | 14 | 6 met een afstandhouder
+  const glas = (x0, w) => { if (o.opbouw === 'dubbel') { R(x0, m - gd / 2, w, 8.8, '#cfdde3'); R(x0, m + gd / 2 - 6, w, 6, '#cfdde3'); R(x0 + 2, m - gd / 2 + 8.8, 8, 14, '#888'); } else R(x0, m - gd / 2, w, gd, '#cfdde3'); };
   R(0, 0, k.zicht, k.diepte);
-  if (sys === undefined) return '';
-  R(k.zicht + 2, k.diepte / 2 - 4.4, 70, 8.8, '#cfdde3');
-  R(k.zicht, k.diepte / 2 - 4.4 - 4, 15, 4); R(k.zicht, k.diepte / 2 + 4.4, 15, 4);
-  // roede: kern 20x10 en latten 30x3
-  const xr = k.zicht + 72;
-  R(xr, k.diepte / 2 - 5, 20, 10); if (r.lat) { R(xr - 5, k.diepte / 2 - 8, 30, 3); R(xr - 5, k.diepte / 2 + 5, 30, 3); }
-  R(xr + 22, k.diepte / 2 - 4.4, 50, 8.8, '#cfdde3');
-  el.push(T(x, y - 3, 'Doorsnede A-A (1:2): kader, glas 44.2, glaslatten, roede', 2.4, { vet: true }));
+  glas(k.zicht + 2, 70);
+  R(k.zicht, m - gd / 2 - 4, 15, 4); R(k.zicht, m + gd / 2, 15, 4);
+  // roede: kern zo dik als het glas, latten 30x3 voor en achter
+  const xr = k.zicht + 72, kd = r.lat ? r.diepte - 6 : r.diepte;
+  R(xr, m - kd / 2, 20, kd); if (r.lat) { R(xr - 5, m - kd / 2 - 3, 30, 3); R(xr - 5, m + kd / 2, 30, 3); }
+  glas(xr + 22, 50);
+  el.push(T(x, y - 3, `Doorsnede A-A (1:2): kader, ${o.opbouw === 'dubbel' ? 'dubbel glas 44.2 | 14 | 6 gehard' : 'veiligheidsglas'}, glaslatten, roede`, 2.4, { vet: true }));
   el.push(T(x, y + k.diepte * s + 5, `${k.uitleg}; ${r.uitleg}`, 2));
   return el.join('');
 }
@@ -52,7 +52,7 @@ export function werkblad(o, opts = {}) {
   const sc = 1 / sch;
   el.push(vooraanzicht(o, sc, 52, 268, { tekst: 3 }));
   el.push(T(52, 18, `Vooraanzicht (schaal 1:${sch}), van de kant met de greep`, 3, { vet: true }));
-  el.push(T(52, 22.5, 'Rode streep-punt: hart taatsas. Maten in mm; roedehoogtes op het hart, vanaf de onderkant van de vleugel.', 2.2));
+  el.push(T(52, 22.5, `${o.scharnier === 'verdekt' ? 'Rood: de 3 verdekte scharnieren en de draairichting (de punt wijst naar de scharnierkant).' : 'Rode streep-punt: hart taatsas.'} Maten in mm; roedehoogtes op het hart, vanaf de onderkant van de vleugel.`, 2.2));
   // rechts: lijsten
   let y = 16;
   const x = 214;
@@ -60,9 +60,9 @@ export function werkblad(o, opts = {}) {
   el.push(T(x, y + 2.5, 'Zaaglijst (staven)', 2.8, { vet: true }), zt); y += zh + 9;
   const [lt, lh] = tabel(x, y + 4, [['Lasergesneden', 70], ['Maat', 52, 0], ['n', 8, 1], ['Plaat / opmerking', 66]], Ls.laser.map((r) => [r.wat, r.vorm === 'boog' ? `R${g(r.r)} x ${r.zicht}, ${g(r.hoek)}°` : `${r.b} x ${r.l}`, r.n, `${r.mat}; ${r.opm}`]), 4.3, 2.15);
   el.push(T(x, y + 2.5, 'Laserlijst (DXF bij de configurator)', 2.8, { vet: true }), lt); y += lh + 9;
-  const [gt, gh] = tabel(x, y + 4, [['Glas 44.2', 50], ['Vorm', 28], ['Breedte', 20, 1], ['Hoogte', 20, 1], ['m²', 16, 1], ['n', 8, 1]], Ls.glas.map((r) => [r.deel, r.vorm, r.b, r.h, g(r.m2, 2), r.n]), 4.3, 2.15);
+  const [gt, gh] = tabel(x, y + 4, [[o.opbouw === 'dubbel' ? 'Dubbel glas' : 'Glas', 50], ['Vorm', 28], ['Breedte', 20, 1], ['Hoogte', 20, 1], ['m²', 16, 1], ['n', 8, 1]], Ls.glas.map((r) => [r.deel, r.vorm, r.b, r.h, g(r.m2, 2), r.n]), 4.3, 2.15);
   el.push(T(x, y + 2.5, `Glaslijst (glasmaat = daglicht + ${MATEN.inloop - 2} mm rondom)`, 2.8, { vet: true }), gt); y += gh + 12;
-  if (y < 205) el.push(doorsnede(o.sys, x + 4, y + 2));
+  if (y < 205) el.push(doorsnede(o, x + 4, y + 2));
   // prijs (als meegegeven) rechtsonder boven het titelblok
   if (opts.prijs) {
     const [pt] = tabel(x + 120, 214, [['Kostprijs', 52], ['€', 24, 1]], [...opts.prijs.regels.map(([a, b]) => [a, g(b)]), ['Totaal (excl. btw)', g(opts.prijs.totaal)]], 4.2, 2.15);

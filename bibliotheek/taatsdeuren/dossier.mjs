@@ -9,8 +9,8 @@ const link = (b) => (/^https?:/.test(b) ? `<a href="${esc(b)}">${esc(b.replace(/
 
 /** A4-blad met de kostprijs, het gewicht en de werkwijze */
 export function a4(o, keuzes = {}) {
-  const k = kostprijs(o, keuzes), G = k.gewicht, sch = PRIJS.scharnier[k.keuzes.scharnier];
-  const maxKg = k.keuzes.scharnier === 'premium' ? 350 : 150;
+  const k = kostprijs(o, keuzes), G = k.gewicht, sch = PRIJS.scharnier[k.scharnier];
+  const maxKg = k.maxKg;
   const zwaar = G.vleugels.some((x) => x > maxKg);
   return `<section class="a4">
 <h1>Taatsdeur ${esc(o.stijl.naam)} <span>opening ${o.B} x ${o.H} mm · ${esc(o.sys.naam)}</span></h1>

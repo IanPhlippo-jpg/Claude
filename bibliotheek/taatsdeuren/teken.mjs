@@ -32,9 +32,14 @@ export function vooraanzicht(o, s, ox, oy, { staal = '#2b2e31', glas = '#cfdde3'
   // taatsassen (streep-punt) en greep
   for (const v of o.vleugels) {
     const xa = v.taats === 'links' ? v.x + 100 : v.x + v.B - 100;
-    if (assen) el.push(`<line x1="${f(X(xa))}" y1="${f(Y(-60))}" x2="${f(X(xa))}" y2="${f(Y(v.y + v.H + 80))}" stroke="#b00" stroke-width="0.2" stroke-dasharray="6 1.2 1.2 1.2"/>`);
+    if (assen && o.scharnier === 'verdekt') {
+      // de 3 scharnieren op de scharnierkant en de draairichting: twee lijnen van de sluitkant naar het midden van de scharnierkant
+      const xs = v.taats === 'links' ? v.x : v.x + v.B, xo = v.taats === 'links' ? v.x + v.B : v.x;
+      for (const y of [v.y + 250, v.y + v.H / 2, v.y + v.H - 250]) el.push(`<rect x="${f(X(xs) - 0.6)}" y="${f(Y(y + 85))}" width="1.2" height="${f(170 * s)}" fill="#b00"/>`);
+      el.push(`<polyline points="${f(X(xo))},${f(Y(v.y))} ${f(X(xs))},${f(Y(v.y + v.H / 2))} ${f(X(xo))},${f(Y(v.y + v.H))}" fill="none" stroke="#b00" stroke-width="0.2" stroke-dasharray="3 1.5"/>`);
+    } else if (assen) el.push(`<line x1="${f(X(xa))}" y1="${f(Y(-60))}" x2="${f(X(xa))}" y2="${f(Y(v.y + v.H + 80))}" stroke="#b00" stroke-width="0.2" stroke-dasharray="6 1.2 1.2 1.2"/>`);
     const xg = v.taats === 'links' ? v.x + v.B - MATEN.greep.afstand : v.x + MATEN.greep.afstand;
-    el.push(`<rect x="${f(X(xg) - 12.5 * s)}" y="${f(Y(1050 + 400))}" width="${f(25 * s)}" height="${f(800 * s)}" rx="${f(12 * s)}" fill="#111" stroke="none"/>`);
+    el.push(`<rect x="${f(X(xg) - 12.5 * s)}" y="${f(Y(1050 + 400))}" width="${f(25 * s)}" height="${f(800 * s)}" rx="${f(12 * s)}" fill="${staal}" stroke="${lijn}" stroke-width="0.1"/>`);
   }
   // vloer
   el.push(`<line x1="${f(X(-120))}" y1="${f(Y(0))}" x2="${f(X(o.kozijn.B + 120))}" y2="${f(Y(0))}" stroke="${lijn}" stroke-width="0.5"/>`);

@@ -1,6 +1,6 @@
 // Maakt de bibliotheek stalen taatsdeuren: per stijl op de standaardmaat (of één deur op maat) het model (.kcad),
 // het werkblad (SVG), de DXF van de laserdelen en de ruiten, en één PDF per deur; daarna de bibliotheek-PDF.
-// Gebruik: node bibliotheek/taatsdeuren/maak-deuren.mjs                     (alle 50, standaardmaat)
+// Gebruik: node bibliotheek/taatsdeuren/maak-deuren.mjs                     (alle 100, standaardmaat)
 //          node bibliotheek/taatsdeuren/maak-deuren.mjs boog 1100 2500 [koker|systeem]   (één deur op maat)
 import { writeFileSync, mkdirSync, readFileSync, existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -45,7 +45,7 @@ for (const { s, B: b, H: h } of lijst) {
 }
 if (!id) {
   const blok = (i) => overzicht.slice(i, i + 28).join('');
-  const voor = [0, 28].filter((i) => i < overzicht.length).map((i) => `<section class="voor"><h1>Bibliotheek stalen taatsdeuren</h1>${i ? '' : `<p>${overzicht.length} stijlen, maten aanpasbaar (configurator). Per deur: werkblad A3 met maten, zaaglijst, laserlijst en glaslijst; kostprijs met bronnen en de werkwijze. Standaardmaat per stijl; kostprijs met koker en strip, glas 44.2 helder, budgetscharnier, poedercoat, € 45/u, plaatsen inbegrepen, excl. btw.</p>`}<div class="raster">${blok(i)}</div></section>`).join('');
+  const voor = Array.from({ length: Math.ceil(overzicht.length / 28) }, (_, j) => j * 28).map((i) => `<section class="voor"><h1>Bibliotheek stalen taatsdeuren</h1>${i ? '' : `<p>${overzicht.length} stijlen, maten aanpasbaar (configurator). Per deur: werkblad A3 met maten, zaaglijst, laserlijst en glaslijst; kostprijs met bronnen en de werkwijze. Standaardmaat per stijl; kostprijs met koker en strip, glas 44.2 helder, budgetscharnier, poedercoat, € 45/u, plaatsen inbegrepen, excl. btw.</p>`}<div class="raster">${blok(i)}</div></section>`).join('');
   await pdf(pagina('Bibliotheek stalen taatsdeuren', voor + alle.join('')), join(HERE, 'Taatsdeuren-bibliotheek.pdf'));
 }
 await browser.close();

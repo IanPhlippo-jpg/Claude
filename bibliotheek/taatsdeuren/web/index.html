@@ -106,10 +106,10 @@ footer { color: var(--zacht); font-size: 13px; padding-block: 30px }
       </div>
       <div class="veld" id="zijlichtVeld" hidden><label for="Z">Breedte zijlicht (mm)</label><input id="Z" type="number" step="10" value="400"></div>
       <fieldset><legend>Profielen</legend><div class="keuze" id="k-systeem"></div></fieldset>
-      <fieldset><legend>Glas</legend><div class="keuze" id="k-glas"></div></fieldset>
+      <fieldset><legend>Glas</legend><div class="keuze" id="k-opbouw"></div><div class="keuze" id="k-glas" style="margin-top:6px"></div></fieldset>
       <fieldset><legend>Scharnier</legend><div class="keuze" id="k-scharnier"></div></fieldset>
       <fieldset><legend>Afwerking</legend><div class="keuze" id="k-afwerking"></div></fieldset>
-      <fieldset><legend>Kleur</legend><div class="keuze" id="k-kleur"></div></fieldset>
+      <fieldset><legend>Kleur (RAL)</legend><div class="keuze" id="k-kleur"></div><div class="keuze" id="k-lak" style="margin-top:6px"></div></fieldset>
       <p class="melding" id="melding" hidden></p>
       <div class="prijsvak"><span id="p-label">Kostprijs om te maken</span><b id="p-bedrag">…</b><small id="p-sub"></small></div>
     </aside>
@@ -184,10 +184,11 @@ footer { color: var(--zacht); font-size: 13px; padding-block: 30px }
 </div>
 
 <script type="module">
-import { STIJLEN, GRENZEN, ontwerp, lijsten } from './js/deuren.mjs';
+import { STIJLEN, GRENZEN, minMaat, ontwerp, lijsten, SYSTEMEN } from './js/deuren.mjs';
+import { RAL, AFWERKINGEN, GLAS, SCHARNIEREN } from './js/opties.mjs';
 import { werkblad } from './js/blad.mjs';
 import { losseTekening, vooraanzicht } from './js/teken.mjs';
-import { MUREN, VLOEREN, KLEUREN } from './js/kamer.mjs';
+import { MUREN, VLOEREN } from './js/kamer.mjs';
 import { kostprijs, PRIJS, MARKT, STAAF } from './js/prijzen.mjs';
 import { UREN } from './js/werkwijze.mjs';
 import { bladen, CSS } from './js/dossier.mjs';
@@ -197,10 +198,12 @@ const $ = (id) => document.getElementById(id), esc = (t) => String(t).replace(/&
 const eur = (v) => `€ ${(Math.round(v * 100) / 100).toLocaleString('nl-BE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 const g = (v, d = 0) => (Math.round(v * 10 ** d) / 10 ** d).toLocaleString('nl-BE');
 const KEUZES = {
-  systeem: [['koker', 'Koker en strip'], ['systeem', 'Stalen deurprofielen']],
-  glas: [['helder', 'Helder'], ['grijs', 'Grijs (fumé)']],
-  scharnier: [['budget', 'Standaard'], ['premium', 'FritsJurgens']],
+  systeem: [['auto', 'Automatisch'], ...Object.entries(SYSTEMEN).map(([k, s]) => [k, s.kort])],
+  opbouw: [['enkel', 'Enkel glas'], ['dubbel', 'Dubbel glas']],
+  glas: Object.entries(GLAS).map(([k, x]) => [k, x.naam]),
+  scharnier: [['budget', 'Pivot'], ['premium', 'Pivot FritsJurgens'], ['verdekt', 'Verdekte scharnieren']],
   afwerking: [['poedercoat', 'Poedercoat'], ['natlak', 'Natlak']],
+  lak: Object.entries(AFWERKINGEN).map(([k, a]) => [k, a.naam]),
 };
 const TOON = [['kostprijs', 'Kostprijs'], ['verkoop', 'Verkoop excl. btw'], ['verkoopBtw', 'Verkoop incl. btw']];
 const UUR_LABEL = {
@@ -208,15 +211,19 @@ const UUR_LABEL = {
   hoekTig: ['Verstekhoek lassen (TIG) en slijpen', 'per hoek'], tVerbinding: ['Roede inlassen', 'per uiteinde'], boogVerbinding: ['Boog inlassen', 'per uiteinde'],
   boogLagenPerM: ['Boog van het kader (4 lagen)', 'per meter'], latPerM: ['Latten hechten', 'per meter'], tappenPerGat: ['M4 tappen', 'per gat'],
   taatsplaten: ['Taatsplaten en greephouders', 'per vleugel'], richten: ['Richten en nameten', 'per vleugel'], coatKlaar: ['Klaarmaken voor de coater', 'per deur'],
-  natlakken: ['Zelf natlakken', 'per deur'], glasPerRuit: ['Glas plaatsen', 'per ruit'], paneel: ['Stalen paneel inlassen', 'per paneel'], plaatsen: ['Plaatsen (standaardscharnier)', 'per deur'], plaatsenPremium: ['Plaatsen (FritsJurgens)', 'per deur'],
+  natlakken: ['Zelf natlakken', 'per deur'], glasPerRuit: ['Glas plaatsen', 'per ruit'], paneel: ['Stalen paneel inlassen', 'per paneel'], verdekt: ['Verdekt scharnier inbouwen', 'per scharnier'], plaatsenVerdekt: ['Plaatsen (verdekte scharnieren)', 'per deur'], plaatsen: ['Plaatsen (standaardscharnier)', 'per deur'], plaatsenPremium: ['Plaatsen (FritsJurgens)', 'per deur'],
 };
 // de prijzen die je kan aanpassen: [sleutel, naam, eenheid, lezen, schrijven]
 const PRIJZEN = [
   ...Object.entries(STAAF).map(([k, s]) => [`staaf.${k}`, s.naam, '€/m', () => s.prijs, (v) => { s.prijs = v; }]),
   ['glas.helder', 'Glas 44.2 helder', '€/m²', () => PRIJS.glas.helder.v, (v) => { PRIJS.glas.helder.v = v; }],
-  ['glas.grijs', 'Glas 44.2 grijs', '€/m²', () => PRIJS.glas.grijs.v, (v) => { PRIJS.glas.grijs.v = v; }],
+  ...Object.keys(GLAS).filter((x) => x !== 'helder').map((x) => [`glas.${x}`, `Glas ${GLAS[x].soort}`, '€/m²', () => PRIJS.glas[x].v, (v) => { PRIJS.glas[x].v = v; }]),
   ['scharnier.budget', 'Scharnier standaard (Pivotica 150)', '€/st', () => PRIJS.scharnier.budget.v, (v) => { PRIJS.scharnier.budget.v = v; }],
   ['scharnier.premium', 'Scharnier FritsJurgens', '€/st', () => PRIJS.scharnier.premium.v, (v) => { PRIJS.scharnier.premium.v = v; }],
+  ['scharnier.verdekt', 'Verdekt scharnier Neo L-7 + lasbak', '€/st', () => PRIJS.scharnier.verdekt.v, (v) => { PRIJS.scharnier.verdekt.v = v; }],
+  ['scharnier.verdektZwaar', 'Verdekt scharnier Tectus TE 640', '€/st', () => PRIJS.scharnier.verdektZwaar.v, (v) => { PRIJS.scharnier.verdektZwaar.v = v; }],
+  ['dubbelGlas', 'Dubbel glas: meerprijs', '€/m²', () => PRIJS.dubbelGlas.v, (v) => { PRIJS.dubbelGlas.v = v; }],
+  ['metallic', 'Metallic RAL: meerprijs', 'deel', () => PRIJS.metallic.v, (v) => { PRIJS.metallic.v = v; }],
   ['poedercoat', 'Poedercoaten', '€/m²', () => PRIJS.poedercoat.v, (v) => { PRIJS.poedercoat.v = v; }],
   ['stralen', 'Stralen', '€/m²', () => PRIJS.stralen.v, (v) => { PRIJS.stralen.v = v; }],
   ['coatMin', 'Coaten, minimum per deur', '€', () => PRIJS.coatMin.v, (v) => { PRIJS.coatMin.v = v; }],
@@ -227,7 +234,7 @@ const PRIJZEN = [
 ];
 const STD = { uurloon: 45, marge: 35, toon: 'kostprijs', uren: { ...UREN }, prijzen: Object.fromEntries(PRIJZEN.map(([k, , , lees]) => [k, lees()])) };
 let inst = JSON.parse(JSON.stringify(STD));
-let staat = { stijl: 'boog', B: 1000, H: 2400, Z: 400, systeem: 'koker', glas: 'helder', scharnier: 'budget', afwerking: 'poedercoat', kleur: 'zwart' };
+let staat = { stijl: 'boog', B: 1000, H: 2400, Z: 400, systeem: 'auto', opbouw: 'enkel', glas: 'helder', scharnier: 'budget', afwerking: 'poedercoat', kleur: '9005', lak: 'fijnstructuur' };
 let kamerStand = { open: 0, muur: 'wit', vloer: 'eik' }, filterGroep = 'Alle';
 try { kamerStand = { ...kamerStand, ...JSON.parse(localStorage.getItem('taatsdeuren-kamer') || '{}') }; } catch {}
 try { const s = JSON.parse(localStorage.getItem('taatsdeuren-keuze') || 'null'); if (s && STIJLEN.some((x) => x.id === s.stijl)) staat = { ...staat, ...s }; } catch {}
@@ -242,7 +249,7 @@ $('filter').addEventListener('click', (e) => { const b = e.target.closest('[data
 const duim = (o) => { const W = 100, Hh = 125, s = Math.min((W - 12) / o.kozijn.B, (Hh - 12) / o.kozijn.H), ox = (W - o.kozijn.B * s) / 2; return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${Hh}" aria-hidden="true">${vooraanzicht(o, s, ox, Hh - 6, { maten: false, assen: false })}</svg>`; };
 (function vulDuimen(i = 0) { const t0 = performance.now(); while (i < STIJLEN.length && performance.now() - t0 < 30) { const s = STIJLEN[i++]; try { $(`duim-${s.id}`).innerHTML = duim(ontwerp(s.id, s.std.B, s.std.H)); } catch {} } if (i < STIJLEN.length) setTimeout(() => vulDuimen(i), 0); })();
 const keuzeHtml = (naam, lijst) => Object.entries(lijst).map(([v, [t]]) => `<label><input type="radio" name="${naam}" value="${v}" id="${naam}-${v}"><span>${esc(t)}</span></label>`).join('');
-$('k-kleur').innerHTML = keuzeHtml('kleur', KLEUREN); $('k-muur').innerHTML = keuzeHtml('muur', MUREN); $('k-vloer').innerHTML = keuzeHtml('vloer', VLOEREN);
+$('k-kleur').innerHTML = keuzeHtml('kleur', Object.fromEntries(RAL.map((c) => [c.code, [c.code === 'brons' ? 'Brons' : `RAL ${c.code}`]]))); $('k-muur').innerHTML = keuzeHtml('muur', MUREN); $('k-vloer').innerHTML = keuzeHtml('vloer', VLOEREN);
 for (const [k, opties] of Object.entries(KEUZES)) $(`k-${k}`).innerHTML = opties.map(([v, t]) => `<label><input type="radio" name="${k}" value="${v}" id="${k}-${v}"><span>${esc(t)}</span></label>`).join('');
 $('k-toon').innerHTML = TOON.map(([v, t]) => `<label><input type="radio" name="toon" value="${v}" id="toon-${v}"><span>${esc(t)}</span></label>`).join('');
 $('i-uren').innerHTML = `<thead><tr><th>Handeling</th><th>Per</th><th>Uur</th></tr></thead><tbody>${Object.keys(UREN).map((k) => `<tr><td>${esc(UUR_LABEL[k]?.[0] ?? k)}</td><td class="uitl">${esc(UUR_LABEL[k]?.[1] ?? '')}</td><td class="n"><input type="number" step="0.01" min="0" id="u-${k}" data-u="${k}"></td></tr>`).join('')}</tbody>`;
@@ -268,7 +275,7 @@ function vulInstellingen() {
 let huidig = null;
 function teken() {
   const s = STIJLEN.find((x) => x.id === staat.stijl), i = STIJLEN.indexOf(s);
-  const [b0, b1] = GRENZEN.B, [h0, h1] = GRENZEN.H, min = s.vleugels === 2 ? 1300 : s.zijlicht ? 1100 : b0;
+  const [, b1] = GRENZEN.B, [, h1] = GRENZEN.H, mm = minMaat(s), min = mm.B, h0 = mm.H;
   const B = Math.min(b1, Math.max(min, staat.B || s.std.B)), H = Math.min(h1, Math.max(h0, staat.H || s.std.H)), melding = [];
   if (B !== staat.B || H !== staat.H) melding.push(`Maat aangepast tot ${B} x ${H} (mogelijk: breedte ${min} tot ${b1}, hoogte ${h0} tot ${h1} mm).`);
   staat.B = B; staat.H = H;
@@ -277,10 +284,11 @@ function teken() {
   $('B').value = B; $('H').value = H; $('Z').value = staat.Z; $('zijlichtVeld').hidden = !s.zijlicht;
   for (const k of [...Object.keys(KEUZES), 'kleur']) { const r = document.getElementById(`${k}-${staat[k]}`); if (r) r.checked = true; }
   let o;
-  try { o = ontwerp(s.id, B, H, { systeem: staat.systeem, zijlicht: staat.Z }); } catch (e) { $('melding').hidden = false; $('melding').textContent = `Deze maat lukt niet: ${e.message}`; return; }
-  const keuzes = { systeem: staat.systeem, glas: staat.glas, scharnier: staat.scharnier, afwerking: staat.afwerking, uurloon: inst.uurloon, marge: inst.marge, uren: inst.uren };
-  const k = kostprijs(o, keuzes), L = lijsten(o), maxKg = staat.scharnier === 'premium' ? 350 : 150;
-  if (k.gewicht.vleugels.some((x) => x > maxKg)) melding.push(`De vleugel weegt ${k.gewicht.vleugels.map(Math.round).join(' en ')} kg: meer dan het scharnier draagt (${maxKg} kg). Kies FritsJurgens.`);
+  try { o = ontwerp(s.id, B, H, { systeem: staat.systeem, opbouw: staat.opbouw, scharnier: staat.scharnier, zijlicht: staat.Z }); } catch (e) { $('melding').hidden = false; $('melding').textContent = `Deze maat lukt niet: ${e.message}`; return; }
+  const keuzes = { systeem: staat.systeem, opbouw: staat.opbouw, glas: staat.glas, scharnier: staat.scharnier, afwerking: staat.afwerking, ral: staat.kleur, lak: staat.lak, uurloon: inst.uurloon, marge: inst.marge, uren: inst.uren };
+  const k = kostprijs(o, keuzes), L = lijsten(o), maxKg = k.maxKg;
+  if (staat.systeem !== 'auto' && o.sysKey !== staat.systeem) melding.push(`Het profiel ${SYSTEMEN[staat.systeem].kort} past niet bij dit glas of scharnier: ${o.sys.kort} genomen.`);
+  if (k.gewicht.vleugels.some((x) => x > maxKg)) melding.push(`De vleugel weegt ${k.gewicht.vleugels.map(Math.round).join(' en ')} kg: meer dan ${SCHARNIEREN[k.scharnier].kort.toLowerCase()} draagt (${maxKg} kg).`);
   $('melding').hidden = !melding.length; $('melding').textContent = melding.join(' ');
   // pagina Deur: de deur en één prijs
   $('deurtekening').innerHTML = losseTekening(o, 200, 300, { maten: false, assen: false }).replace('<rect width="200" height="300" fill="#fff"/>', '').replace(/width="200mm" height="300mm"/, '');
@@ -308,7 +316,7 @@ function teken() {
 // ---------- 3D-kamer (three.js, pas geladen als de pagina er is)
 var kamerApi = null, kamerVuil = true;
 function zichtbaar(p) { return !document.querySelector(`[data-view="${p}"]`).hidden; }
-function toonKamer(o) { if (!kamerApi || !o) return; kamerApi.toon(o, { glas: staat.glas }); kamerApi.zet({ ...kamerStand, kleur: staat.kleur }); kamerVuil = false; }
+function toonKamer(o) { if (!kamerApi || !o) return; kamerApi.toon(o, { glas: staat.glas, opbouw: staat.opbouw, ral: staat.kleur, lak: staat.lak }); kamerApi.zet({ ...kamerStand }); kamerVuil = false; }
 const tab = (t) => { document.querySelectorAll('[data-tab]').forEach((b) => b.setAttribute('aria-selected', b.dataset.tab === t)); document.querySelectorAll('[data-paneel]').forEach((p) => { p.hidden = p.dataset.paneel !== t; }); $('kamerknoppen').hidden = t !== 'kamer'; };
 document.querySelectorAll('[data-tab]').forEach((b) => b.addEventListener('click', () => tab(b.dataset.tab)));
 const vulKamerKnoppen = () => { $('open').value = kamerStand.open; $('openW').textContent = `${kamerStand.open}°`; for (const k of ['muur', 'vloer']) { const r = document.getElementById(`${k}-${kamerStand[k]}`); if (r) r.checked = true; } };

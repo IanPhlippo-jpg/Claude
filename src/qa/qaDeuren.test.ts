@@ -1,5 +1,5 @@
 /**
- * De bibliotheek stalen taatsdeuren (bibliotheek/taatsdeuren): elke stijl (50) rekent op een kleine, de standaard- en een
+ * De bibliotheek stalen taatsdeuren (bibliotheek/taatsdeuren): elke stijl (100) rekent op een kleine, de standaard- en een
  * grote maat; de ruiten liggen binnen de vleugel en overlappen het staal niet; glas, panelen en staal vullen de vleugel; elk
  * onderdeel bouwt als één lichaam en in de samenstelling botst niets behalve de greep op zijn voeten.
  */
@@ -11,14 +11,15 @@ import { echteBotsingen } from './overlap';
 import { detectInterferences } from '../core/assembly/interference';
 import type { Component, Document } from '../core/document/types';
 // @ts-expect-error: de bibliotheek is plain JavaScript
-import { STIJLEN, ontwerp, lijsten, opp, kaderVan, veelhoek } from '../../bibliotheek/taatsdeuren/deuren.mjs';
+import { STIJLEN, ontwerp, lijsten, opp, kaderVan, veelhoek, minMaat } from '../../bibliotheek/taatsdeuren/deuren.mjs';
 // @ts-expect-error: idem
 import { band } from '../../bibliotheek/taatsdeuren/teken.mjs';
 // @ts-expect-error: idem
 import { samenstelling } from '../../bibliotheek/taatsdeuren/model.mjs';
 
 type P = [number, number];
-const maten = (s: { vleugels: number; zijlicht?: boolean; std: { B: number; H: number } }) => (s.vleugels === 2 ? [[1400, 2200], [s.std.B, s.std.H], [2200, 3000]] : s.zijlicht ? [[1250, 2150], [s.std.B, s.std.H], [1800, 2900]] : [[800, 2100], [s.std.B, s.std.H], [1300, 3000]]);
+// klein (net boven de kleinste maat), standaard en groot
+const maten = (s: { vleugels: number; std: { B: number; H: number } }) => { const m = minMaat(s); return [[m.B + 100, m.H + 200], [s.std.B, s.std.H], [Math.min(2400, m.B + (s.vleugels === 2 ? 900 : 500)), 3000]]; };
 
 describe('taatsdeuren', () => {
   for (const s of STIJLEN) {

@@ -1,12 +1,20 @@
 # Bibliotheek: stalen taatsdeuren (2026-11-10)
 
-Het eerste product voor Ians laswerkbedrijf: 50 stalen taatsdeuren met glas, met maten die je aanpast. De eisen en
+Het eerste product voor Ians laswerkbedrijf: 100 stalen deuren met glas (pivot of verdekte scharnieren), met maten die je aanpast. De eisen en
 de antwoorden staan in [EISEN.md](EISEN.md). Alles is te maken met een lastafel, MIG/MAG en TIG; de bogen en kleine
 platen laat je lasersnijden.
 
-**Configurator (pagina):** <https://claude.ai/artifact/6ex1en1dk19jj9Q1B1KfhN>. Drie pagina's:
+**Presentatietool voor klanten (los van de CAD):** `Bureaublad\Deurenconfigurator\Deurenconfigurator.html`
+(dubbelklikken, werkt zonder internet) en online <https://claude.ai/artifact/GgVQKsS5dJiSdMFEW6GxKT>.
+- Kies het model, het deurgat (met de muurdikte), pivot of verdekte scharnieren, enkel of dubbel glas met kleur en
+  structuur, en de RAL-kleur met de afwerking.
+- Je ziet de deur in 2D met maten en in een 3D-kamer.
+- Afdrukken of als PDF bewaren voor de klant.
+- Bouwen: `node bibliotheek/taatsdeuren/maak-presentatie.mjs "C:\Users\ianph\OneDrive\Bureaublad\Deurenconfigurator"`.
+
+**Configurator voor de werkplaats:** <https://claude.ai/artifact/6ex1en1dk19jj9Q1B1KfhN>. Drie pagina's:
 - **Deur** (om aan de klant te tonen):
-  - kies een van de 50 stijlen (filter per soort), de maat van de opening, het profiel, het glas, het scharnier, de
+  - kies een van de 100 stijlen (filter per soort), de maat van de opening, het profiel, het glas, het scharnier, de
     afwerking en de kleur;
   - je ziet de deur **in een 3D-kamer**: rondkijken, de deur open draaien, muur en vloer kiezen, en het beeld opslaan;
   - er staat één prijs bij: standaard de kostprijs om te maken; in de instellingen kies je ook verkoop excl. of incl. btw.
@@ -27,9 +35,19 @@ Elke stijl is een combinatie van bouwstenen in `deuren.mjs` (STIJLEN). Een nieuw
 | Roeden | verticaal en horizontaal, als breuk van de breedte en de hoogte |
 | In de boog | leeg, verticale roeden die doorlopen, of een zon met 3, 5 of 7 stralen |
 | Paneel | het onderste vak als stalen paneel (plaat 3 mm, in het midden van de diepte ingelast) |
-| Vleugels | 1 of 2 (dubbele deur), of 1 met een vast zijlicht met dezelfde roeden |
+| Vrije verdeling | vakken splitsen in vakken (Mondriaan, trap, kader in kader, lambrisering) |
+| Vleugels | 1 of 2 (dubbele deur, de tweede gespiegeld), een vast zijlicht links of aan beide kanten, of een vast bovenlicht |
 
-## De 50 stijlen
+## Keuzes (opties.mjs)
+
+| Keuze | Mogelijkheden |
+|---|---|
+| Openen | pivot (Argenta Pivotica Pro 150 tot 150 kg, of FritsJurgens), of verdekte scharnieren: 3 x Argenta Invisible Neo L-7 met RVS-lasbak (tot 145 kg), zwaarder Simonswerk Tectus TE 640 |
+| Glas | altijd veiligheidsglas: glad gelaagd 44.2 (helder, extra helder, grijs, brons, mat) of structuur gehard 8 mm (geribd, kathedraal, chinchilla); dubbel glas 44.2 / 14 / 6 gehard |
+| Profiel | automatisch het slankste dat past: koker 40 x 40 (enkel glas, pivot), 40 x 60 (dubbel glas), 60 x 40 (verdekte scharnieren, die 36 mm in de stijl gaan), 60 x 60 (beide), of Jansen Economy 50 |
+| Kleur | 20 RAL-kleuren en brons metallic; fijnstructuur mat, glad mat of zijdeglans |
+
+## De 100 stijlen
 
 | Nr | Stijl | Soort | Standaardopening | Kostprijs* | Verkoop* (35 %) |
 |---|---|---|---|--:|--:|
@@ -83,8 +101,58 @@ Elke stijl is een combinatie van bouwstenen in `deuren.mjs` (STIJLEN). Een nieuw
 | TD-48 | Dubbele deur, twee bogen | Dubbel | 1700 x 2600 | € 3 186 | € 4 301 |
 | TD-49 | Zijlicht met raster | Zijlicht | 1450 x 2400 | € 2 433 | € 3 284 |
 | TD-50 | Zijlicht met paneel | Zijlicht | 1450 x 2400 | € 2 061 | € 2 782 |
+| TD-51 | Mondriaan | Asymmetrisch | 1000 x 2400 | € 1 652 | € 2 230 |
+| TD-52 | Hoekvakken | Asymmetrisch | 1000 x 2400 | € 1 475 | € 1 991 |
+| TD-53 | Bovenlicht in drie | Asymmetrisch | 1000 x 2400 | € 1 550 | € 2 093 |
+| TD-54 | Drie onderaan | Asymmetrisch | 1000 x 2400 | € 1 557 | € 2 101 |
+| TD-55 | Ladder opzij | Asymmetrisch | 1000 x 2400 | € 1 723 | € 2 327 |
+| TD-56 | Venster | Asymmetrisch | 1000 x 2400 | € 1 568 | € 2 116 |
+| TD-57 | Trap | Asymmetrisch | 1000 x 2400 | € 1 721 | € 2 324 |
+| TD-58 | Kader in kader | Asymmetrisch | 1000 x 2400 | € 1 740 | € 2 349 |
+| TD-59 | Paneel Mondriaan | Paneel | 1000 x 2400 | € 1 630 | € 2 201 |
+| TD-60 | Paneel en venster | Paneel | 1000 x 2400 | € 1 610 | € 2 173 |
+| TD-61 | Paneel met trap | Paneel | 1000 x 2400 | € 1 835 | € 2 477 |
+| TD-62 | Lambrisering | Paneel | 1000 x 2400 | € 1 572 | € 2 122 |
+| TD-63 | Raster boven | Raster | 1000 x 2400 | € 1 776 | € 2 397 |
+| TD-64 | Smalle vakken | Raster | 1000 x 2400 | € 2 216 | € 2 991 |
+| TD-65 | Drie hoog | Raster | 1000 x 2400 | € 1 776 | € 2 397 |
+| TD-66 | Raster zestien | Raster | 1000 x 2400 | € 2 506 | € 3 383 |
+| TD-67 | Raster twintig | Raster | 1000 x 2400 | € 2 762 | € 3 729 |
+| TD-68 | Japandi met bovenlicht | Recht | 1000 x 2600 | € 1 839 | € 2 483 |
+| TD-69 | Boog met paneel en roeden | Boog | 1000 x 2400 | € 2 179 | € 2 942 |
+| TD-70 | Boog met vier vakken | Boog | 1000 x 2400 | € 2 320 | € 3 132 |
+| TD-71 | Boog met één roede | Boog | 1000 x 2400 | € 1 943 | € 2 623 |
+| TD-72 | Boog met Japandi | Boog | 1000 x 2400 | € 1 950 | € 2 633 |
+| TD-73 | Boog met kruis | Boog | 1000 x 2400 | € 1 891 | € 2 552 |
+| TD-74 | Boog en Mondriaan | Boog | 1000 x 2400 | € 1 815 | € 2 451 |
+| TD-75 | Kathedraal met paneel | Boog | 1000 x 2600 | € 2 294 | € 3 096 |
+| TD-76 | Boog met ladder | Boog | 1000 x 2400 | € 1 981 | € 2 674 |
+| TD-77 | Zon met raster twaalf | Art deco | 1000 x 2400 | € 2 855 | € 3 855 |
+| TD-78 | Zon met negen stralen | Art deco | 1000 x 2400 | € 2 393 | € 3 231 |
+| TD-79 | Zon met Japandi | Art deco | 1000 x 2400 | € 2 405 | € 3 246 |
+| TD-80 | Zon met paneel en raster | Art deco | 1000 x 2400 | € 2 224 | € 3 002 |
+| TD-81 | Volle boog kathedraal | Volle boog | 1000 x 2600 | € 2 336 | € 3 154 |
+| TD-82 | Volle boog Japandi | Volle boog | 1000 x 2500 | € 2 092 | € 2 825 |
+| TD-83 | Volle boog ladder | Volle boog | 1000 x 2500 | € 2 078 | € 2 805 |
+| TD-84 | Volle boog, zon en paneel | Volle boog | 1000 x 2500 | € 2 183 | € 2 947 |
+| TD-85 | Volle boog Mondriaan | Volle boog | 1000 x 2500 | € 1 903 | € 2 569 |
+| TD-86 | Dubbele deur Japandi | Dubbel | 1700 x 2600 | € 2 896 | € 3 909 |
+| TD-87 | Dubbele deur met paneel | Dubbel | 1700 x 2400 | € 2 585 | € 3 490 |
+| TD-88 | Dubbele deur met zon | Dubbel | 1700 x 2600 | € 3 769 | € 5 088 |
+| TD-89 | Dubbele kathedraal | Dubbel | 1700 x 2600 | € 3 599 | € 4 859 |
+| TD-90 | Dubbele Mondriaan | Dubbel | 1700 x 2400 | € 2 857 | € 3 857 |
+| TD-91 | Dubbele deur, boog met roeden | Dubbel | 1700 x 2600 | € 3 308 | € 4 466 |
+| TD-92 | Dubbele deur ladder | Dubbel | 1700 x 2400 | € 2 963 | € 4 000 |
+| TD-93 | Dubbele deur raster twaalf | Dubbel | 1700 x 2400 | € 3 907 | € 5 275 |
+| TD-94 | Zijlicht strak | Zijlicht | 1450 x 2400 | € 1 710 | € 2 309 |
+| TD-95 | Zijlicht met boog | Zijlicht | 1450 x 2400 | € 2 395 | € 3 233 |
+| TD-96 | Twee zijlichten | Zijlicht | 1900 x 2400 | € 2 505 | € 3 381 |
+| TD-97 | Twee zijlichten raster | Zijlicht | 1900 x 2400 | € 3 012 | € 4 066 |
+| TD-98 | Deur met vast bovenlicht | Bovenlicht | 1000 x 3000 | € 1 729 | € 2 335 |
+| TD-99 | Bovenlicht en raster | Bovenlicht | 1000 x 3000 | € 2 175 | € 2 937 |
+| TD-100 | Boog met vast bovenlicht | Bovenlicht | 1000 x 3000 | € 2 054 | € 2 773 |
 
-\* excl. btw, met koker en strip, glas 44.2 helder, budgetscharnier, poedercoat, € 45/u, plaatsen inbegrepen.
+\* excl. btw, profiel automatisch (koker 40 x 40), enkel glas 44.2 helder, pivot Pivotica, poedercoat RAL 9005, € 45/u, plaatsen inbegrepen.
 
 ## Wat er per deur is
 
@@ -140,5 +208,5 @@ node bibliotheek/taatsdeuren/maak-deuren.mjs boog 1100 2500 systeem
 
 Eén deur op maat: geef de stijl, de breedte, de hoogte en het profielsysteem mee.
 
-Testen: `npx cross-env VOORBEELDEN=1 vitest run src/qa/qaDeuren.test.ts` (50 stijlen x 3 maten, model en botsingen,
-ongeveer 5 minuten). Beelden: `node e2e/tools/look-deuren.mjs`. De 3D-kamer staat in `kamer.mjs` (three.js 0.160).
+Testen: `npx cross-env VOORBEELDEN=1 vitest run src/qa/qaDeuren.test.ts` (100 stijlen x 3 maten, model en botsingen,
+ongeveer 10 minuten). Beelden: `node e2e/tools/look-deuren.mjs`. De 3D-kamer staat in `kamer.mjs` (three.js 0.160).

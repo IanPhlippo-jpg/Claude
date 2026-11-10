@@ -1237,10 +1237,10 @@ elease; README en docs/04 bijgewerkt
 - [~] Artifact bijwerken, gsm en donker controleren, commit en push, foto's naar Ian
 
 ## Deurenconfigurator voor klanten, los van de CAD (2026-11-10)
-- [ ] Eisen en bronnen: verdekte scharnieren voor staal, bekendste RAL-kleuren poedercoat, veiligheidsglas (kleur en structuur), dubbel glas en profieldiepte
-- [ ] Scharnier: pivot (taats) of verdekte scharnieren (draaideur) in tekening, 3D, lijsten, kostprijs en werkwijze
-- [ ] Glas: altijd veiligheidsglas; enkel (gelaagd) of dubbel (isolerend), dieper profiel bij dubbel glas; glaskleuren en structuren
-- [ ] RAL-kleuren met structuur (fijnstructuur, mat, glans) in de prijs en in 3D
-- [ ] 50 extra stijlen (TD-51 tot TD-100), tests voor alle 100
-- [ ] Presentatietool in een eigen map buiten de CAD (offline te openen): 2D en 3D, deurgat ingeven -> kamer, alle keuzes, RAL-kaart
-- [ ] Dezelfde tool online als pagina; foto's, commit en push
+- [x] Eisen en bronnen: verdekte scharnieren voor staal, bekendste RAL-kleuren poedercoat, veiligheidsglas (kleur en structuur), dubbel glas en profieldiepte
+- [x] Scharnier: pivot (taats) of verdekte scharnieren (draaideur) in tekening, 3D, lijsten, kostprijs en werkwijze
+- [x] Glas: altijd veiligheidsglas; enkel (gelaagd) of dubbel (isolerend), dieper profiel bij dubbel glas; glaskleuren en structuren
+- [x] RAL-kleuren met structuur (fijnstructuur, mat, glans) in de prijs en in 3D
+- [x] 50 extra stijlen (TD-51 tot TD-100), tests voor alle 100
+- [x] Presentatietool in een eigen map buiten de CAD (offline te openen): 2D en 3D, deurgat ingeven -> kamer, alle keuzes, RAL-kaart
+- [x] Dezelfde tool online als pagina; foto's, commit en push

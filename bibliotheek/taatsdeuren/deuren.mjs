@@ -1,7 +1,9 @@
 // Bibliotheek stalen taatsdeuren (Ian, 2026-11-10; eisen in EISEN.md). Eén bron voor alles: de stijlen, de maten,
 // de profielen, de staven (zaaglijst), de lasergesneden delen (bogen, taatsplaten), de ruiten (glaslijst) en het
-// gewicht. Werkt in Node (model, tekeningen, PDF) en in de browser (configurator). Geen imports.
+// gewicht. Werkt in Node (model, tekeningen, PDF) en in de browser (configurator). Importeert alleen opties.mjs (gegevens).
 // Assen: x naar rechts, y omhoog, mm. Een vleugel heeft zijn oorsprong linksonder; het kozijn ook (op de vloer).
+
+import { OPBOUW, SCHARNIEREN } from './opties.mjs';
 
 // ---------------------------------------------------------------- profielsystemen
 // zicht = breedte van voren, diepte = dikte. 'staaf' verwijst naar een staaf in prijzen.mjs (kg/m en prijs per m).
@@ -13,6 +15,7 @@ export const SYSTEMEN = {
     glaslat: { staaf: 'plat15x4', uitleg: 'glaslat 15x4 in het kader: voor gelast, achter geschroefd (M4 verzonken om de 250)' },
     kozijn: { zicht: 40, diepte: 40, staaf: 'koker40x40x2', uitleg: 'koker 40x40x2' },
     boog: { kern: 10, lagenKader: 4, uitleg: 'lasergesneden uit plaat 10 mm; boogroede 20 breed met latten 30x3, boog van het kader 4 lagen = 40 diep' },
+    glasMax: 10, kort: '40 x 40',
   },
   systeem: {
     naam: 'Stalen deurprofielen (Jansen Economy 50)',
@@ -21,8 +24,50 @@ export const SYSTEMEN = {
     glaslat: { staaf: 'jansen402', uitleg: 'stalen glaslat Jansen 402.xxx (klik)' },
     kozijn: { zicht: 50, diepte: 50, staaf: 'jansen30007', uitleg: 'Jansen Economy 50, 30.007 (50 x 50)' },
     boog: { kern: 10, lagenKader: 5, uitleg: 'bogen lasergesneden uit plaat 10 mm met latten (profielen buigen kan alleen bij een walserij)' },
+    glasMax: 35, geenVerdekt: true, kort: 'Jansen 50', // Economy 50: glas tot 35 mm (heinze.de); geen verdekt deurscharnier van Jansen gevonden
+  },
+  koker60: {
+    naam: 'Koker 40 x 60 (diep, voor dubbel glas)',
+    kader: { zicht: 40, diepte: 60, staaf: 'koker60x40x2', uitleg: 'koker 60x40x2, 40 in zicht en 60 diep, hoeken in verstek (45°)' },
+    roede: { zicht: 30, diepte: 16, staaf: 'plat20x10', lat: 'plat30x3', uitleg: 'kern platstaal 20x10 met voor en achter een lat 30x3 over het glas' },
+    glaslat: { staaf: 'plat15x4', uitleg: 'glaslat 15x4 in het kader: voor gelast, achter geschroefd (M4 verzonken om de 250)' },
+    kozijn: { zicht: 40, diepte: 60, staaf: 'koker60x40x2', uitleg: 'koker 60x40x2, 60 diep' },
+    boog: { kern: 10, lagenKader: 6, uitleg: 'lasergesneden uit plaat 10 mm; boog van het kader 6 lagen = 60 diep' },
+    glasMax: 30, kort: '40 x 60',
+  },
+  breed: {
+    naam: 'Koker 60 x 40 (breed, voor verdekte scharnieren)',
+    kader: { zicht: 60, diepte: 40, staaf: 'koker60x40x2', uitleg: 'koker 60x40x2, 60 in zicht en 40 diep: plaats voor het verdekte scharnier (36 mm in de stijl)' },
+    roede: { zicht: 30, diepte: 16, staaf: 'plat20x10', lat: 'plat30x3', uitleg: 'kern platstaal 20x10 met voor en achter een lat 30x3 over het glas' },
+    glaslat: { staaf: 'plat15x4', uitleg: 'glaslat 15x4 in het kader: voor gelast, achter geschroefd (M4 verzonken om de 250)' },
+    kozijn: { zicht: 60, diepte: 40, staaf: 'koker60x40x2', uitleg: 'koker 60x40x2, 60 in zicht: plaats voor het kozijndeel van het scharnier (33 mm)' },
+    boog: { kern: 10, lagenKader: 4, uitleg: 'lasergesneden uit plaat 10 mm; boog van het kader 4 lagen = 40 diep, 60 breed' },
+    glasMax: 10, kort: '60 x 40',
+  },
+  breeddiep: {
+    naam: 'Koker 60 x 60 (breed en diep)',
+    kader: { zicht: 60, diepte: 60, staaf: 'koker60x60x2', uitleg: 'koker 60x60x2: verdekte scharnieren en dubbel glas' },
+    roede: { zicht: 30, diepte: 16, staaf: 'plat20x10', lat: 'plat30x3', uitleg: 'kern platstaal 20x10 met voor en achter een lat 30x3 over het glas' },
+    glaslat: { staaf: 'plat15x4', uitleg: 'glaslat 15x4 in het kader: voor gelast, achter geschroefd (M4 verzonken om de 250)' },
+    kozijn: { zicht: 60, diepte: 60, staaf: 'koker60x60x2', uitleg: 'koker 60x60x2' },
+    boog: { kern: 10, lagenKader: 6, uitleg: 'lasergesneden uit plaat 10 mm; boog van het kader 6 lagen = 60 diep, 60 breed' },
+    glasMax: 30, kort: '60 x 60',
   },
 };
+
+/** roede voor dubbel glas (eigen kokers): de kern is zo diep als het glas */
+const ROEDE_DUBBEL = { zicht: 30, diepte: 36, staaf: 'koker30x20x2', lat: 'plat30x3', uitleg: 'kern koker 30x20x2 (30 diep, zo dik als het dubbel glas) met voor en achter een lat 30x3' };
+export const scharnierSoort = (k) => SCHARNIEREN[k]?.soort ?? 'pivot';
+/** past het glas in het profiel, en is er plaats voor het scharnier? */
+export function systeemPast(key, { opbouw = 'enkel', scharnier = 'budget' } = {}) {
+  const s = SYSTEMEN[key];
+  return !!s && OPBOUW[opbouw].dikte <= s.glasMax && (scharnierSoort(scharnier) !== 'verdekt' || (s.kader.zicht >= 60 && !s.geenVerdekt));
+}
+/** het profiel: het gekozen als het past, anders het lichtste dat past (koker 40x40, 40x60, 60x40, 60x60) */
+export function kiesSysteem(k = {}) {
+  if (k.systeem && k.systeem !== 'auto' && systeemPast(k.systeem, k)) return k.systeem;
+  return ['koker', 'koker60', 'breed', 'breeddiep'].find((x) => systeemPast(x, k));
+}
 
 // ---------------------------------------------------------------- de stijlen
 // Een stijl is een combinatie van bouwstenen (alle breuken binnen de dagmaat van het kader):
@@ -31,8 +76,11 @@ export const SYSTEMEN = {
 //   boogV: verticale roeden in de boog, zon: aantal stralen in de boog (art deco), kalf: false = volle boog zonder kalf
 //   paneel: het onderste vak is een stalen paneel (plaat 3 mm) in plaats van glas; vleugels: 1 of 2; zijlicht: vast zijlicht
 const D3 = [1 / 3, 2 / 3], D4 = [0.25, 0.5, 0.75], D5 = [0.2, 0.4, 0.6, 0.8], D6 = [1 / 6, 2 / 6, 3 / 6, 4 / 6, 5 / 6];
-const S = (id, naam, groep, uitleg, def = {}) => ({ id, naam, groep, uitleg, vleugels: 1, boven: 'recht', v: [], h: [], boogV: [], zon: 0, paneel: false, ...def, std: def.std ?? { B: def.vleugels === 2 ? 1700 : def.zijlicht ? 1450 : 1000, H: def.vorm === 'volleBoog' ? 2500 : 2400 } });
+const S = (id, naam, groep, uitleg, def = {}) => ({ id, naam, groep, uitleg, vleugels: 1, boven: 'recht', v: [], h: [], boogV: [], zon: 0, paneel: false, vak: null, ...def, std: def.std ?? { B: def.vleugels === 2 ? 1700 : def.zijlicht ? 1450 : 1000, H: def.vorm === 'volleBoog' ? 2500 : 2400 } });
 const VOL = { boven: 'vol', vorm: 'volleBoog' };
+// vrije vakverdeling (vak): V = verticaal splitsen (links -> rechts), Hs = horizontaal (onder -> boven); kinderen: null =
+// glas, 'P' = paneel, of weer een verdeling. Breuken gelden binnen het vak dat gesplitst wordt.
+const V = (f, k) => ({ r: 'v', f, k }), Hs = (f, k) => ({ r: 'h', f, k }), Pn = 'P';
 export const STIJLEN = [
   S('strak', 'Strak', 'Recht', 'Eén groot glasvlak in een slank kader. Minimalistisch en het snelst te maken.'),
   S('drievak', 'Drie vakken', 'Recht', 'Twee horizontale roeden: de klassieke industriële deur.', { h: D3 }),
@@ -93,9 +141,72 @@ export const STIJLEN = [
   // ---- zijlicht
   S('zijlichtraster', 'Zijlicht met raster', 'Zijlicht', 'Een deur met een raster van acht vakken en een zijlicht met dezelfde roeden.', { zijlicht: true, v: [0.5], h: D4 }),
   S('zijlichtpaneel', 'Zijlicht met paneel', 'Zijlicht', 'Een deur met een stalen paneel onderaan; het zijlicht heeft het paneel en de roeden mee.', { zijlicht: true, h: [0.3, 0.65], paneel: true }),
+  // ======== TD-51 tot TD-100
+  // ---- asymmetrisch (vrije vakverdeling)
+  S('mondriaan', 'Mondriaan', 'Asymmetrisch', 'Vakken van verschillende grootte, zoals een schilderij van Mondriaan.', { vak: Hs([0.3], [V([0.6]), V([0.35], [Hs([0.55]), null])]) }),
+  S('hoekvakken', 'Hoekvakken', 'Asymmetrisch', 'Eén groot glasvlak met bovenaan twee kleine vakken.', { vak: Hs([0.75], [null, V([0.5])]) }),
+  S('bovendrie', 'Bovenlicht in drie', 'Asymmetrisch', 'Een groot glasvlak met een bovenlicht in drie vakken.', { vak: Hs([0.8], [null, V(D3)]) }),
+  S('onderdrie', 'Drie onderaan', 'Asymmetrisch', 'Drie kleine vakken onderaan, daarboven één groot glasvlak.', { vak: Hs([0.25], [V(D3), null]) }),
+  S('ladderzij', 'Ladder opzij', 'Asymmetrisch', 'Een smalle strook met vijf vakjes naast een groot glasvlak.', { vak: V([0.3], [Hs(D5), null]) }),
+  S('venster', 'Venster', 'Asymmetrisch', 'Drie zones: een groot vak, een middenband in twee, en een bovenlicht.', { vak: Hs([0.3, 0.75], [null, V([0.5]), null]) }),
+  S('trap', 'Trap', 'Asymmetrisch', 'Drie banden met de verticale roede telkens verder naar rechts, zoals een trap.', { vak: Hs(D3, [V([0.25]), V([0.5]), V([0.75])]) }),
+  S('kaderinkader', 'Kader in kader', 'Asymmetrisch', 'Een groot middenvak met een smalle rand van glasvakken errond.', { vak: Hs([0.12, 0.88], [null, V([0.15, 0.85]), null]) }),
+  // ---- paneel met vrije verdeling
+  S('paneelmondriaan', 'Paneel Mondriaan', 'Paneel', 'Een stalen paneel onderaan met vakken van verschillende grootte erboven.', { vak: Hs([0.3], [Pn, V([0.6], [null, Hs([0.5])])]) }),
+  S('paneelvenster', 'Paneel en venster', 'Paneel', 'Een stalen paneel, een middenband in twee en een groot bovenvak.', { vak: Hs([0.3, 0.6], [Pn, V([0.5]), null]) }),
+  S('paneeltrap', 'Paneel met trap', 'Paneel', 'Een stalen paneel met drie banden erboven, de roede telkens verder opzij.', { vak: Hs([0.3, 0.53, 0.77], [Pn, V([0.25]), V([0.5]), V([0.75])]) }),
+  S('lambrisering', 'Lambrisering', 'Paneel', 'Twee stalen panelen boven elkaar onderaan en een groot glasvlak erboven.', { vak: Hs([0.2, 0.4], [Pn, Pn, null]) }),
+  // ---- recht en raster
+  S('hoograster', 'Raster boven', 'Raster', 'Onderaan één glasvlak, bovenaan een raster van zes vakken.', { vak: Hs([0.5], [null, V([0.5], [Hs(D3), Hs(D3)])]) }),
+  S('smallevakken', 'Smalle vakken', 'Raster', 'Vier verticale roeden en één horizontale: tien smalle vakken.', { v: D5, h: [0.5] }),
+  S('drievert', 'Drie hoog', 'Raster', 'Twee verticale roeden en één horizontale: zes hoge vakken.', { v: D3, h: [0.5] }),
+  S('raster16', 'Raster zestien', 'Raster', 'Drie verticale en drie horizontale roeden: zestien vakken.', { v: D4, h: D4 }),
+  S('raster20', 'Raster twintig', 'Raster', 'Drie verticale en vier horizontale roeden: twintig kleine vakken.', { v: D4, h: D5 }),
+  S('japandiboven', 'Japandi met bovenlicht', 'Recht', 'Drie smalle verticale roeden met een open bovenlicht.', { vak: Hs([0.8], [V(D4), null]), std: { B: 1000, H: 2600 } }),
+  // ---- boog met poten
+  S('boogpaneelroeden', 'Boog met paneel en roeden', 'Boog', 'De boog met poten, een stalen paneel onderaan en een roede erboven.', { boven: 'poten', h: [0.3, 0.6], paneel: true }),
+  S('boogvier', 'Boog met vier vakken', 'Boog', 'De boog met poten en drie horizontale roeden.', { boven: 'poten', h: D4 }),
+  S('booglaag', 'Boog met één roede', 'Boog', 'De boog met poten en één roede op halve hoogte.', { boven: 'poten', h: [0.5] }),
+  // ---- boog op een kalf
+  S('kalfjapandi', 'Boog met Japandi', 'Boog', 'Een boog op een kalf boven drie smalle verticale vakken.', { boven: 'kalf', v: D4 }),
+  S('kalfkruis', 'Boog met kruis', 'Boog', 'Een boog op een kalf met middenroede, boven vier grote vakken.', { boven: 'kalf', v: [0.5], h: [0.5], boogV: [0.5] }),
+  S('kalfmondriaan', 'Boog en Mondriaan', 'Boog', 'Een boog op een kalf boven vakken van verschillende grootte.', { boven: 'kalf', vak: Hs([0.4], [null, V([0.6])]), boogV: [0.6] }),
+  S('kathedraalpaneel', 'Kathedraal met paneel', 'Boog', 'De kathedraal: roeden tot in de boog, boven een stalen paneel.', { boven: 'kalf', v: D4, boogV: D4, h: [0.25], paneel: true, std: { B: 1000, H: 2600 } }),
+  S('kalfladder', 'Boog met ladder', 'Boog', 'Een boog op een kalf boven zes lage vakken.', { boven: 'kalf', h: D6 }),
+  S('zonraster12', 'Zon met raster twaalf', 'Art deco', 'Een halve zon met vijf stralen boven een raster van twaalf vakken.', { boven: 'kalf', zon: 5, v: D3, h: D4 }),
+  // ---- art deco
+  S('zon9', 'Zon met negen stralen', 'Art deco', 'Een halve zon met negen fijne stralen boven twee vakken.', { boven: 'kalf', zon: 9, h: [0.4] }),
+  S('zonjapandi', 'Zon met Japandi', 'Art deco', 'Een halve zon boven drie smalle verticale vakken.', { boven: 'kalf', zon: 5, v: D4 }),
+  S('zonpaneelraster', 'Zon met paneel en raster', 'Art deco', 'Een halve zon met drie stralen, een raster en een stalen paneel.', { boven: 'kalf', zon: 3, v: [0.5], h: [0.3, 0.65], paneel: true }),
+  // ---- volle boog
+  S('volkathedraal', 'Volle boog kathedraal', 'Volle boog', 'Een ronde deur met drie roeden die doorlopen tot in de boog.', { ...VOL, v: D4, boogV: D4, std: { B: 1000, H: 2600 } }),
+  S('voljapandi', 'Volle boog Japandi', 'Volle boog', 'Een ronde deur met twee verticale roeden, ook in de boog.', { ...VOL, v: D3, boogV: D3 }),
+  S('volladder', 'Volle boog ladder', 'Volle boog', 'Een ronde deur met zes lage vakken onder de boog.', { ...VOL, h: D6 }),
+  S('volzonpaneel', 'Volle boog, zon en paneel', 'Volle boog', 'Een ronde deur met een kleine zon in de boog en een stalen paneel.', { ...VOL, zon: 3, h: [0.3, 0.65], paneel: true }),
+  S('volmondriaan', 'Volle boog Mondriaan', 'Volle boog', 'Een ronde deur met vakken van verschillende grootte.', { ...VOL, vak: Hs([0.35], [V([0.6]), null]), boogV: [0.6] }),
+  // ---- dubbel
+  S('dubbeljapandi', 'Dubbele deur Japandi', 'Dubbel', 'Twee taatsvleugels met elk twee smalle verticale roeden.', { vleugels: 2, v: D3, std: { B: 1700, H: 2600 } }),
+  S('dubbelpaneel', 'Dubbele deur met paneel', 'Dubbel', 'Twee taatsvleugels met een stalen paneel onderaan en twee glasvakken.', { vleugels: 2, h: [0.3, 0.65], paneel: true }),
+  S('dubbelzon', 'Dubbele deur met zon', 'Dubbel', 'Twee taatsvleugels met elk een halve zon in art deco.', { vleugels: 2, boven: 'kalf', zon: 5, h: [0.38], std: { B: 1700, H: 2600 } }),
+  S('dubbelkathedraal', 'Dubbele kathedraal', 'Dubbel', 'Twee taatsvleugels met roeden die doorlopen tot in hun boog.', { vleugels: 2, boven: 'kalf', v: D3, boogV: D3, std: { B: 1700, H: 2600 } }),
+  S('dubbelmondriaan', 'Dubbele Mondriaan', 'Dubbel', 'Twee taatsvleugels met vrije vakken, de ene het spiegelbeeld van de andere.', { vleugels: 2, spiegel: true, vak: Hs([0.3], [V([0.6]), V([0.35], [Hs([0.55]), null])]) }),
+  S('dubbelboogroeden', 'Dubbele deur, boog met roeden', 'Dubbel', 'Twee taatsvleugels met één grote boog en twee roeden over de hele breedte.', { vleugels: 2, boven: 'poten', h: D3, std: { B: 1700, H: 2600 } }),
+  S('dubbelladder', 'Dubbele deur ladder', 'Dubbel', 'Twee taatsvleugels met elk zes lage vakken.', { vleugels: 2, h: D6 }),
+  S('dubbelraster12', 'Dubbele deur raster twaalf', 'Dubbel', 'Twee taatsvleugels met elk een raster van twaalf vakken.', { vleugels: 2, v: D3, h: D4 }),
+  // ---- zijlichten
+  S('zijlichtstrak', 'Zijlicht strak', 'Zijlicht', 'Een strakke deur met een vast zijlicht in één glasvlak.', { zijlicht: true }),
+  S('zijlichtkalf', 'Zijlicht met boog', 'Zijlicht', 'Een deur met een boog op een kalf; het zijlicht heeft het kalf en de roeden mee.', { zijlicht: true, boven: 'kalf', boogV: [0.5], h: D3 }),
+  S('tweezijlichten', 'Twee zijlichten', 'Zijlicht', 'Een deur met drie vakken tussen twee vaste zijlichten.', { zijlicht: 'beide', h: D3, std: { B: 1900, H: 2400 } }),
+  S('tweezijlichtenraster', 'Twee zijlichten raster', 'Zijlicht', 'Een deur met een raster van acht vakken tussen twee zijlichten.', { zijlicht: 'beide', v: [0.5], h: D4, std: { B: 1900, H: 2400 } }),
+  // ---- vast bovenlicht (hoge openingen)
+  S('bovenlichtvast', 'Deur met vast bovenlicht', 'Bovenlicht', 'Een deur met drie vakken onder een vast bovenlicht in het kozijn: voor hoge openingen.', { bovenlicht: 500, h: D3, std: { B: 1000, H: 3000 } }),
+  S('bovenlichtraster', 'Bovenlicht en raster', 'Bovenlicht', 'Een deur met een raster van acht vakken; het vaste bovenlicht heeft de middenroede mee.', { bovenlicht: 500, v: [0.5], h: D4, std: { B: 1000, H: 3000 } }),
+  S('bovenlichtboog', 'Boog met vast bovenlicht', 'Bovenlicht', 'Een deur met een boog op een kalf onder een vast bovenlicht.', { bovenlicht: 500, boven: 'kalf', boogV: [0.5], h: D3, std: { B: 1000, H: 3000 } }),
 ];
 export const GROEPEN = [...new Set(STIJLEN.map((s) => s.groep))];
 export const GRENZEN = { B: [700, 2400], H: [1900, 3200] };
+/** kleinste breedte en hoogte van de opening voor een stijl */
+export const minMaat = (s) => ({ B: s.vleugels === 2 ? 1300 : s.zijlicht === 'beide' ? 1500 : s.zijlicht ? 1100 : GRENZEN.B[0], H: s.bovenlicht ? 2600 : GRENZEN.H[0] });
 
 // ---------------------------------------------------------------- vaste maten (mm)
 export const MATEN = {
@@ -199,6 +310,17 @@ function vleugel(stijl, B, H, sys, opts = {}) {
       for (let j = 0; j < vx.length - 1; j++) ruiten.push(rechthoek(vx[j] + w / 2, hy[i] + w / 2, vx[j + 1] - w / 2, hy[i + 1] - w / 2));
     }
   };
+  /** vrije vakverdeling (stijl.vak): roeden tussen de randen van het vak, dan elk deelvak verder */
+  const boom = (n, x0, x1, y0, y1) => {
+    if (!n || n === 'P') { vlak(rechthoek(x0, y0, x1, y1), n === 'P'); return; }
+    const v = n.r === 'v', a0 = v ? x0 : y0, a1 = v ? x1 : y1, ps = n.f.map((f) => a0 + (a1 - a0) * f), gr = [a0 - w / 2, ...ps, a1 + w / 2];
+    for (const q of ps) v ? R([q, y0], [q, y1]) : R([x0, q], [x1, q]);
+    for (let i = 0; i < gr.length - 1; i++) { const kind = n.k?.[i] ?? null, b0 = gr[i] + w / 2, b1 = gr[i + 1] - w / 2; v ? boom(kind, b0, b1, y0, y1) : boom(kind, x0, x1, b0, b1); }
+  };
+  const spiegel = (n) => (!n || n === 'P' ? n : n.r === 'v' ? { r: 'v', f: n.f.map((f) => 1 - f).reverse(), k: Array.from({ length: n.f.length + 1 }, (_, i) => spiegel(n.k?.[n.f.length - i] ?? null)) } : { ...n, k: n.k?.map(spiegel) });
+  const vak = opts.spiegel ? spiegel(stijl.vak) : stijl.vak;
+  /** het vak onder de boog of het hele vak: vrije verdeling of raster */
+  const onder = (y1) => (vak ? boom(vak, xi0, xi1, yi0, y1) : raster(xi0, xi1, yi0, y1, stijl.v.map(fx), fy(yi0, y1, stijl.h), stijl.paneel));
   /** de boog boven een kalf op hoogte ys (middelpunt c, binnenstraal rIn): leeg, met verticale roeden, of een zon */
   const boogVak = (c, rIn, ys) => {
     if (stijl.zon) {
@@ -235,7 +357,7 @@ function vleugel(stijl, B, H, sys, opts = {}) {
       for (let i = 0; i < hs.length; i++) vlak(rechthoek(xi0, gr[i] + w / 2, xi1, gr[i + 1] - w / 2), stijl.paneel && i === 0);
       ruiten.push(rechtMetBoog(xi0, xi1, gr[gr.length - 1] + w / 2, ys, c, rin));
     } else {
-      raster(xi0, xi1, yi0, ys - w / 2, stijl.v.map(fx), fy(yi0, ys - w / 2, stijl.h), stijl.paneel);
+      onder(ys - w / 2);
       R([xi0, ys], [xi1, ys]);
       boogVak(c, rin, ys);
     }
@@ -272,18 +394,30 @@ function vleugel(stijl, B, H, sys, opts = {}) {
     A(c, rc, ga, 180 - ga);
     for (const [x0, x1] of [[xi0, midX], [midX, xi1]]) { const p = buitenSchijf(rechthoek(x0, ys + w / 2, x1, yi1), c, rUit); if (p.length > 2 && opp(p) > 100) ruiten.push(p); }
     R([xi0, ys], [xi1, ys]);
-    raster(xi0, xi1, yi0, ys - w / 2, stijl.v.map(fx), fy(yi0, ys - w / 2, stijl.h), stijl.paneel);
+    onder(ys - w / 2);
     boogVak(c, rc - w / 2, ys);
-  } else raster(xi0, xi1, yi0, yi1, stijl.v.map(fx), fy(yi0, yi1, stijl.h), stijl.paneel);
+  } else onder(yi1);
   return { delen, ruiten, panelen, vorm: rechthoek(0, 0, B, H) };
 }
 
 // ---------------------------------------------------------------- de hele deur: opening -> kozijn, vleugel(s), zijlicht
-/** B x H = dagmaat van de opening in de muur. opts: { systeem: 'koker'|'systeem', zijlicht: breedte } */
+/**
+ * B x H = dagmaat van de opening in de muur. opts: { systeem: 'auto'|sleutel van SYSTEMEN, opbouw: 'enkel'|'dubbel',
+ * scharnier: sleutel van SCHARNIEREN, draai: 'links'|'rechts' (scharnierkant van een enkele deur), zijlicht: breedte }
+ */
 export function ontwerp(id, B, H, opts = {}) {
+  const r = ontwerpRuw(id, B, H, opts);
+  // de scharnierkant van een enkele deur omkeren: alles spiegelen kan niet (zijlicht), dus enkel de vleugel
+  if (opts.draai && r.vleugels.length === 1 && !r.stijl.zijlicht) r.vleugels[0].taats = opts.draai;
+  return r;
+}
+function ontwerpRuw(id, B, H, opts = {}) {
   const stijl = STIJLEN.find((s) => s.id === id);
   if (!stijl) throw new Error(`onbekende stijl ${id}`);
-  const sys = SYSTEMEN[opts.systeem ?? 'koker'], kz = sys.kozijn.zicht, M = MATEN;
+  const opbouw = opts.opbouw === 'dubbel' ? 'dubbel' : 'enkel', sysKey = kiesSysteem({ ...opts, opbouw }), basis = SYSTEMEN[sysKey];
+  const sys = opbouw === 'dubbel' && sysKey !== 'systeem' ? { ...basis, roede: ROEDE_DUBBEL, boog: { ...basis.boog, roedeLagen: 3 } } : basis;
+  const extra = { sysKey, opbouw, scharnier: scharnierSoort(opts.scharnier), glasDikte: OPBOUW[opbouw].dikte, glasKgm2: OPBOUW[opbouw].kgm2 };
+  const kz = sys.kozijn.zicht, M = MATEN;
   const KB = B - 2 * M.montage, KH = H - M.montage;
   const kozijn = [], vleugels = [], vast = [];
   const P = (a, b) => kozijn.push({ soort: 'kozijn', a, b });
@@ -293,35 +427,50 @@ export function ontwerp(id, B, H, opts = {}) {
     kozijn.push({ soort: 'boogkozijn', c: [KB / 2, ys], r: KB / 2 - kz / 2, g0: 0, g1: 180 });
     const VB = KB - 2 * kz - 2 * M.speling, vH = ys - M.vloer + VB / 2;
     vleugels.push({ x: kz + M.speling, y: M.vloer, B: VB, H: vH, taats: 'links', ...vleugel(stijl, VB, vH, sys) });
-    return { stijl, B, H, sys, kozijn: { B: KB, H: KH, delen: kozijn, vorm: [[0, 0], [KB, 0], ...cirkelVh([KB / 2, ys], KB / 2, 90, 0, 180)] }, vleugels, vast };
+    return { stijl, B, H, sys, ...extra, kozijn: { B: KB, H: KH, delen: kozijn, vorm: [[0, 0], [KB, 0], ...cirkelVh([KB / 2, ys], KB / 2, 90, 0, 180)] }, vleugels, vast };
   }
   P([kz / 2, 0], [kz / 2, KH]); P([KB - kz / 2, 0], [KB - kz / 2, KH]); P([0, KH - kz / 2], [KB, KH - kz / 2]);
   let x0 = kz, binnenB = KB - 2 * kz;
+  // vast bovenlicht: een kalf in het kozijn op hoogte yb (hart), het glas erboven
+  const bl = stijl.bovenlicht ?? 0, yb = KH - kz - bl - kz / 2, topV = bl ? yb - kz / 2 : KH - kz;
+  if (bl) { P([kz, yb], [KB - kz, yb]); vast.push({ x: kz, y: yb + kz / 2, B: KB - 2 * kz, H: bl, delen: [], ruiten: [], panelen: [], soort: 'bovenlicht' }); }
   if (stijl.zijlicht) {
     const xz = opts.zijlicht ?? M.zijlicht;
-    P([xz, 0], [xz, KH - kz]); P([kz, kz / 2], [xz - kz / 2, kz / 2]);
+    P([xz, 0], [xz, topV]); P([kz, kz / 2], [xz - kz / 2, kz / 2]);
     x0 = xz + kz / 2; binnenB = KB - kz - x0;
-    vast.push({ x: kz, y: kz, B: xz - kz / 2 - kz, H: KH - 2 * kz, delen: [], ruiten: [], panelen: [] });
+    vast.push({ x: kz, y: kz, B: xz - kz / 2 - kz, H: topV - kz, delen: [], ruiten: [], panelen: [], soort: 'zijlicht' });
+    if (stijl.zijlicht === 'beide') {
+      P([KB - xz, 0], [KB - xz, topV]); P([KB - xz + kz / 2, kz / 2], [KB - kz, kz / 2]);
+      binnenB = KB - xz - kz / 2 - x0;
+      vast.push({ x: KB - xz + kz / 2, y: kz, B: xz - kz / 2 - kz, H: topV - kz, delen: [], ruiten: [], panelen: [], soort: 'zijlicht' });
+    }
   }
-  const VH = KH - kz - M.speling - M.vloer;
+  const VH = topV - M.speling - M.vloer;
   if (stijl.vleugels === 2) {
     const VB = (binnenB - 3 * M.speling) / 2, k = sys.kader.zicht, w = sys.roede.zicht;
     const xA = x0 + M.speling, xB = xA + VB + M.speling, cxG = KB / 2;
     const xLg = xA + k + M.poot + w / 2, xRg = xB + VB - k - M.poot - w / 2;
-    for (const [i, xv] of [[0, xA], [1, xB]]) vleugels.push({ x: xv, y: M.vloer, B: VB, H: VH, taats: i ? 'rechts' : 'links', ...vleugel(stijl, VB, VH, sys, { xL: xLg - xv, xR: xRg - xv, cx: cxG - xv }) });
+    for (const [i, xv] of [[0, xA], [1, xB]]) vleugels.push({ x: xv, y: M.vloer, B: VB, H: VH, taats: i ? 'rechts' : 'links', ...vleugel(stijl, VB, VH, sys, { xL: xLg - xv, xR: xRg - xv, cx: cxG - xv, spiegel: i === 1 && stijl.spiegel }) });
   } else {
     const VB = binnenB - 2 * M.speling;
     vleugels.push({ x: x0 + M.speling, y: M.vloer, B: VB, H: VH, taats: stijl.zijlicht ? 'rechts' : 'links', ...vleugel(stijl, VB, VH, sys) });
   }
-  if (stijl.zijlicht) {
+  const w = sys.roede.zicht, v = vleugels[0];
+  for (const z of vast.filter((x) => x.soort === 'zijlicht')) {
     // dezelfde hoogtes als de roeden van de deur
-    const v = vleugels[0], z = vast[0], w = sys.roede.zicht;
-    const ys = [...new Set(v.delen.filter((d) => d.soort === 'roede' && d.a && Math.abs(d.a[1] - d.b[1]) < 1e-6).map((d) => Math.round((d.a[1] + v.y - z.y) * 1000) / 1000))].sort((a, b) => a - b);
+    const ys = [...new Set(v.delen.filter((d) => d.soort === 'roede' && d.a && Math.abs(d.a[1] - d.b[1]) < 1e-6).map((d) => Math.round((d.a[1] + v.y - z.y) * 1000) / 1000))].filter((y) => y > w && y < z.H - w).sort((a, b) => a - b);
     const grens = [-w / 2, ...ys, z.H + w / 2];
     for (const y of ys) z.delen.push({ soort: 'roede', a: [0, y], b: [z.B, y] });
     for (let i = 0; i < grens.length - 1; i++) (stijl.paneel && i === 0 && ys.length ? z.panelen : z.ruiten).push(rechthoek(0, grens[i] + w / 2, z.B, grens[i + 1] - w / 2));
   }
-  return { stijl, B, H, sys, kozijn: { B: KB, H: KH, delen: kozijn, vorm: rechthoek(0, 0, KB, KH) }, vleugels, vast };
+  for (const z of vast.filter((x) => x.soort === 'bovenlicht')) {
+    // de verticale roeden van de deur lopen door in het bovenlicht (op dezelfde plaats)
+    const xs = [...new Set(vleugels.flatMap((g) => g.delen.filter((d) => d.soort === 'roede' && d.a && Math.abs(d.a[0] - d.b[0]) < 1e-6 && d.a[1] < g.H / 2).map((d) => Math.round((d.a[0] + g.x - z.x) * 1000) / 1000)))].filter((x) => x > w && x < z.B - w).sort((a, b) => a - b);
+    const grens = [-w / 2, ...xs, z.B + w / 2];
+    for (const x of xs) z.delen.push({ soort: 'roede', a: [x, 0], b: [x, z.H] });
+    for (let i = 0; i < grens.length - 1; i++) z.ruiten.push(rechthoek(grens[i] + w / 2, 0, grens[i + 1] - w / 2, z.H));
+  }
+  return { stijl, B, H, sys, ...extra, kozijn: { B: KB, H: KH, delen: kozijn, vorm: rechthoek(0, 0, KB, KH) }, vleugels, vast };
 }
 
 // ---------------------------------------------------------------- de vorm van een staafdeel (voor het model en de tekening)
@@ -360,7 +509,7 @@ export function lijsten(o) {
   const voeg = (lijst, sleutel, rij) => { const r = lijst.find((x) => x.sleutel === sleutel); if (r) r.n += rij.n; else lijst.push({ sleutel, ...rij }); };
   const staaf = (wat, prof, l, n, bew) => voeg(zaag, `${prof}|${Math.round(l)}|${wat}`, { wat, prof, l: Math.round(l), n, bew });
   const boog = (wat, d, zicht, t, n, opm) => voeg(laser, `${wat}|${Math.round(d.r)}|${Math.round(d.g1 - d.g0)}|${t}`, { wat, vorm: 'boog', r: Math.round(d.r * 10) / 10, zicht, hoek: Math.round((d.g1 - d.g0) * 10) / 10, t, n, mat: `S235, plaat ${t} mm`, opm });
-  const groepen = [['kozijn', o.kozijn.delen], ...o.vleugels.map((v, i) => [o.vleugels.length > 1 ? `vleugel ${i + 1}` : 'vleugel', v.delen]), ...o.vast.map((v) => ['zijlicht', v.delen])];
+  const groepen = [['kozijn', o.kozijn.delen], ...o.vleugels.map((v, i) => [o.vleugels.length > 1 ? `vleugel ${i + 1}` : 'vleugel', v.delen]), ...o.vast.map((v) => [v.soort ?? 'zijlicht', v.delen])];
   for (const [deel, delen] of groepen) for (const d of delen) {
     const staand = d.a && Math.abs(d.a[0] - d.b[0]) < 1e-6, liggend = d.a && Math.abs(d.a[1] - d.b[1]) < 1e-6;
     if (d.soort === 'kader') staaf(`${deel}: ${staand ? 'staander' : 'regel'}`, sys.kader.staaf, lengte(d), 1, 'verstek 45° aan beide kanten');
@@ -369,14 +518,15 @@ export function lijsten(o) {
       staaf(`${deel}: roede`, sys.roede.staaf, lengte(d), 1, d.tot ? 'onder recht, boven schuin volgens de boog (aftekenen op de mal 1:1)' : staand || liggend ? 'recht, tussen kader en roeden' : 'straal: uiteinden schuin op de boog');
       if (sys.roede.lat) staaf(`${deel}: lat op de roede`, sys.roede.lat, lengte(d), 2, 'voor gelast, achter geschroefd');
     } else if (d.soort === 'boog') {
-      boog(`${deel}: boogroede (kern)`, d, 20, sys.boog.kern, 1, 'lasergesneden; de latten 30 breed apart');
+      boog(`${deel}: boogroede (kern${sys.boog.roedeLagen > 1 ? `, ${sys.boog.roedeLagen} lagen` : ''})`, d, 20, sys.boog.kern, sys.boog.roedeLagen ?? 1, sys.boog.roedeLagen > 1 ? `${sys.boog.roedeLagen} lagen op elkaar gelast (zo dik als het glas); de latten apart` : 'lasergesneden; de latten 30 breed apart');
       if (sys.roede.lat) boog(`${deel}: lat op de boog`, d, 30, 3, 2, 'voor gelast, achter geschroefd');
     } else if (d.soort === 'boogkader' || d.soort === 'boogkozijn') boog(`${d.soort === 'boogkader' ? deel : 'kozijn'}: boog (${sys.boog.lagenKader} lagen op elkaar)`, d, d.soort === 'boogkader' ? sys.kader.zicht : sys.kozijn.zicht, sys.boog.kern, sys.boog.lagenKader, `${sys.boog.lagenKader} lagen van ${sys.boog.kern} mm op elkaar gelast`);
   }
-  for (const [deel, groep] of [['vleugel', o.vleugels], ['zijlicht', o.vast]]) for (const v of groep) {
+  for (const [soort, groep] of [['vleugel', o.vleugels], ['vast', o.vast]]) for (const v of groep) {
+    const deel = soort === 'vleugel' ? 'vleugel' : (v.soort ?? 'zijlicht');
     // glaslatten langs de binnenkant van het kader (de roeden hebben hun eigen latten); bij een ronde deur is het
     // ronde stuk lasergesneden
-    const k = deel === 'zijlicht' ? 0 : sys.kader.zicht, rond = v.aanzet !== undefined;
+    const k = soort === 'vast' ? 0 : sys.kader.zicht, rond = v.aanzet !== undefined;
     const recht = rond ? 2 * (v.aanzet - k) + (v.B - 2 * k) : 2 * (v.B - 2 * k + v.H - 2 * k);
     // langs een paneel geen glaslat: de delen van zijn omtrek die op de binnenkant van het kader liggen
     const xi1 = v.B - k, langsPaneel = (v.panelen ?? []).reduce((s, p) => s + p.reduce((t, a, i) => { const b = p[(i + 1) % p.length], op = (q) => Math.abs(q[0] - k) < 0.01 || Math.abs(q[0] - xi1) < 0.01 || Math.abs(q[1] - k) < 0.01;
@@ -392,8 +542,9 @@ export function lijsten(o) {
   }
   for (const v of o.vleugels) {
     staaf('greep voor en achter', 'rond25', MATEN.greep.lengte, 2, 'uiteinden rond slijpen; 2 gaten M8 per greep');
-    voeg(laser, 'taatsplaat onder', { wat: 'taatsplaat onder (in de onderregel)', vorm: 'plaat', b: 36, l: 220, t: 8, n: 1, mat: 'S235, plaat 8 mm', opm: '2 gaten M8 voor het scharnier' });
-    voeg(laser, 'taatsplaat boven', { wat: 'taatsplaat boven (in de bovenregel)', vorm: 'plaat', b: 36, l: 140, t: 8, n: 1, mat: 'S235, plaat 8 mm', opm: 'boring Ø20 voor de bovenpen' });
+    if (o.scharnier === 'verdekt') staaf('kozijn: aanslag (boven en 2 zijden)', 'plat15x4', 2 * v.H + v.B, 1, 'op het kozijn gelast, de deur valt ertegen');
+    else voeg(laser, 'taatsplaat onder', { wat: 'taatsplaat onder (in de onderregel)', vorm: 'plaat', b: 36, l: 220, t: 8, n: 1, mat: 'S235, plaat 8 mm', opm: '2 gaten M8 voor het scharnier' });
+    if (o.scharnier !== 'verdekt') voeg(laser, 'taatsplaat boven', { wat: 'taatsplaat boven (in de bovenregel)', vorm: 'plaat', b: 36, l: 140, t: 8, n: 1, mat: 'S235, plaat 8 mm', opm: 'boring Ø20 voor de bovenpen' });
     voeg(laser, 'greephouder', { wat: 'greephouder (afstandsstuk)', vorm: 'plaat', b: 25, l: 40, t: 10, n: o.stijl.vleugels === 2 ? 2 : 2, mat: 'S235, plaat 10 mm', opm: 'boring M8 voor de greep' });
   }
   return { zaag, laser, glas };
@@ -402,7 +553,7 @@ export function lijsten(o) {
 export const laserKg = (r) => (r.vorm === 'boog' ? rad(r.hoek) * r.r * r.zicht : r.b * r.l) * r.t * r.n * 7.85e-6;
 /** gewicht in kg: staal uit de staven (kg/m uit STAAF), laserdelen, glas 44.2 (22 kg/m²); per vleugel voor het scharnier */
 export function gewicht(o, STAAF) {
-  const reken = (L) => ({ staal: L.zaag.reduce((s, r) => s + (STAAF[r.prof]?.kgm ?? 0) * (r.l / 1000) * r.n, 0) + L.laser.reduce((s, r) => s + laserKg(r), 0), glas: L.glas.reduce((s, r) => s + r.m2 * r.n * 22, 0) });
+  const reken = (L) => ({ staal: L.zaag.reduce((s, r) => s + (STAAF[r.prof]?.kgm ?? 0) * (r.l / 1000) * r.n, 0) + L.laser.reduce((s, r) => s + laserKg(r), 0), glas: L.glas.reduce((s, r) => s + r.m2 * r.n * (o.glasKgm2 ?? 22), 0) });
   const alles = reken(lijsten(o));
   const vleugels = o.vleugels.map((v) => { const g = reken(lijsten({ ...o, vleugels: [v], vast: [], kozijn: { delen: [] } })); return g.staal + g.glas; });
   return { ...alles, totaal: alles.staal + alles.glas, vleugels };
