@@ -110,6 +110,7 @@ footer { color: var(--zacht); font-size: 13px; padding-block: 30px }
         <div class="veld"><label for="H">Hoogte opening (mm)</label><input id="H" type="number" step="10"></div>
       </div>
       <div class="veld" id="zijlichtVeld" hidden><label for="Z">Breedte zijlicht (mm)</label><input id="Z" type="number" step="10" value="400"></div>
+      <fieldset><legend>Gebruik</legend><div class="keuze" id="k-gebruik"></div></fieldset>
       <fieldset><legend>Profielen</legend><div class="keuze" id="k-systeem"></div></fieldset>
       <fieldset><legend>Glas</legend><div class="keuze" id="k-opbouw"></div><div class="keuze" id="k-glas" style="margin-top:6px"></div></fieldset>
       <fieldset><legend>Scharnier</legend><div class="keuze" id="k-scharnier"></div></fieldset>
@@ -155,8 +156,10 @@ footer { color: var(--zacht); font-size: 13px; padding-block: 30px }
     <div class="tegel"><span>Kostprijs</span><b id="t-kost"></b></div>
   </div>
   <section class="deel"><h2>Stuk per stuk</h2><p class="status">Klik op een stuk om het groot te zien: de tekening met alle maten, beide uiteinden vergroot en de doorsnede, en het stuk in 3D. In de tekeningen hieronder kan je ook op een stuk of een nummer klikken.</p><div class="stukknoppen" id="stukknoppen"></div></section>
+  <section class="deel"><h2>Deurprofielen en verbindingen</h2><p class="status">Elk profiel van deze deur in doorsnede (sponning, glas, glaslat, isolatie), het artikel en de posities, en hoe de stukken samenkomen: rood = in verstek zagen.</p><div id="profielen" class="stukbladen"></div></section>
   <section class="deel"><h2>Opengewerkte tekening</h2><p class="status">De stalen delen uit elkaar: rood is een verstek, de stippellijnen tonen welke stukken aan elkaar komen, met de code van de verbinding (naad en lasproces in de tabel).</p><div id="explode" class="stukbladen"></div></section>
   <section class="deel"><h2>Stuklijst en onderdelen</h2><p class="status">Elk onderdeel met zijn nummer op de samenstelling, en per onderdeel een schets: de echte vorm (verstek, schuin), de lengte, de doorsnede, stralen en gaten.</p><div id="stukbladen" class="stukbladen"></div></section>
+  <section class="deel"><h2>Bestellijst en zaagplan</h2><p class="status">Hoeveel staven van de handel je per profiel koopt, met het artikelnummer, en welke stukken je uit elke staaf zaagt.</p><div id="bestel" class="stukbladen"></div></section>
   <section class="deel"><h2>Kostprijs</h2><div class="tabelvak"><table id="prijs"></table></div></section>
   <section class="deel"><h2>Werkwijze</h2><ol class="stappen" id="stappen"></ol></section>
   <section class="deel"><h2>Lijsten</h2><div class="drie">
@@ -200,6 +203,8 @@ import { werkblad } from './js/blad.mjs';
 import { stukBladen } from './js/stukblad.mjs';
 import { explodeBlad, verbindingen } from './js/explode.mjs';
 import { detailBlad } from './js/detail.mjs';
+import { bestelBlad } from './js/bestel.mjs';
+import { profielBlad } from './js/profielen.mjs';
 import { stukVenster } from './js/stukvenster.mjs';
 import { losseTekening, vooraanzicht } from './js/teken.mjs';
 import { MUREN, VLOEREN } from './js/kamer.mjs';
@@ -212,7 +217,8 @@ const $ = (id) => document.getElementById(id), esc = (t) => String(t).replace(/&
 const eur = (v) => `€ ${(Math.round(v * 100) / 100).toLocaleString('nl-BE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 const g = (v, d = 0) => (Math.round(v * 10 ** d) / 10 ** d).toLocaleString('nl-BE');
 const KEUZES = {
-  systeem: [['auto', 'Automatisch'], ...Object.entries(SYSTEMEN).map(([k, s]) => [k, s.kort])],
+  gebruik: [['binnen', 'Binnen'], ['buiten', 'Buiten (geïsoleerd)']],
+  systeem: [['auto', 'Automatisch'], ...Object.entries(SYSTEMEN).map(([k, s]) => [k, s.koop ? `${s.kort} (koop)` : s.kort])],
   opbouw: [['enkel', 'Enkel glas'], ['dubbel', 'Dubbel glas']],
   glas: Object.entries(GLAS).map(([k, x]) => [k, x.naam]),
   scharnier: [['budget', 'Pivot'], ['premium', 'Pivot FritsJurgens'], ['verdekt', 'Verdekte scharnieren']],
@@ -248,7 +254,7 @@ const PRIJZEN = [
 ];
 const STD = { uurloon: 45, marge: 35, toon: 'kostprijs', uren: { ...UREN }, prijzen: Object.fromEntries(PRIJZEN.map(([k, , , lees]) => [k, lees()])) };
 let inst = JSON.parse(JSON.stringify(STD));
-let staat = { stijl: 'boog', B: 1000, H: 2400, Z: 400, systeem: 'auto', opbouw: 'enkel', glas: 'helder', scharnier: 'budget', afwerking: 'poedercoat', kleur: '9005', lak: 'fijnstructuur' };
+let staat = { stijl: 'boog', B: 1000, H: 2400, Z: 400, gebruik: 'binnen', systeem: 'auto', opbouw: 'enkel', glas: 'helder', scharnier: 'budget', afwerking: 'poedercoat', kleur: '9005', lak: 'fijnstructuur' };
 let kamerStand = { open: 0, muur: 'wit', vloer: 'eik' }, filterGroep = 'Alle';
 try { kamerStand = { ...kamerStand, ...JSON.parse(localStorage.getItem('taatsdeuren-kamer') || '{}') }; } catch {}
 try { const s = JSON.parse(localStorage.getItem('taatsdeuren-keuze') || 'null'); if (s && STIJLEN.some((x) => x.id === s.stijl)) staat = { ...staat, ...s }; } catch {}
@@ -271,7 +277,7 @@ $('i-prijzen').innerHTML = `<thead><tr><th>Wat</th><th>Eenheid</th><th>Prijs</th
 
 $('stijlen').addEventListener('click', (e) => { const b = e.target.closest('[data-stijl]'); if (!b) return; const s = STIJLEN.find((x) => x.id === b.dataset.stijl); staat = { ...staat, stijl: s.id, B: s.std.B, H: s.std.H }; teken(); b.scrollIntoView({ block: 'nearest', inline: 'nearest' }); });
 for (const id of ['B', 'H', 'Z']) $(id).addEventListener('change', () => { staat[id] = +$(id).value; teken(); });
-for (const k of [...Object.keys(KEUZES), 'kleur']) $(`k-${k}`).addEventListener('change', (e) => { staat[k] = e.target.value; teken(); });
+for (const k of [...Object.keys(KEUZES), 'kleur']) $(`k-${k}`).addEventListener('change', (e) => { staat[k] = e.target.value; if (k === 'gebruik') staat.systeem = 'auto'; teken(); });
 document.querySelectorAll('[data-i]').forEach((el) => el.addEventListener('change', () => { inst[el.dataset.i] = +el.value; bewaar(); teken(); }));
 $('k-toon').addEventListener('change', (e) => { inst.toon = e.target.value; bewaar(); teken(); });
 document.querySelectorAll('[data-u]').forEach((el) => el.addEventListener('change', () => { inst.uren[el.dataset.u] = Math.max(0, +el.value); bewaar(); teken(); }));
@@ -298,10 +304,13 @@ function teken() {
   $('B').value = B; $('H').value = H; $('Z').value = staat.Z; $('zijlichtVeld').hidden = !s.zijlicht;
   for (const k of [...Object.keys(KEUZES), 'kleur']) { const r = document.getElementById(`${k}-${staat[k]}`); if (r) r.checked = true; }
   let o;
-  try { o = ontwerp(s.id, B, H, { systeem: staat.systeem, opbouw: staat.opbouw, scharnier: staat.scharnier, zijlicht: staat.Z }); } catch (e) { $('melding').hidden = false; $('melding').textContent = `Deze maat lukt niet: ${e.message}`; return; }
-  const keuzes = { systeem: staat.systeem, opbouw: staat.opbouw, glas: staat.glas, scharnier: staat.scharnier, afwerking: staat.afwerking, ral: staat.kleur, lak: staat.lak, uurloon: inst.uurloon, marge: inst.marge, uren: inst.uren };
+  try { o = ontwerp(s.id, B, H, { gebruik: staat.gebruik, systeem: staat.systeem, opbouw: staat.opbouw, scharnier: staat.scharnier, zijlicht: staat.Z }); } catch (e) { $('melding').hidden = false; $('melding').textContent = `Deze maat lukt niet: ${e.message}`; return; }
+  const keuzes = { gebruik: staat.gebruik, systeem: staat.systeem, opbouw: o.opbouw, glas: staat.glas, scharnier: staat.scharnier, afwerking: staat.afwerking, ral: staat.kleur, lak: staat.lak, uurloon: inst.uurloon, marge: inst.marge, uren: inst.uren };
   const k = kostprijs(o, keuzes), L = lijsten(o), maxKg = k.maxKg;
-  if (staat.systeem !== 'auto' && o.sysKey !== staat.systeem) melding.push(`Het profiel ${SYSTEMEN[staat.systeem].kort} past niet bij dit glas of scharnier: ${o.sys.kort} genomen.`);
+  if (staat.systeem !== 'auto' && o.sysKey !== staat.systeem) melding.push(`Het profiel ${SYSTEMEN[staat.systeem].kort} past niet bij ${SYSTEMEN[staat.systeem].geenBoog && s.boven !== 'recht' ? 'een boog (een geïsoleerd profiel buigen kan alleen bij de fabrikant)' : 'dit glas of scharnier'}: ${o.sys.kort} genomen.`);
+  if (staat.gebruik === 'buiten' && !o.sys.iso) melding.push(`Buiten vraagt geïsoleerde deurprofielen (Janisol Arte 2.0 of Forster unico); die bestaan niet met een boog: ${o.sys.kort} genomen (niet geïsoleerd).`);
+  if (o.opbouw !== staat.opbouw) melding.push('Buiten en bij geïsoleerde deurprofielen altijd isolerend glas: dubbel glas genomen.');
+  const mv = o.sys.maxVleugel; if (mv && o.vleugels.some((v) => v.B > mv.B || v.H > mv.H)) melding.push(`De vleugel is groter dan ${o.sys.kort} toelaat (${mv.B} x ${mv.H} mm).`);
   if (k.gewicht.vleugels.some((x) => x > maxKg)) melding.push(`De vleugel weegt ${k.gewicht.vleugels.map(Math.round).join(' en ')} kg: meer dan ${SCHARNIEREN[k.scharnier].kort.toLowerCase()} draagt (${maxKg} kg).`);
   $('melding').hidden = !melding.length; $('melding').textContent = melding.join(' ');
   // pagina Deur: de deur en één prijs
@@ -312,7 +321,9 @@ function teken() {
   // pagina Werkplaats
   $('w-titel').textContent = `Werkplaats: ${s.naam}`;
   const meta = { nr: `TD-${String(i + 1).padStart(2, '0')}`, datum: new Date().toISOString().slice(0, 10) }, kk = { ...keuzes, scharnierModel: k.scharnier };
-  const n0 = stukBladen(o, kk, { ...meta, bladStart: 3 }).bladen.length, stuk = stukBladen(o, kk, { ...meta, bladStart: 3, bladTotaal: 2 + n0 });
+  const n0 = stukBladen(o, kk, { ...meta, bladStart: 4 }).bladen.length + 2, stuk = stukBladen(o, kk, { ...meta, bladStart: 4, bladTotaal: 2 + n0 });
+  $('profielen').innerHTML = `<div>${profielBlad(o, kk, { ...meta, blad: `3 / ${2 + n0}` })}</div>`;
+  $('bestel').innerHTML = `<div>${bestelBlad(o, kk, { ...meta, blad: `${2 + n0} / ${2 + n0}` })}</div>`;
   $('explode').innerHTML = `<div>${explodeBlad(o, kk, { ...meta, blad: `2 / ${2 + n0}` })}</div>`;
   $('stukbladen').innerHTML = stuk.bladen.map((s) => `<div>${s}</div>`).join('');
   const ctx = verbindingen(o, kk), stukLijst = ctx.posities.filter((p) => p.soort !== 'inkoop');
@@ -423,7 +434,7 @@ document.querySelectorAll('[data-dl]').forEach((b) => b.addEventListener('click'
   const { o, k, L, s, keuzes } = huidig, nm = `taatsdeur-${s.id}-${o.B}x${o.H}`;
   let filename, data;
   if (b.dataset.dl === 'svg') { filename = `${nm}-werkblad.svg`; data = $('blad').innerHTML; }
-  else if (b.dataset.dl === 'stuk') { filename = `${nm}-stuklijst.zip`; data = zip([[`${nm}-opengewerkt.svg`, $('explode').querySelector('svg').outerHTML], ...[...$('stukbladen').querySelectorAll('svg')].map((x, j) => [`${nm}-stuklijst-${j + 1}.svg`, x.outerHTML]), ...huidig.stukLijst.map((p, j) => [`${nm}-pos-${String(p.pos).padStart(2, '0')}.svg`, detailBlad(o, p, huidig.ctx, huidig.kk, { ...huidig.meta, blad: `${j + 1} / ${huidig.stukLijst.length}` })])]); }
+  else if (b.dataset.dl === 'stuk') { filename = `${nm}-stuklijst.zip`; data = zip([[`${nm}-opengewerkt.svg`, $('explode').querySelector('svg').outerHTML], ...[...$('stukbladen').querySelectorAll('svg')].map((x, j) => [`${nm}-stuklijst-${j + 1}.svg`, x.outerHTML]), [`${nm}-profielen.svg`, $('profielen').querySelector('svg').outerHTML], [`${nm}-bestellijst.svg`, $('bestel').querySelector('svg').outerHTML], ...huidig.stukLijst.map((p, j) => [`${nm}-pos-${String(p.pos).padStart(2, '0')}.svg`, detailBlad(o, p, huidig.ctx, huidig.kk, { ...huidig.meta, blad: `${j + 1} / ${huidig.stukLijst.length}` })])]); }
   else if (b.dataset.dl === 'html') { const { a3, a4, stuk, detail } = bladen(o, keuzes, { nr: `TD-${String(STIJLEN.indexOf(s) + 1).padStart(2, '0')}`, datum: new Date().toISOString().slice(0, 10) }); filename = `${nm}-dossier.html`; data = `<!doctype html><html lang="nl"><head><meta charset="utf-8"><title>${esc(nm)}</title><style>@page a3{size:420mm 297mm;margin:0}@page a4{size:210mm 297mm;margin:14mm}@page a4l{size:297mm 210mm;margin:0}.a4l{page:a4l;width:297mm;height:210mm;overflow:hidden;page-break-after:always}.a4l svg{width:297mm;height:210mm;display:block}body{margin:0}.a3{page:a3;width:420mm;height:297mm;page-break-after:always}.a3 svg{width:420mm;height:297mm;display:block}.a4{page:a4}${CSS}</style></head><body><div class="a3">${a3}</div>${stuk.map((x) => `<div class="a3">${x}</div>`).join('')}${detail.map((x) => `<div class="a4l">${x}</div>`).join('')}${a4}</body></html>`; }
   else if (b.dataset.dl === 'csv') { filename = `${nm}-lijsten.csv`; const P = stukBladen(o, keuzes).posities; data = csv([['Stuklijst'], ['Pos', 'Aantal', 'Benaming', 'Materiaal', 'Maat', 'kg/st', 'Opmerking'], ...P.map((p) => [p.pos, p.n, p.naam, p.mat, p.maat, Math.round(p.kg * 100) / 100, p.opm]), [], ['Zaaglijst'], ['Wat', 'Staaf', 'Lengte mm', 'Aantal', 'Bewerking'], ...L.zaag.map((r) => [r.wat, STAAF[r.prof]?.naam ?? r.prof, r.l, r.n, r.bew]), [], ['Laserlijst'], ['Wat', 'Vorm', 'Maat', 'Aantal', 'Plaat'], ...L.laser.map((r) => [r.wat, r.vorm, r.vorm === 'boog' ? `R${r.r} x ${r.zicht}, ${r.hoek} gr` : `${r.b} x ${r.l}`, r.n, r.mat]), [], ['Glaslijst'], ['Deel', 'Vorm', 'Breedte', 'Hoogte', 'm2', 'Aantal'], ...L.glas.map((r) => [r.deel, r.vorm, r.b, r.h, Math.round(r.m2 * 100) / 100, r.n]), [], ['Kostprijs'], ...k.regels.map((r) => [r.wat, r.bedrag, r.bron]), ['Arbeid', k.arbeid], ['Kostprijs', k.kostprijs], ['Verkoop excl. btw', k.verkoop]]); }
   else { filename = `${nm}-dxf.zip`; data = zip([[`${nm}-laser.dxf`, laserDxf(o)], [`${nm}-glas.dxf`, glasDxf(o)]]); }

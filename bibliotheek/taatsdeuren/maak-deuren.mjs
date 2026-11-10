@@ -2,12 +2,14 @@
 // het werkblad (SVG), de DXF van de laserdelen en de ruiten, en één PDF per deur; daarna de bibliotheek-PDF.
 // Gebruik: node bibliotheek/taatsdeuren/maak-deuren.mjs                     (alle 100, standaardmaat)
 //          node bibliotheek/taatsdeuren/maak-deuren.mjs boog 1100 2500 [koker|systeem]   (één deur op maat)
+//          node bibliotheek/taatsdeuren/maak-deuren.mjs --koop   (elke stijl in de deurprofielen Jansen Economy 50, Janisol Arte 2.0 en
+//            Forster unico waar ze passen: één PDF per deur met alle plannen en stuk per stuk, in pdf-koop/<systeem>)
 import { writeFileSync as schrijfNu, mkdirSync, readFileSync, existsSync } from 'node:fs';
 // OneDrive houdt een bestand soms even vast: tot 10 keer opnieuw proberen
 const writeFileSync = (f, d) => { for (let i = 0; ; i++) { try { return schrijfNu(f, d); } catch (e) { if (i >= 9) throw e; Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 500); } } };
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { STIJLEN, ontwerp } from './deuren.mjs';
+import { STIJLEN, ontwerp, SYSTEMEN, systeemPast } from './deuren.mjs';
 import { samenstelling } from './model.mjs';
 import { laserDxf, glasDxf } from './dxf.mjs';
 import { bladen, CSS, eur } from './dossier.mjs';
@@ -16,7 +18,8 @@ import { losseTekening } from './teken.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const DATUM = '2026-11-10';
-const [, , id, B, H, systeem = 'koker'] = process.argv;
+const KOOP = process.argv.includes('--koop');
+const [, , id, B, H, systeem = 'koker'] = KOOP ? [] : process.argv;
 for (const d of ['modellen', 'tekeningen', 'dxf', 'pdf']) mkdirSync(join(HERE, d), { recursive: true });
 const lijst = id ? [{ s: STIJLEN.find((x) => x.id === id), B: +B, H: +H }] : STIJLEN.map((s) => ({ s, B: s.std.B, H: s.std.H }));
 const pagina = (titel, inhoud) => `<!doctype html><html lang="nl"><head><meta charset="utf-8"><title>${titel}</title><style>
@@ -29,15 +32,38 @@ html, body { margin: 0 } .a3 { page: a3; width: 420mm; height: 297mm; overflow: 
 
 const { chromium } = await import(pathToFileURL(join(HERE, '../../node_modules/playwright/index.mjs')).href);
 const browser = await chromium.launch(process.platform === 'win32' ? { channel: process.env.PW_CHANNEL ?? 'msedge' } : {});
-const pdf = async (html, uit) => { const f = join(HERE, 'pdf', '_tmp.html'); writeFileSync(f, html); const p = await browser.newPage(); await p.goto(pathToFileURL(f).href); await p.pdf({ path: uit, preferCSSPageSize: true, printBackground: true }); await p.close(); };
+const pdf = async (html, uit) => { const f = join(HERE, 'pdf', '_tmp.html'); writeFileSync(f, html); const p = await browser.newPage(); await p.goto(pathToFileURL(f).href); const buf = await p.pdf({ preferCSSPageSize: true, printBackground: true }); await p.close(); writeFileSync(uit, buf); };
 const alle = [], overzicht = [];
+if (KOOP) {
+  // de deurprofielen: per systeem een map, per deur één PDF (werkblad, opengewerkt, profielen, stuklijst, onderdelen,
+  // bestellijst, dossier A4 en elk stuk apart op A4)
+  for (const key of ['systeem', 'janisol', 'forster']) {
+    const sys = SYSTEMEN[key], map = join(HERE, 'pdf-koop', sys.kort.replace(/\s+/g, '-'));
+    mkdirSync(map, { recursive: true });
+    let n = 0;
+    for (const s of STIJLEN) {
+      const opbouw = (sys.glasMin ?? 0) > 9 ? 'dubbel' : 'enkel';
+      if (!systeemPast(key, { opbouw, stijl: s })) continue;
+      const o = ontwerp(s.id, s.std.B, s.std.H, { systeem: key }), k = { systeem: key, opbouw };
+      const nr = `TD-${String(STIJLEN.indexOf(s) + 1).padStart(2, '0')}`, naam = `${nr}-${s.id}-${s.std.B}x${s.std.H}`;
+      const { a3, a4, stuk, detail, kost } = bladen(o, k, { nr, datum: DATUM });
+      const deel = `<div class="a3">${a3}</div>${stuk.map((x) => `<div class="a3">${x}</div>`).join('')}${a4}${detail.map((x) => `<div class="a4l">${x}</div>`).join('')}`;
+      await pdf(pagina(`Taatsdeur ${s.naam} in ${sys.kort}`, deel), join(map, `${naam}-${key === 'systeem' ? 'economy' : key}.pdf`));
+      n++;
+      console.log(sys.kort, naam, 'kostprijs', kost.kostprijs);
+    }
+    console.log(sys.kort, n, 'deuren');
+  }
+  await browser.close();
+  process.exit(0);
+}
 for (const { s, B: b, H: h } of lijst) {
   const o = ontwerp(s.id, b, h, { systeem });
   const nr = `TD-${String(STIJLEN.indexOf(s) + 1).padStart(2, '0')}`, naam = `${nr}-${s.id}-${b}x${h}`;
   writeFileSync(join(HERE, 'modellen', `${naam}.kcad`), JSON.stringify(samenstelling(o, `Taatsdeur ${s.naam} ${b} x ${h}`)) + '\n');
   const { a3, a4, kost, stuk, detail } = bladen(o, { systeem }, { nr, datum: DATUM });
   writeFileSync(join(HERE, 'tekeningen', `${naam}.svg`), a3);
-  stuk.forEach((s, i) => writeFileSync(join(HERE, 'tekeningen', `${naam}-${i ? `stuklijst-${i}` : 'opengewerkt'}.svg`), s));
+  stuk.forEach((s, i) => writeFileSync(join(HERE, 'tekeningen', `${naam}-${i === 0 ? 'opengewerkt' : i === 1 ? 'profielen' : i === stuk.length - 1 ? 'bestellijst' : `stuklijst-${i - 1}`}.svg`), s));
   writeFileSync(join(HERE, 'dxf', `${naam}-laser.dxf`), laserDxf(o));
   writeFileSync(join(HERE, 'dxf', `${naam}-glas.dxf`), glasDxf(o));
   const deel = `<div class="a3">${a3}</div>${stuk.map((s) => `<div class="a3">${s}</div>`).join('')}${a4}`;

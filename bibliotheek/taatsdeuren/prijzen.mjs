@@ -3,6 +3,7 @@
 import { lijsten, laserKg, gewicht } from './deuren.mjs';
 import { stappen, UREN } from './werkwijze.mjs';
 import { GLAS, OPBOUW, SCHARNIEREN, RAL, METALLIC } from './opties.mjs';
+import { zaagplan } from './bestel.mjs';
 
 const MS = 'https://www.metallshopper.de/p/';
 /** staven: kg/m, prijs per m, omtrek (mm, voor de coating), bron */
@@ -16,10 +17,21 @@ export const STAAF = {
   plat30x3: { naam: 'platstaal 30x3', kgm: 0.71, prijs: 3.9, omtrek: 66, bron: 'schatting: € 5,50/kg' },
   plat15x4: { naam: 'platstaal 15x4', kgm: 0.47, prijs: 2.6, omtrek: 38, bron: 'schatting: € 5,50/kg' },
   rond25: { naam: 'rond Ø25', kgm: 3.85, prijs: 21.2, omtrek: 79, bron: 'schatting: € 5,50/kg' },
-  jansen30407: { naam: 'Jansen Economy 50, 30.407', kgm: 3.45, prijs: 41.4, omtrek: 200, bron: 'gewicht: Jansen-catalogus (feon.fi); prijs: schatting € 12/kg, offerte via een Jansen-verdeler' },
-  jansen30006: { naam: 'Jansen Economy 50, 30.006', kgm: 2.33, prijs: 28, omtrek: 150, bron: 'idem' },
-  jansen30007: { naam: 'Jansen Economy 50, 30.007', kgm: 2.96, prijs: 35.5, omtrek: 200, bron: 'idem' },
-  jansen402: { naam: 'Jansen glaslat 402', kgm: 0.8, prijs: 9.6, omtrek: 60, bron: 'gewicht 0,55-1,05 kg/m (Jansen-catalogus); prijs: schatting' },
+  // ---- koopprofielen (staven van 6 m; wand 1,5 mm). Gewicht: Feon-profiellijst 08/2020 (Jansen) en Forster-planningsdocument
+  // 988320 (03/21). Prijs per m of kg is nergens publiek: schatting per kg, offerte vragen (Jansen BE: info.belgium@jansen.com;
+  // Forster Belux, Duffel: info.belux@forstersystems.com). zicht x diepte = buitenmaat (sponning niet getekend), iso = isolatiezone in de diepte.
+  jansen30407: { naam: 'Jansen 30.407 Z (Economy 50, vleugel)', artikel: '30.407 Z', koop: true, zicht: 50, diepte: 50, wand: 1.5, lengte: 6000, kgm: 3.45, prijs: 41.4, omtrek: 220, bron: 'gewicht: Feon-profiellijst Jansen 08/2020 (feon.fi); prijs: schatting € 12/kg, offerte via Jansen (Breda, info.belgium@jansen.com)' },
+  jansen30006: { naam: 'Jansen 30.006 Z (Economy 50, roede)', artikel: '30.006 Z', koop: true, zicht: 25, diepte: 50, wand: 1.5, lengte: 6000, kgm: 2.33, prijs: 27.96, omtrek: 150, bron: 'idem (Feon 08/2020); schatting € 12/kg' },
+  jansen30007: { naam: 'Jansen 30.007 Z (Economy 50, kozijn)', artikel: '30.007 Z', koop: true, zicht: 50, diepte: 50, wand: 1.5, lengte: 6000, kgm: 2.96, prijs: 35.52, omtrek: 200, bron: 'idem (Feon 08/2020); schatting € 12/kg' },
+  jansen402: { naam: 'Jansen glaslat 402.120 Z (20 x 20)', artikel: '402.120 Z', koop: true, lengte: 6000, kgm: 0.8, prijs: 9.6, omtrek: 60, bron: 'Jansen stalen glaslatten 402.112-402.140 Z, 0,55-1,05 kg/m (Feon 08/2020); prijs: schatting' },
+  janisol602611: { naam: 'Jansen 602.611 Z (Janisol Arte 2.0, deurkozijn 40 x 60)', artikel: '602.611 Z', koop: true, zicht: 40, diepte: 60, wand: 1.5, iso: [20, 40], lengte: 6000, kgm: 2.25, prijs: 40.5, omtrek: 200, bron: 'gewicht: Feon 08/2020; maat: Janisol Arte 2.0-catalogus K1018330 (jansen.com); prijs: schatting € 18/kg (geïsoleerd), offerte via info.belgium@jansen.com' },
+  janisol603611: { naam: 'Jansen 603.611 Z (Janisol Arte 2.0, vleugel 40 x 60)', artikel: '603.611 Z', koop: true, zicht: 40, diepte: 60, wand: 1.5, iso: [20, 40], lengte: 6000, kgm: 2.25, prijs: 40.5, omtrek: 200, bron: 'idem; schatting € 18/kg' },
+  janisol601615: { naam: 'Jansen 601.615 Z (Janisol Arte 2.0, T-profiel 40 x 60)', artikel: '601.615 Z', koop: true, zicht: 40, diepte: 60, wand: 1.5, iso: [20, 40], lengte: 6000, kgm: 3.02, prijs: 54.36, omtrek: 220, bron: 'idem; schatting € 18/kg' },
+  janisol405022: { naam: 'Jansen glaslat 405.022 (15 x 20, met clip 450.026)', artikel: '405.022', koop: true, lengte: 6000, kgm: 0.2, prijs: 6, omtrek: 50, bron: 'gewicht 0,16-0,26 kg/m (Feon 08/2020, Janisol Arte); prijs: schatting' },
+  forster531755: { naam: 'Forster 531.755 (unico, deurkozijn 90 x 70)', artikel: '531.755', koop: true, zicht: 90, diepte: 70, wand: 1.5, iso: [20, 50], lengte: 6000, kgm: 4.87, prijs: 87.66, omtrek: 320, bron: 'Forster-planningsdocument 988320 unico (03/21), p. 146-154 (forster-profile.ch); breedte uit de doorsnede afgelezen; prijs: schatting € 18/kg, offerte via Forster Belux (Duffel)' },
+  forster533751: { naam: 'Forster 533.751 (unico, vleugel 65 x 70)', artikel: '533.751', koop: true, zicht: 65, diepte: 70, wand: 1.5, iso: [20, 50], lengte: 6000, kgm: 3.95, prijs: 71.1, omtrek: 270, bron: 'idem; schatting € 18/kg' },
+  forster531722: { naam: 'Forster 531.722 (unico, T-profiel 60 x 70)', artikel: '531.722', koop: true, zicht: 60, diepte: 70, wand: 1.5, iso: [20, 50], lengte: 6000, kgm: 2.919, prijs: 52.54, omtrek: 260, bron: 'idem; schatting € 18/kg' },
+  forster901227: { naam: 'Forster glaslat 901227 (20 x 12, droog beglazen, clip 906577)', artikel: '901227', koop: true, lengte: 6000, kgm: 0.35, prijs: 7, omtrek: 50, bron: 'glaslatreeks 901226-901228 (Forster unico 988320), hoogte 20; breedte 12, gewicht en prijs: schatting' },
 };
 export const PRIJS = {
   laserPerKg: { v: 4.5, bron: 'schatting (geen publieke prijs gevonden): plaat S235 + snijden' },
@@ -54,11 +66,17 @@ export function oppervlak(L) {
 export function kostprijs(o, k = {}) {
   const K = { ...STANDAARD_KEUZES, ...k }, L = lijsten(o), regels = [];
   const regel = (wat, bedrag, bron = '') => regels.push({ wat, bedrag: r2(bedrag), bron });
-  // staal: 10 % zaagverlies
-  const staven = L.zaag.reduce((s, r) => s + (STAAF[r.prof]?.prijs ?? 0) * (r.l / 1000) * r.n, 0) * 1.1;
-  regel('Staven (zaaglijst, + 10 % zaagverlies)', staven, 'metallshopper.de en schattingen per staaf');
+  // staal: 10 % zaagverlies; koopprofielen in hele staven van de handel (zaagplan), de rest (glaslat, platstaal) ook
+  if (o.sys.koop) {
+    const z = zaagplan(o, K), koop = z.profielen.filter((p) => STAAF[p.prof]?.koop), ander = z.profielen.filter((p) => !STAAF[p.prof]?.koop);
+    regel(`Profielen ${o.sys.kort}: ${koop.map((p) => `${p.n} x ${p.artikel}`).join(', ')} (hele staven, zaagplan)`, koop.reduce((t, p) => t + p.prijs, 0), STAAF[o.sys.kader.staaf]?.bron ?? '');
+    if (ander.length) regel(`Staven (${ander.map((p) => p.naam).join(', ')})`, ander.reduce((t, p) => t + p.prijs, 0), 'metallshopper.de en schattingen per staaf');
+  } else {
+    const staven = L.zaag.reduce((s, r) => s + (STAAF[r.prof]?.prijs ?? 0) * (r.l / 1000) * r.n, 0) * 1.1;
+    regel('Staven (zaaglijst, + 10 % zaagverlies)', staven, 'metallshopper.de en schattingen per staaf');
+  }
   const lkg = L.laser.reduce((s, r) => s + laserKg(r), 0), ldelen = L.laser.reduce((s, r) => s + r.n, 0);
-  regel(`Lasersnijden (${r2(lkg)} kg, ${ldelen} delen)`, lkg * PRIJS.laserPerKg.v + ldelen * PRIJS.laserPerDeel.v, PRIJS.laserPerKg.bron);
+  if (ldelen) regel(`Lasersnijden (${r2(lkg)} kg, ${ldelen} delen)`, lkg * PRIJS.laserPerKg.v + ldelen * PRIJS.laserPerDeel.v, PRIJS.laserPerKg.bron);
   const g = PRIJS.glas[K.glas] ?? PRIJS.glas.helder;
   let glas = 0, kant = 0;
   for (const r of L.glas) {
@@ -89,7 +107,7 @@ export function kostprijs(o, k = {}) {
   const uren = S.reduce((t, s) => t + s.uren, 0);
   const arbeid = uren * K.uurloon;
   const kost = materiaal + arbeid;
-  return { regels, materiaal: r2(materiaal), uren: r2(uren), arbeid: r2(arbeid), kostprijs: r2(kost), verkoop: r2(kost * (1 + K.marge / 100)), gewicht: G, stappen: S, keuzes: K, oppervlak: r2(m2), scharnier: sk, maxKg: o.sys.kader.diepte >= 50 && SCHARNIEREN[sk].maxKgDiep ? SCHARNIEREN[sk].maxKgDiep : SCHARNIEREN[sk].maxKg };
+  return { regels, materiaal: r2(materiaal), uren: r2(uren), arbeid: r2(arbeid), kostprijs: r2(kost), verkoop: r2(kost * (1 + K.marge / 100)), gewicht: G, stappen: S, keuzes: K, oppervlak: r2(m2), scharnier: sk, maxKg: Math.min(o.sys.kader.diepte >= 50 && SCHARNIEREN[sk].maxKgDiep ? SCHARNIEREN[sk].maxKgDiep : SCHARNIEREN[sk].maxKg, o.sys.maxVleugel?.kg ?? Infinity) };
 }
 
 /** vergelijk: verkoopprijzen van stalen taatsdeuren in BE/NL (2026) */

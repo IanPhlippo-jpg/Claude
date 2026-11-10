@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 297" width="420mm" height="297mm" font-family="Arial, Helvetica, sans-serif"><defs><pattern id="arcering" width="1.6" height="1.6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="1.6" height="1.6" fill="#fff"/><line x1="0" y1="0" x2="0" y2="1.6" stroke="#111" stroke-width="0.18"/></pattern></defs><rect width="420" height="297" fill="#fff"/><rect x="20" y="10" width="390" height="277" fill="none" stroke="#111" stroke-width="0.7"/>
+<text x="26" y="17" font-size="3.2" font-weight="700">Deurprofielen: Koker en strip</text>
+<text x="26" y="22" font-size="2.1" fill="#333">Eigen staven uit de staalhandel. Voor = de kant met de greep (boven in de doorsnede).</text>
+<rect x="26" y="27" width="93.5" height="118" fill="none" stroke="#111" stroke-width="0.3"/>
+<text x="28" y="32.5" font-size="3" font-weight="700">Kozijn</text>
+<text x="28" y="37" font-size="2.4">koker 40x40x2</text>
+<rect x="48.75" y="45" width="60" height="3" fill="#2b2f33" stroke="#111" stroke-width="0.2"/><rect x="48.75" y="102" width="60" height="3" fill="#2b2f33" stroke="#111" stroke-width="0.2"/><rect x="48.75" y="48" width="3" height="54" fill="#2b2f33" stroke="#111" stroke-width="0.2"/><rect x="105.75" y="48" width="3" height="54" fill="#2b2f33" stroke="#111" stroke-width="0.2"/><line x1="48.75" y1="109" x2="108.75" y2="109" stroke="#111" stroke-width="0.15"/><line x1="48.75" y1="108" x2="48.75" y2="110" stroke="#111" stroke-width="0.15"/><line x1="108.75" y1="108" x2="108.75" y2="110" stroke="#111" stroke-width="0.15"/><text x="78.75" y="111.89999999999999" font-size="2.3" text-anchor="middle">40 zicht</text><line x1="44.75" y1="45" x2="44.75" y2="105" stroke="#111" stroke-width="0.15"/><line x1="43.75" y1="45" x2="45.75" y2="45" stroke="#111" stroke-width="0.15"/><line x1="43.75" y1="105" x2="45.75" y2="105" stroke="#111" stroke-width="0.15"/><text x="43.75" y="75" font-size="2.3" text-anchor="middle" transform="rotate(-90 43.75 75)">40 diep</text>
+<text x="28" y="127" font-size="2.1">Doorsnede 1.5:1 · 40 x 40 · wand 2</text>
+<text x="28" y="130.4" font-size="2.1">2,31 kg/m · staven van 6 m (staalhandel)</text>
+<text x="28" y="133.8" font-size="2.1" font-weight="700">3 stukken: pos 1, 2</text>
+<text x="28" y="137.20000000000002" font-size="2.1">zagen 90°/45°, 45°/45°</text>
+<rect x="121.5" y="27" width="93.5" height="118" fill="none" stroke="#111" stroke-width="0.3"/>
+<text x="123.5" y="32.5" font-size="3" font-weight="700">Vleugel (kader)</text>
+<text x="123.5" y="37" font-size="2.4">koker 40x40x2</text>
+<rect x="189.25" y="72.6" width="12" height="8.8" fill="#d6e4e9" stroke="#111" stroke-width="0.2"/><rect x="147.25" y="57" width="40" height="2" fill="#2b2f33" stroke="#111" stroke-width="0.2"/><rect x="147.25" y="95" width="40" height="2" fill="#2b2f33" stroke="#111" stroke-width="0.2"/><rect x="147.25" y="59" width="2" height="36" fill="#2b2f33" stroke="#111" stroke-width="0.2"/><rect x="185.25" y="59" width="2" height="36" fill="#2b2f33" stroke="#111" stroke-width="0.2"/><line x1="147.25" y1="101" x2="187.25" y2="101" stroke="#111" stroke-width="0.15"/><line x1="147.25" y1="100" x2="147.25" y2="102" stroke="#111" stroke-width="0.15"/><line x1="187.25" y1="100" x2="187.25" y2="102" stroke="#111" stroke-width="0.15"/><text x="167.25" y="103.89999999999999" font-size="2.3" text-anchor="middle">40 zicht</text><line x1="143.25" y1="57" x2="143.25" y2="97" stroke="#111" stroke-width="0.15"/><line x1="142.25" y1="57" x2="144.25" y2="57" stroke="#111" stroke-width="0.15"/><line x1="142.25" y1="97" x2="144.25" y2="97" stroke="#111" stroke-width="0.15"/><text x="142.25" y="77" font-size="2.3" text-anchor="middle" transform="rotate(-90 142.25 77)">40 diep</text>
+<text x="123.5" y="127" font-size="2.1">Doorsnede 1:1 · 40 x 40 · wand 2</text>
+<text x="123.5" y="130.4" font-size="2.1">2,31 kg/m · staven van 6 m (staalhandel)</text>
+<text x="123.5" y="133.8" font-size="2.1" font-weight="700">4 stukken: pos 3, 4</text>
+<text x="123.5" y="137.20000000000002" font-size="2.1">zagen 45°/45°</text>
+<rect x="217" y="27" width="93.5" height="118" fill="none" stroke="#111" stroke-width="0.3"/>
+<text x="219" y="32.5" font-size="3" font-weight="700">Roede</text>
+<text x="219" y="37" font-size="2.4">platstaal 20x10</text>
+<rect x="281.75" y="72.6" width="12" height="8.8" fill="#d6e4e9" stroke="#111" stroke-width="0.2"/><rect x="245.75" y="72.6" width="12" height="8.8" fill="#d6e4e9" stroke="#111" stroke-width="0.2"/><rect x="259.75" y="72" width="20" height="10" fill="#8a9095" stroke="#111" stroke-width="0.2"/><rect x="254.75" y="69" width="30" height="3" fill="#8a9095" stroke="#111" stroke-width="0.2"/><rect x="254.75" y="82" width="30" height="3" fill="#8a9095" stroke="#111" stroke-width="0.2"/><line x1="259.75" y1="86" x2="279.75" y2="86" stroke="#111" stroke-width="0.15"/><line x1="259.75" y1="85" x2="259.75" y2="87" stroke="#111" stroke-width="0.15"/><line x1="279.75" y1="85" x2="279.75" y2="87" stroke="#111" stroke-width="0.15"/><text x="269.75" y="88.89999999999999" font-size="2.3" text-anchor="middle">20 zicht</text><line x1="241.75" y1="72" x2="241.75" y2="82" stroke="#111" stroke-width="0.15"/><line x1="240.75" y1="72" x2="242.75" y2="72" stroke="#111" stroke-width="0.15"/><line x1="240.75" y1="82" x2="242.75" y2="82" stroke="#111" stroke-width="0.15"/><text x="240.75" y="77" font-size="2.3" text-anchor="middle" transform="rotate(-90 240.75 77)">10 diep</text>
+<text x="219" y="127" font-size="2.1">Doorsnede 1:1 · 20 x 10</text>
+<text x="219" y="130.4" font-size="2.1">1,57 kg/m · staven van 6 m (staalhandel)</text>
+<text x="219" y="133.8" font-size="2.1" font-weight="700">2 stukken: pos 5</text>
+<text x="219" y="137.20000000000002" font-size="2.1">zagen 90°/90°</text>
+<rect x="312.5" y="27" width="93.5" height="118" fill="none" stroke="#111" stroke-width="0.3"/>
+<text x="314.5" y="32.5" font-size="3" font-weight="700">Glaslat</text>
+<text x="314.5" y="37" font-size="2.4">platstaal 15x4</text>
+<rect x="350.25" y="69" width="30" height="8" fill="#8a9095" stroke="#111" stroke-width="0.2"/><line x1="350.25" y1="81" x2="380.25" y2="81" stroke="#111" stroke-width="0.15"/><line x1="350.25" y1="80" x2="350.25" y2="82" stroke="#111" stroke-width="0.15"/><line x1="380.25" y1="80" x2="380.25" y2="82" stroke="#111" stroke-width="0.15"/><text x="365.25" y="83.89999999999999" font-size="2.3" text-anchor="middle">15 zicht</text><line x1="346.25" y1="69" x2="346.25" y2="77" stroke="#111" stroke-width="0.15"/><line x1="345.25" y1="69" x2="347.25" y2="69" stroke="#111" stroke-width="0.15"/><line x1="345.25" y1="77" x2="347.25" y2="77" stroke="#111" stroke-width="0.15"/><text x="345.25" y="73" font-size="2.3" text-anchor="middle" transform="rotate(-90 345.25 73)">4 diep</text>
+<text x="314.5" y="127" font-size="2.1">Doorsnede 2:1 · 15 x 4</text>
+<text x="314.5" y="130.4" font-size="2.1">0,47 kg/m · staven van 6 m (staalhandel)</text>
+<text x="314.5" y="133.8" font-size="2.1" font-weight="700">10 stukken: pos 7, 8, 9</text>
+<text x="26" y="153" font-size="3" font-weight="700">Hoe de stukken samenkomen (vooraanzicht 1:2; rood = zaagsnede in verstek 45°, stippellijn = wand achter de zichtkant)</text>
+<polygon points="56,168 111,168 111,188 76,188" fill="#d7dadc" stroke="#111" stroke-width="0.3"/>
+<polygon points="56,168 76,188 76,223 56,223" fill="#d7dadc" stroke="#111" stroke-width="0.3"/>
+<line x1="56" y1="168" x2="76" y2="188" stroke="#c0392b" stroke-width="0.8"/>
+<line x1="58" y1="169" x2="111" y2="169" stroke="#555" stroke-width="0.18" stroke-dasharray="1.4 0.8"/>
+<line x1="57" y1="170" x2="57" y2="223" stroke="#555" stroke-width="0.18" stroke-dasharray="1.4 0.8"/>
+<text x="89.5" y="166.5" font-size="2">regel</text>
+<text x="54" y="203.5" font-size="2" text-anchor="end">staander</text>
+<text x="79" y="194" font-size="2.4" font-weight="700" fill="#c0392b">45°</text>
+<rect x="26" y="156" width="125" height="92" fill="none" stroke="#111" stroke-width="0.3"/>
+<text x="28" y="161" font-size="2.7" font-weight="700">Hoek van de vleugel: verstek</text>
+<text x="28" y="234" font-size="2.05">Beide stukken 45° zagen (pos 3, 4).</text>
+<text x="28" y="237.4" font-size="2.05">TIG zichtkant, MIG binnen; vlak slijpen.</text>
+<text x="28" y="240.8" font-size="2.05">Diagonalen gelijk (± 1 mm) voor je last.</text>
+<polygon points="178,170 268,170 268,190 178,190" fill="#d7dadc" stroke="#111" stroke-width="0.3"/>
+<polygon points="215.5,190 230.5,190 230.5,224 215.5,224" fill="#e2e5e7" stroke="#111" stroke-width="0.3"/>
+<line x1="178" y1="189" x2="268" y2="189" stroke="#555" stroke-width="0.18" stroke-dasharray="1.4 0.8"/>
+<line x1="215.5" y1="190" x2="230.5" y2="190" stroke="#1f5fa8" stroke-width="0.7"/>
+<text x="223" y="181" font-size="2" text-anchor="middle">kader</text>
+<text x="232.5" y="212" font-size="2">roede</text>
+<rect x="153" y="156" width="125" height="92" fill="none" stroke="#111" stroke-width="0.3"/>
+<text x="155" y="161" font-size="2.7" font-weight="700">Roede tegen het kader: stomp (T)</text>
+<text x="155" y="234" font-size="2.05">Roede recht zagen op de daglichtmaat.</text>
+<text x="155" y="237.4" font-size="2.05">Kern op afstandsblokjes in het midden van de diepte.</text>
+<text x="155" y="240.8" font-size="2.05">Hoeklas rondom (blauw), vlak slijpen.</text>
+<polygon points="310,168 365,168 365,188 330,188" fill="#d7dadc" stroke="#111" stroke-width="0.3"/>
+<polygon points="310,168 330,188 330,224 310,224" fill="#d7dadc" stroke="#111" stroke-width="0.3"/>
+<line x1="310" y1="168" x2="330" y2="188" stroke="#c0392b" stroke-width="0.8"/>
+<line x1="306" y1="224" x2="360" y2="224" stroke="#111" stroke-width="0.5"/>
+<line x1="306" y1="224" x2="302" y2="228" stroke="#111" stroke-width="0.15"/>
+<line x1="312" y1="224" x2="308" y2="228" stroke="#111" stroke-width="0.15"/>
+<line x1="318" y1="224" x2="314" y2="228" stroke="#111" stroke-width="0.15"/>
+<line x1="324" y1="224" x2="320" y2="228" stroke="#111" stroke-width="0.15"/>
+<line x1="330" y1="224" x2="326" y2="228" stroke="#111" stroke-width="0.15"/>
+<line x1="336" y1="224" x2="332" y2="228" stroke="#111" stroke-width="0.15"/>
+<text x="333" y="194" font-size="2.4" font-weight="700" fill="#c0392b">45°</text>
+<text x="333" y="222" font-size="2">recht (90°) op de vloer</text>
+<rect x="280" y="156" width="125" height="92" fill="none" stroke="#111" stroke-width="0.3"/>
+<text x="282" y="161" font-size="2.7" font-weight="700">Kozijn: boven verstek, onder recht</text>
+<text x="282" y="234" font-size="2.05">Bovenregel en stijlen boven 45° (pos 1, 2, 21).</text>
+<text x="282" y="237.4" font-size="2.05">De stijlen staan onderaan recht op de vloer.</text>
+<text x="282" y="240.8" font-size="2.05">Taatspot in de vloer, bovenpen in de bovenregel.</text>
+<rect x="214" y="255" width="196" height="32" fill="#fff" stroke="#111" stroke-width="0.5"/><line x1="214" y1="263" x2="410" y2="263" stroke="#111" stroke-width="0.25"/><line x1="214" y1="271" x2="410" y2="271" stroke="#111" stroke-width="0.25"/><line x1="214" y1="279" x2="410" y2="279" stroke="#111" stroke-width="0.25"/><text x="215.2" y="257.6" font-size="1.7" fill="#555">Eigenaar</text><text x="215.2" y="261.6" font-size="2.6" font-weight="700">Ian · laswerken</text><line x1="284" y1="255" x2="284" y2="263" stroke="#111" stroke-width="0.25"/><text x="285.2" y="257.6" font-size="1.7" fill="#555">Bibliotheek</text><text x="285.2" y="261.6" font-size="2.6">Stalen deuren</text><text x="215.2" y="265.6" font-size="1.7" fill="#555">Titel</text><text x="215.2" y="269.6" font-size="3" font-weight="700">Deurprofielen Paneel en twee vakken · opening 1000 x 2400</text><text x="215.2" y="273.6" font-size="1.7" fill="#555">Systeem</text><text x="215.2" y="277.6" font-size="2.4">Koker en strip</text><line x1="284" y1="271" x2="284" y2="279" stroke="#111" stroke-width="0.25"/><text x="285.2" y="273.6" font-size="1.7" fill="#555">Tekeningnummer</text><text x="285.2" y="277.6" font-size="2.6" font-weight="700">TD-25</text><line x1="344" y1="271" x2="344" y2="279" stroke="#111" stroke-width="0.25"/><text x="345.2" y="273.6" font-size="1.7" fill="#555">Rev.</text><text x="345.2" y="277.6" font-size="2.6">1</text><line x1="364" y1="271" x2="364" y2="279" stroke="#111" stroke-width="0.25"/><text x="365.2" y="273.6" font-size="1.7" fill="#555">Uitgifte</text><text x="365.2" y="277.6" font-size="2.4">2026-11-10</text><text x="215.2" y="281.6" font-size="1.7" fill="#555">Maten en toleranties</text><text x="215.2" y="285.6" font-size="2.3">mm · ISO 2768-m · lassen ISO 5817-C</text><line x1="284" y1="279" x2="284" y2="287" stroke="#111" stroke-width="0.25"/><text x="285.2" y="281.6" font-size="1.7" fill="#555">Schaal</text><text x="285.2" y="285.6" font-size="2.4">zie bij de tekening</text><line x1="314" y1="279" x2="314" y2="287" stroke="#111" stroke-width="0.25"/><text x="315.2" y="281.6" font-size="1.7" fill="#555">Opgesteld</text><text x="315.2" y="285.6" font-size="2.3">Ian · laswerken</text><line x1="364" y1="279" x2="364" y2="287" stroke="#111" stroke-width="0.25"/><text x="365.2" y="281.6" font-size="1.7" fill="#555">Blad</text><text x="365.2" y="285.6" font-size="2.4">3 / 8</text></svg>

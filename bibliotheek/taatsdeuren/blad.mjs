@@ -3,6 +3,7 @@
 // Werkt in Node (PDF) en in de browser (configurator).
 import { lijsten, MATEN } from './deuren.mjs';
 import { vooraanzicht } from './teken.mjs';
+import { STAAF } from './prijzen.mjs';
 
 export const W = 420, H = 297;
 export const esc = (t) => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -30,6 +31,7 @@ function doorsnede(o, x, y) {
   const R = (x0, y0, w, h, vul = '#2b2e31') => el.push(`<rect x="${x + x0 * s}" y="${y + y0 * s}" width="${w * s}" height="${h * s}" fill="${vul}" stroke="#111" stroke-width="0.2"/>`);
   // glas in het midden: enkel = één ruit; dubbel = 44.2 | 14 | 6 met een afstandhouder
   const glas = (x0, w) => { if (o.opbouw === 'dubbel') { R(x0, m - gd / 2, w, 8.8, '#cfdde3'); R(x0, m + gd / 2 - 6, w, 6, '#cfdde3'); R(x0 + 2, m - gd / 2 + 8.8, 8, 14, '#888'); } else R(x0, m - gd / 2, w, gd, '#cfdde3'); };
+  if (sys.koop) return doorsnedeKoop(o, x, y, R, glas, el);
   R(0, 0, k.zicht, k.diepte);
   glas(k.zicht + 2, 70);
   R(k.zicht, m - gd / 2 - 4, 15, 4); R(k.zicht, m + gd / 2, 15, 4);
@@ -39,6 +41,27 @@ function doorsnede(o, x, y) {
   glas(xr + 22, 50);
   el.push(T(x, y - 3, `Doorsnede A-A (1:2): kader, ${o.opbouw === 'dubbel' ? 'dubbel glas 44.2 | 14 | 6 gehard' : 'veiligheidsglas'}, glaslatten, roede`, 2.4, { vet: true }));
   el.push(T(x, y + k.diepte * s + 5, `${k.uitleg}; ${r.uitleg}`, 2));
+  return el.join('');
+}
+
+/** doorsnede bij koopprofielen (vereenvoudigd): holle profielen met wand 1,5, bij een geïsoleerd profiel twee stalen
+ * schalen met de isolatiezone ertussen; sponning (lip) aan de voorkant, glaslat aan de achterkant */
+function doorsnedeKoop(o, x, y, R, glas, el) {
+  const sys = o.sys, s = 0.5, k = sys.kader, r = sys.roede, gd = o.glasDikte ?? 8.8, m = k.diepte / 2;
+  const hol = (x0, w, h, prof) => {
+    const st = STAAF[prof] ?? {}, t = st.wand ?? 1.5, iso = st.iso;
+    const schaal = (y0, hh) => { R(x0, y0, w, hh); R(x0 + t, y0 + t, w - 2 * t, hh - 2 * t, '#fff'); };
+    if (iso) { schaal(0, iso[0]); R(x0, iso[0], w, iso[1] - iso[0], '#e3cf8f'); schaal(iso[1], h - iso[1]); } else schaal(0, h);
+  };
+  hol(0, k.zicht, k.diepte, k.staaf);
+  glas(k.zicht + 2, 70);
+  R(k.zicht, m - gd / 2 - 4, 12, 4); R(k.zicht, m + gd / 2, 15, 4, '#6b7075');
+  const xr = k.zicht + 72;
+  hol(xr, r.zicht, r.diepte, r.staaf);
+  R(xr - 12, m - gd / 2 - 4, 12, 4); R(xr + r.zicht, m - gd / 2 - 4, 12, 4); R(xr - 15, m + gd / 2, 15, 4, '#6b7075'); R(xr + r.zicht, m + gd / 2, 15, 4, '#6b7075');
+  glas(xr + r.zicht + 2, 40);
+  el.push(T(x, y - 3, `Doorsnede A-A (1:2, vereenvoudigd): ${sys.kort}, ${o.opbouw === 'dubbel' ? 'isolerend glas 44.2 | 14 | 6 gehard' : 'veiligheidsglas'}`, 2.4, { vet: true }));
+  el.push(T(x, y + k.diepte * s + 5, `${k.uitleg}; ${r.uitleg}.`, 2), T(x, y + k.diepte * s + 8.5, `${sys.glaslat.uitleg}${sys.iso ? '; geel = isolatiezone' : ''}. Sponning en dichtingen volgens de catalogus.`, 2));
   return el.join('');
 }
 
@@ -56,7 +79,7 @@ export function werkblad(o, opts = {}) {
   // rechts: lijsten
   let y = 16;
   const x = 214;
-  const [zt, zh] = tabel(x, y + 4, [['Zaaglijst', 70], ['Staaf', 34], ['Lengte', 18, 1], ['n', 8, 1], ['Bewerking', 66]], Ls.zaag.map((r) => [r.wat, r.prof, g(r.l), r.n, r.bew]), 4.3, 2.15);
+  const [zt, zh] = tabel(x, y + 4, [['Zaaglijst', 70], ['Staaf', 34], ['Lengte', 18, 1], ['n', 8, 1], ['Bewerking', 66]], Ls.zaag.map((r) => [r.wat, STAAF[r.prof]?.artikel ?? r.prof, g(r.l), r.n, r.bew.length > 52 ? `${r.bew.slice(0, 51)}…` : r.bew]), 4.3, 2.15);
   el.push(T(x, y + 2.5, 'Zaaglijst (staven)', 2.8, { vet: true }), zt); y += zh + 9;
   const [lt, lh] = tabel(x, y + 4, [['Lasergesneden', 70], ['Maat', 52, 0], ['n', 8, 1], ['Plaat / opmerking', 66]], Ls.laser.map((r) => [r.wat, r.vorm === 'boog' ? `R${g(r.r)} x ${r.zicht}, ${g(r.hoek)}°` : `${r.b} x ${r.l}`, r.n, `${r.mat}; ${r.opm}`]), 4.3, 2.15);
   el.push(T(x, y + 2.5, 'Laserlijst (DXF bij de configurator)', 2.8, { vet: true }), lt); y += lh + 9;

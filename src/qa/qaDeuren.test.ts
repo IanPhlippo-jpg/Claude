@@ -26,6 +26,10 @@ import { verbindingen, explodeBlad } from '../../bibliotheek/taatsdeuren/explode
 import { gewicht } from '../../bibliotheek/taatsdeuren/deuren.mjs';
 // @ts-expect-error: idem
 import { detailBladen, vorm3d, volume3d, profiel } from '../../bibliotheek/taatsdeuren/detail.mjs';
+// @ts-expect-error: idem
+import { zaagplan, bestelBlad } from '../../bibliotheek/taatsdeuren/bestel.mjs';
+// @ts-expect-error: idem
+import { kostprijs } from '../../bibliotheek/taatsdeuren/prijzen.mjs';
 
 type P = [number, number];
 // klein (net boven de kleinste maat), standaard en groot
@@ -63,7 +67,9 @@ describe('taatsdeuren', () => {
   // model; de bladen (stuklijst en onderdelen) worden getekend, met een kaart per positie
   it.each(STIJLEN.map((s: { id: string }) => s.id) as string[])('%s: stuklijst is volledig', (id: string) => {
     const s = STIJLEN.find((x: { id: string }) => x.id === id);
-    for (const k of [{}, { scharnier: 'verdekt', opbouw: 'dubbel' }]) {
+    // eigen kokers (enkel, dubbel glas met verdekte scharnieren) en de deurprofielen: Jansen Economy 50 (binnen), buiten
+    // automatisch (Janisol Arte 2.0, of een koker als de stijl een boog heeft) en Forster unico met FritsJurgens
+    for (const k of [{}, { scharnier: 'verdekt', opbouw: 'dubbel' }, { systeem: 'systeem' }, { gebruik: 'buiten' }, { systeem: 'forster', scharnier: 'premium' }]) {
       const o = ontwerp(id, s.std.B, s.std.H, k), { bladen, posities } = stukBladen(o, k);
       type Pos = { soort: string; naam: string; n: number; kg: number; pos: number };
       const delen = [o.kozijn, ...o.vleugels, ...o.vast].flatMap((g: { delen: { a?: P; soort: string }[] }) => g.delen.filter((d) => d.a));
@@ -90,10 +96,22 @@ describe('taatsdeuren', () => {
       const opv = (q: P[]) => Math.abs(q.reduce((s2, a, i) => { const b = q[(i + 1) % q.length]; return s2 + a[0] * b[1] - b[0] * a[1]; }, 0)) / 2;
       type PosV = Pos & { prof?: string; vorm?: { pts: P[]; V: number } };
       for (const p of posities as PosV[]) {
-        if (p.soort === 'inkoop' || p.soort === 'glas' || (p.soort === 'staaf' && profiel(p.prof, p.vorm!.V).soort === 'systeem')) continue;
+        if (p.soort === 'inkoop' || p.soort === 'glas' || (p.soort === 'staaf' && (profiel(p.prof, p.vorm!.V).soort === 'systeem' || profiel(p.prof, p.vorm!.V).koop))) continue;
         const kg3 = volume3d(vorm3d(p, o)) * 7.85e-6, verwacht = p.soort === 'staaf' ? (STAAF[p.prof!].kgm * opv(p.vorm!.pts)) / p.vorm!.V / 1000 : p.kg;
         expect(Math.abs(kg3 - verwacht) / verwacht, `${id} pos ${p.pos} ${p.naam}: ${kg3} tegen ${verwacht}`).toBeLessThan(0.08);
       }
+      // bestellijst: elk staafstuk zit in het zaagplan, geen staaf te vol; koopprofielen met hun artikelnummer
+      const z = zaagplan(o, k), stukken = (posities as (Pos & { L?: number })[]).filter((p) => p.soort === 'staaf' && p.L).reduce((t, p) => t + p.n, 0);
+      expect(z.profielen.reduce((t: number, p: { staven: { stukken: unknown[] }[] }) => t + p.staven.reduce((u, s) => u + s.stukken.length, 0), 0), id).toBe(stukken);
+      for (const p of z.profielen) for (const s of p.staven) if (!s.opMaat) expect(s.rest, `${id} ${p.naam}`).toBeGreaterThanOrEqual(0);
+      if (o.sys.koop) expect(z.profielen.filter((p: { artikel: string }) => p.artikel).length, id).toBeGreaterThan(1);
+      expect(bestelBlad(o, k)).not.toMatch(/NaN|undefined/);
+      const kp = kostprijs(o, k);
+      expect(kp.kostprijs, id).toBeGreaterThan(300);
+      // buiten: geïsoleerd profiel en isolerend glas, behalve bij een boog (dan een koker); het systeem kiest zijn scharnier
+      if ((k as { gebruik?: string }).gebruik === 'buiten') { expect(o.opbouw).toBe('dubbel'); expect(!!o.sys.iso, id).toBe(!(s.boven !== 'recht' || s.vorm === 'volleBoog' || s.zon)); }
+      // deurprofielen: altijd een taatsdeur (pivot)
+      if (o.sys.koop) expect(o.scharnier, id).toBe('pivot');
     }
   });
 

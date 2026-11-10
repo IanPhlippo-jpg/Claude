@@ -15,3 +15,7 @@ intern/
 
 # de app van de kabeldoos wordt gebouwd door app/maak-app.py
 voorbeelden/treinverlichting/app/uit/
+
+# deurprofielen: per deur alle plannen in Jansen Economy 50, Janisol Arte 2.0 en Forster unico (ruim 200 PDF's, opnieuw te maken met maak-deuren.mjs --koop)
+bibliotheek/taatsdeuren/pdf-koop/
+bibliotheek/taatsdeuren/pdf/_tmp.html

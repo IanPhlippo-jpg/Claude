@@ -87,14 +87,14 @@ export function stukVenster(dlg, opts = {}) {
     const v = vorm3d(p, o), spiegel = p.soort === 'staaf' || !!p.vorm?.l;
     const staal = new THREE.MeshStandardMaterial({ color: 0xa9b0b6, metalness: 0.55, roughness: 0.42, side: THREE.DoubleSide });
     const glas = new THREE.MeshPhysicalMaterial({ color: 0xd4e6eb, roughness: 0.04, transparent: true, opacity: 0.42, side: THREE.DoubleSide, depthWrite: false });
-    const lijn = new THREE.LineBasicMaterial({ color: 0x15181b }), donker = new THREE.MeshStandardMaterial({ color: 0x1b1e21, roughness: 0.6 });
+    const kunststof = new THREE.MeshStandardMaterial({ color: 0xc9a64a, roughness: 0.7 }), lijn = new THREE.LineBasicMaterial({ color: 0x15181b }), donker = new THREE.MeshStandardMaterial({ color: 0x1b1e21, roughness: 0.6 });
     for (const d of v.delen) {
       if (d.pts.length < 3) continue;
       const Y = (y) => (spiegel ? -y : y), sh = new THREE.Shape(d.pts.map(([x, y]) => new THREE.Vector2(x, Y(y))));
       for (const [x, y, rr] of d.gaten) { const h = new THREE.Path(); h.absarc(x, Y(y), rr, 0, Math.PI * 2, true); sh.holes.push(h); }
       const geo = new THREE.ExtrudeGeometry(sh, { depth: d.z1 - d.z0, bevelEnabled: false, curveSegments: 40 });
       geo.translate(0, 0, d.z0);
-      groep.add(new THREE.Mesh(geo, d.glas ? glas : staal), new THREE.LineSegments(new THREE.EdgesGeometry(geo, 25), lijn));
+      groep.add(new THREE.Mesh(geo, d.glas ? glas : d.iso ? kunststof : staal), new THREE.LineSegments(new THREE.EdgesGeometry(geo, 25), lijn));
     }
     if (v.cilinder) {
       const { L, r, gaten } = v.cilinder, geo = new THREE.CylinderGeometry(r, r, L, 56, 1);

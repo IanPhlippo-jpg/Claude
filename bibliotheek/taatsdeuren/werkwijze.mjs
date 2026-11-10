@@ -79,5 +79,14 @@ export function stappen(o, keuzes = {}, U = UREN) {
     `${t.ruiten} ruiten ${o.opbouw === 'dubbel' ? 'dubbel glas 44.2 | 14 | 6 gehard (veiligheidsglas aan beide kanten)' : 'veiligheidsglas'}. Leg glasblokjes (3 mm) onder elke ruit, kit tegen de vaste lat (transparante glaskit), zet de losse latten met M4 verzonken RVS.`);
   stap('Plaatsen', verdekt ? (U.plaatsenVerdekt ?? 2.5) : premium ? U.plaatsenPremium : U.plaatsen,
     verdekt ? 'Stel het kozijn waterpas en loodrecht in de opening en veranker het (6 x 8 mm). Hang de deur aan de scharnieren en stel ze af in de drie richtingen (spleet rondom 4 mm, 10 mm onder de deur).' : `Stel het kozijn waterpas en loodrecht in de opening en veranker het (6 x 8 mm). Boor de taatspot in de vloer op het hart van de as, monteer de bovenpen in het kozijn, en hang en stel de deur. ${premium ? 'FritsJurgens: volgens de handleiding van het systeem frezen en de demping instellen.' : 'Budgetscharnier: de stelschroef op 1-2 mm speling onder de deur.'}`);
+  // koopprofielen: de verwerking volgens de fabrikant (zagen, lassen, roeden, glazen)
+  const V = o.sys.verwerking;
+  if (V) for (const s of S) {
+    if (s.titel === 'Voorbereiden en zagen') s.tekst = `Zaag de ${t.stukken} stukken volgens de zaaglijst en het zaagplan (staven van 6 m, bestellijst). ${V.zagen} Merk elk stuk met zijn positienummer uit de stuklijst.`;
+    else if (s.titel === 'Kader hechten en lassen') { s.tekst = `${t.hoeken} verstekhoeken. ${V.lassen} Meet de diagonalen voor en na het lassen.`; s.proces = 'MAG / puls-TIG'; }
+    else if (s.titel === 'Roeden plaatsen') { s.tekst = `${t.tees / 2} roeden. ${V.roeden}`; s.proces = 'MAG / puls-TIG'; }
+    else if (s.titel === 'Glaslatten en latten op de roeden') { s.titel = 'Glaslatten op maat'; s.uren = Math.round(t.latM * U.latPerM * 0.5 * 100) / 100; s.tekst = `Zaag de glaslatten op maat per ruitzijde (${(Math.round(t.latM * 10) / 10).toString().replace('.', ',')} m, zie de stuklijst) en merk ze; ze worden bij het glazen vastgezet. ${o.sys.glaslat.uitleg}.`; }
+    else if (s.titel === 'Glazen') s.tekst = `${t.ruiten} ruiten ${o.opbouw === 'dubbel' ? 'isolerend glas 44.2 | 14 | 6 gehard' : 'veiligheidsglas 44.2'}. ${V.glas}`;
+  }
   return S;
 }

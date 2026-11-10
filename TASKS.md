@@ -1266,3 +1266,16 @@ elease; README en docs/04 bijgewerkt
 - [x] Bladen Onderdelen: grotere schetsen (6 per A3 in plaats van 14, tekst en maten groeien mee)
 - [x] PDF per deur met de detailbladen (TD-xx-...-stukken.pdf), niet in de bibliotheek-PDF
 - [x] Tests: elk detailblad zonder NaN, 3D-volume klopt met het gewicht; foto's, commit en push
+
+## Koopprofielen (Jansen Economy, Janisol Arte 2.0, Forster unico) en vaste ramen (2026-11-10)
+- [x] Catalogi opzoeken: artikelnummers, maten, kg/m, glasdikte, verbindingen, prijzen en verdelers per systeem
+- [x] Profielsystemen in de bibliotheek: doorsnede per profiel (isolatiezone), glas per systeem, binnen/buiten
+- [x] Bestellijst per artikel in staven van 6 m (zaagplan)
+- [x] Vaste ramen: gemaakt, maar Ian wil geen ramen (zie hieronder)
+
+## Taatsdeuren uit deurprofielen, geen ramen (2026-11-10)
+- [x] Alles van de vaste ramen weg (stijlen, ontwerp, 3D-kamer, configurator, presentatietool, tests)
+- [x] Koopprofielen altijd als taatsdeur (pivot); geen opgelegde draaischarnieren van het systeem
+- [x] Profielen zichtbaar: doorsnede per profiel met sponning en artikelnummer op de opengewerkte tekening, het werkblad en elk stukblad; verstekken rood
+- [x] Plannen per deur in deurprofielen (pdf-koop per systeem): werkblad, opengewerkt, stuklijst, onderdelen, bestellijst en stuk per stuk
+- [x] Tests, pagina en presentatietool bijwerken, foto's, commit en push

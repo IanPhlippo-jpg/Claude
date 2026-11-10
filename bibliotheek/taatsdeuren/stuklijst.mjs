@@ -8,6 +8,8 @@ import { telling } from './werkwijze.mjs';
 import { GLAS, OPBOUW, SCHARNIEREN } from './opties.mjs';
 
 const r1 = (x) => Math.round(x * 10) / 10;
+/** materiaal van een staaf: een koopprofiel met zijn artikel, anders S235 */
+const matVan = (prof) => { const s = STAAF[prof]; return s?.koop ? `${s.naam}, staal verzinkt` : `S235, ${s?.naam ?? prof}`; };
 const zichtVan = (sys, s) => (s === 'roede' || s === 'boog' ? sys.roede.zicht : s === 'kozijn' || s === 'boogkozijn' ? sys.kozijn.zicht : sys.kader.zicht);
 
 /** een recht stuk in eigen assen: u langs de staaf (0..L), v dwars; de eenvoudigste van de 4 spiegelingen */
@@ -47,7 +49,7 @@ export function stuklijst(o, keuzes = {}) {
     const stuk = (prof, breedte, aantal, naam, extra = '') => {
       const vorm = lokaal(d, veelhoek(d, breedte, B, H)), h = eindhoeken(vorm.pts), s = STAAF[prof];
       const sleutel = `staaf|${prof}|${vorm.sleutel}|${naam}`;
-      voeg({ sleutel, soort: 'staaf', naam, prof, mat: `S235, ${s?.naam ?? prof}`, maat: `L = ${Math.round(vorm.L)}`, L: vorm.L, n: aantal, kg: (s?.kgm ?? 0) * vorm.L / 1000, opm: `${bewerking(h, d.tot)}${extra}`, zagen: h.map((x) => `${x}°`).join('/'), vorm }, mid);
+      voeg({ sleutel, soort: 'staaf', naam, prof, mat: matVan(prof), maat: `L = ${Math.round(vorm.L)}`, L: vorm.L, n: aantal, kg: (s?.kgm ?? 0) * vorm.L / 1000, opm: `${bewerking(h, d.tot)}${extra}`, zagen: h.map((x) => `${x}°`).join('/'), vorm }, mid);
       return sleutel;
     };
     // elk stuk op zijn plaats (voor de opengewerkte tekening): de roede met haar volle zichtbreedte, het nummer van de kern
@@ -55,7 +57,7 @@ export function stuklijst(o, keuzes = {}) {
     if (d.soort === 'kader' || d.soort === 'kozijn') plaats(stuk(d.soort === 'kader' ? sys.kader.staaf : sys.kozijn.staaf, w, 1, naamVan(wat, d)));
     else if (d.soort === 'roede') {
       const kern = sys.roede.lat ? 20 : w;
-      plaats(stuk(sys.roede.staaf, kern, 1, `${naamVan(wat, d)}: kern`, sys.roede.lat ? '; M4 om de 250 aan de achterkant' : ''));
+      plaats(stuk(sys.roede.staaf, kern, 1, sys.roede.lat ? `${naamVan(wat, d)}: kern` : naamVan(wat, d), sys.roede.lat ? '; M4 om de 250 aan de achterkant' : ''));
       if (sys.roede.lat) stuk(sys.roede.lat, w, 2, `${naamVan(wat, d)}: lat voor en achter`, '; voor gelast, achter geschroefd');
     }
   }
@@ -65,17 +67,18 @@ export function stuklijst(o, keuzes = {}) {
     const r = wat === 'vleugel' ? k : 0, op = (q) => Math.abs(q[0] - r) < 0.01 || Math.abs(q[0] - (B - r)) < 0.01 || Math.abs(q[1] - r) < 0.01 || Math.abs(q[1] - (H - r)) < 0.01;
     for (const p of g.ruiten) p.forEach((a, i) => {
       const b = p[(i + 1) % p.length], lijn = (Math.abs(a[0] - b[0]) < 0.01 && (Math.abs(a[0] - r) < 0.01 || Math.abs(a[0] - (B - r)) < 0.01)) || (Math.abs(a[1] - b[1]) < 0.01 && (Math.abs(a[1] - r) < 0.01 || Math.abs(a[1] - (H - r)) < 0.01));
-      if (!op(a) || !op(b) || !lijn) return;
+      const recht = Math.abs(a[0] - b[0]) < 0.01 || Math.abs(a[1] - b[1]) < 0.01;
+      if (sys.koop ? !recht : !op(a) || !op(b) || !lijn) return;
       const l = Math.round(Math.hypot(b[0] - a[0], b[1] - a[1])), s = STAAF[sys.glaslat.staaf];
       if (l < 20) return;
-      voeg({ sleutel: `glaslat|${l}`, soort: 'staaf', naam: 'Glaslat', prof: sys.glaslat.staaf, mat: `S235, ${s?.naam ?? sys.glaslat.staaf}`, maat: `L = ${l}`, L: l, n: 2, kg: (s?.kgm ?? 0) * l / 1000, opm: 'recht; voor gelast, achter geschroefd (M4 verzonken om de 250)', vorm: { pts: [[0, 0], [l, 0], [l, 15], [0, 15]], L: l, V: 15 } }, [dx + (a[0] + b[0]) / 2, dy + (a[1] + b[1]) / 2]);
+      voeg({ sleutel: `glaslat|${l}`, soort: 'staaf', naam: 'Glaslat', prof: sys.glaslat.staaf, mat: matVan(sys.glaslat.staaf), maat: `L = ${l}`, L: l, n: sys.koop ? 1 : 2, kg: (s?.kgm ?? 0) * l / 1000, opm: sys.koop ? `recht; de andere kant is de sponning van het profiel; ${sys.glaslat.uitleg}` : 'recht; voor gelast, achter geschroefd (M4 verzonken om de 250)', vorm: { pts: [[0, 0], [l, 0], [l, 15], [0, 15]], L: l, V: 15 } }, [dx + (a[0] + b[0]) / 2, dy + (a[1] + b[1]) / 2]);
     });
   }
   // 3. greep en aanslag
   for (const v of o.vleugels) {
     const G = MATEN.greep, xg = v.taats === 'links' ? v.x + v.B - G.afstand : v.x + G.afstand;
     voeg({ sleutel: 'greep', soort: 'staaf', naam: 'Greep (voor en achter)', prof: 'rond25', mat: 'S235, rond Ø25', maat: `L = ${G.lengte}`, L: G.lengte, n: 2, kg: STAAF.rond25.kgm * G.lengte / 1000, opm: 'uiteinden rond slijpen; 2 x M8 op 80 van de uiteinden', vorm: { pts: [[0, 0], [G.lengte, 0], [G.lengte, G.d], [0, G.d]], L: G.lengte, V: G.d, gaten: [80, G.lengte - 80], rond: true } }, [xg, G.hoogte]);
-    if (o.scharnier === 'verdekt') for (const [l, nm] of [[Math.round(v.H), 'zijde'], [Math.round(v.B), 'boven']]) voeg({ sleutel: `aanslag|${l}`, soort: 'staaf', naam: `Aanslag op het kozijn (${nm})`, prof: 'plat15x4', mat: 'S235, platstaal 15x4', maat: `L = ${l}`, L: l, n: nm === 'zijde' ? 2 : 1, kg: STAAF.plat15x4.kgm * l / 1000, opm: 'recht; op het kozijn gelast', vorm: { pts: [[0, 0], [l, 0], [l, 15], [0, 15]], L: l, V: 15 } }, [v.x + v.B / 2, v.y + v.H + 10]);
+    if (o.scharnier === 'verdekt' && !sys.koop) for (const [l, nm] of [[Math.round(v.H), 'zijde'], [Math.round(v.B), 'boven']]) voeg({ sleutel: `aanslag|${l}`, soort: 'staaf', naam: `Aanslag op het kozijn (${nm})`, prof: 'plat15x4', mat: 'S235, platstaal 15x4', maat: `L = ${l}`, L: l, n: nm === 'zijde' ? 2 : 1, kg: STAAF.plat15x4.kgm * l / 1000, opm: 'recht; op het kozijn gelast', vorm: { pts: [[0, 0], [l, 0], [l, 15], [0, 15]], L: l, V: 15 } }, [v.x + v.B / 2, v.y + v.H + 10]);
   }
   // 4. lasergesneden: bogen (kern in lagen, latten), boog van kader en kozijn, glaslat in de boog, taatsplaten, greephouders
   const bsl = (naam, d, zicht, t) => `boog|${naam}|${Math.round(d.r)}|${Math.round(d.g1 - d.g0)}|${zicht}|${t}`;

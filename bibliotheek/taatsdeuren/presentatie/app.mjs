@@ -13,7 +13,7 @@ const eur = (v) => `€ ${Math.round(v).toLocaleString('nl-BE')}`;
 const lees = (k, d) => { try { return { ...d, ...JSON.parse(localStorage.getItem(k) || '{}') }; } catch { return d; } };
 const schrijf = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
 
-const STD = { stijl: 'boog', B: 1000, H: 2400, muurdikte: 200, scharnier: 'budget', draai: 'links', opbouw: 'enkel', glas: 'helder', ral: '9005', lak: 'fijnstructuur', systeem: 'auto', Z: 400 };
+const STD = { gebruik: 'binnen', stijl: 'boog', B: 1000, H: 2400, muurdikte: 200, scharnier: 'budget', draai: 'links', opbouw: 'enkel', glas: 'helder', ral: '9005', lak: 'fijnstructuur', systeem: 'auto', Z: 400 };
 let k = lees('deuren-keuze', STD);
 let kamerStand = lees('deuren-kamer', { open: 0, muur: 'wit', vloer: 'eik' });
 let inst = lees('deuren-instellingen', { bedrijf: '', contact: '', prijs: 'kostprijs', uurloon: 45, marge: 35 });
@@ -26,6 +26,7 @@ $('filter').innerHTML = GRP.map((g) => `<button type="button" data-filter="${esc
 $('modellen').innerHTML = STIJLEN.map((s) => `<button type="button" class="model" data-stijl="${s.id}" data-groep="${esc(s.groep)}" aria-pressed="false" title="${esc(s.uitleg)}"><span class="duim" id="duim-${s.id}"></span><span class="mnaam">${esc(s.naam)}</span></button>`).join('');
 const radio = (naam, lijst, sub = () => '') => lijst.map(([v, t]) => `<label class="kies"><input type="radio" name="${naam}" value="${esc(v)}"><span>${esc(t)}${sub(v)}</span></label>`).join('');
 $('k-scharnier').innerHTML = radio('scharnier', [['budget', 'Pivot'], ['premium', 'Pivot premium'], ['verdekt', 'Verdekte scharnieren']]);
+$('k-gebruik').innerHTML = radio('gebruik', [['binnen', 'Binnen'], ['buiten', 'Buiten (geïsoleerd)']]);
 $('k-draai').innerHTML = radio('draai', [['links', 'Scharnierkant links'], ['rechts', 'Scharnierkant rechts']]);
 $('k-opbouw').innerHTML = radio('opbouw', Object.entries(OPBOUW).map(([v, o]) => [v, o.naam]));
 $('k-glas').innerHTML = Object.entries(GLAS).map(([v, g]) => `<label class="staal glasstaal" title="${esc(g.soort)}"><input type="radio" name="glas" value="${v}"><span class="proef glas-${g.patroon ?? 'glad'}" style="--tint:${g.tint};--dek:${g.dekking}"></span><span class="snaam">${esc(g.naam)}</span></label>`).join('');
@@ -41,7 +42,7 @@ const duim = (o) => { const W = 100, Hh = 125, s = Math.min((W - 12) / o.kozijn.
 $('filter').addEventListener('click', (e) => { const b = e.target.closest('[data-filter]'); if (!b) return; document.querySelectorAll('[data-filter]').forEach((x) => x.setAttribute('aria-pressed', x === b)); document.querySelectorAll('[data-stijl]').forEach((x) => { x.hidden = b.dataset.filter !== 'Alle' && x.dataset.groep !== b.dataset.filter; }); });
 $('modellen').addEventListener('click', (e) => { const b = e.target.closest('[data-stijl]'); if (!b) return; k.stijl = b.dataset.stijl; const s = STIJLEN.find((x) => x.id === k.stijl), m = minMaat(s); if (k.B < m.B) k.B = s.std.B; if (k.H < m.H) k.H = s.std.H; teken(); });
 for (const id of ['B', 'H', 'muurdikte', 'Z']) $(id).addEventListener('change', () => { k[id] = Math.round(+$(id).value) || STD[id]; teken(); });
-for (const n of ['scharnier', 'draai', 'opbouw', 'glas', 'ral', 'lak']) document.querySelectorAll(`input[name="${n}"]`).forEach((r) => r.addEventListener('change', () => { k[n] = r.value; teken(); }));
+for (const n of ['gebruik', 'scharnier', 'draai', 'opbouw', 'glas', 'ral', 'lak']) document.querySelectorAll(`input[name="${n}"]`).forEach((r) => r.addEventListener('change', () => { k[n] = r.value; if (n === 'gebruik') k.systeem = 'auto'; teken(); }));
 $('systeem').addEventListener('change', () => { k.systeem = $('systeem').value; teken(); });
 document.querySelectorAll('[data-tab]').forEach((b) => b.addEventListener('click', () => tab(b.dataset.tab)));
 function tab(t) { document.querySelectorAll('[data-tab]').forEach((b) => b.setAttribute('aria-selected', b.dataset.tab === t)); document.querySelectorAll('[data-paneel]').forEach((p) => { p.hidden = p.dataset.paneel !== t; }); $('kamerbalk').hidden = t !== 'kamer'; }
@@ -58,22 +59,26 @@ function teken() {
   if (B !== k.B || H !== k.H) melding.push(`Voor dit model kan het deurgat ${m.B} tot ${GRENZEN.B[1]} mm breed en ${m.H} tot ${GRENZEN.H[1]} mm hoog zijn; de maat is aangepast tot ${B} x ${H}.`);
   k.B = B; k.H = H; k.muurdikte = Math.min(600, Math.max(70, k.muurdikte));
   const enkelVleugel = s.vleugels === 1 && !s.zijlicht;
-  const opts = { systeem: k.systeem, opbouw: k.opbouw, scharnier: k.scharnier, draai: enkelVleugel ? k.draai : undefined, zijlicht: k.Z };
-  if (k.systeem !== 'auto' && !systeemPast(k.systeem, opts)) melding.push(`Het profiel ${SYSTEMEN[k.systeem].kort} past niet bij deze keuze; ik neem ${SYSTEMEN[kiesSysteem({ ...opts, systeem: 'auto' })].kort}.`);
+  const opts = { gebruik: k.gebruik, stijl: s, systeem: k.systeem, opbouw: k.opbouw, scharnier: k.scharnier, draai: enkelVleugel ? k.draai : undefined, zijlicht: k.Z };
+  // een geïsoleerd profiel (en buiten) vraagt isolerend glas
+  const met = (key) => ({ ...opts, opbouw: k.gebruik === 'buiten' || (SYSTEMEN[key]?.glasMin ?? 0) > 9 ? 'dubbel' : opts.opbouw });
+  if (k.systeem !== 'auto' && !systeemPast(k.systeem, met(k.systeem))) melding.push(`Het profiel ${SYSTEMEN[k.systeem].kort} past niet bij deze keuze; ik neem ${SYSTEMEN[kiesSysteem({ ...met('auto'), systeem: 'auto' })].kort}.`);
   const o = ontwerp(s.id, B, H, opts);
   const c = kostprijs(o, { ...k, afwerking: 'poedercoat', uurloon: inst.uurloon, marge: inst.marge });
   const zw = Math.max(...c.gewicht.vleugels);
+  if (k.gebruik === 'buiten' && !o.sys.iso) melding.push('Buiten vraagt geïsoleerde deurprofielen; die bestaan niet met een boog. Kies een model zonder boog voor buiten.');
+  if (o.opbouw !== k.opbouw) melding.push('Buiten en bij geïsoleerde deurprofielen altijd isolerend glas: dubbel glas genomen.');
   if (zw > c.maxKg) melding.push(`De vleugel weegt ${Math.round(zw)} kg: meer dan ${SCHARNIEREN[c.scharnier].kort.toLowerCase()} draagt (${c.maxKg} kg). Kies ${o.sys.kader.diepte >= 50 ? 'pivot premium' : 'een dieper profiel of pivot premium'}, of een kleinere deur.`);
   if (c.scharnier === 'verdektZwaar') melding.push('Zware deur: de verdekte scharnieren worden Simonswerk Tectus TE 640.');
   // keuzes in de knoppen zetten
   $('B').value = B; $('H').value = H; $('muurdikte').value = k.muurdikte; $('Z').value = k.Z; $('zijlichtVeld').hidden = !s.zijlicht;
   $('draaiVeld').hidden = !enkelVleugel;
-  for (const n of ['scharnier', 'draai', 'opbouw', 'glas', 'ral', 'lak']) { const r = document.querySelector(`input[name="${n}"][value="${CSS.escape(String(k[n]))}"]`); if (r) r.checked = true; }
+  for (const n of ['gebruik', 'scharnier', 'draai', 'opbouw', 'glas', 'ral', 'lak']) { const r = document.querySelector(`input[name="${n}"][value="${CSS.escape(String(n === 'opbouw' ? o.opbouw : k[n] ?? 'binnen'))}"]`); if (r) r.checked = true; }
   document.querySelectorAll('[data-stijl]').forEach((x) => x.setAttribute('aria-pressed', x.dataset.stijl === s.id));
-  $('systeem').innerHTML = [['auto', `Automatisch (${SYSTEMEN[kiesSysteem({ ...opts, systeem: 'auto' })].kort})`], ...Object.entries(SYSTEMEN).filter(([key]) => systeemPast(key, opts)).map(([key, x]) => [key, x.naam])].map(([v, t]) => `<option value="${v}"${v === k.systeem ? ' selected' : ''}>${esc(t)}</option>`).join('');
+  $('systeem').innerHTML = [['auto', `Automatisch (${SYSTEMEN[kiesSysteem({ ...met('auto'), systeem: 'auto' })].kort})`], ...Object.entries(SYSTEMEN).filter(([key]) => systeemPast(key, met(key))).map(([key, x]) => [key, x.naam])].map(([v, t]) => `<option value="${v}"${v === k.systeem ? ' selected' : ''}>${esc(t)}</option>`).join('');
   $('melding').hidden = !melding.length; $('melding').textContent = melding.join(' ');
   $('scharnierUitleg').textContent = SCHARNIER_UITLEG[o.scharnier];
-  $('glasUitleg').textContent = `${OPBOUW[k.opbouw].uitleg[0].toUpperCase()}${OPBOUW[k.opbouw].uitleg.slice(1)}. ${GLAS[k.glas].soort[0].toUpperCase()}${GLAS[k.glas].soort.slice(1)} is veiligheidsglas (verplicht in deuren).`;
+  $('glasUitleg').textContent = `${OPBOUW[o.opbouw].uitleg[0].toUpperCase()}${OPBOUW[o.opbouw].uitleg.slice(1)}. ${GLAS[k.glas].soort[0].toUpperCase()}${GLAS[k.glas].soort.slice(1)} is veiligheidsglas (verplicht in deuren).`;
   $('lakUitleg').textContent = AFWERKINGEN[k.lak].uitleg;
   // 2D: vooraanzicht met de hoofdmaten in de gekozen kleur
   const kleur = RAL.find((x) => x.code === k.ral) ?? RAL[0], g = GLAS[k.glas];
@@ -87,7 +92,7 @@ function teken() {
     ['Deurgat', `${B} x ${H} mm, muur ${k.muurdikte} mm`],
     [o.vleugels.length > 1 ? 'Vleugels' : 'Vleugel', o.vleugels.map((v) => `${Math.round(v.B)} x ${Math.round(v.H)} mm`).join(' + ')],
     ['Openen', o.scharnier === 'verdekt' ? `verdekte scharnieren (${sch.naam.replace(/^Verdekt: /, '')})${enkelVleugel ? `, scharnierkant ${k.draai}` : ''}` : `${sch.naam.replace(/^Pivot: /, 'pivot, ')}${enkelVleugel ? `, as ${k.draai}` : ''}`],
-    ['Glas', `${OPBOUW[k.opbouw].naam.toLowerCase()}, ${g.naam.toLowerCase()} (${k.opbouw === 'dubbel' ? `${g.soort} | 14 | 6 gehard` : g.soort})`],
+    ['Glas', `${OPBOUW[o.opbouw].naam.toLowerCase()}, ${g.naam.toLowerCase()} (${o.opbouw === 'dubbel' ? `${g.soort} | 14 | 6 gehard` : g.soort})`],
     ['Kleur', `${kleur.code === 'brons' ? kleur.naam : `RAL ${kleur.code} ${kleur.naam}`}, ${AFWERKINGEN[k.lak].naam.toLowerCase()}`],
     ['Profiel', o.sys.naam],
     ['Gewicht', `${c.gewicht.vleugels.map((x) => `${Math.round(x)} kg`).join(' + ')} per vleugel`],

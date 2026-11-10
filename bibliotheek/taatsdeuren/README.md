@@ -44,7 +44,8 @@ Elke stijl is een combinatie van bouwstenen in `deuren.mjs` (STIJLEN). Een nieuw
 |---|---|
 | Openen | pivot (Argenta Pivotica Pro 150 tot 150 kg, of FritsJurgens), of verdekte scharnieren: 3 x Argenta Invisible Neo L-7 met RVS-lasbak (tot 145 kg), zwaarder Simonswerk Tectus TE 640 |
 | Glas | altijd veiligheidsglas: glad gelaagd 44.2 (helder, extra helder, grijs, brons, mat) of structuur gehard 8 mm (geribd, kathedraal, chinchilla); dubbel glas 44.2 / 14 / 6 gehard |
-| Profiel | automatisch het slankste dat past: koker 40 x 40 (enkel glas, pivot), 40 x 60 (dubbel glas), 60 x 40 (verdekte scharnieren, die 36 mm in de stijl gaan), 60 x 60 (beide), of Jansen Economy 50 |
+| Gebruik | binnen of buiten; buiten = geïsoleerde deurprofielen (Janisol Arte 2.0 of Forster unico) met isolerend glas; een stijl met een boog kan niet buiten (een geïsoleerd profiel buigen kan alleen de fabrikant) |
+| Profiel | automatisch het slankste dat past: koker 40 x 40 (enkel glas, pivot), 40 x 60 (dubbel glas), 60 x 40 (verdekte scharnieren, die 36 mm in de stijl gaan), 60 x 60 (beide); of gekochte deurprofielen: Jansen Economy 50 (binnen), Janisol Arte 2.0 of Forster unico (buiten). De deurprofielen zijn altijd een taatsdeur (pivot) |
 | Kleur | 20 RAL-kleuren en brons metallic; fijnstructuur mat, glad mat of zijdeglans |
 
 ## De 100 stijlen
@@ -162,6 +163,9 @@ Elke stijl is een combinatie van bouwstenen in `deuren.mjs` (STIJLEN). Een nieuw
 | Werkblad A3: vooraanzicht met maten, zaaglijst, laserlijst, glaslijst, doorsnede, kostprijs, titelblok | `tekeningen/TD-xx-….svg` |
 | Opengewerkte tekening A3 (exploded): alle stalen delen uit elkaar in hun echte vorm, verstekken in rood, bij elke verbinding een code (V verstek, T T-stuk, S schuin tegen de boog, B boog op kalf/poot/kader) met een stippellijn, en de verbindingentabel met naad en lasproces | `tekeningen/TD-xx-…-opengewerkt.svg` |
 | Stuklijst A3 (ISO 7573) met de kolom Zagen (hoek van beide uiteinden) met de samenstelling en positieballonnen (ISO 6433), en bladen Onderdelen met een schets per positie: staven in hun echte vorm (verstek, schuin volgens de boog) met lengte en doorsnede, bogen met stralen, platen met gaten, ruiten met hun vorm | `tekeningen/TD-xx-…-stuklijst-n.svg` |
+| Deurprofielen en verbindingen (`profielen.mjs`): per profiel (kozijn, vleugel, roede, glaslat) de doorsnede met sponning, glas, glaslat en isolatie, het artikel, kg/m en de posities; hoe de stukken samenkomen (vleugelhoek in verstek, roede stomp tegen het kader, kozijn boven verstek en onder recht op de vloer) | blad 3 in `pdf/TD-xx-….pdf`, `tekeningen/TD-xx-…-profielen.svg` |
+| Bestellijst en zaagplan (`bestel.mjs`): per profiel (artikel) hoeveel staven van 6 m, en welke stukken uit elke staaf | laatste A3-blad, `tekeningen/TD-xx-…-bestellijst.svg` |
+| Plannen in deurprofielen: elke stijl in Jansen Economy 50 (100), Janisol Arte 2.0 en Forster unico (elk 56, zonder bogen), met alle bladen en stuk per stuk | `pdf-koop/<systeem>/` (niet in git: `maak-deuren.mjs --koop`) |
 | Stuk per stuk (`detail.mjs`): een A4 per positie met het hele stuk op schaal, beide uiteinden vergroot (hoek, verschil lange en korte kant), de doorsnede, gaten, waar het stuk in de deur zit en zijn verbindingen. Op de pagina Werkplaats: klik op een stuk voor een venster met zoomen en de 3D-vorm (holle koker met verstek; naar elk uiteinde springen) | `pdf/TD-xx-…-stukken.pdf` |
 | Dossier: werkblad, opengewerkte tekening, stuklijst, onderdelen, kostprijs met bronnen, werkwijze met uren en lasproces, gewicht tegenover het scharnier | `pdf/TD-xx-….pdf` |
 | DXF: laserdelen (bogen, panelen, taatsplaten, greephouders) en de ruiten (voor de glasleverancier) | `dxf/TD-xx-…-laser.dxf`, `-glas.dxf` |
@@ -174,8 +178,18 @@ Elke stijl is een combinatie van bouwstenen in `deuren.mjs` (STIJLEN). Een nieuw
   - roeden: kern platstaal 20x10 met voor en achter een lat 30x3 over het glas;
   - glaslat 15x4 in het kader: voor gelast, achter geschroefd met M4;
   - glas 44.2 in het midden van de diepte.
-- **Stalen deurprofielen:** Jansen Economy 50 (30.407, 30.006 en 30.007, met glaslat 402). Met glassponning, maar
-  alleen op offerte via een verdeler; ik reken ze met hun gewicht uit de catalogus en een geschatte € 12/kg.
+- **Gekochte deurprofielen** (staven van 6 m, wand 1,5 mm; doorsneden vereenvoudigd, de echte vorm staat in de catalogus):
+
+  | Systeem | Kozijn | Vleugel | Roede | Glaslat | Glas | Bron |
+  |---|---|---|---|---|---|---|
+  | Jansen Economy 50 (binnen) | 30.007 Z, 50 x 50 | 30.407 Z, 50 x 50 | 30.006 Z, 25 x 50 | 402.120 Z | 5-27 mm | Feon-profiellijst 08/2020, heinze.de |
+  | Janisol Arte 2.0 (buiten) | 602.611 Z, 40 x 60 | 603.611 Z, 40 x 60 | T 601.615 Z, 40 x 60 | 405.022 + clip 450.026 | 20-47 mm | Janisol Arte 2.0-catalogus, Feon |
+  | Forster unico (buiten) | 531.755, 90 x 70 | 533.751, 65 x 70 | T 531.722, 60 x 70 | 901227 + clip 906577 | 20-54,5 mm | Forster 988320 (03/21) |
+
+  Prijs per meter is nergens publiek: gerekend met het gewicht en een geschatte € 12/kg (Economy) en € 18/kg
+  (geïsoleerd), in hele staven volgens het zaagplan. Offerte: Jansen (Breda) info.belgium@jansen.com, Forster Belux
+  (Reynaers, Duffel) info.belux@forstersystems.com. Hoeken in verstek gelast (Forster: lasmal 989210); bij een
+  geïsoleerd profiel enkel de stalen schalen lassen. De uiteinden van de roeden passend uitzagen rond de sponning.
 - **Bogen:** lasergesneden uit plaat 10 mm (kern 20 breed) met latten van 3 mm; de boog van het kader en het kozijn
   is 4 lagen van 10 mm op elkaar gelast.
 - **Paneel:** plaat 3 mm, 1 mm kleiner dan het vak, op afstandsblokken in het midden van de diepte, gehecht om de
@@ -207,6 +221,7 @@ Ter vergelijking, verkoopprijzen elders:
 ```bash
 node bibliotheek/taatsdeuren/maak-deuren.mjs
 node bibliotheek/taatsdeuren/maak-deuren.mjs boog 1100 2500 systeem
+node bibliotheek/taatsdeuren/maak-deuren.mjs --koop
 ```
 
 Eén deur op maat: geef de stijl, de breedte, de hoogte en het profielsysteem mee.

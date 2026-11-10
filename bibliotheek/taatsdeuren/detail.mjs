@@ -8,6 +8,9 @@ import { vooraanzicht, band } from './teken.mjs';
 import { STAAF } from './prijzen.mjs';
 import { GLAS } from './opties.mjs';
 import { verbindingen, VERBINDINGEN } from './explode.mjs';
+import { sectie, tekenSectie } from './profielen.mjs';
+/** welke rol (kozijn, kader, roede, glaslat) dit profiel in de deur heeft */
+const rolVan = (o, prof) => (!o ? null : prof === o.sys.kozijn.staaf ? 'kozijn' : prof === o.sys.kader.staaf ? 'kader' : prof === o.sys.roede.staaf ? 'roede' : prof === o.sys.glaslat.staaf ? 'glaslat' : null);
 import { esc, g } from './blad.mjs';
 
 export const W4 = 297, H4 = 210;
@@ -67,8 +70,10 @@ function snijU(p, c) {
 }
 /** koker AxBxT, platstaal AxB, rond ØD uit de naam van de staaf; diepte = de maat die niet in zicht is */
 export function profiel(prof, V) {
-  const n = STAAF[prof]?.naam ?? prof;
+  const st = STAAF[prof], n = st?.naam ?? prof;
   let m;
+  // koopprofiel: hol met wand 1,5 (vereenvoudigd: zonder sponning), eventueel met een isolatiezone; een glaslat als strip
+  if (st?.koop) return st.diepte ? { soort: 'koker', koop: true, naam: n, zicht: V, diepte: st.diepte, t: st.wand ?? 1.5, iso: st.iso } : { soort: 'plat', koop: true, naam: n, zicht: V, diepte: 4 };
   if ((m = n.match(/koker (\d+)x(\d+)x(\d+)/))) { const [a, b, t] = m.slice(1).map(Number); return { soort: 'koker', naam: n, zicht: V, diepte: Math.abs(a - V) < 0.6 ? b : a, t }; }
   if ((m = n.match(/platstaal (\d+)x(\d+)/))) { const [a, b] = m.slice(1).map(Number); return { soort: 'plat', naam: n, zicht: V, diepte: Math.abs(a - V) < 0.6 ? b : a }; }
   if ((m = n.match(/rond Ø(\d+)/))) return { soort: 'rond', naam: n, d: +m[1], zicht: +m[1], diepte: +m[1] };
@@ -78,12 +83,21 @@ export function profiel(prof, V) {
 // ---------------------------------------------------------------- 3D-vorm
 /** de 3D-vorm van een positie: { delen: [{ pts, gaten: [[x, y, r]], z0, z1, glas? }], cilinder?: { L, r, gaten } } in mm */
 export function vorm3d(p, o) {
+  // een koopprofiel: de wanden van de doorsnede (sponning, isolatie) over de lengte, met de echte uiteinden (verstek)
+  const rol = p.soort === 'staaf' ? rolVan(o, p.prof) : null;
+  if (rol && STAAF[p.prof]?.koop && rol !== 'glaslat') {
+    const sec = sectie(o, rol), { pts, V } = p.vorm, k = V / sec.V;
+    return { profiel: { ...profiel(p.prof, V), naam: sec.naam }, delen: sec.wanden.map((w) => ({ pts: knip(pts, 1, w.v0 * k, w.v1 * k), gaten: [], z0: w.z0, z1: w.z1, iso: !!w.iso })).filter((x) => x.pts.length > 2) };
+  }
   if (p.soort === 'staaf') {
     const { pts, V } = p.vorm, pr = profiel(p.prof, V);
     if (pr.soort === 'rond') return { delen: [], cilinder: { L: p.vorm.L, r: pr.d / 2, gaten: p.vorm.gaten ?? [] }, profiel: pr };
     if (pr.soort === 'koker') {
       const { t, diepte: D } = pr;
-      return { profiel: pr, delen: [{ pts, gaten: [], z0: 0, z1: t }, { pts, gaten: [], z0: D - t, z1: D }, { pts: knip(pts, 1, 0, t), gaten: [], z0: t, z1: D - t }, { pts: knip(pts, 1, V - t, V), gaten: [], z0: t, z1: D - t }] };
+      // een holle koker (4 wanden); geïsoleerd: twee stalen kokers (voor en achter) met de isolatiestroken ertussen
+      const koker = (z0, z1) => [{ pts, gaten: [], z0, z1: z0 + t }, { pts, gaten: [], z0: z1 - t, z1 }, { pts: knip(pts, 1, 0, t), gaten: [], z0: z0 + t, z1: z1 - t }, { pts: knip(pts, 1, V - t, V), gaten: [], z0: z0 + t, z1: z1 - t }];
+      if (pr.iso) return { profiel: pr, delen: [...koker(0, pr.iso[0]), ...koker(pr.iso[1], D), { pts: knip(pts, 1, 0, 3), gaten: [], z0: pr.iso[0], z1: pr.iso[1], iso: true }, { pts: knip(pts, 1, V - 3, V), gaten: [], z0: pr.iso[0], z1: pr.iso[1], iso: true }] };
+      return { profiel: pr, delen: koker(0, D) };
     }
     return { profiel: pr, delen: [{ pts, gaten: [], z0: 0, z1: pr.diepte }] };
   }
@@ -102,14 +116,14 @@ export function ringSector(r, zicht, hoek) {
 /** volume in mm³ (voor de test: klopt de 3D-vorm met het gewicht?) */
 export function volume3d(v) {
   let s = 0;
-  for (const d of v.delen) s += (oppervlak(d.pts) - d.gaten.reduce((t, [, , r]) => t + Math.PI * r * r, 0)) * (d.z1 - d.z0);
+  for (const d of v.delen) if (!d.iso) s += (oppervlak(d.pts) - d.gaten.reduce((t, [, , r]) => t + Math.PI * r * r, 0)) * (d.z1 - d.z0);
   if (v.cilinder) s += Math.PI * v.cilinder.r ** 2 * v.cilinder.L;
   return s;
 }
 
 // ---------------------------------------------------------------- tekeningen per soort
 /** staaf: overzicht op schaal, detail A en B (de uiteinden vergroot), doorsnede */
-function tekenStaaf(p, el) {
+function tekenStaaf(p, el, o) {
   const { pts, L: Lg, V, gaten = [] } = p.vorm, pr = profiel(p.prof, V), rond = pr.soort === 'rond';
   const kant = (c) => { const q = pts.filter((x) => Math.abs(x[1] - c) < 0.5).map((x) => x[0]); return q.length >= 2 ? [Math.min(...q), Math.max(...q)] : [0, Lg]; };
   const k0 = kant(0), kV = kant(V), l0 = k0[1] - k0[0], lV = kV[1] - kV[0], boogEind = pts.length > 4;
@@ -165,7 +179,15 @@ function tekenStaaf(p, el) {
       el.push(maat(links ? x0 : q[0], y0 + V * sD, links ? q[0] : x0 + e * sD, y0 + V * sD, -4, `${g(links ? u : Lg - u, 1)}`));
     }
   }
-  // 3. doorsnede
+  // 3. doorsnede: het profiel van de deur (met sponning, isolatie, glas en glaslat) als het een kozijn-, kader- of roedeprofiel is
+  const rol = rolVan(o, p.prof);
+  if (rol) {
+    const sec = sectie(o, rol), extra = rol === 'glaslat' || rol === 'kozijn' ? 0 : rol === 'roede' ? 28 : 14, s = [3, 2, 1.5, 1, 0.5].find((q) => (sec.V + extra) * q <= 66 && (sec.D + 6) * q <= 60) ?? 0.5;
+    el.push(T(202, 77, 'Doorsnede van het profiel', 2.8, { vet: true }));
+    el.push(tekenSectie(sec, 214 + (rol === 'roede' ? 14 * s : 0), 86, s, { o }));
+    el.push(T(202, 86 + (sec.D + 6) * s + 10, `${sec.naam}`.slice(0, 52), 2.2), T(202, 86 + (sec.D + 6) * s + 14, `${s >= 1 ? `${s}:1` : `1:${1 / s}`} · ${sec.V} x ${sec.D}${sec.t ? ` · wand ${g(sec.t, 1)}` : ''}${sec.iso ? ` · geel = isolatie` : ''}${sec.koop ? ' · vereenvoudigd' : ''}`, 2.1, { kleur: '#555' }));
+    return;
+  }
   const dx = 202, dy = 84;
   el.push(T(dx, 77, 'Doorsnede (arcering = materiaal)', 2.8, { vet: true }));
   if (pr.soort === 'rond') {
@@ -174,9 +196,13 @@ function tekenStaaf(p, el) {
   } else {
     const s = schaal(Math.min(56 / pr.zicht, 44 / pr.diepte, 3)), w = pr.zicht * s, h = pr.diepte * s, x = dx + 10, y = dy + 2;
     el.push(`<rect x="${f(x)}" y="${f(y)}" width="${f(w)}" height="${f(h)}" fill="url(#arcering)" stroke="#111" stroke-width="0.35"/>`);
-    if (pr.soort === 'koker') el.push(`<rect x="${f(x + pr.t * s)}" y="${f(y + pr.t * s)}" width="${f(w - 2 * pr.t * s)}" height="${f(h - 2 * pr.t * s)}" fill="#fff" stroke="#111" stroke-width="0.3"/>`, maat(x + w - pr.t * s, y, x + w, y, 4, `t = ${pr.t}`));
+    if (pr.soort === 'koker' && pr.iso) {
+      // twee stalen schalen en de isolatiezone (geel) ertussen
+      const [i0, i1] = pr.iso, gat = (a, b) => `<rect x="${f(x + pr.t * s)}" y="${f(y + (a + pr.t) * s)}" width="${f(w - 2 * pr.t * s)}" height="${f((b - a - 2 * pr.t) * s)}" fill="#fff" stroke="#111" stroke-width="0.3"/>`;
+      el.push(gat(0, i0), gat(i1, pr.diepte), `<rect x="${f(x)}" y="${f(y + i0 * s)}" width="${f(w)}" height="${f((i1 - i0) * s)}" fill="#e3cf8f" stroke="#111" stroke-width="0.3"/>`, maat(x + w - pr.t * s, y, x + w, y, 4, `t = ${pr.t}`), maat(x + w, y + i0 * s, x + w, y + i1 * s, -4, `isolatie ${i1 - i0}`));
+    } else if (pr.soort === 'koker') el.push(`<rect x="${f(x + pr.t * s)}" y="${f(y + pr.t * s)}" width="${f(w - 2 * pr.t * s)}" height="${f(h - 2 * pr.t * s)}" fill="#fff" stroke="#111" stroke-width="0.3"/>`, maat(x + w - pr.t * s, y, x + w, y, 4, `t = ${pr.t}`));
     el.push(maat(x, y + h, x + w, y + h, -5, `${g(pr.zicht, 1)} zicht`), maat(x, y, x, y + h, -5, `${g(pr.diepte, 1)} diep`));
-    el.push(T(dx, y + h + 14, `${pr.naam} (${schaalTekst(s)})${pr.soort === 'systeem' ? ' · vorm volgens de catalogus' : ''}`, 2.3), T(dx, y + h + 18, 'boven = de kant met de greep', 2.1, { kleur: '#555' }));
+    el.push(T(dx, y + h + 14, `${pr.naam} (${schaalTekst(s)})`, 2.3), T(dx, y + h + 18, pr.koop ? 'vereenvoudigd: sponning en dichtingen volgens de catalogus' : pr.soort === 'systeem' ? 'vorm volgens de catalogus' : 'boven = de kant met de greep', 2.1, { kleur: '#555' }));
   }
 }
 /** boog uit plaat (lasergesneden): de ringsector op schaal met stralen, koorde, pijl en hoek; doorsnede van de lagen */
@@ -271,7 +297,7 @@ export function detailBlad(o, p, ctx, keuzes = {}, meta = {}) {
   // kop: ballon met het nummer, benaming, materiaal
   el.push(`<circle cx="31" cy="19.5" r="6" fill="#fff" stroke="#111" stroke-width="0.5"/>`, T(31, 21.2, String(p.pos), 4.6, { anker: 'middle', vet: true }));
   el.push(T(40, 18.5, `${p.n} x ${p.naam}`, 4.2, { vet: true }), T(40, 23.5, `${p.mat} · ${p.maat}${p.zagen ? ` · zagen ${p.zagen}` : ''} · ${g(p.kg, 2)} kg/st`, 2.6));
-  if (p.soort === 'staaf') tekenStaaf(p, el);
+  if (p.soort === 'staaf') tekenStaaf(p, el, o);
   else if (p.vorm?.r) tekenBoog(p, el, o);
   else if (p.soort === 'glas') tekenGlas(p, el, o, keuzes);
   else if (p.vorm?.l) tekenPlaat(p, el);

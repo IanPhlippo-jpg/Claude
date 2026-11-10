@@ -18,13 +18,40 @@ export const SYSTEMEN = {
     glasMax: 10, kort: '40 x 40',
   },
   systeem: {
-    naam: 'Stalen deurprofielen (Jansen Economy 50)',
-    kader: { zicht: 50, diepte: 50, staaf: 'jansen30407', uitleg: 'Jansen Economy 50, 30.407 (50 x 50) met glassponning' },
-    roede: { zicht: 25, diepte: 50, staaf: 'jansen30006', lat: null, uitleg: 'Jansen Economy 50, 30.006 (50 x 25) als roede, sponning aan beide kanten' },
-    glaslat: { staaf: 'jansen402', uitleg: 'stalen glaslat Jansen 402.xxx (klik)' },
-    kozijn: { zicht: 50, diepte: 50, staaf: 'jansen30007', uitleg: 'Jansen Economy 50, 30.007 (50 x 50)' },
+    naam: 'Jansen Economy 50 (koopprofielen, binnen, niet geïsoleerd)',
+    kader: { zicht: 50, diepte: 50, staaf: 'jansen30407', uitleg: 'Jansen Economy 50, vleugel 30.407 Z (50 x 50, wand 1,5) met glassponning en aanslag' },
+    roede: { zicht: 25, diepte: 50, staaf: 'jansen30006', lat: null, uitleg: 'Jansen Economy 50, 30.006 Z (25 x 50) als roede, glaslat aan de andere kant' },
+    glaslat: { staaf: 'jansen402', uitleg: 'stalen glaslat Jansen 402.120 Z (20 hoog), vast met tapeinden 450.009' },
+    kozijn: { zicht: 50, diepte: 50, staaf: 'jansen30007', uitleg: 'Jansen Economy 50, kozijn 30.007 Z (50 x 50)' },
     boog: { kern: 10, lagenKader: 5, uitleg: 'bogen lasergesneden uit plaat 10 mm met latten (profielen buigen kan alleen bij een walserij)' },
-    glasMax: 35, geenVerdekt: true, kort: 'Jansen 50', // Economy 50: glas tot 35 mm (heinze.de); geen verdekt deurscharnier van Jansen gevonden
+    glasMax: 27, geenVerdekt: true, kort: 'Jansen Economy 50', koop: true, gebruik: 'binnen', Uf: '5,1',
+    maxVleugel: { B: 2440, H: 2500, kg: 230 }, leverancier: 'Jansen (Breda): info.belgium@jansen.com',
+    verwerking: { zagen: 'Zaag de profielen op een koude cirkelzaag of lintzaag (verstek 45°), ontbramen.', lassen: 'Las de verstekken op de lastafel met MAG of puls-TIG (± 40-60 A, wand 1,5 mm), kort en beurtelings; gebruik een koperen lasmal tegen doorzakken. Slijp de zichtkant vlak.', roeden: 'Las de roeden 30.006 Z stomp tegen het kader (rondom, MAG of puls-TIG), op dezelfde diepte als de sponning.', glas: 'Leg het glas op blokjes in de sponning, glaslatten 402.120 Z op de tapeinden 450.009, dichting 455.027-029.' },
+    // Economy 50: glas 5-27 mm bij deuren, 5-35 mm bij ramen; vleugel tot 230 kg, 530-2440 x 1915-2500 (heinze.de); Uf 5,1
+  },
+  janisol: {
+    naam: 'Jansen Janisol Arte 2.0 (koopprofielen, buiten, geïsoleerd)',
+    kader: { zicht: 40, diepte: 60, staaf: 'janisol603611', uitleg: 'Janisol Arte 2.0, vleugel 603.611 Z (40 x 60, geïsoleerd)' },
+    roede: { zicht: 40, diepte: 60, staaf: 'janisol601615', lat: null, uitleg: 'Janisol Arte 2.0, T-profiel 601.615 Z (40 x 60) als roede' },
+    glaslat: { staaf: 'janisol405022', uitleg: 'glaslat 405.022 (15 x 20) met clip 450.026, dichting 455.046' },
+    kozijn: { zicht: 40, diepte: 60, staaf: 'janisol602611', uitleg: 'Janisol Arte 2.0, deurkozijn 602.611 Z (40 x 60)' },
+    boog: { kern: 10, lagenKader: 6, uitleg: 'geen bogen: een geïsoleerd profiel buigen kan alleen bij Jansen of een walserij' },
+    glasMin: 20, glasMax: 47, kort: 'Janisol Arte 2.0', koop: true, gebruik: 'buiten', geenBoog: true, geenVerdekt: true, Uf: '1,9', iso: true,
+    maxVleugel: { B: 1250, H: 2500, kg: 150 }, leverancier: 'Jansen (Breda): info.belgium@jansen.com',
+    verwerking: { zagen: 'Zaag de profielen op een koude cirkelzaag (verstek 45°); de isolatiekern niet verhitten.', lassen: 'Las enkel de stalen schalen in verstek (de ZF-laag is lasbaar), met puls-TIG of MAG op lage stroom, korte naden en koelen tussendoor zodat de isolatiekern niet smelt. Slijp de zichtkant vlak.', roeden: 'Las de T-profielen 601.615 Z stomp tegen het kader, op de stalen schalen.', glas: 'Isolerend glas (20-47 mm) op blokjes, glaslatten 405.022 met clips 450.026 en schroeven 557.162, dichting 455.046.' },
+    // Janisol Arte 2.0: glas 20-47 mm, vleugel tot 1250 x 2500 en 150 kg, scharnieren 3D opschroef; Uf vanaf 1,9 (jansen.com)
+  },
+  forster: {
+    naam: 'Forster unico (koopprofielen, buiten, geïsoleerd)',
+    kader: { zicht: 65, diepte: 70, staaf: 'forster533751', uitleg: 'Forster unico, vleugel 533.751 (65 x 70, geïsoleerd)' },
+    roede: { zicht: 60, diepte: 70, staaf: 'forster531722', lat: null, uitleg: 'Forster unico, T-profiel 531.722 (60 x 70) als roede' },
+    glaslat: { staaf: 'forster901227', uitleg: 'glaslat 901227 (20 hoog) met clips 906577, droog beglazen' },
+    kozijn: { zicht: 90, diepte: 70, staaf: 'forster531755', uitleg: 'Forster unico, deurkozijn 531.755 (90 x 70)' },
+    boog: { kern: 10, lagenKader: 7, uitleg: 'geen bogen: een geïsoleerd profiel buigen kan alleen bij Forster of een walserij' },
+    glasMin: 20, glasMax: 54.5, kort: 'Forster unico', koop: true, gebruik: 'buiten', geenBoog: true, geenVerdekt: true, Uf: '2,4', iso: true,
+    maxVleugel: { B: 1440, H: 3040, kg: 150 }, leverancier: 'Forster Belux (Reynaers, Duffel): info.belux@forstersystems.com',
+    verwerking: { zagen: 'Zaag de profielen op een koude cirkelzaag of lintzaag (verstek 45°), schuin afkanten (45°) voor het lassen.', lassen: 'Las de verstekken met de Forster-lasmal (989210 met afstandsplaat 909215) op schragen of de lastafel: MAG of puls-TIG ± 40 A (wand 1,5 mm), enkel de stalen schalen, daarna vlak slijpen.', roeden: 'Las de T-profielen 531.722 stomp tegen het kader, op de stalen schalen.', glas: 'Isolerend glas (20-54,5 mm) droog beglazen: glaslat 901227 met clips 906577 en de dichtingen uit het systeem.' },
+    // Forster unico: glas 20-54,5 mm, vleugel tot 1440 x 3040, hoeken in verstek gelast (forster-profile.ch, 988320); Uf deur 2,4
   },
   koker60: {
     naam: 'Koker 40 x 60 (diep, voor dubbel glas)',
@@ -59,14 +86,23 @@ export const SYSTEMEN = {
 const ROEDE_DUBBEL = { zicht: 30, diepte: 36, staaf: 'koker30x20x2', lat: 'plat30x3', uitleg: 'kern koker 30x20x2 (30 diep, zo dik als het dubbel glas) met voor en achter een lat 30x3' };
 export const scharnierSoort = (k) => SCHARNIEREN[k]?.soort ?? 'pivot';
 /** past het glas in het profiel, en is er plaats voor het scharnier? */
-export function systeemPast(key, { opbouw = 'enkel', scharnier = 'budget' } = {}) {
+export function systeemPast(key, { opbouw = 'enkel', scharnier = 'budget', stijl = null } = {}) {
   const s = SYSTEMEN[key];
-  return !!s && OPBOUW[opbouw].dikte <= s.glasMax && (scharnierSoort(scharnier) !== 'verdekt' || (s.kader.zicht >= 60 && !s.geenVerdekt));
+  if (!s) return false;
+  const dikte = OPBOUW[opbouw].dikte;
+  if (dikte > s.glasMax || dikte < (s.glasMin ?? 0)) return false;
+  if (s.geenBoog && stijl && heeftBoog(stijl)) return false;
+  // verdekt vraagt een stijl van 60 breed; de koopprofielen zijn taatsdeuren (pivot)
+  return scharnierSoort(scharnier) !== 'verdekt' || (s.kader.zicht >= 60 && !s.geenVerdekt);
 }
+export const heeftBoog = (s) => s.boven !== 'recht' || s.vorm === 'volleBoog' || !!s.zon;
+
 /** het profiel: het gekozen als het past, anders het lichtste dat past (koker 40x40, 40x60, 60x40, 60x60) */
 export function kiesSysteem(k = {}) {
   if (k.systeem && k.systeem !== 'auto' && systeemPast(k.systeem, k)) return k.systeem;
-  return ['koker', 'koker60', 'breed', 'breeddiep'].find((x) => systeemPast(x, k));
+  // buiten: een geïsoleerd koopprofiel (als de stijl kan: geen bogen); anders of binnen: de lichtste koker die past
+  if (k.gebruik === 'buiten') { const b = ['janisol', 'forster'].find((x) => systeemPast(x, k)); if (b) return b; }
+  return ['koker', 'koker60', 'breed', 'breeddiep'].find((x) => systeemPast(x, k)) ?? 'breeddiep';
 }
 
 // ---------------------------------------------------------------- de stijlen
@@ -414,9 +450,10 @@ export function ontwerp(id, B, H, opts = {}) {
 function ontwerpRuw(id, B, H, opts = {}) {
   const stijl = STIJLEN.find((s) => s.id === id);
   if (!stijl) throw new Error(`onbekende stijl ${id}`);
-  const opbouw = opts.opbouw === 'dubbel' ? 'dubbel' : 'enkel', sysKey = kiesSysteem({ ...opts, opbouw }), basis = SYSTEMEN[sysKey];
-  const sys = opbouw === 'dubbel' && sysKey !== 'systeem' ? { ...basis, roede: ROEDE_DUBBEL, boog: { ...basis.boog, roedeLagen: 3 } } : basis;
-  const extra = { sysKey, opbouw, scharnier: scharnierSoort(opts.scharnier), glasDikte: OPBOUW[opbouw].dikte, glasKgm2: OPBOUW[opbouw].kgm2 };
+  // buiten: altijd isolerend (dubbel) glas
+  const opbouw = opts.opbouw === 'dubbel' || opts.gebruik === 'buiten' || (SYSTEMEN[opts.systeem]?.glasMin ?? 0) > OPBOUW.enkel.dikte ? 'dubbel' : 'enkel', sysKey = kiesSysteem({ ...opts, opbouw, stijl }), basis = SYSTEMEN[sysKey];
+  const sys = opbouw === 'dubbel' && !basis.koop ? { ...basis, roede: ROEDE_DUBBEL, boog: { ...basis.boog, roedeLagen: 3 } } : basis;
+  const extra = { sysKey, opbouw, gebruik: opts.gebruik === 'buiten' ? 'buiten' : 'binnen', scharnier: scharnierSoort(opts.scharnier), glasDikte: OPBOUW[opbouw].dikte, glasKgm2: OPBOUW[opbouw].kgm2 };
   const kz = sys.kozijn.zicht, M = MATEN;
   const KB = B - 2 * M.montage, KH = H - M.montage;
   const kozijn = [], vleugels = [], vast = [];
@@ -532,7 +569,9 @@ export function lijsten(o) {
     const xi1 = v.B - k, langsPaneel = (v.panelen ?? []).reduce((s, p) => s + p.reduce((t, a, i) => { const b = p[(i + 1) % p.length], op = (q) => Math.abs(q[0] - k) < 0.01 || Math.abs(q[0] - xi1) < 0.01 || Math.abs(q[1] - k) < 0.01;
       const zelfde = (Math.abs(a[0] - b[0]) < 0.01 && (Math.abs(a[0] - k) < 0.01 || Math.abs(a[0] - xi1) < 0.01)) || (Math.abs(a[1] - b[1]) < 0.01 && Math.abs(a[1] - k) < 0.01);
       return t + (op(a) && op(b) && zelfde ? Math.hypot(b[0] - a[0], b[1] - a[1]) : 0); }, 0), 0);
-    staaf(`${deel}: glaslatten in het kader (voor en achter)`, sys.glaslat.staaf, recht - langsPaneel, 2, 'in stukken op maat zagen bij het glazen');
+    // koopprofielen: één glaslat rondom elke ruit (de andere kant is de sponning van het profiel, ook bij de roeden)
+    if (sys.koop) staaf(`${deel}: glaslatten rondom elke ruit`, sys.glaslat.staaf, v.ruiten.reduce((s, p) => s + p.reduce((t, a, i) => { const b = p[(i + 1) % p.length]; return t + (Math.abs(a[0] - b[0]) < 0.01 || Math.abs(a[1] - b[1]) < 0.01 ? Math.hypot(b[0] - a[0], b[1] - a[1]) : 0); }, 0), 0), 1, sys.glaslat.uitleg);
+    else staaf(`${deel}: glaslatten in het kader (voor en achter)`, sys.glaslat.staaf, recht - langsPaneel, 2, 'in stukken op maat zagen bij het glazen');
     for (const p of v.panelen ?? []) { const [x0, y0, x1, y1] = kaderVan(p); voeg(laser, `paneel|${deel}|${Math.round(x1 - x0)}|${Math.round(y1 - y0)}`, { wat: `${deel}: paneel (ingelast)`, vorm: 'plaat', b: Math.round(y1 - y0 - 2), l: Math.round(x1 - x0 - 2), t: 3, n: 1, mat: 'S235, plaat 3 mm', opm: '1 mm speling rondom, hechten om de 100' }); }
     if (rond) voeg(laser, `glaslat boog|${deel}`, { wat: `${deel}: glaslat in de boog van het kader`, vorm: 'boog', r: v.B / 2 - k - 7.5, zicht: 15, hoek: 180, t: 4, n: 2, mat: 'S235, plaat 4 mm', opm: 'voor gelast, achter geschroefd' });
     for (const p of v.ruiten) {
@@ -542,8 +581,8 @@ export function lijsten(o) {
   }
   for (const v of o.vleugels) {
     staaf('greep voor en achter', 'rond25', MATEN.greep.lengte, 2, 'uiteinden rond slijpen; 2 gaten M8 per greep');
-    if (o.scharnier === 'verdekt') staaf('kozijn: aanslag (boven en 2 zijden)', 'plat15x4', 2 * v.H + v.B, 1, 'op het kozijn gelast, de deur valt ertegen');
-    else voeg(laser, 'taatsplaat onder', { wat: 'taatsplaat onder (in de onderregel)', vorm: 'plaat', b: 36, l: 220, t: 8, n: 1, mat: 'S235, plaat 8 mm', opm: '2 gaten M8 voor het scharnier' });
+    if (o.scharnier === 'verdekt' && !sys.koop) staaf('kozijn: aanslag (boven en 2 zijden)', 'plat15x4', 2 * v.H + v.B, 1, 'op het kozijn gelast, de deur valt ertegen');
+    else if (o.scharnier !== 'verdekt') voeg(laser, 'taatsplaat onder', { wat: 'taatsplaat onder (in de onderregel)', vorm: 'plaat', b: 36, l: 220, t: 8, n: 1, mat: 'S235, plaat 8 mm', opm: '2 gaten M8 voor het scharnier' });
     if (o.scharnier !== 'verdekt') voeg(laser, 'taatsplaat boven', { wat: 'taatsplaat boven (in de bovenregel)', vorm: 'plaat', b: 36, l: 140, t: 8, n: 1, mat: 'S235, plaat 8 mm', opm: 'boring Ø20 voor de bovenpen' });
     voeg(laser, 'greephouder', { wat: 'greephouder (afstandsstuk)', vorm: 'plaat', b: 25, l: 40, t: 10, n: o.stijl.vleugels === 2 ? 2 : 2, mat: 'S235, plaat 10 mm', opm: 'boring M8 voor de greep' });
   }
