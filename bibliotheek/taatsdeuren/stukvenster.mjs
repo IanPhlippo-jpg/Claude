@@ -16,7 +16,7 @@ const CSS = `
 .sv-groep { display: inline-flex } .sv-groep button + button { border-left: 0 }
 .sv-vlak { position: relative; overflow: hidden; touch-action: none; background: #e9ebea; cursor: grab; user-select: none }
 .sv-vlak:active { cursor: grabbing }
-.sv-vlak > svg { position: absolute; left: 0; top: 0; box-shadow: 0 1px 6px rgba(0,0,0,.18); background: #fff }
+.sv-vlak > svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; background: transparent }
 .sv-3d { position: relative; background: linear-gradient(#f4f5f4, #dfe2e1) } .sv-3d canvas { display: block; width: 100%; height: 100% }
 .sv-3d .sv-info { position: absolute; left: 10px; top: 8px; font: 12.5px var(--mono, monospace); color: #333; background: rgba(255,255,255,.8); padding: 3px 7px; pointer-events: none }
 .sv-3d .sv-laden { position: absolute; inset: 0; display: grid; place-items: center; color: #555 }
@@ -38,11 +38,13 @@ export function stukVenster(dlg, opts = {}) {
 <div class="sv-vlak" data-paneel="2d"></div><div class="sv-3d" data-paneel="3d" hidden><div class="sv-info"></div><div class="sv-laden">3D laden…</div></div>
 <p class="sv-voet" id="sv-voet">Scroll of knijp om te zoomen, sleep om te verschuiven, dubbelklik zoomt in. Pijltjes links en rechts: vorige en volgende stuk.</p>`;
   const $ = (s) => dlg.querySelector(s), vlak = $('.sv-vlak'), drieVak = $('.sv-3d');
-  let nu = null, zicht = '2d', z = 1, tx = 0, ty = 0, svgEl = null;
-  // ---- 2D: zoomen door de maat van de SVG te veranderen (blijft scherp), verschuiven met left/top
-  const zet = () => { if (!svgEl) return; svgEl.style.width = `${W4 * 4 * z}px`; svgEl.style.height = `${H4 * 4 * z}px`; svgEl.style.left = `${tx}px`; svgEl.style.top = `${ty}px`; };
-  const pas = () => { const r = vlak.getBoundingClientRect(); if (!r.width) return; z = Math.min((r.width - 16) / (W4 * 4), (r.height - 16) / (H4 * 4)); tx = (r.width - W4 * 4 * z) / 2; ty = (r.height - H4 * 4 * z) / 2; zet(); };
-  const zoom = (f, cx, cy) => { const nz = Math.min(60, Math.max(0.08, z * f)); tx = cx - ((cx - tx) * nz) / z; ty = cy - ((cy - ty) * nz) / z; z = nz; zet(); };
+  let nu = null, zicht = '2d', z = 1, tx = 0, ty = 0, svgEl = null, gepast = true;
+  // ---- 2D: de SVG is altijd zo groot als het vlak; zoomen en verschuiven = het zichtvenster (viewBox) verzetten. Zo blijft
+  // de tekening scherp en wordt het element nooit groter dan het scherm (een SVG van tienduizenden pixels tekent de
+  // browser niet meer goed: stukken blijven leeg of flikkeren). z = pixels per 1/4 mm, tx/ty = waar de hoek van het blad staat.
+  const zet = () => { if (!svgEl) return; const w = vlak.clientWidth, h = vlak.clientHeight; if (!w || !h) return; const k = 4 * z; svgEl.setAttribute('viewBox', `${-tx / k} ${-ty / k} ${w / k} ${h / k}`); };
+  const pas = () => { const r = vlak.getBoundingClientRect(); if (!r.width) return; z = Math.min((r.width - 16) / (W4 * 4), (r.height - 16) / (H4 * 4)); tx = (r.width - W4 * 4 * z) / 2; ty = (r.height - H4 * 4 * z) / 2; gepast = true; zet(); };
+  const zoom = (f, cx, cy) => { const nz = Math.min(40, Math.max(0.08, z * f)); tx = cx - ((cx - tx) * nz) / z; ty = cy - ((cy - ty) * nz) / z; z = nz; gepast = false; zet(); };
   const midden = () => { const r = vlak.getBoundingClientRect(); return [r.width / 2, r.height / 2]; };
   vlak.addEventListener('wheel', (e) => { e.preventDefault(); const r = vlak.getBoundingClientRect(); zoom(Math.exp(-e.deltaY * (e.deltaMode ? 0.05 : 0.0018)), e.clientX - r.left, e.clientY - r.top); }, { passive: false });
   vlak.addEventListener('dblclick', (e) => { const r = vlak.getBoundingClientRect(); zoom(2, e.clientX - r.left, e.clientY - r.top); });
@@ -52,7 +54,7 @@ export function stukVenster(dlg, opts = {}) {
   vlak.addEventListener('pointermove', (e) => {
     if (!wijzers.has(e.pointerId)) return;
     const oud = wijzers.get(e.pointerId); wijzers.set(e.pointerId, [e.clientX, e.clientY]);
-    if (wijzers.size === 1) { tx += e.clientX - oud[0]; ty += e.clientY - oud[1]; zet(); return; }
+    if (wijzers.size === 1) { tx += e.clientX - oud[0]; ty += e.clientY - oud[1]; gepast = false; zet(); return; }
     const [a, b] = [...wijzers.values()], d = Math.hypot(a[0] - b[0], a[1] - b[1]), r = vlak.getBoundingClientRect(), m = [(a[0] + b[0]) / 2 - r.left, (a[1] + b[1]) / 2 - r.top];
     if (knijp) { tx += m[0] - knijp.m[0]; ty += m[1] - knijp.m[1]; zoom(d / knijp.d, m[0], m[1]); }
     knijp = { d, m };
@@ -76,7 +78,17 @@ export function stukVenster(dlg, opts = {}) {
     const groep = new THREE.Group(); scene.add(groep);
     const maat = () => { const w = drieVak.clientWidth, h = drieVak.clientHeight; if (!w || !h) return; r.setSize(w, h, false); cam.aspect = w / h; cam.updateProjectionMatrix(); };
     new ResizeObserver(maat).observe(drieVak); maat();
-    r.setAnimationLoop(() => { if (drieVak.hidden || !dlg.open) return; ctl.update(); r.render(scene, cam); });
+    // het dichtste en verste vlak van de camera schuiven mee met de afstand: anders snijdt de camera bij dicht inzoomen de
+    // voorkant van het profiel weg (je kijkt dan door de wand)
+    let vorige = 0;
+    r.setAnimationLoop(() => {
+      if (drieVak.hidden || !dlg.open) return;
+      ctl.update();
+      const d = cam.position.distanceTo(ctl.target);
+      if (Math.abs(d - vorige) > vorige * 0.05) { vorige = d; cam.near = Math.max(0.05, d / 400); cam.far = d * 400 + 10000; cam.updateProjectionMatrix(); }
+      r.render(scene, cam);
+    });
+    ctl.minDistance = 3;
     drieVak.querySelector('.sv-laden').remove();
     return { THREE, r, scene, cam, ctl, groep, maat, box: null };
   }
@@ -151,7 +163,7 @@ export function stukVenster(dlg, opts = {}) {
     if (e.key === 'ArrowLeft') { e.preventDefault(); opts.naar?.(-1); } else if (e.key === 'ArrowRight') { e.preventDefault(); opts.naar?.(1); }
     else if (zicht === '2d' && (e.key === '+' || e.key === '=')) zoom(1.6, ...midden()); else if (zicht === '2d' && e.key === '-') zoom(1 / 1.6, ...midden()); else if (zicht === '2d' && e.key === '0') pas();
   });
-  new ResizeObserver(() => { if (zicht === '2d' && dlg.open && z <= 1.001) pas(); }).observe(vlak);
+  new ResizeObserver(() => { if (zicht === '2d' && dlg.open) { if (gepast) pas(); else zet(); } }).observe(vlak);
   function druk(svg) {
     let vak = document.getElementById('stuk-afdruk');
     if (!vak) { vak = document.createElement('div'); vak.id = 'stuk-afdruk'; document.body.append(vak); }
@@ -170,7 +182,7 @@ export function stukVenster(dlg, opts = {}) {
       vlak.innerHTML = x.svg; svgEl = vlak.querySelector('svg'); svgEl.removeAttribute('width'); svgEl.removeAttribute('height');
       dlg.querySelector('[data-sv="vorige"]').disabled = x.i === 0; dlg.querySelector('[data-sv="volgende"]').disabled = x.i === x.n - 1;
       if (!dlg.open) dlg.showModal();
-      if (zicht === '3d') toon3d(); else if (!zelfde || z <= 1.001) requestAnimationFrame(pas); else zet();
+      if (zicht === '3d') toon3d(); else if (!zelfde || gepast) { pas(); requestAnimationFrame(pas); } else zet();
     },
     sluit() { dlg.close(); },
   };
