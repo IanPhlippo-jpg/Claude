@@ -35,7 +35,7 @@ $('k-lak').innerHTML = radio('lak', Object.entries(AFWERKINGEN).map(([v, a]) => 
 $('k-muur').innerHTML = radio('muur', Object.entries(MUREN).map(([v, [t]]) => [v, t]));
 $('k-vloer').innerHTML = radio('vloer', Object.entries(VLOEREN).map(([v, [t]]) => [v, t]));
 
-const duim = (o) => { const W = 100, Hh = 125, s = Math.min((W - 12) / o.kozijn.B, (Hh - 12) / o.kozijn.H), ox = (W - o.kozijn.B * s) / 2; return `<svg viewBox="0 0 ${W} ${Hh}" aria-hidden="true">${vooraanzicht(o, s, ox, Hh - 6, { maten: false, assen: false })}</svg>`; };
+const duim = (o) => { const W = 100, Hh = 125, s = Math.min((W - 12) / o.kozijn.B, (Hh - 12) / o.kozijn.H), ox = (W - o.kozijn.B * s) / 2; return `<svg viewBox="0 0 ${W} ${Hh}" width="${W}" height="${Hh}" aria-hidden="true">${vooraanzicht(o, s, ox, Hh - 6, { maten: false, assen: false })}</svg>`; };
 (function vulDuimen(i = 0) { const t0 = performance.now(); while (i < STIJLEN.length && performance.now() - t0 < 30) { const s = STIJLEN[i++]; try { $(`duim-${s.id}`).innerHTML = duim(ontwerp(s.id, s.std.B, s.std.H)); } catch {} } if (i < STIJLEN.length) setTimeout(() => vulDuimen(i), 0); })();
 
 // ---------------------------------------------------------------- gebeurtenissen
@@ -84,7 +84,7 @@ function teken() {
   const kleur = RAL.find((x) => x.code === k.ral) ?? RAL[0], g = GLAS[k.glas];
   const W = 220, Hh = 300, sc = Math.min((W - 70) / o.kozijn.B, (Hh - 45) / o.kozijn.H), ox = 34 + (W - 70 - o.kozijn.B * sc) / 2;
   const licht = parseInt(kleur.hex.slice(1, 3), 16) > 150;
-  $('tekening').innerHTML = `<svg viewBox="0 0 ${W} ${Hh}" role="img" aria-label="Vooraanzicht met maten">${vooraanzicht(o, sc, ox, Hh - 22, { staal: kleur.hex, paneel: kleur.hex, lijn: licht ? '#555' : '#111', glas: mengGlas(g), maten: true, assen: true, tekst: 4 })}</svg>`;
+  $('tekening').innerHTML = `<svg viewBox="0 0 ${W} ${Hh}" width="${W * 2}" height="${Hh * 2}" role="img" aria-label="Vooraanzicht met maten">${vooraanzicht(o, sc, ox, Hh - 22, { staal: kleur.hex, paneel: kleur.hex, lijn: licht ? '#555' : '#111', glas: mengGlas(g), maten: true, assen: true, tekst: 4 })}</svg>`;
   // samenvatting
   const sch = SCHARNIEREN[c.scharnier];
   const rijen = [

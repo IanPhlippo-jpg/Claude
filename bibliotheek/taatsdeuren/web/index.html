@@ -34,8 +34,8 @@ header.kop { padding-block: 22px 14px } header.kop p { margin: 6px 0 0; color: v
 /* stijlen */
 .filter { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 8px } .filter button { font: 500 13.5px var(--tekst); padding: 5px 10px; border: 1px solid var(--lijn); background: var(--vlak); color: var(--inkt); cursor: pointer } .filter button[aria-pressed="true"] { border-color: var(--amber); background: var(--amber-vlak); color: var(--amber-inkt); font-weight: 600 } .filter small { color: var(--zacht); font-size: 12px }
 .stijlen { display: flex; gap: 8px; overflow-x: auto; scroll-snap-type: x proximity; padding-bottom: 8px; margin-bottom: 14px; scrollbar-width: thin }
-.stijl { flex: 0 0 116px; scroll-snap-align: start; border: 1px solid var(--lijn); background: var(--vlak); padding: 0; cursor: pointer; text-align: left; color: inherit; font: inherit; display: flex; flex-direction: column }
-.stijl .duim { display: block; aspect-ratio: 100 / 125; background: #f6f7f5 } .stijl .duim svg { display: block; width: 100%; height: 100% } .stijl i { font: 11px var(--mono); color: var(--zacht); font-style: normal; display: block }
+.stijl { flex: 0 0 116px; width: 116px; max-width: 116px; min-width: 0; overflow: hidden; scroll-snap-align: start; border: 1px solid var(--lijn); background: var(--vlak); padding: 0; cursor: pointer; text-align: left; color: inherit; font: inherit; display: flex; flex-direction: column }
+.stijl .duim { display: block; flex: none; width: 100%; height: 145px; overflow: hidden; background: #f6f7f5 } .stijl .duim svg { display: block; width: 100%; height: 145px } .stijl i { font: 11px var(--mono); color: var(--zacht); font-style: normal; display: block }
 .stijl span { padding: 6px 8px 8px; font-size: 13px; line-height: 1.25 } .stijl b { display: block; font-family: var(--kop); font-stretch: 80%; font-size: 14.5px }
 .stijl[aria-pressed="true"] { outline: 2px solid var(--amber); outline-offset: -2px; background: var(--amber-vlak) }
 /* deur */
@@ -54,11 +54,11 @@ fieldset { border: 0; padding: 0; margin: 0 0 10px } .keuze { display: flex; fle
 .prijsvak small { color: var(--zacht); font-size: 13px }
 .tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--lijn) } .tabs button { font: 700 15px var(--kop); font-stretch: 85%; text-transform: uppercase; letter-spacing: .05em; color: var(--zacht); background: none; border: 0; border-bottom: 3px solid transparent; padding: 8px 12px 6px; cursor: pointer } .tabs button[aria-selected="true"] { color: var(--inkt); border-bottom-color: var(--amber) }
 .toon { background: var(--vlak); border: 1px solid var(--lijn); border-top: 0 }
-.kamer { position: relative; aspect-ratio: 4 / 3; max-height: 74vh; width: 100%; background: #d9d6cf; touch-action: pan-y } .kamer canvas { display: block; cursor: grab } .kamer .laden { position: absolute; inset: auto 0 45% 0; text-align: center; color: #555; margin: 0 }
+.kamer { position: relative; aspect-ratio: 4 / 3; max-height: 74vh; width: 100%; background: #d9d6cf; touch-action: pan-y; overflow: hidden } .kamer canvas { display: block; position: absolute; inset: 0; width: 100% !important; height: 100% !important; cursor: grab } .kamer .laden { position: absolute; inset: auto 0 45% 0; text-align: center; color: #555; margin: 0 }
 .kamer .hint { position: absolute; left: 10px; bottom: 8px; font-size: 12px; color: #333; background: rgba(255,255,255,.75); padding: 3px 8px; pointer-events: none }
 .kamerknoppen { display: grid; grid-template-columns: minmax(160px, 1fr) auto; gap: 4px 18px; align-items: end; padding: 12px 0 0 } .kamerknoppen fieldset { margin: 0 } .kamerknoppen .knoppen { margin: 0; grid-column: 1 / -1 }
 input[type="range"] { width: 100%; accent-color: var(--amber) }
-.toon .tek { padding: 18px; background: #f6f7f5; align-items: center; display: flex; justify-content: center } .toon .tek svg { max-height: 640px; width: auto; max-width: 100%; height: auto }
+.toon .tek { padding: 18px; background: #f6f7f5; align-items: center; display: flex; justify-content: center } .toon .tek svg { display: block; width: min(100%, 427px); height: auto; max-height: 640px }
 
 .maten { display: flex; gap: 18px; flex-wrap: wrap; margin-top: 10px; font: 13px var(--mono); color: var(--zacht) }
 /* werkplaats */
@@ -88,7 +88,7 @@ td.n { text-align: right; font: 13px var(--mono); white-space: nowrap } td.bron 
 footer { color: var(--zacht); font-size: 13px; padding-block: 30px }
 @media (max-width: 1100px) { .drie, .inst { grid-template-columns: 1fr } .tegels { grid-template-columns: repeat(3, minmax(0, 1fr)) } }
 @media (max-width: 860px) { .deur { grid-template-columns: 1fr } .kamer { aspect-ratio: 4 / 5 } .kamerknoppen { grid-template-columns: 1fr } }
-@media (max-width: 520px) { .stijl { flex-basis: 100px } .tegels { grid-template-columns: 1fr 1fr } nav.menu a { padding-inline: 8px; font-size: 14px } }
+@media (max-width: 520px) { .stijl { flex-basis: 100px; width: 100px; max-width: 100px } .stijl .duim { height: 125px } .stijl .duim svg { height: 125px } .tegels { grid-template-columns: 1fr 1fr } nav.menu a { padding-inline: 8px; font-size: 14px } }
 </style>
 
 <nav class="menu" aria-label="Pagina's"><div class="wrap">
@@ -266,7 +266,7 @@ const GRP = ['Alle', ...new Set(STIJLEN.map((s) => s.groep))];
 $('filter').innerHTML = GRP.map((g) => `<button type="button" data-filter="${esc(g)}" aria-pressed="${g === 'Alle'}">${esc(g)} <small>${g === 'Alle' ? STIJLEN.length : STIJLEN.filter((s) => s.groep === g).length}</small></button>`).join('');
 $('filter').addEventListener('click', (e) => { const b = e.target.closest('[data-filter]'); if (!b) return; filterGroep = b.dataset.filter; document.querySelectorAll('[data-filter]').forEach((x) => x.setAttribute('aria-pressed', x === b)); document.querySelectorAll('[data-stijl]').forEach((x) => { x.hidden = filterGroep !== 'Alle' && x.dataset.groep !== filterGroep; }); $('stijlen').scrollLeft = 0; });
 // kleine tekening per stijl (standaardmaat), in stukjes zodat de pagina meteen klaar is
-const duim = (o) => { const W = 100, Hh = 125, s = Math.min((W - 12) / o.kozijn.B, (Hh - 12) / o.kozijn.H), ox = (W - o.kozijn.B * s) / 2; return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${Hh}" aria-hidden="true">${vooraanzicht(o, s, ox, Hh - 6, { maten: false, assen: false })}</svg>`; };
+const duim = (o) => { const W = 100, Hh = 125, s = Math.min((W - 12) / o.kozijn.B, (Hh - 12) / o.kozijn.H), ox = (W - o.kozijn.B * s) / 2; return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${Hh}" width="${W}" height="${Hh}" aria-hidden="true">${vooraanzicht(o, s, ox, Hh - 6, { maten: false, assen: false })}</svg>`; };
 (function vulDuimen(i = 0) { const t0 = performance.now(); while (i < STIJLEN.length && performance.now() - t0 < 30) { const s = STIJLEN[i++]; try { $(`duim-${s.id}`).innerHTML = duim(ontwerp(s.id, s.std.B, s.std.H)); } catch {} } if (i < STIJLEN.length) setTimeout(() => vulDuimen(i), 0); })();
 const keuzeHtml = (naam, lijst) => Object.entries(lijst).map(([v, [t]]) => `<label><input type="radio" name="${naam}" value="${v}" id="${naam}-${v}"><span>${esc(t)}</span></label>`).join('');
 $('k-kleur').innerHTML = keuzeHtml('kleur', Object.fromEntries(RAL.map((c) => [c.code, [c.code === 'brons' ? 'Brons' : `RAL ${c.code}`]]))); $('k-muur').innerHTML = keuzeHtml('muur', MUREN); $('k-vloer').innerHTML = keuzeHtml('vloer', VLOEREN);
@@ -314,7 +314,7 @@ function teken() {
   if (k.gewicht.vleugels.some((x) => x > maxKg)) melding.push(`De vleugel weegt ${k.gewicht.vleugels.map(Math.round).join(' en ')} kg: meer dan ${SCHARNIEREN[k.scharnier].kort.toLowerCase()} draagt (${maxKg} kg).`);
   $('melding').hidden = !melding.length; $('melding').textContent = melding.join(' ');
   // pagina Deur: de deur en één prijs
-  $('deurtekening').innerHTML = losseTekening(o, 200, 300, { maten: false, assen: false }).replace('<rect width="200" height="300" fill="#fff"/>', '').replace(/width="200mm" height="300mm"/, '');
+  $('deurtekening').innerHTML = losseTekening(o, 200, 300, { maten: false, assen: false }).replace('<rect width="200" height="300" fill="#fff"/>', '').replace(/width="200mm" height="300mm"/, 'width="200" height="300"');
   const toon = { kostprijs: ['Kostprijs om te maken', k.kostprijs, 'excl. btw, met plaatsen'], verkoop: ['Prijs', k.verkoop, 'excl. btw, geplaatst'], verkoopBtw: ['Prijs', k.verkoop * 1.21, 'incl. 21 % btw, geplaatst'] }[inst.toon] ?? ['Kostprijs om te maken', k.kostprijs, ''];
   $('p-label').textContent = toon[0]; $('p-bedrag').textContent = eur(toon[1]); $('p-sub').textContent = toon[2];
   $('maten').innerHTML = [`opening ${B} x ${H} mm`, `vleugel ${o.vleugels.map((v) => `${Math.round(v.B)} x ${Math.round(v.H)}`).join(' + ')}`, `glas ${g(L.glas.reduce((t, r) => t + r.n, 0))} ruiten`].map((x) => `<span>${esc(x)}</span>`).join('');
