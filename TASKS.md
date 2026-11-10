@@ -1298,3 +1298,9 @@ elease; README en docs/04 bijgewerkt
 - [x] Dit systeem in de bibliotheek (doorsneden met gleuf, glasmaat met inloop 8, stuklijst, bestellijst, plannen)
 - [x] aanvraag.mjs: A3-bladen overzicht, doorsneden 2:1 met alle maten, verbindingen, offerteaanvraag met meters per deur; NL en EN
 - [x] PDF's in Bureaublad, foto's, commit en push
+
+## Profieltekeningen P1-P4 voor de extrudeur (Alibaba) (2026-11-10)
+- [x] Werktekening per profiel (A4, schaal 2,5:1, ISO 128) met maten en eisen
+- [x] PDF, PNG per profiel (voor de chat) en DXF, in het Engels en het Nederlands
+- [x] Engels antwoord aan de leverancier: doorsnede, meters, glasdikte, wand 1,8 mm, monsters
+- [x] Kopie op het bureaublad (Profielaanvraag), commit en push
