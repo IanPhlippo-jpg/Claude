@@ -1264,5 +1264,5 @@ elease; README en docs/04 bijgewerkt
 - [x] 3D-vorm per stuk (koker hol met verstek, platstaal, rond, boog, plaat met gaten, glas) zonder three, voor de pagina en de test
 - [x] Pagina Werkplaats: klik op een stuk (kaart, ballon, opengewerkte tekening) of kies uit de lijst: venster met detailblad (zoomen, slepen, knijpen) en 3D (draaien), vorige/volgende, afdrukken
 - [x] Bladen Onderdelen: grotere schetsen (6 per A3 in plaats van 14, tekst en maten groeien mee)
-- [~] PDF per deur met de detailbladen (TD-xx-...-stukken.pdf), niet in de bibliotheek-PDF
-- [~] Tests: elk detailblad zonder NaN, 3D-volume klopt met het gewicht; foto's, commit en push
+- [x] PDF per deur met de detailbladen (TD-xx-...-stukken.pdf), niet in de bibliotheek-PDF
+- [x] Tests: elk detailblad zonder NaN, 3D-volume klopt met het gewicht; foto's, commit en push
