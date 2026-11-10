@@ -33,11 +33,12 @@ for (const { s, B: b, H: h } of lijst) {
   const o = ontwerp(s.id, b, h, { systeem });
   const nr = `TD-${String(STIJLEN.indexOf(s) + 1).padStart(2, '0')}`, naam = `${nr}-${s.id}-${b}x${h}`;
   writeFileSync(join(HERE, 'modellen', `${naam}.kcad`), JSON.stringify(samenstelling(o, `Taatsdeur ${s.naam} ${b} x ${h}`)) + '\n');
-  const { a3, a4, kost } = bladen(o, { systeem }, { nr, datum: DATUM });
+  const { a3, a4, kost, stuk } = bladen(o, { systeem }, { nr, datum: DATUM });
   writeFileSync(join(HERE, 'tekeningen', `${naam}.svg`), a3);
+  stuk.forEach((s, i) => writeFileSync(join(HERE, 'tekeningen', `${naam}-${i ? `stuklijst-${i}` : 'opengewerkt'}.svg`), s));
   writeFileSync(join(HERE, 'dxf', `${naam}-laser.dxf`), laserDxf(o));
   writeFileSync(join(HERE, 'dxf', `${naam}-glas.dxf`), glasDxf(o));
-  const deel = `<div class="a3">${a3}</div>${a4}`;
+  const deel = `<div class="a3">${a3}</div>${stuk.map((s) => `<div class="a3">${s}</div>`).join('')}${a4}`;
   await pdf(pagina(`Taatsdeur ${s.naam}`, deel), join(HERE, 'pdf', `${naam}.pdf`));
   alle.push(deel);
   overzicht.push(`<figure>${losseTekening(o, 120, 200, { maten: false, assen: false })}<figcaption><b>${nr} ${s.naam}</b><br>${b} x ${h} · kost ${eur(kost.kostprijs)}</figcaption></figure>`);

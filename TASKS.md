@@ -1244,3 +1244,17 @@ elease; README en docs/04 bijgewerkt
 - [x] 50 extra stijlen (TD-51 tot TD-100), tests voor alle 100
 - [x] Presentatietool in een eigen map buiten de CAD (offline te openen): 2D en 3D, deurgat ingeven -> kamer, alle keuzes, RAL-kaart
 - [x] Dezelfde tool online als pagina; foto's, commit en push
+
+## Deurplannen: stuklijst met schetsen per onderdeel (2026-11-10)
+- [x] stuklijst.mjs: elk onderdeel met positienummer (staven, latten, lasergesneden delen, panelen, glas, beslag), aantal, maat, gewicht
+- [x] Schets per onderdeel: echte vorm van de staaf (verstek, schuin op de boog) met lengte en doorsnede; bogen en platen met stralen en gaten; glas met maten
+- [x] Blad Stuklijst (A3): samenstelling met positieballonnen (ISO 6433) en de stuklijst (ISO 7573); bladen Onderdelen met de schetsen
+- [x] In het dossier en de PDF per deur, op de pagina Werkplaats en in de downloads
+- [x] Tests: elk deel in de stuklijst, gewicht klopt met het model; foto's, commit en push
+
+## Opengewerkte tekening (exploded) met verbindingen (2026-11-10)
+- [x] Verbindingen zoeken: welke uiteinden tegen welk stuk komen (verstek, T-stuk, schuin tegen de boog, boog op kalf of poot)
+- [x] Blad A3: alle stalen delen uit elkaar getrokken in hun echte vorm, verstekken rood met 45°, positieballonnen, verbindingscodes met stippellijnen
+- [x] Verbindingentabel: posities, aantal, naad en lasproces (ISO 2553-termen), kleine schets per soort
+- [x] Kolom Zagen (hoeken van beide uiteinden) in de stuklijst
+- [x] In het dossier, de PDF en de pagina Werkplaats; tests; alles opnieuw maken, commit en push

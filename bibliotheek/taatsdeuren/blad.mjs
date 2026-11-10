@@ -4,14 +4,14 @@
 import { lijsten, MATEN } from './deuren.mjs';
 import { vooraanzicht } from './teken.mjs';
 
-const W = 420, H = 297;
-const esc = (t) => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-const g = (v, d = 0) => (Math.round(v * 10 ** d) / 10 ** d).toString().replace('.', ',');
-const T = (x, y, t, h = 2.6, o = {}) => `<text x="${x}" y="${y}" font-size="${h}"${o.anker ? ` text-anchor="${o.anker}"` : ''}${o.vet ? ' font-weight="700"' : ''}${o.kleur ? ` fill="${o.kleur}"` : ''}>${esc(t)}</text>`;
-const L = (x1, y1, x2, y2, w = 0.25) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#111" stroke-width="${w}"/>`;
+export const W = 420, H = 297;
+export const esc = (t) => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+export const g = (v, d = 0) => (Math.round(v * 10 ** d) / 10 ** d).toString().replace('.', ',');
+export const T = (x, y, t, h = 2.6, o = {}) => `<text x="${x}" y="${y}" font-size="${h}"${o.anker ? ` text-anchor="${o.anker}"` : ''}${o.vet ? ' font-weight="700"' : ''}${o.kleur ? ` fill="${o.kleur}"` : ''}>${esc(t)}</text>`;
+export const L = (x1, y1, x2, y2, w = 0.25) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#111" stroke-width="${w}"/>`;
 
 /** tabel: kolommen [[kop, breedte, rechts?]], rijen; geeft [svg, hoogte] */
-function tabel(x, y, kol, rijen, h = 4.6, size = 2.3) {
+export function tabel(x, y, kol, rijen, h = 4.6, size = 2.3) {
   const bt = kol.reduce((s, k) => s + k[1], 0), uit = [`<rect x="${x}" y="${y}" width="${bt}" height="${h * (rijen.length + 1)}" fill="none" stroke="#111" stroke-width="0.3"/>`, `<rect x="${x}" y="${y}" width="${bt}" height="${h}" fill="#e9ecee" stroke="none"/>`];
   let xx = x;
   kol.forEach(([k, b, r]) => { uit.push(T(r ? xx + b - 1.2 : xx + 1.2, y + h * 0.7, k, size * 0.92, { vet: true, anker: r ? 'end' : undefined })); xx += b; });
@@ -68,14 +68,19 @@ export function werkblad(o, opts = {}) {
     const [pt] = tabel(x + 120, 214, [['Kostprijs', 52], ['€', 24, 1]], [...opts.prijs.regels.map(([a, b]) => [a, g(b)]), ['Totaal (excl. btw)', g(opts.prijs.totaal)]], 4.2, 2.15);
     el.push(pt);
   }
-  // titelblok (ISO 7200) rechtsonder: 196 x 32
-  const tx = W - 10 - 196, ty = H - 10 - 32;
+  el.push(titelblok(o, { ...opts, schaal: `1:${sch} (A3)` }));
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}mm" height="${H}mm" font-family="Arial, Helvetica, sans-serif"><rect width="${W}" height="${H}" fill="#fff"/>${el.join('\n')}</svg>`;
+}
+
+/** titelblok (ISO 7200) rechtsonder op een A3-blad: 196 x 32; opts: { nr, rev, datum, blad, schaal, titel } */
+export function titelblok(o, opts = {}) {
+  const el = [], tx = W - 10 - 196, ty = H - 10 - 32;
   el.push(`<rect x="${tx}" y="${ty}" width="196" height="32" fill="#fff" stroke="#111" stroke-width="0.5"/>`);
   for (const yy of [8, 16, 24]) el.push(L(tx, ty + yy, tx + 196, ty + yy, 0.25));
   const veld = (xx, rij, kop, waarde, h = 2.6, vet = false) => { if (xx > 0) el.push(L(tx + xx, ty + rij * 8, tx + xx, ty + rij * 8 + 8, 0.25)); el.push(T(tx + xx + 1.2, ty + rij * 8 + 2.6, kop, 1.7, { kleur: '#555' }), T(tx + xx + 1.2, ty + rij * 8 + 6.6, waarde, h, { vet })); };
-  veld(0, 0, 'Eigenaar', 'Ian · laswerken', 2.6, true); veld(70, 0, 'Bibliotheek', 'Stalen taatsdeuren', 2.6);
-  veld(0, 1, 'Titel', `Taatsdeur ${o.stijl.naam} · opening ${o.B} x ${o.H}`, 3, true);
+  veld(0, 0, 'Eigenaar', 'Ian · laswerken', 2.6, true); veld(70, 0, 'Bibliotheek', 'Stalen deuren', 2.6);
+  veld(0, 1, 'Titel', opts.titel ?? `Deur ${o.stijl.naam} · opening ${o.B} x ${o.H}`, 3, true);
   veld(0, 2, 'Systeem', o.sys.naam, 2.4); veld(70, 2, 'Tekeningnummer', opts.nr ?? `TD-${o.stijl.id}`, 2.6, true); veld(130, 2, 'Rev.', opts.rev ?? '1', 2.6); veld(150, 2, 'Uitgifte', opts.datum ?? '', 2.4);
-  veld(0, 3, 'Maten en toleranties', 'mm · ISO 2768-m · lassen ISO 5817-C', 2.3); veld(70, 3, 'Schaal', `1:${sch} (A3)`, 2.4); veld(100, 3, 'Opgesteld', 'Phlippo CAD', 2.3); veld(150, 3, 'Blad', opts.blad ?? '1 / 1', 2.4);
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}mm" height="${H}mm" font-family="Arial, Helvetica, sans-serif"><rect width="${W}" height="${H}" fill="#fff"/>${el.join('\n')}</svg>`;
+  veld(0, 3, 'Maten en toleranties', 'mm · ISO 2768-m · lassen ISO 5817-C', 2.3); veld(70, 3, 'Schaal', opts.schaal ?? '', 2.4); veld(100, 3, 'Opgesteld', 'Ian · laswerken', 2.3); veld(150, 3, 'Blad', opts.blad ?? '1 / 1', 2.4);
+  return el.join('');
 }

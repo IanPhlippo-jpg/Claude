@@ -160,7 +160,9 @@ Elke stijl is een combinatie van bouwstenen in `deuren.mjs` (STIJLEN). Een nieuw
 |---|---|
 | 3D-model (Phlippo CAD) | `modellen/TD-xx-….kcad` |
 | Werkblad A3: vooraanzicht met maten, zaaglijst, laserlijst, glaslijst, doorsnede, kostprijs, titelblok | `tekeningen/TD-xx-….svg` |
-| Dossier: werkblad, kostprijs met bronnen, werkwijze met uren en lasproces, gewicht tegenover het scharnier | `pdf/TD-xx-….pdf` |
+| Opengewerkte tekening A3 (exploded): alle stalen delen uit elkaar in hun echte vorm, verstekken in rood, bij elke verbinding een code (V verstek, T T-stuk, S schuin tegen de boog, B boog op kalf/poot/kader) met een stippellijn, en de verbindingentabel met naad en lasproces | `tekeningen/TD-xx-…-opengewerkt.svg` |
+| Stuklijst A3 (ISO 7573) met de kolom Zagen (hoek van beide uiteinden) met de samenstelling en positieballonnen (ISO 6433), en bladen Onderdelen met een schets per positie: staven in hun echte vorm (verstek, schuin volgens de boog) met lengte en doorsnede, bogen met stralen, platen met gaten, ruiten met hun vorm | `tekeningen/TD-xx-…-stuklijst-n.svg` |
+| Dossier: werkblad, opengewerkte tekening, stuklijst, onderdelen, kostprijs met bronnen, werkwijze met uren en lasproces, gewicht tegenover het scharnier | `pdf/TD-xx-….pdf` |
 | DXF: laserdelen (bogen, panelen, taatsplaten, greephouders) en de ruiten (voor de glasleverancier) | `dxf/TD-xx-…-laser.dxf`, `-glas.dxf` |
 | Alles samen | [Taatsdeuren-bibliotheek.pdf](Taatsdeuren-bibliotheek.pdf) |
 

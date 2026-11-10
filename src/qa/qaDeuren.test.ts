@@ -16,6 +16,14 @@ import { STIJLEN, ontwerp, lijsten, opp, kaderVan, veelhoek, minMaat } from '../
 import { band } from '../../bibliotheek/taatsdeuren/teken.mjs';
 // @ts-expect-error: idem
 import { samenstelling } from '../../bibliotheek/taatsdeuren/model.mjs';
+// @ts-expect-error: idem
+import { stukBladen } from '../../bibliotheek/taatsdeuren/stukblad.mjs';
+// @ts-expect-error: idem
+import { STAAF } from '../../bibliotheek/taatsdeuren/prijzen.mjs';
+// @ts-expect-error: idem
+import { verbindingen, explodeBlad } from '../../bibliotheek/taatsdeuren/explode.mjs';
+// @ts-expect-error: idem
+import { gewicht } from '../../bibliotheek/taatsdeuren/deuren.mjs';
 
 type P = [number, number];
 // klein (net boven de kleinste maat), standaard en groot
@@ -48,6 +56,32 @@ describe('taatsdeuren', () => {
       expect(L.glas.reduce((t: number, r: { n: number }) => t + r.n, 0)).toBe([...o.vleugels, ...o.vast].reduce((t: number, v: { ruiten: unknown[] }) => t + v.ruiten.length, 0));
     });
   }
+
+  // stuklijst: elk recht staafdeel (en de latten op de roeden) is een stuk; het gewicht van alle posities is dat van het
+  // model; de bladen (stuklijst en onderdelen) worden getekend, met een kaart per positie
+  it.each(STIJLEN.map((s: { id: string }) => s.id) as string[])('%s: stuklijst is volledig', (id: string) => {
+    const s = STIJLEN.find((x: { id: string }) => x.id === id);
+    for (const k of [{}, { scharnier: 'verdekt', opbouw: 'dubbel' }]) {
+      const o = ontwerp(id, s.std.B, s.std.H, k), { bladen, posities } = stukBladen(o, k);
+      type Pos = { soort: string; naam: string; n: number; kg: number; pos: number };
+      const delen = [o.kozijn, ...o.vleugels, ...o.vast].flatMap((g: { delen: { a?: P; soort: string }[] }) => g.delen.filter((d) => d.a));
+      const roeden = delen.filter((d: { soort: string }) => d.soort === 'roede').length, lat = o.sys.roede.lat ? 1 : 0;
+      const staven = (posities as Pos[]).filter((p) => p.soort === 'staaf' && /^(Kozijn|Kader|Roede)/.test(p.naam)).reduce((t, p) => t + p.n, 0);
+      expect(staven, id).toBe(delen.length + roeden * 2 * lat);
+      const kg = (posities as Pos[]).reduce((t, p) => t + p.kg * p.n, 0), G = gewicht(o, STAAF).totaal;
+      expect(Math.abs(kg - G) / G, `${id} ${kg} tegen ${G}`).toBeLessThan(0.03);
+      expect((posities as Pos[]).map((p) => p.pos)).toEqual((posities as Pos[]).map((_, i) => i + 1));
+      const kaarten = (posities as Pos[]).filter((p) => p.soort !== 'inkoop').length;
+      expect(bladen.length).toBe(1 + (posities.length > 57 ? 1 : 0) + Math.ceil(kaarten / 14));
+      for (const b of bladen) expect(b).not.toMatch(/NaN|undefined/);
+      // opengewerkte tekening: elk uiteinde (behalve de kozijnstijlen op de vloer) komt tegen een ander stuk; elke hoek
+      // van het kader en de 2 bovenhoeken van een recht kozijn zijn een verstek
+      const v = verbindingen(o, k), V = v.verbindingen.filter((j: { soort: string }) => j.soort === 'V').length;
+      expect(v.los.map((l: { stuk: { d: { soort: string } }; q: P }) => `${l.stuk.d.soort}@${l.q.map(Math.round)}`), id).toEqual([]);
+      expect(V, id).toBe(o.vleugels.reduce((t: number, l: { aanzet?: number }) => t + (l.aanzet !== undefined ? 2 : 4), 0) + (o.stijl.vorm === 'volleBoog' ? 0 : 2));
+      expect(explodeBlad(o, k)).not.toMatch(/NaN|undefined/);
+    }
+  });
 
   it.each(STIJLEN.map((s: { id: string }) => s.id) as string[])('%s: model bouwt en botst niet', (id: string) => {
     const s = STIJLEN.find((x: { id: string }) => x.id === id);

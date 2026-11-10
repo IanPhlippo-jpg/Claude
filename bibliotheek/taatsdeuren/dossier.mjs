@@ -1,6 +1,8 @@
 // Het dossier van één taatsdeur als HTML (A4 + het A3-werkblad): kostprijs met bronnen, werkwijze met uren, gewicht
 // tegenover het scharnier. Gedeeld door de PDF (Node) en de configurator (browser).
 import { werkblad } from './blad.mjs';
+import { stukBladen } from './stukblad.mjs';
+import { explodeBlad } from './explode.mjs';
 import { kostprijs, PRIJS, MARKT } from './prijzen.mjs';
 
 const esc = (t) => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -40,9 +42,11 @@ export const CSS = `
 .a4 .klein { font-size: 8pt; color: #444 } .a4 .stappen { padding-left: 5mm; margin: 0 } .a4 .stappen li { margin-bottom: 1.6mm }
 .a4 .uur { color: #8a5a00; font-size: 8pt } .a4 a { color: inherit }`;
 
-/** de twee bladen van een deur (A3 werkblad en A4 dossier) als HTML-fragmenten */
+/** de bladen van een deur: A3 werkblad, A3 stuklijst en onderdelen (svg's), A4 dossier (HTML) */
 export function bladen(o, keuzes = {}, meta = {}) {
   const k = kostprijs(o, keuzes);
   const prijs = { regels: [['Materiaal', k.materiaal], [`Arbeid (${String(k.uren).replace('.', ',')} u)`, k.arbeid]], totaal: k.kostprijs };
-  return { a3: werkblad(o, { ...meta, prijs }), a4: a4(o, keuzes), kost: k };
+  const kk = { ...keuzes, scharnierModel: k.scharnier }, s0 = stukBladen(o, kk, { ...meta, bladStart: 3 }), n = 2 + s0.bladen.length;
+  const s = stukBladen(o, kk, { ...meta, bladStart: 3, bladTotaal: n });
+  return { a3: werkblad(o, { ...meta, prijs, blad: `1 / ${n}` }), stuk: [explodeBlad(o, kk, { ...meta, blad: `2 / ${n}` }), ...s.bladen], posities: s.posities, a4: a4(o, keuzes), kost: k };
 }

@@ -1,0 +1,119 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 297" width="420mm" height="297mm" font-family="Arial, Helvetica, sans-serif"><rect width="420" height="297" fill="#fff"/><rect x="20" y="10" width="390" height="277" fill="none" stroke="#111" stroke-width="0.7"/><text x="26" y="17" font-size="3" font-weight="700">Opengewerkte tekening: de stalen delen uit elkaar, gezien van de kant met de greep</text>
+<text x="26" y="21.5" font-size="2.1" fill="#333">Rood: verstek 45° (zagen in verstek). Stippellijn: deze twee stukken komen hier aan elkaar; de code staat in de tabel rechts.</text>
+<polygon points="92.21,235.51 92.21,49.57 95.31,52.68 95.31,235.51" fill="#c9cdd0" stroke="#111" stroke-width="0.22" stroke-linejoin="round"/>
+<line x1="92.21" y1="49.57" x2="95.31" y2="52.68" stroke="#c0392b" stroke-width="0.8"/>
+<polygon points="194.69,235.51 194.69,52.68 197.79,49.57 197.79,235.51" fill="#c9cdd0" stroke="#111" stroke-width="0.22" stroke-linejoin="round"/>
+<line x1="194.69" y1="52.68" x2="197.79" y2="49.57" stroke="#c0392b" stroke-width="0.8"/>
+<polygon points="106.57,24 183.43,24 180.32,27.11 109.68,27.11" fill="#c9cdd0" stroke="#111" stroke-width="0.22" stroke-linejoin="round"/>
+<line x1="106.57" y1="24" x2="109.68" y2="27.11" stroke="#c0392b" stroke-width="0.8"/>
+<line x1="183.43" y1="24" x2="180.32" y2="27.11" stroke="#c0392b" stroke-width="0.8"/>
+<polygon points="104.41,237.71 104.41,55.96 107.51,59.07 107.51,234.6" fill="#c9cdd0" stroke="#111" stroke-width="0.22" stroke-linejoin="round"/>
+<line x1="104.41" y1="237.71" x2="107.51" y2="234.6" stroke="#c0392b" stroke-width="0.8"/>
+<line x1="104.41" y1="55.96" x2="107.51" y2="59.07" stroke="#c0392b" stroke-width="0.8"/>
+<polygon points="182.04,234.6 182.04,59.07 185.14,55.96 185.14,237.71" fill="#c9cdd0" stroke="#111" stroke-width="0.22" stroke-linejoin="round"/>
+<line x1="182.04" y1="234.6" x2="185.14" y2="237.71" stroke="#c0392b" stroke-width="0.8"/>
+<line x1="182.04" y1="59.07" x2="185.14" y2="55.96" stroke="#c0392b" stroke-width="0.8"/>
+<polygon points="112.86,248.89 176.68,248.89 179.79,252 109.76,252" fill="#c9cdd0" stroke="#111" stroke-width="0.22" stroke-linejoin="round"/>
+<line x1="112.86" y1="248.89" x2="109.76" y2="252" stroke="#c0392b" stroke-width="0.8"/>
+<line x1="176.68" y1="248.89" x2="179.79" y2="252" stroke="#c0392b" stroke-width="0.8"/>
+<polygon points="109.76,41.67 179.79,41.67 176.68,44.78 112.86,44.78" fill="#c9cdd0" stroke="#111" stroke-width="0.22" stroke-linejoin="round"/>
+<line x1="109.76" y1="41.67" x2="112.86" y2="44.78" stroke="#c0392b" stroke-width="0.8"/>
+<line x1="179.79" y1="41.67" x2="176.68" y2="44.78" stroke="#c0392b" stroke-width="0.8"/>
+<polygon points="112.86,80.87 176.68,80.87 176.68,83.2 112.86,83.2" fill="#e2e5e7" stroke="#111" stroke-width="0.22" stroke-linejoin="round"/>
+<polygon points="112.86,181.38 176.68,181.38 176.68,183.71 112.86,183.71" fill="#e2e5e7" stroke="#111" stroke-width="0.22" stroke-linejoin="round"/>
+<polygon points="151.01,174.45 151.01,90.13 153.34,90.13 153.34,174.45" fill="#e2e5e7" stroke="#111" stroke-width="0.22" stroke-linejoin="round"/>
+<polygon points="151.01,78.47 151.01,50.52 153.34,51.03 153.34,78.47" fill="#e2e5e7" stroke="#111" stroke-width="0.22" stroke-linejoin="round"/>
+<polygon points="176.66,77.66 176.6,76.55 176.5,75.44 176.36,74.34 176.18,73.24 175.97,72.15 175.71,71.07 175.42,69.99 175.1,68.93 174.73,67.88 174.33,66.84 173.89,65.82 173.42,64.82 172.92,63.83 172.37,62.85 171.8,61.9 171.19,60.97 170.55,60.06 169.88,59.18 169.18,58.31 168.45,57.48 167.69,56.66 166.9,55.88 166.09,55.12 165.25,54.39 164.39,53.7 163.5,53.03 162.59,52.39 161.65,51.79 160.7,51.22 159.73,50.68 158.74,50.17 157.73,49.7 156.7,49.27 155.67,48.87 154.61,48.51 153.55,48.19 152.48,47.9 151.39,47.65 150.3,47.44 149.21,47.27 148.1,47.13 146.99,47.03 145.88,46.98 144.77,46.96 143.66,46.98 142.55,47.03 141.44,47.13 140.34,47.27 139.24,47.44 138.15,47.65 137.07,47.9 135.99,48.19 134.93,48.51 133.88,48.87 132.84,49.27 131.82,49.7 130.81,50.17 129.82,50.68 128.85,51.22 127.89,51.79 126.96,52.39 126.05,53.03 125.16,53.7 124.3,54.39 123.46,55.12 122.64,55.88 121.85,56.66 121.1,57.48 120.36,58.31 119.66,59.18 118.99,60.06 118.35,60.97 117.75,61.9 117.17,62.85 116.63,63.83 116.12,64.82 115.65,65.82 115.22,66.84 114.81,67.88 114.45,68.93 114.12,69.99 113.83,71.07 113.58,72.15 113.36,73.24 113.19,74.34 113.05,75.44 112.95,76.55 112.89,77.66 115.21,77.74 115.27,76.72 115.36,75.69 115.49,74.67 115.66,73.65 115.86,72.64 116.09,71.64 116.36,70.64 116.66,69.66 117,68.68 117.37,67.72 117.78,66.77 118.22,65.84 118.69,64.92 119.19,64.02 119.72,63.14 120.28,62.28 120.87,61.43 121.5,60.61 122.15,59.81 122.82,59.04 123.53,58.28 124.26,57.56 125.01,56.86 125.79,56.18 126.59,55.53 127.42,54.91 128.26,54.32 129.13,53.76 130.01,53.23 130.91,52.73 131.83,52.27 132.76,51.83 133.71,51.43 134.68,51.06 135.65,50.73 136.64,50.43 137.63,50.16 138.63,49.93 139.65,49.73 140.66,49.57 141.69,49.45 142.71,49.36 143.74,49.3 144.77,49.29 145.8,49.3 146.83,49.36 147.86,49.45 148.88,49.57 149.9,49.73 150.91,49.93 151.92,50.16 152.91,50.43 153.9,50.73 154.87,51.06 155.83,51.43 156.78,51.83 157.72,52.27 158.64,52.73 159.54,53.23 160.42,53.76 161.29,54.32 162.13,54.91 162.95,55.53 163.76,56.18 164.53,56.86 165.29,57.56 166.02,58.28 166.72,59.04 167.4,59.81 168.05,60.61 168.67,61.43 169.26,62.28 169.83,63.14 170.36,64.02 170.86,64.92 171.33,65.84 171.77,66.77 172.17,67.72 172.54,68.68 172.88,69.66 173.19,70.64 173.46,71.64 173.69,72.64 173.89,73.65 174.05,74.67 174.18,75.69 174.27,76.72 174.33,77.74" fill="#e2e5e7" stroke="#111" stroke-width="0.22" stroke-linejoin="round"/>
+<line x1="93.76" y1="49.57" x2="108.12" y2="24" stroke="#1f5fa8" stroke-width="0.22" stroke-dasharray="1.2 0.8"/>
+<rect x="97.94" y="35.09" width="6" height="3.4" rx="0.8" fill="#fff" stroke="#1f5fa8" stroke-width="0.2"/>
+<text x="100.94191374649162" y="37.786553455448725" font-size="2" text-anchor="middle" font-weight="700" fill="#1f5fa8">V1</text>
+<line x1="196.24" y1="49.57" x2="181.88" y2="24" stroke="#1f5fa8" stroke-width="0.22" stroke-dasharray="1.2 0.8"/>
+<rect x="186.06" y="35.09" width="6" height="3.4" rx="0.8" fill="#fff" stroke="#1f5fa8" stroke-width="0.2"/>
+<text x="189.0580862535084" y="37.786553455448725" font-size="2" text-anchor="middle" font-weight="700" fill="#1f5fa8">V1</text>
+<line x1="105.96" y1="237.71" x2="111.31" y2="252" stroke="#1f5fa8" stroke-width="0.22" stroke-dasharray="1.2 0.8"/>
+<rect x="105.63" y="243.15" width="6" height="3.4" rx="0.8" fill="#fff" stroke="#1f5fa8" stroke-width="0.2"/>
+<text x="108.63473548164218" y="245.85431278585878" font-size="2" text-anchor="middle" font-weight="700" fill="#1f5fa8">V2</text>
+<line x1="105.96" y1="55.96" x2="111.31" y2="41.67" stroke="#1f5fa8" stroke-width="0.22" stroke-dasharray="1.2 0.8"/>
+<rect x="105.63" y="47.12" width="6" height="3.4" rx="0.8" fill="#fff" stroke="#1f5fa8" stroke-width="0.2"/>
+<text x="108.63473548164218" y="49.81528768064662" font-size="2" text-anchor="middle" font-weight="700" fill="#1f5fa8">V2</text>
+<line x1="183.59" y1="237.71" x2="178.23" y2="252" stroke="#1f5fa8" stroke-width="0.22" stroke-dasharray="1.2 0.8"/>
+<rect x="177.91" y="243.15" width="6" height="3.4" rx="0.8" fill="#fff" stroke="#1f5fa8" stroke-width="0.2"/>
+<text x="180.91145178843178" y="245.85431278585878" font-size="2" text-anchor="middle" font-weight="700" fill="#1f5fa8">V2</text>
+<line x1="183.59" y1="55.96" x2="178.23" y2="41.67" stroke="#1f5fa8" stroke-width="0.22" stroke-dasharray="1.2 0.8"/>
+<rect x="177.91" y="47.12" width="6" height="3.4" rx="0.8" fill="#fff" stroke="#1f5fa8" stroke-width="0.2"/>
+<text x="180.91145178843178" y="49.81528768064662" font-size="2" text-anchor="middle" font-weight="700" fill="#1f5fa8">V2</text>
+<line x1="112.86" y1="82.04" x2="107.51" y2="90.98" stroke="#1f5fa8" stroke-width="0.22" stroke-dasharray="1.2 0.8"/>
+<rect x="107.19" y="84.81" width="6" height="3.4" rx="0.8" fill="#fff" stroke="#1f5fa8" stroke-width="0.2"/>
+<text x="110.1874706433417" y="87.50638099574097" font-size="2" text-anchor="middle" font-weight="700" fill="#1f5fa8">T1</text>
+<line x1="176.68" y1="82.04" x2="182.04" y2="90.98" stroke="#1f5fa8" stroke-width="0.22" stroke-dasharray="1.2 0.8"/>
+<rect x="176.36" y="84.81" width="6" height="3.4" rx="0.8" fill="#fff" stroke="#1f5fa8" stroke-width="0.2"/>
+<text x="179.35871662673225" y="87.50638099574097" font-size="2" text-anchor="middle" font-weight="700" fill="#1f5fa8">T1</text>
+<line x1="112.86" y1="182.54" x2="107.51" y2="177.62" stroke="#1f5fa8" stroke-width="0.22" stroke-dasharray="1.2 0.8"/>
+<rect x="107.19" y="178.38" width="6" height="3.4" rx="0.8" fill="#fff" stroke="#1f5fa8" stroke-width="0.2"/>
+<text x="110.1874706433417" y="181.08041278040128" font-size="2" text-anchor="middle" font-weight="700" fill="#1f5fa8">T1</text>
+<line x1="176.68" y1="182.54" x2="182.04" y2="177.62" stroke="#1f5fa8" stroke-width="0.22" stroke-dasharray="1.2 0.8"/>
+<rect x="176.36" y="178.38" width="6" height="3.4" rx="0.8" fill="#fff" stroke="#1f5fa8" stroke-width="0.2"/>
+<text x="179.35871662673225" y="181.08041278040128" font-size="2" text-anchor="middle" font-weight="700" fill="#1f5fa8">T1</text>
+<line x1="152.18" y1="174.45" x2="151.15" y2="181.38" stroke="#1f5fa8" stroke-width="0.22" stroke-dasharray="1.2 0.8"/>
+<rect x="148.67" y="176.21" width="6" height="3.4" rx="0.8" fill="#fff" stroke="#1f5fa8" stroke-width="0.2"/>
+<text x="151.66537447078883" y="178.91279449466873" font-size="2" text-anchor="middle" font-weight="700" fill="#1f5fa8">T2</text>
+<line x1="152.18" y1="90.13" x2="151.15" y2="83.2" stroke="#1f5fa8" stroke-width="0.22" stroke-dasharray="1.2 0.8"/>
+<rect x="148.67" y="84.97" width="6" height="3.4" rx="0.8" fill="#fff" stroke="#1f5fa8" stroke-width="0.2"/>
+<text x="151.66537447078883" y="87.66786545255772" font-size="2" text-anchor="middle" font-weight="700" fill="#1f5fa8">T2</text>
+<line x1="152.18" y1="78.47" x2="151.15" y2="80.87" stroke="#1f5fa8" stroke-width="0.22" stroke-dasharray="1.2 0.8"/>
+<rect x="148.67" y="77.97" width="6" height="3.4" rx="0.8" fill="#fff" stroke="#1f5fa8" stroke-width="0.2"/>
+<text x="151.66537447078883" y="80.67214209910533" font-size="2" text-anchor="middle" font-weight="700" fill="#1f5fa8">S1</text>
+<line x1="152.18" y1="50.75" x2="151.15" y2="49.98" stroke="#1f5fa8" stroke-width="0.22" stroke-dasharray="1.2 0.8"/>
+<rect x="148.67" y="48.67" width="6" height="3.4" rx="0.8" fill="#fff" stroke="#1f5fa8" stroke-width="0.2"/>
+<text x="151.66537447078883" y="51.36750837703312" font-size="2" text-anchor="middle" font-weight="700" fill="#1f5fa8">S2</text>
+<line x1="175.5" y1="77.7" x2="175.5" y2="80.87" stroke="#1f5fa8" stroke-width="0.22" stroke-dasharray="1.2 0.8"/>
+<rect x="172.5" y="77.59" width="6" height="3.4" rx="0.8" fill="#fff" stroke="#1f5fa8" stroke-width="0.2"/>
+<text x="175.4951860223591" y="80.28685037245019" font-size="2" text-anchor="middle" font-weight="700" fill="#1f5fa8">B1</text>
+<line x1="114.05" y1="77.7" x2="114.05" y2="80.87" stroke="#1f5fa8" stroke-width="0.22" stroke-dasharray="1.2 0.8"/>
+<rect x="111.05" y="77.59" width="6" height="3.4" rx="0.8" fill="#fff" stroke="#1f5fa8" stroke-width="0.2"/>
+<text x="114.05100124771485" y="80.28685037245019" font-size="2" text-anchor="middle" font-weight="700" fill="#1f5fa8">B1</text>
+<circle cx="97.76" cy="139.32" r="2.6" fill="#fff" stroke="#111" stroke-width="0.25"/>
+<line x1="93.76128758334701" y1="143.31949229850647" x2="95.96128758334702" y2="141.1194922985065" stroke="#111" stroke-width="0.15"/>
+<text x="97.76128758334701" y="140.21949229850648" font-size="2.2" text-anchor="middle" font-weight="700">1</text>
+<circle cx="149" cy="21.55" r="2.6" fill="#fff" stroke="#111" stroke-width="0.25"/>
+<line x1="145" y1="25.55273516169953" x2="147.2" y2="23.35273516169953" stroke="#111" stroke-width="0.15"/>
+<text x="149" y="22.45273516169953" font-size="2.2" text-anchor="middle" font-weight="700">2</text>
+<circle cx="109.96" cy="142.83" r="2.6" fill="#fff" stroke="#111" stroke-width="0.25"/>
+<line x1="105.9578200628722" y1="146.8348002332527" x2="108.1578200628722" y2="144.63480023325272" stroke="#111" stroke-width="0.15"/>
+<text x="109.9578200628722" y="143.7348002332527" font-size="2.2" text-anchor="middle" font-weight="700">3</text>
+<circle cx="148.77" cy="246.45" r="2.6" fill="#fff" stroke="#111" stroke-width="0.25"/>
+<line x1="144.773093635037" y1="250.44726483830047" x2="146.97309363503697" y2="248.24726483830048" stroke="#111" stroke-width="0.15"/>
+<text x="148.773093635037" y="247.34726483830048" font-size="2.2" text-anchor="middle" font-weight="700">4</text>
+<circle cx="148.77" cy="78.04" r="2.6" fill="#fff" stroke="#111" stroke-width="0.25"/>
+<line x1="144.773093635037" y1="82.03760920036973" x2="146.97309363503697" y2="79.83760920036973" stroke="#111" stroke-width="0.15"/>
+<text x="148.773093635037" y="78.93760920036974" font-size="2.2" text-anchor="middle" font-weight="700">5</text>
+<circle cx="156.18" cy="128.29" r="2.6" fill="#fff" stroke="#111" stroke-width="0.25"/>
+<line x1="152.17591379195565" y1="132.2903299736132" x2="154.37591379195564" y2="130.09032997361322" stroke="#111" stroke-width="0.15"/>
+<text x="156.17591379195565" y="129.19032997361322" font-size="2.2" text-anchor="middle" font-weight="700">7</text>
+<circle cx="156.18" cy="60.62" r="2.6" fill="#fff" stroke="#111" stroke-width="0.25"/>
+<line x1="152.17591379195565" y1="64.62433111551809" x2="154.37591379195564" y2="62.424331115518086" stroke="#111" stroke-width="0.15"/>
+<text x="156.17591379195565" y="61.52433111551809" font-size="2.2" text-anchor="middle" font-weight="700">9</text>
+<circle cx="148.77" cy="55.04" r="2.6" fill="#fff" stroke="#111" stroke-width="0.25"/>
+<line x1="144.77309363503696" y1="59.03760107901854" x2="146.97309363503695" y2="56.83760107901854" stroke="#111" stroke-width="0.15"/>
+<text x="148.77309363503696" y="55.93760107901854" font-size="2.2" text-anchor="middle" font-weight="700">17</text>
+<text x="253" y="17" font-size="3" font-weight="700">Verbindingen</text>
+<rect x="253" y="20" width="156" height="31.2" fill="none" stroke="#111" stroke-width="0.3"/><rect x="253" y="20" width="156" height="3.9" fill="#e9ecee" stroke="none"/><text x="254.2" y="22.73" font-size="1.794" font-weight="700">Code</text><text x="270.8" y="22.73" font-size="1.794" text-anchor="end" font-weight="700">n</text><text x="273.2" y="22.73" font-size="1.794" font-weight="700">Stuk</text><text x="323.2" y="22.73" font-size="1.794" font-weight="700">tegen stuk</text><text x="373.2" y="22.73" font-size="1.794" font-weight="700">Soort</text><line x1="253" y1="23.9" x2="409" y2="23.9" stroke="#111" stroke-width="0.13"/><text x="254.2" y="26.63" font-size="1.95">V1</text><text x="270.8" y="26.63" font-size="1.95" text-anchor="end">2</text><text x="273.2" y="26.63" font-size="1.95">1 Kozijn: stijl</text><text x="323.2" y="26.63" font-size="1.95">2 Kozijn: bovenregel</text><text x="373.2" y="26.63" font-size="1.95">Verstek 45°</text><line x1="253" y1="27.8" x2="409" y2="27.8" stroke="#111" stroke-width="0.13"/><text x="254.2" y="30.53" font-size="1.95">V2</text><text x="270.8" y="30.53" font-size="1.95" text-anchor="end">4</text><text x="273.2" y="30.53" font-size="1.95">3 Kader: staander</text><text x="323.2" y="30.53" font-size="1.95">4 Kader: regel</text><text x="373.2" y="30.53" font-size="1.95">Verstek 45°</text><line x1="253" y1="31.7" x2="409" y2="31.7" stroke="#111" stroke-width="0.13"/><text x="254.2" y="34.43" font-size="1.95">T1</text><text x="270.8" y="34.43" font-size="1.95" text-anchor="end">4</text><text x="273.2" y="34.43" font-size="1.95">3 Kader: staander</text><text x="323.2" y="34.43" font-size="1.95">5 Roede horizontaal: kern</text><text x="373.2" y="34.43" font-size="1.95">T-verbinding (stomp)</text><line x1="253" y1="35.6" x2="409" y2="35.6" stroke="#111" stroke-width="0.13"/><text x="254.2" y="38.33" font-size="1.95">T2</text><text x="270.8" y="38.33" font-size="1.95" text-anchor="end">2</text><text x="273.2" y="38.33" font-size="1.95">5 Roede horizontaal: kern</text><text x="323.2" y="38.33" font-size="1.95">7 Roede verticaal: kern</text><text x="373.2" y="38.33" font-size="1.95">T-verbinding (stomp)</text><line x1="253" y1="39.5" x2="409" y2="39.5" stroke="#111" stroke-width="0.13"/><text x="254.2" y="42.23" font-size="1.95">S1</text><text x="270.8" y="42.23" font-size="1.95" text-anchor="end">1</text><text x="273.2" y="42.23" font-size="1.95">5 Roede horizontaal: kern</text><text x="323.2" y="42.23" font-size="1.95">9 Roede tot in de boog: kern</text><text x="373.2" y="42.23" font-size="1.95">Schuin tegen de boog</text><line x1="253" y1="43.4" x2="409" y2="43.4" stroke="#111" stroke-width="0.13"/><text x="254.2" y="46.129999999999995" font-size="1.95">S2</text><text x="270.8" y="46.129999999999995" font-size="1.95" text-anchor="end">1</text><text x="273.2" y="46.129999999999995" font-size="1.95">9 Roede tot in de boog: kern</text><text x="323.2" y="46.129999999999995" font-size="1.95">17 Boogroede: kern</text><text x="373.2" y="46.129999999999995" font-size="1.95">Schuin tegen de boog</text><line x1="253" y1="47.3" x2="409" y2="47.3" stroke="#111" stroke-width="0.13"/><text x="254.2" y="50.029999999999994" font-size="1.95">B1</text><text x="270.8" y="50.029999999999994" font-size="1.95" text-anchor="end">2</text><text x="273.2" y="50.029999999999994" font-size="1.95">5 Roede horizontaal: kern</text><text x="323.2" y="50.029999999999994" font-size="1.95">17 Boogroede: kern</text><text x="373.2" y="50.029999999999994" font-size="1.95">Boog op kalf, poot of kader</text>
+<polygon points="255,61.2 283,61.2 275,69.2 255,69.2" fill="#d7dadc" stroke="#111" stroke-width="0.25"/><polygon points="255,71.2 263,71.2 263,80.2 255,80.2" fill="#d7dadc" stroke="#111" stroke-width="0.25"/><polygon points="285,63.2 285,80.2 277,80.2 277,71.2" fill="#d7dadc" stroke="#111" stroke-width="0.25"/><polyline points="275.5,69.7 284.5,60.7" fill="none" stroke="#c0392b" stroke-width="0.9" stroke-linecap="round"/><text x="256" y="67.2" font-size="2" fill="#c0392b">45°</text>
+<text x="290" y="63.2" font-size="2.4" font-weight="700">Verstek 45°</text>
+<text x="290" y="67.2" font-size="2">Hechten binnen en buiten; de zichtkant doorlassen met TIG (ER70S-6</text>
+<text x="290" y="70.5" font-size="2">Ø1,6, 90-110 A), de binnenkant MIG (G3Si1 Ø0,8); zichtkant vlak</text>
+<text x="290" y="73.8" font-size="2">slijpen. Beurtelings lassen, diagonalen meten.</text>
+<polygon points="255,87.2 285,87.2 285,94.2 255,94.2" fill="#d7dadc" stroke="#111" stroke-width="0.25"/><polygon points="266,94.2 274,94.2 274,106.2 266,106.2" fill="#d7dadc" stroke="#111" stroke-width="0.25"/><polyline points="265,94.8 265,97.2" fill="none" stroke="#c0392b" stroke-width="0.9" stroke-linecap="round"/><polyline points="275,94.8 275,97.2" fill="none" stroke="#c0392b" stroke-width="0.9" stroke-linecap="round"/><polyline points="266,94.6 274,94.6" fill="none" stroke="#c0392b" stroke-width="0.9" stroke-linecap="round"/>
+<text x="290" y="89.2" font-size="2.4" font-weight="700">T-verbinding (stomp)</text>
+<text x="290" y="93.2" font-size="2">Stomp tegen het kader, het kozijn of de roede; hoeklas a3 rondom, TIG</text>
+<text x="290" y="96.5" font-size="2">aan de zichtkant, MIG binnen; zichtkant vlak slijpen.</text>
+<path d="M255,121.2 A30,30 0 0 1 285,115.2 L285,120.2 A25,25 0 0 0 255,126.2 Z" fill="#d7dadc" stroke="#111" stroke-width="0.25"/><polygon points="266,123.6 273,121.8 273,132.2 266,132.2" fill="#d7dadc" stroke="#111" stroke-width="0.25"/><polyline points="266,123.8 273,122" fill="none" stroke="#c0392b" stroke-width="0.9" stroke-linecap="round"/>
+<text x="290" y="115.2" font-size="2.4" font-weight="700">Schuin tegen de boog</text>
+<text x="290" y="119.2" font-size="2">Uiteinde schuin zagen volgens de boog (aftekenen op de mal 1:1);</text>
+<text x="290" y="122.5" font-size="2">passen, hechten, hoeklas a3 rondom met TIG.</text>
+<path d="M257,150.2 A13,13 0 0 1 283,150.2 L278,150.2 A8,8 0 0 0 262,150.2 Z" fill="#d7dadc" stroke="#111" stroke-width="0.25"/><polygon points="255,150.2 285,150.2 285,155.2 255,155.2" fill="#d7dadc" stroke="#111" stroke-width="0.25"/><polyline points="257,149.8 262,149.8" fill="none" stroke="#c0392b" stroke-width="0.9" stroke-linecap="round"/><polyline points="278,149.8 283,149.8" fill="none" stroke="#c0392b" stroke-width="0.9" stroke-linecap="round"/>
+<text x="290" y="141.2" font-size="2.4" font-weight="700">Boog op kalf, poot of kader</text>
+<text x="290" y="145.2" font-size="2">De lasergesneden boog op de mal leggen; stomp tegen het kalf, de poot</text>
+<text x="290" y="148.5" font-size="2">of het kader; hoeklas a3 rondom met TIG.</text>
+<text x="253" y="165.2" font-size="2" fill="#333">Latten op de roeden (30x3): voor gehecht om de 150 en gelast, achter geschroefd met M4 verzonken om de 250.</text>
+<rect x="214" y="255" width="196" height="32" fill="#fff" stroke="#111" stroke-width="0.5"/><line x1="214" y1="263" x2="410" y2="263" stroke="#111" stroke-width="0.25"/><line x1="214" y1="271" x2="410" y2="271" stroke="#111" stroke-width="0.25"/><line x1="214" y1="279" x2="410" y2="279" stroke="#111" stroke-width="0.25"/><text x="215.2" y="257.6" font-size="1.7" fill="#555">Eigenaar</text><text x="215.2" y="261.6" font-size="2.6" font-weight="700">Ian · laswerken</text><line x1="284" y1="255" x2="284" y2="263" stroke="#111" stroke-width="0.25"/><text x="285.2" y="257.6" font-size="1.7" fill="#555">Bibliotheek</text><text x="285.2" y="261.6" font-size="2.6">Stalen deuren</text><text x="215.2" y="265.6" font-size="1.7" fill="#555">Titel</text><text x="215.2" y="269.6" font-size="3" font-weight="700">Opengewerkte tekening Boog en Mondriaan · opening 1000 x 2400</text><text x="215.2" y="273.6" font-size="1.7" fill="#555">Systeem</text><text x="215.2" y="277.6" font-size="2.4">Koker en strip</text><line x1="284" y1="271" x2="284" y2="279" stroke="#111" stroke-width="0.25"/><text x="285.2" y="273.6" font-size="1.7" fill="#555">Tekeningnummer</text><text x="285.2" y="277.6" font-size="2.6" font-weight="700">TD-74</text><line x1="344" y1="271" x2="344" y2="279" stroke="#111" stroke-width="0.25"/><text x="345.2" y="273.6" font-size="1.7" fill="#555">Rev.</text><text x="345.2" y="277.6" font-size="2.6">1</text><line x1="364" y1="271" x2="364" y2="279" stroke="#111" stroke-width="0.25"/><text x="365.2" y="273.6" font-size="1.7" fill="#555">Uitgifte</text><text x="365.2" y="277.6" font-size="2.4">2026-11-10</text><text x="215.2" y="281.6" font-size="1.7" fill="#555">Maten en toleranties</text><text x="215.2" y="285.6" font-size="2.3">mm · ISO 2768-m · lassen ISO 5817-C</text><line x1="284" y1="279" x2="284" y2="287" stroke="#111" stroke-width="0.25"/><text x="285.2" y="281.6" font-size="1.7" fill="#555">Schaal</text><text x="285.2" y="285.6" font-size="2.4">schets</text><line x1="314" y1="279" x2="314" y2="287" stroke="#111" stroke-width="0.25"/><text x="315.2" y="281.6" font-size="1.7" fill="#555">Opgesteld</text><text x="315.2" y="285.6" font-size="2.3">Ian · laswerken</text><line x1="364" y1="279" x2="364" y2="287" stroke="#111" stroke-width="0.25"/><text x="365.2" y="281.6" font-size="1.7" fill="#555">Blad</text><text x="365.2" y="285.6" font-size="2.4">2 / 5</text></svg>

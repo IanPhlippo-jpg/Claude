@@ -65,7 +65,7 @@ input[type="range"] { width: 100%; accent-color: var(--amber) }
 .knoppen { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 12px }
 .knop { font: 600 13.5px var(--tekst); padding: 8px 12px; border: 1px solid var(--inkt); background: transparent; color: var(--inkt); cursor: pointer }
 .knop:hover { background: var(--inkt); color: var(--bg) } .knop:disabled { opacity: .45; cursor: not-allowed; background: transparent; color: var(--inkt) }
-.status { font-size: 12.5px; color: var(--zacht); min-height: 1.3em } .blad { background: #fff; border: 1px solid var(--lijn); overflow: auto } .blad svg { display: block; width: 100%; height: auto; min-width: 640px }
+.status { font-size: 12.5px; color: var(--zacht); min-height: 1.3em } .blad, .stukbladen > div { background: #fff; border: 1px solid var(--lijn); overflow: auto } .stukbladen { display: grid; gap: 12px } .stukbladen svg { display: block; width: 100%; height: auto; min-width: 640px } .blad svg { display: block; width: 100%; height: auto; min-width: 640px }
 .tegels { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; margin: 12px 0 }
 .tegel { background: var(--vlak); border: 1px solid var(--lijn); padding: 10px 12px } .tegel span { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: .07em; color: var(--zacht) }
 .tegel b { font-family: var(--kop); font-stretch: 80%; font-size: 22px; font-variant-numeric: tabular-nums }
@@ -135,6 +135,7 @@ footer { color: var(--zacht); font-size: 13px; padding-block: 30px }
   <header class="kop"><h1 id="w-titel">Werkplaats</h1><p>Het werkblad om te maken: maten, zaaglijst, laser- en glaslijst, de werkwijze en de kostprijs per regel. Dezelfde deur als op de pagina Deur.</p></header>
   <div class="knoppen">
     <button class="knop" type="button" data-dl="svg">Werkblad (SVG)</button>
+    <button class="knop" type="button" data-dl="stuk">Opengewerkt, stuklijst en onderdelen (SVG)</button>
     <button class="knop" type="button" data-dl="html">Dossier om af te drukken (HTML)</button>
     <button class="knop" type="button" data-dl="csv">Lijsten (CSV)</button>
     <button class="knop" type="button" data-dl="zip">DXF laser + glas (ZIP)</button>
@@ -148,6 +149,8 @@ footer { color: var(--zacht); font-size: 13px; padding-block: 30px }
     <div class="tegel"><span>Uren</span><b id="t-uren"></b></div>
     <div class="tegel"><span>Kostprijs</span><b id="t-kost"></b></div>
   </div>
+  <section class="deel"><h2>Opengewerkte tekening</h2><p class="status">De stalen delen uit elkaar: rood is een verstek, de stippellijnen tonen welke stukken aan elkaar komen, met de code van de verbinding (naad en lasproces in de tabel).</p><div id="explode" class="stukbladen"></div></section>
+  <section class="deel"><h2>Stuklijst en onderdelen</h2><p class="status">Elk onderdeel met zijn nummer op de samenstelling, en per onderdeel een schets: de echte vorm (verstek, schuin), de lengte, de doorsnede, stralen en gaten.</p><div id="stukbladen" class="stukbladen"></div></section>
   <section class="deel"><h2>Kostprijs</h2><div class="tabelvak"><table id="prijs"></table></div></section>
   <section class="deel"><h2>Werkwijze</h2><ol class="stappen" id="stappen"></ol></section>
   <section class="deel"><h2>Lijsten</h2><div class="drie">
@@ -187,6 +190,8 @@ footer { color: var(--zacht); font-size: 13px; padding-block: 30px }
 import { STIJLEN, GRENZEN, minMaat, ontwerp, lijsten, SYSTEMEN } from './js/deuren.mjs';
 import { RAL, AFWERKINGEN, GLAS, SCHARNIEREN } from './js/opties.mjs';
 import { werkblad } from './js/blad.mjs';
+import { stukBladen } from './js/stukblad.mjs';
+import { explodeBlad } from './js/explode.mjs';
 import { losseTekening, vooraanzicht } from './js/teken.mjs';
 import { MUREN, VLOEREN } from './js/kamer.mjs';
 import { kostprijs, PRIJS, MARKT, STAAF } from './js/prijzen.mjs';
@@ -297,7 +302,11 @@ function teken() {
   $('maten').innerHTML = [`opening ${B} x ${H} mm`, `vleugel ${o.vleugels.map((v) => `${Math.round(v.B)} x ${Math.round(v.H)}`).join(' + ')}`, `glas ${g(L.glas.reduce((t, r) => t + r.n, 0))} ruiten`].map((x) => `<span>${esc(x)}</span>`).join('');
   // pagina Werkplaats
   $('w-titel').textContent = `Werkplaats: ${s.naam}`;
-  $('blad').innerHTML = werkblad(o, { nr: `TD-${String(i + 1).padStart(2, '0')}`, datum: new Date().toISOString().slice(0, 10), prijs: { regels: [['Materiaal', k.materiaal], [`Arbeid (${g(k.uren, 1)} u)`, k.arbeid]], totaal: k.kostprijs } });
+  const meta = { nr: `TD-${String(i + 1).padStart(2, '0')}`, datum: new Date().toISOString().slice(0, 10) }, kk = { ...keuzes, scharnierModel: k.scharnier };
+  const n0 = stukBladen(o, kk, { ...meta, bladStart: 3 }).bladen.length, stuk = stukBladen(o, kk, { ...meta, bladStart: 3, bladTotaal: 2 + n0 });
+  $('explode').innerHTML = `<div>${explodeBlad(o, kk, { ...meta, blad: `2 / ${2 + n0}` })}</div>`;
+  $('stukbladen').innerHTML = stuk.bladen.map((s) => `<div>${s}</div>`).join('');
+  $('blad').innerHTML = werkblad(o, { blad: `1 / ${2 + n0}`, nr: `TD-${String(i + 1).padStart(2, '0')}`, datum: new Date().toISOString().slice(0, 10), prijs: { regels: [['Materiaal', k.materiaal], [`Arbeid (${g(k.uren, 1)} u)`, k.arbeid]], totaal: k.kostprijs } });
   $('t-vleugel').textContent = o.vleugels.map((v) => `${Math.round(v.B)} x ${Math.round(v.H)}`).join(' + ');
   $('t-kg').textContent = k.gewicht.vleugels.map((x) => `${Math.round(x)} kg`).join(' + ');
   $('t-glas').textContent = `${g(L.glas.reduce((t, r) => t + r.m2 * r.n, 0), 2)} m²`; $('t-uren').textContent = `${g(k.uren, 1)} u`; $('t-kost').textContent = eur(k.kostprijs);
@@ -388,8 +397,9 @@ document.querySelectorAll('[data-dl]').forEach((b) => b.addEventListener('click'
   const { o, k, L, s, keuzes } = huidig, nm = `taatsdeur-${s.id}-${o.B}x${o.H}`;
   let filename, data;
   if (b.dataset.dl === 'svg') { filename = `${nm}-werkblad.svg`; data = $('blad').innerHTML; }
-  else if (b.dataset.dl === 'html') { const { a3, a4 } = bladen(o, keuzes, { datum: new Date().toISOString().slice(0, 10) }); filename = `${nm}-dossier.html`; data = `<!doctype html><html lang="nl"><head><meta charset="utf-8"><title>${esc(nm)}</title><style>@page a3{size:420mm 297mm;margin:0}@page a4{size:210mm 297mm;margin:14mm}body{margin:0}.a3{page:a3;width:420mm;height:297mm;page-break-after:always}.a3 svg{width:420mm;height:297mm;display:block}.a4{page:a4}${CSS}</style></head><body><div class="a3">${a3}</div>${a4}</body></html>`; }
-  else if (b.dataset.dl === 'csv') { filename = `${nm}-lijsten.csv`; data = csv([['Zaaglijst'], ['Wat', 'Staaf', 'Lengte mm', 'Aantal', 'Bewerking'], ...L.zaag.map((r) => [r.wat, STAAF[r.prof]?.naam ?? r.prof, r.l, r.n, r.bew]), [], ['Laserlijst'], ['Wat', 'Vorm', 'Maat', 'Aantal', 'Plaat'], ...L.laser.map((r) => [r.wat, r.vorm, r.vorm === 'boog' ? `R${r.r} x ${r.zicht}, ${r.hoek} gr` : `${r.b} x ${r.l}`, r.n, r.mat]), [], ['Glaslijst'], ['Deel', 'Vorm', 'Breedte', 'Hoogte', 'm2', 'Aantal'], ...L.glas.map((r) => [r.deel, r.vorm, r.b, r.h, Math.round(r.m2 * 100) / 100, r.n]), [], ['Kostprijs'], ...k.regels.map((r) => [r.wat, r.bedrag, r.bron]), ['Arbeid', k.arbeid], ['Kostprijs', k.kostprijs], ['Verkoop excl. btw', k.verkoop]]); }
+  else if (b.dataset.dl === 'stuk') { filename = `${nm}-stuklijst.zip`; data = zip([[`${nm}-opengewerkt.svg`, $('explode').querySelector('svg').outerHTML], ...[...$('stukbladen').querySelectorAll('svg')].map((x, j) => [`${nm}-stuklijst-${j + 1}.svg`, x.outerHTML])]); }
+  else if (b.dataset.dl === 'html') { const { a3, a4, stuk } = bladen(o, keuzes, { nr: `TD-${String(STIJLEN.indexOf(s) + 1).padStart(2, '0')}`, datum: new Date().toISOString().slice(0, 10) }); filename = `${nm}-dossier.html`; data = `<!doctype html><html lang="nl"><head><meta charset="utf-8"><title>${esc(nm)}</title><style>@page a3{size:420mm 297mm;margin:0}@page a4{size:210mm 297mm;margin:14mm}body{margin:0}.a3{page:a3;width:420mm;height:297mm;page-break-after:always}.a3 svg{width:420mm;height:297mm;display:block}.a4{page:a4}${CSS}</style></head><body><div class="a3">${a3}</div>${stuk.map((x) => `<div class="a3">${x}</div>`).join('')}${a4}</body></html>`; }
+  else if (b.dataset.dl === 'csv') { filename = `${nm}-lijsten.csv`; const P = stukBladen(o, keuzes).posities; data = csv([['Stuklijst'], ['Pos', 'Aantal', 'Benaming', 'Materiaal', 'Maat', 'kg/st', 'Opmerking'], ...P.map((p) => [p.pos, p.n, p.naam, p.mat, p.maat, Math.round(p.kg * 100) / 100, p.opm]), [], ['Zaaglijst'], ['Wat', 'Staaf', 'Lengte mm', 'Aantal', 'Bewerking'], ...L.zaag.map((r) => [r.wat, STAAF[r.prof]?.naam ?? r.prof, r.l, r.n, r.bew]), [], ['Laserlijst'], ['Wat', 'Vorm', 'Maat', 'Aantal', 'Plaat'], ...L.laser.map((r) => [r.wat, r.vorm, r.vorm === 'boog' ? `R${r.r} x ${r.zicht}, ${r.hoek} gr` : `${r.b} x ${r.l}`, r.n, r.mat]), [], ['Glaslijst'], ['Deel', 'Vorm', 'Breedte', 'Hoogte', 'm2', 'Aantal'], ...L.glas.map((r) => [r.deel, r.vorm, r.b, r.h, Math.round(r.m2 * 100) / 100, r.n]), [], ['Kostprijs'], ...k.regels.map((r) => [r.wat, r.bedrag, r.bron]), ['Arbeid', k.arbeid], ['Kostprijs', k.kostprijs], ['Verkoop excl. btw', k.verkoop]]); }
   else { filename = `${nm}-dxf.zip`; data = zip([[`${nm}-laser.dxf`, laserDxf(o)], [`${nm}-glas.dxf`, glasDxf(o)]]); }
   $('status').textContent = 'Bezig…';
   try { await dl.save({ filename, data }); $('status').textContent = `${filename} opgeslagen.`; } catch (e) { $('status').textContent = e && e.code === 'declined' ? 'Niet opgeslagen.' : `Opslaan lukte niet (${e && e.code || 'fout'}).`; }
