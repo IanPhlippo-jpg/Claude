@@ -7,6 +7,11 @@ import { kostprijs } from '../prijzen.mjs';
 import { RAL, AFWERKINGEN, GLAS, OPBOUW, SCHARNIEREN, SCHARNIER_UITLEG } from '../opties.mjs';
 import { kamer, MUREN, VLOEREN } from '../kamer.mjs';
 
+// het beginscherm zoomt niet: geen knijp- of dubbeltikzoom van de pagina (iOS negeert user-scalable soms: ook de gebaren tegenhouden)
+for (const m of document.querySelectorAll('meta[name="viewport"]')) m.content = 'width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover';
+for (const t of ['gesturestart', 'gesturechange', 'gestureend']) document.addEventListener(t, (e) => e.preventDefault(), { passive: false });
+/** een tekening als afbeelding met een vaste maat (een ingebedde SVG liet Safari op de iPhone groeien bij scrollen) */
+const alsBeeld = (svg, w, h, alt = '') => `<img src="data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}" width="${w}" height="${h}" alt="${alt}" decoding="async" draggable="false">`;
 const $ = (id) => document.getElementById(id);
 const esc = (t) => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const eur = (v) => `€ ${Math.round(v).toLocaleString('nl-BE')}`;
@@ -35,7 +40,7 @@ $('k-lak').innerHTML = radio('lak', Object.entries(AFWERKINGEN).map(([v, a]) => 
 $('k-muur').innerHTML = radio('muur', Object.entries(MUREN).map(([v, [t]]) => [v, t]));
 $('k-vloer').innerHTML = radio('vloer', Object.entries(VLOEREN).map(([v, [t]]) => [v, t]));
 
-const duim = (o) => { const W = 100, Hh = 125, s = Math.min((W - 12) / o.kozijn.B, (Hh - 12) / o.kozijn.H), ox = (W - o.kozijn.B * s) / 2; return `<svg viewBox="0 0 ${W} ${Hh}" width="${W}" height="${Hh}" aria-hidden="true">${vooraanzicht(o, s, ox, Hh - 6, { maten: false, assen: false })}</svg>`; };
+const duim = (o) => { const W = 100, Hh = 125, s = Math.min((W - 12) / o.kozijn.B, (Hh - 12) / o.kozijn.H), ox = (W - o.kozijn.B * s) / 2; return alsBeeld(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${Hh}" width="${W}" height="${Hh}">${vooraanzicht(o, s, ox, Hh - 6, { maten: false, assen: false })}</svg>`, W, Hh); };
 (function vulDuimen(i = 0) { const t0 = performance.now(); while (i < STIJLEN.length && performance.now() - t0 < 30) { const s = STIJLEN[i++]; try { $(`duim-${s.id}`).innerHTML = duim(ontwerp(s.id, s.std.B, s.std.H)); } catch {} } if (i < STIJLEN.length) setTimeout(() => vulDuimen(i), 0); })();
 
 // ---------------------------------------------------------------- gebeurtenissen

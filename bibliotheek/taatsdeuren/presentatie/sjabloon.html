@@ -2,7 +2,7 @@
 <html lang="nl">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Deurenconfigurator</title>
 <style>
 /* Toonzaal: warm papier, zwart staal, één messingaccent. De deur is het grootste op het scherm; de keuzes staan rechts in zes stappen. */
@@ -34,7 +34,7 @@ main { display: grid; grid-template-columns: minmax(0, 1fr) 430px; gap: 0; min-h
 .beeld > div { position: absolute; inset: 0 } #kamer canvas { display: block; cursor: grab }
 #laden { position: absolute; inset: 45% 0 auto; text-align: center; color: #555; margin: 0 }
 .hint { position: absolute; left: 10px; bottom: 8px; right: 10px; width: max-content; max-width: calc(100% - 20px); font-size: 12px; color: #333; background: rgba(255,255,255,.78); padding: 3px 8px; pointer-events: none }
-#tekening { background: #fbfaf7; display: flex; align-items: center; justify-content: center; padding: 14px } #tekening svg { display: block; width: auto; height: auto; max-width: 100%; max-height: 100% }
+#tekening { background: #fbfaf7; display: flex; align-items: center; justify-content: center; padding: 14px } #tekening svg, #tekening img { display: block; width: auto; height: auto; max-width: 100%; max-height: 100%; object-fit: contain }
 .kamerbalk { display: flex; flex-wrap: wrap; gap: 10px 22px; align-items: center } .kamerbalk .veld { min-width: 220px }
 input[type="range"] { width: 100%; accent-color: var(--accent) }
 aside.keuzes { background: var(--vlak); border-left: 1px solid var(--lijn); padding: 6px 18px 24px; overflow: auto; max-height: calc(100vh - 57px); position: sticky; top: 57px }
@@ -43,7 +43,8 @@ aside.keuzes { background: var(--vlak); border-left: 1px solid var(--lijn); padd
 .filter { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px } .filter button { border: 1px solid var(--lijn); background: var(--vlak2); padding: 3px 9px; font-size: 12.5px; cursor: pointer; border-radius: 2px } .filter button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-vlak); color: var(--accent-inkt); font-weight: 600 }
 .modellen { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; max-height: 330px; overflow: auto; padding-right: 2px }
 .model { border: 1px solid var(--lijn); background: var(--vlak2); padding: 0; cursor: pointer; text-align: left; display: flex; flex-direction: column; border-radius: 2px }
-.model .duim { display: block; flex: none; background: #fbfaf7; line-height: 0 } .model .duim svg { display: block; width: 100%; height: auto }
+.model .duim { display: block; flex: none; background: #fbfaf7; line-height: 0 } .model .duim svg, .model .duim img { display: block; width: 100%; height: auto }
+html, body { touch-action: pan-x pan-y; -webkit-text-size-adjust: 100% } button, label, a, input { touch-action: manipulation }
 .mnaam { font-size: 11.5px; line-height: 1.2; padding: 4px 5px 5px } .model[aria-pressed="true"] { outline: 2px solid var(--accent); outline-offset: -1px; background: var(--accent-vlak) }
 .twee { display: grid; grid-template-columns: 1fr 1fr; gap: 8px } .drie { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px }
 .veld { display: grid; gap: 3px } .veld label, .lbl { font-size: 11.5px; text-transform: uppercase; letter-spacing: .06em; color: var(--zacht) }
