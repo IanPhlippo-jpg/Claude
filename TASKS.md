@@ -1286,3 +1286,15 @@ elease; README en docs/04 bijgewerkt
 - [x] Systeem 'Alu Du Pont': koker 50x25x2 en 60x30x2, L 20x10x2, Revolta-pivot, hoek- en T-verbinders (doorsneden, kg/m, prijzen, montage)
 - [x] Plannen: werkblad, profielen, opengewerkt, stuklijst, bestellijst en stuk per stuk met de Du Pont-artikelen
 - [x] Configurator, presentatietool, tests, PDF's, foto's, commit en push
+
+## Leverancier van losse deurprofielen (alu, steel look) (2026-11-10)
+- [x] Darby / Du Pont: SAS-profielen zijn kastdeurprofielen (4 mm glas); de doos is waarschijnlijk de kleurenstalendoos
+- [x] Andere leveranciers: Portapivot (pakketten), Pauli+Sohn LOFT (losse staven), Umakov, Glassparts; Du Pont U-profielen
+- [x] Alibaba: Huaming, Meitong, Haomei; antidumping 32,1 % (Haomei 21,2 %) + 7,5 %; geen tekeningen
+- [x] Keuzes voorgelegd aan Ian
+
+## Aanvraagdossier profielsysteem voor leveranciers (NL + EN) (2026-11-10)
+- [x] Profielsysteem op maat vastleggen: P1 vleugel 30x45 met glasgleuf voor 44.2, P2 roede H 30x45, P3 kozijn 40x50, P4 U-glasrubber, C1 hoekverbinder, C2 schroefkanaal, pivot
+- [x] Dit systeem in de bibliotheek (doorsneden met gleuf, glasmaat met inloop 8, stuklijst, bestellijst, plannen)
+- [x] aanvraag.mjs: A3-bladen overzicht, doorsneden 2:1 met alle maten, verbindingen, offerteaanvraag met meters per deur; NL en EN
+- [x] PDF's in Bureaublad, foto's, commit en push

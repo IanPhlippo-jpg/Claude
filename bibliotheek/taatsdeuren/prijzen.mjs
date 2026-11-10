@@ -32,6 +32,18 @@ export const STAAF = {
   dupontKoker5025: { naam: 'koker 50x25x2 alu (Du Pont 0709 RH502520A)', artikel: '0709 RH502520A', koop: true, alu: true, mat: 'aluminium, geanodiseerd', zicht: 25, diepte: 50, wand: 2, lengte: 6000, kgm: 0.77, prijs: 12.27, omtrek: 150, bron: 'webshop.du-pont.be, D22 Profielen ALU, lijstprijs excl. btw (10/11/2026)' },
   dupontKoker6030: { naam: 'koker 60x30x2 alu (Du Pont 0709 RH603020A)', artikel: '0709 RH603020A', koop: true, alu: true, mat: 'aluminium, geanodiseerd', zicht: 30, diepte: 60, wand: 2, lengte: 6000, kgm: 0.93, prijs: 15.0, omtrek: 180, bron: 'webshop.du-pont.be, D22 Profielen ALU, lijstprijs excl. btw (10/11/2026)' },
   dupontL2010: { naam: 'L-profiel 20x10x2 alu (Du Pont 0709 L201020A)', artikel: '0709 L201020A', koop: true, alu: true, mat: 'aluminium, geanodiseerd', L: [20, 10, 2], lengte: 6000, kgm: 0.151, prijs: 3.56, omtrek: 60, bron: 'webshop.du-pont.be, D22 Profielen ALU, lijstprijs excl. btw (10/11/2026)' },
+  // ---- profielsysteem op maat voor de aanvraag bij een extrudeur (aanvraag.mjs): wand 1,8, EN AW-6063 T6, staven van 6 m.
+  // Gewicht berekend uit de wanden (2,7 kg/dm³); prijs = schatting € 9/kg gepoedercoat tot de offerte er is.
+  aanvraagP1: { naam: 'P1 vleugelprofiel 30 x 45 met glasgleuf (op maat)', artikel: 'P1', koop: true, alu: true, mat: 'aluminium EN AW-6063 T6, poedercoat', zicht: 30, diepte: 45, wand: 1.8, lengte: 6000, kgm: 0.79, prijs: 7.1, omtrek: 150,
+    wanden: [[0, 30, 0, 1.8], [0, 30, 43.2, 45], [0, 1.8, 1.8, 43.2], [28.2, 30, 1.8, 14.5], [28.2, 30, 30.5, 43.2], [16.2, 30, 14.5, 16.3], [16.2, 30, 28.7, 30.5], [16.2, 18, 16.3, 28.7]],
+    sleuf: { z0: 16.3, z1: 28.7, diep: 12, kanten: [1] }, holte: [14.4, 41.4], bron: 'schatting: profiel op maat, prijs volgt uit de offerte (Alibaba ± € 4,25-4,60/kg ingevoerd, poedercoat apart)' },
+  aanvraagP2: { naam: 'P2 roede H 30 x 45 met glasgleuf aan beide kanten (op maat)', artikel: 'P2', koop: true, alu: true, mat: 'aluminium EN AW-6063 T6, poedercoat', zicht: 30, diepte: 45, wand: 1.8, lengte: 6000, kgm: 1.01, prijs: 9.1, omtrek: 150,
+    wanden: [[0, 30, 0, 1.8], [0, 30, 43.2, 45], [0, 1.8, 1.8, 14.5], [0, 1.8, 30.5, 43.2], [28.2, 30, 1.8, 14.5], [28.2, 30, 30.5, 43.2], [0, 12, 14.5, 16.3], [0, 12, 28.7, 30.5], [18, 30, 14.5, 16.3], [18, 30, 28.7, 30.5], [12, 18, 14.5, 30.5]],
+    sleuf: { z0: 16.3, z1: 28.7, diep: 12, kanten: [-1, 1] }, gaten: [[15, 19.5, 3.8], [15, 25.5, 3.8]], bron: 'idem' },
+  aanvraagP3: { naam: 'P3 kozijnprofiel 40 x 50 (op maat of standaardkoker)', artikel: 'P3', koop: true, alu: true, mat: 'aluminium EN AW-6063 T6, poedercoat', zicht: 40, diepte: 50, wand: 2, lengte: 6000, kgm: 0.93, prijs: 8.4, omtrek: 180,
+    wanden: [[0, 40, 0, 2], [0, 40, 48, 50], [0, 2, 2, 48], [38, 40, 2, 48]], holte: [36, 46], bron: 'idem' },
+  aanvraagP4: { naam: 'P4 U-glasrubber EPDM voor glas 8-8,8 mm (op maat)', artikel: 'P4', koop: true, mat: 'EPDM Shore A 70, zwart', lengte: 50000, kgm: 0.07, prijs: 1.5, omtrek: 0,
+    zicht: 11, diepte: 12.4, wanden: [[0, 11, 0, 1.8], [0, 11, 10.6, 12.4], [0, 2, 1.8, 10.6]], rubber: true, bron: 'schatting: U-rubber op rol van 50 m' },
   forster531755: { naam: 'Forster 531.755 (unico, deurkozijn 90 x 70)', artikel: '531.755', koop: true, zicht: 90, diepte: 70, wand: 1.5, iso: [20, 50], lengte: 6000, kgm: 4.87, prijs: 87.66, omtrek: 320, bron: 'Forster-planningsdocument 988320 unico (03/21), p. 146-154 (forster-profile.ch); breedte uit de doorsnede afgelezen; prijs: schatting € 18/kg, offerte via Forster Belux (Duffel)' },
   forster533751: { naam: 'Forster 533.751 (unico, vleugel 65 x 70)', artikel: '533.751', koop: true, zicht: 65, diepte: 70, wand: 1.5, iso: [20, 50], lengte: 6000, kgm: 3.95, prijs: 71.1, omtrek: 270, bron: 'idem; schatting € 18/kg' },
   forster531722: { naam: 'Forster 531.722 (unico, T-profiel 60 x 70)', artikel: '531.722', koop: true, zicht: 60, diepte: 70, wand: 1.5, iso: [20, 50], lengte: 6000, kgm: 2.919, prijs: 52.54, omtrek: 260, bron: 'idem; schatting € 18/kg' },
@@ -101,7 +113,8 @@ export function kostprijs(o, k = {}) {
   const sch = PRIJS.scharnier[sk], aantal = (SCHARNIEREN[sk].aantal ?? 1) * o.vleugels.length;
   regel(`Scharnier: ${sch.naam}${SCHARNIEREN[sk].aantal ? ` (${aantal} stuks)` : ` x ${o.vleugels.length}`}`, sch.v * aantal, sch.bron);
   const m2 = oppervlak(L);
-  if (K.afwerking === 'natlak') regel(`Natlak zelf (${r2(m2)} m², primer + 2K)`, m2 * PRIJS.natlakPerM2.v + 15, PRIJS.natlakPerM2.bron);
+  if (o.sys.gecoat) regel('Poedercoat: de profielen komen gecoat van de extrudeur (in de profielprijs)', 0, o.sys.kader.uitleg);
+  else if (K.afwerking === 'natlak') regel(`Natlak zelf (${r2(m2)} m², primer + 2K)`, m2 * PRIJS.natlakPerM2.v + 15, PRIJS.natlakPerM2.bron);
   else {
     const kleur = RAL.find((c) => c.code === K.ral) ?? RAL[0], meer = kleur.metallic ? 1 + PRIJS.metallic.v : 1;
     regel(`${o.sys.alu ? 'Voorbehandelen (aluminium) en poedercoaten' : 'Stralen en poedercoaten'} RAL ${kleur.code} ${kleur.naam} (${r2(m2)} m²)`, Math.max(PRIJS.coatMin.v, m2 * (PRIJS.poedercoat.v * meer + (o.sys.alu ? 0 : PRIJS.stralen.v))), kleur.metallic ? `${PRIJS.poedercoat.bron}; ${PRIJS.metallic.bron}` : PRIJS.poedercoat.bron);
@@ -112,7 +125,7 @@ export function kostprijs(o, k = {}) {
   if (o.sys.alu) {
     // geschroefd: hoekverbinders in de kokers, T-verbinders voor de roeden, RVS-schroeven (niet bij Du Pont: schatting)
     const tl = telling(o);
-    regel(`Hoekverbinders (${tl.hoeken}) en T-verbinders (${tl.tees}) voor de kokers, RVS-schroeven en kleefkit`, tl.hoeken * PRIJS.hoekverbinder.v + tl.tees * PRIJS.tVerbinder.v + 15, PRIJS.hoekverbinder.bron);
+    regel(o.sys.verbinders ? `${o.sys.verbinders.titel} (${tl.hoeken} hoeken, ${tl.tees} roede-uiteinden)` : `Hoekverbinders (${tl.hoeken}) en T-verbinders (${tl.tees}) voor de kokers, RVS-schroeven en kleefkit`, tl.hoeken * PRIJS.hoekverbinder.v + tl.tees * (o.sys.tPrijs ?? PRIJS.tVerbinder.v) + 15, PRIJS.hoekverbinder.bron);
   } else regel('Lasdraad, gas, TIG-draad', G.staal * 0.012 * PRIJS.lasdraad.v + lasUren * 0.5 * 60 * 12 * PRIJS.gasMenggasPerL.v + lasUren * 0.5 * 60 * 8 * PRIJS.gasArgonPerL.v + lasUren * 0.1 * PRIJS.tigDraad.v, `${PRIJS.lasdraad.bron}; ${PRIJS.gasMenggasPerL.bron}`);
   regel('Kit, blokjes, schroeven, schijven', PRIJS.klein.v + PRIJS.schijven.v, 'schatting');
   const materiaal = regels.reduce((s, r) => s + r.bedrag, 0);

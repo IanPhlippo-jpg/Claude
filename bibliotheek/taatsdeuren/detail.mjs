@@ -27,7 +27,7 @@ const schaal = (max) => NORM.find((s) => s <= max + 1e-9) ?? 1 / 100;
 const schaalTekst = (s) => (s >= 1 ? `${s}:1` : `1:${Math.round(1 / s)}`);
 
 /** maatlijn van A naar B, evenwijdig op afstand off (positief = links van A->B); hulplijnen vanaf de punten (ISO 129-1) */
-function maat(ax, ay, bx, by, off, tekst, h = 2.5) {
+export function maat(ax, ay, bx, by, off, tekst, h = 2.5) {
   const l = Math.hypot(bx - ax, by - ay) || 1, d = [(bx - ax) / l, (by - ay) / l], n = [d[1], -d[0]], s = Math.sign(off) || 1;
   const A = [ax + n[0] * off, ay + n[1] * off], B = [bx + n[0] * off, by + n[1] * off], el = [];
   el.push(L(ax + n[0] * s * 1, ay + n[1] * s * 1, A[0] + n[0] * s * 1.5, A[1] + n[1] * s * 1.5, 0.18), L(bx + n[0] * s * 1, by + n[1] * s * 1, B[0] + n[0] * s * 1.5, B[1] + n[1] * s * 1.5, 0.18), L(A[0], A[1], B[0], B[1], 0.18));

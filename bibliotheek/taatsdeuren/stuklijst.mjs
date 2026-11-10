@@ -110,7 +110,7 @@ export function stuklijst(o, keuzes = {}) {
     voeg({ sleutel: `paneel|${b}|${l}`, soort: 'laser', naam: 'Paneel', mat: 'S235, plaat 3 mm', maat: `${b} x ${l}`, n: 1, kg: b * l * 3 * 7.85e-6, opm: '1 mm kleiner dan het vak; in het midden van de diepte ingelast', vorm: { b: l, l: b, t: 3, gaten: [] } }, [dx + (x0 + x1) / 2, dy + (y0 + y1) / 2]);
   }
   // 6. glas: gelijke ruiten samen (ook gespiegeld); glasmaat = daglicht + 4 mm rondom
-  const gl = GLAS[keuzes.glas] ?? GLAS.helder, ob = OPBOUW[o.opbouw ?? 'enkel'], ex = 2 * MATEN.inloop - 4;
+  const gl = GLAS[keuzes.glas] ?? GLAS.helder, ob = OPBOUW[o.opbouw ?? 'enkel'], ex = 2 * (o.sys.inloop ?? MATEN.inloop) - 4;
   for (const [, g, dx, dy] of groepen) for (const p of g.ruiten ?? []) {
     const [x0, y0, x1, y1] = kaderVan(p), b = Math.round(x1 - x0 + ex), h = Math.round(y1 - y0 + ex), recht = p.length === 4;
     const pts = p.map(([x, y]) => [x - x0, y - y0]);
@@ -126,9 +126,10 @@ export function stuklijst(o, keuzes = {}) {
     else inkoop(`${sch.naam.replace(/^Pivot: /, 'Taatsscharnier ')} (pot, as en bovenpen)`, 'inkoop', 1, `tot ${sch.maxKg} kg per vleugel`, [v.taats === 'links' ? v.x + MATEN.taats : v.x + v.B - MATEN.taats, 0]);
   }
   if (sys.alu) {
-    inkoop('Hoekverbinder voor koker 50x25x2 (vleugel) en 60x30x2 (kozijn)', 'aluminium / zamak', t.hoeken, 'in elke verstekhoek, met stelschroeven en 2K-lijm', null);
-    if (t.tees) inkoop('T-verbinder voor koker 50x25x2 (roeden)', 'aluminium / zamak', t.tees, 'in elk uiteinde van een roede', null);
-    inkoop('Boorschroef RVS 3,5 x 13 (achterste L-profielen)', 'A2', Math.ceil((t.latM * 1000) / 2 / 300), 'om de 300 mm', null);
+    const vb = sys.verbinders;
+    inkoop(vb?.hoek ?? 'Hoekverbinder voor koker 50x25x2 (vleugel) en 60x30x2 (kozijn)', 'aluminium / zamak', t.hoeken, 'in elke verstekhoek, met stelschroeven en 2K-lijm', null);
+    if (t.tees) inkoop(vb?.tee ?? 'T-verbinder voor koker 50x25x2 (roeden)', vb ? 'RVS A2' : 'aluminium / zamak', vb ? t.tees * 2 : t.tees, 'in elk uiteinde van een roede', null);
+    if (!vb) inkoop('Boorschroef RVS 3,5 x 13 (achterste L-profielen)', 'A2', Math.ceil((t.latM * 1000) / 2 / 300), 'om de 300 mm', null);
   } else inkoop('Schroef M4 x 12 verzonken, RVS (ISO 10642)', 'A2', t.gaten, 'voor de losse latten', null);
   inkoop('Glasblokje 3 mm', 'kunststof', t.ruiten * 2, '2 onder elke ruit', null);
   inkoop('Glaskit transparant (koker 310 ml)', 'MS-polymeer', Math.max(1, Math.ceil(t.latM / 12)), 'tegen de vaste lat', null);

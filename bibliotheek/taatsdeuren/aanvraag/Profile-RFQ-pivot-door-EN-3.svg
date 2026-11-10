@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 297" width="420mm" height="297mm" font-family="Arial, Helvetica, sans-serif"><rect width="420" height="297" fill="#fff"/><rect x="20" y="10" width="390" height="277" fill="none" stroke="#111" stroke-width="0.7"/>
+<text x="26" y="19" font-size="4" font-weight="700">Joints</text>
+<rect x="26" y="26" width="190" height="120" fill="none" stroke="#111" stroke-width="0.3"/>
+<text x="29" y="33" font-size="3" font-weight="700">Leaf corner: 45° mitre</text>
+<text x="29" y="129" font-size="2.4">Cut P1 at 45°.</text>
+<text x="29" y="133" font-size="2.4">C1 in both legs, 2K adhesive on the mitre,</text>
+<text x="29" y="137" font-size="2.4">tighten M6 set screws. Glass is fitted</text>
+<text x="29" y="141" font-size="2.4">before the last frame member closes.</text>
+<polygon points="56,44 166,44 166,74 86,74" fill="#d7dadc" stroke="#111" stroke-width="0.35"/>
+<polygon points="56,44 86,74 86,119 56,119" fill="#d7dadc" stroke="#111" stroke-width="0.35"/>
+<line x1="56" y1="44" x2="86" y2="74" stroke="#c0392b" stroke-width="0.9"/>
+<text x="89" y="80" font-size="3" font-weight="700" fill="#c0392b">45°</text>
+<line x1="57.8" y1="45.8" x2="117.8" y2="45.8" stroke="#1f5fa8" stroke-width="0.3" stroke-dasharray="1.6 0.8"/>
+<line x1="117.8" y1="45.8" x2="117.8" y2="60.2" stroke="#1f5fa8" stroke-width="0.3" stroke-dasharray="1.6 0.8"/>
+<line x1="72.2" y1="60.2" x2="117.8" y2="60.2" stroke="#1f5fa8" stroke-width="0.3" stroke-dasharray="1.6 0.8"/>
+<line x1="57.8" y1="45.8" x2="57.8" y2="105.8" stroke="#1f5fa8" stroke-width="0.3" stroke-dasharray="1.6 0.8"/>
+<line x1="57.8" y1="105.8" x2="72.2" y2="105.8" stroke="#1f5fa8" stroke-width="0.3" stroke-dasharray="1.6 0.8"/>
+<line x1="72.2" y1="60.2" x2="72.2" y2="105.8" stroke="#1f5fa8" stroke-width="0.3" stroke-dasharray="1.6 0.8"/>
+<circle cx="91" cy="53" r="1.6" fill="#fff" stroke="#1f5fa8" stroke-width="0.3"/>
+<circle cx="108" cy="53" r="1.6" fill="#fff" stroke="#1f5fa8" stroke-width="0.3"/>
+<circle cx="65" cy="79" r="1.6" fill="#fff" stroke="#1f5fa8" stroke-width="0.3"/>
+<circle cx="65" cy="96" r="1.6" fill="#fff" stroke="#1f5fa8" stroke-width="0.3"/>
+<text x="122" y="56" font-size="2.4" fill="#1f5fa8">C1 (60 + 60)</text>
+<text x="122" y="60" font-size="2.2" fill="#1f5fa8">M6</text>
+<text x="121" y="42" font-size="2.6" font-weight="700">P1</text>
+<text x="53" y="94" font-size="2.6" text-anchor="end" font-weight="700">P1</text>
+<rect x="222" y="26" width="182" height="120" fill="none" stroke="#111" stroke-width="0.3"/>
+<text x="225" y="33" font-size="3" font-weight="700">Glazing bar to frame (T joint)</text>
+<text x="225" y="129" font-size="2.4">Cut P2 square to the clear opening.</text>
+<text x="225" y="133" font-size="2.4">Drill P1 Ø5.5 (countersunk), 2 screws C2</text>
+<text x="225" y="137" font-size="2.4">into the screw ports of P2; seal the joint.</text>
+<polygon points="252,48 372,48 372,78 252,78" fill="#d7dadc" stroke="#111" stroke-width="0.35"/>
+<polygon points="297,78 327,78 327,123 297,123" fill="#e2e5e7" stroke="#111" stroke-width="0.35"/>
+<line x1="312" y1="46" x2="312" y2="118" stroke="#c0392b" stroke-width="0.3" stroke-dasharray="1.6 0.8"/>
+<polygon points="309,46 315,46 312,49" fill="#c0392b"/>
+<text x="316" y="100" font-size="2.4" fill="#c0392b">C2: 2 x RVS 4,8 x 50</text>
+<text x="377" y="64" font-size="2.6" font-weight="700">P1</text>
+<text x="331" y="118" font-size="2.6" font-weight="700">P2</text>
+<rect x="26" y="150" width="190" height="110" fill="none" stroke="#111" stroke-width="0.3"/>
+<text x="29" y="157" font-size="3" font-weight="700">Glass in the channel</text>
+<text x="29" y="243" font-size="2.4">U gasket P4 around each pane edge.</text>
+<text x="29" y="247" font-size="2.4">Glass enters 10 mm, 2 mm clearance.</text>
+<text x="29" y="251" font-size="2.4">Glass size = clear opening + 8 mm all round.</text>
+<rect x="81.2" y="188.82" width="16.8" height="17.36" fill="#3a3d40" stroke="#111" stroke-width="0.15"/><rect x="84" y="191.34" width="33.6" height="12.32" fill="#d6e4e9" stroke="#111" stroke-width="0.2"/><rect x="56" y="166" width="42" height="2.52" fill="#2b2f33" stroke="#111" stroke-width="0.2"/><rect x="56" y="226.48" width="42" height="2.52" fill="#2b2f33" stroke="#111" stroke-width="0.2"/><rect x="56" y="168.52" width="2.52" height="57.96" fill="#2b2f33" stroke="#111" stroke-width="0.2"/><rect x="95.48" y="168.52" width="2.52" height="17.78" fill="#2b2f33" stroke="#111" stroke-width="0.2"/><rect x="95.48" y="208.7" width="2.52" height="17.78" fill="#2b2f33" stroke="#111" stroke-width="0.2"/><rect x="78.68" y="186.3" width="19.32" height="2.52" fill="#2b2f33" stroke="#111" stroke-width="0.2"/><rect x="78.68" y="206.18" width="19.32" height="2.52" fill="#2b2f33" stroke="#111" stroke-width="0.2"/><rect x="78.68" y="188.82" width="2.52" height="17.36" fill="#2b2f33" stroke="#111" stroke-width="0.2"/>
+<rect x="148" y="188.82" width="16.8" height="17.36" fill="#3a3d40" stroke="#111" stroke-width="0.15"/><rect x="128.4" y="191.34" width="33.6" height="12.32" fill="#d6e4e9" stroke="#111" stroke-width="0.2"/><rect x="173.2" y="188.82" width="16.8" height="17.36" fill="#3a3d40" stroke="#111" stroke-width="0.15"/><rect x="176" y="191.34" width="33.6" height="12.32" fill="#d6e4e9" stroke="#111" stroke-width="0.2"/><rect x="148" y="166" width="42" height="2.52" fill="#2b2f33" stroke="#111" stroke-width="0.2"/><rect x="148" y="226.48" width="42" height="2.52" fill="#2b2f33" stroke="#111" stroke-width="0.2"/><rect x="148" y="168.52" width="2.52" height="17.78" fill="#2b2f33" stroke="#111" stroke-width="0.2"/><rect x="148" y="208.7" width="2.52" height="17.78" fill="#2b2f33" stroke="#111" stroke-width="0.2"/><rect x="187.48" y="168.52" width="2.52" height="17.78" fill="#2b2f33" stroke="#111" stroke-width="0.2"/><rect x="187.48" y="208.7" width="2.52" height="17.78" fill="#2b2f33" stroke="#111" stroke-width="0.2"/><rect x="148" y="186.3" width="16.8" height="2.52" fill="#2b2f33" stroke="#111" stroke-width="0.2"/><rect x="148" y="206.18" width="16.8" height="2.52" fill="#2b2f33" stroke="#111" stroke-width="0.2"/><rect x="173.2" y="186.3" width="16.8" height="2.52" fill="#2b2f33" stroke="#111" stroke-width="0.2"/><rect x="173.2" y="206.18" width="16.8" height="2.52" fill="#2b2f33" stroke="#111" stroke-width="0.2"/><rect x="164.8" y="186.3" width="8.4" height="22.4" fill="#2b2f33" stroke="#111" stroke-width="0.2"/><circle cx="169" cy="193.3" r="2.66" fill="#fff" stroke="#111" stroke-width="0.2"/><circle cx="169" cy="201.7" r="2.66" fill="#fff" stroke="#111" stroke-width="0.2"/>
+<rect x="222" y="150" width="182" height="110" fill="none" stroke="#111" stroke-width="0.3"/>
+<text x="225" y="157" font-size="3" font-weight="700">Pivot</text>
+<text x="225" y="243" font-size="2.4">Axis 100 mm from the hinge side.</text>
+<text x="225" y="247" font-size="2.4">Bottom plate in the bottom rail P1 (cavity),</text>
+<text x="225" y="251" font-size="2.4">top pin in the top rail; ceiling plate.</text>
+<polygon points="252,222 372,222 372,216 258,216 258,162 252,162" fill="#d7dadc" stroke="#111" stroke-width="0.35"/>
+<line x1="272" y1="156" x2="272" y2="234" stroke="#c0392b" stroke-width="0.3" stroke-dasharray="6 1.2 1.2 1.2"/>
+<rect x="266" y="222" width="12" height="3" fill="#555"/>
+<line x1="252" y1="229" x2="252" y2="233.5" stroke="#111" stroke-width="0.18"/><line x1="272" y1="229" x2="272" y2="233.5" stroke="#111" stroke-width="0.18"/><line x1="252" y1="232" x2="272" y2="232" stroke="#111" stroke-width="0.18"/><polygon points="252,232 254.5,231.45 254.5,232.55" fill="#111"/><polygon points="272,232 269.5,231.45 269.5,232.55" fill="#111"/><text x="262" y="234.78" font-size="2.5" text-anchor="middle">100</text>
+<text x="275" y="208" font-size="2.4" fill="#c0392b">pivot</text>
+<line x1="242" y1="225" x2="392" y2="225" stroke="#111" stroke-width="0.4"/>
+<rect x="250" y="263" width="160" height="24" fill="#fff" stroke="#111" stroke-width="0.5"/>
+<line x1="250" y1="275" x2="410" y2="275" stroke="#111" stroke-width="0.25"/>
+<text x="251.2" y="266" font-size="1.7" fill="#555">Ian · laswerken</text>
+<text x="251.2" y="272" font-size="2.3" font-weight="700">Request for quotation: aluminium steel-look pivot door profile system</text>
+<text x="251.2" y="278" font-size="1.7" fill="#555"></text>
+<text x="251.2" y="284" font-size="2.6" font-weight="700">Joints</text>
+<line x1="350" y1="275" x2="350" y2="287" stroke="#111" stroke-width="0.25"/>
+<text x="351.2" y="278" font-size="1.7" fill="#555"></text>
+<text x="351.2" y="284" font-size="2.3">2026-11-10</text>
+<line x1="380" y1="275" x2="380" y2="287" stroke="#111" stroke-width="0.25"/>
+<text x="381.2" y="278" font-size="1.7" fill="#555"></text>
+<text x="381.2" y="284" font-size="2.6" font-weight="700">3 / 4</text></svg>

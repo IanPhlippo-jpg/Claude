@@ -18,6 +18,8 @@ const ARC = '<defs><pattern id="arcering" width="1.6" height="1.6" patternUnits=
 export function sectie(o, rol) {
   const sys = o.sys, deel = rol === 'glaslat' ? { staaf: sys.glaslat.staaf } : sys[rol], prof = deel.staaf, st = STAAF[prof] ?? {}, naam = st.naam ?? prof;
   const gd = o.glasDikte ?? 8.8;
+  // profiel met eigen wanden (het systeem op maat): de doorsnede zoals ze in het aanvraagdossier staat
+  if (st.wanden) return { rol, prof, naam, V: st.zicht, D: st.diepte, t: st.wand ?? 0, wanden: st.wanden.map(([v0, v1, z0, z1]) => ({ v0, v1, z0, z1, rubber: !!st.rubber })), sleuf: st.sleuf, gaten: st.gaten ?? [], koop: true, artikel: st.artikel, inloop: o.sys.inloop };
   if (rol === 'glaslat' && st.L) {
     // L-profiel: het lange been (a) ligt tegen de koker in de diepte, het korte (b) over de rand van het glas
     const [a, b, t] = st.L;
@@ -76,8 +78,17 @@ function isoleer(wanden, [i0, i1], t) {
 export function tekenSectie(sec, x, y, s, { glas = true, maten = true, o = null, h = 2.3 } = {}) {
   const el = [], R = (v0, z0, w, d, vul, sw = 0.25) => `<rect x="${f(x + v0 * s)}" y="${f(y + z0 * s)}" width="${f(w * s)}" height="${f(d * s)}" fill="${vul}" stroke="#111" stroke-width="${sw}"/>`;
   const gd = o?.glasDikte ?? 8.8, dub = o?.opbouw === 'dubbel';
+  // glas in de gleuf van het profiel (systeem op maat), met het U-rubber rond de rand
+  if (glas && sec.sleuf) {
+    const zc = (sec.sleuf.z0 + sec.sleuf.z1) / 2, inl = sec.inloop ?? 10;
+    for (const k of sec.sleuf.kanten) {
+      const v0 = k > 0 ? sec.V - inl : -14, v1 = k > 0 ? sec.V + 14 : inl;
+      el.push(R(k > 0 ? sec.V - sec.sleuf.diep : 0, sec.sleuf.z0, sec.sleuf.diep, sec.sleuf.z1 - sec.sleuf.z0, '#3a3d40', 0.15));
+      el.push(R(v0, zc - gd / 2, v1 - v0, gd, '#d6e4e9', 0.2));
+    }
+  }
   // glas en glaslat (lichtgrijs) achter het profiel
-  if (glas && sec.rol !== 'glaslat' && sec.rol !== 'kozijn') {
+  if (glas && !sec.sleuf && sec.rol !== 'glaslat' && sec.rol !== 'kozijn') {
     const zg = sec.sponning ? sec.sponning.a + 3 : sec.D / 2 - gd / 2, lijn = (v0, v1) => {
       el.push(R(v0, zg, v1 - v0, gd, '#d6e4e9', 0.2));
       if (dub) el.push(R(v0, zg + 8.8, v1 - v0, 14, '#eef2f3', 0.15), R(v0 + (v1 > v0 ? 0 : 0), zg + 8.8, 0.01, 14, 'none', 0.15));
@@ -100,7 +111,8 @@ export function tekenSectie(sec, x, y, s, { glas = true, maten = true, o = null,
     }
   }
   // de wanden: staal gearceerd, isolatie geel
-  for (const w of sec.wanden) el.push(R(w.v0, w.z0, w.v1 - w.v0, w.z1 - w.z0, w.iso ? '#e3cf8f' : sec.massief ? '#8a9095' : '#2b2f33', 0.2));
+  for (const w of sec.wanden) el.push(R(w.v0, w.z0, w.v1 - w.v0, w.z1 - w.z0, w.iso ? '#e3cf8f' : w.rubber ? '#3a3d40' : sec.massief ? '#8a9095' : '#2b2f33', 0.2));
+  for (const [gv, gz, gdm] of sec.gaten ?? []) el.push(`<circle cx="${f(x + gv * s)}" cy="${f(y + gz * s)}" r="${f((gdm / 2) * s)}" fill="#fff" stroke="#111" stroke-width="0.2"/>`);
   // roede van platstaal met latten voor en achter (eigen staven)
   if (sec.lat) { const l = 30; el.push(R(sec.V / 2 - l / 2, -3, l, 3, '#8a9095', 0.2), R(sec.V / 2 - l / 2, sec.D, l, 3, '#8a9095', 0.2)); }
   if (maten) {
@@ -114,7 +126,7 @@ export function tekenSectie(sec, x, y, s, { glas = true, maten = true, o = null,
 
 /** de rollen die in deze deur voorkomen, met hun posities uit de stuklijst */
 function rollen(o, posities) {
-  const r = [['kozijn', 'Kozijn', /^Kozijn/], ['kader', 'Vleugel (kader)', /^Kader/], ['roede', 'Roede', /^Roede(?! .*lat)|^Roede.*kern/], ['glaslat', 'Glaslat', /^Glaslat/]];
+  const r = [['kozijn', 'Kozijn', /^Kozijn/], ['kader', 'Vleugel (kader)', /^Kader/], ['roede', 'Roede', /^Roede(?! .*lat)|^Roede.*kern/], ['glaslat', STAAF[o.sys.glaslat.staaf]?.rubber ? 'Glasrubber' : 'Glaslat', /^Glaslat/]];
   return r.map(([rol, titel, re]) => ({ rol, titel, pos: posities.filter((p) => p.soort === 'staaf' && re.test(p.naam) && p.prof === (rol === 'glaslat' ? o.sys.glaslat.staaf : o.sys[rol].staaf)) }))
     .filter((x) => x.pos.length);
 }
@@ -124,7 +136,7 @@ export function profielBlad(o, keuzes = {}, meta = {}) {
   const { posities } = stuklijst(o, keuzes), el = [], sys = o.sys;
   el.push(`<rect x="20" y="10" width="${W - 30}" height="${H - 20}" fill="none" stroke="#111" stroke-width="0.7"/>`);
   el.push(T(26, 17, `Deurprofielen: ${sys.naam}`, 3.2, { vet: true }));
-  el.push(T(26, 22, sys.alu ? `Te bestellen bij ${sys.leverancier}. Kokers en L-profielen op ware maat (wand 2 mm); het glas in het midden tussen twee L-profielen. Voor = de kant met de greep (boven in de doorsnede).` : sys.koop ? `Te bestellen bij ${sys.leverancier}. Doorsneden vereenvoudigd (wand, sponning${sys.iso ? ', isolatiezone' : ''}); de exacte vorm staat in de catalogus van de fabrikant. Voor = de kant met de greep (boven in de doorsnede).` : 'Eigen staven uit de staalhandel. Voor = de kant met de greep (boven in de doorsnede).', 2.1, { kleur: '#333' }));
+  el.push(T(26, 22, sys.verbinders ? `Profielsysteem op maat: zie het aanvraagdossier (P1-P4, hoekverbinder C1, schroeven C2). Het glas zit in de gleuf met het U-rubber P4. Voor = de kant met de greep (boven in de doorsnede).` : sys.alu ? `Te bestellen bij ${sys.leverancier}. Kokers en L-profielen op ware maat (wand 2 mm); het glas in het midden tussen twee L-profielen. Voor = de kant met de greep (boven in de doorsnede).` : sys.koop ? `Te bestellen bij ${sys.leverancier}. Doorsneden vereenvoudigd (wand, sponning${sys.iso ? ', isolatiezone' : ''}); de exacte vorm staat in de catalogus van de fabrikant. Voor = de kant met de greep (boven in de doorsnede).` : 'Eigen staven uit de staalhandel. Voor = de kant met de greep (boven in de doorsnede).', 2.1, { kleur: '#333' }));
   // ---- rij 1: per profiel de doorsnede en wat ervan gemaakt wordt
   const rs = rollen(o, posities), kw = Math.min(96, (W - 46) / Math.max(1, rs.length));
   rs.forEach((r, i) => {
@@ -165,7 +177,7 @@ export function profielBlad(o, keuzes = {}, meta = {}) {
     el.push(staaf([[ox, oy], [ox + 90, oy], [ox + 90, oy + k], [ox, oy + k]]), staaf([[ox + 45 - w / 2, oy + k], [ox + 45 + w / 2, oy + k], [ox + 45 + w / 2, oy + k + 34], [ox + 45 - w / 2, oy + k + 34]], '#e2e5e7'));
     el.push(wandLijn(ox, oy + k - tk, ox + 90, oy + k - tk), `<line x1="${f(ox + 45 - w / 2)}" y1="${f(oy + k)}" x2="${f(ox + 45 + w / 2)}" y2="${f(oy + k)}" stroke="#1f5fa8" stroke-width="0.7"/>`);
     el.push(T(ox + 45, oy + k / 2 + 1, 'kader', 2, { anker: 'middle' }), T(ox + 45 + w / 2 + 2, oy + k + 22, 'roede', 2));
-    vak(x, 'Roede tegen het kader: stomp (T)', [`Roede recht zagen op de daglichtmaat${sys.koop && !sys.alu ? '; het uiteinde passend uitzagen' : ''}.`, sys.alu ? 'T-verbinder in het uiteinde, vastschroeven in het kader;' : sys.koop ? 'rond de sponning van het kader (uitklinken).' : 'Kern op afstandsblokjes in het midden van de diepte.', sys.alu ? 'de naad (blauw) kitten. Geen lassen.' : 'Hoeklas rondom (blauw), vlak slijpen.']);
+    vak(x, 'Roede tegen het kader: stomp (T)', [`Roede recht zagen op de daglichtmaat${sys.koop && !sys.alu ? '; het uiteinde passend uitzagen' : ''}.`, sys.verbinders ? '2 RVS-schroeven 4,8 x 50 door het kader in het' : sys.alu ? 'T-verbinder in het uiteinde, vastschroeven in het kader;' : sys.koop ? 'rond de sponning van het kader (uitklinken).' : 'Kern op afstandsblokjes in het midden van de diepte.', sys.verbinders ? 'schroefkanaal van de roede; naad (blauw) kitten.' : sys.alu ? 'de naad (blauw) kitten. Geen lassen.' : 'Hoeklas rondom (blauw), vlak slijpen.']);
   }
   // 3. kozijn: bovenhoek in verstek, onderaan recht op de vloer
   {

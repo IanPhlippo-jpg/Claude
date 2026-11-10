@@ -191,6 +191,11 @@ Elke stijl is een combinatie van bouwstenen in `deuren.mjs` (STIJLEN). Een nieuw
   (geïsoleerd), in hele staven volgens het zaagplan. Offerte: Jansen (Breda) info.belgium@jansen.com, Forster Belux
   (Reynaers, Duffel) info.belux@forstersystems.com. Hoeken in verstek gelast (Forster: lasmal 989210); bij een
   geïsoleerd profiel enkel de stalen schalen lassen. De uiteinden van de roeden passend uitzagen rond de sponning.
+- **Profielsysteem op maat P1-P4 (aanvraag bij een leverancier of extrudeur):** P1 vleugelprofiel 30 x 45 met glasgleuf
+  12,4 x 12 (glas 44.2 loopt 10 mm in, glasmaat = daglicht + 8 rondom), P2 roede H 30 x 45 met 2 schroefkanalen,
+  P3 kozijn 40 x 50, P4 U-glasrubber EPDM, C1 hoekverbinder, C2 schroeven RVS 4,8 x 50, pivot tot 150 kg. Het
+  aanvraagdossier (NL en EN, 4 bladen A3: overzicht, doorsneden 2:1, verbindingen, offerteaanvraag met meters per deur)
+  maakt `node bibliotheek/taatsdeuren/maak-aanvraag.mjs` in `aanvraag/`. In de configurator: profiel "Profiel op maat".
 - **Aluminium uit de webshop van Du Pont (Darby Doors, Grobbendonk):** Darby verkoopt zijn deurprofielen (SAS-001,
   SAS-007, SAS-020) niet los, enkel afgewerkte deuren; daarom een geschroefde deur uit hun losse aluminium profielen
   (kokers en L-profielen per meter, staven van 6 m): verstek met hoekverbinders en 2K-lijm, roeden met T-verbinders,

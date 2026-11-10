@@ -50,6 +50,27 @@ export const SYSTEMEN = {
     },
     // geschroefd aluminium (Ian: hoekverbinders en schroeven); profielen en pivots van webshop.du-pont.be
   },
+  aanvraag: {
+    naam: 'Profielsysteem op maat P1-P4 (aanvraag bij een extrudeur)',
+    kader: { zicht: 30, diepte: 45, staaf: 'aanvraagP1', uitleg: 'P1 vleugelprofiel 30 x 45 met glasgleuf 12,4 x 12 diep, hoeken in verstek met hoekverbinder C1' },
+    roede: { zicht: 30, diepte: 45, staaf: 'aanvraagP2', lat: null, uitleg: 'P2 roede H 30 x 45 met glasgleuf aan beide kanten en 2 schroefkanalen' },
+    glaslat: { staaf: 'aanvraagP4', uitleg: 'P4 U-glasrubber EPDM rond de rand van elke ruit (geen glaslatten)' },
+    kozijn: { zicht: 40, diepte: 50, staaf: 'aanvraagP3', uitleg: 'P3 kozijnprofiel 40 x 50' },
+    boog: { kern: 10, lagenKader: 5, uitleg: 'geen bogen' },
+    glasMin: 8, glasMax: 10, kort: 'Profiel op maat (P1-P4)', koop: true, alu: true, gecoat: true, inloop: 10, gebruik: 'binnen', geenBoog: true, geenVerdekt: true, glaslatRondom: 1, pivot: true, tPrijs: 0.6,
+    maxVleugel: { B: 1250, H: 3000, kg: 150 }, leverancier: 'extrudeur volgens het aanvraagdossier (P1-P4, C1, C2)',
+    verbinders: { titel: 'Hoekverbinders C1 en schroeven C2 (RVS 4,8 x 50 in het schroefkanaal van P2)', hoek: 'C1 hoekverbinder voor P1 (holte 14,4 x 41,4), aluminium, 2 x 60 mm, 2 stelschroeven M6 per been', tee: 'C2: 2 x RVS-schroef 4,8 x 50 door P1 in het schroefkanaal van P2', schroef: null },
+    verwerking: {
+      zagen: 'Zaag P1 en P3 in verstek 45°, P2 recht op de daglichtmaat; afkortzaag met aluminiumblad. Werk de zaagsneden bij met de lakstift in de RAL-kleur.',
+      lassenTitel: 'Kader samenbouwen (hoekverbinder C1)', uurHoek: 0.25, proces: 'geschroefd',
+      lassen: 'Steek hoekverbinder C1 in beide stukken P1, 2K-lijm op het verstek, druk de hoek dicht op de lastafel en zet de stelschroeven vast. Diagonalen gelijk (± 1 mm).',
+      roedenTitel: 'Roeden plaatsen (schroefkanaal C2)', uurTee: 0.15,
+      roeden: 'Boor door P1 (Ø5,5, verzonken) op de plaats van elke roede en schroef 2 RVS-schroeven 4,8 x 50 in de schroefkanalen van P2; kit de naad.',
+      glas: 'Trek het U-glasrubber P4 rond de rand van elke ruit, schuif de ruiten in de gleuven van P1 en P2 voor het laatste kaderstuk sluit (glas mee inbouwen).',
+      coat: 'De profielen komen gepoedercoat van de extrudeur: enkel ontvetten, beschermfolie verwijderen en de zaagsneden bijwerken.',
+      taats: 'Monteer de pivot: het bovenplaatje in de bovenregel P1, het bodemplaatje op de vloer; as 100 mm uit de scharnierkant.',
+    },
+  },
   janisol: {
     naam: 'Jansen Janisol Arte 2.0 (koopprofielen, buiten, geïsoleerd)',
     kader: { zicht: 40, diepte: 60, staaf: 'janisol603611', uitleg: 'Janisol Arte 2.0, vleugel 603.611 Z (40 x 60, geïsoleerd)' },
@@ -596,7 +617,7 @@ export function lijsten(o) {
     for (const p of v.panelen ?? []) { const [x0, y0, x1, y1] = kaderVan(p); voeg(laser, `paneel|${deel}|${Math.round(x1 - x0)}|${Math.round(y1 - y0)}`, { wat: `${deel}: paneel (ingelast)`, vorm: 'plaat', b: Math.round(y1 - y0 - 2), l: Math.round(x1 - x0 - 2), t: 3, n: 1, mat: 'S235, plaat 3 mm', opm: '1 mm speling rondom, hechten om de 100' }); }
     if (rond) voeg(laser, `glaslat boog|${deel}`, { wat: `${deel}: glaslat in de boog van het kader`, vorm: 'boog', r: v.B / 2 - k - 7.5, zicht: 15, hoek: 180, t: 4, n: 2, mat: 'S235, plaat 4 mm', opm: 'voor gelast, achter geschroefd' });
     for (const p of v.ruiten) {
-      const [x0, y0, x1, y1] = kaderVan(p), recht = p.length === 4, ex = 2 * MATEN.inloop - 4;
+      const [x0, y0, x1, y1] = kaderVan(p), recht = p.length === 4, ex = 2 * (o.sys.inloop ?? MATEN.inloop) - 4;
       voeg(glas, `${deel}|${recht ? 'r' : 'v'}|${Math.round(x1 - x0)}|${Math.round(y1 - y0)}|${Math.round(opp(p) / 100)}`, { deel, vorm: recht ? 'rechthoek' : 'vorm (DXF)', b: Math.round(x1 - x0 + ex), h: Math.round(y1 - y0 + ex), m2: (opp(p) + ex * (x1 - x0 + y1 - y0)) / 1e6, n: 1 });
     }
   }

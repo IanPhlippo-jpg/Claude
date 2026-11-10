@@ -84,7 +84,7 @@ export function werkblad(o, opts = {}) {
   const [lt, lh] = tabel(x, y + 4, [['Lasergesneden', 70], ['Maat', 52, 0], ['n', 8, 1], ['Plaat / opmerking', 66]], Ls.laser.map((r) => [r.wat, r.vorm === 'boog' ? `R${g(r.r)} x ${r.zicht}, ${g(r.hoek)}°` : `${r.b} x ${r.l}`, r.n, `${r.mat}; ${r.opm}`]), 4.3, 2.15);
   el.push(T(x, y + 2.5, 'Laserlijst (DXF bij de configurator)', 2.8, { vet: true }), lt); y += lh + 9;
   const [gt, gh] = tabel(x, y + 4, [[o.opbouw === 'dubbel' ? 'Dubbel glas' : 'Glas', 50], ['Vorm', 28], ['Breedte', 20, 1], ['Hoogte', 20, 1], ['m²', 16, 1], ['n', 8, 1]], Ls.glas.map((r) => [r.deel, r.vorm, r.b, r.h, g(r.m2, 2), r.n]), 4.3, 2.15);
-  el.push(T(x, y + 2.5, `Glaslijst (glasmaat = daglicht + ${MATEN.inloop - 2} mm rondom)`, 2.8, { vet: true }), gt); y += gh + 12;
+  el.push(T(x, y + 2.5, `Glaslijst (glasmaat = daglicht + ${(o.sys.inloop ?? MATEN.inloop) - 2} mm rondom)`, 2.8, { vet: true }), gt); y += gh + 12;
   if (y < 205) el.push(doorsnede(o, x + 4, y + 2));
   // prijs (als meegegeven) rechtsonder boven het titelblok
   if (opts.prijs) {
