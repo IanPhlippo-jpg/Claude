@@ -18,19 +18,19 @@
 <line x1="283" y1="404" x2="283" y2="354" stroke="#000" stroke-width="0.5"/><text x="281" y="379" font-size="3" text-anchor="middle" transform="rotate(-90 281 379)">50 mm</text>
 <g><text x="14" y="34" font-size="4.6" font-weight="700">KAP · Kopplaat valbeveiliging</text>
 <text x="14" y="39.2" font-size="3.4">2 x · S355, plaat 6 mm · gele kap, doorvoer van de stang Ø56</text>
-<text x="14" y="44.4" font-size="3.2" fill="#333">Hart doorvoer = hart van de zuigerstang.</text><path d="M38.00 174.90 L200.00 174.90 L200.00 64.40 L38.00 64.40 Z" fill="#f1f3f4" stroke="#000" stroke-width="0.5"/>
+<text x="14" y="44.4" font-size="3.2" fill="#333">Hart doorvoer = hart van de zuigerstang.</text><path d="M38.00 194.40 L200.00 194.40 L200.00 64.40 L38.00 64.40 Z" fill="#f1f3f4" stroke="#000" stroke-width="0.5"/>
 <circle cx="119" cy="149.4" r="28.5" fill="#fff" stroke="#000" stroke-width="0.5"/>
 <line x1="84.5" y1="149.4" x2="153.5" y2="149.4" stroke="#000" stroke-width="0.2"/><line x1="119" y1="114.9" x2="119" y2="183.9" stroke="#000" stroke-width="0.2"/>
 <circle cx="119" cy="149.4" r="0.9" fill="#000"/><text x="140.52" y="127.88" font-size="3.4" font-weight="700">Ø57</text>
-<line x1="38" y1="188.9" x2="200" y2="188.9" stroke="#000" stroke-width="0.18"/>
-<polygon points="38,188.9 40.5,189.5 40.5,188.3" fill="#000"/>
-<polygon points="200,188.9 197.5,188.3 197.5,189.5" fill="#000"/>
-<text x="119" y="187.70000000000002" font-size="3.4" text-anchor="middle">162</text>
-<line x1="31" y1="174.9" x2="31" y2="64.4" stroke="#000" stroke-width="0.18"/>
-<polygon points="31,174.9 31.6,172.4 30.4,172.4" fill="#000"/>
+<line x1="38" y1="208.4" x2="200" y2="208.4" stroke="#000" stroke-width="0.18"/>
+<polygon points="38,208.4 40.5,209 40.5,207.8" fill="#000"/>
+<polygon points="200,208.4 197.5,207.8 197.5,209" fill="#000"/>
+<text x="119" y="207.20000000000002" font-size="3.4" text-anchor="middle">162</text>
+<line x1="31" y1="194.4" x2="31" y2="64.4" stroke="#000" stroke-width="0.18"/>
+<polygon points="31,194.4 31.6,191.9 30.4,191.9" fill="#000"/>
 <polygon points="31,64.4 30.4,66.9 31.6,66.9" fill="#000"/>
-<text x="29.8" y="119.65" font-size="3.4" text-anchor="middle" transform="rotate(-90 29.8 119.65)">110,5</text>
-<line x1="207" y1="174.9" x2="207" y2="149.4" stroke="#000" stroke-width="0.18"/>
-<polygon points="207,174.9 207.6,172.4 206.4,172.4" fill="#000"/>
+<text x="29.8" y="129.4" font-size="3.4" text-anchor="middle" transform="rotate(-90 29.8 129.4)">130</text>
+<line x1="207" y1="194.4" x2="207" y2="149.4" stroke="#000" stroke-width="0.18"/>
+<polygon points="207,194.4 207.6,191.9 206.4,191.9" fill="#000"/>
 <polygon points="207,149.4 206.4,151.9 207.6,151.9" fill="#000"/>
-<text x="205.8" y="162.15" font-size="3.4" text-anchor="middle" transform="rotate(-90 205.8 162.15)">25,5</text></g></svg>
+<text x="205.8" y="171.9" font-size="3.4" text-anchor="middle" transform="rotate(-90 205.8 171.9)">45</text></g></svg>

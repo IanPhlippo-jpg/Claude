@@ -96,7 +96,7 @@
 <text x="397" y="275" font-size="8" text-anchor="middle" fill="#000" font-weight="700">5</text>
 <text x="408.5" y="285.2" font-size="2.3" text-anchor="end" fill="#000">7 Bl.</text>
 <text x="24" y="30" font-size="2.3" text-anchor="start" fill="#000">Hydraulisch schema volgens ISO 1219-1/-2. Enkelwerkende cilinders: omhoog met de pomp, omlaag door het eigen gewicht via -QM1 en de drukgecompenseerde smoorklep -RN1.</text>
-<text x="24" y="34" font-size="2.3" text-anchor="start" fill="#000">Overdruk -RN2 op 140 bar (hoogste werkdruk 119 bar bij 4 t in de laagste stand). Olie HLP 32, 12 l. Alle slangen 2SN DN10, 250 bar.</text>
+<text x="24" y="34" font-size="2.3" text-anchor="start" fill="#000">Overdruk -RN2 op 140 bar (hoogste werkdruk 123 bar bij 4 t in de laagste stand). Olie HLP 32, 12 l. Alle slangen 2SN DN10, 250 bar.</text>
 <rect x="40" y="120" width="175" height="120" fill="none" stroke="#000" stroke-width="0.25" stroke-dasharray="4 1 0.6 1"/>
 <text x="42" y="125" font-size="2.2" text-anchor="start" fill="#000">-GP1 hydraulisch aggregaat 230 V 2,2 kW (één blok: motor, pomp, tank, ventielblok)</text>
 <polyline points="72,225 72,230 88,230 88,225" fill="none" stroke="#000" stroke-width="0.35"/><text x="91" y="229" font-size="2.6" text-anchor="start" fill="#000">-CM1</text><text x="91" y="232.2" font-size="2" text-anchor="start" fill="#000">tank 12 l</text>

@@ -93,11 +93,29 @@
   {
    "groep": "Schaar",
    "pos": "Omtrekband arm",
-   "prof": "Platstaal 45 x 5",
-   "l": 4560,
+   "prof": "Platstaal 45 x 10",
+   "l": 4600,
    "n": 4,
    "bew": "rond zetten op de wangen (R58 aan de kop)",
-   "kg": 32.2
+   "kg": 65
+  },
+  {
+   "groep": "Schaar",
+   "pos": "Lagerbus koppen (dwars door de koker)",
+   "prof": "Buis Ø60 x 8 (lagerbus)",
+   "l": 45,
+   "n": 8,
+   "bew": "na het lassen boren Ø44 H7 voor het glijlager",
+   "kg": 3.7
+  },
+  {
+   "groep": "Schaar",
+   "pos": "Lagerbus middenpen",
+   "prof": "Buis Ø50 x 8 (lagerbus)",
+   "l": 45,
+   "n": 4,
+   "bew": "na het lassen boren Ø34 H7",
+   "kg": 1.5
   },
   {
    "groep": "Scharnieren",
@@ -229,14 +247,14 @@
   },
   {
    "groep": "Schaar",
-   "pos": "Armwang (taps 116 tot 160)",
+   "pos": "Armwang (taps 116 tot 180)",
    "mat": "S355",
-   "t": 5,
-   "b": 160,
+   "t": 10,
+   "b": 180,
    "l": 2196,
    "n": 8,
-   "opm": "2 per arm; boring middenpen Ø31 H8 na lassen",
-   "kg": 110.3
+   "opm": "2 per arm; gaten Ø60 / Ø50 voor de lagerbussen",
+   "kg": 248.2
   },
   {
    "groep": "Schaar B",
@@ -277,10 +295,10 @@
    "mat": "S355",
    "t": 6,
    "b": 162,
-   "l": 111,
+   "l": 130,
    "n": 2,
    "opm": "doorvoer Ø57",
-   "kg": 1.7
+   "kg": 2
   },
   {
    "groep": "Valbeveiliging",
@@ -426,12 +444,28 @@
    "kg": 11.3
   },
   {
-   "prof": "Platstaal 45 x 5",
+   "prof": "Platstaal 45 x 10",
    "stukken": 4,
-   "totaal": 18240,
+   "totaal": 18400,
    "staven": 4,
-   "kgm": 1.8,
-   "kg": 42.4
+   "kgm": 3.5,
+   "kg": 84.8
+  },
+  {
+   "prof": "Buis Ø60 x 8 (lagerbus)",
+   "stukken": 8,
+   "totaal": 360,
+   "staven": 1,
+   "kgm": 10.3,
+   "kg": 61.6
+  },
+  {
+   "prof": "Buis Ø50 x 8 (lagerbus)",
+   "stukken": 4,
+   "totaal": 180,
+   "staven": 1,
+   "kgm": 8.3,
+   "kg": 49.7
   },
   {
    "prof": "Rond Ø40 (42CrMo4)",
@@ -460,16 +494,9 @@
   },
   {
    "mat": "S355",
-   "t": 5,
-   "m2": 2.81,
-   "kg": 110.3,
-   "posities": "Armwang (taps 116 tot 160)"
-  },
-  {
-   "mat": "S355",
    "t": 6,
-   "m2": 0.2,
-   "kg": 9.4,
+   "m2": 0.21,
+   "kg": 9.7,
    "posities": "Kapdak, Kopplaat"
   },
   {
@@ -482,9 +509,9 @@
   {
    "mat": "S355",
    "t": 10,
-   "m2": 2.88,
-   "kg": 225.7,
-   "posities": "Vloerplaat, Scharnierbok A"
+   "m2": 6.04,
+   "kg": 473.9,
+   "posities": "Vloerplaat, Scharnierbok A, Armwang (taps 116 tot 180)"
   },
   {
    "mat": "S355",
@@ -741,8 +768,8 @@
   }
  ],
  "gewicht": {
-  "lift": 725.9,
+  "lift": 902.1,
   "tafel": 734.1,
-  "totaal": 1460
+  "totaal": 1636.2
  }
 }

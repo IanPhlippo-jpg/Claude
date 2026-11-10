@@ -26,6 +26,9 @@ kleuren gemeten.
 | Berekeningen | schaar, cilinderkracht en druk over de hele slag, knik, pomp, motor, zakken, valbeveiliging, massa van de tafel | [docs/Berekeningen.md](docs/Berekeningen.md) |
 | Mallen 1:1 | A3 (armwang volledig) en A4 (kop- en middenmal), elk 13 bladen, om af te drukken en op de plaat te plakken: ogen en lippen met asgaten, scharnierbokken, hijsogen, kapzijde en palplaat met zaagtand, kopplaat | `mallen/maak-mallen.mjs` -> `mallen/Mallen-lastafel-A3-1op1.pdf`, `mallen/Mallen-lastafel-A4-1op1.pdf` |
 | Bouwplan en materiaal | 12 stappen met foto's; zaaglijst, plaatlijst, normdelen, kooponderdelen, verbruik, wat je moet bestellen | [docs/Bouwplan.md](docs/Bouwplan.md), [docs/Materiaallijst.md](docs/Materiaallijst.md) |
+| Sterkte | evenwicht van de schaar per stand en lastgeval, spanning in de armen, pennen, ogen, bovenframe, kantelen | [docs/Sterkte.md](docs/Sterkte.md) |
+| CE-dossier | risicobeoordeling (EN ISO 12100 / EN 1570-1), handleiding, EU-conformiteitsverklaring (ontwerp), CE-plaat en stickers op het model | [docs/Risicobeoordeling.md](docs/Risicobeoordeling.md), [docs/Handleiding.md](docs/Handleiding.md), [docs/EU-conformiteitsverklaring.md](docs/EU-conformiteitsverklaring.md) |
+| Offertes | 4 aanvragen klaar om te mailen, met DXF per plaatdeel voor de lasersnijder | [docs/Offerteaanvragen.md](docs/Offerteaanvragen.md), `mallen/dxf/` |
 | Schema's | 7 bladen zoals EPLAN: titelblad, inhoud, voeding 230 V, besturing 24 V, hydrauliek (ISO 1219-1), klemmenplan, stuklijst | `schema/maak-schema.mjs` -> `schema/Schemaset-heftafel.pdf` |
 
 ## Wat anders is dan bij DCT, en waarom
@@ -33,7 +36,7 @@ kleuren gemeten.
 - **Badge:** het DCT-logo neem ik niet over (merkrecht). Op die plaats staat een eigen gele badge.
 - **Cilinderophanging:** in de video liggen de cilinders in de laagste stand bijna plat. Met 4 t zou de druk dan oplopen
   tot boven 500 bar. Mijn cilinder hangt 90 mm boven de arm en zijn voet zit laag (60 mm). Zo start hij onder 21°
-  en blijft de druk overal ≤ 119 bar. Van buiten ziet het er hetzelfde uit.
+  en blijft de druk overal ≤ 123 bar. Van buiten ziet het er hetzelfde uit.
 - **Valbeveiliging:** de pal zit in hetzelfde vlak als de gele tanden en scharniert achteraan. Bij het zakken trekken
   twee magneten de pallen weg (in het schema -Q12/-Q13).
 
@@ -57,17 +60,19 @@ het CNC-boren van 750 gaten in S690QL is gespecialiseerd werk.
 
 ## Wat nog moet gebeuren voor hij gebouwd wordt
 
-1. Offertes voor de regels met een schatting (vooral de tafel en de cilinders), of de tafel bij DCT kopen.
-2. Werktekeningen per lasdeel voor de staalbouwer (de maten staan in `maak-lastafel.mjs`), en een sterkte­berekening
-   (FEM) van de armen bij 4 t in de laagste stand.
-3. CE volgens de Machineverordening en EN 1570-1 (heftafels): risicobeoordeling, keuring van het
-   leidingbreukventiel en de valbeveiliging, en een handleiding.
+1. De offerteaanvragen versturen (docs/Offerteaanvragen.md), of de tafel bij DCT kopen.
+2. De sterkte is met de hand berekend (balktheorie, evenwicht per arm; Sterkte.md). Daarom zijn de armen versterkt
+   tot 10 mm wanden en 180 hoog in het midden, met lagerbussen. Een FEM van de lasknopen rond de ogen kan een
+   ingenieur nog nakijken.
+3. Na de bouw: de proeven uit het bouwplan, het proefverslag, en het CE-dossier laten nakijken voor je de
+   conformiteitsverklaring ondertekent.
 
 ## Opnieuw maken
 
 ```bash
 node voorbeelden/lastafel/maak-lastafel.mjs
 python voorbeelden/lastafel/docs/berekeningen.py
+python voorbeelden/lastafel/docs/sterkte.py
 node voorbeelden/lastafel/schema/maak-schema.mjs
 node voorbeelden/lastafel/docs/materiaal.mjs
 node voorbeelden/lastafel/mallen/maak-mallen.mjs

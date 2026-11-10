@@ -1,7 +1,7 @@
 # Materiaallijsten lastafel op heftafel
 
 Gemaakt met `docs/materiaal.mjs` uit de maten van `maak-lastafel.mjs`. Gewichten zijn netto, zonder snijverlies.
-Staal 1460 kg: de lift 725,9 kg en de tafel 734,1 kg. Daarbij komen het aggregaat en de
+Staal 1636,2 kg: de lift 902,1 kg en de tafel 734,1 kg. Daarbij komen het aggregaat en de
 cilinders, ± 120 kg.
 
 ## 1. Bestellen: staven en platen
@@ -18,7 +18,9 @@ Staven van 6 m. De stukken zijn zo verdeeld dat er zo weinig mogelijk overblijft
 | Platstaal 40 x 20 | 2 | 1474 | 1 | 6,3 | 37,7 |
 | Platstaal 40 x 10 | 2 | 1372 | 1 | 3,1 | 18,8 |
 | Platstaal 30 x 8 | 2 | 1372 | 1 | 1,9 | 11,3 |
-| Platstaal 45 x 5 | 4 | 18240 | 4 | 1,8 | 42,4 |
+| Platstaal 45 x 10 | 4 | 18400 | 4 | 3,5 | 84,8 |
+| Buis Ø60 x 8 (lagerbus) | 8 | 360 | 1 | 10,3 | 61,6 |
+| Buis Ø50 x 8 (lagerbus) | 4 | 180 | 1 | 8,3 | 49,7 |
 | Rond Ø40 (42CrMo4) | 10 | 1050 | 1 | 9,9 | 59,2 |
 | Draadeind M20 (8.8, verzinkt) | 6 | 840 | 1 | 2 | 12 |
 
@@ -27,10 +29,9 @@ Plaat voor het lasersnijden, per materiaal en dikte (netto oppervlak; bestel ± 
 | Materiaal | Dikte | m² | kg | Posities |
 |---|--:|--:|--:|---|
 | DX51D+Z275 (sendzimir) | 3 | 2,59 | 61,1 | Bodem, Tussenstrip |
-| S355 | 5 | 2,81 | 110,3 | Armwang (taps 116 tot 160) |
-| S355 | 6 | 0,2 | 9,4 | Kapdak, Kopplaat |
+| S355 | 6 | 0,21 | 9,7 | Kapdak, Kopplaat |
 | S355 | 8 | 0,32 | 20 | Dwarsplaat, Kapzijde met zaagtand |
-| S355 | 10 | 2,88 | 225,7 | Vloerplaat, Scharnierbok A |
+| S355 | 10 | 6,04 | 473,9 | Vloerplaat, Scharnierbok A, Armwang (taps 116 tot 180) |
 | S355 | 12 | 1,32 | 124,3 | Lipplaat, Oog cilinder, Langsrib, Dwarsrib midden, Dwarsrib buiten |
 | S355 | 15 | 0,06 | 7,1 | Steunvlak (na lassen vlakfrezen) |
 | S355 | 16 | 0,02 | 2,8 | Hijsoog |
@@ -53,7 +54,9 @@ Plaat voor het lasersnijden, per materiaal en dikte (netto oppervlak; bestel ± 
 | Schaar A | Buis onder en boven | Buis Ø80 x 5 | 984 | 2 | 18,2 | tussen de armen, 2 mm in de wang |
 | Schaar B | Buis boven en onder | Buis Ø80 x 5 | 884 | 2 | 16,4 |  |
 | Schaar B | Cilinderbuis | Buis Ø90 x 6 | 884 | 1 | 11 | op 775 van het vaste scharnier |
-| Schaar | Omtrekband arm | Platstaal 45 x 5 | 4560 | 4 | 32,2 | rond zetten op de wangen (R58 aan de kop) |
+| Schaar | Omtrekband arm | Platstaal 45 x 10 | 4600 | 4 | 65 | rond zetten op de wangen (R58 aan de kop) |
+| Schaar | Lagerbus koppen (dwars door de koker) | Buis Ø60 x 8 (lagerbus) | 45 | 8 | 3,7 | na het lassen boren Ø44 H7 voor het glijlager |
+| Schaar | Lagerbus middenpen | Buis Ø50 x 8 (lagerbus) | 45 | 4 | 1,5 | na het lassen boren Ø34 H7 |
 | Scharnieren | Pennen Ø40 (scharnier A, B, cilinders, stangogen) | Rond Ø40 (42CrMo4) | 120 | 8 | 9,5 | draaien, inductiegehard, borggroef |
 | Scharnieren | Astappen rollen B | Rond Ø40 (42CrMo4) | 45 | 2 | 0,9 | draaien, slijpen h6 |
 | Onderframe | Aanslagpennen | Draadeind M20 (8.8, verzinkt) | 140 | 6 | 1,7 | met dopmoer en contramoer |
@@ -71,11 +74,11 @@ Plaat voor het lasersnijden, per materiaal en dikte (netto oppervlak; bestel ± 
 | Bovenframe | Steunvlak (na lassen vlakfrezen) | S355 | 15 | 100 | 100 | 6 | 7,1 | boring M16, frezen tot 10 |
 | Opvanglade | Bodem | DX51D+Z275 (sendzimir) | 3 | 1090 | 2270 | 1 | 58,3 | randen 6 omzetten |
 | Opvanglade | Tussenstrip | DX51D+Z275 (sendzimir) | 3 | 40 | 980 | 3 | 2,8 |  |
-| Schaar | Armwang (taps 116 tot 160) | S355 | 5 | 160 | 2196 | 8 | 110,3 | 2 per arm; boring middenpen Ø31 H8 na lassen |
+| Schaar | Armwang (taps 116 tot 180) | S355 | 10 | 180 | 2196 | 8 | 248,2 | 2 per arm; gaten Ø60 / Ø50 voor de lagerbussen |
 | Schaar B | Oog cilinder | S355 | 12 | 80 | 154 | 4 | 4,6 | boring Ø40 H8 |
 | Valbeveiliging | Kapzijde met zaagtand | S355 | 8 | 128 | 500 | 4 | 16,1 | zaagtand steek 30, diepte 14 |
 | Valbeveiliging | Kapdak | S355 | 6 | 162 | 503 | 2 | 7,7 |  |
-| Valbeveiliging | Kopplaat | S355 | 6 | 162 | 111 | 2 | 1,7 | doorvoer Ø57 |
+| Valbeveiliging | Kopplaat | S355 | 6 | 162 | 130 | 2 | 2 | doorvoer Ø57 |
 | Valbeveiliging | Palplaat | S355 (C45 gehard voor de tanden) | 8 | 38 | 360 | 4 | 3,4 | zaagtand, scharniergat Ø16 |
 | Lastafel | Blad 2400 x 1200 | S690QL | 25 | 1200 | 2400 | 1 | 499,8 | 541 gaten Ø28 na lassen boren |
 | Lastafel | Langswand | S690QL | 12 | 175 | 2400 | 2 | 79,1 | 71 gaten Ø28 |

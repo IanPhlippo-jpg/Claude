@@ -4,7 +4,7 @@
 // afstand in mm leggen de bladen juist tegen elkaar. Op elk blad een controlemaat van 100 mm.
 // Vormen = maak-lastafel.mjs (armen, ogen, kap, pal). Gebruik: node voorbeelden/lastafel/mallen/maak-mallen.mjs
 // -> mallen/MAL-*.svg, mallen/mallen.html en mallen/Mallen-lastafel-1op1.pdf (A4, schaal 1)
-import { writeFileSync, readdirSync, unlinkSync } from 'node:fs';
+import { writeFileSync, readdirSync, unlinkSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { M } from '../maak-lastafel.mjs';
@@ -15,32 +15,33 @@ const esc = (t) => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replac
 
 // ---------------------------------------------------------------- de vormen (mm, y omhoog; bogen: ccw = tegen de klok)
 const L = M.arm, R = M.ah / 2;
-const YK = (x) => (x <= L / 2 ? R + ((80 - R) * x) / (L / 2) : R + ((80 - R) * (L - x)) / (L / 2)); // halve hoogte van de wang op x
+const HM = M.ahMid / 2; // halve hoogte in het midden (90)
+const YK = (x) => (x <= L / 2 ? R + ((HM - R) * x) / (L / 2) : R + ((HM - R) * (L - x)) / (L / 2)); // halve hoogte van de wang op x
 const VORMEN = [
   {
-    id: 'ARM', naam: 'Armwang (volledig)', aantal: 8, mat: 'S355, plaat 5 mm', waar: 'schaararmen A en B, 2 wangen per arm', alleen: 'A3',
-    pad: [['M', 0, -R], ['L', L / 2, -80], ['L', L, -R], ['A', R, 1, L, R], ['L', L / 2, 80], ['L', 0, R], ['A', R, 1, 0, -R], ['Z']],
-    gaten: [{ x: 0, y: 0, d: 40, t: 'Ø40 H8' }, { x: L / 2, y: 0, d: 31, t: 'Ø31 H8' }, { x: L, y: 0, d: 40, t: 'Ø40 H8' }],
-    maten: [['h', 0, L, -R - 12, `${L} hart-hart`], ['h', 0, L / 2, R + 34, `${L / 2}`], ['v', -R, R, -R - 14, `${2 * R}`], ['v', -80, 80, L / 2 + 30, '160']],
+    id: 'ARM', naam: 'Armwang (volledig)', aantal: 8, mat: 'S355, plaat 10 mm', waar: 'schaararmen A en B, 2 wangen per arm', alleen: 'A3',
+    pad: [['M', 0, -R], ['L', L / 2, -HM], ['L', L, -R], ['A', R, 1, L, R], ['L', L / 2, HM], ['L', 0, R], ['A', R, 1, 0, -R], ['Z']],
+    gaten: [{ x: 0, y: 0, d: 60, t: 'Ø60 (lagerbus)' }, { x: L / 2, y: 0, d: 50, t: 'Ø50 (lagerbus)' }, { x: L, y: 0, d: 60, t: 'Ø60 (lagerbus)' }],
+    maten: [['h', 0, L, -R - 12, `${L} hart-hart`], ['h', 0, L / 2, R + 34, `${L / 2}`], ['v', -R, R, -R - 14, `${2 * R}`], ['v', -HM, HM, L / 2 + 30, `${2 * HM}`]],
     hartlijn: [-R - 8, L + R + 8],
-    noot: ['Boringen 1 mm kleiner, en pas na het lassen van de arm op maat ruimen, beide wangen samen. Kop R58.'],
+    noot: ['Gaten voor de lagerbussen (Ø60 aan de koppen, Ø50 in het midden); de bus dwars door de koker lassen, daarna de bus op maat boren. Kop R58.'],
   },
   {
-    id: 'ARM-KOP', naam: 'Armwang: kopmal', alleen: 'A4', aantal: 16, mat: 'S355, plaat 5 mm (8 wangen, 2 koppen per wang)', waar: 'schaararmen A en B; dezelfde mal voor beide koppen (omdraaien)',
+    id: 'ARM-KOP', naam: 'Armwang: kopmal', alleen: 'A4', aantal: 16, mat: 'S355, plaat 10 mm (8 wangen, 2 koppen per wang)', waar: 'schaararmen A en B; dezelfde mal voor beide koppen (omdraaien)',
     open: true, pad: [['M', 150, -YK(150)], ['L', 0, -R], ['A', R, 0, 0, R], ['L', 150, YK(150)]],
     hulp: [{ lijn: [[150, -YK(150)], [175, -YK(175)]] }, { lijn: [[150, YK(150)], [175, YK(175)]], t: 'met de lat verder naar het midden' }],
-    gaten: [{ x: 0, y: 0, d: 40, t: 'Ø40 H8' }],
+    gaten: [{ x: 0, y: 0, d: 60, t: 'Ø60 (lagerbus)' }],
     maten: [['v', -R, R, -R - 14, '116'], ['h', 0, 150, -78, '150'], ['v', -YK(150), YK(150), 165, g(2 * YK(150))]],
     hartlijn: [-R - 8, 185],
-    noot: ['Aftekenen: hartlijn over de hele plaat; boorpunten op 0, 1040 en 2080 (meetlint).', 'Hoogte vanaf de hartlijn: ±58 bij 0 en 2080, ±80 bij 1040. Rechte randen met een lat.', 'Mal op het boorpunt en de hartlijn leggen, R58 aftekenen. Boringen 1 mm kleiner, na het lassen ruimen.'],
+    noot: ['Aftekenen: hartlijn over de hele plaat; boorpunten op 0, 1040 en 2080 (meetlint).', 'Hoogte vanaf de hartlijn: ±58 bij 0 en 2080, ±90 bij 1040. Rechte randen met een lat.', 'Mal op het boorpunt en de hartlijn leggen, R58 aftekenen. Gat Ø60 voor de lagerbus.'],
   },
   {
-    id: 'ARM-MID', naam: 'Armwang: middenmal (halve mal, spiegelen over de hartlijn)', alleen: 'A4', aantal: 8, mat: 'S355, plaat 5 mm', waar: 'schaararmen A en B, boring van de middenpen',
-    open: true, pad: [['M', 960, YK(960)], ['L', 1040, 80], ['L', 1120, YK(960)], ['M', 960, -12], ['L', 960, -12.01]],
-    gaten: [{ x: 1040, y: 0, d: 31, t: 'Ø31 H8' }],
-    maten: [['v', 0, 80, 1135, '80 (helft van 160)'], ['h', 960, 1040, 60, '80'], ['h', 1040, 1120, 60, '80']],
+    id: 'ARM-MID', naam: 'Armwang: middenmal (halve mal, spiegelen over de hartlijn)', alleen: 'A4', aantal: 8, mat: 'S355, plaat 10 mm', waar: 'schaararmen A en B, boring van de middenpen',
+    open: true, pad: [['M', 960, YK(960)], ['L', 1040, HM], ['L', 1120, YK(960)], ['M', 960, -12], ['L', 960, -12.01]],
+    gaten: [{ x: 1040, y: 0, d: 50, t: 'Ø50 (lagerbus)' }],
+    maten: [['v', 0, HM, 1135, `${HM} (helft van ${2 * HM})`], ['h', 960, 1040, 60, '80'], ['h', 1040, 1120, 60, '80']],
     hartlijn: [945, 1135],
-    noot: ['Midden van de wang: 1040 van beide koppen; de wang is hier 160 hoog (knik).', 'Mal op de hartlijn en het boorpunt leggen, bovenrand aftekenen, omdraaien voor de onderrand.'],
+    noot: ['Midden van de wang: 1040 van beide koppen; de wang is hier 180 hoog (knik).', 'Mal op de hartlijn en het boorpunt leggen, bovenrand aftekenen, omdraaien voor de onderrand.'],
   },
   {
     id: 'OOG-B', naam: 'Oog cilinder (op de cilinderbuis Ø90)', aantal: 4, mat: 'S355, plaat 12 mm', waar: 'armpaar B, 2 per stangoog',
@@ -79,9 +80,9 @@ const VORMEN = [
   },
   {
     id: 'KAP', naam: 'Kopplaat valbeveiliging', aantal: 2, mat: 'S355, plaat 6 mm', waar: 'gele kap, doorvoer van de stang Ø56',
-    pad: [['M', -81, 0], ['L', 81, 0], ['L', 81, 110.5], ['L', -81, 110.5], ['Z']],
-    gaten: [{ x: 0, y: 25.5, d: 57, t: 'Ø57' }],
-    maten: [['h', -81, 81, -14, '162'], ['v', 0, 110.5, -88, '110,5'], ['v', 0, 25.5, 88, '25,5']],
+    pad: [['M', -81, 0], ['L', 81, 0], ['L', 81, 130], ['L', -81, 130], ['Z']],
+    gaten: [{ x: 0, y: 45, d: 57, t: 'Ø57' }],
+    maten: [['h', -81, 81, -14, '162'], ['v', 0, 130, -88, '130'], ['v', 0, 45, 88, '45']],
     noot: ['Hart doorvoer = hart van de zuigerstang.'],
   },
 ];
@@ -244,4 +245,30 @@ html, body { margin: 0 } .b { overflow: hidden; page-break-after: always } .b sv
   console.log(`mallen ${fmt}:`, bladen.length, 'bladen;', bladen.map((b) => b.titel.split(' —')[0].split(':')[0]).join(' | '));
 }
 writeFileSync(join(HERE, 'overzicht.json'), JSON.stringify(overzicht, null, 1) + '\n');
+
+// ---------------------------------------------------------------- DXF (R12, mm) per plaatdeel voor de lasersnijder
+// omtrek als LINE en ARC (laag SNIJDEN), gaten als CIRCLE (laag GATEN); de A4-hulpmallen (open vormen) niet
+mkdirSync(join(HERE, 'dxf'), { recursive: true });
+for (const f of readdirSync(join(HERE, 'dxf'))) unlinkSync(join(HERE, 'dxf', f));
+const n6 = (x) => (Math.round(x * 1e4) / 1e4).toString();
+for (const v of VORMEN.filter((x) => !x.open)) {
+  const e = [], ent = (type, laag, kv) => e.push('0', type, '8', laag, ...kv.flatMap(([k, w]) => [String(k), n6(w)]));
+  let cur = [0, 0], start = [0, 0];
+  for (const s of v.pad) {
+    if (s[0] === 'M') { cur = [s[1], s[2]]; start = cur; }
+    else if (s[0] === 'L') { ent('LINE', 'SNIJDEN', [[10, cur[0]], [20, cur[1]], [11, s[1]], [21, s[2]]]); cur = [s[1], s[2]]; }
+    else if (s[0] === 'A') {
+      const [, r, ccw, x, y] = s, dx = x - cur[0], dy = y - cur[1], l = Math.hypot(dx, dy), h = Math.sqrt(Math.max(0, r * r - (l / 2) ** 2));
+      const n = ccw ? [-dy / l, dx / l] : [dy / l, -dx / l], c = [(cur[0] + x) / 2 + n[0] * h, (cur[1] + y) / 2 + n[1] * h];
+      const a0 = (Math.atan2(cur[1] - c[1], cur[0] - c[0]) * 180) / Math.PI, a1 = (Math.atan2(y - c[1], x - c[0]) * 180) / Math.PI;
+      ent('ARC', 'SNIJDEN', [[10, c[0]], [20, c[1]], [40, r], [50, ccw ? a0 : a1], [51, ccw ? a1 : a0]]);
+      cur = [x, y];
+    } else if (s[0] === 'Z' && (cur[0] !== start[0] || cur[1] !== start[1])) { ent('LINE', 'SNIJDEN', [[10, cur[0]], [20, cur[1]], [11, start[0]], [21, start[1]]]); cur = start; }
+  }
+  for (const h of v.gaten) ent('CIRCLE', 'GATEN', [[10, h.x], [20, h.y], [40, h.d / 2]]);
+  const dikte = /plaat (\d+) mm/.exec(v.mat)?.[1] ?? 'x';
+  const dxf = ['0', 'SECTION', '2', 'HEADER', '9', '$INSUNITS', '70', '4', '0', 'ENDSEC', '0', 'SECTION', '2', 'ENTITIES', ...e, '0', 'ENDSEC', '0', 'EOF'].join('\r\n') + '\r\n';
+  writeFileSync(join(HERE, 'dxf', `${v.id}_${dikte}mm_${v.aantal}st.dxf`), dxf);
+}
+console.log('dxf:', readdirSync(join(HERE, 'dxf')).join(', '));
 await browser.close();

@@ -9,6 +9,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Onderdeel, component, vlak } from '../lib/schets.mjs';
 import { Plaat } from '../lib/printplaat.mjs';
+import { waarschuwing } from '../robotarm/opschriften.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 
@@ -20,7 +21,9 @@ export const M = {
   yb: 75, // hart van de onderste scharnieren en rollen boven de vloer
   dt: 75, // hart van de bovenste scharnieren en rollen onder de bovenkant
   hMin: 370, hMax: 1425, // bovenkant lift (zonder blad), zoals DCT
-  ah: 116, // hoogte van een arm (stadion, r 58)
+  ah: 116, // hoogte van een arm aan de scharnieren (kop R58)
+  ahMid: 180, // hoogte van een arm in het midden (docs/Sterkte.md: wangen en band 10 mm)
+  armWand: 10,
   A: [490, 535], Bx: [440, 485], // x van het buitenste en het binnenste armpaar (rechts; links gespiegeld)
   cil: { x: 250, p0: [60, -850], s: 775, n: 90, boring: 100, stang: 56 }, // voetscharnier (y, z) en ophangpunt op B
   tafel: { l: 2400, b: 1200, h: 200, blad: 25, wand: 12, gat: 28, raster: 100 },
@@ -141,6 +144,23 @@ export function stand(H) {
   return { H, th, FA, FB, d: Math.hypot(dy, dz), phi: Math.atan2(dy, dz), midden: pt(FA, [0, 0, arm / 2]) };
 }
 
+// ---------------------------------------------------------------- opschriften (CE-plaat en stickers)
+function typeplaatLift() {
+  const p = new Plaat(120, 74, { masker: 'geen', ppm: 9 });
+  p.eigen('<rect x="0.5" y="0.5" width="119" height="73" rx="3" fill="#c9ccce" stroke="#555" stroke-width="0.6"/>');
+  const r = [['Heftafel met lastafel', 4.4, true], ['Type HT 4000-2412', 3.4], ['Serienr. ____  Bouwjaar 2026', 3.0], ['Nominale last 4000 kg (incl. blad)', 3.2, true], ['230 V 50 Hz 16 A · 2,2 kW · 140 bar', 3.0], ['Massa ± 1360 kg (zonder blad)', 3.0], ['EN 1570-1 · Machineverordening (EU) 2023/1230', 2.4]];
+  r.forEach(([t, h, vet], i) => p.tekst(5, 9 + i * 9, t, { h, anker: 'start', vet: !!vet, kleur: '#1b1b1b' }));
+  p.eigen('<text x="114" y="66" font-family="Arial" font-size="15" font-weight="700" text-anchor="end" fill="#1b1b1b">CE</text>');
+  return p;
+}
+function lastSticker() {
+  const p = new Plaat(110, 44, { masker: 'geen', ppm: 9 });
+  p.eigen('<rect width="110" height="44" rx="3" fill="#f2b705"/><rect x="2.5" y="2.5" width="105" height="39" rx="2" fill="none" stroke="#1b1b1b" stroke-width="1.2"/>');
+  p.tekst(55, 15, 'MAX 4000 kg', { h: 9, vet: true, kleur: '#1b1b1b' });
+  p.tekst(55, 31, 'inclusief het blad · gelijk verdeeld', { h: 3.6, kleur: '#1b1b1b' });
+  return p;
+}
+
 // ---------------------------------------------------------------- onderbouw (vast)
 export function vloerplaat() {
   const o = deel('Vloerplaat 10 mm', POED);
@@ -175,7 +195,8 @@ export function onderframe() {
     o.extrude('boss', 16, { naam: 'Hijsoog' });
     cilX(o, 142, z, 15, x0, x0 + 16, 'Gat hijsoog', 'cut');
   }
-  return o.doc();
+  // typeplaat met CE op het lijf van de rechter langsligger (buitenkant x = 553), bij de vaste kant
+  return met(o.doc(), typeplaatLift().decal('dc1', 'Typeplaat CE', [553, 60, -760], { normaal: [1, 0, 0] }));
 }
 /** cilinderbok: dwarsplaat op de vloerplaat met twee platen per cilinder en de pen op (y 60, z -850) */
 export function cilinderbok() {
@@ -211,7 +232,8 @@ export function bovenframe() {
   for (const s of [1, -1]) {
     blok(o, [s > 0 ? 487 : -545.5, -140, -1060, s > 0 ? 545.5 : -487, -13, -940], 'Scharnierblok B');
   }
-  return o.doc();
+  // op de buitenkant van de rechter langsligger: last en knelgevaar (ISO 7010 W024)
+  return met(o.doc(), lastSticker().decal('dc1', 'Max 4000 kg', [595, -65, 300], { normaal: [1, 0, 0] }), waarschuwing('W024', 70).decal('dc2', 'Knelgevaar', [595, -65, -300], { normaal: [1, 0, 0] }));
 }
 export function opvanglade() {
   const o = deel('Opvanglade (verzinkt, 4 vakken)', VERZINKT);
@@ -235,15 +257,15 @@ function armplaten(o, [xa, xb], naam) {
   const { arm, ah } = M, r = ah / 2;
   for (const s of [1, -1]) {
     const x0 = s > 0 ? xa : -xb;
-    // koker 116 hoog aan de scharnieren, 160 in het midden (zoals DCT); schetscoördinaten (u, v) = (-z, y)
-    o.schets(xv(x0, `Plane ${naam}`), (sk) => sk.pad([[0, -r], [-arm / 2, -80], [-arm, -r], { boog: [-arm, 0], naar: [-arm, r], ccw: false }, [-arm / 2, 80], [0, r], { boog: [0, 0], naar: [0, -r], ccw: false }]));
+    // koker 116 hoog aan de scharnieren, 180 in het midden, wanden 10 (Sterkte.md); schetscoördinaten (u, v) = (-z, y)
+    o.schets(xv(x0, `Plane ${naam}`), (sk) => sk.pad([[0, -r], [-arm / 2, -M.ahMid / 2], [-arm, -r], { boog: [-arm, 0], naar: [-arm, r], ccw: false }, [-arm / 2, M.ahMid / 2], [0, r], { boog: [0, 0], naar: [0, -r], ccw: false }]));
     o.extrude('boss', xb - xa, { naam });
   }
   cilX(o, 0, arm / 2, 15.5, -xb - 1, xb + 1, 'Boring middenpen Ø31', 'cut');
 }
 /** buitenste armpaar A: onder vast, boven op rollen; buizen Ø80 aan beide uiteinden */
 export function armpaarA() {
-  const o = deel('Schaararmen buiten (paar A, koker 116-160 x 45)', POED);
+  const o = deel('Schaararmen buiten (paar A, koker 116-180 x 45 x 10, lagerbussen)', POED);
   armplaten(o, M.A, 'Arm A');
   cilX(o, 0, 0, 40, -M.A[0] - 2, M.A[0] + 2, 'Buis onder Ø80');
   cilX(o, 0, M.arm, 40, -M.A[0] - 2, M.A[0] + 2, 'Buis boven Ø80');
@@ -251,7 +273,7 @@ export function armpaarA() {
 }
 /** binnenste armpaar B: boven vast, onder op rollen; cilinderbuis Ø90 met ogen op s = 775 */
 export function armpaarB() {
-  const { cil } = M, o = deel('Schaararmen binnen (paar B, koker 116-160 x 45)', POED);
+  const { cil } = M, o = deel('Schaararmen binnen (paar B, koker 116-180 x 45 x 10, lagerbussen)', POED);
   armplaten(o, M.Bx, 'Arm B');
   cilX(o, 0, 0, 40, -M.Bx[0] - 2, M.Bx[0] + 2, 'Buis boven Ø80');
   cilX(o, 0, M.arm, 40, -M.Bx[0] - 2, M.Bx[0] + 2, 'Buis onder Ø80');
@@ -320,7 +342,7 @@ export function kap(d) {
   for (let z = zb; z > za + 29; z -= 30) rand.push([-40, z - 30], [-26, z - 30]);
   if (rand[rand.length - 1][1] !== za) rand.push([-26, za]);
   for (const s of [1, -1]) profX(o, s * 76, s * 84, rand, 'Kapzijde');
-  o.schets(zv(zb, 'Plane kopplaat'), (s) => { s.rrect(-81, -25.5, 81, 85, 0); });
+  o.schets(zv(zb, 'Plane kopplaat'), (s) => { s.rrect(-81, -45, 81, 85, 0); });
   o.extrude('boss', 6, { naam: 'Kopplaat' });
   cilZ(o, 0, 0, 28.5, zb - 1, zb + 7, 'Doorvoer stang', 'cut');
   ringZ(o, 28, 45, zb + 5.5, zb + 30, 'Klembus');

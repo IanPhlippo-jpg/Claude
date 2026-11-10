@@ -1209,3 +1209,10 @@ elease; README en docs/04 bijgewerkt
 - [x] Oog cilinder in het model gelijk aan de mal (zadel R45 op de buis, kop R34 om de pen)
 - [x] Artifact-pagina met alles: foto's, specificaties, bouwplan, materiaallijsten, bestellijst, berekeningen, tekeningen, schema's, downloads
 - [x] Controleren (pagina op gsm-breedte en donker), commit en push
+
+## Lastafel: sterkte, CE-dossier en offerteaanvragen (2026-11-10)
+- [x] Sterkteberekening schaar: krachten per arm uit het evenwicht (midden en excentrische last, laag/midden/hoog), buiging en normaalkracht in de armen, pennen (afschuiving, stuik), middenpen, bovenframe, kantelen (EN 1570-1)
+- [x] Waar nodig het model versterken (wanddikte, naven rond de boringen) en materiaallijst, mallen en tekeningen bijwerken
+- [x] CE-dossier: risicobeoordeling EN ISO 12100 / EN 1570-1, handleiding (gebruik, onderhoud, keuring), EU-conformiteitsverklaring, CE-plaat en waarschuwingen op het model
+- [x] Offerteaanvragen (laserwerk, cilinders, aggregaat, tafel) klaar om te versturen
+- [x] Pagina en afdruk-PDF bijwerken, tests, commit en push

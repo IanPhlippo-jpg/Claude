@@ -1,7 +1,7 @@
 {
  "format": "phlippo-cad",
  "version": 1,
- "name": "Schaararmen buiten (paar A, koker 116-160 x 45)",
+ "name": "Schaararmen buiten (paar A, koker 116-180 x 45 x 10, lagerbussen)",
  "units": "mm",
  "planes": {
   "x574": {
@@ -148,7 +148,7 @@
     },
     "s1p1": {
      "x": -1040,
-     "y": -80
+     "y": -90
     },
     "s1p3": {
      "x": -2080,
@@ -164,7 +164,7 @@
     },
     "s1p9": {
      "x": -1040,
-     "y": 80
+     "y": 90
     },
     "s1p11": {
      "x": 0,
@@ -256,7 +256,7 @@
     },
     "s2p1": {
      "x": -1040,
-     "y": -80
+     "y": -90
     },
     "s2p3": {
      "x": -2080,
@@ -272,7 +272,7 @@
     },
     "s2p9": {
      "x": -1040,
-     "y": 80
+     "y": 90
     },
     "s2p11": {
      "x": 0,

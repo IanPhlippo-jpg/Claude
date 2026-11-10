@@ -99,9 +99,10 @@ const TEKNAAM = { '00': 'Overzicht en hoofdmaten', '01': 'Lastafel: gatenplan', 
 const SCHEMA = ['Titelblad', 'Inhoudsopgave', 'Voeding 230 V', 'Besturing 24 V DC', 'Hydrauliek (ISO 1219-1)', 'Klemmenplan -X1', 'Stuklijst'];
 const FOTO = [['tafel-zij', 'De lastafel op de heftafel, bovenkant lift 825 mm'], ['lift-zij', 'De heftafel zonder tafel: schaar, opvanglade en 6 steunvlakken'], ['valbeveiliging', 'Valbeveiliging: gele kap met zaagtand en de pal op de cilinder'], ['steunvlak', 'Gefreesd steunvlak met boring M16'], ['badge', 'Zijwand met drie rijen gaten Ø28 en de badge'], ['laag', 'Laagste stand: werkhoogte 570 mm'], ['hoog', 'Hoogste stand: werkhoogte 1625 mm'], ['onderframe', 'Onderframe met aggregaat, rollen en aanslagpennen'], ['tafel-iso', 'Isometrie met het voetpedaal']];
 const bp = bouwplan();
-const SPECS = [['Werkhoogte', '570 – 1625', 'mm'], ['Last', '4000', 'kg incl. blad'], ['Blad', '2400 × 1200', 'mm, Ø28 DG'], ['Gaten', '541 + 212', 'blad + wanden'], ['Hoogste druk', '119', 'bar'], ['Aansluiting', '230 V', '2,2 kW, 16 A']];
+const SPECS = [['Werkhoogte', '570 – 1625', 'mm'], ['Last', '4000', 'kg incl. blad'], ['Blad', '2400 × 1200', 'mm, Ø28 DG'], ['Gaten', '541 + 212', 'blad + wanden'], ['Hoogste druk', '123', 'bar'], ['Aansluiting', '230 V', '2,2 kW, 16 A']];
 const mallen = JSON.parse(lees('mallen/overzicht.json')), malbladen = (fmt) => readdirSync(join(P, 'mallen')).filter((f) => new RegExp(`^MAL-${fmt}-\\d+\\.svg$`).test(f)).sort();
-const DOWNLOADS = [['pdf/Mallen-lastafel-A3-1op1.pdf', 'Mallen 1:1 op A3', `${malbladen('A3').length} bladen A3, de armwang volledig: op 100 % afdrukken`], ['pdf/Mallen-lastafel-A4-1op1.pdf', 'Mallen 1:1 op A4', `${malbladen('A4').length} bladen A4, armwang met kop- en middenmal: op 100 % afdrukken`], ['pdf/Lastafel-alles-afdrukken.pdf', 'Alles in één PDF', 'README, foto\'s, bouwplan, materiaallijsten, tekeningen, schema\'s, berekeningen en eisen'], ['pdf/Werktekeningen-lastafel.pdf', 'Werktekeningen', '9 bladen A3: overzicht, gatenplan, lasdelen'], ['pdf/Schemaset-heftafel.pdf', 'Schemaset', '7 bladen A3 zoals EPLAN']];
+const DXF = readdirSync(join(P, 'mallen', 'dxf')).filter((f) => f.endsWith('.dxf')).sort();
+const DOWNLOADS = [['zip:Laserwerk-DXF-lastafel.zip', 'DXF voor de lasersnijder', `${DXF.length} plaatdelen op ware grootte (mm), met dikte en aantal in de naam`], ['pdf/Mallen-lastafel-A3-1op1.pdf', 'Mallen 1:1 op A3', `${malbladen('A3').length} bladen A3, de armwang volledig: op 100 % afdrukken`], ['pdf/Mallen-lastafel-A4-1op1.pdf', 'Mallen 1:1 op A4', `${malbladen('A4').length} bladen A4, armwang met kop- en middenmal: op 100 % afdrukken`], ['pdf/Lastafel-alles-afdrukken.pdf', 'Alles in één PDF', 'README, foto\'s, bouwplan, materiaallijsten, tekeningen, schema\'s, berekeningen en eisen'], ['pdf/Werktekeningen-lastafel.pdf', 'Werktekeningen', '9 bladen A3: overzicht, gatenplan, lasdelen'], ['pdf/Schemaset-heftafel.pdf', 'Schemaset', '7 bladen A3 zoals EPLAN']];
 
 const html = `<title>Lastafel op heftafel</title>
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -248,7 +249,7 @@ html { scroll-behavior: smooth }
   <div class="velden" aria-label="Titelblok"><div><span>Tekening</span><b>LFT-00 … 08</b></div><div><span>Rev.</span>1</div><div><span>Uitgifte</span>2026-11-09</div></div>
 </div></header>
 <nav class="menu" aria-label="Hoofdstukken"><div class="wrap">
-  ${[['overzicht', 'Overzicht'], ['fotos', "Foto's"], ['bouwplan', 'Bouwplan'], ['materiaal', 'Materiaal'], ['kosten', 'Kosten'], ['berekeningen', 'Berekeningen'], ['tekeningen', 'Tekeningen'], ['mallen', 'Mallen'], ['schemas', "Schema's"], ['bestanden', 'Bestanden']].map(([id, n]) => `<a href="#${id}">${n}</a>`).join('')}
+  ${[['overzicht', 'Overzicht'], ['fotos', "Foto's"], ['bouwplan', 'Bouwplan'], ['materiaal', 'Materiaal'], ['kosten', 'Kosten'], ['berekeningen', 'Berekeningen'], ['dossier', 'CE-dossier'], ['tekeningen', 'Tekeningen'], ['mallen', 'Mallen'], ['schemas', "Schema's"], ['bestanden', 'Bestanden']].map(([id, n]) => `<a href="#${id}">${n}</a>`).join('')}
 </div></nav>
 
 <main class="wrap">
@@ -257,7 +258,7 @@ html { scroll-behavior: smooth }
     <figure><img src="img/tafel-zij.jpg" alt="De lastafel op de heftafel in de middelste stand" data-groot><figcaption>Bovenkant lift 825 mm, werkhoogte 1025 mm. Gele kappen: de valbeveiliging van de cilinders.</figcaption></figure>
     <div>
       <div class="specs">${SPECS.map(([k, v, e]) => `<div class="spec"><span>${k}</span><b>${v}</b><i>${e}</i></div>`).join('')}</div>
-      <div class="notitie"><b>Anders dan DCT:</b> een eigen badge in plaats van hun logo, en de cilinders hangen ${M.cil.n} mm boven de schaararm. Zo blijft de druk in de laagste stand op 119 bar in plaats van meer dan 500 bar.</div>
+      <div class="notitie"><b>Anders dan DCT:</b> een eigen badge in plaats van hun logo, en de cilinders hangen ${M.cil.n} mm boven de schaararm. Zo blijft de druk in de laagste stand op 123 bar in plaats van meer dan 500 bar.</div>
       <div class="notitie" style="margin-top:10px"><b>Kopen of bouwen:</b> zelf bouwen ± € 11 100. Kant-en-klaar bij DCT: € 3 980 (heftafel) + € 4 340 (tafel).</div>
     </div>
   </div>
@@ -292,18 +293,35 @@ html { scroll-behavior: smooth }
 <section class="blok" id="berekeningen">
   <div class="blokkop"><h2>Berekeningen</h2><span class="ref">docs/Berekeningen.md</span></div>
   <div class="reken">
-    <div class="grafiekvak">${drukgrafiek()}<figcaption>Druk per cilinder Ø${M.cil.boring} bij 4000 kg met het blad, plus ± 340 kg eigen gewicht. De druk is het hoogst in de laagste stand, waar de schaar het minst hefboom heeft.</figcaption></div>
+    <div class="grafiekvak">${drukgrafiek()}<figcaption>Druk per cilinder Ø${M.cil.boring} bij 4000 kg met het blad, plus ± 460 kg eigen gewicht. De druk is het hoogst in de laagste stand, waar de schaar het minst hefboom heeft.</figcaption></div>
     <ul class="feiten">
       <li><span>Armhoek laag tot hoog</span><b>${getal(Math.round(S0.th * 1800 / Math.PI) / 10)}° – ${getal(Math.round(S1.th * 1800 / Math.PI) / 10)}°</b></li>
       <li><span>Cilinder oog-oog</span><b>${Math.round(S0.d)} – ${Math.round(S1.d)} mm</b></li>
       <li><span>Cilinders, slag</span><b>2 × Ø100/56, 360</b></li>
-      <li><span>Hoogste druk / overdruk</span><b>119 / 140 bar</b></li>
-      <li><span>Knikveiligheid stang</span><b>17,3</b></li>
+      <li><span>Hoogste druk / overdruk</span><b>123 / 140 bar</b></li>
+      <li><span>Spanning armen (zwaarste geval)</span><b>203 ≤ 237 MPa</b></li>
+      <li><span>Middenpen / stuik in de bus</span><b>192 / 104 MPa</b></li>
+      <li><span>Kantelveiligheid lengte / breedte</span><b>10 / 5</b></li>
+      <li><span>Knikveiligheid stang</span><b>17</b></li>
       <li><span>Omhoog / omlaag (vol)</span><b>± 46 s / ± 36 s</b></li>
       <li><span>Valbeveiliging, laagste veiligheid</span><b>τ 86 ≤ 137 MPa</b></li>
       <li><span>Massa tafel / nuttige last</span><b>± 723 / ± 3280 kg</b></li>
     </ul>
   </div>
+</section>
+
+<section class="blok" id="dossier">
+  <div class="blokkop"><h2>CE-dossier</h2><span class="ref">EN ISO 12100 · EN 1570-1 · Machineverordening (EU) 2023/1230</span></div>
+  <p class="lead">De basis voor het technisch dossier. Laat het nakijken door een keuringsinstantie voor je de conformiteitsverklaring ondertekent. Alle teksten staan volledig in de PDF "Alles in één".</p>
+  <div class="downloads">
+    <div class="dl"><h3>Sterkteberekening</h3><p>Evenwicht van de schaar in 3 standen en 5 lastgevallen. Daarom zijn de armen versterkt tot 10 mm wanden, 180 hoog in het midden, met lagerbussen.</p></div>
+    <div class="dl"><h3>Risicobeoordeling</h3><p>12 gevaren met maatregelen: knellen in de schaar, slangbreuk, overbelasting, kantelen, elektriciteit, lasstroom, hijsen. Veiligheidsfuncties en proeven.</p></div>
+    <div class="dl"><h3>Handleiding</h3><p>Technische gegevens, veiligheid, plaatsen, bediening, storingen en onderhoud per dag, maand, jaar en 6 jaar.</p></div>
+    <div class="dl"><h3>Conformiteitsverklaring</h3><p>Ontwerp volgens bijlage V van de Machineverordening, met de toegepaste normen. In te vullen en te ondertekenen na de proeven.</p></div>
+    <div class="dl"><h3>Offerteaanvragen</h3><p>Vier mails klaar om te versturen: laserwerk (met de DXF's), cilinders, aggregaat en de tafel.</p></div>
+    <div class="dl"><h3>CE-plaat en stickers</h3><p>Typeplaat met CE op het onderframe; "MAX 4000 kg" en knelgevaar W024 op het bovenframe.</p></div>
+  </div>
+  <figure class="stapbeeld" style="margin-top:14px"><img src="img/ce-stickers.jpg" alt="Sticker MAX 4000 kg en knelgevaar op het bovenframe, typeplaat met CE op het onderframe" loading="lazy" data-groot><figcaption>Sticker en knelgevaar op het bovenframe, typeplaat met CE op het onderframe</figcaption></figure>
 </section>
 
 <section class="blok" id="tekeningen">
@@ -325,7 +343,7 @@ html { scroll-behavior: smooth }
 
 <section class="blok" id="bestanden">
   <div class="blokkop"><h2>Bestanden</h2><span class="ref">PDF om af te drukken</span></div>
-  <div class="downloads">${DOWNLOADS.map(([pad, t, o]) => `<div class="dl"><h3>${esc(t)}</h3><p>${esc(o)}</p><button class="knop geel" type="button" data-pdf="${pad}">Download PDF</button></div>`).join('')}</div>
+  <div class="downloads">${DOWNLOADS.map(([pad, t, o]) => `<div class="dl"><h3>${esc(t)}</h3><p>${esc(o)}</p><button class="knop geel" type="button" data-pdf="${pad}">Download ${pad.endsWith(".zip") ? "ZIP" : "PDF"}</button></div>`).join('')}</div>
   <p class="status" id="pdfstatus" aria-live="polite"></p>
   <h3 style="margin:28px 0 10px">Bronnen</h3>
   <ul class="bronnen">
@@ -378,10 +396,35 @@ async function bewaar(filename, data, status) {
   catch (e) { status.textContent = e && e.code === 'declined' ? 'Niet opgeslagen.' : 'Opslaan lukte niet (' + (e && e.code || 'fout') + ').'; }
 }
 document.querySelectorAll('[data-csv]').forEach((b) => b.addEventListener('click', () => bewaar('lastafel-' + b.dataset.csv + '.csv', CSV[b.dataset.csv], document.getElementById('csvstatus'))));
+// ZIP zonder compressie (methode 0) van de DXF-bestanden, in de browser gemaakt
+const DXF = ${JSON.stringify(DXF)};
+const crcTabel = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+const crc32 = (u) => { let c = 0xffffffff; for (const x of u) c = crcTabel[(c ^ x) & 255] ^ (c >>> 8); return (c ^ 0xffffffff) >>> 0; };
+function zip(bestanden) {
+  const delen = [], centraal = []; let off = 0;
+  const enc = new TextEncoder();
+  for (const [naam, data] of bestanden) {
+    const n = enc.encode(naam), crc = crc32(data), h = new DataView(new ArrayBuffer(30));
+    h.setUint32(0, 0x04034b50, true); h.setUint16(4, 20, true); h.setUint32(14, crc, true); h.setUint32(18, data.length, true); h.setUint32(22, data.length, true); h.setUint16(26, n.length, true);
+    delen.push(new Uint8Array(h.buffer), n, data);
+    const c = new DataView(new ArrayBuffer(46));
+    c.setUint32(0, 0x02014b50, true); c.setUint16(4, 20, true); c.setUint16(6, 20, true); c.setUint32(16, crc, true); c.setUint32(20, data.length, true); c.setUint32(24, data.length, true); c.setUint16(28, n.length, true); c.setUint32(42, off, true);
+    centraal.push(new Uint8Array(c.buffer), n);
+    off += 30 + n.length + data.length;
+  }
+  const grootte = centraal.reduce((a, x) => a + x.length, 0), e = new DataView(new ArrayBuffer(22));
+  e.setUint32(0, 0x06054b50, true); e.setUint16(8, bestanden.length, true); e.setUint16(10, bestanden.length, true); e.setUint32(12, grootte, true); e.setUint32(16, off, true);
+  return new Blob([...delen, ...centraal, new Uint8Array(e.buffer)]);
+}
 document.querySelectorAll('[data-pdf]').forEach((b) => b.addEventListener('click', async () => {
-  const st = document.getElementById('pdfstatus');
-  try { const r = await fetch(b.dataset.pdf); if (!r.ok) throw new Error(r.status); await bewaar(b.dataset.pdf.split('/').pop(), await r.blob(), st); }
-  catch { st.textContent = 'Het bestand kon niet geladen worden.'; }
+  const st = document.getElementById('pdfstatus'), pad = b.dataset.pdf;
+  try {
+    if (pad.startsWith('zip:')) {
+      const bestanden = await Promise.all(DXF.map(async (f) => { const r = await fetch('dxf/' + f); if (!r.ok) throw new Error(r.status); return [f, new Uint8Array(await r.arrayBuffer())]; }));
+      return await bewaar(pad.slice(4), zip(bestanden), st);
+    }
+    const r = await fetch(pad); if (!r.ok) throw new Error(r.status); await bewaar(pad.split('/').pop(), await r.blob(), st);
+  } catch { st.textContent = 'Het bestand kon niet geladen worden.'; }
 }));
 </script>
 `;

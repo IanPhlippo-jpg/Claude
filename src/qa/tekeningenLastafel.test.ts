@@ -33,7 +33,7 @@ function zijaanzicht(b: Blad, H: number, s: number, o: P) {
   const arm = (p: [number, number], richting: 1 | -1) => {
     const d: [number, number] = [c, richting * sn], n: [number, number] = [-d[1], d[0]];
     const at = (t: number, h: number): P => to(p[0] + d[0] * t + n[0] * h, p[1] + d[1] * t + n[1] * h);
-    for (const k of [1, -1]) { b.lijn(at(0, 58 * k), at(L / 2, 80 * k), 0.35); b.lijn(at(L / 2, 80 * k), at(L, 58 * k), 0.35); }
+    for (const k of [1, -1]) { b.lijn(at(0, 58 * k), at(L / 2, (m.ahMid / 2) * k), 0.35); b.lijn(at(L / 2, (m.ahMid / 2) * k), at(L, 58 * k), 0.35); }
     for (const t of [0, L]) b.cirkel(at(t, 0), 58 * s, 0.25);
   };
   arm([m.z0, m.yb], 1);
@@ -78,7 +78,7 @@ function overzicht(blad: string): string {
     'Last: 4000 kg inclusief het blad (± 3280 kg nuttig met deze tafel)',
     `Schaar: armen ${m.arm} tussen de scharnieren, ${getal((S0.th * 180) / Math.PI, 1)}° tot ${getal((S1.th * 180) / Math.PI, 1)}°`,
     `2 cilinders Ø${m.cil.boring}/${m.cil.stang}, slag 360, ${getal(S0.d, 0)} tot ${getal(S1.d, 0)} oog-oog`,
-    'Hoogste druk 119 bar (laagste stand), overdruk 140 bar',
+    'Hoogste druk 123 bar (laagste stand), overdruk 140 bar',
     'Aggregaat 230 V 2,2 kW, omhoog ± 46 s, omlaag ± 36 s',
     'Bediening: dubbel voetpedaal met noodstop (dodemans)',
     'Leidingbreukventielen en mechanische valbeveiliging',
@@ -86,7 +86,7 @@ function overzicht(blad: string): string {
   ];
   let ty = 272;
   for (const r of regels) { b.tekst([300, ty], r, r === regels[0] ? 3.2 : 2.5, 'start', { vet: r === regels[0] }); ty -= 5.4; }
-  kader(b, { nr: 'LFT-00', naam: 'Overzicht en hoofdmaten', materiaal: 'zie de werktekeningen', maken: 'samenstelling', massa: '± 1900 kg (lift ± 1180 + tafel ± 720)', schaal: '1:20', blad, soort: 'Overzichtstekening' }, PROJECT);
+  kader(b, { nr: 'LFT-00', naam: 'Overzicht en hoofdmaten', materiaal: 'zie de werktekeningen', maken: 'samenstelling', massa: '± 2080 kg (lift ± 1360 + tafel ± 720)', schaal: '1:20', blad, soort: 'Overzichtstekening' }, PROJECT);
   return b.svg();
 }
 
@@ -136,14 +136,15 @@ function gatenplan(blad: string): string {
 }
 
 const DELEN: Deel[] = [
-  { f: 'delen/Armpaar-A.kcad', nr: 'LFT-02', schaal: [1, 20], naam: 'Armpaar A (buiten)', materiaal: 'S355, koker 116-160 x 45 x 5', maken: 'lasersnijden, zetten, lassen, nafrezen', dichtheid: STAAL, maten: [
+  { f: 'delen/Armpaar-A.kcad', nr: 'LFT-02', schaal: [1, 20], naam: 'Armpaar A (buiten)', materiaal: 'S355, koker 116-180 x 45 x 10', maken: 'lasersnijden, zetten, lassen, nafrezen', dichtheid: STAAL, maten: [
     `Scharnierafstand ${m.arm} (onder vast, boven op rollen), armen op x ±${m.A[0]} tot ±${m.A[1]}`,
-    'Koker 116 hoog aan de scharnieren, 160 in het midden; uiteinden R58',
+    'Koker 116 hoog aan de scharnieren, 180 in het midden, wangen en band 10; uiteinden R58',
+    'Lagerbus Ø60 x 8 dwars door de koker in elke boring (45 lang), glijlager erin',
     'Buizen Ø80 x 5 aan beide uiteinden, gelast tussen de armen',
     'Boring middenpen Ø31 H8 in het midden, beide armen in één opspanning',
     'Lagerbussen (glijlager) in de ogen, smeernippel',
   ] },
-  { f: 'delen/Armpaar-B.kcad', nr: 'LFT-03', schaal: [1, 20], naam: 'Armpaar B (binnen)', materiaal: 'S355, koker 116-160 x 45 x 5', maken: 'lasersnijden, zetten, lassen, nafrezen', dichtheid: STAAL, maten: [
+  { f: 'delen/Armpaar-B.kcad', nr: 'LFT-03', schaal: [1, 20], naam: 'Armpaar B (binnen)', materiaal: 'S355, koker 116-180 x 45 x 10', maken: 'lasersnijden, zetten, lassen, nafrezen', dichtheid: STAAL, maten: [
     `Scharnierafstand ${m.arm} (boven vast, onder op rollen), armen op x ±${m.Bx[0]} tot ±${m.Bx[1]}`,
     `Cilinderbuis Ø90 op ${m.cil.s} van het vaste scharnier, 2 x 2 ogen 12 mm`,
     `Pen stangoog Ø40 op ${m.cil.n} boven de as van de arm`,

@@ -133,7 +133,7 @@ function hydr() {
   const smoor = (x, y, code, tekst) => [rect(x - 5, y - 6, 10, 12), `<path d="M ${x - 2} ${y - 6} q 2 6 0 12 M ${x + 2} ${y - 6} q -2 6 0 12" fill="none" stroke="#000" stroke-width="0.3"/>`, L([[x - 4, y + 5], [x + 4, y - 5]], { w: 0.3 }), T(x + 8, y - 1, code, { size: 2.6 }), T(x + 8, y + 2.4, tekst, { size: 2 })].join('');
   const cilinder = (x, y, code, tekst) => [rect(x - 9, y, 18, 40), rect(x - 7, y + 30, 14, 3, { vul: '#000', w2: 0 }), L([[x, y + 30], [x, y - 12]], { w: 0.7 }), T(x + 12, y + 14, code, { size: 2.6 }), T(x + 12, y + 17.4, tekst, { size: 2 })].join('');
   i.push(T(X0 + 4, 30, 'Hydraulisch schema volgens ISO 1219-1/-2. Enkelwerkende cilinders: omhoog met de pomp, omlaag door het eigen gewicht via -QM1 en de drukgecompenseerde smoorklep -RN1.', { size: 2.3 }));
-  i.push(T(X0 + 4, 34, 'Overdruk -RN2 op 140 bar (hoogste werkdruk 119 bar bij 4 t in de laagste stand). Olie HLP 32, 12 l. Alle slangen 2SN DN10, 250 bar.', { size: 2.3 }));
+  i.push(T(X0 + 4, 34, 'Overdruk -RN2 op 140 bar (hoogste werkdruk 123 bar bij 4 t in de laagste stand). Olie HLP 32, 12 l. Alle slangen 2SN DN10, 250 bar.', { size: 2.3 }));
   // aggregaat (streep-punt kader)
   i.push(rect(40, 120, 175, 120, { streep: '4 1 0.6 1', w2: 0.25 }), T(42, 125, '-GP1 hydraulisch aggregaat 230 V 2,2 kW (één blok: motor, pomp, tank, ventielblok)', { size: 2.2 }));
   i.push(tank(80, 230, '-CM1', 'tank 12 l'), lijn([[80, 225], [80, 214]]), rect(76, 204, 8, 10), L([[76, 209], [84, 209]], { w: 0.3, streep: '1 1' }), T(87, 210, '-HQ1 zuigfilter', { size: 2 }), lijn([[80, 204], [80, 196]]));

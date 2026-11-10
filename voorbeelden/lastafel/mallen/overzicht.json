@@ -3,7 +3,7 @@
   "id": "ARM",
   "naam": "Armwang (volledig)",
   "aantal": 8,
-  "mat": "S355, plaat 5 mm",
+  "mat": "S355, plaat 10 mm",
   "waar": "schaararmen A en B, 2 wangen per arm",
   "alleen": "A3",
   "bladen": {
@@ -22,7 +22,7 @@
   "id": "ARM-KOP",
   "naam": "Armwang: kopmal",
   "aantal": 16,
-  "mat": "S355, plaat 5 mm (8 wangen, 2 koppen per wang)",
+  "mat": "S355, plaat 10 mm (8 wangen, 2 koppen per wang)",
   "waar": "schaararmen A en B; dezelfde mal voor beide koppen (omdraaien)",
   "alleen": "A4",
   "bladen": {
@@ -36,7 +36,7 @@
   "id": "ARM-MID",
   "naam": "Armwang: middenmal (halve mal, spiegelen over de hartlijn)",
   "aantal": 8,
-  "mat": "S355, plaat 5 mm",
+  "mat": "S355, plaat 10 mm",
   "waar": "schaararmen A en B, boring van de middenpen",
   "alleen": "A4",
   "bladen": {

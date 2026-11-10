@@ -17,7 +17,7 @@ def koker(b, h, t, l): return (2 * (b + h) - 4 * t) * t * l * 7.85e-6
 bovenframe = koker(110, 50, 5, 2 * 2390) + koker(110, 60, 5, 2 * 1090)
 lade = 2390 * 1090 * 3 * 7.85e-6
 steun = 6 * 100 * 100 * 10 * 7.85e-6
-armen = 4 * koker(138, 45, 5, 2200) + 4 * math.pi * (40**2 - 32**2) * 1000 * 7.85e-6 + math.pi * (45**2 - 36**2) * 900 * 7.85e-6
+armen = 4 * koker(148, 45, 10, 2200) + 4 * math.pi * (40**2 - 32**2) * 1000 * 7.85e-6 + math.pi * (45**2 - 36**2) * 900 * 7.85e-6
 EIGEN = bovenframe + lade + steun + armen            # kg (armen volledig meegeteld: veilig)
 
 def stand(H):

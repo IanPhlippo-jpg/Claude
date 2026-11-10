@@ -56,6 +56,13 @@ if (doe('tafel')) {
 if (doe('standen')) {
   for (const s of ['laag', 'hoog']) { await open(lees(`Lastafel-${s}.kcad`, zonderPedaal)); await kijk(s, 'Control+3'); }
 }
+if (doe('ce')) {
+  await open(lees('Heftafel.kcad', zonderPedaal));
+  const zij = ['ArrowRight', 'ArrowRight', 'ArrowDown'];
+  await kijk('ce-lift', 'Control+4', { draai: zij });
+  await kijk('ce-typeplaat', 'Control+4', { zoom: 8, punt: [1478, 742], draai: zij });
+  await kijk('ce-stickers', 'Control+4', { zoom: 6, punt: [1190, 488], draai: zij });
+}
 if (doe('bouw')) {
   // het bouwplan: de onderdelen stap voor stap (stand midden), telkens hetzelfde aanzicht
   const stappen = [/^o[1237]$/, /^(o[1237]|s\d)$/, /^(o[1237]|s\d|c\d)$/, /^(o[1237]|s\d|c\d|b\d)$/, /^(o\d|s\d|c\d|b\d|h\d|p\d)$/, /./];

@@ -26,7 +26,9 @@ const PROFIEL = {
   'Platstaal 40 x 20': plat(40, 20),
   'Platstaal 40 x 10': plat(40, 10),
   'Platstaal 30 x 8': plat(30, 8),
-  'Platstaal 45 x 5': plat(45, 5),
+  'Platstaal 45 x 10': plat(45, 10),
+  'Buis Ø60 x 8 (lagerbus)': buis(60, 8),
+  'Buis Ø50 x 8 (lagerbus)': buis(50, 8),
   'Rond Ø40 (42CrMo4)': rond(40),
   'Draadeind M20 (8.8, verzinkt)': 2.0,
 };
@@ -45,14 +47,16 @@ const ZAAG = [
   ['Schaar A', 'Buis onder en boven', 'Buis Ø80 x 5', 2 * (M.A[0] + 2), 2, 'tussen de armen, 2 mm in de wang'],
   ['Schaar B', 'Buis boven en onder', 'Buis Ø80 x 5', 2 * (M.Bx[0] + 2), 2, ''],
   ['Schaar B', 'Cilinderbuis', 'Buis Ø90 x 6', 2 * (M.Bx[0] + 2), 1, `op ${cil.s} van het vaste scharnier`],
-  ['Schaar', 'Omtrekband arm', 'Platstaal 45 x 5', 4560, 4, 'rond zetten op de wangen (R58 aan de kop)'],
+  ['Schaar', 'Omtrekband arm', 'Platstaal 45 x 10', 4600, 4, 'rond zetten op de wangen (R58 aan de kop)'],
+  ['Schaar', 'Lagerbus koppen (dwars door de koker)', 'Buis Ø60 x 8 (lagerbus)', 45, 8, 'na het lassen boren Ø44 H7 voor het glijlager'],
+  ['Schaar', 'Lagerbus middenpen', 'Buis Ø50 x 8 (lagerbus)', 45, 4, 'na het lassen boren Ø34 H7'],
   ['Scharnieren', 'Pennen Ø40 (scharnier A, B, cilinders, stangogen)', 'Rond Ø40 (42CrMo4)', 120, 8, 'draaien, inductiegehard, borggroef'],
   ['Scharnieren', 'Astappen rollen B', 'Rond Ø40 (42CrMo4)', 45, 2, 'draaien, slijpen h6'],
   ['Onderframe', 'Aanslagpennen', 'Draadeind M20 (8.8, verzinkt)', 140, 6, 'met dopmoer en contramoer'],
 ];
 
 /** plaatlijst (lasersnijden): [groep, positie, materiaal, dikte, breed, lang, aantal, opmerking] */
-const ARMWANG = [arm + 116, 160]; // lengte over de koppen, breedte in het midden
+const ARMWANG = [arm + 116, M.ahMid]; // lengte over de koppen, breedte in het midden
 const PLAAT = [
   ['Onderframe', 'Vloerplaat', 'S355', 10, 1190, 2390, 1, '8 ankergaten Ø18'],
   ['Onderframe', 'Scharnierbok A', 'S355', 10, 120, 130, 2, 'boring Ø40 H8'],
@@ -63,11 +67,11 @@ const PLAAT = [
   ['Bovenframe', 'Steunvlak (na lassen vlakfrezen)', 'S355', 15, 100, 100, 6, 'boring M16, frezen tot 10'],
   ['Opvanglade', 'Bodem', 'DX51D+Z275 (sendzimir)', 3, 1090, 2270, 1, 'randen 6 omzetten'],
   ['Opvanglade', 'Tussenstrip', 'DX51D+Z275 (sendzimir)', 3, 40, 980, 3, ''],
-  ['Schaar', 'Armwang (taps 116 tot 160)', 'S355', 5, ARMWANG[1], ARMWANG[0], 8, '2 per arm; boring middenpen Ø31 H8 na lassen'],
+  ['Schaar', 'Armwang (taps 116 tot 180)', 'S355', 10, ARMWANG[1], ARMWANG[0], 8, '2 per arm; gaten Ø60 / Ø50 voor de lagerbussen'],
   ['Schaar B', 'Oog cilinder', 'S355', 12, 80, 154, 4, 'boring Ø40 H8'],
   ['Valbeveiliging', 'Kapzijde met zaagtand', 'S355', 8, 128, 500, 4, 'zaagtand steek 30, diepte 14'],
   ['Valbeveiliging', 'Kapdak', 'S355', 6, 162, 503, 2, ''],
-  ['Valbeveiliging', 'Kopplaat', 'S355', 6, 162, 111, 2, 'doorvoer Ø57'],
+  ['Valbeveiliging', 'Kopplaat', 'S355', 6, 162, 130, 2, 'doorvoer Ø57'],
   ['Valbeveiliging', 'Palplaat', 'S355 (C45 gehard voor de tanden)', 8, 38, 360, 4, 'zaagtand, scharniergat Ø16'],
   ['Lastafel', 'Blad 2400 x 1200', 'S690QL', 25, 1200, 2400, 1, `${TF.raster === 100 ? '541' : '?'} gaten Ø28 na lassen boren`],
   ['Lastafel', 'Langswand', 'S690QL', 12, 175, 2400, 2, '71 gaten Ø28'],
