@@ -1178,7 +1178,7 @@ elease; README en docs/04 bijgewerkt
 - [~] Universele grijper (Ian: ook plinten en kleine planken, meer en grotere zuigopeningen): vlakgrijper met zones + camera; grijpplanner besturing/greep.py
 - [ ] Werktekeningen ISO 5457/7200 (lasersnijdelen, laswerk), schema's EPLAN (vermogen, besturing, veiligheid, pneumatiek ISO 1219)
 - [ ] Firmware/besturing, bestellijst, bouwschema, één afdruk-PDF
-- [ ] Foto's naar Ian, commit en push
+- [x] Foto's naar Ian, commit en push
 
 ## Robotcel als volledig werkend product: schakelkast, HMI, schema's, statistieken (2026-11-09)
 - [x] Vlakgrijper met zones en camera-boog boven de band in het model (na het onderzoek naar producten)
@@ -1328,8 +1328,8 @@ elease; README en docs/04 bijgewerkt
 
 ## Kabeldoos versie 2: modules met kabelgoten (2026-11-11)
 - [x] Oorzaak "te groot": uitgesloten hoek 10 x 20 rechtsvoor in het slicerprofiel; EISEN.md versie 2 (max 230 x 230 per deel, max 80 hoog, kabelgoten, modules met sleutelverbinding)
-- [ ] Generator: 3 modules (2 x 8 bordjes, 1 x elektronica), vingerkanalen met klikdeksels, zwaluwstaarten met klikneus, eigen deksels en sleutelgaten
-- [ ] Snelle test per module (één lichaam, maten, niets botst), daarna volledige test (exacte vorm, STL's, passing van de verbinding)
-- [ ] STL's per module en een plaat met de gootdeksels, elk getoetst op 230 x 230
-- [ ] Werktekeningen, boormal, bouwschema, README/bestellijst, alles-afdrukken-PDF, app
-- [ ] Foto's naar Ian, commit en push
+- [x] Generator: liefst alles in 1 module (Ian, 2026-11-11) van hoogstens 230 x 230 x 80: diepe smalle goten die ook de bordjes vasthouden; anders zo weinig mogelijk modules met zwaluwstaart en klikneus
+- [x] Snelle en volledige test: één lichaam per deel, max 230 x 230, niets botst, exacte vorm, STL dicht (10 groen)
+- [x] STL's: bak 229,8 x 229,8 x 65,9, deksel, plaat met 9 gootdeksels; elk getoetst op 230 x 230
+- [x] Werktekeningen TRN-00 tot 03, bouwschema, README/bestellijst, alles-afdrukken-PDF, app
+- [x] Foto's naar Ian, commit en push
