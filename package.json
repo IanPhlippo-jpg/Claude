@@ -103,7 +103,13 @@
         }
       ],
       "icon": "electron/icon.png",
-      "signAndEditExecutable": true
+      "signAndEditExecutable": true,
+      "signtoolOptions": {
+        "sign": "./tools/sign-hook.cjs",
+        "signingHashAlgorithms": [
+          "sha256"
+        ]
+      }
     },
     "nsis": {
       "oneClick": false,
