@@ -1314,3 +1314,14 @@ elease; README en docs/04 bijgewerkt
 - [x] F180: commitOf gebruikt commit.txt als de git-checkout niet deze repo is
 - [x] Docs: docs/31-qa-0.5.13.md, README Status 0.5.14, doc-counts, versie 0.5.14
 - [x] Commit, push, volledige CI groen op dezelfde SHA, logs via npm run bewijs -- --ci (run 42940008926 op 564ae50, 17/17)
+
+## Rest van QA 0.5.13 naar 0.5.15 (2026-11-11)
+- [ ] F114/F199: eigen IGES 5.3-schrijver (B-spline-vlakken met trimkrommen, entiteiten 128/126/142/144) met terugleestest
+- [ ] F134/F46: rebuild.ts onder 1000 regels splitsen; releasepad rekent volledig in de worker
+- [ ] F51/F121: B-rep voor face fillet, full round, setback en loft/sweep met guide curves
+- [ ] F112/F124: de 196 niet-bedrade Options bedraden (incl. virtualSharps) of eerlijk uit het schema halen
+- [ ] Kleine punten: F192 viewpanes in de regressie, F193/F24 Modify-eenheden en material-tabs, F138 npm audit, F186, F122 centermarks/verborgen lijnen, F145/F184 E2E_REPEAT
+- [ ] Visueel naast SW-frames: F16 iconen/lettertype, F21 taakvenster-iconen, F22 bodyranden, F161 shading-naad
+- [ ] F49/F117: signeerpad klaar voor een certificaat (geen aankoop), F28 Insert Component in Electron
+- [ ] Samenvoegen, alle gates, docs/32, README Status 0.5.15, versie 0.5.15
+- [ ] Commit, push, CI 17/17 op dezelfde SHA, logs via npm run bewijs -- --ci
