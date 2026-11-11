@@ -58,6 +58,13 @@ await page.locator('.k-material-item:has-text("Gray Cast Iron")').click();
 await page.waitForTimeout(200);
 check('Gray Cast Iron has a compressive strength value', /5\.72/.test(await page.locator('.k-material-props tr:has-text("Compressive Strength") td:nth-child(2)').innerText()));
 await shot('gi0-material-properties');
+// the seven tabs fit on one line, no scroll bar and no tab cut short (QA 0.5.13 F193)
+const tabs = await page.evaluate(() => {
+  const row = document.querySelector('.k-material-tabs');
+  const b = [...row.querySelectorAll('button')];
+  return { n: b.length, rowFits: row.scrollWidth <= row.clientWidth, overflowX: getComputedStyle(row).overflowX, cut: b.filter((x) => x.scrollWidth > x.clientWidth).map((x) => x.textContent), tops: [...new Set(b.map((x) => Math.round(x.getBoundingClientRect().top)))].length };
+});
+check('Material tabs: all seven on one line without a scroll bar, none cut short', tabs.n === 7 && tabs.rowFits && tabs.overflowX === 'visible' && tabs.cut.length === 0 && tabs.tops === 1, JSON.stringify(tabs));
 await page.locator('.k-material-tabs button:has-text("Favorites")').click();
 await page.waitForTimeout(200);
 await page.locator('[data-testid="mat-fav-add"]').click();
