@@ -1,7 +1,7 @@
 // Kabeldoos voor de verlichting van de modelbaan (versie 2, 2026-11-11), als Phlippo CAD-documenten.
 //
 // Versie 1 was 248,9 x 245,6: te groot, want de slicer van de Centauri Carbon houdt rechtsvoor 10 x 20 mm vrij voor het
-// filamentmes. Versie 2 (EISEN.md, "Versie 2"): één doos van 229,8 x 229,8 x 68,3 (elk geprint deel hoogstens 230 x 230,
+// filamentmes. Versie 2 (EISEN.md, "Versie 2"): één doos van 229,8 x 229,8 x 44,4 (elk geprint deel hoogstens 230 x 230,
 // alles samen hoogstens 80 hoog) met echte kabelgoten: smal (5,4) en 28 hoog (net boven de bordjes, 17), met klikdeksels.
 // - Rij 1 tot 5: telkens 3 bordjes; rij 6: bordje 16, uitgangsprint, PCA9685; rij 7 (vooraan): voedingsprint,
 //   ingangsprint, ESP (de USB-poorten in de rechterwand, de wartel in de linkerwand).

@@ -25,7 +25,7 @@ PCA_W = 0.03
 BUCK_ETA = 0.85  # Pololu D24V10F5 bij 12 -> 5 V
 OPTO = dict(r=2200, u_led=1.2, ctr_min=0.5)  # PC847: 2,2 kΩ voorschakel, CTR ≥ 50 % (datablad)
 PULLUP_ESP = 45000  # Ω, interne pull-up ESP32-S3 (typisch)
-DOOS = dict(a=2 * (0.2298 * 0.2298) + 4 * 0.0683 * 0.2298, h=5.0)  # m², W/m²K (AANNAME natuurlijke convectie); versie 2: 229,8 x 229,8 x 68,3
+DOOS = dict(a=2 * (0.2298 * 0.2298) + 4 * 0.0444 * 0.2298, h=5.0)  # m², W/m²K (AANNAME natuurlijke convectie); versie 2: 229,8 x 229,8 x 44,4
 # kabelgoten (goten.mjs, GOOT): tussen twee rijen 5,4 breed tot 5,2 hoog (de voet) en daarboven 5,8 tussen de vingers, tot
 # 28 hoog (het deksel); draden LiY 0,25 mm² Ø1,4 en 0,5 mm² Ø1,8 (AANNAME, gangbare buitenmaat); zie maak-kabeldoos.mjs, vulgraad()
 GOOT = dict(b=5.4, b_vingers=5.8, voet=5.2, h=28.0, d_led=1.4, d_voeding=1.8, vul_max=0.60)

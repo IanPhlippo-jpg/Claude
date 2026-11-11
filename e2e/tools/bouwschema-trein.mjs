@@ -33,7 +33,7 @@ const bestand = (f) => ({ bestand: f });
 
 const STAPPEN = [
   {
-    titel: 'De doos printen', tijd: 'bak ongeveer 20 uur, deksel 8 uur, gootdeksels 3 uur', gereedschap: 'Elegoo Centauri Carbon, PETG zwart (bak) en grijs (deksel en gootdeksels)',
+    titel: 'De doos printen', tijd: 'bak ongeveer 14 uur, deksel 7 uur, gootdeksels 3 uur', gereedschap: 'Elegoo Centauri Carbon, PETG zwart (bak) en grijs (deksel en gootdeksels)',
     beelden: [beeld(of('bak')), beeld(of('deksel'), [], { onder: true })],
     tekst: [
       'Print print/Kabeldoos-bak.stl met de bodem op het bed, print/Kabeldoos-deksel.stl met de buitenkant op het bed en print/Gootdeksels-plaat.stl (9 gootdeksels) met de vlakke kant op het bed: geen support nodig.',

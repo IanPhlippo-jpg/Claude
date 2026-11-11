@@ -115,8 +115,8 @@ def zip_bytes(entries: list[tuple[str, Path | bytes]]) -> bytes:
 
 PRINT_TXT = """Kabeldoos treinverlichting (versie 2) - printbestanden
 
-Kabeldoos-bak.stl          de bodem op het bed            229,8 x 229,8 x 65,9 mm   PETG zwart, ongeveer 500 g, 20 uur
-Kabeldoos-deksel.stl       de buitenkant op het bed       229,8 x 229,8 x 48,6 mm   PETG grijs, ongeveer 230 g, 8 uur
+Kabeldoos-bak.stl          de bodem op het bed            229,8 x 229,8 x 42,0 mm   PETG zwart, ongeveer 360 g, 14 uur
+Kabeldoos-deksel.stl       de buitenkant op het bed       229,8 x 229,8 x 24,7 mm   PETG grijs, ongeveer 190 g, 7 uur
 Gootdeksels-plaat.stl      de vlakke kant op het bed      211,0 x 132,4 x 8,9 mm    PETG grijs, ongeveer 70 g, 3 uur
 
 Elegoo Centauri Carbon (bed 256 x 256), PETG, zonder support. Elk deel is hoogstens 230 x 230: leg het in het midden van
@@ -287,8 +287,8 @@ def shot(img, cap, title=None):
 
 
 first = README.split('\n## ')[0].split('\n', 1)[1].strip().split('\n\n')[0]
-facts = [('230 x 230 x 68', 'mm, deksel inbegrepen'), ('16', 'lichtgroepen, één per bordje'), ('16', 'ingangen voor knoppen en sensoren'),
-         ('12 V', 'adapter 6,67 A, hoogstens 1,9 W in de doos'), ('€ 132,32', 'onderdelen te kopen'), ('± 31 u', 'printen: bak 20 u, deksel 8 u, gootdeksels 3 u')]
+facts = [('230 x 230 x 44', 'mm, deksel inbegrepen'), ('16', 'lichtgroepen, één per bordje'), ('16', 'ingangen voor knoppen en sensoren'),
+         ('12 V', 'adapter 6,67 A, hoogstens 1,9 W in de doos'), ('€ 132,32', 'onderdelen te kopen'), ('± 24 u', 'printen: bak 14 u, deksel 7 u, gootdeksels 3 u')]
 
 S = []
 S.append(f'''<section class="sheet" id="overzicht">
@@ -317,8 +317,8 @@ S.append(f'''<section class="sheet" id="printen" hidden>
   </div>
   <div class="specs">
     <div id="part-spec"></div>
-    <template id="spec-bak"><h3>Bak</h3><dl><dt>Bestand</dt><dd><code>Kabeldoos-bak.stl</code></dd><dt>Stand</dt><dd>de bodem op het bed</dd><dt>Maat</dt><dd class="num">229,8 x 229,8 x 65,9 mm</dd><dt>Filament</dt><dd>PETG zwart, ± 500 g</dd><dt>Tijd</dt><dd>± 20 uur</dd><dt>Driehoeken</dt><dd class="num">{dots(nets["bak"]["driehoeken"])}</dd></dl></template>
-    <template id="spec-deksel"><h3>Deksel</h3><dl><dt>Bestand</dt><dd><code>Kabeldoos-deksel.stl</code></dd><dt>Stand</dt><dd>de buitenkant op het bed</dd><dt>Maat</dt><dd class="num">229,8 x 229,8 x 48,6 mm (met de drukribben)</dd><dt>Filament</dt><dd>PETG grijs, ± 230 g</dd><dt>Tijd</dt><dd>± 8 uur</dd><dt>Driehoeken</dt><dd class="num">{dots(nets["deksel"]["driehoeken"])}</dd></dl></template>
+    <template id="spec-bak"><h3>Bak</h3><dl><dt>Bestand</dt><dd><code>Kabeldoos-bak.stl</code></dd><dt>Stand</dt><dd>de bodem op het bed</dd><dt>Maat</dt><dd class="num">229,8 x 229,8 x 42,0 mm</dd><dt>Filament</dt><dd>PETG zwart, ± 360 g</dd><dt>Tijd</dt><dd>± 14 uur</dd><dt>Driehoeken</dt><dd class="num">{dots(nets["bak"]["driehoeken"])}</dd></dl></template>
+    <template id="spec-deksel"><h3>Deksel</h3><dl><dt>Bestand</dt><dd><code>Kabeldoos-deksel.stl</code></dd><dt>Stand</dt><dd>de buitenkant op het bed</dd><dt>Maat</dt><dd class="num">229,8 x 229,8 x 24,7 mm (met de drukribben)</dd><dt>Filament</dt><dd>PETG grijs, ± 190 g</dd><dt>Tijd</dt><dd>± 7 uur</dd><dt>Driehoeken</dt><dd class="num">{dots(nets["deksel"]["driehoeken"])}</dd></dl></template>
     <template id="spec-gootdeksels"><h3>Gootdeksels</h3><dl><dt>Bestand</dt><dd><code>Gootdeksels-plaat.stl</code></dd><dt>Stand</dt><dd>de vlakke kant op het bed, de benen omhoog</dd><dt>Maat</dt><dd class="num">211,0 x 132,4 x 8,9 mm (9 deksels)</dd><dt>Filament</dt><dd>PETG grijs, ± 70 g</dd><dt>Tijd</dt><dd>± 3 uur</dd><dt>Driehoeken</dt><dd class="num">{dots(nets["gootdeksels"]["driehoeken"])}</dd></dl></template>
     <div class="actions">{btn("stl", "Printbestanden (STL in zip)", True)}</div>
     <div class="warn">PETG, zonder support. 0,2 mm lagen, 4 wanden, 30 % gyroid. Elk deel is hoogstens 230 x 230: in het midden van het bed blijft de hoek voor het filamentmes vrij, ook met een skirt.</div>

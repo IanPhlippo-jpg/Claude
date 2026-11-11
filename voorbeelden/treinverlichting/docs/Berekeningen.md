@@ -30,7 +30,7 @@ Elke ingang: optocoupler (PC847) met 2,2 kΩ in serie. Op 12 V loopt er 4,9 mA d
 
 ## 5. Warmte: geen verluchting nodig
 
-Alles samen hoogstens **1,90 W** in de doos (MOSFET's, ESP, PCA9685, regelaar, polyfuses). De doos heeft 0,17 m² oppervlak; met 5 W/m²K (natuurlijke convectie, AANNAME) wordt het binnen **2,3 K** warmer dan onder de baan. Verluchtingsgaten zijn niet nodig; de kabelinvoeren laten ook lucht door. De netadapter (het warmste deel) hangt buiten de doos.
+Alles samen hoogstens **1,90 W** in de doos (MOSFET's, ESP, PCA9685, regelaar, polyfuses). De doos heeft 0,15 m² oppervlak; met 5 W/m²K (natuurlijke convectie, AANNAME) wordt het binnen **2,6 K** warmer dan onder de baan. Verluchtingsgaten zijn niet nodig; de kabelinvoeren laten ook lucht door. De netadapter (het warmste deel) hangt buiten de doos.
 
 ## 6. Kabelgoten: vulgraad
 

@@ -8,7 +8,7 @@ Alle maten en onderdelen komen uit `maak-kabeldoos.mjs`. De berekeningen staan i
 gekochte onderdelen met hun bron in `docs/Maten-en-bronnen.md`, de eisen van Ian in `EISEN.md`.
 
 **Versie 2:** de doos van versie 1 (248,9 x 245,6) paste niet naast de vrije hoek voor het filamentmes van de printer.
-Nu is alles nog altijd één doos, maar 229,8 x 229,8 (elk geprint deel hoogstens 230 x 230) en 68,3 hoog, met echte
+Nu is alles nog altijd één doos, maar 229,8 x 229,8 (elk geprint deel hoogstens 230 x 230) en 44,4 hoog, met echte
 kabelgoten zoals in een schakelkast: 28 hoog, net boven de bordjes, zodat je er met je vingers bij kan, met een
 klikdeksel per goot.
 
@@ -16,7 +16,7 @@ klikdeksel per goot.
 
 | Deel | Wat |
 |---|---|
-| Doos | PETG zwart, 229,8 x 229,8 x 68,3 mm (deksel inbegrepen), hangt met de bodem tegen de onderkant van de baan; het grijze deksel zit onderaan |
+| Doos | PETG zwart, 229,8 x 229,8 x 44,4 mm (deksel inbegrepen), hangt met de bodem tegen de onderkant van de baan; het grijze deksel zit onderaan |
 | Kabelgoten | 9 goten met vingers en sleuven, 28 hoog (net boven de bordjes): één langs de achterwand, één tussen elke twee rijen (5,4 breed, 5,8 tussen de vingers), één langs de linker- en de rechterwand (11 breed). Een grijs klikdeksel per goot; vol 59 % als de draden van elk bordje door de sleuf onder dat bordje binnenkomen (docs/Berekeningen.md, hoofdstuk 6) |
 | 16 bordjes | Modelbouwled "PCB met ingebouwde weerstand" (61,1 x 20,9, 14 hoog), in 5 rijen van 3 en één in rij 6. Elke rij ligt in een ring: de wanden van de goten zijn het kader (0,3 mm speling), palen tussen de bordjes, een steunrail eronder; ribben aan het deksel drukken ze vast (geen schroeven). Voor elke klemmenrij een sleuf per twee klemmen: de draad gaat recht uit de klem de goot in |
 | Uitgangsprint | 16 MOSFET's IRLD024: elke groep schakelt de min van zijn bordje; 16 klemmen (één per groep) |
@@ -106,15 +106,15 @@ de ESP: groen = wifi aan, rood = de PWM-print antwoordt niet. Meer: `firmware/RE
 | Kabelmarkering (cijfers en letters) of vlaggetjes | 1 | de labels van [Draden labelen](#draden-labelen) | € 4,00 | € 4,00 |
 | **Totaal kopen** | | | | **€ 132,32** |
 
-De 16 Modelbouwled-bordjes heb je al; een extra kost € 9,75 (Modelbouwled.nl). Filament: ongeveer 500 g PETG zwart
-(bak) en 300 g grijs (deksel en gootdeksels), samen ongeveer € 16.
+De 16 Modelbouwled-bordjes heb je al; een extra kost € 9,75 (Modelbouwled.nl). Filament: ongeveer 360 g PETG zwart
+(bak) en 260 g grijs (deksel en gootdeksels), samen ongeveer € 13.
 
 ## Printen (Elegoo Centauri Carbon, PETG, zonder support)
 
 | Bestand | Stand | Maat (mm) | Ongeveer |
 |---|---|---|---|
-| `print/Kabeldoos-bak.stl` | de bodem op het bed | 229,8 x 229,8 x 65,9 | 500 g zwart, 20 uur |
-| `print/Kabeldoos-deksel.stl` | de buitenkant op het bed | 229,8 x 229,8 x 48,6 (met de drukribben) | 230 g grijs, 8 uur |
+| `print/Kabeldoos-bak.stl` | de bodem op het bed | 229,8 x 229,8 x 42,0 | 360 g zwart, 14 uur |
+| `print/Kabeldoos-deksel.stl` | de buitenkant op het bed | 229,8 x 229,8 x 24,7 (met de drukribben) | 190 g grijs, 7 uur |
 | `print/Gootdeksels-plaat.stl` | de vlakke kant op het bed, de benen omhoog | 211,0 x 132,4 x 8,9 (9 gootdeksels) | 70 g grijs, 3 uur |
 
 Elk deel is hoogstens 230 x 230 en past op het bed van 256 x 256 naast de vrije hoek voor het filamentmes (rechtsvoor

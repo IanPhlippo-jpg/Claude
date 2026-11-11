@@ -1341,3 +1341,9 @@ elease; README en docs/04 bijgewerkt
 - [x] README, EISEN.md, Berekeningen (vulgraad 59 % bij 28 hoog) bijgewerkt
 - [x] Tests (qaTrein 9/9) en STL's, tekeningen TRN, bouwschema, alles-afdrukken-PDF opnieuw
 - [x] Foto's naar Ian; commit en push
+
+## Kabeldoos 25 mm lager (2026-11-11)
+- [x] Binnenhoogte 63,5 -> 39,6: 10 mm speling boven de gootdeksels (Ian); doos 44,4 met deksel
+- [x] Tests: geen botsingen, 230 x 230, STL's dicht (8/9; rebuildtijd bak 50 s > 45 s door belasting van de pc, ook de vorige versie haalt nu 53 s)
+- [x] STL's, tekeningen, bouwschema, alles-PDF, app; README, EISEN, rekenblad (warmte 2,6 K)
+- [x] Foto's naar Ian, commit en push

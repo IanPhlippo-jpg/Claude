@@ -55,3 +55,7 @@ werken"), daarna: "maak de goten 25 mm, mogen iets hoger maar niet overdreven", 
 kabelgoot" zodat de draden er niet los uit hangen. Uitgewerkt: goten 28 hoog (bij 25 zou een goot bij gewoon bekabelen
 66 % vol zitten, bij 28 is het 59 %, onder de 60 % van een schakelkast), met de klikdeksels van versie 2 (nokken in de
 klikvingers, de randdeksels met een neus in de buitenwand). De doos blijft 229,8 x 229,8 x 68,3.
+
+Bijsturing (Ian, 2026-11-11): "maak hem 25 mm lager", daarna "10 mm speling mag". De binnenhoogte gaat van 63,5 naar
+39,6: boven de gootdeksels (29,6) blijft 10 mm tot het deksel; de doos is 229,8 x 229,8 x 44,4 met het deksel. De
+drukribben van het deksel zijn 24 mm korter.

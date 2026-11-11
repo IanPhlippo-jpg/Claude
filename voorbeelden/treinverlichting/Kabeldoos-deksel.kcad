@@ -9,7 +9,7 @@
    "name": "Plane deksel",
    "origin": [
     0,
-    63.5,
+    39.6,
     0
    ],
    "u": [
@@ -34,7 +34,7 @@
    "name": "Plane rand",
    "origin": [
     0,
-    63.55,
+    39.65,
     0
    ],
    "u": [
@@ -59,7 +59,7 @@
    "name": "Plane drukribben",
    "origin": [
     0,
-    63.55,
+    39.65,
     0
    ],
    "u": [
@@ -84,7 +84,7 @@
    "name": "Plane Ruimte bussen",
    "origin": [
     0,
-    63.55,
+    39.65,
     0
    ],
    "u": [
@@ -109,7 +109,7 @@
    "name": "Plane Gaten",
    "origin": [
     0,
-    65.9,
+    42,
     0
    ],
    "u": [
@@ -134,7 +134,7 @@
    "name": "Plane verzinking",
    "origin": [
     0,
-    65.9,
+    42,
     0
    ],
    "u": [
@@ -5310,7 +5310,7 @@
    "suppressed": false,
    "op": "boss",
    "end": "blind",
-   "depth": 46.25,
+   "depth": 22.349999999999998,
    "reverse": true
   },
   {

@@ -48,7 +48,7 @@
       "name": "Plane bovenrand",
       "origin": [
        0,
-       63.5,
+       39.6,
        0
       ],
       "u": [
@@ -423,7 +423,7 @@
       "name": "Plane Schroefgaten",
       "origin": [
        0,
-       63.5,
+       39.6,
        0
       ],
       "u": [
@@ -27746,7 +27746,7 @@
       "suppressed": false,
       "op": "boss",
       "end": "blind",
-      "depth": 65.9,
+      "depth": 42,
       "reverse": false
      },
      {
@@ -27764,7 +27764,7 @@
       "suppressed": false,
       "op": "cut",
       "end": "blind",
-      "depth": 63.5,
+      "depth": 39.6,
       "reverse": true
      },
      {
@@ -28016,7 +28016,7 @@
       "suppressed": false,
       "op": "boss",
       "end": "blind",
-      "depth": 64,
+      "depth": 40.1,
       "reverse": false
      },
      {
@@ -28034,7 +28034,7 @@
       "suppressed": false,
       "op": "cut",
       "end": "blind",
-      "depth": 65.5,
+      "depth": 41.6,
       "reverse": true
      },
      {
@@ -28306,7 +28306,7 @@
       "name": "Plane deksel",
       "origin": [
        0,
-       63.5,
+       39.6,
        0
       ],
       "u": [
@@ -28331,7 +28331,7 @@
       "name": "Plane rand",
       "origin": [
        0,
-       63.55,
+       39.65,
        0
       ],
       "u": [
@@ -28356,7 +28356,7 @@
       "name": "Plane drukribben",
       "origin": [
        0,
-       63.55,
+       39.65,
        0
       ],
       "u": [
@@ -28381,7 +28381,7 @@
       "name": "Plane Ruimte bussen",
       "origin": [
        0,
-       63.55,
+       39.65,
        0
       ],
       "u": [
@@ -28406,7 +28406,7 @@
       "name": "Plane Gaten",
       "origin": [
        0,
-       65.9,
+       42,
        0
       ],
       "u": [
@@ -28431,7 +28431,7 @@
       "name": "Plane verzinking",
       "origin": [
        0,
-       65.9,
+       42,
        0
       ],
       "u": [
@@ -33607,7 +33607,7 @@
       "suppressed": false,
       "op": "boss",
       "end": "blind",
-      "depth": 46.25,
+      "depth": 22.349999999999998,
       "reverse": true
      },
      {
@@ -182517,7 +182517,7 @@
    },
    "position": [
     -109.3,
-    65.9,
+    42,
     -109.3
    ],
    "rotation": [
@@ -182867,7 +182867,7 @@
    },
    "position": [
     -109.3,
-    65.9,
+    42,
     109.3
    ],
    "rotation": [
@@ -183217,7 +183217,7 @@
    },
    "position": [
     109.3,
-    65.9,
+    42,
     -109.3
    ],
    "rotation": [
@@ -183567,7 +183567,7 @@
    },
    "position": [
     109.3,
-    65.9,
+    42,
     109.3
    ],
    "rotation": [

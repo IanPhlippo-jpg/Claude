@@ -34,7 +34,7 @@
    "name": "Plane bovenrand",
    "origin": [
     0,
-    63.5,
+    39.6,
     0
    ],
    "u": [
@@ -409,7 +409,7 @@
    "name": "Plane Schroefgaten",
    "origin": [
     0,
-    63.5,
+    39.6,
     0
    ],
    "u": [
@@ -27732,7 +27732,7 @@
    "suppressed": false,
    "op": "boss",
    "end": "blind",
-   "depth": 65.9,
+   "depth": 42,
    "reverse": false
   },
   {
@@ -27750,7 +27750,7 @@
    "suppressed": false,
    "op": "cut",
    "end": "blind",
-   "depth": 63.5,
+   "depth": 39.6,
    "reverse": true
   },
   {
@@ -28002,7 +28002,7 @@
    "suppressed": false,
    "op": "boss",
    "end": "blind",
-   "depth": 64,
+   "depth": 40.1,
    "reverse": false
   },
   {
@@ -28020,7 +28020,7 @@
    "suppressed": false,
    "op": "cut",
    "end": "blind",
-   "depth": 65.5,
+   "depth": 41.6,
    "reverse": true
   },
   {
