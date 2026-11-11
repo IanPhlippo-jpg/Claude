@@ -20,7 +20,9 @@ describe('Options ▸ Import/Export list only formats that exist (QA v0.5.11 F17
   };
   it('every export format has a Save As entry in the File menu', () => {
     for (const f of options('export', 'export.format')) expect(menu).toMatch(new RegExp(`Save As ▸ [^']*\\b${f}\\b`));
-    expect(options('export', 'export.format')).not.toContain('IGES');
+    // IGES 5.3 has a writer of its own since QA F114/F199 (src/core/occt/iges.ts), so it is listed and has its entry
+    expect(options('export', 'export.format')).toContain('IGES');
+    expect(menu).toContain("exportFormat: 'iges'");
   });
   it('every import format can be opened', () => {
     for (const f of options('import', 'import.format').filter((x) => x !== 'General')) expect(menu).toContain(`'${f.toLowerCase()}'`);

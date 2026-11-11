@@ -92,11 +92,13 @@ export function ExportOptionsDialog() {
   const [positive, setPositive] = useState(getPref<boolean>('export.keepPosition') !== true);
   const [single, setSingle] = useState(() => exportDefaults().single);
   const bodies = st.rebuild.bodies.map((b, i) => ({ geometry: b.geometry, name: `Body${i + 1}` }));
-  // STEP (QA F51): every body becomes a B-rep solid in OpenCascade (worker), planar faces merged
-  const runStep = () => {
+  // STEP (QA F51) and IGES 5.3 (QA F114/F199): every body goes out of the OpenCascade worker as its B-rep (a part
+  // rebuilt with the B-rep kernel) or as a solid sewn from its mesh (planar faces merged)
+  const runExchange = (kind: 'step' | 'iges') => {
+    const NAME = kind === 'step' ? 'STEP' : 'IGES';
     st.setDialog(null);
-    st.pushMessage('Writing STEP…', 'info');
-    const name = `${st.doc.name}.step`;
+    st.pushMessage(`Writing ${NAME}…`, 'info');
+    const name = `${st.doc.name}.${kind === 'step' ? 'step' : 'igs'}`;
     const list = st.rebuild.bodies.map((b, i) => {
       const g = b.geometry.index ? b.geometry.toNonIndexed() : b.geometry;
       return { name: `Body${i + 1}`, positions: new Float32Array(g.getAttribute('position').array) };
@@ -104,36 +106,44 @@ export function ExportOptionsDialog() {
     const u = (unit ?? 'mm') as 'mm' | 'cm' | 'm' | 'in';
     // a part goes through the B-rep rebuild (true cylinders and rounds); an assembly as sewn meshes
     const part = st.doc.kind !== 'assembly' && st.doc.kind !== 'drawing' && getPref('perf.brepKernel') !== false;
+    const rollback = useStore.getState().rollbackIndex;
     import('../core/occt/occtClient')
-      .then((m) => (part ? m.exportStepDoc(st.doc, useStore.getState().rollbackIndex, u) : m.exportStep(list, u)))
-      .then(async (res: { bytes: Uint8Array; volumes: number[]; exact?: number }) => {
+      .then((m) => kind === 'iges'
+        ? (part ? m.exportIgesDoc(st.doc, rollback, u, name) : m.exportIges(list, u, name))
+        : (part ? m.exportStepDoc(st.doc, rollback, u) : m.exportStep(list, u)))
+      .then(async (res: { bytes: Uint8Array; volumes: number[]; exact?: number; faces?: number; approximated?: number }) => {
         const { bytes, volumes } = res;
-        // bodies the B-rep kernel could not rebuild are written as sewn facets: say so (QA F99)
+        // bodies the B-rep kernel could not rebuild are written as sewn facets: say so (QA F99); IGES counts a body
+        // with an interpolated surface as not exact too
         const faceted = part ? volumes.length - (res.exact ?? 0) : volumes.length;
-        const facetNote = faceted > 0 ? ` ${faceted} of ${volumes.length} ${volumes.length === 1 ? 'solid is' : 'solids are'} faceted (sewn from the mesh), not exact surfaces.` : '';
+        const why = res.approximated ? `faceted (sewn from the mesh) or with ${res.approximated} interpolated ${res.approximated === 1 ? 'surface' : 'surfaces'}` : 'faceted (sewn from the mesh)';
+        const facetNote = faceted > 0 ? ` ${faceted} of ${volumes.length} ${volumes.length === 1 ? 'solid is' : 'solids are'} ${why}, not exact surfaces.` : '';
         const data = bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer;
         const save = async () => {
           const api = desktop();
-          if (api) await api.saveFileAs({ defaultPath: name, filters: [{ name: 'STEP AP214', extensions: ['step', 'stp'] }], data });
+          const filter = kind === 'step' ? { name: 'STEP AP214', extensions: ['step', 'stp'] } : { name: 'IGES 5.3', extensions: ['igs', 'iges'] };
+          if (api) await api.saveFileAs({ defaultPath: name, filters: [filter], data });
           else {
             const a = document.createElement('a');
-            a.href = URL.createObjectURL(new Blob([data], { type: 'model/step' }));
+            a.href = URL.createObjectURL(new Blob([data], { type: kind === 'step' ? 'model/step' : 'model/iges' }));
             a.download = name;
             a.click();
             URL.revokeObjectURL(a.href);
           }
           st.pushMessage(`${name} saved (${volumes.length} ${volumes.length === 1 ? 'solid' : 'solids'}).${facetNote}`, faceted > 0 ? 'warn' : 'info');
         };
-        if (showInfo) st.setAsk({ title: 'STEP Info', text: `${volumes.length} ${volumes.length === 1 ? 'solid' : 'solids'}, AP214, unit ${unit}; volume ${volumes.map((v) => v.toFixed(2)).join(', ')} mm³.${facetNote} Save?`, yes: () => { void save(); } });
+        const what = kind === 'step' ? 'AP214' : `IGES 5.3, ${res.faces} trimmed surfaces`;
+        if (showInfo) st.setAsk({ title: `${NAME} Info`, text: `${volumes.length} ${volumes.length === 1 ? 'solid' : 'solids'}, ${what}, unit ${unit}; volume ${volumes.map((v) => v.toFixed(2)).join(', ')} mm³.${facetNote} Save?`, yes: () => { void save(); } });
         else await save();
       })
-      .catch((err: Error) => st.pushMessage(`Cannot write STEP: ${err.message}`, 'error'));
+      .catch((err: Error) => st.pushMessage(`Cannot write ${NAME}: ${err.message}`, 'error'));
   };
   const run = () => {
     st.setPrefs({ ...st.prefs, ...exportPrefs({ ascii, unit: unit ?? 'mm', resolution, showInfo }), 'export.deviation': deviation, 'export.angle': angle, 'export.keepPosition': !positive, 'export.singleFile': single });
     if (!bodies.length) return st.pushMessage('There is no solid body to export; create one first (Extruded Boss/Base).', 'warn');
     // a model with rebuild errors is only exported after the same confirmation as Save (QA 0.5.13, F204)
-    if (fmt === 'step') return confirmExport('STEP file', runStep);
+    if (fmt === 'step') return confirmExport('STEP file', () => runExchange('step'));
+    if (fmt === 'iges') return confirmExport('IGES file', () => runExchange('iges'));
     const r = exportMesh(bodies, st.doc.name, { format: fmt, ascii, unit, keepPosition: !positive, singleFile: single });
     const save = async () => {
       const api = desktop();
@@ -163,6 +173,13 @@ export function ExportOptionsDialog() {
           <div className="k-field"><label>Output as</label>
             <select className="k-input" data-testid="export-step-schema" value="ap214" onChange={() => undefined}>
               <option value="ap214">AP214</option>
+            </select>
+          </div>
+        )}
+        {fmt === 'iges' && (
+          <div className="k-field"><label>Output as</label>
+            <select className="k-input" data-testid="export-iges-type" value="trimmed" onChange={() => undefined}>
+              <option value="trimmed">IGES 5.3, trimmed surfaces (type 144)</option>
             </select>
           </div>
         )}
