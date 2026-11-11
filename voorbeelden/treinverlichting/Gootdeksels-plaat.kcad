@@ -1,0 +1,3401 @@
+{
+ "format": "phlippo-cad",
+ "version": 1,
+ "name": "Gootdeksels (9 stuks)",
+ "units": "mm",
+ "planes": {
+  "x35": {
+   "id": "x35",
+   "name": "Plane dekseltjes 211",
+   "origin": [
+    -105.5,
+    0,
+    0
+   ],
+   "u": [
+    0,
+    0,
+    -1
+   ],
+   "v": [
+    0,
+    1,
+    0
+   ],
+   "n": [
+    1,
+    0,
+    0
+   ],
+   "kind": "reference"
+  },
+  "x36": {
+   "id": "x36",
+   "name": "Plane dekseltjes 181.8",
+   "origin": [
+    -105.5,
+    0,
+    0
+   ],
+   "u": [
+    0,
+    0,
+    -1
+   ],
+   "v": [
+    0,
+    1,
+    0
+   ],
+   "n": [
+    1,
+    0,
+    0
+   ],
+   "kind": "reference"
+  },
+  "x37": {
+   "id": "x37",
+   "name": "Plane dekseltjes 197",
+   "origin": [
+    -105.5,
+    0,
+    0
+   ],
+   "u": [
+    0,
+    0,
+    -1
+   ],
+   "v": [
+    0,
+    1,
+    0
+   ],
+   "n": [
+    1,
+    0,
+    0
+   ],
+   "kind": "reference"
+  },
+  "x38": {
+   "id": "x38",
+   "name": "Plane nokken -37",
+   "origin": [
+    -37,
+    0,
+    0
+   ],
+   "u": [
+    0,
+    0,
+    -1
+   ],
+   "v": [
+    0,
+    1,
+    0
+   ],
+   "n": [
+    1,
+    0,
+    0
+   ],
+   "kind": "reference"
+  },
+  "x39": {
+   "id": "x39",
+   "name": "Plane nokken 32",
+   "origin": [
+    32,
+    0,
+    0
+   ],
+   "u": [
+    0,
+    0,
+    -1
+   ],
+   "v": [
+    0,
+    1,
+    0
+   ],
+   "n": [
+    1,
+    0,
+    0
+   ],
+   "kind": "reference"
+  },
+  "x40": {
+   "id": "x40",
+   "name": "Plane nokken 27.325",
+   "origin": [
+    27.325,
+    0,
+    0
+   ],
+   "u": [
+    0,
+    0,
+    -1
+   ],
+   "v": [
+    0,
+    1,
+    0
+   ],
+   "n": [
+    1,
+    0,
+    0
+   ],
+   "kind": "reference"
+  },
+  "x41": {
+   "id": "x41",
+   "name": "Plane nokken -62.975",
+   "origin": [
+    -62.975,
+    0,
+    0
+   ],
+   "u": [
+    0,
+    0,
+    -1
+   ],
+   "v": [
+    0,
+    1,
+    0
+   ],
+   "n": [
+    1,
+    0,
+    0
+   ],
+   "kind": "reference"
+  },
+  "x42": {
+   "id": "x42",
+   "name": "Plane nokken -61.525",
+   "origin": [
+    -61.525,
+    0,
+    0
+   ],
+   "u": [
+    0,
+    0,
+    -1
+   ],
+   "v": [
+    0,
+    1,
+    0
+   ],
+   "n": [
+    1,
+    0,
+    0
+   ],
+   "kind": "reference"
+  },
+  "x43": {
+   "id": "x43",
+   "name": "Plane nokken 28.775",
+   "origin": [
+    28.775,
+    0,
+    0
+   ],
+   "u": [
+    0,
+    0,
+    -1
+   ],
+   "v": [
+    0,
+    1,
+    0
+   ],
+   "n": [
+    1,
+    0,
+    0
+   ],
+   "kind": "reference"
+  },
+  "x44": {
+   "id": "x44",
+   "name": "Plane nokken -44",
+   "origin": [
+    -44,
+    0,
+    0
+   ],
+   "u": [
+    0,
+    0,
+    -1
+   ],
+   "v": [
+    0,
+    1,
+    0
+   ],
+   "n": [
+    1,
+    0,
+    0
+   ],
+   "kind": "reference"
+  },
+  "x45": {
+   "id": "x45",
+   "name": "Plane nokken 25",
+   "origin": [
+    25,
+    0,
+    0
+   ],
+   "u": [
+    0,
+    0,
+    -1
+   ],
+   "v": [
+    0,
+    1,
+    0
+   ],
+   "n": [
+    1,
+    0,
+    0
+   ],
+   "kind": "reference"
+  }
+ },
+ "variables": {},
+ "equations": [],
+ "sketches": {
+  "s1": {
+   "id": "s1",
+   "name": "Sketch1",
+   "plane": "x35",
+   "points": {
+    "origin_s1": {
+     "x": 0,
+     "y": 0
+    },
+    "s1p0": {
+     "x": 65.875,
+     "y": 0
+    },
+    "s1p1": {
+     "x": 58.475,
+     "y": 0
+    },
+    "s1p2": {
+     "x": 58.475,
+     "y": 8.95
+    },
+    "s1p3": {
+     "x": 59.675,
+     "y": 8.95
+    },
+    "s1p4": {
+     "x": 59.675,
+     "y": 1.6
+    },
+    "s1p5": {
+     "x": 65.875,
+     "y": 1.6
+    },
+    "s1p6": {
+     "x": 65.875,
+     "y": 1.15
+    },
+    "s1p7": {
+     "x": 66.225,
+     "y": 0.8
+    },
+    "s1p8": {
+     "x": 65.875,
+     "y": 0.45
+    }
+   },
+   "scalars": {},
+   "entities": {
+    "s1e9": {
+     "id": "s1e9",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p0",
+     "p2": "s1p1"
+    },
+    "s1e10": {
+     "id": "s1e10",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p1",
+     "p2": "s1p2"
+    },
+    "s1e11": {
+     "id": "s1e11",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p2",
+     "p2": "s1p3"
+    },
+    "s1e12": {
+     "id": "s1e12",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p3",
+     "p2": "s1p4"
+    },
+    "s1e13": {
+     "id": "s1e13",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p4",
+     "p2": "s1p5"
+    },
+    "s1e14": {
+     "id": "s1e14",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p5",
+     "p2": "s1p6"
+    },
+    "s1e15": {
+     "id": "s1e15",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p6",
+     "p2": "s1p7"
+    },
+    "s1e16": {
+     "id": "s1e16",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p7",
+     "p2": "s1p8"
+    },
+    "s1e17": {
+     "id": "s1e17",
+     "construction": false,
+     "kind": "line",
+     "p1": "s1p8",
+     "p2": "s1p0"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s1e9",
+    "s1e10",
+    "s1e11",
+    "s1e12",
+    "s1e13",
+    "s1e14",
+    "s1e15",
+    "s1e16",
+    "s1e17"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s1"
+  },
+  "s2": {
+   "id": "s2",
+   "name": "Sketch2",
+   "plane": "x36",
+   "points": {
+    "origin_s2": {
+     "x": 0,
+     "y": 0
+    },
+    "s2p0": {
+     "x": 54.125,
+     "y": 0
+    },
+    "s2p1": {
+     "x": 40.525,
+     "y": 0
+    },
+    "s2p2": {
+     "x": 40.525,
+     "y": 8.95
+    },
+    "s2p3": {
+     "x": 41.725,
+     "y": 8.95
+    },
+    "s2p4": {
+     "x": 41.725,
+     "y": 1.6
+    },
+    "s2p5": {
+     "x": 54.125,
+     "y": 1.6
+    },
+    "s2p6": {
+     "x": 54.125,
+     "y": 1.15
+    },
+    "s2p7": {
+     "x": 54.475,
+     "y": 0.8
+    },
+    "s2p8": {
+     "x": 54.125,
+     "y": 0.45
+    },
+    "s2p18": {
+     "x": 36.175,
+     "y": 0
+    },
+    "s2p19": {
+     "x": 22.575,
+     "y": 0
+    },
+    "s2p20": {
+     "x": 22.575,
+     "y": 8.95
+    },
+    "s2p21": {
+     "x": 23.775,
+     "y": 8.95
+    },
+    "s2p22": {
+     "x": 23.775,
+     "y": 1.6
+    },
+    "s2p23": {
+     "x": 36.175,
+     "y": 1.6
+    },
+    "s2p24": {
+     "x": 36.175,
+     "y": 1.15
+    },
+    "s2p25": {
+     "x": 36.525,
+     "y": 0.8
+    },
+    "s2p26": {
+     "x": 36.175,
+     "y": 0.45
+    }
+   },
+   "scalars": {},
+   "entities": {
+    "s2e9": {
+     "id": "s2e9",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p0",
+     "p2": "s2p1"
+    },
+    "s2e10": {
+     "id": "s2e10",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p1",
+     "p2": "s2p2"
+    },
+    "s2e11": {
+     "id": "s2e11",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p2",
+     "p2": "s2p3"
+    },
+    "s2e12": {
+     "id": "s2e12",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p3",
+     "p2": "s2p4"
+    },
+    "s2e13": {
+     "id": "s2e13",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p4",
+     "p2": "s2p5"
+    },
+    "s2e14": {
+     "id": "s2e14",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p5",
+     "p2": "s2p6"
+    },
+    "s2e15": {
+     "id": "s2e15",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p6",
+     "p2": "s2p7"
+    },
+    "s2e16": {
+     "id": "s2e16",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p7",
+     "p2": "s2p8"
+    },
+    "s2e17": {
+     "id": "s2e17",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p8",
+     "p2": "s2p0"
+    },
+    "s2e27": {
+     "id": "s2e27",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p18",
+     "p2": "s2p19"
+    },
+    "s2e28": {
+     "id": "s2e28",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p19",
+     "p2": "s2p20"
+    },
+    "s2e29": {
+     "id": "s2e29",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p20",
+     "p2": "s2p21"
+    },
+    "s2e30": {
+     "id": "s2e30",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p21",
+     "p2": "s2p22"
+    },
+    "s2e31": {
+     "id": "s2e31",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p22",
+     "p2": "s2p23"
+    },
+    "s2e32": {
+     "id": "s2e32",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p23",
+     "p2": "s2p24"
+    },
+    "s2e33": {
+     "id": "s2e33",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p24",
+     "p2": "s2p25"
+    },
+    "s2e34": {
+     "id": "s2e34",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p25",
+     "p2": "s2p26"
+    },
+    "s2e35": {
+     "id": "s2e35",
+     "construction": false,
+     "kind": "line",
+     "p1": "s2p26",
+     "p2": "s2p18"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s2e9",
+    "s2e10",
+    "s2e11",
+    "s2e12",
+    "s2e13",
+    "s2e14",
+    "s2e15",
+    "s2e16",
+    "s2e17",
+    "s2e27",
+    "s2e28",
+    "s2e29",
+    "s2e30",
+    "s2e31",
+    "s2e32",
+    "s2e33",
+    "s2e34",
+    "s2e35"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s2"
+  },
+  "s3": {
+   "id": "s3",
+   "name": "Sketch3",
+   "plane": "x37",
+   "points": {
+    "origin_s3": {
+     "x": 0,
+     "y": 0
+    },
+    "s3p0": {
+     "x": 7.775,
+     "y": 0
+    },
+    "s3p1": {
+     "x": 7.775,
+     "y": 8.95
+    },
+    "s3p2": {
+     "x": 8.975,
+     "y": 8.95
+    },
+    "s3p3": {
+     "x": 8.975,
+     "y": 1.6
+    },
+    "s3p4": {
+     "x": 17.375,
+     "y": 1.6
+    },
+    "s3p5": {
+     "x": 17.375,
+     "y": 8.95
+    },
+    "s3p6": {
+     "x": 18.575,
+     "y": 8.95
+    },
+    "s3p7": {
+     "x": 18.575,
+     "y": 0
+    },
+    "s3p16": {
+     "x": -7.025,
+     "y": 0
+    },
+    "s3p17": {
+     "x": -7.025,
+     "y": 8.95
+    },
+    "s3p18": {
+     "x": -5.825,
+     "y": 8.95
+    },
+    "s3p19": {
+     "x": -5.825,
+     "y": 1.6
+    },
+    "s3p20": {
+     "x": 2.575,
+     "y": 1.6
+    },
+    "s3p21": {
+     "x": 2.575,
+     "y": 8.95
+    },
+    "s3p22": {
+     "x": 3.775,
+     "y": 8.95
+    },
+    "s3p23": {
+     "x": 3.775,
+     "y": 0
+    },
+    "s3p32": {
+     "x": -21.825,
+     "y": 0
+    },
+    "s3p33": {
+     "x": -21.825,
+     "y": 8.95
+    },
+    "s3p34": {
+     "x": -20.625,
+     "y": 8.95
+    },
+    "s3p35": {
+     "x": -20.625,
+     "y": 1.6
+    },
+    "s3p36": {
+     "x": -12.225,
+     "y": 1.6
+    },
+    "s3p37": {
+     "x": -12.225,
+     "y": 8.95
+    },
+    "s3p38": {
+     "x": -11.025,
+     "y": 8.95
+    },
+    "s3p39": {
+     "x": -11.025,
+     "y": 0
+    },
+    "s3p48": {
+     "x": -36.625,
+     "y": 0
+    },
+    "s3p49": {
+     "x": -36.625,
+     "y": 8.95
+    },
+    "s3p50": {
+     "x": -35.425,
+     "y": 8.95
+    },
+    "s3p51": {
+     "x": -35.425,
+     "y": 1.6
+    },
+    "s3p52": {
+     "x": -27.025,
+     "y": 1.6
+    },
+    "s3p53": {
+     "x": -27.025,
+     "y": 8.95
+    },
+    "s3p54": {
+     "x": -25.825,
+     "y": 8.95
+    },
+    "s3p55": {
+     "x": -25.825,
+     "y": 0
+    },
+    "s3p64": {
+     "x": -51.425,
+     "y": 0
+    },
+    "s3p65": {
+     "x": -51.425,
+     "y": 8.95
+    },
+    "s3p66": {
+     "x": -50.225,
+     "y": 8.95
+    },
+    "s3p67": {
+     "x": -50.225,
+     "y": 1.6
+    },
+    "s3p68": {
+     "x": -41.825,
+     "y": 1.6
+    },
+    "s3p69": {
+     "x": -41.825,
+     "y": 8.95
+    },
+    "s3p70": {
+     "x": -40.625,
+     "y": 8.95
+    },
+    "s3p71": {
+     "x": -40.625,
+     "y": 0
+    },
+    "s3p80": {
+     "x": -66.225,
+     "y": 0
+    },
+    "s3p81": {
+     "x": -66.225,
+     "y": 8.95
+    },
+    "s3p82": {
+     "x": -65.025,
+     "y": 8.95
+    },
+    "s3p83": {
+     "x": -65.025,
+     "y": 1.6
+    },
+    "s3p84": {
+     "x": -56.625,
+     "y": 1.6
+    },
+    "s3p85": {
+     "x": -56.625,
+     "y": 8.95
+    },
+    "s3p86": {
+     "x": -55.425,
+     "y": 8.95
+    },
+    "s3p87": {
+     "x": -55.425,
+     "y": 0
+    }
+   },
+   "scalars": {},
+   "entities": {
+    "s3e8": {
+     "id": "s3e8",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p0",
+     "p2": "s3p1"
+    },
+    "s3e9": {
+     "id": "s3e9",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p1",
+     "p2": "s3p2"
+    },
+    "s3e10": {
+     "id": "s3e10",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p2",
+     "p2": "s3p3"
+    },
+    "s3e11": {
+     "id": "s3e11",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p3",
+     "p2": "s3p4"
+    },
+    "s3e12": {
+     "id": "s3e12",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p4",
+     "p2": "s3p5"
+    },
+    "s3e13": {
+     "id": "s3e13",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p5",
+     "p2": "s3p6"
+    },
+    "s3e14": {
+     "id": "s3e14",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p6",
+     "p2": "s3p7"
+    },
+    "s3e15": {
+     "id": "s3e15",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p7",
+     "p2": "s3p0"
+    },
+    "s3e24": {
+     "id": "s3e24",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p16",
+     "p2": "s3p17"
+    },
+    "s3e25": {
+     "id": "s3e25",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p17",
+     "p2": "s3p18"
+    },
+    "s3e26": {
+     "id": "s3e26",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p18",
+     "p2": "s3p19"
+    },
+    "s3e27": {
+     "id": "s3e27",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p19",
+     "p2": "s3p20"
+    },
+    "s3e28": {
+     "id": "s3e28",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p20",
+     "p2": "s3p21"
+    },
+    "s3e29": {
+     "id": "s3e29",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p21",
+     "p2": "s3p22"
+    },
+    "s3e30": {
+     "id": "s3e30",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p22",
+     "p2": "s3p23"
+    },
+    "s3e31": {
+     "id": "s3e31",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p23",
+     "p2": "s3p16"
+    },
+    "s3e40": {
+     "id": "s3e40",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p32",
+     "p2": "s3p33"
+    },
+    "s3e41": {
+     "id": "s3e41",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p33",
+     "p2": "s3p34"
+    },
+    "s3e42": {
+     "id": "s3e42",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p34",
+     "p2": "s3p35"
+    },
+    "s3e43": {
+     "id": "s3e43",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p35",
+     "p2": "s3p36"
+    },
+    "s3e44": {
+     "id": "s3e44",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p36",
+     "p2": "s3p37"
+    },
+    "s3e45": {
+     "id": "s3e45",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p37",
+     "p2": "s3p38"
+    },
+    "s3e46": {
+     "id": "s3e46",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p38",
+     "p2": "s3p39"
+    },
+    "s3e47": {
+     "id": "s3e47",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p39",
+     "p2": "s3p32"
+    },
+    "s3e56": {
+     "id": "s3e56",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p48",
+     "p2": "s3p49"
+    },
+    "s3e57": {
+     "id": "s3e57",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p49",
+     "p2": "s3p50"
+    },
+    "s3e58": {
+     "id": "s3e58",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p50",
+     "p2": "s3p51"
+    },
+    "s3e59": {
+     "id": "s3e59",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p51",
+     "p2": "s3p52"
+    },
+    "s3e60": {
+     "id": "s3e60",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p52",
+     "p2": "s3p53"
+    },
+    "s3e61": {
+     "id": "s3e61",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p53",
+     "p2": "s3p54"
+    },
+    "s3e62": {
+     "id": "s3e62",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p54",
+     "p2": "s3p55"
+    },
+    "s3e63": {
+     "id": "s3e63",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p55",
+     "p2": "s3p48"
+    },
+    "s3e72": {
+     "id": "s3e72",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p64",
+     "p2": "s3p65"
+    },
+    "s3e73": {
+     "id": "s3e73",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p65",
+     "p2": "s3p66"
+    },
+    "s3e74": {
+     "id": "s3e74",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p66",
+     "p2": "s3p67"
+    },
+    "s3e75": {
+     "id": "s3e75",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p67",
+     "p2": "s3p68"
+    },
+    "s3e76": {
+     "id": "s3e76",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p68",
+     "p2": "s3p69"
+    },
+    "s3e77": {
+     "id": "s3e77",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p69",
+     "p2": "s3p70"
+    },
+    "s3e78": {
+     "id": "s3e78",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p70",
+     "p2": "s3p71"
+    },
+    "s3e79": {
+     "id": "s3e79",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p71",
+     "p2": "s3p64"
+    },
+    "s3e88": {
+     "id": "s3e88",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p80",
+     "p2": "s3p81"
+    },
+    "s3e89": {
+     "id": "s3e89",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p81",
+     "p2": "s3p82"
+    },
+    "s3e90": {
+     "id": "s3e90",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p82",
+     "p2": "s3p83"
+    },
+    "s3e91": {
+     "id": "s3e91",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p83",
+     "p2": "s3p84"
+    },
+    "s3e92": {
+     "id": "s3e92",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p84",
+     "p2": "s3p85"
+    },
+    "s3e93": {
+     "id": "s3e93",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p85",
+     "p2": "s3p86"
+    },
+    "s3e94": {
+     "id": "s3e94",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p86",
+     "p2": "s3p87"
+    },
+    "s3e95": {
+     "id": "s3e95",
+     "construction": false,
+     "kind": "line",
+     "p1": "s3p87",
+     "p2": "s3p80"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s3e8",
+    "s3e9",
+    "s3e10",
+    "s3e11",
+    "s3e12",
+    "s3e13",
+    "s3e14",
+    "s3e15",
+    "s3e24",
+    "s3e25",
+    "s3e26",
+    "s3e27",
+    "s3e28",
+    "s3e29",
+    "s3e30",
+    "s3e31",
+    "s3e40",
+    "s3e41",
+    "s3e42",
+    "s3e43",
+    "s3e44",
+    "s3e45",
+    "s3e46",
+    "s3e47",
+    "s3e56",
+    "s3e57",
+    "s3e58",
+    "s3e59",
+    "s3e60",
+    "s3e61",
+    "s3e62",
+    "s3e63",
+    "s3e72",
+    "s3e73",
+    "s3e74",
+    "s3e75",
+    "s3e76",
+    "s3e77",
+    "s3e78",
+    "s3e79",
+    "s3e88",
+    "s3e89",
+    "s3e90",
+    "s3e91",
+    "s3e92",
+    "s3e93",
+    "s3e94",
+    "s3e95"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s3"
+  },
+  "s4": {
+   "id": "s4",
+   "name": "Sketch4",
+   "plane": "x38",
+   "points": {
+    "origin_s4": {
+     "x": 0,
+     "y": 0
+    },
+    "s4p0": {
+     "x": 59.375,
+     "y": 8.95
+    },
+    "s4p1": {
+     "x": 59.675,
+     "y": 8.95
+    },
+    "s4p2": {
+     "x": 60.025,
+     "y": 8.6
+    },
+    "s4p3": {
+     "x": 59.675,
+     "y": 8.25
+    },
+    "s4p4": {
+     "x": 59.375,
+     "y": 8.25
+    }
+   },
+   "scalars": {},
+   "entities": {
+    "s4e5": {
+     "id": "s4e5",
+     "construction": false,
+     "kind": "line",
+     "p1": "s4p0",
+     "p2": "s4p1"
+    },
+    "s4e6": {
+     "id": "s4e6",
+     "construction": false,
+     "kind": "line",
+     "p1": "s4p1",
+     "p2": "s4p2"
+    },
+    "s4e7": {
+     "id": "s4e7",
+     "construction": false,
+     "kind": "line",
+     "p1": "s4p2",
+     "p2": "s4p3"
+    },
+    "s4e8": {
+     "id": "s4e8",
+     "construction": false,
+     "kind": "line",
+     "p1": "s4p3",
+     "p2": "s4p4"
+    },
+    "s4e9": {
+     "id": "s4e9",
+     "construction": false,
+     "kind": "line",
+     "p1": "s4p4",
+     "p2": "s4p0"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s4e5",
+    "s4e6",
+    "s4e7",
+    "s4e8",
+    "s4e9"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s4"
+  },
+  "s5": {
+   "id": "s5",
+   "name": "Sketch5",
+   "plane": "x39",
+   "points": {
+    "origin_s5": {
+     "x": 0,
+     "y": 0
+    },
+    "s5p0": {
+     "x": 59.375,
+     "y": 8.95
+    },
+    "s5p1": {
+     "x": 59.675,
+     "y": 8.95
+    },
+    "s5p2": {
+     "x": 60.025,
+     "y": 8.6
+    },
+    "s5p3": {
+     "x": 59.675,
+     "y": 8.25
+    },
+    "s5p4": {
+     "x": 59.375,
+     "y": 8.25
+    }
+   },
+   "scalars": {},
+   "entities": {
+    "s5e5": {
+     "id": "s5e5",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p0",
+     "p2": "s5p1"
+    },
+    "s5e6": {
+     "id": "s5e6",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p1",
+     "p2": "s5p2"
+    },
+    "s5e7": {
+     "id": "s5e7",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p2",
+     "p2": "s5p3"
+    },
+    "s5e8": {
+     "id": "s5e8",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p3",
+     "p2": "s5p4"
+    },
+    "s5e9": {
+     "id": "s5e9",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p4",
+     "p2": "s5p0"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s5e5",
+    "s5e6",
+    "s5e7",
+    "s5e8",
+    "s5e9"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s5"
+  },
+  "s6": {
+   "id": "s6",
+   "name": "Sketch6",
+   "plane": "x40",
+   "points": {
+    "origin_s6": {
+     "x": 0,
+     "y": 0
+    },
+    "s6p0": {
+     "x": 41.425,
+     "y": 8.95
+    },
+    "s6p1": {
+     "x": 41.725,
+     "y": 8.95
+    },
+    "s6p2": {
+     "x": 42.075,
+     "y": 8.6
+    },
+    "s6p3": {
+     "x": 41.725,
+     "y": 8.25
+    },
+    "s6p4": {
+     "x": 41.425,
+     "y": 8.25
+    }
+   },
+   "scalars": {},
+   "entities": {
+    "s6e5": {
+     "id": "s6e5",
+     "construction": false,
+     "kind": "line",
+     "p1": "s6p0",
+     "p2": "s6p1"
+    },
+    "s6e6": {
+     "id": "s6e6",
+     "construction": false,
+     "kind": "line",
+     "p1": "s6p1",
+     "p2": "s6p2"
+    },
+    "s6e7": {
+     "id": "s6e7",
+     "construction": false,
+     "kind": "line",
+     "p1": "s6p2",
+     "p2": "s6p3"
+    },
+    "s6e8": {
+     "id": "s6e8",
+     "construction": false,
+     "kind": "line",
+     "p1": "s6p3",
+     "p2": "s6p4"
+    },
+    "s6e9": {
+     "id": "s6e9",
+     "construction": false,
+     "kind": "line",
+     "p1": "s6p4",
+     "p2": "s6p0"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s6e5",
+    "s6e6",
+    "s6e7",
+    "s6e8",
+    "s6e9"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s6"
+  },
+  "s7": {
+   "id": "s7",
+   "name": "Sketch7",
+   "plane": "x41",
+   "points": {
+    "origin_s7": {
+     "x": 0,
+     "y": 0
+    },
+    "s7p0": {
+     "x": 41.425,
+     "y": 8.95
+    },
+    "s7p1": {
+     "x": 41.725,
+     "y": 8.95
+    },
+    "s7p2": {
+     "x": 42.075,
+     "y": 8.6
+    },
+    "s7p3": {
+     "x": 41.725,
+     "y": 8.25
+    },
+    "s7p4": {
+     "x": 41.425,
+     "y": 8.25
+    }
+   },
+   "scalars": {},
+   "entities": {
+    "s7e5": {
+     "id": "s7e5",
+     "construction": false,
+     "kind": "line",
+     "p1": "s7p0",
+     "p2": "s7p1"
+    },
+    "s7e6": {
+     "id": "s7e6",
+     "construction": false,
+     "kind": "line",
+     "p1": "s7p1",
+     "p2": "s7p2"
+    },
+    "s7e7": {
+     "id": "s7e7",
+     "construction": false,
+     "kind": "line",
+     "p1": "s7p2",
+     "p2": "s7p3"
+    },
+    "s7e8": {
+     "id": "s7e8",
+     "construction": false,
+     "kind": "line",
+     "p1": "s7p3",
+     "p2": "s7p4"
+    },
+    "s7e9": {
+     "id": "s7e9",
+     "construction": false,
+     "kind": "line",
+     "p1": "s7p4",
+     "p2": "s7p0"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s7e5",
+    "s7e6",
+    "s7e7",
+    "s7e8",
+    "s7e9"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s7"
+  },
+  "s8": {
+   "id": "s8",
+   "name": "Sketch8",
+   "plane": "x42",
+   "points": {
+    "origin_s8": {
+     "x": 0,
+     "y": 0
+    },
+    "s8p0": {
+     "x": 23.475,
+     "y": 8.95
+    },
+    "s8p1": {
+     "x": 23.775,
+     "y": 8.95
+    },
+    "s8p2": {
+     "x": 24.125,
+     "y": 8.6
+    },
+    "s8p3": {
+     "x": 23.775,
+     "y": 8.25
+    },
+    "s8p4": {
+     "x": 23.475,
+     "y": 8.25
+    }
+   },
+   "scalars": {},
+   "entities": {
+    "s8e5": {
+     "id": "s8e5",
+     "construction": false,
+     "kind": "line",
+     "p1": "s8p0",
+     "p2": "s8p1"
+    },
+    "s8e6": {
+     "id": "s8e6",
+     "construction": false,
+     "kind": "line",
+     "p1": "s8p1",
+     "p2": "s8p2"
+    },
+    "s8e7": {
+     "id": "s8e7",
+     "construction": false,
+     "kind": "line",
+     "p1": "s8p2",
+     "p2": "s8p3"
+    },
+    "s8e8": {
+     "id": "s8e8",
+     "construction": false,
+     "kind": "line",
+     "p1": "s8p3",
+     "p2": "s8p4"
+    },
+    "s8e9": {
+     "id": "s8e9",
+     "construction": false,
+     "kind": "line",
+     "p1": "s8p4",
+     "p2": "s8p0"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s8e5",
+    "s8e6",
+    "s8e7",
+    "s8e8",
+    "s8e9"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s8"
+  },
+  "s9": {
+   "id": "s9",
+   "name": "Sketch9",
+   "plane": "x43",
+   "points": {
+    "origin_s9": {
+     "x": 0,
+     "y": 0
+    },
+    "s9p0": {
+     "x": 23.475,
+     "y": 8.95
+    },
+    "s9p1": {
+     "x": 23.775,
+     "y": 8.95
+    },
+    "s9p2": {
+     "x": 24.125,
+     "y": 8.6
+    },
+    "s9p3": {
+     "x": 23.775,
+     "y": 8.25
+    },
+    "s9p4": {
+     "x": 23.475,
+     "y": 8.25
+    }
+   },
+   "scalars": {},
+   "entities": {
+    "s9e5": {
+     "id": "s9e5",
+     "construction": false,
+     "kind": "line",
+     "p1": "s9p0",
+     "p2": "s9p1"
+    },
+    "s9e6": {
+     "id": "s9e6",
+     "construction": false,
+     "kind": "line",
+     "p1": "s9p1",
+     "p2": "s9p2"
+    },
+    "s9e7": {
+     "id": "s9e7",
+     "construction": false,
+     "kind": "line",
+     "p1": "s9p2",
+     "p2": "s9p3"
+    },
+    "s9e8": {
+     "id": "s9e8",
+     "construction": false,
+     "kind": "line",
+     "p1": "s9p3",
+     "p2": "s9p4"
+    },
+    "s9e9": {
+     "id": "s9e9",
+     "construction": false,
+     "kind": "line",
+     "p1": "s9p4",
+     "p2": "s9p0"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s9e5",
+    "s9e6",
+    "s9e7",
+    "s9e8",
+    "s9e9"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s9"
+  },
+  "s10": {
+   "id": "s10",
+   "name": "Sketch10",
+   "plane": "x44",
+   "points": {
+    "origin_s10": {
+     "x": 0,
+     "y": 0
+    },
+    "s10p0": {
+     "x": 8.675,
+     "y": 8.95
+    },
+    "s10p1": {
+     "x": 8.975,
+     "y": 8.95
+    },
+    "s10p2": {
+     "x": 9.325,
+     "y": 8.6
+    },
+    "s10p3": {
+     "x": 8.975,
+     "y": 8.25
+    },
+    "s10p4": {
+     "x": 8.675,
+     "y": 8.25
+    },
+    "s10p10": {
+     "x": 17.675,
+     "y": 8.95
+    },
+    "s10p11": {
+     "x": 17.375,
+     "y": 8.95
+    },
+    "s10p12": {
+     "x": 17.025,
+     "y": 8.6
+    },
+    "s10p13": {
+     "x": 17.375,
+     "y": 8.25
+    },
+    "s10p14": {
+     "x": 17.675,
+     "y": 8.25
+    },
+    "s10p20": {
+     "x": -6.125,
+     "y": 8.95
+    },
+    "s10p21": {
+     "x": -5.825,
+     "y": 8.95
+    },
+    "s10p22": {
+     "x": -5.475,
+     "y": 8.6
+    },
+    "s10p23": {
+     "x": -5.825,
+     "y": 8.25
+    },
+    "s10p24": {
+     "x": -6.125,
+     "y": 8.25
+    },
+    "s10p30": {
+     "x": 2.875,
+     "y": 8.95
+    },
+    "s10p31": {
+     "x": 2.575,
+     "y": 8.95
+    },
+    "s10p32": {
+     "x": 2.225,
+     "y": 8.6
+    },
+    "s10p33": {
+     "x": 2.575,
+     "y": 8.25
+    },
+    "s10p34": {
+     "x": 2.875,
+     "y": 8.25
+    },
+    "s10p40": {
+     "x": -20.925,
+     "y": 8.95
+    },
+    "s10p41": {
+     "x": -20.625,
+     "y": 8.95
+    },
+    "s10p42": {
+     "x": -20.275,
+     "y": 8.6
+    },
+    "s10p43": {
+     "x": -20.625,
+     "y": 8.25
+    },
+    "s10p44": {
+     "x": -20.925,
+     "y": 8.25
+    },
+    "s10p50": {
+     "x": -11.925,
+     "y": 8.95
+    },
+    "s10p51": {
+     "x": -12.225,
+     "y": 8.95
+    },
+    "s10p52": {
+     "x": -12.575,
+     "y": 8.6
+    },
+    "s10p53": {
+     "x": -12.225,
+     "y": 8.25
+    },
+    "s10p54": {
+     "x": -11.925,
+     "y": 8.25
+    },
+    "s10p60": {
+     "x": -35.725,
+     "y": 8.95
+    },
+    "s10p61": {
+     "x": -35.425,
+     "y": 8.95
+    },
+    "s10p62": {
+     "x": -35.075,
+     "y": 8.6
+    },
+    "s10p63": {
+     "x": -35.425,
+     "y": 8.25
+    },
+    "s10p64": {
+     "x": -35.725,
+     "y": 8.25
+    },
+    "s10p70": {
+     "x": -26.725,
+     "y": 8.95
+    },
+    "s10p71": {
+     "x": -27.025,
+     "y": 8.95
+    },
+    "s10p72": {
+     "x": -27.375,
+     "y": 8.6
+    },
+    "s10p73": {
+     "x": -27.025,
+     "y": 8.25
+    },
+    "s10p74": {
+     "x": -26.725,
+     "y": 8.25
+    },
+    "s10p80": {
+     "x": -50.525,
+     "y": 8.95
+    },
+    "s10p81": {
+     "x": -50.225,
+     "y": 8.95
+    },
+    "s10p82": {
+     "x": -49.875,
+     "y": 8.6
+    },
+    "s10p83": {
+     "x": -50.225,
+     "y": 8.25
+    },
+    "s10p84": {
+     "x": -50.525,
+     "y": 8.25
+    },
+    "s10p90": {
+     "x": -41.525,
+     "y": 8.95
+    },
+    "s10p91": {
+     "x": -41.825,
+     "y": 8.95
+    },
+    "s10p92": {
+     "x": -42.175,
+     "y": 8.6
+    },
+    "s10p93": {
+     "x": -41.825,
+     "y": 8.25
+    },
+    "s10p94": {
+     "x": -41.525,
+     "y": 8.25
+    },
+    "s10p100": {
+     "x": -65.325,
+     "y": 8.95
+    },
+    "s10p101": {
+     "x": -65.025,
+     "y": 8.95
+    },
+    "s10p102": {
+     "x": -64.675,
+     "y": 8.6
+    },
+    "s10p103": {
+     "x": -65.025,
+     "y": 8.25
+    },
+    "s10p104": {
+     "x": -65.325,
+     "y": 8.25
+    },
+    "s10p110": {
+     "x": -56.325,
+     "y": 8.95
+    },
+    "s10p111": {
+     "x": -56.625,
+     "y": 8.95
+    },
+    "s10p112": {
+     "x": -56.975,
+     "y": 8.6
+    },
+    "s10p113": {
+     "x": -56.625,
+     "y": 8.25
+    },
+    "s10p114": {
+     "x": -56.325,
+     "y": 8.25
+    }
+   },
+   "scalars": {},
+   "entities": {
+    "s10e5": {
+     "id": "s10e5",
+     "construction": false,
+     "kind": "line",
+     "p1": "s10p0",
+     "p2": "s10p1"
+    },
+    "s10e6": {
+     "id": "s10e6",
+     "construction": false,
+     "kind": "line",
+     "p1": "s10p1",
+     "p2": "s10p2"
+    },
+    "s10e7": {
+     "id": "s10e7",
+     "construction": false,
+     "kind": "line",
+     "p1": "s10p2",
+     "p2": "s10p3"
+    },
+    "s10e8": {
+     "id": "s10e8",
+     "construction": false,
+     "kind": "line",
+     "p1": "s10p3",
+     "p2": "s10p4"
+    },
+    "s10e9": {
+     "id": "s10e9",
+     "construction": false,
+     "kind": "line",
+     "p1": "s10p4",
+     "p2": "s10p0"
+    },
+    "s10e15": {
+     "id": "s10e15",
+     "construction": false,
+     "kind": "line",
+     "p1": "s10p10",
+     "p2": "s10p11"
+    },
+    "s10e16": {
+     "id": "s10e16",
+     "construction": false,
+     "kind": "line",
+     "p1": "s10p11",
+     "p2": "s10p12"
+    },
+    "s10e17": {
+     "id": "s10e17",
+     "construction": false,
+     "kind": "line",
+     "p1": "s10p12",
+     "p2": "s10p13"
+    },
+    "s10e18": {
+     "id": "s10e18",
+     "construction": false,
+     "kind": "line",
+     "p1": "s10p13",
+     "p2": "s10p14"
+    },
+    "s10e19": {
+     "id": "s10e19",
+     "construction": false,
+     "kind": "line",
+     "p1": "s10p14",
+     "p2": "s10p10"
+    },
+    "s10e25": {
+     "id": "s10e25",
+     "construction": false,
+     "kind": "line",
+     "p1": "s10p20",
+     "p2": "s10p21"
+    },
+    "s10e26": {
+     "id": "s10e26",
+     "construction": false,
+     "kind": "line",
+     "p1": "s10p21",
+     "p2": "s10p22"
+    },
+    "s10e27": {
+     "id": "s10e27",
+     "construction": false,
+     "kind": "line",
+     "p1": "s10p22",
+     "p2": "s10p23"
+    },
+    "s10e28": {
+     "id": "s10e28",
+     "construction": false,
+     "kind": "line",
+     "p1": "s10p23",
+     "p2": "s10p24"
+    },
+    "s10e29": {
+     "id": "s10e29",
+     "construction": false,
+     "kind": "line",
+     "p1": "s10p24",
+     "p2": "s10p20"
+    },
+    "s10e35": {
+     "id": "s10e35",
+     "construction": false,
+     "kind": "line",
+     "p1": "s10p30",
+     "p2": "s10p31"
+    },
+    "s10e36": {
+     "id": "s10e36",
+     "construction": false,
+     "kind": "line",
+     "p1": "s10p31",
+     "p2": "s10p32"
+    },
+    "s10e37": {
+     "id": "s10e37",
+     "construction": false,
+     "kind": "line",
+     "p1": "s10p32",
+     "p2": "s10p33"
+    },
+    "s10e38": {
+     "id": "s10e38",
+     "construction": false,
+     "kind": "line",
+     "p1": "s10p33",
+     "p2": "s10p34"
+    },
+    "s10e39": {
+     "id": "s10e39",
+     "construction": false,
+     "kind": "line",
+     "p1": "s10p34",
+     "p2": "s10p30"
+    },
+    "s10e45": {
+     "id": "s10e45",
+     "construction": false,
+     "kind": "line",
+     "p1": "s10p40",
+     "p2": "s10p41"
+    },
+    "s10e46": {
+     "id": "s10e46",
+     "construction": false,
+     "kind": "line",
+     "p1": "s10p41",
+     "p2": "s10p42"
+    },
+    "s10e47": {
+     "id": "s10e47",
+     "construction": false,
+     "kind": "line",
+     "p1": "s10p42",
+     "p2": "s10p43"
+    },
+    "s10e48": {
+     "id": "s10e48",
+     "construction": false,
+     "kind": "line",
+     "p1": "s10p43",
+     "p2": "s10p44"
+    },
+    "s10e49": {
+     "id": "s10e49",
+     "construction": false,
+     "kind": "line",
+     "p1": "s10p44",
+     "p2": "s10p40"
+    },
+    "s10e55": {
+     "id": "s10e55",
+     "construction": false,
+     "kind": "line",
+     "p1": "s10p50",
+     "p2": "s10p51"
+    },
+    "s10e56": {
+     "id": "s10e56",
+     "construction": false,
+     "kind": "line",
+     "p1": "s10p51",
+     "p2": "s10p52"
+    },
+    "s10e57": {
+     "id": "s10e57",
+     "construction": false,
+     "kind": "line",
+     "p1": "s10p52",
+     "p2": "s10p53"
+    },
+    "s10e58": {
+     "id": "s10e58",
+     "construction": false,
+     "kind": "line",
+     "p1": "s10p53",
+     "p2": "s10p54"
+    },
+    "s10e59": {
+     "id": "s10e59",
+     "construction": false,
+     "kind": "line",
+     "p1": "s10p54",
+     "p2": "s10p50"
+    },
+    "s10e65": {
+     "id": "s10e65",
+     "construction": false,
+     "kind": "line",
+     "p1": "s10p60",
+     "p2": "s10p61"
+    },
+    "s10e66": {
+     "id": "s10e66",
+     "construction": false,
+     "kind": "line",
+     "p1": "s10p61",
+     "p2": "s10p62"
+    },
+    "s10e67": {
+     "id": "s10e67",
+     "construction": false,
+     "kind": "line",
+     "p1": "s10p62",
+     "p2": "s10p63"
+    },
+    "s10e68": {
+     "id": "s10e68",
+     "construction": false,
+     "kind": "line",
+     "p1": "s10p63",
+     "p2": "s10p64"
+    },
+    "s10e69": {
+     "id": "s10e69",
+     "construction": false,
+     "kind": "line",
+     "p1": "s10p64",
+     "p2": "s10p60"
+    },
+    "s10e75": {
+     "id": "s10e75",
+     "construction": false,
+     "kind": "line",
+     "p1": "s10p70",
+     "p2": "s10p71"
+    },
+    "s10e76": {
+     "id": "s10e76",
+     "construction": false,
+     "kind": "line",
+     "p1": "s10p71",
+     "p2": "s10p72"
+    },
+    "s10e77": {
+     "id": "s10e77",
+     "construction": false,
+     "kind": "line",
+     "p1": "s10p72",
+     "p2": "s10p73"
+    },
+    "s10e78": {
+     "id": "s10e78",
+     "construction": false,
+     "kind": "line",
+     "p1": "s10p73",
+     "p2": "s10p74"
+    },
+    "s10e79": {
+     "id": "s10e79",
+     "construction": false,
+     "kind": "line",
+     "p1": "s10p74",
+     "p2": "s10p70"
+    },
+    "s10e85": {
+     "id": "s10e85",
+     "construction": false,
+     "kind": "line",
+     "p1": "s10p80",
+     "p2": "s10p81"
+    },
+    "s10e86": {
+     "id": "s10e86",
+     "construction": false,
+     "kind": "line",
+     "p1": "s10p81",
+     "p2": "s10p82"
+    },
+    "s10e87": {
+     "id": "s10e87",
+     "construction": false,
+     "kind": "line",
+     "p1": "s10p82",
+     "p2": "s10p83"
+    },
+    "s10e88": {
+     "id": "s10e88",
+     "construction": false,
+     "kind": "line",
+     "p1": "s10p83",
+     "p2": "s10p84"
+    },
+    "s10e89": {
+     "id": "s10e89",
+     "construction": false,
+     "kind": "line",
+     "p1": "s10p84",
+     "p2": "s10p80"
+    },
+    "s10e95": {
+     "id": "s10e95",
+     "construction": false,
+     "kind": "line",
+     "p1": "s10p90",
+     "p2": "s10p91"
+    },
+    "s10e96": {
+     "id": "s10e96",
+     "construction": false,
+     "kind": "line",
+     "p1": "s10p91",
+     "p2": "s10p92"
+    },
+    "s10e97": {
+     "id": "s10e97",
+     "construction": false,
+     "kind": "line",
+     "p1": "s10p92",
+     "p2": "s10p93"
+    },
+    "s10e98": {
+     "id": "s10e98",
+     "construction": false,
+     "kind": "line",
+     "p1": "s10p93",
+     "p2": "s10p94"
+    },
+    "s10e99": {
+     "id": "s10e99",
+     "construction": false,
+     "kind": "line",
+     "p1": "s10p94",
+     "p2": "s10p90"
+    },
+    "s10e105": {
+     "id": "s10e105",
+     "construction": false,
+     "kind": "line",
+     "p1": "s10p100",
+     "p2": "s10p101"
+    },
+    "s10e106": {
+     "id": "s10e106",
+     "construction": false,
+     "kind": "line",
+     "p1": "s10p101",
+     "p2": "s10p102"
+    },
+    "s10e107": {
+     "id": "s10e107",
+     "construction": false,
+     "kind": "line",
+     "p1": "s10p102",
+     "p2": "s10p103"
+    },
+    "s10e108": {
+     "id": "s10e108",
+     "construction": false,
+     "kind": "line",
+     "p1": "s10p103",
+     "p2": "s10p104"
+    },
+    "s10e109": {
+     "id": "s10e109",
+     "construction": false,
+     "kind": "line",
+     "p1": "s10p104",
+     "p2": "s10p100"
+    },
+    "s10e115": {
+     "id": "s10e115",
+     "construction": false,
+     "kind": "line",
+     "p1": "s10p110",
+     "p2": "s10p111"
+    },
+    "s10e116": {
+     "id": "s10e116",
+     "construction": false,
+     "kind": "line",
+     "p1": "s10p111",
+     "p2": "s10p112"
+    },
+    "s10e117": {
+     "id": "s10e117",
+     "construction": false,
+     "kind": "line",
+     "p1": "s10p112",
+     "p2": "s10p113"
+    },
+    "s10e118": {
+     "id": "s10e118",
+     "construction": false,
+     "kind": "line",
+     "p1": "s10p113",
+     "p2": "s10p114"
+    },
+    "s10e119": {
+     "id": "s10e119",
+     "construction": false,
+     "kind": "line",
+     "p1": "s10p114",
+     "p2": "s10p110"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s10e5",
+    "s10e6",
+    "s10e7",
+    "s10e8",
+    "s10e9",
+    "s10e15",
+    "s10e16",
+    "s10e17",
+    "s10e18",
+    "s10e19",
+    "s10e25",
+    "s10e26",
+    "s10e27",
+    "s10e28",
+    "s10e29",
+    "s10e35",
+    "s10e36",
+    "s10e37",
+    "s10e38",
+    "s10e39",
+    "s10e45",
+    "s10e46",
+    "s10e47",
+    "s10e48",
+    "s10e49",
+    "s10e55",
+    "s10e56",
+    "s10e57",
+    "s10e58",
+    "s10e59",
+    "s10e65",
+    "s10e66",
+    "s10e67",
+    "s10e68",
+    "s10e69",
+    "s10e75",
+    "s10e76",
+    "s10e77",
+    "s10e78",
+    "s10e79",
+    "s10e85",
+    "s10e86",
+    "s10e87",
+    "s10e88",
+    "s10e89",
+    "s10e95",
+    "s10e96",
+    "s10e97",
+    "s10e98",
+    "s10e99",
+    "s10e105",
+    "s10e106",
+    "s10e107",
+    "s10e108",
+    "s10e109",
+    "s10e115",
+    "s10e116",
+    "s10e117",
+    "s10e118",
+    "s10e119"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s10"
+  },
+  "s11": {
+   "id": "s11",
+   "name": "Sketch11",
+   "plane": "x45",
+   "points": {
+    "origin_s11": {
+     "x": 0,
+     "y": 0
+    },
+    "s11p0": {
+     "x": 8.675,
+     "y": 8.95
+    },
+    "s11p1": {
+     "x": 8.975,
+     "y": 8.95
+    },
+    "s11p2": {
+     "x": 9.325,
+     "y": 8.6
+    },
+    "s11p3": {
+     "x": 8.975,
+     "y": 8.25
+    },
+    "s11p4": {
+     "x": 8.675,
+     "y": 8.25
+    },
+    "s11p10": {
+     "x": 17.675,
+     "y": 8.95
+    },
+    "s11p11": {
+     "x": 17.375,
+     "y": 8.95
+    },
+    "s11p12": {
+     "x": 17.025,
+     "y": 8.6
+    },
+    "s11p13": {
+     "x": 17.375,
+     "y": 8.25
+    },
+    "s11p14": {
+     "x": 17.675,
+     "y": 8.25
+    },
+    "s11p20": {
+     "x": -6.125,
+     "y": 8.95
+    },
+    "s11p21": {
+     "x": -5.825,
+     "y": 8.95
+    },
+    "s11p22": {
+     "x": -5.475,
+     "y": 8.6
+    },
+    "s11p23": {
+     "x": -5.825,
+     "y": 8.25
+    },
+    "s11p24": {
+     "x": -6.125,
+     "y": 8.25
+    },
+    "s11p30": {
+     "x": 2.875,
+     "y": 8.95
+    },
+    "s11p31": {
+     "x": 2.575,
+     "y": 8.95
+    },
+    "s11p32": {
+     "x": 2.225,
+     "y": 8.6
+    },
+    "s11p33": {
+     "x": 2.575,
+     "y": 8.25
+    },
+    "s11p34": {
+     "x": 2.875,
+     "y": 8.25
+    },
+    "s11p40": {
+     "x": -20.925,
+     "y": 8.95
+    },
+    "s11p41": {
+     "x": -20.625,
+     "y": 8.95
+    },
+    "s11p42": {
+     "x": -20.275,
+     "y": 8.6
+    },
+    "s11p43": {
+     "x": -20.625,
+     "y": 8.25
+    },
+    "s11p44": {
+     "x": -20.925,
+     "y": 8.25
+    },
+    "s11p50": {
+     "x": -11.925,
+     "y": 8.95
+    },
+    "s11p51": {
+     "x": -12.225,
+     "y": 8.95
+    },
+    "s11p52": {
+     "x": -12.575,
+     "y": 8.6
+    },
+    "s11p53": {
+     "x": -12.225,
+     "y": 8.25
+    },
+    "s11p54": {
+     "x": -11.925,
+     "y": 8.25
+    },
+    "s11p60": {
+     "x": -35.725,
+     "y": 8.95
+    },
+    "s11p61": {
+     "x": -35.425,
+     "y": 8.95
+    },
+    "s11p62": {
+     "x": -35.075,
+     "y": 8.6
+    },
+    "s11p63": {
+     "x": -35.425,
+     "y": 8.25
+    },
+    "s11p64": {
+     "x": -35.725,
+     "y": 8.25
+    },
+    "s11p70": {
+     "x": -26.725,
+     "y": 8.95
+    },
+    "s11p71": {
+     "x": -27.025,
+     "y": 8.95
+    },
+    "s11p72": {
+     "x": -27.375,
+     "y": 8.6
+    },
+    "s11p73": {
+     "x": -27.025,
+     "y": 8.25
+    },
+    "s11p74": {
+     "x": -26.725,
+     "y": 8.25
+    },
+    "s11p80": {
+     "x": -50.525,
+     "y": 8.95
+    },
+    "s11p81": {
+     "x": -50.225,
+     "y": 8.95
+    },
+    "s11p82": {
+     "x": -49.875,
+     "y": 8.6
+    },
+    "s11p83": {
+     "x": -50.225,
+     "y": 8.25
+    },
+    "s11p84": {
+     "x": -50.525,
+     "y": 8.25
+    },
+    "s11p90": {
+     "x": -41.525,
+     "y": 8.95
+    },
+    "s11p91": {
+     "x": -41.825,
+     "y": 8.95
+    },
+    "s11p92": {
+     "x": -42.175,
+     "y": 8.6
+    },
+    "s11p93": {
+     "x": -41.825,
+     "y": 8.25
+    },
+    "s11p94": {
+     "x": -41.525,
+     "y": 8.25
+    },
+    "s11p100": {
+     "x": -65.325,
+     "y": 8.95
+    },
+    "s11p101": {
+     "x": -65.025,
+     "y": 8.95
+    },
+    "s11p102": {
+     "x": -64.675,
+     "y": 8.6
+    },
+    "s11p103": {
+     "x": -65.025,
+     "y": 8.25
+    },
+    "s11p104": {
+     "x": -65.325,
+     "y": 8.25
+    },
+    "s11p110": {
+     "x": -56.325,
+     "y": 8.95
+    },
+    "s11p111": {
+     "x": -56.625,
+     "y": 8.95
+    },
+    "s11p112": {
+     "x": -56.975,
+     "y": 8.6
+    },
+    "s11p113": {
+     "x": -56.625,
+     "y": 8.25
+    },
+    "s11p114": {
+     "x": -56.325,
+     "y": 8.25
+    }
+   },
+   "scalars": {},
+   "entities": {
+    "s11e5": {
+     "id": "s11e5",
+     "construction": false,
+     "kind": "line",
+     "p1": "s11p0",
+     "p2": "s11p1"
+    },
+    "s11e6": {
+     "id": "s11e6",
+     "construction": false,
+     "kind": "line",
+     "p1": "s11p1",
+     "p2": "s11p2"
+    },
+    "s11e7": {
+     "id": "s11e7",
+     "construction": false,
+     "kind": "line",
+     "p1": "s11p2",
+     "p2": "s11p3"
+    },
+    "s11e8": {
+     "id": "s11e8",
+     "construction": false,
+     "kind": "line",
+     "p1": "s11p3",
+     "p2": "s11p4"
+    },
+    "s11e9": {
+     "id": "s11e9",
+     "construction": false,
+     "kind": "line",
+     "p1": "s11p4",
+     "p2": "s11p0"
+    },
+    "s11e15": {
+     "id": "s11e15",
+     "construction": false,
+     "kind": "line",
+     "p1": "s11p10",
+     "p2": "s11p11"
+    },
+    "s11e16": {
+     "id": "s11e16",
+     "construction": false,
+     "kind": "line",
+     "p1": "s11p11",
+     "p2": "s11p12"
+    },
+    "s11e17": {
+     "id": "s11e17",
+     "construction": false,
+     "kind": "line",
+     "p1": "s11p12",
+     "p2": "s11p13"
+    },
+    "s11e18": {
+     "id": "s11e18",
+     "construction": false,
+     "kind": "line",
+     "p1": "s11p13",
+     "p2": "s11p14"
+    },
+    "s11e19": {
+     "id": "s11e19",
+     "construction": false,
+     "kind": "line",
+     "p1": "s11p14",
+     "p2": "s11p10"
+    },
+    "s11e25": {
+     "id": "s11e25",
+     "construction": false,
+     "kind": "line",
+     "p1": "s11p20",
+     "p2": "s11p21"
+    },
+    "s11e26": {
+     "id": "s11e26",
+     "construction": false,
+     "kind": "line",
+     "p1": "s11p21",
+     "p2": "s11p22"
+    },
+    "s11e27": {
+     "id": "s11e27",
+     "construction": false,
+     "kind": "line",
+     "p1": "s11p22",
+     "p2": "s11p23"
+    },
+    "s11e28": {
+     "id": "s11e28",
+     "construction": false,
+     "kind": "line",
+     "p1": "s11p23",
+     "p2": "s11p24"
+    },
+    "s11e29": {
+     "id": "s11e29",
+     "construction": false,
+     "kind": "line",
+     "p1": "s11p24",
+     "p2": "s11p20"
+    },
+    "s11e35": {
+     "id": "s11e35",
+     "construction": false,
+     "kind": "line",
+     "p1": "s11p30",
+     "p2": "s11p31"
+    },
+    "s11e36": {
+     "id": "s11e36",
+     "construction": false,
+     "kind": "line",
+     "p1": "s11p31",
+     "p2": "s11p32"
+    },
+    "s11e37": {
+     "id": "s11e37",
+     "construction": false,
+     "kind": "line",
+     "p1": "s11p32",
+     "p2": "s11p33"
+    },
+    "s11e38": {
+     "id": "s11e38",
+     "construction": false,
+     "kind": "line",
+     "p1": "s11p33",
+     "p2": "s11p34"
+    },
+    "s11e39": {
+     "id": "s11e39",
+     "construction": false,
+     "kind": "line",
+     "p1": "s11p34",
+     "p2": "s11p30"
+    },
+    "s11e45": {
+     "id": "s11e45",
+     "construction": false,
+     "kind": "line",
+     "p1": "s11p40",
+     "p2": "s11p41"
+    },
+    "s11e46": {
+     "id": "s11e46",
+     "construction": false,
+     "kind": "line",
+     "p1": "s11p41",
+     "p2": "s11p42"
+    },
+    "s11e47": {
+     "id": "s11e47",
+     "construction": false,
+     "kind": "line",
+     "p1": "s11p42",
+     "p2": "s11p43"
+    },
+    "s11e48": {
+     "id": "s11e48",
+     "construction": false,
+     "kind": "line",
+     "p1": "s11p43",
+     "p2": "s11p44"
+    },
+    "s11e49": {
+     "id": "s11e49",
+     "construction": false,
+     "kind": "line",
+     "p1": "s11p44",
+     "p2": "s11p40"
+    },
+    "s11e55": {
+     "id": "s11e55",
+     "construction": false,
+     "kind": "line",
+     "p1": "s11p50",
+     "p2": "s11p51"
+    },
+    "s11e56": {
+     "id": "s11e56",
+     "construction": false,
+     "kind": "line",
+     "p1": "s11p51",
+     "p2": "s11p52"
+    },
+    "s11e57": {
+     "id": "s11e57",
+     "construction": false,
+     "kind": "line",
+     "p1": "s11p52",
+     "p2": "s11p53"
+    },
+    "s11e58": {
+     "id": "s11e58",
+     "construction": false,
+     "kind": "line",
+     "p1": "s11p53",
+     "p2": "s11p54"
+    },
+    "s11e59": {
+     "id": "s11e59",
+     "construction": false,
+     "kind": "line",
+     "p1": "s11p54",
+     "p2": "s11p50"
+    },
+    "s11e65": {
+     "id": "s11e65",
+     "construction": false,
+     "kind": "line",
+     "p1": "s11p60",
+     "p2": "s11p61"
+    },
+    "s11e66": {
+     "id": "s11e66",
+     "construction": false,
+     "kind": "line",
+     "p1": "s11p61",
+     "p2": "s11p62"
+    },
+    "s11e67": {
+     "id": "s11e67",
+     "construction": false,
+     "kind": "line",
+     "p1": "s11p62",
+     "p2": "s11p63"
+    },
+    "s11e68": {
+     "id": "s11e68",
+     "construction": false,
+     "kind": "line",
+     "p1": "s11p63",
+     "p2": "s11p64"
+    },
+    "s11e69": {
+     "id": "s11e69",
+     "construction": false,
+     "kind": "line",
+     "p1": "s11p64",
+     "p2": "s11p60"
+    },
+    "s11e75": {
+     "id": "s11e75",
+     "construction": false,
+     "kind": "line",
+     "p1": "s11p70",
+     "p2": "s11p71"
+    },
+    "s11e76": {
+     "id": "s11e76",
+     "construction": false,
+     "kind": "line",
+     "p1": "s11p71",
+     "p2": "s11p72"
+    },
+    "s11e77": {
+     "id": "s11e77",
+     "construction": false,
+     "kind": "line",
+     "p1": "s11p72",
+     "p2": "s11p73"
+    },
+    "s11e78": {
+     "id": "s11e78",
+     "construction": false,
+     "kind": "line",
+     "p1": "s11p73",
+     "p2": "s11p74"
+    },
+    "s11e79": {
+     "id": "s11e79",
+     "construction": false,
+     "kind": "line",
+     "p1": "s11p74",
+     "p2": "s11p70"
+    },
+    "s11e85": {
+     "id": "s11e85",
+     "construction": false,
+     "kind": "line",
+     "p1": "s11p80",
+     "p2": "s11p81"
+    },
+    "s11e86": {
+     "id": "s11e86",
+     "construction": false,
+     "kind": "line",
+     "p1": "s11p81",
+     "p2": "s11p82"
+    },
+    "s11e87": {
+     "id": "s11e87",
+     "construction": false,
+     "kind": "line",
+     "p1": "s11p82",
+     "p2": "s11p83"
+    },
+    "s11e88": {
+     "id": "s11e88",
+     "construction": false,
+     "kind": "line",
+     "p1": "s11p83",
+     "p2": "s11p84"
+    },
+    "s11e89": {
+     "id": "s11e89",
+     "construction": false,
+     "kind": "line",
+     "p1": "s11p84",
+     "p2": "s11p80"
+    },
+    "s11e95": {
+     "id": "s11e95",
+     "construction": false,
+     "kind": "line",
+     "p1": "s11p90",
+     "p2": "s11p91"
+    },
+    "s11e96": {
+     "id": "s11e96",
+     "construction": false,
+     "kind": "line",
+     "p1": "s11p91",
+     "p2": "s11p92"
+    },
+    "s11e97": {
+     "id": "s11e97",
+     "construction": false,
+     "kind": "line",
+     "p1": "s11p92",
+     "p2": "s11p93"
+    },
+    "s11e98": {
+     "id": "s11e98",
+     "construction": false,
+     "kind": "line",
+     "p1": "s11p93",
+     "p2": "s11p94"
+    },
+    "s11e99": {
+     "id": "s11e99",
+     "construction": false,
+     "kind": "line",
+     "p1": "s11p94",
+     "p2": "s11p90"
+    },
+    "s11e105": {
+     "id": "s11e105",
+     "construction": false,
+     "kind": "line",
+     "p1": "s11p100",
+     "p2": "s11p101"
+    },
+    "s11e106": {
+     "id": "s11e106",
+     "construction": false,
+     "kind": "line",
+     "p1": "s11p101",
+     "p2": "s11p102"
+    },
+    "s11e107": {
+     "id": "s11e107",
+     "construction": false,
+     "kind": "line",
+     "p1": "s11p102",
+     "p2": "s11p103"
+    },
+    "s11e108": {
+     "id": "s11e108",
+     "construction": false,
+     "kind": "line",
+     "p1": "s11p103",
+     "p2": "s11p104"
+    },
+    "s11e109": {
+     "id": "s11e109",
+     "construction": false,
+     "kind": "line",
+     "p1": "s11p104",
+     "p2": "s11p100"
+    },
+    "s11e115": {
+     "id": "s11e115",
+     "construction": false,
+     "kind": "line",
+     "p1": "s11p110",
+     "p2": "s11p111"
+    },
+    "s11e116": {
+     "id": "s11e116",
+     "construction": false,
+     "kind": "line",
+     "p1": "s11p111",
+     "p2": "s11p112"
+    },
+    "s11e117": {
+     "id": "s11e117",
+     "construction": false,
+     "kind": "line",
+     "p1": "s11p112",
+     "p2": "s11p113"
+    },
+    "s11e118": {
+     "id": "s11e118",
+     "construction": false,
+     "kind": "line",
+     "p1": "s11p113",
+     "p2": "s11p114"
+    },
+    "s11e119": {
+     "id": "s11e119",
+     "construction": false,
+     "kind": "line",
+     "p1": "s11p114",
+     "p2": "s11p110"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s11e5",
+    "s11e6",
+    "s11e7",
+    "s11e8",
+    "s11e9",
+    "s11e15",
+    "s11e16",
+    "s11e17",
+    "s11e18",
+    "s11e19",
+    "s11e25",
+    "s11e26",
+    "s11e27",
+    "s11e28",
+    "s11e29",
+    "s11e35",
+    "s11e36",
+    "s11e37",
+    "s11e38",
+    "s11e39",
+    "s11e45",
+    "s11e46",
+    "s11e47",
+    "s11e48",
+    "s11e49",
+    "s11e55",
+    "s11e56",
+    "s11e57",
+    "s11e58",
+    "s11e59",
+    "s11e65",
+    "s11e66",
+    "s11e67",
+    "s11e68",
+    "s11e69",
+    "s11e75",
+    "s11e76",
+    "s11e77",
+    "s11e78",
+    "s11e79",
+    "s11e85",
+    "s11e86",
+    "s11e87",
+    "s11e88",
+    "s11e89",
+    "s11e95",
+    "s11e96",
+    "s11e97",
+    "s11e98",
+    "s11e99",
+    "s11e105",
+    "s11e106",
+    "s11e107",
+    "s11e108",
+    "s11e109",
+    "s11e115",
+    "s11e116",
+    "s11e117",
+    "s11e118",
+    "s11e119"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s11"
+  }
+ },
+ "features": [
+  {
+   "id": "ks1",
+   "type": "sketch",
+   "name": "Sketch1",
+   "sketchId": "s1",
+   "suppressed": false
+  },
+  {
+   "id": "f2",
+   "type": "extrude",
+   "name": "Profiel 211",
+   "sketchId": "s1",
+   "suppressed": false,
+   "op": "boss",
+   "end": "blind",
+   "depth": 211,
+   "reverse": false
+  },
+  {
+   "id": "ks2",
+   "type": "sketch",
+   "name": "Sketch2",
+   "sketchId": "s2",
+   "suppressed": false
+  },
+  {
+   "id": "f4",
+   "type": "extrude",
+   "name": "Profiel 181,8",
+   "sketchId": "s2",
+   "suppressed": false,
+   "op": "boss",
+   "end": "blind",
+   "depth": 181.8,
+   "reverse": false
+  },
+  {
+   "id": "ks3",
+   "type": "sketch",
+   "name": "Sketch3",
+   "sketchId": "s3",
+   "suppressed": false
+  },
+  {
+   "id": "f6",
+   "type": "extrude",
+   "name": "Profiel 197",
+   "sketchId": "s3",
+   "suppressed": false,
+   "op": "boss",
+   "end": "blind",
+   "depth": 197,
+   "reverse": false
+  },
+  {
+   "id": "ks4",
+   "type": "sketch",
+   "name": "Sketch4",
+   "sketchId": "s4",
+   "suppressed": false
+  },
+  {
+   "id": "f8",
+   "type": "extrude",
+   "name": "Nokken -37",
+   "sketchId": "s4",
+   "suppressed": false,
+   "op": "boss",
+   "end": "blind",
+   "depth": 5,
+   "reverse": false
+  },
+  {
+   "id": "ks5",
+   "type": "sketch",
+   "name": "Sketch5",
+   "sketchId": "s5",
+   "suppressed": false
+  },
+  {
+   "id": "f10",
+   "type": "extrude",
+   "name": "Nokken 32",
+   "sketchId": "s5",
+   "suppressed": false,
+   "op": "boss",
+   "end": "blind",
+   "depth": 5,
+   "reverse": false
+  },
+  {
+   "id": "ks6",
+   "type": "sketch",
+   "name": "Sketch6",
+   "sketchId": "s6",
+   "suppressed": false
+  },
+  {
+   "id": "f12",
+   "type": "extrude",
+   "name": "Nokken 27,325",
+   "sketchId": "s6",
+   "suppressed": false,
+   "op": "boss",
+   "end": "blind",
+   "depth": 5,
+   "reverse": false
+  },
+  {
+   "id": "ks7",
+   "type": "sketch",
+   "name": "Sketch7",
+   "sketchId": "s7",
+   "suppressed": false
+  },
+  {
+   "id": "f14",
+   "type": "extrude",
+   "name": "Nokken -62,975",
+   "sketchId": "s7",
+   "suppressed": false,
+   "op": "boss",
+   "end": "blind",
+   "depth": 5,
+   "reverse": false
+  },
+  {
+   "id": "ks8",
+   "type": "sketch",
+   "name": "Sketch8",
+   "sketchId": "s8",
+   "suppressed": false
+  },
+  {
+   "id": "f16",
+   "type": "extrude",
+   "name": "Nokken -61,525",
+   "sketchId": "s8",
+   "suppressed": false,
+   "op": "boss",
+   "end": "blind",
+   "depth": 5,
+   "reverse": false
+  },
+  {
+   "id": "ks9",
+   "type": "sketch",
+   "name": "Sketch9",
+   "sketchId": "s9",
+   "suppressed": false
+  },
+  {
+   "id": "f18",
+   "type": "extrude",
+   "name": "Nokken 28,775",
+   "sketchId": "s9",
+   "suppressed": false,
+   "op": "boss",
+   "end": "blind",
+   "depth": 5,
+   "reverse": false
+  },
+  {
+   "id": "ks10",
+   "type": "sketch",
+   "name": "Sketch10",
+   "sketchId": "s10",
+   "suppressed": false
+  },
+  {
+   "id": "f20",
+   "type": "extrude",
+   "name": "Nokken -44",
+   "sketchId": "s10",
+   "suppressed": false,
+   "op": "boss",
+   "end": "blind",
+   "depth": 5,
+   "reverse": false
+  },
+  {
+   "id": "ks11",
+   "type": "sketch",
+   "name": "Sketch11",
+   "sketchId": "s11",
+   "suppressed": false
+  },
+  {
+   "id": "f22",
+   "type": "extrude",
+   "name": "Nokken 25",
+   "sketchId": "s11",
+   "suppressed": false,
+   "op": "boss",
+   "end": "blind",
+   "depth": 5,
+   "reverse": false
+  }
+ ],
+ "material": {
+  "name": "PETG, grijs",
+  "density": 1270,
+  "color": "#8d939a"
+ }
+}

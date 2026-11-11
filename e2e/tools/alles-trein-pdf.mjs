@@ -10,7 +10,7 @@ import { resolve } from 'node:path';
 import { esc, dataUrl, mdDoc } from './mdhtml.mjs';
 
 const DIR = 'voorbeelden/treinverlichting';
-const VERSIE = `versie 1 (${/\((\d{4}-\d{2}-\d{2})\)/.exec(readFileSync(`${DIR}/README.md`, 'utf8'))?.[1] ?? ''})`;
+const VERSIE = `versie 2 (${/\((\d{4}-\d{2}-\d{2})\)/.exec(readFileSync(`${DIR}/README.md`, 'utf8'))?.[1] ?? ''})`;
 
 const a3 = (svg) => `<div class="a3">${svg.replace(/^<\?xml[^>]*>\s*/, '').replace(/<svg /, '<svg style="display:block;width:420mm;height:297mm" ')}</div>`;
 const tekeningen = readdirSync(`${DIR}/tekeningen`).filter((f) => f.endsWith('.svg')).sort().map((f) => a3(readFileSync(`${DIR}/tekeningen/${f}`, 'utf8')));

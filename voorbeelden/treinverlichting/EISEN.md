@@ -44,3 +44,8 @@ Keuzes (zelf beslist, geen meerkost boven € 20):
   de andere), licht taps zodat ze vastklemmen, met een klikneus onderaan die hoorbaar invalt; geen lijm of schroeven nodig.
 - Elke module heeft een eigen deksel en eigen sleutelgaten om onder de baan te hangen; de goten lopen door open
   sleuven in de tussenwanden van module tot module.
+
+Bijsturing (Ian, 2026-11-11): "alles zou wel in 1 module moeten als het kan". Uitgewerkt (README): het past in één doos
+van 229,8 x 229,8 x 68,3. De hoogte gaat naar de goten (60 hoog, 5,4 breed tussen de rijen, vol hoogstens 49 %); de
+wanden van de goten zijn ook het kader van de bordjes; de indeling van versie 1 blijft (rij 1 tot 5 telkens 3 bordjes,
+rij 6 bordje 16 met de uitgangsprint en de PCA9685, rij 7 voeding, ingangen en ESP). Geen modules en geen zwaluwstaarten.

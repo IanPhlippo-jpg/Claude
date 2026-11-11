@@ -113,22 +113,25 @@ def zip_bytes(entries: list[tuple[str, Path | bytes]]) -> bytes:
     return buf.getvalue()
 
 
-PRINT_TXT = """Kabeldoos treinverlichting - printbestanden
+PRINT_TXT = """Kabeldoos treinverlichting (versie 2) - printbestanden
 
-Kabeldoos-bak.stl     de bodem op het bed     248,9 x 240,6 x 26,4 mm   PETG zwart, ongeveer 350 g, 14 uur
-Kabeldoos-deksel.stl  de buitenkant op het bed 248,9 x 240,6 x 9,1 mm   PETG grijs, ongeveer 120 g, 4 uur
+Kabeldoos-bak.stl          de bodem op het bed            229,8 x 229,8 x 65,9 mm   PETG zwart, ongeveer 500 g, 20 uur
+Kabeldoos-deksel.stl       de buitenkant op het bed       229,8 x 229,8 x 48,6 mm   PETG grijs, ongeveer 230 g, 8 uur
+Gootdeksels-plaat.stl      de vlakke kant op het bed      211,0 x 132,4 x 8,9 mm    PETG grijs, ongeveer 70 g, 3 uur
 
-Elegoo Centauri Carbon (bed 256 x 256), PETG, zonder support.
-0,2 mm lagen, 4 wanden, 30 % gyroid (zoals bij de afzuiging).
-Na het printen: de bordjes vallen zonder kracht in hun uitsparing (0,3 mm speling), het deksel valt met zijn rand in de bak.
+Elegoo Centauri Carbon (bed 256 x 256), PETG, zonder support. Elk deel is hoogstens 230 x 230: leg het in het midden van
+het bed, dan blijft de hoek voor het filamentmes (rechtsvoor 10 x 20) vrij, ook met een skirt.
+0,2 mm lagen, 4 wanden, 30 % gyroid (zoals bij de afzuiging); de bak met buitenwanden op 40 mm/s (hoge, dunne vingers).
+Na het printen: de bordjes vallen zonder kracht in hun ring (0,3 mm speling), een gootdeksel klikt over zijn goot.
 """
-stl = [('Kabeldoos-bak.stl', BOX / 'print' / 'Kabeldoos-bak.stl'), ('Kabeldoos-deksel.stl', BOX / 'print' / 'Kabeldoos-deksel.stl')]
+STL_NAMEN = ['Kabeldoos-bak.stl', 'Kabeldoos-deksel.stl', 'Gootdeksels-plaat.stl']
+stl = [(n, BOX / 'print' / n) for n in STL_NAMEN]
 add_file('stl', None, 'dl/Kabeldoos-printbestanden.zip', 'Kabeldoos-printbestanden.zip',
-         'De twee STL\'s (bak en deksel), dicht en manifold, met de printinstellingen', zip_bytes(stl + [('LEESMIJ-printen.txt', PRINT_TXT.encode('utf-8'))]))
+         'De drie STL\'s (bak, deksel, plaat met 9 gootdeksels), dicht en manifold, met de printinstellingen', zip_bytes(stl + [('LEESMIJ-printen.txt', PRINT_TXT.encode('utf-8'))]))
 add_file('alles-pdf', BOX / 'Kabeldoos-alles-afdrukken.pdf', 'pdf/Kabeldoos-alles-afdrukken.pdf', 'Kabeldoos-alles-afdrukken.pdf',
          'Alles samen om af te drukken: uitleg, bouwschema, tekeningen, schema, dashboard en rekenblad')
 add_file('werk-pdf', BOX / 'tekeningen' / 'Werktekeningen-kabeldoos.pdf', 'pdf/Werktekeningen-kabeldoos.pdf', 'Werktekeningen-kabeldoos.pdf',
-         'Boormal op ware grootte (TRN-00, A3), bak (TRN-01) en deksel (TRN-02)')
+         'Boormal op ware grootte (TRN-00, A3), bak (TRN-01), deksel (TRN-02) en gootdeksel (TRN-03)')
 add_file('bouw-pdf', BOX / 'tekeningen' / 'Bouwschema-kabeldoos.pdf', 'pdf/Bouwschema-kabeldoos.pdf', 'Bouwschema-kabeldoos.pdf',
          'De 8 bouwstappen met beelden, van printen tot aanzetten')
 
@@ -144,9 +147,10 @@ add_file('alles-zip', None, 'dl/Kabeldoos-treinverlichting-alles.zip', 'Kabeldoo
 
 # ---------- drawings and wiring diagram as SVG ----------
 DRAWINGS = [
-    ('TRN-00', 'TRN-00-boormal.svg', 'Boormal', '1:1', 'Plak hem onder de baan en boor de 4 kruisjes voor. Druk hem af op A3 op ware grootte (100 %) en meet de controlemaat van 100 mm na.'),
-    ('TRN-01', 'TRN-01-bak.svg', 'Bak', '1:2,5', 'De bak met alle maten: wanden, kaders per rij, kabelgoten, sleutelgaten, schroefpaaltjes en kabelinvoeren.'),
-    ('TRN-02', 'TRN-02-deksel.svg', 'Deksel', '1:2,5', 'Het deksel met de drukribben op de bordjes en de 6 verzonken schroefgaten.'),
+    ('TRN-00', 'TRN-00-boormal.svg', 'Boormal', '1:1', 'Plak hem onder de baan (van onderen gezien) en boor de 4 kruisjes voor. Druk hem af op A3 op ware grootte (100 %) en meet de controlemaat van 100 mm na.'),
+    ('TRN-01', 'TRN-01-bak.svg', 'Bak', '1:2,5', 'De bak met alle maten: de ringen rond de rijen bordjes, de kabelgoten met vingers en sleuven, sleutelgaten, schroefpaaltjes en kabelinvoeren.'),
+    ('TRN-02', 'TRN-02-deksel.svg', 'Deksel', '1:2,5', 'Het deksel met de drukribben op de bordjes en de 4 verzonken schroefgaten.'),
+    ('TRN-03', 'TRN-03-gootdeksel.svg', 'Gootdeksel', 'vrij', 'Het klikdeksel van een goot, met de lengtes van alle 9 deksels.'),
 ]
 for no, f, *_ in DRAWINGS:
     add_file('svg-' + no, BOX / 'tekeningen' / f, 'svg/' + f, f, 'Tekening ' + no + ' als SVG')
@@ -193,11 +197,14 @@ def to_webp(src: Path, out: str, width: int):
 
 
 RENDERS = [
-    ('trein-doos-open', 'doos-open.webp', 'De bak open: 16 bordjes in hun kaders, vooraan voeding, ingangen, uitgangen en de ESP'),
+    ('trein-doos-open', 'doos-open.webp', 'De bak open met de grijze gootdeksels: 16 bordjes, vooraan voeding, ingangen en de ESP'),
     ('trein-doos-dicht', 'doos-dicht.webp', 'Dicht, met het grijze deksel naar beneden zoals hij onder de baan hangt'),
-    ('trein-doos-boven', 'doos-boven.webp', 'Van boven: 5 rijen van 3 bordjes en bordje 16 in rij 6'),
-    ('trein-kabels', 'kabels.webp', 'Kabelgoten langs de wanden, lippen over de draadgangen en spleten voor de kabelbinders'),
-    ('trein-doorsnede', 'zijkant.webp', 'De kabelinvoeren in de wand, open aan de kant van het deksel'),
+    ('trein-goten', 'goten.webp', 'Zonder gootdeksels: de goten met vingers en sleuven, elke rij in een ring'),
+    ('trein-doos-boven', 'doos-boven.webp', 'Van boven: 5 rijen van 3 bordjes en bordje 16 in rij 6, goten ertussen en langs de wanden'),
+    ('trein-kabels', 'kabels.webp', 'Van dichtbij: een sleuf per twee klemmen, de klikvingers en een kabelinvoer in de zijgoot'),
+    ('trein-gootdeksel', 'gootdeksel.webp', 'Twee gootdeksels opgetild: de nokken klikken in de groef van de klikvingers'),
+    ('trein-plaat-gootdeksels', 'plaat.webp', 'De 9 gootdeksels op hun printplaat'),
+    ('trein-doorsnede', 'zijkant.webp', 'Doorsnede: de goten van 60 hoog tussen de rijen, de bordjes in hun ring'),
     ('trein-prints', 'prints.webp', 'De gaatjesprints: voeding, ingangen (optocouplers) en uitgangen (MOSFET\'s)'),
     ('trein-esp', 'esp.webp', 'De ESP32-S3 op zijn draagprint met 2 vrouwelijke pinrijen'),
     ('trein-esp-boven', 'esp-boven.webp', 'ESP32-S3-DevKitC-1 van boven, de 2 USB-poorten rechts'),
@@ -250,13 +257,13 @@ def read_stl(p: Path):
 
 
 nets = {}
-for name, f, kleur in (('bak', 'Kabeldoos-bak.stl', '#2b2f2e'), ('deksel', 'Kabeldoos-deksel.stl', '#9ea4a6')):
+for name, f, kleur in (('bak', 'Kabeldoos-bak.stl', '#2b2f2e'), ('deksel', 'Kabeldoos-deksel.stl', '#9ea4a6'), ('gootdeksels', 'Gootdeksels-plaat.stl', '#8d939a')):
     v, idx, n = read_stl(BOX / 'print' / f)
-    assert len(v) < 65536, (f, len(v))
+    groot = len(v) >= 65536  # dan 32-bit indices (de bak met zijn vingers heeft er meer)
     mn, mx = v.min(axis=0), v.max(axis=0)
     q = np.round((v - mn) / (mx - mn) * 65535).astype('<u2')
-    nets[name] = {'kleur': kleur, 'min': mn.round(4).tolist(), 'max': mx.round(4).tolist(), 'driehoeken': int(n),
-                  'p': base64.b64encode(q.tobytes()).decode(), 'i': base64.b64encode(idx.astype('<u2').tobytes()).decode()}
+    nets[name] = {'kleur': kleur, 'min': mn.round(4).tolist(), 'max': mx.round(4).tolist(), 'driehoeken': int(n), 'i32': groot,
+                  'p': base64.b64encode(q.tobytes()).decode(), 'i': base64.b64encode(idx.astype('<u4' if groot else '<u2').tobytes()).decode()}
 (OUT / 'net' / 'printdelen.json').write_text(json.dumps(nets, separators=(',', ':')), encoding='utf-8')
 FILES['net'] = {'pad': 'net/printdelen.json', 'naam': 'printdelen.json', 'wat': '3D-net', 'bytes': (OUT / 'net' / 'printdelen.json').stat().st_size}
 
@@ -280,8 +287,8 @@ def shot(img, cap, title=None):
 
 
 first = README.split('\n## ')[0].split('\n', 1)[1].strip().split('\n\n')[0]
-facts = [('249 x 241 x 29', 'mm, deksel inbegrepen'), ('16', 'lichtgroepen, één per bordje'), ('16', 'ingangen voor knoppen en sensoren'),
-         ('12 V', 'adapter 6,67 A, hoogstens 1,9 W in de doos'), ('€ 125,28', 'onderdelen te kopen'), ('± 18 u', 'printen: bak 14 u, deksel 4 u')]
+facts = [('230 x 230 x 68', 'mm, deksel inbegrepen'), ('16', 'lichtgroepen, één per bordje'), ('16', 'ingangen voor knoppen en sensoren'),
+         ('12 V', 'adapter 6,67 A, hoogstens 1,9 W in de doos'), ('€ 132,32', 'onderdelen te kopen'), ('± 31 u', 'printen: bak 20 u, deksel 8 u, gootdeksels 3 u')]
 
 S = []
 S.append(f'''<section class="sheet" id="overzicht">
@@ -291,7 +298,7 @@ S.append(f'''<section class="sheet" id="overzicht">
     <h1>Kabeldoos treinverlichting</h1>
     <p class="lead">{md_inline(" ".join(first.split()))}</p>
     <div class="actions">{btn("alles-zip", "Alles in één zip", True)}{btn("alles-pdf", "Alles afdrukken (PDF)")}{btn("stl", "Printbestanden (STL)")}</div>
-    <p class="note">Versie 1 van 8 november 2026. Elke knop vraagt eerst of je het bestand wilt bewaren.</p>
+    <p class="note">Versie 2 van 11 november 2026: één doos van hoogstens 230 x 230 met kabelgoten. Elke knop vraagt eerst of je het bestand wilt bewaren.</p>
   </div>
 </div>
 <div class="facts">{"".join(f"<div><b>{esc(a)}</b><span>{esc(b)}</span></div>" for a, b in facts)}</div>
@@ -304,17 +311,18 @@ S.append(f'''<section class="sheet" id="printen" hidden>
 {titleblock("P", "Printen", ("Printer", "Centauri Carbon"))}
 <div class="printgrid">
   <div class="viewer" id="viewer">
-    <div class="seg" role="group" aria-label="Printdeel"><button type="button" data-part="bak" aria-pressed="true">Bak</button><button type="button" data-part="deksel" aria-pressed="false">Deksel</button></div>
+    <div class="seg" role="group" aria-label="Printdeel"><button type="button" data-part="bak" aria-pressed="true">Bak</button><button type="button" data-part="deksel" aria-pressed="false">Deksel</button><button type="button" data-part="gootdeksels" aria-pressed="false">Gootdeksels</button></div>
     <div class="wait" id="viewer-wait">3D-beeld laden…</div>
     <span class="hint">Slepen draait, scrollen zoomt. Het oranje vierkant is het bed van 256 x 256.</span>
   </div>
   <div class="specs">
     <div id="part-spec"></div>
-    <template id="spec-bak"><h3>Bak</h3><dl><dt>Bestand</dt><dd><code>Kabeldoos-bak.stl</code></dd><dt>Stand</dt><dd>de bodem op het bed</dd><dt>Maat</dt><dd class="num">248,9 x 240,6 x 26,4 mm</dd><dt>Filament</dt><dd>PETG zwart, ± 350 g</dd><dt>Tijd</dt><dd>± 14 uur</dd><dt>Driehoeken</dt><dd class="num">{dots(nets["bak"]["driehoeken"])}</dd></dl></template>
-    <template id="spec-deksel"><h3>Deksel</h3><dl><dt>Bestand</dt><dd><code>Kabeldoos-deksel.stl</code></dd><dt>Stand</dt><dd>de buitenkant op het bed</dd><dt>Maat</dt><dd class="num">248,9 x 240,6 x 9,1 mm (met de drukribben)</dd><dt>Filament</dt><dd>PETG grijs, ± 120 g</dd><dt>Tijd</dt><dd>± 4 uur</dd><dt>Driehoeken</dt><dd class="num">{dots(nets["deksel"]["driehoeken"])}</dd></dl></template>
+    <template id="spec-bak"><h3>Bak</h3><dl><dt>Bestand</dt><dd><code>Kabeldoos-bak.stl</code></dd><dt>Stand</dt><dd>de bodem op het bed</dd><dt>Maat</dt><dd class="num">229,8 x 229,8 x 65,9 mm</dd><dt>Filament</dt><dd>PETG zwart, ± 500 g</dd><dt>Tijd</dt><dd>± 20 uur</dd><dt>Driehoeken</dt><dd class="num">{dots(nets["bak"]["driehoeken"])}</dd></dl></template>
+    <template id="spec-deksel"><h3>Deksel</h3><dl><dt>Bestand</dt><dd><code>Kabeldoos-deksel.stl</code></dd><dt>Stand</dt><dd>de buitenkant op het bed</dd><dt>Maat</dt><dd class="num">229,8 x 229,8 x 48,6 mm (met de drukribben)</dd><dt>Filament</dt><dd>PETG grijs, ± 230 g</dd><dt>Tijd</dt><dd>± 8 uur</dd><dt>Driehoeken</dt><dd class="num">{dots(nets["deksel"]["driehoeken"])}</dd></dl></template>
+    <template id="spec-gootdeksels"><h3>Gootdeksels</h3><dl><dt>Bestand</dt><dd><code>Gootdeksels-plaat.stl</code></dd><dt>Stand</dt><dd>de vlakke kant op het bed, de benen omhoog</dd><dt>Maat</dt><dd class="num">211,0 x 132,4 x 8,9 mm (9 deksels)</dd><dt>Filament</dt><dd>PETG grijs, ± 70 g</dd><dt>Tijd</dt><dd>± 3 uur</dd><dt>Driehoeken</dt><dd class="num">{dots(nets["gootdeksels"]["driehoeken"])}</dd></dl></template>
     <div class="actions">{btn("stl", "Printbestanden (STL in zip)", True)}</div>
-    <div class="warn">PETG, zonder support. 0,2 mm lagen, 4 wanden, 30 % gyroid. Beide delen passen net op het bed van 256 x 256.</div>
-    <p class="note">Na het printen: de bordjes vallen zonder kracht in hun uitsparing (0,3 mm speling), het deksel valt met zijn rand in de bak.</p>
+    <div class="warn">PETG, zonder support. 0,2 mm lagen, 4 wanden, 30 % gyroid. Elk deel is hoogstens 230 x 230: in het midden van het bed blijft de hoek voor het filamentmes vrij, ook met een skirt.</div>
+    <p class="note">Na het printen: de bordjes vallen zonder kracht in hun ring (0,3 mm speling), een gootdeksel klikt over zijn goot, het deksel valt met zijn rand in de bak.</p>
   </div>
 </div>
 </section>''')
@@ -327,7 +335,7 @@ for no, f, what, scale, txt in DRAWINGS:
 <div class="actions">{btn("svg-" + no, "SVG")}</div></div></div>''')
 S.append(f'''<section class="sheet" id="tekeningen" hidden>
 {titleblock("T", "Werktekeningen", ("Formaat", "A3 liggend"))}
-<div class="actions">{btn("werk-pdf", "Werktekeningen (PDF, 3 bladen)", True)}</div>
+<div class="actions">{btn("werk-pdf", "Werktekeningen (PDF, 4 bladen)", True)}</div>
 <div class="drawings">{"".join(dr)}</div>
 </section>''')
 
@@ -367,7 +375,7 @@ S.append(f'''<section class="sheet" id="schema" hidden>
 </section>''')
 
 S.append(f'''<section class="sheet" id="bestellen" hidden>
-{titleblock("O", "Bestellijst", ("Totaal", "€ 125,28"))}
+{titleblock("O", "Bestellijst", ("Totaal", "€ 132,32"))}
 {md_table("Bestellijst", total_last=True)}
 {md_paragraphs("Bestellijst")}
 </section>''')
@@ -379,7 +387,7 @@ S.append(f'''<section class="sheet" id="dashboard" hidden>
 <button class="shot" type="button" data-zoom="img/tablet-groepen.webp" data-title="Het dashboard op een tablet"><span class="img" style="aspect-ratio:auto"><img src="img/tablet-groepen.webp" alt="Het dashboard op een tablet" loading="lazy"></span><span class="cap">Op een tablet</span></button>
 </section>''')
 
-order = ['alles-zip', 'alles-pdf', 'stl', 'werk-pdf', 'bouw-pdf', 'schema-pdf', 'schema-zip', 'svg-TRN-00', 'svg-TRN-01', 'svg-TRN-02']
+order = ['alles-zip', 'alles-pdf', 'stl', 'werk-pdf', 'bouw-pdf', 'schema-pdf', 'schema-zip', 'svg-TRN-00', 'svg-TRN-01', 'svg-TRN-02', 'svg-TRN-03']
 S.append(f'''<section class="sheet" id="bestanden" hidden>
 {titleblock("A", "Alle bestanden", ("Bestanden", str(len(order))))}
 <p class="lead">Elke knop vraagt eerst of je het bestand wilt bewaren. De STL's zitten in een zip: pak die uit en open ze in de slicer.</p>
