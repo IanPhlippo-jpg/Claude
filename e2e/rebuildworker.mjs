@@ -97,9 +97,11 @@ const limit = Math.max(250, redraw + 150);
 // 5 781), while this thread is idle. There the check is the longest task on this thread: taking the result over (the
 // edges and silhouettes come made from the worker) stays under 600 ms on a runner's slower processor (190-214 ms on a
 // desktop with software GL, 91 ms with a graphics card, where the limit stays 250 ms and the frame gap counts too).
-// The ordinary redraw is not part of the limit: its first frame can compile shader programs for seconds (8 770 ms seen)
+// On a Linux runner software GL draws on this thread itself: one ordinary redraw is then a task of 1 875-3 136 ms (CI
+// mesh-3of3/release-3of3 on beff4aa), so there the limit is that redraw + 150 ms, and the rebuild itself must clearly not
+// have run here: the longest task stays under half the rebuild time (an inline rebuild is one task of the whole time).
 const softwareGl = redraw > 1000;
-const taskLimit = softwareGl ? 600 : 250;
+const taskLimit = softwareGl ? Math.max(600, redrawTask + 150) : 250;
 // the shader programs before the rebuild: the new model has to be drawn with them, on any graphics card
 const progs0 = await page.evaluate(() => window.__phlippoRenderer.info.programs.map((p) => p.id));
 await watchFrames();
@@ -122,7 +124,7 @@ await settled();
 const worker = Date.now() - t0;
 const frames = await stopFrames();
 const info = JSON.stringify({ ...frames, workerMs: worker, redraw: Math.round(redraw), redrawTask: Math.round(redrawTask), softwareGl });
-if (softwareGl) check(`software GL: no task on the window's thread over ${Math.round(taskLimit)} ms during the rebuild`, frames.task < taskLimit, info);
+if (softwareGl) check(`software GL: no task on the window's thread over ${Math.round(taskLimit)} ms (one redraw) nor over half the rebuild time during the rebuild`, frames.task < taskLimit && frames.task < worker / 2, info);
 else check(`the window kept drawing frames during the rebuild (no gap over ${Math.round(limit)} ms, no task over ${Math.round(taskLimit)} ms)`, frames.gap < limit && frames.task < taskLimit, info);
 console.log('frames', info);
 s = await state();
