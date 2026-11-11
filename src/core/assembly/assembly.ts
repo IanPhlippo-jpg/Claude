@@ -472,14 +472,19 @@ export const MATE_PASSES = 16;
 /** the passes after which a solver that still moves parts by more than a micron per pass has mates that conflict */
 const CONFLICT_PASSES = 128;
 
-/** passes over the mates; `last` is the largest move of the last pass made (0 once nothing moves any more) */
-function runPasses(components: Component[], mates: Mate[], passes: number): { out: Component[]; last: number } {
+/**
+ * passes over the mates; `last` is the largest move of the last pass made (0 once nothing moves any more), `prev` the
+ * one of the pass before it (their ratio says whether the passes still contract or go back and forth)
+ */
+function runPasses(components: Component[], mates: Mate[], passes: number): { out: Component[]; last: number; prev: number; made: number } {
   const byId = new Map(components.map((c) => [c.id, { ...c }]));
   const ground = groundDistance(components, mates.filter((m) => !m.suppressed));
   const far = (m: Mate) => Math.max(ground.get(m.refs[0].componentId) ?? Infinity, ground.get(m.refs[1].componentId) ?? Infinity);
   const active = mates.filter((m) => !m.suppressed).sort((x, y) => far(x) - far(y));
-  let last = passes > 0 ? Infinity : 0;
+  let last = passes > 0 ? Infinity : 0, prev = Infinity, made = 0;
   for (let pass = 0; pass < passes; pass++) {
+    prev = last;
+    made++;
     last = 0;
     for (const m of active) {
       const a = byId.get(m.refs[0].componentId), b = byId.get(m.refs[1].componentId);
@@ -493,7 +498,42 @@ function runPasses(components: Component[], mates: Mate[], passes: number): { ou
     }
     if (!last) break;
   }
-  return { out: components.map((c) => byId.get(c.id)!), last };
+  return { out: components.map((c) => byId.get(c.id)!), last, prev, made };
+}
+
+/**
+ * What the solver itself found (QA 0.5.13 F186), so the mate status needs no solve of its own:
+ *   settled   the passes stopped: nothing moved any more, or less than a micron per pass after the extra passes
+ *   conflict  the mate the solver had to leave out before the others settled (the newest of the last eight that
+ *             makes the difference); null when it settled with every mate or found no single mate to blame
+ *   rate      the largest move of the last pass over the one before: below 1 the passes still contract (a long chain
+ *             that needs more passes), about 1 they go back and forth (mates that cannot all be met)
+ */
+export interface MateSolveReport {
+  out: Component[];
+  settled: boolean;
+  conflict: Id | null;
+  passes: number;
+  last: number;
+  rate: number;
+}
+
+/** the move ratio between two passes above which the passes no longer contract: they go back and forth */
+export const CYCLING_RATE = 0.9;
+
+export function solveMatesReport(components: Component[], mates: Mate[], passes = MATE_PASSES): MateSolveReport {
+  const report = (r: { out: Component[]; last: number; prev: number }, made: number, conflict: Id | null = null): MateSolveReport => ({ out: r.out, settled: r.last < 1e-3 && Number.isFinite(r.last), conflict, passes: made, last: r.last, rate: Number.isFinite(r.prev) && r.prev > 0 ? r.last / r.prev : r.last > 0 ? 1 : 0 });
+  const first = runPasses(components, mates, passes);
+  if (!first.last || passes < MATE_PASSES) return { ...report(first, first.made), settled: first.last === 0 && first.made > 0 };
+  // still moving: a long chain settles with more passes, mates that conflict never do
+  const more = runPasses(first.out, mates, CONFLICT_PASSES);
+  if (more.last < 1e-3) return report(more, first.made + more.made);
+  const active = mates.filter((m) => !m.suppressed);
+  for (let i = active.length - 1; i >= Math.max(0, active.length - 8); i--) {
+    const without = runPasses(components, mates.filter((m) => m !== active[i]), CONFLICT_PASSES);
+    if (!without.last) return report(without, first.made + more.made + without.made, active[i].id);
+  }
+  return report(more, first.made + more.made);
 }
 
 /**
@@ -506,17 +546,7 @@ function runPasses(components: Component[], mates: Mate[], passes: number): { ou
  * older mate, shown as met, was not).
  */
 export function solveMates(components: Component[], mates: Mate[], passes = MATE_PASSES): Component[] {
-  const first = runPasses(components, mates, passes);
-  if (!first.last || passes < MATE_PASSES) return first.out;
-  // still moving: a long chain settles with more passes, mates that conflict never do
-  const more = runPasses(first.out, mates, CONFLICT_PASSES);
-  if (more.last < 1e-3) return more.out;
-  const active = mates.filter((m) => !m.suppressed);
-  for (let i = active.length - 1; i >= Math.max(0, active.length - 8); i--) {
-    const without = runPasses(components, mates.filter((m) => m !== active[i]), CONFLICT_PASSES);
-    if (!without.last) return without.out;
-  }
-  return more.out;
+  return solveMatesReport(components, mates, passes).out;
 }
 
 // ---------- rebuild ----------
@@ -566,6 +596,8 @@ export interface AssemblyRebuild extends RebuildResult {
   components: Component[];
   /** instances of the component patterns (bodies with these ids are in `bodies`) */
   patternInstances: PatternInstance[];
+  /** what the mate solver found, with the document's components and mates it solved (mateStatus reads it, F186) */
+  mateReport?: MateSolveReport & { from: { components: Document['components']; mates: Document['mates'] } };
 }
 
 /** World transforms of a pattern's instances (the seed itself excluded), applied before the seed's own transform. */
@@ -641,7 +673,8 @@ export function componentBody(r: RebuildResult): Body | null {
 export function rebuildAssembly(doc: Document): AssemblyRebuild {
   const errors: Record<string, string> = {};
   const comps0 = (doc.components ?? []).filter((c) => !c.suppressed);
-  const components = solveMates(comps0, doc.mates ?? []);
+  const mateReport = solveMatesReport(comps0, doc.mates ?? []);
+  const components = mateReport.out;
   const bodies: Body[] = [];
   const curves: { id: string; name: string; points: THREE.Vector3[]; dashed?: boolean }[] = [];
   // Exploded View: every step adds its offset to its components (display only; the solved transforms stay)
@@ -812,7 +845,7 @@ export function rebuildAssembly(doc: Document): AssemblyRebuild {
     if (!hit) errors[f.id] = 'The cut does not touch any component in its scope.';
   }
   if (cutAway.size) for (let k = bodies.length - 1; k >= 0; k--) if (cutAway.has(bodies[k])) bodies.splice(k, 1);
-  return { bodies, errors, consumedSketches: consumed, components, curves, patternInstances };
+  return { bodies, errors, consumedSketches: consumed, components, curves, patternInstances, mateReport: { ...mateReport, from: { components: doc.components, mates: doc.mates } } };
 }
 
 /** Next instance name: Part1<1>, Part1<2>, … */

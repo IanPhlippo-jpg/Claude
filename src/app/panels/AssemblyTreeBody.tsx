@@ -8,7 +8,7 @@ import { Icon } from '../../ui/icons';
 import { restoreSnapshot } from '../assemblyCommands';
 import { activeConfiguration, configurations } from '../../core/document/configurations';
 import { PLANE_LABELS } from '../viewport/camera';
-import { mateStatus } from '../../core/assembly/mateStatus';
+import { mateStatus, reportOf } from '../../core/assembly/mateStatus';
 
 import { MATE_ICON } from './mateIcons';
 
@@ -33,7 +33,8 @@ export function AssemblyTreeBody() {
   const mates = st.doc.mates ?? [];
   const compName = (id: string) => components.find((c) => c.id === id)?.name ?? '?';
   // (f) fixed, (-) can still move, (+) one of its mates conflicts, nothing when fully defined (QA v0.5.1 F108)
-  const status = useMemo(() => mateStatus(components, mates), [components, mates]);
+  // the classification reads the solver's report of the rebuild when it solved this document (F186)
+  const status = useMemo(() => mateStatus(components, mates, reportOf(st.rebuild, st.doc.components, st.doc.mates)), [components, mates, st.rebuild, st.doc.components, st.doc.mates]);
   const PREFIX = { fixed: '(f) ', under: '(-) ', over: '(+) ', full: '' } as const;
   const componentNodes: TreeNode[] = components
     .filter((c) => !q || c.name.toLowerCase().includes(q))

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
-import { solveMates } from './assembly';
-import { MATE_TOLERANCE, mateStatus } from './mateStatus';
+import { CYCLING_RATE, rebuildAssembly, solveMates, solveMatesReport } from './assembly';
+import { MATE_TOLERANCE, mateStatus, reportOf } from './mateStatus';
 import { createDocument, type Component, type Mate, type MateRef } from '../document/types';
 
 // blocks 10 high: bottom face y = 0 (normal -y), top face y = 10 (normal +y), in their own frame
@@ -169,5 +169,58 @@ describe('the convergence rule (QA 0.5.11 F186)', () => {
     const st = mateStatus(solveMates([A, B], mates, 1000), mates);
     expect(st.violated.size).toBe(1);
     expect(st.unconverged.size).toBe(0);
+  });
+});
+
+describe('conflict and not converged from the solver report (QA 0.5.13 F186)', () => {
+  const pair = () => [comp('A', true), comp('B', false, 50)];
+  it('CONFLICT: the solver itself names the mate it had to leave out; mateStatus marks that one', () => {
+    const mates = [mate('distance', [top('A'), bottom('B')], { value: 10 }), mate('distance', [top('A'), bottom('B')], { value: 20 })];
+    const rep = solveMatesReport(pair(), mates);
+    expect(rep.conflict).toBe(mates[1].id);
+    expect(rep.settled).toBe(true);
+    const st = mateStatus(rep.out, mates, rep);
+    expect([...st.violated]).toEqual([mates[1].id]);
+    expect(st.unconverged.size).toBe(0);
+    expect(st.components.B).toBe('over');
+  });
+  it('not converged: positions not solved yet, the solver settles and meets every mate, no conflict named', () => {
+    const mates = [mate('coincident', [top('A'), bottom('B')])];
+    const rep = solveMatesReport(pair(), mates);
+    expect(rep).toMatchObject({ settled: true, conflict: null });
+    const st = mateStatus(pair(), mates, rep);
+    expect(st.violated.size).toBe(0);
+    expect([...st.unconverged]).toEqual([mates[0].id]);
+  });
+  it('a stopped solve that still contracts is not converged, one that goes back and forth is a conflict', () => {
+    const mates = [mate('coincident', [top('A'), bottom('B')])];
+    const off = pair();
+    const stopped = (rate: number) => ({ out: off, settled: false, conflict: null, passes: 16, last: 0.01, rate });
+    const contracting = mateStatus(off, mates, stopped(0.5));
+    expect([...contracting.unconverged]).toEqual([mates[0].id]);
+    expect(contracting.violated.size).toBe(0);
+    const cycling = mateStatus(off, mates, stopped(CYCLING_RATE));
+    expect([...cycling.violated]).toEqual([mates[0].id]);
+    expect(cycling.unconverged.size).toBe(0);
+  });
+  it('a given report is used as it is: no solve of its own inside mateStatus', () => {
+    // two fixed blocks 40 mm apart with a coincident mate: no solve can meet it, a conflict ...
+    const fixedPair = [comp('A', true), comp('B', true, 50)];
+    const mates = [mate('coincident', [top('A'), bottom('B')])];
+    const real = solveMatesReport(fixedPair, mates);
+    expect(real).toMatchObject({ settled: true, conflict: null });
+    expect([...mateStatus(fixedPair, mates).violated]).toEqual([mates[0].id]);
+    // ... but a report whose solved positions meet it reads as not converged: the answer is the report's
+    const met = [comp('A', true), comp('B', true, 10)];
+    expect([...mateStatus(fixedPair, mates, { ...real, out: met }).unconverged]).toEqual([mates[0].id]);
+  });
+  it('the assembly rebuild keeps the report of its own solve; mateStatus takes it only for the same document', () => {
+    const mates = [mate('distance', [top('A'), bottom('B')], { value: 10 }), mate('distance', [top('A'), bottom('B')], { value: 20 })];
+    const doc = { ...createDocument('Asm'), kind: 'assembly' as const, components: pair(), mates };
+    const rb = rebuildAssembly(doc);
+    const rep = reportOf(rb, doc.components, doc.mates);
+    expect(rep?.conflict).toBe(mates[1].id);
+    expect([...mateStatus(rb.components, mates, rep).violated]).toEqual([mates[1].id]);
+    expect(reportOf(rb, doc.components, [...mates])).toBeUndefined();
   });
 });
