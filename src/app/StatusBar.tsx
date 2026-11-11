@@ -8,7 +8,7 @@ import { Menu } from '../ui/components';
 import { bridge } from './viewport/bridge';
 import { sampleEntity } from '../core/sketch/geometry';
 import { faceMeasure } from '../core/features/measure';
-import { mateStatus } from '../core/assembly/mateStatus';
+import { mateStatus, reportOf } from '../core/assembly/mateStatus';
 import { status3D } from '../core/sketch/sketch3d';
 
 const STATUS_TEXT: Record<string, string> = {
@@ -109,12 +109,12 @@ export function StatusBar({ hint: hint0 }: { hint: string }) {
   // an assembly: Under / Fully / Over Defined from its mates (QA v0.5.1 F108)
   const asmStatus = useMemo(() => {
     if (st.doc.kind !== 'assembly' || !(st.doc.components ?? []).length) return null;
-    const ms = mateStatus(st.doc.components ?? [], st.doc.mates ?? []);
+    const ms = mateStatus(st.doc.components ?? [], st.doc.mates ?? [], reportOf(st.rebuild, st.doc.components, st.doc.mates));
     const s = Object.values(ms.components);
     // a chain the solver has not settled is said as such, not as a conflict (F166)
     if (ms.unconverged.size) return `Not Converged (${ms.residual.toFixed(2)}mm)`;
     return s.includes('over') ? 'Over Defined' : s.includes('under') ? 'Under Defined' : 'Fully Defined';
-  }, [st.doc]);
+  }, [st.doc, st.rebuild]);
   const u = st.doc.units;
   const faceted = st.rebuild.bodies.filter((b) => !b.exact).length;
   const coord = (v: number) => `${Math.round(v * 100) / 100}${u}`;

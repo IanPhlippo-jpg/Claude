@@ -446,11 +446,9 @@
 
 .k-modify-wheel { width: 100%; height: 10px; margin: 4px 0 2px; appearance: none; background: repeating-linear-gradient(90deg, #9a9a9a 0 2px, transparent 2px 5px); border-top: 1px solid var(--border-strong); border-bottom: 1px solid var(--border-strong); }
 .k-modify-wheel::-webkit-slider-thumb { appearance: none; width: 8px; height: 12px; background: var(--bg-panel); border: 1px solid var(--border-strong); }
-.k-modify-units { display: flex; align-items: center; gap: 6px; font-size: 11px; margin-top: 2px; }
-.k-modify-units .k-input { height: 20px; font-size: 11px; }
 
 /* Material dialog */
-.k-material { width: 760px; max-width: 94vw; height: 560px; max-height: 88vh; }
+.k-material { width: 880px; max-width: 94vw; height: 560px; max-height: 88vh; }
 .k-material-body { display: flex; flex: 1; min-height: 0; }
 .k-material-tree { width: 280px; display: flex; flex-direction: column; border-right: 1px solid var(--border); }
 .k-material-search { display: flex; align-items: center; gap: 4px; padding: 6px; border-bottom: 1px solid var(--border); }
@@ -463,11 +461,11 @@
 .k-material-item.active { background: var(--bg-selected); }
 .k-material-item .swatch { width: 12px; height: 12px; border: 1px solid #888; display: inline-block; }
 .k-material-right { flex: 1; display: flex; flex-direction: column; min-width: 0; }
-.k-material-tabs { display: flex; gap: 2px; padding: 6px 8px 0; border-bottom: 1px solid var(--border); }
-.k-material-tabs button { padding: 3px 8px; border: 1px solid var(--border); border-bottom: none; background: var(--bg-panel-alt); font-size: 12px; white-space: nowrap; flex: none; }
-/* seven tabs on one line: the row scrolls sideways instead of breaking a tab over two lines (QA 0.5.11 F193) */
-.k-material-tabs { overflow-x: auto; scrollbar-width: thin; }
-.k-material-tabs button.active { background: var(--bg-panel); font-weight: 600; }
+.k-material-tabs { display: flex; gap: 0; padding: 6px 8px 0; border-bottom: 1px solid var(--border); }
+/* seven tabs on one line without a scroll bar (QA 0.5.13 F193): the dialog is wide enough for all of them; on a very narrow
+   window a tab gives up width and ends in an ellipsis instead of scrolling the row */
+.k-material-tabs button { padding: 3px 7px; margin-right: -1px; border: 1px solid var(--border); border-bottom: none; background: var(--bg-panel-alt); font-size: 12px; white-space: nowrap; flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.k-material-tabs button.active { background: var(--bg-panel); position: relative; z-index: 1; margin-bottom: -1px; padding-bottom: 4px; }
 .k-material-page { flex: 1; overflow: auto; padding: 10px 12px; font-size: 12px; display: flex; flex-direction: column; gap: 6px; }
 .k-material-empty { color: var(--text-muted); text-align: center; margin-top: 120px; }
 .k-material-props { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 6px; }
@@ -635,10 +633,6 @@
 .k-modify-row.k-modify-value { padding: 0 6px; gap: 0; }
 .k-modify-row.k-modify-value > div { flex: 1; }
 .k-modify-wheel { margin: 3px 6px 2px; width: calc(100% - 12px); }
-.k-modify-units { justify-content: space-between; margin: 2px 6px 0; padding: 2px 5px; border: 1px solid var(--border-strong); height: 20px; font-size: 12px; position: relative; }
-.k-modify-unitsel { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
-.k-modify-units::after { content: '>'; color: var(--text); }
-.k-modify-unitname { margin-left: auto; margin-right: 6px; color: var(--text-muted); }
 
 /* Command Ribbon at 1920 px: body 80 px, big icons 24 px, labels Segoe UI 12 px, small rows 26 px,
    tab strip 20 px; the title bar holds the command search (no extra toolbar row) */

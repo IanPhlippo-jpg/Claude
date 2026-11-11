@@ -147,6 +147,23 @@ const hlr = await page.evaluate(async () => {
   return { marks: sheet.centerMarks.length, markViews: [...new Set(sheet.centerMarks.map((m) => sheet.views.find((v) => v.id === m.viewId)?.type))], dashedRemoved, dashed };
 });
 check('the view down the hole got a centre mark; Hidden Lines Visible draws the hole dashed in the views across it', hlr.marks >= 1 && hlr.dashedRemoved === 0 && hlr.dashed >= 2, JSON.stringify(hlr));
+// per standard view (QA 0.5.13 F122): every circle the view draws has a centre mark at its centre, and no view without
+// one gets a mark; the view down the hole has no hidden lines, each view across it draws them dashed (Hidden Lines Visible)
+const perView = await page.evaluate(() => {
+  const sheet = window.__phlippoStore.getState().doc.sheets[0];
+  return sheet.views.map((v) => {
+    // circles on the sheet (mm); a mark keeps its centre in the view's own coordinates, so it goes onto the sheet first
+    const circles = window.__phlippoSheet.circles(v.id);
+    const marks = sheet.centerMarks.filter((m) => m.viewId === v.id).map((m) => ({ ...m, c: window.__phlippoSheet.viewToSheet(v.id, m.c) }));
+    const g = document.querySelector(`.k-sheet-svg g.k-dv[data-view-id="${v.id}"]`);
+    return { type: v.type, style: v.displayStyle, circles: circles.length, marked: circles.filter((c) => marks.some((m) => Math.hypot(m.c[0] - c.c[0], m.c[1] - c.c[1]) < 0.05)).length, marks: marks.length, dashed: g ? g.querySelectorAll('line[stroke-dasharray="5 3"]').length : -1 };
+  });
+});
+for (const v of perView) {
+  check(`${v.type} view: a centre mark on each circle it draws (${v.circles}), none elsewhere`, v.marked === v.circles && v.marks === (v.circles ? 1 : 0), JSON.stringify(v));
+  check(`${v.type} view, Hidden Lines Visible: ${v.circles ? 'looks down the hole, nothing hidden' : 'the hole across it drawn dashed'}`, v.style === 'hiddenVisible' && (v.circles ? v.dashed === 0 : v.dashed >= 2), JSON.stringify(v));
+}
+check('three standard views checked one by one', perView.length === 3 && perView.filter((v) => v.circles).length === 1, JSON.stringify(perView.map((v) => v.type)));
 await page.keyboard.press('Control+z');
 await page.waitForTimeout(300);
 

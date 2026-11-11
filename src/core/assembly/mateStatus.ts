@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import type { Component, Mate } from '../document/types';
 import type { Id } from '../sketch/types';
-import { groundDistance, movingSide, solveMate, solveMates, worldRef } from './assembly';
+import { CYCLING_RATE, groundDistance, movingSide, solveMate, solveMatesReport, worldRef, type AssemblyRebuild, type MateSolveReport } from './assembly';
 
 /**
  * The state of the mates of an assembly, as the intended design shows it (QA v0.5.1 F108):
@@ -107,14 +107,29 @@ function constrainedMotions(c: Component, mates: Mate[], byId: Map<Id, Component
 const measurable = (m: Mate) => m.refs?.length === 2 && m.refs.every((r) => Array.isArray(r.normal) && Array.isArray(r.point));
 
 /**
- * The convergence rule, explicit (QA 0.5.11 F186): a mate is met when its error is at most MATE_TOLERANCE (mm, a turn
- * weighed as mm). A mate that is not met is "not converged" when SETTLE_PASSES more passes of the solver meet it, and a
- * conflict when it is still not met after them.
+ * The convergence rule, explicit (QA 0.5.11 and 0.5.13 F186): a mate is met when its error is at most MATE_TOLERANCE
+ * (mm, a turn weighed as mm). What a mate that is not met means comes from the solver's own report of its solve
+ * (solveMatesReport: whether its passes settled, how fast they still contracted, which mate it had to leave out), not
+ * from a longer solve of its own:
+ *   - the mate the solver left out so that the others settle: a conflict (the newest mate that makes the difference);
+ *   - a mate the solved positions meet: the given positions were only not solved yet, "not converged";
+ *   - a mate the solved positions do not meet either: a conflict when the solver settled (it can move nothing more, as
+ *     between two fixed parts) or when its passes went back and forth (move ratio at least CYCLING_RATE), and
+ *     "not converged" when the passes still contracted as they stopped.
  */
 export const MATE_TOLERANCE = 1e-3;
-export const SETTLE_PASSES = 128;
 
-export function mateStatus(components: Component[], mates: Mate[]): MateStatus {
+/** the solver's report of an assembly rebuild, when that rebuild solved exactly these components and mates (else none) */
+export function reportOf(rebuild: Partial<AssemblyRebuild> | null | undefined, components: Component[] | undefined, mates: Mate[] | undefined): MateSolveReport | undefined {
+  const r = rebuild?.mateReport;
+  return r && r.from.components === components && r.from.mates === mates ? r : undefined;
+}
+
+/**
+ * The state of the mates. `report` is the solver's report for these components and mates (the assembly rebuild keeps
+ * it); without one the solver runs once here, the same solve the rebuild makes.
+ */
+export function mateStatus(components: Component[], mates: Mate[], report?: MateSolveReport): MateStatus {
   const active = mates.filter((m) => !m.suppressed && measurable(m));
   const byId = new Map(components.map((c) => [c.id, c]));
   const ground = groundDistance(components, active);
@@ -128,23 +143,23 @@ export function mateStatus(components: Component[], mates: Mate[]): MateStatus {
     }
     return out;
   };
-  for (const [id, e] of errorsOf(byId)) { residual = Math.max(residual, e); if (e > MATE_TOLERANCE) violated.add(id); }
-  // a mate that is met once the solver runs on is no conflict: the chain had not settled (F166)
+  const unmet: Id[] = [];
+  for (const [id, e] of errorsOf(byId)) { residual = Math.max(residual, e); if (e > MATE_TOLERANCE) unmet.push(id); }
   const unconverged = new Set<Id>();
-  if (violated.size) {
-    const settled = new Map(solveMates(components, mates, SETTLE_PASSES).map((c) => [c.id, c]));
-    for (const [id, e] of errorsOf(settled)) if (violated.has(id) && e <= MATE_TOLERANCE) { violated.delete(id); unconverged.add(id); }
-  }
-  // the mate that conflicts is the one added last, as the intended design marks it (QA 0.5.10 F141): a violated
-  // older mate that is met once a newer mate on the same part is left out hands its mark to that newer mate
-  const order = new Map(mates.map((m, i) => [m.id, i]));
-  const shares = (x: Mate, y: Mate) => x.refs.some((r) => y.refs.some((q) => q.componentId === r.componentId && !byId.get(r.componentId)?.fixed));
-  for (const v of [...violated].sort((x, y) => order.get(x)! - order.get(y)!)) {
-    const vm = active.find((m) => m.id === v)!;
-    const newer = active.filter((m) => order.get(m.id)! > order.get(v)! && !violated.has(m.id) && shares(m, vm)).sort((x, y) => order.get(y.id)! - order.get(x.id)!);
-    for (const cand of newer) {
-      const without = new Map(solveMates(components, mates.filter((m) => m.id !== cand.id), 128).map((c) => [c.id, c]));
-      if ((errorsOf(without).get(v) ?? Infinity) <= 1e-3) { violated.delete(v); violated.add(cand.id); break; }
+  if (unmet.length) {
+    const rep = report ?? solveMatesReport(components.filter((c) => !c.suppressed), mates);
+    const solved = errorsOf(new Map(rep.out.map((c) => [c.id, c])));
+    const stuck = rep.settled || rep.rate >= CYCLING_RATE;
+    for (const id of unmet) {
+      if (id === rep.conflict) violated.add(id);
+      else if ((solved.get(id) ?? Infinity) <= MATE_TOLERANCE || !stuck) unconverged.add(id);
+      else violated.add(id);
+    }
+    // the mate added last is the one marked, as the intended design marks it (QA 0.5.10 F141): the solver left it out,
+    // also where the given positions happen to meet it and an older mate is the one off
+    if (rep.conflict && active.some((m) => m.id === rep.conflict)) {
+      violated.add(rep.conflict);
+      for (const id of [...violated]) if (id !== rep.conflict && (solved.get(id) ?? Infinity) <= MATE_TOLERANCE) violated.delete(id);
     }
   }
   const state: Record<Id, ComponentState> = {};

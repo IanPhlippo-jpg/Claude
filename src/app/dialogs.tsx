@@ -17,8 +17,6 @@ import { ViewGrid } from './viewport/Hud';
 import { getCamera } from './viewport/Viewport';
 
 /** Welcome dialog at start-up: Home / Recent / Learn / Alerts, by design. */
-const UNIT_NAMES: Record<string, string> = { deg: 'Degrees', rad: 'Radians', mm: 'Millimeters', cm: 'Centimeters', m: 'Meters', in: 'Inches' };
-
 export function WelcomeDialog() {
   const st = useStore(useShallow((s) => ({ setDialog: s.setDialog, hasDocument: s.hasDocument, doc: s.doc, showDocument: s.showDocument, setTaskPane: s.setTaskPane, setPanel: s.setPanel })));
   const [tab, setTab] = useState<'home' | 'recent' | 'learn' | 'alerts'>('home');
@@ -251,12 +249,9 @@ export function ModifyDialog() {
   const existing = c ? st.doc.equations.find((e) => !!sketch && e.target === sketchDimensionName(sketch, c.id)) : undefined;
   const [eqText, setEqText] = useState<string | null>(null);
   const [spinOpen, setSpinOpen] = useState(false);
-  // Units: the value can be typed in another unit; it is converted to the document unit
-  const LEN: Record<string, number> = { mm: 1, cm: 10, m: 1000, in: 25.4 };
-  const [unit, setUnit] = useState<string | null>(null);
-  const isAngle = c?.kind === 'angle';
-  const shownUnit = unit ?? (isAngle ? 'deg' : st.doc.units);
-  const k = isAngle ? (shownUnit === 'rad' ? Math.PI / 180 : 1) : (LEN[st.doc.units] ?? 1) / (LEN[shownUnit] ?? 1);
+  // no units row, by design: the value field shows the document unit after the number ("92.86mm") and takes a value
+  // typed in another unit ("1in", "2.5cm", "0.5rad"), converted to the document unit by the field itself
+  const fieldUnit = c?.kind === 'angle' ? '°' : st.doc.units;
   // configurations: This Configuration / All Configurations / Specify Configuration(s), by design
   const cfgs = configurations(st.doc);
   const [scope, setScope] = useState<'this' | 'all' | 'specify'>('this');
@@ -322,7 +317,7 @@ export function ModifyDialog() {
       <div className="k-modify-row k-modify-value k-tip" data-tip={`${c.kind === 'angle' ? 'Angle' : c.kind === 'radius' ? 'Radius' : c.kind === 'diameter' ? 'Diameter' : 'Distance'} (Enter a value or start with = to create an equation)`}>
         {eqText === null ? (
           <div onKeyDownCapture={(e) => { if (e.key === '=') { e.preventDefault(); e.stopPropagation(); setEqText('= '); } }}>
-            <NumberField value={Math.round(value * k * 1e6) / 1e6} onChange={(v) => setValue(v / k)} unit={c.kind === 'angle' ? (shownUnit === 'rad' ? 'rad' : '°') : shownUnit} step={spinIncrement(st.prefs, c.kind === 'angle', st.unitSystem === 'IPS')} autoFocus onCommit={apply} />
+            <NumberField value={Math.round(value * 1e6) / 1e6} onChange={setValue} unit={fieldUnit} step={spinIncrement(st.prefs, c.kind === 'angle', st.unitSystem === 'IPS')} autoFocus onCommit={apply} />
           </div>
         ) : (
           <div style={{ position: 'relative', flex: 1 }}>
@@ -355,14 +350,6 @@ export function ModifyDialog() {
       )}
       {/* thumbwheel by design: drag to change the value continuously */}
       <input className="k-modify-wheel" type="range" min={0} max={1000} value={500} onChange={(e) => { const dv = (parseFloat(e.target.value) - 500) / 100; setValue(Math.max(0, Math.round((value + dv * (c.kind === 'angle' ? 1 : 0.5)) * 100) / 100)); }} onPointerUp={(e) => { (e.target as HTMLInputElement).value = '500'; }} title="Thumbwheel" />
-      {/* the chosen unit stays readable: the select lies invisible over the row (QA 0.5.12 F193) */}
-      <div className="k-modify-units">
-        <span>Units</span>
-        <span className="k-modify-unitname" data-testid="modify-unit-name">{UNIT_NAMES[shownUnit] ?? shownUnit}</span>
-        <select className="k-modify-unitsel" data-testid="modify-units" value={shownUnit} onChange={(e) => setUnit(e.target.value)} title="Units">
-          {c.kind === 'angle' ? <><option value="deg">Degrees</option><option value="rad">Radians</option></> : <><option value="mm">Millimeters</option><option value="cm">Centimeters</option><option value="m">Meters</option><option value="in">Inches</option></>}
-        </select>
-      </div>
     </div>
   );
 }

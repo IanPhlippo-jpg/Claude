@@ -121,8 +121,11 @@ const cid = await S(() => {
 await S((cid) => window.__phlippoStore.getState().setModify({ id: cid, x: 400, y: 300 }), cid);
 await page.waitForTimeout(300);
 const before = await S((cid) => window.__phlippoStore.getState().doc.sketches.s1.constraints[cid].value, cid);
-// the units row names the chosen unit (QA 0.5.12 F193: only "Units >" was readable)
-check('Modify names the length unit', (await page.locator('[data-testid="modify-unit-name"]').textContent()) === 'Millimeters');
+// no units row (QA 0.5.13 F24, F193): the value field itself shows the unit after the number, as the reference box does
+const box = await page.evaluate(() => ({ value: document.querySelector('.k-modify input.k-num')?.value, rows: document.querySelectorAll('.k-modify select, .k-modify-units').length, text: document.querySelector('.k-modify')?.innerText }));
+check('Modify has no units row', box.rows === 0 && !/Units/.test(box.text ?? ''), JSON.stringify(box));
+check('Modify shows the length unit in the value field', /^60(\.0+)?mm$/.test(box.value ?? ''), box.value);
+await page.locator('.k-modify').screenshot({ path: `${OUT}/qa1-modify.png` });
 await page.fill('.k-modify input.k-num', '0');
 await page.keyboard.press('Enter');
 await page.waitForTimeout(300);
@@ -137,6 +140,14 @@ await page.fill('.k-modify input.k-num', '50');
 await page.keyboard.press('Enter');
 await page.waitForTimeout(300);
 check('Modify accepts 50', (await S((cid) => window.__phlippoStore.getState().doc.sketches.s1.constraints[cid].value, cid)) === 50);
+// another unit is typed into the value field: 1in becomes 25.4 mm
+await S((cid) => window.__phlippoStore.getState().setModify({ id: cid, x: 400, y: 300 }), cid);
+await page.waitForTimeout(300);
+await page.fill('.k-modify input.k-num', '1in');
+await page.keyboard.press('Enter');
+await page.waitForTimeout(300);
+const inch = await S((cid) => window.__phlippoStore.getState().doc.sketches.s1.constraints[cid].value, cid);
+check('Modify converts a value typed in inches (1in = 25.4 mm)', Math.abs(inch - 25.4) < 1e-9, String(inch));
 await S(() => window.__phlippoStore.getState().exitSketch());
 await page.waitForTimeout(300);
 

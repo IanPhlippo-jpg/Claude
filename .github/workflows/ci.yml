@@ -231,9 +231,19 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: npx electron-builder --win nsis --x64 --publish never --config.directories.output=release
+      # code signing (QA 0.5.13 F49/F117): electron-builder signs through tools/sign-hook.cjs with the certificate in the
+      # repository secrets WIN_CSC_LINK (base64 of the .pfx) and WIN_CSC_KEY_PASSWORD; without them the variables are
+      # empty and the build stays unsigned
+      - env:
+          WIN_CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
+          WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
+        run: npx electron-builder --win nsis --x64 --publish never --config.directories.output=release
+      # with a certificate configured every binary must be Valid, else this step fails the job; without one the report
+      # says "NotSigned (no certificate configured)" and passes
       - id: signature
         continue-on-error: true
+        env:
+          WIN_CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
         run: node tools/sign-report.cjs release
       - id: install
         continue-on-error: true
@@ -260,7 +270,7 @@ jobs:
         if: always()
         run: |
           echo "signature=${{ steps.signature.outcome }} install=${{ steps.install.outcome }} installed=${{ steps.installed.outcome }}"
-          test "${{ steps.install.outcome }}" = success && test "${{ steps.installed.outcome }}" = success
+          test "${{ steps.signature.outcome }}" = success && test "${{ steps.install.outcome }}" = success && test "${{ steps.installed.outcome }}" = success
 
   # the regression on Windows in Edge (the platform the program ships for), release and mesh pass in three shards each;
   # Edge gets SwiftShader for WebGL through e2e/lib/launch-args.mjs (the runner has no graphics card)

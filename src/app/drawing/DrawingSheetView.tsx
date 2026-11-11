@@ -463,7 +463,7 @@ export function DrawingSheetView() {
     const selected = st.selectedDrawingViewId === v.id;
     const drawLines = v.displayStyle === 'wireframe' ? lines.map((l) => ({ ...l, hidden: false })) : v.displayStyle === 'hiddenVisible' ? lines : lines.filter((l) => !l.hidden || (l.cosmetic && !!v.threadDraft));
     return (
-      <g key={v.id} className={`k-dv ${preview ? 'preview' : ''}`} opacity={preview ? 0.5 : 1}>
+      <g key={v.id} className={`k-dv ${preview ? 'preview' : ''}`} data-view-id={v.id} opacity={preview ? 0.5 : 1}>
         {(selected || preview) && <rect x={bx} y={by} width={b.w * mm} height={b.h * mm} fill="none" stroke={preview ? '#1e6fd9' : '#4a90d9'} strokeDasharray="4 3" strokeWidth={1} />}
         {v2d.hatchClip && (
           <clipPath id={`k-boclip-${v.id}`}>
