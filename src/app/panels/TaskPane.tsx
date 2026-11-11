@@ -6,6 +6,7 @@ import { useActiveSketch, useActiveSolve, useStore } from '../store';
 import { useShallow } from 'zustand/react/shallow';
 import { Button } from '../../ui/components';
 import { Icon, RelationGlyph } from '../../ui/icons';
+import { PaneIcons } from '../../ui/iconsPanes';
 import { relationLabel } from '../../core/sketch/relations';
 import { round, Kbd } from '../../ui/components';
 import { SHORTCUTS } from '../shortcuts';
@@ -99,16 +100,16 @@ export function TaskPane() {
   // the strip in its intended order: Resources, Marketplace, Part Library, Forum, File Explorer,
   // View Palette, Appearances/Scenes/Decals, Custom Properties, Platform, Document Recovery
   const tabs: { id: Exclude<typeof st.taskPane, null>; icon: React.ReactNode; tip: string; online?: boolean; hidden?: boolean }[] = [
-    { id: 'resources', icon: <Icon.Resources />, tip: 'Phlippo CAD Resources' },
-    { id: 'marketplace', icon: <Icon.TPMarketplace />, tip: 'Marketplace', online: true },
-    { id: 'library', icon: <Icon.Library />, tip: 'Part Library' },
-    { id: 'forum', icon: <Icon.TPForum />, tip: 'Forum', online: true },
-    { id: 'explorer', icon: <Icon.TPExplorer />, tip: 'File Explorer' },
-    { id: 'palette', icon: <Icon.TPPalette />, tip: 'View Palette' },
-    { id: 'appearances', icon: <Icon.TPAppearances />, tip: 'Appearances, Scenes, and Decals' },
-    { id: 'properties', icon: <Icon.Properties />, tip: 'Custom Properties' },
-    { id: 'platform', icon: <Icon.TPPlatform />, tip: 'Platform', online: true },
-    { id: 'recovery', icon: <Icon.TPRecovery />, tip: 'Document Recovery' },
+    { id: 'resources', icon: <PaneIcons.TPResources />, tip: 'Phlippo CAD Resources' },
+    { id: 'marketplace', icon: <PaneIcons.TPMarketplace />, tip: 'Marketplace', online: true },
+    { id: 'library', icon: <PaneIcons.TPLibrary />, tip: 'Part Library' },
+    { id: 'forum', icon: <PaneIcons.TPForum />, tip: 'Forum', online: true },
+    { id: 'explorer', icon: <PaneIcons.TPExplorer />, tip: 'File Explorer' },
+    { id: 'palette', icon: <PaneIcons.TPPalette />, tip: 'View Palette' },
+    { id: 'appearances', icon: <PaneIcons.TPAppearances />, tip: 'Appearances, Scenes, and Decals' },
+    { id: 'properties', icon: <PaneIcons.TPProperties />, tip: 'Custom Properties' },
+    { id: 'platform', icon: <PaneIcons.TPPlatform />, tip: 'Platform', online: true },
+    { id: 'recovery', icon: <PaneIcons.TPRecovery />, tip: 'Document Recovery' },
     { id: 'relations', icon: <Icon.Lock />, tip: 'Display/Delete Relations', hidden: true },
   ];
   return (

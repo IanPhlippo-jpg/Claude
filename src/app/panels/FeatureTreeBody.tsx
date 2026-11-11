@@ -7,6 +7,7 @@ import { sketchStatus, useStore } from '../store';
 import { useShallow } from 'zustand/react/shallow';
 import { Menu, TreeView, type TreeNode } from '../../ui/components';
 import { Icon } from '../../ui/icons';
+import { PaneIcons } from '../../ui/iconsPanes';
 import { createDocument } from '../../core/document/types';
 import { cutListsOn, frameCutList as cutList } from '../prefsTables';
 import { materialFavorites as loadFavorites } from '../prefs';
@@ -386,7 +387,7 @@ export function FeatureTreeBody() {
         planeNode('front'),
         planeNode('top'),
         planeNode('right'),
-        { id: 'origin', icon: <Icon.Origin style={{ color: '#2b2b2b' }} />, label: 'Origin', onClick: () => st.toggleShow('origin') },
+        { id: 'origin', icon: <PaneIcons.TreeOrigin />, label: 'Origin', onClick: () => st.toggleShow('origin') },
         ...(st.doc.centerOfMass ? [{ id: 'com', icon: <Icon.CenterOfMass />, label: 'Center of Mass', onContextMenu: (e: React.MouseEvent) => { e.preventDefault(); st.applyDocument('Delete Center of Mass', { ...st.doc, centerOfMass: undefined }); } } as TreeNode] : []),
         // sheet metal parts: the Sheet-Metal folder after the origin (default parameters), by design
         ...(st.doc.weldment ? [{ id: 'weldment', icon: <Icon.Weldment />, label: <span>Frame</span>, onDoubleClick: () => st.setDialog('cutList') } as TreeNode] : []),

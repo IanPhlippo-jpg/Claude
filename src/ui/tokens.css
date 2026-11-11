@@ -31,7 +31,8 @@
   --bg-sheet-2: #c5c9d5;
   --border: #d9d9d9;
   --border-strong: #adadad;
-  --text: #1a1a1a;
+  /* window text is black by design (ribbon, tree, PM: measured darkest ink 0-4); was #1a1a1a */
+  --text: #000000;
   --text-muted: #5c5c5c;
   --text-faint: #8a8a8a;
   --accent: #1a73c7;

@@ -773,9 +773,9 @@ export const Icon = {
   ),
   /** Feature Tree folder: a grey folder outline with a small glyph inside (history, sensors, annotations, bodies) */
   TreeFolder: ({ size = 16, glyph = 'history', ...p }: P & { glyph?: 'history' | 'sensor' | 'annotation' | 'bodies' | 'surfaces' | 'equations' }) => (
-    <svg {...base(size, p)}>
-      <path d="M1 3.5h8l2 2.5h12v16H1z" fill="#fbfbfb" stroke="#5d6672" strokeWidth={1.2} />
-      <path d="M1 7.5h22" stroke="#5d6672" strokeWidth={0.9} />
+    <svg className="k-tree-line" {...base(size, p)}>
+      <path d="M1 2h8l2 2.5h12v18H1z" fill="#fbfbfb" stroke="#2e2e2e" strokeWidth={1.4} />
+      <path d="M1 7h22" stroke="#2e2e2e" strokeWidth={1.1} />
       {glyph === 'history' && <g><circle cx="12" cy="14.5" r="4.2" fill="#e9f1fb" stroke={C.blueD} strokeWidth={1} /><path d="M12 12.2v2.4l1.8 1.1" stroke={C.blueD} strokeWidth={1} /></g>}
       {glyph === 'sensor' && <g><circle cx="12" cy="14.5" r="4.2" fill="#fff" stroke={C.greyD} strokeWidth={1} /><path d="M12 14.5l2.4-2.2" stroke={C.red} strokeWidth={1.3} /></g>}
       {glyph === 'annotation' && <g><rect x="7.5" y="10.5" width="9" height="8" fill="#eef4fb" stroke={C.blue} strokeWidth={0.8} /><path d="M9.5 17.5l2.5-5.6 2.5 5.6M10.4 15.6h3.2" stroke={C.blueD} strokeWidth={1} /></g>}
@@ -786,21 +786,21 @@ export const Icon = {
   ),
   /** a reference plane in the tree: a dashed outline seen at an angle */
   TreePlane: ({ size = 16, ...p }: P) => (
-    <svg {...base(size, p)}>
-      <path d="M5 1.5l14 4v17l-14-4z" fill="#fdfdfd" stroke="#4d5663" strokeWidth={1.2} strokeDasharray="2.6 1.6" />
-      <path d="M12 6v12" stroke="#4d5663" strokeWidth={1} strokeDasharray="1.8 1.4" />
+    <svg className="k-tree-line" {...base(size, p)}>
+      <path d="M5 1l14 4v18l-14-4z" fill="#fdfdfd" stroke="#2e2e2e" strokeWidth={1.4} strokeDasharray="3 1.6" />
+      <path d="M12 5.5v13" stroke="#2e2e2e" strokeWidth={1.2} strokeDasharray="2 1.4" />
     </svg>
   ),
   /** Material in the tree: a list with a small gear */
   TreeMaterial: ({ size = 16, ...p }: P) => (
-    <svg {...base(size, p)}>
+    <svg className="k-tree-line" {...base(size, p)}>
       <circle cx="4" cy="5" r="1.6" fill="#fff" stroke={C.blue} strokeWidth={0.9} />
       <circle cx="4" cy="11" r="1.6" fill="#fff" stroke={C.blue} strokeWidth={0.9} />
       <circle cx="4" cy="17" r="1.6" fill={C.yellow} stroke={C.yellowD} strokeWidth={0.9} />
-      <path d="M8 5h13M8 11h13M8 17h6" stroke="#4d5663" strokeWidth={1.4} />
-      <circle cx="18.5" cy="18.5" r="2.6" fill="#4d5663" />
+      <path d="M8 5h13M8 11h13M8 17h6" stroke="#2e2e2e" strokeWidth={1.5} />
+      <circle cx="18.5" cy="18.5" r="2.6" fill="#2e2e2e" />
       <circle cx="18.5" cy="18.5" r="1" fill="#fff" />
-      <path d="M18.5 14.6v1.2M18.5 21.2v1.2M14.6 18.5h1.2M21.2 18.5h1.2" stroke="#4d5663" strokeWidth={1.2} />
+      <path d="M18.5 14.6v1.2M18.5 21.2v1.2M14.6 18.5h1.2M21.2 18.5h1.2" stroke="#2e2e2e" strokeWidth={1.3} />
     </svg>
   ),
   /** the solid expand triangle of the tree */
