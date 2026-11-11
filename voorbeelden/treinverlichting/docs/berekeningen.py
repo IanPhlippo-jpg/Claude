@@ -25,7 +25,14 @@ PCA_W = 0.03
 BUCK_ETA = 0.85  # Pololu D24V10F5 bij 12 -> 5 V
 OPTO = dict(r=2200, u_led=1.2, ctr_min=0.5)  # PC847: 2,2 kΩ voorschakel, CTR ≥ 50 % (datablad)
 PULLUP_ESP = 45000  # Ω, interne pull-up ESP32-S3 (typisch)
-DOOS = dict(a=2 * (0.236 * 0.241) + 2 * 0.029 * (0.236 + 0.241), h=5.0)  # m², W/m²K (AANNAME natuurlijke convectie)
+DOOS = dict(a=2 * (0.2298 * 0.2298) + 4 * 0.0683 * 0.2298, h=5.0)  # m², W/m²K (AANNAME natuurlijke convectie); versie 2: 229,8 x 229,8 x 68,3
+# kabelgoten (goten.mjs, GOOT): tussen twee rijen 5,4 breed tot 5,2 hoog (de voet) en daarboven 5,8 tussen de vingers, tot
+# 60 hoog (het deksel); draden LiY 0,25 mm² Ø1,4 en 0,5 mm² Ø1,8 (AANNAME, gangbare buitenmaat); zie maak-kabeldoos.mjs, vulgraad()
+GOOT = dict(b=5.4, b_vingers=5.8, voet=5.2, h=60.0, d_led=1.4, d_voeding=1.8, vul_max=0.60)
+GOOT_DRADEN = {'gewoon': (48, 8), 'ergst': (96, 8)}  # (leddraden, voedingsdraden) in een doorsnede
+# de klik van een gootdeksel (goten.mjs): been 1,2 dik, nok 0,25 voorbij de vinger, 7,0 van de plaat
+KLIK = dict(t=1.2, d=0.25, l=7.0)
+PETG = dict(e=2100.0, rek_max=0.02)  # MPa; toelaatbare rek bij herhaald klikken (AANNAME, gangbaar voor PETG)
 
 
 def rij(*c):
@@ -100,6 +107,32 @@ def maak():
           f'{f(DOOS["a"], 2)} m² oppervlak; met {f(DOOS["h"], 0)} W/m²K (natuurlijke convectie, AANNAME) wordt het binnen '
           f'**{f(dt, 1)} K** warmer dan onder de baan. Verluchtingsgaten zijn niet nodig; de kabelinvoeren laten ook lucht door. '
           'De netadapter (het warmste deel) hangt buiten de doos.', '']
+    # kabelgoten
+    a_led, a_vo = math.pi * GOOT['d_led'] ** 2 / 4, math.pi * GOOT['d_voeding'] ** 2 / 4
+    binnen = GOOT['b'] * GOOT['voet'] + GOOT['b_vingers'] * (GOOT['h'] - GOOT['voet'])
+    L += ['## 6. Kabelgoten: vulgraad', '',
+          f'Een goot tussen twee rijen is {f(GOOT["b"], 1)} breed tot {f(GOOT["voet"], 1)} hoog (de voet van de wand) en daarboven '
+          f'{f(GOOT["b_vingers"], 1)} tussen de vingers, tot {f(GOOT["h"], 0)} hoog (het deksel): **{f(binnen, 0)} mm²**. Leddraad 0,25 mm² '
+          f'(Ø{f(GOOT["d_led"], 1)}, {f(a_led, 2)} mm²), voedingsdraad 0,5 mm² (Ø{f(GOOT["d_voeding"], 1)}, {f(a_vo, 2)} mm²), AANNAME '
+          'gangbare buitenmaten. Zo\'n goot krijgt de klemmen van 6 bordjes (3 per rij, 16 leddraden per klemmenrij) en hun voeding.', '',
+          rij('doorsnede', 'leddraden', 'voeding', 'draden samen', 'vulgraad'), rij('---', '---:', '---:', '---:', '---:')]
+    for naam, (n_led, n_vo) in GOOT_DRADEN.items():
+        opp = n_led * a_led + n_vo * a_vo
+        assert opp / binnen <= GOOT['vul_max'], f'goot te vol ({naam})'
+        L.append(rij(naam, n_led, n_vo, f'{f(opp, 0)} mm²', f'**{f(100 * opp / binnen, 0)} %**'))
+    L += ['', '"Ergst": alle 96 leddraden van de 6 bordjes langs die goot in één doorsnede, bv. als ze allemaal door één '
+          'sleuf in de bodem komen. "Gewoon": ze komen door de sleuf onder hun eigen bordje, de helft loopt door een doorsnede. '
+          f'Beide onder de {f(100 * GOOT["vul_max"], 0)} % die bij een schakelkast de grens is (het deksel gaat er nog op zonder '
+          'te knellen). De goten langs de zijwanden (11 breed) en de achterwand (4,8, alleen de achterste klemmen van rij 1) '
+          'zijn minder vol.', '']
+    # klik van de gootdeksels
+    rek_klik = 1.5 * KLIK['t'] * KLIK['d'] / KLIK['l'] ** 2
+    assert rek_klik < PETG['rek_max']
+    L += ['## 7. Klik van de gootdeksels (PETG, E = 2100 MPa)', '',
+          f'Elk been is een uitkragende balk van {f(KLIK["t"], 1)} dik; de nok gaat {f(KLIK["d"], 2)} voorbij de vinger op '
+          f'{f(KLIK["l"], 1)} van de plaat. Rek = 1,5 t d / L² = **{f(100 * rek_klik)} %**, onder de {f(100 * PETG["rek_max"], 0)} % die '
+          'PETG bij herhaald klikken verdraagt (AANNAME). Nok en groef hebben vlakken van 45°: trekken haalt het deksel eraf. '
+          'Met het deksel van de doos erop kan geen gootdeksel loskomen (2 mm ruimte).', '']
     (HIER / 'Berekeningen.md').write_text('\n'.join(L) + '\n', encoding='utf-8')
     print('\n'.join(L))
 

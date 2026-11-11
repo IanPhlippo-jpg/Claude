@@ -317,7 +317,8 @@ tr.total td { font-weight: 600; border-top: 1.5px solid var(--ink); }
     let current = 'bak';
     function decode(m) {
       const u16 = (b64) => { const s = atob(b64); const a = new Uint16Array(s.length / 2); for (let i = 0; i < a.length; i++) a[i] = s.charCodeAt(2 * i) | (s.charCodeAt(2 * i + 1) << 8); return a; };
-      const q = u16(m.p), idx = u16(m.i);
+      const u32 = (b64) => { const s = atob(b64); const a = new Uint32Array(s.length / 4); for (let i = 0; i < a.length; i++) a[i] = (s.charCodeAt(4 * i) | (s.charCodeAt(4 * i + 1) << 8) | (s.charCodeAt(4 * i + 2) << 16)) + s.charCodeAt(4 * i + 3) * 16777216; return a; };
+      const q = u16(m.p), idx = m.i32 ? u32(m.i) : u16(m.i);
       const pos = new Float32Array(q.length);
       for (let i = 0; i < q.length; i++) { const k = i % 3; pos[i] = m.min[k] + (q[i] / 65535) * (m.max[k] - m.min[k]); }
       let geo = new THREE.BufferGeometry();
