@@ -81,9 +81,13 @@ await page.click('.k-menu-item:has-text("New")');
 await page.waitForTimeout(200);
 await page.click('.k-doctype:has-text("Drawing")');
 await page.click('.k-dialog-actions button:has-text("OK")');
-await dontSave(page); // Save changes? → Don't Save, when it asks
-await page.waitForTimeout(300);
-check('Sheet Format/Size dialog', (await page.locator('.k-dialog-title').innerText()).includes('Sheet Format/Size'));
+// Save changes? → Don't Save, when it asks. On a slow runner the question came after the 300 ms dontSave waits, and
+// stood open next to Sheet Format/Size (two dialog titles, release-3of3 on 307d4d0): wait for one of the two first
+const sheetTitle = page.locator('.k-dialog-title:has-text("Sheet Format/Size")');
+await page.locator('[data-testid="ask-no"]').or(sheetTitle).first().waitFor({ timeout: 30000 });
+await dontSave(page);
+await sheetTitle.waitFor({ timeout: 30000 });
+check('Sheet Format/Size dialog', (await sheetTitle.count()) === 1 && (await page.locator('[data-testid="ask-no"]').count()) === 0);
 await page.click('.k-sheetfmt-list .k-selbox-row:has-text("A3 (ISO)")');
 await shot('e40-sheet-format');
 await page.click('.k-dialog-actions button:has-text("OK")');
