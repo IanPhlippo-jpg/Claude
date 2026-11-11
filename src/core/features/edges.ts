@@ -291,39 +291,80 @@ export function featureEdgeSets(g: THREE.BufferGeometry, thresholdDeg = 20, tang
 }
 
 /**
+ * The place of every vertex: vertices closer than tol share an id, also when a rounding error puts them on two sides of
+ * a grid line (a plain rounded key split the seam of a closed surface into two, QA 0.5.10 F161). The neighbour cells
+ * are searched once per rounded key, so a mesh costs about one map lookup per vertex.
+ */
+export function weldIds(pos: THREE.BufferAttribute | THREE.InterleavedBufferAttribute, tol = 1e-4): Int32Array {
+  const ids = new Int32Array(pos.count);
+  const cells = new Map<string, number>();
+  const seen = new Map<string, number>();
+  const rep: number[] = [];
+  const t2 = (tol * 1.5) ** 2;
+  for (let i = 0; i < pos.count; i++) {
+    const x = pos.getX(i), y = pos.getY(i), z = pos.getZ(i);
+    const cx = Math.round(x / tol), cy = Math.round(y / tol), cz = Math.round(z / tol);
+    const k = `${cx},${cy},${cz}`;
+    let id = seen.get(k);
+    if (id === undefined) {
+      for (let dx = -1; dx <= 1 && id === undefined; dx++) for (let dy = -1; dy <= 1 && id === undefined; dy++) for (let dz = -1; dz <= 1 && id === undefined; dz++) {
+        const o = cells.get(`${cx + dx},${cy + dy},${cz + dz}`);
+        if (o !== undefined && (rep[o * 3] - x) ** 2 + (rep[o * 3 + 1] - y) ** 2 + (rep[o * 3 + 2] - z) ** 2 <= t2) id = o;
+      }
+      if (id === undefined) {
+        id = rep.length / 3;
+        rep.push(x, y, z);
+        cells.set(k, id);
+      }
+      seen.set(k, id);
+    }
+    ids[i] = id;
+  }
+  return ids;
+}
+
+/**
  * Vertex normals that are smooth across gentle angles (cylinders) and sharp across
  * creases: each vertex of a non-indexed mesh averages the normals of the triangles
- * at the same position whose normal is within the threshold of its own.
+ * at the same place whose normal is within the threshold of its own, each weighted by
+ * the triangle's angle at that corner (so the diagonals of a strip do not twist a
+ * cylinder's normals, and both sides of its seam get the same normal: QA 0.5.10 F161).
  */
 export function smoothNormals(g: THREE.BufferGeometry, thresholdDeg = 30): THREE.BufferGeometry {
   const ng = g.index ? g.toNonIndexed() : g;
   const pos = ng.getAttribute('position');
   const triCount = Math.floor(pos.count / 3);
+  const ids = weldIds(pos);
   const faceN: THREE.Vector3[] = [];
-  const byPos = new Map<string, number[]>();
-  const key = (i: number) => `${Math.round(pos.getX(i) * 1e4)},${Math.round(pos.getY(i) * 1e4)},${Math.round(pos.getZ(i) * 1e4)}`;
-  const p0 = new THREE.Vector3(), p1 = new THREE.Vector3(), p2 = new THREE.Vector3();
+  const corner = new Float32Array(pos.count);
+  const byId = new Map<number, number[]>();
+  const p = [new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3()];
+  const u = new THREE.Vector3(), v = new THREE.Vector3();
   for (let t = 0; t < triCount; t++) {
-    p0.fromBufferAttribute(pos, t * 3);
-    p1.fromBufferAttribute(pos, t * 3 + 1);
-    p2.fromBufferAttribute(pos, t * 3 + 2);
-    const n = p1.clone().sub(p0).cross(p2.clone().sub(p0));
+    for (let k = 0; k < 3; k++) p[k].fromBufferAttribute(pos, t * 3 + k);
+    const n = u.subVectors(p[1], p[0]).cross(v.subVectors(p[2], p[0])).clone();
     const l = n.length();
     faceN.push(l > 1e-12 ? n.divideScalar(l) : new THREE.Vector3(0, 1, 0));
     for (let k = 0; k < 3; k++) {
-      const kk = key(t * 3 + k);
-      (byPos.get(kk) ?? byPos.set(kk, []).get(kk)!).push(t);
+      u.subVectors(p[(k + 1) % 3], p[k]);
+      v.subVectors(p[(k + 2) % 3], p[k]);
+      corner[t * 3 + k] = u.lengthSq() > 0 && v.lengthSq() > 0 ? u.angleTo(v) : 0;
+      const id = ids[t * 3 + k];
+      (byId.get(id) ?? byId.set(id, []).get(id)!).push(t);
     }
   }
   const cosT = Math.cos((thresholdDeg * Math.PI) / 180);
   const out = new Float32Array(pos.count * 3);
   const acc = new THREE.Vector3();
   for (let i = 0; i < pos.count; i++) {
-    const t = Math.floor(i / 3);
-    acc.copy(faceN[t]);
-    for (const o of byPos.get(key(i)) ?? []) {
-      if (o !== t && faceN[o].dot(faceN[t]) > cosT) acc.add(faceN[o]);
+    const t = Math.floor(i / 3), id = ids[i];
+    acc.copy(faceN[t]).multiplyScalar(corner[i]);
+    for (const o of byId.get(id) ?? []) {
+      if (o === t || faceN[o].dot(faceN[t]) <= cosT) continue;
+      const k = ids[o * 3] === id ? 0 : ids[o * 3 + 1] === id ? 1 : 2;
+      acc.addScaledVector(faceN[o], corner[o * 3 + k]);
     }
+    if (acc.lengthSq() < 1e-20) acc.copy(faceN[t]);
     acc.normalize();
     out[i * 3] = acc.x;
     out[i * 3 + 1] = acc.y;

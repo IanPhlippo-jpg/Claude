@@ -16,7 +16,9 @@ class CadGTAOPass extends GTAOPass {
     const self = this as unknown as { scene: THREE.Scene; _visibilityCache: THREE.Object3D[] };
     (GTAOPass.prototype as unknown as { _overrideVisibility: () => void })._overrideVisibility.call(this);
     self.scene.traverse((o) => {
-      if (o.visible && (o.name.startsWith('decal:') || o.userData.noAO)) {
+      // wide lines too: drawn with the pass's own materials their instanced quad is a small solid patch at the origin
+      // (it entered the occlusion as a solid; see the depth pass below, QA F161)
+      if (o.visible && (o.name.startsWith('decal:') || o.userData.noAO || (o as { isLineSegments2?: boolean }).isLineSegments2)) {
         o.visible = false;
         self._visibilityCache.push(o);
       }
@@ -101,7 +103,12 @@ function composeAO(renderer: THREE.WebGLRenderer, scene: THREE.Scene, camera: TH
   renderer.clearDepth();
   const override = scene.overrideMaterial;
   scene.overrideMaterial = depthOnly;
+  // not the wide lines: with a plain material their instanced quad wrote depth as a small patch at the origin, which
+  // cut a light hole in the floor shadow seen through a hole at the origin (QA F161 "spikkels")
+  const lines: THREE.Object3D[] = [];
+  scene.traverse((o) => { if (o.visible && (o as { isLineSegments2?: boolean }).isLineSegments2) { o.visible = false; lines.push(o); } });
   renderer.render(scene, camera);
+  for (const o of lines) o.visible = true;
   scene.overrideMaterial = override;
   camera.layers.set(1);
   renderer.render(scene, camera);
