@@ -1,0 +1,370 @@
+regression (win-mesh-3of3)	Set up job	﻿2026-11-11T01:35:09.0129034Z Current runner version: '2.338.2'
+regression (win-mesh-3of3)	Set up job	2026-11-11T01:35:09.0174504Z ##[group]Runner Image Provisioner
+regression (win-mesh-3of3)	Set up job	2026-11-11T01:35:09.0175249Z Hosted Compute Agent
+regression (win-mesh-3of3)	Set up job	2026-11-11T01:35:09.0175735Z Version: 20261103.629
+regression (win-mesh-3of3)	Set up job	2026-11-11T01:35:09.0176271Z Commit: 15dbd9ccb5dbf34fae002b6ed1a2670f52df37bc
+regression (win-mesh-3of3)	Set up job	2026-11-11T01:35:09.0176888Z Build Date: 2026-11-03T17:26:59Z
+regression (win-mesh-3of3)	Set up job	2026-11-11T01:35:09.0177493Z Worker ID: {53bed9e0-567b-4bae-a9dd-d508c9cbd6eb}
+regression (win-mesh-3of3)	Set up job	2026-11-11T01:35:09.0178100Z Region: westus3
+regression (win-mesh-3of3)	Set up job	2026-11-11T01:35:09.0178531Z Cloud: Azure
+regression (win-mesh-3of3)	Set up job	2026-11-11T01:35:09.0178996Z ##[endgroup]
+regression (win-mesh-3of3)	Set up job	2026-11-11T01:35:09.0180550Z ##[group]Operating System
+regression (win-mesh-3of3)	Set up job	2026-11-11T01:35:09.0181135Z Microsoft Windows Server 2025
+regression (win-mesh-3of3)	Set up job	2026-11-11T01:35:09.0181920Z 10.0.26100
+regression (win-mesh-3of3)	Set up job	2026-11-11T01:35:09.0182362Z Datacenter
+regression (win-mesh-3of3)	Set up job	2026-11-11T01:35:09.0182802Z ##[endgroup]
+regression (win-mesh-3of3)	Set up job	2026-11-11T01:35:09.0183312Z ##[group]Runner Image
+regression (win-mesh-3of3)	Set up job	2026-11-11T01:35:09.0183925Z Image: windows-2025-vs2026
+regression (win-mesh-3of3)	Set up job	2026-11-11T01:35:09.0184447Z Version: 20261103.298.1
+regression (win-mesh-3of3)	Set up job	2026-11-11T01:35:09.0185536Z Included Software: https://github.com/actions/runner-images/blob/win25-vs2026/20261103.298/images/windows/Windows2025-VS2026-Readme.md
+regression (win-mesh-3of3)	Set up job	2026-11-11T01:35:09.0187363Z Image Release: https://github.com/actions/runner-images/releases/tag/win25-vs2026%2F20261103.298
+regression (win-mesh-3of3)	Set up job	2026-11-11T01:35:09.0188261Z ##[endgroup]
+regression (win-mesh-3of3)	Set up job	2026-11-11T01:35:09.0189269Z ##[group]GITHUB_TOKEN Permissions
+regression (win-mesh-3of3)	Set up job	2026-11-11T01:35:09.0190813Z Contents: read
+regression (win-mesh-3of3)	Set up job	2026-11-11T01:35:09.0191264Z Metadata: read
+regression (win-mesh-3of3)	Set up job	2026-11-11T01:35:09.0191727Z Packages: read
+regression (win-mesh-3of3)	Set up job	2026-11-11T01:35:09.0192250Z ##[endgroup]
+regression (win-mesh-3of3)	Set up job	2026-11-11T01:35:09.0194056Z Secret source: Actions
+regression (win-mesh-3of3)	Set up job	2026-11-11T01:35:09.0194787Z Cache mode: write
+regression (win-mesh-3of3)	Set up job	2026-11-11T01:35:09.0195342Z Prepare workflow directory
+regression (win-mesh-3of3)	Set up job	2026-11-11T01:35:09.0547485Z Prepare all required actions
+regression (win-mesh-3of3)	Set up job	2026-11-11T01:35:09.0585664Z Getting action download info
+regression (win-mesh-3of3)	Set up job	2026-11-11T01:35:09.3284012Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+regression (win-mesh-3of3)	Set up job	2026-11-11T01:35:09.4070060Z Download action repository 'actions/setup-node@v4' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+regression (win-mesh-3of3)	Set up job	2026-11-11T01:35:09.5067761Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+regression (win-mesh-3of3)	Set up job	2026-11-11T01:35:09.7353536Z Complete job name: regression (win-mesh-3of3)
+regression (win-mesh-3of3)	Run actions/checkout@v4	﻿2026-11-11T01:35:09.8376599Z ##[group]Run actions/checkout@v4
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:09.8377519Z with:
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:09.8377765Z   repository: IanPhlippo-jpg/Claude
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:09.8379968Z   token: ***
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:09.8380186Z   ssh-strict: true
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:09.8380414Z   ssh-user: git
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:09.8380722Z   persist-credentials: true
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:09.8381009Z   clean: true
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:09.8381238Z   sparse-checkout-cone-mode: true
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:09.8381514Z   fetch-depth: 1
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:09.8381733Z   fetch-tags: false
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:09.8381961Z   show-progress: true
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:09.8382185Z   lfs: false
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:09.8382396Z   submodules: false
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:09.8382623Z   set-safe-directory: true
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:09.8382901Z   allow-unsafe-pr-checkout: false
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:09.8383268Z ##[endgroup]
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:09.9403414Z Syncing repository: IanPhlippo-jpg/Claude
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:09.9404657Z ##[group]Getting Git version info
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:09.9405128Z Working directory is 'D:\a\Claude\Claude'
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.0076001Z [command]"C:\Program Files\Git\bin\git.exe" version
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.3040857Z git version 2.56.0.windows.4
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.3077587Z ##[endgroup]
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.3092576Z Temporarily overriding HOME='D:\a\_temp\8d8e2e48-be00-43c9-8987-a6725f102274' before making global git config changes
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.3093320Z Adding repository directory to the temporary git global config as a safe directory
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.3099646Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\Claude\Claude
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.3606247Z Deleting the contents of 'D:\a\Claude\Claude'
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.3610835Z ##[group]Initializing the repository
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.3617273Z [command]"C:\Program Files\Git\bin\git.exe" init D:\a\Claude\Claude
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.4251779Z Initialized empty Git repository in D:/a/Claude/Claude/.git/
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.4294603Z [command]"C:\Program Files\Git\bin\git.exe" remote add origin https://github.com/IanPhlippo-jpg/Claude
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.4872870Z ##[endgroup]
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.4873708Z ##[group]Disabling automatic garbage collection
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.4879908Z [command]"C:\Program Files\Git\bin\git.exe" config --local gc.auto 0
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.5148539Z ##[endgroup]
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.5149282Z ##[group]Setting up auth
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.5156990Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.5428286Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:11.7423055Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:11.7695238Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:12.1698403Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:12.1961420Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:12.6189856Z [command]"C:\Program Files\Git\bin\git.exe" config --local http.https://github.com/.extraheader "AUTHORIZATION: basic ***"
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:12.6479790Z ##[endgroup]
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:12.6480484Z ##[group]Fetching the repository
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:12.6489453Z [command]"C:\Program Files\Git\bin\git.exe" -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +564ae507ac95aa653e740ef11d2fb5244b763ff9:refs/remotes/origin/claude/fase1-schetser
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:15.4679748Z From https://github.com/IanPhlippo-jpg/Claude
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:15.4682657Z  * [new ref]         564ae507ac95aa653e740ef11d2fb5244b763ff9 -> origin/claude/fase1-schetser
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:15.4707585Z ##[endgroup]
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:15.4708038Z ##[group]Determining the checkout info
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:15.4709413Z ##[endgroup]
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:15.4715921Z [command]"C:\Program Files\Git\bin\git.exe" sparse-checkout disable
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:15.5095629Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset-all extensions.worktreeConfig
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:15.5321348Z ##[group]Checking out the ref
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:15.5326849Z [command]"C:\Program Files\Git\bin\git.exe" checkout --progress --force -B claude/fase1-schetser refs/remotes/origin/claude/fase1-schetser
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:16.5851103Z Updating files:  53% (1745/3239)
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:16.5889690Z Updating files:  54% (1750/3239)
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:16.5921561Z Updating files:  55% (1782/3239)
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:16.5961384Z Updating files:  56% (1814/3239)
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:16.6026496Z Updating files:  57% (1847/3239)
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:16.6077736Z Updating files:  58% (1879/3239)
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:16.6159426Z Updating files:  59% (1912/3239)
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:16.6220575Z Updating files:  60% (1944/3239)
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:16.7359812Z Updating files:  61% (1976/3239)
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:16.7557264Z Updating files:  62% (2009/3239)
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:16.7793938Z Updating files:  63% (2041/3239)
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:16.8015507Z Updating files:  64% (2073/3239)
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:16.8078724Z Updating files:  65% (2106/3239)
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:16.8141314Z Updating files:  66% (2138/3239)
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:16.8354769Z Updating files:  67% (2171/3239)
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:16.8407258Z Updating files:  68% (2203/3239)
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:16.8484997Z Updating files:  69% (2235/3239)
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:16.8539467Z Updating files:  70% (2268/3239)
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:16.8732142Z Updating files:  71% (2300/3239)
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:16.8780391Z Updating files:  72% (2333/3239)
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:16.8829768Z Updating files:  73% (2365/3239)
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:16.8894261Z Updating files:  74% (2397/3239)
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:16.8945429Z Updating files:  75% (2430/3239)
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:16.8998295Z Updating files:  76% (2462/3239)
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:16.9056777Z Updating files:  77% (2495/3239)
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:16.9105688Z Updating files:  78% (2527/3239)
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:16.9158734Z Updating files:  79% (2559/3239)
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:16.9200841Z Updating files:  80% (2592/3239)
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:16.9237050Z Updating files:  81% (2624/3239)
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:16.9278567Z Updating files:  82% (2656/3239)
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:16.9322838Z Updating files:  83% (2689/3239)
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:16.9369245Z Updating files:  84% (2721/3239)
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:16.9408357Z Updating files:  85% (2754/3239)
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:16.9451231Z Updating files:  86% (2786/3239)
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:16.9704042Z Updating files:  87% (2818/3239)
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:16.9778116Z Updating files:  88% (2851/3239)
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:17.0153243Z Updating files:  89% (2883/3239)
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:17.0258553Z Updating files:  90% (2916/3239)
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:17.0616120Z Updating files:  91% (2948/3239)
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:17.1735759Z Updating files:  92% (2980/3239)
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:17.1776365Z Updating files:  93% (3013/3239)
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:17.1849560Z Updating files:  94% (3045/3239)
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:17.2030708Z Updating files:  95% (3078/3239)
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:17.2842237Z Updating files:  96% (3110/3239)
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:17.3105843Z Updating files:  97% (3142/3239)
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:17.3311250Z Updating files:  98% (3175/3239)
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:17.3687985Z Updating files:  99% (3207/3239)
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:17.3690420Z Updating files: 100% (3239/3239)
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:17.3690914Z Updating files: 100% (3239/3239), done.
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:17.3794574Z Switched to a new branch 'claude/fase1-schetser'
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:17.3804098Z branch 'claude/fase1-schetser' set up to track 'origin/claude/fase1-schetser'.
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:17.4015579Z ##[endgroup]
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:17.4280933Z [command]"C:\Program Files\Git\bin\git.exe" log -1 --format=%H
+regression (win-mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:17.4496692Z 564ae507ac95aa653e740ef11d2fb5244b763ff9
+regression (win-mesh-3of3)	Run actions/setup-node@v4	﻿2026-11-11T01:35:17.4869077Z ##[group]Run actions/setup-node@v4
+regression (win-mesh-3of3)	Run actions/setup-node@v4	2026-11-11T01:35:17.4869279Z with:
+regression (win-mesh-3of3)	Run actions/setup-node@v4	2026-11-11T01:35:17.4869402Z   node-version-file: .nvmrc
+regression (win-mesh-3of3)	Run actions/setup-node@v4	2026-11-11T01:35:17.4869529Z   cache: npm
+regression (win-mesh-3of3)	Run actions/setup-node@v4	2026-11-11T01:35:17.4869635Z   always-auth: false
+regression (win-mesh-3of3)	Run actions/setup-node@v4	2026-11-11T01:35:17.4869747Z   check-latest: false
+regression (win-mesh-3of3)	Run actions/setup-node@v4	2026-11-11T01:35:17.4871306Z   token: ***
+regression (win-mesh-3of3)	Run actions/setup-node@v4	2026-11-11T01:35:17.4871415Z ##[endgroup]
+regression (win-mesh-3of3)	Run actions/setup-node@v4	2026-11-11T01:35:17.5963935Z Resolved .nvmrc as 22
+regression (win-mesh-3of3)	Run actions/setup-node@v4	2026-11-11T01:35:17.6087095Z Found in cache @ C:\hostedtoolcache\windows\node\22.23.4\x64
+regression (win-mesh-3of3)	Run actions/setup-node@v4	2026-11-11T01:35:17.6092864Z (node:8812) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+regression (win-mesh-3of3)	Run actions/setup-node@v4	2026-11-11T01:35:17.6093344Z (Use `node --trace-deprecation ...` to show where the warning was created)
+regression (win-mesh-3of3)	Run actions/setup-node@v4	2026-11-11T01:35:17.6095107Z ##[group]Environment details
+regression (win-mesh-3of3)	Run actions/setup-node@v4	2026-11-11T01:35:21.5167133Z node: v22.23.4
+regression (win-mesh-3of3)	Run actions/setup-node@v4	2026-11-11T01:35:21.5167426Z npm: 10.9.9
+regression (win-mesh-3of3)	Run actions/setup-node@v4	2026-11-11T01:35:21.5167539Z yarn: 1.22.22
+regression (win-mesh-3of3)	Run actions/setup-node@v4	2026-11-11T01:35:21.5167949Z ##[endgroup]
+regression (win-mesh-3of3)	Run actions/setup-node@v4	2026-11-11T01:35:21.5517535Z [command]C:\Windows\system32\cmd.exe /D /S /C "C:\hostedtoolcache\windows\node\22.23.4\x64\npm.cmd config get cache"
+regression (win-mesh-3of3)	Run actions/setup-node@v4	2026-11-11T01:35:21.9242104Z C:\npm\cache
+regression (win-mesh-3of3)	Run actions/setup-node@v4	2026-11-11T01:35:22.2380586Z Cache hit for: node-cache-Windows-x64-npm-2e19015be27df859f9a88e5219eccc5c4600304482e732cf5986a8860520668b
+regression (win-mesh-3of3)	Run actions/setup-node@v4	2026-11-11T01:35:22.2451728Z (node:8812) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+regression (win-mesh-3of3)	Run actions/setup-node@v4	2026-11-11T01:35:23.4729029Z Received 71303168 of 79011942 (90.2%), 68.0 MBs/sec
+regression (win-mesh-3of3)	Run actions/setup-node@v4	2026-11-11T01:35:24.4721550Z Received 74817638 of 79011942 (94.7%), 35.6 MBs/sec
+regression (win-mesh-3of3)	Run actions/setup-node@v4	2026-11-11T01:35:25.0128310Z Received 79011942 of 79011942 (100.0%), 29.6 MBs/sec
+regression (win-mesh-3of3)	Run actions/setup-node@v4	2026-11-11T01:35:25.0131883Z Cache Size: ~75 MB (79011942 B)
+regression (win-mesh-3of3)	Run actions/setup-node@v4	2026-11-11T01:35:25.0209421Z [command]"C:\Program Files\Git\usr\bin\tar.exe" -xf D:/a/_temp/ac01a2dc-b5b3-4aa8-94bd-50844aa51d61/cache.tzst -P -C D:/a/Claude/Claude --force-local --use-compress-program "zstd -d"
+regression (win-mesh-3of3)	Run actions/setup-node@v4	2026-11-11T01:35:26.3163777Z Cache restored successfully
+regression (win-mesh-3of3)	Run actions/setup-node@v4	2026-11-11T01:35:26.3219213Z Cache restored from key: node-cache-Windows-x64-npm-2e19015be27df859f9a88e5219eccc5c4600304482e732cf5986a8860520668b
+regression (win-mesh-3of3)	Run npm ci	﻿2026-11-11T01:35:26.3467848Z ##[group]Run npm ci
+regression (win-mesh-3of3)	Run npm ci	2026-11-11T01:35:26.3468067Z ^[[36;1mnpm ci^[[0m
+regression (win-mesh-3of3)	Run npm ci	2026-11-11T01:35:26.3480692Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+regression (win-mesh-3of3)	Run npm ci	2026-11-11T01:35:26.3480929Z ##[endgroup]
+regression (win-mesh-3of3)	Run npm ci	2026-11-11T01:35:30.1397551Z npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+regression (win-mesh-3of3)	Run npm ci	2026-11-11T01:35:30.2092778Z npm warn deprecated rimraf@2.6.3: Rimraf versions prior to v4 are no longer supported
+regression (win-mesh-3of3)	Run npm ci	2026-11-11T01:35:30.2892288Z npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+regression (win-mesh-3of3)	Run npm ci	2026-11-11T01:35:30.3085651Z npm warn deprecated whatwg-encoding@3.1.1: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+regression (win-mesh-3of3)	Run npm ci	2026-11-11T01:35:30.8026281Z npm warn deprecated boolean@3.2.0: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
+regression (win-mesh-3of3)	Run npm ci	2026-11-11T01:35:35.1648514Z 
+regression (win-mesh-3of3)	Run npm ci	2026-11-11T01:35:35.1649422Z added 462 packages, and audited 463 packages in 8s
+regression (win-mesh-3of3)	Run npm ci	2026-11-11T01:35:35.1649770Z 
+regression (win-mesh-3of3)	Run npm ci	2026-11-11T01:35:35.1649909Z 76 packages are looking for funding
+regression (win-mesh-3of3)	Run npm ci	2026-11-11T01:35:35.1650187Z   run `npm fund` for details
+regression (win-mesh-3of3)	Run npm ci	2026-11-11T01:35:35.1770748Z 
+regression (win-mesh-3of3)	Run npm ci	2026-11-11T01:35:35.1771282Z 6 moderate severity vulnerabilities
+regression (win-mesh-3of3)	Run npm ci	2026-11-11T01:35:35.1771504Z 
+regression (win-mesh-3of3)	Run npm ci	2026-11-11T01:35:35.1771687Z To address issues that do not require attention, run:
+regression (win-mesh-3of3)	Run npm ci	2026-11-11T01:35:35.1771979Z   npm audit fix
+regression (win-mesh-3of3)	Run npm ci	2026-11-11T01:35:35.1772088Z 
+regression (win-mesh-3of3)	Run npm ci	2026-11-11T01:35:35.1772261Z To address all issues (including breaking changes), run:
+regression (win-mesh-3of3)	Run npm ci	2026-11-11T01:35:35.1772555Z   npm audit fix --force
+regression (win-mesh-3of3)	Run npm ci	2026-11-11T01:35:35.1772672Z 
+regression (win-mesh-3of3)	Run npm ci	2026-11-11T01:35:35.1772786Z Run `npm audit` for details.
+regression (win-mesh-3of3)	Run npm run build:e2e	﻿2026-11-11T01:35:36.3513239Z ##[group]Run npm run build:e2e
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:36.3513464Z ^[[36;1mnpm run build:e2e^[[0m
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:36.3521573Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:36.3521806Z ##[endgroup]
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:36.7055369Z 
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:36.7056085Z > phlippo-cad@0.5.14 build:e2e
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:36.7056532Z > cross-env VITE_TEST_HOOKS=1 vite build
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:36.7056715Z 
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:38.3423007Z ^[[36mvite v7.3.7 ^[[32mbuilding client environment for production...^[[36m^[[39m
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:38.3945104Z transforming...
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:42.2312941Z ^[[33m[plugin vite:resolve] Module "node:module" has been externalized for browser compatibility, imported by "D:/a/Claude/Claude/node_modules/replicad-opencascadejs/dist/replicad_single.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.^[[39m
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:46.1021679Z ^[[32m✓^[[39m 398 modules transformed.
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:46.4283858Z rendering chunks...
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:46.7101558Z computing gzip size...
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:47.3206393Z ^[[2mdist/^[[22m^[[32mindex.html                              ^[[39m^[[1m^[[2m     1.11 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     0.52 kB^[[22m
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:47.3206977Z ^[[2mdist/^[[22m^[[32massets/replicad_single-BfZpIs5k.js      ^[[39m^[[1m^[[2m    59.37 kB^[[22m^[[1m^[[22m
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:47.3207918Z ^[[2mdist/^[[22m^[[32massets/replicad-DSoIoMtf.js             ^[[39m^[[1m^[[2m   372.71 kB^[[22m^[[1m^[[22m
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:47.3208435Z ^[[2mdist/^[[22m^[[32massets/rebuild.worker-DadhVFPv.js       ^[[39m^[[1m^[[2m   684.45 kB^[[22m^[[1m^[[22m
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:47.3209481Z ^[[2mdist/^[[22m^[[32massets/occt.worker-uFe7urJa.js          ^[[39m^[[1m^[[2m   708.11 kB^[[22m^[[1m^[[22m
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:47.3210176Z ^[[2mdist/^[[22m^[[32massets/replicad_single-B_1cTsn_.wasm    ^[[39m^[[1m^[[2m22,980.27 kB^[[22m^[[1m^[[22m^[[2m │ gzip: 7,267.29 kB^[[22m
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:47.3210929Z ^[[2mdist/^[[22m^[[35massets/index-DI-Br2Gb.css               ^[[39m^[[1m^[[2m    84.38 kB^[[22m^[[1m^[[22m^[[2m │ gzip:    16.56 kB^[[22m
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:47.3211731Z ^[[2mdist/^[[22m^[[36massets/designTableCommands-BNHJ4CSz.js  ^[[39m^[[1m^[[2m     1.24 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     0.67 kB^[[22m
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:47.3213133Z ^[[2mdist/^[[22m^[[36massets/previewWindow-8rte_c8C.js        ^[[39m^[[1m^[[2m     1.63 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     0.78 kB^[[22m
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:47.3214063Z ^[[2mdist/^[[22m^[[36massets/DrawingTreeBody-C91HvT-D.js      ^[[39m^[[1m^[[2m     2.17 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     0.99 kB^[[22m
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:47.3214904Z ^[[2mdist/^[[22m^[[36massets/selfTest-BQXHSxa0.js             ^[[39m^[[1m^[[2m     3.24 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.56 kB^[[22m
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:47.3215799Z ^[[2mdist/^[[22m^[[36massets/SensorPM-DdC7XqAt.js             ^[[39m^[[1m^[[2m     3.32 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.15 kB^[[22m
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:47.3216606Z ^[[2mdist/^[[22m^[[36massets/FastenerPM-Bk00XjBs.js           ^[[39m^[[1m^[[2m     3.83 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.35 kB^[[22m
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:47.3217371Z ^[[2mdist/^[[22m^[[36massets/StandardPartsPane-DzBYZi1e.js    ^[[39m^[[1m^[[2m     4.08 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.67 kB^[[22m
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:47.3218170Z ^[[2mdist/^[[22m^[[36massets/designStudy-gdYi1rxy.js          ^[[39m^[[1m^[[2m     4.11 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.56 kB^[[22m
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:47.3218947Z ^[[2mdist/^[[22m^[[36massets/AnalysisPM2-0kB7se-w.js          ^[[39m^[[1m^[[2m     5.51 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.78 kB^[[22m
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:47.3219699Z ^[[2mdist/^[[22m^[[36massets/configureDialog-nNIC-F4V.js      ^[[39m^[[1m^[[2m     5.54 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.13 kB^[[22m
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:47.3220438Z ^[[2mdist/^[[22m^[[36massets/renderDialogs-CANOAwm-.js        ^[[39m^[[1m^[[2m     5.93 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.76 kB^[[22m
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:47.3221171Z ^[[2mdist/^[[22m^[[36massets/sheetExport-Blk1uj4I.js          ^[[39m^[[1m^[[2m     5.97 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.75 kB^[[22m
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:47.3221956Z ^[[2mdist/^[[22m^[[36massets/PlanePM-WKf0rTOt.js              ^[[39m^[[1m^[[2m     6.01 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.67 kB^[[22m
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:47.3224340Z ^[[2mdist/^[[22m^[[36massets/SectionViewPM-BbNjmqgG.js        ^[[39m^[[1m^[[2m     6.30 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.96 kB^[[22m
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:47.3225109Z ^[[2mdist/^[[22m^[[36massets/ViewPane-CeJb_HXV.js             ^[[39m^[[1m^[[2m     6.46 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.93 kB^[[22m
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:47.3225875Z ^[[2mdist/^[[22m^[[36massets/assemblyDialogs-C7CDFrgw.js      ^[[39m^[[1m^[[2m     6.53 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.14 kB^[[22m
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:47.3226621Z ^[[2mdist/^[[22m^[[36massets/AssemblyTab-MGlXEaFc.js          ^[[39m^[[1m^[[2m     7.11 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.97 kB^[[22m
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:47.3227397Z ^[[2mdist/^[[22m^[[36massets/AutoTolerancePM-sNm1jhoV.js      ^[[39m^[[1m^[[2m     7.34 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.00 kB^[[22m
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:47.3228187Z ^[[2mdist/^[[22m^[[36massets/SheetDialogs-ImqGrefw.js         ^[[39m^[[1m^[[2m     7.57 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.14 kB^[[22m
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:47.3228911Z ^[[2mdist/^[[22m^[[36massets/DrawingTabs-DsqAzczM.js          ^[[39m^[[1m^[[2m     8.08 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.93 kB^[[22m
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:47.3229661Z ^[[2mdist/^[[22m^[[36massets/Sketch3DPM-DRlVfH5h.js           ^[[39m^[[1m^[[2m     8.57 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     3.05 kB^[[22m
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:47.3230971Z ^[[2mdist/^[[22m^[[36massets/RefGeomPM-BMJF-5mQ.js            ^[[39m^[[1m^[[2m     8.60 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.39 kB^[[22m
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:47.3231724Z ^[[2mdist/^[[22m^[[36massets/equations-L_Dhd_wb.js            ^[[39m^[[1m^[[2m     9.21 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.98 kB^[[22m
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:47.3232507Z ^[[2mdist/^[[22m^[[36massets/ConfigurationPanel-BIUH2HVp.js   ^[[39m^[[1m^[[2m     9.32 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.73 kB^[[22m
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:47.3233549Z ^[[2mdist/^[[22m^[[36massets/appearanceDialog-Bnr2-e4X.js     ^[[39m^[[1m^[[2m     9.61 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     3.08 kB^[[22m
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:47.3234344Z ^[[2mdist/^[[22m^[[36massets/DrawingExtras-rfBhk9Eu.js        ^[[39m^[[1m^[[2m    10.05 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     3.50 kB^[[22m
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:47.3235178Z ^[[2mdist/^[[22m^[[36massets/AssemblyTreeBody-Bxl_hOPh.js     ^[[39m^[[1m^[[2m    10.19 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     3.12 kB^[[22m
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:47.3236036Z ^[[2mdist/^[[22m^[[36massets/DraftAnalysisPM-TmwdS6Kn.js      ^[[39m^[[1m^[[2m    10.92 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.60 kB^[[22m
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:47.3236835Z ^[[2mdist/^[[22m^[[36massets/evaluateDialogs-CItlJXNS.js      ^[[39m^[[1m^[[2m    11.43 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     3.34 kB^[[22m
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:47.3237634Z ^[[2mdist/^[[22m^[[36massets/AppearancesPane-G2bY7a6l.js      ^[[39m^[[1m^[[2m    11.68 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     4.05 kB^[[22m
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:47.3238441Z ^[[2mdist/^[[22m^[[36massets/treeDialogs-CaYJlm5U.js          ^[[39m^[[1m^[[2m    12.50 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     3.93 kB^[[22m
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:47.3239224Z ^[[2mdist/^[[22m^[[36massets/materialDialog-CowWzttl.js       ^[[39m^[[1m^[[2m    13.03 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     3.93 kB^[[22m
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:47.3240026Z ^[[2mdist/^[[22m^[[36massets/customize-DOXRp5KP.js            ^[[39m^[[1m^[[2m    14.87 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     4.28 kB^[[22m
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:47.3240775Z ^[[2mdist/^[[22m^[[36massets/evaluate-CA-OhWDe.js             ^[[39m^[[1m^[[2m    16.23 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     5.25 kB^[[22m
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:47.3241529Z ^[[2mdist/^[[22m^[[36massets/dialogs-D666LjM5.js              ^[[39m^[[1m^[[2m    24.07 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     6.85 kB^[[22m
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:47.3242316Z ^[[2mdist/^[[22m^[[36massets/evaluateDialogs2-D_XbpL6_.js     ^[[39m^[[1m^[[2m    25.05 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     6.63 kB^[[22m
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:47.3243107Z ^[[2mdist/^[[22m^[[36massets/MotionTimeline-SkIuGuC6.js       ^[[39m^[[1m^[[2m    26.56 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     6.92 kB^[[22m
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:47.3243880Z ^[[2mdist/^[[22m^[[36massets/AssemblyPM-Bo54Y4qk.js           ^[[39m^[[1m^[[2m    27.46 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     6.51 kB^[[22m
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:47.3244682Z ^[[2mdist/^[[22m^[[36massets/DrawingSheetView-Cg8Fz6jK.js     ^[[39m^[[1m^[[2m    51.45 kB^[[22m^[[1m^[[22m^[[2m │ gzip:    16.72 kB^[[22m
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:47.3245822Z ^[[2mdist/^[[22m^[[36massets/options-DPwK9tAl.js              ^[[39m^[[1m^[[2m    52.93 kB^[[22m^[[1m^[[22m^[[2m │ gzip:    14.29 kB^[[22m
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:47.3246556Z ^[[2mdist/^[[22m^[[36massets/DrawingPM-BsKG9jtr.js            ^[[39m^[[1m^[[2m    53.70 kB^[[22m^[[1m^[[22m^[[2m │ gzip:    11.21 kB^[[22m
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:47.3247312Z ^[[2mdist/^[[22m^[[36massets/csg-DUo1x2C3.js                  ^[[39m^[[1m^[[2m   105.39 kB^[[22m^[[1m^[[22m^[[2m │ gzip:    32.47 kB^[[22m
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:47.3248033Z ^[[2mdist/^[[22m^[[36massets/react-BgaH_3CY.js                ^[[39m^[[1m^[[2m   223.35 kB^[[22m^[[1m^[[22m^[[2m │ gzip:    69.70 kB^[[22m
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:47.3248798Z ^[[2mdist/^[[22m^[[36massets/PropertyPanel-CgtRIyUv.js        ^[[39m^[[1m^[[2m   314.55 kB^[[22m^[[1m^[[22m^[[2m │ gzip:    56.43 kB^[[22m
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:47.3249576Z ^[[2mdist/^[[22m^[[36massets/kernel-CHj4O-oR.js               ^[[39m^[[1m^[[2m   527.60 kB^[[22m^[[1m^[[22m^[[2m │ gzip:   183.03 kB^[[22m
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:47.3250317Z ^[[2mdist/^[[22m^[[36massets/three-CCz4rHc3.js                ^[[39m^[[1m^[[2m   728.92 kB^[[22m^[[1m^[[22m^[[2m │ gzip:   197.58 kB^[[22m
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:47.3251068Z ^[[2mdist/^[[22m^[[36massets/index-BMFSVyV8.js                ^[[39m^[[1m^[[2m   784.87 kB^[[22m^[[1m^[[22m^[[2m │ gzip:   221.75 kB^[[22m
+regression (win-mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:47.3251656Z ^[[32m✓ built in 8.96s^[[39m
+regression (win-mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	﻿2026-11-11T01:35:47.4324549Z ##[group]Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &
+regression (win-mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:35:47.4324973Z ^[[36;1mnpx vite preview --host 127.0.0.1 --port 4173 --strictPort &^[[0m
+regression (win-mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:35:47.4325226Z ^[[36;1mnpx wait-on http://127.0.0.1:4173^[[0m
+regression (win-mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:35:47.4325454Z ^[[36;1mexport NODE_OPTIONS="--import ./e2e/lib/launch-args.mjs"^[[0m
+regression (win-mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:35:47.4325819Z ^[[36;1mexport E2E_BROWSER_ARGS="--use-angle=swiftshader --enable-unsafe-swiftshader --ignore-gpu-blocklist"^[[0m
+regression (win-mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:35:47.4326254Z ^[[36;1mE2E_REPEAT="1" E2E_SCRIPT_TIMEOUT=1500000 E2E_SHARD="3/3" E2E_URL="http://127.0.0.1:4173/" node e2e/run-regression.mjs^[[0m
+regression (win-mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:35:47.4334145Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+regression (win-mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:35:47.4334390Z ##[endgroup]
+regression (win-mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:35:48.4335290Z   ^[[32m➜^[[39m  ^[[1mLocal^[[22m:   ^[[36mhttp://127.0.0.1:^[[1m4173^[[22m/^[[39m
+regression (win-mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:40:33.6494566Z features: exit=0 285s 66/66 checks passed
+regression (win-mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:41:00.0845493Z drawing: exit=0 26s 28/28 checks passed
+regression (win-mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:41:59.0629976Z endconditions: exit=0 59s 15/15 checks passed
+regression (win-mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:42:36.9150285Z sheetmetal: exit=0 38s 14/14 checks passed
+regression (win-mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:42:58.6005014Z helix: exit=0 22s 5/5 checks passed
+regression (win-mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:44:09.7658821Z doorhandle: exit=0 71s 18/18 checks passed
+regression (win-mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:44:23.1030048Z uptobody: exit=0 13s 4/4 checks passed
+regression (win-mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:44:45.3068329Z sketchpattern: exit=0 22s 2/2 checks passed
+regression (win-mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:45:04.1436001Z editcomponent: exit=0 19s 2/2 checks passed
+regression (win-mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:45:41.6173389Z surfaces: exit=0 37s 7/7 checks passed
+regression (win-mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:45:51.4613365Z annotations3: exit=0 10s 3/3 checks passed
+regression (win-mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:46:24.8150323Z unfoldfold: exit=0 33s 5/5 checks passed
+regression (win-mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:46:48.3848705Z thickness: exit=0 24s 2/2 checks passed
+regression (win-mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:47:07.1606979Z thread: exit=0 19s 2/2 checks passed
+regression (win-mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:47:26.1272891Z deletekey2: exit=0 19s 13/13 checks passed
+regression (win-mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:48:18.0123821Z features2: exit=0 52s 15/15 checks passed
+regression (win-mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:49:19.2979793Z assembly2: exit=0 61s 15/15 checks passed
+regression (win-mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:50:51.3477957Z filletopts: exit=0 92s 16/16 checks passed
+regression (win-mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:52:29.9807872Z keys: exit=0 99s 7/7 checks passed
+regression (win-mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:52:41.7690402Z dwgopts: exit=0 12s 13/13 passed
+regression (win-mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:53:03.9157018Z triad: exit=0 22s 5/5 passed
+regression (win-mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:53:25.6348855Z asmcut: exit=0 22s 3/3 checks passed
+regression (win-mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:54:12.6819391Z qa3: exit=0 47s 30/30 passed
+regression (win-mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:54:29.7982412Z ga1: exit=0 17s 19/19 passed
+regression (win-mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:55:20.6692967Z gd: exit=0 51s 23/23 passed
+regression (win-mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:55:50.8342717Z gg: exit=0 30s 22/22 passed
+regression (win-mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:57:07.9613732Z gj: exit=0 77s 37/37 passed
+regression (win-mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:57:27.4262825Z bodies: exit=0 19s 7/7 checks passed
+regression (win-mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:59:14.1939738Z rebuildworker: exit=0 107s 11/11 checks passed
+regression (win-mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:59:40.8758250Z loftface: exit=0 27s 7/7 checks passed
+regression (win-mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T02:00:10.0836522Z videos54: exit=0 29s 18/18 checks passed
+regression (win-mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T02:01:24.4726161Z plastics: exit=0 74s 26/26 passed
+regression (win-mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T02:01:30.1784345Z undo200: exit=0 6s 7/7 checks passed
+regression (win-mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T02:01:37.8864056Z instant2d: exit=0 8s 8/8 checks passed
+regression (win-mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T02:01:51.3327377Z prefs112: exit=0 13s 7/7 checks passed
+regression (win-mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T02:01:51.3328389Z DONE 35/35 green, 0 optional step(s) skipped
+regression (win-mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T02:01:51.3328795Z log: e2e-out/regression-0.5.14-shard3of3.txt
+regression (win-mesh-3of3)	Run git diff --exit-code	﻿2026-11-11T02:01:56.3719282Z ##[group]Run git diff --exit-code
+regression (win-mesh-3of3)	Run git diff --exit-code	2026-11-11T02:01:56.3719620Z ^[[36;1mgit diff --exit-code^[[0m
+regression (win-mesh-3of3)	Run git diff --exit-code	2026-11-11T02:01:56.3727711Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+regression (win-mesh-3of3)	Run git diff --exit-code	2026-11-11T02:01:56.3727993Z ##[endgroup]
+regression (win-mesh-3of3)	Run actions/upload-artifact@v4	﻿2026-11-11T02:01:56.4435723Z ##[group]Run actions/upload-artifact@v4
+regression (win-mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:01:56.4436029Z with:
+regression (win-mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:01:56.4436209Z   name: e2e-regression-log-win-mesh-3of3
+regression (win-mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:01:56.4436526Z   path: e2e-out/regression-*.txt
+regression (win-mesh-3of3)	Run actions/upload-artifact@v4	e2e-out/*-output.txt
+regression (win-mesh-3of3)	Run actions/upload-artifact@v4	
+regression (win-mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:01:56.4436768Z   if-no-files-found: error
+regression (win-mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:01:56.4437374Z   compression-level: 6
+regression (win-mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:01:56.4437559Z   overwrite: false
+regression (win-mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:01:56.4437724Z   include-hidden-files: false
+regression (win-mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:01:56.4437902Z ##[endgroup]
+regression (win-mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:01:56.5718477Z (node:8248) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+regression (win-mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:01:56.5719344Z (Use `node --trace-deprecation ...` to show where the warning was created)
+regression (win-mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:01:56.9185460Z (node:8248) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+regression (win-mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:01:56.9186741Z With the provided path, there will be 1 file uploaded
+regression (win-mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:01:57.5910862Z Artifact name is valid!
+regression (win-mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:01:57.5911399Z Root directory input is valid!
+regression (win-mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:01:57.5916779Z Beginning upload of artifact content to blob storage
+regression (win-mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:01:57.5917249Z Uploaded bytes 763
+regression (win-mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:01:57.5917451Z Finished uploading artifact content to blob storage!
+regression (win-mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:01:57.5917857Z SHA256 digest of uploaded artifact zip is 0a2ce250479d4b22c80b721b57e669738f0e2215308bf82fdd568e41323611d4
+regression (win-mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:01:57.5918189Z Finalizing artifact upload
+regression (win-mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:01:57.5918921Z Artifact e2e-regression-log-win-mesh-3of3.zip successfully finalized. Artifact ID 13821218310
+regression (win-mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:01:57.5919426Z Artifact e2e-regression-log-win-mesh-3of3 has been successfully uploaded! Final size is 763 bytes. Artifact ID is 13821218310
+regression (win-mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:01:57.5919999Z Artifact download URL: https://github.com/IanPhlippo-jpg/Claude/actions/runs/42940008926/artifacts/13821218310
+regression (win-mesh-3of3)	regression passed	﻿2026-11-11T02:01:57.6053253Z ##[group]Run echo "regression=success clean=success"
+regression (win-mesh-3of3)	regression passed	2026-11-11T02:01:57.6053572Z ^[[36;1mecho "regression=success clean=success"^[[0m
+regression (win-mesh-3of3)	regression passed	2026-11-11T02:01:57.6053832Z ^[[36;1mtest "success" = success && test "success" = success^[[0m
+regression (win-mesh-3of3)	regression passed	2026-11-11T02:01:57.6061498Z shell: C:\Program Files\Git\bin\bash.EXE --noprofile --norc -e -o pipefail {0}
+regression (win-mesh-3of3)	regression passed	2026-11-11T02:01:57.6061761Z ##[endgroup]
+regression (win-mesh-3of3)	regression passed	2026-11-11T02:01:57.6297945Z regression=success clean=success
+regression (win-mesh-3of3)	Post Run actions/setup-node@v4	﻿2026-11-11T02:01:57.6446514Z Post job cleanup.
+regression (win-mesh-3of3)	Post Run actions/setup-node@v4	2026-11-11T02:01:57.7369673Z (node:10112) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+regression (win-mesh-3of3)	Post Run actions/setup-node@v4	2026-11-11T02:01:57.7370183Z (Use `node --trace-deprecation ...` to show where the warning was created)
+regression (win-mesh-3of3)	Post Run actions/setup-node@v4	2026-11-11T02:01:57.7371644Z Cache hit occurred on the primary key node-cache-Windows-x64-npm-2e19015be27df859f9a88e5219eccc5c4600304482e732cf5986a8860520668b, not saving cache.
+regression (win-mesh-3of3)	Post Run actions/checkout@v4	﻿2026-11-11T02:01:57.7572326Z Post job cleanup.
+regression (win-mesh-3of3)	Post Run actions/checkout@v4	2026-11-11T02:01:57.8575425Z [command]"C:\Program Files\Git\bin\git.exe" version
+regression (win-mesh-3of3)	Post Run actions/checkout@v4	2026-11-11T02:01:57.8825437Z git version 2.56.0.windows.4
+regression (win-mesh-3of3)	Post Run actions/checkout@v4	2026-11-11T02:01:57.8868349Z Temporarily overriding HOME='D:\a\_temp\58160ae4-7bf2-4d81-ae16-31e4a5aea627' before making global git config changes
+regression (win-mesh-3of3)	Post Run actions/checkout@v4	2026-11-11T02:01:57.8868973Z Adding repository directory to the temporary git global config as a safe directory
+regression (win-mesh-3of3)	Post Run actions/checkout@v4	2026-11-11T02:01:57.8874753Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\Claude\Claude
+regression (win-mesh-3of3)	Post Run actions/checkout@v4	2026-11-11T02:01:57.9122405Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+regression (win-mesh-3of3)	Post Run actions/checkout@v4	2026-11-11T02:01:57.9358102Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+regression (win-mesh-3of3)	Post Run actions/checkout@v4	2026-11-11T02:01:58.3324703Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+regression (win-mesh-3of3)	Post Run actions/checkout@v4	2026-11-11T02:01:58.3541331Z http.https://github.com/.extraheader
+regression (win-mesh-3of3)	Post Run actions/checkout@v4	2026-11-11T02:01:58.3568545Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset-all http.https://github.com/.extraheader
+regression (win-mesh-3of3)	Post Run actions/checkout@v4	2026-11-11T02:01:58.3813822Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+regression (win-mesh-3of3)	Post Run actions/checkout@v4	2026-11-11T02:01:58.7489362Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+regression (win-mesh-3of3)	Post Run actions/checkout@v4	2026-11-11T02:01:58.7723060Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+regression (win-mesh-3of3)	Complete job	﻿2026-11-11T02:01:59.1437376Z Cleaning up orphan processes
+regression (win-mesh-3of3)	Complete job	2026-11-11T02:01:59.1609422Z Terminate orphan process: pid (7216) (node)
+regression (win-mesh-3of3)	Complete job	2026-11-11T02:01:59.1664167Z Terminate orphan process: pid (4344) (cmd)
+regression (win-mesh-3of3)	Complete job	2026-11-11T02:01:59.1686333Z Terminate orphan process: pid (8628) (node)
+regression (win-mesh-3of3)	Complete job	2026-11-11T02:01:59.1725078Z Terminate orphan process: pid (5972) (esbuild)
+regression (win-mesh-3of3)	Complete job	2026-11-11T02:01:59.1796573Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-node@v4, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

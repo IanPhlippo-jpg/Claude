@@ -56,6 +56,8 @@ QA-rapport 0.5.13 (5/10, NO-GO) verwerkt; per bevinding in `docs/31-qa-0.5.13.md
   0,1 mm (F202), randcontrole nooit stil (F179).
 - `rebuildworker` op Windows (F54/F137): de UI-thread doet nog 87 ms bij het overnemen van een rebuild (was 235 ms;
   silhouetranden in de worker), de check meet de langste taak op de UI-thread.
+- CI-run 42940008926 op 564ae50: 17/17 jobs groen (Linux en Windows, incl. windows-installer); logs in
+  `qa-logs/0.5.14/actions-42940008926-564ae50/` via `npm run bewijs -- --ci 42940008926`.
 
 ## Status 0.5.13 (2026-11-09)
 

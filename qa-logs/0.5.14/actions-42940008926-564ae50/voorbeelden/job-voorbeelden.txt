@@ -1,0 +1,587 @@
+voorbeelden	Set up job	﻿2026-11-11T01:35:09.0240047Z Current runner version: '2.338.2'
+voorbeelden	Set up job	2026-11-11T01:35:09.0262346Z ##[group]Runner Image Provisioner
+voorbeelden	Set up job	2026-11-11T01:35:09.0263149Z Hosted Compute Agent
+voorbeelden	Set up job	2026-11-11T01:35:09.0263737Z Version: 20261028.624
+voorbeelden	Set up job	2026-11-11T01:35:09.0264283Z Commit: 54898b74c23fde5556c9b3c3a2290865feef0dfe
+voorbeelden	Set up job	2026-11-11T01:35:09.0264947Z Build Date: 2026-10-28T21:51:42Z
+voorbeelden	Set up job	2026-11-11T01:35:09.0265558Z Worker ID: {960cd70a-ac38-48de-a595-5612b120d25c}
+voorbeelden	Set up job	2026-11-11T01:35:09.0266193Z Region: westus3
+voorbeelden	Set up job	2026-11-11T01:35:09.0266704Z Cloud: Azure
+voorbeelden	Set up job	2026-11-11T01:35:09.0267171Z ##[endgroup]
+voorbeelden	Set up job	2026-11-11T01:35:09.0268291Z ##[group]Operating System
+voorbeelden	Set up job	2026-11-11T01:35:09.0268896Z Ubuntu
+voorbeelden	Set up job	2026-11-11T01:35:09.0269429Z 24.04.5
+voorbeelden	Set up job	2026-11-11T01:35:09.0269908Z LTS
+voorbeelden	Set up job	2026-11-11T01:35:09.0270358Z ##[endgroup]
+voorbeelden	Set up job	2026-11-11T01:35:09.0270814Z ##[group]Runner Image
+voorbeelden	Set up job	2026-11-11T01:35:09.0271378Z Image: ubuntu-24.04
+voorbeelden	Set up job	2026-11-11T01:35:09.0272131Z Version: 20261101.360.1
+voorbeelden	Set up job	2026-11-11T01:35:09.0273082Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261101.360/images/ubuntu/Ubuntu2404-Readme.md
+voorbeelden	Set up job	2026-11-11T01:35:09.0274581Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261101.360
+voorbeelden	Set up job	2026-11-11T01:35:09.0275439Z ##[endgroup]
+voorbeelden	Set up job	2026-11-11T01:35:09.0276474Z ##[group]GITHUB_TOKEN Permissions
+voorbeelden	Set up job	2026-11-11T01:35:09.0278254Z Contents: read
+voorbeelden	Set up job	2026-11-11T01:35:09.0278780Z Metadata: read
+voorbeelden	Set up job	2026-11-11T01:35:09.0279585Z Packages: read
+voorbeelden	Set up job	2026-11-11T01:35:09.0280110Z ##[endgroup]
+voorbeelden	Set up job	2026-11-11T01:35:09.0282097Z Secret source: Actions
+voorbeelden	Set up job	2026-11-11T01:35:09.0282972Z Cache mode: write
+voorbeelden	Set up job	2026-11-11T01:35:09.0283582Z Prepare workflow directory
+voorbeelden	Set up job	2026-11-11T01:35:09.0544977Z Prepare all required actions
+voorbeelden	Set up job	2026-11-11T01:35:09.0586438Z Getting action download info
+voorbeelden	Set up job	2026-11-11T01:35:09.3601331Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+voorbeelden	Set up job	2026-11-11T01:35:09.4700676Z Download action repository 'actions/setup-node@v4' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+voorbeelden	Set up job	2026-11-11T01:35:09.6912867Z Complete job name: voorbeelden
+voorbeelden	Run actions/checkout@v4	﻿2026-11-11T01:35:09.7573241Z ##[group]Run actions/checkout@v4
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:09.7573939Z with:
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:09.7574321Z   repository: IanPhlippo-jpg/Claude
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:09.7577286Z   token: ***
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:09.7577644Z   ssh-strict: true
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:09.7578014Z   ssh-user: git
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:09.7578377Z   persist-credentials: true
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:09.7578779Z   clean: true
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:09.7579146Z   sparse-checkout-cone-mode: true
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:09.7579567Z   fetch-depth: 1
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:09.7579919Z   fetch-tags: false
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:09.7580284Z   show-progress: true
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:09.7580645Z   lfs: false
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:09.7580984Z   submodules: false
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:09.7581354Z   set-safe-directory: true
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:09.7581911Z   allow-unsafe-pr-checkout: false
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:09.7582546Z ##[endgroup]
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:09.9387586Z Syncing repository: IanPhlippo-jpg/Claude
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:09.9389296Z ##[group]Getting Git version info
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:09.9389899Z Working directory is '/home/runner/work/Claude/Claude'
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:09.9390898Z [command]/usr/bin/git version
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:09.9434704Z git version 2.56.0
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:09.9450795Z ##[endgroup]
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:09.9463825Z Temporarily overriding HOME='/home/runner/work/_temp/4365dfb0-8c48-47e6-a099-3f28409d6b1f' before making global git config changes
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:09.9465876Z Adding repository directory to the temporary git global config as a safe directory
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:09.9468534Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/Claude/Claude
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:09.9512222Z Deleting the contents of '/home/runner/work/Claude/Claude'
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:09.9521034Z ##[group]Initializing the repository
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:09.9532402Z [command]/usr/bin/git init /home/runner/work/Claude/Claude
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:09.9597858Z hint: Using 'master' as the name for the initial branch. This default branch name
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:09.9599214Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:09.9600950Z hint: to use in all of your new repositories, which will suppress this warning,
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:09.9602129Z hint: call:
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:09.9602963Z hint:
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:09.9603839Z hint: 	git config --global init.defaultBranch <name>
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:09.9604899Z hint:
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:09.9605701Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:09.9606674Z hint: 'development'. The just-created branch can be renamed via this command:
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:09.9607453Z hint:
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:09.9607972Z hint: 	git branch -m <name>
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:09.9608600Z hint:
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:09.9609312Z hint: Disable this message with "git config set advice.defaultBranchName false"
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:09.9610395Z Initialized empty Git repository in /home/runner/work/Claude/Claude/.git/
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:09.9617952Z [command]/usr/bin/git remote add origin https://github.com/IanPhlippo-jpg/Claude
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:09.9658945Z ##[endgroup]
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:09.9659684Z ##[group]Disabling automatic garbage collection
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:09.9662050Z [command]/usr/bin/git config --local gc.auto 0
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:09.9690821Z ##[endgroup]
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:09.9691928Z ##[group]Setting up auth
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:09.9696528Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:09.9727078Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:10.0041046Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:10.0084879Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:10.0330146Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:10.0368042Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:10.0569346Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:10.0612032Z ##[endgroup]
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:10.0620986Z ##[group]Fetching the repository
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:10.0622596Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +564ae507ac95aa653e740ef11d2fb5244b763ff9:refs/remotes/origin/claude/fase1-schetser
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:16.2558861Z From https://github.com/IanPhlippo-jpg/Claude
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:16.2563433Z  * [new ref]         564ae507ac95aa653e740ef11d2fb5244b763ff9 -> origin/claude/fase1-schetser
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:16.2566064Z ##[endgroup]
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:16.2567018Z ##[group]Determining the checkout info
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:16.2568068Z ##[endgroup]
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:16.2569413Z [command]/usr/bin/git sparse-checkout disable
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:16.2623553Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:16.2657289Z ##[group]Checking out the ref
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:16.2660888Z [command]/usr/bin/git checkout --progress --force -B claude/fase1-schetser refs/remotes/origin/claude/fase1-schetser
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:17.1091287Z Switched to a new branch 'claude/fase1-schetser'
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:17.1093902Z branch 'claude/fase1-schetser' set up to track 'origin/claude/fase1-schetser'.
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:17.1152342Z ##[endgroup]
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:17.1202655Z [command]/usr/bin/git log -1 --format=%H
+voorbeelden	Run actions/checkout@v4	2026-11-11T01:35:17.1232596Z 564ae507ac95aa653e740ef11d2fb5244b763ff9
+voorbeelden	Run actions/setup-node@v4	﻿2026-11-11T01:35:17.1468797Z ##[group]Run actions/setup-node@v4
+voorbeelden	Run actions/setup-node@v4	2026-11-11T01:35:17.1469094Z with:
+voorbeelden	Run actions/setup-node@v4	2026-11-11T01:35:17.1469268Z   node-version-file: .nvmrc
+voorbeelden	Run actions/setup-node@v4	2026-11-11T01:35:17.1469464Z   cache: npm
+voorbeelden	Run actions/setup-node@v4	2026-11-11T01:35:17.1469629Z   always-auth: false
+voorbeelden	Run actions/setup-node@v4	2026-11-11T01:35:17.1469818Z   check-latest: false
+voorbeelden	Run actions/setup-node@v4	2026-11-11T01:35:17.1471950Z   token: ***
+voorbeelden	Run actions/setup-node@v4	2026-11-11T01:35:17.1472128Z ##[endgroup]
+voorbeelden	Run actions/setup-node@v4	2026-11-11T01:35:17.2581829Z Resolved .nvmrc as 22
+voorbeelden	Run actions/setup-node@v4	2026-11-11T01:35:17.2630130Z Found in cache @ /opt/hostedtoolcache/node/22.23.4/x64
+voorbeelden	Run actions/setup-node@v4	2026-11-11T01:35:17.2634158Z (node:2122) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+voorbeelden	Run actions/setup-node@v4	2026-11-11T01:35:17.2635085Z (Use `node --trace-deprecation ...` to show where the warning was created)
+voorbeelden	Run actions/setup-node@v4	2026-11-11T01:35:17.2636599Z ##[group]Environment details
+voorbeelden	Run actions/setup-node@v4	2026-11-11T01:35:17.5539020Z node: v22.23.4
+voorbeelden	Run actions/setup-node@v4	2026-11-11T01:35:17.5539475Z npm: 10.9.9
+voorbeelden	Run actions/setup-node@v4	2026-11-11T01:35:17.5539778Z yarn: 1.22.22
+voorbeelden	Run actions/setup-node@v4	2026-11-11T01:35:17.5540427Z ##[endgroup]
+voorbeelden	Run actions/setup-node@v4	2026-11-11T01:35:17.5556264Z [command]/opt/hostedtoolcache/node/22.23.4/x64/bin/npm config get cache
+voorbeelden	Run actions/setup-node@v4	2026-11-11T01:35:17.6427919Z /home/runner/.npm
+voorbeelden	Run actions/setup-node@v4	2026-11-11T01:35:17.8653152Z Cache hit for: node-cache-Linux-x64-npm-95140ded10b55ef3a631861987b975f13d9017ca8a5b63ebcc37e51241e68fe1
+voorbeelden	Run actions/setup-node@v4	2026-11-11T01:35:17.8766335Z (node:2122) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+voorbeelden	Run actions/setup-node@v4	2026-11-11T01:35:19.0749703Z Received 58720256 of 79475372 (73.9%), 55.9 MBs/sec
+voorbeelden	Run actions/setup-node@v4	2026-11-11T01:35:19.2683372Z Received 79475372 of 79475372 (100.0%), 63.4 MBs/sec
+voorbeelden	Run actions/setup-node@v4	2026-11-11T01:35:19.2683735Z Cache Size: ~76 MB (79475372 B)
+voorbeelden	Run actions/setup-node@v4	2026-11-11T01:35:19.2703432Z [command]/usr/bin/tar -xf /home/runner/work/_temp/5cdfcf2f-94d5-4a8b-b570-22be6db89c03/cache.tzst -P -C /home/runner/work/Claude/Claude --use-compress-program unzstd
+voorbeelden	Run actions/setup-node@v4	2026-11-11T01:35:19.4446204Z Cache restored successfully
+voorbeelden	Run actions/setup-node@v4	2026-11-11T01:35:19.4479316Z Cache restored from key: node-cache-Linux-x64-npm-95140ded10b55ef3a631861987b975f13d9017ca8a5b63ebcc37e51241e68fe1
+voorbeelden	Run npm ci	﻿2026-11-11T01:35:19.4793430Z ##[group]Run npm ci
+voorbeelden	Run npm ci	2026-11-11T01:35:19.4793675Z ^[[36;1mnpm ci^[[0m
+voorbeelden	Run npm ci	2026-11-11T01:35:19.4820022Z shell: /usr/bin/bash -e {0}
+voorbeelden	Run npm ci	2026-11-11T01:35:19.4820264Z ##[endgroup]
+voorbeelden	Run npm ci	2026-11-11T01:35:21.4086839Z npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+voorbeelden	Run npm ci	2026-11-11T01:35:21.4342588Z npm warn deprecated rimraf@2.6.3: Rimraf versions prior to v4 are no longer supported
+voorbeelden	Run npm ci	2026-11-11T01:35:21.4925416Z npm warn deprecated whatwg-encoding@3.1.1: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+voorbeelden	Run npm ci	2026-11-11T01:35:21.4963908Z npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+voorbeelden	Run npm ci	2026-11-11T01:35:21.7037539Z npm warn deprecated boolean@3.2.0: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
+voorbeelden	Run npm ci	2026-11-11T01:35:23.9552573Z 
+voorbeelden	Run npm ci	2026-11-11T01:35:23.9553374Z added 463 packages, and audited 464 packages in 4s
+voorbeelden	Run npm ci	2026-11-11T01:35:23.9553873Z 
+voorbeelden	Run npm ci	2026-11-11T01:35:23.9567558Z 76 packages are looking for funding
+voorbeelden	Run npm ci	2026-11-11T01:35:23.9568080Z   run `npm fund` for details
+voorbeelden	Run npm ci	2026-11-11T01:35:23.9724542Z 
+voorbeelden	Run npm ci	2026-11-11T01:35:23.9725408Z 6 moderate severity vulnerabilities
+voorbeelden	Run npm ci	2026-11-11T01:35:23.9725875Z 
+voorbeelden	Run npm ci	2026-11-11T01:35:23.9728789Z To address issues that do not require attention, run:
+voorbeelden	Run npm ci	2026-11-11T01:35:23.9729671Z   npm audit fix
+voorbeelden	Run npm ci	2026-11-11T01:35:23.9729984Z 
+voorbeelden	Run npm ci	2026-11-11T01:35:23.9730427Z To address all issues (including breaking changes), run:
+voorbeelden	Run npm ci	2026-11-11T01:35:23.9731014Z   npm audit fix --force
+voorbeelden	Run npm ci	2026-11-11T01:35:23.9731337Z 
+voorbeelden	Run npm ci	2026-11-11T01:35:23.9731808Z Run `npm audit` for details.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	﻿2026-11-11T01:35:24.0394650Z ##[group]Run npm run test:voorbeelden -- --testTimeout=1800000
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:35:24.0395234Z ^[[36;1mnpm run test:voorbeelden -- --testTimeout=1800000^[[0m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:35:24.0418935Z shell: /usr/bin/bash -e {0}
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:35:24.0419446Z ##[endgroup]
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:35:24.1289988Z 
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:35:24.1290555Z > phlippo-cad@0.5.14 test:voorbeelden
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:35:24.1293304Z > cross-env VOORBEELDEN=1 vitest run src/qa/qaAfzuiging.test.ts src/qa/qaBureau.test.ts src/qa/qaTrein.test.ts src/qa/stlAfzuiging.test.ts src/qa/overlapBoxAfzuiging.test.ts src/qa/tekeningenAfzuiging.test.ts src/qa/tekeningenTrein.test.ts src/qa/schemaNorm.test.ts src/qa/qaRobotarm.test.ts src/qa/qaLastafel.test.ts src/qa/tekeningenLastafel.test.ts src/qa/qaDeuren.test.ts --testTimeout=1800000
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:35:24.1295185Z 
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:35:24.5725452Z 
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:35:24.5727973Z ^[[1m^[[30m^[[46m RUN ^[[49m^[[39m^[[22m ^[[36mv5.0.5 ^[[39m^[[90m/home/runner/work/Claude/Claude^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:35:24.5728611Z 
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:35:25.8044931Z  ^[[2m^[[90m↓^[[39m^[[22m src/qa/tekeningenAfzuiging.test.ts ^[[2m(^[[22m^[[2m1 test^[[22m^[[2m | ^[[22m^[[33m1 skipped^[[39m^[[2m)^[[22m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:35:25.8223969Z  ^[[2m^[[90m↓^[[39m^[[22m src/qa/tekeningenLastafel.test.ts ^[[2m(^[[22m^[[2m1 test^[[22m^[[2m | ^[[22m^[[33m1 skipped^[[39m^[[2m)^[[22m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:35:26.4033562Z  ^[[2m^[[90m↓^[[39m^[[22m src/qa/tekeningenTrein.test.ts ^[[2m(^[[22m^[[2m1 test^[[22m^[[2m | ^[[22m^[[33m1 skipped^[[39m^[[2m)^[[22m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:40:48.3173585Z  ^[[32m✓^[[39m src/qa/qaBureau.test.ts ^[[2m(^[[22m^[[2m7 tests^[[22m^[[2m)^[[22m^[[33m 321442^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:40:48.3232680Z    ^[[32m✓^[[39m bureau, mesh ^[[2m(6)^[[22m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:40:48.3263080Z      ^[[33m^[[2m✓^[[22m^[[39m LAGKAPTEN-tafelblad.kcad^[[33m 1058^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:40:48.3296525Z      ^[[33m^[[2m✓^[[22m^[[39m geen botsing tussen lades en kast, dicht en helemaal open^[[33m 317790^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:40:48.3297639Z    ^[[32m✓^[[39m bureau, B-rep ^[[2m(1)^[[22m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:40:48.3298352Z      ^[[33m^[[2m✓^[[22m^[[39m alle onderdelen exact^[[33m 2311^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:41:17.3934260Z ^[[90mstderr^[[2m | src/qa/qaTrein.test.ts^[[2m > ^[[22m^[[2mkabeldoos, onderdelen (mesh)^[[2m > ^[[22m^[[2mKabeldoos-bak.kcad bouwt
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:41:17.3935655Z ^[[22m^[[39mBVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:41:17.3936557Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:41:17.3937383Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:41:17.3937779Z 
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1583142Z  ^[[32m✓^[[39m src/qa/qaDeuren.test.ts ^[[2m(^[[22m^[[2m500 tests^[[22m^[[2m)^[[22m^[[33m 461540^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1602145Z    ^[[32m✓^[[39m taatsdeuren ^[[2m(500)^[[22m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1652664Z      ^[[33m^[[2m✓^[[22m^[[39m dubbelzon: stuklijst is volledig^[[33m 362^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1674193Z      ^[[33m^[[2m✓^[[22m^[[39m strak: model bouwt en botst niet^[[33m 2797^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1686403Z      ^[[33m^[[2m✓^[[22m^[[39m drievak: model bouwt en botst niet^[[33m 2934^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1699865Z      ^[[33m^[[2m✓^[[22m^[[39m raster: model bouwt en botst niet^[[33m 2105^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1712710Z      ^[[33m^[[2m✓^[[22m^[[39m japandi: model bouwt en botst niet^[[33m 2968^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1713822Z      ^[[33m^[[2m✓^[[22m^[[39m boog: model bouwt en botst niet^[[33m 4350^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1715001Z      ^[[33m^[[2m✓^[[22m^[[39m boograster: model bouwt en botst niet^[[33m 4993^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1721098Z      ^[[33m^[[2m✓^[[22m^[[39m volleboog: model bouwt en botst niet^[[33m 3468^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1722321Z      ^[[33m^[[2m✓^[[22m^[[39m artdeco: model bouwt en botst niet^[[33m 9985^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1723285Z      ^[[33m^[[2m✓^[[22m^[[39m dubbelboog: model bouwt en botst niet^[[33m 6719^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1724227Z      ^[[33m^[[2m✓^[[22m^[[39m zijlicht: model bouwt en botst niet^[[33m 3191^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1725204Z      ^[[33m^[[2m✓^[[22m^[[39m tweevak: model bouwt en botst niet^[[33m 3090^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1730847Z      ^[[33m^[[2m✓^[[22m^[[39m viervak: model bouwt en botst niet^[[33m 3202^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1731965Z      ^[[33m^[[2m✓^[[22m^[[39m vijfvak: model bouwt en botst niet^[[33m 3051^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1733275Z      ^[[33m^[[2m✓^[[22m^[[39m ladder: model bouwt en botst niet^[[33m 1975^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1734293Z      ^[[33m^[[2m✓^[[22m^[[39m bovenlicht: model bouwt en botst niet^[[33m 1967^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1735228Z      ^[[33m^[[2m✓^[[22m^[[39m kalflaag: model bouwt en botst niet^[[33m 1970^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1736165Z      ^[[33m^[[2m✓^[[22m^[[39m japandi2: model bouwt en botst niet^[[33m 2428^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1737196Z      ^[[33m^[[2m✓^[[22m^[[39m japandi5: model bouwt en botst niet^[[33m 2524^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1745791Z      ^[[33m^[[2m✓^[[22m^[[39m kruis: model bouwt en botst niet^[[33m 1984^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1746805Z      ^[[33m^[[2m✓^[[22m^[[39m raster6: model bouwt en botst niet^[[33m 2778^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1747849Z      ^[[33m^[[2m✓^[[22m^[[39m raster10: model bouwt en botst niet^[[33m 3221^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1754991Z      ^[[33m^[[2m✓^[[22m^[[39m raster12: model bouwt en botst niet^[[33m 2729^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1755997Z      ^[[33m^[[2m✓^[[22m^[[39m fabriek: model bouwt en botst niet^[[33m 2429^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1756928Z      ^[[33m^[[2m✓^[[22m^[[39m paneel: model bouwt en botst niet^[[33m 2935^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1757905Z      ^[[33m^[[2m✓^[[22m^[[39m paneeldrie: model bouwt en botst niet^[[33m 3267^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1758875Z      ^[[33m^[[2m✓^[[22m^[[39m paneelraster: model bouwt en botst niet^[[33m 3308^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1759957Z      ^[[33m^[[2m✓^[[22m^[[39m paneeljapandi: model bouwt en botst niet^[[33m 3260^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1772622Z      ^[[33m^[[2m✓^[[22m^[[39m paneelladder: model bouwt en botst niet^[[33m 2265^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1782634Z      ^[[33m^[[2m✓^[[22m^[[39m boogroeden: model bouwt en botst niet^[[33m 2830^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1783827Z      ^[[33m^[[2m✓^[[22m^[[39m boogpaneel: model bouwt en botst niet^[[33m 3667^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1784948Z      ^[[33m^[[2m✓^[[22m^[[39m kalfboog: model bouwt en botst niet^[[33m 4903^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1785983Z      ^[[33m^[[2m✓^[[22m^[[39m kalfmidden: model bouwt en botst niet^[[33m 3768^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1804200Z      ^[[33m^[[2m✓^[[22m^[[39m kalfdrievak: model bouwt en botst niet^[[33m 4962^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1805362Z      ^[[33m^[[2m✓^[[22m^[[39m kathedraal: model bouwt en botst niet^[[33m 6344^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1806547Z      ^[[33m^[[2m✓^[[22m^[[39m kalfpaneel: model bouwt en botst niet^[[33m 3210^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1807690Z      ^[[33m^[[2m✓^[[22m^[[39m kalfraster: model bouwt en botst niet^[[33m 4285^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1808831Z      ^[[33m^[[2m✓^[[22m^[[39m zon3: model bouwt en botst niet^[[33m 6828^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1809929Z      ^[[33m^[[2m✓^[[22m^[[39m zon7: model bouwt en botst niet^[[33m 10325^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1811044Z      ^[[33m^[[2m✓^[[22m^[[39m zonpaneel: model bouwt en botst niet^[[33m 9288^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1812529Z      ^[[33m^[[2m✓^[[22m^[[39m volstrak: model bouwt en botst niet^[[33m 2593^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1813726Z      ^[[33m^[[2m✓^[[22m^[[39m volroeden: model bouwt en botst niet^[[33m 2485^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1814868Z      ^[[33m^[[2m✓^[[22m^[[39m volraster: model bouwt en botst niet^[[33m 2934^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1816130Z      ^[[33m^[[2m✓^[[22m^[[39m volzon: model bouwt en botst niet^[[33m 8097^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1817252Z      ^[[33m^[[2m✓^[[22m^[[39m volpaneel: model bouwt en botst niet^[[33m 5070^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1818350Z      ^[[33m^[[2m✓^[[22m^[[39m dubbelstrak: model bouwt en botst niet^[[33m 4476^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1819869Z      ^[[33m^[[2m✓^[[22m^[[39m dubbeldrievak: model bouwt en botst niet^[[33m 4174^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1821032Z      ^[[33m^[[2m✓^[[22m^[[39m dubbelraster: model bouwt en botst niet^[[33m 4194^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1822640Z      ^[[33m^[[2m✓^[[22m^[[39m dubbelkalf: model bouwt en botst niet^[[33m 8758^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1823773Z      ^[[33m^[[2m✓^[[22m^[[39m zijlichtraster: model bouwt en botst niet^[[33m 1987^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1824925Z      ^[[33m^[[2m✓^[[22m^[[39m zijlichtpaneel: model bouwt en botst niet^[[33m 1877^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1826101Z      ^[[33m^[[2m✓^[[22m^[[39m mondriaan: model bouwt en botst niet^[[33m 1882^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1827240Z      ^[[33m^[[2m✓^[[22m^[[39m hoekvakken: model bouwt en botst niet^[[33m 1922^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1828313Z      ^[[33m^[[2m✓^[[22m^[[39m bovendrie: model bouwt en botst niet^[[33m 3274^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1829420Z      ^[[33m^[[2m✓^[[22m^[[39m onderdrie: model bouwt en botst niet^[[33m 3079^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1830549Z      ^[[33m^[[2m✓^[[22m^[[39m ladderzij: model bouwt en botst niet^[[33m 3253^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1831729Z      ^[[33m^[[2m✓^[[22m^[[39m venster: model bouwt en botst niet^[[33m 3262^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1862434Z      ^[[33m^[[2m✓^[[22m^[[39m trap: model bouwt en botst niet^[[33m 3221^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1892378Z      ^[[33m^[[2m✓^[[22m^[[39m kaderinkader: model bouwt en botst niet^[[33m 3133^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1893698Z      ^[[33m^[[2m✓^[[22m^[[39m paneelmondriaan: model bouwt en botst niet^[[33m 3121^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1922450Z      ^[[33m^[[2m✓^[[22m^[[39m paneelvenster: model bouwt en botst niet^[[33m 2882^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1942336Z      ^[[33m^[[2m✓^[[22m^[[39m paneeltrap: model bouwt en botst niet^[[33m 3114^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1947004Z      ^[[33m^[[2m✓^[[22m^[[39m lambrisering: model bouwt en botst niet^[[33m 3092^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1950726Z      ^[[33m^[[2m✓^[[22m^[[39m hoograster: model bouwt en botst niet^[[33m 2063^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1952424Z      ^[[33m^[[2m✓^[[22m^[[39m smallevakken: model bouwt en botst niet^[[33m 2908^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1953547Z      ^[[33m^[[2m✓^[[22m^[[39m drievert: model bouwt en botst niet^[[33m 3203^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1954579Z      ^[[33m^[[2m✓^[[22m^[[39m raster16: model bouwt en botst niet^[[33m 2180^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1955599Z      ^[[33m^[[2m✓^[[22m^[[39m raster20: model bouwt en botst niet^[[33m 3107^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1956661Z      ^[[33m^[[2m✓^[[22m^[[39m japandiboven: model bouwt en botst niet^[[33m 3131^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1957771Z      ^[[33m^[[2m✓^[[22m^[[39m boogpaneelroeden: model bouwt en botst niet^[[33m 2798^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1958852Z      ^[[33m^[[2m✓^[[22m^[[39m boogvier: model bouwt en botst niet^[[33m 3632^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1959865Z      ^[[33m^[[2m✓^[[22m^[[39m booglaag: model bouwt en botst niet^[[33m 3265^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1960930Z      ^[[33m^[[2m✓^[[22m^[[39m kalfjapandi: model bouwt en botst niet^[[33m 4159^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1962094Z      ^[[33m^[[2m✓^[[22m^[[39m kalfkruis: model bouwt en botst niet^[[33m 3290^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1963202Z      ^[[33m^[[2m✓^[[22m^[[39m kalfmondriaan: model bouwt en botst niet^[[33m 4182^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1964346Z      ^[[33m^[[2m✓^[[22m^[[39m kathedraalpaneel: model bouwt en botst niet^[[33m 7253^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1965427Z      ^[[33m^[[2m✓^[[22m^[[39m kalfladder: model bouwt en botst niet^[[33m 4863^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1966510Z      ^[[33m^[[2m✓^[[22m^[[39m zonraster12: model bouwt en botst niet^[[33m 13472^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1967658Z      ^[[33m^[[2m✓^[[22m^[[39m zon9: model bouwt en botst niet^[[33m 20023^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1971423Z      ^[[33m^[[2m✓^[[22m^[[39m zonjapandi: model bouwt en botst niet^[[33m 10056^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1972682Z      ^[[33m^[[2m✓^[[22m^[[39m zonpaneelraster: model bouwt en botst niet^[[33m 8256^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1974141Z      ^[[33m^[[2m✓^[[22m^[[39m volkathedraal: model bouwt en botst niet^[[33m 5493^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1975224Z      ^[[33m^[[2m✓^[[22m^[[39m voljapandi: model bouwt en botst niet^[[33m 5076^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1976448Z      ^[[33m^[[2m✓^[[22m^[[39m volladder: model bouwt en botst niet^[[33m 3824^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1977508Z      ^[[33m^[[2m✓^[[22m^[[39m volzonpaneel: model bouwt en botst niet^[[33m 6463^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1978603Z      ^[[33m^[[2m✓^[[22m^[[39m volmondriaan: model bouwt en botst niet^[[33m 3403^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1979751Z      ^[[33m^[[2m✓^[[22m^[[39m dubbeljapandi: model bouwt en botst niet^[[33m 5006^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1980938Z      ^[[33m^[[2m✓^[[22m^[[39m dubbelpaneel: model bouwt en botst niet^[[33m 4343^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1982071Z      ^[[33m^[[2m✓^[[22m^[[39m dubbelzon: model bouwt en botst niet^[[33m 20103^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1983197Z      ^[[33m^[[2m✓^[[22m^[[39m dubbelkathedraal: model bouwt en botst niet^[[33m 12433^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1984339Z      ^[[33m^[[2m✓^[[22m^[[39m dubbelmondriaan: model bouwt en botst niet^[[33m 6092^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1985477Z      ^[[33m^[[2m✓^[[22m^[[39m dubbelboogroeden: model bouwt en botst niet^[[33m 6550^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1986601Z      ^[[33m^[[2m✓^[[22m^[[39m dubbelladder: model bouwt en botst niet^[[33m 5936^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1987699Z      ^[[33m^[[2m✓^[[22m^[[39m dubbelraster12: model bouwt en botst niet^[[33m 5889^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1988804Z      ^[[33m^[[2m✓^[[22m^[[39m zijlichtstrak: model bouwt en botst niet^[[33m 3191^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1989894Z      ^[[33m^[[2m✓^[[22m^[[39m zijlichtkalf: model bouwt en botst niet^[[33m 4747^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1990999Z      ^[[33m^[[2m✓^[[22m^[[39m tweezijlichten: model bouwt en botst niet^[[33m 2337^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1992337Z      ^[[33m^[[2m✓^[[22m^[[39m tweezijlichtenraster: model bouwt en botst niet^[[33m 2432^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1993447Z      ^[[33m^[[2m✓^[[22m^[[39m bovenlichtvast: model bouwt en botst niet^[[33m 3151^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1994564Z      ^[[33m^[[2m✓^[[22m^[[39m bovenlichtraster: model bouwt en botst niet^[[33m 3364^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:43:08.1995695Z      ^[[33m^[[2m✓^[[22m^[[39m bovenlichtboog: model bouwt en botst niet^[[33m 5026^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:44:12.9737270Z  ^[[32m✓^[[39m src/qa/qaRobotarm.test.ts ^[[2m(^[[22m^[[2m49 tests^[[22m^[[2m)^[[22m^[[33m 64413^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:44:12.9739852Z    ^[[32m✓^[[39m robotcel ^[[2m(49)^[[22m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:44:12.9740818Z      ^[[33m^[[2m✓^[[22m^[[39m Voet (A1) bouwt als één lichaam^[[33m 1614^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:44:12.9743870Z      ^[[33m^[[2m✓^[[22m^[[39m Draaistuk (A1-A2) bouwt als één lichaam^[[33m 2034^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:44:12.9750467Z      ^[[33m^[[2m✓^[[22m^[[39m Servomotor A2 (2,9 kW, rem) bouwt als één lichaam^[[33m 388^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:44:12.9751257Z      ^[[33m^[[2m✓^[[22m^[[39m Bovenarm (A2-A3) bouwt als één lichaam^[[33m 1821^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:44:12.9782511Z      ^[[33m^[[2m✓^[[22m^[[39m Elleboog (A3) bouwt als één lichaam^[[33m 2029^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:44:12.9784704Z      ^[[33m^[[2m✓^[[22m^[[39m Servomotor A3 (4,4 kW, rem) op Nabtesco RV-320C bouwt als één lichaam^[[33m 652^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:44:12.9789545Z      ^[[33m^[[2m✓^[[22m^[[39m Toolflens ISO 9409-1-A125 (A6) bouwt als één lichaam^[[33m 363^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:44:12.9790429Z      ^[[33m^[[2m✓^[[22m^[[39m Grijperraam (adapter ISO 9409-1-A125, profiel 80 x 40) bouwt als één lichaam^[[33m 1065^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:44:12.9791350Z      ^[[33m^[[2m✓^[[22m^[[39m Aansluitpaneel voet: 3 x Harting Han (motoren, encoders, perslucht) bouwt als één lichaam^[[33m 2151^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:44:12.9792635Z      ^[[33m^[[2m✓^[[22m^[[39m Rollen Ø60 (steek 150) bouwt als één lichaam^[[33m 1184^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:44:12.9793492Z      ^[[33m^[[2m✓^[[22m^[[39m het schuim van de grijper ligt op de deur en de deur op de rollen^[[33m 13221^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:44:12.9794514Z      ^[[33m^[[2m✓^[[22m^[[39m niets botst behalve de bedoelde verbindingen^[[33m 36563^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9563413Z ^[[90mstderr^[[2m | src/qa/qaTrein.test.ts^[[2m > ^[[22m^[[2mkabeldoos, assemblage^[[2m > ^[[22m^[[2mniets botst
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9592959Z ^[[22m^[[39mBVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9594181Z  ^[[32m✓^[[39m src/qa/qaTrein.test.ts ^[[2m(^[[22m^[[2m7 tests^[[22m^[[2m | ^[[22m^[[33m1 skipped^[[39m^[[2m)^[[22m^[[33m 422275^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9622680Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9623616Z    ^[[32m✓^[[39m kabeldoos, onderdelen (mesh) ^[[2m(4)^[[22m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9652273Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9653233Z      ^[[33m^[[2m✓^[[22m^[[39m Bordje-PCB.kcad bouwt^[[33m 565^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9654294Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9680257Z      ^[[33m^[[2m✓^[[22m^[[39m Kabeldoos-bak.kcad bouwt^[[33m 28140^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9681350Z      ^[[33m^[[2m✓^[[22m^[[39m Kabeldoos-deksel.kcad bouwt^[[33m 3094^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9682262Z    ^[[32m✓^[[39m kabeldoos, B-rep ^[[2m(2)^[[22m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9683152Z      ^[[33m^[[2m✓^[[22m^[[39m de geprinte delen exact, zelfde volume als de mesh^[[33m 37218^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9683978Z    ^[[32m✓^[[39m kabeldoos, assemblage ^[[2m(1)^[[22m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9684665Z      ^[[33m^[[2m✓^[[22m^[[39m niets botst^[[33m 353248^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9692584Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9693581Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9694411Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9695292Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9696174Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9697083Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9697899Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9698731Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9699585Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9700442Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9701267Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9702238Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9703092Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9703978Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9704815Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9705631Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9706418Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9713958Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9714732Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9715447Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9716185Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9716912Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9718034Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9718732Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9719595Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9720273Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9720964Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9721781Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9722450Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9723132Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9723846Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9724555Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9725268Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9725966Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9726648Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9727340Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9727804Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9728248Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9728680Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9729106Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9729529Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9729957Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9730375Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9730816Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9731250Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9731920Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9732517Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9733171Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9733811Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9734436Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9735127Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9735775Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9736463Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9737154Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9737832Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9738483Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9739107Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9739746Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9740403Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9741339Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9742227Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9742971Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9743405Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9743836Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9744261Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9744683Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9745104Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9745521Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9745943Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9746368Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9746792Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9747215Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9747656Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9748082Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9764745Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9765590Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9766081Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9766532Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9766966Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9767396Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9767824Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9768235Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9768676Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9769106Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9769517Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9769937Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9770364Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9770783Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9771208Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9771926Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9772608Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9773237Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9773869Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9774299Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9774721Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9775143Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9775555Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9776181Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9776594Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9777154Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9777587Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9778007Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9778424Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9778860Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9779281Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9779692Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9780121Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9780534Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9780952Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9781369Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9782249Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9782958Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9783726Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9784544Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9785248Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9785982Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9786694Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9787395Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9788102Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9788802Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9789504Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9790201Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9790902Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9791726Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9792430Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9793147Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9793845Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9794552Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9795263Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9795965Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9796666Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9797378Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9798162Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9798900Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9799780Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9800492Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9801343Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9802197Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9802925Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9803644Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9804367Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9805081Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9805783Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9806501Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9807220Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9807935Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9808673Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9809388Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9810102Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9810825Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9811649Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9812385Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9813113Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9813836Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9814547Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9815272Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9815980Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9816726Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9817435Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9818146Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9818854Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9819556Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9820268Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9820964Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9821792Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9822503Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9823206Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9823915Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9824619Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9825318Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9826032Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9826737Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9827603Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9828317Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9829182Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9829910Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9830655Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9831372Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9832206Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9832929Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9833584Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9834234Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9834931Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9835655Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9836369Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9837086Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9837801Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9838492Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9839205Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9839922Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9840638Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9841377Z BVH: Max depth of 40 reached when generating BVH. Consider increasing maxDepth.
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:50.9841880Z 
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:51.3673527Z  ^[[2m^[[90m↓^[[39m^[[22m src/qa/stlAfzuiging.test.ts ^[[2m(^[[22m^[[2m1 test^[[22m^[[2m | ^[[22m^[[33m1 skipped^[[39m^[[2m)^[[22m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:51.6015642Z  ^[[32m✓^[[39m src/qa/schemaNorm.test.ts ^[[2m(^[[22m^[[2m16 tests^[[22m^[[2m)^[[22m^[[32m 65^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:57.3890953Z  ^[[32m✓^[[39m src/qa/qaLastafel.test.ts ^[[2m(^[[22m^[[2m34 tests^[[22m^[[2m)^[[22m^[[33m 224029^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:57.3892432Z    ^[[32m✓^[[39m lastafel op heftafel ^[[2m(34)^[[22m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:57.3893585Z      ^[[33m^[[2m✓^[[22m^[[39m Vloerplaat 10 mm bouwt als één lichaam^[[33m 896^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:57.3894794Z      ^[[33m^[[2m✓^[[22m^[[39m Onderframe (UNP 100, gelast) bouwt als één lichaam^[[33m 1152^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:57.3895979Z      ^[[33m^[[2m✓^[[22m^[[39m Aanslagpennen M20 met dopmoer (6 x) bouwt als één lichaam^[[33m 513^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:57.3920696Z      ^[[33m^[[2m✓^[[22m^[[39m Cilinderbok (dwarsplaat 18 + 4 lipplaten 12, pennen Ø40) bouwt als één lichaam^[[33m 436^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:57.3922121Z      ^[[33m^[[2m✓^[[22m^[[39m Hydraulisch aggregaat 230 V 2,2 kW, 7 l/min (motor, pomp, tank 12 l, ventielblok) bouwt als één lichaam^[[33m 662^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:57.3923394Z      ^[[33m^[[2m✓^[[22m^[[39m Steunvlakken (6 x, CNC-gefreesd) bouwt als één lichaam^[[33m 693^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:57.3924634Z      ^[[33m^[[2m✓^[[22m^[[39m Schaararmen buiten (paar A, koker 116-180 x 45 x 10, lagerbussen) bouwt als één lichaam^[[33m 674^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:57.3925859Z      ^[[33m^[[2m✓^[[22m^[[39m Schaararmen binnen (paar B, koker 116-180 x 45 x 10, lagerbussen) bouwt als één lichaam^[[33m 4394^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:57.3927021Z      ^[[33m^[[2m✓^[[22m^[[39m Middenpen M30 x 140 met moer en sluitring bouwt als één lichaam^[[33m 313^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:57.3930674Z      ^[[33m^[[2m✓^[[22m^[[39m Hydraulische cilinder Ø100/56 slag 360 (huis) bouwt als één lichaam^[[33m 745^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:57.3931828Z      ^[[33m^[[2m✓^[[22m^[[39m Valbeveiliging: kap met zaagtand (zijden 8 mm S355) bouwt als één lichaam^[[33m 335^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:57.3932692Z      ^[[33m^[[2m✓^[[22m^[[39m Tafelblad Ø28 2400 x 1200 x 25 DG bouwt als één lichaam^[[33m 12750^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:57.3933284Z      ^[[33m^[[2m✓^[[22m^[[39m Langswand 2400 x 175 x 12 (71 gaten Ø28) bouwt als één lichaam^[[33m 1370^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:57.3933852Z      ^[[33m^[[2m✓^[[22m^[[39m Kopwand 1176 x 175 x 12 (35 gaten Ø28) bouwt als één lichaam^[[33m 527^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:57.3934433Z      ^[[33m^[[2m✓^[[22m^[[39m stand laag: niets botst behalve de bedoelde verbindingen^[[33m 56037^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:57.3935032Z      ^[[33m^[[2m✓^[[22m^[[39m stand midden: niets botst behalve de bedoelde verbindingen^[[33m 69098^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:47:57.3935630Z      ^[[33m^[[2m✓^[[22m^[[39m stand hoog: niets botst behalve de bedoelde verbindingen^[[33m 72536^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:48:32.6466001Z  ^[[32m✓^[[39m src/qa/overlapBoxAfzuiging.test.ts ^[[2m(^[[22m^[[2m1 test^[[22m^[[2m)^[[22m^[[33m 40690^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:48:32.6472305Z    ^[[32m✓^[[39m afzuiging, voedingsbox exact ^[[2m(1)^[[22m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:48:32.6472942Z      ^[[33m^[[2m✓^[[22m^[[39m geen onderdeel deelt volume met de box (exacte kernel)^[[33m 40687^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:50:37.1404790Z  ^[[32m✓^[[39m src/qa/qaAfzuiging.test.ts ^[[2m(^[[22m^[[2m38 tests^[[22m^[[2m)^[[22m^[[33m 911343^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:50:37.1405442Z    ^[[32m✓^[[39m afzuiging, onderdelen (mesh) ^[[2m(30)^[[22m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:50:37.1406129Z      ^[[33m^[[2m✓^[[22m^[[39m Adapterklem.kcad is één body^[[33m 547^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:50:37.1406830Z      ^[[33m^[[2m✓^[[22m^[[39m Adapterprint-knop.kcad is één body^[[33m 629^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:50:37.1407536Z      ^[[33m^[[2m✓^[[22m^[[39m Bodemplaat.kcad is één body^[[33m 9865^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:50:37.1408246Z      ^[[33m^[[2m✓^[[22m^[[39m Bovenframe.kcad is één body^[[33m 915^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:50:37.1408971Z      ^[[33m^[[2m✓^[[22m^[[39m Deksel-voedingsbox.kcad is één body^[[33m 676^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:50:37.1409713Z      ^[[33m^[[2m✓^[[22m^[[39m Instroomplaat.kcad is één body^[[33m 2120^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:50:37.1410266Z      ^[[33m^[[2m✓^[[22m^[[39m Interieurfilter-CU20013.kcad is één body^[[33m 869^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:50:37.1410733Z      ^[[33m^[[2m✓^[[22m^[[39m Knopdeksel.kcad is één body^[[33m 338^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:50:37.1411150Z      ^[[33m^[[2m✓^[[22m^[[39m Knophouder.kcad is één body^[[33m 4674^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:50:37.1411766Z      ^[[33m^[[2m✓^[[22m^[[39m M8-inbouwbus.kcad is één body^[[33m 575^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:50:37.1412218Z      ^[[33m^[[2m✓^[[22m^[[39m M8-inbouwstekker.kcad is één body^[[33m 622^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:50:37.1412635Z      ^[[33m^[[2m✓^[[22m^[[39m Romp.kcad is één body^[[33m 2198^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:50:37.1413056Z      ^[[33m^[[2m✓^[[22m^[[39m Rooster-LB.kcad is één body^[[33m 453^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:50:37.1413479Z      ^[[33m^[[2m✓^[[22m^[[39m VIEWE-knop-1.5.kcad is één body^[[33m 719^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:50:37.1413956Z      ^[[33m^[[2m✓^[[22m^[[39m Ventilator-San-Ace-C175.kcad is één body^[[33m 475^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:50:37.1414435Z      ^[[33m^[[2m✓^[[22m^[[39m Voedingsbox.kcad is één body^[[33m 28618^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:50:37.1414900Z      ^[[33m^[[2m✓^[[22m^[[39m Voedingsprint.kcad is één body^[[33m 2240^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:50:37.1415277Z    ^[[32m✓^[[39m afzuiging, assemblage ^[[2m(5)^[[22m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:50:37.1415620Z      ^[[33m^[[2m✓^[[22m^[[39m niets botst^[[33m 166917^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:50:37.1416121Z      ^[[33m^[[2m✓^[[22m^[[39m het filter gaat vrij naar boven uit de module (zonder rooster)^[[33m 245501^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:50:37.1416979Z      ^[[33m^[[2m✓^[[22m^[[39m de klauwen passen bij elke bladdikte van 10 tot 50 mm en reiken voorbij de uitsparing^[[33m 56877^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:50:37.1418688Z      ^[[33m^[[2m✓^[[22m^[[39m de klauwen van de knophouder passen bij elke bladdikte van 10 tot 50 mm en reiken voorbij het gat^[[33m 208479^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:50:37.1419817Z      ^[[33m^[[2m✓^[[22m^[[39m ingetrokken liggen de klauwen binnen de romp (de module zakt door de uitsparing)^[[33m 4265^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:50:37.1420798Z    ^[[32m✓^[[39m afzuiging, luchtdicht ^[[2m(2)^[[22m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:50:37.1421798Z      ^[[33m^[[2m✓^[[22m^[[39m lucht kan alleen langs het rooster in en langs de bodemplaat uit^[[33m 8202^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:50:37.1422780Z      ^[[33m^[[2m✓^[[22m^[[39m tegenproef: zonder de M8-bus lekt het door het gat in de achterwand^[[33m 5796^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:50:37.1423242Z    ^[[32m✓^[[39m afzuiging, B-rep ^[[2m(1)^[[22m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:50:37.1423688Z      ^[[33m^[[2m✓^[[22m^[[39m elk onderdeel exact, zelfde volume als de mesh^[[33m 157482^[[2mms^[[22m^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:50:37.1450830Z 
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:50:37.1456580Z ^[[2m Test Files ^[[22m ^[[1m^[[32m8 passed^[[39m^[[22m^[[2m | ^[[22m^[[33m4 skipped^[[39m^[[90m (12)^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:50:37.1459891Z ^[[2m      Tests ^[[22m ^[[1m^[[32m651 passed^[[39m^[[22m^[[2m | ^[[22m^[[33m5 skipped^[[39m^[[90m (656)^[[39m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:50:37.1460699Z ^[[2m   Start at ^[[22m 01:35:24
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:50:37.1463541Z ^[[2m   Duration ^[[22m 912.55s^[[2m (tests 100%)^[[22m
+voorbeelden	Run npm run test:voorbeelden -- --testTimeout=1800000	2026-11-11T01:50:37.1473216Z 
+voorbeelden	Post Run actions/setup-node@v4	﻿2026-11-11T01:50:37.4751484Z Post job cleanup.
+voorbeelden	Post Run actions/setup-node@v4	2026-11-11T01:50:37.5745972Z (node:2596) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+voorbeelden	Post Run actions/setup-node@v4	2026-11-11T01:50:37.5747025Z (Use `node --trace-deprecation ...` to show where the warning was created)
+voorbeelden	Post Run actions/setup-node@v4	2026-11-11T01:50:37.5748825Z Cache hit occurred on the primary key node-cache-Linux-x64-npm-95140ded10b55ef3a631861987b975f13d9017ca8a5b63ebcc37e51241e68fe1, not saving cache.
+voorbeelden	Post Run actions/checkout@v4	﻿2026-11-11T01:50:37.5883584Z Post job cleanup.
+voorbeelden	Post Run actions/checkout@v4	2026-11-11T01:50:37.6594056Z [command]/usr/bin/git version
+voorbeelden	Post Run actions/checkout@v4	2026-11-11T01:50:37.6632453Z git version 2.56.0
+voorbeelden	Post Run actions/checkout@v4	2026-11-11T01:50:37.6664494Z Temporarily overriding HOME='/home/runner/work/_temp/a7f8d629-908b-4df3-a867-49ee071bd030' before making global git config changes
+voorbeelden	Post Run actions/checkout@v4	2026-11-11T01:50:37.6665733Z Adding repository directory to the temporary git global config as a safe directory
+voorbeelden	Post Run actions/checkout@v4	2026-11-11T01:50:37.6668640Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/Claude/Claude
+voorbeelden	Post Run actions/checkout@v4	2026-11-11T01:50:37.6704236Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+voorbeelden	Post Run actions/checkout@v4	2026-11-11T01:50:37.6735523Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+voorbeelden	Post Run actions/checkout@v4	2026-11-11T01:50:37.6957771Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+voorbeelden	Post Run actions/checkout@v4	2026-11-11T01:50:37.6984676Z http.https://github.com/.extraheader
+voorbeelden	Post Run actions/checkout@v4	2026-11-11T01:50:37.6995172Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+voorbeelden	Post Run actions/checkout@v4	2026-11-11T01:50:37.7045315Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+voorbeelden	Post Run actions/checkout@v4	2026-11-11T01:50:37.7304252Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+voorbeelden	Post Run actions/checkout@v4	2026-11-11T01:50:37.7351239Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+voorbeelden	Complete job	﻿2026-11-11T01:50:37.7704703Z Cleaning up orphan processes
+voorbeelden	Complete job	2026-11-11T01:50:37.8064012Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-node@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

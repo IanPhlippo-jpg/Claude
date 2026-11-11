@@ -1313,4 +1313,4 @@ elease; README en docs/04 bijgewerkt
 - [x] F137/F54: rebuildworker-framepauze 11 s op win-release-3of3 onderzoeken en oplossen
 - [x] F180: commitOf gebruikt commit.txt als de git-checkout niet deze repo is
 - [x] Docs: docs/31-qa-0.5.13.md, README Status 0.5.14, doc-counts, versie 0.5.14
-- [~] Commit, push, volledige CI groen op dezelfde SHA, logs via npm run bewijs -- --ci
+- [x] Commit, push, volledige CI groen op dezelfde SHA, logs via npm run bewijs -- --ci (run 42940008926 op 564ae50, 17/17)

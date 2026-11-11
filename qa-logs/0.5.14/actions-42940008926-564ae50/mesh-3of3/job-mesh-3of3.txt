@@ -1,0 +1,578 @@
+regression (mesh-3of3)	Set up job	﻿2026-11-11T01:35:09.7106911Z Current runner version: '2.338.2'
+regression (mesh-3of3)	Set up job	2026-11-11T01:35:09.7134958Z ##[group]Runner Image Provisioner
+regression (mesh-3of3)	Set up job	2026-11-11T01:35:09.7135905Z Hosted Compute Agent
+regression (mesh-3of3)	Set up job	2026-11-11T01:35:09.7136604Z Version: 20261028.624
+regression (mesh-3of3)	Set up job	2026-11-11T01:35:09.7137264Z Commit: 54898b74c23fde5556c9b3c3a2290865feef0dfe
+regression (mesh-3of3)	Set up job	2026-11-11T01:35:09.7138006Z Build Date: 2026-10-28T21:51:42Z
+regression (mesh-3of3)	Set up job	2026-11-11T01:35:09.7139149Z Worker ID: {b1ec4018-aebf-465e-a021-7a0f4b0dbcb2}
+regression (mesh-3of3)	Set up job	2026-11-11T01:35:09.7139893Z Region: westus2
+regression (mesh-3of3)	Set up job	2026-11-11T01:35:09.7140531Z Cloud: Azure
+regression (mesh-3of3)	Set up job	2026-11-11T01:35:09.7141102Z ##[endgroup]
+regression (mesh-3of3)	Set up job	2026-11-11T01:35:09.7142594Z ##[group]Operating System
+regression (mesh-3of3)	Set up job	2026-11-11T01:35:09.7143837Z Ubuntu
+regression (mesh-3of3)	Set up job	2026-11-11T01:35:09.7144393Z 24.04.5
+regression (mesh-3of3)	Set up job	2026-11-11T01:35:09.7144964Z LTS
+regression (mesh-3of3)	Set up job	2026-11-11T01:35:09.7145533Z ##[endgroup]
+regression (mesh-3of3)	Set up job	2026-11-11T01:35:09.7146148Z ##[group]Runner Image
+regression (mesh-3of3)	Set up job	2026-11-11T01:35:09.7146867Z Image: ubuntu-24.04
+regression (mesh-3of3)	Set up job	2026-11-11T01:35:09.7147465Z Version: 20261101.360.1
+regression (mesh-3of3)	Set up job	2026-11-11T01:35:09.7148884Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261101.360/images/ubuntu/Ubuntu2404-Readme.md
+regression (mesh-3of3)	Set up job	2026-11-11T01:35:09.7150738Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261101.360
+regression (mesh-3of3)	Set up job	2026-11-11T01:35:09.7151852Z ##[endgroup]
+regression (mesh-3of3)	Set up job	2026-11-11T01:35:09.7153126Z ##[group]GITHUB_TOKEN Permissions
+regression (mesh-3of3)	Set up job	2026-11-11T01:35:09.7155392Z Contents: read
+regression (mesh-3of3)	Set up job	2026-11-11T01:35:09.7156090Z Metadata: read
+regression (mesh-3of3)	Set up job	2026-11-11T01:35:09.7157021Z Packages: read
+regression (mesh-3of3)	Set up job	2026-11-11T01:35:09.7157706Z ##[endgroup]
+regression (mesh-3of3)	Set up job	2026-11-11T01:35:09.7160586Z Secret source: Actions
+regression (mesh-3of3)	Set up job	2026-11-11T01:35:09.7161728Z Cache mode: write
+regression (mesh-3of3)	Set up job	2026-11-11T01:35:09.7162509Z Prepare workflow directory
+regression (mesh-3of3)	Set up job	2026-11-11T01:35:09.7518190Z Prepare all required actions
+regression (mesh-3of3)	Set up job	2026-11-11T01:35:09.7571676Z Getting action download info
+regression (mesh-3of3)	Set up job	2026-11-11T01:35:10.0866057Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+regression (mesh-3of3)	Set up job	2026-11-11T01:35:10.2007808Z Download action repository 'actions/setup-node@v4' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+regression (mesh-3of3)	Set up job	2026-11-11T01:35:10.2855747Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+regression (mesh-3of3)	Set up job	2026-11-11T01:35:10.5201066Z Complete job name: regression (mesh-3of3)
+regression (mesh-3of3)	Run actions/checkout@v4	﻿2026-11-11T01:35:10.6009386Z ##[group]Run actions/checkout@v4
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.6010341Z with:
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.6010842Z   repository: IanPhlippo-jpg/Claude
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.6014755Z   token: ***
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.6015227Z   ssh-strict: true
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.6015691Z   ssh-user: git
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.6016158Z   persist-credentials: true
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.6016663Z   clean: true
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.6017131Z   sparse-checkout-cone-mode: true
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.6017662Z   fetch-depth: 1
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.6018116Z   fetch-tags: false
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.6018770Z   show-progress: true
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.6019250Z   lfs: false
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.6019678Z   submodules: false
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.6020155Z   set-safe-directory: true
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.6020674Z   allow-unsafe-pr-checkout: false
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.6021464Z ##[endgroup]
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.9287892Z Syncing repository: IanPhlippo-jpg/Claude
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.9290334Z ##[group]Getting Git version info
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.9291076Z Working directory is '/home/runner/work/Claude/Claude'
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.9292100Z [command]/usr/bin/git version
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.9409093Z git version 2.56.0
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.9442009Z ##[endgroup]
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.9449119Z Temporarily overriding HOME='/home/runner/work/_temp/e7c1b76b-2381-4a79-9472-d4bb480eeccf' before making global git config changes
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.9451582Z Adding repository directory to the temporary git global config as a safe directory
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.9454346Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/Claude/Claude
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.9515635Z Deleting the contents of '/home/runner/work/Claude/Claude'
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.9532097Z ##[group]Initializing the repository
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.9546381Z [command]/usr/bin/git init /home/runner/work/Claude/Claude
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.9689306Z hint: Using 'master' as the name for the initial branch. This default branch name
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.9691445Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.9693038Z hint: to use in all of your new repositories, which will suppress this warning,
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.9694268Z hint: call:
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.9694892Z hint:
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.9695668Z hint: 	git config --global init.defaultBranch <name>
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.9696692Z hint:
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.9697666Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.9699449Z hint: 'development'. The just-created branch can be renamed via this command:
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.9700688Z hint:
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.9701398Z hint: 	git branch -m <name>
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.9702173Z hint:
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.9703156Z hint: Disable this message with "git config set advice.defaultBranchName false"
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.9731814Z Initialized empty Git repository in /home/runner/work/Claude/Claude/.git/
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.9745191Z [command]/usr/bin/git remote add origin https://github.com/IanPhlippo-jpg/Claude
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.9800464Z ##[endgroup]
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.9801854Z ##[group]Disabling automatic garbage collection
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.9805186Z [command]/usr/bin/git config --local gc.auto 0
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.9848162Z ##[endgroup]
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.9850114Z ##[group]Setting up auth
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.9858245Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:10.9902639Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:11.0344885Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:11.0390888Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:11.0634515Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:11.0682344Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:11.0926245Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:11.0977782Z ##[endgroup]
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:11.0979150Z ##[group]Fetching the repository
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:11.0992590Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +564ae507ac95aa653e740ef11d2fb5244b763ff9:refs/remotes/origin/claude/fase1-schetser
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:20.3430128Z From https://github.com/IanPhlippo-jpg/Claude
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:20.3431824Z  * [new ref]         564ae507ac95aa653e740ef11d2fb5244b763ff9 -> origin/claude/fase1-schetser
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:20.3436099Z ##[endgroup]
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:20.3436844Z ##[group]Determining the checkout info
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:20.3438945Z ##[endgroup]
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:20.3445197Z [command]/usr/bin/git sparse-checkout disable
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:20.3511226Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:20.3551931Z ##[group]Checking out the ref
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:20.3566883Z [command]/usr/bin/git checkout --progress --force -B claude/fase1-schetser refs/remotes/origin/claude/fase1-schetser
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:21.3604234Z Switched to a new branch 'claude/fase1-schetser'
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:21.3610146Z branch 'claude/fase1-schetser' set up to track 'origin/claude/fase1-schetser'.
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:21.3677615Z ##[endgroup]
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:21.3732829Z [command]/usr/bin/git log -1 --format=%H
+regression (mesh-3of3)	Run actions/checkout@v4	2026-11-11T01:35:21.3767755Z 564ae507ac95aa653e740ef11d2fb5244b763ff9
+regression (mesh-3of3)	Run actions/setup-node@v4	﻿2026-11-11T01:35:21.4153519Z ##[group]Run actions/setup-node@v4
+regression (mesh-3of3)	Run actions/setup-node@v4	2026-11-11T01:35:21.4153931Z with:
+regression (mesh-3of3)	Run actions/setup-node@v4	2026-11-11T01:35:21.4154208Z   node-version-file: .nvmrc
+regression (mesh-3of3)	Run actions/setup-node@v4	2026-11-11T01:35:21.4154710Z   cache: npm
+regression (mesh-3of3)	Run actions/setup-node@v4	2026-11-11T01:35:21.4154958Z   always-auth: false
+regression (mesh-3of3)	Run actions/setup-node@v4	2026-11-11T01:35:21.4155233Z   check-latest: false
+regression (mesh-3of3)	Run actions/setup-node@v4	2026-11-11T01:35:21.4158086Z   token: ***
+regression (mesh-3of3)	Run actions/setup-node@v4	2026-11-11T01:35:21.4158582Z ##[endgroup]
+regression (mesh-3of3)	Run actions/setup-node@v4	2026-11-11T01:35:21.5634777Z Resolved .nvmrc as 22
+regression (mesh-3of3)	Run actions/setup-node@v4	2026-11-11T01:35:21.5703663Z Found in cache @ /opt/hostedtoolcache/node/22.23.4/x64
+regression (mesh-3of3)	Run actions/setup-node@v4	2026-11-11T01:35:21.5707613Z (node:2739) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+regression (mesh-3of3)	Run actions/setup-node@v4	2026-11-11T01:35:21.5708938Z (Use `node --trace-deprecation ...` to show where the warning was created)
+regression (mesh-3of3)	Run actions/setup-node@v4	2026-11-11T01:35:21.5710828Z ##[group]Environment details
+regression (mesh-3of3)	Run actions/setup-node@v4	2026-11-11T01:35:22.0145532Z node: v22.23.4
+regression (mesh-3of3)	Run actions/setup-node@v4	2026-11-11T01:35:22.0146166Z npm: 10.9.9
+regression (mesh-3of3)	Run actions/setup-node@v4	2026-11-11T01:35:22.0146606Z yarn: 1.22.22
+regression (mesh-3of3)	Run actions/setup-node@v4	2026-11-11T01:35:22.0147888Z ##[endgroup]
+regression (mesh-3of3)	Run actions/setup-node@v4	2026-11-11T01:35:22.0172857Z [command]/opt/hostedtoolcache/node/22.23.4/x64/bin/npm config get cache
+regression (mesh-3of3)	Run actions/setup-node@v4	2026-11-11T01:35:22.1322244Z /home/runner/.npm
+regression (mesh-3of3)	Run actions/setup-node@v4	2026-11-11T01:35:22.3927486Z Cache hit for: node-cache-Linux-x64-npm-95140ded10b55ef3a631861987b975f13d9017ca8a5b63ebcc37e51241e68fe1
+regression (mesh-3of3)	Run actions/setup-node@v4	2026-11-11T01:35:22.4043838Z (node:2739) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+regression (mesh-3of3)	Run actions/setup-node@v4	2026-11-11T01:35:23.6906702Z Received 4194304 of 79475372 (5.3%), 4.0 MBs/sec
+regression (mesh-3of3)	Run actions/setup-node@v4	2026-11-11T01:35:24.2512972Z Received 79475372 of 79475372 (100.0%), 48.5 MBs/sec
+regression (mesh-3of3)	Run actions/setup-node@v4	2026-11-11T01:35:24.2529438Z Cache Size: ~76 MB (79475372 B)
+regression (mesh-3of3)	Run actions/setup-node@v4	2026-11-11T01:35:24.2580346Z [command]/usr/bin/tar -xf /home/runner/work/_temp/6478ae70-21f7-4013-8572-90776d5dcb2f/cache.tzst -P -C /home/runner/work/Claude/Claude --use-compress-program unzstd
+regression (mesh-3of3)	Run actions/setup-node@v4	2026-11-11T01:35:24.4586763Z Cache restored successfully
+regression (mesh-3of3)	Run actions/setup-node@v4	2026-11-11T01:35:24.4623670Z Cache restored from key: node-cache-Linux-x64-npm-95140ded10b55ef3a631861987b975f13d9017ca8a5b63ebcc37e51241e68fe1
+regression (mesh-3of3)	Run npm ci	﻿2026-11-11T01:35:24.4904528Z ##[group]Run npm ci
+regression (mesh-3of3)	Run npm ci	2026-11-11T01:35:24.4904903Z ^[[36;1mnpm ci^[[0m
+regression (mesh-3of3)	Run npm ci	2026-11-11T01:35:24.4937786Z shell: /usr/bin/bash -e {0}
+regression (mesh-3of3)	Run npm ci	2026-11-11T01:35:24.4938100Z ##[endgroup]
+regression (mesh-3of3)	Run npm ci	2026-11-11T01:35:27.2417495Z npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+regression (mesh-3of3)	Run npm ci	2026-11-11T01:35:27.2793238Z npm warn deprecated rimraf@2.6.3: Rimraf versions prior to v4 are no longer supported
+regression (mesh-3of3)	Run npm ci	2026-11-11T01:35:27.3670292Z npm warn deprecated whatwg-encoding@3.1.1: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+regression (mesh-3of3)	Run npm ci	2026-11-11T01:35:27.3723829Z npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+regression (mesh-3of3)	Run npm ci	2026-11-11T01:35:27.6917279Z npm warn deprecated boolean@3.2.0: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
+regression (mesh-3of3)	Run npm ci	2026-11-11T01:35:30.7996205Z 
+regression (mesh-3of3)	Run npm ci	2026-11-11T01:35:30.7997140Z added 463 packages, and audited 464 packages in 6s
+regression (mesh-3of3)	Run npm ci	2026-11-11T01:35:30.7997681Z 
+regression (mesh-3of3)	Run npm ci	2026-11-11T01:35:30.7997993Z 76 packages are looking for funding
+regression (mesh-3of3)	Run npm ci	2026-11-11T01:35:30.7998739Z   run `npm fund` for details
+regression (mesh-3of3)	Run npm ci	2026-11-11T01:35:30.8237072Z 
+regression (mesh-3of3)	Run npm ci	2026-11-11T01:35:30.8237832Z 6 moderate severity vulnerabilities
+regression (mesh-3of3)	Run npm ci	2026-11-11T01:35:30.8238309Z 
+regression (mesh-3of3)	Run npm ci	2026-11-11T01:35:30.8238971Z To address issues that do not require attention, run:
+regression (mesh-3of3)	Run npm ci	2026-11-11T01:35:30.8240696Z   npm audit fix
+regression (mesh-3of3)	Run npm ci	2026-11-11T01:35:30.8241000Z 
+regression (mesh-3of3)	Run npm ci	2026-11-11T01:35:30.8241469Z To address all issues (including breaking changes), run:
+regression (mesh-3of3)	Run npm ci	2026-11-11T01:35:30.8242137Z   npm audit fix --force
+regression (mesh-3of3)	Run npm ci	2026-11-11T01:35:30.8242445Z 
+regression (mesh-3of3)	Run npm ci	2026-11-11T01:35:30.8242717Z Run `npm audit` for details.
+regression (mesh-3of3)	Run npm run build:e2e	﻿2026-11-11T01:35:30.9068268Z ##[group]Run npm run build:e2e
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:30.9070224Z ^[[36;1mnpm run build:e2e^[[0m
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:30.9091728Z shell: /usr/bin/bash -e {0}
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:30.9092036Z ##[endgroup]
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:31.0129464Z 
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:31.0130262Z > phlippo-cad@0.5.14 build:e2e
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:31.0130903Z > cross-env VITE_TEST_HOOKS=1 vite build
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:31.0131137Z 
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:31.6156734Z ^[[36mvite v7.3.7 ^[[32mbuilding client environment for production...^[[36m^[[39m
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:31.6793473Z transforming...
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:35.5573346Z ^[[33m[plugin vite:resolve] Module "node:module" has been externalized for browser compatibility, imported by "/home/runner/work/Claude/Claude/node_modules/replicad-opencascadejs/dist/replicad_single.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.^[[39m
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:42.0284616Z ^[[32m✓^[[39m 398 modules transformed.
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:42.4869637Z rendering chunks...
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:43.0157290Z computing gzip size...
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:43.6149104Z ^[[2mdist/^[[22m^[[32mindex.html                              ^[[39m^[[1m^[[2m     1.10 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     0.51 kB^[[22m
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:43.6150643Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[32mreplicad_single-BfZpIs5k.js      ^[[39m^[[1m^[[2m    59.37 kB^[[22m^[[1m^[[22m
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:43.6152777Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[32mreplicad-DSoIoMtf.js             ^[[39m^[[1m^[[2m   372.71 kB^[[22m^[[1m^[[22m
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:43.6154221Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[32mrebuild.worker-DadhVFPv.js       ^[[39m^[[1m^[[2m   684.45 kB^[[22m^[[1m^[[22m
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:43.6155186Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[32mocct.worker-uFe7urJa.js          ^[[39m^[[1m^[[2m   708.11 kB^[[22m^[[1m^[[22m
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:43.6156188Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[32mreplicad_single-B_1cTsn_.wasm    ^[[39m^[[1m^[[2m22,980.27 kB^[[22m^[[1m^[[22m^[[2m │ gzip: 7,267.29 kB^[[22m
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:43.6157256Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[35mindex-DI-Br2Gb.css               ^[[39m^[[1m^[[2m    84.38 kB^[[22m^[[1m^[[22m^[[2m │ gzip:    16.56 kB^[[22m
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:43.6158532Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mdesignTableCommands-BNHJ4CSz.js  ^[[39m^[[1m^[[2m     1.24 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     0.67 kB^[[22m
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:43.6160333Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mpreviewWindow-8rte_c8C.js        ^[[39m^[[1m^[[2m     1.63 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     0.78 kB^[[22m
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:43.6161410Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mDrawingTreeBody-C91HvT-D.js      ^[[39m^[[1m^[[2m     2.17 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     0.99 kB^[[22m
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:43.6162433Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mselfTest-BQXHSxa0.js             ^[[39m^[[1m^[[2m     3.24 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.56 kB^[[22m
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:43.6163467Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mSensorPM-DdC7XqAt.js             ^[[39m^[[1m^[[2m     3.32 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.15 kB^[[22m
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:43.6164563Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mFastenerPM-Bk00XjBs.js           ^[[39m^[[1m^[[2m     3.83 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.35 kB^[[22m
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:43.6166187Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mStandardPartsPane-DzBYZi1e.js    ^[[39m^[[1m^[[2m     4.08 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.67 kB^[[22m
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:43.6167584Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mdesignStudy-gdYi1rxy.js          ^[[39m^[[1m^[[2m     4.11 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.56 kB^[[22m
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:43.6169013Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mAnalysisPM2-0kB7se-w.js          ^[[39m^[[1m^[[2m     5.51 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.78 kB^[[22m
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:43.6170101Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mconfigureDialog-nNIC-F4V.js      ^[[39m^[[1m^[[2m     5.54 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.13 kB^[[22m
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:43.6171124Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mrenderDialogs-CANOAwm-.js        ^[[39m^[[1m^[[2m     5.93 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.76 kB^[[22m
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:43.6172142Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36msheetExport-Blk1uj4I.js          ^[[39m^[[1m^[[2m     5.97 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.75 kB^[[22m
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:43.6173710Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mPlanePM-WKf0rTOt.js              ^[[39m^[[1m^[[2m     6.01 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.67 kB^[[22m
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:43.6174932Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mSectionViewPM-BbNjmqgG.js        ^[[39m^[[1m^[[2m     6.30 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.96 kB^[[22m
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:43.6175965Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mViewPane-CeJb_HXV.js             ^[[39m^[[1m^[[2m     6.46 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.93 kB^[[22m
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:43.6176967Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36massemblyDialogs-C7CDFrgw.js      ^[[39m^[[1m^[[2m     6.53 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.14 kB^[[22m
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:43.6177965Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mAssemblyTab-MGlXEaFc.js          ^[[39m^[[1m^[[2m     7.11 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.97 kB^[[22m
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:43.6180735Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mAutoTolerancePM-sNm1jhoV.js      ^[[39m^[[1m^[[2m     7.34 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.00 kB^[[22m
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:43.6182647Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mSheetDialogs-ImqGrefw.js         ^[[39m^[[1m^[[2m     7.57 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.14 kB^[[22m
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:43.6184544Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mDrawingTabs-DsqAzczM.js          ^[[39m^[[1m^[[2m     8.08 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     1.93 kB^[[22m
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:43.6186545Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mSketch3DPM-DRlVfH5h.js           ^[[39m^[[1m^[[2m     8.57 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     3.05 kB^[[22m
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:43.6188828Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mRefGeomPM-BMJF-5mQ.js            ^[[39m^[[1m^[[2m     8.60 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.39 kB^[[22m
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:43.6190811Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mequations-L_Dhd_wb.js            ^[[39m^[[1m^[[2m     9.21 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.98 kB^[[22m
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:43.6192812Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mConfigurationPanel-BIUH2HVp.js   ^[[39m^[[1m^[[2m     9.32 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.73 kB^[[22m
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:43.6194877Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mappearanceDialog-Bnr2-e4X.js     ^[[39m^[[1m^[[2m     9.61 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     3.08 kB^[[22m
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:43.6196979Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mDrawingExtras-rfBhk9Eu.js        ^[[39m^[[1m^[[2m    10.05 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     3.50 kB^[[22m
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:43.6199303Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mAssemblyTreeBody-Bxl_hOPh.js     ^[[39m^[[1m^[[2m    10.19 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     3.12 kB^[[22m
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:43.6201374Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mDraftAnalysisPM-TmwdS6Kn.js      ^[[39m^[[1m^[[2m    10.92 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     2.60 kB^[[22m
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:43.6203466Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mevaluateDialogs-CItlJXNS.js      ^[[39m^[[1m^[[2m    11.43 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     3.34 kB^[[22m
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:43.6205754Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mAppearancesPane-G2bY7a6l.js      ^[[39m^[[1m^[[2m    11.68 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     4.05 kB^[[22m
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:43.6207939Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mtreeDialogs-CaYJlm5U.js          ^[[39m^[[1m^[[2m    12.50 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     3.93 kB^[[22m
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:43.6210352Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mmaterialDialog-CowWzttl.js       ^[[39m^[[1m^[[2m    13.03 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     3.93 kB^[[22m
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:43.6212433Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mcustomize-DOXRp5KP.js            ^[[39m^[[1m^[[2m    14.87 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     4.28 kB^[[22m
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:43.6214439Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mevaluate-CA-OhWDe.js             ^[[39m^[[1m^[[2m    16.23 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     5.25 kB^[[22m
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:43.6216473Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mdialogs-D666LjM5.js              ^[[39m^[[1m^[[2m    24.07 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     6.85 kB^[[22m
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:43.6218989Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mevaluateDialogs2-D_XbpL6_.js     ^[[39m^[[1m^[[2m    25.05 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     6.63 kB^[[22m
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:43.6221218Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mMotionTimeline-SkIuGuC6.js       ^[[39m^[[1m^[[2m    26.56 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     6.92 kB^[[22m
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:43.6223747Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mAssemblyPM-Bo54Y4qk.js           ^[[39m^[[1m^[[2m    27.46 kB^[[22m^[[1m^[[22m^[[2m │ gzip:     6.51 kB^[[22m
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:43.6240222Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mDrawingSheetView-Cg8Fz6jK.js     ^[[39m^[[1m^[[2m    51.45 kB^[[22m^[[1m^[[22m^[[2m │ gzip:    16.72 kB^[[22m
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:43.6269167Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36moptions-DPwK9tAl.js              ^[[39m^[[1m^[[2m    52.93 kB^[[22m^[[1m^[[22m^[[2m │ gzip:    14.29 kB^[[22m
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:43.6271163Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mDrawingPM-BsKG9jtr.js            ^[[39m^[[1m^[[2m    53.70 kB^[[22m^[[1m^[[22m^[[2m │ gzip:    11.21 kB^[[22m
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:43.6273316Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mcsg-DUo1x2C3.js                  ^[[39m^[[1m^[[2m   105.39 kB^[[22m^[[1m^[[22m^[[2m │ gzip:    32.47 kB^[[22m
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:43.6275419Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mreact-BgaH_3CY.js                ^[[39m^[[1m^[[2m   223.35 kB^[[22m^[[1m^[[22m^[[2m │ gzip:    69.70 kB^[[22m
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:43.6277681Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mPropertyPanel-CgtRIyUv.js        ^[[39m^[[1m^[[2m   314.55 kB^[[22m^[[1m^[[22m^[[2m │ gzip:    56.43 kB^[[22m
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:43.6280146Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mkernel-CHj4O-oR.js               ^[[39m^[[1m^[[2m   527.60 kB^[[22m^[[1m^[[22m^[[2m │ gzip:   183.03 kB^[[22m
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:43.6282344Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mthree-CCz4rHc3.js                ^[[39m^[[1m^[[2m   728.92 kB^[[22m^[[1m^[[22m^[[2m │ gzip:   197.58 kB^[[22m
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:43.6284490Z ^[[2mdist/^[[22m^[[2massets/^[[22m^[[36mindex-BMFSVyV8.js                ^[[39m^[[1m^[[2m   784.87 kB^[[22m^[[1m^[[22m^[[2m │ gzip:   221.75 kB^[[22m
+regression (mesh-3of3)	Run npm run build:e2e	2026-11-11T01:35:43.6285829Z ^[[32m✓ built in 11.97s^[[39m
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	﻿2026-11-11T01:35:43.7825372Z ##[group]Run npx playwright install --with-deps chromium
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:43.7825843Z ^[[36;1mnpx playwright install --with-deps chromium^[[0m
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:43.7846562Z shell: /usr/bin/bash -e {0}
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:43.7846834Z ##[endgroup]
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:44.6928189Z Installing dependencies...
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:44.7000847Z Switching to root user to install dependencies...
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:44.7862779Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:44.8155869Z Get:3 https://packages.microsoft.com/ubuntu/24.04/prod noble InRelease [3600 B]
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:44.8301645Z Hit:2 http://azure.archive.ubuntu.com/ubuntu noble InRelease
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:44.8336113Z Get:4 http://azure.archive.ubuntu.com/ubuntu noble-updates InRelease [126 kB]
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:44.8360860Z Get:5 http://azure.archive.ubuntu.com/ubuntu noble-backports InRelease [126 kB]
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:44.8388026Z Get:6 http://azure.archive.ubuntu.com/ubuntu noble-security InRelease [126 kB]
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:44.9168622Z Get:7 https://packages.microsoft.com/ubuntu/24.04/prod noble/main amd64 Packages [760 kB]
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:44.9393494Z Get:8 https://packages.microsoft.com/ubuntu/24.04/prod noble/main arm64 Packages [690 kB]
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:44.9481430Z Get:9 https://packages.microsoft.com/ubuntu/24.04/prod noble/main armhf Packages [12.6 kB]
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:45.0534321Z Get:10 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 Packages [1445 kB]
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:45.0647591Z Get:11 http://azure.archive.ubuntu.com/ubuntu noble-updates/main Translation-en [315 kB]
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:45.0669990Z Get:12 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe amd64 Packages [1711 kB]
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:45.0762524Z Get:13 http://azure.archive.ubuntu.com/ubuntu noble-updates/universe Translation-en [344 kB]
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:45.0809951Z Get:14 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted amd64 Packages [1879 kB]
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:45.0899552Z Get:15 http://azure.archive.ubuntu.com/ubuntu noble-updates/restricted Translation-en [429 kB]
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:45.0938041Z Get:16 http://azure.archive.ubuntu.com/ubuntu noble-updates/multiverse amd64 Packages [50.7 kB]
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:45.0942733Z Get:17 http://azure.archive.ubuntu.com/ubuntu noble-updates/multiverse Translation-en [14.3 kB]
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:45.1740264Z Get:18 http://azure.archive.ubuntu.com/ubuntu noble-security/main amd64 Packages [1160 kB]
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:45.1802459Z Get:19 http://azure.archive.ubuntu.com/ubuntu noble-security/main Translation-en [234 kB]
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:45.2280312Z Get:20 http://azure.archive.ubuntu.com/ubuntu noble-security/universe amd64 Packages [1228 kB]
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:45.2316327Z Get:21 http://azure.archive.ubuntu.com/ubuntu noble-security/universe Translation-en [248 kB]
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:45.2335307Z Get:22 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted amd64 Packages [1729 kB]
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:45.2423424Z Get:23 http://azure.archive.ubuntu.com/ubuntu noble-security/restricted Translation-en [396 kB]
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:45.2437536Z Get:24 http://azure.archive.ubuntu.com/ubuntu noble-security/multiverse amd64 Packages [45.4 kB]
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:45.2448855Z Get:25 http://azure.archive.ubuntu.com/ubuntu noble-security/multiverse Translation-en [12.4 kB]
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:48.7919465Z Fetched 13.1 MB in 1s (9031 kB/s)
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.0047266Z Reading package lists...
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.0362369Z Reading package lists...
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.2871588Z Building dependency tree...
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.2879024Z Reading state information...
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.4495807Z libasound2t64 is already the newest version (1.2.11-1ubuntu0.3).
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.4496471Z libasound2t64 set to manually installed.
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.4497051Z libatk-bridge2.0-0t64 is already the newest version (2.52.0-1build1).
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.4497655Z libatk-bridge2.0-0t64 set to manually installed.
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.4498210Z libatk1.0-0t64 is already the newest version (2.52.0-1build1).
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.4499244Z libatk1.0-0t64 set to manually installed.
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.4500693Z libatspi2.0-0t64 is already the newest version (2.52.0-1build1).
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.4501228Z libatspi2.0-0t64 set to manually installed.
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.4501788Z libcairo2 is already the newest version (1.18.0-3build1).
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.4502561Z libcairo2 set to manually installed.
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.4503143Z libcups2t64 is already the newest version (2.4.7-1.2ubuntu7.14).
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.4503677Z libcups2t64 set to manually installed.
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.4504193Z libdbus-1-3 is already the newest version (1.14.10-4ubuntu4.1).
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.4504693Z libdbus-1-3 set to manually installed.
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.4505219Z libdrm2 is already the newest version (2.4.125-1ubuntu0.1~24.04.2).
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.4505724Z libdrm2 set to manually installed.
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.4506199Z libgbm1 is already the newest version (25.2.8-0ubuntu0.24.04.4).
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.4506650Z libgbm1 set to manually installed.
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.4507128Z libglib2.0-0t64 is already the newest version (2.80.0-6ubuntu3.10).
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.4507629Z libglib2.0-0t64 set to manually installed.
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.4508107Z libnspr4 is already the newest version (2:4.35-1.1build1).
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.4508816Z libnspr4 set to manually installed.
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.4509264Z libnss3 is already the newest version (2:3.98-1ubuntu0.3).
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.4509694Z libnss3 set to manually installed.
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.4510158Z libpango-1.0-0 is already the newest version (1.52.1+ds-1build1).
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.4510641Z libpango-1.0-0 set to manually installed.
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.4511116Z libx11-6 is already the newest version (2:1.8.7-1ubuntu0.1).
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.4511554Z libx11-6 set to manually installed.
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.4511980Z libxcb1 is already the newest version (1.15-1ubuntu2).
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.4512391Z libxcb1 set to manually installed.
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.4512858Z libxcomposite1 is already the newest version (1:0.4.5-1build3).
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.4513338Z libxcomposite1 set to manually installed.
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.4513817Z libxdamage1 is already the newest version (1:1.1.6-1build1).
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.4514264Z libxdamage1 set to manually installed.
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.4514719Z libxext6 is already the newest version (2:1.3.4-1build2).
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.4515128Z libxext6 set to manually installed.
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.4515529Z libxfixes3 is already the newest version (1:6.0.0-2build1).
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.4516136Z libxfixes3 set to manually installed.
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.4516548Z libxkbcommon0 is already the newest version (1.6.0-1build1).
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.4516945Z libxkbcommon0 set to manually installed.
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.4517346Z libxrandr2 is already the newest version (2:1.5.2-2build1).
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.4517727Z libxrandr2 set to manually installed.
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.4518117Z xvfb is already the newest version (2:21.1.12-1ubuntu1.9).
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.4518833Z fonts-noto-color-emoji is already the newest version (2.047-0ubuntu0.24.04.1).
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.4519411Z libfontconfig1 is already the newest version (2.15.0-1.1ubuntu2).
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.4519825Z libfontconfig1 set to manually installed.
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.4520258Z libfreetype6 is already the newest version (2.13.2+dfsg-1ubuntu0.2).
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.4520684Z libfreetype6 set to manually installed.
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.4521092Z fonts-liberation is already the newest version (1:2.1.5-3).
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.4521506Z fonts-liberation set to manually installed.
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.4521902Z The following additional packages will be installed:
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.4522259Z   xfonts-encodings xfonts-utils
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.4522543Z Recommended packages:
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.4522816Z   fonts-ipafont-mincho fonts-tlwg-loma
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.4748023Z The following NEW packages will be installed:
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.4749111Z   fonts-freefont-ttf fonts-ipafont-gothic fonts-tlwg-loma-otf fonts-unifont
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.4760457Z   fonts-wqy-zenhei xfonts-cyrillic xfonts-encodings xfonts-scalable
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.4761345Z   xfonts-utils
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.4984307Z 0 upgraded, 9 newly installed, 0 to remove and 39 not upgraded.
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.4985185Z Need to get 21.1 MB of archives.
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.4985974Z After this operation, 79.5 MB of additional disk space will be used.
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.4986582Z Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.5973398Z Get:2 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-ipafont-gothic all 00303-21ubuntu1 [3513 kB]
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.7465211Z Get:3 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 fonts-freefont-ttf all 20211204+svn4273-2 [5641 kB]
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:50.9444057Z Get:4 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-tlwg-loma-otf all 1:0.7.3-1 [107 kB]
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:51.0144156Z Get:5 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-unifont all 1:15.1.01-1build1 [2993 kB]
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:51.1065305Z Get:6 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 fonts-wqy-zenhei all 0.9.45-8 [7472 kB]
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:51.4051497Z Get:7 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 xfonts-encodings all 1:1.0.5-0ubuntu2 [578 kB]
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:51.4890498Z Get:8 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 xfonts-utils amd64 1:7.7+6build3 [94.4 kB]
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:51.5598921Z Get:9 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 xfonts-cyrillic all 1:1.0.5+nmu1 [384 kB]
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:51.6369607Z Get:10 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 xfonts-scalable all 1:1.0.3-1.3 [304 kB]
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:51.9181871Z Fetched 21.1 MB in 1s (18.2 MB/s)
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:51.9447496Z Selecting previously unselected package fonts-ipafont-gothic.
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:51.9796113Z (Reading database ... 
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:51.9797011Z (Reading database ... 5%
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:51.9797726Z (Reading database ... 10%
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:51.9798226Z (Reading database ... 15%
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:51.9798895Z (Reading database ... 20%
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:51.9799417Z (Reading database ... 25%
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:51.9799986Z (Reading database ... 30%
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:51.9800517Z (Reading database ... 35%
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:51.9801031Z (Reading database ... 40%
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:51.9801467Z (Reading database ... 45%
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:51.9801918Z (Reading database ... 50%
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:51.9858667Z (Reading database ... 55%
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:52.1850196Z (Reading database ... 60%
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:52.3307226Z (Reading database ... 65%
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:52.5767664Z (Reading database ... 70%
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:52.7516199Z (Reading database ... 75%
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:52.8792335Z (Reading database ... 80%
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:53.2820434Z (Reading database ... 85%
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:53.4484620Z (Reading database ... 90%
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:53.5554768Z (Reading database ... 95%
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:53.5555232Z (Reading database ... 100%
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:53.5555811Z (Reading database ... 215960 files and directories currently installed.)
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:53.5597794Z Preparing to unpack .../0-fonts-ipafont-gothic_00303-21ubuntu1_all.deb ...
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:53.5709637Z Unpacking fonts-ipafont-gothic (00303-21ubuntu1) ...
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:53.8132519Z Selecting previously unselected package fonts-freefont-ttf.
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:53.8272655Z Preparing to unpack .../1-fonts-freefont-ttf_20211204+svn4273-2_all.deb ...
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:53.8281679Z Unpacking fonts-freefont-ttf (20211204+svn4273-2) ...
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:53.9155664Z Selecting previously unselected package fonts-tlwg-loma-otf.
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:53.9299311Z Preparing to unpack .../2-fonts-tlwg-loma-otf_1%3a0.7.3-1_all.deb ...
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:53.9310672Z Unpacking fonts-tlwg-loma-otf (1:0.7.3-1) ...
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:53.9550045Z Selecting previously unselected package fonts-unifont.
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:53.9689800Z Preparing to unpack .../3-fonts-unifont_1%3a15.1.01-1build1_all.deb ...
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:53.9698248Z Unpacking fonts-unifont (1:15.1.01-1build1) ...
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:54.0856648Z Selecting previously unselected package fonts-wqy-zenhei.
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:54.1000672Z Preparing to unpack .../4-fonts-wqy-zenhei_0.9.45-8_all.deb ...
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:54.1113052Z Unpacking fonts-wqy-zenhei (0.9.45-8) ...
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:54.5921846Z Selecting previously unselected package xfonts-encodings.
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:54.6063915Z Preparing to unpack .../5-xfonts-encodings_1%3a1.0.5-0ubuntu2_all.deb ...
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:54.6073466Z Unpacking xfonts-encodings (1:1.0.5-0ubuntu2) ...
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:54.6403675Z Selecting previously unselected package xfonts-utils.
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:54.6546262Z Preparing to unpack .../6-xfonts-utils_1%3a7.7+6build3_amd64.deb ...
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:54.6555254Z Unpacking xfonts-utils (1:7.7+6build3) ...
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:54.6966776Z Selecting previously unselected package xfonts-cyrillic.
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:54.7108029Z Preparing to unpack .../7-xfonts-cyrillic_1%3a1.0.5+nmu1_all.deb ...
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:54.7116286Z Unpacking xfonts-cyrillic (1:1.0.5+nmu1) ...
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:54.7480748Z Selecting previously unselected package xfonts-scalable.
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:54.7619819Z Preparing to unpack .../8-xfonts-scalable_1%3a1.0.3-1.3_all.deb ...
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:54.7628074Z Unpacking xfonts-scalable (1:1.0.3-1.3) ...
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:54.8100945Z Setting up fonts-wqy-zenhei (0.9.45-8) ...
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:54.8228010Z Setting up fonts-freefont-ttf (20211204+svn4273-2) ...
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:54.8249398Z Setting up fonts-tlwg-loma-otf (1:0.7.3-1) ...
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:54.8269690Z Setting up xfonts-encodings (1:1.0.5-0ubuntu2) ...
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:54.8290883Z Setting up fonts-ipafont-gothic (00303-21ubuntu1) ...
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:54.8360211Z update-alternatives: using /usr/share/fonts/opentype/ipafont-gothic/ipag.ttf to provide /usr/share/fonts/truetype/fonts-japanese-gothic.ttf (fonts-japanese-gothic.ttf) in auto mode
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:54.8378214Z Setting up fonts-unifont (1:15.1.01-1build1) ...
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:54.8399479Z Setting up xfonts-utils (1:7.7+6build3) ...
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:54.8443699Z Setting up xfonts-cyrillic (1:1.0.5+nmu1) ...
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:54.8760983Z Setting up xfonts-scalable (1:1.0.3-1.3) ...
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:54.9048558Z Processing triggers for man-db (2.12.0-4build2) ...
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:54.9071799Z Not building database; man-db/auto-update is not 'true'.
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:54.9086571Z Processing triggers for fontconfig (2.15.0-1.1ubuntu2) ...
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:55.7089553Z 
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:55.7090644Z Running kernel seems to be up-to-date.
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:55.7091087Z 
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:55.7091362Z No services need to be restarted.
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:55.7091688Z 
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:55.7091960Z No containers need to be restarted.
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:55.7092289Z 
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:55.7092607Z No user sessions are running outdated binaries.
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:55.7093005Z 
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:55.7093523Z No VM guests are running outdated hypervisor (qemu) binaries on this host.
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:56.7567250Z Downloading Chromium 141.0.7390.37 (playwright build v1194) from https://cdn.playwright.dev/dbazure/download/playwright/builds/chromium/1194/chromium-linux.zip
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:56.9129109Z |                                                                                |   0% of 173.9 MiB
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:57.0494856Z |■■■■■■■■                                                                        |  10% of 173.9 MiB
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:57.3607639Z |■■■■■■■■■■■■■■■■                                                                |  20% of 173.9 MiB
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:57.5393828Z |■■■■■■■■■■■■■■■■■■■■■■■■                                                        |  30% of 173.9 MiB
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:57.8983226Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                                |  40% of 173.9 MiB
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:58.2523372Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                        |  50% of 173.9 MiB
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:58.4163744Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                |  60% of 173.9 MiB
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:58.6192498Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                        |  70% of 173.9 MiB
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:58.7833775Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                |  80% of 173.9 MiB
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:58.9606193Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■        |  90% of 173.9 MiB
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:35:59.3352532Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■| 100% of 173.9 MiB
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:36:02.5806949Z Chromium 141.0.7390.37 (playwright build v1194) downloaded to /home/runner/.cache/ms-playwright/chromium-1194
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:36:02.5811567Z Downloading FFMPEG playwright build v1011 from https://cdn.playwright.dev/dbazure/download/playwright/builds/ffmpeg/1011/ffmpeg-linux.zip
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:36:02.7304616Z |                                                                                |   0% of 2.3 MiB
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:36:02.7428515Z |■■■■■■■■                                                                        |  10% of 2.3 MiB
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:36:02.7484025Z |■■■■■■■■■■■■■■■■                                                                |  20% of 2.3 MiB
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:36:02.7508136Z |■■■■■■■■■■■■■■■■■■■■■■■■                                                        |  30% of 2.3 MiB
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:36:02.7541530Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                                |  40% of 2.3 MiB
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:36:02.7553566Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                        |  50% of 2.3 MiB
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:36:02.7572095Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                |  60% of 2.3 MiB
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:36:02.7587459Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                        |  70% of 2.3 MiB
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:36:02.7606529Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                |  80% of 2.3 MiB
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:36:02.7621465Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■        |  90% of 2.3 MiB
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:36:02.7635621Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■| 100% of 2.3 MiB
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:36:02.8176980Z FFMPEG playwright build v1011 downloaded to /home/runner/.cache/ms-playwright/ffmpeg-1011
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:36:02.8181117Z Downloading Chromium Headless Shell 141.0.7390.37 (playwright build v1194) from https://cdn.playwright.dev/dbazure/download/playwright/builds/chromium/1194/chromium-headless-shell-linux.zip
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:36:02.9617975Z |                                                                                |   0% of 104.3 MiB
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:36:03.0466309Z |■■■■■■■■                                                                        |  10% of 104.3 MiB
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:36:03.1828179Z |■■■■■■■■■■■■■■■■                                                                |  20% of 104.3 MiB
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:36:03.2889794Z |■■■■■■■■■■■■■■■■■■■■■■■■                                                        |  30% of 104.3 MiB
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:36:03.9115376Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                                |  40% of 104.3 MiB
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:36:04.1567421Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                        |  50% of 104.3 MiB
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:36:04.2545762Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                                |  60% of 104.3 MiB
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:36:04.2923503Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                        |  70% of 104.3 MiB
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:36:04.3321386Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■                |  80% of 104.3 MiB
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:36:04.3699829Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■        |  90% of 104.3 MiB
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:36:04.4064864Z |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■| 100% of 104.3 MiB
+regression (mesh-3of3)	Run npx playwright install --with-deps chromium	2026-11-11T01:36:06.1171796Z Chromium Headless Shell 141.0.7390.37 (playwright build v1194) downloaded to /home/runner/.cache/ms-playwright/chromium_headless_shell-1194
+regression (mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	﻿2026-11-11T01:36:06.2213001Z ##[group]Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &
+regression (mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:36:06.2213582Z ^[[36;1mnpx vite preview --host 127.0.0.1 --port 4173 --strictPort &^[[0m
+regression (mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:36:06.2214019Z ^[[36;1mnpx wait-on http://127.0.0.1:4173^[[0m
+regression (mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:36:06.2214531Z ^[[36;1mexport PW_CHROMIUM="$(node -e "console.log(require('playwright').chromium.executablePath())")"^[[0m
+regression (mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:36:06.2215493Z ^[[36;1mE2E_REPEAT="1" E2E_SCRIPT_TIMEOUT=1500000 E2E_SHARD="3/3" E2E_URL="http://127.0.0.1:4173/" node e2e/run-regression.mjs ^[[0m
+regression (mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:36:06.2237404Z shell: /usr/bin/bash -e {0}
+regression (mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:36:06.2237673Z ##[endgroup]
+regression (mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:36:06.7381658Z   ^[[32m➜^[[39m  ^[[1mLocal^[[22m:   ^[[36mhttp://127.0.0.1:^[[1m4173^[[22m/^[[39m
+regression (mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:43:02.1379682Z features: exit=0 415s 66/66 checks passed
+regression (mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:43:44.2113537Z drawing: exit=0 42s 28/28 checks passed
+regression (mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:45:01.0207490Z endconditions: exit=0 77s 15/15 checks passed
+regression (mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:45:39.5513937Z sheetmetal: exit=0 39s 14/14 checks passed
+regression (mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:46:03.3110392Z helix: exit=0 24s 5/5 checks passed
+regression (mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:47:43.9879325Z doorhandle: exit=0 101s 18/18 checks passed
+regression (mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:47:59.2415857Z uptobody: exit=0 15s 4/4 checks passed
+regression (mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:48:26.5356938Z sketchpattern: exit=0 27s 2/2 checks passed
+regression (mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:48:49.7004657Z editcomponent: exit=0 23s 2/2 checks passed
+regression (mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:49:32.2302861Z surfaces: exit=0 43s 7/7 checks passed
+regression (mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:49:42.6815940Z annotations3: exit=0 10s 3/3 checks passed
+regression (mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:50:15.7685141Z unfoldfold: exit=0 33s 5/5 checks passed
+regression (mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:50:42.7538967Z thickness: exit=0 27s 2/2 checks passed
+regression (mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:51:04.0796754Z thread: exit=0 21s 2/2 checks passed
+regression (mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:51:25.8545122Z deletekey2: exit=0 22s 13/13 checks passed
+regression (mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:52:53.4918727Z features2: exit=0 88s 15/15 checks passed
+regression (mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:54:11.0363174Z assembly2: exit=0 78s 15/15 checks passed
+regression (mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:56:26.4526527Z filletopts: exit=0 135s 16/16 checks passed
+regression (mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:59:33.2120493Z keys: exit=0 187s 7/7 checks passed
+regression (mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T01:59:45.1013602Z dwgopts: exit=0 12s 13/13 passed
+regression (mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T02:00:38.1391043Z triad: exit=0 53s 5/5 passed
+regression (mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T02:01:09.3771998Z asmcut: exit=0 31s 3/3 checks passed
+regression (mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T02:02:08.9617561Z qa3: exit=0 60s 30/30 passed
+regression (mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T02:02:27.5038724Z ga1: exit=0 19s 19/19 passed
+regression (mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T02:03:19.7271749Z gd: exit=0 52s 23/23 passed
+regression (mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T02:04:03.4017796Z gg: exit=0 44s 22/22 passed
+regression (mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T02:05:37.8749888Z gj: exit=0 94s 37/37 passed
+regression (mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T02:06:08.7834086Z bodies: exit=0 31s 7/7 checks passed
+regression (mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T02:07:36.8793674Z rebuildworker: exit=0 88s 11/11 checks passed
+regression (mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T02:08:10.6156685Z loftface: exit=0 34s 7/7 checks passed
+regression (mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T02:08:43.9860731Z videos54: exit=0 33s 18/18 checks passed
+regression (mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T02:10:24.5993635Z plastics: exit=0 101s 26/26 passed
+regression (mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T02:10:45.5329586Z undo200: exit=0 21s 7/7 checks passed
+regression (mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T02:10:54.8852404Z instant2d: exit=0 9s 8/8 checks passed
+regression (mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T02:11:10.6969831Z prefs112: exit=0 16s 7/7 checks passed
+regression (mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T02:11:10.6970671Z DONE 35/35 green, 0 optional step(s) skipped
+regression (mesh-3of3)	Run npx vite preview --host 127.0.0.1 --port 4173 --strictPort &	2026-11-11T02:11:10.6971539Z log: e2e-out/regression-0.5.14-shard3of3.txt
+regression (mesh-3of3)	Run git diff --exit-code	﻿2026-11-11T02:11:15.7054240Z ##[group]Run git diff --exit-code
+regression (mesh-3of3)	Run git diff --exit-code	2026-11-11T02:11:15.7054584Z ^[[36;1mgit diff --exit-code^[[0m
+regression (mesh-3of3)	Run git diff --exit-code	2026-11-11T02:11:15.7074290Z shell: /usr/bin/bash -e {0}
+regression (mesh-3of3)	Run git diff --exit-code	2026-11-11T02:11:15.7074565Z ##[endgroup]
+regression (mesh-3of3)	Run actions/upload-artifact@v4	﻿2026-11-11T02:11:15.7233240Z ##[group]Run actions/upload-artifact@v4
+regression (mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:11:15.7233564Z with:
+regression (mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:11:15.7233789Z   name: e2e-regression-log-mesh-3of3
+regression (mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:11:15.7234127Z   path: e2e-out/regression-*.txt
+regression (mesh-3of3)	Run actions/upload-artifact@v4	e2e-out/*-output.txt
+regression (mesh-3of3)	Run actions/upload-artifact@v4	
+regression (mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:11:15.7234471Z   if-no-files-found: error
+regression (mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:11:15.7234721Z   compression-level: 6
+regression (mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:11:15.7234943Z   overwrite: false
+regression (mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:11:15.7235160Z   include-hidden-files: false
+regression (mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:11:15.7235406Z ##[endgroup]
+regression (mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:11:15.8993134Z (node:8521) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+regression (mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:11:15.8993999Z (Use `node --trace-deprecation ...` to show where the warning was created)
+regression (mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:11:15.9129042Z With the provided path, there will be 1 file uploaded
+regression (mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:11:15.9131568Z Artifact name is valid!
+regression (mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:11:15.9132495Z Root directory input is valid!
+regression (mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:11:16.2993057Z Beginning upload of artifact content to blob storage
+regression (mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:11:16.3232171Z (node:8521) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+regression (mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:11:16.6122712Z Uploaded bytes 771
+regression (mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:11:16.8027081Z Finished uploading artifact content to blob storage!
+regression (mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:11:16.8032245Z SHA256 digest of uploaded artifact zip is adc34a3d8e32ecd6dca6bb052762dbe2b502ad63f027a83df1a6e2e958c947ed
+regression (mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:11:16.8033124Z Finalizing artifact upload
+regression (mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:11:17.1050695Z Artifact e2e-regression-log-mesh-3of3.zip successfully finalized. Artifact ID 13821299528
+regression (mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:11:17.1052736Z Artifact e2e-regression-log-mesh-3of3 has been successfully uploaded! Final size is 771 bytes. Artifact ID is 13821299528
+regression (mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:11:17.1054709Z Artifact download URL: https://github.com/IanPhlippo-jpg/Claude/actions/runs/42940008926/artifacts/13821299528
+regression (mesh-3of3)	Run actions/upload-artifact@v4	﻿2026-11-11T02:11:17.1222641Z ##[group]Run actions/upload-artifact@v4
+regression (mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:11:17.1223240Z with:
+regression (mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:11:17.1223653Z   name: e2e-screenshots-mesh-3of3
+regression (mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:11:17.1224176Z   path: /tmp/phlippo-e2e
+regression (mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:11:17.1224649Z   if-no-files-found: ignore
+regression (mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:11:17.1225113Z   compression-level: 6
+regression (mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:11:17.1225527Z   overwrite: false
+regression (mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:11:17.1225955Z   include-hidden-files: false
+regression (mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:11:17.1226434Z ##[endgroup]
+regression (mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:11:17.2994244Z (node:8533) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+regression (mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:11:17.2996664Z (Use `node --trace-deprecation ...` to show where the warning was created)
+regression (mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:11:17.3238043Z With the provided path, there will be 118 files uploaded
+regression (mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:11:17.3240669Z Artifact name is valid!
+regression (mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:11:17.3241600Z Root directory input is valid!
+regression (mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:11:17.7088937Z Beginning upload of artifact content to blob storage
+regression (mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:11:18.0317367Z (node:8533) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+regression (mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:11:19.0436063Z Uploaded bytes 8388608
+regression (mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:11:19.3477936Z Uploaded bytes 16777216
+regression (mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:11:19.5966598Z Uploaded bytes 25165824
+regression (mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:11:19.9422139Z Uploaded bytes 33554432
+regression (mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:11:20.0769260Z Uploaded bytes 36297266
+regression (mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:11:20.1565476Z Finished uploading artifact content to blob storage!
+regression (mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:11:20.1569313Z SHA256 digest of uploaded artifact zip is c7154304ac1a96a52275851dcf869bf4f306c24e431e218520a49acb0a2de674
+regression (mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:11:20.1572430Z Finalizing artifact upload
+regression (mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:11:20.5640953Z Artifact e2e-screenshots-mesh-3of3.zip successfully finalized. Artifact ID 13821743005
+regression (mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:11:20.5642899Z Artifact e2e-screenshots-mesh-3of3 has been successfully uploaded! Final size is 36297266 bytes. Artifact ID is 13821743005
+regression (mesh-3of3)	Run actions/upload-artifact@v4	2026-11-11T02:11:20.5650527Z Artifact download URL: https://github.com/IanPhlippo-jpg/Claude/actions/runs/42940008926/artifacts/13821743005
+regression (mesh-3of3)	regression passed	﻿2026-11-11T02:11:20.5856870Z ##[group]Run echo "regression=success clean=success"
+regression (mesh-3of3)	regression passed	2026-11-11T02:11:20.5857319Z ^[[36;1mecho "regression=success clean=success"^[[0m
+regression (mesh-3of3)	regression passed	2026-11-11T02:11:20.5857702Z ^[[36;1mtest "success" = success && test "success" = success^[[0m
+regression (mesh-3of3)	regression passed	2026-11-11T02:11:20.5877471Z shell: /usr/bin/bash -e {0}
+regression (mesh-3of3)	regression passed	2026-11-11T02:11:20.5877763Z ##[endgroup]
+regression (mesh-3of3)	regression passed	2026-11-11T02:11:20.5923201Z regression=success clean=success
+regression (mesh-3of3)	Post Run actions/setup-node@v4	﻿2026-11-11T02:11:20.6009220Z Post job cleanup.
+regression (mesh-3of3)	Post Run actions/setup-node@v4	2026-11-11T02:11:20.7276478Z (node:8547) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+regression (mesh-3of3)	Post Run actions/setup-node@v4	2026-11-11T02:11:20.7279205Z (Use `node --trace-deprecation ...` to show where the warning was created)
+regression (mesh-3of3)	Post Run actions/setup-node@v4	2026-11-11T02:11:20.7280670Z Cache hit occurred on the primary key node-cache-Linux-x64-npm-95140ded10b55ef3a631861987b975f13d9017ca8a5b63ebcc37e51241e68fe1, not saving cache.
+regression (mesh-3of3)	Post Run actions/checkout@v4	﻿2026-11-11T02:11:20.7420537Z Post job cleanup.
+regression (mesh-3of3)	Post Run actions/checkout@v4	2026-11-11T02:11:20.8468157Z [command]/usr/bin/git version
+regression (mesh-3of3)	Post Run actions/checkout@v4	2026-11-11T02:11:20.8528230Z git version 2.56.0
+regression (mesh-3of3)	Post Run actions/checkout@v4	2026-11-11T02:11:20.8575606Z Temporarily overriding HOME='/home/runner/work/_temp/3c0d1d5c-6d4e-4d27-bbe1-fa86fe1867e5' before making global git config changes
+regression (mesh-3of3)	Post Run actions/checkout@v4	2026-11-11T02:11:20.8577812Z Adding repository directory to the temporary git global config as a safe directory
+regression (mesh-3of3)	Post Run actions/checkout@v4	2026-11-11T02:11:20.8582234Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/Claude/Claude
+regression (mesh-3of3)	Post Run actions/checkout@v4	2026-11-11T02:11:20.8638830Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+regression (mesh-3of3)	Post Run actions/checkout@v4	2026-11-11T02:11:20.8698574Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+regression (mesh-3of3)	Post Run actions/checkout@v4	2026-11-11T02:11:20.9026627Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+regression (mesh-3of3)	Post Run actions/checkout@v4	2026-11-11T02:11:20.9068498Z http.https://github.com/.extraheader
+regression (mesh-3of3)	Post Run actions/checkout@v4	2026-11-11T02:11:20.9083759Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+regression (mesh-3of3)	Post Run actions/checkout@v4	2026-11-11T02:11:20.9126449Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+regression (mesh-3of3)	Post Run actions/checkout@v4	2026-11-11T02:11:20.9412308Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+regression (mesh-3of3)	Post Run actions/checkout@v4	2026-11-11T02:11:20.9468765Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+regression (mesh-3of3)	Complete job	﻿2026-11-11T02:11:20.9910413Z Cleaning up orphan processes
+regression (mesh-3of3)	Complete job	2026-11-11T02:11:21.0327367Z Terminate orphan process: pid (3681) (npm exec vite preview --host 127.0.0.1 --port 4173 --strictPort)
+regression (mesh-3of3)	Complete job	2026-11-11T02:11:21.0355204Z Terminate orphan process: pid (3705) (sh)
+regression (mesh-3of3)	Complete job	2026-11-11T02:11:21.0381217Z Terminate orphan process: pid (3706) (node)
+regression (mesh-3of3)	Complete job	2026-11-11T02:11:21.0407318Z Terminate orphan process: pid (3723) (esbuild)
+regression (mesh-3of3)	Complete job	2026-11-11T02:11:21.0581974Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-node@v4, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
