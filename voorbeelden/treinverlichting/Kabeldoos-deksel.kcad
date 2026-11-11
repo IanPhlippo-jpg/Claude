@@ -4,8 +4,8 @@
  "name": "Kabeldoos (deksel)",
  "units": "mm",
  "planes": {
-  "y29": {
-   "id": "y29",
+  "y31": {
+   "id": "y31",
    "name": "Plane deksel",
    "origin": [
     0,
@@ -29,59 +29,9 @@
    ],
    "kind": "reference"
   },
-  "y30": {
-   "id": "y30",
-   "name": "Plane rand",
-   "origin": [
-    0,
-    63.55,
-    0
-   ],
-   "u": [
-    1,
-    0,
-    0
-   ],
-   "v": [
-    0,
-    0,
-    -1
-   ],
-   "n": [
-    0,
-    1,
-    0
-   ],
-   "kind": "reference"
-  },
-  "y31": {
-   "id": "y31",
-   "name": "Plane drukribben",
-   "origin": [
-    0,
-    63.55,
-    0
-   ],
-   "u": [
-    1,
-    0,
-    0
-   ],
-   "v": [
-    0,
-    0,
-    -1
-   ],
-   "n": [
-    0,
-    1,
-    0
-   ],
-   "kind": "reference"
-  },
   "y32": {
    "id": "y32",
-   "name": "Plane Ruimte bussen",
+   "name": "Plane rand",
    "origin": [
     0,
     63.55,
@@ -106,6 +56,56 @@
   },
   "y33": {
    "id": "y33",
+   "name": "Plane drukribben",
+   "origin": [
+    0,
+    63.55,
+    0
+   ],
+   "u": [
+    1,
+    0,
+    0
+   ],
+   "v": [
+    0,
+    0,
+    -1
+   ],
+   "n": [
+    0,
+    1,
+    0
+   ],
+   "kind": "reference"
+  },
+  "y34": {
+   "id": "y34",
+   "name": "Plane Ruimte bussen",
+   "origin": [
+    0,
+    63.55,
+    0
+   ],
+   "u": [
+    1,
+    0,
+    0
+   ],
+   "v": [
+    0,
+    0,
+    -1
+   ],
+   "n": [
+    0,
+    1,
+    0
+   ],
+   "kind": "reference"
+  },
+  "y35": {
+   "id": "y35",
    "name": "Plane Gaten",
    "origin": [
     0,
@@ -129,8 +129,8 @@
    ],
    "kind": "reference"
   },
-  "y34": {
-   "id": "y34",
+  "y36": {
+   "id": "y36",
    "name": "Plane verzinking",
    "origin": [
     0,
@@ -161,7 +161,7 @@
   "s1": {
    "id": "s1",
    "name": "Sketch1",
-   "plane": "y29",
+   "plane": "y31",
    "points": {
     "origin_s1": {
      "x": 0,
@@ -306,7 +306,7 @@
   "s2": {
    "id": "s2",
    "name": "Sketch2",
-   "plane": "y30",
+   "plane": "y32",
    "points": {
     "origin_s2": {
      "x": 0,
@@ -576,7 +576,7 @@
   "s3": {
    "id": "s3",
    "name": "Sketch3",
-   "plane": "y31",
+   "plane": "y33",
    "points": {
     "origin_s3": {
      "x": 0,
@@ -4596,7 +4596,7 @@
   "s4": {
    "id": "s4",
    "name": "Sketch4",
-   "plane": "y32",
+   "plane": "y34",
    "points": {
     "origin_s4": {
      "x": 0,
@@ -5116,7 +5116,7 @@
   "s5": {
    "id": "s5",
    "name": "Sketch5",
-   "plane": "y33",
+   "plane": "y35",
    "points": {
     "origin_s5": {
      "x": 0,
@@ -5188,7 +5188,7 @@
   "s6": {
    "id": "s6",
    "name": "Sketch6",
-   "plane": "y34",
+   "plane": "y36",
    "points": {
     "origin_s6": {
      "x": 0,

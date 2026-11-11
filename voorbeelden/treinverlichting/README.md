@@ -9,14 +9,15 @@ gekochte onderdelen met hun bron in `docs/Maten-en-bronnen.md`, de eisen van Ian
 
 **Versie 2:** de doos van versie 1 (248,9 x 245,6) paste niet naast de vrije hoek voor het filamentmes van de printer.
 Nu is alles nog altijd één doos, maar 229,8 x 229,8 (elk geprint deel hoogstens 230 x 230) en 68,3 hoog, met echte
-kabelgoten zoals in een schakelkast: de hoogte gaat naar de goten.
+kabelgoten zoals in een schakelkast: 28 hoog, net boven de bordjes, zodat je er met je vingers bij kan, met een
+klikdeksel per goot.
 
 ## Opbouw
 
 | Deel | Wat |
 |---|---|
 | Doos | PETG zwart, 229,8 x 229,8 x 68,3 mm (deksel inbegrepen), hangt met de bodem tegen de onderkant van de baan; het grijze deksel zit onderaan |
-| Kabelgoten | 9 goten met vingers en sleuven, 60 hoog: één langs de achterwand, één tussen elke twee rijen (5,4 breed, 5,8 tussen de vingers), één langs de linker- en de rechterwand (11 breed). Een grijs klikdeksel per goot; vol hoogstens 49 % (docs/Berekeningen.md, hoofdstuk 6) |
+| Kabelgoten | 9 goten met vingers en sleuven, 28 hoog (net boven de bordjes): één langs de achterwand, één tussen elke twee rijen (5,4 breed, 5,8 tussen de vingers), één langs de linker- en de rechterwand (11 breed). Een grijs klikdeksel per goot; vol 59 % als de draden van elk bordje door de sleuf onder dat bordje binnenkomen (docs/Berekeningen.md, hoofdstuk 6) |
 | 16 bordjes | Modelbouwled "PCB met ingebouwde weerstand" (61,1 x 20,9, 14 hoog), in 5 rijen van 3 en één in rij 6. Elke rij ligt in een ring: de wanden van de goten zijn het kader (0,3 mm speling), palen tussen de bordjes, een steunrail eronder; ribben aan het deksel drukken ze vast (geen schroeven). Voor elke klemmenrij een sleuf per twee klemmen: de draad gaat recht uit de klem de goot in |
 | Uitgangsprint | 16 MOSFET's IRLD024: elke groep schakelt de min van zijn bordje; 16 klemmen (één per groep) |
 | PWM-print | PCA9685: 16 kanalen, 12 bit, 1 kHz, via I2C van de ESP |
@@ -33,8 +34,8 @@ kabelgoten zoals in een schakelkast: de hoogte gaat naar de goten.
 - **Kabels ordenen:** elke draad gaat recht uit zijn klem door een sleuf de goot in en loopt in de goot naar de
   zijgoot; de draden van de uitgangsprint (de − van elk bordje) en van de voedingsprint (de + per rij) lopen door de
   zijgoten en de goot voor rij 7. Bind een bundel bij een tule met een kabelbinder rond de vinger ernaast, dan trekt er
-  niets aan de klemmen. Klik daarna de gootdeksels erop: het deksel van een goot tussen twee rijen klikt met twee nokken
-  in de groef van de klikvingers (op 34,5 links en rechts van het midden); een randdeksel haak je met zijn neus in de
+  niets aan de klemmen. Klik daarna de gootdeksels erop: het deksel van een goot tussen twee rijen klikt op vier plaatsen
+  (8 nokken) in de groef van de klikvingers (op 34,5 en 93 links en rechts van het midden); een randdeksel haak je met zijn neus in de
   groef van de buitenwand en klik je aan de andere kant dicht. Zie [Draden labelen](#draden-labelen).
 - **Monteren met alles erin:** de doos hangt aan 4 sleutelgaten in de bodem van de zijgoten. Plak de boormal (TRN-00,
   A3 op 100 % afdrukken) onder de baan en draai 4 bolkopschroeven 4 x 20 half in de baan, hang de doos met de grote
@@ -118,7 +119,7 @@ De 16 Modelbouwled-bordjes heb je al; een extra kost € 9,75 (Modelbouwled.nl).
 
 Elk deel is hoogstens 230 x 230 en past op het bed van 256 x 256 naast de vrije hoek voor het filamentmes (rechtsvoor
 10 x 20), met een skirt erbij: leg het deel in het midden van het bed. Instellingen zoals bij de afzuiging (0,2 mm,
-4 wanden, 30 % gyroid). De vingers van de goten zijn 1,2 dik en tot 55 hoog: print de bak wat trager (buitenwanden
+4 wanden, 30 % gyroid). De vingers van de goten zijn 1,2 dik en tot 23 hoog: print de bak wat trager (buitenwanden
 40 mm/s) en zonder "ironing". Na het printen: de bordjes vallen zonder kracht in hun ring (0,3 mm speling), een
 gootdeksel klikt met zijn nokken in de klikvingers.
 

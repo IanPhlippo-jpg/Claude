@@ -204,7 +204,7 @@ RENDERS = [
     ('trein-kabels', 'kabels.webp', 'Van dichtbij: een sleuf per twee klemmen, de klikvingers en een kabelinvoer in de zijgoot'),
     ('trein-gootdeksel', 'gootdeksel.webp', 'Twee gootdeksels opgetild: de nokken klikken in de groef van de klikvingers'),
     ('trein-plaat-gootdeksels', 'plaat.webp', 'De 9 gootdeksels op hun printplaat'),
-    ('trein-doorsnede', 'zijkant.webp', 'Doorsnede: de goten van 60 hoog tussen de rijen, de bordjes in hun ring'),
+    ('trein-doorsnede', 'zijkant.webp', 'Doorsnede: de goten van 28 hoog tussen de rijen, de bordjes in hun ring'),
     ('trein-prints', 'prints.webp', 'De gaatjesprints: voeding, ingangen (optocouplers) en uitgangen (MOSFET\'s)'),
     ('trein-esp', 'esp.webp', 'De ESP32-S3 op zijn draagprint met 2 vrouwelijke pinrijen'),
     ('trein-esp-boven', 'esp-boven.webp', 'ESP32-S3-DevKitC-1 van boven, de 2 USB-poorten rechts'),

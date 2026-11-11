@@ -1,7 +1,9 @@
 // Kabelgoten van de kabeldoos (versie 2): vingerkanalen zoals in een schakelkast, met een klikdeksel per goot.
 //
 // De wanden tussen de rijen bordjes zijn tegelijk het kader van de bordjes: elke rij ligt in een ring (0,3 speling
-// rondom), tussen twee ringen ligt een goot van 5,4 breed en 60 hoog. Langs de achterwand en de zijwanden is de
+// rondom), tussen twee ringen ligt een goot van 5,4 breed en 28 hoog
+// (Ian, 2026-11-11: "maak de goten 25 mm, mogen iets hoger maar niet overdreven"; 28 zodat een goot bij gewoon bekabelen
+// onder 60 % vol blijft). Langs de achterwand en de zijwanden is de
 // buitenwand van de doos de buitenkant van de goot. De sleuven in de wanden zijn van boven open tot 5,2 boven de bodem
 // (0,6 boven de print: de draadingangen van de klemmen liggen op 6,1 tot 8,9). Voor een klemmenrij staat per twee
 // klemmen een sleuf (steek 5,08, sleuf 3,24): elke draad gaat recht uit zijn klem door een sleuf de goot in; elders
@@ -26,11 +28,11 @@ export const GOOT = {
   vingerDik: 1.2, // dikte van de vingers (3 lijnen van 0,4), midden op de voet: 0,2 smaller aan elke kant
   speling: 0.3, // tussen een bordje en de voet van de wand van zijn ring
   sleufBodem: 5.2,
-  top: 60, // bovenkant van de vingers = onderkant van de deksels
+  top: 28, // bovenkant van de vingers = onderkant van de deksels
   sleuf: 4, vinger: 5, // gewone sleuven en de kleinste vinger ertussen
-  groef: { y: 53, diep: 0.35 }, // klikgroef voor de benen: midden op 53 (7 onder de bovenkant), 0,35 diep, flanken 45°
+  groef: { y: 21, diep: 0.5 }, // klikgroef voor de benen: midden op 21 (7 onder de bovenkant), 0,5 diep, flanken 45°
   neus: { diep: 0.5 }, // groef in de buitenwand voor de neus van een randdeksel, midden in de plaat van het deksel
-  deksel: { dik: 1.6, been: 1.2, speling: 0.1, nok: 0.35, nokLang: 5 }, // nok 0,35 vanaf het been = 0,25 voorbij de vinger
+  deksel: { dik: 1.6, been: 1.2, speling: 0.1, nok: 0.5, nokLang: 5 }, // nok 0,5 vanaf het been = 0,4 voorbij de vinger
   vingersPerFeature: 60,
   klik: 6, groefLang: 8, // een klikvinger is 6 breed (geen sleuf), de groef erin 8 lang (tot in de lucht ernaast of in de vinger)
 };
@@ -169,7 +171,8 @@ export function dekselPlaat(naam, lijst, G = GOOT, plat = true) {
 }
 
 // Berekening van de klik (PETG: E = 2100 MPa, toelaatbare rek bij herhaald klikken ~2 %): het been is een uitkragende
-// balk van t = 1,2 mm en L = 7,0 mm (van de plaat tot de nok); de nok moet 0,25 mm voorbij het vingervlak:
-// rek = 1,5 * t * d / L² = 1,5 * 1,2 * 0,25 / 7,0² = 0,92 % (< 2 %). De nok (45°) zit 0,1 vrij in de groef (0,35 diep,
-// 45°): trekken haalt het deksel eraf. Met het deksel van de doos erop (1,9 erboven) kan geen gootdeksel loskomen.
+// balk van t = 1,2 mm en L = 7,0 mm (van de plaat tot de nok); de nok moet 0,4 mm voorbij het vingervlak (een printer
+// wijkt al 0,1 tot 0,2 af, 0,25 was te weinig): rek = 1,5 * t * d / L² = 1,5 * 1,2 * 0,4 / 7,0² = 1,47 % (< 2 %). De nok
+// (45°) zit 0,1 vrij in de groef (0,5 diep, 45°): stevig trekken haalt het deksel eraf. Het deksel van de doos zit er 35
+// boven: de klik houdt het gootdeksel alleen, met 4 klikpunten per deksel tussen de rijen.
 export const KLIK_REK = (G = GOOT) => (1.5 * G.deksel.been * (G.deksel.nok - G.deksel.speling)) / (G.groef.y - G.top) ** 2;

@@ -2,7 +2,7 @@
 //
 // Versie 1 was 248,9 x 245,6: te groot, want de slicer van de Centauri Carbon houdt rechtsvoor 10 x 20 mm vrij voor het
 // filamentmes. Versie 2 (EISEN.md, "Versie 2"): één doos van 229,8 x 229,8 x 68,3 (elk geprint deel hoogstens 230 x 230,
-// alles samen hoogstens 80 hoog) met echte kabelgoten. De hoogte gaat naar de goten: smal (5,4) en diep (60).
+// alles samen hoogstens 80 hoog) met echte kabelgoten: smal (5,4) en 28 hoog (net boven de bordjes, 17), met klikdeksels.
 // - Rij 1 tot 5: telkens 3 bordjes; rij 6: bordje 16, uitgangsprint, PCA9685; rij 7 (vooraan): voedingsprint,
 //   ingangsprint, ESP (de USB-poorten in de rechterwand, de wartel in de linkerwand).
 // - Elke rij van 1 tot 6 ligt in een ring: de wanden van de goten zijn ook het kader van de bordjes (0,3 speling).
@@ -76,9 +76,10 @@ function details(L) {
   // tussen de ringen en voor rij 7 (midden); het been van de zijdeksels loopt binnen de ringen langs hun zijwand
   const xb = X - D.bus.hart - D.bus.r - 0.3; // vrij van de schroefbussen in de hoeken
   const zs0 = ringen[0].zi0 - iz + been + 0.3, zs1 = wand7[0] - 0.3, xm = xi + iz - been - 0.3;
-  // klikplaatsen: in de wanden langs X een klikvinger op x = -34,5 en 34,5 (tussen de klemmenrijen van de bordjes),
+  // klikplaatsen: in de wanden langs X een klikvinger op x = ±34,5 (tussen de bordjes) en ±93 (tussen de laatste klemmen
+  // en de hoek van de ring),
   // in de zijwanden van ring 2 en 5 de vinger achter de eindklem; daar een groef in de vinger en een nok aan het deksel
-  const KX = [-34.5, 34.5], kv = G.klik / 2, gl = G.groefLang / 2;
+  const KX = [-93, -34.5, 34.5, 93], kv = G.klik / 2, gl = G.groefLang / 2;
   const KZ = [ringen[1], ringen[4]].map((r) => [r.cz + 4.0, r.zi1 - 0.7]);
   const nokZ = KZ.map(([a, e]) => (a + e) / 2);
   const deksels = [

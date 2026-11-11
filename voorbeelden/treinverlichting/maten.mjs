@@ -20,7 +20,7 @@ export const M = {
   drager: { x: 68, z: 25.4 },
   voet: 3, // alle prints liggen 3 mm boven de bodem (op paaltjes of op de steunrail)
   // de doos: binnen 225 x 225 (buiten 229,8: eis hoogstens 230 per geprint deel), 68,3 hoog met het deksel (eis: hoogstens
-  // 80); de goten zijn 60 hoog, het deksel van een goot 1,6, het deksel van de doos valt er 1,9 boven
+  // 80); de goten zijn 28 hoog, het deksel van een goot 1,6; erboven ruimte tot het deksel van de doos
   doos: { binnen: 225, wand: 2.4, bodem: 2.4, h: 63.5, deksel: 2.4, r: 4, voor: 7.8, sleutelgat: { kop: 9.2, schacht: 4.6, slag: 6 },
     sleuf: { b: 4, l: 40, zij: { b: 6, l: 20 } }, bus: { r: 3.5, hart: 3.2 },
     invoer: { gat: 16.5, y: 13.5, tule: { d: 21, flens: 2, l: 11 } } },

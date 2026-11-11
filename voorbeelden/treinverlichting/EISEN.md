@@ -49,3 +49,9 @@ Bijsturing (Ian, 2026-11-11): "alles zou wel in 1 module moeten als het kan". Ui
 van 229,8 x 229,8 x 68,3. De hoogte gaat naar de goten (60 hoog, 5,4 breed tussen de rijen, vol hoogstens 49 %); de
 wanden van de goten zijn ook het kader van de bordjes; de indeling van versie 1 blijft (rij 1 tot 5 telkens 3 bordjes,
 rij 6 bordje 16 met de uitgangsprint en de PCA9685, rij 7 voeding, ingangen en ESP). Geen modules en geen zwaluwstaarten.
+
+Bijsturing (Ian, 2026-11-11): de goten van 60 hoog zijn te hoog ("zo is het niet meer makkelijk om met je vingers erin te
+werken"), daarna: "maak de goten 25 mm, mogen iets hoger maar niet overdreven", met "een click systeem net als een echte
+kabelgoot" zodat de draden er niet los uit hangen. Uitgewerkt: goten 28 hoog (bij 25 zou een goot bij gewoon bekabelen
+66 % vol zitten, bij 28 is het 59 %, onder de 60 % van een schakelkast), met de klikdeksels van versie 2 (nokken in de
+klikvingers, de randdeksels met een neus in de buitenwand). De doos blijft 229,8 x 229,8 x 68,3.

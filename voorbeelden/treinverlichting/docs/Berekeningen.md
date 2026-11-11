@@ -34,16 +34,16 @@ Alles samen hoogstens **1,90 W** in de doos (MOSFET's, ESP, PCA9685, regelaar, p
 
 ## 6. Kabelgoten: vulgraad
 
-Een goot tussen twee rijen is 5,4 breed tot 5,2 hoog (de voet van de wand) en daarboven 5,8 tussen de vingers, tot 60 hoog (het deksel): **346 mm²**. Leddraad 0,25 mm² (Ø1,4, 1,54 mm²), voedingsdraad 0,5 mm² (Ø1,8, 2,54 mm²), AANNAME gangbare buitenmaten. Zo'n goot krijgt de klemmen van 6 bordjes (3 per rij, 16 leddraden per klemmenrij) en hun voeding.
+Een goot tussen twee rijen is 5,4 breed tot 5,2 hoog (de voet van de wand) en daarboven 5,8 tussen de vingers, tot 28 hoog (het deksel): **160 mm²**. Leddraad 0,25 mm² (Ø1,4, 1,54 mm²), voedingsdraad 0,5 mm² (Ø1,8, 2,54 mm²), AANNAME gangbare buitenmaten. Zo'n goot krijgt de klemmen van 6 bordjes (3 per rij, 16 leddraden per klemmenrij) en hun voeding.
 
 | doorsnede | leddraden | voeding | draden samen | vulgraad |
 | --- | ---: | ---: | ---: | ---: |
-| gewoon | 48 | 8 | 94 mm² | **27 %** |
-| ergst | 96 | 8 | 168 mm² | **49 %** |
+| gewoon | 48 | 8 | 94 mm² | **59 %** |
+| ergst | 96 | 8 | 168 mm² | **105 %** |
 
-"Ergst": alle 96 leddraden van de 6 bordjes langs die goot in één doorsnede, bv. als ze allemaal door één sleuf in de bodem komen. "Gewoon": ze komen door de sleuf onder hun eigen bordje, de helft loopt door een doorsnede. Beide onder de 60 % die bij een schakelkast de grens is (het deksel gaat er nog op zonder te knellen). De goten langs de zijwanden (11 breed) en de achterwand (4,8, alleen de achterste klemmen van rij 1) zijn minder vol.
+"Gewoon": de draden van een bordje komen door de sleuf in de bodem onder dat bordje, de helft loopt door een doorsnede: onder de 60 % die bij een schakelkast de grens is, het deksel klikt er zonder knellen op. "Ergst": alle 96 leddraden van de 6 bordjes door één sleuf: dat past niet onder het deksel. Breng de draden van elk bordje dus binnen door de sleuf onder dat bordje (zo is de doos getekend). De goten werden 28 hoog in plaats van 25: bij 25 zou de goot bij gewoon bekabelen al 66 % vol zitten. De goten langs de zijwanden (11 breed) en de achterwand (4,8, alleen de achterste klemmen van rij 1) zijn minder vol.
 
 ## 7. Klik van de gootdeksels (PETG, E = 2100 MPa)
 
-Elk been is een uitkragende balk van 1,2 dik; de nok gaat 0,25 voorbij de vinger op 7,0 van de plaat. Rek = 1,5 t d / L² = **0,92 %**, onder de 2 % die PETG bij herhaald klikken verdraagt (AANNAME). Nok en groef hebben vlakken van 45°: trekken haalt het deksel eraf. Met het deksel van de doos erop kan geen gootdeksel loskomen (2 mm ruimte).
+Elk been is een uitkragende balk van 1,2 dik; de nok gaat 0,40 voorbij de vinger op 7,0 van de plaat. Rek = 1,5 t d / L² = **1,47 %**, onder de 2 % die PETG bij herhaald klikken verdraagt (AANNAME). 0,4 mm in plaats van 0,25: een printer wijkt al 0,1 tot 0,2 mm af. Een deksel tussen twee rijen klikt op 4 plaatsen (8 nokken), een randdeksel op 2 plaatsen en met zijn neus over de hele lengte. Nok en groef hebben vlakken van 45°: stevig trekken haalt het deksel eraf.
 

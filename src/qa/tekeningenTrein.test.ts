@@ -19,7 +19,7 @@ const L = indeling() as { X: number; Z: number; sleutelgaten: [number, number][]
 const D = m.doos, G = m.goot, BX = 2 * (L.X + D.wand), BZ = 2 * (L.Z + D.wand), HOOG = D.bodem + D.h + D.deksel, PET = 1.27;
 const g1 = (v: number) => getal(v, 1), g2 = (v: number) => getal(v, 2);
 const deksels = gootDeksels() as { soort: string; l: number }[];
-const v = vulgraad() as { pErgst: number };
+const v = vulgraad() as { pGewoon: number };
 const lengtes = [...new Set(deksels.map((d) => `${d.soort === 'rand' ? 'rand ' : ''}${g1(d.l)}`))].map((k) => `${deksels.filter((d) => `${d.soort === 'rand' ? 'rand ' : ''}${g1(d.l)}` === k).length} x ${k}`).join(', ');
 
 const DELEN: Deel[] = [
@@ -28,7 +28,7 @@ const DELEN: Deel[] = [
     `Rij 1 tot 6 in een ring: voet ${g1(G.wand)} tot ${g1(G.sleufBodem)}, ${g1(G.speling)} speling rond de bordjes; vingers ${g1(G.vingerDik)} tot ${g1(G.top)}`,
     `Goten binnen ${g1(G.b)} (tussen de rijen), ${g1(G.achter)} (achter), ${g1(G.zij)} (zijkanten); sleuven tot ${g1(G.sleufBodem)}`,
     'Voor een klemmenrij een sleuf 3,24 per 2 klemmen; elders sleuven 4, vingers ≥ 5',
-    `Klikgroef 45° x ${g2(G.groef.diep)} op ${g1(G.groef.y)} in de klikvingers (x = ±34,5); groef ${g1(G.neus.diep)} in de buitenwanden`,
+    `Klikgroef 45° x ${g2(G.groef.diep)} op ${g1(G.groef.y)} in de klikvingers (x = ±34,5 en ±93); groef ${g1(G.neus.diep)} in de buitenwanden`,
     `Palen tussen de bordjes ${g1(m.kader.h)} hoog, steunrails ${m.voet} hoog; printpaaltjes Ø6, gat Ø2,2 (2,5 x 6)`,
     `${L.tules.length} kabelinvoeren Ø${g1(D.invoer.gat)} op ${g1(D.invoer.y)} (membraantule EMT 16); draadsleuven ${D.sleuf.b} x ${D.sleuf.l} onder de goten`,
     `4 sleutelgaten in de zijgoten: kop Ø${g1(D.sleutelgat.kop)}, sleuf ${g1(D.sleutelgat.schacht)} breed en ${D.sleutelgat.slag} lang naar voren (boormal TRN-00)`,
@@ -42,10 +42,10 @@ const DELEN: Deel[] = [
   ] },
   { f: 'Gootdeksel.kcad', nr: 'TRN-03', naam: 'Gootdeksel', materiaal: 'PETG (grijs)', maken: '3D-print met de vlakke kant op het bed (één plaat)', snede: true, dichtheid: PET, maten: [
     `U-profiel: plaat ${g1(G.deksel.dik)}, benen ${g1(G.deksel.been)} buiten de vingers (${g1(G.deksel.speling)} speling)`,
-    `Nokken 45° van ${g2(G.deksel.nok)} x ${G.deksel.nokLang} lang op ±34,5 van het midden: klikken in de groef op ${g1(G.groef.y)}`,
+    `Nokken 45° van ${g2(G.deksel.nok)} x ${G.deksel.nokLang} lang op ±34,5 en ±93: klikken in de groef op ${g1(G.groef.y)}`,
     'Randdeksel (achter, zijkanten): één been; aan de andere kant een neus in de groef van de buitenwand',
     `Alle deksels: ${lengtes}`,
-    `Vulgraad van een goot tussen twee rijen hoogstens ${Math.round(v.pErgst * 100)} % (rekenblad, hoofdstuk 6)`,
+    `Vulgraad van een goot tussen twee rijen ${Math.round(v.pGewoon * 100)} %: draden per bordje door de sleuf eronder (rekenblad, hfst. 6)`,
   ] },
 ];
 

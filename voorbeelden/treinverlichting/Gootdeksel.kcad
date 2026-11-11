@@ -4,8 +4,8 @@
  "name": "Gootdeksel 197",
  "units": "mm",
  "planes": {
-  "x46": {
-   "id": "x46",
+  "x52": {
+   "id": "x52",
    "name": "Plane dekseltjes 197",
    "origin": [
     0,
@@ -29,8 +29,33 @@
    ],
    "kind": "reference"
   },
-  "x47": {
-   "id": "x47",
+  "x53": {
+   "id": "x53",
+   "name": "Plane nokken 3",
+   "origin": [
+    3,
+    0,
+    0
+   ],
+   "u": [
+    0,
+    0,
+    -1
+   ],
+   "v": [
+    0,
+    1,
+    0
+   ],
+   "n": [
+    1,
+    0,
+    0
+   ],
+   "kind": "reference"
+  },
+  "x54": {
+   "id": "x54",
    "name": "Plane nokken 61.5",
    "origin": [
     61.5,
@@ -54,11 +79,36 @@
    ],
    "kind": "reference"
   },
-  "x48": {
-   "id": "x48",
+  "x55": {
+   "id": "x55",
    "name": "Plane nokken 130.5",
    "origin": [
     130.5,
+    0,
+    0
+   ],
+   "u": [
+    0,
+    0,
+    -1
+   ],
+   "v": [
+    0,
+    1,
+    0
+   ],
+   "n": [
+    1,
+    0,
+    0
+   ],
+   "kind": "reference"
+  },
+  "x56": {
+   "id": "x56",
+   "name": "Plane nokken 189",
+   "origin": [
+    189,
     0,
     0
    ],
@@ -86,7 +136,7 @@
   "s1": {
    "id": "s1",
    "name": "Sketch1",
-   "plane": "x46",
+   "plane": "x52",
    "points": {
     "origin_s1": {
      "x": 0,
@@ -94,35 +144,35 @@
     },
     "s1p0": {
      "x": -5.4,
-     "y": 61.6
+     "y": 29.6
     },
     "s1p1": {
      "x": -5.4,
-     "y": 52.65
+     "y": 20.5
     },
     "s1p2": {
      "x": -4.2,
-     "y": 52.65
+     "y": 20.5
     },
     "s1p3": {
      "x": -4.2,
-     "y": 60
+     "y": 28
     },
     "s1p4": {
      "x": 4.2,
-     "y": 60
+     "y": 28
     },
     "s1p5": {
      "x": 4.2,
-     "y": 52.65
+     "y": 20.5
     },
     "s1p6": {
      "x": 5.4,
-     "y": 52.65
+     "y": 20.5
     },
     "s1p7": {
      "x": 5.4,
-     "y": 61.6
+     "y": 29.6
     }
    },
    "scalars": {},
@@ -201,7 +251,7 @@
   "s2": {
    "id": "s2",
    "name": "Sketch2",
-   "plane": "x47",
+   "plane": "x53",
    "points": {
     "origin_s2": {
      "x": 0,
@@ -209,43 +259,43 @@
     },
     "s2p0": {
      "x": -4.5,
-     "y": 52.65
+     "y": 20.5
     },
     "s2p1": {
      "x": -4.2,
-     "y": 52.65
+     "y": 20.5
     },
     "s2p2": {
-     "x": -3.85,
-     "y": 53
+     "x": -3.7,
+     "y": 21
     },
     "s2p3": {
      "x": -4.2,
-     "y": 53.35
+     "y": 21.5
     },
     "s2p4": {
      "x": -4.5,
-     "y": 53.35
+     "y": 21.5
     },
     "s2p10": {
      "x": 4.5,
-     "y": 52.65
+     "y": 20.5
     },
     "s2p11": {
      "x": 4.2,
-     "y": 52.65
+     "y": 20.5
     },
     "s2p12": {
-     "x": 3.85,
-     "y": 53
+     "x": 3.7,
+     "y": 21
     },
     "s2p13": {
      "x": 4.2,
-     "y": 53.35
+     "y": 21.5
     },
     "s2p14": {
      "x": 4.5,
-     "y": 53.35
+     "y": 21.5
     }
    },
    "scalars": {},
@@ -340,7 +390,7 @@
   "s3": {
    "id": "s3",
    "name": "Sketch3",
-   "plane": "x48",
+   "plane": "x54",
    "points": {
     "origin_s3": {
      "x": 0,
@@ -348,43 +398,43 @@
     },
     "s3p0": {
      "x": -4.5,
-     "y": 52.65
+     "y": 20.5
     },
     "s3p1": {
      "x": -4.2,
-     "y": 52.65
+     "y": 20.5
     },
     "s3p2": {
-     "x": -3.85,
-     "y": 53
+     "x": -3.7,
+     "y": 21
     },
     "s3p3": {
      "x": -4.2,
-     "y": 53.35
+     "y": 21.5
     },
     "s3p4": {
      "x": -4.5,
-     "y": 53.35
+     "y": 21.5
     },
     "s3p10": {
      "x": 4.5,
-     "y": 52.65
+     "y": 20.5
     },
     "s3p11": {
      "x": 4.2,
-     "y": 52.65
+     "y": 20.5
     },
     "s3p12": {
-     "x": 3.85,
-     "y": 53
+     "x": 3.7,
+     "y": 21
     },
     "s3p13": {
      "x": 4.2,
-     "y": 53.35
+     "y": 21.5
     },
     "s3p14": {
      "x": 4.5,
-     "y": 53.35
+     "y": 21.5
     }
    },
    "scalars": {},
@@ -475,6 +525,284 @@
    ],
    "constraintOrder": [],
    "origin": "origin_s3"
+  },
+  "s4": {
+   "id": "s4",
+   "name": "Sketch4",
+   "plane": "x55",
+   "points": {
+    "origin_s4": {
+     "x": 0,
+     "y": 0
+    },
+    "s4p0": {
+     "x": -4.5,
+     "y": 20.5
+    },
+    "s4p1": {
+     "x": -4.2,
+     "y": 20.5
+    },
+    "s4p2": {
+     "x": -3.7,
+     "y": 21
+    },
+    "s4p3": {
+     "x": -4.2,
+     "y": 21.5
+    },
+    "s4p4": {
+     "x": -4.5,
+     "y": 21.5
+    },
+    "s4p10": {
+     "x": 4.5,
+     "y": 20.5
+    },
+    "s4p11": {
+     "x": 4.2,
+     "y": 20.5
+    },
+    "s4p12": {
+     "x": 3.7,
+     "y": 21
+    },
+    "s4p13": {
+     "x": 4.2,
+     "y": 21.5
+    },
+    "s4p14": {
+     "x": 4.5,
+     "y": 21.5
+    }
+   },
+   "scalars": {},
+   "entities": {
+    "s4e5": {
+     "id": "s4e5",
+     "construction": false,
+     "kind": "line",
+     "p1": "s4p0",
+     "p2": "s4p1"
+    },
+    "s4e6": {
+     "id": "s4e6",
+     "construction": false,
+     "kind": "line",
+     "p1": "s4p1",
+     "p2": "s4p2"
+    },
+    "s4e7": {
+     "id": "s4e7",
+     "construction": false,
+     "kind": "line",
+     "p1": "s4p2",
+     "p2": "s4p3"
+    },
+    "s4e8": {
+     "id": "s4e8",
+     "construction": false,
+     "kind": "line",
+     "p1": "s4p3",
+     "p2": "s4p4"
+    },
+    "s4e9": {
+     "id": "s4e9",
+     "construction": false,
+     "kind": "line",
+     "p1": "s4p4",
+     "p2": "s4p0"
+    },
+    "s4e15": {
+     "id": "s4e15",
+     "construction": false,
+     "kind": "line",
+     "p1": "s4p10",
+     "p2": "s4p11"
+    },
+    "s4e16": {
+     "id": "s4e16",
+     "construction": false,
+     "kind": "line",
+     "p1": "s4p11",
+     "p2": "s4p12"
+    },
+    "s4e17": {
+     "id": "s4e17",
+     "construction": false,
+     "kind": "line",
+     "p1": "s4p12",
+     "p2": "s4p13"
+    },
+    "s4e18": {
+     "id": "s4e18",
+     "construction": false,
+     "kind": "line",
+     "p1": "s4p13",
+     "p2": "s4p14"
+    },
+    "s4e19": {
+     "id": "s4e19",
+     "construction": false,
+     "kind": "line",
+     "p1": "s4p14",
+     "p2": "s4p10"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s4e5",
+    "s4e6",
+    "s4e7",
+    "s4e8",
+    "s4e9",
+    "s4e15",
+    "s4e16",
+    "s4e17",
+    "s4e18",
+    "s4e19"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s4"
+  },
+  "s5": {
+   "id": "s5",
+   "name": "Sketch5",
+   "plane": "x56",
+   "points": {
+    "origin_s5": {
+     "x": 0,
+     "y": 0
+    },
+    "s5p0": {
+     "x": -4.5,
+     "y": 20.5
+    },
+    "s5p1": {
+     "x": -4.2,
+     "y": 20.5
+    },
+    "s5p2": {
+     "x": -3.7,
+     "y": 21
+    },
+    "s5p3": {
+     "x": -4.2,
+     "y": 21.5
+    },
+    "s5p4": {
+     "x": -4.5,
+     "y": 21.5
+    },
+    "s5p10": {
+     "x": 4.5,
+     "y": 20.5
+    },
+    "s5p11": {
+     "x": 4.2,
+     "y": 20.5
+    },
+    "s5p12": {
+     "x": 3.7,
+     "y": 21
+    },
+    "s5p13": {
+     "x": 4.2,
+     "y": 21.5
+    },
+    "s5p14": {
+     "x": 4.5,
+     "y": 21.5
+    }
+   },
+   "scalars": {},
+   "entities": {
+    "s5e5": {
+     "id": "s5e5",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p0",
+     "p2": "s5p1"
+    },
+    "s5e6": {
+     "id": "s5e6",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p1",
+     "p2": "s5p2"
+    },
+    "s5e7": {
+     "id": "s5e7",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p2",
+     "p2": "s5p3"
+    },
+    "s5e8": {
+     "id": "s5e8",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p3",
+     "p2": "s5p4"
+    },
+    "s5e9": {
+     "id": "s5e9",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p4",
+     "p2": "s5p0"
+    },
+    "s5e15": {
+     "id": "s5e15",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p10",
+     "p2": "s5p11"
+    },
+    "s5e16": {
+     "id": "s5e16",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p11",
+     "p2": "s5p12"
+    },
+    "s5e17": {
+     "id": "s5e17",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p12",
+     "p2": "s5p13"
+    },
+    "s5e18": {
+     "id": "s5e18",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p13",
+     "p2": "s5p14"
+    },
+    "s5e19": {
+     "id": "s5e19",
+     "construction": false,
+     "kind": "line",
+     "p1": "s5p14",
+     "p2": "s5p10"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s5e5",
+    "s5e6",
+    "s5e7",
+    "s5e8",
+    "s5e9",
+    "s5e15",
+    "s5e16",
+    "s5e17",
+    "s5e18",
+    "s5e19"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s5"
   }
  },
  "features": [
@@ -506,7 +834,7 @@
   {
    "id": "f4",
    "type": "extrude",
-   "name": "Nokken 61,5",
+   "name": "Nokken 3",
    "sketchId": "s2",
    "suppressed": false,
    "op": "boss",
@@ -524,8 +852,44 @@
   {
    "id": "f6",
    "type": "extrude",
-   "name": "Nokken 130,5",
+   "name": "Nokken 61,5",
    "sketchId": "s3",
+   "suppressed": false,
+   "op": "boss",
+   "end": "blind",
+   "depth": 5,
+   "reverse": false
+  },
+  {
+   "id": "ks4",
+   "type": "sketch",
+   "name": "Sketch4",
+   "sketchId": "s4",
+   "suppressed": false
+  },
+  {
+   "id": "f8",
+   "type": "extrude",
+   "name": "Nokken 130,5",
+   "sketchId": "s4",
+   "suppressed": false,
+   "op": "boss",
+   "end": "blind",
+   "depth": 5,
+   "reverse": false
+  },
+  {
+   "id": "ks5",
+   "type": "sketch",
+   "name": "Sketch5",
+   "sketchId": "s5",
+   "suppressed": false
+  },
+  {
+   "id": "f10",
+   "type": "extrude",
+   "name": "Nokken 189",
+   "sketchId": "s5",
    "suppressed": false,
    "op": "boss",
    "end": "blind",

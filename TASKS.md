@@ -1333,3 +1333,11 @@ elease; README en docs/04 bijgewerkt
 - [x] STL's: bak 229,8 x 229,8 x 65,9, deksel, plaat met 9 gootdeksels; elk getoetst op 230 x 230
 - [x] Werktekeningen TRN-00 tot 03, bouwschema, README/bestellijst, alles-afdrukken-PDF, app
 - [x] Foto's naar Ian, commit en push
+
+## Kabeldoos: lagere goten met klikdeksels (2026-11-11)
+- [x] Goten van 60 naar 17 hoog zonder deksels (vervangen: Ian wil toch klikdeksels)
+- [x] Goten 28 hoog (Ian: 25, iets hoger mag) met de klikdeksels van versie 2; vulgraad 59 %; STAL-namen zoeken en controleren
+- [x] Klik steviger: nok 0,4 voorbij de vinger (was 0,25), 4 klikpunten per deksel tussen de rijen (rek 1,47 %)
+- [x] README, EISEN.md, Berekeningen (vulgraad 59 % bij 28 hoog) bijgewerkt
+- [x] Tests (qaTrein 9/9) en STL's, tekeningen TRN, bouwschema, alles-afdrukken-PDF opnieuw
+- [x] Foto's naar Ian; commit en push
