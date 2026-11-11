@@ -1,0 +1,8 @@
+regression 0.5.14 pass default
+commit 6715377
+platform win32 10.0.26300
+url http://127.0.0.1:4204/
+date 2026-11-11T09:35:03.487Z
+(1 scripts, each 10 times)
+features: 10/10 green exit=0,0,0,0,0,0,0,0,0,0 898s 66/66 checks passed
+DONE 1/1 green (all 10 runs), 0 optional step(s) skipped
