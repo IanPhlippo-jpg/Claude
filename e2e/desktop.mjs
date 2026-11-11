@@ -49,6 +49,34 @@ await page.click('.k-doctype:has-text("Assembly")');
 await page.waitForTimeout(800);
 const opens = await app.evaluate(() => globalThis.__opens);
 check('a new assembly opens the file dialog for Insert Component (F28)', opens === 1 && (await page.evaluate(() => window.__phlippoStore.getState().insertingComponent)) === true, String(opens));
+// F28 (QA 0.5.13): Browse… in the Insert Component panel goes through the native Open dialog of the shell; the stub
+// returns a part file written for this run, the main process reads it, the part follows the pointer and OK places it
+// as the first (fixed) component
+const partPath = (await import('node:path')).join(profile, 'Bracket.kcad');
+const partJson = await page.evaluate(() => {
+  const K = window.__phlippoKit;
+  let sk = K.createSketch('s1', 'Sketch1', 'top');
+  const c = [[-30, -10], [30, -10], [30, 10], [-30, 10]];
+  for (let i = 0; i < 4; i++) sk = K.addLine(sk, { x: c[i][0], y: c[i][1] }, { x: c[(i + 1) % 4][0], y: c[(i + 1) % 4][1] })[0];
+  const d = K.createDocument('Bracket');
+  d.sketches = { s1: sk };
+  d.features = [{ id: 'k1', type: 'sketch', name: 'Sketch1', sketchId: 's1', suppressed: false }, { id: 'e1', type: 'extrude', name: 'Boss-Extrude1', sketchId: 's1', suppressed: false, op: 'boss', end: 'blind', depth: 6, reverse: false }];
+  return JSON.stringify({ format: 'phlippo-cad', ...d });
+});
+(await import('node:fs')).writeFileSync(partPath, partJson);
+await app.evaluate(({ dialog }, f) => { globalThis.__insertOpens = []; dialog.showOpenDialog = async (w, o) => { globalThis.__insertOpens.push((o ?? w)?.filters?.[0]?.extensions ?? []); return { canceled: false, filePaths: [f] }; }; }, partPath);
+await page.click('.k-pm-host button:has-text("Browse...")');
+const ghost = await page.waitForFunction(() => window.__phlippoStore.getState().insertGhost?.part?.name, null, { timeout: 15000 }).then((h) => h.jsonValue(), () => null);
+const insertOpens = await app.evaluate(() => globalThis.__insertOpens);
+check('Browse… in Insert Component opens the native Open dialog once, with the part file types (F28)', insertOpens.length === 1 && insertOpens[0].includes('kcad'), JSON.stringify(insertOpens));
+check('the chosen part file follows the pointer before it is placed (F28)', ghost === 'Bracket' && (await page.evaluate(() => (window.__phlippoStore.getState().doc.components ?? []).length)) === 0, String(ghost));
+await page.click('.k-pm-ok');
+const placed = await page.waitForFunction(() => (window.__phlippoStore.getState().doc.components ?? []).length === 1, null, { timeout: 15000 }).then(() => true, () => false);
+const comps = await page.evaluate(() => { const s = window.__phlippoStore.getState(); return { components: (s.doc.components ?? []).map((c) => ({ name: c.name, fixed: c.fixed })), bodies: s.rebuild.bodies.length }; });
+check('OK inserts the part from the native dialog as the first, fixed component (F28)', placed && comps.components[0]?.name === 'Bracket<1>' && comps.components[0]?.fixed === true && comps.bodies === 1, JSON.stringify(comps));
+await page.screenshot({ path: 'e2e-out/desktop-insert-component.png' });
+// the assembly is left without a Save changes? question for the checks that follow
+await page.evaluate(() => window.__phlippoStore.setState({ dirty: false }));
 // F51: File > Open of a STEP file in the desktop app: the OpenCascade worker and its WebAssembly start under app://
 // with the Content-Security-Policy of the shell (the native dialog is stubbed and returns the fixture)
 const stepFile = (await import('node:path')).resolve('e2e/fixtures/plate-hole.step');
