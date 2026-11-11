@@ -1001,7 +1001,7 @@ export interface State extends PlasticsActions {
   /** Feature Properties… / Parent/Child… work on this feature */
   dialogFeatureId: Id | null;
   /** Save As ▸ STL / 3MF / AMF: the options page exports in this format */
-  exportFormat: 'stl' | '3mf' | 'amf' | 'step';
+  exportFormat: 'stl' | '3mf' | 'amf' | 'step' | 'iges';
   setLastCommand(c: { label: string; run: () => void } | null): void;
   /** counts opened documents: the graphics area zooms to fit each newly opened one, by design */
   openSeq: number;

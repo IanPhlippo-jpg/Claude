@@ -1,20 +1,24 @@
 /**
- * OpenCascade in a worker of its own (QA F51): STEP import and export, and the rebuild with the B-rep kernel, without
+ * OpenCascade in a worker of its own (QA F51): STEP import and export, IGES export, and the B-rep rebuild, without
  * blocking the window. The 23 MB WebAssembly module loads on the first request, not at start-up.
  */
 import { displayOf } from '../core/features/edges';
 import wasmUrl from 'replicad-opencascadejs/wasm?url';
 import { meshesToStep, shapesToStep, stepItems, stepToMeshes } from '../core/occt/step';
+import { shapesToIges } from '../core/occt/iges';
 import { occtKernel } from '../core/occt/brep';
 import { brepKernel, setBrepKernel } from '../core/features/brepKernel';
 import { rebuildDocument } from '../core/features/rebuild';
 import type { Document } from '../core/document/types';
 
+/** the exchange formats written here: STEP AP214 through OpenCascade, IGES 5.3 by src/core/occt/iges.ts */
+export type ExchangeFormat = 'step' | 'iges';
+
 export type OcctRequest =
   | { id: number; op: 'import'; bytes: Uint8Array; tolerance?: number }
-  | { id: number; op: 'export'; bodies: { name: string; positions: Float32Array }[]; unit: 'mm' | 'cm' | 'm' | 'in' }
+  | { id: number; op: 'export'; bodies: { name: string; positions: Float32Array }[]; unit: 'mm' | 'cm' | 'm' | 'in'; format?: ExchangeFormat; fileName?: string }
   | { id: number; op: 'rebuild'; doc: Document; upTo: number | null }
-  | { id: number; op: 'exportDoc'; doc: Document; upTo: number | null; unit: 'mm' | 'cm' | 'm' | 'in' };
+  | { id: number; op: 'exportDoc'; doc: Document; upTo: number | null; unit: 'mm' | 'cm' | 'm' | 'in'; format?: ExchangeFormat; fileName?: string };
 
 /** one body of a B-rep rebuild: the tessellation of the exact solid (only bodies that stayed exact carry it) */
 export interface RefinedBody {
@@ -53,6 +57,9 @@ self.onmessage = async (ev: MessageEvent<OcctRequest>) => {
     if (req.op === 'import') {
       const bodies = await stepToMeshes(replicad, req.bytes, req.tolerance ?? 0.02);
       post({ id: req.id, bodies }, bodies.map((b) => b.positions.buffer));
+    } else if (req.op === 'export' && req.format === 'iges') {
+      const r = await shapesToIges(replicad, req.bodies, req.unit, req.fileName);
+      post({ id: req.id, bytes: r.bytes, volumes: r.volumes, exact: r.exact, faces: r.stats.faces, approximated: r.stats.approximatedSurfaces }, [r.bytes.buffer]);
     } else if (req.op === 'export') {
       const r = await meshesToStep(replicad, req.bodies, req.unit);
       post({ id: req.id, bytes: r.bytes, volumes: r.volumes }, [r.bytes.buffer]);
@@ -60,6 +67,11 @@ self.onmessage = async (ev: MessageEvent<OcctRequest>) => {
       // the part rebuilt with the B-rep kernel: exact bodies go out as their B-rep, the rest as sewn meshes
       const r = rebuildDocument(req.doc, req.upTo);
       try {
+        if (req.format === 'iges') {
+          const out = await shapesToIges(replicad, stepItems(r), req.unit, req.fileName);
+          post({ id: req.id, bytes: out.bytes, volumes: out.volumes, exact: out.exact, faces: out.stats.faces, approximated: out.stats.approximatedSurfaces }, [out.bytes.buffer]);
+          return;
+        }
         const out = await shapesToStep(replicad, stepItems(r), req.unit);
         post({ id: req.id, bytes: out.bytes, volumes: out.volumes, exact: out.exact }, [out.bytes.buffer]);
       } finally {

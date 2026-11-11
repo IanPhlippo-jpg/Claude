@@ -15,6 +15,8 @@ import { addCircle, addConic, addEllipse, addEllipseArc, addLine, addSpline, cre
 import { createDocument, type Document } from '../core/document/types';
 import { sampleBezier, sampleCatmullRom, sampleConic, type Pt } from '../core/sketch/geometry';
 import { shapesToStep, stepItems, stepToMeshes } from '../core/occt/step';
+import { shapesToIges } from '../core/occt/iges';
+import { checkIges } from '../core/occt/igesCheck';
 import { kernelMismatch, shapeMismatch } from '../core/features/volumeCheck';
 
 let kernel: ReturnType<typeof occtKernel>;
@@ -59,6 +61,27 @@ describe('QA T1 on the B-rep kernel', { timeout: 60000 }, () => {
     setBrepKernel(kernel);
     doc.features.push({ id: 'r1', type: 'fillet', name: 'r1', suppressed: false, size: 2, edges: [edgeRef(rim)] } as never);
     expect(Math.abs(exact(doc) - T1_EXPECT(17.5))).toBeLessThan(0.01);
+  });
+});
+
+describe('QA T1 as IGES 5.3 (F114/F199)', { timeout: 60000 }, () => {
+  it('the plate with the R2 fillet on the hole rim: exact trimmed surfaces, read back within 1e-6 mm and 0.01 % area', async () => {
+    const { doc, rim } = t1(17.5);
+    doc.features.push(fillet('r1', 2, [rim]));
+    const r = rebuildDocument(doc);
+    expect(r.bodies[0].exact).toBe(true);
+    const shape = r.brep![r.bodies[0].id];
+    const out = await shapesToIges(rep, stepItems(r));
+    expect(out.exact).toBe(1);
+    expect(out.stats.approximatedSurfaces).toBe(0);
+    expect(Math.abs(out.volumes[0] - T1_EXPECT(17.5))).toBeLessThan(0.01);
+    const c = checkIges(rep.getOC(), shape, new TextDecoder().decode(out.bytes));
+    expect(c.problems).toEqual([]);
+    expect(c.entities[144]).toBe(c.faces);
+    expect(c.surfaceDistance).toBeLessThan(1e-6);
+    expect(c.trimExcess).toBeLessThan(1e-6);
+    expect(c.flippedNormals).toBe(0);
+    expect(Math.abs(c.areaRead - c.areaSource) / c.areaSource).toBeLessThan(1e-4);
   });
 });
 
@@ -146,6 +169,16 @@ describe('QA wrap on the B-rep kernel', { timeout: 60000 }, () => {
     expect(out.volumes).toHaveLength(1);
     expect(out.exact).toBe(0);
     expect(Math.abs(out.volumes[0] - r.bodies[0].exactVolume!)).toBeLessThan(1e-3);
+  });
+  it('IGES of the wrapped roll (QA F114/F199): written and read back, but not counted exact, as STEP', async () => {
+    const r = rebuildDocument(roll('emboss'));
+    const shape = r.brep![r.bodies[0].id];
+    const out = await shapesToIges(rep, stepItems(r));
+    expect(out.exact).toBe(0);
+    const c = checkIges(rep.getOC(), shape, new TextDecoder().decode(out.bytes));
+    expect(c.problems).toEqual([]);
+    expect(c.surfaceDistance).toBeLessThan(1e-6);
+    expect(Math.abs(c.areaRead - c.areaSource) / c.areaSource).toBeLessThan(1e-4);
   });
   it('Deboss 2 mm: the patch is cut (was 262 of 190) and the body says it is faceted', () => {
     const cut = (10 / 20) * ((20 * 20 - 18 * 18) / 2) * 10;

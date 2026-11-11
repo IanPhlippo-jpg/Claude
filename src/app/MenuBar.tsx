@@ -293,6 +293,7 @@ export function MenuBar() {
       { label: 'Save As ▸ 3MF (*.3mf)…', onSelect: () => { useStore.setState({ exportFormat: '3mf' }); st.setDialog('exportOptions'); } },
       { label: 'Save As ▸ AMF (*.amf)…', onSelect: () => { useStore.setState({ exportFormat: 'amf' }); st.setDialog('exportOptions'); } },
       { label: 'Save As ▸ STEP AP214 (*.step)…', disabled: !st.rebuild.bodies.length, onSelect: () => { useStore.setState({ exportFormat: 'step' }); st.setDialog('exportOptions'); } },
+      { label: 'Save As ▸ IGES (*.igs)…', disabled: !st.rebuild.bodies.length, onSelect: () => { useStore.setState({ exportFormat: 'iges' }); st.setDialog('exportOptions'); } },
       // a drawing: the active sheet as vectors (QA v0.5.1 F114)
       ...(isDrawing(st.doc) ? [{ label: 'Save As ▸ DXF (*.dxf)…', onSelect: () => void exportSheet('dxf') }, { label: 'Save As ▸ Adobe PDF (*.pdf)…', onSelect: () => void exportSheet('pdf') }] : []),
       { label: 'Save All', onSelect: () => saveDocument() },

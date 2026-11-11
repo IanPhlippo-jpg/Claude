@@ -63,6 +63,19 @@ export async function refineRebuild(doc: import('../document/types').Document, u
   return r.bodies;
 }
 
+/** what an IGES export returns: the bytes, per body its volume, how many bodies are exact, the trimmed surfaces */
+export interface IgesResult { bytes: Uint8Array; volumes: number[]; exact: number; faces: number; approximated: number }
+
+/** bodies (triangle positions in mm) -> IGES 5.3 trimmed surfaces of their sewn solids (none exact) */
+export async function exportIges(bodies: { name: string; positions: Float32Array }[], unit: 'mm' | 'cm' | 'm' | 'in', fileName: string): Promise<IgesResult> {
+  return call({ op: 'export', format: 'iges', bodies, unit, fileName }, bodies.map((b) => b.positions.buffer), 120_000);
+}
+
+/** a part as IGES 5.3 (trimmed NURBS surfaces), rebuilt with the B-rep kernel as for STEP */
+export async function exportIgesDoc(doc: import('../document/types').Document, upTo: number | null, unit: 'mm' | 'cm' | 'm' | 'in', fileName: string): Promise<IgesResult> {
+  return call({ op: 'exportDoc', format: 'iges', doc, upTo, unit, fileName }, [], 120_000);
+}
+
 /** a part as STEP, rebuilt with the B-rep kernel: exact bodies keep their true surfaces (exact = how many) */
 export async function exportStepDoc(doc: import('../document/types').Document, upTo: number | null, unit: 'mm' | 'cm' | 'm' | 'in'): Promise<{ bytes: Uint8Array; volumes: number[]; exact: number }> {
   return call({ op: 'exportDoc', doc, upTo, unit }, [], 120_000);

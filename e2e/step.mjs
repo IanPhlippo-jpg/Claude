@@ -1,5 +1,5 @@
 // QA F51/F47: STEP out and back in through OpenCascade (File ▸ Save As ▸ STEP, File ▸ Open of a .step), and a fillet
-// that keeps its edge when the extrude below it gets deeper.
+// that keeps its edge when the extrude below it gets deeper. QA F114/F199: File ▸ Save As ▸ IGES of the same part.
 import { menuPath } from './lib/menu.mjs';
 import { chromium } from 'playwright';
 import { mkdirSync } from 'node:fs';
@@ -58,6 +58,35 @@ const buf = Buffer.concat(await (await file.createReadStream()).toArray());
 const text = buf.toString('utf8');
 check('Blok.step downloads as an ISO 10303-21 file with a closed solid', file.suggestedFilename() === 'Blok.step' && text.startsWith('ISO-10303-21;') && /MANIFOLD_SOLID_BREP/.test(text), `${file.suggestedFilename()} ${buf.length} bytes`);
 check('the part goes out as its B-rep: 7 faces, the hole a true cylinder (docs/14)', (text.match(/ADVANCED_FACE/g) ?? []).length === 7 && /CYLINDRICAL_SURFACE/.test(text), String((text.match(/ADVANCED_FACE/g) ?? []).length));
+
+// ---- Save As ▸ IGES (QA F114/F199): IGES 5.3 trimmed surfaces of the same B-rep
+await page.hover('.k-brand');
+await page.click('.k-mb-menu:has-text("File")');
+await page.waitForTimeout(150);
+check('File menu offers Save As ▸ IGES', (await menuItem('Save As ▸ IGES (*.igs)…').count()) === 1);
+await menuItem('Save As ▸ IGES (*.igs)…').click();
+await page.waitForTimeout(300);
+check('Export Options for IGES: Output as IGES 5.3 trimmed surfaces and the unit', /IGES 5\.3, trimmed surfaces/.test(await page.locator('[data-testid="export-iges-type"]').innerText().catch(skip('step.mjs:igestype', ''))) && (await page.locator('[data-testid="export-unit"]').count()) === 1);
+const dlIges = page.waitForEvent('download', { timeout: 60000 });
+await page.locator('[data-testid="export-ok"]').click();
+await page.locator('[data-testid="ask-yes"]').waitFor({ timeout: 60000 });
+const igesInfo = await page.locator('[data-testid="ask"]').innerText().catch(skip('step.mjs:igesinfo', ''));
+check('IGES Info names one solid and its 7 trimmed surfaces, and does not call it faceted', /1 solid/.test(igesInfo) && /IGES 5\.3, 7 trimmed surfaces/.test(igesInfo) && !/not exact/.test(igesInfo), igesInfo.replace(/\s+/g, ' ').slice(0, 200));
+await page.locator('[data-testid="ask-yes"]').click();
+const igesFile = await dlIges;
+const igs = Buffer.concat(await (await igesFile.createReadStream()).toArray()).toString('latin1');
+const igsLines = igs.split('\n').filter(Boolean);
+// the directory entries: two lines each, the entity type in columns 1-8 of the first
+const dLines = igsLines.filter((l) => l[72] === 'D');
+const types = dLines.filter((_, i) => i % 2 === 0).map((l) => Number(l.slice(0, 8)));
+const nOf = (t) => types.filter((x) => x === t).length;
+const term = igsLines.at(-1) ?? '';
+const counted = { S: igsLines.filter((l) => l[72] === 'S').length, G: igsLines.filter((l) => l[72] === 'G').length, D: dLines.length, P: igsLines.filter((l) => l[72] === 'P').length };
+check('Blok.igs downloads as IGES 5.3: 80-column records, Start/Global/Terminate, unit MM, Terminate counts match',
+  igesFile.suggestedFilename() === 'Blok.igs' && igsLines.every((l) => l.length === 80) && igsLines[0].endsWith('S0000001') && /2HMM/.test(igsLines.filter((l) => l[72] === 'G').map((l) => l.slice(0, 72)).join('')) &&
+  term.endsWith('T0000001') && term.startsWith(`S${String(counted.S).padStart(7, '0')}G${String(counted.G).padStart(7, '0')}D${String(counted.D).padStart(7, '0')}P${String(counted.P).padStart(7, '0')}`),
+  `${igesFile.suggestedFilename()} ${igs.length} bytes ${term.slice(0, 32)}`);
+check('the block with the hole is 7 trimmed surfaces (144) on 7 B-spline surfaces (128), 9 boundaries (142: 7 outer, 2 hole rims)', nOf(144) === 7 && nOf(128) === 7 && nOf(142) === 9 && nOf(126) > 0 && nOf(102) === 18, JSON.stringify({ 144: nOf(144), 128: nOf(128), 142: nOf(142), 102: nOf(102), 126: nOf(126) }));
 
 // ---- File ▸ Open of the STEP: a new part with one Imported body of the same volume
 await page.setInputFiles('#phlippo-open-file', { name: 'Blok.step', mimeType: 'model/step', buffer: buf });
