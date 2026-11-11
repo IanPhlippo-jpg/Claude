@@ -26,3 +26,21 @@ aangestuurd met een ESP vanaf een eigen dashboard. Knoppen en sensoren op de baa
 - Bordjes met 1K5 zijn gemaakt voor 20 V: op 12 V geven ze ongeveer 6 mA per led (zwakker licht). Voor vol licht op 12 V: de 1K-versie.
 - Maten van het bordje: **61,1 x 20,9 mm** (gemeten door Ian, 2026-11-08). Hoogte met klemmen en de plaats van de gaten nog niet gemeten: de doos rekent met 14 mm hoogte en houdt het bordje met klemlippen langs de rand (geen gaten nodig).
 - Welke sensoren er komen (type en voeding): de ingangen nemen een contact of een 12 V-signaal.
+
+## Versie 2 (Ian, 2026-11-11)
+
+- De doos van versie 1 (248,9 x 245,6) is te groot voor de printer: de slicer houdt rechtsvoor een vak van 10 x 20 mm vrij
+  voor de aanslag van het filamentmes (OrcaSlicer/ElegooSlicer-profiel: `bed_exclude_area` 246x0 tot 256x20). Elk geprint
+  deel moet dus ruim op 256 x 256 passen zonder die hoek en met een skirt errond: **hoogstens 230 x 230 mm per deel**.
+- **Echte kabelgoten** in de doos: er komen veel kabels binnen. Vingerkanalen zoals in een schakelkast (wanden met
+  vingers, een klikdeksel per goot), tussen elke rij bordjes en langs de zijkanten, doorlopend van module tot module.
+- **Hoogstens 80 mm hoog** (de hele doos met deksel).
+- Groter mag (breder en langer), maar dan **in modules met een sleutelverbinding** die in elkaar klikken.
+
+Keuzes (zelf beslist, geen meerkost boven € 20):
+- 3 modules naast elkaar, elk hoogstens 230 x 230: twee modules met elk 8 bordjes (2 kolommen x 4 rijen) en één module
+  met de elektronica (ESP, PWM-print, uitgangsprint, ingangsprint, voeding).
+- Verbinding: zwaluwstaarten over de volle hoogte in de wanden die tegen elkaar komen (de ene module schuift van boven in
+  de andere), licht taps zodat ze vastklemmen, met een klikneus onderaan die hoorbaar invalt; geen lijm of schroeven nodig.
+- Elke module heeft een eigen deksel en eigen sleutelgaten om onder de baan te hangen; de goten lopen door open
+  sleuven in de tussenwanden van module tot module.
