@@ -1,14 +1,20 @@
 // What a log was made from (QA 0.5.11, F176): the commit comes from git, or, in a tree exported with `git archive`
 // (no .git, as on the QA box), from commit.txt, which `git archive` fills in through export-subst (.gitattributes).
 import { spawnSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { readFileSync, realpathSync } from 'node:fs';
 import { release } from 'node:os';
+import { fileURLToPath } from 'node:url';
 
-const git = (...args) => spawnSync('git', args, { encoding: 'utf8' }).stdout?.trim() ?? '';
+// git always runs in the product tree itself; a tree unpacked inside another checkout (QA 0.5.13, F180) has no git
+// history of its own, so its log heading comes from commit.txt and not from the surrounding repository
+const ROOT = fileURLToPath(new URL('../..', import.meta.url));
+const git = (...args) => spawnSync('git', args, { encoding: 'utf8', cwd: ROOT }).stdout?.trim() ?? '';
+const same = (a, b) => { try { return realpathSync(a).toLowerCase() === realpathSync(b).toLowerCase(); } catch { return false; } };
+const ownRepo = () => { const top = git('rev-parse', '--show-toplevel'); return !!top && same(top, ROOT); };
 
 /** the short commit hash, ' (uncommitted changes)' when the work tree differs, or 'unknown' */
 export function commitOf() {
-  const head = git('rev-parse', '--short', 'HEAD');
+  const head = ownRepo() ? git('rev-parse', '--short', 'HEAD') : '';
   if (head) return head + (git('status', '--porcelain', '--untracked-files=no') ? ' (uncommitted changes)' : '');
   try {
     const exported = readFileSync(new URL('./commit.txt', import.meta.url), 'utf8').trim().split(/\s+/)[0];

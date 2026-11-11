@@ -73,19 +73,33 @@ const watchFrames = () => page.evaluate(() => {
   const tick = (t) => { window.__gap = Math.max(window.__gap, t - last); last = t; window.__frames++; if (window.__watching) requestAnimationFrame(tick); };
   window.__watching = true;
   requestAnimationFrame(tick);
+  // the longest task on this thread (QA 0.5.13, F54/F137): what really blocks the window, whatever the GPU process does
+  window.__task = 0;
+  window.__tasks = new PerformanceObserver((l) => { for (const e of l.getEntries()) window.__task = Math.max(window.__task, e.duration); });
+  window.__tasks.observe({ type: 'longtask' });
 });
-const stopFrames = () => page.evaluate(() => { window.__watching = false; return { gap: window.__gap, frames: window.__frames }; });
+const stopFrames = () => page.evaluate(() => { window.__watching = false; for (const e of window.__tasks.takeRecords()) window.__task = Math.max(window.__task, e.duration); window.__tasks.disconnect(); return { gap: window.__gap, frames: window.__frames, task: Math.round(window.__task) }; });
 
 // what one ordinary redraw of this part costs on this machine (a new document object, no rebuild): with software GL
 // (a CI runner without graphics card) drawing alone takes seconds. The rebuild may add at most 150 ms on top of that;
 // on a graphics card the limit stays 250 ms (QA v0.5.1 F125). A gap of about two frames meant work on this thread: the
 // new floor materials compiled their shader programs again after every rebuild (bodyScene placeFloor, CI on Windows).
-const redraw = await page.evaluate(() => new Promise((ok) => {
-  let last = performance.now(), gap = 0, n = 0;
-  const tick = (t) => { gap = Math.max(gap, t - last); last = t; if (++n < 10) requestAnimationFrame(tick); else ok(gap); };
+const { redraw, redrawTask } = await page.evaluate(() => new Promise((ok) => {
+  let last = performance.now(), gap = 0, n = 0, task = 0;
+  const obs = new PerformanceObserver((l) => { for (const e of l.getEntries()) task = Math.max(task, e.duration); });
+  obs.observe({ type: 'longtask' });
+  const tick = (t) => { gap = Math.max(gap, t - last); last = t; if (++n < 10) requestAnimationFrame(tick); else { for (const e of obs.takeRecords()) task = Math.max(task, e.duration); obs.disconnect(); ok({ redraw: gap, redrawTask: task }); } };
   requestAnimationFrame((t) => { last = t; const s = window.__phlippoStore; s.setState({ doc: { ...s.getState().doc } }); requestAnimationFrame(tick); });
 }));
 const limit = Math.max(250, redraw + 150);
+// with software GL (a CI runner without graphics card, one frame takes seconds) the frame gap measures the GPU process:
+// a screenshot while it draws merges two frames into one gap of twice the redraw (win-release-3of3: 11 015 ms against
+// 5 781), while this thread is idle. There the check is the longest task on this thread: taking the result over (the
+// edges and silhouettes come made from the worker) stays under 600 ms on a runner's slower processor (190-214 ms on a
+// desktop with software GL, 91 ms with a graphics card, where the limit stays 250 ms and the frame gap counts too).
+// The ordinary redraw is not part of the limit: its first frame can compile shader programs for seconds (8 770 ms seen)
+const softwareGl = redraw > 1000;
+const taskLimit = softwareGl ? 600 : 250;
 // the shader programs before the rebuild: the new model has to be drawn with them, on any graphics card
 const progs0 = await page.evaluate(() => window.__phlippoRenderer.info.programs.map((p) => p.id));
 await watchFrames();
@@ -107,8 +121,10 @@ await page.screenshot({ path: `${OUT}/rebuildworker-busy.png`, timeout: SHOT_MS 
 await settled();
 const worker = Date.now() - t0;
 const frames = await stopFrames();
-check(`the window kept drawing frames during the rebuild (no gap over ${Math.round(limit)} ms)`, frames.gap < limit, JSON.stringify({ ...frames, workerMs: worker, redraw: Math.round(redraw) }));
-console.log('frames', JSON.stringify({ ...frames, workerMs: worker, redraw: Math.round(redraw) }));
+const info = JSON.stringify({ ...frames, workerMs: worker, redraw: Math.round(redraw), redrawTask: Math.round(redrawTask), softwareGl });
+if (softwareGl) check(`software GL: no task on the window's thread over ${Math.round(taskLimit)} ms during the rebuild`, frames.task < taskLimit, info);
+else check(`the window kept drawing frames during the rebuild (no gap over ${Math.round(limit)} ms, no task over ${Math.round(taskLimit)} ms)`, frames.gap < limit && frames.task < taskLimit, info);
+console.log('frames', info);
 s = await state();
 check('the new model replaces the old one (depth 12)', s.bodies === 1 && Math.abs(s.volume - expected(12)) / expected(12) < 0.01 && Object.keys(s.errors).length === 0, `${s.volume.toFixed(0)} vs ${expected(12).toFixed(0)}`);
 check('Rebuilding… is gone', (await page.locator('[data-testid="status-rebuilding"]').count()) === 0);

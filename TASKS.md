@@ -1304,3 +1304,13 @@ elease; README en docs/04 bijgewerkt
 - [x] PDF, PNG per profiel (voor de chat) en DXF, in het Engels en het Nederlands
 - [x] Engels antwoord aan de leverancier: doorsnede, meters, glasdikte, wand 1,8 mm, monsters
 - [x] Kopie op het bureaublad (Profielaanvraag), commit en push
+
+## QA 0.5.13 verwerken naar 0.5.14 (2026-11-10)
+- [x] F203: voorbeeldwalker alleen echte CAD-documenten, test dat datafiles overgeslagen worden en een echt document zonder naam faalt
+- [x] F204: STEP telt alleen exact === true als exact; export en Publish vragen bevestiging bij rebuild.errors; tests (wrap-export, document met fouten)
+- [x] F179: checkEdges waarschuwt als de eigen B-rep-randkeuze null is (geen stil resultaat)
+- [x] F172/F198/F202: volumegrens zonder 0,5 %-cap op het app-pad, vormtolerantie niet meer met de diagonaal; tests bijwerken
+- [x] F137/F54: rebuildworker-framepauze 11 s op win-release-3of3 onderzoeken en oplossen
+- [x] F180: commitOf gebruikt commit.txt als de git-checkout niet deze repo is
+- [x] Docs: docs/31-qa-0.5.13.md, README Status 0.5.14, doc-counts, versie 0.5.14
+- [~] Commit, push, volledige CI groen op dezelfde SHA, logs via npm run bewijs -- --ci

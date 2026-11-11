@@ -81,8 +81,8 @@ describe('kernel cross-check on the shape (QA F172)', { timeout: 120000 }, () =>
     const sharp = mesh(doc);
     doc.features.push(fillet('r1', 2, [edge]));
     const e = exact(doc);
-    // the flat 0.5 % was blind to it; the faceted body has no curved surface, so its own limit (0.01 %) is not (F172)
-    expect(volumeMismatch(Math.abs(meshVolume(sharp.geometry)), e.exactVolume!)).toBeNull();
+    // the old default of 0.5 % was blind to it; the default is now the limit of a body without curved surfaces (F198)
+    expect(volumeMismatch(Math.abs(meshVolume(sharp.geometry)), e.exactVolume!)).toMatch(/differ by 0\.\d+ % \(the tessellation allows 0\.010 %\)/);
     expect(check(sharp, e)).toMatch(/B-rep and mesh disagree: the exact volume .* differ by 0\.\d+ % \(the tessellation allows 0\.010 %\)/);
     expect(shapeMismatch(sharp.geometry, e.geometry)).toMatch(/B-rep and mesh disagree: the exact and the faceted surface lie 0\.\d\d mm apart/);
     // the corner of the sharp edge lies R(√2 − 1) from the round
@@ -343,6 +343,25 @@ describe('independent edge choice on the exact kernel (QA 0.5.12 F179)', { timeo
     const [rim, low] = atFillet(a.doc, [[[a.rim], a.rim], [[bottom], a.rim]]);
     expect(rim).toBeNull();
     expect(low).toMatch(/other edges/);
+  });
+
+  it('is not silent when the exact topology has no answer of its own (QA 0.5.13, F179)', () => {
+    // the reference of a straight edge that moved (as after a dimension change): no B-rep line edge lies on its old line,
+    // so the exact kernel only checks the kind of the shared pick; a straight edge passes, the hole rim does not
+    const { doc, edge } = t3();
+    doc.features.push(fillet('r1', 2, [edge]));
+    const moved = { ...edge, centroid: edge.centroid.clone().add(new THREE.Vector3(0, 0, 50)) } as BodyEdge;
+    const a = t1(17.5);
+    const rim = mesh(a.doc).edges.find((e) => e.closed)!;
+    const [straight, none] = atFillet(doc, [[[edge], moved], [[], moved]]);
+    expect(straight).toBeNull();
+    expect(none).toMatch(/other edges/);
+    a.doc.features.push(fillet('r1', 2, [a.rim]));
+    const line = mesh(t1(17.5).doc).edges.find((e) => e.straight)!;
+    const movedRim = { ...rim, centroid: rim.centroid.clone().add(new THREE.Vector3(0, 40, 0)) } as BodyEdge;
+    const [round, wrongKind] = atFillet(a.doc, [[[a.rim], movedRim], [[line], movedRim]]);
+    expect(round).toBeNull();
+    expect(wrongKind).toMatch(/other edges/);
   });
 
   it('stays quiet when a later cut split the edge (all pieces on both kernels)', () => {

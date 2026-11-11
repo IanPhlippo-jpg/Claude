@@ -44,13 +44,23 @@ Status per fase:
 7. Massa-eigenschappen, meten en materialen — **gereed** (Mass Properties, Measure, Edit Material met dichtheid per body, Appearances); geen fotorealistische render (raytracing)
 8. Sheet metal (Base Flange/Tab, Edge Flange, Flatten met K-factor, Hem, Jog, Miter Flange, Unfold/Fold) — **gereed** (e2e: sheetmetal, hem, jogmiter, unfoldfold)
 
+## Status 0.5.14 (2026-11-10)
+
+QA-rapport 0.5.13 (5/10, NO-GO) verwerkt; per bevinding in `docs/31-qa-0.5.13.md`, het bewijs per commit in `qa-logs/0.5.14/`.
+- `npm test`: 810 tests (`tools/doc-counts.cjs` vergelijkt dit getal met vitest); de modeltests van `voorbeelden/`
+  draaien apart (`npm run test:voorbeelden`, CI-job "voorbeelden"). De strikte QA-tests in `src/qa/`:
+  qaStrict.test.ts (8), qaBrep.test.ts (35), qaCrossCheck.test.ts (16), qaNaming.test.ts (12), qaTeam.test.ts (5),
+  qaMismatch.test.ts (1).
+- Export eerlijk (F204): STEP telt alleen exacte lichamen als exact; export en Publish vragen bevestiging bij rebuildfouten.
+- Kruiscontrole strenger: standaardvolumegrens 0,01 %, gekromd × 0,03 mm (plafond 0,5 %) (F172/F198), vormtolerantie vast
+  0,1 mm (F202), randcontrole nooit stil (F179).
+- `rebuildworker` op Windows (F54/F137): de UI-thread doet nog 87 ms bij het overnemen van een rebuild (was 235 ms;
+  silhouetranden in de worker), de check meet de langste taak op de UI-thread.
+
 ## Status 0.5.13 (2026-11-09)
 
 QA-rapport 0.5.12 (5/10) verwerkt; per bevinding in `docs/30-qa-0.5.12.md`, het bewijs per commit in `qa-logs/0.5.13/`.
-- `npm test`: 804 tests (`tools/doc-counts.cjs` vergelijkt dit getal met vitest); de modeltests van `voorbeelden/`
-  draaien apart (`npm run test:voorbeelden`, CI-job "voorbeelden"). De strikte QA-tests in `src/qa/`:
-  qaStrict.test.ts (8), qaBrep.test.ts (34), qaCrossCheck.test.ts (15), qaNaming.test.ts (12), qaTeam.test.ts (5),
-  qaMismatch.test.ts (1).
+- `npm test`: 804 tests bij 0.5.13; de actuele aantallen per strikt QA-bestand staan in de nieuwste statussectie.
 - Kruiscontrole tussen de kernels strenger: volumegrens per lichaam (F172/F198), elk hoekpunt in de vormcontrole (F202),
   een eigen randkeuze op de B-rep (F179). Sketch Text exact met de letterkrommen (F201). Details: `docs/30-qa-0.5.12.md`.
 - 150 werkende Options (Relations/Snaps ▸ Tangent en Feature Tree ▸ Name feature on creation erbij, e2e `prefs112`);

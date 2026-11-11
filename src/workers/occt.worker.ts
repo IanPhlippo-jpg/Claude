@@ -4,7 +4,7 @@
  */
 import { displayOf } from '../core/features/edges';
 import wasmUrl from 'replicad-opencascadejs/wasm?url';
-import { meshesToStep, shapesToStep, stepToMeshes } from '../core/occt/step';
+import { meshesToStep, shapesToStep, stepItems, stepToMeshes } from '../core/occt/step';
 import { occtKernel } from '../core/occt/brep';
 import { brepKernel, setBrepKernel } from '../core/features/brepKernel';
 import { rebuildDocument } from '../core/features/rebuild';
@@ -60,8 +60,7 @@ self.onmessage = async (ev: MessageEvent<OcctRequest>) => {
       // the part rebuilt with the B-rep kernel: exact bodies go out as their B-rep, the rest as sewn meshes
       const r = rebuildDocument(req.doc, req.upTo);
       try {
-        const items = r.bodies.map((b, i) => (r.brep?.[b.id] ? { name: `Body${i + 1}`, shape: r.brep[b.id] } : { name: `Body${i + 1}`, positions: (b.geometry.index ? b.geometry.toNonIndexed() : b.geometry).getAttribute('position').array as Float32Array }));
-        const out = await shapesToStep(replicad, items, req.unit);
+        const out = await shapesToStep(replicad, stepItems(r), req.unit);
         post({ id: req.id, bytes: out.bytes, volumes: out.volumes, exact: out.exact }, [out.bytes.buffer]);
       } finally {
         brepKernel()?.release();

@@ -9,6 +9,7 @@ import { Icon } from '../ui/icons';
 import { FILE_EXTENSION, MAX_FILE_BYTES, parseDocument, serializeDocument } from '../core/document/persistence';
 import { exportStl, parseStl } from '../core/document/stl';
 import { backupPolicy, importScale, warnSaveWithErrors } from './prefsEffects';
+import { confirmExport } from './exportGate';
 import { desktop, getDocumentHandle, setDocumentHandle } from './desktop';
 import { viewerHtml } from '../core/document/viewerExport';
 import { applyUpAxis as setUpAxis } from './viewport/camera';
@@ -140,9 +141,11 @@ export function publishViewer(): void {
   const st = useStore.getState();
   const bodies = st.rebuild.bodies.map((b) => ({ name: st.doc.features.find((f) => f.id === b.featureIds[b.featureIds.length - 1])?.name ?? b.id, geometry: b.geometry, color: st.doc.bodyAppearances?.[b.id] as string | undefined ?? st.doc.appearance ?? st.doc.material?.color ?? '#cfd3d8' }));
   if (!bodies.length) return st.pushMessage('Publish needs a solid body.', 'warn');
-  const html = viewerHtml(st.doc.name, bodies, { app: 'Phlippo CAD', version: APP_VERSION, date: new Date().toISOString().slice(0, 10) });
-  download(`${st.doc.name}.html`, html, 'text/html');
-  st.pushMessage(`${st.doc.name}.html published: opens in any browser without Phlippo CAD.`);
+  confirmExport('viewer file', () => {
+    const html = viewerHtml(st.doc.name, bodies, { app: 'Phlippo CAD', version: APP_VERSION, date: new Date().toISOString().slice(0, 10) });
+    download(`${st.doc.name}.html`, html, 'text/html');
+    st.pushMessage(`${st.doc.name}.html published: opens in any browser without Phlippo CAD.`);
+  });
 }
 
 /** Save As ▸ STL: the solid body as a binary STL (model units). */
@@ -153,14 +156,16 @@ export function saveStl() {
     pushMessage('There is no solid body to export; create one first (Extruded Boss/Base).', 'warn');
     return;
   }
-  const data = exportStl(body.geometry, doc.name);
-  const api = desktop();
-  if (api) {
-    api.saveFileAs({ defaultPath: `${doc.name}.stl`, filters: STL_FILTERS, data }).then((r) => r && pushMessage(`${r.name} saved.`));
-    return;
-  }
-  download(`${doc.name}.stl`, data, 'model/stl');
-  pushMessage(`${doc.name}.stl saved.`);
+  confirmExport('STL file', () => {
+    const data = exportStl(body.geometry, doc.name);
+    const api = desktop();
+    if (api) {
+      api.saveFileAs({ defaultPath: `${doc.name}.stl`, filters: STL_FILTERS, data }).then((r) => r && pushMessage(`${r.name} saved.`));
+      return;
+    }
+    download(`${doc.name}.stl`, data, 'model/stl');
+    pushMessage(`${doc.name}.stl saved.`);
+  });
 }
 
 /**

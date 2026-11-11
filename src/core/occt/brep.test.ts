@@ -9,7 +9,7 @@ import { setBrepKernel } from '../features/brepKernel';
 import { edgeRef } from '../features/edgesets';
 import { meshVolume } from '../features/solid';
 import { occtKernel } from './brep';
-import { shapesToStep, stepToMeshes } from './step';
+import { shapesToStep, stepItems, stepToMeshes } from './step';
 import { parseDocument } from '../document/persistence';
 
 let rep: typeof import('replicad');
@@ -730,7 +730,7 @@ describe('B-rep kernel in the rebuild (OpenCascade)', () => {
     const r = rebuildDocument(plateWithHole());
     const b = r.bodies[0];
     expect(r.brep?.[b.id]).toBeTruthy();
-    const out = await shapesToStep(rep, [{ name: 'Plate', shape: r.brep![b.id] }]);
+    const out = await shapesToStep(rep, stepItems(r));
     const text = new TextDecoder().decode(out.bytes);
     expect(out.exact).toBe(1);
     expect((text.match(/ADVANCED_FACE/g) ?? []).length).toBe(7);

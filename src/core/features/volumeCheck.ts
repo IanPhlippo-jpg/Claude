@@ -11,9 +11,12 @@
  *   0.01 mm), while a missed fillet of radius R leaves a corner R·(√2 − 1) away (0.83 mm at R2) whatever the size of
  *   the body. This is what catches a feature;
  * - the volume, as a backstop for what has no vertex near the difference. Its limit follows the body (QA 0.5.12 F172):
- *   only curved surfaces are faceted, and a facet lies at most a few hundredths from the true surface, so two correct
- *   bodies differ by at most (curved area) × 0.05 mm, plus 0.01 % for rounding; never more than 0.5 %. A prismatic body
- *   that differs by 0.03 % (one 10 mm edge rounded too many) speaks on the volume alone.
+ *   only curved surfaces are faceted. The exact volume comes from the B-rep itself, so only the mesh kernel's chords
+ *   count: a chord with a sagitta of at most 0.02 mm loses 2/3 × 0.02 mm of the area under it, and a doubly curved
+ *   surface (a torus, a swept tube) is faceted both ways, 2/3 × 0.04 mm; so two correct bodies differ by at most
+ *   (curved area) × 0.03 mm (QA 0.5.13: was 0.05 mm), plus 0.01 % for rounding; never more than 0.5 % (a modelled
+ *   thread on the mesh kernel, faceted more coarsely along its helix, differs by 0.39 %). A prismatic body that differs by 0.03 % (one 10 mm edge rounded too many) speaks on the volume alone,
+ *   and so does volumeMismatch without a limit (F198: its default is the limit of a body without curved surfaces).
  */
 import * as THREE from 'three';
 import { MeshBVH } from 'three-mesh-bvh';
@@ -24,13 +27,14 @@ export const VOLUME_MISMATCH = 0.005;
 /** the relative volume difference a body without curved surfaces may have (rounding only) */
 export const VOLUME_MISMATCH_FLAT = 1e-4;
 /** how far a facet of a curved surface may lie from the true one, both kernels together, with a margin (mm) */
-const FACET_DEVIATION = 0.05;
+const FACET_DEVIATION = 0.03;
 
-/** the surface distance (mm) above which the shapes are said to disagree, at least; large bodies add 0.02 % of their size */
+/** the surface distance (mm) above which the shapes are said to disagree: the tessellations' margin, whatever the size of
+ * the body (QA 0.5.13, F202: a missed R2 corner is 0.83 mm on any body); only float rounding grows with the size */
 export const SHAPE_MISMATCH_MM = 0.1;
 
 /** the warning text when the exact and the faceted volume disagree, else null */
-export function volumeMismatch(meshVolume: number, exactVolume: number, limit = VOLUME_MISMATCH): string | null {
+export function volumeMismatch(meshVolume: number, exactVolume: number, limit = VOLUME_MISMATCH_FLAT): string | null {
   const ref = Math.max(Math.abs(meshVolume), Math.abs(exactVolume));
   if (!(ref > 1e-9) || !Number.isFinite(meshVolume) || !Number.isFinite(exactVolume)) return null;
   const rel = Math.abs(exactVolume - meshVolume) / ref;
@@ -140,7 +144,7 @@ export function shapeDeviation(mesh: THREE.BufferGeometry, exact: THREE.BufferGe
 
 /** the distance two bodies of this size may lie apart and still be the same shape */
 export function shapeTolerance(g: THREE.BufferGeometry): number {
-  return Math.max(SHAPE_MISMATCH_MM, diagonal(g) * 2e-4);
+  return Math.max(SHAPE_MISMATCH_MM, diagonal(g) * 1e-5);
 }
 
 /** the warning text when the exact and the faceted body do not have the same shape, else null */

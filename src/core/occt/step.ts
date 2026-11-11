@@ -125,15 +125,31 @@ export function meshToSolid(OC: OCInstance, positions: ArrayLike<number>, tolera
   return solid;
 }
 
-/** exact B-rep solids (and meshes for the rest) -> STEP (AP214) bytes */
-export async function shapesToStep(replicad: Replicad, items: ({ name: string; shape: any } | { name: string; positions: ArrayLike<number> })[], unit: 'mm' | 'cm' | 'm' | 'in' = 'mm'): Promise<{ bytes: Uint8Array; volumes: number[]; exact: number }> {
+/** one body for shapesToStep: its B-rep shape (exact only when the rebuild says so) or its mesh */
+export type StepItem = { name: string; shape: any; exact: boolean } | { name: string; positions: ArrayLike<number> };
+
+/**
+ * The bodies of a rebuild as STEP items (QA 0.5.13, F204): a body with a B-rep goes out as that shape, but only a body
+ * the rebuild calls exact counts as exact; a wrap patch or another faceted piece in the shape keeps the facet warning.
+ */
+export function stepItems(r: { bodies: { id: string; exact?: boolean; geometry: { index: unknown; toNonIndexed(): any; getAttribute(n: string): { array: ArrayLike<number> } } }[]; brep?: Record<string, unknown> }): StepItem[] {
+  return r.bodies.map((b, i) => {
+    const shape = r.brep?.[b.id];
+    if (shape) return { name: `Body${i + 1}`, shape, exact: b.exact === true };
+    const g = b.geometry.index ? b.geometry.toNonIndexed() : b.geometry;
+    return { name: `Body${i + 1}`, positions: g.getAttribute('position').array as Float32Array };
+  });
+}
+
+/** exact B-rep solids (and meshes for the rest) -> STEP (AP214) bytes; `exact` counts only items marked exact */
+export async function shapesToStep(replicad: Replicad, items: StepItem[], unit: 'mm' | 'cm' | 'm' | 'in' = 'mm'): Promise<{ bytes: Uint8Array; volumes: number[]; exact: number }> {
   const OC = replicad.getOC() as OCInstance;
   const shapes: { shape: any; name: string }[] = [];
   const volumes: number[] = [];
   let exact = 0;
   for (const it of items) {
     let shape: any;
-    if ('shape' in it) { shape = replicad.cast(it.shape); exact++; }
+    if ('shape' in it) { shape = replicad.cast(it.shape); if (it.exact === true) exact++; }
     else {
       const s = meshToSolid(OC, it.positions);
       if (!s) continue;

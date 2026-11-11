@@ -305,10 +305,10 @@ export function occtKernel(oc: OC, replicad: Replicad, opts: { tolerance?: numbe
    * The B-rep edges an edge reference points to, chosen from the exact topology alone (QA 0.5.12 F179: both kernels
    * took the edges that the mesh matcher found, so the same wrong pick gave two equal, wrong bodies). A straight edge:
    * every line edge on its line that overlaps its stretch (all pieces when a later feature split it); another edge: the
-   * edge of the same kind and length nearest its centroid. Null when the topology alone does not decide (the edge moved,
-   * a tangent chain of several B-rep edges, or two candidates about equally near).
+   * edge of the same kind and length nearest its centroid. Null when no edge of the exact topology answers the reference
+   * (the edge moved, a tangent chain of several B-rep edges); 'ambiguous' when two candidates lie about equally near.
    */
-  function brepEdgesByRef(edges: { edge: any; pts: THREE.Vector3[] }[], ref: EdgeRef): any[] | null {
+  function brepEdgesByRef(edges: { edge: any; pts: THREE.Vector3[] }[], ref: EdgeRef): any[] | 'ambiguous' | null {
     const c = new THREE.Vector3(...ref.centroid);
     const info = edges.map(({ edge, pts }) => {
       let len = 0;
@@ -333,22 +333,46 @@ export function occtKernel(oc: OC, replicad: Replicad, opts: { tolerance?: numbe
     }
     const cands = info.filter((e) => e.closed === ref.closed && !e.straight && Math.abs(e.len - ref.length) <= Math.max(0.5, ref.length * 0.05))
       .map((e) => ({ e, d: e.mid.distanceTo(c) })).filter((x) => x.d < 0.5).sort((x, y) => x.d - y.d);
-    if (!cands.length || (cands.length > 1 && cands[1].d - cands[0].d < Math.max(0.05, cands[0].d * 0.1))) return null;
+    if (!cands.length) return null;
+    if (cands.length > 1 && cands[1].d - cands[0].d < Math.max(0.05, cands[0].d * 0.1)) return 'ambiguous';
     return [cands[0].e.edge];
+  }
+
+  /** straight (all pieces on one line), closed (one edge round to itself) or neither: a set of B-rep edges as a reference records it */
+  function kindOf(edges: any[]): { straight: boolean; closed: boolean } {
+    const lines = edges.map((x) => topoEdges(x)[0]?.pts).filter((p): p is THREE.Vector3[] => !!p);
+    if (!lines.length) return { straight: false, closed: false };
+    const p0 = lines[0];
+    const len = lines.reduce((a, p) => a + p.reduce((s, q, i) => (i ? s + q.distanceTo(p[i - 1]) : 0), 0), 0);
+    const closed = lines.length === 1 && p0[0].distanceTo(p0[16]) < 1e-6 && len > 1e-6;
+    const dir = p0[16].clone().sub(p0[0]).normalize();
+    const straight = !closed && lines.every((p) => p.every((q) => { const d = q.clone().sub(p0[0]); return d.addScaledVector(dir, -d.dot(dir)).length() < 1e-4 * Math.max(1, len); }));
+    return { straight, closed };
   }
 
   return {
     checkEdges(shape, found, refs) {
       const s = R(shape), all = topoEdges(s);
-      const bad: number[] = [];
+      const bad: number[] = [], unsure: number[] = [];
       refs.forEach((ref, i) => {
         const own = brepEdgesByRef(all, ref);
-        if (!own) return;
         const shared = found[i]?.length ? brepEdgesOn(s, found[i]) : [];
+        // never silent (QA 0.5.13, F179): two candidates about equally near cannot be told apart, so the user checks the
+        // pick; no own answer (a moved edge, a tangent chain) still asks that the shared pick exists and is of the same
+        // kind as the reference (a straight edge for a straight one, a closed rim for a closed one)
+        if (own === 'ambiguous') { unsure.push(i + 1); return; }
+        if (!own) {
+          if (!shared.length) { bad.push(i + 1); return; }
+          const k = kindOf(shared);
+          if (k.straight !== !!ref.straight || (ref.closed && !k.closed && shared.length === 1)) bad.push(i + 1);
+          return;
+        }
         if (shared.length !== own.length || !own.every((e) => shared.some((x) => x.IsSame(e)))) bad.push(i + 1);
       });
-      if (!bad.length) return null;
-      return `Warning: the exact kernel reads ${bad.length === 1 ? 'edge reference' : 'edge references'} ${bad.join(', ')} of ${refs.length} as other edges than the mesh kernel picked: check the selected edges (QA cross-check).`;
+      const list = (n: number[]) => `${n.length === 1 ? 'edge reference' : 'edge references'} ${n.join(', ')} of ${refs.length}`;
+      if (bad.length) return `Warning: the exact kernel reads ${list(bad)} as other edges than the mesh kernel picked: check the selected edges (QA cross-check).`;
+      if (unsure.length) return `Warning: the exact kernel cannot tell ${list(unsure)} apart from a neighbouring edge of the same size: check that the intended edge is rounded (QA cross-check).`;
+      return null;
     },
     extrude(sketch, plane, regions, zStart, total) {
       if (!regions.length || !(total > 1e-9)) return null;

@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { smoothEdges, type SmoothEdges } from './silhouette';
 
 /**
  * Feature edges of a triangle mesh for "Shaded With Edges": an edge is drawn where the
@@ -13,13 +14,13 @@ export type TangentMode = 'visible' | 'phantom' | 'removed';
  * out where the body is built (the rebuild worker), so a large part does not freeze the window (QA 0.5.11 F46: a
  * plate with 64 holes took the window seconds after every rebuild).
  */
-export interface BodyDisplay { geometry: THREE.BufferGeometry; edges: THREE.BufferGeometry; tangentEdges: THREE.BufferGeometry; /** the body geometry it was made from: a body whose geometry was replaced since (a section view, an exact swap) does not use it */ of: THREE.BufferGeometry }
+export interface BodyDisplay { geometry: THREE.BufferGeometry; edges: THREE.BufferGeometry; tangentEdges: THREE.BufferGeometry; /** the smooth edges the silhouettes come from, made where the display is made (a worker: QA 0.5.13, F137) */ smooth?: SmoothEdges; /** the body geometry it was made from: a body whose geometry was replaced since (a section view, an exact swap) does not use it */ of: THREE.BufferGeometry }
 
 /** the display of a body geometry */
 export function displayOf(g: THREE.BufferGeometry): BodyDisplay {
   const geometry = smoothNormals(g, 30);
   const sets = featureEdgeSets(geometry, 20, 'phantom');
-  return { geometry, edges: sets.edges, tangentEdges: sets.tangentEdges, of: g };
+  return { geometry, edges: sets.edges, tangentEdges: sets.tangentEdges, smooth: smoothEdges(geometry), of: g };
 }
 
 /** the edge sets of a display for a tangent mode: visible = both sets as one, phantom = apart, removed = creases only */

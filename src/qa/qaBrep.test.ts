@@ -14,8 +14,8 @@ import { extrude, fillet, holeVariant, PI, rect, setCircleRadius, t1, T1_EXPECT,
 import { addCircle, addConic, addEllipse, addEllipseArc, addLine, addSpline, createSketch } from '../core/sketch/model';
 import { createDocument, type Document } from '../core/document/types';
 import { sampleBezier, sampleCatmullRom, sampleConic, type Pt } from '../core/sketch/geometry';
-import { shapesToStep, stepToMeshes } from '../core/occt/step';
-import { shapeMismatch, volumeMismatch } from '../core/features/volumeCheck';
+import { shapesToStep, stepItems, stepToMeshes } from '../core/occt/step';
+import { kernelMismatch, shapeMismatch } from '../core/features/volumeCheck';
 
 let kernel: ReturnType<typeof occtKernel>;
 let rep: typeof import('replicad');
@@ -140,6 +140,13 @@ describe('QA wrap on the B-rep kernel', { timeout: 60000 }, () => {
     const add = (10 / 20) * ((22 * 22 - 20 * 20) / 2) * 10;
     expect(Math.abs(wrapped('emboss') - cylinder - add) / add).toBeLessThan(0.05);
   });
+  it('STEP of the wrapped roll (QA 0.5.13, F204): the shape goes out, but it is not counted exact, so the export warns', async () => {
+    const r = rebuildDocument(roll('emboss'));
+    const out = await shapesToStep(rep, stepItems(r));
+    expect(out.volumes).toHaveLength(1);
+    expect(out.exact).toBe(0);
+    expect(Math.abs(out.volumes[0] - r.bodies[0].exactVolume!)).toBeLessThan(1e-3);
+  });
   it('Deboss 2 mm: the patch is cut (was 262 of 190) and the body says it is faceted', () => {
     const cut = (10 / 20) * ((20 * 20 - 18 * 18) / 2) * 10;
     expect(Math.abs(cylinder - wrapped('deboss') - cut) / cut).toBeLessThan(0.05);
@@ -170,7 +177,8 @@ describe('QA F175: ellipses, splines and conics are exact curves on the B-rep ke
     const r = rebuildDocument(doc);
     const shape = r.brep?.[r.bodies[0].id];
     expect(shape).toBeTruthy();
-    const out = await shapesToStep(rep, [{ name: 'Body', shape }]);
+    const out = await shapesToStep(rep, [{ name: 'Body', shape, exact: r.bodies[0].exact === true }]);
+    expect(out.exact).toBe(1);
     return { text: new TextDecoder().decode(out.bytes), bytes: out.bytes };
   };
   const count = (text: string, re: RegExp) => (text.match(re) ?? []).length;
@@ -296,7 +304,7 @@ describe('QA plastics on the B-rep kernel (0.5.11 F51 / F121, parity rows 16 and
       expect(Math.abs(b.exactVolume! - v), `${first}: ${b.exactVolume!.toFixed(4)} vs ${v.toFixed(4)}`).toBeLessThan(1e-3);
       const shown = Math.abs(meshVolume(b.geometry));
       expect(Math.abs(shown - v) / v, `tessellation ${shown.toFixed(2)} vs ${v.toFixed(2)}`).toBeLessThan(0.01);
-      expect(volumeMismatch(Math.abs(meshVolume(m.geometry)), b.exactVolume!)).toBeNull();
+      expect(kernelMismatch(m.geometry, Math.abs(meshVolume(m.geometry)), b.geometry, b.exactVolume!)).toBeNull();
       expect(shapeMismatch(m.geometry, b.geometry)).toBeNull();
     }
   };

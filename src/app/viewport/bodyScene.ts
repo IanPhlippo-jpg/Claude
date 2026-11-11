@@ -439,7 +439,7 @@ export class BodyScene {
         extra.push(phantom);
       }
       // silhouettes of curved faces (a cylinder's outline), drawn like the edges, by design
-      const se = smoothEdges(g);
+      const se = display?.smooth ?? smoothEdges(g);
       let sil: BodyEntry['sil'];
       if (se.count) {
         const sg = new THREE.BufferGeometry();

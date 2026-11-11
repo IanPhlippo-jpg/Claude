@@ -7,6 +7,7 @@ import { exportMesh, type MeshExportOptions } from '../core/document/export3d';
 import { desktop } from './desktop';
 import { getPref } from './prefs';
 import { exportDefaults, exportPrefs } from './prefsEffects';
+import { confirmExport } from './exportGate';
 
 /** Feature Properties: name, description, suppressed, the dates — as the intended dialog */
 export function FeaturePropertiesDialog() {
@@ -131,7 +132,8 @@ export function ExportOptionsDialog() {
   const run = () => {
     st.setPrefs({ ...st.prefs, ...exportPrefs({ ascii, unit: unit ?? 'mm', resolution, showInfo }), 'export.deviation': deviation, 'export.angle': angle, 'export.keepPosition': !positive, 'export.singleFile': single });
     if (!bodies.length) return st.pushMessage('There is no solid body to export; create one first (Extruded Boss/Base).', 'warn');
-    if (fmt === 'step') return runStep();
+    // a model with rebuild errors is only exported after the same confirmation as Save (QA 0.5.13, F204)
+    if (fmt === 'step') return confirmExport('STEP file', runStep);
     const r = exportMesh(bodies, st.doc.name, { format: fmt, ascii, unit, keepPosition: !positive, singleFile: single });
     const save = async () => {
       const api = desktop();
@@ -149,8 +151,10 @@ export function ExportOptionsDialog() {
       st.pushMessage(`${r.files.map((x) => x.name).join(', ')} saved.`, 'info');
     };
     st.setDialog(null);
+    confirmExport(`${fmt.toUpperCase()} file`, () => {
     if (showInfo) st.setAsk({ title: `${fmt.toUpperCase()} Info`, text: `${r.triangles} triangles, ${bodies.length} ${bodies.length === 1 ? 'body' : 'bodies'}, ${r.files.length} file(s), unit ${unit}${positive ? ', translated to positive space' : ''}. Save?`, yes: () => { void save(); } });
     else void save();
+    });
   };
   return (
     <Dialog title={`Export Options — ${fmt.toUpperCase()}`} onClose={() => st.setDialog(null)} data-testid="export-options">
