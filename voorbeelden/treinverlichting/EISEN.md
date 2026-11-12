@@ -100,3 +100,7 @@ Keuzes (zelf beslist, binnen de € 20, zie README-bestellijst: € 148,67 in pl
 
 Na te meten (nieuw): de dikte van de print van een bordje (de klemlippen rekenen met 1,6); de schroefdraad van de
 DC-bus (gat Ø11,5); de pennen van de ATO-houder (10,16); de pull-down op OE van de gekochte PCA9685-print.
+
+**Rebuildtijd (2026-11-12, na de klemlippen):** de bak kwam op 46 s (budget van de app 45 s). De schroefgaten Ø2,2 en Ø2,6
+in de paaltjes en bussen zijn nu achthoeken met de vlakken op die maat (de schroef tapt in de vlakken; een printer maakt
+zo een klein gat toch hoekig): de bak bouwt in 38 s.

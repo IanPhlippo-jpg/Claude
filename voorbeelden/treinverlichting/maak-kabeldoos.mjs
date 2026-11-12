@@ -18,7 +18,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { component } from '../lib/schets.mjs';
 import { M } from './maten.mjs';
-import { yv, xv, zv, deel, snede, cirkels, PETG, PETG_DEKSEL } from './hulp.mjs';
+import { yv, xv, zv, deel, snede, cirkels, veelhoeken, PETG, PETG_DEKSEL } from './hulp.mjs';
 import { gootwanden, groefSneden, vingers, gootdeksel, dekselPlaat, dekselBreedte, sleufPatroon, klemSleuven, KLIK_REK } from './goten.mjs';
 import { bordjePcb, klemstrook, smdRij, tule, dcBus, schroefVerzonken, bolkopSchroef, espStapel, uitgangStapel, ingangStapel, voedingStapel, espY, espDragerX, dragerGaten, hoekGaten, draaiY } from './onderdelen.mjs';
 import { lippenOpBak, hulpstukkenPlaat } from './hulpstukken.mjs';
@@ -228,7 +228,10 @@ export function bak() {
   const palen = printPalen();
   cirkels(o, -0.5, M.voet + 0.5, palen.map(([x, z]) => [x, z, 3]), 'Schroefpaaltjes');
   cirkels(o, -0.5, D.h + 0.5, L.bussen.map(([x, z]) => [x, z, D.bus.r]), 'Schroefbussen');
-  cirkels(o, D.h, D.h + D.bodem - 0.4, [...palen.map(([x, z]) => [x, z, 1.1]), ...L.bussen.map(([x, z]) => [x, z, 1.3])], 'Schroefgaten', 'cut');
+  // de schroefgaten als achthoek (de vlakken op Ø2,2 / Ø2,6: daar tapt de schroef; een printer maakt een klein gat toch
+  // hoekig): een achthoek kost de kernel veel minder dan een cirkel, zo blijft de bak met de klemlippen binnen 45 s
+  const acht = (x, z, r) => Array.from({ length: 8 }, (_, i) => { const a = Math.PI / 8 + (i * Math.PI) / 4, R = r / Math.cos(Math.PI / 8); return [x + R * Math.cos(a), z + R * Math.sin(a)]; });
+  veelhoeken(o, D.h, D.h + D.bodem - 0.4, [...palen.map(([x, z]) => acht(x, z, 1.1)), ...L.bussen.map(([x, z]) => acht(x, z, 1.3))], 'Schroefgaten', 'cut');
   // tot slot de kabelgoten: 6 ringen (rij 1 tot 6) en de wand voor rij 7, de vingers en hun klikgroeven
   gootwanden(o, { ringen: L.ringen.map((r) => [-L.xr, r.z0, L.xr, r.z1]), balken: [[-X - 1, L.wand7[0], X + 1, L.wand7[1]]], wanden: L.wanden, groeven: L.groeven });
   // helemaal op het einde de klemlippen (4 per bordje, hulpstukken.mjs): de kuiltjes in de bodem vroeg in de boom

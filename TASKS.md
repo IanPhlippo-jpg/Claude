@@ -1366,3 +1366,20 @@ elease; README en docs/04 bijgewerkt
 - [x] Testen (montage 35/35, qaDeuren 500/500 na busplaat 30x30x8 i.p.v. lasring), artifact, foto's, commit en push
 - [x] Structuur (fijnstructuur, glad mat, zijdeglans) als stalen in de RAL-kleur (beide configuratoren)
 - [x] Advies Fable 5.2 (deuren en hele CAD) en de fouten verbeterd: geen verzonken kop in dunne wand, hoeklijn 3 mm, vloeiboren M4, toegangsgat met afdekdop, afstandsbus greep, stelschroeven aan de glaszijde, glijbus en intrekgat bovenpen
+
+## Treinverlichting: advies Fable 5.2 verwerken (2026-11-12)
+- [x] Bordjes vast met klemlippen; bedraden op tafelhoogte (neerklapbaar ophangen); haakje/spatel voor de goten
+- [x] Elektrisch: polyfuse op +12 V knoppen, ompoolbeveiliging + DC-bus, polyfuse per groep, 1N4148 per ingang, OE-weerstand, ingangen ook naar massa
+- [x] Firmware: watchdog, hotspot herstarten, update over wifi, noodreset met BOOT, thuis-wifi, testmodus looplicht
+- [x] Bouwen: opbouwtekening gaatjesprints, interne draadlijst met 0 V-klem, stap firmware laden, meetblad, invulblad groepen
+- [x] Rekenblad (warmte, polyfuse bij 40 °C), documentfoutjes, tests, app en foto's
+
+## Afzuiging: advies Fable 5.2 verwerken (2026-11-12)
+- [x] Lucht: grotere verdeelruimte onder het filter, opener rooster, lucht boven de plooien, ventilator ontkoppeld, werkhoogte 10 cm eerlijk, proefopstelling
+- [x] Uitblaas blijft vrij (Ian: geen adapter naar buiten), weg van de voedingsbox; koolfilter als optie, L3/L4 met echte criteria
+- [x] Onder de tafel ronde, bolle vormen (romp, bodemplaat, voedingsbox, knophouder) om ruimte te sparen; bovenkant blijft vierkant met afgeronde hoeken
+- [x] Firmware: filter-vol op laagste druk over een venster met hysterese, aparte ijking wissen, stop bij filter weg/geen lucht, watchdog, tacho-filter, nachtuit, radio weg = stoppen
+- [x] Veiligheid en blad: spleten bij de waaier, CE/risicoanalyse-checklist, latten in het blad, MDF-mal, doorbuigproef
+- [x] Elektrisch: ompoolbeveiliging, draaddikte gelijk, aarding nakijken, opbouwtekening gaatjesprint, stoffilter voedingsbox
+- [x] Tests, tekeningen, revisie, foto's, commit en push
+- [x] Treinbak terug binnen 45 s (schroefgaten als achthoek: 38 s); foto's van het knoppotje
