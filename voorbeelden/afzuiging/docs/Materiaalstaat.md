@@ -7,7 +7,7 @@ als **aanname** aangeduid; de duurproeven horen bij `Vrijgave-en-meetplan.md`.
 
 | Onderdeel | Materiaal | Printstand | Belasting |
 |---|---|---|---|
-| Romp, bovenframe, instroomplaat (met het vingerrooster), bodemplaat, voedingsbox, deksel, adapterklemmen | PETG wit | zie de tabel in de README | licht; warmte in de box (rekenblad, hoofdstuk 5) |
+| Romp, bovenframe, instroomplaat (met het vingerrooster), ventilatorkuip, voedingsbox, deksel, adapterklemmen | PETG wit | zie de tabel in de README | licht; warmte in de box (rekenblad, hoofdstuk 5); de kuip draagt de ventilator (750 g) via de buffers en 4 x M3 |
 | Klauwen (4 x) en knopklauwen (2 x, zwart) | PETG, 100 % vulling | plat, de moerkamer op het bed: de arm buigt in de laag | de enige blijvend belaste delen (rekenblad, hoofdstuk 6) |
 | Knophouder, knopdeksel | PETG zwart | de plaat op het bed | licht; wordt aangeraakt met handschoenen |
 
@@ -25,7 +25,7 @@ minstens dezelfde waarden haalt. Uit dat datablad (ISO 527-1, geprinte proefstav
 
 | Middel | PETG | Wat het betekent |
 |---|---|---|
-| aceton (nagellakremover, gelremover) | **niet bestand**: zwelt, wordt rubberachtig (ca. 16 % gewichtstoename bij onderdompeling) | aceton nooit op de geprinte delen; een spat meteen droog deppen. Van bovenaf zie je alleen staal en een randje PETG van 2,5 mm |
+| aceton (nagellakremover, gelremover) | **niet bestand**: zwelt, wordt rubberachtig (ca. 16 % gewichtstoename bij onderdompeling) | aceton nooit op de geprinte delen; een spat meteen droog deppen. Van bovenaf zie je alleen staal en een randje PETG van 2,5 mm. **Druppelzone (7.2):** wat door de sleuven van de plaat druppelt, valt op het filter en, naast het filter, op de instroomplaat en de rand van het bovenframe: dat is PETG. Hoe snel een druppel het aantast, meet poort M3 (acetonproef); tot dan: morsen = de procedure "Na morsen" |
 | ethanol 50 % en 96 % | bestand (< 1 % verandering) | reinigen en ontsmetten met alcohol |
 | propanol | bestand | |
 | water met zeep | bestand | |
@@ -57,6 +57,9 @@ zijn gat te wrikken).
 | kussentjes op de klauwen (4 x 7,5 x 8 x 4 op de module, 2 x 6 x 6 x 3 op de knop) | neopreen (CR) Shore A 40 ± 5, gelijmd met secondelijm-gel (cyanoacrylaat hecht goed op neopreen en op geschuurd PETG) | -30 tot +90 °C; de veer volgt uit de hardheid (rekenblad, hoofdstuk 6). Geen losse siliconen voor de kussentjes: die hechten met geen enkele gewone lijm |
 | afdichtlip rond het filter (150 x 200, 5 mm breed) | siliconenrubber 0,5 mm, Shore A 50 tot 60, **met fabriekskleeflaag** (de kleeflaag is voor siliconen gemaakt; op schoon, ontvet PETG) | -40 tot +200 °C; bestand tegen aceton en alcohol (zwelt kort, geen blijvende schade). Vervangen als ze gescheurd, gezwollen of los is |
 | draagband onder het filter | zachte zelfklevende foamband 6 x 4 mm, EPDM-cel (tochtband) | draagt het filter alleen (de afdichting is de lip); vervangen als hij plat of gescheurd is |
+| dichting van de kuip (7.2) | zelfklevende celband 6 x 2 mm, EPDM of neopreen | getekend 1,5 mm ingedrukt; vervangen als hij plat is (jaarlijkse controle) |
+| rubberbuffers van de ventilator (7.2) | natuurrubber (NR) 55 Shore A, Ø15 x 10, M4 binnendraad (Erwin Halder EH 25150.0008: max. 200 N, veer ca. 80 N/mm) | -30 tot +80 °C (algemeen voor NR; na te kijken op het gekochte type); niet tegen olie en aceton |
+| gat voor de aders in de kuip (7.2) | neutrale siliconenkit | luchtdicht; lost niet op in alcohol |
 
 ## Filter
 
@@ -73,9 +76,17 @@ sommige leveranciers maar tot 60 °C).
 
 | Onderdeel | Materiaal |
 |---|---|
-| rooster (lasersnede) | RVS 430 (1.4016), 1,5 mm, geborsteld: **magnetisch**, de plaat klikt op de magneten. 304 en 316 zijn niet magnetisch en vallen dus af. 430 roest iets sneller dan 304: met een middel op alcohol reinigen, geen chloor |
+| rooster (lasersnede) | RVS 430 (1.4016), 1,5 mm, geborsteld: **magnetisch**, de plaat klikt op de magneten. 304 en 316 zijn niet magnetisch en vallen dus af. 430 is minder corrosievast dan 304: er kunnen vlekjes of roestpuntjes komen (vocht, zout van handen, chloor). Met een middel op alcohol reinigen en droog afnemen, geen chloor; vlekjes weg met een RVS-reiniger of een zachte schuurspons in de richting van het borstelpatroon (jaarlijkse controle, `onderhoud.mjs`) |
+| persbouten (7.2) | PEM FH4-M3-6, RVS uit de 400-reeks, voor RVS-plaat tot HB 195 (430: zacht genoeg); door de lasersnijder ingeperst; de kop vlak met de plaat |
 | schroeven en moeren | RVS A2 (DIN 7991, DIN 934) |
 | meetbuisjes | messing Ø3 x 0,5 |
+
+## Hout en mallen (7.2)
+
+| Onderdeel | Materiaal | Grenzen |
+|---|---|---|
+| latten tussen de huiden van het blad | vuren, geschaafd, 28 x 44 (rond de module) en multiplex of beuken 10 x 30 (achter de box) | gelijmd met PU-lijm D4 of houtlijm D3 op de vezelplaat; droog binnen; de schroeven van de box draaien erin |
+| freesmallen | MDF 12 mm, lasergesneden | alleen gereedschap; vlak en droog bewaren |
 
 ## Reinigen en ontsmetten
 

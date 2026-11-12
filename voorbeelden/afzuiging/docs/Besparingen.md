@@ -1,4 +1,4 @@
-# Afzuiging: goedkoper maken (versie 7.1, totaal nu € 546,98)
+# Afzuiging: goedkoper maken (versie 7.2, totaal nu € 601,78)
 
 Twee lijsten. Lijst 1 kan zonder de veiligheid te raken; elk punt heeft wel een nadeel. Lijst 2 is waar je **niet** op
 bespaart: daar hangt de veiligheid van af. Prijzen incl. btw, ongeveer; nog niets is aangepast in het model.
@@ -15,18 +15,32 @@ bespaart: daar hangt de veiligheid van af. Prijzen incl. btw, ongeveer; nog niet
 | 6 | Laser: opstartkost en verzending | € 10 | rooster samen bestellen met ander lasersnijwerk (meerdere stuks) | ± € 5–10 per stuk | alleen bij meer stuks |
 | 7 | Ventilator San Ace C175 (32 % van het totaal) | € 160 | een radiale 24 V-ventilator van een ander merk **met** gegevensblad (curve, geluid), PWM, tacho en blokkeerbeveiliging | mogelijk € 50–90 | eerst uitzoeken en narekenen; zonder gegevensblad niet doen (zie lijst 2) |
 
-Samen (1 en 3 tot 6): ongeveer **€ 70 minder** (± € 475). Met een goedkopere ventilator (7) mogelijk ± € 385–425.
+Samen (1 en 3 tot 6): ongeveer **€ 70 minder** (± € 530). Met een goedkopere ventilator (7) mogelijk ± € 440–480.
+
+Versie 7.2 kost € 54,80 meer dan 7.1: latten en lijm (€ 14), MDF-freesmallen (€ 18), persbouten (€ 6), rubberbuffers en
+schroeven (€ 7), dichting en kit (€ 10), en kleine elektronica (€ 0,60); de M3-schroeven van de bodemplaat vervallen.
+De MDF-mallen kun je weglaten als je een stijve mal zelf zaagt (multiplex 12 mm, opening 217 x 217 R8,5, nauwkeurig op
+0,2 mm): € 18 minder, maar de nauwkeurigheid hangt dan van jou af.
+
+## Na te gaan
+
+- **Echte print (PCB)** in plaats van de gaatjesprint: minder soldeerwerk en fouten, een paar euro per stuk bij een
+  printfabrikant, maar een ontwerp in KiCad (niet gemaakt in 7.2) en een minimumbestelling.
+- **GX12 in plaats van M8** (lijst 1, punt 1): de M8-bus zit nu buiten de luchtweg (onder de instroomplaat), dus de
+  dichtheid (IP) van de connector speelt geen rol meer voor de luchtdichtheid.
 
 ## Lijst 2: hier niet op besparen (veiligheid)
 
 | Wat | Waarom het blijft |
 |---|---|
-| Netadapter Mean Well GST90A24-P1M (€ 33) | Het enige deel met 230 V. Gekeurd, dubbel geïsoleerd, met aarding, kortsluit- en overbelastingsbeveiliging. Een naamloze adapter kan isolatie- of brandproblemen hebben. |
+| Netadapter Mean Well GST90A24-P1M (€ 33) | Het enige deel met 230 V. Gekeurd, **klasse I** (C14-inlaat met aarde; versie 7.1 schreef ten onrechte "dubbel geïsoleerd"), met kortsluit-, overlast- en overspanningsbeveiliging; de DC-uitgang is zwevend ("−V niet verbonden met FG", datasheet; poort E2 meet "min aan aarde?"). Een naamloze adapter kan isolatie- of brandproblemen hebben. |
 | Netsnoer met randaarde, aan/uit-schakelaar C&K D502 (10 A bij 30 V DC) en zekering Bel 0697W 3,15 A traag (72 V DC) | Samen een tiental euro. Beide met een DC-waarde op het datablad: een schakelaar of zekering met alleen een wisselspanningswaarde kan een gelijkstroomboog niet zeker onderbreken. De zekering is de reserve achter de beveiliging van de adapter; niet weglaten of zwaarder kiezen. |
 | Regelaar 24 → 5 V Pololu D24V10F5 (€ 10,50) | Een goedkope buck-module zonder beveiliging kan bij een defect 24 V op de USB naar de knop zetten (knop en kabel kapot, kabel warm). Deze heeft stroombegrenzing en thermische beveiliging. |
 | Ventilator zonder gegevensblad (AliExpress) | Onbekende blokkeerbeveiliging (een vastgelopen motor kan heet worden), onbekend debiet en geluid. |
 | PETG voor de voedingsbox | PLA wordt zacht rond 55–60 °C; in de box zit de adapter (tot 44 °C in het ongunstigste geval, rekenblad hoofdstuk 5). |
-| Draaddikte | Minstens 0,25 mm² voor de ventilator (2,35 A, zie Berekeningen.md), 0,75 mm² van de adapter; niet dunner. |
+| Draaddikte | In de box 0,5 mm² voor 24 V en M naar de M8-stekker; de M8-kabel heeft 4 x 0,25 mm² (2,35 A, zie Berekeningen.md); niet dunner. |
+| Ompolingsdiode -R13, RC op de tacho, rubberbuffers (± € 7) | -R13 beschermt de print als de ingekorte DC-kabel verkeerd om zit; het RC-filter houdt stoorpulsen van de PWM uit de toerentalmeting (anders valse "toerental wijkt af"); de buffers houden het motorgeluid uit het blad. |
+| Persbouten in de RVS-plaat (± € 6) | Zonder schuift de plaat onder een arm weg van het frame en ligt het filter open. |
 | Toerentalbewaking (tacho) | Meldt een stilstaande, geblokkeerde of afgeremde ventilator (meer dan 3 % naast het doel); zonder geldig toerental geen filteroordeel. |
 | Schakelaar -Q2 en de elco's -C1/-C2 op 50 V (± € 2,50) | -Q2 maakt de ventilator spanningsloos als de besturing wegvalt; -C2 vangt de inschakelpiek aan de regelaar op (Pololu: minstens 33 µF boven 20 V). |
 | Afdichtlip (siliconenrubber, € 12) | Zonder lip kan er lucht met stof langs het filter naar de ventilator en terug in de salon; de drukmeter ziet een kleine kier niet. |

@@ -32,9 +32,9 @@ const DELEN: Deel[] = [
     `Gaten M5: Ø5,8 x 67 diep vanaf de bovenkant (in de torens)`,
     `Klauwkanaal ${2 * (m.klauw.naaf + 0.5)} x ${2 * (m.klauw.naaf + 0.5)} van ${m.toren.top} tot ${m.toren.bodem} (Y), zwaaivenster tot ${m.toren.zwaai} (klauw met rubber)`,
     `Richel instroomplaat: 3 treden van 1 mm onder Y ${m.inlaat.top - m.inlaat.dikte}`,
-    `8 gaten Ø2,5 x 12 van onderen (M3, bodemplaat)`,
-    `Achterwand: Ø10,2 (M8-bus binder 718, M10 x 0,75) en Ø3,1 (messingbuisje)`,
-    'Binnen tegen de achterwand: 2 ringen Ø5,6 (slangetje) en 1 ring Ø7 (draden ventilator)',
+    `4 bussen midden in de wanden onderaan, gat Ø2,5 x 12 (M3, de oren van de kuip)`,
+    `Achterwand onder de instroomplaat: Ø10,2 (M8-bus binder 718, M10 x 0,75) en Ø${2 * m.achter.slang.r} (slangetje)`,
+    'Richel ook langs de torens: de naad met de instroomplaat rondom lijmen (luchtdicht)',
   ] },
   { f: 'Bovenframe.kcad', nr: 'AFZ-02', naam: 'Bovenframe', materiaal: 'PETG (wit)', maken: '3D-print plat, 5 wanden, 6 lagen boven/onder', dichtheid: PET, maten: [
     `Buitenmaat ${m.frame.b} x ${m.frame.d} x ${m.frame.dikte}, hoeken R${m.frame.r}`,
@@ -46,7 +46,8 @@ const DELEN: Deel[] = [
   { f: 'Rooster-LB.kcad', nr: 'AFZ-03', naam: 'RVS-plaat met LB-rooster', materiaal: 'RVS 430 (magnetisch), 1,5 mm, geborsteld', maken: 'Lasersnijden volgens laser/rooster.dxf', dichtheid: RVS, maten: [
     `Plaat ${m.frame.b} x ${m.frame.d} x 1,5, hoeken R${m.frame.r}`,
     'Rand 11 mm zonder gaten; LB-monogram 75 mm hoog',
-    'Sleuven 3,5 mm, stegen 3 mm, nergens smaller dan 1,5 mm',
+    'Sleuven 5 mm, stegen 2 mm, nergens smaller dan 1,6 mm (versie 7.2)',
+    '4 gaten Ø3,0 voor RVS-persbouten PEM FH4-M3-6 (laat de lasersnijder ze inpersen)',
     'Eén stuk staal, geen losse eilanden (zie het laserrapport)',
     'Snijden volgens laser/rooster.dxf (laag SNIJDEN)',
   ] },
@@ -60,15 +61,16 @@ const DELEN: Deel[] = [
     `Gat Ø3,1 voor het messingbuisje op x ${m.achter.meet[0]}, z ${m.achter.meet[1]}`,
     'Op de getrapte richel van de romp gelijmd',
   ] },
-  { f: 'Bodemplaat.kcad', nr: 'AFZ-05', naam: 'Bodemplaat', materiaal: 'PETG (wit)', maken: '3D-print plat, de lamellen onder 45°', dichtheid: PET, maten: [
-    `Buitenmaat ${m.romp.b} x ${m.romp.d} x ${m.uitblaas.dikte}, hoeken R${m.romp.r}`,
-    `Lamellen 2 mm, steek ${m.uitblaas.steek}, onder 45° naar achteren`,
-    `Schijf Ø${2 * m.uitblaas.schijf} onder de motor`,
-    `4 x M4 verzonken 90° (Ø8,2) op Ø${2 * m.fan.gat}, onder 45°`,
-    '8 x M3 verzonken 90° (Ø6,2) in de torens en de wandbussen',
+  { f: 'Ventilatorkuip.kcad', nr: 'AFZ-05', naam: 'Ventilatorkuip', materiaal: 'PETG (wit)', maken: '3D-print rechtop, de bodem op het bed, zonder support', snede: true, dichtheid: PET, maten: [
+    `Binnen Ø${2 * m.kuip.binnen}, wand ${m.kuip.wand}, buiten Ø${2 * (m.kuip.binnen + m.kuip.wand)}; rand op Y ${getal(m.kuip.rand)} (celband 6 x 2)`,
+    `Wand recht tot Y ${m.kuip.recht}, dan bol: boog R${m.kuip.boog} tot 45°, dan 45° tot de bodem (Y ${m.kuip.bodem}, ${m.kuip.vloer} dik)`,
+    `Lamellen onder 45° naar onder: 12 sectoren (±${m.kuip.lamel.hoeken.join(', ±')}° rond de X-as) van ${m.kuip.lamel.breed} breed, ${m.kuip.lamel.rijen} rijen, banden ${m.kuip.lamel.sleuf} mm`,
+    `Bodem: ringsleuven ${m.kuip.ringen.map(([a, b]) => `r ${a}-${b}`).join(', ')} met ${m.kuip.spaken} spaken van ${m.kuip.spaak}`,
+    `4 x M4 verzonken 90° (Ø8,2) op Ø${2 * m.fan.gat} onder 45° (rubberbuffers); gat Ø5 voor de aders op (0, ${m.kuip.draad[1]})`,
+    `4 oren (console 45°) op de assen, gat Ø3,4 en kom Ø${m.kuip.oor.kom} van onderen (M3 x 12 DIN 912)`,
   ] },
   { f: 'Voedingsbox.kcad', nr: 'AFZ-06', naam: 'Voedingsbox', materiaal: 'PETG (wit)', maken: '3D-print rechtop, de bodem op het bed', snede: true, dichtheid: PET, maten: [
-    `Bak ${m.box.b} x ${m.box.d} x ${m.box.boven - m.box.onder}, wand ${m.box.wand}; rand ${m.box.b + 2 * m.box.flens.x} x ${m.box.d + 2 * m.box.flens.z} x ${m.box.flensDik} met een schuine kant van 45°`,
+    `Bak ${m.box.b} x ${m.box.d} x ${m.box.boven - m.box.onder}, wand ${m.box.wand}, hoeken R${m.box.hoek}, onderaan ${m.box.schuin} x 45°; rand ${m.box.b + 2 * m.box.flens.x} x ${m.box.d + 2 * m.box.flens.z} x ${m.box.flensDik} met een schuine kant van 45°`,
     `De bovenste ${m.box.boven} mm zit in de uitsparing van ${m.box.frees.b} x ${m.box.frees.d} x ${m.box.frees.diep}, los deksel bovenin (AFZ-12)`,
     '4 gaten Ø4,5 in de rand, van onderen zitting Ø9 en verzinking 90° (4 x 16 in de onderhuid)',
     '4 paaltjes Ø10,4 in de hoeken met een gat Ø2,5 x 10 (M3 x 8, deksel)',
@@ -178,7 +180,7 @@ function tafelbladBlad(blad: string): string {
   // bewerkingen
   const regels = [
     'Bovenkant (doorgaand):',
-    `- uitsparing ${u.b} x ${u.d}, hoeken R${u.r} (frees Ø10), midden van het blad`,
+    `- uitsparing ${u.b} x ${u.d}, hoeken R${u.r} (MDF-mal AFZ-21, kopieerring Ø17, frees Ø12), midden`,
     `- gat Ø${d.gat} (gatzaag), ${700 + d.x} van links, ${300 - d.z} van voor`,
     'Onderkant (niet doorgaand):',
     `- uitsparing voedingsbox ${F.b} x ${F.d} x ${F.diep} diep, R${F.r},`,
@@ -188,13 +190,93 @@ function tafelbladBlad(blad: string): string {
     `  ${700 + K.module.x[0]} tot ${700 + K.module.x[1]} van links (box tot uitsparing)`,
     `- sleuf naar de knop ${K.knop.breed} x ${K.knop.diep}, van de box naar het knopgat`,
     'Maten vanaf de linkerrand en de voorrand (waar je zit).',
-    'LAGKAPTEN is vanbinnen een honingraat: frees',
-    'rustig en in twee gangen, onderhuid ca. 3 mm.',
+    'LAGKAPTEN is vanbinnen een honingraat: daarna latten',
+    'tussen de huiden lijmen (AFZ-21): 28 x 44 rond de module,',
+    '10 x 30 achter de box; dan pas de sleuven frezen.',
   ];
   let ty = 272;
   b.tekst([292, ty], 'Bewerkingen', 3.4, 'start', { vet: true });
   for (const r of regels) { ty -= 5.2; b.tekst([292, ty], r, 2.45); }
-  kader(b, { nr: 'AFZ-20', naam: 'Tafelblad LAGKAPTEN: bewerkingen', materiaal: 'LAGKAPTEN 1400 x 600 x 34 (IKEA)', maken: 'Bovenfrees Ø10 en Ø5, gatzaag Ø44', massa: '—', schaal: '1:10 en 1:5', blad });
+  kader(b, { nr: 'AFZ-20', naam: 'Tafelblad LAGKAPTEN: bewerkingen', materiaal: 'LAGKAPTEN 1400 x 600 x 34 (IKEA)', maken: 'Bovenfrees, kopieerring Ø17, frees Ø12 en Ø5, gatzaag Ø44', massa: '—', schaal: '1:10 en 1:5', blad });
+  return b.svg();
+}
+
+/** afgeronde rechthoek (x0, y0 linksonder, y omhoog) */
+function rrB(b: Blad, x0: number, y0: number, w: number, h: number, r: number, sw = 0.5, extra = '') {
+  const Y = (v: number) => H - v, x1 = x0 + w, y1 = y0 + h;
+  b.el.push(`<path d="M${x0 + r},${Y(y0)} H${x1 - r} A${r},${r} 0 0 0 ${x1},${Y(y0 + r)} V${Y(y1 - r)} A${r},${r} 0 0 0 ${x1 - r},${Y(y1)} H${x0 + r} A${r},${r} 0 0 0 ${x0},${Y(y1 - r)} V${Y(y0 + r)} A${r},${r} 0 0 0 ${x0 + r},${Y(y0)} Z" fill="none" stroke="#111" stroke-width="${sw}" ${extra}/>`);
+}
+
+/** versie 7.2 (advies Fable 5.2): de freesmallen uit MDF met kopieerring en de latten tussen de huiden van het blad */
+function malBlad(blad: string): string {
+  const b = new Blad();
+  const { mdf: D, latten: L, uitsparing: u, box: B, blad: dik } = m;
+  const off = (D.ring - D.frees) / 2, s = 0.2; // 1:5
+  const mallen = [
+    { naam: 'Freesmal module', plaat: D.plaat.afzuiging, open: [u.b + 2 * off, u.d + 2 * off], r: u.r + off, gaten: [] as P[], c: [85, 205] as P, uit: [u.b, u.d] },
+    { naam: 'Freesmal voedingsbox', plaat: D.plaat.voedingsbox, open: [B.frees.b + 2 * off, B.frees.d + 2 * off], r: B.frees.r + off,
+      gaten: [[1, 1], [1, -1], [-1, 1], [-1, -1]].map(([a, c]) => [a * B.plug.x, c * B.plug.z] as P), c: [85, 80] as P, uit: [B.frees.b, B.frees.d] },
+  ];
+  for (const M2 of mallen) {
+    const [pw, ph] = M2.plaat, [ow, oh] = M2.open, [cx, cy] = M2.c;
+    rrB(b, cx - pw * s / 2, cy - ph * s / 2, pw * s, ph * s, 10 * s, 0.5);
+    rrB(b, cx - ow * s / 2, cy - oh * s / 2, ow * s, oh * s, M2.r * s, 0.5);
+    rrB(b, cx - M2.uit[0] * s / 2, cy - M2.uit[1] * s / 2, M2.uit[0] * s, M2.uit[1] * s, (M2.r - off) * s, 0.2, 'stroke-dasharray="1.5 1"');
+    b.lijn([cx - pw * s / 2 - 3, cy], [cx + pw * s / 2 + 3, cy], 0.18, 'stroke-dasharray="6 1.2 1.2 1.2"');
+    b.lijn([cx, cy - ph * s / 2 - 3], [cx, cy + ph * s / 2 + 3], 0.18, 'stroke-dasharray="6 1.2 1.2 1.2"');
+    for (const [gx2, gz2] of M2.gaten) b.cirkel([cx + gx2 * s, cy + gz2 * s], 1.5 * s * 2, 0.3);
+    b.maatH(cx - pw * s / 2, cx + pw * s / 2, cy - ph * s / 2, cy - ph * s / 2 - 7, `${pw}`);
+    b.maatV(cy - ph * s / 2, cy + ph * s / 2, cx - pw * s / 2, cx - pw * s / 2 - 7, `${ph}`);
+    b.maatH(cx - ow * s / 2, cx + ow * s / 2, cy + oh * s / 2, cy + ph * s / 2 + 6, `${getal(ow)}`);
+    b.tekst([cx, cy - 1], `opening ${getal(ow)} x ${getal(oh)}, R${getal(M2.r)}`, 2.4, 'middle');
+    b.tekst([cx, cy + ph * s / 2 + 12], `${M2.naam} (MDF ${D.dikte}, 1:5)`, 3.2, 'middle', { vet: true });
+    if (M2.gaten.length) b.tekst([cx, cy - 5], `4 gaatjes Ø3 (voorboren ${getal(B.plug.gat)} x ${B.plug.diep})`, 2.2, 'middle');
+  }
+  // doorsnede door de rand van de uitsparing met de lat (2:1)
+  const k = 2, x0 = 175, y0 = 150, X = (x: number) => x0 + (x - 96) * k, Y = (y: number) => y0 + (y + dik) * k;
+  const rh = (xa: number, ya: number, xb: number, yb: number, sw = 0.5, vul = 'none') => b.rect(Math.min(X(xa), X(xb)), Math.min(Y(ya), Y(yb)), Math.abs(X(xb) - X(xa)), Math.abs(Y(yb) - Y(ya)), sw, vul);
+  rh(106, 0, 175, -L.huid); rh(106, -dik, 175, -dik + L.huid); // huiden
+  rh(106, -dik + L.huid, 106 + L.module.b, -L.huid, 0.6, '#e9d8b4'); // lat
+  rh(101, 0, 105, -30); rh(100.5, 0, 111, 2.5); rh(100, 2.5, 111, 4, 0.5, '#d6d9dd'); // romp, frame, plaat
+  rh(96.5 + 9.5, -dik, 96.5 + 17, -dik - 4, 0.4, '#555'); rh(96.5, -dik - 4, 96.5 + 18, -dik - 10); // rubber en klauw
+  b.tekst([X(128), Y(-17)], `lat ${L.module.h} x ${L.module.b} (vuren)`, 2.6, 'middle');
+  b.tekst([X(176), Y(-1.5) - 0.8], `bovenhuid ${L.huid} (aanname)`, 2.2, 'start');
+  b.tekst([X(176), Y(-dik + 1.5) - 0.8], 'onderhuid', 2.2, 'start');
+  b.tekst([X(99.5), Y(3) - 0.8], 'RVS-plaat en frame (5 mm rand)', 2.2, 'end');
+  b.tekst([X(107), Y(-dik - 12) - 2], 'klauw met rubber', 2.2, 'start');
+  b.maatV(Y(-dik + L.huid), Y(-L.huid), X(106 + L.module.b), X(106 + L.module.b) + 8, `${L.module.h}`);
+  b.maatH(X(106), X(106 + L.module.b), Y(0), Y(0) + 14, `${L.module.b}`);
+  b.tekst([X(135), Y(0) + 24], 'Doorsnede door de rand van de uitsparing (2:1)', 3.2, 'middle', { vet: true });
+  // onderaanzicht van de latten (1:5)
+  const s2 = 0.2, cx = 345, cy = 118, P2 = (x: number, z: number): P => [cx + x * s2, cy + z * s2];
+  const box = (xa: number, za: number, xb: number, zb: number, vul = '#e9d8b4') => { const a = P2(Math.min(xa, xb), Math.min(za, zb)); b.rect(a[0], a[1], Math.abs(xb - xa) * s2, Math.abs(zb - za) * s2, 0.4, vul); };
+  const uw = u.b / 2, ud = u.d / 2, bz = B.z, bd = B.frees.d / 2, Lm = L.module.b;
+  box(-uw, -ud, uw, ud, 'none');
+  box(B.x - B.frees.b / 2, bz - bd, B.x + B.frees.b / 2, bz + bd, 'none');
+  box(uw, -ud, uw + Lm, ud); box(-uw - Lm, -ud, -uw, ud); box(-uw, ud, uw, ud + Lm); box(-uw, bz + bd, uw, -ud);
+  box(-L.box.l / 2, bz - bd - L.box.b, L.box.l / 2, bz - bd);
+  b.tekst(P2(0, 0), 'module 212 x 212', 2.2, 'middle');
+  b.tekst(P2(0, bz), 'box 212 x 102', 2.2, 'middle');
+  b.tekst([cx, cy + (bz - bd - L.box.b) * s2 - 7], 'Latten, van onderen gezien (1:5, voorkant boven)', 3.2, 'middle', { vet: true });
+  b.tekst(P2(uw + Lm + 4, 0), `4 x ${L.module.h} x ${Lm} x ${L.module.l}`, 2.2);
+  b.tekst(P2(uw + 6, (bz + bd - ud) / 2 - 3), `achter: ${L.module.h} x ${getal(-(bz + bd) - ud)} (tot de box)`, 2.2);
+  b.tekst(P2(L.box.l / 2 + 4, bz - bd - L.box.b / 2 - 3), `box: ${L.box.h} x ${L.box.b} x ${L.box.l}`, 2.2);
+  // werkwijze
+  const regels = [
+    `Frezen: bovenfrees met kopieerring Ø${D.ring} (Bosch 2 609 200 139 of gelijk) en frees Ø${D.frees};`,
+    `afstand = (${D.ring} - ${D.frees}) / 2 = ${getal(off)} mm: de opening in de mal is rondom ${getal(off)} mm groter, hoeken R${u.r} + ${getal(off)}.`,
+    'De mallen laat je samen met het rooster lasersnijden uit MDF 12 mm: laser/freesmal-mdf.dxf (SNIJDEN, GRAVEREN = hartlijnen).',
+    'Mal met dubbelzijdige tape en 2 lijmklemmen op het blad, hartlijnen op de potloodlijnen (700 van links, 300 van voor).',
+    'In 3 tot 4 gangen; de honingraat is papier. Daarna de honingraat 45 mm diep rond de uitsparing wegsnijden,',
+    'de latten met PU-lijm of houtlijm D3 op beide huiden schuiven, binnenkant gelijk met de uitsparing, klemmen (24 h).',
+    `Box: mal van onderen, hartlijn ${-B.z} mm achter het midden; lat ${L.box.h} x ${L.box.b} achter de box tegen de onderhuid lijmen.`,
+    'Pas dan de sleuven frezen (ze gaan 4 mm in de achterste lat) en de voorboorgaten boren (door de gaatjes van de mal).',
+    'Kern 28 mm volgt uit huiden van 3 mm (aanname): meet in de eerste uitsparing en schaaf de lat op de echte maat.',
+  ];
+  let ty = 116; // tussen de doorsnede en het titelblok, links van de latten
+  b.tekst([165, ty + 6], 'Werkwijze', 3.4, 'start', { vet: true });
+  for (const r of regels) { b.tekst([165, ty], r, 2.1); ty -= 4.2; }
+  kader(b, { nr: 'AFZ-21', naam: 'Freesmallen MDF en latten in het tafelblad', materiaal: 'MDF 12 mm; vurenhout 28 x 44; multiplex 10 x 30', maken: 'Lasersnijden (mallen); zagen en lijmen (latten)', massa: '—', schaal: '1:5 en 2:1', blad });
   return b.svg();
 }
 
@@ -209,7 +291,8 @@ function samenstellingBlad(blad: string): { svg: string; stuklijst: string[][] }
     if (id === 'a3') return [x, y + 120, z];
     if (id === 'a3f') return [x, y + 70, z];
     if (id === 'a3l') return [x, y + 95, z];
-    if (['a4', 'a5'].includes(id) || /^as3\d|^as4\d/.test(id)) return [x, y - 120, z];
+    if (['a4', 'a4d', 'a5'].includes(id) || /^as3\d|^as4\d|^as6\d|^a4b\d/.test(id)) return [x, y - 120, z];
+    if (/^a2p\d/.test(id)) return [x, y + 190, z];
     if (id === 'a9' || id === 'a18') return [x, y + 45, z];
     if (/^a2\d|^as25|^as2\d$|^asa\d$|^asbd?\d$/.test(id)) return [x, y - 60, z - 40];
     if (/^a(7|8|12|14|15|dkr?\d|dn\d|sd\d|sk\d|sdk\d|su\d)$/.test(id)) return [x, y + 40, z - 250];
@@ -270,7 +353,7 @@ function doorsnedeBlad(blad: string): string {
   const doc = { ...asm, components: asm.components.filter((c) => !/^a(7|8|12|14|15|dkr?\d|dn\d|sd\d|sk\d|sdk\d|su\d)$/.test(c.id) && !/^a2\d|^as25|^as2\d$|^asa\d$|^asbd?\d$/.test(c.id)) } as Document;
   const sec = { parentId: 't', parentType: 'top' as DrawingViewType, axis: 'h' as const, at: 0, flip: true, label: 'B', autoHatch: true };
   const alles = sectionGeometry(doc, sec);
-  const koop = /^(a5|a3|a3f|a3l|akr\d|adkr\d|a10|a18|a19|as\d.*)$/;
+  const koop = /^(a5|a3|a3f|a3l|a4d|a4b\d|a2p\d|akr\d|adkr\d|a10|a18|as\d.*)$/;
   const eigen = sectionGeometry({ ...doc, components: (doc as Document & { components: Component[] }).components.filter((c) => !koop.test(c.id)) } as Document, sec);
   const g: ViewGeo = { ...alles, hatch: eigen.hatch, hatchVar: eigen.hatchVar };
   const b = new Blad();
@@ -284,7 +367,7 @@ function doorsnedeBlad(blad: string): string {
     b.lijn([x1, yb], [x2, yb], 0.25, 'stroke-dasharray="3 1.5"'); b.lijn([x1, yo], [x2, yo], 0.25, 'stroke-dasharray="3 1.5"');
   }
   b.tekst([T.x0 - 28, yb + 2], 'blad 34 mm', 2.6);
-  b.maatV(yo, T.y0, T.x1, T.x1 + 10, getal(-m.blad - (m.romp.onder - m.uitblaas.dikte)));
+  b.maatV(yo, T.y0, T.x1, T.x1 + 10, getal(-m.blad - m.kuip.bodem));
   b.tekst([T.x1 + 13, (yo + T.y0) / 2 - 18], 'onder het blad', 2.4, 'start', { hoek: 90 });
   b.tekst([150, T.y1 + 18], 'Doorsnede B-B door het midden (van voren gezien)', 3.4, 'middle', { vet: true });
   const regels = [
@@ -293,8 +376,8 @@ function doorsnedeBlad(blad: string): string {
     '2  bovenframe met de koppen van de M5-schroeven',
     '3  interieurfilter MANN CU 20 013 (195 x 145 x 30) op de foamband, rondom afgedicht met de lip',
     '4  instroomplaat met steunrand, geleiderand met lip, trechter en vingerrooster (7 mm, twee ringen)',
-    '5  radiale ventilator San Ace C175',
-    '6  bodemplaat met lamellen, M4 en M3 verzonken',
+    '5  radiale ventilator San Ace C175 op 4 rubberbuffers Ø15 x 10',
+    '6  ronde kuip met lamellen opzij en ringsleuven in de bodem, foamband op de rand',
     'Klauwen met rubber in de vier hoeken klemmen onder het blad.',
   ];
   let ty = 92; // linksonder, onder de doorsnede en links van het titelblok (binnen het kader, ISO 5457)
@@ -307,7 +390,7 @@ function doorsnedeBlad(blad: string): string {
 describe('tekeningen', () => {
   it.skipIf(!process.env.AFZUIGING_TEKENINGEN)('werktekeningen, samenstelling en tafelblad', () => {
     mkdirSync(UIT, { recursive: true });
-    const totaal = DELEN.length + 3;
+    const totaal = DELEN.length + 4;
     const sam = samenstellingBlad(`1 / ${totaal}`);
     writeFileSync(`${UIT}/AFZ-00-samenstelling.svg`, sam.svg);
     writeFileSync(`${UIT}/AFZ-00-doorsnede.svg`, doorsnedeBlad(`2 / ${totaal}`));
@@ -315,7 +398,8 @@ describe('tekeningen', () => {
     const regels = [['Pos', 'Aantal', 'Benaming', 'Materiaal / type', 'Tekening'], ...sam.stuklijst].map((r) => r.map(csv).join(';'));
     writeFileSync(`${UIT}/stuklijst.csv`, `﻿${regels.join('\r\n')}\r\n`); // met BOM en CRLF: Excel opent het meteen goed
     DELEN.forEach((d, i) => writeFileSync(`${UIT}/${d.nr}-${d.naam.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-$/, '')}.svg`, onderdeelBlad(d, `${i + 3} / ${totaal}`)));
-    writeFileSync(`${UIT}/AFZ-20-tafelblad.svg`, tafelbladBlad(`${totaal} / ${totaal}`));
+    writeFileSync(`${UIT}/AFZ-20-tafelblad.svg`, tafelbladBlad(`${totaal - 1} / ${totaal}`));
+    writeFileSync(`${UIT}/AFZ-21-freesmallen-en-latten.svg`, malBlad(`${totaal} / ${totaal}`));
     expect(sam.stuklijst.length).toBeGreaterThan(20);
   }, 1800000);
 });

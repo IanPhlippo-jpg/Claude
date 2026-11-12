@@ -1,6 +1,6 @@
 // Eén PDF om af te drukken met alles van de afzuiging: voorblad en inhoud, README (opbouw, bestellijst, printen,
 // maken en monteren, onderhoud, firmware), bouwschema, werktekeningen, aansluitschema, freesmallen (1:1), knopschermen,
-// materiaalstaat, rekenblad, meetplan en besparingen. Teksten op A4 staand, bouwschema A4 liggend, tekeningen en schema
+// materiaalstaat, rekenblad, meetplan, risicoanalyse en besparingen. Teksten op A4 staand, bouwschema A4 liggend, tekeningen en schema
 // A3 liggend, freesmallen A4 op ware grootte. Eerst de andere uitvoer maken (tekeningen, schema-pdf, bouwschema).
 // Gebruik: node e2e/tools/alles-afzuiging-pdf.mjs  ->  voorbeelden/afzuiging/Afzuiging-alles-afdrukken.pdf
 import { chromium } from 'playwright';
@@ -36,6 +36,7 @@ const delen = [
   ['Materiaalstaat', 'A4'],
   ['Rekenblad', 'A4'],
   ['Beschermingsconcept, meetplan en vrijgave', 'A4'],
+  ['Risicoanalyse en CE', 'A4'],
   ['Goedkoper maken', 'A4'],
 ];
 const voorblad = `<section class="voor">
@@ -84,6 +85,7 @@ ${schermen}
 ${mdDoc(`${DIR}/docs/Materiaalstaat.md`, 'materiaal')}
 ${mdDoc(`${DIR}/docs/Berekeningen.md`, 'rekenblad')}
 ${mdDoc(`${DIR}/docs/Vrijgave-en-meetplan.md`, 'meetplan')}
+${mdDoc(`${DIR}/docs/Risicoanalyse-en-CE.md`, 'risico')}
 ${mdDoc(`${DIR}/docs/Besparingen.md`, 'besparingen')}
 </body></html>`;
 mkdirSync('e2e-out/alles', { recursive: true });

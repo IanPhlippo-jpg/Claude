@@ -37,8 +37,8 @@
 <text x="21" y="285.4" font-size="1.8" text-anchor="start" fill="#000">Wijz.</text>
 <text x="31" y="285.4" font-size="1.8" text-anchor="start" fill="#000">Datum</text>
 <text x="49" y="285.4" font-size="1.8" text-anchor="start" fill="#000">Naam</text>
-<text x="21" y="278.55" font-size="2.3" text-anchor="start" fill="#000">7.1</text>
-<text x="31" y="278.55" font-size="2" text-anchor="start" fill="#000">2026-11-09</text>
+<text x="21" y="278.55" font-size="2.3" text-anchor="start" fill="#000">7.2</text>
+<text x="31" y="278.55" font-size="2" text-anchor="start" fill="#000">2026-11-12</text>
 <text x="49" y="278.55" font-size="2" text-anchor="start" fill="#000">PC</text>
 <polyline points="62,260 62,287" fill="none" stroke="#000" stroke-width="0.35"/>
 <polyline points="62,266.75 106,266.75" fill="none" stroke="#000" stroke-width="0.18"/>
@@ -46,7 +46,7 @@
 <polyline points="62,280.25 106,280.25" fill="none" stroke="#000" stroke-width="0.18"/>
 <polyline points="77,260 77,287" fill="none" stroke="#000" stroke-width="0.18"/>
 <text x="63" y="264.95" font-size="2" text-anchor="start" fill="#000">Datum</text>
-<text x="78" y="264.95" font-size="2.2" text-anchor="start" fill="#000">2026-11-08</text>
+<text x="78" y="264.95" font-size="2.2" text-anchor="start" fill="#000">2026-11-12</text>
 <text x="63" y="271.7" font-size="2" text-anchor="start" fill="#000">Getek.</text>
 <text x="78" y="271.7" font-size="2.2" text-anchor="start" fill="#000">Phlippo CAD</text>
 <text x="63" y="278.45" font-size="2" text-anchor="start" fill="#000">Gecontr.</text>
@@ -61,7 +61,7 @@
 <text x="108" y="275" font-size="2.3" text-anchor="start" fill="#000">Ian</text>
 <text x="147" y="262.3" font-size="1.8" text-anchor="start" fill="#000">Project</text>
 <text x="148" y="269" font-size="3.2" text-anchor="start" fill="#000" font-weight="700">Afzuiging Lush Beauty</text>
-<text x="148" y="274.5" font-size="2.3" text-anchor="start" fill="#000">inbouw nagelstofafzuiging, versie 7.1</text>
+<text x="148" y="274.5" font-size="2.3" text-anchor="start" fill="#000">inbouw nagelstofafzuiging, versie 7.2</text>
 <text x="107" y="285.2" font-size="1.8" text-anchor="start" fill="#000">Oorspr.</text>
 <text x="118" y="285.2" font-size="2" text-anchor="start" fill="#000"></text>
 <polyline points="139.33,280.25 139.33,287" fill="none" stroke="#000" stroke-width="0.18"/>
@@ -81,7 +81,7 @@
 <text x="307" y="262.3" font-size="1.8" text-anchor="start" fill="#000">Tekeningnr.</text>
 <text x="308" y="270" font-size="2.8" text-anchor="start" fill="#000" font-weight="700">AFZ-E01</text>
 <text x="307" y="275.8" font-size="1.8" text-anchor="start" fill="#000">Revisie / taal</text>
-<text x="308" y="283" font-size="2.6" text-anchor="start" fill="#000">7.1 / nl</text>
+<text x="308" y="283" font-size="2.6" text-anchor="start" fill="#000">7.2 / nl</text>
 <polyline points="350,260 350,287" fill="none" stroke="#000" stroke-width="0.35"/>
 <polyline points="350,273.5 384,273.5" fill="none" stroke="#000" stroke-width="0.25"/>
 <text x="351.5" y="266" font-size="2.6" text-anchor="start" fill="#000">=</text>
@@ -94,7 +94,7 @@
 <polyline points="384,280.25 410,280.25" fill="none" stroke="#000" stroke-width="0.25"/>
 <text x="385" y="262.3" font-size="1.8" text-anchor="start" fill="#000">Blad</text>
 <text x="397" y="275" font-size="8" text-anchor="middle" fill="#000" font-weight="700">5</text>
-<text x="408.5" y="285.2" font-size="2.3" text-anchor="end" fill="#000">11 Bl.</text>
+<text x="408.5" y="285.2" font-size="2.3" text-anchor="end" fill="#000">12 Bl.</text>
 <polyline points="23,30 405,30" fill="none" stroke="#000" stroke-width="0.35"/><polygon points="23,30 25.2,28.9 25.2,31.1" fill="#000"/><text x="26" y="28.6" font-size="2.5" text-anchor="start" fill="#000">L5</text><text x="26" y="33.2" font-size="2.3" text-anchor="start" fill="#000">/3.9</text>
 <polyline points="23,225 405,225" fill="none" stroke="#000" stroke-width="0.35"/><polygon points="23,225 25.2,223.9 25.2,226.1" fill="#000"/><text x="26" y="223.6" font-size="2.5" text-anchor="start" fill="#000">M</text><text x="26" y="228.2" font-size="2.3" text-anchor="start" fill="#000">/3.9</text>
 <rect x="40" y="60" width="70" height="120" fill="none" stroke="#000" stroke-width="0.3" stroke-dasharray="4 1 0.6 1"/><text x="40" y="58.4" font-size="2.8" text-anchor="start" fill="#000">-K1</text><text x="49" y="65" font-size="2.3" text-anchor="start" fill="#000">ESP32-C3 SuperMini</text><text x="49" y="68.4" font-size="2.3" text-anchor="start" fill="#000">in de voedingsbox</text><text x="49" y="71.8" font-size="2.3" text-anchor="start" fill="#000">USB-C rechts</text><text x="49" y="75.2" font-size="2.3" text-anchor="start" fill="#000">(flashen)</text><circle cx="40" cy="80" r="0.5" fill="#000"/><text x="41.6" y="78.8" font-size="2.1" text-anchor="start" fill="#000">5V</text><circle cx="40" cy="160" r="0.5" fill="#000"/><text x="41.6" y="158.8" font-size="2.1" text-anchor="start" fill="#000">GND</text><circle cx="110" cy="80" r="0.5" fill="#000"/><text x="108.4" y="78.8" font-size="2.1" text-anchor="end" fill="#000">3V3</text><circle cx="110" cy="110" r="0.5" fill="#000"/><text x="108.4" y="108.8" font-size="2.1" text-anchor="end" fill="#000">GPIO5 SDA</text><circle cx="110" cy="120" r="0.5" fill="#000"/><text x="108.4" y="118.8" font-size="2.1" text-anchor="end" fill="#000">GPIO6 SCL</text><circle cx="110" cy="145" r="0.5" fill="#000"/><text x="108.4" y="143.8" font-size="2.1" text-anchor="end" fill="#000">GPIO4 tacho</text><circle cx="110" cy="155" r="0.5" fill="#000"/><text x="108.4" y="153.8" font-size="2.1" text-anchor="end" fill="#000">GPIO3 PWM</text><circle cx="110" cy="167" r="0.5" fill="#000"/><text x="108.4" y="165.8" font-size="2.1" text-anchor="end" fill="#000">GPIO7 aan/uit</text>
@@ -132,7 +132,7 @@
 <circle cx="180" cy="40" r="0.6" fill="#000"/>
 <polyline points="252,116 262,116 262,225" fill="none" stroke="#000" stroke-width="0.25"/>
 <circle cx="262" cy="225" r="0.6" fill="#000"/>
-<polyline points="252,72 264,72" fill="none" stroke="#000" stroke-width="0.5" stroke-dasharray="2 1.5"/><circle cx="265.5" cy="72" r="1.5" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="193" y="71" font-size="2.1" text-anchor="start" fill="#000">poort "+": open in het vak</text><text x="193" y="74.6" font-size="2.1" text-anchor="start" fill="#000">(kamerdruk)</text>
+<polyline points="252,72 264,72" fill="none" stroke="#000" stroke-width="0.5" stroke-dasharray="2 1.5"/><circle cx="265.5" cy="72" r="1.5" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="193" y="71" font-size="2.1" text-anchor="start" fill="#000">poort "+": kamerdruk, afgeschermd</text><text x="193" y="74.6" font-size="2.1" text-anchor="start" fill="#000">(slangetje 10 cm, propje vlies)</text>
 <polyline points="252,94 264,94" fill="none" stroke="#000" stroke-width="0.5" stroke-dasharray="2 1.5"/><circle cx="265.5" cy="94" r="1.5" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="193" y="93" font-size="2.1" text-anchor="start" fill="#000">poort "−": slang naar de afzuiging</text><text x="193" y="96.6" font-size="2.1" text-anchor="start" fill="#000">(ruimte onder het filter)</text>
 <rect x="290" y="150" width="22" height="40" fill="none" stroke="#000" stroke-width="0.3" stroke-dasharray="4 1 0.6 1"/><text x="290" y="148.4" font-size="2.8" text-anchor="start" fill="#000">-X8</text><circle cx="290" cy="158" r="0.5" fill="#000"/><text x="291.6" y="156.8" font-size="2.1" text-anchor="start" fill="#000">VBUS</text><circle cx="290" cy="168" r="0.5" fill="#000"/><text x="291.6" y="166.8" font-size="2.1" text-anchor="start" fill="#000">CC1</text><circle cx="290" cy="176" r="0.5" fill="#000"/><text x="291.6" y="174.8" font-size="2.1" text-anchor="start" fill="#000">CC2</text><circle cx="290" cy="184" r="0.5" fill="#000"/><text x="291.6" y="182.8" font-size="2.1" text-anchor="start" fill="#000">GND</text><circle cx="312" cy="158" r="0.5" fill="#000"/><text x="310.4" y="156.8" font-size="2.1" text-anchor="end" fill="#000">VBUS</text><circle cx="312" cy="184" r="0.5" fill="#000"/><text x="310.4" y="182.8" font-size="2.1" text-anchor="end" fill="#000">GND</text>
 <text x="301" y="196" font-size="2.2" text-anchor="middle" fill="#000">USB-C-bus</text>

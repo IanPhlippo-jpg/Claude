@@ -504,31 +504,6 @@
    ],
    "kind": "reference"
   },
-  "elco": {
-   "id": "elco",
-   "name": "Plane Elco 470 µF",
-   "origin": [
-    0,
-    -26.4,
-    0
-   ],
-   "u": [
-    1,
-    0,
-    0
-   ],
-   "v": [
-    0,
-    0,
-    -1
-   ],
-   "n": [
-    0,
-    1,
-    0
-   ],
-   "kind": "reference"
-  },
   "klem": {
    "id": "klem",
    "name": "Plane Schroefklem",
@@ -657,6 +632,56 @@
   "c2": {
    "id": "c2",
    "name": "Plane Elco 47 µF",
+   "origin": [
+    0,
+    -26.4,
+    0
+   ],
+   "u": [
+    1,
+    0,
+    0
+   ],
+   "v": [
+    0,
+    0,
+    -1
+   ],
+   "n": [
+    0,
+    1,
+    0
+   ],
+   "kind": "reference"
+  },
+  "rtacho": {
+   "id": "rtacho",
+   "name": "Plane Weerstand 1 kΩ",
+   "origin": [
+    0,
+    -26.4,
+    0
+   ],
+   "u": [
+    1,
+    0,
+    0
+   ],
+   "v": [
+    0,
+    0,
+    -1
+   ],
+   "n": [
+    0,
+    1,
+    0
+   ],
+   "kind": "reference"
+  },
+  "ctacho": {
+   "id": "ctacho",
+   "name": "Plane Condensator 10 nF",
    "origin": [
     0,
     -26.4,
@@ -2474,32 +2499,66 @@
   "s22": {
    "id": "s22",
    "name": "Sketch22",
-   "plane": "elco",
+   "plane": "klem",
    "points": {
     "origin_s22": {
      "x": 0,
      "y": 0
     },
     "s22p0": {
-     "x": 84,
-     "y": -25.5
+     "x": 90,
+     "y": -28
+    },
+    "s22p1": {
+     "x": 99.5,
+     "y": -28
+    },
+    "s22p2": {
+     "x": 99.5,
+     "y": -20.5
+    },
+    "s22p3": {
+     "x": 90,
+     "y": -20.5
     }
    },
-   "scalars": {
-    "s22s1": 5
-   },
+   "scalars": {},
    "entities": {
-    "s22e2": {
-     "id": "s22e2",
+    "s22e4": {
+     "id": "s22e4",
      "construction": false,
-     "kind": "circle",
-     "center": "s22p0",
-     "r": "s22s1"
+     "kind": "line",
+     "p1": "s22p0",
+     "p2": "s22p1"
+    },
+    "s22e5": {
+     "id": "s22e5",
+     "construction": false,
+     "kind": "line",
+     "p1": "s22p1",
+     "p2": "s22p2"
+    },
+    "s22e6": {
+     "id": "s22e6",
+     "construction": false,
+     "kind": "line",
+     "p1": "s22p2",
+     "p2": "s22p3"
+    },
+    "s22e7": {
+     "id": "s22e7",
+     "construction": false,
+     "kind": "line",
+     "p1": "s22p3",
+     "p2": "s22p0"
     }
    },
    "constraints": {},
    "entityOrder": [
-    "s22e2"
+    "s22e4",
+    "s22e5",
+    "s22e6",
+    "s22e7"
    ],
    "constraintOrder": [],
    "origin": "origin_s22"
@@ -2507,66 +2566,45 @@
   "s23": {
    "id": "s23",
    "name": "Sketch23",
-   "plane": "klem",
+   "plane": "klemtop",
    "points": {
     "origin_s23": {
      "x": 0,
      "y": 0
     },
     "s23p0": {
-     "x": 90,
-     "y": -28
-    },
-    "s23p1": {
-     "x": 99.5,
-     "y": -28
-    },
-    "s23p2": {
-     "x": 99.5,
-     "y": -20.5
+     "x": 92.5,
+     "y": -24.25
     },
     "s23p3": {
-     "x": 90,
-     "y": -20.5
+     "x": 97,
+     "y": -24.25
     }
    },
-   "scalars": {},
+   "scalars": {
+    "s23s1": 1.4,
+    "s23s4": 1.4
+   },
    "entities": {
-    "s23e4": {
-     "id": "s23e4",
+    "s23e2": {
+     "id": "s23e2",
      "construction": false,
-     "kind": "line",
-     "p1": "s23p0",
-     "p2": "s23p1"
+     "kind": "circle",
+     "center": "s23p0",
+     "r": "s23s1"
     },
     "s23e5": {
      "id": "s23e5",
      "construction": false,
-     "kind": "line",
-     "p1": "s23p1",
-     "p2": "s23p2"
-    },
-    "s23e6": {
-     "id": "s23e6",
-     "construction": false,
-     "kind": "line",
-     "p1": "s23p2",
-     "p2": "s23p3"
-    },
-    "s23e7": {
-     "id": "s23e7",
-     "construction": false,
-     "kind": "line",
-     "p1": "s23p3",
-     "p2": "s23p0"
+     "kind": "circle",
+     "center": "s23p3",
+     "r": "s23s4"
     }
    },
    "constraints": {},
    "entityOrder": [
-    "s23e4",
-    "s23e5",
-    "s23e6",
-    "s23e7"
+    "s23e2",
+    "s23e5"
    ],
    "constraintOrder": [],
    "origin": "origin_s23"
@@ -2574,45 +2612,66 @@
   "s24": {
    "id": "s24",
    "name": "Sketch24",
-   "plane": "klemtop",
+   "plane": "to92",
    "points": {
     "origin_s24": {
      "x": 0,
      "y": 0
     },
     "s24p0": {
-     "x": 92.5,
-     "y": -24.25
+     "x": 66,
+     "y": -35.6
+    },
+    "s24p1": {
+     "x": 70.6,
+     "y": -35.6
+    },
+    "s24p2": {
+     "x": 70.6,
+     "y": -32
     },
     "s24p3": {
-     "x": 97,
-     "y": -24.25
+     "x": 66,
+     "y": -32
     }
    },
-   "scalars": {
-    "s24s1": 1.4,
-    "s24s4": 1.4
-   },
+   "scalars": {},
    "entities": {
-    "s24e2": {
-     "id": "s24e2",
+    "s24e4": {
+     "id": "s24e4",
      "construction": false,
-     "kind": "circle",
-     "center": "s24p0",
-     "r": "s24s1"
+     "kind": "line",
+     "p1": "s24p0",
+     "p2": "s24p1"
     },
     "s24e5": {
      "id": "s24e5",
      "construction": false,
-     "kind": "circle",
-     "center": "s24p3",
-     "r": "s24s4"
+     "kind": "line",
+     "p1": "s24p1",
+     "p2": "s24p2"
+    },
+    "s24e6": {
+     "id": "s24e6",
+     "construction": false,
+     "kind": "line",
+     "p1": "s24p2",
+     "p2": "s24p3"
+    },
+    "s24e7": {
+     "id": "s24e7",
+     "construction": false,
+     "kind": "line",
+     "p1": "s24p3",
+     "p2": "s24p0"
     }
    },
    "constraints": {},
    "entityOrder": [
-    "s24e2",
-    "s24e5"
+    "s24e4",
+    "s24e5",
+    "s24e6",
+    "s24e7"
    ],
    "constraintOrder": [],
    "origin": "origin_s24"
@@ -2620,27 +2679,27 @@
   "s25": {
    "id": "s25",
    "name": "Sketch25",
-   "plane": "to92",
+   "plane": "q2",
    "points": {
     "origin_s25": {
      "x": 0,
      "y": 0
     },
     "s25p0": {
-     "x": 66,
+     "x": 82.5,
      "y": -35.6
     },
     "s25p1": {
-     "x": 70.6,
+     "x": 92.9,
      "y": -35.6
     },
     "s25p2": {
-     "x": 70.6,
-     "y": -32
+     "x": 92.9,
+     "y": -31
     },
     "s25p3": {
-     "x": 66,
-     "y": -32
+     "x": 82.5,
+     "y": -31
     }
    },
    "scalars": {},
@@ -2687,27 +2746,27 @@
   "s26": {
    "id": "s26",
    "name": "Sketch26",
-   "plane": "q2",
+   "plane": "q3",
    "points": {
     "origin_s26": {
      "x": 0,
      "y": 0
     },
     "s26p0": {
-     "x": 82.5,
+     "x": 72,
      "y": -35.6
     },
     "s26p1": {
-     "x": 92.9,
+     "x": 76.6,
      "y": -35.6
     },
     "s26p2": {
-     "x": 92.9,
-     "y": -31
+     "x": 76.6,
+     "y": -32
     },
     "s26p3": {
-     "x": 82.5,
-     "y": -31
+     "x": 72,
+     "y": -32
     }
    },
    "scalars": {},
@@ -2754,66 +2813,32 @@
   "s27": {
    "id": "s27",
    "name": "Sketch27",
-   "plane": "q3",
+   "plane": "c2",
    "points": {
     "origin_s27": {
      "x": 0,
      "y": 0
     },
     "s27p0": {
-     "x": 72,
-     "y": -35.6
-    },
-    "s27p1": {
-     "x": 76.6,
-     "y": -35.6
-    },
-    "s27p2": {
-     "x": 76.6,
-     "y": -32
-    },
-    "s27p3": {
-     "x": 72,
-     "y": -32
+     "x": 63.5,
+     "y": 4.5
     }
    },
-   "scalars": {},
+   "scalars": {
+    "s27s1": 3.15
+   },
    "entities": {
-    "s27e4": {
-     "id": "s27e4",
+    "s27e2": {
+     "id": "s27e2",
      "construction": false,
-     "kind": "line",
-     "p1": "s27p0",
-     "p2": "s27p1"
-    },
-    "s27e5": {
-     "id": "s27e5",
-     "construction": false,
-     "kind": "line",
-     "p1": "s27p1",
-     "p2": "s27p2"
-    },
-    "s27e6": {
-     "id": "s27e6",
-     "construction": false,
-     "kind": "line",
-     "p1": "s27p2",
-     "p2": "s27p3"
-    },
-    "s27e7": {
-     "id": "s27e7",
-     "construction": false,
-     "kind": "line",
-     "p1": "s27p3",
-     "p2": "s27p0"
+     "kind": "circle",
+     "center": "s27p0",
+     "r": "s27s1"
     }
    },
    "constraints": {},
    "entityOrder": [
-    "s27e4",
-    "s27e5",
-    "s27e6",
-    "s27e7"
+    "s27e2"
    ],
    "constraintOrder": [],
    "origin": "origin_s27"
@@ -2821,19 +2846,19 @@
   "s28": {
    "id": "s28",
    "name": "Sketch28",
-   "plane": "c2",
+   "plane": "rtacho",
    "points": {
     "origin_s28": {
      "x": 0,
      "y": 0
     },
     "s28p0": {
-     "x": 63.5,
-     "y": 4.5
+     "x": 95.5,
+     "y": 2
     }
    },
    "scalars": {
-    "s28s1": 3.15
+    "s28s1": 1.25
    },
    "entities": {
     "s28e2": {
@@ -2850,6 +2875,151 @@
    ],
    "constraintOrder": [],
    "origin": "origin_s28"
+  },
+  "s29": {
+   "id": "s29",
+   "name": "Sketch29",
+   "plane": "ctacho",
+   "points": {
+    "origin_s29": {
+     "x": 0,
+     "y": 0
+    },
+    "s29p0": {
+     "x": 97.8,
+     "y": 0.3
+    },
+    "s29p1": {
+     "x": 99.2,
+     "y": 0.3
+    },
+    "s29p2": {
+     "x": 99.5,
+     "y": 0.6
+    },
+    "s29p3": {
+     "x": 99.5,
+     "y": 3
+    },
+    "s29p4": {
+     "x": 99.2,
+     "y": 3.3
+    },
+    "s29p5": {
+     "x": 97.8,
+     "y": 3.3
+    },
+    "s29p6": {
+     "x": 97.5,
+     "y": 3
+    },
+    "s29p7": {
+     "x": 97.5,
+     "y": 0.6
+    },
+    "s29p8": {
+     "x": 99.2,
+     "y": 0.6
+    },
+    "s29p9": {
+     "x": 99.2,
+     "y": 3
+    },
+    "s29p10": {
+     "x": 97.8,
+     "y": 3
+    },
+    "s29p11": {
+     "x": 97.8,
+     "y": 0.6
+    }
+   },
+   "scalars": {
+    "s29s12": 0.3
+   },
+   "entities": {
+    "s29e13": {
+     "id": "s29e13",
+     "construction": false,
+     "kind": "line",
+     "p1": "s29p0",
+     "p2": "s29p1"
+    },
+    "s29e14": {
+     "id": "s29e14",
+     "construction": false,
+     "kind": "arc",
+     "center": "s29p8",
+     "start": "s29p1",
+     "end": "s29p2",
+     "r": "s29s12",
+     "ccw": true
+    },
+    "s29e15": {
+     "id": "s29e15",
+     "construction": false,
+     "kind": "line",
+     "p1": "s29p2",
+     "p2": "s29p3"
+    },
+    "s29e16": {
+     "id": "s29e16",
+     "construction": false,
+     "kind": "arc",
+     "center": "s29p9",
+     "start": "s29p3",
+     "end": "s29p4",
+     "r": "s29s12",
+     "ccw": true
+    },
+    "s29e17": {
+     "id": "s29e17",
+     "construction": false,
+     "kind": "line",
+     "p1": "s29p4",
+     "p2": "s29p5"
+    },
+    "s29e18": {
+     "id": "s29e18",
+     "construction": false,
+     "kind": "arc",
+     "center": "s29p10",
+     "start": "s29p5",
+     "end": "s29p6",
+     "r": "s29s12",
+     "ccw": true
+    },
+    "s29e19": {
+     "id": "s29e19",
+     "construction": false,
+     "kind": "line",
+     "p1": "s29p6",
+     "p2": "s29p7"
+    },
+    "s29e20": {
+     "id": "s29e20",
+     "construction": false,
+     "kind": "arc",
+     "center": "s29p11",
+     "start": "s29p7",
+     "end": "s29p0",
+     "r": "s29s12",
+     "ccw": true
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s29e13",
+    "s29e14",
+    "s29e15",
+    "s29e16",
+    "s29e17",
+    "s29e18",
+    "s29e19",
+    "s29e20"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s29"
   }
  },
  "features": [
@@ -3305,12 +3475,12 @@
   {
    "id": "f44",
    "type": "extrude",
-   "name": "Elco 470 µF",
+   "name": "Schroefklem",
    "sketchId": "s22",
    "suppressed": false,
    "op": "boss",
    "end": "blind",
-   "depth": 20,
+   "depth": 10,
    "reverse": false,
    "direction2": {
     "end": "blind",
@@ -3327,17 +3497,13 @@
   {
    "id": "f46",
    "type": "extrude",
-   "name": "Schroefklem",
+   "name": "Schroefjes klem",
    "sketchId": "s23",
    "suppressed": false,
-   "op": "boss",
+   "op": "cut",
    "end": "blind",
-   "depth": 10,
-   "reverse": false,
-   "direction2": {
-    "end": "blind",
-    "depth": 0.05
-   }
+   "depth": 2,
+   "reverse": true
   },
   {
    "id": "ks24",
@@ -3349,13 +3515,17 @@
   {
    "id": "f48",
    "type": "extrude",
-   "name": "Schroefjes klem",
+   "name": "Transistor",
    "sketchId": "s24",
    "suppressed": false,
-   "op": "cut",
+   "op": "boss",
    "end": "blind",
-   "depth": 2,
-   "reverse": true
+   "depth": 4.6,
+   "reverse": false,
+   "direction2": {
+    "end": "blind",
+    "depth": 0.05
+   }
   },
   {
    "id": "ks25",
@@ -3367,12 +3537,12 @@
   {
    "id": "f50",
    "type": "extrude",
-   "name": "Transistor",
+   "name": "MOSFET IRF4905",
    "sketchId": "s25",
    "suppressed": false,
    "op": "boss",
    "end": "blind",
-   "depth": 4.6,
+   "depth": 18,
    "reverse": false,
    "direction2": {
     "end": "blind",
@@ -3389,12 +3559,12 @@
   {
    "id": "f52",
    "type": "extrude",
-   "name": "MOSFET IRF4905",
+   "name": "Transistor -Q3",
    "sketchId": "s26",
    "suppressed": false,
    "op": "boss",
    "end": "blind",
-   "depth": 18,
+   "depth": 4.6,
    "reverse": false,
    "direction2": {
     "end": "blind",
@@ -3411,12 +3581,12 @@
   {
    "id": "f54",
    "type": "extrude",
-   "name": "Transistor -Q3",
+   "name": "Elco 47 µF",
    "sketchId": "s27",
    "suppressed": false,
    "op": "boss",
    "end": "blind",
-   "depth": 4.6,
+   "depth": 11,
    "reverse": false,
    "direction2": {
     "end": "blind",
@@ -3433,12 +3603,34 @@
   {
    "id": "f56",
    "type": "extrude",
-   "name": "Elco 47 µF",
+   "name": "Weerstand 1 kΩ",
    "sketchId": "s28",
    "suppressed": false,
    "op": "boss",
    "end": "blind",
-   "depth": 11,
+   "depth": 6.5,
+   "reverse": false,
+   "direction2": {
+    "end": "blind",
+    "depth": 0.05
+   }
+  },
+  {
+   "id": "ks29",
+   "type": "sketch",
+   "name": "Sketch29",
+   "sketchId": "s29",
+   "suppressed": false
+  },
+  {
+   "id": "f58",
+   "type": "extrude",
+   "name": "Condensator 10 nF",
+   "sketchId": "s29",
+   "suppressed": false,
+   "op": "boss",
+   "end": "blind",
+   "depth": 5,
    "reverse": false,
    "direction2": {
     "end": "blind",

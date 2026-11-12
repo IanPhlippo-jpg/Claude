@@ -6,6 +6,10 @@
 // Eindverslag v4: toerentalvolging (V4-04), filter ontbreekt of lekt en ijken als bevestigde onderhoudsstap (V4-13),
 // ijking laden (V4-14), herstart en onbevestigde UIT (V4-12), koppelen per module (V4-11), boosttegoed na een start
 // (V4-10).
+// Versie 7.2 (advies Fable 5.2): "filter vervangen" op het minimum over 5 min met hysterese (hand op het rooster,
+// luchtdichtheid en toerentalband geven geen valse melding), ander merk filter (eerste ijking wissen), ijking zonder filter
+// geweigerd, stop na 3 s zonder filter of luchtstroom op elke stand, stop na 10 min zonder knop en na 4 uur zonder
+// bediening, de knop toont de stop, tacho met ontdendering en periodemeting, koppelbewijs.
 #include <unity.h>
 
 #include "bediening.h"
@@ -30,6 +34,7 @@ Opdracht cmd(bool aan, int pct, uint8_t ijk = 0, uint8_t boost = 0, uint16_t ses
 
 // gesimuleerde ventilator: toerental evenredig met de PWM (45 omw/min per %, 4500 bij 100 %)
 float versterking = 45;
+bool zonderKnop = false; // 7.2: true = de knop zwijgt (anders leeft hij bij elke meting, zoals in het echt: 4 x per s)
 uint16_t fan(const Regelaar &r) { return (uint16_t)(versterking * r.gegeven); }
 
 /** de klok laten lopen in stappen van dt: elke 250 ms een meting (pa of mislukt) en het toerental (rpm < 0: de
@@ -37,6 +42,7 @@ uint16_t fan(const Regelaar &r) { return (uint16_t)(versterking * r.gegeven); }
 void loop(Regelaar &r, uint32_t &nu, uint32_t tot, float pa, bool ok = true, int rpm = -1, uint32_t dt = 250) {
   for (; nu < tot; nu += dt) {
     if (nu % 250 < dt) {
+      if (!zonderKnop) r.knopLeeft(nu);
       r.tacho(rpm < 0 ? fan(r) : (uint16_t)rpm, nu);
       r.meting(ok, pa, nu);
     }
@@ -55,7 +61,7 @@ void ijk(Regelaar &r, uint32_t &nu, float basis = 20, float stap = 30, uint8_t t
 
 } // namespace
 
-void setUp() { versterking = 45; }
+void setUp() { versterking = 45; zonderKnop = false; }
 void tearDown() {}
 
 void test_stroomherstel_start_uit() {
@@ -182,13 +188,18 @@ void test_filter_vervangen_per_stand_en_lage_stand() {
   Regelaar r;
   uint32_t nu = 1000;
   ijk(r, nu); // 20, 50, 80, 110, 140 Pa bij 900..4500 omw/min
-  // 80 %: schoon 110 Pa, vervangen bij 1,15 x = 126,5 Pa
+  // 80 %: schoon 110 Pa, vervangen bij 1,29 x = 142 Pa (7.2: tussen 1,18 op 75 % en 1,40 op 85 %)
   r.opdracht(cmd(true, 80, 1, 0, 7, 30), nu);
-  loop(r, nu, nu + 8000, 125);
+  loop(r, nu, nu + 8000, 135);
   TEST_ASSERT_EQUAL(BEW_OK, r.bewaking);
   TEST_ASSERT_TRUE(r.vol > 0.5f && r.vol < 1.0f);
-  loop(r, nu, nu + 8000, 140);
+  loop(r, nu, nu + 8000, 150);
+  // 7.2: 8 s boven de grens is nog geen melding (het minimum over 5 min beslist)
+  TEST_ASSERT_TRUE(r.vol < 1.0f);
+  TEST_ASSERT_FALSE(r.filterVol);
+  loop(r, nu, nu + 330000, 150); // 5,5 min boven de grens: nu wel
   TEST_ASSERT_TRUE(r.vol >= 1.0f);
+  TEST_ASSERT_TRUE(r.filterVol);
   // 40 %, 70 % en 75 %: halen het minimumdebiet niet zeker: geen oordeel, wel gezegd (80 % is de laagste beschermende)
   r.opdracht(cmd(true, 40, 1, 0, 7, 31), nu);
   loop(r, nu, nu + 8000, 60);
@@ -197,12 +208,12 @@ void test_filter_vervangen_per_stand_en_lage_stand() {
   r.opdracht(cmd(true, 70, 1, 0, 7, 32), nu);
   loop(r, nu, nu + 8000, 95);
   TEST_ASSERT_EQUAL(BEW_LAGE_STAND, r.bewaking);
-  // 75 %: sinds versie 7.1 (ruimere onzekerheidsband) ook een lage stand
+  // 75 %: sinds versie 7.2 (opener rooster, grotere verdeelruimte) de laagste beschermende stand
   r.opdracht(cmd(true, 75, 1, 0, 7, 33), nu);
-  loop(r, nu, nu + 8000, 100);
-  TEST_ASSERT_EQUAL(BEW_LAGE_STAND, r.bewaking);
-  TEST_ASSERT_TRUE(isnan(r.vol));
-  // 80 %: de laagste beschermende stand (en de dagstand)
+  loop(r, nu, nu + 8000, 102);
+  TEST_ASSERT_EQUAL(BEW_OK, r.bewaking);
+  TEST_ASSERT_FALSE(isnan(r.vol));
+  // 80 %
   r.opdracht(cmd(true, 80, 1, 0, 7, 34), nu);
   loop(r, nu, nu + 8000, 112);
   TEST_ASSERT_EQUAL(BEW_OK, r.bewaking);
@@ -354,7 +365,7 @@ void test_koppeling_niet_overschrijven_en_sessies() {
   const uint8_t knopA[6] = {1, 2, 3, 4, 5, 6}, knopB[6] = {9, 9, 9, 9, 9, 9}, module[6] = {7, 7, 7, 7, 7, 7};
   memcpy(k.eigen, module, 6);
   Koppel v;
-  for (int i = 0; i < 16; i++) v.sleutel[i] = (uint8_t)i;
+  for (int i = 0; i < 32; i++) v.pub[i] = (uint8_t)i;
   v.uitdaging = 0;
   TEST_ASSERT_FALSE(k.vraag(knopA, v, 5000)); // zonder uitdaging
   v.uitdaging = 0xA1B2C3D4;
@@ -492,20 +503,68 @@ void test_toeren_herstelt_vanzelf() {
   TEST_ASSERT_EQUAL(BEW_OK, r.bewaking);
 }
 
-// V4-13 filter ontbreekt of lekt (op 80 %: schoon 110 Pa)
+// V4-13 filter ontbreekt of lekt (op 80 %: schoon 110 Pa); 7.2: na 3 s stopt de ventilator, op elke stand
 void test_filter_ontbreekt() {
   Regelaar r;
   uint32_t nu = 1000;
   ijk(r, nu);
   r.opdracht(cmd(true, 80, 1, 0, 7, 30), nu);
-  loop(r, nu, nu + 8000, 0.45f * 110);
+  loop(r, nu, nu + 10000, 110);
+  TEST_ASSERT_EQUAL(BEW_OK, r.bewaking);
+  loop(r, nu, nu + 2000, 0.45f * 110); // het filter gaat eruit terwijl hij draait (de meting volgt na ~1 s)
   TEST_ASSERT_EQUAL(BEW_FILTER_LEK, r.bewaking);
   TEST_ASSERT_TRUE(isnan(r.vol));
-  TEST_ASSERT_EQUAL(STORING_GEEN, r.storing);
-  // onder 0,25 x blijft het "geen luchtstroom"
-  loop(r, nu, nu + 8000, 0.20f * 110);
-  TEST_ASSERT_EQUAL(STORING_GEEN_LUCHT, r.storing);
-  TEST_ASSERT_TRUE(isnan(r.vol));
+  TEST_ASSERT_TRUE(r.gegeven > 0); // nog geen 3 s
+  loop(r, nu, nu + 3000, 0.45f * 110);
+  TEST_ASSERT_EQUAL(0, r.gegeven); // gestopt
+  TEST_ASSERT_FALSE(voedingAan(r.gegeven));
+  TEST_ASSERT_EQUAL(STOP_LUCHT, r.uitReden);
+  // de knop blijft AAN sturen: niets (eerst UIT); na UIT en een nieuwe AAN draait hij weer
+  r.opdracht(cmd(true, 80, 1, 0, 7, 31), nu);
+  TEST_ASSERT_EQUAL(0, r.stap(nu));
+  r.opdracht(cmd(false, 80, 1, 0, 7, 32), nu);
+  r.opdracht(cmd(true, 80, 1, 0, 7, 33), nu);
+  loop(r, nu, nu + 2000, 110);
+  TEST_ASSERT_TRUE(r.gegeven > 0);
+  // geen luchtstroom (slang los, 0,20 x): storing en ook stoppen
+  loop(r, nu, nu + 10000, 110);
+  loop(r, nu, nu + 5000, 0.20f * 110);
+  TEST_ASSERT_EQUAL(0, r.gegeven);
+  TEST_ASSERT_EQUAL(STOP_LUCHT, r.uitReden);
+}
+
+// 7.2: ook op een lage stand (40 %: schoon 50 Pa) stopt hij zonder filter
+void test_filter_ontbreekt_op_lage_stand_stopt() {
+  Regelaar r;
+  uint32_t nu = 1000;
+  ijk(r, nu);
+  r.opdracht(cmd(true, 40, 1, 0, 7, 30), nu);
+  loop(r, nu, nu + 10000, 50);
+  TEST_ASSERT_EQUAL(BEW_LAGE_STAND, r.bewaking);
+  TEST_ASSERT_TRUE(r.gegeven > 0);
+  loop(r, nu, nu + 6000, 0.40f * 50);
+  TEST_ASSERT_EQUAL(0, r.gegeven);
+  TEST_ASSERT_EQUAL(STOP_LUCHT, r.uitReden);
+}
+
+// 7.2: tijdens de zachte start (de druk loopt achter) geen valse stop
+void test_geen_stop_tijdens_het_oplopen() {
+  Regelaar r;
+  uint32_t nu = 1000;
+  ijk(r, nu);
+  r.opdracht(cmd(false, 80, 1, 0, 7, 30), nu);
+  loop(r, nu, nu + 20000, 0, true, 0);
+  r.opdracht(cmd(true, 80, 1, 0, 7, 31), nu);
+  float n = 0, dp = 0;
+  for (const uint32_t t0 = nu; nu < t0 + 30000; nu += 250) {
+    n += (45.0f * r.gegeven - n) * 0.125f;              // traagheid van de waaier
+    dp += (110.0f * (n / 3600.0f) * (n / 3600.0f) - dp) * 0.3f; // de druk loopt nog wat achter
+    r.tacho((uint16_t)n, nu);
+    r.meting(true, dp, nu);
+    r.stap(nu);
+    TEST_ASSERT_EQUAL_MESSAGE(STOP_GEEN, r.uitReden, "valse stop bij de opstart");
+  }
+  TEST_ASSERT_TRUE(r.gegeven > 0);
 }
 
 void test_filter_omloop() {
@@ -513,12 +572,167 @@ void test_filter_omloop() {
   uint32_t nu = 1000;
   ijk(r, nu);
   r.opdracht(cmd(true, 80, 1, 0, 7, 30), nu);
-  loop(r, nu, nu + 8000, 0.65f * 110);
-  TEST_ASSERT_EQUAL(BEW_FILTER_LEK, r.bewaking);
-  TEST_ASSERT_TRUE(isnan(r.vol));
-  loop(r, nu, nu + 8000, 0.75f * 110); // boven 0,70 x: gewoon (en het filter is "schoon")
+  loop(r, nu, nu + 10000, 0.75f * 110); // boven 0,70 x: gewoon (en het filter is "schoon")
   TEST_ASSERT_EQUAL(BEW_OK, r.bewaking);
   TEST_ASSERT_EQUAL_FLOAT(0.0f, r.vol);
+  loop(r, nu, nu + 2000, 0.65f * 110); // een kier: eerst de melding, dan stop
+  TEST_ASSERT_EQUAL(BEW_FILTER_LEK, r.bewaking);
+  TEST_ASSERT_TRUE(isnan(r.vol));
+  loop(r, nu, nu + 3000, 0.65f * 110);
+  TEST_ASSERT_EQUAL(STOP_LUCHT, r.uitReden);
+}
+
+// 7.2: hand op het rooster, luchtdichtheid en toerentalband geven geen valse melding; een vol filter wel, en die blijft
+void test_hand_op_rooster_en_schommelingen_geen_valse_melding() {
+  Regelaar r;
+  uint32_t nu = 1000;
+  ijk(r, nu);
+  r.opdracht(cmd(true, 80, 1, 0, 7, 30), nu);
+  loop(r, nu, nu + 60000, 110);
+  // een hand op het rooster: 1 minuut 160 Pa (1,45 x), dan weer weg; 6 min lang
+  for (int k = 0; k < 6; k++) {
+    loop(r, nu, nu + 50000, 160);
+    loop(r, nu, nu + 10000, 110);
+  }
+  TEST_ASSERT_FALSE(r.filterVol);
+  TEST_ASSERT_TRUE(r.vol < 1.0f);
+  // luchtdichtheid +5 % en toerental +3 % (druk +6 %) samen, 10 min lang: 1,11 x < 1,29 x (de grens op 80 %)
+  loop(r, nu, nu + 600000, 110 * 1.05f * 1.06f);
+  TEST_ASSERT_FALSE(r.filterVol);
+  // een hand die telkens 4 van de 5 minuten op het rooster ligt: de vrije minuut beslist
+  for (int k = 0; k < 3; k++) {
+    loop(r, nu, nu + 240000, 170);
+    loop(r, nu, nu + 60000, 112);
+  }
+  TEST_ASSERT_FALSE(r.filterVol);
+  // het filter is echt vol: 1,45 x, 5,5 min: melding, en ze blijft staan als de druk even zakt (hysterese)
+  loop(r, nu, nu + 330000, 160);
+  TEST_ASSERT_TRUE(r.filterVol);
+  TEST_ASSERT_TRUE(r.nieuweVolMelding);
+  loop(r, nu, nu + 60000, 112);
+  TEST_ASSERT_TRUE(r.filterVol);
+  Status s;
+  r.vulStatus(s, nu);
+  TEST_ASSERT_EQUAL(1, s.filterVol);
+  // een nieuwe ijking (nieuw filter) wist de melding
+  r.nieuweVolMelding = false;
+  ijk(r, nu, 20, 30, 2);
+  TEST_ASSERT_EQUAL(IJK_OK, r.ijkFout);
+  TEST_ASSERT_FALSE(r.filterVol);
+  TEST_ASSERT_TRUE(r.nieuweVolMelding);
+}
+
+// 7.2: ander merk filter: eerst geweigerd (te hoog), na "ander merk" (refWis) aanvaard als nieuwe referentie
+void test_ander_merk_filter() {
+  Regelaar r;
+  uint32_t nu = 1000;
+  ijk(r, nu); // eerste: ongeveer 20..140 Pa
+  ijk(r, nu, 26, 39, 2); // ander merk, 30 % hoger
+  TEST_ASSERT_EQUAL(IJK_TE_HOOG, r.ijkFout);
+  // "ander merk filter" op de knop: refWis en ijk samen in dezelfde sessie
+  Opdracht o = cmd(true, 60, 2, 0, 7, 50);
+  r.opdracht(o, nu);
+  loop(r, nu, nu + 1000, 26);
+  o = cmd(true, 60, 3, 0, 7, 51);
+  o.refWis = 1;
+  r.opdracht(o, nu);
+  TEST_ASSERT_TRUE(r.eersteGewist);
+  TEST_ASSERT_FALSE(r.heeftEerste);
+  for (int p = 0; p < 5; p++) loop(r, nu, nu + 8000, 26 + 39 * p);
+  loop(r, nu, nu + 500, 104);
+  TEST_ASSERT_EQUAL(IJK_OK, r.ijkFout);
+  TEST_ASSERT_TRUE(r.heeftEerste);
+  TEST_ASSERT_TRUE(r.nieuweEerste);
+  TEST_ASSERT_TRUE(r.eersteIjking()[4] > 170);
+  // een herstart van de knop (nieuwe sessie, refWis-teller weer 0) wist niets
+  r.eersteGewist = false;
+  r.opdracht(cmd(true, 60, 0, 0, 8, 1), nu);
+  TEST_ASSERT_FALSE(r.eersteGewist);
+  TEST_ASSERT_TRUE(r.heeftEerste);
+}
+
+// 7.2: een ijking zonder filter (onder 0,70 x de eerste) wordt geweigerd
+void test_ijking_zonder_filter_geweigerd() {
+  Regelaar r;
+  uint32_t nu = 1000;
+  ijk(r, nu);
+  float voor[5];
+  for (int k = 0; k < 5; k++) voor[k] = r.ijking()[k];
+  ijk(r, nu, 9, 14, 2); // ongeveer 0,45 x
+  TEST_ASSERT_EQUAL(IJK_TE_LAAG, r.ijkFout);
+  for (int k = 0; k < 5; k++) TEST_ASSERT_EQUAL_FLOAT(voor[k], r.ijking()[k]); // de vorige ijking blijft
+}
+
+// 7.2: zonder knop stopt de module na 10 min; met levenstekens niet
+void test_stop_zonder_knop_na_10_min() {
+  Regelaar r;
+  uint32_t nu = 1000;
+  r.stap(nu);
+  r.opdracht(cmd(true, 60, 0, 0, 7, 1), nu);
+  for (const uint32_t t0 = nu; nu < t0 + 1800000; nu += 1000) { r.knopLeeft(nu); r.stap(nu); }
+  TEST_ASSERT_TRUE(r.gegeven > 0); // 30 min met levenstekens: draait
+  zonderKnop = true;
+  loop(r, nu, nu + 590000, 20, true, -1, 1000);
+  TEST_ASSERT_TRUE(r.gegeven > 0); // 9 min 50 s stil: draait nog
+  loop(r, nu, nu + 20000, 20, true, -1, 1000);
+  TEST_ASSERT_EQUAL(0, r.gegeven);
+  TEST_ASSERT_EQUAL(STOP_GEEN_KNOP, r.uitReden);
+}
+
+// 7.2: automatisch uit na 4 uur zonder bediening (de knop leeft en stuurt telkens dezelfde wens)
+void test_automatisch_uit_na_4_uur() {
+  Regelaar r;
+  uint32_t nu = 1000, volgnr = 1;
+  r.stap(nu);
+  r.opdracht(cmd(true, 60, 0, 0, 7, volgnr++), nu);
+  for (const uint32_t t0 = nu; nu < t0 + 3 * 3600000; nu += 1000) { r.opdracht(cmd(true, 60, 0, 0, 7, volgnr++), nu); r.stap(nu); }
+  TEST_ASSERT_TRUE(r.gegeven > 0);
+  r.opdracht(cmd(true, 65, 0, 0, 7, volgnr++), nu); // een handeling: de klok begint opnieuw
+  for (const uint32_t t0 = nu; nu < t0 + 3 * 3600000; nu += 1000) { r.opdracht(cmd(true, 65, 0, 0, 7, volgnr++), nu); r.stap(nu); }
+  TEST_ASSERT_TRUE(r.gegeven > 0);
+  for (const uint32_t t0 = nu; nu < t0 + 3600000 + 2000; nu += 1000) { r.opdracht(cmd(true, 65, 0, 0, 7, volgnr++), nu); r.stap(nu); }
+  TEST_ASSERT_EQUAL(0, r.gegeven);
+  TEST_ASSERT_EQUAL(STOP_AUTO, r.uitReden);
+}
+
+// 7.2: tacho met ontdendering en periodemeting
+void test_tacho_ontdendering_en_periode() {
+  TEST_ASSERT_FALSE(tachoPulsGeldig(1000, 1040));  // een stoorpuls 40 us na de vorige (PWM 25 kHz)
+  TEST_ASSERT_FALSE(tachoPulsGeldig(1000, 2499));
+  TEST_ASSERT_TRUE(tachoPulsGeldig(1000, 2500));
+  TEST_ASSERT_TRUE(tachoPulsGeldig(0xFFFFFF00u, 0x00000700u)); // over de overloop van micros()
+  TEST_ASSERT_EQUAL(0, toerenUitPeriode(0, 1000000, 2));
+  // 900 min-1 = 30 pulsen per seconde: 29 intervallen in 966 667 us
+  TEST_ASSERT_UINT16_WITHIN(1, 900, toerenUitPeriode(29, 966667, 2));
+  // de oude telling (pulsen per seconde) springt tussen 870 en 900 (3 %); de periodemeting niet
+  TEST_ASSERT_UINT16_WITHIN(1, 870, toerenUitPeriode(29, 1000000, 2));
+  TEST_ASSERT_UINT16_WITHIN(1, 3900, toerenUitPeriode(129, 992308, 2));
+}
+
+// 7.2: koppelen met een publieke sleutel: zonder geldig bewijs geen koppeling
+void test_koppelen_zonder_bewijs_geweigerd() {
+  const uint8_t knop[6] = {1, 2, 3, 4, 5, 6}, mod[6] = {0xD, 0, 0, 0, 0, 4};
+  Koppeling m;
+  memcpy(m.eigen, mod, 6);
+  Koppel v;
+  v.uitdaging = 99;
+  for (int i = 0; i < 32; i++) v.pub[i] = (uint8_t)(200 - i);
+  TEST_ASSERT_TRUE(m.vraag(knop, v, 1000));
+  TEST_ASSERT_EQUAL_UINT8_ARRAY(v.pub, m.kandidaatPub(), 32);
+  const uint8_t s16[16] = {7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7};
+  m.kandidaatSleutel(s16);
+  TEST_ASSERT_FALSE(m.bevestig(knop, bevestigVoor(mod, 99), 1200, false)); // bewijs klopt niet
+  TEST_ASSERT_FALSE(m.gekoppeld);
+  TEST_ASSERT_TRUE(m.bevestig(knop, bevestigVoor(mod, 99), 1300, true));
+  TEST_ASSERT_TRUE(m.gekoppeld);
+  TEST_ASSERT_EQUAL_UINT8_ARRAY(s16, m.sleutel, 16);
+  // een levensteken telt mee in de volgorde
+  Leven l;
+  l.sessie = 3;
+  l.volgnr = 5;
+  TEST_ASSERT_TRUE(m.aanvaard(knop, l));
+  TEST_ASSERT_FALSE(m.aanvaard(knop, l)); // herhaald
+  TEST_ASSERT_FALSE(m.aanvaard(knop, cmd(true, 60, 0, 0, 3, 4))); // ouder dan het levensteken
 }
 
 void test_vuile_ijking_geweigerd_schone_aanvaard() {
@@ -782,7 +996,7 @@ void test_twee_modules_een_knop() {
   kk.nieuw(0xABCD1234);
   Koppel v;
   v.uitdaging = kk.uitdaging;
-  for (int i = 0; i < 16; i++) v.sleutel[i] = (uint8_t)(i + 1);
+  for (int i = 0; i < 32; i++) v.pub[i] = (uint8_t)(i + 1);
   TEST_ASSERT_TRUE(a.vraag(knop, v, 1000)); // beide hoorden dezelfde broadcast
   TEST_ASSERT_TRUE(bm.vraag(knop, v, 1000));
   Koppel okA, okB;
@@ -877,6 +1091,53 @@ void test_voeding_ventilator_alleen_bij_pwm() {
   TEST_ASSERT_FALSE(voedingAan(r.stap(nu))); // UIT: in dezelfde stap spanningsloos
 }
 
+// 7.2: de knop ziet de stop, toont waarom en zet zijn wens op UIT; een druk zet de afzuiging weer aan
+void test_knop_toont_stop_en_start_opnieuw() {
+  Regelaar r;
+  r.startId = 0x3333;
+  Bediening b;
+  uint32_t nu = 1000;
+  meld(r, b, nu);
+  druk(b, nu, 200);
+  zend(b, r, nu);
+  TEST_ASSERT_TRUE(r.aan);
+  // 10 min geen bericht van de knop (radio weg): stop
+  zonderKnop = true;
+  loop(r, nu, nu + 610000, 20, true, -1, 1000);
+  TEST_ASSERT_EQUAL(STOP_GEEN_KNOP, r.uitReden);
+  meld(r, b, nu);
+  TEST_ASSERT_FALSE(b.aan);
+  TEST_ASSERT_EQUAL(STOP_GEEN_KNOP, b.gestopt);
+  TEST_ASSERT_EQUAL(SCH_GESTOPT, b.scherm(nu, true));
+  zend(b, r, nu += 250); // UIT
+  TEST_ASSERT_FALSE(r.wachtOpUit);
+  druk(b, nu, 200);      // AAN
+  zend(b, r, nu);
+  TEST_ASSERT_TRUE(r.aan);
+  TEST_ASSERT_TRUE(r.stap(nu += 250) > 0);
+  meld(r, b, nu += 250);
+  TEST_ASSERT_EQUAL(SCH_AAN, b.scherm(nu, true));
+}
+
+// 7.2: "ander merk filter" op de knop: 3 tot 8 s vasthouden op "Nieuw filter?"
+void test_knop_ander_merk() {
+  Bediening b;
+  uint32_t nu = 1000;
+  druk(b, nu, 6000);
+  TEST_ASSERT_TRUE(b.nieuwFilter);
+  druk(b, nu, 4000);
+  TEST_ASSERT_FALSE(b.nieuwFilter);
+  TEST_ASSERT_EQUAL(1, b.refWis);
+  TEST_ASSERT_EQUAL(1, b.ijk);
+  Opdracht o;
+  b.vulOpdracht(o);
+  TEST_ASSERT_EQUAL(1, o.refWis);
+  druk(b, nu, 6000);
+  druk(b, nu, 9000); // te lang: annuleren
+  TEST_ASSERT_EQUAL(1, b.refWis);
+  TEST_ASSERT_EQUAL(1, b.ijk);
+}
+
 int main() {
   UNITY_BEGIN();
   RUN_TEST(test_stroomherstel_start_uit);
@@ -908,7 +1169,16 @@ int main() {
   RUN_TEST(test_toeren_geen_vals_alarm_bij_opstart);
   RUN_TEST(test_toeren_herstelt_vanzelf);
   RUN_TEST(test_filter_ontbreekt);
+  RUN_TEST(test_filter_ontbreekt_op_lage_stand_stopt);
+  RUN_TEST(test_geen_stop_tijdens_het_oplopen);
   RUN_TEST(test_filter_omloop);
+  RUN_TEST(test_hand_op_rooster_en_schommelingen_geen_valse_melding);
+  RUN_TEST(test_ander_merk_filter);
+  RUN_TEST(test_ijking_zonder_filter_geweigerd);
+  RUN_TEST(test_stop_zonder_knop_na_10_min);
+  RUN_TEST(test_automatisch_uit_na_4_uur);
+  RUN_TEST(test_tacho_ontdendering_en_periode);
+  RUN_TEST(test_koppelen_zonder_bewijs_geweigerd);
   RUN_TEST(test_vuile_ijking_geweigerd_schone_aanvaard);
   RUN_TEST(test_knop_grenzen_1_5_10_s);
   RUN_TEST(test_nieuw_filter_bevestigen_of_annuleren);
@@ -923,5 +1193,7 @@ int main() {
   RUN_TEST(test_boosttegoed_begint_leeg);
   RUN_TEST(test_reset_in_een_boostreeks_geeft_geen_extra_tegoed);
   RUN_TEST(test_voeding_ventilator_alleen_bij_pwm);
+  RUN_TEST(test_knop_toont_stop_en_start_opnieuw);
+  RUN_TEST(test_knop_ander_merk);
   return UNITY_END();
 }

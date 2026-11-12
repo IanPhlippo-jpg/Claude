@@ -6,17 +6,20 @@
 //   draaien                 zuigkracht in stappen van 5 % (20 tot 80 %); draaien als hij uit staat zet hem aan
 //   drukken                 aan / uit (UIT heeft voorrang: ook een ijking stopt meteen)
 //   1 s vasthouden          boost: 2 minuten 100 % (de module houdt de tijd en het tegoed zelf bij)
-//   5 tot 10 s vasthouden   "Nieuw filter geplaatst?": kort drukken = ijken op het nieuwe filter, draaien of 10 s
-//                           niets doen = annuleren
+//   5 tot 10 s vasthouden   "Nieuw filter geplaatst?": kort drukken = ijken op het nieuwe filter, 3 tot 8 s
+//                           vasthouden = ander merk filter (nieuwe referentie, 7.2), draaien of 10 s niets doen = annuleren
 //   10 s vasthouden         opnieuw koppelen: zet daarna de schakelaar van de box 3 keer kort aan en uit (< 5 s)
 // Het scherm toont wat de module bevestigt (niet wat de knop vraagt): de stand, het drukverschil over het filter en de
 // verbruikte drukreserve (balk: van schoon tot de vervanggrens, geen maat voor de belading). De stand is een
 // percentage van het maximale toerental. "Filter vervangen" (oranje ring) komt per stand vóór het debiet onder het
-// minimum voor de vangst zakt; onder 80 % meldt het scherm "lage stand". De bewaking zegt altijd wat ze weet
+// minimum voor de vangst zakt; onder 75 % (7.2) meldt het scherm "lage stand". De bewaking zegt altijd wat ze weet
 // (stabiliseren, niet geijkt, geen meting, buiten bereik, filter ontbreekt). Valt het drukverschil weg, draait de
 // ventilator niet of klopt het toerental niet, dan meldt het een storing (rode ring). Boost komt uit een tegoed.
 // Na het aanzetten staat de module UIT; een herstart van de box toont "afzuiging herstart". Zonder verse status (2 s)
 // is niets bevestigd: "UIT?" of "AAN?".
+// Versie 7.2: "filter vervangen" komt van de module (minimum over 5 min, blijft staan tot een nieuwe ijking); stopt de
+// module zelf (filter ontbreekt of geen luchtstroom, 10 min geen knop, 4 uur niets gedaan), dan toont de knop waarom;
+// de knop stuurt elke seconde een levensteken; koppelen met X25519 (sleutel.h); een task-watchdog van 3 s.
 //
 // Aansluiting (zie ../../schema/Aansluitschema-afzuiging.pdf): FPC van de knop op de adapterprint -X11, 4 draden naar
 // het USB-C-printje -X7 in de achterwand van de knophouder: VBUS -> FPC 1 (+5 V), GND -> FPC 3, D+ -> FPC 9,
@@ -26,6 +29,7 @@
 #include <Preferences.h>
 #include <WiFi.h>
 #include <esp_now.h>
+#include <esp_task_wdt.h>
 #include <esp_wifi.h>
 
 #include "bediening.h"
@@ -33,6 +37,7 @@
 #include "logo.h"
 #include "protocol.h"
 #include "regel.h" // KnopKoppeling
+#include "sleutel.h"
 
 namespace {
 
@@ -84,6 +89,7 @@ const uint8_t PMK[16] = {'L', 'u', 's', 'h', 'B', 'e', 'a', 'u', 't', 'y', '-', 
 bool gekoppeld = false;
 uint8_t moduleMac[6];
 uint8_t sleutel[16];
+uint8_t knopGeheim[32], knopPubliek[32]; // 7.2: sleutelpaar voor het koppelen (X25519)
 KnopKoppeling kk;
 
 Bediening b;           // wens, schermkeuze en wat de knop met de status doet (bediening.h)
@@ -141,7 +147,8 @@ void wisKoppeling() {
   gekoppeld = false;
   prefs.remove("modulemac");
   prefs.remove("sleutel");
-  for (auto &x : sleutel) x = (uint8_t)esp_random();
+  memset(sleutel, 0, sizeof sleutel);
+  if (!maakSleutelpaar(knopGeheim, knopPubliek)) Serial.println("geen sleutelpaar: koppelen kan niet");
   kk.nieuw(esp_random());
 }
 
@@ -157,6 +164,8 @@ void koppelen(uint32_t nu) {
     koppelAntwoord = false;
     portEXIT_CRITICAL(&slot);
     if (kk.antwoord(van, k, nu)) {
+      // 7.2: de sleutel van de set uit ons geheim en de publieke sleutel van de gekozen module
+      if (!setSleutel(knopGeheim, k.pub, kk.uitdaging, sleutel)) { kk.nieuw(esp_random()); return; }
       // de gekozen module: onversleuteld toevoegen voor de bevestiging (lukt dat niet: opnieuw beginnen)
       esp_now_peer_info_t peer = {};
       memcpy(peer.peer_addr, kk.module, 6);
@@ -171,7 +180,7 @@ void koppelen(uint32_t nu) {
       vorigeVraag = nu;
       Koppel k;
       k.uitdaging = kk.uitdaging;
-      memcpy(k.sleutel, sleutel, 16);
+      memcpy(k.pub, knopPubliek, 32); // alleen de publieke sleutel: het geheim blijft in de knop
       esp_now_send(IEDEREEN, (const uint8_t *)&k, sizeof k); // mislukt: de volgende vraag komt over 0,5 s
     }
     return;
@@ -196,12 +205,21 @@ void koppelen(uint32_t nu) {
   }
   if (nu - vorigeBevestig >= 300) {
     vorigeBevestig = nu;
-    const Koppel bev = kk.bevestiging();
+    Koppel bev = kk.bevestiging();
+    koppelBewijs(sleutel, kk.uitdaging, bev.bewijs);
     esp_now_send(kk.module, (const uint8_t *)&bev, sizeof bev); // gericht aan de gekozen module
   }
 }
 
 /** een opdracht sturen; false = niet verzonden (geen verbinding: opnieuw proberen) */
+/** 7.2: een levensteken (zelfde sessie en volgnummers als de opdrachten) */
+bool stuurLeven() {
+  Leven l;
+  l.sessie = sessie;
+  l.volgnr = ++volgnr;
+  return esp_now_send(moduleMac, (const uint8_t *)&l, sizeof l) == ESP_OK;
+}
+
 bool stuur(const Opdracht &basis) {
   Opdracht o = basis;
   o.sessie = sessie;
@@ -341,7 +359,7 @@ void teken(uint32_t nu) {
       logo(S(120), S(52), BEIGE);
       tekst(TITEL, "NIEUW FILTER?", S(120), S(104), WIT);
       tekst(TEKST, "schoon filter geplaatst?", S(120), S(136), WIT);
-      tekenTekst("kort drukken: ijken", "draaien: annuleren", LICHT);
+      tekenTekst("kort: ijken, 3 s: ander merk", "draaien: annuleren", LICHT);
       break;
     case SCH_IJKEN:
       ring(BOOG * st.ijkVoortgang / 100.0f, &V_BEIGE);
@@ -367,16 +385,25 @@ void teken(uint32_t nu) {
       tekst(GROOT, "UIT", S(120), S(112), MIDDEN);
       tekenTekst("afzuiging herstart", "druk om aan te zetten", ORANJE);
       break;
+    case SCH_GESTOPT: // 7.2: de module stopte zelf
+      ring(0, nullptr);
+      logo(S(120), S(52), BEIGE);
+      tekst(GROOT, "UIT", S(120), S(112), MIDDEN);
+      if (b.gestopt == STOP_LUCHT) tekenTekst("gestopt: filter ontbreekt", "of geen luchtstroom", ROOD);
+      else if (b.gestopt == STOP_GEEN_KNOP) tekenTekst("gestopt: geen verbinding", "druk om te starten", ORANJE);
+      else tekenTekst("4 uur niets gedaan: uit", "druk om te starten", LICHT);
+      break;
     case SCH_UIT:
       ring(0, nullptr);
       logo(S(120), S(52), BEIGE);
       tekst(GROOT, "UIT", S(120), S(112), MIDDEN);
-      if (st.ijkFout == IJK_TE_HOOG) tekenTekst("ijking geweigerd", "filter niet nieuw?", ORANJE);
+      if (st.ijkFout == IJK_TE_HOOG) tekenTekst("ijking geweigerd", "ander merk? 5 s, dan 3 s", ORANJE);
+      else if (st.ijkFout == IJK_TE_LAAG) tekenTekst("ijking geweigerd", "filter ontbreekt?", ORANJE);
       else if (st.ijkFout != IJK_OK && st.ijkFout != IJK_AFGEBROKEN) tekenTekst("ijken mislukt", "vorige ijking blijft", ORANJE);
       else tekenTekst("druk om te starten", nullptr, MIDDEN);
       break;
     case SCH_AAN: {
-      const bool vol = st.bewaking == BEW_OK && !isnan(st.vol) && st.vol >= 1.0f;
+      const bool vol = st.filterVol; // 7.2: de module beslist (minimum over 5 min) en houdt de melding vast
       const bool storing = st.storing != STORING_GEEN;
       const bool aandacht = vol || st.bewaking == BEW_FILTER_LEK;
       ring(BOOG * st.pct / 100.0f, storing ? &V_ROOD : aandacht ? &V_ORANJE : &V_BEIGE);
@@ -400,7 +427,9 @@ void teken(uint32_t nu) {
       } else if (vol) {
         tekenTekst("filter vervangen", "eerst uit, filter in een zak", ORANJE);
       } else if (st.ijkFout == IJK_TE_HOOG) {
-        tekenTekst("ijking geweigerd", "filter niet nieuw?", ORANJE);
+        tekenTekst("ijking geweigerd", "ander merk? 5 s, dan 3 s", ORANJE);
+      } else if (st.ijkFout == IJK_TE_LAAG) {
+        tekenTekst("ijking geweigerd", "filter ontbreekt?", ORANJE);
       } else if (st.ijkFout != IJK_OK && st.ijkFout != IJK_AFGEBROKEN) {
         tekenTekst("ijken mislukt", "vorige ijking blijft", ORANJE);
       } else if (st.boostRest) {
@@ -411,7 +440,7 @@ void teken(uint32_t nu) {
       } else if (st.bewaking == BEW_NIET_GEIJKT) {
         tekenTekst("nieuw filter?", "knop 5 s vasthouden", LICHT);
       } else if (st.bewaking == BEW_LAGE_STAND) {
-        tekenTekst("lage stand", "weinig vangst, minstens 80 %", LICHT);
+        tekenTekst("lage stand", "weinig vangst, minstens 75 %", LICHT);
       } else if (st.bewaking == BEW_STABILISEREN) {
         tekenTekst("even meten...", nullptr, MIDDEN);
       } else {
@@ -449,7 +478,7 @@ void setup() {
   b.pct = constrain(prefs.getInt("pct", 80), MIN_PCT, MAX_PCT); // 80 %: de dagstand en de laagste beschermende
   // na het aanzetten: wens UIT en niets sturen; de eerste status van de module geeft de stand (bediening.h)
   gekoppeld = prefs.getBytes("modulemac", moduleMac, 6) == 6 && prefs.getBytes("sleutel", sleutel, 16) == 16;
-  if (!gekoppeld) for (auto &x : sleutel) x = (uint8_t)esp_random();
+  if (!gekoppeld && !maakSleutelpaar(knopGeheim, knopPubliek)) Serial.println("geen sleutelpaar: koppelen kan niet");
   sessie = (uint16_t)(prefs.getUShort("sessie", 0) + 1);
   prefs.putUShort("sessie", sessie);
 
@@ -470,10 +499,14 @@ void setup() {
     esp_now_register_recv_cb(bijOntvangst);
     esp_now_register_send_cb(bijZenden);
   }
+  // 7.2: task-watchdog van 3 s op de lus
+  esp_task_wdt_init(3, true);
+  esp_task_wdt_add(nullptr);
 }
 
 void loop() {
   const uint32_t nu = millis();
+  esp_task_wdt_reset();
 
   // status van de module
   if (nieuweStatus) {
@@ -519,6 +552,13 @@ void loop() {
     }
     vorigeOpdracht = nu;
     b.gewijzigd = !ok;
+  }
+
+  // 7.2: elke seconde een levensteken (ook als de gebruiker niets doet): zonder stopt de module na 10 min
+  static uint32_t vorigLeven = 0;
+  if (gekoppeld && nu - vorigLeven >= 1000) {
+    vorigLeven = nu;
+    stuurLeven();
   }
 
   // de stand bewaren 3 s na de laatste wijziging (AAN wordt bewust niet bewaard)

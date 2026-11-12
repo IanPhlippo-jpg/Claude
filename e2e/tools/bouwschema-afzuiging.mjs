@@ -14,36 +14,50 @@ const BEELD = 'e2e-out/bouwschema';
 mkdirSync(BEELD, { recursive: true });
 const bureau = JSON.parse(readFileSync('voorbeelden/bureau/Bureau.kcad', 'utf8'));
 delete bureau.format;
+// versie 7.2: een stuk blad met de twee huiden en de latten ertussen (zonder honingraat), in het assenstelsel van de module
+const detail = JSON.parse(readFileSync('voorbeelden/bureau/Tafelblad-detail.kcad', 'utf8'));
+delete detail.format;
 // positie in de stuklijst per benaming
 const pos = new Map(readFileSync(`${UIT}/stuklijst.csv`, 'utf8').replace(/^﻿/, '').trim().split(/\r?\n/).slice(1).map((r) => r.split(';').map((v) => v.replace(/^"(.*)"$/, '$1').replace(/""/g, '"'))).map(([p, , n]) => [n, p]));
 
 // groepen onderdelen (id's zoals in Bureau.kcad)
 const G = {
   blad: /^t1$/,
-  romp: /^a1$/, frame: /^a6$/, rooster: /^a2$/, filter: /^a3$/, foam: /^a3f$/, lip: /^a3l$/, instroom: /^a9$/, bodem: /^a4$/, fan: /^a5$/,
-  m8bus: /^a10$/, klauwen: /^ak\d$/, rubber: /^akr\d$/, moeren: /^an\d$/, m5: /^as5\d$/, m3: /^as3\d$/, m4: /^as4\d$/, meetbuis: /^a18$/, doorvoer: /^a19$/,
-  box: /^a20$/, boxdeksel: /^a28$/, dekselschroeven: /^asbd\d$/, boxschroeven: /^asb\d$/, boxinhoud: /^(a2[1-7]b?|as25\d|as2\d|asa\d)$/,
+  romp: /^a1$/, frame: /^a6$/, rooster: /^a2$/, persbouten: /^a2p\d$/, filter: /^a3$/, foam: /^a3f$/, lip: /^a3l$/, instroom: /^a9$/, bodem: /^a4$/, dichting: /^a4d$/, buffers: /^a4b\d$/, fan: /^a5$/,
+  m8bus: /^a10$/, klauwen: /^ak\d$/, rubber: /^akr\d$/, moeren: /^an\d$/, m5: /^as5\d$/, m3: /^as3\d$/, m4: /^as4\d$/, draadeind: /^as6\d$/, meetbuis: /^a18$/,
+  box: /^a20$/, boxdeksel: /^a28$/, dekselschroeven: /^asbd\d$/, boxschroeven: /^asb\d$/, boxinhoud: /^(a2[1-79]b?|as25\d|as2\d|asa\d)$/,
   knophouder: /^a7$/, knopdeksel: /^a12$/, knop: /^a8$/, adapter: /^a14$/, usbknop: /^a15$/, knopklauwen: /^adk\d$/, knoprubber: /^adkr\d$/, knopmoeren: /^adn\d$/, m4knop: /^asd\d$/, m25knop: /^ask\d$/, m25deksel: /^asdk\d$/, m2knop: /^asu\d$/,
   kasten: /^[kl]\d+$/,
 };
 const of = (...namen) => namen.map((n) => G[n]);
-const MODULE = of('romp', 'frame', 'klauwen', 'rubber', 'moeren', 'm5', 'instroom', 'foam', 'lip', 'meetbuis', 'doorvoer', 'm8bus', 'bodem', 'fan', 'm4', 'm3');
+const MODULE = of('romp', 'frame', 'klauwen', 'rubber', 'moeren', 'm5', 'instroom', 'foam', 'lip', 'meetbuis', 'm8bus', 'bodem', 'dichting', 'buffers', 'fan', 'm4', 'draadeind', 'm3');
 const BOX = of('box', 'boxinhoud', 'boxdeksel', 'dekselschroeven', 'boxschroeven');
 const KNOP = of('knophouder', 'knopdeksel', 'knop', 'adapter', 'usbknop', 'knopklauwen', 'knoprubber', 'knopmoeren', 'm4knop', 'm25knop', 'm25deksel', 'm2knop');
-const FILTERS = of('filter', 'rooster');
+const FILTERS = of('filter', 'rooster', 'persbouten');
 
 /** een beeld: welke groepen, welke verschoven (dx, dy, dz in mm), van onderen bekeken (180° om Z gedraaid) en de toets van het aanzicht */
 const beeld = (toon, schuif = [], opts = {}) => ({ toon, schuif, ...opts });
 const STAPPEN = [
   {
-    titel: 'Uitsparingen in het tafelblad', tijd: '1 uur', gereedschap: 'Bovenfrees met Ø10 en Ø5, gatzaag Ø44, sjabloon of geleider, stofzuiger',
+    titel: 'Uitsparingen in het tafelblad', tijd: '1 uur', gereedschap: 'Bovenfrees met kopieerring Ø17 en frees Ø12, frees Ø5, MDF-freesmallen (laser), gatzaag Ø44, stofzuiger',
     beelden: [beeld(of('blad')), beeld(of('blad'), [], { onder: true })],
-    extra: 'Freesmallen op ware grootte, per doos een PDF (A4, op 100 % afdrukken): schema/Freesmal-afzuiging, -knop en -voedingsbox.',
+    extra: 'MDF-freesmallen (laser/freesmal-mdf.dxf, tekening AFZ-21); de papieren mallen in schema/ zijn alleen om af te tekenen en na te meten.',
     tekst: [
-      'Bovenkant, doorgaand: de uitsparing 212 x 212 mm met hoeken R6 in het midden, en het gat Ø44 voor de knop (950 van links, 100 van voor).',
-      'Onderkant, 15 mm diep: de uitsparing 212 x 102 mm voor de voedingsbox, met het midden 495 mm van de voorkant, en ernaast 4 voorboorgaten Ø2,5 x 14 voor de schroeven van de box.',
-      'Onderkant: de sleuf 29 x 7 mm van de box naar de afzuiging en de sleuf 5 x 5 mm van de box naar het knopgat.',
-      'Alle maten staan op tekening AFZ-20 en op de freesmallen (op 100 % afdrukken). Frees in twee gangen: LAGKAPTEN is vanbinnen een honingraat.',
+      'Bovenkant, doorgaand: de uitsparing 212 x 212 mm met hoeken R6 in het midden, langs de MDF-mal met kopieerring Ø17 en frees Ø12 (de opening van de mal is rondom 2,5 mm groter). Het gat Ø44 voor de knop (950 van links, 100 van voor) met de gatzaag.',
+      'Onderkant, 15 mm diep: de uitsparing 212 x 102 mm voor de voedingsbox (MDF-mal), met het midden 495 mm van de voorkant, en ernaast 4 voorboorgaten Ø2,5 x 14 (door de gaatjes van de mal).',
+      'Alle maten staan op tekening AFZ-20 en AFZ-21. Frees in drie tot vier gangen: LAGKAPTEN is vanbinnen een honingraat van papier. De sleuven komen pas na de latten (volgende stap).',
+    ],
+    delen: [],
+  },
+  {
+    titel: 'Latten tussen de huiden', tijd: '30 min + een nacht drogen', gereedschap: 'Mes, lange schroevendraaier, PU-lijm of houtlijm D3, lijmklemmen, zaag',
+    detail: true,
+    beelden: [beeld([/^(h\d|l\d)$/], [[/^l\d$/, [0, -60, 0]]], { onder: true, detail: true }), beeld([/^(h\d|l\d)$/], [], { detail: true, snede: { plane: 'right', offset: 0, flip: false, cap: true }, toets: 'Control+4' })],
+    tekst: [
+      'Snij in de uitsparing van de module de honingraat rondom 45 mm diep weg (mes en een lange schroevendraaier), tussen de twee huiden.',
+      'Zaag vier latten 28 x 44 mm van 212 mm (vuren, geschaafd; meet eerst de kern na: 28 mm bij huiden van 3 mm) en één van 28 x 38 voor de achterkant (de strook tot de uitsparing van de box).',
+      'Smeer lijm op de boven- en onderkant, schuif elke lat in de holte, de binnenkant gelijk met de rand van de uitsparing, en klem ze tot de lijm hard is.',
+      'Achter de box: snij de honingraat 32 mm diep weg en lijm een lat 10 x 30 x 200 tegen de binnenkant van de onderhuid. Pas daarna de sleuven frezen: 29 x 7 van de box naar de module (4 mm in de lat) en 5 x 5 naar het knopgat.',
     ],
     delen: [],
   },
@@ -58,13 +72,12 @@ const STAPPEN = [
   },
   {
     titel: 'Lijmen: frame op de romp', tijd: '30 min + een nacht drogen', gereedschap: 'Tweecomponentenlijm, lijmklemmen of gewichten',
-    beelden: [beeld(of('romp', 'frame', 'doorvoer'), [[G.frame, [0, 45, 0]], [G.doorvoer, [0, 0, -45]]])],
+    beelden: [beeld(of('romp', 'frame'), [[G.frame, [0, 45, 0]]])],
     tekst: [
       'Lijm het bovenframe rondom op de bovenrand van de romp: de naad moet luchtdicht zijn.',
-      'Lijm een messingbuisje in het gaatje Ø3,1 in de achterwand (de doorvoer naar de drukmeter).',
       'Laat alles een nacht uitharden voor je verder gaat.',
     ],
-    delen: ['Romp', 'Bovenframe', 'Messingbuisje Ø3 x 12'],
+    delen: ['Romp', 'Bovenframe'],
   },
   {
     titel: 'Klauwen met rubber en M5-schroeven', tijd: '15 min', gereedschap: 'Inbussleutel 3 mm, secondelijm-gel, mes',
@@ -78,36 +91,36 @@ const STAPPEN = [
     delen: ['Klauw', 'Klauwrubber', 'M5 zeskantmoer DIN 934', 'M5 x 65 DIN 7991'],
   },
   {
-    titel: 'Ventilator op de bodemplaat, M8-bus in de achterwand', tijd: '30 min', gereedschap: 'Soldeerbout, krimpkous, kruiskop PH2, sleutel 13 mm',
-    beelden: [beeld(of('bodem', 'fan', 'm4'), [[G.fan, [0, 40, 0]], [G.m4, [0, -45, 0]]], { onder: true }), beeld(of('romp', 'frame', 'm8bus'), [[G.m8bus, [0, 0, -50]]], { toets: 'Control+2' })],
+    titel: 'Ventilator op rubberbuffers in de kuip', tijd: '30 min', gereedschap: 'Inbussleutels 2 en 2,5 mm, siliconenkit',
+    beelden: [beeld(of('bodem', 'buffers', 'fan', 'm4', 'draadeind'), [[G.fan, [0, 60, 0]], [G.draadeind, [0, 30, 0]], [G.m4, [0, -40, 0]]], { onder: true }), beeld(of('bodem', 'buffers', 'fan'), [], { snede: { plane: 'right', offset: 0, flip: false, cap: true }, toets: 'Control+4' })],
     tekst: [
-      'Soldeer de vier draden van de ventilator op de M8-bus: rood 1, geel 2, zwart 3, bruin 4. Meet de kleuren eerst na met de datasheet.',
-      'Zet de bus met zijn moer in het gat Ø12,7 in de achterwand en leid de draden door de ring ernaast.',
-      'Schroef de ventilator met 4 x M4 x 10 verzonken van onderen op de bodemplaat.',
+      'Draai in elke rubberbuffer (Ø15 x 10, M4 binnendraad) een draadeind M4 x 8 half in, en het andere eind 4 mm in een gat van de motor (de fabrikant laat 4 tot 6 mm toe): niet tot op de bodem.',
+      'Zet de ventilator met de buffers in de kuip en schroef ze van onderen vast met 4 x M4 x 8 verzonken. De waaier mag nergens de wand raken.',
+      'Leid de vier aders door het gat Ø5 in de bodem naar buiten en zet het gat dicht met een druppel siliconenkit (luchtdicht).',
     ],
-    delen: ['San Ace C175 9TG24P0S01', 'Bodemplaat', 'M4 x 10 DIN 7991', 'M8-inbouwbus 4-polig'],
+    delen: ['San Ace C175 9TG24P0S01', 'Ventilatorkuip', 'Rubberbuffer Ø15 x 10 M4', 'Draadeind M4 x 8 DIN 913', 'M4 x 8 DIN 7991'],
   },
   {
     titel: 'Instroomplaat, foamband en afdichtlip', tijd: '30 min', gereedschap: 'Tweecomponentenlijm, siliconeslangetje 2 x 4 mm, schaar, scherp mes, lat, snijmal',
-    beelden: [beeld(of('romp', 'frame', 'klauwen', 'm5', 'doorvoer', 'm8bus', 'instroom', 'foam', 'lip', 'meetbuis'), [[G.instroom, [0, 90, 0]], [G.meetbuis, [0, 90, 0]], [G.foam, [0, 120, 0]], [G.lip, [0, 150, 0]]])],
+    beelden: [beeld(of('romp', 'frame', 'klauwen', 'm5', 'm8bus', 'instroom', 'foam', 'lip', 'meetbuis'), [[G.instroom, [0, 90, 0]], [G.meetbuis, [0, 90, 0]], [G.foam, [0, 120, 0]], [G.lip, [0, 150, 0]]])],
     tekst: [
-      'Lijm het tweede messingbuisje in de instroomplaat: dat is het meetpunt onder het filter.',
-      'Rijg een stukje siliconeslang door de twee ringen tegen de achterwand en schuif het van dat buisje naar de doorvoer.',
-      'Leg de plaat op de getrapte richel in de romp, de trechter en de randen naar boven, en lijm ze rondom.',
+      'Lijm een messingbuisje in de instroomplaat: dat is het meetpunt onder het filter. Zet de M8-bus met zijn moer in het gat in de achterwand, onder de richel.',
+      'Leg de plaat op de getrapte richel in de romp (die loopt ook langs de torens), de trechter en de randen naar boven, en lijm ze rondom: ook langs de torens, want onder de plaat is het buiten de luchtweg.',
+      'Schuif een siliconeslangetje op het buisje onder de plaat en leid het door het gat Ø6 in de achterwand naar buiten.',
       'Kleef de foamband (6 x 4) rondom op de steunrand, binnen de geleiderand; de naad op een korte kant.',
       'Snij de afdichtlip in één stuk uit het zelfklevende siliconenrubber met de snijmal (schema/Snijmal-afdichtlip-1op1-A4.pdf) en kleef ze op de bovenkant van de geleiderand, de buitenrand gelijk met de buitenkant: 3,5 mm steekt naar binnen uit.',
     ],
-    delen: ['Instroomplaat', 'Messingbuisje Ø3 x 12', 'Foamband 6 x 4', 'Afdichtlip'],
+    delen: ['Instroomplaat', 'Messingbuisje Ø3 x 12', 'M8-inbouwbus 4-polig', 'Foamband 6 x 4', 'Afdichtlip'],
   },
   {
-    titel: 'Bodemplaat met ventilator op de romp', tijd: '10 min', gereedschap: 'Kruiskop PH1',
-    beelden: [beeld([...of('romp', 'frame', 'klauwen', 'm5', 'doorvoer', 'm8bus', 'instroom', 'meetbuis'), ...of('bodem', 'fan', 'm4', 'm3')], [[G.bodem, [0, -80, 0]], [G.fan, [0, -80, 0]], [G.m4, [0, -80, 0]], [G.m3, [0, -125, 0]]], { onder: true })],
+    titel: 'Kuip met ventilator aan de romp', tijd: '20 min', gereedschap: 'Soldeerbout, krimpkous, inbussleutel 2,5 mm',
+    beelden: [beeld([...of('romp', 'frame', 'klauwen', 'm5', 'm8bus', 'instroom', 'meetbuis'), ...of('bodem', 'dichting', 'buffers', 'fan', 'm4', 'draadeind', 'm3')], [[G.bodem, [0, -80, 0]], [G.buffers, [0, -80, 0]], [G.fan, [0, -80, 0]], [G.m4, [0, -80, 0]], [G.draadeind, [0, -80, 0]], [G.dichting, [0, -40, 0]], [G.m3, [0, -125, 0]]], { onder: true })],
     tekst: [
-      'Steek de M8-stekker van de ventilator nog niet in: de kabel loopt straks door de sleuf naar de box.',
-      'Zet de bodemplaat met de ventilator tegen de romp, de lamellen naar achteren.',
-      'Schroef hem vast met 8 x M3 x 16 verzonken in de torens en de wandbussen.',
+      'Kleef de foamband 6 x 2 rondom op de rand van de kuip (de naad stomp tegen elkaar).',
+      'Soldeer de vier aders van de ventilator op de M8-bus in de achterwand (rood 1, geel 2, zwart 3, bruin 4; eerst nameten met de datasheet) en leg ze in een lus naast de kuip.',
+      'Duw de kuip met de ventilator tegen de onderkant van de instroomplaat, de oren onder de bussen, en schroef ze vast met 4 x M3 x 12 cilinderkop: de foamband wordt ongeveer 0,5 mm ingedrukt en dicht rondom.',
     ],
-    delen: ['M3 x 16 DIN 7991'],
+    delen: ['Kuipdichting', 'M3 x 12 DIN 912'],
   },
   {
     titel: 'Module in het blad', tijd: '5 min', gereedschap: 'Inbussleutel 3 mm',
@@ -124,20 +137,20 @@ const STAPPEN = [
     beelden: [beeld([G.blad, ...MODULE, ...FILTERS], [[G.filter, [0, 120, 0]], [G.rooster, [0, 230, 0]]])],
     tekst: [
       'Duw het interieurfilter MANN CU 20 013 (195 x 145 x 30, of gelijk) recht naar onder door de lip tot op de foamband, de lange kant van voor naar achter en de pijl (luchtrichting) naar onder; niets te knippen.',
-      'Kijk en voel rondom: de lip ligt overal naar onder gebogen tegen de zijkant van het filter. Leg de RVS-plaat erop: de magneten houden ze vast.',
+      'Kijk en voel rondom: de lip ligt overal naar onder gebogen tegen de zijkant van het filter. Leg de RVS-plaat erop met de 4 persbouten in de opening van het frame: ze centreren de plaat, de magneten houden ze vast. Tussen de plaat en de plooien blijft 3 tot 5 mm lucht.',
     ],
-    delen: ['Interieurfilter MANN CU 20 013', 'Rooster LB'],
+    delen: ['Interieurfilter MANN CU 20 013', 'Rooster LB', 'Persbout PEM FH4-M3-6'],
   },
   {
     titel: 'Voedingsbox', tijd: '2 uur (print solderen)', gereedschap: 'Soldeerbout, schroevendraaier, inbussleutels 2 en 2,5 mm, boor Ø2,5',
     beelden: [beeld(BOX, [[G.boxinhoud, [0, 70, 0]], [G.boxdeksel, [0, 130, 0]], [G.dekselschroeven, [0, 160, 0]], [G.boxschroeven, [0, -40, 0]]]), beeld([G.blad, ...MODULE, ...BOX], BOX.map((g) => [g, [0, -110, 0]]), { onder: true })],
     tekst: [
       'Bouw de voedingsprint volgens het aansluitschema en schroef ze met 4 x M2,5 op de bussen.',
-      'Zet de netadapter op de bodem tegen de aanslagen en schroef de twee klemmen op de paaltjes (M3 x 10). Kort de DC-kabel in en klem hem op -X1.',
-      'Zet de schakelaar, de M8-stekker, het messingbuisje en de USB-C-bus (2 x M2) in de wanden.',
+      'Zet de netadapter op de bodem tegen de aanslagen en schroef de twee klemmen op de paaltjes (M3 x 10). Kort de DC-kabel in, meet met de multimeter welke ader + is en klem + op -X1.1 en - op -X1.2 (-R13 beschermt bij een vergissing).',
+      'Zet de schakelaar, de M8-stekker, het messingbuisje en de USB-C-bus (2 x M2) in de wanden. Schuif een stukje slang van 10 cm op de "+"-poort van de drukmeter, open einde naar onder, met een propje filtervlies erin.',
       'Leid het slangetje door de ring tegen de voorwand en schroef het deksel op de paaltjes (4 x M3 x 8). Duw de box van onderen in de uitsparing en zet de rand vast met 4 spaanplaatschroeven 4 x 16 verzonken in de voorboorgaten: tot de kop vlak ligt, niet verder.',
     ],
-    delen: ['Voedingsbox', 'Mean Well GST90A24-P1M', 'Voedingsprint', 'USB-C-bus knop', 'Wipschakelaar C&K D502', 'M8-inbouwstekker 4-polig', 'Adapterklem', 'M3 x 10 DIN 7991', 'Deksel voedingsbox', 'M3 x 8 DIN 7991', 'Spaanplaatschroef 4 x 16 verzonken', 'M2,5 x 6 zelftappend', 'M2 x 5 zelftappend'],
+    delen: ['Voedingsbox', 'Mean Well GST90A24-P1M', 'Voedingsprint', 'Elco 470 µF', 'Schottky SB560', 'USB-C-bus knop', 'Wipschakelaar C&K D502', 'M8-inbouwstekker 4-polig', 'Adapterklem', 'M3 x 10 DIN 7991', 'Deksel voedingsbox', 'M3 x 8 DIN 7991', 'Spaanplaatschroef 4 x 16 verzonken', 'M2,5 x 6 zelftappend', 'M2 x 5 zelftappend'],
   },
   {
     titel: 'Knop', tijd: '30 min', gereedschap: 'Inbussleutel 2 mm, kruiskop PH0, soldeerbout',
@@ -167,7 +180,7 @@ const STAPPEN = [
     tekst: [
       'Flash de firmware van de knop en de module (zie de README, PlatformIO, envs knop en module).',
       'Steek het netsnoer in de box en in het stopcontact en zet de schakelaar aan.',
-      'Koppel de knop met de box (10 s indrukken, dan de box drie keer kort aan en uit). Houd de knop daarna 5 seconden ingedrukt, bevestig "Nieuw filter?" met kort drukken en wacht tot het ijken klaar is: de drukmeter onthoudt de schone waarde.',
+      'Koppel de knop met de box (10 s indrukken, dan de box drie keer kort aan en uit). Houd de knop daarna 5 seconden ingedrukt, bevestig "Nieuw filter?" met kort drukken en wacht tot het ijken klaar is: de drukmeter onthoudt de schone waarde. Een filter van een ander merk: op "Nieuw filter?" 3 s vasthouden.',
       'Draaien regelt de zuigkracht, klikken zet aan en uit. Meldt de knop Filter vervangen, volg dan de volgende stap.',
     ],
     delen: [],
@@ -198,11 +211,11 @@ const qmul = (a, b) => [
   a[3] * b[3] - a[0] * b[0] - a[1] * b[1] - a[2] * b[2],
 ];
 function samenstelling(b) {
-  const doc = structuredClone(bureau);
+  const doc = structuredClone(b.detail ? detail : bureau);
   const past = (c, groepen) => groepen.some((g) => g.test(c.id));
   doc.components = doc.components.filter((c) => past(c, b.toon));
   const hoek = (deg) => { const h = (deg * Math.PI) / 360; return [0, Math.sin(h), 0, Math.cos(h)]; };
-  const blad = bureau.components.find((c) => c.id === 'a1').position[1]; // bovenkant van het blad
+  const blad = (b.detail ? detail : bureau).components.find((c) => c.id === 'a1').position[1]; // bovenkant van het blad
   for (const c of doc.components) {
     if (b.ingeklapt && /^a(k|n|kr)\d$/.test(c.id)) {
       // ingeklapt: de arm langs de wand van de toren, onderaan in de zwaaikamer (zoals de test in qaAfzuiging)
@@ -230,6 +243,8 @@ for (const [i, s] of STAPPEN.entries()) {
   for (const b of s.beelden) {
     await page.evaluate((x) => window.__phlippoStore.getState().openDocument(x), samenstelling(b));
     await page.waitForTimeout(2500);
+    await page.evaluate((x) => window.__phlippoStore.setState({ sectionView: x }), b.snede ?? null);
+    if (b.snede) await page.waitForTimeout(1500);
     await page.keyboard.press(b.toets ?? 'Control+7');
     await page.waitForTimeout(600);
     await page.keyboard.press('f');

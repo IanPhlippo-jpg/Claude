@@ -37,8 +37,8 @@
 <text x="21" y="285.4" font-size="1.8" text-anchor="start" fill="#000">Wijz.</text>
 <text x="31" y="285.4" font-size="1.8" text-anchor="start" fill="#000">Datum</text>
 <text x="49" y="285.4" font-size="1.8" text-anchor="start" fill="#000">Naam</text>
-<text x="21" y="278.55" font-size="2.3" text-anchor="start" fill="#000">7.1</text>
-<text x="31" y="278.55" font-size="2" text-anchor="start" fill="#000">2026-11-09</text>
+<text x="21" y="278.55" font-size="2.3" text-anchor="start" fill="#000">7.2</text>
+<text x="31" y="278.55" font-size="2" text-anchor="start" fill="#000">2026-11-12</text>
 <text x="49" y="278.55" font-size="2" text-anchor="start" fill="#000">PC</text>
 <polyline points="62,260 62,287" fill="none" stroke="#000" stroke-width="0.35"/>
 <polyline points="62,266.75 106,266.75" fill="none" stroke="#000" stroke-width="0.18"/>
@@ -46,7 +46,7 @@
 <polyline points="62,280.25 106,280.25" fill="none" stroke="#000" stroke-width="0.18"/>
 <polyline points="77,260 77,287" fill="none" stroke="#000" stroke-width="0.18"/>
 <text x="63" y="264.95" font-size="2" text-anchor="start" fill="#000">Datum</text>
-<text x="78" y="264.95" font-size="2.2" text-anchor="start" fill="#000">2026-11-08</text>
+<text x="78" y="264.95" font-size="2.2" text-anchor="start" fill="#000">2026-11-12</text>
 <text x="63" y="271.7" font-size="2" text-anchor="start" fill="#000">Getek.</text>
 <text x="78" y="271.7" font-size="2.2" text-anchor="start" fill="#000">Phlippo CAD</text>
 <text x="63" y="278.45" font-size="2" text-anchor="start" fill="#000">Gecontr.</text>
@@ -61,7 +61,7 @@
 <text x="108" y="275" font-size="2.3" text-anchor="start" fill="#000">Ian</text>
 <text x="147" y="262.3" font-size="1.8" text-anchor="start" fill="#000">Project</text>
 <text x="148" y="269" font-size="3.2" text-anchor="start" fill="#000" font-weight="700">Afzuiging Lush Beauty</text>
-<text x="148" y="274.5" font-size="2.3" text-anchor="start" fill="#000">inbouw nagelstofafzuiging, versie 7.1</text>
+<text x="148" y="274.5" font-size="2.3" text-anchor="start" fill="#000">inbouw nagelstofafzuiging, versie 7.2</text>
 <text x="107" y="285.2" font-size="1.8" text-anchor="start" fill="#000">Oorspr.</text>
 <text x="118" y="285.2" font-size="2" text-anchor="start" fill="#000"></text>
 <polyline points="139.33,280.25 139.33,287" fill="none" stroke="#000" stroke-width="0.18"/>
@@ -81,7 +81,7 @@
 <text x="307" y="262.3" font-size="1.8" text-anchor="start" fill="#000">Tekeningnr.</text>
 <text x="308" y="270" font-size="2.8" text-anchor="start" fill="#000" font-weight="700">AFZ-E01</text>
 <text x="307" y="275.8" font-size="1.8" text-anchor="start" fill="#000">Revisie / taal</text>
-<text x="308" y="283" font-size="2.6" text-anchor="start" fill="#000">7.1 / nl</text>
+<text x="308" y="283" font-size="2.6" text-anchor="start" fill="#000">7.2 / nl</text>
 <polyline points="350,260 350,287" fill="none" stroke="#000" stroke-width="0.35"/>
 <polyline points="350,273.5 384,273.5" fill="none" stroke="#000" stroke-width="0.25"/>
 <text x="351.5" y="266" font-size="2.6" text-anchor="start" fill="#000">=</text>
@@ -94,7 +94,7 @@
 <polyline points="384,280.25 410,280.25" fill="none" stroke="#000" stroke-width="0.25"/>
 <text x="385" y="262.3" font-size="1.8" text-anchor="start" fill="#000">Blad</text>
 <text x="397" y="275" font-size="8" text-anchor="middle" fill="#000" font-weight="700">7</text>
-<text x="408.5" y="285.2" font-size="2.3" text-anchor="end" fill="#000">11 Bl.</text>
+<text x="408.5" y="285.2" font-size="2.3" text-anchor="end" fill="#000">12 Bl.</text>
 <text x="23" y="26" font-size="7" text-anchor="start" fill="#000">Klemmenplan</text>
 <text x="95" y="26" font-size="4.5" text-anchor="start" fill="#000" font-weight="700">Klemmenstrook -X7</text>
 <text x="170" y="26" font-size="3" text-anchor="start" fill="#000">USB-C-bus in de knophouder</text>

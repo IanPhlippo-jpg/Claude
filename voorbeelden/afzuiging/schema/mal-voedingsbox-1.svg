@@ -36,7 +36,7 @@
 <text x="111.00" y="285.60" font-size="2.1" text-anchor="start" font-family="Arial, Helvetica, sans-serif" >Phlippo CAD · Ian</text>
 <line x1="140.00" y1="279.00" x2="140.00" y2="287.00" stroke="#111" stroke-width="0.25" />
 <text x="141.00" y="281.40" font-size="1.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#555">Rev. / uitgifte</text>
-<text x="141.00" y="285.60" font-size="1.9" text-anchor="start" font-family="Arial, Helvetica, sans-serif" >7.1 · 2026-11-08</text>
+<text x="141.00" y="285.60" font-size="1.9" text-anchor="start" font-family="Arial, Helvetica, sans-serif" >7.2 · 2026-11-12</text>
 <line x1="166.00" y1="279.00" x2="166.00" y2="287.00" stroke="#111" stroke-width="0.25" />
 <text x="167.00" y="281.40" font-size="1.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#555">Schaal</text>
 <text x="167.00" y="285.60" font-size="2.1" text-anchor="start" font-family="Arial, Helvetica, sans-serif" >1:1</text>
@@ -50,10 +50,10 @@
 <text x="169.00" y="124.00" font-size="2.8" text-anchor="start" font-family="Arial, Helvetica, sans-serif" >(gefreesd):</text>
 <text x="169.00" y="128.00" font-size="2.8" text-anchor="start" font-family="Arial, Helvetica, sans-serif" >wegknippen</text>
 <text x="164.50" y="262.00" font-size="2.6" text-anchor="end" font-family="Arial, Helvetica, sans-serif" >achterrand uitsparing</text>
-<path d="M31,44 H123 A5,5 0 0 1 128,49 V251 A5,5 0 0 1 123,256 H31 A5,5 0 0 1 26,251 V49 A5,5 0 0 1 31,44 Z" fill="none" stroke="#111" stroke-width="0.6" />
-<path d="M31.01,49 H122.99 A0.01,0.01 0 0 1 123,49.01 V250.99 A0.01,0.01 0 0 1 122.99,251 H31.01 A0.01,0.01 0 0 1 31,250.99 V49.01 A0.01,0.01 0 0 1 31.01,49 Z" fill="none" stroke="#111" stroke-width="0.18" stroke-dasharray="2 1.5"/>
+<path d="M32,44 H122 A6,6 0 0 1 128,50 V250 A6,6 0 0 1 122,256 H32 A6,6 0 0 1 26,250 V50 A6,6 0 0 1 32,44 Z" fill="none" stroke="#111" stroke-width="0.6" />
+<path d="M32,49 H122 A1,1 0 0 1 123,50 V250 A1,1 0 0 1 122,251 H32 A1,1 0 0 1 31,250 V50 A1,1 0 0 1 32,49 Z" fill="none" stroke="#111" stroke-width="0.18" stroke-dasharray="2 1.5"/>
 <text x="77.00" y="144.00" font-size="3.2" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="bold">voedingsbox</text>
-<text x="77.00" y="148.50" font-size="2.8" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" >212 x 102, R5</text>
+<text x="77.00" y="148.50" font-size="2.8" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" >212 x 102, R6</text>
 <text x="77.00" y="153.00" font-size="2.8" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" >15 diep (3 gangen)</text>
 <circle cx="134.00" cy="235.00" r="1.25" fill="none" stroke="#111" stroke-width="0.4" />
 <line x1="131.00" y1="235.00" x2="137.00" y2="235.00" stroke="#111" stroke-width="0.2" /><line x1="134.00" y1="232.00" x2="134.00" y2="238.00" stroke="#111" stroke-width="0.2" /><circle cx="134.00" cy="235.00" r="1.2" fill="none" stroke="#111" stroke-width="0.2" />

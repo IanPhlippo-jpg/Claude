@@ -29,7 +29,7 @@ for groep, kop in [('Kopen', '### Kopen'), ('Lasersnijden', '### Laten lasersnij
         regels.append([groep, c[0].strip('`'), c[1], c[2], fmt(getal(c[3])), fmt(getal(c[4]))])
         totaal += getal(c[4])
         groepen[groep] = groepen.get(groep, 0.0) + getal(c[4])
-for naam, n, w in [('PETG wit, rol 1 kg', 2, 'romp, frame, cassette, platen, box, klauwen, klemmen: ca. 1,1 kg'), ('PETG zwart, rol 1 kg', 1, 'knophouder, deksel, knopklauwen: ca. 55 g')]:
+for naam, n, w in [('PETG wit, rol 1 kg', 2, 'romp, frame, kuip, instroomplaat, box, klauwen, klemmen'), ('PETG zwart, rol 1 kg', 1, 'knophouder, deksel, knopklauwen: ca. 55 g')]:
     regels.append(['Printen', naam, str(n), w, fmt(20), fmt(20 * n)])
     totaal += 20 * n
 regels.append(['Eindtotaal', '', '', '', '', fmt(totaal)])
@@ -41,7 +41,7 @@ r = t
 r = re.sub(r'(\| \*\*Totaal kopen\*\* \| \| \| \| )\*\*€ [\d.,]+\*\*', lambda m: m.group(1) + f'**{e(groepen["Kopen"])}**', r)
 r = re.sub(r'(\| \*\*Totaal lasersnijden\*\* \| \| \| \| )\*\*€ [\d.,]+\*\*', lambda m: m.group(1) + f'**{e(groepen["Lasersnijden"])}**', r)
 r = re.sub(r'(\| Kopen \(elektronica, ventilator, filter, schroeven en moeren\) \| )€ [\d.,]+', lambda m: m.group(1) + e(groepen['Kopen']), r)
-r = re.sub(r'(\| Laten lasersnijden \(rooster\) \| )€ [\d.,]+', lambda m: m.group(1) + e(groepen['Lasersnijden']), r)
+r = re.sub(r'(\| Laten lasersnijden \([^)]*\) \| )€ [\d.,]+', lambda m: m.group(1) + e(groepen['Lasersnijden']), r)
 r = re.sub(r'(\| \*\*Eindtotaal\*\* \| )\*\*€ [\d.,]+\*\*', lambda m: m.group(1) + f'**{e(totaal)}**', r)
 if r != t:
     with open(HIER / 'README.md', 'w', encoding='utf-8', newline='\n') as f:

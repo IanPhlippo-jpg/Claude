@@ -1,0 +1,95 @@
+{
+ "format": "phlippo-cad",
+ "version": 1,
+ "name": "Elco 470 µF",
+ "units": "mm",
+ "planes": {
+  "elcobodem": {
+   "id": "elcobodem",
+   "name": "Plane bodem box",
+   "origin": [
+    0,
+    -33,
+    0
+   ],
+   "u": [
+    1,
+    0,
+    0
+   ],
+   "v": [
+    0,
+    0,
+    -1
+   ],
+   "n": [
+    0,
+    1,
+    0
+   ],
+   "kind": "reference"
+  }
+ },
+ "variables": {},
+ "equations": [],
+ "sketches": {
+  "s1": {
+   "id": "s1",
+   "name": "Sketch1",
+   "plane": "elcobodem",
+   "points": {
+    "origin_s1": {
+     "x": 0,
+     "y": 0
+    },
+    "s1p0": {
+     "x": 50,
+     "y": -20
+    }
+   },
+   "scalars": {
+    "s1s1": 5
+   },
+   "entities": {
+    "s1e2": {
+     "id": "s1e2",
+     "construction": false,
+     "kind": "circle",
+     "center": "s1p0",
+     "r": "s1s1"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s1e2"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s1"
+  }
+ },
+ "features": [
+  {
+   "id": "ks1",
+   "type": "sketch",
+   "name": "Sketch1",
+   "sketchId": "s1",
+   "suppressed": false
+  },
+  {
+   "id": "f2",
+   "type": "extrude",
+   "name": "Elco",
+   "sketchId": "s1",
+   "suppressed": false,
+   "op": "boss",
+   "end": "blind",
+   "depth": 20,
+   "reverse": false
+  }
+ ],
+ "material": {
+  "name": "Aluminium, blauw",
+  "density": 1500,
+  "color": "#2d4f8f"
+ }
+}

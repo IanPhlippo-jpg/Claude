@@ -1,13 +1,16 @@
 // Afzuiging Lush Beauty, module: een ESP32-C3 SuperMini in de voedingsbox onder het blad stuurt de radiale
-// ventilator in de afzuiging (San Ace C175 9TG24P0S01, 24 V, 56 W, PWM 25 kHz: 0 % = stil) en bewaakt het filter
+// ventilator in de afzuiging (San Ace C175 9TG24P0S01, 24 V, 56 W, PWM 25 kHz: bij 0 % staat hij stil volgens de
+// datasheet van Sanyo Denki, catalogus C1111B002: "zero fan speed at 0%"; een losse PWM-draad geeft wel VOL toerental,
+// daarom schakelt -Q2 de 24 V af als de ventilator uit moet) en bewaakt het filter
 // met een verschildrukmeter (Sensirion SDP810-500Pa, een slangetje naar de ruimte onder het filter). De knop in het
 // blad stuurt de opdrachten draadloos (ESP-NOW, zie protocol.h) en toont de status die de module terugstuurt.
 //
 // Alle beslissingen (aan/uit, toerentalregeling, boosttegoed, ijken, meetgeldigheid, bewaking, koppelen, voeding van
 // de ventilator) zitten in regel.h en zijn op de pc getest (test/test_regel). Dit bestand doet alleen de hardware: PWM,
 // voeding, tacho, I2C, ESP-NOW en het NVS. Een nieuwe knop koppelen: de schakelaar van de box 3 keer kort aan en uit
-// (telkens < 5 s), dan staat het koppelvenster 60 s open; dezelfde handeling wist ook de eerste ijking (de volgende
-// geldige ijking wordt de nieuwe referentie).
+// (telkens < 5 s), dan staat het koppelvenster 60 s open. Versie 7.2: die handeling wist de eerste ijking niet meer
+// (daarvoor is "ander merk filter" op de knop); de sleutel van de set komt uit X25519 (sleutel.h); een task-watchdog
+// van 3 s herstart de ESP32-C3 als de lus vastloopt (dan is -Q2 open: de ventilator spanningsloos, en na de herstart UIT).
 //
 // Aansluiting (zie ../../schema/Aansluitschema-afzuiging.pdf):
 //   GPIO5 SDA, GPIO6 SCL -> SDP810 (adres 0x25, 3,3 V uit de 3V3-pin, pull-ups 4,7 kOhm naar 3,3 V)
@@ -16,7 +19,9 @@
 //   GPIO7 -> basis -Q3 (BC547), die de hoge-zijde-schakelaar -Q2 (IRF4905) in de 24 V naar de ventilator aanstuurt.
 //            Hoog = 24 V aan. Een weerstand trekt de basis van -Q3 laag: bij reset, flashen of zonder 5 V/3,3 V is de
 //            ventilator spanningsloos (veilige toestand = stil). GPIO2, 8 en 9 zijn strapping-pinnen: niet gebruikt.
-//   GPIO4 <- tacho van de ventilator (geel, open collector), 10 kOhm naar 3,3 V; 2 pulsen per omwenteling.
+//   GPIO4 <- tacho van de ventilator (geel, open collector), 10 kOhm naar 3,3 V; 2 pulsen per omwenteling (datasheet).
+//            7.2: RC-filter -R14 1 kOhm in serie en -C3 10 nF naar GND bij GPIO4; in de software ontdenderd (TACHO_MIN_US)
+//            en het toerental uit de periode (regel.h).
 //   5V-pin uit de regelaar D24V10F5 (L5), GND gemeenschappelijk; de ventilator op 24 V (via -Q2) via de M8-kabel.
 // Q1 keert het PWM-signaal om: hoog op GPIO3 trekt de PWM-draad laag. De firmware rekent dat om.
 
@@ -25,10 +30,12 @@
 #include <WiFi.h>
 #include <Wire.h>
 #include <esp_now.h>
+#include <esp_task_wdt.h>
 #include <esp_wifi.h>
 
 #include "protocol.h"
 #include "regel.h"
+#include "sleutel.h"
 
 namespace {
 
@@ -55,14 +62,23 @@ bool radioOk = false; // ESP-NOW draait en de knop staat als peer: anders is er 
 
 // ontvangen in de callback, verwerkt in loop()
 portMUX_TYPE slot = portMUX_INITIALIZER_UNLOCKED;
-volatile bool nieuweOpdracht = false, nieuweKoppeling = false;
+volatile bool nieuweOpdracht = false, nieuweKoppeling = false, nieuwLeven = false;
 Opdracht ontvangen;
 uint8_t ontvangenVan[6];
+Leven leven;
+uint8_t levenVan[6];
+uint8_t kandidaatLmk[16]; // de sleutel die we met de publieke sleutel van de kandidaat uitrekenden
 Koppel koppelBericht;
 uint8_t koppelVan[6];
 
-volatile uint32_t tachoPulsen = 0;
-void IRAM_ATTR tachoIsr() { tachoPulsen++; }
+// tacho: alleen flanken minstens TACHO_MIN_US na de vorige (ontdendering), met het tijdstip van de laatste (periodemeting)
+volatile uint32_t tachoPulsen = 0, tachoLaatsteUs = 0;
+void IRAM_ATTR tachoIsr() {
+  const uint32_t t = micros();
+  if (!tachoPulsGeldig(tachoLaatsteUs, t)) return;
+  tachoLaatsteUs = t;
+  tachoPulsen++;
+}
 
 void zetPwm(int pct) {
   // het PWM-signaal is omgekeerd door Q1: 0 % op de ventilator (stil) = GPIO altijd hoog
@@ -109,6 +125,12 @@ void bijOntvangst(const uint8_t *mac, const uint8_t *data, int len) {
     memcpy(ontvangenVan, mac, 6);
     nieuweOpdracht = true;
     portEXIT_CRITICAL(&slot);
+  } else if (len == (int)sizeof(Leven)) {
+    portENTER_CRITICAL(&slot);
+    memcpy(&leven, data, sizeof leven);
+    memcpy(levenVan, mac, 6);
+    nieuwLeven = true;
+    portEXIT_CRITICAL(&slot);
   } else if (len == (int)sizeof(Koppel)) {
     Koppel k;
     memcpy(&k, data, sizeof k);
@@ -134,6 +156,13 @@ bool voegKnopToe() {
   return radioOk;
 }
 
+/** 7.2: klopt het bewijs in een KOPPEL_BEVESTIG met de sleutel die we voor de kandidaat uitrekenden? */
+bool bewijsKlopt(const Koppel &k) {
+  uint8_t b[8];
+  koppelBewijs(kandidaatLmk, k.uitdaging, b);
+  return memcmp(b, k.bewijs, 8) == 0;
+}
+
 void koppelen(uint32_t nu) {
   if (koppeling.tik(nu) && koppeling.gekoppeld) voegKnopToe(); // geen bevestiging: de vorige knop terug
   if (!nieuweKoppeling) return;
@@ -147,13 +176,23 @@ void koppelen(uint32_t nu) {
     // alleen kandidaat; nog niets bewaren. Is het de al gekoppelde knop (opnieuw koppelen met een nieuwe sleutel), dan
     // even zonder versleutelde peer, zodat zijn onversleutelde bevestiging binnenkomt.
     if (!koppeling.vraag(van, k, nu)) return;
+    // 7.2: een eigen sleutelpaar; de sleutel van de set uit ons geheim en de publieke sleutel van de knop
+    uint8_t geheim[32], publiek[32];
+    const bool sleutelOk = maakSleutelpaar(geheim, publiek) && setSleutel(geheim, k.pub, k.uitdaging, kandidaatLmk);
+    memset(geheim, 0, sizeof geheim);
+    if (!sleutelOk) {
+      Serial.println("sleutel niet uitgerekend: geen antwoord");
+      return;
+    }
+    koppeling.kandidaatSleutel(kandidaatLmk);
     if (koppeling.gekoppeld && memcmp(van, koppeling.mac, 6) == 0) esp_now_del_peer(van);
-    Koppel ok; // dezelfde uitdaging en ons eigen MAC-adres terug, zonder sleutel
+    Koppel ok; // dezelfde uitdaging, ons eigen MAC-adres en onze publieke sleutel (geen geheim)
     ok.soort = SOORT_KOPPEL_OK;
     ok.uitdaging = k.uitdaging;
+    memcpy(ok.pub, publiek, 32);
     memcpy(ok.mac, koppeling.eigen, 6);
     if (esp_now_send(IEDEREEN, (const uint8_t *)&ok, sizeof ok) != ESP_OK) Serial.println("KOPPEL_OK niet verzonden");
-  } else if (koppeling.bevestig(van, k, nu)) {
+  } else if (bewijsKlopt(k) && koppeling.bevestig(van, k, nu, true)) {
     // de knop koos deze module: nu pas toevoegen en bewaren (lukt het toevoegen niet, dan niets bewaren)
     if (voegKnopToe()) {
       prefs.putBytes("knopmac", koppeling.mac, 6);
@@ -188,9 +227,9 @@ void setup() {
   if (herkoppelHandeling(snel)) {
     koppeling.herkoppelen = true;
     prefs.putUChar("snelstart", 0);
-    prefs.remove("eerste");
-    Serial.println("koppelvenster open voor een nieuwe knop (60 s); eerste ijking gewist");
+    Serial.println("koppelvenster open voor een nieuwe knop (60 s)");
   }
+  regel.filterVol = prefs.getBool("filtervol", false); // 7.2: de melding "filter vervangen" blijft na een herstart
   float w[5], tp[5], e[5];
   if (prefs.getBytes("schoon", w, sizeof w) == sizeof w && prefs.getBytes("toeren", tp, sizeof tp) == sizeof tp)
     if (!regel.laadIjking(w, tp, 5)) Serial.println("bewaarde ijking ongeldig: niet geladen");
@@ -214,10 +253,14 @@ void setup() {
     if (koppeling.gekoppeld) voegKnopToe();
     esp_now_register_recv_cb(bijOntvangst);
   }
+  // 7.2: task-watchdog van 3 s op de lus (paniek = herstart: -Q2 open, daarna UIT)
+  esp_task_wdt_init(3, true);
+  esp_task_wdt_add(nullptr);
 }
 
 void loop() {
   const uint32_t nu = millis();
+  esp_task_wdt_reset();
 
   // koppelen (alleen in de eerste 60 s na het aanzetten van de box, en pas na de bevestiging van de knop)
   koppelen(nu);
@@ -238,6 +281,15 @@ void loop() {
     portEXIT_CRITICAL(&slot);
     if (koppeling.aanvaard(van, o)) regel.opdracht(o, nu);
   }
+  if (nieuwLeven) { // 7.2: levensteken van de knop
+    portENTER_CRITICAL(&slot);
+    const Leven l = leven;
+    uint8_t van[6];
+    memcpy(van, levenVan, 6);
+    nieuwLeven = false;
+    portEXIT_CRITICAL(&slot);
+    if (koppeling.aanvaard(van, l)) regel.knopLeeft(nu);
+  }
 
   // drukverschil 4 keer per seconde; een weggevallen meter elke seconde opnieuw starten
   static uint32_t vorigeMeting = 0, vorigeHerstart = 0;
@@ -252,12 +304,17 @@ void loop() {
     }
   }
 
-  // toerental elke seconde
-  static uint32_t vorigeTacho = 0, pulsenVorig = 0;
+  // toerental elke seconde, uit de periode: de pulsen sinds de vorige keer en de tijd tussen de laatste puls van toen en
+  // de laatste puls van nu (7.2)
+  static uint32_t vorigeTacho = 0, pulsenVorig = 0, laatsteUsVorig = 0;
   if (nu - vorigeTacho >= 1000) {
-    const uint32_t p = tachoPulsen;
-    regel.tacho((uint16_t)((p - pulsenVorig) * 60000UL / ((nu - vorigeTacho) * PULSEN_PER_OMW)), nu);
+    noInterrupts();
+    const uint32_t p = tachoPulsen, tl = tachoLaatsteUs;
+    interrupts();
+    const uint32_t n = p - pulsenVorig;
+    regel.tacho(n && laatsteUsVorig ? toerenUitPeriode(n, tl - laatsteUsVorig, PULSEN_PER_OMW) : 0, nu);
     pulsenVorig = p;
+    laatsteUsVorig = tl;
     vorigeTacho = nu;
   }
 
@@ -272,6 +329,14 @@ void loop() {
     prefs.putBytes("eerste", regel.eersteIjking(), 5 * sizeof(float));
     regel.nieuweEerste = false;
   }
+  if (regel.eersteGewist) { // 7.2: "ander merk filter" op de knop
+    prefs.remove("eerste");
+    regel.eersteGewist = false;
+  }
+  if (regel.nieuweVolMelding) {
+    prefs.putBool("filtervol", regel.filterVol);
+    regel.nieuweVolMelding = false;
+  }
 
   static uint32_t vorigeStatus = 0, statusFouten = 0;
   if (koppeling.gekoppeld && radioOk && nu - vorigeStatus >= 250) {
@@ -284,9 +349,9 @@ void loop() {
   static uint32_t vorigLog = 0;
   if (nu - vorigLog >= 1000) {
     vorigLog = nu;
-    Serial.printf("aan=%d stand=%d pwm=%d toeren=%u dp=%.1f vers=%d vol=%.2f bewaking=%d storing=%d geijkt=%d ijken=%d fout=%d tegoed=%lu radio=%d zendfouten=%lu\n",
-                  regel.aan, regel.stand, regel.gegeven, regel.toeren, regel.dp, regel.meetVers(nu), regel.vol, regel.bewaking, regel.storing,
-                  regel.geijkt, regel.ijkStap, regel.ijkFout, (unsigned long)regel.boostTegoed, radioOk, (unsigned long)statusFouten);
+    Serial.printf("aan=%d stand=%d pwm=%d toeren=%u dp=%.1f vers=%d vol=%.2f filtervol=%d bewaking=%d storing=%d uit=%d geijkt=%d ijken=%d fout=%d tegoed=%lu radio=%d zendfouten=%lu\n",
+                  regel.aan, regel.stand, regel.gegeven, regel.toeren, regel.dp, regel.meetVers(nu), regel.vol, regel.filterVol, regel.bewaking, regel.storing,
+                  regel.uitReden, regel.geijkt, regel.ijkStap, regel.ijkFout, (unsigned long)regel.boostTegoed, radioOk, (unsigned long)statusFouten);
   }
   delay(5);
 }

@@ -13,7 +13,7 @@ import type { Document } from '../core/document/types';
 const DIR = 'voorbeelden/afzuiging';
 const open = (f: string): Document => parseDocument(readFileSync(`${DIR}/${f}`, 'utf8'));
 // alles met dezelfde oorsprong als de box (midden van de box op de onderkant van het blad)
-const IN_DE_BOX = ['Voedingsprint.kcad', 'USB-C-bus-knop.kcad', 'Netadapter-GST90A24.kcad', 'Wipschakelaar-D502.kcad',
+const IN_DE_BOX = ['Voedingsprint.kcad', 'Elco-470uF.kcad', 'Diode-SB560.kcad', 'USB-C-bus-knop.kcad', 'Netadapter-GST90A24.kcad', 'Wipschakelaar-D502.kcad',
   'M8-inbouwstekker.kcad', 'Adapterklem.kcad', 'Deksel-voedingsbox.kcad'];
 
 describe('afzuiging, voedingsbox exact', () => {

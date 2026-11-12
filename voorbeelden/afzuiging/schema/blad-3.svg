@@ -37,8 +37,8 @@
 <text x="21" y="285.4" font-size="1.8" text-anchor="start" fill="#000">Wijz.</text>
 <text x="31" y="285.4" font-size="1.8" text-anchor="start" fill="#000">Datum</text>
 <text x="49" y="285.4" font-size="1.8" text-anchor="start" fill="#000">Naam</text>
-<text x="21" y="278.55" font-size="2.3" text-anchor="start" fill="#000">7.1</text>
-<text x="31" y="278.55" font-size="2" text-anchor="start" fill="#000">2026-11-09</text>
+<text x="21" y="278.55" font-size="2.3" text-anchor="start" fill="#000">7.2</text>
+<text x="31" y="278.55" font-size="2" text-anchor="start" fill="#000">2026-11-12</text>
 <text x="49" y="278.55" font-size="2" text-anchor="start" fill="#000">PC</text>
 <polyline points="62,260 62,287" fill="none" stroke="#000" stroke-width="0.35"/>
 <polyline points="62,266.75 106,266.75" fill="none" stroke="#000" stroke-width="0.18"/>
@@ -46,7 +46,7 @@
 <polyline points="62,280.25 106,280.25" fill="none" stroke="#000" stroke-width="0.18"/>
 <polyline points="77,260 77,287" fill="none" stroke="#000" stroke-width="0.18"/>
 <text x="63" y="264.95" font-size="2" text-anchor="start" fill="#000">Datum</text>
-<text x="78" y="264.95" font-size="2.2" text-anchor="start" fill="#000">2026-11-08</text>
+<text x="78" y="264.95" font-size="2.2" text-anchor="start" fill="#000">2026-11-12</text>
 <text x="63" y="271.7" font-size="2" text-anchor="start" fill="#000">Getek.</text>
 <text x="78" y="271.7" font-size="2.2" text-anchor="start" fill="#000">Phlippo CAD</text>
 <text x="63" y="278.45" font-size="2" text-anchor="start" fill="#000">Gecontr.</text>
@@ -61,7 +61,7 @@
 <text x="108" y="275" font-size="2.3" text-anchor="start" fill="#000">Ian</text>
 <text x="147" y="262.3" font-size="1.8" text-anchor="start" fill="#000">Project</text>
 <text x="148" y="269" font-size="3.2" text-anchor="start" fill="#000" font-weight="700">Afzuiging Lush Beauty</text>
-<text x="148" y="274.5" font-size="2.3" text-anchor="start" fill="#000">inbouw nagelstofafzuiging, versie 7.1</text>
+<text x="148" y="274.5" font-size="2.3" text-anchor="start" fill="#000">inbouw nagelstofafzuiging, versie 7.2</text>
 <text x="107" y="285.2" font-size="1.8" text-anchor="start" fill="#000">Oorspr.</text>
 <text x="118" y="285.2" font-size="2" text-anchor="start" fill="#000"></text>
 <polyline points="139.33,280.25 139.33,287" fill="none" stroke="#000" stroke-width="0.18"/>
@@ -81,7 +81,7 @@
 <text x="307" y="262.3" font-size="1.8" text-anchor="start" fill="#000">Tekeningnr.</text>
 <text x="308" y="270" font-size="2.8" text-anchor="start" fill="#000" font-weight="700">AFZ-E01</text>
 <text x="307" y="275.8" font-size="1.8" text-anchor="start" fill="#000">Revisie / taal</text>
-<text x="308" y="283" font-size="2.6" text-anchor="start" fill="#000">7.1 / nl</text>
+<text x="308" y="283" font-size="2.6" text-anchor="start" fill="#000">7.2 / nl</text>
 <polyline points="350,260 350,287" fill="none" stroke="#000" stroke-width="0.35"/>
 <polyline points="350,273.5 384,273.5" fill="none" stroke="#000" stroke-width="0.25"/>
 <text x="351.5" y="266" font-size="2.6" text-anchor="start" fill="#000">=</text>
@@ -94,7 +94,7 @@
 <polyline points="384,280.25 410,280.25" fill="none" stroke="#000" stroke-width="0.25"/>
 <text x="385" y="262.3" font-size="1.8" text-anchor="start" fill="#000">Blad</text>
 <text x="397" y="275" font-size="8" text-anchor="middle" fill="#000" font-weight="700">3</text>
-<text x="408.5" y="285.2" font-size="2.3" text-anchor="end" fill="#000">11 Bl.</text>
+<text x="408.5" y="285.2" font-size="2.3" text-anchor="end" fill="#000">12 Bl.</text>
 <rect x="30" y="60" width="62" height="70" fill="none" stroke="#000" stroke-width="0.3" stroke-dasharray="4 1 0.6 1"/><text x="30" y="58.4" font-size="2.8" text-anchor="start" fill="#000">-T1</text><text x="32.5" y="65" font-size="2.3" text-anchor="start" fill="#000">Netadapter (in de box)</text><text x="32.5" y="68.4" font-size="2.3" text-anchor="start" fill="#000">Mean Well GST90A24-P1M</text><text x="32.5" y="71.8" font-size="2.3" text-anchor="start" fill="#000">230 V AC / 24 V DC, 3,75 A</text><text x="32.5" y="75.2" font-size="2.3" text-anchor="start" fill="#000">C14-inlaat: netsnoer C13</text><text x="32.5" y="78.6" font-size="2.3" text-anchor="start" fill="#000">naar het stopcontact</text><circle cx="92" cy="80" r="0.5" fill="#000"/><text x="90.4" y="78.8" font-size="2.1" text-anchor="end" fill="#000">+</text><circle cx="92" cy="120" r="0.5" fill="#000"/><text x="90.4" y="118.8" font-size="2.1" text-anchor="end" fill="#000">−</text>
 <text x="30" y="145" font-size="2.5" text-anchor="start" fill="#000">230 V AC alleen in de gekeurde adapter</text>
 <text x="30" y="149" font-size="2.3" text-anchor="start" fill="#000">(geen eigen bedrading op 230 V)</text>
@@ -130,6 +130,15 @@
 <circle cx="330" cy="200" r="0.6" fill="#000"/>
 <polyline points="350,153 405,153" fill="none" stroke="#000" stroke-width="0.35"/>
 <polygon points="405,153 402.8,151.9 402.8,154.1" fill="#000"/><text x="402" y="151.6" font-size="2.5" text-anchor="end" fill="#000">L5</text><text x="402" y="156.2" font-size="2.3" text-anchor="end" fill="#000">/5.0</text>
+<circle cx="228" cy="80" r="0.6" fill="#000"/>
+<polyline points="228,80 228,120" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="228,120 228,124.5" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="225,124.5 231,124.5" fill="none" stroke="#000" stroke-width="0.5"/><polygon points="228,124.5 225,129.5 231,129.5" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="228,129.5 228,134" fill="none" stroke="#000" stroke-width="0.25"/><text x="233" y="126" font-size="2.8" text-anchor="start" fill="#000">-R13</text><text x="233" y="129.3" font-size="2.3" text-anchor="start" fill="#000">SB560</text>
+<polyline points="228,134 228,200" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="228" cy="200" r="0.6" fill="#000"/>
+<text x="233" y="140" font-size="2.2" text-anchor="start" fill="#000">ompoling: geleidt,</text>
+<text x="233" y="143.3" font-size="2.2" text-anchor="start" fill="#000">adapter in hiccup</text>
+<text x="233" y="146.6" font-size="2.2" text-anchor="start" fill="#000">of -F1 smelt</text>
 <text x="30" y="236" font-size="2.5" text-anchor="start" fill="#000">Stroom: ventilator max. 2,35 A bij 24 V; op 5 V de knop tot 0,45 A en -K1 tot 0,34 A (pieken bij het zenden), samen hoogstens 0,8 A van de 1 A van -T3.</text>
-<text x="30" y="242" font-size="2.5" text-anchor="start" fill="#000">Alle onderdelen behalve -T1 en -Q4 zitten op de gaatjesprint -U1 (40 x 50 mm) in de voedingsbox. Draad naar de ventilator 0,5 mm².</text>
+<text x="30" y="242" font-size="2.5" text-anchor="start" fill="#000">Behalve -T1, -Q4, -C1 en -R13 (naast de print) zit alles op de gaatjesprint -U1 (40 x 50, blad 11). Draad naar de ventilator: in de box 0,5 mm², M8-kabel -W2 4 x 0,25 mm².</text>
+<text x="100" y="64.5" font-size="2.1" text-anchor="start" fill="#000">+ en − nameten voor het vastschroeven</text>
 </svg>

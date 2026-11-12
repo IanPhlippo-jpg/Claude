@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="70mm" height="35mm" viewBox="0 0 70 35" font-family="Arial, Helvetica, sans-serif">
+  <rect x="0.3" y="0.3" width="69.4" height="34.4" rx="2" fill="#fff" stroke="#111" stroke-width="0.5"/>
+  <text x="3" y="5.6" font-size="3.4" font-weight="bold">Nagelstofafzuiging LB-AFZ</text>
+  <text x="67" y="5.6" font-size="2.6" text-anchor="end">versie 7.2</text>
+  <line x1="2" y1="7.4" x2="68" y2="7.4" stroke="#111" stroke-width="0.25"/>
+  <text x="3" y="11.2" font-size="2.4">Fabrikant: ............................................ (naam en adres van de zaak)</text>
+  <text x="3" y="15" font-size="2.4">Serienummer: ..........   Bouwjaar: 20..</text>
+  <text x="3" y="18.8" font-size="2.4">24 V DC, max. 2,6 A, 61 W (ventilator 56 W + besturing)</text>
+  <text x="3" y="22.6" font-size="2.4">Voeding: netadapter Mean Well GST90A24-P1M, 230 V AC, klasse I</text>
+  <text x="3" y="26.4" font-size="2.4">Radio 2,4 GHz (ESP-NOW). Binnen, droog. IP20.</text>
+  <text x="3" y="30.6" font-size="2.6" font-weight="bold">PROTOTYPE: niet met klanten gebruiken voor de vrijgave</text>
+  <text x="3" y="33.6" font-size="1.9">Stekker eruit voor het openen van de box. Nooit zonder filter.</text>
+</svg>

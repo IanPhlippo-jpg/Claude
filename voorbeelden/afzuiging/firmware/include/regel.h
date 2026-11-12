@@ -2,7 +2,18 @@
 // hardware (geen Arduino-functies). main.cpp geeft de tijd, de opdrachten, de metingen en het toerental door en zet
 // de PWM die stap() teruggeeft. Zo is alles op de pc te testen (test/test_regel, pio test -e native).
 //
-// Beleid (versie 7.1, eindverslag v4):
+// Beleid (versie 7.2: advies Fable 5.2 verwerkt bovenop 7.1, eindverslag v4):
+//  - 7.2 "filter vervangen" beoordeelt het MINIMUM over 5 minuten werktijd (10 emmers van 30 s op een beschermende stand):
+//    een hand op het rooster, een kortere toerentalschommeling of een windstoot geeft geen valse melding. Eenmaal gegeven
+//    blijft de melding staan (hysterese, ook na een herstart: main.cpp bewaart ze) tot een geslaagde ijking op een nieuw
+//    filter;
+//  - 7.2 veiligheid: ligt de druk 3 s lang onder lekFactor x de schone druk bij het GEMETEN toerental ("filter ontbreekt"
+//    of "geen luchtstroom"), dan stopt de ventilator op elke stand (uitReden STOP_LUCHT). Hij start pas weer na een
+//    UIT-opdracht gevolgd door een nieuwe AAN (wachtOpUit). Hetzelfde na 10 min zonder enig teken van de knop
+//    (STOP_GEEN_KNOP) en na 4 uur zonder bediening (STOP_AUTO);
+//  - 7.2 een ijking onder lekFactor x de eerste ijking wordt geweigerd (IJK_TE_LAAG: zonder filter geijkt?);
+//  - 7.2 de eerste ijking wissen is een aparte handeling op de knop (refWis: "ander merk filter"), niet meer het
+//    koppelen met de schakelaar;
 //  - een STAND is een percentage van het gemeten maximale toerental (niet van de PWM): na een ijking kent de module
 //    bij elke PWM-stap het toerental en regelt ze het toerental bij (voorwaarts uit de ijktabel plus een trage
 //    bijregeling op de tacho). Zo zijn stand, debiet, geluid en warmte in docs/Berekeningen.md dezelfde grootheid.
@@ -24,13 +35,12 @@
 //    stijgen. De eerste geldige ijking ooit wordt ook bewaard (eersteSchoon); een latere ijking die op een punt meer
 //    dan 15 % HOGER ligt, wordt geweigerd (IJK_TE_HOOG): een vuil filter wordt zo nooit de schone referentie. Bij elke
 //    weigering blijft de vorige geldige ijking bewaard en meldt ijkFout waarom. eersteSchoon wissen kan alleen met de
-//    bewuste herkoppelhandeling (de schakelaar van de box 3 keer kort aan en uit): main.cpp wist hem dan uit het NVS en
-//    de volgende geldige ijking zet hem opnieuw (nodig na een andere ventilator of drukmeter);
+//    bewuste handeling "ander merk filter" op de knop (refWis, versie 7.2): de volgende geldige ijking zet hem opnieuw;
 //  - een bewaarde ijking wordt bij het laden volledig nagekeken (eindig, druk in [minPa, geldigPa] en stijgend,
 //    toerental in [minToeren, maxToeren] en strikt stijgend); anders blijft wat er was;
 //  - "filter vervangen" komt per stand bij vervangFactor (uit het luchtmodel): vóór het debiet onder het minimum voor de
 //    vangst zakt (onzekerheidsband: ventilatorcurve +-20 Pa, toerental tot 3 % te laag, 10 % marge op de reserve).
-//    80 % is de laagste beschermende stand en de dagstand: lagere standen (onder beschermVanaf) halen dat minimum niet
+//    75 % (7.2; was 80 %) is de laagste beschermende stand: lagere standen (onder beschermVanaf) halen dat minimum niet
 //    zeker: bewaking "lage stand". De balk op de knop is de verbruikte drukreserve (van schoon tot de vervanggrens),
 //    geen maat voor de belading;
 //  - zonder filter of met een grote omloop is de druk 0,27 tot 0,54 x schoon (luchtmodel): onder lekFactor (0,70 x
@@ -42,7 +52,7 @@
 //    het toerental even lang weer klopt. De bijregeling begint pas na het stabiliseren (geen opwinden tijdens de
 //    oploop van de ventilator, dus geen doorschieten en geen vals alarm na de zachte start);
 //  - stilstand van de ventilator (toerental onder minToeren) wordt op elke stand bewaakt;
-//  - verbindingsverlies: de module draait verder op de laatste gewone stand (geen boost);
+//  - verbindingsverlies: de module draait verder op de laatste gewone stand (geen boost), hoogstens knopStilMs (10 min);
 //  - voeding van de ventilator: een hoge-zijde-schakelaar -Q2 (IRF4905) in de 24 V, aangestuurd door -Q3 (BC547) vanaf
 //    GPIO7 (hoog = 24 V aan). Een weerstand trekt de basis van -Q3 laag: bij reset, flashen of zonder 5 V/3,3 V is de
 //    ventilator spanningsloos (veilige toestand = stil). main.cpp zet GPIO7 als eerste laag en daarna elke regelstap op
@@ -59,11 +69,12 @@
 //   geen verse meting                              BEW_GEEN_METING    -                   "meting niet actueel"
 //   < 6 s na een standwissel                       BEW_STABILISEREN   -                   "even meten..."
 //   toerental > 3 % naast het doel, > 10 s         BEW_TOEREN         STORING_TOEREN      rood "toerental wijkt af"
-//   stand < 80 %                                   BEW_LAGE_STAND     (geen lucht)        "lage stand"
 //   dp < 0,25 x schoon                             BEW_FILTER_LEK     STORING_GEEN_LUCHT  rood "geen luchtstroom"
-//   dp < 0,70 x schoon                             BEW_FILTER_LEK     -                   oranje "filter ontbreekt"
+//   dp < 0,70 x schoon (7.2: op elke stand)        BEW_FILTER_LEK     -                   oranje "filter ontbreekt"
+//                                                  (en 3 s lang: de ventilator stopt, uitReden STOP_LUCHT)
+//   stand < 75 % (beschermVanaf)                   BEW_LAGE_STAND     (geen lucht)        "lage stand"
 //   vervanggrens boven het meetbereik              BEW_BUITEN_BEREIK  -                   "druk buiten meetbereik"
-//   anders                                         BEW_OK             -                   Pa, tpm en balk; vol >= 1:
+//   anders                                         BEW_OK             -                   Pa, tpm en balk; filterVol:
 //                                                                                          oranje "filter vervangen"
 //   op elke stand: toerental < 300 na 5 s          (zoals hierboven)  STORING_STIL        rood "ventilator draait niet"
 #pragma once
@@ -91,12 +102,21 @@ struct Instellingen {
   uint32_t ijkStabielMs = 6000;
   int ijkMinMetingen = 4;        // van de 8 mogelijke in 2 s
   float ijkMaxStijging = 1.15f;  // een nieuwe ijking mag op geen punt meer dan 15 % boven de eerste ijking liggen
+  // 7.2: het minimum over het venster beslist over "filter vervangen" (10 emmers van 30 s werktijd op een te bewaken stand)
+  uint32_t volEmmerMs = 30000;
+  int volEmmers = 10;
+  // 7.2: veiligheid en bediening
+  uint32_t luchtStopMs = 3000;      // zo lang "filter ontbreekt" of "geen luchtstroom": de ventilator stopt
+  float luchtMinRefPa = 5.0f;       // onder deze schone druk (zeer laag toerental) geen oordeel: te weinig signaal
+  float luchtOpgelopen = 0.9f;      // pas oordelen als het toerental minstens 90 % van het doel haalt (opgelopen)
+  uint32_t knopStilMs = 600000;     // 10 min geen enkel bericht van de knop: stoppen
+  uint32_t autoUitMs = 14400000;    // 4 uur geen bediening: automatisch uit
   // melding "filter vervangen" bij dit veelvoud van de schone druk, lineair tussen deze standen (% toerental)
   // (docs/Berekeningen.md, hoofdstuk 3b: het ongunstigste van zes scenario's, met 10 % marge; het rekenblad controleert
   // deze waarden)
-  int vervangStand[3] = {80, 90, 100};
-  float vervangFactor[3] = {1.15f, 1.32f, 1.44f};
-  int beschermVanaf = 80;        // 80 % is de laagste beschermende stand en de dagstand; lager haalt het minimum niet zeker
+  int vervangStand[3] = {75, 85, 100}; // 7.2: 75 % is nu ook beschermend (opener rooster, grotere verdeelruimte)
+  float vervangFactor[3] = {1.18f, 1.40f, 1.70f};
+  int beschermVanaf = 75;        // de laagste beschermende stand (het rekenblad controleert hem); lager haalt het minimum niet zeker
   float storingFactor = 0.25f;   // minder dan een kwart van schoon = geen luchtstroom
   float lekFactor = 0.70f;       // minder dan 0,70 x schoon = filter ontbreekt of lucht loopt om (model: 0,27 tot 0,54)
   uint32_t stabielMs = 6000;     // na een standwijziging eerst stabiliseren
@@ -126,9 +146,22 @@ class Regelaar {
   /** een geldige opdracht van de gekoppelde knop */
   void opdracht(const Opdracht &o, uint32_t nu) {
     const bool zelfdeSessie = heeftOpdracht && o.sessie == sessie;
+    knopLeeft(nu);
+    // een handeling = de wens veranderde (aan, stand, boost, ijken of referentie wissen): de klok van autoUit begint opnieuw
+    if (!heeftOpdracht || o.aan != vorigeWens.aan || o.pct != vorigeWens.pct || o.boost != vorigeWens.boost || o.ijk != vorigeWens.ijk || o.refWis != vorigeWens.refWis)
+      laatsteHandeling = nu ? nu : 1;
+    vorigeWens = o;
     heeftOpdracht = true;
     aanGeweigerd = false;
-    if (!o.aan) {
+    if (zelfdeSessie && o.refWis != refWisTeller) { // 7.2: "ander merk filter": de eerste ijking vervalt
+      heeftEerste = false;
+      eersteGewist = true;
+    }
+    refWisTeller = o.refWis;
+    if (!o.aan) wachtOpUit = false; // na een stop geldt AAN pas weer na een UIT
+    if (o.aan && wachtOpUit) {
+      aanGeweigerd = true;
+    } else if (!o.aan) {
       // UIT heeft voorrang: boost weg, een lopende ijking meteen af (UIT geldt ook met een oud startId)
       aan = false;
       boostTot = 0;
@@ -164,6 +197,9 @@ class Regelaar {
     if (ijkStap && nu - ijkStart > I.ijkStabielMs) { ijkSom += pa; ijkN++; ijkTpmSom += toeren; }
   }
 
+  /** een geldig bericht van de gekoppelde knop (opdracht of levensteken): de knop leeft */
+  void knopLeeft(uint32_t nu) { laatsteKnop = nu ? nu : 1; }
+
   /** de drukmeter is opnieuw gestart (main.cpp): weer proberen */
   void meterHersteld() { fouten = 0; meter = true; }
 
@@ -180,6 +216,11 @@ class Regelaar {
   int stap(uint32_t nu) {
     const uint32_t dt = vorigeStap ? nu - vorigeStap : 0;
     vorigeStap = nu ? nu : 1;
+    if (!laatsteKnop) laatsteKnop = nu ? nu : 1;
+    if (!laatsteHandeling) laatsteHandeling = nu ? nu : 1;
+    // 7.2: geen knop meer (10 min) of geen bediening (4 uur): stoppen
+    if (aan && nu - laatsteKnop > I.knopStilMs) stop(STOP_GEEN_KNOP);
+    if (aan && nu - laatsteHandeling > I.autoUitMs) stop(STOP_AUTO);
     // boosttegoed: op tijdens een boost, terug (1/boostHerstel) daarna
     if (boostTot) {
       boostTegoed = dt >= boostTegoed ? 0 : boostTegoed - dt;
@@ -214,14 +255,17 @@ class Regelaar {
     else {
       const float ref = schoonBij(stand), f = factorBij(stand);
       geenLucht = dp < ref * I.storingFactor;
-      if (stand < I.beschermVanaf || f <= 1.0f) bewaking = BEW_LAGE_STAND;
-      else if (dp < ref * I.lekFactor) bewaking = BEW_FILTER_LEK;    // filter ontbreekt of sluit niet af
+      if (dp < ref * I.lekFactor) bewaking = BEW_FILTER_LEK;    // 7.2: op elke stand (filter ontbreekt of sluit niet af)
+      else if (stand < I.beschermVanaf || f <= 1.0f) bewaking = BEW_LAGE_STAND;
       else if (ref * f > I.geldigPa) bewaking = BEW_BUITEN_BEREIK; // de grens valt boven het meetbereik
       else {
         bewaking = BEW_OK;
-        vol = beperkf((dp / ref - 1.0f) / (f - 1.0f), 0.0f, 1.2f);
+        volMeting(beperkf((dp / ref - 1.0f) / (f - 1.0f), 0.0f, 1.2f), dt);
       }
     }
+    // 7.2 veiligheid: druk onder lekFactor x de schone druk bij het gemeten toerental, 3 s lang: stoppen (elke stand)
+    luchtBewaking(nu, vers);
+    if (!aan && !ijkStap) { stand = 0; doelPwm = 0; } // een stop in deze stap: meteen stil
     stil = stand > 0 && nu - snelheidSinds > I.stilNaMs && toeren < I.minToeren;
     storing = stand == 0 ? STORING_GEEN : stil ? STORING_STIL : toerenFout ? STORING_TOEREN : geenLucht ? STORING_GEEN_LUCHT : STORING_GEEN;
     // zachte start op de verstreken tijd; omlaag en UIT meteen
@@ -250,6 +294,8 @@ class Regelaar {
     s.dp = s.meetVers ? dp : NAN;
     s.vol = vol;
     s.startId = startId;
+    s.filterVol = filterVol;
+    s.uitReden = uitReden;
   }
 
   bool meetVers(uint32_t nu) const { return meter && laatsteMeting && nu - laatsteMeting <= I.meetVersMs && isfinite(dp); }
@@ -279,6 +325,11 @@ class Regelaar {
   const float *eersteIjking() const { return eersteSchoon; }
   bool nieuweIjking = false; // gezet na een geslaagde ijking; main.cpp bewaart en zet terug op false
   bool nieuweEerste = false; // gezet als deze ijking de eerste referentie werd; main.cpp bewaart en zet terug
+  bool eersteGewist = false; // 7.2: de knop vroeg "ander merk filter": main.cpp wist de eerste ijking in het NVS en zet terug
+  bool filterVol = false;    // 7.2: de melding "filter vervangen" staat (tot een geslaagde ijking); main.cpp bewaart ze
+  bool nieuweVolMelding = false; // gezet als filterVol verandert; main.cpp bewaart en zet terug
+  uint8_t uitReden = STOP_GEEN;  // 7.2: waarom de module zelf stopte (tot de volgende AAN)
+  bool wachtOpUit = false;       // 7.2: na een stop eerst een UIT-opdracht, dan pas weer AAN
 
   // toestand (voor tests en het logboek)
   bool aan = false, aanGeweigerd = false;
@@ -304,6 +355,59 @@ class Regelaar {
     }
     return true;
   }
+
+  /** 7.2: zelf stoppen (veiligheid, geen knop, geen bediening): UIT met een reden; AAN pas weer na een UIT */
+  void stop(uint8_t reden) {
+    aan = false;
+    boostTot = 0;
+    if (ijkStap) ijkAfbreken(IJK_AFGEBROKEN);
+    uitReden = reden;
+    wachtOpUit = true;
+  }
+
+  /** 7.2: de schone druk bij het gemeten toerental (tussen de ijkpunten op het toerental) */
+  float schoonBijToeren(float rpm) const {
+    if (rpm <= tpm[0]) return schoon[0] * (rpm / tpm[0]) * (rpm / tpm[0]);
+    int i = 0;
+    while (i < I.ijkPunten - 2 && rpm > tpm[i + 1]) i++;
+    const float f = beperkf((rpm - tpm[i]) / (tpm[i + 1] - tpm[i]), 0.0f, 1.2f);
+    return schoon[i] + (schoon[i + 1] - schoon[i]) * f;
+  }
+
+  /** 7.2: filter ontbreekt of geen luchtstroom, 3 s lang, op elke stand: stoppen. Alleen geijkt, met een verse meting en
+   *  een opgelopen ventilator (toerental >= 90 % van het doel), niet tijdens het ijken */
+  void luchtBewaking(uint32_t nu, bool vers) {
+    luchtFout = false;
+    if (aan && !ijkStap && geijkt && vers && stand > 0 && toeren >= I.minToeren) {
+      const float doel = tpm[I.ijkPunten - 1] * stand / 100.0f, ref = schoonBijToeren(toeren);
+      if (toeren >= doel * I.luchtOpgelopen && ref >= I.luchtMinRefPa) luchtFout = dp < ref * I.lekFactor;
+    }
+    if (!luchtFout) { luchtSinds = 0; return; }
+    if (!luchtSinds) luchtSinds = nu ? nu : 1;
+    if (nu - luchtSinds >= I.luchtStopMs) { stop(STOP_LUCHT); luchtSinds = 0; }
+  }
+
+  /** 7.2: een vulgraad van deze stap in het venster; het minimum over volEmmers emmers van volEmmerMs beslist */
+  void volMeting(float v, uint32_t dt) {
+    emmerMin = emmerTijd ? fminf(emmerMin, v) : v;
+    emmerTijd += dt ? dt : 1;
+    if (emmerTijd >= I.volEmmerMs) {
+      emmers[emmerIdx] = emmerMin;
+      emmerIdx = (emmerIdx + 1) % I.volEmmers;
+      if (emmersVol < I.volEmmers) emmersVol++;
+      emmerTijd = 0;
+    }
+    float m = emmerTijd ? emmerMin : 1e9f;
+    for (int k = 0; k < emmersVol; k++) m = fminf(m, emmers[k]);
+    vol = m < 1e8f ? m : v;
+    if (emmersVol >= I.volEmmers) {
+      float vensterMin = 1e9f;
+      for (int k = 0; k < I.volEmmers; k++) vensterMin = fminf(vensterMin, emmers[k]);
+      if (vensterMin >= 1.0f && !filterVol) { filterVol = true; nieuweVolMelding = true; }
+    }
+  }
+
+  void wisVenster() { emmersVol = 0; emmerIdx = 0; emmerTijd = 0; emmerMin = 0; }
 
   void startBoost(uint32_t nu) {
     boostGeweigerd = boostTegoed < I.boostMinMs;
@@ -404,8 +508,10 @@ class Regelaar {
     float nieuw[5];
     for (int k = 0; k < I.ijkPunten; k++) nieuw[k] = k && punten[k] < nieuw[k - 1] ? nieuw[k - 1] : punten[k];
     if (heeftEerste)
-      for (int k = 0; k < I.ijkPunten; k++)
+      for (int k = 0; k < I.ijkPunten; k++) {
         if (nieuw[k] > eersteSchoon[k] * I.ijkMaxStijging) { ijkAfbreken(IJK_TE_HOOG); return terug; } // geen schoon filter
+        if (nieuw[k] < eersteSchoon[k] * I.lekFactor) { ijkAfbreken(IJK_TE_LAAG); return terug; }     // 7.2: zonder filter?
+      }
     for (int k = 0; k < I.ijkPunten; k++) {
       schoon[k] = nieuw[k];
       tpm[k] = tpmPunten[k];
@@ -417,6 +523,9 @@ class Regelaar {
     }
     geijkt = true;
     nieuweIjking = true;
+    if (filterVol) nieuweVolMelding = true;
+    filterVol = false; // 7.2: een nieuw filter: de melding vervalt en het venster begint opnieuw
+    wisVenster();
     ijkStap = 0;
     ijkFout = IJK_OK;
     vorigeStand = -1;
@@ -426,7 +535,14 @@ class Regelaar {
   Instellingen I;
   bool heeftOpdracht = false;
   uint16_t sessie = 0;
-  uint8_t boostTeller = 0, ijkTeller = 0;
+  uint8_t boostTeller = 0, ijkTeller = 0, refWisTeller = 0;
+  Opdracht vorigeWens;
+  uint32_t laatsteKnop = 0, laatsteHandeling = 0, luchtSinds = 0;
+  bool luchtFout = false;
+  float emmers[16] = {0};
+  int emmerIdx = 0, emmersVol = 0;
+  uint32_t emmerTijd = 0;
+  float emmerMin = 0;
   uint32_t laatsteMeting = 0, herstelRest = 0;
   int fouten = 0;
   float schoon[5], tpm[5], eersteSchoon[5];
@@ -442,6 +558,9 @@ class Regelaar {
 };
 
 /** koppeling in de module: alleen de knop die zich in een geopend koppelvenster aanmeldde én daarna deze module koos.
+ *  Versie 7.2: de sleutel gaat niet meer over de lucht. De knop stuurt zijn publieke sleutel (X25519), de module de hare;
+ *  elk rekent hetzelfde geheim uit (main.cpp, mbedtls) en daaruit de sleutel van de set. De bevestiging draagt een bewijs
+ *  (hash van die sleutel en de uitdaging): zo weet de module dat de knop dezelfde sleutel heeft.
  *  Het venster gaat alleen open als de module nog niet gekoppeld is, of na een bewuste handeling (de schakelaar van de
  *  box 3 keer kort aan en uit: main.cpp zet dan herkoppelen). Een KOPPEL-vraag maakt de knop alleen kandidaat; pas een
  *  gerichte KOPPEL_BEVESTIG (zelfde knop, zelfde uitdaging, ons eigen MAC-adres) binnen BEVESTIG_MS maakt de koppeling.
@@ -466,16 +585,22 @@ class Koppeling {
     if (wacht && memcmp(afzender, kMac, 6) != 0) return false; // een andere knop is al bezig
     if (!wacht || k.uitdaging != kUitdaging) wachtSinds = nuSindsStart ? nuSindsStart : 1;
     memcpy(kMac, afzender, 6);
-    memcpy(kSleutel, k.sleutel, 16);
+    memcpy(kPub, k.pub, 32);
+    memset(kSleutel, 0, 16);
     kUitdaging = k.uitdaging;
     wacht = true;
     return true;
   }
 
-  /** een KOPPEL_BEVESTIG: true = de knop is nu gekoppeld (main.cpp bewaart hem en voegt hem toe) */
-  bool bevestig(const uint8_t *afzender, const Koppel &k, uint32_t nu) {
+  /** de sleutel die main.cpp met de publieke sleutel van de kandidaat uitrekende */
+  void kandidaatSleutel(const uint8_t *s16) { memcpy(kSleutel, s16, 16); }
+  const uint8_t *kandidaatPub() const { return kPub; }
+
+  /** een KOPPEL_BEVESTIG: true = de knop is nu gekoppeld (main.cpp bewaart hem en voegt hem toe); bewijsOk = het bewijs
+   *  in de bevestiging klopt met de uitgerekende sleutel (main.cpp) */
+  bool bevestig(const uint8_t *afzender, const Koppel &k, uint32_t nu, bool bewijsOk = true) {
     tik(nu);
-    if (!wacht) return false;
+    if (!wacht || !bewijsOk) return false;
     if (k.magie != MAGIE || k.versie != VERSIE || k.soort != SOORT_KOPPEL_BEVESTIG) return false;
     if (memcmp(afzender, kMac, 6) != 0 || memcmp(k.mac, eigen, 6) != 0 || k.uitdaging != kUitdaging) return false;
     memcpy(mac, kMac, 6);
@@ -498,26 +623,34 @@ class Koppeling {
   /** een opdracht aanvaarden? alleen van de gekoppelde knop; sessies stijgen (de knop telt ze in zijn NVS), binnen een
    *  sessie stijgt het volgnummer: oude of herhaalde berichten en vroegere sessies worden geweigerd */
   bool aanvaard(const uint8_t *afzender, const Opdracht &o) {
-    if (!gekoppeld || memcmp(afzender, mac, 6) != 0) return false;
     if (o.magie != MAGIE || o.versie != VERSIE || o.soort != SOORT_OPDRACHT) return false;
-    if (heeftSessie) {
-      const int16_t d = (int16_t)(o.sessie - sessie);
-      if (d < 0) return false;                        // een vroegere sessie
-      if (d == 0 && o.volgnr <= volgnr) return false; // herhaald of oud bericht
-    }
-    heeftSessie = true;
-    sessie = o.sessie;
-    volgnr = o.volgnr;
-    return true;
+    return volgorde(afzender, o.sessie, o.volgnr);
+  }
+  /** 7.2: een levensteken van de knop (zelfde volgnummers als de opdrachten) */
+  bool aanvaard(const uint8_t *afzender, const Leven &l) {
+    if (l.magie != MAGIE || l.versie != VERSIE || l.soort != SOORT_LEVEN) return false;
+    return volgorde(afzender, l.sessie, l.volgnr);
   }
 
  private:
+  bool volgorde(const uint8_t *afzender, uint16_t s, uint32_t n) {
+    if (!gekoppeld || memcmp(afzender, mac, 6) != 0) return false;
+    if (heeftSessie) {
+      const int16_t d = (int16_t)(s - sessie);
+      if (d < 0) return false;                  // een vroegere sessie
+      if (d == 0 && n <= volgnr) return false;  // herhaald of oud bericht
+    }
+    heeftSessie = true;
+    sessie = s;
+    volgnr = n;
+    return true;
+  }
   uint32_t volgnr = 0;
   uint16_t sessie = 0;
   bool heeftSessie = false;
   bool wacht = false;
   uint32_t wachtSinds = 0, kUitdaging = 0;
-  uint8_t kMac[6] = {0}, kSleutel[16] = {0};
+  uint8_t kMac[6] = {0}, kSleutel[16] = {0}, kPub[32] = {0};
 };
 
 /** knop: een KOPPEL_OK aanvaarden alleen als het de eigen uitdaging terugstuurt */
@@ -558,12 +691,29 @@ class KnopKoppeling {
 };
 
 /** module: de bewuste handeling voor opnieuw koppelen: 3 keer opstarten die elk korter dan 5 s duurden. main.cpp
- *  bewaart de teller in het NVS: bij elke start +1, na 5 s draaien terug naar 0. Dezelfde handeling wist ook de eerste
- *  ijking (eersteSchoon), zodat de volgende geldige ijking de nieuwe referentie wordt. */
+ *  bewaart de teller in het NVS: bij elke start +1, na 5 s draaien terug naar 0. Versie 7.2: deze handeling wist de
+ *  eerste ijking NIET meer (daarvoor is er "ander merk filter" op de knop). */
 inline bool herkoppelHandeling(uint8_t snelleStarts) { return snelleStarts >= 3; }
 
 /** module: de 24 V naar de ventilator (hoge-zijde-schakelaar -Q2 via -Q3 op GPIO7) is alleen aan als de PWM groter dan
  *  0 is. Bij UIT (PWM 0) is de ventilator in dezelfde regelstap spanningsloos. */
 inline bool voedingAan(int pwm) { return pwm > 0; }
+
+// ---- 7.2: tacho ----
+// De tachodraad loopt 0,5 m onafgeschermd naast de PWM van 25 kHz. Hardware: RC-filter (-R14 1 kOhm, -C3 10 nF, tau 10 us)
+// bij GPIO4. Software: een flank telt alleen als ze minstens TACHO_MIN_US na de vorige komt (3900 min-1 x 2 pulsen = 130 Hz,
+// 7,7 ms tussen twee pulsen; ook bij 6000 min-1 nog 5 ms), en het toerental komt uit de tijd tussen de eerste en de laatste
+// puls (periodemeting, resolutie 1 us) in plaats van uit het aantal pulsen per seconde (1 puls = 3 % bij 900 min-1).
+constexpr uint32_t TACHO_MIN_US = 1500;
+
+/** een tachoflank op tijd nuUs: geldig als ze minstens minUs na de vorige geldige komt */
+inline bool tachoPulsGeldig(uint32_t vorigeUs, uint32_t nuUs, uint32_t minUs = TACHO_MIN_US) { return nuUs - vorigeUs >= minUs; }
+
+/** toerental (min-1) uit n pulsintervallen in dtUs microseconden, ppr pulsen per omwenteling; 0 zonder pulsen */
+inline uint16_t toerenUitPeriode(uint32_t n, uint32_t dtUs, int ppr) {
+  if (n == 0 || dtUs == 0) return 0;
+  const double rpm = (double)n * 60000000.0 / ((double)dtUs * ppr);
+  return (uint16_t)(rpm > 65000 ? 65000 : rpm + 0.5);
+}
 
 } // namespace afzuiging

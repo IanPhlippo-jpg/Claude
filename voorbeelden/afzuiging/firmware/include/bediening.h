@@ -7,8 +7,9 @@
 //   draaien                 zuigkracht in stappen van 5 % (20 tot 80 %); draaien als hij uit staat zet hem aan
 //   kort drukken            aan / uit (UIT heeft voorrang: ook een ijking stopt meteen)
 //   1 tot 5 s vasthouden    boost: 2 minuten 100 % (de module houdt tijd en tegoed bij)
-//   5 tot 10 s vasthouden   bij het loslaten het scherm "Nieuw filter geplaatst?": kort drukken = ijken, draaien of 10 s
-//                           niets doen = annuleren. Zonder bevestiging vraagt de knop geen ijking.
+//   5 tot 10 s vasthouden   bij het loslaten het scherm "Nieuw filter geplaatst?": kort drukken = ijken, 3 tot 8 s
+//                           vasthouden = "ander merk filter" (de eerste ijking vervalt, deze wordt de referentie: 7.2),
+//                           draaien of 10 s niets doen = annuleren. Zonder bevestiging vraagt de knop geen ijking.
 //   10 s vasthouden         opnieuw koppelen (nog tijdens het vasthouden)
 //
 // Herstart
@@ -16,6 +17,8 @@
 //   - de module: ziet de knop een ander startId dan het vorige terwijl zijn wens AAN is, dan zet hij de wens op UIT en
 //     toont hij "afzuiging herstart, druk om aan te zetten". De module zelf neemt AAN alleen aan met haar nieuwe startId.
 //   - zonder verse status (jonger dan 2 s) toont de knop nooit een bevestigde stand: "UIT?" of "AAN?".
+//   - 7.2: stopt de module zelf (filter ontbreekt of geen luchtstroom, 10 min geen knop, 4 uur geen bediening), dan zet de
+//     knop zijn wens op UIT en toont hij waarom; de module start pas weer na die UIT en een nieuwe AAN.
 #pragma once
 #include <stdint.h>
 
@@ -27,6 +30,7 @@ constexpr int MIN_PCT = 20, MAX_PCT = 80, STAP_PCT = 5; // 100 % alleen als boos
 constexpr uint32_t KORT_MIN_MS = 30;                    // korter = dender, geen druk
 constexpr uint32_t BOOST_HOUD_MS = 1000, IJK_HOUD_MS = 5000, KOPPEL_HOUD_MS = 10000;
 constexpr uint32_t NIEUW_FILTER_MS = 10000; // zo lang wacht "Nieuw filter geplaatst?" op een bevestiging
+constexpr uint32_t REF_HOUD_MIN_MS = 3000, REF_HOUD_MAX_MS = 8000; // 7.2: "ander merk filter" op dat scherm
 constexpr uint32_t VERS_MS = 2000;          // een status is 2 s vers; daarna is niets meer bevestigd
 
 // wat de knop toont (de meldingen binnen SCH_AAN kiest main.cpp uit de status)
@@ -39,6 +43,7 @@ enum Scherm : uint8_t {
   SCH_HERSTART,     // "UIT" afzuiging herstart, druk om aan te zetten
   SCH_UIT,          // "UIT" druk om te starten
   SCH_AAN,          // de bevestigde stand en de meldingen
+  SCH_GESTOPT,      // 7.2: "UIT" de module stopte zelf (reden in gestopt), druk om opnieuw te starten
 };
 
 class Bediening {
@@ -46,7 +51,8 @@ class Bediening {
   // de wens van de gebruiker
   bool aan = false;
   int pct = 80;
-  uint8_t ijk = 0, boost = 0;
+  uint8_t ijk = 0, boost = 0, refWis = 0;
+  uint8_t gestopt = STOP_GEEN; // 7.2: de module stopte zelf (reden), tot de volgende handeling
   // toestand
   bool zenden = false;        // de gebruiker deed iets sinds de start: opdrachten sturen
   bool basis = false;         // eerst één opdracht met de toestand van vóór die eerste handeling (main.cpp)
@@ -96,7 +102,12 @@ class Bediening {
           handeling();
           aan = true; // ijken gebeurt met de ventilator aan
           ijk++;
-        }                           // langer vasthouden = annuleren
+        } else if (duur >= REF_HOUD_MIN_MS && duur < REF_HOUD_MAX_MS) { // 7.2: ander merk: nieuwe referentie en ijken
+          handeling();
+          aan = true;
+          refWis++;
+          ijk++;
+        }                           // anders vasthouden = annuleren
       } else if (duur >= IJK_HOUD_MS) {
         nieuwFilter = true;         // eerst bevestigen
         nieuwFilterSinds = nu;
@@ -126,6 +137,11 @@ class Bediening {
       aan = false;
       herstart = true;
       gewijzigd = true;
+    } else if (s.uitReden != STOP_GEEN && !s.aan && aan) {
+      // 7.2: de module stopte zelf: de wens wordt UIT (dan aanvaardt de module een nieuwe AAN)
+      aan = false;
+      gestopt = s.uitReden;
+      gewijzigd = true;
     }
     moduleStart = s.startId;
     st = s;
@@ -142,7 +158,7 @@ class Bediening {
     const bool v = vers(nu);
     if (v && st.ijken) return SCH_IJKEN;
     if (!v) return aan ? SCH_AAN_ONBEVESTIGD : SCH_UIT_ONBEVESTIGD;
-    if (!st.aan) return herstart ? SCH_HERSTART : SCH_UIT;
+    if (!st.aan) return herstart ? SCH_HERSTART : gestopt != STOP_GEEN ? SCH_GESTOPT : SCH_UIT;
     return SCH_AAN;
   }
 
@@ -153,6 +169,7 @@ class Bediening {
     o.ijk = ijk;
     o.boost = boost;
     o.startId = moduleStart;
+    o.refWis = refWis;
   }
   /** de opdracht van vóór de eerste handeling: zet de tellers in de module zonder iets te vragen */
   void vulBasis(Opdracht &o) const {
@@ -161,6 +178,7 @@ class Bediening {
     o.ijk = basisIjk;
     o.boost = basisBoost;
     o.startId = moduleStart;
+    o.refWis = basisRefWis;
   }
 
   /** resterende tijd op "Nieuw filter geplaatst?" (0..1) */
@@ -180,8 +198,10 @@ class Bediening {
       basisPct = pct;
       basisIjk = ijk;
       basisBoost = boost;
+      basisRefWis = refWis;
     }
     herstart = false;
+    gestopt = STOP_GEEN;
     gewijzigd = true;
   }
 
@@ -189,7 +209,7 @@ class Bediening {
   bool knopGebruikt = false, knopVorig = false;
   bool basisAan = false;
   int basisPct = 80;
-  uint8_t basisIjk = 0, basisBoost = 0;
+  uint8_t basisIjk = 0, basisBoost = 0, basisRefWis = 0;
 };
 
 } // namespace afzuiging

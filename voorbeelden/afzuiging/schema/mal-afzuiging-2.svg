@@ -35,7 +35,7 @@
 <text x="111.00" y="285.60" font-size="2.1" text-anchor="start" font-family="Arial, Helvetica, sans-serif" >Phlippo CAD · Ian</text>
 <line x1="140.00" y1="279.00" x2="140.00" y2="287.00" stroke="#111" stroke-width="0.25" />
 <text x="141.00" y="281.40" font-size="1.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#555">Rev. / uitgifte</text>
-<text x="141.00" y="285.60" font-size="1.9" text-anchor="start" font-family="Arial, Helvetica, sans-serif" >7.1 · 2026-11-08</text>
+<text x="141.00" y="285.60" font-size="1.9" text-anchor="start" font-family="Arial, Helvetica, sans-serif" >7.2 · 2026-11-12</text>
 <line x1="166.00" y1="279.00" x2="166.00" y2="287.00" stroke="#111" stroke-width="0.25" />
 <text x="167.00" y="281.40" font-size="1.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#555">Schaal</text>
 <text x="167.00" y="285.60" font-size="2.1" text-anchor="start" font-family="Arial, Helvetica, sans-serif" >1:1</text>
@@ -45,7 +45,7 @@
 <defs><clipPath id="h1"><rect x="50" y="24" width="136" height="252"/></clipPath></defs>
 <g clip-path="url(#h1)">
 <path d="M-40,44 H160 A6,6 0 0 1 166,50 V250 A6,6 0 0 1 160,256 H-40 A6,6 0 0 1 -46,250 V50 A6,6 0 0 1 -40,44 Z" fill="none" stroke="#111" stroke-width="0.6" />
-<path d="M-40,49 H160 A1,1 0 0 1 161,50 V250 A1,1 0 0 1 160,251 H-40 A1,1 0 0 1 -41,250 V50 A1,1 0 0 1 -40,49 Z" fill="none" stroke="#111" stroke-width="0.18" stroke-dasharray="2 1.5"/>
+<path d="M-39.99,50 H159.99 A0.01,0.01 0 0 1 160,50.01 V249.99 A0.01,0.01 0 0 1 159.99,250 H-39.99 A0.01,0.01 0 0 1 -40,249.99 V50.01 A0.01,0.01 0 0 1 -39.99,50 Z" fill="none" stroke="#111" stroke-width="0.18" stroke-dasharray="2 1.5"/>
 <circle cx="160.70" cy="49.30" r="5" fill="none" stroke="#111" stroke-width="0.2" stroke-dasharray="1 1"/>
 <line x1="158.70" y1="49.30" x2="162.70" y2="49.30" stroke="#111" stroke-width="0.2" /><line x1="160.70" y1="47.30" x2="160.70" y2="51.30" stroke="#111" stroke-width="0.2" /><circle cx="160.70" cy="49.30" r="1.2" fill="none" stroke="#111" stroke-width="0.2" />
 <circle cx="160.70" cy="250.70" r="5" fill="none" stroke="#111" stroke-width="0.2" stroke-dasharray="1 1"/>
@@ -70,6 +70,6 @@
 <text x="112.00" y="56.00" font-size="3" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="bold">ACHTER</text>
 <text x="112.00" y="142.00" font-size="2.8" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" >uitsparing 212 x 212, hoeken R6, doorgaand</text>
 <text x="112.00" y="147.00" font-size="2.6" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" >dikke lijn = rand van de uitsparing</text>
-<text x="112.00" y="152.00" font-size="2.6" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" >stippellijn = middellijn frees Ø10</text>
+<text x="112.00" y="152.00" font-size="2.6" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" >stippellijn = middellijn frees Ø12</text>
 <text x="112.00" y="157.00" font-size="2.6" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" >cirkels in de hoeken = voorboren Ø10</text>
 </svg>

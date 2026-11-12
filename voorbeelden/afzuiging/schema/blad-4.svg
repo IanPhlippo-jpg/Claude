@@ -37,8 +37,8 @@
 <text x="21" y="285.4" font-size="1.8" text-anchor="start" fill="#000">Wijz.</text>
 <text x="31" y="285.4" font-size="1.8" text-anchor="start" fill="#000">Datum</text>
 <text x="49" y="285.4" font-size="1.8" text-anchor="start" fill="#000">Naam</text>
-<text x="21" y="278.55" font-size="2.3" text-anchor="start" fill="#000">7.1</text>
-<text x="31" y="278.55" font-size="2" text-anchor="start" fill="#000">2026-11-09</text>
+<text x="21" y="278.55" font-size="2.3" text-anchor="start" fill="#000">7.2</text>
+<text x="31" y="278.55" font-size="2" text-anchor="start" fill="#000">2026-11-12</text>
 <text x="49" y="278.55" font-size="2" text-anchor="start" fill="#000">PC</text>
 <polyline points="62,260 62,287" fill="none" stroke="#000" stroke-width="0.35"/>
 <polyline points="62,266.75 106,266.75" fill="none" stroke="#000" stroke-width="0.18"/>
@@ -46,7 +46,7 @@
 <polyline points="62,280.25 106,280.25" fill="none" stroke="#000" stroke-width="0.18"/>
 <polyline points="77,260 77,287" fill="none" stroke="#000" stroke-width="0.18"/>
 <text x="63" y="264.95" font-size="2" text-anchor="start" fill="#000">Datum</text>
-<text x="78" y="264.95" font-size="2.2" text-anchor="start" fill="#000">2026-11-08</text>
+<text x="78" y="264.95" font-size="2.2" text-anchor="start" fill="#000">2026-11-12</text>
 <text x="63" y="271.7" font-size="2" text-anchor="start" fill="#000">Getek.</text>
 <text x="78" y="271.7" font-size="2.2" text-anchor="start" fill="#000">Phlippo CAD</text>
 <text x="63" y="278.45" font-size="2" text-anchor="start" fill="#000">Gecontr.</text>
@@ -61,7 +61,7 @@
 <text x="108" y="275" font-size="2.3" text-anchor="start" fill="#000">Ian</text>
 <text x="147" y="262.3" font-size="1.8" text-anchor="start" fill="#000">Project</text>
 <text x="148" y="269" font-size="3.2" text-anchor="start" fill="#000" font-weight="700">Afzuiging Lush Beauty</text>
-<text x="148" y="274.5" font-size="2.3" text-anchor="start" fill="#000">inbouw nagelstofafzuiging, versie 7.1</text>
+<text x="148" y="274.5" font-size="2.3" text-anchor="start" fill="#000">inbouw nagelstofafzuiging, versie 7.2</text>
 <text x="107" y="285.2" font-size="1.8" text-anchor="start" fill="#000">Oorspr.</text>
 <text x="118" y="285.2" font-size="2" text-anchor="start" fill="#000"></text>
 <polyline points="139.33,280.25 139.33,287" fill="none" stroke="#000" stroke-width="0.18"/>
@@ -81,7 +81,7 @@
 <text x="307" y="262.3" font-size="1.8" text-anchor="start" fill="#000">Tekeningnr.</text>
 <text x="308" y="270" font-size="2.8" text-anchor="start" fill="#000" font-weight="700">AFZ-E01</text>
 <text x="307" y="275.8" font-size="1.8" text-anchor="start" fill="#000">Revisie / taal</text>
-<text x="308" y="283" font-size="2.6" text-anchor="start" fill="#000">7.1 / nl</text>
+<text x="308" y="283" font-size="2.6" text-anchor="start" fill="#000">7.2 / nl</text>
 <polyline points="350,260 350,287" fill="none" stroke="#000" stroke-width="0.35"/>
 <polyline points="350,273.5 384,273.5" fill="none" stroke="#000" stroke-width="0.25"/>
 <text x="351.5" y="266" font-size="2.6" text-anchor="start" fill="#000">=</text>
@@ -94,7 +94,7 @@
 <polyline points="384,280.25 410,280.25" fill="none" stroke="#000" stroke-width="0.25"/>
 <text x="385" y="262.3" font-size="1.8" text-anchor="start" fill="#000">Blad</text>
 <text x="397" y="275" font-size="8" text-anchor="middle" fill="#000" font-weight="700">4</text>
-<text x="408.5" y="285.2" font-size="2.3" text-anchor="end" fill="#000">11 Bl.</text>
+<text x="408.5" y="285.2" font-size="2.3" text-anchor="end" fill="#000">12 Bl.</text>
 <polyline points="23,30 405,30" fill="none" stroke="#000" stroke-width="0.35"/><polygon points="23,30 25.2,28.9 25.2,31.1" fill="#000"/><text x="26" y="28.6" font-size="2.5" text-anchor="start" fill="#000">L+</text><text x="26" y="33.2" font-size="2.3" text-anchor="start" fill="#000">/3.9</text>
 <polyline points="23,225 405,225" fill="none" stroke="#000" stroke-width="0.35"/><polygon points="23,225 25.2,223.9 25.2,226.1" fill="#000"/><text x="26" y="223.6" font-size="2.5" text-anchor="start" fill="#000">M</text><text x="26" y="228.2" font-size="2.3" text-anchor="start" fill="#000">/3.9</text>
 <polyline points="23,45 230,45" fill="none" stroke="#000" stroke-width="0.35"/><polygon points="23,45 25.2,43.9 25.2,46.1" fill="#000"/><text x="26" y="43.6" font-size="2.5" text-anchor="start" fill="#000">L3</text><text x="26" y="48.2" font-size="2.3" text-anchor="start" fill="#000">/5.2</text>
@@ -119,8 +119,15 @@
 <polyline points="215,60 215,66" fill="none" stroke="#000" stroke-width="0.25"/><rect x="213.5" y="66" width="3" height="8" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="215,74 215,80" fill="none" stroke="#000" stroke-width="0.25"/><text x="212" y="69" font-size="2.8" text-anchor="end" fill="#000">-R3</text><text x="212" y="72.2" font-size="2.3" text-anchor="end" fill="#000">10 kΩ</text>
 <polyline points="215,80 215,125" fill="none" stroke="#000" stroke-width="0.25"/>
 <circle cx="215" cy="125" r="0.6" fill="#000"/>
-<polyline points="215,125 25,125" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="215,125 80,125" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="60,125 66,125" fill="none" stroke="#000" stroke-width="0.25"/><rect x="66" y="123.5" width="8" height="3" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="74,125 80,125" fill="none" stroke="#000" stroke-width="0.25"/><text x="70" y="122" font-size="2.8" text-anchor="middle" fill="#000">-R14</text><text x="70" y="130" font-size="2.3" text-anchor="middle" fill="#000">1 kΩ</text>
+<polyline points="60,125 25,125" fill="none" stroke="#000" stroke-width="0.25"/>
 <polygon points="25,125 27.2,123.9 27.2,126.1" fill="#000"/><text x="28" y="123.6" font-size="2.5" text-anchor="start" fill="#000">tacho GPIO4</text><text x="28" y="128.2" font-size="2.3" text-anchor="start" fill="#000">/5.2</text>
+<circle cx="48" cy="125" r="0.6" fill="#000"/>
+<polyline points="48,125 48,132" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="44.5,132 51.5,132" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="44.5,134 51.5,134" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="48,134.3 48,141" fill="none" stroke="#000" stroke-width="0.25"/><text x="53" y="132.5" font-size="2.8" text-anchor="start" fill="#000">-C3</text><text x="53" y="135.7" font-size="2.3" text-anchor="start" fill="#000">10 nF</text>
+<polyline points="48,141 48,225" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="48" cy="225" r="0.6" fill="#000"/>
+<text x="52" y="120" font-size="2.2" text-anchor="start" fill="#000">RC τ = 10 µs</text>
 <circle cx="256" cy="30" r="0.6" fill="#000"/>
 <polyline points="256,30 256,46" fill="none" stroke="#000" stroke-width="0.35"/>
 <circle cx="253" cy="58" r="8" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="241,58 248,58" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="248,54 248,62" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="250,53 250,55.5" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="250,57 250,59" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="250,60.5 250,63" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="250,54 256,54 256,46" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="250,62 256,62 256,70" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="250,58 256,58 256,54" fill="none" stroke="#000" stroke-width="0.25"/><polygon points="252.8,58 250.6,56.7 250.6,59.3" fill="#000" transform="rotate(180 251.7 58)"/><text x="263" y="57" font-size="2.8" text-anchor="start" fill="#000">-Q2</text><text x="263" y="60.6" font-size="2.3" text-anchor="start" fill="#000">IRF4905</text><text x="257" y="45.4" font-size="1.9" text-anchor="start" fill="#000">S</text><text x="257" y="72" font-size="1.9" text-anchor="start" fill="#000">D</text><text x="241" y="57" font-size="1.9" text-anchor="start" fill="#000">G</text>
@@ -180,5 +187,6 @@
 <text x="361" y="145" font-size="2.3" text-anchor="start" fill="#000">San Ace C175</text>
 <text x="361" y="148.5" font-size="2.3" text-anchor="start" fill="#000">9TG24P0S01</text>
 <text x="361" y="152" font-size="2.3" text-anchor="start" fill="#000">24 V, 56 W</text>
-<text x="402" y="215" font-size="2.3" text-anchor="end" fill="#000">aders van de ventilator: rood +, zwart −, bruin PWM (25 kHz, 0 % = stil), geel tacho</text>
+<text x="402" y="211" font-size="2.3" text-anchor="end" fill="#000">aders van de ventilator (datasheet San Ace): rood +, zwart −, bruin PWM (25 kHz; 0 % = stil), geel tacho (2 pulsen/omw)</text>
+<text x="402" y="215" font-size="2.3" text-anchor="end" fill="#000">PWM-draad los = vol toerental (datasheet): uitzetten gebeurt daarom met -Q2 (24 V weg)</text>
 </svg>

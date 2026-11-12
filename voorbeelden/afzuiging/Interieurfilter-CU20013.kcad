@@ -9,7 +9,7 @@
    "name": "Plane onderkant filter",
    "origin": [
     0,
-    -28.5,
+    -31.5,
     0
    ],
    "u": [
@@ -34,7 +34,7 @@
    "name": "Plane plooien boven",
    "origin": [
     0,
-    1.5,
+    -1.5,
     0
    ],
    "u": [
@@ -59,7 +59,7 @@
    "name": "Plane plooien onder",
    "origin": [
     0,
-    -28.5,
+    -31.5,
     0
    ],
    "u": [

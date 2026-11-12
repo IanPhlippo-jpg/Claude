@@ -10,7 +10,7 @@ import { JAARLIJKS, NA_MORSEN, ONDERHOUD } from '../../voorbeelden/afzuiging/ond
 const DIR = 'voorbeelden/afzuiging';
 const lees = (p: string) => readFileSync(p, 'utf8');
 const bestanden = [
-  `${DIR}/README.md`, `${DIR}/docs/Vrijgave-en-meetplan.md`, `${DIR}/docs/Berekeningen.md`, `${DIR}/docs/Besparingen.md`, `${DIR}/docs/Materiaalstaat.md`,
+  `${DIR}/README.md`, `${DIR}/docs/Vrijgave-en-meetplan.md`, `${DIR}/docs/Berekeningen.md`, `${DIR}/docs/Besparingen.md`, `${DIR}/docs/Materiaalstaat.md`, `${DIR}/docs/Risicoanalyse-en-CE.md`,
   'e2e/tools/bouwschema-afzuiging.mjs', `${DIR}/firmware/ui/schermen.html`, `${DIR}/firmware/src/knop/main.cpp`,
   `${DIR}/schema/schema.html`, 'src/qa/tekeningenAfzuiging.test.ts', `${DIR}/onderhoud.mjs`,
   ...readdirSync(`${DIR}/tekeningen`).filter((f) => f.endsWith('.svg')).map((f) => join(`${DIR}/tekeningen`, f)),
@@ -45,7 +45,9 @@ describe('afzuiging, teksten', () => {
     const oud = [/210 x 210 x 99/, /M5-(fijnstof)?mat/i, /170 x 190/, /141 cm²/, /€ 495,48/, /klauwen-4x-RVS/, /M2 x 5 onder de palen/,
       /KCD1/, /TR5/, /kan tegen aceton/i, /tot ongeveer 75 °C/,
       // versie 7.1 (verslag v4): halve slag, schroeven i.p.v. pluggen, RVS 430, nieuwe vervangfactoren, open fractie 0,30
-      /één volle slag/, /holle deur/i, /M4 x 30/, /RVS 304/, /1,19 x/, /1,08 x/, /f = 0,35/, /contact \+ 1 slag/];
+      /één volle slag/, /holle deur/i, /M4 x 30/, /RVS 304/, /1,19 x/, /1,08 x/, /f = 0,35/, /contact \+ 1 slag/,
+      // versie 7.2 (advies Fable 5.2): geen bodemplaat-schroeven meer, 75 % is beschermend, ander merk filter, klasse I
+      /M3 x 16/, /minstens 80 %/, /filter niet nieuw/, /dubbel geïsoleerd, met aarding/, /0,25 mm² en 0,75 mm²/];
     for (const p of bestanden) {
       lees(p).split(/\r?\n/).forEach((regel, i) => { for (const o of oud) if (o.test(regel)) fout.push(`${p}:${i + 1}: ${o}`); });
     }

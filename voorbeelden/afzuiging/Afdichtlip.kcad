@@ -9,7 +9,7 @@
    "name": "Plane bovenkant geleiderand",
    "origin": [
     0,
-    -22.5,
+    -25.5,
     0
    ],
    "u": [
@@ -34,7 +34,7 @@
    "name": "Plane plooi",
    "origin": [
     0,
-    -22.25,
+    -25.25,
     0
    ],
    "u": [

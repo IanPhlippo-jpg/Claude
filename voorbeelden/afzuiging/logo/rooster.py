@@ -22,7 +22,7 @@ import ezdxf
 import numpy as np
 from PIL import Image, ImageDraw
 from shapely import affinity
-from shapely.geometry import LineString, Polygon, box
+from shapely.geometry import LineString, Point, Polygon, box
 from shapely.ops import nearest_points, unary_union
 
 HERE = Path(__file__).resolve().parent
@@ -34,8 +34,13 @@ RAND = 11.0  # rand zonder gaten: de gaten liggen alleen boven de opening van he
 FILTER = (72.5, 97.5)  # interieurfilter MANN CU 20 013 (145 x 195, halve breedte, halve diepte): daar gaat de lucht door
 LOGO_HOOGTE = 75.0
 BADGE_MARGE = 5.0  # vlak staal rond het logo
-MIN_STEG = 1.5
-SLEUF, STEG = 3.5, 3.0  # chevronsleuven en de stegen ertussen (loodrecht gemeten)
+MIN_STEG = 1.6  # versie 7.2 (advies Fable 5.2): overal minstens 1,6 mm staal tussen twee gaten
+SLEUF, STEG = 5.0, 2.0  # chevronsleuven en de stegen ertussen (loodrecht gemeten); 7.1: 3,5 en 3,0 (open fractie 0,30)
+# versie 7.2: 4 RVS-persbouten PEM FH4-M3-6 (voor RVS uit de 400-reeks, plaat 1,00 tot 2,40 mm, gat Ø3,0 +0,08, hartlijn
+# tot een rand minstens 5,6 mm: PennEngineering-catalogus). Ze steken 6 mm onder de plaat en liggen 0,3 mm binnen de
+# rand van de frameopening (100,5): de plaat kan niet wegschuiven. Plaatcoördinaten: x = X, y = -Z.
+PERSBOUTEN = [(98.7, 0.0), (-98.7, 0.0), (85.0, -98.7), (-85.0, 98.7)]
+PERSBOUT_GAT, PERSBOUT_VRIJ = 3.0, 5.6 + MIN_STEG  # gat en de straal zonder andere gaten eromheen
 BRUG, BRUG_AFSTAND = 2.5, 38.0  # bruggetjes die de chevrons in stukken knippen
 LOGO_BRUG = 1.8  # breedte van de bruggetjes naar losse letterdelen
 
@@ -207,7 +212,7 @@ def maak():
     lminx, lminy, lmaxx, lmaxy = mono.bounds
     badge = box(lminx - BADGE_MARGE, lminy - BADGE_MARGE, lmaxx + BADGE_MARGE, lmaxy + BADGE_MARGE).buffer(6, quad_segs=8)
     badge = badge.buffer(-6, quad_segs=8)
-    gebied = binnen.difference(badge.buffer(STEG))
+    gebied = binnen.difference(badge.buffer(STEG)).difference(unary_union([Point(p).buffer(PERSBOUT_VRIJ) for p in PERSBOUTEN]))
     gaten = unary_union([logo, chevrons(gebied)])
 
     rand_ring = plaat_vorm.difference(binnen)
@@ -217,6 +222,8 @@ def maak():
         if schoon.symmetric_difference(gaten).area < 1e-3:
             break
         gaten = schoon
+    # de gaten voor de persbouten (de kop van de bout vult ze: van boven zie je alleen RVS)
+    gaten = unary_union([gaten, *[Point(p).buffer(PERSBOUT_GAT / 2, quad_segs=8) for p in PERSBOUTEN]])
     plaat = plaat_vorm.difference(gaten).buffer(0)
     gaten = to_polys(gaten)
     return plaat_vorm, plaat, gaten, mono
@@ -230,7 +237,10 @@ def controle(plaat_vorm, plaat, gaten):
     delen = lambda g: len([q for q in to_polys(g.buffer(-r)) if q.area > 1.0])  # snippers aan een punt tellen niet
     smalle_stegen = sum(1 for p in to_polys(plaat) if delen(p) != 1)
     smalle_sleuven = sum(1 for g in gaten if delen(g) != 1)
-    open_cm2 = sum(g.area for g in gaten) / 100
+    bout = lambda g: any(g.distance(Point(p)) < 0.01 for p in PERSBOUTEN) and g.area < 10
+    lucht = [g for g in gaten if not bout(g)]
+    open_cm2 = sum(g.area for g in lucht) / 100
+    afstand_bout = min(Point(p).distance(g) for p in PERSBOUTEN for g in lucht) + PERSBOUT_GAT / 2
     return {
         'plaat_mm': [BREEDTE, HOOGTE, DIKTE],
         'stukken_staal': len(vast) + len(los),
@@ -238,7 +248,11 @@ def controle(plaat_vorm, plaat, gaten):
         'gaten': len(gaten),
         'open_cm2': round(open_cm2, 1),
         'open_procent': round(100 * open_cm2 * 100 / plaat_vorm.area, 1),
-        'open_boven_filter_cm2': round(sum(g.intersection(box(-FILTER[0], -FILTER[1], FILTER[0], FILTER[1])).area for g in gaten) / 100, 1),
+        'open_boven_filter_cm2': round(sum(g.intersection(box(-FILTER[0], -FILTER[1], FILTER[0], FILTER[1])).area for g in lucht) / 100, 1),
+        'open_fractie_frameopening': round(open_cm2 * 100 / (201.0 * 201.0), 3),
+        'persbout_gaten': len(PERSBOUTEN),
+        'persbout_hart_tot_gat_mm': round(afstand_bout, 2),
+        'min_steg_mm': MIN_STEG, 'sleuf_mm': SLEUF, 'steg_mm': STEG,
         'stukken_staal_met_steg_onder_min': smalle_stegen,
         'sleuven_met_vernauwing_onder_min': smalle_sleuven,
         'massa_g': round(plaat.area * DIKTE * 8.0e-3, 0),

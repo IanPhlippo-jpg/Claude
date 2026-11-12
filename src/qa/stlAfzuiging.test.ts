@@ -18,7 +18,7 @@ type R = { bodies: { geometry: THREE.BufferGeometry }[] };
 describe('afzuiging, STL', () => {
   afterAll(() => setBrepKernel(null));
   // AFZUIGING_STL=1 npx vitest run src/qa/stlAfzuiging.test.ts: de STL's voor de printer, uit de exacte vorm, in printstand
-  // (Z omhoog): de romp rechtop, het frame en de platen plat, de knophouder met de plaat op het bed.
+  // (Z omhoog): de romp en de kuip rechtop (bodem op het bed), het frame en de platen plat, de knophouder met de plaat op het bed.
   it.skipIf(!process.env.AFZUIGING_STL)('STL voor de printer', async () => {
     const require = createRequire(import.meta.url);
     const init = (await import('replicad-opencascadejs')).default as unknown as (o: { wasmBinary: Uint8Array }) => Promise<unknown>;
@@ -31,7 +31,7 @@ describe('afzuiging, STL', () => {
     const plat = new THREE.Matrix4().set(1, 0, 0, 0, 0, 0, -1, 0, 0, 1, 0, 0, 0, 0, 0, 1); // (x, y, z) -> (x, -z, y)
     const rand = new THREE.Matrix4().set(1, 0, 0, 0, 0, 0, 1, 0, 0, -1, 0, 0, 0, 0, 0, 1); // (x, y, z) -> (x, z, -y)
     const stand: Record<string, THREE.Matrix4> = {
-      'Romp.kcad': plat, 'Bovenframe.kcad': plat, 'Bodemplaat.kcad': plat, 'Instroomplaat.kcad': plat, 'Voedingsbox.kcad': plat,
+      'Romp.kcad': plat, 'Bovenframe.kcad': plat, 'Ventilatorkuip.kcad': plat, 'Instroomplaat.kcad': plat, 'Voedingsbox.kcad': plat,
       'Knophouder.kcad': rand, 'Knopdeksel.kcad': plat,
       // klauwen plat met de moerkamer op het bed (100 % vulling), de adapterklem plat
       'Klauw.kcad': plat, 'Knopklauw.kcad': plat, 'Adapterklem.kcad': plat, 'Deksel-voedingsbox.kcad': plat,

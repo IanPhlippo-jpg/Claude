@@ -5,7 +5,11 @@
 //   knop (1 blad): het knopgat Ø44, uitgelijnd in de rechtervoorhoek van de uitsparing
 //   voedingsbox (1 blad): de onderkant (blad omgedraaid): de uitsparing van de box en de aanzet van de twee sleuven,
 //           uitgelijnd op de achterrand van de uitsparing
-import { writeFileSync } from 'node:fs';
+// Versie 7.2 (advies Fable 5.2): de papieren mal is te slap om met 1 mm speling langs te frezen. Daarom ook een stijve
+// freesmal uit MDF 12 mm voor een bovenfrees met kopieerring Ø17 (Bosch 2 609 200 139 of gelijk) en een frees Ø12:
+// de opening in de mal is (17 - 12) / 2 = 2,5 mm groter rondom (Bosch: afstand = (ring - frees) / 2), de hoeken R6 + 2,5.
+// laser/freesmal-mdf.dxf (laag SNIJDEN en GRAVEREN) laat je samen met het rooster lasersnijden; tekening AFZ-21.
+import { writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { M } from '../maak-afzuiging.mjs';
@@ -80,8 +84,8 @@ function uitsparingHelft(kant /* -1 links, 1 rechts */) {
   if (kant < 0) s.push(grijs(`M${xs(0)},${ys(hd + 8)} H${xs(overlap)} V${ys(-hd - 8)} H${xs(0)} Z`));
   s.push(`<g clip-path="url(#h${kant})">`);
   s.push(pad(rr(xs(-hb), ys(hd), xs(hb), ys(-hd), U.r), 0.6));
-  // middellijn van een frees Ø10 (5 mm binnen de rand) en voorboorgaten Ø10 in de hoeken
-  s.push(pad(rr(xs(-hb + 5), ys(hd - 5), xs(hb - 5), ys(-hd + 5), U.r - 5), 0.18, 'stroke-dasharray="2 1.5"'));
+  // middellijn van een frees Ø12 (6 mm binnen de rand) en voorboorgaten Ø10 in de hoeken
+  s.push(pad(rr(xs(-hb + 6), ys(hd - 6), xs(hb - 6), ys(-hd + 6), Math.max(U.r - 6, 0.01)), 0.18, 'stroke-dasharray="2 1.5"'));
   for (const [x, z] of [[1, 1], [1, -1], [-1, 1], [-1, -1]]) {
     const c = [xs(x * (hb - 5.3)), ys(z * (hd - 5.3))];
     s.push(cirkel(c, 5, 0.2, 'stroke-dasharray="1 1"'), kruis(c, 2));
@@ -100,12 +104,12 @@ function uitsparingHelft(kant /* -1 links, 1 rechts */) {
   s.push(tekst([xs(kant * 52), ys(hd - 12)], 'ACHTER', 3, 'middle', 'font-weight="bold"'));
   s.push(tekst([xs(kant * 52), ys(8)], `uitsparing ${U.b} x ${U.d}, hoeken R${U.r}, doorgaand`, 2.8, 'middle'));
   s.push(tekst([xs(kant * 52), ys(3)], 'dikke lijn = rand van de uitsparing', 2.6, 'middle'));
-  s.push(tekst([xs(kant * 52), ys(-2)], 'stippellijn = middellijn frees Ø10', 2.6, 'middle'));
+  s.push(tekst([xs(kant * 52), ys(-2)], 'stippellijn = middellijn frees Ø12', 2.6, 'middle'));
   s.push(tekst([xs(kant * 52), ys(-7)], 'cirkels in de hoeken = voorboren Ø10', 2.6, 'middle'));
   const uitleg = kant < 0
     ? ['Deel 1 (links). Knip deel 2 af langs de stippellijn en leg het op de lijmrand: de drie kruisjes en de hartlijn vallen samen.',
       'Plak de mal met afplaktape op het blad, middelpunt in het midden van het blad (700 van links, 300 van voor).',
-      'Teken de rand over of frees met een geleider; boor eerst de hoeken voor met Ø10 (binnen de lijn).']
+      'Alleen om af te tekenen en na te meten: frezen langs de MDF-mal (AFZ-21) met kopieerring Ø17 en frees Ø12.']
     : ['Deel 2 (rechts). Knip af langs de stippellijn links en leg het op de lijmrand van deel 1 (kruisjes op elkaar).',
       `Controle: ${f(700 - hb)} mm van de linker- en de rechterrand, ${f(300 - hd)} mm van de voorrand, ${f(300 - hd)} mm van de achterrand.`];
   return kader(kant < 0 ? 1 : 2, `uitsparing afzuiging, deel ${kant < 0 ? '1 (links)' : '2 (rechts)'}`, uitleg) + '\n' + s.join('\n');
@@ -199,6 +203,44 @@ function snijmalLip() {
   return `${kader(1, 'afdichtlip (siliconenrubber 0,5 mm)', uitleg, 'Snijmal')}\n${s.join('\n')}`;
 }
 
+// ---- versie 7.2: freesmal uit MDF 12 mm (laser) voor een kopieerring ----
+export const MDF = M.mdf;
+export const MDF_OFFSET = (MDF.ring - MDF.frees) / 2;
+/** de twee mallen: buitenmaat, opening (met de offset van de kopieerring), boorgaatjes en hartlijnen; maten in mm, midden 0 */
+export function mdfMallen() {
+  const o = MDF_OFFSET;
+  return [
+    { naam: 'afzuiging', plaat: MDF.plaat.afzuiging, open: [U.b + 2 * o, U.d + 2 * o], r: U.r + o, gaatjes: [], uit: [U.b, U.d, U.r] },
+    { naam: 'voedingsbox', plaat: MDF.plaat.voedingsbox, open: [B.frees.b + 2 * o, B.frees.d + 2 * o], r: B.frees.r + o,
+      gaatjes: [[1, 1], [1, -1], [-1, 1], [-1, -1]].map(([a, b]) => [a * B.plug.x, b * B.plug.z]), uit: [B.frees.b, B.frees.d, B.frees.r] },
+  ];
+}
+/** DXF (R12, mm): per mal de buitenrand en de opening (SNIJDEN), de boorgaatjes Ø3 (SNIJDEN) en de hartlijnen (GRAVEREN) */
+function dxf() {
+  const e = [];
+  const lijn = (l, a, b) => e.push(`0\nLINE\n8\n${l}\n10\n${a[0].toFixed(3)}\n20\n${a[1].toFixed(3)}\n11\n${b[0].toFixed(3)}\n21\n${b[1].toFixed(3)}`);
+  const boog = (l, c, r, a0, a1) => e.push(`0\nARC\n8\n${l}\n10\n${c[0].toFixed(3)}\n20\n${c[1].toFixed(3)}\n40\n${r.toFixed(3)}\n50\n${a0}\n51\n${a1}`);
+  const cirkel = (l, c, r) => e.push(`0\nCIRCLE\n8\n${l}\n10\n${c[0].toFixed(3)}\n20\n${c[1].toFixed(3)}\n40\n${r.toFixed(3)}`);
+  const rrDxf = (l, cx, cy, w, h, r) => {
+    const x0 = cx - w / 2, x1 = cx + w / 2, y0 = cy - h / 2, y1 = cy + h / 2;
+    lijn(l, [x0 + r, y0], [x1 - r, y0]); lijn(l, [x1, y0 + r], [x1, y1 - r]); lijn(l, [x1 - r, y1], [x0 + r, y1]); lijn(l, [x0, y1 - r], [x0, y0 + r]);
+    if (r > 0) { boog(l, [x1 - r, y0 + r], r, 270, 360); boog(l, [x1 - r, y1 - r], r, 0, 90); boog(l, [x0 + r, y1 - r], r, 90, 180); boog(l, [x0 + r, y0 + r], r, 180, 270); }
+  };
+  let cx = 0;
+  for (const m of mdfMallen()) {
+    const [pw, ph] = m.plaat;
+    cx += pw / 2;
+    rrDxf('SNIJDEN', cx, 0, pw, ph, 10);
+    rrDxf('SNIJDEN', cx, 0, m.open[0], m.open[1], m.r);
+    for (const [x, z] of m.gaatjes) cirkel('SNIJDEN', [cx + x, -z], 1.5);
+    // hartlijnen (graveren) tot 15 mm van de opening, en een V-inkeping in de rand op de hartlijnen
+    lijn('GRAVEREN', [cx - pw / 2 + 5, 0], [cx - m.open[0] / 2 - 15, 0]); lijn('GRAVEREN', [cx + m.open[0] / 2 + 15, 0], [cx + pw / 2 - 5, 0]);
+    lijn('GRAVEREN', [cx, -ph / 2 + 5], [cx, -m.open[1] / 2 - 15]); lijn('GRAVEREN', [cx, m.open[1] / 2 + 15], [cx, ph / 2 - 5]);
+    cx += pw / 2 + 20;
+  }
+  return `0\nSECTION\n2\nHEADER\n9\n$INSUNITS\n70\n4\n0\nENDSEC\n0\nSECTION\n2\nENTITIES\n${e.join('\n')}\n0\nENDSEC\n0\nEOF\n`;
+}
+
 // per doos een eigen set bladen met een eigen nummering
 export const DOZEN = { afzuiging: [uitsparingHelft(-1), uitsparingHelft(1)], knop: [knopgat()], voedingsbox: [onderkant()], afdichtlip: [snijmalLip()] };
 const svg = (b) => `<svg xmlns="http://www.w3.org/2000/svg" width="210mm" height="297mm" viewBox="0 0 ${W} ${H}"><rect width="${W}" height="${H}" fill="#fff"/>\n${b}\n</svg>`;
@@ -212,4 +254,6 @@ ${genummerd.map((b) => `<div class="blad">${svg(b)}</div>`).join('\n')}
 </body></html>`);
   genummerd.forEach((b, i) => writeFileSync(join(HERE, `mal-${doos}-${i + 1}.svg`), `${svg(b)}\n`));
 }
-console.log('geschreven: mal-afzuiging, mal-knop, mal-voedingsbox en mal-afdichtlip (html en svg)');
+mkdirSync(join(HERE, '..', 'laser'), { recursive: true });
+writeFileSync(join(HERE, '..', 'laser', 'freesmal-mdf.dxf'), dxf());
+console.log('geschreven: mal-afzuiging, mal-knop, mal-voedingsbox en mal-afdichtlip (html en svg), laser/freesmal-mdf.dxf');

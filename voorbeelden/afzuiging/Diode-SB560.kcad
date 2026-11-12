@@ -1,0 +1,95 @@
+{
+ "format": "phlippo-cad",
+ "version": 1,
+ "name": "Schottky SB560",
+ "units": "mm",
+ "planes": {
+  "sb560": {
+   "id": "sb560",
+   "name": "Plane diode",
+   "origin": [
+    45.25,
+    0,
+    0
+   ],
+   "u": [
+    0,
+    0,
+    -1
+   ],
+   "v": [
+    0,
+    1,
+    0
+   ],
+   "n": [
+    1,
+    0,
+    0
+   ],
+   "kind": "reference"
+  }
+ },
+ "variables": {},
+ "equations": [],
+ "sketches": {
+  "s1": {
+   "id": "s1",
+   "name": "Sketch1",
+   "plane": "sb560",
+   "points": {
+    "origin_s1": {
+     "x": 0,
+     "y": 0
+    },
+    "s1p0": {
+     "x": -8,
+     "y": -30.35
+    }
+   },
+   "scalars": {
+    "s1s1": 2.65
+   },
+   "entities": {
+    "s1e2": {
+     "id": "s1e2",
+     "construction": false,
+     "kind": "circle",
+     "center": "s1p0",
+     "r": "s1s1"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s1e2"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s1"
+  }
+ },
+ "features": [
+  {
+   "id": "ks1",
+   "type": "sketch",
+   "name": "Sketch1",
+   "sketchId": "s1",
+   "suppressed": false
+  },
+  {
+   "id": "f2",
+   "type": "extrude",
+   "name": "Diode",
+   "sketchId": "s1",
+   "suppressed": false,
+   "op": "boss",
+   "end": "blind",
+   "depth": 9.5,
+   "reverse": false
+  }
+ ],
+ "material": {
+  "name": "Epoxy, zwart",
+  "density": 1800,
+  "color": "#1e1e20"
+ }
+}

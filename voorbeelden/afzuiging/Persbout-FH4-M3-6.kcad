@@ -1,0 +1,124 @@
+{
+ "format": "phlippo-cad",
+ "version": 1,
+ "name": "Persbout PEM FH4-M3-6",
+ "units": "mm",
+ "planes": {},
+ "variables": {},
+ "equations": [],
+ "sketches": {
+  "s1": {
+   "id": "s1",
+   "name": "Sketch1",
+   "plane": "top",
+   "points": {
+    "origin_s1": {
+     "x": 0,
+     "y": 0
+    },
+    "s1p0": {
+     "x": 0,
+     "y": 0
+    }
+   },
+   "scalars": {
+    "s1s1": 1.48
+   },
+   "entities": {
+    "s1e2": {
+     "id": "s1e2",
+     "construction": false,
+     "kind": "circle",
+     "center": "s1p0",
+     "r": "s1s1"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s1e2"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s1"
+  },
+  "s2": {
+   "id": "s2",
+   "name": "Sketch2",
+   "plane": "top",
+   "points": {
+    "origin_s2": {
+     "x": 0,
+     "y": 0
+    },
+    "s2p0": {
+     "x": 0,
+     "y": 0
+    }
+   },
+   "scalars": {
+    "s2s1": 1.3
+   },
+   "entities": {
+    "s2e2": {
+     "id": "s2e2",
+     "construction": false,
+     "kind": "circle",
+     "center": "s2p0",
+     "r": "s2s1"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s2e2"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s2"
+  }
+ },
+ "features": [
+  {
+   "id": "ks1",
+   "type": "sketch",
+   "name": "Sketch1",
+   "sketchId": "s1",
+   "suppressed": false
+  },
+  {
+   "id": "f2",
+   "type": "extrude",
+   "name": "Kop",
+   "sketchId": "s1",
+   "suppressed": false,
+   "op": "boss",
+   "end": "blind",
+   "depth": 1.5,
+   "reverse": false
+  },
+  {
+   "id": "ks2",
+   "type": "sketch",
+   "name": "Sketch2",
+   "sketchId": "s2",
+   "suppressed": false
+  },
+  {
+   "id": "f4",
+   "type": "extrude",
+   "name": "Bout",
+   "sketchId": "s2",
+   "suppressed": false,
+   "op": "boss",
+   "end": "blind",
+   "depth": 6,
+   "reverse": true,
+   "direction2": {
+    "end": "blind",
+    "depth": 0.5
+   }
+  }
+ ],
+ "material": {
+  "name": "RVS 400-reeks",
+  "density": 7700,
+  "color": "#c9ccd1"
+ }
+}

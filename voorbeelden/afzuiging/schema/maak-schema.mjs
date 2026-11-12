@@ -8,6 +8,7 @@
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { REVISIE } from '../revisie.mjs';
+import { PRINT, ONDERDELEN as PRINTDELEN, DRADEN, NETTEN, cel, gx, gz, controleer } from './print-u1.mjs';
 import {
   X0, X1, T, L, punt, rect, weerstand, weerstandH, condensator, zekering, schakelaar, diode, klem, npn, pmos, motor, toestel,
   rail, onderbreking, ref, titelblad, inhoudsopgave, klemmenplan, stuklijst, project, schrijf, SOORT, NORMEN,
@@ -17,9 +18,13 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 export const PROJECT = {
   naam: 'Afzuiging Lush Beauty', omschrijving: `inbouw nagelstofafzuiging, versie ${REVISIE.versie}`, eigenaar: 'Ian', tekeningnr: 'AFZ-E01',
   installatie: '=AFZ', installatieNaam: 'nagelstofafzuiging', plaats: '+BOX', plaatsNaam: 'voedingsbox onder het blad',
-  datum: REVISIE.datum, getekend: 'Phlippo CAD', gecontroleerd: 'Ian', norm: 'IEC 81346', revisie: { index: REVISIE.versie, datum: '2026-11-09', naam: 'PC' },
+  datum: REVISIE.datum, getekend: 'Phlippo CAD', gecontroleerd: 'Ian', norm: 'IEC 81346', revisie: { index: REVISIE.versie, datum: REVISIE.datum, naam: 'PC' },
 };
 const B = { voeding: 3, ventilator: 4, besturing: 5 };
+/** diode in sperrichting (de kathode boven): van y tot y + 14 */
+const diodeOp = (x, y, code, waarde) => [L([[x, y], [x, y + 4.5]]), L([[x - 3, y + 4.5], [x + 3, y + 4.5]], { w: 0.5 }),
+  `<polygon points="${x},${y + 4.5} ${x - 3},${y + 9.5} ${x + 3},${y + 9.5}" fill="none" stroke="#000" stroke-width="0.35"/>`, L([[x, y + 9.5], [x, y + 14]]),
+  T(x + 5, y + 6, code, { size: 2.8 }), T(x + 5, y + 9.3, waarde, { size: 2.3 })].join('');
 const RECHTS = X1 - 5;
 const DUN = { w: 0.25 }, DIK = { w: 0.35 };
 
@@ -43,8 +48,14 @@ function voeding() {
   i.push(punt(320, yp), L([[320, yp], [320, 140]]), toestel(310, 140, 40, 26, '-T3', ['Pololu D24V10F5', '24 V → 5 V, 1 A'], [{ x: 10, y: 0, naam: 'VIN' }, { x: 40, y: 13, naam: 'VOUT' }, { x: 20, y: 26, naam: 'GND' }]));
   i.push(L([[330, 166], [330, ym]]), punt(330, ym));
   i.push(L([[350, 153], [RECHTS, 153]], DIK), onderbreking(RECHTS, 153, 'L5', ref(B.besturing, X0), 'rechts'));
+  // versie 7.2: ompolingsbeveiliging -R13 (Schottky in sperrichting over L+ en M, achter -F1): verkeerd aangesloten geleidt
+  // ze, de adapter gaat in hiccup of -F1 smelt; de kathode (ring) aan L+
+  const xd = 228;
+  i.push(punt(xd, yp), L([[xd, yp], [xd, 120]]), diodeOp(xd, 120, '-R13', 'SB560'), L([[xd, 134], [xd, ym]]), punt(xd, ym));
+  i.push(T(xd + 5, 140, 'ompoling: geleidt,', { size: 2.2 }), T(xd + 5, 143.3, 'adapter in hiccup', { size: 2.2 }), T(xd + 5, 146.6, 'of -F1 smelt', { size: 2.2 }));
   i.push(T(30, 236, 'Stroom: ventilator max. 2,35 A bij 24 V; op 5 V de knop tot 0,45 A en -K1 tot 0,34 A (pieken bij het zenden), samen hoogstens 0,8 A van de 1 A van -T3.', { size: 2.5 }));
-  i.push(T(30, 242, 'Alle onderdelen behalve -T1 en -Q4 zitten op de gaatjesprint -U1 (40 x 50 mm) in de voedingsbox. Draad naar de ventilator 0,5 mm².', { size: 2.5 }));
+  i.push(T(30, 242, 'Behalve -T1, -Q4, -C1 en -R13 (naast de print) zit alles op de gaatjesprint -U1 (40 x 50, blad 11). Draad naar de ventilator: in de box 0,5 mm², M8-kabel -W2 4 x 0,25 mm².', { size: 2.5 }));
+  i.push(T(100, yp - 15.5, '+ en − nameten voor het vastschroeven', { size: 2.1 }));
   return { titel: ['Voeding', '24 V en 5 V'], inhoud: i };
 }
 
@@ -63,7 +74,10 @@ function ventilator() {
   // tacho: open collector, -R3 naar 3,3 V, naar GPIO4
   const xt = 215;
   i.push(punt(xt, y3), L([[xt, y3], [xt, 60]]), weerstand(xt, 60, '-R3', '10 kΩ'), L([[xt, 80], [xt, 125]]), punt(xt, 125));
-  i.push(L([[xt, 125], [X0 + 5, 125]]), onderbreking(X0 + 5, 125, 'tacho GPIO4', ref(B.besturing, 110), 'links'));
+  // versie 7.2: RC-filter bij GPIO4 (-R14 1 kΩ in serie, -C3 10 nF naar M): de tachodraad loopt naast de PWM van 25 kHz
+  i.push(L([[xt, 125], [80, 125]]), weerstandH(60, 125, '-R14', '1 kΩ'), L([[60, 125], [X0 + 5, 125]]), onderbreking(X0 + 5, 125, 'tacho GPIO4', ref(B.besturing, 110), 'links'));
+  i.push(punt(48, 125), condensator(48, 125, '-C3', '10 nF', false), L([[48, 141], [48, ym]]), punt(48, ym));
+  i.push(T(52, 120, 'RC τ = 10 µs', { size: 2.2 }));
   // -Q2 (P-FET) schakelt de 24 V naar de ventilator; -Q3 trekt de gate laag als GPIO7 hoog is. Zonder besturing
   // (5 V weg, reset, flashen) houdt -R11 de basis laag: -Q2 open, de ventilator spanningsloos
   const xk = 270, xk2 = 330, xs = 256;
@@ -92,7 +106,8 @@ function ventilator() {
   i.push(L([[xk2 + 1.2, 95], [xm - 6, 95], [xm - 6, 118]], DIK), L([[xk2 + 1.2, 110], [xm - 9, 110], [xm - 9, 125]], DIK));
   i.push(L([[xk2 + 1.2, 125], [xm - 12, 125]]), L([[xk2 + 1.2, 155], [xm, 155], [xm, 133]]));
   i.push(motor(xm, 125, '-M1', []), T(xm - 14, 145, 'San Ace C175', { size: 2.3 }), T(xm - 14, 148.5, '9TG24P0S01', { size: 2.3 }), T(xm - 14, 152, '24 V, 56 W', { size: 2.3 }));
-  i.push(T(RECHTS - 3, 215, 'aders van de ventilator: rood +, zwart −, bruin PWM (25 kHz, 0 % = stil), geel tacho', { size: 2.3, anchor: 'end' }));
+  i.push(T(RECHTS - 3, 211, 'aders van de ventilator (datasheet San Ace): rood +, zwart −, bruin PWM (25 kHz; 0 % = stil), geel tacho (2 pulsen/omw)', { size: 2.3, anchor: 'end' }));
+  i.push(T(RECHTS - 3, 215, 'PWM-draad los = vol toerental (datasheet): uitzetten gebeurt daarom met -Q2 (24 V weg)', { size: 2.3, anchor: 'end' }));
   return { titel: ['Ventilator', 'M8-kabel, PWM en tacho'], inhoud: i };
 }
 
@@ -130,7 +145,7 @@ function besturing() {
   i.push(L([[bx + 62, by + 66], [262, by + 66], [262, ym]]), punt(262, ym));
   // drukpoorten (pneumatisch, geen elektrische verbinding): streepjeslijn
   const poort = (y, t1, t2) => [L([[bx + 62, y], [bx + 74, y]], { w: 0.5, streep: '2 1.5' }), `<circle cx="${bx + 75.5}" cy="${y}" r="1.5" fill="#fff" stroke="#000" stroke-width="0.35"/>`, T(bx + 3, y - 1, t1, { size: 2.1 }), T(bx + 3, y + 2.6, t2, { size: 2.1 })].join('');
-  i.push(poort(by + 22, 'poort "+": open in het vak', '(kamerdruk)'), poort(by + 44, 'poort "−": slang naar de afzuiging', '(ruimte onder het filter)'));
+  i.push(poort(by + 22, 'poort "+": kamerdruk, afgeschermd', '(slangetje 10 cm, propje vlies)'), poort(by + 44, 'poort "−": slang naar de afzuiging', '(ruimte onder het filter)'));
   // USB-C-koppeling naar de knop: -X8 in de voedingsbox, kabel -W1, -X7 in de knophouder, knop -S1
   const xu = 290, yu = 150;
   i.push(toestel(xu, yu, 22, 40, '-X8', [], [{ x: 0, y: 8, naam: 'VBUS' }, { x: 0, y: 18, naam: 'CC1' }, { x: 0, y: 26, naam: 'CC2' }, { x: 0, y: 34, naam: 'GND' }, { x: 22, y: 8, naam: 'VBUS' }, { x: 22, y: 34, naam: 'GND' }]),
@@ -154,6 +169,72 @@ function besturing() {
   i.push(T(30, 236, '-X7: USB-C-printje (5,1 kΩ op CC) in de zijwand onderaan de knophouder, 4 draden naar de adapterprint -X11: VBUS -> FPC 1, GND -> FPC 3, D+ -> FPC 9, D− -> FPC 10.', { size: 2.3 }));
   i.push(T(30, 241, 'Met de kabel naar -X8 krijgt de knop 5 V; op een computer aangesloten wordt hij geflasht. D+/D− van -X8 blijven los.', { size: 2.3 }));
   return { titel: ['Besturing', 'drukmeter en de knop'], inhoud: i };
+}
+
+/** blad 12 (versie 7.2): opbouw van de gaatjesprint -U1, schaal 4:1, onderdeelzijde, met de draadbruggen (soldeerzijde,
+ *  gestreept) per net en de netlijst ernaast */
+function opbouw() {
+  const tel = controleer();
+  const i = [];
+  const S = 4, ox = 40, oy = 36; // schaal en de linkerbovenhoek van de print op het blad
+  const P = (x, z) => [ox + S * x, oy + S * z];
+  const [pw, ph] = [PRINT.b * S, PRINT.h * S];
+  i.push(rect(ox, oy, pw, ph, { w2: 0.5, vul: '#f3efe6' }));
+  for (const [hx, hz] of PRINT.hoekgaten) { const [x, y] = P(hx, hz); i.push(`<circle cx="${x}" cy="${y}" r="${S}" fill="#fff" stroke="#000" stroke-width="0.3"/>`); }
+  for (let a = 0; a < PRINT.ni; a++) for (let b = 0; b < PRINT.nj; b++) { const [x, y] = P(gx(a), gz(b)); i.push(`<circle cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="0.9" fill="none" stroke="#000" stroke-opacity="0.35" stroke-width="0.2"/>`); }
+  // draadbruggen per net (soldeerzijde): telkens naar de dichtstbijzijnde nog niet verbonden pen
+  for (const [net, refs] of Object.entries(NETTEN)) {
+    const pts = refs.map((r) => P(gx(cel(r)[0]), gz(cel(r)[1])));
+    // zwart-wit (IEC 61082-1): de soort net uit de lijn: L+ dik doorgetrokken, M dik gestreept, voedingen streep-stip, signalen dun
+    const stijl = ['L+', 'X1+', 'Q4', 'FAN+'].includes(net) ? 'stroke-width="0.8"' : net === 'M' ? 'stroke-width="0.8" stroke-dasharray="2.5 1.2"'
+      : ['L5', '5V K1', 'L3'].includes(net) ? 'stroke-width="0.5" stroke-dasharray="3 1 0.8 1"' : 'stroke-width="0.35" stroke-dasharray="1.5 1"';
+    const in_ = [pts[0]], uit = pts.slice(1);
+    while (uit.length) {
+      let best = [0, 0, Infinity];
+      in_.forEach((a, ia) => uit.forEach((b, ib) => { const d = Math.hypot(a[0] - b[0], a[1] - b[1]); if (d < best[2]) best = [ia, ib, d]; }));
+      const a = in_[best[0]], b = uit.splice(best[1], 1)[0];
+      i.push(`<polyline points="${a[0].toFixed(2)},${a[1].toFixed(2)} ${b[0].toFixed(2)},${a[1].toFixed(2)} ${b[0].toFixed(2)},${b[1].toFixed(2)}" fill="none" stroke="#000" ${stijl} stroke-opacity="0.75"/>`);
+      in_.push(b);
+    }
+  }
+  // onderdelen: omtrek, aanduiding en de pennen
+  for (const o of PRINTDELEN) {
+    const [i0, j0, i1, j1] = o.omtrek;
+    const [x0, y0] = P(gx(i0) - 1.1, gz(j0) - 1.1), [x1, y1] = P(gx(i1) + 1.1, gz(j1) + 1.1);
+    if (o.rond) { const [cx, cy] = P((gx(i0) + gx(i1)) / 2, (gz(j0) + gz(j1)) / 2); i.push(`<circle cx="${cx}" cy="${cy}" r="${o.rond * S}" fill="none" stroke="#000" stroke-width="0.45"/>`); }
+    else i.push(rect(x0, y0, x1 - x0, y1 - y0, { w2: 0.45 }));
+    const groot = (x1 - x0) > 20;
+    i.push(T((x0 + x1) / 2, (y0 + y1) / 2 + (groot ? 0 : -0.5), o.code, { anchor: 'middle', size: groot ? 3.2 : 2.2, bold: true }));
+    if (groot) i.push(T((x0 + x1) / 2, (y0 + y1) / 2 + 4, o.naam, { anchor: 'middle', size: 2.4 }));
+    for (const [pn, [a, b]] of Object.entries(o.pennen)) {
+      const [x, y] = P(gx(a), gz(b));
+      i.push(`<circle cx="${x}" cy="${y}" r="1.3" fill="#000"/>`, T(x + 1.6, y - 1.2, pn, { size: 1.7 }));
+    }
+  }
+  for (const d of DRADEN) { const [x, y] = P(gx(d.cel[0]), gz(d.cel[1])); i.push(`<rect x="${x - 1.4}" y="${y - 1.4}" width="2.8" height="2.8" fill="#fff" stroke="#000" stroke-width="0.4"/>`, T(x + 1.8, y + 3.4, d.code, { size: 1.8 })); }
+  i.push(T(ox, oy - 5, 'Gaatjesprint -U1, 40 x 50 mm, raster 2,54 (15 x 19 gaatjes), schaal 4:1, van boven (onderdeelzijde); achterkant van de box boven', { size: 2.6, bold: true }));
+  i.push(T(ox, oy + ph + 6, 'Zwarte stip = pen; vierkant = soldeeroog voor een draad naar buiten; lijn = draadbrug aan de soldeerzijde: dik = L+ en 24 V, dik gestreept = M, streep-stip = 5 V en 3,3 V, dun gestreept = signaal.', { size: 2.2 }));
+  i.push(T(ox, oy + ph + 10, `Controle door maak-schema.mjs: ${tel.gaatjes} gaatjes, geen dubbel, niets bij de hoekgaten, ${tel.netten} netten, elke pen in precies één net.`, { size: 2.2 }));
+  i.push(T(ox, oy + ph + 14, 'Draadbruggen: vertind koperdraad 0,6 mm voor signalen; L+, M en de draad naar -X9:1 met 0,5 mm² (2,35 A).', { size: 2.2 }));
+  // netlijst
+  const nx = 225;
+  let y = 40;
+  i.push(T(nx, y, 'Netlijst (zoals de bladen 3 tot 5)', { size: 3, bold: true }));
+  y += 5;
+  for (const [net, refs] of Object.entries(NETTEN)) {
+    i.push(T(nx, y, net, { size: 2.3, bold: true }), T(nx + 18, y, refs.join('  '), { size: 2.1 }));
+    y += 4.6;
+  }
+  y += 3;
+  i.push(T(nx, y, 'Draden naar buiten', { size: 3, bold: true }));
+  y += 5;
+  for (const d of DRADEN) { i.push(T(nx, y, `${d.code}`, { size: 2.2, bold: true }), T(nx + 22, y, `net ${d.net}, ${d.draad}`, { size: 2.2 })); y += 4; }
+  y += 3;
+  for (const r of ['Opbouw: eerst de draadbruggen en de lage onderdelen (weerstanden, diodes), dan de transistoren, de klem,',
+    'de elco\'s, de zekering en de regelaar; -K1 en -B1 op pinheaders (zo kunnen ze eruit). Na het solderen elke net met de',
+    'multimeter doormeten tegen deze lijst, en tussen L+ en M meten (geen kortsluiting) vóór de eerste keer aan.',
+    'Een echte print (PCB) maakt dit eenvoudiger en betrouwbaarder: niet ontworpen in 7.2 (zie Besparingen, Na te gaan).']) { i.push(T(nx, y, r, { size: 2.2 })); y += 3.8; }
+  return { titel: ['Opbouw', 'gaatjesprint -U1'], inhoud: i };
 }
 
 // klemmenplannen: een rij per klem of pin
@@ -188,7 +269,7 @@ const KLEMMEN = {
   ]],
 };
 const OPMERKINGEN = ['Opmerkingen bij de bedrading',
-  '-X1 is een schroefklem 2-polig op -U1; de DC-kabel van de adapter wordt ingekort.', 'In de afzuiging: de ventilatordraden op de M8-bus -X10 (solderen, krimpkous).',
+  '-X1 is een schroefklem 2-polig op -U1; de DC-kabel van de adapter wordt ingekort: + en − nameten (-R13 beschermt bij ompoling).', 'In de afzuiging: de ventilatordraden op de M8-bus -X10 (solderen, krimpkous).',
   'Kabels in de sleuven onder het blad: -W2 (M8, 0,5 m) en het slangetje naar de module, -W1 (USB-C, 1 m) naar de knop.', 'Een andere lengte = een andere kabel: niets knippen.',
   'De adapterprint -X11 (FPC-bus 10-polig 0,5 mm) zit in de knophouder; -X7 apart in de zijwand.', 'Draadkleuren van de ventilator vóór het solderen nameten (datasheet San Ace).'];
 
@@ -198,11 +279,13 @@ export const STUKLIJST = [
   ['-Q4', '1', 'Wipschakelaar 1-polig aan/uit, 10 A bij 30 V DC, inbouwgat 19,41 x 12,90 (paneel 2 mm)', 'C&K D502J12S215PQA'],
   ['-F1', '1', 'Zekering traag 3,15 A, 350 V AC / 72 V DC, TE5 8,35 x 4,0 (op de print)', 'Bel Fuse 0697W3150-01'],
   ['-R12', '1', 'Schottky-diode 1 A, 40 V (DO-41), in de 5 V naar -K1', '1N5819'],
-  ['-C1', '1', 'Elco 470 µF / 50 V (buffer 24 V)', '—'],
+  ['-R13', '1', 'Schottky-diode 5 A, 60 V (DO-201AD), ompolingsbeveiliging over L+ en M, over -C1 naast de print', 'SB560'],
+  ['-C3', '1', 'Keramische condensator 10 nF, 50 V, steek 5 (RC-filter tacho)', '—'],
+  ['-C1', '1', 'Elco 470 µF / 50 V, Ø10 x 20 (buffer 24 V), naast de print op de bodem van de box', '—'],
   ['-C2', '1', 'Elco 47 µF / 50 V, vlak bij VIN van -T3', '—'],
   ['-Q2', '1', 'P-kanaal-MOSFET 55 V, 74 A, 20 mΩ (TO-220), schakelt de 24 V naar de ventilator', 'Infineon IRF4905PBF'],
   ['-Q1, -Q3', '2', 'NPN-transistor BC547B (TO-92)', '—'],
-  ['-R1, -R6', '2', 'Weerstand 1 kΩ 0,25 W', '—'],
+  ['-R1, -R6, -R14', '3', 'Weerstand 1 kΩ 0,25 W', '—'],
   ['-R2, -R3, -R4, -R5, -R11', '5', 'Weerstand 10 kΩ 0,25 W', '—'],
   ['-R7, -R8', '2', 'Weerstand 4,7 kΩ 0,25 W', '—'],
   ['-R9, -R10', '2', 'Weerstand 56 kΩ 0,25 W (USB-C-bron)', '—'],
@@ -231,7 +314,8 @@ const klemmen = Object.entries(KLEMMEN).map(([s, [oms, rijen]], k) => ({
 const stuk = { titel: 'Stuklijst', soort: SOORT.stuk[0], soortNaam: SOORT.stuk[1], inhoud: stuklijst(STUKLIJST) };
 const voor = { titel: 'Titelblad', soort: SOORT.titel[0], soortNaam: SOORT.titel[1] };
 const inhoud = { titel: 'Inhoudsopgave', soort: SOORT.inhoud[0], soortNaam: SOORT.inhoud[1] };
-const alle = [voor, inhoud, ...schema, ...klemmen, stuk];
+const opb = { ...opbouw(), soort: '&ELU', soortNaam: 'Opstellingsplan (opbouw print)' };
+const alle = [voor, inhoud, ...schema, ...klemmen, opb, stuk];
 alle.forEach((b, k) => { b.nr = k + 1; });
 voor.inhoud = titelblad(PROJECT, [
   ['Klant', 'Lush Beauty'], ['Tekeningnummer', PROJECT.tekeningnr], ['Fabrikant', 'zelfbouw'], ['Projectverantwoordelijke', 'Ian'],
