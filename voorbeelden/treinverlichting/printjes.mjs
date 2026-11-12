@@ -214,18 +214,14 @@ export function pcaChipArt(P) {
 }
 
 // ---------------------------------------------------------------- gaatjesprints (FR2) en de Pololu-regelaar
-/** gaatjesraster op 2,54 (hart 2,54 van de rand), de hoeken vrij voor de schroeven; cijfers en letters langs de rand */
-export function gaatjesArt(w, h, { schroeven = 'hoeken' } = {}) {
-  const p = new Plaat(w, h, { masker: 'fr2', seed: Math.round(w) });
-  const nx = Math.floor(w / 2.54 - 0.5), ny = Math.floor(h / 2.54 - 0.5), x0 = (w - (nx - 1) * 2.54) / 2, y0 = (h - (ny - 1) * 2.54) / 2;
-  const vrij = schroeven === 'hoeken' ? [[2.54, 2.54], [w - 2.54, 2.54], [2.54, h - 2.54], [w - 2.54, h - 2.54]] : [[3, h / 2], [w - 3, h / 2]];
-  for (let i = 0; i < nx; i++) for (let j = 0; j < ny; j++) {
-    const x = x0 + i * 2.54, y = y0 + j * 2.54;
-    if (vrij.some(([a, b]) => Math.hypot(a - x, b - y) < 2.4)) continue;
-    p.gat(x, y, 1.0);
-  }
-  for (let i = 4; i < nx; i += 5) p.tekst(x0 + i * 2.54, 0.75, String(i + 1), { h: 0.6, kleur: '#f4efe2' });
-  for (let j = 0; j < ny; j += 2) p.tekst(0.6, y0 + j * 2.54, String.fromCharCode(65 + j), { h: 0.55, kleur: '#f4efe2' });
+/** gaatjesraster van een print uit opbouw.mjs (P): de gaten op 2,54, niet bij de schroeven en de bijgeboorde gaten
+ *  voor de afstandsbussen; cijfers (kolom, vanaf 1) en letters (rij) langs de rand zoals op de opbouwtekening */
+export function gaatjesArt(P, vrij) {
+  const p = new Plaat(P.w, P.h, { masker: 'fr2', seed: Math.round(P.w) });
+  for (let c = 0; c < P.nx; c++) for (let r = 0; r < P.ny; r++) if (vrij(c, r)) p.gat(P.x0 + c * 2.54, P.y0 + r * 2.54, 1.0);
+  for (const [x, y] of P.boringen) p.gat(x, y, 2.7);
+  for (let c = 4; c < P.nx; c += 5) p.tekst(P.x0 + c * 2.54, Math.max(0.75, P.y0 - 1.6), String(c + 1), { h: 0.6, kleur: '#f4efe2' });
+  for (let r = 0; r < P.ny; r += 2) p.tekst(Math.max(0.6, P.x0 - 1.6), P.y0 + r * 2.54, String.fromCharCode(65 + r), { h: 0.55, kleur: '#f4efe2' });
   return p.decal('dc1', 'Gaatjesraster', [0, 1.6, 0]);
 }
 export function pololuArt() {

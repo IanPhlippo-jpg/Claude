@@ -20,7 +20,19 @@
 
 namespace trein {
 
-constexpr int N_GROEPEN = 16;
+// Het aantal lichtgroepen: standaard 16 (één PCA9685). Uitbreiden tot 32 met een tweede PCA9685 op 0x41:
+// build_flags = -DTREIN_GROEPEN=32 (zie README, "Uitbreiden"). Groepen zitten als bits in een GroepMasker (32 bit).
+#ifndef TREIN_GROEPEN
+#define TREIN_GROEPEN 16
+#endif
+constexpr int N_GROEPEN = TREIN_GROEPEN;
+static_assert(N_GROEPEN >= 1 && N_GROEPEN <= 32, "TREIN_GROEPEN moet 1 tot 32 zijn");
+/** bit i = groep i+1 */
+typedef uint32_t GroepMasker;
+/** het masker met alle groepen */
+constexpr GroepMasker ALLE_GROEPEN = (GroepMasker)(0xFFFFFFFFu >> (32 - N_GROEPEN));
+/** het masker van één groep (index 0..N_GROEPEN-1) */
+inline GroepMasker groepBit(int g) { return (GroepMasker)1u << g; }
 constexpr uint16_t PWM_MAX = 4095;
 constexpr float GAMMA = 2.2f;
 constexpr float PI_F = 3.14159265f;
@@ -236,7 +248,7 @@ inline void fxHerstart(FxToestand &f, int groep, uint32_t zaad, const GroepStand
   }
 }
 
-/** alle 16 groepen: stand, overgang, effect, maximum en gamma */
+/** alle groepen: stand, overgang, effect, maximum en gamma */
 class Lampen {
  public:
   GroepStand stand[N_GROEPEN];
@@ -367,7 +379,7 @@ struct DagNacht {
   }
 
   /** plaats (0 = eerst) van groep g tussen de deelnemers in cyclus c, en het aantal deelnemers */
-  int rang(int g, uint16_t deelnemers, uint32_t c, int &aantal) const {
+  int rang(int g, GroepMasker deelnemers, uint32_t c, int &aantal) const {
     aantal = 0;
     int r = 0;
     uint32_t mijn = meng(zaad ^ (c * 0x9E3779B9u) ^ ((uint32_t)(g + 1) * 0x27D4EB2Fu));
@@ -390,7 +402,7 @@ struct DagNacht {
   }
 
   /** wil de cyclus groep g nu aan? (deelnemers: bit i = groep i+1 doet mee) */
-  bool wilAan(int g, uint16_t deelnemers, uint32_t nu) const {
+  bool wilAan(int g, GroepMasker deelnemers, uint32_t nu) const {
     if (!(deelnemers >> g & 1)) return false;
     uint32_t c = cyclus(nu);
     int aantal;

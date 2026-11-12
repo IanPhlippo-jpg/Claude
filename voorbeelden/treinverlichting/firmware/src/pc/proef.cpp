@@ -1,4 +1,4 @@
-// Kleine proef op de pc (env native):  python -m platformio run -e native  en dan  .pio\build\native\program.exe
+// Kleine proef op de pc (env native):  python -m platformio run -e native  en dan  .pio/build/native/program.exe
 // Laat de logica van de doos 35 s lopen zonder hardware: de functie "Overweg" (groepen 3 en 4 om beurten, na 30 s
 // uit) en een drukknop op ingang 1, en toont elke 5 s de uitgangen en daarna wat het dashboard te zien krijgt.
 #include <stdio.h>

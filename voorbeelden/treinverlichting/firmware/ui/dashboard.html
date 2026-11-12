@@ -213,6 +213,14 @@ select {
 .groep-rij .opties { grid-column: 2; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 18px; }
 .groep-rij .stapper { margin-top: 0; }
 .over dt { font-size: 15px; color: var(--zacht); }
+input[type=file] { font: inherit; font-size: 16px; max-width: 100%; }
+.voortgang { width: 100%; height: 14px; margin-top: 10px; accent-color: var(--groen); }
+.test-status { font-weight: 650; min-height: 24px; margin: 6px 0 2px; }
+.test-status.aan { color: var(--groen); }
+.testbalk { max-width: 1100px; margin: 12px auto 0; padding: 0 16px; }
+.testbalk div { background: var(--groen); color: var(--groen-inkt); border-radius: 10px; padding: 10px 14px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; font-weight: 650; }
+.testbalk p { flex: 1; min-width: 180px; margin: 0; }
+.testbalk .knop { background: var(--vlak); color: var(--inkt); }
 .over dd { margin: 0 0 10px; font-weight: 650; }
 
 /* functie-editor: een blad over het hele scherm */
@@ -264,6 +272,7 @@ select {
   </nav>
 </header>
 
+<div id="testbalk" class="testbalk" hidden><div><p></p><button class="knop" type="button" id="test-stop-balk">Testmodus stoppen</button></div></div>
 <div id="melding" class="melding" hidden><div><p></p><button class="knop" type="button">Begrepen</button></div></div>
 
 <main>
@@ -325,6 +334,18 @@ select {
       <div class="knoppen"><button class="knop hoofd" type="button" id="inst-groepen-bewaar">Namen bewaren</button></div>
     </div>
     <div class="blok tegel" id="inst-algemeen"></div>
+    <div class="blok tegel" id="inst-test">
+      <h3>Testmodus</h3>
+      <p class="klein">Voor de ingebruikname en het meetblad. Looplicht: elke groep brandt om de beurt vol (zonder zacht aan, maximum of effect). Eén groep vol: om de stroom van die groep te meten. "Alles uit" stopt de testmodus ook.</p>
+      <div class="test-status" id="test-status" role="status">Testmodus staat uit.</div>
+      <div id="test-stapper"></div>
+      <div class="knoppen"><button class="knop hoofd" type="button" id="test-loop">Looplicht starten</button></div>
+      <div class="veld"><span class="klein">Eén groep vol aan</span><select id="test-groep" aria-label="Welke groep vol aan"></select></div>
+      <div class="knoppen">
+        <button class="knop hoofd" type="button" id="test-vast">Deze groep vol aan</button>
+        <button class="knop" type="button" id="test-stop">Testmodus stoppen</button>
+      </div>
+    </div>
     <div class="blok tegel">
       <h3>Wifi</h3>
       <p class="klein">Naam van het wifi-netwerk: <strong id="inst-hotspot">Treinbaan</strong>. Het wachtwoord heeft minstens 8 tekens (geen é of ë).</p>
@@ -332,13 +353,32 @@ select {
       <div class="veld"><span class="klein">Nog eens</span><input type="password" id="ww2" autocomplete="new-password" maxlength="63"></div>
       <label class="vink"><input type="checkbox" id="ww-toon"> Wachtwoord tonen</label>
       <div class="knoppen"><button class="knop hoofd" type="button" id="ww-bewaar">Wachtwoord wijzigen</button></div>
+      <p class="klein" style="margin-top:14px">Wachtwoord vergeten? Houd de knop <strong>BOOT</strong> op de ESP 5 seconden ingedrukt (het lampje wordt blauw en knippert): het wachtwoord is dan weer <strong>treinbaan</strong> en het thuisnet staat uit.</p>
+    </div>
+    <div class="blok tegel" id="inst-thuisnet">
+      <h3>Thuis-wifi (niet verplicht)</h3>
+      <p class="klein">De doos houdt altijd haar eigen wifi "Treinbaan". Vul hier ook het wifi-netwerk van het huis in, dan is het dashboard ook te vinden op <strong>http://treinbaan.local</strong> zonder van wifi te wisselen.</p>
+      <div class="test-status" id="thuis-status">Thuisnet staat uit.</div>
+      <div class="veld"><span class="klein">Naam van het thuisnet</span><input type="text" id="thuis-ssid" maxlength="32" autocomplete="off" placeholder="bv. Proximus-Thuis"></div>
+      <div class="veld"><span class="klein">Wachtwoord van het thuisnet</span><input type="password" id="thuis-ww" maxlength="63" autocomplete="new-password" placeholder="leeg laten = niet wijzigen"></div>
+      <div class="knoppen">
+        <button class="knop hoofd" type="button" id="thuis-bewaar">Thuisnet bewaren</button>
+        <button class="knop" type="button" id="thuis-uit">Thuisnet uitzetten</button>
+      </div>
     </div>
     <div class="blok tegel">
       <h3>Over de doos</h3>
       <dl class="over">
         <dt>Firmware</dt><dd id="inst-versie">–</dd>
+        <dt>Aantal lichtgroepen</dt><dd id="inst-aantal">16</dd>
         <dt>Adres van dit dashboard</dt><dd>http://192.168.4.1 of http://treinbaan.local</dd>
       </dl>
+      <h3 style="margin-top:8px">Firmware bijwerken</h3>
+      <p class="klein">Kies het bestand <strong>firmware.bin</strong> van de nieuwe versie. De lampen gaan even uit, de doos start daarna opnieuw; alle namen, scènes en functies blijven. Een ander bestand weigert de doos.</p>
+      <div class="veld"><input type="file" id="fw-bestand" accept=".bin,application/octet-stream" aria-label="Firmwarebestand (.bin)"></div>
+      <progress id="fw-voortgang" class="voortgang" max="100" value="0" hidden></progress>
+      <div class="test-status" id="fw-status"></div>
+      <div class="knoppen"><button class="knop hoofd" type="button" id="fw-bewaar">Firmware bijwerken</button></div>
       <div class="knoppen"><button class="knop gevaar" type="button" id="fabriek">Fabrieksinstellingen terugzetten</button></div>
     </div>
   </section>
@@ -370,7 +410,7 @@ const EFFECTEN = [
     { n: 'Eén ademhaling', e: 's', min: 1, max: 60, std: 4 }, { n: 'Zwakste licht', e: '%', min: 0, max: 90, std: 10, stap: 5 }] },
 ];
 const FASEN = [['dag', 'Dag'], ['avond', 'Avond'], ['nacht', 'Nacht'], ['ochtend', 'Ochtend']];
-const ACTIES = [['aan', 'Aan'], ['uit', 'Uit'], ['helderheid', 'Helderheid'], ['effect', 'Effect'], ['scene', 'Scène oproepen'], ['dagnacht', 'Dag en nacht']];
+const ACTIES = [['aan', 'Aan'], ['uit', 'Uit'], ['helderheid', 'Helderheid'], ['effect', 'Effect'], ['scene', 'Scène oproepen'], ['dagnacht', 'Dag en nacht'], ['wissel', 'Aan/uit wisselen']];
 const GEDRAG = [['geen', 'Niet gebruikt'], ['drukknop', 'Drukknop'], ['schakelaar', 'Schakelaar'], ['sensor', 'Sensor']];
 const fxInfo = id => EFFECTEN.find(e => e.id === id) || EFFECTEN[0];
 
@@ -487,6 +527,8 @@ function samenvoegen(k) {
   S.lopend = k.lopend;
   S.dagnacht = k.dagnacht;
   S.melding = k.melding;
+  S.test = k.test;
+  S.thuisnet = k.thuisnet;
 }
 
 function lus() {
@@ -513,6 +555,10 @@ function bouwAlles() {
   bouwIngangen();
   bouwInstellingen();
   $('#inst-versie').textContent = S.versie || '–';
+  $('#inst-aantal').textContent = S.aantalGroepen || S.groepen.length;
+  $('#test-groep').replaceChildren(...S.groepen.map(g => h('option', { value: g.nr }, g.nr + ' · ' + g.naam)));
+  if (!document.activeElement || document.activeElement.id !== 'thuis-ssid')
+    $('#thuis-ssid').value = (S.instellingen.thuisnet && S.instellingen.thuisnet.ssid) || '';
   $('#inst-hotspot').textContent = S.hotspot || 'Treinbaan';
 }
 
@@ -522,6 +568,7 @@ function werkLiveBij() {
   werkFunctiesBij();
   werkIngangenBij();
   werkDagnachtBij();
+  werkTestBij();
   const m = $('#melding');
   m.hidden = !S.melding || S.melding === weggeklikt;
   $('p', m).textContent = S.melding || '';
@@ -924,6 +971,67 @@ async function bewaarWachtwoord() {
   if (j) { $('#ww1').value = ''; $('#ww2').value = ''; }
 }
 
+// ------------------------------------------------------------------------- testmodus, thuisnet, bijwerken
+let testStapS = 1;
+function werkTestBij() {
+  const t = S.test || { soort: '' }, naam = n => { const g = S.groepen[n - 1]; return g ? 'groep ' + n + ' (' + g.naam + ')' : 'groep ' + n; };
+  const tekst = t.soort === 'looplicht' ? 'Looplicht: ' + naam(t.groep) + ' brandt vol.' : t.soort === 'vast' ? 'Vol aan: ' + naam(t.groep) + '. Meet nu de stroom.' : '';
+  const st = $('#test-status');
+  st.textContent = tekst || 'Testmodus staat uit.';
+  st.className = 'test-status' + (tekst ? ' aan' : '');
+  const balk = $('#testbalk');
+  balk.hidden = !tekst;
+  $('p', balk).textContent = 'Testmodus · ' + tekst;
+  const th = S.thuisnet || {}, ts = $('#thuis-status');
+  ts.textContent = !th.ssid ? 'Thuisnet staat uit.' : th.verbonden ? 'Verbonden met "' + th.ssid + '", adres ' + th.ip + ' (ook http://treinbaan.local).' : 'Nog niet verbonden met "' + th.ssid + '". Klopt het wachtwoord? Is het netwerk in de buurt?';
+  ts.className = 'test-status' + (th.verbonden ? ' aan' : '');
+}
+
+async function bewaarThuisnet(uit) {
+  const ssid = uit ? '' : $('#thuis-ssid').value.trim(), ww = $('#thuis-ww').value;
+  if (!uit && !ssid) { toast('Vul de naam van het thuisnet in (of tik op Thuisnet uitzetten).', true); return; }
+  if (new TextEncoder().encode(ssid).length > 32) { toast('De naam van het thuisnet mag hoogstens 32 tekens hebben.', true); return; }
+  if (ww && !/^[\x20-\x7e]{8,63}$/.test(ww)) { toast('Het wachtwoord van het thuisnet heeft 8 tot 63 tekens, zonder é of ë.', true); return; }
+  const t = { ssid };
+  if (ww || uit) t.wachtwoord = ww;
+  const j = await stuur('/api/instellingen', { thuisnet: t }, uit ? 'Thuisnet staat uit' : 'Thuisnet bewaard: de doos verbindt (de wifi "Treinbaan" blijft).');
+  if (j) { $('#thuis-ww').value = ''; S.rev = -1; peil(); }
+}
+
+function bijwerken() {
+  const f = $('#fw-bestand').files[0], st = $('#fw-status'), bar = $('#fw-voortgang');
+  if (!f) { toast('Kies eerst het bestand firmware.bin.', true); return; }
+  if (!/\.bin$/i.test(f.name)) { toast('Kies het .bin-bestand (firmware.bin), geen ander bestand.', true); return; }
+  if (!confirm('Firmware bijwerken met ' + f.name + '? De lampen gaan even uit en de doos start opnieuw.')) return;
+  bar.hidden = false;
+  bar.value = 0;
+  st.className = 'test-status';
+  st.textContent = 'Bezig met versturen…';
+  const klaar = (ok, tekst) => {
+    st.textContent = tekst;
+    st.className = 'test-status' + (ok ? ' aan' : '');
+    toast(tekst, !ok);
+    if (ok) setTimeout(() => { S.rev = -1; peil(); }, 10000);
+  };
+  if (demo) { // voorbeeld: de voortgang tonen, niets versturen
+    let p = 0;
+    const k = setInterval(() => { p += 7; bar.value = Math.min(p, 100); st.textContent = 'Versturen: ' + bar.value + ' %'; if (p >= 100) { clearInterval(k); klaar(true, 'Voorbeeld: zo ziet het eruit. Op de doos start ze nu opnieuw (ongeveer 10 s).'); } }, 120);
+    return;
+  }
+  const x = new XMLHttpRequest(), fd = new FormData();
+  fd.append('firmware', f, f.name);
+  x.upload.onprogress = e => { if (e.lengthComputable) { bar.value = Math.round(100 * e.loaded / e.total); st.textContent = 'Versturen: ' + bar.value + ' %'; } };
+  x.onload = () => {
+    let j = {};
+    try { j = JSON.parse(x.responseText); } catch (e) { /* geen JSON */ }
+    if (x.status === 200 && j.ok) klaar(true, 'Bijgewerkt. De doos start opnieuw: verbind daarna opnieuw met "Treinbaan" (ongeveer 10 s).');
+    else klaar(false, j.fout || 'Bijwerken mislukt.');
+  };
+  x.onerror = () => klaar(false, 'De verbinding viel weg tijdens het versturen. Probeer opnieuw.');
+  x.open('POST', '/api/update');
+  x.send(fd);
+}
+
 // ----------------------------------------------------------------------------------------------- starten
 document.querySelectorAll('.tabs button').forEach(b => b.addEventListener('click', () => kiesTab(b.dataset.tab)));
 $('#allesUit').addEventListener('click', () => {
@@ -942,6 +1050,15 @@ $('#scene-beheer').addEventListener('click', () => { beheer = !beheer; bouwScene
 $('#functie-nieuw').addEventListener('click', () => openEditor(0));
 $('#inst-groepen-bewaar').addEventListener('click', bewaarNamen);
 $('#ww-bewaar').addEventListener('click', bewaarWachtwoord);
+$('#test-stapper').append(stapper({ n: 'Tijd per groep', min: 0.3, max: 5, waarde: testStapS, toon: x => getal(x) + ' s',
+  stap: (x, op) => { const y = op ? x : x - 0.001; return y < 1 ? 0.1 : 0.5; }, opWijzig: x => { testStapS = x; } }));
+$('#test-loop').addEventListener('click', () => stuur('/api/test', { actie: 'looplicht', stapS: testStapS }, 'Looplicht loopt'));
+$('#test-vast').addEventListener('click', () => stuur('/api/test', { actie: 'vast', groep: +$('#test-groep').value }, 'Groep ' + $('#test-groep').value + ' brandt vol'));
+$('#test-stop').addEventListener('click', () => stuur('/api/test', { actie: 'stop' }, 'Testmodus gestopt'));
+$('#test-stop-balk').addEventListener('click', () => stuur('/api/test', { actie: 'stop' }, 'Testmodus gestopt'));
+$('#thuis-bewaar').addEventListener('click', () => bewaarThuisnet(false));
+$('#thuis-uit').addEventListener('click', () => bewaarThuisnet(true));
+$('#fw-bewaar').addEventListener('click', bijwerken);
 $('#ww-toon').addEventListener('change', e => { $('#ww1').type = $('#ww2').type = e.target.checked ? 'text' : 'password'; });
 $('#fabriek').addEventListener('click', () => {
   if (confirm('Alle namen, scènes, functies, ingangen en het wifi-wachtwoord gaan terug naar de beginwaarden. Doorgaan?'))
@@ -954,8 +1071,9 @@ const Demo = (() => {
     'Werkplaats lasser', 'Kampvuur', 'Tv woonkamer', 'Seinhuis', 'Loods', 'Boerderij', 'Kasteel', 'Tunnel'];
   const std = id => { const f = fxInfo(id); return f.p ? [f.p[0].std, f.p[1].std] : [0, 0]; };
   const st = {
-    rev: 1, melding: '', versie: '1.0.0 (voorbeeld)', hotspot: 'Treinbaan',
-    instellingen: { faduur: 0.5, dagnachtMin: 20, opstart: 'laatste' },
+    rev: 1, melding: '', versie: '1.1.0 (voorbeeld)', hotspot: 'Treinbaan', aantalGroepen: 16,
+    instellingen: { faduur: 0.5, dagnachtMin: 20, opstart: 'laatste', thuisnet: { ssid: 'Thuis', metWachtwoord: true } },
+    test: { soort: '', groep: 0 }, thuisnet: { ssid: 'Thuis', verbonden: true, ip: '192.168.1.40' },
     groepen: namen.map((n, i) => ({ nr: i + 1, naam: n, max: 100, dagnacht: [0, 1, 4, 5, 6, 7, 11, 13, 14].includes(i),
       aan: false, helderheid: 100, effect: 'geen', p1: 0, p2: 0, fase: 0, lamp: 0 })),
     scenes: Array(12).fill(null), functies: Array(16).fill(null), lopend: Array(16).fill(false),
@@ -985,14 +1103,17 @@ const Demo = (() => {
   st.scenes.forEach((s, i) => { if (s) s.nr = i + 1; });
   st.functies[0] = { nr: 1, naam: 'Overweg', herhalen: false, stopUit: true, stappen: [
     { groepen: [3, 4], actie: 'effect', effect: 'overweg', p1: 600, p2: 0, wacht: 30 }, { groepen: [3, 4], actie: 'uit', wacht: 0 }] };
-  st.functies[1] = { nr: 2, naam: 'Avond valt', herhalen: false, stopUit: false, stappen: [
+  st.functies[1] = { nr: 2, naam: 'Alles aan/uit', herhalen: false, stopUit: false, stappen: [
+    { groepen: st.groepen.map(g => g.nr), actie: 'wissel', wacht: 0 }] };
+  st.functies[4] = { nr: 5, naam: 'Avond valt', herhalen: false, stopUit: false, stappen: [
     { groepen: [], actie: 'scene', waarde: 3, wacht: 5 }, { groepen: [], actie: 'dagnacht', waarde: 1, wacht: 0 }] };
   st.functies[2] = { nr: 3, naam: 'Lasser aan het werk', herhalen: false, stopUit: true, stappen: [
     { groepen: [9], actie: 'effect', effect: 'lasvlam', p1: 12, p2: 5, wacht: 120 }, { groepen: [9], actie: 'uit', wacht: 0 }] };
   st.functies[3] = { nr: 4, naam: 'Kermis', herhalen: true, stopUit: true, stappen: [
     { groepen: [13, 14], actie: 'aan', wacht: 0.5 }, { groepen: [13], actie: 'uit', wacht: 0.5 }, { groepen: [14], actie: 'uit', wacht: 1 }] };
-  Object.assign(st.ingangen[0], { naam: 'Knop perron', gedrag: 'drukknop', functieA: 1, wisselen: true });
-  Object.assign(st.ingangen[1], { naam: 'Schakelaar dorp', gedrag: 'schakelaar', functieA: 2, functieB: 0, actief: true });
+  Object.assign(st.ingangen[0], { naam: 'Knop alles aan/uit', gedrag: 'drukknop', functieA: 2 });
+  Object.assign(st.ingangen[5], { naam: 'Knop perron', gedrag: 'drukknop', functieA: 1, wisselen: true });
+  Object.assign(st.ingangen[1], { naam: 'Schakelaar dorp', gedrag: 'schakelaar', functieA: 5, functieB: 0, actief: true });
   Object.assign(st.ingangen[2], { naam: 'Sensor voor de overweg', gedrag: 'sensor', functieA: 1, functieB: 0, nalopen: 8 });
   Object.assign(st.ingangen[3], { naam: 'Reedcontact tunnel', gedrag: 'sensor', functieA: 0, functieB: 0, nalopen: 5 });
   Object.assign(st.ingangen[4], { naam: 'Knop werkplaats', gedrag: 'drukknop', functieA: 3 });
@@ -1009,6 +1130,7 @@ const Demo = (() => {
     });
     if (s.actie === 'scene') roepOp(s.waarde - 1);
     if (s.actie === 'dagnacht') { st.dagnacht.loopt = !!s.waarde; dnStart = Date.now(); }
+    if (s.actie === 'wissel') { const aan = gs.some(i => st.groepen[i].aan); gs.forEach(i => zet(i, { aan: !aan })); }
   };
   const roepOp = i => { const s = st.scenes[i]; if (s) s.groepen.forEach((g, j) => Object.assign(st.groepen[j], g, { start: 0 })); };
   const stop = (f, licht) => {
@@ -1016,7 +1138,7 @@ const Demo = (() => {
     if (!st.lopend[f]) return;
     st.lopend[f] = false;
     const fn = st.functies[f];
-    if (licht && fn && fn.stopUit) fn.stappen.forEach(s => { if (s.actie !== 'scene' && s.actie !== 'dagnacht') s.groepen.forEach(n => zet(n - 1, { aan: false })); });
+    if (licht && fn && fn.stopUit) fn.stappen.forEach(s => { if (s.actie !== 'scene' && s.actie !== 'dagnacht' && s.actie !== 'wissel') s.groepen.forEach(n => zet(n - 1, { aan: false })); });
   };
   const start = f => {
     stop(f, false);
@@ -1061,6 +1183,7 @@ const Demo = (() => {
     return Math.round(g.helderheid * g.max / 100 * f);
   };
   const fout = t => ({ ok: false, fout: t });
+  let testStart = 0;
   const vrijePlaats = lijst => lijst.findIndex(x => !x);
 
   async function vraag(pad, b) {
@@ -1068,6 +1191,10 @@ const Demo = (() => {
     const t = Date.now();
     if (pad.startsWith('/api/staat')) {
       st.groepen.forEach(g => { g.lamp = lamp(g, t); });
+      if (st.test.soort) {
+        if (st.test.soort === 'looplicht') st.test.groep = Math.floor((t - testStart) / (st.test.stapS * 1000)) % st.groepen.length + 1;
+        st.groepen.forEach(g => { g.lamp = g.nr === st.test.groep ? 100 : 0; });
+      }
       const min = st.instellingen.dagnachtMin, pos = ((t - dnStart) / (min * 60000)) % 1;
       st.dagnacht.pos = st.dagnacht.loopt ? pos : 0;
       st.dagnacht.fase = !st.dagnacht.loopt ? '' : pos < 0.40 ? 'dag' : pos < 0.55 ? 'avond' : pos < 0.85 ? 'nacht' : pos < 0.97 ? 'ochtend' : 'dag';
@@ -1077,7 +1204,7 @@ const Demo = (() => {
     b = b || {};
     switch (pad) {
       case '/api/groep': {
-        if (b.allesUit) { st.lopend.forEach((x, f) => stop(f, false)); st.groepen.forEach(g => { g.aan = false; }); st.dagnacht.loopt = false; break; }
+        if (b.allesUit) { st.lopend.forEach((x, f) => stop(f, false)); st.groepen.forEach(g => { g.aan = false; }); st.dagnacht.loopt = false; st.test = { soort: '', groep: 0 }; break; }
         const w = Object.assign({}, b);
         delete w.nr;
         if ('naam' in w || 'max' in w || 'dagnacht' in w) st.rev++;
@@ -1124,7 +1251,18 @@ const Demo = (() => {
       case '/api/instellingen':
         if (b.fabrieksinstellingen) return fout('In het voorbeeld kan dat niet.');
         ['faduur', 'dagnachtMin', 'opstart'].forEach(k => { if (k in b) st.instellingen[k] = b[k]; });
+        if (b.thuisnet) {
+          const ssid = b.thuisnet.ssid || '';
+          st.instellingen.thuisnet = { ssid, metWachtwoord: !!ssid && (b.thuisnet.wachtwoord ? true : st.instellingen.thuisnet.metWachtwoord) };
+          st.thuisnet = { ssid, verbonden: !!ssid, ip: ssid ? '192.168.1.40' : '' };
+        }
         st.rev++;
+        break;
+      case '/api/test':
+        if (b.actie === 'stop') st.test = { soort: '', groep: 0 };
+        else if (b.actie === 'looplicht') { st.test = { soort: 'looplicht', groep: 1, stapS: b.stapS || 1 }; testStart = t; }
+        else if (b.actie === 'vast') st.test = { soort: 'vast', groep: b.groep };
+        else return fout('Testmodus: kies looplicht, vast of stop.');
         break;
       case '/api/dagnacht': {
         if (!b.loopt) { st.dagnacht.loopt = false; break; }

@@ -10,10 +10,12 @@ import { resolve } from 'node:path';
 import { esc, dataUrl, mdDoc } from './mdhtml.mjs';
 
 const DIR = 'voorbeelden/treinverlichting';
-const VERSIE = `versie 2 (${/\((\d{4}-\d{2}-\d{2})\)/.exec(readFileSync(`${DIR}/README.md`, 'utf8'))?.[1] ?? ''})`;
+const VERSIE = `versie 3 (${/\((\d{4}-\d{2}-\d{2})\)/.exec(readFileSync(`${DIR}/README.md`, 'utf8'))?.[1] ?? ''})`;
 
 const a3 = (svg) => `<div class="a3">${svg.replace(/^<\?xml[^>]*>\s*/, '').replace(/<svg /, '<svg style="display:block;width:420mm;height:297mm" ')}</div>`;
-const tekeningen = readdirSync(`${DIR}/tekeningen`).filter((f) => f.endsWith('.svg')).sort().map((f) => a3(readFileSync(`${DIR}/tekeningen/${f}`, 'utf8')));
+// de tekeningen: A3 liggend, het meetblad en het invulblad A4 staand (volgens de maat in de SVG)
+const blad = (svg) => (/width="210mm"/.test(svg) ? `<div class="a4b">${svg.replace(/^<\?xml[^>]*>\s*/, '').replace(/<svg /, '<svg style="display:block;width:210mm;height:297mm" ')}</div>` : a3(svg));
+const tekeningen = readdirSync(`${DIR}/tekeningen`).filter((f) => f.endsWith('.svg')).sort().map((f) => blad(readFileSync(`${DIR}/tekeningen/${f}`, 'utf8')));
 const schema = readdirSync(`${DIR}/schema`).filter((f) => /^blad-\d+\.svg$/.test(f)).sort((a, b) => parseInt(a.slice(5)) - parseInt(b.slice(5)))
   .map((f) => a3(readFileSync(`${DIR}/schema/${f}`, 'utf8')));
 // het bouwschema: de bladen uit e2e-out/bouwschema-trein/bouwschema.html, met hun eigen stijl onder .bs
@@ -26,12 +28,14 @@ const UI = `${DIR}/firmware/ui/beelden`;
 const dashboard = `<section class="tekst"><h1>Het dashboard</h1>
   <p>Op de gsm (wifi <b>Treinbaan</b>, dan opent het dashboard vanzelf, anders <code>http://192.168.4.1</code>):</p>
   <div class="rij">${['gsm-groepen', 'gsm-scenes', 'gsm-functies', 'gsm-ingangen'].map((f) => `<img class="gsm" src="${dataUrl(`${UI}/${f}.png`)}">`).join('')}</div>
+  <p>Instellingen: wachtwoord, thuis-wifi, testmodus (looplicht, groep vast) en firmware bijwerken:</p>
+  <div class="rij"><img class="gsm" src="${dataUrl(`${UI}/gsm-instellingen.png`)}"></div>
   <p>Op de tablet:</p><img class="fig" src="${dataUrl(`${UI}/tablet-groepen.png`)}"></section>`;
 
 const delen = [
   ['README: opbouw, aansluiten, draden labelen, bediening, bestellijst, printen', 'A4'],
   [`Bouwschema (${bsBladen.length} bladen)`, 'A4 liggend'],
-  [`Werktekeningen (${tekeningen.length} bladen, de boormal op ware grootte)`, 'A3 liggend, afdrukken op 100 %'],
+  [`Werktekeningen, opbouw van de gaatjesprints, draadlijst, meetblad en invulblad (${tekeningen.length} bladen, de boormal op ware grootte)`, 'A3 liggend en A4 staand, afdrukken op 100 %'],
   [`Aansluitschema (${schema.length} bladen)`, 'A3 liggend'],
   ['Het dashboard', 'A4'],
   ['Firmware: werking en instellingen', 'A4'],
@@ -42,7 +46,7 @@ const delen = [
 const voorblad = `<section class="voor">
   <p class="klein">Treinverlichting · ${esc(VERSIE)}</p>
   <h1>Kabeldoos voor de verlichting van de modelbaan</h1>
-  <p class="sub">16 lichtgroepen, 16 ingangen voor knoppen en sensoren, een eigen wifi met dashboard. Alles om af te drukken.</p>
+  <p class="sub">16 lichtgroepen, 16 ingangen voor knoppen en sensoren (contact, PNP en NPN), een eigen wifi met dashboard. Alles om af te drukken.</p>
   <img class="fig voorfoto" src="${dataUrl('e2e-out/trein-doos-open.png')}">
   <h2>Inhoud</h2>
   <ol>${delen.map(([t, p]) => `<li>${esc(t)} <span class="klein">(${p})</span></li>`).join('')}</ol>
@@ -55,6 +59,7 @@ const html = `<!doctype html><html lang="nl"><head><meta charset="utf-8"><title>
 @page { size: 210mm 297mm; margin: 14mm 14mm 16mm }
 @page liggend { size: 297mm 210mm; margin: 0 }
 @page a3 { size: 420mm 297mm; margin: 0 }
+@page a4b { size: 210mm 297mm; margin: 0 }
 html, body { margin: 0 }
 body { font-family: Arial, Helvetica, sans-serif; color: #1d1d1f; font-size: 9.5pt; line-height: 1.38 }
 .voor, .tekst { page-break-before: always }
@@ -71,6 +76,7 @@ code { font-family: Consolas, monospace; font-size: 8.5pt; background: #f4f4f4; 
 pre { font-family: Consolas, monospace; font-size: 8pt; background: #f4f4f4; padding: 2mm; white-space: pre-wrap }
 li { margin-bottom: 1mm }
 .bs { page: liggend } .a3 { page: a3; width: 420mm; height: 297mm; overflow: hidden; page-break-after: always }
+.a4b { page: a4b; width: 210mm; height: 297mm; overflow: hidden; page-break-after: always }
 ${bsStijl}
 </style></head><body>
 ${voorblad}

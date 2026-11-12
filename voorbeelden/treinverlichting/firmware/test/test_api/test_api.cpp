@@ -52,13 +52,14 @@ void test_groep_zetten() {
 void test_groep_fouten() {
   Baan b;
   uint32_t rev = b.cfgRev;
-  const char *fout_[] = {R"({"nr":0,"aan":true})",   R"({"nr":17,"aan":true})", R"({"aan":true})",
+  const std::string buiten = "{\"nr\":" + std::to_string(N_GROEPEN + 1) + ",\"aan\":true}";
+  const std::string fout_[] = {R"({"nr":0,"aan":true})",   buiten, R"({"aan":true})",
                          R"({"nr":[1,99]})",         R"({"nr":2,"effect":"disco"})",
                          R"({"nr":2,"naam":""})",    "geen json",               "[1]",
                          ""};
-  for (const char *f : fout_) {
+  for (const std::string &f : fout_) {
     Antwoord a = groep(b, f);
-    TEST_ASSERT_EQUAL_MESSAGE(400, a.code, f);
+    TEST_ASSERT_EQUAL_MESSAGE(400, a.code, f.c_str());
     TEST_ASSERT_TRUE(a.json.find("\"ok\":false") != std::string::npos);
     TEST_ASSERT_TRUE(a.json.find("\"fout\"") != std::string::npos);
   }
@@ -124,18 +125,19 @@ void test_functies() {
   Antwoord a = functie(b, R"({"actie":"bewaren","functie":{"naam":"Kermis","herhalen":true,"stappen":[
       {"groepen":[9],"actie":"aan","wacht":0.5},{"groepen":[9],"actie":"uit","wacht":0.5}]}})");
   TEST_ASSERT_EQUAL(200, a.code);
-  TEST_ASSERT_EQUAL_STRING("{\"ok\":true,\"nr\":2}", a.json.c_str());
-  TEST_ASSERT_EQUAL_STRING("Kermis", b.cfg.functie[1].naam);
-  TEST_ASSERT_EQUAL(500u, b.cfg.functie[1].stap[0].wachtMs);
-  TEST_ASSERT_EQUAL(200, functie(b, R"({"actie":"start","nr":2})").code);
-  TEST_ASSERT_TRUE(b.seq.loopt(1));
+  // plaats 1 en 2 zijn bezet in de standaardinstellingen ("Overweg" en "Alles aan/uit"): de eerste vrije is 3
+  TEST_ASSERT_EQUAL_STRING("{\"ok\":true,\"nr\":3}", a.json.c_str());
+  TEST_ASSERT_EQUAL_STRING("Kermis", b.cfg.functie[2].naam);
+  TEST_ASSERT_EQUAL(500u, b.cfg.functie[2].stap[0].wachtMs);
+  TEST_ASSERT_EQUAL(200, functie(b, R"({"actie":"start","nr":3})").code);
+  TEST_ASSERT_TRUE(b.seq.loopt(2));
   TEST_ASSERT_TRUE(b.lampen.stand[8].aan);
-  functie(b, R"({"actie":"wissel","nr":2})");
-  TEST_ASSERT_FALSE(b.seq.loopt(1));
-  functie(b, R"({"actie":"wissel","nr":2})");
-  TEST_ASSERT_TRUE(b.seq.loopt(1));
-  functie(b, R"({"actie":"stop","nr":2})");
-  TEST_ASSERT_FALSE(b.seq.loopt(1));
+  functie(b, R"({"actie":"wissel","nr":3})");
+  TEST_ASSERT_FALSE(b.seq.loopt(2));
+  functie(b, R"({"actie":"wissel","nr":3})");
+  TEST_ASSERT_TRUE(b.seq.loopt(2));
+  functie(b, R"({"actie":"stop","nr":3})");
+  TEST_ASSERT_FALSE(b.seq.loopt(2));
   // overschrijven
   functie(b, R"({"actie":"bewaren","nr":2,"functie":{"naam":"Kermis 2","stappen":[]}})");
   TEST_ASSERT_EQUAL_STRING("Kermis 2", b.cfg.functie[1].naam);
@@ -219,7 +221,7 @@ void test_staat_volledig_en_kort() {
   std::string vol = apiStaat(b, 100, false), kort = apiStaat(b, 100, true);
   JsonDocument d;
   TEST_ASSERT_FALSE(deserializeJson(d, vol));
-  TEST_ASSERT_EQUAL(16, (int)d["groepen"].size());
+  TEST_ASSERT_EQUAL(N_GROEPEN, (int)d["groepen"].size());
   TEST_ASSERT_EQUAL(16, (int)d["ingangen"].size());
   TEST_ASSERT_EQUAL(12, (int)d["scenes"].size());
   TEST_ASSERT_EQUAL(16, (int)d["functies"].size());
@@ -246,6 +248,112 @@ void test_staat_volledig_en_kort() {
   TEST_ASSERT_TRUE(k["groepen"][0]["lamp"].as<int>() > 0);
 }
 
+
+// ---------------------------------------------------------------------- Fable-advies (2026-11-12)
+Antwoord test(Baan &b, const std::string &j, uint32_t nu = 0) { return apiTest(b, j.data(), j.size(), nu); }
+
+void test_testmodus_looplicht_en_vast() {
+  Baan b;
+  groep(b, R"({"nr":2,"aan":true,"helderheid":30})");
+  TEST_ASSERT_EQUAL(200, test(b, R"({"actie":"looplicht","stapS":0.5})", 1000).code);
+  // groep 1, 2, 3 ... om de beurt VOL aan (4095), de rest uit, ook groep 2 die op 30 % stond
+  for (int k = 0; k < 2 * N_GROEPEN; k++) {
+    uint32_t t = 1000 + (uint32_t)k * 500 + 250;
+    b.tick(t, 0);
+    for (int g = 0; g < N_GROEPEN; g++) TEST_ASSERT_EQUAL_UINT16(g == k % N_GROEPEN ? PWM_MAX : 0, b.lampen.uitgang[g]);
+  }
+  JsonDocument d;
+  deserializeJson(d, apiStaat(b, 1000 + 2 * 500 + 10, true));
+  TEST_ASSERT_EQUAL_STRING("looplicht", d["test"]["soort"]);
+  TEST_ASSERT_EQUAL(3, d["test"]["groep"].as<int>());
+  // vast: één groep; de stand van de groepen blijft ongemoeid
+  TEST_ASSERT_EQUAL(200, test(b, R"({"actie":"vast","groep":5})").code);
+  b.tick(50000, 0);
+  for (int g = 0; g < N_GROEPEN; g++) TEST_ASSERT_EQUAL_UINT16(g == 4 ? PWM_MAX : 0, b.lampen.uitgang[g]);
+  TEST_ASSERT_TRUE(b.lampen.stand[1].aan);
+  // stop: de gewone stand komt terug
+  TEST_ASSERT_EQUAL(200, test(b, R"({"actie":"stop"})").code);
+  b.tick(50010, 0);
+  b.tick(52000, 0);
+  TEST_ASSERT_EQUAL_UINT16(0, b.lampen.uitgang[4]);
+  TEST_ASSERT_EQUAL_UINT16(gammaUit(0.3f), b.lampen.uitgang[1]);
+  deserializeJson(d, apiStaat(b, 52000, true));
+  TEST_ASSERT_EQUAL_STRING("", d["test"]["soort"]);
+  TEST_ASSERT_EQUAL(0, d["test"]["groep"].as<int>());
+}
+
+void test_testmodus_alles_uit_stopt_en_fouten() {
+  Baan b;
+  test(b, R"({"actie":"vast","groep":1})");
+  groep(b, R"({"allesUit":true})");
+  TEST_ASSERT_EQUAL(TEST_GEEN, b.testSoort);
+  const std::string buiten = "{\"actie\":\"vast\",\"groep\":" + std::to_string(N_GROEPEN + 1) + "}";
+  const std::string fout_[] = {R"({"actie":"dansen"})", R"({"actie":"vast"})", R"({"actie":"vast","groep":0})", buiten,
+                               R"({"actie":"looplicht","stapS":0.1})", R"({"actie":"looplicht","stapS":9})",
+                               R"({"actie":"looplicht","stapS":"snel"})", "geen json"};
+  for (const std::string &f : fout_) TEST_ASSERT_EQUAL_MESSAGE(400, test(b, f).code, f.c_str());
+  TEST_ASSERT_EQUAL(TEST_GEEN, b.testSoort);
+  TEST_ASSERT_EQUAL(200, test(b, R"({"actie":"looplicht"})").code); // zonder stapS: 1 s
+  TEST_ASSERT_EQUAL(1000u, b.testStapMs);
+}
+
+void test_thuisnet_instellen() {
+  Baan b;
+  uint32_t rev = b.cfgRev;
+  Antwoord a = inst(b, R"({"thuisnet":{"ssid":"Thuis 5G","wachtwoord":"geheim123"}})");
+  TEST_ASSERT_EQUAL(200, a.code);
+  TEST_ASSERT_TRUE(a.thuisnetOpnieuw);
+  TEST_ASSERT_FALSE(a.hotspotOpnieuw);
+  TEST_ASSERT_EQUAL_STRING("Thuis 5G", b.cfg.inst.thuisSsid);
+  TEST_ASSERT_TRUE(b.cfgRev > rev);
+  // het dashboard ziet het wachtwoord nooit, wel dat er een is
+  b.thuisVerbonden = true;
+  b.thuisIp = "192.168.1.40";
+  JsonDocument d;
+  deserializeJson(d, apiStaat(b, 0, false));
+  TEST_ASSERT_EQUAL_STRING("Thuis 5G", d["instellingen"]["thuisnet"]["ssid"]);
+  TEST_ASSERT_TRUE(d["instellingen"]["thuisnet"]["wachtwoord"].isNull());
+  TEST_ASSERT_TRUE(d["instellingen"]["thuisnet"]["metWachtwoord"].as<bool>());
+  TEST_ASSERT_TRUE(d["thuisnet"]["verbonden"].as<bool>());
+  TEST_ASSERT_EQUAL_STRING("192.168.1.40", d["thuisnet"]["ip"]);
+  TEST_ASSERT_EQUAL(N_GROEPEN, d["aantalGroepen"].as<int>());
+  // hetzelfde nog eens: niets veranderd, niet opnieuw verbinden
+  TEST_ASSERT_FALSE(inst(b, R"({"thuisnet":{"ssid":"Thuis 5G"}})").thuisnetOpnieuw);
+  // fouten: te lang, wachtwoord te kort, geen object
+  TEST_ASSERT_EQUAL(400, inst(b, R"({"thuisnet":{"ssid":"123456789012345678901234567890123"}})").code);
+  TEST_ASSERT_EQUAL(400, inst(b, R"({"thuisnet":{"ssid":"Thuis","wachtwoord":"kort"}})").code);
+  TEST_ASSERT_EQUAL(400, inst(b, R"({"thuisnet":"Thuis"})").code);
+  TEST_ASSERT_EQUAL_STRING("Thuis 5G", b.cfg.inst.thuisSsid);
+  // uitzetten: ssid leeg wist ook het wachtwoord; een open netwerk (geen wachtwoord) mag
+  TEST_ASSERT_EQUAL(200, inst(b, R"({"thuisnet":{"ssid":""}})").code);
+  TEST_ASSERT_EQUAL_STRING("", b.cfg.inst.thuisWachtwoord);
+  TEST_ASSERT_EQUAL(200, inst(b, R"({"thuisnet":{"ssid":"Open","wachtwoord":""}})").code);
+}
+
+void test_knop_alles_aan_uit_standaard() {
+  // standaard: ingang 1 is een drukknop die functie 2 "Alles aan/uit" start (stap "wissel" op alle groepen)
+  Baan b;
+  TEST_ASSERT_EQUAL(GEDRAG_DRUKKNOP, b.cfg.ingang[0].gedrag);
+  TEST_ASSERT_EQUAL(1, b.cfg.ingang[0].functieA);
+  TEST_ASSERT_EQUAL_STRING("Alles aan/uit", b.cfg.functie[1].naam);
+  uint32_t t = 0;
+  auto druk = [&]() {
+    for (int i = 0; i < 20; i++, t += 5) b.tick(t, 0x0001);
+    for (int i = 0; i < 20; i++, t += 5) b.tick(t, 0);
+  };
+  for (int i = 0; i < 10; i++, t += 5) b.tick(t, 0); // rust
+  druk();
+  for (int g = 0; g < N_GROEPEN; g++) TEST_ASSERT_TRUE(b.lampen.stand[g].aan);
+  druk();
+  for (int g = 0; g < N_GROEPEN; g++) TEST_ASSERT_FALSE(b.lampen.stand[g].aan);
+  // één groep aan: de knop zet eerst alles uit
+  groep(b, R"({"nr":4,"aan":true})");
+  druk();
+  for (int g = 0; g < N_GROEPEN; g++) TEST_ASSERT_FALSE(b.lampen.stand[g].aan);
+  // de functie is meteen klaar: ze blijft niet "lopen"
+  TEST_ASSERT_FALSE(b.seq.loopt(1));
+}
+
 int main() {
   UNITY_BEGIN();
   RUN_TEST(test_groep_zetten);
@@ -258,5 +366,9 @@ int main() {
   RUN_TEST(test_instellingen_en_wachtwoord);
   RUN_TEST(test_dagnacht);
   RUN_TEST(test_staat_volledig_en_kort);
+  RUN_TEST(test_testmodus_looplicht_en_vast);
+  RUN_TEST(test_testmodus_alles_uit_stopt_en_fouten);
+  RUN_TEST(test_thuisnet_instellen);
+  RUN_TEST(test_knop_alles_aan_uit_standaard);
   return UNITY_END();
 }

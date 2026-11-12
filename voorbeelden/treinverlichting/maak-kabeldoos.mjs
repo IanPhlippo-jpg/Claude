@@ -4,7 +4,8 @@
 // filamentmes. Versie 2 (EISEN.md, "Versie 2"): één doos van 229,8 x 229,8 x 44,4 (elk geprint deel hoogstens 230 x 230,
 // alles samen hoogstens 80 hoog) met echte kabelgoten: smal (5,4) en 28 hoog (net boven de bordjes, 17), met klikdeksels.
 // - Rij 1 tot 5: telkens 3 bordjes; rij 6: bordje 16, uitgangsprint, PCA9685; rij 7 (vooraan): voedingsprint,
-//   ingangsprint, ESP (de USB-poorten in de rechterwand, de wartel in de linkerwand).
+//   ingangsprint, ESP (de USB-poorten in de rechterwand, de DC-bus in de linkerwand). Versie 3 (Fable 5.2): klemlippen,
+//   uitgangsprint over de hele rij 6 met de PCA9685 erboven, DC-bus, gaatjesprints uit opbouw.mjs, hulpstukken.
 // - Elke rij van 1 tot 6 ligt in een ring: de wanden van de goten zijn ook het kader van de bordjes (0,3 speling).
 //   Goten (goten.mjs): langs de achterwand, tussen elke twee rijen, langs de linker- en de rechterwand (rij 1 tot 6),
 //   met vingers en sleuven en een klikdeksel per goot. De draden komen van boven door sleuven in de bodem onder de
@@ -19,7 +20,9 @@ import { component } from '../lib/schets.mjs';
 import { M } from './maten.mjs';
 import { yv, xv, zv, deel, snede, cirkels, PETG, PETG_DEKSEL } from './hulp.mjs';
 import { gootwanden, groefSneden, vingers, gootdeksel, dekselPlaat, dekselBreedte, sleufPatroon, klemSleuven, KLIK_REK } from './goten.mjs';
-import { bordjePcb, klemstrook, smdRij, pcaPrint, pcaChip, tule, wartel, schroefVerzonken, bolkopSchroef, espStapel, uitgangStapel, ingangStapel, voedingStapel, schroeven, espY, espDragerX, dragerGaten, hoekGaten, draaiY } from './onderdelen.mjs';
+import { bordjePcb, klemstrook, smdRij, tule, dcBus, schroefVerzonken, bolkopSchroef, espStapel, uitgangStapel, ingangStapel, voedingStapel, espY, espDragerX, dragerGaten, hoekGaten, draaiY } from './onderdelen.mjs';
+import { lippenOpBak, hulpstukkenPlaat } from './hulpstukken.mjs';
+import { PRINTS, pinnen, gatXY } from './opbouw.mjs';
 
 export { M };
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -49,13 +52,14 @@ export function indeling() {
   goten.forEach((g) => { g.zc = (g.z0 + g.z1) / 2; });
   // rijen: per rij de onderdelen met hun x-midden, z-midden, breedte en diepte
   const rijen = [], bd = (nr, cx, cz) => ({ soort: 'bordje', nr, cx, cz, x: B.x, z: B.z });
-  const gb = (2 * xi - 2 * c - 3 * B.x) / 2; // tussen de bordjes van een rij
+  const ce = R.eind, gb = (2 * xi - 2 * ce - 3 * B.x) / 2; // tussen de bordjes van een rij (aan de uiteinden R.eind: de klemlippen)
   let nr = 1;
   for (let r = 0; r < 5; r++) rijen.push([-1, 0, 1].map((k) => bd(nr++, k * (B.x + gb), ringen[r].cz)));
   {
-    const e = ringen[5], x16 = -xi + c + B.x / 2, xu = x16 + B.x / 2 + R.tussen6 + M.uitgang.x / 2;
-    const rest = xi - (xu + M.uitgang.x / 2) - M.pca.x, xp = xu + M.uitgang.x / 2 + rest / 2 + M.pca.x / 2;
-    rijen.push([bd(nr++, x16, e.cz), { soort: 'uitgang', cx: xu, cz: e.cz, x: M.uitgang.x, z: M.uitgang.z }, { soort: 'pca', cx: xp, cz: e.cz, x: M.pca.x, z: M.pca.z }]);
+    // bordje 16 links, de uitgangsprint (met de PCA9685 erboven) vult de rest van de ring
+    const e = ringen[5], x16 = -xi + ce + B.x / 2, xu = x16 + B.x / 2 + R.tussen6 + M.uitgang.x / 2;
+    if (xu + M.uitgang.x / 2 > xi - 0.5) throw new Error(`uitgangsprint te breed: ${(xu + M.uitgang.x / 2 - xi).toFixed(2)} in de wand`);
+    rijen.push([bd(nr++, x16, e.cz), { soort: 'uitgang', cx: xu, cz: e.cz, x: M.uitgang.x, z: M.uitgang.z }]);
   }
   {
     const espB = Math.max(M.esp.x + M.esp.module.voorbij, M.drager.x), xv0 = -X + R.rand7 + M.voeding.x / 2, xe = X - espB / 2;
@@ -97,12 +101,12 @@ function details(L) {
       const vast = [];
       for (const d of rijen[i]) {
         if (d.soort === 'bordje') vast.push(...klemSleuven(d.cx, B.klem.n, B.klem.steek));
-        if (d.soort === 'uitgang' && kant > 0) vast.push(...klemSleuven(d.cx, 16, 3.5));
+        if (d.soort === 'uitgang' && kant > 0) vast.push(...uitgangSleuven(d));
       }
       wanden.push({ as: 'x', c: zw + w / 2, van: -xr + iz, tot: xr - iz, sleuven: [...sleufPatroon(-xm, xm, vast, G, vol), ...hoek] });
     }
     for (const k of [-1, 1]) {
-      const eind = rijen[i].find((d) => d.soort === 'bordje' && Math.abs(d.cx + (k * B.x) / 2 - k * (xi - G.speling)) < 0.01);
+      const eind = rijen[i].find((d) => d.soort === 'bordje' && Math.abs(d.cx + (k * B.x) / 2 - k * (xi - M.rij.eind)) < 0.01);
       const vast = eind ? [[r.cz, B.eind.steek + 1.4 + 0.6]] : [];
       const extra = i === 0 ? [[r.zi0 - 0.5, r.zi0 - iz + been + 0.3]] : []; // het been van het achterdeksel
       wanden.push({ as: 'z', c: k * (xi + w / 2), van: r.zi0, tot: r.zi1, sleuven: [...sleufPatroon(r.zi0, r.zi1, vast), ...extra] });
@@ -147,10 +151,20 @@ function details(L) {
   return { deksels, wanden, groeven, wandGroeven, tules, bodem, sleutelgaten, bussen, palen };
 }
 
+/** de sleuven voor de klemmen van de uitgangsprint (-X3:1..16 steek 2,54 en -X3:17/18 steek 5,08, opbouw.mjs) */
+function uitgangSleuven(d) {
+  const P = PRINTS.uitgang, x = (c) => d.cx - P.w / 2 + gatXY(P, c, 0)[0], uit = [];
+  for (const o of P.onderdelen.filter((q) => q.ref === '-X3')) {
+    const cs = pinnen({ ...P, onderdelen: [o] }).map((p) => p.c), m = (x(Math.min(...cs)) + x(Math.max(...cs))) / 2;
+    uit.push(...klemSleuven(m, o.n, o.soort === 'mkds' ? 5.08 : 2.54, o.soort === 'mkds' ? 2.4 : 1.4));
+  }
+  return uit;
+}
+
 /** de 4 sleutelgaten (het grote gat) */
 export function bevestigingsGaten() { return indeling().sleutelgaten; }
-const wartelZ = () => indeling().cz7 + 3;
-const wartelY = () => 10;
+const dcZ = () => indeling().cz7 + M.dcbus.dz;
+const dcY = () => M.dcbus.y;
 function usbOpening(d) {
   const y = espY() + M.esp.pcb;
   return { y0: y - 2.5, y1: y + 6.5, z0: d.cz - M.esp.z / 2 + 0.5, z1: d.cz + M.esp.z / 2 - 0.5 }; // ruim genoeg voor de stekker (11 x 7)
@@ -160,8 +174,9 @@ function printPalen() {
   const palen = [];
   for (const rij of indeling().rijen) for (const d of rij) {
     if (d.soort === 'bordje') continue;
-    const b = { uitgang: M.uitgang, ingang: M.ingang, voeding: M.voeding, pca: M.pca, esp: M.drager }[d.soort];
-    const off = d.soort === 'pca' ? [[-28, -9.5], [28, -9.5], [-28, 9.5], [28, 9.5]] : d.soort === 'esp' ? dragerGaten() : hoekGaten(b);
+    const b = { uitgang: M.uitgang, ingang: M.ingang, voeding: M.voeding, esp: M.drager }[d.soort];
+    const P = PRINTS[d.soort], off = d.soort === 'esp' ? dragerGaten() : P.schroeven.map(([x, y]) => [x - P.w / 2, y - P.h / 2]);
+    if (d.soort !== 'esp' && P.w !== b.x) throw new Error(`${d.soort}: opbouw.mjs ${P.w} breed, maten.mjs ${b.x}`);
     const cx = d.soort === 'esp' ? espDragerX(d) : d.cx;
     off.forEach(([ox, oz]) => palen.push([cx + ox, d.cz + oz]));
   }
@@ -192,8 +207,9 @@ export function bak() {
   const esp = L.rijen[6].find((d) => d.soort === 'esp'), u = usbOpening(esp);
   o.schets(xv(XB, 'Plane opening USB'), (s) => s.rrectW([XB, u.y0, u.z0], [XB, u.y1, u.z1], 1));
   o.extrude('cut', w + 1, { omkeren: true, naam: 'Opening USB' });
-  o.schets(xv(-XB, 'Plane wartel', -1), (s) => s.cirkelW([-XB, wartelY(), wartelZ()], 6.1));
-  o.extrude('cut', w + 1, { omkeren: true, naam: 'Gat wartel M12' });
+  // DC-chassisbus 5,5 x 2,5 in de linkerwand, boven de voedingsprint (de adapter houdt zijn stekker: niets doorknippen)
+  o.schets(xv(-XB, 'Plane DC-bus', -1), (s) => s.cirkelW([-XB, dcY(), dcZ()], M.dcbus.gat / 2));
+  o.extrude('cut', w + 1, { omkeren: true, naam: 'Gat DC-bus' });
   // ophangen onder de baan: 4 sleutelgaten in de zijgoten (bolkopschroef 4 x 20 half in de baan, de doos over de koppen,
   // 6 mm naar achteren schuiven: de sleuf loopt naar voren)
   const SG = D.sleutelgat;
@@ -215,6 +231,9 @@ export function bak() {
   cirkels(o, D.h, D.h + D.bodem - 0.4, [...palen.map(([x, z]) => [x, z, 1.1]), ...L.bussen.map(([x, z]) => [x, z, 1.3])], 'Schroefgaten', 'cut');
   // tot slot de kabelgoten: 6 ringen (rij 1 tot 6) en de wand voor rij 7, de vingers en hun klikgroeven
   gootwanden(o, { ringen: L.ringen.map((r) => [-L.xr, r.z0, L.xr, r.z1]), balken: [[-X - 1, L.wand7[0], X + 1, L.wand7[1]]], wanden: L.wanden, groeven: L.groeven });
+  // helemaal op het einde de klemlippen (4 per bordje, hulpstukken.mjs): de kuiltjes in de bodem vroeg in de boom
+  // maakten elke latere bewerking trager (bak 75 s in plaats van 40 s); achteraan kosten ze 4 tot 5 s
+  lippenOpBak(o, L.rijen);
   return o.doc();
 }
 
@@ -272,16 +291,12 @@ export function kabeldoos() {
       at(`b${n}e2`, `Bordje ${n} klem rechts<${n}>`, eind, [d.cx + B.x / 2 - B.eind.diep / 2 - 0.2, y + B.pcb, d.cz], draaiY(-90));
       at(`b${n}r`, `Bordje ${n} weerstanden<${n}>`, smd, [d.cx, y + B.pcb, d.cz]);
     } else if (d.soort === 'esp') espStapel(at, d);
-    else if (d.soort === 'pca') {
-      at('p1', 'PCA9685 (print)<1>', pcaPrint(), [d.cx, M.voet, d.cz]);
-      at('p2', 'PCA9685 (chip)<1>', pcaChip(), [d.cx, M.voet, d.cz]);
-      schroeven(at, 'p', [[-28, -9.5], [28, -9.5], [-28, 9.5], [28, 9.5]].map(([x, z]) => [d.cx + x, M.voet + M.pca.pcb, d.cz + z]));
-    } else if (d.soort === 'uitgang') uitgangStapel(at, d);
+    else if (d.soort === 'uitgang') uitgangStapel(at, d);
     else if (d.soort === 'ingang') ingangStapel(at, d);
     else if (d.soort === 'voeding') voedingStapel(at, d);
   }
-  // de wartel M12 in de linkerwand, de membraantules (flens buiten, langs de normaal van de wand naar buiten)
-  at('w1', 'Wartel M12 x 1,5<1>', wartel(), [-XB, wartelY(), wartelZ()], draaiY(180));
+  // de DC-bus in de linkerwand, de membraantules (flens buiten, langs de normaal van de wand naar buiten)
+  at('w1', 'DC-chassisbus 5,5 x 2,5<1>', dcBus(), [-XB, dcY(), dcZ()], draaiY(180));
   const tl = tule(), yi = D.invoer.y;
   L.tules.forEach((t, i) => {
     const p = { links: [-XB, yi, t.c], rechts: [XB, yi, t.c], voor: [t.c, yi, ZB] }[t.wand];
@@ -321,6 +336,7 @@ export const ONDERDELEN = {
   'Gootdeksels-plaat.kcad': dekselPlaatDoc,
   'Gootdeksel.kcad': () => { const d = gootDeksels().find((q) => q.soort === 'midden'); return gootdeksel(d.soort, d.b, d.l, d.nokken); },
   'Bordje-PCB.kcad': bordjePcb,
+  'Hulpstukken.kcad': hulpstukkenPlaat,
 };
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {

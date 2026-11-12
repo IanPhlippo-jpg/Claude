@@ -1,6 +1,7 @@
 // De hardware van de doos (alleen Wire en de gewone Arduino-functies, geen andere bibliotheken).
-//   PCA9685  16 PWM-uitgangen (12 bit, I2C), elk kanaal stuurt een MOSFET-module (low-side) voor één lichtgroep;
-//            eigen kleine driver, wordt elke 2 s nagekeken (na een spanningsdip slaapt hij weer: dan opnieuw instellen)
+//   PCA9685  16 PWM-uitgangen (12 bit, I2C), elk kanaal stuurt een MOSFET (low-side) voor één lichtgroep;
+//            eigen kleine driver, wordt elke 2 s nagekeken (na een spanningsdip slaapt hij weer: dan opnieuw instellen).
+//            Meer dan 16 groepen (TREIN_GROEPEN): een tweede PCA9685 op 0x41 (A0 op 3,3 V), zelfde I2C en OE.
 //   ingangen 16 GPIO's van de ESP32-S3 achter optocouplers (zie INGANG_PINNEN onderaan)
 #pragma once
 #include <Arduino.h>
@@ -86,8 +87,8 @@ class Pca9685 {
 /** de 16 ingangen, rechtstreeks op GPIO's van de ESP32-S3 (ingang 1..16 in deze volgorde). Elke ingang zit achter
  *  een optocoupler die de pin naar GND trekt = ACTIEF; in rust houdt de interne pull-up (INPUT_PULLUP) hem hoog.
  *  Niet gebruikt (bewust): 0, 3, 45, 46 (strapping), 19, 20 (USB), 35, 36, 37 (octal PSRAM van de N16R8),
- *  43, 44 (UART0), 38 (RGB-led op de DevKitC-1 v1.1; v1.0: 48), 48; 8, 9 (I2C) en 10 (OE) zijn al bezet,
- *  11 is vrij. */
+ *  43, 44 (UART0), 38 (RGB-led op de DevKitC-1 v1.1; v1.0: 48); 8, 9 (I2C) en 10 (OE) zijn al bezet.
+ *  Vrij voor uitbreidingen: 11, 39, 42, 47 en 48 (48 alleen op v1.1). */
 constexpr uint8_t INGANG_PINNEN[16] = {1, 2, 4, 5, 6, 7, 12, 13, 14, 15, 16, 17, 18, 21, 40, 41};
 
 /** de RGB-led op het bord (DevKitC-1 v1.1), gebruikt als statuslampje */

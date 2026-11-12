@@ -78,5 +78,22 @@ if (doe('prints')) {
   await open(alleen(/^b1(k\d|e\d|r)?$/), 3000);
   await kijk('Control+7', 'trein-bordje');
 }
+if (doe('fable')) {
+  // advies Fable 5.2: een bordje in zijn klemlippen van dichtbij, de DC-bus in de linkerwand, de uitgangsprint met de
+  // PCA9685 erboven; ZOOM_LIP / ZOOM_DC = "x,y,n" (schermpunt en aantal stappen inzoomen)
+  const pt = (v, d) => (v ?? d).split(',').map(Number);
+  await open(alleen(/^(d1|b\d+(k\d|e\d|r)?)$/));
+  await page.keyboard.press('Control+7'); await page.waitForTimeout(700); await page.keyboard.press('f'); await page.waitForTimeout(1500);
+  { const [x, y, n] = pt(process.env.ZOOM_LIP, '760,420,7'); await zoom(x, y, n, 'trein-klemlippen'); }
+  await open(alleen(/^(d1|b\d+(k\d|e\d|r)?)$/));
+  await kijk('Control+7', 'trein-bordjes-lippen');
+  await open(alleen(/^(d1|w1|v\d+|vs\d)$/));
+  await page.keyboard.press('Control+7'); await page.waitForTimeout(700); await page.keyboard.press('f'); await page.waitForTimeout(1500);
+  { const [x, y, n] = pt(process.env.ZOOM_DC, '640,640,5'); await zoom(x, y, n, 'trein-dcbus'); }
+  await open(alleen(/^(w1|v\d+|vs\d)$/), 4000);
+  await kijk('Control+7', 'trein-voeding-dcbus');
+  await open(alleen(/^(u\d+|us\d|p\d|ps\d|pb\d|b16(k\d|e\d|r)?)$/), 4000);
+  await kijk('Control+7', 'trein-uitgangsprint');
+}
 console.log('errors', errors);
 await browser.close();

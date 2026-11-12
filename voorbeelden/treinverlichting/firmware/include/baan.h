@@ -1,5 +1,5 @@
 // De hele lichtsturing samen, zonder hardware: groepen, effecten, dag/nacht, scènes, functies en ingangen.
-// main.cpp roept elke 10 ms tick() aan met de tijd en de ingangen, en schrijft lampen.uitgang[] naar de PCA9685.
+// main.cpp roept elke 5 ms tick() aan met de tijd en de ingangen, en schrijft lampen.uitgang[] naar de PCA9685.
 // Het dashboard (api.h) gebruikt de bedieningsfuncties hieronder. Testen: test/test_functies, test/test_api.
 //
 // Afspraken:
@@ -22,7 +22,19 @@
 
 namespace trein {
 
-constexpr const char *FW_VERSIE = "1.0.0";
+constexpr const char *FW_VERSIE = "1.1.0";
+
+// Testmodus (voor de ingebruikname en het meetblad): de uitgangen worden overschreven, de rest rekent gewoon door.
+//   looplicht  groep 1, 2, ... N om de beurt VOL aan (zonder zachte overgang, gamma of maximum), elk stapMs lang
+//   vast       één groep vol aan (stroom van die groep meten), de andere uit
+// Stoppen: {"actie":"stop"} of "Alles uit". Daarna krijgen de lampen weer hun gewone stand.
+enum TestSoort : uint8_t { TEST_GEEN, TEST_LOOPLICHT, TEST_VAST };
+constexpr uint32_t TEST_STAP_MIN_MS = 300, TEST_STAP_MAX_MS = 5000, TEST_STAP_STD_MS = 1000;
+
+inline const char *testId(int t) {
+  static const char *T[] = {"", "looplicht", "vast"};
+  return T[(t >= 0 && t <= TEST_VAST) ? t : 0];
+}
 
 class Baan : public Uitvoerder {
  public:
@@ -34,6 +46,13 @@ class Baan : public Uitvoerder {
   uint16_t ingangRuw = 0;
   uint32_t cfgRev = 1, standRev = 1;
   std::string melding; // voor het dashboard (instellingen hersteld, chip niet gevonden, ...)
+  // thuis-wifi: main.cpp vult dit in (verbonden en het IP-adres dat de router gaf)
+  bool thuisVerbonden = false;
+  std::string thuisIp;
+  // testmodus
+  uint8_t testSoort = TEST_GEEN;
+  int testGroep = 0;          // vast: de groep (index)
+  uint32_t testStapMs = TEST_STAP_STD_MS, testStart = 0;
 
   explicit Baan(uint32_t zaad = 20261108u) : lampen(zaad) {
     standaard(cfg);
@@ -68,7 +87,34 @@ class Baan : public Uitvoerder {
     seq.stap(cfg.functie, *this, nu);
     dagnachtStap(nu);
     lampen.stap(nu);
+    if (testSoort != TEST_GEEN) {
+      int aan = testAan(nu);
+      for (int g = 0; g < N_GROEPEN; g++) {
+        lampen.uitgang[g] = g == aan ? PWM_MAX : 0;
+        lampen.lamp[g] = g == aan ? 1.f : 0.f;
+      }
+    }
   }
+
+  // ---------------------------------------------------------------------------------------------- testmodus
+  /** welke groep (index) brandt nu in de testmodus; -1 = geen testmodus */
+  int testAan(uint32_t nu) const {
+    if (testSoort == TEST_VAST) return testGroep;
+    if (testSoort == TEST_LOOPLICHT) return (int)(((nu - testStart) / testStapMs) % (uint32_t)N_GROEPEN);
+    return -1;
+  }
+  void testLooplicht(uint32_t nu, uint32_t stapMs) {
+    testSoort = TEST_LOOPLICHT;
+    testStapMs = (uint32_t)klem((int32_t)stapMs, (int32_t)TEST_STAP_MIN_MS, (int32_t)TEST_STAP_MAX_MS);
+    testStart = nu;
+  }
+  bool testVast(int g) {
+    if (g < 0 || g >= N_GROEPEN) return false;
+    testSoort = TEST_VAST;
+    testGroep = g;
+    return true;
+  }
+  void testStop() { testSoort = TEST_GEEN; }
 
   // ------------------------------------------------------------------------------------------------ groepen
   /** een groep zetten (met de tweede groep van een overweg) */
@@ -93,6 +139,7 @@ class Baan : public Uitvoerder {
   }
 
   void allesUit(uint32_t nu) {
+    testStop();
     seq.stopAlles();
     dn.loopt = false;
     for (int g = 0; g < N_GROEPEN; g++) {
@@ -173,10 +220,10 @@ class Baan : public Uitvoerder {
   }
 
   // ---------------------------------------------------------------------------------------------- dag/nacht
-  uint16_t deelnemers() const {
-    uint16_t m = 0;
+  GroepMasker deelnemers() const {
+    GroepMasker m = 0;
     for (int g = 0; g < N_GROEPEN; g++)
-      if (cfg.groep[g].dagnacht) m |= (uint16_t)(1u << g);
+      if (cfg.groep[g].dagnacht) m |= groepBit(g);
     return m;
   }
 
@@ -186,7 +233,7 @@ class Baan : public Uitvoerder {
     dn.begin(nu, vanafFase);
     if (posMs >= 0) dn.start = nu - ((uint32_t)posMs % dn.duurMs);
     // de deelnemers meteen in de juiste stand
-    uint16_t m = deelnemers();
+    GroepMasker m = deelnemers();
     for (int g = 0; g < N_GROEPEN; g++) {
       if (!(m >> g & 1)) continue;
       dnVorig_[g] = dn.wilAan(g, m, nu);
@@ -262,6 +309,14 @@ class Baan : public Uitvoerder {
       case ACT_SCENE:
         sceneOproepen(st.waarde - 1, nu);
         break;
+      case ACT_WISSEL: {
+        bool ietsAan = false;
+        for (int g = 0; g < N_GROEPEN; g++)
+          if ((st.groepen >> g & 1) && lampen.stand[g].aan) ietsAan = true;
+        for (int g = 0; g < N_GROEPEN; g++)
+          if (st.groepen >> g & 1) zetAan(g, !ietsAan, nu);
+        break;
+      }
       case ACT_DAGNACHT:
         if (st.waarde) dagnachtStart(nu, DAG);
         else dagnachtStop();
@@ -271,7 +326,7 @@ class Baan : public Uitvoerder {
     }
   }
 
-  void groepenUit(uint16_t groepen, uint32_t nu) override {
+  void groepenUit(GroepMasker groepen, uint32_t nu) override {
     for (int g = 0; g < N_GROEPEN; g++)
       if (groepen >> g & 1) zetAan(g, false, nu);
   }
@@ -287,7 +342,7 @@ class Baan : public Uitvoerder {
 
   void dagnachtStap(uint32_t nu) {
     if (!dn.loopt) return;
-    uint16_t m = deelnemers();
+    GroepMasker m = deelnemers();
     for (int g = 0; g < N_GROEPEN; g++) {
       if (!(m >> g & 1)) continue;
       bool w = dn.wilAan(g, m, nu);

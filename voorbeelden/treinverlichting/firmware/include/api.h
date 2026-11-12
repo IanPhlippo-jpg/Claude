@@ -17,7 +17,10 @@
 //                              (functieA/B: 0 = geen; "nalopen": seconden voor een sensor)
 //   POST /api/instellingen     {"faduur":0.5,"dagnachtMin":20,"opstart":"laatste"|"uit","wachtwoord":"..."}
 //                              {"fabrieksinstellingen":true}
+//                              {"thuisnet":{"ssid":"Thuis","wachtwoord":"..."}}  (ssid "" = thuisnet uit)
 //   POST /api/dagnacht         {"loopt":true,"vanaf":"avond"}  {"loopt":false}
+//   POST /api/test             {"actie":"looplicht","stapS":1}  {"actie":"vast","groep":5}  {"actie":"stop"}
+//   POST /api/update           (main.cpp) de nieuwe firmware (.bin) als multipart-upload; daarna herstart de doos
 // Antwoord: {"ok":true} (eventueel met "nr"), of HTTP 400 met {"ok":false,"fout":"uitleg in gewone taal"}.
 // Groepen, scènes, functies en ingangen hebben in de API nummers vanaf 1 (zoals op het dashboard).
 #pragma once
@@ -33,6 +36,7 @@ struct Antwoord {
   int code = 200;
   std::string json;
   bool hotspotOpnieuw = false; // het wifi-wachtwoord is veranderd: main.cpp start de hotspot opnieuw
+  bool thuisnetOpnieuw = false; // het thuisnet is veranderd: main.cpp verbindt opnieuw
 };
 
 inline Antwoord fout(const char *tekst) {
@@ -43,6 +47,13 @@ inline Antwoord fout(const char *tekst) {
   d["fout"] = tekst;
   serializeJson(d, a.json);
   return a;
+}
+
+/** foutmelding met een getal erin (bv. het aantal groepen) */
+inline Antwoord foutN(const char *formaat, int n) {
+  char t[160];
+  snprintf(t, sizeof t, formaat, n);
+  return fout(t);
 }
 
 inline Antwoord goed(int nr = 0) {
@@ -106,7 +117,16 @@ inline std::string apiStaat(const Baan &b, uint32_t nu, bool kort) {
   dn["loopt"] = b.dn.loopt;
   dn["fase"] = b.dn.loopt ? dagFaseId(b.dn.fase(nu)) : "";
   dn["pos"] = b.dn.loopt ? (int)(b.dn.positie(nu) * 1000.f) / 1000.0 : 0;
+  JsonObject test = o["test"].to<JsonObject>();
+  test["soort"] = testId(b.testSoort);
+  test["groep"] = b.testAan(nu) + 1;
+  if (b.testSoort == TEST_LOOPLICHT) test["stapS"] = b.testStapMs / 1000.0;
+  JsonObject th = o["thuisnet"].to<JsonObject>();
+  th["ssid"] = b.cfg.inst.thuisSsid;
+  th["verbonden"] = b.thuisVerbonden;
+  th["ip"] = b.thuisIp;
   if (!kort) {
+    o["aantalGroepen"] = N_GROEPEN;
     o["versie"] = FW_VERSIE;
     o["hotspot"] = HOTSPOT_NAAM;
     schrijfInstellingen(o["instellingen"].to<JsonObject>(), b.cfg.inst, false);
@@ -140,18 +160,18 @@ inline Antwoord apiGroep(Baan &b, const char *body, size_t len, uint32_t nu) {
     b.allesUit(nu);
     return goed();
   }
-  uint16_t m = 0;
+  GroepMasker m = 0;
   JsonVariantConst nr = r["nr"];
   if (nr.is<JsonArrayConst>()) {
     for (JsonVariantConst x : nr.as<JsonArrayConst>()) {
       int g = index(x, N_GROEPEN);
       if (g < 0) return fout("Onbekende groep.");
-      m |= (uint16_t)(1u << g);
+      m |= groepBit(g);
     }
   } else {
     int g = index(nr, N_GROEPEN);
-    if (g < 0) return fout("Welke groep? Geef \"nr\" van 1 tot 16.");
-    m = (uint16_t)(1u << g);
+    if (g < 0) return foutN("Welke groep? Geef \"nr\" van 1 tot %d.", N_GROEPEN);
+    m = groepBit(g);
   }
   JsonVariantConst e = r["effect"];
   if (!e.isNull() && (!e.is<const char *>() || effectVanId(e.as<const char *>()) < 0))
@@ -247,7 +267,7 @@ inline Antwoord apiIngang(Baan &b, const char *body, size_t len, uint32_t nu) {
   Antwoord a;
   if (!leesVerzoek(body, len, d, a)) return a;
   int i = index(d["nr"], N_INGANGEN);
-  if (i < 0) return fout("Welke ingang? Geef \"nr\" van 1 tot 16.");
+  if (i < 0) return foutN("Welke ingang? Geef \"nr\" van 1 tot %d.", N_INGANGEN);
   JsonVariantConst g = d["gedrag"];
   if (!g.isNull() && (!g.is<const char *>() || gedragVanId(g.as<const char *>()) < 0))
     return fout("Onbekend gedrag (geen, drukknop, schakelaar of sensor).");
@@ -277,6 +297,7 @@ inline Antwoord apiInstellingen(Baan &b, const char *body, size_t len, uint32_t 
     b.instellingenGewijzigd(nu);
     a = goed();
     a.hotspotOpnieuw = anderWachtwoord;
+    a.thuisnetOpnieuw = true;
     return a;
   }
   JsonVariantConst w = r["wachtwoord"];
@@ -285,13 +306,25 @@ inline Antwoord apiInstellingen(Baan &b, const char *body, size_t len, uint32_t 
   JsonVariantConst o = r["opstart"];
   if (!o.isNull() && strcmp(o | "", "laatste") != 0 && strcmp(o | "", "uit") != 0)
     return fout("Opstarten: kies \"laatste\" of \"uit\".");
-  char oud[64];
+  JsonVariantConst t = r["thuisnet"];
+  if (!t.isNull()) {
+    if (!t.is<JsonObjectConst>()) return fout("\"thuisnet\" moet een object zijn: {\"ssid\":...,\"wachtwoord\":...}.");
+    JsonVariantConst s = t["ssid"], tw = t["wachtwoord"];
+    if (!s.isNull() && (!s.is<const char *>() || !ssidGeldig(s.as<const char *>())))
+      return fout("De naam van het thuisnet mag hoogstens 32 tekens hebben.");
+    if (!tw.isNull() && (!tw.is<const char *>() || !thuisWachtwoordGeldig(tw.as<const char *>())))
+      return fout("Het wachtwoord van het thuisnet is leeg (open netwerk) of heeft 8 tot 63 gewone tekens.");
+  }
+  char oud[64], oudSsid[33], oudThuis[64];
   strcpy(oud, b.cfg.inst.wachtwoord);
+  strcpy(oudSsid, b.cfg.inst.thuisSsid);
+  strcpy(oudThuis, b.cfg.inst.thuisWachtwoord);
   Lezer l;
   l.instellingen(r, b.cfg.inst);
   b.instellingenGewijzigd(nu);
   a = goed();
   a.hotspotOpnieuw = strcmp(oud, b.cfg.inst.wachtwoord) != 0;
+  a.thuisnetOpnieuw = strcmp(oudSsid, b.cfg.inst.thuisSsid) != 0 || strcmp(oudThuis, b.cfg.inst.thuisWachtwoord) != 0;
   return a;
 }
 
@@ -313,6 +346,32 @@ inline Antwoord apiDagnacht(Baan &b, const char *body, size_t len, uint32_t nu) 
   if (b.deelnemers() == 0) return fout("Er doet nog geen groep mee. Vink bij Instellingen aan welke groepen meedoen.");
   b.dagnachtStart(nu, fase);
   return goed();
+}
+
+// ------------------------------------------------------------------------------------------------------- test
+inline Antwoord apiTest(Baan &b, const char *body, size_t len, uint32_t nu) {
+  JsonDocument d;
+  Antwoord a;
+  if (!leesVerzoek(body, len, d, a)) return a;
+  const char *actie = d["actie"] | "";
+  if (strcmp(actie, "stop") == 0) {
+    b.testStop();
+    return goed();
+  }
+  if (strcmp(actie, "looplicht") == 0) {
+    JsonVariantConst s = d["stapS"];
+    double sec = s.isNull() ? TEST_STAP_STD_MS / 1000.0 : (s.is<double>() ? s.as<double>() : -1);
+    if (!(sec >= TEST_STAP_MIN_MS / 1000.0 && sec <= TEST_STAP_MAX_MS / 1000.0))
+      return fout("Tijd per groep: 0,3 tot 5 s.");
+    b.testLooplicht(nu, (uint32_t)lround(sec * 1000.0));
+    return goed();
+  }
+  if (strcmp(actie, "vast") == 0) {
+    int g = index(d["groep"], N_GROEPEN);
+    if (g < 0 || !b.testVast(g)) return foutN("Welke groep? Geef \"groep\" van 1 tot %d.", N_GROEPEN);
+    return goed(g + 1);
+  }
+  return fout("Testmodus: kies \"looplicht\", \"vast\" of \"stop\".");
 }
 
 } // namespace trein

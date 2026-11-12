@@ -19,9 +19,9 @@ namespace {
 struct Logboek : Uitvoerder {
   struct Regel { int32_t waarde; uint32_t t; };
   std::vector<Regel> stappen;
-  std::vector<uint16_t> uit;
+  std::vector<GroepMasker> uit;
   void voerUit(const Stap &s, uint32_t nu) override { stappen.push_back({s.waarde, nu}); }
-  void groepenUit(uint16_t g, uint32_t) override { uit.push_back(g); }
+  void groepenUit(GroepMasker g, uint32_t) override { uit.push_back(g); }
 };
 
 Functie maak(std::initializer_list<uint32_t> wacht, bool herhalen = false, bool stopUit = true) {
@@ -33,7 +33,7 @@ Functie maak(std::initializer_list<uint32_t> wacht, bool herhalen = false, bool 
   int i = 0;
   for (uint32_t w : wacht) {
     f.stap[i].actie = ACT_HELDERHEID;
-    f.stap[i].groepen = (uint16_t)(1u << i);
+    f.stap[i].groepen = groepBit(i);
     f.stap[i].waarde = i + 1; // om de stap te herkennen
     f.stap[i].wachtMs = w;
     i++;
@@ -238,8 +238,8 @@ void test_stap_met_scene_en_dagnacht() {
   f.stap[2].actie = ACT_SCENE;
   f.stap[2].waarde = 7; // bestaat niet: wordt overgeslagen
   int p = b.functieBewaren(-1, f, 0);
-  TEST_ASSERT_EQUAL(1, p);
-  TEST_ASSERT_EQUAL_STRING("Functie 2", b.cfg.functie[1].naam);
+  TEST_ASSERT_EQUAL(2, p); // 1 en 2 zijn bezet ("Overweg", "Alles aan/uit")
+  TEST_ASSERT_EQUAL_STRING("Functie 3", b.cfg.functie[2].naam);
   b.functieStart(p, 0);
   b.tick(0, 0);
   TEST_ASSERT_TRUE(b.lampen.stand[7].aan);
@@ -331,6 +331,44 @@ void test_stand_na_stroomonderbreking() {
   TEST_ASSERT_FALSE(b.seq.loopt(0));
 }
 
+
+void test_stap_wissel() {
+  Baan b;
+  Functie f;
+  f.gebruikt = true;
+  f.nStappen = 1;
+  f.stap[0].actie = ACT_WISSEL;
+  f.stap[0].groepen = groepBit(2) | groepBit(5);
+  int p = b.functieBewaren(-1, f, 0);
+  b.functieStart(p, 0);
+  TEST_ASSERT_TRUE(b.lampen.stand[2].aan && b.lampen.stand[5].aan);
+  TEST_ASSERT_FALSE(b.lampen.stand[3].aan);
+  b.functieStart(p, 10);
+  TEST_ASSERT_FALSE(b.lampen.stand[2].aan || b.lampen.stand[5].aan);
+  // één van de twee aan: allebei uit (niet omdraaien per groep)
+  GroepStand s = b.lampen.stand[5];
+  s.aan = true;
+  b.zetGroep(5, s, 20);
+  b.functieStart(p, 30);
+  TEST_ASSERT_FALSE(b.lampen.stand[2].aan || b.lampen.stand[5].aan);
+  // de laatste groep (N_GROEPEN) werkt ook (32 groepen: bit 31)
+  f.stap[0].groepen = groepBit(N_GROEPEN - 1);
+  b.functieBewaren(p, f, 40);
+  b.functieStart(p, 50);
+  TEST_ASSERT_TRUE(b.lampen.stand[N_GROEPEN - 1].aan);
+  TEST_ASSERT_EQUAL_STRING("wissel", actieId(ACT_WISSEL));
+  TEST_ASSERT_EQUAL(ACT_WISSEL, actieVanId("wissel"));
+}
+
+void test_alle_groepen_masker() {
+  TEST_ASSERT_EQUAL(N_GROEPEN, __builtin_popcount(ALLE_GROEPEN));
+  TEST_ASSERT_TRUE(ALLE_GROEPEN >> (N_GROEPEN - 1) & 1);
+  // dag en nacht met de laatste groep als deelnemer
+  Baan b;
+  b.cfg.groep[N_GROEPEN - 1].dagnacht = true;
+  TEST_ASSERT_EQUAL_HEX32(groepBit(N_GROEPEN - 1), b.deelnemers());
+}
+
 int main() {
   UNITY_BEGIN();
   RUN_TEST(test_wachttijden_exact);
@@ -348,5 +386,7 @@ int main() {
   RUN_TEST(test_twee_functies_tegelijk_en_alles_uit);
   RUN_TEST(test_functie_wijzigen_of_wissen_terwijl_ze_loopt);
   RUN_TEST(test_stand_na_stroomonderbreking);
+  RUN_TEST(test_stap_wissel);
+  RUN_TEST(test_alle_groepen_masker);
   return UNITY_END();
 }

@@ -42,6 +42,9 @@ struct Instellingen {
   uint16_t dagnachtMin = 20;   // duur van een hele dag (dag + avond + nacht + ochtend) in minuten
   bool opstartLaatste = true;  // na een stroomonderbreking: true = de laatste stand terug, false = alles uit
   char wachtwoord[64] = {0};   // wifi (WPA2): 8..63 gewone tekens
+  // thuis-wifi (optioneel): de doos meldt zich daar ook aan (naast haar eigen hotspot); leeg = niet gebruikt
+  char thuisSsid[33] = {0};        // 1..32 bytes
+  char thuisWachtwoord[64] = {0};  // leeg (open netwerk) of 8..63 gewone tekens
 };
 
 struct Config {
@@ -71,6 +74,19 @@ inline bool wachtwoordGeldig(const char *w) {
     if ((unsigned char)w[i] < 0x20 || (unsigned char)w[i] > 0x7E) return false;
   return true;
 }
+
+/** naam van een wifi-netwerk: 0..32 bytes, geen stuurtekens (0 = thuisnet uit) */
+inline bool ssidGeldig(const char *w) {
+  if (!w) return false;
+  size_t n = strlen(w);
+  if (n > 32) return false;
+  for (size_t i = 0; i < n; i++)
+    if ((unsigned char)w[i] < 0x20 || (unsigned char)w[i] == 0x7F) return false;
+  return true;
+}
+
+/** wachtwoord van het thuisnet: leeg (open netwerk) of zoals WPA2 */
+inline bool thuisWachtwoordGeldig(const char *w) { return w && (!w[0] || wachtwoordGeldig(w)); }
 
 inline void standaardNaam(char *doel, const char *soort, int nr) { snprintf(doel, NAAM_LEN, "%s %d", soort, nr); }
 
@@ -108,6 +124,18 @@ inline void standaard(Config &c) {
   ow.stap[0].wachtMs = 30000;
   ow.stap[1].groepen = (1u << 2) | (1u << 3);
   ow.stap[1].actie = ACT_UIT;
+  // functie 2 en ingang 1: een knop "alles aan/uit" (Fable, 2026-11-12: een fysieke knop werkt ook zonder gsm)
+  Functie &au = c.functie[1];
+  au.gebruikt = true;
+  strcpy(au.naam, "Alles aan/uit");
+  au.stopUit = false;
+  au.nStappen = 1;
+  au.stap[0].groepen = ALLE_GROEPEN;
+  au.stap[0].actie = ACT_WISSEL;
+  IngangCfg &k = c.ingang[0];
+  strcpy(k.naam, "Knop alles aan/uit");
+  k.gedrag = GEDRAG_DRUKKNOP;
+  k.functieA = 1;
 }
 
 // ------------------------------------------------------------------------------------------------- JSON lezen
@@ -194,7 +222,7 @@ struct Lezer {
     if (gs.is<JsonArrayConst>()) {
       for (JsonVariantConst g : gs.as<JsonArrayConst>()) {
         int8_t nr = verwijzing(g, N_GROEPEN, -1);
-        if (nr >= 0) s.groepen |= (uint16_t)(1u << nr);
+        if (nr >= 0) s.groepen |= groepBit(nr);
         else hersteld++;
       }
     } else if (!gs.isNull()) {
@@ -293,6 +321,20 @@ struct Lezer {
       if (w.is<const char *>() && wachtwoordGeldig(w.as<const char *>())) strcpy(i.wachtwoord, w.as<const char *>());
       else hersteld++;
     }
+    JsonVariantConst t = v["thuisnet"];
+    if (!t.isNull()) {
+      if (!t.is<JsonObjectConst>()) { hersteld++; return; }
+      JsonVariantConst s = t["ssid"], tw = t["wachtwoord"];
+      if (!s.isNull()) {
+        if (s.is<const char *>() && ssidGeldig(s.as<const char *>())) strcpy(i.thuisSsid, s.as<const char *>());
+        else hersteld++;
+      }
+      if (!tw.isNull()) {
+        if (tw.is<const char *>() && thuisWachtwoordGeldig(tw.as<const char *>())) strcpy(i.thuisWachtwoord, tw.as<const char *>());
+        else hersteld++;
+      }
+      if (!i.thuisSsid[0]) i.thuisWachtwoord[0] = 0; // geen netwerk: ook geen wachtwoord bewaren
+    }
   }
 };
 
@@ -342,6 +384,10 @@ inline void schrijfInstellingen(JsonObject o, const Instellingen &i, bool metWac
   o["dagnachtMin"] = i.dagnachtMin;
   o["opstart"] = i.opstartLaatste ? "laatste" : "uit";
   if (metWachtwoord) o["wachtwoord"] = i.wachtwoord;
+  JsonObject t = o["thuisnet"].to<JsonObject>();
+  t["ssid"] = i.thuisSsid;
+  if (metWachtwoord) t["wachtwoord"] = i.thuisWachtwoord;
+  else t["metWachtwoord"] = i.thuisWachtwoord[0] != 0; // het dashboard krijgt het wachtwoord nooit te zien
 }
 
 inline std::string configNaarJson(const Config &c) {

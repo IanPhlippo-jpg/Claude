@@ -25,3 +25,13 @@
 - [x] hw.h, main.cpp, README: ingang 15 = GPIO40, ingang 16 = GPIO41; GPIO38 niet als ingang
 - [x] statuslampje GPIO38 met neopixelWrite: groen = hotspot actief, rood = PCA9685 antwoordt niet
 - [x] beide envs bouwen, tests groen
+
+## Fable-advies verwerken (2026-11-12)
+- [x] Groepen uitbreidbaar: TREIN_GROEPEN (1..32), groepsmasker uint32_t, env native32, tweede PCA9685 op 0x41
+- [x] Nieuwe stap-actie "wissel" en standaard: functie 2 "Alles aan/uit", ingang 1 = drukknop
+- [x] Testmodus in de Baan (looplicht, groep vast) met API /api/test en hosttests
+- [x] Thuis-wifi (thuisnet) in instellingen, opslag en API; AP+STA in main.cpp
+- [x] Hulplogica in include/onderhoud.h: lange druk (BOOT 5 s), hotspotwacht, controle update-image; hosttests
+- [x] main.cpp: watchdog, hotspot herstellen, BOOT-knop, OTA /api/update, thuisnet, tweede PCA
+- [x] Dashboard: testmodus, firmware bijwerken, thuisnet, actie wissel (ook demo-modus)
+- [x] README, platformio.ini (micro-USB), tests native en native32 groen, doos bouwen, beelden

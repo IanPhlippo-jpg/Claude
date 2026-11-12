@@ -9,11 +9,18 @@ import { mkdirSync, readFileSync, readdirSync, unlinkSync, writeFileSync } from 
 import { Blad, onderdeelBlad, kaderSmal, getal, type Deel, type P } from './werktekening';
 // @ts-expect-error: het generatorscript is plain JavaScript
 import { M, indeling, gootDeksels, vulgraad } from '../../voorbeelden/treinverlichting/maak-kabeldoos.mjs';
+// @ts-expect-error: plain JavaScript
+import { controleerAlles, DRADEN, PRINTS, pinnen } from '../../voorbeelden/treinverlichting/opbouw.mjs';
+// @ts-expect-error: plain JavaScript
+import { STUKLIJST, KLEMMEN } from '../../voorbeelden/treinverlichting/schema/maak-schema.mjs';
+// @ts-expect-error: plain JavaScript
+import { HAAK, SPATEL } from '../../voorbeelden/treinverlichting/hulpstukken.mjs';
+import { OPBOUW, opbouwBlad, draadlijstBlad, meetBlad, invulBlad, lengte } from './opbouwTrein';
 
 const DIR = 'voorbeelden/treinverlichting';
 const UIT = `${DIR}/tekeningen`;
 const datum = /\((\d{4}-\d{2}-\d{2})\)/.exec(readFileSync(`${DIR}/README.md`, 'utf8'))?.[1] ?? '';
-const PROJECT = { naam: 'Kabeldoos treinverlichting', datum, revisie: '2' };
+const PROJECT = { naam: 'Kabeldoos treinverlichting', datum, revisie: '3' };
 const m = M as Record<string, any>;
 const L = indeling() as { X: number; Z: number; sleutelgaten: [number, number][]; tules: { wand: string }[] };
 const D = m.doos, G = m.goot, BX = 2 * (L.X + D.wand), BZ = 2 * (L.Z + D.wand), HOOG = D.bodem + D.h + D.deksel, PET = 1.27;
@@ -30,9 +37,10 @@ const DELEN: Deel[] = [
     'Voor een klemmenrij een sleuf 3,24 per 2 klemmen; elders sleuven 4, vingers ≥ 5',
     `Klikgroef 45° x ${g2(G.groef.diep)} op ${g1(G.groef.y)} in de klikvingers (x = ±34,5 en ±93); groef ${g1(G.neus.diep)} in de buitenwanden`,
     `Palen tussen de bordjes ${g1(m.kader.h)} hoog, steunrails ${m.voet} hoog; printpaaltjes Ø6, gat Ø2,2 (2,5 x 6)`,
+    `Per bordje 4 klemlippen ${g1(m.lip.t)} x ${g1(m.lip.b)}, haak ${g2(m.lip.haak)} met 45°, in een kuiltje ${g1(m.lip.kuil)} diep (rek 1,7 %)`,
     `${L.tules.length} kabelinvoeren Ø${g1(D.invoer.gat)} op ${g1(D.invoer.y)} (membraantule EMT 16); draadsleuven ${D.sleuf.b} x ${D.sleuf.l} onder de goten`,
     `4 sleutelgaten in de zijgoten: kop Ø${g1(D.sleutelgat.kop)}, sleuf ${g1(D.sleutelgat.schacht)} breed en ${D.sleutelgat.slag} lang naar voren (boormal TRN-00)`,
-    'Links gat Ø12,2 (wartel M12); rechts opening USB; 4 dekselbussen Ø7, gat Ø2,6',
+    `Links gat Ø${g1(m.dcbus.gat)} op ${m.dcbus.y} hoog (DC-bus 5,5 x 2,5); rechts opening USB; 4 dekselbussen Ø7, gat Ø2,6`,
   ] },
   { f: 'Kabeldoos-deksel.kcad', nr: 'TRN-02', naam: 'Deksel', materiaal: 'PETG (grijs)', maken: '3D-print plat, de buitenkant op het bed', snede: true, schaal: [1, 2.5], dichtheid: PET, maten: [
     `Plaat ${g1(BX)} x ${g1(BZ)} x ${g1(D.deksel)}, hoeken R${D.r}`,
@@ -46,6 +54,12 @@ const DELEN: Deel[] = [
     'Randdeksel (achter, zijkanten): één been; aan de andere kant een neus in de groef van de buitenwand',
     `Alle deksels: ${lengtes}`,
     `Vulgraad van een goot tussen twee rijen ${Math.round(v.pGewoon * 100)} %: draden per bordje door de sleuf eronder (rekenblad, hfst. 6)`,
+  ] },
+  { f: 'Hulpstukken.kcad', nr: 'TRN-04', naam: 'Hulpstukken', materiaal: 'PETG (grijs)', maken: '3D-print plat op het bed (één plaat)', dichtheid: PET, maten: [
+    `2 werkhaken ${HAAK.l} x ${HAAK.b} x ${g1(HAAK.dik)} (rib ${g1(HAAK.rib)}): sleutelgat Ø${g1(HAAK.gat)} met sleuf ${g1(HAAK.sleuf)} (hangt aan een schroef onder de baan)`,
+    `Knop Ø${g1(HAAK.knop.kop)} (45° eronder) op een hals Ø${g1(HAAK.knop.hals)} x ${g1(HAAK.knop.halsL)}: gaat in een sleutelgat van de doos`,
+    `Spatel ${SPATEL.l} x ${SPATEL.b} x ${g1(SPATEL.dik)}, blad ${g1(SPATEL.blad)} dik over ${SPATEL.bladL}, haakje ${g1(SPATEL.haak)} x ${g1(SPATEL.haak)}`,
+    'Aan de 2 voorste schroeven: de doos hangt verticaal 12 cm lager',
   ] },
 ];
 
@@ -105,6 +119,33 @@ function boormalBlad(blad: string): string {
   return b.svg();
 }
 
+describe('opbouw van de gaatjesprints (opbouw.mjs)', () => {
+  it('elk net hangt aan elkaar, geen twee netten in één gat, niets over elkaar, elke draad op het juiste net', () => {
+    expect(controleerAlles()).toEqual([]);
+  });
+  it('elke MOSFET, polyfuse, weerstand en optocoupler van het schema staat op een print', () => {
+    const refs = new Set<string>(Object.values(PRINTS).flatMap((P: any) => P.onderdelen.flatMap((o: any) => [o.ref, ...(o.naam ?? '').split(', ')])));
+    const uitSchema = (STUKLIJST as string[][]).map((r) => r[0]).flatMap((a) => { const m = /^-([A-Z])(\d+)\.\.-[A-Z](\d+)$/.exec(a); return m ? Array.from({ length: +m[3] - +m[2] + 1 }, (_, i) => `-${m[1]}${+m[2] + i}`) : [a]; });
+    const opPrint = uitSchema.filter((a) => /^-(Q|F|R|K[3-6]|C|U)\d+$/.test(a));
+    expect(opPrint.length).toBeGreaterThan(60);
+    expect(opPrint.filter((a) => !refs.has(a))).toEqual([]);
+  });
+  it('de klemmen in het klemmenplan bestaan op de print', () => {
+    for (const [strook, [, rijen]] of Object.entries(KLEMMEN as Record<string, [string, { klem: string }[]]>)) {
+      const P = Object.values(PRINTS).find((q: any) => q.onderdelen.some((o: any) => o.ref === strook)) as any;
+      const ps = new Set(pinnen(P).filter((p: any) => p.ref === strook).map((p: any) => p.pin));
+      expect([...rijen.map((r) => r.klem)].filter((k) => !ps.has(k)), strook).toEqual([]);
+    }
+  });
+  it('de draadlijst: 0 V-retour 0,75 mm², 16 gates en 16 ingangen, elke draad een lengte', () => {
+    const d = DRADEN as { nr: string; net: string; mm2: number; wat: string }[];
+    expect(d.filter((q) => /^G\d+$/.test(q.net)).length).toBe(16);
+    expect(d.filter((q) => /^IN\d+$/.test(q.net)).length).toBe(16);
+    expect(d.find((q) => /retour/.test(q.wat))!.mm2).toBeGreaterThanOrEqual(0.75);
+    for (const q of d) expect(lengte(q as never), q.nr).toBeGreaterThan(40);
+  });
+});
+
 describe('tekeningen kabeldoos', () => {
   it('de doos past in 230 x 230 en is hoogstens 80 hoog', () => {
     expect(Math.max(BX, BZ)).toBeLessThanOrEqual(m.bed.max);
@@ -113,8 +154,14 @@ describe('tekeningen kabeldoos', () => {
   it.skipIf(!process.env.TREIN_TEKENINGEN)('boormal, bak, deksel en gootdeksel', () => {
     mkdirSync(UIT, { recursive: true });
     for (const f of readdirSync(UIT).filter((f) => f.endsWith('.svg'))) unlinkSync(`${UIT}/${f}`);
-    const totaal = DELEN.length + 1;
-    writeFileSync(`${UIT}/TRN-00-boormal.svg`, boormalBlad(`1 / ${totaal}`));
-    DELEN.forEach((d, i) => writeFileSync(`${UIT}/${d.nr}-${d.naam.toLowerCase()}.svg`, onderdeelBlad(d, `${i + 2} / ${totaal}`, DIR, PROJECT)));
+    const totaal = DELEN.length + 1 + OPBOUW.length + 3;
+    let n = 0;
+    const blad = () => `${++n} / ${totaal}`;
+    writeFileSync(`${UIT}/TRN-00-boormal.svg`, boormalBlad(blad()));
+    DELEN.forEach((d) => writeFileSync(`${UIT}/${d.nr}-${d.naam.toLowerCase()}.svg`, onderdeelBlad(d, blad(), DIR, PROJECT)));
+    for (const o of OPBOUW) writeFileSync(`${UIT}/${o.nr}-opbouw-${o.sleutel}.svg`, opbouwBlad(o.sleutel, o.nr, blad(), PROJECT));
+    writeFileSync(`${UIT}/TRN-14-draadlijst.svg`, draadlijstBlad('TRN-14', blad(), PROJECT));
+    writeFileSync(`${UIT}/TRN-20-meetblad.svg`, meetBlad('TRN-20', blad(), PROJECT));
+    writeFileSync(`${UIT}/TRN-21-invulblad.svg`, invulBlad('TRN-21', blad(), PROJECT));
   }, 1800000);
 });

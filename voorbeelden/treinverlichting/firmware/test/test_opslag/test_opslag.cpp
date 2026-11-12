@@ -141,7 +141,7 @@ void test_waarden_buiten_bereik_worden_aangepast() {
     "groepen":[{"naam":"Station","max":250},{"naam":"","max":-4,"dagnacht":"ja"},{"naam":42}],
     "scenes":[{"naam":"Avond","groepen":[{"aan":true,"helderheid":250,"effect":"disco","p1":-9}]}],
     "functies":[{"naam":"Lichtshow_met_een_heel_erg_lange_naam","herhalen":true,
-                 "stappen":[{"groepen":[1,17,0,"x"],"actie":"aan"},{"actie":"dansen"},
+                 "stappen":[{"groepen":[1,99,0,"x"],"actie":"aan"},{"actie":"dansen"},
                             {"groepen":[2],"actie":"effect","effect":"vuur","p1":500,"wacht":-3}]}],
     "ingangen":[{"gedrag":"lift","functieA":40,"nalopen":99999}]})";
   std::string m;
@@ -164,12 +164,12 @@ void test_waarden_buiten_bereik_worden_aangepast() {
   const Functie &f = c.functie[0];
   TEST_ASSERT_EQUAL(NAAM_LEN - 1, (int)strlen(f.naam));
   TEST_ASSERT_EQUAL(2, f.nStappen);          // "dansen" bestaat niet
-  TEST_ASSERT_EQUAL_HEX16(0x0001, f.stap[0].groepen); // groep 17, 0 en "x" weg
+  TEST_ASSERT_EQUAL_HEX16(0x0001, f.stap[0].groepen); // groep 99, 0 en "x" weg
   TEST_ASSERT_EQUAL(100, f.stap[1].p1);
   TEST_ASSERT_EQUAL(0u, f.stap[1].wachtMs);
   TEST_ASSERT_FALSE(f.herhalen);             // herhalen zonder wachttijd = eindeloos snel: uit
   TEST_ASSERT_FALSE(c.functie[1].gebruikt);
-  TEST_ASSERT_EQUAL(GEDRAG_GEEN, c.ingang[0].gedrag);
+  TEST_ASSERT_EQUAL(GEDRAG_DRUKKNOP, c.ingang[0].gedrag); // "lift" bestaat niet: de standaard (knop alles aan/uit) blijft
   TEST_ASSERT_EQUAL(-1, c.ingang[0].functieA); // functie 40 bestaat niet: geen
   TEST_ASSERT_EQUAL(MAX_NALOOP_S, c.ingang[0].naloopS);
 }
@@ -270,6 +270,44 @@ void test_willekeurig_beschadigde_bestanden() {
   TEST_ASSERT_TRUE(hersteld > 10);
 }
 
+
+void test_thuisnet_heen_en_terug_en_oud_bestand() {
+  Config x;
+  standaard(x);
+  strcpy(x.inst.thuisSsid, "Thuis");
+  strcpy(x.inst.thuisWachtwoord, "geheim123");
+  std::string t = configNaarJson(x), m;
+  TEST_ASSERT_EQUAL(Laad::OK, laad(t, m));
+  TEST_ASSERT_EQUAL_STRING("Thuis", c.inst.thuisSsid);
+  TEST_ASSERT_EQUAL_STRING("geheim123", c.inst.thuisWachtwoord);
+  // een bestand van firmware 1.0.0 (zonder thuisnet) blijft goed: thuisnet uit
+  TEST_ASSERT_EQUAL(Laad::OK, laad(R"({"versie":1,"instellingen":{"faduur":1,"wachtwoord":"treinbaan"}})", m));
+  TEST_ASSERT_EQUAL_STRING("", c.inst.thuisSsid);
+  // foute waarden: aangepast, nooit buiten de grenzen
+  TEST_ASSERT_EQUAL(Laad::HERSTELD, laad(R"({"versie":1,"instellingen":{"thuisnet":{"ssid":42,"wachtwoord":"kort"}}})", m));
+  TEST_ASSERT_EQUAL_STRING("", c.inst.thuisSsid);
+  TEST_ASSERT_EQUAL_STRING("", c.inst.thuisWachtwoord);
+  TEST_ASSERT_EQUAL(Laad::HERSTELD, laad(R"({"versie":1,"instellingen":{"thuisnet":[]}})", m));
+  TEST_ASSERT_TRUE(ssidGeldig("") && ssidGeldig("12345678901234567890123456789012"));
+  TEST_ASSERT_FALSE(ssidGeldig("123456789012345678901234567890123") || ssidGeldig("a\tb") || ssidGeldig(nullptr));
+  TEST_ASSERT_TRUE(thuisWachtwoordGeldig("") && thuisWachtwoordGeldig("12345678"));
+  TEST_ASSERT_FALSE(thuisWachtwoordGeldig("1234567"));
+}
+
+void test_standaard_knop_alles_aan_uit() {
+  Config x;
+  standaard(x);
+  TEST_ASSERT_EQUAL(GEDRAG_DRUKKNOP, x.ingang[0].gedrag);
+  TEST_ASSERT_EQUAL(1, x.ingang[0].functieA);
+  TEST_ASSERT_EQUAL(ACT_WISSEL, x.functie[1].stap[0].actie);
+  TEST_ASSERT_EQUAL_HEX32(ALLE_GROEPEN, x.functie[1].stap[0].groepen);
+  // de knop bewaart en laadt (actie "wissel", alle groepen) zonder herstellen
+  std::string m;
+  TEST_ASSERT_EQUAL(Laad::OK, laad(configNaarJson(x), m));
+  TEST_ASSERT_EQUAL_HEX32(ALLE_GROEPEN, c.functie[1].stap[0].groepen);
+  TEST_ASSERT_EQUAL(ACT_WISSEL, c.functie[1].stap[0].actie);
+}
+
 int main() {
   UNITY_BEGIN();
   RUN_TEST(test_heen_en_terug);
@@ -283,5 +321,7 @@ int main() {
   RUN_TEST(test_wachtwoord);
   RUN_TEST(test_laatste_stand_heen_en_terug);
   RUN_TEST(test_willekeurig_beschadigde_bestanden);
+  RUN_TEST(test_thuisnet_heen_en_terug_en_oud_bestand);
+  RUN_TEST(test_standaard_knop_alles_aan_uit);
   return UNITY_END();
 }

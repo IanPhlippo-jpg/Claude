@@ -4,39 +4,46 @@
 //
 // Vaste aansluitingen:
 //   GPIO8  SDA, GPIO9  SCL (I2C, 400 kHz)
-//   GPIO10 OE van de PCA9685 (actief laag; een externe pull-up houdt alles UIT tijdens reset en flashen)
-//   PCA9685 op 0x40: kanaal 0..15 = groep 1..16
+//   GPIO10 OE van de PCA9685 (actief laag; een externe pull-up van 1 kΩ houdt alles UIT tijdens reset en flashen)
+//   PCA9685 op 0x40: kanaal 0..15 = groep 1..16; met TREIN_GROEPEN > 16 een tweede op 0x41 (groep 17..32)
 //   ingang 1..16 = GPIO 1, 2, 4, 5, 6, 7, 12, 13, 14, 15, 16, 17, 18, 21, 40, 41 (INPUT_PULLUP; de optocoupler trekt
-//   de pin naar GND = actief). GPIO11 is vrij. Zie src/hw.h voor de pinnen die bewust niet gebruikt worden.
-//   GPIO38 RGB-led op het bord = statuslampje: groen = hotspot actief, rood = PCA9685 antwoordt niet (gaat voor)
+//   de pin naar GND = actief). Vrij: GPIO 11, 39, 42, 47, 48. Zie src/hw.h voor de pinnen die bewust niet gebruikt worden.
+//   GPIO38 RGB-led op het bord = statuslampje: groen = hotspot actief, rood = PCA9685 antwoordt niet (gaat voor),
+//          blauw = BOOT-knop wordt vastgehouden / knippert: het wifi-wachtwoord is teruggezet
+//   GPIO0  BOOT-knop op het bord: 5 s vasthouden = wifi-wachtwoord terug naar "treinbaan" (en thuisnet uit)
 //
 // Veilig opstarten: OE hoog (alles uit) -> PCA9685 instellen met alle kanalen 0 -> OE laag -> instellingen laden ->
 // pas dan de laatste stand terug (of alles uit, naar keuze). Antwoordt de PCA9685 niet meer, dan gaat OE hoog.
 //
-// Twee taken:
-//   licht  (prioriteit 5) elke 5 ms: ingangen lezen en de Baan laten rekenen; elke 10 ms de 16 uitgangen naar de
+// Twee taken, allebei bewaakt door de watchdog (8 s zonder teken van leven = de ESP start opnieuw):
+//   licht  (prioriteit 5) elke 5 ms: ingangen lezen en de Baan laten rekenen; elke 10 ms de uitgangen naar de
 //          PCA9685. Zo blijven effecten vloeiend, ook als de webserver bezig is.
-//   loop() de hotspot, DNS (captive portal), de webserver en het bewaren in LittleFS.
+//   loop() de hotspot (en het thuisnet), DNS (captive portal), de webserver, de updates, de BOOT-knop en het
+//          bewaren in LittleFS. Is de hotspot weg, dan start loop() hem opnieuw (HotspotWacht, onderhoud.h).
 // De Baan wordt door beide gebruikt: altijd met het slot (Slot s;).
 #include <Arduino.h>
 #include <DNSServer.h>
 #include <ESPmDNS.h>
 #include <LittleFS.h>
+#include <Update.h>
 #include <WebServer.h>
 #include <WiFi.h>
 #include <Wire.h>
+#include <esp_task_wdt.h>
 
 #include "api.h"
 #include "dashboard.h"
 #include "hw.h"
+#include "onderhoud.h"
 
 using namespace trein;
 
 namespace {
 
-constexpr int PIN_SDA = 8, PIN_SCL = 9, PIN_OE = 10; // de ingangen: INGANG_PINNEN in hw.h
+constexpr int PIN_SDA = 8, PIN_SCL = 9, PIN_OE = 10, PIN_BOOT = 0; // de ingangen: INGANG_PINNEN in hw.h
 constexpr uint32_t I2C_HZ = 400000;
-constexpr uint8_t ADRES_PCA = 0x40;
+constexpr uint8_t ADRES_PCA = 0x40, ADRES_PCA2 = 0x41; // de tweede alleen bij meer dan 16 groepen
+constexpr int N_PCA = (N_GROEPEN + 15) / 16;
 const IPAddress IP_DOOS(192, 168, 4, 1), MASKER(255, 255, 255, 0);
 constexpr const char *MDNS_NAAM = "treinbaan"; // http://treinbaan.local
 constexpr const char *BESTAND_INST = "/instellingen.json";
@@ -48,18 +55,23 @@ constexpr uint32_t CONTROLE_MS = 2000;          // chips nakijken
 constexpr uint32_t BEWAAR_INST_MS = 1000;       // instellingen: 1 s na de laatste wijziging
 constexpr uint32_t BEWAAR_STAND_RUST_MS = 3000; // stand: 3 s na de laatste wijziging ...
 constexpr uint32_t BEWAAR_STAND_MAX_MS = 30000; // ... maar ten laatste na 30 s (een functie die blijft lopen)
+constexpr uint32_t WATCHDOG_S = 8;              // zo lang mag een taak hangen voor de ESP opnieuw start
 
 Baan baan;
 WebServer web(80);
 DNSServer dns;
-Pca9685 pca;
+Pca9685 pca[N_PCA];
 SemaphoreHandle_t slot;
 
 volatile bool pcaOk = false;
 bool hotspotOk = false;
 bool fsOk = false;
 std::string meldingLaden;
-uint32_t hotspotOpnieuwOm = 0;
+uint32_t hotspotOpnieuwOm = 0, herstartOm = 0, blauwTot = 0;
+LangeDruk bootKnop;
+HotspotWacht hotspotWacht;
+UpdateControle updateControle;
+const char *updateFout = nullptr;
 
 struct Slot {
   Slot() { xSemaphoreTake(slot, portMAX_DELAY); }
@@ -123,13 +135,38 @@ void laadStand(uint32_t nu) {
   if (leesBestand(BESTAND_STAND, t) && standVanJson(t.data(), t.size(), s)) baan.herstelStand(s, nu);
 }
 
+// --------------------------------------------------------------------------------------------- de PWM-chips
+/** alle PCA9685's instellen (alle kanalen uit); true = allemaal in orde */
+bool pcaBegin() {
+  bool ok = true;
+  for (int i = 0; i < N_PCA; i++) ok = pca[i].begin(Wire, i == 0 ? ADRES_PCA : ADRES_PCA2) && ok;
+  return ok;
+}
+bool pcaControleer() {
+  bool ok = true;
+  for (int i = 0; i < N_PCA; i++) ok = pca[i].controleer() && ok;
+  return ok;
+}
+/** de uitgangen van alle groepen wegschrijven: per chip 16 kanalen (niet gebruikte kanalen 0) */
+bool pcaZet(const uint16_t *uit) {
+  bool ok = true;
+  for (int i = 0; i < N_PCA; i++) {
+    uint16_t blok[16] = {0};
+    for (int k = 0; k < 16 && i * 16 + k < N_GROEPEN; k++) blok[k] = uit[i * 16 + k];
+    ok = pca[i].zet(blok) && ok;
+  }
+  return ok;
+}
+
 // --------------------------------------------------------------------------------------------- lichttaak
 void lichtTaak(void *) {
+  esp_task_wdt_add(nullptr); // deze taak wordt bewaakt
   TickType_t wakker = xTaskGetTickCount();
   uint32_t controle = millis(), geschreven = millis();
   uint16_t uit[N_GROEPEN];
   for (;;) {
     vTaskDelayUntil(&wakker, pdMS_TO_TICKS(TICK_MS));
+    esp_task_wdt_reset();
     uint32_t nu = millis();
     uint16_t ingangen = ingangenLees(); // bit i = ingang i+1 actief (de optocoupler trekt de pin laag)
     {
@@ -139,14 +176,14 @@ void lichtTaak(void *) {
     }
     if (nu - geschreven >= UITGANG_MS) {
       geschreven = nu;
-      if (pcaOk && !pca.zet(uit)) pcaOk = false;
+      if (pcaOk && !pcaZet(uit)) pcaOk = false;
     }
     // de PCA9685 nakijken (en na een spanningsdip opnieuw instellen)
     if (nu - controle >= CONTROLE_MS) {
       controle = nu;
-      if (!pcaOk || !pca.controleer()) {
-        digitalWrite(PIN_OE, HIGH); // veilig: alles uit zolang de chip niet goed staat
-        pcaOk = pca.begin(Wire, ADRES_PCA) && pca.zet(uit);
+      if (!pcaOk || !pcaControleer()) {
+        digitalWrite(PIN_OE, HIGH); // veilig: alles uit zolang de chips niet goed staan
+        pcaOk = pcaBegin() && pcaZet(uit);
         if (pcaOk) digitalWrite(PIN_OE, LOW);
       }
     }
@@ -161,39 +198,74 @@ void meldingBijwerken() {
     m += t;
   };
   if (!fsOk) erbij("Het geheugen van de doos werkt niet: wijzigingen worden niet bewaard.");
-  if (!pcaOk) erbij("De uitgangen (PCA9685, adres 0x40) antwoorden niet: alle lampen blijven uit. Kijk de draden na.");
+  if (!pcaOk)
+    erbij(N_PCA > 1 ? "De uitgangen (PCA9685, adres 0x40 of 0x41) antwoorden niet: alle lampen blijven uit. Kijk de draden na."
+                    : "De uitgangen (PCA9685, adres 0x40) antwoorden niet: alle lampen blijven uit. Kijk de draden na.");
+  bool verbonden = WiFi.status() == WL_CONNECTED;
+  std::string ip = verbonden ? std::string(WiFi.localIP().toString().c_str()) : std::string();
   Slot s;
   if (baan.melding != m) baan.melding = m;
+  baan.thuisVerbonden = verbonden;
+  baan.thuisIp = ip;
 }
 
-/** statuslampje (RGB-led op GPIO38): rood = PCA9685 antwoordt niet, groen = hotspot actief, anders uit.
- *  Zwak (1/8 van vol), alleen schrijven als de kleur verandert. */
-void statusLed() {
+/** statuslampje (RGB-led op GPIO38): blauw = BOOT-knop vast (of knippert: wachtwoord teruggezet), rood = PCA9685
+ *  antwoordt niet, groen = hotspot actief, anders uit. Zwak (1/8 van vol), alleen schrijven als de kleur verandert. */
+void statusLed(uint32_t nu) {
   static int vorige = -1;
-  int kleur = !pcaOk ? 1 : hotspotOk ? 2 : 0;
+  int kleur;
+  if (blauwTot && !voorbij(nu, blauwTot)) kleur = (nu / 200) % 2 ? 3 : 0; // knipperen
+  else if (bootKnop.vast(nu) > 1000) kleur = 3;                          // de knop wordt vastgehouden
+  else kleur = !pcaOk ? 1 : hotspotOk ? 2 : 0;
   if (kleur == vorige) return;
   vorige = kleur;
-  neopixelWrite(PIN_STATUS_LED, kleur == 1 ? 32 : 0, kleur == 2 ? 32 : 0, 0);
+  neopixelWrite(PIN_STATUS_LED, kleur == 1 ? 32 : 0, kleur == 2 ? 32 : 0, kleur == 3 ? 40 : 0);
 }
 
 // ------------------------------------------------------------------------------------------------- wifi
-void startHotspot() {
-  char ww[64];
+/** de eigen hotspot, en als er een thuisnet ingesteld is ook daar aanmelden (AP + STA) */
+void startWifi() {
+  char ww[64], ssid[33], thuisWw[64];
   {
     Slot s;
     strcpy(ww, baan.cfg.inst.wachtwoord);
+    strcpy(ssid, baan.cfg.inst.thuisSsid);
+    strcpy(thuisWw, baan.cfg.inst.thuisWachtwoord);
   }
-  WiFi.mode(WIFI_AP);
+  WiFi.disconnect(false, true);
+  WiFi.setHostname(MDNS_NAAM);
+  WiFi.mode(ssid[0] ? WIFI_AP_STA : WIFI_AP);
   WiFi.softAPConfig(IP_DOOS, IP_DOOS, MASKER);
   hotspotOk = WiFi.softAP(HOTSPOT_NAAM, ww, 6, 0, 6);
   Serial.printf("Hotspot \"%s\" op %s\n", HOTSPOT_NAAM, WiFi.softAPIP().toString().c_str());
+  if (ssid[0]) {
+    WiFi.setAutoReconnect(true);
+    WiFi.begin(ssid, thuisWw[0] ? thuisWw : nullptr);
+    Serial.printf("Aanmelden op het thuisnet \"%s\"\n", ssid);
+  }
+}
+
+bool hotspotGoed() { return (WiFi.getMode() & WIFI_MODE_AP) && WiFi.softAPIP() == IP_DOOS; }
+
+/** de BOOT-knop 5 s vastgehouden: wifi-wachtwoord terug naar de standaard en het thuisnet uit */
+void wachtwoordTerug(uint32_t nu) {
+  {
+    Slot s;
+    strcpy(baan.cfg.inst.wachtwoord, STD_WACHTWOORD);
+    baan.cfg.inst.thuisSsid[0] = 0;
+    baan.cfg.inst.thuisWachtwoord[0] = 0;
+    baan.instellingenGewijzigd(nu);
+  }
+  Serial.println("BOOT-knop: wifi-wachtwoord teruggezet naar \"treinbaan\", thuisnet uit.");
+  blauwTot = nu + 3000;
+  hotspotOpnieuwOm = nu + 3000;
 }
 
 // --------------------------------------------------------------------------------------------- webserver
 void stuur(const Antwoord &a) {
   web.sendHeader("Cache-Control", "no-store");
   web.send(a.code, "application/json", a.json.c_str());
-  if (a.hotspotOpnieuw) hotspotOpnieuwOm = millis() + 1000; // eerst het antwoord laten vertrekken
+  if (a.hotspotOpnieuw || a.thuisnetOpnieuw) hotspotOpnieuwOm = millis() + 1000; // eerst het antwoord laten vertrekken
 }
 
 using Eindpunt = Antwoord (*)(Baan &, const char *, size_t, uint32_t);
@@ -216,6 +288,51 @@ void dashboard() {
   web.send_P(200, "text/html; charset=utf-8", (const char *)DASHBOARD_GZ, DASHBOARD_GZ_LEN);
 }
 
+/** een kleine eigen pagina om bij te werken, ook als het dashboard zelf stuk zou zijn */
+const char UPDATE_PAGINA[] PROGMEM =
+    "<!doctype html><html lang=nl><meta charset=utf-8><meta name=viewport content='width=device-width'>"
+    "<title>Treinbaan bijwerken</title><body style='font-family:sans-serif;max-width:30em;margin:2em auto;padding:0 1em'>"
+    "<h1>Firmware bijwerken</h1><p>Kies het bestand <b>firmware.bin</b> (.pio/build/doos/firmware.bin). De doos start "
+    "daarna opnieuw; alle instellingen blijven.</p><form method=post action=/api/update enctype=multipart/form-data>"
+    "<input type=file name=firmware accept=.bin required> <button>Bijwerken</button></form>"
+    "<p><a href=/>terug naar het dashboard</a></p></body></html>";
+
+/** de nieuwe firmware komt in stukken binnen (multipart); elk stuk meteen nakijken en wegschrijven */
+void updateStuk() {
+  HTTPUpload &u = web.upload();
+  esp_task_wdt_reset(); // een grote upload duurt langer dan de watchdog
+  if (u.status == UPLOAD_FILE_START) {
+    updateFout = updateControle.begin(0, ESP.getFreeSketchSpace()); // multipart: de grootte is vooraf niet bekend
+    if (!updateFout && !Update.begin(UPDATE_SIZE_UNKNOWN)) updateFout = "De doos kon de update niet beginnen.";
+    if (!updateFout) Serial.printf("Update: %s\n", u.filename.c_str());
+  } else if (u.status == UPLOAD_FILE_WRITE) {
+    if (updateFout) return;
+    updateFout = updateControle.stuk(u.buf, u.currentSize);
+    if (!updateFout && Update.write(u.buf, u.currentSize) != u.currentSize) updateFout = "Schrijven in het geheugen mislukte.";
+    if (updateFout) Update.abort();
+  } else if (u.status == UPLOAD_FILE_END) {
+    if (!updateFout) updateFout = updateControle.einde();
+    if (!updateFout && !Update.end(true)) updateFout = "De nieuwe firmware is niet in orde (de controle mislukte).";
+  } else if (u.status == UPLOAD_FILE_ABORTED) {
+    Update.abort();
+    updateFout = "De upload is afgebroken.";
+  }
+}
+
+void updateKlaar() {
+  if (updateFout) {
+    stuur(fout(updateFout));
+    Serial.printf("Update mislukt: %s\n", updateFout);
+    updateFout = nullptr;
+    return;
+  }
+  Antwoord a = goed();
+  a.json = "{\"ok\":true,\"herstart\":true}";
+  stuur(a);
+  Serial.printf("Update gelukt (%u bytes): herstarten.\n", (unsigned)updateControle.ontvangen());
+  herstartOm = millis() + 1500;
+}
+
 /** captive portal: elke onbekende vraag (ook de controle van Android, iPhone en Windows) gaat naar het dashboard */
 void nietGevonden() {
   web.sendHeader("Location", String("http://") + IP_DOOS.toString() + "/");
@@ -225,6 +342,7 @@ void nietGevonden() {
 void startWeb() {
   web.on("/", HTTP_GET, dashboard);
   web.on("/index.html", HTTP_GET, dashboard);
+  web.on("/update", HTTP_GET, []() { web.send_P(200, "text/html; charset=utf-8", UPDATE_PAGINA); });
   web.on("/api/staat", HTTP_GET, []() {
     bool kort = web.hasArg("kort");
     std::string t;
@@ -241,6 +359,8 @@ void startWeb() {
   post("/api/ingang", apiIngang);
   post("/api/instellingen", apiInstellingen);
   post("/api/dagnacht", apiDagnacht);
+  post("/api/test", apiTest);
+  web.on("/api/update", HTTP_POST, updateKlaar, updateStuk);
   web.onNotFound(nietGevonden);
   web.begin();
 }
@@ -249,7 +369,7 @@ void startWeb() {
 uint32_t cfgGezien = 0, cfgBewaard = 0, cfgOm = 0;
 uint32_t standGezien = 0, standBewaard = 0, standOm = 0, standEersteOm = 0;
 
-void bewaarIndienNodig(uint32_t nu) {
+void bewaarIndienNodig(uint32_t nu, bool nu_meteen = false) {
   uint32_t cfgRev, standRev;
   {
     Slot s;
@@ -257,7 +377,7 @@ void bewaarIndienNodig(uint32_t nu) {
     standRev = baan.standRev;
   }
   if (cfgRev != cfgGezien) { cfgGezien = cfgRev; cfgOm = nu; }
-  if (cfgGezien != cfgBewaard && nu - cfgOm >= BEWAAR_INST_MS) {
+  if (cfgGezien != cfgBewaard && (nu_meteen || nu - cfgOm >= BEWAAR_INST_MS)) {
     std::string t;
     {
       Slot s;
@@ -271,7 +391,8 @@ void bewaarIndienNodig(uint32_t nu) {
     standGezien = standRev;
     standOm = nu;
   }
-  if (standGezien != standBewaard && (nu - standOm >= BEWAAR_STAND_RUST_MS || nu - standEersteOm >= BEWAAR_STAND_MAX_MS)) {
+  if (standGezien != standBewaard &&
+      (nu_meteen || nu - standOm >= BEWAAR_STAND_RUST_MS || nu - standEersteOm >= BEWAAR_STAND_MAX_MS)) {
     std::string t;
     {
       Slot s;
@@ -288,15 +409,16 @@ void setup() {
   // 1. alle uitgangen uit: OE hoog (de externe pull-up deed dat al tijdens de reset)
   pinMode(PIN_OE, OUTPUT);
   digitalWrite(PIN_OE, HIGH);
+  pinMode(PIN_BOOT, INPUT_PULLUP);
   Serial.begin(115200);
-  Serial.printf("\nTreinbaan lichtsturing %s\n", FW_VERSIE);
+  Serial.printf("\nTreinbaan lichtsturing %s (%d groepen)\n", FW_VERSIE, N_GROEPEN);
   slot = xSemaphoreCreateMutex();
 
-  // 2. I2C en de PCA9685: eerst alle kanalen 0, dan pas OE laag
+  // 2. I2C en de PCA9685('s): eerst alle kanalen 0, dan pas OE laag
   Wire.begin(PIN_SDA, PIN_SCL, I2C_HZ);
-  pcaOk = pca.begin(Wire, ADRES_PCA);
+  pcaOk = pcaBegin();
   if (pcaOk) digitalWrite(PIN_OE, LOW);
-  else Serial.println("PCA9685 (0x40) antwoordt niet: uitgangen blijven uit.");
+  else Serial.println("PCA9685 antwoordt niet: uitgangen blijven uit.");
 
   // 3. de ingangen (16 GPIO's met interne pull-up)
   ingangenBegin();
@@ -312,11 +434,13 @@ void setup() {
   standGezien = standBewaard = baan.standRev;
   meldingBijwerken();
 
-  // 5. de lichttaak: vanaf nu rekent de Baan en worden de uitgangen geschreven
+  // 5. de watchdog (na het laden: LittleFS formatteren kan de eerste keer enkele seconden duren), dan de lichttaak
+  esp_task_wdt_init(WATCHDOG_S, true);
+  esp_task_wdt_add(nullptr); // de looptaak (setup en loop draaien erin)
   xTaskCreatePinnedToCore(lichtTaak, "licht", 6144, nullptr, 5, nullptr, 1);
 
   // 6. wifi, captive portal, mDNS en het dashboard
-  startHotspot();
+  startWifi();
   dns.setErrorReplyCode(DNSReplyCode::NoError);
   dns.start(53, "*", IP_DOOS);
   if (MDNS.begin(MDNS_NAAM)) MDNS.addService("http", "tcp", 80);
@@ -325,19 +449,32 @@ void setup() {
 }
 
 void loop() {
+  esp_task_wdt_reset();
   dns.processNextRequest();
   web.handleClient();
   uint32_t nu = millis();
-  static uint32_t meldingOm = 0;
+  static uint32_t meldingOm = 0, ledOm = 0;
   if (nu - meldingOm >= 1000) {
     meldingOm = nu;
     meldingBijwerken();
-    statusLed();
   }
+  if (nu - ledOm >= 50) {
+    ledOm = nu;
+    statusLed(nu);
+  }
+  if (bootKnop.stap(digitalRead(PIN_BOOT) == LOW, nu)) wachtwoordTerug(nu);
   bewaarIndienNodig(nu);
   if (hotspotOpnieuwOm && voorbij(nu, hotspotOpnieuwOm)) {
     hotspotOpnieuwOm = 0;
-    startHotspot(); // nieuw wachtwoord: de gsm moet opnieuw verbinden
+    startWifi(); // nieuw wachtwoord of ander thuisnet: de gsm moet opnieuw verbinden
+  } else if (hotspotWacht.kijk(hotspotGoed(), nu)) {
+    Serial.printf("De hotspot was weg: opnieuw starten (%u keer).\n", (unsigned)hotspotWacht.herstarts);
+    startWifi();
+  }
+  if (herstartOm && voorbij(nu, herstartOm)) {
+    bewaarIndienNodig(nu, true); // eerst alles bewaren
+    digitalWrite(PIN_OE, HIGH);
+    ESP.restart();
   }
   delay(2);
 }

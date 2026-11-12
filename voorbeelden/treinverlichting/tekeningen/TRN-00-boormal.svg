@@ -160,13 +160,13 @@
 <text x="299.20" y="269.40" font-size="3" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">TRN-00</text>
 <line x1="338.00" y1="271.00" x2="338.00" y2="263.00" stroke="#111" stroke-width="0.25" stroke-linecap="round" />
 <text x="339.20" y="265.20" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#555">Rev.</text>
-<text x="339.20" y="269.40" font-size="2.4" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">2</text>
+<text x="339.20" y="269.40" font-size="2.4" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">3</text>
 <line x1="354.00" y1="271.00" x2="354.00" y2="263.00" stroke="#111" stroke-width="0.25" stroke-linecap="round" />
 <text x="355.20" y="265.20" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#555">Uitgifte</text>
-<text x="355.20" y="269.40" font-size="2.4" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">2026-11-11</text>
+<text x="355.20" y="269.40" font-size="2.4" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">2026-11-12</text>
 <line x1="384.00" y1="271.00" x2="384.00" y2="263.00" stroke="#111" stroke-width="0.25" stroke-linecap="round" />
 <text x="385.20" y="265.20" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#555">Blad</text>
-<text x="385.20" y="269.40" font-size="2.4" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">1 / 4</text>
+<text x="385.20" y="269.40" font-size="2.4" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">1 / 12</text>
 <text x="299.20" y="273.20" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#555">Opgesteld</text>
 <text x="299.20" y="277.40" font-size="2.3" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">Phlippo CAD</text>
 <line x1="338.00" y1="279.00" x2="338.00" y2="271.00" stroke="#111" stroke-width="0.25" stroke-linecap="round" />

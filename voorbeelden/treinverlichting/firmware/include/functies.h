@@ -1,6 +1,6 @@
 // Scènes en functies (macro's), zonder hardware. Testen: test/test_functies (pio test -e native).
 //
-// Scène    de stand van alle 16 groepen onder een naam ("Avond", "Nacht"); oproepen zet alle groepen in één keer
+// Scène    de stand van alle groepen onder een naam ("Avond", "Nacht"); oproepen zet alle groepen in één keer
 //          (met de gewone zachte overgang).
 // Functie  een lijst stappen. Elke stap = groep(en) + actie + wachttijd. De stap wordt uitgevoerd, daarna wacht de
 //          functie de wachttijd af en gaat naar de volgende stap. Na de laatste stap (en zijn wachttijd) stopt de
@@ -63,10 +63,11 @@ struct Scene {
   GroepStand groep[N_GROEPEN];
 };
 
-enum Actie : uint8_t { ACT_AAN, ACT_UIT, ACT_HELDERHEID, ACT_EFFECT, ACT_SCENE, ACT_DAGNACHT, N_ACTIES };
+// wissel: staat een van de gekozen groepen aan, dan gaan ze allemaal uit, anders allemaal aan (knop "alles aan/uit")
+enum Actie : uint8_t { ACT_AAN, ACT_UIT, ACT_HELDERHEID, ACT_EFFECT, ACT_SCENE, ACT_DAGNACHT, ACT_WISSEL, N_ACTIES };
 
 inline const char *actieId(int a) {
-  static const char *T[N_ACTIES] = {"aan", "uit", "helderheid", "effect", "scene", "dagnacht"};
+  static const char *T[N_ACTIES] = {"aan", "uit", "helderheid", "effect", "scene", "dagnacht", "wissel"};
   return T[(a >= 0 && a < N_ACTIES) ? a : 0];
 }
 
@@ -78,7 +79,7 @@ inline int actieVanId(const char *id) {
 }
 
 struct Stap {
-  uint16_t groepen = 0;   // bit i = groep i+1
+  GroepMasker groepen = 0; // bit i = groep i+1
   uint8_t actie = ACT_AAN;
   int32_t waarde = 0;     // helderheid: 1..100; scene: scènenummer 1..12; dagnacht: 1 = starten, 0 = stoppen
   uint8_t effect = FX_GEEN;
@@ -95,8 +96,8 @@ struct Functie {
   Stap stap[MAX_STAPPEN];
 
   /** alle groepen die in de stappen aan, uit of gedimd worden (scènes en dag/nacht niet meegerekend) */
-  uint16_t groepenInStappen() const {
-    uint16_t m = 0;
+  GroepMasker groepenInStappen() const {
+    GroepMasker m = 0;
     for (int i = 0; i < nStappen; i++)
       if (stap[i].actie != ACT_SCENE && stap[i].actie != ACT_DAGNACHT) m |= stap[i].groepen;
     return m;
@@ -111,7 +112,7 @@ struct Functie {
 /** wie de stappen echt uitvoert (de Baan; in de tests een nep-uitvoerder) */
 struct Uitvoerder {
   virtual void voerUit(const Stap &s, uint32_t nu) = 0;
-  virtual void groepenUit(uint16_t groepen, uint32_t nu) = 0;
+  virtual void groepenUit(GroepMasker groepen, uint32_t nu) = 0;
   virtual ~Uitvoerder() {}
 };
 

@@ -37,8 +37,8 @@
 <text x="21" y="285.4" font-size="1.8" text-anchor="start" fill="#000">Wijz.</text>
 <text x="31" y="285.4" font-size="1.8" text-anchor="start" fill="#000">Datum</text>
 <text x="49" y="285.4" font-size="1.8" text-anchor="start" fill="#000">Naam</text>
-<text x="21" y="278.55" font-size="2.3" text-anchor="start" fill="#000">1</text>
-<text x="31" y="278.55" font-size="2" text-anchor="start" fill="#000">2026-11-09</text>
+<text x="21" y="278.55" font-size="2.3" text-anchor="start" fill="#000">2</text>
+<text x="31" y="278.55" font-size="2" text-anchor="start" fill="#000">2026-11-12</text>
 <text x="49" y="278.55" font-size="2" text-anchor="start" fill="#000">PC</text>
 <polyline points="62,260 62,287" fill="none" stroke="#000" stroke-width="0.35"/>
 <polyline points="62,266.75 106,266.75" fill="none" stroke="#000" stroke-width="0.18"/>
@@ -61,7 +61,7 @@
 <text x="108" y="275" font-size="2.3" text-anchor="start" fill="#000">Ian</text>
 <text x="147" y="262.3" font-size="1.8" text-anchor="start" fill="#000">Project</text>
 <text x="148" y="269" font-size="3.2" text-anchor="start" fill="#000" font-weight="700">Treinbaan</text>
-<text x="148" y="274.5" font-size="2.3" text-anchor="start" fill="#000">kabeldoos verlichting, versie 1</text>
+<text x="148" y="274.5" font-size="2.3" text-anchor="start" fill="#000">kabeldoos verlichting, versie 2</text>
 <text x="107" y="285.2" font-size="1.8" text-anchor="start" fill="#000">Oorspr.</text>
 <text x="118" y="285.2" font-size="2" text-anchor="start" fill="#000"></text>
 <polyline points="139.33,280.25 139.33,287" fill="none" stroke="#000" stroke-width="0.18"/>
@@ -81,7 +81,7 @@
 <text x="307" y="262.3" font-size="1.8" text-anchor="start" fill="#000">Tekeningnr.</text>
 <text x="308" y="270" font-size="2.8" text-anchor="start" fill="#000" font-weight="700">TRN-E01</text>
 <text x="307" y="275.8" font-size="1.8" text-anchor="start" fill="#000">Revisie / taal</text>
-<text x="308" y="283" font-size="2.6" text-anchor="start" fill="#000">1 / nl</text>
+<text x="308" y="283" font-size="2.6" text-anchor="start" fill="#000">2 / nl</text>
 <polyline points="350,260 350,287" fill="none" stroke="#000" stroke-width="0.35"/>
 <polyline points="350,273.5 384,273.5" fill="none" stroke="#000" stroke-width="0.25"/>
 <text x="351.5" y="266" font-size="2.6" text-anchor="start" fill="#000">=</text>
@@ -96,315 +96,365 @@
 <text x="397" y="275" font-size="8" text-anchor="middle" fill="#000" font-weight="700">4</text>
 <text x="408.5" y="285.2" font-size="2.3" text-anchor="end" fill="#000">11 Bl.</text>
 <polyline points="23,230 405,230" fill="none" stroke="#000" stroke-width="0.35"/><polygon points="23,230 25.2,228.9 25.2,231.1" fill="#000"/><text x="26" y="228.6" font-size="2.5" text-anchor="start" fill="#000">M</text><text x="26" y="233.2" font-size="2.3" text-anchor="start" fill="#000">/3.9</text>
-<rect x="25" y="35" width="380" height="22" fill="none" stroke="#000" stroke-width="0.3" stroke-dasharray="4 1 0.6 1"/><text x="25" y="33.4" font-size="2.8" text-anchor="start" fill="#000">-K2</text><text x="27.5" y="40" font-size="2.3" text-anchor="start" fill="#000">PWM-print PCA9685, 16 kanalen (I2C 0x40, 1 kHz, 12 bit)</text><text x="27.5" y="43.4" font-size="2.3" text-anchor="start" fill="#000">VCC = L3 /6.4, V+ niet gebruikt; OE ← GPIO10 /6.7</text>
-<circle cx="34" cy="57" r="0.6" fill="#000"/>
-<text x="35.2" y="54.5" font-size="1.9" text-anchor="start" fill="#000">LED0</text>
-<polyline points="34,57 34,150 35,150" fill="none" stroke="#000" stroke-width="0.25"/>
-<circle cx="34" cy="120" r="0.6" fill="#000"/>
-<polyline points="34,120 29,120 29,160" fill="none" stroke="#000" stroke-width="0.25"/>
-<rect x="27.8" y="160" width="2.4" height="7" fill="none" stroke="#000" stroke-width="0.3"/>
-<polyline points="29,167 29,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="25" y="28" width="380" height="18" fill="none" stroke="#000" stroke-width="0.3" stroke-dasharray="4 1 0.6 1"/><text x="25" y="26.4" font-size="2.8" text-anchor="start" fill="#000">-K2</text><text x="27.5" y="33" font-size="2.3" text-anchor="start" fill="#000">PWM-print PCA9685, 16 kanalen (I2C 0x40, 1 kHz, 12 bit), op 4 afstandsbussen boven de uitgangsprint</text><text x="27.5" y="36.4" font-size="2.3" text-anchor="start" fill="#000">VCC = L3 /6.4, V+ niet gebruikt; OE ← GPIO10 /6.7, 1 kΩ pull-up -R1</text>
+<circle cx="34" cy="50" r="0.6" fill="#000"/>
+<text x="35.2" y="49" font-size="1.9" text-anchor="start" fill="#000">LED0</text>
+<polyline points="34,50 34,160 35,160" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="34" cy="176" r="0.6" fill="#000"/>
+<polyline points="34,176 29,176 29,184" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="27.8" y="184" width="2.4" height="7" fill="none" stroke="#000" stroke-width="0.3"/>
+<polyline points="29,191 29,230" fill="none" stroke="#000" stroke-width="0.25"/>
 <circle cx="29" cy="230" r="0.6" fill="#000"/>
-<text x="26.5" y="162" font-size="2.4" text-anchor="end" fill="#000">-R2</text>
-<text x="26.5" y="165.4" font-size="2" text-anchor="end" fill="#000">100 kΩ</text>
-<text x="30.6" y="172" font-size="1.7" text-anchor="start" fill="#000">2</text>
-<circle cx="44" cy="150" r="6.5" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="35,150 40.5,150" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="40.5,146.5 40.5,153.5" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="42,146 42,148" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="42,149 42,151" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="42,152 42,154" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="42,147 46,147 46,141" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="42,153 46,153 46,159" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="42,150 46,150 46,153" fill="none" stroke="#000" stroke-width="0.25"/><polygon points="42,150 43.8,149 43.8,151" fill="#000"/><text x="48" y="142.5" font-size="2.6" text-anchor="start" fill="#000">-Q1</text><text x="47" y="140.4" font-size="1.9" text-anchor="start" fill="#000">D</text><text x="47" y="160.8" font-size="1.9" text-anchor="start" fill="#000">S</text><text x="35" y="149" font-size="1.9" text-anchor="start" fill="#000">G</text>
-<polyline points="46,159 46,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="26.8" y="189" font-size="1.8" text-anchor="end" fill="#000">-R2</text>
+<circle cx="44" cy="160" r="6.5" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="35,160 40.5,160" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="40.5,156.5 40.5,163.5" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="42,156 42,158" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="42,159 42,161" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="42,162 42,164" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="42,157 46,157 46,151" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="42,163 46,163 46,169" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="42,160 46,160 46,163" fill="none" stroke="#000" stroke-width="0.25"/><polygon points="42,160 43.8,159 43.8,161" fill="#000"/><text x="48" y="152.5" font-size="2.6" text-anchor="start" fill="#000">-Q1</text><text x="47" y="150.4" font-size="1.9" text-anchor="start" fill="#000">D</text><text x="47" y="170.8" font-size="1.9" text-anchor="start" fill="#000">S</text><text x="35" y="159" font-size="1.9" text-anchor="start" fill="#000">G</text>
+<polyline points="46,169 46,230" fill="none" stroke="#000" stroke-width="0.25"/>
 <circle cx="46" cy="230" r="0.6" fill="#000"/>
-<polyline points="46,141 46,107.9" fill="none" stroke="#000" stroke-width="0.25"/>
-<circle cx="46" cy="106.7" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="48.2" y="105.3" font-size="2.3" text-anchor="start" fill="#000">-X3</text><text x="48.2" y="109.3" font-size="2.3" text-anchor="start" fill="#000">1</text>
-<polyline points="46,105.5 46,96" fill="none" stroke="#000" stroke-width="0.25"/>
-<rect x="40" y="76" width="12" height="20" fill="none" stroke="#000" stroke-width="0.3" stroke-dasharray="4 1 0.6 1"/><text x="40" y="74.4" font-size="2.8" text-anchor="start" fill="#000">-E1</text><circle cx="46" cy="96" r="0.5" fill="#000"/><text x="44.4" y="94.8" font-size="2.1" text-anchor="end" fill="#000">−</text><circle cx="46" cy="76" r="0.5" fill="#000"/><text x="44.4" y="74.8" font-size="2.1" text-anchor="end" fill="#000">+</text>
-<polyline points="46,76 46,68" fill="none" stroke="#000" stroke-width="0.25"/>
-<text x="46" y="66.5" font-size="2" text-anchor="middle" fill="#000">L+1</text>
-<text x="46" y="63.5" font-size="1.8" text-anchor="middle" fill="#000">/3.5</text>
-<circle cx="57.2" cy="57" r="0.6" fill="#000"/>
-<text x="58.4" y="54.5" font-size="1.9" text-anchor="start" fill="#000">LED1</text>
-<polyline points="57.2,57 57.2,150 58.2,150" fill="none" stroke="#000" stroke-width="0.25"/>
-<circle cx="57.2" cy="120" r="0.6" fill="#000"/>
-<polyline points="57.2,120 52.2,120 52.2,160" fill="none" stroke="#000" stroke-width="0.25"/>
-<rect x="51" y="160" width="2.4" height="7" fill="none" stroke="#000" stroke-width="0.3"/>
-<polyline points="52.2,167 52.2,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="46,151 46,132" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="46,112 46,118" fill="none" stroke="#000" stroke-width="0.25"/><rect x="44" y="118" width="4" height="8" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="42.5,127 49.5,117 51,117" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="46,126 46,132" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="48" y="128" font-size="1.8" text-anchor="start" fill="#000">-F2</text>
+<polyline points="46,112 46,101.2" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="46" cy="100" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="48.2" y="98.6" font-size="2.3" text-anchor="start" fill="#000">-X3</text><text x="48.2" y="102.6" font-size="2.3" text-anchor="start" fill="#000">1</text>
+<polyline points="46,98.8 46,88" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="40" y="68" width="12" height="20" fill="none" stroke="#000" stroke-width="0.3" stroke-dasharray="4 1 0.6 1"/><text x="40" y="66.4" font-size="2.8" text-anchor="start" fill="#000">-E1</text><circle cx="46" cy="88" r="0.5" fill="#000"/><text x="44.4" y="86.8" font-size="2.1" text-anchor="end" fill="#000">−</text><circle cx="46" cy="68" r="0.5" fill="#000"/><text x="44.4" y="66.8" font-size="2.1" text-anchor="end" fill="#000">+</text>
+<polyline points="46,68 46,62" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="46" y="60.5" font-size="2" text-anchor="middle" fill="#000">R1+</text>
+<text x="46" y="57.5" font-size="1.8" text-anchor="middle" fill="#000">/3.5</text>
+<circle cx="57.2" cy="50" r="0.6" fill="#000"/>
+<text x="58.4" y="49" font-size="1.9" text-anchor="start" fill="#000">LED1</text>
+<polyline points="57.2,50 57.2,160 58.2,160" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="57.2" cy="176" r="0.6" fill="#000"/>
+<polyline points="57.2,176 52.2,176 52.2,184" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="51" y="184" width="2.4" height="7" fill="none" stroke="#000" stroke-width="0.3"/>
+<polyline points="52.2,191 52.2,230" fill="none" stroke="#000" stroke-width="0.25"/>
 <circle cx="52.2" cy="230" r="0.6" fill="#000"/>
-<text x="53.8" y="172" font-size="1.7" text-anchor="start" fill="#000">3</text>
-<circle cx="67.2" cy="150" r="6.5" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="58.2,150 63.7,150" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="63.7,146.5 63.7,153.5" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="65.2,146 65.2,148" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="65.2,149 65.2,151" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="65.2,152 65.2,154" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="65.2,147 69.2,147 69.2,141" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="65.2,153 69.2,153 69.2,159" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="65.2,150 69.2,150 69.2,153" fill="none" stroke="#000" stroke-width="0.25"/><polygon points="65.2,150 67,149 67,151" fill="#000"/><text x="71.2" y="142.5" font-size="2.6" text-anchor="start" fill="#000">-Q2</text>
-<polyline points="69.2,159 69.2,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="50" y="189" font-size="1.8" text-anchor="end" fill="#000">-R3</text>
+<circle cx="67.2" cy="160" r="6.5" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="58.2,160 63.7,160" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="63.7,156.5 63.7,163.5" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="65.2,156 65.2,158" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="65.2,159 65.2,161" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="65.2,162 65.2,164" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="65.2,157 69.2,157 69.2,151" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="65.2,163 69.2,163 69.2,169" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="65.2,160 69.2,160 69.2,163" fill="none" stroke="#000" stroke-width="0.25"/><polygon points="65.2,160 67,159 67,161" fill="#000"/><text x="71.2" y="152.5" font-size="2.6" text-anchor="start" fill="#000">-Q2</text>
+<polyline points="69.2,169 69.2,230" fill="none" stroke="#000" stroke-width="0.25"/>
 <circle cx="69.2" cy="230" r="0.6" fill="#000"/>
-<polyline points="69.2,141 69.2,107.9" fill="none" stroke="#000" stroke-width="0.25"/>
-<circle cx="69.2" cy="106.7" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="71.4" y="105.3" font-size="2.3" text-anchor="start" fill="#000">-X3</text><text x="71.4" y="109.3" font-size="2.3" text-anchor="start" fill="#000">2</text>
-<polyline points="69.2,105.5 69.2,96" fill="none" stroke="#000" stroke-width="0.25"/>
-<rect x="63.2" y="76" width="12" height="20" fill="none" stroke="#000" stroke-width="0.3" stroke-dasharray="4 1 0.6 1"/><text x="63.2" y="74.4" font-size="2.8" text-anchor="start" fill="#000">-E2</text><circle cx="69.2" cy="96" r="0.5" fill="#000"/><text x="67.6" y="94.8" font-size="2.1" text-anchor="end" fill="#000">−</text><circle cx="69.2" cy="76" r="0.5" fill="#000"/><text x="67.6" y="74.8" font-size="2.1" text-anchor="end" fill="#000">+</text>
-<polyline points="69.2,76 69.2,68" fill="none" stroke="#000" stroke-width="0.25"/>
-<text x="69.2" y="66.5" font-size="2" text-anchor="middle" fill="#000">L+1</text>
-<text x="69.2" y="63.5" font-size="1.8" text-anchor="middle" fill="#000">/3.5</text>
-<circle cx="80.4" cy="57" r="0.6" fill="#000"/>
-<text x="81.6" y="54.5" font-size="1.9" text-anchor="start" fill="#000">LED2</text>
-<polyline points="80.4,57 80.4,150 81.4,150" fill="none" stroke="#000" stroke-width="0.25"/>
-<circle cx="80.4" cy="120" r="0.6" fill="#000"/>
-<polyline points="80.4,120 75.4,120 75.4,160" fill="none" stroke="#000" stroke-width="0.25"/>
-<rect x="74.2" y="160" width="2.4" height="7" fill="none" stroke="#000" stroke-width="0.3"/>
-<polyline points="75.4,167 75.4,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="69.2,151 69.2,132" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="69.2,112 69.2,118" fill="none" stroke="#000" stroke-width="0.25"/><rect x="67.2" y="118" width="4" height="8" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="65.7,127 72.7,117 74.2,117" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="69.2,126 69.2,132" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="71.2" y="128" font-size="1.8" text-anchor="start" fill="#000">-F3</text>
+<polyline points="69.2,112 69.2,101.2" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="69.2" cy="100" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="71.4" y="98.6" font-size="2.3" text-anchor="start" fill="#000">-X3</text><text x="71.4" y="102.6" font-size="2.3" text-anchor="start" fill="#000">2</text>
+<polyline points="69.2,98.8 69.2,88" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="63.2" y="68" width="12" height="20" fill="none" stroke="#000" stroke-width="0.3" stroke-dasharray="4 1 0.6 1"/><text x="63.2" y="66.4" font-size="2.8" text-anchor="start" fill="#000">-E2</text><circle cx="69.2" cy="88" r="0.5" fill="#000"/><text x="67.6" y="86.8" font-size="2.1" text-anchor="end" fill="#000">−</text><circle cx="69.2" cy="68" r="0.5" fill="#000"/><text x="67.6" y="66.8" font-size="2.1" text-anchor="end" fill="#000">+</text>
+<polyline points="69.2,68 69.2,62" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="69.2" y="60.5" font-size="2" text-anchor="middle" fill="#000">R1+</text>
+<text x="69.2" y="57.5" font-size="1.8" text-anchor="middle" fill="#000">/3.5</text>
+<circle cx="80.4" cy="50" r="0.6" fill="#000"/>
+<text x="81.6" y="49" font-size="1.9" text-anchor="start" fill="#000">LED2</text>
+<polyline points="80.4,50 80.4,160 81.4,160" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="80.4" cy="176" r="0.6" fill="#000"/>
+<polyline points="80.4,176 75.4,176 75.4,184" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="74.2" y="184" width="2.4" height="7" fill="none" stroke="#000" stroke-width="0.3"/>
+<polyline points="75.4,191 75.4,230" fill="none" stroke="#000" stroke-width="0.25"/>
 <circle cx="75.4" cy="230" r="0.6" fill="#000"/>
-<text x="77" y="172" font-size="1.7" text-anchor="start" fill="#000">4</text>
-<circle cx="90.4" cy="150" r="6.5" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="81.4,150 86.9,150" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="86.9,146.5 86.9,153.5" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="88.4,146 88.4,148" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="88.4,149 88.4,151" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="88.4,152 88.4,154" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="88.4,147 92.4,147 92.4,141" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="88.4,153 92.4,153 92.4,159" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="88.4,150 92.4,150 92.4,153" fill="none" stroke="#000" stroke-width="0.25"/><polygon points="88.4,150 90.2,149 90.2,151" fill="#000"/><text x="94.4" y="142.5" font-size="2.6" text-anchor="start" fill="#000">-Q3</text>
-<polyline points="92.4,159 92.4,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="73.2" y="189" font-size="1.8" text-anchor="end" fill="#000">-R4</text>
+<circle cx="90.4" cy="160" r="6.5" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="81.4,160 86.9,160" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="86.9,156.5 86.9,163.5" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="88.4,156 88.4,158" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="88.4,159 88.4,161" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="88.4,162 88.4,164" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="88.4,157 92.4,157 92.4,151" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="88.4,163 92.4,163 92.4,169" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="88.4,160 92.4,160 92.4,163" fill="none" stroke="#000" stroke-width="0.25"/><polygon points="88.4,160 90.2,159 90.2,161" fill="#000"/><text x="94.4" y="152.5" font-size="2.6" text-anchor="start" fill="#000">-Q3</text>
+<polyline points="92.4,169 92.4,230" fill="none" stroke="#000" stroke-width="0.25"/>
 <circle cx="92.4" cy="230" r="0.6" fill="#000"/>
-<polyline points="92.4,141 92.4,107.9" fill="none" stroke="#000" stroke-width="0.25"/>
-<circle cx="92.4" cy="106.7" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="94.6" y="105.3" font-size="2.3" text-anchor="start" fill="#000">-X3</text><text x="94.6" y="109.3" font-size="2.3" text-anchor="start" fill="#000">3</text>
-<polyline points="92.4,105.5 92.4,96" fill="none" stroke="#000" stroke-width="0.25"/>
-<rect x="86.4" y="76" width="12" height="20" fill="none" stroke="#000" stroke-width="0.3" stroke-dasharray="4 1 0.6 1"/><text x="86.4" y="74.4" font-size="2.8" text-anchor="start" fill="#000">-E3</text><circle cx="92.4" cy="96" r="0.5" fill="#000"/><text x="90.8" y="94.8" font-size="2.1" text-anchor="end" fill="#000">−</text><circle cx="92.4" cy="76" r="0.5" fill="#000"/><text x="90.8" y="74.8" font-size="2.1" text-anchor="end" fill="#000">+</text>
-<polyline points="92.4,76 92.4,68" fill="none" stroke="#000" stroke-width="0.25"/>
-<text x="92.4" y="66.5" font-size="2" text-anchor="middle" fill="#000">L+1</text>
-<text x="92.4" y="63.5" font-size="1.8" text-anchor="middle" fill="#000">/3.5</text>
-<circle cx="103.6" cy="57" r="0.6" fill="#000"/>
-<text x="104.8" y="54.5" font-size="1.9" text-anchor="start" fill="#000">LED3</text>
-<polyline points="103.6,57 103.6,150 104.6,150" fill="none" stroke="#000" stroke-width="0.25"/>
-<circle cx="103.6" cy="120" r="0.6" fill="#000"/>
-<polyline points="103.6,120 98.6,120 98.6,160" fill="none" stroke="#000" stroke-width="0.25"/>
-<rect x="97.4" y="160" width="2.4" height="7" fill="none" stroke="#000" stroke-width="0.3"/>
-<polyline points="98.6,167 98.6,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="92.4,151 92.4,132" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="92.4,112 92.4,118" fill="none" stroke="#000" stroke-width="0.25"/><rect x="90.4" y="118" width="4" height="8" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="88.9,127 95.9,117 97.4,117" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="92.4,126 92.4,132" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="94.4" y="128" font-size="1.8" text-anchor="start" fill="#000">-F4</text>
+<polyline points="92.4,112 92.4,101.2" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="92.4" cy="100" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="94.6" y="98.6" font-size="2.3" text-anchor="start" fill="#000">-X3</text><text x="94.6" y="102.6" font-size="2.3" text-anchor="start" fill="#000">3</text>
+<polyline points="92.4,98.8 92.4,88" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="86.4" y="68" width="12" height="20" fill="none" stroke="#000" stroke-width="0.3" stroke-dasharray="4 1 0.6 1"/><text x="86.4" y="66.4" font-size="2.8" text-anchor="start" fill="#000">-E3</text><circle cx="92.4" cy="88" r="0.5" fill="#000"/><text x="90.8" y="86.8" font-size="2.1" text-anchor="end" fill="#000">−</text><circle cx="92.4" cy="68" r="0.5" fill="#000"/><text x="90.8" y="66.8" font-size="2.1" text-anchor="end" fill="#000">+</text>
+<polyline points="92.4,68 92.4,62" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="92.4" y="60.5" font-size="2" text-anchor="middle" fill="#000">R1+</text>
+<text x="92.4" y="57.5" font-size="1.8" text-anchor="middle" fill="#000">/3.5</text>
+<circle cx="103.6" cy="50" r="0.6" fill="#000"/>
+<text x="104.8" y="49" font-size="1.9" text-anchor="start" fill="#000">LED3</text>
+<polyline points="103.6,50 103.6,160 104.6,160" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="103.6" cy="176" r="0.6" fill="#000"/>
+<polyline points="103.6,176 98.6,176 98.6,184" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="97.4" y="184" width="2.4" height="7" fill="none" stroke="#000" stroke-width="0.3"/>
+<polyline points="98.6,191 98.6,230" fill="none" stroke="#000" stroke-width="0.25"/>
 <circle cx="98.6" cy="230" r="0.6" fill="#000"/>
-<text x="100.2" y="172" font-size="1.7" text-anchor="start" fill="#000">5</text>
-<circle cx="113.6" cy="150" r="6.5" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="104.6,150 110.1,150" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="110.1,146.5 110.1,153.5" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="111.6,146 111.6,148" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="111.6,149 111.6,151" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="111.6,152 111.6,154" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="111.6,147 115.6,147 115.6,141" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="111.6,153 115.6,153 115.6,159" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="111.6,150 115.6,150 115.6,153" fill="none" stroke="#000" stroke-width="0.25"/><polygon points="111.6,150 113.39999999999999,149 113.39999999999999,151" fill="#000"/><text x="117.6" y="142.5" font-size="2.6" text-anchor="start" fill="#000">-Q4</text>
-<polyline points="115.6,159 115.6,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="96.4" y="189" font-size="1.8" text-anchor="end" fill="#000">-R5</text>
+<circle cx="113.6" cy="160" r="6.5" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="104.6,160 110.1,160" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="110.1,156.5 110.1,163.5" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="111.6,156 111.6,158" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="111.6,159 111.6,161" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="111.6,162 111.6,164" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="111.6,157 115.6,157 115.6,151" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="111.6,163 115.6,163 115.6,169" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="111.6,160 115.6,160 115.6,163" fill="none" stroke="#000" stroke-width="0.25"/><polygon points="111.6,160 113.39999999999999,159 113.39999999999999,161" fill="#000"/><text x="117.6" y="152.5" font-size="2.6" text-anchor="start" fill="#000">-Q4</text>
+<polyline points="115.6,169 115.6,230" fill="none" stroke="#000" stroke-width="0.25"/>
 <circle cx="115.6" cy="230" r="0.6" fill="#000"/>
-<polyline points="115.6,141 115.6,107.9" fill="none" stroke="#000" stroke-width="0.25"/>
-<circle cx="115.6" cy="106.7" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="117.8" y="105.3" font-size="2.3" text-anchor="start" fill="#000">-X3</text><text x="117.8" y="109.3" font-size="2.3" text-anchor="start" fill="#000">4</text>
-<polyline points="115.6,105.5 115.6,96" fill="none" stroke="#000" stroke-width="0.25"/>
-<rect x="109.6" y="76" width="12" height="20" fill="none" stroke="#000" stroke-width="0.3" stroke-dasharray="4 1 0.6 1"/><text x="109.6" y="74.4" font-size="2.8" text-anchor="start" fill="#000">-E4</text><circle cx="115.6" cy="96" r="0.5" fill="#000"/><text x="114" y="94.8" font-size="2.1" text-anchor="end" fill="#000">−</text><circle cx="115.6" cy="76" r="0.5" fill="#000"/><text x="114" y="74.8" font-size="2.1" text-anchor="end" fill="#000">+</text>
-<polyline points="115.6,76 115.6,68" fill="none" stroke="#000" stroke-width="0.25"/>
-<text x="115.6" y="66.5" font-size="2" text-anchor="middle" fill="#000">L+2</text>
-<text x="115.6" y="63.5" font-size="1.8" text-anchor="middle" fill="#000">/3.5</text>
-<circle cx="126.8" cy="57" r="0.6" fill="#000"/>
-<text x="128" y="54.5" font-size="1.9" text-anchor="start" fill="#000">LED4</text>
-<polyline points="126.8,57 126.8,150 127.8,150" fill="none" stroke="#000" stroke-width="0.25"/>
-<circle cx="126.8" cy="120" r="0.6" fill="#000"/>
-<polyline points="126.8,120 121.8,120 121.8,160" fill="none" stroke="#000" stroke-width="0.25"/>
-<rect x="120.6" y="160" width="2.4" height="7" fill="none" stroke="#000" stroke-width="0.3"/>
-<polyline points="121.8,167 121.8,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="115.6,151 115.6,132" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="115.6,112 115.6,118" fill="none" stroke="#000" stroke-width="0.25"/><rect x="113.6" y="118" width="4" height="8" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="112.1,127 119.1,117 120.6,117" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="115.6,126 115.6,132" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="117.6" y="128" font-size="1.8" text-anchor="start" fill="#000">-F5</text>
+<polyline points="115.6,112 115.6,101.2" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="115.6" cy="100" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="117.8" y="98.6" font-size="2.3" text-anchor="start" fill="#000">-X3</text><text x="117.8" y="102.6" font-size="2.3" text-anchor="start" fill="#000">4</text>
+<polyline points="115.6,98.8 115.6,88" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="109.6" y="68" width="12" height="20" fill="none" stroke="#000" stroke-width="0.3" stroke-dasharray="4 1 0.6 1"/><text x="109.6" y="66.4" font-size="2.8" text-anchor="start" fill="#000">-E4</text><circle cx="115.6" cy="88" r="0.5" fill="#000"/><text x="114" y="86.8" font-size="2.1" text-anchor="end" fill="#000">−</text><circle cx="115.6" cy="68" r="0.5" fill="#000"/><text x="114" y="66.8" font-size="2.1" text-anchor="end" fill="#000">+</text>
+<polyline points="115.6,68 115.6,62" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="115.6" y="60.5" font-size="2" text-anchor="middle" fill="#000">R2+</text>
+<text x="115.6" y="57.5" font-size="1.8" text-anchor="middle" fill="#000">/3.6</text>
+<circle cx="126.8" cy="50" r="0.6" fill="#000"/>
+<text x="128" y="49" font-size="1.9" text-anchor="start" fill="#000">LED4</text>
+<polyline points="126.8,50 126.8,160 127.8,160" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="126.8" cy="176" r="0.6" fill="#000"/>
+<polyline points="126.8,176 121.8,176 121.8,184" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="120.6" y="184" width="2.4" height="7" fill="none" stroke="#000" stroke-width="0.3"/>
+<polyline points="121.8,191 121.8,230" fill="none" stroke="#000" stroke-width="0.25"/>
 <circle cx="121.8" cy="230" r="0.6" fill="#000"/>
-<text x="123.4" y="172" font-size="1.7" text-anchor="start" fill="#000">6</text>
-<circle cx="136.8" cy="150" r="6.5" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="127.8,150 133.3,150" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="133.3,146.5 133.3,153.5" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="134.8,146 134.8,148" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="134.8,149 134.8,151" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="134.8,152 134.8,154" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="134.8,147 138.8,147 138.8,141" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="134.8,153 138.8,153 138.8,159" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="134.8,150 138.8,150 138.8,153" fill="none" stroke="#000" stroke-width="0.25"/><polygon points="134.8,150 136.60000000000002,149 136.60000000000002,151" fill="#000"/><text x="140.8" y="142.5" font-size="2.6" text-anchor="start" fill="#000">-Q5</text>
-<polyline points="138.8,159 138.8,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="119.6" y="189" font-size="1.8" text-anchor="end" fill="#000">-R6</text>
+<circle cx="136.8" cy="160" r="6.5" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="127.8,160 133.3,160" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="133.3,156.5 133.3,163.5" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="134.8,156 134.8,158" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="134.8,159 134.8,161" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="134.8,162 134.8,164" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="134.8,157 138.8,157 138.8,151" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="134.8,163 138.8,163 138.8,169" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="134.8,160 138.8,160 138.8,163" fill="none" stroke="#000" stroke-width="0.25"/><polygon points="134.8,160 136.60000000000002,159 136.60000000000002,161" fill="#000"/><text x="140.8" y="152.5" font-size="2.6" text-anchor="start" fill="#000">-Q5</text>
+<polyline points="138.8,169 138.8,230" fill="none" stroke="#000" stroke-width="0.25"/>
 <circle cx="138.8" cy="230" r="0.6" fill="#000"/>
-<polyline points="138.8,141 138.8,107.9" fill="none" stroke="#000" stroke-width="0.25"/>
-<circle cx="138.8" cy="106.7" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="141" y="105.3" font-size="2.3" text-anchor="start" fill="#000">-X3</text><text x="141" y="109.3" font-size="2.3" text-anchor="start" fill="#000">5</text>
-<polyline points="138.8,105.5 138.8,96" fill="none" stroke="#000" stroke-width="0.25"/>
-<rect x="132.8" y="76" width="12" height="20" fill="none" stroke="#000" stroke-width="0.3" stroke-dasharray="4 1 0.6 1"/><text x="132.8" y="74.4" font-size="2.8" text-anchor="start" fill="#000">-E5</text><circle cx="138.8" cy="96" r="0.5" fill="#000"/><text x="137.2" y="94.8" font-size="2.1" text-anchor="end" fill="#000">−</text><circle cx="138.8" cy="76" r="0.5" fill="#000"/><text x="137.2" y="74.8" font-size="2.1" text-anchor="end" fill="#000">+</text>
-<polyline points="138.8,76 138.8,68" fill="none" stroke="#000" stroke-width="0.25"/>
-<text x="138.8" y="66.5" font-size="2" text-anchor="middle" fill="#000">L+2</text>
-<text x="138.8" y="63.5" font-size="1.8" text-anchor="middle" fill="#000">/3.5</text>
-<circle cx="150" cy="57" r="0.6" fill="#000"/>
-<text x="151.2" y="54.5" font-size="1.9" text-anchor="start" fill="#000">LED5</text>
-<polyline points="150,57 150,150 151,150" fill="none" stroke="#000" stroke-width="0.25"/>
-<circle cx="150" cy="120" r="0.6" fill="#000"/>
-<polyline points="150,120 145,120 145,160" fill="none" stroke="#000" stroke-width="0.25"/>
-<rect x="143.8" y="160" width="2.4" height="7" fill="none" stroke="#000" stroke-width="0.3"/>
-<polyline points="145,167 145,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="138.8,151 138.8,132" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="138.8,112 138.8,118" fill="none" stroke="#000" stroke-width="0.25"/><rect x="136.8" y="118" width="4" height="8" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="135.3,127 142.3,117 143.8,117" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="138.8,126 138.8,132" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="140.8" y="128" font-size="1.8" text-anchor="start" fill="#000">-F6</text>
+<polyline points="138.8,112 138.8,101.2" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="138.8" cy="100" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="141" y="98.6" font-size="2.3" text-anchor="start" fill="#000">-X3</text><text x="141" y="102.6" font-size="2.3" text-anchor="start" fill="#000">5</text>
+<polyline points="138.8,98.8 138.8,88" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="132.8" y="68" width="12" height="20" fill="none" stroke="#000" stroke-width="0.3" stroke-dasharray="4 1 0.6 1"/><text x="132.8" y="66.4" font-size="2.8" text-anchor="start" fill="#000">-E5</text><circle cx="138.8" cy="88" r="0.5" fill="#000"/><text x="137.2" y="86.8" font-size="2.1" text-anchor="end" fill="#000">−</text><circle cx="138.8" cy="68" r="0.5" fill="#000"/><text x="137.2" y="66.8" font-size="2.1" text-anchor="end" fill="#000">+</text>
+<polyline points="138.8,68 138.8,62" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="138.8" y="60.5" font-size="2" text-anchor="middle" fill="#000">R2+</text>
+<text x="138.8" y="57.5" font-size="1.8" text-anchor="middle" fill="#000">/3.6</text>
+<circle cx="150" cy="50" r="0.6" fill="#000"/>
+<text x="151.2" y="49" font-size="1.9" text-anchor="start" fill="#000">LED5</text>
+<polyline points="150,50 150,160 151,160" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="150" cy="176" r="0.6" fill="#000"/>
+<polyline points="150,176 145,176 145,184" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="143.8" y="184" width="2.4" height="7" fill="none" stroke="#000" stroke-width="0.3"/>
+<polyline points="145,191 145,230" fill="none" stroke="#000" stroke-width="0.25"/>
 <circle cx="145" cy="230" r="0.6" fill="#000"/>
-<text x="146.6" y="172" font-size="1.7" text-anchor="start" fill="#000">7</text>
-<circle cx="160" cy="150" r="6.5" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="151,150 156.5,150" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="156.5,146.5 156.5,153.5" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="158,146 158,148" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="158,149 158,151" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="158,152 158,154" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="158,147 162,147 162,141" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="158,153 162,153 162,159" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="158,150 162,150 162,153" fill="none" stroke="#000" stroke-width="0.25"/><polygon points="158,150 159.8,149 159.8,151" fill="#000"/><text x="164" y="142.5" font-size="2.6" text-anchor="start" fill="#000">-Q6</text>
-<polyline points="162,159 162,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="142.8" y="189" font-size="1.8" text-anchor="end" fill="#000">-R7</text>
+<circle cx="160" cy="160" r="6.5" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="151,160 156.5,160" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="156.5,156.5 156.5,163.5" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="158,156 158,158" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="158,159 158,161" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="158,162 158,164" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="158,157 162,157 162,151" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="158,163 162,163 162,169" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="158,160 162,160 162,163" fill="none" stroke="#000" stroke-width="0.25"/><polygon points="158,160 159.8,159 159.8,161" fill="#000"/><text x="164" y="152.5" font-size="2.6" text-anchor="start" fill="#000">-Q6</text>
+<polyline points="162,169 162,230" fill="none" stroke="#000" stroke-width="0.25"/>
 <circle cx="162" cy="230" r="0.6" fill="#000"/>
-<polyline points="162,141 162,107.9" fill="none" stroke="#000" stroke-width="0.25"/>
-<circle cx="162" cy="106.7" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="164.2" y="105.3" font-size="2.3" text-anchor="start" fill="#000">-X3</text><text x="164.2" y="109.3" font-size="2.3" text-anchor="start" fill="#000">6</text>
-<polyline points="162,105.5 162,96" fill="none" stroke="#000" stroke-width="0.25"/>
-<rect x="156" y="76" width="12" height="20" fill="none" stroke="#000" stroke-width="0.3" stroke-dasharray="4 1 0.6 1"/><text x="156" y="74.4" font-size="2.8" text-anchor="start" fill="#000">-E6</text><circle cx="162" cy="96" r="0.5" fill="#000"/><text x="160.4" y="94.8" font-size="2.1" text-anchor="end" fill="#000">−</text><circle cx="162" cy="76" r="0.5" fill="#000"/><text x="160.4" y="74.8" font-size="2.1" text-anchor="end" fill="#000">+</text>
-<polyline points="162,76 162,68" fill="none" stroke="#000" stroke-width="0.25"/>
-<text x="162" y="66.5" font-size="2" text-anchor="middle" fill="#000">L+2</text>
-<text x="162" y="63.5" font-size="1.8" text-anchor="middle" fill="#000">/3.5</text>
-<circle cx="173.2" cy="57" r="0.6" fill="#000"/>
-<text x="174.4" y="54.5" font-size="1.9" text-anchor="start" fill="#000">LED6</text>
-<polyline points="173.2,57 173.2,150 174.2,150" fill="none" stroke="#000" stroke-width="0.25"/>
-<circle cx="173.2" cy="120" r="0.6" fill="#000"/>
-<polyline points="173.2,120 168.2,120 168.2,160" fill="none" stroke="#000" stroke-width="0.25"/>
-<rect x="167" y="160" width="2.4" height="7" fill="none" stroke="#000" stroke-width="0.3"/>
-<polyline points="168.2,167 168.2,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="162,151 162,132" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="162,112 162,118" fill="none" stroke="#000" stroke-width="0.25"/><rect x="160" y="118" width="4" height="8" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="158.5,127 165.5,117 167,117" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="162,126 162,132" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="164" y="128" font-size="1.8" text-anchor="start" fill="#000">-F7</text>
+<polyline points="162,112 162,101.2" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="162" cy="100" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="164.2" y="98.6" font-size="2.3" text-anchor="start" fill="#000">-X3</text><text x="164.2" y="102.6" font-size="2.3" text-anchor="start" fill="#000">6</text>
+<polyline points="162,98.8 162,88" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="156" y="68" width="12" height="20" fill="none" stroke="#000" stroke-width="0.3" stroke-dasharray="4 1 0.6 1"/><text x="156" y="66.4" font-size="2.8" text-anchor="start" fill="#000">-E6</text><circle cx="162" cy="88" r="0.5" fill="#000"/><text x="160.4" y="86.8" font-size="2.1" text-anchor="end" fill="#000">−</text><circle cx="162" cy="68" r="0.5" fill="#000"/><text x="160.4" y="66.8" font-size="2.1" text-anchor="end" fill="#000">+</text>
+<polyline points="162,68 162,62" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="162" y="60.5" font-size="2" text-anchor="middle" fill="#000">R2+</text>
+<text x="162" y="57.5" font-size="1.8" text-anchor="middle" fill="#000">/3.6</text>
+<circle cx="173.2" cy="50" r="0.6" fill="#000"/>
+<text x="174.4" y="49" font-size="1.9" text-anchor="start" fill="#000">LED6</text>
+<polyline points="173.2,50 173.2,160 174.2,160" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="173.2" cy="176" r="0.6" fill="#000"/>
+<polyline points="173.2,176 168.2,176 168.2,184" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="167" y="184" width="2.4" height="7" fill="none" stroke="#000" stroke-width="0.3"/>
+<polyline points="168.2,191 168.2,230" fill="none" stroke="#000" stroke-width="0.25"/>
 <circle cx="168.2" cy="230" r="0.6" fill="#000"/>
-<text x="169.8" y="172" font-size="1.7" text-anchor="start" fill="#000">8</text>
-<circle cx="183.2" cy="150" r="6.5" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="174.2,150 179.7,150" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="179.7,146.5 179.7,153.5" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="181.2,146 181.2,148" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="181.2,149 181.2,151" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="181.2,152 181.2,154" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="181.2,147 185.2,147 185.2,141" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="181.2,153 185.2,153 185.2,159" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="181.2,150 185.2,150 185.2,153" fill="none" stroke="#000" stroke-width="0.25"/><polygon points="181.2,150 183,149 183,151" fill="#000"/><text x="187.2" y="142.5" font-size="2.6" text-anchor="start" fill="#000">-Q7</text>
-<polyline points="185.2,159 185.2,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="166" y="189" font-size="1.8" text-anchor="end" fill="#000">-R8</text>
+<circle cx="183.2" cy="160" r="6.5" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="174.2,160 179.7,160" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="179.7,156.5 179.7,163.5" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="181.2,156 181.2,158" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="181.2,159 181.2,161" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="181.2,162 181.2,164" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="181.2,157 185.2,157 185.2,151" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="181.2,163 185.2,163 185.2,169" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="181.2,160 185.2,160 185.2,163" fill="none" stroke="#000" stroke-width="0.25"/><polygon points="181.2,160 183,159 183,161" fill="#000"/><text x="187.2" y="152.5" font-size="2.6" text-anchor="start" fill="#000">-Q7</text>
+<polyline points="185.2,169 185.2,230" fill="none" stroke="#000" stroke-width="0.25"/>
 <circle cx="185.2" cy="230" r="0.6" fill="#000"/>
-<polyline points="185.2,141 185.2,107.9" fill="none" stroke="#000" stroke-width="0.25"/>
-<circle cx="185.2" cy="106.7" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="187.4" y="105.3" font-size="2.3" text-anchor="start" fill="#000">-X3</text><text x="187.4" y="109.3" font-size="2.3" text-anchor="start" fill="#000">7</text>
-<polyline points="185.2,105.5 185.2,96" fill="none" stroke="#000" stroke-width="0.25"/>
-<rect x="179.2" y="76" width="12" height="20" fill="none" stroke="#000" stroke-width="0.3" stroke-dasharray="4 1 0.6 1"/><text x="179.2" y="74.4" font-size="2.8" text-anchor="start" fill="#000">-E7</text><circle cx="185.2" cy="96" r="0.5" fill="#000"/><text x="183.6" y="94.8" font-size="2.1" text-anchor="end" fill="#000">−</text><circle cx="185.2" cy="76" r="0.5" fill="#000"/><text x="183.6" y="74.8" font-size="2.1" text-anchor="end" fill="#000">+</text>
-<polyline points="185.2,76 185.2,68" fill="none" stroke="#000" stroke-width="0.25"/>
-<text x="185.2" y="66.5" font-size="2" text-anchor="middle" fill="#000">L+3</text>
-<text x="185.2" y="63.5" font-size="1.8" text-anchor="middle" fill="#000">/3.6</text>
-<circle cx="196.4" cy="57" r="0.6" fill="#000"/>
-<text x="197.6" y="54.5" font-size="1.9" text-anchor="start" fill="#000">LED7</text>
-<polyline points="196.4,57 196.4,150 197.4,150" fill="none" stroke="#000" stroke-width="0.25"/>
-<circle cx="196.4" cy="120" r="0.6" fill="#000"/>
-<polyline points="196.4,120 191.4,120 191.4,160" fill="none" stroke="#000" stroke-width="0.25"/>
-<rect x="190.2" y="160" width="2.4" height="7" fill="none" stroke="#000" stroke-width="0.3"/>
-<polyline points="191.4,167 191.4,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="185.2,151 185.2,132" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="185.2,112 185.2,118" fill="none" stroke="#000" stroke-width="0.25"/><rect x="183.2" y="118" width="4" height="8" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="181.7,127 188.7,117 190.2,117" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="185.2,126 185.2,132" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="187.2" y="128" font-size="1.8" text-anchor="start" fill="#000">-F8</text>
+<polyline points="185.2,112 185.2,101.2" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="185.2" cy="100" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="187.4" y="98.6" font-size="2.3" text-anchor="start" fill="#000">-X3</text><text x="187.4" y="102.6" font-size="2.3" text-anchor="start" fill="#000">7</text>
+<polyline points="185.2,98.8 185.2,88" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="179.2" y="68" width="12" height="20" fill="none" stroke="#000" stroke-width="0.3" stroke-dasharray="4 1 0.6 1"/><text x="179.2" y="66.4" font-size="2.8" text-anchor="start" fill="#000">-E7</text><circle cx="185.2" cy="88" r="0.5" fill="#000"/><text x="183.6" y="86.8" font-size="2.1" text-anchor="end" fill="#000">−</text><circle cx="185.2" cy="68" r="0.5" fill="#000"/><text x="183.6" y="66.8" font-size="2.1" text-anchor="end" fill="#000">+</text>
+<polyline points="185.2,68 185.2,62" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="185.2" y="60.5" font-size="2" text-anchor="middle" fill="#000">R3+</text>
+<text x="185.2" y="57.5" font-size="1.8" text-anchor="middle" fill="#000">/3.6</text>
+<circle cx="196.4" cy="50" r="0.6" fill="#000"/>
+<text x="197.6" y="49" font-size="1.9" text-anchor="start" fill="#000">LED7</text>
+<polyline points="196.4,50 196.4,160 197.4,160" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="196.4" cy="176" r="0.6" fill="#000"/>
+<polyline points="196.4,176 191.4,176 191.4,184" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="190.2" y="184" width="2.4" height="7" fill="none" stroke="#000" stroke-width="0.3"/>
+<polyline points="191.4,191 191.4,230" fill="none" stroke="#000" stroke-width="0.25"/>
 <circle cx="191.4" cy="230" r="0.6" fill="#000"/>
-<text x="193" y="172" font-size="1.7" text-anchor="start" fill="#000">9</text>
-<circle cx="206.4" cy="150" r="6.5" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="197.4,150 202.9,150" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="202.9,146.5 202.9,153.5" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="204.4,146 204.4,148" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="204.4,149 204.4,151" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="204.4,152 204.4,154" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="204.4,147 208.4,147 208.4,141" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="204.4,153 208.4,153 208.4,159" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="204.4,150 208.4,150 208.4,153" fill="none" stroke="#000" stroke-width="0.25"/><polygon points="204.4,150 206.20000000000002,149 206.20000000000002,151" fill="#000"/><text x="210.4" y="142.5" font-size="2.6" text-anchor="start" fill="#000">-Q8</text>
-<polyline points="208.4,159 208.4,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="189.2" y="189" font-size="1.8" text-anchor="end" fill="#000">-R9</text>
+<circle cx="206.4" cy="160" r="6.5" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="197.4,160 202.9,160" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="202.9,156.5 202.9,163.5" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="204.4,156 204.4,158" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="204.4,159 204.4,161" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="204.4,162 204.4,164" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="204.4,157 208.4,157 208.4,151" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="204.4,163 208.4,163 208.4,169" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="204.4,160 208.4,160 208.4,163" fill="none" stroke="#000" stroke-width="0.25"/><polygon points="204.4,160 206.20000000000002,159 206.20000000000002,161" fill="#000"/><text x="210.4" y="152.5" font-size="2.6" text-anchor="start" fill="#000">-Q8</text>
+<polyline points="208.4,169 208.4,230" fill="none" stroke="#000" stroke-width="0.25"/>
 <circle cx="208.4" cy="230" r="0.6" fill="#000"/>
-<polyline points="208.4,141 208.4,107.9" fill="none" stroke="#000" stroke-width="0.25"/>
-<circle cx="208.4" cy="106.7" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="210.6" y="105.3" font-size="2.3" text-anchor="start" fill="#000">-X3</text><text x="210.6" y="109.3" font-size="2.3" text-anchor="start" fill="#000">8</text>
-<polyline points="208.4,105.5 208.4,96" fill="none" stroke="#000" stroke-width="0.25"/>
-<rect x="202.4" y="76" width="12" height="20" fill="none" stroke="#000" stroke-width="0.3" stroke-dasharray="4 1 0.6 1"/><text x="202.4" y="74.4" font-size="2.8" text-anchor="start" fill="#000">-E8</text><circle cx="208.4" cy="96" r="0.5" fill="#000"/><text x="206.8" y="94.8" font-size="2.1" text-anchor="end" fill="#000">−</text><circle cx="208.4" cy="76" r="0.5" fill="#000"/><text x="206.8" y="74.8" font-size="2.1" text-anchor="end" fill="#000">+</text>
-<polyline points="208.4,76 208.4,68" fill="none" stroke="#000" stroke-width="0.25"/>
-<text x="208.4" y="66.5" font-size="2" text-anchor="middle" fill="#000">L+3</text>
-<text x="208.4" y="63.5" font-size="1.8" text-anchor="middle" fill="#000">/3.6</text>
-<circle cx="219.6" cy="57" r="0.6" fill="#000"/>
-<text x="220.8" y="54.5" font-size="1.9" text-anchor="start" fill="#000">LED8</text>
-<polyline points="219.6,57 219.6,150 220.6,150" fill="none" stroke="#000" stroke-width="0.25"/>
-<circle cx="219.6" cy="120" r="0.6" fill="#000"/>
-<polyline points="219.6,120 214.6,120 214.6,160" fill="none" stroke="#000" stroke-width="0.25"/>
-<rect x="213.4" y="160" width="2.4" height="7" fill="none" stroke="#000" stroke-width="0.3"/>
-<polyline points="214.6,167 214.6,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="208.4,151 208.4,132" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="208.4,112 208.4,118" fill="none" stroke="#000" stroke-width="0.25"/><rect x="206.4" y="118" width="4" height="8" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="204.9,127 211.9,117 213.4,117" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="208.4,126 208.4,132" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="210.4" y="128" font-size="1.8" text-anchor="start" fill="#000">-F9</text>
+<polyline points="208.4,112 208.4,101.2" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="208.4" cy="100" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="210.6" y="98.6" font-size="2.3" text-anchor="start" fill="#000">-X3</text><text x="210.6" y="102.6" font-size="2.3" text-anchor="start" fill="#000">8</text>
+<polyline points="208.4,98.8 208.4,88" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="202.4" y="68" width="12" height="20" fill="none" stroke="#000" stroke-width="0.3" stroke-dasharray="4 1 0.6 1"/><text x="202.4" y="66.4" font-size="2.8" text-anchor="start" fill="#000">-E8</text><circle cx="208.4" cy="88" r="0.5" fill="#000"/><text x="206.8" y="86.8" font-size="2.1" text-anchor="end" fill="#000">−</text><circle cx="208.4" cy="68" r="0.5" fill="#000"/><text x="206.8" y="66.8" font-size="2.1" text-anchor="end" fill="#000">+</text>
+<polyline points="208.4,68 208.4,62" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="208.4" y="60.5" font-size="2" text-anchor="middle" fill="#000">R3+</text>
+<text x="208.4" y="57.5" font-size="1.8" text-anchor="middle" fill="#000">/3.6</text>
+<circle cx="219.6" cy="50" r="0.6" fill="#000"/>
+<text x="220.8" y="49" font-size="1.9" text-anchor="start" fill="#000">LED8</text>
+<polyline points="219.6,50 219.6,160 220.6,160" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="219.6" cy="176" r="0.6" fill="#000"/>
+<polyline points="219.6,176 214.6,176 214.6,184" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="213.4" y="184" width="2.4" height="7" fill="none" stroke="#000" stroke-width="0.3"/>
+<polyline points="214.6,191 214.6,230" fill="none" stroke="#000" stroke-width="0.25"/>
 <circle cx="214.6" cy="230" r="0.6" fill="#000"/>
-<text x="212.1" y="162" font-size="2.4" text-anchor="end" fill="#000">-R3</text>
-<text x="212.1" y="165.4" font-size="2" text-anchor="end" fill="#000">100 kΩ</text>
-<text x="216.2" y="172" font-size="1.7" text-anchor="start" fill="#000">2</text>
-<circle cx="229.6" cy="150" r="6.5" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="220.6,150 226.1,150" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="226.1,146.5 226.1,153.5" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="227.6,146 227.6,148" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="227.6,149 227.6,151" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="227.6,152 227.6,154" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="227.6,147 231.6,147 231.6,141" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="227.6,153 231.6,153 231.6,159" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="227.6,150 231.6,150 231.6,153" fill="none" stroke="#000" stroke-width="0.25"/><polygon points="227.6,150 229.4,149 229.4,151" fill="#000"/><text x="233.6" y="142.5" font-size="2.6" text-anchor="start" fill="#000">-Q9</text>
-<polyline points="231.6,159 231.6,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="212.4" y="189" font-size="1.8" text-anchor="end" fill="#000">-R10</text>
+<circle cx="229.6" cy="160" r="6.5" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="220.6,160 226.1,160" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="226.1,156.5 226.1,163.5" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="227.6,156 227.6,158" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="227.6,159 227.6,161" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="227.6,162 227.6,164" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="227.6,157 231.6,157 231.6,151" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="227.6,163 231.6,163 231.6,169" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="227.6,160 231.6,160 231.6,163" fill="none" stroke="#000" stroke-width="0.25"/><polygon points="227.6,160 229.4,159 229.4,161" fill="#000"/><text x="233.6" y="152.5" font-size="2.6" text-anchor="start" fill="#000">-Q9</text>
+<polyline points="231.6,169 231.6,230" fill="none" stroke="#000" stroke-width="0.25"/>
 <circle cx="231.6" cy="230" r="0.6" fill="#000"/>
-<polyline points="231.6,141 231.6,107.9" fill="none" stroke="#000" stroke-width="0.25"/>
-<circle cx="231.6" cy="106.7" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="233.8" y="105.3" font-size="2.3" text-anchor="start" fill="#000">-X3</text><text x="233.8" y="109.3" font-size="2.3" text-anchor="start" fill="#000">9</text>
-<polyline points="231.6,105.5 231.6,96" fill="none" stroke="#000" stroke-width="0.25"/>
-<rect x="225.6" y="76" width="12" height="20" fill="none" stroke="#000" stroke-width="0.3" stroke-dasharray="4 1 0.6 1"/><text x="225.6" y="74.4" font-size="2.8" text-anchor="start" fill="#000">-E9</text><circle cx="231.6" cy="96" r="0.5" fill="#000"/><text x="230" y="94.8" font-size="2.1" text-anchor="end" fill="#000">−</text><circle cx="231.6" cy="76" r="0.5" fill="#000"/><text x="230" y="74.8" font-size="2.1" text-anchor="end" fill="#000">+</text>
-<polyline points="231.6,76 231.6,68" fill="none" stroke="#000" stroke-width="0.25"/>
-<text x="231.6" y="66.5" font-size="2" text-anchor="middle" fill="#000">L+3</text>
-<text x="231.6" y="63.5" font-size="1.8" text-anchor="middle" fill="#000">/3.6</text>
-<circle cx="242.79999999999998" cy="57" r="0.6" fill="#000"/>
-<text x="244" y="54.5" font-size="1.9" text-anchor="start" fill="#000">LED9</text>
-<polyline points="242.8,57 242.8,150 243.8,150" fill="none" stroke="#000" stroke-width="0.25"/>
-<circle cx="242.79999999999998" cy="120" r="0.6" fill="#000"/>
-<polyline points="242.8,120 237.8,120 237.8,160" fill="none" stroke="#000" stroke-width="0.25"/>
-<rect x="236.6" y="160" width="2.4" height="7" fill="none" stroke="#000" stroke-width="0.3"/>
-<polyline points="237.8,167 237.8,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="231.6,151 231.6,132" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="231.6,112 231.6,118" fill="none" stroke="#000" stroke-width="0.25"/><rect x="229.6" y="118" width="4" height="8" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="228.1,127 235.1,117 236.6,117" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="231.6,126 231.6,132" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="233.6" y="128" font-size="1.8" text-anchor="start" fill="#000">-F10</text>
+<polyline points="231.6,112 231.6,101.2" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="231.6" cy="100" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="233.8" y="98.6" font-size="2.3" text-anchor="start" fill="#000">-X3</text><text x="233.8" y="102.6" font-size="2.3" text-anchor="start" fill="#000">9</text>
+<polyline points="231.6,98.8 231.6,88" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="225.6" y="68" width="12" height="20" fill="none" stroke="#000" stroke-width="0.3" stroke-dasharray="4 1 0.6 1"/><text x="225.6" y="66.4" font-size="2.8" text-anchor="start" fill="#000">-E9</text><circle cx="231.6" cy="88" r="0.5" fill="#000"/><text x="230" y="86.8" font-size="2.1" text-anchor="end" fill="#000">−</text><circle cx="231.6" cy="68" r="0.5" fill="#000"/><text x="230" y="66.8" font-size="2.1" text-anchor="end" fill="#000">+</text>
+<polyline points="231.6,68 231.6,62" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="231.6" y="60.5" font-size="2" text-anchor="middle" fill="#000">R3+</text>
+<text x="231.6" y="57.5" font-size="1.8" text-anchor="middle" fill="#000">/3.6</text>
+<circle cx="242.79999999999998" cy="50" r="0.6" fill="#000"/>
+<text x="244" y="49" font-size="1.9" text-anchor="start" fill="#000">LED9</text>
+<polyline points="242.8,50 242.8,160 243.8,160" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="242.79999999999998" cy="176" r="0.6" fill="#000"/>
+<polyline points="242.8,176 237.8,176 237.8,184" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="236.6" y="184" width="2.4" height="7" fill="none" stroke="#000" stroke-width="0.3"/>
+<polyline points="237.8,191 237.8,230" fill="none" stroke="#000" stroke-width="0.25"/>
 <circle cx="237.79999999999998" cy="230" r="0.6" fill="#000"/>
-<text x="239.4" y="172" font-size="1.7" text-anchor="start" fill="#000">3</text>
-<circle cx="252.79999999999998" cy="150" r="6.5" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="243.8,150 249.3,150" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="249.3,146.5 249.3,153.5" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="250.8,146 250.8,148" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="250.8,149 250.8,151" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="250.8,152 250.8,154" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="250.8,147 254.8,147 254.8,141" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="250.8,153 254.8,153 254.8,159" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="250.8,150 254.8,150 254.8,153" fill="none" stroke="#000" stroke-width="0.25"/><polygon points="250.79999999999998,150 252.6,149 252.6,151" fill="#000"/><text x="256.8" y="142.5" font-size="2.6" text-anchor="start" fill="#000">-Q10</text>
-<polyline points="254.8,159 254.8,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="235.6" y="189" font-size="1.8" text-anchor="end" fill="#000">-R11</text>
+<circle cx="252.79999999999998" cy="160" r="6.5" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="243.8,160 249.3,160" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="249.3,156.5 249.3,163.5" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="250.8,156 250.8,158" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="250.8,159 250.8,161" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="250.8,162 250.8,164" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="250.8,157 254.8,157 254.8,151" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="250.8,163 254.8,163 254.8,169" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="250.8,160 254.8,160 254.8,163" fill="none" stroke="#000" stroke-width="0.25"/><polygon points="250.79999999999998,160 252.6,159 252.6,161" fill="#000"/><text x="256.8" y="152.5" font-size="2.6" text-anchor="start" fill="#000">-Q10</text>
+<polyline points="254.8,169 254.8,230" fill="none" stroke="#000" stroke-width="0.25"/>
 <circle cx="254.79999999999998" cy="230" r="0.6" fill="#000"/>
-<polyline points="254.8,141 254.8,107.9" fill="none" stroke="#000" stroke-width="0.25"/>
-<circle cx="254.79999999999998" cy="106.7" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="257" y="105.3" font-size="2.3" text-anchor="start" fill="#000">-X3</text><text x="257" y="109.3" font-size="2.3" text-anchor="start" fill="#000">10</text>
-<polyline points="254.8,105.5 254.8,96" fill="none" stroke="#000" stroke-width="0.25"/>
-<rect x="248.8" y="76" width="12" height="20" fill="none" stroke="#000" stroke-width="0.3" stroke-dasharray="4 1 0.6 1"/><text x="248.8" y="74.4" font-size="2.8" text-anchor="start" fill="#000">-E10</text><circle cx="254.79999999999998" cy="96" r="0.5" fill="#000"/><text x="253.2" y="94.8" font-size="2.1" text-anchor="end" fill="#000">−</text><circle cx="254.79999999999998" cy="76" r="0.5" fill="#000"/><text x="253.2" y="74.8" font-size="2.1" text-anchor="end" fill="#000">+</text>
-<polyline points="254.8,76 254.8,68" fill="none" stroke="#000" stroke-width="0.25"/>
-<text x="254.8" y="66.5" font-size="2" text-anchor="middle" fill="#000">L+4</text>
-<text x="254.8" y="63.5" font-size="1.8" text-anchor="middle" fill="#000">/3.6</text>
-<circle cx="266" cy="57" r="0.6" fill="#000"/>
-<text x="267.2" y="54.5" font-size="1.9" text-anchor="start" fill="#000">LED10</text>
-<polyline points="266,57 266,150 267,150" fill="none" stroke="#000" stroke-width="0.25"/>
-<circle cx="266" cy="120" r="0.6" fill="#000"/>
-<polyline points="266,120 261,120 261,160" fill="none" stroke="#000" stroke-width="0.25"/>
-<rect x="259.8" y="160" width="2.4" height="7" fill="none" stroke="#000" stroke-width="0.3"/>
-<polyline points="261,167 261,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="254.8,151 254.8,132" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="254.8,112 254.8,118" fill="none" stroke="#000" stroke-width="0.25"/><rect x="252.8" y="118" width="4" height="8" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="251.3,127 258.3,117 259.8,117" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="254.8,126 254.8,132" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="256.8" y="128" font-size="1.8" text-anchor="start" fill="#000">-F11</text>
+<polyline points="254.8,112 254.8,101.2" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="254.79999999999998" cy="100" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="257" y="98.6" font-size="2.3" text-anchor="start" fill="#000">-X3</text><text x="257" y="102.6" font-size="2.3" text-anchor="start" fill="#000">10</text>
+<polyline points="254.8,98.8 254.8,88" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="248.8" y="68" width="12" height="20" fill="none" stroke="#000" stroke-width="0.3" stroke-dasharray="4 1 0.6 1"/><text x="248.8" y="66.4" font-size="2.8" text-anchor="start" fill="#000">-E10</text><circle cx="254.79999999999998" cy="88" r="0.5" fill="#000"/><text x="253.2" y="86.8" font-size="2.1" text-anchor="end" fill="#000">−</text><circle cx="254.79999999999998" cy="68" r="0.5" fill="#000"/><text x="253.2" y="66.8" font-size="2.1" text-anchor="end" fill="#000">+</text>
+<polyline points="254.8,68 254.8,62" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="254.8" y="60.5" font-size="2" text-anchor="middle" fill="#000">R4+</text>
+<text x="254.8" y="57.5" font-size="1.8" text-anchor="middle" fill="#000">/3.7</text>
+<circle cx="266" cy="50" r="0.6" fill="#000"/>
+<text x="267.2" y="49" font-size="1.9" text-anchor="start" fill="#000">LED10</text>
+<polyline points="266,50 266,160 267,160" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="266" cy="176" r="0.6" fill="#000"/>
+<polyline points="266,176 261,176 261,184" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="259.8" y="184" width="2.4" height="7" fill="none" stroke="#000" stroke-width="0.3"/>
+<polyline points="261,191 261,230" fill="none" stroke="#000" stroke-width="0.25"/>
 <circle cx="261" cy="230" r="0.6" fill="#000"/>
-<text x="262.6" y="172" font-size="1.7" text-anchor="start" fill="#000">4</text>
-<circle cx="276" cy="150" r="6.5" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="267,150 272.5,150" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="272.5,146.5 272.5,153.5" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="274,146 274,148" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="274,149 274,151" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="274,152 274,154" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="274,147 278,147 278,141" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="274,153 278,153 278,159" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="274,150 278,150 278,153" fill="none" stroke="#000" stroke-width="0.25"/><polygon points="274,150 275.8,149 275.8,151" fill="#000"/><text x="280" y="142.5" font-size="2.6" text-anchor="start" fill="#000">-Q11</text>
-<polyline points="278,159 278,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="258.8" y="189" font-size="1.8" text-anchor="end" fill="#000">-R12</text>
+<circle cx="276" cy="160" r="6.5" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="267,160 272.5,160" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="272.5,156.5 272.5,163.5" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="274,156 274,158" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="274,159 274,161" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="274,162 274,164" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="274,157 278,157 278,151" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="274,163 278,163 278,169" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="274,160 278,160 278,163" fill="none" stroke="#000" stroke-width="0.25"/><polygon points="274,160 275.8,159 275.8,161" fill="#000"/><text x="280" y="152.5" font-size="2.6" text-anchor="start" fill="#000">-Q11</text>
+<polyline points="278,169 278,230" fill="none" stroke="#000" stroke-width="0.25"/>
 <circle cx="278" cy="230" r="0.6" fill="#000"/>
-<polyline points="278,141 278,107.9" fill="none" stroke="#000" stroke-width="0.25"/>
-<circle cx="278" cy="106.7" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="280.2" y="105.3" font-size="2.3" text-anchor="start" fill="#000">-X3</text><text x="280.2" y="109.3" font-size="2.3" text-anchor="start" fill="#000">11</text>
-<polyline points="278,105.5 278,96" fill="none" stroke="#000" stroke-width="0.25"/>
-<rect x="272" y="76" width="12" height="20" fill="none" stroke="#000" stroke-width="0.3" stroke-dasharray="4 1 0.6 1"/><text x="272" y="74.4" font-size="2.8" text-anchor="start" fill="#000">-E11</text><circle cx="278" cy="96" r="0.5" fill="#000"/><text x="276.4" y="94.8" font-size="2.1" text-anchor="end" fill="#000">−</text><circle cx="278" cy="76" r="0.5" fill="#000"/><text x="276.4" y="74.8" font-size="2.1" text-anchor="end" fill="#000">+</text>
-<polyline points="278,76 278,68" fill="none" stroke="#000" stroke-width="0.25"/>
-<text x="278" y="66.5" font-size="2" text-anchor="middle" fill="#000">L+4</text>
-<text x="278" y="63.5" font-size="1.8" text-anchor="middle" fill="#000">/3.6</text>
-<circle cx="289.2" cy="57" r="0.6" fill="#000"/>
-<text x="290.4" y="54.5" font-size="1.9" text-anchor="start" fill="#000">LED11</text>
-<polyline points="289.2,57 289.2,150 290.2,150" fill="none" stroke="#000" stroke-width="0.25"/>
-<circle cx="289.2" cy="120" r="0.6" fill="#000"/>
-<polyline points="289.2,120 284.2,120 284.2,160" fill="none" stroke="#000" stroke-width="0.25"/>
-<rect x="283" y="160" width="2.4" height="7" fill="none" stroke="#000" stroke-width="0.3"/>
-<polyline points="284.2,167 284.2,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="278,151 278,132" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="278,112 278,118" fill="none" stroke="#000" stroke-width="0.25"/><rect x="276" y="118" width="4" height="8" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="274.5,127 281.5,117 283,117" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="278,126 278,132" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="280" y="128" font-size="1.8" text-anchor="start" fill="#000">-F12</text>
+<polyline points="278,112 278,101.2" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="278" cy="100" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="280.2" y="98.6" font-size="2.3" text-anchor="start" fill="#000">-X3</text><text x="280.2" y="102.6" font-size="2.3" text-anchor="start" fill="#000">11</text>
+<polyline points="278,98.8 278,88" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="272" y="68" width="12" height="20" fill="none" stroke="#000" stroke-width="0.3" stroke-dasharray="4 1 0.6 1"/><text x="272" y="66.4" font-size="2.8" text-anchor="start" fill="#000">-E11</text><circle cx="278" cy="88" r="0.5" fill="#000"/><text x="276.4" y="86.8" font-size="2.1" text-anchor="end" fill="#000">−</text><circle cx="278" cy="68" r="0.5" fill="#000"/><text x="276.4" y="66.8" font-size="2.1" text-anchor="end" fill="#000">+</text>
+<polyline points="278,68 278,62" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="278" y="60.5" font-size="2" text-anchor="middle" fill="#000">R4+</text>
+<text x="278" y="57.5" font-size="1.8" text-anchor="middle" fill="#000">/3.7</text>
+<circle cx="289.2" cy="50" r="0.6" fill="#000"/>
+<text x="290.4" y="49" font-size="1.9" text-anchor="start" fill="#000">LED11</text>
+<polyline points="289.2,50 289.2,160 290.2,160" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="289.2" cy="176" r="0.6" fill="#000"/>
+<polyline points="289.2,176 284.2,176 284.2,184" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="283" y="184" width="2.4" height="7" fill="none" stroke="#000" stroke-width="0.3"/>
+<polyline points="284.2,191 284.2,230" fill="none" stroke="#000" stroke-width="0.25"/>
 <circle cx="284.2" cy="230" r="0.6" fill="#000"/>
-<text x="285.8" y="172" font-size="1.7" text-anchor="start" fill="#000">5</text>
-<circle cx="299.2" cy="150" r="6.5" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="290.2,150 295.7,150" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="295.7,146.5 295.7,153.5" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="297.2,146 297.2,148" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="297.2,149 297.2,151" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="297.2,152 297.2,154" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="297.2,147 301.2,147 301.2,141" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="297.2,153 301.2,153 301.2,159" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="297.2,150 301.2,150 301.2,153" fill="none" stroke="#000" stroke-width="0.25"/><polygon points="297.2,150 299,149 299,151" fill="#000"/><text x="303.2" y="142.5" font-size="2.6" text-anchor="start" fill="#000">-Q12</text>
-<polyline points="301.2,159 301.2,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="282" y="189" font-size="1.8" text-anchor="end" fill="#000">-R13</text>
+<circle cx="299.2" cy="160" r="6.5" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="290.2,160 295.7,160" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="295.7,156.5 295.7,163.5" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="297.2,156 297.2,158" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="297.2,159 297.2,161" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="297.2,162 297.2,164" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="297.2,157 301.2,157 301.2,151" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="297.2,163 301.2,163 301.2,169" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="297.2,160 301.2,160 301.2,163" fill="none" stroke="#000" stroke-width="0.25"/><polygon points="297.2,160 299,159 299,161" fill="#000"/><text x="303.2" y="152.5" font-size="2.6" text-anchor="start" fill="#000">-Q12</text>
+<polyline points="301.2,169 301.2,230" fill="none" stroke="#000" stroke-width="0.25"/>
 <circle cx="301.2" cy="230" r="0.6" fill="#000"/>
-<polyline points="301.2,141 301.2,107.9" fill="none" stroke="#000" stroke-width="0.25"/>
-<circle cx="301.2" cy="106.7" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="303.4" y="105.3" font-size="2.3" text-anchor="start" fill="#000">-X3</text><text x="303.4" y="109.3" font-size="2.3" text-anchor="start" fill="#000">12</text>
-<polyline points="301.2,105.5 301.2,96" fill="none" stroke="#000" stroke-width="0.25"/>
-<rect x="295.2" y="76" width="12" height="20" fill="none" stroke="#000" stroke-width="0.3" stroke-dasharray="4 1 0.6 1"/><text x="295.2" y="74.4" font-size="2.8" text-anchor="start" fill="#000">-E12</text><circle cx="301.2" cy="96" r="0.5" fill="#000"/><text x="299.6" y="94.8" font-size="2.1" text-anchor="end" fill="#000">−</text><circle cx="301.2" cy="76" r="0.5" fill="#000"/><text x="299.6" y="74.8" font-size="2.1" text-anchor="end" fill="#000">+</text>
-<polyline points="301.2,76 301.2,68" fill="none" stroke="#000" stroke-width="0.25"/>
-<text x="301.2" y="66.5" font-size="2" text-anchor="middle" fill="#000">L+4</text>
-<text x="301.2" y="63.5" font-size="1.8" text-anchor="middle" fill="#000">/3.6</text>
-<circle cx="312.4" cy="57" r="0.6" fill="#000"/>
-<text x="313.6" y="54.5" font-size="1.9" text-anchor="start" fill="#000">LED12</text>
-<polyline points="312.4,57 312.4,150 313.4,150" fill="none" stroke="#000" stroke-width="0.25"/>
-<circle cx="312.4" cy="120" r="0.6" fill="#000"/>
-<polyline points="312.4,120 307.4,120 307.4,160" fill="none" stroke="#000" stroke-width="0.25"/>
-<rect x="306.2" y="160" width="2.4" height="7" fill="none" stroke="#000" stroke-width="0.3"/>
-<polyline points="307.4,167 307.4,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="301.2,151 301.2,132" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="301.2,112 301.2,118" fill="none" stroke="#000" stroke-width="0.25"/><rect x="299.2" y="118" width="4" height="8" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="297.7,127 304.7,117 306.2,117" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="301.2,126 301.2,132" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="303.2" y="128" font-size="1.8" text-anchor="start" fill="#000">-F13</text>
+<polyline points="301.2,112 301.2,101.2" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="301.2" cy="100" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="303.4" y="98.6" font-size="2.3" text-anchor="start" fill="#000">-X3</text><text x="303.4" y="102.6" font-size="2.3" text-anchor="start" fill="#000">12</text>
+<polyline points="301.2,98.8 301.2,88" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="295.2" y="68" width="12" height="20" fill="none" stroke="#000" stroke-width="0.3" stroke-dasharray="4 1 0.6 1"/><text x="295.2" y="66.4" font-size="2.8" text-anchor="start" fill="#000">-E12</text><circle cx="301.2" cy="88" r="0.5" fill="#000"/><text x="299.6" y="86.8" font-size="2.1" text-anchor="end" fill="#000">−</text><circle cx="301.2" cy="68" r="0.5" fill="#000"/><text x="299.6" y="66.8" font-size="2.1" text-anchor="end" fill="#000">+</text>
+<polyline points="301.2,68 301.2,62" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="301.2" y="60.5" font-size="2" text-anchor="middle" fill="#000">R4+</text>
+<text x="301.2" y="57.5" font-size="1.8" text-anchor="middle" fill="#000">/3.7</text>
+<circle cx="312.4" cy="50" r="0.6" fill="#000"/>
+<text x="313.6" y="49" font-size="1.9" text-anchor="start" fill="#000">LED12</text>
+<polyline points="312.4,50 312.4,160 313.4,160" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="312.4" cy="176" r="0.6" fill="#000"/>
+<polyline points="312.4,176 307.4,176 307.4,184" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="306.2" y="184" width="2.4" height="7" fill="none" stroke="#000" stroke-width="0.3"/>
+<polyline points="307.4,191 307.4,230" fill="none" stroke="#000" stroke-width="0.25"/>
 <circle cx="307.4" cy="230" r="0.6" fill="#000"/>
-<text x="309" y="172" font-size="1.7" text-anchor="start" fill="#000">6</text>
-<circle cx="322.4" cy="150" r="6.5" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="313.4,150 318.9,150" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="318.9,146.5 318.9,153.5" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="320.4,146 320.4,148" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="320.4,149 320.4,151" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="320.4,152 320.4,154" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="320.4,147 324.4,147 324.4,141" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="320.4,153 324.4,153 324.4,159" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="320.4,150 324.4,150 324.4,153" fill="none" stroke="#000" stroke-width="0.25"/><polygon points="320.4,150 322.2,149 322.2,151" fill="#000"/><text x="326.4" y="142.5" font-size="2.6" text-anchor="start" fill="#000">-Q13</text>
-<polyline points="324.4,159 324.4,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="305.2" y="189" font-size="1.8" text-anchor="end" fill="#000">-R14</text>
+<circle cx="322.4" cy="160" r="6.5" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="313.4,160 318.9,160" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="318.9,156.5 318.9,163.5" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="320.4,156 320.4,158" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="320.4,159 320.4,161" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="320.4,162 320.4,164" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="320.4,157 324.4,157 324.4,151" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="320.4,163 324.4,163 324.4,169" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="320.4,160 324.4,160 324.4,163" fill="none" stroke="#000" stroke-width="0.25"/><polygon points="320.4,160 322.2,159 322.2,161" fill="#000"/><text x="326.4" y="152.5" font-size="2.6" text-anchor="start" fill="#000">-Q13</text>
+<polyline points="324.4,169 324.4,230" fill="none" stroke="#000" stroke-width="0.25"/>
 <circle cx="324.4" cy="230" r="0.6" fill="#000"/>
-<polyline points="324.4,141 324.4,107.9" fill="none" stroke="#000" stroke-width="0.25"/>
-<circle cx="324.4" cy="106.7" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="326.6" y="105.3" font-size="2.3" text-anchor="start" fill="#000">-X3</text><text x="326.6" y="109.3" font-size="2.3" text-anchor="start" fill="#000">13</text>
-<polyline points="324.4,105.5 324.4,96" fill="none" stroke="#000" stroke-width="0.25"/>
-<rect x="318.4" y="76" width="12" height="20" fill="none" stroke="#000" stroke-width="0.3" stroke-dasharray="4 1 0.6 1"/><text x="318.4" y="74.4" font-size="2.8" text-anchor="start" fill="#000">-E13</text><circle cx="324.4" cy="96" r="0.5" fill="#000"/><text x="322.8" y="94.8" font-size="2.1" text-anchor="end" fill="#000">−</text><circle cx="324.4" cy="76" r="0.5" fill="#000"/><text x="322.8" y="74.8" font-size="2.1" text-anchor="end" fill="#000">+</text>
-<polyline points="324.4,76 324.4,68" fill="none" stroke="#000" stroke-width="0.25"/>
-<text x="324.4" y="66.5" font-size="2" text-anchor="middle" fill="#000">L+5</text>
-<text x="324.4" y="63.5" font-size="1.8" text-anchor="middle" fill="#000">/3.7</text>
-<circle cx="335.59999999999997" cy="57" r="0.6" fill="#000"/>
-<text x="336.8" y="54.5" font-size="1.9" text-anchor="start" fill="#000">LED13</text>
-<polyline points="335.6,57 335.6,150 336.6,150" fill="none" stroke="#000" stroke-width="0.25"/>
-<circle cx="335.59999999999997" cy="120" r="0.6" fill="#000"/>
-<polyline points="335.6,120 330.6,120 330.6,160" fill="none" stroke="#000" stroke-width="0.25"/>
-<rect x="329.4" y="160" width="2.4" height="7" fill="none" stroke="#000" stroke-width="0.3"/>
-<polyline points="330.6,167 330.6,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="324.4,151 324.4,132" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="324.4,112 324.4,118" fill="none" stroke="#000" stroke-width="0.25"/><rect x="322.4" y="118" width="4" height="8" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="320.9,127 327.9,117 329.4,117" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="324.4,126 324.4,132" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="326.4" y="128" font-size="1.8" text-anchor="start" fill="#000">-F14</text>
+<polyline points="324.4,112 324.4,101.2" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="324.4" cy="100" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="326.6" y="98.6" font-size="2.3" text-anchor="start" fill="#000">-X3</text><text x="326.6" y="102.6" font-size="2.3" text-anchor="start" fill="#000">13</text>
+<polyline points="324.4,98.8 324.4,88" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="318.4" y="68" width="12" height="20" fill="none" stroke="#000" stroke-width="0.3" stroke-dasharray="4 1 0.6 1"/><text x="318.4" y="66.4" font-size="2.8" text-anchor="start" fill="#000">-E13</text><circle cx="324.4" cy="88" r="0.5" fill="#000"/><text x="322.8" y="86.8" font-size="2.1" text-anchor="end" fill="#000">−</text><circle cx="324.4" cy="68" r="0.5" fill="#000"/><text x="322.8" y="66.8" font-size="2.1" text-anchor="end" fill="#000">+</text>
+<polyline points="324.4,68 324.4,62" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="324.4" y="60.5" font-size="2" text-anchor="middle" fill="#000">R5+</text>
+<text x="324.4" y="57.5" font-size="1.8" text-anchor="middle" fill="#000">/3.7</text>
+<circle cx="335.59999999999997" cy="50" r="0.6" fill="#000"/>
+<text x="336.8" y="49" font-size="1.9" text-anchor="start" fill="#000">LED13</text>
+<polyline points="335.6,50 335.6,160 336.6,160" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="335.59999999999997" cy="176" r="0.6" fill="#000"/>
+<polyline points="335.6,176 330.6,176 330.6,184" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="329.4" y="184" width="2.4" height="7" fill="none" stroke="#000" stroke-width="0.3"/>
+<polyline points="330.6,191 330.6,230" fill="none" stroke="#000" stroke-width="0.25"/>
 <circle cx="330.59999999999997" cy="230" r="0.6" fill="#000"/>
-<text x="332.2" y="172" font-size="1.7" text-anchor="start" fill="#000">7</text>
-<circle cx="345.59999999999997" cy="150" r="6.5" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="336.6,150 342.1,150" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="342.1,146.5 342.1,153.5" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="343.6,146 343.6,148" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="343.6,149 343.6,151" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="343.6,152 343.6,154" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="343.6,147 347.6,147 347.6,141" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="343.6,153 347.6,153 347.6,159" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="343.6,150 347.6,150 347.6,153" fill="none" stroke="#000" stroke-width="0.25"/><polygon points="343.59999999999997,150 345.4,149 345.4,151" fill="#000"/><text x="349.6" y="142.5" font-size="2.6" text-anchor="start" fill="#000">-Q14</text>
-<polyline points="347.6,159 347.6,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="328.4" y="189" font-size="1.8" text-anchor="end" fill="#000">-R15</text>
+<circle cx="345.59999999999997" cy="160" r="6.5" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="336.6,160 342.1,160" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="342.1,156.5 342.1,163.5" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="343.6,156 343.6,158" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="343.6,159 343.6,161" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="343.6,162 343.6,164" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="343.6,157 347.6,157 347.6,151" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="343.6,163 347.6,163 347.6,169" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="343.6,160 347.6,160 347.6,163" fill="none" stroke="#000" stroke-width="0.25"/><polygon points="343.59999999999997,160 345.4,159 345.4,161" fill="#000"/><text x="349.6" y="152.5" font-size="2.6" text-anchor="start" fill="#000">-Q14</text>
+<polyline points="347.6,169 347.6,230" fill="none" stroke="#000" stroke-width="0.25"/>
 <circle cx="347.59999999999997" cy="230" r="0.6" fill="#000"/>
-<polyline points="347.6,141 347.6,107.9" fill="none" stroke="#000" stroke-width="0.25"/>
-<circle cx="347.59999999999997" cy="106.7" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="349.8" y="105.3" font-size="2.3" text-anchor="start" fill="#000">-X3</text><text x="349.8" y="109.3" font-size="2.3" text-anchor="start" fill="#000">14</text>
-<polyline points="347.6,105.5 347.6,96" fill="none" stroke="#000" stroke-width="0.25"/>
-<rect x="341.6" y="76" width="12" height="20" fill="none" stroke="#000" stroke-width="0.3" stroke-dasharray="4 1 0.6 1"/><text x="341.6" y="74.4" font-size="2.8" text-anchor="start" fill="#000">-E14</text><circle cx="347.59999999999997" cy="96" r="0.5" fill="#000"/><text x="346" y="94.8" font-size="2.1" text-anchor="end" fill="#000">−</text><circle cx="347.59999999999997" cy="76" r="0.5" fill="#000"/><text x="346" y="74.8" font-size="2.1" text-anchor="end" fill="#000">+</text>
-<polyline points="347.6,76 347.6,68" fill="none" stroke="#000" stroke-width="0.25"/>
-<text x="347.6" y="66.5" font-size="2" text-anchor="middle" fill="#000">L+5</text>
-<text x="347.6" y="63.5" font-size="1.8" text-anchor="middle" fill="#000">/3.7</text>
-<circle cx="358.8" cy="57" r="0.6" fill="#000"/>
-<text x="360" y="54.5" font-size="1.9" text-anchor="start" fill="#000">LED14</text>
-<polyline points="358.8,57 358.8,150 359.8,150" fill="none" stroke="#000" stroke-width="0.25"/>
-<circle cx="358.8" cy="120" r="0.6" fill="#000"/>
-<polyline points="358.8,120 353.8,120 353.8,160" fill="none" stroke="#000" stroke-width="0.25"/>
-<rect x="352.6" y="160" width="2.4" height="7" fill="none" stroke="#000" stroke-width="0.3"/>
-<polyline points="353.8,167 353.8,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="347.6,151 347.6,132" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="347.6,112 347.6,118" fill="none" stroke="#000" stroke-width="0.25"/><rect x="345.6" y="118" width="4" height="8" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="344.1,127 351.1,117 352.6,117" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="347.6,126 347.6,132" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="349.6" y="128" font-size="1.8" text-anchor="start" fill="#000">-F15</text>
+<polyline points="347.6,112 347.6,101.2" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="347.59999999999997" cy="100" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="349.8" y="98.6" font-size="2.3" text-anchor="start" fill="#000">-X3</text><text x="349.8" y="102.6" font-size="2.3" text-anchor="start" fill="#000">14</text>
+<polyline points="347.6,98.8 347.6,88" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="341.6" y="68" width="12" height="20" fill="none" stroke="#000" stroke-width="0.3" stroke-dasharray="4 1 0.6 1"/><text x="341.6" y="66.4" font-size="2.8" text-anchor="start" fill="#000">-E14</text><circle cx="347.59999999999997" cy="88" r="0.5" fill="#000"/><text x="346" y="86.8" font-size="2.1" text-anchor="end" fill="#000">−</text><circle cx="347.59999999999997" cy="68" r="0.5" fill="#000"/><text x="346" y="66.8" font-size="2.1" text-anchor="end" fill="#000">+</text>
+<polyline points="347.6,68 347.6,62" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="347.6" y="60.5" font-size="2" text-anchor="middle" fill="#000">R5+</text>
+<text x="347.6" y="57.5" font-size="1.8" text-anchor="middle" fill="#000">/3.7</text>
+<circle cx="358.8" cy="50" r="0.6" fill="#000"/>
+<text x="360" y="49" font-size="1.9" text-anchor="start" fill="#000">LED14</text>
+<polyline points="358.8,50 358.8,160 359.8,160" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="358.8" cy="176" r="0.6" fill="#000"/>
+<polyline points="358.8,176 353.8,176 353.8,184" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="352.6" y="184" width="2.4" height="7" fill="none" stroke="#000" stroke-width="0.3"/>
+<polyline points="353.8,191 353.8,230" fill="none" stroke="#000" stroke-width="0.25"/>
 <circle cx="353.8" cy="230" r="0.6" fill="#000"/>
-<text x="355.4" y="172" font-size="1.7" text-anchor="start" fill="#000">8</text>
-<circle cx="368.8" cy="150" r="6.5" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="359.8,150 365.3,150" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="365.3,146.5 365.3,153.5" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="366.8,146 366.8,148" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="366.8,149 366.8,151" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="366.8,152 366.8,154" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="366.8,147 370.8,147 370.8,141" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="366.8,153 370.8,153 370.8,159" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="366.8,150 370.8,150 370.8,153" fill="none" stroke="#000" stroke-width="0.25"/><polygon points="366.8,150 368.6,149 368.6,151" fill="#000"/><text x="372.8" y="142.5" font-size="2.6" text-anchor="start" fill="#000">-Q15</text>
-<polyline points="370.8,159 370.8,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="351.6" y="189" font-size="1.8" text-anchor="end" fill="#000">-R16</text>
+<circle cx="368.8" cy="160" r="6.5" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="359.8,160 365.3,160" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="365.3,156.5 365.3,163.5" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="366.8,156 366.8,158" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="366.8,159 366.8,161" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="366.8,162 366.8,164" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="366.8,157 370.8,157 370.8,151" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="366.8,163 370.8,163 370.8,169" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="366.8,160 370.8,160 370.8,163" fill="none" stroke="#000" stroke-width="0.25"/><polygon points="366.8,160 368.6,159 368.6,161" fill="#000"/><text x="372.8" y="152.5" font-size="2.6" text-anchor="start" fill="#000">-Q15</text>
+<polyline points="370.8,169 370.8,230" fill="none" stroke="#000" stroke-width="0.25"/>
 <circle cx="370.8" cy="230" r="0.6" fill="#000"/>
-<polyline points="370.8,141 370.8,107.9" fill="none" stroke="#000" stroke-width="0.25"/>
-<circle cx="370.8" cy="106.7" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="373" y="105.3" font-size="2.3" text-anchor="start" fill="#000">-X3</text><text x="373" y="109.3" font-size="2.3" text-anchor="start" fill="#000">15</text>
-<polyline points="370.8,105.5 370.8,96" fill="none" stroke="#000" stroke-width="0.25"/>
-<rect x="364.8" y="76" width="12" height="20" fill="none" stroke="#000" stroke-width="0.3" stroke-dasharray="4 1 0.6 1"/><text x="364.8" y="74.4" font-size="2.8" text-anchor="start" fill="#000">-E15</text><circle cx="370.8" cy="96" r="0.5" fill="#000"/><text x="369.2" y="94.8" font-size="2.1" text-anchor="end" fill="#000">−</text><circle cx="370.8" cy="76" r="0.5" fill="#000"/><text x="369.2" y="74.8" font-size="2.1" text-anchor="end" fill="#000">+</text>
-<polyline points="370.8,76 370.8,68" fill="none" stroke="#000" stroke-width="0.25"/>
-<text x="370.8" y="66.5" font-size="2" text-anchor="middle" fill="#000">L+5</text>
-<text x="370.8" y="63.5" font-size="1.8" text-anchor="middle" fill="#000">/3.7</text>
-<circle cx="382" cy="57" r="0.6" fill="#000"/>
-<text x="383.2" y="54.5" font-size="1.9" text-anchor="start" fill="#000">LED15</text>
-<polyline points="382,57 382,150 383,150" fill="none" stroke="#000" stroke-width="0.25"/>
-<circle cx="382" cy="120" r="0.6" fill="#000"/>
-<polyline points="382,120 377,120 377,160" fill="none" stroke="#000" stroke-width="0.25"/>
-<rect x="375.8" y="160" width="2.4" height="7" fill="none" stroke="#000" stroke-width="0.3"/>
-<polyline points="377,167 377,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="370.8,151 370.8,132" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="370.8,112 370.8,118" fill="none" stroke="#000" stroke-width="0.25"/><rect x="368.8" y="118" width="4" height="8" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="367.3,127 374.3,117 375.8,117" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="370.8,126 370.8,132" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="372.8" y="128" font-size="1.8" text-anchor="start" fill="#000">-F16</text>
+<polyline points="370.8,112 370.8,101.2" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="370.8" cy="100" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="373" y="98.6" font-size="2.3" text-anchor="start" fill="#000">-X3</text><text x="373" y="102.6" font-size="2.3" text-anchor="start" fill="#000">15</text>
+<polyline points="370.8,98.8 370.8,88" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="364.8" y="68" width="12" height="20" fill="none" stroke="#000" stroke-width="0.3" stroke-dasharray="4 1 0.6 1"/><text x="364.8" y="66.4" font-size="2.8" text-anchor="start" fill="#000">-E15</text><circle cx="370.8" cy="88" r="0.5" fill="#000"/><text x="369.2" y="86.8" font-size="2.1" text-anchor="end" fill="#000">−</text><circle cx="370.8" cy="68" r="0.5" fill="#000"/><text x="369.2" y="66.8" font-size="2.1" text-anchor="end" fill="#000">+</text>
+<polyline points="370.8,68 370.8,62" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="370.8" y="60.5" font-size="2" text-anchor="middle" fill="#000">R5+</text>
+<text x="370.8" y="57.5" font-size="1.8" text-anchor="middle" fill="#000">/3.7</text>
+<circle cx="382" cy="50" r="0.6" fill="#000"/>
+<text x="383.2" y="49" font-size="1.9" text-anchor="start" fill="#000">LED15</text>
+<polyline points="382,50 382,160 383,160" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="382" cy="176" r="0.6" fill="#000"/>
+<polyline points="382,176 377,176 377,184" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="375.8" y="184" width="2.4" height="7" fill="none" stroke="#000" stroke-width="0.3"/>
+<polyline points="377,191 377,230" fill="none" stroke="#000" stroke-width="0.25"/>
 <circle cx="377" cy="230" r="0.6" fill="#000"/>
-<text x="378.6" y="172" font-size="1.7" text-anchor="start" fill="#000">9</text>
-<circle cx="392" cy="150" r="6.5" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="383,150 388.5,150" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="388.5,146.5 388.5,153.5" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="390,146 390,148" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="390,149 390,151" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="390,152 390,154" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="390,147 394,147 394,141" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="390,153 394,153 394,159" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="390,150 394,150 394,153" fill="none" stroke="#000" stroke-width="0.25"/><polygon points="390,150 391.8,149 391.8,151" fill="#000"/><text x="396" y="142.5" font-size="2.6" text-anchor="start" fill="#000">-Q16</text>
-<polyline points="394,159 394,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="374.8" y="189" font-size="1.8" text-anchor="end" fill="#000">-R17</text>
+<circle cx="392" cy="160" r="6.5" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="383,160 388.5,160" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="388.5,156.5 388.5,163.5" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="390,156 390,158" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="390,159 390,161" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="390,162 390,164" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="390,157 394,157 394,151" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="390,163 394,163 394,169" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="390,160 394,160 394,163" fill="none" stroke="#000" stroke-width="0.25"/><polygon points="390,160 391.8,159 391.8,161" fill="#000"/><text x="396" y="152.5" font-size="2.6" text-anchor="start" fill="#000">-Q16</text>
+<polyline points="394,169 394,230" fill="none" stroke="#000" stroke-width="0.25"/>
 <circle cx="394" cy="230" r="0.6" fill="#000"/>
-<polyline points="394,141 394,107.9" fill="none" stroke="#000" stroke-width="0.25"/>
-<circle cx="394" cy="106.7" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="396.2" y="105.3" font-size="2.3" text-anchor="start" fill="#000">-X3</text><text x="396.2" y="109.3" font-size="2.3" text-anchor="start" fill="#000">16</text>
-<polyline points="394,105.5 394,96" fill="none" stroke="#000" stroke-width="0.25"/>
-<rect x="388" y="76" width="12" height="20" fill="none" stroke="#000" stroke-width="0.3" stroke-dasharray="4 1 0.6 1"/><text x="388" y="74.4" font-size="2.8" text-anchor="start" fill="#000">-E16</text><circle cx="394" cy="96" r="0.5" fill="#000"/><text x="392.4" y="94.8" font-size="2.1" text-anchor="end" fill="#000">−</text><circle cx="394" cy="76" r="0.5" fill="#000"/><text x="392.4" y="74.8" font-size="2.1" text-anchor="end" fill="#000">+</text>
-<polyline points="394,76 394,68" fill="none" stroke="#000" stroke-width="0.25"/>
-<text x="394" y="66.5" font-size="2" text-anchor="middle" fill="#000">L+6</text>
-<text x="394" y="63.5" font-size="1.8" text-anchor="middle" fill="#000">/3.7</text>
-<text x="25" y="238" font-size="2.5" text-anchor="start" fill="#000">-Q1..-Q16: IRLD024 (logic-level N-MOSFET). -R2, -R3: 8 x 100 kΩ (SIP-9) naar M: de groep blijft uit zolang -K2 de uitgang niet stuurt.</text>
-<text x="25" y="244" font-size="2.5" text-anchor="start" fill="#000">-E1..-E16: Modelbouwled "PCB met ingebouwde weerstand" (16 leds, elk met een weerstand in de +). De − van het bordje aan -X3:n, de + aan L+ van zijn rij. De − nooit doorlussen.</text>
+<polyline points="394,151 394,132" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="394,112 394,118" fill="none" stroke="#000" stroke-width="0.25"/><rect x="392" y="118" width="4" height="8" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="390.5,127 397.5,117 399,117" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="394,126 394,132" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="396" y="128" font-size="1.8" text-anchor="start" fill="#000">-F17</text>
+<polyline points="394,112 394,101.2" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="394" cy="100" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="396.2" y="98.6" font-size="2.3" text-anchor="start" fill="#000">-X3</text><text x="396.2" y="102.6" font-size="2.3" text-anchor="start" fill="#000">16</text>
+<polyline points="394,98.8 394,88" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="388" y="68" width="12" height="20" fill="none" stroke="#000" stroke-width="0.3" stroke-dasharray="4 1 0.6 1"/><text x="388" y="66.4" font-size="2.8" text-anchor="start" fill="#000">-E16</text><circle cx="394" cy="88" r="0.5" fill="#000"/><text x="392.4" y="86.8" font-size="2.1" text-anchor="end" fill="#000">−</text><circle cx="394" cy="68" r="0.5" fill="#000"/><text x="392.4" y="66.8" font-size="2.1" text-anchor="end" fill="#000">+</text>
+<polyline points="394,68 394,62" fill="none" stroke="#000" stroke-width="0.25"/>
+<text x="394" y="60.5" font-size="2" text-anchor="middle" fill="#000">R6+</text>
+<text x="394" y="57.5" font-size="1.8" text-anchor="middle" fill="#000">/3.8</text>
+<circle cx="400" cy="210" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="397.8" y="208.6" font-size="2.3" text-anchor="end" fill="#000">-X3</text><text x="397.8" y="212.6" font-size="2.3" text-anchor="end" fill="#000">17</text>
+<polyline points="400,211.2 400,230" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="400" cy="230" r="0.6" fill="#000"/>
+<polyline points="400,208.8 400,200" fill="none" stroke="#000" stroke-width="0.25"/>
+<polygon points="400,200 398.9,202.2 401.1,202.2" fill="#000"/><text x="400" y="195.6" font-size="2.2" text-anchor="middle" fill="#000">M</text><text x="400" y="198.4" font-size="2" text-anchor="middle" fill="#000">/3.2</text>
+<text x="25" y="238" font-size="2.4" text-anchor="start" fill="#000">-Q1..-Q16: AO3400A (N-MOSFET, R(on) ≤ 48 mΩ bij UGS = 2,5 V), per 2 op een adapterprintje -U1..-U8 (DA-SOT23-3-X2) in een IC-voet DIP-8. -R2..-R17: 100 kΩ (1206).</text>
+<text x="25" y="243" font-size="2.4" text-anchor="start" fill="#000">-F2..-F17: polyfuse 0,5 A (MF-MSMF050/24X) per groep: een kortsluiting op een bordje of zijn draad raakt de MOSFET niet. -E1..-E16: Modelbouwled-bordjes; de − nooit doorlussen.</text>
+<text x="25" y="248" font-size="2.4" text-anchor="start" fill="#000">-X3:17 (0 V-retour, tot 5,2 A) met 0,75 mm² naar -X1:3; op de print een blanke draad Ø1,0 (0,79 mm²) langs de sources. -X3:18 reserve (0 V).</text>
 </svg>
