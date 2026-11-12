@@ -29,7 +29,7 @@ function scèneVlakken(sc, t, V) {
     const off = (d.uit ?? [0, 0, 0]).map((x) => x * t);
     for (const s of d.solids) for (const v of vlakken(s)) {
       const p = v.pts.map(([x, y, z]) => V.rot([x + off[0], y + off[1], z + off[2]])), n = V.rot(v.n);
-      uit.push({ p, n, diep: p.reduce((s2, q) => s2 + q[2], 0) / p.length, d });
+      uit.push({ p, n, diep: p.reduce((s2, q) => s2 + q[2], 0) / p.length, d, naad: !!s.naad });
     }
   }
   return uit;
@@ -54,10 +54,17 @@ export function tekenScène(sc, { t = 1, vak = [0, 0, 100, 100], yaw, pitch, num
     if (v.n[2] < -1e-6) continue; // achterkant
     const c = hex(v.d.kleur), lam = Math.max(0, v.n[0] * LICHT[0] + v.n[1] * LICHT[1] + v.n[2] * LICHT[2]), k = 0.5 + 0.55 * lam;
     const vul = rgb(c.map((x) => x * k + 18)), rand = rgb(c.map((x) => x * 0.38));
-    el.push(`<polygon points="${v.p.map((q) => naar(q).map(f).join(',')).join(' ')}" fill="${vul}"${v.d.alpha ? ` fill-opacity="${v.d.alpha}"` : ''} stroke="${rand}" stroke-width="${f(Math.min(0.22, Math.max(0.06, s * 0.12)))}" stroke-linejoin="round"/>`);
+    // de naden van een geboorde wand (sectoren rond het gat) niet tekenen: de rand in de kleur van het vlak
+    el.push(`<polygon points="${v.p.map((q) => naar(q).map(f).join(',')).join(' ')}" fill="${vul}"${v.d.alpha ? ` fill-opacity="${v.d.alpha}"` : ''} stroke="${v.naad ? vul : rand}" stroke-width="${f(v.naad ? 0.22 : Math.min(0.22, Math.max(0.06, s * 0.12)))}" stroke-linejoin="round"/>`);
   }
   const ankers = nummers ? sc.delen.filter((d) => d.nr && !(d.alleenSamen && t > 0.05) && !(d.alleenUit && t < 0.05)).map((d) => { const [x, y] = naar(anker(d, t, V)); return { nr: d.nr, x, y }; }) : [];
-  return { svg: el.join(''), ankers, schaal: s };
+  // de gaten: een vierkantje met een letter bij elk gat (zoals de ballonnen bij de delen)
+  const gatAnkers = nummers ? (sc.gaten ?? []).map((g, i) => { const d = sc.delen.find((x) => x.naam === g.volg), off = (d?.uit ?? [0, 0, 0]).map((x) => x * t); const [x, y] = naar(V.rot([g.p[0] + off[0], g.p[1] + off[1], g.p[2] + off[2]])); return { letter: 'abcdefgh'[i], x, y }; }) : [];
+  for (const a of gatAnkers) {
+    const bx = a.x + 7, by = a.y - 7;
+    el.push(L(a.x, a.y, bx - 2, by + 2, 0.2, '#b42318'), `<circle cx="${f(a.x)}" cy="${f(a.y)}" r="0.55" fill="#b42318"/>`, `<rect x="${f(bx - 2)}" y="${f(by - 2.4)}" width="4.6" height="4.6" fill="#fff" stroke="#b42318" stroke-width="0.35"/>`, T(bx + 0.3, by + 1, a.letter, 3, { anker: 'middle', vet: true, kleur: '#b42318' }));
+  }
+  return { svg: el.join(''), ankers, gatAnkers, schaal: s };
 }
 
 /** ballonnen links en rechts van de tekening, met een leiderlijn naar het deel; zonder kruisen (gesorteerd op hoogte) */
@@ -101,14 +108,19 @@ export function montageBlad(o, sc, meta = {}) {
     lijnen.forEach((t, i) => el.push(T(195.6, y + i * 2.7, t, 2.05)));
     y += 2.7 * lijnen.length + 1.1;
   }
+  if (sc.gaten?.length) {
+    y += 1.2; el.push(T(186, y, 'Gaten (ISO 15786: ⌵ = verzinking)', 2.9, { vet: true })); y += 3.4;
+    sc.gaten.forEach((g, i) => { const l = rij(g.tekst, 64).slice(0, 2); el.push(`<rect x="186.2" y="${f(y - 2.6)}" width="3.4" height="3.4" fill="#fff" stroke="#b42318" stroke-width="0.3"/>`, T(187.9, y, 'abcdefgh'[i], 2.3, { anker: 'middle', vet: true, kleur: '#b42318' })); l.forEach((t, j) => el.push(T(191, y + j * 2.6, t, 2.05))); y += 2.6 * l.length + 0.8; });
+  }
   y += 1.5;
   el.push(T(186, y, 'Bevestiging en norm', 2.9, { vet: true })); y += 3.4;
-  for (const [wat, n, norm] of sc.middelen) { const l = rij(`${wat} · ${n}${norm ? ` · ${norm}` : ''}`, 70).slice(0, 2); l.forEach((t, i) => el.push(T(186, y + i * 2.6, `${i ? '  ' : '• '}${t}`, 2.05))); y += 2.6 * l.length + 0.5; }
+  for (const [wat, n, norm] of sc.middelen) { const l = rij(`${wat} · ${n}${norm ? ` · ${norm}` : ''}`, 70).slice(0, 2); if (y + 2.6 * l.length > H4 - 37) { el.push(T(186, y, '… zie de stuklijst', 2.05, { kleur: '#555' })); break; } l.forEach((t, i) => el.push(T(186, y + i * 2.6, `${i ? '  ' : '• '}${t}`, 2.05))); y += 2.6 * l.length + 0.5; }
   // stappen onderaan links
   let ys = 161;
   el.push(T(24, ys, 'Zo bouw je het', 2.9, { vet: true })); ys += 3.6;
-  sc.stappen.forEach((s, i) => { const l = rij(s, 96); l.forEach((t, j) => { if (ys < H4 - 12) el.push(T(j ? 28 : 24, ys, `${j ? '' : `${i + 1}. `}${t}`, 2.1)); ys += 2.65; }); ys += 0.3; });
-  if (sc.let) { const l = rij(`Let op: ${sc.let}`, 64).slice(0, 3), y0 = Math.min(y + 2, H4 - 36 - 2.6 * l.length); l.forEach((t, i) => el.push(T(186, y0 + i * 2.6, t, 2.05, { kleur: kl, vet: true }))); }
+  const letL = sc.let ? rij(`Let op: ${sc.let}`, 96).slice(0, 2) : [], grens = H4 - 12.5 - 2.7 * letL.length;
+  sc.stappen.forEach((s, i) => { const l = rij(s, 96); l.forEach((t, j) => { if (ys < grens) el.push(T(j ? 28 : 24, ys, `${j ? '' : `${i + 1}. `}${t}`, 2.1)); ys += 2.65; }); ys += 0.3; });
+  if (letL.length) { const y0 = Math.min(ys + 1.2, grens + 1.5); letL.forEach((t, i) => el.push(T(24, y0 + i * 2.65, t, 2.1, { kleur: kl, vet: true }))); }
   // titelblok A4 (ISO 7200, ingekort)
   const tx = W4 - 10 - 100, ty = H4 - 10 - 24, veld = (x, r, kop, w, h = 2.3, vet = false) => { if (x) el.push(L(tx + x, ty + r * 8, tx + x, ty + r * 8 + 8)); el.push(T(tx + x + 1, ty + r * 8 + 2.5, kop, 1.6, { kleur: '#555' }), T(tx + x + 1, ty + r * 8 + 6.5, w, h, { vet })); };
   el.push(`<rect x="${tx}" y="${ty}" width="100" height="24" fill="#fff" stroke="#111" stroke-width="0.5"/>`, L(tx, ty + 8, tx + 100, ty + 8), L(tx, ty + 16, tx + 100, ty + 16));

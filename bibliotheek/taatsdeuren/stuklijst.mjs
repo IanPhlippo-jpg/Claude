@@ -6,28 +6,44 @@ import { veelhoek, lengte, kaderVan, opp, MATEN } from './deuren.mjs';
 import { STAAF } from './prijzen.mjs';
 import { telling } from './werkwijze.mjs';
 import { GLAS, OPBOUW, SCHARNIEREN } from './opties.mjs';
+import { gatenVan, glaslatGaten, gatTekst, stukGeo } from './boringen.mjs';
 
 const r1 = (x) => Math.round(x * 10) / 10;
 /** materiaal van een staaf: een koopprofiel met zijn artikel, anders S235 */
 const matVan = (prof) => { const s = STAAF[prof]; return s?.mat ? `${s.naam}, ${s.mat}` : s?.koop ? `${s.naam}, staal verzinkt` : `S235, ${s?.naam ?? prof}`; };
 const zichtVan = (sys, s) => (s === 'roede' || s === 'boog' ? sys.roede.zicht : s === 'kozijn' || s === 'boogkozijn' ? sys.kozijn.zicht : sys.kader.zicht);
 
-/** een recht stuk in eigen assen: u langs de staaf (0..L), v dwars; de eenvoudigste van de 4 spiegelingen */
-function lokaal(d, poly) {
+/** een recht stuk in eigen assen: u langs de staaf (0..L), v dwars; de eenvoudigste van de 4 spiegelingen. gaten (in
+ *  het vlak van de groep) gaan mee: bij gelijke vorm kiest de spiegeling met de eenvoudigste gaten (zo zijn gespiegelde
+ *  stukken met dezelfde gaten één positie) */
+function lokaal(d, poly, gaten = [], geo = null) {
   const dx = d.b[0] - d.a[0], dy = d.b[1] - d.a[1], l = Math.hypot(dx, dy), u = [dx / l, dy / l], n = [-u[1], u[0]];
-  const pts = poly.map((p) => [(p[0] - d.a[0]) * u[0] + (p[1] - d.a[1]) * u[1], (p[0] - d.a[0]) * n[0] + (p[1] - d.a[1]) * n[1]]);
+  const naar = (p) => [(p[0] - d.a[0]) * u[0] + (p[1] - d.a[1]) * u[1], (p[0] - d.a[0]) * n[0] + (p[1] - d.a[1]) * n[1]];
+  const pts = poly.map(naar);
   const u0 = Math.min(...pts.map((p) => p[0])), L = Math.max(...pts.map((p) => p[0])) - u0, v0 = Math.min(...pts.map((p) => p[1])), V = Math.max(...pts.map((p) => p[1])) - v0;
   const basis = pts.map(([x, y]) => [x - u0, y - v0]);
-  const varianten = [basis, basis.map(([x, y]) => [x, V - y]), basis.map(([x, y]) => [L - x, y]), basis.map(([x, y]) => [L - x, V - y])];
+  const g0 = gaten.map((b) => { const [x, y] = naar(b.p); return { ...b, u: x - u0, v: y - v0, kant: b.vlak === 'zijde' && geo ? (geo.dwars(b.p) > 0 ? 'buiten' : 'binnen') : undefined }; });
+  const spiegel = [[false, false], [false, true], [true, false], [true, true]];
   const sleutel = (p) => p.map(([x, y]) => `${Math.round(x)},${Math.round(y)}`).sort().join(' ');
-  const best = varianten.map((p) => [sleutel(p), p]).sort((a, b) => (a[0] < b[0] ? -1 : 1))[0];
-  return { pts: best[1], L, V, sleutel: best[0] };
+  const gsl = (gs) => gs.map((b) => `${Math.round(b.u)}|${Math.round(b.v)}|${b.vlak}|${Math.round(b.z ?? 0)}|${gatTekst(b)}`).sort().join(' ');
+  const varianten = spiegel.map(([su, sv]) => {
+    const p = basis.map(([x, y]) => [su ? L - x : x, sv ? V - y : y]);
+    const gs = g0.map((b) => ({ ...b, u: su ? L - b.u : b.u, v: sv ? V - b.v : b.v }));
+    return { p, gs, k: sleutel(p), kg: gsl(gs), sv };
+  });
+  const best = varianten.sort((a, b) => (a.k < b.k ? -1 : a.k > b.k ? 1 : a.kg < b.kg ? -1 : a.kg > b.kg ? 1 : 0))[0];
+  // de buitenkant (naar de rand van de deur) in eigen assen: v = 0 of v = V
+  let vBuiten = null;
+  if (geo) { const vb = naar(geo.buiten(geo.L / 2))[1] - v0; vBuiten = Math.round(best.sv ? V - vb : vb); }
+  return { pts: best.p, L, V, sleutel: best.k, boringen: best.gs.map(({ p, ...b }) => b), gatSleutel: best.kg, vBuiten };
 }
 /** hoek van een uiteinde tegen de as: 90 = recht, 45 = verstek */
 function eindhoeken(pts) {
   const s = [...pts].sort((a, b) => a[0] - b[0]), hoek = (p, q) => Math.round((Math.atan2(Math.abs(q[1] - p[1]), Math.abs(q[0] - p[0]) || 1e-9) * 180) / Math.PI);
   return [hoek(s[0], s[1]), hoek(s[2], s[3])];
 }
+/** de gaten kort in de opmerking: '; gaten: 4 x Ø6,5, 2 x Ø5,5 ⌵ Ø10 x 90°' */
+const gatenOpm = (gs) => { if (!gs?.length) return ''; const t = new Map(); for (const b of gs) t.set(gatTekst(b), (t.get(gatTekst(b)) ?? 0) + 1); return `; gaten: ${[...t].map(([k, n]) => `${n} x ${k}`).join(', ')}`; };
 const bewerking = (h, tot) => h.map((x) => (x >= 89 ? 'recht' : tot ? `schuin ${90 - x}° (volgens de boog)` : `verstek ${x}°`)).join(' · ');
 
 /** de stuklijst: { posities: [{ pos, soort, naam, mat, maat, n, kg, opm, vorm, plaats }] } */
@@ -46,19 +62,21 @@ export function stuklijst(o, keuzes = {}) {
   for (const [gi, [wat, g, dx, dy, B, H]] of groepen.entries()) for (const d of g.delen) {
     if (!d.a) continue;
     const w = zichtVan(sys, d.soort), mid = [dx + (d.a[0] + d.b[0]) / 2, dy + (d.a[1] + d.b[1]) / 2];
-    const stuk = (prof, breedte, aantal, naam, extra = '') => {
-      const vorm = lokaal(d, veelhoek(d, breedte, B, H)), h = eindhoeken(vorm.pts), s = STAAF[prof];
-      const sleutel = `staaf|${prof}|${vorm.sleutel}|${naam}`;
-      voeg({ sleutel, soort: 'staaf', naam, prof, mat: matVan(prof), maat: `L = ${Math.round(vorm.L)}`, L: vorm.L, n: aantal, kg: (s?.kgm ?? 0) * vorm.L / 1000, opm: `${bewerking(h, d.tot)}${extra}`, zagen: h.map((x) => `${x}°`).join('/'), vorm }, mid);
+    const vleugel = wat === 'vleugel' ? g : null;
+    const stuk = (prof, breedte, aantal, naam, extra = '', rol = null) => {
+      const gaten = rol ? gatenVan(o, { g, d, B, H, rol, vleugel, keuzes }) : [];
+      const vorm = lokaal(d, veelhoek(d, breedte, B, H), gaten, rol ? stukGeo(d, breedte, B, H) : null), h = eindhoeken(vorm.pts), s = STAAF[prof];
+      const sleutel = `staaf|${prof}|${vorm.sleutel}|${naam}|${vorm.gatSleutel}`;
+      voeg({ sleutel, soort: 'staaf', naam, prof, mat: matVan(prof), maat: `L = ${Math.round(vorm.L)}`, L: vorm.L, n: aantal, kg: (s?.kgm ?? 0) * vorm.L / 1000, opm: `${bewerking(h, d.tot)}${extra}${gatenOpm(vorm.boringen)}`, zagen: h.map((x) => `${x}°`).join('/'), vorm, gaten: vorm.boringen, vBuiten: vorm.vBuiten }, mid);
       return sleutel;
     };
     // elk stuk op zijn plaats (voor de opengewerkte tekening): de roede met haar volle zichtbreedte, het nummer van de kern
     const plaats = (sleutel) => stukken.push({ sleutel, d, gi, dx, dy, B, H, w });
-    if (d.soort === 'kader' || d.soort === 'kozijn') plaats(stuk(d.soort === 'kader' ? sys.kader.staaf : sys.kozijn.staaf, w, 1, naamVan(wat, d)));
+    if (d.soort === 'kader' || d.soort === 'kozijn') plaats(stuk(d.soort === 'kader' ? sys.kader.staaf : sys.kozijn.staaf, w, 1, naamVan(wat, d), '', d.soort));
     else if (d.soort === 'roede') {
       const kern = sys.roede.lat ? 20 : w;
-      plaats(stuk(sys.roede.staaf, kern, 1, sys.roede.lat ? `${naamVan(wat, d)}: kern` : naamVan(wat, d), sys.roede.lat ? '; M4 om de 250 aan de achterkant' : ''));
-      if (sys.roede.lat) stuk(sys.roede.lat, w, 2, `${naamVan(wat, d)}: lat voor en achter`, '; voor gelast, achter geschroefd');
+      plaats(stuk(sys.roede.staaf, kern, 1, sys.roede.lat ? `${naamVan(wat, d)}: kern` : naamVan(wat, d), '', sys.roede.lat ? 'kern' : 'roede'));
+      if (sys.roede.lat) { stuk(sys.roede.lat, w, 1, `${naamVan(wat, d)}: lat voor`, '; voor: hechten om de 150 en lassen'); stuk(sys.roede.lat, w, 1, `${naamVan(wat, d)}: lat achter`, '; achter: geschroefd', 'latAchter'); }
     }
   }
   // 2. glaslatten 15x4: per ruitzijde langs de binnenkant van het kader of het kozijn, voor en achter
@@ -72,9 +90,15 @@ export function stuklijst(o, keuzes = {}) {
       const l = Math.round(Math.hypot(b[0] - a[0], b[1] - a[1])), s = STAAF[sys.glaslat.staaf];
       if (l < 20) return;
       if (sys.glaslat.achter) {
-        const h = STAAF[sys.glaslat.achter], mid = [dx + (a[0] + b[0]) / 2, dy + (a[1] + b[1]) / 2];
+        const h = STAAF[sys.glaslat.achter], mid = [dx + (a[0] + b[0]) / 2, dy + (a[1] + b[1]) / 2], gg = glaslatGaten(o, l);
         voeg({ sleutel: `glaslat|${l}`, soort: 'staaf', naam: 'Glaslat voor', prof: sys.glaslat.staaf, mat: matVan(sys.glaslat.staaf), maat: `L = ${l}`, L: l, n: 1, kg: (s?.kgm ?? 0) * l / 1000, opm: 'recht; voor: hechten om de 150 en lassen', vorm: { pts: [[0, 0], [l, 0], [l, 15], [0, 15]], L: l, V: 15 } }, mid);
-        voeg({ sleutel: `glaslatA|${l}`, soort: 'staaf', naam: 'Glaslat achter (hoeklijn)', prof: sys.glaslat.achter, mat: matVan(sys.glaslat.achter), maat: `L = ${l}`, L: l, n: 1, kg: (h?.kgm ?? 0) * l / 1000, opm: 'recht; Ø4,5 boren en 90° verzinken om de 250, M4 verzonken in de koker', vorm: { pts: [[0, 0], [l, 0], [l, 15], [0, 15]], L: l, V: 15 } }, mid);
+        voeg({ sleutel: `glaslatA|${l}`, soort: 'staaf', naam: 'Glaslat achter (hoeklijn)', prof: sys.glaslat.achter, mat: matVan(sys.glaslat.achter), maat: `L = ${l}`, L: l, n: 1, kg: (h?.kgm ?? 0) * l / 1000, opm: `recht; M4 verzonken in de koker${gatenOpm(gg)}`, vorm: { pts: [[0, 0], [l, 0], [l, 15], [0, 15]], L: l, V: 15 }, gaten: gg }, mid);
+        return;
+      }
+      if (sys.glaslat.staaf === 'dupontL2010') {
+        const mid = [dx + (a[0] + b[0]) / 2, dy + (a[1] + b[1]) / 2], gg = glaslatGaten(o, l), vorm = { pts: [[0, 0], [l, 0], [l, 10], [0, 10]], L: l, V: 10 };
+        voeg({ sleutel: `glaslat|${l}`, soort: 'staaf', naam: 'L-profiel voor (gekit)', prof: sys.glaslat.staaf, mat: matVan(sys.glaslat.staaf), maat: `L = ${l}`, L: l, n: 1, kg: (s?.kgm ?? 0) * l / 1000, opm: 'recht; met kleefkit tegen de koker', vorm }, mid);
+        voeg({ sleutel: `glaslatA|${l}`, soort: 'staaf', naam: 'L-profiel achter (geschroefd)', prof: sys.glaslat.staaf, mat: matVan(sys.glaslat.staaf), maat: `L = ${l}`, L: l, n: 1, kg: (s?.kgm ?? 0) * l / 1000, opm: `recht${gatenOpm(gg)}`, vorm, gaten: gg }, mid);
         return;
       }
       voeg({ sleutel: `glaslat|${l}`, soort: 'staaf', naam: 'Glaslat', prof: sys.glaslat.staaf, mat: matVan(sys.glaslat.staaf), maat: `L = ${l}`, L: l, n: sys.koop ? sys.glaslatRondom ?? 1 : 2, kg: (s?.kgm ?? 0) * l / 1000, opm: sys.koop ? `recht; de andere kant is de sponning van het profiel; ${sys.glaslat.uitleg}` : 'recht; voor gelast, achter geschroefd (M4 verzonken om de 250)', vorm: { pts: [[0, 0], [l, 0], [l, 15], [0, 15]], L: l, V: 15 } }, [dx + (a[0] + b[0]) / 2, dy + (a[1] + b[1]) / 2]);
@@ -107,7 +131,8 @@ export function stuklijst(o, keuzes = {}) {
     const xa = v.taats === 'links' ? v.x + MATEN.taats : v.x + v.B - MATEN.taats, xg = v.taats === 'links' ? v.x + v.B - MATEN.greep.afstand : v.x + MATEN.greep.afstand;
     if (o.scharnier !== 'verdekt' && !sys.pivot) {
       plaat('Taatsplaat onder', 36, 220, 8, 1, [[40, 18, 6.8], [180, 18, 6.8]], '2 x M8 tappen (boor Ø6,8) voor de deurplaat van de pivot; in de onderregel gelast', [xa, v.y + 20]);
-      plaat('Taatsplaat boven', 36, 140, 8, 1, [[40, 18, 20]], 'Ø20 voor de bovenpen; in de bovenregel gelast', [xa, v.y + v.H - 20]);
+      plaat('Taatsplaat boven', 36, 140, 8, 1, [[40, 18, 20]], 'Ø20 voor de bovenpen (die in de deur zit); in de bovenregel gelast', [xa, v.y + v.H - 20]);
+      voeg({ sleutel: 'plaat|Lasring bovenpen', soort: 'laser', naam: 'Lasring bovenpen (bus in het kozijn)', mat: 'S235, plaat 8 mm', maat: 'Ø30 / Ø21', n: 1, kg: Math.PI * (15 * 15 - 10.5 * 10.5) * 8 * 7.85e-6, opm: 'binnen in de bovenregel van het kozijn gelast, recht boven de taatsas', vorm: { b: 30, l: 30, t: 8, gaten: [[15, 15, 21]] } }, [xa, o.kozijn.H - 20]);
     }
     if (!sys.alu) plaat('Greephouder', 25, 40, 10, 2, [[20, 12.5, 6.8]], 'M8 tappen (boor Ø6,8); op de staander gelast', [xg, MATEN.greep.hoogte - MATEN.greep.lengte / 2 + 80]);
     else inkoop('Deurgreep 800 mm mat zwart, rug aan rug (voor en achter, Intersteel 800 x 40)', 'RVS', 1, 'doorgaande bouten M8 door de staander (Ø9 boren, hart 20 uit de sluitkant)', [xg, MATEN.greep.hoogte]);
@@ -135,10 +160,12 @@ export function stuklijst(o, keuzes = {}) {
   if (sys.alu) {
     const vb = sys.verbinders;
     inkoop(vb?.hoek ?? 'Hoekverbinder voor koker 50x25x2 (vleugel) en 60x30x2 (kozijn)', 'aluminium / zamak', t.hoeken, 'in elke verstekhoek, met stelschroeven en 2K-lijm', null);
-    if (t.tees) inkoop(vb?.tee ?? 'T-verbinder voor koker 50x25x2 (roeden)', vb ? 'RVS A2' : 'aluminium / zamak', vb ? t.tees * 2 : t.tees, 'in elk uiteinde van een roede', null);
-    if (t.tees && !vb) { inkoop('Bout M6 x 40 verzonken, inbus (ISO 10642)', 'RVS A2', t.tees, 'door de stijl in de T-verbinder; stijl Ø6,6 boren, 90° verzinken tot Ø13', null); inkoop('Stelschroef M5 x 6 (ISO 4026)', 'RVS A2', t.tees, 'zet de T-verbinder vast in de roede', null); }
-    inkoop('Stelschroef M6 x 8 (ISO 4026)', 'RVS A2', t.hoeken * 4, '4 per hoek, in de hoekverbinder', null);
-    if (o.scharnier !== 'verdekt') { inkoop('Inlegplaat pivot: 30 x 220 x 6 (onder, 2 x M6) en 30 x 140 x 6 (boven, Ø20)', 'RVS', 2 * o.vleugels.length, 'in de onder- en bovenregel geschoven', null); inkoop('Bout M6 x 16 verzonken, inbus (ISO 10642)', 'RVS A2', 4 * o.vleugels.length, 'deurplaat en inlegplaat boven', null); }
+    if (t.tees) inkoop(vb?.tee ?? 'T-verbinder voor koker 50x25x2 (roeden)', vb ? 'RVS A2' : 'aluminium / zamak', t.tees, 'in elk uiteinde van een roede', null);
+    if (t.tees) inkoop('Afdekdop voor het toegangsgat in de stijl', 'kunststof, kleur van het profiel', t.tees, vb ? 'Ø10' : 'Ø13', null);
+    if (t.tees && !vb) { inkoop('Cilinderkopbout M6 x 30, inbus (ISO 4762)', 'RVS A2', t.tees, 'door de binnenwand van de stijl in de T-verbinder (toegang Ø13 in de buitenwand)', null); inkoop('Stelschroef M5 x 6 (ISO 4026)', 'RVS A2', t.tees, 'zet de T-verbinder vast in de roede', null); }
+    inkoop('Stelschroef M6 x 8 (ISO 4026)', 'RVS A2', t.hoeken * 4, '4 per hoek, in de hoekverbinder (aangedraaid van de glaszijde)', null);
+    inkoop('Afstandsbus Ø12 / Ø8,5 voor de greepbouten', 'RVS', 2 * o.vleugels.length, 'in de koker, zodat de bouten M8 de staander niet platdrukken', null);
+    if (o.scharnier !== 'verdekt') { inkoop('Inlegplaat pivot onder 30 x 220 x 6, 2 x M6', 'RVS', o.vleugels.length, 'in de onderregel geschoven voor de hoeken dicht gaan', null); inkoop('Pendrager 30 x 60 (holtehoogte): deur Ø20 voor de pen, kozijn Ø19,2 glijbus; zijdelings M6', 'aluminium of POM', 2 * o.vleugels.length, 'in de bovenregel van de deur en van het kozijn, vast met een stelschroef', null); inkoop('Bout M6 x 16 verzonken, inbus (ISO 10642)', 'RVS A2', 2 * o.vleugels.length, 'deurplaat onder in de inlegplaat', null); inkoop('Stelschroef M6 x 10 (ISO 4026)', 'RVS A2', 2 * o.vleugels.length, 'zet de pendragers vast (glaszijde en muurkant)', null); }
     if (!vb) inkoop('Boorschroef RVS 3,5 x 13 (achterste L-profielen)', 'A2', Math.ceil((t.latM * 1000) / 2 / 300), 'om de 300 mm', null);
   } else {
     inkoop('Schroef M4 x 10 verzonken, RVS (ISO 10642)', 'A2', t.gaten, 'hoeklijnen achter en latten op de roeden, om de 250', null);

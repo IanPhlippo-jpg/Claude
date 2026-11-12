@@ -1356,4 +1356,13 @@ elease; README en docs/04 bijgewerkt
 - [x] Pivot draait in 3D naar beide kanten (verdekt blijft één kant)
 - [x] Prijzen naar de markt: aluminium hoogstens ± € 880 excl. btw, staal € 1 100 tot 2 300; plaatsen apart; marktvergelijking per materiaal
 - [x] Nieuwe look van de hele configurator
-- [~] Testen (qaDeuren + browser), presentatie en artifact bijwerken, foto's naar Ian, commit en push
+- [x] Testen (qaDeuren 500 + montage 31 + browser), presentatie en artifact bijwerken, foto's naar Ian, commit en push (e2d06f4)
+
+## Taatsdeuren: gaten van de vijzen en de profielen tot in detail (2026-11-12)
+- [x] Boringen per stuk vastleggen (boringen.mjs): plaats, Ø, verzinking 90°, schroefdraad, door één of beide wanden, per systeem
+- [x] Montage-3D en -bladen: echte gaten met afschuining in de wanden en platen, letters A, B, ... met de maat (ISO 15786)
+- [x] Stukbladen per onderdeel: de gaten in de aanzichten met maten en verzinksymbool
+- [x] Profielen tot in detail: kokers met hoekstralen (EN 10219), wanden en kamers zoals ze echt zijn; pivot boven met inlegplaat in het kozijn
+- [~] Testen (gaten op de juiste plaats, door de juiste stukken), artifact, foto's, commit en push
+- [x] Structuur (fijnstructuur, glad mat, zijdeglans) als stalen in de RAL-kleur (beide configuratoren)
+- [x] Advies Fable 5.2 (deuren en hele CAD) en de fouten verbeterd: geen verzonken kop in dunne wand, hoeklijn 3 mm, vloeiboren M4, toegangsgat met afdekdop, afstandsbus greep, stelschroeven aan de glaszijde, glijbus en intrekgat bovenpen

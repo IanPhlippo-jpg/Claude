@@ -33,7 +33,7 @@ export function sectie(o, rol) {
   if (!st.koop) {
     // eigen staven: koker AxBxT (hol) of platstaal (massief)
     let m;
-    if ((m = naam.match(/koker (\d+)x(\d+)x(\d+)/))) { const t = +m[3], Dk = rol === 'roede' && sys.roede.lat ? D - 6 : D; return { rol, prof, naam, V: rol === 'roede' && sys.roede.lat ? 20 : V, D: Dk, t, wanden: doos(rol === 'roede' && sys.roede.lat ? 20 : V, Dk, t) }; }
+    if ((m = naam.match(/koker (\d+)x(\d+)x(\d+)/))) { const t = +m[3], Dk = rol === 'roede' && sys.roede.lat ? D - 6 : D; return { rol, prof, naam, V: rol === 'roede' && sys.roede.lat ? 20 : V, D: Dk, t, wanden: doos(rol === 'roede' && sys.roede.lat ? 20 : V, Dk, t), r: 2 * t }; } // koudgevormde koker: buitenstraal ± 2t (EN 10219-2)
     if ((m = naam.match(/platstaal (\d+)x(\d+)/))) { const [a, b] = [+m[1], +m[2]], vv = Math.min(a, rol === 'roede' && sys.roede.lat ? 20 : V), dd = a === vv ? b : a; return { rol, prof, naam, V: vv, D: dd, t: 0, wanden: [{ v0: 0, v1: vv, z0: 0, z1: dd }], massief: true, lat: rol === 'roede' ? sys.roede.lat : null }; }
     return { rol, prof, naam, V, D, t: 0, wanden: [{ v0: 0, v1: V, z0: 0, z1: D }], massief: true };
   }
@@ -111,7 +111,11 @@ export function tekenSectie(sec, x, y, s, { glas = true, maten = true, o = null,
     }
   }
   // de wanden: staal gearceerd, isolatie geel
-  for (const w of sec.wanden) el.push(R(w.v0, w.z0, w.v1 - w.v0, w.z1 - w.z0, w.iso ? '#e3cf8f' : w.rubber ? '#3a3d40' : sec.massief ? '#8a9095' : '#2b2f33', 0.2));
+  // een koudgevormde koker met zijn hoekstralen (buiten 2t, binnen t); anders de wanden zoals ze zijn
+  if (sec.r && !sec.massief) {
+    const rr = (v0, z0, w, d, r, vul) => `<rect x="${f(x + v0 * s)}" y="${f(y + z0 * s)}" width="${f(w * s)}" height="${f(d * s)}" rx="${f(r * s)}" fill="${vul}" stroke="#111" stroke-width="0.2"/>`;
+    el.push(rr(0, 0, sec.V, sec.D, sec.r, '#2b2f33'), rr(sec.t, sec.t, sec.V - 2 * sec.t, sec.D - 2 * sec.t, sec.r - sec.t, '#fff'));
+  } else for (const w of sec.wanden) el.push(R(w.v0, w.z0, w.v1 - w.v0, w.z1 - w.z0, w.iso ? '#e3cf8f' : w.rubber ? '#3a3d40' : sec.massief ? '#8a9095' : '#2b2f33', 0.2));
   for (const [gv, gz, gdm] of sec.gaten ?? []) el.push(`<circle cx="${f(x + gv * s)}" cy="${f(y + gz * s)}" r="${f((gdm / 2) * s)}" fill="#fff" stroke="#111" stroke-width="0.2"/>`);
   // roede van platstaal met latten voor en achter (eigen staven)
   if (sec.lat) { const l = 30; el.push(R(sec.V / 2 - l / 2, -3, l, 3, '#8a9095', 0.2), R(sec.V / 2 - l / 2, sec.D, l, 3, '#8a9095', 0.2)); }

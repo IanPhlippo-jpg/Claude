@@ -37,7 +37,7 @@ $('k-draai').innerHTML = radio('draai', [['links', 'Scharnierkant links'], ['rec
 $('k-opbouw').innerHTML = radio('opbouw', Object.entries(OPBOUW).map(([v, o]) => [v, o.naam]));
 $('k-glas').innerHTML = Object.entries(GLAS).map(([v, g]) => `<label class="staal glasstaal" title="${esc(g.soort)}"><input type="radio" name="glas" value="${v}"><span class="proef glas-${g.patroon ?? 'glad'}" style="--tint:${g.tint};--dek:${g.dekking}"></span><span class="snaam">${esc(g.naam)}</span></label>`).join('');
 $('k-ral').innerHTML = RAL.map((c) => `<label class="staal" title="RAL ${esc(c.code)} ${esc(c.naam)}"><input type="radio" name="ral" value="${c.code}"><span class="proef${c.metallic ? ' metallic' : ''}" style="--kleur:${c.hex}"></span><span class="snaam">${c.code === 'brons' ? 'Brons' : `RAL ${c.code}`}<small>${esc(c.code === 'brons' ? 'metallic' : c.naam)}</small></span></label>`).join('');
-$('k-lak').innerHTML = radio('lak', Object.entries(AFWERKINGEN).map(([v, a]) => [v, a.naam]));
+$('k-lak').innerHTML = Object.entries(AFWERKINGEN).map(([v, a]) => `<label class="staal" title="${esc(a.uitleg)}"><input type="radio" name="lak" value="${v}"><span class="proef lak-${v}"></span><span class="snaam">${esc(a.naam)}</span></label>`).join('');
 $('k-muur').innerHTML = radio('muur', Object.entries(MUREN).map(([v, [t]]) => [v, t]));
 $('k-vloer').innerHTML = radio('vloer', Object.entries(VLOEREN).map(([v, [t]]) => [v, t]));
 
@@ -70,7 +70,7 @@ function teken() {
   const met = (key) => ({ ...opts, opbouw: k.gebruik === 'buiten' || (SYSTEMEN[key]?.glasMin ?? 0) > 9 ? 'dubbel' : opts.opbouw });
   if (k.systeem !== 'auto' && !systeemPast(k.systeem, met(k.systeem))) melding.push(`Het profiel ${SYSTEMEN[k.systeem].kort} past niet bij deze keuze; ik neem ${SYSTEMEN[kiesSysteem({ ...met('auto'), systeem: 'auto' })].kort}.`);
   const o = ontwerp(s.id, B, H, opts);
-  const c = kostprijs(o, { ...k, afwerking: 'poedercoat', uurloon: inst.uurloon, marge: inst.marge });
+  const c = kostprijs(o, { ...k, afwerking: 'poedercoat', uurloon: inst.uurloon, marge: o.sys.alu ? (inst.margeAlu ?? 20) : inst.marge });
   // een pivot draait naar beide kanten, verdekte scharnieren naar één kant
   $('open').min = o.scharnier === 'verdekt' ? 0 : -90; if (o.scharnier === 'verdekt' && kamerStand.open < 0) { kamerStand.open = 0; $('open').value = 0; } $('openW').textContent = hoek(kamerStand.open);
   const zw = Math.max(...c.gewicht.vleugels);
@@ -90,6 +90,7 @@ function teken() {
   $('lakUitleg').textContent = AFWERKINGEN[k.lak].uitleg;
   // 2D: vooraanzicht met de hoofdmaten in de gekozen kleur
   const kleur = RAL.find((x) => x.code === k.ral) ?? RAL[0], g = GLAS[k.glas];
+  $('k-lak').style.setProperty('--kleur', kleur.hex);
   const W = 220, Hh = 300, sc = Math.min((W - 70) / o.kozijn.B, (Hh - 45) / o.kozijn.H), ox = 34 + (W - 70 - o.kozijn.B * sc) / 2;
   const licht = parseInt(kleur.hex.slice(1, 3), 16) > 150;
   $('tekening').innerHTML = `<svg viewBox="0 0 ${W} ${Hh}" width="${W * 2}" height="${Hh * 2}" role="img" aria-label="Vooraanzicht met maten">${vooraanzicht(o, sc, ox, Hh - 22, { staal: kleur.hex, paneel: kleur.hex, lijn: licht ? '#555' : '#111', glas: mengGlas(g), maten: true, assen: true, tekst: 4 })}</svg>`;

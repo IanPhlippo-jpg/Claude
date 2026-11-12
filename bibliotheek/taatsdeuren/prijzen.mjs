@@ -17,6 +17,7 @@ export const STAAF = {
   plat30x3: { naam: 'platstaal 30x3', kgm: 0.71, prijs: 3.9, omtrek: 66, bron: 'schatting: € 5,50/kg' },
   plat15x4: { naam: 'platstaal 15x4', kgm: 0.47, prijs: 2.6, omtrek: 38, bron: 'schatting: € 5,50/kg' },
   hoek15x15x2: { naam: 'hoeklijn 15x15x2', kgm: 0.44, prijs: 2.42, omtrek: 60, bron: 'schatting: € 5,50/kg (hoeklijn 15x15x2: 0,44 kg/m)' },
+  hoek15x15x3: { naam: 'hoeklijn 15x15x3', kgm: 0.64, prijs: 3.52, omtrek: 60, bron: 'schatting: € 5,50/kg (hoeklijn 15x15x3: 0,64 kg/m, EN 10056-1)' },
   rond25: { naam: 'rond Ø25', kgm: 3.85, prijs: 21.2, omtrek: 79, bron: 'schatting: € 5,50/kg' },
   // ---- koopprofielen (staven van 6 m; wand 1,5 mm). Gewicht: Feon-profiellijst 08/2020 (Jansen) en Forster-planningsdocument
   // 988320 (03/21). Prijs per m of kg is nergens publiek: schatting per kg, offerte vragen (Jansen BE: info.belgium@jansen.com;

@@ -20,7 +20,7 @@ export async function verbinding3d(houder) {
   const labels = document.createElement('div'); labels.style.cssText = 'position:absolute;inset:0;pointer-events:none;overflow:hidden';
   houder.appendChild(labels);
   houder.addEventListener('wheel', (e) => { if (!e.ctrlKey && !e.metaKey) e.stopPropagation(); }, { capture: true });
-  let groep = null, delen = [], t = 1, anim = null, kijk = null;
+  let groep = null, delen = [], gatLabels = [], t = 1, anim = null, kijk = null;
 
   const geo = (s) => {
     const pos = [], nor = [];
@@ -36,6 +36,11 @@ export async function verbinding3d(houder) {
       const v = d.midden.clone().add(d.groep.position).project(camera), zicht = d.groep.visible && v.z < 1;
       d.label.style.display = zicht ? '' : 'none';
       if (zicht) d.label.style.transform = `translate(${((v.x + 1) / 2) * w - 11}px, ${((1 - v.y) / 2) * h - 11}px)`;
+    }
+    for (const g of gatLabels) {
+      const v = g.p.clone().add(g.volg?.groep.position ?? new THREE.Vector3()).project(camera);
+      g.el.style.display = v.z < 1 ? '' : 'none';
+      g.el.style.transform = `translate(${((v.x + 1) / 2) * w + 4}px, ${((1 - v.y) / 2) * h - 22}px)`;
     }
   };
   controls.addEventListener('change', teken);
@@ -65,7 +70,7 @@ export async function verbinding3d(houder) {
         const g = new THREE.Group(), mat = new THREE.MeshStandardMaterial({ color: d.kleur, roughness: 0.45, metalness: /^#(c5|7d|8f|4b)/.test(d.kleur) ? 0.55 : 0.15, transparent: !!d.alpha, opacity: d.alpha ?? 1, depthWrite: !d.alpha, side: d.alpha ? THREE.DoubleSide : THREE.FrontSide });
         for (const s of d.solids) { const m = new THREE.Mesh(geo(s), mat); g.add(m); }
         // de randen donker, zoals op het blad
-        for (const s of d.solids) { const e = new THREE.LineSegments(new THREE.EdgesGeometry(geo(s), 25), new THREE.LineBasicMaterial({ color: '#1d2125', transparent: true, opacity: 0.35 })); g.add(e); }
+        for (const s of d.solids) { if (s.naad) continue; const e = new THREE.LineSegments(new THREE.EdgesGeometry(geo(s), 25), new THREE.LineBasicMaterial({ color: '#1d2125', transparent: true, opacity: 0.35 })); g.add(e); }
         groep.add(g);
         const bb = new THREE.Box3().setFromObject(g), midden = bb.getCenter(new THREE.Vector3());
         if (!d.alleenSamen && !d.alleenUit) box.union(bb.clone().translate(new THREE.Vector3(...(d.uit ?? [0, 0, 0])))), box.union(bb);
@@ -74,6 +79,8 @@ export async function verbinding3d(houder) {
         delen.push({ def: d, groep: g, midden: d.solids.length ? new THREE.Box3().setFromObject(g.children[0]).getCenter(new THREE.Vector3()) : midden, label });
       }
       scene.add(groep);
+      // de gaten: een rood vierkantje met een letter (zoals op het montageblad)
+      gatLabels = (sc.gaten ?? []).map((g, i) => { const el = document.createElement('span'); el.textContent = 'abcdefgh'[i]; el.title = g.tekst; el.style.cssText = 'position:absolute;left:0;top:0;width:18px;height:18px;background:#fff;border:1.5px solid #b42318;color:#b42318;font:700 12px/15px system-ui,sans-serif;text-align:center'; labels.appendChild(el); return { el, p: new THREE.Vector3(...g.p), volg: delen.find((x) => x.def.naam === g.volg) }; });
       // camera: van rechts voor en iets van boven, zodat alles (uit elkaar) in beeld is
       const c = box.getCenter(new THREE.Vector3()), r = box.getSize(new THREE.Vector3()).length() / 2, yaw = ((sc.kijk?.yaw ?? -32) * Math.PI) / 180;
       const dir = new THREE.Vector3(Math.sin(-yaw) * 0.85, 0.5, Math.cos(yaw) * 0.85).normalize(), afst = r / Math.sin((camera.fov * Math.PI) / 360) * 0.86;

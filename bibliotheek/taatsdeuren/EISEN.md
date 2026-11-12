@@ -58,3 +58,20 @@ Uitgewerkt:
   T-verbinder; profielen per meter + 10 % zaagverlies; minder uren (geschroefd); plaatsen apart; marge 20 %.
 - Resultaat (standaardmaat, zonder plaatsen): aluminium Strak met P1-P4 ± € 830, Drie vakken ± € 910 (Du Pont ± € 1 100);
   staal Strak ± € 1 600 (met plaatsen ± € 1 800).
+
+## Bijsturing 2026-11-12 (2): de gaten tot in detail, structuur als stalen
+Ian: "tekeningen moeten tot in detail kloppen, ook de gaten van de vijzen zichtbaar met afschuining, profielen tot in detail";
+"van structuur zou ik ook graag visueel vierkantjes zien". Daarna advies van Fable 5.2 verwerkt.
+- `boringen.mjs`: elk gat per stuk (plaats, Ø, verzinking, schroefdraad, door één of twee wanden); gelijke stukken met andere
+  gaten zijn nu aparte posities (onderregel en bovenregel). `boringblad.mjs`: boringenblad A4 per stuk (aanzichten per vlak,
+  ordinaatmaten vanaf uiteinde A, doorsnede per soort gat vergroot, gatenstaat; ISO 15786).
+- Montage-3D en -bladen: echte gaten met verzinking 90° in de wanden, letters a, b bij de gaten; 3D per stuk met de gaten.
+- Correcties (Fable 5.2): geen verzonken kop in een wand van 2 mm of minder; hoeklijn achter het glas 15x15x3 (kop M4 = 2,5);
+  M4 in 2 mm staal door vloeiboren Ø3,7 + rolltappen; aluminium roeden met een toegangsgat en afdekdop, de bout klemt alleen
+  de binnenwand (Du Pont: cilinderkop M6 x 30; P1-P4: één schroef 4,8 x 38 bolkop); greepbouten met afstandsbus; de
+  stelschroefgaten van de hoekverbinders aan de glaszijde (verborgen achter het glas) of aan de muurkant (kozijn); de
+  bovenpen zit in de deur, glijbus Ø19,2 in het kozijn, intrekgat Ø8 aan de glaszijde; hoeklas a2 bij de roeden.
+- Kokers in doorsnede met hoekstralen (buiten 2t, binnen t, EN 10219-2).
+- Structuur (fijnstructuur, glad mat, zijdeglans) als stalen in de gekozen RAL-kleur, in beide configuratoren.
+- Open (beslissing Ian): de schroefkanalen van P2 liggen 6 mm uit elkaar, er past maar één schroefkop; voorstel 12 mm of
+  M5-schroefkanaal. De pivot nog natekenen volgens de fiche van de fabrikant (Revolta, Pivotica).

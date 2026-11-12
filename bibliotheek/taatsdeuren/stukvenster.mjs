@@ -104,9 +104,18 @@ export function stukVenster(dlg, opts = {}) {
       if (d.pts.length < 3) continue;
       const Y = (y) => (spiegel ? -y : y), sh = new THREE.Shape(d.pts.map(([x, y]) => new THREE.Vector2(x, Y(y))));
       for (const [x, y, rr] of d.gaten) { const h = new THREE.Path(); h.absarc(x, Y(y), rr, 0, Math.PI * 2, true); sh.holes.push(h); }
-      const geo = new THREE.ExtrudeGeometry(sh, { depth: d.z1 - d.z0, bevelEnabled: false, curveSegments: 40 });
+      const geo = new THREE.ExtrudeGeometry(d.as === 'v' ? (() => { const s2 = new THREE.Shape(d.pts.map(([x, y]) => new THREE.Vector2(x, y))); for (const [x, y, rr] of d.gaten) { const h = new THREE.Path(); h.absarc(x, y, rr, 0, Math.PI * 2, true); s2.holes.push(h); } return s2; })() : sh, { depth: d.z1 - d.z0, bevelEnabled: false, curveSegments: 40 });
       geo.translate(0, 0, d.z0);
+      // een zijwand met een gat: getekend in het u-z-vlak en dik over v; terugdraaien naar (u, v, z)
+      if (d.as === 'v') geo.applyMatrix4(new THREE.Matrix4().set(1, 0, 0, 0, 0, 0, spiegel ? -1 : 1, 0, 0, 1, 0, 0, 0, 0, 0, 1));
       groep.add(new THREE.Mesh(geo, d.glas ? glas : d.iso ? kunststof : staal), new THREE.LineSegments(new THREE.EdgesGeometry(geo, 25), lijn));
+    }
+    // verzinkingen: een donkere kegel van Ø verz naar Ø boring aan het vlak waar de schroefkop komt
+    for (const k of v.verz ?? []) {
+      const h = Math.max(0.3, k.R - k.r), geo = new THREE.CylinderGeometry(k.R, k.r, h, 32, 1, true), Y = (y) => (spiegel ? -y : y);
+      if (k.vlak === 'z-' || k.vlak === 'z+') { geo.rotateX(k.vlak === 'z-' ? -Math.PI / 2 : Math.PI / 2); geo.translate(k.u, Y(k.v), k.vlak === 'z-' ? k.a + h / 2 + 0.02 : k.a - h / 2 - 0.02); }
+      else { if (k.vlak === 'v+') geo.rotateX(Math.PI); geo.translate(k.u, Y(k.vlak === 'v-' ? k.a + h / 2 : k.a - h / 2), k.v); }
+      groep.add(new THREE.Mesh(geo, donker));
     }
     if (v.cilinder) {
       const { L, r, gaten } = v.cilinder, geo = new THREE.CylinderGeometry(r, r, L, 56, 1);

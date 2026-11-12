@@ -56,6 +56,10 @@ input[type="number"], input[type="text"], select { width: 100%; padding: 7px 9px
 .proef { width: 100%; aspect-ratio: 1.5; border: 1px solid var(--lijn); background: var(--kleur); border-radius: 2px; position: relative }
 .proef.metallic { background: linear-gradient(135deg, color-mix(in srgb, var(--kleur) 70%, #fff) 0%, var(--kleur) 45%, color-mix(in srgb, var(--kleur) 75%, #000) 100%) }
 .staal input:checked ~ .proef { outline: 2px solid var(--accent); outline-offset: 2px } .snaam { font-size: 11.5px; line-height: 1.2 } .snaam small { display: block; color: var(--zacht); font-size: 10.5px }
+.lak-fijnstructuur, .lak-mat, .lak-zijdeglans { background-color: var(--kleur, #2e3234) }
+.lak-fijnstructuur { background-image: radial-gradient(rgba(255,255,255,.22) .8px, transparent 1.2px), radial-gradient(rgba(0,0,0,.35) .8px, transparent 1.2px); background-size: 4px 4px, 3px 3px; background-position: 0 0, 1px 2px }
+.lak-mat { background-image: linear-gradient(160deg, rgba(255,255,255,.08), rgba(0,0,0,.08)) }
+.lak-zijdeglans { background-image: linear-gradient(125deg, rgba(255,255,255,0) 18%, rgba(255,255,255,.45) 38%, rgba(255,255,255,0) 58%), linear-gradient(160deg, rgba(255,255,255,.12), rgba(0,0,0,.18)) }
 .glasstaal .proef { background: linear-gradient(135deg, #cdd6d8, #f4f6f6 50%, #c3ccce); overflow: hidden } .glasstaal .proef::after { content: ""; position: absolute; inset: 0; background: var(--tint); opacity: var(--dek) }
 .glas-ribbel::before { content: ""; position: absolute; inset: 0; z-index: 1; background: repeating-linear-gradient(90deg, rgba(255,255,255,.55) 0 2px, rgba(0,0,0,.12) 2px 5px) }
 .glas-kathedraal::before { content: ""; position: absolute; inset: 0; z-index: 1; background: radial-gradient(circle at 25% 30%, rgba(255,255,255,.6) 0 14%, transparent 15%), radial-gradient(circle at 70% 60%, rgba(255,255,255,.5) 0 18%, transparent 19%), radial-gradient(circle at 45% 85%, rgba(0,0,0,.1) 0 12%, transparent 13%) }
@@ -103,7 +107,7 @@ dialog { border: 1px solid var(--lijn); background: var(--vlak); color: var(--in
     </section>
     <section class="stap"><h2><i>3</i>Openen</h2><div class="keuze" id="k-scharnier"></div><div class="keuze" id="draaiVeld" style="margin-top:6px"><div class="keuze" id="k-draai"></div></div><p class="uitleg" id="scharnierUitleg"></p></section>
     <section class="stap"><h2><i>4</i>Glas</h2><div class="keuze" id="k-opbouw"></div><div class="stalen" id="k-glas" style="margin-top:10px"></div><p class="uitleg" id="glasUitleg"></p></section>
-    <section class="stap"><h2><i>5</i>Kleur (poedercoat)</h2><div class="stalen" id="k-ral"></div><div class="keuze" id="k-lak" style="margin-top:10px"></div><p class="uitleg" id="lakUitleg"></p></section>
+    <section class="stap"><h2><i>5</i>Kleur (poedercoat)</h2><div class="stalen" id="k-ral"></div><div class="stalen" id="k-lak" style="margin-top:10px;grid-template-columns:repeat(3,minmax(0,1fr))"></div><p class="uitleg" id="lakUitleg"></p></section>
     <section class="stap"><h2><i>6</i>Binnen of buiten, profiel</h2><div class="keuze" id="k-gebruik"></div><select id="systeem" aria-label="Profiel" style="margin-top:8px"></select><p class="uitleg" id="profielUitleg">Automatisch kiest het slankste profiel dat past bij het glas en de scharnieren; buiten geïsoleerde stalen deurprofielen (Janisol Arte 2.0) met isolerend glas.</p></section>
     <section class="stap"><h2>Overzicht</h2><dl class="overzicht" id="overzicht"></dl><p class="melding" id="melding" hidden></p>
       <div class="prijs" id="prijs"><span id="p-label"></span><b id="p-bedrag"></b><small id="p-sub"></small></div>

@@ -84,12 +84,47 @@ export function profiel(prof, V) {
 // ---------------------------------------------------------------- 3D-vorm
 /** de 3D-vorm van een positie: { delen: [{ pts, gaten: [[x, y, r]], z0, z1, glas? }], cilinder?: { L, r, gaten } } in mm */
 export function vorm3d(p, o) {
+  const v = vorm3dKaal(p, o);
+  return p.gaten?.length && v.delen?.length ? metGaten(v, p) : v;
+}
+/** de gaten van de stuklijst in de wanden: voor/achter in de voor- en achterwand (Shape-gaten), een zijgat in de zijwand
+ *  (die wand dan als plaat in het u-z-vlak, dik over v: as 'v'); verz = verzinkingen om als kegel te tekenen */
+function metGaten(v, p) {
+  const V = p.vorm.V, delen = v.delen.map((d) => ({ ...d, gaten: [...d.gaten] })), zMax = Math.max(...delen.map((d) => d.z1)), verz = [];
+  const r = (b) => (b.draad ? ({ M4: 3.3, M5: 4.2, M6: 5, M8: 6.8 })[b.draad] : b.d) / 2;
+  for (const b of p.gaten) {
+    if (b.rechthoek) continue;
+    if (b.vlak === 'voor' || b.vlak === 'achter') {
+      const doel = delen.filter((d) => d.as !== 'v' && d.pts.length >= 3 && ((b.vlak === 'voor' || b.door === 2) && d.z0 < 0.01 || (b.vlak === 'achter' || b.door === 2) && d.z1 > zMax - 0.01));
+      for (const d of doel) if (binnenVeelhoek(d.pts, b.u, b.v)) d.gaten.push([b.u, b.v, r(b)]);
+      if (b.verz) verz.push({ u: b.u, v: b.v, R: b.verz / 2, r: r(b), vlak: b.vlak === 'achter' ? 'z+' : 'z-', a: b.vlak === 'achter' ? zMax : 0 });
+      continue;
+    }
+    // zijgat (en een gat in het been van een hoeklijn): de wanden die op die v-hoogte liggen en de diepte z bevatten
+    const zz = b.vlak === 'been' ? b.v : b.z, vv = b.vlak === 'been' ? 0 : b.v;
+    for (let i = 0; i < delen.length; i++) {
+      const d = delen[i];
+      if (d.as === 'v') { if (zz > d.pts[0][1] && zz < d.pts[2][1] && b.u > d.pts[0][0] && b.u < d.pts[1][0]) d.gaten.push([b.u, zz, r(b)]); continue; }
+      const vs = d.pts.map((q) => q[1]), v0 = Math.min(...vs), v1 = Math.max(...vs);
+      const raakt = b.vlak === 'been' ? v0 < 0.01 && v1 < 5 : (b.door === 2 || typeof b.door === 'string' || b.d2) ? v1 - v0 < 5 : Math.abs(vv - v0) < 0.6 || Math.abs(vv - v1) < 0.6;
+      if (!raakt || v1 - v0 > 5 || zz <= d.z0 || zz >= d.z1) continue;
+      const us = d.pts.map((q) => q[0]);
+      delen[i] = { pts: [[Math.min(...us), d.z0], [Math.max(...us), d.z0], [Math.max(...us), d.z1], [Math.min(...us), d.z1]], gaten: [[b.u, zz, b.d2 && Math.abs(v0) > 0.1 ? b.d2 / 2 : r(b)]], z0: v0, z1: v1, as: 'v', iso: d.iso };
+    }
+    if (b.verz) verz.push({ u: b.u, v: zz, R: b.verz / 2, r: r(b), vlak: Math.abs(vv) < 0.6 ? 'v-' : 'v+', a: Math.abs(vv) < 0.6 ? 0 : V });
+  }
+  return { ...v, delen, verz };
+}
+function binnenVeelhoek(pts, x, y) { let b = false; for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) { const a = pts[i], c = pts[j]; if ((a[1] > y) !== (c[1] > y) && x < ((c[0] - a[0]) * (y - a[1])) / (c[1] - a[1]) + a[0]) b = !b; } return b; }
+function vorm3dKaal(p, o) {
   // een koopprofiel: de wanden van de doorsnede (sponning, isolatie) over de lengte, met de echte uiteinden (verstek)
   const rol = p.soort === 'staaf' ? rolVan(o, p.prof) : null;
   if (rol && STAAF[p.prof]?.koop && rol !== 'glaslat') {
     const sec = sectie(o, rol), { pts, V } = p.vorm, k = V / sec.V;
     return { profiel: { ...profiel(p.prof, V), naam: sec.naam }, delen: sec.wanden.map((w) => ({ pts: knip(pts, 1, w.v0 * k, w.v1 * k), gaten: [], z0: w.z0, z1: w.z1, iso: !!w.iso })).filter((x) => x.pts.length > 2) };
   }
+  // L-profiel (aluminium glaslat): het korte been over het glas, het lange tegen de koker
+  if (p.soort === 'staaf' && STAAF[p.prof]?.L) { const [la, , lt] = STAAF[p.prof].L, { pts } = p.vorm; return { profiel: { soort: 'hoek', naam: STAAF[p.prof].naam, zicht: p.vorm.V, diepte: la, t: lt }, delen: [{ pts, gaten: [], z0: 0, z1: lt }, { pts: knip(pts, 1, 0, lt), gaten: [], z0: lt, z1: la }] }; }
   if (p.soort === 'staaf') {
     const { pts, V } = p.vorm, pr = profiel(p.prof, V);
     if (pr.soort === 'rond') return { delen: [], cilinder: { L: p.vorm.L, r: pr.d / 2, gaten: p.vorm.gaten ?? [] }, profiel: pr };
@@ -198,12 +233,13 @@ function tekenStaaf(p, el, o) {
     el.push(`<circle cx="${f(cx)}" cy="${f(cy)}" r="${f(r)}" fill="url(#arcering)" stroke="#111" stroke-width="0.35"/>`, L(cx - r - 3, cy, cx + r + 3, cy, 0.15, HART), L(cx, cy - r - 3, cx, cy + r + 3, 0.15, HART), maat(cx - r, cy + r, cx + r, cy + r, -5, `Ø${pr.d}`), T(dx, cy + r + 14, `${pr.naam} (${schaalTekst(s)})`, 2.3));
   } else {
     const s = schaal(Math.min(56 / pr.zicht, 44 / pr.diepte, 3)), w = pr.zicht * s, h = pr.diepte * s, x = dx + 10, y = dy + 2;
-    el.push(`<rect x="${f(x)}" y="${f(y)}" width="${f(w)}" height="${f(h)}" fill="url(#arcering)" stroke="#111" stroke-width="0.35"/>`);
+    const ro = pr.soort === 'koker' && !pr.koop && !pr.iso ? 2 * pr.t : 0; // koudgevormde koker: buitenstraal ± 2t (EN 10219-2)
+    el.push(`<rect x="${f(x)}" y="${f(y)}" width="${f(w)}" height="${f(h)}"${ro ? ` rx="${f(ro * s)}"` : ''} fill="url(#arcering)" stroke="#111" stroke-width="0.35"/>`);
     if (pr.soort === 'koker' && pr.iso) {
       // twee stalen schalen en de isolatiezone (geel) ertussen
       const [i0, i1] = pr.iso, gat = (a, b) => `<rect x="${f(x + pr.t * s)}" y="${f(y + (a + pr.t) * s)}" width="${f(w - 2 * pr.t * s)}" height="${f((b - a - 2 * pr.t) * s)}" fill="#fff" stroke="#111" stroke-width="0.3"/>`;
       el.push(gat(0, i0), gat(i1, pr.diepte), `<rect x="${f(x)}" y="${f(y + i0 * s)}" width="${f(w)}" height="${f((i1 - i0) * s)}" fill="#e3cf8f" stroke="#111" stroke-width="0.3"/>`, maat(x + w - pr.t * s, y, x + w, y, 4, `t = ${pr.t}`), maat(x + w, y + i0 * s, x + w, y + i1 * s, -4, `isolatie ${i1 - i0}`));
-    } else if (pr.soort === 'koker') el.push(`<rect x="${f(x + pr.t * s)}" y="${f(y + pr.t * s)}" width="${f(w - 2 * pr.t * s)}" height="${f(h - 2 * pr.t * s)}" fill="#fff" stroke="#111" stroke-width="0.3"/>`, maat(x + w - pr.t * s, y, x + w, y, 4, `t = ${pr.t}`));
+    } else if (pr.soort === 'koker') el.push(`<rect x="${f(x + pr.t * s)}" y="${f(y + pr.t * s)}" width="${f(w - 2 * pr.t * s)}" height="${f(h - 2 * pr.t * s)}"${ro ? ` rx="${f((ro - pr.t) * s)}"` : ''} fill="#fff" stroke="#111" stroke-width="0.3"/>`, maat(x + w - pr.t * s, y, x + w, y, 4, `t = ${pr.t}`));
     el.push(maat(x, y + h, x + w, y + h, -5, `${g(pr.zicht, 1)} zicht`), maat(x, y, x, y + h, -5, `${g(pr.diepte, 1)} diep`));
     el.push(T(dx, y + h + 14, `${pr.naam} (${schaalTekst(s)})`, 2.3), T(dx, y + h + 18, pr.koop ? 'vereenvoudigd: sponning en dichtingen volgens de catalogus' : pr.soort === 'systeem' ? 'vorm volgens de catalogus' : 'boven = de kant met de greep', 2.1, { kleur: '#555' }));
   }
@@ -311,6 +347,7 @@ export function detailBlad(o, p, ctx, keuzes = {}, meta = {}) {
     const ander = gr.pa === p.pos ? gr.pb : gr.pa, an = ctx.posities.find((x) => x.pos === ander)?.naam ?? '';
     regels.push(`${gr.code}: ${gr.n} x ${verbindingVan(gr.soort, o.sys).naam.toLowerCase()} met pos ${ander} (${an})`);
   }
+  if (p.gaten?.length) regels.push(`Gaten: ${p.gaten.length} (plaats, maat en verzinking op boringenblad ${meta.nr ?? 'TD'}-B${String(p.pos).padStart(2, '0')})`);
   if (regels.length === 1 && p.soort === 'staaf' && /lat|Glaslat|Aanslag/.test(p.naam)) regels.push('Hechten om de 150 en lassen (voor) of M4 verzonken om de 250 (achter): zie de werkwijze');
   const rij = (t, max = 92) => { const w = t.split(' '), uit = ['']; for (const x of w) { if ((uit.at(-1) + ' ' + x).length > max) uit.push(x); else uit[uit.length - 1] += (uit.at(-1) ? ' ' : '') + x; } return uit; };
   const lijnen = regels.flatMap((t) => rij(t)).slice(0, 9);

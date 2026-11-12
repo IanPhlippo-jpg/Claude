@@ -110,6 +110,12 @@ fieldset { border: 0; padding: 0; margin: 0 0 10px; min-width: 0 } fieldset:last
 .glas-ribbel::before { content: ""; position: absolute; inset: 0; z-index: 1; background: repeating-linear-gradient(90deg, rgba(255,255,255,.55) 0 2px, rgba(0,0,0,.12) 2px 5px) }
 .glas-kathedraal::before { content: ""; position: absolute; inset: 0; z-index: 1; background: radial-gradient(circle at 25% 30%, rgba(255,255,255,.6) 0 14%, transparent 15%), radial-gradient(circle at 70% 60%, rgba(255,255,255,.5) 0 18%, transparent 19%), radial-gradient(circle at 45% 85%, rgba(0,0,0,.1) 0 12%, transparent 13%) }
 .glas-chinchilla::before { content: ""; position: absolute; inset: 0; z-index: 1; background: radial-gradient(rgba(0,0,0,.14) 1px, transparent 1.5px) 0 0 / 5px 5px, radial-gradient(rgba(255,255,255,.6) 1px, transparent 1.5px) 2px 2px / 5px 5px }
+.lak .proef { background-color: var(--kleur) }
+fieldset .lab { display: block; font: 600 11.5px var(--mono); text-transform: uppercase; letter-spacing: .1em; color: var(--zacht); margin: 12px 0 6px }
+.lak-fijnstructuur { background-image: radial-gradient(rgba(255,255,255,.22) .8px, transparent 1.2px), radial-gradient(rgba(0,0,0,.35) .8px, transparent 1.2px) !important; background-size: 4px 4px, 3px 3px !important; background-position: 0 0, 1px 2px !important }
+.lak-mat { background-image: linear-gradient(160deg, rgba(255,255,255,.08), rgba(0,0,0,.08)) !important }
+.lak-zijdeglans { background-image: linear-gradient(125deg, rgba(255,255,255,0) 18%, rgba(255,255,255,.45) 38%, rgba(255,255,255,0) 58%), linear-gradient(160deg, rgba(255,255,255,.12), rgba(0,0,0,.18)) !important }
+.stalen.lak { grid-template-columns: repeat(3, minmax(0, 1fr)) } .stalen.lak .proef { aspect-ratio: 1.6 }
 .gekozen { font-size: 13px; margin: 8px 0 0; display: flex; gap: 8px; align-items: center } .gekozen i { width: 18px; height: 18px; border-radius: 4px; border: 1px solid rgba(0,0,0,.2); background: var(--kleur); flex: none }
 .schakel { display: flex; gap: 10px; align-items: center; cursor: pointer; font-size: 14px }
 .schakel input { width: 18px; height: 18px; accent-color: var(--acc) }
@@ -179,6 +185,7 @@ tr.apart td { color: var(--zacht) }
 .m3d .laden { position: absolute; inset: auto 0 45% 0; text-align: center; color: var(--zacht); margin: 0 }
 .mbedien { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 8px; align-items: center; margin-top: 8px; font-size: 12.5px; color: var(--zacht) }
 .mlijst { list-style: none; padding: 0; margin: 10px 0 0; display: grid; gap: 4px; font-size: 13px }
+.mlijst .nr.gat { border-radius: 2px; border-color: #b42318; color: #b42318 }
 .mlijst li { display: flex; gap: 8px; align-items: baseline } .mlijst .nr { flex: none; width: 21px; height: 21px; border-radius: 50%; border: 1.5px solid var(--inkt); display: inline-grid; place-items: center; font: 700 11px var(--mono) } .mlijst i { flex: none; width: 11px; height: 11px; border-radius: 3px; background: var(--k); border: 1px solid rgba(0,0,0,.25); align-self: center }
 .mblad { background: #fff; border: 1px solid var(--lijn); border-radius: 8px; overflow: auto } .mblad img { display: block; width: 100%; height: auto; min-width: 560px }
 /* instellingen */
@@ -233,7 +240,7 @@ dialog { max-width: 100% }
         </div>
         <div class="groep">
           <fieldset id="f-afwerking"><legend>Afwerking</legend><div class="keuze" id="k-afwerking"></div></fieldset>
-          <fieldset><legend>Kleur (RAL)</legend><div class="stalen" id="k-kleur"></div><p class="gekozen" id="g-kleur"></p><div class="keuze" id="k-lak" style="margin-top:8px"></div></fieldset>
+          <fieldset><legend>Kleur (RAL)</legend><div class="stalen" id="k-kleur"></div><p class="gekozen" id="g-kleur"></p><span class="lab" style="margin-top:12px">Structuur</span><div class="stalen lak" id="k-lak"></div></fieldset>
         </div>
         <div class="groep"><label class="schakel" for="plaatsen"><input type="checkbox" id="plaatsen"> Met plaatsen (inmeten, kozijn stellen, deur hangen)</label></div>
         <p class="melding" id="melding" hidden></p>
@@ -294,6 +301,7 @@ dialog { max-width: 100% }
       <div class="mblad" id="mblad"></div>
     </div>
   </section>
+  <section class="deel"><h2>Boringen per stuk <small>elk gat met zijn plaats, maat, verzinking of schroefdraad</small></h2><div id="boringen" class="stukbladen"></div></section>
   <section class="deel"><h2>Werkblad</h2><div class="blad" id="blad" aria-label="Werkblad A3"></div></section>
   <section class="deel"><h2>Stuk per stuk</h2><p class="status">Klik op een stuk: de tekening met alle maten, beide uiteinden vergroot, de doorsnede, en het stuk in 3D.</p><div class="stukknoppen" id="stukknoppen"></div></section>
   <section class="deel"><h2>Profielen en verbindingen</h2><div id="profielen" class="stukbladen"></div></section>
@@ -351,6 +359,7 @@ import { UREN } from './js/werkwijze.mjs';
 import { bladen, CSS } from './js/dossier.mjs';
 import { laserDxf, glasDxf } from './js/dxf.mjs';
 import { montageBladen } from './js/montage.mjs';
+import { boringBladen } from './js/boringblad.mjs';
 
 for (const m of document.querySelectorAll('meta[name="viewport"]')) m.content = 'width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover';
 for (const t of ['gesturestart', 'gesturechange', 'gestureend']) document.addEventListener(t, (e) => e.preventDefault(), { passive: false });
@@ -415,7 +424,7 @@ const pasPrijzenToe = () => { for (const [k, , , , w] of PRIJZEN) if (typeof ins
 const radio = (naam, lijst) => lijst.map(([v, t]) => `<label><input type="radio" name="${naam}" value="${esc(v)}" id="${naam}-${esc(v)}"><span>${esc(t)}</span></label>`).join('');
 $('k-kleur').innerHTML = RAL.map((c) => `<label title="RAL ${esc(c.code)} ${esc(c.naam)}"><input type="radio" name="kleur" value="${c.code}" id="kleur-${c.code}"><span class="proef${c.metallic ? ' metallic' : ''}" style="--kleur:${c.hex}"></span><span class="c">${c.code === 'brons' ? 'Brons' : c.code}</span></label>`).join('');
 $('k-glas').innerHTML = Object.entries(GLAS).map(([v, x]) => `<label title="${esc(x.soort)}"><input type="radio" name="glas" value="${v}" id="glas-${v}"><span class="proef glasproef glas-${x.patroon ?? 'glad'}" style="--tint:${x.tint};--dek:${x.dekking}"></span><span>${esc(x.naam)}</span></label>`).join('');
-$('k-lak').innerHTML = radio('lak', Object.entries(AFWERKINGEN).map(([v, a]) => [v, a.naam]));
+$('k-lak').innerHTML = Object.entries(AFWERKINGEN).map(([v, a]) => `<label title="${esc(a.uitleg)}"><input type="radio" name="lak" value="${v}" id="lak-${v}"><span class="proef lak-${v}"></span><span>${esc(a.naam)}</span></label>`).join('');
 $('k-gebruik').innerHTML = radio('gebruik', [['binnen', 'Binnen'], ['buiten', 'Buiten (geïsoleerd)']]);
 $('k-opbouw').innerHTML = radio('opbouw', [['enkel', 'Enkel glas'], ['dubbel', 'Dubbel glas']]);
 $('k-afwerking').innerHTML = radio('afwerking', [['poedercoat', 'Poedercoat'], ['natlak', 'Natlak (zelf)']]);
@@ -480,6 +489,7 @@ function teken() {
   $('B').value = B; $('H').value = H; $('Z').value = st.Z; $('zijlichtVeld').hidden = !s.zijlicht; $('plaatsen').checked = !!st.plaatsen;
   for (const k of ['gebruik', 'systeem', 'opbouw', 'glas', 'scharnier', 'afwerking', 'kleur', 'lak']) { const r = $(`${k}-${st[k]}`); if (r) r.checked = true; }
   const kleur = RAL.find((c) => c.code === st.kleur) ?? RAL[0];
+  $('k-lak').style.setProperty('--kleur', kleur.hex);
   $('g-kleur').innerHTML = `<i style="--kleur:${kleur.hex}"></i><span><b>${kleur.code === 'brons' ? 'Brons' : `RAL ${kleur.code}`}</b> ${esc(kleur.naam)}${kleur.metallic ? ' · metallic (+ 20 %)' : ''}</span>`;
   let o;
   try { o = ontwerp(s.id, B, H, { gebruik: st.gebruik, systeem: st.systeem, opbouw: st.opbouw, scharnier: st.scharnier, zijlicht: st.Z }); } catch (e) { $('melding').hidden = false; $('melding').textContent = `Deze maat lukt niet: ${e.message}`; return; }
@@ -533,6 +543,8 @@ function tekenWerk() {
   $('explode').innerHTML = `<div>${explodeBlad(o, kk, { ...meta, blad: `2 / ${2 + n0}` })}</div>`;
   $('stukbladen').innerHTML = stuk.bladen.map((x) => `<div>${x}</div>`).join('');
   const ctx = verbindingen(o, kk), stukLijst = ctx.posities.filter((p) => p.soort !== 'inkoop');
+  const bor = boringBladen(o, ctx.posities, meta);
+  $('boringen').innerHTML = bor.length ? bor.map((x) => `<div>${x.svg}</div>`).join('') : '<p class="status">Geen gaten in deze deur.</p>';
   $('stukknoppen').innerHTML = stukLijst.map((p) => `<button type="button" class="stukknop" data-pos="${p.pos}"><span class="nr">${p.pos}</span><span>${esc(p.naam)}<small>${p.n} st · ${esc(p.maat || p.mat)}${p.zagen ? ` · ${esc(p.zagen)}` : ''}</small></span></button>`).join('');
   $('blad').innerHTML = werkblad(o, { blad: `1 / ${2 + n0}`, nr: meta.nr, datum: meta.datum, prijs: { regels: [['Materiaal', k.materiaal], [`Arbeid (${g(k.uren, 1)} u)`, k.arbeid]], totaal: k.kostprijs } });
   $('t-vleugel').textContent = o.vleugels.map((v) => `${Math.round(v.B)} x ${Math.round(v.H)}`).join(' + ');
@@ -549,7 +561,7 @@ function tekenWerk() {
   $('markt').innerHTML = `<thead><tr><th>Verkoopprijs elders</th><th>Excl. btw</th><th>Plaatsen</th><th>Bron</th></tr></thead><tbody>${MARKT.filter((m) => m.mat === mat).map((m) => `<tr><td>${esc(m.wat)}</td><td class="n">${eur0(m.prijs)}</td><td>${m.montage ? 'inbegrepen' : 'niet inbegrepen'}</td><td class="bron">${bron(m.bron)}</td></tr>`).join('')}<tr><td><b>Deze deur</b></td><td class="n"><b>${eur0(k.verkoop - (k.plaatsen.inbegrepen ? k.plaatsen.verkoop : 0))}</b></td><td>niet inbegrepen (+ ${eur0(k.plaatsen.verkoop)})</td><td class="bron">marge ${marge} %</td></tr></tbody>`;
   // montage
   const mb = montageBladen(o, kk, meta);
-  huidig = { ...huidig, ctx, stukLijst, montage: mb };
+  huidig = { ...huidig, ctx, stukLijst, montage: mb, boringen: bor };
   if (!mb.some((x) => x.id === montageId)) montageId = mb[0].id;
   $('m-sub').textContent = o.sys.alu ? 'geschroefd en gelijmd, niet gelast' : 'gelast op de lastafel';
   $('mtabs').innerHTML = mb.map((x, i) => `<button type="button" data-m="${x.id}" aria-pressed="${x.id === montageId}">${i + 1}. ${esc(x.titel)}<small>${esc(x.sub)}</small></button>`).join('');
@@ -563,7 +575,7 @@ function toonMontage() {
   document.querySelectorAll('[data-m]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.m === montageId));
   const i = huidig.montage.indexOf(x);
   $('mblad').innerHTML = alsBeeld(x.svg, 1188, 840, `Montageblad ${i + 1}: ${esc(x.titel)}`);
-  $('mlijst').innerHTML = x.scène.delen.filter((d) => d.nr).map((d) => `<li><span class="nr">${d.nr}</span><i style="--k:${d.kleur}"></i><span><b>${esc(d.naam)}</b>${d.label ? ` · ${esc(d.label)}` : ''}</span></li>`).join('');
+  $('mlijst').innerHTML = x.scène.delen.filter((d) => d.nr).map((d) => `<li><span class="nr">${d.nr}</span><i style="--k:${d.kleur}"></i><span><b>${esc(d.naam)}</b>${d.label ? ` · ${esc(d.label)}` : ''}</span></li>`).join('') + (x.scène.gaten ?? []).map((gt, i) => `<li><span class="nr gat">${'abcdefgh'[i]}</span><span><b>Gat</b> · ${esc(gt.tekst)}</span></li>`).join('');
   if (m3d) m3d.toon(x.scène);
   else if (!m3dBezig) m3dBezig = import('./js/verbinding3d.mjs').then(({ verbinding3d }) => verbinding3d($('m3d'))).then((api) => { m3d = api; $('m3dLaden').remove(); m3d.zet(+$('muit').value / 100); toonMontage(); }).catch((e) => { $('m3dLaden').textContent = '3D lukt niet in deze browser; het montageblad staat ernaast.'; console.warn(e); });
 }
@@ -677,8 +689,8 @@ document.querySelectorAll('[data-dl]').forEach((b) => b.addEventListener('click'
   let filename, data;
   if (b.dataset.dl === 'montage') { filename = `${nm}-montage.zip`; data = zip(mb.map((x, i) => [`${nm}-montage-${i + 1}-${x.id}.svg`, x.svg])); }
   else if (b.dataset.dl === 'svg') { filename = `${nm}-werkblad.svg`; data = $('blad').innerHTML; }
-  else if (b.dataset.dl === 'stuk') { filename = `${nm}-tekeningen.zip`; data = zip([...mb.map((x, i) => [`${nm}-montage-${i + 1}-${x.id}.svg`, x.svg]), [`${nm}-opengewerkt.svg`, $('explode').querySelector('svg').outerHTML], ...[...$('stukbladen').querySelectorAll('svg')].map((x, j) => [`${nm}-stuklijst-${j + 1}.svg`, x.outerHTML]), [`${nm}-profielen.svg`, $('profielen').querySelector('svg').outerHTML], [`${nm}-bestellijst.svg`, $('bestel').querySelector('svg').outerHTML], ...huidig.stukLijst.map((p, j) => [`${nm}-pos-${String(p.pos).padStart(2, '0')}.svg`, detailBlad(o, p, huidig.ctx, huidig.kk, { ...huidig.meta, blad: `${j + 1} / ${huidig.stukLijst.length}` })])]); }
-  else if (b.dataset.dl === 'html') { const { a3, a4, stuk, detail } = bladen(o, keuzes, { nr: huidig.meta.nr, datum: huidig.meta.datum }); filename = `${nm}-dossier.html`; data = `<!doctype html><html lang="nl"><head><meta charset="utf-8"><title>${esc(nm)}</title><style>@page a3{size:420mm 297mm;margin:0}@page a4{size:210mm 297mm;margin:14mm}@page a4l{size:297mm 210mm;margin:0}.a4l{page:a4l;width:297mm;height:210mm;overflow:hidden;page-break-after:always}.a4l svg{width:297mm;height:210mm;display:block}body{margin:0}.a3{page:a3;width:420mm;height:297mm;page-break-after:always}.a3 svg{width:420mm;height:297mm;display:block}.a4{page:a4}${CSS}</style></head><body><div class="a3">${a3}</div>${mb.map((x) => `<div class="a4l">${x.svg}</div>`).join('')}${stuk.map((x) => `<div class="a3">${x}</div>`).join('')}${detail.map((x) => `<div class="a4l">${x}</div>`).join('')}${a4}</body></html>`; }
+  else if (b.dataset.dl === 'stuk') { filename = `${nm}-tekeningen.zip`; data = zip([...mb.map((x, i) => [`${nm}-montage-${i + 1}-${x.id}.svg`, x.svg]), ...huidig.boringen.map((x) => [`${nm}-boringen-pos-${String(x.pos).padStart(2, '0')}.svg`, x.svg]), [`${nm}-opengewerkt.svg`, $('explode').querySelector('svg').outerHTML], ...[...$('stukbladen').querySelectorAll('svg')].map((x, j) => [`${nm}-stuklijst-${j + 1}.svg`, x.outerHTML]), [`${nm}-profielen.svg`, $('profielen').querySelector('svg').outerHTML], [`${nm}-bestellijst.svg`, $('bestel').querySelector('svg').outerHTML], ...huidig.stukLijst.map((p, j) => [`${nm}-pos-${String(p.pos).padStart(2, '0')}.svg`, detailBlad(o, p, huidig.ctx, huidig.kk, { ...huidig.meta, blad: `${j + 1} / ${huidig.stukLijst.length}` })])]); }
+  else if (b.dataset.dl === 'html') { const { a3, a4, stuk, detail } = bladen(o, keuzes, { nr: huidig.meta.nr, datum: huidig.meta.datum }); filename = `${nm}-dossier.html`; data = `<!doctype html><html lang="nl"><head><meta charset="utf-8"><title>${esc(nm)}</title><style>@page a3{size:420mm 297mm;margin:0}@page a4{size:210mm 297mm;margin:14mm}@page a4l{size:297mm 210mm;margin:0}.a4l{page:a4l;width:297mm;height:210mm;overflow:hidden;page-break-after:always}.a4l svg{width:297mm;height:210mm;display:block}body{margin:0}.a3{page:a3;width:420mm;height:297mm;page-break-after:always}.a3 svg{width:420mm;height:297mm;display:block}.a4{page:a4}${CSS}</style></head><body><div class="a3">${a3}</div>${mb.map((x) => `<div class="a4l">${x.svg}</div>`).join('')}${huidig.boringen.map((x) => `<div class="a4l">${x.svg}</div>`).join('')}${stuk.map((x) => `<div class="a3">${x}</div>`).join('')}${detail.map((x) => `<div class="a4l">${x}</div>`).join('')}${a4}</body></html>`; }
   else if (b.dataset.dl === 'csv') { filename = `${nm}-lijsten.csv`; const P = stukBladen(o, keuzes).posities; data = csv([['Stuklijst'], ['Pos', 'Aantal', 'Benaming', 'Materiaal', 'Maat', 'kg/st', 'Opmerking'], ...P.map((p) => [p.pos, p.n, p.naam, p.mat, p.maat, Math.round(p.kg * 100) / 100, p.opm]), [], ['Zaaglijst'], ['Wat', 'Staaf', 'Lengte mm', 'Aantal', 'Bewerking'], ...L.zaag.map((r) => [r.wat, STAAF[r.prof]?.naam ?? r.prof, r.l, r.n, r.bew]), [], ['Laserlijst'], ['Wat', 'Vorm', 'Maat', 'Aantal', 'Plaat'], ...L.laser.map((r) => [r.wat, r.vorm, r.vorm === 'boog' ? `R${r.r} x ${r.zicht}, ${r.hoek} gr` : `${r.b} x ${r.l}`, r.n, r.mat]), [], ['Glaslijst'], ['Deel', 'Vorm', 'Breedte', 'Hoogte', 'm2', 'Aantal'], ...L.glas.map((r) => [r.deel, r.vorm, r.b, r.h, Math.round(r.m2 * 100) / 100, r.n]), [], ['Kostprijs'], ...k.regels.map((r) => [r.wat, r.bedrag, r.bron]), ['Arbeid', k.arbeid], ['Kostprijs', k.kostprijs], ['Verkoop excl. btw', k.verkoop], ['Plaatsen (verkoop)', k.plaatsen.inbegrepen ? 'inbegrepen' : k.plaatsen.verkoop]]); }
   else { filename = `${nm}-dxf.zip`; data = zip([[`${nm}-laser.dxf`, laserDxf(o)], [`${nm}-glas.dxf`, glasDxf(o)]]); }
   $('status').textContent = 'Bezig…';
