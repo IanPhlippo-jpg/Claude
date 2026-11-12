@@ -101,7 +101,7 @@ export function titelblok(o, opts = {}) {
   el.push(`<rect x="${tx}" y="${ty}" width="196" height="32" fill="#fff" stroke="#111" stroke-width="0.5"/>`);
   for (const yy of [8, 16, 24]) el.push(L(tx, ty + yy, tx + 196, ty + yy, 0.25));
   const veld = (xx, rij, kop, waarde, h = 2.6, vet = false) => { if (xx > 0) el.push(L(tx + xx, ty + rij * 8, tx + xx, ty + rij * 8 + 8, 0.25)); el.push(T(tx + xx + 1.2, ty + rij * 8 + 2.6, kop, 1.7, { kleur: '#555' }), T(tx + xx + 1.2, ty + rij * 8 + 6.6, waarde, h, { vet })); };
-  veld(0, 0, 'Eigenaar', 'Ian · laswerken', 2.6, true); veld(70, 0, 'Bibliotheek', 'Stalen deuren', 2.6);
+  veld(0, 0, 'Eigenaar', 'Ian · laswerken', 2.6, true); veld(70, 0, 'Bibliotheek', o.sys.alu ? 'Aluminium taatsdeuren' : 'Stalen taatsdeuren', 2.6);
   veld(0, 1, 'Titel', opts.titel ?? `Deur ${o.stijl.naam} · opening ${o.B} x ${o.H}`, 3, true);
   veld(0, 2, 'Systeem', o.sys.naam, 2.4); veld(70, 2, 'Tekeningnummer', opts.nr ?? `TD-${o.stijl.id}`, 2.6, true); veld(130, 2, 'Rev.', opts.rev ?? '1', 2.6); veld(150, 2, 'Uitgifte', opts.datum ?? '', 2.4);
   veld(0, 3, 'Maten en toleranties', 'mm · ISO 2768-m · lassen ISO 5817-C', 2.3); veld(70, 3, 'Schaal', opts.schaal ?? '', 2.4); veld(100, 3, 'Opgesteld', 'Ian · laswerken', 2.3); veld(150, 3, 'Blad', opts.blad ?? '1 / 1', 2.4);

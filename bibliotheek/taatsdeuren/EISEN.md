@@ -42,3 +42,19 @@ lastafel, een MIG/MAG-apparaat en een TIG-apparaat.
 | Geen ramen | "Het is niet de bedoeling dat ik raamkozijnen ga maken ... alleen nog maar taatsdeuren; schema's waarbij de deurprofielen zichtbaar zijn, hoe ze op verstek worden gezaagd en ingezoomd per stuk" | geen raamstijlen; de deurprofielen altijd als taatsdeur (pivot); de doorsnede van elk profiel met artikelnummer op de opengewerkte tekening en op elk stukblad, verstekken rood, stuk per stuk ingezoomd |
 | Darby Doors | "Op Darby Doors hebben ze heel veel soorten profielen ... heel hun catalogus gebruiken om deuren te maken, aluminium is goed"; verbinden: hoekverbinders + schroeven | Darby (Du Pont bv, Grobbendonk) verkoopt de deurprofielen niet los; systeem 'Alu Du Pont' uit hun losse aluminium kokers en L-profielen (artikels en lijstprijzen uit webshop.du-pont.be) met hun pivots (Revolta, Pivotica); de SAS-profielen kunnen erbij als Du Pont ze los levert |
 | Profielaanvraag | "Schema's met zo een profielen, dan kan ik dit doorgeven aan mijn leveranciers" | aanvraagdossier NL en EN (Bureaublad\Profielaanvraag): P1-P4, C1, C2, pivot met doorsneden 2:1, verbindingen en offerteaanvraag; hetzelfde systeem in de configurator |
+
+
+## Bijsturing 2026-11-12: staal en aluminium apart, montage, prijzen
+Ian: staal- en aluminiumdeuren op aparte pagina's; van elke deur tekeningen en duidelijke documentatie (zaaglijsten, verstek,
+bij staal hoe lassen, bij aluminium hoe de hoekdelen aansluiten), per leverancier en product hoe het gelast of gemonteerd wordt
+(bouten met afschuining, kliksysteem, de pivot) op de tekeningen en de beelden per deur; RAL met een kleurvierkantje; een pivot
+draait in 3D naar twee kanten; een nieuwe look; realistische prijzen (zijn eigen onderzoek: aluminium hoogstens € 880 excl. btw).
+Uitgewerkt:
+- Montagebladen en 3D per verbinding en per profielsysteem (verbinding.mjs, montage.mjs, verbinding3d.mjs).
+- De achterste glaslat van de eigen kokers is nu een hoeklijn 15x15x2 met M4 verzonken in de binnenwand van de koker
+  (een plat 15x4 achter het glas kon je niet vastschroeven).
+- De taatsplaat onder is M8 getapt (was Ø8,5): de deurplaat van de pivot zit er met 2 verzonken bouten M8 in.
+- Aluminium: greep gekocht (rug aan rug), inlegplaten voor de pivot, roeden van Du Pont met een verzonken bout M6 in een
+  T-verbinder; profielen per meter + 10 % zaagverlies; minder uren (geschroefd); plaatsen apart; marge 20 %.
+- Resultaat (standaardmaat, zonder plaatsen): aluminium Strak met P1-P4 ± € 830, Drie vakken ± € 910 (Du Pont ± € 1 100);
+  staal Strak ± € 1 600 (met plaatsen ± € 1 800).

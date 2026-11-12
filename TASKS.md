@@ -1347,3 +1347,13 @@ elease; README en docs/04 bijgewerkt
 - [x] Tests: geen botsingen, 230 x 230, STL's dicht (8/9; rebuildtijd bak 50 s > 45 s door belasting van de pc, ook de vorige versie haalt nu 53 s)
 - [x] STL's, tekeningen, bouwschema, alles-PDF, app; README, EISEN, rekenblad (warmte 2,6 K)
 - [x] Foto's naar Ian, commit en push
+
+## Taatsdeurenconfigurator: staal en aluminium apart, montage, prijzen, nieuwe look (2026-11-12)
+- [x] Staal en aluminium op aparte pagina's (eigen stijlen, profielen, kleur en prijs; Werkplaats per materiaal)
+- [x] Montagebladen per systeem: hoekverbinding (staal: verstek lassen; alu: verstek + hoekverbinder), roeden, glas (geschroefd, klik, rubber), pivot inbouwen, verzonken bouten
+- [x] Verbindingen in 3D (uit elkaar en samen) per deur, en de pivot zichtbaar in de 3D-kamer
+- [x] RAL-keuze met kleurvierkantjes
+- [x] Pivot draait in 3D naar beide kanten (verdekt blijft één kant)
+- [x] Prijzen naar de markt: aluminium hoogstens ± € 880 excl. btw, staal € 1 100 tot 2 300; plaatsen apart; marktvergelijking per materiaal
+- [x] Nieuwe look van de hele configurator
+- [~] Testen (qaDeuren + browser), presentatie en artifact bijwerken, foto's naar Ian, commit en push

@@ -12,7 +12,7 @@ export const SYSTEMEN = {
     naam: 'Koker en strip',
     kader: { zicht: 40, diepte: 40, staaf: 'koker40x40x2', uitleg: 'koker 40x40x2, hoeken in verstek (45°)' },
     roede: { zicht: 30, diepte: 16, staaf: 'plat20x10', lat: 'plat30x3', uitleg: 'kern platstaal 20x10 met voor en achter een lat 30x3 over het glas' },
-    glaslat: { staaf: 'plat15x4', uitleg: 'glaslat 15x4 in het kader: voor gelast, achter geschroefd (M4 verzonken om de 250)' },
+    glaslat: { staaf: 'plat15x4', achter: 'hoek15x15x2', uitleg: 'glaslat voor: platstaal 15x4, gehecht en gelast; achter: hoeklijn 15x15x2, met M4 verzonken (ISO 10642) om de 250 in de binnenwand van de koker (getapt M4)' },
     kozijn: { zicht: 40, diepte: 40, staaf: 'koker40x40x2', uitleg: 'koker 40x40x2' },
     boog: { kern: 10, lagenKader: 4, uitleg: 'lasergesneden uit plaat 10 mm; boogroede 20 breed met latten 30x3, boog van het kader 4 lagen = 40 diep' },
     glasMax: 10, kort: '40 x 40',
@@ -40,12 +40,13 @@ export const SYSTEMEN = {
     maxVleugel: { B: 1250, H: 2700, kg: 150 }, leverancier: 'Du Pont bv (Darby Doors), Grobbendonk: webshop.du-pont.be, info@du-pont.be, 03 464 00 91',
     verwerking: {
       zagen: 'Zaag de kokers en L-profielen op een afkortzaag met een aluminiumblad (negatieve spaanhoek), verstek 45°; ontbramen en de zaagsnede ontvetten.',
-      lassenTitel: 'Kader samenbouwen (hoekverbinders)', uurHoek: 0.25, proces: 'geschroefd',
+      lassenTitel: 'Kader samenbouwen (hoekverbinders)', uurHoek: 0.2, proces: 'geschroefd',
       lassen: 'Steek in elke hoek een hoekverbinder in beide kokers, smeer de verstekvlakken in met 2K-lijm of MS-kit, druk de hoek dicht op de lastafel (haakse aanslagen) en zet de stelschroeven vast. Diagonalen gelijk (± 1 mm).',
-      roedenTitel: 'Roeden plaatsen (T-verbinders)', uurTee: 0.2,
-      roeden: 'Zaag de roede recht op de daglichtmaat, schroef een T-verbinder in elk uiteinde en zet hem vast in het kader (stelschroef van achter); kit de naad.',
+      roedenTitel: 'Roeden plaatsen (T-verbinders)', uurTee: 0.12,
+      roeden: 'Zaag de roede recht op de daglichtmaat. Schuif een T-verbinder in elk uiteinde en zet hem vast met de stelschroef M5 (van achter). Boor de stijl Ø6,6 op de hartlijn van de roede, verzink de buitenkant 90° tot Ø13 en trek de roede aan met een verzonken bout M6 x 40 (ISO 10642); kit de naad.',
+      uurRuit: 0.3,
       glas: 'Kit de vaste L-profielen voor rond elke ruit, leg het glas op blokjes, zet de achterste L-profielen met kit en RVS-boorschroefjes 3,5 mm om de 300 mm.',
-      coat: 'Ontvetten en laten voorbehandelen voor aluminium (beitsen en conversielaag), daarna poedercoaten in RAL; of de geanodiseerde kleur laten.',
+      coat: 'Laat de staven in volle lengte coaten vóór het zagen (voorbehandeling voor aluminium: beitsen en conversielaag, dan poedercoat in RAL), samen met andere opdrachten. Na het zagen de zaagsneden bijwerken met de lakstift.',
       taats: 'Monteer de Revolta-pivot: het bovenplaatje in de bovenregel van de vleugel, het bodemplaatje op de vloer; as 100 mm uit de scharnierkant.',
     },
     // geschroefd aluminium (Ian: hoekverbinders en schroeven); profielen en pivots van webshop.du-pont.be
@@ -62,10 +63,11 @@ export const SYSTEMEN = {
     verbinders: { titel: 'Hoekverbinders C1 en schroeven C2 (RVS 4,8 x 50 in het schroefkanaal van P2)', hoek: 'C1 hoekverbinder voor P1 (holte 14,4 x 41,4), aluminium, 2 x 60 mm, 2 stelschroeven M6 per been', tee: 'C2: 2 x RVS-schroef 4,8 x 50 door P1 in het schroefkanaal van P2', schroef: null },
     verwerking: {
       zagen: 'Zaag P1 en P3 in verstek 45°, P2 recht op de daglichtmaat; afkortzaag met aluminiumblad. Werk de zaagsneden bij met de lakstift in de RAL-kleur.',
-      lassenTitel: 'Kader samenbouwen (hoekverbinder C1)', uurHoek: 0.25, proces: 'geschroefd',
+      lassenTitel: 'Kader samenbouwen (hoekverbinder C1)', uurHoek: 0.2, proces: 'geschroefd',
       lassen: 'Steek hoekverbinder C1 in beide stukken P1, 2K-lijm op het verstek, druk de hoek dicht op de lastafel en zet de stelschroeven vast. Diagonalen gelijk (± 1 mm).',
-      roedenTitel: 'Roeden plaatsen (schroefkanaal C2)', uurTee: 0.15,
+      roedenTitel: 'Roeden plaatsen (schroefkanaal C2)', uurTee: 0.08,
       roeden: 'Boor door P1 (Ø5,5, verzonken) op de plaats van elke roede en schroef 2 RVS-schroeven 4,8 x 50 in de schroefkanalen van P2; kit de naad.',
+      uurRuit: 0.2,
       glas: 'Trek het U-glasrubber P4 rond de rand van elke ruit, schuif de ruiten in de gleuven van P1 en P2 voor het laatste kaderstuk sluit (glas mee inbouwen).',
       coat: 'De profielen komen gepoedercoat van de extrudeur: enkel ontvetten, beschermfolie verwijderen en de zaagsneden bijwerken.',
       taats: 'Monteer de pivot: het bovenplaatje in de bovenregel P1, het bodemplaatje op de vloer; as 100 mm uit de scharnierkant.',
@@ -99,7 +101,7 @@ export const SYSTEMEN = {
     naam: 'Koker 40 x 60 (diep, voor dubbel glas)',
     kader: { zicht: 40, diepte: 60, staaf: 'koker60x40x2', uitleg: 'koker 60x40x2, 40 in zicht en 60 diep, hoeken in verstek (45°)' },
     roede: { zicht: 30, diepte: 16, staaf: 'plat20x10', lat: 'plat30x3', uitleg: 'kern platstaal 20x10 met voor en achter een lat 30x3 over het glas' },
-    glaslat: { staaf: 'plat15x4', uitleg: 'glaslat 15x4 in het kader: voor gelast, achter geschroefd (M4 verzonken om de 250)' },
+    glaslat: { staaf: 'plat15x4', achter: 'hoek15x15x2', uitleg: 'glaslat voor: platstaal 15x4, gehecht en gelast; achter: hoeklijn 15x15x2, met M4 verzonken (ISO 10642) om de 250 in de binnenwand van de koker (getapt M4)' },
     kozijn: { zicht: 40, diepte: 60, staaf: 'koker60x40x2', uitleg: 'koker 60x40x2, 60 diep' },
     boog: { kern: 10, lagenKader: 6, uitleg: 'lasergesneden uit plaat 10 mm; boog van het kader 6 lagen = 60 diep' },
     glasMax: 30, kort: '40 x 60',
@@ -108,7 +110,7 @@ export const SYSTEMEN = {
     naam: 'Koker 60 x 40 (breed, voor verdekte scharnieren)',
     kader: { zicht: 60, diepte: 40, staaf: 'koker60x40x2', uitleg: 'koker 60x40x2, 60 in zicht en 40 diep: plaats voor het verdekte scharnier (36 mm in de stijl)' },
     roede: { zicht: 30, diepte: 16, staaf: 'plat20x10', lat: 'plat30x3', uitleg: 'kern platstaal 20x10 met voor en achter een lat 30x3 over het glas' },
-    glaslat: { staaf: 'plat15x4', uitleg: 'glaslat 15x4 in het kader: voor gelast, achter geschroefd (M4 verzonken om de 250)' },
+    glaslat: { staaf: 'plat15x4', achter: 'hoek15x15x2', uitleg: 'glaslat voor: platstaal 15x4, gehecht en gelast; achter: hoeklijn 15x15x2, met M4 verzonken (ISO 10642) om de 250 in de binnenwand van de koker (getapt M4)' },
     kozijn: { zicht: 60, diepte: 40, staaf: 'koker60x40x2', uitleg: 'koker 60x40x2, 60 in zicht: plaats voor het kozijndeel van het scharnier (33 mm)' },
     boog: { kern: 10, lagenKader: 4, uitleg: 'lasergesneden uit plaat 10 mm; boog van het kader 4 lagen = 40 diep, 60 breed' },
     glasMax: 10, kort: '60 x 40',
@@ -117,7 +119,7 @@ export const SYSTEMEN = {
     naam: 'Koker 60 x 60 (breed en diep)',
     kader: { zicht: 60, diepte: 60, staaf: 'koker60x60x2', uitleg: 'koker 60x60x2: verdekte scharnieren en dubbel glas' },
     roede: { zicht: 30, diepte: 16, staaf: 'plat20x10', lat: 'plat30x3', uitleg: 'kern platstaal 20x10 met voor en achter een lat 30x3 over het glas' },
-    glaslat: { staaf: 'plat15x4', uitleg: 'glaslat 15x4 in het kader: voor gelast, achter geschroefd (M4 verzonken om de 250)' },
+    glaslat: { staaf: 'plat15x4', achter: 'hoek15x15x2', uitleg: 'glaslat voor: platstaal 15x4, gehecht en gelast; achter: hoeklijn 15x15x2, met M4 verzonken (ISO 10642) om de 250 in de binnenwand van de koker (getapt M4)' },
     kozijn: { zicht: 60, diepte: 60, staaf: 'koker60x60x2', uitleg: 'koker 60x60x2' },
     boog: { kern: 10, lagenKader: 6, uitleg: 'lasergesneden uit plaat 10 mm; boog van het kader 6 lagen = 60 diep, 60 breed' },
     glasMax: 30, kort: '60 x 60',
@@ -613,6 +615,7 @@ export function lijsten(o) {
       return t + (op(a) && op(b) && zelfde ? Math.hypot(b[0] - a[0], b[1] - a[1]) : 0); }, 0), 0);
     // koopprofielen: één glaslat rondom elke ruit (de andere kant is de sponning van het profiel, ook bij de roeden)
     if (sys.koop) staaf(`${deel}: glaslatten rondom elke ruit`, sys.glaslat.staaf, v.ruiten.reduce((s, p) => s + p.reduce((t, a, i) => { const b = p[(i + 1) % p.length]; return t + (Math.abs(a[0] - b[0]) < 0.01 || Math.abs(a[1] - b[1]) < 0.01 ? Math.hypot(b[0] - a[0], b[1] - a[1]) : 0); }, 0), 0), sys.glaslatRondom ?? 1, sys.glaslat.uitleg);
+    else if (sys.glaslat.achter) { staaf(`${deel}: glaslatten voor (gelast)`, sys.glaslat.staaf, recht - langsPaneel, 1, 'in stukken op maat zagen bij het glazen'); staaf(`${deel}: glaslatten achter (hoeklijn, geschroefd)`, sys.glaslat.achter, recht - langsPaneel, 1, 'op maat zagen; Ø4,5 boren en 90° verzinken om de 250'); }
     else staaf(`${deel}: glaslatten in het kader (voor en achter)`, sys.glaslat.staaf, recht - langsPaneel, 2, 'in stukken op maat zagen bij het glazen');
     for (const p of v.panelen ?? []) { const [x0, y0, x1, y1] = kaderVan(p); voeg(laser, `paneel|${deel}|${Math.round(x1 - x0)}|${Math.round(y1 - y0)}`, { wat: `${deel}: paneel (ingelast)`, vorm: 'plaat', b: Math.round(y1 - y0 - 2), l: Math.round(x1 - x0 - 2), t: 3, n: 1, mat: 'S235, plaat 3 mm', opm: '1 mm speling rondom, hechten om de 100' }); }
     if (rond) voeg(laser, `glaslat boog|${deel}`, { wat: `${deel}: glaslat in de boog van het kader`, vorm: 'boog', r: v.B / 2 - k - 7.5, zicht: 15, hoek: 180, t: 4, n: 2, mat: 'S235, plaat 4 mm', opm: 'voor gelast, achter geschroefd' });
@@ -622,11 +625,11 @@ export function lijsten(o) {
     }
   }
   for (const v of o.vleugels) {
-    staaf('greep voor en achter', 'rond25', MATEN.greep.lengte, 2, 'uiteinden rond slijpen; 2 gaten M8 per greep');
+    if (!sys.alu) staaf('greep voor en achter', 'rond25', MATEN.greep.lengte, 2, 'uiteinden rond slijpen; 2 gaten M8 per greep');
     if (o.scharnier === 'verdekt' && !sys.koop) staaf('kozijn: aanslag (boven en 2 zijden)', 'plat15x4', 2 * v.H + v.B, 1, 'op het kozijn gelast, de deur valt ertegen');
-    else if (o.scharnier !== 'verdekt' && !sys.pivot) voeg(laser, 'taatsplaat onder', { wat: 'taatsplaat onder (in de onderregel)', vorm: 'plaat', b: 36, l: 220, t: 8, n: 1, mat: 'S235, plaat 8 mm', opm: '2 gaten M8 voor het scharnier' });
+    else if (o.scharnier !== 'verdekt' && !sys.pivot) voeg(laser, 'taatsplaat onder', { wat: 'taatsplaat onder (in de onderregel)', vorm: 'plaat', b: 36, l: 220, t: 8, n: 1, mat: 'S235, plaat 8 mm', opm: '2 x M8 tappen (boor Ø6,8) op 40 en 180' });
     if (o.scharnier !== 'verdekt' && !sys.pivot) voeg(laser, 'taatsplaat boven', { wat: 'taatsplaat boven (in de bovenregel)', vorm: 'plaat', b: 36, l: 140, t: 8, n: 1, mat: 'S235, plaat 8 mm', opm: 'boring Ø20 voor de bovenpen' });
-    voeg(laser, 'greephouder', { wat: 'greephouder (afstandsstuk)', vorm: 'plaat', b: 25, l: 40, t: 10, n: o.stijl.vleugels === 2 ? 2 : 2, mat: 'S235, plaat 10 mm', opm: 'boring M8 voor de greep' });
+    if (!sys.alu) voeg(laser, 'greephouder', { wat: 'greephouder (afstandsstuk)', vorm: 'plaat', b: 25, l: 40, t: 10, n: o.stijl.vleugels === 2 ? 2 : 2, mat: 'S235, plaat 10 mm', opm: 'boring M8 voor de greep' });
   }
   return { zaag, laser, glas };
 }

@@ -7,7 +7,7 @@ import { veelhoek, MATEN } from './deuren.mjs';
 import { vooraanzicht, band } from './teken.mjs';
 import { STAAF } from './prijzen.mjs';
 import { GLAS } from './opties.mjs';
-import { verbindingen, VERBINDINGEN } from './explode.mjs';
+import { verbindingen, verbindingVan } from './explode.mjs';
 import { sectie, tekenSectie } from './profielen.mjs';
 /** welke rol (kozijn, kader, roede, glaslat) dit profiel in de deur heeft */
 const rolVan = (o, prof) => (!o ? null : prof === o.sys.kozijn.staaf ? 'kozijn' : prof === o.sys.kader.staaf ? 'kader' : prof === o.sys.roede.staaf ? 'roede' : prof === o.sys.glaslat.staaf ? 'glaslat' : null);
@@ -76,6 +76,7 @@ export function profiel(prof, V) {
   if (st?.koop) return st.diepte ? { soort: 'koker', koop: true, naam: n, zicht: V, diepte: st.diepte, t: st.wand ?? 1.5, iso: st.iso } : { soort: 'plat', koop: true, naam: n, zicht: V, diepte: 4 };
   if ((m = n.match(/koker (\d+)x(\d+)x(\d+)/))) { const [a, b, t] = m.slice(1).map(Number); return { soort: 'koker', naam: n, zicht: V, diepte: Math.abs(a - V) < 0.6 ? b : a, t }; }
   if ((m = n.match(/platstaal (\d+)x(\d+)/))) { const [a, b] = m.slice(1).map(Number); return { soort: 'plat', naam: n, zicht: V, diepte: Math.abs(a - V) < 0.6 ? b : a }; }
+  if ((m = n.match(/hoeklijn (\d+)x(\d+)x(\d+)/))) { const [a, b, t] = m.slice(1).map(Number); return { soort: 'hoek', naam: n, zicht: V, diepte: b, t, been: a }; }
   if ((m = n.match(/rond Ø(\d+)/))) return { soort: 'rond', naam: n, d: +m[1], zicht: +m[1], diepte: +m[1] };
   return { soort: 'systeem', naam: n, zicht: V, diepte: 50 };
 }
@@ -99,6 +100,8 @@ export function vorm3d(p, o) {
       if (pr.iso) return { profiel: pr, delen: [...koker(0, pr.iso[0]), ...koker(pr.iso[1], D), { pts: knip(pts, 1, 0, 3), gaten: [], z0: pr.iso[0], z1: pr.iso[1], iso: true }, { pts: knip(pts, 1, V - 3, V), gaten: [], z0: pr.iso[0], z1: pr.iso[1], iso: true }] };
       return { profiel: pr, delen: koker(0, D) };
     }
+    // hoeklijn: het ene been over het glas (zicht, dikte t), het andere tegen de koker (over de diepte)
+    if (pr.soort === 'hoek') return { profiel: pr, delen: [{ pts, gaten: [], z0: 0, z1: pr.t }, { pts: knip(pts, 1, 0, pr.t), gaten: [], z0: pr.t, z1: pr.diepte }] };
     return { profiel: pr, delen: [{ pts, gaten: [], z0: 0, z1: pr.diepte }] };
   }
   if (p.vorm?.r) { const { r, zicht, hoek, t } = p.vorm; return { delen: [{ pts: ringSector(r, zicht, hoek), gaten: [], z0: 0, z1: t }] }; }
@@ -306,7 +309,7 @@ export function detailBlad(o, p, ctx, keuzes = {}, meta = {}) {
   const regels = [`Bewerking: ${p.opm}`];
   for (const gr of ctx.groepen) if (gr.pa === p.pos || gr.pb === p.pos) {
     const ander = gr.pa === p.pos ? gr.pb : gr.pa, an = ctx.posities.find((x) => x.pos === ander)?.naam ?? '';
-    regels.push(`${gr.code}: ${gr.n} x ${VERBINDINGEN[gr.soort].naam.toLowerCase()} met pos ${ander} (${an})`);
+    regels.push(`${gr.code}: ${gr.n} x ${verbindingVan(gr.soort, o.sys).naam.toLowerCase()} met pos ${ander} (${an})`);
   }
   if (regels.length === 1 && p.soort === 'staaf' && /lat|Glaslat|Aanslag/.test(p.naam)) regels.push('Hechten om de 150 en lassen (voor) of M4 verzonken om de 250 (achter): zie de werkwijze');
   const rij = (t, max = 92) => { const w = t.split(' '), uit = ['']; for (const x of w) { if ((uit.at(-1) + ' ' + x).length > max) uit.push(x); else uit[uit.length - 1] += (uit.at(-1) ? ' ' : '') + x; } return uit; };

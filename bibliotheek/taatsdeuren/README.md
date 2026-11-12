@@ -12,7 +12,22 @@ platen laat je lasersnijden.
 - Afdrukken of als PDF bewaren voor de klant.
 - Bouwen: `node bibliotheek/taatsdeuren/maak-presentatie.mjs "C:\Users\ianph\OneDrive\Bureaublad\Deurenconfigurator"`.
 
-**Configurator voor de werkplaats:** <https://claude.ai/artifact/6ex1en1dk19jj9Q1B1KfhN>. Drie pagina's:
+**Configurator "Taatsdeuren op maat":** <https://claude.ai/artifact/6ex1en1dk19jj9Q1B1KfhN> (bron: `web/index.html` met de
+modules in `js/`). Sinds 2026-11-12 zijn **staal en aluminium twee aparte pagina's** (Ian: "dat ik het onderscheid heel goed kan zien"):
+- **Staal** (oranje, `#staal`): 100 stijlen, kokers of Jansen/Janisol/Forster, verstek gelast (TIG/MIG), pivot, FritsJurgens of
+  verdekte scharnieren, binnen of buiten.
+- **Aluminium** (blauw, `#alu`): de 56 stijlen zonder boog, profiel op maat P1-P4 of Du Pont, geschroefd met hoekverbinders,
+  stelschroeven en verzonken bouten (niet gelast), altijd een pivot, enkel veiligheidsglas.
+- Elk materiaal heeft zijn eigen **werkplaats** (`#staal-werkplaats`, `#alu-werkplaats`) met bovenaan de **montage**: per
+  verbinding (hoek, roede, glas, pivot onder en boven of verdekte scharnieren) een 3D-model dat je uit elkaar en samen schuift en
+  een montageblad A4 (`montage.mjs`, scènes in `verbinding.mjs`, 3D in `verbinding3d.mjs`): genummerde onderdelen,
+  bevestigingsmiddelen met norm (ISO 10642 verzonken, ISO 4026 stelschroef, ISO 7050, DIN 7504-O), en de stappen.
+- RAL-kleuren en glas als kleurstalen; de deur draait in 3D bij een pivot naar beide kanten (verdekt naar één kant), met de
+  vloerpot en de bovenpen zichtbaar.
+- Prijs = verkoop excl. btw met een marktmeter (staal € 750-2 300, aluminium € 450-880, zonder plaatsen); plaatsen is een
+  aparte keuze. Marge staal 35 %, aluminium 20 % (instelbaar).
+
+De vroegere opbouw (drie pagina's):
 - **Deur** (om aan de klant te tonen):
   - kies een van de 100 stijlen (filter per soort), de maat van de opening, het profiel, het glas, het scharnier, de
     afwerking en de kleur;

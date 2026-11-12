@@ -71,7 +71,7 @@ export function stappen(o, keuzes = {}, U = UREN) {
   if (!verdekt) stap('Taatsplaten en greephouders', U.taatsplaten * o.vleugels.length,
     `Las de taatsplaat onder in de onderregel en de taatsplaat boven in de bovenregel. Leg ze op het hart van de taatsas: ${'100'} mm uit de scharnierkant. Boor en tap de gaten volgens het scharnier. Las 2 greephouders op de staander aan de sluitkant (hart 20 uit de rand).`, 'MIG');
   stap('Glaslatten en latten op de roeden', t.latM * U.latPerM + t.gaten * U.tappenPerGat,
-    `Hecht de vaste latten aan de voorkant om de 150 mm (${(Math.round(t.latM * 10) / 10).toString().replace('.', ',')} m lat). Boor de losse latten aan de achterkant Ø3,3 en verzink ze. Tap in de kern en het kader M4 om de 250 mm (${t.gaten} gaten).`, 'TIG punten');
+    `Hecht de vaste latten aan de voorkant om de 150 mm (${(Math.round(t.latM * 10) / 10).toString().replace('.', ',')} m lat). Achter: boor de hoeklijnen 15x15x2 en de latten van de roeden Ø4,5 en verzink ze 90° tot Ø9. Tap de binnenwand van het kader en de kern van de roeden M4 om de 250 mm (${t.gaten} gaten).`, 'TIG punten');
   stap('Richten en nameten', U.richten * nv, 'Meet de vlakheid op de lastafel (ten hoogste 2 mm over de hoogte) en de diagonalen. Richt zo nodig koud of met een kleine vlam. Breek alle randen.');
   if (nat) stap('Zelf natlakken', U.natlakken, 'Ontvetten met siliconenverwijderaar, 2K-epoxyprimer, 2 lagen 2K-PU-lak zwart mat. Laat 24 uur drogen voor het glazen.');
   else stap('Klaarmaken voor de coater', U.coatKlaar, 'Ontvetten, de getapte gaten afstoppen (siliconenpluggen), merken. Laten stralen (SA 2½) en poedercoaten in RAL 9005 structuur.');
@@ -85,10 +85,12 @@ export function stappen(o, keuzes = {}, U = UREN) {
     if (s.titel === 'Voorbereiden en zagen') s.tekst = `Zaag de ${t.stukken} stukken volgens de zaaglijst en het zaagplan (staven van 6 m, bestellijst). ${V.zagen} Merk elk stuk met zijn positienummer uit de stuklijst.`;
     else if (s.titel === 'Kader hechten en lassen') { s.tekst = `${t.hoeken} verstekhoeken. ${V.lassen}${V.uurHoek ? '' : ' Meet de diagonalen voor en na het lassen.'}`; s.proces = V.proces ?? 'MAG / puls-TIG'; if (V.lassenTitel) s.titel = V.lassenTitel; if (V.uurHoek) s.uren = Math.round(t.hoeken * V.uurHoek * 100) / 100; }
     else if (s.titel === 'Roeden plaatsen') { s.tekst = `${t.tees / 2} roeden. ${V.roeden}`; s.proces = V.proces ?? 'MAG / puls-TIG'; if (V.roedenTitel) s.titel = V.roedenTitel; if (V.uurTee) s.uren = Math.round(t.tees * V.uurTee * 100) / 100; }
-    else if (s.titel === 'Taatsplaten en greephouders' && V.taats) { s.titel = 'Pivot en greep monteren'; s.uren = Math.round(0.6 * o.vleugels.length * 100) / 100; s.tekst = V.taats; }
-    else if (s.titel === 'Klaarmaken voor de coater' && V.coat) s.tekst = V.coat;
-    else if (s.titel === 'Glaslatten en latten op de roeden') { s.titel = 'Glaslatten op maat'; s.uren = Math.round(t.latM * U.latPerM * 0.5 * 100) / 100; s.tekst = `Zaag de glaslatten op maat per ruitzijde (${(Math.round(t.latM * 10) / 10).toString().replace('.', ',')} m, zie de stuklijst) en merk ze; ze worden bij het glazen vastgezet. ${o.sys.glaslat.uitleg}.`; }
-    else if (s.titel === 'Glazen') s.tekst = `${t.ruiten} ruiten ${o.opbouw === 'dubbel' ? 'isolerend glas 44.2 | 14 | 6 gehard' : 'veiligheidsglas 44.2'}. ${V.glas}`;
+    else if (s.titel === 'Taatsplaten en greephouders' && V.taats) { s.titel = 'Pivot en greep monteren'; s.uren = Math.round((o.sys.alu ? 0.4 : 0.6) * o.vleugels.length * 100) / 100; s.tekst = V.taats; }
+    else if (s.titel === 'Klaarmaken voor de coater' && V.coat) { s.tekst = V.coat; if (o.sys.alu) { s.titel = o.sys.gecoat ? 'Gecoate profielen nakijken' : 'Staven naar de coater (vooraf, volle lengte)'; s.uren = o.sys.gecoat ? 0.2 : 0.3; } }
+    else if (s.titel === 'Kader opspannen op de lastafel' && o.sys.alu) { s.titel = 'Kader op de montagetafel'; s.uren = Math.round(0.3 * nv * 100) / 100; s.tekst = 'Leg de kaderdelen op de montagetafel (of de lastafel met een karton of vilt tegen krassen) tegen haakse aanslagen. Meet de diagonalen (gelijk tot 1 mm) voor de lijm uithardt.'; s.proces = 'geschroefd'; }
+    else if (s.titel === 'Richten en nameten' && o.sys.alu) { s.uren = Math.round(0.25 * nv * 100) / 100; s.tekst = 'Meet de diagonalen en de vlakheid (ten hoogste 2 mm over de hoogte). Aluminium niet richten met een vlam: een hoek die scheef staat los, rechtzetten en opnieuw aanspannen.'; }
+    else if (s.titel === 'Glaslatten en latten op de roeden') { s.titel = o.sys.verbinders ? 'Glasrubber op maat' : 'Glaslatten op maat'; s.uren = Math.round(t.latM * (o.sys.verbinders ? 0.03 : U.latPerM * 0.5) * 100) / 100; s.tekst = `Zaag de glaslatten op maat per ruitzijde (${(Math.round(t.latM * 10) / 10).toString().replace('.', ',')} m, zie de stuklijst) en merk ze; ze worden bij het glazen vastgezet. ${o.sys.glaslat.uitleg}.`; }
+    else if (s.titel === 'Glazen') { if (V.uurRuit) s.uren = Math.round((0.3 + t.ruiten * V.uurRuit) * 100) / 100; s.tekst = `${t.ruiten} ruiten ${o.opbouw === 'dubbel' ? 'isolerend glas 44.2 | 14 | 6 gehard' : 'veiligheidsglas 44.2'}. ${V.glas}`; }
   }
   return S;
 }

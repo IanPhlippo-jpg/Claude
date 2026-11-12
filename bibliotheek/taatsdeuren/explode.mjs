@@ -29,6 +29,14 @@ export const VERBINDINGEN = {
   S: { naam: 'Schuin tegen de boog', las: 'Uiteinde schuin zagen volgens de boog (aftekenen op de mal 1:1); passen, hechten, hoeklas a3 rondom met TIG.' },
   B: { naam: 'Boog op kalf, poot of kader', las: 'De lasergesneden boog op de mal leggen; stomp tegen het kalf, de poot of het kader; hoeklas a3 rondom met TIG.' },
 };
+/** de verbindingen zoals ze bij dit systeem gemaakt worden: aluminium wordt geschroefd, niet gelast */
+export function verbindingVan(soort, sys) {
+  const V = VERBINDINGEN[soort], w = sys?.verwerking;
+  if (!sys?.alu || !w) return V;
+  if (soort === 'V') return { naam: 'Verstek 45° (hoekverbinder)', las: w.lassen };
+  if (soort === 'T') return { naam: 'T-verbinding (geschroefd)', las: w.roeden };
+  return V;
+}
 
 /** alle stukken met hun echte vorm (globaal) en alle verbindingen tussen hun uiteinden */
 export function verbindingen(o, keuzes = {}) {
@@ -133,7 +141,7 @@ export function explodeBlad(o, keuzes = {}, meta = {}) {
   }
   // rechts: de verbindingentabel en een schets per soort
   const naam = (p) => posities.find((x) => x.pos === p)?.naam ?? '';
-  const rijen = groepen.map((gr) => [gr.code, gr.n, `${gr.pa} ${naam(gr.pa)}`, `${gr.pb} ${naam(gr.pb)}`, VERBINDINGEN[gr.soort].naam]);
+  const rijen = groepen.map((gr) => [gr.code, gr.n, `${gr.pa} ${naam(gr.pa)}`, `${gr.pb} ${naam(gr.pb)}`, verbindingVan(gr.soort, o.sys).naam]);
   const max = 34, [tt, th] = tabel(253, 20, [['Code', 11], ['n', 8, 1], ['Stuk', 50], ['tegen stuk', 50], ['Soort', 37]], rijen.slice(0, max), 3.9, 1.95);
   el.push(T(253, 17, 'Verbindingen', 3, { vet: true }), tt);
   if (rijen.length > max) el.push(T(253, 20 + th + 3, `+ ${rijen.length - max} verbindingen: zie de stuklijst en de werkwijze`, 2, { kleur: '#555' }));
@@ -141,8 +149,8 @@ export function explodeBlad(o, keuzes = {}, meta = {}) {
   const soorten = [...new Set(groepen.map((gr) => gr.soort))];
   for (const sr of soorten) {
     if (y > 226) break;
-    el.push(icoon(sr, 253, y), T(290, y + 4, VERBINDINGEN[sr].naam, 2.4, { vet: true }));
-    const woorden = VERBINDINGEN[sr].las.split(' '), lijnen = [''];
+    el.push(icoon(sr, 253, y), T(290, y + 4, verbindingVan(sr, o.sys).naam, 2.4, { vet: true }));
+    const woorden = verbindingVan(sr, o.sys).las.split(' '), lijnen = [''];
     for (const w of woorden) { if ((lijnen.at(-1) + ' ' + w).length > 70) lijnen.push(w); else lijnen[lijnen.length - 1] += (lijnen.at(-1) ? ' ' : '') + w; }
     lijnen.slice(0, 4).forEach((l, i) => el.push(T(290, y + 8 + i * 3.3, l, 2)));
     y += 26;

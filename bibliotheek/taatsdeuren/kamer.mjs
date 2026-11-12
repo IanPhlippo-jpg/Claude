@@ -72,7 +72,8 @@ function korrelTextuur(THREE) {
   return t;
 }
 
-/** maakt de kamer in 'houder'; geeft { toon(o, keuzes), zet({ open, muur, vloer }), herstel(), beeld() } */
+/** maakt de kamer in 'houder'; geeft { toon(o, keuzes), zet({ open, muur, vloer }), herstel(), beeld() }. open in graden:
+ *  een pivot draait naar beide kanten (-90 tot 90), verdekte scharnieren naar één kant (0 tot 90) */
 export async function kamer(houder) {
   const THREE = await import('three');
   const { OrbitControls } = await import('three/addons/controls/OrbitControls.js');
@@ -191,12 +192,19 @@ export async function kamer(houder) {
         for (const y of [y0 + 80, y0 + Gr.lengte - 80]) { const b = new THREE.Mesh(new THREE.BoxGeometry(16, 16, Gr.voet + 2), mat.staal); b.position.set(xg, y, s * (kd + (Gr.voet + 2) / 2)); g.add(b); }
       }
       piv.add(g); D.add(piv); draaiers.push(piv);
+      // pivot: de vloerpot (RVS-afdekplaat op de vloer) en de bovenpen in het kozijn, op het hart van de as
+      if (!verdekt) {
+        const rvs = mat.rvs ?? (mat.rvs = new THREE.MeshStandardMaterial({ color: '#b9bec3', roughness: 0.32, metalness: 0.9 }));
+        const pot = new THREE.Mesh(new THREE.CylinderGeometry(32, 32, 3, 40), rvs); pot.position.set(xa, 1.5, 0); pot.receiveShadow = true; D.add(pot);
+        const as = new THREE.Mesh(new THREE.CylinderGeometry(9, 9, MATEN.vloer, 20), rvs); as.position.set(xa, MATEN.vloer / 2, 0); D.add(as);
+        const pen = new THREE.Mesh(new THREE.BoxGeometry(50, 4, 28), rvs); pen.position.set(xa, v.y + v.H + 2, 0); D.add(pen);
+      }
     }
     D.scale.setScalar(0.001); D.position.set((-o.B / 2 + MATEN.montage) / 1000, 0, 0);
     deurGroep = D; scene.add(D);
     zetOpen();
   }
-  const zetOpen = () => { for (const p of draaiers) p.rotation.y = p.userData.zin * (stand.open * Math.PI) / 180; };
+  const zetOpen = () => { const g = huidig?.scharnier === 'verdekt' ? Math.max(0, stand.open) : stand.open; for (const p of draaiers) p.rotation.y = p.userData.zin * (g * Math.PI) / 180; };
 
   function camStd(o) {
     // op ooghoogte in de kamer, iets opzij, zodat de deur met wat muur en vloer errond in beeld staat
@@ -211,7 +219,7 @@ export async function kamer(houder) {
     toon(o, keuzes = {}) {
       const sleutel = `${o.B}|${o.H}|${o.stijl.vorm}|${keuzes.muurdikte ?? 200}`;
       if (sleutel !== kamerSleutel) { bouwKamer(o, keuzes.muurdikte ?? 200); kamerSleutel = sleutel; }
-      zetUiterlijk(keuzes); bouwDeur(o);
+      zetUiterlijk(keuzes); const vorige = huidig; huidig = o; bouwDeur(o); huidig = vorige;
       if (!huidig || huidig.B !== o.B || huidig.H !== o.H) camStd(o);
       huidig = o; maat();
     },

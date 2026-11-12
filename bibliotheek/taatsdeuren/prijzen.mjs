@@ -16,6 +16,7 @@ export const STAAF = {
   plat20x10: { naam: 'platstaal 20x10', kgm: 1.57, prijs: 8.64, omtrek: 60, bron: 'schatting: € 5,50/kg zoals platstaal 30x8 bij metallshopper.de' },
   plat30x3: { naam: 'platstaal 30x3', kgm: 0.71, prijs: 3.9, omtrek: 66, bron: 'schatting: € 5,50/kg' },
   plat15x4: { naam: 'platstaal 15x4', kgm: 0.47, prijs: 2.6, omtrek: 38, bron: 'schatting: € 5,50/kg' },
+  hoek15x15x2: { naam: 'hoeklijn 15x15x2', kgm: 0.44, prijs: 2.42, omtrek: 60, bron: 'schatting: € 5,50/kg (hoeklijn 15x15x2: 0,44 kg/m)' },
   rond25: { naam: 'rond Ø25', kgm: 3.85, prijs: 21.2, omtrek: 79, bron: 'schatting: € 5,50/kg' },
   // ---- koopprofielen (staven van 6 m; wand 1,5 mm). Gewicht: Feon-profiellijst 08/2020 (Jansen) en Forster-planningsdocument
   // 988320 (03/21). Prijs per m of kg is nergens publiek: schatting per kg, offerte vragen (Jansen BE: info.belgium@jansen.com;
@@ -70,9 +71,13 @@ export const PRIJS = {
   hoekverbinder: { v: 3.5, bron: 'schatting: hoekverbinder voor koker 50x25x2 / 60x30x2 (aluminium of zamak met stelschroeven); Du Pont verkoopt ze niet, vraag een aluminiumhandel' },
   tVerbinder: { v: 3, bron: 'schatting: T-verbinder voor koker 50x25x2' },
   klein: { v: 25, bron: 'schatting: glaskit, glasblokjes, RVS-schroeven M4, ankers voor het kozijn' },
+  greepAlu: { v: 81, bron: 'Intersteel deurgreep 800 x 40 mm, € 49 incl. btw per stuk (hornbach.nl/p/intersteel-deurgreep-800x40-mm-rvs-geborsteld/6553417): 2 stuks rug aan rug = € 81 excl. btw' },
+  poedercoatAlu: { v: 30, min: 60, bron: 'schatting: aluminiumprofielen in volle staven coaten samen met andere opdrachten (voorbehandeling inbegrepen); een losse deur bij de coater kost zoals staal (€ 50/m², min. € 140)' },
+  inlegplaatAlu: { v: 12, bron: 'schatting: 2 inlegplaten RVS 6 mm (laser + tappen) per vleugel voor de pivot' },
+  profielVerlies: { v: 0.1, bron: 'aluminium per meter aangerekend + 10 % zaagverlies: de restlengtes gaan naar de volgende deur' },
   schijven: { v: 10, bron: 'schatting: slijp- en fiberschijven, wolfraam' },
 };
-export const STANDAARD_KEUZES = { systeem: 'auto', opbouw: 'enkel', glas: 'helder', scharnier: 'budget', afwerking: 'poedercoat', ral: '9005', lak: 'fijnstructuur', uurloon: 45, marge: 35 };
+export const STANDAARD_KEUZES = { systeem: 'auto', opbouw: 'enkel', glas: 'helder', scharnier: 'budget', afwerking: 'poedercoat', ral: '9005', lak: 'fijnstructuur', uurloon: 45, marge: 35, plaatsen: true };
 
 const r2 = (x) => Math.round(x * 100) / 100;
 /** staaloppervlak (m²) voor de coating: staven (omtrek x lengte) en laserdelen (2 x vlak) */
@@ -87,8 +92,11 @@ export function kostprijs(o, k = {}) {
   // staal: 10 % zaagverlies; koopprofielen in hele staven van de handel (zaagplan), de rest (glaslat, platstaal) ook
   if (o.sys.koop) {
     const z = zaagplan(o, K), koop = z.profielen.filter((p) => STAAF[p.prof]?.koop), ander = z.profielen.filter((p) => !STAAF[p.prof]?.koop);
-    regel(`Profielen ${o.sys.kort}: ${koop.map((p) => `${p.n} x ${p.artikel}`).join(', ')} (hele staven, zaagplan)`, koop.reduce((t, p) => t + p.prijs, 0), STAAF[o.sys.kader.staaf]?.bron ?? '');
+    if (o.sys.alu) regel(`Profielen ${o.sys.kort}: ${koop.map((p) => `${p.artikel} ${String(Math.round(p.nodig * 10) / 10).replace('.', ',')} m`).join(', ')} (per meter + 10 % zaagverlies)`, koop.reduce((t, p) => t + p.nodig * p.prijsM, 0) * (1 + PRIJS.profielVerlies.v), `${STAAF[o.sys.kader.staaf]?.bron ?? ''}; ${PRIJS.profielVerlies.bron}`);
+    else regel(`Profielen ${o.sys.kort}: ${koop.map((p) => `${p.n} x ${p.artikel}`).join(', ')} (hele staven, zaagplan)`, koop.reduce((t, p) => t + p.prijs, 0), STAAF[o.sys.kader.staaf]?.bron ?? '');
     if (ander.length) regel(`Staven (${ander.map((p) => p.naam).join(', ')})`, ander.reduce((t, p) => t + p.prijs, 0), 'metallshopper.de en schattingen per staaf');
+    if (o.sys.alu && o.scharnier !== 'verdekt') regel(`Inlegplaten voor de pivot (2 per vleugel)`, PRIJS.inlegplaatAlu.v * o.vleugels.length, PRIJS.inlegplaatAlu.bron);
+    if (o.sys.alu) regel(`Greep: deurgreep 800 mm mat zwart, rug aan rug${o.vleugels.length > 1 ? ` x ${o.vleugels.length}` : ''}`, PRIJS.greepAlu.v * o.vleugels.length, PRIJS.greepAlu.bron);
   } else {
     const staven = L.zaag.reduce((s, r) => s + (STAAF[r.prof]?.prijs ?? 0) * (r.l / 1000) * r.n, 0) * 1.1;
     regel('Staven (zaaglijst, + 10 % zaagverlies)', staven, 'metallshopper.de en schattingen per staaf');
@@ -117,7 +125,8 @@ export function kostprijs(o, k = {}) {
   else if (K.afwerking === 'natlak') regel(`Natlak zelf (${r2(m2)} m², primer + 2K)`, m2 * PRIJS.natlakPerM2.v + 15, PRIJS.natlakPerM2.bron);
   else {
     const kleur = RAL.find((c) => c.code === K.ral) ?? RAL[0], meer = kleur.metallic ? 1 + PRIJS.metallic.v : 1;
-    regel(`${o.sys.alu ? 'Voorbehandelen (aluminium) en poedercoaten' : 'Stralen en poedercoaten'} RAL ${kleur.code} ${kleur.naam} (${r2(m2)} m²)`, Math.max(PRIJS.coatMin.v, m2 * (PRIJS.poedercoat.v * meer + (o.sys.alu ? 0 : PRIJS.stralen.v))), kleur.metallic ? `${PRIJS.poedercoat.bron}; ${PRIJS.metallic.bron}` : PRIJS.poedercoat.bron);
+    if (o.sys.alu) regel(`Voorbehandelen (aluminium) en poedercoaten RAL ${kleur.code} ${kleur.naam}, staven in volle lengte (${r2(m2)} m²)`, Math.max(PRIJS.poedercoatAlu.min, m2 * PRIJS.poedercoatAlu.v * meer), kleur.metallic ? `${PRIJS.poedercoatAlu.bron}; ${PRIJS.metallic.bron}` : PRIJS.poedercoatAlu.bron);
+    else regel(`Stralen en poedercoaten RAL ${kleur.code} ${kleur.naam} (${r2(m2)} m²)`, Math.max(PRIJS.coatMin.v, m2 * (PRIJS.poedercoat.v * meer + PRIJS.stralen.v)), kleur.metallic ? `${PRIJS.poedercoat.bron}; ${PRIJS.metallic.bron}` : PRIJS.poedercoat.bron);
   }
   // lassen: draad ± 1 % van het staalgewicht, gas en wolfraam/TIG-draad naar de lasuren
   // K.uren: eigen standaarduren per handeling (instellingen), anders die uit werkwijze.mjs
@@ -129,16 +138,32 @@ export function kostprijs(o, k = {}) {
   } else regel('Lasdraad, gas, TIG-draad', G.staal * 0.012 * PRIJS.lasdraad.v + lasUren * 0.5 * 60 * 12 * PRIJS.gasMenggasPerL.v + lasUren * 0.5 * 60 * 8 * PRIJS.gasArgonPerL.v + lasUren * 0.1 * PRIJS.tigDraad.v, `${PRIJS.lasdraad.bron}; ${PRIJS.gasMenggasPerL.bron}`);
   regel('Kit, blokjes, schroeven, schijven', PRIJS.klein.v + PRIJS.schijven.v, 'schatting');
   const materiaal = regels.reduce((s, r) => s + r.bedrag, 0);
-  const uren = S.reduce((t, s) => t + s.uren, 0);
+  // plaatsen apart: de stap blijft in de werkwijze, maar telt alleen mee als K.plaatsen
+  const pl = S.find((s) => s.titel === 'Plaatsen'), plUren = pl?.uren ?? 0;
+  if (pl && !K.plaatsen) pl.apart = true;
+  const uren = S.reduce((t, s) => t + s.uren, 0) - (K.plaatsen ? 0 : plUren);
   const arbeid = uren * K.uurloon;
   const kost = materiaal + arbeid;
-  return { regels, materiaal: r2(materiaal), uren: r2(uren), arbeid: r2(arbeid), kostprijs: r2(kost), verkoop: r2(kost * (1 + K.marge / 100)), gewicht: G, stappen: S, keuzes: K, oppervlak: r2(m2), scharnier: sk, maxKg: Math.min(o.sys.kader.diepte >= 50 && SCHARNIEREN[sk].maxKgDiep ? SCHARNIEREN[sk].maxKgDiep : SCHARNIEREN[sk].maxKg, o.sys.maxVleugel?.kg ?? Infinity) };
+  const plaatsen = { uren: plUren, kost: r2(plUren * K.uurloon), verkoop: r2(plUren * K.uurloon * (1 + K.marge / 100)), inbegrepen: !!K.plaatsen };
+  return { regels, materiaal: r2(materiaal), uren: r2(uren), arbeid: r2(arbeid), kostprijs: r2(kost), verkoop: r2(kost * (1 + K.marge / 100)), plaatsen, gewicht: G, stappen: S, keuzes: K, oppervlak: r2(m2), scharnier: sk, maxKg: Math.min(o.sys.kader.diepte >= 50 && SCHARNIEREN[sk].maxKgDiep ? SCHARNIEREN[sk].maxKgDiep : SCHARNIEREN[sk].maxKg, o.sys.maxVleugel?.kg ?? Infinity) };
 }
 
-/** vergelijk: verkoopprijzen van stalen taatsdeuren in BE/NL (2026) */
+/** vergelijk: verkoopprijzen van taatsdeuren in BE/NL (opgezocht 2026-11-12), omgerekend naar excl. btw (/ 1,21 waar de
+ *  bron incl. btw is); per materiaal. montage: of het plaatsen inbegrepen is */
 export const MARKT = [
-  { wat: 'Zelfbouwmarkt.be: pivoterende stalen deur 3W Tirza 880 x 2040 (4 mm glas)', prijs: 899, bron: 'https://zelfbouwmarkt.be/nl/pivoterende-stalen-binnendeur-3w-tirza-880-x-2040-mm/a/132899' },
-  { wat: 'Zelfbouwmarkt.be: op maat tot 1200 x 2300, vanaf', prijs: 1200, bron: 'https://www.zelfbouwmarkt.be/nl/stalen-binnendeur-glas-enkel-pivot-4w-tirza-maatwerk/a/134069' },
-  { wat: 'Stalen Deuren Centrum (NL): enkele taatsdeur vanaf (incl. btw, zonder plaatsen; plaatsen € 450)', prijs: 1350, bron: 'https://stalendeurencentrum.nl/taatsdeuren' },
-  { wat: 'De Rooy Steel Doors: taatsdeur met FritsJurgens, geplaatst, vanaf', prijs: 2195, bron: 'https://www.derooysteeldoors.com/stalen-deuren/taatsdeuren/' },
+  { mat: 'staal', wat: 'Meneer Aards (NL): stalen taatsdeur op maat, enkel', prijs: 764, montage: false, bron: 'https://meneeraards.nl/maatwerk-taatsdeur-op-maat-gemaakt/' },
+  { mat: 'staal', wat: 'Zelfbouwmarkt.be: pivoterende stalen deur 3W Tirza 880 x 2040 (4 mm glas)', prijs: 743, montage: false, bron: 'https://zelfbouwmarkt.be/nl/pivoterende-stalen-binnendeur-3w-tirza-880-x-2040-mm/a/132899' },
+  { mat: 'staal', wat: 'Stalen Deuren Centrum (NL, levert in BE): enkele taatsdeur vanaf', prijs: 1116, montage: false, bron: 'https://stalendeurencentrum.nl/taatsdeuren' },
+  { mat: 'staal', wat: 'Binnendeurvanstaal.com: taatsdeur vanaf, met inmeten en plaatsen', prijs: 1240, montage: true, bron: 'https://www.binnendeurvanstaal.com/taatsdeuren' },
+  { mat: 'staal', wat: 'Level Doors (NL): taatsdeur op maat vanaf, met montage', prijs: 1653, montage: true, bron: 'https://www.leveldoors.nl/blogs/stalen-deuren/wat-kost-een-stalen-deur-prijzen-op-maat-2026' },
+  { mat: 'staal', wat: 'Deurenvanstaal.com: enkele taatsdeur vanaf, met montage', prijs: 2320, montage: true, bron: 'https://deurenvanstaal.com/prijs-stalen-deur/' },
+  { mat: 'alu', wat: 'Aluminiumschuifpuionline: steellook taatsdeur vanaf (excl. beslag)', prijs: 450, montage: false, bron: 'https://www.aluminiumschuifpuionline.nl/tophits-stalen-look-deuren-de-beste-keuzes-in-2026/' },
+  { mat: 'alu', wat: 'Meester in Glas: glazen taatsdeur zwart vanaf', prijs: 645, montage: false, bron: 'https://www.meesteringlas.com/glazen-taatsdeur-zwart/' },
+  { mat: 'alu', wat: 'Onderzoek Ian (2026-11-11): aluminium taatsdeuren, hoogstens', prijs: 880, montage: false, bron: 'eigen onderzoek Ian, excl. btw' },
+  { mat: 'alu', wat: 'Meester in Glas: steel look taatsdeur Slim 3 op maat (configuratie)', prijs: 1290, montage: false, bron: 'https://www.meesteringlas.com/steel-look-taatsdeur-slim-3/' },
 ];
+/** de marktband per materiaal (excl. btw, zonder plaatsen): gewoon = waar de meeste deuren zitten */
+export const MARKTBAND = {
+  staal: { laag: 750, hoog: 2300, tekst: 'stalen taatsdeuren op maat: € 750 tot 2 300 excl. btw (met plaatsen meestal € 1 250 tot 2 300)' },
+  alu: { laag: 450, hoog: 880, tekst: 'aluminium steel-look taatsdeuren: € 450 tot 880 excl. btw, zonder plaatsen' },
+};

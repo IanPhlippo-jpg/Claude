@@ -21,6 +21,7 @@ const schrijf = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } 
 const STD = { gebruik: 'binnen', stijl: 'boog', B: 1000, H: 2400, muurdikte: 200, scharnier: 'budget', draai: 'links', opbouw: 'enkel', glas: 'helder', ral: '9005', lak: 'fijnstructuur', systeem: 'auto', Z: 400 };
 let k = lees('deuren-keuze', STD);
 let kamerStand = lees('deuren-kamer', { open: 0, muur: 'wit', vloer: 'eik' });
+const hoek = (a) => (a === 0 ? 'dicht' : `${Math.abs(a)}° naar ${a > 0 ? 'voor' : 'achter'}`);
 let inst = lees('deuren-instellingen', { bedrijf: '', contact: '', prijs: 'kostprijs', uurloon: 45, marge: 35 });
 if (!STIJLEN.some((s) => s.id === k.stijl)) k = { ...STD };
 
@@ -51,7 +52,7 @@ for (const n of ['gebruik', 'scharnier', 'draai', 'opbouw', 'glas', 'ral', 'lak'
 $('systeem').addEventListener('change', () => { k.systeem = $('systeem').value; teken(); });
 document.querySelectorAll('[data-tab]').forEach((b) => b.addEventListener('click', () => tab(b.dataset.tab)));
 function tab(t) { document.querySelectorAll('[data-tab]').forEach((b) => b.setAttribute('aria-selected', b.dataset.tab === t)); document.querySelectorAll('[data-paneel]').forEach((p) => { p.hidden = p.dataset.paneel !== t; }); $('kamerbalk').hidden = t !== 'kamer'; }
-$('open').addEventListener('input', () => { kamerStand.open = +$('open').value; $('openW').textContent = `${kamerStand.open}°`; api?.zet({ open: kamerStand.open }); });
+$('open').addEventListener('input', () => { kamerStand.open = +$('open').value; $('openW').textContent = hoek(kamerStand.open); api?.zet({ open: kamerStand.open }); });
 $('open').addEventListener('change', () => schrijf('deuren-kamer', kamerStand));
 for (const n of ['muur', 'vloer']) document.querySelectorAll(`input[name="${n}"]`).forEach((r) => r.addEventListener('change', () => { kamerStand[n] = r.value; api?.zet({ [n]: r.value }); schrijf('deuren-kamer', kamerStand); }));
 $('herstel').addEventListener('click', () => api?.herstel());
@@ -70,6 +71,8 @@ function teken() {
   if (k.systeem !== 'auto' && !systeemPast(k.systeem, met(k.systeem))) melding.push(`Het profiel ${SYSTEMEN[k.systeem].kort} past niet bij deze keuze; ik neem ${SYSTEMEN[kiesSysteem({ ...met('auto'), systeem: 'auto' })].kort}.`);
   const o = ontwerp(s.id, B, H, opts);
   const c = kostprijs(o, { ...k, afwerking: 'poedercoat', uurloon: inst.uurloon, marge: inst.marge });
+  // een pivot draait naar beide kanten, verdekte scharnieren naar één kant
+  $('open').min = o.scharnier === 'verdekt' ? 0 : -90; if (o.scharnier === 'verdekt' && kamerStand.open < 0) { kamerStand.open = 0; $('open').value = 0; } $('openW').textContent = hoek(kamerStand.open);
   const zw = Math.max(...c.gewicht.vleugels);
   if (k.gebruik === 'buiten' && !o.sys.iso) melding.push('Buiten vraagt geïsoleerde deurprofielen; die bestaan niet met een boog. Kies een model zonder boog voor buiten.');
   if (o.opbouw !== k.opbouw) melding.push('Buiten en bij geïsoleerde deurprofielen altijd isolerend glas: dubbel glas genomen.');
@@ -143,7 +146,7 @@ $('beeld').addEventListener('click', async () => {
 
 // ---------------------------------------------------------------- start
 vulInst(); tab('kamer');
-$('open').value = kamerStand.open; $('openW').textContent = `${kamerStand.open}°`;
+$('open').value = kamerStand.open; $('openW').textContent = hoek(kamerStand.open);
 for (const n of ['muur', 'vloer']) { const r = document.querySelector(`input[name="${n}"][value="${kamerStand[n]}"]`); if (r) r.checked = true; }
 teken();
 kamer($('kamer')).then((x) => { api = x; $('laden').remove(); api.zet(kamerStand); teken(); }).catch((e) => { $('laden').textContent = '3D lukt niet op dit toestel; de tekening staat klaar.'; tab('tekening'); console.warn(e); });

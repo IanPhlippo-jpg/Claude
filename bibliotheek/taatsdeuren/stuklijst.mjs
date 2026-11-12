@@ -71,13 +71,19 @@ export function stuklijst(o, keuzes = {}) {
       if (sys.koop ? !recht : !op(a) || !op(b) || !lijn) return;
       const l = Math.round(Math.hypot(b[0] - a[0], b[1] - a[1])), s = STAAF[sys.glaslat.staaf];
       if (l < 20) return;
+      if (sys.glaslat.achter) {
+        const h = STAAF[sys.glaslat.achter], mid = [dx + (a[0] + b[0]) / 2, dy + (a[1] + b[1]) / 2];
+        voeg({ sleutel: `glaslat|${l}`, soort: 'staaf', naam: 'Glaslat voor', prof: sys.glaslat.staaf, mat: matVan(sys.glaslat.staaf), maat: `L = ${l}`, L: l, n: 1, kg: (s?.kgm ?? 0) * l / 1000, opm: 'recht; voor: hechten om de 150 en lassen', vorm: { pts: [[0, 0], [l, 0], [l, 15], [0, 15]], L: l, V: 15 } }, mid);
+        voeg({ sleutel: `glaslatA|${l}`, soort: 'staaf', naam: 'Glaslat achter (hoeklijn)', prof: sys.glaslat.achter, mat: matVan(sys.glaslat.achter), maat: `L = ${l}`, L: l, n: 1, kg: (h?.kgm ?? 0) * l / 1000, opm: 'recht; Ø4,5 boren en 90° verzinken om de 250, M4 verzonken in de koker', vorm: { pts: [[0, 0], [l, 0], [l, 15], [0, 15]], L: l, V: 15 } }, mid);
+        return;
+      }
       voeg({ sleutel: `glaslat|${l}`, soort: 'staaf', naam: 'Glaslat', prof: sys.glaslat.staaf, mat: matVan(sys.glaslat.staaf), maat: `L = ${l}`, L: l, n: sys.koop ? sys.glaslatRondom ?? 1 : 2, kg: (s?.kgm ?? 0) * l / 1000, opm: sys.koop ? `recht; de andere kant is de sponning van het profiel; ${sys.glaslat.uitleg}` : 'recht; voor gelast, achter geschroefd (M4 verzonken om de 250)', vorm: { pts: [[0, 0], [l, 0], [l, 15], [0, 15]], L: l, V: 15 } }, [dx + (a[0] + b[0]) / 2, dy + (a[1] + b[1]) / 2]);
     });
   }
   // 3. greep en aanslag
   for (const v of o.vleugels) {
     const G = MATEN.greep, xg = v.taats === 'links' ? v.x + v.B - G.afstand : v.x + G.afstand;
-    voeg({ sleutel: 'greep', soort: 'staaf', naam: 'Greep (voor en achter)', prof: 'rond25', mat: 'S235, rond Ø25', maat: `L = ${G.lengte}`, L: G.lengte, n: 2, kg: STAAF.rond25.kgm * G.lengte / 1000, opm: 'uiteinden rond slijpen; 2 x M8 op 80 van de uiteinden', vorm: { pts: [[0, 0], [G.lengte, 0], [G.lengte, G.d], [0, G.d]], L: G.lengte, V: G.d, gaten: [80, G.lengte - 80], rond: true } }, [xg, G.hoogte]);
+    if (!sys.alu) voeg({ sleutel: 'greep', soort: 'staaf', naam: 'Greep (voor en achter)', prof: 'rond25', mat: 'S235, rond Ø25', maat: `L = ${G.lengte}`, L: G.lengte, n: 2, kg: STAAF.rond25.kgm * G.lengte / 1000, opm: 'uiteinden rond slijpen; 2 x M8 op 80 van de uiteinden', vorm: { pts: [[0, 0], [G.lengte, 0], [G.lengte, G.d], [0, G.d]], L: G.lengte, V: G.d, gaten: [80, G.lengte - 80], rond: true } }, [xg, G.hoogte]);
     if (o.scharnier === 'verdekt' && !sys.koop) for (const [l, nm] of [[Math.round(v.H), 'zijde'], [Math.round(v.B), 'boven']]) voeg({ sleutel: `aanslag|${l}`, soort: 'staaf', naam: `Aanslag op het kozijn (${nm})`, prof: 'plat15x4', mat: 'S235, platstaal 15x4', maat: `L = ${l}`, L: l, n: nm === 'zijde' ? 2 : 1, kg: STAAF.plat15x4.kgm * l / 1000, opm: 'recht; op het kozijn gelast', vorm: { pts: [[0, 0], [l, 0], [l, 15], [0, 15]], L: l, V: 15 } }, [v.x + v.B / 2, v.y + v.H + 10]);
   }
   // 4. lasergesneden: bogen (kern in lagen, latten), boog van kader en kozijn, glaslat in de boog, taatsplaten, greephouders
@@ -95,14 +101,16 @@ export function stuklijst(o, keuzes = {}) {
     } else boog(d.soort === 'boogkozijn' ? 'Kozijn: boog' : 'Kader: boog', d, zichtVan(sys, d.soort), sys.boog.kern, sys.boog.lagenKader, `${sys.boog.lagenKader} lagen van ${sys.boog.kern} mm op elkaar gelast, rond slijpen`, p);
   }
   for (const v of o.vleugels) if (v.aanzet !== undefined) boog('Glaslat in de boog', { r: v.B / 2 - k - 7.5, g0: 0, g1: 180 }, 15, 4, 2, 'voor gelast, achter geschroefd', [v.x + v.B / 2, v.y + v.H - 30]);
+  const inkoop = (naam, mat, n, opm, plaats) => voeg({ sleutel: `inkoop|${naam}`, soort: 'inkoop', naam, mat, maat: '', n, kg: 0, opm }, plaats);
   const plaat = (naam, b, l, t, n, gaten, opm, plaats) => voeg({ sleutel: `plaat|${naam}|${b}|${l}|${t}`, soort: 'laser', naam, mat: `S235, plaat ${t} mm`, maat: `${b} x ${l}`, n, kg: b * l * t * 7.85e-6, opm, vorm: { b, l, t, gaten } }, plaats);
   for (const v of o.vleugels) {
     const xa = v.taats === 'links' ? v.x + MATEN.taats : v.x + v.B - MATEN.taats, xg = v.taats === 'links' ? v.x + v.B - MATEN.greep.afstand : v.x + MATEN.greep.afstand;
     if (o.scharnier !== 'verdekt' && !sys.pivot) {
-      plaat('Taatsplaat onder', 36, 220, 8, 1, [[40, 18, 8.5], [180, 18, 8.5]], '2 x Ø8,5 voor het scharnier; in de onderregel gelast', [xa, v.y + 20]);
+      plaat('Taatsplaat onder', 36, 220, 8, 1, [[40, 18, 6.8], [180, 18, 6.8]], '2 x M8 tappen (boor Ø6,8) voor de deurplaat van de pivot; in de onderregel gelast', [xa, v.y + 20]);
       plaat('Taatsplaat boven', 36, 140, 8, 1, [[40, 18, 20]], 'Ø20 voor de bovenpen; in de bovenregel gelast', [xa, v.y + v.H - 20]);
     }
-    plaat('Greephouder', 25, 40, 10, 2, [[20, 12.5, 6.8]], sys.alu ? 'M8 tappen (boor Ø6,8); met een M6-bout door de koker op de staander geschroefd' : 'M8 tappen (boor Ø6,8); op de staander gelast', [xg, MATEN.greep.hoogte - MATEN.greep.lengte / 2 + 80]);
+    if (!sys.alu) plaat('Greephouder', 25, 40, 10, 2, [[20, 12.5, 6.8]], 'M8 tappen (boor Ø6,8); op de staander gelast', [xg, MATEN.greep.hoogte - MATEN.greep.lengte / 2 + 80]);
+    else inkoop('Deurgreep 800 mm mat zwart, rug aan rug (voor en achter, Intersteel 800 x 40)', 'RVS', 1, 'doorgaande bouten M8 door de staander (Ø9 boren, hart 20 uit de sluitkant)', [xg, MATEN.greep.hoogte]);
   }
   // 5. panelen
   for (const [, g, dx, dy] of groepen) for (const p of g.panelen ?? []) {
@@ -120,7 +128,6 @@ export function stuklijst(o, keuzes = {}) {
   }
   // 7. inkoop: scharnieren, klein materiaal
   const t = telling(o), sk = keuzes.scharnierModel ?? (o.scharnier === 'verdekt' ? 'verdekt' : sys.pivot ? 'revolta100' : SCHARNIEREN[keuzes.scharnier] ? keuzes.scharnier : 'budget'), sch = SCHARNIEREN[sk];
-  const inkoop = (naam, mat, n, opm, plaats) => voeg({ sleutel: `inkoop|${naam}`, soort: 'inkoop', naam, mat, maat: '', n, kg: 0, opm }, plaats);
   for (const v of o.vleugels) {
     if (o.scharnier === 'verdekt') { const xs = v.taats === 'links' ? v.x : v.x + v.B; inkoop(sch.naam.replace(/^Verdekt: 3 x /, 'Verdekt scharnier '), 'inkoop', 3, '250 onder de bovenkant, 250 boven de onderkant en in het midden', [xs, v.y + v.H - 250]); }
     else inkoop(`${sch.naam.replace(/^Pivot: /, 'Taatsscharnier ')} (pot, as en bovenpen)`, 'inkoop', 1, `tot ${sch.maxKg} kg per vleugel`, [v.taats === 'links' ? v.x + MATEN.taats : v.x + v.B - MATEN.taats, 0]);
@@ -129,8 +136,14 @@ export function stuklijst(o, keuzes = {}) {
     const vb = sys.verbinders;
     inkoop(vb?.hoek ?? 'Hoekverbinder voor koker 50x25x2 (vleugel) en 60x30x2 (kozijn)', 'aluminium / zamak', t.hoeken, 'in elke verstekhoek, met stelschroeven en 2K-lijm', null);
     if (t.tees) inkoop(vb?.tee ?? 'T-verbinder voor koker 50x25x2 (roeden)', vb ? 'RVS A2' : 'aluminium / zamak', vb ? t.tees * 2 : t.tees, 'in elk uiteinde van een roede', null);
+    if (t.tees && !vb) { inkoop('Bout M6 x 40 verzonken, inbus (ISO 10642)', 'RVS A2', t.tees, 'door de stijl in de T-verbinder; stijl Ø6,6 boren, 90° verzinken tot Ø13', null); inkoop('Stelschroef M5 x 6 (ISO 4026)', 'RVS A2', t.tees, 'zet de T-verbinder vast in de roede', null); }
+    inkoop('Stelschroef M6 x 8 (ISO 4026)', 'RVS A2', t.hoeken * 4, '4 per hoek, in de hoekverbinder', null);
+    if (o.scharnier !== 'verdekt') { inkoop('Inlegplaat pivot: 30 x 220 x 6 (onder, 2 x M6) en 30 x 140 x 6 (boven, Ø20)', 'RVS', 2 * o.vleugels.length, 'in de onder- en bovenregel geschoven', null); inkoop('Bout M6 x 16 verzonken, inbus (ISO 10642)', 'RVS A2', 4 * o.vleugels.length, 'deurplaat en inlegplaat boven', null); }
     if (!vb) inkoop('Boorschroef RVS 3,5 x 13 (achterste L-profielen)', 'A2', Math.ceil((t.latM * 1000) / 2 / 300), 'om de 300 mm', null);
-  } else inkoop('Schroef M4 x 12 verzonken, RVS (ISO 10642)', 'A2', t.gaten, 'voor de losse latten', null);
+  } else {
+    inkoop('Schroef M4 x 10 verzonken, RVS (ISO 10642)', 'A2', t.gaten, 'hoeklijnen achter en latten op de roeden, om de 250', null);
+    if (o.scharnier !== 'verdekt' && keuzes.scharnier !== 'premium') inkoop('Bout M8 x 20 verzonken, inbus (ISO 10642)', '8.8 verzinkt', 2 * o.vleugels.length, 'deurplaat van de pivot in de taatsplaat (M8)', null);
+  }
   inkoop('Glasblokje 3 mm', 'kunststof', t.ruiten * 2, '2 onder elke ruit', null);
   inkoop('Glaskit transparant (koker 310 ml)', 'MS-polymeer', Math.max(1, Math.ceil(t.latM / 12)), 'tegen de vaste lat', null);
   inkoop('Kozijnanker Ø8', 'verzinkt', 6, '3 per stijl', null);
