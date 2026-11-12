@@ -404,7 +404,7 @@ function pivotBoven(o, k = {}) {
     delen.push({ naam: 'Stelschroef M6 x 10', label: 'ISO 4026; zet de pendrager vast (deur: glaszijde, kozijn: muurkant)', kleur: KLEUR.bout, uit: [0, -30, 0], solids: [cil('y', ax - 22, zc, 3, d0 - 0.2, d0 + 9.8, 10)] });
   } else {
     delen.push({ naam: 'Taatsplaat boven 36x140x8', label: 'lasergesneden S235, Ø20 voor de pen; tegen de bovenwand gelast', kleur: KLEUR.plaat, uit: [0, 0, 0], solids: [doos(ax - 40, ax + 100, K - t - 8, K - t, zc - 17.8, zc + 17.8)] });
-    delen.push({ naam: 'Lasring Ø30/Ø19,2 x 8', label: 'lasergesneden S235: de glijbus, binnen op de onderwand van de kozijnregel gelast', kleur: KLEUR.plaat, uit: [0, 95, 0], solids: [cil('y', ax, zkc, 15, yk + tz, yk + tz + 8, 28)] });
+    delen.push({ naam: 'Busplaat 30x30x8, Ø19,2', label: 'lasergesneden S235: de glijbus, binnen op de onderwand van de kozijnregel gelast', kleur: KLEUR.plaat, uit: [0, 95, 0], solids: [doos(ax - 15, ax + 15, yk + tz, yk + tz + 8, zkc - 15, zkc + 15)] });
   }
   delen.push({ naam: fj ? 'Bovenpen FritsJurgens (in de deur)' : 'Bovenpen met veer (in de deur)', label: 'pen Ø19 met veerhuis; veert omhoog in de glijbus van het kozijn', kleur: KLEUR.pivot, uit: [0, 0, 0],
     solids: [cil('y', ax, zc, 12, d0 - 32, d0 - 0.01, 18), cil('y', ax, zc, 9.5, d0 - 0.01, yk + tz + 7, 16), doos(ax + 13, ax + 22, d0 - 26, d0 - 20, zc - 2, zc + 2)] });
@@ -412,17 +412,17 @@ function pivotBoven(o, k = {}) {
   const wDeur = (q) => q.naam === 'Bovenregel van de vleugel', wKoz = (q) => q.naam === 'Bovenregel van het kozijn';
   boor(delen, { as: 'y', cu: ax, cv: zc, r: 10, van: K, zin: -1, diep: K }, (q) => wDeur(q) || /^(Taatsplaat|Pendrager deur)/.test(q.naam));
   boor(delen, { as: 'y', cu: ax, cv: zkc, r: 10, van: yk, zin: 1, diep: tz }, wKoz);
-  boor(delen, { as: 'y', cu: ax, cv: zkc, r: 9.6, van: yk + tz, zin: 1, diep: KZ }, (q) => /^(Lasring|Pendrager kozijn)/.test(q.naam));
+  boor(delen, { as: 'y', cu: ax, cv: zkc, r: 9.6, van: yk + tz, zin: 1, diep: KZ }, (q) => /^(Busplaat|Pendrager kozijn)/.test(q.naam));
   boor(delen, { as: 'z', cu: ax + 22, cv: d0 - 23, r: 4, van: 0, zin: 1, diep: t + 0.2 }, wDeur);
   if (alu) { boor(delen, { as: 'y', cu: ax - 22, cv: zc, r: 3.25, van: 0, zin: 1, diep: K - hd.v1 + 0.3 }, wDeur); boor(delen, { as: 'y', cu: ax - 22, cv: zc, r: 2.5, van: d0, zin: 1, diep: 10 }, (q) => q.naam === 'Pendrager deur'); }
   const gaten = [
     { tekst: `deur: Ø20 in de bovenwand${alu ? ' en de pendrager' : ' en de taatsplaat'}; Ø8 intrekgat${alu ? ', Ø6,5 voor de stelschroef' : ''} (glaszijde)`, p: [ax, K, zc], volg: 'Bovenregel van de vleugel' },
-    { tekst: `kozijn: Ø20 in de onderwand, glijbus Ø19,2 ${alu ? 'in de pendrager' : 'in de lasring'}${alu ? '; Ø6,5 aan de muurkant voor de stelschroef' : ''}`, p: [ax, yk, zkc], volg: 'Bovenregel van het kozijn' },
+    { tekst: `kozijn: Ø20 in de onderwand, glijbus Ø19,2 ${alu ? 'in de pendrager' : 'in de busplaat'}${alu ? '; Ø6,5 aan de muurkant voor de stelschroef' : ''}`, p: [ax, yk, zkc], volg: 'Bovenregel van het kozijn' },
   ];
-  const middelen = [['Bovenpen met veer (bij de pivot)', '1 per vleugel', fj ? 'FritsJurgens' : 'pen Ø19, intrekbaar'], ...(alu ? [['Pendrager 30 x 60 (deur) en 30 x 80 (kozijn)', '1 + 1 per vleugel', 'aluminium of POM, Ø20 / Ø19,2, zijdelings M6'], ['Stelschroef M6 x 10', '2 per vleugel', 'ISO 4026, A2']] : [['Taatsplaat boven 36 x 140 x 8 (laser)', '1 per vleugel', 'S235'], ['Lasring Ø30 / Ø19,2 x 8 (laser, nadraaien)', '1 per vleugel', 'S235']])];
+  const middelen = [['Bovenpen met veer (bij de pivot)', '1 per vleugel', fj ? 'FritsJurgens' : 'pen Ø19, intrekbaar'], ...(alu ? [['Pendrager 30 x 60 (deur) en 30 x 80 (kozijn)', '1 + 1 per vleugel', 'aluminium of POM, Ø20 / Ø19,2, zijdelings M6'], ['Stelschroef M6 x 10', '2 per vleugel', 'ISO 4026, A2']] : [['Taatsplaat boven 36 x 140 x 8 (laser)', '1 per vleugel', 'S235'], ['Busplaat 30 x 30 x 8, Ø19,2 (laser, ruimen)', '1 per vleugel', 'S235']])];
   const stappen = [
     alu ? `Deur: boor de bovenwand Ø20 op het hart van de as (${ax} mm van de scharnierkant), aan de glaszijde Ø8 (intrekgat) en Ø6,5 (stelschroef). Schuif de pendrager in de bovenregel voor de hoeken dicht gaan en zet hem vast met de stelschroef M6.` : `Deur: las de taatsplaat boven tegen de bovenwand, met de boring Ø20 op het hart van de as (${ax} mm van de scharnierkant); boor de bovenwand Ø20 mee en aan de glaszijde Ø8 (intrekgat).`,
-    alu ? `Kozijn: boor de onderwand Ø20 recht boven de vloerpot (schietlood of laser) en Ø6,5 aan de muurkant. Schuif de pendrager kozijn (glijbus Ø19,2) in en zet hem vast.` : `Kozijn: boor de onderwand Ø20 recht boven de vloerpot (schietlood of laser) en las de lasring Ø30/Ø19,2 erboven, binnen in de regel. Ruim de ring na het coaten op Ø19,2.`,
+    alu ? `Kozijn: boor de onderwand Ø20 recht boven de vloerpot (schietlood of laser) en Ø6,5 aan de muurkant. Schuif de pendrager kozijn (glijbus Ø19,2) in en zet hem vast.` : `Kozijn: boor de onderwand Ø20 recht boven de vloerpot (schietlood of laser) en las de busplaat 30 x 30 x 8 (Ø19,2) erboven, binnen in de regel. Ruim de boring na het coaten op Ø19,2.`,
     `Plaats de deur op de as onderaan, druk de pen in door het intrekgat en laat ze omhoog veren in de glijbus. Uitnemen: pen indrukken door het intrekgat. Spleet boven: ${sp} mm.`,
   ];
   return { id: 'pivotBoven', titel: 'Pivot bovenaan', sub: 'veerpen in de deur, glijbus in het kozijn, intrekgat', delen, gaten, middelen, stappen, let: 'Teken de pivot na volgens de fiche van de fabrikant; de as onder en de bus boven exact boven elkaar (± 1 mm).' };

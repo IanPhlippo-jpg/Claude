@@ -112,7 +112,7 @@ export function gatenVan(o, { g, d, B, H, rol, vleugel, keuzes = {} }) {
     // de bus van de bovenpen in de bovenregel, recht boven elke taatsas
     if (!staand && d.a[1] > H - KZ && o.scharnier !== 'verdekt') for (const v of o.vleugels) {
       const ax = v.x + (v.taats === 'links' ? MATEN.taats : v.B - MATEN.taats), t = G.t([ax, d.a[1]]);
-      gat({ p: G.binnen(t), vlak: 'zijde', z: DZ / 2, d: 20, doel: alu ? 'doorgang voor de pen; de glijbus Ø19,2 zit in de pendrager' : 'doorgang voor de pen; de lasring Ø30/Ø19,2 (glijbus) erboven gelast' });
+      gat({ p: G.binnen(t), vlak: 'zijde', z: DZ / 2, d: 20, doel: alu ? 'doorgang voor de pen; de glijbus Ø19,2 zit in de pendrager' : 'doorgang voor de pen; de busplaat 30 x 30 x 8 met Ø19,2 (glijbus) erboven gelast' });
       if (alu) gat({ p: G.buiten(t + 30), vlak: 'zijde', z: DZ / 2, d: 6.5, doel: 'stelschroef van de pendrager (muurkant, verborgen)' });
     }
     if (o.scharnier === 'verdekt' && staand) for (const v of o.vleugels) {

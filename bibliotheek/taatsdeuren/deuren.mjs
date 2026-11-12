@@ -629,7 +629,7 @@ export function lijsten(o) {
     if (o.scharnier === 'verdekt' && !sys.koop) staaf('kozijn: aanslag (boven en 2 zijden)', 'plat15x4', 2 * v.H + v.B, 1, 'op het kozijn gelast, de deur valt ertegen');
     else if (o.scharnier !== 'verdekt' && !sys.pivot) voeg(laser, 'taatsplaat onder', { wat: 'taatsplaat onder (in de onderregel)', vorm: 'plaat', b: 36, l: 220, t: 8, n: 1, mat: 'S235, plaat 8 mm', opm: '2 x M8 tappen (boor Ø6,8) op 40 en 180' });
     if (o.scharnier !== 'verdekt' && !sys.pivot) voeg(laser, 'taatsplaat boven', { wat: 'taatsplaat boven (in de bovenregel)', vorm: 'plaat', b: 36, l: 140, t: 8, n: 1, mat: 'S235, plaat 8 mm', opm: 'boring Ø20 voor de bovenpen' });
-    if (o.scharnier !== 'verdekt' && !sys.pivot) voeg(laser, 'lasring bovenpen', { wat: 'lasring bovenpen (bus in het kozijn)', vorm: 'plaat', b: 30, l: 30, t: 8, n: 1, mat: 'S235, plaat 8 mm', opm: 'rond Ø30 met boring Ø21' });
+    if (o.scharnier !== 'verdekt' && !sys.pivot) voeg(laser, 'busplaat bovenpen', { wat: 'busplaat bovenpen (glijbus in het kozijn)', vorm: 'plaat', b: 30, l: 30, t: 8, n: 1, mat: 'S235, plaat 8 mm', opm: 'boring Ø19,2 (glijbus voor de pen Ø19)' });
     if (!sys.alu) voeg(laser, 'greephouder', { wat: 'greephouder (afstandsstuk)', vorm: 'plaat', b: 25, l: 40, t: 10, n: o.stijl.vleugels === 2 ? 2 : 2, mat: 'S235, plaat 10 mm', opm: 'boring M8 voor de greep' });
   }
   return { zaag, laser, glas };

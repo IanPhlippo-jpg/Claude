@@ -126,13 +126,13 @@ export function stuklijst(o, keuzes = {}) {
   }
   for (const v of o.vleugels) if (v.aanzet !== undefined) boog('Glaslat in de boog', { r: v.B / 2 - k - 7.5, g0: 0, g1: 180 }, 15, 4, 2, 'voor gelast, achter geschroefd', [v.x + v.B / 2, v.y + v.H - 30]);
   const inkoop = (naam, mat, n, opm, plaats) => voeg({ sleutel: `inkoop|${naam}`, soort: 'inkoop', naam, mat, maat: '', n, kg: 0, opm }, plaats);
-  const plaat = (naam, b, l, t, n, gaten, opm, plaats) => voeg({ sleutel: `plaat|${naam}|${b}|${l}|${t}`, soort: 'laser', naam, mat: `S235, plaat ${t} mm`, maat: `${b} x ${l}`, n, kg: b * l * t * 7.85e-6, opm, vorm: { b, l, t, gaten } }, plaats);
+  const plaat = (naam, b, l, t, n, gaten, opm, plaats) => voeg({ sleutel: `plaat|${naam}|${b}|${l}|${t}`, soort: 'laser', naam, mat: `S235, plaat ${t} mm`, maat: `${b} x ${l}`, n, kg: (b * l - gaten.reduce((a, g) => a + Math.PI * (g[2] / 2) ** 2, 0)) * t * 7.85e-6, opm, vorm: { b, l, t, gaten } }, plaats);
   for (const v of o.vleugels) {
     const xa = v.taats === 'links' ? v.x + MATEN.taats : v.x + v.B - MATEN.taats, xg = v.taats === 'links' ? v.x + v.B - MATEN.greep.afstand : v.x + MATEN.greep.afstand;
     if (o.scharnier !== 'verdekt' && !sys.pivot) {
       plaat('Taatsplaat onder', 36, 220, 8, 1, [[40, 18, 6.8], [180, 18, 6.8]], '2 x M8 tappen (boor Ø6,8) voor de deurplaat van de pivot; in de onderregel gelast', [xa, v.y + 20]);
       plaat('Taatsplaat boven', 36, 140, 8, 1, [[40, 18, 20]], 'Ø20 voor de bovenpen (die in de deur zit); in de bovenregel gelast', [xa, v.y + v.H - 20]);
-      voeg({ sleutel: 'plaat|Lasring bovenpen', soort: 'laser', naam: 'Lasring bovenpen (bus in het kozijn)', mat: 'S235, plaat 8 mm', maat: 'Ø30 / Ø21', n: 1, kg: Math.PI * (15 * 15 - 10.5 * 10.5) * 8 * 7.85e-6, opm: 'binnen in de bovenregel van het kozijn gelast, recht boven de taatsas', vorm: { b: 30, l: 30, t: 8, gaten: [[15, 15, 21]] } }, [xa, o.kozijn.H - 20]);
+      plaat('Busplaat bovenpen (in het kozijn)', 30, 30, 8, 1, [[15, 15, 19.2]], 'boring Ø19,2 = glijbus voor de pen Ø19; binnen op de onderwand van de kozijnregel gelast, recht boven de taatsas', [xa, o.kozijn.H - 20]);
     }
     if (!sys.alu) plaat('Greephouder', 25, 40, 10, 2, [[20, 12.5, 6.8]], 'M8 tappen (boor Ø6,8); op de staander gelast', [xg, MATEN.greep.hoogte - MATEN.greep.lengte / 2 + 80]);
     else inkoop('Deurgreep 800 mm mat zwart, rug aan rug (voor en achter, Intersteel 800 x 40)', 'RVS', 1, 'doorgaande bouten M8 door de staander (Ø9 boren, hart 20 uit de sluitkant)', [xg, MATEN.greep.hoogte]);

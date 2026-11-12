@@ -1363,6 +1363,6 @@ elease; README en docs/04 bijgewerkt
 - [x] Montage-3D en -bladen: echte gaten met afschuining in de wanden en platen, letters A, B, ... met de maat (ISO 15786)
 - [x] Stukbladen per onderdeel: de gaten in de aanzichten met maten en verzinksymbool
 - [x] Profielen tot in detail: kokers met hoekstralen (EN 10219), wanden en kamers zoals ze echt zijn; pivot boven met inlegplaat in het kozijn
-- [~] Testen (gaten op de juiste plaats, door de juiste stukken), artifact, foto's, commit en push
+- [x] Testen (montage 35/35, qaDeuren 500/500 na busplaat 30x30x8 i.p.v. lasring), artifact, foto's, commit en push
 - [x] Structuur (fijnstructuur, glad mat, zijdeglans) als stalen in de RAL-kleur (beide configuratoren)
 - [x] Advies Fable 5.2 (deuren en hele CAD) en de fouten verbeterd: geen verzonken kop in dunne wand, hoeklijn 3 mm, vloeiboren M4, toegangsgat met afdekdop, afstandsbus greep, stelschroeven aan de glaszijde, glijbus en intrekgat bovenpen
