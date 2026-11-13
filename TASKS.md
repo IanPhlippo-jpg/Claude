@@ -1398,7 +1398,7 @@ elease; README en docs/04 bijgewerkt
 - [x] Elke zelfgebouwde gaatjesprint vervangen door een bestelbaar module (uitgangen/MOSFET, ingangen/opto, voeding/buck, zekeringen, DC-bus) met product, winkel en prijs
 - [x] Doos aanpassen: palen/gaten per module, goten en kabelwegen
 - [x] Schema, draadlijst, bestellijst, bouwschema en meetblad bijwerken; opbouwtekeningen die wegvallen schrappen
-- [~] Firmware nakijken (pinnen, polariteit van de modules), tests, app, foto's, commit en push
+- [x] Firmware nakijken (pinnen, polariteit van de modules), tests, app, foto's, commit en push
 
 ## Balustrades: configurator zoals de taatsdeuren (2026-11-13)
 - [x] Vragenronde en EISEN.md (4 soorten, binnen/trap/buiten, op de vloer en zijmontage, prijs per meter)
@@ -1406,4 +1406,4 @@ elease; README en docs/04 bijgewerkt
 - [x] Model: lijnen (recht, hoek, trap), staanders, regels, vulling per soort, bevestiging; stuklijst en zaaglijst
 - [x] Werkplaatsdocumenten: tekening per stuk, lasdetails, montage per verbinding, bestellijst, PDF
 - [x] Klantpagina en werkplaats (3D, RAL, prijs per meter met marktband), instellingen
-- [~] Tests, artifact, foto's, commit en push
+- [x] Tests, artifact, foto's, commit en push
