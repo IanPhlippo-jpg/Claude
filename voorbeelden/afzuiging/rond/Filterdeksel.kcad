@@ -1,0 +1,188 @@
+{
+ "format": "phlippo-cad",
+ "version": 1,
+ "name": "Filterdeksel",
+ "units": "mm",
+ "planes": {
+  "deksel": {
+   "id": "deksel",
+   "name": "Plane onderkant deksel",
+   "origin": [
+    0,
+    -3,
+    0
+   ],
+   "u": [
+    1,
+    0,
+    0
+   ],
+   "v": [
+    0,
+    0,
+    -1
+   ],
+   "n": [
+    0,
+    1,
+    0
+   ],
+   "kind": "reference"
+  },
+  "kraag": {
+   "id": "kraag",
+   "name": "Plane onderkant deksel",
+   "origin": [
+    0,
+    -3,
+    0
+   ],
+   "u": [
+    1,
+    0,
+    0
+   ],
+   "v": [
+    0,
+    0,
+    -1
+   ],
+   "n": [
+    0,
+    1,
+    0
+   ],
+   "kind": "reference"
+  }
+ },
+ "variables": {},
+ "equations": [],
+ "sketches": {
+  "s1": {
+   "id": "s1",
+   "name": "Sketch1",
+   "plane": "deksel",
+   "points": {
+    "origin_s1": {
+     "x": 0,
+     "y": 0
+    },
+    "s1p0": {
+     "x": 0,
+     "y": 0
+    }
+   },
+   "scalars": {
+    "s1s1": 75
+   },
+   "entities": {
+    "s1e2": {
+     "id": "s1e2",
+     "construction": false,
+     "kind": "circle",
+     "center": "s1p0",
+     "r": "s1s1"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s1e2"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s1"
+  },
+  "s2": {
+   "id": "s2",
+   "name": "Sketch2",
+   "plane": "kraag",
+   "points": {
+    "origin_s2": {
+     "x": 0,
+     "y": 0
+    },
+    "s2p0": {
+     "x": 0,
+     "y": 0
+    },
+    "s2p3": {
+     "x": 0,
+     "y": 0
+    }
+   },
+   "scalars": {
+    "s2s1": 59.5,
+    "s2s4": 57.5
+   },
+   "entities": {
+    "s2e2": {
+     "id": "s2e2",
+     "construction": false,
+     "kind": "circle",
+     "center": "s2p0",
+     "r": "s2s1"
+    },
+    "s2e5": {
+     "id": "s2e5",
+     "construction": false,
+     "kind": "circle",
+     "center": "s2p3",
+     "r": "s2s4"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s2e2",
+    "s2e5"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s2"
+  }
+ },
+ "features": [
+  {
+   "id": "ks1",
+   "type": "sketch",
+   "name": "Sketch1",
+   "sketchId": "s1",
+   "suppressed": false
+  },
+  {
+   "id": "f2",
+   "type": "extrude",
+   "name": "Schijf",
+   "sketchId": "s1",
+   "suppressed": false,
+   "op": "boss",
+   "end": "blind",
+   "depth": 2,
+   "reverse": false
+  },
+  {
+   "id": "ks2",
+   "type": "sketch",
+   "name": "Sketch2",
+   "sketchId": "s2",
+   "suppressed": false
+  },
+  {
+   "id": "f4",
+   "type": "extrude",
+   "name": "Kraag",
+   "sketchId": "s2",
+   "suppressed": false,
+   "op": "boss",
+   "end": "blind",
+   "depth": 7,
+   "reverse": true,
+   "direction2": {
+    "end": "blind",
+    "depth": 0.5
+   }
+  }
+ ],
+ "material": {
+  "name": "PETG, wit",
+  "density": 1270,
+  "color": "#f4f4f1"
+ }
+}
