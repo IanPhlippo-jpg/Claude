@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Balustrades</title>
+<link rel="icon" href="data:,">
+<style>
+/* Toonzaal zoals de deurenconfigurator: warm papier, zwart staal, één accent per soort. De balustrade is het grootste
+   op het scherm; de keuzes staan rechts in stappen. Werkt zonder internet (three.js zit in het bestand). */
+:root {
+  --bg: #f3f1ec; --vlak: #ffffff; --vlak2: #f8f7f3; --inkt: #17191b; --zacht: #5f6368; --lijn: #d9d5cc; --lijn2: #ebe8e1;
+  --accent: #9a6a22; --accent-vlak: #f6ecdb; --accent-inkt: #4d3410; --goed: #2e7d46; --goed-vlak: #e3f2e7; --waarsch: #a8650b; --waarsch-vlak: #fbefd9; --fout: #b3261e; --fout-vlak: #fbe4e2;
+  --kop: "Segoe UI Variable Display", "Segoe UI", "Helvetica Neue", Arial, sans-serif; --tekst: "Segoe UI Variable Text", "Segoe UI", "Helvetica Neue", Arial, sans-serif; --mono: "Cascadia Mono", Consolas, "SF Mono", monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #141516; --vlak: #1d1f21; --vlak2: #232628; --inkt: #ecebe7; --zacht: #a3a6a9; --lijn: #383b3e; --lijn2: #2c2f31;
+  --accent: #d8a457; --accent-vlak: #3a2d18; --accent-inkt: #f6deb5; --goed: #6fc58a; --goed-vlak: #173322; --waarsch: #e6a948; --waarsch-vlak: #3a2c13; --fout: #f08a80; --fout-vlak: #3a1b18; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #141516; --vlak: #1d1f21; --vlak2: #232628; --inkt: #ecebe7; --zacht: #a3a6a9; --lijn: #383b3e; --lijn2: #2c2f31;
+  --accent: #d8a457; --accent-vlak: #3a2d18; --accent-inkt: #f6deb5; --goed: #6fc58a; --goed-vlak: #173322; --waarsch: #e6a948; --waarsch-vlak: #3a2c13; --fout: #f08a80; --fout-vlak: #3a1b18; color-scheme: dark }
+* { box-sizing: border-box } [hidden] { display: none !important }
+html, body { margin: 0; overflow-x: hidden } body { background: var(--bg); color: var(--inkt); font: 15px/1.5 var(--tekst) }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px } button, input, select { font: inherit; color: inherit }
+header.balk { display: flex; align-items: center; gap: 10px 14px; flex-wrap: wrap; padding: 12px max(16px, env(safe-area-inset-left)); border-bottom: 1px solid var(--lijn); background: var(--vlak); position: sticky; top: 0; z-index: 5 }
+header.balk b { font: 700 19px var(--kop) } header.balk span { color: var(--zacht); font-size: 13.5px } header.balk .rechts { margin-left: auto; display: flex; gap: 8px }
+.knop { border: 1px solid var(--inkt); background: transparent; padding: 7px 13px; font-weight: 600; font-size: 13.5px; cursor: pointer; border-radius: 2px }
+.knop:hover { background: var(--inkt); color: var(--bg) } .knop.vol { background: var(--inkt); color: var(--bg) }
+main { display: grid; grid-template-columns: minmax(0, 1fr) 420px; min-height: calc(100vh - 57px) }
+.toneel { padding: 16px; display: flex; flex-direction: column; gap: 10px; min-width: 0 }
+.kop h1 { font: 700 clamp(24px, 3vw, 36px)/1.05 var(--kop); margin: 0 } .kop p { margin: 4px 0 0; color: var(--zacht); max-width: 70ch }
+.tabs { display: flex; gap: 4px } .tabs button { border: 1px solid var(--lijn); background: var(--vlak); padding: 6px 14px; cursor: pointer; font-weight: 600; font-size: 13.5px; border-radius: 2px }
+.tabs button[aria-selected="true"] { background: var(--inkt); color: var(--bg); border-color: var(--inkt) }
+.beeld { position: relative; flex: 1; min-height: 420px; border: 1px solid var(--lijn); background: #d9d6cf; overflow: hidden }
+.beeld > div { position: absolute; inset: 0 } .beeld canvas { display: block; cursor: grab }
+#laden { position: absolute; inset: 45% 0 auto; text-align: center; color: #555; margin: 0 }
+.hint { position: absolute; left: 10px; bottom: 8px; max-width: calc(100% - 20px); font-size: 12px; color: #333; background: rgba(255,255,255,.8); padding: 3px 8px; pointer-events: none }
+#tekening { background: #fbfaf7; display: flex; align-items: center; justify-content: center; padding: 14px } #tekening img { max-width: 100%; max-height: 100%; height: auto }
+aside.keuzes { background: var(--vlak); border-left: 1px solid var(--lijn); padding: 6px 18px 24px; overflow: auto; max-height: calc(100vh - 57px); position: sticky; top: 57px }
+.stap { border-bottom: 1px solid var(--lijn2); padding: 14px 0 } .stap h2 { font: 700 15px var(--kop); margin: 0 0 8px; display: flex; gap: 8px; align-items: baseline } .stap h2 i { font: 600 12px var(--mono); color: var(--accent); font-style: normal }
+.uitleg { color: var(--zacht); font-size: 13px; margin: 6px 0 0 }
+.soorten { display: grid; grid-template-columns: 1fr 1fr; gap: 6px } .soort { border: 1px solid var(--lijn); background: var(--vlak2); padding: 4px; cursor: pointer; text-align: left; border-radius: 2px } .soort img { display: block; width: 100%; height: 54px; object-fit: contain; background: #fbfaf7 } .soort span { display: block; font-size: 12.5px; font-weight: 600; padding: 3px 2px 1px }
+.soort[aria-pressed="true"] { outline: 2px solid var(--accent); outline-offset: -1px; background: var(--accent-vlak) }
+.twee { display: grid; grid-template-columns: 1fr 1fr; gap: 8px } .veld { display: grid; gap: 3px; min-width: 0 } .veld label, .lbl { font-size: 11.5px; text-transform: uppercase; letter-spacing: .06em; color: var(--zacht) }
+input[type="number"], input[type="text"], select { width: 100%; padding: 7px 9px; border: 1px solid var(--lijn); background: var(--vlak2); border-radius: 2px; min-width: 0 } input[type="number"] { font-family: var(--mono) }
+.keuze { display: flex; flex-wrap: wrap; gap: 6px } .kies { position: relative; cursor: pointer } .kies input, .staal input { position: absolute; opacity: 0; pointer-events: none }
+.kies span { display: block; border: 1px solid var(--lijn); background: var(--vlak2); padding: 6px 11px; font-size: 13.5px; border-radius: 2px }
+.kies input:checked + span { border-color: var(--accent); background: var(--accent-vlak); color: var(--accent-inkt); font-weight: 600 } .kies input:focus-visible + span, .staal input:focus-visible ~ .proef { outline: 3px solid var(--accent) }
+.stalen { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px 6px } .staal { position: relative; cursor: pointer; display: grid; gap: 3px; justify-items: start }
+.proef { width: 100%; aspect-ratio: 1.3; border: 1px solid var(--lijn); background: var(--kleur); border-radius: 2px; position: relative; overflow: hidden }
+.proef.metallic { background: linear-gradient(135deg, color-mix(in srgb, var(--kleur) 70%, #fff) 0%, var(--kleur) 45%, color-mix(in srgb, var(--kleur) 75%, #000) 100%) }
+.staal input:checked ~ .proef { outline: 2px solid var(--accent); outline-offset: 2px } .snaam { font-size: 11px; line-height: 1.2 }
+.lak-fijnstructuur { background-image: radial-gradient(rgba(255,255,255,.22) .8px, transparent 1.2px), radial-gradient(rgba(0,0,0,.35) .8px, transparent 1.2px); background-size: 4px 4px, 3px 3px }
+.lak-zijdeglans { background-image: linear-gradient(125deg, rgba(255,255,255,0) 18%, rgba(255,255,255,.45) 38%, rgba(255,255,255,0) 58%) }
+.glasproef { background: linear-gradient(135deg, #cdd6d8, #f4f6f6 50%, #c3ccce) } .glasproef::after { content: ""; position: absolute; inset: 0; background: var(--tint); opacity: var(--dek) }
+.veilig { margin-top: 10px; padding: 9px 11px; font-size: 13px; border-radius: 2px } .veilig.groen { background: var(--goed-vlak) } .veilig.oranje { background: var(--waarsch-vlak) } .veilig.rood { background: var(--fout-vlak) }
+.prijs { margin-top: 14px; padding: 14px; background: var(--vlak2); border-top: 2px solid var(--inkt) } .prijs b { display: block; font: 800 38px/1.05 var(--kop); color: var(--accent) } .prijs small { color: var(--zacht) }
+.meter { margin-top: 10px } .lat { position: relative; height: 9px; border-radius: 99px; background: var(--lijn2) } .bandje { position: absolute; top: 0; bottom: 0; border-radius: 99px; background: color-mix(in srgb, var(--goed) 35%, transparent) } .pin { position: absolute; top: -5px; width: 4px; height: 19px; margin-left: -2px; background: var(--inkt) }
+.opbouw { margin-top: 8px; font-size: 13px; display: grid; gap: 2px } .opbouw div { display: flex; justify-content: space-between; gap: 8px } .opbouw span:last-child { font-family: var(--mono) }
+dialog { border: 1px solid var(--lijn); background: var(--vlak); color: var(--inkt); max-width: min(520px, calc(100vw - 24px)); width: 100%; padding: 18px }
+.printkop { display: none }
+@media (max-width: 900px) { main { grid-template-columns: 1fr } aside.keuzes { position: static; max-height: none; border-left: 0; border-top: 1px solid var(--lijn) } .beeld { min-height: 360px } }
+@media (max-width: 420px) { .stalen { grid-template-columns: repeat(4, minmax(0, 1fr)) } header.balk span { display: none } }
+@media print { header.balk, .tabs, .hint, .knop, dialog { display: none !important } main { grid-template-columns: 1fr } aside.keuzes { max-height: none; position: static; border: 0 } .printkop { display: block } .beeld { min-height: 340px } }
+</style>
+</head>
+<body>
+<header class="balk"><b>Balustrades</b><span id="bedrijf">op maat, gelast in eigen werkplaats</span><div class="rechts"><button class="knop" type="button" id="instKnop">Instellingen</button><button class="knop vol" type="button" id="print">Afdrukken / PDF</button></div></header>
+<main>
+  <section class="toneel">
+    <div class="printkop" id="printkop"></div>
+    <div class="kop"><h1 id="titel">…</h1><p id="sub"></p></div>
+    <div class="tabs" role="tablist"><button type="button" role="tab" aria-selected="true" data-tab="drie">3D</button><button type="button" role="tab" aria-selected="false" data-tab="tek">Vooraanzicht met maten</button></div>
+    <div class="beeld"><div id="drie" data-paneel="drie"><p id="laden">3D wordt geladen…</p><span class="hint">Slepen om te draaien · scrollen of knijpen om te zoomen</span></div><div id="tekening" data-paneel="tek" hidden></div></div>
+  </section>
+  <aside class="keuzes" aria-label="Keuzes">
+    <div class="stap"><h2><i>1</i>Soort</h2><div class="soorten" id="soorten"></div><div class="veld" style="margin-top:8px"><label for="stijl">Stijl</label><select id="stijl"></select></div><p class="uitleg" id="i-stijl"></p></div>
+    <div class="stap"><h2><i>2</i>Plaats en vorm</h2><div class="keuze" id="k-plaats"></div><div class="keuze" id="k-vorm" style="margin-top:8px"></div>
+      <div class="twee" style="margin-top:8px"><div class="veld"><label for="L1" id="l-L1">Lengte (mm)</label><input id="L1" type="number" step="10"></div><div class="veld" id="v-L2"><label for="L2" id="l-L2">Lengte 2 (mm)</label><input id="L2" type="number" step="10"></div><div class="veld" id="v-L3"><label for="L3">Lengte 3 (mm)</label><input id="L3" type="number" step="10"></div><div class="veld"><label for="H">Hoogte (mm)</label><input id="H" type="number" step="10"></div></div>
+      <div class="veld" style="margin-top:8px"><label for="cat">Gebruik</label><select id="cat"></select></div></div>
+    <div class="stap"><h2><i>3</i>Bevestiging</h2><div class="keuze" id="k-bevestiging"></div><div class="keuze" id="k-handregel" style="margin-top:8px"></div></div>
+    <div class="stap" id="s-glas"><h2><i>4</i>Glas</h2><div class="stalen" id="k-glasTint"></div></div>
+    <div class="stap" id="s-kleur"><h2><i>5</i>Kleur en structuur</h2><div class="stalen" id="k-ral"></div><div class="stalen" id="k-lak" style="margin-top:8px;grid-template-columns:repeat(3,minmax(0,1fr))"></div></div>
+    <div class="stap"><label class="kies" style="display:inline-block"><input type="checkbox" id="plaatsen"><span>Met plaatsen</span></label>
+      <div class="veilig" id="veilig"></div>
+      <div class="prijs" id="prijsvak"><small id="p-label"></small><b id="p-bedrag"></b><small id="p-sub"></small><div class="meter"><div class="lat"><span class="bandje" id="m-band"></span><span class="pin" id="m-pin"></span></div></div><small id="m-tekst"></small><div class="opbouw" id="p-opbouw"></div></div></div>
+  </aside>
+</main>
+<dialog id="inst"><h2 style="margin-top:0">Instellingen</h2>
+  <div class="veld"><label for="i-bedrijf">Naam van de zaak</label><input id="i-bedrijf" type="text"></div>
+  <div class="veld" style="margin-top:8px"><label for="i-contact">Contact (telefoon, e-mail)</label><input id="i-contact" type="text"></div>
+  <div class="veld" style="margin-top:8px"><label for="i-prijs">Prijs voor de klant</label><select id="i-prijs"><option value="verkoop">Prijs excl. btw</option><option value="verkoopBtw">Prijs incl. btw</option><option value="geen">Geen prijs</option></select></div>
+  <div class="twee" style="margin-top:8px"><div class="veld"><label for="i-uurloon">Uurloon (€)</label><input id="i-uurloon" type="number"></div><div class="veld"><label for="i-marge">Marge (%) deze soort</label><input id="i-marge" type="number"></div></div>
+  <p class="uitleg">Bewaard op dit toestel.</p><button class="knop vol" type="button" id="i-sluit">Klaar</button></dialog>
+<script>/*APP*/</script>
+</body>
+</html>

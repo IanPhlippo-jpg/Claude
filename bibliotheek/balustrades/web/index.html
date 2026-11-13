@@ -1,0 +1,545 @@
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Balustrades</title>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..100,500..900&family=Inter+Tight:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+<style>
+/* Werkplaatsbon zoals de taatsdeuren: links de keuzes als een bestelbon, rechts de balustrade groot in 3D; elke soort
+   heeft zijn eigen accent (staal oranje, plaat roestbruin, glas met staal petrol, glas in U-profiel blauw) */
+:root {
+  --bg: #eceeed; --vlak: #ffffff; --vlak2: #f5f6f5; --vlak3: #e4e7e6; --inkt: #15181b; --zacht: #59626a; --lijn: #d2d7d6; --lijn2: #e5e8e7;
+  --band: #1d2023; --band2: #2a2e33; --bandinkt: #f1ece6;
+  --goed: #2e7d46; --goed-vlak: #e3f2e7; --waarsch: #a8650b; --waarsch-vlak: #fbefd9; --fout: #b3261e; --fout-vlak: #fbe4e2;
+  --scene: #d9d6cf; --tekvlak: #f6f7f5; --schaduw: 0 1px 2px rgba(20, 24, 27, .06), 0 4px 14px rgba(20, 24, 27, .06);
+  --kop: "Archivo", "Arial Narrow", Arial, sans-serif; --tekst: "Inter Tight", "Segoe UI", Arial, sans-serif; --mono: "IBM Plex Mono", Consolas, monospace;
+  --acc: #c2410c; --acc-vlak: #fdeee4; --acc-inkt: #6b2207;
+}
+body[data-soort="staven"] { --acc: #9a3412; --acc-vlak: #f8e8dc; --acc-inkt: #5a1f08 }
+body[data-soort="glasstaal"] { --acc: #0f766e; --acc-vlak: #dcf1ee; --acc-inkt: #0b3f3b }
+body[data-soort="glasU"] { --acc: #2563a8; --acc-vlak: #e6eef8; --acc-inkt: #10325a }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #111315; --vlak: #1a1d20; --vlak2: #202427; --vlak3: #2a2f33; --inkt: #e8ebeb; --zacht: #9aa3aa; --lijn: #353b40; --lijn2: #2a2f33;
+  --band: #0c0d0e; --band2: #1b1d20; --bandinkt: #f1ece6; --goed: #6fc58a; --goed-vlak: #173322; --waarsch: #e6a948; --waarsch-vlak: #3a2c13; --fout: #f08a80; --fout-vlak: #3a1b18;
+  --scene: #2b2a27; --tekvlak: #eef0ee; --schaduw: 0 1px 2px rgba(0, 0, 0, .3), 0 4px 14px rgba(0, 0, 0, .25); color-scheme: dark; --acc: #f08a4b; --acc-vlak: #3a2416; --acc-inkt: #fbd6bd }
+  :root:not([data-theme="light"]) body[data-soort="staven"] { --acc: #e7895a; --acc-vlak: #36200f; --acc-inkt: #f6d3bd }
+  :root:not([data-theme="light"]) body[data-soort="glasstaal"] { --acc: #4fd1c5; --acc-vlak: #0f2e2b; --acc-inkt: #c4f1ec }
+  :root:not([data-theme="light"]) body[data-soort="glasU"] { --acc: #7fb2ec; --acc-vlak: #172a40; --acc-inkt: #cfe3fb } }
+:root[data-theme="dark"] {
+  --bg: #111315; --vlak: #1a1d20; --vlak2: #202427; --vlak3: #2a2f33; --inkt: #e8ebeb; --zacht: #9aa3aa; --lijn: #353b40; --lijn2: #2a2f33;
+  --band: #0c0d0e; --band2: #1b1d20; --bandinkt: #f1ece6; --goed: #6fc58a; --goed-vlak: #173322; --waarsch: #e6a948; --waarsch-vlak: #3a2c13; --fout: #f08a80; --fout-vlak: #3a1b18;
+  --scene: #2b2a27; --tekvlak: #eef0ee; --schaduw: 0 1px 2px rgba(0, 0, 0, .3), 0 4px 14px rgba(0, 0, 0, .25); color-scheme: dark; --acc: #f08a4b; --acc-vlak: #3a2416; --acc-inkt: #fbd6bd }
+:root[data-theme="dark"] body[data-soort="staven"] { --acc: #e7895a; --acc-vlak: #36200f; --acc-inkt: #f6d3bd }
+:root[data-theme="dark"] body[data-soort="glasstaal"] { --acc: #4fd1c5; --acc-vlak: #0f2e2b; --acc-inkt: #c4f1ec }
+:root[data-theme="dark"] body[data-soort="glasU"] { --acc: #7fb2ec; --acc-vlak: #172a40; --acc-inkt: #cfe3fb }
+* { box-sizing: border-box } [hidden] { display: none !important }
+html, body { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; overflow-x: hidden } button, label, a, input, select { touch-action: manipulation }
+body { margin: 0; background: var(--bg); color: var(--inkt); font: 15px/1.5 var(--tekst) }
+.wrap { max-width: 1360px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)) }
+h1, h2, h3 { font-family: var(--kop); font-stretch: 75%; letter-spacing: .003em; line-height: 1.05; margin: 0; text-wrap: balance }
+h2 { font-size: 27px; font-weight: 750 } h3 { font-size: 18px; font-weight: 700 }
+a { color: inherit; text-decoration-color: var(--acc); text-underline-offset: 3px }
+:focus-visible { outline: 3px solid var(--acc); outline-offset: 2px }
+.eyebrow { font: 600 12px var(--mono); letter-spacing: .12em; text-transform: uppercase }
+.balk { position: sticky; top: 0; z-index: 9; background: var(--vlak); border-bottom: 1px solid var(--lijn) }
+.balk .wrap { display: flex; align-items: center; gap: 8px 18px; flex-wrap: wrap; padding-block: 8px }
+.merk { font: 800 19px var(--kop); font-stretch: 70%; letter-spacing: .01em; margin-right: auto; display: flex; align-items: center; gap: 8px }
+.sub { display: flex; gap: 2px; flex-wrap: wrap }
+.sub a { font: 700 14.5px var(--kop); font-stretch: 85%; text-transform: uppercase; letter-spacing: .05em; text-decoration: none; color: var(--zacht); padding: 8px 10px 6px; border-bottom: 3px solid transparent }
+.sub a[aria-current] { color: var(--inkt); border-bottom-color: var(--acc) }
+.band { background: linear-gradient(115deg, var(--band) 0%, var(--band2) 100%); color: var(--bandinkt) }
+.band .wrap { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 14px 28px; align-items: end; padding-block: 22px 20px }
+.band .eyebrow { color: var(--acc) } .band h1 { font-size: clamp(32px, 5.2vw, 56px); font-weight: 850; margin-top: 4px }
+.band p { margin: 8px 0 0; max-width: 66ch; opacity: .86 }
+.markt { min-width: 220px; text-align: right } .markt span { display: block; font: 500 12px var(--mono); letter-spacing: .06em; text-transform: uppercase; opacity: .75 }
+.markt b { font: 800 30px var(--kop); font-stretch: 75%; font-variant-numeric: tabular-nums }
+.soorten { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin: 16px 0 10px }
+.soort { display: grid; grid-template-columns: 74px minmax(0, 1fr); gap: 10px; align-items: center; text-align: left; padding: 8px; border: 1px solid var(--lijn); background: var(--vlak); color: inherit; font: inherit; border-radius: 10px; cursor: pointer; min-height: 64px }
+.soort .duim { background: var(--tekvlak); border-radius: 6px; overflow: hidden; height: 52px } .soort .duim img { display: block; width: 100%; height: 52px; object-fit: contain }
+.soort b { display: block; font: 750 16px var(--kop); font-stretch: 80% } .soort small { color: var(--zacht); font-size: 12px; line-height: 1.25; display: block }
+.soort[aria-pressed="true"] { border-color: var(--soortkl); box-shadow: inset 0 0 0 2px var(--soortkl) }
+.stijlen { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 12px; scrollbar-width: thin }
+.stijl { flex: 0 0 150px; border: 1px solid var(--lijn); background: var(--vlak); padding: 0; cursor: pointer; text-align: left; color: inherit; font: inherit; border-radius: 8px; overflow: hidden }
+.stijl .duim { display: block; height: 70px; background: var(--tekvlak) } .stijl .duim img { width: 100%; height: 70px; object-fit: contain; display: block }
+.stijl span.t { display: block; padding: 6px 8px 8px; font-size: 12.5px; line-height: 1.25 } .stijl i { font: 11px var(--mono); color: var(--zacht); font-style: normal } .stijl b { display: block; font-family: var(--kop); font-stretch: 82%; font-size: 14px }
+.stijl[aria-pressed="true"] { border-color: var(--acc); box-shadow: inset 0 0 0 2px var(--acc); background: var(--acc-vlak) }
+.hoofd { display: grid; grid-template-columns: 380px minmax(0, 1fr); gap: 16px; align-items: start; padding-bottom: 10px } .hoofd > *, .werk > * { min-width: 0 }
+.bon { background: var(--vlak); border: 1px solid var(--lijn); border-radius: 12px; box-shadow: var(--schaduw); overflow: hidden }
+.bon > header { padding: 16px 16px 12px; border-bottom: 1px dashed var(--lijn) } .bon > header h2 { font-size: 25px } .bon .uitleg { color: var(--zacht); font-size: 14px; margin: 4px 0 0 }
+.groep { padding: 12px 16px; border-bottom: 1px solid var(--lijn2) }
+.lab, fieldset legend { font: 600 11.5px var(--mono); text-transform: uppercase; letter-spacing: .1em; color: var(--zacht); margin-bottom: 6px; display: block; padding: 0 }
+.veld { display: grid; gap: 4px; min-width: 0 } .veld label { font-size: 12.5px; color: var(--zacht) }
+.twee { display: grid; grid-template-columns: 1fr 1fr; gap: 8px } .drie { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px }
+input[type="number"], select { width: 100%; font: 500 16px var(--mono); padding: 7px 9px; border: 1px solid var(--lijn); background: var(--vlak2); color: var(--inkt); border-radius: 7px; min-width: 0 }
+select { font: 500 14.5px var(--tekst) }
+fieldset { border: 0; padding: 0; margin: 0 0 10px; min-width: 0 } fieldset:last-child { margin-bottom: 0 }
+.keuze { display: flex; flex-wrap: wrap; gap: 6px }
+.keuze label { border: 1px solid var(--lijn); padding: 6px 10px; cursor: pointer; font-size: 13.5px; background: var(--vlak2); position: relative; border-radius: 7px }
+.keuze input, .stalen input { position: absolute; opacity: 0; pointer-events: none }
+.keuze label:has(input:checked) { border-color: var(--acc); background: var(--acc-vlak); color: var(--acc-inkt); font-weight: 600 }
+.keuze label:has(input:focus-visible), .stalen label:has(input:focus-visible) { outline: 3px solid var(--acc) }
+.info { font-size: 13px; color: var(--zacht); margin: 6px 0 0 }
+.stalen { display: grid; grid-template-columns: repeat(auto-fill, minmax(54px, 1fr)); gap: 8px 6px }
+.stalen label { display: grid; gap: 3px; cursor: pointer; position: relative; font-size: 11px; line-height: 1.15; text-align: center }
+.proef { display: block; width: 100%; aspect-ratio: 1; border-radius: 6px; border: 1px solid rgba(0, 0, 0, .18); background: var(--kleur); position: relative; overflow: hidden }
+.proef.metallic { background: linear-gradient(135deg, color-mix(in srgb, var(--kleur) 62%, #fff) 0%, var(--kleur) 46%, color-mix(in srgb, var(--kleur) 70%, #000) 100%) }
+.stalen label:has(input:checked) .proef { outline: 3px solid var(--acc); outline-offset: 2px }
+.stalen .c { font: 600 11px var(--mono) }
+.lak-fijnstructuur { background-image: radial-gradient(rgba(255,255,255,.22) .8px, transparent 1.2px), radial-gradient(rgba(0,0,0,.35) .8px, transparent 1.2px) !important; background-size: 4px 4px, 3px 3px !important; background-position: 0 0, 1px 2px !important }
+.lak-mat { background-image: linear-gradient(160deg, rgba(255,255,255,.08), rgba(0,0,0,.08)) !important }
+.lak-zijdeglans { background-image: linear-gradient(125deg, rgba(255,255,255,0) 18%, rgba(255,255,255,.45) 38%, rgba(255,255,255,0) 58%), linear-gradient(160deg, rgba(255,255,255,.12), rgba(0,0,0,.18)) !important }
+.stalen.lak { grid-template-columns: repeat(3, minmax(0, 1fr)) } .stalen.lak .proef { aspect-ratio: 1.6 }
+.glasproef { background: linear-gradient(135deg, #cdd6d8, #f4f6f6 50%, #c3ccce) } .glasproef::after { content: ""; position: absolute; inset: 0; background: var(--tint); opacity: var(--dek) }
+.gekozen { font-size: 13px; margin: 8px 0 0; display: flex; gap: 8px; align-items: center } .gekozen i { width: 18px; height: 18px; border-radius: 4px; border: 1px solid rgba(0,0,0,.2); background: var(--kleur); flex: none }
+.schakel { display: flex; gap: 10px; align-items: center; cursor: pointer; font-size: 14px } .schakel input { width: 18px; height: 18px; accent-color: var(--acc) }
+.melding { font-size: 13px; padding: 9px 11px; margin: 0 16px 12px; border-left: 3px solid var(--waarsch); background: var(--waarsch-vlak); border-radius: 0 6px 6px 0 }
+.veilig { margin: 0 16px 12px; padding: 10px 12px; border-radius: 8px; font-size: 13px; border: 1px solid var(--lijn) } .veilig b { display: flex; gap: 8px; align-items: center; font-size: 14px }
+.veilig.groen { background: var(--goed-vlak) } .veilig.oranje { background: var(--waarsch-vlak) } .veilig.rood { background: var(--fout-vlak) } .veilig ul { margin: 6px 0 0; padding-left: 18px }
+.stip { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex: none } .stip.groen { background: var(--goed) } .stip.oranje { background: var(--waarsch) } .stip.rood { background: var(--fout) } .stip.info { background: var(--zacht) }
+.prijs { padding: 16px; background: var(--vlak2); border-top: 2px solid var(--inkt) }
+.prijs .lab { margin: 0 } .prijs .bedrag { display: block; font: 850 44px var(--kop); font-stretch: 72%; color: var(--acc); font-variant-numeric: tabular-nums; line-height: 1.02; margin-top: 2px }
+.prijs .sub2 { color: var(--zacht); font-size: 13px }
+.meter { margin-top: 12px } .meter .lat { position: relative; height: 10px; border-radius: 99px; background: var(--vlak3) }
+.meter .bandje { position: absolute; top: 0; bottom: 0; border-radius: 99px; background: color-mix(in srgb, var(--goed) 35%, transparent) }
+.meter .pin { position: absolute; top: -5px; width: 4px; height: 20px; margin-left: -2px; border-radius: 2px; background: var(--inkt) }
+.meter .schaal { display: flex; justify-content: space-between; font: 11px var(--mono); color: var(--zacht); margin-top: 4px }
+.chip { display: inline-flex; align-items: center; gap: 6px; font: 600 12.5px var(--tekst); padding: 3px 9px; border-radius: 999px; margin-top: 8px }
+.chip.goed { background: var(--goed-vlak); color: var(--goed) } .chip.hoog { background: var(--waarsch-vlak); color: var(--waarsch) }
+.chip::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor }
+.opbouw { margin-top: 10px; font-size: 13px; display: grid; gap: 2px } .opbouw div { display: flex; justify-content: space-between; gap: 8px } .opbouw span:last-child { font: 13px var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap }
+.tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--lijn) }
+.tabs button { font: 700 14.5px var(--kop); font-stretch: 85%; text-transform: uppercase; letter-spacing: .05em; color: var(--zacht); background: none; border: 0; border-bottom: 3px solid transparent; padding: 8px 12px 6px; cursor: pointer }
+.tabs button[aria-selected="true"] { color: var(--inkt); border-bottom-color: var(--acc) }
+.toon { background: var(--vlak); border: 1px solid var(--lijn); border-top: 0; border-radius: 0 0 12px 12px; overflow: hidden; box-shadow: var(--schaduw) }
+.drie3d { position: relative; aspect-ratio: 4 / 3; max-height: 72vh; width: 100%; background: var(--scene); touch-action: pan-y; overflow: hidden } .drie3d canvas { position: absolute; inset: 0; width: 100% !important; height: 100% !important; cursor: grab }
+.drie3d .laden { position: absolute; inset: auto 0 45% 0; text-align: center; color: #555; margin: 0 }
+.drie3d .hint { position: absolute; left: 10px; bottom: 8px; font-size: 12px; color: #333; background: rgba(255,255,255,.8); padding: 3px 8px; border-radius: 4px; pointer-events: none; max-width: calc(100% - 20px) }
+.tek { padding: 14px; background: var(--tekvlak) } .tek img { display: block; width: 100%; height: auto }
+.maten { display: flex; gap: 6px 18px; flex-wrap: wrap; margin-top: 10px; font: 13px var(--mono); color: var(--zacht) }
+.knoppen { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 12px }
+.knop { font: 600 13.5px var(--tekst); padding: 8px 12px; border: 1px solid var(--inkt); background: transparent; color: var(--inkt); cursor: pointer; border-radius: 7px; text-decoration: none }
+.knop:hover { background: var(--inkt); color: var(--bg) } .knop:disabled { opacity: .45; cursor: not-allowed; background: transparent; color: var(--inkt) }
+.knop.vol { background: var(--acc); border-color: var(--acc); color: #fff }
+:root[data-theme="dark"] .knop.vol { color: #111 } @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .knop.vol { color: #111 } }
+.status { font-size: 12.5px; color: var(--zacht); min-height: 1.3em; margin: 0 }
+.wkop { padding-block: 22px 8px; display: flex; gap: 12px 20px; align-items: end; justify-content: space-between; flex-wrap: wrap }
+.wkop h1 { font-size: clamp(28px, 4.2vw, 44px); font-weight: 850 } .wkop p { margin: 6px 0 0; color: var(--zacht); max-width: 72ch }
+.matlabel { display: inline-block; font: 800 13px var(--kop); font-stretch: 85%; letter-spacing: .08em; text-transform: uppercase; color: #fff; background: var(--acc); padding: 3px 9px; border-radius: 5px; margin-bottom: 8px }
+.blad { background: #fff; border: 1px solid var(--lijn); border-radius: 8px; overflow: auto } .blad img { display: block; width: 100%; min-width: 620px; height: auto }
+.bladen { display: grid; gap: 12px }
+.tegels { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; margin: 12px 0 }
+.tegel { background: var(--vlak); border: 1px solid var(--lijn); padding: 10px 12px; border-radius: 8px; min-width: 0 } .tegel span { display: block; font: 600 11px var(--mono); text-transform: uppercase; letter-spacing: .08em; color: var(--zacht) }
+.tegel b { font-family: var(--kop); font-stretch: 80%; font-size: 21px; font-variant-numeric: tabular-nums }
+section.deel { margin-top: 26px } section.deel > h2 { border-bottom: 2px solid var(--inkt); padding-bottom: 6px; margin-bottom: 10px; display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap } section.deel > h2 small { font: 500 13px var(--tekst); color: var(--zacht) }
+.tabelvak { overflow-x: auto; border: 1px solid var(--lijn); background: var(--vlak); border-radius: 8px }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px } th { text-align: left; font: 600 11px var(--mono); text-transform: uppercase; letter-spacing: .06em; color: var(--zacht); background: var(--vlak2); padding: 7px 9px; border-bottom: 1px solid var(--lijn); white-space: nowrap }
+td { padding: 6px 9px; border-bottom: 1px solid var(--lijn2); vertical-align: top } tr:last-child td { border-bottom: 0 }
+td.n { text-align: right; font: 13px var(--mono); white-space: nowrap; font-variant-numeric: tabular-nums } td.bron { font-size: 12px; color: var(--zacht); word-break: break-word } td.form { font: 12px var(--mono); color: var(--zacht); min-width: 260px }
+tr.apart td { color: var(--zacht) }
+.stappen { margin: 0; padding-left: 22px; display: grid; gap: 8px; max-width: 86ch } .stappen b { font-weight: 600 } .stappen .uur { font: 12px var(--mono); color: var(--acc) } .stappen li.apart { opacity: .6 }
+.stukknoppen { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 6px }
+.stukknop { display: flex; gap: 9px; align-items: center; text-align: left; padding: 7px 9px; border: 1px solid var(--lijn); background: var(--vlak); color: var(--inkt); font: 13.5px/1.3 var(--tekst); cursor: zoom-in; min-height: 44px; border-radius: 7px }
+.stukknop .nr { flex: none; display: inline-grid; place-items: center; width: 27px; height: 27px; border: 1.5px solid var(--inkt); border-radius: 50%; font: 600 12px var(--mono) } .stukknop small { display: block; color: var(--zacht); font-size: 12px }
+.mtabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px }
+.mtabs button { display: grid; text-align: left; gap: 1px; padding: 7px 12px; border: 1px solid var(--lijn); background: var(--vlak); color: var(--inkt); border-radius: 8px; cursor: pointer; font: 600 14px var(--tekst); max-width: 100% }
+.mtabs button small { font: 500 12px var(--tekst); color: var(--zacht) } .mtabs button[aria-pressed="true"] { border-color: var(--acc); background: var(--acc-vlak); color: var(--acc-inkt) }
+.montage { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 12px; align-items: start }
+.m3d { position: relative; aspect-ratio: 4 / 3; width: 100%; background: var(--vlak2); border: 1px solid var(--lijn); border-radius: 8px; overflow: hidden; touch-action: pan-y } .m3d canvas { position: absolute; inset: 0; width: 100% !important; height: 100% !important; cursor: grab }
+.m3d .laden { position: absolute; inset: auto 0 45% 0; text-align: center; color: var(--zacht); margin: 0 }
+.mbedien { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 8px; align-items: center; margin-top: 8px; font-size: 12.5px; color: var(--zacht) }
+input[type="range"] { width: 100%; accent-color: var(--acc) }
+.mlijst { list-style: none; padding: 0; margin: 10px 0 0; display: grid; gap: 4px; font-size: 13px } .mlijst li { display: flex; gap: 8px; align-items: baseline } .mlijst .nr { flex: none; width: 21px; height: 21px; border-radius: 50%; border: 1.5px solid var(--inkt); display: inline-grid; place-items: center; font: 700 11px var(--mono) } .mlijst i { flex: none; width: 11px; height: 11px; border-radius: 3px; background: var(--k); border: 1px solid rgba(0,0,0,.25); align-self: center }
+.inst { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: start } .inst > div { min-width: 0 }
+.inst table input { width: 100px; padding: 5px 8px; font-size: 16px; text-align: right } .inst td.uitl { font-size: 12.5px; color: var(--zacht) }
+dialog { max-width: min(1100px, calc(100vw - 24px)); width: 100%; border: 1px solid var(--lijn); border-radius: 12px; padding: 0; background: var(--vlak); color: var(--inkt) }
+dialog header { display: flex; gap: 10px; align-items: center; justify-content: space-between; padding: 10px 14px; border-bottom: 1px solid var(--lijn) } dialog .blad { border: 0; border-radius: 0; max-height: 78vh }
+footer { color: var(--zacht); font-size: 13px; padding-block: 30px }
+@media (max-width: 1100px) { .inst, .montage { grid-template-columns: 1fr } .tegels { grid-template-columns: repeat(3, minmax(0, 1fr)) } .soorten { grid-template-columns: repeat(2, minmax(0, 1fr)) } }
+@media (max-width: 880px) { .hoofd { grid-template-columns: 1fr } .band .wrap { grid-template-columns: 1fr } .markt { text-align: left } .drie3d { aspect-ratio: 4 / 4.2 } }
+@media (max-width: 560px) { .soorten { grid-template-columns: 1fr 1fr } .soort { grid-template-columns: 1fr; text-align: center; gap: 4px } .soort small { display: none } .tegels { grid-template-columns: 1fr 1fr } .sub a { padding-inline: 7px; font-size: 13.5px } .merk { width: 100% } .drie { grid-template-columns: 1fr 1fr } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important } }
+</style>
+
+<header class="balk"><div class="wrap">
+  <span class="merk"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M2 4h18M4 4v15M18 4v15M2 19h18" fill="none" stroke="currentColor" stroke-width="2"/><path d="M7.5 4v15M11 4v15M14.5 4v15" stroke="currentColor" stroke-width="1.2"/></svg>Balustrades op maat</span>
+  <nav class="sub" aria-label="Pagina"><a href="#balustrade" id="nav-bal">Balustrade</a><a href="#werkplaats" id="nav-werk">Werkplaats</a><a href="#instellingen" id="nav-inst">Instellingen</a></nav>
+</div></header>
+
+<!-- ============ BALUSTRADE (voor de klant) ============ -->
+<div data-view="balustrade">
+  <div class="band"><div class="wrap">
+    <div><span class="eyebrow" id="b-eyebrow"></span><h1 id="b-titel"></h1><p id="b-tekst"></p></div>
+    <div class="markt"><span>Marktprijs per meter, excl. btw</span><b id="b-markt"></b><span id="b-markt2" style="text-transform:none;letter-spacing:0"></span></div>
+  </div></div>
+  <div class="wrap">
+    <div class="soorten" id="soorten" role="group" aria-label="Soort"></div>
+    <div class="stijlen" id="stijlen" role="group" aria-label="Stijl"></div>
+    <div class="hoofd">
+      <aside class="bon" aria-label="Keuzes">
+        <header><span class="eyebrow" id="nr" style="color:var(--acc)"></span><h2 id="naam">…</h2><p class="uitleg" id="uitleg"></p></header>
+        <div class="groep">
+          <fieldset><legend>Vorm van de lijn</legend><div class="keuze" id="k-vorm"></div></fieldset>
+          <div class="drie" id="lengtes">
+            <div class="veld"><label for="L1" id="l-L1">Lengte (mm)</label><input id="L1" type="number" step="10" inputmode="numeric"></div>
+            <div class="veld" id="v-L2"><label for="L2" id="l-L2">Lengte 2 (mm)</label><input id="L2" type="number" step="10" inputmode="numeric"></div>
+            <div class="veld" id="v-L3"><label for="L3">Lengte 3 (mm)</label><input id="L3" type="number" step="10" inputmode="numeric"></div>
+          </div>
+          <div class="drie" style="margin-top:8px">
+            <div class="veld"><label for="H">Hoogte (mm)</label><input id="H" type="number" step="10" inputmode="numeric"></div>
+            <div class="veld" id="v-hoek"><label for="hoek">Hoek (°)</label><input id="hoek" type="number" step="1" inputmode="numeric"></div>
+            <div class="veld" id="v-optrede"><label for="optrede">Optrede (mm)</label><input id="optrede" type="number" step="1" inputmode="numeric"></div>
+            <div class="veld" id="v-aantrede"><label for="aantrede">Aantrede (mm)</label><input id="aantrede" type="number" step="1" inputmode="numeric"></div>
+          </div>
+          <p class="info" id="i-lijn"></p>
+        </div>
+        <div class="groep">
+          <fieldset><legend>Plaats</legend><div class="keuze" id="k-plaats"></div></fieldset>
+          <div class="veld"><label for="cat">Gebruik (belasting EN 1991-1-1 + ANB)</label><select id="cat"></select></div>
+          <label class="schakel" for="hoog" style="margin-top:8px"><input type="checkbox" id="hoog"> Valhoogte 12 m of meer (H ≥ 1200)</label>
+        </div>
+        <div class="groep">
+          <fieldset><legend>Bevestiging</legend><div class="keuze" id="k-bevestiging"></div></fieldset>
+          <fieldset><legend>Anker</legend><div class="keuze" id="k-anker"></div><p class="info" id="i-anker"></p></fieldset>
+        </div>
+        <div class="groep">
+          <fieldset id="f-handregel"><legend>Handregel</legend><div class="keuze" id="k-handregel"></div></fieldset>
+          <div class="twee" id="v-vulling">
+            <div class="veld" id="v-tussenruimte"><label for="tussenruimte">Tussenruimte (mm)</label><select id="tussenruimte"></select></div>
+            <div class="veld" id="v-afstand"><label for="afstand">Staanderafstand</label><select id="afstand"></select></div>
+          </div>
+          <label class="schakel" for="plint" id="v-plint" style="margin-top:8px"><input type="checkbox" id="plint"> Dichte plint tot 450 mm (niet beklimbaar)</label>
+          <div id="v-glas" style="margin-top:8px">
+            <div class="veld"><label for="glas">Glasopbouw</label><select id="glas"></select></div>
+            <span class="lab" style="margin-top:10px">Glas</span><div class="stalen" id="k-glasTint"></div>
+          </div>
+        </div>
+        <div class="groep" id="g-kleur">
+          <fieldset><legend>Kleur (RAL, poedercoat)</legend><div class="stalen" id="k-ral"></div><p class="gekozen" id="g-ral"></p><span class="lab" style="margin-top:12px">Structuur</span><div class="stalen lak" id="k-lak"></div></fieldset>
+        </div>
+        <div class="groep"><label class="schakel" for="plaatsen"><input type="checkbox" id="plaatsen"> Met plaatsen (uitzetten, boren, verankeren, stellen)</label></div>
+        <p class="melding" id="melding" hidden></p>
+        <div class="veilig" id="veilig"></div>
+        <div class="prijs">
+          <span class="lab" id="p-label">Prijs per strekkende meter</span><b class="bedrag" id="p-bedrag">…</b><span class="sub2" id="p-sub"></span>
+          <div class="meter" aria-hidden="true"><div class="lat"><span class="bandje" id="m-band"></span><span class="pin" id="m-pin"></span></div><div class="schaal"><span>€ 0/m</span><span id="m-max"></span></div></div>
+          <span class="chip" id="m-chip"></span>
+          <div class="opbouw" id="p-opbouw"></div>
+        </div>
+      </aside>
+      <div>
+        <div class="tabs" role="tablist" aria-label="Weergave"><button type="button" role="tab" aria-selected="true" data-tab="3d">In 3D</button><button type="button" role="tab" aria-selected="false" data-tab="tek">Vooraanzicht</button></div>
+        <div class="toon">
+          <div class="drie3d" id="v3d" data-paneel="3d" aria-label="De balustrade in 3D"><p class="laden" id="v3dLaden">3D wordt geladen…</p><span class="hint">Slepen om te draaien · Ctrl + scroll of knijpen om te zoomen</span></div>
+          <div class="tek" id="tekening" data-paneel="tek" hidden></div>
+        </div>
+        <div class="knoppen"><button class="knop" type="button" id="herstel">Zicht herstellen</button><button class="knop" type="button" id="foto">Beeld opslaan (JPG)</button></div>
+        <div class="maten" id="maten"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ WERKPLAATS ============ -->
+<div data-view="werkplaats" hidden><div class="wrap">
+  <header class="wkop"><div><span class="matlabel" id="w-mat"></span><h1 id="w-titel">Werkplaats</h1><p id="w-tekst"></p></div><a class="knop" href="#balustrade">Terug naar de balustrade</a></header>
+  <div class="knoppen">
+    <button class="knop vol" type="button" data-dl="dossier">Dossier om af te drukken / PDF (HTML)</button>
+    <button class="knop" type="button" data-dl="zip">Alle tekeningen (SVG, ZIP)</button>
+    <button class="knop" type="button" data-dl="csv">Lijsten (CSV)</button>
+  </div>
+  <p class="status" id="status" aria-live="polite"></p>
+  <div class="tegels">
+    <div class="tegel"><span>Lengte</span><b id="t-lengte"></b></div><div class="tegel"><span>Staanders</span><b id="t-staanders"></b></div>
+    <div class="tegel"><span>Staal</span><b id="t-kg"></b></div><div class="tegel"><span>Glas</span><b id="t-glas"></b></div>
+    <div class="tegel"><span>Uren werkplaats</span><b id="t-uren"></b></div><div class="tegel"><span>Kostprijs</span><b id="t-kost"></b></div>
+  </div>
+  <section class="deel"><h2>Berekening <small id="b-sub"></small></h2><div class="tabelvak"><table id="berekening"></table></div></section>
+  <section class="deel"><h2>Montage <small>per verbinding: draaien, uit elkaar schuiven, en het montageblad</small></h2>
+    <div class="mtabs" id="mtabs" role="group" aria-label="Verbinding"></div>
+    <div class="montage"><div>
+      <div class="m3d" id="m3d" aria-label="De verbinding in 3D"><p class="laden" id="m3dLaden">3D wordt geladen…</p></div>
+      <div class="mbedien"><span>Samen</span><input type="range" id="muit" min="0" max="100" value="100" aria-label="Uit elkaar"><span>Uit elkaar</span></div>
+      <div class="knoppen"><button class="knop" type="button" id="mspeel">Samenbouwen afspelen</button><button class="knop" type="button" id="mherstel">Zicht herstellen</button></div>
+      <ul class="mlijst" id="mlijst"></ul>
+    </div><div class="blad" id="mblad"></div></div>
+  </section>
+  <section class="deel"><h2>Overzicht <small>vooraanzicht, bovenaanzicht en doorsnede</small></h2><div class="blad" id="w-overzicht"></div></section>
+  <section class="deel"><h2>Stuk per stuk <small>klik: de tekening A4 met lengte, zaagsnede en gaten</small></h2><div class="stukknoppen" id="stukknoppen"></div></section>
+  <section class="deel"><h2>Stuklijst <small>ISO 7573</small></h2><div class="blad" id="w-stuklijst"></div></section>
+  <section class="deel"><h2>Lasdetails <small>ISO 2553</small></h2><div class="blad" id="w-lassen"></div></section>
+  <section class="deel"><h2>Boringen <small>ISO 15786</small></h2><div class="blad" id="w-boringen"></div></section>
+  <section class="deel"><h2>Bestellijst en zaagplan <small>kooponderdelen met artikel en staven van 6 m</small></h2><div class="blad" id="w-bestel"></div></section>
+  <section class="deel"><h2>Plaatsingsblad</h2><div class="blad" id="w-plaatsing"></div></section>
+  <section class="deel"><h2>Kostprijs</h2><div class="tabelvak"><table id="prijs"></table></div></section>
+  <section class="deel"><h2>Werkwijze</h2><ol class="stappen" id="stappen"></ol></section>
+  <section class="deel"><h2>Zaaglijst</h2><div class="tabelvak"><table id="zaag"></table></div></section>
+  <section class="deel"><h2>Ter vergelijking <small id="markt-sub"></small></h2><div class="tabelvak"><table id="markt"></table></div></section>
+</div></div>
+
+<!-- ============ INSTELLINGEN ============ -->
+<div data-view="instellingen" hidden><div class="wrap">
+  <header class="wkop"><div><h1>Instellingen</h1><p>Uurloon, marge per soort, verzinken, coaten, plaatsen en de glasprijzen. Wijzigingen worden meteen bewaard.</p></div></header>
+  <div class="knoppen"><button class="knop" type="button" id="terug">Alles terug naar de standaard</button></div>
+  <p class="status" id="i-status" aria-live="polite"></p>
+  <div class="inst">
+    <div><section class="deel" style="margin-top:0"><h2>Tarief en prijs</h2><div class="tabelvak"><table id="i-tarief"></table></div>
+      <fieldset style="margin-top:10px"><legend>De klant ziet</legend><div class="keuze" id="k-toon"></div></fieldset></section>
+      <section class="deel"><h2>Standaarduren</h2><div class="tabelvak"><table id="i-uren"></table></div></section></div>
+    <div><section class="deel" style="margin-top:0"><h2>Glas (€/m², excl. btw)</h2><div class="tabelvak"><table id="i-glas"></table></div></section></div>
+  </div>
+</div></div>
+<footer class="wrap">Normen: NBN B 03-004 (borstweringen), EN 1991-1-1 + ANB (belasting), NBN S 23-002 (glas); samengevat via Buildwise. Elke prijs heeft een bron (pagina Werkplaats); "SCHATTING" = geen publieke prijs. Marktprijzen opgezocht op 13-11-2026.</footer>
+
+<dialog id="stukvenster" aria-labelledby="sv-titel"><header><b id="sv-titel"></b><span class="knoppen" style="margin:0"><button class="knop" type="button" id="sv-vorige">Vorige</button><button class="knop" type="button" id="sv-volgende">Volgende</button><button class="knop" type="button" id="sv-svg">SVG</button><button class="knop vol" type="button" id="sv-sluit">Sluiten</button></span></header><div class="blad" id="sv-blad"></div></dialog>
+
+<script type="module">
+import { ontwerp, STD, VORMEN, GRENZEN } from './js/model.mjs';
+import { SOORTEN, STIJL, RAL, AFWERKINGEN, GLASTINT, GLASOPBOUW, ANKER, PROFIEL } from './js/onderdelen.mjs';
+import { NORM } from './js/normen.mjs';
+import { berekening } from './js/bereken.mjs';
+import { kostprijs, CAT, MARKT, MARKTBAND, STANDAARD } from './js/prijzen.mjs';
+import { UREN } from './js/werkwijze.mjs';
+import { vooraanzicht, alleBladen, stukBladen } from './js/tekeningen.mjs';
+import { montageBladen } from './js/montage.mjs';
+import { dossierHtml, lijstenCsv } from './js/dossier.mjs';
+
+const $ = (id) => document.getElementById(id), esc = (t) => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+const eur = (v) => `€ ${(Math.round(v * 100) / 100).toLocaleString('nl-BE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+const eur0 = (v) => `€ ${Math.round(v).toLocaleString('nl-BE')}`;
+const g = (v, d = 0) => (Math.round(v * 10 ** d) / 10 ** d).toLocaleString('nl-BE');
+const lees = (k, d) => { try { const v = JSON.parse(localStorage.getItem(k) || 'null'); return v ?? d; } catch { return d; } };
+const schrijf = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+/** een tekening als afbeelding met een vaste maat (Safari op de iPhone) */
+const alsBeeld = (svg, w, h, alt = '') => `<img src="data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}" width="${w}" height="${h}" alt="${esc(alt)}" decoding="async" draggable="false">`;
+const maatVan = (svg) => { const m = svg.match(/viewBox="0 0 ([\d.]+) ([\d.]+)"/); return m ? [+m[1] * 4, +m[2] * 4] : [1188, 840]; };
+const beeld = (svg, alt) => { const [w, h] = maatVan(svg); return alsBeeld(svg, w, h, alt); };
+
+// ---------- keuzes en instellingen
+let st = { ...STD, ...lees('balustrades-keuze', {}) };
+const STD_INST = { versie: 1, ...JSON.parse(JSON.stringify(STANDAARD)), uren: { ...UREN } };
+let inst = JSON.parse(JSON.stringify(STD_INST));
+let pagina = 'balustrade';
+
+// ---------- vaste knoppen
+const radio = (naam, lijst) => lijst.map(([v, t]) => `<label><input type="radio" name="${naam}" value="${esc(v)}" id="${naam}-${esc(v)}"><span>${esc(t)}</span></label>`).join('');
+const opties = (lijst) => lijst.map(([v, t]) => `<option value="${esc(v)}">${esc(t)}</option>`).join('');
+$('k-vorm').innerHTML = radio('vorm', Object.entries(VORMEN));
+$('k-plaats').innerHTML = radio('plaats', [['binnen', 'Binnen (vide, trap)'], ['buiten', 'Buiten (terras, balkon)']]);
+$('k-bevestiging').innerHTML = radio('bevestiging', [['boven', 'Bovenop de vloer'], ['zij', 'Tegen de zijkant']]);
+$('k-anker').innerHTML = radio('anker', [['chemisch', 'Chemisch anker'], ['keil', 'Keilbout']]);
+$('cat').innerHTML = opties(['A', 'B', 'C', 'D', 'E', 'C5'].map((c) => [c, `${NORM.lijnlast[c].naam} · ${g(NORM.lijnlast[c].q, 1)} kN/m`]));
+$('tussenruimte').innerHTML = opties([[100, '100 (norm ≤ 110)'], [80, '80'], [60, '60'], [120, '120 (te groot)']]);
+$('afstand').innerHTML = opties([['auto', 'Automatisch (berekend)'], [800, '800 mm'], [1000, '1000 mm'], [1200, '1200 mm'], [1500, '1500 mm']]);
+$('k-ral').innerHTML = RAL.map((c) => `<label title="RAL ${esc(c.code)} ${esc(c.naam)}"><input type="radio" name="ral" value="${c.code}" id="ral-${c.code}"><span class="proef${c.metallic ? ' metallic' : ''}" style="--kleur:${c.hex}"></span><span class="c">${c.code === 'brons' ? 'Brons' : c.code}</span></label>`).join('');
+$('k-lak').innerHTML = Object.entries(AFWERKINGEN).map(([v, a]) => `<label title="${esc(a.uitleg)}"><input type="radio" name="lak" value="${v}" id="lak-${v}"><span class="proef lak-${v}"></span><span>${esc(a.naam)}</span></label>`).join('');
+$('k-glasTint').innerHTML = Object.entries(GLASTINT).map(([v, x]) => `<label title="${esc(x.naam)}"><input type="radio" name="glasTint" value="${v}" id="glasTint-${v}"><span class="proef glasproef" style="--tint:${x.tint};--dek:${x.dekking}"></span><span>${esc(x.naam)}</span></label>`).join('');
+$('k-toon').innerHTML = radio('toon', [['verkoop', 'Prijs excl. btw'], ['verkoopBtw', 'Prijs incl. btw'], ['kostprijs', 'Kostprijs']]);
+
+// kleine tekening (2 m recht) per soort en per stijl
+const duim = (k, w = 150, h = 70) => { const o = ontwerp({ ...k, vorm: 'recht', L1: 2000, H: 1100, cat: 'A', plaats: 'binnen', bevestiging: 'boven' }), s = Math.min((w - 8) / 2000, (h - 8) / 1250); return alsBeeld(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}">${vooraanzicht(o, s, (w - 2000 * s) / 2, h - 4, { maten: false })}</svg>`, w, h); };
+$('soorten').innerHTML = Object.entries(SOORTEN).map(([k, S]) => `<button type="button" class="soort" data-soort="${k}" aria-pressed="false" style="--soortkl:${S.kleur}"><span class="duim">${duim({ soort: k }, 110, 56)}</span><span><b>${esc(S.kort)}</b><small>${esc(S.naam)}</small></span></button>`).join('');
+function bouwStijlen() { const S = SOORTEN[st.soort]; $('stijlen').innerHTML = S.stijlen.map((x) => `<button type="button" class="stijl" data-stijl="${x.id}" aria-pressed="false" title="${esc(x.uitleg)}"><span class="duim">${duim({ soort: st.soort, stijl: x.id })}</span><span class="t"><i>${x.id}</i><b>${esc(x.naam)}</b></span></button>`).join(''); }
+
+// ---------- gebeurtenissen
+$('soorten').addEventListener('click', (e) => { const b = e.target.closest('[data-soort]'); if (!b) return; st.soort = b.dataset.soort; st.stijl = SOORTEN[st.soort].stijlen[0].id; st.handregel = 'stijl'; st.glas = 'auto'; bouwStijlen(); teken(); });
+$('stijlen').addEventListener('click', (e) => { const b = e.target.closest('[data-stijl]'); if (!b) return; st.stijl = b.dataset.stijl; st.handregel = 'stijl'; teken(); });
+for (const id of ['L1', 'L2', 'L3', 'H', 'hoek', 'optrede', 'aantrede']) $(id).addEventListener('change', () => { st[id] = +$(id).value; teken(); });
+for (const k of ['vorm', 'plaats', 'bevestiging', 'anker', 'handregel', 'ral', 'lak', 'glasTint']) $(`k-${k}`).addEventListener('change', (e) => { st[k] = e.target.value; if (k === 'vorm') { if (e.target.value === 'trap' && st.L2 > 3000) st.L2 = 1500; st.H = e.target.value === 'trap' && !st.L2 ? 1000 : Math.max(st.H, 1100); } teken(); });
+for (const k of ['cat', 'tussenruimte', 'afstand', 'glas']) $(k).addEventListener('change', () => { st[k] = k === 'tussenruimte' ? +$(k).value : k === 'afstand' && $(k).value !== 'auto' ? +$(k).value : $(k).value; teken(); });
+$('hoog').addEventListener('change', () => { st.valhoogte = $('hoog').checked ? 12 : 3; if ($('hoog').checked && st.H < 1200) st.H = 1200; teken(); });
+$('plint').addEventListener('change', () => { st.plint = $('plint').checked; teken(); });
+$('plaatsen').addEventListener('change', () => { st.plaatsen = $('plaatsen').checked; teken(); });
+document.querySelectorAll('[data-tab]').forEach((b) => b.addEventListener('click', () => { document.querySelectorAll('[data-tab]').forEach((x) => x.setAttribute('aria-selected', x === b)); document.querySelectorAll('[data-paneel]').forEach((p) => { p.hidden = p.dataset.paneel !== b.dataset.tab; }); }));
+
+// ---------- tekenen
+let huidig = null;
+function teken() {
+  const S = SOORTEN[st.soort], sty = STIJL(st.soort, st.stijl);
+  document.body.dataset.soort = st.soort;
+  const o = ontwerp(st), k = o.k, B = berekening(o), kp = kostprijs(o, inst), mb = MARKTBAND[st.soort];
+  Object.assign(st, { L1: k.L1, L2: k.L2, L3: k.L3, H: k.H, hoek: k.hoek, optrede: k.optrede, aantrede: k.aantrede });
+  document.querySelectorAll('[data-soort]').forEach((x) => x.setAttribute('aria-pressed', x.dataset.soort === st.soort));
+  document.querySelectorAll('[data-stijl]').forEach((x) => x.setAttribute('aria-pressed', x.dataset.stijl === sty.id));
+  $('b-eyebrow').textContent = `${S.kort} · ${S.stijlen.length} stijlen`; $('b-titel').textContent = S.naam; $('b-tekst').textContent = S.uitleg;
+  $('b-markt').textContent = `${eur0(mb.laag)} – ${eur0(mb.hoog)}`; $('b-markt2').textContent = `zonder plaatsen; geplaatst ${eur0(mb.laagPl)} – ${eur0(mb.hoogPl)}`;
+  $('nr').textContent = `${sty.id} · ${S.kort}`; $('naam').textContent = sty.naam; $('uitleg').textContent = sty.uitleg;
+  // velden
+  for (const id of ['L1', 'L2', 'L3', 'H', 'hoek', 'optrede', 'aantrede']) $(id).value = k[id];
+  $('v-L2').hidden = k.vorm === 'recht'; $('v-L3').hidden = k.vorm !== 'u'; $('v-hoek').hidden = !['hoek', 'u'].includes(k.vorm); $('v-optrede').hidden = $('v-aantrede').hidden = k.vorm !== 'trap';
+  $('l-L1').textContent = k.vorm === 'trap' ? 'Trap, horizontaal (mm)' : k.vorm === 'recht' ? 'Lengte (mm)' : 'Lengte 1 (mm)'; $('l-L2').textContent = k.vorm === 'trap' ? 'Vide erna (mm, 0 = geen)' : 'Lengte 2 (mm)';
+  $('i-lijn').textContent = k.vorm === 'trap' ? `${o.treden} treden, helling ${g((Math.atan(k.optrede / k.aantrede) * 180) / Math.PI, 1)}°; hoogte verticaal boven de trapneus (≥ ${NORM.hoogteTrap.v}); met een vide erna geldt ${NORM.hoogte.v} over de hele lijn.` : `Samen ${g(o.lengte / 1000, 2)} m${o.hoeken ? `, ${o.hoeken} hoek${o.hoeken > 1 ? 'en' : ''} van ${k.hoek}°` : ''}. Hoogte ≥ ${o.vereist} mm.`;
+  for (const n of ['vorm', 'plaats', 'bevestiging', 'anker', 'ral', 'lak', 'glasTint']) { const r = $(`${n}-${k[n]}`); if (r) r.checked = true; }
+  $('cat').value = k.cat; $('hoog').checked = (k.valhoogte ?? 3) >= 12; $('tussenruimte').value = String(k.tussenruimte); $('afstand').value = String(k.afstand); $('plaatsen').checked = !!k.plaatsen;
+  $('k-handregel').innerHTML = radio('handregel', S.handregels.map((h) => [h, { plat: 'Plat 50x8', rond: k.soort === 'glasU' ? 'U-handregel inox' : k.soort === 'glasstaal' ? 'Rond inox Ø42,4' : 'Rond Ø42,4', geen: 'Geen' }[h]])); const hr = $(`handregel-${k.hr}`); if (hr) hr.checked = true;
+  $('v-tussenruimte').hidden = !(k.soort === 'spijlen' || (k.soort === 'staven' && sty.vulling === 'staven')); $('v-afstand').hidden = k.soort === 'glasU';
+  $('v-plint').hidden = !(k.soort === 'staven' && sty.vulling === 'staven'); $('plint').checked = k.plint !== false;
+  $('v-glas').hidden = !o.glas; if (o.glas) { $('glas').innerHTML = opties([['auto', `Automatisch (${o.glas.auto})`], ...o.glas.toegelaten.map((x) => [x, GLASOPBOUW[x].naam])]); $('glas').value = k.glas === 'auto' || !o.glas.toegelaten.includes(k.glas) ? 'auto' : k.glas; }
+  $('g-kleur').hidden = k.soort === 'glasU' || sty.staander === 'inox';
+  const kleur = RAL.find((c) => c.code === k.ral) ?? RAL[0]; $('k-lak').style.setProperty('--kleur', kleur.hex);
+  $('g-ral').innerHTML = `<i style="--kleur:${kleur.hex}"></i><span><b>${kleur.code === 'brons' ? 'Brons' : `RAL ${kleur.code}`}</b> ${esc(kleur.naam)}${k.plaats === 'buiten' ? ' · eerst thermisch verzinkt' : ''}</span>`;
+  $('i-anker').textContent = `${ANKER[o.ankerType].naam}${k.plaats === 'buiten' ? ' in RVS A4' : ''}${o.staander ? `, ${o.staander.voet.gaten.length} per staander` : `, om de ${o.ankerAfstand} mm`}.`;
+  $('melding').hidden = !o.meldingen.length; $('melding').textContent = o.meldingen.join(' ');
+  // veiligheid (kort, zonder werkplaatsschema's)
+  const fout = B.controles.filter((c) => c.oordeel === 'rood'), let_ = B.controles.filter((c) => c.oordeel === 'oranje');
+  $('veilig').className = `veilig ${B.oordeel}`;
+  $('veilig').innerHTML = `<b><span class="stip ${B.oordeel}"></span>${B.oordeel === 'groen' ? 'Voldoet aan NBN B 03-004 en de berekening' : B.oordeel === 'oranje' ? 'Voldoet, met punten om na te kijken' : 'Voldoet niet'}</b><ul>${[`Hoogte ${k.H} mm (≥ ${o.vereist})`, `Openingen ${o.openingen.filter((x) => !x.klim).map((x) => g(x.mm)).join(', ')} mm (≤ 110)`, ...fout.map((c) => `${c.wat}${c.uitleg ? `: ${c.uitleg}` : ''}`), ...let_.slice(0, 2).map((c) => `Na te kijken: ${c.wat}`)].slice(0, 5).map((x) => `<li>${esc(x)}</li>`).join('')}</ul>`;
+  // prijs per meter met toeslagen en marktmeter
+  const btw = inst.toon === 'verkoopBtw' ? 1.21 : 1, kost = inst.toon === 'kostprijs';
+  const perM = kost ? kp.kostprijs / kp.meter : kp.perMeter * btw;
+  $('p-label').textContent = kost ? 'Kostprijs per meter' : `Prijs per strekkende meter ${btw > 1 ? 'incl.' : 'excl.'} btw`;
+  $('p-bedrag').textContent = `${eur0(perM)}/m`;
+  $('p-sub').textContent = `${g(kp.meter, 2)} m: ${eur0((kost ? kp.kostprijs : kp.verkoop) * (kost ? 1 : btw))} ${kp.plaatsen.inbegrepen ? 'geplaatst' : 'zonder plaatsen'}${btw > 1 || kost ? '' : ` · incl. 21 % btw ${eur0(kp.verkoop * 1.21)}`}`;
+  const zonder = kp.perMeterZonder, top = Math.max(mb.hoog * 1.5, zonder * 1.08), pct = (v) => `${Math.min(100, (v / top) * 100)}%`;
+  $('m-band').style.left = pct(mb.laag); $('m-band').style.width = `calc(${pct(mb.hoog)} - ${pct(mb.laag)})`; $('m-pin').style.left = pct(zonder); $('m-max').textContent = `${eur0(top)}/m`;
+  const binnen = zonder <= mb.hoog;
+  $('m-chip').className = `chip ${binnen ? 'goed' : 'hoog'}`; $('m-chip').textContent = binnen ? `Binnen de markt (${eur0(mb.laag)}–${eur0(mb.hoog)}/m zonder plaatsen)` : `${eur0(zonder - mb.hoog)}/m boven de markt: de toeslagen (hoeken, trap, buiten) of een dure stijl`;
+  $('p-opbouw').innerHTML = Object.entries(kp.perCat).filter(([c, x]) => x.verkoop > 0.5).map(([c, x]) => `<div><span>${esc(CAT[c])}${c === 'plaatsen' && !kp.plaatsen.inbegrepen ? ' (apart)' : ''}</span><span>${c === 'plaatsen' && !kp.plaatsen.inbegrepen ? '+ ' : ''}${eur0(x.verkoop * btw / kp.meter)}/m</span></div>`).join('');
+  $('tekening').innerHTML = beeld(vooraanzichtBlad(o), 'Vooraanzicht');
+  $('maten').innerHTML = [`${o.segs.map((s) => Math.round(s.Lh)).join(' + ')} mm`, `H ${k.H}`, o.staander ? `${PROFIEL[o.staander.prof].naam} om de ${Math.round(o.afstand)}` : `U-profiel, ${o.glas.opbouw}`, k.plaats === 'buiten' ? 'verzinkt + poedercoat' : 'poedercoat'].map((x) => `<span>${esc(x)}</span>`).join('');
+  huidig = { o, B, kp, meta: { nr: `BA-${sty.id}`, datum: new Date().toISOString().slice(0, 10) } };
+  werkVuil = true; if (pagina === 'werkplaats') tekenWerk();
+  if (v3d) v3d.toon(o, { ral: k.ral, lak: k.lak, glasTint: k.glasTint });
+  schrijf('balustrades-keuze', st);
+}
+/** klantvooraanzicht: enkel de balustrade met de hoofdmaten, zonder werkplaatsgegevens */
+function vooraanzichtBlad(o) {
+  const tot = o.segs.reduce((t, s) => t + s.Lh, 0), zMax = Math.max(...o.delen.map((d) => Math.max(d.a[2], d.b[2]))), zMin = Math.min(0, ...o.delen.map((d) => Math.min(d.a[2], d.b[2])));
+  const W = 400, s = Math.min((W - 40) / tot, 200 / (zMax - zMin + 200)), H = (zMax - zMin) * s + 60;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${f2(H)}" width="${W}mm" height="${f2(H)}mm" font-family="Arial, Helvetica, sans-serif"><rect width="${W}" height="${f2(H)}" fill="#fff"/>${vooraanzicht(o, s, 22, 16 + zMax * s, { h: 3 })}</svg>`;
+}
+const f2 = (v) => Math.round(v * 100) / 100;
+
+// ---------- werkplaats
+let werkVuil = true, montageId = 'voet', mb = [];
+function tekenWerk() {
+  if (!huidig) return;
+  const { o, B, kp, meta } = huidig, k = o.k, S = SOORTEN[k.soort], sty = STIJL(k.soort, k.stijl);
+  $('w-mat').textContent = S.kort; $('w-titel').textContent = `${sty.id} ${sty.naam}`;
+  $('w-tekst').textContent = `${o.segs.map((s) => Math.round(s.Lh)).join(' + ')} mm, H ${k.H}, ${k.plaats}, ${k.bevestiging === 'zij' ? 'zijmontage' : 'bovenop de vloer'}, categorie ${NORM.lijnlast[k.cat].naam}.`;
+  $('t-lengte').textContent = `${g(o.lengte / 1000, 2)} m`; $('t-staanders').textContent = o.staander ? `${o.staanders.length} x ${Math.round(o.afstand)}` : '-';
+  $('t-kg').textContent = `${g(kp.gewicht)} kg`; $('t-glas').textContent = kp.glas ? `${g(kp.glas, 2)} m²` : '-';
+  $('t-uren').textContent = `${g(kp.uren - (kp.plaatsen.inbegrepen ? kp.plaatsen.uren : 0), 1)} u`; $('t-kost').textContent = eur0(kp.kostprijs);
+  $('b-sub').textContent = `oordeel ${B.oordeel}: groen ≤ 90 % benut, oranje 90-100 % of een aanname, rood > 100 %`;
+  $('berekening').innerHTML = `<thead><tr><th></th><th>Controle</th><th>Berekening</th><th>Benut</th><th>Bron</th></tr></thead><tbody>${B.controles.map((c) => `<tr><td><span class="stip ${c.oordeel}" title="${c.oordeel}"></span></td><td><b>${esc(c.groep)}</b><br>${esc(c.wat)}${c.uitleg ? `<br><small>${esc(c.uitleg)}</small>` : ''}</td><td class="form">${esc(c.formule)}</td><td class="n">${c.oordeel === 'info' ? '' : `${Math.round(c.benut * 100)} %`}</td><td class="bron">${esc(c.bron)}</td></tr>`).join('')}</tbody>`;
+  const bl = alleBladen(o, meta);
+  for (const [id, el] of [['overzicht', 'w-overzicht'], ['stuklijst', 'w-stuklijst'], ['lassen', 'w-lassen'], ['boringen', 'w-boringen'], ['bestel', 'w-bestel'], ['plaatsing', 'w-plaatsing']]) { const b = bl.find((x) => x.id === id); $(el).innerHTML = b ? beeld(b.svg, b.titel) : '<p class="status" style="padding:12px">Niet gelast: het U-profiel en het glas worden geklemd en geschroefd.</p>'; }
+  huidig.stukken = stukBladen(o, meta); huidig.bladen = bl;
+  $('stukknoppen').innerHTML = huidig.stukken.map((x) => `<button type="button" class="stukknop" data-pos="${x.pos}"><span class="nr">${x.pos}</span><span>${esc(x.p.naam)}<small>${x.p.n} st · ${esc(x.p.maat)}${x.p.L ? ` · ${x.p.L} mm · ${esc(x.p.zaagT)}` : ''}</small></span></button>`).join('');
+  const bron = (b) => (/^https?:/.test(b) ? `<a href="${esc(b)}" target="_blank" rel="noopener">${esc(b.replace(/^https?:\/\/(www\.)?/, '').split('/')[0])}</a>` : esc(b));
+  $('prijs').innerHTML = `<thead><tr><th>Wat</th><th>Deel</th><th>Bedrag</th><th>Bron</th></tr></thead><tbody>${kp.regels.map((r) => `<tr><td>${esc(r.wat)}</td><td>${esc(CAT[r.cat])}</td><td class="n">${eur(r.bedrag)}</td><td class="bron">${bron(r.bron)}</td></tr>`).join('')}<tr><td><b>Materiaal</b></td><td></td><td class="n">${eur(kp.materiaal)}</td><td></td></tr><tr><td><b>Arbeid</b> ${g(kp.uren, 2)} u x ${eur(inst.uurloon)}</td><td></td><td class="n">${eur(kp.arbeid)}</td><td class="bron">uren uit de werkwijze (instellingen)</td></tr><tr><td><b>Kostprijs</b></td><td></td><td class="n"><b>${eur(kp.kostprijs)}</b></td><td></td></tr><tr><td>Verkoop met ${kp.marge} % marge</td><td></td><td class="n"><b>${eur(kp.verkoop)}</b></td><td class="bron">${eur(kp.perMeter)}/m · incl. btw ${eur(kp.verkoop * 1.21)}</td></tr>${kp.plaatsen.inbegrepen ? '' : `<tr class="apart"><td>Plaatsen, apart (${g(kp.plaatsen.uren, 1)} u)</td><td></td><td class="n">+ ${eur(kp.plaatsen.verkoop)}</td><td class="bron">als de klant het vraagt</td></tr>`}</tbody>`;
+  $('stappen').innerHTML = kp.stappen.map((x) => `<li${x.apart ? ' class="apart"' : ''}><b>${esc(x.titel)}</b> <span class="uur">${g(x.uren, 2)} u${x.proces ? ` · ${esc(x.proces)}` : ''}${x.apart ? ' · apart' : ''}</span><br>${esc(x.tekst)}</li>`).join('');
+  $('zaag').innerHTML = `<thead><tr><th>Pos</th><th>Wat</th><th>Profiel</th><th>Lengte</th><th>Zaagsnede</th><th>n</th></tr></thead><tbody>${kp.stuklijst.posities.filter((p) => p.L).map((p) => `<tr><td class="n">${p.pos}</td><td>${esc(p.naam)}</td><td>${esc(p.maat)}</td><td class="n">${p.L}</td><td>${esc(p.zaagT)}</td><td class="n">${p.n}</td></tr>`).join('')}</tbody>`;
+  $('markt-sub').textContent = MARKTBAND[k.soort].tekst;
+  $('markt').innerHTML = `<thead><tr><th>Verkoopprijs elders</th><th>€/m excl. btw</th><th>Plaatsen</th><th>Bron</th></tr></thead><tbody>${MARKT.filter((m) => m.soort === k.soort).map((m) => `<tr><td>${esc(m.wat)}</td><td class="n">${eur0(m.prijs)}${m.prijsHoog ? ` – ${eur0(m.prijsHoog)}` : ''}</td><td>${m.montage ? 'inbegrepen' : 'niet inbegrepen'}</td><td class="bron">${bron(m.bron)}</td></tr>`).join('')}<tr><td><b>Deze balustrade</b></td><td class="n"><b>${eur0(kp.perMeterZonder)}</b></td><td>niet inbegrepen (+ ${eur0(kp.plaatsen.perMeter)}/m)</td><td class="bron">marge ${kp.marge} %</td></tr></tbody>`;
+  mb = montageBladen(o, meta); huidig.montage = mb;
+  if (!mb.some((x) => x.id === montageId)) montageId = mb[0].id;
+  $('mtabs').innerHTML = mb.map((x, i) => `<button type="button" data-m="${x.id}" aria-pressed="${x.id === montageId}">${i + 1}. ${esc(x.titel)}<small>${esc(x.sub)}</small></button>`).join('');
+  toonMontage(); werkVuil = false;
+}
+let m3d = null, m3dBezig = null;
+function toonMontage() {
+  const x = mb.find((y) => y.id === montageId); if (!x) return;
+  document.querySelectorAll('[data-m]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.m === montageId));
+  $('mblad').innerHTML = beeld(x.svg, `Montageblad: ${x.titel}`);
+  $('mlijst').innerHTML = x.scène.delen.filter((d) => d.nr).map((d) => `<li><span class="nr">${d.nr}</span><i style="--k:${d.kleur}"></i><span><b>${esc(d.naam)}</b>${d.label ? ` · ${esc(d.label)}` : ''}</span></li>`).join('');
+  if (m3d) m3d.toon(x.scène);
+  else if (!m3dBezig) m3dBezig = import('./js/taatsdeuren/verbinding3d.mjs').then(({ verbinding3d }) => verbinding3d($('m3d'))).then((api) => { m3d = api; $('m3dLaden').remove(); m3d.zet(+$('muit').value / 100); toonMontage(); }).catch((e) => { $('m3dLaden').textContent = '3D lukt niet in deze browser; het montageblad staat ernaast.'; console.warn(e); });
+}
+$('mtabs').addEventListener('click', (e) => { const b = e.target.closest('[data-m]'); if (!b) return; montageId = b.dataset.m; toonMontage(); });
+$('muit').addEventListener('input', () => m3d?.zet(+$('muit').value / 100));
+$('mspeel').addEventListener('click', () => { if (!m3d) return; m3d.zet(1); $('muit').value = 100; setTimeout(() => { m3d.animeer(0, 1600); $('muit').value = 0; }, 250); });
+$('mherstel').addEventListener('click', () => m3d?.herstel());
+// stuk per stuk in een venster
+let openPos = null;
+function openStuk(pos) { const l = huidig.stukken, i = l.findIndex((x) => x.pos === pos); if (i < 0) return; openPos = pos; $('sv-titel').textContent = `Pos. ${pos}: ${l[i].p.naam}`; $('sv-blad').innerHTML = beeld(l[i].svg, `Stuk ${pos}`); if (!$('stukvenster').open) $('stukvenster').showModal(); }
+$('stukknoppen').addEventListener('click', (e) => { const b = e.target.closest('[data-pos]'); if (b) openStuk(+b.dataset.pos); });
+$('sv-sluit').addEventListener('click', () => $('stukvenster').close());
+for (const [id, r] of [['sv-vorige', -1], ['sv-volgende', 1]]) $(id).addEventListener('click', () => { const l = huidig.stukken, i = l.findIndex((x) => x.pos === openPos) + r; if (i >= 0 && i < l.length) openStuk(l[i].pos); });
+$('sv-svg').addEventListener('click', async () => { await klaar; const x = huidig.stukken.find((y) => y.pos === openPos); if (!dl || !x) return; try { await dl.save({ filename: `balustrade-pos-${x.pos}.svg`, data: x.svg }); } catch {} });
+
+// ---------- 3D voor de klant
+let v3d = null;
+(async () => {
+  try { const { scene3d } = await import('./js/scene3d.mjs'); v3d = await scene3d($('v3d')); $('v3dLaden').remove(); if (huidig) v3d.toon(huidig.o, { ral: huidig.o.k.ral, lak: huidig.o.k.lak, glasTint: huidig.o.k.glasTint }); }
+  catch (e) { $('v3dLaden').textContent = '3D lukt niet in deze browser; het vooraanzicht staat klaar.'; console.warn(e); }
+})();
+$('herstel').addEventListener('click', () => v3d?.herstel());
+$('foto').addEventListener('click', async () => { await klaar; if (!dl || !v3d) return; const url = v3d.beeld(), bin = atob(url.split(',')[1]), u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); try { await dl.save({ filename: `balustrade-${st.soort}-${st.stijl}.jpg`, data: new Blob([u], { type: 'image/jpeg' }) }); } catch {} });
+
+// ---------- instellingen
+const TARIEF = [['uurloon', 'Uurloon', '€/u', () => inst.uurloon, (v) => { inst.uurloon = v; }], ...Object.keys(SOORTEN).map((s) => [`marge.${s}`, `Marge ${SOORTEN[s].kort.toLowerCase()}`, '%', () => inst.marge[s], (v) => { inst.marge[s] = v; }]), ['staal', 'Staalprijs', '€/kg', () => inst.staal, (v) => { inst.staal = v; }], ['verzinken', 'Thermisch verzinken', '€/kg', () => inst.verzinken, (v) => { inst.verzinken = v; }], ['coat', 'Poedercoaten', '€/m² staal', () => inst.coat, (v) => { inst.coat = v; }], ['plaatsenPerM', 'Plaatsen', 'uur per meter', () => inst.plaatsenPerM, (v) => { inst.plaatsenPerM = v; }]];
+const UUR_LABEL = { voorbereiden: ['Voorbereiden', 'per opdracht'], zaagPerStuk: ['Zagen', 'per stuk'], voetplaat: ['Staander op voetplaat', 'per staander'], console: ['Staander met console', 'per staander'], regel: ['Regel lassen', 'per regel'], spijl: ['Spijl lassen', 'per spijl'], staaf: ['Horizontale staaf', 'per staaf'], plaat: ['Plaat of plint', 'per plaat'], handregelPerM: ['Handregel lassen', 'per meter'], verstek: ['Verstek (hoek, knik)', 'per verstek'], trapMal: ['Trap uitzetten', 'per trap'], trapFactor: ['Trap: extra op schuine stukken', 'deel'], klemgat: ['Gat + klinkmoer', 'per klem'], uprofiel: ['U-profiel op maat', 'per stuk'], coatKlaar: ['Naar de coater', 'per opdracht'], plaatsenPerM: ['(zie Tarief)', ''], glasPerPlaat: ['Glas plaatsen', 'per plaat'], zijFactor: ['Zijmontage: extra op plaatsen', 'deel'] };
+$('i-tarief').innerHTML = `<tbody>${TARIEF.map(([k, n, e]) => `<tr><td>${esc(n)}</td><td class="uitl">${esc(e)}</td><td class="n"><input type="number" step="0.01" min="0" data-t="${k}" id="t-${k.replace('.', '-')}"></td></tr>`).join('')}</tbody>`;
+$('i-uren').innerHTML = `<thead><tr><th>Handeling</th><th>Per</th><th>Uur</th></tr></thead><tbody>${Object.keys(UREN).filter((k) => k !== 'plaatsenPerM').map((k) => `<tr><td>${esc(UUR_LABEL[k]?.[0] ?? k)}</td><td class="uitl">${esc(UUR_LABEL[k]?.[1] ?? '')}</td><td class="n"><input type="number" step="0.01" min="0" data-u="${k}" id="u-${k}"></td></tr>`).join('')}</tbody>`;
+$('i-glas').innerHTML = `<thead><tr><th>Glas</th><th>Webshop</th><th>Jouw prijs</th></tr></thead><tbody>${Object.entries(GLASOPBOUW).map(([k, x]) => `<tr><td>${esc(x.naam)}<br><small class="uitl">${esc(x.bron)}</small></td><td class="n">${eur(x.webshop)}</td><td class="n"><input type="number" step="0.01" min="0" data-g="${k}" id="g-${k.replace('.', '-')}"></td></tr>`).join('')}</tbody>`;
+function vulInstellingen() {
+  for (const [k, , , l] of TARIEF) $(`t-${k.replace('.', '-')}`).value = l();
+  document.querySelectorAll('[data-u]').forEach((el) => { el.value = inst.uren[el.dataset.u]; });
+  document.querySelectorAll('[data-g]').forEach((el) => { el.value = inst.glasPrijs[el.dataset.g]; });
+  const t = $(`toon-${inst.toon}`); if (t) t.checked = true;
+}
+document.querySelectorAll('[data-t]').forEach((el) => el.addEventListener('change', () => { TARIEF.find((x) => x[0] === el.dataset.t)[4](Math.max(0, +el.value)); bewaar(); teken(); }));
+document.querySelectorAll('[data-u]').forEach((el) => el.addEventListener('change', () => { inst.uren[el.dataset.u] = Math.max(0, +el.value); Object.assign(UREN, inst.uren); bewaar(); teken(); }));
+document.querySelectorAll('[data-g]').forEach((el) => el.addEventListener('change', () => { inst.glasPrijs[el.dataset.g] = Math.max(0, +el.value); bewaar(); teken(); }));
+$('k-toon').addEventListener('change', (e) => { inst.toon = e.target.value; bewaar(); teken(); });
+$('terug').addEventListener('click', () => { inst = JSON.parse(JSON.stringify(STD_INST)); Object.assign(UREN, inst.uren); bewaar(); vulInstellingen(); teken(); $('i-status').textContent = 'Alles staat terug op de standaard.'; });
+let db = null, uid = null, wacht = null;
+function bewaar() {
+  clearTimeout(wacht);
+  wacht = setTimeout(async () => {
+    schrijf('balustrades-instellingen', inst);
+    if (db && uid) { try { await db.doc(`data/users/${uid}/instellingen/balustrades`).set(JSON.parse(JSON.stringify(inst))); $('i-status').textContent = 'Bewaard op je account.'; } catch { $('i-status').textContent = 'Bewaren op je account lukte niet; ze staan wel in deze browser.'; } }
+    else $('i-status').textContent = 'Bewaard in deze browser.';
+  }, 600);
+}
+const laad = (d) => { if (!d) return; inst = { ...JSON.parse(JSON.stringify(STD_INST)), ...d, marge: { ...STD_INST.marge, ...(d.marge ?? {}) }, uren: { ...STD_INST.uren, ...(d.uren ?? {}) }, glasPrijs: { ...STD_INST.glasPrijs, ...(d.glasPrijs ?? {}) } }; Object.assign(UREN, inst.uren); vulInstellingen(); teken(); };
+
+// ---------- pagina's: #balustrade, #werkplaats, #instellingen
+function toonPagina() {
+  const h = location.hash.slice(1); pagina = h === 'werkplaats' || h === 'instellingen' ? h : 'balustrade';
+  document.querySelectorAll('[data-view]').forEach((v) => { v.hidden = v.dataset.view !== pagina; });
+  for (const [id, p] of [['nav-bal', 'balustrade'], ['nav-werk', 'werkplaats'], ['nav-inst', 'instellingen']]) { if (p === pagina) $(id).setAttribute('aria-current', 'page'); else $(id).removeAttribute('aria-current'); }
+  if (pagina === 'werkplaats' && werkVuil) tekenWerk();
+  scrollTo(0, 0);
+}
+addEventListener('hashchange', toonPagina);
+bouwStijlen(); vulInstellingen(); laad(lees('balustrades-instellingen', null)); teken(); toonPagina();
+(async () => {
+  try {
+    const user = await window.claude?.use?.('user'); db = await window.claude?.use?.('db'); uid = user ? await user.id() : null;
+    if (db && uid) { const s = await db.doc(`data/users/${uid}/instellingen/balustrades`).get(); if (s.exists) laad(s.data()); $('i-status').textContent = 'Je instellingen staan op je account (ook op je gsm).'; }
+    else $('i-status').textContent = 'Je instellingen worden in deze browser bewaard.';
+  } catch { $('i-status').textContent = 'Je instellingen worden in deze browser bewaard.'; }
+})();
+
+// ---------- downloads (zip zonder compressie)
+let dl = null;
+const klaar = (async () => { try { dl = await window.claude?.use?.('downloads'); } catch { dl = null; } if (!dl) { document.querySelectorAll('[data-dl]').forEach((b) => { b.disabled = true; }); $('status').textContent = 'Downloaden kan niet in deze weergave (wel in de gepubliceerde pagina).'; } })();
+const crcT = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let q = 0; q < 8; q++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+const crc32 = (u) => { let c = 0xffffffff; for (const x of u) c = crcT[(c ^ x) & 255] ^ (c >>> 8); return (c ^ 0xffffffff) >>> 0; };
+function zip(best) {
+  const enc = new TextEncoder(), delen = [], cen = []; let off = 0;
+  for (const [naam, tekst] of best) {
+    const n = enc.encode(naam), d = enc.encode(tekst), crc = crc32(d), h = new DataView(new ArrayBuffer(30));
+    h.setUint32(0, 0x04034b50, true); h.setUint16(4, 20, true); h.setUint32(14, crc, true); h.setUint32(18, d.length, true); h.setUint32(22, d.length, true); h.setUint16(26, n.length, true);
+    delen.push(new Uint8Array(h.buffer), n, d);
+    const c = new DataView(new ArrayBuffer(46));
+    c.setUint32(0, 0x02014b50, true); c.setUint16(4, 20, true); c.setUint16(6, 20, true); c.setUint32(16, crc, true); c.setUint32(20, d.length, true); c.setUint32(24, d.length, true); c.setUint16(28, n.length, true); c.setUint32(42, off, true);
+    cen.push(new Uint8Array(c.buffer), n); off += 30 + n.length + d.length;
+  }
+  const gr = cen.reduce((a, x) => a + x.length, 0), e = new DataView(new ArrayBuffer(22));
+  e.setUint32(0, 0x06054b50, true); e.setUint16(8, best.length, true); e.setUint16(10, best.length, true); e.setUint32(12, gr, true); e.setUint32(16, off, true);
+  return new Blob([...delen, ...cen, new Uint8Array(e.buffer)]);
+}
+document.querySelectorAll('[data-dl]').forEach((b) => b.addEventListener('click', async () => {
+  await klaar; if (!dl || !huidig) return;
+  if (werkVuil) tekenWerk();
+  const { o, meta } = huidig, nm = `balustrade-${o.k.soort}-${o.k.stijl}-${Math.round(o.lengte)}`;
+  let filename, data;
+  if (b.dataset.dl === 'dossier') { filename = `${nm}-dossier.html`; data = dossierHtml(o, inst, meta); }
+  else if (b.dataset.dl === 'csv') { filename = `${nm}-lijsten.csv`; data = lijstenCsv(o, inst); }
+  else { filename = `${nm}-tekeningen.zip`; data = zip([...huidig.bladen.map((x, i) => [`${nm}-${i + 1}-${x.id}.svg`, x.svg]), ...huidig.montage.map((x, i) => [`${nm}-montage-${i + 1}-${x.id}.svg`, x.svg]), ...huidig.stukken.map((x) => [`${nm}-pos-${String(x.pos).padStart(2, '0')}.svg`, x.svg]), [`${nm}-lijsten.csv`, lijstenCsv(o, inst)]]); }
+  $('status').textContent = 'Bezig…';
+  try { await dl.save({ filename, data }); $('status').textContent = `${filename} opgeslagen.`; } catch (e) { $('status').textContent = e && e.code === 'declined' ? 'Niet opgeslagen.' : `Opslaan lukte niet (${e && e.code || 'fout'}).`; }
+}));
+</script>
