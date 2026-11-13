@@ -1,10 +1,13 @@
 // één revisie voor alle uitvoer van de afzuiging: tekeningen, bouwschema, aansluitschema, freesmallen en README.
 // Verhoog dit bij elke wijziging van het ontwerp; de meetresultaten verwijzen naar deze revisie en de git-commit.
-export const REVISIE = { versie: '7.2', datum: '2026-11-12' };
+export const REVISIE = { versie: '7.3', datum: '2026-11-13' };
 export const REVISIE_TEKST = `versie ${REVISIE.versie} · ${REVISIE.datum}`;
 
 /** wat er per revisie veranderde (nieuwste eerst); de README en het meetplan verwijzen hiernaar */
 export const CHANGELOG = [
+  ['7.3', '2026-11-13', [
+    'Schroeven van de klauwen beter geleid (vraag van Ian): module M5 x 70 (was 65) in een gat Ø5,4 over de hele toren, 9 mm geleiding boven het klauwkanaal en de punt 6,5 mm in een blind gat onderaan; knop M4 in Ø4,3 over 12 mm en Ø4,4 in het deksel. Zijdelingse speling hoogstens 0,2 mm.',
+  ]],
   ['7.2', '2026-11-12', [
     'Advies Fable 5.2 verwerkt, zonder sterkere ventilator (San Ace C175 9TG24P0S01 blijft, keuze Ian).',
     'Vangst: werkhoogte eerlijk vastgelegd op 10 cm boven het rooster; 15 cm alleen in boost (rekenblad 1 en 3).',

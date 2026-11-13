@@ -2678,10 +2678,10 @@
 <text x="231.20" y="277.40" font-size="3.2" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">AFZ-02</text>
 <line x1="290.00" y1="279.00" x2="290.00" y2="271.00" stroke="#111" stroke-width="0.25" stroke-linecap="round" />
 <text x="291.20" y="273.20" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#555">Rev.</text>
-<text x="291.20" y="277.40" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">7.2</text>
+<text x="291.20" y="277.40" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">7.3</text>
 <line x1="305.00" y1="279.00" x2="305.00" y2="271.00" stroke="#111" stroke-width="0.25" stroke-linecap="round" />
 <text x="306.20" y="273.20" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#555">Uitgifte</text>
-<text x="306.20" y="277.40" font-size="2.4" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">2026-11-12</text>
+<text x="306.20" y="277.40" font-size="2.4" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">2026-11-13</text>
 <line x1="335.00" y1="279.00" x2="335.00" y2="271.00" stroke="#111" stroke-width="0.25" stroke-linecap="round" />
 <text x="336.20" y="273.20" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#555">Taal</text>
 <text x="336.20" y="277.40" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">nl</text>

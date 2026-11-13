@@ -192,9 +192,11 @@ export function romp() {
     else s.rrectW([-4.5, 0, Math.sign(z) * kb], [4.5, 0, Math.sign(z) * (zi + 0.5)]);
   }));
   o.extrude('boss', yb - 3.5 - R.onder, { naam: 'Bussen kuip' });
-  // M5 x 65 verzonken (DIN 7991) van bovenaf: de kop zit in het bovenframe, de schacht door de toren en het klauwkanaal
-  o.schets(yv('boven', 0, 'reference', 'Plane boven'), (s) => assen().forEach(([x, z]) => s.cirkelW([x, 0, z], 2.9)));
-  o.extrude('cut', 67, { omkeren: true, naam: 'Gaten M5' });
+  // M5 x 70 verzonken (DIN 7991) van bovenaf: de kop zit in het bovenframe, de schacht door de toren en het klauwkanaal.
+  // Gat Ø5,4 (7.3, vraag van Ian: "gaan de vijzen niet te veel naar links en rechts bij het aandraaien?"): 9 mm geleiding
+  // boven het kanaal en een blind gat onder het kanaal tot 1 mm boven de onderkant, de punt zit er 6,5 mm in
+  o.schets(yv('boven', 0, 'reference', 'Plane boven'), (s) => assen().forEach(([x, z]) => s.cirkelW([x, 0, z], 2.7)));
+  o.extrude('cut', -M.romp.onder - 1, { omkeren: true, naam: 'Gaten M5' });
   // klauwkanaal: de klauw schuift van het zwaaivenster omhoog tot tegen het blad (bladdikte 10 tot 50 mm)
   o.schets(yv('kanaal', T.top, 'reference', 'Plane top klauwkanaal'), (s) =>
     assen().forEach(([x, z]) => s.rrectW([x - C.naaf - 0.5, 0, z - C.naaf - 0.5], [x + C.naaf + 0.5, 0, z + C.naaf + 0.5])));
@@ -649,7 +651,8 @@ export function knophouder() {
   const as = [[C.x, 0], [-C.x, 0]];
   o.schets(yv('plaattop', D.plaat, 'reference', 'Plane plaattop'), (s) => as.forEach(([x, z]) => s.cirkelW([x, 0, z], 4.2)));
   o.extrude('cut', 1.9, { omkeren: true, naam: 'Verzinking M4', draft: 45 });
-  o.schets(yv('plaattop', D.plaat, 'reference', 'Plane plaattop'), (s) => as.forEach(([x, z]) => s.cirkelW([x, 0, z], 2.25)));
+  // Ø4,3 over 12 mm: de M4 staat recht, ook bij het eerste aandraaien (7.3)
+  o.schets(yv('plaattop', D.plaat, 'reference', 'Plane plaattop'), (s) => as.forEach(([x, z]) => s.cirkelW([x, 0, z], 2.15)));
   o.extrude('cut', D.plaat - C.top + 1, { omkeren: true, naam: 'Gaten M4' });
   o.schets(yv('dkanaal', C.top, 'reference', 'Plane top klauwkanaal'), (s) => as.forEach(([x, z]) => s.rrectW([x - C.naaf - 0.5, 0, z - C.naaf - 0.5], [x + C.naaf + 0.5, 0, z + C.naaf + 0.5])));
   o.extrude('cut', C.top - C.bodem, { omkeren: true, naam: 'Klauwkanalen' });
@@ -682,7 +685,7 @@ export function knopdeksel() {
   o.extrude('cut', 1.6, { omkeren: true, naam: 'Verzinking M2,5', draft: 45 }); // eindigt 0,4 mm binnen het gat Ø2,8
   o.schets(onder, (s) => {
     D.bus.forEach(([x, z]) => s.cirkelW([x, y0, z], 1.4));
-    [1, -1].forEach((k) => s.cirkelW([k * D.klauw.x, y0, 0], 2.4)); // de punten van de M4 x 65 (1 mm uit de klauw) in een gat Ø4,8 met speling
+    [1, -1].forEach((k) => s.cirkelW([k * D.klauw.x, y0, 0], 2.2)); // de punten van de M4 x 65 in een gat Ø4,4: geleiding onderaan (7.3)
   });
   o.extrude('cut', D.deksel + 1, { omkeren: true, naam: 'Gaten' });
   // 2 pennetjes die het USB-C-printje tegen de palen van de houder drukken (0,1 mm speling)
@@ -1189,8 +1192,8 @@ export function afzuigingComponenten(o = [0, 0, 0], prefix = 'a', blad = M.blad)
   [DC.x, -DC.x].forEach((x, i) => comps.push(component(`${prefix}dn${i + 1}`, `M4 zeskantmoer DIN 934<${i + 1}>`, m4n, at([d.x + x, ydk + 0.2, d.z]))));
   // normdelen
   const omhoog = [1, 0, 0, 0]; // 180° om X: schroef van onderen
-  const m5 = schroefVerzonken('M5 x 65 DIN 7991', 5, 4.2, 65);
-  assen().forEach(([x, z], i) => comps.push(component(`${prefix}s5${i + 1}`, `M5 x 65 DIN 7991<${i + 1}>`, m5, at([x, M.frame.dikte, z]))));
+  const m5 = schroefVerzonken('M5 x 70 DIN 7991', 5, 4.2, 70);
+  assen().forEach(([x, z], i) => comps.push(component(`${prefix}s5${i + 1}`, `M5 x 70 DIN 7991<${i + 1}>`, m5, at([x, M.frame.dikte, z]))));
   // de kuip: 4 x M3 x 12 cilinderkop van onderen door de oren in de bussen van de romp (de kop in een kom van Ø6,5)
   const m3p = schroefCilinder('M3 x 12 DIN 912', 5.5, 3, 2.5, 12);
   kuipSchroeven().forEach(([x, z], i) => comps.push(component(`${prefix}s3${i + 1}`, `M3 x 12 DIN 912<${i + 1}>`, m3p, at([x, M.kuip.oor.top - 4, z]), { rotation: omhoog })));

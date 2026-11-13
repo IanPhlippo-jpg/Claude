@@ -2511,10 +2511,10 @@
        }
       },
       "scalars": {
-       "s7s1": 2.9,
-       "s7s4": 2.9,
-       "s7s7": 2.9,
-       "s7s10": 2.9
+       "s7s1": 2.7,
+       "s7s4": 2.7,
+       "s7s7": 2.7,
+       "s7s10": 2.7
       },
       "entities": {
        "s7e2": {
@@ -3700,7 +3700,7 @@
       "suppressed": false,
       "op": "cut",
       "end": "blind",
-      "depth": 67,
+      "depth": 69,
       "reverse": true
      },
      {
@@ -54818,8 +54818,8 @@
        }
       },
       "scalars": {
-       "s16s1": 2.25,
-       "s16s4": 2.25
+       "s16s1": 2.15,
+       "s16s4": 2.15
       },
       "entities": {
        "s16e2": {
@@ -55970,8 +55970,8 @@
       "scalars": {
        "s3s1": 1.4,
        "s3s4": 1.4,
-       "s3s7": 2.4,
-       "s3s10": 2.4
+       "s3s7": 2.2,
+       "s3s10": 2.2
       },
       "entities": {
        "s3e2": {
@@ -61388,10 +61388,10 @@
   },
   {
    "id": "as51",
-   "name": "M5 x 65 DIN 7991<1>",
+   "name": "M5 x 70 DIN 7991<1>",
    "part": {
     "version": 1,
-    "name": "M5 x 65 DIN 7991",
+    "name": "M5 x 70 DIN 7991",
     "units": "mm",
     "planes": {
      "schacht": {
@@ -61619,7 +61619,7 @@
       "suppressed": false,
       "op": "boss",
       "end": "blind",
-      "depth": 62.7,
+      "depth": 67.7,
       "reverse": true
      },
      {
@@ -61664,10 +61664,10 @@
   },
   {
    "id": "as52",
-   "name": "M5 x 65 DIN 7991<2>",
+   "name": "M5 x 70 DIN 7991<2>",
    "part": {
     "version": 1,
-    "name": "M5 x 65 DIN 7991",
+    "name": "M5 x 70 DIN 7991",
     "units": "mm",
     "planes": {
      "schacht": {
@@ -61895,7 +61895,7 @@
       "suppressed": false,
       "op": "boss",
       "end": "blind",
-      "depth": 62.7,
+      "depth": 67.7,
       "reverse": true
      },
      {
@@ -61940,10 +61940,10 @@
   },
   {
    "id": "as53",
-   "name": "M5 x 65 DIN 7991<3>",
+   "name": "M5 x 70 DIN 7991<3>",
    "part": {
     "version": 1,
-    "name": "M5 x 65 DIN 7991",
+    "name": "M5 x 70 DIN 7991",
     "units": "mm",
     "planes": {
      "schacht": {
@@ -62171,7 +62171,7 @@
       "suppressed": false,
       "op": "boss",
       "end": "blind",
-      "depth": 62.7,
+      "depth": 67.7,
       "reverse": true
      },
      {
@@ -62216,10 +62216,10 @@
   },
   {
    "id": "as54",
-   "name": "M5 x 65 DIN 7991<4>",
+   "name": "M5 x 70 DIN 7991<4>",
    "part": {
     "version": 1,
-    "name": "M5 x 65 DIN 7991",
+    "name": "M5 x 70 DIN 7991",
     "units": "mm",
     "planes": {
      "schacht": {
@@ -62447,7 +62447,7 @@
       "suppressed": false,
       "op": "boss",
       "end": "blind",
-      "depth": 62.7,
+      "depth": 67.7,
       "reverse": true
      },
      {
