@@ -22,6 +22,10 @@ export const UREN = {
   plaatsenPerM: 1.5, // op de werf, per meter: uitzetten, boren, verankeren, stellen
   glasPerPlaat: 0.4, // op de werf: glas plaatsen (2 personen)
   zijFactor: 0.3, // extra op het plaatsen bij zijmontage (boren in de vloerrand, stellen)
+  dakKnik: 0.8, // per afschuining onder het dak: helling op de lastafel uitzetten, knik in verstek passen en doorlassen
+  dakStuk: 0.05, // per schuin gezaagd stuk onder het dak (spijl, staaf, staander, handregel): extra zagen en passen
+  muurplaat: 0.5, // per muurplaat: regels en handregel erop passen en lassen
+  dakPlaatsen: 0.5, // op de werf, per afschuining: helling en hoogte nameten, stellen onder het dak, muurplaat verankeren
 };
 
 const r2 = (x) => Math.round(x * 100) / 100;
@@ -50,8 +54,15 @@ export function stappen(o, sl, U = UREN) {
     if (o.klemmen.length) stap('Gaten voor de glasklemmen', { glas: o.klemmen.length * U.klemgat }, `${o.klemmen.length} gaten Ø11 in de staanders (2 per kant per glasplaat), blindklinkmoer M8 zetten. Na het coaten: de klemmen losjes vastzetten.`, 'boren');
     if (o.st.staander !== 'inox') stap(k.plaats === 'buiten' ? 'Naar de verzinkerij en de coater' : 'Klaarmaken voor de coater', k.plaats === 'buiten' ? { basis: U.coatKlaar + m * 0.05, buiten: 0.5 } : { basis: U.coatKlaar + m * 0.05 }, k.plaats === 'buiten' ? 'Buiten: boor ontluchtings- en afloopgaten Ø10 in elke koker (onder en boven, bij elke regel), ontvetten, naar de verzinkerij (thermisch verzinken), dan duplex poedercoaten. Ankergaten en klinkmoeren afstoppen.' : 'Ontvetten, de klinkmoeren en ankergaten afstoppen, merken. Laten stralen en poedercoaten.');
   }
+  // onder het dak
+  const nDak = o.dakKnikken ?? 0;
+  if (nDak) {
+    const nSchuin = o.delen.filter((d) => d.dak).length + o.panelen.filter((p) => p.uv && p.rol !== 'glas').length, nMuur = o.platen.filter((p) => p.rol === 'muurplaat').length;
+    const hk = o.dak.filter((e) => e.nodig).map((e) => `${e.kant === 'begin' ? 'begin' : 'einde'} ${gw(e.hoek, 0)}°, muur ${e.muur} mm, schuin stuk ${Math.round(e.xs)} mm`).join('; ');
+    stap('Afschuining onder het dak', { dak: nDak * U.dakKnik + nSchuin * U.dakStuk + nMuur * U.muurplaat }, `${hk}. Zet de helling op de lastafel uit (mal met de hoek). ${nSchuin} schuine stukken: ${k.soort === 'glasU' ? 'de U-handregel volgt het dak met een verbinder op de knik' : 'spijlen, staanders en staven op de helling gezaagd; de handregel aan de muur verticaal en op de knik in verstek (de helft van de helling), doorlassen (V-naad) en vlak slijpen'}.${nMuur ? ` ${nMuur} muurplaat${nMuur > 1 ? 'en' : ''} 80 x 8: de regels en de handregel erop lassen.` : ''}`, 'MAG');
+  }
   // op de werf
   const nGlas = P.filter((p) => p.soort === 'glas').reduce((t, p) => t + p.n, 0);
-  stap('Plaatsen', { plaatsen: m * U.plaatsenPerM + nGlas * U.glasPerPlaat, zij: zij ? m * U.plaatsenPerM * U.zijFactor : 0 }, `${zij ? 'Zijmontage: boor de ankers in de vloerrand' : 'Bovenop de vloer: zet de voetplaten uit'} volgens het plaatsingsblad, ${o.ankers.length} ankers, stel waterpas en loodrecht met uitvulplaatjes${nGlas ? `, plaats ${nGlas} glasplaten (2 personen, zuignappen)` : ''}.`);
+  stap('Plaatsen', { plaatsen: m * U.plaatsenPerM + nGlas * U.glasPerPlaat + nDak * (U.dakPlaatsen ?? 0), zij: zij ? m * U.plaatsenPerM * U.zijFactor : 0 }, `${zij ? 'Zijmontage: boor de ankers in de vloerrand' : 'Bovenop de vloer: zet de voetplaten uit'} volgens het plaatsingsblad, ${o.ankers.length} ankers, stel waterpas en loodrecht met uitvulplaatjes${nGlas ? `, plaats ${nGlas} glasplaten (2 personen, zuignappen)` : ''}.${nDak ? ' Onder het dak: meet eerst de helling en de hoogte aan de muur na (plaatsingsblad) en houd de spleet tot het dak.' : ''}`);
   return S;
 }

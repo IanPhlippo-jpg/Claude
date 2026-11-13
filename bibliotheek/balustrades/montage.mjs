@@ -147,7 +147,40 @@ export function montage(o) {
     middelen: inoxHr ? [['Handregeldrager', '1 per staander', ''], ['Eindkap Ø42,4', '2', '']] : [['Hoeklas', 'a3 aan beide zijden', 'ISO 2553'], ...(hoek ? [['V-naad in het verstek', 'doorgelast, vlak geslepen', 'ISO 2553']] : [])],
     stappen: hoek ? ['Zaag beide stukken in verstek (de helft van de hoek of de knik).', 'Hecht ze op de hoekstaander, controleer de hoek met de mal.', 'Las het verstek door (V-naad) en slijp het vlak; las de handregel op elke staander.'] : ['Leg de handregel op de staanders en hecht hem.', 'Las hem op elke staander, aan beide zijden.', 'Slijp de lassen vlak.'],
     kijk: { yaw: -40, pitch: 26 } });
+  // ---- onder het dak: de knik van de handregel op de knikstaander, de ingekorte vulling en (laag) de muurplaat
+  const e = (o.dak ?? []).find((x) => x.nodig);
+  if (e) sc.push(dakScène(o, e, Pf, postKleur, rond, inoxHr));
   return sc;
+}
+
+/** montage van de knik onder het dak: x rechts (de vlakke kant), het schuine stuk zakt naar links naar de muur */
+function dakScène(o, e, Pf, postKleur, rond, inoxHr) {
+  const k = o.k, th = e.thE, c = Math.cos(th), s = Math.sin(th), tn = Math.tan(th), top = 320, hh = rond ? 42.4 : 8, r = hh / 2;
+  const K = [0, top + r], n = [(1 + c) / Math.hypot(1 + c, s), s / Math.hypot(1 + c, s)], u2 = [-c, -s], perp = [-s, c], L2 = Math.min(420, (top - 60) / s);
+  const opMiter = (o2) => -o2 * (n[0] * perp[0] + n[1] * perp[1]) / (n[0] * u2[0] + n[1] * u2[1]);
+  const hrKl = inoxHr ? INOX : STAAL, mp = o.platen.find((p) => p.rol === 'muurplaat');
+  // vlak stuk: verstek op de knik (bovenkant langer); schuin stuk: verstek op de knik, haaks aan het andere einde (in de scène)
+  const vlak = rond ? [P('x', cirkel(K[1], 0, r, 20), -r * Math.tan(th / 2), 360)]
+    : [P('z', [[r * Math.tan(th / 2), top], [360, top], [360, top + hh], [-r * Math.tan(th / 2), top + hh]], -25, 25)];
+  const hoeken = [r, -r].map((o2) => { const l0 = opMiter(o2); return [[K[0] + o2 * perp[0] + l0 * u2[0], K[1] + o2 * perp[1] + l0 * u2[1]], [K[0] + o2 * perp[0] + L2 * u2[0], K[1] + o2 * perp[1] + L2 * u2[1]]]; });
+  const schuin = rond ? [P('x', cirkel(K[1] + L2 * u2[1], 0, r, 20), K[0] + L2 * u2[0], 0, cirkel(K[1], 0, r, 20))]
+    : [P('z', [hoeken[0][0], hoeken[1][0], hoeken[1][1], hoeken[0][1]], -25, 25)];
+  const onder = (x) => top + x * tn; // onderkant van het schuine stuk (x < 0)
+  const spijl = o.st?.spijl ? PROFIEL[o.st.spijl] : null, xs = [-110, -230].filter((x) => onder(x) > 110);
+  const vul = k.soort === 'spijlen' && spijl ? [{ naam: `Spijl ${spijl.naam}`, nr: 3, label: `bovenaan schuin ${Math.round(e.hoek)}°`, kleur: STAAL, uit: [0, -60, 80], solids: xs.map((x) => P('z', [[x - spijl.b / 2, 60], [x + spijl.b / 2, 60], [x + spijl.b / 2, onder(x + spijl.b / 2)], [x - spijl.b / 2, onder(x - spijl.b / 2)]], -spijl.h / 2, spijl.h / 2)) }]
+    : k.soort === 'glasstaal' ? [{ naam: 'Glas met schuine kant (trapezium)', nr: 3, label: '60 mm onder de handregel', kleur: GLAS, alpha: 0.55, uit: [0, -60, 80], solids: [P('z', [[-300, 60], [-Pf.b / 2 - 12, 60], [-Pf.b / 2 - 12, onder(-Pf.b / 2 - 12) - 60], [-300, onder(-300) - 60]].map(([x, y]) => [x, Math.max(60, y)]), -5, 5)] }]
+    : [{ naam: k.soort === 'staven' && o.st.vulling === 'plaat' ? 'Plaat 3 mm, schuin' : 'Plint of staaf tegen de schuine handregel', nr: 3, label: 'schuin gezaagd of gelaserd', kleur: '#8f969e', uit: [0, -60, 80], solids: [P('z', [[-300, 60], [-Pf.b / 2 - 2, 60], [-Pf.b / 2 - 2, onder(-Pf.b / 2 - 2)], [-300, onder(-300)]].map(([x, y]) => [x, Math.max(60, y)]), -1.5, 1.5)] }];
+  return { id: 'dak', titel: 'Knik onder het dak', sub: `handregel ${rond ? 'Ø42,4' : '50x8'} in verstek ${Math.round(e.hoek / 2 * 10) / 10}° op de knikstaander, helling ${Math.round(e.hoek)}°`, materiaal: inoxHr ? 'inox' : 'staal',
+    delen: [
+      { naam: `Knikstaander ${Pf.naam}`, nr: 1, kleur: postKleur, solids: staanderSolids(Pf, 0, 0, 0, top) },
+      { naam: `Handregel, vlak stuk`, nr: 2, label: `verstek ${Math.round(e.hoek * 5) / 10}°`, kleur: hrKl, uit: [140, 120, 0], solids: vlak },
+      { naam: `Handregel, schuin stuk`, nr: 4, label: `verstek ${Math.round(e.hoek * 5) / 10}° op de knik, ${Math.round(e.hoek)}° tegen de muur`, kleur: hrKl, uit: [-160, 120, 0], solids: schuin },
+      ...vul,
+      ...(inoxHr ? [] : [{ naam: 'Lasnaad', label: 'V-naad in het verstek, vlak geslepen', kleur: KLEUR.las, alleenSamen: true, solids: [P('z', [[-3, top + hh], [3, top + hh], [3, top + hh + 2.5], [-3, top + hh + 2.5]], -26, 26)] }]),
+    ],
+    middelen: [['V-naad in het verstek', 'doorgelast, vlak geslepen', 'ISO 2553'], ['Mal met de dakhelling', `${Math.round(e.hoek)}°`, ''], ...(mp ? [['Muurplaat 80 x 8 + 2 ankers M10', `${o.platen.filter((p) => p.rol === 'muurplaat').length} st`, 'knieschot']] : [])],
+    stappen: [`Meet de helling (${Math.round(e.hoek)}°) en de hoogte aan de muur (${e.muur} mm) na op de werf.`, `Zaag het schuine stuk aan de muur verticaal (${Math.round(e.hoek)}°) en op de knik in verstek (${Math.round(e.hoek * 5) / 10}°), het vlakke stuk ook in verstek.`, 'Hecht beide stukken op de knikstaander met de mal, las het verstek door en slijp het vlak.', mp ? 'Las de onderregel en het schuine stuk op de muurplaat; zet de muurplaat met 2 ankers M10 tegen het knieschot.' : 'De eindstaander aan de muur is lager en bovenaan schuin gezaagd.'],
+    let: `De spleet tot het dak is ${e.spleet} mm (loodrecht op het dak): niet groter dan 110 mm, en niet kleiner dan 20 mm.`, kijk: { yaw: -20, pitch: 12 } };
 }
 
 // ---------------------------------------------------------------- het A4-blad (zoals taatsdeuren/montage.mjs)

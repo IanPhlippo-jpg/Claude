@@ -79,6 +79,7 @@ fieldset { border: 0; padding: 0; margin: 0 0 10px; min-width: 0 } fieldset:last
 .keuze label:has(input:checked) { border-color: var(--acc); background: var(--acc-vlak); color: var(--acc-inkt); font-weight: 600 }
 .keuze label:has(input:focus-visible), .stalen label:has(input:focus-visible) { outline: 3px solid var(--acc) }
 .info { font-size: 13px; color: var(--zacht); margin: 6px 0 0 }
+.dakkant + .dakkant { margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--lijn) } .dakkant .drie { margin-top: 8px } .dakinfo b { color: var(--inkt) } .dakinfo.rood { color: var(--fout) } .dakinfo.rood b { color: var(--fout) }
 .stalen { display: grid; grid-template-columns: repeat(auto-fill, minmax(54px, 1fr)); gap: 8px 6px }
 .stalen label { display: grid; gap: 3px; cursor: pointer; position: relative; font-size: 11px; line-height: 1.15; text-align: center }
 .proef { display: block; width: 100%; aspect-ratio: 1; border-radius: 6px; border: 1px solid rgba(0, 0, 0, .18); background: var(--kleur); position: relative; overflow: hidden }
@@ -192,6 +193,13 @@ footer { color: var(--zacht); font-size: 13px; padding-block: 30px }
           </div>
           <p class="info" id="i-lijn"></p>
         </div>
+        <div class="groep" id="g-dak">
+          <fieldset><legend>Onder een schuin dak</legend>
+            <div class="dakkant"><label class="schakel" for="dakBegin"><input type="checkbox" id="dakBegin"> <b>Begin afschuinen</b></label><div class="drie" id="v-dakBegin"><div class="veld"><label for="dakBeginHelling">Dakhelling (°)</label><input id="dakBeginHelling" type="number" step="1" min="15" max="60" inputmode="numeric"></div><div class="veld"><label for="dakBeginMuur">Hoogte aan de muur</label><input id="dakBeginMuur" type="number" step="10" inputmode="numeric"></div><div class="veld"><label for="dakBeginSpleet">Spleet tot het dak</label><input id="dakBeginSpleet" type="number" step="5" inputmode="numeric"></div></div><p class="info dakinfo" id="i-dakBegin"></p></div>
+            <div class="dakkant"><label class="schakel" for="dakEind"><input type="checkbox" id="dakEind"> <b>Einde afschuinen</b></label><div class="drie" id="v-dakEind"><div class="veld"><label for="dakEindHelling">Dakhelling (°)</label><input id="dakEindHelling" type="number" step="1" min="15" max="60" inputmode="numeric"></div><div class="veld"><label for="dakEindMuur">Hoogte aan de muur</label><input id="dakEindMuur" type="number" step="10" inputmode="numeric"></div><div class="veld"><label for="dakEindSpleet">Spleet tot het dak</label><input id="dakEindSpleet" type="number" step="5" inputmode="numeric"></div></div><p class="info dakinfo" id="i-dakEind"></p></div>
+            <p class="info">Hoogte aan de muur: van de vloer tot onder het dak, gemeten tegen het knieschot. Spleet: loodrecht op het dak (≤ 110 mm).</p>
+          </fieldset>
+        </div>
         <div class="groep">
           <fieldset><legend>Plaats</legend><div class="keuze" id="k-plaats"></div></fieldset>
           <div class="veld"><label for="cat">Gebruik (belasting EN 1991-1-1 + ANB)</label><select id="cat"></select></div>
@@ -288,7 +296,7 @@ footer { color: var(--zacht); font-size: 13px; padding-block: 30px }
     <div><section class="deel" style="margin-top:0"><h2>Glas (€/m², excl. btw)</h2><div class="tabelvak"><table id="i-glas"></table></div></section></div>
   </div>
 </div></div>
-<footer class="wrap">Normen: NBN B 03-004 (borstweringen), EN 1991-1-1 + ANB (belasting), NBN S 23-002 (glas); samengevat via Buildwise. Elke prijs heeft een bron (pagina Werkplaats); "SCHATTING" = geen publieke prijs. Marktprijzen opgezocht op 13-11-2026.</footer>
+<footer class="wrap">Normen: NBN B 03-004 (borstweringen), EN 1991-1-1 + ANB (belasting), NBN S 23-002 (glas); samengevat via Buildwise. Onder een schuin dak: AANNAMES (opening tot het dak ≤ 110 mm), geen bron gevonden. Elke prijs heeft een bron (pagina Werkplaats); "SCHATTING" = geen publieke prijs. Marktprijzen opgezocht op 13-11-2026.</footer>
 
 <dialog id="stukvenster" aria-labelledby="sv-titel"><header><b id="sv-titel"></b><span class="knoppen" style="margin:0"><button class="knop" type="button" id="sv-vorige">Vorige</button><button class="knop" type="button" id="sv-volgende">Volgende</button><button class="knop" type="button" id="sv-svg">SVG</button><button class="knop vol" type="button" id="sv-sluit">Sluiten</button></span></header><div class="blad" id="sv-blad"></div></dialog>
 
@@ -341,9 +349,11 @@ $('soorten').innerHTML = Object.entries(SOORTEN).map(([k, S]) => `<button type="
 function bouwStijlen() { const S = SOORTEN[st.soort]; $('stijlen').innerHTML = S.stijlen.map((x) => `<button type="button" class="stijl" data-stijl="${x.id}" aria-pressed="false" title="${esc(x.uitleg)}"><span class="duim">${duim({ soort: st.soort, stijl: x.id })}</span><span class="t"><i>${x.id}</i><b>${esc(x.naam)}</b></span></button>`).join(''); }
 
 // ---------- gebeurtenissen
+const DAKV = ['dakBegin', 'dakEind'].flatMap((e) => ['Helling', 'Muur', 'Spleet'].map((n) => e + n));
 $('soorten').addEventListener('click', (e) => { const b = e.target.closest('[data-soort]'); if (!b) return; st.soort = b.dataset.soort; st.stijl = SOORTEN[st.soort].stijlen[0].id; st.handregel = 'stijl'; st.glas = 'auto'; bouwStijlen(); teken(); });
 $('stijlen').addEventListener('click', (e) => { const b = e.target.closest('[data-stijl]'); if (!b) return; st.stijl = b.dataset.stijl; st.handregel = 'stijl'; teken(); });
-for (const id of ['L1', 'L2', 'L3', 'H', 'hoek', 'optrede', 'aantrede']) $(id).addEventListener('change', () => { st[id] = +$(id).value; teken(); });
+for (const id of ['L1', 'L2', 'L3', 'H', 'hoek', 'optrede', 'aantrede', ...DAKV]) $(id).addEventListener('change', () => { st[id] = +$(id).value; teken(); });
+for (const id of ['dakBegin', 'dakEind']) $(id).addEventListener('change', () => { st[id] = $(id).checked; teken(); });
 for (const k of ['vorm', 'plaats', 'bevestiging', 'anker', 'handregel', 'ral', 'lak', 'glasTint']) $(`k-${k}`).addEventListener('change', (e) => { st[k] = e.target.value; if (k === 'vorm') { if (e.target.value === 'trap' && st.L2 > 3000) st.L2 = 1500; st.H = e.target.value === 'trap' && !st.L2 ? 1000 : Math.max(st.H, 1100); } teken(); });
 for (const k of ['cat', 'tussenruimte', 'afstand', 'glas']) $(k).addEventListener('change', () => { st[k] = k === 'tussenruimte' ? +$(k).value : k === 'afstand' && $(k).value !== 'auto' ? +$(k).value : $(k).value; teken(); });
 $('hoog').addEventListener('change', () => { st.valhoogte = $('hoog').checked ? 12 : 3; if ($('hoog').checked && st.H < 1200) st.H = 1200; teken(); });
@@ -357,14 +367,25 @@ function teken() {
   const S = SOORTEN[st.soort], sty = STIJL(st.soort, st.stijl);
   document.body.dataset.soort = st.soort;
   const o = ontwerp(st), k = o.k, B = berekening(o), kp = kostprijs(o, inst), mb = MARKTBAND[st.soort];
-  Object.assign(st, { L1: k.L1, L2: k.L2, L3: k.L3, H: k.H, hoek: k.hoek, optrede: k.optrede, aantrede: k.aantrede });
+  Object.assign(st, { L1: k.L1, L2: k.L2, L3: k.L3, H: k.H, hoek: k.hoek, optrede: k.optrede, aantrede: k.aantrede, dakBegin: k.dakBegin, dakEind: k.dakEind }, Object.fromEntries(DAKV.map((x) => [x, k[x]])));
   document.querySelectorAll('[data-soort]').forEach((x) => x.setAttribute('aria-pressed', x.dataset.soort === st.soort));
   document.querySelectorAll('[data-stijl]').forEach((x) => x.setAttribute('aria-pressed', x.dataset.stijl === sty.id));
   $('b-eyebrow').textContent = `${S.kort} · ${S.stijlen.length} stijlen`; $('b-titel').textContent = S.naam; $('b-tekst').textContent = S.uitleg;
   $('b-markt').textContent = `${eur0(mb.laag)} – ${eur0(mb.hoog)}`; $('b-markt2').textContent = `zonder plaatsen; geplaatst ${eur0(mb.laagPl)} – ${eur0(mb.hoogPl)}`;
   $('nr').textContent = `${sty.id} · ${S.kort}`; $('naam').textContent = sty.naam; $('uitleg').textContent = sty.uitleg;
   // velden
-  for (const id of ['L1', 'L2', 'L3', 'H', 'hoek', 'optrede', 'aantrede']) $(id).value = k[id];
+  for (const id of ['L1', 'L2', 'L3', 'H', 'hoek', 'optrede', 'aantrede', ...DAKV]) $(id).value = k[id];
+  // onder een schuin dak: per uiteinde de lengte van het schuine stuk en of het past
+  for (const [id, kant] of [['dakBegin', 'begin'], ['dakEind', 'eind']]) {
+    const kan = k.vorm !== 'trap' || (kant === 'eind' && k.L2 > 0);
+    $(id).checked = !!k[id]; $(id).disabled = !kan; $(`v-${id}`).hidden = !k[id];
+    const e = o.dak.find((x) => x.kant === kant), i = $(`i-${id}`), lijn = kant === 'begin' ? (k.vorm === 'recht' ? 'de lijn' : 'lijn 1') : k.vorm === 'recht' ? 'de lijn' : `lijn ${o.segs.length}`;
+    i.className = 'info dakinfo';
+    if (!kan) i.textContent = kant === 'begin' ? 'Langs een trap kan alleen het einde (de vide na de trap) onder het dak liggen.' : 'Kies eerst een vide na de trap.';
+    else if (!e) i.textContent = `Het ${kant === 'begin' ? 'begin' : 'einde'} van ${lijn} ligt onder een schuin dak? Zet het aan.`;
+    else if (!e.nodig) i.textContent = `Het dak staat aan de muur al hoog genoeg: geen afschuining nodig.`;
+    else { const rood = !e.past || e.top0 < NORM.dakWand.v; if (rood) i.classList.add('rood'); i.innerHTML = `Schuin stuk <b>${g(e.xs)} mm</b> horizontaal (op ${lijn}, ${g(o.segs[e.seg].Lh)} mm), bovenaan ${g(e.top0)} mm aan de muur${e.muurplaat ? ', muurplaat in plaats van een staander' : ''}.${!e.past ? ` Past niet: er is maar ${g(Math.max(0, e.beschikbaar))} mm.` : ''}${e.top0 < NORM.dakWand.v ? ` Te laag aan de muur (< ${NORM.dakWand.v} mm).` : ''}`; }
+  }
   $('v-L2').hidden = k.vorm === 'recht'; $('v-L3').hidden = k.vorm !== 'u'; $('v-hoek').hidden = !['hoek', 'u'].includes(k.vorm); $('v-optrede').hidden = $('v-aantrede').hidden = k.vorm !== 'trap';
   $('l-L1').textContent = k.vorm === 'trap' ? 'Trap, horizontaal (mm)' : k.vorm === 'recht' ? 'Lengte (mm)' : 'Lengte 1 (mm)'; $('l-L2').textContent = k.vorm === 'trap' ? 'Vide erna (mm, 0 = geen)' : 'Lengte 2 (mm)';
   $('i-lijn').textContent = k.vorm === 'trap' ? `${o.treden} treden, helling ${g((Math.atan(k.optrede / k.aantrede) * 180) / Math.PI, 1)}°; hoogte verticaal boven de trapneus (≥ ${NORM.hoogteTrap.v}); met een vide erna geldt ${NORM.hoogte.v} over de hele lijn.` : `Samen ${g(o.lengte / 1000, 2)} m${o.hoeken ? `, ${o.hoeken} hoek${o.hoeken > 1 ? 'en' : ''} van ${k.hoek}°` : ''}. Hoogte ≥ ${o.vereist} mm.`;
@@ -393,9 +414,9 @@ function teken() {
   $('m-band').style.left = pct(mb.laag); $('m-band').style.width = `calc(${pct(mb.hoog)} - ${pct(mb.laag)})`; $('m-pin').style.left = pct(zonder); $('m-max').textContent = `${eur0(top)}/m`;
   const binnen = zonder <= mb.hoog;
   $('m-chip').className = `chip ${binnen ? 'goed' : 'hoog'}`; $('m-chip').textContent = binnen ? `Binnen de markt (${eur0(mb.laag)}–${eur0(mb.hoog)}/m zonder plaatsen)` : `${eur0(zonder - mb.hoog)}/m boven de markt: de toeslagen (hoeken, trap, buiten) of een dure stijl`;
-  $('p-opbouw').innerHTML = Object.entries(kp.perCat).filter(([c, x]) => x.verkoop > 0.5).map(([c, x]) => `<div><span>${esc(CAT[c])}${c === 'plaatsen' && !kp.plaatsen.inbegrepen ? ' (apart)' : ''}</span><span>${c === 'plaatsen' && !kp.plaatsen.inbegrepen ? '+ ' : ''}${eur0(x.verkoop * btw / kp.meter)}/m</span></div>`).join('');
+  $('p-opbouw').innerHTML = Object.entries(kp.perCat).filter(([c, x]) => x.verkoop > 0.5).map(([c, x]) => `<div><span>${esc(CAT[c])}${c === 'dak' ? ` (${o.dakKnikken} x)` : ''}${c === 'plaatsen' && !kp.plaatsen.inbegrepen ? ' (apart)' : ''}</span><span>${c === 'plaatsen' && !kp.plaatsen.inbegrepen ? '+ ' : ''}${eur0(x.verkoop * btw / kp.meter)}/m</span></div>`).join('');
   $('tekening').innerHTML = beeld(vooraanzichtBlad(o), 'Vooraanzicht');
-  $('maten').innerHTML = [`${o.segs.map((s) => Math.round(s.Lh)).join(' + ')} mm`, `H ${k.H}`, o.staander ? `${PROFIEL[o.staander.prof].naam} om de ${Math.round(o.afstand)}` : `U-profiel, ${o.glas.opbouw}`, k.plaats === 'buiten' ? 'verzinkt + poedercoat' : 'poedercoat'].map((x) => `<span>${esc(x)}</span>`).join('');
+  $('maten').innerHTML = [`${o.segs.map((s) => Math.round(s.Lh)).join(' + ')} mm`, `H ${k.H}`, ...o.dak.filter((e) => e.nodig).map((e) => `${e.kant === 'begin' ? 'begin' : 'einde'} onder het dak ${e.hoek}°, schuin ${Math.round(e.xs)}`), o.staander ? `${PROFIEL[o.staander.prof].naam} om de ${Math.round(o.afstand)}` : `U-profiel, ${o.glas.opbouw}`, k.plaats === 'buiten' ? 'verzinkt + poedercoat' : 'poedercoat'].map((x) => `<span>${esc(x)}</span>`).join('');
   huidig = { o, B, kp, meta: { nr: `BA-${sty.id}`, datum: new Date().toISOString().slice(0, 10) } };
   werkVuil = true; if (pagina === 'werkplaats') tekenWerk();
   if (v3d) v3d.toon(o, { ral: k.ral, lak: k.lak, glasTint: k.glasTint });
@@ -403,11 +424,13 @@ function teken() {
 }
 /** klantvooraanzicht: enkel de balustrade met de hoofdmaten, zonder werkplaatsgegevens */
 function vooraanzichtBlad(o) {
-  const tot = o.segs.reduce((t, s) => t + s.Lh, 0), zMax = Math.max(...o.delen.map((d) => Math.max(d.a[2], d.b[2]))), zMin = Math.min(0, ...o.delen.map((d) => Math.min(d.a[2], d.b[2])));
+  const tot = o.segs.reduce((t, s) => t + s.Lh, 0), zMax = Math.max(k0(o), ...o.delen.map((d) => Math.max(d.a[2], d.b[2]))), zMin = Math.min(0, ...o.delen.map((d) => Math.min(d.a[2], d.b[2])));
   const W = 400, s = Math.min((W - 40) / tot, 200 / (zMax - zMin + 200)), H = (zMax - zMin) * s + 60;
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${f2(H)}" width="${W}mm" height="${f2(H)}mm" font-family="Arial, Helvetica, sans-serif"><rect width="${W}" height="${f2(H)}" fill="#fff"/>${vooraanzicht(o, s, 22, 16 + zMax * s, { h: 3 })}</svg>`;
 }
 const f2 = (v) => Math.round(v * 100) / 100;
+/** hoogste punt van de daklijn in het vooraanzicht */
+const k0 = (o) => Math.max(0, ...o.dak.filter((e) => e.nodig).map((e) => o.k.H + 200));
 
 // ---------- werkplaats
 let werkVuil = true, montageId = 'voet', mb = [];
@@ -467,8 +490,8 @@ $('herstel').addEventListener('click', () => v3d?.herstel());
 $('foto').addEventListener('click', async () => { await klaar; if (!dl || !v3d) return; const url = v3d.beeld(), bin = atob(url.split(',')[1]), u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); try { await dl.save({ filename: `balustrade-${st.soort}-${st.stijl}.jpg`, data: new Blob([u], { type: 'image/jpeg' }) }); } catch {} });
 
 // ---------- instellingen
-const TARIEF = [['uurloon', 'Uurloon', '€/u', () => inst.uurloon, (v) => { inst.uurloon = v; }], ...Object.keys(SOORTEN).map((s) => [`marge.${s}`, `Marge ${SOORTEN[s].kort.toLowerCase()}`, '%', () => inst.marge[s], (v) => { inst.marge[s] = v; }]), ['staal', 'Staalprijs', '€/kg', () => inst.staal, (v) => { inst.staal = v; }], ['verzinken', 'Thermisch verzinken', '€/kg', () => inst.verzinken, (v) => { inst.verzinken = v; }], ['coat', 'Poedercoaten', '€/m² staal', () => inst.coat, (v) => { inst.coat = v; }], ['plaatsenPerM', 'Plaatsen', 'uur per meter', () => inst.plaatsenPerM, (v) => { inst.plaatsenPerM = v; }]];
-const UUR_LABEL = { voorbereiden: ['Voorbereiden', 'per opdracht'], zaagPerStuk: ['Zagen', 'per stuk'], voetplaat: ['Staander op voetplaat', 'per staander'], console: ['Staander met console', 'per staander'], regel: ['Regel lassen', 'per regel'], spijl: ['Spijl lassen', 'per spijl'], staaf: ['Horizontale staaf', 'per staaf'], plaat: ['Plaat of plint', 'per plaat'], handregelPerM: ['Handregel lassen', 'per meter'], verstek: ['Verstek (hoek, knik)', 'per verstek'], trapMal: ['Trap uitzetten', 'per trap'], trapFactor: ['Trap: extra op schuine stukken', 'deel'], klemgat: ['Gat + klinkmoer', 'per klem'], uprofiel: ['U-profiel op maat', 'per stuk'], coatKlaar: ['Naar de coater', 'per opdracht'], plaatsenPerM: ['(zie Tarief)', ''], glasPerPlaat: ['Glas plaatsen', 'per plaat'], zijFactor: ['Zijmontage: extra op plaatsen', 'deel'] };
+const TARIEF = [['uurloon', 'Uurloon', '€/u', () => inst.uurloon, (v) => { inst.uurloon = v; }], ...Object.keys(SOORTEN).map((s) => [`marge.${s}`, `Marge ${SOORTEN[s].kort.toLowerCase()}`, '%', () => inst.marge[s], (v) => { inst.marge[s] = v; }]), ['staal', 'Staalprijs', '€/kg', () => inst.staal, (v) => { inst.staal = v; }], ['verzinken', 'Thermisch verzinken', '€/kg', () => inst.verzinken, (v) => { inst.verzinken = v; }], ['coat', 'Poedercoaten', '€/m² staal', () => inst.coat, (v) => { inst.coat = v; }], ['plaatsenPerM', 'Plaatsen', 'uur per meter', () => inst.plaatsenPerM, (v) => { inst.plaatsenPerM = v; }], ['vormglas', 'Vormglas (schuine kant)', '% op de rechthoek', () => inst.vormglas, (v) => { inst.vormglas = v; }]];
+const UUR_LABEL = { voorbereiden: ['Voorbereiden', 'per opdracht'], zaagPerStuk: ['Zagen', 'per stuk'], voetplaat: ['Staander op voetplaat', 'per staander'], console: ['Staander met console', 'per staander'], regel: ['Regel lassen', 'per regel'], spijl: ['Spijl lassen', 'per spijl'], staaf: ['Horizontale staaf', 'per staaf'], plaat: ['Plaat of plint', 'per plaat'], handregelPerM: ['Handregel lassen', 'per meter'], verstek: ['Verstek (hoek, knik)', 'per verstek'], trapMal: ['Trap uitzetten', 'per trap'], trapFactor: ['Trap: extra op schuine stukken', 'deel'], klemgat: ['Gat + klinkmoer', 'per klem'], uprofiel: ['U-profiel op maat', 'per stuk'], coatKlaar: ['Naar de coater', 'per opdracht'], plaatsenPerM: ['(zie Tarief)', ''], glasPerPlaat: ['Glas plaatsen', 'per plaat'], zijFactor: ['Zijmontage: extra op plaatsen', 'deel'], dakKnik: ['Onder het dak: knik en mal', 'per afschuining'], dakStuk: ['Onder het dak: schuin stuk', 'per stuk'], muurplaat: ['Muurplaat passen en lassen', 'per plaat'], dakPlaatsen: ['Onder het dak: meten en stellen', 'per afschuining'] };
 $('i-tarief').innerHTML = `<tbody>${TARIEF.map(([k, n, e]) => `<tr><td>${esc(n)}</td><td class="uitl">${esc(e)}</td><td class="n"><input type="number" step="0.01" min="0" data-t="${k}" id="t-${k.replace('.', '-')}"></td></tr>`).join('')}</tbody>`;
 $('i-uren').innerHTML = `<thead><tr><th>Handeling</th><th>Per</th><th>Uur</th></tr></thead><tbody>${Object.keys(UREN).filter((k) => k !== 'plaatsenPerM').map((k) => `<tr><td>${esc(UUR_LABEL[k]?.[0] ?? k)}</td><td class="uitl">${esc(UUR_LABEL[k]?.[1] ?? '')}</td><td class="n"><input type="number" step="0.01" min="0" data-u="${k}" id="u-${k}"></td></tr>`).join('')}</tbody>`;
 $('i-glas').innerHTML = `<thead><tr><th>Glas</th><th>Webshop</th><th>Jouw prijs</th></tr></thead><tbody>${Object.entries(GLASOPBOUW).map(([k, x]) => `<tr><td>${esc(x.naam)}<br><small class="uitl">${esc(x.bron)}</small></td><td class="n">${eur(x.webshop)}</td><td class="n"><input type="number" step="0.01" min="0" data-g="${k}" id="g-${k.replace('.', '-')}"></td></tr>`).join('')}</tbody>`;

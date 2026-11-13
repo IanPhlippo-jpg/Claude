@@ -3,6 +3,9 @@
 Gevraagd door Ian op 2026-11-13: "Ik zou graag ook balustrades maken, maak me nu een configurator waar ik dit kan
 maken als de taatsdeuren."
 
+Bijgevraagd door Ian op 2026-11-13: "Ik zou ook voor onder schuine daken afschuiningen moeten kunnen toevoegen aan de
+uiteinden van de balustrade."
+
 ## Keuzes van Ian (vragenronde 2026-11-13)
 - **Soorten (alle vier):**
   1. staal met verticale spijlen (boven- en onderregel, gelast, poedercoat RAL);
@@ -130,6 +133,32 @@ De echte ankers reken je na met fischer FIXPERIENCE.
 - Gehard glas komt met geslepen kanten (in de m²-prijs, AANNAME).
 - Het glas is aangerekend aan de handelsprijs: SCHATTING tussen de webshopprijs en werkspot, instelbaar.
 - Plaatsen: 1,5 uur per meter, met 0,4 uur per glasplaat erbij.
+
+**Onder een schuin dak (afschuining, 2026-11-13)**
+- Invoer per uiteinde: aan/uit, dakhelling 15-60° (standaard 45), hoogte onder het dak aan de muur (0-2500 mm,
+  standaard 600), spleet loodrecht op het dak (10-150 mm, standaard 40).
+- Het schuine stuk: xs = (H + spleet / cos θ − hmuur) / tan θ (de bovenkant van de handregel bereikt H). De knik ligt op
+  het hart van de handregel; daar komt een staander (als er plaats is). Tussen de knik en het andere einde, de hoek of
+  de andere knik blijft minstens 150 mm vlak (AANNAME); anders rood, en het model maakt het schuine stuk korter en
+  steiler zodat je ziet dat het niet past.
+- Bij hoek en U: begin = de eerste lijn, einde = de laatste lijn. Langs een trap alleen het einde (de vide na de trap):
+  een dak laag boven het begin van een trap is zeldzaam, en een schuine handregel boven een schuine trap zou een
+  dubbele knik vragen.
+- Eindstaander tegen het knieschot: met de voetplaat uit de muur (hart op voetplaat / 2 + 5 mm; opening ≤ 110).
+  Bovenkant aan de muur lager dan 300 mm: geen staander maar een muurplaat 80 x h x 8 met 2 ankers M10 (AANNAME);
+  lager dan 150 mm: rood (er is geen plaats meer voor een onderregel, vulling en handregel).
+- Spijlen: ingekort tot onder de schuine handregel, bovenaan schuin; in een schuin veld geen bovenregel (die zou bij
+  een lage muur onder de onderregel komen). Staven: van de hoge staander tot tegen de handregel, daar schuin gezaagd
+  (90° − θ). Plint en platen: schuin gelaserd.
+- Glas met staanders: trapezium (vijfhoek als de knik in het paneel valt); 2 klemmen per kant vanaf 360 mm, daaronder
+  1 klem in het midden, lager dan 50 mm geen klem (oranje). Glas in U-profiel: voeg op de knik, U-handregel met een
+  verbinder MOD 6790 op elke knik.
+- Normen (AANNAMES, geen bron gevonden bij Buildwise of de Nederlandse Bbl): opening tussen dak en balustrade =
+  spleet + 10 mm tolerantie ≤ 110 mm; spleet ≥ 20 mm (het dak werkt); lager dan H alleen waar het dak lager is dan
+  H + 110 mm; muurankers in het knieschot met 50 % van de afschuifweerstand in beton.
+- Prijs: aparte toeslag "Afschuining onder het dak" met 0,8 u per afschuining (helling uitzetten, knik), 0,05 u per
+  schuin stuk, 0,5 u per muurplaat, de muurplaat en de ankers, en vormglas (omschreven rechthoek + 15 %, SCHATTING,
+  instelbaar). Op de werf 0,5 u per afschuining bij het plaatsen.
 
 **Marktband glas in U-profiel**
 

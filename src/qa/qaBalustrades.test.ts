@@ -131,3 +131,162 @@ describe('veiligheid', () => {
     for (const d of sp) { expect(d.a[0]).toBeCloseTo(d.b[0], 6); expect(d.zaag?.[0]).toBeCloseTo(hel, 6); }
   });
 });
+
+// ---------------------------------------------------------------- onder een schuin dak (afschuining begin / einde)
+/** onderkant, hart en bovenkant van de handregel op t (lineair binnen het stuk), uit de stukken zelf */
+const hartOp = (o: Ontwerp, seg: number, t: number) => {
+  const s = o.segs[seg], hr = o.delen.filter((d) => d.rol === 'handregel' && d.seg === seg);
+  const proj = (p: number[]) => (p[0] - s.p0[0]) * s.d[0] + (p[1] - s.p0[1]) * s.d[1];
+  const hrH = o.k.hr === 'rond' ? 42.4 : o.k.hr === 'plat' ? 8 : 0;
+  for (const d of hr) {
+    const ta = proj(d.a), tb = proj(d.b);
+    if (t >= Math.min(ta, tb) - 0.01 && t <= Math.max(ta, tb) + 0.01) {
+      const f = (t - ta) / (tb - ta || 1), z = d.a[2] + (d.b[2] - d.a[2]) * f, hel = Math.atan2(Math.abs(d.b[2] - d.a[2]), Math.abs(tb - ta));
+      // de bovenkant: het schuine stuk wordt op de knik door het verstek afgesneden (buitenhoek op H)
+      return { hart: z, onder: z - hrH / 2 / Math.cos(hel), boven: Math.min(o.k.H, z + hrH / 2 / Math.cos(hel)) };
+    }
+  }
+  return null;
+};
+const dakRooster: { naam: string; k: Record<string, unknown> }[] = [];
+for (const soort of Object.keys(SOORTEN)) for (const [kant, aan] of Object.entries({ begin: { dakBegin: true }, eind: { dakEind: true }, beide: { dakBegin: true, dakEind: true } }))
+  for (const [vorm, v] of Object.entries({ recht: { vorm: 'recht', L1: 5000 }, hoek: { vorm: 'hoek', L1: 4000, L2: 3000, hoek: 90 }, u: { vorm: 'u', L1: 3000, L2: 3000, L3: 3000 } })) for (const helling of [15, 45, 60]) {
+    if (helling === 15 && vorm !== 'hoek') continue; // 15°: schuin stuk ± 2 m, alleen met lange lijnen
+    const k: Record<string, unknown> = { soort, ...v, ...aan, dakBeginHelling: helling, dakEindHelling: helling, dakBeginMuur: 600, dakEindMuur: 800, ...(helling === 15 ? { L1: 6000, L2: 6000 } : {}) };
+    dakRooster.push({ naam: `${soort} ${kant} ${vorm} ${helling}°`, k });
+  }
+for (const soort of Object.keys(SOORTEN)) for (const st of SOORTEN[soort].stijlen.slice(1)) dakRooster.push({ naam: `${soort} ${st.id} beide 45° zij`, k: { soort, stijl: st.id, L1: 5000, dakBegin: true, dakEind: true, bevestiging: 'zij', vloerdikte: 300 } });
+
+describe('onder een schuin dak: model, normen, stuklijst, prijs, tekeningen', () => {
+  it(`${dakRooster.length} combinaties`, () => expect(dakRooster.length).toBeGreaterThan(70));
+  for (const { naam, k } of dakRooster) it(naam, () => {
+    const o = ontwerp(k), B = berekening(o);
+    expect(eindig(o), 'NaN in de geometrie').toBe(true);
+    expect(o.dak.filter((e) => e.nodig).length).toBe((k.dakBegin ? 1 : 0) + (k.dakEind ? 1 : 0));
+    for (const e of o.dak) {
+      expect(e.past, `${e.kant} past`).toBe(true);
+      const s = o.segs[e.seg], th = (e.hoek * Math.PI) / 180;
+      // lengte van het schuine stuk: daar bereikt het dak H + spleet
+      expect(e.muur + e.xs * Math.tan(th) - e.spleet / Math.cos(th)).toBeCloseTo(o.k.H, 3);
+      // de bovenkant van de handregel volgt het dak met de spleet en komt nergens in het dak (zonder handregel: het glas)
+      if (o.k.hr === 'geen') {
+        for (const p of o.panelen.filter((q) => q.seg === e.seg)) for (const q of p.pts) { const t = (q[0] - s.p0[0]) * s.d[0] + (q[1] - s.p0[1]) * s.d[1], x = e.kant === 'begin' ? t : s.Lh - t; expect(q[2], `glas op x = ${Math.round(x)}`).toBeLessThanOrEqual(Math.min(o.k.H, e.muur + x * Math.tan(th) - e.spleet / Math.cos(th)) + 0.6); }
+        continue;
+      }
+      for (let x = 0; x <= Math.min(e.xs + 400, s.Lh); x += 25) {
+        const t = e.kant === 'begin' ? x : s.Lh - x, hr = hartOp(o, e.seg, t);
+        expect(hr, `handregel op ${t}`).not.toBeNull();
+        const dak = e.muur + x * Math.tan(th);
+        expect(hr!.boven, `bovenkant op x = ${x}`).toBeLessThanOrEqual(dak - e.spleet / Math.cos(th) + 0.6);
+        expect(hr!.boven).toBeLessThanOrEqual(o.k.H + 0.01);
+        if (x <= e.xs - 30) expect(dak - e.spleet / Math.cos(th) - hr!.boven, `spleet op x = ${x}`).toBeLessThan(15);
+      }
+      // de handregel is één lijn: de stukken sluiten en de horizontale lengtes vormen de lijn
+      const hr = o.delen.filter((d) => d.rol === 'handregel' && d.seg === e.seg);
+      expect(hr.length).toBeGreaterThanOrEqual(2);
+      expect(hr.reduce((t, d) => t + Math.hypot(d.b[0] - d.a[0], d.b[1] - d.a[1]), 0)).toBeCloseTo(s.Lh, 3);
+      for (let i = 1; i < hr.length; i++) for (let j = 0; j < 3; j++) expect(hr[i].a[j]).toBeCloseTo(hr[i - 1].b[j], 3);
+      // het schuine stuk: verstek op de knik (de helft van de helling), schuin tegen de muur
+      const schuin = hr.find((d) => d.dak);
+      expect(schuin, 'schuin stuk').toBeDefined();
+      expect(schuin!.zaag).toContain(Math.round(((e.thE * 180) / Math.PI) * 10) / 10);
+    }
+    // spijlen, staanders, staven en regels blijven onder de handregel (geen stuk door de regel)
+    for (const d of o.delen.filter((x) => ['spijl', 'staander', 'staaf', 'bovenregel'].includes(x.rol))) {
+      const s = o.segs[d.seg], t = (d.b[0] - s.p0[0]) * s.d[0] + (d.b[1] - s.p0[1]) * s.d[1], hr = hartOp(o, d.seg, t);
+      if (!hr) continue;
+      expect(Math.max(d.a[2], d.b[2]), `${d.rol} op ${Math.round(t)}`).toBeLessThanOrEqual(hr.onder + 0.6);
+    }
+    for (const p of o.panelen) for (const q of p.pts) {
+      const s = o.segs[p.seg], t = (q[0] - s.p0[0]) * s.d[0] + (q[1] - s.p0[1]) * s.d[1], hr = hartOp(o, p.seg, t);
+      if (!hr) continue;
+      if (o.k.soort === 'glasU') expect(q[2], `glas op ${Math.round(t)}`).toBeLessThanOrEqual(hr.boven + 0.6);
+      else expect(q[2], `${p.rol} op ${Math.round(t)}`).toBeLessThanOrEqual(hr.onder + 0.6);
+    }
+    // openingen, hoogte en berekening
+    for (const op of o.openingen) if (!op.klim) expect(op.mm, op.wat).toBeLessThanOrEqual(op.max);
+    expect(B.controles.filter((c) => c.groep.startsWith('Onder het dak')).length).toBeGreaterThanOrEqual(4 * o.dak.length);
+    expect(B.controles.filter((c) => c.groep.startsWith('Onder het dak') && c.oordeel === 'rood').map((c) => c.wat)).toEqual([]);
+    if (berekening(ontwerp({ ...k, dakBegin: false, dakEind: false })).oordeel !== 'rood') expect(B.oordeel, B.controles.filter((c) => c.oordeel === 'rood').map((c) => c.wat).join('; ')).not.toBe('rood');
+    // stuklijst: alle stukken geteld; vormglas
+    const sl = stuklijst(o);
+    for (const rol of ['spijl', 'staaf', 'staander', 'handregel']) expect(sl.posities.filter((p) => p.rol === rol && p.soort === 'staaf').reduce((t, p) => t + p.n, 0), rol).toBe(o.delen.filter((d) => d.rol === rol && d.prof !== 'koop').length);
+    for (const p of sl.posities) { expect(p.n).toBeGreaterThan(0); expect(Number.isFinite(p.kg) && p.kg > 0, `${p.naam} kg`).toBe(true); }
+    if (o.glas) expect(sl.posities.some((p) => p.soort === 'glas' && p.vorm), 'vormglas').toBe(true);
+    for (const pr of zaagplan(o).profielen) for (const st of pr.staven) expect(st.stukken.reduce((t, x) => t + x.l, 0)).toBeLessThanOrEqual(pr.lengte);
+    // prijs: de toeslag apart
+    const kp = kostprijs(o), zonder = kostprijs(ontwerp({ ...k, dakBegin: false, dakEind: false }));
+    expect(kp.perCat.dak.verkoop).toBeGreaterThan(0);
+    expect(kp.regels.some((r) => r.cat === 'dak') || kp.stappen.some((s: { cats: Record<string, number> }) => s.cats.dak > 0)).toBe(true);
+    expect(Number.isFinite(kp.perMeter) && kp.perMeter > 0).toBe(true);
+    expect(kp.uren).toBeGreaterThan(zonder.uren);
+    // tekeningen: geen NaN, het dak in het vooraanzicht, de glasbestelling met de schuine maten
+    const bl = alleBladen(o, { nr: 'BA-T', datum: '2026-11-13' });
+    for (const b of bl) expect(geenNaN(b.svg), `blad ${b.id}`).toBe(true);
+    expect(bl.find((b) => b.id === 'overzicht')!.svg).toContain('#7a5a2e');
+    if (o.glas) expect(bl.find((b) => b.id === 'bestel')!.svg).toContain('Glasbestelling');
+    for (const b of stukBladen(o, { nr: 'BA' })) expect(geenNaN(b.svg), `stuk ${b.pos}`).toBe(true);
+    for (const b of montageBladen(o, { nr: 'BA-T' })) {
+      expect(geenNaN(b.svg), `montage ${b.id}`).toBe(true);
+      for (const d of b.scène.delen) for (const s of d.solids) for (const v of vlakken(s) as { pts: number[][] }[]) expect(v.pts.flat().every(Number.isFinite)).toBe(true);
+    }
+    expect(geenNaN(dossierHtml(o, {}, { nr: 'BA', datum: '2026-11-13' }))).toBe(true);
+  });
+});
+
+describe('onder een schuin dak: randgevallen', () => {
+  it('te lang schuin stuk: rood met uitleg, toch een geldig model', () => {
+    const o = ontwerp({ soort: 'spijlen', L1: 1500, dakBegin: true, dakEind: true, dakBeginMuur: 300, dakEindMuur: 300 }), B = berekening(o);
+    expect(o.dak.every((e) => !e.past)).toBe(true);
+    expect(eindig(o)).toBe(true);
+    expect(B.oordeel).toBe('rood');
+    expect(B.controles.some((c) => /past in de lijn/.test(c.wat) && c.oordeel === 'rood' && !!c.uitleg)).toBe(true);
+    for (const b of alleBladen(o, {})) expect(geenNaN(b.svg)).toBe(true);
+  });
+  it('lage muur (bovenkant < 300 mm): muurplaat met 2 ankers in plaats van een eindstaander', () => {
+    const o = ontwerp({ soort: 'spijlen', L1: 4000, dakBegin: true, dakBeginMuur: 300, dakBeginHelling: 45 });
+    expect(o.dak[0].muurplaat).toBe(true);
+    expect(o.platen.filter((p) => p.rol === 'muurplaat').length).toBe(1);
+    expect(o.muurAnkers.length).toBe(2);
+    expect(o.staanders.some((s) => s.t < 40)).toBe(false);
+    expect(berekening(o).controles.some((c) => /Muurplaat/.test(c.wat))).toBe(true);
+    expect(stuklijst(o).posities.some((p) => p.rol === 'muurplaat')).toBe(true);
+    expect(stuklijst(o).koop.some((x) => (x as { cat?: string }).cat === 'dak')).toBe(true);
+  });
+  it('heel lage muur (bovenkant < 150 mm): rood', () => {
+    const o = ontwerp({ soort: 'glasstaal', L1: 4000, dakEind: true, dakEindMuur: 120, dakEindHelling: 45 }), B = berekening(o);
+    expect(B.controles.some((c) => /aan de muur/.test(c.wat) && c.oordeel === 'rood')).toBe(true);
+    expect(eindig(o)).toBe(true);
+    for (const b of alleBladen(o, {})) expect(geenNaN(b.svg)).toBe(true);
+  });
+  it('15° geeft een lang schuin stuk, 60° een kort', () => {
+    const a = ontwerp({ L1: 6000, dakBegin: true, dakBeginHelling: 15, dakBeginMuur: 600 }).dak[0], b = ontwerp({ L1: 6000, dakBegin: true, dakBeginHelling: 60, dakBeginMuur: 600 }).dak[0];
+    expect(a.xs).toBeGreaterThan(1900); expect(b.xs).toBeLessThan(400);
+    expect(a.past && b.past).toBe(true);
+  });
+  it('spleet + 10 mm groter dan 110 mm is rood, kleiner dan 20 mm oranje', () => {
+    expect(berekening(ontwerp({ dakBegin: true, dakBeginSpleet: 110 })).controles.some((c) => /Opening tussen het dak/.test(c.wat) && c.oordeel === 'rood')).toBe(true);
+    expect(berekening(ontwerp({ dakBegin: true, dakBeginSpleet: 15 })).controles.some((c) => /Opening tussen het dak/.test(c.wat) && c.oordeel === 'oranje')).toBe(true);
+  });
+  it('dak hoog genoeg aan de muur: geen afschuining', () => {
+    const o = ontwerp({ dakBegin: true, dakBeginMuur: 1400 });
+    expect(o.dak[0].nodig).toBe(false);
+    expect(o.delen.filter((d) => d.rol === 'handregel').length).toBe(1);
+  });
+  it('trap: het begin kan niet, het einde (vide) wel', () => {
+    const o = ontwerp({ vorm: 'trap', L1: 3000, L2: 2000, H: 1100, dakBegin: true, dakEind: true });
+    expect(o.k.dakBegin).toBe(false); expect(o.k.dakEind).toBe(true);
+    expect(o.meldingen.join(' ')).toMatch(/trap/);
+    expect(o.dak.length).toBe(1); expect(o.dak[0].seg).toBe(1);
+    expect(ontwerp({ vorm: 'trap', L1: 3000, L2: 0, H: 1000, dakEind: true }).k.dakEind).toBe(false);
+  });
+  it('glas in U-profiel: trapeziumglas, de U-handregel met een verbinder op elke knik', () => {
+    const o = ontwerp({ soort: 'glasU', L1: 5000, dakBegin: true, dakEind: true }), sl = stuklijst(o);
+    const tr = o.panelen.filter((p) => p.uv);
+    expect(tr.length).toBeGreaterThanOrEqual(2);
+    expect(tr.filter((p) => Math.abs(p.hA! - p.hB!) > 50).length).toBeGreaterThanOrEqual(2);
+    expect(sl.koop.find((x) => x.key === 'qrHandHoek' && (x as { cat?: string }).cat === 'dak')?.n).toBe(2);
+    const w = o.panelen.reduce((t, p) => t + p.w, 0);
+    expect(w + (o.panelen.length + 1) * 8).toBeCloseTo(o.segs[0].Lh, 3);
+  });
+});

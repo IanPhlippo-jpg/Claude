@@ -1407,3 +1407,11 @@ elease; README en docs/04 bijgewerkt
 - [x] Werkplaatsdocumenten: tekening per stuk, lasdetails, montage per verbinding, bestellijst, PDF
 - [x] Klantpagina en werkplaats (3D, RAL, prijs per meter met marktband), instellingen
 - [x] Tests, artifact, foto's, commit en push
+
+## Balustrades: afschuining aan de uiteinden onder een schuin dak (2026-11-13)
+- [x] Invoer per uiteinde (begin/eind): aan/uit, dakhelling, hoogte onder het dak aan de muur, spleet tot het dak
+- [x] Model: handregel en vulling volgen het dak (schuine staander/regel, ingekorte spijlen, glas met schuine kant)
+- [x] Veiligheid: opening tussen dak en balustrade ≤ 110 mm, volle hoogte waar het dak hoger is; berekening per stuk
+- [x] Stuklijst, zaagsneden (verstekhoeken), tekening per stuk, glasmaat met schuine kant, prijs (toeslag per afschuining)
+- [x] 3D met het dak getekend, klantpagina en werkplaats; tests uitbreiden
+- [x] Web en presentatie opnieuw maken, artifact bijwerken, foto's, commit en push

@@ -4,7 +4,7 @@
 // (ISO 5456-2), ISO 128 lijnen, ISO 129 maten, ISO 2768-m. Node en browser.
 import { PROFIEL, KOOP, ANKER, GLASOPBOUW, PATROON, SOORTEN } from './onderdelen.mjs';
 import { lengtes, hoogtes } from './model.mjs';
-import { stuklijst, zaagplan, ZAAGSNEDE, ROL } from './stuklijst.mjs';
+import { stuklijst, zaagplan, ZAAGSNEDE, ROL, schuineKant } from './stuklijst.mjs';
 import { berekening } from './bereken.mjs';
 import { NORM } from './normen.mjs';
 import { A3, A4L, svg, poly, lijn, tk, tabel, maat, titelblok, lasSymbool, eersteHoek, naamVan, maatTekst, g, f, esc } from './blad.mjs';
@@ -23,6 +23,33 @@ function uitslag(o) {
 }
 /** band rond een lijn in het vlak */
 function band(a, b, w) { const dx = b[0] - a[0], dy = b[1] - a[1], l = Math.hypot(dx, dy) || 1, n = [(-dy / l) * (w / 2), (dx / l) * (w / 2)]; return [[a[0] + n[0], a[1] + n[1]], [b[0] + n[0], b[1] + n[1]], [b[0] - n[0], b[1] - n[1]], [a[0] - n[0], a[1] - n[1]]]; }
+/** band van a naar b (model: u, z in mm) met breedte w, uiteinden op een schuin snijvlak (normaal in het model); papierpunten */
+function bandSnij(o, d, a, b, w, P) {
+  const s = o.segs[d.seg], du = b[0] - a[0], dz = b[1] - a[1], l = Math.hypot(du, dz) || 1, ax = [du / l, dz / l], pp = [-ax[1] * (w / 2), ax[0] * (w / 2)];
+  const vlak = (n) => (n ? [n[0] * s.d[0] + n[1] * s.d[1], n[2]] : null), nA = vlak(d.snijA), nB = vlak(d.snijB);
+  const op = (c, e, m) => { if (!m) return c; const mx = m[0] * ax[0] + m[1] * ax[1]; if (Math.abs(mx) < 0.05) return c; const lam = -(m[0] * (c[0] - e[0]) + m[1] * (c[1] - e[1])) / mx; return [c[0] + lam * ax[0], c[1] + lam * ax[1]]; };
+  return [op([a[0] + pp[0], a[1] + pp[1]], a, nA), op([b[0] + pp[0], b[1] + pp[1]], b, nB), op([b[0] - pp[0], b[1] - pp[1]], b, nB), op([a[0] - pp[0], a[1] - pp[1]], a, nA)].map(P);
+}
+/** de afschuiningen in het vooraanzicht: het dak (streepstippellijn), het knieschot (gearceerd) en de maten */
+function dakLijnen(o, X, Y, U, s, maten, h) {
+  const el = [];
+  for (const e of o.dak ?? []) {
+    if (!e.nodig) continue;
+    const sg = o.segs[e.seg], u0 = U[e.seg] + (e.kant === 'begin' ? 0 : sg.Lh), r = e.kant === 'begin' ? 1 : -1;
+    const xm = Math.min(sg.Lh, Math.max(e.xs + 300, (o.k.H + 180 - e.muur) / e.tn)), zm = e.muur + xm * e.tn;
+    el.push(lijn(X(u0), Y(e.muur), X(u0 + r * xm), Y(zm), 0.35, '#7a5a2e', '4 1.2 0.8 1.2'));
+    // knieschot: dikke lijn met arcering aan de buitenkant
+    el.push(lijn(X(u0), Y(0), X(u0), Y(e.muur), 0.5, '#555'));
+    for (let z = 40; z < e.muur; z += 70) el.push(lijn(X(u0), Y(z), X(u0) - r * 1.6, Y(z - 40), 0.13, '#777'));
+    const lx = X(u0 + r * xm * 0.55), lz = Y(e.muur + xm * 0.55 * e.tn) - 1.5;
+    el.push(tk(lx, lz, `dak ${g(e.hoek, 0)}°`, h * 0.85, { kleur: '#7a5a2e', anker: 'middle', draai: -r * e.hoek }));
+    if (maten) {
+      el.push(maat([X(u0), Y(0)], [X(u0), Y(e.muur)], -r * 7, `${e.muur}`, h * 0.85));
+      el.push(maat([X(u0), Y(o.k.H)], [X(u0 + r * e.xs), Y(o.k.H)], r * -13, `schuin ${Math.round(e.xs)}`, h * 0.85));
+    }
+  }
+  return el.join('');
+}
 const breedte = (d) => (d.prof === 'koop' ? (d.koop === 'qrHandregel' ? 42.4 : d.koop === 'handregeldrager' ? 20 : 110) : PROFIEL[d.prof].b);
 
 /** het vooraanzicht in een <g>: ox, oy = papierpunt van (u = 0, z = 0); s = schaal */
@@ -35,27 +62,28 @@ export function vooraanzicht(o, s, ox, oy, { maten = true, h = 2.4 } = {}) {
   for (const p of o.panelen) el.push(poly(p.pts.map((q) => P(naar(q, p.seg))), p.rol === 'glas' ? KL.glas : p.patroon === 'vlak' || p.rol === 'plint' ? '#9aa0a6' : 'url(#perfo)', 0.15));
   // platen
   for (const p of o.platen) {
-    const [u] = naar(p.p, p.seg);
-    el.push(`<rect x="${f(X(u - p.w / 2))}" y="${f(Y(p.z[1]))}" width="${f(p.w * s)}" height="${f((p.z[1] - p.z[0]) * s)}" fill="${KL.staal}" stroke="#111" stroke-width="0.12"/>`);
+    const [u] = naar(p.p, p.seg), pw = p.rol === 'muurplaat' ? p.t : p.w;
+    el.push(`<rect x="${f(X(u - pw / 2))}" y="${f(Y(p.z[1]))}" width="${f(pw * s)}" height="${f((p.z[1] - p.z[0]) * s)}" fill="${KL.staal}" stroke="#111" stroke-width="0.12"/>`);
   }
   // staven
   for (const d of o.delen) {
     const a = naar(d.a, d.seg), b = naar(d.b, d.seg), w = breedte(d);
     if (d.rol === 'afstandhouder') continue;
     const kleur = d.prof === 'koop' ? (d.rol === 'uprofiel' ? KL.alu : KL.inox) : PROFIEL[d.prof].koop ? KL.inox : KL.staal;
-    el.push(poly(band(P(a), P(b), w * s), kleur, 0.12));
+    el.push(poly(d.snijA || d.snijB ? bandSnij(o, d, a, b, w, P) : band(P(a), P(b), w * s), kleur, 0.12));
   }
   for (const kl of o.klemmen) { const [u, z] = naar(kl.p, kl.seg); el.push(`<rect x="${f(X(u + (kl.d[0] * o.segs[kl.seg].d[0] + kl.d[1] * o.segs[kl.seg].d[1] > 0 ? 0 : -40)))}" y="${f(Y(z + 25))}" width="${f(40 * s)}" height="${f(50 * s)}" fill="${KL.inox}" stroke="#111" stroke-width="0.12"/>`); }
   for (const an of o.ankers) { const [u, z] = naar(an.p, an.seg); if (!an.zij) el.push(lijn(X(u), Y(z), X(u), Y(z - 110), 0.18, '#b42318', '1 0.6')); }
+  el.push(dakLijnen(o, X, Y, U, s, maten, h));
   if (maten) {
     const H = o.k.H, z0 = Math.min(0, ...o.delen.map((d) => Math.min(d.a[2], d.b[2])));
     o.segs.forEach((sg, i) => { const a = P(naar(sg.punt(0), i)), b = P(naar(sg.punt(sg.Lh), i)); el.push(maat([a[0], Y(z0) + 2], [b[0], Y(z0) + 2], 5, `${Math.round(sg.Lh)}${sg.alfa ? ` (horizontaal; ${o.treden} treden ${o.k.optrede}/${o.k.aantrede})` : ''}`, h)); });
     if (o.segs.length > 1) el.push(maat([X(0), Y(z0) + 2], [X(totaal), Y(z0) + 2], 14, `${Math.round(totaal)} uitgeslagen`, h));
-    const sl = o.segs.at(-1), top = naar(sl.punt(sl.Lh), sl.i);
+    const sl = o.segs.at(-1), eB = o.dak?.find((e) => e.nodig && e.kant === 'eind'), top = naar(sl.punt(eB ? sl.Lh - eB.xkE : sl.Lh), sl.i);
     el.push(maat([X(top[0]), Y(top[1])], [X(top[0]), Y(top[1] + H)], 7, `H ${H}`, h));
     // staanderafstand van het eerste veld
     const s0 = o.segs[0];
-    if (s0.posten?.length > 1) { const a = naar(s0.punt(s0.posten[0]), 0), b = naar(s0.punt(s0.posten[1]), 0); el.push(maat([X(a[0]), Y(a[1] + H)], [X(b[0]), Y(b[1] + H)], -5, `${Math.round(s0.veld3)} h.o.h.`, h)); }
+    if (s0.posten?.length > 1) { let j = 0; for (let i = 1; i < s0.posten.length - 1; i++) if (s0.posten[i + 1] - s0.posten[i] > s0.posten[j + 1] - s0.posten[j] + 0.5) j = i; const a = naar(s0.punt(s0.posten[j]), 0), b = naar(s0.punt(s0.posten[j + 1]), 0); el.push(maat([X(a[0]), Y(a[1] + H)], [X(b[0]), Y(b[1] + H)], -5, `${Math.round((s0.posten[j + 1] - s0.posten[j]) / Math.cos(s0.alfa))} h.o.h.`, h)); }
   }
   return `<defs><pattern id="perfo" width="2" height="2" patternUnits="userSpaceOnUse"><rect width="2" height="2" fill="#9aa0a6"/><circle cx="1" cy="1" r="0.45" fill="#fff"/></pattern></defs>${el.join('')}`;
 }
@@ -75,6 +103,7 @@ export function bovenaanzicht(o, s, ox, oy, { maten = true, h = 2.2 } = {}) {
   for (const p of o.panelen.filter((x) => x.rol === 'glas')) el.push(poly(band(X(p.pts[0]), X(p.pts[1]), p.dikte * s * 1.5), KL.glas, 0.12));
   for (const d of o.delen.filter((x) => x.rol === 'staander')) { const P = PROFIEL[d.prof], c = X(d.a); el.push(P.vorm === 'buis' ? `<circle cx="${f(c[0])}" cy="${f(c[1])}" r="${f((P.b / 2) * s)}" fill="${KL.inox}" stroke="#111" stroke-width="0.15"/>` : `<rect x="${f(c[0] - (P.b / 2) * s)}" y="${f(c[1] - (P.h / 2) * s)}" width="${f(P.b * s)}" height="${f(P.h * s)}" fill="${KL.staal}" transform="rotate(${f((-Math.atan2(o.segs[d.seg].d[1], o.segs[d.seg].d[0]) * 180) / Math.PI)} ${f(c[0])} ${f(c[1])})"/>`); }
   for (const an of o.ankers) { const c = X(an.p); el.push(`<circle cx="${f(c[0])}" cy="${f(c[1])}" r="0.5" fill="#b42318"/>`); }
+  for (const e of (o.dak ?? []).filter((x) => x.nodig)) { const sg = o.segs[e.seg], t = e.kant === 'begin' ? 0 : sg.Lh, r = e.kant === 'begin' ? -1 : 1, p = sg.punt(t), a = X([p[0] + sg.N[0] * 600, p[1] + sg.N[1] * 600]), b = X([p[0] - sg.N[0] * 900, p[1] - sg.N[1] * 900]), q = X([p[0] + sg.d[0] * r * 60, p[1] + sg.d[1] * r * 60]); el.push(lijn(a[0], a[1], b[0], b[1], 0.7, '#555'), tk(q[0] + (q[0] - X(p)[0]) * 0.2, q[1] - 2, 'knieschot', h * 0.8, { kleur: '#555', anker: r < 0 ? 'end' : 'start' })); }
   if (maten) {
     o.segs.forEach((sg) => { const a = X(sg.punt(0)), b = X(sg.punt(sg.Lh)); el.push(maat(a, b, 7, `${Math.round(sg.Lh)}`, h)); });
     o.segs.forEach((sg, i) => { if (i && sg.draai) { const c = X(sg.p0); el.push(tk(c[0] + 3, c[1] - 3, `${o.k.hoek}°`, h, { vet: true })); } });
@@ -122,7 +151,7 @@ export function doorsnede(o, s, ox, oy, h = 2.1) {
 
 // ---------------------------------------------------------------- blad 1: overzicht A3
 export function overzichtBlad(o, meta = {}) {
-  const [W, H] = A3, el = [], { totaal } = uitslag(o), zMax = Math.max(...o.delen.map((d) => Math.max(d.a[2], d.b[2]))) + 60, zMin = Math.min(0, ...o.delen.map((d) => Math.min(d.a[2], d.b[2]))) - 40;
+  const [W, H] = A3, el = [], { totaal } = uitslag(o), zMax = Math.max(o.dakKnikken ? o.k.H + 260 : 0, ...o.delen.map((d) => Math.max(d.a[2], d.b[2]))) + 60, zMin = Math.min(0, ...o.delen.map((d) => Math.min(d.a[2], d.b[2]))) - 40;
   const sch = schaalVoor(Math.min(360 / totaal, 108 / (zMax - zMin))), s = 1 / sch;
   el.push(tk(26, 18, `Vooraanzicht, uitgeslagen (schaal 1:${sch}), gezien van de loopkant`, 3, { vet: true }));
   el.push(vooraanzicht(o, s, 36, 30 + zMax * s));
@@ -138,7 +167,7 @@ export function overzichtBlad(o, meta = {}) {
   el.push(doorsnede(o, s3, 206 + 270 * s3, y0 + 8 + (o.k.H + 40) * s3, 1.9));
   // gegevens rechts
   const B = berekening(o), op = o.openingen.filter((x) => !x.klim).map((x) => `${g(x.mm, 0)}`).join(' / ');
-  const gegevens = [['Soort', naamVan(o)], ['Plaats', `${o.k.plaats}${o.k.vorm === 'trap' ? ', trap' : ''}, cat. ${o.k.cat}`], ['Bevestiging', o.k.bevestiging === 'zij' ? 'zijmontage (vloerrand)' : 'bovenop de vloer'], ['Staander', o.staander ? `${PROFIEL[o.staander.prof].naam}, ${Math.round(o.afstand)} h.o.h.` : `U-profiel, anker / ${o.ankerAfstand}`], ['Hoogte', `${o.k.H} (norm ≥ ${o.vereist})`], ['Openingen mm', op.slice(0, 40)], ['Berekening', B.oordeel === 'groen' ? 'groen: voldoet' : B.oordeel === 'oranje' ? 'oranje: nakijken' : 'rood: voldoet niet'], ['Afwerking', o.k.plaats === 'buiten' ? 'verzinkt + poedercoat' : o.st?.staander === 'inox' ? 'inox geslepen' : 'poedercoat']];
+  const gegevens = [['Soort', naamVan(o)], ['Plaats', `${o.k.plaats}${o.k.vorm === 'trap' ? ', trap' : ''}, cat. ${o.k.cat}`], ['Bevestiging', o.k.bevestiging === 'zij' ? 'zijmontage (vloerrand)' : 'bovenop de vloer'], ['Staander', o.staander ? `${PROFIEL[o.staander.prof].naam}, ${Math.round(o.afstand)} h.o.h.` : `U-profiel, anker / ${o.ankerAfstand}`], ['Hoogte', `${o.k.H} (norm ≥ ${o.vereist})`], ['Openingen mm', op.slice(0, 40)], ['Berekening', B.oordeel === 'groen' ? 'groen: voldoet' : B.oordeel === 'oranje' ? 'oranje: nakijken' : 'rood: voldoet niet'], ['Afwerking', o.k.plaats === 'buiten' ? 'verzinkt + poedercoat' : o.st?.staander === 'inox' ? 'inox geslepen' : 'poedercoat'], ...(o.dakKnikken ? [['Onder het dak', o.dak.filter((e) => e.nodig).map((e) => `${e.kant === 'begin' ? 'begin' : 'einde'} ${g(e.hoek, 0)}°, muur ${e.muur}, schuin ${Math.round(e.xs)}`).join('; ').slice(0, 52)]] : [])];
   const [tt] = tabel(296, y0 - 2, [['Gegevens', 30], ['', 84]], gegevens, 4.3, 2.0);
   el.push(tt);
   el.push(titelblok(o, A3, { ...meta, titel: `Overzicht balustrade ${naamVan(o)}`, schaal: `1:${sch} / 1:${sch2} / 1:${sch3}` }));
@@ -171,7 +200,7 @@ export function stukBlad(o, p, meta = {}) {
   else if (p.soort === 'laser') el.push(plaatTekening(o, p));
   else el.push(glasTekening(o, p));
   // gegevens
-  const info = [['Positie', p.pos], ['Aantal', p.n], ['Materiaal', p.mat], ['Maat', p.maat], ...(p.L ? [['Lengte (lange kant)', `${Math.round(p.L)} mm`], ['Lengte op het hart', `${Math.round(p.hart)} mm`], ['Zaagsnede', p.zaagT]] : []), ['Massa', `${g(p.kg, 2)} kg/st`], ['Toleranties', 'ISO 2768-m; zaaglengte ± 1 mm']];
+  const info = [['Positie', p.pos], ['Aantal', p.n], ['Materiaal', p.mat], ['Maat', p.maat], ...(p.L ? [['Lengte (lange kant)', `${Math.round(p.L)} mm`], ['Lengte op het hart', `${Math.round(p.hart)} mm`], ['Zaagsnede', p.zaagT]] : []), ...(p.dak ? [['Onder het dak', p.dak.horizontaal ? `helling ${g(p.dak.hoek, 1)}°, horizontaal ${p.dak.horizontaal} mm` : p.dak.tegen ? `tegen de handregel op ${g(p.dak.hoek, 1)}°` : `bovenaan schuin ${g(p.dak.hoek, 1)}°`]] : []), ...(p.paneel?.uv ? (() => { const sk = schuineKant(p.paneel); return [['Hoogte links / rechts', `${Math.round(sk.links)} / ${Math.round(sk.rechts)} mm`], ...(sk.schuin ? [['Schuine zijde', `${Math.round(sk.schuin.l)} mm op ${g(sk.schuin.hoek, 1)}°`]] : [])]; })() : []), ['Massa', `${g(p.kg, 2)} kg/st`], ['Toleranties', 'ISO 2768-m; zaaglengte ± 1 mm']];
   const [tt] = tabel(W - 10 - 125, 120, [['Gegevens', 42], ['', 83]], info.map(([a, b]) => [a, String(b).slice(0, 52)]), 4.1, 2.05);
   el.push(tt);
   return kader4(o, { ...meta, titel: `Pos. ${p.pos}: ${p.naam}`, schaal: meta.schaal ?? '' }, el.join(''));
@@ -204,9 +233,12 @@ function staafTekening(o, p) {
   if (P.vorm === 'buis' || P.vorm === 'rond') { el.push(`<circle cx="${cx}" cy="${cy}" r="${f((P.b / 2) * s2)}" fill="#c9ced3" stroke="#111" stroke-width="0.35"/>`); if (P.vorm === 'buis') el.push(`<circle cx="${cx}" cy="${cy}" r="${f((P.b / 2 - P.t) * s2)}" fill="#fff" stroke="#111" stroke-width="0.3"/>`); el.push(tk(cx, cy + (P.b / 2) * s2 + 5, `Ø${g(P.b, 1)}${P.t ? ` x ${g(P.t, 1)}` : ''}`, 2.4, { anker: 'middle' })); }
   else { el.push(`<rect x="${f(cx - (P.h / 2) * s2)}" y="${f(cy - (P.b / 2) * s2)}" width="${f(P.h * s2)}" height="${f(P.b * s2)}" fill="#c9ced3" stroke="#111" stroke-width="0.35"/>`); if (P.vorm === 'koker') el.push(`<rect x="${f(cx - (P.h / 2 - P.t) * s2)}" y="${f(cy - (P.b / 2 - P.t) * s2)}" width="${f((P.h - 2 * P.t) * s2)}" height="${f((P.b - 2 * P.t) * s2)}" fill="#fff" stroke="#111" stroke-width="0.3"/>`); el.push(maat([cx - (P.h / 2) * s2, cy + (P.b / 2) * s2], [cx + (P.h / 2) * s2, cy + (P.b / 2) * s2], 4, g(P.h, 0), 2.2), maat([cx + (P.h / 2) * s2, cy - (P.b / 2) * s2], [cx + (P.h / 2) * s2, cy + (P.b / 2) * s2], -4, g(P.b, 0), 2.2)); }
   el.push(tk(32, 105, `Schaal 1:${sch}. ${P.koop || d.prof === 'koop' ? 'Gekocht profiel, op maat zagen.' : 'Ontbramen; de zaagsnede volgens de hoek, de lange kant gemeten.'}`, 2.3, { kleur: '#333' }));
+  if (d.dak?.horizontaal) el.push(tk(32, 110, `Schuin stuk onder het dak: helling ${g(d.dak.hoek, 1)}°, horizontaal ${d.dak.horizontaal} mm. Aan de muur verticaal gezaagd (${g(d.dak.hoek, 1)}°), op de knik verstek ${g(d.dak.hoek / 2, 1)}°.`, 2.3, { vet: true }));
+  else if (d.dak) el.push(tk(32, 110, d.dak.tegen ? `Eindigt tegen de schuine handregel: zaag ${g(90 - d.dak.hoek, 1)}° (de snede ligt evenwijdig met de handregel, ${g(d.dak.hoek, 1)}°).` : `Bovenaan schuin ${g(d.dak.hoek, 1)}° onder de schuine handregel.`, 2.3, { vet: true }));
   return el.join('');
 }
 function plaatTekening(o, p) {
+  if (p.paneel?.uv) return vormTekening(o, p, '#c9ced3', `Plaat ${p.t} mm S235JR, lasergesneden (DXF uit deze tekening). Schuin onder het dak: de bovenrand volgt de handregel.`);
   const el = [], w = p.b, h = p.l, sch = schaalVoor(Math.min(150 / w, 80 / h, 1)), s = 1 / sch, x0 = 40, y0 = 40, par = p.paneel?.helling ?? 0, sch2 = Math.tan((par * Math.PI) / 180) * w * s;
   const pts = [[x0, y0 + h * s], [x0 + w * s, y0 + h * s - sch2], [x0 + w * s, y0 - sch2], [x0, y0]];
   el.push(poly(pts, p.patroon && p.patroon !== 'vlak' ? 'url(#perfo4)' : '#c9ced3', 0.35));
@@ -225,7 +257,26 @@ function plaatTekening(o, p) {
   el.push(tk(x0, 112, `Plaat ${p.t} mm S235JR, lasergesneden (DXF uit deze tekening), schaal 1:${sch}. Randen ontbramen.${p.patroon && p.patroon !== 'vlak' ? ` Patroon: ${PATROON[p.patroon].naam}.` : ''}`, 2.3, { kleur: '#333' }));
   return el.join('');
 }
+/** een paneel met een schuine kant (onder het dak): de omtrek uv met de maten (breedte, hoogte links en rechts, schuine zijde, hoek) */
+function vormTekening(o, p, vul, tekst) {
+  const el = [], pan = p.paneel, sk = schuineKant(pan), w = pan.w, h = pan.h, sch = schaalVoor(Math.min(140 / w, 62 / h)), s = 1 / sch, x0 = 46, y0 = 36 + h * s;
+  const P = ([u, v]) => [x0 + u * s, y0 - v * s];
+  el.push(poly(pan.uv.map(P), vul, 0.35));
+  el.push(lijn(x0 - 3, y0, x0 + w * s + 3, y0, 0.13, '#111', '4 0.8 0.6 0.8'));
+  el.push(maat(P([0, 0]), P([w, 0]), 7, `${Math.round(w)}`, 2.6));
+  el.push(maat(P([0, 0]), P([0, sk.links]), -7, `${Math.round(sk.links)}`, 2.6), maat(P([w, 0]), P([w, sk.rechts]), 7, `${Math.round(sk.rechts)}`, 2.6));
+  if (sk.schuin) {
+    const a = sk.boven.find(([u]) => Math.abs(u - sk.schuin.u1) < 0.01), b = sk.boven.find(([u]) => Math.abs(u - sk.schuin.u2) < 0.01);
+    el.push(maat(P(a), P(b), 5, `${Math.round(sk.schuin.l)}`, 2.4));
+    const m = P([(a[0] + b[0]) / 2, (a[1] + b[1]) / 2]);
+    el.push(tk(m[0], m[1] + 9, `${g(sk.schuin.hoek, 1)}°`, 2.6, { vet: true, anker: 'middle' }));
+    if (sk.boven.length > 2) { const knik = sk.boven.find(([u]) => u > 0.5 && u < w - 0.5 && !(Math.abs(u - sk.schuin.u1) < 0.01 && Math.abs(u - sk.schuin.u2) < 0.01)); if (knik) el.push(maat(P([0, 0]), P([knik[0], 0]), 13, `${Math.round(knik[0])} (knik)`, 2.2)); }
+  }
+  rij(`${tekst} Schaal 1:${sch}. Omschreven rechthoek ${Math.round(w)} x ${Math.round(h)}; hoogtes links en rechts verticaal gemeten.`, 92).slice(0, 3).forEach((t, i) => el.push(tk(26, 112 + i * 3.2, t, 2.2, { kleur: '#333' })));
+  return el.join('');
+}
 function glasTekening(o, p) {
+  if (p.paneel?.uv) { const G = GLASOPBOUW[p.paneel.opbouw]; return vormTekening(o, p, KL.glas, `${G.naam}, vormglas met schuine kant, kanten geslepen.`) + tk(26, 124, o.k.soort === 'glasU' ? 'U-profiel: 100 mm inklemming, rubbers aan beide kanten; de U-handregel volgt de schuine kant.' : 'Klemmen: 2 per kant, een lage kant (< 360 mm) 1 klem in het midden; geen gaten.', 2.3, { kleur: '#333' }); }
   const el = [], w = p.b, h = p.l, sch = schaalVoor(Math.min(150 / w, 80 / h)), s = 1 / sch, x0 = 40, y0 = 40, par = p.paneel?.helling ?? 0, d = Math.tan((par * Math.PI) / 180) * w * s;
   el.push(poly([[x0, y0 + h * s], [x0 + w * s, y0 + h * s - d], [x0 + w * s, y0 - d], [x0, y0]], KL.glas, 0.35));
   el.push(maat([x0, y0 + h * s], [x0 + w * s, y0 + h * s - d], 7, `${Math.round(w)}`, 2.6), maat([x0, y0], [x0, y0 + h * s], 7, `${Math.round(h)}`, 2.6));
@@ -306,7 +357,14 @@ export function bestelBlad(o, meta = {}) {
   let y = 20 + h1 + 8;
   el.push(tk(26, y, 'Staven en profielen', 3, { vet: true }));
   const [t2, h2] = tabel(26, y + 3, [['Profiel', 110], ['Norm / artikel', 50], ['Bestellen', 36], ['Nodig m', 20, 1], ['Rest m', 18, 1]], z.profielen.map((p) => [p.naam, p.artikel ?? '', `${p.n} x ${g(p.lengte / 1000, 1)} m`, g(p.nodig, 2), g(p.m - p.nodig - (p.stukken.length * ZAAGSNEDE) / 1000, 2)]), 4.2, 2.05);
-  el.push(t2); y += h2 + 12;
+  el.push(t2); y += h2 + 8;
+  const glas = sl.posities.filter((p) => p.soort === 'glas');
+  if (glas.length) {
+    el.push(tk(26, y, 'Glasbestelling (maten in mm; vormglas: de omschreven rechthoek + hoogte links en rechts + schuine zijde)', 3, { vet: true }));
+    const rijen = glas.map((p) => { const sk = schuineKant(p.paneel); return [p.pos, p.n, p.paneel.opbouw, p.paneel.vorm ?? 'rechthoek', Math.round(p.b), sk ? Math.round(sk.links) : Math.round(p.l), sk ? Math.round(sk.rechts) : Math.round(p.l), sk?.schuin ? `${Math.round(sk.schuin.l)} op ${g(sk.schuin.hoek, 1)}°` : '-', g(p.m2 * p.n, 2)]; });
+    const [t3, h3] = tabel(26, y + 3, [['Pos', 12, 1], ['Aantal', 14, 1], ['Opbouw', 20], ['Vorm', 28], ['Breedte', 20, 1], ['H links', 20, 1], ['H rechts', 20, 1], ['Schuine zijde', 40], ['m²', 18, 1]], rijen.slice(0, 8), 4.2, 2.05);
+    el.push(t3); y += h3 + 10;
+  } else y += 4;
   el.push(tk(26, y, `Zaagplan: elke balk is één staaf; de tekst is de rol en de lengte (zaagsnede ${ZAAGSNEDE} mm)`, 3, { vet: true })); y += 4;
   const bw = 330, maxY = 297 - 10 - 36;
   outer: for (const p of z.profielen) {
@@ -344,6 +402,7 @@ export function plaatsingsBlad(o, meta = {}) {
     `Boren: ${o.ankers.length} gaten Ø${A.gat} x ${A.diep} mm met de hamerboor. ${A.mortel ? 'Reinigen: 2x blazen, 2x borstelen, 2x blazen. Mortel FIS V Plus vanaf de bodem, stang draaiend inbrengen; uithardtijd volgens de koker (bij 20 °C ± 45 min, bij 5 °C langer).' : 'Uitblazen; keilbout inslaan tot de ring op de plaat staat.'}`,
     `Verankeren: ${k.soort === 'glasU' ? 'profiel op de ankers, ' : 'staander op de ankers, '}uitvulplaatjes onder de ${k.soort === 'glasU' ? 'profielen' : 'voetplaat'} tot alles waterpas en loodrecht staat. Aandraaimoment ${Tinst} Nm (${A.naam}; ETA nakijken).`,
     k.soort === 'glasU' ? 'Glas: rubbers volgens Q-railing in het profiel, glas met 2 personen en zuignappen plaatsen, met de stelsleutel verticaal zetten (0-2°), eindkappen en afdekprofiel. Daarna de U-handregel met de rubber op de glasrand.' : k.soort === 'glasstaal' ? 'Glas: klemmen losjes op de klinkmoeren, glas plaatsen met de rubbertjes, uitlijnen (voeg gelijk) en de klemmen aandraaien (handvast, M8).' : 'Stellen: richt de staanders loodrecht (waterpas op 2 kanten), handregel recht langs een lijn.',
+    ...(o.dakKnikken ? [`Onder het dak (eerst meten): ${o.dak.filter((e) => e.nodig).map((e) => `${e.kant === 'begin' ? 'begin' : 'einde'}: helling ${g(e.hoek, 0)}°, hoogte aan de muur ${e.muur} mm, schuin stuk ${Math.round(e.xs)} mm, spleet ${e.spleet} mm`).join('; ')}. Meet de helling met een digitale hellingmeter op de onderkant van het dak (of de hoogte op 2 punten 1 m uit elkaar) en de hoogte onder het dak tegen het knieschot; wijkt het meer dan 1° of 15 mm af, pas de tekening aan vóór het zagen.${o.muurAnkers?.length ? ` Muurplaat: ${o.muurAnkers.length} ankers M10 in het knieschot (eerst nakijken: metselwerk of beton, geen hout).` : ''}`] : []),
     `Controle: hoogte ≥ ${o.vereist} mm overal, geen opening groter dan ${NORM.opening.v} mm (bol), ${o.klim ? 'geen opstap tussen 110 en 450 mm, ' : ''}alle moeren aangedraaid. ${k.plaats === 'buiten' ? 'Buiten: afwatering vrijhouden, geen water in de voetplaat (kitvoeg aan de bovenkant, onderkant open).' : ''}`,
   ];
   let y = 34 + th + 6; const x = 158;

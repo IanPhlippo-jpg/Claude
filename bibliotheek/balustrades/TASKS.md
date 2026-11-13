@@ -10,3 +10,15 @@
 - [x] Test qaBalustrades.test.ts + typecheck + test:voorbeelden
 - [x] Browsercontrole (Edge/playwright) en screenshots
 - [x] EISEN.md (keuzes ontwerper), README.md, docs/Normen-en-bronnen.md
+
+## Afschuining onder een schuin dak aan begin en/of einde (2026-11-13)
+- [x] Bronnen zoeken (Buildwise/WTCB: borstwering onder een hellend dak; toeslag vormglas) en keuzes vastleggen
+- [x] Model: invoer per uiteinde (helling, hoogte aan de muur, spleet), knik in de handregel, lagere staanders, muurplaat, ingekorte spijlen/staven, schuine platen en trapeziumglas
+- [x] Berekening: lengte schuin stuk past, opening dak-balustrade ≤ 110, volle hoogte, hoogte aan de muur, muurplaat
+- [x] Werkplaats: stuklijst/zaaglijst met schuine stukken, stukblad met schuine maat, glasbestelling met trapeziummaten, montage, plaatsingsblad
+- [x] Prijs: uren en vormtoeslag glas in een aparte toeslag "Afschuining onder het dak"
+- [x] 3D en vooraanzicht: dak (half doorzichtig) en knieschot, stippellijn in de bladen
+- [x] Web en presentatie: invoer per uiteinde met de lengte van het schuine stuk
+- [x] Tests uitbreiden, vitest + typecheck groen
+- [x] Webversie, presentatie, kopie naar Balustradeconfigurator, README/EISEN, graphify update
+- [x] Screenshots (Edge) bekijken en verbeteren

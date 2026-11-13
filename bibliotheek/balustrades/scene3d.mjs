@@ -1,6 +1,6 @@
 // De balustrade in 3D voor de klant (browser, three.js 0.160): de vloer of de trap met de vide ernaast, en elk stuk uit
 // model.mjs: staanders, handregel, regels, spijlen, staven, platen (met hun patroon), glas en klemmen, U-profiel, voetplaten
-// en consoles, in de gekozen RAL-kleur en structuur. Slepen = draaien, scrollen of knijpen = zoomen. 'three' en
+// en consoles, in de gekozen RAL-kleur en structuur. Onder een schuin dak: het dak half doorzichtig en het knieschot. Slepen = draaien, scrollen of knijpen = zoomen. 'three' en
 // 'three/addons/' komen uit de importmap van de pagina, of worden gebundeld (presentatie).
 import { PROFIEL, RAL, AFWERKINGEN, GLASTINT, PATROON } from './onderdelen.mjs';
 
@@ -45,8 +45,9 @@ export async function scene3d(houder) {
     return (patroonTex[p] = t);
   };
 
-  /** een balk langs a-b (modelcoördinaten), met de doorsnede: h dwars (N), b de andere richting */
-  const balk = (a, b, Pf, N, mat) => {
+  /** een balk langs a-b (modelcoördinaten), met de doorsnede: h dwars (N), b de andere richting; snijA/snijB = normaal
+   *  (model) van een schuin snijvlak door het uiteinde (schuin gezaagd onder het dak, verstek op de knik) */
+  const balk = (a, b, Pf, N, mat, snijA = null, snijB = null) => {
     const A = new THREE.Vector3(...v3(a)), B = new THREE.Vector3(...v3(b)), L = A.distanceTo(B);
     if (L < 0.5) return null;
     const x = B.clone().sub(A).normalize(), n = new THREE.Vector3(...v3([N[0], N[1], 0])).normalize();
@@ -55,15 +56,29 @@ export async function scene3d(houder) {
     let geo;
     if (Pf.vorm === 'buis' || Pf.vorm === 'rond') { geo = new THREE.CylinderGeometry(Pf.b / 2, Pf.b / 2, L, 20); geo.rotateZ(-Math.PI / 2); }
     else geo = new THREE.BoxGeometry(L, Pf.b, Pf.h);
+    if (snijA || snijB) {
+      // de hoekpunten van een uiteinde langs de as verschuiven tot op het snijvlak (lokaal: x = as)
+      const pos = geo.attributes.position, lok = (n) => { const w = new THREE.Vector3(...v3(n)); return [w.dot(x), w.dot(y), w.dot(z)]; };
+      const nA = snijA && lok(snijA), nB = snijB && lok(snijB);
+      for (let i = 0; i < pos.count; i++) {
+        const px = pos.getX(i), py = pos.getY(i), pz = pos.getZ(i), n = px > 0 ? nB : nA;
+        if (!n || Math.abs(n[0]) < 0.05) continue;
+        pos.setX(i, (px > 0 ? L / 2 : -L / 2) - (n[1] * py + n[2] * pz) / n[0]);
+      }
+      pos.needsUpdate = true; geo.computeVertexNormals();
+    }
     const m = new THREE.Mesh(geo, mat); m.castShadow = true; m.receiveShadow = true;
     m.matrix.makeBasis(x, y, z); m.matrix.setPosition(A.clone().add(B).multiplyScalar(0.5)); m.matrixAutoUpdate = false;
     return m;
   };
-  /** een vlak paneel (4 punten) met dikte t, langs de normaal N */
+  /** een vlak paneel (convexe veelhoek: 4 punten, of meer onder het dak) met dikte t, langs de normaal N */
   const paneel = (pts, t, N, mat) => {
-    const P = pts.map((p) => new THREE.Vector3(...v3(p))), n = new THREE.Vector3(...v3([N[0], N[1], 0])).normalize().multiplyScalar(t / 2);
+    const P = pts.map((p) => new THREE.Vector3(...v3(p))), n = new THREE.Vector3(...v3([N[0], N[1], 0])).normalize().multiplyScalar(t / 2), k = P.length;
     const hoek = [...P.map((p) => p.clone().sub(n)), ...P.map((p) => p.clone().add(n))];
-    const g = new THREE.BufferGeometry(), idx = [0, 1, 2, 0, 2, 3, 4, 6, 5, 4, 7, 6, 0, 4, 5, 0, 5, 1, 1, 5, 6, 1, 6, 2, 2, 6, 7, 2, 7, 3, 3, 7, 4, 3, 4, 0];
+    const idx = [];
+    for (let i = 1; i < k - 1; i++) idx.push(0, i, i + 1, k, k + i + 1, k + i);
+    for (let i = 0; i < k; i++) { const j = (i + 1) % k; idx.push(i, k + i, k + j, i, k + j, j); }
+    const g = new THREE.BufferGeometry();
     const pos = [], uv = [], u0 = P[1].clone().sub(P[0]).normalize();
     for (const i of idx) { const p = hoek[i]; pos.push(p.x, p.y, p.z); const d = p.clone().sub(P[0]); uv.push(d.dot(u0), p.y - P[0].y); }
     g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2)); g.computeVertexNormals();
@@ -94,17 +109,31 @@ export async function scene3d(houder) {
         for (let i = 0; i < n; i++) { const t0 = (s.Lh * i) / n, t1 = (s.Lh * (i + 1)) / n, z = s.p0[2] + t1 * Math.tan(s.alfa); add(blok(s, t0, t1, s.p0[2] - 200, z - 25, -1000, rand, beton)); add(blok(s, t0, t1 + 30, z - 25, z, -1000, rand + 20, vloer)); }
         add(blok(s, -1200, 0, s.p0[2] - 200, s.p0[2], -1800, 1800, beton));
       } else {
-        const nx = o.segs[s.i + 1], t0 = s.i ? (s.draai ? rand : 0) : -300, t1 = s.Lh + (!nx ? 300 : nx.draai ? 1600 : 0);
+        const dakA = !s.i && o.dak?.some((e) => e.nodig && e.kant === 'begin'), dakB = !o.segs[s.i + 1] && o.dak?.some((e) => e.nodig && e.kant === 'eind');
+        const nx = o.segs[s.i + 1], t0 = s.i ? (s.draai ? rand : 0) : dakA ? 0 : -300, t1 = s.Lh + (!nx ? (dakB ? 0 : 300) : nx.draai ? 1600 : 0);
         add(blok(s, t0, t1, s.p0[2] - vd, s.p0[2] - 8, -1600, rand, beton));
         add(blok(s, t0, t1, s.p0[2] - 8, s.p0[2], -1600, rand, vloer));
       }
+    }
+    // ---- onder een schuin dak: het knieschot (muur tot de dakvoet) en het dak, half doorzichtig
+    const dakMat = new THREE.MeshStandardMaterial({ color: '#b08455', roughness: 0.85, transparent: true, opacity: 0.36, depthWrite: false, side: THREE.DoubleSide });
+    const wandMat = new THREE.MeshStandardMaterial({ color: '#cbbfa9', roughness: 0.9, transparent: true, opacity: 0.8, depthWrite: false, side: THREE.DoubleSide });
+    const rand3 = new THREE.LineBasicMaterial({ color: '#6e4f2c', transparent: true, opacity: 0.7 });
+    const vlakDak = (pts, mat) => { const P = pts.map((p) => new THREE.Vector3(...v3(p))), g = new THREE.BufferGeometry(); g.setFromPoints([P[0], P[1], P[2], P[0], P[2], P[3]]); g.computeVertexNormals(); const m = new THREE.Mesh(g, mat); m.renderOrder = 2; const r = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(P), rand3); m.add(r); return m; };
+    for (const e of o.dak ?? []) {
+      if (!e.nodig) continue;
+      const s = o.segs[e.seg], t0 = e.kant === 'begin' ? 0 : s.Lh, r = e.kant === 'begin' ? 1 : -1, xm = Math.min(s.Lh, Math.max(e.xs + 700, (k.H + 500 - e.muur) / e.tn));
+      const P = (x, n, z) => [s.p0[0] + s.d[0] * (t0 + r * x) + s.N[0] * n, s.p0[1] + s.d[1] * (t0 + r * x) + s.N[1] * n, s.p0[2] + z];
+      add(vlakDak([P(0, -1600, e.muur), P(0, 1500, e.muur), P(xm, 1500, e.muur + xm * e.tn), P(xm, -1600, e.muur + xm * e.tn)], dakMat));
+      add(vlakDak([P(0, -1600, 0), P(0, rand, 0), P(0, rand, e.muur), P(0, -1600, e.muur)], wandMat));
+      for (const n of [-1200, -600, 0, 600, 1200]) add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(...v3(P(0, n, e.muur))), new THREE.Vector3(...v3(P(xm, n, e.muur + xm * e.tn)))]), rand3));
     }
     // ---- de balustrade
     for (const d of o.delen) {
       const Pf = d.prof === 'koop' ? (d.koop === 'qrHandregel' ? { vorm: 'buis', b: 42.4, h: 42.4 } : d.koop === 'handregeldrager' ? { vorm: 'rond', b: 16, h: 16 } : { vorm: 'koker', b: 110, h: 100 }) : PROFIEL[d.prof];
       const mat = d.prof === 'koop' ? (d.rol === 'uprofiel' ? alu : inox) : Pf.koop ? inox : staal;
       if (d.rol === 'afstandhouder') { const m = balk(d.a, d.b, { vorm: 'koker', b: 40, h: 40 }, [d.N[1], -d.N[0]], staal); add(m); continue; }
-      add(balk(d.a, d.b, Pf, d.N, mat));
+      add(balk(d.a, d.b, Pf, d.N, mat, d.snijA, d.snijB));
     }
     for (const p of o.panelen) {
       if (p.rol === 'glas') { add(paneel(p.pts, p.dikte, p.N, glas)); continue; }
@@ -113,8 +142,8 @@ export async function scene3d(houder) {
       add(paneel(p.pts, 3, p.N, mat));
     }
     for (const p of o.platen) {
-      const c = p.rol === 'console' ? [p.p[0] + p.N[0] * 5, p.p[1] + p.N[1] * 5, (p.z[0] + p.z[1]) / 2] : [p.p[0], p.p[1], (p.z[0] + p.z[1]) / 2];
-      const geo = p.rol === 'console' ? new THREE.BoxGeometry(p.w, p.z[1] - p.z[0], p.t) : new THREE.BoxGeometry(p.w, p.t, p.h);
+      const c = p.rol === 'console' ? [p.p[0] + p.N[0] * 5, p.p[1] + p.N[1] * 5, (p.z[0] + p.z[1]) / 2] : p.rol === 'muurplaat' ? [p.p[0], p.p[1], (p.z[0] + p.z[1]) / 2] : [p.p[0], p.p[1], (p.z[0] + p.z[1]) / 2];
+      const geo = p.rol === 'console' ? new THREE.BoxGeometry(p.w, p.z[1] - p.z[0], p.t) : p.rol === 'muurplaat' ? new THREE.BoxGeometry(p.t, p.z[1] - p.z[0], p.w) : new THREE.BoxGeometry(p.w, p.t, p.h);
       const m = new THREE.Mesh(geo, o.st?.staander === 'inox' ? inox : staal); m.position.set(...v3(c)); m.rotation.y = Math.atan2(p.d[1], p.d[0]); m.castShadow = true; add(m);
     }
     for (const kl of o.klemmen) { const m = new THREE.Mesh(new THREE.BoxGeometry(45, 50, 30), inox); const c = [kl.p[0] + kl.d[0] * 22, kl.p[1] + kl.d[1] * 22, kl.p[2]]; m.position.set(...v3(c)); m.rotation.y = Math.atan2(kl.d[1], kl.d[0]); add(m); }

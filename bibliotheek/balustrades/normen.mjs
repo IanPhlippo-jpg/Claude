@@ -40,6 +40,17 @@ export const NORM = {
     Eglas: 70000, fgd: 80, omega: 0.3,
     bronSterkte: 'AANNAME: rekenwaarde gehard glas 80 N/mm² voor kortdurende last (formule EN 16612: kmod·fg,k/γM;A + (fb,k − fg,k)/γM;v met fb,k = 120); NBN S 23-002-2:2020 is de Belgische rekenmethode',
   },
+  // ---- onder een schuin dak (afschuining aan het begin of het einde van de lijn). Buildwise (Contact 2016/4, Magazine
+  // 2023/2, Artikel 2025-05.07) en de Nederlandse Bbl (iplo.nl, vloerafscheidingen) zeggen niets over een borstwering
+  // onder een hellend dak: de regels hieronder zijn AANNAMES, afgeleid uit de bol van 110 mm en de hoogte H.
+  dakOpening: { v: 110, bron: `AANNAME: de spleet tussen het dak en de bovenkant van de balustrade is een opening zoals elke andere: ≤ 110 mm (bol), loodrecht op het dak gemeten (${C2016}, figuur openingen); geen bron over borstweringen onder een hellend dak gevonden (Buildwise, iplo.nl)` },
+  dakTolerantie: { v: 10, bron: 'AANNAME: + 10 mm voor de oneffenheid van de dakafwerking (gipsplaat, latten) en het meten op de werf' },
+  dakSpleetMin: { v: 20, bron: 'AANNAME: spleet ≥ 20 mm, zodat de balustrade het dak niet raakt als het dak doorbuigt of werkt (hout)' },
+  dakVolleHoogte: { v: 110, bron: `AANNAME: lager dan H mag alleen waar de opening tot het dak ≤ 110 mm blijft; zodra het dak hoger staat dan H + 110 mm geldt de volle hoogte H (${C2016})` },
+  dakWand: { v: 150, bron: 'AANNAME: de balustrade is aan de muur minstens 150 mm hoog (onderregel 70-90 mm + handregel + ruimte om te lassen); lager kan niet gemaakt worden' },
+  dakStaander: { v: 300, bron: 'AANNAME: een eindstaander lager dan 300 mm op een voetplaat met 4 ankers is onpraktisch: daaronder een muurplaat 80 x 8 met 2 ankers M10 in het knieschot' },
+  dakVlak: { v: 150, bron: 'AANNAME: tussen de knik van de handregel en het andere einde (of de hoek, of de andere knik) blijft minstens 150 mm vlak, voor de staander en het verstek' },
+  dakMuurAnker: { v: 0.5, bron: 'AANNAME: in het knieschot (vaak metselwerk of een houten stijl) rekenen met 50 % van de afschuifweerstand in beton; nakijken met de ankerfabrikant voor de echte ondergrond' },
   lassen: { bron: 'ISO 2553 (symbolen), EN 1993-1-8 vereenvoudigde methode: fvw,d = fu / (√3 · βw · γM2), βw = 0,8 (S235)' },
   toleranties: { bron: 'ISO 2768-m (maten zonder tolerantie), lassen ISO 5817-C' },
 };

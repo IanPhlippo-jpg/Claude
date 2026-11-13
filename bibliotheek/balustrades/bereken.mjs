@@ -165,6 +165,28 @@ export function berekening(o) {
       ctl('Glas', 'Glasopbouw', `${G.naam}: gelaagd, beide bladen gehard; klemmen voor 8,76-12,76 mm`, G.dikte, 12.76, 'mm', G.dikte / 12.76, NORM.glas.bron, { oordeel: G.dikte <= 12.76 ? 'groen' : 'rood' });
     }
   }
+  // ---------------------------------------------------------------- onder een schuin dak (AANNAMES, zie normen.mjs)
+  for (const e of o.dak ?? []) {
+    const naam = e.kant === 'begin' ? 'begin' : 'einde', s = o.segs[e.seg], G = `Onder het dak (${naam})`, th = gw(e.hoek, 0);
+    if (!e.nodig) { ctl(G, 'Afschuining niet nodig', `het dak staat aan de muur op ${e.muur} mm ≥ H + spleet / cos θ = ${k.H} + ${gw(e.verticaal, 0)}`, e.muur, k.H, 'mm', 0, 'geometrie', { oordeel: 'info' }); continue; }
+    ctl(G, 'Lengte van het schuine stuk past in de lijn', `xs = (H + s / cos θ − hmuur) / tan θ = (${k.H} + ${e.spleet} / cos ${th}° − ${e.muur}) / tan ${th}° = ${Math.round(e.xs)} mm ≤ beschikbaar ${Math.round(e.beschikbaar)} mm (lijn ${Math.round(s.Lh)} − ${NORM.dakVlak.v} vlak${e.beschikbaar < s.Lh - NORM.dakVlak.v - 0.5 ? ' − het andere schuine stuk' : ''})`, e.xs, e.beschikbaar, 'mm', e.xs / Math.max(1, e.beschikbaar), NORM.dakVlak.bron,
+      { oordeel: e.past ? 'groen' : 'rood', uitleg: e.past ? '' : 'Het schuine stuk is langer dan de lijn: het dak komt niet hoog genoeg binnen deze lijn. Maak de lijn langer, of vraag een maatwerkoplossing (bv. een dichte wand tot tegen het dak).' });
+    const op = e.spleet + NORM.dakTolerantie.v;
+    ctl(G, 'Opening tussen het dak en de balustrade', `spleet ${e.spleet} mm loodrecht op het dak (verticaal ${gw(e.verticaal, 0)} mm) + ${NORM.dakTolerantie.v} mm tolerantie = ${op} mm ≤ ${NORM.dakOpening.v} mm`, op, NORM.dakOpening.v, 'mm', op / NORM.dakOpening.v, `${NORM.dakOpening.bron}; ${NORM.dakTolerantie.bron}`,
+      { oordeel: op > NORM.dakOpening.v ? 'rood' : e.spleet < NORM.dakSpleetMin.v ? 'oranje' : 'groen', uitleg: op > NORM.dakOpening.v ? 'Een kind kan tussen het dak en de handregel door: kies een kleinere spleet.' : e.spleet < NORM.dakSpleetMin.v ? `Minder dan ${NORM.dakSpleetMin.v} mm: de balustrade kan het dak raken als het dak doorbuigt of werkt.` : '' });
+    ctl(G, 'Lager dan H alleen onder het dak', `waar het dak lager is dan H + 110 mm volgt de bovenkant het dak (opening ≤ 110); vanaf x = (H + 110 / cos θ − hmuur) / tan θ = ${Math.round(e.x110)} mm ≥ xs = ${Math.round(e.xs)} mm staat de volle hoogte H = ${k.H} mm`, e.xs, e.x110, 'mm', e.xs / Math.max(1, e.x110), NORM.dakVolleHoogte.bron, { oordeel: e.xs <= e.x110 + 0.5 ? 'groen' : 'rood' });
+    ctl(G, 'Hoogte van de balustrade aan de muur', `bovenkant aan de muur = hmuur − s / cos θ = ${e.muur} − ${gw(e.verticaal, 0)} = ${Math.round(e.top0)} mm ≥ ${NORM.dakWand.v} mm${e.muurplaat ? `; lager dan ${NORM.dakStaander.v} mm: muurplaat in plaats van een eindstaander` : ''}`, e.top0, NORM.dakWand.v, 'mm', NORM.dakWand.v / Math.max(1, e.top0), `${NORM.dakWand.bron}; ${NORM.dakStaander.bron}`,
+      { oordeel: e.top0 >= NORM.dakWand.v ? 'groen' : 'rood', uitleg: e.top0 >= NORM.dakWand.v ? '' : 'Het dak komt aan de muur te laag om er een balustrade onder te maken: laat de balustrade verder van de muur beginnen, of sluit de ruimte onder het dak af.' });
+    const laag = o.panelen.filter((p) => p.rol === 'glas' && p.seg === e.seg && p.uv && k.soort === 'glasstaal');
+    if (laag.length) { const h = Math.min(...laag.map((p) => Math.min(p.hA, p.hB))), zonder = laag.some((p) => p.zonderKlem);
+      ctl(G, 'Glas met schuine kant: klemmen aan de lage kant', `laagste glaskant ${Math.round(h)} mm: ${h >= 360 ? '2 klemmen' : h >= 50 ? '1 klem in het midden' : 'geen klem (te laag)'}; 2 klemmen vanaf 360 mm`, h, 50, 'mm', 50 / Math.max(1, h), 'AANNAME: een klem MOD 2100 is 50 mm hoog; lager dan 360 mm past er maar één', { oordeel: zonder ? 'oranje' : 'groen', uitleg: zonder ? 'De lage punt van het glas hangt zonder klem: kies een hogere muur, een kortere spleet, of laat de punt in een kort U-profiel op de muurplaat zetten (klemfabrikant laten bevestigen).' : '' }); }
+    const mp = (o.platen ?? []).find((x) => x.rol === 'muurplaat' && x.kant === e.kant);
+    if (mp) {
+      const v = s.velden?.[e.kant === 'begin' ? 0 : s.velden.length - 1], a = v ? v.tb - v.ta + 50 : 1000, A = ANKER[k.anker === 'keil' ? 'keil10' : 'chem10'];
+      const F = g * q.q * (a / 1000) / 2, V = F * Math.sqrt(0.25 + 1), Vrd = NORM.dakMuurAnker.v * A.VRd;
+      ctl(G, `Muurplaat ${mp.w} x ${mp.h} x ${mp.t}: ${A.naam} (afschuiving)`, `F = γQ · qk · a / 2 = ${g} · ${gw(q.q)} · ${gw(a / 1000, 2)} / 2 = ${gw(F, 2)} kN op de bovenkant; per anker V = F · √(1/4 + 1) = ${gw(V, 2)} kN ≤ ${NORM.dakMuurAnker.v} · VRd = ${gw(Vrd, 2)} kN`, V, Vrd, 'kN', V / Vrd, `${A.bron}; ${NORM.dakMuurAnker.bron}`, { oordeel: V / Vrd > 1 ? 'rood' : V / Vrd > 0.75 ? 'oranje' : 'groen' });
+    }
+  }
   const erg = C.some((c) => c.oordeel === 'rood') ? 'rood' : C.some((c) => c.oordeel === 'oranje') ? 'oranje' : 'groen';
   return { controles: C, oordeel: erg, q };
 }

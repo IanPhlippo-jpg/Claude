@@ -20,7 +20,8 @@ De eisen en de keuzes staan in [EISEN.md](EISEN.md). De normwaarden en de bronne
 **Lijnen:**
 - recht;
 - met een hoek (L, 60-170°) of twee hoeken (U);
-- schuin langs een trap (optrede en aantrede, met een vide erna).
+- schuin langs een trap (optrede en aantrede, met een vide erna);
+- onder een schuin dak: het begin en/of het einde afgeschuind (zie hieronder).
 
 **Bevestiging en afstand:**
 - bovenop de vloer (voetplaat met 4 ankers) of tegen de zijkant (console met afstandhouders);
@@ -36,6 +37,38 @@ De eisen en de keuzes staan in [EISEN.md](EISEN.md). De normwaarden en de bronne
 - het glas.
 
 Elke controle krijgt een oordeel groen, oranje of rood, met de formule en de bron.
+
+## Onder een schuin dak (afschuining aan de uiteinden)
+
+Op een zolder of vide onder een hellend dak zakt het dak aan het begin of het einde van de lijn zo laag dat de
+balustrade het dak moet volgen. Per uiteinde (begin en einde apart):
+- aan of uit, de **dakhelling** (15-60°, standaard 45), de **hoogte onder het dak aan de muur** (tegen het knieschot) en
+  de **spleet** tot het dak (loodrecht op het dak, standaard 40 mm);
+- de configurator rekent de horizontale **lengte van het schuine stuk** uit: xs = (H + spleet / cos θ − hmuur) / tan θ.
+  Past het niet in de lijn (minstens 150 mm vlak tot het andere einde, de hoek of de andere knik), dan staat het op rood;
+- bij een hoek of U geldt "begin" voor de eerste en "einde" voor de laatste lijn. Langs een trap kan alleen het einde
+  (de vide na de trap).
+
+Wat er verandert:
+- **handregel:** loopt schuin onder het dak, met een knik (verstek de helft van de helling) op een knikstaander; aan de
+  muur verticaal gezaagd;
+- **staanders:** lager en bovenaan schuin gezaagd; de eindstaander staat met zijn voetplaat tegen het knieschot. Is de
+  balustrade aan de muur lager dan 300 mm, dan komt er een **muurplaat** 80 x 8 met 2 ankers M10 in het knieschot;
+- **spijlen** ingekort en bovenaan schuin; geen bovenregel in een schuin veld;
+- **staven** eindigen schuin gezaagd tegen de schuine handregel; de **plint** en de **platen** worden schuin gelaserd;
+- **glas:** trapezium (of vijfhoek op de knik), met de schuine zijde in de glasbestelling; met staanders 1 klem aan een
+  lage kant (< 360 mm); in het U-profiel een voeg op de knik en een verbinder in de U-handregel;
+- **berekening:** lengte past, opening dak-balustrade (spleet + 10 mm ≤ 110), lager dan H alleen onder het dak,
+  hoogte aan de muur (≥ 150 mm), muurplaat (afschuiving van de ankers), klemmen aan een lage glaskant;
+- **werkplaats:** stuklijst en zaaglijst met de schuine stukken en hun zaagsnede, A4 per schuin stuk met de helling,
+  glasbestelling met hoogte links/rechts en schuine zijde, montage "Knik onder het dak", plaatsingsblad (helling en
+  hoogte aan de muur eerst nameten);
+- **prijs:** toeslag "Afschuining onder het dak" apart (uren voor knik, mal en schuine stukken, muurplaat, vormglas:
+  omschreven rechthoek + 15 %, instelbaar);
+- **3D en vooraanzicht:** het dak half doorzichtig met kepers, het knieschot, en in de bladen een streepstippellijn.
+
+De regels onder het dak zijn **AANNAMES**: Buildwise en de Nederlandse Bbl zeggen er niets over (zie
+`docs/Normen-en-bronnen.md`).
 
 ## Gebruiken
 
@@ -78,7 +111,7 @@ Elke controle krijgt een oordeel groen, oranje of rood, met de formule en de bro
 ```bash
 node bibliotheek/balustrades/maak-web.mjs <map>           # index.html + js/ (ook de gebruikte taatsdeuren-modules)
 node bibliotheek/balustrades/maak-presentatie.mjs [map]   # presentatie/uit/Balustrades.html (esbuild, three gebundeld)
-npx vitest run src/qa/qaBalustrades.test.ts               # 385 tests, ± 7 s (ook in npm run test:voorbeelden)
+npx vitest run src/qa/qaBalustrades.test.ts               # 490 tests, ± 6 s (ook in npm run test:voorbeelden)
 npm run typecheck
 ```
 
@@ -90,6 +123,12 @@ hoek/trap x twee maten. Voor elke combinatie controleert hij:
 - de stuklijst sluit met de geometrie (handregel = lijn, velden + staanders = lijn, glas + voegen = lijn);
 - het zaagplan klopt;
 - de prijs en de berekening zijn eindig.
+
+Onder een schuin dak bouwt de test 96 combinaties: soort x begin/einde/beide x recht/hoek/U x 15/45/60°, en de
+andere stijlen met zijmontage. Hij controleert dat de bovenkant van de handregel het dak volgt met de spleet en er
+nergens in komt, dat geen spijl, staander, staaf, plaat of glas door de handregel steekt, dat de stukken van de
+handregel sluiten, de toeslag apart staat en de tekeningen geen NaN hebben. Randgevallen: te lang schuin stuk, lage muur
+(muurplaat), heel lage muur (rood), 15° en 60°, spleet te groot of te klein, dak hoog genoeg, trap, glas in U-profiel.
 
 Daarnaast zijn er tests die nakijken:
 - dat de standaardprijs per soort in de marktband ligt;
@@ -147,3 +186,6 @@ Alle links en de datum staan in `docs/Normen-en-bronnen.md`.
 - **Q-railing:** Prime en Pro (zwaardere lasten) en de echte handelsprijzen (korting voor verwerkers) zijn op offerte.
   Vraag ook bij Q-railing na of de rubberset per 2,5 m of per meter verkocht wordt.
 - **Trap met een vide:** de handregel heeft geen sprong. Over de hele lijn geldt 1100 mm, omdat de vide dat vraagt.
+- **Onder een schuin dak:** geen bron gevonden; de regels zijn AANNAMES (opening tot het dak ≤ 110 mm). Het dak kan
+  per uiteinde maar één helling hebben, en de afschuining kan niet over een hoek heen lopen. De vormtoeslag van het
+  glas (15 %) is een SCHATTING: vraag de glasleverancier.

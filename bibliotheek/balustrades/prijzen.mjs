@@ -7,7 +7,7 @@ import { PRIJS as DEUR } from '../taatsdeuren/prijzen.mjs';
 import { stuklijst, totalen, zaagplan } from './stuklijst.mjs';
 import { stappen, UREN } from './werkwijze.mjs';
 
-export const CAT = { basis: 'Balustrade', hoek: 'Hoeken', trap: 'Trap (schuin)', glas: 'Glas en klemmen', zij: 'Zijmontage', buiten: 'Buiten: thermisch verzinken', plaatsen: 'Plaatsen' };
+export const CAT = { basis: 'Balustrade', hoek: 'Hoeken', trap: 'Trap (schuin)', glas: 'Glas en klemmen', zij: 'Zijmontage', buiten: 'Buiten: thermisch verzinken', dak: 'Afschuining onder het dak', plaatsen: 'Plaatsen' };
 export const PRIJS = {
   staal: STAALPRIJS,
   zaagverlies: { v: 0.1, bron: 'SCHATTING: 10 % zaagverlies; restlengtes gaan naar de volgende opdracht' },
@@ -25,11 +25,12 @@ export const PRIJS = {
   verzinkMin: { v: 120, bron: 'SCHATTING: minimum per opdracht € 75-150' },
   verputzen: { v: 0.66, bron: 'Coatinc: verzinkt staal klaarmaken voor de poedercoat (Feinverputzen) € 0,66/kg' },
   lassen: { v: 3, bron: 'SCHATTING: lasdraad G3Si1 en menggas ± € 3 per lasuur (taatsdeuren: weldingshop.nl, weld-toorts.be)' },
+  vormglas: { v: 0.15, bron: 'SCHATTING 15 % vormtoeslag op glas met een schuine kant, gerekend op de omschreven rechthoek (AANNAME: glazeniers rekenen vormglas op de omschreven rechthoek; homedeal.nl/glas/veiligheidsglas: veiligheidsglas op maat 10-25 % duurder naargelang de complexiteit van de vorm); instelbaar bij Instellingen' },
   klein: { v: 3, bron: 'SCHATTING: schijven, ontvetter, kit, merkers per meter' },
   metallic: METALLIC,
 };
 /** instellingen (pagina Instellingen): uurloon, marge per soort, verzinkprijs, coatprijs, plaatsen per meter */
-export const STANDAARD = { uurloon: 45, marge: { spijlen: 30, staven: 30, glasstaal: 25, glasU: 15 }, verzinken: PRIJS.verzinken.v, coat: PRIJS.coat.v, staal: PRIJS.staal.v, plaatsenPerM: UREN.plaatsenPerM, glasPrijs: Object.fromEntries(Object.entries(GLASOPBOUW).map(([k, g]) => [k, g.prijs])), toon: 'verkoop' };
+export const STANDAARD = { uurloon: 45, marge: { spijlen: 30, staven: 30, glasstaal: 25, glasU: 15 }, verzinken: PRIJS.verzinken.v, coat: PRIJS.coat.v, staal: PRIJS.staal.v, plaatsenPerM: UREN.plaatsenPerM, vormglas: PRIJS.vormglas.v * 100, glasPrijs: Object.fromEntries(Object.entries(GLASOPBOUW).map(([k, g]) => [k, g.prijs])), toon: 'verkoop' };
 
 const r2 = (x) => Math.round(x * 100) / 100;
 const gw = (v, d = 1) => (Math.round(v * 10 ** d) / 10 ** d).toString().replace('.', ',');
@@ -49,13 +50,17 @@ export function kostprijs(o, inst = {}) {
   for (const [cat, b] of Object.entries(staalKat)) regel(cat === 'zij' ? 'Afstandhouders koker 40x40x3' : `Staven staal${inox ? ' en inox' : ''} (zaaglijst, ${Math.round(T.kg)} kg, + 10 % zaagverlies)`, b, `${PRIJS.staal.bron}; inox: ${PROFIEL.inox42.bron}`, cat);
   // ---- laser: voetplaten, consoles, platen
   for (const p of sl.posities.filter((x) => x.soort === 'laser')) {
-    if (p.rol === 'voetplaat' || p.rol === 'console') regel(`${p.naam} ${p.maat} (${p.n} st, lasergesneden${inox && p.rol === 'voetplaat' ? ', RVS' : ''})`, p.n * (p.kg * (inox && p.rol === 'voetplaat' ? PRIJS.inoxPlaatPerKg.v : PRIJS.laserPerKg.v) + PRIJS.laserPerDeel.v), inox ? PRIJS.inoxPlaatPerKg.bron : PRIJS.laserPerKg.bron, p.rol === 'console' ? 'zij' : 'basis');
+    if (p.rol === 'muurplaat') regel(`${p.naam} ${p.maat} (${p.n} st, lasergesneden)`, p.n * (p.kg * PRIJS.laserPerKg.v + PRIJS.laserPerDeel.v), PRIJS.laserPerKg.bron, 'dak');
+    else if (p.rol === 'voetplaat' || p.rol === 'console') regel(`${p.naam} ${p.maat} (${p.n} st, lasergesneden${inox && p.rol === 'voetplaat' ? ', RVS' : ''})`, p.n * (p.kg * (inox && p.rol === 'voetplaat' ? PRIJS.inoxPlaatPerKg.v : PRIJS.laserPerKg.v) + PRIJS.laserPerDeel.v), inox ? PRIJS.inoxPlaatPerKg.bron : PRIJS.laserPerKg.bron, p.rol === 'console' ? 'zij' : 'basis');
     else { const pr = PRIJS.plaat[p.patroon] ?? PRIJS.plaat.vlak; regel(`${p.naam} ${p.maat} (${p.n} st)`, p.n * (p.b * p.l) / 1e6 * pr.v + p.n * PRIJS.laserPerDeel.v, pr.bron, 'basis'); }
   }
   // ---- glas
   if (T.glasM2) {
     const g = o.glas, tint = GLASTINT[k.glasTint] ?? GLASTINT.helder, pm2 = I.glasPrijs[g.opbouw] ?? g.prijs;
     regel(`Glas ${g.naam}, ${tint.naam.toLowerCase()} (${gw(T.glasM2, 2)} m², ${sl.posities.filter((p) => p.soort === 'glas').reduce((t, p) => t + p.n, 0)} platen)`, T.glasM2 * pm2 * (1 + tint.meer) * (o.knikken || k.vorm === 'trap' ? 1.08 : 1), `${g.bron}${tint.bron ? `; ${tint.bron}` : ''}${k.vorm === 'trap' ? '; parallellogram + 8 % (SCHATTING)' : ''}`, 'glas');
+    // vormglas onder het dak: de omschreven rechthoek + de vormtoeslag, het verschil met de echte oppervlakte apart
+    const vorm = sl.posities.filter((p) => p.soort === 'glas' && p.vorm), vt = (I.vormglas ?? PRIJS.vormglas.v * 100) / 100;
+    if (vorm.length) { const n = vorm.reduce((t, p) => t + p.n, 0), extra = vorm.reduce((t, p) => t + p.n * (p.rechthoek * (1 + vt) - p.m2), 0); regel(`Vormglas met schuine kant (${n} plat${n > 1 ? 'en' : ''}): omschreven rechthoek + ${Math.round(vt * 100)} %`, extra * pm2 * (1 + tint.meer), PRIJS.vormglas.bron, 'dak'); }
   }
   // ---- kooponderdelen
   const uM = o.delen.filter((d) => d.rol === 'uprofiel').reduce((t, d) => t + d.L, 0) / 1000;

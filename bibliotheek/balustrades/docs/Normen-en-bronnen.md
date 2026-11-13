@@ -46,6 +46,28 @@ mogen horizontale staven daar dus niet zonder meer. Wat wel mag:
 
 In categorie E (industrie, geen kinderen) toont de configurator oranje: toegelaten, maar zet het in het lastenboek.
 
+## Onder een schuin dak (opgezocht op 2026-11-13)
+
+Gezocht bij Buildwise (Contact 2016/4, Magazine 2023/2, artikel 2025-05.07 "Borstweringen: nieuwe regels voor de
+geometrie": <https://www.buildwise.be/nl/publicaties/buildwise-artikels/2025-05.07/>), bij de Nederlandse Bbl
+(<https://iplo.nl/regelgeving/regels-voor-activiteiten/technische-bouwactiviteit/nieuwbouw/rijksregels/vloerafscheidingen/>)
+en in Duitse vakfora. Niemand zegt iets over een borstwering onder een hellend dak of tegen een schuin plafond. Alle
+regels hieronder zijn dus **AANNAME**, afgeleid uit de bol van 110 mm en de hoogte H:
+
+| Regel | Waarde | Waarom |
+|---|---|---|
+| Opening tussen dak en balustrade | spleet (loodrecht op het dak) + 10 mm ≤ 110 mm | de spleet is een opening zoals elke andere (bol 110); + 10 mm voor een oneffen dakafwerking |
+| Kleinste spleet | ≥ 20 mm (anders oranje) | het dak buigt door en werkt (hout) |
+| Lager dan H | alleen waar het dak lager is dan H + 110 mm | daar volgt de bovenkant het dak; verder geldt de volle hoogte H |
+| Hoogte aan de muur | ≥ 150 mm (anders rood); < 300 mm: muurplaat | onderregel + vulling + handregel; een korte staander op 4 ankers is onpraktisch |
+| Vlak stuk na de knik | ≥ 150 mm | plaats voor de knikstaander en het verstek |
+| Muurankers | 50 % van de afschuifweerstand in beton | het knieschot is vaak metselwerk of hout: nakijken |
+
+**Vormglas.** Geen gepubliceerde vormtoeslag gevonden. [homedeal.nl](https://www.homedeal.nl/glas/veiligheidsglas/)
+noemt 10-25 % meer voor veiligheidsglas op maat naargelang de complexiteit van de vorm; glas op maat in het algemeen
+20-40 % ([homedeal.nl](https://www.homedeal.nl/glas/glas-op-maat-prijzen/)). De configurator rekent het glas met een
+schuine kant op de omschreven rechthoek + 15 % (**SCHATTING**, instelbaar bij Instellingen).
+
 ## Belasting: EN 1991-1-1 + Belgische ANB (tabel 6.12)
 
 | Categorie | qk (kN/m, op de handregel) | Qk (kN) |

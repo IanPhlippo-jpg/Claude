@@ -30,7 +30,9 @@ $('k-glasTint').innerHTML = Object.entries(GLASTINT).map(([v, x]) => `<label cla
 
 $('soorten').addEventListener('click', (e) => { const b = e.target.closest('[data-soort]'); if (!b) return; k.soort = b.dataset.soort; k.stijl = SOORTEN[k.soort].stijlen[0].id; k.handregel = 'stijl'; teken(); });
 $('stijl').addEventListener('change', () => { k.stijl = $('stijl').value; k.handregel = 'stijl'; teken(); });
-for (const id of ['L1', 'L2', 'L3', 'H']) $(id).addEventListener('change', () => { k[id] = +$(id).value; teken(); });
+const DAKV = ['dakBegin', 'dakEind'].flatMap((e) => ['Helling', 'Muur', 'Spleet'].map((n) => e + n));
+for (const id of ['L1', 'L2', 'L3', 'H', ...DAKV]) $(id).addEventListener('change', () => { k[id] = +$(id).value; teken(); });
+for (const id of ['dakBegin', 'dakEind']) $(id).addEventListener('change', () => { k[id] = $(id).checked; teken(); });
 $('cat').addEventListener('change', () => { k.cat = $('cat').value; teken(); });
 for (const n of ['plaats', 'vorm', 'bevestiging', 'ral', 'lak', 'glasTint']) document.querySelectorAll(`input[name="${n}"]`).forEach((r) => r.addEventListener('change', () => { k[n] = r.value; if (n === 'vorm') k.H = r.value === 'trap' && !k.L2 ? 1000 : Math.max(k.H, 1100); teken(); }));
 $('k-handregel').addEventListener('change', (e) => { k.handregel = e.target.value; teken(); });
@@ -43,17 +45,25 @@ $('i-sluit').addEventListener('click', () => { inst = { ...inst, bedrijf: $('i-b
 let api = null;
 function teken() {
   const o = ontwerp(k), kk = o.k, S = SOORTEN[kk.soort], st = STIJL(kk.soort, kk.stijl), B = berekening(o), kp = kostprijs(o, { uurloon: inst.uurloon, marge: inst.marge }), mb = MARKTBAND[kk.soort];
-  Object.assign(k, { L1: kk.L1, L2: kk.L2, L3: kk.L3, H: kk.H, stijl: kk.stijl });
+  Object.assign(k, { L1: kk.L1, L2: kk.L2, L3: kk.L3, H: kk.H, stijl: kk.stijl, dakBegin: kk.dakBegin, dakEind: kk.dakEind }, Object.fromEntries(DAKV.map((x) => [x, kk[x]])));
   document.querySelectorAll('[data-soort]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.soort === kk.soort));
   $('stijl').innerHTML = S.stijlen.map((x) => `<option value="${x.id}"${x.id === kk.stijl ? ' selected' : ''}>${esc(x.naam)}</option>`).join(''); $('i-stijl').textContent = st.uitleg;
   for (const n of ['plaats', 'vorm', 'bevestiging', 'ral', 'lak', 'glasTint']) { const r = document.querySelector(`input[name="${n}"][value="${kk[n]}"]`); if (r) r.checked = true; }
-  for (const id of ['L1', 'L2', 'L3', 'H']) $(id).value = kk[id];
+  for (const id of ['L1', 'L2', 'L3', 'H', ...DAKV]) $(id).value = kk[id];
+  for (const [id, kant] of [['dakBegin', 'begin'], ['dakEind', 'eind']]) {
+    const kan = kk.vorm !== 'trap' || (kant === 'eind' && kk.L2 > 0), e = o.dak.find((x) => x.kant === kant), i = $(`i-${id}`);
+    $(id).checked = !!kk[id]; $(id).disabled = !kan; $(`v-${id}`).hidden = !kk[id]; i.className = 'uitleg';
+    if (!kan) i.textContent = 'Langs een trap alleen aan het einde (vide na de trap).';
+    else if (!e) i.textContent = '';
+    else if (!e.nodig) i.textContent = 'Het dak is hier hoog genoeg: geen afschuining nodig.';
+    else { if (!e.past || e.top0 < NORM.dakWand.v) i.classList.add('rood'); i.textContent = `Schuin stuk ${Math.round(e.xs)} mm horizontaal, ${Math.round(e.top0)} mm hoog aan de muur.${!e.past ? ' Past niet in de lijn.' : ''}${e.top0 < NORM.dakWand.v ? ' Te laag aan de muur.' : ''}`; }
+  }
   $('v-L2').hidden = kk.vorm === 'recht'; $('v-L3').hidden = kk.vorm !== 'u'; $('l-L1').textContent = kk.vorm === 'trap' ? 'Trap, horizontaal (mm)' : 'Lengte (mm)'; $('l-L2').textContent = kk.vorm === 'trap' ? 'Vide erna (mm)' : 'Lengte 2 (mm)';
   $('cat').value = kk.cat; $('plaatsen').checked = !!kk.plaatsen;
   $('k-handregel').innerHTML = kies('handregel', S.handregels.map((h) => [h, { plat: 'Handregel plat', rond: 'Handregel rond', geen: 'Zonder handregel' }[h]])); const hr = document.querySelector(`input[name="handregel"][value="${kk.hr}"]`); if (hr) hr.checked = true;
   $('s-glas').hidden = !o.glas; $('s-kleur').hidden = kk.soort === 'glasU' || st.staander === 'inox';
   $('titel').textContent = `${S.naam}: ${st.naam}`;
-  $('sub').textContent = `${o.segs.map((s) => Math.round(s.Lh)).join(' + ')} mm, hoogte ${kk.H} mm, ${kk.plaats}${kk.vorm === 'trap' ? ', langs de trap' : ''}, ${kk.bevestiging === 'zij' ? 'tegen de zijkant' : 'bovenop de vloer'}${o.glas ? `, glas ${o.glas.naam}` : ''}.`;
+  $('sub').textContent = `${o.segs.map((s) => Math.round(s.Lh)).join(' + ')} mm, hoogte ${kk.H} mm, ${kk.plaats}${kk.vorm === 'trap' ? ', langs de trap' : ''}${o.dakKnikken ? `, onder een schuin dak (${o.dak.filter((e) => e.nodig).map((e) => `${e.kant === 'begin' ? 'begin' : 'einde'} ${e.hoek}°`).join(', ')})` : ''}, ${kk.bevestiging === 'zij' ? 'tegen de zijkant' : 'bovenop de vloer'}${o.glas ? `, glas ${o.glas.naam}` : ''}.`;
   $('bedrijf').textContent = inst.bedrijf ? `${inst.bedrijf}${inst.contact ? ` · ${inst.contact}` : ''}` : 'op maat, gelast in eigen werkplaats';
   $('printkop').innerHTML = `<b>${esc(inst.bedrijf || 'Balustrade op maat')}</b> ${esc(inst.contact)} · ${new Date().toLocaleDateString('nl-BE')}`;
   $('veilig').className = `veilig ${B.oordeel}`;
@@ -65,8 +75,8 @@ function teken() {
   const top = Math.max(mb.hoog * 1.5, kp.perMeterZonder * 1.08), pct = (v) => `${Math.min(100, (v / top) * 100)}%`;
   $('m-band').style.left = pct(mb.laag); $('m-band').style.width = `calc(${pct(mb.hoog)} - ${pct(mb.laag)})`; $('m-pin').style.left = pct(kp.perMeterZonder);
   $('m-tekst').textContent = `Markt: ${eur(mb.laag)}-${eur(mb.hoog)}/m zonder plaatsen`;
-  $('p-opbouw').innerHTML = Object.entries(kp.perCat).filter(([c, x]) => x.verkoop > 0.5 && (c !== 'plaatsen' || kp.plaatsen.inbegrepen)).map(([c, x]) => `<div><span>${esc(CAT[c])}</span><span>${eur((x.verkoop * btw) / kp.meter)}/m</span></div>`).join('');
-  const tot = o.segs.reduce((t, s) => t + s.Lh, 0), zMax = Math.max(...o.delen.map((d) => Math.max(d.a[2], d.b[2]))), zMin = Math.min(0, ...o.delen.map((d) => Math.min(d.a[2], d.b[2]))), s = Math.min(360 / tot, 200 / (zMax - zMin + 200)), H = (zMax - zMin) * s + 60;
+  $('p-opbouw').innerHTML = Object.entries(kp.perCat).filter(([c, x]) => x.verkoop > 0.5 && (c !== 'plaatsen' || kp.plaatsen.inbegrepen)).map(([c, x]) => `<div><span>${esc(CAT[c])}${c === 'dak' ? ` (${o.dakKnikken} x)` : ''}</span><span>${eur((x.verkoop * btw) / kp.meter)}/m</span></div>`).join('');
+  const tot = o.segs.reduce((t, s) => t + s.Lh, 0), zMax = Math.max(o.dakKnikken ? kk.H + 200 : 0, ...o.delen.map((d) => Math.max(d.a[2], d.b[2]))), zMin = Math.min(0, ...o.delen.map((d) => Math.min(d.a[2], d.b[2]))), s = Math.min(360 / tot, 200 / (zMax - zMin + 200)), H = (zMax - zMin) * s + 60;
   $('tekening').innerHTML = alsBeeld(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 ${H}" width="400" height="${H}" font-family="Arial, Helvetica, sans-serif"><rect width="400" height="${H}" fill="#fff"/>${vooraanzicht(o, s, 22, 16 + zMax * s, { h: 3 })}</svg>`, 800, H * 2, 'Vooraanzicht');
   api?.toon(o, { ral: kk.ral, lak: kk.lak, glasTint: kk.glasTint });
   schrijf('balustrade-presentatie', k);
