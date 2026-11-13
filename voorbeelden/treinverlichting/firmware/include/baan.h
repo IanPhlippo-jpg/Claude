@@ -22,7 +22,7 @@
 
 namespace trein {
 
-constexpr const char *FW_VERSIE = "1.1.0";
+constexpr const char *FW_VERSIE = "1.2.0";
 
 // Testmodus (voor de ingebruikname en het meetblad): de uitgangen worden overschreven, de rest rekent gewoon door.
 //   looplicht  groep 1, 2, ... N om de beurt VOL aan (zonder zachte overgang, gamma of maximum), elk stapMs lang

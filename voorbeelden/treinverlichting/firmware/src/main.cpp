@@ -5,9 +5,11 @@
 // Vaste aansluitingen:
 //   GPIO8  SDA, GPIO9  SCL (I2C, 400 kHz)
 //   GPIO10 OE van de PCA9685 (actief laag; een externe pull-up van 1 kΩ houdt alles UIT tijdens reset en flashen)
-//   PCA9685 op 0x40: kanaal 0..15 = groep 1..16; met TREIN_GROEPEN > 16 een tweede op 0x41 (groep 17..32)
-//   ingang 1..16 = GPIO 1, 2, 4, 5, 6, 7, 12, 13, 14, 15, 16, 17, 18, 21, 40, 41 (INPUT_PULLUP; de optocoupler trekt
-//   de pin naar GND = actief). Vrij: GPIO 11, 39, 42, 47, 48. Zie src/hw.h voor de pinnen die bewust niet gebruikt worden.
+//   PCA9685 op 0x40: kanaal 0..15 = groep 1..16 (IN1..IN8 van MOSFET-module 1 en 2, standaard actief laag: hw.h);
+//   met TREIN_GROEPEN > 16 een tweede op 0x41 (groep 17..32)
+//   ingang 1..16 = GPIO 1, 2, 4, 5, 6, 7, 12, 13, 14, 15, 16, 17, 18, 21, 40, 41 (OUT1..OUT8 van de 2 optocouplerprints;
+//   INPUT_PULLUP, de optocoupler trekt de pin naar GND = actief). Vrij: GPIO 11, 39, 42, 47, 48. Zie src/hw.h.
+//   Alles via de schroefklemadapter van de ESP (versie 4: kant-en-klare modules, geen gaatjesprints).
 //   GPIO38 RGB-led op het bord = statuslampje: groen = hotspot actief, rood = PCA9685 antwoordt niet (gaat voor),
 //          blauw = BOOT-knop wordt vastgehouden / knippert: het wifi-wachtwoord is teruggezet
 //   GPIO0  BOOT-knop op het bord: 5 s vasthouden = wifi-wachtwoord terug naar "treinbaan" (en thuisnet uit)

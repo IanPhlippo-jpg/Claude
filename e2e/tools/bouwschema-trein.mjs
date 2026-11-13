@@ -1,4 +1,4 @@
-// Bouwschema van de kabeldoos (treinverlichting, versie 2): per stap de onderdelen uit voorbeelden/treinverlichting/Kabeldoos.kcad
+// Bouwschema van de kabeldoos (treinverlichting, versie 4: kant-en-klare modules op een moduleplaat): per stap de onderdelen uit voorbeelden/treinverlichting/Kabeldoos.kcad
 // in Phlippo CAD (de nieuwe delen uit elkaar geschoven in de richting waarin ze erin gaan), een beeld van het venster en
 // de uitleg; samen een PDF (A4 liggend) in voorbeelden/treinverlichting/tekeningen.
 // Nodig: de app met VITE_TEST_HOOKS (npm run build:e2e en vite preview, of de dev-server) op E2E_URL (standaard poort 5184).
@@ -16,17 +16,17 @@ mkdirSync(BEELD, { recursive: true });
 mkdirSync(UIT, { recursive: true });
 const doos = JSON.parse(readFileSync(`${DIR}/Kabeldoos.kcad`, 'utf8'));
 delete doos.format;
-const VERSIE = `versie 3 (${/\((\d{4}-\d{2}-\d{2})\)/.exec(readFileSync(`${DIR}/README.md`, 'utf8'))?.[1] ?? ''})`;
+const VERSIE = `versie 4 (${/\((\d{4}-\d{2}-\d{2})\)/.exec(readFileSync(`${DIR}/README.md`, 'utf8'))?.[1] ?? ''})`;
 
 // groepen onderdelen (id's zoals in Kabeldoos.kcad)
 const G = {
   bak: /^d1$/, deksel: /^d2$/, dekselschroeven: /^sd\d$/, ophangschroeven: /^sv\d$/, dcbus: /^w1$/,
   tules: /^t\d+$/, goten: /^g\d+$/,
   bordjes: /^b\d+(k\d|e\d|r)?$/, bordje1: /^b1(k\d|e\d|r)?$/,
-  prints: /^(u\d+|p\d|pb\d|v\d+|i\d+|e\d+|eo\d+)$/, printschroeven: /^(us|ps|vs|is|es)\d+$/,
+  plaat: /^mp$/, plaatschroeven: /^mps\d$/, modules: /^m[a-z0-9]+_\d+$/,
 };
 const of = (...namen) => namen.map((n) => G[n]);
-const ALLES_OPEN = of('bak', 'tules', 'dcbus', 'bordjes', 'prints', 'printschroeven', 'ophangschroeven');
+const ALLES_OPEN = of('bak', 'tules', 'dcbus', 'bordjes', 'plaat', 'modules', 'plaatschroeven', 'ophangschroeven');
 /** een beeld: welke groepen, welke verschoven (dx, dy, dz in mm), van onderen bekeken, de toets van het aanzicht; of een bestand */
 const beeld = (toon, schuif = [], opts = {}) => ({ toon, schuif, ...opts });
 const bestand = (f) => ({ bestand: f });
@@ -34,59 +34,59 @@ const kopie = (f) => ({ kopie: f });
 
 const STAPPEN = [
   {
-    titel: 'De doos en de hulpstukken printen', tijd: 'bak ongeveer 14 uur, deksel 7 uur, gootdeksels 3 uur, hulpstukken 1 uur', gereedschap: 'Elegoo Centauri Carbon, PETG zwart (bak) en grijs (deksel, gootdeksels, hulpstukken)',
-    beelden: [beeld(of('bak')), beeld(of('deksel'), [], { onder: true })],
+    titel: 'De doos, de moduleplaat en de hulpstukken printen', tijd: 'bak ongeveer 17 uur, deksel 5 uur, moduleplaat 3 uur, gootdeksels 3 uur, hulpstukken 1 uur', gereedschap: 'Elegoo Centauri Carbon, PETG zwart (bak) en grijs (deksel, moduleplaat, gootdeksels, hulpstukken)',
+    beelden: [beeld(of('bak')), beeld(of('plaat'))],
     tekst: [
-      'Print print/Kabeldoos-bak.stl met de bodem op het bed, print/Kabeldoos-deksel.stl met de buitenkant op het bed, print/Gootdeksels-plaat.stl (9 gootdeksels) en print/Hulpstukken.stl (2 werkhaken en de spatel) plat op het bed: geen support nodig.',
+      'Print print/Kabeldoos-bak.stl met de bodem op het bed, print/Kabeldoos-deksel.stl met de buitenkant op het bed, print/Moduleplaat.stl met de onderkant op het bed (de paaltjes omhoog), print/Gootdeksels-plaat.stl (9 gootdeksels) en print/Hulpstukken.stl (2 werkhaken en de spatel): geen support nodig.',
       'Elk deel is hoogstens 230 x 230: leg het in het midden van het bed, dan blijft de hoek voor het filamentmes (rechtsvoor 10 x 20) vrij, ook met een skirt.',
       '0,2 mm lagen, 4 wanden, 30 % gyroid. De vingers van de goten (1,2) en de klemlippen (0,8) zijn dun: buitenwanden op 40 mm/s.',
-      'Controleer na het printen: een bordje klikt in zijn 4 klemlippen, een gootdeksel klikt over zijn goot, het deksel valt met zijn rand in de bak.',
+      'Meet eerst de modules die een AANNAME hebben (MOSFET-modules, schroefklemadapter, regelaar: TRN-10). Kloppen de gaten niet, pas dan de maten in opbouw.mjs aan en print alleen de moduleplaat opnieuw.',
     ],
-    delen: ['Bak (TRN-01)', 'Deksel (TRN-02)', '9 gootdeksels (TRN-03)', 'Hulpstukken (TRN-04)'],
+    delen: ['Bak (TRN-01)', 'Deksel (TRN-02)', 'Moduleplaat (TRN-05)', '9 gootdeksels (TRN-03)', 'Hulpstukken (TRN-04)'],
   },
   {
-    titel: 'De gaatjesprints solderen', tijd: '4 tot 5 uur', gereedschap: 'Soldeerbout met fijne punt, tin, kniptang, pincet, multimeter, opbouwtekeningen TRN-10 tot TRN-13',
-    beelden: [beeld(of('prints'))],
+    titel: 'De modules op de moduleplaat schroeven', tijd: '30 min', gereedschap: 'Kruiskopschroevendraaier PH1, montageblad TRN-10',
+    beelden: [beeld(of('plaat', 'modules', 'plaatschroeven')), beeld(of('plaat', 'modules', 'plaatschroeven'), [], { toets: 'Control+5' })],
     tekst: [
-      'Zaag uit één gaatjesprint van 160 x 100 de uitgangsprint (132 x 25,4), de ingangsprint (88), de voedingsprint (61) en de draagprint van de ESP (68). Boor in de uitgangsprint de 4 gaten Ø2,7 voor de afstandsbussen van de PCA9685 bij (TRN-10).',
-      'Volg per print de opbouwtekening: eerst de IC-voeten, de optocouplers en de klemmen aan de componentenzijde, dan de SMD-onderdelen (polyfuses 1812, weerstanden 1206) aan de koperzijde over twee eilandjes, dan de bruggen (soldeerbrug, blanke draad, Ø1,0 voor de 5 A-paden, geïsoleerde draadjes).',
-      'De MOSFET-adapters (2 x AO3400A elk) gaan pas in hun voetje als de print gemeten is: geen kortsluiting tussen +12 V en 0 V, en elke gate met 100 kΩ aan 0 V.',
-      'De PCA9685 op 4 afstandsbussen M2,5 x 10 boven de rechterhelft van de uitgangsprint; de ESP steekt in de draagprint (de regelaar zit eronder).',
+      'Elke module op haar 4 paaltjes met plaatschroeven 3 x 8 bolkop (de PCA9685 met 2,5 x 6): de MOSFET-modules -Q1 en -Q2 vooraan, de optocouplerprints -K3 en -K4 in het midden, de ESP in haar schroefklemadapter -X6 rechtsachter (de USB-kant naar rechts), de PCA9685 -K2 en de regelaar -T2 achteraan.',
+      'Druk de 6 WAGO-klemmen 221-415 in hun klikhouders, 3 per rij, de hendels naar boven en de draadingangen naar voren: -X1 (L+, 2 stuks), -X3 (+12 V sensoren), -X2 (0 V, 2 stuks), -X7 (3,3 V).',
+      'Niet te hard aandraaien: de gaten in PETG zijn Ø2,6 (3 mm) en Ø2,2 (2,5 mm).',
+      'De ESP gaat met haar pinnen in de pinrijen van de adapter die bij haar breedte passen (22,86 hart op hart bij het originele DevKitC-1).',
     ],
-    delen: ['Uitgangsprint (TRN-10)', 'Ingangsprint (TRN-11)', 'Voedingsprint (TRN-12)', 'Draagprint ESP (TRN-13)', 'PCA9685', 'ESP32-S3-DevKitC-1'],
+    delen: ['2 MOSFET-modules, 2 optocouplerprints', 'ESP32-S3 in de schroefklemadapter', 'PCA9685, SBC-Buck02', '6 WAGO 221-415', '24 plaatschroeven 3 x 8, 4 x 2,5 x 6'],
+  },
+  {
+    titel: 'Bedraden met de draadlijst, zonder solderen', tijd: '2 uur', gereedschap: 'Striptang, kleine schroevendraaier 2,5, dupontkabels, draadlijst TRN-14, soldeerbout (alleen de DC-bus)',
+    beelden: [beeld(of('plaat', 'modules', 'plaatschroeven'), [], { zoom: [0.47, 0.5, 4] })],
+    tekst: [
+      'Volg de draadlijst TRN-14 (W01 tot W61) en het montageblad TRN-10: 0,75 mm² voor 12 V en 0 V naar de MOSFET-modules, 0,5 mm² naar de regelaar, dupontkabels female-female op de pinnen van de PCA9685 en de MOSFET-modules (PWM0..15 naar IN1..IN8), female-male waar het andere eind in een schroefklem gaat.',
+      'Met hun pootjes in de klemmen, geen solderen: de weerstand -R1 (1 kΩ) tussen J1:1 (3V3) en J1:16 (GPIO10) van de adapter, de diode -R2 SB560 tussen -X1:8 (ring = kathode) en -X2:8, de polyfuse -F18 tussen -X1:7 en -X3:1.',
+      'Per groep een polyfuse MF-R050: één pootje in de klem n− van de MOSFET-module, het andere in een WAGO 221-2411 waar straks de − van het bordje bij komt. Label ze G01 tot G16.',
+      'Het enige soldeerwerk: de DC-bus. Soldeer aan de pen (+) de draad van de zekeringhouder -F1 en aan de huls (−) een zwarte draad van 0,75 mm² naar -X2:1.',
+    ],
+    delen: ['Montagedraad 0,14 tot 0,75 mm², dupontkabels', '17 polyfuses MF-R050, 16 WAGO 221-2411', 'SB560, weerstand 1 kΩ, zekeringhouder met 7,5 A', 'DC-bus 5,5 x 2,5'],
   },
   {
     titel: 'Proefopstelling en firmware flashen', tijd: '1 uur', gereedschap: 'Pc met PlatformIO, micro-USB-kabel (data), multimeter, meetblad TRN-20',
-    beelden: [beeld([...of('prints', 'printschroeven'), G.bordje1], [[G.bordje1, [0, 0, 118]]], { toets: 'Control+7' })],
+    beelden: [beeld([...of('plaat', 'modules', 'plaatschroeven'), G.bordje1], [[G.bordje1, [-20, -30, 110]]], { toets: 'Control+7' })],
     tekst: [
-      'Eerst op tafel, nog niet in de doos: de 4 prints verbonden met de draden van de draadlijst TRN-14, één bordje aan groep 1 (R1+ aan -X2:1, G01− aan -X3:1) en één drukknop op IN01 (COM1 aan 0 V).',
-      'Flashen: ESP met de micro-USB "UART" aan de pc, in firmware/: python -m platformio run -e doos -t upload. Daarna kan bijwerken zonder kabel (dashboard, Instellingen, Firmware bijwerken).',
-      'Adapter in de DC-bus. Meet en noteer op het meetblad TRN-20: 12 V, 5 V, 3,3 V, OE bij reset, de stroom van groep 1 en de spanning over zijn MOSFET (< 0,1 V).',
-      'Dashboard, Instellingen, Testmodus: groep 1 vast aan, dan looplicht; de knop op IN01 zet alles aan en uit (standaardinstelling).',
+      'Op tafel, nog niet in de doos: de moduleplaat met alle draden, één bordje aan groep 1 (G01+ aan -Q1:1+, G01− in de WAGO van zijn polyfuse) en één drukknop tussen -K3:IN1 en 0 V (-X2).',
+      'Flashen: de ESP met de micro-USB "UART" aan de pc, in firmware/: python -m platformio run -e doos -t upload (de adapter uit de DC-bus zolang de USB-kabel erin zit). Daarna kan bijwerken zonder kabel (dashboard, Instellingen, Firmware bijwerken).',
+      'Adapter in de DC-bus. Meet en noteer op het meetblad TRN-20: 12 V, 5 V, 3,3 V, OE bij reset, +12 V van de ingangen. Stap 8 en 9: gaat het bordje uit als groep 1 uit staat, en toont IN01 "rust" zonder knop? Zo niet: de bouwvlag van de firmware (TRN-20).',
+      'Dashboard, Instellingen, Testmodus: groep 1 vast aan (stroom en spanning n− tot VIN−), dan looplicht; de knop op IN01 zet alles aan en uit (standaardinstelling).',
     ],
     delen: ['1 bordje, 1 drukknop', 'Draden van TRN-14'],
   },
   {
-    titel: 'De prints in de bak schroeven', tijd: '20 min', gereedschap: 'Kruiskopschroevendraaier PH1, soldeerbout',
-    beelden: [beeld([...of('bak', 'prints', 'printschroeven', 'dcbus')], [[G.prints, [0, 40, 0]], [G.printschroeven, [0, 60, 0]], [G.dcbus, [-25, 0, 0]]])],
-    tekst: [
-      'Voorste rij: links de voedingsprint, in het midden de ingangsprint, rechts de draagprint met de ESP (de USB-poorten in de opening van de rechterwand).',
-      'Rij 6: de uitgangsprint met de PCA9685 erboven, naast bordje 16.',
-      'Elke print op zijn paaltjes met plaatschroeven 2,5 x 6 (de uitgangsprint met 5, de draagprint met 2): niet te hard aandraaien, het gat in PETG is Ø2,2.',
-      'De DC-bus in het gat in de linkerwand, de moer aan de binnenkant; soldeer de pen (+) en de huls (−) met 0,75 mm² aan -X1:1 en -X1:2.',
-    ],
-    delen: ['15 plaatschroeven 2,5 x 6 bolkop', 'DC-chassisbus 5,5 x 2,5'],
-  },
-  {
     titel: 'De bordjes in hun klemlippen', tijd: '5 min', gereedschap: 'Spatel (hulpstukken)',
-    beelden: [beeld([...of('bak', 'prints', 'printschroeven', 'dcbus'), G.bordjes], [[G.bordjes, [0, 40, 0]]]), kopie('e2e-out/trein-lippen-detail.jpg')],
+    beelden: [beeld([...of('bak', 'dcbus'), G.bordjes], [[G.bordjes, [0, 40, 0]]]), kopie('e2e-out/trein-lippen-detail.jpg')],
     tekst: [
       'Druk de 16 Modelbouwled-bordjes in hun ring: bordje 1 links achteraan, dan per rij van links naar rechts; bordje 16 in rij 6.',
       'De print duwt de 4 klemlippen aan de korte kanten opzij (schuine kant) en klikt eronder: het bordje blijft zitten, ook met de doos ondersteboven.',
       'Uitnemen: met het blad van de spatel de 2 lippen aan één kant naar buiten duwen en het bordje aan die kant optillen.',
-      'Schrijf het groepsnummer met een stift op elk bordje (of plak een label): G01 tot G16.',
+      'Zet de DC-bus in het gat in de linkerwand (de moer aan de binnenkant) en schrijf het groepsnummer op elk bordje: G01 tot G16.',
     ],
-    delen: ['16 bordjes Modelbouwled'],
+    delen: ['16 bordjes Modelbouwled', 'DC-bus (met zijn 2 draden)'],
   },
   {
     titel: 'Ophangen onder de baan', tijd: '15 min', gereedschap: 'Boormal TRN-00 (A3 op 100 %), tape, boor Ø2,5, schroevendraaier',
@@ -101,25 +101,25 @@ const STAPPEN = [
   },
   {
     titel: 'Bedraden op werkhoogte en kabels ordenen', tijd: '2 tot 3 uur', gereedschap: 'Striptang, kleine schroevendraaier 2,5, kabelbinders, labels, 2 werkhaken en de spatel (hulpstukken)',
-    beelden: [beeld([...ALLES_OPEN], [], { kantel: true, toets: 'Control+2' }), beeld([...ALLES_OPEN], [], { zoom: true })],
+    beelden: [beeld([...of('bak', 'tules', 'dcbus', 'bordjes', 'ophangschroeven')], [], { kantel: true, toets: 'Control+2' }), beeld([...of('bak', 'tules', 'dcbus', 'bordjes')], [], { zoom: true })],
     tekst: [
-      'Werkhoogte: schuif de doos 6 mm naar voren en neem ze af. Hang de 2 werkhaken met hun sleutelgat aan de 2 voorste schroeven en de doos met haar 2 voorste sleutelgaten aan de knoppen: ze hangt verticaal, 12 cm onder de baan, de open kant naar je toe (beeld boven).',
-      'Elke bundel van de baan naar de doos krijgt een kabellus van 50 cm (kabelbinder aan de baan). Labels eerst: G01− tot G16−, R1+ tot R6+, IN01 tot IN16 aan beide uiteinden.',
-      'Leddraden door de sleuf onder de goot naast hun bordje of door een membraantule; in de goot door de sleuf voor hun klem. De − van elk bordje apart naar klem nn van de uitgangsprint (-X3), de + per rij naar -X2:1..6.',
-      'Knoppen en sensoren: door de tules vooraan naar -X4; per 4 ingangen de COM aan 0 V (contacten, PNP) of +12 V (NPN). Een draad uit een goot halen: gootdeksel optillen met het blad van de spatel, draad trekken met het haakje.',
+      'Werkhoogte: schuif de doos 6 mm naar voren en neem ze af. Hang de 2 werkhaken met hun sleutelgat aan de 2 voorste schroeven en de doos met haar 2 voorste sleutelgaten aan de knoppen: ze hangt verticaal, 12 cm onder de baan, de open kant naar je toe (beeld boven: nog zonder moduleplaat).',
+      'Elke bundel van de baan naar de doos krijgt een kabellus van 50 cm (kabelbinder aan de baan). Labels eerst: G01+ tot G16+, G01− tot G16−, IN01 tot IN16 aan beide uiteinden.',
+      'Leddraden door de sleuf onder de goot naast hun bordje of door een membraantule. De + en − van elk bordje (G01+, G01−) door de goten naar voren, in rij 7 omhoog: 15 cm langer dan nodig, zodat de moduleplaat eruit kan. Knoppen en sensoren: door de tules vooraan.',
+      'Een draad uit een goot halen: gootdeksel optillen met het blad van de spatel, draad trekken met het haakje.',
     ],
     delen: ['Montagedraad 0,25 en 0,5 mm²', 'Kabelbinders, labels', '2 werkhaken'],
   },
   {
-    titel: 'Gootdeksels en deksel erop, terug onder de baan', tijd: '15 min', gereedschap: 'Kruiskopschroevendraaier PH2',
-    beelden: [beeld([...ALLES_OPEN, ...of('goten', 'deksel', 'dekselschroeven')], [[G.goten, [0, 35, 0]], [G.deksel, [0, 80, 0]], [G.dekselschroeven, [0, 105, 0]]], { voorblad: true })],
+    titel: 'Gootdeksels, moduleplaat en deksel erop', tijd: '45 min', gereedschap: 'Kruiskopschroevendraaiers PH1 en PH2',
+    beelden: [beeld([...ALLES_OPEN, ...of('goten', 'deksel', 'dekselschroeven')], [[G.goten, [0, 30, 0]], [G.plaat, [0, 65, 0]], [G.modules, [0, 65, 0]], [G.plaatschroeven, [0, 85, 0]], [G.deksel, [0, 115, 0]], [G.dekselschroeven, [0, 135, 0]]], { voorblad: true })],
     tekst: [
-      'Kijk of geen draad boven de vingers van de goten of over de rand van de bak uitsteekt.',
-      'Druk de 6 gootdeksels tussen de rijen op hun goot: de nokken klikken in de klikvingers. De 3 randdeksels (achter, links, rechts): de neus in de groef van de buitenwand haken en aan de andere kant dichtklikken.',
+      'Druk de 6 gootdeksels tussen de rijen op hun goot (de nokken klikken in de klikvingers) en de 3 randdeksels (neus in de groef van de buitenwand, andere kant dichtklikken). Geen draad boven de vingers.',
+      'De moduleplaat: de achterrand onder de richel in de achterwand schuiven, vooraan op de 2 palen leggen en vastzetten met 2 plaatschroeven 3 x 10. Sluit de draden van de bordjes aan (+ in n+, − in de WAGO van de polyfuse), de knoppen en sensoren op -K3/-K4, -X2 en -X3, en de DC-bus.',
       'Zet het deksel erop en draai de 4 plaatschroeven 3 x 12 verzonken in de bussen in de hoeken, kruislings en niet te hard.',
-      'Neem de doos van de werkhaken en hang ze weer op de 4 schroeven (6 mm naar achteren schuiven); de kabellussen in de goten of langs de baan vastzetten.',
+      'Neem de doos van de werkhaken en hang ze weer op de 4 schroeven (6 mm naar achteren schuiven).',
     ],
-    delen: ['9 gootdeksels', '4 plaatschroeven 3 x 12 verzonken'],
+    delen: ['9 gootdeksels', 'Moduleplaat, 2 plaatschroeven 3 x 10', '4 plaatschroeven 3 x 12 verzonken'],
   },
   {
     titel: 'Aanzetten, instellen en meten', tijd: '30 min', gereedschap: 'Gsm of tablet, multimeter, meetblad TRN-20, invulblad TRN-21',
@@ -223,10 +223,10 @@ const img = (f) => `data:image/${f.endsWith('.png') ? 'png' : 'jpeg'};base64,${r
 const N = STAPPEN.length;
 const kop = (t) => `<div class="kop"><span>Bouwschema kabeldoos treinverlichting · ${VERSIE}</span><span>${t}</span></div>`;
 const voorblad = `<section class="blad voor">${kop('')}
-  <h1>Bouwschema<br><small>Kabeldoos met ESP32-S3: 16 lichtgroepen, 16 ingangen, eigen wifi; kabelgoten met klikdeksels, bordjes in klemlippen</small></h1>
+  <h1>Bouwschema<br><small>Kabeldoos met ESP32-S3: 16 lichtgroepen, 16 ingangen, eigen wifi; kant-en-klare modules op een moduleplaat, kabelgoten met klikdeksels</small></h1>
   <div class="voorinhoud"><img src="${img(STAPPEN.flatMap((q) => q.beelden.map((b, k) => [b, q.foto[k]])).find(([b]) => b.voorblad)[1])}">
   <ol>${STAPPEN.map((s) => `<li>${esc(s.titel)} <em>${esc(s.tijd)}</em></li>`).join('')}</ol></div>
-  <p class="noot">Maten staan op de werktekeningen TRN-00 tot TRN-04, de gaatjesprints op de opbouwtekeningen TRN-10 tot TRN-13, de draden tussen de prints in de draadlijst TRN-14, de bedrading in het aansluitschema, de metingen op het meetblad TRN-20, de onderdelen en prijzen in de README.
+  <p class="noot">Maten staan op de werktekeningen TRN-00 tot TRN-05, de modules op het montageblad TRN-10, de draden tussen de modules in de draadlijst TRN-14, de bedrading in het aansluitschema, de metingen op het meetblad TRN-20, de onderdelen en prijzen in de README. Geen gaatjesprints: alleen de DC-bus wordt gesoldeerd.
   Print de doos in PETG op de Elegoo Centauri Carbon, zonder support.</p></section>`;
 const bladen = STAPPEN.map((s, i) => `<section class="blad">${kop(`stap ${i + 1} / ${N}`)}
   <div class="stap"><div class="beelden b${s.foto.length}">${s.foto.map((f) => `<img src="${img(f)}">`).join('')}</div>

@@ -173,7 +173,7 @@ export function kapArt(P) {
 /** beeld-x = x + 31,25, beeld-y = z + 12,7; servo-uitgangen 16 x 3, zijkanten 2 x 6, chip op z -7,6 tot -3,2 */
 export function pcaArt(P) {
   const W = P.x, H = P.z, p = new Plaat(W, H, { masker: 'blauw', seed: 5 }), X = (x) => x + W / 2, Y = (z) => z + H / 2;
-  const sx = (k) => X(-25.4 + k * 2.54 + Math.floor(k / 4) * 1.27), rij = (r) => Y(3.5 + r * 2.54);
+  const sx = (k) => X(-22.86 + k * 2.54 + Math.floor(k / 4) * 1.27), rij = (r) => Y(3.5 + r * 2.54);
   // V+ (middelste rij) en GND (onderste rij) als brede banen, de PWM-rij met een baan per kanaal naar de chip
   p.baan([[sx(0) - 1.5, rij(1)], [sx(15) + 1.5, rij(1)]], 0.9).baan([[sx(0) - 1.5, rij(2) + 1.2], [sx(15) + 1.5, rij(2) + 1.2]], 1.0);
   for (let k = 0; k < 16; k++) {
@@ -213,28 +213,31 @@ export function pcaChipArt(P) {
   return p.decal('dc1', 'Opschrift chip', [0, P.pcb + 1.1, -5.4]);
 }
 
-// ---------------------------------------------------------------- gaatjesprints (FR2) en de Pololu-regelaar
-/** gaatjesraster van een print uit opbouw.mjs (P): de gaten op 2,54, niet bij de schroeven en de bijgeboorde gaten
- *  voor de afstandsbussen; cijfers (kolom, vanaf 1) en letters (rij) langs de rand zoals op de opbouwtekening */
-export function gaatjesArt(P, vrij) {
-  const p = new Plaat(P.w, P.h, { masker: 'fr2', seed: Math.round(P.w) });
-  for (let c = 0; c < P.nx; c++) for (let r = 0; r < P.ny; r++) if (vrij(c, r)) p.gat(P.x0 + c * 2.54, P.y0 + r * 2.54, 1.0);
-  for (const [x, y] of P.boringen) p.gat(x, y, 2.7);
-  for (let c = 4; c < P.nx; c += 5) p.tekst(P.x0 + c * 2.54, Math.max(0.75, P.y0 - 1.6), String(c + 1), { h: 0.6, kleur: '#f4efe2' });
-  for (let r = 0; r < P.ny; r += 2) p.tekst(Math.max(0.6, P.x0 - 1.6), P.y0 + r * 2.54, String.fromCharCode(65 + r), { h: 0.55, kleur: '#f4efe2' });
-  return p.decal('dc1', 'Gaatjesraster', [0, 1.6, 0]);
-}
-export function pololuArt() {
-  const W = 17.8, H = 12.7, p = new Plaat(W, H, { masker: 'groen', seed: 9 });
-  const pins = ['EN', 'VIN', 'GND', 'VOUT', 'PG'];
-  p.vlak([[0.8, 0.8], [W - 0.8, 0.8], [W - 0.8, 4.6], [0.8, 4.6]]);
-  pins.forEach((t, i) => { const x = W / 2 + (i - 2) * 2.54; p.ring(x, H / 2 + 5.08, 1.6, 1.0, i === 0); p.tekst(x, H / 2 + 2.95, t, { h: 0.62 }); });
-  p.baan([[W / 2 - 2.54, H / 2 + 5.08], [W / 2 - 2.54, H / 2 + 1.8], [W / 2 - 4.4, H / 2]], 0.6).baan([[W / 2 + 2.54, H / 2 + 5.08], [W / 2 + 2.54, H / 2 + 1.8], [W / 2 + 5.2, H / 2 - 0.2]], 0.6);
-  for (let k = 0; k < 6; k++) p.pad(4.0 + (k % 3) * 0.95, 4.0 + Math.floor(k / 3) * 2.2, 0.4, 0.8);
-  p.pad(W - 4.0, 4.2, 1.2, 1.0).pad(W - 4.0, 6.6, 1.2, 1.0);
-  for (const [x, y] of [[2.0, 2.0], [W - 2.0, 2.0], [W / 2, 2.6]]) p.via(x, y, 0.5);
-  p.tekst(W / 2 - 4.3, 1.6, 'D24V10F5', { h: 0.7 });
-  return p.decal('dc1', 'Opdruk en banen', [0, 1.0, 0]);
+// ---------------------------------------------------------------- de kant-en-klare modules van versie 4 (opbouw.mjs)
+const TITEL = {
+  'MOSFET-module': ['8CH MOS FET DRIVER  PWM', 'OPTO ISOLATION  3.3V'],
+  Optocouplerprint: ['PC817 8CH OPTOCOUPLER', '3.6-24V  ISOLATION BOARD'],
+  'SBC-Buck02': ['joy-it  SBC-Buck02', '9-35V > 5V  5A'],
+  'ESP-adapter': ['ESP32-S3 44P EXPANSION BOARD', '23mm / 25.5mm'],
+};
+/** de opdruk van een module: soldeermasker, de gaten met hun kraag, een pad onder elke klem met de naam ernaast, een paar
+ *  banen van de klemmen naar het midden, en de naam van de print (zoals de verkopers hem tonen) */
+export function moduleArt(m) {
+  const W = m.l, H = m.b, p = new Plaat(W, H, { masker: m.kleur === '#1d1f22' ? 'zwart' : 'blauw', seed: Math.round(W + H) });
+  const X = (x) => x + W / 2, Y = (z) => z + H / 2;
+  for (const [x, z] of m.gaten) { p.ring(X(x), Y(z), m.gat + 1.6, m.gat + 0.2); }
+  for (const k of m.klemmen) {
+    const pin = k.soort === 'pin', d = pin ? 1.6 : 2.0;
+    p.ring(X(k.x), Y(k.z), d, d * 0.55, k === m.klemmen[0]);
+    // de naam aan de binnenkant van de klem (de klem zelf bedekt het pad)
+    const binnen = { '+z': [0, -5.6], '-z': [0, 5.6], '-x': [6.2, 0], '+x': [-6.2, 0], '+y': [0, pin ? -2.0 : 0] }[k.in] ?? [0, 0];
+    p.tekst(X(k.x + binnen[0]), Y(k.z + binnen[1]), k.label, { h: k.label.length > 3 ? 0.9 : 1.15, vet: true, draai: pin && k.x * k.x > 600 ? 90 : 0 });
+    if (!pin && Math.abs(k.z) > 1) p.baan([[X(k.x), Y(k.z)], [X(k.x), Y(k.z * 0.55)]], 0.5);
+  }
+  const t = TITEL[m.kort];
+  if (t) t.forEach((r, i) => p.tekst(W / 2, H / 2 + (i - 0.5) * 2.4 + (m.kort === 'ESP-adapter' ? 18 : 0), r, { h: 1.5, vet: i === 0 }));
+  for (const [x, y] of [[4, H / 2], [W - 4, H / 2], [W / 2, 3.2], [W / 2, H - 3.2]]) p.via(x, y, 0.6);
+  return p.decal('dc1', 'Opdruk en banen', [0, m.pcb, 0]);
 }
 
 // ---------------------------------------------------------------- opschriften op losse onderdelen
@@ -255,8 +258,4 @@ export function elcoArt(d, h) {
   p.eigen(`<circle cx="${c}" cy="${c}" r="${c}" fill="#c9ccd0"/><circle cx="${c}" cy="${c}" r="${c * 0.82}" fill="none" stroke="#9fa3a8" stroke-width="0.12"/>`
     + `<path d="M${c - c * 0.5} ${c - c * 0.55}v${c * 1.1}M${c - c * 0.5} ${c}L${c + c * 0.45} ${c - c * 0.55}M${c - c * 0.5} ${c}L${c + c * 0.45} ${c + c * 0.55}" stroke="#7f848a" stroke-width="0.16" fill="none"/>`);
   return p.decal('dc1', 'Bovenkant', [0, h, 0]);
-}
-export function zekeringArt() {
-  const p = opschrift(18.5, 3.8, [[9.25, 1.95, '7.5', { h: 2.0, vet: true }]], { kleur: '#f3efe6' });
-  return p.decal('dc1', 'Opschrift', [0, 15.8, 0]);
 }

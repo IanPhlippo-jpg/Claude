@@ -1,5 +1,6 @@
 /**
- * De kabeldoos van de treinverlichting, versie 2 (voorbeelden/treinverlichting): één doos met kabelgoten. Elk onderdeel
+ * De kabeldoos van de treinverlichting, versie 4 (voorbeelden/treinverlichting): één doos met kabelgoten en een
+ * moduleplaat met kant-en-klare modules (opbouw.mjs). Elk onderdeel
  * bouwt (de geprinte delen exact op de B-rep-kernel; de bak en het deksel als één lichaam), de bak blijft binnen het
  * rebuildbudget van de app, elk geprint deel past in 230 x 230 (het bed van de Centauri Carbon zonder de hoek van het
  * filamentmes, met skirt), de doos is hoogstens 80 hoog en in de assemblage botst niets (ook de gootdeksels niet).
@@ -28,7 +29,7 @@ const DIR = 'voorbeelden/treinverlichting';
 const open = (f: string): Document => parseDocument(readFileSync(`${DIR}/${f}`, 'utf8'));
 const KEUZE = process.env.TREIN_DELEN?.split(',').map((s) => `${s.trim().replace(/\.kcad$/, '')}.kcad`);
 const DELEN = readdirSync(DIR).filter((f) => f.endsWith('.kcad') && f !== 'Kabeldoos.kcad' && (!KEUZE || KEUZE.includes(f)));
-const STL = { 'Kabeldoos-bak.kcad': 'rechtop', 'Kabeldoos-deksel.kcad': 'omgekeerd', 'Gootdeksels-plaat.kcad': 'rechtop', 'Hulpstukken.kcad': 'rechtop' } as const;
+const STL = { 'Kabeldoos-bak.kcad': 'rechtop', 'Kabeldoos-deksel.kcad': 'omgekeerd', 'Moduleplaat.kcad': 'rechtop', 'Gootdeksels-plaat.kcad': 'rechtop', 'Hulpstukken.kcad': 'rechtop' } as const;
 const PRINT = [...Object.keys(STL), 'Gootdeksel.kcad'];
 /** het aantal lichamen: de plaat met gootdeksels heeft één lichaam per lengte (de gelijke dekseltjes in één extrusie) */
 const lichamen = (f: string) => (f === 'Gootdeksels-plaat.kcad' ? new Set((gootDeksels() as { l: number }[]).map((d) => d.l)).size : f === 'Hulpstukken.kcad' ? 2 : 1); // hulpstukken: de 2 werkhaken (één lichaam, de ribben in één extrusie) en de spatel

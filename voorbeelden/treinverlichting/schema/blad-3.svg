@@ -37,8 +37,8 @@
 <text x="21" y="285.4" font-size="1.8" text-anchor="start" fill="#000">Wijz.</text>
 <text x="31" y="285.4" font-size="1.8" text-anchor="start" fill="#000">Datum</text>
 <text x="49" y="285.4" font-size="1.8" text-anchor="start" fill="#000">Naam</text>
-<text x="21" y="278.55" font-size="2.3" text-anchor="start" fill="#000">2</text>
-<text x="31" y="278.55" font-size="2" text-anchor="start" fill="#000">2026-11-12</text>
+<text x="21" y="278.55" font-size="2.3" text-anchor="start" fill="#000">3</text>
+<text x="31" y="278.55" font-size="2" text-anchor="start" fill="#000">2026-11-13</text>
 <text x="49" y="278.55" font-size="2" text-anchor="start" fill="#000">PC</text>
 <polyline points="62,260 62,287" fill="none" stroke="#000" stroke-width="0.35"/>
 <polyline points="62,266.75 106,266.75" fill="none" stroke="#000" stroke-width="0.18"/>
@@ -61,7 +61,7 @@
 <text x="108" y="275" font-size="2.3" text-anchor="start" fill="#000">Ian</text>
 <text x="147" y="262.3" font-size="1.8" text-anchor="start" fill="#000">Project</text>
 <text x="148" y="269" font-size="3.2" text-anchor="start" fill="#000" font-weight="700">Treinbaan</text>
-<text x="148" y="274.5" font-size="2.3" text-anchor="start" fill="#000">kabeldoos verlichting, versie 2</text>
+<text x="148" y="274.5" font-size="2.3" text-anchor="start" fill="#000">kabeldoos verlichting, versie 4</text>
 <text x="107" y="285.2" font-size="1.8" text-anchor="start" fill="#000">Oorspr.</text>
 <text x="118" y="285.2" font-size="2" text-anchor="start" fill="#000"></text>
 <polyline points="139.33,280.25 139.33,287" fill="none" stroke="#000" stroke-width="0.18"/>
@@ -81,7 +81,7 @@
 <text x="307" y="262.3" font-size="1.8" text-anchor="start" fill="#000">Tekeningnr.</text>
 <text x="308" y="270" font-size="2.8" text-anchor="start" fill="#000" font-weight="700">TRN-E01</text>
 <text x="307" y="275.8" font-size="1.8" text-anchor="start" fill="#000">Revisie / taal</text>
-<text x="308" y="283" font-size="2.6" text-anchor="start" fill="#000">2 / nl</text>
+<text x="308" y="283" font-size="2.6" text-anchor="start" fill="#000">3 / nl</text>
 <polyline points="350,260 350,287" fill="none" stroke="#000" stroke-width="0.35"/>
 <polyline points="350,273.5 384,273.5" fill="none" stroke="#000" stroke-width="0.25"/>
 <text x="351.5" y="266" font-size="2.6" text-anchor="start" fill="#000">=</text>
@@ -94,93 +94,80 @@
 <polyline points="384,280.25 410,280.25" fill="none" stroke="#000" stroke-width="0.25"/>
 <text x="385" y="262.3" font-size="1.8" text-anchor="start" fill="#000">Blad</text>
 <text x="397" y="275" font-size="8" text-anchor="middle" fill="#000" font-weight="700">3</text>
-<text x="408.5" y="285.2" font-size="2.3" text-anchor="end" fill="#000">11 Bl.</text>
+<text x="408.5" y="285.2" font-size="2.3" text-anchor="end" fill="#000">16 Bl.</text>
 <rect x="25" y="50" width="55" height="60" fill="none" stroke="#000" stroke-width="0.3" stroke-dasharray="4 1 0.6 1"/><text x="25" y="48.4" font-size="2.8" text-anchor="start" fill="#000">-T1</text><text x="27.5" y="55" font-size="2.3" text-anchor="start" fill="#000">Netadapter (buiten de doos)</text><text x="27.5" y="58.4" font-size="2.3" text-anchor="start" fill="#000">Mean Well GST90A12-P1M</text><text x="27.5" y="61.8" font-size="2.3" text-anchor="start" fill="#000">230 V AC / 12 V DC, 6,67 A</text><text x="27.5" y="65.2" font-size="2.3" text-anchor="start" fill="#000">stekker 5,5 x 2,5, + in het midden</text><circle cx="80" cy="70" r="0.5" fill="#000"/><text x="78.4" y="68.8" font-size="2.1" text-anchor="end" fill="#000">+</text><circle cx="80" cy="95" r="0.5" fill="#000"/><text x="78.4" y="93.8" font-size="2.1" text-anchor="end" fill="#000">−</text>
 <text x="25" y="120" font-size="2.5" text-anchor="start" fill="#000">230 V AC alleen in de gekeurde adapter</text>
 <polyline points="80,70 92.8,70" fill="none" stroke="#000" stroke-width="0.25"/>
 <polyline points="80,95 86,95 86,215 92.8,215" fill="none" stroke="#000" stroke-width="0.25"/>
 <text x="82" y="67" font-size="2.8" text-anchor="start" fill="#000">-W1</text>
 <text x="82" y="74" font-size="2.2" text-anchor="start" fill="#000">kabel adapter</text>
-<circle cx="94" cy="70" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="96.2" y="68.6" font-size="2.3" text-anchor="start" fill="#000">-X5</text><text x="96.2" y="72.6" font-size="2.3" text-anchor="start" fill="#000">1 (pen)</text>
-<circle cx="94" cy="215" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="96.2" y="213.6" font-size="2.3" text-anchor="start" fill="#000">-X5</text><text x="96.2" y="217.6" font-size="2.3" text-anchor="start" fill="#000">2 (huls)</text>
-<text x="94" y="61" font-size="2.2" text-anchor="middle" fill="#000">DC-bus 5,5 x 2,5, 8 A</text>
-<polyline points="95.2,70 118.8,70" fill="none" stroke="#000" stroke-width="0.25"/>
-<polyline points="95.2,215 118.8,215" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="94" cy="70" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="96.2" y="68.6" font-size="2.3" text-anchor="start" fill="#000">-X5</text><text x="96.2" y="72.6" font-size="2.3" text-anchor="start" fill="#000">pen</text>
+<circle cx="94" cy="215" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="96.2" y="213.6" font-size="2.3" text-anchor="start" fill="#000">-X5</text><text x="96.2" y="217.6" font-size="2.3" text-anchor="start" fill="#000">huls</text>
+<text x="86" y="57" font-size="2.2" text-anchor="start" fill="#000">DC-bus 5,5 x 2,5, 8 A (2 soldeerlippen)</text>
+<polyline points="95.2,70 118,70" fill="none" stroke="#000" stroke-width="0.25"/>
 <text x="104" y="68.5" font-size="2.2" text-anchor="start" fill="#000">J+</text>
-<circle cx="120" cy="70" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="122.2" y="68.6" font-size="2.3" text-anchor="start" fill="#000">-X1</text><text x="122.2" y="72.6" font-size="2.3" text-anchor="start" fill="#000">1</text>
-<circle cx="120" cy="215" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="122.2" y="213.6" font-size="2.3" text-anchor="start" fill="#000">-X1</text><text x="122.2" y="217.6" font-size="2.3" text-anchor="start" fill="#000">2</text>
-<polyline points="121.2,70 130,70" fill="none" stroke="#000" stroke-width="0.25"/>
-<polyline points="130,70 135,70" fill="none" stroke="#000" stroke-width="0.25"/><rect x="135" y="68" width="10" height="4" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="135,70 145,70" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="145,70 150,70" fill="none" stroke="#000" stroke-width="0.25"/><text x="140" y="66.5" font-size="2.8" text-anchor="middle" fill="#000">-F1</text><text x="140" y="76" font-size="2.3" text-anchor="middle" fill="#000">ATO 7,5 A, 32 V DC</text>
-<polyline points="150,70 160,70 160,98 178,98" fill="none" stroke="#000" stroke-width="0.25"/>
-<circle cx="175" cy="86" r="8" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="163,86 170,86" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="170,82 170,90" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="172,81 172,83.5" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="172,85 172,87" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="172,88.5 172,91" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="172,82 178,82 178,74" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="172,90 178,90 178,98" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="172,86 178,86 178,82" fill="none" stroke="#000" stroke-width="0.25"/><polygon points="174.8,86 172.6,84.7 172.6,87.3" fill="#000" transform="rotate(180 173.7 86)"/><text x="185" y="85" font-size="2.8" text-anchor="start" fill="#000">-Q17</text><text x="185" y="88.6" font-size="2.3" text-anchor="start" fill="#000">IRF4905</text><text x="179" y="73.4" font-size="1.9" text-anchor="start" fill="#000">S</text><text x="179" y="100" font-size="1.9" text-anchor="start" fill="#000">D</text><text x="163" y="85" font-size="1.9" text-anchor="start" fill="#000">G</text>
-<text x="186" y="105" font-size="2" text-anchor="start" fill="#000">ompoolbeveiliging</text>
-<polyline points="178,74 178,70 200,70" fill="none" stroke="#000" stroke-width="0.25"/>
-<polyline points="163,86 155,86 155,150" fill="none" stroke="#000" stroke-width="0.25"/>
-<polyline points="155,150 155,156" fill="none" stroke="#000" stroke-width="0.25"/><rect x="153.5" y="156" width="3" height="8" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="155,164 155,170" fill="none" stroke="#000" stroke-width="0.25"/><text x="152" y="159" font-size="2.8" text-anchor="end" fill="#000">-R34</text><text x="152" y="162.2" font-size="2.3" text-anchor="end" fill="#000">10 kΩ</text>
-<polyline points="155,170 155,215" fill="none" stroke="#000" stroke-width="0.25"/>
-<circle cx="155" cy="215" r="0.6" fill="#000"/>
-<polyline points="121.2,215 200,215" fill="none" stroke="#000" stroke-width="0.25"/>
-<polyline points="200,70 405,70" fill="none" stroke="#000" stroke-width="0.35"/><text x="201" y="68.6" font-size="2.5" text-anchor="start" fill="#000">L+</text><polygon points="405,70 402.8,68.9 402.8,71.1" fill="#000"/><text x="402" y="68.6" font-size="2.5" text-anchor="end" fill="#000">L+</text><text x="402" y="73.2" font-size="2.3" text-anchor="end" fill="#000">/4.0  /5.0</text>
-<polyline points="200,215 405,215" fill="none" stroke="#000" stroke-width="0.35"/><text x="201" y="213.6" font-size="2.5" text-anchor="start" fill="#000">M</text><polygon points="405,215 402.8,213.9 402.8,216.1" fill="#000"/><text x="402" y="213.6" font-size="2.5" text-anchor="end" fill="#000">M</text><text x="402" y="218.2" font-size="2.3" text-anchor="end" fill="#000">/4.0  /5.0  /6.0</text>
-<circle cx="190" cy="70" r="0.6" fill="#000"/>
-<polyline points="190,70 190,132" fill="none" stroke="#000" stroke-width="0.25"/>
-<polyline points="190,132 190,139" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="186.5,139 193.5,139" fill="none" stroke="#000" stroke-width="0.5"/><rect x="186.5" y="140.4" width="7" height="0.9" fill="#000" stroke="#000" stroke-width="0.35"/><text x="185.5" y="138.5" font-size="2.4" text-anchor="end" fill="#000">+</text><polyline points="190,141.3 190,148" fill="none" stroke="#000" stroke-width="0.25"/><text x="195" y="139.5" font-size="2.8" text-anchor="start" fill="#000">-C1</text><text x="195" y="142.7" font-size="2.3" text-anchor="start" fill="#000">470 µF / 25 V</text>
-<polyline points="190,148 190,215" fill="none" stroke="#000" stroke-width="0.25"/>
-<circle cx="190" cy="215" r="0.6" fill="#000"/>
-<circle cx="233" cy="70" r="0.6" fill="#000"/>
-<polyline points="233,70 233,118.8" fill="none" stroke="#000" stroke-width="0.25"/>
-<circle cx="233" cy="120" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="235.2" y="118.6" font-size="2.3" text-anchor="start" fill="#000">-X2</text><text x="235.2" y="122.6" font-size="2.3" text-anchor="start" fill="#000">1</text>
-<polyline points="233,121.2 233,136" fill="none" stroke="#000" stroke-width="0.25"/>
-<polygon points="233,136 231.9,133.8 234.1,133.8" fill="#000"/><text x="233" y="139.2" font-size="2.2" text-anchor="middle" fill="#000">R1+</text><text x="233" y="142.2" font-size="2" text-anchor="middle" fill="#000">/4.0</text>
-<circle cx="255" cy="70" r="0.6" fill="#000"/>
-<polyline points="255,70 255,118.8" fill="none" stroke="#000" stroke-width="0.25"/>
-<circle cx="255" cy="120" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="257.2" y="118.6" font-size="2.3" text-anchor="start" fill="#000">-X2</text><text x="257.2" y="122.6" font-size="2.3" text-anchor="start" fill="#000">2</text>
-<polyline points="255,121.2 255,136" fill="none" stroke="#000" stroke-width="0.25"/>
-<polygon points="255,136 253.9,133.8 256.1,133.8" fill="#000"/><text x="255" y="139.2" font-size="2.2" text-anchor="middle" fill="#000">R2+</text><text x="255" y="142.2" font-size="2" text-anchor="middle" fill="#000">/4.2</text>
-<circle cx="277" cy="70" r="0.6" fill="#000"/>
-<polyline points="277,70 277,118.8" fill="none" stroke="#000" stroke-width="0.25"/>
-<circle cx="277" cy="120" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="279.2" y="118.6" font-size="2.3" text-anchor="start" fill="#000">-X2</text><text x="279.2" y="122.6" font-size="2.3" text-anchor="start" fill="#000">3</text>
-<polyline points="277,121.2 277,136" fill="none" stroke="#000" stroke-width="0.25"/>
-<polygon points="277,136 275.9,133.8 278.1,133.8" fill="#000"/><text x="277" y="139.2" font-size="2.2" text-anchor="middle" fill="#000">R3+</text><text x="277" y="142.2" font-size="2" text-anchor="middle" fill="#000">/4.3</text>
-<circle cx="299" cy="70" r="0.6" fill="#000"/>
-<polyline points="299,70 299,118.8" fill="none" stroke="#000" stroke-width="0.25"/>
-<circle cx="299" cy="120" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="301.2" y="118.6" font-size="2.3" text-anchor="start" fill="#000">-X2</text><text x="301.2" y="122.6" font-size="2.3" text-anchor="start" fill="#000">4</text>
-<polyline points="299,121.2 299,136" fill="none" stroke="#000" stroke-width="0.25"/>
-<polygon points="299,136 297.9,133.8 300.1,133.8" fill="#000"/><text x="299" y="139.2" font-size="2.2" text-anchor="middle" fill="#000">R4+</text><text x="299" y="142.2" font-size="2" text-anchor="middle" fill="#000">/4.5</text>
-<circle cx="321" cy="70" r="0.6" fill="#000"/>
-<polyline points="321,70 321,118.8" fill="none" stroke="#000" stroke-width="0.25"/>
-<circle cx="321" cy="120" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="323.2" y="118.6" font-size="2.3" text-anchor="start" fill="#000">-X2</text><text x="323.2" y="122.6" font-size="2.3" text-anchor="start" fill="#000">5</text>
-<polyline points="321,121.2 321,136" fill="none" stroke="#000" stroke-width="0.25"/>
-<polygon points="321,136 319.9,133.8 322.1,133.8" fill="#000"/><text x="321" y="139.2" font-size="2.2" text-anchor="middle" fill="#000">R5+</text><text x="321" y="142.2" font-size="2" text-anchor="middle" fill="#000">/4.7</text>
-<circle cx="343" cy="70" r="0.6" fill="#000"/>
-<polyline points="343,70 343,118.8" fill="none" stroke="#000" stroke-width="0.25"/>
-<circle cx="343" cy="120" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="345.2" y="118.6" font-size="2.3" text-anchor="start" fill="#000">-X2</text><text x="345.2" y="122.6" font-size="2.3" text-anchor="start" fill="#000">6</text>
-<polyline points="343,121.2 343,136" fill="none" stroke="#000" stroke-width="0.25"/>
-<polygon points="343,136 341.9,133.8 344.1,133.8" fill="#000"/><text x="343" y="139.2" font-size="2.2" text-anchor="middle" fill="#000">R6+</text><text x="343" y="142.2" font-size="2" text-anchor="middle" fill="#000">/4.9</text>
-<text x="233" y="147" font-size="2.3" text-anchor="start" fill="#000">R1+..R6+: de + van de bordjes per rij (doorlussen met de eindklem)</text>
+<polyline points="118,70 123,70" fill="none" stroke="#000" stroke-width="0.25"/><rect x="123" y="68" width="10" height="4" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="123,70 133,70" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="133,70 138,70" fill="none" stroke="#000" stroke-width="0.25"/><text x="128" y="66.5" font-size="2.8" text-anchor="middle" fill="#000">-F1</text><text x="128" y="76" font-size="2.3" text-anchor="middle" fill="#000">ATO 7,5 A, houder met draden</text>
+<polyline points="138,70 148.8,70" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="150" cy="70" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="152.2" y="68.6" font-size="2.3" text-anchor="start" fill="#000">-X1</text><text x="152.2" y="72.6" font-size="2.3" text-anchor="start" fill="#000">1</text>
+<polyline points="151.2,70 165,70" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="95.2,215 148.8,215" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="150" cy="215" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="152.2" y="213.6" font-size="2.3" text-anchor="start" fill="#000">-X2</text><text x="152.2" y="217.6" font-size="2.3" text-anchor="start" fill="#000">1</text>
+<polyline points="151.2,215 165,215" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="175" cy="70" r="0.6" fill="#000"/>
+<polyline points="175,70 175,120.8" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="175" cy="122" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="172.8" y="120.6" font-size="2.3" text-anchor="end" fill="#000">-X1</text><text x="172.8" y="124.6" font-size="2.3" text-anchor="end" fill="#000">8</text>
+<polyline points="175,123.2 175,140" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="175,140 175,144.5" fill="none" stroke="#000" stroke-width="0.25"/><polygon points="172,149.5 178,149.5 175,144.5" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="172,144.5 178,144.5" fill="none" stroke="#000" stroke-width="0.5"/><polyline points="175,149.5 175,154" fill="none" stroke="#000" stroke-width="0.25"/><text x="180" y="146" font-size="2.8" text-anchor="start" fill="#000">-R2</text><text x="180" y="149.2" font-size="2.3" text-anchor="start" fill="#000">SB560</text>
+<polyline points="175,154 175,186.8" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="175" cy="188" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="172.8" y="186.6" font-size="2.3" text-anchor="end" fill="#000">-X2</text><text x="172.8" y="190.6" font-size="2.3" text-anchor="end" fill="#000">8</text>
+<polyline points="175,189.2 175,215" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="175" cy="215" r="0.6" fill="#000"/>
+<text x="181" y="162" font-size="2" text-anchor="start" fill="#000">ompoolbeveiliging</text>
+<text x="181" y="165" font-size="1.9" text-anchor="start" fill="#000">(pootjes in de WAGO-klemmen)</text>
+<polyline points="165,70 405,70" fill="none" stroke="#000" stroke-width="0.35"/><text x="166" y="68.6" font-size="2.5" text-anchor="start" fill="#000">L+</text><polygon points="405,70 402.8,68.9 402.8,71.1" fill="#000"/><text x="402" y="68.6" font-size="2.5" text-anchor="end" fill="#000">L+</text><text x="402" y="73.2" font-size="2.3" text-anchor="end" fill="#000">/4.0  /5.0</text>
+<polyline points="165,215 405,215" fill="none" stroke="#000" stroke-width="0.35"/><text x="166" y="213.6" font-size="2.5" text-anchor="start" fill="#000">M</text><polygon points="405,215 402.8,213.9 402.8,216.1" fill="#000"/><text x="402" y="213.6" font-size="2.5" text-anchor="end" fill="#000">M</text><text x="402" y="218.2" font-size="2.3" text-anchor="end" fill="#000">/4.0  /5.0  /6.0</text>
+<circle cx="205" cy="70" r="0.6" fill="#000"/>
+<polyline points="205,70 205,92.8" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="205" cy="94" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="207.2" y="92.6" font-size="2.3" text-anchor="start" fill="#000">-X1</text><text x="207.2" y="96.6" font-size="2.3" text-anchor="start" fill="#000">2</text>
+<polyline points="205,95.2 205,104" fill="none" stroke="#000" stroke-width="0.25"/>
+<polygon points="205,104 203.9,101.8 206.1,101.8" fill="#000"/><text x="205" y="107.2" font-size="2.2" text-anchor="middle" fill="#000">VIN+ -Q1</text><text x="205" y="110.2" font-size="2" text-anchor="middle" fill="#000">/4.0</text>
+<circle cx="214" cy="215" r="0.6" fill="#000"/>
+<polyline points="214,215 214,197.2" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="214" cy="196" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="216.2" y="194.6" font-size="2.3" text-anchor="start" fill="#000">-X2</text><text x="216.2" y="198.6" font-size="2.3" text-anchor="start" fill="#000">2</text>
+<polyline points="214,194.8 214,186" fill="none" stroke="#000" stroke-width="0.25"/>
+<polygon points="214,186 212.9,188.2 215.1,188.2" fill="#000"/><text x="214" y="181.6" font-size="2.2" text-anchor="middle" fill="#000">M</text><text x="214" y="184.4" font-size="2" text-anchor="middle" fill="#000">/4.0</text>
+<text x="203" y="124" font-size="2.1" text-anchor="start" fill="#000">MOSFET-module 1</text>
+<circle cx="245" cy="70" r="0.6" fill="#000"/>
+<polyline points="245,70 245,92.8" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="245" cy="94" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="247.2" y="92.6" font-size="2.3" text-anchor="start" fill="#000">-X1</text><text x="247.2" y="96.6" font-size="2.3" text-anchor="start" fill="#000">3</text>
+<polyline points="245,95.2 245,104" fill="none" stroke="#000" stroke-width="0.25"/>
+<polygon points="245,104 243.9,101.8 246.1,101.8" fill="#000"/><text x="245" y="107.2" font-size="2.2" text-anchor="middle" fill="#000">VIN+ -Q2</text><text x="245" y="110.2" font-size="2" text-anchor="middle" fill="#000">/4.5</text>
+<circle cx="254" cy="215" r="0.6" fill="#000"/>
+<polyline points="254,215 254,197.2" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="254" cy="196" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="256.2" y="194.6" font-size="2.3" text-anchor="start" fill="#000">-X2</text><text x="256.2" y="198.6" font-size="2.3" text-anchor="start" fill="#000">3</text>
+<polyline points="254,194.8 254,186" fill="none" stroke="#000" stroke-width="0.25"/>
+<polygon points="254,186 252.9,188.2 255.1,188.2" fill="#000"/><text x="254" y="181.6" font-size="2.2" text-anchor="middle" fill="#000">M</text><text x="254" y="184.4" font-size="2" text-anchor="middle" fill="#000">/4.5</text>
+<text x="243" y="124" font-size="2.1" text-anchor="start" fill="#000">MOSFET-module 2</text>
+<circle cx="290" cy="70" r="0.6" fill="#000"/>
+<polyline points="290,70 290,92.8" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="290" cy="94" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="292.2" y="92.6" font-size="2.3" text-anchor="start" fill="#000">-X1</text><text x="292.2" y="96.6" font-size="2.3" text-anchor="start" fill="#000">4</text>
+<polyline points="290,95.2 290,140" fill="none" stroke="#000" stroke-width="0.25"/>
+<rect x="280" y="140" width="46" height="30" fill="none" stroke="#000" stroke-width="0.3" stroke-dasharray="4 1 0.6 1"/><text x="280" y="138.4" font-size="2.8" text-anchor="start" fill="#000">-T2</text><text x="289" y="145" font-size="2.3" text-anchor="start" fill="#000"></text><text x="289" y="148.4" font-size="2.3" text-anchor="start" fill="#000">Joy-IT SBC-Buck02</text><text x="289" y="151.8" font-size="2.3" text-anchor="start" fill="#000">9-35 V -&gt; 5 V, 5 A</text><circle cx="290" cy="140" r="0.5" fill="#000"/><text x="291.6" y="138.8" font-size="2.1" text-anchor="start" fill="#000">VIN</text><circle cx="300" cy="170" r="0.5" fill="#000"/><text x="301.6" y="168.8" font-size="2.1" text-anchor="start" fill="#000">GND</text><circle cx="326" cy="155" r="0.5" fill="#000"/><text x="324.4" y="153.8" font-size="2.1" text-anchor="end" fill="#000">VOUT</text>
+<polyline points="300,170 300,196.8" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="300" cy="198" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="297.8" y="196.6" font-size="2.3" text-anchor="end" fill="#000">-X2</text><text x="297.8" y="200.6" font-size="2.3" text-anchor="end" fill="#000">4</text>
+<polyline points="300,199.2 300,215" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="300" cy="215" r="0.6" fill="#000"/>
+<polyline points="326,155 405,155" fill="none" stroke="#000" stroke-width="0.35"/>
+<polygon points="405,155 402.8,153.9 402.8,156.1" fill="#000"/><text x="402" y="153.6" font-size="2.5" text-anchor="end" fill="#000">L5</text><text x="402" y="158.2" font-size="2.3" text-anchor="end" fill="#000">/6.0</text>
 <circle cx="370" cy="70" r="0.6" fill="#000"/>
-<polyline points="370,70 370,98.8" fill="none" stroke="#000" stroke-width="0.25"/>
-<circle cx="370" cy="100" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="372.2" y="98.6" font-size="2.3" text-anchor="start" fill="#000">-X2</text><text x="372.2" y="102.6" font-size="2.3" text-anchor="start" fill="#000">7</text>
-<polyline points="370,101.2 370,110" fill="none" stroke="#000" stroke-width="0.25"/>
-<polygon points="370,110 368.9,107.8 371.1,107.8" fill="#000"/><text x="370" y="113.2" font-size="2.2" text-anchor="middle" fill="#000">L+ in</text><text x="370" y="116.2" font-size="2" text-anchor="middle" fill="#000">/5.0</text>
-<circle cx="390" cy="215" r="0.6" fill="#000"/>
-<polyline points="390,215 390,191.2" fill="none" stroke="#000" stroke-width="0.25"/>
-<circle cx="390" cy="190" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="392.2" y="188.6" font-size="2.3" text-anchor="start" fill="#000">-X2</text><text x="392.2" y="192.6" font-size="2.3" text-anchor="start" fill="#000">8</text>
-<polyline points="390,188.8 390,180" fill="none" stroke="#000" stroke-width="0.25"/>
-<polygon points="390,180 388.9,182.2 391.1,182.2" fill="#000"/><text x="390" y="175.6" font-size="2.2" text-anchor="middle" fill="#000">M in</text><text x="390" y="178.4" font-size="2" text-anchor="middle" fill="#000">/5.0</text>
-<circle cx="130" cy="215" r="0.6" fill="#000"/>
-<polyline points="130,215 130,196.2" fill="none" stroke="#000" stroke-width="0.25"/>
-<circle cx="130" cy="195" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="127.8" y="193.6" font-size="2.3" text-anchor="end" fill="#000">-X1</text><text x="127.8" y="197.6" font-size="2.3" text-anchor="end" fill="#000">3</text>
-<polyline points="130,193.8 130,186" fill="none" stroke="#000" stroke-width="0.25"/>
-<polygon points="130,186 128.9,188.2 131.1,188.2" fill="#000"/><text x="130" y="181.6" font-size="2.2" text-anchor="middle" fill="#000">M retour</text><text x="130" y="184.4" font-size="2" text-anchor="middle" fill="#000">/4.9</text>
-<text x="134" y="190" font-size="2" text-anchor="start" fill="#000">0,75 mm², tot 5,2 A</text>
-<circle cx="345" cy="70" r="0.6" fill="#000"/>
-<polyline points="345,70 345,155" fill="none" stroke="#000" stroke-width="0.25"/>
-<rect x="335" y="155" width="40" height="26" fill="none" stroke="#000" stroke-width="0.3" stroke-dasharray="4 1 0.6 1"/><text x="335" y="153.4" font-size="2.8" text-anchor="start" fill="#000">-T2</text><text x="344" y="160" font-size="2.3" text-anchor="start" fill="#000"></text><text x="344" y="163.4" font-size="2.3" text-anchor="start" fill="#000">Pololu D24V10F5</text><text x="344" y="166.8" font-size="2.3" text-anchor="start" fill="#000">12 V → 5 V (draagprint)</text><circle cx="345" cy="155" r="0.5" fill="#000"/><text x="346.6" y="153.8" font-size="2.1" text-anchor="start" fill="#000">VIN</text><circle cx="375" cy="168" r="0.5" fill="#000"/><text x="373.4" y="166.8" font-size="2.1" text-anchor="end" fill="#000">VOUT</text><circle cx="355" cy="181" r="0.5" fill="#000"/><text x="353.4" y="179.8" font-size="2.1" text-anchor="end" fill="#000">GND</text>
-<polyline points="355,181 355,215" fill="none" stroke="#000" stroke-width="0.25"/>
-<circle cx="355" cy="215" r="0.6" fill="#000"/>
-<polyline points="375,168 405,168" fill="none" stroke="#000" stroke-width="0.35"/>
-<polygon points="405,168 402.8,166.9 402.8,169.1" fill="#000"/><text x="402" y="166.6" font-size="2.5" text-anchor="end" fill="#000">L5</text><text x="402" y="171.2" font-size="2.3" text-anchor="end" fill="#000">/6.0</text>
-<text x="25" y="236" font-size="2.4" text-anchor="start" fill="#000">Stroom: hoogstens 16 x 0,32 A + 0,07 A = 5,2 A (bordjes van 0 Ω), met 1K-bordjes 2,4 A. -F1 7,5 A beschermt alleen de print en de draden tot -X2:</text>
-<text x="25" y="241" font-size="2.4" text-anchor="start" fill="#000">een groep heeft zijn eigen polyfuse 0,5 A (-F2..-F17, blad 4), de knoppen en sensoren -F18 0,3 A (blad 5). -Q17: verkeerd om aangesloten = geen stroom.</text>
+<polyline points="370,70 370,80.8" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="370" cy="82" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="372.2" y="80.6" font-size="2.3" text-anchor="start" fill="#000">-X1</text><text x="372.2" y="84.6" font-size="2.3" text-anchor="start" fill="#000">7</text>
+<polyline points="370,83.2 370,90" fill="none" stroke="#000" stroke-width="0.25"/>
+<polyline points="370,90 370,96" fill="none" stroke="#000" stroke-width="0.25"/><rect x="368" y="96" width="4" height="8" fill="none" stroke="#000" stroke-width="0.35"/><polyline points="366.5,105 373.5,95 375,95" fill="none" stroke="#000" stroke-width="0.25"/><polyline points="370,104 370,110" fill="none" stroke="#000" stroke-width="0.25"/><text x="376" y="99" font-size="2.8" text-anchor="start" fill="#000">-F18</text><text x="376" y="102.2" font-size="2.3" text-anchor="start" fill="#000">MF-R050</text>
+<polyline points="370,110 370,118.8" fill="none" stroke="#000" stroke-width="0.25"/>
+<circle cx="370" cy="120" r="1.2" fill="#fff" stroke="#000" stroke-width="0.35"/><text x="372.2" y="118.6" font-size="2.3" text-anchor="start" fill="#000">-X3</text><text x="372.2" y="122.6" font-size="2.3" text-anchor="start" fill="#000">1</text>
+<polyline points="370,121.2 370,130" fill="none" stroke="#000" stroke-width="0.25"/>
+<polygon points="370,130 368.9,127.8 371.1,127.8" fill="#000"/><text x="370" y="133.2" font-size="2.2" text-anchor="middle" fill="#000">S12</text><text x="370" y="136.2" font-size="2" text-anchor="middle" fill="#000">/5.0</text>
+<text x="25" y="236" font-size="2.4" text-anchor="start" fill="#000">Stroom: hoogstens 16 x 0,32 A + 0,32 A (regelaar, ingangen) = 5,4 A (bordjes van 0 Ω), met 1K-bordjes 2,7 A. -F1 7,5 A beschermt de draden tot de verdeelklemmen -X1/-X2;</text>
+<text x="25" y="241" font-size="2.4" text-anchor="start" fill="#000">elke groep heeft een eigen polyfuse 0,5 A (-F2..-F17, blad 4), de ingangen en sensoren -F18 (0,5 A). -X1, -X2, -X3: WAGO 221-415 (2 x 5 klemmen voor -X1 en -X2: klem 1-5 en 6-10, brug 5-6).</text>
 </svg>

@@ -1383,3 +1383,27 @@ elease; README en docs/04 bijgewerkt
 - [x] Elektrisch: ompoolbeveiliging, draaddikte gelijk, aarding nakijken, opbouwtekening gaatjesprint, stoffilter voedingsbox
 - [x] Tests, tekeningen, revisie, foto's, commit en push
 - [x] Treinbak terug binnen 45 s (schroefgaten als achthoek: 38 s); foto's van het knoppotje
+
+## Afzuiging: schroeven van de klauwen beter geleid (2026-11-13)
+- [x] Module: M5 x 70 (was 65), gat Ø5,4 over de hele toren: 9 mm geleiding boven, 6,5 mm in een blind gat onderaan
+- [x] Knop: gat Ø4,3 boven (12 mm) en Ø4,4 in het deksel
+- [x] Bestellijst, README, revisie; tests (49 + STL + tekeningen groen), commit en push
+
+## Afzuiging: helemaal rond model om te vergelijken (2026-11-13)
+- [x] Variant in voorbeelden/afzuiging/rond/: rond frame, ronde RVS-plaat met LB-rooster, ronde romp en kuip
+- [x] Filter kiezen dat in rond past (kant-en-klaar), klauwen op de omtrek
+- [x] Test (bouwt, botst niet, luchtdicht), vergelijkingstabel met 7.3, foto's naast elkaar
+
+## Treindoos: zoveel mogelijk kant-en-klare printjes (2026-11-13)
+- [x] Elke zelfgebouwde gaatjesprint vervangen door een bestelbaar module (uitgangen/MOSFET, ingangen/opto, voeding/buck, zekeringen, DC-bus) met product, winkel en prijs
+- [x] Doos aanpassen: palen/gaten per module, goten en kabelwegen
+- [x] Schema, draadlijst, bestellijst, bouwschema en meetblad bijwerken; opbouwtekeningen die wegvallen schrappen
+- [~] Firmware nakijken (pinnen, polariteit van de modules), tests, app, foto's, commit en push
+
+## Balustrades: configurator zoals de taatsdeuren (2026-11-13)
+- [x] Vragenronde en EISEN.md (4 soorten, binnen/trap/buiten, op de vloer en zijmontage, prijs per meter)
+- [x] Normen en belastingen opzoeken (NBN B 03-004, EN 1991-1-1 ANB, NBN S 23-002), profielen en kooponderdelen met prijzen
+- [x] Model: lijnen (recht, hoek, trap), staanders, regels, vulling per soort, bevestiging; stuklijst en zaaglijst
+- [x] Werkplaatsdocumenten: tekening per stuk, lasdetails, montage per verbinding, bestellijst, PDF
+- [x] Klantpagina en werkplaats (3D, RAL, prijs per meter met marktband), instellingen
+- [~] Tests, artifact, foto's, commit en push

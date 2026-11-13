@@ -2,7 +2,7 @@
 
 ESP32-S3-DevKitC-1 v1.1 (N16R8, twee micro-USB-poorten "UART" en "USB") met een PCA9685 (16 lichtgroepen, uit te
 breiden tot 32) en 16 ingangen rechtstreeks op GPIO's. De doos maakt een eigen wifi-netwerk met een dashboard voor gsm
-en tablet, en meldt zich als je dat wilt ook aan op de wifi van het huis. Firmware 1.1.0.
+en tablet, en meldt zich als je dat wilt ook aan op de wifi van het huis. Firmware 1.2.0 (versie 4: kant-en-klare modules, polariteit instelbaar met een bouwvlag).
 
 ## Gebruiken
 
@@ -52,14 +52,19 @@ pas na een geslaagde controle start de ESP daarvan; mislukt ze, dan blijft de ou
 | GPIO38 | RGB-led op het bord (DevKitC-1 v1.1) = statuslampje: groen = hotspot actief, rood = PCA9685 antwoordt niet, blauw = BOOT-knop vast (knippert: wachtwoord teruggezet) |
 | GPIO11, 39, 42, 47, 48 | **vrij** voor uitbreidingen (48 alleen op v1.1; op v1.0 zat daar de led) |
 
-PCA9685 op adres 0x40 (A0..A5 aan GND): kanaal 0..15 = groep 1..16, ~1017 Hz, 12 bit.
+PCA9685 op adres 0x40 (A0..A5 aan GND): kanaal 0..15 = groep 1..16, ~1017 Hz, 12 bit. PWM0..7 gaan met
+dupontkabels naar IN1..IN8 van MOSFET-module 1, PWM8..15 naar MOSFET-module 2. Standaard **actief laag** (de 3,3 V-versie
+van de module heeft de led van de optocoupler tussen VCC en IN): MODE2 = OUTDRV + INVRT + OUTNE 01, zodat met OE hoog
+(reset, flashen) alle uitgangen 1 zijn = alles uit. Schakelt jouw module bij een hoge ingang (de led tussen IN en GND):
+bouwen met `-DTREIN_UITGANG_ACTIEF_HOOG` (meetblad TRN-20, stap 8).
 
-De 16 ingangen gaan via optocouplers rechtstreeks naar GPIO's van de ESP32-S3. Het zijn **AC-optocouplers LTV-844**
-(twee leds tegengesteld in elk kanaal): ze werken met een gewoon contact, een sensor met een 12 V-uitgang (PNP) en een
-sensor die naar 0 V schakelt (NPN, hall, reed naar massa). Per 4 ingangen is er een COM-klem: aan 0 V voor contacten en
-PNP-sensoren, aan +12 V voor NPN-sensoren (zie het aansluitschema). Voor de firmware verandert er niets: de optocoupler
-trekt de pin naar GND = actief; in rust houdt de interne pull-up (INPUT_PULLUP) hem hoog. De firmware leest ze elke 5 ms (geen interrupt);
-de ontdendering is 30 ms.
+De 16 ingangen gaan via 2 kant-en-klare **optocouplerprints PC817** (8 kanalen elk) naar GPIO's van de ESP32-S3
+(versie 4; daarvoor eigen AC-optocouplers LTV-844). Aan de ingangskant krijgt de print +12 V (VCC, na de polyfuse -F18);
+een knop, schakelaar, reed of NPN-sensor trekt IN n naar 0 V: de led brandt. Een +12 V op IN n doet niets (geen spanning
+over de led). Een sensor die zelf 12 V geeft (PNP) werkt niet rechtstreeks (README van de doos). Aan de uitgangskant
+(VCC = 3,3 V van de ESP, jumper op pull-up) trekt de optocoupler OUT n naar GND = actief; in rust houdt de pull-up (op de
+print en INPUT_PULLUP) hem hoog. Geeft jouw print hoog als hij actief is: bouwen met `-DTREIN_INGANG_ACTIEF_HOOG`
+(INPUT_PULLDOWN). De firmware leest de ingangen elke 5 ms (geen interrupt); de ontdendering is 30 ms.
 
 | Ingang | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
@@ -145,8 +150,8 @@ groepen blijft bewaard en komt terug na het stoppen.
 De firmware is voorbereid op een tweede PCA9685:
 
 1. Tweede PCA9685-print: **A0 op 3,3 V** (soldeerbrug A0 dicht) = adres **0x41**; SDA, SCL, VCC (3,3 V), GND en **OE
-   parallel** met de eerste (de pull-up -R1 blijft één weerstand voor beide). Kanaal 0..15 = groep 17..32, elk met een
-   eigen MOSFET en polyfuse zoals op de uitgangsprint.
+   parallel** met de eerste (de pull-up -R1 blijft één weerstand voor beide). Kanaal 0..15 = groep 17..32, met nog 2
+   MOSFET-modules en per groep een polyfuse, zoals groep 1..16.
 2. In `platformio.ini` bij `[env:doos]` aan `build_flags` toevoegen: `-DTREIN_GROEPEN=32` (1 tot 32 kan), bouwen en
    flashen. Het dashboard toont dan vanzelf 32 groepen; de groepen zitten intern als bits in een masker van 32 bit.
 3. Antwoordt een van de twee chips niet, dan blijven alle uitgangen uit (OE hoog) en meldt het dashboard het.

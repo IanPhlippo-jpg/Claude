@@ -36,8 +36,8 @@
 <text x="21" y="285.4" font-size="1.8" text-anchor="start" fill="#000">Wijz.</text>
 <text x="31" y="285.4" font-size="1.8" text-anchor="start" fill="#000">Datum</text>
 <text x="49" y="285.4" font-size="1.8" text-anchor="start" fill="#000">Naam</text>
-<text x="21" y="278.55" font-size="2.3" text-anchor="start" fill="#000">2</text>
-<text x="31" y="278.55" font-size="2" text-anchor="start" fill="#000">2026-11-12</text>
+<text x="21" y="278.55" font-size="2.3" text-anchor="start" fill="#000">3</text>
+<text x="31" y="278.55" font-size="2" text-anchor="start" fill="#000">2026-11-13</text>
 <text x="49" y="278.55" font-size="2" text-anchor="start" fill="#000">PC</text>
 <polyline points="62,260 62,287" fill="none" stroke="#000" stroke-width="0.35"/>
 <polyline points="62,266.75 106,266.75" fill="none" stroke="#000" stroke-width="0.18"/>
@@ -60,7 +60,7 @@
 <text x="108" y="275" font-size="2.3" text-anchor="start" fill="#000">Ian</text>
 <text x="147" y="262.3" font-size="1.8" text-anchor="start" fill="#000">Project</text>
 <text x="148" y="269" font-size="3.2" text-anchor="start" fill="#000" font-weight="700">Treinbaan</text>
-<text x="148" y="274.5" font-size="2.3" text-anchor="start" fill="#000">kabeldoos verlichting, versie 2</text>
+<text x="148" y="274.5" font-size="2.3" text-anchor="start" fill="#000">kabeldoos verlichting, versie 4</text>
 <text x="107" y="285.2" font-size="1.8" text-anchor="start" fill="#000">Oorspr.</text>
 <text x="118" y="285.2" font-size="2" text-anchor="start" fill="#000"></text>
 <polyline points="139.33,280.25 139.33,287" fill="none" stroke="#000" stroke-width="0.18"/>
@@ -79,7 +79,7 @@
 <text x="307" y="262.3" font-size="1.8" text-anchor="start" fill="#000">Tekeningnr.</text>
 <text x="308" y="270" font-size="2.8" text-anchor="start" fill="#000" font-weight="700">TRN-E01</text>
 <text x="307" y="275.8" font-size="1.8" text-anchor="start" fill="#000">Revisie / taal</text>
-<text x="308" y="283" font-size="2.6" text-anchor="start" fill="#000">2 / nl</text>
+<text x="308" y="283" font-size="2.6" text-anchor="start" fill="#000">3 / nl</text>
 <polyline points="350,260 350,287" fill="none" stroke="#000" stroke-width="0.35"/>
 <polyline points="350,273.5 384,273.5" fill="none" stroke="#000" stroke-width="0.25"/>
 <text x="351.5" y="266" font-size="2.6" text-anchor="start" fill="#000">=</text>
@@ -92,13 +92,13 @@
 <polyline points="384,280.25 410,280.25" fill="none" stroke="#000" stroke-width="0.25"/>
 <text x="385" y="262.3" font-size="1.8" text-anchor="start" fill="#000">Blad</text>
 <text x="397" y="275" font-size="8" text-anchor="middle" fill="#000" font-weight="700">1</text>
-<text x="408.5" y="285.2" font-size="2.3" text-anchor="end" fill="#000">11 Bl.</text>
+<text x="408.5" y="285.2" font-size="2.3" text-anchor="end" fill="#000">16 Bl.</text>
 <rect x="30" y="22" width="370" height="3.5" fill="#808080" stroke="#000" stroke-width="0"/>
 <rect x="30" y="240" width="370" height="3.5" fill="#808080" stroke="#000" stroke-width="0"/>
 <text x="35" y="42" font-size="9" text-anchor="start" fill="#000" font-weight="700">Phlippo CAD</text>
 <text x="35" y="49" font-size="3.4" text-anchor="start" fill="#000">Ian</text>
 <text x="215" y="44" font-size="9" text-anchor="middle" fill="#000" font-weight="700">Treinbaan</text>
-<text x="215" y="53" font-size="4.5" text-anchor="middle" fill="#000">kabeldoos verlichting, versie 2</text>
+<text x="215" y="53" font-size="4.5" text-anchor="middle" fill="#000">kabeldoos verlichting, versie 4</text>
 <polyline points="35,62 395,62" fill="none" stroke="#000" stroke-width="0.35"/>
 <polyline points="215,62 215,205" fill="none" stroke="#000" stroke-width="0.35"/>
 <text x="40" y="74" font-size="4.5" text-anchor="start" fill="#000">Projectgegevens</text>
@@ -108,15 +108,15 @@
 <text x="40" y="96" font-size="3.4" text-anchor="start" fill="#000">Tekeningnummer</text>
 <text x="102" y="96" font-size="3.4" text-anchor="start" fill="#000">TRN-E01</text>
 <text x="40" y="104" font-size="3.4" text-anchor="start" fill="#000">Fabrikant</text>
-<text x="102" y="104" font-size="3.4" text-anchor="start" fill="#000">zelfbouw</text>
+<text x="102" y="104" font-size="3.4" text-anchor="start" fill="#000">zelfbouw met kant-en-klare modules</text>
 <text x="40" y="112" font-size="3.4" text-anchor="start" fill="#000">Projectverantwoordelijke</text>
 <text x="102" y="112" font-size="3.4" text-anchor="start" fill="#000">Ian</text>
 <text x="40" y="120" font-size="3.4" text-anchor="start" fill="#000">Projectstart</text>
 <text x="102" y="120" font-size="3.4" text-anchor="start" fill="#000">2026-11-08</text>
 <text x="40" y="128" font-size="3.4" text-anchor="start" fill="#000">Projectnaam</text>
 <text x="102" y="128" font-size="3.4" text-anchor="start" fill="#000">Treinbaan, kabeldoos verlichting</text>
-<text x="40" y="136" font-size="3.4" text-anchor="start" fill="#000">Revisie 2</text>
-<text x="102" y="136" font-size="3.4" text-anchor="start" fill="#000">2026-11-12: advies Fable 5.2</text>
+<text x="40" y="136" font-size="3.4" text-anchor="start" fill="#000">Revisie 3</text>
+<text x="102" y="136" font-size="3.4" text-anchor="start" fill="#000">2026-11-13: kant-en-klare modules (versie 4)</text>
 <text x="220" y="88" font-size="3.4" text-anchor="start" fill="#000" font-weight="700">Installatie</text>
 <text x="282" y="88" font-size="3.4" text-anchor="start" fill="#000">=TRN verlichting modelbaan</text>
 <text x="220" y="96" font-size="3.4" text-anchor="start" fill="#000">Plaats</text>
@@ -128,7 +128,7 @@
 <text x="220" y="120" font-size="3.4" text-anchor="start" fill="#000">Beschermingsgraad</text>
 <text x="282" y="120" font-size="3.4" text-anchor="start" fill="#000">IP20 (binnen)</text>
 <text x="220" y="128" font-size="3.4" text-anchor="start" fill="#000">Potentialen</text>
-<text x="282" y="128" font-size="3.4" text-anchor="start" fill="#000">J+ en L+ 12 V, L5 5 V, L3 3,3 V, M 0 V</text>
+<text x="282" y="128" font-size="3.4" text-anchor="start" fill="#000">J+, L+ en S12 12 V, L5 5 V, L3 3,3 V, M 0 V</text>
 <text x="220" y="136" font-size="3.4" text-anchor="start" fill="#000">Bouwjaar</text>
 <text x="282" y="136" font-size="3.4" text-anchor="start" fill="#000">2026</text>
 <polyline points="35,205 395,205" fill="none" stroke="#000" stroke-width="0.35"/>
@@ -136,5 +136,5 @@
 <text x="62" y="214" font-size="2.6" text-anchor="start" fill="#000">IEC/EN 61082-1  ·  IEC/EN 60617  ·  IEC/EN 81346-1/-2  ·  IEC 61355  ·  ISO 7200  ·  ISO 5457</text>
 <text x="40" y="232" font-size="3.6" text-anchor="start" fill="#000">Bewerkt op: 2026-11-08</text>
 <text x="150" y="232" font-size="3.6" text-anchor="start" fill="#000">door: Phlippo CAD</text>
-<text x="300" y="232" font-size="3.6" text-anchor="start" fill="#000">Aantal bladen: 11</text>
+<text x="300" y="232" font-size="3.6" text-anchor="start" fill="#000">Aantal bladen: 16</text>
 </svg>

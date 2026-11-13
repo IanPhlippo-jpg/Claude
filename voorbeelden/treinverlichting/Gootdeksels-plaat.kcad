@@ -4,8 +4,8 @@
  "name": "Gootdeksels (9 stuks)",
  "units": "mm",
  "planes": {
-  "x40": {
-   "id": "x40",
+  "x46": {
+   "id": "x46",
    "name": "Plane dekseltjes 211",
    "origin": [
     -105.5,
@@ -29,8 +29,8 @@
    ],
    "kind": "reference"
   },
-  "x41": {
-   "id": "x41",
+  "x47": {
+   "id": "x47",
    "name": "Plane dekseltjes 181.8",
    "origin": [
     -105.5,
@@ -54,8 +54,8 @@
    ],
    "kind": "reference"
   },
-  "x42": {
-   "id": "x42",
+  "x48": {
+   "id": "x48",
    "name": "Plane dekseltjes 197",
    "origin": [
     -105.5,
@@ -79,8 +79,8 @@
    ],
    "kind": "reference"
   },
-  "x43": {
-   "id": "x43",
+  "x49": {
+   "id": "x49",
    "name": "Plane nokken -95.5",
    "origin": [
     -95.5,
@@ -104,8 +104,8 @@
    ],
    "kind": "reference"
   },
-  "x44": {
-   "id": "x44",
+  "x50": {
+   "id": "x50",
    "name": "Plane nokken -37",
    "origin": [
     -37,
@@ -129,8 +129,8 @@
    ],
    "kind": "reference"
   },
-  "x45": {
-   "id": "x45",
+  "x51": {
+   "id": "x51",
    "name": "Plane nokken 32",
    "origin": [
     32,
@@ -154,8 +154,8 @@
    ],
    "kind": "reference"
   },
-  "x46": {
-   "id": "x46",
+  "x52": {
+   "id": "x52",
    "name": "Plane nokken 90.5",
    "origin": [
     90.5,
@@ -179,8 +179,8 @@
    ],
    "kind": "reference"
   },
-  "x47": {
-   "id": "x47",
+  "x53": {
+   "id": "x53",
    "name": "Plane nokken 27.325",
    "origin": [
     27.325,
@@ -204,8 +204,8 @@
    ],
    "kind": "reference"
   },
-  "x48": {
-   "id": "x48",
+  "x54": {
+   "id": "x54",
    "name": "Plane nokken -62.975",
    "origin": [
     -62.975,
@@ -229,8 +229,8 @@
    ],
    "kind": "reference"
   },
-  "x49": {
-   "id": "x49",
+  "x55": {
+   "id": "x55",
    "name": "Plane nokken -61.525",
    "origin": [
     -61.525,
@@ -254,8 +254,8 @@
    ],
    "kind": "reference"
   },
-  "x50": {
-   "id": "x50",
+  "x56": {
+   "id": "x56",
    "name": "Plane nokken 28.775",
    "origin": [
     28.775,
@@ -279,8 +279,8 @@
    ],
    "kind": "reference"
   },
-  "x51": {
-   "id": "x51",
+  "x57": {
+   "id": "x57",
    "name": "Plane nokken -102.5",
    "origin": [
     -102.5,
@@ -304,8 +304,8 @@
    ],
    "kind": "reference"
   },
-  "x52": {
-   "id": "x52",
+  "x58": {
+   "id": "x58",
    "name": "Plane nokken -44",
    "origin": [
     -44,
@@ -329,8 +329,8 @@
    ],
    "kind": "reference"
   },
-  "x53": {
-   "id": "x53",
+  "x59": {
+   "id": "x59",
    "name": "Plane nokken 25",
    "origin": [
     25,
@@ -354,8 +354,8 @@
    ],
    "kind": "reference"
   },
-  "x54": {
-   "id": "x54",
+  "x60": {
+   "id": "x60",
    "name": "Plane nokken 83.5",
    "origin": [
     83.5,
@@ -386,7 +386,7 @@
   "s1": {
    "id": "s1",
    "name": "Sketch1",
-   "plane": "x40",
+   "plane": "x46",
    "points": {
     "origin_s1": {
      "x": 0,
@@ -513,7 +513,7 @@
   "s2": {
    "id": "s2",
    "name": "Sketch2",
-   "plane": "x41",
+   "plane": "x47",
    "points": {
     "origin_s2": {
      "x": 0,
@@ -748,7 +748,7 @@
   "s3": {
    "id": "s3",
    "name": "Sketch3",
-   "plane": "x42",
+   "plane": "x48",
    "points": {
     "origin_s3": {
      "x": 0,
@@ -1343,7 +1343,7 @@
   "s4": {
    "id": "s4",
    "name": "Sketch4",
-   "plane": "x43",
+   "plane": "x49",
    "points": {
     "origin_s4": {
      "x": 0,
@@ -1422,7 +1422,7 @@
   "s5": {
    "id": "s5",
    "name": "Sketch5",
-   "plane": "x44",
+   "plane": "x50",
    "points": {
     "origin_s5": {
      "x": 0,
@@ -1501,7 +1501,7 @@
   "s6": {
    "id": "s6",
    "name": "Sketch6",
-   "plane": "x45",
+   "plane": "x51",
    "points": {
     "origin_s6": {
      "x": 0,
@@ -1580,7 +1580,7 @@
   "s7": {
    "id": "s7",
    "name": "Sketch7",
-   "plane": "x46",
+   "plane": "x52",
    "points": {
     "origin_s7": {
      "x": 0,
@@ -1659,7 +1659,7 @@
   "s8": {
    "id": "s8",
    "name": "Sketch8",
-   "plane": "x47",
+   "plane": "x53",
    "points": {
     "origin_s8": {
      "x": 0,
@@ -1738,7 +1738,7 @@
   "s9": {
    "id": "s9",
    "name": "Sketch9",
-   "plane": "x48",
+   "plane": "x54",
    "points": {
     "origin_s9": {
      "x": 0,
@@ -1817,7 +1817,7 @@
   "s10": {
    "id": "s10",
    "name": "Sketch10",
-   "plane": "x49",
+   "plane": "x55",
    "points": {
     "origin_s10": {
      "x": 0,
@@ -1896,7 +1896,7 @@
   "s11": {
    "id": "s11",
    "name": "Sketch11",
-   "plane": "x50",
+   "plane": "x56",
    "points": {
     "origin_s11": {
      "x": 0,
@@ -1975,7 +1975,7 @@
   "s12": {
    "id": "s12",
    "name": "Sketch12",
-   "plane": "x51",
+   "plane": "x57",
    "points": {
     "origin_s12": {
      "x": 0,
@@ -2714,7 +2714,7 @@
   "s13": {
    "id": "s13",
    "name": "Sketch13",
-   "plane": "x52",
+   "plane": "x58",
    "points": {
     "origin_s13": {
      "x": 0,
@@ -3453,7 +3453,7 @@
   "s14": {
    "id": "s14",
    "name": "Sketch14",
-   "plane": "x53",
+   "plane": "x59",
    "points": {
     "origin_s14": {
      "x": 0,
@@ -4192,7 +4192,7 @@
   "s15": {
    "id": "s15",
    "name": "Sketch15",
-   "plane": "x54",
+   "plane": "x60",
    "points": {
     "origin_s15": {
      "x": 0,

@@ -1,12 +1,12 @@
-// Gekochte onderdelen van de kabeldoos als Phlippo CAD-onderdelen (uit versie 1, ongewijzigd): het Modelbouwled-bordje,
-// de ESP32-S3-DevKitC-1 op haar draagprint, de PCA9685, de gaatjesprints met hun onderdelen, tule, wartel en schroeven.
-// Maten met bron: docs/Maten-en-bronnen.md. De stapels (espStapel, uitgangStapel, ...) zetten een print met alles erop
-// in de assemblage, de onderkant van de print op M.voet boven de bodem.
+// Gekochte onderdelen van de kabeldoos als Phlippo CAD-onderdelen: het Modelbouwled-bordje, de ESP32-S3-DevKitC-1, de
+// PCA9685, de kant-en-klare modules van versie 4 (opbouw.mjs: MOSFET-modules, optocouplerprints, regelaar, WAGO-klemmen,
+// de schroefklemadapter van de ESP), tule, DC-bus en schroeven. Maten met bron: docs/Maten-en-bronnen.md. modulesOp()
+// zet alle modules met alles erop op de moduleplaat in de assemblage.
 import { vlak } from '../lib/schets.mjs';
 import { M } from './maten.mjs';
-import { deel, met, blokken, snede, cirkels, yv, PCB_ROOD, PCB_ZWART, PCB_BLAUW, PCB_BRUIN, KLEM_GROEN, KLEM_BLAUW, ZWART, METAAL, GOUD, WIT } from './hulp.mjs';
-import { bordjeArt, weerstandenArt, espArt, kapArt, pcaArt, pcaChipArt, gaatjesArt, pololuArt, rijOpschrift, elcoArt, zekeringArt } from './printjes.mjs';
-import { PRINTS, vormen, vrijeGaten, gatXY } from './opbouw.mjs';
+import { deel, met, blokken, snede, cirkels, yv, PCB_ROOD, PCB_ZWART, PCB_BLAUW, KLEM_GROEN, KLEM_BLAUW, ZWART, METAAL, GOUD, WIT } from './hulp.mjs';
+import { bordjeArt, weerstandenArt, espArt, kapArt, pcaArt, pcaChipArt, elcoArt, moduleArt } from './printjes.mjs';
+import { MODULES, PLAATSING, naarDoos, moduleY, pcaX } from './opbouw.mjs';
 
 // ---------------------------------------------------------------- het Modelbouwled-bordje (oorsprong: midden, onderkant print)
 export function bordjePcb() {
@@ -144,7 +144,7 @@ export function pcaPrint() {
   blokken(o, [[-P.x / 2, 0, -P.z / 2, P.x / 2, P.pcb, P.z / 2, 0.8]], 'Print');
   // 4 bevestigingsgaten M2,5 (56 x 19 hart op hart), 16 x 3 gaten voor de servo-uitgangen, 2 x 6 gaten aan de zijkanten
   const gaten = [[-28, -9.5, 1.3], [28, -9.5, 1.3], [-28, 9.5, 1.3], [28, 9.5, 1.3]];
-  for (let k = 0; k < 16; k++) for (let r = 0; r < 3; r++) gaten.push([-25.4 + k * 2.54 + Math.floor(k / 4) * 1.27, 3.5 + r * 2.54, 0.5]);
+  for (let k = 0; k < 16; k++) for (let r = 0; r < 3; r++) gaten.push([pcaX(k), 3.5 + r * 2.54, 0.5]);
   for (const sx of [-1, 1]) for (let r = 0; r < 6; r++) gaten.push([sx * 29.2, -6.35 + r * 2.54, 0.5]);
   cirkels(o, P.pcb, P.pcb + 1, gaten, 'Gaten', 'cut');
   return met(o.doc(), pcaArt(P));
@@ -155,56 +155,6 @@ export function pcaChip() {
   return met(o.doc(), pcaChipArt(P));
 }
 
-// ---------------------------------------------------------------- eigen gaatjesprints (oorsprong: midden, onderkant)
-// de indeling (onderdelen, gaten, schroeven, bijgeboorde gaten) komt uit opbouw.mjs
-function gaatjesprint(P) {
-  const o = deel(`${P.naam} (gaatjesprint)`, PCB_BRUIN);
-  blokken(o, [[-P.w / 2, 0, -P.h / 2, P.w / 2, 1.6, P.h / 2, 0.5]], 'Print');
-  const gaten = [...P.schroeven, ...P.boringen].map(([x, y]) => [x - P.w / 2, y - P.h / 2, 1.35]);
-  cirkels(o, 1.6, 2.6, gaten, 'Bevestigingsgaten', 'cut');
-  return met(o.doc(), gaatjesArt(P, vrijeGaten(P)));
-}
-export const uitgangPcb = () => gaatjesprint(PRINTS.uitgang);
-export const ingangPcb = () => gaatjesprint(PRINTS.ingang);
-export const voedingPcb = () => gaatjesprint(PRINTS.voeding);
-export const dragerPcb = () => gaatjesprint(PRINTS.drager);
-/** n DIP-behuizingen (4 of 16 pinnen) op een rij; l x b x h van het lichaam; de pootjes als dunne strips eronder */
-export function dipRij(naam, n, steek, l, b, h, pootjes) {
-  const o = deel(naam, ZWART), L = n * steek;
-  blokken(o, Array.from({ length: n }, (_, i) => { const x = -L / 2 + steek * (i + 0.5); return [x - l / 2, 0.5, -b / 2, x + l / 2, 0.5 + h, b / 2, 0.3]; }), 'Behuizing');
-  // pootjes: per behuizing 2 rijen van `pootjes` stuks, 0,5 breed
-  const p = [];
-  for (let i = 0; i < n; i++) {
-    const x = -L / 2 + steek * (i + 0.5);
-    for (let k = 0; k < pootjes; k++) for (const s of [-1, 1]) { const px = x - (pootjes - 1) * 1.27 + k * 2.54, z0 = s > 0 ? b / 2 : -b / 2 - 0.7; p.push([px - 0.25, 0, z0, px + 0.25, 1.4, z0 + 0.7]); }
-  }
-  const m = deel(`${naam} pootjes`, METAAL);
-  blokken(m, p, 'Pootjes');
-  return [o.doc(), m.doc()];
-}
-/** steekzekering (ATO) in een printhouder: houder zwart, zekering bruin (7,5 A) */
-export function zekeringHouder() {
-  const o = deel('Printhouder steekzekering ATO', ZWART);
-  blokken(o, [[-9.8, 0, -3.6, 9.8, 7.5, 3.6, 0.5]], 'Houder');
-  snede(o, 7.5, 5.5, [[-9.4, -2.6, 9.4, 2.6, 0.3]], 'Opening');
-  return o.doc();
-}
-export function steekzekering() {
-  const o = deel('Steekzekering ATO 7,5 A', { name: 'PA, lichtbruin', density: 1140, color: '#b5651d' });
-  blokken(o, [[-9.25, 2.5, -2.6, 9.25, 15.0, 2.6, 0.6], [-9.25, 15.0 - 0.05, -1.9, 9.25, 15.8, 1.9, 0.4]], 'Zekering');
-  return met(o.doc(), zekeringArt());
-}
-/** Pololu D24V10F5 (17,8 x 12,7) met de spoel en de pinrij */
-export function pololu() {
-  const o = deel('Pololu D24V10F5 (print)', { name: 'FR4, groen', density: 1850, color: '#1f6b3a' });
-  blokken(o, [[-8.9, 0, -6.35, 8.9, 1.0, 6.35, 0.4]], 'Print');
-  return met(o.doc(), pololuArt());
-}
-export function spoel() {
-  const o = deel('Spoel 4 x 4', { name: 'ferriet', density: 4800, color: '#3b3b3e' });
-  blokken(o, [[-2, 0.95, -2, 2, 3.0, 2, 0.6]], 'Spoel');
-  return o.doc();
-}
 export function elco(d = 6.3, h = 11, naam = 'Elco 470 µF / 25 V') {
   const o = deel(naam, { name: 'aluminium, zwarte huls', density: 2700, color: '#1c2b4a' });
   cirkels(o, 0, h, [[0, 0, d / 2]], 'Elco');
@@ -242,13 +192,7 @@ export function dcBus() {
   blokken(o, [[xl - B.lippen, -3.5, -2.0, xl + 0.01, 3.5, -1.6], [xl - B.lippen, -3.5, 1.6, xl + 0.01, 3.5, 2.0]], 'Soldeerlippen');
   return o.doc();
 }
-/** de x van de draagprint: rechts in de rij, de USB-kant van de ESP 1 mm van de rechterwand */
-const espDragerX = (d) => espX(d) - M.esp.x / 2 + M.esp.pin.eerste + ((M.esp.pin.n - 1) * M.esp.pin.steek) / 2;
-/** de 2 schroeven van de draagprint (tussen de pinrijen, aan de uiteinden) */
-const dragerGaten = () => [[-M.drager.x / 2 + 3, 0], [M.drager.x / 2 - 3, 0]];
-/** de x van het midden van de ESP-print: de USB-kant (rand + 0,8 uitsteek) tot 1 mm van de binnenwand */
-const espX = (d) => d.cx + d.x / 2 - 1.8 - M.esp.x / 2;
-const espY = () => M.voet + 1.6 + 8.5 + 2.5; // onderkant van de ESP-print: draagprint, vrouwelijke pinrij 8,5, plastic van de pinnen 2,5
+
 // ---------------------------------------------------------------- assemblage
 /** verzonken schroef (90°): oorsprong boven op de kop, schacht langs -Y */
 export function schroefVerzonken(naam, d, kern, L) {
@@ -287,129 +231,134 @@ function schroeven(at, pre, lijst) {
 }
 const hoekGaten = (b) => [[-b.x / 2 + 2.54, -b.z / 2 + 2.54], [b.x / 2 - 2.54, -b.z / 2 + 2.54], [-b.x / 2 + 2.54, b.z / 2 - 2.54], [b.x / 2 - 2.54, b.z / 2 - 2.54]];
 const draaiY = (deg) => { const a = (deg * Math.PI) / 360; return [0, Math.sin(a), 0, Math.cos(a)]; };
-/** vrouwelijke pinrij (zwart, 8,5 hoog) met de gaatjes van boven; oorsprong midden onderaan */
 function vrouwelijkeRij(n, steek = 2.54) {
   const o = deel(`Vrouwelijke pinrij ${n}-polig`, ZWART), L = n * steek;
   blokken(o, [[-L / 2, 0, -1.25, L / 2, 8.5, 1.25]], 'Huis');
   snede(o, 8.5, 6, Array.from({ length: n }, (_, i) => { const x = -L / 2 + steek * (i + 0.5); return [x - 0.5, -0.5, x + 0.5, 0.5]; }), 'Gaatjes');
   return o.doc();
 }
-/** de ESP op haar draagprint met 2 vrouwelijke pinrijen van 22 */
-function espStapel(at, d) {
-  const P = M.esp, y0 = M.voet, xd = espDragerX(d), xe = espX(d), ye = espY();
-  at('e0', 'Draagprint ESP<1>', dragerPcb(), [xd, y0, d.cz]);
-  schroeven(at, 'e', dragerGaten().map(([x, z]) => [xd + x, y0 + 1.6, d.cz + z]));
-  const rijX = xe - P.x / 2 + P.pin.eerste + ((P.pin.n - 1) * P.pin.steek) / 2, zr = P.z / 2 - P.pin.rand;
-  const vrouw = vrouwelijkeRij(P.pin.n);
-  at('e1', 'Vrouwelijke pinrij 22-polig<1>', vrouw, [rijX, y0 + 1.6, d.cz - zr]);
-  at('e2', 'Vrouwelijke pinrij 22-polig<2>', vrouw, [rijX, y0 + 1.6, d.cz + zr]);
-  const strip = pinStrip('Pinrij 22-polig (plastic)', P.pin.n), pin = pinnen('Pinnen 22 (verguld)', P.pin.n);
-  for (const [i, z] of [[1, -zr], [2, zr]]) {
-    at(`e${2 + i}`, `Pinrij ESP<${i}>`, strip, [rijX, ye - 2.5, d.cz + z]);
-    at(`e${4 + i}`, `Pinnen ESP<${i}>`, pin, [rijX, ye - 2.5, d.cz + z]);
-  }
-  at('e7', 'ESP32-S3-DevKitC-1 (print)<1>', espPrint(), [xe, ye, d.cz]);
-  at('e8', 'ESP32-S3-WROOM-1 (module)<1>', espModule(), [xe, ye, d.cz]);
-  at('e9', 'ESP32-S3-WROOM-1 (kap)<1>', espKap(), [xe, ye, d.cz]);
-  at('e10', 'PCB-antenne<1>', espAntenne(), [xe, ye, d.cz]);
-  at('e11', 'ESP-onderdelen<1>', espOnderdelen(), [xe, ye, d.cz]);
-  at('e12', 'RGB-led<1>', rgbLed(), [xe, ye, d.cz]);
-  const usb = microUsb(), knop = drukknop(), kn = knopje();
-  // de regelaar 12 -> 5 V onder de ESP en de pull-up van OE (opbouw.mjs, de pinrijen staan hierboven al)
-  printStapel(at, 'eo', PRINTS.drager, { cx: xd, cz: d.cz }, null, { zonder: ['pinrij'] });
-  for (const [i, b] of [[1, 6.2], [2, 19.5]]) at(`e${12 + i}`, `Micro-USB ${i === 1 ? 'UART' : 'USB'}<${i}>`, usb, [xe + P.x / 2 + 0.8, ye + P.pcb, d.cz + P.z / 2 - b]);
-  for (const [i, b] of [[1, 7.7], [2, 18.1]]) {
-    const [x, z] = [xe - P.x / 2 + 48.8, d.cz + P.z / 2 - b];
-    at(`e${14 + i}`, `Drukknop ${i === 1 ? 'BOOT' : 'RESET'}<${i}>`, knop, [x, ye + P.pcb, z]);
-    at(`e${16 + i}`, `Knopje ${i === 1 ? 'BOOT' : 'RESET'}<${i}>`, kn, [x, ye + P.pcb, z]);
-  }
-}
-// ---------------------------------------------------------------- de onderdelen van de gaatjesprints (opbouw.mjs)
+// ---------------------------------------------------------------- versie 4: de kant-en-klare modules (opbouw.mjs)
 const cache3d = new Map(), eenmaal = (k, f) => { if (!cache3d.has(k)) cache3d.set(k, f()); return cache3d.get(k); };
-const adapterDocs = () => eenmaal('adapter', () => {
-  const v = deel('IC-voet DIP-8', ZWART);
-  blokken(v, [[-1.3, 0, -1.3, 8.92, 4.2, 8.92, 0.3]], 'Voet');
-  snede(v, 4.2, 1.5, [[1.0, 1.0, 6.62, 6.62]], 'Midden');
-  const a = deel('Adapter DA-SOT23-3-X2 (print)', PCB_BLAUW);
-  blokken(a, [[-2.225, 4.2, -2.54, 9.845, 5.8, 10.16, 0.3]], 'Print');
-  const q = deel('2 x AO3400A (SOT-23)', ZWART);
-  blokken(q, [[1.55, 5.8, 2.36, 2.85, 6.9, 5.26, 0.1], [4.77, 5.8, 2.36, 6.07, 6.9, 5.26, 0.1]], 'SOT-23');
-  return [['voet', v.doc()], ['print', a.doc()], ['mosfets', q.doc()]];
-});
-const smdDoc = (soort, rot) => eenmaal(`${soort}${rot}`, () => {
-  const [l, b, h] = soort === 'r1206' ? [3.2, 1.6, 0.6] : [4.5, 3.2, 0.9];
-  const o = deel(soort === 'r1206' ? 'Weerstand 1206' : 'Polyfuse 1812', soort === 'r1206' ? ZWART : { name: 'epoxy, geel', density: 1900, color: '#e3b505' });
-  blokken(o, [rot === 'v' ? [-b / 2, -h, -l / 2, b / 2, 0, l / 2] : [-l / 2, -h, -b / 2, l / 2, 0, b / 2]], 'Lichaam');
-  return o.doc();
-});
-const bus = () => eenmaal('bus', () => {
-  const B = PRINTS.uitgang.pca.bus, o = deel(`Afstandsbus M2,5 x ${B.h} rond Ø${B.d}`, { name: 'PA66, wit', density: 1140, color: '#e8e6dd' });
-  cirkels(o, 0, B.h, [[0, 0, B.d / 2]], 'Bus');
-  cirkels(o, B.h, B.h + 0.1, [[0, 0, 1.3]], 'Draad', 'cut');
-  return o.doc();
-});
-const to220 = () => eenmaal('to220', () => {
-  const q = deel('IRF4905 (TO-220, plat)', ZWART);
-  blokken(q, [[3.0, 0, -2.54, 12.2, 4.5, 7.62, 0.3]], 'Lichaam');
-  const t = deel('IRF4905 lip', METAAL);
-  blokken(t, [[12.2, 0, -2.54, 19.5, 1.3, 7.62]], 'Lip');
-  cirkels(t, 1.3, 1.4, [[16.3, 2.54, 1.8]], 'Gat', 'cut');
-  const p = deel('IRF4905 pootjes', METAAL);
-  blokken(p, [0, 1, 2].map((k) => [-0.4, 0, k * 2.54 - 0.25, 3.0, 0.5, k * 2.54 + 0.25]), 'Pootjes');
-  return [['lichaam', met(q.doc(), rijOpschrift(1, 9.2, 9.2, 10.16, 4.5, [['IRF4905', 1.0]], { kerf: false }))], ['lip', t.doc()], ['pootjes', p.doc()]];
-});
+const PCB_MAT = { '#1f4fa3': PCB_BLAUW, '#1d1f22': PCB_ZWART };
+const vlakBlok = (naam, mat, b) => eenmaal(`blok${naam}`, () => { const o = deel(naam, mat); blokken(o, [b], naam); return o.doc(); });
 
-/** een gaatjesprint met alles erop zoals in opbouw.mjs; pre: de letter van de id's (u, i, v, e) */
-function printStapel(at, pre, P, d, pcb, { zonder = [] } = {}) {
-  const ox = d.cx - P.w / 2, oz = d.cz - P.h / 2, y = M.voet + 1.6;
-  let n = 0;
-  const id = () => `${pre}${++n}`, pos = (x, z, yy = y) => [ox + x, yy, oz + z];
-  if (pcb) {
-    at(id(), `${P.naam}<1>`, pcb, [d.cx, M.voet, d.cz]);
-    schroeven(at, pre, P.schroeven.map(([x, z]) => pos(x, z)));
+/** de print van een module met zijn gaten en de opdruk */
+function modulePrint(ref) {
+  const m = MODULES[ref];
+  return eenmaal(`print${m.kort}`, () => {
+    const o = deel(`${m.naam} (print)`, PCB_MAT[m.kleur] ?? PCB_BLAUW);
+    blokken(o, [[-m.l / 2, 0, -m.b / 2, m.l / 2, m.pcb, m.b / 2, 1]], 'Print');
+    if (m.gaten.length) cirkels(o, m.pcb, m.pcb + 1, m.gaten.map(([x, z]) => [x, z, m.gat / 2 + 0.1]), 'Gaten', 'cut');
+    return met(o.doc(), moduleArt(m));
+  });
+}
+/** de klemmen van een module in rijen: opeenvolgende klemmen van dezelfde soort op één lijn met dezelfde steek */
+export function klemRijen(m) {
+  const rijen = [];
+  for (const k of m.klemmen) {
+    const r = rijen[rijen.length - 1], vorige = r?.ks[r.ks.length - 1];
+    let past = r && r.soort === k.soort && r.in === k.in;
+    if (past) {
+      const dx = k.x - vorige.x, dz = k.z - vorige.z, d = Math.hypot(dx, dz);
+      const opLijn = Math.abs(dx) < 1e-6 || Math.abs(dz) < 1e-6, richting = Math.abs(dx) < 1e-6 ? 'z' : 'x';
+      past = opLijn && (r.ks.length < 2 || (richting === r.richting && Math.abs(d - r.steek) < 1e-6));
+      if (past && r.ks.length === 1) { r.steek = d; r.richting = richting; }
+    }
+    if (past) r.ks.push(k);
+    else rijen.push({ soort: k.soort, in: k.in, ks: [k], steek: k.soort === 'schroef35' ? 3.5 : k.soort === 'pin' ? 2.54 : 5.0, richting: 'x' });
   }
-  for (const v of vormen(P)) {
-    const o = v.o, [gx, gz] = gatXY(P, o.c, o.r), nm = `${v.ref}${v.waarde ? ' ' + v.waarde : ''}`;
-    if (zonder.includes(o.soort)) continue;
-    if (o.soort === 'adapter') for (const [k, doc] of adapterDocs()) at(id(), `${o.naam} (${k})<${o.ref}>`, doc, pos(gx, gz));
-    else if (o.soort === 'dip16') {
-      const [body, poot] = eenmaal('dip16', () => dipRij('LTV-844 (DIP-16)', 1, 21, 19.8, 6.4, 3.5, 8));
-      const b = eenmaal('dip16b', () => met(body, rijOpschrift(1, 21, 19.8, 6.4, 0.5 + 3.5, [['LTV-844', 1.1], ['2346  B', 0.75]], { kerf: false })));
-      at(id(), `${nm}<${o.ref}>`, b, pos(gx + 3.5 * 2.54, gz + 3.81));
-      at(id(), `${o.ref} pootjes<${o.ref}>`, poot, pos(gx + 3.5 * 2.54, gz + 3.81));
-    } else if (o.soort === 'mpt' || o.soort === 'mkds') {
-      const mkds = o.soort === 'mkds', st = mkds ? 5.08 : 2.54;
-      const doc = eenmaal(`${o.soort}${o.n}`, () => klemstrook(mkds ? `Printklem MKDS 1,5/${o.n}-5,08` : `Printklem MPT 0,5/${o.n}-2,54`, o.n, st, mkds ? 7.6 : 6.2, mkds ? 10 : 8.5, mkds ? KLEM_GROEN : KLEM_BLAUW));
-      at(id(), `Klem ${o.naam}<${o.naam}>`, doc, pos(gx + ((o.n - 1) * st) / 2, gz), draaiY(180));
-    } else if (o.soort === 'to220plat') for (const [k, doc] of to220()) at(id(), `${nm} (${k})<${o.ref}>`, doc, pos(gx, gz));
-    else if (o.soort === 'ato') {
-      at(id(), `Printhouder steekzekering<${o.ref}>`, eenmaal('atoh', zekeringHouder), pos(gx + 5.08, gz));
-      at(id(), `Steekzekering 7,5 A<${o.ref}>`, eenmaal('atoz', steekzekering), pos(gx + 5.08, gz));
-    } else if (o.soort === 'elco') at(id(), `${nm}<${o.ref}>`, eenmaal('elco', () => elco()), pos(gx + 1.27, gz));
-    else if (o.soort === 'pololu') {
-      at(id(), `Pololu D24V10F5 (print)<${o.ref}>`, eenmaal('pol', pololu), pos(gx + 5.08, gz - 5.08, y + 2.5));
-      at(id(), `Pololu spoel<${o.ref}>`, eenmaal('spoel', spoel), pos(gx + 7.08, gz - 5.08, y + 2.5));
-      at(id(), `Pinrij Pololu<${o.ref}>`, eenmaal('polpin', () => pinStrip('Pinrij 5-polig (Pololu)', 5)), pos(gx + 5.08, gz));
-    } else if (o.soort === 'r1206' || o.soort === 'ptc1812') {
-      const rot = o.rot ?? 'h', [dx, dz] = rot === 'v' ? [0, 1.27] : [1.27, 0];
-      at(id(), `${nm}<${o.ref}>`, smdDoc(o.soort, rot), pos(gx + dx, gz + dz, M.voet));
+  return rijen.map((r) => {
+    const xs = r.ks.map((k) => k.x), zs = r.ks.map((k) => k.z);
+    return { ...r, n: r.ks.length, x: (Math.min(...xs) + Math.max(...xs)) / 2, z: (Math.min(...zs) + Math.max(...zs)) / 2, langsZ: r.richting === 'z' };
+  });
+}
+/** de draaiing (graden om +Y) van een klemmenstrook: de draadingang van klemstrook() wijst naar -Z */
+const INGANG = { '-z': 0, '+z': 180, '-x': 90, '+x': -90 };
+const klemDoc = (soort, n) => eenmaal(`klem${soort}${n}`, () => (soort === 'schroef'
+  ? klemstrook(`Schroefklem ${n}-polig 5,0`, n, 5.0, 7.5, 10, KLEM_BLAUW)
+  : klemstrook(`Schroefklem ${n}-polig 3,5`, n, 3.5, 7.0, 8.5, KLEM_GROEN)));
+const pinDocs = (n) => eenmaal(`pin${n}`, () => [pinStrip(`Pinrij ${n}-polig`, n), pinnen(`Pinnen ${n} (verguld)`, n, 2.54, 0, 2.5 + 6)]);
+
+/** de onderdelen op een module (in het modulestelsel, y vanaf de bovenkant van de print): [naam, doc, [x, y, z], graden] */
+function moduleOnderdelen(m) {
+  const uit = [], blk = (naam, mat, x, z, l, b, h, r = 0.2) => uit.push([naam, vlakBlok(`${naam} ${l}x${b}x${h}`, mat, [-l / 2, 0, -b / 2, l / 2, h, b / 2, r]), [x, 0, z], 0]);
+  const LED = { name: 'led, rood', density: 1200, color: '#d62828' };
+  if (m.kort === 'MOSFET-module') {
+    for (let i = 0; i < 8; i++) {
+      blk('MOSFET (TO-252)', ZWART, -35 + 10 * i, 5, 6.5, 6.1, 2.3);
+      blk('Koellip', METAAL, -35 + 10 * i, 9.4, 5.2, 1.4, 0.6, 0);
+      blk('Optocoupler PC817', ZWART, -35 + 10 * i, -8, 4.6, 6.5, 3.5);
+      blk('Led', LED, -35 + 10 * i, -14, 1.6, 0.8, 0.6, 0);
+    }
+  } else if (m.kort === 'Optocouplerprint') {
+    for (let i = 0; i < 8; i++) {
+      blk('Optocoupler PC817', ZWART, -31.5 + 9 * i, 0, 4.6, 6.5, 3.5);
+      blk('Led', LED, -31.5 + 9 * i, 6.5, 1.6, 0.8, 0.6, 0);
+    }
+    blk('Jumper', ZWART, 34.5, -6, 2.5, 5.1, 2.5, 0);
+  } else if (m.kort === 'SBC-Buck02') {
+    blk('Spoel', { name: 'ferriet', density: 4800, color: '#3b3b3e' }, 2, -5, 12, 12, 7.5, 0.6);
+    const c = eenmaal('elcoBuck', () => elco(8, 13, 'Elco 470 µF / 35 V'));
+    uit.push(['Elco 470 µF', c, [14, 0, 8], 0], ['Elco 470 µF', c, [14, 0, -6], 0]);
+    blk('Regelaar-IC', ZWART, -6, 8, 5, 4, 1.5);
+  } else if (m.wago) {
+    // WAGO 221-415: transparant huis, 5 oranje hendels
+    uit.push(['Huis', vlakBlok('WAGO 221-415 huis', { name: 'PA, transparant grijs', density: 1150, color: '#d9d6cf' }, [-m.l / 2, 0, -m.b / 2, m.l / 2, 6.3, m.b / 2, 0.8]), [0, 0, 0], 0]);
+    for (let i = 0; i < 5; i++) uit.push(['Hendel', vlakBlok('WAGO hendel', { name: 'PA, oranje', density: 1150, color: '#f28c28' }, [-2.3, 0, -8.5, 2.3, 2.0, 6.5, 0.6]), [-11.9 + i * 5.95, 6.3, -0.5], 0]);
+  }
+  return uit;
+}
+
+/** een module met alles erop in de assemblage (id's m<code>_<n>); de ESP op haar klemmenadapter, de PCA9685 met zijn
+ *  eigen print en pinnen */
+function moduleOp(at, ref) {
+  const m = MODULES[ref], p = PLAATSING[ref], y0 = moduleY(ref), code = ref.replace(/^-/, '').toLowerCase();
+  let n = 0;
+  const id = () => `m${code}_${++n}`, rot = (a) => draaiY(p.rot + a);
+  const pos = (x, y, z) => { const [wx, wz] = naarDoos(ref, x, z); return [wx, y0 + y, wz]; };
+  if (ref === '-K2') {
+    at(id(), 'PCA9685 (print)<1>', pcaPrint(), pos(0, 0, 0), rot(0));
+    at(id(), 'PCA9685 (chip)<1>', pcaChip(), pos(0, 0, 0), rot(0));
+    // de pinnen: 2 x 6 aan de zijkanten (langs z), 3 rijen van 16 (PWM, V+, GND) met een spleet per 4
+    for (const sx of [-1, 1]) { const [s, q] = pinDocs(6); at(id(), 'Pinrij 6-polig<PCA>', s, pos(sx * 29.2, m.pcb, -6.35 + 2.5 * 2.54), rot(90)); at(id(), 'Pinnen 6<PCA>', q, pos(sx * 29.2, m.pcb, -6.35 + 2.5 * 2.54), rot(90)); }
+    for (const z of [3.5, 6.04, 8.58]) for (let g = 0; g < 4; g++) { const [s, q] = pinDocs(4); at(id(), 'Pinrij 4-polig<PCA>', s, pos(pcaX(4 * g) + 1.5 * 2.54, m.pcb, z), rot(0)); at(id(), 'Pinnen 4<PCA>', q, pos(pcaX(4 * g) + 1.5 * 2.54, m.pcb, z), rot(0)); }
+  } else {
+    if (!m.wago) at(id(), `${m.naam} (print)<${ref}>`, modulePrint(ref), pos(0, 0, 0), rot(0));
+    for (const r of klemRijen(m)) {
+      if (r.soort === 'wago') continue;
+      if (r.soort === 'pin') { const [s, q] = pinDocs(r.n); at(id(), `Pinrij ${r.n}-polig<${ref}>`, s, pos(r.x, m.pcb, r.z), rot(r.langsZ ? 90 : 0)); at(id(), `Pinnen ${r.n}<${ref}>`, q, pos(r.x, m.pcb, r.z), rot(r.langsZ ? 90 : 0)); continue; }
+      at(id(), `Schroefklem ${r.n}-polig<${ref}>`, klemDoc(r.soort, r.n), pos(r.x, m.pcb, r.z), rot(INGANG[r.in]));
+    }
+    for (const [naam, doc, [x, y, z], a] of moduleOnderdelen(m)) at(id(), `${naam}<${ref}>`, doc, pos(x, m.pcb + y, z), rot(a));
+  }
+  if (ref === '-X6') {
+    // de ESP32-S3-DevKitC-1 in 2 vrouwelijke pinrijen van 22 (22,86 hart op hart), de USB-kant naar +x (de rechterwand)
+    const E = M.esp, xe = 0, ye = m.pcb + 8.5 + 2.5, rijX = xe - E.x / 2 + E.pin.eerste + ((E.pin.n - 1) * E.pin.steek) / 2, zr = E.z / 2 - E.pin.rand;
+    const vrouw = eenmaal('vrouw22', () => vrouwelijkeRij(E.pin.n)), strip = eenmaal('strip22', () => pinStrip('Pinrij 22-polig (plastic)', E.pin.n)), pin = eenmaal('pin22', () => pinnen('Pinnen 22 (verguld)', E.pin.n));
+    for (const z of [-zr, zr]) {
+      at(id(), 'Vrouwelijke pinrij 22-polig<ESP>', vrouw, pos(rijX, m.pcb, z), rot(0));
+      at(id(), 'Pinrij ESP<ESP>', strip, pos(rijX, ye - 2.5, z), rot(0));
+      at(id(), 'Pinnen ESP<ESP>', pin, pos(rijX, ye - 2.5, z), rot(0));
+    }
+    for (const [naam, f] of [['ESP32-S3-DevKitC-1 (print)', espPrint], ['ESP32-S3-WROOM-1 (module)', espModule], ['ESP32-S3-WROOM-1 (kap)', espKap], ['PCB-antenne', espAntenne], ['ESP-onderdelen', espOnderdelen], ['RGB-led', rgbLed]]) at(id(), `${naam}<1>`, eenmaal(naam, f), pos(xe, ye, 0), rot(0));
+    const usb = eenmaal('usb', microUsb), knop = eenmaal('knop', drukknop), kn = eenmaal('knopje', knopje);
+    for (const [i, b] of [[1, 6.2], [2, 19.5]]) at(id(), `Micro-USB ${i === 1 ? 'UART' : 'USB'}<${i}>`, usb, pos(xe + E.x / 2 + 0.8, ye + E.pcb, E.z / 2 - b), rot(0));
+    for (const [i, b] of [[1, 7.7], [2, 18.1]]) {
+      at(id(), `Drukknop ${i === 1 ? 'BOOT' : 'RESET'}<${i}>`, knop, pos(xe - E.x / 2 + 48.8, ye + E.pcb, E.z / 2 - b), rot(0));
+      at(id(), `Knopje ${i === 1 ? 'BOOT' : 'RESET'}<${i}>`, kn, pos(xe - E.x / 2 + 48.8, ye + E.pcb, E.z / 2 - b), rot(0));
     }
   }
-  return { id, pos };
-}
-function uitgangStapel(at, d) {
-  const P = PRINTS.uitgang, { id, pos } = printStapel(at, 'u', P, d, uitgangPcb()), B = P.pca.bus, y = M.voet + 1.6;
-  // de PCA9685 op 4 afstandsbussen boven de rechterhelft (de adapters A5 tot A8 eronder)
-  P.boringen.forEach(([x, z]) => { const k = id(); at(k, `Afstandsbus M2,5 x ${B.h}<${k}>`, bus(), pos(x, z)); });
-  const yp = y + B.h;
-  at('p1', 'PCA9685 (print)<1>', pcaPrint(), pos(P.pca.cx, P.pca.cy, yp));
-  at('p2', 'PCA9685 (chip)<1>', pcaChip(), pos(P.pca.cx, P.pca.cy, yp));
-  schroeven(at, 'p', P.boringen.map(([x, z]) => pos(x, z, yp + M.pca.pcb)));
-  // en van onderen in de bussen (de kop onder de print, tussen de print en de bodem)
+  // de schroeven op de paaltjes (plaatschroef bolkop)
   const doc = bolkopDoc();
-  P.boringen.forEach(([x, z], i) => at(`pb${i + 1}`, `Plaatschroef 2,5 x 6 bolkop<pb${i + 1}>`, doc, pos(x, z, M.voet), [1, 0, 0, 0]));
+  m.gaten.forEach(([x, z]) => at(id(), `Plaatschroef bolkop<${ref}>`, doc, pos(x, m.pcb, z)));
 }
-const ingangStapel = (at, d) => printStapel(at, 'i', PRINTS.ingang, d, ingangPcb());
-const voedingStapel = (at, d) => printStapel(at, 'v', PRINTS.voeding, d, voedingPcb());
+/** de USB-poorten van de ESP: hoogte (midden), x van de rand en de z-strook, voor de opening in de rechterwand */
+export function espUsb() {
+  const m = MODULES['-X6'], E = M.esp, y = moduleY('-X6') + m.pcb + 8.5 + 2.5 + E.pcb + 1.25;
+  const [x] = naarDoos('-X6', E.x / 2 + 0.8, 0), za = naarDoos('-X6', 0, E.z / 2 - 19.5)[1], zb = naarDoos('-X6', 0, E.z / 2 - 6.2)[1];
+  return { y, x, z0: Math.min(za, zb) - 5.5, z1: Math.max(za, zb) + 5.5 };
+}
+/** alle modules op de moduleplaat */
+export function modulesOp(at) { for (const ref of Object.keys(MODULES)) moduleOp(at, ref); }
 
-export { espStapel, uitgangStapel, ingangStapel, voedingStapel, schroeven, espX, espY, espDragerX, dragerGaten, hoekGaten, draaiY };
+export { schroeven, bolkopDoc, hoekGaten, draaiY };

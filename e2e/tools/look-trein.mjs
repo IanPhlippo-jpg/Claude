@@ -1,5 +1,5 @@
-// look: de kabeldoos van de treinverlichting (voorbeelden/treinverlichting, versie 2) in de app: dicht, open (zonder
-// deksel, met en zonder gootdeksels), van boven, de goten van dichtbij, de gootdeksels op hun plaat, de ESP, de prints,
+// look: de kabeldoos van de treinverlichting (voorbeelden/treinverlichting, versie 4) in de app: dicht, open (zonder
+// deksel: de moduleplaat; zonder plaat: de goten en bordjes), van boven, de goten van dichtbij, de gootdeksels op hun plaat, de ESP, de modules,
 // een bordje en een doorsnede. Nodig: de app met VITE_TEST_HOOKS op E2E_URL (standaard poort 5184).
 import { chromium } from 'playwright';
 import { readFileSync } from 'node:fs';
@@ -33,6 +33,8 @@ const F = 'voorbeelden/treinverlichting/Kabeldoos.kcad';
 const zonder = (re) => { const d = lees(F); d.components = d.components.filter((c) => !re.test(c.id)); return d; };
 const alleen = (re) => { const d = lees(F); d.components = d.components.filter((c) => re.test(c.id)); return d; };
 const sel = (process.env.LOOK ?? '').split(',').filter(Boolean), doe = (n) => !sel.length || sel.includes(n);
+const PLAAT = String.raw`mp|mps\d|m[a-z0-9]+_\d+`; // de moduleplaat met alle modules (versie 4)
+const re = (s) => new RegExp(`^(${s})$`);
 
 if (doe('doos')) {
   await open(lees(F));
@@ -41,14 +43,14 @@ if (doe('doos')) {
   await open(zonder(/^(d2|sd\d)$/));
   await kijk('Control+7', 'trein-doos-open');
   // zonder de gootdeksels: de goten met hun vingers en sleuven
-  await open(zonder(/^(d2|sd\d|g\d+)$/));
+  await open(zonder(re(String.raw`d2|sd\d|g\d+|` + PLAAT)));
   await kijk('Control+7', 'trein-goten');
   await kijk('Control+5', 'trein-doos-boven');
   // de goten van dichtbij: de sleuven voor de klemmen, de klikvingers, de zijgoot met een tule
   await page.keyboard.press('Control+7'); await page.waitForTimeout(700); await page.keyboard.press('f'); await page.waitForTimeout(1500);
   await zoom(720, 470, 6, 'trein-kabels');
   // een gootdeksel opgetild boven zijn goot (de nokken en de klikgroef)
-  const d = zonder(/^(d2|sd\d)$/);
+  const d = zonder(re(String.raw`d2|sd\d|` + PLAAT));
   for (const c of d.components) if (/^g[46]$/.test(c.id)) c.position = [c.position[0], c.position[1] + 25, c.position[2]];
   await open(d);
   await page.keyboard.press('Control+7'); await page.waitForTimeout(700); await page.keyboard.press('f'); await page.waitForTimeout(1500);
@@ -68,11 +70,11 @@ if (doe('platen')) {
 }
 if (doe('prints')) {
   // de ESP op haar draagprint, van dichtbij
-  await open(alleen(/^e\d+$|^es\d$/), 4000);
+  await open(alleen(/^mx6_\d+$/), 4000);
   await kijk('Control+7', 'trein-esp');
   await kijk('Control+5', 'trein-esp-boven');
-  // de voeding, de uitgangen en de ingangen
-  await open(alleen(/^[viu]\d+$|^[viu]s\d$/), 4000);
+  // de moduleplaat met alle modules
+  await open(alleen(new RegExp(`^(${PLAAT})$`)), 4000);
   await kijk('Control+7', 'trein-prints');
   // één bordje
   await open(alleen(/^b1(k\d|e\d|r)?$/), 3000);
@@ -87,12 +89,12 @@ if (doe('fable')) {
   { const [x, y, n] = pt(process.env.ZOOM_LIP, '760,420,7'); await zoom(x, y, n, 'trein-klemlippen'); }
   await open(alleen(/^(d1|b\d+(k\d|e\d|r)?)$/));
   await kijk('Control+7', 'trein-bordjes-lippen');
-  await open(alleen(/^(d1|w1|v\d+|vs\d)$/));
+  await open(alleen(new RegExp(`^(d1|w1|${PLAAT})$`)));
   await page.keyboard.press('Control+7'); await page.waitForTimeout(700); await page.keyboard.press('f'); await page.waitForTimeout(1500);
   { const [x, y, n] = pt(process.env.ZOOM_DC, '640,640,5'); await zoom(x, y, n, 'trein-dcbus'); }
-  await open(alleen(/^(w1|v\d+|vs\d)$/), 4000);
+  await open(alleen(/^(w1|mp|mx[1237][ab]?_\d+|mt2_\d+|mk2_\d+)$/), 4000);
   await kijk('Control+7', 'trein-voeding-dcbus');
-  await open(alleen(/^(u\d+|us\d|p\d|ps\d|pb\d|b16(k\d|e\d|r)?)$/), 4000);
+  await open(alleen(/^(mq[12]_\d+|mk2_\d+)$/), 4000);
   await kijk('Control+7', 'trein-uitgangsprint');
 }
 console.log('errors', errors);

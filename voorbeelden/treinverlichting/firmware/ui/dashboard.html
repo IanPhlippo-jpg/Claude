@@ -1071,7 +1071,7 @@ const Demo = (() => {
     'Werkplaats lasser', 'Kampvuur', 'Tv woonkamer', 'Seinhuis', 'Loods', 'Boerderij', 'Kasteel', 'Tunnel'];
   const std = id => { const f = fxInfo(id); return f.p ? [f.p[0].std, f.p[1].std] : [0, 0]; };
   const st = {
-    rev: 1, melding: '', versie: '1.1.0 (voorbeeld)', hotspot: 'Treinbaan', aantalGroepen: 16,
+    rev: 1, melding: '', versie: '1.2.0 (voorbeeld)', hotspot: 'Treinbaan', aantalGroepen: 16,
     instellingen: { faduur: 0.5, dagnachtMin: 20, opstart: 'laatste', thuisnet: { ssid: 'Thuis', metWachtwoord: true } },
     test: { soort: '', groep: 0 }, thuisnet: { ssid: 'Thuis', verbonden: true, ip: '192.168.1.40' },
     groepen: namen.map((n, i) => ({ nr: i + 1, naam: n, max: 100, dagnacht: [0, 1, 4, 5, 6, 7, 11, 13, 14].includes(i),

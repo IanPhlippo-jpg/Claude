@@ -10,7 +10,7 @@ import { resolve } from 'node:path';
 import { esc, dataUrl, mdDoc } from './mdhtml.mjs';
 
 const DIR = 'voorbeelden/treinverlichting';
-const VERSIE = `versie 3 (${/\((\d{4}-\d{2}-\d{2})\)/.exec(readFileSync(`${DIR}/README.md`, 'utf8'))?.[1] ?? ''})`;
+const VERSIE = `versie 4 (${/\((\d{4}-\d{2}-\d{2})\)/.exec(readFileSync(`${DIR}/README.md`, 'utf8'))?.[1] ?? ''})`;
 
 const a3 = (svg) => `<div class="a3">${svg.replace(/^<\?xml[^>]*>\s*/, '').replace(/<svg /, '<svg style="display:block;width:420mm;height:297mm" ')}</div>`;
 // de tekeningen: A3 liggend, het meetblad en het invulblad A4 staand (volgens de maat in de SVG)
@@ -35,7 +35,7 @@ const dashboard = `<section class="tekst"><h1>Het dashboard</h1>
 const delen = [
   ['README: opbouw, aansluiten, draden labelen, bediening, bestellijst, printen', 'A4'],
   [`Bouwschema (${bsBladen.length} bladen)`, 'A4 liggend'],
-  [`Werktekeningen, opbouw van de gaatjesprints, draadlijst, meetblad en invulblad (${tekeningen.length} bladen, de boormal op ware grootte)`, 'A3 liggend en A4 staand, afdrukken op 100 %'],
+  [`Werktekeningen, montageblad van de modules, draadlijst, meetblad en invulblad (${tekeningen.length} bladen, de boormal op ware grootte)`, 'A3 liggend en A4 staand, afdrukken op 100 %'],
   [`Aansluitschema (${schema.length} bladen)`, 'A3 liggend'],
   ['Het dashboard', 'A4'],
   ['Firmware: werking en instellingen', 'A4'],
@@ -46,7 +46,7 @@ const delen = [
 const voorblad = `<section class="voor">
   <p class="klein">Treinverlichting · ${esc(VERSIE)}</p>
   <h1>Kabeldoos voor de verlichting van de modelbaan</h1>
-  <p class="sub">16 lichtgroepen, 16 ingangen voor knoppen en sensoren (contact, PNP en NPN), een eigen wifi met dashboard. Alles om af te drukken.</p>
+  <p class="sub">16 lichtgroepen, 16 ingangen voor knoppen en sensoren (contact, reed en NPN), een eigen wifi met dashboard, kant-en-klare modules. Alles om af te drukken.</p>
   <img class="fig voorfoto" src="${dataUrl('e2e-out/trein-doos-open.png')}">
   <h2>Inhoud</h2>
   <ol>${delen.map(([t, p]) => `<li>${esc(t)} <span class="klein">(${p})</span></li>`).join('')}</ol>

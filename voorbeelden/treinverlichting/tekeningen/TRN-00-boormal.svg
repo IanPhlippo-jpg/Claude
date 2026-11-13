@@ -57,14 +57,14 @@
 <text x="162.00" y="40.10" font-size="3" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">ACHTER</text>
 <text x="162.00" y="251.90" font-size="3" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">VOOR (ESP, ingangen)</text>
 <text x="52.10" y="195.00" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111" transform="rotate(-90 52.10 195.00)">USB</text>
-<text x="269.90" y="195.00" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111" transform="rotate(-90 269.90 195.00)">wartel 12 V</text>
+<text x="269.90" y="195.00" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111" transform="rotate(-90 269.90 195.00)">DC-bus 12 V</text>
 <line x1="302.00" y1="225.00" x2="402.00" y2="225.00" stroke="#111" stroke-width="0.5" stroke-linecap="round" />
 <line x1="302.00" y1="228.00" x2="302.00" y2="222.00" stroke="#111" stroke-width="0.5" stroke-linecap="round" />
 <line x1="402.00" y1="228.00" x2="402.00" y2="222.00" stroke="#111" stroke-width="0.5" stroke-linecap="round" />
 <text x="352.00" y="221.00" font-size="2.8" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" fill="#111">controle: 100 mm (afdrukken op 100 %)</text>
 <text x="300.00" y="25.00" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">Boormal op ware grootte, van onderen gezien</text>
 <text x="300.00" y="30.00" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">(het deksel naar je toe, de bodem tegen de baan):</text>
-<text x="300.00" y="35.00" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">de USB links, de wartel rechts.</text>
+<text x="300.00" y="35.00" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">de USB links, de DC-bus rechts.</text>
 <text x="300.00" y="40.00" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111"></text>
 <text x="300.00" y="45.00" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">1  Mal onder de baan plakken (tape), de 4 kruisjes</text>
 <text x="300.00" y="50.00" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">    voorboren Ø2,5.</text>
@@ -76,7 +76,7 @@
 <text x="300.00" y="80.00" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">    kruisje, aan het eind van de sleuf.</text>
 <text x="300.00" y="85.00" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">4  De schroeven aandraaien tot de doos vastzit.</text>
 <text x="300.00" y="90.00" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111"></text>
-<text x="300.00" y="95.00" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">Doos 229,8 x 229,8 x 44,4 (met het deksel).</text>
+<text x="300.00" y="95.00" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">Doos 229,8 x 229,8 x 66,8 (met het deksel).</text>
 <text x="300.00" y="100.00" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">Laat links en rechts 60 mm vrij voor de kabels.</text>
 <rect x="20" y="10" width="390" height="277" fill="none" stroke="#111" stroke-width="0.7"/>
 <line x1="210.00" y1="297.00" x2="210.00" y2="282.00" stroke="#111" stroke-width="0.7" stroke-linecap="round" />
@@ -160,13 +160,13 @@
 <text x="299.20" y="269.40" font-size="3" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">TRN-00</text>
 <line x1="338.00" y1="271.00" x2="338.00" y2="263.00" stroke="#111" stroke-width="0.25" stroke-linecap="round" />
 <text x="339.20" y="265.20" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#555">Rev.</text>
-<text x="339.20" y="269.40" font-size="2.4" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">3</text>
+<text x="339.20" y="269.40" font-size="2.4" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">4</text>
 <line x1="354.00" y1="271.00" x2="354.00" y2="263.00" stroke="#111" stroke-width="0.25" stroke-linecap="round" />
 <text x="355.20" y="265.20" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#555">Uitgifte</text>
-<text x="355.20" y="269.40" font-size="2.4" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">2026-11-12</text>
+<text x="355.20" y="269.40" font-size="2.4" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">2026-11-13</text>
 <line x1="384.00" y1="271.00" x2="384.00" y2="263.00" stroke="#111" stroke-width="0.25" stroke-linecap="round" />
 <text x="385.20" y="265.20" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#555">Blad</text>
-<text x="385.20" y="269.40" font-size="2.4" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">1 / 12</text>
+<text x="385.20" y="269.40" font-size="2.4" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">1 / 10</text>
 <text x="299.20" y="273.20" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#555">Opgesteld</text>
 <text x="299.20" y="277.40" font-size="2.3" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">Phlippo CAD</text>
 <line x1="338.00" y1="279.00" x2="338.00" y2="271.00" stroke="#111" stroke-width="0.25" stroke-linecap="round" />

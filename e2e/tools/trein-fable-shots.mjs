@@ -1,5 +1,5 @@
-// Beelden voor het advies van Fable 5.2 (kabeldoos treinverlichting): een doorsnede door de klemlippen van rij 3, de
-// DC-bus in de linkerwand en de uitgangsprint met de PCA9685 erboven. Nodig: de app met VITE_TEST_HOOKS op E2E_URL.
+// Beelden van de kabeldoos (treinverlichting): een doorsnede door de klemlippen van rij 3, de DC-bus in de linkerwand
+// (versie 4: boven de moduleplaat) en de MOSFET-modules met de PCA9685. Nodig: de app met VITE_TEST_HOOKS op E2E_URL.
 // Gebruik: node e2e/tools/trein-fable-shots.mjs [uitmap]   (standaard e2e-out); ZOOM_<NAAM>="x,y,n" stuurt het inzoomen
 import { chromium } from 'playwright';
 import { readFileSync, mkdirSync } from 'node:fs';
@@ -62,12 +62,12 @@ if (wat.includes('lippen') || wat.includes('lippen-boven')) {
   }
 }
 if (wat.includes('dcbus')) {
-  await open(alleen(/^(d1|w1|v\d+|vs\d)$/));
+  await open(alleen(/^(d1|w1|mp|mps\d|m[a-z0-9]+_\d+)$/));
   await shot('Control+3', 'trein-dcbus-links', '1553,527,5');
   await shot('Control+7', 'trein-dcbus', '600,470,6');
 }
 if (wat.includes('uitgang')) {
-  await open(alleen(/^(u\d+|us\d|p\d|ps\d|pb\d|b16(k\d|e\d|r)?)$/));
+  await open(alleen(/^(mq[12]_\d+|mk2_\d+)$/));
   await shot('Control+7', 'trein-uitgangsprint', '');
 }
 console.log('fouten', fouten);

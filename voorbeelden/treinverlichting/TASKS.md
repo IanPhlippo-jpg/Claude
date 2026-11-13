@@ -8,3 +8,13 @@
 - [x] Tekeningen: opbouw van de 4 gaatjesprints, interne draadlijst, meetblad, invulblad
 - [x] Rekenblad, README, EISEN (bijsturing 2026-11-12), maten en bronnen, bouwschema (proefopstelling, flashen, tafelhoogte)
 - [x] Tests (klemlippen, schema, opbouw), STL's, PDF's, app, screenshots
+
+## Kant-en-klare modules in plaats van gaatjesprints (2026-11-13)
+- [x] Modules kiezen (uitgangen, ingangen, voeding 5 V, zekeringen, ompoolbeveiliging, ESP-klemmenadapter) met maten en bron
+- [x] Indeling van de doos en 3D van de modules (maten.mjs, onderdelen.mjs, printjes.mjs, maak-kabeldoos.mjs)
+- [x] Bedrading als data (opbouw.mjs): modules, klemmen, draadlijst TRN-14, controle
+- [x] Schema (modules als -A-blokken), klemmenplannen, stuklijst
+- [x] Montageblad modules en bedrading (vervangt TRN-10..13), meetblad TRN-20, invulblad TRN-21
+- [x] Firmware (pinnen, actief-hoog/laag, adres) en hosttests
+- [x] Rekenblad, README (bestellijst), Maten-en-bronnen, EISEN (bijsturing 2026-11-13)
+- [x] Generators, tests (bak < 45 s), PDF's, bouwschema, app, screenshots

@@ -104,3 +104,49 @@ DC-bus (gat Ø11,5); de pennen van de ATO-houder (10,16); de pull-down op OE van
 **Rebuildtijd (2026-11-12, na de klemlippen):** de bak kwam op 46 s (budget van de app 45 s). De schroefgaten Ø2,2 en Ø2,6
 in de paaltjes en bussen zijn nu achthoeken met de vlakken op die maat (de schroef tapt in de vlakken; een printer maakt
 zo een klein gat toch hoekig): de bak bouwt in 38 s.
+
+## Bijsturing 2026-11-13: kant-en-klare printjes (Ian: "Voor de treindoos zou ik graag willen dat je zoveel mogelijk printjes gebruikt die ik gewoon kan bestellen")
+
+Uitgewerkt in versie 4 (README, opbouw.mjs, schema revisie 3, tekeningen TRN-05, TRN-10, TRN-14, TRN-20, TRN-21):
+
+| Functie | Versie 3 (zelf solderen) | Versie 4 (bestellen) |
+|---|---|---|
+| uitgangen | uitgangsprint: 16 x AO3400A op 8 adapterprintjes in voetjes, 48 printklemmen | 2 MOSFET-modules 8 kanalen met optocouplers (3,3 V-versie), dupont van de PCA9685 |
+| zekering per groep | 16 SMD-polyfuses op de uitgangsprint | 16 radiale polyfuses Bourns MF-R050, pootje in de klem van de module en in een WAGO 221-2411 |
+| ingangen | ingangsprint: 4 x LTV-844 (AC), 16 weerstanden, 24 klemmen, COM per 4 | 2 optocouplerprints PC817 8 kanalen (schroefklemmen) |
+| +12 V knoppen en sensoren | SMD-polyfuse op de ingangsprint | radiale polyfuse MF-R050 (-F18) in de verdeelklemmen |
+| voeding | voedingsprint: klemmen, ATO-houder, P-MOSFET IRF4905, elco | zekeringhouder ATO met draden, Schottkydiode SB560 tegen ompolen, WAGO 221-415 als verdeelklemmen |
+| 5 V | Pololu D24V10F5 op de draagprint (gesoldeerd) | Joy-IT SBC-Buck02 met schroefklem |
+| ESP | draagprint met 2 vrouwelijke pinrijen (gesoldeerd) | schroefklemadapter 44-pin |
+| solderen | 4 gaatjesprints, 4 tot 5 uur | alleen de 2 lippen van de DC-bus |
+
+Keuzes (zelf beslist; bestellijst € 186,95 in plaats van € 148,67, € 38,28 meer: boven de € 20 van "zelf beslissen",
+maar Ian vroeg zelf om kant-en-klaar; met de MOSFET-modules van AliExpress in plaats van Amazon.de ± € 26 minder):
+- **Alles op één geprinte moduleplaat boven de bordjes** (op de gootdeksels, achteraan onder een richel, vooraan 2
+  schroeven): de modules nemen ± 2,5 keer de plaats van de gaatjesprints en pasten niet meer in rij 6 en 7. De doos wordt
+  66,8 hoog (was 44,4; eis hoogstens 80), blijft 229,8 x 229,8 en houdt haar ringen, goten, klemlippen, tules en
+  sleutelgaten. Plaat eruit: 2 schroeven; de draden van de bordjes lopen door de goten naar voren en daar omhoog.
+- **De maten van de MOSFET-modules, de schroefklemadapter en de gaten van de regelaar zijn niet gepubliceerd** (AANNAME
+  in docs/Maten-en-bronnen.md). Daarom is de plaat een apart printdeel: na het nameten de maten in opbouw.mjs aanpassen
+  en alleen de plaat opnieuw printen (3 uur, niet de bak van 17 uur).
+- **Polariteit van de modules** (welk niveau zet een groep aan, welk niveau geeft een ingang) is niet gepubliceerd:
+  de firmware gaat uit van actief laag en heeft een bouwvlag voor het andere geval; het meetblad controleert het.
+- **Ompoolbeveiliging:** een P-MOSFET bestaat niet als module met schroefklemmen; een Schottkydiode tussen L+ en 0 V
+  achter de zekering doet het zonder solderen (verkeerd om: de adapter schakelt af of de zekering smelt).
+- **Zekering per groep:** de Schönwitz-zekeringverdeler (4 groepen met PTC en lampje, 65 x 55) is overwogen: 4 stuks
+  passen niet op de plaat. De radiale polyfuse met een WAGO-doorverbinder doet hetzelfde zonder plaats te nemen.
+- Modules krijgen in het schema de klasse van hun hoofdfunctie (81346-2): -Q (MOSFET-modules), -K (ESP, PCA9685,
+  optocouplerprints), -T (regelaar), -X (klemmen en de adapter); de letter A gebruikt dit project niet.
+
+Wat versie 4 minder kan dan versie 3 (eerlijk):
+- **Een sensor die zelf 12 V geeft (PNP)** werkt niet rechtstreeks: de optocouplerprint heeft een gemeenschappelijke +
+  per 8 ingangen (contacten, reed en NPN wel). Oplossing als het nodig is: een NPN-sensor of een klein relais.
+- **Wisselspanning op een ingang** (de trafo van de baan): de AC-optocouplers verdroegen dat, de PC817 niet boven 18 V
+  piek. Een +12 V op een ingang (de waarschijnlijkste fout) is wel onschadelijk.
+- **Dimmen onder 5 %** is minder nauwkeurig door de optocoupler in de MOSFET-module (schakeltijd); aan/uit, dimmen en
+  de effecten blijven.
+
+Na te meten (nieuw): de maten en gaten van de MOSFET-modules, de schroefklemadapter en de SBC-Buck02; de hoogte van de
+MOSFET-module (één verkoper noemt 39 mm: dan past ze niet onder het deksel); de volgorde van de klemmen van de
+optocouplerprint; de weerstand in de ingang (stroom bij 12 V); de polariteit van uitgangen en ingangen (meetblad stap 8
+en 9); of de pootjes van de polyfuses (0,51 mm) vast zitten in de WAGO 221-2411.

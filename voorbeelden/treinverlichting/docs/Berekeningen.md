@@ -15,36 +15,38 @@ Ongunstigste groep: **0,32 A**. Op 12 V geven bordjes van 1K5 maar 6,1 mA per le
 
 ## 2. Voeding en zekeringen
 
-- **Alles aan, ongunstigste bordjes:** 16 x 0,32 A + besturing = **5,18 A**, 78 % van de Mean Well GST90A12-P1M (6,67 A). Met bordjes van 1K: 2,40 A.
-- **Hoofdzekering 7,5 A** (ATO, 32 V DC) achter de DC-bus: ze is groter dan wat de adapter kan leveren (6,67 A) en **beschermt dus alleen de print en de dikke draden** tegen een kortsluiting vóór de klemmen (de adapter schakelt bij overbelasting zelf af). Een groep, een rij of een knop beschermt ze niet.
-- **Per groep een polyfuse Bourns MF-MSMF050/24X (1812)**, in de − van de groep op de uitgangsprint: houdstroom 0,50 A bij 23 °C, **0,44 A bij 40 °C** en 0,40 A bij 50 °C (derating uit het datablad), trip 1,00 A, 24 V. De ongunstigste groep (0,32 A) blijft eronder; een kortsluiting op een bordje of zijn draad laat alleen die polyfuse springen (binnen 0,2 s bij 8 A) en de MOSFET (5,7 A continu) ziet nooit meer dan de tripstroom.
-- **Waarom niet meer per rij:** de polyfuse van 1,1 A per rij van versie 1 hield bij 40 °C nog maar 0,91 A, minder dan 3 ongunstige bordjes (0,96 A), en een kortsluiting van één groep ging door de IRLD024 tot 2,2 A voor ze sprong. De + per rij heeft nu geen eigen polyfuse meer: een rij is hoogstens 0,96 A op draad van 0,5 mm²; een kortsluiting van een + naar 0 V begrenst de adapter.
-- **+12 V voor knoppen en sensoren:** eigen polyfuse Bourns MF-MSMF030 (1812) op de ingangsprint, 0,26 A bij 40 °C. Nodig: 16 ingangen x 4,9 mA + sensoren 80 mA (AANNAME) = 0,16 A. Een kortgesloten knopdraad legt zo niet de hele doos plat.
+- **Alles aan, ongunstigste bordjes, alle ingangen actief:** 16 x 0,32 A + besturing + ingangen = **5,43 A**, 81 % van de Mean Well GST90A12-P1M (6,67 A). Met bordjes van 1K en 4 ingangen actief: 2,44 A.
+- **Hoofdzekering 7,5 A** (ATO in een houder met draden, 32 V DC) achter de DC-bus: ze is groter dan wat de adapter kan leveren (6,67 A) en **beschermt de draden tot de verdeelklemmen** en de ompoolbeveiliging (hieronder) tegen een andere adapter zonder eigen beveiliging. Een groep of een knop beschermt ze niet.
+- **Per groep een polyfuse Bourns MF-R050 (radiaal)** (-F2..-F17), met één pootje in de klem n− van de MOSFET-module en het andere in een WAGO 221-2411 samen met de − van het bordje (geen solderen): houdstroom 0,50 A bij 23 °C, **0,41 A bij 40 °C** en 0,36 A bij 50 °C (derating uit het datablad), trip 1,00 A, 60 V. De ongunstigste groep (0,32 A) blijft eronder; een kortsluiting op een bordje of zijn draad laat alleen die polyfuse springen (4,0 s bij 2,5 A, sneller bij meer) en het kanaal van de module (2,0 A, AANNAME) ziet nooit meer dan een paar ampère gedurende die tijd. De pootjes zijn 0,51 mm (0,20 mm²): de kleinste draad die een WAGO 221 neemt; een schroefklem neemt ze altijd.
+- **Waarom niet meer per rij:** de polyfuse van 1,1 A per rij van versie 1 hield bij 40 °C nog maar 0,91 A, minder dan 3 ongunstige bordjes (0,96 A). Elk bordje krijgt nu zijn + uit de klem n+ van zijn module en zijn − door zijn eigen polyfuse.
+- **+12 V voor de ingangen en de sensoren (S12):** eigen polyfuse -F18 (Bourns MF-R050 (radiaal)), 0,41 A bij 40 °C. Nodig: 16 ingangen x 10,8 mA + sensoren 80 mA (AANNAME) = 0,25 A. Een kortgesloten sensordraad legt zo niet de hele doos plat.
 
-## 3. Schakelen (MOSFET per groep) en ompoolbeveiliging
+## 3. Schakelen (MOSFET-modules) en ompoolbeveiliging
 
-AO3400A (Alpha & Omega): R(on) hoogstens 48 mΩ bij UGS = 2,5 V (datablad, ID = 3 A); de PCA9685 stuurt met 3,3 V, dus is het zeker niet meer. Bij 0,32 A: 4,9 mW en 15 mV over de MOSFET; de chip wordt 0,6 K warmer dan de lucht (SOT-23, Rth 125 K/W, AANNAME). Meetcriterium in het meetblad: minder dan 0,1 V over elke MOSFET bij vol licht. (De IRLD024 (versie 1) had alleen een R(on) vanaf 4 V; 0,20 Ω bij 3,3 V was een AANNAME.) Twee AO3400A zitten op een adapterprintje (DA-SOT23-3-X2) in een IC-voet DIP-8: een kapotte MOSFET wissel je zonder solderen. PWM 1 kHz: de schakelverliezen zijn verwaarloosbaar.
+Elke groep schakelt de − van zijn bordje met een kanaal van een 8-kanaals MOSFET-module met optocouplers (versie 4: kant-en-klaar). Het type MOSFET staat niet bij de verkoper: AANNAME 20 mΩ en 2,0 A per kanaal. Bij 0,32 A: 2,0 mW en 6 mV over de MOSFET, 0,1 K warmer dan de lucht. Meetcriterium in het meetblad: minder dan 0,1 V tussen n− en VIN− bij vol licht (ook bij 0,31 Ω in plaats van 0,020 Ω nog geen warmteprobleem: 0,03 W).
 
-Ompoolbeveiliging: IRF4905 (Infineon) in de + (drain aan de ingang, source aan L+, gate met 10 kΩ aan 0 V). Goed aangesloten staat UGS op −12 V en geleidt hij met hoogstens 20 mΩ: bij 5,18 A is dat 0,54 W, 33 K boven de lucht (plat op de print, zonder koelplaat). Verkeerd om: de MOSFET spert en er loopt niets. De DC-bus houdt de stekker van de adapter (+ in het midden): niets doorknippen, niet verkeerd aan te sluiten met de eigen adapter.
+PWM 1 kHz door een optocoupler: de PC817 schakelt in 4 µs aan en 3 µs uit (datablad, met 100 Ω); met de weerstanden van de module wordt dat trager (AANNAME tot 50 µs). Bij 1017 Hz (een periode van 983 µs) zijn de laagste 5 % van het dimbereik dus niet nauwkeurig: een groep die op 2 % staat, kan iets feller of donkerder zijn dan berekend. Aan/uit, 10 tot 100 % en de effecten (vuur, tv, lasvlam) werken gewoon; 1 kHz blijft (geen flikkeren voor oog of camera).
+
+Ompoolbeveiliging zonder solderen: een Schottkydiode SB560 (-R2) met haar pootjes in de verdeelklemmen, de kathode aan L+ en de anode aan 0 V, achter de hoofdzekering. Goed aangesloten spert ze: geen verlies. Verkeerd om (een andere adapter met de + buiten): de diode geleidt, de modules zien hoogstens −0,7 V, en de adapter schakelt af (de GST90A heeft een kortsluitbeveiliging) of de zekering van 7,5 A smelt; de diode verdraagt 150 A piek (datablad). De DC-bus houdt de stekker van de eigen adapter (+ in het midden): niets doorknippen, niet verkeerd aan te sluiten. (Versie 3 had een P-MOSFET IRF4905 op een gaatjesprint; die bestaat niet als kant-en-klare module met schroefklemmen.)
 
 ## 4. Ingangen (knoppen en sensoren)
 
-Elke ingang: LTV-844 (Lite-On) met AC-ingang (twee leds tegen elkaar) en 2,2 kΩ in serie. Op 12 V loopt er 4,9 mA door de led; de transistor kan dan minstens 0,98 mA (CTR ≥ 20 %), de pull-up van de ESP vraagt 0,073 mA: zeker laag (factor 13). De weerstand verbruikt 53 mW (1206 van 0,25 W: minder dan de helft).
+Elke ingang: een kanaal van een PC817 (optocouplerprint 8 kanalen): VCC (S12, +12 V) door een weerstand (1,0 kΩ, AANNAME: na te meten) en de led naar IN; de knop of sensor trekt IN naar 0 V. Op 12 V loopt er 10,8 mA door de led (hoogstens 50 mA); de transistor kan dan minstens 5,4 mA (CTR ≥ 50 %), de pull-up van de uitgang (AANNAME 10 kΩ naar 3,3 V) vraagt 0,33 mA: zeker laag (factor 16). De weerstand verbruikt 117 mW zolang de ingang actief is.
 
-Aansluiten (per 4 ingangen een COM-klem): **contact of PNP-sensor** (schakelt +12 V): COM aan 0 V, de knop tussen +12 V en IN. **NPN-sensor, hall of reed naar 0 V** (schakelt 0 V): COM aan +12 V, de uitgang van de sensor aan IN. De twee leds tegen elkaar maken het ook bestand tegen een verkeerd aangesloten draad (de taak van de antiparallelle diode die Fable vroeg): een led krijgt nooit meer dan 1,2 V in sperrichting.
+Aansluiten: **contact, schakelaar, reed** tussen IN en 0 V (-X2); **NPN-sensor of hall (open collector)**: + aan +12 V (-X3), − aan 0 V, de uitgang aan IN. Een **sensor met een 12 V-uitgang (PNP)** werkt niet rechtstreeks met deze print (de led zit tussen +12 V en IN): kies er een met NPN-uitgang, of laat de PNP-sensor een klein relais schakelen waarvan het contact aan IN hangt. Bestand tegen fouten: +12 V op IN zet 0 V over de led (niets aan de hand); wisselspanning tot 18 V piek verdraagt de led (6 V in sperrichting, datablad PC817); de wisselspanning van een trafo van de baan (16 V, 22,6 V piek) dus niet: een ingang krijgt een contact, geen trafo.
 
 ## 5. Warmte: geen verluchting nodig
 
 | bron | ongunstigst | gewoon (1K, 4 ingangen actief) |
 | --- | ---: | ---: |
-| 16 MOSFET's | 0,08 W | 0,02 W |
-| 16 polyfuses (R1max 1,3 Ω) | 2,13 W | 0,44 W |
-| 16 weerstanden van de ingangen (53 mW elk) | 0,85 W | 0,21 W |
+| 16 kanalen van de MOSFET-modules | 0,03 W | 0,01 W |
+| 16 polyfuses (R1max 1,17 Ω) | 1,92 W | 0,40 W |
+| 16 ingangen (weerstand en led, 117 mW elk) | 1,87 W | 0,47 W |
 | ESP, PCA9685, regelaar | 0,74 W | 0,74 W |
-| P-MOSFET en zekering | 0,81 W | 0,16 W |
-| **samen** | **4,60 W** | **1,57 W** |
+| hoofdzekering en -F18 | 0,37 W | 0,05 W |
+| **samen** | **4,93 W** | **1,67 W** |
 
-De bodem hangt tegen de onderkant van de baan (hout): die geeft bijna geen warmte af. Alleen het deksel en de 4 zijwanden tellen: 0,094 m² met 5 W/m²K (natuurlijke convectie, AANNAME). Binnen wordt het **9,8 K** warmer dan onder de baan in het ongunstigste geval (alle 16 groepen met bordjes van 0 Ω vol aan, alle ingangen actief), **3,4 K** gewoon. Met 25 °C onder de baan blijft het binnen onder 40 °C: daarop zijn de polyfuses hierboven gerekend. Verluchtingsgaten zijn niet nodig; de netadapter (het warmste deel) hangt buiten de doos.
+De bodem hangt tegen de onderkant van de baan (hout): die geeft bijna geen warmte af. Alleen het deksel en de 4 zijwanden tellen (de doos is nu 66,8 hoog): 0,114 m² met 5 W/m²K (natuurlijke convectie, AANNAME). Binnen wordt het **8,6 K** warmer dan onder de baan in het ongunstigste geval (alle 16 groepen met bordjes van 0 Ω vol aan, alle ingangen actief), **2,9 K** gewoon. Met 25 °C onder de baan blijft het binnen onder 40 °C: daarop zijn de polyfuses hierboven gerekend. Verluchtingsgaten zijn niet nodig; de netadapter (het warmste deel) hangt buiten de doos. De modules liggen op de moduleplaat bovenaan, het warmste deel van de doos: de regelaar (0,11 W) wordt nauwelijks warm.
 
 ## 6. Kabelgoten: vulgraad
 
@@ -67,5 +69,5 @@ Elk bordje zit tussen 4 lippen aan zijn korte kanten. Een lip is een tong van 0,
 
 ## 9. Draden en de 0 V-retour
 
-De 16 groepen komen samen terug door de sources van de MOSFET's: tot 5,18 A. Op de uitgangsprint loopt dat over een blanke draad Ø1,0 (0,79 mm²) langs de sources naar een eigen klem -X3:17 (5,08, tot 1,5 mm²) en met 0,75 mm² naar -X1:3 op de voedingsprint: 350 mm geeft 8,2 mΩ en 42 mV verlies. De andere draden tussen de prints (gates, GPIO, I2C) dragen milliampères: 0,14 mm². Interne draadlijst: TRN-14.
+De 16 groepen komen terug door de MOSFET-modules: per module tot 2,56 A over zijn klem VIN− en een draad van 0,75 mm² naar de verdeelklem -X2 (WAGO 221-415, 32 A): 250 mm geeft 5,8 mΩ en 15 mV verlies. Samen 5,43 A door de 2 WAGO-klemmen van -X1 en -X2 en de draden van 0,75 mm² van de DC-bus. De andere draden (PWM, GPIO, I2C, 3,3 V) dragen milliampères: 0,14 mm² of dupontkabels. Interne draadlijst: TRN-14.
 

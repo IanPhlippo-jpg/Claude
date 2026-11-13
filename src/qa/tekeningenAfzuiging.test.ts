@@ -65,7 +65,7 @@ const DELEN: Deel[] = [
     `Binnen Ø${2 * m.kuip.binnen}, wand ${m.kuip.wand}, buiten Ø${2 * (m.kuip.binnen + m.kuip.wand)}; rand op Y ${getal(m.kuip.rand)} (celband 6 x 2)`,
     `Wand recht tot Y ${m.kuip.recht}, dan bol: boog R${m.kuip.boog} tot 45°, dan 45° tot de bodem (Y ${m.kuip.bodem}, ${m.kuip.vloer} dik)`,
     `Lamellen onder 45° naar onder: 12 sectoren (±${m.kuip.lamel.hoeken.join(', ±')}° rond de X-as) van ${m.kuip.lamel.breed} breed, ${m.kuip.lamel.rijen} rijen, banden ${m.kuip.lamel.sleuf} mm`,
-    `Bodem: ringsleuven ${m.kuip.ringen.map(([a, b]) => `r ${a}-${b}`).join(', ')} met ${m.kuip.spaken} spaken van ${m.kuip.spaak}`,
+    `Bodem: ringsleuven ${m.kuip.ringen.map(([a, b]: number[]) => `r ${a}-${b}`).join(', ')} met ${m.kuip.spaken} spaken van ${m.kuip.spaak}`,
     `4 x M4 verzonken 90° (Ø8,2) op Ø${2 * m.fan.gat} onder 45° (rubberbuffers); gat Ø5 voor de aders op (0, ${m.kuip.draad[1]})`,
     `4 oren (console 45°) op de assen, gat Ø3,4 en kom Ø${m.kuip.oor.kom} van onderen (M3 x 12 DIN 912)`,
   ] },
