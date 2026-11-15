@@ -13,15 +13,15 @@ const gewicht = (b) => b.V.stapelN * b.V.stapelKg;
  * gewichtstoren: voeten, twee staanders, onder- en bovenligger, voorligger op de vloer, stapel met geleidestangen,
  * afscherming voor en achter. x0 = midden, yt = hart van de stapel.
  */
-export function toren(b, { x0 = 0, yt, H = 2100, naam = '', n, ogen = [0] } = {}) {
-  const a = b.P('toren').b, dpl = 112, xs = 150 + 60 + a / 2, r = R(b), oud = b.huidig;
-  const L = b.staaf(`Torenvoet ${naam}`.trim(), 'toren', [x0 - xs, yt - 350, a / 2], [x0 - xs, yt + 300, a / 2]);
-  const Rv = b.staaf(`Torenvoet ${naam}`.trim(), 'toren', [x0 + xs, yt - 350, a / 2], [x0 + xs, yt + 300, a / 2]);
+export function toren(b, { x0 = 0, yt, H = 2100, naam = '', n, ogen = [0], voorVoet = 350, dpl = 112 } = {}) {
+  const a = b.P('toren').b, xs = 150 + 60 + a / 2, r = R(b), oud = b.huidig;
+  const L = b.staaf(`Torenvoet ${naam}`.trim(), 'toren', [x0 - xs, yt - voorVoet, a / 2], [x0 - xs, yt + 300, a / 2]);
+  const Rv = b.staaf(`Torenvoet ${naam}`.trim(), 'toren', [x0 + xs, yt - voorVoet, a / 2], [x0 + xs, yt + 300, a / 2]);
   voetjes(b, L, 2); voetjes(b, Rv, 2);
   const sL = staander(b, 'Torenstaander', 'toren', x0 - xs, yt, a, H), sR = staander(b, 'Torenstaander', 'toren', x0 + xs, yt, a, H);
   const onder = ligger(b, 'Onderligger toren', 'toren', sL, sR, { z: a + 20 + a / 2 }), boven = ligger(b, 'Bovenligger toren', 'toren', sL, sR, { z: H - a / 2 });
   const voor = ligger(b, 'Voorligger toren', 'toren', L, Rv, { y: yt - 100, z: a / 2 }), achter = ligger(b, 'Achterligger toren', 'toren', L, Rv, { y: yt + 100, z: a / 2 });
-  const s = b.stapel(naam || 'stapel', [x0, yt, 0], 2 * a + 20, { hoogte: H - a, terug: oud, n, ogen });
+  const s = b.stapel(naam || 'stapel', [x0, yt, 0], 2 * a + 20, { hoogte: H - a, terug: oud, n, ogen, dpl });
   // afscherming voor en achter (plaat 1,5 mm, met M8 aan de staanders): tot 60 mm boven de stapel in de hoogste stand
   const zk = Math.min(H - a, s.top + s.slag + 60);
   b.groep(`Afscherming ${naam}`.trim());
@@ -66,25 +66,38 @@ export const KABEL = [
     spieren: 'brede rugspier, biceps, achterkant schouder', oefeningen: ['lat pulldown', 'close grip pulldown', 'low row', 'triceps pushdown', 'curls'],
     markt: { thuis: [600, 2400], pro: [3490, 5920], bronT: 'Gorilla lat pulley 80 kg € 600, Taurus Lat Pulley Station € 999, Tunturi Platinum Dual Lat/Low Row € 2399', bronP: 'Taurus IT95 € 3490, Primal 125 kg Dual Lat/Row ± € 4070, Hammer Strength Select Lat Pulldown € 5920' },
     bouw(b) {
-      const V = b.V, T = toren(b, { yt: 1200, H: 2150, ogen: [-60, 60] }), r = T.r, a = T.a, yb = 420, P = b.P('ligger');
+      const V = b.V, T = toren(b, { yt: 1200, H: 2150, ogen: [] }), r = T.r, a = T.a, yb = 420, P = b.P('ligger');
       const Pb = b.P('breed'), arm = b.staaf('Lat-arm', 'breed', [-60, T.yt + a / 2, T.H + Pb.h / 2], [-60, yb - 60, T.H + Pb.h / 2], { v: X, opm: 'ligt op de bovenligger van de toren (gelast + schot)' });
+      for (const s2 of [-1, 1]) b.staaf('Schetsplaat lat-arm', 's60x10', [-60 + s2 * (Pb.b / 2 + 5), T.yt + a / 2, T.H + 30], [-60 + s2 * (Pb.b / 2 + 5), T.yt - a / 2 - 150, T.H + 30], { v: X, kap: false, opm: 'schetsplaat 60 x 10 naast de arm, op de bovenligger en de arm gelast (vermoeiing)' });
       const pa = bovenKatrol(b, T, -60, 'voor', 'A (lat, boven de stapel)');
       const pb = katrolBeugel(b, 'B (lat, vooraan de arm)', [-60, yb, T.H - 15 - r], X, { tot: { as: 2, w: T.H }, kap: false });
       const pc = bovenKatrol(b, T, 60, 'voor', 'C (low, boven de stapel)'), pd = onderKatrol(b, T, 60, 'D (low, onderaan)');
-      const zl = 1600;
+      // één kabel: lat - B - A - losse katrol op de stapel - C - D - low-row-greep; stopkogel aan beide uiteinden. Trek je
+      // aan de lat, dan houdt de stopkogel van de low row tegen D en tilt de losse katrol de stapel (2:1, greepweg 2 x 600)
+      b.groep(`stapel ${T.s.naam}`);
+      const zf = T.s.top + 25 + r + 5, pL = b.katrol('los (op de stapel)', [0, T.yt, zf], Y, { kap: true }); pL.kapTekst = 'binnen de afscherming van de stapel';
+      for (const sy of [-1, 1]) b.plaat('Beugel losse katrol', [-30, T.yt + sy * 18, T.s.top], [30, T.yt + sy * 24, zf + 20], { stapel: true, kleur: 'stapel', gaten: [{ p: [0, T.yt + sy * 21, zf], d: 10.5 }], opm: 'op de bovenplaat gelast; as M10 van de losse katrol' });
+      b.groep('frame');
+      const zl = 1750, G = gewicht(b);
       b.koop(V.latbar, 1, [balk([-660, yb - r, zl], [540, yb - r, zl], Y, 30, 30, true, 'chroom')]);
       b.koop(V.handgreep, 1, [balk([60, T.yt - 3 * r - 400, T.a + 25], [60, T.yt - 3 * r - 260, T.a + 25], X, 30, 30, true, 'chroom')]);
-      const G = gewicht(b);
-      b.kabel('Kabel lat', [{ p: T.s.oog(-60) }, pa, pb, { p: [-60, yb - r, zl] }], { last: G, overbrenging: 1, slag: T.s.slag });
-      b.kabel('Kabel low row', [{ p: T.s.oog(60) }, pc, pd, { p: [60, T.yt - 3 * r - 260, T.a + 25] }], { last: G, overbrenging: 1, slag: T.s.slag });
+      b.koop('kabelstop', 2, [], { naam: 'Stopkogel aan beide uiteinden (lat en low row)' });
+      b.kabel('Kabel lat en low row', [{ p: [60, T.yt - 3 * r - 260, T.a + 25] }, pd, pc, pL, pa, pb, { p: [-60, yb - r, zl] }], { last: G, overbrenging: 2, slag: T.s.slag, begin: 'anker' });
       const { vl } = vloer(b, T);
       zitting(b, vl, yb + 20, 480);
-      const kp = staander(b, 'Kniepaal', 'bank', 0, yb + 290, P.h, 640);
-      kp.a = [0, yb + 290, P.h]; kp.geo = [balk(kp.a, kp.b, X, kp.P.b, kp.P.h)]; kp.L = 640 - P.h;
-      const yk2 = yb + 290 - kp.P.h / 2 - b.P('bus').b / 2;
-      const kb = b.staaf('Kniesteunbus', 'bus', [-60, yk2, 660], [60, yk2, 660], { kap: false, opm: 'tegen de kniepaal gelast; de as Ø25/30 schuift erin' });
+      // kniesteun verstelbaar: binnenkoker met gaten om de 25 mm in de kniepaal, veerpen
+      const rk = pro(b) ? 'k80x80x4' : 'k60x60x3', Pk = b.P(rk), kp = staander(b, 'Kniepaal', pro(b) ? 'k100x100x4' : 'k80x80x4', 0, yb + 290, P.h, 600, { gaten: [{ s: 600 - P.h - 45, d: V.pin + 1, as: 'v' }] });
+      kp.a = [0, yb + 290, P.h]; kp.geo = [balk(kp.a, kp.b, X, kp.P.b, kp.P.h)]; kp.L = 600 - P.h;
+      b.groep('Kniesteun');
+      const kbk = b.staaf('Kniepaal binnenkoker', rk, [0, yb + 290, 360], [0, yb + 290, 640], { in: kp.id, gaten: Array.from({ length: 4 }, (_, q) => ({ s: 195 - q * 45, d: V.pin + 1, as: 'v' })), opm: `schuift in de kniepaal; 4 gaten Ø${V.pin + 1} om de 45 mm: kniesteun in 4 standen` });
+      const yk2 = yb + 290 - Pk.h / 2 - b.P('bus').b / 2;
+      const kb = b.staaf('Kniesteunbus', 'bus', [-60, yk2, 660], [60, yk2, 660], { kap: false, opm: 'op de binnenkoker gelast; de as Ø25/30 schuift erin' });
+      b.plaat('Kopplaat kniesteun', [-Pk.b / 2 - 5, yb + 290 - Pk.h / 2, 640], [Pk.b / 2 + 5, yb + 290 + Pk.h / 2, 648], { opm: 'sluit de binnenkoker af en draagt de bus' });
       b.staaf('As kniesteun', 'as', [-260, yk2, 660], [260, yk2, 660], { kap: false, in: kb.id });
-      b.koop(V.schuimrol, 2, [-1, 1].map((s) => balk([s * 65, yk2, 660], [s * 265, yk2, 660], X, 100, 100, true, 'leer')), { naam: 'Schuimrol Ø100 (kniesteun)' });
+      b.koop(V.schuimrol, 2, [-1, 1].map((s2) => balk([s2 * 65, yk2, 660], [s2 * 265, yk2, 660], X, 100, 100, true, 'leer')), { naam: 'Schuimrol Ø100 (kniesteun)' });
+      b.groep('frame');
+      b.pen('Veerpen kniesteun', [0, yb + 290, 600 - 45], X, { d: V.pin, key: V.pin25, snedes: 2, t: kp.P.t, a: 'frame', b: 'Kniesteun', uit: [160, 0, 0], F: V.gebruiker * 0.6, factor: 'extrinsiekPen', lengte: kp.P.b + 40 });
+      void kbk;
       b.reken('Lat-arm (uitkragend, kabel over 90°: 1,41 x de kabelkracht)', arm, 'uitkrager', T.yt - yb, 0, { g: 1.41 * G, proef: 'extrinsiek', las: true });
       b.reken('Torenstaander', T.sL, 'staander', T.H - a, 0, { g: G + 2 * G, proef: 'extrinsiek' });
       b.last('Gebruiker op de zitting, stapel omhoog', 100, [0, yb, 700], { geval: 'pulldown' }); b.last('Stapel (hoogste stand)', G, [0, T.yt, T.s.top + T.s.slag - 150], { geval: 'pulldown' });
@@ -124,7 +137,7 @@ export const KABEL = [
       const V = b.V, x0 = 1350, G = gewicht(b), T = {};
       for (const [k, s] of [['L', -1], ['R', 1]]) {
         b.groep(`Toren ${k}`);
-        const t = toren(b, { x0: s * x0, yt: 500, H: 2200, naam: k });
+        const t = toren(b, { x0: s * x0, yt: 500, H: 2200, naam: k, voorVoet: pro(b) ? 750 : 950 }); // diepe voet: kantelen onder kabeltrek (P1-12)
         T[k] = t;
         const r = t.r, xin = s * x0 - s * t.xs, zc = t.zP;
         const pa = bovenKatrol(b, t, s * x0, s < 0 ? 'rechts' : 'links', `${k}1 (boven de stapel)`);
@@ -134,6 +147,7 @@ export const KABEL = [
         gat(s < 0 ? t.sR : t.sL, [xin, t.yt, zc + r], 20, 'v');
         b.koop(V.handgreep, 1, [balk([xb - s * r, t.yt - 70, 1750], [xb - s * r, t.yt + 70, 1750], X, 30, 30, true, 'chroom')]);
         b.kabel(`Kabel ${k}`, [{ p: t.s.oog(0) }, pa, pb, { p: [xb - s * r, t.yt, 1750] }], { last: G, overbrenging: 1, slag: t.s.slag });
+        b.trekLast('Kabeltrek naar voren aan de hoge katrollen', Math.min(600, G * 9.81), [xb, t.yt, zc], [0, -1, 0]);
       }
       b.groep('frame');
       bovenVerbinding(b, T.L, T.R);
@@ -180,6 +194,7 @@ export const KABEL = [
       b.groep('frame');
       b.schijven([0, yt - a / 2 - 120, a + 300], [0, -1, 0], 3);
       const Pb = b.P('breed'), arm = b.staaf('Lat-arm', 'breed', [0, yt + a / 2, H + Pb.h / 2], [0, 360, H + Pb.h / 2], { v: X, opm: 'ligt op de bovenligger' });
+      for (const s2 of [-1, 1]) b.staaf('Schetsplaat lat-arm', 's60x10', [s2 * (Pb.b / 2 + 5), yt + a / 2, H + 30], [s2 * (Pb.b / 2 + 5), yt - a / 2 - 150, H + 30], { v: X, kap: false, opm: 'schetsplaat 60 x 10 naast de arm, op de bovenligger en de arm gelast (vermoeiing)' });
       const zP = H - a - 15 - r, top = a + 415, xk = Pb.b / 2 + 34;
       const pa = katrolBeugel(b, 'A (boven de slede)', [xk, yt - r, zP], X, { tot: { as: 2, w: H - a }, kap: false });
       const pb = katrolBeugel(b, 'B (vooraan de arm)', [0, 420, H - 15 - r], X, { tot: { as: 2, w: H }, kap: false });
@@ -242,25 +257,33 @@ export const KABEL = [
     spieren: 'borst, voorste schouder (fly), achterste schouder (rear delt)', oefeningen: ['pec deck fly', 'rear delt fly'],
     markt: { thuis: [800, 2400], pro: [3490, 6930], bronT: 'Taurus Standing Chest Fly IFP € 799, Tunturi Platinum Dual Pec Fly/Rear Delt € 2399', bronP: 'Taurus Pec/Rear IT95 € 3490, Primal ± € 4300, Hammer Strength Select € 6932' },
     bouw(b) {
-      const V = b.V, T = toren(b, { yt: 1150, H: 2100, ogen: [-60, 60] }), r = T.r, a = T.a, P = b.P('ligger'), G = gewicht(b), yp = 520, zc = T.zP + r;
+      const V = b.V, T = toren(b, { yt: 1150, H: 2100, ogen: [-145, 145] }), r = T.r, a = T.a, P = b.P('ligger'), G = gewicht(b), yp = 520, zc = T.zP + r;
       const Pb = b.P('breed'), arm = b.staaf('Bovenarm', 'breed', [0, T.yt - a / 2, T.H - Pb.h / 2], [0, yp - 200, T.H - Pb.h / 2], { v: X });
       const dw = b.staaf('Dwarsligger assen', 'ligger', [-260, yp, T.H - Pb.h - P.h / 2], [260, yp, T.H - Pb.h - P.h / 2], { v: Y });
       void dw;
       const katr = {};
-      for (const [k, s] of [['L', -1], ['R', 1]]) katr[k] = bovenKatrol(b, T, s * 60, 'voor', `${k} (boven de stapel)`);
+      for (const [k, s] of [['L', -1], ['R', 1]]) katr[k] = bovenKatrol(b, T, s * 145, 'voor', `${k} (boven de stapel)`);
       for (const [k, s] of [['L', -1], ['R', 1]]) {
         b.groep(`Arm ${k}`);
-        const xa = s * 60, zt = T.H - Pb.h - P.h;
-        b.staaf('Draaias', 'b48x4', [xa, yp, zt], [xa, yp, 1350], { kap: false, opm: 'draait in 2 kogellagers 6205 in een lagerhuis onder de dwarsligger' });
-        b.plaat('Nok (R55)', [xa - 55, yp - 55, zt - 46], [xa + 55, yp + 55, zt - 34], { rond: true, in: 'as', opm: 'schijf Ø110 x 12 met kabelgroef (draaibank); op de as gelast' });
+        // nok R85: de kabel vertrekt aan de buitenkant van de nok (raaklijn op x = ±145, boven de stapel) en windt op als de arm
+        // naar voren draait (was R55 met een radiaal bevestigde kabel: geen koppel in de beginstand)
+        const xa = s * 60, zt = T.H - Pb.h - P.h, zn = zt - (s < 0 ? 120 : 140), Rn = 85;
+        b.groep('frame');
+        b.staaf('Lagerhuis', 'b76x8', [xa, yp, zt], [xa, yp, zt - 80], { kap: false, opm: 'buis 76,1x8 onder de dwarsligger gelast; uitgedraaid Ø62 H7 voor 2 kogellagers 6206' });
+        b.groep(`Arm ${k}`);
+        b.staaf('Draaias', 'r30', [xa, yp, zt - 2], [xa, yp, 1350], { kap: false, in: 'lagerhuis', opm: 'rond Ø30 h6 C45; 2 kogellagers 6206 in het lagerhuis, borgring DIN 471' });
+        b.plaat(`Nok (R${Rn})`, [xa - Rn, yp - Rn, zn - 6], [xa + Rn, yp + Rn, zn + 6], { rond: true, in: 'draaias', opm: `laserschijf Ø${2 * Rn} x 12 met kabelgroef (2 platen + tussenring), op de as gelast` });
         const ar = b.staaf('Arm', 'arm', [xa, yp, 1350 - b.P('arm').h / 2], [s * 560, yp, 1350 - b.P('arm').h / 2], { v: Y });
         const pd = b.staaf('Kussenpaal', 'arm', [s * 560, yp, 1350 - b.P('arm').h], [s * 560, yp, 900]);
         b.kussen(`Armkussen ${k}`, [s * 560, yp - b.P('arm').b / 2, 950], [s * 560, yp - b.P('arm').b / 2, 1300], [0, -1, 0], 220, 60);
         b.staaf('Handgreep', 'greep', [s * 560, yp - b.P('arm').b / 2, 1320], [s * 560, yp - 180, 1320], {});
         b.groep('frame');
-        b.kabel(`Kabel arm ${k}`, [{ p: T.s.oog(s * 60) }, katr[k], { p: [xa, yp + 55, zt - 40] }], { last: G, overbrenging: 1, slag: T.s.slag, einde: 'nok' });
-        b.koop(V.id === 'pro' ? 'lager6204pro' : 'lager6204', 2, [], { naam: `Kogellager (as arm ${k})` });
-        if (k === 'L') b.reken('Arm (kussen op het einde)', ar, 'uitkrager', 360, 0, { g: G * 100 / 360, proef: 'extrinsiek', las: true });
+        b.kabel(`Kabel arm ${k}`, [{ p: T.s.oog(s * 145) }, katr[k], { p: [xa + s * Rn, yp, zn] }], { last: G, overbrenging: 1, slag: T.s.slag, einde: 'nok' });
+        b.koop('lager6206', 2, [], { naam: `Kogellager 6206-2RS (draaias arm ${k})` });
+        if (k === 'L') {
+          b.reken('Arm (kussen op het einde)', ar, 'uitkrager', 500, 0, { g: G * Rn / 500, proef: 'extrinsiek', las: true });
+          b.toets('Krachtsverhouding', 'Pec deck: kracht aan het kussen', `nok R${Rn} / kussen op 500 mm: ${Math.round(Rn / 500 * 100)} % van de stapel per arm (${Math.round(G * Rn / 500)} kg bij de volle stapel; was R55 met radiale kabel: 0 kg in de beginstand); stapelweg bij 100°: ${Math.round(Rn * 1.745)} mm. Groter (R200) vraagt de assen boven de schouders en een haakse katrol: open punt`, 0, 'P2-01 (Fable)', { oordeel: 'oranje' });
+        }
         void pd;
       }
       const { vl } = vloer(b, T);
@@ -318,9 +341,9 @@ function bovenVerbinding(b, TL, TR) {
   b.groep('Bovenligger met greep');
   const st = b.staaf('Bovenligger met greep', 'ligger', [TL.x0 - 120, TL.yt, H + P.h / 2], [TR.x0 + 120, TL.yt, H + P.h / 2], { opm: 'ligt op de bovenliggers van de torens; middendeel = optrekgreep (rond geslepen hoeken)' });
   b.groep(oud);
-  const bd = b.V.bout === 'boutM16' ? 17 : 13;
+  const bd = b.V.bout === 'boutM16' ? 18 : 14;
   for (const T of [TL, TR]) {
-    const pts = [-1, 1].map((s) => [T.x0 + s * 70, T.yt, H]);
+    const pts = [-1, 1].map((s) => [T.x0 + s * 40, T.yt, H]);
     for (const p of pts) { gat(st, p, bd, Math.abs(st.w[2]) > 0.5 ? 'w' : 'v'); gat(T.boven, p, bd, Math.abs(T.boven.w[2]) > 0.5 ? 'w' : 'v'); }
     b.bout('Bovenligger op de toren', T.boven.groep, 'Bovenligger met greep', [T.x0, T.yt, H], Z, { punten: pts, lengte: 2 * P.h + 30, uit: [0, 0, 160], F: b.V.gebruiker / 4 });
   }
@@ -328,38 +351,52 @@ function bovenVerbinding(b, TL, TR) {
 }
 /** functional trainer of kabeltoren: één of twee torens met een rail aan de binnenkant, een wagen met katrol, 2:1 */
 function ftBouw(b, xs, id) {
-  const V = b.V, G = gewicht(b), T = [];
+  // Gesloten lus (zoals een commerciële functional trainer): wagenanker -> C (onderaan de rail) -> B2 (bovenaan de rail,
+  // achter) -> A2 (boven de stapel, achter) -> losse katrol op de stapel (2:1) -> A (boven de stapel, voor) -> B (bovenaan
+  // de rail, voor) -> dubbele zwenkkatrol op de wagen -> greep. Zakt de wagen Δ, dan wordt B-wagen Δ langer en
+  // C-wagenanker Δ korter: de kabellengte blijft gelijk in elke stand van de wagen (getest in de hoogste en laagste).
+  const V = b.V, G = gewicht(b), T = [], j = b.o.opties?.wagen ?? 13, zw = 250 + 75 * Math.max(3, Math.min(18, j));
   for (const [i, x0] of xs.entries()) {
     const k = xs.length > 1 ? (i ? 'R' : 'L') : '';
     b.groep(`Toren ${k}`.trim());
-    const t = toren(b, { x0, yt: 600, H: 2150, naam: k }), r = t.r, a = t.a, sIn = x0 === 0 ? 1 : -Math.sign(x0);
+    const t = toren(b, { x0, yt: 600, H: 2150, naam: k, ogen: [], dpl: 100, voorVoet: xs.length > 1 ? 750 : 350 }), r = t.r, a = t.a, sIn = x0 === 0 ? 1 : -Math.sign(x0), yf = t.yt - 57.5, yb = t.yt + 57.5;
     T.push(t);
-    const S = sIn > 0 ? t.sR : t.sL, xr = x0 + sIn * (t.xs + a + 15), xd = xr + sIn * (a / 2 + 80), zPB = t.zP, railTop = zPB - r - 25;
+    const xr = x0 + sIn * (t.xs + a + 15), xd = xr + sIn * (a / 2 + 80), zPB = t.zP, railTop = zPB - r - 25 - 10, Pw = b.P('wagen');
     for (const [z0, z1] of [[a + 40, a + 180], [railTop - 150, railTop - 10]]) { const xa1 = x0 + sIn * (t.xs + a / 2), xa2 = xa1 + sIn * 15; b.plaat('Afstandhouder rail', [Math.min(xa1, xa2), t.yt - a / 2, z0], [Math.max(xa1, xa2), t.yt + a / 2, z1], { opm: 'tussen staander en rail gelast (15 mm ruimte voor de wagen)' }); }
-    // rail tegen de binnenkant van de torenstaander, met 19 gaten om de 75 mm
-    const rail = staander(b, 'Wagenrail', 'staander', xr, t.yt, a, railTop, { gaten: Array.from({ length: 19 }, (_, j) => ({ s: 250 + j * 75 - a, d: V.gat, as: 'w' })) });
-    gat(S, [x0 + sIn * t.xs, t.yt, zPB + r], 20, 'v');
-    const pa = bovenKatrol(b, t, x0, sIn > 0 ? 'rechts' : 'links', `${k} A (boven de stapel)`.trim());
-    const pb = katrolBeugel(b, `${k} B (bovenaan de rail)`.trim(), [xd - sIn * r, t.yt, zPB], Y, { tot: { as: 2, w: railTop }, kap: false });
-    // wagen
+    // rail tegen de binnenkant van de torenstaander, met 19 gaten om de 75 mm; railkop en katrolconsole voor de katrollen
+    const rail = staander(b, 'Wagenrail', 'staander', xr, t.yt, a, railTop, { gaten: Array.from({ length: 19 }, (_, q) => ({ s: 250 + q * 75 - a, d: V.gat, as: 'w' })) });
+    b.plaat('Railkop', [Math.min(xr - sIn * a / 2, xr + sIn * a / 2), t.yt - 82, railTop], [Math.max(xr - sIn * a / 2, xr + sIn * a / 2), t.yt + 82, railTop + 10], { opm: 'plaat 10 mm op de rail: draagt katrol B en B2' });
+    b.plaat('Katrolconsole', [Math.min(x0 - sIn * 30, x0 + sIn * (r + 90)), t.yt - 82, t.H - a - 10], [Math.max(x0 - sIn * 30, x0 + sIn * (r + 90)), t.yt + 82, t.H - a], { gaten: [{ p: [x0 + sIn * 40, t.yt, t.H - a - 5], d: V.bout === 'boutM16' ? 18 : 14 }], opm: 'plaat 10 mm onder de bovenligger: draagt katrol A en A2; gat voor de bout van de bovenligger' });
+    const xl = xr + sIn * (Pw.b / 2 + 16), xA = xl + sIn * 2 * r; // terugloop achter de rail
+    const pA = katrolBeugel(b, `${k} A (boven de stapel, voor)`.trim(), [x0 + sIn * r, yf, t.zP], Y, { tot: { as: 2, w: t.H - a - 10 }, kap: false });
+    const pA2 = katrolBeugel(b, `${k} A2 (boven de stapel, achter)`.trim(), [x0 + sIn * r, yb, t.zP], Y, { tot: { as: 2, w: t.H - a - 10 }, kap: false });
+    const pB = katrolBeugel(b, `${k} B (bovenaan de rail, voor)`.trim(), [xd - sIn * r, yf, zPB], Y, { kap: false });
+    const pB2 = katrolBeugel(b, `${k} B2 (bovenaan de rail, achter)`.trim(), [xA - sIn * r, yb, zPB], Y, { kap: false });
+    const zC = a + 30 + r, pC = katrolBeugel(b, `${k} C (onderaan de rail, achter)`.trim(), [xl + sIn * r, yb, zC], Y, { rug: { as: 0, w: xr + sIn * a / 2 }, kapKant: [0, 0, -1] });
+    // losse katrol op de stapel (as langs x: de twee lopen vallen voor en achter de stapel, binnen de afscherming)
+    b.groep(`stapel ${t.s.naam}`);
+    const zf = t.s.top + 25 + r + 5, pL = b.katrol(`${k} los (op de stapel)`.trim(), [x0, t.yt, zf], X, { kap: true }); pL.kapTekst = 'binnen de afscherming van de stapel';
+    for (const sx of [-1, 1]) b.plaat('Beugel losse katrol', [x0 + sx * 18, t.yt - 30, t.s.top], [x0 + sx * 24, t.yt + 30, zf + 20], { stapel: true, kleur: 'stapel', gaten: [{ p: [x0 + sx * 21, t.yt, zf], d: 10.5 }], opm: 'op de bovenplaat gelast; as M10 van de losse katrol' });
+    // wagen met dubbele zwenkkatrol (boven en onder de uitgaande kabel) en het anker van de terugloop
     b.groep(`Wagen ${k}`.trim());
-    const zw = 1225, Pw = b.P('wagen');
     b.staaf('Wagen (buitenkoker)', 'wagen', [xr, t.yt, zw - 130], [xr, t.yt, zw + 130], { gaten: [{ s: 130, d: V.gat, as: 'w' }], in: rail.id, opm: 'binnenmaat 6 mm groter dan de rail; 4 UHMW-glijstukken 3 mm' });
-    const kw = katrolBeugel(b, `${k} wagen`.trim(), [xd + sIn * r, t.yt, zw], Y, { kapKant: [0, 0, 1], rug: { as: 0, w: xr + sIn * Pw.b / 2 }, groep: `Wagen ${k}`.trim() });
+    const kw = katrolBeugel(b, `${k} wagen (zwenk, boven)`.trim(), [xd + sIn * r, yf, zw], Y, { kapKant: [0, 0, 1], rug: { as: 0, w: xr + sIn * Pw.b / 2 }, groep: `Wagen ${k}`.trim(), tot: { as: 2, w: zw - 3 * r - 8 - 25 } });
+    const k2 = b.katrol(`${k} wagen (zwenk, onder)`.trim(), [xd + sIn * r, yf, zw - 2 * r - 8], Y, { kap: true }); k2.kapTekst = 'in de verlengde beugel van de bovenste zwenkkatrol (dubbele zwenkkatrol)';
+    b.plaat('Kabeloog wagen', [Math.min(xr + sIn * (Pw.b / 2 - 25), xl + sIn * 25), t.yt + Pw.b / 2, zw - 175], [Math.max(xr + sIn * (Pw.b / 2 - 25), xl + sIn * 25), yb + 25, zw - 115], { gaten: [{ p: [xl, yb, zw - 145], d: 13 }], opm: 'anker van de terugloop (geperst eindstuk + karabijn)' });
     b.koop('uhmw', 1, [], { naam: 'UHMW-glijstukken in de wagen (4 x 260 x 40 x 10)', oppervlak: 4 * 0.26 * 0.04 });
     b.groep(`Toren ${k}`.trim());
-    b.pen(`Veerpen wagen ${k}`.trim(), [xr, t.yt, zw], Y, { d: V.pin, key: b.V.pin25, snedes: 2, a: `Toren ${k}`.trim(), b: `Wagen ${k}`.trim(), uit: [sIn * 160, 0, 0], F: G, factor: 'extrinsiekPen', lengte: Pw.b + 40 });
+    b.pen(`Veerpen wagen ${k}`.trim(), [xr, t.yt, zw], Y, { d: V.pin, key: b.V.pin25, snedes: 2, t: b.P('staander').t, a: `Toren ${k}`.trim(), b: `Wagen ${k}`.trim(), uit: [sIn * 160, 0, 0], F: G, factor: 'extrinsiekPen', lengte: Pw.b + 40 });
     const xg = xd + sIn * (2 * r + 160);
-    b.koop(V.handgreep, 1, [balk([xg, t.yt - 70, zw - r], [xg, t.yt + 70, zw - r], X, 30, 30, true, 'chroom')]);
-    b.kabel(`Kabel ${k}`.trim(), [{ p: [x0, t.yt, t.H - a] }, { p: t.s.oog(0), los: true }, pa, pb, kw, { p: [xg, t.yt, zw - r] }], { last: G, overbrenging: 2, slag: t.s.slag, begin: 'anker' });
-    b.koop(V.katrol, 1, [balk([x0, t.yt - 13, t.s.oog(0)[2] + 25 + r], [x0, t.yt + 13, t.s.oog(0)[2] + 25 + r], X, 2 * r, 2 * r, true, 'katrol')], { naam: `${KOOP[V.katrol].naam}: losse katrol op de stapel (2:1)` });
+    b.koop(V.handgreep, 1, [balk([xg, yf - 70, zw - r], [xg, yf + 70, zw - r], X, 30, 30, true, 'chroom')]);
+    b.kabel(`Kabel ${k}`.trim(), [{ p: [xl, yb, zw - 145] }, pC, pB2, pA2, pL, pA, pB, kw, { p: [xg, yf, zw - r] }], { last: G, overbrenging: 2, slag: t.s.slag, begin: 'anker' });
+    b.trekLast('Kabeltrek naar voren aan de hoogste stand', 600, [xg, yf, 1600], [0, -1, 0]);
     b.groep('frame');
   }
   if (xs.length > 1) {
     bovenVerbinding(b, T[0], T[1]);
     dwarsOp(b, 'Vloerligger', 'ligger', T[0].Rv, T[1].L, T[0].yt + 200);
     b.reken('Bovenligger (hangen of optrekken)', b.o.delen.find((d) => d.naam === 'Bovenligger met greep'), 'ligger', Math.abs(xs[1] - xs[0]), V.gebruiker, { proef: 'intrinsiek' });
-  } else b.o.verankerd = 'muur';
+  } else { b.o.verankerd = 'muur'; b.o.anker = { arm: 600, z: 1600, n: 4, kg: 0.5 * G }; }
   const t = T[0];
   b.reken('Wagenrail (kabel trekt zijwaarts aan de wagen)', b.o.delen.find((d) => d.naam === 'Wagenrail'), 'staanderM', 1200 - t.a, 0, { g: G / 2, proef: 'extrinsiek', e: 2 * t.r + 100, las: true, knik: 1 });
   b.last('Gebruiker voor de toren', 100, [xs[0], 0, 1000], { geval: 'trek' }); b.last('Stapel', G, [xs[0], t.yt, 1000], { geval: 'trek' });
@@ -368,21 +405,25 @@ function ftBouw(b, xs, id) {
 
 /** leg extension / leg curl / kickback: toren achteraan, hefboom met nok, kabel via onderkatrol naar de nok */
 function beenMachine(b, soort) {
-  const V = b.V, G = gewicht(b), P = b.P('ligger'), Pb = b.P('bank'), T = toren(b, { yt: soort === 'kickback' ? 1300 : 1250, H: 1800, ogen: [-90] }), r = T.r, xl = -90; // kabelbaan naast de zitpaal
+  // kabelbaan en nok buiten de zitting (x = -230), naast het been; de as ligt in TWEE lagerhuizen op twee lagerpalen
+  // (links en rechts van de zitting): nok en hefboom zitten tussen de lagers (P1-05). Nok R200: aan de rol 48 % van de
+  // stapel (was 24 % met R100), stapelweg R·θ (P2-02).
+  const xl = -230, Rn = 200, V = b.V, G = gewicht(b), P = b.P('ligger'), Pb = b.P('bank'), T = toren(b, { x0: -155, yt: soort === 'kickback' ? 1500 : 1250, H: 1800, ogen: [xl + 155] }), r = T.r; // toren 140 mm naar links: het kabeloog ligt boven de nok
   const pa = bovenKatrol(b, T, xl, 'voor', 'A (boven de stapel)'), pd = onderKatrol(b, T, xl, 'B (onderaan)');
-  const { vl } = vloer(b, T);
+  const { vl } = vloer(b, T, 0);
   const yk = soort === 'kickback' ? 650 : 330, zk = soort === 'kickback' ? 950 : 560; // draaipunt (knie of heup)
-  // draaipunt: lagerhuis (buis Ø48,3x8, uitgedraaid voor 2 flensglijlagers) tegen de binnenkant van een paal naast de zitting
-  const xo = soort === 'kickback' ? 340 : 300, xh = xo - P.b / 2;
-  const paal = staander(b, 'Lagerpaal', 'ligger', xo, yk, P.h, soort === 'curl' ? 760 : zk + 60);
-  ligger(b, 'Dwarsvoet lagerpaal', 'ligger', vl, paal, { y: yk, z: P.h / 2 }, { as: 0 });
-  const pv = b.staaf('Voet lagerpaal', 'ligger', [xo, yk - 250, P.h / 2], [xo, yk + 250, P.h / 2]); voetjes(b, pv, 2);
-  const huis = b.staaf('Lagerhuis', 'b48x8', [xh - 100, yk, zk], [xh, yk, zk], { kap: false, opm: 'tegen de lagerpaal gelast; binnen uitdraaien tot de buitenmaat van het flensglijlager (H7)' });
+  const xo = soort === 'kickback' ? 400 : 360, xh = xo - P.b / 2, Pas = b.P('r40');
+  const huizen = [];
+  for (const sx of [-1, 1]) {
+    const paal = staander(b, 'Lagerpaal', 'ligger', sx * xo, yk, P.h, soort === 'curl' ? 760 : zk + 60);
+    ligger(b, 'Dwarsvoet lagerpaal', 'ligger', vl, paal, { y: yk, z: P.h / 2 }, { as: 0 });
+    const pv = b.staaf('Voet lagerpaal', 'ligger', [sx * xo, yk - 250, P.h / 2], [sx * xo, yk + 250, P.h / 2]); voetjes(b, pv, 2);
+    huizen.push(b.staaf('Lagerhuis', 'b60x8', [sx * (xh - 60), yk, zk], [sx * xh, yk, zk], { kap: false, opm: 'buis 60,3x8 tegen de lagerpaal gelast; uitgedraaid Ø44 H7 voor 2 flensglijlagers GFM-4044-30' }));
+  }
   b.groep('Hefboom');
-  // de hefboom draait over θ: extensie strekt het been (rol naar voren en omhoog), curl buigt (rol naar achter), kickback naar achter
   const th = rad((soort === 'extensie' ? -80 : soort === 'curl' ? 75 : 60) * b.stand), rot = (p) => { const dy = p[1] - yk, dz = p[2] - zk; return [p[0], yk + dy * Math.cos(th) - dz * Math.sin(th), zk + dy * Math.sin(th) + dz * Math.cos(th)]; };
-  const as = b.staaf('As hefboom', 'as', [xh - 101, yk, zk], [-xo + 40, yk, zk], { kap: false, in: huis.id });
-  b.plaat('Nok (R100)', [xl - 6, yk - 100, zk - 100], [xl + 6, yk + 100, zk + 100], { rond: true, in: 'as', opm: 'schijf Ø200 x 12 met kabelgroef, op de as gelast' });
+  const as = b.staaf('As hefboom', 'r40', [-(xh - 1), yk, zk], [xh - 1, yk, zk], { kap: false, in: 'lagerhuis', opm: `rond Ø${Pas.b} h9 C45, in 2 lagerhuizen; stelringen DIN 705 buiten de huizen` });
+  b.plaat(`Nok (R${Rn})`, [xl - 6, yk - Rn, zk - Rn], [xl + 6, yk + Rn, zk + Rn], { rond: true, in: 'as', opm: `laserschijf Ø${2 * Rn} x 12 met kabelgroef (2 platen Ø${2 * Rn} + tussenring), op de as gelast; kap erover` });
   const xa = 90;
   let lev, rol;
   if (soort === 'extensie') { lev = b.staaf('Hefboomarm', 'arm', [xa, yk, zk], rot([xa, yk - 60, zk - 300]), { v: X }); rol = rot([0, yk - 70, zk - 310]); }
@@ -390,15 +431,26 @@ function beenMachine(b, soort) {
   else { lev = b.staaf('Hefboomarm', 'arm', [xa, yk, zk], rot([xa, yk + 120, 250]), { v: X }); rol = rot([0, yk + 130, 240]); }
   if (soort !== 'kickback') {
     b.staaf('As rol', 'as', [-200, rol[1], rol[2]], [200, rol[1], rol[2]], { kap: false, in: lev.id });
-    b.koop(V.schuimrol, 2, [-1, 1].map((s) => balk([s * 30, rol[1], rol[2]], [s * 230, rol[1], rol[2]], X, 100, 100, true, 'leer')), { naam: 'Schuimrol Ø100 (scheen of enkel)' });
+    b.koop(V.schuimrol, 2, [-1, 1].map((s2) => balk([s2 * 30, rol[1], rol[2]], [s2 * 180, rol[1], rol[2]], X, 100, 100, true, 'leer')), { naam: 'Schuimrol Ø100 (scheen of enkel)' });
   } else b.staaf('Voetplaat kickback', 'pl10x300', [-40, rol[1], rol[2]], [180, rol[1], rol[2]], { v: norm(sub(rot([0, yk + 131, 240]), rot([0, yk + 130, 240]))), kap: false, opm: 'plaat 300 x 220 x 10 met rubber' });
   b.groep('frame');
-  b.koop(V.lager, 2, [], { naam: 'Flensglijlager in het lagerhuis' });
-  b.pen('As hefboom in het lagerhuis', [xh - 50, yk, zk], X, { d: b.P('as').b, lengte: 98, snedes: 1, a: 'frame', b: 'Hefboom', uit: [-200, 0, 0], F: G * 1.2, factor: 'extrinsiekPen' });
-  // vloerkatrol vooraan de nok: de kabel loopt laag over de vloer en gaat recht omhoog naar de voorkant van de nok
-  const yf = yk + 100 + r, zf = T.a + 25 + r, pf = katrolBeugel(b, 'C (vloer, onder de nok)', [xl, yf, zf], X, { kapKant: [0, 0, 1] });
+  b.koop('glij40', 4, [], { naam: 'Flensglijlager GFM-4044-30 in de 2 lagerhuizen (2 per huis)' });
+  b.koop('stelring40', 2, [], { naam: 'Stelring DIN 705 Ø40 op de as van de hefboom' });
+  for (const sx of [-1, 1]) b.pen(`As hefboom in het lagerhuis ${sx < 0 ? 'L' : 'R'}`, [sx * (xh - 30), yk, zk], X, { d: Pas.b, lengte: 58, snedes: 1, t: 8, a: 'frame', b: 'Hefboom', uit: [-200, 0, 0], F: G * 0.6, factor: 'extrinsiekPen', gelast: 'As hefboom' });
+  {
+    // as op buiging: ligger op 2 steunpunten (lagerhuizen), kabelkracht aan de nok en beenkracht aan de arm
+    const kf = 2.5, Fc = kf * 1.5 * G * 9.81, Fl = Fc * Rn / 420, Ls = 2 * (xh - 30), xc = xl + Ls / 2, xb = xa + Ls / 2;
+    const Mc = Fc * xc * (Ls - xc) / Ls, Ml = Fl * xb * (Ls - xb) / Ls, M = Mc + Ml, W = Math.PI * Pas.b ** 3 / 32, sg = M / W;
+    b.toets('Sterkte', 'As van de hefboom op buiging (2 lagers)', `proeflast kabel ${kf} · 1,5 · ${G} kg · g = ${(Fc / 1000).toFixed(2)} kN aan de nok (${Math.round(xc)} mm van het lager), been ${(Fl / 1000).toFixed(2)} kN aan de arm; overspanning ${Ls} mm: M ≤ ${(M / 1e6).toFixed(3)} kNm; W(Ø${Pas.b}) = ${Math.round(W)} mm³: σ = ${sg.toFixed(0)} N/mm² ≤ 235 (was eenzijdig: ${(Fc * 250 / W).toFixed(0)} N/mm²)`, sg / 235, 'EN 1993-1-1 §6.2.5 (as op 2 steunpunten)');
+    b.toets('Krachtsverhouding', 'Nok: kracht aan de rol tegenover de stapel', `nok R${Rn} / arm 420 mm = ${(Rn / 420 * 100).toFixed(0)} % van de stapel aan de rol (${Math.round(G * Rn / 420)} kg bij de volle stapel); stapelweg R·θ = ${Math.round(Rn * 1.4)} mm bij 80°`, 0, 'P2-02 (Fable): commercieel ± 50-100 % aan de enkel', { oordeel: 'info' });
+  }
+  // vloerkatrol achter de nok: de kabel loopt laag over de vloer en gaat recht omhoog naar de achterkant van de nok
+  const yf = yk + Rn + r, zf = T.a + 25 + r, pf = katrolBeugel(b, 'C (vloer, onder de nok)', [xl, yf, zf], X, { kapKant: [0, 0, 1] });
   b.plaat('Console vloerkatrol', [xl + 24, yf - 40, T.a - 10], [-P.b / 2, yf + 40, T.a], { opm: 'verbindt de katrolbeugel met de vloerligger' });
-  b.kabel('Kabel', [{ p: T.s.oog(xl) }, pa, pd, pf, { p: rot([xl, yk + 100, zk]) }], { last: G, overbrenging: 1, slag: T.s.slag, einde: 'nok' });
+  b.groep('Afscherming nok');
+  b.plaat('Nokkap', [xl - 30, yk - Rn - 20, zk - Rn - 20], [xl - 28, yk + Rn + 20, zk + Rn + 20], { kleur: 'kap', opm: 'plaat 2 mm aan de buitenkant van de nok (vingers)' });
+  b.groep('frame');
+  b.kabel('Kabel', [{ p: T.s.oog(xl + 155) }, pa, pd, pf, { p: rot([xl, yk + Rn, zk]) }], { last: G, overbrenging: 1, slag: T.s.slag, einde: 'nok' });
   if (soort === 'kickback') {
     for (const y of [400, 850].map((y0) => (Math.abs(y0 - yf) < 42 + P.b / 2 ? (y0 < yf ? yf - 42 - P.b / 2 : yf + 42 + P.b / 2) : y0))) { const pl = b.staaf('Platformligger', 'ligger', [-300, y, P.h / 2], [-P.b / 2, y, P.h / 2], { opm: 'tegen de vloerligger gelast' }); voetjes(b, pl, 1); }
     for (const [x0p, x1p] of [[-300, xl - 40], [xl + 40, 300]]) b.plaat('Platform', [x0p, 350, P.h], [x1p, 900, P.h + 8], { opm: 'traanplaat 8 mm; de kabel en de vloerkatrol in de spleet ertussen' });
@@ -415,7 +467,7 @@ function beenMachine(b, soort) {
     void rp;
   }
   b.reken('Hefboomarm (kracht aan de rol of de voetplaat)', lev, 'uitkrager', 420, 0, { g: G * 100 / 420, proef: 'extrinsiek', las: true, dwars: true });
-  b.reken('Lagerpaal', paal, 'staanderM', zk - P.h, 0, { g: G, proef: 'extrinsiek', e: 300, las: true });
+  b.reken('Lagerpaal (één van de twee)', b.o.delen.find((d) => d.naam === 'Lagerpaal'), 'staanderM', zk - P.h, 0, { g: G / 2, proef: 'extrinsiek', e: 300, las: true });
   b.last('Gebruiker', 100, [0, yk + 230, 800], { geval: 'been' }); b.last('Stapel hoog', G, [0, T.yt, 1000], { geval: 'been' });
   void as;
 }

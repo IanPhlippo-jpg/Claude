@@ -148,6 +148,8 @@ footer { color: var(--zacht); font-size: 13px; padding-block: 30px }
 @media (max-width: 880px) { .hoofd { grid-template-columns: 1fr } .band .wrap { grid-template-columns: 1fr } .markt { text-align: left } .drie3d { aspect-ratio: 4 / 4.2 } }
 @media (max-width: 560px) { .tegels { grid-template-columns: 1fr 1fr } .sub a { padding-inline: 7px; font-size: 13.5px } .merk { width: 100% } .raster { grid-template-columns: 1fr 1fr; gap: 8px } .kaart b { font-size: 15px } .kaart .pr { flex-direction: column; gap: 0 } .filters { grid-template-columns: 1fr 1fr } }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important } }
+.klant #nav-werk, .klant #nav-inst, .klant #t-werk { display: none !important }
+.open-punten { margin: 10px 0 0; padding: 8px 12px; border-left: 3px solid #c27c0e; background: rgba(194,124,14,.08); font-size: 13px } .open-punten li { margin: 2px 0 }
 </style>
 
 <header class="balk"><div class="wrap">
@@ -210,7 +212,7 @@ footer { color: var(--zacht); font-size: 13px; padding-block: 30px }
 
 <!-- ============ WERKPLAATS ============ -->
 <div data-view="werkplaats" hidden><div class="wrap">
-  <div class="wkop"><div><span class="matlabel" id="w-soort"></span><h1 id="w-titel"></h1><p id="w-tekst"></p></div>
+  <div class="wkop"><div><span class="matlabel" id="w-soort"></span><h1 id="w-titel"></h1><p id="w-tekst"></p><div class="open-punten" id="w-open"></div></div>
     <div><div class="keuze" id="w-versie"></div></div></div>
   <div class="tegels" id="w-tegels"></div>
   <div class="knoppen"><button class="knop vol" type="button" data-dl="dossier">Dossier (HTML, afdrukken als PDF)</button><button class="knop" type="button" data-dl="zip">Alle tekeningen (SVG, ZIP)</button><button class="knop" type="button" data-dl="csv">Lijsten (CSV)</button></div>
@@ -309,7 +311,7 @@ function tekenToestel() {
   $('t-feiten').innerHTML = [['Buitenmaten', `${o.maten.B} x ${o.maten.D} x ${o.maten.H} mm`], ['Vloeroppervlak', `${g(o.vloer, 2)} m²`], ['Gewicht', `± ${g(o.massa)} kg`], ['Max. gebruiker', `${o.V.gebruiker} kg`], ['Max. last', last], ['Staal', `${[...new Set(o.delen.filter((d) => d.soort === 'staaf' && d.P.vorm === 'koker').map((d) => d.P.naam))].slice(0, 2).join(', ')}`]].map(([a, b]) => `<dt>${esc(a)}</dt><dd>${esc(b)}</dd>`).join('');
   const nr = B.controles.filter((c) => c.oordeel === 'oranje').length;
   $('t-veilig').className = `veilig ${B.oordeel}`;
-  $('t-veilig').innerHTML = `<b><i class="stip ${B.oordeel}"></i>${B.oordeel === 'groen' ? 'Voldoet aan EN ISO 20957 volgens de berekening' : B.oordeel === 'oranje' ? `Voldoet, met ${nr} punt${nr > 1 ? 'en' : ''} om na te kijken` : 'Voldoet niet: zie de werkplaats'}</b>`;
+  $('t-veilig').innerHTML = `<b><i class="stip ${B.oordeel}"></i>${B.oordeel === 'groen' ? 'Berekend volgens EN ISO 20957' : B.oordeel === 'oranje' ? `Berekend, met ${nr} punt${nr > 1 ? 'en' : ''} om na te kijken` : 'Berekening niet in orde: zie de werkplaats'}</b><br><small>Prototype: de proeflast op het eerste toestel moet nog gebeuren (geen normclaim).</small>`;
   const [lo, hi] = k.markt.band, max = Math.max(hi * 1.15, k.incl * 1.1), min = 0;
   $('t-prijs').textContent = eur0(k.incl); $('t-prijs2').textContent = `${eur0(k.verkoop)} excl. btw · ${VERSIE[st.versie].naam.toLowerCase()}`;
   $('t-markt').textContent = `${eur0(lo)} - ${eur0(hi)}`; $('t-markt2').textContent = k.markt.bron.length > 90 ? `${k.markt.bron.slice(0, 88)}…` : k.markt.bron;
@@ -333,6 +335,9 @@ function tekenWerk() {
   const t = PER_ID[st.id], o = toestel(st.id, st.versie), k = kostprijs(o, inst), B = berekening(o), meta = { datum: new Date().toISOString().slice(0, 10) };
   document.body.dataset.soort = t.soort; zetRadios();
   $('w-soort').textContent = `${t.id} · ${SOORTEN[t.soort].kort}`; $('w-titel').textContent = `${t.naam}: werkplaats`; $('w-tekst').textContent = `${VERSIE[st.versie].uitleg}. ${o.maten.B} x ${o.maten.D} x ${o.maten.H} mm, ${g(o.massa)} kg.`;
+  // open punten per toestel (werkplaatsweergave, P2-18)
+  const open = B.controles.filter((c) => c.oordeel === 'oranje' || c.oordeel === 'rood').map((c) => `${c.groep}: ${c.wat}`);
+  $('w-open').innerHTML = `<b>Open punten</b><ul>${['Prototype bouwen en de proeflast aanbrengen (technisch dossier); daarna pas het typeplaatje zonder "PROTOTYPE".', ...open].map((x) => `<li>${esc(x)}</li>`).join('')}</ul>`;
   const tot = k.totalen;
   $('w-tegels').innerHTML = [['Verkoop incl. btw', eur0(k.incl)], ['Kostprijs', eur0(k.kostprijs)], ['Uren', `${g(k.uren, 1)} u`], ['Staal', `${g(tot.kg)} kg`], ['Lassen', `${tot.verbindingen} · ${g(tot.lasM, 1)} m`], ['Gaten', String(tot.gaten)]].map(([a, b]) => `<div class="tegel"><span>${a}</span><b>${b}</b></div>`).join('');
   $('w-oordeel').innerHTML = `<i class="stip ${B.oordeel}"></i> ${B.oordeel}`;
@@ -417,6 +422,7 @@ function toonPagina() {
   scrollTo(0, 0);
 }
 addEventListener('hashchange', toonPagina);
+if (new URLSearchParams(location.search).has('klant')) document.body.classList.add('klant'); // klantweergave: geen werkplaats, kostprijs of instellingen
 vulInstellingen(); laad(lees('fitness-instellingen', null)); toonPagina();
 (async () => {
   try {

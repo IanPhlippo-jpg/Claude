@@ -18,11 +18,15 @@ export function botsen(A, B) {
   }
   return true;
 }
-/** paren die mogen raken of overlappen: gelast, 'in' elkaar, of in dezelfde lasgroep met een las */
+/** paren die mogen raken of overlappen: gelast, 'in' elkaar (id, of een naamdeel: 'as' = alleen delen met 'as' in de
+ *  naam), of een ronde staaf (as, pen, stang) die door een gat van het andere stuk gaat (zelfde as, Ø past) */
 function vrijgesteld(o) {
   const vrij = new Set(), k = (a, b) => (a < b ? `${a}|${b}` : `${b}|${a}`);
   for (const l of o.lassen) vrij.add(k(l.a, l.b));
-  return (a, b) => vrij.has(k(a.id, b.id)) || a.in === b.id || b.in === a.id || (a.in && a.in !== true && !String(a.in).startsWith('d')) || (b.in && b.in !== true && !String(b.in).startsWith('d'));
+  const G = gaten(o);
+  const doorGat = (a, b) => a.soort === 'staaf' && a.P?.vorm === 'rond' && G.some((g) => g.deel === b && g.d >= a.P.b - 0.5 && Math.abs(dot(g.as, a.u)) > 0.98 && len(sub(sub(g.p, a.a), mul(a.u, dot(sub(g.p, a.a), a.u)))) < 1);
+  const naamIn = (a, b) => typeof a.in === 'string' && !a.in.startsWith('d') && b.naam.toLowerCase().includes(a.in.toLowerCase());
+  return (a, b) => vrij.has(k(a.id, b.id)) || a.in === b.id || b.in === a.id || naamIn(a, b) || naamIn(b, a) || doorGat(a, b) || doorGat(b, a);
 }
 /** alle botsingen tussen stalen delen en kussens (krimp 1 mm): [{ a, b }] */
 export function botsingen(o, krimp = 1) {
@@ -126,6 +130,14 @@ function lijnDoorObb(a, b, B) {
 const afstandTotLijn = (p, a, u) => len(sub(sub(p, a), mul(u, dot(sub(p, a), u))));
 /** ISO 273: speling voor bouten (fijn tot grof), pennen +0,5..+2 mm, lagerzittingen tot +10 mm */
 export const SPELING = { bout: [0.4, 2.6], pen: [0.4, 2.1], lager: [-0.1, 0.5] };
+/** steek tussen boutgaten in hetzelfde stuk: p ≥ 2,2·d0 (EN 1993-1-8 tabel 3.3; Westside-pengaten vallen erbuiten: AANNAME) */
+export function steekFouten(o) {
+  const G = gaten(o), uit = [], par = (a, b) => Math.abs(dot(a, b)) > 0.98;
+  const boutGat = (g) => o.bouten.some((bt) => bt.key !== 'anker' && par(bt.as, g.as) && (bt.punten ?? [bt.p]).some((q) => afstandTotLijn(g.p, q, bt.as) < 1));
+  const per = new Map(); for (const g of G) if (boutGat(g)) { if (!per.has(g.deel)) per.set(g.deel, []); per.get(g.deel).push(g); }
+  for (const [deel, l] of per) for (let i = 0; i < l.length; i++) for (let j = i + 1; j < l.length; j++) { if (!par(l[i].as, l[j].as)) continue; const s = len(sub(l[i].p, l[j].p)), p = 2.2 * Math.max(l[i].d, l[j].d); if (s > 1 && s < p) uit.push(`${deel.naam}: boutgaten Ø${l[i].d} op ${Math.round(s)} mm < 2,2·d0 = ${Math.round(p)} mm`); }
+  return [...new Set(uit)];
+}
 /** alle gatfouten: bout of pen zonder gat of met een verkeerd gat, randafstand, hoekradius, gat tegen gat, gat in een las */
 export function gatFouten(o) {
   const uit = [], G = gaten(o), staal = o.delen.filter((d) => d.kleur !== 'kap');
@@ -142,8 +154,9 @@ export function gatFouten(o) {
       if (d.soort === 'staaf' && d.in && Math.abs(dot(d.u, f.as)) > 0.98) continue; // de as zelf
       const gat = G.find((g) => g.deel === d && Math.abs(dot(g.as, f.as)) > 0.98 && afstandTotLijn(g.p, f.p, f.as) <= 0.5);
       if (!gat) { uit.push(`${f.soort} ${f.naam} (Ø${f.d}) gaat door ${d.naam} zonder gat`); continue; }
-      const [lo, hi] = SPELING[f.soort], sp = gat.d - (f.soort === 'lager' ? f.lager : f.d);
-      if (sp < lo - 1e-6 || sp > hi + 1e-6) uit.push(`${f.soort} ${f.naam}: gat Ø${gat.d} in ${d.naam} past niet bij Ø${f.soort === 'lager' ? `${f.lager} (lager)` : f.d} (speling ${sp.toFixed(1)}, ${lo}-${hi})`);
+      const zit = f.soort === 'lager' ? (/Lageroor|Lagerhuis/.test(d.naam) ? 'lager' : 'pen') : f.soort; // de lagerzitting zit alleen in het oor of het lagerhuis
+      const [lo, hi] = SPELING[zit], sp = gat.d - (zit === 'lager' ? f.lager : f.d);
+      if (sp < lo - 1e-6 || sp > hi + 1e-6) uit.push(`${zit} ${f.naam}: gat Ø${gat.d} in ${d.naam} past niet bij Ø${zit === 'lager' ? `${f.lager} (lager)` : f.d} (speling ${sp.toFixed(1)}, ${lo}-${hi})`);
     }
   }
   for (const g of G) {
@@ -183,6 +196,7 @@ export function gatFouten(o) {
     for (const g of G) {
       if (g.deel !== l.A && g.deel !== l.B) continue;
       if (/Stapelstang/.test(g.deel.naam)) continue;
+      if (![l.A, l.B].every((x) => [x.geo[0].u, x.geo[0].v].every((q) => Math.max(...q.map(Math.abs)) > 0.9999))) continue; // schuin gedraaid: de lasband als doos is te grof (in stand 0 nagekeken)
       const ander = g.deel === l.A ? l.B : l.A;
       if (ander.soort === 'staaf' && Math.abs(dot(ander.u, g.as)) > 0.98 && afstandTotLijn(g.p, ander.a, ander.u) < 1) continue; // het gat is de zitting van het gelaste stuk
       const wand = g.deel.soort === 'plaat' ? [g.p] : g.punten;
@@ -216,4 +230,119 @@ export function snoeiWestside(o) {
   }
   o.weggelaten = weg;
   return weg;
+}
+
+// ---------------------------------------------------------------- knelpunten
+const BEWEEGT = /^(Hefboom|Slede|Stang smith)/;
+/** afstand van een punt tot een OBB */
+function puntObb(p, B) { const d = sub(p, B.c); let s = 0; for (let i = 0; i < 3; i++) { const t = Math.abs(dot(d, B.as[i])) - B.h[i]; if (t > 0) s += t * t; } return Math.sqrt(s); }
+/** de hoekpunten en ribmiddens van een OBB */
+function punten(B) {
+  const uit = [];
+  for (const a of [-1, 0, 1]) for (const b of [-1, 0, 1]) for (const c of [-1, 0, 1]) if (a || b || c) uit.push(add(add(add(B.c, mul(B.as[0], a * B.h[0])), mul(B.as[1], b * B.h[1])), mul(B.as[2], c * B.h[2])));
+  return uit;
+}
+/** kleinste vrije afstand tussen elk bewegend stalen deel en het vaste frame in deze stand: [{ a, b, mm }] (benadering:
+ *  hoek- en ribpunten van de ene doos tot de andere doos, in beide richtingen) */
+export function knelAfstanden(o) {
+  const staal = o.delen.filter((d) => d.kleur !== 'kap'), los = staal.filter((d) => BEWEEGT.test(d.groep)), vast = staal.filter((d) => !BEWEEGT.test(d.groep)), vrij = vrijgesteld(o), uit = [];
+  for (const a of los) {
+    const A = obb(a.geo[0]);
+    let best = null;
+    for (const b of vast) {
+      if (vrij(a, b)) continue;
+      const B = obb(b.geo[0]);
+      if (len(sub(A.c, B.c)) > Math.hypot(...A.h) + Math.hypot(...B.h) + 30) continue;
+      const mm = Math.min(...punten(A).map((p) => puntObb(p, B)), ...punten(B).map((p) => puntObb(p, A)));
+      if (!best || mm < best.mm) best = { a: a.naam, b: b.naam, mm };
+    }
+    if (best && best.mm < 60) uit.push(best);
+  }
+  return uit;
+}
+
+// ---------------------------------------------------------------- boutlengte en afstandsbussen
+/** klemlengte van een bout op punt p: de som van de stukken staal die de boutlijn kruist (koker = buitenmaat) */
+export function klemLengte(o, bt, p) {
+  const L = bt.lengte ?? 100, a = add(p, mul(bt.as, -L / 2)), b = add(p, mul(bt.as, L / 2)), d = sub(b, a);
+  let klem = 0; const kokers = [];
+  for (const deel of o.delen) {
+    if (deel.kleur === 'kap' || deel.stapel) continue;
+    for (const g of deel.geo) {
+      const B = obb(g, 0), da = sub(a, B.c); let t0 = 0, t1 = 1, ok = true;
+      for (let i = 0; i < 3 && ok; i++) { const pa = dot(da, B.as[i]), dd = dot(d, B.as[i]), h = B.h[i]; if (Math.abs(dd) < 1e-9) { if (Math.abs(pa) > h) ok = false; continue; } let ta = (-h - pa) / dd, tb = (h - pa) / dd; if (ta > tb) [ta, tb] = [tb, ta]; t0 = Math.max(t0, ta); t1 = Math.min(t1, tb); if (t0 > t1) ok = false; }
+      if (ok && t1 > t0) { klem += (t1 - t0) * L; if (deel.soort === 'staaf' && deel.P.vorm === 'koker') kokers.push(deel.naam); }
+    }
+  }
+  return { klem: Math.round(klem), kokers };
+}
+export const BOUTLENGTES = [40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 180, 200, 220, 240, 260, 280, 300];
+/** de handelslengte van een bout: klemlengte + 2 ringen + borgmoer + 2 gangen, naar boven afgerond */
+export function boutLengte(M, klem) {
+  const nodig = klem + 2 * (M >= 16 ? 3 : 2.5) + (M >= 16 ? 16 : 12) + 2 * (M >= 16 ? 2 : 1.75);
+  return { nodig: Math.round(nodig), L: BOUTLENGTES.find((x) => x >= nodig) ?? Math.ceil(nodig / 20) * 20 };
+}
+
+// ---------------------------------------------------------------- functiecontroles (Fable 5.2, P1)
+/** P1-01/03: een losse haak (J-cup, spotterarm) heeft een pen door BEIDE wanden en wangen langs de staander */
+export function haakFouten(o) {
+  const uit = [];
+  for (const p of o.pennen.filter((q) => /^J-hook|^Spotterarm/.test(q.naam))) {
+    if (p.snedes < 2) uit.push(`${p.naam}: pen door één wand (moment niet opgenomen)`);
+    const groep = p.b, wangen = o.delen.filter((d) => d.groep === groep && /wang/i.test(d.naam));
+    if (wangen.length < 2) uit.push(`${p.naam}: geen U-beugel (wangen) rond de staander`);
+    if (/^Spotterarm/.test(p.naam) && !o.delen.some((d) => d.groep === groep && /Haaklip/.test(d.naam))) uit.push(`${p.naam}: geen haaklip achter de staander`);
+  }
+  return [...new Set(uit)];
+}
+/** P1-02: een los stuk dat tussen twee staanders van één gelast frame zit, mag niet met twee pennen naar buiten in
+ *  beide staanders steken (dan kan het er niet in): pennen van één groep op één lijn in tegengestelde richting */
+export function monteerFouten(o) {
+  const uit = [];
+  for (const g of new Set(o.delen.map((d) => d.groep))) {
+    const pinnen = o.delen.filter((d) => d.groep === g && d.soort === 'staaf' && d.P.vorm === 'rond' && typeof d.in === 'string' && d.in.startsWith('d'));
+    for (let i = 0; i < pinnen.length; i++) for (let j = i + 1; j < pinnen.length; j++) {
+      const a = pinnen[i], b = pinnen[j];
+      if (Math.abs(dot(a.u, b.u)) < 0.98 || afstandTotLijn(b.a, a.a, a.u) > 1 || a.in === b.in) continue;
+      const m = mul(add(add(a.a, a.b), add(b.a, b.b)), 0.25), wegA = dot(sub(mul(add(a.a, a.b), 0.5), m), a.u), wegB = dot(sub(mul(add(b.a, b.b), 0.5), m), a.u);
+      if (wegA * wegB < 0) uit.push(`${g}: ${a.naam} en ${b.naam} steken naar buiten in twee staanders van één gelast frame: niet te monteren`);
+    }
+  }
+  return [...new Set(uit)];
+}
+/** P1-07: elk veiligheidsonderdeel dat in de tekst staat, bestaat in het model */
+export function veiligheidFouten(o) {
+  const tekst = (o.veiligheid ?? '').toLowerCase(), uit = [], naam = (re) => o.delen.some((d) => re.test(d.naam)) || o.koop.some((k) => re.test(k.naam));
+  const eis = [['grendel', /Grendelstrip/], ['grendel', /Grendelpal/], ['hendel', /Handgreep grendel/], ['eindstop', /Eindstop/], ['stopring', /Stopring/], ['haak', /Haak/], ['buffer', /buffer/i]];
+  for (const [woord, re] of eis) if (tekst.includes(woord) && !naam(re)) uit.push(`'${woord}' staat in de tekst maar niet in het model`);
+  return uit;
+}
+/** P1-08: elke haak van de smithstang ligt op een haakpen (as onder de haak, binnen de haakbreedte) */
+export function smithHaakFouten(o) {
+  const haken = o.delen.filter((d) => /^Haak smith/.test(d.naam)), pennen = o.delen.filter((d) => d.naam === 'Haakpen'), uit = [];
+  for (const h of haken) {
+    const [mn, mx] = aabb(h.geo[0]);
+    const ok = pennen.some((p) => { const [pm, pM] = aabb(p.geo[0]), r = p.P.b / 2; return pm[0] <= mx[0] && pM[0] >= mn[0] && (pm[1] + pM[1]) / 2 >= mn[1] && (pm[1] + pM[1]) / 2 <= mx[1] && Math.abs(mn[2] - (pM[2])) <= 2 && r > 0; });
+    if (!ok) uit.push(`${h.naam}: ligt op geen haakpen`);
+  }
+  return uit;
+}
+/** P1-09: de schijven van een toestel met een platform staan niet boven het platform (niet tussen de benen) */
+export function schijvenOpPlatform(o) {
+  const pf = o.delen.filter((d) => d.naam === 'Platform');
+  if (!pf.length) return [];
+  const uit = [];
+  for (const s of o.toon.filter((g) => g.kleur === 'schijf')) { const c = mul(add(s.a, s.b), 0.5); if (pf.some((p) => c[0] >= p.mn[0] && c[0] <= p.mx[0] && c[1] >= p.mn[1] && c[1] <= p.mx[1])) uit.push(`schijf op (${Math.round(c[0])}, ${Math.round(c[1])}) staat boven het platform`); }
+  return uit;
+}
+/** P1-11: elke hefboom heeft een as als staaf (stuklijst), een begin- en eindaanslag en stelringen */
+export function hefboomFouten(o) {
+  const uit = [];
+  for (const g of new Set(o.delen.filter((d) => /^Draaibus/.test(d.naam) && o.delen.some((q) => q.groep === d.groep && /^Hefboomarm/.test(q.naam))).map((d) => d.groep))) {
+    const n = g.toLowerCase();
+    if (!o.delen.some((d) => d.naam === `As ${n}`)) uit.push(`${g}: de as staat niet als staaf in het model (niet in de stuklijst)`);
+    if (!o.delen.some((d) => d.naam === `Aanslag begin ${n}`) || !o.delen.some((d) => d.naam === `Aanslag einde ${n}`)) uit.push(`${g}: geen begin- of eindaanslag`);
+    if (!o.koop.some((k) => /Stelring/.test(k.naam) && k.naam.includes(n))) uit.push(`${g}: geen asborging (stelringen)`);
+  }
+  return uit;
 }

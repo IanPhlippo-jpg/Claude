@@ -49,7 +49,7 @@ function teken() {
   $('s-leer').hidden = !o.kussens.length;
   const last = o.maxLast ? `${o.maxLast} kg` : o.stapels.length ? `stapel ${o.stapels.map((x) => x.n * x.kg).join(' + ')} kg` : '-';
   $('feiten').innerHTML = [['Buitenmaten', `${o.maten.B} x ${o.maten.D} x ${o.maten.H} mm`], ['Vloer', `${o.vloer.toFixed(2).replace('.', ',')} m²`], ['Gewicht', `± ${Math.round(o.massa)} kg`], ['Gebruiker', `max. ${o.V.gebruiker} kg`], ['Last', last]].map(([a, b]) => `<dt>${esc(a)}</dt><dd>${esc(b)}</dd>`).join('');
-  $('veilig').className = `veilig ${B.oordeel === 'rood' ? 'oranje' : B.oordeel}`; $('veilig').textContent = B.oordeel === 'groen' ? 'Berekend volgens EN ISO 20957: voldoet' : 'Berekend volgens EN ISO 20957: voldoet, met punten die we bij de plaatsing nakijken';
+  $('veilig').className = `veilig ${B.oordeel === 'rood' ? 'oranje' : B.oordeel}`; $('veilig').textContent = B.oordeel === 'groen' ? 'Berekend volgens EN ISO 20957 (prototype: proeflast nog te doen)' : 'Berekend volgens EN ISO 20957, met punten die we nakijken (prototype: proeflast nog te doen)';
   const toon = inst.prijs, bedrag = toon === 'excl' ? kp.verkoop : kp.incl, [lo, hi] = kp.markt.band, max = Math.max(hi * 1.15, kp.incl * 1.1);
   $('prijsvak').hidden = toon === 'geen';
   $('p-label').textContent = toon === 'excl' ? 'Prijs excl. btw' : 'Prijs incl. 21 % btw'; $('p-bedrag').textContent = eur(bedrag); $('p-sub').textContent = `${VERSIE[k.versie].naam.toLowerCase()}, gepoedercoat in RAL ${k.ral}, zonder levering`;

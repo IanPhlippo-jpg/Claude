@@ -53,7 +53,7 @@ export const BANKEN = [
     },
   },
   {
-    id: 'FB-02', soort: 'bank', naam: 'Verstelbare bank (FID)', kort: 'Rugleuning van -10° tot 85° met een ladder.',
+    id: 'FB-02', soort: 'bank', naam: 'Verstelbare bank (FID)', kort: 'Rugleuning van 25° tot 85° met een ladder (plat zonder steun); vaste zitting, geen decline.',
     uitleg: 'Vlakke basis met een scharnierende rugleuning op een steun (pen-pen 420 mm) die in een ladder met 7 inkepingen valt: van 25° tot 85°. Plat leggen kan met de steun uit de ladder. Getekend op 25°.',
     spieren: 'borst (bovenste deel), schouders, triceps', oefeningen: ['schuin bankdrukken met halters', 'schouderdrukken zittend', 'flyes', 'bicep curls zittend'],
     maxLast: { thuis: 80, pro: 120 },
@@ -63,7 +63,7 @@ export const BANKEN = [
       const bb = bankBasis(b, L, top, 120, L - 120);
       kussenplaat(b, bb.lig, 0.1);
       kussenOp(b, 'Zitting', bb.lig, 300, B, { op: 5, t: 0.11 });
-      // scharnieroren en ladder op de ligger; de rugleuning staat op 15° (stand 0) tot 85° (stand 1)
+      // scharnieroren en ladder op de ligger; de rugleuning staat op 25° (stand 0) tot 85° (stand 1)
       const zp = top + 40, piv = [0, yp, zp], a2 = rad(25 + 60 * b.stand), Lp = 420;
       for (const s of [-1, 1]) b.plaat('Scharnieroor', [s * (P.b / 2) + (s > 0 ? 0 : -V.plaat), yp - 40, top], [s * (P.b / 2) + (s > 0 ? V.plaat : 0), yp + 40, top + 80], { gaten: [{ p: [s * P.b / 2, yp, zp], d: V.pin + 1 }] });
       for (const s of [-1, 1]) b.plaat('Ladderplaat', [s * (P.b / 2) + (s > 0 ? 0 : -V.plaat), yp + 250, top], [s * (P.b / 2) + (s > 0 ? V.plaat : 0), yp + 830, top + 100], { vorm: 'ladder', opm: '7 inkepingen R11 voor de steunpen Ø20 (laser), van 25° tot 85°' });

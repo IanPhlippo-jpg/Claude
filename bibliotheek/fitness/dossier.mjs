@@ -34,7 +34,12 @@ ${k.regels.map((r) => `<tr><td>${esc(r.wat)}</td><td class="n">${eur(r.bedrag)}<
 </tbody></table>
 <h2>Werkwijze</h2>
 <ol class="stappen">${k.stappen.map((s) => `<li><b>${esc(s.titel)}</b> <span class="uur">${g(s.uren, 2)} u${s.proces ? ` · ${esc(s.proces)}` : ''}</span><br>${esc(s.tekst)}</li>`).join('')}</ol>
-<h2>Berekening: ${B.oordeel}</h2>
+<h2>Technisch dossier en proeflast (nog te doen)</h2>
+<p class="klein">Dit toestel is <b>berekend</b> volgens EN ISO 20957-1/-2 (klasse ${o.V.klasse}), maar nog niet beproefd. Vóór de eerste verkoop: (1) productaansprakelijkheid verzekeren; (2) één prototype bouwen en de proeflasten hieronder 5 minuten aanbrengen, blijvende vervorming meten (≤ 1 mm), foto's en meetrapport bewaren; (3) duurproef volgens EN ISO 20957-1 (${o.V.klasse === 'H' ? '12 000' : '100 000'} cycli, AANNAME uit normen.mjs) of een gelijkwaardige proef op de meest belaste verbinding; (4) risicoanalyse, handleiding NL/FR met fabrikantgegevens en het typeplaatje (EU 2023/988 algemene productveiligheid, AANNAME: laten nakijken). Tot dan staat op het plaatje "ontworpen volgens" en "PROTOTYPE: proeflast nodig".</p>
+<table><thead><tr><th>Proeflast</th><th class="n">kN</th><th>Hoe aanbrengen</th><th>Gemeten</th></tr></thead><tbody>
+${B.controles.filter((c) => c.groep === 'Sterkte' && /proeflast|F = /.test(c.formule)).slice(0, 8).map((c) => { const m = c.formule.match(/= ([\d.,]+) kN/); return `<tr><td>${esc(c.wat)}</td><td class="n">${m ? m[1] : '-'}</td><td class="bron">gewichten of hydraulische cilinder met krachtopnemer; 5 min</td><td>_____ mm</td></tr>`; }).join('')}
+</tbody></table>
+<h2>Berekening: ${B.oordeel === 'groen' ? 'berekend, nog te beproeven' : B.oordeel}</h2>
 <table><thead><tr><th></th><th>Controle</th><th>Berekening</th><th class="n">Benut</th></tr></thead><tbody>
 ${B.controles.map((c) => `<tr><td><i class="d ${c.oordeel}"></i></td><td>${esc(`${c.groep}: ${c.wat}`)}</td><td class="bron">${esc(c.formule)}<br><small>${esc(c.bron)}</small>${c.uitleg ? `<br><small><b>${esc(c.uitleg)}</b></small>` : ''}</td><td class="n">${c.oordeel === 'info' || !c.benut ? '' : `${Math.round(c.benut * 100)} %`}</td></tr>`).join('')}
 </tbody></table>

@@ -1441,5 +1441,15 @@ elease; README en docs/04 bijgewerkt
 - [x] Detail: J-hooks, safety's, pennen, katrolbeugels, schijfhouders met kraag, eindkappen, afgeronde kussens, lassen, bouten, stelvoeten
 - [x] Boutgaten (Ian): duidelijk zichtbaar in 3D, gemaatvoerd op elk stukblad, test op uitlijning, speling, randafstand en botsing
 - [x] Tekeningen en stuklijsten mee bijwerken; tests uitbreiden (botsingen, bewegingsbereik)
-- [~] Advies van Fable 5.2 op de afgewerkte catalogus, daarna alles uit het advies verwerken
+- [x] Advies van Fable 5.2 op de afgewerkte catalogus (docs/Advies-Fable-5.2.md: 14 x P1, 18 x P2, 8 x P3)
+- [~] Alle 40 adviezen van Fable verwerken (eerst P1: J-hook U-cup, safety, kabellus FK-04/05, assen FK-08/09/12, slede FP-01/02, grendels, Smith, hefboom, kantelen; dan P2/P3), met tests op de oude fouten
 - [ ] Web, presentatie, artifact, foto's per soort, commit en push
+
+## Treinbaan uitbreiden: PNP, wissels/seinen/slagbomen, geluid, situatieplan en tv-scherm (2026-11-15)
+- [~] Vragenronde met Ian, EISEN.md bijwerken, Google Maps-foto ontvangen
+- [ ] PNP-sensoren: per ingang NPN of PNP, schema, firmware en dashboard
+- [ ] Wissels, seinen en slagbomen: aandrijving kiezen, uitgangen en voeding, firmware (standen, in functies), dashboard
+- [ ] Geluid: kleine speakertjes op vrij te kiezen plaatsen, geluiden aan functies en ingangen koppelen
+- [ ] Situatieplan 2D (vector) uit de Google Maps-foto: rijbanen van de bussen, sensoren, lichtgroepen, wissels, seinen, speakers
+- [ ] Tv-weergave: live plan met rijdende bussen en lichtgroepen die aan/uit gaan
+- [ ] Doos, schema's (IEC 60617), tekeningen, bestellijst, tests, foto's, commit en push

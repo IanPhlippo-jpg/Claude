@@ -9,9 +9,9 @@ export const versieTekst = (o) => `${o.V.naam} (EN ISO 20957 klasse ${o.V.klasse
 
 /** titelblok ISO 7200 rechtsonder: 180 x 32 (A3) of 125 x 28 (A4); opts { titel, nr, rev, datum, blad, schaal } */
 export function titelblok(o, [w, h], opts = {}) {
-  const groot = w >= 400, bw = groot ? 180 : 125, bh = groot ? 32 : 28, rh = bh / 4, tx = w - 10 - bw, ty = h - 10 - bh, el = [];
+  const groot = w >= 400, bw = groot ? 180 : 125, bh = groot ? 40 : 35, rh = bh / 5, tx = w - 10 - bw, ty = h - 10 - bh, el = [];
   el.push(`<rect x="${tx}" y="${ty}" width="${bw}" height="${bh}" fill="#fff" stroke="#111" stroke-width="0.5"/>`);
-  for (let i = 1; i < 4; i++) el.push(lijn(tx, ty + i * rh, tx + bw, ty + i * rh, 0.25));
+  for (let i = 1; i < 5; i++) el.push(lijn(tx, ty + i * rh, tx + bw, ty + i * rh, 0.25));
   const veld = (xx, rij, kop, waarde, hh = 2.4, vet = false, max = 80) => { if (xx > 0) el.push(lijn(tx + xx, ty + rij * rh, tx + xx, ty + rij * rh + rh, 0.25)); el.push(tk(tx + xx + 1, ty + rij * rh + 2.3, kop, 1.5, { kleur: '#555' }), tk(tx + xx + 1, ty + rij * rh + rh - 1.4, String(waarde).slice(0, max), hh, { vet })); };
   const k1 = bw * 0.38, k2 = bw * 0.62, k3 = bw * 0.78;
   veld(0, 0, 'Eigenaar', 'Ian · laswerken', groot ? 2.5 : 2.2, true); veld(k1, 0, 'Bibliotheek', 'Fitnesstoestellen', groot ? 2.3 : 2);
@@ -19,6 +19,7 @@ export function titelblok(o, [w, h], opts = {}) {
   veld(0, 1, 'Titel', opts.titel ?? naamVan(o), groot ? 2.8 : 2.3, true, groot ? 70 : 50);
   veld(0, 2, 'Toestel', groot ? `${naamVan(o)} · ${o.V.naam}, klasse ${o.V.klasse}` : `${o.id} · ${o.V.naam} (klasse ${o.V.klasse})`, groot ? 2.1 : 1.8, false, groot ? 70 : 46); veld(k2, 2, 'Tekeningnummer', opts.nr ?? `${o.id}-${o.versie === 'pro' ? 'P' : 'T'}`, groot ? 2.3 : 2, true); veld(k3 + (groot ? 12 : 6), 2, 'Rev.', opts.rev ?? '1', 2.2);
   veld(0, 3, 'Maten en toleranties', groot ? 'mm · ISO 2768-m · lassen ISO 5817-C' : 'mm · ISO 2768-m · ISO 5817-C', groot ? 2.1 : 1.6); veld(k1 + (groot ? 10 : 6), 3, 'Schaal', opts.schaal ?? '', 2.1); veld(k2, 3, 'Uitgifte', opts.datum ?? '', 2); veld(k3 + (groot ? 12 : 6), 3, 'Blad', opts.blad ?? '1 / 1', 2.1);
+  veld(0, 4, 'Getekend', opts.getekend ?? 'model (bibliotheek fitness)', groot ? 1.9 : 1.6); veld(k1 + (groot ? 10 : 6), 4, 'Goedgekeurd', opts.goedgekeurd ?? '______', 1.9); veld(k2, 4, 'Documentsoort', opts.soort ?? 'werkplaatstekening', groot ? 1.9 : 1.6, false, 22); veld(k3 + (groot ? 12 : 6), 4, 'Materiaal', opts.materiaal ?? 'S235, RAL', 1.6, false, 14);
   return el.join('');
 }
 /** standaardschaal die past (ISO 5455): de grootste uit de reeks die kleiner is dan s */

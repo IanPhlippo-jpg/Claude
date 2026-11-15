@@ -29,7 +29,7 @@ export function vlakken(g) {
   }
   return uit;
 }
-const KLEUR = { kap: '#9aa5b1', context: '#c8c8c8', frame: '#c9ccd0', leer: '#3b3e42', hout: '#c8a878', zink: '#b9bec4', rubber: '#2b2b2b', chroom: '#d7dde2', uhmw: '#f2f2f2', kabel: '#202020', schijf: '#30343a', katrol: '#41454a', stapel: '#5b6168', gat: '#0b0b0b', naad: '#18191b', kartel: '#9aa3aa', ring: '#8a8f94', typeplaat: '#c3c7cb' };
+const KLEUR = { kap: '#9aa5b1', context: '#c8c8c8', frame: '#c9ccd0', leer: '#3b3e42', hout: '#c8a878', zink: '#b9bec4', rubber: '#2b2b2b', chroom: '#d7dde2', uhmw: '#f2f2f2', kabel: '#202020', schijf: '#30343a', katrol: '#41454a', stapel: '#5b6168', gat: '#0b0b0b', gatrand: '#3a3d41', naad: '#18191b', kartel: '#9aa3aa', ring: '#8a8f94', typeplaat: '#c3c7cb' };
 const hex = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
 const rgb = (c) => `rgb(${c.map((x) => Math.max(0, Math.min(255, Math.round(x)))).join(',')})`;
 

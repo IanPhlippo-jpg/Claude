@@ -15,7 +15,10 @@ import { alleBladen, stukBladen } from '../../bibliotheek/fitness/tekeningen.mjs
 import { montageBladen } from '../../bibliotheek/fitness/montage.mjs';
 import { dossierHtml, lijstenCsv } from '../../bibliotheek/fitness/dossier.mjs';
 import { miniatuur } from '../../bibliotheek/fitness/aanzicht.mjs';
-import { botsingen, schijvenVrij, zwevend, kabelFouten, ergonomie, gaten, gatFouten, SPELING } from '../../bibliotheek/fitness/controle.mjs';
+import { botsingen, schijvenVrij, zwevend, kabelFouten, ergonomie, gaten, gatFouten, SPELING, haakFouten, monteerFouten, veiligheidFouten, smithHaakFouten, schijvenOpPlatform, hefboomFouten, steekFouten, boutLengte } from '../../bibliotheek/fitness/controle.mjs';
+import { kantelTrek } from '../../bibliotheek/fitness/bereken.mjs';
+import { samenstellingBladen } from '../../bibliotheek/fitness/tekeningen.mjs';
+import { add, mul, sub } from '../../bibliotheek/fitness/model.mjs';
 import { typeplaatBlad } from '../../bibliotheek/fitness/tekeningen.mjs';
 import { leegCache } from '../../bibliotheek/fitness/catalogus.mjs';
 
@@ -105,7 +108,7 @@ for (const t of TOESTELLEN) for (const v of VERSIES) {
         expect(mid.length, kb.naam).toBeGreaterThan(0);
         for (const p of mid) expect(p.katrol ? ids.has(p.katrol) : p.los, `${kb.naam}: tussenpunt is een katrol`).toBeTruthy();
         expect([1, 2]).toContain(kb.overbrenging);
-        if (kb.overbrenging === 2) expect(mid.some((p: any) => p.los), 'losse katrol bij 2:1').toBe(true);
+        if (kb.overbrenging === 2) expect(mid.some((p: any) => p.los || /los/.test(p.label ?? '')), 'losse katrol bij 2:1').toBe(true);
         expect(kb.L).toBeGreaterThan(500);
       }
       for (const k of o.katrollen) if (k.c[2] < 1800) expect(k.kap, `kap ${k.label}`).toBeTruthy();
@@ -210,5 +213,140 @@ describe('de gatcontrole vindt echte fouten (negatieve proef)', () => {
     expect(f.length).toBeGreaterThan(0);
     expect(SPELING.bout[0]).toBeGreaterThan(0);
     leegCache();
+  });
+});
+
+// ---------------------------------------------------------------- Fable 5.2: elk P1-punt een test met een negatieve proef
+describe('Fable 5.2 - functie en evenwicht (elke P1 met een negatieve proef)', () => {
+  const alle = () => TOESTELLEN.flatMap((t) => VERSIES.map((v) => toestel(t.id, v)));
+  it('P1-01/03: J-cups en spotterarmen: U-beugel, pen door beide wanden, haaklip; evenwicht groen. Negatief: pen door één wand of zonder wangen wordt gemeld', () => {
+    for (const o of alle()) expect(haakFouten(o), o.id).toEqual([]);
+    leegCache();
+    const o = toestel('FR-02', 'thuis'), pen = o.pennen.find((p: any) => /^J-hook/.test(p.naam));
+    pen.snedes = 1;
+    expect(berekening(o).controles.some((c: any) => c.groep === 'Evenwicht' && c.oordeel === 'rood')).toBe(true);
+    o.delen = o.delen.filter((d: any) => !(d.groep === pen.b && /wang|Haaklip/i.test(d.naam)));
+    expect(haakFouten(o).join(' ')).toMatch(/één wand/);
+    expect(haakFouten(o).join(' ')).toMatch(/geen U-beugel/);
+    leegCache();
+  });
+  it('P1-02: de safety is monteerbaar (één doorlopende stang); negatief: twee pennen naar buiten in een gelast frame worden gemeld', () => {
+    for (const o of alle()) expect(monteerFouten(o), o.id).toEqual([]);
+    const o = toestel('FR-01', 'thuis'), S = o.delen.filter((d: any) => /^Staander/.test(d.naam) && d.groep === 'Zijframe L');
+    const nep = { ...o, delen: [...o.delen, { id: 'x1', naam: 'Pen safety', groep: 'Oud', soort: 'staaf', P: { vorm: 'rond', b: 16 }, a: [S[0].a[0], 300, 800], b: [S[0].a[0], 230, 800], u: [0, -1, 0], in: S[0].id }, { id: 'x2', naam: 'Pen safety', groep: 'Oud', soort: 'staaf', P: { vorm: 'rond', b: 16 }, a: [S[0].a[0], 1200, 800], b: [S[0].a[0], 1270, 800], u: [0, 1, 0], in: S[1].id }] };
+    expect(monteerFouten(nep).length).toBeGreaterThan(0);
+  });
+  it('P1-04: kabellengte van de functional trainer en de kabeltoren blijft gelijk in de laagste en hoogste wagenstand; negatief: de oude open loop verandert met de hele verstelweg', () => {
+    for (const id of ['FK-04', 'FK-05']) for (const v of VERSIES) {
+      const lo = toestel(id, v, { wagen: 3 }), hi = toestel(id, v, { wagen: 18 });
+      lo.kabels.forEach((k: any, i: number) => expect(Math.abs(k.L - hi.kabels[i].L), `${id} ${v}`).toBeLessThan(25));
+      // de oude loop: alleen het deel B - wagen (de rest is vast): dat verschilt met de hele verstelweg (1125 mm)
+      const deel = (o: any) => { const kb = o.kabels[0], L = kb.lijn; let s = 0; for (let i = 1; i < L.length; i++) { const a = L[i - 1], b = L[i]; if (Math.abs(a[0] - b[0]) < 1 && Math.abs(a[1] - b[1]) < 1 && a[1] < 600) s += Math.abs(a[2] - b[2]); } return s; };
+      expect(Math.abs(deel(lo) - deel(hi))).toBeGreaterThan(1000);
+    }
+  });
+  it('P1-05: beenmachines: as in twee lagerhuizen, buiging groen; negatief: de eenzijdige as van v2 (nok 250 mm van het lager, Ø25) faalt', () => {
+    for (const id of ['FK-08', 'FK-09', 'FK-12']) for (const v of VERSIES) {
+      const o = toestel(id, v);
+      expect(o.delen.filter((d: any) => d.naam === 'Lagerhuis').length, id).toBe(2);
+      const c = berekening(o).controles.find((x: any) => /As van de hefboom op buiging/.test(x.wat))!;
+      expect(c.benut, id).toBeLessThanOrEqual(1);
+      const G = o.V.stapelN * o.V.stapelKg, Fc = 2.5 * 1.5 * G * 9.81, W25 = Math.PI * 25 ** 3 / 32;
+      expect(Fc * 250 / W25 / 235).toBeGreaterThan(1);
+    }
+  });
+  it('P1-06/10: slede met tegenrollen onder de rail en ribben achter de voetplaat; negatief: zonder tegenrollen lichten de onderste rollen, zonder ribben breekt de voetplaat (pro)', () => {
+    for (const id of ['FP-01', 'FP-02']) for (const v of VERSIES) {
+      const o = toestel(id, v);
+      expect(o.delen.filter((d: any) => d.naam === 'As tegenrol').length, id).toBe(4);
+    }
+    for (const v of VERSIES) {
+      const o = toestel('FP-01', v), B = berekening(o).controles;
+      const ev = B.find((c: any) => /lichten van de onderste rollen/.test(c.wat))!;
+      expect(ev.formule).toMatch(/lichten met/); expect(ev.benut).toBeLessThanOrEqual(1);
+      expect(B.find((c: any) => /Voetplaat tussen de ribben/.test(c.wat))!.benut).toBeLessThanOrEqual(1);
+      expect(o.delen.filter((d: any) => d.naam === 'Rib voetplaat').length).toBe(2);
+    }
+    const W = 4 * 1.5 * 500 * 9.81 * Math.SQRT1_2, s = W * 300 / (760 * 12 ** 2 / 6);
+    expect(s).toBeGreaterThan(235);
+  });
+  it('P1-07: veiligheidsgrendels, eindstoppen en stopringen bestaan in het model; negatief: een veiligheidstekst zonder onderdelen wordt gemeld', () => {
+    for (const o of alle()) expect(veiligheidFouten(o), o.id).toEqual([]);
+    for (const id of ['FP-01', 'FP-02']) expect(toestel(id, 'thuis').delen.some((d: any) => d.naam === 'Grendelpal')).toBe(true);
+    expect(toestel('FP-11', 'thuis').koop.some((k: any) => /Stopring/.test(k.naam))).toBe(true);
+    expect(veiligheidFouten({ veiligheid: 'veiligheidsgrendels in 6 standen', delen: [], koop: [] }).length).toBeGreaterThan(0);
+  });
+  it('P1-08: smith: elke haak ligt op een haakpen, stang draaibaar in lagerblokken; negatief: haak 130 mm verschoven ligt nergens op', () => {
+    for (const v of VERSIES) {
+      const o = toestel('FP-11', v);
+      expect(smithHaakFouten(o)).toEqual([]);
+      expect(o.delen.filter((d: any) => d.naam === 'Lagerblok').length).toBe(2);
+      expect(o.lassen.some((l: any) => /Halterstang/.test(l.A.naam + l.B.naam) && /Lagerhuis/.test(l.A.naam + l.B.naam))).toBe(false);
+      const nep = { ...o, delen: o.delen.map((d: any) => (/^Haak smith/.test(d.naam) ? { ...d, geo: [{ ...d.geo[0], a: [d.geo[0].a[0], d.geo[0].a[1] - 130, d.geo[0].a[2]], b: [d.geo[0].b[0], d.geo[0].b[1] - 130, d.geo[0].b[2]] }] } : d)) };
+      expect(smithHaakFouten(nep).length).toBeGreaterThan(0);
+    }
+  });
+  it('P1-09: belt squat: schijven buiten het platform, gordeloog netto en stuik groen; negatief: schijven boven het platform worden gemeld', () => {
+    for (const v of VERSIES) {
+      const o = toestel('FP-03', v);
+      expect(schijvenOpPlatform(o)).toEqual([]);
+      expect(berekening(o).controles.find((c: any) => /Gordeloog/.test(c.wat))!.benut).toBeLessThanOrEqual(1);
+      const p = o.delen.find((d: any) => d.naam === 'Platform');
+      const nep = { ...o, toon: [{ kleur: 'schijf', a: [p.mn[0] + 10, 500, 600], b: [p.mn[0] + 50, 500, 600] }] };
+      expect(schijvenOpPlatform(nep).length).toBe(1);
+    }
+  });
+  it('P1-11: elke hefboom: as als staaf, begin- en eindaanslag, stelringen, lagerbus; stand 0 en 1 liggen tegen de aanslag; negatief: zonder aanslag gemeld', () => {
+    for (const o of alle()) expect(hefboomFouten(o), o.id).toEqual([]);
+    const o = toestel('FP-07', 'thuis');
+    expect(o.delen.some((d: any) => d.naam === 'Lagerbus')).toBe(true);
+    for (const s of [0, 1]) { const os = toestel('FP-07', 'thuis', { stand: s }), nok = os.delen.find((d: any) => /^Aanslagnok/.test(d.naam)), aan = os.delen.find((d: any) => d.naam.startsWith(`Aanslag ${s ? 'einde' : 'begin'}`)); const dist = Math.hypot(...[0, 1, 2].map((i) => (nok.b[i] + nok.a[i]) / 2 - (aan.a[i] + aan.b[i]) / 2)); expect(dist).toBeLessThan(60); }
+    const nep = { ...o, delen: o.delen.filter((d: any) => !/^Aanslag (begin|einde)/.test(d.naam)) };
+    expect(hefboomFouten(nep).join(' ')).toMatch(/aanslag/);
+  });
+  it('P1-12: kantelen onder horizontale kabeltrek (600 N per greep) groen voor FK-03 en FK-04; negatief: met de oude voet (350 mm) kantelt FK-03 thuis', () => {
+    for (const id of ['FK-03', 'FK-04']) for (const v of VERSIES) {
+      const s = kantelTrek(toestel(id, v));
+      expect(s.length, id).toBeGreaterThan(0);
+      for (const x of s) expect(x.benut, `${id} ${v}`).toBeLessThanOrEqual(1);
+    }
+    const s = kantelTrek(toestel('FK-03', 'thuis'))[0], oud = s.M / (s.m * 9.81 * (s.d - (950 - 350)));
+    expect(oud).toBeGreaterThan(1);
+  });
+  it('P1-13: per lasgroep een lassamenstellingsblad met positienummers, plaatsmaten, diagonaal en lassymbolen', () => {
+    for (const id of ['FR-01', 'FP-01', 'FK-01', 'FB-01']) {
+      const bl = samenstellingBladen(toestel(id, 'pro'));
+      expect(bl.length, id).toBeGreaterThan(0);
+      for (const b of bl) { expect(geldigeSvg(b.svg)).toBeNull(); expect(b.svg).toContain('diagonaal'); expect(b.svg).toContain('Plaatsmaten'); expect((b.svg.match(/<circle/g) ?? []).length).toBeGreaterThan(2); }
+    }
+  });
+  it('P1-14: typeplaatje zonder normclaim (prototype: proeflast nodig), dossier met technisch dossier en proeflasttabel', () => {
+    const o = toestel('FR-01', 'thuis'), tp = typeplaatBlad(o);
+    expect(tp).toContain('PROTOTYPE: proeflast nodig'); expect(tp).toContain('ontworpen volgens'); expect(tp).not.toContain('EN ISO 20957-1 en -2 · klasse');
+    const d = dossierHtml(o); expect(d).toContain('Technisch dossier en proeflast'); expect(d).toContain('Gemeten');
+  });
+});
+
+describe('Fable 5.2 - P2/P3 controles', () => {
+  it('P2-06: elke bout heeft een handelslengte ≥ klemlengte + ringen + moer + 2 gangen, met een eigen kooplijn per lengte', () => {
+    for (const t of TOESTELLEN) for (const v of VERSIES) for (const bt of toestel(t.id, v).bouten.filter((b: any) => b.key !== 'anker' && b.L)) { expect(bt.L, `${t.id} ${bt.naam}`).toBeGreaterThanOrEqual(bt.lengteNodig); expect(bt.koop.key).toMatch(/x\d+$/); }
+    expect(boutLengte(12, 120).L).toBeGreaterThanOrEqual(140);
+  });
+  it('P2-08: steek tussen boutgaten ≥ 2,2·d0 en boutgaten normaal (M12 Ø14, M16 Ø18)', () => {
+    for (const t of TOESTELLEN) for (const v of VERSIES) { const o = toestel(t.id, v); expect(steekFouten(o), t.id).toEqual([]); }
+  });
+  it('P2-08: elk gat in de 3D ligt op het oppervlak van zijn stuk (niet alleen het juiste aantal)', () => {
+    for (const id of ['FR-01', 'FP-04', 'FK-04']) { const o = toestel(id, 'pro'); for (const g of gaten(o)) for (const p of g.punten) { const d = g.deel.geo[0], c = mul(add(d.a, d.b), 0.5), q = sub(p, c), hw = [Math.hypot(...sub(d.b, d.a)) / 2, d.bw / 2, d.bh / 2], uit = [d.u, d.v, d.w].map((ax: number[], i: number) => Math.abs(q[0] * ax[0] + q[1] * ax[1] + q[2] * ax[2]) - hw[i]); expect(Math.max(...uit), `${id} ${g.deel.naam}`).toBeLessThan(1); expect(Math.max(...uit), `${id} ${g.deel.naam}`).toBeGreaterThan(-1); } }
+  });
+  it('P2-15: knelpunten worden gemeten over de slag (geen vaste oranje tekst meer)', () => {
+    const B = berekening(toestel('FP-04', 'pro')).controles;
+    expect(B.some((c: any) => /Bewegend tegen vast/.test(c.wat))).toBe(true);
+    expect(B.some((c: any) => /Hefboom of slede tegen het frame/.test(c.wat))).toBe(false);
+  });
+  it('P2-17: kostprijs met overhead en leercurve; uurloon is een parameter', () => {
+    const o = toestel('FP-01', 'pro'), k45 = kostprijs(o), k55 = kostprijs(o, { uurloon: 55 });
+    expect(k45.regels.some((r: any) => r.cat === 'overhead')).toBe(true);
+    expect(k55.incl).toBeGreaterThan(k45.incl);
+    expect(kostprijs(o, { reeks: 1 }).uren).toBeGreaterThan(kostprijs(o, { reeks: 20 }).uren);
   });
 });

@@ -9,7 +9,7 @@ const RHO = 7.85e-6; // kg/mm³
 
 // ---------------------------------------------------------------- profielen
 /** koker b x h x t (h = hoogte in de buigrichting) */
-const koker = (b, h, t) => { const A = b * h - (b - 2 * t) * (h - 2 * t), I = (b * h ** 3 - (b - 2 * t) * (h - 2 * t) ** 3) / 12, Iz = (h * b ** 3 - (h - 2 * t) * (b - 2 * t) ** 3) / 12; return { vorm: 'koker', naam: `koker ${b}x${h}x${t}`, b, h, t, A, I, W: I / (h / 2), Iz, Wz: Iz / (b / 2), kgm: A * RHO * 1000, omtrek: 2 * (b + h), norm: 'EN 10219 S235JRH', gat: null }; };
+const koker = (b, h, t) => { const dA = (4 - Math.PI) * ((2 * t) ** 2 - t ** 2), rc = 0.22 * 1.5 * t; /* hoekradius ro = 2t, ri = t (EN 10219-2) */ const A = b * h - (b - 2 * t) * (h - 2 * t) - dA, I = (b * h ** 3 - (b - 2 * t) * (h - 2 * t) ** 3) / 12 - dA * (h / 2 - rc) ** 2, Iz = (h * b ** 3 - (h - 2 * t) * (b - 2 * t) ** 3) / 12 - dA * (b / 2 - rc) ** 2; return { vorm: 'koker', naam: `koker ${b}x${h}x${t}`, b, h, t, A, I, W: I / (h / 2), Iz, Wz: Iz / (b / 2), kgm: A * RHO * 1000, omtrek: 2 * (b + h), norm: 'EN 10219 S235JRH', gat: null }; };
 /** ronde buis D x t */
 const buis = (D, t, naam = `buis Ø${D}x${t}`, norm = 'EN 10219 S235JRH') => { const d = D - 2 * t, A = (Math.PI / 4) * (D ** 2 - d ** 2), I = (Math.PI / 64) * (D ** 4 - d ** 4); return { vorm: 'buis', naam, b: D, h: D, t, A, I, W: I / (D / 2), Iz: I, Wz: I / (D / 2), kgm: A * RHO * 1000, omtrek: Math.PI * D, norm }; };
 /** massief rond D */
@@ -20,11 +20,11 @@ const strip = (b, t) => { const A = b * t, I = (t * b ** 3) / 12, Iz = (b * t **
 export const PROFIEL = {
   k30x30x2: koker(30, 30, 2), k40x40x2: koker(40, 40, 2), k40x40x3: koker(40, 40, 3), k50x50x3: koker(50, 50, 3), k50x50x4: koker(50, 50, 4),
   k60x60x3: koker(60, 60, 3), k60x60x4: koker(60, 60, 4), k70x70x4: koker(70, 70, 4), k80x80x4: koker(80, 80, 4), k80x80x5: koker(80, 80, 5), k100x100x4: koker(100, 100, 4),
-  k50x30x2: koker(30, 50, 2), k60x40x3: koker(40, 60, 3), k80x40x3: koker(40, 80, 3), k80x40x4: koker(40, 80, 4), k100x50x3: koker(50, 100, 3), k100x50x4: koker(50, 100, 4), k120x60x4: koker(60, 120, 4),
+  k50x30x2: koker(30, 50, 2), k60x40x3: koker(40, 60, 3), k80x40x3: koker(40, 80, 3), k80x40x4: koker(40, 80, 4), k100x50x3: koker(50, 100, 3), k100x50x4: koker(50, 100, 4), k120x60x4: koker(60, 120, 4), k120x80x5: koker(80, 120, 5),
   b25x2: buis(25, 2), b32x3: buis(32, 3.2, 'buis Ø32x3,2 (optrekstang)'), b42x3: buis(42.4, 3.2, 'buis Ø42,4x3,2', 'EN 10255 S195T / EN 10219'), b48x3: buis(48.3, 3.2, 'buis Ø48,3x3,2 (schijfhouder)', 'EN 10255 / EN 10219 S235JRH'), b48x4: buis(48.3, 4, 'buis Ø48,3x4 (schijfhouder)'), b48x8: buis(48.3, 8, 'buis Ø48,3x8 naadloos (schijfhouder)', 'EN 10216-1 / DIN 2448 P235'),
-  b60x3: buis(60.3, 3.6, 'buis Ø60,3x3,6'), b60x5: buis(60.3, 5, 'buis Ø60,3x5'), b76x4: buis(76.1, 4, 'buis Ø76,1x4'),
-  r16: rond(16), r20: rond(20), r25: rond(25), r30: rond(30), r35: rond(35), r38: rond(38),
-  s40x8: strip(40, 8), pl10x300: strip(300, 10), pl12x450: strip(450, 12), pl12x600: strip(600, 12), s50x8: strip(50, 8), s60x10: strip(60, 10), s80x10: strip(80, 10), pl10x150: strip(150, 10),
+  b60x3: buis(60.3, 3.6, 'buis Ø60,3x3,6'), b60x5: buis(60.3, 5, 'buis Ø60,3x5'), b60x8: buis(60.3, 8, 'buis Ø60,3x8 naadloos (lagerhuis)', 'EN 10216-1 P235'), b76x4: buis(76.1, 4, 'buis Ø76,1x4'), b76x8: buis(76.1, 8, 'buis Ø76,1x8 naadloos (lagerhuis)', 'EN 10216-1 P235'),
+  r16: rond(16), r20: rond(20), r25: rond(25), r30: rond(30), r35: rond(35), r38: rond(38), r60: rond(60), r30s: { ...rond(30), fy: 355, naam: 'rond Ø30 S355J2 (optrekstang)' }, r35s: { ...rond(35), fy: 355, naam: 'rond Ø35 S355J2 (optrekstang)' }, r40: { ...rond(40), fy: 355, naam: 'rond Ø40 C45 / S355J2 (as)' },
+  s40x8: strip(40, 8), pl10x300: strip(300, 10), pl12x450: strip(450, 12), pl12x600: strip(600, 12), s50x8: strip(50, 8), s60x10: strip(60, 10), s80x10: strip(80, 10), s30x10: strip(30, 10), s12x8: strip(12, 8), s30x8: strip(30, 8), s90x10: strip(90, 10), s100x10: strip(100, 10), s140x10: strip(140, 10), s180x10: strip(180, 10), s80x15: strip(80, 15), s24x8: strip(24, 8), b38x5: buis(38, 5, 'buis Ø38x5 uitgedraaid (lagerbus)', 'EN 10297-1 E355'), b44x5: buis(44.5, 5, 'buis Ø44,5x5 uitgedraaid (lagerbus)', 'EN 10297-1 E355'), b89x5: buis(88.9, 5, 'buis Ø88,9x5'), pl10x150: strip(150, 10),
 };
 for (const [k, P] of Object.entries(PROFIEL)) P.id = k;
 
@@ -37,14 +37,14 @@ export const VERSIE = {
   thuis: {
     id: 'thuis', naam: 'Thuis', klasse: 'H', uitleg: 'EN ISO 20957 klasse H: thuisgebruik',
     gebruiker: 120, // kg op het label (norm: minstens 100)
-    P: { staander: 'k60x60x3', ligger: 'k60x60x3', voet: 'k60x60x3', licht: 'k50x50x3', klein: 'k40x40x2', bank: 'k80x40x3', bankLicht: 'k50x30x2', arm: 'k50x50x3', hefboom: 'k80x40x3', sleeve: 'b48x3', stang: 'r35', greep: 'b32x3', as: 'r25', bus: 'b42x3', toren: 'k60x60x3', breed: 'k100x50x3', wagen: 'k80x80x4' },
+    P: { staander: 'k60x60x3', ligger: 'k60x60x3', voet: 'k60x60x3', licht: 'k50x50x3', klein: 'k40x40x2', bank: 'k80x40x3', bankLicht: 'k50x30x2', arm: 'k50x50x3', hefboom: 'k80x40x3', optrek: 'r30s', sleeve: 'b48x3', stang: 'r35', greep: 'b32x3', as: 'r25', bus: 'b42x3', toren: 'k60x60x3', breed: 'k100x50x3', wagen: 'k80x80x4' },
     gat: 17, pin: 16, plaat: 8, voetplaat: 8, las: 3,
-    katrol: 'katrol115', kabel: 'kabel5', stapelN: 16, stapelKg: 5, lager: 'glij25', lineair: 'lm25', selectiepen: 'selectiepen', pin25: 'pullpin16', leer: 'leerThuis', voetje: 'voetThuis', bout: 'boutM12', wiel: 'zwenkwiel50', handgreep: 'handgreep', latbar: 'latbarThuis', schuimrol: 'schuimrol100', kabeleind: 'kabelstop', wartel: 'wartelThuis',
+    katrol: 'katrol115', kabel: 'kabel6', stapelN: 16, stapelKg: 5, lager: 'glij25', lineair: 'lm25', selectiepen: 'selectiepen', pin25: 'pullpin16', leer: 'leerThuis', voetje: 'voetThuis', bout: 'boutM12', wiel: 'zwenkwiel50', handgreep: 'handgreep', latbar: 'latbarThuis', schuimrol: 'schuimrol100', kabeleind: 'kabelstop', wartel: 'wartelThuis',
   },
   pro: {
     id: 'pro', naam: 'Pro', klasse: 'S', uitleg: 'EN ISO 20957 klasse S: studio en commercieel gebruik',
     gebruiker: 150,
-    P: { staander: 'k80x80x4', ligger: 'k80x80x4', voet: 'k80x80x4', licht: 'k60x60x3', klein: 'k50x50x3', bank: 'k100x50x3', bankLicht: 'k60x40x3', arm: 'k60x60x4', hefboom: 'k100x50x4', sleeve: 'b48x8', stang: 'r38', greep: 'b32x3', as: 'r30', bus: 'b48x4', toren: 'k80x80x4', breed: 'k120x60x4', wagen: 'k100x100x4' },
+    P: { staander: 'k80x80x4', ligger: 'k80x80x4', voet: 'k80x80x4', licht: 'k60x60x3', klein: 'k50x50x3', bank: 'k100x50x3', bankLicht: 'k60x40x3', arm: 'k60x60x4', hefboom: 'k100x50x4', optrek: 'r35s', sleeve: 'b48x8', stang: 'r38', greep: 'b32x3', as: 'r30', bus: 'b48x4', toren: 'k80x80x4', breed: 'k120x60x4', wagen: 'k100x100x4' },
     gat: 26, pin: 25, plaat: 10, voetplaat: 12, las: 4,
     katrol: 'katrol115pro', kabel: 'kabel6', stapelN: 20, stapelKg: 5, lager: 'glij30', lineair: 'lm25pro', selectiepen: 'selectiepenPro', pin25: 'pullpin25', leer: 'leerPro', voetje: 'voetPro', bout: 'boutM16', wiel: 'zwenkwiel75', handgreep: 'vgrip', latbar: 'latbar', schuimrol: 'schuimrol100', kabeleind: 'kabeleind', wartel: 'wartel',
   },
@@ -90,6 +90,32 @@ export const KOOP = {
   nietjes: k('Tackernietjes 10 mm (doos 5000)', 'nietjes type 140', 'AANNAME (bouwmarkt)', 5, 'doos', 'AANNAME', false),
   voetThuis: k('Stelvoet M10 x 75, Ø60', 'Hettich stelvoet M10x75 Ø60 RVS', 'Hornbach NL', EX21(4.75), 'st', 'https://www.hornbach.nl/p/hettich-stelvoet-m10x75-mm-o-60-mm-rvs/4297032/', false),
   voetPro: k('Rubbervoet M10, Ø50 x 45 (Paulstra)', 'Paulstra rubbervoet M10 draadeind', 'RS Components NL', 11.18, 'st', 'https://nl.rs-online.com/web/p/dampers-stops/4088161/', false),
+  borgveer: k('Borgveer (R-clip) Ø4 verzinkt', 'DIN 11024 Ø4', 'Hornbach NL', EX21(0.6), 'st', 'https://www.hornbach.nl', false),
+  spanstift: k('Spanstift DIN 1481 Ø8 verzinkt', 'DIN 1481 8 x 50', 'Hornbach NL', EX21(0.8), 'st', 'https://www.hornbach.nl', false),
+  stelring25: k('Stelring DIN 705 Ø25 met stelschroef', 'DIN 705 A 25', 'Eriks / Brammer', 3.2, 'st', 'AANNAME: prijs Eriks', false),
+  stelring30: k('Stelring DIN 705 Ø30 met stelschroef', 'DIN 705 A 30', 'Eriks / Brammer', 3.9, 'st', 'AANNAME: prijs Eriks', false),
+  borgring20: k('Borgring DIN 471 Ø20', 'DIN 471 20x1,2', 'Hornbach NL', EX21(0.25), 'st', 'https://www.hornbach.nl', false),
+  veer: k('Trekveer Ø12 x 60 mm', 'trekveer 1,2 x 12 x 60', 'Hornbach NL', EX21(1.5), 'st', 'https://www.hornbach.nl', false),
+  stopring: k('Stopring Ø25 met rubberbuffer, klembaar (M8)', 'klemring DIN 705 Ø25 + rubberring', 'Eriks / Brammer', 6.5, 'st', 'AANNAME: prijs Eriks', false),
+  glij35: k('Flensglijlager iglidur GFM-3539-26 (stang Ø35)', 'igus iglidur GFM-3539-26', 'RS Components BE', 3.6, 'st', 'AANNAME: igus-prijslijst', false),
+  glij38: k('Flensglijlager iglidur GFM-4044-30 (stang Ø38, uitgedraaid)', 'igus iglidur GFM-4044-30', 'RS Components BE', 4.4, 'st', 'AANNAME: igus-prijslijst', false),
+  glij40: k('Flensglijlager iglidur GFM-4044-30 (as Ø40)', 'igus iglidur GFM-4044-30', 'RS Components BE', 4.4, 'st', 'AANNAME: igus-prijslijst', false),
+  stelring40: k('Stelring DIN 705 Ø40 met stelschroef', 'DIN 705 A 40', 'Eriks / Brammer', 5.2, 'st', 'AANNAME: prijs Eriks', false),
+  lager6206: k('Kogellager 6206-2RS', 'SKF 6206-2RS1', 'RS Components BE', 9.8, 'st', 'AANNAME: RS-prijs', false),
+  stapelbus: k('Kunststof bus Ø25/32 x 20 (stapelplaat)', 'iglidur J flensbus 25/32', 'igus / RS Components', 1.1, 'st', 'AANNAME: igus-prijslijst', false),
+  stapelsticker: k('Sticker gewicht stapelplaat (vinyl)', 'sticker 40 x 25', 'drukkerij', 0.4, 'st', 'AANNAME', false),
+  lasmoerM10: k('Lasmoer M10 verzinkt', 'DIN 929 M10', 'Hornbach NL', EX21(0.45), 'st', 'https://www.hornbach.nl', false),
+  looprolPU: k('Looprol Ø50 met PU-band op kogellager 6204-2RS', 'PU-rol 50 x 20, boring 20', 'Blickle / Wicke (AANNAME)', 7.5, 'st', 'AANNAME: Blickle-prijslijst', false),
+  afstandsbus: k('Afstandsbus in doorgeboute koker (buis 20x2 op lengte)', 'buis Ø20x2 gezaagd', 'eigen werk', 0.6, 'st', 'AANNAME', false),
+  griptape: k('Rubber handvat / griptape per greep', 'handvat 130 mm', 'gymparts.de', 3.5, 'st', 'AANNAME', false),
+  antislip: k('Antislip (kwartszand-tape) op voetplaten', '3M Safety-Walk 50 mm', 'Hornbach NL', 18, 'm²', 'AANNAME', false),
+  typeplaat: k('Typeplaatje alu 0,8 mm bedrukt + 4 blindklinknagels Ø3', 'typeplaat 105 x 74', 'graveerdienst', 6.5, 'st', 'AANNAME', false),
+  waarschuwing: k('Waarschuwingsstickers (klempunt, pen-instructie) set', 'sticker ISO 7010 W001/W024', 'drukkerij', 4, 'set', 'AANNAME', false),
+  maskeer: k('Maskeerdoppen en -pluggen voor poedercoat', 'siliconen pluggen set', 'Caswell / Tesa', 0.15, 'st', 'AANNAME', false),
+  vet: k('Smeermiddel (lithiumvet) voor pennen en geleidingen', 'tube 100 g', 'Hornbach NL', 4, 'st', 'AANNAME', false),
+  verpakking: k('Verpakking: pallet, hoekbeschermers, stretchfolie', 'europallet + folie', 'eigen', 22, 'st', 'AANNAME', false),
+  handleiding: k('Handleiding NL/FR (druk) en montagefiche', 'A4 geniet', 'drukkerij', 6, 'st', 'AANNAME', false),
+  moerM12: k('Moer M12 + ring (geleidestang boven)', 'DIN 934 M12 + DIN 125', 'Hornbach NL', EX21(0.4), 'st', 'https://www.hornbach.nl', false),
   buffer: k('Rubberbuffer onder de gewichtstapel', 'Paulstra rubberbuffer M10 Ø50x45', 'RS Components NL', 11.18, 'st', 'https://nl.rs-online.com/web/p/dampers-stops/4088161/', false),
   kap40: k('Eindkap koker 40x40 / 50x50', 'lamellenstop vierkant zwart', 'ebay.de', EX19(1.2), 'st', 'https://www.ebay.de/itm/405306593320', false),
   kap60: k('Eindkap koker 60x60', 'kokerdop 60x60', 'emfa-b2b.com', 0.8, 'st', 'https://emfa-b2b.com/square-end-caps/760-square-end-caps-for-steel-box-section-60x60-mm-grey.html', false),

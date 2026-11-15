@@ -17,7 +17,9 @@ export function details(o) {
     const pts = g.deel.soort === 'plaat' || g.door !== 1 ? g.punten : [g.punten[0]];
     for (const p of pts) {
       const uitw = norm(sub(p, g.p)), q = len(uitw) > 0.5 ? uitw : g.as;
-      uit.push(balk(add(p, mul(q, -0.8)), add(p, mul(q, 0.6)), standaardV(q), g.d, g.d, true, 'gat', { gat: true }));
+      const diep = Math.min(6, g.deel.soort === 'plaat' ? g.deel.t / 2 : (g.deel.P?.t ?? 3) + 2);
+      uit.push(balk(add(p, mul(q, -diep)), add(p, mul(q, 0.4)), standaardV(q), g.d, g.d, true, 'gat', { gat: true }));
+      uit.push(balk(add(p, mul(q, 0.2)), add(p, mul(q, 0.5)), standaardV(q), g.d + 2.5, g.d + 2.5, true, 'gatrand'));
     }
     // flensglijlager in een lageroor: witte kraag rond het gat aan beide kanten
     if (/Lageroor/.test(g.deel.naam)) for (const p of g.punten) { const q = norm(sub(p, g.p)); uit.push(balk(p, add(p, mul(q, 2)), standaardV(q), g.d + 12, g.d + 12, true, 'uhmw')); }

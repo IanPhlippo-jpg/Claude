@@ -28,3 +28,12 @@
 - [x] Boorblad: per stuk Ø, aantal, vlak, wanden en doel (bout, pen, lager, Westside), met de uitkomst van de gatcontrole
 - [x] Gatcontrole: zelfde as ≤ 0,5 mm, speling ISO 273, rand ≥ 1,5 Ø, niet in hoekradius of las, brug ≥ 6 mm
 - [x] Test voor de gatcontrole en de lijst van gevonden gatfouten met de oplossing
+
+## Versie 3: alle adviezen van Fable 5.2 (40 bevindingen) (2026-11-15)
+- [x] Stap 1 rekken: J-cup als U-beugel met pen door beide wanden, pin-pipe safety, spotter met U-beugel en 2 pennen (P1-01/02/03)
+- [x] Stap 2 hefboom-bouwsteen: as als staaf, naaf met eindschijven en spanstift, lagerbussen, stelringen, begin- en eindaanslag (P1-11)
+- [x] Stap 3 slede: tegenrollen, grendels met getande strip, ribben achter de voetplaat (P1-06/07/10); Smith en belt squat opnieuw (P1-08/09)
+- [x] Stap 4 kabel: stapel (lagers, klemblokken, bussen, last), lus met dubbele zwenkkatrol (P1-04), tweezijdige as (P1-05), nokken (P2-01/02), diepe voeten en kantelen (P1-12)
+- [x] Stap 5 berekening en controles: evenwicht losse delen, as op buiging, platen, horizontale trek, kabellengte constant, pen op buiging, netto doorsnede; P2-punten
+- [x] Stap 6 lastekeningen per lasgroep (P1-13) en maatvoering stukbladen (P2-09); typeplaatje "prototype: proeflast nodig" en dossier (P1-14)
+- [x] Stap 7 prijzen (uren, overhead, uurloon als parameter), web klant/werkplaats, tests met negatieve proef per P1, fotos v3, graphify

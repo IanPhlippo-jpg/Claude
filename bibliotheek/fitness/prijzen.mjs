@@ -12,6 +12,10 @@ export const STANDAARD = {
   marge: { rek: 35, bank: 35, kabel: 30, plate: 30 }, margePro: 25,
   staalKg: 1.8, laserKg: 4.5, stapelKg: 2.2, coatM2: 25, afval: 15, btw: 21,
   koopPrijs: {},
+  // leercurve: factor op de uren voor het zoveelste stuk van een reeks (stuk 1 = prototype, stuk 20 = met lasmallen)
+  reeks: 5, leercurve: { 1: 2.5, 5: 1.6, 20: 1.0 },
+  // overhead per toestel (AANNAME, P2-17)
+  overhead: { lakkerijRit: 100, perRit: 4, transport: 60, verpakking: { thuis: 25, pro: 45 }, handleiding: 10, mallen: 50, garantiePct: 3, verzekeringPct: 1.5 },
 };
 export const BRON = {
   uurloon: 'AANNAME: zelfde uurloon als de balustrades en taatsdeuren',
@@ -20,7 +24,7 @@ export const BRON = {
   stapelKg: 'AANNAME: stapelplaat 300 x 112 x 20 gelaserd ± € 8-13 per plaat (geen losse platen te koop gevonden)',
   coatM2: 'AANNAME: poedercoat met stralen ± € 15-35/m² excl. btw (lakkerij BE)',
 };
-export const CAT = { staal: 'Staal (staven)', laser: 'Laserdelen', stapel: 'Gewichtstapel', coat: 'Poedercoat', koop: 'Kooponderdelen', bekleding: 'Bekleding', arbeid: 'Arbeid' };
+export const CAT = { staal: 'Staal (staven)', laser: 'Laserdelen', stapel: 'Gewichtstapel', coat: 'Poedercoat', koop: 'Kooponderdelen', bekleding: 'Bekleding', overhead: 'Overhead', arbeid: 'Arbeid' };
 const BEKLEDING = new Set(['multiplex', 'schuim', 'leerThuis', 'leerPro', 'inslagmoer', 'nietjes']);
 
 /** de kostprijs; inst = instellingen (STANDAARD + wijzigingen) */
@@ -36,7 +40,15 @@ export function kostprijs(o, inst = {}) {
   regels.push({ cat: 'coat', wat: `Poedercoat ${t.opp.toFixed(1).replace('.', ',')} m²`, bedrag: t.opp * I.coatM2, bron: BRON.coatM2 });
   const koop = sl.koop.map((x) => { const prijs = I.koopPrijs[x.key] ?? x.prijs; return { ...x, prijs, bedrag: x.bedrag - x.hoeveelheid * x.prijs + x.hoeveelheid * prijs }; });
   for (const x of koop) regels.push({ cat: BEKLEDING.has(x.key) ? 'bekleding' : 'koop', wat: `${x.naam} (${fmt(x.hoeveelheid)} ${x.eenheid})`, bedrag: x.bedrag, bron: /AANNAME/.test(x.winkel) && /^AANNAME/.test(x.bron) ? x.bron : `${x.winkel}${x.nagekeken || /AANNAME/.test(x.winkel + x.bron) ? '' : ' (AANNAME)'}: ${x.bron}`, key: x.key });
-  const stappen = werkwijze(o, U, sl), uren = stappen.reduce((s, x) => s + x.uren, 0), arbeid = uren * I.uurloon;
+  const lc = I.leercurve ?? STANDAARD.leercurve, rk = Object.keys(lc).map(Number).filter((n) => n <= (I.reeks ?? 5)).sort((a, b) => b - a)[0] ?? 1, fLc = lc[rk];
+  const stappen = werkwijze(o, U, sl), uren = stappen.reduce((s, x) => s + x.uren, 0) * fLc, arbeid = uren * I.uurloon;
+  const OH = { ...STANDAARD.overhead, ...(I.overhead ?? {}) }, mat0 = regels.reduce((s, x) => s + x.bedrag, 0);
+  regels.push({ cat: 'overhead', wat: `Lakkerij: minimum per rit € ${OH.lakkerijRit} gedeeld door ${OH.perRit} toestellen`, bedrag: OH.lakkerijRit / OH.perRit, bron: 'AANNAME: lakkerij-minimum per rit' });
+  regels.push({ cat: 'overhead', wat: 'Transport heen en terug naar de lakkerij, levering', bedrag: OH.transport, bron: 'AANNAME' });
+  regels.push({ cat: 'overhead', wat: 'Verpakking (pallet, hoeken, folie)', bedrag: OH.verpakking[o.versie] ?? 30, bron: 'AANNAME' });
+  regels.push({ cat: 'overhead', wat: 'Handleiding NL/FR en montagefiche', bedrag: OH.handleiding, bron: 'AANNAME' });
+  regels.push({ cat: 'overhead', wat: 'Afschrijving lasmallen en gereedschap', bedrag: OH.mallen, bron: 'AANNAME' });
+  regels.push({ cat: 'overhead', wat: `Garantie (${OH.garantiePct} %) en productaansprakelijkheid (${OH.verzekeringPct} %) op materiaal + arbeid`, bedrag: (mat0 + arbeid) * (OH.garantiePct + OH.verzekeringPct) / 100, bron: 'AANNAME' });
   const materiaal = regels.reduce((s, x) => s + x.bedrag, 0), kp = materiaal + arbeid, marge = (I.marge[o.def.soort] ?? 30) + (o.versie === 'pro' ? I.margePro : 0), verkoop = kp * (1 + marge / 100), incl = verkoop * (1 + I.btw / 100);
   const perCat = {}; for (const x of regels) perCat[x.cat] = (perCat[x.cat] ?? 0) + x.bedrag; perCat.arbeid = arbeid;
   const band = o.def.markt[o.versie], status = incl < band[0] ? 'onder' : incl > band[1] ? 'boven' : 'in';

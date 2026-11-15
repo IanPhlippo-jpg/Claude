@@ -8,7 +8,7 @@ export const UREN = {
   verstek: 0.06, // extra per schuin gezaagd stuk
   gat: 0.025, // u per gat (koker: 2 wanden, met boormal)
   laser: 0.03, // u per laserdeel (ontbramen, sorteren)
-  verbinding: 0.045, // u per lasverbinding (passen, heften, haaksheid)
+  verbinding: 0.12, // u per lasverbinding (passen, heften, haaksheid; zonder lasmallen, P2-17)
   lasM: 0.35, // u per meter las
   afwerk: 0.35, // u per toestel (slijpen, randen r 2,5, ontvetten)
   coat: 0.3, // u per toestel (maskeren, ophangen, vervoer naar de lakkerij)

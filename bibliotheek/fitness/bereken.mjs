@@ -7,6 +7,7 @@ import { NORM } from './normen.mjs';
 import { KOOP, PROFIEL } from './onderdelen.mjs';
 import { norm, sub, dot, len, aabb } from './model.mjs';
 
+const kg2N = (kg) => (kg ?? 0) * 9.81;
 const g = 9.81, E = NORM.E.v, fy = NORM.fy.v, fu = NORM.fu.v;
 const fvw = fu / (Math.sqrt(3) * NORM.betaW.v * NORM.gM2.v); // ≈ 208 MPa
 const gw = (v, d = 1) => (Math.round(v * 10 ** d) / 10 ** d).toLocaleString('nl-BE');
@@ -73,30 +74,51 @@ export function berekening(o) {
       if (x.las) { const lw = kraag ? { Ww: Math.PI * (kraag / 2) ** 2 * V.las, Lw: Math.PI * kraag } : lasDoorsnede(P, V.las, B.as === 'sterke as'), sw = Math.hypot(M / lw.Ww, pl.F / (V.las * lw.Lw)); ctl('Lassen', `Las aan de voet: ${x.wat.toLowerCase()}`, `hoeklas a${V.las} rondom ${kraag ? `de kraag Ø${kraag} (de houder is door de kraag gestoken en rondom gelast)` : P.naam}: σw = √((M/Ww)² + (V/(a·Lw))²) = ${gw(sw)} N/mm² ≤ fvw,d = ${gw(fvw, 0)} (Ww = ${gw(lw.Ww, 0)} mm³)`, sw / fvw, `${NORM.betaW.bron}; ISO 2553`); }
     } else {
       const N = pl.F, e = x.e ?? 0, Lcr = (x.knik ?? (x.type === 'staanderM' ? 2 : 1)) * L, c = chi(d, Lcr), M = N * e;
-      const ben = N / (c.chi * P.A * fy) + (M ? M / (B.W * fy) : 0);
+      // netto doorsnede bij Westside-gaten (2 wanden): A·(1 - 2·t·d0/A) (P2-08)
+      const red = d.westside ? Math.max(0.5, 1 - (2 * P.t * d.westside.d) / P.A) : 1;
+      const ben = N / (c.chi * P.A * red * fy) + (M ? M / (B.W * red * fy) : 0);
+      if (d.westside) ctl('Sterkte', `Netto doorsnede: ${x.wat.toLowerCase()}`, `Westside-gat Ø${d.westside.d} door 2 wanden van ${P.t} mm: A netto = A − 2·t·d0 = ${Math.round(P.A * red)} mm² (${Math.round((1 - red) * 100)} % minder); hierboven mee gerekend. Gatenrij om de 25/50 mm: buiten EN 1993-1-8 tabel 3.3 (p1 ≥ 2,2·d0), gangbaar in de sector (AANNAME)`, 0, 'EN 1993-1-1 §6.2.2.2', { oordeel: 'info' });
       ctl('Sterkte', x.wat, `${P.naam}, L = ${Math.round(L)} mm, Lcr = ${Math.round(Lcr)} mm: N = ${gw(N / 1000, 2)} kN (${pl.tekst})${e ? `, e = ${Math.round(e)} mm, M = ${gw(M / 1e6, 3)} kNm` : ''}; λ̄ = ${gw(c.lam, 2)}, χ = ${gw(c.chi, 2)}; N/(χ·A·fy)${e ? ' + M/(W·fy)' : ''} = ${gw(ben, 2)} ≤ 1`, ben, `${pl.bron}; EN 1993-1-1 §6.3.1 (kromme c), interactie vereenvoudigd (AANNAME)`);
       if (x.las && M) { const lw = lasDoorsnede(P, V.las), sw = Math.hypot(M / lw.Ww, N / (V.las * lw.Lw)); ctl('Lassen', `Las aan de voet: ${x.wat.toLowerCase()}`, `hoeklas a${V.las} rondom ${P.naam}: σw = ${gw(sw)} N/mm² ≤ fvw,d = ${gw(fvw, 0)}`, sw / fvw, NORM.betaW.bron); }
     }
   }
+  // ---- vermoeiing (EN 1993-1-9, detailcategorie 36 voor een hoeklas aan de voet; AANNAME aantal cycli)
+  for (const x of o.reken) {
+    if (x.type !== 'uitkrager' || !x.las || !x.stuk || x.stuk.soort !== 'staaf' || !['plateLoaded', 'extrinsiek'].includes(x.proef)) continue;
+    const schets = o.delen.some((q) => q.naam.startsWith('Schetsplaat') && q.groep === x.stuk.groep && len(sub(q.a, x.stuk.a)) < 200 + x.stuk.L), pl = proeflast(o, x), L0 = x.proef === 'schijfhouder' ? 0.6 * x.L : x.L, lw = lasDoorsnede(x.stuk.P, V.las), ds = (pl.Fs * L0) / lw.Ww / (schets ? 2 : 1);
+    const N = V.klasse === 'S' ? 2e6 : 1e5, dsR = 36 * Math.cbrt(2e6 / N) / 1.35;
+    ctl('Vermoeiing', `Las aan de voet: ${x.wat.toLowerCase()}`, `spanningswissel bij gebruik Δσ = M/Ww = ${gw(ds)} N/mm² ≤ ΔσR = 36 · (2·10⁶/N)^(1/3) / γMf = ${gw(dsR)} N/mm² bij N = ${N.toLocaleString('nl-BE')} cycli (${V.klasse === 'S' ? 'pro: 10 jaar sportschool' : 'thuis'}, AANNAME)${schets ? '; met 2 schetsplaten 60 x 10 aan de voet: lasdoorsnede x 2 (AANNAME)' : ''}; ${ds > dsR ? 'doorgelaste voet of schetsplaten nodig' : 'voldoet'}`, ds / dsR, 'EN 1993-1-9 tabel 8.5 (cat. 36), γMf = 1,35');
+  }
   // ---- pennen en bouten
-  const penF = (p) => { const f = p.factor; const kg = p.F ?? 0; if (f === 'vanghaak') return NORM.vanghaak[k] * kg; if (f === 'schijfhouderPen') return NORM.schijfhouder[k] * kg; if (f === 'plateLoadedPen') return NORM.plateLoaded[k] * 1.5 * kg; if (f === 'intrinsiekPen') return 2.5 * kg; return 2.5 * kg; };
+  const penF = (p) => { const f = p.factor; const kg = p.F ?? 0; if (f === 'vanghaak') return NORM.vanghaak[k] * kg; if (f === 'schijfhouderPen') return NORM.schijfhouder[k] * kg; if (f === 'plateLoadedPen') return NORM.plateLoaded[k] * 1.5 * kg; if (f === 'intrinsiekPen') return 2.5 * kg; if (f === 'extrinsiekPen') return NORM.extrinsiek.v * NORM.extrinsiek.dyn * kg; return 2.5 * kg; };
   const gezienPen = new Set();
   for (const p of o.pennen) {
-    if (!p.F) continue;
+    if (!p.F && p.e) ctl('Evenwicht', `Losse haak: ${p.naam}`, p.snedes < 2 ? 'pen door één wand: het moment van de last trekt de pen uit het gat (gladde pen: geen weerstand)' : `pen door beide wanden (${p.hoh} mm): het moment wordt een koppel op de wanden`, p.snedes < 2 ? 9 : 0, 'evenwicht (statica)', { oordeel: p.snedes < 2 ? 'rood' : 'groen' });
+    if (!p.F) { ctl('Pennen en bouten', `Pen Ø${p.d}: ${p.naam}`, p.geleiding ?? 'geen rekenlast opgegeven (geleiding of montage): nakijken', 0, NORM.pen.bron, { oordeel: p.geleiding ? 'info' : 'oranje' }); continue; }
     const sleutel = `${p.d}|${p.F}|${p.snedes}|${p.factor}`; if (gezienPen.has(sleutel)) continue; gezienPen.add(sleutel);
     const F = penF(p) * g, A = (Math.PI / 4) * p.d ** 2, fup = p.key ? 500 : fu, Fv = (0.6 * A * fup) / NORM.gM2.v, Rd = Fv * p.snedes;
     ctl('Pennen en bouten', `Pen Ø${p.d}: ${p.naam}`, `proeflast ${gw(F / 1000, 2)} kN; Fv,Rd = 0,6·A·fup/γM2 · ${p.snedes} snede${p.snedes > 1 ? 'n' : ''} = 0,6 · ${gw(A, 0)} · ${fup} / 1,25 · ${p.snedes} = ${gw(Rd / 1000, 1)} kN${p.key ? ' (AANNAME fup = 500 voor een gekochte pen)' : ''}`, F / Rd, NORM.pen.bron);
-    const t = 3, Fb = (1.5 * t * p.d * fy) / NORM.gM0.v * Math.max(1, p.snedes);
-    ctl('Pennen en bouten', `Stuik van het gat: ${p.naam}`, `Fb,Rd = 1,5·t·d·fy/γM0 = 1,5 · ${t} · ${p.d} · ${fy} = ${gw(Fb / 1000, 1)} kN per wand (AANNAME wand 3 mm)`, F / Fb, NORM.pen.bron);
+    const t = p.t ?? 3, e = p.e ?? 0, hoh = p.hoh ?? 0;
+    // evenwicht: last op e mm voor de voorste wand, pen steunt in twee wanden op hoh mm: koppel F·e/hoh
+    const Fv2 = e && hoh ? F * e / hoh : 0, Fvoor = F + Fv2, Fmax = e && hoh ? Fvoor : F / Math.max(1, p.snedes);
+    const Fb = (1.5 * t * p.d * fy) / NORM.gM0.v;
+    ctl('Pennen en bouten', `Stuik van het gat: ${p.naam}`, `${e && hoh ? `last ${gw(F / 1000, 2)} kN op ${e} mm voor de wand, pen in 2 wanden op ${hoh} mm: voorste wand F·(1 + e/hoh) = ${gw(Fvoor / 1000, 2)} kN, achterste F·e/hoh = ${gw(Fv2 / 1000, 2)} kN; ` : ''}Fb,Rd = 1,5·t·d·fy/γM0 = 1,5 · ${t} · ${p.d} · ${fy} = ${gw(Fb / 1000, 1)} kN per wand (wand ${t} mm)`, Fmax / Fb, NORM.pen.bron);
+    if (e && p.snedes < 2) ctl('Evenwicht', `Losse haak: ${p.naam}`, `last op ${e} mm voor de wand, pen door één wand: het moment F·e = ${gw(F * e / 1e6, 3)} kNm moet de pen uit het gat trekken (gladde pen: geen weerstand)`, 9, 'evenwicht (statica)', { oordeel: 'rood' });
+    else if (e) ctl('Evenwicht', `Losse haak: ${p.naam}`, `pen door beide wanden (${hoh} mm): het moment F·e = ${gw(F * e / 1e6, 3)} kNm wordt een koppel van 2 x ${gw(Fv2 / 1000, 2)} kN op de wanden; de wangen van de U-beugel houden de haak recht`, 0, 'evenwicht (statica)', { oordeel: 'groen' });
+    const fyp = p.fy ?? fy, W = Math.PI * p.d ** 3 / 32, Mp = e ? F * Math.min(e, 45) : F * (t / 2 + 2) / Math.max(1, p.snedes), MRd = 1.5 * W * fyp / NORM.gM0.v;
+    if (p.key) { const Fser = kg2N(p.F), Rser = 0.6 * t * p.d * fy; ctl('Pennen en bouten', `Verwisselbare pen (gebruik): ${p.naam}`, `gebruikslast ${gw(Fser / 1000, 2)} kN ≤ Fb,Rd,ser = 0,6·t·d·fy = 0,6 · ${t} · ${p.d} · ${fy} = ${gw(Rser / 1000, 2)} kN per wand (EN 1993-1-8 §3.13.2)`, Fser / Math.max(1, p.snedes) / Rser, 'EN 1993-1-8 §3.13.2 (verwisselbare pen)'); }
+    ctl('Pennen en bouten', `Penbuiging: ${p.naam}`, `M = ${gw(Mp / 1e6, 3)} kNm${e ? ` (last op ${e} mm voor de wand)` : ''} ≤ MRd = 1,5·W·fy = 1,5 · ${gw(W, 0)} · ${fyp} = ${gw(MRd / 1e6, 3)} kNm (EN 1993-1-8 tabel 3.10)`, Mp / MRd, 'EN 1993-1-8 §3.13 tabel 3.10');
   }
   for (const bt of o.bouten) {
     if (!bt.F || bt.key === 'anker') continue;
     const As = bt.M === 16 ? 157 : bt.M === 12 ? 84.3 : 58, Fv = (NORM.bout88.av * NORM.bout88.fub * As) / NORM.gM2.v, F = (2.5 * bt.F * g) / bt.n;
     ctl('Pennen en bouten', `Bouten M${bt.M} 8.8: ${bt.naam}`, `F per bout = 2,5 · ${gw(bt.F, 0)} kg · g / ${bt.n} = ${gw(F / 1000, 2)} kN ≤ Fv,Rd = 0,6 · 800 · ${As} / 1,25 = ${gw(Fv / 1000, 1)} kN`, F / Fv, NORM.bout88.bron);
   }
+  // ---- rechtstreekse toetsen (evenwicht, assen op buiging, platen, ogen)
+  for (const x of o.toetsen ?? []) ctl(x.groep, x.wat, x.formule, x.benut, x.bron, x.oordeel ? { oordeel: x.oordeel } : {});
   // ---- kabels en katrollen
   for (const kb of o.kabels) {
-    const K = KOOP[kb.key], F = (kb.last * g) / kb.overbrenging, ben = (NORM.kabel.v * F) / (K.MBL * 1000);
+    const st = o.stapels[0], extra = kb.begin === 'stapel' && st ? (st.extraKg ?? 0) : 0, K = KOOP[kb.key], F = ((kb.last + extra) * g) / kb.overbrenging, ben = (NORM.kabel.v * F) / (K.MBL * 1000);
     ctl('Kabel', `${kb.naam}: veiligheidsfactor 6`, `F = stapel · g / overbrenging = ${gw(kb.last, 0)} · 9,81 / ${kb.overbrenging} = ${gw(F / 1000, 2)} kN; 6 · F = ${gw((6 * F) / 1000, 2)} kN ≤ breukkracht ${gw(K.MBL, 2)} kN (${K.artikel}; AANNAME: de versnelling zit in de factor 6)`, ben, `${NORM.kabel.bron}; ${K.bron}`);
     const katr = kb.route.filter((p) => p.katrol);
     const lus = (kb.begin === 'stapel' || kb.begin === 'anker' || kb.begin === 'laadpen' || kb.begin === 'slede') && (kb.einde === 'greep' || kb.einde === 'nok') && kb.route.slice(1, -1).every((p) => p.katrol || p.los);
@@ -104,9 +126,9 @@ export function berekening(o) {
     for (let i = 1; i < kb.route.length - 1; i++) {
       const p = kb.route[i]; if (!p.katrol) continue;
       const d1 = norm(sub(p.p, kb.route[i - 1].p)), d2 = norm(sub(kb.route[i + 1].p, p.p)), Fr = F * len(sub(d2, d1));
-      const KK = KOOP[p.k.key], Dd = KK.D / KOOP[kb.key].d;
+      const KK = KOOP[p.k.key], Dl = KK.D - 10, kern = KOOP[kb.key].kern ?? KOOP[kb.key].d, Dd = Dl / kern; // loopdiameter (groefbodem) / kerndiameter
       ctl('Katrollen', `Katrol ${p.label}: belasting`, `R = F·|d2 − d1| = ${gw(Fr / 1000, 2)} kN ≤ ${gw(KK.kN, 2)} kN (opgave winkel)`, Fr / (KK.kN * 1000), KK.bron);
-      ctl('Katrollen', `Katrol ${p.label}: D/d`, `D/d = ${KK.D} / ${KOOP[kb.key].d} = ${gw(Dd)} ≥ 18`, 18 / Dd, NORM.katrolD.bron, { oordeel: Dd >= 18 ? 'groen' : Dd >= 15 ? 'oranje' : 'rood' });
+      ctl('Katrollen', `Katrol ${p.label}: D/d`, `D/d = loopdiameter ${Dl} / kern ${kern} = ${gw(Dd)} ≥ 18`, 18 / Dd, NORM.katrolD.bron, { oordeel: Dd >= 18 ? 'groen' : Dd >= 15 ? 'oranje' : 'rood' });
     }
   }
   for (const kt of o.katrollen) {
@@ -125,14 +147,25 @@ export function berekening(o) {
     const ok = sp.kap || sp.mm < NORM.knelVrij.spleetMin || sp.mm > NORM.knelVrij.spleetMax;
     ctl('Knelpunten', sp.wat, `vrije afstand ${sp.mm} mm${sp.kap ? ', afgeschermd' : ''}: niet tussen 9,5 en 25 mm, of afgeschermd`, 0, NORM.knelVrij.bron, { oordeel: ok ? 'groen' : 'oranje', uitleg: sp.uitleg ?? '' });
   }
-  if (o.pennen.some((p) => p.b?.startsWith?.('Hefboom') || p.b === 'Slede') || o.def?.soort === 'plate') ctl('Knelpunten', 'Hefboom of slede tegen het frame', 'eindaanslag met rubberbuffer; vrije afstand hefboom-frame ≥ 60 mm (of ≤ 25 mm waar alleen vingers kunnen komen): nakijken op het toestel', 0, NORM.knelVrij.bron, { oordeel: 'oranje', uitleg: 'De hefboom of slede is in 5 standen (0, 25, 50, 75 en 100 % van de slag) op botsingen met het frame, de kussens en de schijven gecontroleerd: geen. Knelafstanden tussen 9,5 en 25 mm zijn een maat op het echte toestel: AANNAME, nameten op het eerste toestel.' });
+  const knel = o.knelMeting?.() ?? [];
+  if (knel.length) {
+    // een knelpunt is een spleet die tijdens de beweging dichtgaat tot onder 25 mm (een vaste spleet knelt niet);
+    // aanslagen, wangen naast de rail en de grendel zijn bedoeld contact en zitten onder de slede of bij de as
+    const per = new Map();
+    for (const k of knel) { const key = `${k.a} - ${k.b}`; per.set(key, [...(per.get(key) ?? []), k]); }
+    const fout = [...per.entries()].map(([key, l]) => ({ key, min: Math.min(...l.map((x) => x.mm)), max: Math.max(...l.map((x) => x.mm)), st: l.reduce((m, x) => (x.mm < m.mm ? x : m)).stand }))
+      .filter((x) => x.max - x.min > 5 && x.min < NORM.knelVrij.spleetMax && !/Aanslag|Wang|As looprol|As tegenrol|Grendel|Rolplaat/.test(x.key));
+    const lijst = fout.slice(0, 6).map((x) => `${x.key}: van ${Math.round(x.max)} naar ${Math.round(x.min)} mm (stand ${x.st})`).join('; ');
+    ctl('Knelpunten', 'Bewegend tegen vast: gemeten in stand 0, 0,5 en 1', fout.length ? `spleet die dichtgaat tot onder 25 mm: ${lijst}. Afschermen (kap) of de spleet groter maken.` : `${per.size} plaatsen met minder dan 60 mm vrij gemeten; geen spleet die tijdens de beweging dichtgaat tot onder 25 mm`, 0, NORM.knelVrij.bron, { oordeel: fout.length ? 'oranje' : 'groen' });
+  }
   const kappen = o.koop.filter((x) => x.id?.startsWith('kap-')).reduce((t, x) => t + x.n, 0);
   ctl('Afwerking', 'Randen en buisuiteinden', `alle randen braamvrij, lichaamsdragende randen r ≥ 2,5 mm; ${kappen} eindkappen op open uiteinden`, 0, NORM.randen.bron, { oordeel: 'groen' });
   // ---- stabiliteit of verankering
   if (o.verankerd) {
     const A = o.anker;
     if (A) {
-      const NRd = 7.6, F = 2.5 * A.kg * g, N = (F * A.arm) / (A.z * A.n) / 1000;
+      const NRd = 7.6, F = 2.5 * A.kg * g, N = (F * A.arm) / (A.z * A.n) / 1000, grond = { beton: 7.6, 'volle baksteen': 2.5, 'holle baksteen / snelbouw': 1.2 };
+      ctl('Stabiliteit', `Anker per ondergrond (${o.verankerd})`, `trek per anker ${gw(N, 2)} kN; NRd: ${Object.entries(grond).map(([k2, v]) => `${k2} ${gw(v, 1)} kN (${N <= v ? 'ok' : 'NIET'})`).join(', ')}. Beton: keilbout M12; steen: injectieanker met zeefhuls (AANNAME, volgens ETA nakijken). Kies het anker op het montageblad volgens de muur.`, N / grond['holle baksteen / snelbouw'], 'ETA van het anker (AANNAME: richtwaarden)', { oordeel: N <= 1.2 ? 'groen' : N <= 2.5 ? 'oranje' : 'rood' });
       ctl('Stabiliteit', `Verankerd in de ${o.verankerd}: trek per anker`, `N = 2,5 · ${gw(A.kg, 0)} kg · g · ${A.arm} mm / (${A.z} mm · ${A.n}) = ${gw(N, 2)} kN ≤ NRd ≈ ${NRd} kN (AANNAME keilbout M12 in beton C20/25, randafstand ≥ 100)`, N / NRd, `${NORM.stabiliteit.bron}; AANNAME ankerwaarde (fischer FAZ II 12, zie balustrades)`, { oordeel: N / NRd > 1 ? 'rood' : 'oranje', uitleg: 'Oranje: de ankerwaarde is een aanname. Kijk de muur na (beton of volle baksteen) en reken het anker na in fischer FIXPERIENCE.' });
     } else ctl('Stabiliteit', `Verankerd ${o.verankerd === 'rack' ? 'in het rack' : `in de ${o.verankerd}`}`, o.verankerd === 'vloer' ? 'pro: voetbalken met 4 keilbouten M12 in de vloer (EN ISO 20957-4 §5.3: vrijstaande haltersteunen moeten verankerd kunnen worden)' : o.verankerd === 'rack' ? 'hangt in het rack: het rack moet verankerd of zwaar genoeg zijn' : 'tegen de muur met keilbouten M12', 0, NORM.stabiliteit.bron, { oordeel: 'oranje', uitleg: 'Nakijken op de plaats: vloer of muur, ankers.' });
   }
@@ -140,6 +173,7 @@ export function berekening(o) {
     const st = stabiliteit(o);
     for (const s of st) ctl('Stabiliteit', `Kantelen op 10° (${s.geval}, naar ${s.richting})`, `zwaartepunt op ${Math.round(s.h)} mm hoog, ${Math.round(s.d)} mm van de kantelrand: h · tan 10° = ${Math.round(s.h * Math.tan((10 * Math.PI) / 180))} mm ≤ ${Math.round(s.d)} mm (massa ${Math.round(s.m)} kg${s.geval ? ' met gebruiker en last' : ''})`, s.benut, NORM.stabiliteit.bron, { oordeel: o.verankerd === 'vloer' && s.benut > 0.9 ? 'oranje' : oordeelVan(s.benut), uitleg: s.benut > 1 ? (o.verankerd === 'vloer' ? 'Kantelt zonder ankers: in de proversie verankerd.' : 'Kantelt: verankeren of de voeten verlengen.') : '' });
   }
+  for (const s of kantelTrek(o)) ctl('Stabiliteit', `Kantelen onder horizontale trek: ${s.wat}`, `trek ${gw(s.F / 1000, 2)} kN op ${Math.round(s.h)} mm hoog naar ${s.richting}: M = ${gw(s.M / 1000, 2)} kNm ≤ tegenmoment eigen gewicht ${gw(s.m, 0)} kg · g · ${Math.round(s.d)} mm = ${gw(s.Mr / 1000, 2)} kNm${s.anker ? ' + verankering' : ''}`, s.benut, 'EN ISO 20957-1 §5.6 (stabiliteit, AANNAME horizontale trek 600 N per greep)');
   const ord = ['groen', 'oranje', 'rood'];
   const oordeel = C.filter((c) => c.oordeel !== 'info').reduce((m, c) => (ord.indexOf(c.oordeel) > ord.indexOf(m) ? c.oordeel : m), 'groen');
   return { controles: C, oordeel };
@@ -166,3 +200,23 @@ export function stabiliteit(o) {
   return uit;
 }
 export { PROFIEL };
+
+/** kantelen onder horizontale trek (kabel, duwen): per trekgeval het moment rond de kantelrand in de trekrichting */
+export function kantelTrek(o) {
+  if (!o.trek?.length) return [];
+  const geo = [...o.delen.flatMap((d) => d.geo), ...o.koop.flatMap((d) => d.geo)];
+  let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+  for (const gg of geo) { const [mn, mx] = aabb(gg); if (mn[2] <= 15) { x0 = Math.min(x0, mn[0]); x1 = Math.max(x1, mx[0]); y0 = Math.min(y0, mn[1]); y1 = Math.max(y1, mx[1]); } }
+  const c = o.zwaartepunt, m = o.massa, uit = [];
+  const per = new Map(); for (const t of o.trek) { const k = t.wat; if (!per.has(k)) per.set(k, []); per.get(k).push(t); }
+  for (const [wat, lijst] of per) {
+    const Fx = lijst.reduce((s, t) => s + t.F * t.dir[0], 0), Fy = lijst.reduce((s, t) => s + t.F * t.dir[1], 0);
+    const F = Math.hypot(Fx, Fy); if (F < 1) continue;
+    const richt = Math.abs(Fy) >= Math.abs(Fx) ? (Fy < 0 ? 'voor' : 'achter') : (Fx < 0 ? 'links' : 'rechts');
+    const rand = { voor: [1, y0], achter: [1, y1], links: [0, x0], rechts: [0, x1] }[richt];
+    const M = lijst.reduce((s, t) => s + t.F * Math.hypot(t.dir[0], t.dir[1]) * t.p[2], 0), d = Math.abs(c[rand[0]] - rand[1]), Mr = m * g * d;
+    const anker = o.verankerd === 'vloer' || o.verankerd === 'muur';
+    uit.push({ wat, F, h: M / F, richting: richt, M, Mr, d, m, anker, benut: anker ? Math.min(0.5, M / Mr) : r(M / Mr) });
+  }
+  return uit;
+}

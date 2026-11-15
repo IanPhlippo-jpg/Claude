@@ -37,7 +37,7 @@ export function ligger(b, naam, rol, A, B, at = {}, opt = {}) {
   if (!opt.bout) return b.staaf(naam, rol, pa, pb, opt);
   // gebout: kopplaten (t = V.plaat) aan de uiteinden; 2 bouten boven en onder het profiel (buiten de las), door het stuk A / B
   const oud = b.huidig, g = opt.groep ?? naam, t = b.V.plaat, P = b.P(rol), bFl = Math.max(P.b, ...[A, B].map((q) => q.P?.b ?? P.b));
-  const d0 = b.V.bout === 'boutM16' ? 17 : 13, off = d0 / 2 + b.V.las + 4, ef = Math.ceil(1.5 * d0);
+  const d0 = b.V.bout === 'boutM16' ? 18 : 14, off = Math.ceil((b.V.bout === 'boutM16' ? 15 : 12) + b.V.las * 1.41 + 3), ef = Math.ceil(1.5 * d0); // ring DIN 125 r 12/15 + lasbeen a·√2 + 3 (P2-07)
   b.groep(g);
   const qa = [...pa], qb = [...pb]; qa[ax] += s * t; qb[ax] -= s * t;
   const st = b.staaf(naam, rol, qa, qb, { ...opt, bout: undefined });
@@ -68,7 +68,7 @@ export function dwarsOp(b, naam, rol, A, B, y) {
   b.groep(naam);
   const st = b.staaf(naam, rol, [Math.min(a0[0], b0[0]), y, z + P.h / 2], [Math.max(a1[0], b1[0]), y, z + P.h / 2], { v: Y, opm: 'ligt bovenop de voetbalken; 1 bout per kant' });
   b.groep(oud);
-  const d0 = b.V.bout === 'boutM16' ? 17 : 13;
+  const d0 = b.V.bout === 'boutM16' ? 18 : 14;
   for (const S of [A, B]) {
     const [s0, s1] = doos(S), q = [S.a[0], y, z], Sh = s1[2] - s0[2];
     gat(st, q, d0, Math.abs(st.w[2]) > 0.5 ? 'w' : 'v'); gat(S, q, d0, Math.abs(S.w[2]) > 0.5 ? 'w' : 'v');
@@ -93,33 +93,34 @@ export function jhook(b, S, zGat, naam = 'J-hook', kant = -1, gelast = false) {
     return zb + 10;
   }
   b.groep(naam);
-  const z0 = zGat - 50, zb = zGat - 10; // bodem van de haak
-  b.plaat('J-hook rugplaat', [x - a / 2, yf + kant * t, z0 - 30], [x + a / 2, yf, zb + 130], { gaten: [{ p: [x, yf, zGat], d: pin + 1 }], opm: `r 2,5 op alle randen; gat Ø${pin + 1} voor de pen (rondom gelast)` });
-  b.plaat('J-hook schoor', [x - t / 2, yf + kant * (t + 70), zb - t - 60], [x + t / 2, yf + kant * t, zb - t], { vorm: 'driehoek', opm: 'driehoekig schoorschot onder de bodem' });
-  b.plaat('J-hook bodem', [x - a / 2, yf + kant * (t + 75), zb - t], [x + a / 2, yf + kant * t, zb]);
-  b.plaat('J-hook lip', [x - a / 2, yf + kant * (t + 75 + t), zb - t], [x + a / 2, yf + kant * (t + 75), zb + 32], { opm: 'lip 32 mm boven de bodem, 22 mm boven de UHMW' });
-  b.staaf('J-hook pen', `r${pin}`, [x, yf + kant * t, zGat], [x, yf - kant * (S.P.t + 18), zGat], { in: S.id, kap: false, opm: 'gelast in de rugplaat' });
-  b.koop('uhmw', 1, [balk([x, yf + kant * t, zb + 5], [x, yf + kant * (t + 75), zb + 5], X, a - 6, 10, false, 'uhmw')], { naam: `UHMW-strip ${a - 6} x 75 x 10 op de J-hook`, oppervlak: ((a - 6) * 75) / 1e6 });
+  // J-cup (U-beugel zoals Rogue/ATX): rugplaat tegen het vlak en twee wangen langs de zijvlakken (binnenmaat a + 2, 1 mm
+  // UHMW-tape), pen door BEIDE wanden: het moment van de stang wordt een koppel op de voor- en achterwand
+  const z0 = zGat - 50, zb = zGat - 10, xi = a / 2 + 1, xo = xi + t, diep = Math.round(a * 0.75), pl = t + a + 12;
+  b.plaat('J-cup rugplaat', [x - xo, yf + kant * t, z0 - 30], [x + xo, yf, zb + 130], { gaten: [{ p: [x, yf, zGat], d: pin + 1 }], opm: `r 2,5 op alle randen; gat Ø${pin + 1} voor de pen (rondom gelast)` });
+  for (const s of [-1, 1]) b.plaat('J-cup wang', [x + s * xi, yf, z0 - 30], [x + s * xo, yf - kant * diep, zb + 130], { opm: 'wang langs het zijvlak van de staander (1 mm speling, UHMW-tape 1 mm aan de binnenkant): de haak kan niet rond de pen draaien' });
+  b.plaat('J-cup schoor', [x - t / 2, yf + kant * (t + 70), zb - t - 60], [x + t / 2, yf + kant * t, zb - t], { vorm: 'driehoek', opm: 'driehoekig schoorschot onder de bodem' });
+  b.plaat('J-cup bodem', [x - xo, yf + kant * (t + 75), zb - t], [x + xo, yf + kant * t, zb]);
+  b.plaat('J-cup lip', [x - xo, yf + kant * (t + 75 + t), zb - t], [x + xo, yf + kant * (t + 75), zb + 32], { opm: 'lip 32 mm boven de bodem, 22 mm boven de UHMW' });
+  b.staaf('J-cup pen', `r${pin}`, [x, yf + kant * t, zGat], [x, yf - kant * (a + 12), zGat], { in: S.id, kap: false, opm: 'rond S355J2 (of C45), door beide wanden van de staander, gelast in de rugplaat' });
+  b.koop('uhmw', 1, [balk([x, yf + kant * t, zb + 5], [x, yf + kant * (t + 75), zb + 5], X, 2 * xo - 6, 10, false, 'uhmw')], { naam: `UHMW-strip ${Math.round(2 * xo - 6)} x 75 x 10 op de J-cup`, oppervlak: ((2 * xo - 6) * 75) / 1e6 });
   b.groep(oud);
-  const pl = t + S.P.t + 18;
-  b.pen(naam, [x, yf + kant * t - kant * pl / 2, zGat], [0, kant, 0], { d: pin, lengte: pl, F: 0, snedes: 1, factor: 'vanghaak', a: S.groep, b: naam, uit: [0, kant * 140, 0] });
+  b.pen(naam, [x, yf + kant * t - kant * pl / 2, zGat], [0, kant, 0], { d: pin, lengte: pl, F: 0, snedes: 2, t: S.P.t, e: t + 25, hoh: a - S.P.t, fy: 355, factor: 'vanghaak', a: S.groep, b: naam, uit: [0, kant * 140, 0], gelast: 'J-cup pen' });
   return zb + 10;
 }
-/** safety tussen een voorste en een achterste staander (langs y), op de gatenhoogte zGat: koker + kopplaten + pennen */
+/** safety tussen een voorste en een achterste staander (langs y), op de gatenhoogte zGat: pin-pipe. Een massieve stang
+ *  door de gaten van beide staanders (door alle vier de wanden, dubbelsnedig per staander) met een buis erover tussen de
+ *  staanders. Monteren: stang van voren door de voorste staander, door de buis en door de achterste; borgveer achteraan. */
 export function safety(b, Sf, Sb, zGat, naam = 'Safety') {
-  const oud = b.huidig, t = b.V.plaat, rol = 'ligger', P = b.P(rol), x = Sf.a[0], [, fmx] = doos(Sf), [bmn] = doos(Sb), pin = b.V.pin;
+  const oud = b.huidig, x = Sf.a[0], [fmn, fmx] = doos(Sf), [bmn, bmx] = doos(Sb), pin = b.V.pin, rol = pin > 20 ? 'b89x5' : 'b60x5', Pb = b.P(rol);
   b.groep(naam);
-  const y0 = fmx[1] + 1, y1 = bmn[1] - 1, zc = zGat;
-  b.plaat('Kopplaat safety', [x - P.b / 2, y0, zc - P.h / 2 - 10], [x + P.b / 2, y0 + t, zc + P.h / 2], { gaten: [{ p: [x, y0, zc], d: pin + 1 }] });
-  b.plaat('Kopplaat safety', [x - P.b / 2, y1 - t, zc - P.h / 2 - 10], [x + P.b / 2, y1, zc + P.h / 2], { gaten: [{ p: [x, y1, zc], d: pin + 1 }] });
-  const s = b.staaf(`${naam} (koker)`, rol, [x, y0 + t, zc - 5], [x, y1 - t, zc - 5]);
-  for (const [y, k] of [[y0, -1], [y1, 1]]) b.staaf('Pen safety', `r${pin}`, [x, y - k * t, zc], [x, y + k * ((k < 0 ? Sf : Sb).P.t + 20), zc], { in: (k < 0 ? Sf : Sb).id, kap: false, opm: 'door de kopplaat gelast' });
-  b.koop('uhmw', 1, [balk([x, y0 + t, zc + P.h / 2 - 5 + 5], [x, y1 - t, zc + P.h / 2 - 5 + 5], X, P.b - 4, 10, false, 'uhmw')], { naam: `UHMW-strip ${P.b - 4} x ${Math.round(y1 - y0 - 2 * t)} x 10 op de safety`, oppervlak: ((P.b - 4) * (y1 - y0)) / 1e6 });
+  const zb = zGat - (Pb.b / 2 - Pb.t - pin / 2); // de buis rust met haar binnenkant op de stang
+  const buis = b.staaf(`${naam} (buis)`, rol, [x, fmx[1] + 3, zb], [x, bmn[1] - 3, zb], { kap: false, opm: `${Pb.naam} over de stang; 3 mm vrij van de staanders` });
+  b.staaf(`${naam}: stang`, `r${pin}`, [x, fmn[1] - 30, zGat], [x, bmx[1] + 25, zGat], { kap: false, in: buis.id, opm: `rond Ø${pin} S355J2, T-greep voor, gat Ø6 achter voor de borgveer` });
+  b.staaf('T-greep safety', 'r16', [x - 50, fmn[1] - 22, zGat], [x + 50, fmn[1] - 22, zGat], { kap: false, opm: 'aan de stang gelast' });
+  b.koop('borgveer', 1, [balk([x, bmx[1] + 15, zGat - 12], [x, bmx[1] + 15, zGat + 12], X, 3, 3, true, 'zink')], { naam: `Borgveer (R-clip) Ø4 op de ${naam.toLowerCase()}` });
   b.groep(oud);
-  const pl = t + Sf.P.t + 20;
-  b.pen(`${naam} voor`, [x, y0 + t - pl / 2, zc], Y, { d: pin, lengte: pl, snedes: 1, factor: 'vanghaak', a: Sf.groep, b: naam, uit: [0, 0, 180] });
-  b.pen(`${naam} achter`, [x, y1 - t + pl / 2, zc], Y, { d: pin, lengte: pl, snedes: 1, factor: 'vanghaak', a: Sb.groep, b: naam, uit: [0, 0, 180] });
-  return s;
+  for (const [S, k, n] of [[Sf, 'voor', fmn], [Sb, 'achter', bmn]]) b.pen(`${naam} ${k}`, [x, n[1] + S.P.b / 2, zGat], Y, { d: pin, lengte: S.P.b + 6, snedes: 2, t: S.P.t, factor: 'vanghaak', a: S.groep, b: naam, uit: [0, 0, 180], gelast: `${naam}: stang` });
+  return buis;
 }
 /** schijfhouder (sleeve Ø48,3) loodrecht op een staaf, vanaf zijn vlak in richting dir, lengte L; eindkap */
 export function hoorn(b, S, p, dir, L = 250, naam = 'Schijfhouder') {
@@ -143,6 +144,7 @@ export function voetjes(b, S, n = 2) {
     uit.push(balk([p[0], p[1], mn[2] - 12], [p[0], p[1], mn[2] - 5], X, 50, 50, true, 'rubber'), balk([p[0], p[1], mn[2] - 5], [p[0], p[1], mn[2]], X, 17, 17, false, 'zink', { zes: true }));
   }
   b.koop(b.V.voetje, n, uit, { naam: `${b.V.voetje === 'voetThuis' ? 'Stelvoet M10' : 'Rubbervoet M10'} onder ${S.naam.toLowerCase()}` });
+  b.koop('lasmoerM10', n, [], { naam: `Lasmoer M10 (of draadplaat) in ${S.naam.toLowerCase()} voor de stelvoet` });
   void mx;
 }
 /** kussen bovenop een horizontaal stuk (of langs een schuin stuk): lengte langs het stuk, gecentreerd */
@@ -172,7 +174,7 @@ export function katrolBeugel(b, naam, c, as, opt = {}) {
   if (opt.rug) {
     // rugplaat (t 8) tussen de beugelplaten en het steunvlak: as 'rug.as' (niet de katrolas), tot coördinaat rug.w
     const i = [0, 1, 2].reduce((mm, j) => (Math.abs(ax[j]) > Math.abs(ax[mm]) ? j : mm), 0), ri = opt.rug.as, oi = [0, 1, 2].find((j) => j !== i && j !== ri);
-    const q0 = [...c], q1 = [...c]; q0[i] = c[i] - gap - t; q1[i] = c[i] + gap + t;
+    const q0 = [...c], q1 = [...c]; q0[i] = c[i] - gap; q1[i] = c[i] + gap; // tussen de beugelplaten, tegen hun binnenkant gelast
     const rand = c[ri] + Math.sign(opt.rug.w - c[ri]) * (D / 2 + 25); q0[ri] = Math.min(rand, opt.rug.w) - (opt.rug.w < c[ri] ? 0 : 1); q1[ri] = Math.max(rand, opt.rug.w) + (opt.rug.w < c[ri] ? 1 : 0);
     if (opt.rug.w < c[ri]) { q0[ri] = opt.rug.w; q1[ri] = rand; } else { q0[ri] = rand; q1[ri] = opt.rug.w; }
     q0[oi] = c[oi] - 20; q1[oi] = c[oi] + 20;

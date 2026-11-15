@@ -18,8 +18,8 @@ function plaatTextuur(THREE, o) {
   const c = document.createElement('canvas'); c.width = 284; c.height = 200; const x = c.getContext('2d');
   x.fillStyle = '#d4d8dc'; x.fillRect(0, 0, 284, 200); x.fillStyle = '#16181b'; x.fillRect(0, 0, 284, 34);
   x.fillStyle = '#fff'; x.font = 'bold 20px sans-serif'; x.fillText(o.id + ' ' + (o.versie === 'pro' ? 'PRO' : 'THUIS'), 10, 24);
-  x.fillStyle = '#16181b'; x.font = 'bold 15px sans-serif'; x.fillText('EN ISO 20957 klasse ' + o.V.klasse, 10, 58);
-  x.font = '14px sans-serif'; x.fillText('Max. gebruiker ' + o.V.gebruiker + ' kg', 10, 82); x.fillText(o.maxLast ? 'Max. last ' + o.maxLast + ' kg' : 'Last: zie handleiding', 10, 104);
+  x.fillStyle = '#16181b'; x.font = 'bold 15px sans-serif'; x.fillText('ontworpen volgens EN ISO 20957 · ' + o.V.klasse, 10, 58);
+  x.font = '14px sans-serif'; x.fillText('Max. gebruiker ' + o.V.gebruiker + ' kg', 10, 82); x.fillText(o.maxLast ? 'Max. last ' + o.maxLast + ' kg' : 'Last: zie handleiding', 10, 104); x.fillStyle = '#b42318'; x.font = 'bold 12px sans-serif'; x.fillText('PROTOTYPE: proeflast nodig', 150, 104); x.fillStyle = '#16181b'; x.fillStyle = '#b42318'; x.font = 'bold 12px sans-serif'; x.fillText('PROTOTYPE: proeflast nodig', 150, 104); x.fillStyle = '#16181b'; x.fillStyle = '#b42318'; x.font = 'bold 12px sans-serif'; x.fillText('PROTOTYPE: proeflast nodig', 150, 104); x.fillStyle = '#16181b';
   x.fillStyle = '#c2410c'; x.beginPath(); x.moveTo(30, 122); x.lineTo(52, 160); x.lineTo(8, 160); x.closePath(); x.fill(); x.fillStyle = '#16181b'; x.font = '12px sans-serif'; x.fillText('Lees de handleiding.', 62, 136); x.fillText('Vrije zone 0,6 m rondom.', 62, 154); x.fillText('Kinderen weghouden.', 62, 172);
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.center.set(0.5, 0.5); t.rotation = -Math.PI / 2; return t;
 }
@@ -53,7 +53,7 @@ export async function scene3d(houder) {
     if (L < 0.3) return null;
     const x = new THREE.Vector3(...v3(g.u)), y = new THREE.Vector3(...v3(g.v)), z = new THREE.Vector3(...v3(g.w));
     let geo;
-    if (g.rond || g.zes) { geo = new THREE.CylinderGeometry(g.bw / 2, g.bh / 2, L, g.zes ? 6 : g.bw > 200 ? 40 : g.gat ? 14 : 18); geo.rotateZ(-Math.PI / 2); }
+    if (g.rond || g.zes) { geo = new THREE.CylinderGeometry(g.bw / 2, g.bh / 2, L, g.zes ? 6 : g.bw > 200 ? 40 : g.gat || g.kleur === 'gatrand' ? 24 : 18); geo.rotateZ(-Math.PI / 2); }
     else if (g.kussen && L > 60 && g.bw > 60) {
       // kussen met afgeronde hoeken (r 25) en randen (schuim onder het leer, r 10)
       const e = 10, sh = rondRechthoek(THREE, L - 2 * e, g.bw - 2 * e, 25);
@@ -84,6 +84,7 @@ export async function scene3d(houder) {
       stapel: new THREE.MeshStandardMaterial({ color: '#2a2d31', roughness: 0.45, metalness: 0.5 }),
       schijf: new THREE.MeshStandardMaterial({ color: '#1d1f22', roughness: 0.85 }),
       gat: new THREE.MeshBasicMaterial({ color: '#0a0a0a' }),
+      gatrand: new THREE.MeshStandardMaterial({ color: '#3a3d41', roughness: 0.4, metalness: 0.6 }),
       naad: new THREE.MeshStandardMaterial({ color: '#0e0f10', roughness: 0.8 }),
       kartel: new THREE.MeshStandardMaterial({ color: '#8f979e', roughness: 0.55, metalness: 0.9 }),
       ring: new THREE.MeshStandardMaterial({ color: '#7d838a', roughness: 0.35, metalness: 0.8 }),

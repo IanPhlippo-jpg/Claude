@@ -29,8 +29,8 @@ export const REKKEN = [
         if (pro(b)) ankers(b, voet);
       }
       b.groep('frame');
-      ligger(b, 'Optrekstang', 'stang', st.L.f, st.R.f, { z: H - 70 }, { bout: true, groep: 'Optrekstang' });
-      ligger(b, 'Bovenligger achter', 'ligger', st.L.b, st.R.b, { z: H - a / 2 - 45 }, { bout: true, groep: 'Bovenligger achter' });
+      ligger(b, 'Optrekstang', 'optrek', st.L.f, st.R.f, { z: H - 70 }, { bout: true, groep: 'Optrekstang' });
+      ligger(b, 'Bovenligger achter', 'ligger', st.L.b, st.R.b, { z: H - a / 2 - 55 }, { bout: true, groep: 'Bovenligger achter' });
       dwarsOp(b, 'Onderligger achter', 'ligger', st.L.voet, st.R.voet, yb + a + 10);
       const zj = gatZ(st.L.f, 1350), zs = gatZ(st.L.f, 800);
       const zb = jhook(b, st.L.f, zj, 'J-hook L', 1); jhook(b, st.R.f, zj, 'J-hook R', 1);
@@ -68,13 +68,13 @@ export const REKKEN = [
         if (pro(b)) ankers(b, voet);
       }
       b.groep('frame');
-      ligger(b, 'Optrekstang', 'stang', st.L.f, st.R.f, { z: H - 70 }, { bout: true, groep: 'Optrekstang' });
+      ligger(b, 'Optrekstang', 'optrek', st.L.f, st.R.f, { z: H - 70 }, { bout: true, groep: 'Optrekstang' });
       ligger(b, 'Bovenligger', 'ligger', st.L.f, st.R.f, { z: H - 270 }, { bout: true, groep: 'Bovenligger' });
       dwarsOp(b, 'Onderligger achter', 'ligger', st.L.voet, st.R.voet, yb + a + 10);
       dwarsOp(b, 'Onderligger voor', 'ligger', st.L.voet, st.R.voet, 150);
       const zj = gatZ(st.L.f, 1350), zs = gatZ(st.L.f, 850), G = this.maxLast[V.id];
       const zb = jhook(b, st.L.f, zj, 'J-hook L', -1); jhook(b, st.R.f, zj, 'J-hook R', -1);
-      for (const [k, S] of [['L', st.L.f], ['R', st.R.f]]) spotter(b, S, zs, `Spotterarm ${k}`, pro(b) ? 650 : 600);
+      for (const [k, S] of [['L', st.L.f], ['R', st.R.f]]) spotter(b, S, zs, `Spotterarm ${k}`, pro(b) ? 650 : 600, this.maxLast[V.id] / 2);
       const [mn] = doos(st.L.f);
       b.stang([-1100, mn[1] - 50, zb + 14], [1100, mn[1] - 50, zb + 14]);
       b.last('Gebruiker voor het rek', 100, [0, yf - 350, 1000], { geval: 'squat' }); b.last('Stang op de J-hooks', G, [0, mn[1] - 50, zb + 14], { geval: 'squat' });
@@ -137,15 +137,15 @@ export const REKKEN = [
         }
       }
       b.groep('frame');
-      ligger(b, 'Optrekstang', 'stang', st.L, st.R, { z: H - 70 }, { bout: true, groep: 'Optrekstang' });
+      ligger(b, 'Optrekstang', 'optrek', st.L, st.R, { z: H - 70 }, { bout: true, groep: 'Optrekstang' });
       const zj = gatZ(st.L, 1350), G = this.maxLast[V.id];
       const zb = jhook(b, st.L, zj, 'J-hook L', -1); jhook(b, st.R, zj, 'J-hook R', -1);
-      for (const [k, S] of [['L', st.L], ['R', st.R]]) spotter(b, S, gatZ(S, 850), `Spotterarm ${k}`, 500);
+      for (const [k, S] of [['L', st.L], ['R', st.R]]) spotter(b, S, gatZ(S, 850), `Spotterarm ${k}`, 500, this.maxLast[V.id] / 2);
       b.stang([-1100, -50, zb + 14], [1100, -50, zb + 14]);
       b.reken('Spotterarm: stang valt op het uiteinde', b.o.delen.find((d) => d.naam === 'Spotterarm L'), 'uitkrager', 500, 0, { g: G / 2, proef: 'vanghaak', las: true });
       b.reken('Scharnierarm boven (trek naar de muur)', b.o.delen.find((d) => d.naam === 'Scharnierarm'), 'staander', Dm - a - t - 70, 0, { g: G / 2, proef: 'vanghaak' });
       b.o.pennen.forEach((p) => { p.F = G / 2; });
-      b.o.verankerd = 'muur';
+      b.o.verankerd = 'muur'; b.o.anker = { arm: Dm - 30, z: 900, n: 4, kg: this.maxLast[V.id] / 2 };
     },
   },
   {
@@ -165,11 +165,11 @@ export const REKKEN = [
         if (pro(b)) ankers(b, voet); else voetjes(b, voet, 2);
       }
       b.groep('frame');
-      ligger(b, 'Optrekstang', 'stang', st.L.S, st.R.S, { z: H - 70 }, { bout: true, groep: 'Optrekstang' });
+      ligger(b, 'Optrekstang', 'optrek', st.L.S, st.R.S, { z: H - 70 }, { bout: true, groep: 'Optrekstang' });
       dwarsOp(b, 'Onderligger achter', 'ligger', st.L.voet, st.R.voet, 1300 - a / 2 - 10);
       const zj = gatZ(st.L.S, 1350), G = this.maxLast[V.id];
       const zb = jhook(b, st.L.S, zj, 'J-hook L', -1); jhook(b, st.R.S, zj, 'J-hook R', -1);
-      for (const [k, S] of [['L', st.L.S], ['R', st.R.S]]) spotter(b, S, gatZ(S, 850), `Spotterarm ${k}`, pro(b) ? 650 : 600);
+      for (const [k, S] of [['L', st.L.S], ['R', st.R.S]]) spotter(b, S, gatZ(S, 850), `Spotterarm ${k}`, pro(b) ? 650 : 600, this.maxLast[V.id] / 2);
       const [mn] = doos(st.L.S);
       b.stang([-1100, mn[1] - 50, zb + 14], [1100, mn[1] - 50, zb + 14]);
       b.last('Gebruiker voor het rek', 100, [0, yc - 400, 1000], { geval: 'squat' }); b.last('Stang op de J-hooks', G, [0, mn[1] - 50, zb + 14], { geval: 'squat' });
@@ -198,7 +198,7 @@ export const REKKEN = [
         b.bout('Muuranker', 'muur', wp.groep, [x, Dm, zt - 150], Y, { key: 'anker', punten: wp.gaten.map((g) => g.p), lengte: 110, uit: [0, -200, 0] });
         void k;
       }
-      const st = ligger(b, 'Optrekstang', 'stang', armen[0], armen[1], { y: 30 + 30, z: zt - a - 16 });
+      const st = ligger(b, 'Optrekstang', 'optrek', armen[0], armen[1], { y: 30 + 30, z: zt - a - 16 });
       st.a = [st.a[0] - 150, st.a[1], st.a[2]]; st.b = [st.b[0] + 150, st.b[1], st.b[2]]; st.L = len3(st.a, st.b); st.geo = [balk(st.a, st.b, Y, 32, 32, true)];
       b.reken('Arm (uitkragend) met de helft van de gebruiker', armen[0], 'uitkrager', Dm - 100, V.gebruiker / 2, { proef: 'intrinsiek', las: true });
       b.reken('Optrekstang', st, 'ligger', 2 * xs, V.gebruiker, { proef: 'intrinsiek' });
@@ -419,17 +419,26 @@ export const REKKEN = [
   },
 ];
 
-/** spotterarm: rugplaat met pen tegen de voorkant van de staander, koker naar voren met UHMW */
-function spotter(b, S, zGat, naam, L) {
-  const oud = b.huidig, t = b.V.plaat, a = S.P.b, [mn] = doos(S), x = S.a[0], P = b.P('breed');
+/** spotterarm: U-beugel om de staander (rugplaat, twee wangen en een haaklip achter de staander bovenaan), twee pennen
+ *  door beide wanden, koker naar voren met UHMW. Het moment van de arm wordt een koppel tussen de haaklip (boven,
+ *  achtervlak) en de onderrand van de rugplaat (voorvlak); de pennen dragen de verticale last. Monteren: schuin
+ *  aanzetten, eerst de lip achter de staander, dan de arm zakken en de pennen steken. G = last per arm (kg). */
+function spotter(b, S, zGat, naam, L, G = 0) {
+  const oud = b.huidig, t = b.V.plaat, a = S.P.b, [mn, mx] = doos(S), x = S.a[0], P = b.P('breed'), pin = b.V.pin, xi = a / 2 + 1, xo = xi + t, z2 = zGat - 150, ztop = zGat + 100, zbot = zGat - 300, tl = 15, hl = 80;
   b.groep(naam);
-  b.plaat('Rugplaat spotterarm', [x - a / 2, mn[1] - t, zGat - 40 - P.h], [x + a / 2, mn[1], zGat + 60], { gaten: [{ p: [x, mn[1], zGat], d: b.V.pin + 1 }] });
+  b.plaat('Rugplaat spotterarm', [x - xo, mn[1] - t, zbot], [x + xo, mn[1], ztop], { gaten: [{ p: [x, mn[1], zGat], d: pin + 1 }, { p: [x, mn[1], z2], d: pin + 1 }], opm: 'U-beugel: rugplaat' });
+  for (const s of [-1, 1]) b.plaat('Wang spotterarm', [x + s * xi, mn[1], zbot], [x + s * xo, mx[1] + tl, ztop], { opm: 'wang langs het zijvlak (1 mm speling, UHMW-tape)' });
+  b.plaat('Haaklip spotterarm', [x - xi, mx[1] + 1, ztop - hl], [x + xi, mx[1] + 1 + tl, ztop], { opm: `lip ${tl} mm achter de staander bovenaan: neemt het moment op` });
   b.staaf(naam, 'breed', [x, mn[1] - t, zGat - 40 - P.h / 2], [x, mn[1] - t - L, zGat - 40 - P.h / 2], { v: X });
-  b.staaf('Pen spotterarm', `r${b.V.pin}`, [x, mn[1] - t, zGat], [x, mn[1] + S.P.t + 18, zGat], { in: S.id, kap: false });
+  for (const z of [zGat, z2]) b.staaf('Pen spotterarm', `r${pin}`, [x, mn[1] - t, z], [x, mx[1] + 12, z], { in: S.id, kap: false, opm: 'door beide wanden, gelast in de rugplaat' });
   b.koop('uhmw', 1, [balk([x, mn[1] - t, zGat - 40 + 5], [x, mn[1] - t - L, zGat - 40 + 5], X, P.b - 4, 10, false, 'uhmw')], { naam: `UHMW-strip ${P.b - 4} x ${L} x 10 op de spotterarm`, oppervlak: ((P.b - 4) * L) / 1e6 });
   b.groep(oud);
-  const pl = t + S.P.t + 18;
-  b.pen(naam, [x, mn[1] - t + pl / 2, zGat], Y, { d: b.V.pin, lengte: pl, snedes: 1, factor: 'vanghaak', a: S.groep, b: naam, uit: [0, -180, 0] });
+  const pl = t + a + 12;
+  for (const [z, k] of [[zGat, 'boven'], [z2, 'onder']]) b.pen(`${naam} pen ${k}`, [x, mn[1] - t + pl / 2, z], Y, { d: pin, lengte: pl, snedes: 2, t: S.P.t, factor: 'vanghaak', a: S.groep, b: naam, uit: [0, -180, 0], gelast: 'Pen spotterarm' });
+  if (G) {
+    const k = b.V.klasse === 'H' ? 4 : 6, F = k * G * 9.81, M = F * L, h = ztop - hl / 2 - zbot, Fl = M / h, Ml = Fl * (2 * xi) / 8, Wl = hl * tl ** 2 / 6, sl = Ml / Wl;
+    b.toets('Evenwicht', `Spotterarm: koppel op de staander (${naam})`, `proeflast ${k} · ${G} kg · g = ${(F / 1000).toFixed(2)} kN op ${L} mm: M = ${(M / 1e6).toFixed(2)} kNm; koppel haaklip - onderrand rugplaat over ${h} mm: F = M/h = ${(Fl / 1000).toFixed(1)} kN; haaklip ${tl} x ${hl} over ${Math.round(2 * xi)} mm: σ = F·b/8 / (h·t²/6) = ${sl.toFixed(0)} N/mm² ≤ 235`, sl / 235, 'evenwicht (statica); EN 1993-1-1 §6.2.5');
+  }
 }
 const len3 = (p, q) => Math.hypot(q[0] - p[0], q[1] - p[1], q[2] - p[2]);
 export { spotter };

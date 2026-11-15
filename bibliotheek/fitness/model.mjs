@@ -71,7 +71,7 @@ export function contact(g1, g2, tol = 0.6) {
 
 // ---------------------------------------------------------------- de bouwer
 export function bouwer(V, stand = 0) {
-  const o = { stand, V, delen: [], koop: [], kussens: [], katrollen: [], kabels: [], stapels: [], bouten: [], pennen: [], lasten: [], reken: [], spleten: [], toon: [], context: [], gebruiker: null, notities: [], muur: null };
+  const o = { stand, V, delen: [], koop: [], kussens: [], katrollen: [], kabels: [], stapels: [], bouten: [], pennen: [], lasten: [], reken: [], toetsen: [], trek: [], spleten: [], toon: [], context: [], gebruiker: null, notities: [], muur: null };
   let groep = 'frame', nr = 0;
   const P = (rol) => PROFIEL[V.P[rol] ?? rol] ?? (() => { throw new Error(`profiel ${rol}`); })();
   const b = {
@@ -148,12 +148,12 @@ export function bouwer(V, stand = 0) {
       o.kabels.push(k);
       // de kabel zelf (op lengte + 2 x 150 voor de lussen), persklemmen, kous, eindstuk en karabijn
       b.koop(key, 1, lijn.slice(1).map((q, i) => balk(lijn[i], q, standaardV(norm(sub(q, lijn[i]))), dk, dk, true, 'kabel')).filter((g) => len(sub(g.b, g.a)) > 1), { naam: `${KOOP[key].naam}: ${naam}`, meter: Math.ceil((L + 300) / 100) / 10 });
-      b.koop('persklem', 2); b.koop('kous', 2); b.koop(V.kabeleind, 1); b.koop('karabijn', 1); b.koop(V.wartel, 1);
+      b.koop(V.kabeleind, 2, [], { naam: 'Geperst eindstuk met oog (kabel op lengte geleverd, met trekproef)' }); b.koop('karabijn', 1); b.koop(V.wartel, 1);
       return k;
     },
     /** gewichtstapel tussen twee geleidestangen (x-afstand 'hoh'), onderkant op z0; geeft { top, stang } */
     stapel(naam, c, z0, opt = {}) {
-      const n = opt.n ?? V.stapelN, kg = V.stapelKg, w = 300, dpl = 112, t = 20, hoh = opt.hoh ?? 220, slag = opt.slag ?? 600, H = opt.hoogte ?? 0;
+      const n = opt.n ?? V.stapelN, kg = V.stapelKg, w = 340, dpl = opt.dpl ?? 112, t = 20, hoh = opt.hoh ?? 220, slag = opt.slag ?? 600, H = opt.hoogte ?? 0;
       const dz = (b.stand ?? 0) * slag, mn = [c[0] - w / 2, c[1] - dpl / 2, z0 + 60 + dz];
       const plts = [];
       groep = `stapel ${naam}`;
@@ -161,21 +161,29 @@ export function bouwer(V, stand = 0) {
       b.koop('buffer', 2, [-1, 1].map((s) => balk([c[0] + s * 80, c[1], z0], [c[0] + s * 80, c[1], z0 + 45], X, 50, 50, true, 'rubber')));
       for (let i = 0; i < n; i++) {
         const z = mn[2] - 15 + i * t;
-        plts.push(b.plaat(`Stapelplaat ${kg} kg`, [mn[0], mn[1], z], [mn[0] + w, mn[1] + dpl, z + t], { gaten: [{ p: [c[0] - hoh / 2, c[1], z], d: 27 }, { p: [c[0] + hoh / 2, c[1], z], d: 27 }, { p: [c[0], c[1], z], d: 21 }], kleur: 'stapel', stapel: true, opm: 'zijgat Ø11 tot het middengat (selectiepen); kanten r 2' }));
+        plts.push(b.plaat(`Stapelplaat ${kg} kg`, [mn[0], mn[1], z], [mn[0] + w, mn[1] + dpl, z + t], { gaten: [{ p: [c[0] - hoh / 2, c[1], z], d: 32 }, { p: [c[0] + hoh / 2, c[1], z], d: 32 }, { p: [c[0], c[1], z], d: 21 }], kleur: 'stapel', stapel: true, opm: 'gaten Ø32 met een kunststof bus Ø25/32 (geen staal op staal); zijgat Ø11 tot het middengat (selectiepen); kanten r 2' }));
       }
       const top = mn[2] - 15 + n * t;
       // bovenplaat met de stapelstang (Ø20, gat Ø11 om de 20 mm) en de kabelaanslag
-      plts.push(b.plaat('Bovenplaat stapel', [mn[0], mn[1], top], [mn[0] + w, mn[1] + dpl, top + 25], { gaten: [{ p: [c[0] - hoh / 2, c[1], top], d: 27 }, { p: [c[0] + hoh / 2, c[1], top], d: 27 }, { p: [c[0], c[1], top], d: 21 }], kleur: 'stapel', stapel: true, opm: 'lineaire lagers in de gaten Ø27 (of glijbussen); stang erin gelast' }));
+      plts.push(b.plaat('Bovenplaat stapel', [mn[0], mn[1] - 10, top], [mn[0] + w, mn[1] + dpl + 10, top + 25], { gaten: [{ p: [c[0] - hoh / 2, c[1], top], d: 40 }, { p: [c[0] + hoh / 2, c[1], top], d: 40 }, { p: [c[0], c[1], top], d: 21 }], kleur: 'stapel', stapel: true, opm: 'lineaire lagers in de gaten Ø27 (of glijbussen); stang erin gelast' }));
       for (const ox of opt.ogen ?? [0]) plts.push(b.plaat('Kabeloog stapel', [c[0] + ox - 5, c[1] - 25, top + 25], [c[0] + ox + 5, c[1] + 25, top + 75], { gaten: [{ p: [c[0] + ox, c[1], top + 55], d: 13 }], stapel: true, kleur: 'stapel', opm: 'oog voor de karabijn van de kabel; op de bovenplaat gelast' }));
+      // lagerbus boven op de bovenplaat: het lineaire lager (Ø40 x 58) steunt over zijn hele lengte
+      for (const sx of [-1, 1]) { const lb = b.staaf('Lagerbus stapel', 'b48x8', [c[0] + sx * hoh / 2, c[1], top + 25], [c[0] + sx * hoh / 2, c[1], top + 25 + 35], { kap: false, opm: 'buis 48,3x8 uitgedraaid Ø40 H7, rondom op de bovenplaat gelast; LM25UU erin met borgring DIN 472' }); lb.stapel = true; lb.kleur = 'stapel'; plts.push(lb); }
       const stem = b.staaf('Stapelstang (selectie)', 'r20', [c[0], c[1], mn[2] - 15 + 10], [c[0], c[1], top + 25], { gaten: Array.from({ length: n }, (_, i) => ({ s: 10 + i * t, d: 11, as: 'v' })), kap: false, in: 'stapel', opm: `${n} gaten Ø11 om de ${t} mm` });
-      b.koop(V.lineair, 2, [], { naam: `${KOOP[V.lineair].naam} in de bovenplaat` });
+      b.koop(V.lineair, 2, [], { naam: `${KOOP[V.lineair].naam} in de lagerbussen van de bovenplaat` });
+      b.koop('stapelbus', 2 * n, [], { naam: 'Kunststof bus Ø25/32 x 20 in de stapelplaten' });
+      b.koop('stapelsticker', n, [], { naam: `Sticker met het gewicht (${kg} kg) op elke stapelplaat` });
       const zs = mn[2] - 15 + 6 * t + 10;
       b.koop(V.selectiepen, 1, [balk([c[0], c[1] - dpl / 2 - 2, zs], [c[0], c[1] + 30, zs], X, 10, 10, true, 'chroom'), balk([c[0], c[1] - dpl / 2 - 30, zs], [c[0], c[1] - dpl / 2 - 2, zs], X, 28, 28, true, 'rubber')]);
       groep = opt.terug ?? 'frame';
       // geleidestangen tot tegen de bovenligger
       const zt = H || top + slag + 120;
       const stang = [-1, 1].map((s) => b.koop('stang25', 1, [balk([c[0] + (s * hoh) / 2, c[1], z0], [c[0] + (s * hoh) / 2, c[1], zt], X, 25, 25, true, 'chroom')], { naam: `Geleidestang Ø25 h6, ${Math.round(zt - z0)} mm`, meter: Math.round(zt - z0) / 1000 }));
-      const s = { naam, n, kg, last: n * kg + 4, c, z0, top: top + 25, oog: (x = 0) => [c[0] + x, c[1], top + 55], slag, dz, hoh, w, dpl, platen: plts, stem, stang, zt, zone: [[mn[0], mn[1], z0], [mn[0] + w, mn[1] + dpl, top + 25 + slag]] };
+      for (const sx of [-1, 1]) for (const [za, zb2, nm] of [[z0, z0 + 10, 'onder']]) b.plaat(`Klemblok geleidestang ${nm}`, [c[0] + sx * hoh / 2 - 40, c[1] - 40, za], [c[0] + sx * hoh / 2 + 40, c[1] + 40, zb2], { gaten: [{ p: [c[0] + sx * hoh / 2, c[1], za], d: 25 }], opm: 'klemblok 80 x 80 x 10: gat Ø25 H7, zaagsnede en klembout M8; op de ligger gelast' });
+      b.koop('boutM8', 2, [], { naam: 'Klembout M8 (klemblokken geleidestangen onder)' });
+      b.koop('moerM12', 2, [], { naam: 'Boven: draadeind M12 x 30 in de kop van de geleidestang, door de onderwand van de bovenligger (gat Ø14), moer M12 + ring via een montagegat Ø32 in de zijwand' });
+      const extraKg = Math.round(((w * dpl * 25 - 2 * Math.PI * 400 - Math.PI * 110) * 7.85e-6 + (n * t + 35) * 2.47e-3 + 2 * 0.35 * 2.0 + 0.5) * 10) / 10;
+      const s = { naam, n, kg, extraKg, last: n * kg, c, z0, top: top + 25, oog: (x = 0) => [c[0] + x, c[1], top + 55], slag, dz, hoh, w, dpl, platen: plts, stem, stang, zt, zone: [[mn[0], mn[1], z0], [mn[0] + w, mn[1] + dpl, top + 25 + slag]] };
       o.stapels.push(s); return s;
     },
     /** schijven op een houder, alleen voor de 3D (niet in de stuklijst): n schijven Ø450 x 50 vanaf p langs as */
@@ -205,7 +213,7 @@ export function bouwer(V, stand = 0) {
       const geo = [balk(add(p, mul(ax, -lang / 2)), add(p, mul(ax, lang / 2)), standaardV(ax), d, d, true, 'zink')];
       if (opt.key) { const e = add(p, mul(ax, -lang / 2)); geo.push(balk(add(e, mul(ax, -22)), e, standaardV(ax), d + 12, d + 12, true, 'rubber'), balk(add(e, mul(ax, -30)), add(e, mul(ax, -24)), standaardV(ax), d + 34, d + 34, true, 'ring')); }
       if (opt.key) b.koop(opt.key, opt.n ?? 1, geo, { naam: `${KOOP[opt.key].naam}: ${naam}` });
-      o.pennen.push({ naam, p, as: ax, d, lengte: lang, lager: opt.lager ?? 0, gelast: opt.gelast ?? null, F: opt.F ?? 0, snedes: opt.snedes ?? 2, key: opt.key ?? null, factor: opt.factor ?? 'extrinsiek', groep: opt.groep ?? groep, a: opt.a ?? null, b: opt.b ?? null, uit: opt.uit ?? null });
+      o.pennen.push({ naam, p, as: ax, d, lengte: lang, lager: opt.lager ?? 0, gelast: opt.gelast ?? null, F: opt.F ?? 0, snedes: opt.snedes ?? 2, key: opt.key ?? null, factor: opt.factor ?? 'extrinsiek', groep: opt.groep ?? groep, a: opt.a ?? null, b: opt.b ?? null, uit: opt.uit ?? null, t: opt.t ?? null, e: opt.e ?? 0, hoh: opt.hoh ?? 0, geleiding: opt.geleiding ?? null, fy: opt.fy ?? null });
     },
     /** belastinggeval voor de stabiliteit: massa (kg) op p */
     last(wat, kg, p, opt = {}) { o.lasten.push({ wat, kg, p, ...opt }); },
@@ -213,6 +221,10 @@ export function bouwer(V, stand = 0) {
     reken(wat, stuk, type, L, kg, opt = {}) { o.reken.push({ wat, stuk, type, L, kg, ...opt }); },
     /** een vrije afstand die de norm controleert (knelpunten) */
     spleet(wat, mm, opt = {}) { o.spleten.push({ wat, mm, ...opt }); },
+    /** een rechtstreekse toets die de generator zelf uitrekent (evenwicht, as op buiging, plaat ...): benut = Ed/Rd */
+    toets(groep, wat, formule, benut, bron, extra = {}) { o.toetsen.push({ groep, wat, formule, benut, bron, ...extra }); },
+    /** horizontale trek (kabel, duwen) voor de kantelcontrole: F in N, op punt p, in richting dir */
+    trekLast(wat, F, p, dir) { o.trek.push({ wat, F, p, dir }); },
     /** context voor de 3D en de tekening: vloer, muur */
     muur(y) { o.muur = y; },
     noot(t) { o.notities.push(t); },
@@ -234,7 +246,7 @@ export function afwerken(o) {
     const c = contact(A.geo[0], B.geo[0]);
     if (!c || c.lengte < 5) continue;
     const plaatPlaat = A.soort === 'plaat' && B.soort === 'plaat';
-    const a = Math.min(o.V.las, Math.max(3, Math.floor(0.7 * Math.min(dikte(A), dikte(B)))));
+    const tmin = Math.min(dikte(A), dikte(B)), a = Math.min(o.V.las, Math.max(3, Math.floor(0.7 * tmin)), tmin); // keel ≤ dunste wand (P3-01)
     o.lassen.push({ a: A.id, b: B.id, A, B, lengte: Math.round(c.lengte), p: c.p, keel: a, soort: plaatPlaat ? 'hoek2' : 'hoek', rondom: !plaatPlaat && (A.soort === 'staaf' || B.soort === 'staaf'), groep: A.groep });
   }
   // eindkappen: open koker- of buisuiteinden die niets raken

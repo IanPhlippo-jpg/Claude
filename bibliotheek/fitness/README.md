@@ -168,6 +168,34 @@ De bladen tonen elk gat met een ordinaatmaat en een boortabel per stuk (Ø, aant
 geeft per stuk het doel van elk gat (bout, pen, glijlager, Westside, vrij) en de uitkomst van de gatcontrole. Er is een
 blad voor het typeplaatje (EN ISO 20957-1) en het lasblad heeft een lasplan met een merkteken op elke las.
 
+## Versie 3: de adviezen van Fable 5.2 (2026-11-15)
+
+Alle 40 bevindingen uit [docs/Advies-Fable-5.2.md](docs/Advies-Fable-5.2.md) zijn nagelopen. De belangrijkste wijzigingen:
+
+- **Rekken:** J-cup als U-beugel met pen door beide wanden (S355); safety als pin-pipe (stang door alle vier de wanden, buis
+  erover, borgveer); spotterarm met U-beugel, 2 pennen en een haaklip achter de staander.
+- **Hefboom-bouwsteen:** as als staaf (stuklijst), naaf met eindschijven en spanstift, flensglijlagers in lagerbussen op
+  de oren, stelringen, begin- en eindaanslag (nok op de as tegen rubberbuffers), schetsplaten aan de voet.
+- **Slede (leg press, hack squat):** tegenrollen onder de rail, veiligheidsgrendel (getande strip, pallen, hendels),
+  noodstop, ribben achter de voetplaat; Smith met draaibare stang in lagerblokken, haken op een haakstrip, stopringen;
+  belt squat met de hefboom tussen de voeten en de schijven vóór het platform.
+- **Kabel:** functional trainer en kabeltoren met een gesloten lus (kabellengte constant over de verstelweg), dubbele
+  zwenkkatrol; beenmachines met een as Ø40 in twee lagerhuizen en een nok R200; lat pulldown met één kabel en een losse
+  katrol (2:1); stapel met lagerbussen, klemblokken, bussen in de platen en de echte massa in de kabelcontrole; kabel Ø6
+  op lengte met geperste eindstukken; diepe voeten en een kantelcontrole onder horizontale trek.
+- **Berekening en controles:** evenwicht van losse haken, pen op buiging, as op buiging, plaat tussen ribben, slede-evenwicht,
+  horizontale trek, netto doorsnede, vermoeiing, verwisselbare pennen, knelpunten gemeten over de slag, anker per ondergrond,
+  boutlengte per verbinding met afstandsbussen, steek tussen boutgaten, boutgaten Ø14/Ø18.
+- **Tekeningen:** lassamenstelling per lasgroep (positienummers, plaatsmaten vanaf R, diagonaal, lassymbolen), stukbladen
+  met Ø bij het gat, dwarsmaat, tolerantie, passing en verstek; titelblok met getekend/goedgekeurd/documentsoort.
+- **Typeplaatje en dossier:** "ontworpen volgens" en "PROTOTYPE: proeflast nodig"; technisch dossier met een proeflasttabel.
+- **Prijzen:** realistischere uren (0,12 u per lasverbinding, leercurve stuk 1/5/20), overhead (lakkerij, transport,
+  verpakking, handleiding, mallen, garantie, verzekering); het uurloon blijft een instelling (standaard € 45).
+- **Web:** badge "berekend" (geen "voldoet"), klantweergave met `?klant` (zonder werkplaats en kostprijs), open punten per
+  toestel in de werkplaats.
+
+Elke P1 heeft een test met een negatieve proef (`src/qa/qaFitness.test.ts`, blok "Fable 5.2").
+
 ## Wat nog open is
 
 - **Normen:** drie punten konden niet in een publieke bron nagekeken worden. Ze staan als AANNAME in de berekening; koop

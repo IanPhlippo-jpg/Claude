@@ -11,3 +11,14 @@ export declare function gaten(o: any): { deel: any; p: number[]; as: number[]; d
 export declare const SPELING: { bout: [number, number]; pen: [number, number]; lager: [number, number] };
 export declare function gatFouten(o: any): string[];
 export declare function snoeiWestside(o: any): { deel: string; s: number; d: number; reden: string }[];
+export declare function knelAfstanden(o: any): { a: string; b: string; mm: number }[];
+export declare function klemLengte(o: any, bt: any, p: number[]): { klem: number; kokers: string[] };
+export declare const BOUTLENGTES: number[];
+export declare function boutLengte(M: number, klem: number): { nodig: number; L: number };
+export declare function steekFouten(o: any): string[];
+export declare function haakFouten(o: any): string[];
+export declare function monteerFouten(o: any): string[];
+export declare function veiligheidFouten(o: any): string[];
+export declare function smithHaakFouten(o: any): string[];
+export declare function schijvenOpPlatform(o: any): string[];
+export declare function hefboomFouten(o: any): string[];
