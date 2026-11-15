@@ -131,9 +131,9 @@ Na het printen: de 2 bakhelften op een vlakke tafel in elkaar schuiven tot de 2 
 de modules met een AANNAME na (TRN-10, TRN-11) en print pas dan de bakhelften: zij dragen de palen van de modules.
 """
 STL_NAMEN = ['Kabeldoos-bak-links.stl', 'Kabeldoos-bak-rechts.stl', 'Kabeldoos-deksel-links.stl', 'Kabeldoos-deksel-rechts.stl', 'Hulpstukken.stl']
-stl = [(n, BOX / 'print' / n) for n in STL_NAMEN]
+stl = [(n, BOX / 'print' / n) for n in STL_NAMEN] + [(f'geluidskastje/{q.name}', q) for q in sorted((BOX / 'geluidskastje' / 'print').glob('*.stl'))]
 add_file('stl', None, 'dl/Kabeldoos-printbestanden.zip', 'Kabeldoos-printbestanden.zip',
-         'De vijf STL\'s (bak links en rechts, deksel links en rechts, hulpstukken), dicht en manifold, met de printinstellingen', zip_bytes(stl + [('LEESMIJ-printen.txt', PRINT_TXT.encode('utf-8'))]))
+         'De vijf STL\'s van de doos (bak links en rechts, deksel links en rechts, hulpstukken) en de 2 van het geluidskastje, dicht en manifold, met de printinstellingen', zip_bytes(stl + [('LEESMIJ-printen.txt', PRINT_TXT.encode('utf-8'))]))
 add_file('alles-pdf', BOX / 'Kabeldoos-alles-afdrukken.pdf', 'pdf/Kabeldoos-alles-afdrukken.pdf', 'Kabeldoos-alles-afdrukken.pdf',
          'Alles samen om af te drukken: uitleg, bouwschema, tekeningen, schema, dashboard en rekenblad')
 add_file('werk-pdf', BOX / 'tekeningen' / 'Werktekeningen-kabeldoos.pdf', 'pdf/Werktekeningen-kabeldoos.pdf', 'Werktekeningen-kabeldoos.pdf',
@@ -141,15 +141,72 @@ add_file('werk-pdf', BOX / 'tekeningen' / 'Werktekeningen-kabeldoos.pdf', 'pdf/W
 add_file('bouw-pdf', BOX / 'tekeningen' / 'Bouwschema-kabeldoos.pdf', 'pdf/Bouwschema-kabeldoos.pdf', 'Bouwschema-kabeldoos.pdf',
          'De bouwstappen met beelden, van printen tot meten')
 
-# everything: the source folder as it is (no build output of the firmware, not this app)
-alles = []
+# everything: the source folder, zonder wat de app al apart geeft en zonder de bouwbestanden van de firmware:
+#  - geen STL's (in de printbestanden-zip), geen PDF's (eigen knoppen), geen SVG's van de tekeningen en het schema (ook
+#    in de app, en ze komen uit de generators die wel in de zip zitten), geen controlebeelden van het situatieplan;
+#  - PNG's als webp (kwaliteit 85); de rest zoals het is; .pio, .gitignore en deze app niet.
+# Blijft de zip groter dan DEEL_MAX, dan wordt hij in delen gesplitst (elk deel een gewone zip, met een eigen knop).
+DEEL_MAX = 10_500_000  # bytes per deel: als base64 ± 14 MB (een bestand in de artifact mag hoogstens 16 MB zijn)
+WEG = re.compile(r'(\.stl$|\.pdf$|^tekeningen/.*\.svg$|^schema/blad-\d+\.svg$|^schema/schema\.html$|^situatieplan/eigen-ondergrond/|^situatieplan/controle-|^situatieplan/_debug/|^geluidskastje/tekeningen/.*\.(svg|png)$|^print/)')
+
+
+def als_webp(p: Path) -> bytes:
+    im = Image.open(p)
+    im = im.convert('RGBA' if im.mode in ('RGBA', 'LA', 'P') else 'RGB')
+    b = io.BytesIO()
+    im.save(b, 'WEBP', quality=85, method=6)
+    return b.getvalue()
+
+
+alles, weggelaten = [], 0
 for p in sorted(BOX.rglob('*')):
     rel = p.relative_to(BOX).as_posix()
-    if p.is_dir() or rel.startswith('app/') or '/.pio/' in '/' + rel or rel.endswith('.gitignore'):
+    if p.is_dir() or rel.startswith('app/') or '/.pio/' in '/' + rel or rel.startswith('.pio/') or rel.endswith('.gitignore'):
         continue
-    alles.append(('Kabeldoos-treinverlichting/' + rel, p))
-add_file('alles-zip', None, 'dl/Kabeldoos-treinverlichting-alles.zip', 'Kabeldoos-treinverlichting-alles.zip',
-         f'De hele map ({len(alles)} bestanden): STL\'s, PDF\'s, tekeningen, schema, CAD-modellen (.kcad), firmware en rekenblad', zip_bytes(alles))
+    if WEG.search(rel):
+        weggelaten += 1
+        continue
+    if rel.endswith('.png'):
+        alles.append(('Kabeldoos-treinverlichting/' + rel[:-4] + '.webp', als_webp(p)))
+    else:
+        alles.append(('Kabeldoos-treinverlichting/' + rel, p))
+LEESMIJ_ALLES = f"""Kabeldoos treinverlichting - alle bronbestanden ({len(alles)} bestanden)
+
+Niet in deze zip (de app geeft ze apart, of ze worden opnieuw gemaakt uit de generators hieronder):
+- de STL's: knop "Printbestanden (STL)";
+- de PDF's: "Alles afdrukken", werktekeningen, bouwschema, aansluitschema;
+- de tekeningen en de schemabladen als SVG: in de app bij "Tekeningen" en "Schema";
+- de controlebeelden van het situatieplan.
+Beelden (PNG) staan erin als webp. Opnieuw maken: zie README.md, "Opnieuw maken".
+"""
+alles.append(('Kabeldoos-treinverlichting/LEESMIJ-zip.txt', LEESMIJ_ALLES.encode('utf-8')))
+
+
+def delen_van(entries):
+    """de bestanden in delen van hoogstens DEEL_MAX (gezipt); een deel = een gewone zip"""
+    uit, huidig, groot = [], [], 0
+    for e in entries:
+        b = e[1].read_bytes() if isinstance(e[1], Path) else e[1]
+        z = len(zip_bytes([(e[0], b)]))
+        if huidig and groot + z > DEEL_MAX:
+            uit.append(huidig)
+            huidig, groot = [], 0
+        huidig.append((e[0], b))
+        groot += z
+    if huidig:
+        uit.append(huidig)
+    return uit
+
+
+ALLES_DELEN = delen_van(alles)
+for k, deel in enumerate(ALLES_DELEN, 1):
+    n = len(ALLES_DELEN)
+    sleutel = 'alles-zip' if n == 1 else f'alles-zip-{k}'
+    naam = 'Kabeldoos-treinverlichting-alles.zip' if n == 1 else f'Kabeldoos-treinverlichting-alles-deel{k}.zip'
+    add_file(sleutel, None, f'dl/{naam}', naam,
+             (f'De bronbestanden ({len(alles)} bestanden): tekeningen- en schemagenerators, CAD-modellen (.kcad), firmware, geluidskastje, situatieplan en rekenblad' if n == 1
+              else f'Deel {k} van {n} van de bronbestanden ({len(deel)} bestanden); pak alle delen uit in dezelfde map'), zip_bytes(deel))
+ALLES_KNOPPEN = ['alles-zip'] if len(ALLES_DELEN) == 1 else [f'alles-zip-{k}' for k in range(1, len(ALLES_DELEN) + 1)]
 
 # ---------- drawings and wiring diagram as SVG ----------
 DRAWINGS = [
@@ -316,8 +373,8 @@ S.append(f'''<section class="sheet" id="overzicht">
   <div class="copy">
     <h1>Kabeldoos treinverlichting</h1>
     <p class="lead">{md_inline(" ".join(first.split()))}</p>
-    <div class="actions">{btn("alles-zip", "Alles in één zip", True)}{btn("alles-pdf", "Alles afdrukken (PDF)")}{btn("stl", "Printbestanden (STL)")}</div>
-    <p class="note">Versie 5 van 15 november 2026: alles op één laag in 2 helften die in elkaar klikken en gelijmd kunnen worden, geen kabelgoten, groepen alleen aan/uit, hallsensoren op de ingangen. Elke knop vraagt eerst of je het bestand wilt bewaren.</p>
+    <div class="actions">{''.join(btn(k, "Bronbestanden (zip)" if len(ALLES_KNOPPEN) == 1 else f"Bronbestanden deel {i}", i == 1) for i, k in enumerate(ALLES_KNOPPEN, 1))}{btn("alles-pdf", "Alles afdrukken (PDF)")}{btn("stl", "Printbestanden (STL)")}</div>
+    <p class="note">Versie 6 van 15 november 2026: de bordjes vastgeschroefd, en de uitbreiding met IR-leds en IR-ontvangers, servo's, MCP23017, NPN/PNP en de geluidskastjes, op één laag in 2 helften die in elkaar klikken. Elke knop vraagt eerst of je het bestand wilt bewaren. De STL's en de PDF's staan niet in de bronbestanden: daarvoor zijn er eigen knoppen.</p>
   </div>
 </div>
 <div class="facts">{"".join(f"<div><b>{esc(a)}</b><span>{esc(b)}</span></div>" for a, b in facts)}</div>
@@ -408,7 +465,7 @@ S.append(f'''<section class="sheet" id="dashboard" hidden>
 <button class="shot" type="button" data-zoom="img/tablet-groepen.webp" data-title="Het dashboard op een tablet"><span class="img" style="aspect-ratio:auto"><img src="img/tablet-groepen.webp" alt="Het dashboard op een tablet" loading="lazy"></span><span class="cap">Op een tablet</span></button>
 </section>''')
 
-order = ['alles-zip', 'alles-pdf', 'stl', 'werk-pdf', 'bouw-pdf', 'schema-pdf', 'schema-zip'] + ['svg-' + d[0] for d in DRAWINGS]
+order = ALLES_KNOPPEN + ['alles-pdf', 'stl', 'werk-pdf', 'bouw-pdf', 'schema-pdf', 'schema-zip'] + ['svg-' + d[0] for d in DRAWINGS]
 S.append(f'''<section class="sheet" id="bestanden" hidden>
 {titleblock("A", "Alle bestanden", ("Bestanden", str(len(order))))}
 <p class="lead">Elke knop vraagt eerst of je het bestand wilt bewaren. De STL's zitten in een zip: pak die uit en open ze in de slicer.</p>
