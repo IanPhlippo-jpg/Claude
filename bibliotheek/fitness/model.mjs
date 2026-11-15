@@ -204,7 +204,7 @@ export function bouwer(V, stand = 0) {
         else geo.push(balk(add(e1, mul(ax, -0.8 * M - 4)), add(e1, mul(ax, -4)), standaardV(ax), 1.8 * M, 1.8 * M, false, 'zink', { zes: true }));
       }
       const k = b.koop(key, n * punten.length, geo, { naam: `${KOOP[key].naam}: ${naam}` });
-      o.bouten.push({ naam, a: ga, b: gb, p, punten, as: ax, n: n * punten.length, key, M, lengte: lang, uit: opt.uit ?? mul(ax, 1), F: opt.F ?? 0, snedes: opt.snedes ?? 2, koop: k });
+      o.bouten.push({ naam, a: ga, b: gb, p, punten, as: ax, n: n * punten.length, key, M, lengte: lang, uit: opt.uit ?? mul(ax, 1), F: opt.F ?? 0, snedes: opt.snedes ?? 2, koop: k, kop: opt.kop ?? null });
       return k;
     },
     /** pen (pull pin of gelaste pen) in een gat: voor de montage en de afschuiving; F in kg (proeflast komt in bereken) */

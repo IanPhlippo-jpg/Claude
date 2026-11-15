@@ -57,7 +57,7 @@ export function ligger(b, naam, rol, A, B, at = {}, opt = {}) {
     const pts = zs.map((z) => { const q = [...e]; if (vert) q[2] = z; return q; });
     for (const q of pts) { F.gaten.push({ d: d0, p: q, x: q[F.as.l] - F.mn[F.as.l], y: q[F.as.b] - F.mn[F.as.b] }); if (S.soort === 'staaf') gat(S, q, d0, Math.abs(S.v[ax]) > 0.5 ? 'v' : 'w'); }
     const mid = pts.map((q) => { const m = [...q]; m[ax] += (dir * (Sb - t)) / 2; return m; });
-    b.bout(naam, S.groep, g, mid[0], asv, { punten: mid, lengte: Sb + t + 2 * (d0 - 1), uit: mul(asv, -dir * 120), F: opt.F ?? 0 });
+    b.bout(naam, S.groep, g, mid[0], asv, { punten: mid, lengte: Sb + t + 2 * (d0 - 1), uit: mul(asv, -dir * 120), F: opt.F ?? 0, kop: vert ? { ligger: st, z: P.h + 2 * off } : null });
   }
   st.flenzen = fl;
   return st;
@@ -99,12 +99,12 @@ export function jhook(b, S, zGat, naam = 'J-hook', kant = -1, gelast = false) {
   b.plaat('J-cup rugplaat', [x - xo, yf + kant * t, z0 - 30], [x + xo, yf, zb + 130], { gaten: [{ p: [x, yf, zGat], d: pin + 1 }], opm: `r 2,5 op alle randen; gat Ø${pin + 1} voor de pen (rondom gelast)` });
   for (const s of [-1, 1]) b.plaat('J-cup wang', [x + s * xi, yf, z0 - 30], [x + s * xo, yf - kant * diep, zb + 130], { opm: 'wang langs het zijvlak van de staander (1 mm speling, UHMW-tape 1 mm aan de binnenkant): de haak kan niet rond de pen draaien' });
   b.plaat('J-cup schoor', [x - t / 2, yf + kant * (t + 70), zb - t - 60], [x + t / 2, yf + kant * t, zb - t], { vorm: 'driehoek', opm: 'driehoekig schoorschot onder de bodem' });
-  b.plaat('J-cup bodem', [x - xo, yf + kant * (t + 75), zb - t], [x + xo, yf + kant * t, zb]);
+  b.plaat('J-cup bodem', [x - xo, yf + kant * (t + 75), zb - t], [x + xo, yf + kant * t, zb], { opm: 'bodem met een lichte helling naar de rugplaat: de stang ligt tegen de rugplaat (hart 21 mm voor de plaat)' });
   b.plaat('J-cup lip', [x - xo, yf + kant * (t + 75 + t), zb - t], [x + xo, yf + kant * (t + 75), zb + 32], { opm: 'lip 32 mm boven de bodem, 22 mm boven de UHMW' });
   b.staaf('J-cup pen', `r${pin}`, [x, yf + kant * t, zGat], [x, yf - kant * (a + 12), zGat], { in: S.id, kap: false, opm: 'rond S355J2 (of C45), door beide wanden van de staander, gelast in de rugplaat' });
   b.koop('uhmw', 1, [balk([x, yf + kant * t, zb + 5], [x, yf + kant * (t + 75), zb + 5], X, 2 * xo - 6, 10, false, 'uhmw')], { naam: `UHMW-strip ${Math.round(2 * xo - 6)} x 75 x 10 op de J-cup`, oppervlak: ((2 * xo - 6) * 75) / 1e6 });
   b.groep(oud);
-  b.pen(naam, [x, yf + kant * t - kant * pl / 2, zGat], [0, kant, 0], { d: pin, lengte: pl, F: 0, snedes: 2, t: S.P.t, e: t + 25, hoh: a - S.P.t, fy: 355, factor: 'vanghaak', a: S.groep, b: naam, uit: [0, kant * 140, 0], gelast: 'J-cup pen' });
+  b.pen(naam, [x, yf + kant * t - kant * pl / 2, zGat], [0, kant, 0], { d: pin, lengte: pl, F: 0, snedes: 2, t: S.P.t, e: t + 21, hoh: a - S.P.t, fy: 355, factor: 'vanghaak', a: S.groep, b: naam, uit: [0, kant * 140, 0], gelast: 'J-cup pen' });
   return zb + 10;
 }
 /** safety tussen een voorste en een achterste staander (langs y), op de gatenhoogte zGat: pin-pipe. Een massieve stang

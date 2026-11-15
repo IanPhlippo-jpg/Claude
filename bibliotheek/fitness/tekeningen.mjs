@@ -1,7 +1,7 @@
 // Alle werkplaatsbladen van een fitnesstoestel (SVG, mm): overzicht A3 in eerste hoekprojectie met de hoofdmaten,
 // stuklijst (ISO 7573), lasdetails (ISO 2553), boringen, kabelschema (kabelmachines), bekledingsblad (kussens),
 // bestellijst met zaagplan op 6 m en plaatnesting, en een A4 per stuk. Node en browser.
-import { svg, A3, A4L, lijn, tk, maat, tabel, titelblok, schaal, rij, lasSymbool, f, naamVan, versieTekst, esc } from './blad.mjs';
+import { svg, A3, A4L, lijn, tk, maat, tabel, titelblok, schaal, rij, lasSymbool, lasSymboolFlare, f, naamVan, versieTekst, esc } from './blad.mjs';
 import { tekenBalken, omhullende, alleGeo, PROJ, iso } from './aanzicht.mjs';
 import { stuklijst, zaagplan, nesting, totalen } from './stuklijst.mjs';
 import { KOOP } from './onderdelen.mjs';
@@ -359,7 +359,7 @@ export function typeplaatBlad(o, meta = {}) {
  *  lassymbool op elke las en de eis voor de gatenrijen L/R. */
 export function samenstellingBladen(o, meta = {}) {
   const sl = stuklijst(o), uit = [];
-  const groepen = [...new Set(o.lassen.map((l) => l.groep))].map((g) => ({ g, delen: o.delen.filter((d) => d.groep === g && d.kleur !== 'kap' && !d.stapel), lassen: o.lassen.filter((l) => l.groep === g) })).filter((x) => x.delen.length >= 2 && x.lassen.length >= 1).map((x) => ({ ...x, maat: Math.hypot(...[0, 1, 2].map((j) => Math.max(...x.delen.map((d) => aabb(d.geo[0])[1][j])) - Math.min(...x.delen.map((d) => aabb(d.geo[0])[0][j])))) })).sort((a, b) => b.maat - a.maat).slice(0, 6);
+  const groepen = [...new Set(o.lassen.map((l) => l.groep))].map((g) => ({ g, delen: o.delen.filter((d) => d.groep === g && d.kleur !== 'kap' && !d.stapel), lassen: o.lassen.filter((l) => l.groep === g) })).filter((x) => x.delen.length >= 2 && x.lassen.length >= 1).map((x) => ({ ...x, maat: Math.hypot(...[0, 1, 2].map((j) => Math.max(...x.delen.map((d) => aabb(d.geo[0])[1][j])) - Math.min(...x.delen.map((d) => aabb(d.geo[0])[0][j])))) })).sort((a, b) => b.maat - a.maat);
   for (const [i, G] of groepen.entries()) {
     const el = [], geo = G.delen.flatMap((d) => d.geo), mn = [0, 1, 2].map((j) => Math.min(...geo.map((g) => aabbMn(g)[j]))), mx = [0, 1, 2].map((j) => Math.max(...geo.map((g) => aabbMx(g)[j])));
     const B = mx[0] - mn[0], D = mx[1] - mn[1], H = mx[2] - mn[2], s = schaal(Math.min(165 / Math.max(B, 1), 150 / Math.max(H, 1), 120 / Math.max(D, 1))), k = s.k;
@@ -375,7 +375,9 @@ export function samenstellingBladen(o, meta = {}) {
     // positienummers (ballonnen) en lassymbolen
     const posVan = (d) => sl.posities.find((p) => p.voorbeeld === d || p.delen?.includes?.(d))?.pos ?? d.posNr ?? '?';
     G.delen.forEach((d, j) => { const c = voor.naar(mul(add(d.geo[0].a, d.geo[0].b), 0.5)), bx = c[0] + 8 + (j % 3) * 3, by = c[1] - 6 - (j % 4) * 2.5; el.push(lijn(c[0], c[1], bx, by, 0.15), `<circle cx="${f(bx)}" cy="${f(by)}" r="2.6" fill="#fff" stroke="#111" stroke-width="0.25"/>`, tk(bx, by + 0.9, String(d.posNr ?? posVan(d)), 2.2, { anker: 'middle', vet: true })); });
-    G.lassen.slice(0, 14).forEach((l) => { if (!l.p) return; const q = voor.naar(l.p); el.push(lasSymbool([q[0], q[1]], [q[0] + 9, q[1] - 7], { a: l.keel, rondom: l.rondom, beide: l.soort === 'hoek2' })); });
+    const isFlare = (l) => l.A.P?.vorm === 'koker' && l.B.P?.vorm === 'koker' && (Math.abs(l.A.P.b - l.B.P.b) < 0.5 || Math.abs(l.A.P.h - l.B.P.h) < 0.5);
+    G.lassen.slice(0, 18).forEach((l) => { if (!l.p) return; const q = voor.naar(l.p); el.push(isFlare(l) ? lasSymboolFlare([q[0], q[1]], [q[0] + 9, q[1] - 7], { a: l.keel }) : lasSymbool([q[0], q[1]], [q[0] + 9, q[1] - 7], { a: l.keel, rondom: l.rondom, beide: l.soort === 'hoek2' })); });
+    if (G.lassen.some(isFlare)) { el.push(tk(255, 250, 'Legende:', 2, { vet: true }), lasSymboolFlare([258, 262], [265, 256], { a: o.V.las }), tk(296, 257, 'halve V met gebogen flank (flare) op de 2 zijden waar de kokerhoeken samenkomen + hoeklas op de 2 andere zijden', 1.8)); }
     // tabel met plaatsmaten
     const rijen = G.delen.slice(0, 26).map((d) => { const a0 = aabbMn(d.geo[0]); return [String(d.posNr ?? posVan(d)), d.naam.slice(0, 34), d.soort === 'staaf' ? d.P.naam.slice(0, 18) : `plaat ${d.t}`, String(r0(a0[0] - mn[0])), String(r0(a0[1] - mn[1])), String(r0(a0[2] - mn[2])), d.soort === 'staaf' ? String(r0(d.L)) : `${r0(d.l)} x ${r0(d.bmaat)}`]; });
     const [t] = tabel(255, 40, [['Pos', 9, true], ['Stuk', 60], ['Profiel', 30], ['x', 11, true], ['y', 11, true], ['z', 11, true], ['L of maat', 22]], rijen, 3.6, 1.8);

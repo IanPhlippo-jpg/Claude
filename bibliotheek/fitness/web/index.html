@@ -212,7 +212,7 @@ footer { color: var(--zacht); font-size: 13px; padding-block: 30px }
 
 <!-- ============ WERKPLAATS ============ -->
 <div data-view="werkplaats" hidden><div class="wrap">
-  <div class="wkop"><div><span class="matlabel" id="w-soort"></span><h1 id="w-titel"></h1><p id="w-tekst"></p><div class="open-punten" id="w-open"></div></div>
+  <div class="wkop"><div><span class="matlabel" id="w-soort"></span><h1 id="w-titel"></h1><p id="w-tekst"></p><div class="open-punten" id="w-open"></div><div class="open-punten" id="w-dxf" style="border-left-color:#2563a8;background:rgba(37,99,168,.06)"></div></div>
     <div><div class="keuze" id="w-versie"></div></div></div>
   <div class="tegels" id="w-tegels"></div>
   <div class="knoppen"><button class="knop vol" type="button" data-dl="dossier">Dossier (HTML, afdrukken als PDF)</button><button class="knop" type="button" data-dl="zip">Alle tekeningen (SVG, ZIP)</button><button class="knop" type="button" data-dl="csv">Lijsten (CSV)</button></div>
@@ -252,6 +252,7 @@ import { miniatuur, tekenBalken, alleGeo, PROJ, omhullende } from './js/aanzicht
 import { alleBladen, stukBladen } from './js/tekeningen.mjs';
 import { montageBladen } from './js/montage.mjs';
 import { dossierHtml, lijstenCsv } from './js/dossier.mjs';
+import { dxfBestanden } from './js/dxf.mjs';
 
 const $ = (id) => document.getElementById(id), esc = (t) => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const eur = (v) => `€ ${(Math.round(v * 100) / 100).toLocaleString('nl-BE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -338,6 +339,7 @@ function tekenWerk() {
   // open punten per toestel (werkplaatsweergave, P2-18)
   const open = B.controles.filter((c) => c.oordeel === 'oranje' || c.oordeel === 'rood').map((c) => `${c.groep}: ${c.wat}`);
   $('w-open').innerHTML = `<b>Open punten</b><ul>${['Prototype bouwen en de proeflast aanbrengen (technisch dossier); daarna pas het typeplaatje zonder "PROTOTYPE".', ...open].map((x) => `<li>${esc(x)}</li>`).join('')}</ul>`;
+  const dx = dxfBestanden(o); $('w-dxf').innerHTML = `<b>DXF voor het lasersnijden (${dx.length} posities)</b><br>${dx.map((x) => `<a download="${esc(x.naam)}" href="${URL.createObjectURL(new Blob([x.dxf], { type: 'application/dxf' }))}">pos ${x.pos} (${x.n}x)</a>`).join(' · ')}`;
   const tot = k.totalen;
   $('w-tegels').innerHTML = [['Verkoop incl. btw', eur0(k.incl)], ['Kostprijs', eur0(k.kostprijs)], ['Uren', `${g(k.uren, 1)} u`], ['Staal', `${g(tot.kg)} kg`], ['Lassen', `${tot.verbindingen} · ${g(tot.lasM, 1)} m`], ['Gaten', String(tot.gaten)]].map(([a, b]) => `<div class="tegel"><span>${a}</span><b>${b}</b></div>`).join('');
   $('w-oordeel').innerHTML = `<i class="stip ${B.oordeel}"></i> ${B.oordeel}`;

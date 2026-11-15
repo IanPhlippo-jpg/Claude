@@ -50,6 +50,11 @@ export function toestel(id, versie = 'thuis', opt = {}) {
   extra('vet', 1, 'Smeermiddel voor pennen, geleidestangen en lagers');
   extra('verpakking', 1, 'Verpakking (pallet, hoekbeschermers, stretchfolie)');
   extra('handleiding', 1, 'Handleiding NL/FR en montagefiche');
+  extra('gereedschap', 1, 'Montageset: steeksleutels/doppen 19 en 24, inbus 5 en 6, in een zakje bij de levering');
+  extra('kabelgeleider', o.katrollen.length, 'Kabelgeleider (nylon bus in de beugel) bij elke katrol');
+  const traan = o.delen.filter((d) => d.soort === 'plaat' && /traanplaat/i.test(d.opm ?? ''));
+  for (const d of traan) d.materiaal = 'traanplaat S235 5/7 mm (EN 10025-2)';
+  if (traan.length) o.koop.push({ id: 'k-traan', soort: 'koop', key: 'traanplaat', n: 1, oppervlak: Math.round(traan.reduce((s2, d) => s2 + (d.l * d.bmaat) / 1e6, 0) * 100) / 100, naam: `Traanplaat 5/7 mm (${traan.length} stuk${traan.length > 1 ? 'ken' : ''}, laseren op maat)`, groep: 'afwerking', geo: [] });
   o.detail = details(o);
   // knelpunten over de slag: kleinste afstand bewegend - vast in stand 0, 0,5 en 1 (lui berekend, voor de berekening)
   o.knelMeting = () => [0, 0.5, 1].flatMap((st) => knelAfstanden(st === stand ? o : toestel(id, versie, { stand: st })).map((k) => ({ ...k, stand: st })));

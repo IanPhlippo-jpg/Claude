@@ -1,6 +1,7 @@
 // Banken (FB-01 .. FB-12): elk in de thuis- en de proversie. Maten in mm: x = breedte, y = diepte (0 = voeteneinde),
 // z = hoogte. Kussens: multiplex 18 + koudschuim RG40 50 + kunstleer; met inslagmoeren M8 op kussenplaten.
 import { staander, ligger, jhook, hoorn, voetjes, kussenOp, doos, gat, X, Y, Z, balk, add, mul, sub, norm, len } from './bouwstenen.mjs';
+import { lagerOren, hefboom } from './plate.mjs';
 
 const pro = (b) => b.V.id === 'pro';
 const rad = (g) => (g * Math.PI) / 180;
@@ -271,7 +272,7 @@ export const BANKEN = [
   },
   {
     id: 'FB-12', soort: 'bank', naam: 'Reverse hyper', kort: 'Hoog kussen met een slingerarm en schijfhouder.',
-    uitleg: 'Een hoog kussen (1050 mm) met handgrepen; achteraan een slingerarm op een as met twee kogellagers, een enkelrol en een schijfhouder.',
+    uitleg: 'Een hoog kussen (1050 mm) met handgrepen; achteraan een slingerarm op een as in twee flensglijlagers (lagerbussen op de oren), met begin- en eindaanslag, een enkelrol en een schijfhouder.',
     spieren: 'onderrug, bilspieren, hamstrings', oefeningen: ['reverse hyperextension', 'rugrevalidatie'],
     maxLast: { thuis: 60, pro: 100 },
     markt: { thuis: [475, 1220], pro: [1500, 3000], bronT: 'Rogue Westside Scout Hyper € 474, ATX Reverse Hyper II € 1217', bronP: 'geen pro-prijs gevonden: AANNAME € 1500-3000' },
@@ -285,22 +286,21 @@ export const BANKEN = [
       kussenplaat(b, lig, 0.15); kussenplaat(b, lig, 0.55);
       kussenOp(b, 'Heupkussen', lig, 800, 320, { op: 5, schuif: -100 });
       for (const s of [-1, 1]) { b.staaf('Handgreep', 'greep', [s * (a / 2), 140, top - a / 2], [s * 300, 140, top - a / 2], {}); }
-      // slingerarm
-      for (const s of [-1, 1]) b.plaat('Lageroor', [s * (a / 2) + (s > 0 ? 0 : -V.plaat), 1100 - a / 2, top - a / 2 - 75], [s * (a / 2) + (s > 0 ? V.plaat : 0), 1100 + a / 2 + 150, top - a / 2 + 75], { gaten: [{ p: [s * a / 2, 1100 + a / 2 + 75, top - a / 2], d: 47 }], opm: 'gat Ø47 H7 voor kogellager 6204 (ingeperst)' });
-      b.groep('Slingerarm');
-      const zp = top - a / 2, yp = 1100 + a / 2 + 75;
-      b.staaf('As slingerarm', 'as', [-a / 2 + 0.5, yp, zp], [a / 2 - 0.5, yp, zp], { kap: false, in: 'lager' });
-      const arm = b.staaf('Slingerarm', 'staander', [0, yp, zp - b.P('as').b / 2], [0, yp, 260], { v: Y });
-      b.staaf('As enkelrol', 'as', [-180, yp, 330], [180, yp, 330], { kap: false, in: arm.id });
-      b.koop(V.schuimrol, 2, [-1, 1].map((s) => balk([s * 25, yp - 60, 330], [s * 225, yp - 60, 330], X, 100, 100, true, 'leer')), { naam: 'Schuimrol Ø100 (enkelrol)' });
-      const ho = b.staaf('Schijfhouder', 'sleeve', [0, yp + arm.P.b / 2, 290], [0, yp + arm.P.b / 2 + 250, 290], {});
-      b.groep('frame');
-      b.koop(V.id === 'pro' ? 'lager6204pro' : 'lager6204', 2, [], { naam: 'Kogellager 6204 in de lageroren' });
-      b.pen('As van de slingerarm', [0, yp, zp], X, { d: 20, lager: 47, lengte: a + 2 * V.plaat + 10, snedes: 2, a: 'frame', b: 'Slingerarm', uit: [0, 120, 0], F: this.maxLast[V.id] * 2, factor: 'schijfhouderPen' });
-      b.schijven([0, yp + arm.P.b / 2 + 20, 290], Y, 2);
+      // slingerarm op de hefboom-bouwsteen (P1-11): naaf, as Ø25/30 als staaf, flensglijlagers in lagerbussen op de oren,
+      // stelringen, begin- en eindaanslag; de arm zwaait 60° naar achter
+      const zp = top - a / 2, yp = 1100 + a / 2 + 75, G = this.maxLast[V.id];
+      lagerOren(b, [0, yp, zp], a, [0, 1100 - a / 2, 0], 'gat = buitenmaat flensglijlager (H7); oren tegen de zijkant van de bovenligger gelast');
+      const hb = hefboom(b, 'Slingerarm', [0, yp, zp], [[0, yp, 260]], { breed: a, prof: 'staander', slag: 60, F: G, horen: [{ p: [0, yp, 290], dir: [0, 1, 0], L: 250 }],
+        extra: (rot) => { const r1 = rot([0, yp - 60, 330]); b.staaf('As enkelrol', 'as', [-180, r1[1], r1[2]], [180, r1[1], r1[2]], { kap: false, in: 'slingerarm' }); },
+      });
+      const rr = hb.rot([0, yp - 60, 330]);
+      b.koop(V.schuimrol, 2, [-1, 1].map((s2) => balk([s2 * 25, rr[1], rr[2]], [s2 * 180, rr[1], rr[2]], X, 100, 100, true, 'leer')), { naam: 'Schuimrol Ø100 (enkelrol)' });
+      const ho = hb.h[0], arm = hb.arm[0];
+      b.schijven(add(ho.a, mul(ho.u, 20)), ho.u, 2);
       void d1; void d2; void p1; void p2; void arm; void ho;
       b.last('Gebruiker op het kussen', 100, [0, 600, 1100], { geval: 'hyper' }); b.last('Schijven op de arm (uitgezwaaid)', this.maxLast[V.id], [0, yp + 400, 500], { geval: 'hyper' });
       b.reken('Schijfhouder', ho, 'uitkrager', 250, 0, { g: this.maxLast[V.id], proef: 'schijfhouder', las: true });
+      b.reken('Slingerarm (schijven onderaan)', arm, 'uitkrager', zp - 290, 0, { g: this.maxLast[V.id], proef: 'plateLoaded', las: true });
       b.reken('Slingerarm (schijven + dynamiek)', arm, 'uitkrager', zp - 290, 0, { g: this.maxLast[V.id], proef: 'plateLoaded', las: true, dwars: true });
     },
   },

@@ -61,7 +61,7 @@ function hefboom(b, naam, piv, punten, { horen = [], greep = null, breed = 120, 
       const van = i === 0 ? add(piv, mul(norm(sub(p, piv)), d.b / 2 - 0.3)) : vorige;
       const nm = `Hefboomarm ${naam.toLowerCase()}${k ? ` (tak ${k + 1})` : ''}${i ? ` (deel ${i + 1})` : ''}`;
       arm.push(b.staaf(nm, prof, rot(van), rot(p), { v: X, verstek: [i ? 20 : 0, i < tak.length - 1 ? 20 : 0] }));
-      if (i === 0) { const u0 = norm(sub(p, piv)); for (const sx of [-1, 1]) { const q0 = add(van, [sx * (A.b / 2 + 5), 0, 0]); b.staaf(`Schetsplaat ${naam.toLowerCase()}`, 's60x10', rot(q0), rot(add(q0, mul(u0, 140))), { v: X, kap: false, opm: 'schetsplaat 60 x 10 naast de arm, op de naaf en de arm gelast (vermoeiing)' }); } }
+      if (i === 0 && breed >= A.b + 30) { const u0 = norm(sub(p, piv)); for (const sx of [-1, 1]) { const q0 = add(van, [sx * (A.b / 2 + 5), 0, 0]); b.staaf(`Schetsplaat ${naam.toLowerCase()}`, 's60x10', rot(q0), rot(add(q0, mul(u0, 140))), { v: X, kap: false, opm: 'schetsplaat 60 x 10 naast de arm, op de naaf en de arm gelast (vermoeiing)' }); } }
       segs.push([vorige, p]); vorige = p;
     }
   }
@@ -341,7 +341,7 @@ export const PLATE = [
       const piv = [0, 160, a + 80], ho = [0, 1000, 600], yg = 850, sl = (ho[2] - piv[2]) / (ho[1] - piv[1]);
       lagerOren(b, piv, 120, [0, 0, a]);
       const zg = piv[2] + sl * (yg - piv[1]) - (A.h / 2) / Math.cos(Math.atan(sl)) - 15;
-      const hb = hefboom(b, 'Hefboom', piv, [ho], { horen: [{ p: ho, dir: [0, 1, sl], L: 250 }], breed: 120, greep: [[-280, yg, zg], [280, yg, zg]], F: G, slag: 12 });
+      const hb = hefboom(b, 'Hefboom', piv, [ho], { horen: [{ p: ho, dir: [0, 1, sl], L: 225 }], breed: 120, greep: [[-280, yg, zg], [280, yg, zg]], F: G, slag: 12 });
       // borstkussen: twee kussenpalen (x = ±160) met een kussendrager; het kussen loopt 40° op naar voren
       const pa = staander(b, 'Kussenpaal', 'ligger', -160, 1300, a, 820), pb = staander(b, 'Kussenpaal', 'ligger', 160, 1300, a, 820);
       ligger(b, 'Kussendrager', 'ligger', pa, pb, { z: 820 - a / 2 });
@@ -351,7 +351,7 @@ export const PLATE = [
       b.plaat('Voetplaat', [-250, 1420, a], [250, 1670, a + 8], { opm: 'traanplaat 8 mm op de vloerrails' });
       schijvenOp(b, hb.h[0], 2);
       b.reken('Hefboomarm (de schijven zitten 170 mm voorbij de greep)', hb.arm[0], 'uitkrager', 200, 0, { g: G, proef: 'plateLoaded', las: true });
-      b.reken('Schijfhouder', hb.h[0], 'uitkrager', 250, 0, { g: G, proef: 'schijfhouder', las: true });
+      b.reken('Schijfhouder', hb.h[0], 'uitkrager', 225, 0, { g: G, proef: 'schijfhouder', las: true });
       b.last('Gebruiker op het kussen', 100, [0, 1200, 1000], { geval: 'row' }); b.last('Schijven', G, [0, 1050, 620], { geval: 'row' });
     },
   },
@@ -525,7 +525,7 @@ function isoMachine(b, def, soort) {
   const V = b.V, P = b.P('ligger'), a = P.b, G = def.maxLast[V.id], w = 900, half = G / 2;
   const cfg = {
     chest: { piv: [0, 750, 1950], zit: [700, 450], rug: [960, 80], greep: [0, 420, 1050], hoorn: [0, 400, 1350], hoek: -25, binnen: 150, portaal: 'boven' },
-    row: { piv: [0, 350, 1950], zit: [900, 480], borst: [650, 1000], greep: [0, 560, 1050], hoorn: [0, 450, 1300], hoek: 25, binnen: 180, portaal: 'boven' },
+    row: { piv: [0, 350, 1950], zit: [900, 480], borst: [650, 1000], greep: [0, 560, 1050], hoorn: [0, 700, 1600], hoek: 25, binnen: 180, portaal: 'boven', takken: true },
     pulldown: { piv: [0, 1410, 1740], zit: [600, 480], dijk: [335, 640], greep: [0, 450, 1800], hoorn: [0, 1760, 1500], hoek: 41, binnen: 150, portaal: 'boven', takken: true },
     shoulder: { piv: [0, 1500, 1250], zit: [700, 480], rug: [960, 80], greep: [0, 720, 1300], hoorn: [0, 1100, 1330], hoek: -35, binnen: 150, portaal: 'achter' },
   }[soort];

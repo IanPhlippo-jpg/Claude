@@ -346,3 +346,31 @@ export function hefboomFouten(o) {
   }
   return uit;
 }
+
+/** P2-08c: rond de kop en de moer van elke bout is ruimte voor de sleutel (cilinder r 14/17 mm, 25/30 mm lang buiten het
+ *  geklemde pakket); als doos benaderd, getoetst tegen elk stalen deel */
+export function sleutelFouten(o) {
+  const uit = [], staal = o.delen.filter((d) => d.kleur !== 'kap' && !d.stapel);
+  for (const bt of o.bouten) {
+    if (bt.key === 'anker' || !bt.M) continue;
+    const r = bt.M >= 16 ? 17 : 14, h = bt.M >= 16 ? 30 : 25, ax = norm(bt.as), v = Math.abs(ax[2]) < 0.9 ? norm(cross(ax, [0, 0, 1])) : [1, 0, 0], w = cross(ax, v);
+    for (const p of bt.punten ?? [bt.p]) {
+      const L = bt.lengte ?? 100, a = add(p, mul(ax, -L / 2)), d = mul(ax, L);
+      let t0 = Infinity, t1 = -Infinity;
+      const door = [];
+      for (const deel of staal) for (const g of deel.geo) { const B = obb(g, 0), da = sub(a, B.c); let lo = 0, hi = 1, ok = true; for (let i = 0; i < 3 && ok; i++) { const pa = dot(da, B.as[i]), dd = dot(d, B.as[i]), hh = B.h[i]; if (Math.abs(dd) < 1e-9) { if (Math.abs(pa) > hh) ok = false; continue; } let ta = (-hh - pa) / dd, tb = (hh - pa) / dd; if (ta > tb) [ta, tb] = [tb, ta]; lo = Math.max(lo, ta); hi = Math.min(hi, tb); if (lo > hi) ok = false; } if (ok && hi > lo) { t0 = Math.min(t0, lo * L); t1 = Math.max(t1, hi * L); door.push(deel); } }
+      if (!isFinite(t0)) continue;
+      for (const [s0, s1, kant] of [[t1 + 0.5, t1 + h, 'moer'], [t0 - h, t0 - 0.5, 'kop']]) {
+        const c = add(a, mul(ax, (s0 + s1) / 2)), K = { c, as: [ax, v, w], h: [(s1 - s0) / 2, r, r] };
+        for (const deel of staal) if (!door.includes(deel) && deel.geo.some((g) => botsen(K, obb(g, 1)))) uit.push(`${bt.naam}: geen ruimte voor de sleutel aan de ${kant}kant (${deel.naam})`);
+      }
+    }
+  }
+  return [...new Set(uit)];
+}
+/** P2-08d: gaten in gezette (geplooide) platen liggen buiten de plooizone: ≥ 3·t + d/2 van de rand */
+export function gezetFouten(o) {
+  const uit = [];
+  for (const d of o.delen.filter((x) => x.soort === 'plaat' && /gezet|geplooid|omgezet/i.test(x.opm ?? ''))) for (const g of d.gaten) { const m = Math.min(g.x, d.l - g.x, g.y, d.bmaat - g.y), nodig = 3 * d.t + g.d / 2; if (m < nodig) uit.push(`${d.naam}: gat Ø${g.d} op ${Math.round(m)} mm van de rand: in de plooizone (≥ ${Math.round(nodig)})`); }
+  return uit;
+}

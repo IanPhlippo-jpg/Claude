@@ -37,3 +37,10 @@
 - [x] Stap 5 berekening en controles: evenwicht losse delen, as op buiging, platen, horizontale trek, kabellengte constant, pen op buiging, netto doorsnede; P2-punten
 - [x] Stap 6 lastekeningen per lasgroep (P1-13) en maatvoering stukbladen (P2-09); typeplaatje "prototype: proeflast nodig" en dossier (P1-14)
 - [x] Stap 7 prijzen (uren, overhead, uurloon als parameter), web klant/werkplaats, tests met negatieve proef per P1, fotos v3, graphify
+
+## Versie 4: de 11 deels-punten van Fable 5.2 en de 2 oranje punten (2026-11-15)
+- [x] FB-12 op de hefboom-bouwsteen (P1-11); row met de schijfhouder op een tak (P2-13); pec deck ± 40 % (P2-01)
+- [x] Lat pulldown met verstelbare zitting (P2-03); zijafscherming stapel (P2-15); bestellijst: gereedschap, kabelgeleiders, traanplaat (P2-16)
+- [x] Controles: sleutelruimte en gaten in gezette delen (P2-08); bouten op trek en trek + afschuiving (P2-10)
+- [x] DXF-export van platen en laserdelen (P2-09); halve V als lassymbool (P3-04); lassamenstelling voor alle lasgroepen
+- [x] Oranje punten onder 85 % (J-cup-pen thuis, schijfhouder FP-06 pro); tests, typecheck, web, presentatie, foto's v4, graphify

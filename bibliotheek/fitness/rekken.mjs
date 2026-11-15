@@ -74,11 +74,11 @@ export const REKKEN = [
       dwarsOp(b, 'Onderligger voor', 'ligger', st.L.voet, st.R.voet, 150);
       const zj = gatZ(st.L.f, 1350), zs = gatZ(st.L.f, 850), G = this.maxLast[V.id];
       const zb = jhook(b, st.L.f, zj, 'J-hook L', -1); jhook(b, st.R.f, zj, 'J-hook R', -1);
-      for (const [k, S] of [['L', st.L.f], ['R', st.R.f]]) spotter(b, S, zs, `Spotterarm ${k}`, pro(b) ? 650 : 600, this.maxLast[V.id] / 2);
+      for (const [k, S] of [['L', st.L.f], ['R', st.R.f]]) spotter(b, S, zs, `Spotterarm ${k}`, 600, this.maxLast[V.id] / 2);
       const [mn] = doos(st.L.f);
       b.stang([-1100, mn[1] - 50, zb + 14], [1100, mn[1] - 50, zb + 14]);
       b.last('Gebruiker voor het rek', 100, [0, yf - 350, 1000], { geval: 'squat' }); b.last('Stang op de J-hooks', G, [0, mn[1] - 50, zb + 14], { geval: 'squat' });
-      b.reken('Spotterarm: stang valt op het uiteinde', b.o.delen.find((d) => d.naam === 'Spotterarm L'), 'uitkrager', pro(b) ? 650 : 600, 0, { g: G / 2, proef: 'vanghaak', las: true });
+      b.reken('Spotterarm: stang valt op het uiteinde', b.o.delen.find((d) => d.naam === 'Spotterarm L'), 'uitkrager', 600, 0, { g: G / 2, proef: 'vanghaak', las: true });
       b.reken('Staander met de J-hook', st.L.f, 'staanderM', zj - a, 0, { g: G / 2, proef: 'vanghaak', e: a / 2 + 45 });
       b.o.pennen.forEach((p) => { p.F = G / 2; });
       b.o.verankerd = pro(b) ? 'vloer' : null;
@@ -169,11 +169,11 @@ export const REKKEN = [
       dwarsOp(b, 'Onderligger achter', 'ligger', st.L.voet, st.R.voet, 1300 - a / 2 - 10);
       const zj = gatZ(st.L.S, 1350), G = this.maxLast[V.id];
       const zb = jhook(b, st.L.S, zj, 'J-hook L', -1); jhook(b, st.R.S, zj, 'J-hook R', -1);
-      for (const [k, S] of [['L', st.L.S], ['R', st.R.S]]) spotter(b, S, gatZ(S, 850), `Spotterarm ${k}`, pro(b) ? 650 : 600, this.maxLast[V.id] / 2);
+      for (const [k, S] of [['L', st.L.S], ['R', st.R.S]]) spotter(b, S, gatZ(S, 850), `Spotterarm ${k}`, 600, this.maxLast[V.id] / 2);
       const [mn] = doos(st.L.S);
       b.stang([-1100, mn[1] - 50, zb + 14], [1100, mn[1] - 50, zb + 14]);
       b.last('Gebruiker voor het rek', 100, [0, yc - 400, 1000], { geval: 'squat' }); b.last('Stang op de J-hooks', G, [0, mn[1] - 50, zb + 14], { geval: 'squat' });
-      b.reken('Spotterarm: stang valt op het uiteinde', b.o.delen.find((d) => d.naam === 'Spotterarm L'), 'uitkrager', pro(b) ? 650 : 600, 0, { g: G / 2, proef: 'vanghaak', las: true });
+      b.reken('Spotterarm: stang valt op het uiteinde', b.o.delen.find((d) => d.naam === 'Spotterarm L'), 'uitkrager', 600, 0, { g: G / 2, proef: 'vanghaak', las: true });
       b.reken('Staander met de J-hook', st.L.S, 'staanderM', zj - a, 0, { g: G / 2, proef: 'vanghaak', e: a / 2 + 45 });
       b.reken('Optrekstang', b.o.delen.find((d) => d.naam === 'Optrekstang'), 'ligger', wi, V.gebruiker, { proef: 'intrinsiek' });
       b.o.pennen.forEach((p) => { p.F = G / 2; });

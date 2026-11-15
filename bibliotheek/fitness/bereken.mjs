@@ -114,6 +114,16 @@ export function berekening(o) {
     const As = bt.M === 16 ? 157 : bt.M === 12 ? 84.3 : 58, Fv = (NORM.bout88.av * NORM.bout88.fub * As) / NORM.gM2.v, F = (2.5 * bt.F * g) / bt.n;
     ctl('Pennen en bouten', `Bouten M${bt.M} 8.8: ${bt.naam}`, `F per bout = 2,5 · ${gw(bt.F, 0)} kg · g / ${bt.n} = ${gw(F / 1000, 2)} kN ≤ Fv,Rd = 0,6 · 800 · ${As} / 1,25 = ${gw(Fv / 1000, 1)} kN`, F / Fv, NORM.bout88.bron);
   }
+  // ---- bouten van kopplaten op trek en trek + afschuiving (EN 1993-1-8 tabel 3.4); einde ligger half ingeklemd: M = F·L/12 (AANNAME)
+  const gezienKop = new Set();
+  for (const bt of o.bouten.filter((x) => x.kop?.ligger)) {
+    const x = o.reken.find((r) => r.stuk === bt.kop.ligger); if (!x) continue;
+    const sl = `${bt.naam}|${bt.M}`; if (gezienKop.has(sl)) continue; gezienKop.add(sl);
+    const pl = proeflast(o, x), M = pl.F * x.L / 12, Ft = M / bt.kop.z, Fvb = pl.F / 2 / 2, As = bt.M === 16 ? 157 : bt.M === 12 ? 84.3 : 58;
+    const FtRd = 0.9 * NORM.bout88.fub * As / NORM.gM2.v, FvRd = NORM.bout88.av * NORM.bout88.fub * As / NORM.gM2.v, comb = Fvb / FvRd + Ft / (1.4 * FtRd);
+    ctl('Pennen en bouten', `Bout M${bt.M} op trek: ${bt.naam}`, `einde van de ligger half ingeklemd (AANNAME): M = F·L/12 = ${gw(M / 1e6, 3)} kNm; bovenste bout Ft = M/z = ${gw(Ft / 1000, 2)} kN (z = ${Math.round(bt.kop.z)} mm) ≤ Ft,Rd = 0,9·fub·As/γM2 = ${gw(FtRd / 1000, 1)} kN`, Ft / FtRd, 'EN 1993-1-8 tabel 3.4');
+    ctl('Pennen en bouten', `Bout M${bt.M} op trek + afschuiving: ${bt.naam}`, `Fv,Ed/Fv,Rd + Ft,Ed/(1,4·Ft,Rd) = ${gw(Fvb / 1000, 2)}/${gw(FvRd / 1000, 1)} + ${gw(Ft / 1000, 2)}/(1,4 · ${gw(FtRd / 1000, 1)}) = ${gw(comb, 2)} ≤ 1`, comb, 'EN 1993-1-8 tabel 3.4');
+  }
   // ---- rechtstreekse toetsen (evenwicht, assen op buiging, platen, ogen)
   for (const x of o.toetsen ?? []) ctl(x.groep, x.wat, x.formule, x.benut, x.bron, x.oordeel ? { oordeel: x.oordeel } : {});
   // ---- kabels en katrollen
@@ -137,9 +147,9 @@ export function berekening(o) {
   }
   for (const s of o.stapels) {
     const nodig = s.top + s.slag + NORM.stapelKap.vrij, kap = o.delen.filter((d) => d.kleur === 'kap'), hoog = kap.length ? Math.max(...kap.map((d) => d.mx[2])) : 0;
-    const open = Math.max(0, ((s.dpl + 40) - (o.delen.find((d) => d.naam === 'Torenstaander')?.P.b ?? 60)) / 2);
+    const open = o.delen.some((d) => d.naam === 'Afscherming zijkant') ? 0 : Math.max(0, ((s.dpl + 40) - (o.delen.find((d) => d.naam === 'Torenstaander')?.P.b ?? 60)) / 2);
     ctl('Afscherming', `Gewichtstapel ${s.n} x ${s.kg} kg: hoogte van de afscherming`, `afscherming tot ${Math.round(hoog)} mm; stapel in de hoogste stand + 60 = ${Math.round(nodig)} mm`, hoog >= nodig - 0.5 || hoog >= s.zt - 1 ? 0.5 : 1.2, NORM.stapelKap.bron, { oordeel: hoog >= nodig - 0.5 || hoog >= s.zt - 1 ? 'groen' : 'rood' });
-    ctl('Afscherming', 'Openingen in de afscherming', `zijdelingse spleet naast de staander ${Math.round(open)} mm ≤ 75 mm; stapel 60 mm van de staanders`, open / NORM.stapelKap.opening, NORM.stapelKap.bron);
+    ctl('Afscherming', 'Openingen in de afscherming', `zijdelingse spleet naast de staander ${Math.round(open)} mm ≤ 75 mm${open === 0 ? ' (zijstroken: rondom gesloten)' : ''}; stapel 40 mm van de staanders`, open / NORM.stapelKap.opening, NORM.stapelKap.bron);
     ctl('Afscherming', 'Selectiepen', `${KOOP[V.selectiepen].naam}: magnetisch, valt niet vanzelf uit`, 0, NORM.knelVrij.bron, { oordeel: 'groen' });
   }
   // ---- knelpunten en afwerking

@@ -22,6 +22,17 @@ export function titelblok(o, [w, h], opts = {}) {
   veld(0, 4, 'Getekend', opts.getekend ?? 'model (bibliotheek fitness)', groot ? 1.9 : 1.6); veld(k1 + (groot ? 10 : 6), 4, 'Goedgekeurd', opts.goedgekeurd ?? '______', 1.9); veld(k2, 4, 'Documentsoort', opts.soort ?? 'werkplaatstekening', groot ? 1.9 : 1.6, false, 22); veld(k3 + (groot ? 12 : 6), 4, 'Materiaal', opts.materiaal ?? 'S235, RAL', 1.6, false, 14);
   return el.join('');
 }
+/** lassymbool halve V met gebogen flank (flare bevel, ISO 2553 nr. 4.4): pijl van p naar knik k, referentielijn met
+ *  stippellijn, het symbool (rechte flank + boog) boven en (beide) onder, keelmaat a links */
+export function lasSymboolFlare(p, k, { a = 3, beide = true } = {}) {
+  const el = [], ref = [k[0] + 22, k[1]], d = Math.hypot(k[0] - p[0], k[1] - p[1]) || 1, ux = (k[0] - p[0]) / d, uy = (k[1] - p[1]) / d;
+  el.push(lijn(p[0], p[1], k[0], k[1], 0.25), `<polygon points="${f(p[0])},${f(p[1])} ${f(p[0] + ux * 2.5 - uy * 0.6)},${f(p[1] + uy * 2.5 + ux * 0.6)} ${f(p[0] + ux * 2.5 + uy * 0.6)},${f(p[1] + uy * 2.5 - ux * 0.6)}" fill="#111"/>`);
+  el.push(lijn(k[0], k[1], ref[0], ref[1], 0.3), lijn(k[0], k[1] + 1.2, ref[0], ref[1] + 1.2, 0.2, '#111', '1.2 0.8'));
+  const sx = k[0] + 8, sym = (z) => `<line x1="${f(sx)}" y1="${f(k[1])}" x2="${f(sx)}" y2="${f(k[1] + z * 3)}" stroke="#111" stroke-width="0.3"/><path d="M ${f(sx + 0.7)} ${f(k[1])} Q ${f(sx + 0.7)} ${f(k[1] + z * 3)} ${f(sx + 3.4)} ${f(k[1] + z * 3)}" fill="none" stroke="#111" stroke-width="0.3"/>`;
+  el.push(sym(-1)); if (beide) el.push(sym(1));
+  el.push(tk(k[0] + 2.2, k[1] - 0.8, `a${a}`, 1.8));
+  return el.join('');
+}
 /** standaardschaal die past (ISO 5455): de grootste uit de reeks die kleiner is dan s */
 export function schaal(s) {
   const reeks = [2, 1, 1 / 2, 1 / 2.5, 1 / 5, 1 / 10, 1 / 15, 1 / 20, 1 / 25, 1 / 30, 1 / 40, 1 / 50];

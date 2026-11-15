@@ -22,3 +22,5 @@ export declare function veiligheidFouten(o: any): string[];
 export declare function smithHaakFouten(o: any): string[];
 export declare function schijvenOpPlatform(o: any): string[];
 export declare function hefboomFouten(o: any): string[];
+export declare function sleutelFouten(o: any): string[];
+export declare function gezetFouten(o: any): string[];

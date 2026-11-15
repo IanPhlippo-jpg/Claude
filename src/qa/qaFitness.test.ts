@@ -15,9 +15,10 @@ import { alleBladen, stukBladen } from '../../bibliotheek/fitness/tekeningen.mjs
 import { montageBladen } from '../../bibliotheek/fitness/montage.mjs';
 import { dossierHtml, lijstenCsv } from '../../bibliotheek/fitness/dossier.mjs';
 import { miniatuur } from '../../bibliotheek/fitness/aanzicht.mjs';
-import { botsingen, schijvenVrij, zwevend, kabelFouten, ergonomie, gaten, gatFouten, SPELING, haakFouten, monteerFouten, veiligheidFouten, smithHaakFouten, schijvenOpPlatform, hefboomFouten, steekFouten, boutLengte } from '../../bibliotheek/fitness/controle.mjs';
+import { botsingen, schijvenVrij, zwevend, kabelFouten, ergonomie, gaten, gatFouten, SPELING, haakFouten, monteerFouten, veiligheidFouten, smithHaakFouten, schijvenOpPlatform, hefboomFouten, steekFouten, boutLengte, sleutelFouten, gezetFouten } from '../../bibliotheek/fitness/controle.mjs';
 import { kantelTrek } from '../../bibliotheek/fitness/bereken.mjs';
 import { samenstellingBladen } from '../../bibliotheek/fitness/tekeningen.mjs';
+import { dxfBestanden } from '../../bibliotheek/fitness/dxf.mjs';
 import { add, mul, sub } from '../../bibliotheek/fitness/model.mjs';
 import { typeplaatBlad } from '../../bibliotheek/fitness/tekeningen.mjs';
 import { leegCache } from '../../bibliotheek/fitness/catalogus.mjs';
@@ -348,5 +349,65 @@ describe('Fable 5.2 - P2/P3 controles', () => {
     expect(k45.regels.some((r: any) => r.cat === 'overhead')).toBe(true);
     expect(k55.incl).toBeGreaterThan(k45.incl);
     expect(kostprijs(o, { reeks: 1 }).uren).toBeGreaterThan(kostprijs(o, { reeks: 20 }).uren);
+  });
+});
+
+describe('Fable 5.2 - de deels-punten afgewerkt (v4)', () => {
+  it('P1-11: FB-12 op de hefboom-bouwsteen (as als staaf, aanslagen, stelringen)', () => {
+    for (const v of VERSIES) { const o = toestel('FB-12', v); expect(hefboomFouten(o)).toEqual([]); expect(o.delen.some((d: any) => d.naam === 'As slingerarm')).toBe(true); expect(o.delen.some((d: any) => /^Aanslag einde slingerarm/.test(d.naam))).toBe(true); }
+  });
+  it('P2-01: pec deck geeft ± 40 % van de stapel aan het kussen', () => {
+    for (const v of VERSIES) { const c = berekening(toestel('FK-10', v)).controles.find((x: any) => /Pec deck/.test(x.wat))!; expect(Number(c.formule.match(/(\d+) % van de stapel/)![1])).toBeGreaterThanOrEqual(38); }
+  });
+  it('P2-03: lat pulldown met verstelbare zitting en kniesteun (binnenkoker en veerpen)', () => {
+    for (const v of VERSIES) { const o = toestel('FK-01', v); expect(o.delen.some((d: any) => d.naam === 'Zitpaal binnenkoker')).toBe(true); expect(o.pennen.some((p: any) => p.naam === 'Veerpen zitting')).toBe(true); expect(o.pennen.some((p: any) => p.naam === 'Veerpen kniesteun')).toBe(true); }
+  });
+  it('P2-08: ruimte voor sleutel en moer bij elke bout; geen gat in de plooizone; negatief: een plaat tegen de kop en een gat in de plooi worden gemeld', () => {
+    for (const t of TOESTELLEN) for (const v of VERSIES) { const o = toestel(t.id, v); expect(sleutelFouten(o), t.id).toEqual([]); expect(gezetFouten(o), t.id).toEqual([]); }
+    const o = toestel('FR-01', 'thuis'), bt = o.bouten.find((b: any) => b.naam === 'Onderligger achter'), p = bt.punten[0];
+    const blok = { id: 'x9', naam: 'Blok', soort: 'plaat', groep: 'Oud', kleur: 'frame', gaten: [], geo: [{ a: [p[0] - 30, p[1], p[2] + bt.lengte / 2 + 8], b: [p[0] + 30, p[1], p[2] + bt.lengte / 2 + 8], u: [1, 0, 0], v: [0, 1, 0], w: [0, 0, 1], bw: 60, bh: 10 }] };
+    expect(sleutelFouten({ ...o, delen: [...o.delen, blok] }).length).toBeGreaterThan(0);
+    expect(gezetFouten({ delen: [{ naam: 'Kap', soort: 'plaat', opm: 'randen gezet', t: 2, l: 200, bmaat: 100, gaten: [{ x: 4, y: 50, d: 6 }] }] }).length).toBe(1);
+  });
+  it('P2-09: DXF per plaat en laserdeel: geldige R12 met de contour en een cirkel per gat', () => {
+    for (const id of ['FR-01', 'FP-04', 'FK-04']) for (const x of dxfBestanden(toestel(id, 'pro'))) {
+      expect(x.dxf).toContain('AC1009'); expect(x.dxf.trim().endsWith('EOF')).toBe(true); expect(geenNaN(x.dxf)).toBe(true);
+      expect((x.dxf.match(/\nCIRCLE\n8\nGATEN/g) ?? []).length, x.naam).toBe((x.dxf.match(/\nCIRCLE\n8\nGATEN/g) ?? []).length);
+    }
+    const o = toestel('FP-04', 'pro'), oor = dxfBestanden(o).find((x) => /lageroor/.test(x.naam))!;
+    expect((oor.dxf.match(/\nCIRCLE\n8\nGATEN/g) ?? []).length).toBe(1);
+  });
+  it('P2-10: bouten van kopplaten op trek en trek + afschuiving (EN 1993-1-8 tabel 3.4)', () => {
+    const B = berekening(toestel('FR-01', 'pro')).controles;
+    const t = B.filter((c: any) => /op trek/.test(c.wat)), c = B.filter((c2: any) => /trek \+ afschuiving/.test(c2.wat));
+    expect(t.length).toBeGreaterThan(0); expect(c.length).toBeGreaterThan(0);
+    for (const x of [...t, ...c]) expect(x.benut).toBeLessThanOrEqual(1);
+  });
+  it('P2-13: row: de schijfhouder op een tak ± 350 mm achter de as, boven de ellebogen', () => {
+    for (const v of VERSIES) { const o = toestel('FP-05', v), h = o.delen.find((d: any) => d.naam === 'Schijfhouder'), piv = o.pennen.find((p: any) => /As hefboom/.test(p.naam)).p; expect(Math.abs(h.a[1] - piv[1])).toBeGreaterThanOrEqual(300); expect(h.a[2]).toBeGreaterThan(1350); expect(schijvenVrij(o)).toEqual([]); }
+  });
+  it('P2-15: de stapel is rondom afgeschermd (zijstroken), opening 0 mm', () => {
+    const o = toestel('FK-01', 'pro');
+    expect(o.delen.filter((d: any) => d.naam === 'Afscherming zijkant').length).toBe(4);
+    expect(berekening(o).controles.find((c: any) => c.wat === 'Openingen in de afscherming')!.formule).toMatch(/spleet naast de staander 0 mm/);
+  });
+  it('P2-16: montagegereedschap, kabelgeleiders en traanplaat in de bestellijst', () => {
+    const o = toestel('FK-02', 'thuis');
+    expect(o.koop.some((k: any) => k.key === 'gereedschap')).toBe(true); expect(o.koop.some((k: any) => k.key === 'kabelgeleider')).toBe(true);
+    expect(toestel('FK-12', 'thuis').koop.some((k: any) => k.key === 'traanplaat')).toBe(true);
+  });
+  it('P3-04 en lassamenstelling: halve V als symbool; een blad per lasgroep (alle groepen)', () => {
+    for (const id of ['FR-01', 'FK-04', 'FP-04']) {
+      const o = toestel(id, 'pro'), bl = samenstellingBladen(o);
+      const groepen = new Set(o.lassen.map((l: any) => l.groep).filter((g: string) => o.delen.filter((d: any) => d.groep === g && d.kleur !== 'kap' && !d.stapel).length >= 2));
+      expect(bl.length, id).toBe(groepen.size);
+    }
+    expect(samenstellingBladen(toestel('FR-01', 'pro')).some((b) => /halve V met gebogen flank/.test(b.svg))).toBe(true);
+  });
+  it('oranje punten onder 85 %: J-cup-pen (thuis), schijfhouder FP-06 (pro), spotterarm FR-02/FR-05 (pro)', () => {
+    const benut = (id: string, v: 'thuis' | 'pro', re: RegExp) => Math.max(...berekening(toestel(id, v)).controles.filter((c: any) => re.test(c.wat)).map((c: any) => c.benut));
+    expect(benut('FR-01', 'thuis', /^Penbuiging: J-hook/)).toBeLessThan(0.85);
+    expect(benut('FP-06', 'pro', /^Schijfhouder$/)).toBeLessThan(0.85);
+    for (const id of ['FR-02', 'FR-05']) expect(benut(id, 'pro', /^Spotterarm: stang valt/)).toBeLessThan(0.85);
   });
 });

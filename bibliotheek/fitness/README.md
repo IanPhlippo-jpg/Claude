@@ -196,6 +196,14 @@ Alle 40 bevindingen uit [docs/Advies-Fable-5.2.md](docs/Advies-Fable-5.2.md) zij
 
 Elke P1 heeft een test met een negatieve proef (`src/qa/qaFitness.test.ts`, blok "Fable 5.2").
 
+## Versie 4: de deels-punten van Fable 5.2 afgewerkt (2026-11-15)
+
+FB-12 op de hefboom-bouwsteen; pec deck 40 % (nok R100, kussen op 250 mm); lat pulldown met verstelbare zitting;
+row met de schijfhouder op een tak (± 350 mm achter de as, boven de ellebogen); zijstroken aan de stapelafscherming;
+controles op sleutelruimte, gaten in gezette delen en bouten op trek en trek + afschuiving; DXF per plaat en laserdeel
+(`dxf.mjs`, downloads in de werkplaats); halve V (flare) als lassymbool; een lassamenstellingsblad per lasgroep;
+montageset, kabelgeleiders en traanplaat in de bestellijst.
+
 ## Wat nog open is
 
 - **Normen:** drie punten konden niet in een publieke bron nagekeken worden. Ze staan als AANNAME in de berekening; koop
