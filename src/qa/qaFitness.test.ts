@@ -511,13 +511,13 @@ describe('fitness v5 fase A2: vormtaal (gebogen buis, vrije contour, kappen)', (
     for (const id of ['FP-04', 'FP-05', 'FP-08', 'FP-09']) for (const v of VERSIES) {
       const o = toestel(id, v);
       expect(o.delen.filter((d: any) => d.naam === 'Voetframe' && d.buig?.bochten.length === 2).length, id).toBe(2);
-      expect(o.delen.filter((d: any) => d.naam === 'Portaalboog' && d.buig).length, id).toBe(2);
+      expect(o.delen.filter((d: any) => d.naam === 'Rugboog' && d.buig).length, id).toBe(2);
       const oren = o.delen.filter((d: any) => d.naam === 'Lageroor');
       expect(oren.length).toBe(4); expect(oren.every((d: any) => d.contour)).toBe(true);
       if (id !== 'FP-09') expect(oren.every((d: any) => d.contour.uitsparingen.length === 1)).toBe(true);
       expect(o.delen.filter((d: any) => /^Hefboomarm/.test(d.naam)).every((d: any) => d.buig && d.P.ovaal)).toBe(true);
       for (const g of o.delen.filter((d: any) => d.naam === 'Greep')) expect(Math.abs(g.a[2] - g.b[2]), id).toBeGreaterThan(20);
-      expect(berekening(o).controles.some((c: any) => /Portaalboog/.test(c.wat) && c.oordeel === 'groen')).toBe(true);
+      expect(berekening(o).controles.some((c: any) => /Rugboog/.test(c.wat) && c.oordeel === 'groen')).toBe(true);
       for (const st of [0, 0.5, 1]) expect(botsingen(toestel(id, v, { stand: st })), `${id} ${v} ${st}`).toEqual([]);
     }
   });
@@ -534,10 +534,10 @@ describe('fitness v5 fase A2: vormtaal (gebogen buis, vrije contour, kappen)', (
     expect(c.omtrek).toBeCloseTo(2 * (100 + 50) - 8 * 20 + 2 * Math.PI * 20, 0);
   });
   it('gebogen buis: stukblad met buigtabel, stuklijst met bochten, prijs per bocht, werkwijze buigen, laser per meter', () => {
-    const o = toestel('FP-08', 'pro'), boog = o.delen.find((d: any) => d.naam === 'Portaalboog');
+    const o = toestel('FP-08', 'pro'), boog = o.delen.find((d: any) => d.naam === 'Rugboog');
     const sb = stukBladen(o).find((b: any) => b.pos === boog.pos.pos)!;
     expect(sb.svg).toMatch(/Buigtabel/); expect(sb.svg).toMatch(/R360/);
-    expect(stuklijst(o).posities.find((p: any) => p.naam === 'Portaalboog')!.zaagT).toMatch(/gebogen: 1 bocht 90°/);
+    expect(stuklijst(o).posities.find((p: any) => p.naam === 'Rugboog')!.zaagT).toMatch(/gebogen: 1 bocht 90°/);
     const k = kostprijs(o);
     expect(k.regels.find((r: any) => r.cat === 'buigen')!.bedrag).toBeGreaterThan(0);
     expect(k.regels.find((r: any) => r.cat === 'laser')!.wat).toMatch(/m snijlijn/);
@@ -573,5 +573,30 @@ describe('fitness v5 fase A2: vormtaal (gebogen buis, vrije contour, kappen)', (
       expect(berekening(o).oordeel).not.toBe('rood');
     }
     expect(toestel('FB-02', 'pro').kussens.find((k: any) => k.naam === 'Zitting').geo[0].neus.r).toBeGreaterThan(80);
+  });
+});
+
+describe('fitness v5 fase A3: vormtaal op alle toestellen', () => {
+  it('iso-machines: één centrale rugboog (2 buizen spiegelsymmetrisch rond x = 0), ligger midden erop', () => {
+    for (const id of ['FP-04', 'FP-05', 'FP-08', 'FP-09']) for (const v of VERSIES) {
+      const o = toestel(id, v), bogen = o.delen.filter((d: any) => d.naam === 'Rugboog');
+      expect(bogen.length, id).toBe(2);
+      expect(bogen[0].a[0] + bogen[1].a[0], id).toBeCloseTo(0, 3); expect(bogen[0].a[1]).toBeCloseTo(bogen[1].a[1], 3);
+      expect(o.lassen.some((l: any) => l.A.naam === 'Rugboog' && l.B.naam === 'Rugboog'), `${id} aan elkaar gelast`).toBe(true);
+      const pt = o.delen.find((d: any) => d.naam === 'Portaalligger'); expect(pt.a[0] + pt.b[0]).toBeCloseTo(0, 3);
+    }
+  });
+  it('FP-01: zijschild met vrije contour en uitsparingen tussen de palen, vrij van de slede', () => {
+    for (const v of VERSIES) {
+      const o = toestel('FP-01', v), sch = o.delen.filter((d: any) => d.naam === 'Zijschild');
+      expect(sch.length).toBe(2); expect(sch.every((d: any) => d.contour && d.contour.uitsparingen.length >= 1)).toBe(true);
+      for (const st of [0, 0.5, 1]) expect(botsingen(toestel('FP-01', v, { stand: st }))).toEqual([]);
+    }
+  });
+  it('vloerlus in koker op de plate-loaded machines waar ze past; voorvoet en bankvoeten in pijlvorm', () => {
+    for (const id of ['FP-02', 'FP-03', 'FP-07', 'FP-10']) expect(toestel(id, 'pro').delen.filter((d: any) => d.naam === 'Vloerrail' && d.buig).length, id).toBe(2);
+    for (const id of ['FK-01', 'FK-02', 'FK-08', 'FK-09', 'FK-10', 'FK-12']) expect(toestel(id, 'pro').delen.find((d: any) => d.naam === 'Voorvoet').buig, id).toBeTruthy();
+    for (const t of TOESTELLEN.filter((x) => x.soort === 'bank')) for (const d of toestel(t.id, 'pro').delen.filter((x: any) => /voet$/i.test(x.naam) && x.naam !== 'Voorvoet' || /^(Achtervoet|Hoge voet|Lage voet)$/.test(x.naam))) expect(d.buig, `${t.id} ${d.naam}`).toBeTruthy();
+    expect(toestel('FK-06', 'pro').delen.find((d: any) => d.naam === 'Lat-arm').buig).toBeTruthy();
   });
 });

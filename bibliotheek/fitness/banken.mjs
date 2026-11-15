@@ -6,8 +6,16 @@ import { lagerOren, hefboom } from './plate.mjs';
 const pro = (b) => b.V.id === 'pro';
 const rad = (g) => (g * Math.PI) / 180;
 /** platte voet langs x op de vloer (40 hoog bij 80x40), met 2 voetjes */
-function voet(b, naam, y, breedte, rol = 'bank', x0 = 0) {
-  const P = b.P(rol), v = b.staaf(naam, rol, [x0 - breedte / 2, y, P.b / 2], [x0 + breedte / 2, y, P.b / 2], { v: Z });
+function voet(b, naam, y, breedte, rol = 'bank', x0 = 0, { boog = true } = {}) {
+  const P = b.P(rol), R = 3 * P.h, sw = 100, th = 2 * Math.atan(sw / (breedte / 2)), T = R * Math.tan(th / 2);
+  // pro-vormtaal: de voet als gebogen koker in pijlvorm (1 bocht R = 3 x de hoogte), de punten van de bank weg
+  if (boog && T < breedte / 2 - 20) {
+    const k = /^(Voor|Lage)/.test(naam) ? -1 : 1;
+    const sag = R * (1 / Math.cos(th / 2) - 1), yh = y - k * sag; // het hart van de boog valt op y
+    const v = b.buis(naam, rol, [[x0 - breedte / 2, yh + k * sw, P.b / 2], [x0, yh, P.b / 2], [x0 + breedte / 2, yh + k * sw, P.b / 2]], { vlak: Z, R, opm: `koker gebogen (1 bocht ${Math.round((th * 180) / Math.PI)}° R${R}): pijlvormige voet, de punten ${sw} mm naar ${k < 0 ? 'voren' : 'achter'}` });
+    voetjes(b, v, 2); return v;
+  }
+  const v = b.staaf(naam, rol, [x0 - breedte / 2, y, P.b / 2], [x0 + breedte / 2, y, P.b / 2], { v: Z });
   voetjes(b, v, 2); return v;
 }
 /** kussenplaat (t 5) bovenop een liggend stuk op positie t (0..1) */
@@ -45,7 +53,7 @@ function bankBasis(b, L = 1150, top = 372, yv = 120, ya = null, { vorm = false }
 function bankVorm(b, L, top, yv, ya) {
   const P = b.P('bankO'), h = P.h, Pv = b.P('bank'), br = pro(b) ? 460 : 400;
   const lig = b.staaf('Ligger', 'bankO', [0, 0, top - h / 2], [0, L, top - h / 2], { opm: 'vlakovaalbuis, hoogte verticaal' });
-  const v1 = voet(b, 'Voorvoet', yv, br);
+  const v1 = voet(b, 'Voorvoet', yv, br, 'bank', 0, { boog: false });
   const p1 = staander(b, 'Poot', 'bankO', 0, yv, Pv.b, top - h);
   // achterpoot: van onder de ligger schuin naar achter tot op de vloer, dan in een bocht naar een korte vloerloper
   const zv = Pv.b / 2, yA = ya - 230, yB = ya + 10, yC = ya + 170, R = 3 * P.h;

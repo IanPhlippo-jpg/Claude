@@ -50,8 +50,10 @@ export function proUiterlijk(b, def) {
   katrolKappen(b);
   // 6. naafkappen in de accentkleur op de draaipunten van de hefbomen (plate-loaded: herkenbare 'touch points')
   naafKappen(b);
+  // 6b. banken: lange kussens taps (smaller naar de heup), zoals bij de merkbanken
+  if (def.soort === 'bank') for (const k of o.kussens) { const g = k.geo[0]; if (k.L >= 900 && k.breedte >= 260 && !g.taps && !g.neus) g.taps = [k.breedte - 50, k.breedte]; }
   // 7. rekken: kopplaten met schuine rand op de staanders, gelaste eindplaten met ronde hoeken op de voeten, zijplaat met naam
-  if (def.soort === 'rek') rekVorm(b);
+  if (def.soort === 'rek' || def.id === 'FP-11') rekVorm(b);
   // 8. logoplaat (gelaserd 3 mm met logo-uitsparing, op VHB-tape)
   logoPlaat(b, def);
   b.groep(oud);

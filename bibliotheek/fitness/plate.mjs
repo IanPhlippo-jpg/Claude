@@ -7,8 +7,17 @@ const rad = (g) => (g * Math.PI) / 180;
 const kruis = (a, c) => [a[1] * c[2] - a[2] * c[1], a[2] * c[0] - a[0] * c[2], a[0] * c[1] - a[1] * c[0]];
 
 /** basis: twee vloerrails langs y (x = ±w/2) van y0 tot y1, en dwarsliggers op de gegeven y's */
-function basis(b, w, y0, y1, dwars = []) {
-  const P = b.P('ligger'), a = P.b;
+function basis(b, w, y0, y1, dwars = [], { lus = true } = {}) {
+  const P = b.P('ligger'), a = P.b, R = 3 * P.h;
+  if (lus && w >= 2 * R + 20 && y1 - y0 >= 2 * R + 20) {
+    // pro-vormtaal: de vloerrails en de kopse kanten als één lus in koker (2 helften, elk 2 bochten R = 3 x de hoogte)
+    for (const sx of [-1, 1]) b.buis('Vloerrail', 'ligger', [[0, y1, a / 2], [(sx * w) / 2, y1, a / 2], [(sx * w) / 2, y0, a / 2], [0, y0, a / 2]], { vlak: [0, 0, 1], R, kap: false, opm: `koker gebogen (2 bochten R${R}), halve lus; de twee helften voor en achter in het midden stomp gelast` });
+    voetPunten(b, [[-w / 2, y0 + R + 60], [w / 2, y0 + R + 60], [-w / 2, y1 - R - 60], [w / 2, y1 - R - 60]], 'de vloerlus');
+    // dwarsliggers tussen de binnenkanten van de lus; in de bocht korter, vlak bij de kopse kant vervalt hij (de lus zelf)
+    const xBinnen = (y) => { if (Math.abs(y - y0) < a + 1 || Math.abs(y - y1) < a + 1) return null; const yc = y < (y0 + y1) / 2 ? y0 + R : y1 - R, dy = Math.abs(y - yc), ri = R - a / 2; if ((y < (y0 + y1) / 2 ? y >= yc : y <= yc)) return w / 2 - a / 2; return dy < ri - 5 ? w / 2 - R + Math.sqrt(ri * ri - dy * dy) : null; };
+    const d = dwars.map((y) => { const xb = xBinnen(y); return xb && xb > a ? b.staaf('Dwarsligger', 'ligger', [-xb, y, a / 2], [xb, y, a / 2], { opm: 'tussen de binnenkanten van de vloerlus' }) : null; }).filter(Boolean);
+    return { r1: null, r2: null, d, a };
+  }
   const r1 = b.staaf('Vloerrail', 'ligger', [-w / 2, y0, a / 2], [-w / 2, y1, a / 2]), r2 = b.staaf('Vloerrail', 'ligger', [w / 2, y0, a / 2], [w / 2, y1, a / 2]);
   voetjes(b, r1, 2); voetjes(b, r2, 2);
   const d = dwars.map((y) => ligger(b, 'Dwarsligger', 'ligger', r1, r2, { y, z: a / 2 }));
@@ -218,6 +227,19 @@ export const PLATE = [
         const top = add(ra, mul(d, Lr));
         b.staaf('Achterpaal', 'frameO', [s * w / 2, top[1] - Fo.h / 2 - 2, zv], [s * w / 2, top[1] - Fo.h / 2 - 2, top[2] - a / 2], { opm: 'vlakovaalbuis, de smalle kant naar voren' });
         b.staaf('Voorpaal', 'frameO', [s * w / 2, p0[1] + Fo.h / 2, zv], [s * w / 2, p0[1] + Fo.h / 2, p0[2] - a / 2], { opm: 'vlakovaalbuis' });
+        // zijschild (pro-vormtaal): gelaserde plaat 8 mm onder de rail, tussen voor- en achterpaal en op het voetframe; de
+        // bovenrand loopt evenwijdig aan de rail, 170 mm eronder (vrij van de wangen en tegenrollen van de slede), met twee
+        // uitsparingen. Neemt de knik tussen rail en palen op en sluit de zijkant zoals bij de grote merken.
+        {
+          const yf = p0[1] + Fo.h, yr = top[1] - Fo.h - 2, zr = (y) => p0[2] + (y - p0[1]) - 170 * Math.SQRT2, t8 = 8;
+          const pts = [[yf, zv, 0], [yr, zv, 0], [yr, zr(yr), 30], [yf + 60, Math.max(zv + 80, zr(yf + 60)), 30]];
+          const uits = [];
+          const sl = (ya, yb, h) => [[ya, zr(ya) - 60 - h, 40], [yb, zr(yb) - 60 - h, 40], [yb, zr(yb) - 60, 40], [ya, zr(ya) - 60, 40]];
+          const yA = yf + 320, yB = yf + (yr - yf) * 0.55, yC = yB + 70, yD = yr - 110;
+          if (zr(yA) - 60 - 120 > zv + 60) uits.push(sl(yA, yB, Math.min(220, zr(yA) - zv - 200)));
+          if (zr(yC) - 60 - 120 > zv + 60) uits.push(sl(yC, yD, Math.min(320, zr(yC) - zv - 200)));
+          b.contour('Zijschild', [s * w / 2, 0, 0], [0, 1, 0], [0, 0, 1], t8, pts, { uitsparingen: uits, banden: 14, opm: 'gelaserd 8 mm met vrije contour en 2 uitsparingen; op voorpaal, achterpaal en voetframe gelast (niet aan de rail: daar lopen de tegenrollen)' });
+        }
       }
       // slede met loop- en tegenrollen, noodstop onderaan en een veiligheidsgrendel (tanden van 350 tot 1000 mm)
       const S = slede45(b, { p0, d, n, w, Pr, s0, s0min: 250, Ls, liggers: [80, Ls - 50], G, grendel: [350, 1150] });
@@ -409,7 +431,7 @@ export const PLATE = [
       const piv = [-280, 120, 740];
       basis(b, w, 0, 1150, [piv[1] - 65 - a / 2, 490, 700]);
       lagerBok(b, piv, -1, a);
-      const hb = hefboom(b, 'Hefboom', piv, [[-280, 950, 740]], { horen: [{ p: [-280, 950, 740], dir: [-1, 0, 0], L: 260 }], breed: 120, F: G, slag: 15 });
+      const hb = hefboom(b, 'Hefboom', piv, [[-280, 950, 740]], { horen: [{ p: [-280, 950, 740], dir: [-1, 0, 0], L: 260 }], breed: 120, F: G, slag: 15, krom: true });
       b.groep('Hefboom');
       const ka = b.staaf('Kniearm', 'hefboom', hb.rot([-280 + A.b / 2, 470, 740]), hb.rot([170, 470, 740]), { v: hb.rotDir(Y), opm: 'tegen de hefboom gelast; kniekussen eronder (4 x M8 in inslagmoeren)' });
       b.kussen('Kniekussen', hb.rot([-170, 470, 740 - A.h / 2]), hb.rot([170, 470, 740 - A.h / 2]), hb.rotDir([0, 0, -1]), 120, 60);
@@ -580,17 +602,20 @@ function isoMachine(b, def, soort) {
   // de zijboog blijft uit de buurt van de schijven in beide eindstanden (schijf Ø450 + marge)
   const kant = (ys) => ys >= y0 + Rl + 70 && ys <= y1 - Rl - 70 && Math.abs(ys - ypt) >= Rb + Fo.b && horens.every(([yh, zh]) => Math.abs(ys - yh) >= 380 && ((yh - ys) * (yh - ypt) > 0 || zt - Fo.h / 2 - zh >= 300));
   const vrij = (ys) => Math.abs(ys - ypt) >= Rb + Fo.b && horens.every(([yh, zh]) => Math.abs(ys - yh) >= 380 && ((yh - ys) * (yh - ypt) > 0 || zt - Fo.h / 2 - zh >= 300));
-  const kand = [450, -450, 600, -600, 800, -800, 1000].map((dd) => ypt + dd).filter(kant);
-  // anders: het voetframe naar voren verlengen (korte boog vóór de as), of als laatste de boog achter de schijven
-  const voor = [-450, -600].map((dd) => ypt + dd).filter((q) => q - Rl - 80 >= -650 && vrij(q));
-  const ys = kand[0] ?? voor[0] ?? Math.max(ypt + Rb + Fo.b + 30, ...horens.map(([yh]) => yh + 400));
-  if (!kand.length && voor.length) y0 = Math.min(0, ys - Rl - 80);
-  else if (!kand.length) y1 = Math.max(y1, ys + Rl + 80); // het voetframe langer maken tot de boog op het rechte stuk staat
+  // één centrale rugboog (zoals de grote merken): twee gebogen ovaalbuizen naast elkaar op de middenligger, vrij van de
+  // palen van zitting, rug-, borst- en dijkkussen; de schijven hangen buiten (|x| > 300) en raken de boog niet
+  const palen = [cfg.zit[0], cfg.rug?.[0], cfg.borst?.[0], cfg.dijk?.[0]].filter((q) => q != null);
+  const midden = (q) => q >= y0 + Fo.h + 40 && q <= y1 - Fo.h - 40 && Math.abs(q - ypt) >= Rb + Fo.b && palen.every((p) => Math.abs(q - p) >= 200) && Math.abs(q - cfg.zit[0]) >= 290;
+  const ysC = [450, -450, 600, -600, 800].map((dd) => ypt + dd).find(midden);
+  void kant; void vrij; void horens;
+  // anders vóór de as met een langer voetframe naar voren (zoals de centrale voorpaal van een iso-row)
+  const ysV = ysC == null ? ypt - 450 : null, ys = ysC ?? ysV;
+  if (ysV != null) y0 = Math.min(0, ys - Fo.h - 60);
   voetLus(b, w, y0, y1);
   const vl = b.staaf('Middenligger', 'ligger', [0, y0 + Fo.h / 2, a / 2], [0, y1 - Fo.h / 2, a / 2], { opm: 'tussen de voor- en achterkant van het voetframe; draagt de zitpaal' });
-  // portaal: twee gebogen ovaalbuizen (zijboog) die van het voetframe opstijgen en naar de ligger boven de as buigen
-  const yEind = ypt + (Math.sign(ys - ypt) * Fo.b) / 2, bogen = [-1, 1].map((sx) => b.buis('Portaalboog', 'frameO', [[(sx * w) / 2, ys, Fo.b], [(sx * w) / 2, ys, zt], [(sx * w) / 2, yEind, zt]], { R: Rb, opm: `vlakovaalbuis, 1 bocht 90° R${Rb}; onderaan op het voetframe gelast, bovenaan tegen de portaalligger` }));
-  const pt = b.staaf('Portaalligger', 'frameO', [-w / 2 - Fo.b / 2, ypt, zt], [w / 2 + Fo.b / 2, ypt, zt], { v: Y, opm: 'vlakovaalbuis, hoogte verticaal; de lagerschilden eronder (of ervoor) gelast' });
+  // rugboog: 2 x vlakovaalbuis naast elkaar (x = ±b/2), van de middenligger omhoog en in één bocht naar de ligger boven de as
+  const yEind = ypt + (Math.sign(ys - ypt) * Fo.b) / 2, bogen = [-1, 1].map((sx) => b.buis('Rugboog', 'frameO', [[(sx * Fo.b) / 2, ys, a], [(sx * Fo.b) / 2, ys, zt], [(sx * Fo.b) / 2, yEind, zt]], { R: Rb, opm: `vlakovaalbuis, 1 bocht 90° R${Rb}; twee identieke bogen naast elkaar, over de hele lengte aan elkaar gelast (één brede rugboog); onderaan op de middenligger, bovenaan tegen de ligger` }));
+  const xl = 260 + 60 + V.plaat + 20, pt = b.staaf('Portaalligger', 'frameO', [-xl, ypt, zt], [xl, ypt, zt], { v: Y, opm: 'vlakovaalbuis, hoogte verticaal; midden op de rugboog, de lagerschilden eronder (of ervoor) gelast' });
   // zitting
   // zitting in hoogte verstelbaar (P2-13): binnenkoker met 4 gaten om de 45 mm in de zitpaal, veerpen
   const zTop = cfg.zit[1] - 73 - b.P('bankLicht').h, ro = pro(b) ? 'k100x100x4' : 'k80x80x4', ri = pro(b) ? 'k80x80x4' : 'k60x60x3', zo = zTop - 120;
@@ -617,10 +642,11 @@ function isoMachine(b, def, soort) {
     schijvenOp(b, hb.h[0], 2);
   }
   void vl; void zp1;
-  b.reken('Portaalboog (gebogen ovaalbuis, x 1,3 aan de binnenkant van de bocht, Winkler R/h = 3)', bogen[0], 'uitkrager', Math.abs(ys - ypt), 0, { g: (G / 2) * 1.3, proef: 'plateLoaded', las: true });
+  b.reken('Rugboog (2 gebogen ovaalbuizen, elk de helft; x 1,3 aan de binnenkant van de bocht, Winkler R/h = 3)', bogen[0], 'uitkrager', Math.abs(ys - ypt), 0, { g: (G / 2) * 1.3, proef: 'plateLoaded', las: true });
   b.reken('Hefboomarm (moment van de schijven rond de as)', arms[0].arm[cfg.takken ? 1 : 0], 'uitkrager', Math.hypot(cfg.hoorn[1] - yp, cfg.hoorn[2] - zp), 0, { g: half, proef: 'plateLoaded', las: true });
   b.reken('Schijfhouder', arms[0].h[0], 'uitkrager', 260, 0, { g: half, proef: 'schijfhouder', las: true });
   b.reken('Portaalligger (beide hefbomen)', pt, 'ligger', w - a, 0, { g: G, proef: 'plateLoaded' });
+  b.reken('Portaalligger: uitkragend van de rugboog tot het draaipunt (per kant)', pt, 'uitkrager', 260, 0, { g: half, proef: 'plateLoaded', las: true });
   b.last('Gebruiker', 100, [0, cfg.zit[0], 800], { geval: 'iso' }); b.last('Schijven op beide armen', G, [0, cfg.hoorn[1], cfg.hoorn[2]], { geval: 'iso' });
 }
 export { lagerOren, hefboom, gat, sub, kruis };

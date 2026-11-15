@@ -90,13 +90,21 @@ function zitting(b, vl, y, z, lang = 360, breed = 320, opt = {}) {
   kussenOp(b, 'Zitting', zb, lang, breed, { op: 5 });
   return { p, zb };
 }
+/** voetjes op vrije punten (onder een gebogen voet): rubber + verborgen draadeind */
+function voetPunten(b, punten, naam) {
+  const geo = punten.flatMap(([x, y]) => [balk([x, y, -12], [x, y, -5], X, 50, 50, true, 'rubber'), balk([x, y, -5], [x, y, 0], X, 17, 17, false, 'zink', { zes: true })]);
+  b.koop(b.V.voetje, punten.length, geo, { naam: `${b.V.voetje === 'voetThuis' ? 'Stelvoet M10' : 'Rubbervoet M10'} onder ${naam}` });
+  b.koop('lasmoerM10', punten.length, [], { naam: `Lasmoer M10 in ${naam} voor de stelvoet` });
+}
 /** voet vooraan (langs x) en vloerligger tot tegen de voorligger van de toren */
 function vloer(b, T, x0 = T.x0, y0 = 0) {
   const a = b.P('ligger').b, P = b.P('ligger');
-  const vv = b.staaf('Voorvoet', 'ligger', [x0 - 300, y0 + P.b / 2, P.h / 2], [x0 + 300, y0 + P.b / 2, P.h / 2], { v: Y });
-  voetjes(b, vv, 2);
+  // pro-vormtaal: de voorvoet als gebogen koker (pijlvorm, 1 bocht R = 3 x de hoogte), de uiteinden 150 mm naar achter
+  const R = 3 * P.h, th = 2 * Math.atan(150 / 300), sag = R * (1 / Math.cos(th / 2) - 1);
+  const vv = b.buis('Voorvoet', 'ligger', [[x0 - 300, y0 + P.b / 2 + 150, P.h / 2], [x0, y0 + P.b / 2, P.h / 2], [x0 + 300, y0 + P.b / 2 + 150, P.h / 2]], { vlak: [0, 0, 1], R, opm: `koker gebogen (1 bocht ${Math.round((th * 180) / Math.PI)}° R${R}): pijlvormige voorvoet` });
+  voetPunten(b, [[x0 - 260, y0 + P.b / 2 + 130], [x0 + 260, y0 + P.b / 2 + 130]], 'de voorvoet');
   const [vmn] = doos(T.voor);
-  const vl = b.staaf('Vloerligger', 'ligger', [x0, y0 + P.b, P.h / 2], [x0, vmn[1], P.h / 2]);
+  const vl = b.staaf('Vloerligger', 'ligger', [x0, y0 + P.b / 2 + sag + P.b / 2 - 1, P.h / 2], [x0, vmn[1], P.h / 2]);
   void a; return { vv, vl };
 }
 
@@ -235,11 +243,12 @@ export const KABEL = [
       b.koop('uhmw', 1, [], { naam: 'UHMW-glijstukken in de slede (4 x 300 x 40 x 10)', oppervlak: 4 * 0.3 * 0.04 });
       b.groep('frame');
       b.schijven([0, yt - a / 2 - 120, a + 300], [0, -1, 0], 3);
-      const Pb = b.P('breed'), arm = b.staaf('Lat-arm', 'breed', [0, yt + a / 2, H + Pb.h / 2], [0, 360, H + Pb.h / 2], { v: X, opm: 'ligt op de bovenligger' });
+      // lat-arm: vlakovaalbuis die vooraan licht opbuigt (pro-vormtaal), zoals bij FK-01
+      const Pb = b.P('frameO'), opB = 120, yk = yt - a / 2 - 220, arm = b.buis('Lat-arm', 'frameO', [[0, yt + a / 2, H + Pb.h / 2], [0, yk, H + Pb.h / 2], [0, 360, H + Pb.h / 2 + opB]], { vlak: X, opm: `vlakovaalbuis, 1 bocht R${3 * Pb.h}; ligt op de bovenligger, vooraan ${opB} mm hoger` });
       for (const s2 of [-1, 1]) b.staaf('Schetsplaat lat-arm', 's60x10', [s2 * (Pb.b / 2 + 5), yt + a / 2, H + 30], [s2 * (Pb.b / 2 + 5), yt - a / 2 - 150, H + 30], { v: X, kap: false, opm: 'schetsplaat 60 x 10 naast de arm, op de bovenligger en de arm gelast (vermoeiing)' });
       const zP = H - a - 15 - r, top = a + 415, xk = Pb.b / 2 + 34;
       const pa = katrolBeugel(b, 'A (boven de slede)', [xk, yt - r, zP], X, { tot: { as: 2, w: H - a }, kap: false });
-      const pb = katrolBeugel(b, 'B (vooraan de arm)', [0, 420, H - 15 - r], X, { tot: { as: 2, w: H }, kap: false });
+      const pb = katrolBeugel(b, 'B (vooraan de arm)', [0, 420, H - 15 - r], X, { tot: { as: 2, w: H + opB * ((yk - 420) / (yk - 360)) - 4 }, kap: false });
       b.koop(V.latbar, 1, [balk([-600, 420 - r, 1600], [600, 420 - r, 1600], Y, 30, 30, true, 'chroom')]);
       b.kabel('Kabel lat', [{ p: [b.P('staander').b / 2 + 4, yt, top] }, pa, pb, { p: [0, 420 - r, 1600] }], { last: G, overbrenging: 1, slag: 700, begin: 'slede' });
       const vl = b.staaf('Vloerligger', 'ligger', [0, a, P.h / 2], [0, doos(on)[0][1], P.h / 2]);

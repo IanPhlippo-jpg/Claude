@@ -72,3 +72,11 @@
 - [x] Rekken: voetplaten met ronde hoeken en stelvoet, kopplaten met schuine rand, zijplaat met naam, J-cups met UHMW
 - [x] Banken: ovaalbuisframe met gebogen achterpoot, voorpoot met wieltjes en handgreep, taps kussen, zitting met ronde neus (FB-02, FB-01)
 - [x] Controles en tests groen, typecheck, foto's voor/na in fitness-fotos-v5a2 (FP-04, FP-08, FP-01, FK-01, FK-04, FR-01, FB-02), web, presentatie, graphify
+
+## Versie 5 fase A3: vormtaal op alle toestellen (2026-11-15)
+- [x] FP-04 (en de andere iso-machines): portaal symmetrisch of één centrale rugboog
+- [x] FP-01: zijschild met contour langs de rails, gebogen staanders
+- [x] FP-02/03/06/07/10/11/12: voetframe/bogen/schilden in ovaalbuis
+- [x] FK-02/03/05..12: omkapping, gebogen armen, ovaal frame
+- [x] Alle banken: ovaalbuisframe, gebogen poten, wielen en handgreep, vormkussens
+- [x] Controles en tests groen, typecheck, foto's voor/na per toestel in fitness-fotos-v5a3, web, presentatie, graphify

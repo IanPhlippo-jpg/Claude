@@ -261,6 +261,21 @@ Niet alleen de afwerking, ook de vormen: geen rechte kokers in rechthoekige kade
   - transportwielen aan de voorvoet en een handgreep aan het hoofdeinde;
   - taps kussen en een zitting met ronde neus.
 
+## Versie 5 fase A3: vormtaal op alle toestellen (2026-11-15)
+
+- **Iso-machines (FP-04/05/08/09):** één centrale rugboog in plaats van twee zijbogen. Het zijn twee identieke
+  gebogen vlakovaalbuizen naast elkaar, over de hele lengte aan elkaar gelast. Ze staan op de middenligger, achter de
+  rugleuning of vóór de gebruiker (iso-row), met de portaalligger midden erop. De ligger is nagerekend als uitkrager naar
+  de draaipunten.
+- **FP-01:** een zijschild 8 mm met vrije contour en twee uitsparingen tussen voorpaal, achterpaal en voetframe, 170 mm
+  onder de rail (vrij van de tegenrollen).
+- **Overige plate-loaded:** vloerrails als lus in koker met ronde hoeken waar de breedte het toelaat (FP-02/03/07/10,
+  FP-06 thuis). FP-07 krijgt een gebogen hefboomarm, FP-11 krijgt kopplaten en eindplaten zoals de rekken.
+- **Kabel:** de voorvoet onder de zitting is een gebogen koker in pijlvorm. De lat-arm van FK-06 buigt op zoals bij
+  FK-01.
+- **Banken:** alle voeten zijn gebogen kokers in pijlvorm (behalve de voorvoet met wielen van FB-01/02). Lange kussens
+  zijn taps, met de bies langs de vorm.
+
 ## Wat nog open is
 
 - **Normen:** drie punten konden niet in een publieke bron nagekeken worden. Ze staan als AANNAME in de berekening; koop
