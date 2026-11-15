@@ -1457,12 +1457,12 @@ elease; README en docs/04 bijgewerkt
 - [x] Geluid: kleine speakertjes op vrij te kiezen plaatsen, geluiden aan functies en ingangen koppelen
 - [x] Situatieplan 2D (vector) uit de Google Maps-foto: rijbanen van de bussen, sensoren, lichtgroepen, wissels, seinen, speakers
 - [x] Tv-weergave: live plan met rijdende bussen en lichtgroepen die aan/uit gaan
-- [~] Doos, schema's (IEC 60617), tekeningen, bestellijst, tests, foto's, commit en push
+- [x] Doos, schema's (IEC 60617), tekeningen, bestellijst, tests, foto's, commit en push
 
 ## Fitness: meer toestellen en varianten, uiterlijk van echte pro-toestellen (2026-11-15)
 - [x] Vragenronde met Ian: stijl mix per soort; varianten uitvoering (thuis/semi-pro/pro), maat (compact/standaard/XL), afwerking, opties; nieuw: selectorized, multigyms en rigs, opslag en accessoires, strongman en buiten; totaal ± 150 toestellen
-- [~] Uiterlijk pro: ovaal- en afgeronde kokers, lasergesneden zijplaten, kappen over stapel en katrollen, gestikte kussens, grips en knoppen in accentkleur, eindkappen, instructieplaat
-- [ ] Weergave: betere materialen (gepoedercoat, chroom, leer), licht en schaduw, studiocamera; miniaturen opnieuw
-- [ ] Varianten per toestel (maat, uitvoering, afwerking, opties) in het model, de prijzen en de bestellijst
-- [ ] Nieuwe toestellen erbij volgens de vragenronde, met berekening, tekeningen en controles
-- [ ] Tests (controle, gaten, botsingen) groen, typecheck, web, presentatie, artifact, foto's, commit en push
+- [x] Uiterlijk pro: ovaal- en afgeronde kokers, lasergesneden zijplaten, kappen over stapel en katrollen, gestikte kussens, grips en knoppen in accentkleur, eindkappen, instructieplaat
+- [x] Weergave: betere materialen (gepoedercoat, chroom, leer), licht en schaduw, studiocamera; miniaturen opnieuw
+- [x] Varianten per toestel (maat, uitvoering, afwerking, opties) in het model, de prijzen en de bestellijst
+- [x] Nieuwe toestellen erbij volgens de vragenronde, met berekening, tekeningen en controles
+- [x] Tests (controle, gaten, botsingen) groen, typecheck, web, presentatie, artifact, foto's, commit en push
