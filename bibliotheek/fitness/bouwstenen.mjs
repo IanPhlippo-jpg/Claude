@@ -8,6 +8,10 @@ export { westside };
 const r0 = (v) => Math.round(v * 10) / 10;
 /** de doos (AABB) van een deel */
 export const doos = (d) => aabb(d.geo[0]);
+/** de gekozen maat van het toestel: 'compact', 'standaard' of 'XL' */
+export const maatVan = (b) => b.o.opties?.maat ?? 'standaard';
+/** maatafhankelijke waarde: standaard + d[0] (compact) of + d[1] (XL) */
+export const mt = (b, std, d) => std + (maatVan(b) === 'compact' ? d[0] : maatVan(b) === 'XL' ? d[1] : 0);
 /** verticale staander van z0 tot z1 op (x, y) */
 export const staander = (b, naam, rol, x, y, z0, z1, opt = {}) => b.staaf(naam, rol, [x, y, z0], [x, y, z1], opt);
 /** voeg een gat toe aan een staaf op de wereldplaats p (de afstand langs de as vanaf a) */

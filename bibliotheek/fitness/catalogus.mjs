@@ -10,13 +10,24 @@ import { BANKEN } from './banken.mjs';
 import { KABEL } from './kabel.mjs';
 import { PLATE } from './plate.mjs';
 import { proUiterlijk, stijlVersie } from './pro.mjs';
+import { optiesBouwen } from './opties.mjs';
 
 export const TOESTELLEN = [...REKKEN, ...BANKEN, ...KABEL, ...PLATE];
 export const PER_ID = Object.fromEntries(TOESTELLEN.map((t) => [t.id, t]));
+/** de uitvoeringen: thuis (klasse H), semi-pro en pro (klasse S) */
+export const UITVOERINGEN = ['thuis', 'semi', 'pro'];
+// semi-pro: maximale last ± 80 % van pro (niet minder dan thuis), marktband afgeleid uit het midden van thuis en pro
+const r10 = (v) => Math.round(v / 10) * 10;
+// kabelmachines met een gewichtstapel: maat = stapelgrootte (compact 4 platen minder, XL 4 platen meer)
+for (const t of KABEL) if (/stapel|crossover|functional|kabeltoren|pec deck/i.test(`${t.naam} ${t.kort}`) && !t.maten) t.maten = ['compact', 'standaard', 'XL'];
+for (const t of TOESTELLEN) {
+  if (t.maxLast && t.maxLast.semi == null) t.maxLast.semi = Math.max(t.maxLast.thuis ?? 0, r10(0.8 * (t.maxLast.pro ?? 0)));
+  if (t.markt && !t.markt.semi) { const [a, b] = [t.markt.thuis, t.markt.pro]; t.markt.semi = [r10((a[0] + b[0]) / 2), r10((a[1] + b[1]) / 2)]; t.markt.bronS = 'AFGELEID: midden tussen de thuis- en de promarkt (licht commercieel), geen eigen bron'; }
+}
 const cache = new Map();
 /** het model van een toestel in een versie ('thuis' of 'pro') */
 export function toestel(id, versie = 'thuis', opt = {}) {
-  const stand = opt.stand ?? 0, key = `${id}|${versie}|${stand}|${opt.wagen ?? ''}`;
+  const stand = opt.stand ?? 0, key = `${id}|${versie}|${stand}|${opt.wagen ?? ''}|${opt.maat ?? ''}|${JSON.stringify(opt.afwerking ?? {})}|${[...(opt.opties ?? [])].sort().join(',')}`;
   if (cache.has(key)) return cache.get(key);
   const def = PER_ID[id];
   if (!def) throw new Error(`onbekend toestel ${id}`);
@@ -24,9 +35,10 @@ export function toestel(id, versie = 'thuis', opt = {}) {
   b.o.opties = opt;
   def.bouw.call(def, b, V);
   proUiterlijk(b, def);
+  optiesBouwen(b, def);
   const o = afwerken(b.o);
   snoeiWestside(o);
-  o.def = def; o.id = id; o.versie = versie; o.naam = def.naam; o.maxLast = def.maxLast?.[versie] ?? 0; o.stand = stand;
+  o.def = def; o.id = id; o.versie = versie; o.naam = def.naam; o.maxLast = def.maxLast?.[versie] ?? 0; o.stand = stand; o.maat = (def.maten ?? []).includes(opt.maat) ? opt.maat : 'standaard';
   for (const p of o.pennen) if (!p.F && p.factor === 'vanghaak' && o.maxLast) p.F = o.maxLast / 2; // J-cup, spotter, safety: de halve last per kant
   // P2-06: boutlengte per verbinding en een kooplijn per lengte; afstandsbussen in doorgeboute kokers
   let bussen = 0;
@@ -60,7 +72,7 @@ export function toestel(id, versie = 'thuis', opt = {}) {
   if (traan.length) o.koop.push({ id: 'k-traan', soort: 'koop', key: 'traanplaat', n: 1, oppervlak: Math.round(traan.reduce((s2, d) => s2 + (d.l * d.bmaat) / 1e6, 0) * 100) / 100, naam: `Traanplaat 5/7 mm (${traan.length} stuk${traan.length > 1 ? 'ken' : ''}, laseren op maat)`, groep: 'afwerking', geo: [] });
   o.detail = [...details(o), ...o.pronk];
   // knelpunten over de slag: kleinste afstand bewegend - vast in stand 0, 0,5 en 1 (lui berekend, voor de berekening)
-  o.knelMeting = () => [0, 0.5, 1].flatMap((st) => knelAfstanden(st === stand ? o : toestel(id, versie, { stand: st })).map((k) => ({ ...k, stand: st })));
+  o.knelMeting = () => [0, 0.5, 1].flatMap((st) => knelAfstanden(st === stand ? o : toestel(id, versie, { ...opt, stand: st })).map((k) => ({ ...k, stand: st })));
   cache.set(key, o);
   return o;
 }

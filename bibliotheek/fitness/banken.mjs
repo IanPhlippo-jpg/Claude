@@ -1,9 +1,9 @@
 // Banken (FB-01 .. FB-12): elk in de thuis- en de proversie. Maten in mm: x = breedte, y = diepte (0 = voeteneinde),
 // z = hoogte. Kussens: multiplex 18 + koudschuim RG40 50 + kunstleer; met inslagmoeren M8 op kussenplaten.
-import { staander, ligger, jhook, hoorn, voetjes, kussenOp, doos, gat, X, Y, Z, balk, add, mul, sub, norm, len } from './bouwstenen.mjs';
+import { staander, ligger, jhook, hoorn, voetjes, kussenOp, doos, gat, X, Y, Z, balk, add, mul, sub, norm, len, mt } from './bouwstenen.mjs';
 import { lagerOren, hefboom } from './plate.mjs';
 
-const pro = (b) => b.V.id === 'pro';
+const pro = (b) => b.V.id !== 'thuis'; // pro en semi-pro: dezelfde maten
 const rad = (g) => (g * Math.PI) / 180;
 /** platte voet langs x op de vloer (40 hoog bij 80x40), met 2 voetjes */
 function voet(b, naam, y, breedte, rol = 'bank', x0 = 0, { boog = true } = {}) {
@@ -69,13 +69,13 @@ function bankVorm(b, L, top, yv, ya) {
 
 export const BANKEN = [
   {
-    id: 'FB-01', soort: 'bank', naam: 'Vlakke bank', kort: 'Stevige vlakke bank, kussen op 440 mm.',
+    id: 'FB-01', soort: 'bank', maten: ['compact', 'standaard', 'XL'], naam: 'Vlakke bank', kort: 'Stevige vlakke bank, kussen op 440 mm.',
     uitleg: 'Een ligger op twee poten en twee platte voeten met rubber stelvoeten. Kussen 1150 x 280 (pro 1200 x 300), bovenkant op 440 mm zoals in het krachtsport-reglement (420-450).',
     spieren: 'borst, schouders, triceps (met halters)', oefeningen: ['bankdrukken met halters', 'dumbbell row', 'step-ups', 'hip thrust'],
     maxLast: { thuis: 80, pro: 120 },
     markt: { thuis: [160, 305], pro: [400, 850], bronT: 'ATX Flat Bench € 169-289, Bodycraft € 299, Rogue Bolt Together Utility € 304', bronP: 'Taurus Studio € 399, Rogue Monster Utility 2.0 € 496, Hammer Strength Flat Bench ± € 810' },
     bouw(b) {
-      const V = b.V, L = pro(b) ? 1200 : 1150, B = pro(b) ? 300 : 280, bb = bankBasis(b, L, 372, 70, L - 70, { vorm: true });
+      const V = b.V, L = mt(b, pro(b) ? 1200 : 1150, [-100, 100]), B = pro(b) ? 300 : 280, bb = bankBasis(b, L, 372, 70, L - 70, { vorm: true });
       kussenplaat(b, bb.lig, 0.2); kussenplaat(b, bb.lig, 0.8);
       kussenOp(b, 'Kussen', bb.lig, L, B, { op: 5, taps: [B - 50, B] });
       b.last('Gebruiker zit op het einde van de bank', 100, [0, L - 120, 600], { geval: 'liggen' });

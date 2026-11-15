@@ -192,7 +192,8 @@ export function bouwer(V, stand = 0) {
     },
     /** gewichtstapel tussen twee geleidestangen (x-afstand 'hoh'), onderkant op z0; geeft { top, stang } */
     stapel(naam, c, z0, opt = {}) {
-      const n = opt.n ?? V.stapelN, kg = V.stapelKg, w = 340, dpl = opt.dpl ?? 112, t = 20, hoh = opt.hoh ?? 220, slag = opt.slag ?? 600, H = opt.hoogte ?? 0;
+      // maat compact / XL: 4 platen minder of meer (± 20 kg) in de standaardstapel
+      const mz = o.opties?.maat, n = opt.n ?? V.stapelN + (mz === 'compact' ? -4 : mz === 'XL' ? 4 : 0), kg = V.stapelKg, w = 340, dpl = opt.dpl ?? 112, t = 20, hoh = opt.hoh ?? 220, slag = opt.slag ?? 600, H = opt.hoogte ?? 0;
       const dz = (b.stand ?? 0) * slag, mn = [c[0] - w / 2, c[1] - dpl / 2, z0 + 60 + dz];
       const plts = [];
       groep = `stapel ${naam}`;

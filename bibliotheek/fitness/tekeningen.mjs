@@ -1,7 +1,7 @@
 // Alle werkplaatsbladen van een fitnesstoestel (SVG, mm): overzicht A3 in eerste hoekprojectie met de hoofdmaten,
 // stuklijst (ISO 7573), lasdetails (ISO 2553), boringen, kabelschema (kabelmachines), bekledingsblad (kussens),
 // bestellijst met zaagplan op 6 m en plaatnesting, en een A4 per stuk. Node en browser.
-import { svg, A3, A4L, lijn, tk, maat, tabel, titelblok, schaal, rij, lasSymbool, lasSymboolFlare, f, naamVan, versieTekst, esc } from './blad.mjs';
+import { svg, A3, A4L, lijn, tk, maat, tabel, titelblok, schaal, rij, lasSymbool, lasSymboolFlare, f, naamVan, versieTekst, esc, tekeningNr, variantTekst } from './blad.mjs';
 import { tekenBalken, omhullende, alleGeo, PROJ, iso } from './aanzicht.mjs';
 import { stuklijst, zaagplan, nesting, totalen, KLEM } from './stuklijst.mjs';
 import { puntOp } from './vorm.mjs';
@@ -36,7 +36,7 @@ export function boorRijen(o, d) {
 const r0 = (v) => Math.round(v);
 const gw = (v, d = 1) => (Math.round(v * 10 ** d) / 10 ** d).toLocaleString('nl-BE');
 const datum = (meta) => meta.datum ?? new Date().toISOString().slice(0, 10);
-const nr = (o, n) => `${o.id}-${o.versie === 'pro' ? 'P' : 'T'}-${n}`;
+const nr = (o, n) => tekeningNr(o, n);
 
 /** zet een aanzicht van alle balken in een vak [x, y, w, h] met schaal k (papier-mm per mm); geeft { svg, box, P, k, ox, oy } */
 function aanzicht(geo, proj, k, x, y) {
@@ -360,7 +360,7 @@ export function typeplaatBlad(o, meta = {}) {
   el.push(`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="3" fill="#e9ecef" stroke="#111" stroke-width="0.5"/>`, `<rect x="${x}" y="${y}" width="${w}" height="12" rx="3" fill="#16181b"/>`);
   for (const [cx, cy] of [[x + 4, y + 16], [x + w - 4, y + 16], [x + 4, y + h - 4], [x + w - 4, y + h - 4]]) el.push(`<circle cx="${cx}" cy="${cy}" r="1.6" fill="#fff" stroke="#111" stroke-width="0.25"/>`);
   el.push(tk(x + 4, y + 8.5, `${o.id} ${o.naam}`.slice(0, 40), 3.6, { vet: true, kleur: '#fff' }));
-  const regels = [['Fabrikant', '[naam en adres van de zaak invullen]'], ['Type / versie', `${o.id}-${o.versie === 'pro' ? 'P' : 'T'} · ${o.V.naam}`], ['Ontwerp', `ontworpen volgens EN ISO 20957 · klasse ${o.V.klasse}`], ['Status', 'PROTOTYPE: proeflast nodig'], ['Max. gebruiker', `${o.V.gebruiker} kg`], ['Max. trainingslast', o.maxLast ? `${o.maxLast} kg` : o.stapels.length ? `stapel ${o.stapels.map((s) => s.n * s.kg).join(' + ')} kg` : 'zie handleiding'], ['Serienummer / jaar', '__________ / 20__']];
+  const regels = [['Fabrikant', '[naam en adres van de zaak invullen]'], ['Type / versie', `${tekeningNr(o)} · ${variantTekst(o)} · ${o.V.naam}`], ['Ontwerp', `ontworpen volgens EN ISO 20957 · klasse ${o.V.klasse}`], ['Status', 'PROTOTYPE: proeflast nodig'], ['Max. gebruiker', `${o.V.gebruiker} kg`], ['Max. trainingslast', o.maxLast ? `${o.maxLast} kg` : o.stapels.length ? `stapel ${o.stapels.map((s) => s.n * s.kg).join(' + ')} kg` : 'zie handleiding'], ['Serienummer / jaar', '__________ / 20__']];
   regels.forEach(([a, b], i) => el.push(tk(x + 10, y + 18 + i * 5.6, a, 2.1, { kleur: '#555' }), tk(x + 42, y + 18 + i * 5.6, b, 2.4, { vet: i > 0 && i < 6, kleur: /PROTOTYPE/.test(b) ? '#b42318' : undefined })));
   // waarschuwing (ISO 7010 W001) en de vrije zone
   el.push(`<polygon points="${x + 140},${y} ${x + 156},${y + 28} ${x + 124},${y + 28}" fill="#f5c400" stroke="#111" stroke-width="0.8"/>`, tk(x + 140, y + 24, '!', 14, { vet: true, anker: 'middle' }));

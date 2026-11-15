@@ -4,7 +4,7 @@
 import { staander, ligger, dwarsOp, voetjes, kussenOp, katrolBeugel, doos, gat, X, Y, Z, balk, add, mul, sub, norm } from './bouwstenen.mjs';
 import { KOOP } from './onderdelen.mjs';
 
-const pro = (b) => b.V.id === 'pro';
+const pro = (b) => b.V.id !== 'thuis'; // pro en semi-pro: dezelfde maten
 const rad = (g) => (g * Math.PI) / 180;
 const R = (b) => KOOP[b.V.katrol].D / 2;
 const gewicht = (b) => b.V.stapelN * b.V.stapelKg;
@@ -73,7 +73,7 @@ function zitting(b, vl, y, z, lang = 360, breed = 320, opt = {}) {
   let p;
   if (opt.verstel) {
     // verstelbaar (P2-03): buitenkoker op de vloerligger, binnenkoker met gaten om de 45 mm, veerpen
-    const zTop = z - 73 - Pl.h, pro2 = b.V.id === 'pro', ro = pro2 ? 'k100x100x4' : 'k80x80x4', ri = pro2 ? 'k80x80x4' : 'k60x60x3', zo = zTop - 120, zb0 = mx[2] + 5, s0 = zo - 40 - zb0;
+    const zTop = z - 73 - Pl.h, pro2 = b.V.id !== 'thuis', ro = pro2 ? 'k100x100x4' : 'k80x80x4', ri = pro2 ? 'k80x80x4' : 'k60x60x3', zo = zTop - 120, zb0 = mx[2] + 5, s0 = zo - 40 - zb0;
     p = staander(b, 'Zitpaal', ro, vl.a[0], y, mx[2], zo, { gaten: [{ s: zo - mx[2] - 40, d: b.V.pin + 1, as: 'v' }] });
     const oud = b.huidig; b.groep('Zitting');
     b.staaf('Zitpaal binnenkoker', ri, [vl.a[0], y, zb0], [vl.a[0], y, zTop], { in: p.id, gaten: Array.from({ length: Math.min(4, Math.floor((zTop - zb0 - 40 - s0) / 45) + 1) }, (_, q) => ({ s: s0 + q * 45, d: b.V.pin + 1, as: 'v' })), opm: 'schuift in de zitpaal; gaten om de 45 mm: zitting in 3-4 standen' });

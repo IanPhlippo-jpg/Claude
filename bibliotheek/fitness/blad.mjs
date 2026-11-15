@@ -17,7 +17,7 @@ export function titelblok(o, [w, h], opts = {}) {
   veld(0, 0, 'Eigenaar', 'Ian · laswerken', groot ? 2.5 : 2.2, true); veld(k1, 0, 'Bibliotheek', 'Fitnesstoestellen', groot ? 2.3 : 2);
   veld(k3, 0, 'Projectie', '', 2); el.push(eersteHoek(tx + k3 + 4, ty + 1.6, groot ? 0.48 : 0.4));
   veld(0, 1, 'Titel', opts.titel ?? naamVan(o), groot ? 2.8 : 2.3, true, groot ? 70 : 50);
-  veld(0, 2, 'Toestel', groot ? `${naamVan(o)} · ${o.V.naam}, klasse ${o.V.klasse}` : `${o.id} · ${o.V.naam} (klasse ${o.V.klasse})`, groot ? 2.1 : 1.8, false, groot ? 70 : 46); veld(k2, 2, 'Tekeningnummer', opts.nr ?? `${o.id}-${o.versie === 'pro' ? 'P' : 'T'}`, groot ? 2.3 : 2, true); veld(k3 + (groot ? 12 : 6), 2, 'Rev.', opts.rev ?? '1', 2.2);
+  veld(0, 2, 'Toestel', groot ? `${naamVan(o)} · ${variantTekst(o)}, klasse ${o.V.klasse}` : `${o.id} · ${variantTekst(o)} (klasse ${o.V.klasse})`, groot ? 2.1 : 1.8, false, groot ? 70 : 46); veld(k2, 2, 'Tekeningnummer', opts.nr ?? tekeningNr(o), groot ? 2.3 : 2, true); veld(k3 + (groot ? 12 : 6), 2, 'Rev.', opts.rev ?? '1', 2.2);
   veld(0, 3, 'Maten en toleranties', groot ? 'mm · ISO 2768-m · lassen ISO 5817-C' : 'mm · ISO 2768-m · ISO 5817-C', groot ? 2.1 : 1.6); veld(k1 + (groot ? 10 : 6), 3, 'Schaal', opts.schaal ?? '', 2.1); veld(k2, 3, 'Uitgifte', opts.datum ?? '', 2); veld(k3 + (groot ? 12 : 6), 3, 'Blad', opts.blad ?? '1 / 1', 2.1);
   veld(0, 4, 'Getekend', opts.getekend ?? 'model (bibliotheek fitness)', groot ? 1.9 : 1.6); veld(k1 + (groot ? 10 : 6), 4, 'Goedgekeurd', opts.goedgekeurd ?? '______', 1.9); veld(k2, 4, 'Documentsoort', opts.soort ?? 'werkplaatstekening', groot ? 1.9 : 1.6, false, 22); veld(k3 + (groot ? 12 : 6), 4, 'Materiaal', opts.materiaal ?? 'S235, RAL', 1.6, false, 14);
   return el.join('');
@@ -41,3 +41,14 @@ export function schaal(s) {
 }
 /** tekst afbreken op n tekens */
 export function rij(t, n) { const w = String(t).split(' '), uit = []; let r = ''; for (const x of w) { if ((r + ' ' + x).trim().length > n) { if (r) uit.push(r); r = x; } else r = (r + ' ' + x).trim(); } if (r) uit.push(r); return uit; }
+
+/** de variant in woorden: uitvoering, maat (als niet standaard) en het aantal opties */
+export function variantTekst(o) {
+  const m = o.maat && o.maat !== 'standaard' ? ` · ${o.maat}` : '', n = (o.gekozenOpties ?? []).filter((x) => x.gelukt).length;
+  return `${o.V.naam}${m}${n ? ` · ${n} optie${n > 1 ? 's' : ''}` : ''}`;
+}
+/** het tekeningnummer: toestel - uitvoering (T, SP, P) [- C of XL] */
+export function tekeningNr(o, n = '') {
+  const u = { pro: 'P', semi: 'SP' }[o.versie] ?? 'T', m = o.maat === 'compact' ? '-C' : o.maat === 'XL' ? '-XL' : '';
+  return `${o.id}-${u}${m}${n ? `-${n}` : ''}`;
+}

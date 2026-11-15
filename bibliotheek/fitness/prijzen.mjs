@@ -5,6 +5,7 @@
 import { KOOP } from './onderdelen.mjs';
 import { stuklijst, zaagplan, totalen } from './stuklijst.mjs';
 import { werkwijze, UREN } from './werkwijze.mjs';
+import { RAL_STANDAARD } from './opties.mjs';
 
 /** standaardinstellingen (excl. btw) met hun bron */
 export const STANDAARD = {
@@ -15,7 +16,7 @@ export const STANDAARD = {
   // leercurve: factor op de uren voor het zoveelste stuk van een reeks (stuk 1 = prototype, stuk 20 = met lasmallen)
   reeks: 5, leercurve: { 1: 2.5, 5: 1.6, 20: 1.0 },
   // overhead per toestel (AANNAME, P2-17)
-  overhead: { lakkerijRit: 100, perRit: 4, transport: 60, verpakking: { thuis: 25, pro: 45 }, handleiding: 10, mallen: 50, garantiePct: 3, verzekeringPct: 1.5 },
+  overhead: { lakkerijRit: 100, perRit: 4, transport: 60, verpakking: { thuis: 25, semi: 40, pro: 45 }, handleiding: 10, mallen: 50, garantiePct: 3, verzekeringPct: 1.5 },
 };
 export const BRON = {
   uurloon: 'AANNAME: zelfde uurloon als de balustrades en taatsdeuren',
@@ -42,7 +43,8 @@ export function kostprijs(o, inst = {}) {
   const laserP = sl.posities.filter((p) => p.soort === 'plaat' && !p.voorbeeld.stapel), snijBedrag = laserP.reduce((s2, p) => s2 + p.n * (p.snij.m * snijPrijs(p.t) + p.snij.insteken * I.insteek), 0);
   regels.push({ cat: 'laser', wat: `Laserdelen (${Math.round(kgLaser)} kg, ${laserP.reduce((s2, p) => s2 + p.n, 0)} stuks, ${(t.snijM).toFixed(1).replace('.', ',')} m snijlijn, ${t.insteken} insteken)`, bedrag: kgLaser * I.plaatKg + snijBedrag, bron: BRON.laser });
   if (kgStapel) regels.push({ cat: 'stapel', wat: `Gewichtstapel (${Math.round(kgStapel)} kg, platen 20 mm)`, bedrag: kgStapel * I.stapelKg, bron: BRON.stapelKg });
-  regels.push({ cat: 'coat', wat: `Poedercoat ${t.opp.toFixed(1).replace('.', ',')} m²`, bedrag: t.opp * I.coatM2, bron: BRON.coatM2 });
+  regels.push({ cat: 'coat', wat: `Poedercoat ${t.opp.toFixed(1).replace('.', ',')} m² in RAL ${o.afwerking?.ral ?? '9005'}`, bedrag: t.opp * I.coatM2, bron: BRON.coatM2 });
+  if (o.afwerking && !RAL_STANDAARD.includes(o.afwerking.ral)) regels.push({ cat: 'coat', wat: `Kleur RAL ${o.afwerking.ral} buiten de standaardkleuren (kleine reeks, + 20 %)`, bedrag: t.opp * I.coatM2 * 0.2, bron: 'AANNAME: meerprijs lakkerij voor een kleur die niet in de vaste reeks zit' });
   const koop = sl.koop.map((x) => { const prijs = I.koopPrijs[x.key] ?? x.prijs; return { ...x, prijs, bedrag: x.bedrag - x.hoeveelheid * x.prijs + x.hoeveelheid * prijs }; });
   for (const x of koop) regels.push({ cat: BEKLEDING.has(x.key) ? 'bekleding' : 'koop', wat: `${x.naam} (${fmt(x.hoeveelheid)} ${x.eenheid})`, bedrag: x.bedrag, bron: /AANNAME/.test(x.winkel) && /^AANNAME/.test(x.bron) ? x.bron : `${x.winkel}${x.nagekeken || /AANNAME/.test(x.winkel + x.bron) ? '' : ' (AANNAME)'}: ${x.bron}`, key: x.key });
   const lc = I.leercurve ?? STANDAARD.leercurve, rk = Object.keys(lc).map(Number).filter((n) => n <= (I.reeks ?? 5)).sort((a, b) => b - a)[0] ?? 1, fLc = lc[rk];
@@ -54,10 +56,10 @@ export function kostprijs(o, inst = {}) {
   regels.push({ cat: 'overhead', wat: 'Handleiding NL/FR en montagefiche', bedrag: OH.handleiding, bron: 'AANNAME' });
   regels.push({ cat: 'overhead', wat: 'Afschrijving lasmallen en gereedschap', bedrag: OH.mallen, bron: 'AANNAME' });
   regels.push({ cat: 'overhead', wat: `Garantie (${OH.garantiePct} %) en productaansprakelijkheid (${OH.verzekeringPct} %) op materiaal + arbeid`, bedrag: (mat0 + arbeid) * (OH.garantiePct + OH.verzekeringPct) / 100, bron: 'AANNAME' });
-  const materiaal = regels.reduce((s, x) => s + x.bedrag, 0), kp = materiaal + arbeid, marge = (I.marge[o.def.soort] ?? 30) + (o.versie === 'pro' ? I.margePro : 0), verkoop = kp * (1 + marge / 100), incl = verkoop * (1 + I.btw / 100);
+  const materiaal = regels.reduce((s, x) => s + x.bedrag, 0), kp = materiaal + arbeid, marge = (I.marge[o.def.soort] ?? 30) + (o.versie === 'pro' ? I.margePro : o.versie === 'semi' ? I.margePro / 2 : 0), verkoop = kp * (1 + marge / 100), incl = verkoop * (1 + I.btw / 100);
   const perCat = {}; for (const x of regels) perCat[x.cat] = (perCat[x.cat] ?? 0) + x.bedrag; perCat.arbeid = arbeid;
   const band = o.def.markt[o.versie], status = incl < band[0] ? 'onder' : incl > band[1] ? 'boven' : 'in';
-  return { regels, materiaal, uren, arbeid, kostprijs: kp, marge, verkoop, incl, perCat, stappen, stuklijst: sl, zaagplan: zp, totalen: t, koop, instellingen: I, markt: { band, status, bron: o.versie === 'pro' ? o.def.markt.bronP : o.def.markt.bronT, melding: status === 'in' ? '' : status === 'onder' ? `Onder de markt (${eur0(band[0])}-${eur0(band[1])}): ruimte voor een hogere marge.` : `Boven de markt (${eur0(band[0])}-${eur0(band[1])}): minder uren, een goedkoper profiel of verkopen als maatwerk.` } };
+  return { regels, materiaal, uren, arbeid, kostprijs: kp, marge, verkoop, incl, perCat, stappen, stuklijst: sl, zaagplan: zp, totalen: t, koop, instellingen: I, markt: { band, status, bron: o.versie === 'pro' ? o.def.markt.bronP : o.versie === 'semi' ? o.def.markt.bronS : o.def.markt.bronT, melding: status === 'in' ? '' : status === 'onder' ? `Onder de markt (${eur0(band[0])}-${eur0(band[1])}): ruimte voor een hogere marge.` : `Boven de markt (${eur0(band[0])}-${eur0(band[1])}): minder uren, een goedkoper profiel of verkopen als maatwerk.` } };
 }
 const fmt = (v) => (Math.round(v * 100) / 100).toString().replace('.', ',');
 const eur0 = (v) => `€ ${Math.round(v).toLocaleString('nl-BE')}`;

@@ -1,10 +1,12 @@
 // Rekken en racks (FR-01 .. FR-14): elk toestel bouwt zichzelf in de thuis- of de proversie met de bouwstenen.
 // Maten in mm: x = breedte, y = diepte (0 = voorkant), z = hoogte. Marktprijzen incl. btw (docs/Marktprijzen.md).
-import { staander, ligger, dwarsOp, jhook, safety, hoorn, voetjes, gatZ, westside, doos, gat, X, Y, Z, balk } from './bouwstenen.mjs';
+import { staander, ligger, dwarsOp, jhook, safety, hoorn, voetjes, gatZ, westside, doos, gat, X, Y, Z, balk, mt } from './bouwstenen.mjs';
+/** maten: compact (lage kelder, 2,0-2,1 m), standaard, XL (hoge zolder of lange sporters) */
+const MATEN = ['compact', 'standaard', 'XL'];
 
 /** Westside-gaten op een staander die op z0 begint: van 300 tot H - 150, bankzone 400-1000 om de 25 mm */
 const ws = (b, z0, H) => ({ gaten: westside(300 - z0, 400 - z0, 1000 - z0, H - 150 - z0, b.V.gat), westside: { d: b.V.gat } });
-const pro = (b) => b.V.id === 'pro';
+const pro = (b) => b.V.id !== 'thuis'; // pro en semi-pro: dezelfde maten
 /** ankers in een voetbalk (verticale gaten) en de keilbouten */
 function ankers(b, S, n = 2) {
   for (const t of n === 2 ? [0.05, 0.72] : [0.5]) gat(S, [S.a[0] + (S.b[0] - S.a[0]) * t, S.a[1] + (S.b[1] - S.a[1]) * t, S.a[2]], 14, Math.abs(S.w[2]) > 0.5 ? 'w' : 'v');
@@ -13,13 +15,13 @@ function ankers(b, S, n = 2) {
 
 export const REKKEN = [
   {
-    id: 'FR-01', soort: 'rek', naam: 'Power rack', kort: 'Volledige kooi met J-hooks, safety\'s en optrekstang.',
+    id: 'FR-01', soort: 'rek', maten: MATEN, naam: 'Power rack', kort: 'Volledige kooi met J-hooks, safety\'s en optrekstang.',
     uitleg: 'Vier staanders met Westside-gaten (25 mm in de bankzone), J-hooks en safety\'s aan de binnenkant, optrekstang vooraan en schijfhouders achteraan. De zijkanten zijn gelast, de liggers gebout.',
     spieren: 'benen, rug, borst, schouders (vrije halterstang)', oefeningen: ['squat', 'bankdrukken', 'militaire press', 'rack pulls', 'optrekken'],
     maxLast: { thuis: 300, pro: 450 },
     markt: { thuis: [300, 1460], pro: [1400, 7150], bronT: 'Taurus Power Rack (Fitshop) € 299-399, Gorilla Power Squat Rack € 400, Rogue RML-390/490 € 1186-1456', bronP: 'Watson Power Rack ± € 1150-1390, Primal PXD ± € 7150, Hammer Strength HD Elite' },
     bouw(b) {
-      const V = b.V, a = b.P('staander').b, H = pro(b) ? 2300 : 2200, wi = 1120, D = pro(b) ? 1220 : 1100, xs = wi / 2 + a / 2, yf = 200, yb = yf + D;
+      const V = b.V, a = b.P('staander').b, H = mt(b, pro(b) ? 2300 : 2200, [-200, 150]), wi = 1120, D = mt(b, pro(b) ? 1220 : 1100, [-160, 150]), xs = wi / 2 + a / 2, yf = 200, yb = yf + D;
       const st = {};
       for (const [k, x] of [['L', -xs], ['R', xs]]) {
         b.groep(`Zijframe ${k}`);
@@ -51,13 +53,13 @@ export const REKKEN = [
     },
   },
   {
-    id: 'FR-02', soort: 'rek', naam: 'Half rack', kort: 'Twee staanders met spotterarmen, achteraan schijfhouders.',
+    id: 'FR-02', soort: 'rek', maten: MATEN, naam: 'Half rack', kort: 'Twee staanders met spotterarmen, achteraan schijfhouders.',
     uitleg: 'Twee hoge staanders met Westside-gaten, lange voetbalken naar achter met twee korte staanders vol schijfhouders. Spotterarmen vooraan als veiligheid.',
     spieren: 'benen, rug, borst, schouders', oefeningen: ['squat', 'bankdrukken', 'militaire press', 'optrekken'],
     maxLast: { thuis: 300, pro: 450 },
     markt: { thuis: [515, 965], pro: [1860, 6550], bronT: 'ATX Half Rack 750 € 514, Taurus Squat Rack Pro € 599, Rogue HR-2 € 965', bronP: 'Primal commercial half rack ± € 1860, Watson Animal Half Rack ± € 2000-2400, HS HD Elite Half Rack ± € 6550' },
     bouw(b) {
-      const V = b.V, a = b.P('staander').b, H = pro(b) ? 2300 : 2200, wi = 1120, xs = wi / 2 + a / 2, yf = 500, yb = yf + 900, st = {};
+      const V = b.V, a = b.P('staander').b, H = mt(b, pro(b) ? 2300 : 2200, [-200, 150]), wi = 1120, xs = wi / 2 + a / 2, yf = 500, yb = yf + 900, st = {};
       for (const [k, x] of [['L', -xs], ['R', xs]]) {
         b.groep(`Zijframe ${k}`);
         const voet = b.staaf('Voetbalk', 'voet', [x, 0, a / 2], [x, yb + 150, a / 2]);
@@ -149,13 +151,13 @@ export const REKKEN = [
     },
   },
   {
-    id: 'FR-05', soort: 'rek', naam: 'Squat rack met optrekstang', kort: 'Twee staanders op lange voeten, met optrekstang.',
+    id: 'FR-05', soort: 'rek', maten: MATEN, naam: 'Squat rack met optrekstang', kort: 'Twee staanders op lange voeten, met optrekstang.',
     uitleg: 'Twee staanders op lange voetbalken voor- en achteraan, verbonden met een bovenligger en een optrekstang. J-hooks, spotterarmen en twee schijfhouders.',
     spieren: 'benen, borst, rug, schouders', oefeningen: ['squat', 'bankdrukken', 'optrekken', 'militaire press'],
     maxLast: { thuis: 300, pro: 450 },
     markt: { thuis: [375, 600], pro: [1500, 2500], bronT: 'ATX Wall-Mount Half Rack HRW-640 € 375, Bodycraft F460 € 499, Taurus Squat Rack Pro € 599', bronP: 'Taurus Elite Squat Rek € 1499, Primal commercial half rack ± € 1860' },
     bouw(b) {
-      const V = b.V, a = b.P('staander').b, H = 2250, wi = 1120, xs = wi / 2 + a / 2, yc = 650, st = {};
+      const V = b.V, a = b.P('staander').b, H = mt(b, 2250, [-200, 150]), wi = 1120, xs = wi / 2 + a / 2, yc = 650, st = {};
       for (const [k, x] of [['L', -xs], ['R', xs]]) {
         b.groep(`Zijframe ${k}`);
         const voet = b.staaf('Voetbalk', 'voet', [x, 0, a / 2], [x, 1300, a / 2]);

@@ -20,7 +20,7 @@ export const STIJL = {
 /** profielkeuze per soort: plate-loaded krijgt vlakovaalbuis voor de hefboomarmen (berekening volgt het profiel) */
 export function stijlVersie(V, soort) {
   if (soort !== 'plate') return V;
-  return { ...V, P: { ...V.P, hefboom: V.id === 'pro' ? 'o120x60x4' : 'o100x50x3' } };
+  return { ...V, P: { ...V.P, hefboom: V.id === 'pro' ? 'o120x60x4' : V.id === 'semi' ? 'o120x60x3' : 'o100x50x3' } };
 }
 const VAST = /^(frame|Zijframe|Bovenligger|Onderligger|Toren|Staander|Vloerligger)/;
 const as3 = (v) => v.map((x) => Math.round(x * 1e6) / 1e6);
@@ -30,6 +30,9 @@ const asAs = (v) => { const i = v.findIndex((x) => Math.abs(x) > 0.999); return 
 export function proUiterlijk(b, def) {
   const o = b.o, oud = b.huidig, stijl = STIJL[def.soort] ?? STIJL.rek;
   o.stijl = { ...stijl, soort: def.soort };
+  // afwerking (fase B): frame-RAL, kussenkleur, chroom of zwart gecoat, logoplaat ja/nee
+  const af = o.opties?.afwerking ?? {};
+  o.afwerking = { ral: af.ral ?? stijl.ral, leer: af.leer ?? 'zwart', chroom: af.chroom ?? true, logo: af.logo ?? true };
   o.pronk = o.pronk ?? [];
   // 1. touch points: de trekknop van elke veerpen/popper-pin en de kop van de selectiepen in de accentkleur, de kraag zwart
   for (const k of o.koop) if (/pullpin|veerpen|popper/i.test(k.key)) for (const g of k.geo) { if (g.kleur === 'ring') g.kleur = 'accent'; else if (g.kleur === 'rubber') g.kleur = 'eindkap'; }
@@ -42,6 +45,7 @@ export function proUiterlijk(b, def) {
   }
   // 3. verchroomde schijfhouders (hardchroom of RVS-huls): niet gecoat
   const chroom = o.delen.filter((d) => d.soort === 'staaf' && /^(Schijfhouder|Laadpen)/.test(d.naam));
+  if (!o.afwerking.chroom) chroom.length = 0; // zwart: de schijfhouders worden mee gecoat
   for (const d of chroom) { d.geo[0].kleur = 'chroom'; d.afwerking = 'hardverchroomd, niet poedercoaten'; }
   if (chroom.length) b.koop('verchromen', chroom.length, [], { naam: `Hardverchromen: ${chroom.length} schijfhouder${chroom.length > 1 ? 's' : ''} (of RVS-huls Ø50 erover)`, groep: 'afwerking' });
   // 4. stapelkap (kabel): zilver/antraciet gezet plaatwerk, voorkant met kijkvenster en sleuf voor de selectiepen
@@ -53,9 +57,9 @@ export function proUiterlijk(b, def) {
   // 6b. banken: lange kussens taps (smaller naar de heup), zoals bij de merkbanken
   if (def.soort === 'bank') for (const k of o.kussens) { const g = k.geo[0]; if (k.L >= 900 && k.breedte >= 260 && !g.taps && !g.neus) g.taps = [k.breedte - 50, k.breedte]; }
   // 7. rekken: kopplaten met schuine rand op de staanders, gelaste eindplaten met ronde hoeken op de voeten, zijplaat met naam
-  if (def.soort === 'rek' || def.id === 'FP-11') rekVorm(b);
+  if (def.soort === 'rek' || def.id === 'FP-11') rekVorm(b, o.afwerking.logo);
   // 8. logoplaat (gelaserd 3 mm met logo-uitsparing, op VHB-tape)
-  logoPlaat(b, def);
+  if (o.afwerking.logo) logoPlaat(b, def);
   b.groep(oud);
 }
 
@@ -126,7 +130,7 @@ function vrijEinde(o, d, e, r) {
 }
 /** rek-vormtaal (Rogue/Eleiko): kopplaat 8 mm met afgeschuinde hoeken op elke vrije staandertop, eindplaat 8 mm met
  *  ronde hoeken R15 op elk vrij uiteinde van een voetbalk, en een gelaserde zijplaat met naam op de zijligger */
-function rekVorm(b) {
+function rekVorm(b, metNaam = true) {
   const o = b.o, t = 8;
   for (const d of [...o.delen]) {
     if (d.soort !== 'staaf' || d.pad || d.P.vorm !== 'koker' || !VAST.test(d.groep) && !/^Zijframe/.test(d.groep)) continue;
@@ -150,7 +154,7 @@ function rekVorm(b) {
   const zl = o.delen.filter((d) => d.soort === 'staaf' && !d.pad && d.P.vorm === 'koker' && Math.abs(d.u[1]) > 0.999 && /Bovenligger zijkant|zijligger/i.test(d.naam)).sort((p, q) => q.L - p.L);
   const cx = o.delen.reduce((s2, d) => s2 + (d.geo[0].a[0] + d.geo[0].b[0]) / 2, 0) / Math.max(1, o.delen.length);
   let n = 0;
-  for (const d of zl) {
+  for (const d of metNaam ? zl : []) {
     const m = mul(add(d.a, d.b), 0.5), sx = Math.sign(m[0] - cx) || 1, Lp = Math.round(Math.min(700, d.L - 120)), Wp = Math.round(d.P.h - 4 * d.P.t - 4);
     if (Lp < 300 || Wp < 34) continue;
     const c = [m[0] + sx * (d.P.b / 2 + 1.5), m[1], m[2]], geo = balk(add(c, [0, -Lp / 2, 0]), add(c, [0, Lp / 2, 0]), [0, 0, 1], Wp, 3);

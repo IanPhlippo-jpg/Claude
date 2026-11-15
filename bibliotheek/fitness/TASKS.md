@@ -55,9 +55,9 @@
 - [x] Foto's voor/na in fitness-fotos-v5a bekijken en verbeteren
 
 ## Versie 5 fase B: variantensysteem (2026-11-15)
-- [ ] Uitvoering thuis / semi-pro / pro (klasse H, semi-pro onderbouwd, S), maat compact / standaard / XL
-- [ ] Afwerking (RAL, bekleding, chroom of zwart, logoplaat) en opties per soort in model, berekening, stuklijst, prijs en tekening
-- [ ] Web: keuzes per toestel; tests; foto's fitness-fotos-v5b
+- [x] Uitvoering thuis / semi-pro / pro (klasse H, semi-pro onderbouwd, S), maat compact / standaard / XL
+- [x] Afwerking (RAL, bekleding, chroom of zwart, logoplaat) en opties per soort in model, berekening, stuklijst, prijs en tekening
+- [x] Web: keuzes per toestel; tests; foto's fitness-fotos-v5b
 
 ## Versie 5 fase C: ± 100 nieuwe toestellen (2026-11-15)
 - [ ] FS selectorized (eigen stapel en pen), FM multigyms/rigs, FO opslag/accessoires, FX strongman/buiten (EN 16630)
@@ -80,3 +80,11 @@
 - [x] FK-02/03/05..12: omkapping, gebogen armen, ovaal frame
 - [x] Alle banken: ovaalbuisframe, gebogen poten, wielen en handgreep, vormkussens
 - [x] Controles en tests groen, typecheck, foto's voor/na per toestel in fitness-fotos-v5a3, web, presentatie, graphify
+
+## Versie 5 fase B: varianten per toestel (2026-11-15)
+- [x] Uitvoering semi-pro (klasse S, lichtere wanden, max. gebruiker 135 kg) naast thuis en pro; overal doorgerekend
+- [x] Maat compact / standaard / XL waar het zin heeft (rekken, banken, torens, opslag)
+- [x] Afwerking: frame-RAL, kussenkleur, chroom of zwart, logoplaat ja/nee (model, prijs, 3D)
+- [x] Opties per soort (schijvenopslag, bandpinnen, wielen, zwaardere stapel, grepenset)
+- [x] Stuklijst, prijs, tekeningen en typeplaat met uitvoering/maat/opties; tests
+- [x] Web en presentatie: keuzes per toestel; foto's fitness-fotos-v5b

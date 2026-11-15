@@ -276,6 +276,42 @@ Niet alleen de afwerking, ook de vormen: geen rechte kokers in rechthoekige kade
 - **Banken:** alle voeten zijn gebogen kokers in pijlvorm (behalve de voorvoet met wielen van FB-01/02). Lange kussens
   zijn taps, met de bies langs de vorm.
 
+## Versie 5 fase B: varianten (2026-11-15)
+
+Elk toestel bestaat nu in varianten: `toestel(id, uitvoering, { maat, afwerking, opties })`.
+
+- **Uitvoering:** thuis, semi-pro of pro.
+  - thuis: EN ISO 20957 klasse H.
+  - semi-pro: licht commercieel (hotel, kiné, PT-studio, bedrijfsfitness). Dat is commercieel gebruik en dus
+    **klasse S**: de norm kent geen tussenklasse. Semi-pro heeft dezelfde maten als pro, maar:
+    - wanden van 3 mm in plaats van 4 (koker 80x80x3, ovaal 120x60x3);
+    - een maximale gebruiker van 135 kg in plaats van 150;
+    - een maximale last van ± 80 % van pro;
+    - een stapel van 18 platen in plaats van 20.
+
+    De berekening en de proeflast volgen klasse S. De marktband is afgeleid uit het midden van thuis en pro (AFGELEID,
+    geen eigen bron).
+  - pro: klasse S.
+- **Maat** compact / standaard / XL, waar dat zin heeft:
+  - rekken FR-01/02/05: 200 mm lager of 150 mm hoger; bij FR-01 ook de diepte;
+  - bank FB-01: 100 mm korter of langer;
+  - kabelmachines met een stapel: 4 platen minder of meer.
+
+  Bij de andere toestellen is de maat vast (standaard).
+- **Afwerking:** frame-RAL en kussenkleur (in de 3D en de prijs), schijfhouders verchroomd of zwart gecoat, logoplaat
+  ja of nee. Een RAL buiten 9005/7016/7021/9006 kost 20 % meer op het coaten (AANNAME).
+- **Opties (`opties.mjs`):**
+  - rek: extra schijvenopslag, bandpinnen;
+  - bank: transportwielen;
+  - kabel: grepenset, fijninstelling (bijleggewicht);
+  - plate-loaded: schijvenopslag op het voetframe, snelsluitklemmen.
+
+  Een optie bouwt echte onderdelen, met botsingscontrole, of voegt kooponderdelen toe. Wat niet past, staat als
+  "past niet op dit toestel" en is in de web uitgeschakeld.
+- **Tekeningen:** het tekeningnummer en het titelblok tonen de variant (bv. `FR-01-SP-XL`, "Semi-pro · XL · 2 opties").
+- **Web en presentatie:** per toestel de keuzes uitvoering, kleur, maat, afwerking en opties. Ze worden per toestel
+  onthouden.
+
 ## Wat nog open is
 
 - **Normen:** drie punten konden niet in een publieke bron nagekeken worden. Ze staan als AANNAME in de berekening; koop

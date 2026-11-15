@@ -3,6 +3,7 @@
 // markt. Geen werkplaatsschema's. Gebundeld tot één HTML-bestand (maak-presentatie.mjs) dat ook zonder internet werkt.
 import { TOESTELLEN, PER_ID, toestel } from '../catalogus.mjs';
 import { SOORTEN, VERSIE, RAL_FITNESS, BEKLEDING } from '../onderdelen.mjs';
+import { OPTIES } from '../opties.mjs';
 import { berekening } from '../bereken.mjs';
 import { kostprijs, STANDAARD } from '../prijzen.mjs';
 import { miniatuur, tekenBalken, alleGeo, PROJ, omhullende } from '../aanzicht.mjs';
@@ -36,11 +37,20 @@ $('k-versie').innerHTML = Object.values(VERSIE).map((v) => `<label class="kies">
 $('k-ral').innerHTML = RAL_FITNESS.map((c) => `<label class="staal" title="RAL ${esc(c.code)} ${esc(c.naam)}"><input type="radio" name="ral" value="${c.code}"><span class="proef" style="--kleur:${c.hex}"></span>${c.code}</label>`).join('');
 $('k-leer').innerHTML = BEKLEDING.map((c) => `<label class="staal" title="${esc(c.naam)}"><input type="radio" name="leer" value="${c.code}"><span class="proef" style="--kleur:${c.hex}"></span></label>`).join('');
 for (const n of ['versie', 'ral', 'leer']) document.querySelectorAll(`input[name="${n}"]`).forEach((r) => r.addEventListener('change', () => { k[n] = r.value; teken(); bewaar(); }));
+// maat en opties per toestel (fase B): k.var[id] = { maat, opties, chroom }
+const vr = (id = k.id) => { k.var = k.var ?? {}; return (k.var[id] = k.var[id] ?? {}); };
+const optVan = () => { const x = vr(); return { ...(x.maat ? { maat: x.maat } : {}), ...(x.opties?.length ? { opties: [...x.opties].sort() } : {}), afwerking: { ral: k.ral, leer: k.leer, ...(x.chroom === false ? { chroom: false } : {}) } }; };
+document.addEventListener('change', (e) => { const r = e.target; if (!(r instanceof HTMLInputElement)) return; const x = vr(); if (r.name === 'maat') x.maat = r.value === 'standaard' ? undefined : r.value; else if (r.name === 'optie') { const st = new Set(x.opties ?? []); if (r.checked) st.add(r.value); else st.delete(r.value); x.opties = [...st]; } else if (r.name === 'zwart') x.chroom = !r.checked; else return; teken(); bewaar(); });
 let tab = 'drie';
 document.querySelectorAll('[data-tab]').forEach((b) => b.addEventListener('click', () => { tab = b.dataset.tab; document.querySelectorAll('[data-tab]').forEach((x) => x.setAttribute('aria-selected', x === b)); document.querySelectorAll('[data-paneel]').forEach((p) => { p.hidden = p.dataset.paneel !== tab; }); teken(); }));
 let s3d = null, bezig = null;
 function teken() {
-  const t = PER_ID[k.id] ?? TOESTELLEN[0], o = toestel(t.id, k.versie), kp = kostprijs(o, instKost()), B = berekening(o);
+  const t = PER_ID[k.id] ?? TOESTELLEN[0], o = toestel(t.id, k.versie, optVan()), kp = kostprijs(o, instKost()), B = berekening(o), x = vr(t.id);
+  $('s-maat').hidden = !t.maten; if (t.maten) $('k-maat').innerHTML = t.maten.map((m) => `<label class="kies"><input type="radio" name="maat" value="${m}"${(x.maat ?? 'standaard') === m ? ' checked' : ''}><span>${m}</span></label>`).join('');
+  const zw = o.delen.some((d) => /^(Schijfhouder|Laadpen)/.test(d.naam)) || x.chroom === false;
+  $('k-opties').innerHTML = (zw ? `<label class="kies"><input type="checkbox" name="zwart"${x.chroom === false ? ' checked' : ''}><span>Schijfhouders zwart i.p.v. chroom</span></label>` : '') + (OPTIES[t.soort] ?? []).map((p) => `<label class="kies" title="${esc(p.uitleg)}"><input type="checkbox" name="optie" value="${p.id}"${(x.opties ?? []).includes(p.id) ? ' checked' : ''}><span>${esc(p.naam)}</span></label>`).join('');
+  const niet = o.gekozenOpties.filter((g) => !g.gelukt).map((g) => g.naam.toLowerCase());
+  if (niet.length) $('k-opties').insertAdjacentHTML('beforeend', `<p class="uitleg" style="margin:6px 0 0">Past niet op dit toestel: ${esc(niet.join(', '))}.</p>`);
   document.body.dataset.soort = t.soort;
   for (const [n, v] of [['versie', k.versie], ['ral', k.ral], ['leer', k.leer]]) { const r = document.querySelector(`input[name="${n}"][value="${v}"]`); if (r) r.checked = true; }
   $('nr').textContent = `${t.id} · ${SOORTEN[t.soort].naam}`; $('titel').textContent = t.naam; $('sub').textContent = t.kort; $('uitleg').textContent = t.uitleg;
@@ -52,7 +62,7 @@ function teken() {
   $('veilig').className = `veilig ${B.oordeel === 'rood' ? 'oranje' : B.oordeel}`; $('veilig').textContent = B.oordeel === 'groen' ? 'Berekend volgens EN ISO 20957 (prototype: proeflast nog te doen)' : 'Berekend volgens EN ISO 20957, met punten die we nakijken (prototype: proeflast nog te doen)';
   const toon = inst.prijs, bedrag = toon === 'excl' ? kp.verkoop : kp.incl, [lo, hi] = kp.markt.band, max = Math.max(hi * 1.15, kp.incl * 1.1);
   $('prijsvak').hidden = toon === 'geen';
-  $('p-label').textContent = toon === 'excl' ? 'Prijs excl. btw' : 'Prijs incl. 21 % btw'; $('p-bedrag').textContent = eur(bedrag); $('p-sub').textContent = `${VERSIE[k.versie].naam.toLowerCase()}, gepoedercoat in RAL ${k.ral}, zonder levering`;
+  $('p-label').textContent = toon === 'excl' ? 'Prijs excl. btw' : 'Prijs incl. 21 % btw'; $('p-bedrag').textContent = eur(bedrag); $('p-sub').textContent = `${VERSIE[k.versie].naam.toLowerCase()}${o.maat !== 'standaard' ? ` · ${o.maat}` : ''}, gepoedercoat in RAL ${k.ral}${o.gekozenOpties.some((g) => g.gelukt) ? `, met ${o.gekozenOpties.filter((g) => g.gelukt).map((g) => g.naam.toLowerCase()).join(', ')}` : ''}, zonder levering`;
   $('m-band').style.left = `${(lo / max) * 100}%`; $('m-band').style.width = `${((hi - lo) / max) * 100}%`; $('m-pin').style.left = `${Math.min(100, (kp.incl / max) * 100)}%`;
   $('m-tekst').textContent = `Vergelijkbare toestellen in de winkel: ${eur(lo)} - ${eur(hi)} incl. btw. Eigen werk in staal, met tekeningen en berekening.`;
   $('printkop').innerHTML = `<b>${esc(inst.bedrijf || 'Fitnesstoestellen')}</b> ${esc(inst.contact)}`; $('bedrijf').textContent = inst.bedrijf ? `${inst.bedrijf}${inst.contact ? ` · ${inst.contact}` : ''}` : 'gelast in eigen werkplaats, thuis en pro';

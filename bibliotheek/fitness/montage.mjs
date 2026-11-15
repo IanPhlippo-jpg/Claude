@@ -6,7 +6,7 @@ import { tekenScène } from '../taatsdeuren/montage.mjs';
 import { KLEUR } from '../taatsdeuren/verbinding.mjs';
 import { KOOP } from './onderdelen.mjs';
 import { hoeken, aabb } from './model.mjs';
-import { svg, A4L, tk, lijn, titelblok, rij, naamVan, f } from './blad.mjs';
+import { svg, A4L, tk, lijn, titelblok, rij, naamVan, f, tekeningNr } from './blad.mjs';
 
 const KL = { frame: KLEUR.staal, leer: '#3b3e42', hout: '#c8a878', zink: KLEUR.bout, rubber: KLEUR.rubber, chroom: '#c5ccd3', uhmw: '#eeeeee', katrol: '#41454a', stapel: '#5b6168', kap: '#9aa5b1', kabel: '#202020' };
 const AS = { 0: 'x', 2: 'y', 1: 'z' };
@@ -116,7 +116,7 @@ export function montageBlad(o, sc, meta = {}) {
   for (const [wat, n, nm] of sc.middelen) for (const [i, t] of rij(`${wat} · ${n}${nm ? ` · ${nm}` : ''}`, 64).entries()) { el.push(T(186, y, `${i ? '  ' : '• '}${t}`, 2.05)); y += 2.7; }
   let ys = 165; el.push(T(24, ys, 'Zo bouw je het', 2.9, { vet: true })); ys += 3.6;
   sc.stappen.forEach((s, i) => { rij(s, 92).forEach((t, j) => { if (ys < 196) el.push(T(j ? 28 : 24, ys, `${j ? '' : `${i + 1}. `}${t}`, 2.1)); ys += 2.7; }); });
-  el.push(titelblok(o, [W4, H4], { titel: `Montage: ${sc.titel}`.slice(0, 50), nr: `${o.id}-${o.versie === 'pro' ? 'P' : 'T'}-M${meta.i ?? 1}`, schaal: '-', datum: meta.datum ?? '', blad: meta.blad ?? '1 / 1' }));
+  el.push(titelblok(o, [W4, H4], { titel: `Montage: ${sc.titel}`.slice(0, 50), nr: tekeningNr(o, `M${meta.i ?? 1}`), schaal: '-', datum: meta.datum ?? '', blad: meta.blad ?? '1 / 1' }));
   return svg(A4L, el.join(''));
 }
 /** alle montagebladen: [{ id, titel, sub, scène, svg }] */

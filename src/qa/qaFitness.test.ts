@@ -600,3 +600,54 @@ describe('fitness v5 fase A3: vormtaal op alle toestellen', () => {
     expect(toestel('FK-06', 'pro').delen.find((d: any) => d.naam === 'Lat-arm').buig).toBeTruthy();
   });
 });
+
+describe('fitness v5 fase B: varianten', () => {
+  it('semi-pro: klasse S, max. 135 kg, alle 50 toestellen zonder botsing of rood, prijs tussen thuis en pro', () => {
+    for (const t of TOESTELLEN) {
+      const o = toestel(t.id, 'semi');
+      expect(o.V.klasse).toBe('S'); expect(o.V.gebruiker).toBe(135);
+      expect(botsingen(o), t.id).toEqual([]); expect(zwevend(o), t.id).toEqual([]);
+      expect(berekening(o).controles.filter((c: any) => c.oordeel === 'rood').map((c: any) => c.wat), t.id).toEqual([]);
+      const [kt, ks, kp] = (['thuis', 'semi', 'pro'] as const).map((v) => kostprijs(toestel(t.id, v)).incl);
+      expect(ks, t.id).toBeGreaterThanOrEqual(kt - 1); expect(ks, t.id).toBeLessThanOrEqual(kp + 1);
+      expect(t.markt.semi[0]).toBeLessThan(t.markt.semi[1]);
+    }
+  }, 120000);
+  it('maat compact / standaard / XL: rek lager of hoger, bank korter of langer, stapel 4 platen minder of meer', () => {
+    const H = (m: string) => toestel('FR-01', 'pro', { maat: m }).maten.H;
+    expect(H('compact')).toBeLessThan(H('standaard')); expect(H('XL')).toBeGreaterThan(H('standaard'));
+    const L = (m: string) => toestel('FB-01', 'pro', { maat: m }).maten.D;
+    expect(L('compact')).toBeLessThan(L('standaard')); expect(L('XL')).toBeGreaterThan(L('standaard'));
+    const n = (m: string) => toestel('FK-01', 'pro', { maat: m }).stapels[0].n;
+    expect(n('compact')).toBe(n('standaard') - 4); expect(n('XL')).toBe(n('standaard') + 4);
+    expect(toestel('FP-04', 'pro', { maat: 'XL' }).maat).toBe('standaard'); // geen maten: standaard
+    for (const id of ['FR-01', 'FR-02', 'FB-01', 'FK-01', 'FK-04']) for (const m of ['compact', 'XL']) for (const v of ['thuis', 'pro'] as const) {
+      const o = toestel(id, v, { maat: m });
+      expect(botsingen(o), `${id} ${m}`).toEqual([]); expect(zwevend(o)).toEqual([]); expect(kabelFouten(o)).toEqual([]);
+      expect(berekening(o).controles.filter((c: any) => c.oordeel === 'rood').length, `${id} ${m}`).toBe(0);
+    }
+    expect(alleBladen(toestel('FR-01', 'semi', { maat: 'XL' }))[0].svg).toMatch(/FR-01-SP-XL/);
+  }, 120000);
+  it('afwerking: zwart in plaats van chroom, zonder logo, RAL buiten de standaard met meerprijs', () => {
+    const o = toestel('FP-01', 'pro', { afwerking: { chroom: false, logo: false, ral: '3020', leer: 'rood' } });
+    expect(o.koop.some((k: any) => k.key === 'verchromen')).toBe(false);
+    expect(o.delen.some((d: any) => d.naam === 'Logoplaat')).toBe(false);
+    expect(o.afwerking).toMatchObject({ ral: '3020', leer: 'rood', chroom: false, logo: false });
+    const k = kostprijs(o), k0 = kostprijs(toestel('FP-01', 'pro'));
+    expect(k.regels.some((r: any) => /buiten de standaardkleuren/.test(r.wat))).toBe(true);
+    expect(k0.regels.some((r: any) => /buiten de standaardkleuren/.test(r.wat))).toBe(false);
+    expect(toestel('FR-01', 'pro', { afwerking: { logo: false } }).delen.some((d: any) => d.naam === 'Zijplaat met naam')).toBe(false);
+  });
+  it('opties: bouwen echte onderdelen of kooponderdelen, botsingsvrij; wat niet past, staat als niet gelukt', () => {
+    const o = toestel('FR-01', 'pro', { opties: ['opslag', 'bandpinnen'] });
+    expect(o.delen.filter((d: any) => d.naam === 'Schijfhouder (optie)').length).toBe(2);
+    expect(o.delen.filter((d: any) => d.naam === 'Bandpin (optie)').length).toBe(2);
+    expect(toestel('FP-04', 'pro', { opties: ['opslag'] }).delen.filter((d: any) => d.naam === 'Schijfhouder opslag (optie)').length).toBe(2);
+    expect(toestel('FK-01', 'pro', { opties: ['grepenset', 'fijnstapel'] }).koop.filter((k: any) => ['grepenset', 'fijnstapel'].includes(k.key)).length).toBe(2);
+    expect(toestel('FB-03', 'pro', { opties: ['wielen'] }).koop.some((k: any) => k.key === 'transportwiel')).toBe(true);
+    expect(toestel('FR-06', 'pro', { opties: ['opslag'] }).gekozenOpties[0].gelukt).toBe(false);
+    for (const [id, opt] of [['FR-01', ['opslag', 'bandpinnen']], ['FP-04', ['opslag', 'klemmen']], ['FB-03', ['wielen']]] as const) for (const st of [0, 0.5, 1]) { const x = toestel(id, 'pro', { opties: [...opt], stand: st }); expect(botsingen(x), `${id} ${st}`).toEqual([]); expect(zwevend(x)).toEqual([]); expect(schijvenVrij(x)).toEqual([]); }
+    const kp = kostprijs(o).incl, k0 = kostprijs(toestel('FR-01', 'pro')).incl;
+    expect(kp).toBeGreaterThan(k0);
+  });
+});

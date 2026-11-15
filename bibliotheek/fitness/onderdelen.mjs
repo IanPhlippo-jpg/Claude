@@ -26,7 +26,7 @@ const strip = (b, t) => { const A = b * t, I = (t * b ** 3) / 12, Iz = (b * t **
 
 export const PROFIEL = {
   k30x30x2: koker(30, 30, 2), k40x40x2: koker(40, 40, 2), k40x40x3: koker(40, 40, 3), k50x50x3: koker(50, 50, 3), k50x50x4: koker(50, 50, 4),
-  k60x60x3: koker(60, 60, 3), k60x60x4: koker(60, 60, 4), k70x70x4: koker(70, 70, 4), k80x80x4: koker(80, 80, 4), k80x80x5: koker(80, 80, 5), k100x100x4: koker(100, 100, 4),
+  k60x60x3: koker(60, 60, 3), k60x60x4: koker(60, 60, 4), k70x70x4: koker(70, 70, 4), k80x80x3: koker(80, 80, 3), k80x80x4: koker(80, 80, 4), k80x80x5: koker(80, 80, 5), k100x100x4: koker(100, 100, 4),
   k50x30x2: koker(30, 50, 2), k60x40x3: koker(40, 60, 3), k80x40x3: koker(40, 80, 3), k80x40x4: koker(40, 80, 4), k100x50x3: koker(50, 100, 3), k100x50x4: koker(50, 100, 4), k120x60x4: koker(60, 120, 4), k120x80x5: koker(80, 120, 5),
   b25x2: buis(25, 2), b32x3: buis(32, 3.2, 'buis Ø32x3,2 (optrekstang)'), b42x3: buis(42.4, 3.2, 'buis Ø42,4x3,2', 'EN 10255 S195T / EN 10219'), b48x3: buis(48.3, 3.2, 'buis Ø48,3x3,2 (schijfhouder)', 'EN 10255 / EN 10219 S235JRH'), b48x4: buis(48.3, 4, 'buis Ø48,3x4 (schijfhouder)'), b48x8: buis(48.3, 8, 'buis Ø48,3x8 naadloos (schijfhouder)', 'EN 10216-1 / DIN 2448 P235'),
   b60x3: buis(60.3, 3.6, 'buis Ø60,3x3,6'), b60x5: buis(60.3, 5, 'buis Ø60,3x5'), b60x8: buis(60.3, 8, 'buis Ø60,3x8 naadloos (lagerhuis)', 'EN 10216-1 P235'), b76x4: buis(76.1, 4, 'buis Ø76,1x4'), b76x8: buis(76.1, 8, 'buis Ø76,1x8 naadloos (lagerhuis)', 'EN 10216-1 P235'),
@@ -48,6 +48,17 @@ export const VERSIE = {
     P: { staander: 'k60x60x3', ligger: 'k60x60x3', voet: 'k60x60x3', licht: 'k50x50x3', klein: 'k40x40x2', bank: 'k80x40x3', bankLicht: 'k50x30x2', arm: 'k50x50x3', hefboom: 'k80x40x3', optrek: 'r30s', sleeve: 'b48x3', stang: 'r35', greep: 'b32x3', as: 'r25', bus: 'b42x3', toren: 'k60x60x3', breed: 'k100x50x3', wagen: 'k80x80x4', frameO: 'o100x50x3', bankO: 'o80x40x3' },
     gat: 17, pin: 16, plaat: 8, voetplaat: 8, las: 3,
     katrol: 'katrol115', kabel: 'kabel6', stapelN: 16, stapelKg: 5, lager: 'glij25', lineair: 'lm25', selectiepen: 'selectiepen', pin25: 'pullpin16', leer: 'leerThuis', voetje: 'voetThuis', bout: 'boutM12', wiel: 'zwenkwiel50', handgreep: 'handgreep', latbar: 'latbarThuis', schuimrol: 'schuimrol100', kabeleind: 'kabelstop', wartel: 'wartelThuis',
+  },
+  // semi-pro: licht commercieel (hotel, kinépraktijk, PT-studio, bedrijfsfitness). Dat is commercieel gebruik, dus
+  // EN ISO 20957 klasse S (er bestaat geen tussenklasse); het verschil met pro zit in de maximale gebruiker (135 kg) en
+  // de maximale last op het label (± 80 % van pro), dunnere wanden (3 mm) en een kleinere stapel. De berekening en de
+  // proeflast volgen klasse S.
+  semi: {
+    id: 'semi', naam: 'Semi-pro', klasse: 'S', uitleg: 'EN ISO 20957 klasse S, licht commercieel (hotel, kiné, PT-studio)',
+    gebruiker: 135,
+    P: { staander: 'k80x80x3', ligger: 'k80x80x3', voet: 'k80x80x3', licht: 'k60x60x3', klein: 'k50x50x3', bank: 'k100x50x3', bankLicht: 'k60x40x3', arm: 'k60x60x3', hefboom: 'k100x50x4', optrek: 'r35s', sleeve: 'b48x8', stang: 'r38', greep: 'b32x3', as: 'r30', bus: 'b48x4', toren: 'k80x80x3', breed: 'k120x60x4', wagen: 'k100x100x4', frameO: 'o120x60x3', bankO: 'o100x50x3' },
+    gat: 26, pin: 25, plaat: 8, voetplaat: 10, las: 4,
+    katrol: 'katrol115pro', kabel: 'kabel6', stapelN: 18, stapelKg: 5, lager: 'glij30', lineair: 'lm25pro', selectiepen: 'selectiepenPro', pin25: 'pullpin25', leer: 'leerPro', voetje: 'voetPro', bout: 'boutM16', wiel: 'zwenkwiel75', handgreep: 'vgrip', latbar: 'latbar', schuimrol: 'schuimrol100', kabeleind: 'kabeleind', wartel: 'wartel',
   },
   pro: {
     id: 'pro', naam: 'Pro', klasse: 'S', uitleg: 'EN ISO 20957 klasse S: studio en commercieel gebruik',
@@ -150,6 +161,9 @@ export const KOOP = {
   vhb: k('Dubbelzijdige kleefband 3M VHB 5952 (logoplaat)', '3M VHB 5952 19 mm x 3 m', 'AANNAME (vakhandel)', 9.5, 'rol', 'AANNAME', false),
   instructiesticker: k('Instructieplaat: alu 0,8 mm bedrukt (oefeningen, spieren, pen-instructie)', 'instructieplaat 80 x 175 / 150 x 210', 'graveerdienst', 9, 'st', 'AANNAME', false),
   katrolkap: k('Katrolkap ABS (2 schalen, voor katrol Ø90-115)', 'pulley cover ABS 145 mm', 'AANNAME (fitness-onderdelen)', 7.5, 'st', 'AANNAME', false),
+  grepenset: k('Grepenset: tricepstouw, 2 D-grepen, enkelband, 2 karabiners', 'cable attachment set', 'AANNAME (fitness-onderdelen)', 38, 'set', 'AANNAME', false),
+  fijnstapel: k('Bijleggewicht 2 x 2,5 kg magnetisch voor de stapel', 'add-on weight 2,5 kg', 'AANNAME (fitness-onderdelen)', 24, 'set', 'AANNAME', false),
+  kraagklem: k('Snelsluitklem Ø50 (lock-jaw)', 'lockjaw collar 50 mm', 'AANNAME (sportwinkel)', 9.5, 'st', 'AANNAME', false),
   transportwiel: k('Transportwiel PU Ø60 met as M10 (voor de bank, vrij van de vloer)', 'transportwiel 60 mm PU', 'AANNAME (bouwmarkt/fitness-onderdelen)', 4.2, 'st', 'AANNAME', false),
   voetkap: k('Voetkap ABS over een torenvoet (afgerond, rubber onderrand)', 'foot cover ABS 80/100', 'AANNAME (fitness-onderdelen)', 12, 'st', 'AANNAME', false),
   naafkap: k('Naafkap ABS Ø90 met klemring (accentkleur, over de stelring)', 'pivot cap ABS 90 mm', 'AANNAME (spuitgietwerk/fitness-onderdelen)', 4.5, 'st', 'AANNAME', false),

@@ -166,7 +166,7 @@ footer { color: var(--zacht); font-size: 13px; padding-block: 30px }
   <div class="wrap">
     <div class="filters">
       <div class="veld breed"><label for="zoek">Zoeken</label><input type="search" id="zoek" placeholder="bv. squat, bank, rug, leg press" autocomplete="off"></div>
-      <div class="veld"><label for="f-versie">Prijs</label><select id="f-versie"><option value="thuis">Thuisversie</option><option value="pro">Proversie</option></select></div>
+      <div class="veld"><label for="f-versie">Prijs</label><select id="f-versie"><option value="thuis">Thuisversie</option><option value="semi">Semi-pro</option><option value="pro">Proversie</option></select></div>
       <div class="veld"><label for="f-vloer">Vloer</label><select id="f-vloer"><option value="0">alle</option><option value="1">tot 1 m²</option><option value="2">tot 2 m²</option><option value="3">tot 3 m²</option><option value="5">tot 5 m²</option></select></div>
       <div class="veld"><label for="f-prijs">Max. prijs €</label><input type="number" id="f-prijs" min="0" step="100" placeholder="geen" inputmode="numeric"></div>
       <div class="veld"><label for="f-sort">Volgorde</label><select id="f-sort"><option value="nr">nummer</option><option value="prijs">prijs</option><option value="vloer">vloer</option></select></div>
@@ -198,6 +198,9 @@ footer { color: var(--zacht); font-size: 13px; padding-block: 30px }
         <div class="groep"><span class="lab">Versie</span><div class="keuze" id="k-versie"></div><p class="status" id="t-versieuitleg" style="margin-top:6px"></p></div>
         <div class="groep"><span class="lab">Kleur van het frame (RAL)</span><div class="stalen" id="k-ral"></div><p class="status" id="t-ral" style="margin-top:6px"></p></div>
         <div class="groep" id="g-leer"><span class="lab">Kleur van de bekleding</span><div class="stalen" id="k-leer"></div></div>
+        <div class="groep" id="g-maat"><span class="lab">Maat</span><div class="keuze" id="k-maat"></div><p class="status" id="t-maat" style="margin-top:6px"></p></div>
+        <div class="groep"><span class="lab">Afwerking</span><div class="keuze" id="k-afw"></div></div>
+        <div class="groep" id="g-opties"><span class="lab">Opties</span><div class="keuze" id="k-opties"></div><p class="status" id="t-opties" style="margin-top:6px"></p></div>
         <div class="groep"><span class="lab">Maten en gegevens</span><dl class="feiten" id="t-feiten"></dl></div>
         <div class="veilig" id="t-veilig"></div>
         <div class="prijs"><span class="lab">Prijs incl. btw</span><span class="bedrag" id="t-prijs"></span><span class="sub2" id="t-prijs2"></span>
@@ -245,6 +248,7 @@ footer { color: var(--zacht); font-size: 13px; padding-block: 30px }
 <script type="module">
 import { TOESTELLEN, PER_ID, toestel } from './js/catalogus.mjs';
 import { SOORTEN, VERSIE, KOOP, RAL_FITNESS, BEKLEDING } from './js/onderdelen.mjs';
+import { OPTIES } from './js/opties.mjs';
 import { berekening } from './js/bereken.mjs';
 import { kostprijs, STANDAARD, CAT } from './js/prijzen.mjs';
 import { UREN, UREN_NAAM } from './js/werkwijze.mjs';
@@ -269,14 +273,18 @@ let st = { id: 'FR-01', versie: 'thuis', ral: '9005', leer: 'zwart', soort: 'all
 const STD_INST = { versie: 1, ...JSON.parse(JSON.stringify(STANDAARD)), uren: { ...UREN } };
 let inst = JSON.parse(JSON.stringify(STD_INST));
 const bewaarKeuze = () => schrijf('fitness-keuze', st);
+// varianten per toestel (fase B): maat, afwerking (RAL, bekleding, chroom, logo) en opties
+const variant = (id = st.id) => { st.var = st.var ?? {}; return (st.var[id] = st.var[id] ?? {}); };
+const optVan = (id = st.id) => { const x = variant(id), af = {}; for (const k of ['ral', 'leer', 'chroom', 'logo']) if (x[k] != null) af[k] = x[k]; return { ...(x.maat ? { maat: x.maat } : {}), ...(x.opties?.length ? { opties: [...x.opties].sort() } : {}), ...(Object.keys(af).length ? { afwerking: af } : {}) }; };
+const MAATUITLEG = { compact: 'lager of korter (kelder, kleine ruimte); bij kabel: 4 platen minder', standaard: 'de standaardmaat', XL: 'hoger of langer (grote sporters); bij kabel: 4 platen meer' };
 
 // ---------- catalogus: prijzen en miniaturen (één keer per instelling)
 let prijsCache = new Map();
-const prijs = (id, v) => { const k = `${id}|${v}`; if (!prijsCache.has(k)) prijsCache.set(k, kostprijs(toestel(id, v), inst)); return prijsCache.get(k); };
+const prijs = (id, v, o = {}) => { const k = `${id}|${v}|${JSON.stringify(o)}`; if (!prijsCache.has(k)) prijsCache.set(k, kostprijs(toestel(id, v, o), inst)); return prijsCache.get(k); };
 const duimen = new Map();
 const duim = (id) => { if (!duimen.has(id)) { const o = toestel(id, 'thuis'); duimen.set(id, alsBeeld(miniatuur(o, { w: 320, h: 240, kleur: { frame: '#3a3f45', leer: '#1d1e20' } }), 320, 240, `${id} ${o.naam}`)); } return duimen.get(id); };
 $('c-aantal').textContent = TOESTELLEN.length;
-$('c-tekst').textContent = `${Object.values(SOORTEN).map((s) => `${TOESTELLEN.filter((t) => t.soort === s.id).length} ${s.naam.toLowerCase()}`).join(', ')}. Elk toestel in een thuisversie (klasse H) en een proversie (klasse S), met het volledige tekeningenpakket.`;
+$('c-tekst').textContent = `${Object.values(SOORTEN).map((s) => `${TOESTELLEN.filter((t) => t.soort === s.id).length} ${s.naam.toLowerCase()}`).join(', ')}. Elk toestel in een thuisversie (klasse H), een semi-pro- en een proversie (klasse S), in varianten (maat, afwerking, opties), met het volledige tekeningenpakket.`;
 $('soortchips').innerHTML = [['alle', 'Alle soorten', 'var(--zacht)'], ...Object.values(SOORTEN).map((s) => [s.id, s.naam, SKL[s.id]])].map(([v, t, k]) => `<button type="button" data-soort="${v}" style="--k:${k}" aria-pressed="false"><i></i>${esc(t)}</button>`).join('');
 $('soortchips').addEventListener('click', (e) => { const b = e.target.closest('[data-soort]'); if (!b) return; st.soort = b.dataset.soort; bewaarKeuze(); tekenCatalogus(); });
 for (const [id, k, num] of [['zoek', 'zoek'], ['f-versie', 'fVersie'], ['f-vloer', 'vloer', 1], ['f-prijs', 'prijs', 1], ['f-sort', 'sort']]) { $(id).value = id === 'f-prijs' ? (st[k] || '') : String(st[k] ?? ''); $(id).addEventListener('input', () => { st[k] = num ? +$(id).value || 0 : $(id).value; bewaarKeuze(); tekenCatalogus(); }); }
@@ -286,7 +294,7 @@ function tekenCatalogus() {
   let lijst = TOESTELLEN.filter((t) => (st.soort === 'alle' || t.soort === st.soort) && (!z || `${t.id} ${t.naam} ${t.kort} ${t.spieren} ${t.oefeningen.join(' ')} ${SOORTEN[t.soort].naam}`.toLowerCase().includes(z)));
   lijst = lijst.filter((t) => (!st.vloer || toestel(t.id, v).vloer <= st.vloer) && (!st.prijs || prijs(t.id, v).incl <= st.prijs));
   if (st.sort === 'prijs') lijst.sort((a, b) => prijs(a.id, v).incl - prijs(b.id, v).incl); else if (st.sort === 'vloer') lijst.sort((a, b) => toestel(a.id, v).vloer - toestel(b.id, v).vloer);
-  $('c-status').textContent = `${lijst.length} van ${TOESTELLEN.length} toestellen · prijzen van de ${v === 'pro' ? 'proversie' : 'thuisversie'}, incl. 21 % btw`;
+  $('c-status').textContent = `${lijst.length} van ${TOESTELLEN.length} toestellen · prijzen van de ${{ pro: 'proversie', semi: 'semi-proversie' }[v] ?? 'thuisversie'}, incl. 21 % btw`;
   $('raster').innerHTML = lijst.length ? lijst.map((t) => { const o = toestel(t.id, v), kt = prijs(t.id, 'thuis'), kp = prijs(t.id, 'pro'); return `<a class="kaart" href="#toestel/${t.id}" style="--k:${SKL[t.soort]}"><span class="duim">${duim(t.id)}</span><span class="tekst"><span class="nr">${t.id} · ${esc(SOORTEN[t.soort].kort)}</span><b>${esc(t.naam)}</b><span class="klein">${esc(t.kort)}</span><span class="pr"><span>thuis <b>${eur0(kt.incl)}</b></span><span>pro <b>${eur0(kp.incl)}</b></span></span><span class="klein">${g(o.maten.B)} x ${g(o.maten.D)} x ${g(o.maten.H)} mm · ${g(o.vloer, 1)} m²</span></span></a>`; }).join('') : '<p class="geen">Geen toestellen met deze filters.</p>';
 }
 
@@ -296,16 +304,41 @@ $('k-versie').innerHTML = Object.values(VERSIE).map((x) => `<label><input type="
 $('w-versie').innerHTML = Object.values(VERSIE).map((x) => `<label><input type="radio" name="wversie" value="${x.id}">${esc(x.naam)}</label>`).join('');
 $('k-ral').innerHTML = RAL_FITNESS.map((c) => `<label title="RAL ${esc(c.code)} ${esc(c.naam)}"><input type="radio" name="ral" value="${c.code}"><span class="proef" style="--kleur:${c.hex}"></span>${c.code}</label>`).join('');
 $('k-leer').innerHTML = BEKLEDING.map((c) => `<label title="${esc(c.naam)}"><input type="radio" name="leer" value="${c.code}"><span class="proef" style="--kleur:${c.hex}"></span>${esc(c.naam.slice(0, 6))}</label>`).join('');
-for (const n of ['versie', 'wversie', 'ral', 'leer']) document.querySelectorAll(`input[name="${n}"]`).forEach((r) => r.addEventListener('change', () => { st[n === 'wversie' ? 'versie' : n] = r.value; bewaarKeuze(); werkVuil = true; if (pagina === 'werkplaats') tekenWerk(); else tekenToestel(); }));
+for (const n of ['versie', 'wversie']) document.querySelectorAll(`input[name="${n}"]`).forEach((r) => r.addEventListener('change', () => { st.versie = r.value; bewaarKeuze(); werkVuil = true; if (pagina === 'werkplaats') tekenWerk(); else tekenToestel(); }));
+for (const n of ['ral', 'leer']) document.querySelectorAll(`input[name="${n}"]`).forEach((r) => r.addEventListener('change', () => { variant()[n] = r.value; bewaarKeuze(); werkVuil = true; tekenToestel(); }));
+// maat, afwerking en opties: per toestel opnieuw opgebouwd (de keuzes hangen af van het toestel)
+document.addEventListener('change', (e) => {
+  const r = e.target; if (!(r instanceof HTMLInputElement)) return;
+  if (r.name === 'maat') variant().maat = r.value === 'standaard' ? undefined : r.value;
+  else if (r.name === 'chroom') variant().chroom = r.value === 'ja';
+  else if (r.id === 'k-logo') variant().logo = r.checked;
+  else if (r.name === 'optie') { const x = variant(), set = new Set(x.opties ?? []); if (r.checked) set.add(r.value); else set.delete(r.value); x.opties = [...set]; }
+  else return;
+  bewaarKeuze(); werkVuil = true; tekenToestel();
+});
+/** welke opties passen op dit toestel (één keer bouwen met alle opties van de soort) */
+const pastCache = new Map();
+const passend = (id, v) => { const k = `${id}|${v}`; if (!pastCache.has(k)) { const t = PER_ID[id], ids = (OPTIES[t.soort] ?? []).map((x) => x.id); pastCache.set(k, new Set(toestel(id, v, { opties: ids }).gekozenOpties.filter((x) => x.gelukt).map((x) => x.id))); } return pastCache.get(k); };
+function tekenVarianten(t, o) {
+  const x = variant(t.id);
+  $('g-maat').hidden = !t.maten; if (t.maten) { $('k-maat').innerHTML = t.maten.map((m) => `<label><input type="radio" name="maat" value="${m}"${(x.maat ?? 'standaard') === m ? ' checked' : ''}>${m}</label>`).join(''); $('t-maat').textContent = MAATUITLEG[x.maat ?? 'standaard']; }
+  const heeftChroom = o.delen.some((d) => /^(Schijfhouder|Laadpen)/.test(d.naam));
+  $('k-afw').innerHTML = (heeftChroom ? ['ja', 'nee'].map((v) => `<label><input type="radio" name="chroom" value="${v}"${(x.chroom ?? true) === (v === 'ja') ? ' checked' : ''}>${v === 'ja' ? 'Schijfhouders verchroomd' : 'Schijfhouders zwart'}</label>`).join('') : '') + `<label><input type="checkbox" id="k-logo"${x.logo ?? true ? ' checked' : ''}>Logoplaat</label>`;
+  const opties = OPTIES[t.soort] ?? [], past = passend(t.id, st.versie);
+  $('g-opties').hidden = !opties.length;
+  $('k-opties').innerHTML = opties.map((p) => `<label title="${esc(p.uitleg)}"${past.has(p.id) ? '' : ' style="opacity:.45"'}><input type="checkbox" name="optie" value="${p.id}"${(x.opties ?? []).includes(p.id) ? ' checked' : ''}${past.has(p.id) ? '' : ' disabled'}>${esc(p.naam)}</label>`).join('');
+  const niet = opties.filter((p) => !past.has(p.id)).map((p) => p.naam.toLowerCase());
+  $('t-opties').textContent = niet.length ? `Past niet op dit toestel: ${niet.join(', ')}.` : opties.map((p) => `${p.naam}: ${p.uitleg}`).join(' · ');
+}
 document.querySelectorAll('[data-tab]').forEach((b) => b.addEventListener('click', () => { tab = b.dataset.tab; document.querySelectorAll('[data-tab]').forEach((x) => x.setAttribute('aria-selected', x === b)); document.querySelectorAll('[data-paneel]').forEach((p) => { p.hidden = p.dataset.paneel !== tab; }); tekenToestel(); }));
-function zetRadios() { for (const [n, v] of [['versie', st.versie], ['wversie', st.versie], ['ral', st.ral], ['leer', st.leer]]) { const r = document.querySelector(`input[name="${n}"][value="${v}"]`); if (r) r.checked = true; } }
+function zetRadios(o) { for (const [n, v] of [['versie', st.versie], ['wversie', st.versie], ['ral', o?.afwerking?.ral ?? st.ral], ['leer', o?.afwerking?.leer ?? st.leer]]) { const r = document.querySelector(`input[name="${n}"][value="${v}"]`); if (r) r.checked = true; } }
 function tekenToestel() {
-  const t = PER_ID[st.id], o = toestel(st.id, st.versie), k = prijs(st.id, st.versie), B = berekening(o), S = SOORTEN[t.soort];
-  document.body.dataset.soort = t.soort; zetRadios();
+  const t = PER_ID[st.id], ov = optVan(), o = toestel(st.id, st.versie, ov), k = prijs(st.id, st.versie, ov), B = berekening(o), S = SOORTEN[t.soort];
+  document.body.dataset.soort = t.soort; zetRadios(o); tekenVarianten(t, o);
   $('t-eyebrow').textContent = `${t.id} · ${S.naam}`; $('t-titel').textContent = t.naam; $('t-tekst').textContent = t.kort;
   $('t-soort').textContent = `${t.id} · ${S.kort}`; $('t-naam').textContent = t.naam; $('t-uitleg').textContent = t.uitleg;
   $('t-versieuitleg').textContent = `${VERSIE[st.versie].uitleg}; maximaal ${o.V.gebruiker} kg gebruiker.`;
-  const ral = RAL_FITNESS.find((c) => c.code === st.ral) ?? RAL_FITNESS[0]; $('t-ral').textContent = `RAL ${ral.code} ${ral.naam}, poedercoat`;
+  const ral = RAL_FITNESS.find((c) => c.code === o.afwerking.ral) ?? RAL_FITNESS[0]; $('t-ral').textContent = `RAL ${ral.code} ${ral.naam}, poedercoat${['9005', '7016', '7021', '9006'].includes(ral.code) ? ' (standaardkleur)' : ' (meerprijs: kleine reeks bij de lakkerij)'}`;
   $('g-leer').hidden = !o.kussens.length;
   $('t-oef').innerHTML = `<span><b>Spieren:</b> ${esc(t.spieren)}</span>${t.oefeningen.map((x) => `<span>${esc(x)}</span>`).join('')}`;
   const last = o.maxLast ? `${o.maxLast} kg` : o.stapels.length ? `gewichtstapel ${o.stapels.map((x) => x.n * x.kg).join(' + ')} kg` : '-';
@@ -314,7 +347,7 @@ function tekenToestel() {
   $('t-veilig').className = `veilig ${B.oordeel}`;
   $('t-veilig').innerHTML = `<b><i class="stip ${B.oordeel}"></i>${B.oordeel === 'groen' ? 'Berekend volgens EN ISO 20957' : B.oordeel === 'oranje' ? `Berekend, met ${nr} punt${nr > 1 ? 'en' : ''} om na te kijken` : 'Berekening niet in orde: zie de werkplaats'}</b><br><small>Prototype: de proeflast op het eerste toestel moet nog gebeuren (geen normclaim).</small>`;
   const [lo, hi] = k.markt.band, max = Math.max(hi * 1.15, k.incl * 1.1), min = 0;
-  $('t-prijs').textContent = eur0(k.incl); $('t-prijs2').textContent = `${eur0(k.verkoop)} excl. btw · ${VERSIE[st.versie].naam.toLowerCase()}`;
+  $('t-prijs').textContent = eur0(k.incl); $('t-prijs2').textContent = `${eur0(k.verkoop)} excl. btw · ${VERSIE[st.versie].naam.toLowerCase()}${o.maat !== 'standaard' ? ` · ${o.maat}` : ''}${o.gekozenOpties.filter((x) => x.gelukt).length ? ` · ${o.gekozenOpties.filter((x) => x.gelukt).map((x) => x.naam.toLowerCase()).join(', ')}` : ''}`;
   $('t-markt').textContent = `${eur0(lo)} - ${eur0(hi)}`; $('t-markt2').textContent = k.markt.bron.length > 90 ? `${k.markt.bron.slice(0, 88)}…` : k.markt.bron;
   $('t-band').style.left = `${((lo - min) / (max - min)) * 100}%`; $('t-band').style.width = `${((hi - lo) / (max - min)) * 100}%`; $('t-pin').style.left = `${Math.min(100, ((k.incl - min) / (max - min)) * 100)}%`;
   $('t-min').textContent = eur0(min); $('t-max').textContent = eur0(max);
@@ -324,7 +357,7 @@ function tekenToestel() {
     const geo = alleGeo(o, false), vs = ['voor', 'links', 'boven'].map((n) => { const bb = omhullende(geo, PROJ[n]), s = Math.min(300 / (bb[2] - bb[0]), 300 / (bb[3] - bb[1])); return `<figure style="margin:0"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 330" style="width:100%;height:auto;background:#fff">${tekenBalken(geo, { proj: PROJ[n], schaal: s, ox: 10 - bb[0] * s, oy: 10 - bb[1] * s, lw: 0.7 }).svg}</svg><figcaption style="font-size:12px;color:#555">${{ voor: 'Vooraanzicht', links: 'Zijaanzicht', boven: 'Bovenaanzicht' }[n]}</figcaption></figure>`; });
     $('tek').innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px">${vs.join('')}</div>`;
   } else {
-    if (s3d) s3d.toon(o, { ral: st.ral, leer: st.leer });
+    if (s3d) s3d.toon(o, {});
     else if (!s3dBezig) s3dBezig = import('./js/scene3d.mjs').then(({ scene3d }) => scene3d($('drie3d'))).then((api) => { s3d = api; $('laden3d').remove(); tekenToestel(); }).catch((e) => { $('laden3d').textContent = '3D lukt niet in deze browser: kijk bij Aanzichten.'; console.warn(e); });
   }
 }
@@ -333,8 +366,8 @@ function tekenToestel() {
 let werkVuil = true, huidig = null, bladNr = 0, mNr = 0, m3d = null, m3dBezig = null;
 function tekenWerk() {
   werkVuil = false;
-  const t = PER_ID[st.id], o = toestel(st.id, st.versie), k = kostprijs(o, inst), B = berekening(o), meta = { datum: new Date().toISOString().slice(0, 10) };
-  document.body.dataset.soort = t.soort; zetRadios();
+  const t = PER_ID[st.id], o = toestel(st.id, st.versie, optVan()), k = kostprijs(o, inst), B = berekening(o), meta = { datum: new Date().toISOString().slice(0, 10) };
+  document.body.dataset.soort = t.soort; zetRadios(o);
   $('w-soort').textContent = `${t.id} · ${SOORTEN[t.soort].kort}`; $('w-titel').textContent = `${t.naam}: werkplaats`; $('w-tekst').textContent = `${VERSIE[st.versie].uitleg}. ${o.maten.B} x ${o.maten.D} x ${o.maten.H} mm, ${g(o.massa)} kg.`;
   // open punten per toestel (werkplaatsweergave, P2-18)
   const open = B.controles.filter((c) => c.oordeel === 'oranje' || c.oordeel === 'rood').map((c) => `${c.groep}: ${c.wat}`);

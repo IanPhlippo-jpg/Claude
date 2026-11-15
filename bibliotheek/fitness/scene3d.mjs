@@ -155,7 +155,7 @@ export async function scene3d(houder) {
   function toon(o, keuzes = {}) {
     if (groep) { scene.remove(groep); groep.traverse((x) => { x.geometry?.dispose(); }); }
     groep = new THREE.Group();
-    const ral = RAL_FITNESS.find((c) => c.code === (keuzes.ral ?? o.stijl?.ral)) ?? RAL_FITNESS[0], leer = BEKLEDING.find((c) => c.code === keuzes.leer) ?? BEKLEDING[0];
+    const ral = RAL_FITNESS.find((c) => c.code === (keuzes.ral ?? o.afwerking?.ral ?? o.stijl?.ral)) ?? RAL_FITNESS[0], leer = BEKLEDING.find((c) => c.code === (keuzes.leer ?? o.afwerking?.leer)) ?? BEKLEDING[0];
     const accent = keuzes.accent ?? o.stijl?.accent ?? '#d9a400';
     const std = (kleur, r, m, extra = {}) => new THREE.MeshStandardMaterial({ color: kleur, roughness: r, metalness: m, ...extra });
     const M = {
@@ -175,7 +175,8 @@ export async function scene3d(houder) {
       gat: new THREE.MeshBasicMaterial({ color: '#0a0a0a' }), gatrand: std('#3a3d41', 0.4, 0.6),
       typeplaat: std('#ffffff', 0.4, 0.3, { map: plaatTextuur(THREE, o) }),
       kap: std(ral.hex, 0.5, 0.2, { transparent: true, opacity: 0.28, depthWrite: false, side: THREE.DoubleSide }),
-      context: std('#9a9a9a', 0.8, 0, { transparent: true, opacity: 0.35, depthWrite: false }),
+      // context (het rack of de muur waar het toestel aan hangt): zichtbaar maar lichter dan het toestel zelf
+      context: std('#9aa0a6', 0.75, 0.1, { transparent: true, opacity: 0.8 }),
     };
     // gebogen buizen en contourplaten als echte vorm; hun hulpbalken (seg) niet tonen
     for (const d of o.delen) {

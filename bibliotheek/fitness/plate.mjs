@@ -2,7 +2,7 @@
 // schijfhouders Ø48,3 voor olympische schijven. Maten in mm: x = breedte, y = diepte (0 = voorkant), z = hoogte.
 import { staander, ligger, dwarsOp, voetjes, kussenOp, doos, gat, X, Y, Z, balk, add, mul, sub, norm } from './bouwstenen.mjs';
 
-const pro = (b) => b.V.id === 'pro';
+const pro = (b) => b.V.id !== 'thuis'; // pro en semi-pro: dezelfde maten
 const rad = (g) => (g * Math.PI) / 180;
 const kruis = (a, c) => [a[1] * c[2] - a[2] * c[1], a[2] * c[0] - a[0] * c[2], a[0] * c[1] - a[1] * c[0]];
 
