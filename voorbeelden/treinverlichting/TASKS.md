@@ -18,3 +18,16 @@
 - [x] Firmware (pinnen, actief-hoog/laag, adres) en hosttests
 - [x] Rekenblad, README (bestellijst), Maten-en-bronnen, EISEN (bijsturing 2026-11-13)
 - [x] Generators, tests (bak < 45 s), PDF's, bouwschema, app, screenshots
+
+## Eén laag: langwerpige doos in 2 helften die in elkaar klikken (2026-11-15)
+- [x] Indeling: bordjes in de linkerhelft (zoals versie 4), modules op palen in de bodem van de rechterhelft, tules/sleutelgaten/bussen verdeeld
+- [x] Naad: klikhaken (45° onderkant, berekende rek en kracht) + lijmvoeg 0,2 (bodemlippen, haken langs de wand), deksel met overlap en kliklippen
+- [x] Generator: bak links/rechts, deksel links/rechts, assemblage, moduleplaat weg
+- [x] Bijsturing: geen dimmers (firmware 1.3.0, aan/uit) en hallsensoren op de ingangen (firmware, schema, rekenblad, meetblad)
+- [x] Bijsturing: kabelgoten en gootdeksels weg (goten.mjs, Gootdeksel(s-plaat).kcad), aanslagen voor de bordjes, draden rechtstreeks
+- [x] Tests (qaTrein, tekeningenTrein, schemaNorm, typecheck), rebuild per bakhelft < 45 s, STL's
+- [x] Tekeningen: bak/deksel per helft, naaddetail TRN-06, boormal over 2 bladen, montageblad rechterhelft, draadlijst, meetblad
+- [x] Rekenblad, README, EISEN, Maten-en-bronnen, schema, app
+- [x] PDF's, bouwschema, beelden, screenshots nagekeken
+- [x] Bijsturing: gaatjes 2 x 2 per klem in de bodem (512, om en om, eilandjes van 0,4), aanslagen naar x ±26, TRN-07, tests, beelden
+- [ ] Bouwschema-beelden van stap 7 tot 10 opnieuw renderen (tonen nog de oude draadsleuven; `node e2e/tools/bouwschema-trein.mjs`, ± 40 min)

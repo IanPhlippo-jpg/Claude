@@ -1,5 +1,4 @@
 // Alle maten van de kabeldoos (mm). De gekochte onderdelen met hun bron: docs/Maten-en-bronnen.md.
-import { GOOT } from './goten.mjs';
 
 export const M = {
   // Modelbouwled "PCB met ingebouwde weerstand": print 61,1 x 20,9 x 1,6, hoogste punt 14 (Ian, 2026-11-08); 16 klemmen
@@ -10,37 +9,69 @@ export const M = {
   esp: { x: 62.74, z: 25.4, pcb: 1.6, pin: { n: 22, steek: 2.54, rand: 1.27, eerste: 1.5 }, module: { x: 25.5, z: 18.1, h: 3.1, voorbij: 6.4, van: 3.83 } },
   // PCA9685-breakout (AZ-Delivery, Adafruit-maat): 62,5 x 25,4, 4 gaten M2,5 op 56 x 19; de pinnen zijn al gesoldeerd
   pca: { x: 62.5, z: 25.4, pcb: 1.6 },
-  // de diepte van rij 6 en rij 7 (ongewijzigd sinds versie 3: de ringen en goten blijven waar ze waren). Versie 4 (Ian,
-  // 2026-11-13: "zoveel mogelijk printjes die ik gewoon kan bestellen"): geen gaatjesprints meer; rij 6 heeft alleen
-  // bordje 16, rij 7 is vrij (kabelruimte, polyfuses); alle modules staan op de moduleplaat (opbouw.mjs)
+  // de diepte van rij 6 en rij 7 (de rijen staan op dezelfde plaatsen als in versie 3 en 4); rij 6 heeft alleen
+  // bordje 16, rij 7 is vrij (kabelruimte vooraan in de linkerhelft)
   rij6: 25.4, rij7: 25.4,
-  voet: 3, // alle prints liggen 3 mm boven de bodem (op paaltjes of op de steunrail)
-  // de doos: binnen 225 x 225 (buiten 229,8: eis hoogstens 230 per geprint deel), 66,8 hoog met het deksel (eis: hoogstens
-  // 80); de goten zijn 28 hoog, het deksel van een goot 1,6; daarop ligt de moduleplaat (3,5) met de modules (tot 24
-  // hoog op hun paaltjes) en 4 mm vrij tot het deksel (versie 4; versie 3 was 44,4 hoog met de gaatjesprints op de bodem)
-  doos: { binnen: 225, wand: 2.4, bodem: 2.4, h: 62.0, deksel: 2.4, r: 4, voor: 7.8, sleutelgat: { kop: 9.2, schacht: 4.6, slag: 6 },
+  voet: 3, // de bordjes liggen 3 mm boven de bodem (op de steunrail)
+  // versie 5 (Ian, 2026-11-15: "Als je met 2 lagen werkt is het te moeilijk om de kabels aan te sluiten"): één langwerpige
+  // doos op één laag, geprint in 2 helften. Linkerhelft: de 16 bordjes (zoals versie 4, zonder kabelgoten), binnen 225 diep (Z);
+  // rechterhelft: alle modules op palen in de bodem. Binnenhoogte 47,0: de hoogte van de MOSFET-module is niet
+  // gepubliceerd (getekend 15, AANNAME), één verkoper noemt 87 x 47 x 39: veilig gekozen voor een module tot 39 hoog op
+  // palen van 5 met 3 mm vrij tot het deksel (5 + 39 + 3 = 47). Boven de bordjes (17) blijft 30 vrij. Deksel 3,2
+  // (overlap aan de naad: 1,6 + 0,2 + 1,4). Samen 2,4 + 47,0 + 3,2 = 52,6 hoog (eis: hoogstens 80).
+  doos: { binnen: 225, wand: 2.4, bodem: 2.4, h: 47.0, deksel: 3.2, r: 4, voor: 7.8, sleutelgat: { kop: 9.2, schacht: 4.6, slag: 6 },
     sleuf: { b: 4, l: 40, zij: { b: 6, l: 20 } }, bus: { r: 3.5, hart: 3.2 },
     invoer: { gat: 16.5, y: 13.5, tule: { d: 21, flens: 2, l: 11 } } },
-  // tussen de bordjes van een rij en tussen de prints van rij 7; eind: tussen het laatste bordje en de zijwand van de
-  // ring (plaats voor de klemlip en zijn veerweg)
+  // tussen de bordjes van een rij; eind: tussen het laatste bordje en de zijwand van de ring (plaats voor de klemlip en
+  // zijn veerweg)
   rij: { paal: 0.3, tussen6: 4.0, rand7: 3, eind: 1.8 },
   // klemlippen (Fable 5.2): per bordje 4 PETG-lippen aan de korte kanten, haak 0,75 over de rand van de print (0,15
   // speling: 0,6 grip), 0,1 boven de print; de lip is 0,8 dik en 2,0 breed en staat in een kuiltje van 1,8 diep in de
-  // bodem (veerlengte 6,5). Rek bij het inklikken: 1,5 t d / L² = 1,70 % (docs/Berekeningen.md, hfst. 8)
+  // bodem (veerlengte 6,5). Rek bij het inklikken: 1,5 t d / L² = 1,70 % (docs/Berekeningen.md, hfst. 6)
   lip: { t: 0.8, b: 2.0, z0: 8.0, speling: 0.15, haak: 0.75, boven: 0.1, kuil: 1.8, rondom: 0.4, achter: 0.6 },
+  // de naad tussen de helften (Ian, 2026-11-15: "De doos moet in elkaar kunnen klikken en nog kunnen lijmen"): het naadvlak
+  // van de linkerhelft op x = 110, de rechterhelft begint 0,2 verder (lijmspleet, overal 0,2). Alles print rechtop zonder
+  // support: alleen staande vlakken en 45° (docs/Berekeningen.md, hoofdstuk "Naad").
+  //  - lippen: 5 bodemlippen van de rechterhelft (16 breed, 5 lang) in uitsparingen in de bodem van de linkerhelft (0,2
+  //    rondom): uitlijnen in Z en lijmvlak;
+  //  - haken: 2 klikhaken (achter en voor) van de rechterhelft, 14 lang en 1,6 dik, langs de binnenkant van de wand van de
+  //    linkerhelft; onderkant 45° (print zonder support); een nok van 0,6 klikt in een kuiltje van 0,8 in de wand
+  //    (inklikken: de haak buigt 0,6 naar binnen); bovenkant 26;
+  //  - pilaren: in de rechterhelft tegen de achter- en voorwand aan de naad (9,8 x 7, tot het deksel), dragen de haken en een
+  //    schroefbus voor het deksel;
+  //  - deksel: de naad 2 verder (x = 112), de rechterhelft heeft een lip van 12 x 1,4 onder de linkerhelft (die daar 1,6 dik
+  //    is), in 4 vingers met een nok van 0,5 die in een groef van 0,6 klikt; de linkerhelft print met de buitenkant op het
+  //    bed, de rechterhelft met de binnenkant op het bed (zo liggen lip en sponning allebei op het bed of erboven)
+  naad: { x: 110, spleet: 0.2,
+    lip: { l: 5, b: 16, z: [-92, -52, -12, 28, 58] },
+    haak: { l: 14, t: 1.6, top: 26, kuil: 0.8, nok: { d: 0.6, ramp: 1.2, l: 3.0, y0: 15, y1: 25 } },
+    pilaar: { l: 9.8, d: 7.0 },
+    deksel: { x: 112, lap: 12, buiten: 1.6, lip: 1.4, sleuven: [-111, -55.5, 0, 55.5, 111], sleuf: 1.5, nok: { h: 0.5, ramp: 1.2, l: 2.0, b: 20 }, groef: 0.6 } },
+  // de rechterhelft: binnen van de naad (110,2) tot x = 323,6 (de modules, opbouw.mjs); buiten 326,0: de doos is van
+  // -114,9 tot 326,0 = 440,9 lang. Elke helft blijft binnen 230: links 224,9, rechts 229,8 (met de haken tot 96,2)
+  // de membraantules van de rechterhelft: vooraan 3 (naast de MOSFET-modules), achteraan 2 (naast de DC-bus), rechts 4
+  // (bij de ingangen van de optocouplerprints); de linkerhelft houdt er 5 links en krijgt er 4 vooraan (samen 18)
+  // sleutelgaten rechts op dezelfde z als links (ring 1 en ring 6), 6 mm van de zijwand vrij
+  rechts: { x1: 323.6, sleutelgatX: 317, sleutelgatZ: [-95.35, 57.4], modulePaal: { r: 3, h: 5 },
+    tules: { voor: [129, 151, 173], achter: [282, 304], rechts: [-80, -36, 10, 54] } },
+  links: { tulesVoor: [-80, -52, -24, 4] },
   // DC-chassisbus 5,5 x 2,5 (GlobTek JACK-L-PANEL-8A(R), 50 V / 8 A): flens Ø12,5 x 2,0, lijf 14,4 achter de flens,
-  // soldeerlippen 9,7, moer 14 sleutelwijdte; draad afgelezen Ø11,3 -> gat Ø11,5 (AANNAME, na te meten); in de
-  // linkerwand bij rij 7, boven de moduleplaat (versie 4: y 46 in plaats van 28)
-  dcbus: { gat: 11.5, flens: 12.5, flensDik: 2.0, lijf: 14.4, draad: 11.3, lippen: 9.7, moer: 14, moerDik: 2.0, y: 46, dz: 3 },
+  // soldeerlippen 9,7, moer 14 sleutelwijdte; draad afgelezen Ø11,3 -> gat Ø11,5 (AANNAME, na te meten); versie 5: in de
+  // achterwand van de rechterhelft boven de WAGO-klemmen (x 223, y 26)
+  dcbus: { gat: 11.5, flens: 12.5, flensDik: 2.0, lijf: 14.4, draad: 11.3, lippen: 9.7, moer: 14, moerDik: 2.0, x: 223, y: 26 },
   // kader van een bordje: de ringwanden zelf (0,3 speling); bordje 16 heeft in zijn bredere ring 2 lage stroken
   kader: { speling: 0.3, h: 3 + 1.6 + 0.3 },
-  // moduleplaat (versie 4): ligt op de gootdeksels (bovenkant 29,6), 3,5 dik, van de achterwand (onder een richel) tot
-  // 21,5 voor de voorwand (daar gaan de draden van de bordjes en de kabelinvoeren naar boven: de "stijgruimte"); vooraan
-  // 2 schroeven 3 x 10 in 2 palen in rij 7; uitsparingen rond de 4 bussen van het deksel; modules op paaltjes Ø6 van 4
-  // hoog (gat als achthoek op Ø2,2 voor 2,5 x 6 of Ø2,6 voor M3: plaatschroef 3 x 8)
-  plaat: { y0: 29.7, dik: 3.5, achter: -108.0, voor: 91.0, x: 110.0, hoek: 9.0, paal: { r: 3, h: 4 }, vast: { x: 100, z: 85, r: 4.5 },
-    richel: { y0: 30.0, uit: 7.5, top: 39.0, x: 100 }, stijg: 21.5 },
-  goot: GOOT,
+  // het raster van de bordjes (versie 5 zonder kabelgoten, Ian 2026-11-15: "Kabel goten mogen weg"): de rijen staan op
+  // dezelfde plaatsen als in versie 4 (de vrije stroken tussen de rijen zijn 9,2 breed: plaats voor de draden en een
+  // schroevendraaier); achter 4,8 vrij, links 11 (de sleutelgaten en de tules), rechts 11 tot de naad
+  raster: { b: 5.4, achter: 4.8, zij: 11.0, wand: 1.6, speling: 0.3 },
+  // de aanslagen langs de lange kanten van een bordje: 6 lang, 1,2 dik, 4,9 hoog (onder de draadingangen van de klemmen),
+  // 26 van het midden (voorbij de klemmen en de eilandjes met de gaatjes)
+  aanslag: { l: 6, t: 1.2, x: 26 },
+  // de gaatjes voor de leddraden in de bodem (Ian, 2026-11-15: "Gaatjes van de linkse box zijn 2mm op 2mm voor de
+  // printjes"): 2 x 2, per klem één, om en om op 0,3 en 2,5 van de rand van het bordje; per feature hoogstens 60
+  // de gaatjes van een bordje en een strook staan op een eilandje van 0,4 hoog (1 rand rond de gaatjes)
+  gaatje: { a: 2.0, rij: [0.3, 2.5], perFeature: 60, hoog: 0.4, rand: 1.0 },
   // elk geprint deel hoogstens 230 x 230 (het bed is 256 x 256, rechtsvoor 10 x 20 vrij voor het filamentmes, plus skirt)
   bed: { max: 230, hoog: 80 },
 };

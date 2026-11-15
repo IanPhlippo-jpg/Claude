@@ -1,10 +1,12 @@
 /**
- * De kabeldoos van de treinverlichting, versie 4 (voorbeelden/treinverlichting): één doos met kabelgoten en een
- * moduleplaat met kant-en-klare modules (opbouw.mjs). Elk onderdeel
- * bouwt (de geprinte delen exact op de B-rep-kernel; de bak en het deksel als één lichaam), de bak blijft binnen het
+ * De kabeldoos van de treinverlichting, versie 5 (voorbeelden/treinverlichting): één langwerpige doos op één laag in 2
+ * helften die in elkaar klikken (links de bordjes in hun klemlippen, rechts de kant-en-klare modules op palen; geen
+ * kabelgoten meer). Elk
+ * onderdeel bouwt (de geprinte delen exact op de B-rep-kernel, elk als één lichaam), elke bakhelft blijft binnen het
  * rebuildbudget van de app, elk geprint deel past in 230 x 230 (het bed van de Centauri Carbon zonder de hoek van het
- * filamentmes, met skirt), de doos is hoogstens 80 hoog en in de assemblage botst niets (ook de gootdeksels niet).
- * Snel alleen enkele onderdelen: TREIN_DELEN=Kabeldoos-bak. De STL's voor de printer: TREIN_STL=1.
+ * filamentmes, met skirt), de doos is hoogstens 80 hoog, in de assemblage botst niets (ook de klikhaken en de lip van het
+ * deksel niet) en de naad klikt zonder te breken (rek onder 2 %) en print zonder support.
+ * Snel alleen enkele onderdelen: TREIN_DELEN=Kabeldoos-bak-links. De STL's voor de printer: TREIN_STL=1.
  */
 import { afterAll, describe, expect, it } from 'vitest';
 import { readFileSync, readdirSync } from 'node:fs';
@@ -21,7 +23,7 @@ import { echteBotsingen } from './overlap';
 import { detectInterferences } from '../core/assembly/interference';
 import type { Component, Document } from '../core/document/types';
 // @ts-expect-error: het generatorscript is plain JavaScript
-import { M, gootDeksels, indeling } from '../../voorbeelden/treinverlichting/maak-kabeldoos.mjs';
+import { M, indeling, rechts, haakKlik, dekselKlik } from '../../voorbeelden/treinverlichting/maak-kabeldoos.mjs';
 // @ts-expect-error: het generatorscript is plain JavaScript
 import { klemlippen, lipRek, lipKracht } from '../../voorbeelden/treinverlichting/hulpstukken.mjs';
 
@@ -29,10 +31,12 @@ const DIR = 'voorbeelden/treinverlichting';
 const open = (f: string): Document => parseDocument(readFileSync(`${DIR}/${f}`, 'utf8'));
 const KEUZE = process.env.TREIN_DELEN?.split(',').map((s) => `${s.trim().replace(/\.kcad$/, '')}.kcad`);
 const DELEN = readdirSync(DIR).filter((f) => f.endsWith('.kcad') && f !== 'Kabeldoos.kcad' && (!KEUZE || KEUZE.includes(f)));
-const STL = { 'Kabeldoos-bak.kcad': 'rechtop', 'Kabeldoos-deksel.kcad': 'omgekeerd', 'Moduleplaat.kcad': 'rechtop', 'Gootdeksels-plaat.kcad': 'rechtop', 'Hulpstukken.kcad': 'rechtop' } as const;
-const PRINT = [...Object.keys(STL), 'Gootdeksel.kcad'];
-/** het aantal lichamen: de plaat met gootdeksels heeft één lichaam per lengte (de gelijke dekseltjes in één extrusie) */
-const lichamen = (f: string) => (f === 'Gootdeksels-plaat.kcad' ? new Set((gootDeksels() as { l: number }[]).map((d) => d.l)).size : f === 'Hulpstukken.kcad' ? 2 : 1); // hulpstukken: de 2 werkhaken (één lichaam, de ribben in één extrusie) en de spatel
+// printstand: de bakhelften met de bodem op het bed, de linkerhelft van het deksel met de buitenkant op het bed, de
+// rechterhelft met de binnenkant op het bed (de lip aan de naad ligt dan op het bed)
+const STL = { 'Kabeldoos-bak-links.kcad': 'rechtop', 'Kabeldoos-bak-rechts.kcad': 'rechtop', 'Kabeldoos-deksel-links.kcad': 'omgekeerd', 'Kabeldoos-deksel-rechts.kcad': 'rechtop', 'Hulpstukken.kcad': 'rechtop' } as const;
+const PRINT = Object.keys(STL);
+/** het aantal lichamen: de hulpstukken hebben er 2 (de 2 werkhaken in één lichaam, de ribben in één extrusie, en de spatel) */
+const lichamen = (f: string) => (f === 'Hulpstukken.kcad' ? 2 : 1);
 type R = { bodies: { geometry: THREE.BufferGeometry }[]; brep?: Record<string, unknown> };
 const bouw = (f: string) => {
   const t0 = performance.now();
@@ -53,9 +57,10 @@ describe('kabeldoos, onderdelen (mesh)', () => {
   it.each(DELEN)('%s bouwt', (f) => {
     mesh[f] = bouw(f);
     expect(mesh[f].n).toBeGreaterThan(0);
-    if (PRINT.includes(f)) expect(mesh[f].n, 'een geprint deel: één lichaam (de plaat: één per lengte)').toBe(lichamen(f));
-    // de app rekent hoogstens 45 s per onderdeel (rebuildbudget van de mesh-kernel)
-    if (f === 'Kabeldoos-bak.kcad') expect(mesh[f].tijd, `rebuild ${Math.round(mesh[f].tijd)} ms`).toBeLessThan(45000);
+    if (PRINT.includes(f)) expect(mesh[f].n, 'een geprint deel: één lichaam (de hulpstukken: 2)').toBe(lichamen(f));
+    // de app rekent hoogstens 45 s per onderdeel (rebuildbudget van de mesh-kernel); elke bakhelft apart
+    if (f.startsWith('Kabeldoos-bak')) process.stderr.write(`rebuild ${f}: ${Math.round(mesh[f].tijd)} ms\n`);
+    if (f.startsWith('Kabeldoos-bak')) expect(mesh[f].tijd, `rebuild ${f} ${Math.round(mesh[f].tijd)} ms`).toBeLessThan(45000);
   }, 600000);
 
   it('elk geprint deel past in 230 x 230 (het bed zonder de hoek van het filamentmes, met skirt)', () => {
@@ -84,9 +89,8 @@ describe('kabeldoos, B-rep', () => {
     }
   }, 1800000);
 
-  // de STL's uit de exacte vorm, in printstand (Z omhoog): de bak met de bodem op het bed, het deksel met de buitenkant op
-  // het bed (de drukribben en de centreerrand naar boven), de gootdeksels met de vlakke kant op het bed; elk bestand dicht
-  // en manifold en binnen 230 x 230
+  // de STL's uit de exacte vorm, in printstand (Z omhoog): de bakhelften met de bodem op het bed, de deksels zoals bij STL
+  // hierboven, de hulpstukken plat; elk bestand dicht en manifold en binnen 230 x 230
   it.skipIf(!process.env.TREIN_STL)('STL voor de printer', async () => {
     const { mkdirSync, writeFileSync } = await import('node:fs');
     const { prepareTriangles, stlBinary } = await import('../core/document/export3d');
@@ -160,16 +164,83 @@ describe('kabeldoos, klemlippen (advies Fable 5.2)', () => {
   });
 });
 
+describe('kabeldoos, gaatjes voor de leddraden (Ian, 2026-11-15: "2mm op 2mm")', () => {
+  type Gat = { nr: number; kant: string; klem: number; x: number; z: number; rect: number[] };
+  const L = indeling() as { gaatjes: Gat[]; eilandjes: number[][]; palen: number[][]; rijen: { soort: string; nr: number; cx: number; cz: number }[][] };
+  const B = (M as any).bordje, GT = (M as any).gaatje;
+  const afstand = (a: number[], b: number[]) => Math.hypot(Math.max(0, Math.max(a[0], b[0]) - Math.min(a[2], b[2])), Math.max(0, Math.max(a[1], b[1]) - Math.min(a[3], b[3])));
+  it('één gaatje van 2 x 2 per klem: 16 bordjes x 2 klemstroken x 16 klemmen', () => {
+    expect(L.gaatjes.length).toBe(16 * 2 * B.klem.n);
+    for (const g of L.gaatjes) { expect(g.rect[2] - g.rect[0]).toBeCloseTo(2, 6); expect(g.rect[3] - g.rect[1]).toBeCloseTo(2, 6); }
+    expect(new Set(L.gaatjes.map((g) => `${g.nr}|${g.kant}|${g.klem}`)).size).toBe(L.gaatjes.length);
+  });
+  it('elk gaatje recht voor zijn klem, in de vrije strook voor het bordje (0,3 tot 4,5 van de rand)', () => {
+    for (const g of L.gaatjes) {
+      const d = L.rijen.flat().find((q) => q.nr === g.nr)!, s = g.kant === 'voor' ? 1 : -1;
+      const klemX = d.cx - (B.klem.n * B.klem.steek) / 2 + B.klem.steek * (g.klem - 0.5);
+      expect(g.x).toBeCloseTo(klemX, 6);
+      const rand = d.cz + (s * B.z) / 2, van = s > 0 ? g.rect[1] - rand : rand - g.rect[3], tot = s > 0 ? g.rect[3] - rand : rand - g.rect[1];
+      expect(van, `bordje ${g.nr} ${g.kant} klem ${g.klem}`).toBeGreaterThanOrEqual(0.3 - 1e-9);
+      expect(tot).toBeLessThanOrEqual(4.5 + 1e-9);
+    }
+  });
+  it('geen botsing: tussen 2 gaatjes minstens 0,55 vlees, van palen en aanslagen minstens 1,5, eilandjes los van elkaar en van de palen', () => {
+    const G = L.gaatjes;
+    for (let i = 0; i < G.length; i++) for (let j = i + 1; j < G.length; j++) expect(afstand(G[i].rect, G[j].rect)).toBeGreaterThanOrEqual(0.55);
+    for (const g of G) for (const p of L.palen) expect(afstand(g.rect, p)).toBeGreaterThanOrEqual(1.5);
+    const E = L.eilandjes;
+    for (let i = 0; i < E.length; i++) { for (let j = i + 1; j < E.length; j++) expect(afstand(E[i], E[j])).toBeGreaterThan(0); for (const p of L.palen) expect(afstand(E[i], p)).toBeGreaterThan(0.3); }
+    // elk gaatje op een eilandje met minstens de rand (1) eromheen, hoogstens 32 per eilandje (de mesh-kernel trianguleert per vlak)
+    for (const g of G) expect(E.some((e) => g.rect[0] - e[0] >= GT.rand - 1e-9 && e[2] - g.rect[2] >= GT.rand - 1e-9 && g.rect[1] - e[1] >= GT.rand - 1e-9 && e[3] - g.rect[3] >= GT.rand - 1e-9)).toBe(true);
+    for (const e of E) expect(G.filter((g) => g.rect[0] >= e[0] && g.rect[2] <= e[2] && g.rect[1] >= e[1] && g.rect[3] <= e[3]).length).toBeLessThanOrEqual(32);
+  });
+});
+
+describe('kabeldoos, naad tussen de helften (versie 5)', () => {
+  const N = (M as any).naad, D = (M as any).doos, P = rechts() as any;
+  it('de klikhaken: rek onder 2 %, inklikken met de hand (5 tot 30 N per haak), een nok van 0,4 tot 0,8', () => {
+    const h = haakKlik() as { rek: number; inklik: number; d: number };
+    expect(h.rek).toBeLessThan(0.02);
+    expect(h.inklik).toBeGreaterThan(5);
+    expect(h.inklik).toBeLessThan(30);
+    expect(h.d).toBeGreaterThanOrEqual(0.4);
+    expect(h.d).toBeLessThanOrEqual(0.8);
+    // het kuiltje is dieper dan de nok (de nok zit vrij) en de wand houdt minstens 1,4 achter het kuiltje
+    expect(N.haak.kuil).toBeGreaterThan(N.haak.nok.d - N.spleet);
+    expect(D.wand - N.haak.kuil).toBeGreaterThanOrEqual(1.4);
+  });
+  it('de klikhaken printen zonder support: onderkant 45° (stijgt even veel als hij uitsteekt), boven de bodem van links', () => {
+    for (const h of P.haken as { prof: [number, number][] }[]) {
+      const tip = h.prof[3], voet = h.prof[4];
+      expect(Math.abs((tip[1] - voet[1]) - (voet[0] - tip[0]))).toBeLessThan(1e-9);
+      expect(voet[1]).toBeGreaterThanOrEqual(N.spleet);
+      expect(h.prof[2][1]).toBeLessThan(D.h - 10); // ruim onder het deksel
+    }
+  });
+  it('de lip van het deksel: rek onder 2 %, de groeven dieper dan de nok, lijmspleet 0,2', () => {
+    const k = dekselKlik() as { rek: number; inklik: number };
+    expect(k.rek).toBeLessThan(0.02);
+    expect(k.inklik).toBeLessThan(80);
+    expect(N.deksel.groef).toBeGreaterThan(N.deksel.nok.h - N.spleet);
+    expect(N.deksel.buiten + N.spleet + N.deksel.lip).toBeCloseTo(D.deksel, 6);
+  });
+  it('de naad van het deksel ligt niet boven die van de bak, de lip overlapt de naad van de bak', () => {
+    expect(N.deksel.x).not.toBeCloseTo(N.x, 1);
+    expect(N.deksel.x - N.deksel.lap).toBeLessThan(N.x - 5);
+  });
+});
+
 describe('kabeldoos, assemblage', () => {
-  it('niets botst en de dichte doos is hoogstens 80 hoog', () => {
+  it('niets botst en de dichte doos is hoogstens 80 hoog en 230 diep', () => {
     if (KEUZE) return;
     const a = open('Kabeldoos.kcad') as Document & { components: Component[] };
     const r = rebuildAssembly(a);
     expect(echteBotsingen(detectInterferences(r.bodies), r.bodies)).toEqual([]);
     const doos = new THREE.Box3();
-    for (const b of r.bodies.filter((b) => b.id === 'd1' || b.id === 'd2')) { b.geometry.computeBoundingBox(); doos.union(b.geometry.boundingBox!); }
+    for (const b of r.bodies.filter((b) => /^d[1-4]$/.test(b.id))) { b.geometry.computeBoundingBox(); doos.union(b.geometry.boundingBox!); }
     const s = doos.getSize(new THREE.Vector3());
     expect(s.y).toBeLessThanOrEqual(BED.hoog);
-    expect(Math.max(s.x, s.z)).toBeLessThanOrEqual(BED.max);
+    expect(s.z).toBeLessThanOrEqual(BED.max);
+    expect(s.x).toBeLessThanOrEqual(2 * BED.max);
   }, 1800000);
 });

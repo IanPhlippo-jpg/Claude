@@ -8,13 +8,13 @@
 // de lip met de spatel (hieronder) naar buiten duwen.
 //
 // Hulpstukken (één printplaat): 2 werkhaken om de doos voor het bedraden op werkhoogte te laten hangen en een spatel met
-// haakje voor de smalle goten (5,4 mm: geen plaats voor een vinger) en de klemlippen.
+// haakje voor de klemlippen en de draden tussen de bordjes (geen plaats voor een vinger).
 //  - Werkhaak: een strip van 140 met bovenaan een sleutelgat (zoals in de bodem van de doos: hangt aan een van de
 //    bolkopschroeven onder de baan) en onderaan een knop met de maat van een schroefkop (Ø8,5 op een hals Ø4,2): die gaat
 //    door het grote gat van een sleutelgat van de doos en schuift in de sleuf. Twee haken aan de voorste schroeven (rij 6):
 //    de doos hangt dan verticaal, de voorkant boven, 12 cm onder de baan, de open kant naar je toe.
-//  - Spatel: 100 lang, 10 breed, aan het ene eind een blad van 1,0 (gootdeksel optillen, klemlip openduwen), aan het
-//    andere eind een haakje (draden uit een goot trekken).
+//  - Spatel: 100 lang, 10 breed, aan het ene eind een blad van 1,0 (klemlip openduwen), aan het andere eind een haakje
+//    (een draad tussen de bordjes uittrekken).
 import { M } from './maten.mjs';
 import { yv, deel, snede, cirkels, PETG_GOOT } from './hulp.mjs';
 

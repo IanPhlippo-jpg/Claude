@@ -35,3 +35,13 @@
 - [x] main.cpp: watchdog, hotspot herstellen, BOOT-knop, OTA /api/update, thuisnet, tweede PCA
 - [x] Dashboard: testmodus, firmware bijwerken, thuisnet, actie wissel (ook demo-modus)
 - [x] README, platformio.ini (micro-USB), tests native en native32 groen, doos bouwen, beelden
+
+## Firmware 1.3.0: groepen alleen aan/uit, hallsensoren op de ingangen (2026-11-15)
+- [x] licht.h, baan.h, functies.h: dimmen weg (helderheid, faduur, maximum, gamma, vuur/tv/ademen); uitgang = aan/uit-masker
+- [x] ingangen.h: soort "puls" (hallsensor) met flankvlag, vasthoudtijd (300 ms) en teller per ingang
+- [x] opslag.h en api.h: CONFIG_VERSIE 2 met omzetting van versie 1, API zonder helderheid, soort/vasthouden/teller
+- [x] hw.h en main.cpp: PCA9685 alleen volledig aan/uit-bit, GPIO-interrupt (IRAM) per ingang met atomair uitlezen
+- [x] hosttests aanpassen en uitbreiden (puls 1..10 ms, teller, drukknop ontdenderd, aan/uit, oude config), native en native32 groen
+- [x] dashboard: schakelaar per groep, scènes/functies aan/uit, ingangen met lampje en teller, soort en vasthoudtijd (ook demo); dashboard.h opnieuw
+- [x] doos bouwen (flash/RAM), README bijwerken (aan/uit, hallsensor, API, 1.3.0)
+- [x] dashboardbeelden opnieuw (trein-dashboard-shots.mjs) en nakijken

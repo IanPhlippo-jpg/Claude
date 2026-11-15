@@ -24,24 +24,28 @@ Antwoord dagnacht(Baan &b, const std::string &j) { return apiDagnacht(b, j.data(
 
 void test_groep_zetten() {
   Baan b;
-  Antwoord a = groep(b, R"({"nr":3,"aan":true,"helderheid":40})");
+  Antwoord a = groep(b, R"({"nr":3,"aan":true})");
   TEST_ASSERT_EQUAL(200, a.code);
   TEST_ASSERT_EQUAL_STRING("{\"ok\":true}", a.json.c_str());
   TEST_ASSERT_TRUE(b.lampen.stand[2].aan);
-  TEST_ASSERT_EQUAL(40, b.lampen.stand[2].helderheid);
+  b.tick(0, 0);
+  TEST_ASSERT_TRUE(b.lampen.brandt(2));
   // effect zonder instellingen: de standaardwaarden
-  groep(b, R"({"nr":3,"effect":"vuur"})");
-  TEST_ASSERT_EQUAL(FX_VUUR, b.lampen.stand[2].effect);
-  TEST_ASSERT_EQUAL(effectInfo(FX_VUUR).p1Std, b.lampen.stand[2].p1);
+  groep(b, R"({"nr":3,"effect":"lasvlam"})");
+  TEST_ASSERT_EQUAL(FX_LASVLAM, b.lampen.stand[2].effect);
+  TEST_ASSERT_EQUAL(effectInfo(FX_LASVLAM).p1Std, b.lampen.stand[2].p1);
   groep(b, R"({"nr":3,"p2":9})");
   TEST_ASSERT_EQUAL(9, b.lampen.stand[2].p2);
-  TEST_ASSERT_EQUAL(FX_VUUR, b.lampen.stand[2].effect);
+  TEST_ASSERT_EQUAL(FX_LASVLAM, b.lampen.stand[2].effect);
   // meer groepen tegelijk
   groep(b, R"({"nr":[1,2,16],"aan":true})");
   TEST_ASSERT_TRUE(b.lampen.stand[0].aan && b.lampen.stand[1].aan && b.lampen.stand[15].aan);
-  // te fel: begrensd
-  groep(b, R"({"nr":1,"helderheid":900})");
-  TEST_ASSERT_EQUAL(100, b.lampen.stand[0].helderheid);
+  // een oud dashboard (1.2) dat nog een helderheid stuurt: die telt niet, aan/uit wel
+  TEST_ASSERT_EQUAL(200, groep(b, R"({"nr":1,"aan":false,"helderheid":40})").code);
+  TEST_ASSERT_FALSE(b.lampen.stand[0].aan);
+  // de effecten met tussenwaarden bestaan niet meer
+  TEST_ASSERT_EQUAL(400, groep(b, R"({"nr":1,"effect":"vuur"})").code);
+  TEST_ASSERT_EQUAL(400, groep(b, R"({"nr":1,"effect":"ademen"})").code);
   // overweg met een tweede groep
   groep(b, R"({"nr":5,"aan":true,"effect":"overweg","p2":6})");
   TEST_ASSERT_EQUAL(FX_OVERWEG, b.lampen.stand[5].effect);
@@ -72,10 +76,8 @@ void test_groep_fouten() {
 void test_groep_naam_maximum_dagnacht() {
   Baan b;
   uint32_t rev = b.cfgRev;
-  groep(b, R"({"nr":2,"naam":"Kerk","max":60,"dagnacht":true})");
+  groep(b, R"({"nr":2,"naam":"Kerk","max":60,"dagnacht":true})"); // "max" (1.2) telt niet meer
   TEST_ASSERT_EQUAL_STRING("Kerk", b.cfg.groep[1].naam);
-  TEST_ASSERT_EQUAL(60, b.cfg.groep[1].max);
-  TEST_ASSERT_EQUAL(60, b.lampen.maxPct[1]);
   TEST_ASSERT_TRUE(b.cfg.groep[1].dagnacht);
   TEST_ASSERT_TRUE(b.cfgRev > rev);
   // alleen de stand veranderen telt niet als instellingenwijziging
@@ -98,14 +100,35 @@ void test_alles_uit() {
 
 void test_scenes() {
   Baan b;
-  groep(b, R"({"nr":4,"aan":true,"helderheid":30})");
+  groep(b, R"({"nr":4,"aan":true})");
   Antwoord a = scene(b, R"({"actie":"bewaren","naam":"Avond"})");
   TEST_ASSERT_EQUAL(200, a.code);
   TEST_ASSERT_EQUAL_STRING("{\"ok\":true,\"nr\":3}", a.json.c_str());
   groep(b, R"({"allesUit":true})");
   TEST_ASSERT_EQUAL(200, scene(b, R"({"actie":"oproepen","nr":3})").code);
   TEST_ASSERT_TRUE(b.lampen.stand[3].aan);
-  TEST_ASSERT_EQUAL(30, b.lampen.stand[3].helderheid);
+  TEST_ASSERT_FALSE(b.lampen.stand[4].aan);
+  // per groep kiezen (het dashboard): groep 1 en 16 aan, de rest uit, de naam blijft
+  groep(b, R"({"nr":4,"aan":true,"effect":"knipperen"})");
+  scene(b, R"({"actie":"bewaren","nr":3})");
+  TEST_ASSERT_EQUAL(200, scene(b, R"({"actie":"bewaren","nr":3,"aan":[1,16]})").code);
+  TEST_ASSERT_EQUAL_STRING("Avond", b.cfg.scene[2].naam);
+  TEST_ASSERT_TRUE(b.cfg.scene[2].groep[0].aan && b.cfg.scene[2].groep[15].aan);
+  TEST_ASSERT_FALSE(b.cfg.scene[2].groep[3].aan);
+  TEST_ASSERT_EQUAL(FX_KNIPPEREN, b.cfg.scene[2].groep[3].effect); // het effect blijft bewaard
+  JsonDocument d;
+  deserializeJson(d, apiStaat(b, 0, false));
+  TEST_ASSERT_EQUAL(2, (int)d["scenes"][2]["aan"].size());
+  TEST_ASSERT_EQUAL(16, d["scenes"][2]["aan"][1].as<int>());
+  TEST_ASSERT_EQUAL(N_GROEPEN, (int)d["scenes"][0]["aan"].size()); // "Alles aan"
+  TEST_ASSERT_EQUAL(400, scene(b, R"({"actie":"bewaren","nr":3,"aan":[0]})").code);
+  TEST_ASSERT_EQUAL(400, scene(b, R"({"actie":"bewaren","nr":3,"aan":5})").code);
+  // een nieuwe scène met een keuze per groep: zonder effect
+  a = scene(b, R"({"actie":"bewaren","naam":"Perron","aan":[4]})");
+  TEST_ASSERT_EQUAL_STRING("{\"ok\":true,\"nr\":4}", a.json.c_str());
+  TEST_ASSERT_TRUE(b.cfg.scene[3].groep[3].aan);
+  TEST_ASSERT_EQUAL(FX_GEEN, b.cfg.scene[3].groep[3].effect);
+  scene(b, R"({"actie":"wissen","nr":4})");
   TEST_ASSERT_EQUAL(200, scene(b, R"({"actie":"hernoemen","nr":3,"naam":"Late avond"})").code);
   TEST_ASSERT_EQUAL_STRING("Late avond", b.cfg.scene[2].naam);
   TEST_ASSERT_EQUAL(400, scene(b, R"({"actie":"hernoemen","nr":3,"naam":"  "})").code);
@@ -168,15 +191,55 @@ void test_ingangen() {
   TEST_ASSERT_EQUAL(400, ingang(b, R"({"nr":17,"gedrag":"sensor"})").code);
   TEST_ASSERT_EQUAL(400, ingang(b, R"({"nr":1,"gedrag":"lift"})").code);
   TEST_ASSERT_EQUAL(400, ingang(b, R"({"nr":1,"functieA":5})").code); // functie 5 bestaat niet
+  TEST_ASSERT_EQUAL(SOORT_CONTACT, c.soort);
+  TEST_ASSERT_EQUAL(STD_VASTHOUD_MS, c.vasthoudMs);
+}
+
+void test_ingang_hallsensor_en_teller() {
+  Baan b;
+  // ingang 5 als hallsensor (puls), 0,5 s vasthouden, drukknop op "Overweg"
+  Antwoord a = ingang(b, R"({"nr":5,"naam":"Hall overweg","soort":"puls","vasthouden":0.5,"gedrag":"drukknop","functieA":1})");
+  TEST_ASSERT_EQUAL(200, a.code);
+  const IngangCfg &c = b.cfg.ingang[4];
+  TEST_ASSERT_EQUAL(SOORT_PULS, c.soort);
+  TEST_ASSERT_EQUAL(500, c.vasthoudMs);
+  TEST_ASSERT_EQUAL(400, ingang(b, R"({"nr":5,"soort":"magneet"})").code);
+  TEST_ASSERT_EQUAL(400, ingang(b, R"({"nr":5,"vasthouden":11})").code);
+  TEST_ASSERT_EQUAL(400, ingang(b, R"({"nr":5,"vasthouden":-1})").code);
+  TEST_ASSERT_EQUAL(400, ingang(b, R"({"nr":5,"vasthouden":"lang"})").code);
+  TEST_ASSERT_EQUAL(500, c.vasthoudMs);
+  // drie pulsen (alleen de flankvlag: korter dan 5 ms), elke 2 s
+  for (uint32_t t = 0; t < 6000; t += 5) b.tick(t, 0, (t % 2000 == 1000) ? 0x0010 : 0);
+  JsonDocument d;
+  deserializeJson(d, apiStaat(b, 6000, true));
+  TEST_ASSERT_EQUAL(3, d["ingangen"][4]["teller"].as<int>());
+  TEST_ASSERT_FALSE(d["ingangen"][4]["actief"].as<bool>());
+  TEST_ASSERT_EQUAL(0, d["ingangen"][3]["teller"].as<int>());
+  deserializeJson(d, apiStaat(b, 6000, false));
+  TEST_ASSERT_EQUAL_STRING("puls", d["ingangen"][4]["soort"]);
+  TEST_ASSERT_EQUAL(0.5, d["ingangen"][4]["vasthouden"].as<double>());
+  // vlak na een puls: actief (vastgehouden)
+  b.tick(6000, 0, 0x0010);
+  b.tick(6200, 0, 0);
+  deserializeJson(d, apiStaat(b, 6200, true));
+  TEST_ASSERT_TRUE(d["ingangen"][4]["actief"].as<bool>());
+  TEST_ASSERT_EQUAL(4, d["ingangen"][4]["teller"].as<int>());
+  // de teller wissen (zonder dat de instellingen veranderen), en alle tellers
+  uint32_t rev = b.cfgRev;
+  TEST_ASSERT_EQUAL(200, ingang(b, R"({"nr":5,"tellerNul":true})").code);
+  TEST_ASSERT_EQUAL_UINT32(0, b.ingangen.t[4].teller);
+  TEST_ASSERT_EQUAL_UINT32(rev, b.cfgRev);
+  b.ingangen.t[0].teller = 7;
+  TEST_ASSERT_EQUAL(200, ingang(b, R"({"tellersNul":true})").code);
+  TEST_ASSERT_EQUAL_UINT32(0, b.ingangen.t[0].teller);
+  TEST_ASSERT_EQUAL_UINT32(rev, b.cfgRev);
 }
 
 void test_instellingen_en_wachtwoord() {
   Baan b;
-  Antwoord a = inst(b, R"({"faduur":1.5,"dagnachtMin":30,"opstart":"uit"})");
+  Antwoord a = inst(b, R"({"faduur":1.5,"dagnachtMin":30,"opstart":"uit"})"); // "faduur" (1.2) telt niet meer
   TEST_ASSERT_EQUAL(200, a.code);
   TEST_ASSERT_FALSE(a.hotspotOpnieuw);
-  TEST_ASSERT_EQUAL(1500u, b.cfg.inst.faduurMs);
-  TEST_ASSERT_EQUAL(1500u, b.lampen.faduurMs);
   TEST_ASSERT_EQUAL(30u * 60000u, b.dn.duurMs);
   TEST_ASSERT_FALSE(b.cfg.inst.opstartLaatste);
   TEST_ASSERT_EQUAL(400, inst(b, R"({"wachtwoord":"kort"})").code);
@@ -236,7 +299,10 @@ void test_staat_volledig_en_kort() {
   TEST_ASSERT_TRUE(d["ingangen"][0]["actief"].as<bool>());
   TEST_ASSERT_FALSE(d["ingangen"][1]["actief"].as<bool>());
   TEST_ASSERT_TRUE(d["ingangen"][2]["actief"].as<bool>());
-  TEST_ASSERT_EQUAL(0.5, d["instellingen"]["faduur"].as<double>());
+  TEST_ASSERT_TRUE(d["instellingen"]["faduur"].isNull());
+  TEST_ASSERT_TRUE(d["groepen"][0]["helderheid"].isNull());
+  TEST_ASSERT_TRUE(d["groepen"][0]["max"].isNull());
+  TEST_ASSERT_EQUAL_STRING("contact", d["ingangen"][0]["soort"]);
   TEST_ASSERT_TRUE(d["instellingen"]["wachtwoord"].isNull());
   // kort: geen namen, wel de live stand en "rev"
   JsonDocument k;
@@ -245,7 +311,10 @@ void test_staat_volledig_en_kort() {
   TEST_ASSERT_TRUE(k["groepen"][0]["naam"].isNull());
   TEST_ASSERT_TRUE(k["scenes"].isNull());
   TEST_ASSERT_EQUAL(b.cfgRev, k["rev"].as<uint32_t>());
-  TEST_ASSERT_TRUE(k["groepen"][0]["lamp"].as<int>() > 0);
+  TEST_ASSERT_TRUE(k["groepen"][0]["brandt"].as<bool>());
+  TEST_ASSERT_FALSE(k["groepen"][1]["brandt"].as<bool>());
+  TEST_ASSERT_TRUE(k["groepen"][0]["lamp"].isNull());
+  TEST_ASSERT_TRUE(k["ingangen"][0]["teller"].is<int>());
 }
 
 
@@ -254,13 +323,13 @@ Antwoord test(Baan &b, const std::string &j, uint32_t nu = 0) { return apiTest(b
 
 void test_testmodus_looplicht_en_vast() {
   Baan b;
-  groep(b, R"({"nr":2,"aan":true,"helderheid":30})");
+  groep(b, R"({"nr":2,"aan":true})");
   TEST_ASSERT_EQUAL(200, test(b, R"({"actie":"looplicht","stapS":0.5})", 1000).code);
-  // groep 1, 2, 3 ... om de beurt VOL aan (4095), de rest uit, ook groep 2 die op 30 % stond
+  // groep 1, 2, 3 ... om de beurt aan, de rest uit, ook groep 2 die aan stond
   for (int k = 0; k < 2 * N_GROEPEN; k++) {
     uint32_t t = 1000 + (uint32_t)k * 500 + 250;
     b.tick(t, 0);
-    for (int g = 0; g < N_GROEPEN; g++) TEST_ASSERT_EQUAL_UINT16(g == k % N_GROEPEN ? PWM_MAX : 0, b.lampen.uitgang[g]);
+    TEST_ASSERT_EQUAL_HEX32(groepBit(k % N_GROEPEN), b.lampen.uitgang);
   }
   JsonDocument d;
   deserializeJson(d, apiStaat(b, 1000 + 2 * 500 + 10, true));
@@ -269,14 +338,13 @@ void test_testmodus_looplicht_en_vast() {
   // vast: één groep; de stand van de groepen blijft ongemoeid
   TEST_ASSERT_EQUAL(200, test(b, R"({"actie":"vast","groep":5})").code);
   b.tick(50000, 0);
-  for (int g = 0; g < N_GROEPEN; g++) TEST_ASSERT_EQUAL_UINT16(g == 4 ? PWM_MAX : 0, b.lampen.uitgang[g]);
+  TEST_ASSERT_EQUAL_HEX32(groepBit(4), b.lampen.uitgang);
   TEST_ASSERT_TRUE(b.lampen.stand[1].aan);
   // stop: de gewone stand komt terug
   TEST_ASSERT_EQUAL(200, test(b, R"({"actie":"stop"})").code);
   b.tick(50010, 0);
   b.tick(52000, 0);
-  TEST_ASSERT_EQUAL_UINT16(0, b.lampen.uitgang[4]);
-  TEST_ASSERT_EQUAL_UINT16(gammaUit(0.3f), b.lampen.uitgang[1]);
+  TEST_ASSERT_EQUAL_HEX32(groepBit(1), b.lampen.uitgang);
   deserializeJson(d, apiStaat(b, 52000, true));
   TEST_ASSERT_EQUAL_STRING("", d["test"]["soort"]);
   TEST_ASSERT_EQUAL(0, d["test"]["groep"].as<int>());
@@ -363,6 +431,7 @@ int main() {
   RUN_TEST(test_scenes);
   RUN_TEST(test_functies);
   RUN_TEST(test_ingangen);
+  RUN_TEST(test_ingang_hallsensor_en_teller);
   RUN_TEST(test_instellingen_en_wachtwoord);
   RUN_TEST(test_dagnacht);
   RUN_TEST(test_staat_volledig_en_kort);

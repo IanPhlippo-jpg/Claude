@@ -4,10 +4,13 @@
 //   GET  /api/staat            alles (namen, scènes, functies, ingangen, instellingen en de live stand)
 //   GET  /api/staat?kort=1     alleen de live stand (het dashboard vraagt dit elke seconde; staat "rev" anders dan
 //                              de vorige keer, dan haalt het alles opnieuw op)
-//   POST /api/groep            {"nr":3,"aan":true,"helderheid":60,"effect":"vuur","p1":60,"p2":5}  (nr ook [3,4])
-//                              {"nr":3,"naam":"Station","max":80,"dagnacht":true}
+//   POST /api/groep            {"nr":3,"aan":true}  {"nr":3,"aan":true,"effect":"knipperen","p1":500,"p2":500}
+//                              (nr ook [3,4]; alleen aan/uit, geen helderheid sinds firmware 1.3.0)
+//                              {"nr":3,"naam":"Station","dagnacht":true}
 //                              {"allesUit":true}
 //   POST /api/scene            {"actie":"oproepen","nr":1}  {"actie":"bewaren","naam":"Avond"}  (met "nr": overschrijven)
+//                              {"actie":"bewaren","nr":3,"naam":"Avond","aan":[1,2,5]}  per groep kiezen: 1, 2, 5 aan,
+//                              de rest uit (zonder "aan": de huidige stand van de groepen)
 //                              {"actie":"hernoemen","nr":1,"naam":"..."}  {"actie":"wissen","nr":1}
 //   POST /api/functie          {"actie":"start"|"stop"|"wissel","nr":1}  {"actie":"wissen","nr":1}
 //                              {"actie":"bewaren","nr":2,"functie":{"naam":"Overweg","herhalen":false,"stopUit":true,
@@ -15,7 +18,9 @@
 //                                           {"groepen":[3,4],"actie":"uit","wacht":0}]}}   (zonder "nr": nieuwe)
 //   POST /api/ingang           {"nr":1,"naam":"Knop perron","gedrag":"drukknop","functieA":1,"wisselen":true}
 //                              (functieA/B: 0 = geen; "nalopen": seconden voor een sensor)
-//   POST /api/instellingen     {"faduur":0.5,"dagnachtMin":20,"opstart":"laatste"|"uit","wachtwoord":"..."}
+//                              {"nr":5,"soort":"puls","vasthouden":0.3}  hallsensor: korte puls, 0,3 s vasthouden
+//                              {"nr":5,"tellerNul":true}  {"tellersNul":true}  (de teller van één of alle ingangen op 0)
+//   POST /api/instellingen     {"dagnachtMin":20,"opstart":"laatste"|"uit","wachtwoord":"..."}
 //                              {"fabrieksinstellingen":true}
 //                              {"thuisnet":{"ssid":"Thuis","wachtwoord":"..."}}  (ssid "" = thuisnet uit)
 //   POST /api/dagnacht         {"loopt":true,"vanaf":"avond"}  {"loopt":false}
@@ -90,11 +95,10 @@ inline std::string apiStaat(const Baan &b, uint32_t nu, bool kort) {
   for (int g = 0; g < N_GROEPEN; g++) {
     JsonObject x = gs.add<JsonObject>();
     schrijfStand(x, b.lampen.stand[g]);
-    x["lamp"] = (int)lrintf(b.lampen.lamp[g] * 100.f);
+    x["brandt"] = b.lampen.brandt(g); // nu echt aan (bij een effect: deze tel van het knipperen)
     if (!kort) {
       x["nr"] = g + 1;
       x["naam"] = b.cfg.groep[g].naam;
-      x["max"] = b.cfg.groep[g].max;
       x["dagnacht"] = b.cfg.groep[g].dagnacht;
     }
   }
@@ -105,6 +109,7 @@ inline std::string apiStaat(const Baan &b, uint32_t nu, bool kort) {
     JsonObject x = in.add<JsonObject>();
     const IngangCfg &c = b.cfg.ingang[i];
     x["actief"] = b.ingangen.t[i].actief;
+    x["teller"] = b.ingangen.t[i].teller;
     x["toestand"] = b.ingangen.toestandTekst(i, c);
     int32_t over = b.ingangen.vrijOver(i, c, nu);
     if (over >= 0) x["vrijOver"] = over;
@@ -136,6 +141,9 @@ inline std::string apiStaat(const Baan &b, uint32_t nu, bool kort) {
       JsonObject x = sc.add<JsonObject>();
       x["nr"] = i + 1;
       x["naam"] = b.cfg.scene[i].naam;
+      JsonArray aan = x["aan"].to<JsonArray>(); // de groepen die de scène aanzet
+      for (int g = 0; g < N_GROEPEN; g++)
+        if (b.cfg.scene[i].groep[g].aan) aan.add(g + 1);
     }
     JsonArray fs = o["functies"].to<JsonArray>();
     for (int f = 0; f < MAX_FUNCTIES; f++) {
@@ -188,7 +196,7 @@ inline Antwoord apiGroep(Baan &b, const char *body, size_t len, uint32_t nu) {
     GroepCfg &c = b.cfg.groep[g];
     GroepCfg oud = c;
     l.groepCfg(r, c);
-    if (strcmp(oud.naam, c.naam) != 0 || oud.max != c.max || oud.dagnacht != c.dagnacht) cfgGewijzigd = true;
+    if (strcmp(oud.naam, c.naam) != 0 || oud.dagnacht != c.dagnacht) cfgGewijzigd = true;
   }
   if (cfgGewijzigd) b.instellingenGewijzigd(nu);
   return goed();
@@ -208,7 +216,17 @@ inline Antwoord apiScene(Baan &b, const char *body, size_t len, uint32_t nu) {
   }
   if (strcmp(actie, "bewaren") == 0) {
     if (!d["nr"].isNull() && i < 0) return fout("Onbekende scène.");
-    int p = b.sceneBewaren(i, naam);
+    JsonVariantConst lijst = d["aan"];
+    GroepMasker aan = 0;
+    if (!lijst.isNull()) {
+      if (!lijst.is<JsonArrayConst>()) return fout("\"aan\" moet een lijst met groepnummers zijn.");
+      for (JsonVariantConst x : lijst.as<JsonArrayConst>()) {
+        int g = index(x, N_GROEPEN);
+        if (g < 0) return fout("Onbekende groep.");
+        aan |= groepBit(g);
+      }
+    }
+    int p = b.sceneBewaren(i, naam, lijst.isNull() ? nullptr : &aan);
     if (p < 0) return fout("Alle 12 plaatsen voor scènes zijn bezet. Wis eerst een scène.");
     return goed(p + 1);
   }
@@ -266,11 +284,25 @@ inline Antwoord apiIngang(Baan &b, const char *body, size_t len, uint32_t nu) {
   JsonDocument d;
   Antwoord a;
   if (!leesVerzoek(body, len, d, a)) return a;
+  if (d["tellersNul"].is<bool>() && d["tellersNul"].as<bool>()) {
+    b.ingangen.tellerNul();
+    return goed();
+  }
   int i = index(d["nr"], N_INGANGEN);
   if (i < 0) return foutN("Welke ingang? Geef \"nr\" van 1 tot %d.", N_INGANGEN);
+  if (d["tellerNul"].is<bool>() && d["tellerNul"].as<bool>()) {
+    b.ingangen.tellerNul(i);
+    if (d.as<JsonObjectConst>().size() == 2) return goed(i + 1); // alleen de teller: geen instellingen gewijzigd
+  }
   JsonVariantConst g = d["gedrag"];
   if (!g.isNull() && (!g.is<const char *>() || gedragVanId(g.as<const char *>()) < 0))
     return fout("Onbekend gedrag (geen, drukknop, schakelaar of sensor).");
+  JsonVariantConst so = d["soort"];
+  if (!so.isNull() && (!so.is<const char *>() || soortVanId(so.as<const char *>()) < 0))
+    return fout("Onbekende soort (contact of puls).");
+  JsonVariantConst vh = d["vasthouden"];
+  if (!vh.isNull() && (!vh.is<double>() || !(vh.as<double>() >= 0 && vh.as<double>() <= MAX_VASTHOUD_MS / 1000.0)))
+    return fout("Vasthouden: 0 tot 10 s.");
   for (const char *k : {"functieA", "functieB"}) {
     JsonVariantConst v = d[k];
     if (v.isNull()) continue;

@@ -1,21 +1,24 @@
 // Versie 4 (Ian, 2026-11-13: "Voor de treindoos zou ik graag willen dat je zoveel mogelijk printjes gebruikt die ik
-// gewoon kan bestellen"): geen gaatjesprints meer. Alle elektronica zijn kant-en-klare modules op één geprinte
-// moduleplaat boven de bordjes; ze worden met schroefklemmen, WAGO-hendelklemmen en dupontkabels verbonden.
+// gewoon kan bestellen"): geen gaatjesprints meer, kant-en-klare modules met schroefklemmen, WAGO-hendelklemmen en
+// dupontkabels. Versie 5 (Ian, 2026-11-15: "Als je met 2 lagen werkt is het te moeilijk om de kabels aan te sluiten"):
+// geen moduleplaat meer; alle modules staan op palen in de bodem van de rechterhelft, op één laag met de bordjes.
 //
-// Eén bron voor: de 3D-modules (onderdelen.mjs), de moduleplaat met haar paaltjes en klikhouders (maak-kabeldoos.mjs),
+// Eén bron voor: de 3D-modules (onderdelen.mjs), de palen en klikhouders in de rechterhelft (maak-kabeldoos.mjs),
 // het montageblad TRN-10 en de interne draadlijst TRN-14 (src/qa/opbouwTrein.ts), het schema (schema/maak-schema.mjs)
 // en de controle (elke draad op een bestaande klem met het juiste net, geen klem met twee netten, modules niet over
-// elkaar en binnen de plaat, de gaten vrij van de klemmen).
+// elkaar, binnen het modulevak van de rechterhelft en vrij van pilaren, bussen, tules en sleutelgaten, de gaten vrij van
+// de klemmen).
 //
 // Assenstelsel van een module: oorsprong in het midden van de print, x langs de lengte (l), z langs de breedte (b), y = 0
 // onderaan de print. Een module staat met rot (0, 90, 180, 270 graden om +Y, zoals draaiY in de assemblage) op
 // (cx, cz) van de doos. Maten en bron per module: docs/Maten-en-bronnen.md, hoofdstuk "Versie 4".
 import { M } from './maten.mjs';
 
-const P = M.plaat;
-/** bovenkant van de moduleplaat en de onderkant van een module (op zijn paaltjes) */
-export const PLAAT_TOP = P.y0 + P.dik;
-export const MODULE_Y = PLAAT_TOP + P.paal.h;
+const R = M.rechts, N = M.naad;
+/** de bovenkant van de bodem (de WAGO-klemmen staan in hun klikhouder op de bodem) en de onderkant van een module (op
+ *  zijn palen van 5) */
+export const BODEM_TOP = 0;
+export const MODULE_Y = BODEM_TOP + R.modulePaal.h;
 
 // de pinnen van de ESP32-S3-DevKitC-1 v1.1 (docs/Maten-en-bronnen.md): J1 vooraan, J3 achteraan, vanaf de antenne
 export const J1 = ['3V3', '3V3', 'RST', '4', '5', '6', '7', '15', '16', '17', '18', '8', '3', '46', '9', '10', '11', '12', '13', '14', '5V', 'G'];
@@ -122,17 +125,38 @@ export const MODULES = {
   '-X7': wago('3V3'),
 };
 
-/** waar elke module op de moduleplaat staat (midden, draaiing om +Y) */
+/** waar elke module in de rechterhelft staat (midden, draaiing om +Y). Kolommen van de naad naar rechts: de 2
+ *  MOSFET-modules met hun uitgangen naar de bordjes (groep 1 achteraan, zoals rij 1 van de bordjes), de PCA9685 met zijn
+ *  PWM-pinnen naar de pinnen van de MOSFET-modules, de ESP met haar USB naar de voorwand, de 2 optocouplerprints met hun
+ *  ingangen naar de rechterwand (de kabels van knoppen en sensoren komen daar binnen); achteraan de WAGO-klemmen onder de
+ *  DC-bus, vooraan rechts de regelaar */
 export const PLAATSING = {
-  '-X6': { cx: 66.5, cz: -62, rot: 0 }, // de paaltjes rechts nog net op de plaat (x 110)
-  '-K2': { cx: -8.75, cz: -87.3, rot: 0 },
-  '-T2': { cx: -85.5, cz: -75, rot: 90 },
-  // de WAGO-klemmen per 3 naast elkaar (0,4 vrij) in een klikhouder per rij
-  '-X1a': { cx: -52.9, cz: -62, rot: 0 }, '-X1b': { cx: -22.7, cz: -62, rot: 0 }, '-X3': { cx: 7.5, cz: -62, rot: 0 },
-  '-X2a': { cx: -52.9, cz: -40, rot: 0 }, '-X2b': { cx: -22.7, cz: -40, rot: 0 }, '-X7': { cx: 7.5, cz: -40, rot: 0 },
-  '-K3': { cx: -52, cz: 4, rot: 0 }, '-K4': { cx: 52, cz: 4, rot: 0 },
-  '-Q1': { cx: -50, cz: 63, rot: 0 }, '-Q2': { cx: 50, cz: 63, rot: 0 },
+  '-Q1': { cx: 145.3, cz: -61, rot: -90 }, '-Q2': { cx: 145.3, cz: 29, rot: -90 },
+  '-K2': { cx: 189.7, cz: -17, rot: -90 },
+  '-X6': { cx: 218.75, cz: 66.25, rot: -90 },
+  '-K3': { cx: 291.6, cz: -58, rot: 90 }, '-K4': { cx: 291.6, cz: 32, rot: 90 },
+  '-T2': { cx: 291, cz: 92, rot: 0 },
+  // de WAGO-klemmen per 3 naast elkaar (0,4 vrij) in een klikhouder per rij, de draadingangen naar voren
+  '-X1a': { cx: 193.5, cz: -97, rot: 0 }, '-X1b': { cx: 223.7, cz: -97, rot: 0 }, '-X3': { cx: 253.9, cz: -97, rot: 0 },
+  '-X2a': { cx: 193.5, cz: -69, rot: 0 }, '-X2b': { cx: 223.7, cz: -69, rot: 0 }, '-X7': { cx: 253.9, cz: -69, rot: 0 },
 };
+
+/** wat in de rechterhelft geen module mag raken: [naam, x0, z0, x1, z1] (pilaren, bussen, de tules aan de binnenkant,
+ *  de sleutelgaten met de kop van de schroef, 11 vrij aan de naad voor de draden van de bordjes) */
+export function hindernissen() {
+  const xs = N.x + N.spleet, X1 = R.x1, Z = M.doos.binnen / 2, T = M.doos.invoer, ti = T.tule.l - T.tule.flens - M.doos.wand + 0.3, rt = M.doos.invoer.gat / 2;
+  const uit = [
+    ['draadruimte aan de naad', xs - 1, -Z, xs + 11.1, Z],
+    ['pilaar achter', xs, -Z, xs + N.pilaar.l, -Z + N.pilaar.d], ['pilaar voor', xs, Z - N.pilaar.d, xs + N.pilaar.l, Z],
+    ['bus rechtsachter', X1 - 7, -Z, X1, -Z + 7], ['bus rechtsvoor', X1 - 7, Z - 7, X1, Z],
+  ];
+  for (const x of R.tules.voor) uit.push([`tule voor ${x}`, x - rt, Z - ti, x + rt, Z]);
+  for (const x of R.tules.achter) uit.push([`tule achter ${x}`, x - rt, -Z, x + rt, -Z + ti]);
+  for (const z of R.tules.rechts) uit.push([`tule rechts ${z}`, X1 - ti, z - rt, X1, z + rt]);
+  const SG = M.doos.sleutelgat;
+  for (const z of R.sleutelgatZ) uit.push([`sleutelgat ${z.toFixed(1)}`, R.sleutelgatX - SG.kop / 2, z - SG.kop / 2, R.sleutelgatX + SG.kop / 2, z + SG.slag + 4]);
+  return uit;
+}
 
 // ---------------------------------------------------------------- afgeleide maten
 const rad = (d) => (d * Math.PI) / 180;
@@ -148,8 +172,8 @@ export function voetafdruk(ref) {
 }
 /** de gaten van een module in de doos: [x, z, d] */
 export const gatenDoos = (ref) => MODULES[ref].gaten.map(([x, z]) => [...naarDoos(ref, x, z), MODULES[ref].gat]);
-/** de onderkant van de print van een module (de WAGO-klemmen staan zonder paaltjes in een klikhouder op de plaat) */
-export const moduleY = (ref) => (MODULES[ref].wago ? PLAAT_TOP : MODULE_Y);
+/** de onderkant van de print van een module (de WAGO-klemmen staan zonder palen in een klikhouder op de bodem) */
+export const moduleY = (ref) => (MODULES[ref].wago ? BODEM_TOP : MODULE_Y);
 /** een klem: { ref, naam, label, x, y, z, soort, net } in de doos */
 export function klem(ref, naam) {
   const m = MODULES[ref], k = m.klemmen.find((q) => q.naam === naam);
@@ -226,8 +250,9 @@ export function eindNet(e) {
 /** M (0 V van de voeding) en GND (0 V van de logica) zijn hetzelfde net: de regelaar verbindt ze */
 const zelfde = (a, b) => a === b || (['M', 'GND'].includes(a) && ['M', 'GND'].includes(b));
 
-/** alle fouten (leeg = goed): draden op bestaande klemmen met het juiste net, de modules binnen de plaat en niet over
- *  elkaar, de gaten in de print en vrij van de klemmen, de elementen in de klemmen op hun net, elke groep en ingang */
+/** alle fouten (leeg = goed): draden op bestaande klemmen met het juiste net, de modules binnen de rechterhelft, vrij van
+ *  de hindernissen en niet over elkaar, de gaten in de print en vrij van de klemmen, de elementen in de klemmen op hun
+ *  net, elke groep en ingang */
 export function controleerAlles() {
   const fout = [];
   for (const d of DRADEN) {
@@ -247,15 +272,12 @@ export function controleerAlles() {
     const s = MODULES[ref].klemmen.find((q) => q.naam === naam).soort, max = s === 'pin' || s === 'wago' ? 1 : 2;
     if (n > max) fout.push(`${k}: ${n} draden (hoogstens ${max})`);
   }
-  // de modules binnen de plaat (de hoeken rond de bussen uitgespaard) en niet over elkaar (0,3 vrij)
-  const refs = Object.keys(MODULES), v = Object.fromEntries(refs.map((r) => [r, voetafdruk(r)]));
+  // de modules binnen de rechterhelft, vrij van de hindernissen (0,3) en niet over elkaar (0,3 vrij)
+  const refs = Object.keys(MODULES), v = Object.fromEntries(refs.map((r) => [r, voetafdruk(r)])), H = hindernissen(), Z = M.doos.binnen / 2;
   for (const r of refs) {
-    const [x0, z0, x1, z1] = v[r];
-    if (x0 < -P.x || x1 > P.x || z0 < P.achter || z1 > P.voor) fout.push(`${r} steekt buiten de moduleplaat`);
-    for (const [hx, hz] of [[-1, -1], [1, -1]]) {
-      const cx = hx * (P.x - P.hoek / 2), cz = P.achter + P.hoek / 2;
-      if (Math.abs(cx - (x0 + x1) / 2) < (x1 - x0) / 2 + P.hoek / 2 && Math.abs(cz - (z0 + z1) / 2) < (z1 - z0) / 2 + P.hoek / 2) fout.push(`${r} op de uitsparing van een bus`);
-    }
+    const [x0, z0, x1, z1] = v[r], rand = MODULES[r].wago ? 1.4 : 0;
+    if (x0 - rand < N.x + N.spleet || x1 + rand > R.x1 || z0 - rand < -Z || z1 + rand > Z) fout.push(`${r} steekt buiten de rechterhelft`);
+    for (const [naam, a0, b0, a1, b1] of H) if (x0 - rand < a1 + 0.3 && a0 < x1 + rand + 0.3 && z0 - rand < b1 + 0.3 && b0 < z1 + rand + 0.3) fout.push(`${r} op ${naam}`);
     for (const q of refs) {
       if (q <= r) continue;
       // een WAGO-klem staat in een klikhouder met wandjes van 1,2 (+0,2 speling): die mogen niet onder een andere module

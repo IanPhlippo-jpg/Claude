@@ -1,9 +1,13 @@
 // De hardware van de doos (alleen Wire en de gewone Arduino-functies, geen andere bibliotheken).
-//   PCA9685  16 PWM-uitgangen (12 bit, I2C), elk kanaal stuurt een ingang van een kant-en-klare 8-kanaals
-//            MOSFET-module met optocouplers (versie 4; low-side, één lichtgroep per kanaal); eigen kleine driver, wordt
-//            elke 2 s nagekeken (na een spanningsdip slaapt hij weer: dan opnieuw instellen).
+//   PCA9685  16 uitgangen (I2C), elk kanaal stuurt een ingang van een kant-en-klare 8-kanaals MOSFET-module met
+//            optocouplers (versie 4; low-side, één lichtgroep per kanaal). Sinds firmware 1.3.0 alleen AAN of UIT: elk
+//            kanaal krijgt het "volledig aan"- of "volledig uit"-bit (LEDn_ON_H of LEDn_OFF_H bit 4), geen PWM-waarden
+//            (de PCA9685 blijft omdat er te weinig vrije GPIO's zijn). Eigen kleine driver, wordt elke 2 s nagekeken
+//            (na een spanningsdip slaapt hij weer: dan opnieuw instellen).
 //            Meer dan 16 groepen (TREIN_GROEPEN): een tweede PCA9685 op 0x41 (A0 op 3,3 V), zelfde I2C en OE.
-//   ingangen 16 GPIO's van de ESP32-S3 achter 2 optocouplerprints PC817 (zie INGANG_PINNEN onderaan)
+//   ingangen 16 GPIO's van de ESP32-S3 achter 2 optocouplerprints PC817 (zie INGANG_PINNEN onderaan), elk met een
+//            GPIO-interrupt op de actief-flank: die zet alleen een vlag (flankMasker), de lichttaak haalt de vlaggen
+//            elke 5 ms atomair op (ingangenFlanken). Zo wordt een korte puls van een hallsensor nooit gemist.
 //
 // Polariteit (versie 4, de modules zijn gekocht; na te kijken bij de proefopstelling, meetblad TRN-20):
 //   uitgangen  standaard ACTIEF LAAG: de MOSFET-module (3,3 V-versie) heeft de led van zijn optocoupler tussen VCC
@@ -33,15 +37,15 @@ constexpr uint8_t pcaMode2(bool actiefLaag) { return actiefLaag ? 0x15 : 0x04; }
 class Pca9685 {
  public:
   static constexpr uint8_t MODE1 = 0x00, MODE2 = 0x01, LED0_ON_L = 0x06, ALL_LED_ON_L = 0xFA, PRESCALE = 0xFE;
-  // 25 MHz / (4096 x (5 + 1)) = 1017 Hz: boven wat het oog of een camera als flikkeren ziet, traag genoeg voor de
-  // optocouplers van de MOSFET-modules (PC817: schakeltijden van enkele tot tientallen µs, docs/Berekeningen.md)
+  // 25 MHz / (4096 x (5 + 1)) = 1017 Hz. Sinds 1.3.0 alleen volledig aan of uit (geen PWM meer op de uitgangen);
+  // de prescaler blijft vast ingesteld zodat controleer() kan zien of de chip na een spanningsdip opnieuw begon.
   static constexpr uint8_t PRESCALE_1KHZ = 5;
 
   /** instellen met ALLE kanalen uit; true = de chip antwoordt en staat goed */
   bool begin(TwoWire &w, uint8_t adres) {
     wire_ = &w;
     adres_ = adres;
-    for (int i = 0; i < 16; i++) laatst_[i] = 0xFFFF; // de volgende zet() schrijft alles
+    laatst_ = NOG_NIETS;                                // de volgende zet() schrijft alles
     if (!schrijf(MODE1, 0x10)) return false;          // slapen: dan mag de prescaler veranderen
     const uint8_t allesUit[4] = {0x00, 0x00, 0x00, 0x10}; // ALL_LED_OFF_H bit 4 = volledig uit
     if (!schrijf(ALL_LED_ON_L, allesUit, 4)) return false;
@@ -59,37 +63,31 @@ class Pca9685 {
            m2 == pcaMode2(UITGANG_ACTIEF_LAAG);
   }
 
-  /** alle 16 kanalen in één keer (0..4095); alleen als er iets veranderd is. De kanalen beginnen elk op een ander
-   *  moment in de periode (kanaal x 256): zo schakelen de 16 MOSFET's niet allemaal tegelijk. */
-  bool zet(const uint16_t *v) {
-    bool anders = false;
-    for (int i = 0; i < 16; i++)
-      if (v[i] != laatst_[i]) anders = true;
-    if (!anders) return true;
+  /** alle 16 kanalen in één keer: bit k = kanaal k volledig aan, anders volledig uit; alleen als er iets veranderd is */
+  bool zet(uint16_t aanMasker) {
+    if (aanMasker == laatst_) return true;
     wire_->beginTransmission(adres_);
     wire_->write(LED0_ON_L);
     for (int ch = 0; ch < 16; ch++) {
-      uint16_t aan, uit;
-      if (v[ch] == 0) { aan = 0; uit = 0x1000; }            // volledig uit
-      else if (v[ch] >= 4095) { aan = 0x1000; uit = 0; }    // volledig aan
-      else { aan = (uint16_t)(ch * 256); uit = (uint16_t)((aan + v[ch]) & 0x0FFF); }
-      wire_->write((uint8_t)(aan & 0xFF));
-      wire_->write((uint8_t)(aan >> 8));
-      wire_->write((uint8_t)(uit & 0xFF));
-      wire_->write((uint8_t)(uit >> 8));
+      bool aan = (aanMasker >> ch) & 1;
+      wire_->write((uint8_t)0);                    // LEDn_ON_L
+      wire_->write((uint8_t)(aan ? 0x10 : 0x00));  // LEDn_ON_H: bit 4 = volledig aan
+      wire_->write((uint8_t)0);                    // LEDn_OFF_L
+      wire_->write((uint8_t)(aan ? 0x00 : 0x10));  // LEDn_OFF_H: bit 4 = volledig uit
     }
     if (wire_->endTransmission() != 0) {
-      for (int i = 0; i < 16; i++) laatst_[i] = 0xFFFF;
+      laatst_ = NOG_NIETS;
       return false;
     }
-    for (int i = 0; i < 16; i++) laatst_[i] = v[i];
+    laatst_ = aanMasker;
     return true;
   }
 
  private:
+  static constexpr uint32_t NOG_NIETS = 0xFFFFFFFFu; // geen geldig masker van 16 bit: alles opnieuw schrijven
   TwoWire *wire_ = nullptr;
   uint8_t adres_ = 0x40;
-  uint16_t laatst_[16];
+  uint32_t laatst_ = NOG_NIETS;
 
   bool schrijf(uint8_t reg, uint8_t waarde) { return schrijf(reg, &waarde, 1); }
   bool schrijf(uint8_t reg, const uint8_t *data, size_t n) {
@@ -119,8 +117,38 @@ constexpr uint8_t INGANG_PINNEN[16] = {1, 2, 4, 5, 6, 7, 12, 13, 14, 15, 16, 17,
 /** de RGB-led op het bord (DevKitC-1 v1.1), gebruikt als statuslampje */
 constexpr uint8_t PIN_STATUS_LED = 38;
 
+// Korte pulsen (hallsensor): per ingang een GPIO-interrupt op de actief-flank (FALLING; actief hoog: RISING). De ISR
+// staat in IRAM en doet alleen één OF-bewerking in een kritieke sectie: de vlag "er was een flank" van die ingang.
+// De lichttaak haalt alle vlaggen elke 5 ms in één keer op en zet ze op 0 (ingangenFlanken, ook in een kritieke
+// sectie: de ISR kan op de andere kern lopen). Tellen en vasthouden gebeuren in ingangen.h (getest op de pc).
+// Tijdens het schrijven in het flashgeheugen (bewaren, update) wacht de interrupt tot het schrijven klaar is, maar de
+// flank blijft in de GPIO-hardware staan: hij gaat niet verloren.
+static portMUX_TYPE flankSlot = portMUX_INITIALIZER_UNLOCKED;
+static volatile uint16_t flankMasker = 0;
+
+static void IRAM_ATTR ingangFlank(void *arg) {
+  const uint16_t bit = (uint16_t)(uintptr_t)arg;
+  portENTER_CRITICAL_ISR(&flankSlot);
+  flankMasker |= bit;
+  portEXIT_CRITICAL_ISR(&flankSlot);
+}
+
+/** bit i = sinds de vorige oproep was er minstens één actief-flank op ingang i+1; zet de vlaggen weer op 0 */
+inline uint16_t ingangenFlanken() {
+  portENTER_CRITICAL(&flankSlot);
+  uint16_t f = flankMasker;
+  flankMasker = 0;
+  portEXIT_CRITICAL(&flankSlot);
+  return f;
+}
+
 inline void ingangenBegin() {
-  for (uint8_t p : INGANG_PINNEN) pinMode(p, INGANG_ACTIEF_LAAG ? INPUT_PULLUP : INPUT_PULLDOWN);
+  for (int i = 0; i < 16; i++) {
+    const uint8_t p = INGANG_PINNEN[i];
+    pinMode(p, INGANG_ACTIEF_LAAG ? INPUT_PULLUP : INPUT_PULLDOWN);
+    attachInterruptArg(digitalPinToInterrupt(p), ingangFlank, (void *)(uintptr_t)(1u << i),
+                       INGANG_ACTIEF_LAAG ? FALLING : RISING);
+  }
 }
 
 /** bit i = ingang i+1 actief (pin laag, of hoog met TREIN_INGANG_ACTIEF_HOOG) */

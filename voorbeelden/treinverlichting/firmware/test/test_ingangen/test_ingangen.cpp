@@ -1,6 +1,7 @@
 // Tests van de ingangen (include/ingangen.h, include/baan.h) op de pc:  python -m platformio test -e native
 // Ontdendering (stuiteren, te korte pulsen), drukknop met en zonder wisselen, schakelaar, sensor met nalooptijd,
-// rusttoestand bij het opstarten, koppeling met de functies in de Baan.
+// rusttoestand bij het opstarten, koppeling met de functies in de Baan. Hallsensor (soort puls, firmware 1.3.0):
+// een puls van 1 tot 10 ms wordt altijd gezien en vastgehouden, de teller telt, een drukknop blijft ontdenderd.
 #include <unity.h>
 
 #include <vector>
@@ -21,14 +22,32 @@ struct Proef {
   std::vector<uint32_t> wanneer;
   uint32_t t = 0;
   uint16_t ruw = 0;
+  uint16_t draad = 0, vlag = 0; // fijne proef: het niveau per ms en de flankvlaggen (zoals de interrupt in hw.h)
 
   /** dt ms laten lopen met een lezing elke 10 ms (zoals main.cpp) */
   void loop(uint32_t dt, uint32_t elke = 10) {
     for (uint32_t e = t + dt; t < e; t += elke) stap();
   }
-  void stap() {
+  /** dt ms laten lopen per ms: een actief-flank zet een vlag (de interrupt), elke 5 ms een lezing met de vlaggen */
+  void fijn(uint32_t dt) {
+    for (uint32_t e = t + dt; t < e; t++) {
+      vlag |= (uint16_t)(ruw & ~draad);
+      draad = ruw;
+      if (t % 5 == 0) {
+        stap(vlag);
+        vlag = 0;
+      }
+    }
+  }
+  /** een puls van duur ms op ingang i (per ms gesimuleerd) */
+  void puls(int i, uint32_t duur) {
+    zet(i, true);
+    fijn(duur);
+    zet(i, false);
+  }
+  void stap(uint16_t flanken = 0) {
     Opdracht o[N_INGANGEN];
-    int n = in.stap(ruw, t, cfg, o, N_INGANGEN);
+    int n = in.stap(ruw, t, cfg, o, N_INGANGEN, flanken);
     for (int i = 0; i < n; i++) {
       op.push_back(o[i]);
       wanneer.push_back(t);
@@ -239,6 +258,195 @@ void test_baan_drukknop_wisselt_functie() {
   TEST_ASSERT_EQUAL(1, b.ingangRuw);
 }
 
+// ------------------------------------------------------------------------------------- hallsensor (soort puls)
+void test_hallsensor_puls_van_1_tot_10_ms_wordt_gezien_en_vastgehouden() {
+  // elke duur van 1 tot 10 ms, op elk moment tussen twee lezingen (5 ms): altijd precies één puls
+  for (uint32_t duur = 1; duur <= 10; duur++) {
+    for (uint32_t na = 0; na < 5; na++) {
+      Proef p;
+      p.cfg[4].soort = SOORT_PULS;
+      p.cfg[4].gedrag = GEDRAG_DRUKKNOP;
+      p.cfg[4].functieA = 3;
+      p.fijn(100 + na);
+      uint32_t begin = p.t;
+      p.puls(4, duur);
+      uint32_t einde = p.t;
+      p.fijn(5);
+      TEST_ASSERT_EQUAL_MESSAGE(1, (int)p.op.size(), "de puls start functie A");
+      TEST_ASSERT_EQUAL(3, p.op[0].functie);
+      TEST_ASSERT_TRUE(p.wanneer[0] - begin <= 5); // ten laatste bij de volgende lezing
+      TEST_ASSERT_EQUAL_UINT32(1, p.in.t[4].teller);
+      TEST_ASSERT_TRUE(p.in.t[4].actief);
+      TEST_ASSERT_EQUAL_STRING("puls", p.in.toestandTekst(4, p.cfg[4]));
+      // vastgehouden: 300 ms (standaard) na de laatste lezing die hem zag nog actief, daarna niet meer
+      p.fijn(einde + 290 - p.t);
+      TEST_ASSERT_TRUE_MESSAGE(p.in.t[4].actief, "na 290 ms nog actief");
+      p.fijn(einde + 320 - p.t);
+      TEST_ASSERT_FALSE_MESSAGE(p.in.t[4].actief, "na 320 ms weer in rust");
+      TEST_ASSERT_EQUAL_STRING("rust", p.in.toestandTekst(4, p.cfg[4]));
+      TEST_ASSERT_EQUAL(1, (int)p.op.size());
+      TEST_ASSERT_EQUAL_UINT32(1, p.in.t[4].teller);
+    }
+  }
+}
+
+void test_hallsensor_zonder_interrupt_en_als_contact_gemist() {
+  // ter vergelijking: met de gewone ontdendering (contact) wordt een puls van 10 ms nooit gezien
+  Proef p;
+  p.cfg[4].gedrag = GEDRAG_DRUKKNOP;
+  p.cfg[4].functieA = 3;
+  p.fijn(100);
+  p.puls(4, 10);
+  p.fijn(500);
+  TEST_ASSERT_EQUAL(0, (int)p.op.size());
+  TEST_ASSERT_EQUAL_UINT32(0, p.in.t[4].teller);
+  // een flank op een contact-ingang zonder dat het niveau actief is: niets (een stoorpiekje telt niet)
+  p.stap((uint16_t)(1u << 4));
+  p.fijn(100);
+  TEST_ASSERT_FALSE(p.in.t[4].actief);
+  TEST_ASSERT_EQUAL_UINT32(0, p.in.t[4].teller);
+  // als puls: alleen de flankvlag (puls van < 1 ms tussen twee lezingen) is genoeg
+  p.cfg[4].soort = SOORT_PULS;
+  p.stap((uint16_t)(1u << 4));
+  TEST_ASSERT_TRUE(p.in.t[4].actief);
+  TEST_ASSERT_EQUAL_UINT32(1, p.in.t[4].teller);
+  TEST_ASSERT_EQUAL(1, (int)p.op.size());
+}
+
+void test_hallsensor_teller_telt_elke_puls() {
+  // een trein met 25 magneten (of 25 keer voorbij): pulsen van 3 ms om de 100 ms. De teller telt elke puls; de
+  // ingang blijft al die tijd actief (vasthouden 300 ms), dus een drukknop-functie start maar één keer.
+  Proef p;
+  p.cfg[6].soort = SOORT_PULS;
+  p.cfg[6].gedrag = GEDRAG_DRUKKNOP;
+  p.cfg[6].functieA = 1;
+  p.cfg[2].soort = SOORT_PULS;
+  p.fijn(50);
+  for (int k = 0; k < 25; k++) {
+    p.puls(6, 3);
+    p.fijn(97);
+    TEST_ASSERT_TRUE(p.in.t[6].actief);
+  }
+  TEST_ASSERT_EQUAL_UINT32(25, p.in.t[6].teller);
+  TEST_ASSERT_EQUAL(1, (int)p.op.size());
+  // pulsen verder uit elkaar dan de vasthoudtijd: elke puls start de functie opnieuw
+  p.fijn(1000);
+  for (int k = 0; k < 4; k++) {
+    p.puls(6, 2);
+    p.fijn(500);
+  }
+  TEST_ASSERT_EQUAL_UINT32(29, p.in.t[6].teller);
+  TEST_ASSERT_EQUAL(5, (int)p.op.size());
+  // een magneet die blijft staan (lang actief) telt één keer
+  p.zet(2, true);
+  p.fijn(2000);
+  TEST_ASSERT_EQUAL_UINT32(1, p.in.t[2].teller);
+  TEST_ASSERT_TRUE(p.in.t[2].actief);
+  // wissen: één ingang of alle
+  p.in.tellerNul(6);
+  TEST_ASSERT_EQUAL_UINT32(0, p.in.t[6].teller);
+  TEST_ASSERT_EQUAL_UINT32(1, p.in.t[2].teller);
+  p.in.tellerNul();
+  TEST_ASSERT_EQUAL_UINT32(0, p.in.t[2].teller);
+}
+
+void test_hallsensor_vasthouden_instelbaar() {
+  Proef p;
+  p.cfg[8].soort = SOORT_PULS;
+  p.cfg[8].vasthoudMs = 0; // niet vasthouden: één lezing actief
+  p.cfg[8].gedrag = GEDRAG_DRUKKNOP;
+  p.cfg[8].functieA = 0;
+  p.fijn(52);
+  p.puls(8, 2);
+  p.fijn(4);
+  TEST_ASSERT_EQUAL(1, (int)p.op.size());
+  p.fijn(5);
+  TEST_ASSERT_FALSE(p.in.t[8].actief);
+  // 2 s vasthouden
+  p.cfg[8].vasthoudMs = 2000;
+  p.puls(8, 2);
+  p.fijn(1900);
+  TEST_ASSERT_TRUE(p.in.t[8].actief);
+  p.fijn(200);
+  TEST_ASSERT_FALSE(p.in.t[8].actief);
+  TEST_ASSERT_EQUAL_UINT32(2, p.in.t[8].teller);
+}
+
+void test_hallsensor_als_sensor_met_nalopen() {
+  // hallsensor met gedrag "sensor": de eerste puls = bezet (functie A), pas 5 s na de laatste puls vrij (B)
+  Proef p;
+  p.cfg[10].soort = SOORT_PULS;
+  p.cfg[10].gedrag = GEDRAG_SENSOR;
+  p.cfg[10].functieA = 0;
+  p.cfg[10].functieB = 1;
+  p.cfg[10].naloopS = 5;
+  p.fijn(50);
+  for (int k = 0; k < 3; k++) {
+    p.puls(10, 4);
+    p.fijn(1000);
+  }
+  TEST_ASSERT_EQUAL(1, (int)p.op.size());
+  TEST_ASSERT_EQUAL_STRING("nalopen", p.in.toestandTekst(10, p.cfg[10]));
+  p.fijn(4500);
+  TEST_ASSERT_EQUAL(2, (int)p.op.size());
+  TEST_ASSERT_EQUAL(1, p.op[1].functie);
+}
+
+void test_drukknop_blijft_ontdenderd_en_telt_een_keer() {
+  // een stuiterende drukknop (contact): flanken in overvloed, maar één druk en de teller staat op 1
+  Proef p;
+  p.cfg[0].gedrag = GEDRAG_DRUKKNOP;
+  p.cfg[0].functieA = 2;
+  p.fijn(100);
+  for (int i = 0; i < 12; i++) {
+    p.zet(0, i % 2 == 0);
+    p.fijn(2);
+  }
+  p.zet(0, true);
+  p.fijn(25);
+  TEST_ASSERT_EQUAL(0, (int)p.op.size()); // nog geen 30 ms stil
+  p.fijn(20);
+  TEST_ASSERT_EQUAL(1, (int)p.op.size());
+  TEST_ASSERT_EQUAL_UINT32(1, p.in.t[0].teller);
+  p.zet(0, false);
+  p.fijn(100);
+  TEST_ASSERT_EQUAL_UINT32(1, p.in.t[0].teller);
+  TEST_ASSERT_EQUAL_STRING("contact", soortId(SOORT_CONTACT));
+  TEST_ASSERT_EQUAL(SOORT_PULS, soortVanId("puls"));
+  TEST_ASSERT_EQUAL(-1, soortVanId("hall"));
+}
+
+void test_hallsensor_magneet_bij_opstarten() {
+  // een loc die bij het aanzetten met de magneet boven de sensor staat: geen opdracht, geen telling
+  Proef p;
+  p.cfg[3].soort = SOORT_PULS;
+  p.cfg[3].gedrag = GEDRAG_DRUKKNOP;
+  p.cfg[3].functieA = 0;
+  p.zet(3, true);
+  p.fijn(1000);
+  TEST_ASSERT_EQUAL(0, (int)p.op.size());
+  TEST_ASSERT_EQUAL_UINT32(0, p.in.t[3].teller);
+  p.zet(3, false);
+  p.fijn(1000);
+  p.puls(3, 1);
+  p.fijn(10);
+  TEST_ASSERT_EQUAL(1, (int)p.op.size());
+  TEST_ASSERT_EQUAL_UINT32(1, p.in.t[3].teller);
+}
+
+void test_baan_hallsensor_start_overweg() {
+  // de Baan met flanken zoals main.cpp: een puls van 2 ms tussen twee ticks start "Overweg" (functie 1)
+  Baan b;
+  b.cfg.ingang[1].soort = SOORT_PULS;
+  b.cfg.ingang[1].gedrag = GEDRAG_DRUKKNOP;
+  b.cfg.ingang[1].functieA = 0;
+  for (uint32_t t = 0; t < 100; t += 5) b.tick(t, 0, 0);
+  b.tick(100, 0, 0x0002); // alleen de flankvlag: de puls was al voorbij bij het lezen
+  TEST_ASSERT_TRUE(b.seq.loopt(0));
+  TEST_ASSERT_TRUE(b.lampen.stand[2].aan);
+  TEST_ASSERT_EQUAL_UINT32(1, b.ingangen.t[1].teller);
+}
+
 int main() {
   UNITY_BEGIN();
   RUN_TEST(test_stuiterende_knop_geeft_een_druk);
@@ -250,5 +458,13 @@ int main() {
   RUN_TEST(test_sensor_zonder_nalopen);
   RUN_TEST(test_opstarten_geeft_geen_opdrachten);
   RUN_TEST(test_baan_drukknop_wisselt_functie);
+  RUN_TEST(test_hallsensor_puls_van_1_tot_10_ms_wordt_gezien_en_vastgehouden);
+  RUN_TEST(test_hallsensor_zonder_interrupt_en_als_contact_gemist);
+  RUN_TEST(test_hallsensor_teller_telt_elke_puls);
+  RUN_TEST(test_hallsensor_vasthouden_instelbaar);
+  RUN_TEST(test_hallsensor_als_sensor_met_nalopen);
+  RUN_TEST(test_drukknop_blijft_ontdenderd_en_telt_een_keer);
+  RUN_TEST(test_hallsensor_magneet_bij_opstarten);
+  RUN_TEST(test_baan_hallsensor_start_overweg);
   return UNITY_END();
 }

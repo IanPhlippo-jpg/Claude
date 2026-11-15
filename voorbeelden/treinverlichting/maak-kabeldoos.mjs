@@ -1,30 +1,30 @@
-// Kabeldoos voor de verlichting van de modelbaan (versie 2, 2026-11-11), als Phlippo CAD-documenten.
+// Kabeldoos voor de verlichting van de modelbaan, als Phlippo CAD-documenten.
 //
 // Versie 1 was 248,9 x 245,6: te groot, want de slicer van de Centauri Carbon houdt rechtsvoor 10 x 20 mm vrij voor het
-// filamentmes. Versie 2 (EISEN.md, "Versie 2"): één doos van 229,8 x 229,8 x 44,4 (elk geprint deel hoogstens 230 x 230,
-// alles samen hoogstens 80 hoog) met echte kabelgoten: smal (5,4) en 28 hoog (net boven de bordjes, 17), met klikdeksels.
-// - Rij 1 tot 5: telkens 3 bordjes; rij 6: bordje 16; rij 7 (vooraan): kabelruimte (de draden gaan daar naar boven).
-//   Versie 3 (Fable 5.2): klemlippen, DC-bus, hulpstukken. Versie 4 (Ian, 2026-11-13: kant-en-klare printjes): geen
-//   gaatjesprints meer; alle modules (opbouw.mjs) staan op een geprinte moduleplaat die op de gootdeksels ligt (achteraan
-//   onder een richel in de achterwand, vooraan 2 schroeven in 2 palen in rij 7); de USB-poorten van de ESP in een
-//   opening in de rechterwand, de DC-bus in de linkerwand boven de plaat; de doos is 66,8 hoog in plaats van 44,4.
-// - Elke rij van 1 tot 6 ligt in een ring: de wanden van de goten zijn ook het kader van de bordjes (0,3 speling).
-//   Goten (goten.mjs): langs de achterwand, tussen elke twee rijen, langs de linker- en de rechterwand (rij 1 tot 6),
-//   met vingers en sleuven en een klikdeksel per goot. De draden komen van boven door sleuven in de bodem onder de
-//   goten (de doos hangt ondersteboven onder de baan, het deksel onderaan) of door de 18 membraantules in de wanden.
-// - 4 sleutelgaten in de bodem van de zijgoten (6 mm schuiven naar achteren), 4 schroefbussen voor het deksel in de hoeken.
-// Assenstelsel: oorsprong in het midden van de binnenkant van de bodem, Y omhoog (in de doos), X naar rechts, +Z = voorkant.
-// Alle geprinte delen printen zonder support (PETG). Gebruik: node voorbeelden/treinverlichting/maak-kabeldoos.mjs
+// filamentmes. Versie 2: één doos van 229,8 x 229,8 met echte kabelgoten (5,4 breed, 28 hoog) met klikdeksels. Versie 3
+// (Fable 5.2): klemlippen, DC-bus, hulpstukken. Versie 4 (kant-en-klare printjes): de modules op een moduleplaat boven
+// de bordjes. Versie 5 (Ian, 2026-11-15: "Als je met 2 lagen werkt is het te moeilijk om de kabels aan te sluiten"):
+// één langwerpige doos van 440,9 x 229,8 x 45,2 op één laag, geprint in 2 helften die in elkaar klikken en gelijmd
+// kunnen worden ("De doos moet in elkaar kunnen klikken en nog kunnen lijmen"), binnen geen tussenwand.
+// - Linkerhelft (224,9 x 229,8): rij 1 tot 5 telkens 3 bordjes, rij 6 bordje 16, vooraan vrij; geen kabelgoten (Ian,
+//   2026-11-15: "Kabel goten mogen weg"): elk bordje ligt op een steunrail tussen palen (X) en lage aanslagen (Z) en zit
+//   vast in 4 klemlippen; de draden lopen rechtstreeks van de tule of van hun eigen gaatje (2 x 2) in de bodem naar hun klem.
+// - Rechterhelft (229,8 x 229,8 met de klikhaken): alle modules (opbouw.mjs) op palen in de bodem, de MOSFET-modules met
+//   hun uitgangen naar de bordjes, de ESP met haar USB in een opening in de voorwand, de DC-bus in de achterwand.
+// - Naad (maten.mjs, M.naad): 5 bodemlippen, 2 klikhaken met een 45°-onderkant (printen zonder support), 2 pilaren,
+//   lijmspleet 0,2; het deksel in 2 helften met een overlap van 12 (lip met 4 klikvingers).
+// - 4 sleutelgaten (2 per helft), 6 schroefbussen voor het deksel, 18 membraantules.
+// Assenstelsel: oorsprong in het midden van de bordjesruimte (linkerhelft) op de binnenkant van de bodem, Y omhoog (in de
+// doos), X naar rechts, +Z = voorkant. Gebruik: node voorbeelden/treinverlichting/maak-kabeldoos.mjs
 import { writeFileSync, existsSync, unlinkSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { component } from '../lib/schets.mjs';
 import { M } from './maten.mjs';
-import { yv, xv, zv, deel, snede, cirkels, veelhoeken, PETG, PETG_DEKSEL } from './hulp.mjs';
-import { gootwanden, groefSneden, vingers, gootdeksel, dekselPlaat, dekselBreedte, sleufPatroon, klemSleuven, KLIK_REK } from './goten.mjs';
+import { yv, xv, zv, deel, snede, cirkels, veelhoeken, hoekRechthoek, PETG, PETG_DEKSEL } from './hulp.mjs';
 import { bordjePcb, klemstrook, smdRij, tule, dcBus, schroefVerzonken, bolkopSchroef, modulesOp, espUsb, draaiY } from './onderdelen.mjs';
 import { lippenOpBak, hulpstukkenPlaat } from './hulpstukken.mjs';
-import { MODULES, PLAATSING, gatenDoos, voetafdruk, PLAAT_TOP } from './opbouw.mjs';
+import { MODULES, gatenDoos, voetafdruk } from './opbouw.mjs';
 
 export { M };
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -32,213 +32,199 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 // ---------------------------------------------------------------- indeling
 let cache;
 /**
- * De indeling van de doos: de ringen (rij 1 tot 6), de goten, de bordjes en prints per rij, de sleuven in de wanden,
- * de klikgroeven, de gootdeksels, de kabelinvoeren, de sleuven in de bodem, de sleutelgaten en de schroefbussen.
+ * De indeling van de linkerhelft: de vakken van de rijen (rij 1 tot 6, op dezelfde plaatsen als in versie 4), de
+ * bordjes per rij, de kabelinvoeren, de gaatjes voor de draden in de bodem, de sleutelgaten, de schroefbussen, de palen en de
+ * aanslagen die de bordjes op hun plaats houden (versie 5 zonder kabelgoten: Ian, 2026-11-15, "Kabel goten mogen weg").
  */
 export function indeling() {
   if (cache) return cache;
-  const { bordje: B, doos: D, goot: G, rij: R } = M, w = G.wand, c = G.speling;
-  const X = D.binnen / 2, Z = D.binnen / 2, xr = X - G.zij, xi = xr - w; // ring buiten en binnen (halve breedte)
+  const { bordje: B, doos: D, raster: G, rij: R } = M, w = G.wand, c = G.speling;
+  const X = D.binnen / 2, Z = D.binnen / 2, xr = X - G.zij, xi = xr - w; // het vak van de bordjes (halve breedte)
   const diep = [20.9, 20.9, 20.9, 20.9, 20.9, M.rij6, M.rij7];
-  const goten = [{ soort: 'achter', z0: -Z, z1: -Z + G.achter }], ringen = [];
+  const tussen = [{ soort: 'achter', z0: -Z, z1: -Z + G.achter }], ringen = [];
   let z = -Z + G.achter;
   for (let r = 0; r < 6; r++) {
     const zi0 = z + w, zi1 = zi0 + diep[r] + 2 * c;
     ringen.push({ z0: z, z1: zi1 + w, zi0, zi1, cz: (zi0 + zi1) / 2 });
     z = zi1 + w;
-    goten.push({ soort: 'midden', z0: z, z1: z + G.b });
+    tussen.push({ soort: 'midden', z0: z, z1: z + G.b });
     z += G.b;
   }
-  const wand7 = [z, z + w], cz7 = z + w + c + diep[6] / 2, voor = Z - (z + w + c + diep[6]);
+  const cz7 = z + w + c + diep[6] / 2, voor = Z - (z + w + c + diep[6]);
   if (Math.abs(voor - D.voor) > 0.05) throw new Error(`voorrand ${voor.toFixed(2)} in plaats van ${D.voor}`);
-  goten.forEach((g) => { g.zc = (g.z0 + g.z1) / 2; });
+  tussen.forEach((g) => { g.zc = (g.z0 + g.z1) / 2; });
   // rijen: per rij de onderdelen met hun x-midden, z-midden, breedte en diepte
   const rijen = [], bd = (nr, cx, cz) => ({ soort: 'bordje', nr, cx, cz, x: B.x, z: B.z });
   const ce = R.eind, gb = (2 * xi - 2 * ce - 3 * B.x) / 2; // tussen de bordjes van een rij (aan de uiteinden R.eind: de klemlippen)
   let nr = 1;
   for (let r = 0; r < 5; r++) rijen.push([-1, 0, 1].map((k) => bd(nr++, k * (B.x + gb), ringen[r].cz)));
-  // rij 6: bordje 16 links (de rest van de ring is vrij: kabelruimte); rij 7: vrij (versie 4: de modules staan op de plaat)
+  // rij 6: bordje 16 links; vooraan (rij 7) vrij: daar komen de draden van de tules vooraan binnen
   rijen.push([bd(nr++, -xi + ce + B.x / 2, ringen[5].cz)]);
   rijen.push([]);
-  cache = { X, Z, xr, xi, ringen, goten, wand7, cz7, rijen, gb };
+  cache = { X, Z, xr, xi, ringen, tussen, cz7, rijen, gb, xn: M.naad.x + M.naad.spleet };
   Object.assign(cache, details(cache));
   return cache;
 }
 
-/** sleuven in de wanden, klikgroeven, gootdeksels, kabelinvoeren, bodemsleuven, sleutelgaten, bussen en palen */
+/** kabelinvoeren, gaatjes voor de draden in de bodem, sleutelgaten, bussen, palen en aanslagen van de linkerhelft */
 function details(L) {
-  const { doos: D, goot: G, bordje: B, kader: K, rij: R } = M, w = G.wand, { X, Z, xr, xi, ringen, goten, wand7, rijen } = L;
-  const Kd = G.deksel, been = Kd.speling + Kd.been; // het been van een deksel ligt 0,1 tot 1,3 buiten het vingervlak
-  const iz = (w - G.vingerDik) / 2; // de vingers staan 0,2 binnen de voet: hun vlak ligt 0,2 verder van het bordje
-  // gootdeksels: langs de achterwand (rand), langs de zijwanden (rand, van achter de achtergoot tot de goot voor rij 7),
-  // tussen de ringen en voor rij 7 (midden); het been van de zijdeksels loopt binnen de ringen langs hun zijwand
-  const xb = X - D.bus.hart - D.bus.r - 0.3; // vrij van de schroefbussen in de hoeken
-  const zs0 = ringen[0].zi0 - iz + been + 0.3, zs1 = wand7[0] - 0.3, xm = xi + iz - been - 0.3;
-  // klikplaatsen: in de wanden langs X een klikvinger op x = ±34,5 (tussen de bordjes) en ±93 (tussen de laatste klemmen
-  // en de hoek van de ring),
-  // in de zijwanden van ring 2 en 5 de vinger achter de eindklem; daar een groef in de vinger en een nok aan het deksel
-  const KX = [-93, -34.5, 34.5, 93], kv = G.klik / 2, gl = G.groefLang / 2;
-  const KZ = [ringen[1], ringen[4]].map((r) => [r.cz + 4.0, r.zi1 - 0.7]);
-  const nokZ = KZ.map(([a, e]) => (a + e) / 2);
-  const deksels = [
-    { soort: 'rand', b: G.achter, as: 'x', a: -xb, e: xb, kant: 'achter', nokken: KX.map((x) => x + xb) },
-    { soort: 'rand', b: G.zij, as: 'z', a: zs0, e: zs1, kant: 'links', nokken: nokZ.map((z) => zs1 - z) },
-    { soort: 'rand', b: G.zij, as: 'z', a: zs0, e: zs1, kant: 'rechts', nokken: nokZ.map((z) => z - zs0) },
-    ...goten.slice(1).map((g) => ({ soort: 'midden', b: G.b, as: 'x', a: -xm, e: xm, c: g.zc, nokken: KX.map((x) => x + xm) })),
-  ].map((d) => ({ ...d, l: Math.round((d.e - d.a) * 100) / 100 }));
-  // de wanden met hun sleuven (langs de wand): voor elke klemmenrij een sleuf per twee klemmen, elders gewone sleuven;
-  // in de hoeken van de ringen geen vingers op de plaats van het been van de zijdeksels (de wanden langs X) en van het
-  // achterdeksel (de zijwanden van ring 1)
-  const wanden = [], hoek = [[-xr - 1, -(xi - 1.4)], [xi - 1.4, xr + 1]], vol = KX.map((x) => [x - kv, x + kv]);
-  ringen.forEach((r, i) => {
-    for (const [zw, kant] of [[r.z0, -1], [r.z1 - w, 1]]) {
-      const vast = [];
-      for (const d of rijen[i]) if (d.soort === 'bordje') vast.push(...klemSleuven(d.cx, B.klem.n, B.klem.steek));
-      wanden.push({ as: 'x', c: zw + w / 2, van: -xr + iz, tot: xr - iz, sleuven: [...sleufPatroon(-xm, xm, vast, G, vol), ...hoek] });
-    }
-    for (const k of [-1, 1]) {
-      const eind = rijen[i].find((d) => d.soort === 'bordje' && Math.abs(d.cx + (k * B.x) / 2 - k * (xi - M.rij.eind)) < 0.01);
-      const vast = eind ? [[r.cz, B.eind.steek + 1.4 + 0.6]] : [];
-      const extra = i === 0 ? [[r.zi0 - 0.5, r.zi0 - iz + been + 0.3]] : []; // het been van het achterdeksel
-      wanden.push({ as: 'z', c: k * (xi + w / 2), van: r.zi0, tot: r.zi1, sleuven: [...sleufPatroon(r.zi0, r.zi1, vast), ...extra] });
-    }
-  });
-  wanden.push({ as: 'x', c: (wand7[0] + wand7[1]) / 2, van: -X - 0.8, tot: X + 0.8, sleuven: sleufPatroon(-X, X, [], G, vol) });
-  // klikgroeven: aan de binnenkant van de ringen en aan de voorkant van de wand voor rij 7 (voor de benen), in de
-  // buitenwanden voor de neus van de randdeksels (midden in de plaat van het deksel)
-  const yn = G.top + Kd.dik / 2, dn = G.neus.diep, yg = G.groef.y;
-  const lijnenX = [...ringen.map((r) => ({ c: r.zi0 - iz, s: 1, y: yg })), ...ringen.map((r) => ({ c: r.zi1 + iz, s: -1, y: yg })), { c: wand7[1] - iz, s: 1, y: yg }];
-  const groeven = [
-    ...KX.map((x, i) => ({ naam: `X ${i + 1}`, as: 'x', van: x - gl, tot: x + gl, lijnen: lijnenX })),
-    ...KZ.map(([a, e], i) => ({ naam: `Z ${i + 1}`, as: 'z', van: a, tot: e, lijnen: [{ c: -(xi + iz), s: 1, y: yg }, { c: xi + iz, s: -1, y: yg }] })),
-  ];
-  const wandGroeven = [
-    { naam: 'achterwand', as: 'x', van: -xb, tot: xb, lijnen: [{ c: -Z, s: 1, y: yn, d: dn }] },
-    { naam: 'zijwanden', as: 'z', van: zs0, tot: zs1, lijnen: [{ c: -X, s: 1, y: yn, d: dn }, { c: X, s: -1, y: yn, d: dn }] },
-  ];
-  // kabelinvoeren: links en rechts bij de goten tussen rij 1 en 6, vooraan 8 (op de plaatsen van versie 3)
+  const { doos: D, raster: G, bordje: B, kader: K, rij: R } = M, { X, Z, ringen, tussen, rijen } = L;
+  // kabelinvoeren van de linkerhelft: links tussen de rijen, vooraan 4 (de rechterhelft: rechts())
   const tules = [
-    ...goten.slice(1, 6).flatMap((g) => [{ wand: 'links', c: g.zc }, { wand: 'rechts', c: g.zc }]),
-    ...[-80, -58, -35.57, -13.57, 8.43, 30.43, 52.4, 74.4].map((c) => ({ wand: 'voor', c })),
+    ...tussen.slice(1, 6).map((g) => ({ wand: 'links', c: g.zc })),
+    ...M.links.tulesVoor.map((c) => ({ wand: 'voor', c })),
   ];
-  // sleuven in de bodem onder de goten: onder elke goot één per bordje (de leddraden komen van de baan naar beneden),
-  // in de zijgoten één per rij 2 tot 5; sleutelgaten in de bodem van de zijgoten bij rij 1 en rij 6
-  const S = D.sleuf, xz = X - G.zij / 2, bodem = [];
-  goten.forEach((g, j) => {
-    const bs = j === 0 ? rijen[0] : j <= 5 ? rijen[j - 1] : [rijen[5][0]], bw = j === 0 ? G.achter - 1.2 : S.b;
-    for (const d of bs.filter((q) => q.soort === 'bordje')) bodem.push([d.cx - S.l / 2, g.zc - bw / 2, d.cx + S.l / 2, g.zc + bw / 2, bw / 2 - 0.01]);
-  });
-  for (const r of ringen.slice(1, 5)) for (const k of [-1, 1]) bodem.push([k * xz - S.zij.b / 2, r.cz - S.zij.l / 2, k * xz + S.zij.b / 2, r.cz + S.zij.l / 2, S.zij.b / 2 - 0.01]);
-  const sleutelgaten = [-1, 1].flatMap((k) => [[k * xz, ringen[0].cz], [k * xz, ringen[5].cz]]);
-  const bussen = [-1, 1].flatMap((k) => [[k * (X - D.bus.hart), -(Z - D.bus.hart)], [k * (X - D.bus.hart), Z - D.bus.hart]]);
-  // palen tussen de bordjes (houden ze in X) en stroken langs bordje 16 (houden het in zijn bredere ring in Z)
-  const pk = M.rij.paal, palen = [];
+  // gaatjes voor de leddraden (Ian, 2026-11-15: "Gaatjes van de linkse box zijn 2mm op 2mm voor de printjes"): per klem
+  // van de 2 klemstroken van elk bordje één gaatje van 2 x 2 in de bodem, recht voor die klem in de vrije strook. De
+  // klemmen staan op 2,54: één rij gaatjes liet maar 0,54 vlees; daarom om en om in 2 rijen (0,3 en 2,5 van de rand van
+  // het bordje, binnen een rij steek 5,08, vlees 3,08). Aan de voorkant de even klemmen vooraan, aan de achterkant de
+  // oneven: in een strook van 9,2 liggen zo 4 rijen om en om (even, oneven, even, oneven), elk 0,2 uit elkaar en 2,54
+  // verschoven: het dunste vlees is 0,58 schuin tussen 2 hoekpunten; recht 3,08 in een rij en 2,4 tussen 2 rijen
+  const GT = M.gaatje, gaatjes = [];
+  rijen.forEach((rij, r) => rij.forEach((d) => {
+    if (d.soort !== 'bordje') return;
+    for (const s of [-1, 1]) for (let i = 0; i < B.klem.n; i++) {
+      const x = d.cx - (B.klem.n * B.klem.steek) / 2 + B.klem.steek * (i + 0.5), rand = d.cz + (s * B.z) / 2;
+      const o = (i % 2 === 0) === (s > 0) ? GT.rij[0] : GT.rij[1], z0 = s > 0 ? rand + o : rand - o - GT.a;
+      gaatjes.push({ nr: d.nr, kant: s > 0 ? 'voor' : 'achter', klem: i + 1, x, z: z0 + GT.a / 2, strook: s > 0 ? r + 1 : r, cx: d.cx, rect: [x - GT.a / 2, z0, x + GT.a / 2, z0 + GT.a] });
+    }
+  }));
+  // per bordje en per strook een vlak verhoginkje van 0,4 rond zijn gaatjes (eilandjes van hoogstens 32 gaatjes: één
+  // bodemvlak met 512 gaatjes kan de mesh-kernel niet betrouwbaar trianguleren)
+  const eil = new Map();
+  for (const g of gaatjes) {
+    const k = `${g.cx.toFixed(1)}|${g.strook}`, e = eil.get(k) ?? [Infinity, Infinity, -Infinity, -Infinity];
+    eil.set(k, [Math.min(e[0], g.rect[0]), Math.min(e[1], g.rect[1]), Math.max(e[2], g.rect[2]), Math.max(e[3], g.rect[3])]);
+  }
+  const eilandjes = [...eil.values()].map(([x0, z0, x1, z1]) => [x0 - GT.rand, z0 - GT.rand, x1 + GT.rand, z1 + GT.rand]);
+  const xz = X - G.zij / 2;
+  // de linkerhelft: 2 sleutelgaten links, 2 bussen in de linkerhoeken (de rest in de rechterhelft)
+  const sleutelgaten = [[-xz, ringen[0].cz], [-xz, ringen[5].cz]];
+  const bussen = [[-(X - D.bus.hart), -(Z - D.bus.hart)], [-(X - D.bus.hart), Z - D.bus.hart]];
+  // palen tussen de bordjes (houden ze in X) en per bordje 4 lage aanslagen langs de lange kanten (houden ze in Z; 4,9
+  // hoog: onder de draadingangen van de klemmen), 0,3 speling
+  const pk = M.rij.paal, A = M.aanslag, palen = [];
   for (const rij of rijen.slice(0, 5)) for (const k of [-1, 1]) { const cx = k * (B.x / 2 + L.gb / 2) + rij[1].cx; palen.push([cx - L.gb / 2 + pk, rij[1].cz - 7.5, cx + L.gb / 2 - pk, rij[1].cz + 7.5]); }
+  // de aanslagen voorbij de klemmen (x ±25), zodat de gaatjes ervoor vrij blijven; ook bordje 16 (rij 6)
+  for (const rij of rijen.slice(0, 6)) for (const d of rij) for (const kx of [-1, 1]) for (const kz of [-1, 1]) {
+    const x0 = d.cx + kx * A.x - A.l / 2, z0 = kz < 0 ? d.cz - B.z / 2 - K.speling - A.t : d.cz + B.z / 2 + K.speling;
+    palen.push([x0, z0, x0 + A.l, z0 + A.t]);
+  }
   const b16 = rijen[5][0];
   palen.push([b16.cx + B.x / 2 + pk, b16.cz - 7.5, b16.cx + B.x / 2 + R.tussen6 - pk, b16.cz + 7.5]);
-  const r6 = ringen[5];
-  palen.push([b16.cx - B.x / 2, r6.zi0 - 0.5, b16.cx + B.x / 2, b16.cz - B.z / 2 - K.speling], [b16.cx - B.x / 2, b16.cz + B.z / 2 + K.speling, b16.cx + B.x / 2, r6.zi1 + 0.5]);
-  return { deksels, wanden, groeven, wandGroeven, tules, bodem, sleutelgaten, bussen, palen };
+  return { tules, gaatjes, eilandjes, sleutelgaten, bussen, palen };
 }
 
-/** de 4 sleutelgaten (het grote gat) */
-export function bevestigingsGaten() { return indeling().sleutelgaten; }
-const dcZ = () => indeling().cz7 + M.dcbus.dz;
-const dcY = () => M.dcbus.y;
-/** de opening voor de USB-poorten van de ESP in de rechterwand (de stekker gaat er van buiten door) */
-function usbOpening() {
+/** de 4 sleutelgaten (het grote gat): 2 in de linkerhelft, 2 in de rechterhelft */
+export function bevestigingsGaten() { return [...indeling().sleutelgaten, ...rechts().sleutelgaten]; }
+/** de 6 schroefbussen voor het deksel: 2 links, 2 in de pilaren aan de naad, 2 rechts */
+export function alleBussen() { return [...indeling().bussen, ...rechts().bussen]; }
+const acht = (x, z, r) => Array.from({ length: 8 }, (_, i) => { const a = Math.PI / 8 + (i * Math.PI) / 4, R = r / Math.cos(Math.PI / 8); return [x + R * Math.cos(a), z + R * Math.sin(a)]; });
+
+// ---------------------------------------------------------------- de rechterhelft en de naad
+let cacheR;
+/** de rechterhelft: buitenmaat, pilaren, klikhaken met hun nok, bodemlippen, tules, sleutelgaten, bussen,
+ *  de opening voor de USB */
+export function rechts() {
+  if (cacheR) return cacheR;
+  const L = indeling(), N = M.naad, D = M.doos, R = M.rechts, H = N.haak, Z = L.Z, ZB = Z + D.wand;
+  const xs = L.xn, XR = R.x1, XRB = XR + D.wand;
+  const pilaren = [[xs, -Z, xs + N.pilaar.l, -Z + N.pilaar.d], [xs, Z - N.pilaar.d, xs + N.pilaar.l, Z]];
+  const bussen = [[xs + 5.3, -(Z - D.bus.hart)], [xs + 5.3, Z - D.bus.hart], [XR - D.bus.hart, -(Z - D.bus.hart)], [XR - D.bus.hart, Z - D.bus.hart]];
+  // klikhaken: het zijprofiel (x, y) met de 45°-onderkant, de wandkant op z = k (Z - spleet); de nok (bovenaanzicht,
+  // schuine kant naar de punt) op de wandkant van y0 tot y1; het kuiltje in de wand van de linkerhelft
+  const tip = xs - H.l, haken = [-1, 1].map((k) => {
+    const zw = k * (Z - N.spleet), zb = zw - k * H.t;
+    const prof = [[xs + 2, 0], [xs + 2, H.top], [tip, H.top], [tip, N.spleet + H.l], [xs, N.spleet], [xs, 0]];
+    const zn = k * (Z + H.nok.d - N.spleet);
+    const nok = [[tip, zw - k * 0.1], [tip, zw], [tip + H.nok.ramp, zn], [tip + H.nok.l, zn], [tip + H.nok.l, zw - k * 0.1]];
+    const kuil = k < 0 ? [tip - 0.3, -Z - H.kuil, tip + H.nok.l + 0.3, -Z + 0.1] : [tip - 0.3, Z - 0.1, tip + H.nok.l + 0.3, Z + H.kuil];
+    return { k, z0: Math.min(zw, zb), z1: Math.max(zw, zb), prof, nok, kuil };
+  });
+  // bodemlippen van de rechterhelft (in de uitsparingen van de linkerhelft, 0,2 rondom)
+  const lippen = N.lip.z.map((z) => [xs - N.lip.l, z - N.lip.b / 2, xs + 1, z + N.lip.b / 2]);
+  const uitsparingen = N.lip.z.map((z) => [N.x - N.lip.l, z - N.lip.b / 2 - N.spleet, N.x + 1, z + N.lip.b / 2 + N.spleet]);
+  const T = R.tules, yi = D.invoer.y;
+  const tules = [...T.voor.map((c) => ({ wand: 'voor', c })), ...T.achter.map((c) => ({ wand: 'achter', c })), ...T.rechts.map((c) => ({ wand: 'rechts', c }))];
+  const sleutelgaten = R.sleutelgatZ.map((z) => [R.sleutelgatX, z]);
   const u = espUsb();
-  return { y0: u.y - 5.5, y1: u.y + 5.5, z0: u.z0, z1: u.z1 };
+  cacheR = { xs, XR, XRB, Z, ZB, pilaren, bussen, haken, lippen, uitsparingen, tules, yi, sleutelgaten, usb: { x0: u.x0, x1: u.x1, y0: u.y - 5.5, y1: u.y + 5.5 } };
+  return cacheR;
 }
-/** de 2 palen vooraan in rij 7 waarop de moduleplaat met 2 schroeven vastzit */
-export const plaatPalen = () => [-1, 1].map((k) => [k * M.plaat.vast.x, M.plaat.vast.z]);
 
-// ---------------------------------------------------------------- de bak
-/** de bak (rechtop geprint: de bodem op het bed). Volgorde: eerst de sneden in wanden en bodem terwijl de bak nog
- *  eenvoudig is, dan de goten, de palen en tot slot de ronde bussen en alle schroefgaten in één keer: elke bewerking
- *  kost meer naarmate het lichaam meer driehoeken heeft (de mesh-kernel) */
-export function bak() {
-  const L = indeling(), D = M.doos, G = M.goot, w = D.wand, { X, Z } = L, XB = X + w, ZB = Z + w;
-  const o = deel('Kabeldoos (bak)', PETG);
-  o.schets(yv(-D.bodem, 'Plane onderkant bodem'), (s) => s.rrectW([-XB, 0, -ZB], [XB, 0, ZB], D.r));
+/** de klik van een haak (PETG, E = 2100 MPa): een uitkragende balk met lengte l en dikte t; door de 45°-onderkant groeit
+ *  de hoogte van b0 aan de punt tot b0 + l aan de voet. Doorbuiging d (de nok) aan de punt: F = d E t³ / (12 J) met
+ *  J = ∫ x² / (b0 + x) dx van 0 tot l; rek aan de voet = 6 F l / ((b0 + l) t² E). Inklikken over de schuine kant van de
+ *  nok (atan(nok / ramp)) met wrijving 0,3: P = F (µ + tan a) / (1 - µ tan a) */
+export function haakKlik() {
+  const N = M.naad, H = N.haak, E = 2100, l = H.l, t = H.t, d = H.nok.d, b0 = H.top - (N.spleet + l), mu = 0.3;
+  const J = (l * l) / 2 - b0 * l + b0 * b0 * Math.log((b0 + l) / b0), F = (d * E * t ** 3) / (12 * J), rek = (6 * F * l) / ((b0 + l) * t * t * E);
+  const ta = d / H.nok.ramp, P = (F * (mu + ta)) / (1 - mu * ta);
+  return { l, t, d, b0, bVoet: b0 + l, F, rek, hoek: (Math.atan(ta) * 180) / Math.PI, inklik: P, rekRecht: (1.5 * t * d) / (l * l) };
+}
+/** de klik van het deksel: elke vinger van de lip (1,4 dik, 12 lang) buigt de nokhoogte min de spleet door */
+export function dekselKlik() {
+  const Nd = M.naad.deksel, E = 2100, t = Nd.lip, l = Nd.lap, d = Nd.nok.h - M.naad.spleet, s = Nd.sleuven, mu = 0.3;
+  const vingers = s.slice(0, -1).map((a, i) => s[i + 1] - a - Nd.sleuf);
+  const F = vingers.map((b) => (3 * E * ((b * t ** 3) / 12) * d) / l ** 3), ta = Nd.nok.h / Nd.nok.ramp;
+  return { t, l, d, vingers, F, rek: (1.5 * t * d) / (l * l), inklik: (F.reduce((a, q) => a + q, 0) * (mu + ta)) / (1 - mu * ta), hoek: (Math.atan(ta) * 180) / Math.PI };
+}
+
+// ---------------------------------------------------------------- de linkerhelft (bordjes)
+/** de linkerhelft van de bak (rechtop geprint: de bodem op het bed). Volgorde: eerst de sneden in wanden en bodem terwijl
+ *  de bak nog eenvoudig is, dan de steunrails, palen, aanslagen en bussen met hun schroefgaten en tot slot de klemlippen:
+ *  elke bewerking kost meer naarmate het lichaam meer driehoeken heeft (de mesh-kernel) */
+export function bakLinks() {
+  const L = indeling(), D = M.doos, N = M.naad, w = D.wand, { X, Z } = L, XB = X + w, ZB = Z + w;
+  const o = deel('Kabeldoos (bak links)', PETG);
+  o.schets(yv(-D.bodem, 'Plane onderkant bodem'), (s) => hoekRechthoek(s, -XB, -ZB, N.x, ZB, [D.r, 0, 0, D.r]));
   o.extrude('boss', D.bodem + D.h, { naam: 'Blok' });
-  o.schets(yv(D.h, 'Plane bovenrand'), (s) => s.rrectW([-X, 0, -Z], [X, 0, Z], 1.6));
+  o.schets(yv(D.h, 'Plane bovenrand'), (s) => hoekRechthoek(s, -X, -Z, N.x + 1, Z, [1.6, 0, 0, 1.6]));
   o.extrude('cut', D.h, { omkeren: true, naam: 'Binnenruimte' });
-  // de groeven in de buitenwanden voor de neus van de randdeksels (vroeg: de wanden zijn dan nog eenvoudig)
-  groefSneden(o, L.wandGroeven);
+  // de kuiltjes voor de nokken van de klikhaken van de rechterhelft (in de achter- en de voorwand, 0,8 diep)
+  const H = N.haak;
+  snede(o, H.nok.y1 + 0.4, H.nok.y1 - H.nok.y0 + 0.8, rechts().haken.map((h) => h.kuil), 'Kuiltjes klikhaken');
   // kabelinvoeren: ronde gaten Ø16,5 voor een membraantule Wiska EMT 16 (M16, wand 2 tot 9,5, kabels 1 tot 9 mm, IP66)
   const yi = D.invoer.y, ri = D.invoer.gat / 2;
-  const vlakken = { links: () => xv(-XB, 'Plane kabelinvoer links', -1), rechts: () => xv(XB, 'Plane kabelinvoer rechts'), voor: () => zv(ZB, 'Plane kabelinvoer voor') };
-  const punt = { links: (c) => [-XB, yi, c], rechts: (c) => [XB, yi, c], voor: (c) => [c, yi, ZB] };
-  for (const kant of ['links', 'rechts', 'voor']) {
-    o.schets(vlakken[kant](), (s) => L.tules.filter((t) => t.wand === kant).forEach((t) => s.cirkelW(punt[kant](t.c), ri)));
-    o.extrude('cut', w + 1, { omkeren: true, naam: `Kabelinvoer ${kant}` });
-  }
-  const u = usbOpening();
-  o.schets(xv(XB, 'Plane opening USB'), (s) => s.rrectW([XB, u.y0, u.z0], [XB, u.y1, u.z1], 1));
-  o.extrude('cut', w + 1, { omkeren: true, naam: 'Opening USB' });
-  // DC-chassisbus 5,5 x 2,5 in de linkerwand, boven de voedingsprint (de adapter houdt zijn stekker: niets doorknippen)
-  o.schets(xv(-XB, 'Plane DC-bus', -1), (s) => s.cirkelW([-XB, dcY(), dcZ()], M.dcbus.gat / 2));
-  o.extrude('cut', w + 1, { omkeren: true, naam: 'Gat DC-bus' });
-  // ophangen onder de baan: 4 sleutelgaten in de zijgoten (bolkopschroef 4 x 20 half in de baan, de doos over de koppen,
-  // 6 mm naar achteren schuiven: de sleuf loopt naar voren)
-  const SG = D.sleutelgat;
-  o.schets(yv(0.01, 'Plane sleutelgaten'), (s) => L.sleutelgaten.forEach(([x, z]) => s.cirkelW([x, 0, z], SG.kop / 2)));
-  o.extrude('cut', D.bodem + 1, { omkeren: true, naam: 'Sleutelgaten (kop)' });
-  o.schets(yv(0.01, 'Plane sleutelgaten sleuf'), (s) => L.sleutelgaten.forEach(([x, z]) => s.rrectW([x - SG.schacht / 2, 0, z], [x + SG.schacht / 2, 0, z + SG.slag + SG.schacht / 2], SG.schacht / 2 - 0.01)));
-  o.extrude('cut', D.bodem + 1, { omkeren: true, naam: 'Sleutelgaten (sleuf)' });
-  snede(o, 0.01, D.bodem + 1, L.bodem, 'Draadsleuven');
-  // steunrails onder de bordjes, palen tussen de bordjes en stroken langs bordje 16 (0,3 speling)
+  o.schets(xv(-XB, 'Plane kabelinvoer links', -1), (s) => L.tules.filter((t) => t.wand === 'links').forEach((t) => s.cirkelW([-XB, yi, t.c], ri)));
+  o.extrude('cut', w + 1, { omkeren: true, naam: 'Kabelinvoer links' });
+  o.schets(zv(ZB, 'Plane kabelinvoer voor'), (s) => L.tules.filter((t) => t.wand === 'voor').forEach((t) => s.cirkelW([t.c, yi, ZB], ri)));
+  o.extrude('cut', w + 1, { omkeren: true, naam: 'Kabelinvoer voor' });
+  sleutelgatenOp(o, L.sleutelgaten);
+  // de uitsparingen voor de bodemlippen van de rechterhelft en de gaatjes 2 x 2 voor de leddraden (per snede hoogstens 60)
+  const GT = M.gaatje;
+  snede(o, 0.01, D.bodem + 1, rechts().uitsparingen, 'Uitsparingen naad');
+  o.schets(yv(-0.5, 'Plane eilandjes gaatjes'), (s) => L.gaatjes && L.eilandjes.forEach(([x0, z0, x1, z1]) => s.rrectW([x0, 0, z0], [x1, 0, z1])));
+  o.extrude('boss', 0.5 + GT.hoog, { naam: 'Eilandjes gaatjes' });
+  const n = Math.ceil(L.gaatjes.length / GT.perFeature);
+  for (let k = 0; k < n; k++) snede(o, GT.hoog + 0.01, D.bodem + GT.hoog + 1, L.gaatjes.slice(Math.round((k * L.gaatjes.length) / n), Math.round(((k + 1) * L.gaatjes.length) / n)).map((g) => g.rect), `Gaatjes draden ${k + 1}`);
+  // steunrails onder de bordjes, palen tussen de bordjes, aanslagen langs hun lange kanten en stroken langs bordje 16
+  // (0,3 speling)
   const rails = L.rijen.slice(0, 6).map((rij) => { const bs = rij.filter((d) => d.soort === 'bordje'); return [Math.min(...bs.map((d) => d.cx)) - M.bordje.x / 2 + 1, rij[0].cz - 3, Math.max(...bs.map((d) => d.cx)) + M.bordje.x / 2 - 1, rij[0].cz + 3]; });
   o.schets(yv(-0.5, 'Plane steunrails'), (s) => rails.forEach(([x0, z0, x1, z1]) => s.rrectW([x0, 0, z0], [x1, 0, z1], 1)));
   o.extrude('boss', M.voet + 0.5, { naam: 'Steunrails' });
   o.schets(yv(-0.5, 'Plane palen'), (s) => L.palen.forEach(([x0, z0, x1, z1]) => s.rrectW([x0, 0, z0], [x1, 0, z1], 0.5)));
-  o.extrude('boss', M.kader.h + 0.5, { naam: 'Palen bordjes' });
-  // 2 palen Ø9 voor de moduleplaat (gat Ø2,6: plaatschroef 3 x 10) tot net onder de plaat en 4 schroefbussen Ø7 in de
-  // hoeken (gat Ø2,6) voor het deksel
-  const palen = plaatPalen();
-  cirkels(o, -0.5, M.plaat.y0 - 0.05 + 0.5, palen.map(([x, z]) => [x, z, M.plaat.vast.r]), 'Palen moduleplaat');
+  o.extrude('boss', M.kader.h + 0.5, { naam: 'Palen en aanslagen bordjes' });
   cirkels(o, -0.5, D.h + 0.5, L.bussen.map(([x, z]) => [x, z, D.bus.r]), 'Schroefbussen');
-  // de richel in de achterwand: de achterrand van de moduleplaat schuift eronder (45 graden eronder: zonder support)
-  const Rr = M.plaat.richel, zw = -Z;
-  o.schets(xv(-Rr.x, 'Plane richel moduleplaat'), (s) => s.lusW([[-Rr.x, Rr.y0, zw - 0.5], [-Rr.x, Rr.y0, zw], [-Rr.x, Rr.y0 + Rr.uit, zw + Rr.uit], [-Rr.x, Rr.top, zw + Rr.uit], [-Rr.x, Rr.top, zw - 0.5]]));
-  o.extrude('boss', 2 * Rr.x, { naam: 'Richel moduleplaat' });
-  // de schroefgaten als achthoek (de vlakken op Ø2,2 / Ø2,6: daar tapt de schroef; een printer maakt een klein gat toch
-  // hoekig): een achthoek kost de kernel veel minder dan een cirkel, zo blijft de bak met de klemlippen binnen 45 s
-  const acht = (x, z, r) => Array.from({ length: 8 }, (_, i) => { const a = Math.PI / 8 + (i * Math.PI) / 4, R = r / Math.cos(Math.PI / 8); return [x + R * Math.cos(a), z + R * Math.sin(a)]; });
-  veelhoeken(o, D.h, D.h + D.bodem - 0.4, [...palen.map(([x, z]) => acht(x, z, 1.3)), ...L.bussen.map(([x, z]) => acht(x, z, 1.3))], 'Schroefgaten', 'cut');
-  // tot slot de kabelgoten: 6 ringen (rij 1 tot 6) en de wand voor rij 7, de vingers en hun klikgroeven
-  gootwanden(o, { ringen: L.ringen.map((r) => [-L.xr, r.z0, L.xr, r.z1]), balken: [[-X - 1, L.wand7[0], X + 1, L.wand7[1]]], wanden: L.wanden, groeven: L.groeven });
-  // helemaal op het einde de klemlippen (4 per bordje, hulpstukken.mjs): de kuiltjes in de bodem vroeg in de boom
-  // maakten elke latere bewerking trager (bak 75 s in plaats van 40 s); achteraan kosten ze 4 tot 5 s
+  // de schroefgaten als achthoek (de vlakken op Ø2,6: daar tapt de schroef; een printer maakt een klein gat toch hoekig):
+  // een achthoek kost de kernel veel minder dan een cirkel
+  veelhoeken(o, D.h, D.h + D.bodem - 0.4, L.bussen.map(([x, z]) => acht(x, z, 1.3)), 'Schroefgaten', 'cut');
+  // helemaal op het einde de klemlippen (4 per bordje, hulpstukken.mjs): vroeg in de boom maakten ze elke latere
+  // bewerking trager
   lippenOpBak(o, L.rijen);
   return o.doc();
 }
-
-// ---------------------------------------------------------------- het deksel
-/** het deksel (plat geprint, de buitenkant op het bed): plaat, centreerrand die 1,55 in de bak valt, 4 verzonken gaten */
-export function deksel() {
-  const L = indeling(), D = M.doos, { X, Z } = L, XB = X + D.wand, ZB = Z + D.wand, y0 = D.h;
-  const o = deel('Kabeldoos (deksel)', PETG_DEKSEL);
-  o.schets(yv(y0, 'Plane deksel'), (s) => s.rrectW([-XB, 0, -ZB], [XB, 0, ZB], D.r));
-  o.extrude('boss', D.deksel, { naam: 'Plaat' });
-  o.schets(yv(y0 + 0.05, 'Plane rand'), (s) => { s.rrectW([-X + 0.3, 0, -Z + 0.3], [X - 0.3, 0, Z - 0.3], 1.6); s.rrectW([-X + 2.3, 0, -Z + 2.3], [X - 2.3, 0, Z - 2.3], 0.6); });
-  o.extrude('boss', 1.55, { omkeren: true, naam: 'Centreerrand' });
-  // versie 4: geen drukribben meer (de moduleplaat ligt tussen het deksel en de bordjes; de bordjes zitten in hun klemlippen)
-  // de rand rond de bussen in de hoeken weg
-  snede(o, y0 + 0.05, 1.6, L.bussen.map(([x, z]) => [x - 4.6, z - 4.6, x + 4.6, z + 4.6, 4.6]), 'Ruimte bussen');
-  cirkels(o, y0 + D.deksel, D.deksel + 1, L.bussen.map(([x, z]) => [x, z, 1.6]), 'Gaten', 'cut');
-  o.schets(yv(y0 + D.deksel, 'Plane verzinking'), (s) => L.bussen.forEach(([x, z]) => s.cirkelW([x, 0, z], 3.1)));
-  o.extrude('cut', 1.5, { omkeren: true, naam: 'Verzinking', draft: 45 });
-  return o.doc();
+/** sleutelgaten in de bodem (bolkopschroef 4 x 20 half in de baan, de doos over de koppen, 6 mm naar achteren schuiven:
+ *  de sleuf loopt naar voren) */
+function sleutelgatenOp(o, gaten) {
+  const D = M.doos, SG = D.sleutelgat;
+  o.schets(yv(0.01, 'Plane sleutelgaten'), (s) => gaten.forEach(([x, z]) => s.cirkelW([x, 0, z], SG.kop / 2)));
+  o.extrude('cut', D.bodem + 1, { omkeren: true, naam: 'Sleutelgaten (kop)' });
+  o.schets(yv(0.01, 'Plane sleutelgaten sleuf'), (s) => gaten.forEach(([x, z]) => s.rrectW([x - SG.schacht / 2, 0, z], [x + SG.schacht / 2, 0, z + SG.slag + SG.schacht / 2], SG.schacht / 2 - 0.01)));
+  o.extrude('cut', D.bodem + 1, { omkeren: true, naam: 'Sleutelgaten (sleuf)' });
 }
 
-// ---------------------------------------------------------------- de moduleplaat (versie 4)
-/** de omtrek van de moduleplaat: van de achterwand tot 21,5 voor de voorwand, achteraan de hoeken rond de bussen weg */
-export function plaatOmtrek() {
-  const P = M.plaat, x = P.x, a = P.achter, v = P.voor, h = P.hoek;
-  return [[-x + h, a], [x - h, a], [x - h, a + h], [x, a + h], [x, v], [-x, v], [-x, a + h], [-x + h, a + h]];
-}
+// ---------------------------------------------------------------- de rechterhelft (modules)
 /** de klikhouders van de WAGO-klemmen: per rij van 3 klemmen een U (1,2 dik, 5 hoog) om 3 kanten, open aan de kant van de
  *  draden (+z); de klemmen staan met 0,4 vrij naast elkaar en klemmen tussen de eindwanden */
 export function wagoHouders() {
@@ -253,39 +239,118 @@ export function wagoHouders() {
   }
   return uit;
 }
-/** de moduleplaat (plat geprint, de onderkant op het bed): plaat 3,5, paaltjes Ø6 van 4 hoog op de gaten van de modules,
- *  klikhouders voor de WAGO-klemmen, de schroefgaten (achthoek: Ø2,2 voor M2,5, Ø2,6 voor 3 mm) en vooraan 2 gaten Ø3,4
- *  met verzinking voor de schroeven in de palen van de bak */
-export function moduleplaat() {
-  const P = M.plaat, o = deel('Moduleplaat', PETG_DEKSEL), y0 = P.y0, top = y0 + P.dik;
-  o.schets(yv(y0, 'Plane moduleplaat'), (s) => s.lusW(plaatOmtrek().map(([x, z]) => [x, y0, z])));
-  o.extrude('boss', P.dik, { naam: 'Plaat' });
-  const gaten = Object.keys(MODULES).flatMap((r) => gatenDoos(r));
-  cirkels(o, top - 0.5, P.paal.h + 0.5, gaten.map(([x, z]) => [x, z, P.paal.r]), 'Paaltjes modules');
-  veelhoeken(o, top - 0.5, 5.5, wagoHouders(), 'Klikhouders WAGO');
-  const acht = (x, z, r) => Array.from({ length: 8 }, (_, i) => { const a = Math.PI / 8 + (i * Math.PI) / 4, R = r / Math.cos(Math.PI / 8); return [x + R * Math.cos(a), z + R * Math.sin(a)]; });
-  veelhoeken(o, top + P.paal.h, P.paal.h + P.dik - 0.6, gaten.map(([x, z, d]) => acht(x, z, d < 2.8 ? 1.1 : 1.3)), 'Schroefgaten modules', 'cut');
-  cirkels(o, top, P.dik + 1, plaatPalen().map(([x, z]) => [x, z, 1.7]), 'Gaten vastzetten', 'cut');
-  o.schets(yv(top, 'Plane verzinking'), (s) => plaatPalen().forEach(([x, z]) => s.cirkelW([x, 0, z], 3.1)));
+/** de rechterhelft van de bak (rechtop geprint, de bodem op het bed): bodem en 3 wanden (aan de naad open), de pilaren met
+ *  de klikhaken, de bodemlippen, de palen van de modules, de klikhouders van de WAGO-klemmen, de bussen */
+export function bakRechts() {
+  const P = rechts(), D = M.doos, N = M.naad, H = N.haak, w = D.wand, { xs, XR, XRB, Z, ZB } = P;
+  const o = deel('Kabeldoos (bak rechts)', PETG);
+  o.schets(yv(-D.bodem, 'Plane onderkant bodem'), (s) => hoekRechthoek(s, xs, -ZB, XRB, ZB, [0, D.r, D.r, 0]));
+  o.extrude('boss', D.bodem + D.h, { naam: 'Blok' });
+  o.schets(yv(D.h, 'Plane bovenrand'), (s) => hoekRechthoek(s, xs - 1, -Z, XR, Z, [0, 1.6, 1.6, 0]));
+  o.extrude('cut', D.h, { omkeren: true, naam: 'Binnenruimte' });
+  const yi = P.yi, ri = D.invoer.gat / 2, kant = (k) => P.tules.filter((t) => t.wand === k);
+  o.schets(zv(ZB, 'Plane kabelinvoer voor'), (s) => kant('voor').forEach((t) => s.cirkelW([t.c, yi, ZB], ri)));
+  o.extrude('cut', w + 1, { omkeren: true, naam: 'Kabelinvoer voor' });
+  o.schets(zv(-ZB, 'Plane kabelinvoer achter', -1), (s) => kant('achter').forEach((t) => s.cirkelW([t.c, yi, -ZB], ri)));
+  o.extrude('cut', w + 1, { omkeren: true, naam: 'Kabelinvoer achter' });
+  o.schets(xv(XRB, 'Plane kabelinvoer rechts'), (s) => kant('rechts').forEach((t) => s.cirkelW([XRB, yi, t.c], ri)));
+  o.extrude('cut', w + 1, { omkeren: true, naam: 'Kabelinvoer rechts' });
+  // de USB-poorten van de ESP achter een opening in de voorwand (flashen met de doos dicht)
+  const u = P.usb;
+  o.schets(zv(ZB, 'Plane opening USB'), (s) => s.rrectW([u.x0, u.y0, ZB], [u.x1, u.y1, ZB], 1));
+  o.extrude('cut', w + 1, { omkeren: true, naam: 'Opening USB' });
+  // DC-chassisbus 5,5 x 2,5 in de achterwand, boven de WAGO-klemmen (de adapter houdt zijn stekker: niets doorknippen)
+  o.schets(zv(-ZB, 'Plane DC-bus', -1), (s) => s.cirkelW([M.dcbus.x, M.dcbus.y, -ZB], M.dcbus.gat / 2));
+  o.extrude('cut', w + 1, { omkeren: true, naam: 'Gat DC-bus' });
+  sleutelgatenOp(o, P.sleutelgaten);
+  // de bodemlippen (op het bed: geen overhang) en de pilaren aan de naad
+  o.schets(yv(-D.bodem, 'Plane bodemlippen'), (s) => P.lippen.forEach(([x0, z0, x1, z1]) => s.rrectW([x0, 0, z0], [x1, 0, z1])));
+  o.extrude('boss', D.bodem, { naam: 'Bodemlippen naad' });
+  o.schets(yv(-0.5, 'Plane pilaren'), (s) => P.pilaren.forEach(([x0, z0, x1, z1]) => s.rrectW([x0, 0, z0 < 0 ? z0 - 0.5 : z0], [x1, 0, z1 > 0 ? z1 + 0.5 : z1])));
+  o.extrude('boss', D.h + 0.5, { naam: 'Pilaren naad' });
+  // de klikhaken: het zijprofiel met de 45°-onderkant, 1,6 dik; daarop de nok (0,6, schuine kant naar de punt)
+  for (const h of P.haken) {
+    o.schets(zv(h.z0, `Plane klikhaak ${h.k < 0 ? 'achter' : 'voor'}`), (s) => s.lusW(h.prof.map(([x, y]) => [x, y, h.z0])));
+    o.extrude('boss', H.t, { naam: `Klikhaak ${h.k < 0 ? 'achter' : 'voor'}` });
+  }
+  o.schets(yv(H.nok.y0, 'Plane nokken klikhaken'), (s) => P.haken.forEach((h) => s.lusW(h.nok.map(([x, z]) => [x, H.nok.y0, z]))));
+  o.extrude('boss', H.nok.y1 - H.nok.y0, { naam: 'Nokken klikhaken' });
+  // de palen van de modules (Ø6, 5 hoog) en de schroefbussen (Ø7 tot het deksel)
+  const gaten = Object.keys(MODULES).flatMap((r) => gatenDoos(r)), pr = M.rechts.modulePaal;
+  cirkels(o, -0.5, pr.h + 0.5, gaten.map(([x, z]) => [x, z, pr.r]), 'Palen modules');
+  cirkels(o, -0.5, D.h + 0.5, P.bussen.map(([x, z]) => [x, z, D.bus.r]), 'Schroefbussen');
+  veelhoeken(o, -0.5, 5.5, wagoHouders(), 'Klikhouders WAGO');
+  veelhoeken(o, pr.h, pr.h + D.bodem - 0.6, gaten.map(([x, z, d]) => acht(x, z, d < 2.8 ? 1.1 : 1.3)), 'Schroefgaten modules', 'cut');
+  veelhoeken(o, D.h, D.h + D.bodem - 0.4, P.bussen.map(([x, z]) => acht(x, z, 1.3)), 'Schroefgaten bussen', 'cut');
+  return o.doc();
+}
+
+// ---------------------------------------------------------------- het deksel (2 helften)
+/** de nokken van de lip van het deksel: per vinger (tussen de sleuven) één nok van 20 breed in het midden: [z0, z1]; de
+ *  stukjes boven de wanden (buiten de buitenste sleuven) hebben er geen (ze liggen op de wand) */
+export function dekselNokken() {
+  const Nd = M.naad.deksel, s = Nd.sleuven;
+  return s.slice(0, -1).map((a, i) => (a + s[i + 1]) / 2).map((c) => [c - Nd.nok.b / 2, c + Nd.nok.b / 2]);
+}
+/** de linkerhelft van het deksel (plat geprint, de buitenkant op het bed): plaat 3,2, centreerrand langs links, achter en
+ *  voor (valt 1,55 in de bak), aan de naad een sponning (daar 1,6 dik) met 4 groeven voor de nokken van de lip van de
+ *  rechterhelft, 2 verzonken gaten */
+export function dekselLinks() {
+  const L = indeling(), D = M.doos, Nd = M.naad.deksel, { X, Z } = L, XB = X + D.wand, ZB = Z + D.wand, y0 = D.h, xt = Nd.x - Nd.lap;
+  const o = deel('Kabeldoos (deksel links)', PETG_DEKSEL);
+  o.schets(yv(y0, 'Plane deksel'), (s) => hoekRechthoek(s, -XB, -ZB, Nd.x, ZB, [D.r, 0, 0, D.r]));
+  o.extrude('boss', D.deksel, { naam: 'Plaat' });
+  // de centreerrand: een U langs links, achter en voor (aan de naad niet: daar ligt de lip van de rechterhelft)
+  const xe = xt - 0.5, a = 0.3, b = 2.3;
+  o.schets(yv(y0 + 0.05, 'Plane rand'), (s) => s.lusW([[-X + a, -Z + a], [xe, -Z + a], [xe, -Z + b], [-X + b, -Z + b], [-X + b, Z - b], [xe, Z - b], [xe, Z - a], [-X + a, Z - a]].map(([x, z]) => [x, y0 + 0.05, z])));
+  o.extrude('boss', 1.55, { omkeren: true, naam: 'Centreerrand' });
+  snede(o, y0 + 0.05, 1.6, L.bussen.map(([x, z]) => [x - 4.6, z - 4.6, x + 4.6, z + 4.6, 4.6]), 'Ruimte bussen');
+  // de sponning aan de naad: de binnenste 1,6 weg over 12,2 (de lip van 1,4 met 0,2 lijmspleet), de groeven voor de nokken
+  o.schets(yv(y0 + D.deksel - Nd.buiten, 'Plane sponning'), (s) => s.rrectW([xt - M.naad.spleet, 0, -ZB - 1], [Nd.x + 1, 0, ZB + 1]));
+  o.extrude('cut', D.deksel - Nd.buiten + 0.1, { omkeren: true, naam: 'Sponning naad' });
+  snede(o, y0 + D.deksel - Nd.buiten + Nd.groef, Nd.groef + 0.05, dekselNokken().map(([z0, z1]) => [xt, z0 - 1, xt + 0.2 + Nd.nok.l + 0.3, z1 + 1]), 'Groeven kliklip');
+  cirkels(o, y0 + D.deksel, D.deksel + 1, L.bussen.map(([x, z]) => [x, z, 1.6]), 'Gaten', 'cut');
+  o.schets(yv(y0 + D.deksel, 'Plane verzinking'), (s) => L.bussen.forEach(([x, z]) => s.cirkelW([x, 0, z], 3.1)));
+  o.extrude('cut', 1.5, { omkeren: true, naam: 'Verzinking', draft: 45 });
+  return o.doc();
+}
+/** de rechterhelft van het deksel (plat geprint, de BINNENKANT op het bed: zo ligt de lip op het bed): plaat 3,2, aan de
+ *  naad een lip van 12 x 1,4 onder de linkerhelft, in vingers gesneden, met een nok per vinger; 4 verzonken gaten */
+export function dekselRechts() {
+  const P = rechts(), D = M.doos, Nd = M.naad.deksel, { XRB, ZB } = P, y0 = D.h, xt = Nd.x - Nd.lap, yl = y0 + Nd.lip;
+  const o = deel('Kabeldoos (deksel rechts)', PETG_DEKSEL);
+  o.schets(yv(y0, 'Plane deksel'), (s) => hoekRechthoek(s, Nd.x, -ZB, XRB, ZB, [0, D.r, D.r, 0]));
+  o.extrude('boss', D.deksel, { naam: 'Plaat' });
+  o.schets(yv(y0, 'Plane lip'), (s) => s.rrectW([xt, 0, -ZB], [Nd.x + 0.5, 0, ZB]));
+  o.extrude('boss', Nd.lip, { naam: 'Lip naad' });
+  // de nok over de hele breedte (zijprofiel: schuine kant naar de punt, recht aan de kant van de plaat), daarna alles
+  // tussen de nokken weg
+  const x0 = xt + 0.2, n = Nd.nok;
+  o.schets(zv(-ZB, 'Plane nok lip'), (s) => s.lusW([[x0, yl - 0.05], [x0 + n.l, yl - 0.05], [x0 + n.l, yl + n.h], [x0 + n.ramp, yl + n.h], [x0, yl]].map(([x, y]) => [x, y, -ZB])));
+  o.extrude('boss', 2 * ZB, { naam: 'Nok lip' });
+  const vrij = [];
+  let z = -ZB - 1;
+  for (const [a, e] of dekselNokken()) { vrij.push([xt - 0.5, z, x0 + n.l + 0.5, a]); z = e; }
+  vrij.push([xt - 0.5, z, x0 + n.l + 0.5, ZB + 1]);
+  snede(o, yl + n.h + 0.1, n.h + 0.15, vrij, 'Nokken lip');
+  // de sleuven tussen de vingers (door de lip, tot de plaat)
+  snede(o, yl + 0.01, Nd.lip + 0.1, Nd.sleuven.map((c) => [xt - 1, c - Nd.sleuf / 2, Nd.x, c + Nd.sleuf / 2]), 'Sleuven lip');
+  cirkels(o, y0 + D.deksel, D.deksel + 1, P.bussen.map(([x, z]) => [x, z, 1.6]), 'Gaten', 'cut');
+  o.schets(yv(y0 + D.deksel, 'Plane verzinking'), (s) => P.bussen.forEach(([x, z]) => s.cirkelW([x, 0, z], 3.1)));
   o.extrude('cut', 1.5, { omkeren: true, naam: 'Verzinking', draft: 45 });
   return o.doc();
 }
 
-// ---------------------------------------------------------------- gootdeksels
-/** alle gootdeksels: soort (midden of rand), binnenbreedte van de goot, as, begin, einde, lengte */
-export const gootDeksels = () => indeling().deksels;
-/** de printplaat met alle gootdeksels naast elkaar */
-export const dekselPlaatDoc = () => dekselPlaat(`Gootdeksels (${gootDeksels().length} stuks)`, gootDeksels());
-/** het breedste deel van de plaat (voor de controle op het bed) */
-export const plaatBreedte = () => gootDeksels().reduce((a, d) => a + dekselBreedte(d.soort, d.b), 0) + 4 * (gootDeksels().length - 1);
-
 // ---------------------------------------------------------------- assemblage
 export function kabeldoos() {
-  const L = indeling(), comps = [], D = M.doos, B = M.bordje, { X, Z } = L, XB = X + D.wand, ZB = Z + D.wand;
+  const L = indeling(), P = rechts(), comps = [], D = M.doos, B = M.bordje, { X, Z } = L, XB = X + D.wand, ZB = Z + D.wand;
   const at = (id, naam, doc, p, rot) => comps.push(component(id, naam, doc, p, rot ? { rotation: rot } : {}));
-  at('d1', 'Kabeldoos (bak)<1>', bak(), [0, 0, 0]);
-  at('d2', 'Kabeldoos (deksel)<1>', deksel(), [0, 0, 0]);
-  // de 16 bordjes: print, 2 klemstroken van 16 (draadingang naar de goot), 2 eindklemmen (5,0, 2-polig), 16 weerstanden
+  // de 2 helften van de bak (d1 links, d3 rechts) en van het deksel (d2 links, d4 rechts)
+  at('d1', 'Kabeldoos (bak links)<1>', bakLinks(), [0, 0, 0]);
+  at('d3', 'Kabeldoos (bak rechts)<1>', bakRechts(), [0, 0, 0]);
+  at('d2', 'Kabeldoos (deksel links)<1>', dekselLinks(), [0, 0, 0]);
+  at('d4', 'Kabeldoos (deksel rechts)<1>', dekselRechts(), [0, 0, 0]);
+  // de 16 bordjes: print, 2 klemstroken van 16 (draadingang naar buiten), 2 eindklemmen (5,0, 2-polig), 16 weerstanden
   const pcb = bordjePcb(), strook = klemstrook('Klemstrook 16-polig 2,54', B.klem.n, B.klem.steek, B.klem.diep, B.klem.h);
   const eind = klemstrook('Klem 2-polig 5,0', 2, B.eind.steek, B.eind.diep, B.h - B.pcb), smd = smdRij('16 SMD-weerstanden 0805', 16, 2.54);
   for (const rij of L.rijen) for (const d of rij) {
@@ -299,62 +364,40 @@ export function kabeldoos() {
       at(`b${n}r`, `Bordje ${n} weerstanden<${n}>`, smd, [d.cx, y + B.pcb, d.cz]);
     }
   }
-  // de moduleplaat met alle modules (opbouw.mjs) en haar 2 schroeven vooraan
-  at('mp', 'Moduleplaat<1>', moduleplaat(), [0, 0, 0]);
+  // alle modules op hun palen in de rechterhelft (opbouw.mjs)
   modulesOp(at);
-  const kop3p = schroefVerzonken('Plaatschroef 3 x 10 verzonken', 3, 2.4, 10);
-  plaatPalen().forEach(([x, z], i) => at(`mps${i + 1}`, `Plaatschroef 3 x 10 (moduleplaat)<${i + 1}>`, kop3p, [x, PLAAT_TOP, z]));
-  // de DC-bus in de linkerwand, de membraantules (flens buiten, langs de normaal van de wand naar buiten)
-  at('w1', 'DC-chassisbus 5,5 x 2,5<1>', dcBus(), [-XB, dcY(), dcZ()], draaiY(180));
+  // de DC-bus in de achterwand van de rechterhelft, de membraantules (flens buiten, langs de normaal van de wand naar buiten)
+  at('w1', 'DC-chassisbus 5,5 x 2,5<1>', dcBus(), [M.dcbus.x, M.dcbus.y, -ZB], draaiY(90));
   const tl = tule(), yi = D.invoer.y;
-  L.tules.forEach((t, i) => {
-    const p = { links: [-XB, yi, t.c], rechts: [XB, yi, t.c], voor: [t.c, yi, ZB] }[t.wand];
-    const r = { links: draaiY(180), rechts: undefined, voor: draaiY(-90) }[t.wand];
+  [...L.tules, ...P.tules].forEach((t, i) => {
+    const p = { links: [-XB, yi, t.c], rechts: [P.XRB, yi, t.c], voor: [t.c, yi, ZB], achter: [t.c, yi, -ZB] }[t.wand];
+    const r = { links: draaiY(180), rechts: undefined, voor: draaiY(-90), achter: draaiY(90) }[t.wand];
     at(`t${i + 1}`, `Membraantule EMT 16<${i + 1}>`, tl, p, r);
   });
-  // deksel: 4 verzonken schroeven; ophangen: 4 bolkopschroeven in de vergrendelde stand (aan het eind van de sleuf)
+  // deksel: 6 verzonken schroeven; ophangen: 4 bolkopschroeven in de vergrendelde stand (aan het eind van de sleuf)
   const kop3 = schroefVerzonken('Plaatschroef 3 x 12 verzonken', 3, 2.4, 12), hout = bolkopSchroef('Bolkopschroef 4 x 20 (hout)', 4, 8, 2.8, 20);
-  L.bussen.forEach(([x, z], i) => at(`sd${i + 1}`, `Plaatschroef 3 x 12 verzonken<${i + 1}>`, kop3, [x, D.h + D.deksel, z]));
-  L.sleutelgaten.forEach(([x, z], i) => at(`sv${i + 1}`, `Bolkopschroef 4 x 20<${i + 1}>`, hout, [x, 0, z + D.sleutelgat.slag]));
-  // de gootdeksels: een deksel langs X begint op a; de randdeksels met hun neus in de buitenwand
-  const docs = new Map(), doc = (d) => { const k = `${d.soort}|${d.b}|${d.l}|${d.nokken}`; if (!docs.has(k)) docs.set(k, gootdeksel(d.soort, d.b, d.l, d.nokken)); return docs.get(k); };
-  L.deksels.forEach((d, i) => {
-    const naam = `Gootdeksel ${d.soort === 'rand' ? 'rand ' : ''}${String(d.l).replace('.', ',')}<${i + 1}>`;
-    if (d.kant === 'achter') at(`g${i + 1}`, naam, doc(d), [d.a, 0, -Z]);
-    else if (d.kant === 'links') at(`g${i + 1}`, naam, doc(d), [-X, 0, d.e], draaiY(90));
-    else if (d.kant === 'rechts') at(`g${i + 1}`, naam, doc(d), [X, 0, d.a], draaiY(-90));
-    else at(`g${i + 1}`, naam, doc(d), [d.a, 0, d.c]);
-  });
+  alleBussen().forEach(([x, z], i) => at(`sd${i + 1}`, `Plaatschroef 3 x 12 verzonken<${i + 1}>`, kop3, [x, D.h + D.deksel, z]));
+  bevestigingsGaten().forEach(([x, z], i) => at(`sv${i + 1}`, `Bolkopschroef 4 x 20<${i + 1}>`, hout, [x, 0, z + D.sleutelgat.slag]));
   return { format: 'phlippo-cad', version: 1, name: 'Kabeldoos treinverlichting', units: 'mm', sketches: {}, features: [], planes: {}, variables: {}, equations: [], kind: 'assembly', components: comps, mates: [] };
 }
 
-// ---------------------------------------------------------------- rekenwerk voor het rekenblad en de README
-/** vulgraad van een goot tussen twee rijen (draden: 0,25 mm² LiY Ø1,4; 0,5 mm² Ø1,8) */
-export function vulgraad() {
-  const G = M.goot, A = (d) => (Math.PI * d * d) / 4;
-  // tot de onderkant van het deksel; boven de voet staan de vingers 0,2 terug (de goot is daar 0,4 breder)
-  const binnen = G.b * G.sleufBodem + (G.b + G.wand - G.vingerDik) * (G.top - G.sleufBodem);
-  const ergst = 96 * A(1.4) + 8 * A(1.8); // de klemmenrijen van 6 bordjes (3 per rij) en hun voeding in één doorsnede
-  const gewoon = 48 * A(1.4) + 8 * A(1.8); // de helft van de leddraden: ze komen door de sleuf onder hun eigen bordje
-  return { binnen, gewoon, ergst, pGewoon: gewoon / binnen, pErgst: ergst / binnen };
-}
-
 export const ONDERDELEN = {
-  'Kabeldoos-bak.kcad': bak,
-  'Kabeldoos-deksel.kcad': deksel,
-  'Moduleplaat.kcad': moduleplaat,
-  'Gootdeksels-plaat.kcad': dekselPlaatDoc,
-  'Gootdeksel.kcad': () => { const d = gootDeksels().find((q) => q.soort === 'midden'); return gootdeksel(d.soort, d.b, d.l, d.nokken); },
+  'Kabeldoos-bak-links.kcad': bakLinks,
+  'Kabeldoos-bak-rechts.kcad': bakRechts,
+  'Kabeldoos-deksel-links.kcad': dekselLinks,
+  'Kabeldoos-deksel-rechts.kcad': dekselRechts,
   'Bordje-PCB.kcad': bordjePcb,
   'Hulpstukken.kcad': hulpstukkenPlaat,
 };
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   const schrijf = (naam, doc) => writeFileSync(join(HERE, naam), JSON.stringify(doc, null, 1) + '\n');
+  // versie 4 had één bak, één deksel, een moduleplaat en gootdeksels (versie 5 heeft geen kabelgoten meer)
+  for (const oud of ['Kabeldoos-bak.kcad', 'Kabeldoos-deksel.kcad', 'Moduleplaat.kcad', 'Gootdeksels-plaat.kcad', 'Gootdeksel.kcad', 'print/Kabeldoos-bak.stl', 'print/Kabeldoos-deksel.stl', 'print/Moduleplaat.stl', 'print/Gootdeksels-plaat.stl']) if (existsSync(join(HERE, oud))) unlinkSync(join(HERE, oud));
   for (const [naam, f] of Object.entries(ONDERDELEN)) schrijf(naam, f());
   schrijf('Kabeldoos.kcad', kabeldoos());
-  const L = indeling(), D = M.doos, v = vulgraad();
-  console.log(`doos: buiten ${(2 * (L.X + D.wand)).toFixed(1)} x ${(2 * (L.Z + D.wand)).toFixed(1)} x ${(D.bodem + D.h + D.deksel).toFixed(1)} met deksel, binnen ${(2 * L.X).toFixed(1)} x ${(2 * L.Z).toFixed(1)} x ${D.h}`);
-  console.log(`gootdeksels: ${L.deksels.map((d) => `${d.soort} ${d.l}`).join(', ')}; plaat ${plaatBreedte().toFixed(1)} breed; ${L.wanden.flatMap((w) => vingers(w)).length} vingers`);
-  console.log(`vulgraad: gewoon ${(v.pGewoon * 100).toFixed(0)} %, ergst ${(v.pErgst * 100).toFixed(0)} % van ${v.binnen.toFixed(0)} mm²; rek klik ${(KLIK_REK() * 100).toFixed(2)} %`);
+  const L = indeling(), D = M.doos;
+  const P = rechts(), N = M.naad, h = haakKlik(), k = dekselKlik();
+  console.log(`doos: buiten ${(P.XRB + L.X + D.wand).toFixed(1)} x ${(2 * (L.Z + D.wand)).toFixed(1)} x ${(D.bodem + D.h + D.deksel).toFixed(1)} met deksel, binnen ${D.h} hoog; linkerhelft ${(N.x + L.X + D.wand).toFixed(1)}, rechterhelft ${(P.XRB - (P.xs - N.haak.l)).toFixed(1)} (met de haken); deksel links ${(N.deksel.x + L.X + D.wand).toFixed(1)}, rechts ${(P.XRB - (N.deksel.x - N.deksel.lap)).toFixed(1)}`);
+  console.log(`klikhaak: rek ${(h.rek * 100).toFixed(2)} % (recht gerekend ${(h.rekRecht * 100).toFixed(2)} %), veerkracht ${h.F.toFixed(1)} N, inklikken ${h.inklik.toFixed(1)} N per haak (nok ${h.hoek.toFixed(0)} graden); dekselvinger: rek ${(k.rek * 100).toFixed(2)} %, samen ${k.inklik.toFixed(0)} N`);
 }

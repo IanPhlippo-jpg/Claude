@@ -113,29 +113,31 @@ def zip_bytes(entries: list[tuple[str, Path | bytes]]) -> bytes:
     return buf.getvalue()
 
 
-PRINT_TXT = """Kabeldoos treinverlichting (versie 4) - printbestanden
+PRINT_TXT = """Kabeldoos treinverlichting (versie 5) - printbestanden
 
-Kabeldoos-bak.stl          de bodem op het bed            229,8 x 229,8 x 64,4 mm   PETG zwart, ongeveer 420 g, 17 uur
-Kabeldoos-deksel.stl       de buitenkant op het bed       229,8 x 229,8 x 3,9 mm   PETG grijs, ongeveer 160 g, 5 uur
-Moduleplaat.stl            de onderkant op het bed        220,0 x 199,0 x 8,5 mm    PETG grijs, ongeveer 85 g, 3 uur
-Gootdeksels-plaat.stl      de vlakke kant op het bed      211,0 x 132,9 x 9,1 mm    PETG grijs, ongeveer 70 g, 3 uur
-Hulpstukken.stl            plat op het bed                2 werkhaken en de spatel  PETG grijs, ongeveer 15 g, 1 uur
+Kabeldoos-bak-links.stl     de bodem op het bed            224,9 x 229,8 x 49,4 mm   PETG zwart, ongeveer 255 g, 10 uur
+Kabeldoos-bak-rechts.stl    de bodem op het bed            229,8 x 229,8 x 49,4 mm   PETG zwart, ongeveer 240 g, 10 uur
+Kabeldoos-deksel-links.stl  de BUITENKANT op het bed       226,9 x 229,8 x 4,7 mm    PETG grijs, ongeveer 205 g, 6 uur
+Kabeldoos-deksel-rechts.stl de BINNENKANT op het bed       226,0 x 229,8 x 3,2 mm    PETG grijs, ongeveer 200 g, 6 uur
+Hulpstukken.stl             plat op het bed                2 werkhaken en de spatel  PETG grijs, ongeveer 15 g, 1 uur
 
-Elegoo Centauri Carbon (bed 256 x 256), PETG, zonder support. Elk deel is hoogstens 230 x 230: leg het in het midden van
-het bed, dan blijft de hoek voor het filamentmes (rechtsvoor 10 x 20) vrij, ook met een skirt.
-0,2 mm lagen, 4 wanden, 30 % gyroid (zoals bij de afzuiging); de bak met buitenwanden op 40 mm/s (hoge, dunne vingers).
-Na het printen: een bordje klikt in zijn 4 klemlippen, een gootdeksel klikt over zijn goot, de moduleplaat schuift
-achteraan onder de richel. Meet eerst de modules met een AANNAME na (TRN-10): passen hun gaten niet, print dan
-alleen de moduleplaat opnieuw.
+Elegoo Centauri Carbon (bed 256 x 256), PETG, zonder support (ook niet onder de klikhaken: 45 graden). Elk deel is
+hoogstens 230 x 230: leg het in het midden van het bed, dan blijft de hoek voor het filamentmes (rechtsvoor 10 x 20) vrij,
+ook met een skirt. Geen brim aan het naadvlak.
+0,2 mm lagen, 4 wanden, 30 % gyroid (zoals bij de afzuiging); de bakhelften met buitenwanden op 40 mm/s (klemlippen 0,8,
+klikhaken 1,6).
+Na het printen: de 2 bakhelften op een vlakke tafel in elkaar schuiven tot de 2 klikhaken klikken (eventueel eerst
+2K-epoxy in de voeg, TRN-06); een bordje klikt in zijn 4 klemlippen; de deksels klikken met de lip in elkaar. Meet eerst
+de modules met een AANNAME na (TRN-10) en print pas dan de rechterhelft: zij draagt de palen van de modules.
 """
-STL_NAMEN = ['Kabeldoos-bak.stl', 'Kabeldoos-deksel.stl', 'Moduleplaat.stl', 'Gootdeksels-plaat.stl', 'Hulpstukken.stl']
+STL_NAMEN = ['Kabeldoos-bak-links.stl', 'Kabeldoos-bak-rechts.stl', 'Kabeldoos-deksel-links.stl', 'Kabeldoos-deksel-rechts.stl', 'Hulpstukken.stl']
 stl = [(n, BOX / 'print' / n) for n in STL_NAMEN]
 add_file('stl', None, 'dl/Kabeldoos-printbestanden.zip', 'Kabeldoos-printbestanden.zip',
-         'De vijf STL\'s (bak, deksel, moduleplaat, plaat met 9 gootdeksels, hulpstukken), dicht en manifold, met de printinstellingen', zip_bytes(stl + [('LEESMIJ-printen.txt', PRINT_TXT.encode('utf-8'))]))
+         'De vijf STL\'s (bak links en rechts, deksel links en rechts, hulpstukken), dicht en manifold, met de printinstellingen', zip_bytes(stl + [('LEESMIJ-printen.txt', PRINT_TXT.encode('utf-8'))]))
 add_file('alles-pdf', BOX / 'Kabeldoos-alles-afdrukken.pdf', 'pdf/Kabeldoos-alles-afdrukken.pdf', 'Kabeldoos-alles-afdrukken.pdf',
          'Alles samen om af te drukken: uitleg, bouwschema, tekeningen, schema, dashboard en rekenblad')
 add_file('werk-pdf', BOX / 'tekeningen' / 'Werktekeningen-kabeldoos.pdf', 'pdf/Werktekeningen-kabeldoos.pdf', 'Werktekeningen-kabeldoos.pdf',
-         'Boormal op ware grootte (TRN-00, A3), bak, deksel, gootdeksel, hulpstukken, moduleplaat, montageblad modules en bedrading, interne draadlijst, meetblad en invulblad')
+         'Boormal op ware grootte (TRN-00a en b, 2 x A3), bak en deksel per helft, hulpstukken, de naad (klikhaken en lijmvoeg), montageblad modules en bedrading, interne draadlijst, meetblad en invulblad')
 add_file('bouw-pdf', BOX / 'tekeningen' / 'Bouwschema-kabeldoos.pdf', 'pdf/Bouwschema-kabeldoos.pdf', 'Bouwschema-kabeldoos.pdf',
          'De bouwstappen met beelden, van printen tot meten')
 
@@ -151,15 +153,18 @@ add_file('alles-zip', None, 'dl/Kabeldoos-treinverlichting-alles.zip', 'Kabeldoo
 
 # ---------- drawings and wiring diagram as SVG ----------
 DRAWINGS = [
-    ('TRN-00', 'TRN-00-boormal.svg', 'Boormal', '1:1', 'Plak hem onder de baan (van onderen gezien) en boor de 4 kruisjes voor. Druk hem af op A3 op ware grootte (100 %) en meet de controlemaat van 100 mm na.'),
-    ('TRN-01', 'TRN-01-bak.svg', 'Bak', '1:2,5', 'De bak met alle maten: de ringen rond de rijen bordjes, de kabelgoten met vingers en sleuven, sleutelgaten, de palen en de richel voor de moduleplaat, kabelinvoeren.'),
-    ('TRN-02', 'TRN-02-deksel.svg', 'Deksel', '1:2,5', 'Het deksel met zijn centreerrand en de 4 verzonken schroefgaten.'),
-    ('TRN-03', 'TRN-03-gootdeksel.svg', 'Gootdeksel', 'vrij', 'Het klikdeksel van een goot, met de lengtes van alle 9 deksels.'),
-    ('TRN-04', 'TRN-04-hulpstukken.svg', 'Hulpstukken', 'vrij', 'De 2 werkhaken (de doos op werkhoogte laten hangen) en de spatel met haakje voor de smalle goten en de klemlippen.'),
-    ('TRN-05', 'TRN-05-moduleplaat.svg', 'Moduleplaat', '1:2,5', 'De geprinte plaat voor alle modules: paaltjes op hun gaten, klikhouders voor de WAGO-klemmen, 2 gaten vooraan.'),
-    ('TRN-10', 'TRN-10-moduleplaat.svg', 'Modules en bedrading', '1:1', 'De moduleplaat van boven met elke module, haar gaten en klemmen, alle draden (W-nummers) en per groep de klemmen en de polyfuse; enkel de DC-bus wordt gesoldeerd.'),
+    ('TRN-00a', 'TRN-00a-boormal.svg', 'Boormal blad 1', '1:1', 'De rechterhelft van de mal. Druk beide bladen af op A3 op ware grootte (100 %), meet de 100 mm na, leg blad 2 erover tot de kruisen A en B samenvallen en boor de 4 kruisjes voor.'),
+    ('TRN-00b', 'TRN-00b-boormal.svg', 'Boormal blad 2', '1:1', 'De linkerhelft van de mal: langs "hier knippen" afknippen en over blad 1 leggen.'),
+    ('TRN-01', 'TRN-01-bak-links.svg', 'Bak links', '1:2,5', 'De helft met de 16 bordjes: steunrails, palen, aanslagen en klemlippen, de uitsparingen en kuiltjes van de naad, kabelinvoeren, sleutelgaten.'),
+    ('TRN-02', 'TRN-02-bak-rechts.svg', 'Bak rechts', '1:2,5', 'De helft met de modules: palen op hun gaten, klikhouders voor de WAGO-klemmen, de klikhaken en bodemlippen van de naad, DC-bus, opening USB.'),
+    ('TRN-03', 'TRN-03-hulpstukken.svg', 'Hulpstukken', 'vrij', 'De 2 werkhaken (de doos op werkhoogte laten hangen) en de spatel met haakje voor de klemlippen en de draden tussen de bordjes.'),
+    ('TRN-04', 'TRN-04-deksel-links.svg', 'Deksel links', '1:2,5', 'Met zijn centreerrand en de sponning met 4 groeven aan de naad.'),
+    ('TRN-05', 'TRN-05-deksel-rechts.svg', 'Deksel rechts', '1:2,5', 'Met de lip van 12 in 4 klikvingers die onder de linkerhelft klikt.'),
+    ('TRN-06', 'TRN-06-naad.svg', 'Naad', '5:1', 'De klikhaken, de bodemlippen, de lijmvoeg van 0,2 en de lip van het deksel, met de klikberekening en hoe je verbindt.'),
+    ('TRN-07', 'TRN-07-gaatjes.svg', 'Gaatjes voor de leddraden', '4:1', 'Per klem één gaatje van 2 x 2 in de bodem, om en om in 2 rijen; de maten van elke gatenrij.'),
+    ('TRN-10', 'TRN-10-modules.svg', 'Modules en bedrading', '1:1', 'De rechterhelft van boven met elke module, haar gaten en klemmen, alle draden (W-nummers) en per groep de klemmen en de polyfuse; enkel de DC-bus wordt gesoldeerd.'),
     ('TRN-14', 'TRN-14-draadlijst.svg', 'Interne draadlijst', '—', 'De 61 draden tussen de modules met doorsnede, kleur en lengte; dupontkabels voor de signalen.'),
-    ('TRN-20', 'TRN-20-meetblad.svg', 'Meetblad', 'A4', 'Ingebruikname: spanningen, OE, de polariteit van de modules, de stroom en de spanning over de MOSFET per groep, elke ingang.'),
+    ('TRN-20', 'TRN-20-meetblad.svg', 'Meetblad', 'A4', 'Ingebruikname: spanningen, OE, de polariteit van de modules, de stroom en de spanning over de MOSFET per groep, elke ingang, de hallsensor.'),
     ('TRN-21', 'TRN-21-invulblad.svg', 'Invulblad', 'A4', 'De namen van de groepen en de ingangen, om bij de baan te hangen.'),
 ]
 for no, f, *_ in DRAWINGS:
@@ -207,21 +212,17 @@ def to_webp(src: Path, out: str, width: int):
 
 
 RENDERS = [
-    ('trein-doos-open', 'doos-open.webp', 'De doos open: de moduleplaat met alle kant-en-klare modules boven de bordjes'),
-    ('trein-doos-dicht', 'doos-dicht.webp', 'Dicht, met het grijze deksel naar beneden zoals hij onder de baan hangt'),
-    ('trein-goten', 'goten.webp', 'Zonder gootdeksels: de goten met vingers en sleuven, elke rij in een ring'),
-    ('trein-doos-boven', 'doos-boven.webp', 'Van boven: 5 rijen van 3 bordjes en bordje 16 in rij 6, goten ertussen en langs de wanden'),
-    ('trein-kabels', 'kabels.webp', 'Van dichtbij: een sleuf per twee klemmen, de klikvingers en een kabelinvoer in de zijgoot'),
-    ('trein-gootdeksel', 'gootdeksel.webp', 'Twee gootdeksels opgetild: de nokken klikken in de groef van de klikvingers'),
-    ('trein-plaat-gootdeksels', 'plaat.webp', 'De 9 gootdeksels op hun printplaat'),
-    ('trein-doorsnede', 'zijkant.webp', 'Doorsnede: de goten van 28 hoog tussen de rijen, de bordjes in hun ring'),
-    ('trein-prints', 'prints.webp', 'De moduleplaat: MOSFET-modules, optocouplerprints, PCA9685, ESP in haar schroefklemadapter, regelaar en WAGO-klemmen'),
+    ('trein-v5/doos-open-iso', 'doos-open.webp', 'De doos open: links de 16 bordjes, rechts alle kant-en-klare modules, op één laag'),
+    ('trein-v5/doos-dicht', 'doos-dicht.webp', 'Dicht: 440,9 x 229,8 x 52,6, het grijze deksel naar beneden zoals hij onder de baan hangt'),
+    ('trein-v5/doos-open-boven', 'doos-boven.webp', 'Van boven: 5 rijen van 3 bordjes en bordje 16 links, de modules rechts, geen kabelgoten'),
+    ('trein-v5/closeup-modules', 'modules.webp', 'De modules met de draden: de groepen rechtstreeks van de bordjes in de MOSFET-modules'),
+    ('trein-v5/naad-detail', 'naad.webp', 'De naad: de klikhaak achteraan en de pilaar met de schroefbus van het deksel'),
+    ('trein-v5/naad-doorsnede-boven', 'naad-boven.webp', 'Doorsnede op 20 hoog: de nok van de klikhaak in het kuiltje, de lijmspleet van 0,2'),
+    ('trein-v5/naad-doorsnede-haak', 'naad-haak.webp', 'Doorsnede door de klikhaak: de onderkant van 45° (print zonder support)'),
+    ('trein-v5/helften-op-bed', 'bed.webp', 'De 2 helften elk op het bed van 256 x 256: binnen het kader van 230 x 230'),
     ('trein-esp', 'esp.webp', 'De ESP32-S3 in haar schroefklemadapter met 44 klemmen'),
-    ('trein-esp-boven', 'esp-boven.webp', 'ESP32-S3-DevKitC-1 van boven, de 2 USB-poorten rechts'),
     ('trein-bordje', 'bordje.webp', 'Een Modelbouwled-bordje: 61,1 x 20,9, 14 hoog'),
     ('trein-lippen-doorsnede', 'klemlippen.webp', 'Doorsnede door de klemlippen tussen twee bordjes: de haak grijpt 0,6 mm over de print'),
-    ('trein-voeding-dcbus', 'dcbus.webp', 'De verdeelklemmen (WAGO), de regelaar en de PCA9685 op de moduleplaat'),
-    ('trein-uitgangsprint', 'uitgangsprint.webp', 'De 2 MOSFET-modules (8 kanalen elk) en de PCA9685 die ze met dupontkabels stuurt'),
 ]
 render_html = {}
 for src, out, cap in RENDERS:
@@ -232,7 +233,7 @@ for src, out, cap in RENDERS:
 STAPPEN = json.loads(subprocess.check_output(['node', '-e', r"""
 const src = require('fs').readFileSync('e2e/tools/bouwschema-trein.mjs', 'utf8');
 const a = src.indexOf('const STAPPEN = ['), b = src.indexOf('];', a) + 2;
-const G = new Proxy({}, { get: (t, k) => String(k) }), of = (...n) => n, ALLES_OPEN = [], DIR = '';
+const G = new Proxy({}, { get: (t, k) => String(k) }), of = (...n) => n, ALLES_OPEN = [], DIR = '', V5 = '';
 const beeld = () => ({}), bestand = (f) => ({ bestand: f }), kopie = (f) => ({ kopie: f });
 const S = eval(src.slice(a, b).replace('const STAPPEN = ', ''));
 process.stdout.write(JSON.stringify(S.map((s) => ({ titel: s.titel, tijd: s.tijd, gereedschap: s.gereedschap, tekst: s.tekst, delen: s.delen, n: s.beelden.length }))));
@@ -252,8 +253,8 @@ for i, s in enumerate(STAPPEN):
         s['beelden'].append(out)
 assert k == len(jpgs), (k, len(jpgs))
 
-PHONES = [('gsm-groepen', 'Groepen: aan en uit, helderheid, effect'), ('gsm-scenes', 'Scènes: alles in één keer'), ('gsm-functies', 'Functies: een reeks stappen'),
-          ('gsm-ingangen', 'Ingangen: knop of sensor start een functie'), ('gsm-instellingen', 'Instellingen: namen en wachtwoord'), ('gsm-donker-groepen', 'Donker thema')]
+PHONES = [('gsm-groepen', 'Groepen: aan en uit, effect'), ('gsm-scenes', 'Scènes: alles in één keer'), ('gsm-functies', 'Functies: een reeks stappen'),
+          ('gsm-ingangen', 'Ingangen: knop, sensor of hallsensor, met teller'), ('gsm-instellingen', 'Instellingen: namen en wachtwoord'), ('gsm-donker-groepen', 'Donker thema')]
 for f, _ in PHONES:
     to_webp(BOX / 'firmware' / 'ui' / 'beelden' / f'{f}.png', f + '.webp', 520)
 to_webp(BOX / 'firmware' / 'ui' / 'beelden' / 'tablet-groepen.png', 'tablet-groepen.webp', 1400)
@@ -270,9 +271,9 @@ def read_stl(p: Path):
 
 
 nets = {}
-for name, f, kleur in (('bak', 'Kabeldoos-bak.stl', '#2b2f2e'), ('deksel', 'Kabeldoos-deksel.stl', '#9ea4a6'), ('moduleplaat', 'Moduleplaat.stl', '#9ea4a6'), ('gootdeksels', 'Gootdeksels-plaat.stl', '#8d939a'), ('hulpstukken', 'Hulpstukken.stl', '#8d939a')):
+for name, f, kleur in (('bakl', 'Kabeldoos-bak-links.stl', '#2b2f2e'), ('bakr', 'Kabeldoos-bak-rechts.stl', '#2b2f2e'), ('dekl', 'Kabeldoos-deksel-links.stl', '#9ea4a6'), ('dekr', 'Kabeldoos-deksel-rechts.stl', '#9ea4a6'), ('hulpstukken', 'Hulpstukken.stl', '#8d939a')):
     v, idx, n = read_stl(BOX / 'print' / f)
-    groot = len(v) >= 65536  # dan 32-bit indices (de bak met zijn vingers heeft er meer)
+    groot = len(v) >= 65536  # dan 32-bit indices (een bakhelft met haar klemlippen kan er meer hebben)
     mn, mx = v.min(axis=0), v.max(axis=0)
     q = np.round((v - mn) / (mx - mn) * 65535).astype('<u2')
     nets[name] = {'kleur': kleur, 'min': mn.round(4).tolist(), 'max': mx.round(4).tolist(), 'driehoeken': int(n), 'i32': groot,
@@ -300,8 +301,8 @@ def shot(img, cap, title=None):
 
 
 first = README.split('\n## ')[0].split('\n', 1)[1].strip().split('\n\n')[0]
-facts = [('230 x 230 x 67', 'mm, deksel inbegrepen'), ('16', 'lichtgroepen, één per bordje'), ('16', 'ingangen voor knoppen en sensoren'),
-         ('12 V', 'adapter 6,67 A in een DC-bus, tegen ompolen beveiligd'), ('€ 186,95', 'onderdelen te kopen, kant-en-klare modules'), ('± 29 u', 'printen: bak 17 u, deksel 5 u, moduleplaat 3 u, gootdeksels 3 u, hulpstukken 1 u')]
+facts = [('441 x 230 x 53', 'mm, deksel inbegrepen, 2 helften'), ('16', 'lichtgroepen, één per bordje'), ('16', 'ingangen voor knoppen en sensoren'),
+         ('12 V', 'adapter 6,67 A in een DC-bus, tegen ompolen beveiligd'), ('€ 194,95', 'onderdelen te kopen, kant-en-klare modules'), ('± 33 u', 'printen: bak 10 + 10 u, deksel 2 x 6 u, hulpstukken 1 u')]
 
 S = []
 S.append(f'''<section class="sheet" id="overzicht">
@@ -311,7 +312,7 @@ S.append(f'''<section class="sheet" id="overzicht">
     <h1>Kabeldoos treinverlichting</h1>
     <p class="lead">{md_inline(" ".join(first.split()))}</p>
     <div class="actions">{btn("alles-zip", "Alles in één zip", True)}{btn("alles-pdf", "Alles afdrukken (PDF)")}{btn("stl", "Printbestanden (STL)")}</div>
-    <p class="note">Versie 4 van 13 november 2026: kant-en-klare modules op een moduleplaat (geen gaatjesprints, enkel de DC-bus solderen), montageblad en draadlijst, meetblad met de polariteit van de modules. Elke knop vraagt eerst of je het bestand wilt bewaren.</p>
+    <p class="note">Versie 5 van 15 november 2026: alles op één laag in 2 helften die in elkaar klikken en gelijmd kunnen worden, geen kabelgoten, groepen alleen aan/uit, hallsensoren op de ingangen. Elke knop vraagt eerst of je het bestand wilt bewaren.</p>
   </div>
 </div>
 <div class="facts">{"".join(f"<div><b>{esc(a)}</b><span>{esc(b)}</span></div>" for a, b in facts)}</div>
@@ -324,20 +325,20 @@ S.append(f'''<section class="sheet" id="printen" hidden>
 {titleblock("P", "Printen", ("Printer", "Centauri Carbon"))}
 <div class="printgrid">
   <div class="viewer" id="viewer">
-    <div class="seg" role="group" aria-label="Printdeel"><button type="button" data-part="bak" aria-pressed="true">Bak</button><button type="button" data-part="deksel" aria-pressed="false">Deksel</button><button type="button" data-part="moduleplaat" aria-pressed="false">Moduleplaat</button><button type="button" data-part="gootdeksels" aria-pressed="false">Gootdeksels</button><button type="button" data-part="hulpstukken" aria-pressed="false">Hulpstukken</button></div>
+    <div class="seg" role="group" aria-label="Printdeel"><button type="button" data-part="bakl" aria-pressed="true">Bak links</button><button type="button" data-part="bakr" aria-pressed="false">Bak rechts</button><button type="button" data-part="dekl" aria-pressed="false">Deksel links</button><button type="button" data-part="dekr" aria-pressed="false">Deksel rechts</button><button type="button" data-part="hulpstukken" aria-pressed="false">Hulpstukken</button></div>
     <div class="wait" id="viewer-wait">3D-beeld laden…</div>
     <span class="hint">Slepen draait, scrollen zoomt. Het oranje vierkant is het bed van 256 x 256.</span>
   </div>
   <div class="specs">
     <div id="part-spec"></div>
-    <template id="spec-bak"><h3>Bak</h3><dl><dt>Bestand</dt><dd><code>Kabeldoos-bak.stl</code></dd><dt>Stand</dt><dd>de bodem op het bed</dd><dt>Maat</dt><dd class="num">229,8 x 229,8 x 64,4 mm</dd><dt>Filament</dt><dd>PETG zwart, ± 420 g</dd><dt>Tijd</dt><dd>± 17 uur</dd><dt>Driehoeken</dt><dd class="num">{dots(nets["bak"]["driehoeken"])}</dd></dl></template>
-    <template id="spec-deksel"><h3>Deksel</h3><dl><dt>Bestand</dt><dd><code>Kabeldoos-deksel.stl</code></dd><dt>Stand</dt><dd>de buitenkant op het bed</dd><dt>Maat</dt><dd class="num">229,8 x 229,8 x 3,9 mm</dd><dt>Filament</dt><dd>PETG grijs, ± 160 g</dd><dt>Tijd</dt><dd>± 5 uur</dd><dt>Driehoeken</dt><dd class="num">{dots(nets["deksel"]["driehoeken"])}</dd></dl></template>
-    <template id="spec-moduleplaat"><h3>Moduleplaat</h3><dl><dt>Bestand</dt><dd><code>Moduleplaat.stl</code></dd><dt>Stand</dt><dd>de onderkant op het bed, de paaltjes omhoog</dd><dt>Maat</dt><dd class="num">220,0 x 199,0 x 8,5 mm</dd><dt>Filament</dt><dd>PETG grijs, ± 85 g</dd><dt>Tijd</dt><dd>± 3 uur</dd><dt>Driehoeken</dt><dd class="num">{dots(nets["moduleplaat"]["driehoeken"])}</dd></dl></template>
-    <template id="spec-gootdeksels"><h3>Gootdeksels</h3><dl><dt>Bestand</dt><dd><code>Gootdeksels-plaat.stl</code></dd><dt>Stand</dt><dd>de vlakke kant op het bed, de benen omhoog</dd><dt>Maat</dt><dd class="num">211,0 x 132,9 x 9,1 mm (9 deksels)</dd><dt>Filament</dt><dd>PETG grijs, ± 70 g</dd><dt>Tijd</dt><dd>± 3 uur</dd><dt>Driehoeken</dt><dd class="num">{dots(nets["gootdeksels"]["driehoeken"])}</dd></dl></template>
+    <template id="spec-bakl"><h3>Bak links</h3><dl><dt>Bestand</dt><dd><code>Kabeldoos-bak-links.stl</code></dd><dt>Stand</dt><dd>de bodem op het bed</dd><dt>Maat</dt><dd class="num">224,9 x 229,8 x 49,4 mm</dd><dt>Filament</dt><dd>PETG zwart, ± 255 g</dd><dt>Tijd</dt><dd>± 10 uur</dd><dt>Driehoeken</dt><dd class="num">{dots(nets["bakl"]["driehoeken"])}</dd></dl></template>
+    <template id="spec-bakr"><h3>Bak rechts</h3><dl><dt>Bestand</dt><dd><code>Kabeldoos-bak-rechts.stl</code></dd><dt>Stand</dt><dd>de bodem op het bed</dd><dt>Maat</dt><dd class="num">229,8 x 229,8 x 49,4 mm</dd><dt>Filament</dt><dd>PETG zwart, ± 240 g</dd><dt>Tijd</dt><dd>± 10 uur</dd><dt>Driehoeken</dt><dd class="num">{dots(nets["bakr"]["driehoeken"])}</dd></dl></template>
+    <template id="spec-dekl"><h3>Deksel links</h3><dl><dt>Bestand</dt><dd><code>Kabeldoos-deksel-links.stl</code></dd><dt>Stand</dt><dd>de buitenkant op het bed</dd><dt>Maat</dt><dd class="num">226,9 x 229,8 x 4,7 mm</dd><dt>Filament</dt><dd>PETG grijs, ± 205 g</dd><dt>Tijd</dt><dd>± 6 uur</dd><dt>Driehoeken</dt><dd class="num">{dots(nets["dekl"]["driehoeken"])}</dd></dl></template>
+    <template id="spec-dekr"><h3>Deksel rechts</h3><dl><dt>Bestand</dt><dd><code>Kabeldoos-deksel-rechts.stl</code></dd><dt>Stand</dt><dd>de binnenkant op het bed (de lip op het bed)</dd><dt>Maat</dt><dd class="num">226,0 x 229,8 x 3,2 mm</dd><dt>Filament</dt><dd>PETG grijs, ± 200 g</dd><dt>Tijd</dt><dd>± 6 uur</dd><dt>Driehoeken</dt><dd class="num">{dots(nets["dekr"]["driehoeken"])}</dd></dl></template>
     <template id="spec-hulpstukken"><h3>Hulpstukken</h3><dl><dt>Bestand</dt><dd><code>Hulpstukken.stl</code></dd><dt>Stand</dt><dd>plat op het bed</dd><dt>Wat</dt><dd>2 werkhaken, spatel met haakje</dd><dt>Filament</dt><dd>PETG grijs, ± 15 g</dd><dt>Tijd</dt><dd>± 1 uur</dd><dt>Driehoeken</dt><dd class="num">{dots(nets["hulpstukken"]["driehoeken"])}</dd></dl></template>
     <div class="actions">{btn("stl", "Printbestanden (STL in zip)", True)}</div>
     <div class="warn">PETG, zonder support. 0,2 mm lagen, 4 wanden, 30 % gyroid. Elk deel is hoogstens 230 x 230: in het midden van het bed blijft de hoek voor het filamentmes vrij, ook met een skirt.</div>
-    <p class="note">Na het printen: een bordje klikt in zijn 4 klemlippen, een gootdeksel klikt over zijn goot, het deksel valt met zijn rand in de bak.</p>
+    <p class="note">Na het printen: de 2 bakhelften klikken in elkaar (eventueel eerst lijm in de voeg), een bordje klikt in zijn 4 klemlippen, de 2 deksels klikken met hun lip in elkaar.</p>
   </div>
 </div>
 </section>''')
@@ -346,7 +347,7 @@ dr = []
 for no, f, what, scale, txt in DRAWINGS:
     dr.append(f'''<div class="drawing"><button class="paper" type="button" data-zoom="svg/{f}" data-title="{no} {what}"><img src="svg/{f}" alt="Tekening {no}: {what}" loading="lazy"></button>
 <div class="meta"><span class="tag">{no} · {'A4' if scale == 'A4' else 'A3 · schaal ' + scale}</span><h3>{what}</h3><p>{esc(txt)}</p>
-{'<div class="warn">De boormal alleen afdrukken uit de PDF (A3, 100 %, niet passend maken). Meet de 100 mm na voor je boort.</div>' if no == 'TRN-00' else ''}
+{'<div class="warn">De boormal alleen afdrukken uit de PDF (A3, 100 %, niet passend maken). Meet de 100 mm na voor je boort.</div>' if no.startswith('TRN-00') else ''}
 <div class="actions">{btn("svg-" + no, "SVG")}</div></div></div>''')
 S.append(f'''<section class="sheet" id="tekeningen" hidden>
 {titleblock("T", "Werktekeningen", ("Formaat", "A3 liggend, A4"))}
@@ -390,7 +391,7 @@ S.append(f'''<section class="sheet" id="schema" hidden>
 </section>''')
 
 S.append(f'''<section class="sheet" id="bestellen" hidden>
-{titleblock("O", "Bestellijst", ("Totaal", "€ 132,32"))}
+{titleblock("O", "Bestellijst", ("Totaal", "€ 194,95"))}
 {md_table("Bestellijst", total_last=True)}
 {md_paragraphs("Bestellijst")}
 </section>''')

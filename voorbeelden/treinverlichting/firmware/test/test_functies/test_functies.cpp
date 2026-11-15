@@ -32,7 +32,7 @@ Functie maak(std::initializer_list<uint32_t> wacht, bool herhalen = false, bool 
   f.stopUit = stopUit;
   int i = 0;
   for (uint32_t w : wacht) {
-    f.stap[i].actie = ACT_HELDERHEID;
+    f.stap[i].actie = ACT_AAN;
     f.stap[i].groepen = groepBit(i);
     f.stap[i].waarde = i + 1; // om de stap te herkennen
     f.stap[i].wachtMs = w;
@@ -46,10 +46,9 @@ void loop(Sequencer &s, const Functie *fs, Logboek &l, uint32_t van, uint32_t to
   for (uint32_t t = van; t < tot; t += dt) s.stap(fs, l, t);
 }
 
-GroepStand aan(int h = 100) {
+GroepStand aan() {
   GroepStand s;
   s.aan = true;
-  s.helderheid = (uint8_t)h;
   return s;
 }
 
@@ -156,18 +155,16 @@ void test_lege_of_gewiste_functie_start_niet() {
 
 void test_voorbeeld_overweg_30_s() {
   Baan b; // de standaardinstellingen hebben functie 1 "Overweg": groepen 3 en 4 om beurten, na 30 s uit
-  b.cfg.inst.faduurMs = 0;
-  b.toepassen(0);
   b.functieStart(0, 0);
   for (uint32_t t = 0; t < 30000; t += 10) {
     b.tick(t, 0);
-    TEST_ASSERT_TRUE((b.lampen.uitgang[2] > 0) != (b.lampen.uitgang[3] > 0));
+    TEST_ASSERT_TRUE(b.lampen.brandt(2) != b.lampen.brandt(3));
     TEST_ASSERT_TRUE(b.seq.loopt(0));
   }
   b.tick(30000, 0);
   TEST_ASSERT_FALSE(b.lampen.stand[2].aan);
   TEST_ASSERT_FALSE(b.lampen.stand[3].aan);
-  TEST_ASSERT_EQUAL_UINT16(0, b.lampen.uitgang[2]);
+  TEST_ASSERT_FALSE(b.lampen.brandt(2));
   TEST_ASSERT_FALSE(b.seq.loopt(0));
 }
 
@@ -183,14 +180,12 @@ void test_overweg_stoppen_zet_de_lampen_uit() {
 
 void test_scene_bewaren_en_toepassen() {
   Baan b;
-  b.cfg.inst.faduurMs = 400;
-  b.toepassen(0);
-  b.zetGroep(0, aan(60), 0);
-  GroepStand vuur = aan(80);
-  vuur.effect = FX_VUUR;
-  vuur.p1 = 40;
-  vuur.p2 = 3;
-  b.zetGroep(5, vuur, 0);
+  b.zetGroep(0, aan(), 0);
+  GroepStand las = aan();
+  las.effect = FX_LASVLAM;
+  las.p1 = 8;
+  las.p2 = 3;
+  b.zetGroep(5, las, 0);
   int p = b.sceneBewaren(-1, "Avond");
   TEST_ASSERT_EQUAL(2, p); // plaatsen 1 en 2 hebben de standaardscènes
   TEST_ASSERT_EQUAL_STRING("Avond", b.cfg.scene[2].naam);
@@ -200,10 +195,11 @@ void test_scene_bewaren_en_toepassen() {
   TEST_ASSERT_TRUE(b.sceneOproepen(2, 1000));
   for (int g = 0; g < N_GROEPEN; g++) TEST_ASSERT_TRUE(b.lampen.stand[g] == b.cfg.scene[2].groep[g]);
   TEST_ASSERT_FALSE(b.lampen.stand[9].aan);
-  // met de zachte overgang: na de faduur staat groep 1 op 60 %
-  for (uint32_t t = 1000; t <= 1400; t += 10) b.tick(t, 0);
-  TEST_ASSERT_FLOAT_WITHIN(0.001f, 0.6f, b.lampen.lamp[0]);
-  TEST_ASSERT_EQUAL_UINT16(0, b.lampen.uitgang[9]);
+  // aan/uit gaat meteen: groep 1 brandt, groep 10 is uit
+  b.tick(1000, 0);
+  TEST_ASSERT_TRUE(b.lampen.brandt(0));
+  TEST_ASSERT_FALSE(b.lampen.brandt(9));
+  TEST_ASSERT_EQUAL(FX_LASVLAM, b.lampen.stand[5].effect);
   // overschrijven behoudt de naam als er geen nieuwe gegeven wordt
   TEST_ASSERT_EQUAL(2, b.sceneBewaren(2, ""));
   TEST_ASSERT_EQUAL_STRING("Avond", b.cfg.scene[2].naam);
@@ -252,8 +248,6 @@ void test_stap_met_scene_en_dagnacht() {
 
 void test_effectstap_overweg_op_vier_groepen() {
   Baan b;
-  b.cfg.inst.faduurMs = 0;
-  b.toepassen(0);
   Functie f;
   f.gebruikt = true;
   f.nStappen = 1;
@@ -265,8 +259,7 @@ void test_effectstap_overweg_op_vier_groepen() {
   b.functieStart(5, 0);
   for (uint32_t t = 0; t < 4000; t += 10) {
     b.tick(t, 0);
-    bool g5 = b.lampen.uitgang[4] > 0, g6 = b.lampen.uitgang[5] > 0, g7 = b.lampen.uitgang[6] > 0,
-         g8 = b.lampen.uitgang[7] > 0;
+    bool g5 = b.lampen.brandt(4), g6 = b.lampen.brandt(5), g7 = b.lampen.brandt(6), g8 = b.lampen.brandt(7);
     TEST_ASSERT_TRUE(g5 == g7 && g6 == g8 && g5 != g6);
   }
 }
@@ -286,7 +279,7 @@ void test_twee_functies_tegelijk_en_alles_uit() {
   TEST_ASSERT_FALSE(b.dn.loopt);
   for (int g = 0; g < N_GROEPEN; g++) TEST_ASSERT_FALSE(b.lampen.stand[g].aan);
   for (uint32_t t = 2000; t < 4000; t += 10) b.tick(t, 0);
-  for (int g = 0; g < N_GROEPEN; g++) TEST_ASSERT_EQUAL_UINT16(0, b.lampen.uitgang[g]);
+  TEST_ASSERT_EQUAL_UINT32(0, b.lampen.uitgang);
 }
 
 void test_functie_wijzigen_of_wissen_terwijl_ze_loopt() {
@@ -310,7 +303,7 @@ void test_functie_wijzigen_of_wissen_terwijl_ze_loopt() {
 void test_stand_na_stroomonderbreking() {
   Baan a;
   a.cfg.groep[2].dagnacht = true;
-  a.zetGroep(0, aan(40), 0);
+  a.zetGroep(0, aan(), 0);
   a.functieBewaren(4, maak({500, 500}, true), 0);
   a.functieStart(4, 0);
   a.functieStart(0, 0); // niet herhalend: komt niet terug

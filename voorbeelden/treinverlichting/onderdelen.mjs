@@ -1,7 +1,7 @@
 // Gekochte onderdelen van de kabeldoos als Phlippo CAD-onderdelen: het Modelbouwled-bordje, de ESP32-S3-DevKitC-1, de
 // PCA9685, de kant-en-klare modules van versie 4 (opbouw.mjs: MOSFET-modules, optocouplerprints, regelaar, WAGO-klemmen,
 // de schroefklemadapter van de ESP), tule, DC-bus en schroeven. Maten met bron: docs/Maten-en-bronnen.md. modulesOp()
-// zet alle modules met alles erop op de moduleplaat in de assemblage.
+// zet alle modules met alles erop op hun palen in de rechterhelft van de doos.
 import { vlak } from '../lib/schets.mjs';
 import { M } from './maten.mjs';
 import { deel, met, blokken, snede, cirkels, yv, PCB_ROOD, PCB_ZWART, PCB_BLAUW, KLEM_GROEN, KLEM_BLAUW, ZWART, METAAL, GOUD, WIT } from './hulp.mjs';
@@ -352,13 +352,14 @@ function moduleOp(at, ref) {
   const doc = bolkopDoc();
   m.gaten.forEach(([x, z]) => at(id(), `Plaatschroef bolkop<${ref}>`, doc, pos(x, m.pcb, z)));
 }
-/** de USB-poorten van de ESP: hoogte (midden), x van de rand en de z-strook, voor de opening in de rechterwand */
+/** de USB-poorten van de ESP (versie 5: naar de voorwand): hoogte (midden), z van de rand en de x-strook, voor de opening
+ *  in de voorwand van de rechterhelft */
 export function espUsb() {
   const m = MODULES['-X6'], E = M.esp, y = moduleY('-X6') + m.pcb + 8.5 + 2.5 + E.pcb + 1.25;
-  const [x] = naarDoos('-X6', E.x / 2 + 0.8, 0), za = naarDoos('-X6', 0, E.z / 2 - 19.5)[1], zb = naarDoos('-X6', 0, E.z / 2 - 6.2)[1];
-  return { y, x, z0: Math.min(za, zb) - 5.5, z1: Math.max(za, zb) + 5.5 };
+  const a = naarDoos('-X6', E.x / 2 + 0.8, E.z / 2 - 19.5), b = naarDoos('-X6', E.x / 2 + 0.8, E.z / 2 - 6.2);
+  return { y, z: a[1], x0: Math.min(a[0], b[0]) - 5.5, x1: Math.max(a[0], b[0]) + 5.5 };
 }
-/** alle modules op de moduleplaat */
+/** alle modules op hun palen in de rechterhelft */
 export function modulesOp(at) { for (const ref of Object.keys(MODULES)) moduleOp(at, ref); }
 
 export { schroeven, bolkopDoc, hoekGaten, draaiY };

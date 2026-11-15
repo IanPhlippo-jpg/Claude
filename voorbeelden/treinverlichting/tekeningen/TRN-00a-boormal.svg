@@ -1,83 +1,76 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="420mm" height="297mm" viewBox="0 0 420 297">
 <rect x="0" y="0" width="420" height="297" fill="#fff"/>
-<rect x="47.099999999999994" y="30.100000000000023" width="229.8" height="229.8" fill="none" stroke="#111" stroke-width="0.5"/>
-<circle cx="269.00" cy="55.65" r="2.00" fill="none" stroke="#111" stroke-width="0.35"/>
-<line x1="263.00" y1="55.65" x2="275.00" y2="55.65" stroke="#111" stroke-width="0.25" stroke-linecap="round" />
-<line x1="269.00" y1="61.65" x2="269.00" y2="49.65" stroke="#111" stroke-width="0.25" stroke-linecap="round" />
-<circle cx="269.00" cy="49.65" r="4.60" fill="none" stroke="#777" stroke-width="0.2" stroke-dasharray="1.5 1"/>
-<circle cx="269.00" cy="208.40" r="2.00" fill="none" stroke="#111" stroke-width="0.35"/>
-<line x1="263.00" y1="208.40" x2="275.00" y2="208.40" stroke="#111" stroke-width="0.25" stroke-linecap="round" />
-<line x1="269.00" y1="214.40" x2="269.00" y2="202.40" stroke="#111" stroke-width="0.25" stroke-linecap="round" />
-<circle cx="269.00" cy="202.40" r="4.60" fill="none" stroke="#777" stroke-width="0.2" stroke-dasharray="1.5 1"/>
-<circle cx="55.00" cy="55.65" r="2.00" fill="none" stroke="#111" stroke-width="0.35"/>
-<line x1="49.00" y1="55.65" x2="61.00" y2="55.65" stroke="#111" stroke-width="0.25" stroke-linecap="round" />
-<line x1="55.00" y1="61.65" x2="55.00" y2="49.65" stroke="#111" stroke-width="0.25" stroke-linecap="round" />
-<circle cx="55.00" cy="49.65" r="4.60" fill="none" stroke="#777" stroke-width="0.2" stroke-dasharray="1.5 1"/>
-<circle cx="55.00" cy="208.40" r="2.00" fill="none" stroke="#111" stroke-width="0.35"/>
-<line x1="49.00" y1="208.40" x2="61.00" y2="208.40" stroke="#111" stroke-width="0.25" stroke-linecap="round" />
-<line x1="55.00" y1="214.40" x2="55.00" y2="202.40" stroke="#111" stroke-width="0.25" stroke-linecap="round" />
-<circle cx="55.00" cy="202.40" r="4.60" fill="none" stroke="#777" stroke-width="0.2" stroke-dasharray="1.5 1"/>
-<line x1="47.10" y1="29.10" x2="47.10" y2="22.60" stroke="#111" stroke-width="0.18" stroke-linecap="round" />
-<line x1="55.00" y1="29.10" x2="55.00" y2="22.60" stroke="#111" stroke-width="0.18" stroke-linecap="round" />
-<line x1="47.10" y1="24.10" x2="55.00" y2="24.10" stroke="#111" stroke-width="0.18" stroke-linecap="round" />
-<polygon points="47.10,24.10 49.60,24.70 49.60,23.50" fill="#111"/>
-<polygon points="55.00,24.10 52.50,23.50 52.50,24.70" fill="#111"/>
-<text x="51.05" y="23.10" font-size="3" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" fill="#111">7,9</text>
-<line x1="47.10" y1="29.10" x2="47.10" y2="15.60" stroke="#111" stroke-width="0.18" stroke-linecap="round" />
-<line x1="269.00" y1="29.10" x2="269.00" y2="15.60" stroke="#111" stroke-width="0.18" stroke-linecap="round" />
-<line x1="47.10" y1="17.10" x2="269.00" y2="17.10" stroke="#111" stroke-width="0.18" stroke-linecap="round" />
-<polygon points="47.10,17.10 49.60,17.70 49.60,16.50" fill="#111"/>
-<polygon points="269.00,17.10 266.50,16.50 266.50,17.70" fill="#111"/>
-<text x="158.05" y="16.10" font-size="3" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" fill="#111">221,9</text>
-<line x1="46.10" y1="55.65" x2="39.60" y2="55.65" stroke="#111" stroke-width="0.18" stroke-linecap="round" />
-<line x1="46.10" y1="30.10" x2="39.60" y2="30.10" stroke="#111" stroke-width="0.18" stroke-linecap="round" />
-<line x1="41.10" y1="55.65" x2="41.10" y2="30.10" stroke="#111" stroke-width="0.18" stroke-linecap="round" />
-<polygon points="41.10,55.65 41.70,53.15 40.50,53.15" fill="#111"/>
-<polygon points="41.10,30.10 40.50,32.60 41.70,32.60" fill="#111"/>
-<text x="40.10" y="42.88" font-size="3" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" fill="#111" transform="rotate(-90 40.10 42.88)">25,5</text>
-<line x1="46.10" y1="208.40" x2="32.60" y2="208.40" stroke="#111" stroke-width="0.18" stroke-linecap="round" />
-<line x1="46.10" y1="30.10" x2="32.60" y2="30.10" stroke="#111" stroke-width="0.18" stroke-linecap="round" />
-<line x1="34.10" y1="208.40" x2="34.10" y2="30.10" stroke="#111" stroke-width="0.18" stroke-linecap="round" />
-<polygon points="34.10,208.40 34.70,205.90 33.50,205.90" fill="#111"/>
-<polygon points="34.10,30.10 33.50,32.60 34.70,32.60" fill="#111"/>
-<text x="33.10" y="119.25" font-size="3" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" fill="#111" transform="rotate(-90 33.10 119.25)">178,3</text>
-<line x1="47.10" y1="260.90" x2="47.10" y2="268.40" stroke="#111" stroke-width="0.18" stroke-linecap="round" />
-<line x1="276.90" y1="260.90" x2="276.90" y2="268.40" stroke="#111" stroke-width="0.18" stroke-linecap="round" />
-<line x1="47.10" y1="266.90" x2="276.90" y2="266.90" stroke="#111" stroke-width="0.18" stroke-linecap="round" />
-<polygon points="47.10,266.90 49.60,267.50 49.60,266.30" fill="#111"/>
-<polygon points="276.90,266.90 274.40,266.30 274.40,267.50" fill="#111"/>
-<text x="162.00" y="265.90" font-size="3" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" fill="#111">229,8 (buitenmaat)</text>
-<line x1="277.90" y1="259.90" x2="285.40" y2="259.90" stroke="#111" stroke-width="0.18" stroke-linecap="round" />
-<line x1="277.90" y1="30.10" x2="285.40" y2="30.10" stroke="#111" stroke-width="0.18" stroke-linecap="round" />
-<line x1="283.90" y1="259.90" x2="283.90" y2="30.10" stroke="#111" stroke-width="0.18" stroke-linecap="round" />
-<polygon points="283.90,259.90 284.50,257.40 283.30,257.40" fill="#111"/>
-<polygon points="283.90,30.10 283.30,32.60 284.50,32.60" fill="#111"/>
-<text x="282.90" y="145.00" font-size="3" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" fill="#111" transform="rotate(-90 282.90 145.00)">229,8 (buitenmaat)</text>
-<text x="162.00" y="40.10" font-size="3" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">ACHTER</text>
-<text x="162.00" y="251.90" font-size="3" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">VOOR (ESP, ingangen)</text>
-<text x="52.10" y="195.00" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111" transform="rotate(-90 52.10 195.00)">USB</text>
-<text x="269.90" y="195.00" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111" transform="rotate(-90 269.90 195.00)">DC-bus 12 V</text>
-<line x1="302.00" y1="225.00" x2="402.00" y2="225.00" stroke="#111" stroke-width="0.5" stroke-linecap="round" />
-<line x1="302.00" y1="228.00" x2="302.00" y2="222.00" stroke="#111" stroke-width="0.5" stroke-linecap="round" />
-<line x1="402.00" y1="228.00" x2="402.00" y2="222.00" stroke="#111" stroke-width="0.5" stroke-linecap="round" />
-<text x="352.00" y="221.00" font-size="2.8" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" fill="#111">controle: 100 mm (afdrukken op 100 %)</text>
-<text x="300.00" y="25.00" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">Boormal op ware grootte, van onderen gezien</text>
-<text x="300.00" y="30.00" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">(het deksel naar je toe, de bodem tegen de baan):</text>
-<text x="300.00" y="35.00" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">de USB links, de DC-bus rechts.</text>
-<text x="300.00" y="40.00" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111"></text>
-<text x="300.00" y="45.00" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">1  Mal onder de baan plakken (tape), de 4 kruisjes</text>
-<text x="300.00" y="50.00" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">    voorboren Ø2,5.</text>
-<text x="300.00" y="55.00" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">2  4 bolkopschroeven 4 x 20 indraaien tot de kop</text>
-<text x="300.00" y="60.00" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">    4 mm onder de baan staat.</text>
-<text x="300.00" y="65.00" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">3  De doos met de grote gaten (stippellijn) over de</text>
-<text x="300.00" y="70.00" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">    koppen houden en 6 mm naar achteren schuiven</text>
-<text x="300.00" y="75.00" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">    (op de mal naar boven): de schroef zit dan op het</text>
-<text x="300.00" y="80.00" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">    kruisje, aan het eind van de sleuf.</text>
-<text x="300.00" y="85.00" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">4  De schroeven aandraaien tot de doos vastzit.</text>
-<text x="300.00" y="90.00" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111"></text>
-<text x="300.00" y="95.00" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">Doos 229,8 x 229,8 x 66,8 (met het deksel).</text>
-<text x="300.00" y="100.00" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">Laat links en rechts 60 mm vrij voor de kabels.</text>
+<line x1="259.00" y1="30.10" x2="28.00" y2="30.10" stroke="#111" stroke-width="0.5" stroke-linecap="round" />
+<line x1="259.00" y1="259.90" x2="28.00" y2="259.90" stroke="#111" stroke-width="0.5" stroke-linecap="round" />
+<line x1="28.00" y1="30.10" x2="28.00" y2="259.90" stroke="#111" stroke-width="0.5" stroke-linecap="round" />
+<line x1="259.00" y1="22.10" x2="259.00" y2="267.90" stroke="#111" stroke-width="0.3" stroke-linecap="round" stroke-dasharray="4 2"/>
+<text x="259.00" y="269.90" font-size="2.6" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">blad 2 hier over leggen</text>
+<line x1="244.00" y1="30.10" x2="244.00" y2="259.90" stroke="#111" stroke-width="0.18" stroke-linecap="round" stroke-dasharray="1 1"/>
+<text x="244.00" y="34.10" font-size="2.2" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" fill="#111">naad</text>
+<circle cx="244.00" cy="85.00" r="4.00" fill="none" stroke="#111" stroke-width="0.3"/>
+<line x1="237.00" y1="85.00" x2="251.00" y2="85.00" stroke="#111" stroke-width="0.3" stroke-linecap="round" />
+<line x1="244.00" y1="92.00" x2="244.00" y2="78.00" stroke="#111" stroke-width="0.3" stroke-linecap="round" />
+<text x="250.00" y="83.00" font-size="3" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">A</text>
+<circle cx="244.00" cy="205.00" r="4.00" fill="none" stroke="#111" stroke-width="0.3"/>
+<line x1="237.00" y1="205.00" x2="251.00" y2="205.00" stroke="#111" stroke-width="0.3" stroke-linecap="round" />
+<line x1="244.00" y1="212.00" x2="244.00" y2="198.00" stroke="#111" stroke-width="0.3" stroke-linecap="round" />
+<text x="250.00" y="203.00" font-size="3" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">B</text>
+<circle cx="37.00" cy="55.65" r="2.00" fill="none" stroke="#111" stroke-width="0.35"/>
+<line x1="31.00" y1="55.65" x2="43.00" y2="55.65" stroke="#111" stroke-width="0.25" stroke-linecap="round" />
+<line x1="37.00" y1="61.65" x2="37.00" y2="49.65" stroke="#111" stroke-width="0.25" stroke-linecap="round" />
+<circle cx="37.00" cy="49.65" r="4.60" fill="none" stroke="#777" stroke-width="0.2" stroke-dasharray="1.5 1"/>
+<line x1="28.00" y1="29.10" x2="28.00" y2="22.60" stroke="#111" stroke-width="0.18" stroke-linecap="round" />
+<line x1="37.00" y1="29.10" x2="37.00" y2="22.60" stroke="#111" stroke-width="0.18" stroke-linecap="round" />
+<line x1="28.00" y1="24.10" x2="37.00" y2="24.10" stroke="#111" stroke-width="0.18" stroke-linecap="round" />
+<polygon points="28.00,24.10 30.50,24.70 30.50,23.50" fill="#111"/>
+<polygon points="37.00,24.10 34.50,23.50 34.50,24.70" fill="#111"/>
+<text x="32.50" y="23.10" font-size="3" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" fill="#111">9</text>
+<line x1="27.00" y1="55.65" x2="20.50" y2="55.65" stroke="#111" stroke-width="0.18" stroke-linecap="round" />
+<line x1="27.00" y1="30.10" x2="20.50" y2="30.10" stroke="#111" stroke-width="0.18" stroke-linecap="round" />
+<line x1="22.00" y1="55.65" x2="22.00" y2="30.10" stroke="#111" stroke-width="0.18" stroke-linecap="round" />
+<polygon points="22.00,55.65 22.60,53.15 21.40,53.15" fill="#111"/>
+<polygon points="22.00,30.10 21.40,32.60 22.60,32.60" fill="#111"/>
+<text x="21.00" y="42.88" font-size="3" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" fill="#111" transform="rotate(-90 21.00 42.88)">25,6</text>
+<circle cx="37.00" cy="208.40" r="2.00" fill="none" stroke="#111" stroke-width="0.35"/>
+<line x1="31.00" y1="208.40" x2="43.00" y2="208.40" stroke="#111" stroke-width="0.25" stroke-linecap="round" />
+<line x1="37.00" y1="214.40" x2="37.00" y2="202.40" stroke="#111" stroke-width="0.25" stroke-linecap="round" />
+<circle cx="37.00" cy="202.40" r="4.60" fill="none" stroke="#777" stroke-width="0.2" stroke-dasharray="1.5 1"/>
+<line x1="28.00" y1="29.10" x2="28.00" y2="15.60" stroke="#111" stroke-width="0.18" stroke-linecap="round" />
+<line x1="37.00" y1="29.10" x2="37.00" y2="15.60" stroke="#111" stroke-width="0.18" stroke-linecap="round" />
+<line x1="28.00" y1="17.10" x2="37.00" y2="17.10" stroke="#111" stroke-width="0.18" stroke-linecap="round" />
+<polygon points="28.00,17.10 30.50,17.70 30.50,16.50" fill="#111"/>
+<polygon points="37.00,17.10 34.50,16.50 34.50,17.70" fill="#111"/>
+<text x="32.50" y="16.10" font-size="3" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" fill="#111">9</text>
+<line x1="27.00" y1="208.40" x2="13.50" y2="208.40" stroke="#111" stroke-width="0.18" stroke-linecap="round" />
+<line x1="27.00" y1="30.10" x2="13.50" y2="30.10" stroke="#111" stroke-width="0.18" stroke-linecap="round" />
+<line x1="15.00" y1="208.40" x2="15.00" y2="30.10" stroke="#111" stroke-width="0.18" stroke-linecap="round" />
+<polygon points="15.00,208.40 15.60,205.90 14.40,205.90" fill="#111"/>
+<polygon points="15.00,30.10 14.40,32.60 15.60,32.60" fill="#111"/>
+<text x="14.00" y="119.25" font-size="3" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" fill="#111" transform="rotate(-90 14.00 119.25)">178,3</text>
+<text x="143.50" y="40.10" font-size="3" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">ACHTER</text>
+<text x="143.50" y="251.90" font-size="3" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">VOOR (USB, modules)</text>
+<text x="34.00" y="145.00" font-size="2.6" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" fill="#111" transform="rotate(-90 34.00 145.00)">ingangen (tules)</text>
+<line x1="278.00" y1="225.00" x2="378.00" y2="225.00" stroke="#111" stroke-width="0.5" stroke-linecap="round" />
+<line x1="278.00" y1="228.00" x2="278.00" y2="222.00" stroke="#111" stroke-width="0.5" stroke-linecap="round" />
+<line x1="378.00" y1="228.00" x2="378.00" y2="222.00" stroke="#111" stroke-width="0.5" stroke-linecap="round" />
+<text x="328.00" y="221.00" font-size="2.8" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" fill="#111">controle: 100 mm (afdrukken op 100 %)</text>
+<text x="278.00" y="25.00" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">Boormal 1:1, blad 1 van 2 (rechterhelft van de doos)</text>
+<text x="278.00" y="30.00" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">Van onderen gezien (het deksel naar je toe, de bodem</text>
+<text x="278.00" y="35.00" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">tegen de baan): de modules links, de bordjes rechts.</text>
+<text x="278.00" y="40.00" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111"></text>
+<text x="278.00" y="45.00" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">1  Beide bladen afdrukken op A3 op 100 %, de 100 mm</text>
+<text x="278.00" y="50.00" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">    nameten.</text>
+<text x="278.00" y="55.00" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">2  Blad 2 langs "hier knippen" afknippen en over blad 1</text>
+<text x="278.00" y="60.00" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">    leggen tot de kruisen A en B samenvallen; tapen.</text>
+<text x="278.00" y="65.00" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">3  De mal onder de baan plakken, de 4 kruisjes voorboren</text>
+<text x="278.00" y="70.00" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">    Ø2,5; 4 bolkopschroeven 4 x 20 indraaien tot de kop</text>
+<text x="278.00" y="75.00" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">    4 mm onder de baan staat.</text>
+<text x="278.00" y="80.00" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">4  De doos met de grote gaten over de koppen houden en</text>
+<text x="278.00" y="85.00" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">    6 mm naar achteren schuiven, dan aandraaien.</text>
+<text x="278.00" y="90.00" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111"></text>
+<text x="278.00" y="95.00" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">Doos 440,9 x 229,8 x 52,6 (met het deksel).</text>
+<text x="278.00" y="100.00" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">Laat rondom 60 mm vrij voor de kabels.</text>
 <rect x="20" y="10" width="390" height="277" fill="none" stroke="#111" stroke-width="0.7"/>
 <line x1="210.00" y1="297.00" x2="210.00" y2="282.00" stroke="#111" stroke-width="0.7" stroke-linecap="round" />
 <line x1="210.00" y1="0.00" x2="210.00" y2="15.00" stroke="#111" stroke-width="0.7" stroke-linecap="round" />
@@ -147,7 +140,7 @@
 <text x="355.20" y="241.20" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#555">Project</text>
 <text x="355.20" y="245.40" font-size="2.4" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">Kabeldoos treinverlichting</text>
 <text x="299.20" y="249.20" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#555">Titel</text>
-<text x="299.20" y="253.40" font-size="3" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">Boormal onder de baan</text>
+<text x="299.20" y="253.40" font-size="3" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">Boormal onder de baan (1/2)</text>
 <text x="299.20" y="257.20" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#555">Documentsoort</text>
 <text x="299.20" y="261.40" font-size="2.4" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">Boormal (mal 1:1)</text>
 <line x1="354.00" y1="263.00" x2="354.00" y2="255.00" stroke="#111" stroke-width="0.25" stroke-linecap="round" />
@@ -157,16 +150,16 @@
 <text x="375.20" y="257.20" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#555">Schaal</text>
 <text x="375.20" y="261.40" font-size="2.4" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">1:1 (A3)</text>
 <text x="299.20" y="265.20" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#555">Tekeningnummer</text>
-<text x="299.20" y="269.40" font-size="3" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">TRN-00</text>
+<text x="299.20" y="269.40" font-size="3" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">TRN-00a</text>
 <line x1="338.00" y1="271.00" x2="338.00" y2="263.00" stroke="#111" stroke-width="0.25" stroke-linecap="round" />
 <text x="339.20" y="265.20" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#555">Rev.</text>
-<text x="339.20" y="269.40" font-size="2.4" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">4</text>
+<text x="339.20" y="269.40" font-size="2.4" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">5</text>
 <line x1="354.00" y1="271.00" x2="354.00" y2="263.00" stroke="#111" stroke-width="0.25" stroke-linecap="round" />
 <text x="355.20" y="265.20" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#555">Uitgifte</text>
-<text x="355.20" y="269.40" font-size="2.4" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">2026-11-13</text>
+<text x="355.20" y="269.40" font-size="2.4" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">2026-11-15</text>
 <line x1="384.00" y1="271.00" x2="384.00" y2="263.00" stroke="#111" stroke-width="0.25" stroke-linecap="round" />
 <text x="385.20" y="265.20" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#555">Blad</text>
-<text x="385.20" y="269.40" font-size="2.4" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">1 / 10</text>
+<text x="385.20" y="269.40" font-size="2.4" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">1 / 13</text>
 <text x="299.20" y="273.20" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#555">Opgesteld</text>
 <text x="299.20" y="277.40" font-size="2.3" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">Phlippo CAD</text>
 <line x1="338.00" y1="279.00" x2="338.00" y2="271.00" stroke="#111" stroke-width="0.25" stroke-linecap="round" />

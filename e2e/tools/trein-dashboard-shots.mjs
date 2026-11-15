@@ -23,6 +23,27 @@ for (const [naam, viewport, schema] of [['gsm', { width: 390, height: 844 }, 'li
     await page.waitForTimeout(600);
     await page.screenshot({ path: `${UIT}/${naam}-${t}.png`, fullPage: false });
   }
+  if (naam === 'gsm') {
+    // firmware 1.3.0: een hallsensor instellen (ingang 7 van het voorbeeld) en een scène per groep aan/uit kiezen
+    try {
+      await page.click('[data-tab="ingangen"]');
+      await page.locator('#ingangen-lijst .ingang').nth(6).getByRole('button', { name: 'Instellen' }).click();
+      await page.waitForTimeout(400);
+      await page.evaluate(() => { document.querySelectorAll('#ingangen-lijst .ingang')[6].scrollIntoView({ block: 'start' }); window.scrollBy(0, -96); });
+      await page.waitForTimeout(300);
+      await page.screenshot({ path: `${UIT}/${naam}-ingang-hallsensor.png`, fullPage: false });
+      await page.click('[data-tab="scenes"]');
+      await page.click('#scene-beheer');
+      await page.waitForTimeout(300);
+      await page.locator('#scenes-beheer .groep-rij').nth(2).getByRole('button', { name: 'Groepen kiezen' }).click();
+      await page.waitForTimeout(300);
+      await page.evaluate(() => { document.querySelectorAll('#scenes-beheer .groep-rij')[2].scrollIntoView({ block: 'start' }); window.scrollBy(0, -96); });
+      await page.waitForTimeout(300);
+      await page.screenshot({ path: `${UIT}/${naam}-scene-kiezen.png`, fullPage: false });
+    } catch (e) {
+      fouten.push(`${naam}: extra beelden: ${e.message}`);
+    }
+  }
   await page.close();
 }
 await browser.close();

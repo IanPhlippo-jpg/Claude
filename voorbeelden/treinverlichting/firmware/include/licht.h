@@ -1,20 +1,22 @@
-// Het lichthart van de doos: van de stand van een groep (aan/uit, helderheid, effect) naar een getal 0..4095 voor
-// het PCA9685-kanaal. Zonder hardware (geen Arduino-functies): main.cpp geeft de tijd en schrijft de uitgangen weg.
-// Zo is alles op de pc te testen (test/test_licht, pio test -e native).
+// Het lichthart van de doos: van de stand van een groep (aan/uit, effect) naar aan of uit voor het PCA9685-kanaal.
+// Zonder hardware (geen Arduino-functies): main.cpp geeft de tijd en schrijft de uitgangen weg. Zo is alles op de pc
+// te testen (test/test_licht, pio test -e native).
 //
-// Hoe een uitgang berekend wordt (elke 10 ms):
-//   omhullende  zachte overgang naar het doel (aan: helderheid, uit: 0), even snel in beide richtingen:
-//               de volle zwaai 0 -> 100 % duurt de faduur (standaard 0,5 s), een kleinere stap navenant korter
-//   effect      een factor 0..1 bovenop de omhullende (zonder effect: 1)
-//   maximum     per groep een maximum (standaard 100 %), bv. voor een fel bordje
-//   gamma       het oog ziet licht niet lineair: 4095 x niveau^2,2; zo voelt 50 % op de schuif als half zo fel
+// Firmware 1.3.0 (Ian, 2026-11-15: "dimmers zijn niet nodig"): elke groep is alleen AAN of UIT. Geen helderheid,
+// geen zachte overgang, geen maximum en geen gamma meer; de PCA9685 zet elk kanaal volledig aan of volledig uit
+// (het aan/uit-bit, geen PWM-waarden). Effecten die alleen aan/uit nodig hebben, blijven:
+//   knipperen  vaste aan- en uittijd
+//   overweg    twee groepen om beurten
+//   lasvlam    reeksen korte flitsen met een pauze ertussen
+//   tl         een tl-buis die een paar keer flikkert en dan blijft branden
+// Vervallen (vroegen tussenwaarden): vuur, tv en ademen. Een oude instelling met zo'n effect wordt gewoon "aan".
+// Elke 10 ms (stap) rekent Lampen per groep uit of ze brandt: uitgang = masker (bit g = groep g+1 brandt).
 //
 // Alle tijden zijn millis() van de ESP (uint32). Vergelijken gaat altijd met verschillen (voorbij()), zodat de
 // doos ook na 49 dagen (als millis() rondloopt) gewoon verder werkt.
 // Effecten met toeval gebruiken een eigen rekenreeks per groep (vaste startwaarde): dezelfde tijden geven altijd
 // dezelfde uitvoer (testbaar), en hoe vaak er gerekend wordt maakt voor het patroon niet uit.
 #pragma once
-#include <math.h>
 #include <stdint.h>
 #include <string.h>
 
@@ -33,16 +35,13 @@ typedef uint32_t GroepMasker;
 constexpr GroepMasker ALLE_GROEPEN = (GroepMasker)(0xFFFFFFFFu >> (32 - N_GROEPEN));
 /** het masker van één groep (index 0..N_GROEPEN-1) */
 inline GroepMasker groepBit(int g) { return (GroepMasker)1u << g; }
-constexpr uint16_t PWM_MAX = 4095;
-constexpr float GAMMA = 2.2f;
-constexpr float PI_F = 3.14159265f;
 
 /** is het moment al aangebroken? (werkt ook als millis() rondloopt) */
 inline bool voorbij(uint32_t nu, uint32_t moment) { return (int32_t)(nu - moment) >= 0; }
 
 inline int32_t klem(int32_t v, int32_t lo, int32_t hi) { return v < lo ? lo : (v > hi ? hi : v); }
 
-enum Effect : uint8_t { FX_GEEN, FX_KNIPPEREN, FX_OVERWEG, FX_VUUR, FX_TV, FX_LASVLAM, FX_TL, FX_ADEMEN, N_EFFECTEN };
+enum Effect : uint8_t { FX_GEEN, FX_KNIPPEREN, FX_OVERWEG, FX_LASVLAM, FX_TL, N_EFFECTEN };
 
 /** per effect: de naam in de API en twee eenvoudige instellingen met grenzen en standaardwaarde
  *  (het dashboard heeft dezelfde tabel in ui/dashboard.html, EFFECTEN) */
@@ -59,11 +58,8 @@ inline const EffectInfo &effectInfo(int e) {
       {"geen", "", 0, 0, 0, "", 0, 0, 0},
       {"knipperen", "aan (ms)", 50, 10000, 500, "uit (ms)", 50, 10000, 500},
       {"overweg", "tempo (ms)", 100, 5000, 600, "tweede groep", 0, N_GROEPEN, 0},
-      {"vuur", "onrust (%)", 5, 100, 60, "snelheid", 1, 10, 5},
-      {"tv", "onrust (%)", 5, 100, 50, "beeldwissel (s)", 1, 20, 3},
       {"lasvlam", "flitsen per reeks", 2, 30, 12, "pauze (s)", 1, 60, 5},
       {"tl", "flikkers", 0, 20, 4, "starttijd (ms)", 200, 10000, 1500},
-      {"ademen", "periode (s)", 1, 60, 4, "laagste (%)", 0, 90, 10},
   };
   return T[(e >= 0 && e < N_EFFECTEN) ? e : 0];
 }
@@ -76,38 +72,34 @@ inline int effectVanId(const char *id) {
   return -1;
 }
 
+/** effecten van firmware 1.2 die tussenwaarden (dimmen) nodig hadden: in een oude instelling wordt de groep gewoon
+ *  "aan" zonder effect (geen fout) */
+inline bool vervallenEffect(const char *id) {
+  return id && (strcmp(id, "vuur") == 0 || strcmp(id, "tv") == 0 || strcmp(id, "ademen") == 0);
+}
+
 /** wat de gebruiker voor een groep gekozen heeft (ook wat een scène bewaart) */
 struct GroepStand {
   bool aan = false;
-  uint8_t helderheid = 100; // 1..100 %; bij een effect de top van het effect
   uint8_t effect = FX_GEEN;
   int32_t p1 = 0, p2 = 0;   // de twee instellingen van het effect (zie effectInfo)
   uint8_t fase = 0;         // overweg: 0 = brandt eerst, 1 = brandt als de andere uit is
 
   bool operator==(const GroepStand &o) const {
-    return aan == o.aan && helderheid == o.helderheid && effect == o.effect && p1 == o.p1 && p2 == o.p2 &&
+    return aan == o.aan && effect == o.effect && p1 == o.p1 && p2 == o.p2 &&
            fase == o.fase;
   }
   bool operator!=(const GroepStand &o) const { return !(*this == o); }
 };
 
-/** een stand binnen de grenzen brengen (helderheid 1..100, effect bestaat, instellingen binnen hun grenzen) */
+/** een stand binnen de grenzen brengen (effect bestaat, instellingen binnen hun grenzen) */
 inline GroepStand geldig(GroepStand s) {
-  s.helderheid = (uint8_t)klem(s.helderheid, 1, 100);
   if (s.effect >= N_EFFECTEN) s.effect = FX_GEEN;
   const EffectInfo &i = effectInfo(s.effect);
   s.p1 = klem(s.p1, i.p1Min, i.p1Max);
   s.p2 = klem(s.p2, i.p2Min, i.p2Max);
   s.fase = s.effect == FX_OVERWEG ? (s.fase & 1) : 0;
   return s;
-}
-
-/** gezien niveau (0..1) naar PWM (0..4095) met gamma; alles boven 0 geeft minstens 1 */
-inline uint16_t gammaUit(float niveau) {
-  if (!(niveau > 0)) return 0; // ook NaN
-  if (niveau >= 1) return PWM_MAX;
-  long v = lrintf(powf(niveau, GAMMA) * PWM_MAX);
-  return (uint16_t)(v < 1 ? 1 : (v > PWM_MAX ? PWM_MAX : v));
 }
 
 /** kleine, snelle toevalsreeks (xorshift32): met dezelfde startwaarde altijd dezelfde getallen */
@@ -126,111 +118,67 @@ struct Toeval {
 
 /** wat een effect onthoudt tussen twee berekeningen */
 struct FxToestand {
-  Toeval rnd, rnd2;         // rnd2: tv (het flikkeren los van de beeldwissels)
+  Toeval rnd;
   uint32_t start = 0;       // begin van het effect (ook: overweg-paren starten samen)
-  uint32_t segBegin = 0, segEind = 0;
-  float van = 1, naar = 1;  // vuur: lijn van -> naar; tv, lasvlam, tl: de waarde nu
-  uint32_t beeldEind = 0;   // tv
-  float basis = 1;          // tv: helderheid van het huidige "beeld"
+  uint32_t segEind = 0;     // lasvlam, tl: einde van de huidige flits of tussenpoos
   int teller = 0;           // lasvlam: flitsen nog in deze reeks; tl: flikkers nog te gaan
-  uint8_t toestand = 0;     // lasvlam: 0 pauze, 1 flits, 2 tussen flitsen; tl: 0 donker, 1 flits, 2 gloeit, 3 brandt
+  uint8_t toestand = 0;     // lasvlam: 0 pauze, 1 flits, 2 tussen flitsen; tl: 0 donker, 1 flikker, 2 donker, 3 brandt
 };
 
-/** de effectwaarde (0..1) op tijdstip nu */
-inline float fxWaarde(const GroepStand &s, FxToestand &f, uint32_t nu) {
+/** brandt het effect op tijdstip nu? */
+inline bool fxAan(const GroepStand &s, FxToestand &f, uint32_t nu) {
   const uint32_t t = nu - f.start;
   const int MAX_INHAAL = 512; // na een lange onderbreking niet eindeloos inhalen
   switch (s.effect) {
     case FX_KNIPPEREN: {
       uint32_t per = (uint32_t)(s.p1 + s.p2);
-      return (t % per) < (uint32_t)s.p1 ? 1.f : 0.f;
+      return (t % per) < (uint32_t)s.p1;
     }
     case FX_OVERWEG:
-      return ((t / (uint32_t)s.p1) % 2) == s.fase ? 1.f : 0.f;
-    case FX_ADEMEN: {
-      uint32_t per = (uint32_t)s.p1 * 1000u;
-      float x = (float)(t % per) / (float)per;
-      float laag = s.p2 / 100.f;
-      return laag + (1.f - laag) * (0.5f - 0.5f * cosf(2.f * PI_F * x));
-    }
-    case FX_VUUR: {
-      // rechte stukjes tussen willekeurige punten: meestal fel, soms een dip; korter bij een hogere snelheid
-      int n = 0;
-      while (voorbij(nu, f.segEind) && n++ < MAX_INHAAL) {
-        f.segBegin = f.segEind;
-        f.van = f.naar;
-        f.naar = 1.f - (s.p1 / 100.f) * f.rnd.r();
-        uint32_t duur = (30u + f.rnd.onder(121)) * 5u / (uint32_t)s.p2;
-        f.segEind = f.segBegin + (duur < 8 ? 8 : duur);
-      }
-      if (n >= MAX_INHAAL) { f.segBegin = nu; f.segEind = nu + 50; f.van = f.naar; }
-      float x = (float)(nu - f.segBegin) / (float)(f.segEind - f.segBegin);
-      return f.van + (f.naar - f.van) * x;
-    }
-    case FX_TV: {
-      // een "beeld" duurt 0,25 tot 1,75 x de gekozen tijd (harde overgang); daarbinnen een licht, snel geflikker
-      uint32_t gem = (uint32_t)s.p2 * 1000u;
-      int n = 0;
-      while (voorbij(nu, f.beeldEind) && n++ < MAX_INHAAL) {
-        f.basis = 1.f - (s.p1 / 100.f) * f.rnd.r();
-        f.beeldEind += gem / 4 + f.rnd.onder(gem * 3 / 2);
-      }
-      if (n >= MAX_INHAAL) f.beeldEind = nu + gem;
-      n = 0;
-      while (voorbij(nu, f.segEind) && n++ < MAX_INHAAL) {
-        f.naar = 0.82f + 0.18f * f.rnd2.r();
-        f.segEind += 40 + f.rnd2.onder(160);
-      }
-      if (n >= MAX_INHAAL) f.segEind = nu + 40;
-      return f.basis * f.naar;
-    }
+      return ((t / (uint32_t)s.p1) % 2) == s.fase;
     case FX_LASVLAM: {
-      // pauze (donker), dan een reeks van 2..p1 felle flitsen met korte, soms langere tussenpozen
+      // pauze (donker), dan een reeks van 2..p1 korte flitsen met korte, soms langere tussenpozen
       int n = 0;
       while (voorbij(nu, f.segEind) && n++ < MAX_INHAAL) {
         if (f.toestand == 1) { // flits voorbij
-          f.naar = 0;
           if (--f.teller <= 0) {
             f.toestand = 0;
             uint32_t p = (uint32_t)s.p2 * 1000u;
             f.segEind += p / 2 + f.rnd.onder(p + 1); // 0,5 .. 1,5 x de pauze
           } else {
             f.toestand = 2;
-            bool lang = f.rnd.r() < 0.15f;           // af en toe zet de lasser even af
+            bool lang = f.rnd.onder(100) < 15;       // af en toe zet de lasser even af
             f.segEind += 15 + f.rnd.onder(lang ? 400 : 100);
           }
         } else { // nieuwe flits (na een pauze: nieuwe reeks)
           if (f.toestand == 0) f.teller = 2 + (int)f.rnd.onder((uint32_t)s.p1 - 1);
           f.toestand = 1;
-          f.naar = 0.6f + 0.4f * f.rnd.r();
           f.segEind += 15 + f.rnd.onder(70);
         }
       }
-      if (n >= MAX_INHAAL) { f.toestand = 0; f.naar = 0; f.segEind = nu + 300; }
-      return f.naar;
+      if (n >= MAX_INHAAL) { f.toestand = 0; f.segEind = nu + 300; }
+      return f.toestand == 1;
     }
     case FX_TL: {
-      // eerst even donker, dan p1 flikkers met een zwakke gloed ertussen, daarna brandt hij; uiterlijk na p2 ms
-      if (f.toestand == 3) return 1.f;
-      if (f.teller <= 0 || t >= (uint32_t)s.p2) { f.toestand = 3; return 1.f; }
+      // eerst even donker, dan p1 flikkers met donker ertussen, daarna brandt hij; uiterlijk na p2 ms
+      if (f.toestand == 3) return true;
+      if (f.teller <= 0 || t >= (uint32_t)s.p2) { f.toestand = 3; return true; }
       uint32_t vak = (uint32_t)s.p2 / ((uint32_t)s.p1 + 1);
       int n = 0;
       while (voorbij(nu, f.segEind) && n++ < MAX_INHAAL) {
         if (f.toestand == 1) { // flikker voorbij
-          if (--f.teller <= 0) { f.toestand = 3; return 1.f; }
+          if (--f.teller <= 0) { f.toestand = 3; return true; }
           f.toestand = 2;
-          f.naar = 0.08f;
           f.segEind += vak / 2 + f.rnd.onder(vak / 2 + 1);
         } else {
           f.toestand = 1;
-          f.naar = 0.5f + 0.5f * f.rnd.r();
           f.segEind += 20 + f.rnd.onder(80);
         }
       }
-      return f.naar;
+      return f.toestand == 1;
     }
     default:
-      return 1.f;
+      return true;
   }
 }
 
@@ -238,34 +186,26 @@ inline float fxWaarde(const GroepStand &s, FxToestand &f, uint32_t nu) {
 inline void fxHerstart(FxToestand &f, int groep, uint32_t zaad, const GroepStand &s, uint32_t nu) {
   f = FxToestand();
   f.rnd.zaai(zaad ^ ((uint32_t)(groep + 1) * 0x9E3779B9u));
-  f.rnd2.zaai((zaad + 0x51ED270Bu) ^ ((uint32_t)(groep + 1) * 0x85EBCA6Bu));
-  f.start = f.segBegin = f.segEind = f.beeldEind = nu;
-  if (s.effect == FX_LASVLAM) { f.naar = 0; f.segEind = nu + 300; }
+  f.start = f.segEind = nu;
+  if (s.effect == FX_LASVLAM) f.segEind = nu + 300;
   if (s.effect == FX_TL) {
-    f.naar = 0;
     f.teller = s.p1;
     f.segEind = nu + (uint32_t)s.p2 / ((uint32_t)s.p1 + 1) / 2;
   }
 }
 
-/** alle groepen: stand, overgang, effect, maximum en gamma */
+/** alle groepen: stand en effect -> aan of uit */
 class Lampen {
  public:
   GroepStand stand[N_GROEPEN];
-  uint8_t maxPct[N_GROEPEN];        // per groep het maximum (1..100 %)
-  uint32_t faduurMs = 500;          // duur van een volle overgang 0 -> 100 %
-  uint16_t uitgang[N_GROEPEN];      // wat naar de PCA9685 gaat (0..4095)
-  float lamp[N_GROEPEN];            // gezien niveau 0..1 (na maximum, voor gamma), voor het dashboard
+  GroepMasker uitgang = 0;          // wat naar de PCA9685 gaat: bit g = groep g+1 brandt (ook voor het dashboard)
 
   explicit Lampen(uint32_t zaad = 20261108u) : zaad_(zaad) {
-    for (int g = 0; g < N_GROEPEN; g++) {
-      maxPct[g] = 100;
-      uitgang[g] = 0;
-      lamp[g] = 0;
-      omhul_[g] = 0;
-      fxHerstart(fx_[g], g, zaad_, stand[g], 0);
-    }
+    for (int g = 0; g < N_GROEPEN; g++) fxHerstart(fx_[g], g, zaad_, stand[g], 0);
   }
+
+  /** brandt groep g nu? */
+  bool brandt(int g) const { return g >= 0 && g < N_GROEPEN && (uitgang >> g & 1); }
 
   /** een groep een nieuwe stand geven; het effect begint opnieuw als het effect of zijn instellingen veranderen,
    *  als de groep aangaat, of als herstart gevraagd wordt (overweg-paren samen laten beginnen) */
@@ -281,38 +221,17 @@ class Lampen {
 
   /** alle uitgangen opnieuw berekenen voor tijdstip nu */
   void stap(uint32_t nu) {
-    uint32_t dt = eerste_ ? 0 : nu - vorige_;
-    if (dt > 1000) dt = 1000;
-    eerste_ = false;
-    vorige_ = nu;
+    GroepMasker m = 0;
     for (int g = 0; g < N_GROEPEN; g++) {
       const GroepStand &s = stand[g];
-      float doel = s.aan ? s.helderheid / 100.f : 0.f;
-      float &h = omhul_[g];
-      if (faduurMs == 0) {
-        h = doel;
-      } else {
-        float d = (float)dt / (float)faduurMs;
-        if (h < doel) h = (h + d > doel) ? doel : h + d;
-        else if (h > doel) h = (h - d < doel) ? doel : h - d;
-      }
-      float fx = (s.effect != FX_GEEN && h > 0) ? fxWaarde(s, fx_[g], nu) : 1.f;
-      if (fx < 0) fx = 0;
-      if (fx > 1) fx = 1;
-      float niveau = h * fx * (float)klem(maxPct[g], 1, 100) / 100.f;
-      lamp[g] = niveau;
-      uitgang[g] = gammaUit(niveau);
+      if (s.aan && (s.effect == FX_GEEN || fxAan(s, fx_[g], nu))) m |= groepBit(g);
     }
+    uitgang = m;
   }
-
-  float omhullende(int g) const { return omhul_[g]; }
 
  private:
   uint32_t zaad_;
-  float omhul_[N_GROEPEN];
   FxToestand fx_[N_GROEPEN];
-  uint32_t vorige_ = 0;
-  bool eerste_ = true;
 };
 
 // ---------------------------------------------------------------------------------------------------------------

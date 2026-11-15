@@ -124,11 +124,6 @@ main { max-width: 1100px; margin: 0 auto; padding: 14px 16px 120px; }
 .schakel[aria-checked="true"] span { transform: translateX(26px); }
 .rij { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-top: 4px; }
 .waarde { font-weight: 700; font-variant-numeric: tabular-nums; }
-input[type="range"] { width: 100%; height: 44px; margin: 0; background: transparent; -webkit-appearance: none; appearance: none; }
-input[type="range"]::-webkit-slider-runnable-track { height: 10px; border-radius: 5px; background: linear-gradient(90deg, var(--vlak2), rgba(var(--amber), .9)); }
-input[type="range"]::-moz-range-track { height: 10px; border-radius: 5px; background: linear-gradient(90deg, var(--vlak2), rgba(var(--amber), .9)); }
-input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 32px; height: 32px; margin-top: -11px; border-radius: 50%; background: var(--vlak); border: 3px solid var(--groen); }
-input[type="range"]::-moz-range-thumb { width: 26px; height: 26px; border-radius: 50%; background: var(--vlak); border: 3px solid var(--groen); }
 select, input[type="text"], input[type="password"] {
   width: 100%; min-height: 50px; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--rand);
   background: var(--vlak); font-size: 17px;
@@ -194,11 +189,14 @@ select {
 .stip { flex: none; width: 20px; height: 20px; border-radius: 50%; border: 3px solid var(--rand); background: transparent; }
 .stip.aan { background: #3d9a6f; border-color: #3d9a6f; box-shadow: 0 0 0 4px rgba(61, 154, 111, .25); }
 .toestand { font-size: 15px; font-weight: 700; color: var(--zacht); text-align: right; }
+.teller { flex: none; min-width: 64px; font-size: 15px; font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; }
+.soort { display: inline-block; font-size: 12px; font-weight: 700; color: var(--inkt); background: var(--vlak2); border-radius: 6px; padding: 1px 6px; margin-left: 6px; vertical-align: 2px; }
 .ingang .knop { flex: none; }
 @media (max-width: 520px) {
   .ingang-kop { flex-wrap: wrap; }
   .ingang-tekst { flex-basis: calc(100% - 90px); }
   .toestand { flex: 1; text-align: left; padding-left: 32px; }
+  .teller { min-width: 0; }
 }
 .keuze { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
 .keuze button { min-height: 52px; border-radius: 12px; border: 1px solid var(--rand); background: var(--vlak); font-weight: 650; }
@@ -321,28 +319,29 @@ input[type=file] { font: inherit; font-size: 16px; max-width: 100%; }
 
   <section id="tab-ingangen" hidden>
     <h2>Ingangen</h2>
-    <p class="uitleg">Knoppen, schakelaars en sensoren op de baan. Het bolletje wordt groen zolang de ingang actief is.</p>
+    <p class="uitleg">Knoppen, schakelaars, sensoren en hallsensoren op de baan. Het bolletje wordt groen zolang de ingang actief is (een hallsensor: even na elke magneet). Het getal telt hoe vaak, sinds de doos aanstaat.</p>
     <div id="ingangen-lijst" class="ingangen"></div>
+    <div class="knoppen"><button class="knop" type="button" id="tellers-nul">Alle tellers op 0</button></div>
   </section>
 
   <section id="tab-instellingen" hidden>
     <h2>Instellingen</h2>
     <div class="blok tegel">
       <h3>Namen van de groepen</h3>
-      <p class="klein">Maximum: hoe fel de groep hoogstens mag branden. Dag en nacht: de groep gaat 's avonds vanzelf aan en 's ochtends uit.</p>
+      <p class="klein">Dag en nacht: de groep gaat 's avonds vanzelf aan en 's ochtends uit.</p>
       <div id="inst-groepen" class="lijst-groepen"></div>
       <div class="knoppen"><button class="knop hoofd" type="button" id="inst-groepen-bewaar">Namen bewaren</button></div>
     </div>
     <div class="blok tegel" id="inst-algemeen"></div>
     <div class="blok tegel" id="inst-test">
       <h3>Testmodus</h3>
-      <p class="klein">Voor de ingebruikname en het meetblad. Looplicht: elke groep brandt om de beurt vol (zonder zacht aan, maximum of effect). Eén groep vol: om de stroom van die groep te meten. "Alles uit" stopt de testmodus ook.</p>
+      <p class="klein">Voor de ingebruikname en het meetblad. Looplicht: elke groep brandt om de beurt (zonder effect). Eén groep aan: om de stroom van die groep te meten. "Alles uit" stopt de testmodus ook.</p>
       <div class="test-status" id="test-status" role="status">Testmodus staat uit.</div>
       <div id="test-stapper"></div>
       <div class="knoppen"><button class="knop hoofd" type="button" id="test-loop">Looplicht starten</button></div>
-      <div class="veld"><span class="klein">Eén groep vol aan</span><select id="test-groep" aria-label="Welke groep vol aan"></select></div>
+      <div class="veld"><span class="klein">Eén groep aan</span><select id="test-groep" aria-label="Welke groep aan"></select></div>
       <div class="knoppen">
-        <button class="knop hoofd" type="button" id="test-vast">Deze groep vol aan</button>
+        <button class="knop hoofd" type="button" id="test-vast">Deze groep aan</button>
         <button class="knop" type="button" id="test-stop">Testmodus stoppen</button>
       </div>
     </div>
@@ -391,27 +390,24 @@ input[type=file] { font: inherit; font-size: 16px; max-width: 100%; }
 <script>
 'use strict';
 // ------------------------------------------------------------------------------------------------ tabellen
-// dezelfde grenzen als include/licht.h (effectInfo); "ms": opgeslagen in ms, getoond in seconden
+// dezelfde grenzen als include/licht.h (effectInfo); "ms": opgeslagen in ms, getoond in seconden.
+// Sinds firmware 1.3.0 alleen aan/uit: geen dimmen, dus ook geen vuur, tv of ademen meer.
 const EFFECTEN = [
   { id: 'geen', naam: 'Geen effect' },
   { id: 'knipperen', naam: 'Knipperen', p: [
     { n: 'Aan', e: 's', ms: true, min: 50, max: 10000, std: 500 }, { n: 'Uit', e: 's', ms: true, min: 50, max: 10000, std: 500 }] },
   { id: 'overweg', naam: 'Om beurten (overweg)', p: [
     { n: 'Tempo', e: 's', ms: true, min: 100, max: 5000, std: 600 }, { n: 'Om beurten met groep', groep: true, min: 0, max: 16, std: 0 }] },
-  { id: 'vuur', naam: 'Flikkerend vuur', p: [
-    { n: 'Onrust', e: '%', min: 5, max: 100, std: 60, stap: 5 }, { n: 'Snelheid (1 tot 10)', min: 1, max: 10, std: 5 }] },
-  { id: 'tv', naam: 'Tv-licht', p: [
-    { n: 'Onrust', e: '%', min: 5, max: 100, std: 50, stap: 5 }, { n: 'Ander beeld na', e: 's', min: 1, max: 20, std: 3 }] },
   { id: 'lasvlam', naam: 'Lasvlam', p: [
     { n: 'Flitsen per reeks', min: 2, max: 30, std: 12 }, { n: 'Pauze', e: 's', min: 1, max: 60, std: 5 }] },
   { id: 'tl', naam: 'Tl-buis springt aan', p: [
     { n: 'Aantal flikkers', min: 0, max: 20, std: 4 }, { n: 'Duur van het aanspringen', e: 's', ms: true, min: 200, max: 10000, std: 1500 }] },
-  { id: 'ademen', naam: 'Langzaam ademen', p: [
-    { n: 'Eén ademhaling', e: 's', min: 1, max: 60, std: 4 }, { n: 'Zwakste licht', e: '%', min: 0, max: 90, std: 10, stap: 5 }] },
 ];
 const FASEN = [['dag', 'Dag'], ['avond', 'Avond'], ['nacht', 'Nacht'], ['ochtend', 'Ochtend']];
-const ACTIES = [['aan', 'Aan'], ['uit', 'Uit'], ['helderheid', 'Helderheid'], ['effect', 'Effect'], ['scene', 'Scène oproepen'], ['dagnacht', 'Dag en nacht'], ['wissel', 'Aan/uit wisselen']];
+const ACTIES = [['aan', 'Aan'], ['uit', 'Uit'], ['effect', 'Effect'], ['scene', 'Scène oproepen'], ['dagnacht', 'Dag en nacht'], ['wissel', 'Aan/uit wisselen']];
 const GEDRAG = [['geen', 'Niet gebruikt'], ['drukknop', 'Drukknop'], ['schakelaar', 'Schakelaar'], ['sensor', 'Sensor']];
+// hoe de doos de ingang leest (include/ingangen.h): contact = 30 ms ontdenderd, puls = hallsensor (korte puls, vasthouden)
+const SOORTEN = [['contact', 'Knop, schakelaar of reed'], ['puls', 'Hallsensor (korte puls)']];
 const fxInfo = id => EFFECTEN.find(e => e.id === id) || EFFECTEN[0];
 
 // ------------------------------------------------------------------------------------------------- hulp
@@ -523,7 +519,7 @@ async function peil() {
 
 function samenvoegen(k) {
   k.groepen.forEach((g, i) => Object.assign(S.groepen[i], g));
-  k.ingangen.forEach((x, i) => Object.assign(S.ingangen[i], { actief: x.actief, toestand: x.toestand, vrijOver: x.vrijOver }));
+  k.ingangen.forEach((x, i) => Object.assign(S.ingangen[i], { actief: x.actief, teller: x.teller, toestand: x.toestand, vrijOver: x.vrijOver }));
   S.lopend = k.lopend;
   S.dagnacht = k.dagnacht;
   S.melding = k.melding;
@@ -585,14 +581,6 @@ function groepTegel(g, i) {
   const lamp = h('span', { class: 'lamp', 'aria-hidden': 'true' });
   const sw = h('button', { class: 'schakel', type: 'button', role: 'switch', 'aria-label': g.naam + ' aan of uit',
     onclick: () => zetGroep(i, { aan: !S.groepen[i].aan }) }, h('span'));
-  const waarde = h('output', { class: 'waarde' });
-  let laatst = 0;
-  const schuif = h('input', { type: 'range', min: 1, max: 100, step: 1, 'aria-label': 'Helderheid van ' + g.naam,
-    oninput: e => {
-      waarde.textContent = e.target.value + ' %';
-      if (Date.now() - laatst > 200) { laatst = Date.now(); zetGroep(i, { helderheid: +e.target.value, aan: true }, true); }
-    },
-    onchange: e => zetGroep(i, { helderheid: +e.target.value, aan: true }) });
   const keuze = h('select', { 'aria-label': 'Effect van ' + g.naam, onchange: e => {
     const fx = fxInfo(e.target.value), w = { effect: fx.id, aan: true };
     if (fx.p) { w.p1 = fx.p[0].std; w.p2 = fx.p[1].std; }
@@ -602,18 +590,16 @@ function groepTegel(g, i) {
   const t = h('article', { class: 'tegel groep' },
     h('div', { class: 'tegel-kop' }, h('span', { class: 'nr' }, g.nr),
       h('h3', null, g.naam, g.dagnacht ? h('span', { class: 'label', title: 'Doet mee aan dag en nacht' }, 'dag/nacht') : null), lamp, sw),
-    h('div', { class: 'rij' }, h('span', { class: 'klein' }, 'Helderheid'), waarde), schuif,
-    h('div', { class: 'veld' }, h('span', { class: 'klein' }, 'Effect'), keuze), params);
-  tegels[i] = { lamp, sw, waarde, schuif, keuze, params, fx: null };
+    h('div', { class: 'veld' }, h('span', { class: 'klein' }, 'Effect (als de groep aan staat)'), keuze), params);
+  tegels[i] = { lamp, sw, keuze, params, fx: null };
   return t;
 }
 
 function werkGroepBij(i) {
   const g = S.groepen[i], t = tegels[i];
   if (!t) return;
-  t.lamp.style.setProperty('--l', (g.lamp / 100).toFixed(2));
+  t.lamp.style.setProperty('--l', g.brandt ? '1' : '0'); // brandt nu echt (bij knipperen: deze tel)
   t.sw.setAttribute('aria-checked', String(!!g.aan));
-  if (document.activeElement !== t.schuif) { t.schuif.value = g.helderheid; t.waarde.textContent = g.helderheid + ' %'; }
   if (document.activeElement !== t.keuze) t.keuze.value = g.effect;
   const sleutel = g.effect + '|' + g.p1 + '|' + g.p2;
   if (t.fx !== sleutel && !t.params.contains(document.activeElement)) { t.fx = sleutel; vulParams(t.params, g, i); }
@@ -643,7 +629,27 @@ function zetGroep(i, w, stil) {
 }
 
 // ----------------------------------------------------------------------------------------------- scènes
-let beheer = false;
+let beheer = false, sceneKeuze = null; // sceneKeuze: { nr, aan: [groepnummers] } terwijl er gekozen wordt
+function sceneKiezer(s) {
+  const c = sceneKeuze;
+  return h('div', { class: 'editor', style: 'grid-column: 1 / -1' },
+    h('span', { class: 'klein' }, 'Tik de groepen aan die in “' + s.naam + '” branden (groen = aan):'),
+    h('div', { class: 'chips' }, S.groepen.map(g => {
+      const aan = c.aan.includes(g.nr);
+      return h('button', { class: 'chip', type: 'button', 'aria-pressed': String(aan), title: g.naam, onclick: e => {
+        const i = c.aan.indexOf(g.nr);
+        if (i >= 0) c.aan.splice(i, 1); else c.aan.push(g.nr);
+        c.aan.sort((a, b) => a - b);
+        e.currentTarget.setAttribute('aria-pressed', String(i < 0));
+      } }, h('b', null, g.nr), h('small', null, g.naam));
+    })),
+    h('div', { class: 'knoppen' },
+      h('button', { class: 'knop hoofd', type: 'button', onclick: async () => {
+        const j = await stuur('/api/scene', { actie: 'bewaren', nr: c.nr, naam: s.naam, aan: c.aan }, '“' + s.naam + '” is bijgewerkt');
+        if (j) { sceneKeuze = null; bouwScenes(); }
+      } }, 'Bewaren'),
+      h('button', { class: 'knop', type: 'button', onclick: () => { sceneKeuze = null; bouwScenes(); } }, 'Annuleren')));
+}
 function bouwScenes() {
   const sc = S.scenes.filter(Boolean);
   const l = $('#scenes-lijst');
@@ -655,6 +661,10 @@ function bouwScenes() {
   $('#scene-beheer').textContent = beheer ? 'Klaar met wijzigen' : 'Scènes wijzigen of wissen';
   b.replaceChildren(...sc.map(s => h('div', { class: 'groep-rij' }, h('span', { class: 'nr' }, s.nr), h('strong', null, s.naam),
     h('div', { class: 'opties' },
+      h('button', { class: 'knop', type: 'button', 'aria-expanded': String(!!sceneKeuze && sceneKeuze.nr === s.nr), onclick: () => {
+        sceneKeuze = sceneKeuze && sceneKeuze.nr === s.nr ? null : { nr: s.nr, aan: (s.aan || []).slice() };
+        bouwScenes();
+      } }, 'Groepen kiezen'),
       h('button', { class: 'knop', type: 'button', onclick: () => {
         if (confirm('De huidige stand van alle lampen bewaren als “' + s.naam + '”? De oude stand gaat verloren.'))
           stuur('/api/scene', { actie: 'bewaren', nr: s.nr, naam: s.naam }, '“' + s.naam + '” is bijgewerkt');
@@ -665,7 +675,7 @@ function bouwScenes() {
       } }, 'Andere naam'),
       h('button', { class: 'knop gevaar', type: 'button', onclick: () => {
         if (confirm('Scène “' + s.naam + '” wissen?')) stuur('/api/scene', { actie: 'wissen', nr: s.nr }, 'Gewist');
-      } }, 'Wissen')))));
+      } }, 'Wissen')), sceneKeuze && sceneKeuze.nr === s.nr ? sceneKiezer(s) : null)));
   // dag en nacht: de knoppen één keer
   const k = $('#dn-knoppen');
   if (!k.children.length) k.append(...FASEN.map(([id, naam]) => h('button', { class: 'knop', type: 'button',
@@ -767,7 +777,6 @@ function stapKaart(s, k) {
     h('button', { class: 'ikoonknop', type: 'button', 'aria-label': 'Stap weghalen', onclick: () => { c.stappen.splice(k, 1); opnieuw(); } }, ikoon('weg')));
   const actie = h('select', { 'aria-label': 'Wat doen', onchange: e => {
     s.actie = e.target.value;
-    if (s.actie === 'helderheid' && !s.waarde) s.waarde = 50;
     if (s.actie === 'scene') s.waarde = (S.scenes.find(Boolean) || { nr: 1 }).nr;
     if (s.actie === 'dagnacht') s.waarde = 1;
     if (s.actie === 'effect' && !s.effect) { s.effect = 'knipperen'; s.p1 = 500; s.p2 = 500; }
@@ -787,8 +796,6 @@ function stapKaart(s, k) {
     })));
   }
   delen.push(h('div', { class: 'veld' }, h('span', { class: 'klein' }, 'Wat doen?'), actie));
-  if (s.actie === 'helderheid')
-    delen.push(stapper({ n: 'Helderheid', e: '%', min: 1, max: 100, stap: 5, waarde: s.waarde || 50, opWijzig: v => { s.waarde = v; } }));
   if (s.actie === 'effect') {
     const fx = h('select', { 'aria-label': 'Welk effect', onchange: e => {
       const f = fxInfo(e.target.value);
@@ -841,7 +848,14 @@ async function bewaarFunctie() {
 let openIngang = -1, ingConcept = null;
 const iRijen = [];
 const fNaam = nr => { const f = nr > 0 && S.functies[nr - 1]; return f ? '“' + f.naam + '”' : 'niets'; };
+const flitsTot = [], vorigeTeller = [];
 function koppeling(g) {
+  if (g.soort === 'puls') switch (g.gedrag) { // hallsensor: een magneet geeft een korte puls
+    case 'drukknop': return 'Bij elke magneet: start ' + fNaam(g.functieA) + (g.wisselen && g.functieA ? ', volgende = stop' : '');
+    case 'schakelaar': return 'Magneet: ' + fNaam(g.functieA) + ', ' + getal(g.vasthouden) + ' s later: ' + fNaam(g.functieB);
+    case 'sensor': return 'Eerste magneet = ' + fNaam(g.functieA) + ', ' + g.nalopen + ' s geen magneet = ' + fNaam(g.functieB);
+    default: return 'Telt alleen de magneten';
+  }
   switch (g.gedrag) {
     case 'drukknop': return 'Drukknop: start ' + fNaam(g.functieA) + (g.wisselen && g.functieA ? ', nog eens = stop' : '');
     case 'schakelaar': return 'Schakelaar: aan = ' + fNaam(g.functieA) + ', uit = ' + fNaam(g.functieB);
@@ -853,10 +867,12 @@ function koppeling(g) {
 function bouwIngangen() {
   $('#ingangen-lijst').replaceChildren(...S.ingangen.map((g, i) => {
     const stip = h('span', { class: 'stip', 'aria-hidden': 'true' }), toestand = h('span', { class: 'toestand' });
-    iRijen[i] = { stip, toestand };
+    const teller = h('span', { class: 'teller', title: 'Zo vaak actief (hallsensor: zo veel pulsen) sinds de doos aanstaat' });
+    iRijen[i] = { stip, toestand, teller };
     const open = openIngang === i;
     const rij = h('div', { class: 'tegel ingang' }, h('div', { class: 'ingang-kop' }, stip, h('span', { class: 'nr' }, g.nr),
-      h('div', { class: 'ingang-tekst' }, h('strong', null, g.naam), h('span', { class: 'klein' }, koppeling(g))), toestand,
+      h('div', { class: 'ingang-tekst' }, h('strong', null, g.naam, g.soort === 'puls' ? h('span', { class: 'soort' }, 'hallsensor') : null),
+        h('span', { class: 'klein' }, koppeling(g))), toestand, teller,
       h('button', { class: 'knop', type: 'button', 'aria-expanded': String(open), onclick: () => {
         openIngang = open ? -1 : i;
         ingConcept = open ? null : JSON.parse(JSON.stringify(S.ingangen[i]));
@@ -879,18 +895,25 @@ function ingangEditor(i) {
   const delen = [
     h('div', { class: 'veld', style: 'margin-top:0' }, h('span', { class: 'klein' }, 'Naam'),
       h('input', { type: 'text', maxlength: 31, value: c.naam, oninput: e => { c.naam = e.target.value; } })),
-    h('div', { class: 'veld' }, h('span', { class: 'klein' }, 'Wat hangt eraan?'), h('div', { class: 'keuze' }, GEDRAG.map(([id, n]) =>
+    h('div', { class: 'veld' }, h('span', { class: 'klein' }, 'Wat hangt eraan?'), h('div', { class: 'keuze' }, SOORTEN.map(([id, n]) =>
+      h('button', { type: 'button', 'aria-pressed': String((c.soort || 'contact') === id), onclick: () => { c.soort = id; bouwIngangen(); } }, n)))),
+    c.soort === 'puls'
+      ? h('div', null, h('p', { class: 'klein', style: 'margin-top:8px' }, 'Een hallsensor onder het spoor geeft een korte puls als de magneet onder de loc voorbijkomt. De doos ziet elke puls (ook van 1 ms) en houdt de ingang daarna nog even actief, zodat de functies hem zeker zien.'),
+          stapper({ n: 'Na een puls actief houden', min: 0, max: 10, waarde: c.vasthouden != null ? c.vasthouden : 0.3, toon: v => v ? getal(v) + ' s' : 'niet',
+            stap: (x, op) => { const y = op ? x : x - 0.001; return y < 1 ? 0.1 : 0.5; }, opWijzig: v => { c.vasthouden = v; } }))
+      : h('p', { class: 'klein', style: 'margin-top:8px' }, 'Een contact moet 30 ms stil staan voor het telt (tegen het stuiteren van knoppen).'),
+    h('div', { class: 'veld' }, h('span', { class: 'klein' }, 'Wat moet er gebeuren?'), h('div', { class: 'keuze' }, GEDRAG.map(([id, n]) =>
       h('button', { type: 'button', 'aria-pressed': String(c.gedrag === id), onclick: () => { c.gedrag = id; bouwIngangen(); } }, n))))];
   if (c.gedrag === 'drukknop') {
-    delen.push(h('div', { class: 'veld' }, h('span', { class: 'klein' }, 'Bij indrukken starten:'), fKeuze('functieA')),
-      h('label', { class: 'vink' }, h('input', { type: 'checkbox', checked: c.wisselen, onchange: e => { c.wisselen = e.target.checked; } }), 'Nog eens drukken = stoppen'));
+    delen.push(h('div', { class: 'veld' }, h('span', { class: 'klein' }, c.soort === 'puls' ? 'Bij elke magneet starten:' : 'Bij indrukken starten:'), fKeuze('functieA')),
+      h('label', { class: 'vink' }, h('input', { type: 'checkbox', checked: c.wisselen, onchange: e => { c.wisselen = e.target.checked; } }), c.soort === 'puls' ? 'Volgende magneet = stoppen' : 'Nog eens drukken = stoppen'));
   }
   if (c.gedrag === 'schakelaar') {
-    delen.push(h('div', { class: 'veld' }, h('span', { class: 'klein' }, 'Schakelaar aan: start'), fKeuze('functieA')),
-      h('div', { class: 'veld' }, h('span', { class: 'klein' }, 'Schakelaar uit: start'), fKeuze('functieB')));
+    delen.push(h('div', { class: 'veld' }, h('span', { class: 'klein' }, c.soort === 'puls' ? 'Magneet: start' : 'Schakelaar aan: start'), fKeuze('functieA')),
+      h('div', { class: 'veld' }, h('span', { class: 'klein' }, c.soort === 'puls' ? 'Na het vasthouden: start' : 'Schakelaar uit: start'), fKeuze('functieB')));
   }
   if (c.gedrag === 'sensor') {
-    delen.push(h('div', { class: 'veld' }, h('span', { class: 'klein' }, 'Bezet (trein komt): start'), fKeuze('functieA')),
+    delen.push(h('div', { class: 'veld' }, h('span', { class: 'klein' }, c.soort === 'puls' ? 'Eerste puls (trein komt): start' : 'Bezet (trein komt): start'), fKeuze('functieA')),
       stapper({ n: 'Zo lang vrij voor "weg"', min: 0, max: 3600, waarde: c.nalopen, toon: duur,
         stap: (x, op) => { const y = op ? x : x - 1; return y < 30 ? 1 : y < 120 ? 5 : 30; }, opWijzig: v => { c.nalopen = v; } }),
       h('div', { class: 'veld' }, h('span', { class: 'klein' }, 'Daarna (trein weg): start'), fKeuze('functieB')));
@@ -898,11 +921,12 @@ function ingangEditor(i) {
   delen.push(h('div', { class: 'knoppen' },
     h('button', { class: 'knop hoofd', type: 'button', onclick: async () => {
       if (!c.naam.trim()) { toast('Geef de ingang een naam.', true); return; }
-      const j = await stuur('/api/ingang', { nr: i + 1, naam: c.naam.trim(), gedrag: c.gedrag, functieA: c.functieA || 0,
-        functieB: c.functieB || 0, wisselen: c.wisselen, nalopen: c.nalopen }, 'Ingang bewaard');
+      const j = await stuur('/api/ingang', { nr: i + 1, naam: c.naam.trim(), soort: c.soort || 'contact', vasthouden: c.vasthouden != null ? c.vasthouden : 0.3,
+        gedrag: c.gedrag, functieA: c.functieA || 0, functieB: c.functieB || 0, wisselen: c.wisselen, nalopen: c.nalopen }, 'Ingang bewaard');
       if (j) { openIngang = -1; ingConcept = null; }
     } }, 'Bewaren'),
-    h('button', { class: 'knop', type: 'button', onclick: () => { openIngang = -1; ingConcept = null; bouwIngangen(); } }, 'Annuleren')));
+    h('button', { class: 'knop', type: 'button', onclick: () => { openIngang = -1; ingConcept = null; bouwIngangen(); } }, 'Annuleren'),
+    h('button', { class: 'knop', type: 'button', onclick: () => stuur('/api/ingang', { nr: i + 1, tellerNul: true }, 'Teller op 0') }, 'Teller op 0')));
   return h('div', { class: 'editor' }, delen);
 }
 
@@ -910,8 +934,14 @@ function werkIngangenBij() {
   S.ingangen.forEach((g, i) => {
     const r = iRijen[i];
     if (!r) return;
-    r.stip.classList.toggle('aan', !!g.actief);
-    r.toestand.textContent = g.gedrag === 'geen' && !g.actief ? '' : (g.vrijOver != null ? 'vrij over ' + g.vrijOver + ' s' : g.toestand);
+    // een korte puls (hallsensor) valt vaak tussen twee keer vragen (1 s): de teller ging omhoog = 1 s groen
+    const n = g.teller || 0, nu = Date.now();
+    if (vorigeTeller[i] != null && n > vorigeTeller[i]) flitsTot[i] = nu + 1000;
+    vorigeTeller[i] = n;
+    const aan = !!g.actief || nu < (flitsTot[i] || 0);
+    r.stip.classList.toggle('aan', aan);
+    r.teller.textContent = n + ' keer';
+    r.toestand.textContent = g.gedrag === 'geen' && !aan ? '' : (g.vrijOver != null ? 'vrij over ' + g.vrijOver + ' s' : g.soort === 'puls' && aan && !g.actief ? 'puls' : g.toestand);
   });
 }
 
@@ -921,28 +951,25 @@ function vuil() { instVuil = true; }
 function bouwInstellingen() {
   if (instVuil) return;
   instConcept = {
-    groepen: S.groepen.map(g => ({ naam: g.naam, max: g.max, dagnacht: g.dagnacht })),
-    faduur: S.instellingen.faduur, dagnachtMin: S.instellingen.dagnachtMin, opstart: S.instellingen.opstart,
+    groepen: S.groepen.map(g => ({ naam: g.naam, dagnacht: g.dagnacht })),
+    dagnachtMin: S.instellingen.dagnachtMin, opstart: S.instellingen.opstart,
   };
   const c = instConcept;
   $('#inst-groepen').replaceChildren(...c.groepen.map((g, i) => h('div', { class: 'groep-rij' },
     h('span', { class: 'nr' }, i + 1),
     h('input', { type: 'text', maxlength: 31, value: g.naam, 'aria-label': 'Naam van groep ' + (i + 1), oninput: e => { g.naam = e.target.value; vuil(); } }),
     h('div', { class: 'opties' },
-      stapper({ n: 'Maximum', e: '%', min: 5, max: 100, stap: 5, waarde: g.max, opWijzig: v => { g.max = v; vuil(); } }),
       h('label', { class: 'vink' }, h('input', { type: 'checkbox', checked: g.dagnacht, onchange: e => { g.dagnacht = e.target.checked; vuil(); } }), 'Dag en nacht')))));
   const radio = (waarde, tekst) => h('label', { class: 'vink' }, h('input', { type: 'radio', name: 'opstart', value: waarde, checked: c.opstart === waarde,
     onchange: () => { c.opstart = waarde; vuil(); } }), tekst);
   $('#inst-algemeen').replaceChildren(
     h('h3', null, 'Algemeen'),
-    stapper({ n: 'Lampen gaan zacht aan en uit in', min: 0, max: 10, waarde: c.faduur, toon: v => v ? getal(v) + ' s' : 'meteen',
-      stap: (x, op) => { const y = op ? x : x - 0.001; return y < 2 ? 0.1 : 0.5; }, opWijzig: v => { c.faduur = v; vuil(); } }),
     stapper({ n: 'Een hele dag (dag en nacht) duurt', min: 2, max: 240, waarde: c.dagnachtMin, toon: v => v + ' min',
       stap: (x, op) => { const y = op ? x : x - 1; return y < 30 ? 1 : 5; }, opWijzig: v => { c.dagnachtMin = v; vuil(); } }),
     h('p', { class: 'klein', style: 'margin-top:16px' }, 'Na een stroomonderbreking:'),
     radio('laatste', 'De lampen zoals ze waren'), radio('uit', 'Alles uit'),
     h('div', { class: 'knoppen' }, h('button', { class: 'knop hoofd', type: 'button', onclick: async () => {
-      const j = await stuur('/api/instellingen', { faduur: c.faduur, dagnachtMin: c.dagnachtMin, opstart: c.opstart }, 'Instellingen bewaard');
+      const j = await stuur('/api/instellingen', { dagnachtMin: c.dagnachtMin, opstart: c.opstart }, 'Instellingen bewaard');
       if (j) { instVuil = false; S.rev = -1; peil(); }
     } }, 'Bewaren')));
 }
@@ -952,8 +979,8 @@ async function bewaarNamen() {
   for (let i = 0; i < c.groepen.length; i++) {
     const g = c.groepen[i], o = S.groepen[i];
     if (!g.naam.trim()) { toast('Groep ' + (i + 1) + ' heeft geen naam.', true); return; }
-    if (g.naam.trim() === o.naam && g.max === o.max && g.dagnacht === o.dagnacht) continue;
-    const j = await stuur('/api/groep', { nr: i + 1, naam: g.naam.trim(), max: g.max, dagnacht: g.dagnacht }, null, true);
+    if (g.naam.trim() === o.naam && g.dagnacht === o.dagnacht) continue;
+    const j = await stuur('/api/groep', { nr: i + 1, naam: g.naam.trim(), dagnacht: g.dagnacht }, null, true);
     if (!j) return;
   }
   instVuil = false;
@@ -975,7 +1002,7 @@ async function bewaarWachtwoord() {
 let testStapS = 1;
 function werkTestBij() {
   const t = S.test || { soort: '' }, naam = n => { const g = S.groepen[n - 1]; return g ? 'groep ' + n + ' (' + g.naam + ')' : 'groep ' + n; };
-  const tekst = t.soort === 'looplicht' ? 'Looplicht: ' + naam(t.groep) + ' brandt vol.' : t.soort === 'vast' ? 'Vol aan: ' + naam(t.groep) + '. Meet nu de stroom.' : '';
+  const tekst = t.soort === 'looplicht' ? 'Looplicht: ' + naam(t.groep) + ' brandt.' : t.soort === 'vast' ? 'Aan: ' + naam(t.groep) + '. Meet nu de stroom.' : '';
   const st = $('#test-status');
   st.textContent = tekst || 'Testmodus staat uit.';
   st.className = 'test-status' + (tekst ? ' aan' : '');
@@ -1053,7 +1080,8 @@ $('#ww-bewaar').addEventListener('click', bewaarWachtwoord);
 $('#test-stapper').append(stapper({ n: 'Tijd per groep', min: 0.3, max: 5, waarde: testStapS, toon: x => getal(x) + ' s',
   stap: (x, op) => { const y = op ? x : x - 0.001; return y < 1 ? 0.1 : 0.5; }, opWijzig: x => { testStapS = x; } }));
 $('#test-loop').addEventListener('click', () => stuur('/api/test', { actie: 'looplicht', stapS: testStapS }, 'Looplicht loopt'));
-$('#test-vast').addEventListener('click', () => stuur('/api/test', { actie: 'vast', groep: +$('#test-groep').value }, 'Groep ' + $('#test-groep').value + ' brandt vol'));
+$('#test-vast').addEventListener('click', () => stuur('/api/test', { actie: 'vast', groep: +$('#test-groep').value }, 'Groep ' + $('#test-groep').value + ' brandt'));
+$('#tellers-nul').addEventListener('click', () => { if (confirm('De tellers van alle ingangen op 0 zetten?')) stuur('/api/ingang', { tellersNul: true }, 'Alle tellers staan op 0'); });
 $('#test-stop').addEventListener('click', () => stuur('/api/test', { actie: 'stop' }, 'Testmodus gestopt'));
 $('#test-stop-balk').addEventListener('click', () => stuur('/api/test', { actie: 'stop' }, 'Testmodus gestopt'));
 $('#thuis-bewaar').addEventListener('click', () => bewaarThuisnet(false));
@@ -1071,13 +1099,13 @@ const Demo = (() => {
     'Werkplaats lasser', 'Kampvuur', 'Tv woonkamer', 'Seinhuis', 'Loods', 'Boerderij', 'Kasteel', 'Tunnel'];
   const std = id => { const f = fxInfo(id); return f.p ? [f.p[0].std, f.p[1].std] : [0, 0]; };
   const st = {
-    rev: 1, melding: '', versie: '1.2.0 (voorbeeld)', hotspot: 'Treinbaan', aantalGroepen: 16,
-    instellingen: { faduur: 0.5, dagnachtMin: 20, opstart: 'laatste', thuisnet: { ssid: 'Thuis', metWachtwoord: true } },
+    rev: 1, melding: '', versie: '1.3.0 (voorbeeld)', hotspot: 'Treinbaan', aantalGroepen: 16,
+    instellingen: { dagnachtMin: 20, opstart: 'laatste', thuisnet: { ssid: 'Thuis', metWachtwoord: true } },
     test: { soort: '', groep: 0 }, thuisnet: { ssid: 'Thuis', verbonden: true, ip: '192.168.1.40' },
-    groepen: namen.map((n, i) => ({ nr: i + 1, naam: n, max: 100, dagnacht: [0, 1, 4, 5, 6, 7, 11, 13, 14].includes(i),
-      aan: false, helderheid: 100, effect: 'geen', p1: 0, p2: 0, fase: 0, lamp: 0 })),
+    groepen: namen.map((n, i) => ({ nr: i + 1, naam: n, dagnacht: [0, 1, 4, 5, 6, 7, 11, 13, 14].includes(i),
+      aan: false, effect: 'geen', p1: 0, p2: 0, fase: 0, brandt: false })),
     scenes: Array(12).fill(null), functies: Array(16).fill(null), lopend: Array(16).fill(false),
-    ingangen: Array.from({ length: 16 }, (x, i) => ({ nr: i + 1, naam: 'Ingang ' + (i + 1), gedrag: 'geen', functieA: 0, functieB: 0, wisselen: false, nalopen: 10, actief: false, toestand: 'rust' })),
+    ingangen: Array.from({ length: 16 }, (x, i) => ({ nr: i + 1, naam: 'Ingang ' + (i + 1), soort: 'contact', vasthouden: 0.3, gedrag: 'geen', functieA: 0, functieB: 0, wisselen: false, nalopen: 10, actief: false, teller: 0, toestand: 'rust' })),
     dagnacht: { loopt: true, fase: 'avond', pos: 0 },
   };
   let dnStart = Date.now() - 0.47 * 20 * 60000;
@@ -1086,19 +1114,17 @@ const Demo = (() => {
     if (w.effect && w.effect !== g.effect) { [g.p1, g.p2] = std(w.effect); g.fase = 0; g.start = Date.now(); }
     Object.assign(g, w);
     if (g.effect === 'overweg' && g.p2 > 0 && g.p2 - 1 !== i)
-      Object.assign(st.groepen[g.p2 - 1], { aan: g.aan, helderheid: g.helderheid, effect: 'overweg', p1: g.p1, p2: i + 1, fase: 1 - g.fase });
+      Object.assign(st.groepen[g.p2 - 1], { aan: g.aan, effect: 'overweg', p1: g.p1, p2: i + 1, fase: 1 - g.fase });
   };
   // een gezellige avond om mee te beginnen
-  [[0, 85], [1, 70], [4, 40], [5, 90], [6, 60], [7, 100], [11, 50]].forEach(([i, h_]) => zet(i, { aan: true, helderheid: h_ }));
+  [0, 1, 4, 5, 6, 7, 9, 10, 11].forEach(i => zet(i, { aan: true }));
   zet(8, { aan: true, effect: 'lasvlam' });
-  zet(9, { aan: true, effect: 'vuur', helderheid: 80 });
-  zet(10, { aan: true, effect: 'tv', helderheid: 45 });
   zet(5, { effect: 'tl' });
-  const scene = (naam, f) => ({ naam, groepen: st.groepen.map((g, i) => Object.assign({ aan: false, helderheid: 100, effect: 'geen', p1: 0, p2: 0, fase: 0 }, f(i))) });
+  const scene = (naam, f) => ({ naam, groepen: st.groepen.map((g, i) => Object.assign({ aan: false, effect: 'geen', p1: 0, p2: 0, fase: 0 }, f(i))) });
   st.scenes[0] = scene('Alles aan', () => ({ aan: true }));
   st.scenes[1] = scene('Alles uit', () => ({}));
-  st.scenes[2] = scene('Avond', i => ({ aan: [0, 1, 4, 5, 6, 7, 10].includes(i), helderheid: 70 }));
-  st.scenes[3] = scene('Nacht', i => ({ aan: [7, 11].includes(i), helderheid: 35 }));
+  st.scenes[2] = scene('Avond', i => ({ aan: [0, 1, 4, 5, 6, 7, 10].includes(i) }));
+  st.scenes[3] = scene('Nacht', i => ({ aan: [7, 11].includes(i) }));
   st.scenes[4] = scene('Zondagmorgen', i => ({ aan: [4].includes(i) }));
   st.scenes.forEach((s, i) => { if (s) s.nr = i + 1; });
   st.functies[0] = { nr: 1, naam: 'Overweg', herhalen: false, stopUit: true, stappen: [
@@ -1111,19 +1137,20 @@ const Demo = (() => {
     { groepen: [9], actie: 'effect', effect: 'lasvlam', p1: 12, p2: 5, wacht: 120 }, { groepen: [9], actie: 'uit', wacht: 0 }] };
   st.functies[3] = { nr: 4, naam: 'Kermis', herhalen: true, stopUit: true, stappen: [
     { groepen: [13, 14], actie: 'aan', wacht: 0.5 }, { groepen: [13], actie: 'uit', wacht: 0.5 }, { groepen: [14], actie: 'uit', wacht: 1 }] };
-  Object.assign(st.ingangen[0], { naam: 'Knop alles aan/uit', gedrag: 'drukknop', functieA: 2 });
-  Object.assign(st.ingangen[5], { naam: 'Knop perron', gedrag: 'drukknop', functieA: 1, wisselen: true });
-  Object.assign(st.ingangen[1], { naam: 'Schakelaar dorp', gedrag: 'schakelaar', functieA: 5, functieB: 0, actief: true });
-  Object.assign(st.ingangen[2], { naam: 'Sensor voor de overweg', gedrag: 'sensor', functieA: 1, functieB: 0, nalopen: 8 });
-  Object.assign(st.ingangen[3], { naam: 'Reedcontact tunnel', gedrag: 'sensor', functieA: 0, functieB: 0, nalopen: 5 });
-  Object.assign(st.ingangen[4], { naam: 'Knop werkplaats', gedrag: 'drukknop', functieA: 3 });
+  Object.assign(st.ingangen[0], { naam: 'Knop alles aan/uit', gedrag: 'drukknop', functieA: 2, teller: 4 });
+  Object.assign(st.ingangen[5], { naam: 'Knop perron', gedrag: 'drukknop', functieA: 1, wisselen: true, teller: 2 });
+  Object.assign(st.ingangen[1], { naam: 'Schakelaar dorp', gedrag: 'schakelaar', functieA: 5, functieB: 0, actief: true, teller: 1 });
+  Object.assign(st.ingangen[2], { naam: 'Sensor voor de overweg', gedrag: 'sensor', functieA: 1, functieB: 0, nalopen: 8, teller: 9 });
+  Object.assign(st.ingangen[3], { naam: 'Reedcontact tunnel', gedrag: 'sensor', functieA: 0, functieB: 0, nalopen: 5, teller: 6 });
+  Object.assign(st.ingangen[4], { naam: 'Knop werkplaats', gedrag: 'drukknop', functieA: 3, teller: 1 });
+  Object.assign(st.ingangen[6], { naam: 'Hall station in', soort: 'puls', gedrag: 'drukknop', functieA: 0, teller: 37 });
+  Object.assign(st.ingangen[7], { naam: 'Hall station uit', soort: 'puls', vasthouden: 0.5, gedrag: 'geen', teller: 35 });
 
   // functies echt afspelen (met de echte wachttijden)
   const klok = {};
   const voerUit = s => {
     const gs = s.groepen.map(n => n - 1);
     if (s.actie === 'aan' || s.actie === 'uit') gs.forEach(i => zet(i, { aan: s.actie === 'aan' }));
-    if (s.actie === 'helderheid') gs.forEach(i => zet(i, { aan: true, helderheid: s.waarde }));
     if (s.actie === 'effect') gs.forEach((i, k) => {
       zet(i, { aan: true, effect: s.effect });
       Object.assign(st.groepen[i], { p1: s.p1, p2: s.effect === 'overweg' && gs.length > 1 ? (gs[k ^ 1] != null ? gs[k ^ 1] + 1 : 0) : s.p2, fase: s.effect === 'overweg' ? k & 1 : 0, start: Date.now() });
@@ -1165,22 +1192,26 @@ const Demo = (() => {
     const over = Math.ceil(s.nalopen - (t - vrijSinds) / 1000);
     s.vrijOver = !s.actief && vrijSinds && over > 0 ? over : undefined;
     s.toestand = s.actief ? 'bezet' : s.vrijOver ? 'nalopen' : 'vrij';
-    st.ingangen.forEach(x => { if (x !== s) x.toestand = { drukknop: x.actief ? 'ingedrukt' : 'los', schakelaar: x.actief ? 'aan' : 'uit', sensor: x.actief ? 'bezet' : 'vrij' }[x.gedrag] || (x.actief ? 'actief' : 'rust'); });
+    // twee hallsensoren: elke 5 s komt er een magneet voorbij (een puls van enkele ms: de teller telt, 0,3 s actief)
+    [6, 7].forEach((n, k) => {
+      const x = st.ingangen[n], puls = Math.floor((t - sensorSinds - k * 2500) / 5000);
+      if (x.puls == null) x.puls = puls;
+      if (puls > x.puls) { x.teller += puls - x.puls; x.puls = puls; x.gezienOm = t; }
+      x.actief = x.soort === 'puls' && x.gezienOm != null && t - x.gezienOm < x.vasthouden * 1000;
+    });
+    st.ingangen.forEach(x => { if (x !== s) x.toestand = x.soort === 'puls' && x.gedrag !== 'sensor' ? (x.actief ? 'puls' : 'rust') : { drukknop: x.actief ? 'ingedrukt' : 'los', schakelaar: x.actief ? 'aan' : 'uit', sensor: x.actief ? 'bezet' : 'vrij' }[x.gedrag] || (x.actief ? 'actief' : 'rust'); });
   };
-  const lamp = (g, t) => {
-    if (!g.aan) return 0;
+  // brandt de groep nu? (alleen aan/uit, zoals de doos)
+  const brandt = (g, t) => {
+    if (!g.aan) return false;
     const d = t - (g.start || 0);
-    let f = 1;
     switch (g.effect) {
-      case 'knipperen': f = d % (g.p1 + g.p2) < g.p1 ? 1 : 0; break;
-      case 'overweg': f = Math.floor(t / g.p1) % 2 === g.fase ? 1 : 0; break;
-      case 'vuur': f = 1 - g.p1 / 100 * Math.random(); break;
-      case 'tv': f = 0.55 + 0.45 * Math.random(); break;
-      case 'lasvlam': f = Math.random() < 0.35 ? 0.7 + 0.3 * Math.random() : 0; break;
-      case 'tl': f = d > g.p2 || Math.random() < 0.5 ? 1 : 0.1; break;
-      case 'ademen': f = g.p2 / 100 + (1 - g.p2 / 100) * (0.5 - 0.5 * Math.cos(2 * Math.PI * d / 1000 / g.p1)); break;
+      case 'knipperen': return d % (g.p1 + g.p2) < g.p1;
+      case 'overweg': return Math.floor(t / g.p1) % 2 === g.fase;
+      case 'lasvlam': return Math.random() < 0.35;
+      case 'tl': return d > g.p2 || Math.random() < 0.5;
+      default: return true;
     }
-    return Math.round(g.helderheid * g.max / 100 * f);
   };
   const fout = t => ({ ok: false, fout: t });
   let testStart = 0;
@@ -1190,11 +1221,12 @@ const Demo = (() => {
     await new Promise(r => setTimeout(r, 40));
     const t = Date.now();
     if (pad.startsWith('/api/staat')) {
-      st.groepen.forEach(g => { g.lamp = lamp(g, t); });
+      st.groepen.forEach(g => { g.brandt = brandt(g, t); });
       if (st.test.soort) {
         if (st.test.soort === 'looplicht') st.test.groep = Math.floor((t - testStart) / (st.test.stapS * 1000)) % st.groepen.length + 1;
-        st.groepen.forEach(g => { g.lamp = g.nr === st.test.groep ? 100 : 0; });
+        st.groepen.forEach(g => { g.brandt = g.nr === st.test.groep; });
       }
+      st.scenes.forEach(s => { if (s) s.aan = s.groepen.map((g, j) => g.aan ? j + 1 : 0).filter(Boolean); });
       const min = st.instellingen.dagnachtMin, pos = ((t - dnStart) / (min * 60000)) % 1;
       st.dagnacht.pos = st.dagnacht.loopt ? pos : 0;
       st.dagnacht.fase = !st.dagnacht.loopt ? '' : pos < 0.40 ? 'dag' : pos < 0.55 ? 'avond' : pos < 0.85 ? 'nacht' : pos < 0.97 ? 'ochtend' : 'dag';
@@ -1207,7 +1239,7 @@ const Demo = (() => {
         if (b.allesUit) { st.lopend.forEach((x, f) => stop(f, false)); st.groepen.forEach(g => { g.aan = false; }); st.dagnacht.loopt = false; st.test = { soort: '', groep: 0 }; break; }
         const w = Object.assign({}, b);
         delete w.nr;
-        if ('naam' in w || 'max' in w || 'dagnacht' in w) st.rev++;
+        if ('naam' in w || 'dagnacht' in w) st.rev++;
         [].concat(b.nr).forEach(n => zet(n - 1, w));
         break;
       }
@@ -1217,8 +1249,11 @@ const Demo = (() => {
         if (b.actie === 'bewaren') {
           const p = i >= 0 ? i : vrijePlaats(st.scenes);
           if (p < 0) return fout('Alle 12 plaatsen voor scènes zijn bezet. Wis eerst een scène.');
-          st.scenes[p] = { nr: p + 1, naam: b.naam || (st.scenes[p] && st.scenes[p].naam) || 'Scène ' + (p + 1),
-            groepen: st.groepen.map(g => ({ aan: g.aan, helderheid: g.helderheid, effect: g.effect, p1: g.p1, p2: g.p2, fase: g.fase })) };
+          const oud = st.scenes[p];
+          st.scenes[p] = { nr: p + 1, naam: b.naam || (oud && oud.naam) || 'Scène ' + (p + 1),
+            groepen: b.aan // per groep gekozen (het effect blijft), anders de huidige stand
+              ? st.groepen.map((g, j) => Object.assign({ effect: 'geen', p1: 0, p2: 0, fase: 0 }, oud ? oud.groepen[j] : {}, { aan: b.aan.includes(j + 1) }))
+              : st.groepen.map(g => ({ aan: g.aan, effect: g.effect, p1: g.p1, p2: g.p2, fase: g.fase })) };
           st.rev++;
           return { ok: true, nr: p + 1 };
         }
@@ -1247,10 +1282,17 @@ const Demo = (() => {
         }
         break;
       }
-      case '/api/ingang': Object.assign(st.ingangen[b.nr - 1], b); st.rev++; break;
+      case '/api/ingang': {
+        if (b.tellersNul) { st.ingangen.forEach(x => { x.teller = 0; }); break; }
+        const x = st.ingangen[b.nr - 1], w = Object.assign({}, b);
+        if (w.tellerNul) x.teller = 0;
+        delete w.tellerNul;
+        if (Object.keys(w).length > 1) { Object.assign(x, w); st.rev++; }
+        break;
+      }
       case '/api/instellingen':
         if (b.fabrieksinstellingen) return fout('In het voorbeeld kan dat niet.');
-        ['faduur', 'dagnachtMin', 'opstart'].forEach(k => { if (k in b) st.instellingen[k] = b[k]; });
+        ['dagnachtMin', 'opstart'].forEach(k => { if (k in b) st.instellingen[k] = b[k]; });
         if (b.thuisnet) {
           const ssid = b.thuisnet.ssid || '';
           st.instellingen.thuisnet = { ssid, metWachtwoord: !!ssid && (b.thuisnet.wachtwoord ? true : st.instellingen.thuisnet.metWachtwoord) };

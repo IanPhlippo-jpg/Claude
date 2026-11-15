@@ -1,8 +1,8 @@
 /**
- * Bouwdocumenten van de kabeldoos, versie 4 (kant-en-klare modules, 2026-11-13), uit voorbeelden/treinverlichting/opbouw.mjs:
- *  - TRN-10: montageblad "moduleplaat: modules en bedrading" (A3, 1:1): de plaat van boven met elke module, zijn gaten
- *    en klemmen, de draden tussen de modules (W-nummers, in hun kleur), de stijgruimte vooraan, en de tabellen met de
- *    modules (schroeven, gaten, AANNAME) en de groepen (welke klem, welke polyfuse);
+ * Bouwdocumenten van de kabeldoos, versie 5 (één laag, 2 helften, 2026-11-15), uit voorbeelden/treinverlichting/opbouw.mjs:
+ *  - TRN-10: montageblad "rechterhelft: modules en bedrading" (A3, 1:1): de rechterhelft van boven met elke module op
+ *    haar palen, haar gaten en klemmen, de draden tussen de modules (W-nummers, in hun kleur), de draden van de bordjes
+ *    aan de naad, en de tabellen met de modules (schroeven, gaten, AANNAME) en de groepen (welke klem, welke polyfuse);
  *  - TRN-14: de interne draadlijst (van, naar, doorsnede, kleur, lengte uit het 3D-model);
  *  - TRN-20: ingebruikname- en meetblad (A4); TRN-21: invulblad voor de namen van groepen en ingangen (A4).
  * Opgemaakt volgens ISO 5457 (kader), ISO 7200 (titelblok) en ISO 128 (lijnen); gebruikt door tekeningenTrein.test.ts.
@@ -11,20 +11,21 @@ import { Blad, kader, getal, esc, type P, type Project } from './werktekening';
 // @ts-expect-error: plain JavaScript
 import { MODULES, PLAATSING, DRADEN, IN_KLEMMEN, GROEPEN, voetafdruk, gatenDoos, klem, naarDoos } from '../../voorbeelden/treinverlichting/opbouw.mjs';
 // @ts-expect-error: plain JavaScript
-import { M, plaatOmtrek, wagoHouders, plaatPalen } from '../../voorbeelden/treinverlichting/maak-kabeldoos.mjs';
+import { M, wagoHouders, rechts } from '../../voorbeelden/treinverlichting/maak-kabeldoos.mjs';
 
 type Eind = [string, string];
 type Draad = { nr: string; van: Eind; naar: Eind; net: string; mm2: number; kleur: string; wat: string };
 type Module = { naam: string; kort: string; l: number; b: number; h: number; gaten: [number, number][]; gat: number; schroef?: string; aanname?: string; wago?: boolean; klemmen: { naam: string; label: string; x: number; z: number; soort: string }[] };
 const MOD = MODULES as Record<string, Module>;
 const DR = DRADEN as Draad[];
-export const OPBOUW: { sleutel: string; nr: string }[] = [{ sleutel: 'moduleplaat', nr: 'TRN-10' }];
+export const OPBOUW: { sleutel: string; nr: string }[] = [{ sleutel: 'modules', nr: 'TRN-10' }];
 const KLEUR: Record<string, string> = { rood: '#c8202f', zwart: '#111111', oranje: '#e07a10', geel: '#c9a400', groen: '#2e9e4f', blauw: '#1f4fa3', wit: '#8a8d91', grijs: '#6b6f74' };
 
 // ---------------------------------------------------------------- de plaats van een eind (voor de lengte en de tekening)
+// de DC-bus in de achterwand van de rechterhelft, de zekeringhouder -F1 (met draden) ervoor op de bodem
 const VAST: Record<string, (k: string) => [number, number, number]> = {
-  '-X5': () => [-(M.doos.binnen / 2), M.dcbus.y, 92 + M.dcbus.dz],
-  '-F1': (k) => [-95, M.plaat.y0 + M.plaat.dik + 3, k === 'in' ? 98 : 80],
+  '-X5': () => [M.dcbus.x, M.dcbus.y, -(M.doos.binnen / 2)],
+  '-F1': (k) => [k === 'in' ? 214 : 200, 12, -84],
 };
 /** de plaats in de doos (x, y, z) van een eind van een draad */
 export function plaats(e: Eind): [number, number, number] {
@@ -32,8 +33,7 @@ export function plaats(e: Eind): [number, number, number] {
   const k = klem(e[0], e[1]);
   return [k.x, k.y, k.z];
 }
-/** lengte in mm: langs de assen (zoals een draad over de plaat loopt) plus 60 mm (strippen, lusje en de lus om de plaat
- *  op te tillen), op 10 afgerond */
+/** lengte in mm: langs de assen (zoals een draad over de bodem loopt) plus 60 mm (strippen en een lusje), op 10 afgerond */
 export const lengte = (d: Draad) => { const a = plaats(d.van), b = plaats(d.naar); return Math.ceil((Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]) + Math.abs(a[2] - b[2]) + 60) / 10) * 10; };
 const eindTekst = (e: Eind) => {
   if (e[0] === '-X5') return `DC-bus ${e[1] === '+' ? 'pen (+)' : 'huls (−)'}`;
@@ -44,30 +44,45 @@ const eindTekst = (e: Eind) => {
   return `${e[0]}:${e[0] === '-X6' ? `${e[1]} (${k.label})` : e[1].replace(/^[LR]:/, '')}`;
 };
 
-// ---------------------------------------------------------------- TRN-10: de moduleplaat met modules en bedrading
-/** een A3-blad (1:1): de moduleplaat van boven (het deksel eraf), de voorkant van de doos onderaan */
+// ---------------------------------------------------------------- TRN-10: de rechterhelft met modules en bedrading
+/** een A3-blad (1:1): de rechterhelft van boven (het deksel eraf), de voorkant van de doos onderaan, de naad links */
 export function montageBlad(nr: string, blad: string, project: Project): string {
-  const b = new Blad(), ox = 140, oy = 158; // het midden van de doos op het blad
-  const to = (x: number, z: number): P => [ox + x, oy - z];
+  const P = rechts() as { xs: number; XR: number; XRB: number; Z: number; ZB: number; pilaren: number[][]; bussen: [number, number][]; haken: { prof: [number, number][] }[]; tules: { wand: string; c: number }[]; sleutelgaten: [number, number][]; usb: { x0: number; x1: number } };
+  const b = new Blad(), xm = (P.xs + P.XRB) / 2, ox = 144, oy = 170; // het midden van de rechterhelft op het blad (boven het titelblok)
+  const to = (x: number, z: number): P => [ox + x - xm, oy - z];
   const poly = (pts: [number, number][], w = 0.35, extra = '') => b.el.push(`<polygon points="${pts.map(([x, z]) => { const p = to(x, z); return `${p[0].toFixed(2)},${b.y(p[1]).toFixed(2)}`; }).join(' ')}" fill="none" stroke="#111" stroke-width="${w}" ${extra}/>`);
-  const r = M.doos.binnen / 2;
-  b.tekst([30, 280], 'Moduleplaat: modules en bedrading (1:1, van boven gezien, het deksel eraf; vooraan = onder)', 3.5, 'start', { vet: true });
-  poly([[-r, -r], [r, -r], [r, r], [-r, r]], 0.25, 'stroke-dasharray="3 1.5"');
-  poly(plaatOmtrek(), 0.5);
+  const rh = (x0: number, z0: number, x1: number, z1: number, w = 0.35, extra = '') => poly([[x0, z0], [x1, z0], [x1, z1], [x0, z1]], w, extra);
+  const { xs, XR, XRB, Z, ZB } = P;
+  b.tekst([262, 281], 'Rechterhelft: modules en bedrading (1:1)', 3.5, 'start', { vet: true });
+  b.tekst([262, 276.5], 'Van boven gezien, het deksel eraf; vooraan = onder, de naad links.', 2.2);
+  // de wanden (buiten en binnen), aan de naad open; de naad als stippellijn
+  poly([[xs, -ZB], [XRB, -ZB], [XRB, ZB], [xs, ZB], [xs, Z], [XR, Z], [XR, -Z], [xs, -Z]], 0.5);
+  b.lijn(to(xs, -ZB - 4), to(xs, ZB + 4), 0.3, 'stroke-dasharray="6 1.5 1 1.5"');
+  b.tekst(to(xs - 1.5, ZB + 5), 'naad', 2.4, 'end', { vet: true });
+  // pilaren, klikhaken (stippel: in de linkerhelft), bussen, sleutelgaten
+  for (const [x0, z0, x1, z1] of P.pilaren) rh(x0, z0, x1, z1, 0.3);
+  b.tekst(to(xs + 5, -60), 'van links: draden van de bordjes G01..G16 (+ en −)', 2.2, 'start', { hoek: 90 });
+  for (const h of P.haken) { const zz = h === P.haken[0] ? -Z + 1 : Z - 1; rh(h.prof[2][0], zz - 0.8, xs, zz + 0.8, 0.25, 'stroke-dasharray="1.2 0.8"'); }
+  for (const [x, z] of P.bussen) { b.cirkel(to(x, z), M.doos.bus.r, 0.3); b.cirkel(to(x, z), 1.3, 0.2); }
+  for (const [x, z] of P.sleutelgaten) { b.cirkel(to(x, z), M.doos.sleutelgat.kop / 2, 0.3); b.tekst(to(x, z - 7), 'sleutelgat', 1.7, 'middle'); }
+  // tules (de gaten in de wand), de DC-bus, de opening voor de USB
+  for (const t of P.tules) {
+    const r = M.doos.invoer.gat / 2;
+    if (t.wand === 'voor') rh(t.c - r, Z, t.c + r, ZB, 0.2, 'fill="#999"');
+    else if (t.wand === 'achter') rh(t.c - r, -ZB, t.c + r, -Z, 0.2, 'fill="#999"');
+    else rh(XR, t.c - r, XRB, t.c + r, 0.2, 'fill="#999"');
+  }
+  b.tekst(to(XRB + 3, 0), 'tules: knoppen, sensoren (IN)', 2.2, 'middle', { hoek: 90 });
+  rh(M.dcbus.x - M.dcbus.gat / 2, -ZB, M.dcbus.x + M.dcbus.gat / 2, -Z, 0.2, 'fill="#111"');
+  b.tekst(to(M.dcbus.x + M.dcbus.gat / 2 + 1.5, -Z + 2.6), 'DC-bus -X5 (12 V in, in de achterwand)', 1.8, 'start', { vet: true });
+  rh(P.usb.x0, Z, P.usb.x1, ZB, 0.2, 'fill="#111"');
+  b.tekst(to((P.usb.x0 + P.usb.x1) / 2, ZB + 4.5), 'USB (ESP)', 2.2, 'middle', { vet: true });
   for (const h of wagoHouders()) poly(h, 0.25);
-  // de stijgruimte vooraan, de DC-bus, de USB-opening, de palen
-  b.tekst(to(0, (M.plaat.voor + r) / 2 - 1.2), 'stijgruimte: de draden van de bordjes en de kabelinvoeren gaan hier naar boven', 2.4, 'middle');
-  b.tekst(to(-r + 2, 95 + 4), 'DC-bus -X5', 2.2, 'start', { vet: true });
-  b.el.push(`<rect x="${to(-r - 2.4, 0)[0].toFixed(2)}" y="${b.y(to(0, 95 + 6.25)[1]).toFixed(2)}" width="2.4" height="12.5" fill="#111"/>`);
-  for (const [x, z] of plaatPalen() as [number, number][]) { b.cirkel(to(x, z), 3.1, 0.35); b.cirkel(to(x, z), 1.7, 0.25); b.tekst(to(x, z - 7), 'schroef 3 x 10', 1.8, 'middle'); }
-  const usb = naarDoos('-X6', M.esp.x / 2 + 0.8, 0);
-  b.el.push(`<rect x="${to(r, 0)[0].toFixed(2)}" y="${b.y(to(0, usb[1] + 12)[1]).toFixed(2)}" width="2.4" height="24" fill="#111"/>`);
-  b.tekst(to(r + 4, usb[1]), 'USB', 2.2, 'start', { hoek: 90 });
   // de modules: omtrek, gaten, klemmen (vierkantje met de naam) en de aanduiding
   for (const ref of Object.keys(MOD)) {
     const m = MOD[ref], [x0, z0, x1, z1] = voetafdruk(ref) as number[];
     poly([[x0, z0], [x1, z0], [x1, z1], [x0, z1]], 0.35);
-    for (const [x, z] of gatenDoos(ref) as [number, number][]) { b.cirkel(to(x, z), m.gat / 2, 0.25); b.cirkel(to(x, z), M.plaat.paal.r, 0.18); }
+    for (const [x, z] of gatenDoos(ref) as [number, number][]) { b.cirkel(to(x, z), m.gat / 2, 0.25); b.cirkel(to(x, z), M.rechts.modulePaal.r, 0.18); }
     for (const k of m.klemmen) {
       const [x, z] = naarDoos(ref, k.x, k.z), s = k.soort === 'pin' ? 0.9 : 1.6, p = to(x, z);
       b.el.push(`<rect x="${(p[0] - s / 2).toFixed(2)}" y="${(b.y(p[1]) - s / 2).toFixed(2)}" width="${s}" height="${s}" fill="#fff" stroke="#111" stroke-width="0.18"/>`);
@@ -95,17 +110,17 @@ export function montageBlad(nr: string, blad: string, project: Project): string 
     b.tekst([(pa[0] + pb[0]) / 2 + 1.5, (pa[1] + pb[1]) / 2], x.ref, 2.0, 'start', { vet: true });
   }
   // rechts: de modules en hoe ze vastzitten, de groepen
-  let y = 272;
+  let y = 268;
   const x0 = 262;
-  b.tekst([x0, y], 'Modules (vastschroeven op de paaltjes, geen solderen)', 2.8, 'start', { vet: true });
+  b.tekst([x0, y], 'Modules (vastschroeven op de palen in de bodem, geen solderen)', 2.8, 'start', { vet: true });
   y -= 4.5;
   for (const ref of Object.keys(MOD).filter((q) => !/[b]$/.test(q))) {
     const m = MOD[ref], gat = m.gaten.length ? `${m.gaten.length} x ${m.schroef} op ${getal(Math.max(...m.gaten.map((g) => g[0])) * 2, 1)} x ${getal(Math.max(...m.gaten.map((g) => g[1])) * 2, 1)}` : 'in de klikhouder';
     b.tekst([x0, y], `${ref.replace(/a$/, '')} ${m.kort}${m.wago ? (ref === '-X1a' || ref === '-X2a' ? ' (2 x)' : '') : ''}: ${getal(m.l, 1)} x ${getal(m.b, 1)}, ${gat}${m.aanname ? ' *' : ''}`, 2.1);
     y -= 3.6;
   }
-  b.tekst([x0, y - 0.5], '* AANNAME (maat of gaten niet gepubliceerd): eerst nameten, dan maten in opbouw.mjs', 2.0);
-  b.tekst([x0, y - 3.8], '   aanpassen en de plaat opnieuw maken (de bak blijft).', 2.0);
+  b.tekst([x0, y - 0.5], '* AANNAME (maat of gaten niet gepubliceerd): eerst de modules kopen en nameten, dan', 2.0);
+  b.tekst([x0, y - 3.8], '   de maten in opbouw.mjs aanpassen en pas dan de rechterhelft printen.', 2.0);
   y -= 10;
   b.tekst([x0, y], 'Groepen: + en − van elk bordje', 2.8, 'start', { vet: true });
   y -= 4.5;
@@ -115,20 +130,20 @@ export function montageBlad(nr: string, blad: string, project: Project): string 
   }
   y -= 2;
   for (const t of [
-    'Volgorde: 1 plaat printen, 2 de modules op hun paaltjes (plaatschroef 2,5 x 6 / 3 x 8),',
-    '3 de WAGO-klemmen in hun klikhouders, 4 de draden W01..W61 volgens TRN-14 (dupont',
-    'op de pinnen van -K2, -Q1, -Q2), 5 -R1, -R2 en -F18 met hun pootjes in de klemmen,',
-    '6 proefopstelling op tafel (TRN-20), 7 de plaat in de doos: achteraan onder de richel,',
-    'vooraan 2 schroeven 3 x 10. Enige soldeerwerk: de 2 lippen van de DC-bus.',
+    'Volgorde: 1 de rechterhelft printen, 2 de modules op hun palen (plaatschroef 2,5 x 6 /',
+    '3 x 8), 3 de WAGO-klemmen in hun klikhouders, 4 de draden W01..W61 volgens TRN-14',
+    '(dupont op de pinnen van -K2, -Q1, -Q2), 5 -R1, -R2 en -F18 met hun pootjes in de',
+    'klemmen, 6 proefopstelling met de rechterhelft op tafel (TRN-20), 7 de helften in elkaar',
+    'klikken (TRN-06). Enige soldeerwerk: de 2 lippen van de DC-bus.',
   ]) { b.tekst([x0, y], t, 2.0); y -= 3.3; }
-  kader(b, { nr, naam: 'Moduleplaat: modules en bedrading', materiaal: 'PETG (plaat), kant-en-klare modules', maken: 'schroeven, klemmen', massa: '—', schaal: '1:1', blad, soort: 'Montagetekening' }, project);
+  kader(b, { nr, naam: 'Rechterhelft: modules en bedrading', materiaal: 'kant-en-klare modules op de palen', maken: 'schroeven, klemmen', massa: '—', schaal: '1:1', blad, soort: 'Montagetekening' }, project);
   return b.svg();
 }
 
 /** de interne draadlijst (A3) */
 export function draadlijstBlad(nr: string, blad: string, project: Project): string {
   const b = new Blad(), k = [['Nr', 11], ['Van', 70], ['Naar', 70], ['Wat', 130], ['mm²', 13], ['Kleur', 16], ['Lengte', 16]] as [string, number][];
-  b.tekst([30, 280], 'Interne draadlijst: draden tussen de modules op de moduleplaat', 4, 'start', { vet: true });
+  b.tekst([30, 280], 'Interne draadlijst: draden tussen de modules in de rechterhelft', 4, 'start', { vet: true });
   b.tekst([30, 274.5], 'De draden naar de bordjes (G01+ .. G16+, G01− .. G16−) en de ingangen (IN01 .. IN16) staan in de README (Draden labelen) en op TRN-10. Lengte uit het 3D-model + 60 mm.', 2.3);
   let y = 268;
   const rijH = 3.42;
@@ -189,7 +204,7 @@ export function meetBlad(nr: string, blad: string, project: Project): string {
   b.tekst([25, 280], 'Ingebruikname en metingen', 5, 'start', { vet: true });
   b.tekst([25, 274.5], 'Multimeter, het dashboard (Instellingen › Testmodus). Vul de gemeten waarden in; alles binnen de grenzen = goed.', 2.4);
   const stappen = [
-    ['0', 'Proefopstelling: de moduleplaat op tafel, 1 bordje op groep 1, 1 knop op IN01.', ''],
+    ['0', 'Proefopstelling: de rechterhelft op tafel, 1 bordje op groep 1, 1 knop op IN01.', ''],
     ['1', 'Zonder adapter: weerstand -X1 (rood snoer) – -X2 (L+ – 0 V)', '> 1 kΩ'],
     ['2', 'Adapter in de DC-bus: spanning -X1 – -X2 (L+)', '11,6 .. 12,4 V'],
     ['3', 'Regelaar -T2: VOUT – GND', '4,9 .. 5,2 V'],
@@ -199,21 +214,23 @@ export function meetBlad(nr: string, blad: string, project: Project): string {
     ['7', '+12 V ingangen: -X3 – -X2 (S12, na -F18)', '11,4 .. 12,4 V'],
     ['8', 'Groep 1 "uit" in het dashboard: het bordje is uit*', 'uit'],
     ['9', 'IN01 los: het dashboard toont "rust"*', 'rust'],
-    ['10', 'Firmware: versie op het dashboard (Instellingen)', '1.2.0 of hoger'],
+    ['10', 'Firmware: versie op het dashboard (Instellingen)', '1.3.0 of hoger'],
     ['11', 'Wifi-wachtwoord gewijzigd; BOOT 5 s zet het terug (proef)', 'gedaan'],
+    ['12', 'Hallsensor op IN n ("Hallsensor (korte puls)"): magneet 10 x snel langs**', 'teller +10'],
   ];
   invulTabel(b, 25, 270, [['Nr', 8], ['Meting of controle', 107], ['Grens', 26], ['Gemeten', 25], ['OK', 9]], stappen, 5.2);
   const yg = 270 - 5.2 * (stappen.length + 1) - 6;
-  b.tekst([25, yg + 2], 'Per groep (testmodus "groep vast", vol licht): stroom in de − van het bordje, spanning n− – VIN− op de MOSFET-module', 2.4, 'start', { vet: true });
+  b.tekst([25, yg + 2], 'Per groep (testmodus "groep vast", aan): stroom in de − van het bordje, spanning n− – VIN− op de MOSFET-module', 2.4, 'start', { vet: true });
   const groepen = Array.from({ length: 16 }, (_, k) => [String(k + 1), '', '', '']);
   invulTabel(b, 25, yg, [['Groep', 11], ['Stroom (≤ 0,32 A)', 32], ['U n−/VIN− (< 0,1 V)', 30], ['OK', 9]], groepen, 5.8);
   b.tekst([114, yg - 2], 'Per ingang: knop of sensor bedienen,', 2.3, 'start', { vet: true });
   b.tekst([114, yg - 5.4], 'het dashboard toont "actief" (Ingangen).', 2.3);
   const ingangen = Array.from({ length: 16 }, (_, k) => [String(k + 1), '', '', '']);
   invulTabel(b, 114, yg - 8, [['IN', 9], ['Soort', 25], ['Actief gezien', 27], ['OK', 9]], ingangen, 5.4);
-  b.tekst([25, 44.5], '* Andersom (bordje aan bij "uit", of ingang "actief" in rust): de module schakelt met de andere polariteit; firmware bouwen met', 2.1);
-  b.tekst([25, 41], '   -DTREIN_UITGANG_ACTIEF_HOOG of -DTREIN_INGANG_ACTIEF_HOOG (firmware/README.md), of de jumper op de optocouplerprint omzetten.', 2.1);
-  b.tekst([25, 37.5], 'Een groep die niet aangaat: polyfuse -F(n+1) warm (gesprongen)? Dupont van PWM n op IN n? Testmodus "looplicht": elk bordje op zijn plaats?', 2.1);
+  b.tekst([25, 49], '* Andersom (bordje aan bij "uit", of ingang "actief" in rust): de module schakelt met de andere polariteit; firmware bouwen met', 2.1);
+  b.tekst([25, 45.5], '   -DTREIN_UITGANG_ACTIEF_HOOG of -DTREIN_INGANG_ACTIEF_HOOG (firmware/README.md), of de jumper op de optocouplerprint omzetten.', 2.1);
+  b.tekst([25, 42], '** Bij elke doorgang: het bolletje van de ingang (dashboard, Ingangen) even groen, toestand "puls", de led op de PC817-print knippert kort.', 2.1);
+  b.tekst([25, 38.5], 'Een groep die niet aangaat: polyfuse -F(n+1) warm (gesprongen)? Dupont van kanaal n op IN n? Testmodus "looplicht": elk bordje op zijn plaats?', 2.1);
   kaderA4(b, { nr, naam: 'Ingebruikname en metingen', soort: 'Meetblad', blad }, project);
   return b.svg();
 }

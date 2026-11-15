@@ -4,7 +4,8 @@
 // -F zekeringen en polyfuses, -K besturing en signaalverwerking (ESP, PWM-print, optocouplerprints), -Q schakelen
 // (MOSFET-modules), -R weerstand en diode, -X klemmen (WAGO-klemmen, DC-bus, de schroefklemadapter van de ESP),
 // -E de Modelbouwled-bordjes, -W de kabel van de netadapter.
-// Revisie 3 (versie 4, Ian 2026-11-13: kant-en-klare printjes): geen gaatjesprints meer. De modules staan als
+// Revisie 4 (versie 5, Ian 2026-11-15): één laag in 2 helften (de modules in de rechterhelft), uitgangen alleen aan/uit,
+// hallsensoren op de ingangen. Revisie 3 (versie 4, Ian 2026-11-13: kant-en-klare printjes): geen gaatjesprints meer. De modules staan als
 // toestellen (streep-punt) met hun klemmen getekend; binnenin alleen wat nodig is om de werking te volgen. De bedrading
 // en de klemmen komen uit ../opbouw.mjs (dezelfde bron als het montageblad TRN-10 en de draadlijst TRN-14).
 // Potentialen: J+ (12 V van de DC-bus), L+ (12 V na de hoofdzekering), S12 (12 V voor sensoren en ingangen, na -F18),
@@ -20,9 +21,9 @@ import { INGANG_GPIO, MODULES, DRADEN, IN_KLEMMEN, J1, J3 } from '../opbouw.mjs'
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 export const PROJECT = {
-  naam: 'Treinbaan', omschrijving: 'kabeldoos verlichting, versie 4', eigenaar: 'Ian', tekeningnr: 'TRN-E01',
+  naam: 'Treinbaan', omschrijving: 'kabeldoos verlichting, versie 5', eigenaar: 'Ian', tekeningnr: 'TRN-E01',
   installatie: '=TRN', installatieNaam: 'verlichting modelbaan', plaats: '+DOOS', plaatsNaam: 'onder de baan',
-  datum: '2026-11-08', getekend: 'Phlippo CAD', gecontroleerd: 'Ian', norm: 'IEC 81346', revisie: { index: '3', datum: '2026-11-13', naam: 'PC' },
+  datum: '2026-11-08', getekend: 'Phlippo CAD', gecontroleerd: 'Ian', norm: 'IEC 81346', revisie: { index: '4', datum: '2026-11-15', naam: 'PC' },
 };
 export { INGANG_GPIO };
 // de bladen (nummers voor de kruisverwijzingen)
@@ -79,7 +80,7 @@ function voeding() {
 
 function uitgangen() {
   const i = [], ym = 236, y0 = 60, y1 = 150;
-  i.push(toestel(25, 26, 380, 16, '-K2', ['PWM-print PCA9685, 16 kanalen (I2C 0x40, 1 kHz, 12 bit), pinnen PWM0..15 (dupont)', `VCC = L3 ${ref(B.besturing, 300)}; OE ← GPIO10 met -R1 1 kΩ naar 3,3 V ${ref(B.besturing, 300)}; V+ niet gebruikt`], []));
+  i.push(toestel(25, 26, 380, 16, '-K2', ['Uitgangsprint PCA9685, 16 kanalen (I2C 0x40), alleen volledig aan of uit (full-on/full-off), pinnen PWM0..15 (dupont)', `VCC = L3 ${ref(B.besturing, 300)}; OE ← GPIO10 met -R1 1 kΩ naar 3,3 V ${ref(B.besturing, 300)}; V+ niet gebruikt`], []));
   for (const [q, g0, x0] of [['-Q1', 1, 25], ['-Q2', 9, 25 + 8 * 23.2]]) {
     i.push(toestel(x0 + 2, y0, 8 * 23.2 - 4, y1 - y0, q, [], []));
     i.push(T(x0 + 10, y0 - 1.6, `8-kanaals MOSFET-module met optocouplers (3,3 V) · VCC = L3 ${ref(B.besturing, 300)} · VIN+ = L+ (+) en VIN− = M ${ref(B.voeding, q === '-Q1' ? 205 : 245)}`, { size: 2.0 }));
@@ -131,12 +132,12 @@ function ingangen() {
       i.push(L([[x + 14, y0 + 26], [x + 14, y0 + 21]]), T(x + 9.5, y0 + 18, `GPIO${INGANG_GPIO[g - 1]}`, { size: 1.6 }), T(x + 9.5, y0 + 15.5, ref(B.besturing, 140), { size: 1.5 }));
       i.push(L([[x + 9, y0 + 48], [x + 9, y1 - 6]]), punt(x + 9, y1 - 6));
       // in het veld: knop, schakelaar, reed of NPN-sensor naar 0 V
-      i.push(L([[x, y1], [x, 170]]), T(x + 1, y1 + 5, `IN${String(g).padStart(2, '0')}`, { size: 1.9 }), contact(x, 170, 'knop/NPN'), L([[x, 184], [x, ym]]), punt(x, ym));
+      i.push(L([[x, y1], [x, 170]]), T(x + 1, y1 + 5, `IN${String(g).padStart(2, '0')}`, { size: 1.9 }), contact(x, 170, 'knop/NPN/hall'), L([[x, 184], [x, ym]]), punt(x, ym));
     }
     i.push(L([[x0 + 2, y1 - 6], [x0 + 8 * 23.2 - 6, y1 - 6]]));
   }
   i.push(T(25, 244, '-K3, -K4: optocouplerprint PC817, 8 kanalen; VCC (ingang) = S12 +12 V, IN n naar 0 V = actief; uitgang met jumper op pull-up: OUT n laag = actief (GPIO met pull-up). Een +12 V op IN n: niets aan de hand (0 V over de led).', { size: 2.3 }));
-  i.push(T(25, 249, 'Een sensor die zelf 12 V geeft (PNP) werkt niet rechtstreeks: neem een contact, reed of NPN-sensor (README). De ingangsweerstand (1 kΩ) en de pull-up zijn AANNAME: na te meten.', { size: 2.3 }));
+  i.push(T(25, 249, 'Hallsensor (SS441A, A3144): + aan -X3, − aan -X2, uitgang aan IN; meerdere parallel mag; ingang op "Hallsensor (korte puls)" zetten (puls vanaf 1 ms). PNP werkt niet rechtstreeks. Ingangsweerstand 1 kΩ: AANNAME.', { size: 2.3 }));
   return { titel: ['Ingangen', 'knoppen en sensoren'], inhoud: i };
 }
 
@@ -144,7 +145,7 @@ function besturing() {
   const i = [], ym = 230;
   i.push(rail(30, X0 + 3, RECHTS, 'L5', { van: ref(B.voeding, RECHTS) }), rail(ym, X0 + 3, RECHTS, 'M', { van: ref(B.voeding, RECHTS) }));
   const pins = [{ x: 0, y: 15, naam: '5V (J1:21)' }, { x: 0, y: 150, naam: 'G (J1:22, J3:1, 21, 22)' }, { x: 100, y: 15, naam: '3V3 (J1:1, 2)' }, { x: 100, y: 40, naam: 'GPIO8 SDA (J1:12)' }, { x: 100, y: 50, naam: 'GPIO9 SCL (J1:15)' }, { x: 100, y: 65, naam: 'GPIO10 OE (J1:16)' }, { x: 100, y: 85, naam: 'GPIO 1..21, 40, 41 (ingangen)' }, { x: 100, y: 105, naam: 'GPIO38 RGB-led' }, { x: 100, y: 120, naam: 'GPIO0 BOOT' }];
-  i.push(toestel(60, 45, 100, 160, '-K1', ['', '', '', 'ESP32-S3-DevKitC-1 v1.1 (N16R8)', 'in de schroefklemadapter -X6', '(44 schroefklemmen, ESP in 2 pinrijen)', '2 x micro-USB "UART" en "USB"', 'in de rechterwand (flashen)', '', 'wifi-hotspot "Treinbaan"', '+ thuisnet (STA), treinbaan.local', 'dashboard: 192.168.4.1', '', 'statuslampje GPIO38:', 'groen = wifi aan,', 'rood = -K2 antwoordt niet', 'BOOT 5 s: wachtwoord terug'], pins));
+  i.push(toestel(60, 45, 100, 160, '-K1', ['', '', '', 'ESP32-S3-DevKitC-1 v1.1 (N16R8)', 'in de schroefklemadapter -X6', '(44 schroefklemmen, ESP in 2 pinrijen)', '2 x micro-USB "UART" en "USB"', 'in de voorwand (flashen)', '', 'wifi-hotspot "Treinbaan"', '+ thuisnet (STA), treinbaan.local', 'dashboard: 192.168.4.1', '', 'statuslampje GPIO38:', 'groen = wifi aan,', 'rood = -K2 antwoordt niet', 'BOOT 5 s: wachtwoord terug'], pins));
   i.push(punt(45, 30), L([[45, 30], [45, 60], [60, 60]]), L([[60, 195], [45, 195], [45, ym]]), punt(45, ym));
   i.push(T(26, 52, '-T2 VOUT', { size: 2.0 }));
   i.push(L([[160, 60], [175, 60], [175, 40], [218.8, 40]], { w: 0.35 }), klem(220, 40, '-X7', '1'), L([[221.2, 40], [RECHTS, 40]], { w: 0.35 }), onderbreking(RECHTS, 40, 'L3', `${ref(B.uit, 30)}  ${ref(B.in, 30)}`, 'rechts'));
@@ -174,8 +175,8 @@ export const STUKLIJST = [
   ['-T2', '1', 'Regelaar 9-35 V -> 5 V, 5 A, 3-polige schroefklem', 'Joy-IT SBC-Buck02'],
   ['-K1', '1', 'ESP32-S3-DevKitC-1 v1.1, N16R8', 'Espressif'],
   ['-X6', '1', 'Schroefklemadapter ESP32-S3 44-pin (voor 23 en 25,5 mm brede borden)', 'ESP32-S3 Expansion Board 44P'],
-  ['-K2', '1', 'PWM-print 16 kanalen, I2C, pinnen gesoldeerd', 'AZ-Delivery PCA9685'],
-  ['-Q1, -Q2', '2', 'MOSFET-module 8 kanalen, optocouplers, 3,3 V-ingang, PWM', '8 Channel MOSFET PLC Amplifier (3,3 V-versie)'],
+  ['-K2', '1', 'Uitgangsprint 16 kanalen (aan/uit), I2C, pinnen gesoldeerd', 'AZ-Delivery PCA9685'],
+  ['-Q1, -Q2', '2', 'MOSFET-module 8 kanalen, optocouplers, 3,3 V-ingang', '8 Channel MOSFET PLC Amplifier (3,3 V-versie)'],
   ['-K3, -K4', '2', 'Optocouplerprint 8 kanalen PC817, 3,6-24 V, schroefklemmen 5,0', 'MakerMind RBS18122'],
   ['-F2..-F17', '16', 'Polyfuse 0,5 A, 60 V, radiaal (één per groep)', 'Bourns MF-R050'],
   ['-F18', '1', 'Polyfuse 0,5 A, 60 V, radiaal (+12 V ingangen en sensoren)', 'Bourns MF-R050'],
@@ -214,7 +215,7 @@ const KLEMMEN = {
   ]]])),
   ...Object.fromEntries(['-K3', '-K4'].map((k, j) => [k, [`Optocouplerprint ${j + 1}: ingangen ${8 * j + 1}..${8 * j + 8}`, [
     { klem: 'VCC', functie: 'S12: +12 V voor de leds', kabel: '0,25 mm²', extern: '-X3', externAansl: String(2 + j), intern: 'weerstanden', verwijzing: ref(B.in, 25 + 186 * j), bron: [k, 'VCC'] },
-    ...Array.from({ length: 8 }, (_, n) => ({ klem: `IN${n + 1}`, functie: `IN${String(8 * j + n + 1).padStart(2, '0')}: knop of NPN-sensor naar 0 V`, kabel: '0,25 mm²', extern: 'knop of sensor', intern: 'led', verwijzing: ref(B.in, xGroep(8 * j + n + 1)), bron: [k, `IN${n + 1}`] })),
+    ...Array.from({ length: 8 }, (_, n) => ({ klem: `IN${n + 1}`, functie: `IN${String(8 * j + n + 1).padStart(2, '0')}: knop, NPN- of hallsensor naar 0 V`, kabel: '0,25 mm²', extern: 'knop of sensor', intern: 'led', verwijzing: ref(B.in, xGroep(8 * j + n + 1)), bron: [k, `IN${n + 1}`] })),
     { klem: 'VCC', functie: 'L3: 3,3 V (uitgangskant)', kabel: '0,14 mm²', extern: '-X7', externAansl: String(4 + j), intern: 'pull-up', verwijzing: ref(B.in, 25 + 186 * j), bron: [k, 'VCCo'] },
     ...Array.from({ length: 8 }, (_, n) => ({ klem: `OUT${n + 1}`, functie: `naar GPIO${INGANG_GPIO[8 * j + n]}`, kabel: '0,14 mm²', extern: '-X6', externAansl: tekstEind(DRADEN.find((d) => d.van[0] === k && d.van[1] === `OUT${n + 1}`).naar).split(':').slice(1).join(':'), intern: 'transistor', verwijzing: ref(B.besturing, 160), bron: [k, `OUT${n + 1}`] })),
     { klem: 'GND', functie: 'M: 0 V (uitgangskant)', kabel: '0,14 mm²', extern: '-X6', externAansl: 'J3:22', intern: 'emitters', verwijzing: ref(B.besturing, 40), bron: [k, 'GND'] },
@@ -233,7 +234,7 @@ alle.forEach((b, k) => { b.nr = k + 1; });
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   voor.inhoud = titelblad(PROJECT, [
     ['Klant', 'eigen gebruik (modelbaan)'], ['Tekeningnummer', PROJECT.tekeningnr], ['Fabrikant', 'zelfbouw met kant-en-klare modules'], ['Projectverantwoordelijke', 'Ian'],
-    ['Projectstart', '2026-11-08'], ['Projectnaam', 'Treinbaan, kabeldoos verlichting'], ['Revisie 3', '2026-11-13: kant-en-klare modules (versie 4)'],
+    ['Projectstart', '2026-11-08'], ['Projectnaam', 'Treinbaan, kabeldoos verlichting'], ['Revisie 3', '2026-11-13: kant-en-klare modules (versie 4)'], ['Revisie 4', '2026-11-15: één laag in 2 helften, aan/uit, hallsensoren (versie 5)'],
   ], [
     ['Installatie', '=TRN verlichting modelbaan'], ['Plaats', '+DOOS kabeldoos onder de baan'], ['Voedingsspanning', '230 V AC (in de netadapter) → 12 V DC'],
     ['Stuurspanning', '5 V DC en 3,3 V DC'], ['Beschermingsgraad', 'IP20 (binnen)'], ['Potentialen', 'J+, L+ en S12 12 V, L5 5 V, L3 3,3 V, M 0 V'], ['Bouwjaar', '2026'],

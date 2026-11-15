@@ -2,15 +2,19 @@
 // testen: test/test_opslag.
 //
 // Twee bestanden in het flashgeheugen van de ESP:
-//   /instellingen.json  namen, scènes, functies, ingangen, wachtwoord, faduur, dag/nacht-duur, opstartgedrag
+//   /instellingen.json  namen, scènes, functies, ingangen, wachtwoord, dag/nacht-duur, opstartgedrag
 //   /stand.json         de stand van de groepen (voor na een stroomonderbreking), apart zodat het vaak bewaren
 //                       van de stand de instellingen nooit in gevaar brengt
-// Elk bestand heeft een versienummer ("versie": 1) en wordt bij het laden volledig nagekeken:
+// Elk bestand heeft een versienummer ("versie": 2) en wordt bij het laden volledig nagekeken:
 //   - onleesbaar (kapotte JSON), te groot (> 48 kB), geen object, onbekende versie of een onderdeel van het verkeerde
 //     soort (bv. "groepen" is geen lijst): het hele bestand is ONGELDIG -> standaardinstellingen + melding
 //     (main.cpp bewaart het kapotte bestand als /instellingen.kapot.json, er gaat niets verloren);
-//   - een losse waarde buiten het bereik of van het verkeerde soort (helderheid 250, naam te lang, onbekend effect):
+//   - een losse waarde buiten het bereik of van het verkeerde soort (naam te lang, onbekend effect, nalopen -5):
 //     die ene waarde wordt aangepast of krijgt de standaard, de rest blijft (HERSTELD + melding met het aantal).
+// Versie 1 (firmware 1.0 tot 1.2, met dimmen) wordt netjes omgezet (OMGEZET, geen melding; main.cpp bewaart het
+// bestand meteen als versie 2): "helderheid", "max" en "faduur" vallen weg (een groep die aan stond, blijft aan),
+// een stap "helderheid" wordt "aan" (waarde > 0) of "uit" (0), de effecten vuur, tv en ademen worden "aan" zonder
+// effect.
 // Nooit crashen: elke waarde wordt begrensd voor ze gebruikt wordt; lijsten worden ingekort tot hun maximum.
 #pragma once
 #include <ArduinoJson.h>
@@ -24,21 +28,19 @@
 
 namespace trein {
 
-constexpr int CONFIG_VERSIE = 1;
+constexpr int CONFIG_VERSIE = 2;     // 2 = firmware 1.3.0 (alleen aan/uit, soort per ingang)
+constexpr int OUDE_VERSIE = 1;       // firmware 1.0 tot 1.2 (met dimmen): wordt bij het laden omgezet
 constexpr size_t MAX_BESTAND = 48 * 1024;
 constexpr const char *STD_WACHTWOORD = "treinbaan";
 constexpr const char *HOTSPOT_NAAM = "Treinbaan";
-constexpr uint32_t MAX_FADUUR_MS = 10000;
 constexpr uint16_t MIN_DAGNACHT_MIN = 2, MAX_DAGNACHT_MIN = 240;
 
 struct GroepCfg {
   char naam[NAAM_LEN] = {0};
-  uint8_t max = 100;     // maximumhelderheid 1..100 %
   bool dagnacht = false; // doet mee aan de dag/nacht-cyclus
 };
 
 struct Instellingen {
-  uint32_t faduurMs = 500;
   uint16_t dagnachtMin = 20;   // duur van een hele dag (dag + avond + nacht + ochtend) in minuten
   bool opstartLaatste = true;  // na een stroomonderbreking: true = de laatste stand terug, false = alles uit
   char wachtwoord[64] = {0};   // wifi (WPA2): 8..63 gewone tekens
@@ -63,7 +65,7 @@ struct Stand {
   uint16_t functies = 0; // lopende herhalende functies (bit f = functie f+1)
 };
 
-enum class Laad { OK, HERSTELD, ONGELDIG };
+enum class Laad { OK, OMGEZET, HERSTELD, ONGELDIG };
 
 /** WPA2: 8 tot 63 gewone tekens (geen é, geen stuurtekens) */
 inline bool wachtwoordGeldig(const char *w) {
@@ -190,9 +192,15 @@ struct Lezer {
 
   void groepStand(JsonVariantConst v, GroepStand &s) {
     if (!v.is<JsonObjectConst>()) { if (!v.isNull()) hersteld++; return; }
-    s.aan = janee(v["aan"], s.aan);
-    s.helderheid = (uint8_t)getal(v["helderheid"], 1, 100, s.helderheid);
+    s.aan = janee(v["aan"], s.aan); // "helderheid" (firmware 1.2) telt niet meer: aan blijft aan
     JsonVariantConst e = v["effect"];
+    if (!e.isNull() && vervallenEffect(e.as<const char *>())) {
+      // vuur, tv, ademen (firmware 1.2, met tussenwaarden): gewoon aan of uit zonder effect, hun instellingen vervallen
+      s.effect = FX_GEEN;
+      s.p1 = s.p2 = 0;
+      s.fase = 0;
+      return;
+    }
     if (!e.isNull()) {
       int nr = e.is<const char *>() ? effectVanId(e.as<const char *>()) : -1;
       if (nr < 0) hersteld++;
@@ -216,6 +224,11 @@ struct Lezer {
     s = Stap();
     JsonVariantConst a = v["actie"];
     int act = a.is<const char *>() ? actieVanId(a.as<const char *>()) : -1;
+    if (act < 0 && a.is<const char *>() && strcmp(a.as<const char *>(), "helderheid") == 0) {
+      // firmware 1.2: "helderheid" met een waarde 1..100 -> aan (> 0) of uit (0)
+      JsonVariantConst w = v["waarde"];
+      act = (w.is<double>() && !(w.as<double>() > 0)) ? ACT_UIT : ACT_AAN;
+    }
     if (act < 0) { hersteld++; return false; }
     s.actie = (uint8_t)act;
     JsonVariantConst gs = v["groepen"];
@@ -229,12 +242,12 @@ struct Lezer {
       hersteld++;
     }
     switch (s.actie) {
-      case ACT_HELDERHEID: s.waarde = getal(v["waarde"], 1, 100, 100); break;
       case ACT_SCENE: s.waarde = getal(v["waarde"], 1, MAX_SCENES, 1); break;
       case ACT_DAGNACHT: s.waarde = getal(v["waarde"], 0, 1, 1); break;
       case ACT_EFFECT: {
         JsonVariantConst e = v["effect"];
         int nr = e.is<const char *>() ? effectVanId(e.as<const char *>()) : -1;
+        if (nr < 0 && vervallenEffect(e.as<const char *>())) { s.actie = ACT_AAN; break; } // firmware 1.2: gewoon aan
         if (nr < 0) { hersteld++; nr = FX_GEEN; }
         s.effect = (uint8_t)nr;
         const EffectInfo &i = effectInfo(nr);
@@ -296,18 +309,23 @@ struct Lezer {
     c.functieB = verwijzing(v["functieB"], MAX_FUNCTIES, c.functieB);
     c.wisselen = janee(v["wisselen"], c.wisselen);
     c.naloopS = (uint16_t)getal(v["nalopen"], 0, MAX_NALOOP_S, c.naloopS);
+    JsonVariantConst s = v["soort"];
+    if (!s.isNull()) {
+      int nr = s.is<const char *>() ? soortVanId(s.as<const char *>()) : -1;
+      if (nr < 0) hersteld++;
+      else c.soort = (uint8_t)nr;
+    }
+    c.vasthoudMs = (uint16_t)seconden(v["vasthouden"], 0, MAX_VASTHOUD_MS, c.vasthoudMs);
   }
 
   void groepCfg(JsonVariantConst v, GroepCfg &g) {
     if (!v.is<JsonObjectConst>()) { if (!v.isNull()) hersteld++; return; }
-    naam(v["naam"], g.naam);
-    g.max = (uint8_t)getal(v["max"], 1, 100, g.max);
+    naam(v["naam"], g.naam); // "max" (firmware 1.2) telt niet meer
     g.dagnacht = janee(v["dagnacht"], g.dagnacht);
   }
 
   void instellingen(JsonVariantConst v, Instellingen &i) {
     if (!v.is<JsonObjectConst>()) { if (!v.isNull()) hersteld++; return; }
-    i.faduurMs = seconden(v["faduur"], 0, MAX_FADUUR_MS, i.faduurMs);
     i.dagnachtMin = (uint16_t)getal(v["dagnachtMin"], MIN_DAGNACHT_MIN, MAX_DAGNACHT_MIN, i.dagnachtMin);
     JsonVariantConst o = v["opstart"];
     if (!o.isNull()) {
@@ -341,7 +359,6 @@ struct Lezer {
 // ---------------------------------------------------------------------------------------------- JSON schrijven
 inline void schrijfStand(JsonObject o, const GroepStand &s) {
   o["aan"] = s.aan;
-  o["helderheid"] = s.helderheid;
   o["effect"] = effectInfo(s.effect).id;
   o["p1"] = s.p1;
   o["p2"] = s.p2;
@@ -353,7 +370,7 @@ inline void schrijfStap(JsonObject o, const Stap &s) {
   for (int i = 0; i < N_GROEPEN; i++)
     if (s.groepen >> i & 1) g.add(i + 1);
   o["actie"] = actieId(s.actie);
-  if (s.actie == ACT_HELDERHEID || s.actie == ACT_SCENE || s.actie == ACT_DAGNACHT) o["waarde"] = s.waarde;
+  if (s.actie == ACT_SCENE || s.actie == ACT_DAGNACHT) o["waarde"] = s.waarde;
   if (s.actie == ACT_EFFECT) {
     o["effect"] = effectInfo(s.effect).id;
     o["p1"] = s.p1;
@@ -377,10 +394,11 @@ inline void schrijfIngang(JsonObject o, const IngangCfg &c) {
   o["functieB"] = c.functieB + 1;
   o["wisselen"] = c.wisselen;
   o["nalopen"] = c.naloopS;
+  o["soort"] = soortId(c.soort);
+  o["vasthouden"] = c.vasthoudMs / 1000.0;
 }
 
 inline void schrijfInstellingen(JsonObject o, const Instellingen &i, bool metWachtwoord) {
-  o["faduur"] = i.faduurMs / 1000.0;
   o["dagnachtMin"] = i.dagnachtMin;
   o["opstart"] = i.opstartLaatste ? "laatste" : "uit";
   if (metWachtwoord) o["wachtwoord"] = i.wachtwoord;
@@ -399,7 +417,6 @@ inline std::string configNaarJson(const Config &c) {
   for (int g = 0; g < N_GROEPEN; g++) {
     JsonObject x = gs.add<JsonObject>();
     x["naam"] = c.groep[g].naam;
-    x["max"] = c.groep[g].max;
     x["dagnacht"] = c.groep[g].dagnacht;
   }
   JsonArray sc = o["scenes"].to<JsonArray>();
@@ -430,11 +447,12 @@ inline std::string kijkNa(const char *tekst, size_t len, JsonDocument &d) {
   if (fout) return std::string("kapot bestand (") + fout.c_str() + ")";
   if (!d.is<JsonObject>()) return "kapot bestand (geen object)";
   JsonVariantConst v = d["versie"];
-  if (!v.is<int>() || v.as<int>() != CONFIG_VERSIE) return "onbekende versie";
+  if (!v.is<int>() || (v.as<int>() != CONFIG_VERSIE && v.as<int>() != OUDE_VERSIE)) return "onbekende versie";
   return "";
 }
 
-/** de instellingen laden en volledig nakijken. ONGELDIG: c = de standaardinstellingen. */
+/** de instellingen laden en volledig nakijken. ONGELDIG: c = de standaardinstellingen. OMGEZET: een bestand van
+ *  versie 1 (met dimmen), zonder fouten omgezet; main.cpp bewaart het meteen als versie 2. */
 inline Laad configVanJson(const char *tekst, size_t len, Config &c, std::string &melding) {
   melding.clear();
   standaard(c);
@@ -483,6 +501,7 @@ inline Laad configVanJson(const char *tekst, size_t len, Config &c, std::string 
     if (n >= N_INGANGEN) { l.hersteld++; break; }
     l.ingang(i, c.ingang[n++]);
   }
+  bool oud = d["versie"].as<int>() == OUDE_VERSIE;
   if (l.hersteld > 0) {
     char t[160];
     snprintf(t, sizeof t, "%d waarde%s in de instellingen klopte%s niet en %s aangepast.", l.hersteld,
@@ -490,7 +509,7 @@ inline Laad configVanJson(const char *tekst, size_t len, Config &c, std::string 
     melding = t;
     return Laad::HERSTELD;
   }
-  return Laad::OK;
+  return oud ? Laad::OMGEZET : Laad::OK;
 }
 
 inline std::string standNaarJson(const Stand &s) {

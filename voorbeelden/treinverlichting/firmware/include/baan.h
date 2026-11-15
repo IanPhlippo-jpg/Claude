@@ -1,10 +1,11 @@
-// De hele lichtsturing samen, zonder hardware: groepen, effecten, dag/nacht, scènes, functies en ingangen.
-// main.cpp roept elke 5 ms tick() aan met de tijd en de ingangen, en schrijft lampen.uitgang[] naar de PCA9685.
+// De hele lichtsturing samen, zonder hardware: groepen (aan/uit), effecten, dag/nacht, scènes, functies en ingangen.
+// main.cpp roept elke 5 ms tick() aan met de tijd, de ingangen en hun flanken, en schrijft lampen.uitgang (een masker:
+// bit g = groep g+1 brandt) naar de PCA9685.
 // Het dashboard (api.h) gebruikt de bedieningsfuncties hieronder. Testen: test/test_functies, test/test_api.
 //
 // Afspraken:
-//   - "Alles uit" stopt alle functies en de dag/nacht-cyclus en zet alle groepen uit (helderheid en effect blijven
-//     bewaard: weer aanzetten geeft dezelfde lamp terug);
+//   - "Alles uit" stopt alle functies en de dag/nacht-cyclus en zet alle groepen uit (het effect blijft bewaard:
+//     weer aanzetten geeft dezelfde lamp terug);
 //   - overweg (om beurten): een groep met een tweede groep (p2) neemt die tweede groep mee: zelfde tempo, tegengesteld,
 //     samen aan en uit. Een functiestap met effect overweg op meer groepen laat ze om beurten knipperen
 //     (1e, 3e, ... samen; 2e, 4e, ... samen);
@@ -22,11 +23,11 @@
 
 namespace trein {
 
-constexpr const char *FW_VERSIE = "1.2.0";
+constexpr const char *FW_VERSIE = "1.3.0";
 
 // Testmodus (voor de ingebruikname en het meetblad): de uitgangen worden overschreven, de rest rekent gewoon door.
-//   looplicht  groep 1, 2, ... N om de beurt VOL aan (zonder zachte overgang, gamma of maximum), elk stapMs lang
-//   vast       één groep vol aan (stroom van die groep meten), de andere uit
+//   looplicht  groep 1, 2, ... N om de beurt aan (zonder effect), elk stapMs lang
+//   vast       één groep aan (stroom van die groep meten), de andere uit
 // Stoppen: {"actie":"stop"} of "Alles uit". Daarna krijgen de lampen weer hun gewone stand.
 enum TestSoort : uint8_t { TEST_GEEN, TEST_LOOPLICHT, TEST_VAST };
 constexpr uint32_t TEST_STAP_MIN_MS = 300, TEST_STAP_MAX_MS = 5000, TEST_STAP_STD_MS = 1000;
@@ -61,10 +62,8 @@ class Baan : public Uitvoerder {
     toepassen(0);
   }
 
-  /** na het laden of wijzigen van de instellingen: faduur, maxima en dag/nacht-duur doorgeven */
+  /** na het laden of wijzigen van de instellingen: de dag/nacht-duur doorgeven */
   void toepassen(uint32_t nu) {
-    lampen.faduurMs = cfg.inst.faduurMs;
-    for (int g = 0; g < N_GROEPEN; g++) lampen.maxPct[g] = cfg.groep[g].max;
     uint32_t duur = (uint32_t)cfg.inst.dagnachtMin * 60000u;
     if (duur != dn.duurMs) dn.zetDuur(duur, nu);
   }
@@ -74,11 +73,11 @@ class Baan : public Uitvoerder {
     cfgRev++;
   }
 
-  /** elke 10 ms */
-  void tick(uint32_t nu, uint16_t ruw) {
+  /** elke 5 ms; flanken: bit i = er was een actief-flank op ingang i+1 sinds de vorige tick (GPIO-interrupt) */
+  void tick(uint32_t nu, uint16_t ruw, uint16_t flanken = 0) {
     ingangRuw = ruw;
     Opdracht op[N_INGANGEN];
-    int n = ingangen.stap(ruw, nu, cfg.ingang, op, N_INGANGEN);
+    int n = ingangen.stap(ruw, nu, cfg.ingang, op, N_INGANGEN, flanken);
     for (int i = 0; i < n; i++) {
       int f = op[i].functie;
       if (op[i].soort == OPDR_STOP || (op[i].soort == OPDR_WISSEL && seq.loopt(f))) functieStop(f, nu);
@@ -89,10 +88,7 @@ class Baan : public Uitvoerder {
     lampen.stap(nu);
     if (testSoort != TEST_GEEN) {
       int aan = testAan(nu);
-      for (int g = 0; g < N_GROEPEN; g++) {
-        lampen.uitgang[g] = g == aan ? PWM_MAX : 0;
-        lampen.lamp[g] = g == aan ? 1.f : 0.f;
-      }
+      lampen.uitgang = aan >= 0 ? groepBit(aan) : 0;
     }
   }
 
@@ -125,7 +121,6 @@ class Baan : public Uitvoerder {
     if (n.effect == FX_OVERWEG && p >= 0 && p < N_GROEPEN && p != g) {
       GroepStand m = lampen.stand[p];
       m.aan = n.aan;
-      m.helderheid = n.helderheid;
       m.effect = FX_OVERWEG;
       m.p1 = n.p1;
       m.p2 = g + 1;
@@ -161,8 +156,10 @@ class Baan : public Uitvoerder {
     return true;
   }
 
-  /** de huidige stand bewaren; plaats -1 = de eerste vrije. Geeft de plaats, of -1 als alles vol is. */
-  int sceneBewaren(int plaats, const char *naam) {
+  /** de huidige stand bewaren; plaats -1 = de eerste vrije. Geeft de plaats, of -1 als alles vol is.
+   *  aan != nullptr: niet de huidige stand, maar per groep aan (bit in *aan) of uit (het dashboard kiest per groep);
+   *  het effect van een groep in een bestaande scène blijft dan staan. */
+  int sceneBewaren(int plaats, const char *naam, const GroepMasker *aan = nullptr) {
     if (plaats < 0)
       for (int i = 0; i < MAX_SCENES && plaats < 0; i++)
         if (!cfg.scene[i].gebruikt) plaats = i;
@@ -176,7 +173,11 @@ class Baan : public Uitvoerder {
       if (oud[0]) strcpy(s.naam, oud);
       else standaardNaam(s.naam, "Scène", plaats + 1);
     }
-    for (int g = 0; g < N_GROEPEN; g++) s.groep[g] = lampen.stand[g];
+    for (int g = 0; g < N_GROEPEN; g++) {
+      if (!aan) { s.groep[g] = lampen.stand[g]; continue; }
+      if (!oud[0]) s.groep[g] = GroepStand(); // nieuwe scène: zonder effect
+      s.groep[g].aan = (*aan >> g) & 1;
+    }
     cfgRev++;
     return plaats;
   }
@@ -257,7 +258,7 @@ class Baan : public Uitvoerder {
     return s;
   }
 
-  /** de laatste stand terugzetten (met de gewone zachte overgang vanaf donker) */
+  /** de laatste stand terugzetten */
   void herstelStand(const Stand &s, uint32_t nu) {
     for (int g = 0; g < N_GROEPEN; g++) lampen.zet(g, s.groep[g], nu, s.groep[g].effect == FX_OVERWEG);
     if (s.dagnachtLoopt) dagnachtStart(nu, DAG, (int32_t)s.dagnachtPosMs);
@@ -273,15 +274,6 @@ class Baan : public Uitvoerder {
       case ACT_UIT:
         for (int g = 0; g < N_GROEPEN; g++)
           if (st.groepen >> g & 1) zetAan(g, st.actie == ACT_AAN, nu);
-        break;
-      case ACT_HELDERHEID:
-        for (int g = 0; g < N_GROEPEN; g++)
-          if (st.groepen >> g & 1) {
-            GroepStand s = lampen.stand[g];
-            s.aan = true;
-            s.helderheid = (uint8_t)klem(st.waarde, 1, 100);
-            zetGroep(g, s, nu);
-          }
         break;
       case ACT_EFFECT: {
         int lijst[N_GROEPEN], n = 0;

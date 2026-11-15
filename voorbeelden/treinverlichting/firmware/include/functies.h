@@ -1,7 +1,7 @@
 // Scènes en functies (macro's), zonder hardware. Testen: test/test_functies (pio test -e native).
 //
-// Scène    de stand van alle groepen onder een naam ("Avond", "Nacht"); oproepen zet alle groepen in één keer
-//          (met de gewone zachte overgang).
+// Scène    de stand van alle groepen onder een naam ("Avond", "Nacht"): per groep aan of uit (en eventueel een
+//          effect); oproepen zet alle groepen in één keer.
 // Functie  een lijst stappen. Elke stap = groep(en) + actie + wachttijd. De stap wordt uitgevoerd, daarna wacht de
 //          functie de wachttijd af en gaat naar de volgende stap. Na de laatste stap (en zijn wachttijd) stopt de
 //          functie, of begint opnieuw als "herhalen" aan staat.
@@ -64,10 +64,11 @@ struct Scene {
 };
 
 // wissel: staat een van de gekozen groepen aan, dan gaan ze allemaal uit, anders allemaal aan (knop "alles aan/uit")
-enum Actie : uint8_t { ACT_AAN, ACT_UIT, ACT_HELDERHEID, ACT_EFFECT, ACT_SCENE, ACT_DAGNACHT, ACT_WISSEL, N_ACTIES };
+// (firmware 1.2 had ook "helderheid": een oude stap met helderheid wordt bij het laden "aan", opslag.h)
+enum Actie : uint8_t { ACT_AAN, ACT_UIT, ACT_EFFECT, ACT_SCENE, ACT_DAGNACHT, ACT_WISSEL, N_ACTIES };
 
 inline const char *actieId(int a) {
-  static const char *T[N_ACTIES] = {"aan", "uit", "helderheid", "effect", "scene", "dagnacht", "wissel"};
+  static const char *T[N_ACTIES] = {"aan", "uit", "effect", "scene", "dagnacht", "wissel"};
   return T[(a >= 0 && a < N_ACTIES) ? a : 0];
 }
 
@@ -81,7 +82,7 @@ inline int actieVanId(const char *id) {
 struct Stap {
   GroepMasker groepen = 0; // bit i = groep i+1
   uint8_t actie = ACT_AAN;
-  int32_t waarde = 0;     // helderheid: 1..100; scene: scènenummer 1..12; dagnacht: 1 = starten, 0 = stoppen
+  int32_t waarde = 0;     // scene: scènenummer 1..12; dagnacht: 1 = starten, 0 = stoppen
   uint8_t effect = FX_GEEN;
   int32_t p1 = 0, p2 = 0; // de instellingen van het effect
   uint32_t wachtMs = 0;   // na deze stap zo lang wachten
@@ -95,7 +96,7 @@ struct Functie {
   uint8_t nStappen = 0;
   Stap stap[MAX_STAPPEN];
 
-  /** alle groepen die in de stappen aan, uit of gedimd worden (scènes en dag/nacht niet meegerekend) */
+  /** alle groepen die in de stappen aan of uit gezet worden (scènes en dag/nacht niet meegerekend) */
   GroepMasker groepenInStappen() const {
     GroepMasker m = 0;
     for (int i = 0; i < nStappen; i++)

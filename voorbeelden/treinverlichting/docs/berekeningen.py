@@ -1,11 +1,13 @@
-"""Rekenblad van de kabeldoos (treinverlichting): stroom, zekeringen, MOSFET's, ingangen, warmte, goten, klikken en draden.
+"""Rekenblad van de kabeldoos (treinverlichting): stroom, zekeringen, MOSFET's, ingangen, warmte, klemlippen, draden en de naad.
 
 Draai:  python voorbeelden/treinverlichting/docs/berekeningen.py  -> schrijft docs/Berekeningen.md opnieuw.
 Invoer met bron bovenaan (docs/Maten-en-bronnen.md); aannames heten AANNAME. Het script stopt (assert) als een grens niet
 gehaald wordt. Versie 2 (advies Fable 5.2, 2026-11-12): polyfuse per groep met derating, warmte met een doos die met de
 bodem tegen de baan hangt, klemlippen, de 0 V-retour. Versie 4 (2026-11-13, kant-en-klare modules): MOSFET-modules met
 optocouplers, optocouplerprints PC817, radiale polyfuses MF-R050, Schottkydiode als ompoolbeveiliging, de regelaar
-SBC-Buck02, de schakeltijd van de optocouplers bij 1 kHz, een hogere doos.
+SBC-Buck02, een hogere doos. Versie 5 (2026-11-15): één langwerpige doos op één laag in 2 helften die in elkaar klikken
+(de klik van de haken en van de lip van het deksel), groepen alleen aan/uit (firmware 1.3.0, geen dimmers), hallsensoren
+op de ingangen; geen kabelgoten meer (Ian: "Kabel goten mogen weg").
 """
 import math
 from pathlib import Path
@@ -32,7 +34,6 @@ T_DOOS = 40  # °C, ongunstigste lucht in de doos (AANNAME: 25 °C in de kamer +
 # (de optocoupler zet de gate op een deel van VIN), ten minste 2 A per kanaal (verkoper: 2 A continu, 3 A max)
 MOSFET = dict(naam='MOSFET van de module (AANNAME: DPAK, ≤ 20 mΩ)', rds=0.020, rth=50.0, tj_max=150.0, id=2.0)
 OPTO_UIT = dict(naam='PC817', tr=4e-6, tf=3e-6, traag=50e-6)  # s; tr/tf datablad PC817 (RL 100 Ω); "traag": AANNAME met de weerstanden van de module
-PWM_HZ = 1017
 BRUG_U = 0.1  # V, meetcriterium: spanning n− tot VIN− (over de MOSFET) bij vol licht (meetblad)
 ESP_W = 0.6  # W, ESP32-S3 met wifi-hotspot (AANNAME: 120 mA gemiddeld op 5 V)
 PCA_W = 0.03
@@ -41,15 +42,24 @@ DIODE = dict(naam='SB560', vf=0.70, ifsm=150.0, if_av=5.0)  # V bij 5 A, A piek,
 # de optocouplerprint PC817 8 kanalen (3,6-24 V): de weerstand in serie met de led staat niet in de beschrijving
 OPTO = dict(naam='PC817 (optocouplerprint 8 kanalen)', r=1000, u_led=1.2, ctr_min=0.50, if_max=0.050, vr=6.0, r_vermogen=0.125)  # R AANNAME 1 kΩ (0805); CTR ≥ 50 % bij 5 mA, IF max 50 mA, VR 6 V (datablad PC817)
 PULLUP_OUT = 10000  # Ω, pull-up op de uitgangskant van de print (AANNAME)
-SENSOREN_MA = 80  # mA, sensoren op +12 V samen (AANNAME: 4 sensoren van 20 mA)
-# de doos: 229,8 x 229,8 x 66,8 (versie 4); de bodem hangt tegen de onderkant van de baan (hout): die koelt bijna niet
-DOOS = dict(l=0.2298, h=0.0668, alfa=5.0)  # m, W/m²K (AANNAME natuurlijke convectie)
-# kabelgoten (goten.mjs, GOOT): tussen twee rijen 5,4 breed tot 5,2 hoog (de voet) en daarboven 5,8 tussen de vingers, tot
-# 28 hoog (het deksel); draden LiY 0,25 mm² Ø1,4 en 0,5 mm² Ø1,8 (AANNAME, gangbare buitenmaat); zie maak-kabeldoos.mjs, vulgraad()
-GOOT = dict(b=5.4, b_vingers=5.8, voet=5.2, h=28.0, d_led=1.4, d_voeding=1.8, vul_max=0.60)
-GOOT_DRADEN = {'gewoon': (48, 8), 'ergst': (96, 8)}  # (leddraden, voedingsdraden) in een doorsnede
-# de klik van een gootdeksel (goten.mjs): been 1,2 dik, nok 0,4 voorbij de vinger, 7,0 van de plaat
-KLIK = dict(t=1.2, d=0.4, l=7.0)
+# hallsensor (Ian, 2026-11-15: "Zorg ook dat er hallsensoren binnen gelezen kunnen worden"): Honeywell SS441A, unipolair,
+# open collector (NPN, sinkt), 3,8-30 V, voeding hoogstens 10 mA, uitgang hoogstens 20 mA, verzadiging hoogstens 0,40 V
+# bij 20 mA, lek hoogstens 10 µA, schakelt in een paar µs (datablad Honeywell SS400-reeks, na te kijken); een kloon van de
+# Allegro A3144 (4,5-24 V, 25 mA, 0,4 V) werkt op dezelfde manier
+HALL = dict(naam='Honeywell SS441A', vs_min=3.8, vs_max=30.0, i_vs=0.010, i_sink=0.020, vsat=0.40, lek=10e-6)
+HALL_MAGNEET = dict(zone=0.010, v_max=0.6, v_traag=0.05)  # m (veld boven de schakeldrempel), m/s (H0 tot ± 190 km/h op schaal; stapvoets)
+HALL_LEES = dict(min_ms=1.0, vast_s=0.3)  # firmware 1.3.0: een puls vanaf 1 ms (interrupt per ingang), 0,3 s vasthouden
+SENSOREN = 16  # hallsensoren of andere sensoren op +12 V samen (één per ingang, AANNAME)
+SENSOREN_MA = SENSOREN * HALL['i_vs'] * 1000  # mA
+# de doos (versie 5): 440,9 x 229,8 x 52,6 met het deksel; de bodem hangt tegen de onderkant van de baan (hout): die koelt
+# bijna niet
+DOOS = dict(lx=0.4409, lz=0.2298, h=0.0526, alfa=5.0)  # m, W/m²K (AANNAME natuurlijke convectie)
+# de naad (maten.mjs, M.naad): klikhaak 14 lang, 1,6 dik, hoogte 11,8 aan de punt tot 25,8 aan de voet (45°-onderkant),
+# nok 0,6 met een schuine kant over 1,2; de lip van het deksel: 4 vingers van 54 breed, 1,4 dik, 12 lang, nok 0,5 in een
+# spleet van 0,2 (doorbuiging 0,3)
+HAAK = dict(l=14.0, t=1.6, b0=11.8, d=0.6, ramp=1.2)
+DEKSELLIP = dict(t=1.4, l=12.0, d=0.3, b=[54.0, 54.0, 54.0, 54.0], h=0.5, ramp=1.2)
+MU = 0.3  # wrijving PETG op PETG (AANNAME)
 # klemlip (maten.mjs, M.lip): tong 0,8 x 2,0, haak 0,75 met 0,15 speling, veerlengte 1,8 + 3 + 1,6 + 0,1
 LIP = dict(t=0.8, b=2.0, d=0.75 - 0.15, l=1.8 + 3 + 1.6 + 0.1)
 PETG = dict(e=2100.0, rek_max=0.02)  # MPa; toelaatbare rek bij herhaald klikken (AANNAME, gangbaar voor PETG)
@@ -116,18 +126,16 @@ def maak():
     tj = T_DOOS + p * MOSFET['rth']
     assert tj < MOSFET['tj_max'] - 50
     assert i * MOSFET['rds'] < BRUG_U
-    t_min = OPTO_UIT['traag'] / (1 / PWM_HZ)
     L += ['## 3. Schakelen (MOSFET-modules) en ompoolbeveiliging', '',
           f'Elke groep schakelt de − van zijn bordje met een kanaal van een 8-kanaals MOSFET-module met optocouplers (versie 4: '
           f'kant-en-klaar). Het type MOSFET staat niet bij de verkoper: AANNAME {f(MOSFET["rds"] * 1000, 0)} mΩ en {f(MOSFET["id"], 1)} A '
           f'per kanaal. Bij {f(i)} A: {f(p * 1000, 1)} mW en {f(i * MOSFET["rds"] * 1000, 0)} mV over de MOSFET, '
           f'{f(p * MOSFET["rth"], 1)} K warmer dan de lucht. Meetcriterium in het meetblad: minder dan {f(BRUG_U, 1)} V tussen n− en VIN− '
           f'bij vol licht (ook bij {f(BRUG_U / i, 2)} Ω in plaats van {f(MOSFET["rds"], 3)} Ω nog geen warmteprobleem: {f(i * BRUG_U, 2)} W).', '',
-          f'PWM 1 kHz door een optocoupler: de {OPTO_UIT["naam"]} schakelt in {f(OPTO_UIT["tr"] * 1e6, 0)} µs aan en {f(OPTO_UIT["tf"] * 1e6, 0)} µs uit '
-          f'(datablad, met 100 Ω); met de weerstanden van de module wordt dat trager (AANNAME tot {f(OPTO_UIT["traag"] * 1e6, 0)} µs). Bij '
-          f'{PWM_HZ} Hz (een periode van {f(1e6 / PWM_HZ, 0)} µs) zijn de laagste {f(100 * t_min, 0)} % van het dimbereik dus niet '
-          'nauwkeurig: een groep die op 2 % staat, kan iets feller of donkerder zijn dan berekend. Aan/uit, 10 tot 100 % en de '
-          'effecten (vuur, tv, lasvlam) werken gewoon; 1 kHz blijft (geen flikkeren voor oog of camera).', '',
+          'Alleen aan/uit (Ian, 2026-11-15: "Dimmers zijn niet nodig"; firmware 1.3.0): de PCA9685 zet elk kanaal met zijn '
+          'full-on- of full-off-bit volledig aan of uit, zonder PWM. De optocoupler van de module schakelt in '
+          f'{f(OPTO_UIT["tr"] * 1e6, 0)} tot {f(OPTO_UIT["traag"] * 1e6, 0)} µs (datablad PC817, AANNAME met de weerstanden van de module): '
+          'voor aan/uit en de knipper-effecten (knipperen, overweg, lasvlam, tl) speelt dat geen rol.', '',
           f'Ompoolbeveiliging zonder solderen: een Schottkydiode {DIODE["naam"]} (-R2) met haar pootjes in de verdeelklemmen, de kathode '
           f'aan L+ en de anode aan 0 V, achter de hoofdzekering. Goed aangesloten spert ze: geen verlies. Verkeerd om (een andere adapter '
           f'met de + buiten): de diode geleidt, de modules zien hoogstens −{f(DIODE["vf"], 1)} V, en de adapter schakelt af (de GST90A '
@@ -152,9 +160,39 @@ def maak():
           f'Bestand tegen fouten: +12 V op IN zet 0 V over de led (niets aan de hand); wisselspanning tot {f(u_ac_max, 0)} V piek '
           f'verdraagt de led ({f(OPTO["vr"], 0)} V in sperrichting, datablad PC817); de wisselspanning van een trafo van de baan '
           '(16 V, 22,6 V piek) dus niet: een ingang krijgt een contact, geen trafo.', '']
+    # hallsensoren
+    i_hall = (U - OPTO['u_led'] - HALL['vsat'] * 0.5) / OPTO['r']
+    r_min = (U - OPTO['u_led']) / HALL['i_sink']
+    assert HALL['vs_min'] <= U <= HALL['vs_max'] and i_hall < HALL['i_sink'] * 0.8
+    i_lek_c = HALL['lek'] * OPTO['ctr_min'] * 4  # ongunstig: CTR tot 200 % bij kleine stroom, hier ruim gerekend
+    t_snel = HALL_MAGNEET['zone'] / HALL_MAGNEET['v_max'] * 1000
+    n_max = int((PTC_IN['hold'][T_DOOS] * 0.9 - GROEPEN * i_in) / HALL['i_vs'])
+    assert SENSOREN <= n_max
+    L += ['### Hallsensoren (Ian, 2026-11-15)', '',
+          f'Een hallsensor onder of naast het spoor ziet de magneet onder een loc of wagen. Gekozen: de **{HALL["naam"]}** (unipolair, '
+          f'open collector, {f(HALL["vs_min"], 1)} tot {f(HALL["vs_max"], 0)} V): hij werkt **rechtstreeks op 12 V** (+ aan -X3, − aan -X2, de '
+          f'uitgang aan IN n). Met de magneet trekt de uitgang IN naar 0 V: door de led van de PC817 loopt dan '
+          f'**{f(i_hall * 1000, 1)} mA**, de sensor mag {f(HALL["i_sink"] * 1000, 0)} mA zinken en blijft verzadigd (hoogstens '
+          f'{f(HALL["vsat"], 2)} V): de PC817 schakelt zeker. Zou de weerstand op de print kleiner zijn dan {f(r_min, 0)} Ω (stroom in IN '
+          f'boven {f(HALL["i_sink"] * 1000, 0)} mA, meetblad), zet dan 1 kΩ in serie met de uitgang. Zonder magneet lekt de uitgang '
+          f'hoogstens {f(HALL["lek"] * 1e6, 0)} µA: de PC817 blijft uit (de uitgang van de print geeft hoogstens {f(i_lek_c * 1e6, 0)} µA '
+          f'tegen {f(i_pull * 1000, 2)} mA van de pull-up). Een kloon van de Allegro **A3144** (4,5-24 V, 25 mA) werkt net zo.', '',
+          '**Niet gebruiken:** een kant-en-klare hallmodule voor Arduino (KY-003 en gelijk) met een pull-up en een lampje naar zijn eigen '
+          'VCC: op 5 V gevoed duwt de pull-up stroom door de led van de PC817 (12 V tegen 5 V) en de ingang blijft half aan; op 12 V '
+          'gevoed loopt er stroom door het lampje van de module (gemaakt voor 5 V). Een sensor met een 12 V-uitgang (PNP) werkt niet '
+          '(zie hierboven).', '',
+          f'**Meer sensoren op één ingang:** open collectors mogen parallel (wired-OR): elke sensor trekt IN naar 0 V, de lekstromen '
+          f'tellen op ({f(HALL["lek"] * 1e6, 0)} µA per sensor). **Voeding:** elke sensor vraagt hoogstens {f(HALL["i_vs"] * 1000, 0)} mA uit S12; '
+          f'met {GROEPEN} ingangen actief ({f(GROEPEN * i_in * 1000, 0)} mA) laat -F18 ({f(PTC_IN["hold"][T_DOOS], 2)} A bij {T_DOOS} °C, 90 %) '
+          f'plaats voor **{n_max} sensoren**; gerekend met {SENSOREN} (één per ingang).', '',
+          f'**Korte puls:** een magneetzone van {f(HALL_MAGNEET["zone"] * 1000, 0)} mm bij {f(HALL_MAGNEET["v_max"], 1)} m/s geeft '
+          f'{f(t_snel, 0)} ms (stapvoets {f(HALL_MAGNEET["zone"] / HALL_MAGNEET["v_traag"], 1)} s). De firmware (1.3.0) leest een ingang van de soort '
+          f'"puls" met een interrupt en ziet zo elke puls vanaf **{f(HALL_LEES["min_ms"], 0)} ms** (de PC817 voegt '
+          f'hoogstens {f(OPTO_UIT["traag"] * 1e6, 0)} µs toe) en houdt ze {f(HALL_LEES["vast_s"], 1)} s vast; een knop houdt zijn '
+          'ontdendering van 30 ms.', '']
     # warmte
-    a_boven = DOOS['l'] ** 2  # het deksel (onderaan)
-    a_zij = 4 * DOOS['h'] * DOOS['l']
+    a_boven = DOOS['lx'] * DOOS['lz']  # het deksel (onderaan)
+    a_zij = 2 * DOOS['h'] * (DOOS['lx'] + DOOS['lz'])
     a_eff = a_boven + a_zij  # de bodem tegen de baan telt niet mee
     p_mos = GROEPEN * p
     p_ptc = GROEPEN * groep_max ** 2 * PTC_GROEP['r1max']
@@ -179,42 +217,14 @@ def maak():
           f'AANNAME). Binnen wordt het **{f(dt, 1)} K** warmer dan onder de baan in het ongunstigste geval (alle 16 groepen met bordjes '
           f'van 0 Ω vol aan, alle ingangen actief), **{f(dt_gewoon, 1)} K** gewoon. Met 25 °C onder de baan blijft het binnen onder '
           f'{T_DOOS} °C: daarop zijn de polyfuses hierboven gerekend. Verluchtingsgaten zijn niet nodig; de netadapter (het warmste deel) '
-          'hangt buiten de doos. De modules liggen op de moduleplaat bovenaan, het warmste deel van de doos: de regelaar ('
+          'hangt buiten de doos. De modules staan in de rechterhelft op de bodem (één laag): de regelaar ('
           f'{f((ESP_W + PCA_W) * (1 / BUCK_ETA - 1), 2)} W) wordt nauwelijks warm.', '']
-    # kabelgoten
-    a_led, a_vo = math.pi * GOOT['d_led'] ** 2 / 4, math.pi * GOOT['d_voeding'] ** 2 / 4
-    binnen = GOOT['b'] * GOOT['voet'] + GOOT['b_vingers'] * (GOOT['h'] - GOOT['voet'])
-    L += ['## 6. Kabelgoten: vulgraad', '',
-          f'Een goot tussen twee rijen is {f(GOOT["b"], 1)} breed tot {f(GOOT["voet"], 1)} hoog (de voet van de wand) en daarboven '
-          f'{f(GOOT["b_vingers"], 1)} tussen de vingers, tot {f(GOOT["h"], 0)} hoog (het deksel): **{f(binnen, 0)} mm²**. Leddraad 0,25 mm² '
-          f'(Ø{f(GOOT["d_led"], 1)}, {f(a_led, 2)} mm²), voedingsdraad 0,5 mm² (Ø{f(GOOT["d_voeding"], 1)}, {f(a_vo, 2)} mm²), AANNAME '
-          'gangbare buitenmaten. Zo\'n goot krijgt de klemmen van 6 bordjes (3 per rij, 16 leddraden per klemmenrij) en hun voeding.', '',
-          rij('doorsnede', 'leddraden', 'voeding', 'draden samen', 'vulgraad'), rij('---', '---:', '---:', '---:', '---:')]
-    for naam, (n_led, n_vo) in GOOT_DRADEN.items():
-        opp = n_led * a_led + n_vo * a_vo
-        if naam == 'gewoon':
-            assert opp / binnen <= GOOT['vul_max'], f'goot te vol ({naam})'
-        L.append(rij(naam, n_led, n_vo, f'{f(opp, 0)} mm²', f'**{f(100 * opp / binnen, 0)} %**'))
-    L += ['', '"Gewoon": de draden van een bordje komen door de sleuf in de bodem onder dat bordje, de helft loopt door een '
-          f'doorsnede: onder de {f(100 * GOOT["vul_max"], 0)} % die bij een schakelkast de grens is, het deksel klikt er zonder '
-          'knellen op. "Ergst": alle 96 leddraden van de 6 bordjes door één sleuf: dat past niet onder het deksel. Breng de '
-          'draden van elk bordje dus binnen door de sleuf onder dat bordje (zo is de doos getekend). De goten langs de zijwanden '
-          '(11 breed) en de achterwand (4,8) zijn minder vol. Een goot van 5,4 is te smal voor een vinger: til een gootdeksel op '
-          'en trek een draad eruit met de spatel en het haakje van de hulpstukken (print/Hulpstukken.stl).', '']
-    # klik van de gootdeksels
-    rek_klik = 1.5 * KLIK['t'] * KLIK['d'] / KLIK['l'] ** 2
-    assert rek_klik < PETG['rek_max']
-    L += ['## 7. Klik van de gootdeksels (PETG, E = 2100 MPa)', '',
-          f'Elk been is een uitkragende balk van {f(KLIK["t"], 1)} dik; de nok gaat {f(KLIK["d"], 2)} voorbij de vinger op '
-          f'{f(KLIK["l"], 1)} van de plaat. Rek = 1,5 t d / L² = **{f(100 * rek_klik)} %**, onder de {f(100 * PETG["rek_max"], 0)} % die '
-          'PETG bij herhaald klikken verdraagt (AANNAME). Een deksel tussen twee rijen klikt op 4 plaatsen (8 nokken), een '
-          'randdeksel op 2 plaatsen en met zijn neus over de hele lengte. Nok en groef hebben vlakken van 45°.', '']
     # klemlippen
     rek_lip = 1.5 * LIP['t'] * LIP['d'] / LIP['l'] ** 2
     i_lip = LIP['b'] * LIP['t'] ** 3 / 12
     f_lip = 3 * PETG['e'] * i_lip * LIP['d'] / LIP['l'] ** 3
     assert rek_lip < PETG['rek_max']
-    L += ['## 8. Klemlippen van de bordjes (PETG)', '',
+    L += ['## 6. Klemlippen van de bordjes (PETG)', '',
           f'Elk bordje zit tussen 4 lippen aan zijn korte kanten. Een lip is een tong van {f(LIP["t"], 1)} x {f(LIP["b"], 1)} die in een '
           f'kuiltje van 1,8 diep in de bodem begint: veerlengte {f(LIP["l"], 1)} tot de haak. Bij het inleggen duwt de print de '
           f'schuine kant (45°) {f(LIP["d"], 2)} opzij. Rek = 1,5 t d / L² = **{f(100 * rek_lip)} %** (onder 2 %). Kracht om een lip open '
@@ -224,12 +234,37 @@ def maak():
     # draden
     r_retour = KOPER * RETOUR['l'] / RETOUR['mm2']
     i_mod = 8 * groep_max
-    L += ['## 9. Draden en de 0 V-retour', '',
+    L += ['## 7. Draden en de 0 V-retour', '',
           f'De 16 groepen komen terug door de MOSFET-modules: per module tot {f(i_mod)} A over zijn klem VIN− en een draad van '
           f'{f(RETOUR["mm2"], 2)} mm² naar de verdeelklem -X2 (WAGO 221-415, 32 A): {f(RETOUR["l"] * 1000, 0)} mm geeft '
           f'{f(r_retour * 1000, 1)} mΩ en {f(i_mod * r_retour * 1000, 0)} mV verlies. Samen {f(totaal)} A door de 2 WAGO-klemmen van -X1 en '
           '-X2 en de draden van 0,75 mm² van de DC-bus. De andere draden (PWM, GPIO, I2C, 3,3 V) dragen milliampères: 0,14 mm² '
           'of dupontkabels. Interne draadlijst: TRN-14.', '']
+    # de naad
+    J = HAAK['l'] ** 2 / 2 - HAAK['b0'] * HAAK['l'] + HAAK['b0'] ** 2 * math.log((HAAK['b0'] + HAAK['l']) / HAAK['b0'])
+    F_h = HAAK['d'] * PETG['e'] * HAAK['t'] ** 3 / (12 * J)
+    rek_h = 6 * F_h * HAAK['l'] / ((HAAK['b0'] + HAAK['l']) * HAAK['t'] ** 2 * PETG['e'])
+    rek_recht = 1.5 * HAAK['t'] * HAAK['d'] / HAAK['l'] ** 2
+    ta = HAAK['d'] / HAAK['ramp']
+    P_h = F_h * (MU + ta) / (1 - MU * ta)
+    rek_d = 1.5 * DEKSELLIP['t'] * DEKSELLIP['d'] / DEKSELLIP['l'] ** 2
+    F_d = sum(3 * PETG['e'] * (b * DEKSELLIP['t'] ** 3 / 12) * DEKSELLIP['d'] / DEKSELLIP['l'] ** 3 for b in DEKSELLIP['b'])
+    td = DEKSELLIP['h'] / DEKSELLIP['ramp']
+    P_d = F_d * (MU + td) / (1 - MU * td)
+    assert rek_h < PETG['rek_max'] and rek_d < PETG['rek_max']
+    L += ['## 8. De naad: klikhaken en de lip van het deksel (PETG)', '',
+          'Ian, 2026-11-15: "De doos moet in elkaar kunnen klikken en nog kunnen lijmen." De 2 helften klikken met 2 haken (achter en '
+          'voor) van de rechterhelft in een kuiltje in de wand van de linkerhelft; 5 bodemlippen lijnen uit; overal 0,2 lijmspleet.', '',
+          f'Een haak is een uitkragende balk van {f(HAAK["l"], 0)} lang en {f(HAAK["t"], 1)} dik. Door de onderkant van 45° (zo print hij '
+          f'zonder support) groeit zijn hoogte van {f(HAAK["b0"], 1)} aan de punt tot {f(HAAK["b0"] + HAAK["l"], 1)} aan de voet. Met '
+          f'J = ∫ x² / (b0 + x) dx = {f(J, 1)} mm² is de kracht om de punt {f(HAAK["d"], 1)} opzij te duwen F = d E t³ / (12 J) = '
+          f'**{f(F_h, 1)} N**, de rek aan de voet 6 F l / (b t² E) = **{f(100 * rek_h)} %** (een rechte balk van {f(HAAK["b0"], 1)} hoog: '
+          f'{f(100 * rek_recht)} %), onder de {f(100 * PETG["rek_max"], 0)} %. De nok loopt op over {f(math.degrees(math.atan(ta)), 0)}° (wrijving '
+          f'{f(MU, 1)}): inklikken **{f(P_h, 1)} N per haak**, samen {f(2 * P_h, 0)} N. Met het rechte vlak achter de nok kan de haak er niet '
+          'meer uit tot je de punt met een kleine schroevendraaier van de wand weg trekt (van binnen, bovenaan bereikbaar).', '',
+          f'Het deksel: de rechterhelft schuift met een lip van {f(DEKSELLIP["l"], 0)} x {f(DEKSELLIP["t"], 1)} onder de linkerhelft; de lip is in '
+          f'4 vingers gesneden met elk een nok van {f(DEKSELLIP["h"], 1)} die {f(DEKSELLIP["d"], 1)} opzij moet (de lijmspleet is 0,2). Rek = 1,5 t d / L² '
+          f'= **{f(100 * rek_d)} %**; inklikken samen **{f(P_d, 0)} N**.', '']
     (HIER / 'Berekeningen.md').write_text('\n'.join(L) + '\n', encoding='utf-8')
     print('\n'.join(L))
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="420mm" height="297mm" viewBox="0 0 420 297">
 <rect x="0" y="0" width="420" height="297" fill="#fff"/>
-<text x="30.00" y="17.00" font-size="4" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">Interne draadlijst: draden tussen de modules op de moduleplaat</text>
+<text x="30.00" y="17.00" font-size="4" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">Interne draadlijst: draden tussen de modules in de rechterhelft</text>
 <text x="30.00" y="22.50" font-size="2.3" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">De draden naar de bordjes (G01+ .. G16+, G01− .. G16−) en de ingangen (IN01 .. IN16) staan in de README (Draden labelen) en op TRN-10. Lengte uit het 3D-model + 60 mm.</text>
 <text x="31.00" y="31.80" font-size="2.3" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">Nr</text>
 <text x="42.00" y="31.80" font-size="2.3" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">Van</text>
@@ -17,7 +17,7 @@
 <text x="182.00" y="35.55" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">12 V van de DC-bus (pen = +) naar de zekeringhouder (gesoldeerd aan de bus)</text>
 <text x="312.00" y="35.55" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,75</text>
 <text x="325.00" y="35.55" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">rood</text>
-<text x="341.00" y="35.55" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">100 mm</text>
+<text x="341.00" y="35.55" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">120 mm</text>
 <line x1="30.00" y1="36.22" x2="356.00" y2="36.22" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="38.97" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W02</text>
 <text x="42.00" y="38.97" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-F1 zekeringhouder (uit)</text>
@@ -25,7 +25,7 @@
 <text x="182.00" y="38.97" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">L+ na de hoofdzekering 7,5 A</text>
 <text x="312.00" y="38.97" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,75</text>
 <text x="325.00" y="38.97" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">rood</text>
-<text x="341.00" y="38.97" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">230 mm</text>
+<text x="341.00" y="38.97" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">90 mm</text>
 <line x1="30.00" y1="39.64" x2="356.00" y2="39.64" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="42.39" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W03</text>
 <text x="42.00" y="42.39" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">DC-bus huls (−)</text>
@@ -33,7 +33,7 @@
 <text x="182.00" y="42.39" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0 V van de DC-bus (huls = −, gesoldeerd)</text>
 <text x="312.00" y="42.39" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,75</text>
 <text x="325.00" y="42.39" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">zwart</text>
-<text x="341.00" y="42.39" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">250 mm</text>
+<text x="341.00" y="42.39" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">180 mm</text>
 <line x1="30.00" y1="43.06" x2="356.00" y2="43.06" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="45.81" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W04</text>
 <text x="42.00" y="45.81" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X1:5 (WAGO)</text>
@@ -57,7 +57,7 @@
 <text x="182.00" y="52.65" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">12 V naar MOSFET-module 1 (groep 1-8)</text>
 <text x="312.00" y="52.65" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,75</text>
 <text x="325.00" y="52.65" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">rood</text>
-<text x="341.00" y="52.65" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">200 mm</text>
+<text x="341.00" y="52.65" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">110 mm</text>
 <line x1="30.00" y1="53.32" x2="356.00" y2="53.32" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="56.07" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W07</text>
 <text x="42.00" y="56.07" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X2:2 (WAGO)</text>
@@ -65,7 +65,7 @@
 <text x="182.00" y="56.07" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0 V-retour van groep 1-8 (tot 2,6 A)</text>
 <text x="312.00" y="56.07" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,75</text>
 <text x="325.00" y="56.07" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">zwart</text>
-<text x="341.00" y="56.07" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">170 mm</text>
+<text x="341.00" y="56.07" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">130 mm</text>
 <line x1="30.00" y1="56.74" x2="356.00" y2="56.74" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="59.49" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W08</text>
 <text x="42.00" y="59.49" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X1:3 (WAGO)</text>
@@ -73,7 +73,7 @@
 <text x="182.00" y="59.49" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">12 V naar MOSFET-module 2 (groep 9-16)</text>
 <text x="312.00" y="59.49" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,75</text>
 <text x="325.00" y="59.49" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">rood</text>
-<text x="341.00" y="59.49" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">240 mm</text>
+<text x="341.00" y="59.49" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">190 mm</text>
 <line x1="30.00" y1="60.16" x2="356.00" y2="60.16" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="62.91" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W09</text>
 <text x="42.00" y="62.91" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X2:3 (WAGO)</text>
@@ -81,7 +81,7 @@
 <text x="182.00" y="62.91" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0 V-retour van groep 9-16 (tot 2,6 A)</text>
 <text x="312.00" y="62.91" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,75</text>
 <text x="325.00" y="62.91" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">zwart</text>
-<text x="341.00" y="62.91" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">220 mm</text>
+<text x="341.00" y="62.91" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">160 mm</text>
 <line x1="30.00" y1="63.58" x2="356.00" y2="63.58" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="66.33" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W10</text>
 <text x="42.00" y="66.33" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X1:4 (WAGO)</text>
@@ -89,7 +89,7 @@
 <text x="182.00" y="66.33" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">12 V naar de regelaar</text>
 <text x="312.00" y="66.33" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,5</text>
 <text x="325.00" y="66.33" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">rood</text>
-<text x="341.00" y="66.33" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">120 mm</text>
+<text x="341.00" y="66.33" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">320 mm</text>
 <line x1="30.00" y1="67.00" x2="356.00" y2="67.00" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="69.75" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W11</text>
 <text x="42.00" y="69.75" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X2:4 (WAGO)</text>
@@ -97,7 +97,7 @@
 <text x="182.00" y="69.75" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0 V van de regelaar</text>
 <text x="312.00" y="69.75" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,5</text>
 <text x="325.00" y="69.75" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">zwart</text>
-<text x="341.00" y="69.75" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">140 mm</text>
+<text x="341.00" y="69.75" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">300 mm</text>
 <line x1="30.00" y1="70.42" x2="356.00" y2="70.42" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="73.17" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W12</text>
 <text x="42.00" y="73.17" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X3:2</text>
@@ -105,7 +105,7 @@
 <text x="182.00" y="73.17" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">+12 V voor de ingangen 1-8</text>
 <text x="312.00" y="73.17" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,25</text>
 <text x="325.00" y="73.17" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">rood</text>
-<text x="341.00" y="73.17" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">220 mm</text>
+<text x="341.00" y="73.17" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">190 mm</text>
 <line x1="30.00" y1="73.84" x2="356.00" y2="73.84" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="76.59" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W13</text>
 <text x="42.00" y="76.59" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X3:3</text>
@@ -113,7 +113,7 @@
 <text x="182.00" y="76.59" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">+12 V voor de ingangen 9-16</text>
 <text x="312.00" y="76.59" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,25</text>
 <text x="325.00" y="76.59" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">rood</text>
-<text x="341.00" y="76.59" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">170 mm</text>
+<text x="341.00" y="76.59" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">270 mm</text>
 <line x1="30.00" y1="77.26" x2="356.00" y2="77.26" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="80.01" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W14</text>
 <text x="42.00" y="80.01" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-T2:VOUT</text>
@@ -121,7 +121,7 @@
 <text x="182.00" y="80.01" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">5 V voor de ESP (pin 5V)</text>
 <text x="312.00" y="80.01" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,5</text>
 <text x="325.00" y="80.01" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">oranje</text>
-<text x="341.00" y="80.01" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">270 mm</text>
+<text x="341.00" y="80.01" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">150 mm</text>
 <line x1="30.00" y1="80.68" x2="356.00" y2="80.68" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="83.43" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W15</text>
 <text x="42.00" y="83.43" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-T2:GND</text>
@@ -129,7 +129,7 @@
 <text x="182.00" y="83.43" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0 V voor de ESP (pin G)</text>
 <text x="312.00" y="83.43" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,5</text>
 <text x="325.00" y="83.43" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">zwart</text>
-<text x="341.00" y="83.43" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">280 mm</text>
+<text x="341.00" y="83.43" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">160 mm</text>
 <line x1="30.00" y1="84.10" x2="356.00" y2="84.10" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="86.85" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W16</text>
 <text x="42.00" y="86.85" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X6:J1:1 (3V3)</text>
@@ -137,7 +137,7 @@
 <text x="182.00" y="86.85" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">3,3 V van de ESP naar de verdeelklem</text>
 <text x="312.00" y="86.85" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,25</text>
 <text x="325.00" y="86.85" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">oranje</text>
-<text x="341.00" y="86.85" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">110 mm</text>
+<text x="341.00" y="86.85" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">220 mm</text>
 <line x1="30.00" y1="87.52" x2="356.00" y2="87.52" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="90.27" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W17</text>
 <text x="42.00" y="90.27" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X6:J1:2 (3V3)</text>
@@ -145,7 +145,7 @@
 <text x="182.00" y="90.27" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">3,3 V voor de PCA9685 (dupont)</text>
 <text x="312.00" y="90.27" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
 <text x="325.00" y="90.27" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">oranje</text>
-<text x="341.00" y="90.27" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">190 mm</text>
+<text x="341.00" y="90.27" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">150 mm</text>
 <line x1="30.00" y1="90.94" x2="356.00" y2="90.94" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="93.69" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W18</text>
 <text x="42.00" y="93.69" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X7:2</text>
@@ -153,7 +153,7 @@
 <text x="182.00" y="93.69" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">3,3 V ingangskant MOSFET-module 1 (dupont)</text>
 <text x="312.00" y="93.69" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
 <text x="325.00" y="93.69" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">oranje</text>
-<text x="341.00" y="93.69" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">200 mm</text>
+<text x="341.00" y="93.69" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">160 mm</text>
 <line x1="30.00" y1="94.36" x2="356.00" y2="94.36" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="97.11" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W19</text>
 <text x="42.00" y="97.11" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X7:3</text>
@@ -161,7 +161,7 @@
 <text x="182.00" y="97.11" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">3,3 V ingangskant MOSFET-module 2 (dupont)</text>
 <text x="312.00" y="97.11" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
 <text x="325.00" y="97.11" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">oranje</text>
-<text x="341.00" y="97.11" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">190 mm</text>
+<text x="341.00" y="97.11" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">250 mm</text>
 <line x1="30.00" y1="97.78" x2="356.00" y2="97.78" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="100.53" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W20</text>
 <text x="42.00" y="100.53" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X7:4</text>
@@ -169,7 +169,7 @@
 <text x="182.00" y="100.53" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">3,3 V uitgangskant optocouplerprint 1</text>
 <text x="312.00" y="100.53" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
 <text x="325.00" y="100.53" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">oranje</text>
-<text x="341.00" y="100.53" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">180 mm</text>
+<text x="341.00" y="100.53" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">120 mm</text>
 <line x1="30.00" y1="101.20" x2="356.00" y2="101.20" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="103.95" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W21</text>
 <text x="42.00" y="103.95" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X7:5</text>
@@ -177,7 +177,7 @@
 <text x="182.00" y="103.95" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">3,3 V uitgangskant optocouplerprint 2</text>
 <text x="312.00" y="103.95" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
 <text x="325.00" y="103.95" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">oranje</text>
-<text x="341.00" y="103.95" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">100 mm</text>
+<text x="341.00" y="103.95" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">200 mm</text>
 <line x1="30.00" y1="104.62" x2="356.00" y2="104.62" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="107.37" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W22</text>
 <text x="42.00" y="107.37" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X6:J3:1 (G)</text>
@@ -185,7 +185,7 @@
 <text x="182.00" y="107.37" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0 V van de PCA9685 (dupont)</text>
 <text x="312.00" y="107.37" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
 <text x="325.00" y="107.37" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">zwart</text>
-<text x="341.00" y="107.37" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">140 mm</text>
+<text x="341.00" y="107.37" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">190 mm</text>
 <line x1="30.00" y1="108.04" x2="356.00" y2="108.04" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="110.79" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W23</text>
 <text x="42.00" y="110.79" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X6:J3:21 (G)</text>
@@ -193,7 +193,7 @@
 <text x="182.00" y="110.79" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0 V ingangskant MOSFET-module 1 (dupont)</text>
 <text x="312.00" y="110.79" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
 <text x="325.00" y="110.79" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">zwart</text>
-<text x="341.00" y="110.79" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">350 mm</text>
+<text x="341.00" y="110.79" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">310 mm</text>
 <line x1="30.00" y1="111.46" x2="356.00" y2="111.46" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="114.21" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W24</text>
 <text x="42.00" y="114.21" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X6:J3:21 (G)</text>
@@ -201,7 +201,7 @@
 <text x="182.00" y="114.21" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0 V ingangskant MOSFET-module 2 (dupont)</text>
 <text x="312.00" y="114.21" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
 <text x="325.00" y="114.21" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">zwart</text>
-<text x="341.00" y="114.21" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">250 mm</text>
+<text x="341.00" y="114.21" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">220 mm</text>
 <line x1="30.00" y1="114.88" x2="356.00" y2="114.88" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="117.63" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W25</text>
 <text x="42.00" y="117.63" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X6:J3:22 (G)</text>
@@ -217,7 +217,7 @@
 <text x="182.00" y="121.05" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0 V uitgangskant optocouplerprint 2</text>
 <text x="312.00" y="121.05" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
 <text x="325.00" y="121.05" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">zwart</text>
-<text x="341.00" y="121.05" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">170 mm</text>
+<text x="341.00" y="121.05" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">190 mm</text>
 <line x1="30.00" y1="121.72" x2="356.00" y2="121.72" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="124.47" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W27</text>
 <text x="42.00" y="124.47" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X6:J1:12 (8)</text>
@@ -225,7 +225,7 @@
 <text x="182.00" y="124.47" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">I2C SDA (dupont)</text>
 <text x="312.00" y="124.47" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
 <text x="325.00" y="124.47" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">geel</text>
-<text x="341.00" y="124.47" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">220 mm</text>
+<text x="341.00" y="124.47" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">180 mm</text>
 <line x1="30.00" y1="125.14" x2="356.00" y2="125.14" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="127.89" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W28</text>
 <text x="42.00" y="127.89" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X6:J1:15 (9)</text>
@@ -233,7 +233,7 @@
 <text x="182.00" y="127.89" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">I2C SCL (dupont)</text>
 <text x="312.00" y="127.89" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
 <text x="325.00" y="127.89" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">groen</text>
-<text x="341.00" y="127.89" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">240 mm</text>
+<text x="341.00" y="127.89" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">190 mm</text>
 <line x1="30.00" y1="128.56" x2="356.00" y2="128.56" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="131.31" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W29</text>
 <text x="42.00" y="131.31" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X6:J1:16 (10)</text>
@@ -241,7 +241,7 @@
 <text x="182.00" y="131.31" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">OE, met -R1 1 kΩ naar 3,3 V (pootjes in J1:1 en J1:16)</text>
 <text x="312.00" y="131.31" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
 <text x="325.00" y="131.31" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">blauw</text>
-<text x="341.00" y="131.31" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">240 mm</text>
+<text x="341.00" y="131.31" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">200 mm</text>
 <line x1="30.00" y1="131.98" x2="356.00" y2="131.98" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="134.73" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W30</text>
 <text x="42.00" y="134.73" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-K2:PWM0</text>
@@ -249,7 +249,7 @@
 <text x="182.00" y="134.73" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">PWM groep 1 (dupont)</text>
 <text x="312.00" y="134.73" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
 <text x="325.00" y="134.73" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">wit</text>
-<text x="341.00" y="134.73" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">210 mm</text>
+<text x="341.00" y="134.73" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">100 mm</text>
 <line x1="30.00" y1="135.40" x2="356.00" y2="135.40" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="138.15" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W31</text>
 <text x="42.00" y="138.15" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-K2:PWM1</text>
@@ -257,7 +257,7 @@
 <text x="182.00" y="138.15" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">PWM groep 2 (dupont)</text>
 <text x="312.00" y="138.15" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
 <text x="325.00" y="138.15" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">wit</text>
-<text x="341.00" y="138.15" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">210 mm</text>
+<text x="341.00" y="138.15" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">100 mm</text>
 <line x1="30.00" y1="138.82" x2="356.00" y2="138.82" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="141.57" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W32</text>
 <text x="42.00" y="141.57" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-K2:PWM2</text>
@@ -265,7 +265,7 @@
 <text x="182.00" y="141.57" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">PWM groep 3 (dupont)</text>
 <text x="312.00" y="141.57" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
 <text x="325.00" y="141.57" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">wit</text>
-<text x="341.00" y="141.57" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">210 mm</text>
+<text x="341.00" y="141.57" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">100 mm</text>
 <line x1="30.00" y1="142.24" x2="356.00" y2="142.24" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="144.99" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W33</text>
 <text x="42.00" y="144.99" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-K2:PWM3</text>
@@ -273,7 +273,7 @@
 <text x="182.00" y="144.99" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">PWM groep 4 (dupont)</text>
 <text x="312.00" y="144.99" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
 <text x="325.00" y="144.99" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">wit</text>
-<text x="341.00" y="144.99" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">210 mm</text>
+<text x="341.00" y="144.99" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">100 mm</text>
 <line x1="30.00" y1="145.66" x2="356.00" y2="145.66" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="148.41" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W34</text>
 <text x="42.00" y="148.41" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-K2:PWM4</text>
@@ -281,7 +281,7 @@
 <text x="182.00" y="148.41" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">PWM groep 5 (dupont)</text>
 <text x="312.00" y="148.41" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
 <text x="325.00" y="148.41" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">wit</text>
-<text x="341.00" y="148.41" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">210 mm</text>
+<text x="341.00" y="148.41" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">110 mm</text>
 <line x1="30.00" y1="149.08" x2="356.00" y2="149.08" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="151.83" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W35</text>
 <text x="42.00" y="151.83" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-K2:PWM5</text>
@@ -289,7 +289,7 @@
 <text x="182.00" y="151.83" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">PWM groep 6 (dupont)</text>
 <text x="312.00" y="151.83" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
 <text x="325.00" y="151.83" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">wit</text>
-<text x="341.00" y="151.83" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">210 mm</text>
+<text x="341.00" y="151.83" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">110 mm</text>
 <line x1="30.00" y1="152.50" x2="356.00" y2="152.50" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="155.25" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W36</text>
 <text x="42.00" y="155.25" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-K2:PWM6</text>
@@ -297,7 +297,7 @@
 <text x="182.00" y="155.25" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">PWM groep 7 (dupont)</text>
 <text x="312.00" y="155.25" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
 <text x="325.00" y="155.25" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">wit</text>
-<text x="341.00" y="155.25" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">210 mm</text>
+<text x="341.00" y="155.25" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">110 mm</text>
 <line x1="30.00" y1="155.92" x2="356.00" y2="155.92" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="158.67" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W37</text>
 <text x="42.00" y="158.67" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-K2:PWM7</text>
@@ -305,7 +305,7 @@
 <text x="182.00" y="158.67" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">PWM groep 8 (dupont)</text>
 <text x="312.00" y="158.67" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
 <text x="325.00" y="158.67" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">wit</text>
-<text x="341.00" y="158.67" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">210 mm</text>
+<text x="341.00" y="158.67" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">110 mm</text>
 <line x1="30.00" y1="159.34" x2="356.00" y2="159.34" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="162.09" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W38</text>
 <text x="42.00" y="162.09" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-K2:PWM8</text>
@@ -313,7 +313,7 @@
 <text x="182.00" y="162.09" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">PWM groep 9 (dupont)</text>
 <text x="312.00" y="162.09" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
 <text x="325.00" y="162.09" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">wit</text>
-<text x="341.00" y="162.09" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">250 mm</text>
+<text x="341.00" y="162.09" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">130 mm</text>
 <line x1="30.00" y1="162.76" x2="356.00" y2="162.76" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="165.51" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W39</text>
 <text x="42.00" y="165.51" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-K2:PWM9</text>
@@ -321,7 +321,7 @@
 <text x="182.00" y="165.51" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">PWM groep 10 (dupont)</text>
 <text x="312.00" y="165.51" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
 <text x="325.00" y="165.51" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">wit</text>
-<text x="341.00" y="165.51" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">250 mm</text>
+<text x="341.00" y="165.51" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">130 mm</text>
 <line x1="30.00" y1="166.18" x2="356.00" y2="166.18" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="168.93" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W40</text>
 <text x="42.00" y="168.93" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-K2:PWM10</text>
@@ -329,7 +329,7 @@
 <text x="182.00" y="168.93" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">PWM groep 11 (dupont)</text>
 <text x="312.00" y="168.93" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
 <text x="325.00" y="168.93" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">wit</text>
-<text x="341.00" y="168.93" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">250 mm</text>
+<text x="341.00" y="168.93" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">130 mm</text>
 <line x1="30.00" y1="169.60" x2="356.00" y2="169.60" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="172.35" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W41</text>
 <text x="42.00" y="172.35" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-K2:PWM11</text>
@@ -337,7 +337,7 @@
 <text x="182.00" y="172.35" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">PWM groep 12 (dupont)</text>
 <text x="312.00" y="172.35" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
 <text x="325.00" y="172.35" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">wit</text>
-<text x="341.00" y="172.35" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">250 mm</text>
+<text x="341.00" y="172.35" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">130 mm</text>
 <line x1="30.00" y1="173.02" x2="356.00" y2="173.02" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="175.77" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W42</text>
 <text x="42.00" y="175.77" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-K2:PWM12</text>
@@ -345,7 +345,7 @@
 <text x="182.00" y="175.77" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">PWM groep 13 (dupont)</text>
 <text x="312.00" y="175.77" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
 <text x="325.00" y="175.77" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">wit</text>
-<text x="341.00" y="175.77" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">250 mm</text>
+<text x="341.00" y="175.77" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">130 mm</text>
 <line x1="30.00" y1="176.44" x2="356.00" y2="176.44" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="179.19" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W43</text>
 <text x="42.00" y="179.19" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-K2:PWM13</text>
@@ -353,7 +353,7 @@
 <text x="182.00" y="179.19" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">PWM groep 14 (dupont)</text>
 <text x="312.00" y="179.19" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
 <text x="325.00" y="179.19" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">wit</text>
-<text x="341.00" y="179.19" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">250 mm</text>
+<text x="341.00" y="179.19" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">130 mm</text>
 <line x1="30.00" y1="179.86" x2="356.00" y2="179.86" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="182.61" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W44</text>
 <text x="42.00" y="182.61" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-K2:PWM14</text>
@@ -361,7 +361,7 @@
 <text x="182.00" y="182.61" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">PWM groep 15 (dupont)</text>
 <text x="312.00" y="182.61" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
 <text x="325.00" y="182.61" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">wit</text>
-<text x="341.00" y="182.61" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">250 mm</text>
+<text x="341.00" y="182.61" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">130 mm</text>
 <line x1="30.00" y1="183.28" x2="356.00" y2="183.28" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="186.03" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W45</text>
 <text x="42.00" y="186.03" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-K2:PWM15</text>
@@ -369,7 +369,7 @@
 <text x="182.00" y="186.03" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">PWM groep 16 (dupont)</text>
 <text x="312.00" y="186.03" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
 <text x="325.00" y="186.03" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">wit</text>
-<text x="341.00" y="186.03" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">250 mm</text>
+<text x="341.00" y="186.03" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">130 mm</text>
 <line x1="30.00" y1="186.70" x2="356.00" y2="186.70" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="189.45" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W46</text>
 <text x="42.00" y="189.45" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-K3:OUT1</text>
@@ -377,7 +377,7 @@
 <text x="182.00" y="189.45" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">ingang 1 naar GPIO1</text>
 <text x="312.00" y="189.45" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
 <text x="325.00" y="189.45" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">grijs</text>
-<text x="341.00" y="189.45" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">250 mm</text>
+<text x="341.00" y="189.45" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">180 mm</text>
 <line x1="30.00" y1="190.12" x2="356.00" y2="190.12" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="192.87" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W47</text>
 <text x="42.00" y="192.87" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-K3:OUT2</text>
@@ -385,7 +385,7 @@
 <text x="182.00" y="192.87" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">ingang 2 naar GPIO2</text>
 <text x="312.00" y="192.87" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
 <text x="325.00" y="192.87" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">grijs</text>
-<text x="341.00" y="192.87" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">250 mm</text>
+<text x="341.00" y="192.87" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">180 mm</text>
 <line x1="30.00" y1="193.54" x2="356.00" y2="193.54" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="196.29" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W48</text>
 <text x="42.00" y="196.29" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-K3:OUT3</text>
@@ -393,7 +393,7 @@
 <text x="182.00" y="196.29" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">ingang 3 naar GPIO4</text>
 <text x="312.00" y="196.29" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
 <text x="325.00" y="196.29" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">grijs</text>
-<text x="341.00" y="196.29" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">190 mm</text>
+<text x="341.00" y="196.29" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">240 mm</text>
 <line x1="30.00" y1="196.96" x2="356.00" y2="196.96" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="199.71" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W49</text>
 <text x="42.00" y="199.71" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-K3:OUT4</text>
@@ -401,7 +401,7 @@
 <text x="182.00" y="199.71" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">ingang 4 naar GPIO5</text>
 <text x="312.00" y="199.71" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
 <text x="325.00" y="199.71" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">grijs</text>
-<text x="341.00" y="199.71" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">190 mm</text>
+<text x="341.00" y="199.71" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">250 mm</text>
 <line x1="30.00" y1="200.38" x2="356.00" y2="200.38" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="203.13" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W50</text>
 <text x="42.00" y="203.13" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-K3:OUT5</text>
@@ -409,7 +409,7 @@
 <text x="182.00" y="203.13" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">ingang 5 naar GPIO6</text>
 <text x="312.00" y="203.13" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
 <text x="325.00" y="203.13" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">grijs</text>
-<text x="341.00" y="203.13" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">190 mm</text>
+<text x="341.00" y="203.13" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">260 mm</text>
 <line x1="30.00" y1="203.80" x2="356.00" y2="203.80" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="206.55" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W51</text>
 <text x="42.00" y="206.55" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-K3:OUT6</text>
@@ -417,7 +417,7 @@
 <text x="182.00" y="206.55" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">ingang 6 naar GPIO7</text>
 <text x="312.00" y="206.55" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
 <text x="325.00" y="206.55" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">grijs</text>
-<text x="341.00" y="206.55" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">180 mm</text>
+<text x="341.00" y="206.55" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">270 mm</text>
 <line x1="30.00" y1="207.22" x2="356.00" y2="207.22" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="209.97" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W52</text>
 <text x="42.00" y="209.97" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-K3:OUT7</text>
@@ -425,7 +425,7 @@
 <text x="182.00" y="209.97" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">ingang 7 naar GPIO12</text>
 <text x="312.00" y="209.97" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
 <text x="325.00" y="209.97" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">grijs</text>
-<text x="341.00" y="209.97" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">220 mm</text>
+<text x="341.00" y="209.97" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">310 mm</text>
 <line x1="30.00" y1="210.64" x2="356.00" y2="210.64" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="213.39" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W53</text>
 <text x="42.00" y="213.39" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-K3:OUT8</text>
@@ -433,7 +433,7 @@
 <text x="182.00" y="213.39" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">ingang 8 naar GPIO13</text>
 <text x="312.00" y="213.39" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
 <text x="325.00" y="213.39" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">grijs</text>
-<text x="341.00" y="213.39" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">220 mm</text>
+<text x="341.00" y="213.39" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">320 mm</text>
 <line x1="30.00" y1="214.06" x2="356.00" y2="214.06" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="216.81" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W54</text>
 <text x="42.00" y="216.81" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-K4:OUT1</text>
@@ -441,7 +441,7 @@
 <text x="182.00" y="216.81" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">ingang 9 naar GPIO14</text>
 <text x="312.00" y="216.81" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
 <text x="325.00" y="216.81" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">grijs</text>
-<text x="341.00" y="216.81" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">150 mm</text>
+<text x="341.00" y="216.81" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">200 mm</text>
 <line x1="30.00" y1="217.48" x2="356.00" y2="217.48" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="220.23" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W55</text>
 <text x="42.00" y="220.23" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-K4:OUT2</text>
@@ -449,7 +449,7 @@
 <text x="182.00" y="220.23" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">ingang 10 naar GPIO15</text>
 <text x="312.00" y="220.23" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
 <text x="325.00" y="220.23" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">grijs</text>
-<text x="341.00" y="220.23" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">100 mm</text>
+<text x="341.00" y="220.23" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">160 mm</text>
 <line x1="30.00" y1="220.90" x2="356.00" y2="220.90" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="223.65" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W56</text>
 <text x="42.00" y="223.65" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-K4:OUT3</text>
@@ -457,7 +457,7 @@
 <text x="182.00" y="223.65" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">ingang 11 naar GPIO16</text>
 <text x="312.00" y="223.65" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
 <text x="325.00" y="223.65" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">grijs</text>
-<text x="341.00" y="223.65" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">100 mm</text>
+<text x="341.00" y="223.65" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">170 mm</text>
 <line x1="30.00" y1="224.32" x2="356.00" y2="224.32" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="227.07" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W57</text>
 <text x="42.00" y="227.07" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-K4:OUT4</text>
@@ -465,7 +465,7 @@
 <text x="182.00" y="227.07" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">ingang 12 naar GPIO17</text>
 <text x="312.00" y="227.07" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
 <text x="325.00" y="227.07" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">grijs</text>
-<text x="341.00" y="227.07" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">100 mm</text>
+<text x="341.00" y="227.07" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">180 mm</text>
 <line x1="30.00" y1="227.74" x2="356.00" y2="227.74" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="230.49" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W58</text>
 <text x="42.00" y="230.49" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-K4:OUT5</text>
@@ -473,7 +473,7 @@
 <text x="182.00" y="230.49" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">ingang 13 naar GPIO18</text>
 <text x="312.00" y="230.49" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
 <text x="325.00" y="230.49" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">grijs</text>
-<text x="341.00" y="230.49" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">100 mm</text>
+<text x="341.00" y="230.49" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">190 mm</text>
 <line x1="30.00" y1="231.16" x2="356.00" y2="231.16" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="233.91" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W59</text>
 <text x="42.00" y="233.91" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-K4:OUT6</text>
@@ -481,7 +481,7 @@
 <text x="182.00" y="233.91" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">ingang 14 naar GPIO21</text>
 <text x="312.00" y="233.91" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
 <text x="325.00" y="233.91" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">grijs</text>
-<text x="341.00" y="233.91" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">170 mm</text>
+<text x="341.00" y="233.91" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">160 mm</text>
 <line x1="30.00" y1="234.58" x2="356.00" y2="234.58" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="237.33" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W60</text>
 <text x="42.00" y="237.33" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-K4:OUT7</text>
@@ -489,7 +489,7 @@
 <text x="182.00" y="237.33" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">ingang 15 naar GPIO40</text>
 <text x="312.00" y="237.33" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
 <text x="325.00" y="237.33" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">grijs</text>
-<text x="341.00" y="237.33" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">150 mm</text>
+<text x="341.00" y="237.33" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">130 mm</text>
 <line x1="30.00" y1="238.00" x2="356.00" y2="238.00" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="240.75" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W61</text>
 <text x="42.00" y="240.75" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-K4:OUT8</text>
@@ -497,7 +497,7 @@
 <text x="182.00" y="240.75" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">ingang 16 naar GPIO41</text>
 <text x="312.00" y="240.75" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
 <text x="325.00" y="240.75" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">grijs</text>
-<text x="341.00" y="240.75" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">160 mm</text>
+<text x="341.00" y="240.75" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">130 mm</text>
 <line x1="30.00" y1="241.42" x2="356.00" y2="241.42" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="30.00" y="245.92" font-size="2.2" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">Doorsnede: 0,75 mm² (H05V-K) voor 12 V en 0 V naar de MOSFET-modules (tot 2,6 A per module); 0,5 mm² voor de regelaar; 0,25 mm² voor S12; 0,14 mm² of dupontkabels voor signalen.</text>
 <text x="30.00" y="249.42" font-size="2.2" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">Dupont: female-female op de pinnen van -K2 en -Q1/-Q2; female-male waar het andere eind in een schroefklem of WAGO-klem gaat. Een schroefklem neemt hoogstens 2 draden.</text>
@@ -582,10 +582,10 @@
 <text x="231.20" y="277.40" font-size="3.2" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">TRN-14</text>
 <line x1="290.00" y1="279.00" x2="290.00" y2="271.00" stroke="#111" stroke-width="0.25" stroke-linecap="round" />
 <text x="291.20" y="273.20" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#555">Rev.</text>
-<text x="291.20" y="277.40" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">4</text>
+<text x="291.20" y="277.40" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">5</text>
 <line x1="305.00" y1="279.00" x2="305.00" y2="271.00" stroke="#111" stroke-width="0.25" stroke-linecap="round" />
 <text x="306.20" y="273.20" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#555">Uitgifte</text>
-<text x="306.20" y="277.40" font-size="2.4" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">2026-11-13</text>
+<text x="306.20" y="277.40" font-size="2.4" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">2026-11-15</text>
 <line x1="335.00" y1="279.00" x2="335.00" y2="271.00" stroke="#111" stroke-width="0.25" stroke-linecap="round" />
 <text x="336.20" y="273.20" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#555">Taal</text>
 <text x="336.20" y="277.40" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">nl</text>
@@ -594,7 +594,7 @@
 <text x="351.20" y="277.40" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">—</text>
 <line x1="380.00" y1="279.00" x2="380.00" y2="271.00" stroke="#111" stroke-width="0.25" stroke-linecap="round" />
 <text x="381.20" y="273.20" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#555">Blad</text>
-<text x="381.20" y="277.40" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">8 / 10</text>
+<text x="381.20" y="277.40" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">11 / 13</text>
 <text x="231.20" y="281.20" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#555">Opgesteld</text>
 <text x="231.20" y="285.40" font-size="2.3" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">Phlippo CAD</text>
 <line x1="265.00" y1="287.00" x2="265.00" y2="279.00" stroke="#111" stroke-width="0.25" stroke-linecap="round" />

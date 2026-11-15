@@ -1426,14 +1426,16 @@ elease; README en docs/04 bijgewerkt
 - [x] Tests, artifact, foto's, commit en push
 
 ## Treindoos versie 5: alles op één laag, langwerpige doos in 2 helften (2026-11-15)
-- [ ] Indeling: links de 16 bordjes met goten, rechts de modules op de bodem; doos ± 460 x 230, elke helft ≤ 230 x 230 (printer + uitsluitzone)
-- [ ] Naad: helften klikken in elkaar (klikhaken, berekend voor PETG) en hebben een lijmvoeg; deksel ook in 2 helften; goten lopen over de naad door
-- [ ] Moduleplaat weg: modules op palen in de bodem van de rechterhelft; kabelwegen van bordjes naar modules zonder kruisen
-- [ ] Hoogte zo laag als kan (geen tweede laag meer), tules en sleutelgaten herverdelen, rebuild per helft < 45 s
-- [ ] Dimmen weg (Ian 2026-11-15): groepen alleen aan/uit in firmware 1.3.0 en dashboard; PCA9685 blijft als 16 aan/uit-uitgangen
-- [ ] Hallsensoren lezen (Ian 2026-11-15): bestelbare hallsensor kiezen, aansluiting op de PC817-ingangen nagerekend, schema, voorbeeld en test in de firmware
-- [~] Kabelgoten en gootdeksels weg (Ian 2026-11-15): draden rechtstreeks van wartel naar klem, ruimte herschikken
-- [ ] Tekeningen, montageblad, bouwschema, draadlijst, bestellijst, STL's, app; tests, foto's, commit en push
+- [x] Indeling: links de 16 bordjes met goten, rechts de modules op de bodem; doos ± 460 x 230, elke helft ≤ 230 x 230 (printer + uitsluitzone)
+- [x] Naad: helften klikken in elkaar (klikhaken, berekend voor PETG) en hebben een lijmvoeg; deksel ook in 2 helften; goten lopen over de naad door
+- [x] Moduleplaat weg: modules op palen in de bodem van de rechterhelft; kabelwegen van bordjes naar modules zonder kruisen
+- [x] Hoogte zo laag als kan (geen tweede laag meer), tules en sleutelgaten herverdelen, rebuild per helft < 45 s
+- [x] Dimmen weg (Ian 2026-11-15): groepen alleen aan/uit in firmware 1.3.0 en dashboard; PCA9685 blijft als 16 aan/uit-uitgangen
+- [x] Hallsensoren lezen (Ian 2026-11-15): bestelbare hallsensor kiezen, aansluiting op de PC817-ingangen nagerekend, schema, voorbeeld en test in de firmware
+- [x] Kabelgoten en gootdeksels weg (Ian 2026-11-15): draden rechtstreeks van wartel naar klem, ruimte herschikken
+- [x] Tekeningen, montageblad, bouwschema, draadlijst, bestellijst, STL's, app; tests, foto's, commit en push
+- [x] Gaatjes 2 x 2 voor de leddraden (Ian 2026-11-15): 512 gaatjes, één per klem, om en om in 2 rijen, blad TRN-07
+- [ ] Bouwschema: 3D-stapbeelden 7-10 opnieuw renderen (tonen nog de draadsleuven), ± 40 min
 
 ## Fitness: toestellen tot in detail afwerken en fouten in de machines oplossen (2026-11-15)
 - [x] Elk toestel nalopen naast echte referentietoestellen (foto's/maten): bewegingen, hefbomen, kabelloop, botsingen, ergonomie
@@ -1449,7 +1451,16 @@ elease; README en docs/04 bijgewerkt
 - [~] Vragenronde met Ian, EISEN.md bijwerken, Google Maps-foto ontvangen
 - [ ] PNP-sensoren: per ingang NPN of PNP, schema, firmware en dashboard
 - [ ] Wissels, seinen en slagbomen: aandrijving kiezen, uitgangen en voeding, firmware (standen, in functies), dashboard
+- [ ] IR-leds (zenders, stopcommando naar de bussen), IR-sensoren en FTR-sensoren binnenlezen en uitsturen (Ian 2026-11-15): protocol van zijn bussysteem achterhalen, RMT van de ESP32-S3, één draaggolf met per IR-led een schakeluitgang
 - [ ] Geluid: kleine speakertjes op vrij te kiezen plaatsen, geluiden aan functies en ingangen koppelen
 - [ ] Situatieplan 2D (vector) uit de Google Maps-foto: rijbanen van de bussen, sensoren, lichtgroepen, wissels, seinen, speakers
 - [ ] Tv-weergave: live plan met rijdende bussen en lichtgroepen die aan/uit gaan
 - [ ] Doos, schema's (IEC 60617), tekeningen, bestellijst, tests, foto's, commit en push
+
+## Fitness: meer toestellen en varianten, uiterlijk van echte pro-toestellen (2026-11-15)
+- [x] Vragenronde met Ian: stijl mix per soort; varianten uitvoering (thuis/semi-pro/pro), maat (compact/standaard/XL), afwerking, opties; nieuw: selectorized, multigyms en rigs, opslag en accessoires, strongman en buiten; totaal ± 150 toestellen
+- [~] Uiterlijk pro: ovaal- en afgeronde kokers, lasergesneden zijplaten, kappen over stapel en katrollen, gestikte kussens, grips en knoppen in accentkleur, eindkappen, instructieplaat
+- [ ] Weergave: betere materialen (gepoedercoat, chroom, leer), licht en schaduw, studiocamera; miniaturen opnieuw
+- [ ] Varianten per toestel (maat, uitvoering, afwerking, opties) in het model, de prijzen en de bestellijst
+- [ ] Nieuwe toestellen erbij volgens de vragenronde, met berekening, tekeningen en controles
+- [ ] Tests (controle, gaten, botsingen) groen, typecheck, web, presentatie, artifact, foto's, commit en push

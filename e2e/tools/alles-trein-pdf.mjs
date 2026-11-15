@@ -10,7 +10,7 @@ import { resolve } from 'node:path';
 import { esc, dataUrl, mdDoc } from './mdhtml.mjs';
 
 const DIR = 'voorbeelden/treinverlichting';
-const VERSIE = `versie 4 (${/\((\d{4}-\d{2}-\d{2})\)/.exec(readFileSync(`${DIR}/README.md`, 'utf8'))?.[1] ?? ''})`;
+const VERSIE = `versie 5 (${/\((\d{4}-\d{2}-\d{2})\)/.exec(readFileSync(`${DIR}/README.md`, 'utf8'))?.[1] ?? ''})`;
 
 const a3 = (svg) => `<div class="a3">${svg.replace(/^<\?xml[^>]*>\s*/, '').replace(/<svg /, '<svg style="display:block;width:420mm;height:297mm" ')}</div>`;
 // de tekeningen: A3 liggend, het meetblad en het invulblad A4 staand (volgens de maat in de SVG)
@@ -46,13 +46,13 @@ const delen = [
 const voorblad = `<section class="voor">
   <p class="klein">Treinverlichting · ${esc(VERSIE)}</p>
   <h1>Kabeldoos voor de verlichting van de modelbaan</h1>
-  <p class="sub">16 lichtgroepen, 16 ingangen voor knoppen en sensoren (contact, reed en NPN), een eigen wifi met dashboard, kant-en-klare modules. Alles om af te drukken.</p>
-  <img class="fig voorfoto" src="${dataUrl('e2e-out/trein-doos-open.png')}">
+  <p class="sub">16 lichtgroepen (aan/uit), 16 ingangen voor knoppen en sensoren (contact, reed, NPN en hallsensoren), een eigen wifi met dashboard, kant-en-klare modules op één laag in een doos van 2 helften die in elkaar klikken. Alles om af te drukken.</p>
+  <img class="fig voorfoto" src="${dataUrl('e2e-out/trein-v5/doos-open-iso.png')}">
   <h2>Inhoud</h2>
   <ol>${delen.map(([t, p]) => `<li>${esc(t)} <span class="klein">(${p})</span></li>`).join('')}</ol>
   <p class="klein"><b>Afdrukken:</b> kies "werkelijke grootte" of "100 %" (niet "passend maken"), anders klopt de boormal niet:
-  meet de controlemaat van 100 mm na. De printer kiest per blad het formaat (A4 staand, A4 liggend, A3 liggend). Zonder
-  A3-printer: de boormal op twee A4-bladen afdrukken (posterfunctie van de printer) en aan elkaar plakken.</p>
+  meet de controlemaat van 100 mm na. De printer kiest per blad het formaat (A4 staand, A4 liggend, A3 liggend). De boormal staat op
+  2 A3-bladen: leg ze over elkaar tot de kruisen A en B samenvallen.</p>
 </section>`;
 
 const html = `<!doctype html><html lang="nl"><head><meta charset="utf-8"><title>Kabeldoos: alles afdrukken</title><style>

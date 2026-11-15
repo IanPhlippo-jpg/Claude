@@ -150,3 +150,78 @@ Na te meten (nieuw): de maten en gaten van de MOSFET-modules, de schroefklemadap
 MOSFET-module (één verkoper noemt 39 mm: dan past ze niet onder het deksel); de volgorde van de klemmen van de
 optocouplerprint; de weerstand in de ingang (stroom bij 12 V); de polariteit van uitgangen en ingangen (meetblad stap 8
 en 9); of de pootjes van de polyfuses (0,51 mm) vast zitten in de WAGO 221-2411.
+
+## Bijsturing 2026-11-15: één laag, de doos in 2 helften die klikken, aan/uit, hallsensoren
+
+Ian: "Als je met 2 lagen werkt is het te moeilijk om de kabels aan te sluiten." Gekozen (Ian, uit 3 voorstellen): **één
+langwerpige doos van ± 460 x 230, geprint in 2 helften die aan elkaar vastgemaakt worden, binnen geen tussenwand**; alles
+op één laag en van bovenaf bereikbaar. Daarna: "De doos moet in elkaar kunnen klikken en nog kunnen lijmen.", "Dimmers
+zijn niet nodig." en "Zorg ook dat er hallsensoren binnen gelezen kunnen worden."
+
+Uitgewerkt in versie 5 (README, maak-kabeldoos.mjs, opbouw.mjs, tekeningen TRN-00a/b, TRN-01 tot TRN-06, TRN-10, TRN-14,
+TRN-20, rekenblad hoofdstuk 4, 5 en 8, firmware 1.3.0):
+
+| Wat | Versie 4 | Versie 5 |
+|---|---|---|
+| doos | 229,8 x 229,8 x 66,8, één bak, één deksel | **440,9 x 229,8 x 52,6**, 2 bakhelften en 2 dekselhelften (elk hoogstens 229,8) |
+| modules | op een geprinte moduleplaat boven de bordjes (2 lagen) | op palen Ø6 x 5 in de bodem van de rechterhelft, naast de bordjes (één laag) |
+| kabelgoten | 9 goten met vingers en klikdeksels | **geen** (Ian: "Kabel goten mogen weg"); de bordjes houden hun plaats (steunrail, palen, aanslagen, klemlippen) |
+| draden van de bordjes | door de goten naar voren en omhoog naar de plaat | **rechtstreeks** van de eindklem door de vrije strook voor de rij naar hun klem van de MOSFET-module |
+| naad | — | **2 klikhaken** (14 x 1,6, onderkant 45°, nok 0,6 in een kuiltje 0,8), **5 bodemlippen**, **lijmspleet 0,2**; het deksel met een **lip van 12** (4 vingers met een nok) |
+| uitgangen | aan/uit, dimmen en effecten | **alleen aan/uit** en aan/uit-effecten (knipperen, overweg, lasvlam, tl); vuur, tv en ademen vervallen |
+| ingangen | contact, reed, NPN | ook **hallsensoren**: een puls vanaf 1 ms wordt gezien (interrupt), 0,3 s vastgehouden, een teller per ingang |
+
+Keuzes (zelf beslist; de bestellijst wordt € 194,95, € 8,00 meer voor de lijm):
+- **Lengte 440,9 in plaats van ± 460:** de linkerhelft blijft zoals de bordjesruimte van versie 4 (224,9 breed), de
+  rechterhelft is 229,8 met de klikhaken; de modules passen er met 10 tot 14 mm draadruimte voor elke klemmenrij. Langer
+  kan niet zonder een derde deel (elk geprint deel hoogstens 230). **Na het weghalen van de goten niet kleiner gemaakt:**
+  de diepte (229,8) is nodig voor de modules van de rechterhelft, en links blijft de ruimte nodig voor de tules (die
+  steken 6,6 naar binnen), de sleutelgaten, de draden tussen de rijen (9,2) en aan de naad (± 20): kleiner zou hoogstens
+  10 mm schelen en de draden krapper maken.
+- **Geen moduleplaat:** de palen staan in de bodem van de rechterhelft. Nadeel: klopt een gat van een module niet (AANNAME),
+  dan moet de rechterhelft opnieuw (± 10 uur) in plaats van de plaat (3 uur). Daarom in de bouwvolgorde: **eerst de
+  modules kopen en nameten, dan de rechterhelft printen**. Een losse montageplaat per helft zou de doos weer 5 mm hoger
+  maken en een tweede laag geven: niet gedaan.
+- **Hoogte:** binnen 47,0. De MOSFET-module is getekend 15 hoog (AANNAME), maar één verkoper noemt 87 x 47 x **39**: veilig
+  gekozen voor een module tot 39 mm op palen van 5 met 3 mm vrij tot het deksel. Is ze echt 15, dan kan de doos 10 mm
+  lager (maten.mjs: doos.h).
+- **De naad print zonder support:** de bodemlippen liggen op het bed, de klikhaken hebben een onderkant van 45°, de
+  kuiltjes en groeven zijn van boven open; het deksel links print met de buitenkant op het bed (sponning boven), het
+  deksel rechts met de binnenkant op het bed (de lip op het bed). Rek van een haak 0,62 %, inklikken 9,7 N per haak; rek
+  van een dekselvinger 0,44 %, samen 44 N (docs/Berekeningen.md, hoofdstuk 8). Geen schroeven, inserts of paspennen in
+  de naad (de bodemlippen zijn de geprinte nokken die uitlijnen).
+- **De naad van het deksel** ligt 2 mm naast die van de bak; de lip van 12 overlapt de naad van de bak, zodat het dichte
+  deksel de 2 helften bovenaan verbindt. Het deksel heeft 6 schroeven (2 links, 4 rechts).
+- **Plaatsen:** de ESP met haar USB naar de voorwand (opening), de DC-bus in de achterwand van de rechterhelft boven de
+  WAGO-klemmen, de ingangen van de optocouplerprints naar de rechterwand met 4 tules ernaast, de regelaar rechtsvoor. Van
+  de 18 tules: 5 links en 4 vooraan in de linkerhelft, 3 vooraan, 2 achteraan en 4 rechts in de rechterhelft.
+- **Hallsensor:** Honeywell SS441A (3,8-30 V, open collector, 20 mA) of een A3144-kloon (4,5-24 V): rechtstreeks op 12 V,
+  de uitgang aan IN; 10,6 mA door de ingang. Kant-en-klare Arduino-hallmodules met lampje en pull-up (KY-003): niet
+  gebruiken (README). Tot 19 sensoren samen op -F18; meerdere per ingang mag (parallel).
+- **Aan/uit:** de PCA9685 blijft (de ESP heeft te weinig vrije GPIO's voor 16 uitgangen naast 16 ingangen), maar zet elk
+  kanaal volledig aan of uit.
+
+Na te meten (nieuw): de echte hoogte van de MOSFET-module (de doos is gerekend tot 39); de stroom in een ingang met een
+hallsensor (verwacht 10,6 mA; boven 18 mA een weerstand van 1 kΩ in serie); of de klikhaken klikken met de printer van
+Ian (de nok mag 0,1 tot 0,2 afwijken: dan de nok in maten.mjs aanpassen, alleen de rechterhelft opnieuw).
+
+Bijsturing (Ian, 2026-11-15): "Kabel goten mogen weg op de treindoos". Uitgewerkt: geen kabelgoten, geen gootdeksels
+(Gootdeksel.kcad, Gootdeksels-plaat.kcad en goten.mjs verwijderd), geen naadgoot en naadwand. De bordjes blijven op hun
+plaats van versie 4: elk op een steunrail, tussen 2 palen (X) en 4 lage aanslagen langs de lange kanten (Z, 4,9 hoog: onder
+de draadingangen van de klemmen) en vast in 4 klemlippen. De draden lopen rechtstreeks van de tule of hun gaatje in de
+bodem naar hun klem; per rij gebundeld met een kabelbinder in de vrije strook van 9,2 voor de rij. De spatel blijft (blad:
+klemlip openduwen; haakje: een draad tussen de bordjes uittrekken). Rebuild: linkerhelft 21,1 s, rechterhelft 7,4 s (was
+28,4 en 10,5 met de goten).
+
+Bijsturing (Ian, 2026-11-15): "Gaatjes van de linkse box zijn 2mm op 2mm voor de printjes". Gelezen als: de leddraden
+komen van boven door de bodem, en daarvoor komen er **vierkante gaatjes van 2 x 2** in plaats van de lange draadsleuven.
+Uitgewerkt: **per klem één gaatje** (16 bordjes x 2 klemstroken x 16 klemmen = 512), recht voor die klem in de vrije strook
+voor het bordje. De klemmen staan op 2,54: in één rij liet een gaatje van 2 maar 0,54 vlees; daarom om en om in 2 rijen
+(0,3 en 2,5 van de rand van het bordje, binnen een rij steek 5,08). In een strook van 9,2 tussen 2 rijen bordjes liggen
+zo 4 rijen gaatjes om en om (even, oneven, even, oneven): vlees 3,08 in een rij, 2,4 tussen 2 rijen, 0,58 schuin tussen 2
+hoekpunten. Rond de gaatjes van een bordje en een strook staat een **eilandje van 0,4 hoog** (19 stuks, hoogstens 32 gaatjes
+elk): met 512 gaatjes in één bodemvlak maakte de mesh-kernel van de app een fout in het vlak; per eilandje gaat het goed.
+De aanslagen schoven naar x ±26 (voorbij de klemmen), bordje 16 kreeg ook 4 aanslagen (de 2 lange stroken vielen weg).
+Printbaar met de bodem op het bed: de gaatjes zijn staande kokers, geen overhang. Rebuild linkerhelft 33,1 s.
+Mogelijk anders bedoeld: bevestigingsgaatjes Ø2 voor de printjes (de bordjes hebben 4 gaatjes Ø2,2 in hun hoeken) — na te
+vragen bij Ian; de bordjes zitten nu vast in hun klemlippen, zonder schroeven.

@@ -5,10 +5,12 @@
 // Vaste aansluitingen:
 //   GPIO8  SDA, GPIO9  SCL (I2C, 400 kHz)
 //   GPIO10 OE van de PCA9685 (actief laag; een externe pull-up van 1 kΩ houdt alles UIT tijdens reset en flashen)
-//   PCA9685 op 0x40: kanaal 0..15 = groep 1..16 (IN1..IN8 van MOSFET-module 1 en 2, standaard actief laag: hw.h);
+//   PCA9685 op 0x40: kanaal 0..15 = groep 1..16, alleen volledig aan of uit (IN1..IN8 van MOSFET-module 1 en 2,
+//   standaard actief laag: hw.h);
 //   met TREIN_GROEPEN > 16 een tweede op 0x41 (groep 17..32)
 //   ingang 1..16 = GPIO 1, 2, 4, 5, 6, 7, 12, 13, 14, 15, 16, 17, 18, 21, 40, 41 (OUT1..OUT8 van de 2 optocouplerprints;
-//   INPUT_PULLUP, de optocoupler trekt de pin naar GND = actief). Vrij: GPIO 11, 39, 42, 47, 48. Zie src/hw.h.
+//   INPUT_PULLUP, de optocoupler trekt de pin naar GND = actief; elk met een interrupt op de actief-flank voor korte
+//   pulsen van hallsensoren). Vrij: GPIO 11, 39, 42, 47, 48. Zie src/hw.h.
 //   Alles via de schroefklemadapter van de ESP (versie 4: kant-en-klare modules, geen gaatjesprints).
 //   GPIO38 RGB-led op het bord = statuslampje: groen = hotspot actief, rood = PCA9685 antwoordt niet (gaat voor),
 //          blauw = BOOT-knop wordt vastgehouden / knippert: het wifi-wachtwoord is teruggezet
@@ -18,8 +20,9 @@
 // pas dan de laatste stand terug (of alles uit, naar keuze). Antwoordt de PCA9685 niet meer, dan gaat OE hoog.
 //
 // Twee taken, allebei bewaakt door de watchdog (8 s zonder teken van leven = de ESP start opnieuw):
-//   licht  (prioriteit 5) elke 5 ms: ingangen lezen en de Baan laten rekenen; elke 10 ms de uitgangen naar de
-//          PCA9685. Zo blijven effecten vloeiend, ook als de webserver bezig is.
+//   licht  (prioriteit 5) elke 5 ms: de flankvlaggen ophalen, de ingangen lezen en de Baan laten rekenen; elke 10 ms
+//          de uitgangen (aan/uit) naar de PCA9685 (alleen als er iets veranderde). Zo blijven knipperen en de andere
+//          effecten op tijd, ook als de webserver bezig is.
 //   loop() de hotspot (en het thuisnet), DNS (captive portal), de webserver, de updates, de BOOT-knop en het
 //          bewaren in LittleFS. Is de hotspot weg, dan start loop() hem opnieuw (HotspotWacht, onderhoud.h).
 // De Baan wordt door beide gebruikt: altijd met het slot (Slot s;).
@@ -126,8 +129,8 @@ void laadInstellingen() {
   Laad r = configVanJson(t.data(), t.size(), baan.cfg, meldingLaden);
   if (r == Laad::ONGELDIG) schrijfBestand(BESTAND_KAPOT, t); // niets weggooien
   if (r != Laad::OK) {
-    schrijfBestand(BESTAND_INST, configNaarJson(baan.cfg));
-    Serial.printf("Instellingen: %s\n", meldingLaden.c_str());
+    schrijfBestand(BESTAND_INST, configNaarJson(baan.cfg)); // ook OMGEZET: versie 1 (met dimmen) wordt versie 2
+    Serial.printf("Instellingen: %s\n", r == Laad::OMGEZET ? "omgezet naar versie 2 (alleen aan/uit)." : meldingLaden.c_str());
   }
 }
 
@@ -149,14 +152,11 @@ bool pcaControleer() {
   for (int i = 0; i < N_PCA; i++) ok = pca[i].controleer() && ok;
   return ok;
 }
-/** de uitgangen van alle groepen wegschrijven: per chip 16 kanalen (niet gebruikte kanalen 0) */
-bool pcaZet(const uint16_t *uit) {
+/** de uitgangen van alle groepen wegschrijven (bit g = groep g+1 aan): per chip 16 kanalen (niet gebruikte uit) */
+bool pcaZet(GroepMasker uit) {
   bool ok = true;
-  for (int i = 0; i < N_PCA; i++) {
-    uint16_t blok[16] = {0};
-    for (int k = 0; k < 16 && i * 16 + k < N_GROEPEN; k++) blok[k] = uit[i * 16 + k];
-    ok = pca[i].zet(blok) && ok;
-  }
+  uit &= ALLE_GROEPEN;
+  for (int i = 0; i < N_PCA; i++) ok = pca[i].zet((uint16_t)(uit >> (16 * i))) && ok;
   return ok;
 }
 
@@ -165,16 +165,17 @@ void lichtTaak(void *) {
   esp_task_wdt_add(nullptr); // deze taak wordt bewaakt
   TickType_t wakker = xTaskGetTickCount();
   uint32_t controle = millis(), geschreven = millis();
-  uint16_t uit[N_GROEPEN];
+  GroepMasker uit = 0;
   for (;;) {
     vTaskDelayUntil(&wakker, pdMS_TO_TICKS(TICK_MS));
     esp_task_wdt_reset();
     uint32_t nu = millis();
-    uint16_t ingangen = ingangenLees(); // bit i = ingang i+1 actief (de optocoupler trekt de pin laag)
+    uint16_t flanken = ingangenFlanken(); // eerst de flankvlaggen (korte pulsen sinds de vorige keer) ...
+    uint16_t ingangen = ingangenLees();   // ... dan het niveau: bit i = ingang i+1 actief (de optocoupler trekt laag)
     {
       Slot s;
-      baan.tick(nu, ingangen);
-      memcpy(uit, baan.lampen.uitgang, sizeof uit);
+      baan.tick(nu, ingangen, flanken);
+      uit = baan.lampen.uitgang;
     }
     if (nu - geschreven >= UITGANG_MS) {
       geschreven = nu;
@@ -422,7 +423,7 @@ void setup() {
   if (pcaOk) digitalWrite(PIN_OE, LOW);
   else Serial.println("PCA9685 antwoordt niet: uitgangen blijven uit.");
 
-  // 3. de ingangen (16 GPIO's met interne pull-up)
+  // 3. de ingangen (16 GPIO's met interne pull-up en een interrupt op de actief-flank)
   ingangenBegin();
 
   // 4. instellingen laden, dan de laatste stand (of alles uit)

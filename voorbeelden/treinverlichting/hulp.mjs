@@ -1,4 +1,4 @@
-// Gedeelde hulpjes van de kabeldoos (maak-kabeldoos.mjs, goten.mjs, verbinding.mjs): materialen, vlakken en de korte
+// Gedeelde hulpjes van de kabeldoos (maak-kabeldoos.mjs, onderdelen.mjs, hulpstukken.mjs): materialen, vlakken en de korte
 // schrijfwijzen voor blokken, sneden en cirkels.
 import { Onderdeel, vlak } from '../lib/schets.mjs';
 

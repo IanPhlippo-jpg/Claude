@@ -122,9 +122,9 @@ eilandjes (2,54 uit elkaar).
 
 Opgezocht op 2026-11-13. "Datablad" = uit het datablad of de maattekening van de fabrikant; "verkoper" = uit de
 productpagina van de winkel; AANNAME = niet gepubliceerd: na te meten bij de bouw. De maten staan in `opbouw.mjs`
-(MODULES); de moduleplaat (paaltjes, klikhouders) volgt daaruit. **Een module met andere maten of gaten: de maten in
-`opbouw.mjs` aanpassen, `node voorbeelden/treinverlichting/maak-kabeldoos.mjs` en alleen de moduleplaat opnieuw printen
-(3 uur); de bak blijft.**
+(MODULES); de palen en klikhouders in de rechterhelft van de doos volgen daaruit (versie 5: geen moduleplaat meer).
+**Eerst de modules kopen en nameten; een module met andere maten of gaten: de maten in `opbouw.mjs` aanpassen,
+`node voorbeelden/treinverlichting/maak-kabeldoos.mjs` en dan pas de rechterhelft printen (± 10 uur).**
 
 ### Optocouplerprint PC817, 8 kanalen, 3,6-24 V (-K3, -K4)
 
@@ -153,7 +153,7 @@ datablad: alles behalve de functie is AANNAME.
 |---|---|---|
 | versie | B = 3,3 V-ingang (VCC aan 3,3 V); de 5 V-versie heeft een lampje per kanaal, de 3,3 V-versie niet | verkoper |
 | belasting | tot 2 A continu per kanaal (3 A max), tot 48 V; optocouplers tussen stuur- en lastkant; PWM | verkoper |
-| print | 87 x 47 | verkoper (Amazon.de: 87 x 47 x 39; de 39 hoog is niet verklaard, het model rekent met 15: AANNAME) |
+| print | 87 x 47 | verkoper (Amazon.de: 87 x 47 x 39; de 39 hoog is niet verklaard: het model tekent 15, de doos van versie 5 is gerekend tot 39 op palen van 5) |
 | gaten | 4 x Ø3 op 83 x 43 | AANNAME |
 | klemmen | 8 x 2-polig steek 5,0 (+ en −) langs één lange kant, VIN+ VIN− en een pinrij VCC GND IN1..IN8 aan de andere | AANNAME |
 | ingang actief laag (de led tussen VCC en IN) | | AANNAME (firmware: `-DTREIN_UITGANG_ACTIEF_HOOG` als het andersom is) |
@@ -211,7 +211,7 @@ Bron: Bourns, datablad MF-R Series (mfr.pdf).
 | Maat | Waarde | Soort |
 |---|---|---|
 | 221-415 | 5 klemmen, 0,2 tot 4 mm² (massief), 32 A | WAGO-catalogus |
-| 221-415 afmetingen | 29,8 x 18,7 x 8,3 | AANNAME (na te meten: de klikhouder op de plaat heeft 0,2 speling) |
+| 221-415 afmetingen | 29,8 x 18,7 x 8,3 | AANNAME (na te meten: de klikhouder in de bodem heeft 0,2 speling) |
 | 221-2411 | doorverbinder 1 + 1, 0,2 tot 4 mm² | WAGO-catalogus |
 
 ### Andere
@@ -221,3 +221,35 @@ Bron: Bourns, datablad MF-R Series (mfr.pdf).
 | Schottkydiode SB560 | 5 A, 60 V, VF 0,70 V bij 5 A, IFSM 150 A | datablad SB5x0-reeks (na te kijken bij het bestellen) |
 | zekeringhouder ATO met draden | 32 V, 30 A, draden 1,5 mm² (16 AWG) | AANNAME (Littelfuse FHAC0001ZXJ of gelijk) |
 | Schönwitz 50186 (overwogen, niet gekozen) | 4 zekeringen PTC 0,5/1 A met lampje, 65 x 55 x 13 | Schönwitz, handleiding 50186: per 4 groepen te groot voor de plaat |
+
+## Versie 5 (Ian, 2026-11-15): één laag in 2 helften, hallsensoren
+
+### De doos en de naad (ontwerp, maten.mjs)
+
+| Maat | Waarde | Soort |
+|---|---|---|
+| doos | 440,9 x 229,8 x 52,6 met het deksel; binnen 47,0 hoog | ontwerp |
+| linkerhelft / rechterhelft (bak) | 224,9 x 229,8 x 49,4 / 229,8 x 229,8 x 49,4 (met de klikhaken) | ontwerp (eis: elk deel hoogstens 230) |
+| deksel links / rechts | 226,9 x 229,8 x 4,7 (plaat 3,2 en rand 1,55) / 226,0 x 229,8 x 3,2 (met de lip) | ontwerp |
+| naad | naadvlak links x = 110, rechts 110,2: lijmspleet 0,2 overal | ontwerp |
+| klikhaak | 14 lang, 1,6 dik, top 26, onderkant 45°; nok 0,6 (schuin over 1,2, recht aan de achterkant) van 15 tot 25 hoog; kuiltje 0,8 diep | ontwerp; rek 0,62 %, 9,7 N per haak (rekenblad, hfst. 8) |
+| bodemlippen | 5 x (16 x 5) op z = -92, -52, -12, 28, 58 | ontwerp |
+| gaatjes leddraden (linkerhelft) | 512 x (2 x 2), per klem één, om en om op 0,3 en 2,5 van de rand van het bordje, op 19 eilandjes van 0,4 | ontwerp (Ian: "2mm op 2mm"); TRN-07 |
+| lip van het deksel | 12 x 1,4, 4 vingers (sleuven 1,5), nok 0,5 x 20 per vinger, groef 0,6 | ontwerp; rek 0,44 %, 44 N samen |
+| PETG | E = 2100 MPa, rek bij herhaald klikken ≤ 2 % | AANNAME (gangbaar) |
+| lijm | 2K-epoxy (bv. UHU Plus Schnellfest of Bison Epoxy Universal), spleet 0,2 | keuze; prijs AANNAME |
+
+### Hallsensor Honeywell SS441A (optioneel, op de ingangen)
+
+Bron: Honeywell, datablad SS400-reeks (SS441A: unipolair), verdelers Farnell, Mouser en LCSC (opgezocht 2026-11-15;
+de getallen zijn na te kijken in het datablad bij het bestellen).
+
+| Maat | Waarde | Soort |
+|---|---|---|
+| voeding | 3,8 tot 30 V DC, hoogstens 10 mA | datablad (na te kijken) |
+| uitgang | open collector (NPN, zinkt), hoogstens 20 mA, verzadiging hoogstens 0,40 V, lek hoogstens 10 µA | datablad (na te kijken) |
+| behuizing | TO-92, 3 pootjes: 1 = voeding, 2 = 0 V, 3 = uitgang | datablad (na te kijken) |
+| prijs | ± € 2,50 (Farnell 10+ £ 2,41; LCSC $ 0,79) | verdeler; AANNAME voor België |
+| alternatief | Allegro A3144 (klonen): 4,5 tot 24 V, 25 mA, verzadiging 0,4 V | datablad A3144 (de klonen volgen het) |
+| magneet | neodymium Ø5 x 2 (N35) onder de loc, 2 à 5 mm boven de sensor; de zuidpool naar de sensor | AANNAME (proef) |
+| niet gebruiken | hallmodules voor Arduino (KY-003) met pull-up en lampje naar hun eigen VCC | zie README |
