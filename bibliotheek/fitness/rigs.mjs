@@ -36,7 +36,13 @@ export function rigBouw(b, def, c) {
     ligger(b, 'Bovenligger achter', 'ligger', L.b, R.b, { z: H - a / 2 - 55 }, { bout: true, groep: `Bovenligger achter ${i + 1}` });
     if (!c.muur) dwarsOp(b, 'Onderligger achter', 'ligger', L.voet, R.voet, i % 2 ? yb - a - 10 : yb + a + 10);
   }
-  if (c.muur) { b.o.muur = yb + a / 2 + 10; for (const s of st) b.plaat('Muurplaat', [s.x - 60, yb + a / 2, 400], [s.x + 60, yb + a / 2 + 10, 700], { gaten: [[-35, 450], [35, 450], [-35, 650], [35, 650]].map(([dx, z]) => ({ p: [s.x + dx, yb + a / 2, z], d: 14 })), opm: 'muurplaat 10 mm, 4 x M12 keilbout in beton' }); b.o.verankerd = 'muur'; b.o.anker = { arm: 300, z: 550, n: 4 * st.length, kg: G / 2 }; }
+  if (c.muur) { b.o.muur = yb + a / 2 + 10; for (const s of st) b.plaat('Muurplaat', [s.x - 60, yb + a / 2, 400], [s.x + 60, yb + a / 2 + 10, 700], { gaten: [[-35, 450], [35, 450], [-35, 650], [35, 650]].map(([dx, z]) => ({ p: [s.x + dx, yb + a / 2, z], d: 14 })), opm: 'muurplaat 10 mm, 4 x M12 keilbout in beton' }); b.o.verankerd = 'muur'; b.o.anker = { arm: 300, z: 550, n: 4 * st.length, kg: G / 2 };
+    // de muur als context (lichtgrijs, hoort niet bij het toestel) en de koppen van de keilbouten in de muurplaten
+    const x0 = st[0].x - 400, x1 = st[n].x + 400, zm = (H + 300) / 2;
+    b.o.context.push(balk([x0, b.o.muur + 60, zm], [x1, b.o.muur + 60, zm], Z, H + 300, 120, false, 'muur'));
+    b.o.pronk = b.o.pronk ?? [];
+    for (const s of st) for (const [dx, z] of [[-35, 450], [35, 450], [-35, 650], [35, 650]]) b.o.pronk.push(balk([s.x + dx, yb + a / 2 - 9, z], [s.x + dx, yb + a / 2 - 1, z], X, 19, 19, false, 'zink', { zes: true }), balk([s.x + dx, yb + a / 2 - 1, z], [s.x + dx, yb + a / 2, z], X, 26, 26, true, 'ring'));
+    b.koop('keilbout', 4 * st.length, [], { naam: 'Keilbout M12 x 120 verzinkt in beton (muurplaten)', groep: 'afwerking' }); }
   else b.o.verankerd = pro(b) ? 'vloer' : null;
   // J-hooks en safety\'s in het eerste vak
   if (extra.has('jhooks')) {

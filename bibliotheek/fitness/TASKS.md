@@ -92,6 +92,6 @@
 ## Versie 5 fase C: ± 100 nieuwe toestellen in blokken van ± 25 (2026-11-15)
 - [x] Blok 1: FS-01..FS-25 selectorized (nokstation met hefboom en nok, kabelstation met gebogen arm), varianten en opties; tests, raster
 - [x] Blok 2: FM-01..FM-25 multigyms en rigs (rigBouw 1-4 vakken, muur, monkey bars, ringen, dips, opslag; functional trainers 2-3 torens); FS: nokkap, herkenbare stations, latstang aan V-strop
-- [ ] Blok 3: FO opslag en accessoires
+- [x] Blok 3: FO-01..FO-25 opslag en accessoires (rekken met lagen, palen en wandstrips met houders, parallettes, plyobox, schijvenkar); muur als context bij muurtoestellen; snelle testrun (FITNESS_VOLLEDIG=1 voor alles); lui laden in de web
 - [ ] Blok 4: FX strongman en buiten (EN 16630)
 - [ ] Web lui laden per toestel (start niet trager met 150 toestellen), README/EISEN/docs, presentatie, graphify

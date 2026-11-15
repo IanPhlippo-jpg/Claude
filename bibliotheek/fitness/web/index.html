@@ -150,6 +150,7 @@ footer { color: var(--zacht); font-size: 13px; padding-block: 30px }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important } }
 .klant #nav-werk, .klant #nav-inst, .klant #t-werk { display: none !important }
 .open-punten { margin: 10px 0 0; padding: 8px 12px; border-left: 3px solid #c27c0e; background: rgba(194,124,14,.08); font-size: 13px } .open-punten li { margin: 2px 0 }
+.laadduim { display: block; width: 100%; height: 100%; background: linear-gradient(90deg, rgba(0,0,0,.04), rgba(0,0,0,.08), rgba(0,0,0,.04)); }
 </style>
 
 <header class="balk"><div class="wrap">
@@ -288,14 +289,33 @@ $('c-tekst').textContent = `${Object.values(SOORTEN).map((s) => `${TOESTELLEN.fi
 $('soortchips').innerHTML = [['alle', 'Alle soorten', 'var(--zacht)'], ...Object.values(SOORTEN).map((s) => [s.id, s.naam, SKL[s.id]])].map(([v, t, k]) => `<button type="button" data-soort="${v}" style="--k:${k}" aria-pressed="false"><i></i>${esc(t)}</button>`).join('');
 $('soortchips').addEventListener('click', (e) => { const b = e.target.closest('[data-soort]'); if (!b) return; st.soort = b.dataset.soort; bewaarKeuze(); tekenCatalogus(); });
 for (const [id, k, num] of [['zoek', 'zoek'], ['f-versie', 'fVersie'], ['f-vloer', 'vloer', 1], ['f-prijs', 'prijs', 1], ['f-sort', 'sort']]) { $(id).value = id === 'f-prijs' ? (st[k] || '') : String(st[k] ?? ''); $(id).addEventListener('input', () => { st[k] = num ? +$(id).value || 0 : $(id).value; bewaarKeuze(); tekenCatalogus(); }); }
+/** de kaart van een toestel; zonder gegevens (lui): naam en tekst meteen, beeld, maten en prijs zodra de kaart in beeld komt */
+function kaart(t, vol) {
+  const d = vol ? kaartData(t) : null;
+  return `<a class="kaart" href="#toestel/${t.id}" data-id="${t.id}" style="--k:${SKL[t.soort]}"><span class="duim">${d ? d.duim : '<span class="laadduim" aria-hidden="true"></span>'}</span><span class="tekst"><span class="nr">${t.id} · ${esc(SOORTEN[t.soort].kort)}</span><b>${esc(t.naam)}</b><span class="klein">${esc(t.kort)}</span><span class="pr">${d ? d.pr : '<span>…</span>'}</span><span class="klein maat">${d ? d.maat : ''}</span></span></a>`;
+}
+function kaartData(t) {
+  const v = st.fVersie, o = toestel(t.id, v), kt = prijs(t.id, 'thuis'), kp = prijs(t.id, 'pro');
+  return { duim: duim(t.id), pr: `<span>thuis <b>${eur0(kt.incl)}</b></span><span>pro <b>${eur0(kp.incl)}</b></span>`, maat: `${g(o.maten.B)} x ${g(o.maten.D)} x ${g(o.maten.H)} mm · ${g(o.vloer, 1)} m²` };
+}
+// lui laden: een toestel wordt pas opgebouwd als zijn kaart in beeld komt, één per beurt (de pagina blijft vlot)
+const luiRij = [], kijker = 'IntersectionObserver' in window ? new IntersectionObserver((es) => { for (const e of es) if (e.isIntersecting) { kijker.unobserve(e.target); luiRij.push(e.target); } plan(); }, { rootMargin: '300px' }) : null;
+let bezigLui = false;
+function plan() { if (bezigLui || !luiRij.length) return; bezigLui = true; setTimeout(() => { const el = luiRij.shift(); bezigLui = false; const t = PER_ID[el?.dataset.id]; if (t && el.isConnected) { const d = kaartData(t); el.querySelector('.duim').innerHTML = d.duim; el.querySelector('.pr').innerHTML = d.pr; el.querySelector('.maat').textContent = d.maat; } plan(); }, 0); }
 function tekenCatalogus() {
   document.querySelectorAll('#soortchips [data-soort]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.soort === st.soort));
   const z = st.zoek.trim().toLowerCase(), v = st.fVersie;
   let lijst = TOESTELLEN.filter((t) => (st.soort === 'alle' || t.soort === st.soort) && (!z || `${t.id} ${t.naam} ${t.kort} ${t.spieren} ${t.oefeningen.join(' ')} ${SOORTEN[t.soort].naam}`.toLowerCase().includes(z)));
-  lijst = lijst.filter((t) => (!st.vloer || toestel(t.id, v).vloer <= st.vloer) && (!st.prijs || prijs(t.id, v).incl <= st.prijs));
-  if (st.sort === 'prijs') lijst.sort((a, b) => prijs(a.id, v).incl - prijs(b.id, v).incl); else if (st.sort === 'vloer') lijst.sort((a, b) => toestel(a.id, v).vloer - toestel(b.id, v).vloer);
+  // filters en volgorde op prijs of vloer hebben de gegevens nodig: dan (en alleen dan) alles meteen opbouwen
+  const vol = !!(st.vloer || st.prijs || st.sort !== 'nr');
+  if (vol) {
+    lijst = lijst.filter((t) => (!st.vloer || toestel(t.id, v).vloer <= st.vloer) && (!st.prijs || prijs(t.id, v).incl <= st.prijs));
+    if (st.sort === 'prijs') lijst.sort((a, b) => prijs(a.id, v).incl - prijs(b.id, v).incl); else if (st.sort === 'vloer') lijst.sort((a, b) => toestel(a.id, v).vloer - toestel(b.id, v).vloer);
+  }
   $('c-status').textContent = `${lijst.length} van ${TOESTELLEN.length} toestellen · prijzen van de ${{ pro: 'proversie', semi: 'semi-proversie' }[v] ?? 'thuisversie'}, incl. 21 % btw`;
-  $('raster').innerHTML = lijst.length ? lijst.map((t) => { const o = toestel(t.id, v), kt = prijs(t.id, 'thuis'), kp = prijs(t.id, 'pro'); return `<a class="kaart" href="#toestel/${t.id}" style="--k:${SKL[t.soort]}"><span class="duim">${duim(t.id)}</span><span class="tekst"><span class="nr">${t.id} · ${esc(SOORTEN[t.soort].kort)}</span><b>${esc(t.naam)}</b><span class="klein">${esc(t.kort)}</span><span class="pr"><span>thuis <b>${eur0(kt.incl)}</b></span><span>pro <b>${eur0(kp.incl)}</b></span></span><span class="klein">${g(o.maten.B)} x ${g(o.maten.D)} x ${g(o.maten.H)} mm · ${g(o.vloer, 1)} m²</span></span></a>`; }).join('') : '<p class="geen">Geen toestellen met deze filters.</p>';
+  luiRij.length = 0;
+  $('raster').innerHTML = lijst.length ? lijst.map((t) => kaart(t, vol || !kijker)).join('') : '<p class="geen">Geen toestellen met deze filters.</p>';
+  if (!vol && kijker) document.querySelectorAll('#raster .kaart').forEach((el) => kijker.observe(el));
 }
 
 // ---------- toestel (klant)

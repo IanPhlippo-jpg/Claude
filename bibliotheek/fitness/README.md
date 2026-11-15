@@ -312,6 +312,13 @@ Elk toestel bestaat nu in varianten: `toestel(id, uitvoering, { maat, afwerking,
 - **Web en presentatie:** per toestel de keuzes uitvoering, kleur, maat, afwerking en opties. Ze worden per toestel
   onthouden.
 
+## Testen: snel of volledig
+
+`npx vitest run src/qa/qaFitness.test.ts` is de snelle standaardrun (± 30 s). De tests per toestel lopen op een
+steekproef: per soort het eerste, het middelste en het laatste toestel. Na een wijziging aan bepaalde toestellen zet je
+die erbij met `FITNESS_IDS=FM-05,FM-06`. De volledige run over alle toestellen (± 5 min) start je met
+`FITNESS_VOLLEDIG=1`. Zo draait ook `npm run test:voorbeelden`. Draai de volledige run aan het einde van elk blok.
+
 ## Wat nog open is
 
 - **Normen:** drie punten konden niet in een publieke bron nagekeken worden. Ze staan als AANNAME in de berekening; koop

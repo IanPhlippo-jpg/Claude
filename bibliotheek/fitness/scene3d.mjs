@@ -177,6 +177,8 @@ export async function scene3d(houder) {
       kap: std(ral.hex, 0.5, 0.2, { transparent: true, opacity: 0.28, depthWrite: false, side: THREE.DoubleSide }),
       // context (het rack of de muur waar het toestel aan hangt): zichtbaar maar lichter dan het toestel zelf
       context: std('#9aa0a6', 0.75, 0.1, { transparent: true, opacity: 0.8 }),
+      // de muur waar een muurtoestel aan hangt: betongrijs, mat (context, geen onderdeel)
+      muur: std('#bcb7ad', 0.95, 0),
     };
     // gebogen buizen en contourplaten als echte vorm; hun hulpbalken (seg) niet tonen
     for (const d of o.delen) {
