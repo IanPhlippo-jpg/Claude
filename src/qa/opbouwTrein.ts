@@ -9,16 +9,16 @@
  */
 import { Blad, kader, getal, esc, type P, type Project } from './werktekening';
 // @ts-expect-error: plain JavaScript
-import { MODULES, PLAATSING, DRADEN, IN_KLEMMEN, GROEPEN, voetafdruk, gatenDoos, klem, naarDoos } from '../../voorbeelden/treinverlichting/opbouw.mjs';
+import { MODULES, PLAATSING, DRADEN, IN_KLEMMEN, GROEPEN, voetafdruk, gatenDoos, klem, naarDoos, helft } from '../../voorbeelden/treinverlichting/opbouw.mjs';
 // @ts-expect-error: plain JavaScript
-import { M, wagoHouders, rechts } from '../../voorbeelden/treinverlichting/maak-kabeldoos.mjs';
+import { M, wagoHouders, rechts, indeling, tsmpHouder } from '../../voorbeelden/treinverlichting/maak-kabeldoos.mjs';
 
 type Eind = [string, string];
 type Draad = { nr: string; van: Eind; naar: Eind; net: string; mm2: number; kleur: string; wat: string };
-type Module = { naam: string; kort: string; l: number; b: number; h: number; gaten: [number, number][]; gat: number; schroef?: string; aanname?: string; wago?: boolean; klemmen: { naam: string; label: string; x: number; z: number; soort: string }[] };
+type Module = { naam: string; kort: string; l: number; b: number; h: number; gaten: [number, number][]; gat: number; schroef?: string; aanname?: string; wago?: boolean; klem?: boolean; optioneel?: boolean; klemmen: { naam: string; label: string; x: number; z: number; soort: string }[] };
 const MOD = MODULES as Record<string, Module>;
 const DR = DRADEN as Draad[];
-export const OPBOUW: { sleutel: string; nr: string }[] = [{ sleutel: 'modules', nr: 'TRN-10' }];
+export const OPBOUW: { sleutel: string; nr: string; helft: 'rechts' | 'links' }[] = [{ sleutel: 'modules', nr: 'TRN-10', helft: 'rechts' }, { sleutel: 'ir-driver', nr: 'TRN-11', helft: 'links' }];
 const KLEUR: Record<string, string> = { rood: '#c8202f', zwart: '#111111', oranje: '#e07a10', geel: '#c9a400', groen: '#2e9e4f', blauw: '#1f4fa3', wit: '#8a8d91', grijs: '#6b6f74' };
 
 // ---------------------------------------------------------------- de plaats van een eind (voor de lengte en de tekening)
@@ -26,6 +26,9 @@ const KLEUR: Record<string, string> = { rood: '#c8202f', zwart: '#111111', oranj
 const VAST: Record<string, (k: string) => [number, number, number]> = {
   '-X5': () => [M.dcbus.x, M.dcbus.y, -(M.doos.binnen / 2)],
   '-F1': (k) => [k === 'in' ? 214 : 200, 12, -84],
+  // versie 6 fase B: de zekeringhouder van de servo's (met draden) naast de regelaar, de leerontvanger in zijn houder
+  '-F19': (k) => [k === 'in' ? 205 : 207, 12, k === 'in' ? -60 : -16],
+  '-B1': () => [M.tsmp.x, M.tsmp.y + 10, M.doos.binnen / 2 - 3],
 };
 /** de plaats in de doos (x, y, z) van een eind van een draad */
 export function plaats(e: Eind): [number, number, number] {
@@ -38,6 +41,8 @@ export const lengte = (d: Draad) => { const a = plaats(d.van), b = plaats(d.naar
 const eindTekst = (e: Eind) => {
   if (e[0] === '-X5') return `DC-bus ${e[1] === '+' ? 'pen (+)' : 'huls (−)'}`;
   if (e[0] === '-F1') return `-F1 zekeringhouder (${e[1]})`;
+  if (e[0] === '-F19') return `-F19 zekeringhouder 3 A (${e[1]})`;
+  if (e[0] === '-B1') return `-B1 TSMP58000 (${e[1]})`;
   const m = /^(-X[12])([ab])$/.exec(e[0]);
   if (m) return `${m[1]}:${(m[2] === 'b' ? 5 : 0) + +e[1]} (WAGO)`;
   const k = klem(e[0], e[1]);
@@ -45,8 +50,10 @@ const eindTekst = (e: Eind) => {
 };
 
 // ---------------------------------------------------------------- TRN-10: de rechterhelft met modules en bedrading
-/** een A3-blad (1:1): de rechterhelft van boven (het deksel eraf), de voorkant van de doos onderaan, de naad links */
-export function montageBlad(nr: string, blad: string, project: Project): string {
+/** een A3-blad (1:1): de rechterhelft (of de linkerhelft, versie 6 fase B: de IR-driver en de MCP23017) van boven (het
+ *  deksel eraf), de voorkant van de doos onderaan */
+export function montageBlad(nr: string, blad: string, project: Project, kant: 'rechts' | 'links' = 'rechts'): string {
+  if (kant === 'links') return montageLinks(nr, blad, project);
   const P = rechts() as { xs: number; XR: number; XRB: number; Z: number; ZB: number; pilaren: number[][]; bussen: [number, number][]; haken: { prof: [number, number][] }[]; tules: { wand: string; c: number }[]; sleutelgaten: [number, number][]; usb: { x0: number; x1: number } };
   const b = new Blad(), xm = (P.xs + P.XRB) / 2, ox = 144, oy = 170; // het midden van de rechterhelft op het blad (boven het titelblok)
   const to = (x: number, z: number): P => [ox + x - xm, oy - z];
@@ -78,8 +85,14 @@ export function montageBlad(nr: string, blad: string, project: Project): string 
   rh(P.usb.x0, Z, P.usb.x1, ZB, 0.2, 'fill="#111"');
   b.tekst(to((P.usb.x0 + P.usb.x1) / 2, ZB + 4.5), 'USB (ESP)', 2.2, 'middle', { vet: true });
   for (const h of wagoHouders()) poly(h, 0.25);
+  // de IR-leerontvanger in zijn houder achter het venstertje (versie 6 fase B)
+  const th = tsmpHouder();
+  rh(th.blok[0], th.blok[1], th.blok[2], th.blok[3], 0.3);
+  rh(th.vak[0], th.vak[1], th.vak[2], th.vak[3], 0.2, 'fill="#111"');
+  b.tekst(to(M.tsmp.x, ZB + 4.5), 'venster IR', 2.0, 'middle', { vet: true });
+  b.tekst(to(M.tsmp.x - 6, Z - 9), '-B1', 2.0, 'end', { vet: true });
   // de modules: omtrek, gaten, klemmen (vierkantje met de naam) en de aanduiding
-  for (const ref of Object.keys(MOD)) {
+  for (const ref of Object.keys(MOD).filter((q) => helft(q) === 'rechts')) {
     const m = MOD[ref], [x0, z0, x1, z1] = voetafdruk(ref) as number[];
     poly([[x0, z0], [x1, z0], [x1, z1], [x0, z1]], 0.35);
     for (const [x, z] of gatenDoos(ref) as [number, number][]) { b.cirkel(to(x, z), m.gat / 2, 0.25); b.cirkel(to(x, z), M.rechts.modulePaal.r, 0.18); }
@@ -98,6 +111,14 @@ export function montageBlad(nr: string, blad: string, project: Project): string 
   // de draden: rechte lijn in hun kleur, het W-nummer in het midden
   DR.forEach((d, i) => {
     if (!MOD[d.van[0]] || !MOD[d.naar[0]]) return;
+    const ha = helft(d.van[0]), hb = helft(d.naar[0]);
+    if (ha === 'links' && hb === 'links') return;
+    // een draad over de naad: tot aan de naad, met het andere eind erbij
+    if (ha !== hb) {
+      const e = ha === 'rechts' ? d.van : d.naar, a = plaats(e), pa = to(a[0], a[2]), pb = to(xs + 0.5, a[2]);
+      b.el.push(`<line x1="${pa[0].toFixed(2)}" y1="${b.y(pa[1]).toFixed(2)}" x2="${pb[0].toFixed(2)}" y2="${b.y(pb[1]).toFixed(2)}" stroke="${KLEUR[d.kleur] ?? '#111'}" stroke-width="0.3" stroke-dasharray="2 1" stroke-opacity="0.85"/>`);
+      return;
+    }
     const a = plaats(d.van), q = plaats(d.naar), pa = to(a[0], a[2]), pb = to(q[0], q[2]);
     b.el.push(`<line x1="${pa[0].toFixed(2)}" y1="${b.y(pa[1]).toFixed(2)}" x2="${pb[0].toFixed(2)}" y2="${b.y(pb[1]).toFixed(2)}" stroke="${KLEUR[d.kleur] ?? '#111'}" stroke-width="${d.mm2 >= 0.5 ? 0.6 : 0.3}" stroke-opacity="0.85"/>`);
     const t = 0.35 + (i % 5) * 0.07, m: P = [pa[0] + (pb[0] - pa[0]) * t, pa[1] + (pb[1] - pa[1]) * t];
@@ -114,7 +135,7 @@ export function montageBlad(nr: string, blad: string, project: Project): string 
   const x0 = 262;
   b.tekst([x0, y], 'Modules (vastschroeven op de palen in de bodem, geen solderen)', 2.8, 'start', { vet: true });
   y -= 4.5;
-  for (const ref of Object.keys(MOD).filter((q) => !/[b]$/.test(q))) {
+  for (const ref of Object.keys(MOD).filter((q) => !/[b]$/.test(q) && helft(q) === 'rechts')) {
     const m = MOD[ref], gat = m.gaten.length ? `${m.gaten.length} x ${m.schroef} op ${getal(Math.max(...m.gaten.map((g) => g[0])) * 2, 1)} x ${getal(Math.max(...m.gaten.map((g) => g[1])) * 2, 1)}` : 'in de klikhouder';
     b.tekst([x0, y], `${ref.replace(/a$/, '')} ${m.kort}${m.wago ? (ref === '-X1a' || ref === '-X2a' ? ' (2 x)' : '') : ''}: ${getal(m.l, 1)} x ${getal(m.b, 1)}, ${gat}${m.aanname ? ' *' : ''}`, 2.1);
     y -= 3.6;
@@ -131,19 +152,101 @@ export function montageBlad(nr: string, blad: string, project: Project): string 
   y -= 2;
   for (const t of [
     'Volgorde: 1 de rechterhelft printen, 2 de modules op hun palen (plaatschroef 2,5 x 6 /',
-    '3 x 8), 3 de WAGO-klemmen in hun klikhouders, 4 de draden W01..W61 volgens TRN-14',
-    '(dupont op de pinnen van -K2, -Q1, -Q2), 5 -R1, -R2 en -F18 met hun pootjes in de',
-    'klemmen, 6 proefopstelling met de rechterhelft op tafel (TRN-20), 7 de helften in elkaar',
-    'klikken (TRN-06). Enige soldeerwerk: de 2 lippen van de DC-bus.',
+    `3 x 8), 3 de WAGO-klemmen in hun klikhouders, 4 de draden W01..W${DR.length} volgens TRN-14/15`,
+    '(dupont op de pinnen van -K2, -K7, -Q1, -Q2), 5 -R1, -R2, -F18 en -C5 met hun pootjes in',
+    'de klemmen, -B1 in zijn vakje (lens naar het venster), 6 proefopstelling op tafel (TRN-20),',
+    '7 de helften in elkaar klikken (TRN-06). Streepjes: draden over de naad (TRN-11).',
   ]) { b.tekst([x0, y], t, 2.0); y -= 3.3; }
   kader(b, { nr, naam: 'Rechterhelft: modules en bedrading', materiaal: 'kant-en-klare modules op de palen', maken: 'schroeven, klemmen', massa: '—', schaal: '1:1', blad, soort: 'Montagetekening' }, project);
   return b.svg();
 }
 
+/** TRN-11 (versie 6 fase B): de linkerhelft van boven met de IR-driver (-Q4, -Q3) en de MCP23017 (-K5, plaats voor -K8)
+ *  naast bordje 16, hun draden en de draden over de naad */
+function montageLinks(nr: string, blad: string, project: Project): string {
+  type Bordje = { soort: string; nr: number; cx: number; cz: number };
+  const L = indeling() as { X: number; Z: number; rijen: Bordje[][]; paaltjes: { x: number; z: number }[]; bodem: number[][]; tules: { wand: string; c: number }[]; sleutelgaten: [number, number][]; bussen: [number, number][] };
+  const b = new Blad(), D = M.doos, B = M.bordje, w = D.wand, X = L.X, Z = L.Z, XB = X + w, ZB = Z + w, xn = M.naad.x, xm = (-XB + xn) / 2, ox = 144, oy = 170;
+  const to = (x: number, z: number): P => [ox + x - xm, oy - z];
+  const poly = (pts: [number, number][], sw = 0.35, extra = '') => b.el.push(`<polygon points="${pts.map(([x, z]) => { const p = to(x, z); return `${p[0].toFixed(2)},${b.y(p[1]).toFixed(2)}`; }).join(' ')}" fill="none" stroke="#111" stroke-width="${sw}" ${extra}/>`);
+  const rh = (x0: number, z0: number, x1: number, z1: number, sw = 0.35, extra = '') => poly([[x0, z0], [x1, z0], [x1, z1], [x0, z1]], sw, extra);
+  b.tekst([262, 281], 'Linkerhelft: IR-driver en MCP23017 (1:1)', 3.5, 'start', { vet: true });
+  b.tekst([262, 276.5], 'Van boven gezien, het deksel eraf; vooraan = onder, de naad rechts.', 2.2);
+  poly([[xn, -ZB], [-XB, -ZB], [-XB, ZB], [xn, ZB], [xn, Z], [-X, Z], [-X, -Z], [xn, -Z]], 0.5);
+  b.lijn(to(xn, -ZB - 4), to(xn, ZB + 4), 0.3, 'stroke-dasharray="6 1.5 1 1.5"');
+  b.tekst(to(xn + 1.5, ZB + 5), 'naad', 2.4, 'start', { vet: true });
+  // de bordjes (grijs gestippeld, ter oriëntatie), hun paaltjes en de draadsleuven
+  for (const d of L.rijen.flat().filter((q) => q.soort === 'bordje')) {
+    rh(d.cx - B.x / 2, d.cz - B.z / 2, d.cx + B.x / 2, d.cz + B.z / 2, 0.25, 'stroke-dasharray="1.5 1" fill="#eee"');
+    b.tekst(to(d.cx, d.cz - 1), `bordje ${d.nr}`, 2.0, 'middle', { kleur: '#666' });
+  }
+  for (const p of L.paaltjes) b.cirkel(to(p.x, p.z), 0.8, 0.15);
+  for (const [x0, z0, x1, z1] of L.bodem) rh(x0, z0, x1, z1, 0.15, 'fill="#bbb"');
+  const r = D.invoer.gat / 2;
+  for (const t of L.tules) if (t.wand === 'voor') rh(t.c - r, Z, t.c + r, ZB, 0.2, 'fill="#999"'); else rh(-XB, t.c - r, -X, t.c + r, 0.2, 'fill="#999"');
+  b.tekst(to(-24, ZB + 4.5), 'tules vooraan: IR-leds en leddraden', 2.2, 'middle', { vet: true });
+  for (const [x, z] of L.bussen) { b.cirkel(to(x, z), D.bus.r, 0.3); b.cirkel(to(x, z), 1.3, 0.2); }
+  for (const [x, z] of L.sleutelgaten) b.cirkel(to(x, z), D.sleutelgat.kop / 2, 0.3);
+  // de modules
+  const links = Object.keys(MOD).filter((q) => helft(q) === 'links');
+  for (const ref of links) {
+    const m = MOD[ref], [x0, z0, x1, z1] = voetafdruk(ref) as number[];
+    poly([[x0, z0], [x1, z0], [x1, z1], [x0, z1]], m.optioneel ? 0.25 : 0.4, m.optioneel ? 'stroke-dasharray="2 1"' : '');
+    for (const [x, z] of gatenDoos(ref) as [number, number][]) { b.cirkel(to(x, z), m.gat / 2, 0.25); b.cirkel(to(x, z), M.rechts.modulePaal.r, 0.18); if (m.klem) b.cirkel(to(x, z), 4, 0.15); }
+    for (const k of m.klemmen) {
+      const [x, z] = naarDoos(ref, k.x, k.z), s2 = k.soort === 'pin' ? 0.9 : 1.6, p = to(x, z);
+      b.el.push(`<rect x="${(p[0] - s2 / 2).toFixed(2)}" y="${(b.y(p[1]) - s2 / 2).toFixed(2)}" width="${s2}" height="${s2}" fill="#fff" stroke="#111" stroke-width="0.18"/>`);
+    }
+    const c = to((x0 + x1) / 2, (z0 + z1) / 2);
+    b.tekst([c[0], c[1] + 1.5], ref, 2.6, 'middle', { vet: true });
+    b.tekst([c[0], c[1] - 2.2], m.optioneel ? `${m.kort} (optioneel)` : m.kort, 2.0, 'middle');
+  }
+  // de draden in de linkerhelft en die over de naad (streepjes tot de naad, met het eind in de rechterhelft)
+  let n = 0;
+  DR.forEach((d) => {
+    if (!MOD[d.van[0]] || !MOD[d.naar[0]]) return;
+    const ha = helft(d.van[0]), hb = helft(d.naar[0]);
+    if (ha === 'rechts' && hb === 'rechts') return;
+    if (ha === hb) {
+      const a = plaats(d.van), q = plaats(d.naar), pa = to(a[0], a[2]), pb = to(q[0], q[2]);
+      b.el.push(`<line x1="${pa[0].toFixed(2)}" y1="${b.y(pa[1]).toFixed(2)}" x2="${pb[0].toFixed(2)}" y2="${b.y(pb[1]).toFixed(2)}" stroke="${KLEUR[d.kleur] ?? '#111'}" stroke-width="${d.mm2 >= 0.5 ? 0.6 : 0.3}" stroke-opacity="0.85"/>`);
+      b.tekst([(pa[0] + pb[0]) / 2, (pa[1] + pb[1]) / 2 + 0.5], d.nr.slice(1), 1.5, 'middle', { kleur: KLEUR[d.kleur] === '#8a8d91' ? '#555' : KLEUR[d.kleur] });
+      return;
+    }
+    const e = ha === 'links' ? d.van : d.naar, ander = ha === 'links' ? d.naar : d.van, a = plaats(e), pa = to(a[0], a[2]), zz = 40 - (n++) * 6.2, pb = to(xn - 1, zz);
+    b.el.push(`<polyline points="${pa[0].toFixed(2)},${b.y(pa[1]).toFixed(2)} ${pa[0].toFixed(2)},${b.y(pb[1]).toFixed(2)} ${pb[0].toFixed(2)},${b.y(pb[1]).toFixed(2)}" fill="none" stroke="${KLEUR[d.kleur] ?? '#111'}" stroke-width="${d.mm2 >= 0.5 ? 0.6 : 0.3}" stroke-dasharray="2 1"/>`);
+    b.tekst([pb[0] + 2, pb[1] + 0.5], `${d.nr} ${eindTekst(ander)}`, 1.7, 'start', { kleur: KLEUR[d.kleur] === '#8a8d91' ? '#555' : KLEUR[d.kleur] });
+  });
+  let y = 268;
+  const x0 = 262;
+  b.tekst([x0, y], 'Modules (op palen in de bodem, geen solderen)', 2.8, 'start', { vet: true });
+  y -= 4.5;
+  for (const ref of links) {
+    const m = MOD[ref], gat = m.klem ? `2 klempaaltjes, ${m.schroef}` : `${m.gaten.length} x ${m.schroef}`;
+    b.tekst([x0, y], `${ref} ${m.kort}${m.optioneel ? ' (optioneel, alleen de palen)' : ''}: ${getal(m.l, 1)} x ${getal(m.b, 1)}, ${gat}${m.aanname ? ' *' : ''}`, 2.1);
+    y -= 3.6;
+  }
+  b.tekst([x0, y - 0.5], '* AANNAME: eerst de modules kopen en nameten, dan opbouw.mjs aanpassen.', 2.0);
+  y -= 8;
+  for (const t of [
+    'IR-leds: per led de draad van de klem n+ van -Q4 door een weerstand -R10..-R17',
+    '(120 Ω 0,5 W, met één pootje in de klem n+ en het andere in een WAGO 221-2411 -X9',
+    'samen met de draad naar de anode), de kathode terug in de klem n− van -Q4. De draden',
+    'naar de IR-leds door de tules vooraan.',
+    'De MCP23017 kiest de IR-led (GPA0..7 naar IN1..8 van -Q4), de AOD4184 (-Q3) moduleert',
+    'met de draaggolf van GPIO47 alle IR-leds samen (VIN− van -Q4 naar OUT− van -Q3).',
+    'MCP23017 zonder gaten: 2 paaltjes aan de korte kanten, plaatschroef 2,5 x 8 met een',
+    'sluitring Ø8 die de rand van de print klemt. -K8 (0x21, ingangen 25-40): later.',
+    'Draden over de naad (streepjes): dupont 30 cm (I2C: 2 aan elkaar) of montagedraad (TRN-15).',
+  ]) { b.tekst([x0, y], t, 2.0); y -= 3.3; }
+  kader(b, { nr, naam: 'Linkerhelft: IR-driver en MCP23017', materiaal: 'kant-en-klare modules op de palen', maken: 'schroeven, klemmen', massa: '—', schaal: '1:1', blad, soort: 'Montagetekening' }, project);
+  return b.svg();
+}
+
 /** de interne draadlijst (A3) */
-export function draadlijstBlad(nr: string, blad: string, project: Project): string {
+export function draadlijstBlad(nr: string, blad: string, project: Project, van = 0, tot = 61): string {
   const b = new Blad(), k = [['Nr', 11], ['Van', 70], ['Naar', 70], ['Wat', 130], ['mm²', 13], ['Kleur', 16], ['Lengte', 16]] as [string, number][];
-  b.tekst([30, 280], 'Interne draadlijst: draden tussen de modules in de rechterhelft', 4, 'start', { vet: true });
+  b.tekst([30, 280], van ? `Interne draadlijst (vervolg): de uitbreiding van versie 6 (W${String(van + 1).padStart(2, '0')}..W${Math.min(tot, DR.length)})` : 'Interne draadlijst: draden tussen de modules', 4, 'start', { vet: true });
   b.tekst([30, 274.5], 'De draden naar de bordjes (G01+ .. G16+, G01− .. G16−) en de ingangen (IN01 .. IN16) staan in de README (Draden labelen) en op TRN-10. Lengte uit het 3D-model + 60 mm.', 2.3);
   let y = 268;
   const rijH = 3.42;
@@ -151,7 +254,7 @@ export function draadlijstBlad(nr: string, blad: string, project: Project): stri
   for (const [t, w] of k) { b.tekst([x + 1, y - 2.8], t, 2.3, 'start', { vet: true }); x += w; }
   b.lijn([30, y - 3.8], [30 + k.reduce((a, q) => a + q[1], 0), y - 3.8], 0.35);
   y -= 3.8;
-  for (const d of DR) {
+  for (const d of DR.slice(van, tot)) {
     const cel = [d.nr, eindTekst(d.van), eindTekst(d.naar), d.wat, getal(d.mm2, 2), d.kleur, `${lengte(d)} mm`];
     x = 30;
     cel.forEach((t, i) => { b.tekst([x + 1, y - 2.75], t.length > (i === 3 ? 92 : 50) ? t.slice(0, i === 3 ? 90 : 48) + '…' : t, 1.95, 'start', { vet: i === 0 }); x += k[i][1]; });
@@ -160,7 +263,7 @@ export function draadlijstBlad(nr: string, blad: string, project: Project): stri
   }
   b.tekst([30, y - 4.5], 'Doorsnede: 0,75 mm² (H05V-K) voor 12 V en 0 V naar de MOSFET-modules (tot 2,6 A per module); 0,5 mm² voor de regelaar; 0,25 mm² voor S12; 0,14 mm² of dupontkabels voor signalen.', 2.2);
   b.tekst([30, y - 8], 'Dupont: female-female op de pinnen van -K2 en -Q1/-Q2; female-male waar het andere eind in een schroefklem of WAGO-klem gaat. Een schroefklem neemt hoogstens 2 draden.', 2.2);
-  kader(b, { nr, naam: 'Interne draadlijst', materiaal: 'montagedraad, dupontkabels', maken: 'knippen, strippen, labelen', massa: '—', schaal: '—', blad, soort: 'Draadlijst' }, project);
+  kader(b, { nr, naam: van ? 'Interne draadlijst (vervolg)' : 'Interne draadlijst', materiaal: 'montagedraad, dupontkabels', maken: 'knippen, strippen, labelen', massa: '—', schaal: '—', blad, soort: 'Draadlijst' }, project);
   return b.svg();
 }
 

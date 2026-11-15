@@ -41,15 +41,18 @@ const DELEN: Deel[] = [
     `${L.tules.length} kabelinvoeren Ø${g1(D.invoer.gat)} op ${g1(D.invoer.y)} (5 links, 4 vooraan); draadsleuven tussen de rijen`,
     `2 sleutelgaten links: kop Ø${g1(D.sleutelgat.kop)}, sleuf ${g1(D.sleutelgat.schacht)} x ${D.sleutelgat.slag} naar voren (TRN-00)`,
     '2 schroefbussen Ø7 in de linkerhoeken, gat Ø2,6 (deksel)',
+    'Versie 6: palen Ø6 x 5 voor de IR-driver -Q4, de AOD4184 -Q3 en 2 MCP23017 (klempaaltjes) naast bordje 16 (TRN-11)',
   ] },
   { f: 'Kabeldoos-bak-rechts.kcad', nr: 'TRN-02', naam: 'Bak rechts (modules)', materiaal: 'PETG (zwart)', maken: '3D-print rechtop, de bodem op het bed, zonder support', snede: true, schaal: [1, 2.5], dichtheid: PET, maten: [
     `Buitenmaat ${g1(P5.XRB - P5.xs)} x ${g1(BZ)} x ${g1(HBAK)}, met de klikhaken ${g1(BXR)} lang; aan de naad open`,
     `Palen Ø${g1(2 * R.modulePaal.r)} x ${g1(R.modulePaal.h)} onder elk gat van een module, gat achthoek Ø2,6 (3 mm) of Ø2,2 (PCA9685)`,
     '2 klikhouders (U 1,2 x 5 hoog) voor telkens 3 WAGO 221-415',
     `Naad: 2 pilaren ${g1(N.pilaar.l)} x ${g1(N.pilaar.d)} met bus, 2 klikhaken ${g1(N.haak.l)} x ${g1(N.haak.t)} (45° eronder), 5 bodemlippen (TRN-06)`,
-    `${P5.tules.length} kabelinvoeren Ø${g1(D.invoer.gat)}: 3 vooraan, 2 achteraan, 4 rechts (ingangen)`,
+    `${P5.tules.length} kabelinvoeren Ø${g1(D.invoer.gat)}: 3 vooraan, 2 achteraan, 5 rechts (4 ingangen, 1 servokabels)`,
     `DC-bus: gat Ø${g1(m.dcbus.gat)} in de achterwand op x ${g1(m.dcbus.x)}, ${g1(m.dcbus.y)} hoog; opening USB vooraan`,
     `2 sleutelgaten (x ${g1(R.sleutelgatX)}), 4 schroefbussen Ø7 (2 in de pilaren, 2 in de rechterhoeken)`,
+    'Versie 6: palen voor de servoprint -K7 en de XL4015 -T3, klikhouder voor 2 WAGO (-X12, -X13), 5de tule rechts (servokabels)',
+    `Venster Ø${g1(m.tsmp.venster)} (punt 45°) in de voorwand op x ${g1(m.tsmp.x)}, ${g1(m.tsmp.y)} hoog, met de houder van de IR-leerontvanger -B1`,
     'Plaats van de modules: TRN-10. Eerst de modules nameten (AANNAME), dan printen',
   ] },
   { f: 'Hulpstukken.kcad', nr: 'TRN-03', naam: 'Hulpstukken', materiaal: 'PETG (grijs)', maken: '3D-print plat op het bed (één plaat)', dichtheid: PET, maten: [
@@ -353,7 +356,7 @@ function bevestigingBlad(blad: string): string {
 
 describe('modules en bedrading (opbouw.mjs, versie 5)', () => {
   it('elke draad op een bestaande klem met het juiste net, modules in de rechterhelft, vrij en niet over elkaar, gaten vrij', () => {
-    expect(controleerAlles()).toEqual([]);
+    expect(controleerAlles(indeling())).toEqual([]);
   });
   it('elke module, zekering en klemmenstrook van het schema staat in opbouw.mjs', () => {
     const refs = new Set<string>(Object.keys(MODULES).map((r) => r.replace(/[ab]$/, '')));
@@ -387,7 +390,7 @@ describe('tekeningen kabeldoos', () => {
   it.skipIf(!process.env.TREIN_TEKENINGEN)('boormal, bak, deksel, hulpstukken, naad en de bouwbladen', () => {
     mkdirSync(UIT, { recursive: true });
     for (const f of readdirSync(UIT).filter((f) => f.endsWith('.svg'))) unlinkSync(`${UIT}/${f}`);
-    const totaal = DELEN.length + 4 + OPBOUW.length + 3;
+    const totaal = DELEN.length + 4 + OPBOUW.length + 4;
     let n = 0;
     const blad = () => `${++n} / ${totaal}`;
     writeFileSync(`${UIT}/TRN-00a-boormal.svg`, boormalBlad(1, blad()));
@@ -396,8 +399,9 @@ describe('tekeningen kabeldoos', () => {
     DELEN.forEach((d) => writeFileSync(`${UIT}/${bestand(d)}`, onderdeelBlad(d, blad(), DIR, PROJECT)));
     writeFileSync(`${UIT}/TRN-06-naad.svg`, naadBlad(blad()));
     writeFileSync(`${UIT}/TRN-07-bevestiging-bordjes.svg`, bevestigingBlad(blad()));
-    for (const o of OPBOUW) writeFileSync(`${UIT}/${o.nr}-${o.sleutel}.svg`, montageBlad(o.nr, blad(), PROJECT));
-    writeFileSync(`${UIT}/TRN-14-draadlijst.svg`, draadlijstBlad('TRN-14', blad(), PROJECT));
+    for (const o of OPBOUW) writeFileSync(`${UIT}/${o.nr}-${o.sleutel}.svg`, montageBlad(o.nr, blad(), PROJECT, o.helft));
+    writeFileSync(`${UIT}/TRN-14-draadlijst.svg`, draadlijstBlad('TRN-14', blad(), PROJECT, 0, 61));
+    writeFileSync(`${UIT}/TRN-15-draadlijst-uitbreiding.svg`, draadlijstBlad('TRN-15', blad(), PROJECT, 61, 200));
     writeFileSync(`${UIT}/TRN-20-meetblad.svg`, meetBlad('TRN-20', blad(), PROJECT));
     writeFileSync(`${UIT}/TRN-21-invulblad.svg`, invulBlad('TRN-21', blad(), PROJECT));
   }, 1800000);

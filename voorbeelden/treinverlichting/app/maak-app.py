@@ -128,7 +128,7 @@ ook met een skirt. Geen brim aan het naadvlak.
 klikhaken 1,6).
 Na het printen: de 2 bakhelften op een vlakke tafel in elkaar schuiven tot de 2 klikhaken klikken (eventueel eerst
 2K-epoxy in de voeg, TRN-06); elk bordje op zijn 4 paaltjes met 4 schroeven 2,0 x 6 (TRN-07); de deksels klikken met de lip in elkaar. Meet eerst
-de modules met een AANNAME na (TRN-10) en print pas dan de rechterhelft: zij draagt de palen van de modules.
+de modules met een AANNAME na (TRN-10, TRN-11) en print pas dan de bakhelften: zij dragen de palen van de modules.
 """
 STL_NAMEN = ['Kabeldoos-bak-links.stl', 'Kabeldoos-bak-rechts.stl', 'Kabeldoos-deksel-links.stl', 'Kabeldoos-deksel-rechts.stl', 'Hulpstukken.stl']
 stl = [(n, BOX / 'print' / n) for n in STL_NAMEN]
@@ -162,8 +162,10 @@ DRAWINGS = [
     ('TRN-05', 'TRN-05-deksel-rechts.svg', 'Deksel rechts', '1:2,5', 'Met de lip van 12 in 4 klikvingers die onder de linkerhelft klikt.'),
     ('TRN-06', 'TRN-06-naad.svg', 'Naad', '5:1', 'De klikhaken, de bodemlippen, de lijmvoeg van 0,2 en de lip van het deksel, met de klikberekening en hoe je verbindt.'),
     ('TRN-07', 'TRN-07-bevestiging-bordjes.svg', 'Bevestiging van de bordjes', '3:1, 8:1', 'Elk bordje met 4 schroeven 2,0 x 6 op 4 paaltjes Ø5 (gaten 2 mm van de randen): doorsnede, schroef en de plaats van elk paaltje.'),
-    ('TRN-10', 'TRN-10-modules.svg', 'Modules en bedrading', '1:1', 'De rechterhelft van boven met elke module, haar gaten en klemmen, alle draden (W-nummers) en per groep de klemmen en de polyfuse; enkel de DC-bus wordt gesoldeerd.'),
-    ('TRN-14', 'TRN-14-draadlijst.svg', 'Interne draadlijst', '—', 'De 61 draden tussen de modules met doorsnede, kleur en lengte; dupontkabels voor de signalen.'),
+    ('TRN-10', 'TRN-10-modules.svg', 'Modules en bedrading', '1:1', 'De rechterhelft van boven met elke module (ook de servoprint, de XL4015 en de IR-leerontvanger achter het venstertje), haar gaten en klemmen, alle draden (W-nummers) en per groep de klemmen en de polyfuse; enkel de DC-bus wordt gesoldeerd.'),
+    ('TRN-11', 'TRN-11-ir-driver.svg', 'IR-driver en MCP23017', '1:1', 'De linkerhelft naast bordje 16: de IR-driver, de AOD4184 en de MCP23017 (plaats voor een tweede), hun draden en de draden over de naad.'),
+    ('TRN-14', 'TRN-14-draadlijst.svg', 'Interne draadlijst', '—', 'De draden W01..W61 tussen de modules met doorsnede, kleur en lengte; dupontkabels voor de signalen.'),
+    ('TRN-15', 'TRN-15-draadlijst-uitbreiding.svg', 'Draadlijst uitbreiding', '—', 'De draden W62..W94 van versie 6: servoprint, servovoeding, IR-driver, MCP23017 en de IR-leerontvanger.'),
     ('TRN-20', 'TRN-20-meetblad.svg', 'Meetblad', 'A4', 'Ingebruikname: spanningen, OE, de polariteit van de modules, de stroom en de spanning over de MOSFET per groep, elke ingang, de hallsensor.'),
     ('TRN-21', 'TRN-21-invulblad.svg', 'Invulblad', 'A4', 'De namen van de groepen en de ingangen, om bij de baan te hangen.'),
 ]
@@ -222,6 +224,9 @@ RENDERS = [
     ('trein-v5/helften-op-bed', 'bed.webp', 'De 2 helften elk op het bed van 256 x 256: binnen het kader van 230 x 230'),
     ('trein-esp', 'esp.webp', 'De ESP32-S3 in haar schroefklemadapter met 44 klemmen'),
     ('trein-bordje', 'bordje.webp', 'Een Modelbouwled-bordje: 61,1 x 20,9, 14 hoog'),
+    ('trein-v5/v6b-servo-iso', 'servoprint.webp', 'Versie 6: de servoprint met de servostekkers en de elco, de XL4015 voor de servo’s en de 2 WAGO-klemmen van de uitbreiding'),
+    ('trein-v5/v6b-links-boven', 'ir-driver.webp', 'Versie 6: naast bordje 16 de IR-driver, de AOD4184 en de MCP23017 (met de palen voor een tweede)'),
+    ('trein-v5/v6b-venster', 'venster-ir.webp', 'Versie 6: het venstertje voor de IR-leerontvanger in de voorwand, rechts van de USB-opening'),
     ('trein-v5/schroeven-iso', 'schroeven.webp', 'Een bordje vastgeschroefd: 4 schroeven 2,0 x 6 op 4 paaltjes Ø5, hart 2 mm van de randen'),
 ]
 render_html = {}

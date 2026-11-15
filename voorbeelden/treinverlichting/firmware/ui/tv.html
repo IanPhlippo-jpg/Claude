@@ -609,7 +609,26 @@ start();
   if (location.protocol === 'file:') beeld.addEventListener('error', () => { if (!/situatieplan/.test(beeld.src)) beeld.src = '../../situatieplan/' + beeld.src.split('/').pop(); });
   // grotere letters op de tv (alle labels op het plan)
   const oudLabel = labelTekst;
-  labelTekst = (x, y, t, opt = {}) => oudLabel(x, y, t, Object.assign({}, opt, { fs: (opt.fs || 11) * 1.3 }));
+  // elk label van dit beeld onthouden (rechthoek), zodat een live bus zijn naam niet over een ander label zet
+  const LABELS = [];
+  const maat = (t, fs) => { cx.font = `700 ${fs}px "Segoe UI", Arial, sans-serif`; return { w: cx.measureText(t).width + fs * 0.9, h: fs * 1.55 }; };
+  labelTekst = (x, y, t, opt = {}) => {
+    const fs = (opt.fs || 11) * 1.3, m = maat(t, fs);
+    LABELS.push({ x0: x - m.w / 2, y0: y - m.h / 2, x1: x + m.w / 2, y1: y + m.h / 2 });
+    return oudLabel(x, y, t, Object.assign({}, opt, { fs }));
+  };
+  const oudTeken0 = teken;
+  teken = nu => { LABELS.length = 0; return oudTeken0(nu); };
+  /** de eerste plaats rond (x, y) waar het label niets anders overlapt (boven, onder, links, rechts, verder weg) */
+  const vrijePlek = (x, y, t, fs) => {
+    const m = maat(t, fs * 1.3), d = 18;
+    const kand = [[0, -d], [0, d + 4], [-(m.w / 2 + 14), 0], [m.w / 2 + 14, 0], [0, -2 * d - 6], [0, 2 * d + 10]];
+    for (const [dx, dy] of kand) {
+      const r = { x0: x + dx - m.w / 2 - 2, y0: y + dy - m.h / 2 - 2, x1: x + dx + m.w / 2 + 2, y1: y + dy + m.h / 2 + 2 };
+      if (!LABELS.some(q => r.x0 < q.x1 && q.x0 < r.x1 && r.y0 < q.y1 && q.y0 < r.y1)) return [x + dx, y + dy];
+    }
+    return [x, y - d];
+  };
   if (!SP || zoek.get('demo') === '1' || (location.protocol === 'file:' && !BASIS)) return;
 
   const D = { aan: false, volgnr: null, maxNr: -1, laatst: 0, kort: null, vol: null, rev: null, hist: {}, autoNr: 0, fasen: {}, ftr: {}, flits: {} };
@@ -900,7 +919,8 @@ start();
     for (const v of SP.voertuigen) { // live bussen: hun naam in hun kleur
       if (!v.live || !v.busNr || !v.spoor.length) continue;
       const b = D.vol && (D.vol.bussen || []).find(x => x && x.nr === v.busNr), kop = v.spoor[v.spoor.length - 1];
-      labelTekst(kop.x, kop.y - 18, b ? b.naam : 'Bus ' + v.busNr, { fs: 11, achter: (b && b.kleur) || '#333', kleur: '#fff', rand: '#111' });
+      const naam = b ? b.naam : 'Bus ' + v.busNr, [lx, ly] = vrijePlek(kop.x, kop.y, naam, 11);
+      labelTekst(lx, ly, naam, { fs: 11, achter: (b && b.kleur) || '#333', kleur: '#fff', rand: '#111' });
     }
   }
   const oudTeken = teken;

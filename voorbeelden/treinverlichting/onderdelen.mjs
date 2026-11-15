@@ -8,6 +8,44 @@ import { deel, met, blokken, snede, cirkels, yv, PCB_ROOD, PCB_ZWART, PCB_BLAUW,
 import { bordjeArt, weerstandenArt, espArt, kapArt, pcaArt, pcaChipArt, elcoArt, moduleArt } from './printjes.mjs';
 import { MODULES, PLAATSING, naarDoos, moduleY, pcaX } from './opbouw.mjs';
 
+// ---------------------------------------------------------------- versie 6 fase B: kleine onderdelen
+/** IR-leerontvanger Vishay TSMP58000: behuizing 5,6 x 6,95 x 5,6 (AANNAME) met de lens (bol Ø4) naar +Z, 3 pootjes
+ *  naar +Y (in de doos staat hij omgekeerd in zijn vakje: de pootjes naar het deksel); oorsprong: midden van de achterkant
+ *  van de behuizing, onderaan */
+export function tsmp58000() {
+  const T = M.tsmp, [b, h, d] = T.lichaam, o = deel('IR-leerontvanger Vishay TSMP58000', ZWART);
+  blokken(o, [[-b / 2, 0, -d, b / 2, h, 0, 0.4]], 'Behuizing');
+  o.schets(vlak('lens', 'Plane lens', [0, 0, 0], [0, 0, 1], 'reference'), (sk) => sk.cirkelW([0, h / 2, 0], 2.0));
+  o.extrude('boss', 1.2, { naam: 'Lens' });
+  const poot = deel('Pootjes TSMP58000', METAAL);
+  blokken(poot, [-2.54, 0, 2.54].map((x) => [x - 0.25, h, -d / 2 - 0.25, x + 0.25, h + 12, -d / 2 + 0.25]), 'Pootjes');
+  return [o.doc(), poot.doc()];
+}
+/** sluitring DIN 9021 voor M2,5 (Ø2,7 x Ø8 x 0,8): oorsprong in het midden, onderaan */
+export function sluitring() {
+  const o = deel('Sluitring DIN 9021 M2,5 (Ø8)', METAAL);
+  cirkels(o, 0, 0.8, [[0, 0, 4]], 'Ring');
+  cirkels(o, 0.8, 1, [[0, 0, 1.35]], 'Gat', 'cut');
+  return o.doc();
+}
+/** servostekker (JR, 3-polig, 2,54) met een stukje kabel bruin/rood/oranje: oorsprong midden onderaan, langs Z */
+export function servoStekker() {
+  const o = deel('Servostekker JR 3-polig', ZWART);
+  blokken(o, [[-1.24, 0, -3.9, 1.24, 14, 3.9, 0.3]], 'Huis');
+  // 3 busjes voor de pinnen (van onderen)
+  snede(o, 8, 8.01, [-2.54, 0, 2.54].map((z) => [-0.5, z - 0.5, 0.5, z + 0.5]), 'Busjes');
+  return o.doc();
+}
+export function servoKabel() {
+  const uit = [];
+  for (const [i, kl] of [['bruin', '#6b3e1e'], ['rood', '#c8202f'], ['oranje', '#f28c28']].entries()) {
+    const o = deel(`Servokabel ${kl[0]}`, { name: `PVC, ${kl[0]}`, density: 1400, color: kl[1] });
+    blokken(o, [[-0.5, 14, -2.54 + i * 2.54 - 0.5, 0.5, 30, -2.54 + i * 2.54 + 0.5, 0.2]], 'Ader');
+    uit.push(o.doc());
+  }
+  return uit;
+}
+
 // ---------------------------------------------------------------- het Modelbouwled-bordje (oorsprong: midden, onderkant print)
 export function bordjePcb() {
   const B = M.bordje, o = deel('Modelbouwled PCB met weerstand (print)', PCB_ROOD);
@@ -240,7 +278,7 @@ function vrouwelijkeRij(n, steek = 2.54) {
 }
 // ---------------------------------------------------------------- versie 4: de kant-en-klare modules (opbouw.mjs)
 const cache3d = new Map(), eenmaal = (k, f) => { if (!cache3d.has(k)) cache3d.set(k, f()); return cache3d.get(k); };
-const PCB_MAT = { '#1f4fa3': PCB_BLAUW, '#1d1f22': PCB_ZWART };
+const PCB_MAT = { '#1f4fa3': PCB_BLAUW, '#1d1f22': PCB_ZWART, '#5b2a86': { name: 'FR4, paars soldeermasker', density: 1850, color: '#5b2a86' }, '#1d6b3a': { name: 'FR4, groen soldeermasker', density: 1850, color: '#1d6b3a' } };
 const vlakBlok = (naam, mat, b) => eenmaal(`blok${naam}`, () => { const o = deel(naam, mat); blokken(o, [b], naam); return o.doc(); });
 
 /** de print van een module met zijn gaten en de opdruk */
@@ -302,6 +340,17 @@ function moduleOnderdelen(m) {
     const c = eenmaal('elcoBuck', () => elco(8, 13, 'Elco 470 µF / 35 V'));
     uit.push(['Elco 470 µF', c, [14, 0, 8], 0], ['Elco 470 µF', c, [14, 0, -6], 0]);
     blk('Regelaar-IC', ZWART, -6, 8, 5, 4, 1.5);
+  } else if (m.kort === 'XL4015') {
+    blk('Koelplaatje', METAAL, -10, -2, 14, 14, 12, 0.3);
+    blk('Spoel', { name: 'ferriet', density: 4800, color: '#3b3b3e' }, 5, -5, 12, 12, 7.5, 0.6);
+    const c = eenmaal('elcoXL', () => elco(8, 11, 'Elco 220 µF / 50 V'));
+    uit.push(['Elco 220 µF', c, [12, 0, 7], 0]);
+    blk('Potmeter (blauw)', { name: 'potmeter, blauw', density: 1200, color: '#2c6fd1' }, 2, 9, 9.5, 4.5, 10, 0.4);
+  } else if (m.kort === 'AOD4184') {
+    blk('MOSFET AOD4184 (TO-252)', ZWART, 0, -2.2, 6.5, 6.1, 2.3);
+    blk('Koellip', METAAL, 0, 2.2, 5.2, 1.4, 0.6, 0);
+  } else if (m.kort === 'MCP23017') {
+    blk('MCP23017 (SSOP-28)', ZWART, 0, 0, 10.2, 5.3, 1.8);
   } else if (m.wago) {
     // WAGO 221-415: transparant huis, 5 oranje hendels
     uit.push(['Huis', vlakBlok('WAGO 221-415 huis', { name: 'PA, transparant grijs', density: 1150, color: '#d9d6cf' }, [-m.l / 2, 0, -m.b / 2, m.l / 2, 6.3, m.b / 2, 0.8]), [0, 0, 0], 0]);
@@ -317,12 +366,23 @@ function moduleOp(at, ref) {
   let n = 0;
   const id = () => `m${code}_${++n}`, rot = (a) => draaiY(p.rot + a);
   const pos = (x, y, z) => { const [wx, wz] = naarDoos(ref, x, z); return [wx, y0 + y, wz]; };
-  if (ref === '-K2') {
-    at(id(), 'PCA9685 (print)<1>', pcaPrint(), pos(0, 0, 0), rot(0));
-    at(id(), 'PCA9685 (chip)<1>', pcaChip(), pos(0, 0, 0), rot(0));
+  if (m.kort === 'PCA9685') {
+    at(id(), `PCA9685 (print)<${ref}>`, pcaPrint(), pos(0, 0, 0), rot(0));
+    at(id(), `PCA9685 (chip)<${ref}>`, pcaChip(), pos(0, 0, 0), rot(0));
     // de pinnen: 2 x 6 aan de zijkanten (langs z), 3 rijen van 16 (PWM, V+, GND) met een spleet per 4
     for (const sx of [-1, 1]) { const [s, q] = pinDocs(6); at(id(), 'Pinrij 6-polig<PCA>', s, pos(sx * 29.2, m.pcb, -6.35 + 2.5 * 2.54), rot(90)); at(id(), 'Pinnen 6<PCA>', q, pos(sx * 29.2, m.pcb, -6.35 + 2.5 * 2.54), rot(90)); }
     for (const z of [3.5, 6.04, 8.58]) for (let g = 0; g < 4; g++) { const [s, q] = pinDocs(4); at(id(), 'Pinrij 4-polig<PCA>', s, pos(pcaX(4 * g) + 1.5 * 2.54, m.pcb, z), rot(0)); at(id(), 'Pinnen 4<PCA>', q, pos(pcaX(4 * g) + 1.5 * 2.54, m.pcb, z), rot(0)); }
+    if (m.servo) {
+      // de schroefklem V+/GND voor de servovoeding met de elco -C5 (pootjes mee in de klem, rechtop erboven), en de
+      // stekkers van de eerste 4 servo's op hun 3 pinnen (puls, V+, GND)
+      at(id(), `Schroefklem 2-polig<${ref}>`, klemDoc('schroef', 2), pos(20, m.pcb, -8.4), rot(0));
+      at(id(), 'Elco 1000 µF -C5<1>', eenmaal('elcoC5', () => elco(10, 20, 'Elco 1000 µF / 16 V')), pos(20, m.pcb + 10.5, -8.4), rot(0));
+      const st = eenmaal('servoStekker', servoStekker), kb = eenmaal('servoKabel', servoKabel);
+      for (let k = 0; k < 4; k++) {
+        at(id(), `Servostekker ${k + 1}<${ref}>`, st, pos(pcaX(k), m.pcb + 2.5, 6.04), rot(0));
+        kb.forEach((d, i) => at(id(), `Servokabel ${k + 1}.${i + 1}<${ref}>`, d, pos(pcaX(k), m.pcb + 2.5, 6.04), rot(0)));
+      }
+    }
   } else {
     if (!m.wago) at(id(), `${m.naam} (print)<${ref}>`, modulePrint(ref), pos(0, 0, 0), rot(0));
     for (const r of klemRijen(m)) {
@@ -349,9 +409,13 @@ function moduleOp(at, ref) {
       at(id(), `Knopje ${i === 1 ? 'BOOT' : 'RESET'}<${i}>`, kn, pos(xe - E.x / 2 + 48.8, ye + E.pcb, E.z / 2 - b), rot(0));
     }
   }
-  // de schroeven op de paaltjes (plaatschroef bolkop)
+  // de schroeven op de paaltjes (plaatschroef bolkop); een module zonder gaten (MCP23017) wordt aan de rand geklemd: een
+  // sluitring Ø8 over de rand van de print en het paaltje
   const doc = bolkopDoc();
-  m.gaten.forEach(([x, z]) => at(id(), `Plaatschroef bolkop<${ref}>`, doc, pos(x, m.pcb, z)));
+  if (m.klem) {
+    const ring = eenmaal('sluitring', sluitring);
+    m.gaten.forEach(([x, z]) => { at(id(), `Sluitring Ø8<${ref}>`, ring, pos(x, m.pcb, z)); at(id(), `Plaatschroef bolkop<${ref}>`, doc, pos(x, m.pcb + 0.8, z)); });
+  } else m.gaten.forEach(([x, z]) => at(id(), `Plaatschroef bolkop<${ref}>`, doc, pos(x, m.pcb, z)));
 }
 /** de USB-poorten van de ESP (versie 5: naar de voorwand): hoogte (midden), z van de rand en de x-strook, voor de opening
  *  in de voorwand van de rechterhelft */
@@ -361,6 +425,6 @@ export function espUsb() {
   return { y, z: a[1], x0: Math.min(a[0], b[0]) - 5.5, x1: Math.max(a[0], b[0]) + 5.5 };
 }
 /** alle modules op hun palen in de rechterhelft */
-export function modulesOp(at) { for (const ref of Object.keys(MODULES)) moduleOp(at, ref); }
+export function modulesOp(at) { for (const ref of Object.keys(MODULES)) if (!MODULES[ref].optioneel) moduleOp(at, ref); }
 
 export { schroeven, bolkopDoc, hoekGaten, draaiY };

@@ -74,3 +74,13 @@
 - [x] Schema (IEC 60617/81346/61082) en rekenblad (stroom IR-led, servovoeding, optocouplers PNP)
 - [x] Sensoradvies op het situatieplan (docs/sensoradvies.py, Sensoradvies.png)
 - [x] README (wat kopen, hoe bedraden), screenshots in scratchpad/trein-v6 en zelf nakijken
+
+## Versie 6, fase B: de doos aangepast voor de nieuwe modules (2026-11-15)
+- [x] Indeling: servoprint -K7, XL4015 -T3 en WAGO 3V3/M in de rechterhelft (tussen de PCA9685 en de optocouplers); IR-driver -Q4/-Q3 en MCP23017 -K5 (+ plaats -K8) in de linkerhelft naast bordje 16
+- [x] opbouw.mjs: modules, plaatsing per helft, draden (W62..), controle per helft (vrij van de draadzones van de bordjes)
+- [x] 3D: servoprint met servostekkers, MCP23017, AOD4184, XL4015, TSMP58000 in een houder achter een venstertje in de voorwand
+- [x] Generator: palen per helft, klempaaltjes MCP, tule voor de servokabels, venstertje + houder TSMP58000
+- [x] Tests: controleerAlles, venstertje vrij, rebuild per helft ≤ 45 s (alleen gemeten), STL's
+- [x] Tekeningen: TRN-01/02, montageblad linkerhelft (TRN-11), draadlijst, schema (-X9 = klemmen van -Q4), bestellijst
+- [x] Bouwschema, app (maak-app.py), README/EISEN, foto's in scratchpad/trein-v6b
+- [x] tv-pagina: label van een live bus niet over een ander label (tv-live.js)

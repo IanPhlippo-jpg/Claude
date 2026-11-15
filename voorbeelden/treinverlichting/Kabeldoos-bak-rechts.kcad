@@ -4,8 +4,8 @@
  "name": "Kabeldoos (bak rechts)",
  "units": "mm",
  "planes": {
-  "y14": {
-   "id": "y14",
+  "y15": {
+   "id": "y15",
    "name": "Plane onderkant bodem",
    "origin": [
     0,
@@ -29,8 +29,8 @@
    ],
    "kind": "reference"
   },
-  "y15": {
-   "id": "y15",
+  "y16": {
+   "id": "y16",
    "name": "Plane bovenrand",
    "origin": [
     0,
@@ -54,8 +54,8 @@
    ],
    "kind": "reference"
   },
-  "z16": {
-   "id": "z16",
+  "z17": {
+   "id": "z17",
    "name": "Plane kabelinvoer voor",
    "origin": [
     0,
@@ -79,8 +79,8 @@
    ],
    "kind": "reference"
   },
-  "z17": {
-   "id": "z17",
+  "z18": {
+   "id": "z18",
    "name": "Plane kabelinvoer achter",
    "origin": [
     0,
@@ -104,8 +104,8 @@
    ],
    "kind": "reference"
   },
-  "x18": {
-   "id": "x18",
+  "x19": {
+   "id": "x19",
    "name": "Plane kabelinvoer rechts",
    "origin": [
     326,
@@ -129,8 +129,8 @@
    ],
    "kind": "reference"
   },
-  "z19": {
-   "id": "z19",
+  "z20": {
+   "id": "z20",
    "name": "Plane opening USB",
    "origin": [
     0,
@@ -154,8 +154,8 @@
    ],
    "kind": "reference"
   },
-  "z20": {
-   "id": "z20",
+  "z21": {
+   "id": "z21",
    "name": "Plane DC-bus",
    "origin": [
     0,
@@ -179,34 +179,9 @@
    ],
    "kind": "reference"
   },
-  "y21": {
-   "id": "y21",
-   "name": "Plane sleutelgaten",
-   "origin": [
-    0,
-    0.01,
-    0
-   ],
-   "u": [
-    1,
-    0,
-    0
-   ],
-   "v": [
-    0,
-    0,
-    -1
-   ],
-   "n": [
-    0,
-    1,
-    0
-   ],
-   "kind": "reference"
-  },
   "y22": {
    "id": "y22",
-   "name": "Plane sleutelgaten sleuf",
+   "name": "Plane sleutelgaten",
    "origin": [
     0,
     0.01,
@@ -231,6 +206,31 @@
   },
   "y23": {
    "id": "y23",
+   "name": "Plane sleutelgaten sleuf",
+   "origin": [
+    0,
+    0.01,
+    0
+   ],
+   "u": [
+    1,
+    0,
+    0
+   ],
+   "v": [
+    0,
+    0,
+    -1
+   ],
+   "n": [
+    0,
+    1,
+    0
+   ],
+   "kind": "reference"
+  },
+  "y24": {
+   "id": "y24",
    "name": "Plane bodemlippen",
    "origin": [
     0,
@@ -254,8 +254,8 @@
    ],
    "kind": "reference"
   },
-  "y24": {
-   "id": "y24",
+  "y25": {
+   "id": "y25",
    "name": "Plane pilaren",
    "origin": [
     0,
@@ -279,8 +279,8 @@
    ],
    "kind": "reference"
   },
-  "z25": {
-   "id": "z25",
+  "z26": {
+   "id": "z26",
    "name": "Plane klikhaak achter",
    "origin": [
     0,
@@ -304,8 +304,8 @@
    ],
    "kind": "reference"
   },
-  "z26": {
-   "id": "z26",
+  "z27": {
+   "id": "z27",
    "name": "Plane klikhaak voor",
    "origin": [
     0,
@@ -329,8 +329,8 @@
    ],
    "kind": "reference"
   },
-  "y27": {
-   "id": "y27",
+  "y28": {
+   "id": "y28",
    "name": "Plane nokken klikhaken",
    "origin": [
     0,
@@ -354,34 +354,9 @@
    ],
    "kind": "reference"
   },
-  "y28": {
-   "id": "y28",
-   "name": "Plane Palen modules",
-   "origin": [
-    0,
-    -0.5,
-    0
-   ],
-   "u": [
-    1,
-    0,
-    0
-   ],
-   "v": [
-    0,
-    0,
-    -1
-   ],
-   "n": [
-    0,
-    1,
-    0
-   ],
-   "kind": "reference"
-  },
   "y29": {
    "id": "y29",
-   "name": "Plane Schroefbussen",
+   "name": "Plane Palen modules",
    "origin": [
     0,
     -0.5,
@@ -406,7 +381,7 @@
   },
   "y30": {
    "id": "y30",
-   "name": "Plane Klikhouders WAGO",
+   "name": "Plane Schroefbussen",
    "origin": [
     0,
     -0.5,
@@ -431,6 +406,31 @@
   },
   "y31": {
    "id": "y31",
+   "name": "Plane Klikhouders WAGO",
+   "origin": [
+    0,
+    -0.5,
+    0
+   ],
+   "u": [
+    1,
+    0,
+    0
+   ],
+   "v": [
+    0,
+    0,
+    -1
+   ],
+   "n": [
+    0,
+    1,
+    0
+   ],
+   "kind": "reference"
+  },
+  "y32": {
+   "id": "y32",
    "name": "Plane Schroefgaten modules",
    "origin": [
     0,
@@ -454,8 +454,8 @@
    ],
    "kind": "reference"
   },
-  "y32": {
-   "id": "y32",
+  "y33": {
+   "id": "y33",
    "name": "Plane Schroefgaten bussen",
    "origin": [
     0,
@@ -478,6 +478,81 @@
     0
    ],
    "kind": "reference"
+  },
+  "y34": {
+   "id": "y34",
+   "name": "Plane Houder IR-leerontvanger",
+   "origin": [
+    0,
+    -0.5,
+    0
+   ],
+   "u": [
+    1,
+    0,
+    0
+   ],
+   "v": [
+    0,
+    0,
+    -1
+   ],
+   "n": [
+    0,
+    1,
+    0
+   ],
+   "kind": "reference"
+  },
+  "y35": {
+   "id": "y35",
+   "name": "Plane Vak IR-leerontvanger",
+   "origin": [
+    0,
+    29.975,
+    0
+   ],
+   "u": [
+    1,
+    0,
+    0
+   ],
+   "v": [
+    0,
+    0,
+    -1
+   ],
+   "n": [
+    0,
+    1,
+    0
+   ],
+   "kind": "reference"
+  },
+  "z36": {
+   "id": "z36",
+   "name": "Plane venster IR",
+   "origin": [
+    0,
+    0,
+    114.9
+   ],
+   "u": [
+    1,
+    0,
+    0
+   ],
+   "v": [
+    0,
+    1,
+    0
+   ],
+   "n": [
+    0,
+    0,
+    1
+   ],
+   "kind": "reference"
   }
  },
  "variables": {},
@@ -486,7 +561,7 @@
   "s1": {
    "id": "s1",
    "name": "Sketch1",
-   "plane": "y14",
+   "plane": "y15",
    "points": {
     "origin_s1": {
      "x": 0,
@@ -594,7 +669,7 @@
   "s2": {
    "id": "s2",
    "name": "Sketch2",
-   "plane": "y15",
+   "plane": "y16",
    "points": {
     "origin_s2": {
      "x": 0,
@@ -702,7 +777,7 @@
   "s3": {
    "id": "s3",
    "name": "Sketch3",
-   "plane": "z16",
+   "plane": "z17",
    "points": {
     "origin_s3": {
      "x": 0,
@@ -761,7 +836,7 @@
   "s4": {
    "id": "s4",
    "name": "Sketch4",
-   "plane": "z17",
+   "plane": "z18",
    "points": {
     "origin_s4": {
      "x": 0,
@@ -807,7 +882,7 @@
   "s5": {
    "id": "s5",
    "name": "Sketch5",
-   "plane": "x18",
+   "plane": "x19",
    "points": {
     "origin_s5": {
      "x": 0,
@@ -828,13 +903,18 @@
     "s5p9": {
      "x": -54,
      "y": 13.5
+    },
+    "s5p12": {
+     "x": -88,
+     "y": 13.5
     }
    },
    "scalars": {
     "s5s1": 8.25,
     "s5s4": 8.25,
     "s5s7": 8.25,
-    "s5s10": 8.25
+    "s5s10": 8.25,
+    "s5s13": 8.25
    },
    "entities": {
     "s5e2": {
@@ -864,6 +944,13 @@
      "kind": "circle",
      "center": "s5p9",
      "r": "s5s10"
+    },
+    "s5e14": {
+     "id": "s5e14",
+     "construction": false,
+     "kind": "circle",
+     "center": "s5p12",
+     "r": "s5s13"
     }
    },
    "constraints": {},
@@ -871,7 +958,8 @@
     "s5e2",
     "s5e5",
     "s5e8",
-    "s5e11"
+    "s5e11",
+    "s5e14"
    ],
    "constraintOrder": [],
    "origin": "origin_s5"
@@ -879,7 +967,7 @@
   "s6": {
    "id": "s6",
    "name": "Sketch6",
-   "plane": "z19",
+   "plane": "z20",
    "points": {
     "origin_s6": {
      "x": 0,
@@ -1024,7 +1112,7 @@
   "s7": {
    "id": "s7",
    "name": "Sketch7",
-   "plane": "z20",
+   "plane": "z21",
    "points": {
     "origin_s7": {
      "x": 0,
@@ -1057,7 +1145,7 @@
   "s8": {
    "id": "s8",
    "name": "Sketch8",
-   "plane": "y21",
+   "plane": "y22",
    "points": {
     "origin_s8": {
      "x": 0,
@@ -1103,7 +1191,7 @@
   "s9": {
    "id": "s9",
    "name": "Sketch9",
-   "plane": "y22",
+   "plane": "y23",
    "points": {
     "origin_s9": {
      "x": 0,
@@ -1373,7 +1461,7 @@
   "s10": {
    "id": "s10",
    "name": "Sketch10",
-   "plane": "y23",
+   "plane": "y24",
    "points": {
     "origin_s10": {
      "x": 0,
@@ -1632,7 +1720,7 @@
   "s11": {
    "id": "s11",
    "name": "Sketch11",
-   "plane": "y24",
+   "plane": "y25",
    "points": {
     "origin_s11": {
      "x": 0,
@@ -1747,7 +1835,7 @@
   "s12": {
    "id": "s12",
    "name": "Sketch12",
-   "plane": "z25",
+   "plane": "z26",
    "points": {
     "origin_s12": {
      "x": 0,
@@ -1838,7 +1926,7 @@
   "s13": {
    "id": "s13",
    "name": "Sketch13",
-   "plane": "z26",
+   "plane": "z27",
    "points": {
     "origin_s13": {
      "x": 0,
@@ -1929,7 +2017,7 @@
   "s14": {
    "id": "s14",
    "name": "Sketch14",
-   "plane": "y27",
+   "plane": "y28",
    "points": {
     "origin_s14": {
      "x": 0,
@@ -2068,7 +2156,7 @@
   "s15": {
    "id": "s15",
    "name": "Sketch15",
-   "plane": "y28",
+   "plane": "y29",
    "points": {
     "origin_s15": {
      "x": 0,
@@ -2185,6 +2273,38 @@
     "s15p81": {
      "x": 311,
      "y": -104.5
+    },
+    "s15p84": {
+     "x": 209.5,
+     "y": 54.5
+    },
+    "s15p87": {
+     "x": 265.5,
+     "y": 54.5
+    },
+    "s15p90": {
+     "x": 209.5,
+     "y": 35.5
+    },
+    "s15p93": {
+     "x": 265.5,
+     "y": 35.5
+    },
+    "s15p96": {
+     "x": 215,
+     "y": 26.5
+    },
+    "s15p99": {
+     "x": 260,
+     "y": 26.5
+    },
+    "s15p102": {
+     "x": 215,
+     "y": 5.5
+    },
+    "s15p105": {
+     "x": 260,
+     "y": 5.5
     }
    },
    "scalars": {
@@ -2215,7 +2335,15 @@
     "s15s73": 3,
     "s15s76": 3,
     "s15s79": 3,
-    "s15s82": 3
+    "s15s82": 3,
+    "s15s85": 3,
+    "s15s88": 3,
+    "s15s91": 3,
+    "s15s94": 3,
+    "s15s97": 3,
+    "s15s100": 3,
+    "s15s103": 3,
+    "s15s106": 3
    },
    "entities": {
     "s15e2": {
@@ -2413,6 +2541,62 @@
      "kind": "circle",
      "center": "s15p81",
      "r": "s15s82"
+    },
+    "s15e86": {
+     "id": "s15e86",
+     "construction": false,
+     "kind": "circle",
+     "center": "s15p84",
+     "r": "s15s85"
+    },
+    "s15e89": {
+     "id": "s15e89",
+     "construction": false,
+     "kind": "circle",
+     "center": "s15p87",
+     "r": "s15s88"
+    },
+    "s15e92": {
+     "id": "s15e92",
+     "construction": false,
+     "kind": "circle",
+     "center": "s15p90",
+     "r": "s15s91"
+    },
+    "s15e95": {
+     "id": "s15e95",
+     "construction": false,
+     "kind": "circle",
+     "center": "s15p93",
+     "r": "s15s94"
+    },
+    "s15e98": {
+     "id": "s15e98",
+     "construction": false,
+     "kind": "circle",
+     "center": "s15p96",
+     "r": "s15s97"
+    },
+    "s15e101": {
+     "id": "s15e101",
+     "construction": false,
+     "kind": "circle",
+     "center": "s15p99",
+     "r": "s15s100"
+    },
+    "s15e104": {
+     "id": "s15e104",
+     "construction": false,
+     "kind": "circle",
+     "center": "s15p102",
+     "r": "s15s103"
+    },
+    "s15e107": {
+     "id": "s15e107",
+     "construction": false,
+     "kind": "circle",
+     "center": "s15p105",
+     "r": "s15s106"
     }
    },
    "constraints": {},
@@ -2444,7 +2628,15 @@
     "s15e74",
     "s15e77",
     "s15e80",
-    "s15e83"
+    "s15e83",
+    "s15e86",
+    "s15e89",
+    "s15e92",
+    "s15e95",
+    "s15e98",
+    "s15e101",
+    "s15e104",
+    "s15e107"
    ],
    "constraintOrder": [],
    "origin": "origin_s15"
@@ -2452,7 +2644,7 @@
   "s16": {
    "id": "s16",
    "name": "Sketch16",
-   "plane": "y29",
+   "plane": "y30",
    "points": {
     "origin_s16": {
      "x": 0,
@@ -2524,7 +2716,7 @@
   "s17": {
    "id": "s17",
    "name": "Sketch17",
-   "plane": "y30",
+   "plane": "y31",
    "points": {
     "origin_s17": {
      "x": 0,
@@ -2593,6 +2785,38 @@
     "s17p23": {
      "x": 177.2,
      "y": 63.65
+    },
+    "s17p32": {
+     "x": 205.7,
+     "y": -0.25
+    },
+    "s17p33": {
+     "x": 268.5,
+     "y": -0.25
+    },
+    "s17p34": {
+     "x": 268.5,
+     "y": -16.35
+    },
+    "s17p35": {
+     "x": 267.3,
+     "y": -16.35
+    },
+    "s17p36": {
+     "x": 267.3,
+     "y": -1.45
+    },
+    "s17p37": {
+     "x": 206.9,
+     "y": -1.45
+    },
+    "s17p38": {
+     "x": 206.9,
+     "y": -16.35
+    },
+    "s17p39": {
+     "x": 205.7,
+     "y": -16.35
     }
    },
    "scalars": {},
@@ -2708,6 +2932,62 @@
      "kind": "line",
      "p1": "s17p23",
      "p2": "s17p16"
+    },
+    "s17e40": {
+     "id": "s17e40",
+     "construction": false,
+     "kind": "line",
+     "p1": "s17p32",
+     "p2": "s17p33"
+    },
+    "s17e41": {
+     "id": "s17e41",
+     "construction": false,
+     "kind": "line",
+     "p1": "s17p33",
+     "p2": "s17p34"
+    },
+    "s17e42": {
+     "id": "s17e42",
+     "construction": false,
+     "kind": "line",
+     "p1": "s17p34",
+     "p2": "s17p35"
+    },
+    "s17e43": {
+     "id": "s17e43",
+     "construction": false,
+     "kind": "line",
+     "p1": "s17p35",
+     "p2": "s17p36"
+    },
+    "s17e44": {
+     "id": "s17e44",
+     "construction": false,
+     "kind": "line",
+     "p1": "s17p36",
+     "p2": "s17p37"
+    },
+    "s17e45": {
+     "id": "s17e45",
+     "construction": false,
+     "kind": "line",
+     "p1": "s17p37",
+     "p2": "s17p38"
+    },
+    "s17e46": {
+     "id": "s17e46",
+     "construction": false,
+     "kind": "line",
+     "p1": "s17p38",
+     "p2": "s17p39"
+    },
+    "s17e47": {
+     "id": "s17e47",
+     "construction": false,
+     "kind": "line",
+     "p1": "s17p39",
+     "p2": "s17p32"
     }
    },
    "constraints": {},
@@ -2727,7 +3007,15 @@
     "s17e28",
     "s17e29",
     "s17e30",
-    "s17e31"
+    "s17e31",
+    "s17e40",
+    "s17e41",
+    "s17e42",
+    "s17e43",
+    "s17e44",
+    "s17e45",
+    "s17e46",
+    "s17e47"
    ],
    "constraintOrder": [],
    "origin": "origin_s17"
@@ -2735,7 +3023,7 @@
   "s18": {
    "id": "s18",
    "name": "Sketch18",
-   "plane": "y31",
+   "plane": "y32",
    "points": {
     "origin_s18": {
      "x": 0,
@@ -3636,6 +3924,262 @@
     "s18p439": {
      "x": 312.3,
      "y": -103.961522
+    },
+    "s18p448": {
+     "x": 210.6,
+     "y": 54.044365
+    },
+    "s18p449": {
+     "x": 209.955635,
+     "y": 53.4
+    },
+    "s18p450": {
+     "x": 209.044365,
+     "y": 53.4
+    },
+    "s18p451": {
+     "x": 208.4,
+     "y": 54.044365
+    },
+    "s18p452": {
+     "x": 208.4,
+     "y": 54.955635
+    },
+    "s18p453": {
+     "x": 209.044365,
+     "y": 55.6
+    },
+    "s18p454": {
+     "x": 209.955635,
+     "y": 55.6
+    },
+    "s18p455": {
+     "x": 210.6,
+     "y": 54.955635
+    },
+    "s18p464": {
+     "x": 266.6,
+     "y": 54.044365
+    },
+    "s18p465": {
+     "x": 265.955635,
+     "y": 53.4
+    },
+    "s18p466": {
+     "x": 265.044365,
+     "y": 53.4
+    },
+    "s18p467": {
+     "x": 264.4,
+     "y": 54.044365
+    },
+    "s18p468": {
+     "x": 264.4,
+     "y": 54.955635
+    },
+    "s18p469": {
+     "x": 265.044365,
+     "y": 55.6
+    },
+    "s18p470": {
+     "x": 265.955635,
+     "y": 55.6
+    },
+    "s18p471": {
+     "x": 266.6,
+     "y": 54.955635
+    },
+    "s18p480": {
+     "x": 210.6,
+     "y": 35.044365
+    },
+    "s18p481": {
+     "x": 209.955635,
+     "y": 34.4
+    },
+    "s18p482": {
+     "x": 209.044365,
+     "y": 34.4
+    },
+    "s18p483": {
+     "x": 208.4,
+     "y": 35.044365
+    },
+    "s18p484": {
+     "x": 208.4,
+     "y": 35.955635
+    },
+    "s18p485": {
+     "x": 209.044365,
+     "y": 36.6
+    },
+    "s18p486": {
+     "x": 209.955635,
+     "y": 36.6
+    },
+    "s18p487": {
+     "x": 210.6,
+     "y": 35.955635
+    },
+    "s18p496": {
+     "x": 266.6,
+     "y": 35.044365
+    },
+    "s18p497": {
+     "x": 265.955635,
+     "y": 34.4
+    },
+    "s18p498": {
+     "x": 265.044365,
+     "y": 34.4
+    },
+    "s18p499": {
+     "x": 264.4,
+     "y": 35.044365
+    },
+    "s18p500": {
+     "x": 264.4,
+     "y": 35.955635
+    },
+    "s18p501": {
+     "x": 265.044365,
+     "y": 36.6
+    },
+    "s18p502": {
+     "x": 265.955635,
+     "y": 36.6
+    },
+    "s18p503": {
+     "x": 266.6,
+     "y": 35.955635
+    },
+    "s18p512": {
+     "x": 216.3,
+     "y": 25.961522
+    },
+    "s18p513": {
+     "x": 215.538478,
+     "y": 25.2
+    },
+    "s18p514": {
+     "x": 214.461522,
+     "y": 25.2
+    },
+    "s18p515": {
+     "x": 213.7,
+     "y": 25.961522
+    },
+    "s18p516": {
+     "x": 213.7,
+     "y": 27.038478
+    },
+    "s18p517": {
+     "x": 214.461522,
+     "y": 27.8
+    },
+    "s18p518": {
+     "x": 215.538478,
+     "y": 27.8
+    },
+    "s18p519": {
+     "x": 216.3,
+     "y": 27.038478
+    },
+    "s18p528": {
+     "x": 261.3,
+     "y": 25.961522
+    },
+    "s18p529": {
+     "x": 260.538478,
+     "y": 25.2
+    },
+    "s18p530": {
+     "x": 259.461522,
+     "y": 25.2
+    },
+    "s18p531": {
+     "x": 258.7,
+     "y": 25.961522
+    },
+    "s18p532": {
+     "x": 258.7,
+     "y": 27.038478
+    },
+    "s18p533": {
+     "x": 259.461522,
+     "y": 27.8
+    },
+    "s18p534": {
+     "x": 260.538478,
+     "y": 27.8
+    },
+    "s18p535": {
+     "x": 261.3,
+     "y": 27.038478
+    },
+    "s18p544": {
+     "x": 216.3,
+     "y": 4.961522
+    },
+    "s18p545": {
+     "x": 215.538478,
+     "y": 4.2
+    },
+    "s18p546": {
+     "x": 214.461522,
+     "y": 4.2
+    },
+    "s18p547": {
+     "x": 213.7,
+     "y": 4.961522
+    },
+    "s18p548": {
+     "x": 213.7,
+     "y": 6.038478
+    },
+    "s18p549": {
+     "x": 214.461522,
+     "y": 6.8
+    },
+    "s18p550": {
+     "x": 215.538478,
+     "y": 6.8
+    },
+    "s18p551": {
+     "x": 216.3,
+     "y": 6.038478
+    },
+    "s18p560": {
+     "x": 261.3,
+     "y": 4.961522
+    },
+    "s18p561": {
+     "x": 260.538478,
+     "y": 4.2
+    },
+    "s18p562": {
+     "x": 259.461522,
+     "y": 4.2
+    },
+    "s18p563": {
+     "x": 258.7,
+     "y": 4.961522
+    },
+    "s18p564": {
+     "x": 258.7,
+     "y": 6.038478
+    },
+    "s18p565": {
+     "x": 259.461522,
+     "y": 6.8
+    },
+    "s18p566": {
+     "x": 260.538478,
+     "y": 6.8
+    },
+    "s18p567": {
+     "x": 261.3,
+     "y": 6.038478
     }
    },
    "scalars": {},
@@ -5207,6 +5751,454 @@
      "kind": "line",
      "p1": "s18p439",
      "p2": "s18p432"
+    },
+    "s18e456": {
+     "id": "s18e456",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p448",
+     "p2": "s18p449"
+    },
+    "s18e457": {
+     "id": "s18e457",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p449",
+     "p2": "s18p450"
+    },
+    "s18e458": {
+     "id": "s18e458",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p450",
+     "p2": "s18p451"
+    },
+    "s18e459": {
+     "id": "s18e459",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p451",
+     "p2": "s18p452"
+    },
+    "s18e460": {
+     "id": "s18e460",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p452",
+     "p2": "s18p453"
+    },
+    "s18e461": {
+     "id": "s18e461",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p453",
+     "p2": "s18p454"
+    },
+    "s18e462": {
+     "id": "s18e462",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p454",
+     "p2": "s18p455"
+    },
+    "s18e463": {
+     "id": "s18e463",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p455",
+     "p2": "s18p448"
+    },
+    "s18e472": {
+     "id": "s18e472",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p464",
+     "p2": "s18p465"
+    },
+    "s18e473": {
+     "id": "s18e473",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p465",
+     "p2": "s18p466"
+    },
+    "s18e474": {
+     "id": "s18e474",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p466",
+     "p2": "s18p467"
+    },
+    "s18e475": {
+     "id": "s18e475",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p467",
+     "p2": "s18p468"
+    },
+    "s18e476": {
+     "id": "s18e476",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p468",
+     "p2": "s18p469"
+    },
+    "s18e477": {
+     "id": "s18e477",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p469",
+     "p2": "s18p470"
+    },
+    "s18e478": {
+     "id": "s18e478",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p470",
+     "p2": "s18p471"
+    },
+    "s18e479": {
+     "id": "s18e479",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p471",
+     "p2": "s18p464"
+    },
+    "s18e488": {
+     "id": "s18e488",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p480",
+     "p2": "s18p481"
+    },
+    "s18e489": {
+     "id": "s18e489",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p481",
+     "p2": "s18p482"
+    },
+    "s18e490": {
+     "id": "s18e490",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p482",
+     "p2": "s18p483"
+    },
+    "s18e491": {
+     "id": "s18e491",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p483",
+     "p2": "s18p484"
+    },
+    "s18e492": {
+     "id": "s18e492",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p484",
+     "p2": "s18p485"
+    },
+    "s18e493": {
+     "id": "s18e493",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p485",
+     "p2": "s18p486"
+    },
+    "s18e494": {
+     "id": "s18e494",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p486",
+     "p2": "s18p487"
+    },
+    "s18e495": {
+     "id": "s18e495",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p487",
+     "p2": "s18p480"
+    },
+    "s18e504": {
+     "id": "s18e504",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p496",
+     "p2": "s18p497"
+    },
+    "s18e505": {
+     "id": "s18e505",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p497",
+     "p2": "s18p498"
+    },
+    "s18e506": {
+     "id": "s18e506",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p498",
+     "p2": "s18p499"
+    },
+    "s18e507": {
+     "id": "s18e507",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p499",
+     "p2": "s18p500"
+    },
+    "s18e508": {
+     "id": "s18e508",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p500",
+     "p2": "s18p501"
+    },
+    "s18e509": {
+     "id": "s18e509",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p501",
+     "p2": "s18p502"
+    },
+    "s18e510": {
+     "id": "s18e510",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p502",
+     "p2": "s18p503"
+    },
+    "s18e511": {
+     "id": "s18e511",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p503",
+     "p2": "s18p496"
+    },
+    "s18e520": {
+     "id": "s18e520",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p512",
+     "p2": "s18p513"
+    },
+    "s18e521": {
+     "id": "s18e521",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p513",
+     "p2": "s18p514"
+    },
+    "s18e522": {
+     "id": "s18e522",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p514",
+     "p2": "s18p515"
+    },
+    "s18e523": {
+     "id": "s18e523",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p515",
+     "p2": "s18p516"
+    },
+    "s18e524": {
+     "id": "s18e524",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p516",
+     "p2": "s18p517"
+    },
+    "s18e525": {
+     "id": "s18e525",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p517",
+     "p2": "s18p518"
+    },
+    "s18e526": {
+     "id": "s18e526",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p518",
+     "p2": "s18p519"
+    },
+    "s18e527": {
+     "id": "s18e527",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p519",
+     "p2": "s18p512"
+    },
+    "s18e536": {
+     "id": "s18e536",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p528",
+     "p2": "s18p529"
+    },
+    "s18e537": {
+     "id": "s18e537",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p529",
+     "p2": "s18p530"
+    },
+    "s18e538": {
+     "id": "s18e538",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p530",
+     "p2": "s18p531"
+    },
+    "s18e539": {
+     "id": "s18e539",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p531",
+     "p2": "s18p532"
+    },
+    "s18e540": {
+     "id": "s18e540",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p532",
+     "p2": "s18p533"
+    },
+    "s18e541": {
+     "id": "s18e541",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p533",
+     "p2": "s18p534"
+    },
+    "s18e542": {
+     "id": "s18e542",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p534",
+     "p2": "s18p535"
+    },
+    "s18e543": {
+     "id": "s18e543",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p535",
+     "p2": "s18p528"
+    },
+    "s18e552": {
+     "id": "s18e552",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p544",
+     "p2": "s18p545"
+    },
+    "s18e553": {
+     "id": "s18e553",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p545",
+     "p2": "s18p546"
+    },
+    "s18e554": {
+     "id": "s18e554",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p546",
+     "p2": "s18p547"
+    },
+    "s18e555": {
+     "id": "s18e555",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p547",
+     "p2": "s18p548"
+    },
+    "s18e556": {
+     "id": "s18e556",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p548",
+     "p2": "s18p549"
+    },
+    "s18e557": {
+     "id": "s18e557",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p549",
+     "p2": "s18p550"
+    },
+    "s18e558": {
+     "id": "s18e558",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p550",
+     "p2": "s18p551"
+    },
+    "s18e559": {
+     "id": "s18e559",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p551",
+     "p2": "s18p544"
+    },
+    "s18e568": {
+     "id": "s18e568",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p560",
+     "p2": "s18p561"
+    },
+    "s18e569": {
+     "id": "s18e569",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p561",
+     "p2": "s18p562"
+    },
+    "s18e570": {
+     "id": "s18e570",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p562",
+     "p2": "s18p563"
+    },
+    "s18e571": {
+     "id": "s18e571",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p563",
+     "p2": "s18p564"
+    },
+    "s18e572": {
+     "id": "s18e572",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p564",
+     "p2": "s18p565"
+    },
+    "s18e573": {
+     "id": "s18e573",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p565",
+     "p2": "s18p566"
+    },
+    "s18e574": {
+     "id": "s18e574",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p566",
+     "p2": "s18p567"
+    },
+    "s18e575": {
+     "id": "s18e575",
+     "construction": false,
+     "kind": "line",
+     "p1": "s18p567",
+     "p2": "s18p560"
     }
    },
    "constraints": {},
@@ -5434,7 +6426,71 @@
     "s18e444",
     "s18e445",
     "s18e446",
-    "s18e447"
+    "s18e447",
+    "s18e456",
+    "s18e457",
+    "s18e458",
+    "s18e459",
+    "s18e460",
+    "s18e461",
+    "s18e462",
+    "s18e463",
+    "s18e472",
+    "s18e473",
+    "s18e474",
+    "s18e475",
+    "s18e476",
+    "s18e477",
+    "s18e478",
+    "s18e479",
+    "s18e488",
+    "s18e489",
+    "s18e490",
+    "s18e491",
+    "s18e492",
+    "s18e493",
+    "s18e494",
+    "s18e495",
+    "s18e504",
+    "s18e505",
+    "s18e506",
+    "s18e507",
+    "s18e508",
+    "s18e509",
+    "s18e510",
+    "s18e511",
+    "s18e520",
+    "s18e521",
+    "s18e522",
+    "s18e523",
+    "s18e524",
+    "s18e525",
+    "s18e526",
+    "s18e527",
+    "s18e536",
+    "s18e537",
+    "s18e538",
+    "s18e539",
+    "s18e540",
+    "s18e541",
+    "s18e542",
+    "s18e543",
+    "s18e552",
+    "s18e553",
+    "s18e554",
+    "s18e555",
+    "s18e556",
+    "s18e557",
+    "s18e558",
+    "s18e559",
+    "s18e568",
+    "s18e569",
+    "s18e570",
+    "s18e571",
+    "s18e572",
+    "s18e573",
+    "s18e574",
+    "s18e575"
    ],
    "constraintOrder": [],
    "origin": "origin_s18"
@@ -5442,7 +6498,7 @@
   "s19": {
    "id": "s19",
    "name": "Sketch19",
-   "plane": "y32",
+   "plane": "y33",
    "points": {
     "origin_s19": {
      "x": 0,
@@ -5841,6 +6897,327 @@
    ],
    "constraintOrder": [],
    "origin": "origin_s19"
+  },
+  "s20": {
+   "id": "s20",
+   "name": "Sketch20",
+   "plane": "y34",
+   "points": {
+    "origin_s20": {
+     "x": 0,
+     "y": 0
+    },
+    "s20p0": {
+     "x": 257.3,
+     "y": -105
+    },
+    "s20p1": {
+     "x": 266.7,
+     "y": -105
+    },
+    "s20p2": {
+     "x": 266.7,
+     "y": -113
+    },
+    "s20p3": {
+     "x": 257.3,
+     "y": -113
+    }
+   },
+   "scalars": {},
+   "entities": {
+    "s20e4": {
+     "id": "s20e4",
+     "construction": false,
+     "kind": "line",
+     "p1": "s20p0",
+     "p2": "s20p1"
+    },
+    "s20e5": {
+     "id": "s20e5",
+     "construction": false,
+     "kind": "line",
+     "p1": "s20p1",
+     "p2": "s20p2"
+    },
+    "s20e6": {
+     "id": "s20e6",
+     "construction": false,
+     "kind": "line",
+     "p1": "s20p2",
+     "p2": "s20p3"
+    },
+    "s20e7": {
+     "id": "s20e7",
+     "construction": false,
+     "kind": "line",
+     "p1": "s20p3",
+     "p2": "s20p0"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s20e4",
+    "s20e5",
+    "s20e6",
+    "s20e7"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s20"
+  },
+  "s21": {
+   "id": "s21",
+   "name": "Sketch21",
+   "plane": "y35",
+   "points": {
+    "origin_s21": {
+     "x": 0,
+     "y": 0
+    },
+    "s21p0": {
+     "x": 258.9,
+     "y": -106.5
+    },
+    "s21p1": {
+     "x": 265.1,
+     "y": -106.5
+    },
+    "s21p2": {
+     "x": 265.1,
+     "y": -112.51
+    },
+    "s21p3": {
+     "x": 258.9,
+     "y": -112.51
+    }
+   },
+   "scalars": {},
+   "entities": {
+    "s21e4": {
+     "id": "s21e4",
+     "construction": false,
+     "kind": "line",
+     "p1": "s21p0",
+     "p2": "s21p1"
+    },
+    "s21e5": {
+     "id": "s21e5",
+     "construction": false,
+     "kind": "line",
+     "p1": "s21p1",
+     "p2": "s21p2"
+    },
+    "s21e6": {
+     "id": "s21e6",
+     "construction": false,
+     "kind": "line",
+     "p1": "s21p2",
+     "p2": "s21p3"
+    },
+    "s21e7": {
+     "id": "s21e7",
+     "construction": false,
+     "kind": "line",
+     "p1": "s21p3",
+     "p2": "s21p0"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s21e4",
+    "s21e5",
+    "s21e6",
+    "s21e7"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s21"
+  },
+  "s22": {
+   "id": "s22",
+   "name": "Sketch22",
+   "plane": "z36",
+   "points": {
+    "origin_s22": {
+     "x": 0,
+     "y": 0
+    },
+    "s22p0": {
+     "x": 259.87868,
+     "y": 27.12132
+    },
+    "s22p1": {
+     "x": 259.228361,
+     "y": 26.14805
+    },
+    "s22p2": {
+     "x": 259,
+     "y": 25
+    },
+    "s22p3": {
+     "x": 259.228361,
+     "y": 23.85195
+    },
+    "s22p4": {
+     "x": 259.87868,
+     "y": 22.87868
+    },
+    "s22p5": {
+     "x": 260.85195,
+     "y": 22.228361
+    },
+    "s22p6": {
+     "x": 262,
+     "y": 22
+    },
+    "s22p7": {
+     "x": 263.14805,
+     "y": 22.228361
+    },
+    "s22p8": {
+     "x": 264.12132,
+     "y": 22.87868
+    },
+    "s22p9": {
+     "x": 264.771639,
+     "y": 23.85195
+    },
+    "s22p10": {
+     "x": 265,
+     "y": 25
+    },
+    "s22p11": {
+     "x": 264.771639,
+     "y": 26.14805
+    },
+    "s22p12": {
+     "x": 264.12132,
+     "y": 27.12132
+    },
+    "s22p13": {
+     "x": 262,
+     "y": 29.242641
+    }
+   },
+   "scalars": {},
+   "entities": {
+    "s22e14": {
+     "id": "s22e14",
+     "construction": false,
+     "kind": "line",
+     "p1": "s22p0",
+     "p2": "s22p1"
+    },
+    "s22e15": {
+     "id": "s22e15",
+     "construction": false,
+     "kind": "line",
+     "p1": "s22p1",
+     "p2": "s22p2"
+    },
+    "s22e16": {
+     "id": "s22e16",
+     "construction": false,
+     "kind": "line",
+     "p1": "s22p2",
+     "p2": "s22p3"
+    },
+    "s22e17": {
+     "id": "s22e17",
+     "construction": false,
+     "kind": "line",
+     "p1": "s22p3",
+     "p2": "s22p4"
+    },
+    "s22e18": {
+     "id": "s22e18",
+     "construction": false,
+     "kind": "line",
+     "p1": "s22p4",
+     "p2": "s22p5"
+    },
+    "s22e19": {
+     "id": "s22e19",
+     "construction": false,
+     "kind": "line",
+     "p1": "s22p5",
+     "p2": "s22p6"
+    },
+    "s22e20": {
+     "id": "s22e20",
+     "construction": false,
+     "kind": "line",
+     "p1": "s22p6",
+     "p2": "s22p7"
+    },
+    "s22e21": {
+     "id": "s22e21",
+     "construction": false,
+     "kind": "line",
+     "p1": "s22p7",
+     "p2": "s22p8"
+    },
+    "s22e22": {
+     "id": "s22e22",
+     "construction": false,
+     "kind": "line",
+     "p1": "s22p8",
+     "p2": "s22p9"
+    },
+    "s22e23": {
+     "id": "s22e23",
+     "construction": false,
+     "kind": "line",
+     "p1": "s22p9",
+     "p2": "s22p10"
+    },
+    "s22e24": {
+     "id": "s22e24",
+     "construction": false,
+     "kind": "line",
+     "p1": "s22p10",
+     "p2": "s22p11"
+    },
+    "s22e25": {
+     "id": "s22e25",
+     "construction": false,
+     "kind": "line",
+     "p1": "s22p11",
+     "p2": "s22p12"
+    },
+    "s22e26": {
+     "id": "s22e26",
+     "construction": false,
+     "kind": "line",
+     "p1": "s22p12",
+     "p2": "s22p13"
+    },
+    "s22e27": {
+     "id": "s22e27",
+     "construction": false,
+     "kind": "line",
+     "p1": "s22p13",
+     "p2": "s22p0"
+    }
+   },
+   "constraints": {},
+   "entityOrder": [
+    "s22e14",
+    "s22e15",
+    "s22e16",
+    "s22e17",
+    "s22e18",
+    "s22e19",
+    "s22e20",
+    "s22e21",
+    "s22e22",
+    "s22e23",
+    "s22e24",
+    "s22e25",
+    "s22e26",
+    "s22e27"
+   ],
+   "constraintOrder": [],
+   "origin": "origin_s22"
   }
  },
  "features": [
@@ -6184,6 +7561,60 @@
    "op": "cut",
    "end": "blind",
    "depth": 49,
+   "reverse": true
+  },
+  {
+   "id": "ks20",
+   "type": "sketch",
+   "name": "Sketch20",
+   "sketchId": "s20",
+   "suppressed": false
+  },
+  {
+   "id": "f40",
+   "type": "extrude",
+   "name": "Houder IR-leerontvanger",
+   "sketchId": "s20",
+   "suppressed": false,
+   "op": "boss",
+   "end": "blind",
+   "depth": 29.975,
+   "reverse": false
+  },
+  {
+   "id": "ks21",
+   "type": "sketch",
+   "name": "Sketch21",
+   "sketchId": "s21",
+   "suppressed": false
+  },
+  {
+   "id": "f42",
+   "type": "extrude",
+   "name": "Vak IR-leerontvanger",
+   "sketchId": "s21",
+   "suppressed": false,
+   "op": "cut",
+   "end": "blind",
+   "depth": 8.650000000000002,
+   "reverse": true
+  },
+  {
+   "id": "ks22",
+   "type": "sketch",
+   "name": "Sketch22",
+   "sketchId": "s22",
+   "suppressed": false
+  },
+  {
+   "id": "f44",
+   "type": "extrude",
+   "name": "Venster IR-leerontvanger",
+   "sketchId": "s22",
+   "suppressed": false,
+   "op": "cut",
+   "end": "blind",
+   "depth": 3.4,
    "reverse": true
   }
  ],

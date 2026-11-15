@@ -87,7 +87,7 @@ groepen in het dashboard en het invulblad TRN-21 (om bij de baan te hangen):
 | ingang n | `IN01` … `IN16` | optocouplerprint, klem IN | knop of sensor |
 | leddraden | `G05 kerk` (groep en plaats) | bordje n | de lamp op de baan |
 
-De 61 draden tussen de modules (met doorsnede, kleur en lengte) staan in de **interne draadlijst TRN-14**, hun plaats op
+De 94 draden tussen de modules (met doorsnede, kleur en lengte) staan in de **interne draadlijst TRN-14** (W01..W61) en **TRN-15** (W62..W94, versie 6), hun plaats op
 het **montageblad TRN-10**. Rij 1 = de 3 bordjes achteraan, rij 6 = bordje 16. Groep 1 is het linkse bordje van rij 1.
 
 ## Bouwen in deze volgorde
@@ -102,7 +102,7 @@ het **montageblad TRN-10**. Rij 1 = de 3 bordjes achteraan, rij 6 = bordje 16. G
    trekken (van binnen, bovenaan bereikbaar).
 4. **Modules in de rechterhelft** (montageblad TRN-10): elke module met plaatschroeven 3 x 8 op haar palen (de PCA9685
    met 2,5 x 6), de 6 WAGO-klemmen in hun klikhouders, de DC-bus in de achterwand.
-5. **Bedraden volgens TRN-14** (W01..W61): dupontkabels op de pinnen van de PCA9685 en de MOSFET-modules, gestripte
+5. **Bedraden volgens TRN-14 en TRN-15** (W01..W94): dupontkabels op de pinnen van de PCA9685 en de MOSFET-modules, gestripte
    draden in de schroef- en WAGO-klemmen. -R1, -R2 en -F18 met hun pootjes in de klemmen. **Niet solderen**, behalve de 2
    lippen van de DC-bus (pen = +, huls = −).
 6. **Proefopstelling op tafel** (de rechterhelft alleen): één bordje op groep 1, één knop op IN01, eventueel een
@@ -157,8 +157,15 @@ de eerste, met 2 MOSFET-modules en 16 polyfuses in een tweede doos ernaast; de f
 Ian (2026-11-15): "Treindoos moet IR leds, IR sensors, FTR sensoren moeten kunnen binnenlezen, uitsturen." "Wissels,
 seinen of slagbomen moeten ook kunnen." "PNP moeten ook kunnen." "Geluiden: dit moeten kleine speakertjes zijn die ik
 ergens kan plaatsen." Schema: bladen 7 (IR) en 8 (servo's, NPN/PNP) en de stuklijst van de uitbreiding (laatste blad)
-in `schema/Aansluitschema-kabeldoos.pdf`; berekening: `docs/Berekeningen.md` §9. Waar deze modules in de doos komen,
-volgt in fase B (de doos wordt dan aangepast); tot dan kan alles los op tafel getest worden.
+in `schema/Aansluitschema-kabeldoos.pdf`; berekening: `docs/Berekeningen.md` §9.
+
+**In de doos (fase B):** in de rechterhelft tussen de PCA9685 en de optocouplers de **servoprint -K7** (servostekkers naar
+voren, de kabels door een 5de tule in de rechterwand), de **XL4015 -T3** met **-F19** (3 A, houder met draden) en de elco
+**-C5** (pootjes in de schroefklem V+/GND van de servoprint), en 2 WAGO-klemmen **-X12** (3,3 V) en **-X13** (0 V) in een
+klikhouder; in de linkerhelft naast bordje 16 de **IR-driver -Q4** (uitgangen naar de tules vooraan), de **AOD4184 -Q3**
+en de **MCP23017 -K5** (plaats en palen voor een tweede, -K8). De **IR-leerontvanger -B1** staat in een houder achter een
+**venstertje Ø6 in de voorwand** (rechts naast de USB-opening): Ian houdt zijn IR-zender ervoor, de doos blijft dicht.
+Montagebladen **TRN-10** (rechts) en **TRN-11** (links), draadlijst **TRN-15**.
 
 **Pinnen:** GPIO47 = IR zenden, GPIO48 = leerontvanger, GPIO11, 39 en 42 = 3 IR- of FTR-ontvangers op de baan. Al het
 andere over de I2C-bus die er al is: MCP23017 op 0x20 (8 schakeluitgangen voor de IR-leds en ingangen 17-24), servoprint
@@ -192,14 +199,19 @@ PCA9685 op **0x42** (0x40 = lichtgroepen 1-16, 0x41 blijft vrij voor 17-32), opt
 | Weerstand 120 Ω 0,5 W | 8 | metaalfilm | € 0,10 | € 0,80 |
 | IR-leerontvanger | 1 | Vishay TSMP58000 | € 2,50 | € 2,50 |
 | IR-ontvanger 38 kHz | 3 | Vishay TSOP38238 | € 1,20 | € 3,60 |
-| Weerstand 100 Ω en elco 4,7 µF (filter) | 4 + 4 | — | € 0,10 | € 0,80 |
+| Weerstand 100 Ω en elco 4,7 µF (filter bij de ontvangers op de baan) | 3 + 3 | — | € 0,10 | € 0,60 |
+| Verbindingsklem 5-voudig (-X12 3,3 V, -X13 0 V) | 2 | WAGO 221-415 | € 0,90 | € 1,80 |
+| Doorverbinder 1 + 1 (-X9: weerstand aan de draad naar de IR-led) | 8 | WAGO 221-2411 | € 0,90 | € 7,20 |
+| Membraantule (servokabels, 5de tule rechts) | 1 | Wiska EMT 16 LG | € 0,40 | € 0,40 |
+| Schroefjes: 3 x 8 bolkop (10), 2,5 x 6 bolkop (4), 2,5 x 8 met sluitring DIN 9021 Ø8 (4 + 4) | 22 | modules op de palen | € 0,05 | € 1,10 |
+| Dupontkabels 30 cm, 40 female-female en 40 female-male (over de naad) | 1 set | | € 4,00 | € 4,00 |
 | Servoprint PCA9685 16 kanalen | 1 | PCA9685-module (A1 dichtsolderen = 0x42) | € 4,50 | € 4,50 |
 | Regelaar 5 A instelbaar | 1 | XL4015-module | € 3,00 | € 3,00 |
 | Zekeringhouder ATO + zekering 3 A | 1 | zoals -F1 | € 2,00 | € 2,00 |
 | Elco 1000 µF 10 V of meer | 1 | — | € 0,30 | € 0,30 |
 | Servo | per wissel, slagboom, armsein | SG90 of MG90S | € 2,50 tot € 4,50 | |
 | Optocouplerprint 8 kanalen (ingangen 17-24) | 1 | NPN zoals -K3, of PNP/bipolair | € 4,00 | € 4,00 |
-| **Totaal zonder servo's** | | | | **€ 37,00** |
+| **Totaal zonder servo's** | | | | **€ 51,30** |
 | *Optioneel (sensoradvies):* tweede MCP23017 + 2 optocouplerprints | 1 + 2 | ingangen 25-40 | | € 11,00 |
 | *Optioneel:* hallsensor + magneet | per meetpunt | SS441A of A3144 + Ø5 x 2 | ± € 2,70 | |
 | *Optioneel:* reflexsensor met fototransistor ("FTR") | per stoppunt | TCRT5000-module | € 1,00 | |
@@ -303,7 +315,7 @@ aan de naad.
 | `Kabeldoos-bak-links.kcad`, `Kabeldoos-bak-rechts.kcad`, `Kabeldoos-deksel-links.kcad`, `Kabeldoos-deksel-rechts.kcad`, `Hulpstukken.kcad` | de geprinte delen apart |
 | `maak-kabeldoos.mjs` | de generator: indeling, de 2 bakhelften, de naad (klikhaken, lippen, klikberekening), het deksel in 2 helften, assemblage; maten in `maten.mjs`, hulpstukken in `hulpstukken.mjs`, de gekochte onderdelen in `onderdelen.mjs`, de modules en hun bedrading in `opbouw.mjs` |
 | `print/` | de STL's (uit de exacte vorm, dicht en manifold) |
-| `tekeningen/Werktekeningen-kabeldoos.pdf` | boormal op ware grootte over 2 A3-bladen met uitlijnkruisen (TRN-00a, TRN-00b), bak links (TRN-01) en rechts (TRN-02), hulpstukken (TRN-03), deksel links (TRN-04) en rechts (TRN-05), de naad met klikhaken en lijmvoeg (TRN-06), de bevestiging van de bordjes met de schroefpaaltjes (TRN-07), montageblad van de rechterhelft (TRN-10), interne draadlijst (TRN-14), meetblad (TRN-20, A4), invulblad (TRN-21, A4) |
+| `tekeningen/Werktekeningen-kabeldoos.pdf` | boormal op ware grootte over 2 A3-bladen met uitlijnkruisen (TRN-00a, TRN-00b), bak links (TRN-01) en rechts (TRN-02), hulpstukken (TRN-03), deksel links (TRN-04) en rechts (TRN-05), de naad met klikhaken en lijmvoeg (TRN-06), de bevestiging van de bordjes met de schroefpaaltjes (TRN-07), montageblad van de rechterhelft (TRN-10) en van de linkerhelft met de IR-driver (TRN-11), interne draadlijst (TRN-14, TRN-15), meetblad (TRN-20, A4), invulblad (TRN-21, A4) |
 | `tekeningen/Bouwschema-kabeldoos.pdf` | de stappen met beelden, van printen tot aanzetten |
 | `Kabeldoos-alles-afdrukken.pdf` | alles samen om af te drukken (README, bouwschema, tekeningen, schema, dashboard, rekenblad) |
 | `schema/` | aansluitschema (`Aansluitschema-kabeldoos.pdf` en per blad een SVG) in 19 bladen (versie 6: IR op blad 7, servo's en NPN/PNP op blad 8, `schema/uitbreiding.mjs`), opgemaakt zoals EPLAN Electric P8 en volgens IEC/EN 61082-1, 60617, 81346 en ISO 7200 |

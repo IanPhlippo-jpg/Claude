@@ -160,6 +160,18 @@ if (wat.includes('schroeven')) {
   await shot('Control+5', 'schroeven-boven', process.env.ZOOM_SB ?? '0.505,0.27,10');
   await shot('Control+7', 'schroeven-iso', process.env.ZOOM_SI ?? '0.5,0.36,9');
 }
+if (wat.includes('v6b')) {
+  // versie 6 fase B: de rechterhelft met de servoprint, de XL4015 en de WAGO-klemmen van de uitbreiding; de linkerhelft
+  // met de IR-driver en de MCP23017; het venstertje van de IR-leerontvanger in de voorwand
+  const R = (id) => /^(d3|w1|ir\d|t1\d)$/.test(id) || (/^m[a-z0-9]+_\d+$/.test(id) && !/^m(q4|q3|k5)_/.test(id));
+  await open(filter(R));
+  await shot('Control+5', 'v6b-rechts-boven', process.env.ZOOM_V6RB ?? '0.5,0.5,2');
+  await shot('Control+7', 'v6b-servo-iso', process.env.ZOOM_V6SI ?? '0.5,0.45,6');
+  await shot('Control+1', 'v6b-venster', process.env.ZOOM_V6V ?? '0.62,0.55,8');
+  await open(filter((id) => /^(d1|t[1-9])$/.test(id) || /^m(q4|q3|k5)_/.test(id) || /^b(1[3-6])(k\d|e\d|r)?$/.test(id)));
+  await shot('Control+5', 'v6b-links-boven', process.env.ZOOM_V6LB ?? '0.5,0.5,2');
+  await shot('Control+7', 'v6b-ir-iso', process.env.ZOOM_V6II ?? '0.42,0.66,3');
+}
 if (wat.includes('dicht')) {
   await open(lees());
   await shot('Control+7', 'doos-dicht', '0.5,0.5,1');

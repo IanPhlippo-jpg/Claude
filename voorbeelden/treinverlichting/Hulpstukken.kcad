@@ -4,8 +4,8 @@
  "name": "Hulpstukken (2 werkhaken, spatel)",
  "units": "mm",
  "planes": {
-  "y49": {
-   "id": "y49",
+  "y53": {
+   "id": "y53",
    "name": "Plane hulpstukken",
    "origin": [
     0,
@@ -29,8 +29,8 @@
    ],
    "kind": "reference"
   },
-  "y50": {
-   "id": "y50",
+  "y54": {
+   "id": "y54",
    "name": "Plane ribben",
    "origin": [
     0,
@@ -54,8 +54,8 @@
    ],
    "kind": "reference"
   },
-  "y51": {
-   "id": "y51",
+  "y55": {
+   "id": "y55",
    "name": "Plane Sleutelgaten haken",
    "origin": [
     0,
@@ -79,8 +79,8 @@
    ],
    "kind": "reference"
   },
-  "y52": {
-   "id": "y52",
+  "y56": {
+   "id": "y56",
    "name": "Plane Sleuven haken",
    "origin": [
     0,
@@ -104,8 +104,8 @@
    ],
    "kind": "reference"
   },
-  "y53": {
-   "id": "y53",
+  "y57": {
+   "id": "y57",
    "name": "Plane Hals knop",
    "origin": [
     0,
@@ -129,8 +129,8 @@
    ],
    "kind": "reference"
   },
-  "y54": {
-   "id": "y54",
+  "y58": {
+   "id": "y58",
    "name": "Plane kop knop",
    "origin": [
     0,
@@ -154,8 +154,8 @@
    ],
    "kind": "reference"
   },
-  "y55": {
-   "id": "y55",
+  "y59": {
+   "id": "y59",
    "name": "Plane Kop knop",
    "origin": [
     0,
@@ -179,8 +179,8 @@
    ],
    "kind": "reference"
   },
-  "y56": {
-   "id": "y56",
+  "y60": {
+   "id": "y60",
    "name": "Plane Blad spatel",
    "origin": [
     0,
@@ -211,7 +211,7 @@
   "s1": {
    "id": "s1",
    "name": "Sketch1",
-   "plane": "y49",
+   "plane": "y53",
    "points": {
     "origin_s1": {
      "x": 0,
@@ -577,7 +577,7 @@
   "s2": {
    "id": "s2",
    "name": "Sketch2",
-   "plane": "y50",
+   "plane": "y54",
    "points": {
     "origin_s2": {
      "x": 0,
@@ -847,7 +847,7 @@
   "s3": {
    "id": "s3",
    "name": "Sketch3",
-   "plane": "y51",
+   "plane": "y55",
    "points": {
     "origin_s3": {
      "x": 0,
@@ -893,7 +893,7 @@
   "s4": {
    "id": "s4",
    "name": "Sketch4",
-   "plane": "y52",
+   "plane": "y56",
    "points": {
     "origin_s4": {
      "x": 0,
@@ -1163,7 +1163,7 @@
   "s5": {
    "id": "s5",
    "name": "Sketch5",
-   "plane": "y53",
+   "plane": "y57",
    "points": {
     "origin_s5": {
      "x": 0,
@@ -1209,7 +1209,7 @@
   "s6": {
    "id": "s6",
    "name": "Sketch6",
-   "plane": "y54",
+   "plane": "y58",
    "points": {
     "origin_s6": {
      "x": 0,
@@ -1255,7 +1255,7 @@
   "s7": {
    "id": "s7",
    "name": "Sketch7",
-   "plane": "y55",
+   "plane": "y59",
    "points": {
     "origin_s7": {
      "x": 0,
@@ -1301,7 +1301,7 @@
   "s8": {
    "id": "s8",
    "name": "Sketch8",
-   "plane": "y56",
+   "plane": "y60",
    "points": {
     "origin_s8": {
      "x": 0,

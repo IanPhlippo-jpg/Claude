@@ -48,7 +48,14 @@ export const M = {
   // (bij de ingangen van de optocouplerprints); de linkerhelft houdt er 5 links en krijgt er 4 vooraan (samen 18)
   // sleutelgaten rechts op dezelfde z als links (ring 1 en ring 6), 6 mm van de zijwand vrij
   rechts: { x1: 323.6, sleutelgatX: 317, sleutelgatZ: [-95.35, 57.4], modulePaal: { r: 3, h: 5 },
-    tules: { voor: [129, 151, 173], achter: [282, 304], rechts: [-80, -36, 10, 54] } },
+    // versie 6 fase B: een 5de tule rechts (z 88) voor de servokabels van de servoprint -K7
+    tules: { voor: [129, 151, 173], achter: [282, 304], rechts: [-80, -36, 10, 54, 88] } },
+  // versie 6 fase B: de IR-leerontvanger Vishay TSMP58000 (-B1) achter een venstertje in de voorwand van de rechterhelft,
+  // zodat Ian zijn eigen IR-zender ervoor kan houden: venster Ø6 (bovenaan een punt van 45°: print zonder support) op
+  // x 262 (tussen de ESP en de regelaar), 25 boven de bodem; de ontvanger staat met de lens naar het venster in een vakje
+  // van een blokje tegen de wand (behuizing 5,6 x 6,95 x 5,6 en de lens in het midden: AANNAME, na te meten), de pootjes
+  // naar boven (dupont van boven)
+  tsmp: { x: 262, y: 25, venster: 6, lichaam: [5.6, 6.95, 5.6], vak: [6.2, 6.0], blok: [9.4, 7.5] },
   links: { tulesVoor: [-80, -52, -24, 4] },
   // DC-chassisbus 5,5 x 2,5 (GlobTek JACK-L-PANEL-8A(R), 50 V / 8 A): flens Ø12,5 x 2,0, lijf 14,4 achter de flens,
   // soldeerlippen 9,7, moer 14 sleutelwijdte; draad afgelezen Ø11,3 -> gat Ø11,5 (AANNAME, na te meten); versie 5: in de

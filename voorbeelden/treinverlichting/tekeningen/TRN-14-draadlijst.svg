@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="420mm" height="297mm" viewBox="0 0 420 297">
 <rect x="0" y="0" width="420" height="297" fill="#fff"/>
-<text x="30.00" y="17.00" font-size="4" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">Interne draadlijst: draden tussen de modules in de rechterhelft</text>
+<text x="30.00" y="17.00" font-size="4" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">Interne draadlijst: draden tussen de modules</text>
 <text x="30.00" y="22.50" font-size="2.3" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">De draden naar de bordjes (G01+ .. G16+, G01− .. G16−) en de ingangen (IN01 .. IN16) staan in de README (Draden labelen) en op TRN-10. Lengte uit het 3D-model + 60 mm.</text>
 <text x="31.00" y="31.80" font-size="2.3" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">Nr</text>
 <text x="42.00" y="31.80" font-size="2.3" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">Van</text>
@@ -172,12 +172,12 @@
 <text x="341.00" y="100.53" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">120 mm</text>
 <line x1="30.00" y1="101.20" x2="356.00" y2="101.20" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="103.95" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W21</text>
-<text x="42.00" y="103.95" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X7:5</text>
+<text x="42.00" y="103.95" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-K3:VCCo</text>
 <text x="112.00" y="103.95" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-K4:VCCo</text>
-<text x="182.00" y="103.95" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">3,3 V uitgangskant optocouplerprint 2</text>
+<text x="182.00" y="103.95" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">3,3 V uitgangskant optocouplerprint 2 (doorgelust van -K3)</text>
 <text x="312.00" y="103.95" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">0,14</text>
 <text x="325.00" y="103.95" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">oranje</text>
-<text x="341.00" y="103.95" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">200 mm</text>
+<text x="341.00" y="103.95" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">150 mm</text>
 <line x1="30.00" y1="104.62" x2="356.00" y2="104.62" stroke="#111" stroke-width="0.1" stroke-linecap="round" />
 <text x="31.00" y="107.37" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" font-weight="bold" fill="#111">W22</text>
 <text x="42.00" y="107.37" font-size="1.95" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">-X6:J3:1 (G)</text>
@@ -594,7 +594,7 @@
 <text x="351.20" y="277.40" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">—</text>
 <line x1="380.00" y1="279.00" x2="380.00" y2="271.00" stroke="#111" stroke-width="0.25" stroke-linecap="round" />
 <text x="381.20" y="273.20" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#555">Blad</text>
-<text x="381.20" y="277.40" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">11 / 13</text>
+<text x="381.20" y="277.40" font-size="2.6" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">12 / 15</text>
 <text x="231.20" y="281.20" font-size="1.7" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#555">Opgesteld</text>
 <text x="231.20" y="285.40" font-size="2.3" text-anchor="start" font-family="Arial, Helvetica, sans-serif" fill="#111">Phlippo CAD</text>
 <line x1="265.00" y1="287.00" x2="265.00" y2="279.00" stroke="#111" stroke-width="0.25" stroke-linecap="round" />

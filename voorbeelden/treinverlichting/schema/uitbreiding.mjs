@@ -28,10 +28,10 @@ export function irBlad(B) {
   for (let n = 1; n <= 8; n++) {
     const x = xs(n);
     i.push(punt(x, 28), weerstand(x, 28, `-R${9 + n}`, n === 1 ? '120 Ω' : ''));
-    i.push(L([[x, 48], [x, 50.8]]), klem(x, 52, '-X9', String(2 * n - 1), { kant: 'links' }), L([[x, 53.2], [x, 56]]));
-    i.push(irLed(x, 56, `-E${20 + n}`, n === 1 ? 'TSAL6200' : ''), L([[x, 70], [x, 72.8]]), klem(x, 74, '-X9', String(2 * n), { kant: 'links' }), L([[x, 75.2], [x, 88]]));
+    i.push(L([[x, 48], [x, 50.8]]), klem(x, 52, '-X9', String(n), { kant: 'links' }), L([[x, 53.2], [x, 56]]));
+    i.push(irLed(x, 56, `-E${20 + n}`, n === 1 ? 'TSAL6200' : ''), L([[x, 70], [x, 88]]));
   }
-  i.push(T(26, 63, 'in het', { size: 1.9 }), T(26, 66, 'veld', { size: 1.9 }));
+  i.push(T(26, 63, 'in het', { size: 1.9 }), T(26, 66, 'veld', { size: 1.9 }), T(120, 26.4, 'L+ = de klemmen n+ van -Q4 (VIN+)', { size: 2.0 }));
   // -Q4: 8-kanaals MOSFET-module (zoals -Q1), per kanaal een N-MOSFET; de sources samen op VIN−
   i.push(toestel(30, 88, 182, 44, '-Q4', [], []));
   for (let n = 1; n <= 8; n++) {
@@ -52,21 +52,23 @@ export function irBlad(B) {
   i.push(aansluiting(60, 174, 'SDA'), aansluiting(80, 174, 'SCL'));
   i.push(L([[180, 174], [180, 190]]), onderbreking(180, 190, 'GPB0..7', ref(B.servo, 300), 'onder'), aansluiting(180, 174, 'GPB'));
   // ontvangers: -B1 leerontvanger in de doos (GPIO48), -B2..-B4 op de baan (GPIO11, 39, 42), met RC-filter 100 Ω + 4,7 µF
-  const ontv = [['-B1', 'TSMP58000 (leren)', 'in de doos', 'GPIO48'], ['-B2', 'TSOP38238 of FTR', 'op de baan, -X10', 'GPIO11'], ['-B3', 'TSOP38238 of FTR', 'op de baan, -X10', 'GPIO39'], ['-B4', 'TSOP38238 of FTR', 'op de baan, -X10', 'GPIO42']];
+  const ontv = [['-B1', 'TSMP58000 (leren)', 'achter het venster', 'GPIO48'], ['-B2', 'TSOP38238 of FTR', 'op de baan', 'GPIO11'], ['-B3', 'TSOP38238 of FTR', 'op de baan', 'GPIO39'], ['-B4', 'TSOP38238 of FTR', 'op de baan', 'GPIO42']];
   i.push(L([[300, 34], [300, 40 + 3 * 48]], { w: 0.35 }), onderbreking(300, 34, 'L3', ref(B.besturing, 220), 'boven'));
   ontv.forEach(([b, type, waar, gpio], k) => {
     const y = 44 + k * 48;
-    i.push(punt(300, y), weerstandH(300, y, `-R${18 + k}`, '100 Ω'), punt(322, y), condensator(322, y, `-C${1 + k}`, '4,7 µF'), L([[322, y + 16], [322, y + 22], [334, y + 22]]));
-    i.push(L([[320, y], [334, y]]), toestel(334, y - 6, 48, 32, b, ['', '', type, waar], [{ x: 0, y: 6, naam: 'Vs' }, { x: 0, y: 28, naam: 'GND' }, { x: 48, y: 18, naam: 'OUT' }]));
+    // -B1 in de doos zit kort bij de ESP (3,3 V van J1:2): geen RC-filter; -B2..-B4 op de baan: 100 Ω + 4,7 µF bij de ontvanger
+    if (k === 0) i.push(punt(300, y), L([[300, y], [334, y]]), T(304, y - 1.5, 'van -K1 J1:2', { size: 1.8 }), L([[334, y + 22], [322, y + 22], [322, y + 28]]));
+    else i.push(punt(300, y), weerstandH(300, y, `-R${18 + k}`, '100 Ω'), punt(322, y), condensator(322, y, `-C${1 + k}`, '4,7 µF'), L([[322, y + 16], [322, y + 22], [334, y + 22]]), L([[320, y], [334, y]]));
+    i.push( toestel(334, y - 6, 48, 32, b, ['', '', type, waar], [{ x: 0, y: 6, naam: 'Vs' }, { x: 0, y: 28, naam: 'GND' }, { x: 48, y: 18, naam: 'OUT' }]));
     i.push(L([[322, y + 22], [322, y + 28], [328, y + 28]]), L([[328, y + 28], [328, y + 34]]), onderbreking(328, y + 34, 'M', '', 'onder'));
     i.push(L([[382, y + 12], [400, y + 12]]), onderbreking(400, y + 12, gpio, ref(B.besturing, 160), 'rechts'));
   });
-  i.push(T(25, 200, '-E21..-E28: IR-led 940 nm (Vishay TSAL6200), op de baan; per led -R10..-R17 120 Ω 0,5 W bij de doos: piek (12 − 1,35) / 120 = 89 mA (TSAL6200: 100 mA continu, 200 mA piek), gemiddeld ± 15 mA.', { size: 2.2 }));
+  i.push(T(25, 200, '-E21..-E28: IR-led 940 nm (Vishay TSAL6200), op de baan; per led -R10..-R17 120 Ω 0,5 W (pootje in de klem n+ van -Q4, het andere in -X9 WAGO 221-2411): piek 89 mA, gemiddeld ± 15 mA (§9).', { size: 2.2 }));
   i.push(T(25, 205, 'IR-led n brandt alleen als GPAn hoog is (-Q4 kanaal n aan) EN GPIO47 de draaggolf geeft (-Q3): één gemoduleerd signaal, een schakeluitgang per led. Codering NEC, RC5 of raw (geleerd).', { size: 2.2 }));
   i.push(T(25, 210, 'Leren: -B1 (TSMP58000) geeft de draaggolf door: de firmware meet frequentie en pulstijden van de eigen zender van Ian. -B2..-B4: gedemoduleerd (38 kHz), actief laag; een FTR-reflexsensor', { size: 2.2 }));
-  i.push(T(25, 215, '(fototransistor, TCRT5000-module, AANNAME) werkt op dezelfde klem als hij op 3,3 V werkt. Kabel naar een ontvanger op de baan: afgeschermd of getwist, hoogstens 3 m (AANNAME); RC-filter bij de ontvanger.', { size: 2.2 }));
+  i.push(T(25, 215, '(fototransistor, TCRT5000-module, AANNAME) werkt op dezelfde klem als hij op 3,3 V werkt. Ontvangers op de baan: 3,3 V uit -X12, 0 V uit -X13, kabel getwist, hoogstens 3 m (AANNAME), RC-filter bij de ontvanger.', { size: 2.2 }));
   i.push(T(25, 227, '-Q4: 8-kanaals MOSFET-module met optocouplers (zoals -Q1), VCC = L3, VIN+ = L+: kanaal n aan = IR-led n doet mee. -Q3: MOSFET-module AOD4184 zonder optocoupler (snel genoeg voor de draaggolf).', { size: 2.2 }));
-  i.push(T(25, 222, 'Kruisverwijzingen naar blad 6 (besturing): GPIO47, GPIO48, GPIO11, GPIO39, GPIO42, SDA, SCL en L3 (3,3 V). De plaats in de doos volgt in fase B.', { size: 2.2 }));
+  i.push(T(25, 222, 'Kruisverwijzingen naar blad 6 (besturing): GPIO47, GPIO48, GPIO11, GPIO39, GPIO42, SDA, SCL en L3 (3,3 V). Plaats in de doos: TRN-10 en TRN-11.', { size: 2.2 }));
   return { titel: ['IR', 'zenden en ontvangen'], inhoud: i };
 }
 
@@ -116,15 +118,16 @@ export function servoBlad(B) {
 }
 
 export const STUKLIJST_V6 = [
-  ['-K5', '1', 'I/O-uitbreiding MCP23017, 16 I/O, I2C (adres 0x20), schroef- of pinaansluitingen', 'CJMCU-2317 of gelijk'],
+  ['-K5', '1', 'I/O-uitbreiding MCP23017, 16 I/O, I2C (adres 0x20), 26 x 21, pinnen', 'CJMCU-2317 of gelijk'],
   ['-Q3', '1', 'MOSFET-module zonder optocoupler, logic level, 15 A (modulatie IR, 30-56 kHz)', 'AOD4184-module (D4184)'],
   ['-Q4', '1', 'MOSFET-module 8 kanalen met optocouplers, 3,3 V-ingang (schakeluitgang per IR-led)', 'zoals -Q1'],
   ['-R10..-R17', '8', 'Weerstand 120 Ω, 0,5 W (serieweerstand IR-led)', '—'],
   ['-E21..-E28', '3 tot 8', 'IR-led 940 nm, 5 mm, 100 mA (IR-led 5, 6, 7 aan de stoppunten)', 'Vishay TSAL6200'],
   ['-B1', '1', 'IR-leerontvanger 20-60 kHz, geeft de draaggolf door (in de doos)', 'Vishay TSMP58000'],
   ['-B2..-B4', '3', 'IR-ontvanger 38 kHz, 2,5-5,5 V (of een FTR-reflexsensor)', 'Vishay TSOP38238'],
-  ['-R18..-R21, -C1..-C4', '4 + 4', 'RC-filter van de ontvanger: 100 Ω en elco 4,7 µF', '—'],
-  ['-X9, -X10', '2', 'Klemmenstrook 16-polig (IR-leds) en 8-polig (ontvangers)', 'schroefklem 5,0'],
+  ['-R19..-R21, -C2..-C4', '3 + 3', 'RC-filter bij de ontvangers op de baan: 100 Ω en elco 4,7 µF (-B1 in de doos zonder)', '—'],
+  ['-X9', '8', 'Doorverbinder 1 + 1: de weerstand van de IR-led aan de draad naar de led', 'WAGO 221-2411'],
+  ['-X12, -X13', '2', 'Verbindingsklem 5-voudig: 3,3 V en 0 V van de uitbreiding (IR-driver, ontvangers)', 'WAGO 221-415'],
   ['-K7', '1', 'Servoprint PCA9685 16 kanalen, adres 0x42 (A1 dichtsolderen), schroefklem V+', 'PCA9685-module'],
   ['-T3', '1', 'Regelaar 8-36 V → 1,25-32 V, 5 A (op 5,5 V gezet)', 'XL4015-module'],
   ['-F19', '1', 'Zekeringhouder ATO met draden + zekering 3 A', 'zoals -F1'],

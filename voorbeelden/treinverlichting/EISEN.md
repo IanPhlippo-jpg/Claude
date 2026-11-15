@@ -284,3 +284,22 @@ Uitgewerkt (fase A: elektronica, firmware, dashboard, tv; fase B: de aanpassinge
 - **Plan:** het situatieplan zelf maakt een andere agent (`situatieplan/`: plan.svg, plan-3840x2160.png, plan.json in
   pixels en meters); de tv-pagina en de planeditor in het dashboard lezen dat formaat (lijnen als polylijnen, punten met
   hun koppeling aan ingang, groep, servo, IR of kastje). Tot het er is: een eenvoudig testplan in hetzelfde formaat.
+
+### Fase B (2026-11-15, na "klaar" van de coördinator): de doos aangepast
+
+- Geen grotere doos en geen tweede laag (Ian, versie 5: "Als je met 2 lagen werkt is het te moeilijk om de kabels aan te
+  sluiten"); elk geprint deel blijft binnen 230 x 230. De nieuwe modules passen in de vrije plaatsen:
+  - **rechterhelft**, tussen de PCA9685 en de optocouplers (70 x 84 vrij): de servoprint -K7 (PCA9685 op 0x42, de
+    servostekkers naar voren), de XL4015 -T3 (5,5 V, achter -F19 3 A, de elco -C5 in de schroefklem V+/GND van de
+    servoprint) en 2 WAGO-klemmen -X12 (3,3 V) en -X13 (0 V) in een klikhouder; een 5de tule rechts (z 88) voor de
+    servokabels; de IR-leerontvanger -B1 in een houder achter een **venstertje Ø6 in de voorwand** (x 262, 25 hoog, punt
+    van 45° bovenaan) zodat Ian zijn IR-zender ervoor kan houden met de doos dicht;
+  - **linkerhelft**, naast bordje 16 in rij 6 (rij 6 had maar één bordje): de IR-driver -Q4 met de uitgangen naar de
+    tules vooraan, de AOD4184 -Q3 ernaast en vóór bordje 16 de MCP23017 -K5 met de palen voor een tweede (-K8, 0x21).
+    Alles buiten de draadzones van de bordjes (de sleuf en de klemmen blijven bereikbaar).
+- De MCP23017-module (CJMCU-2317, 26 x 21) heeft geen gaten: 2 paaltjes aan de korte kanten, een plaatschroef 2,5 x 8
+  met een sluitring Ø8 klemt de rand. Maten van de MCP23017, AOD4184 en XL4015: AANNAME, eerst nameten.
+- De weerstanden van de IR-leds (120 Ω) zitten met één pootje in de klem n+ van -Q4 en het andere in een WAGO 221-2411
+  (geen solderen). De leerontvanger in de doos krijgt geen RC-filter (korte draad van de ESP), de ontvangers op de baan wel.
+- 33 nieuwe draden (W62..W94, TRN-15); draden over de naad: dupont 30 cm (I2C: 2 aan elkaar) en montagedraad. Montagebladen TRN-10 (rechts) en TRN-11 (links).
+- Bestellijst van de uitbreiding: € 51,30 zonder servo's (README).

@@ -10,7 +10,7 @@ import { resolve } from 'node:path';
 import { esc, dataUrl, mdDoc } from './mdhtml.mjs';
 
 const DIR = 'voorbeelden/treinverlichting';
-const VERSIE = `versie 5 (${/\((\d{4}-\d{2}-\d{2})\)/.exec(readFileSync(`${DIR}/README.md`, 'utf8'))?.[1] ?? ''})`;
+const VERSIE = `versie 6 (${/\((\d{4}-\d{2}-\d{2})\)/.exec(readFileSync(`${DIR}/README.md`, 'utf8'))?.[1] ?? ''})`;
 
 const a3 = (svg) => `<div class="a3">${svg.replace(/^<\?xml[^>]*>\s*/, '').replace(/<svg /, '<svg style="display:block;width:420mm;height:297mm" ')}</div>`;
 // de tekeningen: A3 liggend, het meetblad en het invulblad A4 staand (volgens de maat in de SVG)

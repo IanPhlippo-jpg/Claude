@@ -18,7 +18,7 @@ mkdirSync(BEELD, { recursive: true });
 mkdirSync(UIT, { recursive: true });
 const doos = JSON.parse(readFileSync(`${DIR}/Kabeldoos.kcad`, 'utf8'));
 delete doos.format;
-const VERSIE = `versie 5 (${/\((\d{4}-\d{2}-\d{2})\)/.exec(readFileSync(`${DIR}/README.md`, 'utf8'))?.[1] ?? ''})`;
+const VERSIE = `versie 6 (${/\((\d{4}-\d{2}-\d{2})\)/.exec(readFileSync(`${DIR}/README.md`, 'utf8'))?.[1] ?? ''})`;
 
 // groepen onderdelen (id's zoals in Kabeldoos.kcad; versie 5: d1/d3 de bakhelften links/rechts, d2/d4 het deksel)
 const G = {
@@ -26,6 +26,8 @@ const G = {
   tules: /^t\d+$/,
   bordjes: /^b\d+(k\d|e\d|r)?$/, bordje1: /^b1(k\d|e\d|r)?$/,
   modules: /^m[a-z0-9]+_\d+$/,
+  // versie 6 fase B: de modules per helft en de IR-leerontvanger
+  modulesR: /^m(?!q4_|q3_|k5_)[a-z0-9]+_\d+$/, modulesL: /^m(q4|q3|k5)_\d+$/, ir: /^ir\d$/,
 };
 const of = (...namen) => namen.map((n) => G[n]);
 const ALLES_OPEN = of('bakL', 'bakR', 'tules', 'dcbus', 'bordjes', 'modules', 'ophangschroeven');
@@ -59,22 +61,34 @@ const STAPPEN = [
     delen: ['Bak links en rechts'],
   },
   {
-    titel: 'De modules in de rechterhelft schroeven', tijd: '30 min', gereedschap: 'Kruiskopschroevendraaier PH1, montageblad TRN-10',
-    beelden: [beeld(of('bakR', 'modules', 'dcbus')), beeld(of('bakR', 'modules', 'dcbus'), [], { toets: 'Control+5' })],
+    titel: 'De modules in de rechterhelft schroeven', tijd: '45 min', gereedschap: 'Kruiskopschroevendraaier PH1, montageblad TRN-10, multimeter',
+    beelden: [beeld(of('bakR', 'modulesR', 'dcbus', 'ir')), beeld(of('bakR', 'modulesR', 'dcbus', 'ir'), [], { toets: 'Control+5' })],
     tekst: [
       'Elke module op haar palen met plaatschroeven 3 x 8 bolkop (de PCA9685 met 2,5 x 6): de MOSFET-modules -Q1 (achter) en -Q2 met hun klemmen naar de naad, de PCA9685 -K2 ernaast, de ESP in haar schroefklemadapter -X6 met de USB naar de voorwand, de optocouplerprints -K3 en -K4 met hun ingangen naar de rechterwand, de regelaar -T2 rechtsvoor.',
       'Druk de 6 WAGO-klemmen 221-415 in hun klikhouders achteraan, 3 per rij, de hendels naar boven en de draadingangen naar voren: -X1 (L+, 2 stuks), -X3 (+12 V sensoren), -X2 (0 V, 2 stuks), -X7 (3,3 V).',
       'De DC-bus in het gat in de achterwand boven de WAGO-klemmen (de moer aan de binnenkant).',
+      'Versie 6: de servoprint -K7 (een tweede PCA9685, de brug A1 dicht = adres 0x42) achter de WAGO-klemmen met de servopinnen naar voren, de XL4015 -T3 ervoor, de 2 WAGO-klemmen -X12 (3,3 V) en -X13 (0 V) in de klikhouder vóór de XL4015. Zet de XL4015 eerst op tafel op 5,5 V (12 V erop, multimeter op OUT, aan de potmeter draaien).',
+      'De IR-leerontvanger -B1 (TSMP58000) met de lens naar het venstertje in zijn vakje rechts naast de USB-opening, de pootjes naar boven.',
       'Niet te hard aandraaien: de gaten in PETG zijn Ø2,6 (3 mm) en Ø2,2 (2,5 mm).',
     ],
-    delen: ['2 MOSFET-modules, 2 optocouplerprints', 'ESP32-S3 in de schroefklemadapter', 'PCA9685, SBC-Buck02, DC-bus', '6 WAGO 221-415', '24 plaatschroeven 3 x 8, 4 x 2,5 x 6'],
+    delen: ['2 MOSFET-modules, 2 optocouplerprints', 'ESP32-S3 in de schroefklemadapter', 'PCA9685, SBC-Buck02, DC-bus', '6 + 2 WAGO 221-415', 'servoprint PCA9685 (0x42), XL4015, TSMP58000', '28 plaatschroeven 3 x 8, 8 x 2,5 x 6'],
+  },
+  {
+    titel: 'De IR-driver en de MCP23017 in de linkerhelft', tijd: '20 min', gereedschap: 'Kruiskopschroevendraaier PH1, montageblad TRN-11',
+    beelden: [beeld(of('bakL', 'modulesL')), beeld(of('bakL', 'modulesL'), [], { toets: 'Control+5' })],
+    tekst: [
+      'Naast bordje 16 (rij 6): de 8-kanaals MOSFET-module -Q4 met haar uitgangen naar voren (naar de tules vooraan) en de AOD4184 -Q3 ernaast, elk met plaatschroeven 3 x 8.',
+      'De MCP23017 -K5 vóór bordje 16: hij heeft geen gaten; leg hem tussen de 2 paaltjes en klem de korte kanten met een plaatschroef 2,5 x 8 en een sluitring Ø8 (de ring ligt half op de print). De 2 paaltjes rechts ernaast zijn voor een tweede MCP23017 (-K8, ingangen 25 tot 40), later.',
+      'De draden tussen de helften (dupont 30 cm, voor de I2C 2 aan elkaar, en montagedraad, de streepjes op TRN-10 en TRN-11) komen bij het bedraden.',
+    ],
+    delen: ['8-kanaals MOSFET-module (zoals -Q1)', 'AOD4184-module', 'MCP23017 (CJMCU-2317)', '6 plaatschroeven 3 x 8, 2 x 2,5 x 8 met sluitring Ø8'],
   },
   {
     titel: 'Bedraden met de draadlijst, zonder solderen', tijd: '2 uur', gereedschap: 'Striptang, kleine schroevendraaier 2,5, dupontkabels, draadlijst TRN-14, soldeerbout (alleen de DC-bus)',
     beelden: [kopie(`${V5}/closeup-modules-vp.jpg`)],
     tekst: [
-      'Volg de draadlijst TRN-14 (W01 tot W61) en het montageblad TRN-10: 0,75 mm² voor 12 V en 0 V naar de MOSFET-modules, 0,5 mm² naar de regelaar, dupontkabels female-female op de pinnen van de PCA9685 en de MOSFET-modules (kanaal 0..15 naar IN1..IN8), female-male waar het andere eind in een schroefklem gaat.',
-      'Met hun pootjes in de klemmen, geen solderen: de weerstand -R1 (1 kΩ) tussen J1:1 (3V3) en J1:16 (GPIO10) van de adapter, de diode -R2 SB560 tussen -X1:8 (ring = kathode) en -X2:8, de polyfuse -F18 tussen -X1:7 en -X3:1.',
+      'Volg de draadlijsten TRN-14 en TRN-15 (W01 tot W94) en de montagebladen TRN-10 en TRN-11: 0,75 mm² voor 12 V en 0 V naar de MOSFET-modules, 0,5 mm² naar de regelaar, dupontkabels female-female op de pinnen van de PCA9685 en de MOSFET-modules (kanaal 0..15 naar IN1..IN8), female-male waar het andere eind in een schroefklem gaat.',
+      'Met hun pootjes in de klemmen, geen solderen: de weerstand -R1 (1 kΩ) tussen J1:1 (3V3) en J1:16 (GPIO10) van de adapter, de diode -R2 SB560 tussen -X1:8 (ring = kathode) en -X2:8, de polyfuse -F18 tussen -X1:7 en -X3:1, de elco -C5 (1000 µF) in de schroefklem V+/GND van de servoprint (+ aan V+).',
       'Per groep een polyfuse MF-R050: één pootje in de klem n− van de MOSFET-module, het andere in een WAGO 221-2411 waar straks de − van het bordje bij komt. Label ze G01 tot G16.',
       'Het enige soldeerwerk: de DC-bus. Soldeer aan de pen (+) de draad van de zekeringhouder -F1 en aan de huls (−) een zwarte draad van 0,75 mm² naar -X2:1.',
     ],
@@ -131,6 +145,7 @@ const STAPPEN = [
       'Werkhoogte: schuif de doos 6 mm naar voren en neem ze af. Hang de 2 werkhaken met hun sleutelgat aan de 2 voorste schroeven en de doos met haar 2 voorste sleutelgaten aan de knoppen: ze hangt verticaal, 12 cm onder de baan, de open kant naar je toe.',
       'Elke bundel van de baan naar de doos krijgt een kabellus van 50 cm (kabelbinder aan de baan). Labels eerst: G01+ tot G16+, G01− tot G16−, IN01 tot IN16 aan beide uiteinden.',
       'Leddraden: door de draadsleuf in de bodem naast hun bordje, of door een tule links of vooraan, rechtstreeks naar hun klem. De + en − van elk bordje van zijn eindklem door de vrije strook voor de rij naar de naad en recht in hun klem (+ in n+, − in de WAGO van de polyfuse). Knoppen en sensoren: door de 4 tules in de rechterwand naar IN n.',
+      'IR-leds (versie 6): per led een weerstand 120 Ω met één pootje in de klem n+ van -Q4 en het andere in een WAGO 221-2411 samen met de draad naar de anode; de kathode in de klem n−. IR-ontvangers op de baan: 3,3 V uit -X12, 0 V uit -X13, de uitgang naar GPIO11, 39 of 42 (TRN-15). Servokabels door de 5de tule rechts op de pinnen van de servoprint (bruin = GND).',
       'Bundel de draden per rij met een kabelbinder in de vrije strook voor de rij; een draad tussen de bordjes uittrekken met het haakje van de spatel.',
     ],
     delen: ['Montagedraad 0,25 en 0,5 mm²', 'Kabelbinders, labels', '2 werkhaken'],

@@ -48,7 +48,8 @@ export function md(tekst, basis) {
       const geordend = /\d/.test(li[2]);
       const items = [];
       while (i < r.length) {
-        const m = r[i].match(/^(\d+\.|[-*])\s+(.*)$/);
+        // ook een ingesprongen punt (een geneste lijst wordt plat: anders bleef de lus hier hangen)
+        const m = r[i].match(/^\s*(\d+\.|[-*])\s+(.*)$/);
         if (!m) break;
         let inhoud = inline(m[2], basis);
         i++;

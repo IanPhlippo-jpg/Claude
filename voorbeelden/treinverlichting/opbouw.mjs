@@ -2,6 +2,9 @@
 // gewoon kan bestellen"): geen gaatjesprints meer, kant-en-klare modules met schroefklemmen, WAGO-hendelklemmen en
 // dupontkabels. Versie 5 (Ian, 2026-11-15: "Als je met 2 lagen werkt is het te moeilijk om de kabels aan te sluiten"):
 // geen moduleplaat meer; alle modules staan op palen in de bodem van de rechterhelft, op één laag met de bordjes.
+// Versie 6 fase B (2026-11-15): de modules van de uitbreiding (IR, servo's, MCP23017): de servoprint, de regelaar voor de
+// servo's en 2 WAGO-klemmen in de rechterhelft (tussen de PCA9685 en de optocouplers), de IR-driver (-Q4, -Q3) en de
+// MCP23017 (-K5, plaats voor een tweede -K8) in de linkerhelft naast bordje 16; elke module heeft zijn helft.
 //
 // Eén bron voor: de 3D-modules (onderdelen.mjs), de palen en klikhouders in de rechterhelft (maak-kabeldoos.mjs),
 // het montageblad TRN-10 en de interne draadlijst TRN-14 (src/qa/opbouwTrein.ts), het schema (schema/maak-schema.mjs)
@@ -51,21 +54,26 @@ const espAdapter = (() => {
 /** PCA9685-breakout 16 kanalen (AZ-Delivery, pinnen gesoldeerd): 62,5 x 25,4, gaten M2,5 op 56 x 19 */
 const PCA_ZIJ = ['GND', 'OE', 'SCL', 'SDA', 'VCC', 'V+'];
 const PCA_NET = { GND: 'GND', OE: 'GPIO10', SCL: 'GPIO9', SDA: 'GPIO8', VCC: '3V3', 'V+': '' };
+/** de servoprint (-K7, 0x42): zelfde print; V+ = de servovoeding V6 (schroefklem V+ en GND op de rand tegenover de
+ *  servopinnen, AANNAME), de 16 kanalen met 3 pinnen (puls, V+, GND) voor de stekkers van de servo's */
 const pcaX = (k) => -22.86 + k * 2.54 + Math.floor(k / 4) * 1.27; // de servopinnen (AANNAME: 2,54 rechts van de Adafruit-tekening, vrij van de schroeven)
-const pca = {
-  naam: 'PWM-print PCA9685, 16 kanalen', kort: 'PCA9685', l: 62.5, b: 25.4, pcb: 1.6, h: 8.5, kleur: '#1f4fa3',
+const pcaMod = (servo) => ({
+  naam: servo ? 'Servoprint PCA9685, 16 kanalen (0x42)' : 'PWM-print PCA9685, 16 kanalen', kort: 'PCA9685', servo, l: 62.5, b: 25.4, pcb: 1.6, h: servo ? 22 : 8.5, kleur: '#1f4fa3',
   gaten: [[-28, -9.5], [28, -9.5], [-28, 9.5], [28, 9.5]], gat: 2.5, schroef: 'M2,5',
   klemmen: [
     ...PCA_ZIJ.map((n, r) => ({ naam: `L:${n}`, label: n, x: -29.2, z: -6.35 + r * 2.54, soort: 'pin', in: '+y' })),
     ...PCA_ZIJ.map((n, r) => ({ naam: `R:${n}`, label: n, x: 29.2, z: -6.35 + r * 2.54, soort: 'pin', in: '+y' })),
     ...Array.from({ length: 16 }, (_, k) => ({ naam: `PWM${k}`, label: String(k), x: pcaX(k), z: 3.5, soort: 'pin', in: '+y' })),
+    ...(servo ? [{ naam: 'V+t', label: 'V+', x: 17.5, z: -8.4, soort: 'schroef', in: '-z' }, { naam: 'GNDt', label: 'GND', x: 22.5, z: -8.4, soort: 'schroef', in: '-z' }] : []),
   ],
-  nets: { ...Object.fromEntries(PCA_ZIJ.flatMap((n) => [[`L:${n}`, PCA_NET[n]], [`R:${n}`, PCA_NET[n]]])), ...Object.fromEntries(Array.from({ length: 16 }, (_, k) => [`PWM${k}`, `PWM${k}`])) },
-};
+  nets: { ...Object.fromEntries(PCA_ZIJ.flatMap((n) => [[`L:${n}`, servo && n === 'V+' ? 'V6' : PCA_NET[n]], [`R:${n}`, servo && n === 'V+' ? 'V6' : PCA_NET[n]]])), ...Object.fromEntries(Array.from({ length: 16 }, (_, k) => [`PWM${k}`, servo ? `SERVO${k + 1}` : `PWM${k}`])), ...(servo ? { 'V+t': 'V6', GNDt: 'M' } : {}) },
+  aanname: servo ? 'de schroefklem V+/GND (plaats) en de hoogte met de servostekkers (22): AANNAME' : undefined,
+});
+const pca = pcaMod(false);
 
 /** 8-kanaals MOSFET-module met optocouplers, 3,3 V-ingang (algemeen, "8 Channel MOSFET ... Optocoupler Isolation PWM",
  *  versie B): per kanaal een 2-polige uitgang (+ = VIN+, − = drain), VIN+/VIN−, en een pinrij VCC GND IN1..IN8 */
-const mosfet = (q, k0) => ({
+const mosfet = (q, k0, inNet = (i) => `PWM${k0 + i}`, vinMin = 'M') => ({
   naam: '8-kanaals MOSFET-module met optocouplers (3,3 V)', kort: 'MOSFET-module', l: 87, b: 47, pcb: 1.6, h: 15, kleur: '#1f4fa3',
   gaten: [[-41.5, -21.5], [41.5, -21.5], [-41.5, 21.5], [41.5, 21.5]], gat: 3.0, schroef: 'M3',
   klemmen: [
@@ -75,7 +83,7 @@ const mosfet = (q, k0) => ({
   ],
   nets: {
     ...Object.fromEntries(Array.from({ length: 8 }, (_, i) => [[`${i + 1}+`, 'L+'], [`${i + 1}−`, `${q}D${i + 1}`]]).flat()),
-    'VIN+': 'L+', 'VIN−': 'M', VCC: '3V3', GND: 'GND', ...Object.fromEntries(Array.from({ length: 8 }, (_, i) => [`IN${i + 1}`, `PWM${k0 + i}`])),
+    'VIN+': 'L+', 'VIN−': vinMin, VCC: '3V3', GND: 'GND', ...Object.fromEntries(Array.from({ length: 8 }, (_, i) => [`IN${i + 1}`, inNet(i)])),
   },
   aanname: 'maat 87 x 47 (verkoper), gaten Ø3 op 83 x 43, de klemmen en de hoogte 15: AANNAME, na te meten',
 });
@@ -111,6 +119,45 @@ const wago = (net) => ({
   aanname: 'maat 29,8 x 18,7 x 8,3: AANNAME (WAGO-catalogus, na te kijken)',
 });
 
+/** MCP23017-module CJMCU-2317: 26 x 21 (verkoper), geen bevestigingsgaten: 2 paaltjes aan de korte kanten, een
+ *  plaatschroef 2,5 x 8 met een sluitring Ø8 klemt de rand (klem: true). Pinnen (AANNAME, na te kijken op de opdruk):
+ *  één rij GPA0..7, VCC, GND en één rij GPB0..7, SCL, SDA; RESET en A0..A2 met weerstanden op de print (AANNAME) */
+const mcp = (adres) => ({
+  naam: `I/O-uitbreiding MCP23017 (CJMCU-2317, ${adres})`, kort: 'MCP23017', l: 26, b: 21, pcb: 1.6, h: 8.5, kleur: '#5b2a86', klem: true,
+  gaten: [[-14.5, 0], [14.5, 0]], gat: 2.5, schroef: 'M2,5 + sluitring Ø8',
+  klemmen: [
+    ...rij([...Array.from({ length: 8 }, (_, i) => `GPA${i}`), 'VCC', 'GND'], -11.43, 9.0, 2.54, 'pin', undefined, '+y'),
+    ...rij([...Array.from({ length: 8 }, (_, i) => `GPB${i}`), 'SCL', 'SDA'], -11.43, -9.0, 2.54, 'pin', undefined, '+y'),
+  ],
+  nets: { ...Object.fromEntries(Array.from({ length: 8 }, (_, i) => [[`GPA${i}`, adres === '0x20' ? `GPA${i}` : `GPA${i}b`], [`GPB${i}`, adres === '0x20' ? `IN${17 + i}` : `IN${25 + i}`]]).flat()), VCC: '3V3', GND: 'GND', SCL: 'GPIO9', SDA: 'GPIO8' },
+  aanname: 'maat 26 x 21 (verkoper), de pinvolgorde en de weerstanden op RESET en A0..A2: AANNAME, na te kijken',
+});
+/** snelle MOSFET-module zonder optocoupler (AOD4184, "D4184"): 34 x 17 (AANNAME), schroefklemmen DC+/DC− en OUT+/OUT−
+ *  aan de korte kanten, 2 pinnen PWM/GND; schakelt OUT− naar DC− */
+const aod = {
+  naam: 'MOSFET-module AOD4184 zonder optocoupler', kort: 'AOD4184', l: 34, b: 17, pcb: 1.6, h: 12, kleur: '#1d6b3a',
+  gaten: [[-6, -4.5], [6, -4.5]], gat: 3.0, schroef: 'M3',
+  klemmen: [
+    ...rij(['DC+', 'DC−'], -2.5, 0, S5, 'schroef', undefined, '-x').map((k) => ({ ...k, x: -13.25, z: k.x })),
+    ...rij(['OUT+', 'OUT−'], -2.5, 0, S5, 'schroef', undefined, '+x').map((k) => ({ ...k, x: 13.25, z: k.x })),
+    ...rij(['PWM', 'GND'], -1.27, 4.5, 2.54, 'pin', undefined, '+y'),
+  ],
+  nets: { 'DC+': '', 'DC−': 'M', 'OUT+': '', 'OUT−': 'Q3D', PWM: 'GPIO47', GND: 'GND' },
+  aanname: 'maat 34 x 17, gaten en klemmen: AANNAME (de modules verschillen per verkoper), na te meten',
+};
+/** regelaar XL4015 (8-36 V -> 1,25-32 V, 5 A) met koelplaatje: 51,5 x 26,3 x 14 (AANNAME), 4 gaten Ø3, schroefklemmen
+ *  IN+/IN− en OUT+/OUT− aan de korte kanten; op 5,5 V gezet voor de servo's */
+const xl = {
+  naam: 'Regelaar XL4015, 5 A (servo\'s, op 5,5 V)', kort: 'XL4015', l: 51.5, b: 26.3, pcb: 1.6, h: 14, kleur: '#1f4fa3',
+  gaten: [[-22.5, -10.5], [22.5, -10.5], [-22.5, 10.5], [22.5, 10.5]], gat: 3.0, schroef: 'M3',
+  klemmen: [
+    ...rij(['IN+', 'IN−'], -2.5, 0, S5, 'schroef', undefined, '-x').map((k) => ({ ...k, x: -21.5, z: k.x })),
+    ...rij(['OUT+', 'OUT−'], -2.5, 0, S5, 'schroef', undefined, '+x').map((k) => ({ ...k, x: 21.5, z: k.x })),
+  ],
+  nets: { 'IN+': 'L19', 'IN−': 'M', 'OUT+': 'V6', 'OUT−': 'M' },
+  aanname: 'maat, gaten en klemmen: AANNAME (gangbare XL4015-module met koelplaatje), na te meten',
+};
+
 export const MODULES = {
   '-X6': espAdapter,
   '-K2': pca,
@@ -123,7 +170,19 @@ export const MODULES = {
   '-X2a': wago('M'), '-X2b': wago('M'),
   '-X3': wago('S12'),
   '-X7': wago('3V3'),
+  // versie 6 fase B
+  '-K7': pcaMod(true),
+  '-T3': xl,
+  '-X12': wago('3V3'),
+  '-X13': wago('M'),
+  '-Q4': { ...mosfet('Q4', 0, (i) => `GPA${i}`, 'Q3D'), naam: '8-kanaals MOSFET-module met optocouplers (IR-leds kiezen)' },
+  '-Q3': aod,
+  '-K5': mcp('0x20'),
+  '-K8': { ...mcp('0x21'), optioneel: true },
 };
+/** de helft van elke module (de rest staat rechts) */
+export const LINKS = new Set(['-Q4', '-Q3', '-K5', '-K8']);
+export const helft = (ref) => (LINKS.has(ref) ? 'links' : 'rechts');
 
 /** waar elke module in de rechterhelft staat (midden, draaiing om +Y). Kolommen van de naad naar rechts: de 2
  *  MOSFET-modules met hun uitgangen naar de bordjes (groep 1 achteraan, zoals rij 1 van de bordjes), de PCA9685 met zijn
@@ -139,6 +198,16 @@ export const PLAATSING = {
   // de WAGO-klemmen per 3 naast elkaar (0,4 vrij) in een klikhouder per rij, de draadingangen naar voren
   '-X1a': { cx: 193.5, cz: -97, rot: 0 }, '-X1b': { cx: 223.7, cz: -97, rot: 0 }, '-X3': { cx: 253.9, cz: -97, rot: 0 },
   '-X2a': { cx: 193.5, cz: -69, rot: 0 }, '-X2b': { cx: 223.7, cz: -69, rot: 0 }, '-X7': { cx: 253.9, cz: -69, rot: 0 },
+  // versie 6 fase B, rechterhelft tussen de PCA9685 (-K2) en de optocouplers: de servoprint (servopinnen naar voren),
+  // de regelaar van de servo's, en 2 WAGO-klemmen (3,3 V en 0 V) in een klikhouder, de draadingangen naar voren
+  '-K7': { cx: 237.5, cz: -45.0, rot: 0 },
+  '-T3': { cx: 237.5, cz: -16.0, rot: 0 },
+  '-X12': { cx: 222.0, cz: 11.0, rot: 0 }, '-X13': { cx: 252.2, cz: 11.0, rot: 0 },
+  // linkerhelft naast bordje 16 (rij 6): de IR-driver met de uitgangen naar de tules vooraan, de AOD4184 ernaast, de
+  // MCP23017 en de plaats voor een tweede vóór bordje 16
+  '-Q4': { cx: 20, cz: 78, rot: 0 },
+  '-Q3': { cx: 76, cz: 72, rot: 90 },
+  '-K5': { cx: -86, cz: 90.5, rot: 0 }, '-K8': { cx: -50, cz: 90.5, rot: 0 },
 };
 
 /** wat in de rechterhelft geen module mag raken: [naam, x0, z0, x1, z1] (pilaren, bussen, de tules aan de binnenkant,
@@ -155,6 +224,20 @@ export function hindernissen() {
   for (const z of R.tules.rechts) uit.push([`tule rechts ${z}`, X1 - ti, z - rt, X1, z + rt]);
   const SG = M.doos.sleutelgat;
   for (const z of R.sleutelgatZ) uit.push([`sleutelgat ${z.toFixed(1)}`, R.sleutelgatX - SG.kop / 2, z - SG.kop / 2, R.sleutelgatX + SG.kop / 2, z + SG.slag + 4]);
+  return uit;
+}
+
+/** wat in de linkerhelft geen module mag raken: de bordjes met hun draadzones (de draden komen uit de sleuf voor het
+ *  bordje en gaan van voren in de klemstrook, de eindklemmen van opzij), de sleuven, de tules (links en vooraan), de
+ *  sleutelgaten, de bussen en de naad (bodemlippen, kuiltjes) */
+export function hindernissenLinks(L) {
+  const B = M.bordje, D = M.doos, Z = D.binnen / 2, X = L.X, rt = D.invoer.gat / 2, ti = D.invoer.tule.l - D.invoer.tule.flens - D.wand + 0.3, SG = D.sleutelgat;
+  const uit = [['naad (bodemlippen en haken)', N.x - 12, -Z, N.x + 1, Z]];
+  for (const d of L.rijen.flat().filter((q) => q.soort === 'bordje')) uit.push([`bordje ${d.nr} met draadzone`, d.cx - B.x / 2 - 8, d.cz - B.z / 2 - 2, d.cx + B.x / 2 + 8, d.cz + B.z / 2 + 10]);
+  for (const s of L.bodem) uit.push(['draadsleuf', s[0], s[1], s[2], s[3]]);
+  for (const t of L.tules) uit.push(t.wand === 'links' ? [`tule links ${t.c}`, -X, t.c - rt, -X + ti, t.c + rt] : [`tule voor ${t.c}`, t.c - rt, Z - ti, t.c + rt, Z]);
+  for (const [x, z] of L.sleutelgaten) uit.push([`sleutelgat ${z.toFixed(1)}`, x - SG.kop / 2, z - SG.kop / 2, x + SG.kop / 2, z + SG.slag + 4]);
+  for (const [x, z] of L.bussen) uit.push(['bus', x - D.bus.r, z - D.bus.r, x + D.bus.r, z + D.bus.r]);
   return uit;
 }
 
@@ -210,7 +293,7 @@ export const DRADEN = [
   { van: ['-X7', '2'], naar: ['-Q1', 'VCC'], net: '3V3', mm2: 0.14, kleur: 'oranje', wat: '3,3 V ingangskant MOSFET-module 1 (dupont)' },
   { van: ['-X7', '3'], naar: ['-Q2', 'VCC'], net: '3V3', mm2: 0.14, kleur: 'oranje', wat: '3,3 V ingangskant MOSFET-module 2 (dupont)' },
   { van: ['-X7', '4'], naar: ['-K3', 'VCCo'], net: '3V3', mm2: 0.14, kleur: 'oranje', wat: '3,3 V uitgangskant optocouplerprint 1' },
-  { van: ['-X7', '5'], naar: ['-K4', 'VCCo'], net: '3V3', mm2: 0.14, kleur: 'oranje', wat: '3,3 V uitgangskant optocouplerprint 2' },
+  { van: ['-K3', 'VCCo'], naar: ['-K4', 'VCCo'], net: '3V3', mm2: 0.14, kleur: 'oranje', wat: '3,3 V uitgangskant optocouplerprint 2 (doorgelust van -K3)' },
   { van: ['-X6', 'J3:1'], naar: ['-K2', 'L:GND'], net: 'GND', mm2: 0.14, kleur: 'zwart', wat: '0 V van de PCA9685 (dupont)' },
   { van: ['-X6', 'J3:21'], naar: ['-Q1', 'GND'], net: 'GND', mm2: 0.14, kleur: 'zwart', wat: '0 V ingangskant MOSFET-module 1 (dupont)' },
   { van: ['-X6', 'J3:21'], naar: ['-Q2', 'GND'], net: 'GND', mm2: 0.14, kleur: 'zwart', wat: '0 V ingangskant MOSFET-module 2 (dupont)' },
@@ -224,6 +307,33 @@ export const DRADEN = [
   ...Array.from({ length: 16 }, (_, k) => ({ van: ['-K2', `PWM${k}`], naar: [k < 8 ? '-Q1' : '-Q2', `IN${(k % 8) + 1}`], net: `PWM${k}`, mm2: 0.14, kleur: 'wit', wat: `PWM groep ${k + 1} (dupont)` })),
   // de 16 ingangen
   ...Array.from({ length: 16 }, (_, k) => ({ van: [k < 8 ? '-K3' : '-K4', `OUT${(k % 8) + 1}`], naar: gpioKlem(INGANG_GPIO[k]), net: `IN${k + 1}`, mm2: 0.14, kleur: 'grijs', wat: `ingang ${k + 1} naar GPIO${INGANG_GPIO[k]}` })),
+  // ---- versie 6 fase B: servoprint, servovoeding, IR-driver, MCP23017, leerontvanger
+  // de servoprint aan de lichtprint geregen (dupont van de pinnen rechts van -K2 naar links van -K7; V+ niet)
+  ...['GND', 'OE', 'SCL', 'SDA', 'VCC'].map((n) => ({ van: ['-K2', `R:${n}`], naar: ['-K7', `L:${n}`], net: PCA_NET[n], mm2: 0.14, kleur: { GND: 'zwart', OE: 'blauw', SCL: 'groen', SDA: 'geel', VCC: 'oranje' }[n], wat: `${n} van de lichtprint naar de servoprint (dupont)` })),
+  // de MCP23017 in de linkerhelft aan de servoprint (2 dupontkabels van 30 cm aan elkaar, over de naad)
+  ...['GND', 'SCL', 'SDA', 'VCC'].map((n) => ({ van: ['-K7', `R:${n}`], naar: ['-K5', n], net: PCA_NET[n], mm2: 0.14, kleur: { GND: 'zwart', SCL: 'groen', SDA: 'geel', VCC: 'oranje' }[n], wat: `${n} naar de MCP23017 (2 dupontkabels van 30 cm aan elkaar, over de naad)` })),
+  // de servovoeding: L+ door -F19 (3 A) naar de XL4015, 5,5 V naar de schroefklem V+ van de servoprint
+  { van: ['-X1b', '4'], naar: ['-F19', 'in'], net: 'L+', mm2: 0.75, kleur: 'rood', wat: 'L+ naar de zekeringhouder van de servo\'s (3 A)' },
+  { van: ['-F19', 'uit'], naar: ['-T3', 'IN+'], net: 'L19', mm2: 0.75, kleur: 'rood', wat: '12 V na -F19 naar de regelaar van de servo\'s' },
+  { van: ['-X2b', '4'], naar: ['-T3', 'IN−'], net: 'M', mm2: 0.75, kleur: 'zwart', wat: '0 V naar de regelaar van de servo\'s' },
+  { van: ['-T3', 'OUT+'], naar: ['-K7', 'V+t'], net: 'V6', mm2: 0.75, kleur: 'rood', wat: '5,5 V voor de servo\'s (eerst instellen!)' },
+  { van: ['-T3', 'OUT−'], naar: ['-K7', 'GNDt'], net: 'M', mm2: 0.75, kleur: 'zwart', wat: '0 V voor de servo\'s' },
+  // 3,3 V en 0 V voor de IR-driver en de ontvangers op de baan (-X12, -X13; klem 3..5 naar de ontvangers -B2..-B4)
+  { van: ['-X7', '5'], naar: ['-X12', '1'], net: '3V3', mm2: 0.25, kleur: 'oranje', wat: '3,3 V naar de verdeelklem van de uitbreiding' },
+  { van: ['-X2b', '2'], naar: ['-X13', '1'], net: 'M', mm2: 0.5, kleur: 'zwart', wat: '0 V naar de verdeelklem van de uitbreiding' },
+  { van: ['-X12', '2'], naar: ['-Q4', 'VCC'], net: '3V3', mm2: 0.14, kleur: 'oranje', wat: '3,3 V ingangskant IR-driver (over de naad)' },
+  { van: ['-X13', '2'], naar: ['-Q4', 'GND'], net: 'GND', mm2: 0.14, kleur: 'zwart', wat: '0 V ingangskant IR-driver (over de naad)' },
+  // de IR-driver: L+ voor de IR-leds (via de klemmen n+), VIN− door de AOD4184 naar 0 V, de draaggolf van GPIO47
+  { van: ['-X1b', '5'], naar: ['-Q4', 'VIN+'], net: 'L+', mm2: 0.5, kleur: 'rood', wat: '12 V voor de IR-leds (over de naad)' },
+  { van: ['-Q4', 'VIN−'], naar: ['-Q3', 'OUT−'], net: 'Q3D', mm2: 0.5, kleur: 'zwart', wat: 'terugweg van de IR-leds door de AOD4184 (piek 0,7 A)' },
+  { van: ['-X2b', '5'], naar: ['-Q3', 'DC−'], net: 'M', mm2: 0.5, kleur: 'zwart', wat: '0 V van de AOD4184 (over de naad)' },
+  { van: gpioKlem(47), naar: ['-Q3', 'PWM'], net: 'GPIO47', mm2: 0.14, kleur: 'wit', wat: 'IR zenden: draaggolf van GPIO47 (dupont female-male 30 cm, over de naad)' },
+  // de MCP23017 kiest de IR-leds: GPA0..7 naar IN1..8 van -Q4
+  ...Array.from({ length: 8 }, (_, i) => ({ van: ['-K5', `GPA${i}`], naar: ['-Q4', `IN${i + 1}`], net: `GPA${i}`, mm2: 0.14, kleur: 'wit', wat: `IR-led ${i + 1} kiezen (dupont)` })),
+  // de leerontvanger -B1 achter het venstertje in de voorwand (pootjes in 3 dupontbusjes)
+  { van: ['-X6', 'J1:2'], naar: ['-B1', 'Vs'], net: '3V3', mm2: 0.14, kleur: 'oranje', wat: '3,3 V voor de IR-leerontvanger' },
+  { van: ['-X6', 'J1:22'], naar: ['-B1', 'GND'], net: 'GND', mm2: 0.14, kleur: 'zwart', wat: '0 V voor de IR-leerontvanger' },
+  { van: gpioKlem(48), naar: ['-B1', 'OUT'], net: 'GPIO48', mm2: 0.14, kleur: 'geel', wat: 'IR leren: uitgang van de TSMP58000 naar GPIO48' },
 ].map((d, i) => ({ nr: `W${String(i + 1).padStart(2, '0')}`, ...d }));
 
 /** de elementen die met hun pootjes in de klemmen zitten (geen solderen) */
@@ -231,6 +341,7 @@ export const IN_KLEMMEN = [
   { ref: '-R1', wat: 'weerstand 1 kΩ 0,25 W (pull-up van OE)', a: ['-X6', 'J1:1'], b: gpioKlem(10) },
   { ref: '-R2', wat: 'Schottkydiode SB560 (ompoolbeveiliging): kathode (ring) aan L+, anode aan 0 V', a: ['-X1b', '3'], b: ['-X2b', '3'] },
   { ref: '-F18', wat: 'polyfuse Bourns MF-R050 (knoppen en sensoren)', a: ['-X1b', '2'], b: ['-X3', '1'] },
+  { ref: '-C5', wat: 'elco 1000 µF 10 V (servovoeding): + aan V+, − aan GND van de servoprint', a: ['-K7', 'V+t'], b: ['-K7', 'GNDt'] },
 ];
 
 /** de draden van de groepen en de ingangen (naar de bordjes en de baan; de labels uit de README) */
@@ -241,7 +352,7 @@ export const GROEPEN = Array.from({ length: 16 }, (_, k) => {
 export const INGANGEN = Array.from({ length: 16 }, (_, k) => ({ ingang: k + 1, klem: [k < 8 ? '-K3' : '-K4', `IN${(k % 8) + 1}`], gpio: INGANG_GPIO[k] }));
 
 // ---------------------------------------------------------------- de controle
-const VAST = { '-X5': { '+': 'J+', '−': 'M' }, '-F1': { in: 'J+', uit: 'L+' }, '-F18': { a: 'L+', b: 'S12' } };
+const VAST = { '-X5': { '+': 'J+', '−': 'M' }, '-F1': { in: 'J+', uit: 'L+' }, '-F18': { a: 'L+', b: 'S12' }, '-F19': { in: 'L+', uit: 'L19' }, '-B1': { Vs: '3V3', GND: 'GND', OUT: 'GPIO48' } };
 /** het net van een eind (een klem van een module of een vast eind) */
 export function eindNet(e) {
   if (VAST[e[0]]) return VAST[e[0]][e[1]];
@@ -253,7 +364,7 @@ const zelfde = (a, b) => a === b || (['M', 'GND'].includes(a) && ['M', 'GND'].in
 /** alle fouten (leeg = goed): draden op bestaande klemmen met het juiste net, de modules binnen de rechterhelft, vrij van
  *  de hindernissen en niet over elkaar, de gaten in de print en vrij van de klemmen, de elementen in de klemmen op hun
  *  net, elke groep en ingang */
-export function controleerAlles() {
+export function controleerAlles(Llinks) {
   const fout = [];
   for (const d of DRADEN) {
     for (const e of [d.van, d.naar]) {
@@ -272,11 +383,15 @@ export function controleerAlles() {
     const s = MODULES[ref].klemmen.find((q) => q.naam === naam).soort, max = s === 'pin' || s === 'wago' ? 1 : 2;
     if (n > max) fout.push(`${k}: ${n} draden (hoogstens ${max})`);
   }
-  // de modules binnen de rechterhelft, vrij van de hindernissen (0,3) en niet over elkaar (0,3 vrij)
-  const refs = Object.keys(MODULES), v = Object.fromEntries(refs.map((r) => [r, voetafdruk(r)])), H = hindernissen(), Z = M.doos.binnen / 2;
+  // de modules binnen hun helft, vrij van de hindernissen (0,3) en niet over elkaar (0,3 vrij); de klempaaltjes van een
+  // module zonder gaten (MCP23017) horen bij haar voetafdruk
+  const refs = Object.keys(MODULES), Z = M.doos.binnen / 2;
+  const v = Object.fromEntries(refs.map((r) => { const f = voetafdruk(r); if (!MODULES[r].klem) return [r, f]; const g = gatenDoos(r); return [r, [Math.min(f[0], ...g.map((q) => q[0] - 3)), Math.min(f[1], ...g.map((q) => q[1] - 3)), Math.max(f[2], ...g.map((q) => q[0] + 3)), Math.max(f[3], ...g.map((q) => q[1] + 3))]]; }));
+  const HR = hindernissen(), HL = Llinks ? hindernissenLinks(Llinks) : [];
   for (const r of refs) {
-    const [x0, z0, x1, z1] = v[r], rand = MODULES[r].wago ? 1.4 : 0;
-    if (x0 - rand < N.x + N.spleet || x1 + rand > R.x1 || z0 - rand < -Z || z1 + rand > Z) fout.push(`${r} steekt buiten de rechterhelft`);
+    const [x0, z0, x1, z1] = v[r], rand = MODULES[r].wago ? 1.4 : 0, links = helft(r) === 'links', H = links ? HL : HR;
+    const [xa, xb] = links ? [-(Llinks?.X ?? 112.5), N.x] : [N.x + N.spleet, R.x1];
+    if (x0 - rand < xa || x1 + rand > xb || z0 - rand < -Z || z1 + rand > Z) fout.push(`${r} steekt buiten de ${helft(r)}erhelft`);
     for (const [naam, a0, b0, a1, b1] of H) if (x0 - rand < a1 + 0.3 && a0 < x1 + rand + 0.3 && z0 - rand < b1 + 0.3 && b0 < z1 + rand + 0.3) fout.push(`${r} op ${naam}`);
     for (const q of refs) {
       if (q <= r) continue;
@@ -288,16 +403,17 @@ export function controleerAlles() {
     // de gaten binnen de print en vrij van de klemmen (een klem is een blok van 5 x 7,5 rond zijn hart)
     const m = MODULES[r];
     for (const [gx, gz] of m.gaten) {
-      if (Math.abs(gx) + m.gat / 2 > m.l / 2 || Math.abs(gz) + m.gat / 2 > m.b / 2) fout.push(`${r}: gat (${gx}, ${gz}) buiten de print`);
+      if (!m.klem && (Math.abs(gx) + m.gat / 2 > m.l / 2 || Math.abs(gz) + m.gat / 2 > m.b / 2)) fout.push(`${r}: gat (${gx}, ${gz}) buiten de print`);
+      if (m.klem && Math.abs(gx) - m.l / 2 > 2.5) fout.push(`${r}: klempaaltje (${gx}) te ver van de print`);
       for (const k of m.klemmen) if (k.soort !== 'pin' && Math.abs(k.x - gx) < 2.5 + m.gat / 2 - 0.01 && Math.abs(k.z - gz) < 3.75 + m.gat / 2) fout.push(`${r}: gat (${gx}, ${gz}) onder klem ${k.naam}`);
     }
   }
   // de elementen in de klemmen op hun net
-  const want = { '-R1': ['3V3', 'GPIO10'], '-R2': ['L+', 'M'], '-F18': ['L+', 'S12'] };
+  const want = { '-R1': ['3V3', 'GPIO10'], '-R2': ['L+', 'M'], '-F18': ['L+', 'S12'], '-C5': ['V6', 'M'] };
   for (const x of IN_KLEMMEN) { const n = [eindNet(x.a), eindNet(x.b)]; if (n.join() !== want[x.ref].join()) fout.push(`${x.ref} zit op ${n.join(' en ')}`); }
   // elke groep heeft een + (L+) en een − (drain), elke ingang een klem
   for (const g of GROEPEN) { if (eindNet(g.plus) !== 'L+') fout.push(`groep ${g.groep}: + niet op L+`); if (!/D\d$/.test(eindNet(g.min))) fout.push(`groep ${g.groep}: − niet op een drain`); }
   return fout;
 }
 
-export { PCA_ZIJ, pcaX };
+export { PCA_ZIJ, pcaX, PCA_NET };

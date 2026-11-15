@@ -23,9 +23,11 @@ import { fileURLToPath } from 'node:url';
 import { component } from '../lib/schets.mjs';
 import { M } from './maten.mjs';
 import { yv, xv, zv, deel, snede, cirkels, veelhoeken, hoekRechthoek, PETG, PETG_DEKSEL } from './hulp.mjs';
-import { bordjePcb, klemstrook, smdRij, tule, dcBus, schroefVerzonken, bolkopSchroef, modulesOp, espUsb, draaiY } from './onderdelen.mjs';
+import { bordjePcb, klemstrook, smdRij, tule, dcBus, schroefVerzonken, bolkopSchroef, modulesOp, espUsb, draaiY, tsmp58000 } from './onderdelen.mjs';
 import { hulpstukkenPlaat } from './hulpstukken.mjs';
-import { MODULES, gatenDoos, voetafdruk } from './opbouw.mjs';
+import { MODULES, gatenDoos, voetafdruk, helft } from './opbouw.mjs';
+/** de gaten van de modules in één helft (versie 6 fase B: ook modules in de linkerhelft) */
+const gatenIn = (h) => Object.keys(MODULES).filter((r) => helft(r) === h).flatMap((r) => gatenDoos(r));
 
 export { M };
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -178,15 +180,28 @@ export function bakLinks() {
   const rails = L.rijen.slice(0, 6).map((rij) => { const bs = rij.filter((d) => d.soort === 'bordje'); return [Math.min(...bs.map((d) => d.cx)) - M.bordje.x / 2 + 1, rij[0].cz - 3, Math.max(...bs.map((d) => d.cx)) + M.bordje.x / 2 - 1, rij[0].cz + 3]; });
   o.schets(yv(-0.5, 'Plane steunrails'), (s) => rails.forEach(([x0, z0, x1, z1]) => s.rrectW([x0, 0, z0], [x1, 0, z1], 1)));
   o.extrude('boss', M.voet + 0.5, { naam: 'Steunrails' });
+  // versie 6 fase B: de palen van de IR-driver, de AOD4184 en de MCP23017 (ook voor de optionele tweede) naast bordje 16
+  // (vroeg in de boom: elke latere bewerking kost meer)
+  const gl = gatenIn('links'), pr = M.rechts.modulePaal;
+  cirkels(o, -0.5, pr.h + 0.5, gl.map(([x, z]) => [x, z, pr.r]), 'Palen modules');
   // de schroefpaaltjes van de bordjes (Ø5, tot onder de print) en de schroefbussen van het deksel (Ø7)
   const SP = M.schroefpaal;
   cirkels(o, -0.5, M.voet + 0.5, L.paaltjes.map((p) => [p.x, p.z, SP.d / 2]), 'Schroefpaaltjes bordjes');
   cirkels(o, -0.5, D.h + 0.5, L.bussen.map(([x, z]) => [x, z, D.bus.r]), 'Schroefbussen');
   // de voorgaten als achthoek (de vlakken op de maat: daar tapt de schroef; een printer maakt een klein gat toch hoekig):
-  // een achthoek kost de kernel veel minder dan een cirkel. Voorgat in de paaltjes tot 0,4 boven de onderkant van de bodem
-  veelhoeken(o, M.voet, M.voet + D.bodem - 0.4, L.paaltjes.map((p) => acht(p.x, p.z, SP.voorgat / 2)), 'Voorgaten bordjes', 'cut');
+  // een achthoek kost de kernel veel minder dan een cirkel. Voorgaten van de bordjes en van de modules in één snede van
+  // de bovenkant van de modulepalen tot 0,4 boven de onderkant van de bodem (boven de lagere paaltjes snijdt ze lucht)
+  veelhoeken(o, pr.h, pr.h + D.bodem - 0.4, [...L.paaltjes.map((p) => acht(p.x, p.z, SP.voorgat / 2)), ...gl.map(([x, z, d]) => acht(x, z, d < 2.8 ? 1.1 : 1.3))], 'Voorgaten bordjes en modules', 'cut');
   veelhoeken(o, D.h, D.h + D.bodem - 0.4, L.bussen.map(([x, z]) => acht(x, z, 1.3)), 'Schroefgaten', 'cut');
   return o.doc();
+}
+/** de houder van de IR-leerontvanger (versie 6 fase B): een blokje tegen de voorwand met een vakje (van boven open) waar
+ *  de TSMP58000 met zijn lens naar het venstertje in staat; het venster Ø6 met een punt van 45° bovenaan (zonder support) */
+export function tsmpHouder() {
+  const T = M.tsmp, Z = M.doos.binnen / 2, [bx, bz] = T.blok, [vx, vz] = T.vak, h = T.lichaam[1];
+  const vloer = T.y - h / 2 - 0.2, top = T.y + h / 2 + 1.0, r = T.venster / 2;
+  const venster = [...Array.from({ length: 13 }, (_, i) => { const a = (Math.PI * 3) / 4 + (i * Math.PI * 1.5) / 12; return [T.x + r * Math.cos(a), T.y + r * Math.sin(a)]; }), [T.x, T.y + r * Math.SQRT2]];
+  return { blok: [T.x - bx / 2, Z - bz, T.x + bx / 2, Z + 0.5], vak: [T.x - vx / 2, Z - vz, T.x + vx / 2, Z], vloer, top, venster };
 }
 /** sleutelgaten in de bodem (bolkopschroef 4 x 20 half in de baan, de doos over de koppen, 6 mm naar achteren schuiven:
  *  de sleuf loopt naar voren) */
@@ -250,12 +265,20 @@ export function bakRechts() {
   o.schets(yv(H.nok.y0, 'Plane nokken klikhaken'), (s) => P.haken.forEach((h) => s.lusW(h.nok.map(([x, z]) => [x, H.nok.y0, z]))));
   o.extrude('boss', H.nok.y1 - H.nok.y0, { naam: 'Nokken klikhaken' });
   // de palen van de modules (Ø6, 5 hoog) en de schroefbussen (Ø7 tot het deksel)
-  const gaten = Object.keys(MODULES).flatMap((r) => gatenDoos(r)), pr = M.rechts.modulePaal;
+  const gaten = gatenIn('rechts'), pr = M.rechts.modulePaal;
   cirkels(o, -0.5, pr.h + 0.5, gaten.map(([x, z]) => [x, z, pr.r]), 'Palen modules');
   cirkels(o, -0.5, D.h + 0.5, P.bussen.map(([x, z]) => [x, z, D.bus.r]), 'Schroefbussen');
   veelhoeken(o, -0.5, 5.5, wagoHouders(), 'Klikhouders WAGO');
   veelhoeken(o, pr.h, pr.h + D.bodem - 0.6, gaten.map(([x, z, d]) => acht(x, z, d < 2.8 ? 1.1 : 1.3)), 'Schroefgaten modules', 'cut');
   veelhoeken(o, D.h, D.h + D.bodem - 0.4, P.bussen.map(([x, z]) => acht(x, z, 1.3)), 'Schroefgaten bussen', 'cut');
+  // versie 6 fase B: het venstertje voor de IR-leerontvanger in de voorwand en zijn houder (Ian kan zijn eigen IR-zender
+  // ervoor houden, de doos dicht)
+  const th = tsmpHouder(), [hx0, hz0, hx1, hz1] = th.blok, [vx0, vz0, vx1, vz1] = th.vak;
+  veelhoeken(o, -0.5, th.top + 0.5, [[[hx0, hz0], [hx1, hz0], [hx1, hz1], [hx0, hz1]]], 'Houder IR-leerontvanger');
+  veelhoeken(o, th.top + 0.5, th.top + 0.5 - th.vloer, [[[vx0, vz0], [vx1, vz0], [vx1, vz1 + 0.01], [vx0, vz1 + 0.01]]], 'Vak IR-leerontvanger', 'cut');
+  // het venster na de houder (anders vult het blokje het venster weer op)
+  o.schets(zv(ZB, 'Plane venster IR'), (s) => s.lusW(th.venster.map(([x, y]) => [x, y, ZB])));
+  o.extrude('cut', w + 1, { omkeren: true, naam: 'Venster IR-leerontvanger' });
   return o.doc();
 }
 
@@ -338,8 +361,12 @@ export function kabeldoos() {
       at(`b${n}r`, `Bordje ${n} weerstanden<${n}>`, smd, [d.cx, y + B.pcb, d.cz]);
     }
   }
-  // alle modules op hun palen in de rechterhelft (opbouw.mjs)
+  // alle modules op hun palen (opbouw.mjs; versie 6 fase B ook in de linkerhelft)
   modulesOp(at);
+  // de IR-leerontvanger in zijn houder achter het venstertje (de pootjes naar boven, dupont van boven)
+  const th = tsmpHouder(), [tb, tp] = tsmp58000();
+  at('ir1', 'IR-leerontvanger TSMP58000 -B1<1>', tb, [M.tsmp.x, th.vloer, Z - 0.05]);
+  at('ir2', 'Pootjes TSMP58000<1>', tp, [M.tsmp.x, th.vloer, Z - 0.05]);
   // de bordjes vastgeschroefd: 4 plaatschroeven 2,0 x 6 bolkop per bordje (de kern Ø1,5 in het voorgat Ø1,6)
   const SPS = M.schroefpaal.schroef, schroefB = bolkopSchroef('Plaatschroef 2,0 x 6 bolkop (kunststof)', SPS.d, SPS.kop, SPS.kern, SPS.l);
   L.paaltjes.forEach((p, i) => at(`bs${i + 1}`, `Plaatschroef 2,0 x 6 bolkop<${i + 1}>`, schroefB, [p.x, M.voet + B.pcb, p.z]));

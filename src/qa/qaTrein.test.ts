@@ -24,6 +24,10 @@ import { detectInterferences } from '../core/assembly/interference';
 import type { Component, Document } from '../core/document/types';
 // @ts-expect-error: het generatorscript is plain JavaScript
 import { M, indeling, rechts, haakKlik, dekselKlik } from '../../voorbeelden/treinverlichting/maak-kabeldoos.mjs';
+// @ts-expect-error: plain JavaScript
+import { tsmpHouder } from '../../voorbeelden/treinverlichting/maak-kabeldoos.mjs';
+// @ts-expect-error: plain JavaScript
+import { MODULES, PLAATSING, voetafdruk, helft, controleerAlles, DRADEN } from '../../voorbeelden/treinverlichting/opbouw.mjs';
 
 const DIR = 'voorbeelden/treinverlichting';
 const open = (f: string): Document => parseDocument(readFileSync(`${DIR}/${f}`, 'utf8'));
@@ -157,6 +161,38 @@ describe('kabeldoos, bordjes vastgeschroefd (Ian, 2026-11-15: "ik wil ze geschro
     }
     for (let i = 0; i < L.paaltjes.length; i++) for (let j = i + 1; j < L.paaltjes.length; j++) expect(Math.hypot(L.paaltjes[i].x - L.paaltjes[j].x, L.paaltjes[i].z - L.paaltjes[j].z)).toBeGreaterThan(SP.d + 1.2);
     for (const p of L.paaltjes) for (const s of L.bodem) expect(rect(p.x, p.z, s)).toBeGreaterThan(SP.d / 2 + 1.0);
+  });
+});
+
+describe('kabeldoos, versie 6 fase B: de modules van de uitbreiding', () => {
+  const mods = MODULES as Record<string, { h: number; optioneel?: boolean }>, T = (M as any).tsmp, D = (M as any).doos;
+  it('alle modules op hun plaats in hun helft, vrij van de bordjes en hun draden, niet over elkaar; elke draad op het juiste net', () => {
+    expect(controleerAlles(indeling())).toEqual([]);
+    for (const r of ['-K7', '-T3', '-X12', '-X13']) expect(helft(r), r).toBe('rechts');
+    for (const r of ['-Q4', '-Q3', '-K5', '-K8']) expect(helft(r), r).toBe('links');
+    expect((DRADEN as unknown[]).length).toBeGreaterThan(61);
+  });
+  it('elke module past onder het deksel (de servoprint met de stekkers ook)', () => {
+    for (const r of Object.keys(mods)) expect((M as any).rechts.modulePaal.h + 1.6 + mods[r].h, r).toBeLessThan(D.h - 2);
+  });
+  it('de IR-leerontvanger: de lens recht achter het venstertje, het vakje groter dan de ontvanger, de houder vrij van de modules', () => {
+    const th = tsmpHouder(), [b, h, d] = T.lichaam;
+    expect(th.vloer + h / 2).toBeCloseTo(T.y, 0);
+    expect(T.vak[0] - b).toBeGreaterThanOrEqual(0.4);
+    expect(T.vak[1] - d).toBeGreaterThanOrEqual(0.3);
+    expect(T.venster).toBeGreaterThan(4.0 + 1.0); // de lens (Ø4) ziet door het venster
+    const [x0, z0, x1, z1] = th.blok;
+    for (const r of Object.keys(mods).filter((q) => helft(q) === 'rechts')) {
+      const [a0, b0, a1, b1] = voetafdruk(r) as number[];
+      expect(x0 < a1 + 0.3 && a0 < x1 + 0.3 && z0 < b1 + 0.3 && b0 < z1 + 0.3, `houder op ${r}`).toBe(false);
+    }
+    const u = rechts().usb;
+    expect(x0 > u.x1 + 1 || x1 < u.x0 - 1).toBe(true);
+    expect(th.top + 12).toBeLessThan(D.h); // de pootjes en de dupontbusjes onder het deksel
+  });
+  it('de servokabels hebben hun eigen tule (rechts, z 88) en de servoprint staat met zijn stekkers naar voren', () => {
+    expect((M as any).rechts.tules.rechts).toContain(88);
+    expect((PLAATSING as Record<string, { rot: number }>)['-K7'].rot).toBe(0);
   });
 });
 
