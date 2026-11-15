@@ -50,7 +50,15 @@ export function nokStation(b, def, c) {
   const yf = yk + Rn + r, zf = T.a + 25 + r, pf = katrolBeugel(b, 'C (vloer, onder de nok)', [xl, yf, zf], X, { kapKant: [0, 0, 1] });
   b.plaat('Console vloerkatrol', [xl + 24, yf - 40, T.a - 10], [-P.b / 2, yf + 40, T.a], { opm: 'verbindt de katrolbeugel met de vloerligger' });
   b.groep('Afscherming nok');
-  b.plaat('Nokkap', [xl - 30, yk - Rn - 20, zk - Rn - 20], [xl - 28, yk + Rn + 20, zk + Rn + 20], { kleur: 'kap', opm: 'plaat 2 mm aan de buitenkant van de nok (vingers)' });
+  {
+    // afgeronde nokkap (zoals bij de merken): de vorm van de nok (R + 30) met een schacht voor de kabel naar de vloerkatrol,
+    // aan beide kanten van de nok; gezette plaat 1,5 mm, rondom omgezet (de rand als ronde band in de 3D)
+    const Rk = Rn + 30, yb0 = yk + Rn - 45, yb1 = yk + Rn + r + 45, zb = T.a + 25 + 2 * r + 20;
+    const vorm = [[yk - Rk, zk, Rk], [yk - Rk, zk + Rk, Rk], [yk + Rk, zk + Rk, Rk], [yb1, zk, 40], [yb1, zb, 0], [yb0, zb, 0], [yb0, zk - Rk + 40, 0], [yk - Rk, zk - Rk, Rk]];
+    for (const [nm, x] of [['Nokkap buiten', xl - 32], ['Nokkap binnen', xl + 32]]) b.contour(nm, [x, 0, 0], [0, 1, 0], [0, 0, 1], 1.5, vorm, { kleur: 'kap', banden: 8, opm: 'gezette plaat 1,5 mm (of ABS): afgeronde kap over de nok en de kabel naar de vloerkatrol; 4 x M6 op de lagerpaal-console' });
+    b.plaat('Kabelgoot', [xl - 45, yb1 - 10, T.a - 8], [xl + 45, T.yt - 3 * r + 10, T.a + 25 + 2 * r + 25], { kleur: 'kap', opm: 'gezette U-goot 1,5 mm over de vloerkatrol en de kabel naar de toren' });
+    b.koop('kapM6', 1, [], { naam: 'Bevestigingsset nokkap en kabelgoot (8 x M6 met kunststof ring)', groep: 'afwerking' });
+  }
   b.groep('frame');
   b.kabel('Kabel', [{ p: T.s.oog(xl + 155) }, pa, pd, pf, { p: rot([xl, yk + Rn, zk]) }], { last: G, overbrenging: 1, slag: T.s.slag, einde: 'nok' });
   station(b, vl, c.station ?? [], Pb, P);
@@ -79,10 +87,10 @@ export function kabelStation(b, def, c) {
   b.groep('frame');
   const zl = c.zl ?? 1750, G = gewicht(b);
   if (c.greep === 'touw') b.koop('grepenset', 1, [balk([-60, yb - r, zl - 300], [-60, yb - r, zl], X, 28, 28, true, 'kabel')], { naam: 'Tricepstouw met karabiner (bovenroute)' });
-  else b.koop(V.latbar, 1, [balk([-660, yb - r, zl], [540, yb - r, zl], Y, 30, 30, true, 'chroom')]);
+  else b.koop(V.latbar, 1, [balk([-660, yb - r, zl], [540, yb - r, zl], Y, 30, 30, true, 'chroom'), balk([-60, yb - r, zl + 160], [-60, yb - r, zl + 175], Y, 22, 22, true, 'ring'), ...[-1, 1].map((sx) => balk([-60, yb - r, zl + 160], [-60 + sx * 220, yb - r, zl + 8], Y, 5, 5, true, 'kabel'))], { naam: 'Latstang met V-strop en karabijn aan het kabeleind' });
   b.koop(V.handgreep, 1, [balk([60, T.yt - 3 * r - 400, T.a + 25], [60, T.yt - 3 * r - 260, T.a + 25], X, 30, 30, true, 'chroom')]);
   b.koop('kabelstop', 2, [], { naam: 'Stopkogel aan beide uiteinden' });
-  b.kabel('Kabel boven en laag', [{ p: [60, T.yt - 3 * r - 260, T.a + 25] }, pd, pc, pL, pa, pb, { p: [-60, yb - r, c.greep === 'touw' ? zl : zl] }], { last: G, overbrenging: 2, slag: T.s.slag, begin: 'anker' });
+  b.kabel('Kabel boven en laag', [{ p: [60, T.yt - 3 * r - 260, T.a + 25] }, pd, pc, pL, pa, pb, { p: [-60, yb - r, c.greep === 'touw' ? zl : zl + 175] }], { last: G, overbrenging: 2, slag: T.s.slag, begin: 'anker' });
   const { vl } = vloer(b, T);
   station(b, vl, c.station ?? [], b.P('bank'), b.P('ligger'));
   b.reken('Lat-arm (uitkragend, kabel over 90°: 1,41 x de kabelkracht)', arm, 'uitkrager', T.yt - yb, 0, { g: 1.41 * G, proef: 'extrinsiek', las: true });
@@ -101,7 +109,15 @@ function station(b, vl, delen, Pb, P) {
       const lb = b.staaf('Ligbalk', 'bankO', [0, y0, z - Pb.h / 2 - 5], [0, y1, z - Pb.h / 2 - 5]);
       for (const y of [y0 + 120, y1 - 120]) staander(b, 'Ligpaal', 'bank', 0, y, P.h, z - Pb.h - 5);
       b.kussen('Ligkussen', [0, y0, z - 5], [0, y1, z - 5], [0, 0, 1], s.breed ?? 320, 68); void lb;
-    } else if (s.armkussen) { const [y, z, h] = s.armkussen; const Pl = b.P('bankLicht'); staander(b, 'Armpaal', 'bank', 0, y, P.h, z - 71 - Pl.h); b.staaf('Armkussenplaat', 'bankLicht', [0, y - 120, z - 71 - Pl.h / 2], [0, y + 120, z - 71 - Pl.h / 2]); b.kussen('Armkussen vast', [0, y - 130, z - 70], [0, y + 130, z - 70], [0, 0, 1], 360, 60); void h; }
+    } else if (s.armkussen) {
+      // armkussen op een hoek (preacher): h = helling (0,5 = 27°), hoog aan de kant van de gebruiker (kant -1: gebruiker vóór)
+      const [y, z, h] = s.armkussen, k = s.kant ?? 1, Pl = b.P('bankLicht'), a = Math.atan(h ?? 0), u = [0, k * Math.cos(a), -Math.sin(a)], n = norm([0, k * Math.sin(a), Math.cos(a)]);
+      const p0 = add([0, y, z - 71 - Pl.h / 2], mul(u, -130)), p1 = add([0, y, z - 71 - Pl.h / 2], mul(u, 130));
+      staander(b, 'Armpaal', 'bank', 0, y, P.h, z - 71 - Pl.h / 2 - Pl.h / 2 / Math.cos(a) + 3);
+      const pl = b.staaf('Armkussenplaat', 'bankLicht', p0, p1, { v: [1, 0, 0] });
+      b.kussen('Armkussen vast', add(p0, mul(n, Pl.h / 2 + 0.5)), add(p1, mul(n, Pl.h / 2 + 0.5)), n, 360, 60); void pl;
+    } else if (s.voetsteun) { const [y, z] = s.voetsteun; staander(b, 'Voetsteunpaal', 'bank', 0, y, P.h, z - 120); b.plaat('Voetsteun', [-200, y - 6, z - 120], [200, y + 6, z + 120], { opm: 'plaat 12 mm met antislip en hielrand' }); }
+    else if (s.kniesteun) { const [y, z] = s.kniesteun; staander(b, 'Kniepaal', 'bank', 0, y, P.h, z - 8); b.staaf('As kniesteun', 'as', [-260, y, z], [260, y, z], { kap: false, in: 'kniepaal' }); b.koop(b.V.schuimrol, 2, [-1, 1].map((sx) => balk([sx * 65, y, z], [sx * 265, y, z], [1, 0, 0], 100, 100, true, 'leer')), { naam: 'Schuimrol Ø100 (kniesteun)' }); }
     else if (s.greepVast) { const [y, z] = s.greepVast; staander(b, 'Greeppaal', 'bank', 0, y, P.h, z + 20); for (const sx of [-1, 1]) b.staaf('Handgreep', 'greep', [sx * (Pb.b / 2), y, z], [sx * 280, y, z], {}); }
     else if (s.platform) { const [y0, y1] = s.platform; for (const sx of [-1, 1]) b.plaat('Platform', [sx > 0 ? P.b / 2 : -185, y0, P.h], [sx > 0 ? 300 : -P.b / 2, y1, P.h + 8], { opm: 'traanplaat 8 mm met antislip (links smaller: vrij van de vloerkatrol)' }); }
   }
@@ -151,12 +167,12 @@ export const SELECTORIZED = [
   K('FS-13', 'Lat pulldown (selectorized)', 'Lat pulldown met verstelbare zitting en kniesteun.', 'Omkapte stapel, gebogen arm met de bovenkatrol; zitting en kniesteun.', 'brede rugspier, biceps', ['lat pulldown', 'close grip pulldown'], MK, { yb: 420, station: [{ zit: [440, 480], verstel: true }] }),
   K('FS-14', 'Triceps pushdown (selectorized)', 'Staand station met tricepstouw aan de bovenkatrol.', 'Omkapte stapel met een korte arm; je staat op het platform en duwt het touw naar beneden.', 'triceps', ['pushdown', 'overhead extension'], MK, { yb: 700, opB: 0, H: 2100, zl: 1400, greep: 'touw', station: [{ platform: [380, 800] }] }),
   K('FS-15', 'Cable crunch (selectorized)', 'Knielend crunchstation met kniekussen en touw.', 'Omkapte stapel; je knielt op het kussen en trekt het touw van boven het hoofd naar de knieën.', 'buikspieren', ['cable crunch'], MK, { yb: 520, zl: 1300, greep: 'touw', station: [{ lig: [360, 760, 300], breed: 360 }] }),
-  K('FS-16', 'High row (selectorized)', 'Roeien van boven naar de borst, met borstkussen.', 'Omkapte stapel met een lange arm; zitting en borstkussen, de greep komt van voren boven.', 'midden van de rug, achterkant schouder', ['high row', 'face pull'], MK, { yb: 440, zl: 1550, station: [{ zit: [600, 470], lang: 300 }, { borst: [370, 900, 1300] }] }),
+  K('FS-16', 'High row (selectorized)', 'Roeien van boven naar de borst, met borstkussen.', 'Omkapte stapel met een lange arm; zitting en borstkussen, de greep komt van voren boven.', 'midden van de rug, achterkant schouder', ['high row', 'face pull'], MK, { yb: 440, zl: 1550, station: [{ zit: [600, 470], lang: 300 }, { borst: [370, 900, 1300] }, { kniesteun: [830, 640] }] }),
   K('FS-17', 'Straight-arm pulldown (selectorized)', 'Staand station met dwarsstang aan de bovenkatrol.', 'Omkapte stapel; je staat voor het station en duwt de stang met gestrekte armen naar de dijen.', 'brede rugspier', ['straight-arm pulldown'], MK, { yb: 620, zl: 1650, station: [{ platform: [300, 800] }] }),
-  K('FS-18', 'Preacher cable curl (selectorized)', 'Zittende curl aan de lage katrol met armkussen.', 'Omkapte stapel; zitting en schuin armkussen voor de toren, de greep aan de lage katrol.', 'biceps', ['cable curl', 'preacher curl'], MK, { yb: 420, station: [{ zit: [520, 480], lang: 300 }, { armkussen: [300, 900, 0.5] }] }),
-  K('FS-19', 'Seated cable row (selectorized)', 'Roeien aan de lage katrol met borstkussen.', 'Omkapte stapel; zitting en borstkussen, de greep komt van de lage katrol vooraan de toren.', 'midden van de rug, biceps', ['seated row', 'enkelarmige row'], MK, { yb: 420, station: [{ zit: [420, 470], lang: 300 }, { borst: [690, 850, 1250] }] }),
-  K('FS-20', 'Face pull station (selectorized)', 'Staand station met touw op gezichtshoogte.', 'Omkapte stapel met een korte, lage arm; je staat op het platform en trekt het touw naar het gezicht.', 'achterkant schouder, rotatoren', ['face pull', 'high row staand'], MK, { yb: 640, opB: 0, H: 1950, zl: 1500, greep: 'touw', station: [{ platform: [300, 760] }] }),
-  K('FS-21', 'Kneeling lat (selectorized)', 'Knielend latstation met kniekussen.', 'Omkapte stapel; je knielt op het kussen en trekt de stang van boven naar de borst.', 'brede rugspier', ['kneeling pulldown', 'cable crunch'], MK, { yb: 440, zl: 1600, station: [{ lig: [380, 760, 300], breed: 360 }] }),
+  K('FS-18', 'Preacher cable curl (selectorized)', 'Zittende curl aan de lage katrol met armkussen.', 'Omkapte stapel; zitting en schuin armkussen voor de toren, de greep aan de lage katrol.', 'biceps', ['cable curl', 'preacher curl'], MK, { yb: 420, station: [{ zit: [600, 480], lang: 300 }, { armkussen: [340, 900, 0.6], kant: -1 }] }),
+  K('FS-19', 'Seated cable row (selectorized)', 'Roeien aan de lage katrol met borstkussen.', 'Omkapte stapel; zitting en borstkussen, de greep komt van de lage katrol vooraan de toren.', 'midden van de rug, biceps', ['seated row', 'enkelarmige row'], MK, { yb: 420, station: [{ zit: [420, 470], lang: 300 }, { borst: [690, 850, 1250] }, { voetsteun: [800, 300] }] }),
+  K('FS-20', 'Face pull station (selectorized)', 'Staand station met touw op gezichtshoogte.', 'Omkapte stapel met een korte, lage arm; je staat op het platform en trekt het touw naar het gezicht.', 'achterkant schouder, rotatoren', ['face pull', 'high row staand'], MK, { yb: 640, opB: 0, H: 1950, zl: 1680, greep: 'touw', station: [{ platform: [300, 760] }] }),
+  K('FS-21', 'Kneeling lat (selectorized)', 'Knielend latstation met kniekussen.', 'Omkapte stapel; je knielt op het kussen en trekt de stang van boven naar de borst.', 'brede rugspier', ['kneeling pulldown', 'cable crunch'], MK, { yb: 440, zl: 1600, station: [{ lig: [380, 760, 300], breed: 360 }, { kniesteun: [820, 560] }] }),
   K('FS-22', 'Kabelkolom (selectorized)', 'Staand station met touw boven en greep onder.', 'Omkapte stapel met een arm op 1,9 m; boven een touw, onder een greep aan de lage katrol.', 'armen, schouders, rug, benen', ['pushdown', 'curl', 'upright row', 'kickback'], MK, { yb: 600, opB: 60, H: 2000, zl: 1500, greep: 'touw', station: [{ platform: [260, 760] }] }),
   S('FS-23', 'Leg extension (selectorized, pro-lijn)', 'Beenstrekker met scheenrol en nok.', 'Zitting met rugleuning; de as ligt op kniehoogte, de scheenrol draait naar voren omhoog.', 'quadriceps', ['leg extension'], undefined,
     MS([900, 2350], [3490, 7940], 'ATX leg extension € 899-999, Tunturi Platinum € 2199', 'Life Fitness Insignia Leg Extension ± € 6900, Hammer Strength Select € 7943'),

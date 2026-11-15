@@ -10,10 +10,11 @@ import { BANKEN } from './banken.mjs';
 import { KABEL } from './kabel.mjs';
 import { PLATE } from './plate.mjs';
 import { SELECTORIZED } from './selectorized.mjs';
+import { RIGS } from './rigs.mjs';
 import { proUiterlijk, stijlVersie } from './pro.mjs';
 import { optiesBouwen } from './opties.mjs';
 
-export const TOESTELLEN = [...REKKEN, ...BANKEN, ...KABEL, ...PLATE, ...SELECTORIZED];
+export const TOESTELLEN = [...REKKEN, ...BANKEN, ...KABEL, ...PLATE, ...SELECTORIZED, ...RIGS];
 export const PER_ID = Object.fromEntries(TOESTELLEN.map((t) => [t.id, t]));
 /** de uitvoeringen: thuis (klasse H), semi-pro en pro (klasse S) */
 export const UITVOERINGEN = ['thuis', 'semi', 'pro'];

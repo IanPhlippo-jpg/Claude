@@ -17,7 +17,7 @@ export const STIJL = {
   plate: { naam: 'plate-loaded: ovaalbuis, zwart met rood accent, chroom', ral: '9005', accent: '#c8102e', kap: null },
   kabel: { naam: 'kabel: antraciet, zilveren kappen met venster', ral: '7016', accent: '#e8590c', kap: '#9ea3a8' },
   selectorized: { naam: 'selectorized: antraciet, zilveren kappen', ral: '7016', accent: '#0e7490', kap: '#9ea3a8' },
-  multigym: { naam: 'multigym: antraciet, zilveren kappen', ral: '7016', accent: '#e8590c', kap: '#9ea3a8' },
+  multigym: { naam: 'multigym: mat zwart (rigs), zilveren kappen (kabel)', ral: '9005', accent: '#e8590c', kap: '#9ea3a8' },
   opslag: { naam: 'opslag: mat zwart, logoplaat', ral: '9005', accent: '#d9a400', kap: null },
   buiten: { naam: 'buiten: thermisch verzinkt + poedercoat', ral: '7016', accent: '#b45309', kap: null },
 };
@@ -61,7 +61,7 @@ export function proUiterlijk(b, def) {
   // 6b. banken: lange kussens taps (smaller naar de heup), zoals bij de merkbanken
   if (def.soort === 'bank') for (const k of o.kussens) { const g = k.geo[0]; if (k.L >= 900 && k.breedte >= 260 && !g.taps && !g.neus) g.taps = [k.breedte - 50, k.breedte]; }
   // 7. rekken: kopplaten met schuine rand op de staanders, gelaste eindplaten met ronde hoeken op de voeten, zijplaat met naam
-  if (def.soort === 'rek' || def.id === 'FP-11') rekVorm(b, o.afwerking.logo);
+  if (def.soort === 'rek' || def.soort === 'multigym' || def.id === 'FP-11') rekVorm(b, o.afwerking.logo);
   // 8. logoplaat (gelaserd 3 mm met logo-uitsparing, op VHB-tape)
   if (o.afwerking.logo) logoPlaat(b, def);
   b.groep(oud);

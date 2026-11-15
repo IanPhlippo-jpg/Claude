@@ -401,7 +401,7 @@ function bovenVerbinding(b, TL, TR) {
   return st;
 }
 /** functional trainer of kabeltoren: één of twee torens met een rail aan de binnenkant, een wagen met katrol, 2:1 */
-function ftBouw(b, xs, id) {
+export function ftBouw(b, xs, id) {
   // Gesloten lus (zoals een commerciële functional trainer): wagenanker -> C (onderaan de rail) -> B2 (bovenaan de rail,
   // achter) -> A2 (boven de stapel, achter) -> losse katrol op de stapel (2:1) -> A (boven de stapel, voor) -> B (bovenaan
   // de rail, voor) -> dubbele zwenkkatrol op de wagen -> greep. Zakt de wagen Δ, dan wordt B-wagen Δ langer en

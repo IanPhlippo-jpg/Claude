@@ -444,3 +444,4 @@ function spotter(b, S, zGat, naam, L, G = 0) {
 }
 const len3 = (p, q) => Math.hypot(q[0] - p[0], q[1] - p[1], q[2] - p[2]);
 export { spotter };
+export { ws as westsideGaten, ankers };

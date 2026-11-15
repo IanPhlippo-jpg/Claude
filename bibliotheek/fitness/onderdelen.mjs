@@ -161,6 +161,8 @@ export const KOOP = {
   vhb: k('Dubbelzijdige kleefband 3M VHB 5952 (logoplaat)', '3M VHB 5952 19 mm x 3 m', 'AANNAME (vakhandel)', 9.5, 'rol', 'AANNAME', false),
   instructiesticker: k('Instructieplaat: alu 0,8 mm bedrukt (oefeningen, spieren, pen-instructie)', 'instructieplaat 80 x 175 / 150 x 210', 'graveerdienst', 9, 'st', 'AANNAME', false),
   katrolkap: k('Katrolkap ABS (2 schalen, voor katrol Ø90-115)', 'pulley cover ABS 145 mm', 'AANNAME (fitness-onderdelen)', 7.5, 'st', 'AANNAME', false),
+  ringen: k('Gymnastiekringen hout Ø28 met verstelbare straps (paar)', 'gym rings wood', 'AANNAME (sportwinkel)', 32, 'paar', 'AANNAME', false),
+  kapM6: k('Bevestigingsset kappen: 8 x M6 inbus met kunststof ring en klinkmoer', 'M6 set', 'AANNAME (bouten)', 3.5, 'set', 'AANNAME', false),
   grepenset: k('Grepenset: tricepstouw, 2 D-grepen, enkelband, 2 karabiners', 'cable attachment set', 'AANNAME (fitness-onderdelen)', 38, 'set', 'AANNAME', false),
   fijnstapel: k('Bijleggewicht 2 x 2,5 kg magnetisch voor de stapel', 'add-on weight 2,5 kg', 'AANNAME (fitness-onderdelen)', 24, 'set', 'AANNAME', false),
   kraagklem: k('Snelsluitklem Ø50 (lock-jaw)', 'lockjaw collar 50 mm', 'AANNAME (sportwinkel)', 9.5, 'st', 'AANNAME', false),
