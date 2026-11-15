@@ -171,7 +171,15 @@ export function berekening(o) {
   const kappen = o.koop.filter((x) => x.id?.startsWith('kap-')).reduce((t, x) => t + x.n, 0);
   ctl('Afwerking', 'Randen en buisuiteinden', `alle randen braamvrij, lichaamsdragende randen r ≥ 2,5 mm; ${kappen} eindkappen op open uiteinden`, 0, NORM.randen.bron, { oordeel: 'groen' });
   // ---- stabiliteit of verankering
-  if (o.verankerd) {
+  if (o.verankerd === 'grond') {
+    // ingegoten palen (EN 16630): horizontale last 30 % van de gebruiker op greephoogte (AANNAME, zwaaien/afzetten), x 1,5; poer
+    // 400 x 400 x 600 met de onderkant op 900 mm: passieve gronddruk Mp = Kp·γ·b·D³/6 (Kp = 3, γ = 18 kN/m³, AANNAME zand/leem)
+    const palen = o.delen.filter((d) => d.soort === 'staaf' && Math.min(d.a[2], d.b[2]) < -100), h = Math.max(...o.delen.filter((d) => d.soort === 'staaf' && Math.min(d.a[2], d.b[2]) > 0).map((d) => Math.max(d.a[2], d.b[2])), 500);
+    const n = Math.max(1, palen.length), Hk = 1.5 * 0.3 * V.gebruiker * g, M = (Hk * (h + 600)) / n / 1e6, Mp = (3 * 18 * 0.4 * 0.9 ** 3) / 6;
+    ctl('Stabiliteit', 'Ingegoten in betonpoeren (EN 16630)', `${n} palen 500 mm ingegoten in een poer 400 x 400 x 600 C25/30; horizontaal 1,5 · 0,3 · ${V.gebruiker} kg · g = ${gw(Hk / 1000, 2)} kN op ${Math.round(h)} mm: M per paal = ${gw(M, 2)} kNm ≤ passieve gronddruk Kp·γ·b·D³/6 = ${gw(Mp, 2)} kNm`, M / Mp, 'EN 16630 §4.2 (stabiliteit, AANNAME belasting); grondmechanica: Kp = 3 (φ = 30°), AANNAME');
+  } else if (o.verankerd === 'los') {
+    ctl('Stabiliteit', 'Los werktuig', 'ligt of rolt op de vloer en wordt in de handen gedragen: geen kantelproef (EN ISO 20957-1 §6.2 is niet van toepassing op losse werktuigen)', 0, 'AANNAME', { oordeel: 'info' });
+  } else if (o.verankerd) {
     const A = o.anker;
     if (A) {
       const NRd = 7.6, F = 2.5 * A.kg * g, N = (F * A.arm) / (A.z * A.n) / 1000, grond = { beton: 7.6, 'volle baksteen': 2.5, 'holle baksteen / snelbouw': 1.2 };
@@ -179,7 +187,7 @@ export function berekening(o) {
       ctl('Stabiliteit', `Verankerd in de ${o.verankerd}: trek per anker`, `N = 2,5 · ${gw(A.kg, 0)} kg · g · ${A.arm} mm / (${A.z} mm · ${A.n}) = ${gw(N, 2)} kN ≤ NRd ≈ ${NRd} kN (AANNAME keilbout M12 in beton C20/25, randafstand ≥ 100)`, N / NRd, `${NORM.stabiliteit.bron}; AANNAME ankerwaarde (fischer FAZ II 12, zie balustrades)`, { oordeel: N / NRd > 1 ? 'rood' : 'oranje', uitleg: 'Oranje: de ankerwaarde is een aanname. Kijk de muur na (beton of volle baksteen) en reken het anker na in fischer FIXPERIENCE.' });
     } else ctl('Stabiliteit', `Verankerd ${o.verankerd === 'rack' ? 'in het rack' : `in de ${o.verankerd}`}`, o.verankerd === 'vloer' ? 'pro: voetbalken met 4 keilbouten M12 in de vloer (EN ISO 20957-4 §5.3: vrijstaande haltersteunen moeten verankerd kunnen worden)' : o.verankerd === 'rack' ? 'hangt in het rack: het rack moet verankerd of zwaar genoeg zijn' : 'tegen de muur met keilbouten M12', 0, NORM.stabiliteit.bron, { oordeel: 'oranje', uitleg: 'Nakijken op de plaats: vloer of muur, ankers.' });
   }
-  if (o.verankerd !== 'muur' && o.verankerd !== 'rack') {
+  if (o.verankerd !== 'muur' && o.verankerd !== 'rack' && o.verankerd !== 'grond' && o.verankerd !== 'los') {
     const st = stabiliteit(o);
     for (const s of st) ctl('Stabiliteit', `Kantelen op 10° (${s.geval}, naar ${s.richting})`, `zwaartepunt op ${Math.round(s.h)} mm hoog, ${Math.round(s.d)} mm van de kantelrand: h · tan 10° = ${Math.round(s.h * Math.tan((10 * Math.PI) / 180))} mm ≤ ${Math.round(s.d)} mm (massa ${Math.round(s.m)} kg${s.geval ? ' met gebruiker en last' : ''})`, s.benut, NORM.stabiliteit.bron, { oordeel: o.verankerd === 'vloer' && s.benut > 0.9 ? 'oranje' : oordeelVan(s.benut), uitleg: s.benut > 1 ? (o.verankerd === 'vloer' ? 'Kantelt zonder ankers: in de proversie verankerd.' : 'Kantelt: verankeren of de voeten verlengen.') : '' });
   }

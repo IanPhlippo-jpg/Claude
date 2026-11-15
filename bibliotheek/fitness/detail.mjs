@@ -111,7 +111,7 @@ export function typeplaatPlek(o) {
   const kokers = o.delen.filter((d) => d.soort === 'staaf' && !d.pad && d.P.vorm === 'koker' && d.L > 250 && Math.min(d.P.b, d.P.h) >= 40);
   const staand = kokers.filter((d) => Math.abs(d.u[2]) > 0.99).sort((a, b) => (b.groep === 'frame') - (a.groep === 'frame') || b.L - a.L);
   const d = staand[0] ?? kokers.filter((x) => Math.abs(x.u[2]) < 0.3).sort((a, b) => (b.groep === 'frame') - (a.groep === 'frame') || b.L - a.L)[0];
-  if (!d) return plaatPlek(o);
+  if (!d) return buisPlek(o) ?? plaatPlek(o);
   const staat = Math.abs(d.u[2]) > 0.99, op = staat ? Z : d.u;
   const m = mul(add(d.a, d.b), 0.5), buiten = Math.abs(m[0] - cx) > 30 ? Math.sign(m[0] - cx) : 0;
   // de vlakken van de koker: kies het zijvlak dat het meest naar buiten (of naar voren) wijst, niet naar boven of onder
@@ -124,6 +124,18 @@ export function typeplaatPlek(o) {
   if (staat) { const z0 = Math.min(d.a[2], d.b[2]), z1 = Math.max(d.a[2], d.b[2]), z = Math.min(z1 - h / 2 - 40, Math.max(z0 + h / 2 + 40, 1000)); c = [m[0], m[1], z]; }
   else c = m;
   c = add(c, mul(vl, half + 0.6));
+  return { deel: d, c, n: vl, op, zij: norm(cross(vl, op)), w, h };
+}
+/** geen koker (buitentoestellen, strongman): op de langste staande buis aan de voorkant, of op de langste liggende */
+function buisPlek(o) {
+  const st = o.delen.filter((d) => d.soort === 'staaf' && !d.pad && d.L > 250 && Math.min(d.P.b, d.P.h) >= 40);
+  const d = st.filter((x) => Math.abs(x.u[2]) > 0.99).sort((a, b) => b.L - a.L)[0] ?? st.sort((a, b) => b.L - a.L)[0];
+  if (!d) return null;
+  const staat = Math.abs(d.u[2]) > 0.99, op = staat ? Z : d.u, vl = !staat && Math.abs(d.u[1]) > 0.9 ? [-1, 0, 0] : [0, -1, 0];
+  const w = Math.max(40, Math.min(74, d.P.b - 8)), h = Math.round(w * 1.42), m = mul(add(d.a, d.b), 0.5);
+  let c = m;
+  if (staat) { const z0 = Math.max(0, Math.min(d.a[2], d.b[2])), z1 = Math.max(d.a[2], d.b[2]); c = [m[0], m[1], Math.min(z1 - h / 2 - 40, Math.max(z0 + h / 2 + 40, 1000))]; }
+  c = add(c, mul(vl, d.P.b / 2 + 0.6));
   return { deel: d, c, n: vl, op, zij: norm(cross(vl, op)), w, h };
 }
 /** geen koker: op de grootste plaat, tegen de rand (muurplaat, voetplaat) */

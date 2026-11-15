@@ -31,6 +31,10 @@ export const OPTIES = {
     { id: 'bandpinnen', naam: 'Bandpinnen', uitleg: '2 pinnen Ø30 onderaan voor weerstandsbanden' },
     { id: 'grepenset', naam: 'Grepenset', uitleg: 'touw, 2 D-grepen, enkelband en 2 karabiners' },
   ],
+  buiten: [
+    { id: 'valtegels', naam: 'Valtegels', uitleg: 'valdempende rubbertegels EN 1177 in de hele valruimte (buitentoestellen)' },
+    { id: 'klemmen', naam: 'Schijfklemmen', uitleg: '2 snelsluitklemmen Ø50 per laadpen (strongman)' },
+  ],
   plate: [
     { id: 'opslag', naam: 'Schijvenopslag', uitleg: '2 schijfhouders Ø50 op het voetframe' },
     { id: 'klemmen', naam: 'Schijfklemmen', uitleg: '2 snelsluitklemmen Ø50 per schijfhouder' },
@@ -103,6 +107,19 @@ const BOUW = {
   'selectorized:grepenset': (b) => BOUW['kabel:grepenset'](b),
   'selectorized:fijnstapel': (b) => BOUW['kabel:fijnstapel'](b),
   'multigym:opslag': (b) => BOUW['rek:opslag'](b),
+  // valtegels: de hele valruimte (EN 16630) in rubbertegels van 45 mm
+  'buiten:valtegels': (b) => {
+    const o = b.o; if (!o.valruimte) return false;
+    const z = o.context.findIndex((g) => g.kleur === 'valzone'); const vz = z >= 0 ? o.context.splice(z, 1)[0] : null;
+    const box = o.delen.flatMap((d) => d.geo).map(aabb), mn = [0, 1].map((i) => Math.min(...box.map((q) => q[0][i]))), mx = [0, 1].map((i) => Math.max(...box.map((q) => q[1][i]))), X0 = o.valruimte.X;
+    const w = mx[0] - mn[0] + 2 * X0, d = mx[1] - mn[1] + 2 * X0;
+    b.koop('valtegel', 1, [balk([(mn[0] + mx[0]) / 2 - w / 2, (mn[1] + mx[1]) / 2, 22.5], [(mn[0] + mx[0]) / 2 + w / 2, (mn[1] + mx[1]) / 2, 22.5], [0, 1, 0], d, 45, false, 'valtegel')], { naam: `Valtegels EN 1177 45 mm in de valruimte (${(w / 1000).toFixed(1).replace('.', ',')} x ${(d / 1000).toFixed(1).replace('.', ',')} m)`, oppervlak: Math.round((w * d) / 1e4) / 100, groep: 'afwerking' });
+    void vz; return true;
+  },
+  'buiten:klemmen': (b) => {
+    const n = b.o.delen.filter((d) => d.naam === 'Laadpen').length; if (!n) return false;
+    b.koop('kraagklem', 2 * n, [], { naam: `Snelsluitklem Ø50 (lock-jaw), 2 per laadpen (${n} laadpennen)`, groep: 'afwerking' }); return true;
+  },
   'multigym:bandpinnen': (b) => BOUW['rek:bandpinnen'](b),
   'multigym:grepenset': (b) => BOUW['kabel:grepenset'](b),
   'kabel:fijnstapel': (b) => {

@@ -179,6 +179,8 @@ export async function scene3d(houder) {
       context: std('#9aa0a6', 0.75, 0.1, { transparent: true, opacity: 0.8 }),
       // de muur waar een muurtoestel aan hangt: betongrijs, mat (context, geen onderdeel)
       muur: std('#bcb7ad', 0.95, 0),
+      // buiten: betonpoer onder maaiveld (door de halfdoorzichtige grond te zien), valruimte en valtegels (EN 16630)
+      beton: std('#9c978e', 0.95, 0), valzone: std('#c9a27a', 0.95, 0, { transparent: true, opacity: 0.55 }), valtegel: std('#5b3a2e', 0.9, 0),
     };
     // gebogen buizen en contourplaten als echte vorm; hun hulpbalken (seg) niet tonen
     for (const d of o.delen) {
@@ -194,8 +196,9 @@ export async function scene3d(houder) {
     // studiovloer (vangt de schaduw) en muur
     const [mn, mx] = o.box, cx = (mn[0] + mx[0]) / 2, cy = (mn[1] + mx[1]) / 2, R = Math.max(mx[0] - mn[0], mx[1] - mn[1], mx[2] - mn[2]);
     const vloer = new THREE.Mesh(new THREE.CircleGeometry(R * 6, 64), new THREE.MeshStandardMaterial({ color: '#dedbd5', roughness: 0.9, metalness: 0 }));
+    if (o.grond) { vloer.material.transparent = true; vloer.material.opacity = 0.55; vloer.material.depthWrite = false; }
     vloer.rotation.x = -Math.PI / 2; vloer.position.set(cx, -0.5, -cy); vloer.receiveShadow = true; groep.add(vloer);
-    if (o.muur != null) { const muur = new THREE.Mesh(new THREE.BoxGeometry(R * 3, R * 1.6, 40), new THREE.MeshStandardMaterial({ color: '#efece6', roughness: 0.95 })); muur.position.set(cx, R * 0.8, -(o.muur + 20)); muur.receiveShadow = true; groep.add(muur); }
+    if (o.muur != null) { const muur = new THREE.Mesh(new THREE.BoxGeometry(R * 3, R * 1.6, 40), new THREE.MeshStandardMaterial({ color: '#efece6', roughness: 0.95 })); muur.position.set(cx, R * 0.8, -(o.muur + 22)); /* 2 mm achter het muurvlak: geen z-fighting met de contextmuur */ muur.receiveShadow = true; groep.add(muur); }
     scene.add(groep); scene.fog = new THREE.Fog(STUDIO, R * 3, R * 7);
     zon.position.set(cx - R * 1.0, R * 2.6, -cy + R * 1.4); zon.target.position.set(cx, 0, -cy);
     vul.position.set(cx + R * 1.6, R * 0.8, -cy + R * 1.2); strijk.position.set(cx + R * 0.5, R * 1.5, -cy - R * 2.2);

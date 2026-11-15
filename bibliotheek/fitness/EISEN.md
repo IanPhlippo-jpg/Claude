@@ -19,6 +19,9 @@ Ian: "Er moeten meerdere fitness toestellen zijn in meerdere varianten en ze moe
 - **Nieuwe soorten:** selectorized (FS), multigyms/rigs (FM), opslag/accessoires (FO), strongman/buiten (FX); samen ± 150 toestellen.
 - Alles blijft maakbaar (in België te koop of te laseren) en staat in stuklijst, prijs en tekeningen; logo = placeholder tot de zaak een naam heeft; geen logo's of ontwerpen van merken namaken.
 - Werkwijze: drie fases (A uiterlijk, B varianten, C nieuwe toestellen), na elke fase foto's.
+- Fase C in blokken van ± 25 (FS, FM, FO, FX), met tests, typecheck en een fotoraster per blok. De snelle testrun is een steekproef, de volledige run gaat met FITNESS_VOLLEDIG=1.
+- Opslag in pro-vormtaal: geen open kokerframes of losse ronde liggers. Lagen 15° naar de gebruiker met een V-goot in gezette plaat en rubber, gezette bakken, een dichte plyobox, een gelaserde basisplaat, houders met eindkap en rubberen huls.
+- Buiten volgens EN 16630: palen in een betonpoer, verzinkt + poedercoat, openingen buiten 89-230 mm, vrije valhoogte ≤ 3 m, valruimte en ondergrond, infobord. Strongman in mat zwart met laadpennen Ø48.
 
 ## Vaste regels (uit eerdere projecten)
 - Tekeningen volgens ISO: ISO 5457 (bladformaat), ISO 7200 (titelblok), ISO 128 (lijnen), ISO 5456-2 (eerste hoekprojectie), ISO 2768-m (algemene toleranties), ISO 2553 (lassymbolen), ISO 7573 (stuklijst).

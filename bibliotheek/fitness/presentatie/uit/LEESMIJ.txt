@@ -3,7 +3,7 @@ Fitnesstoestellen
 
 Dubbelklik op Fitnesstoestellen.html: hij opent in je browser (Edge, Chrome, Firefox of Safari). Er is geen internet nodig.
 
-Links staan de 50 toestellen: 14 rekken en racks, 12 banken, 12 kabelmachines, 12 plate-loaded machines.
+Links staan de 150 toestellen: 14 rekken en racks, 12 banken, 12 kabelmachines, 12 plate-loaded machines, 25 selectorized, 25 multigyms en rigs, 25 opslag en accessoires, 25 strongman en buiten.
 Zoek op een naam of een oefening (squat, rug, leg press ...) of kies een soort.
 
 1. Kies een toestel: in het midden zie je het in 3D (slepen = draaien, scrollen = zoomen) of in drie aanzichten.

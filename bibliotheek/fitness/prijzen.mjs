@@ -11,7 +11,7 @@ import { RAL_STANDAARD } from './opties.mjs';
 export const STANDAARD = {
   uurloon: 45,
   marge: { rek: 35, bank: 35, kabel: 30, plate: 30 }, margePro: 25,
-  staalKg: 1.8, laserKg: 4.5, stapelKg: 2.2, plaatKg: 1.6, snijM: { 3: 0.9, 6: 1.4, 10: 2.2, 99: 3.2 }, insteek: 0.25, bocht: 9, buigInstel: 25, coatM2: 25, afval: 15, btw: 21,
+  staalKg: 1.8, laserKg: 4.5, stapelKg: 2.2, plaatKg: 1.6, snijM: { 3: 0.9, 6: 1.4, 10: 2.2, 99: 3.2 }, insteek: 0.25, bocht: 9, buigInstel: 25, coatM2: 25, verzinkKg: 0.75, afval: 15, btw: 21,
   koopPrijs: {},
   // leercurve: factor op de uren voor het zoveelste stuk van een reeks (stuk 1 = prototype, stuk 20 = met lasmallen)
   reeks: 5, leercurve: { 1: 2.5, 5: 1.6, 20: 1.0 },
@@ -44,6 +44,7 @@ export function kostprijs(o, inst = {}) {
   regels.push({ cat: 'laser', wat: `Laserdelen (${Math.round(kgLaser)} kg, ${laserP.reduce((s2, p) => s2 + p.n, 0)} stuks, ${(t.snijM).toFixed(1).replace('.', ',')} m snijlijn, ${t.insteken} insteken)`, bedrag: kgLaser * I.plaatKg + snijBedrag, bron: BRON.laser });
   if (kgStapel) regels.push({ cat: 'stapel', wat: `Gewichtstapel (${Math.round(kgStapel)} kg, platen 20 mm)`, bedrag: kgStapel * I.stapelKg, bron: BRON.stapelKg });
   regels.push({ cat: 'coat', wat: `Poedercoat ${t.opp.toFixed(1).replace('.', ',')} m² in RAL ${o.afwerking?.ral ?? '9005'}`, bedrag: t.opp * I.coatM2, bron: BRON.coatM2 });
+  if (o.verzinkt) regels.push({ cat: 'coat', wat: `Thermisch verzinken ${Math.round(kgStaaf + kgLaser)} kg (EN ISO 1461), duplex onder de poedercoat`, bedrag: (kgStaaf + kgLaser) * I.verzinkKg, bron: 'AANNAME: thermisch verzinken ± € 0,60-0,90/kg excl. btw (verzinkerij BE/NL)' });
   if (o.afwerking && !RAL_STANDAARD.includes(o.afwerking.ral)) regels.push({ cat: 'coat', wat: `Kleur RAL ${o.afwerking.ral} buiten de standaardkleuren (kleine reeks, + 20 %)`, bedrag: t.opp * I.coatM2 * 0.2, bron: 'AANNAME: meerprijs lakkerij voor een kleur die niet in de vaste reeks zit' });
   const koop = sl.koop.map((x) => { const prijs = I.koopPrijs[x.key] ?? x.prijs; return { ...x, prijs, bedrag: x.bedrag - x.hoeveelheid * x.prijs + x.hoeveelheid * prijs }; });
   for (const x of koop) regels.push({ cat: BEKLEDING.has(x.key) ? 'bekleding' : 'koop', wat: `${x.naam} (${fmt(x.hoeveelheid)} ${x.eenheid})`, bedrag: x.bedrag, bron: /AANNAME/.test(x.winkel) && /^AANNAME/.test(x.bron) ? x.bron : `${x.winkel}${x.nagekeken || /AANNAME/.test(x.winkel + x.bron) ? '' : ' (AANNAME)'}: ${x.bron}`, key: x.key });

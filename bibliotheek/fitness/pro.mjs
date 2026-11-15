@@ -36,7 +36,7 @@ export function proUiterlijk(b, def) {
   o.stijl = { ...stijl, soort: def.soort };
   // afwerking (fase B): frame-RAL, kussenkleur, chroom of zwart gecoat, logoplaat ja/nee
   const af = o.opties?.afwerking ?? {};
-  o.afwerking = { ral: af.ral ?? stijl.ral, leer: af.leer ?? 'zwart', chroom: af.chroom ?? true, logo: af.logo ?? true };
+  o.afwerking = { ral: af.ral ?? def.ral ?? stijl.ral, leer: af.leer ?? 'zwart', chroom: af.chroom ?? true, logo: af.logo ?? true };
   o.pronk = o.pronk ?? [];
   // 1. touch points: de trekknop van elke veerpen/popper-pin en de kop van de selectiepen in de accentkleur, de kraag zwart
   for (const k of o.koop) if (/pullpin|veerpen|popper/i.test(k.key)) for (const g of k.geo) { if (g.kleur === 'ring') g.kleur = 'accent'; else if (g.kleur === 'rubber') g.kleur = 'eindkap'; }
@@ -49,7 +49,7 @@ export function proUiterlijk(b, def) {
   }
   // 3. verchroomde schijfhouders (hardchroom of RVS-huls): niet gecoat
   const chroom = o.delen.filter((d) => d.soort === 'staaf' && /^(Schijfhouder|Laadpen)/.test(d.naam));
-  if (!o.afwerking.chroom) chroom.length = 0; // zwart: de schijfhouders worden mee gecoat
+  if (!o.afwerking.chroom || def.soort === 'opslag') chroom.length = 0; // opslag: rubberen huls in plaats van chroom
   for (const d of chroom) { d.geo[0].kleur = 'chroom'; d.afwerking = 'hardverchroomd, niet poedercoaten'; }
   if (chroom.length) b.koop('verchromen', chroom.length, [], { naam: `Hardverchromen: ${chroom.length} schijfhouder${chroom.length > 1 ? 's' : ''} (of RVS-huls Ø50 erover)`, groep: 'afwerking' });
   // 4. stapelkap (kabel): zilver/antraciet gezet plaatwerk, voorkant met kijkvenster en sleuf voor de selectiepen

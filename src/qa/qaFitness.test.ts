@@ -656,3 +656,52 @@ describe('fitness v5 fase B: varianten', () => {
     expect(kp).toBeGreaterThan(k0);
   });
 });
+
+describe('fitness v5 fase C: opslag in pro-vormtaal en buiten (EN 16630)', () => {
+  it('halterrek: V-goten in gezette plaat op ± 15° met rubber, zijplaten met logo, ronde voeten', () => {
+    const o = toestel('FO-01', 'pro');
+    const goot = o.delen.filter((d: any) => /^V-goot/.test(d.naam)), gl = o.delen.find((d: any) => /^Gootligger/.test(d.naam));
+    expect(goot.length).toBe(4); expect(o.delen.some((d: any) => /^Ligger laag/.test(d.naam))).toBe(false);
+    const hoek = Math.atan2(Math.abs(gl.v[2]), Math.abs(gl.v[1])) * 180 / Math.PI;
+    expect(hoek).toBeGreaterThan(13); expect(hoek).toBeLessThan(17);
+    expect(o.koop.some((k: any) => k.key === 'rubbermat' && k.geo.length === 4)).toBe(true);
+    expect(o.delen.filter((d: any) => d.naam === 'Zijplaat' && d.contour.uitsparingen.length === 1).length).toBe(2);
+    expect(o.delen.filter((d: any) => d.naam === 'Eindplaat voet').length).toBe(4);
+  });
+  it('kettlebellrek: gezette bak met randen; plyobox dicht met handgrepen; schijvenboom op een basisplaat met rubberen hulzen', () => {
+    expect(toestel('FO-04', 'pro').delen.filter((d: any) => d.naam === 'Bak laag 1').length).toBe(3);
+    const p = toestel('FO-16', 'pro');
+    expect(p.delen.filter((d: any) => d.naam === 'Mantel').length).toBe(4);
+    expect(p.delen.filter((d: any) => d.naam === 'Mantel' && d.contour.uitsparingen.length).length).toBe(2);
+    expect(p.delen.some((d: any) => d.naam === 'Deksel') && p.delen.some((d: any) => d.naam === 'Bodem')).toBe(true);
+    const s = toestel('FO-10', 'pro');
+    expect(s.delen.some((d: any) => d.naam === 'Basisplaat' && d.contour)).toBe(true);
+    expect(s.koop.filter((k: any) => k.key === 'rubberhuls').length).toBe(s.delen.filter((d: any) => /Schijfhouder/.test(d.naam)).length);
+    expect(s.koop.some((k: any) => k.key === 'verchromen')).toBe(false);
+  });
+  it('buiten: EN 16630-toetsen (greep, openingen, valhoogte, valruimte), palen in een poer, verzinkt, infobord', () => {
+    for (const t of TOESTELLEN.filter((x: any) => x.soort === 'buiten' && x.cfg?.palen)) {
+      const o = toestel(t.id, 'pro'), B = berekening(o), en = B.controles.filter((c: any) => c.groep === 'EN 16630');
+      expect(en.length, t.id).toBeGreaterThanOrEqual(2);
+      expect(en.filter((c: any) => c.oordeel === 'rood').map((c: any) => c.wat), t.id).toEqual([]);
+      expect(o.valruimte.Y, t.id).toBeLessThanOrEqual(3000); expect(o.valruimte.X, t.id).toBeGreaterThanOrEqual(1500);
+      expect(o.context.some((g: any) => g.kleur === 'beton'), t.id).toBe(true);
+      expect(o.koop.some((k: any) => k.key === 'infobord'), t.id).toBe(true);
+      expect(kostprijs(o).regels.some((r: any) => /Thermisch verzinken/.test(r.wat)), t.id).toBe(true);
+      expect(B.controles.some((c: any) => c.wat === 'Ingegoten in betonpoeren (EN 16630)' && c.oordeel !== 'rood'), t.id).toBe(true);
+    }
+    // monkey bars: sporten om 300 mm geven een vrije opening buiten 89-230 mm; de valtegels vervangen de valzone
+    const m = toestel('FX-16', 'pro', { opties: ['valtegels'] });
+    expect(m.koop.some((k: any) => k.key === 'valtegel' && k.oppervlak > 10)).toBe(true);
+    expect(m.context.some((g: any) => g.kleur === 'valzone')).toBe(false);
+    expect(berekening(m).controles.find((c: any) => /Openingen hoofd/.test(c.wat))?.formule).toMatch(/buiten|> 230/);
+  });
+  it('strongman: laadpennen met kraag, klemmen als optie, losse werktuigen zonder kantelproef', () => {
+    const j = toestel('FX-01', 'pro', { opties: ['klemmen'] });
+    expect(j.delen.filter((d: any) => d.naam === 'Laadpen').length).toBe(2);
+    expect(j.koop.find((k: any) => k.key === 'kraagklem').n).toBe(4);
+    const l = berekening(toestel('FX-09', 'pro'));
+    expect(l.controles.some((c: any) => c.wat === 'Los werktuig')).toBe(true);
+    expect(l.controles.some((c: any) => /Kantelen op 10°/.test(c.wat))).toBe(false);
+  });
+});

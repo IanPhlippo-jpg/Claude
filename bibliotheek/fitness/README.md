@@ -1,7 +1,7 @@
 # Bibliotheek: fitnesstoestellen (2026-11-15)
 
 Het derde product voor Ians laswerkbedrijf, opgebouwd zoals de [balustrades](../balustrades/README.md) en de
-[taatsdeuren](../taatsdeuren/README.md). Het is een vaste catalogus van 50 fitnesstoestellen die Ian zelf kan maken.
+[taatsdeuren](../taatsdeuren/README.md). Het is een vaste catalogus van 150 fitnesstoestellen (50 in versie 1-4, 100 in versie 5 fase C) die Ian zelf kan maken.
 Elk toestel heeft een thuisversie (EN ISO 20957 klasse H) en een proversie (klasse S), met het volledige
 werkplaatspakket.
 
@@ -18,6 +18,10 @@ werkplaatspakket.
 | **Banken** (FB-01 .. FB-12) | vlakke bank, verstelbare bank (FID), bankdrukstation vlak en schuin, schouderdrukbank, zitbank 90°, preacher curl, hyperextension 45°, GHD, buikbank, hip thrust bank, reverse hyper |
 | **Kabelmachines** (FK-01 .. FK-12) | lat pulldown, seated row, crossover, functional trainer (2:1), kabeltoren (2:1), lat met schijvenlader, katrolset voor het rack, leg extension, leg curl, pec deck, wandkatrol, glute kickback |
 | **Plate-loaded** (FP-01 .. FP-12) | leg press 45°, hack squat, belt squat, chest press, seated row, T-bar row, seated calf, pulldown, schouderpers, hip thrust, smithmachine, leg extension/curl |
+| **Selectorized** (FS-01 .. FS-25) | nokstations (leg extension, leg curl, chest press, shoulder press, row, pec deck, abductor ...) en kabelstations (lat, row, high row, preacher, face pull ...) met eigen stapel en omkapte toren |
+| **Multigyms en rigs** (FM-01 .. FM-25) | rigs met 1-4 vakken (vrijstaand of tegen de muur), monkey bars, ringen, dip, opslag; functional trainers met 2-3 torens |
+| **Opslag en accessoires** (FO-01 .. FO-25) | halterrekken met V-goten, kettlebell-, ballen- en opbergrekken, schijvenbomen, wandstrips, parallettes, plyobox, schijvenkar |
+| **Strongman en buiten** (FX-01 .. FX-25) | juk, farmers, frame carry, slee, log, axle, stenenplatform; buiten (EN 16630): optrek, brug, dip, monkey bars, wandrek, buikbank, ladder, combinaties |
 
 **Thuis en pro.** Dezelfde vorm, maar de proversie heeft:
 - zwaardere profielen (60x60x3 wordt 80x80x4, banken 80x40x3 wordt 100x50x3);
@@ -304,13 +308,48 @@ Elk toestel bestaat nu in varianten: `toestel(id, uitvoering, { maat, afwerking,
   - rek: extra schijvenopslag, bandpinnen;
   - bank: transportwielen;
   - kabel: grepenset, fijninstelling (bijleggewicht);
-  - plate-loaded: schijvenopslag op het voetframe, snelsluitklemmen.
+  - plate-loaded: schijvenopslag op het voetframe, snelsluitklemmen;
+  - selectorized en multigym: grepenset, fijninstelling, schijvenopslag, bandpinnen;
+  - buiten: valtegels (EN 1177) in de valruimte, snelsluitklemmen op de laadpennen (strongman).
 
   Een optie bouwt echte onderdelen, met botsingscontrole, of voegt kooponderdelen toe. Wat niet past, staat als
   "past niet op dit toestel" en is in de web uitgeschakeld.
 - **Tekeningen:** het tekeningnummer en het titelblok tonen de variant (bv. `FR-01-SP-XL`, "Semi-pro · XL · 2 opties").
 - **Web en presentatie:** per toestel de keuzes uitvoering, kleur, maat, afwerking en opties. Ze worden per toestel
   onthouden.
+
+## Versie 5 fase C: 100 nieuwe toestellen (2026-11-15)
+
+Vier nieuwe reeksen van 25 toestellen. Ze hebben elk een 3D-model, een berekening, bladen, gat- en botsingscontroles,
+een bestellijst, een prijs en een marktband, net als de eerste 50. De catalogus telt nu 150 toestellen.
+
+| Reeks | Module | Wat |
+|---|---|---|
+| **FS-01 .. FS-25** selectorized | `selectorized.mjs` | Nokstations met een hefboom, een nok R200 en een kabel via een vloerkatrol naar een omkapte toren. Kabelstations met een gebogen arm. Een nokkap over de nok en de kabel. Herkenbare stations: high row, preacher, knielende lat, seated row en face pull. |
+| **FM-01 .. FM-25** multigyms en rigs | `rigs.mjs` | Rigs met 1 tot 4 vakken, vrijstaand of tegen de muur. De muur staat als context in de 3D, met muurplaten en keilbouten. Monkey bars, ringen, dip en opslag. Functional trainers met 2 of 3 torens. |
+| **FO-01 .. FO-25** opslag en accessoires | `opslag.mjs` | Halterrekken, kettlebellrekken, ballenrekken en opbergrekken. Schijvenbomen en wandstrips. Parallettes, een plyobox en een schijvenkar. |
+| **FX-01 .. FX-25** strongman en buiten | `buiten.mjs` | Strongman: juk, farmers, laadpaal, frame carry, deadlift-frame, slee, log, axle en een stenenplatform. Buiten volgens EN 16630: optrekstang, brug, dip, monkey bars, wandrek, buikbank, ladder, combinaties en opstap. |
+
+**Opslag in pro-vormtaal (Rogue/Eleiko):**
+- **Halterrekken.** Elke laag helt 15° naar de gebruiker en heeft een V-goot. De goot is één gezette plaat van 2-3 mm met een rubberen inleg van 3 mm, gelast op een gootligger over alle frames.
+- **Eindframes.** Aan de buitenkant zit een gelaserde zijplaat van 3-4 mm met ronde hoeken en het logo als uitsparing. Erachter zit een plaatje in de accentkleur. De voeten hebben eindplaten met een halfronde bovenkant.
+- **Kettlebell- en opbergrekken.** Een gezette bak met opstaande randen van 40 mm en een rubbermat. De opbergbank heeft een zitkussen.
+- **Ballenrekken.** Een brede V-goot (300 x 100) met rubber.
+- **Plyobox.** Een dichte doos: een mantel uit één gezette plaat met 4 ronde zettingen R30, een bodem en een deksel met antislip. In de zijkanten zitten handgrepen als uitsparing, onder het deksel een ribbe en eronder rubberstroken.
+- **Schijvenbomen en bandenpaal.** Een gelaserde basisplaat met ronde hoeken op 4 rubberpads, een paal met 4 driehoekschotten en een kopplaat.
+- **Houders.** Een buis Ø42,4 met een rubberen huls (Ø48, schijven Ø50 schuiven er vrij over) en een eindkap. Daarom worden ze niet verchroomd.
+
+**Buiten (EN 16630, `en16630()` in `buiten.mjs`):**
+- **Constructie.** Ronde palen: Ø76 voor thuis, Ø89 voor semi-pro en pro. Ze zitten 500 mm diep in een betonpoer van 400 x 400 x 600, met de bovenkant 300 mm onder het maaiveld. De poer staat als context in de 3D, zichtbaar door de halfdoorzichtige grond. Thermisch verzinkt plus poedercoat (duplex), met verzinken in de prijs (AANNAME € 0,75/kg).
+- **Toetsen:**
+  - de greepdiameter (Ø 16-45);
+  - de vrije openingen tussen evenwijdige stangen, sporten en liggers: geen opening tussen 89 en 230 mm (hoofd en nek);
+  - de vrije valhoogte: bij hangen de greephoogte min 1 m, bij klimmen de hoogste voetsteun, maximaal 3 m;
+  - de valruimte X = 2/3·Y + 0,5 m, met een minimum van 1,5 m, en de ondergrond (valdempend boven 1 m).
+- **Valruimte.** De valruimte staat als vlak in de 3D. De optie "valtegels" vervangt dat vlak door rubbertegels EN 1177 en zet ze in de prijs.
+- **Infobord en stabiliteit.** Er is altijd een infobord. De stabiliteit is gerekend als passieve gronddruk op de poer (AANNAME).
+- **Strongman.** Laadpennen Ø48,3 x 8 in S355 met een gelaserde kraag. Snelsluitklemmen zijn een optie. De proeflast is 2,5 x de last (AANNAME: strongman valt buiten EN ISO 20957). Losse werktuigen zoals de log en de axle krijgen geen kantelproef.
+- **Prijs.** Bij kleine werktuigen (laadpaal, farmers, axle) ligt de thuisprijs ver boven de importprijzen. Dat komt door de vaste kosten per toestel: lakkerij, verpakking en handleiding. De buitentoestellen pro liggen onder of in de band van Kompan, Lappset en BarBarian.
 
 ## Testen: snel of volledig
 

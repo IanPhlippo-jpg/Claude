@@ -29,7 +29,7 @@ export const PROFIEL = {
   k60x60x3: koker(60, 60, 3), k60x60x4: koker(60, 60, 4), k70x70x4: koker(70, 70, 4), k80x80x3: koker(80, 80, 3), k80x80x4: koker(80, 80, 4), k80x80x5: koker(80, 80, 5), k100x100x4: koker(100, 100, 4),
   k50x30x2: koker(30, 50, 2), k60x40x3: koker(40, 60, 3), k80x40x3: koker(40, 80, 3), k80x40x4: koker(40, 80, 4), k100x50x3: koker(50, 100, 3), k100x50x4: koker(50, 100, 4), k120x60x4: koker(60, 120, 4), k120x80x5: koker(80, 120, 5),
   b25x2: buis(25, 2), b32x3: buis(32, 3.2, 'buis Ø32x3,2 (optrekstang)'), b42x3: buis(42.4, 3.2, 'buis Ø42,4x3,2', 'EN 10255 S195T / EN 10219'), b48x3: buis(48.3, 3.2, 'buis Ø48,3x3,2 (schijfhouder)', 'EN 10255 / EN 10219 S235JRH'), b48x4: buis(48.3, 4, 'buis Ø48,3x4 (schijfhouder)'), b48x8: buis(48.3, 8, 'buis Ø48,3x8 naadloos (schijfhouder)', 'EN 10216-1 / DIN 2448 P235'),
-  b60x3: buis(60.3, 3.6, 'buis Ø60,3x3,6'), b60x5: buis(60.3, 5, 'buis Ø60,3x5'), b60x8: buis(60.3, 8, 'buis Ø60,3x8 naadloos (lagerhuis)', 'EN 10216-1 P235'), b76x4: buis(76.1, 4, 'buis Ø76,1x4'), b76x8: buis(76.1, 8, 'buis Ø76,1x8 naadloos (lagerhuis)', 'EN 10216-1 P235'),
+  b60x3: buis(60.3, 3.6, 'buis Ø60,3x3,6'), b89x4: buis(88.9, 4, 'buis Ø88,9x4 (buitenpaal)'), b273x6: buis(273, 6.3, 'buis Ø273x6,3 (log)'), b48x8s: { ...buis(48.3, 8, 'buis Ø48,3x8 S355 (axle)'), fy: 355 }, b60x5: buis(60.3, 5, 'buis Ø60,3x5'), b60x8: buis(60.3, 8, 'buis Ø60,3x8 naadloos (lagerhuis)', 'EN 10216-1 P235'), b76x4: buis(76.1, 4, 'buis Ø76,1x4'), b76x8: buis(76.1, 8, 'buis Ø76,1x8 naadloos (lagerhuis)', 'EN 10216-1 P235'),
   r16: rond(16), r20: rond(20), r25: rond(25), r30: rond(30), r35: rond(35), r38: rond(38), r60: rond(60), r30s: { ...rond(30), fy: 355, naam: 'rond Ø30 S355J2 (optrekstang)' }, r35s: { ...rond(35), fy: 355, naam: 'rond Ø35 S355J2 (optrekstang)' }, r40: { ...rond(40), fy: 355, naam: 'rond Ø40 C45 / S355J2 (as)' },
   s40x8: strip(40, 8), pl10x300: strip(300, 10), pl12x450: strip(450, 12), pl12x600: strip(600, 12), s50x8: strip(50, 8), s60x10: strip(60, 10), s80x10: strip(80, 10), s30x10: strip(30, 10), s12x8: strip(12, 8), s30x8: strip(30, 8), s90x10: strip(90, 10), s100x10: strip(100, 10), s140x10: strip(140, 10), s180x10: strip(180, 10), s80x15: strip(80, 15), s24x8: strip(24, 8), b38x5: buis(38, 5, 'buis Ø38x5 uitgedraaid (lagerbus)', 'EN 10297-1 E355'), b44x5: buis(44.5, 5, 'buis Ø44,5x5 uitgedraaid (lagerbus)', 'EN 10297-1 E355'), b89x5: buis(88.9, 5, 'buis Ø88,9x5'), pl10x150: strip(150, 10),
   o80x40x3: ovaal(40, 80, 3), o100x50x3: ovaal(50, 100, 3), o120x60x3: ovaal(60, 120, 3), o120x60x4: ovaal(60, 120, 4),
@@ -172,6 +172,10 @@ export const KOOP = {
   naafkap: k('Naafkap ABS Ø90 met klemring (accentkleur, over de stelring)', 'pivot cap ABS 90 mm', 'AANNAME (spuitgietwerk/fitness-onderdelen)', 4.5, 'st', 'AANNAME', false),
   verchromen: k('Hardverchromen schijfhouder (of RVS-huls Ø50 erover)', 'hardchroom 20 µm, per stuk tot 400 mm', 'AANNAME (galvanobedrijf BE)', 22, 'st', 'AANNAME', false),
   polycarbonaat: k('Kijkvenster polycarbonaat 4 mm helder, op maat gezaagd', 'Makrolon 4 mm', 'AANNAME (kunststofplatenhandel)', 18, 'st', 'AANNAME', false),
+  infobord: k('Infobord EN 16630 (aluminium dibond 3 mm, UV-bedrukt, op de paal)', 'infobord 400 x 300', 'AANNAME (signalisatie)', 65, 'st', 'AANNAME', false),
+  beton: k('Betonpoer C25/30 400 x 400 x 600: uitgraven, bekisting, storten (per poer)', 'C25/30 0,1 m³ + arbeid', 'AANNAME (aannemer)', 45, 'st', 'AANNAME', false),
+  valtegel: k('Valdempende rubbertegel 500 x 500 x 45 mm (EN 1177, valhoogte tot 1,5 m)', 'SBR-valtegel 45 mm', 'AANNAME (speeltoestelhandel)', 48, 'm²', 'AANNAME', false),
+  rubberhuls: k('Rubberen huls op een houder (EPDM-slang 42 x 3, op maat)', 'EPDM slang binnen 42 mm, wand 3 mm', 'AANNAME (rubberhandel)', 7.5, 'm', 'AANNAME', false),
   rubbermat: k('Rubberstrook 3 mm op de legplank (per m²)', 'rubbermat 3 mm', 'AANNAME (bouwmarkt)', 12, 'm²', 'AANNAME', false),
 };
 

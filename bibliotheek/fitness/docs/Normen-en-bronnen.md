@@ -107,6 +107,30 @@ Koop de normen bij NBN om de aannames af te sluiten (zie onderaan).
 | Niet in de las | geen gat binnen keel + 3 mm van een lasnaad; het gat dat zelf de zitting van het gelaste deel is telt niet | eigen keuze |
 | Westside | Ø17 (thuis, pen 16) op 25 mm in de bankzone en 50 mm elders; Ø26 (pro, pen 25) op 50 mm; gaten in een lasband, tegen een boutgat of te dicht bij het uiteinde vallen weg en staan op het stukblad | Westside-gatpatroon (Rogue, Titan) |
 
+## EN 16630 (buitenfitness, v5 fase C)
+
+EN 16630:2015 geldt voor permanent geïnstalleerde buitenfitnesstoestellen. De norm is gericht op gebruikers vanaf 14
+jaar of vanaf 1,40 m. De norm zelf is betalend. Hieronder staan de waarden uit publieke samenvattingen; wat daar niet in
+stond, is als AANNAME gemarkeerd.
+
+| Regel | Waarde in de controle | Bron |
+|---|---|---|
+| Vrije valhoogte | hangen: greephoogte min 1 m (armlengte); klimmen: hoogste voetsteun, zonder aftrek; staan: het staanvlak; maximaal 3 m | tolymp.de (samenvatting EN 16630 / EN 1176) |
+| Valruimte | X = 2/3·Y + 0,5 m rondom, minimaal 1,5 m | tolymp.de |
+| Ondergrond | valdempend boven 1 m vrije valhoogte (zand/grind 300 mm, of rubbertegels EN 1177); de optie "valtegels" rekent 45 mm (tot 1,5 m) | sportsequip.co.uk; tolymp.de (tegeldikte per valhoogte) |
+| Openingen hoofd en nek | geen vrije opening tussen 89 en 230 mm tussen evenwijdige stangen, sporten en liggers | EN 1176-1 §4.2.7 (proefstukken C en D), **AANNAME** dat EN 16630 dezelfde grenzen gebruikt |
+| Vingers | openingen 8-25 mm vermijden | sunshinegym.co.uk (samenvatting EN 16630); nameten op het eerste toestel |
+| Greepdiameter | Ø 16-45 mm om te omvatten | EN 1176-1 §4.2.4.3, **AANNAME** zelfde grens |
+| Belasting en stabiliteit | horizontaal 30 % van de gebruiker op greephoogte, x 1,5; poer 400 x 400 x 600 met passieve gronddruk Kp = 3 | **AANNAME** (EN 16630 §4.2 nakijken); grondmechanica |
+| Funderingen | palen 500 mm ingegoten, bovenkant poer 300 mm onder het maaiveld | **AANNAME** (EN 1176-1: funderingen in de valruimte onder de ondergrond) |
+| Infobord | gebruikersleeftijd, oefeningen, noodnummer, beheerder | EN 16630 (samenvatting sportsequip.co.uk) |
+| Strongman | proeflast 2,5 x de last; geen kantelproef voor losse werktuigen | **AANNAME**: strongman-werktuigen vallen buiten EN ISO 20957 |
+
+Bronnen: [tolymp.de](https://www.tolymp.de/en/your-topics/),
+[sportsequip.co.uk](https://www.sportsequip.co.uk/bsen16630-permanently-installed-outdoor-fitness-equipment),
+[sunshinegym.co.uk](https://www.sunshinegym.co.uk/bs-en-16630),
+[AS 16630:2021 (inhoud)](https://store.standards.org.au/product/as-16630-2021).
+
 ## Wat nog open is
 
 - **Stabiliteit:** de hellingshoek (10°) in EN ISO 20957-1:2013/2024.

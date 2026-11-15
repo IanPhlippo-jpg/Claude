@@ -60,9 +60,9 @@
 - [x] Web: keuzes per toestel; tests; foto's fitness-fotos-v5b
 
 ## Versie 5 fase C: ± 100 nieuwe toestellen (2026-11-15)
-- [ ] FS selectorized (eigen stapel en pen), FM multigyms/rigs, FO opslag/accessoires, FX strongman/buiten (EN 16630)
-- [ ] Per toestel 3D, berekening, bladen, gat- en botsingscontrole, bestellijst, prijs en marktband
-- [ ] Web lui laden per toestel, EISEN/README/docs, presentatie en bureaubladkopie, foto's fitness-fotos-v5c, graphify
+- [x] FS selectorized (eigen stapel en pen), FM multigyms/rigs, FO opslag/accessoires, FX strongman/buiten (EN 16630)
+- [x] Per toestel 3D, berekening, bladen, gat- en botsingscontrole, bestellijst, prijs en marktband
+- [x] Web lui laden per toestel, EISEN/README/docs, presentatie en bureaubladkopie, foto's fitness-fotos-v5c, graphify
 
 ## Versie 5 fase A2: vormtaal van pro-toestellen (2026-11-15)
 - [x] Model: gebogen buis (sweep langs bogen, buigradius ≥ 3 x buishoogte) en vrije laserplaat (contour met bogen, uitsparingen)
@@ -93,5 +93,16 @@
 - [x] Blok 1: FS-01..FS-25 selectorized (nokstation met hefboom en nok, kabelstation met gebogen arm), varianten en opties; tests, raster
 - [x] Blok 2: FM-01..FM-25 multigyms en rigs (rigBouw 1-4 vakken, muur, monkey bars, ringen, dips, opslag; functional trainers 2-3 torens); FS: nokkap, herkenbare stations, latstang aan V-strop
 - [x] Blok 3: FO-01..FO-25 opslag en accessoires (rekken met lagen, palen en wandstrips met houders, parallettes, plyobox, schijvenkar); muur als context bij muurtoestellen; snelle testrun (FITNESS_VOLLEDIG=1 voor alles); lui laden in de web
-- [ ] Blok 4: FX strongman en buiten (EN 16630)
-- [ ] Web lui laden per toestel (start niet trager met 150 toestellen), README/EISEN/docs, presentatie, graphify
+- [x] FO pro-uiterlijk: halterrekken met V-goten (gezette plaat + rubber) op 15° helling, zijplaat met logo en ronde voeten; ballen- en kettlebellrek met V-goot of gezette bak; plyobox als dichte doos uit gezette plaat; schijvenbomen en bandenpaal op een gelaserde basisplaat, houders met eindkap en rubberen huls
+- [x] Blok 4: FX strongman en buiten (EN 16630)
+  - [x] buiten.mjs: strongman (juk, farmers, frame carry, slee, log, axle, conan's wheel, viking press, deadlift jack, platform)
+  - [x] buiten.mjs: calisthenics EN 16630 (palen in betonpoer, optrek, brug, dip, monkey bars, wandrek, buikbank, combinaties)
+  - [x] EN 16630-toetsen: klemopeningen 89-230 mm, greep Ø 16-45, valhoogte en valruimte, ondergrond
+  - [x] varianten (maat, opties), prijs en marktband, controles, catalogus en web
+  - [x] snelle en volledige testrun (4280/4280, 173 s), typecheck, raster FX
+- [x] Afronding: README/EISEN/docs (EN 16630, marktprijzen 150), presentatie, web-build met bestandenlijst, totaalraster 150, graphify
+  - [x] README, EISEN, Normen-en-bronnen (EN 16630), Marktprijzen (150 toestellen)
+  - [x] presentatie opnieuw gebouwd en naar Bureaublad/Fitnesstoestellen
+  - [x] web-build met de volledige bestandenlijst
+  - [x] totaalraster van alle 150 toestellen
+  - [x] graphify update, tijdelijke scripts weg
