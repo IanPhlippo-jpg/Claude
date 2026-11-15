@@ -50,6 +50,17 @@ Ian bestelt zelf; er is niets besteld.
 | anker | Keilbout M12 x 110 (fischer FAZ II 12/10) | vakhandel | € 3,20 | AANNAME | zie bibliotheek/balustrades |
 | zwenkwiel50 / zwenkwiel75 | Zwenkwiel 50 mm 35 kg / Tente 75 mm met rem 55 kg | Gamma BE / RS AT | € 4,79 / € 14,50 | AANNAME | https://www.gamma.be/nl/assortiment/zwenkwiel-rubber-met-plaatbevestiging-50-mm-tot-35-kg/p/B100075 |
 
+## Pro-uiterlijk (v5, alle AANNAME: prijs op te vragen)
+| Onderdeel | Waar | Prijs (excl. btw) |
+|---|---|---|
+| Eindkap vlakovaalbuis | kunststofdoppen-groothandel | € 1,90 |
+| 3M VHB 5952 (logoplaat) | vakhandel | € 9,50 per rol |
+| Instructieplaat alu 0,8 mm bedrukt | graveerdienst | € 9 |
+| Katrolkap ABS (2 schalen) | fitness-onderdelen | € 7,50 |
+| Naafkap ABS Ø90 met klemring | spuitgietwerk/fitness-onderdelen | € 4,50 |
+| Hardverchromen schijfhouder (of RVS-huls) | galvanobedrijf BE | € 22 per stuk |
+| Kijkvenster polycarbonaat 4 mm | kunststofplatenhandel | € 18 |
+
 ## Zelf maken (geen koopdeel)
 
 - **Gewichtstapelplaten:** losse platen met twee geleidegaten zijn niet te koop. Laat ze lasersnijden uit 20 mm plaat

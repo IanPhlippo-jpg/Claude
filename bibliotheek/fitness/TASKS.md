@@ -44,3 +44,22 @@
 - [x] Controles: sleutelruimte en gaten in gezette delen (P2-08); bouten op trek en trek + afschuiving (P2-10)
 - [x] DXF-export van platen en laserdelen (P2-09); halve V als lassymbool (P3-04); lassamenstelling voor alle lasgroepen
 - [x] Oranje punten onder 85 % (J-cup-pen thuis, schijfhouder FP-06 pro); tests, typecheck, web, presentatie, foto's v4, graphify
+
+## Versie 5 fase A: pro-uiterlijk van de bestaande 50 (2026-11-15)
+- [x] Weergave: PBR-materialen (poedercoat met korrel, chroom, leer), studiolicht, zachte schaduw, AO, betere camera
+- [x] Ovaalbuis voor plate-loaded (armen, portaal), afgeronde vormen; berekening volgt het profiel
+- [x] Gelaserde zijplaten met logo-uitsparing (placeholder) op rekken en plate-loaded
+- [x] Kappen over stapel en katrollen (gezet plaatwerk 1,5 mm) met kijkvenster en instructieplaat
+- [x] Kussens met bies en ronde randen, grepen met eindkap, knoppen/popper-pins in accentkleur, verborgen rubber voeten, chromen hulzen
+- [x] Alles in stuklijst, bestellijst, prijs en tekening; controles groen; tests en typecheck
+- [x] Foto's voor/na in fitness-fotos-v5a bekijken en verbeteren
+
+## Versie 5 fase B: variantensysteem (2026-11-15)
+- [ ] Uitvoering thuis / semi-pro / pro (klasse H, semi-pro onderbouwd, S), maat compact / standaard / XL
+- [ ] Afwerking (RAL, bekleding, chroom of zwart, logoplaat) en opties per soort in model, berekening, stuklijst, prijs en tekening
+- [ ] Web: keuzes per toestel; tests; foto's fitness-fotos-v5b
+
+## Versie 5 fase C: ± 100 nieuwe toestellen (2026-11-15)
+- [ ] FS selectorized (eigen stapel en pen), FM multigyms/rigs, FO opslag/accessoires, FX strongman/buiten (EN 16630)
+- [ ] Per toestel 3D, berekening, bladen, gat- en botsingscontrole, bestellijst, prijs en marktband
+- [ ] Web lui laden per toestel, EISEN/README/docs, presentatie en bureaubladkopie, foto's fitness-fotos-v5c, graphify

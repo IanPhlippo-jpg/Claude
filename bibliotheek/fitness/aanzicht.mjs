@@ -56,7 +56,7 @@ export function tekenBalken(geo, { proj = PROJ.voor, schaal = 0.1, ox = 0, oy = 
     if (stijl === 'kleur') {
       const c = hex(kleur[g.kleur] ?? KLEUR[g.kleur] ?? '#999999'), k = 0.55 + 0.5 * Math.max(0, dot(v.n, L));
       vul = rgb(c.map((x) => x * k + 12)); rand = rgb(c.map((x) => x * 0.45)); w = v.rond && !v.kop ? 0 : lw;
-      if (g.kleur === 'kap') { el.push(`<polygon points="${pts.map(([x, y]) => `${f(x)},${f(y)}`).join(' ')}" fill="${vul}" fill-opacity="0.18" stroke="${rand}" stroke-width="${lw * 0.5}"/>`); continue; }
+      if (g.kleur === 'kap' || g.kleur === 'kappaneel' || g.kleur === 'venster') { el.push(`<polygon points="${pts.map(([x, y]) => `${f(x)},${f(y)}`).join(' ')}" fill="${vul}" fill-opacity="0.18" stroke="${rand}" stroke-width="${lw * 0.5}"/>`); continue; }
     } else {
       vul = g.kleur === 'kap' || g.kleur === 'context' ? 'none' : g.kleur === 'leer' ? '#ececec' : g.kleur === 'hout' ? '#f3ead9' : g.kleur === 'schijf' ? '#f4f4f4' : g.kleur === 'kabel' || g.kleur === 'naad' ? '#111' : g.kleur === 'gat' ? '#fff' : '#fff';
       rand = '#111'; w = g.kleur === 'kabel' ? lw * 0.6 : lw;
@@ -81,7 +81,7 @@ export function omhullende(geo, proj) {
   return [x0, y0, x1, y1];
 }
 /** alle balken van een toestel (zonder de schijven en de stang voor de 3D, tenzij metToon) */
-export const alleGeo = (o, metToon = false) => [...o.delen.flatMap((d) => d.geo), ...o.kussens.flatMap((d) => d.geo), ...o.koop.flatMap((d) => d.geo), ...(o.detail ?? []), ...(metToon ? o.toon : [])];
+export const alleGeo = (o, metToon = false) => [...o.delen.flatMap((d) => d.geo), ...o.kussens.flatMap((d) => d.geo), ...o.koop.flatMap((d) => d.geo), ...(o.detail ?? []).filter((g) => g.kleur !== 'nummer'), ...(metToon ? o.toon : [])];
 
 /** miniatuur (SVG, belicht) voor de catalogus */
 export function miniatuur(o, { w = 240, h = 180, kleur = {}, metToon = true } = {}) {

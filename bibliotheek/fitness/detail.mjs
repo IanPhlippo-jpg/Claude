@@ -31,14 +31,17 @@ export function details(o) {
     (d.kappen ?? []).forEach((open, k) => {
       if (!open) return;
       const e = k ? d.b : d.a, r = k ? d.u : neg(d.u);
-      uit.push(balk(e, add(e, mul(r, 3)), d.v, P.b + (rond ? 1 : 0.6), P.h + (rond ? 1 : 0.6), rond, 'rubber'));
+      uit.push(balk(e, add(e, mul(r, 3)), d.v, P.b + (rond ? 1 : 0.6), P.h + (rond ? 1 : 0.6), rond, 'eindkap', P.ovaal ? { r: P.b / 2 + 0.3 } : P.vorm === 'koker' ? { r: 2 * P.t + 0.3 } : {}));
     });
     // eindkap op de schijfhouder (rubber, met kraag)
     if (/^Schijfhouder/.test(d.naam) && !(d.kappen ?? [])[1]) uit.push(balk(d.b, add(d.b, mul(d.u, 6)), d.v, P.b + 4, P.b + 4, true, 'rubber'));
     // 3. rubber handvat (grip) op de vrije uiteinden van grepen, kartel op de stangen
     if (/^(Greep|Handgreep)/.test(d.naam)) {
       const L = d.L, ends = L > 450 ? [0, 1] : [1];
-      for (const k of ends) { const e = k ? d.b : d.a, r = k ? neg(d.u) : d.u, l = Math.min(130, L * 0.6); uit.push(balk(add(e, mul(r, 4)), add(e, mul(r, 4 + l)), d.v, P.b + 6, P.b + 6, true, 'rubber', { grip: true })); }
+      // grip (rubber, of de accentkleur op een grendelhendel) met een eindkap op het vrije uiteinde
+      const kl = /grendel/i.test(d.naam) ? 'accent' : 'rubber';
+      for (const k of ends) { const e = k ? d.b : d.a, r = k ? neg(d.u) : d.u, l = Math.min(130, L * 0.6); uit.push(balk(add(e, mul(r, 4)), add(e, mul(r, 4 + l)), d.v, P.b + 6, P.b + 6, true, kl, { grip: true })); }
+      for (const k of ends) { const e = k ? d.b : d.a, r = k ? d.u : neg(d.u); if ((d.kappen ?? [true, true])[k]) uit.push(balk(add(e, mul(r, -2)), add(e, mul(r, 6)), d.v, P.b + 9, P.b + 9, true, 'eindkap')); }
     }
     if (/^(Optrekstang|Dipstang|Halterstang)/.test(d.naam)) {
       const L = d.L, l = Math.min(160, L * 0.2);
@@ -53,8 +56,15 @@ export function details(o) {
     const s0 = add(top, mul(u, 22)), s1 = add(top, mul(u, L - 22));
     for (const s of [-1, 1]) uit.push(balk(add(s0, mul(v, s * (B / 2 - 22))), add(s1, mul(v, s * (B / 2 - 22))), v, 2, 0.8, false, 'naad'));
     for (const t of [22, L - 22]) { const c = add(top, mul(u, t)); uit.push(balk(add(c, mul(v, -(B / 2 - 22))), add(c, mul(v, B / 2 - 22)), u, 2, 0.8, false, 'naad')); }
+    // bies (piping) rondom op de bovenrand: de naad tussen het bovenvlak en de zijkant van het kussen
+    const zb = add(g.a, mul(n, k.dikte / 2 - 9)), rb = 4.5;
+    if (L > 120 && B > 120) {
+      for (const s of [-1, 1]) uit.push(balk(add(add(zb, mul(v, s * (B / 2 - 3.5))), mul(u, 28)), add(add(zb, mul(v, s * (B / 2 - 3.5))), mul(u, L - 28)), v, rb * 2, rb * 2, true, 'bies'));
+      for (const t of [3.5, L - 3.5]) { const c = add(zb, mul(u, t)); uit.push(balk(add(c, mul(v, -(B / 2 - 28))), add(c, mul(v, B / 2 - 28)), u, rb * 2, rb * 2, true, 'bies')); }
+    }
     const bot = add(g.a, mul(n, -k.dikte / 2 - 0.4));
-    if (L > 60 && B > 60) uit.push(balk(add(bot, mul(u, 25)), add(bot, mul(u, L - 25)), v, B - 50, 0.8, false, 'hout'));
+    // onderkant: het multiplex is bekleed (kunstleer rondom geniet), alleen de rand van de bekleding is zichtbaar
+    if (L > 60 && B > 60) uit.push(balk(add(bot, mul(u, 25)), add(bot, mul(u, L - 25)), v, B - 50, 0.8, false, 'eindkap'));
   }
   // 6. assen en pennen zonder eigen kooponderdeel (as van een looprol, hefboomas, gelaste pen niet): verzinkte as met
   // sluitring en borgmoer (of borgveer) aan beide uiteinden, zodat elke as in zijn gat zichtbaar is
@@ -64,8 +74,24 @@ export function details(o) {
     uit.push(balk(e0, e1, sv, pn.d, pn.d, true, 'zink'));
     for (const [e, r] of [[e0, pn.as], [e1, neg(pn.as)]]) uit.push(balk(add(e, mul(r, 2)), add(e, mul(r, 5)), sv, pn.d + 8, pn.d + 8, true, 'ring'));
   }
+  // 7. gatnummers naast de Westside-gaten (gelaserd/gezeefdrukt, zoals bij merkracks): van onder naar boven, op beide vlakken
+  for (const d of o.delen) {
+    if (d.soort !== 'staaf' || !d.westside || d.P.vorm !== 'koker') continue;
+    const ws = d.gaten.filter((g) => g.as === 'w' && g.d === d.westside.d).sort((p, q) => p.s - q.s), vlak = d.P.b / 2 - 2 * d.P.t;
+    const op = d.u[2] >= 0 ? d.u : neg(d.u);
+    ws.forEach((g, i) => {
+      const bw = Math.min(12, vlak - g.d / 2 - 2), dv = (g.d / 2 + vlak) / 2;
+      if (bw < 7) return;
+      for (const sg of [1, -1]) { const n = mul(d.w, sg), p = add(add(d.a, mul(d.u, g.s)), add(mul(n, d.P.h / 2 + 0.35), mul(d.v, dv))), zij = norm(cross(n, op)); uit.push(balk(add(p, mul(op, -bw / 2)), add(p, mul(op, bw / 2)), zij, bw, 0.3, false, 'nummer', { nr: i + 1 })); }
+    });
+  }
   // 6. typeplaatje op de buitenkant van de langste staande koker (EN ISO 20957-1 §7)
   const tp = typeplaatPlek(o);
+  // instructieplaat (oefeningen en spieren) boven het typeplaatje, als ze niet al op de stapelkap zit
+  if (tp && !o.instructieOpKap && tp.deel.soort === 'staaf') {
+    const ih = Math.round(tp.w * 2.1), d = tp.deel, z1 = Math.max(d.a[2], d.b[2]), c = add(tp.c, mul(tp.op, tp.h / 2 + 25 + ih / 2));
+    if (Math.abs(tp.op[2]) < 0.5 || c[2] + ih / 2 < z1 - 30) { o.instructie = { c, h: ih }; uit.push(balk(add(c, mul(tp.op, -ih / 2)), add(c, mul(tp.op, ih / 2)), tp.zij, tp.w, 1, false, 'instructie')); }
+  }
   if (tp) { o.typeplaat = tp; uit.push(balk(add(tp.c, mul(tp.op, -tp.h / 2)), add(tp.c, mul(tp.op, tp.h / 2)), tp.zij, tp.w, 1, false, 'typeplaat'), balk(add(tp.c, mul(tp.op, tp.h / 2 - 14)), add(tp.c, mul(tp.op, tp.h / 2 - 4)), tp.zij, tp.w - 8, 1.4, false, 'naad')); }
   return uit;
 }

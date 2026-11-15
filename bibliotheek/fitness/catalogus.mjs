@@ -9,6 +9,7 @@ import { details } from './detail.mjs';
 import { BANKEN } from './banken.mjs';
 import { KABEL } from './kabel.mjs';
 import { PLATE } from './plate.mjs';
+import { proUiterlijk, stijlVersie } from './pro.mjs';
 
 export const TOESTELLEN = [...REKKEN, ...BANKEN, ...KABEL, ...PLATE];
 export const PER_ID = Object.fromEntries(TOESTELLEN.map((t) => [t.id, t]));
@@ -19,9 +20,10 @@ export function toestel(id, versie = 'thuis', opt = {}) {
   if (cache.has(key)) return cache.get(key);
   const def = PER_ID[id];
   if (!def) throw new Error(`onbekend toestel ${id}`);
-  const V = VERSIE[versie], b = bouwer(V, stand);
+  const V = stijlVersie(VERSIE[versie], def.soort), b = bouwer(V, stand);
   b.o.opties = opt;
   def.bouw.call(def, b, V);
+  proUiterlijk(b, def);
   const o = afwerken(b.o);
   snoeiWestside(o);
   o.def = def; o.id = id; o.versie = versie; o.naam = def.naam; o.maxLast = def.maxLast?.[versie] ?? 0; o.stand = stand;
@@ -45,6 +47,7 @@ export function toestel(id, versie = 'thuis', opt = {}) {
   if (anti > 0) o.koop.push({ id: 'k-antislip', soort: 'koop', key: 'antislip', n: 1, meter: null, oppervlak: Math.round(anti * 100) / 100, naam: 'Antislip op voetplaten en platform', groep: 'afwerking', geo: [] });
   extra('borgveer', o.koop.filter((k) => /pullpin/.test(k.key ?? '')).reduce((s, k) => s + k.n, 0), 'Borgveer (veiligheidsclip) bij elke veerpen');
   extra('typeplaat', 1, 'Typeplaatje (prototype: proeflast nodig) met 4 blindklinknagels');
+  if (!o.instructieOpKap) extra('instructiesticker', 1, 'Instructieplaat op het frame (oefeningen, spieren, pen-instructie)');
   extra('waarschuwing', 1, 'Waarschuwingsstickers: klempunten, pen-instructie, maximale last');
   extra('maskeer', o.delen.reduce((s, d) => s + d.gaten.length, 0) + 10, 'Maskeerdoppen en -pluggen (boringen, lagerzittingen, schroefdraad) voor het poedercoaten');
   extra('vet', 1, 'Smeermiddel voor pennen, geleidestangen en lagers');
@@ -55,7 +58,7 @@ export function toestel(id, versie = 'thuis', opt = {}) {
   const traan = o.delen.filter((d) => d.soort === 'plaat' && /traanplaat/i.test(d.opm ?? ''));
   for (const d of traan) d.materiaal = 'traanplaat S235 5/7 mm (EN 10025-2)';
   if (traan.length) o.koop.push({ id: 'k-traan', soort: 'koop', key: 'traanplaat', n: 1, oppervlak: Math.round(traan.reduce((s2, d) => s2 + (d.l * d.bmaat) / 1e6, 0) * 100) / 100, naam: `Traanplaat 5/7 mm (${traan.length} stuk${traan.length > 1 ? 'ken' : ''}, laseren op maat)`, groep: 'afwerking', geo: [] });
-  o.detail = details(o);
+  o.detail = [...details(o), ...o.pronk];
   // knelpunten over de slag: kleinste afstand bewegend - vast in stand 0, 0,5 en 1 (lui berekend, voor de berekening)
   o.knelMeting = () => [0, 0.5, 1].flatMap((st) => knelAfstanden(st === stand ? o : toestel(id, versie, { stand: st })).map((k) => ({ ...k, stand: st })));
   cache.set(key, o);

@@ -411,3 +411,79 @@ describe('Fable 5.2 - de deels-punten afgewerkt (v4)', () => {
     for (const id of ['FR-02', 'FR-05']) expect(benut(id, 'pro', /^Spotterarm: stang valt/)).toBeLessThan(0.85);
   });
 });
+
+describe('fitness v5 fase A: pro-uiterlijk', () => {
+  it('plate-loaded: hefboomarmen in vlakovaalbuis (eindkap ovaal; zware armen met een eigen profiel blijven koker), andere soorten niet', () => {
+    for (const t of TOESTELLEN) for (const v of VERSIES) {
+      const o = toestel(t.id, v), armen = o.delen.filter((d: any) => /^Hefboomarm/.test(d.naam));
+      if (t.soort === 'plate') for (const a of armen.filter((x: any) => x.rol === 'hefboom')) { expect(a.P.ovaal, `${t.id} ${v}`).toBe(true); expect(a.geo[0].r).toBe(Math.min(a.P.b, a.P.h) / 2); }
+      else for (const a of armen) expect(a.P.ovaal ?? false).toBe(false);
+    }
+    expect(toestel('FP-04', 'pro').koop.some((k: any) => k.key === 'kapOvaal')).toBe(true);
+  });
+  it('vlakovaalbuis: doorsnede tussen een buis en een koker van dezelfde buitenmaat; gat in de ronde kant = gatfout', () => {
+    const o = toestel('FP-08', 'pro'), arm = o.delen.find((d: any) => /^Hefboomarm/.test(d.naam));
+    const P = arm.P, rh = P.h * P.b - (P.h - 2 * P.t) * (P.b - 2 * P.t);
+    expect(P.A).toBeLessThan(rh); expect(P.A).toBeGreaterThan(0.75 * rh);
+    expect(gatFouten(o)).toEqual([]);
+    const fout = { ...o, delen: o.delen.map((d: any) => (d === arm ? { ...d, gaten: [...d.gaten, { s: d.L / 2, d: 13, as: 'w', door: 2 }] } : d)) };
+    expect(gatFouten(fout).some((x: string) => /hoekradius/.test(x))).toBe(true);
+  });
+  it('kabel: stapelkap met kijkvenster, sleuf voor de selectiepen, instructieplaat en katrolkappen', () => {
+    for (const t of TOESTELLEN.filter((x) => x.soort === 'kabel')) for (const v of VERSIES) {
+      const o = toestel(t.id, v), voor = o.delen.filter((d: any) => d.naam === 'Afscherming voor');
+      for (const d of voor) {
+        expect(d.geo.some((g: any) => g.kleur === 'venster'), t.id).toBe(true);
+        const s = o.koop.find((k: any) => /selectiepen/.test(k.key));
+        if (s) { const x = s.geo[0].a[0]; expect(d.geo.filter((g: any) => g.kleur !== 'venster').every((g: any) => { const [mn, mx] = aabb(g); return x < mn[0] - 10 || x > mx[0] + 10 || mx[2] < s.geo[0].a[2] - 20 || mn[2] > s.geo[0].a[2] + 20; }), `${t.id} sleuf`).toBe(true); }
+      }
+      if (voor.length) { expect(o.koop.some((k: any) => k.key === 'polycarbonaat')).toBe(true); expect(o.koop.some((k: any) => k.key === 'instructiesticker')).toBe(true); }
+      const kk = o.koop.find((k: any) => k.key === 'katrolkap');
+      expect(kk?.n ?? 0, `${t.id} ${v} katrolkappen`).toBeGreaterThanOrEqual(Math.ceil(o.katrollen.length / 2));
+    }
+  });
+  it('touch points: elke veerpen en selectiepen heeft een knop in de accentkleur; grendelhendels in de accentkleur', () => {
+    for (const t of TOESTELLEN) for (const v of VERSIES) {
+      const o = toestel(t.id, v);
+      for (const k of o.koop.filter((x: any) => /pullpin|selectiepen/.test(x.key) && x.geo.length)) { expect(k.geo.some((g: any) => g.kleur === 'accent'), `${t.id} ${k.naam}`).toBe(true); expect(k.geo.some((g: any) => g.kleur === 'rubber')).toBe(false); }
+      expect(o.stijl?.accent).toMatch(/^#[0-9a-f]{6}$/);
+    }
+  });
+  it('logoplaat: gelaserd, zonder gaten, niet op een bewegend deel, vrij van botsingen, in de stuklijst en de DXF', () => {
+    let n = 0;
+    for (const t of TOESTELLEN) for (const v of VERSIES) {
+      const o = toestel(t.id, v), lp = o.delen.find((d: any) => d.naam === 'Logoplaat');
+      if (!lp) continue;
+      n++;
+      expect(lp.gaten.length).toBe(0); expect(lp.laser).toBe(true); expect(lp.t).toBe(3);
+      const host = o.delen.find((d: any) => d.id === lp.in);
+      expect(/^(Hefboom|Slede|Wagen|Arm|Stang)/.test(host.groep)).toBe(false);
+      expect(botsingen(o).filter((b: any) => b.a === 'Logoplaat' || b.b === 'Logoplaat')).toEqual([]);
+      expect(stuklijst(o).posities.some((p: any) => p.naam === 'Logoplaat')).toBe(true);
+      expect(o.koop.some((k: any) => k.key === 'vhb')).toBe(true);
+    }
+    expect(n).toBeGreaterThanOrEqual(80);
+  });
+  it('afwerking: verchroomde schijfhouders, naafkappen op de hefbomen, verborgen voeten, instructieplaat, bies en eindkappen', () => {
+    const fp = toestel('FP-01', 'pro');
+    expect(fp.delen.filter((d: any) => /^Schijfhouder/.test(d.naam)).every((d: any) => d.geo[0].kleur === 'chroom')).toBe(true);
+    expect(fp.koop.find((k: any) => k.key === 'verchromen')!.n).toBe(fp.delen.filter((d: any) => /^(Schijfhouder|Laadpen)/.test(d.naam)).length);
+    expect(fp.koop.find((k: any) => k.key === 'naafkap')!.n).toBeGreaterThanOrEqual(2);
+    for (const t of TOESTELLEN) for (const v of VERSIES) {
+      const o = toestel(t.id, v);
+      for (const k of o.koop.filter((x: any) => /^voet(Thuis|Pro)$/.test(x.key))) expect(k.geo.some((g: any) => g.zes)).toBe(false);
+      expect(o.koop.some((k: any) => k.key === 'instructiesticker'), t.id).toBe(true);
+      if (o.kussens.some((k: any) => k.L > 120 && k.breedte > 120)) expect(o.detail.some((g: any) => g.kleur === 'bies'), t.id).toBe(true);
+    }
+    const fr = toestel('FR-01', 'pro');
+    expect(fr.detail.filter((g: any) => g.kleur === 'nummer').length).toBeGreaterThan(100);
+    expect(fr.detail.some((g: any) => g.kleur === 'eindkap')).toBe(true);
+  });
+  it('prijs: vlakovaalbuis duurder per kg; logoplaat, kappen en chroom in de kostprijs', () => {
+    const k = kostprijs(toestel('FP-08', 'pro'));
+    expect(k.regels.find((r: any) => r.cat === 'staal')!.wat).toMatch(/vlakovaalbuis x 1,5/);
+    const koop = k.regels.filter((r: any) => r.cat === 'koop').map((r: any) => r.wat).join(' | ');
+    for (const re of [/Naafkap/, /Hardverchromen/, /VHB/, /Instructieplaat/]) expect(koop).toMatch(re);
+    expect(geenNaN(JSON.stringify(k.regels))).toBe(true);
+  });
+});

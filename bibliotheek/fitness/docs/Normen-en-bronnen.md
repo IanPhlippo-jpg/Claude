@@ -82,6 +82,14 @@ Koop de normen bij NBN om de aannames af te sluiten (zie onderaan).
 | Keilbout M12 in beton | NRd ≈ 7,6 kN | **AANNAME** (zie de balustrades; nakijken in fischer FIXPERIENCE) |
 | Zwaartepunt schijven op een houder | op 0,6 x de lengte van de houder | **AANNAME** |
 
+## Vlakovaalbuis (v5)
+- Koud gevormde vlakovaalbuis volgens EN 10219 (constructie) of EN 10305-5 (precisie), S235JRH / E235: twee vlakke zijden
+  en halfronde kopse kanten met straal b/2. Doorsnede in `onderdelen.mjs` (`ovaal`): rechthoek b x (h-b) plus een
+  cirkel Ø b, buiten min binnen.
+- Maten 100x50x3 en 120x60x3 zijn gangbaar; 120x60x4 (pro) is AANNAME: navragen bij de buizenhandel, anders 120x60x3 met
+  een inwendige strip 60x8 in het eerste armstuk: met 120x60x3 alleen komt de hefboomarm van FP-07 pro op 103 % (rood).
+- Gaten alleen door de vlakke zijden (de controle meldt een gat in de ronde kant als 'hoekradius').
+
 ## Gaten en boutverbindingen
 
 | Regel | Waarde in de controle | Bron |

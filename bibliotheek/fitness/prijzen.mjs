@@ -32,8 +32,8 @@ export function kostprijs(o, inst = {}) {
   const I = { ...STANDAARD, ...inst, marge: { ...STANDAARD.marge, ...(inst.marge ?? {}) }, koopPrijs: { ...(inst.koopPrijs ?? {}) } };
   const U = { ...UREN, ...(inst.uren ?? {}) };
   const sl = stuklijst(o), zp = zaagplan(o, sl), t = totalen(o, sl), regels = [];
-  const kgStaaf = zp.profielen.reduce((s, p) => s + p.kg, 0) * (1 + I.afval / 100);
-  regels.push({ cat: 'staal', wat: `Staal: ${zp.profielen.map((p) => `${p.naam} ${p.nodig.toFixed(1).replace('.', ',')} m`).join(', ')} (${Math.round(kgStaaf)} kg met ${I.afval} % afval)`, bedrag: kgStaaf * I.staalKg, bron: BRON.staalKg });
+  const kgStaaf = zp.profielen.reduce((s, p) => s + p.kg, 0) * (1 + I.afval / 100), kgPrijs = zp.profielen.reduce((s, p) => s + p.kg * (p.prijsFactor ?? 1), 0) * (1 + I.afval / 100);
+  regels.push({ cat: 'staal', wat: `Staal: ${zp.profielen.map((p) => `${p.naam} ${p.nodig.toFixed(1).replace('.', ',')} m`).join(', ')} (${Math.round(kgStaaf)} kg met ${I.afval} % afval${kgPrijs > kgStaaf + 0.5 ? '; vlakovaalbuis x 1,5' : ''})`, bedrag: kgPrijs * I.staalKg, bron: kgPrijs > kgStaaf + 0.5 ? `${BRON.staalKg}; AANNAME: vlakovaalbuis ± 1,5 x de prijs per kg van een koker` : BRON.staalKg });
   const kgStapel = sl.posities.filter((p) => p.soort === 'plaat' && p.voorbeeld.stapel).reduce((s, p) => s + p.kg * p.n, 0), kgLaser = t.kgPlaat - kgStapel;
   regels.push({ cat: 'laser', wat: `Laserdelen (${Math.round(kgLaser)} kg, ${sl.posities.filter((p) => p.soort === 'plaat' && !p.voorbeeld.stapel).reduce((s, p) => s + p.n, 0)} stuks)`, bedrag: kgLaser * I.laserKg, bron: BRON.laserKg });
   if (kgStapel) regels.push({ cat: 'stapel', wat: `Gewichtstapel (${Math.round(kgStapel)} kg, platen 20 mm)`, bedrag: kgStapel * I.stapelKg, bron: BRON.stapelKg });

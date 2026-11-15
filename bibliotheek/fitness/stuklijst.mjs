@@ -68,7 +68,7 @@ export function koopLijst(o) {
 export function zaagplan(o, sl = stuklijst(o)) {
   const per = new Map();
   for (const p of sl.posities.filter((x) => x.soort === 'staaf')) {
-    if (!per.has(p.prof)) per.set(p.prof, { prof: p.prof, naam: p.voorbeeld.P.naam, norm: p.voorbeeld.P.norm, kgm: p.voorbeeld.P.kgm, lengte: STAAFLENGTE, stukken: [] });
+    if (!per.has(p.prof)) per.set(p.prof, { prof: p.prof, naam: p.voorbeeld.P.naam, norm: p.voorbeeld.P.norm, kgm: p.voorbeeld.P.kgm, prijsFactor: p.voorbeeld.P.prijsFactor ?? 1, lengte: STAAFLENGTE, stukken: [] });
     for (let i = 0; i < p.n; i++) per.get(p.prof).stukken.push({ pos: p.pos, l: Math.ceil(p.L) });
   }
   const profielen = [];

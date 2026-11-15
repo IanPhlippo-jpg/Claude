@@ -534,7 +534,8 @@ function isoMachine(b, def, soort) {
   basis(b, w, 0, y1, [100, y1 - 100]);
   const vl = b.staaf('Middenligger', 'ligger', [0, 100 + a / 2, a / 2], [0, y1 - 100 - a / 2, a / 2], { opm: 'tussen de dwarsliggers; draagt de zitpaal' });
   // portaal: twee palen (x = ±w/2) op de vloerrails en een ligger ertussen
-  const zt = cfg.portaal === 'achter' ? zp : zp + 80 + a / 2;
+  // portaal boven: 80 mm boven de as, meer bij een hogere arm (ovaalbuis 120 pro): de spleet arm-ligger blijft ≥ 25 mm
+  const A = b.P('hefboom'), hp = Math.max(80, A.h / 2 + 35), zt = cfg.portaal === 'achter' ? zp : zp + hp + a / 2;
   const pL = staander(b, 'Portaalpaal', 'ligger', -w / 2, ypt, a, zt + a / 2), pR = staander(b, 'Portaalpaal', 'ligger', w / 2, ypt, a, zt + a / 2);
   const pt = ligger(b, 'Portaalligger', 'ligger', pL, pR, { z: zt });
   // zitting
@@ -551,10 +552,10 @@ function isoMachine(b, def, soort) {
   if (cfg.rug) { staander(b, 'Rugpaal', 'bank', 0, cfg.rug[0], a, 1200); b.kussen('Rugleuning', [0, cfg.rug[0] - b.P('bank').h / 2, 560], [0, cfg.rug[0] - b.P('bank').h / 2, 1200], [0, -1, 0], 320, 68); }
   if (cfg.borst) { staander(b, 'Kussenpaal', 'bank', 0, cfg.borst[0], a, cfg.borst[1] + 250); b.kussen('Borstkussen', [0, cfg.borst[0] + b.P('bank').h / 2, cfg.borst[1] - 150], [0, cfg.borst[0] + b.P('bank').h / 2, cfg.borst[1] + 250], [0, 1, 0], 300, 68); }
   if (cfg.dijk) { const dp = staander(b, 'Dijkpaal', 'bank', 0, cfg.dijk[0], a, cfg.dijk[1]); b.staaf('As dijkrollen', 'as', [-200, cfg.dijk[0], cfg.dijk[1] - 20], [200, cfg.dijk[0], cfg.dijk[1] - 20], { kap: false, in: dp.id }); b.koop(V.schuimrol, 2, [-1, 1].map((s) => balk([s * 40, cfg.dijk[0], cfg.dijk[1] - 20], [s * 240, cfg.dijk[0], cfg.dijk[1] - 20], X, 100, 100, true, 'leer')), { naam: 'Schuimrol Ø100 (dijklem)' }); }
-  const arms = [], A = b.P('hefboom');
+  const arms = [];
   for (const [k, s] of [['L', -1], ['R', 1]]) {
     const piv = [s * 260, yp, zp];
-    lagerOren(b, piv, 120, cfg.portaal === 'achter' ? [0, yp + 65, 0] : [0, 0, zp + 80]);
+    lagerOren(b, piv, 120, cfg.portaal === 'achter' ? [0, yp + 65, 0] : [0, 0, zp + hp]);
     const g0 = [s * 260, cfg.greep[1], cfg.greep[2]], ho = [s * 260, cfg.hoorn[1], cfg.hoorn[2]];
     const opt = { horen: [{ p: ho, dir: [s, 0, 0], L: 260 }], breed: 120, greep: [[s * 260 - s * A.b / 2, g0[1], g0[2]], [s * cfg.binnen, g0[1], g0[2]]], F: half, slag: cfg.hoek };
     const hb = cfg.takken ? hefboom(b, `Hefboom ${k}`, piv, null, { ...opt, takken: [[g0], [ho]] }) : hefboom(b, `Hefboom ${k}`, piv, [ho, g0], opt);

@@ -135,6 +135,7 @@ De test bouwt elk toestel in de thuis- en de proversie en controleert:
 | `rekken.mjs`, `banken.mjs`, `kabel.mjs`, `plate.mjs` | de 50 toestellen |
 | `catalogus.mjs` | alle toestellen en `toestel(id, versie, { stand })`; stand 0..1 = de stand van de beweging |
 | `controle.mjs` | de controles: botsingen (OBB), zwevende delen, kabelloop, ergonomie, schijven vrij, gatfouten, Westside snoeien |
+| `pro.mjs` | pro-uiterlijk per soort: stijl, ovaalbuis, logoplaat, stapelkap met venster, katrol- en naafkappen, touch points |
 | `detail.mjs` | afwerkdetails voor 3D en bladen: gaten, eindkappen, grips, kartel, glijlagers, assen met borgring, naden, typeplaatje |
 | `bereken.mjs` | de berekening en de stabiliteit |
 | `stuklijst.mjs` | posities, kooponderdelen, bekleding, zaagplan, nesting, totalen |
@@ -203,6 +204,27 @@ row met de schijfhouder op een tak (± 350 mm achter de as, boven de ellebogen);
 controles op sleutelruimte, gaten in gezette delen en bouten op trek en trek + afschuiving; DXF per plaat en laserdeel
 (`dxf.mjs`, downloads in de werkplaats); halve V (flare) als lassymbool; een lassamenstellingsblad per lasgroep;
 montageset, kabelgeleiders en traanplaat in de bestellijst.
+
+## Versie 5 fase A: pro-uiterlijk (2026-11-15)
+
+Ian: "Nu zien ze er nog echt te selfmade uit en niet zoals pro toestellen." Per soort een stijl (`pro.mjs`, `STIJL`),
+gebaseerd op de vormtaal van merktoestellen zonder hun logo's of ontwerpen na te maken:
+
+- **Rekken** (zoals Rogue/Eleiko): mat zwart (RAL 9005), gelaserde logoplaat 3 mm op de bovenligger, gatnummers naast de
+  Westside-gaten, UHMW in de J-cups, eindkappen.
+- **Plate-loaded** (zoals Hammer Strength): hefboomarmen in vlakovaalbuis (thuis 100x50x3, pro 120x60x4; de berekening
+  volgt het profiel), zwart frame, naafkappen Ø90 in de accentkleur (rood) op de draaipunten, verchroomde schijfhouders.
+  Het portaal van de iso-machines staat hoger als de arm hoger is (spleet arm-ligger ≥ 25 mm).
+- **Kabel/selectorized** (zoals Life Fitness/Technogym): antraciet frame (RAL 7016), zilveren stapelkap (gezet plaatwerk
+  1,5 mm) met kijkvenster in polycarbonaat en een sleuf voor de selectiepen, instructieplaat op de kap, ABS-katrolkappen.
+- **Overal:** knop van elke popper-pin en selectiepen in de accentkleur, verborgen rubbervoeten, kussens met bies en
+  bekleed multiplex, grepen met eindkap, instructieplaat (oefeningen, spieren) naast het typeplaatje.
+- **Weergave** (`scene3d.mjs`): poedercoat met korrel en toplaag, chroom, leer met nerf (PBR), studiolicht (sleutel-,
+  vul- en strijklicht) met omgevingsreflectie, zachte schaduwen, ambient occlusion (GTAO, zonder als de GPU het niet kan),
+  hoekloze studiovloer, camera die het toestel vult.
+- Alles staat in de stuklijst, de DXF, de bestellijst en de prijs: logoplaat (laserdeel, VHB-tape, geen gaten),
+  vlakovaalbuis (prijs per kg x 1,5, AANNAME), eindkap ovaal, katrolkap, naafkap, polycarbonaat, verchromen,
+  instructieplaat. De nieuwe kooponderdelen zijn AANNAME (prijs nog op te vragen).
 
 ## Wat nog open is
 

@@ -12,6 +12,14 @@ Vraag van Ian (2026-11-13): "Maak ook een database met fitnessapparatuur die ik 
 - **Opbouw:** vaste catalogus: elk toestel in één vaste maat (per versie) met zijn volledige tekeningenpakket; geen maten kiezen.
 - **Aantal:** ± 50 toestellen in de eerste versie.
 
+## Versie 5 (2026-11-15): pro-uiterlijk, varianten, ± 150 toestellen
+Ian: "Er moeten meerdere fitness toestellen zijn in meerdere varianten en ze moeten er beter uitzien. Nu zien ze er nog echt te selfmade uit en niet zoals pro toestellen."
+- **Stijl per soort:** rekken zoals Rogue/Eleiko (vierkante koker, Westside, mat zwart, gelaserde logoplaat, eindkappen, UHMW); plate-loaded zoals Hammer Strength (ovaalbuis, robuust, zwart met accentkleur, verchroomde schijfhouders); kabel/selectorized zoals Life Fitness/Technogym (kappen over de stapel met venster en instructieplaat, afgeronde vormen, katrolkappen, antraciet/zilver).
+- **Varianten per toestel:** uitvoering thuis / semi-pro / pro; maat compact / standaard / XL; afwerking (frame-RAL, kussenkleur, chroom of zwart, logoplaat); opties (schijvenopslag, extra grepen, zwaardere stapel ...).
+- **Nieuwe soorten:** selectorized (FS), multigyms/rigs (FM), opslag/accessoires (FO), strongman/buiten (FX); samen ± 150 toestellen.
+- Alles blijft maakbaar (in België te koop of te laseren) en staat in stuklijst, prijs en tekeningen; logo = placeholder tot de zaak een naam heeft; geen logo's of ontwerpen van merken namaken.
+- Werkwijze: drie fases (A uiterlijk, B varianten, C nieuwe toestellen), na elke fase foto's.
+
 ## Vaste regels (uit eerdere projecten)
 - Tekeningen volgens ISO: ISO 5457 (bladformaat), ISO 7200 (titelblok), ISO 128 (lijnen), ISO 5456-2 (eerste hoekprojectie), ISO 2768-m (algemene toleranties), ISO 2553 (lassymbolen), ISO 7573 (stuklijst).
 - Veiligheid en sterkte: EN ISO 20957-1 (algemeen), -2 (krachttoestellen), -4 (banken), -5? (zie norm) en de last- en stabiliteitsproeven; staal S235JR (EN 10025-2), buizen EN 10219; berekening met bron per controle (groen/oranje/rood), onzekere waarden als AANNAME.

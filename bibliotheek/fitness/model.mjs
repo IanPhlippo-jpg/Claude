@@ -81,7 +81,7 @@ export function bouwer(V, stand = 0) {
     /** staaf van a naar b (hartlijn); opt: { v, gaten: [{ s, d, as: 'v'|'w', n? }], verstek: [α, β], rol, kap: false } */
     staaf(naam, rol, a, bb, opt = {}) {
       const Pf = P(rol), g = balk(a, bb, opt.v ?? standaardV(norm(sub(bb, a))), Pf.b, Pf.h, Pf.vorm === 'buis' || Pf.vorm === 'rond');
-      if (Pf.vorm === 'koker') g.r = Math.min(2 * Pf.t, Math.min(Pf.b, Pf.h) / 4); // buitenhoekradius EN 10219-2 (2t)
+      if (Pf.vorm === 'koker') g.r = Pf.ovaal ? Math.min(Pf.b, Pf.h) / 2 : Math.min(2 * Pf.t, Math.min(Pf.b, Pf.h) / 4); // buitenhoekradius EN 10219-2 (2t); vlakovaal: halve breedte
       const d = { id: `d${++nr}`, soort: 'staaf', naam, groep: opt.groep ?? groep, prof: Pf.id, P: Pf, a, b: bb, u: g.u, v: g.v, w: g.w, L: len(sub(bb, a)), verstek: opt.verstek ?? [0, 0], gaten: (opt.gaten ?? []).map((x) => ({ as: 'w', door: Pf.vorm === 'koker' || Pf.vorm === 'buis' ? 2 : 1, ...x })), geo: [g], kapNodig: opt.kap ?? true, opm: opt.opm ?? '', in: opt.in ?? null, rol: opt.rol ?? rol, westside: opt.westside ?? null };
       o.delen.push(d); return d;
     },

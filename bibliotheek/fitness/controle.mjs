@@ -166,7 +166,7 @@ export function gatFouten(o) {
       const L = d.L, s = g.g.s, e = 1.5 * g.d;
       if (s < e - 0.5 || L - s < e - 0.5) uit.push(`${d.naam}: gat Ø${g.d} op ${Math.round(s)} mm, randafstand < 1,5 x Ø (${Math.round(e)})`);
       if (d.P.vorm === 'koker') {
-        const w = g.g.as === 'v' ? d.P.h : d.P.b, r = 2 * d.P.t;
+        const w = g.g.as === 'v' ? d.P.h : d.P.b, r = d.P.ovaal ? Math.min(d.P.b, d.P.h) / 2 : 2 * d.P.t;
         if (g.d / 2 > w / 2 - r + 0.01) uit.push(`${d.naam}: gat Ø${g.d} valt in de hoekradius (vlak ${Math.round(w - 2 * r)} mm)`);
         else if (w / 2 < e - 0.5) uit.push(`${d.naam}: gat Ø${g.d} te dicht bij de zijkant (${w / 2} < ${Math.round(e)})`);
       }
