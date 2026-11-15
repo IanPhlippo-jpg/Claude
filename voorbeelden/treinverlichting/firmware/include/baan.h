@@ -13,6 +13,16 @@
 //     groep tussendoor met de hand aan- of uitzet, houdt die stand tot de volgende overgang;
 //   - cfgRev telt elke wijziging van de instellingen (main.cpp bewaart dan /instellingen.json; het dashboard laadt
 //     alles opnieuw), standRev elke wijziging van de stand (main.cpp bewaart /stand.json).
+// Firmware 2.0.0 erbij:
+//   - servo's (servo.h): main.cpp schrijft servos.tellen() elke 20 ms naar de PCA9685 op 0x42; de stand A/B komt in
+//     /stand.json (na een stroomonderbreking meteen op de laatste stand, zonder beweging);
+//   - IR zenden: irZenden() zet een opdracht in een rij (hoogstens 8); de lichttaak haalt ze op (haalIrZend), zet de
+//     IR-leds via de MCP23017 en stuurt de pulsen met de RMT op GPIO47;
+//   - IR ontvangen: main.cpp geeft elk frame van een ontvanger in ns (irFrame); leren (10 s) of herkennen, dan een
+//     melding bij het punt van die ontvanger (bussen.h) en de haltes (halte.h);
+//   - ingangen: 40 (1..16 GPIO, 17..24 MCP23017 0x20, 25..40 MCP23017 0x21 als die er is: ingangAanwezig); een ingang die
+//     actief wordt en aan een punt hangt, geeft een melding;
+//   - geluidskastjes (kastjes.h): een stap "geluid" zet een HTTP-opdracht in de rij; main.cpp stuurt ze.
 #pragma once
 #include <string>
 
@@ -23,7 +33,24 @@
 
 namespace trein {
 
-constexpr const char *FW_VERSIE = "1.3.0";
+constexpr const char *FW_VERSIE = "2.0.0";
+constexpr uint32_t LEER_MS = 10000;   // zo lang wacht leren op een code
+constexpr int MAX_IR_RIJ = 8;
+
+struct IrZend {
+  int8_t code = -1; // index
+  uint8_t leds = 0; // bit k = IR-led k+1
+};
+
+/** leren: loopt, of het resultaat van de laatste keer */
+struct Leren {
+  bool loopt = false;
+  int8_t ontvanger = 0;    // index 0..3
+  uint32_t start = 0;
+  char naam[NAAM_LEN] = {0};
+  int8_t nr = -1;          // de pas geleerde code (index), -1 = geen
+  const char *fout = "";   // waarom het niet lukte ("" = geen fout)
+};
 
 // Testmodus (voor de ingebruikname en het meetblad): de uitgangen worden overschreven, de rest rekent gewoon door.
 //   looplicht  groep 1, 2, ... N om de beurt aan (zonder effect), elk stapMs lang
@@ -37,14 +64,22 @@ inline const char *testId(int t) {
   return T[(t >= 0 && t <= TEST_VAST) ? t : 0];
 }
 
-class Baan : public Uitvoerder {
+class Baan : public Uitvoerder, public HalteUit {
  public:
   Config cfg;
   Lampen lampen;
   Sequencer seq;
   Ingangen ingangen;
   DagNacht dn;
-  uint16_t ingangRuw = 0;
+  Servos servos;
+  Volg volg;
+  Haltes haltes;
+  Kastjes kastjes;
+  Leren leren;
+  IngangMasker ingangRuw = 0;
+  IngangMasker ingangAanwezig = (IngangMasker)((1ull << INGANGEN_MCP1) - 1); // 25..40 pas als de tweede MCP23017 er is
+  bool pnpOmkeren = false; // de ingangsprint geeft bij PNP actief HOOG (-DTREIN_PNP_KEERT_OM): pnp-ingangen omkeren
+  uint32_t msNu = 0;       // de tijd van de laatste tick
   uint32_t cfgRev = 1, standRev = 1;
   std::string melding; // voor het dashboard (instellingen hersteld, chip niet gevonden, ...)
   // thuis-wifi: main.cpp vult dit in (verbonden en het IP-adres dat de router gaf)
@@ -73,9 +108,23 @@ class Baan : public Uitvoerder {
     cfgRev++;
   }
 
-  /** elke 5 ms; flanken: bit i = er was een actief-flank op ingang i+1 sinds de vorige tick (GPIO-interrupt) */
-  void tick(uint32_t nu, uint16_t ruw, uint16_t flanken = 0) {
+  /** de ingangen die de Baan omkeert (pnp met pnpOmkeren) */
+  IngangMasker omkeerMasker() const {
+    if (!pnpOmkeren) return 0;
+    IngangMasker m = 0;
+    for (int i = 0; i < N_INGANGEN; i++)
+      if (cfg.ingang[i].polariteit == POL_PNP) m |= ingangBit(i);
+    return m;
+  }
+
+  /** elke 5 ms; ruw: bit i = ingang i+1 trekt laag (actief bij npn); flanken: bit i = er was een flank op ingang i+1
+   *  sinds de vorige tick (GPIO-interrupt, of INTF van de MCP23017) */
+  void tick(uint32_t nu, IngangMasker ruw, IngangMasker flanken = 0) {
+    msNu = nu;
+    ruw = (ruw ^ omkeerMasker()) & ingangAanwezig;
+    flanken &= ingangAanwezig;
     ingangRuw = ruw;
+    IngangMasker voor = ingangen.actiefMasker();
     Opdracht op[N_INGANGEN];
     int n = ingangen.stap(ruw, nu, cfg.ingang, op, N_INGANGEN, flanken);
     for (int i = 0; i < n; i++) {
@@ -83,14 +132,125 @@ class Baan : public Uitvoerder {
       if (op[i].soort == OPDR_STOP || (op[i].soort == OPDR_WISSEL && seq.loopt(f))) functieStop(f, nu);
       else functieStart(f, nu);
     }
+    // meetpunten: een ingang die actief wordt (hallsensor) geeft een melding
+    IngangMasker nieuw = ingangen.actiefMasker() & ~voor & ~ingangen.herbegonnen();
+    for (int i = 0; nieuw && i < N_INGANGEN; i++) {
+      if (!(nieuw >> i & 1)) continue;
+      const Melding *m = volg.ingangActief(i, cfg.punt, cfg.bus, nu);
+      if (m) haltes.melding(cfg.halte, m->punt, m->bus, *this, nu);
+    }
     seq.stap(cfg.functie, *this, nu);
     dagnachtStap(nu);
+    haltes.stap(cfg.halte, ingangen.actiefMasker(), *this, nu);
+    servos.stap(cfg.servo, nu);
+    if (leren.loopt && nu - leren.start >= LEER_MS) {
+      leren.loopt = false;
+      leren.fout = "Er kwam geen code binnen (10 s).";
+    }
     lampen.stap(nu);
     if (testSoort != TEST_GEEN) {
       int aan = testAan(nu);
       lampen.uitgang = aan >= 0 ? groepBit(aan) : 0;
     }
   }
+
+  // ------------------------------------------------------------------------------------------------- servo's
+  /** servo s (index) naar stand 0 = a, 1 = b, 2 = wisselen. false = bestaat niet */
+  bool servoNaar(int s, int stand, uint32_t nu) {
+    if (s < 0 || s >= MAX_SERVOS || !cfg.servo[s].gebruikt) return false;
+    if (stand == 2) stand = servos.t[s].stand == STAND_B ? STAND_A : STAND_B;
+    const ServoCfg &c = cfg.servo[s];
+    servos.naar(s, stand == STAND_B ? c.b : c.a, (uint8_t)stand, c, nu);
+    standRev++;
+    return true;
+  }
+  /** een proefstand in µs (eindstanden instellen) */
+  bool servoProef(int s, uint16_t us, uint32_t nu) {
+    if (s < 0 || s >= MAX_SERVOS || !cfg.servo[s].gebruikt) return false;
+    const ServoCfg &c = cfg.servo[s];
+    uint8_t dichtst = (us > c.a ? us - c.a : c.a - us) <= (us > c.b ? us - c.b : c.b - us) ? STAND_A : STAND_B;
+    servos.naar(s, us, dichtst, c, nu);
+    return true;
+  }
+
+  // ------------------------------------------------------------------------------------------------------- IR
+  /** IR-code (index) zenden via de IR-leds in het masker (0 = alle). false = onbekende code of de rij is vol */
+  bool irZenden(int code, uint8_t leds) {
+    if (code < 0 || code >= MAX_IR_CODES || !cfg.ir[code].gebruikt) return false;
+    if (nIrRij_ >= MAX_IR_RIJ) return false;
+    irRij_[nIrRij_].code = (int8_t)code;
+    irRij_[nIrRij_].leds = leds ? leds : 0xFF;
+    nIrRij_++;
+    return true;
+  }
+  bool haalIrZend(IrZend &z) {
+    if (!nIrRij_) return false;
+    z = irRij_[0];
+    memmove(irRij_, irRij_ + 1, sizeof(IrZend) * (size_t)(nIrRij_ - 1));
+    nIrRij_--;
+    return true;
+  }
+
+  void lerenStart(int ontvanger, const char *naam, uint32_t nu) {
+    leren = Leren();
+    leren.loopt = true;
+    leren.ontvanger = (int8_t)ontvanger;
+    leren.start = nu;
+    kopieerNaam(leren.naam, naam);
+  }
+
+  /** een frame van ontvanger o (0..3): duren in ns, aan/uit om beurten, begint met aan (leerontvanger: met de
+   *  draaggolf; de andere: al gedemoduleerd) */
+  void irFrame(int o, const uint32_t *ns, int n, uint32_t nu) {
+    if (o < 0 || o >= IR_ONTVANGERS || n <= 0) return;
+    static Leerresultaat r; // 0,5 kB: niet op de stapel
+    if (!leerUitDraaggolf(ns, n, r)) return;
+    IrGelezen g;
+    bool code = irHerken(r.us, r.n, g);
+    if (leren.loopt && leren.ontvanger == o) {
+      if (!code || g.herhaling) return; // een stoorpuls of een herhaalcode: verder wachten
+      int plaats = -1;
+      for (int i = 0; i < MAX_IR_CODES && plaats < 0; i++)
+        if (!cfg.ir[i].gebruikt) plaats = i;
+      leren.loopt = false;
+      if (plaats < 0) { leren.fout = "Alle 32 plaatsen voor IR-codes zijn bezet. Wis eerst een code."; return; }
+      IrCode &c = cfg.ir[plaats];
+      c = IrCode();
+      c.gebruikt = true;
+      leerNaarCode(r, c);
+      if (leren.naam[0]) strcpy(c.naam, leren.naam);
+      else standaardNaam(c.naam, "Code", plaats + 1);
+      leren.nr = (int8_t)plaats;
+      leren.fout = "";
+      cfgRev++;
+      return;
+    }
+    if (code && g.herhaling) return; // NEC-herhaling: dezelfde doorkomst
+    char t[IR_TEKST_LEN] = {0};
+    if (code) irTekst(g, t, sizeof t);
+    const Melding *m = volg.ontvangen(o, t, cfg.punt, cfg.bus, nu);
+    if (m) haltes.melding(cfg.halte, m->punt, m->bus, *this, nu);
+  }
+
+  /** met de hand (dashboard, testen): bus b gezien bij punt id */
+  void busGezien(int b, const char *id, uint32_t nu) {
+    const Melding *m = volg.handmatig(b, id, cfg.punt, nu);
+    if (m) haltes.melding(cfg.halte, m->punt, m->bus, *this, nu);
+  }
+
+  /** na het laden of na het wijzigen van een halte: vrij en rood aan */
+  void haltesOpnieuw(uint32_t nu, int h = -1) {
+    for (int i = 0; i < MAX_HALTES; i++)
+      if (h < 0 || h == i) haltes.begin(i, cfg.halte[i], *this, nu);
+  }
+
+  // HalteUit
+  void halteIr(int code, uint8_t leds, uint32_t) override { irZenden(code, leds); }
+  void halteLicht(int g, bool aan, uint32_t nu) override {
+    if (g >= 0 && g < N_GROEPEN && lampen.stand[g].aan != aan) zetAan(g, aan, nu);
+  }
+  void halteServo(int s, bool naarB, uint32_t nu) override { servoNaar(s, naarB ? STAND_B : STAND_A, nu); }
+  void halteVertrek(int bus, uint32_t nu) override { volg.vertrek(bus, nu); }
 
   // ---------------------------------------------------------------------------------------------- testmodus
   /** welke groep (index) brandt nu in de testmodus; -1 = geen testmodus */
@@ -220,6 +380,14 @@ class Baan : public Uitvoerder {
     return true;
   }
 
+  /** een ingang een andere polariteit geven. Keert de Baan pnp om (pnpOmkeren), dan begint hij opnieuw: de huidige
+   *  lezing is rust (anders zou het omkeren hem meteen laten "drukken") */
+  void zetPolariteit(int i, uint8_t p) {
+    if (i < 0 || i >= N_INGANGEN || cfg.ingang[i].polariteit == p) return;
+    cfg.ingang[i].polariteit = p;
+    if (pnpOmkeren) ingangen.herbegin(i);
+  }
+
   // ---------------------------------------------------------------------------------------------- dag/nacht
   GroepMasker deelnemers() const {
     GroepMasker m = 0;
@@ -255,6 +423,8 @@ class Baan : public Uitvoerder {
     s.dagnachtPosMs = dn.loopt ? dn.positieMs(nu) : 0;
     for (int f = 0; f < MAX_FUNCTIES; f++)
       if (seq.loopt(f) && cfg.functie[f].herhalen) s.functies |= (uint16_t)(1u << f);
+    for (int i = 0; i < MAX_SERVOS; i++)
+      if (cfg.servo[i].gebruikt && servos.t[i].actief && servos.t[i].stand == STAND_B) s.servosB |= (uint16_t)(1u << i);
     return s;
   }
 
@@ -264,7 +434,17 @@ class Baan : public Uitvoerder {
     if (s.dagnachtLoopt) dagnachtStart(nu, DAG, (int32_t)s.dagnachtPosMs);
     for (int f = 0; f < MAX_FUNCTIES; f++)
       if (s.functies >> f & 1 && cfg.functie[f].herhalen) functieStart(f, nu);
+    servosOpStand(s.servosB);
     standRev++;
+  }
+
+  /** alle servo's meteen (zonder beweging) op hun stand: bit s = B, anders A */
+  void servosOpStand(uint16_t b) {
+    for (int i = 0; i < MAX_SERVOS; i++) {
+      if (!cfg.servo[i].gebruikt) { servos.vergeet(i); continue; }
+      bool naarB = b >> i & 1;
+      servos.zetMeteen(i, naarB ? cfg.servo[i].b : cfg.servo[i].a, naarB ? STAND_B : STAND_A);
+    }
   }
 
   // ------------------------------------------------------------------------------- Uitvoerder (de functies)
@@ -313,6 +493,15 @@ class Baan : public Uitvoerder {
         if (st.waarde) dagnachtStart(nu, DAG);
         else dagnachtStop();
         break;
+      case ACT_SERVO:
+        servoNaar(st.waarde - 1, st.stand, nu);
+        break;
+      case ACT_IR:
+        irZenden(st.waarde - 1, st.leds);
+        break;
+      case ACT_GELUID:
+        kastjes.spelen(st.kastje, st.geluid, st.volume, nu); // offline of onbekend: niets
+        break;
       default:
         break;
     }
@@ -325,6 +514,8 @@ class Baan : public Uitvoerder {
 
  private:
   bool dnVorig_[N_GROEPEN];
+  IrZend irRij_[MAX_IR_RIJ];
+  int nIrRij_ = 0;
 
   void zetAan(int g, bool aan, uint32_t nu) {
     GroepStand s = lampen.stand[g];

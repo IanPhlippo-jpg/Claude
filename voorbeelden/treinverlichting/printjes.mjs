@@ -4,6 +4,7 @@
 // van de ESP zijn niet gepubliceerd: die zijn getekend zoals ze ongeveer lopen. De Modelbouwled-bordjes volgen de
 // schakeling van de productpagina (16 x led + via een eigen SMD-weerstand, de min gemeenschappelijk).
 import { Plaat, opschrift } from '../lib/printplaat.mjs';
+import { M } from './maten.mjs';
 
 // ---------------------------------------------------------------- het Modelbouwled-bordje (61,1 x 20,9, rood)
 /** B = M.bordje; beeld-x = x + 30,55, beeld-y = z + 10,45 */
@@ -40,7 +41,8 @@ export function bordjeArt(B) {
     p.tekst(k ? W - 7.0 : 7.0, 2.7, k ? 'OUT' : 'IN', { h: 0.95, vet: true });
   }
   p.tekst(W - 7.0, H - 2.7, 'V1.5', { h: 0.8 }).tekst(7.0, H - 2.7, '12V', { h: 0.8 });
-  for (const [x, y] of [[2.6, 2.6], [W - 2.6, 2.6], [2.6, H - 2.6], [W - 2.6, H - 2.6]]) p.cirkel(x, y, 1.75, 0.15);
+  const g = M.schroefpaal.rand; // de kraag rond de 4 bevestigingsgaten (hart 2,0 van de randen)
+  for (const [x, y] of [[g, g], [W - g, g], [g, H - g], [W - g, H - g]]) p.cirkel(x, y, 1.75, 0.15);
   return p.decal('dc1', 'Opdruk en banen', [0, B.pcb, 0]);
 }
 /** opschrift "102" (1 kΩ) op de 16 weerstanden 0805, met de vertinde kapjes */

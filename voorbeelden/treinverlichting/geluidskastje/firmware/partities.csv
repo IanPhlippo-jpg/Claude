@@ -1,0 +1,8 @@
+# Partities van het geluidskastje (ESP32-S3-Zero, 4 MB flash): één app van 1,5 MB (flashen via USB-C, geen OTA) en
+# 2,375 MB LittleFS voor de geluiden (16 kHz 16-bit mono = 32 kB/s: ongeveer 75 s geluid).
+# LittleFS gebruikt de partitie met het label "spiffs" (LittleFS.begin() van Arduino-ESP32).
+# Name,   Type, SubType,  Offset,   Size
+nvs,      data, nvs,      0x9000,   0x5000
+app0,     app,  factory,  0x10000,  0x180000
+spiffs,   data, spiffs,   0x190000, 0x260000
+coredump, data, coredump, 0x3F0000, 0x10000

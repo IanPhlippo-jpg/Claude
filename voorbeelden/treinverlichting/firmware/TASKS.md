@@ -45,3 +45,13 @@
 - [x] dashboard: schakelaar per groep, scènes/functies aan/uit, ingangen met lampje en teller, soort en vasthoudtijd (ook demo); dashboard.h opnieuw
 - [x] doos bouwen (flash/RAM), README bijwerken (aan/uit, hallsensor, API, 1.3.0)
 - [x] dashboardbeelden opnieuw (trein-dashboard-shots.mjs) en nakijken
+
+## Firmware 2.0: IR, servo's, PNP, bussen, haltes, kastjes (2026-11-15)
+- [x] ir.h: NEC/RC5 coderen en decoderen (tolerantie), raw-hash, leren uit de draaggolf (TSMP58000), codetekst; test_ir
+- [x] servo.h: eindstanden, snelheid (µs/s), max 4 tegelijk (wachtrij), µs -> PCA9685-tellen bij 50 Hz; test_servo
+- [x] bussen.h en halte.h: bus gezien bij punt, rijtijd per traject, fractie; toestandsmachine bushalte; test_bus, test_interpolatie, test_halte
+- [x] ingangen: npn/pnp per ingang en per groep van 8, ingangen 17-24 (MCP23017 0x20) en 25-40 (tweede MCP23017 0x21, optioneel); functiestappen servo/ir/geluid; config-versie 3 (v1/v2 laden nog)
+- [x] api.h: /api/ir, /api/bus, /api/punt, /api/servo, /api/halte, /api/kastje, /api/plan, staat uitgebreid; tests in test_api
+- [x] src/: RMT TX (GPIO47) en RX (48/11/39/42), MCP23017 (0x20), PCA9685 servo's (0x42, 50 Hz), HTTP naar de kastjes, /tv, /api/plan, /plan.jpg; maak-header.py met tv.html
+- [x] native en native32 groen, `doos` bouwen (flash/RAM)
+- [x] README 2.0.0 (pinnen, I2C-adressen, API, PNP), graphify update

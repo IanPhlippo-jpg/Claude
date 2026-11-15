@@ -24,7 +24,7 @@ aangestuurd met een ESP vanaf een eigen dashboard. Knoppen en sensoren op de baa
 
 - Stroom per bordje bij vol licht (multimeter in de toevoer). Rekenwaarde: 16 leds x 9 mA (1K op 12 V) = 0,15 A; met 0 Ω hangt het af van de leds. De doos is gerekend op hoogstens 1 A per groep.
 - Bordjes met 1K5 zijn gemaakt voor 20 V: op 12 V geven ze ongeveer 6 mA per led (zwakker licht). Voor vol licht op 12 V: de 1K-versie.
-- Maten van het bordje: **61,1 x 20,9 mm** (gemeten door Ian, 2026-11-08). Hoogte met klemmen en de plaats van de gaten nog niet gemeten: de doos rekent met 14 mm hoogte en houdt het bordje met klemlippen langs de rand (geen gaten nodig).
+- Maten van het bordje: **61,1 x 20,9 mm** (gemeten door Ian, 2026-11-08). Hoogte met klemmen en de plaats van de gaten nog niet gemeten: de doos rekent met 14 mm hoogte; sinds versie 5b is het bordje vastgeschroefd door zijn 4 gaten (hart 2 mm van de randen, Ian 2026-11-15; Ø2,2 AANNAME).
 - Welke sensoren er komen (type en voeding): de ingangen nemen een contact of een 12 V-signaal.
 
 ## Versie 2 (Ian, 2026-11-11)
@@ -224,4 +224,63 @@ elk): met 512 gaatjes in één bodemvlak maakte de mesh-kernel van de app een fo
 De aanslagen schoven naar x ±26 (voorbij de klemmen), bordje 16 kreeg ook 4 aanslagen (de 2 lange stroken vielen weg).
 Printbaar met de bodem op het bed: de gaatjes zijn staande kokers, geen overhang. Rebuild linkerhelft 33,1 s.
 Mogelijk anders bedoeld: bevestigingsgaatjes Ø2 voor de printjes (de bordjes hebben 4 gaatjes Ø2,2 in hun hoeken) — na te
-vragen bij Ian; de bordjes zitten nu vast in hun klemlippen, zonder schroeven.
+vragen bij Ian; de bordjes zitten nu vast in hun klemlippen, zonder schroeven. (Zo bleek het: zie hieronder.)
+
+Bijsturing (Ian, 2026-11-15): "Nu hangen de bordjes nog vast met inklik dingen, ik wil ze geschroefd hebben. Gaten zitten op
+2mm op 2mm van de hoeken van het bordje." Uitgewerkt (versie 5b):
+- **Geen klemlippen meer**: elk bordje ligt op **4 schroefpaaltjes Ø5** recht onder zijn gaten (hart **2,0 van beide
+  randen**: 57,1 x 16,9 hart op hart) en op de steunrail in het midden (die blijft: de print buigt niet door als je een
+  klem aandraait). De palen tussen de bordjes en de aanslagen vallen weg: de 4 schroeven houden het bordje op zijn plaats.
+- **Schroef: plaatschroef voor kunststof 2,0 x 6, bolkop Ø4, kruiskop PH1** (makkelijk te koop, bv. per 100). Het gat in
+  de print is Ø2,2 (AANNAME, na te meten): een schroef van 2,2 gaat er niet door, 2,0 wel. Voorgat Ø1,6 (0,8 x d) tot
+  0,4 boven de onderkant van de bodem; wand 1,7 (4 lijnen); de schroef grijpt 4,4 diep; uittrekkracht ± 207 N per
+  schroef (Berekeningen §6). De kop blijft 1,45 van de eindklem en 8,2 van de klemstrook; de schroevendraaier (PH1, Ø4,5)
+  raakt geen klem (test). Detail en plaats van elk paaltje: **TRN-07**.
+- De **512 gaatjes 2 x 2 vallen weg** (dat was een verkeerde lezing van "2mm op 2mm"): terug naar de **draadsleuven** van
+  40 x 4 tussen de rijen (één per bordje) en 20 x 6 links per rij.
+- Bestellijst: 70 schroefjes 2,0 x 6 (64 + 6 reserve, € 3,50): totaal **€ 198,45**. Montage: bordje op de 4 paaltjes
+  leggen, 4 schroeven.
+
+## Versie 6 (Ian, 2026-11-15): IR, servo's, PNP, geluidskastjes, situatieplan en tv
+
+Wensen van Ian, letterlijk:
+- "PNP moeten ook kunnen."
+- "Wissels, seinen of slagbomen moeten ook kunnen."
+- "Geluiden: dit moeten kleine speakertjes zijn die ik ergens kan plaatsen."
+- "Een volledig situatieplan waar alles op te zien is."
+- "Dat de software op een televisie kan projecteren waar bussen aan het rijden zijn of als er bepaalde groepen lichten aan
+  of uitgaan."
+- "Treindoos moet IR leds, IR sensors, FTR sensoren moeten kunnen binnenlezen, uitsturen."
+
+Uitgewerkt (fase A: elektronica, firmware, dashboard, tv; fase B: de aanpassingen aan de doos, pas na "klaar"):
+- **Vrije pinnen:** alleen GPIO 11, 39, 42, 47 en 48 zijn nog vrij. Verdeling: **GPIO47 = IR zenden** (RMT met
+  draaggolf), **GPIO48, 11, 39, 42 = 4 IR-/FTR-ontvangers** (RMT ontvangen: de ESP32-S3 heeft 4 RMT-kanalen om te zenden
+  en 4 om te ontvangen). Alles wat meer nodig is gaat over de I2C-bus die er al is (GPIO8/9): een **MCP23017** (0x20,
+  16 extra in- of uitgangen) en een **tweede PCA9685 voor de servo's op 0x42** (0x40 = groepen 1-16, 0x41 blijft vrij
+  voor de groepen 17-32).
+- **IR zenden:** één gemoduleerd signaal (draaggolf 30 tot 56 kHz, instelbaar; codering NEC, RC5 of raw) op GPIO47 naar
+  een snelle MOSFET-module (zonder optocoupler, die is te traag voor 38 kHz) in de retour van alle IR-leds; per IR-led een
+  **schakeluitgang** (MCP23017 -> een kanaal van een 8-kanaals MOSFET-module zoals -Q1) die kiest welke led(s) meedoen.
+  Stroom per IR-led: zie Berekeningen (IR-led op 12 V met een serieweerstand, piek ± 90 mA, gemiddeld veel minder).
+- **IR leren:** een **leerontvanger** (Vishay TSMP58000, geeft de draaggolf door) meet de draaggolf en de pulstijden van
+  Ians eigen IR-zender; de doos bewaart de code (raw of herkend als NEC/RC5) en kan ze opnieuw uitsturen.
+- **IR-/FTR-ontvangers op de baan:** elke ontvanger (TSOP 38 kHz of een fototransistor-module, "FTR": AANNAME,
+  fototransistor) leest ruwe codes; in het dashboard koppel je een code aan een bus: "bus X gezien bij punt Y".
+- **Servo's** (wissels, slagbomen, armseinen): de tweede PCA9685 op **50 Hz** met een **eigen voeding 5-6 V** (regelaar
+  van 12 V, eigen zekering); per servo de 2 eindstanden en de snelheid, te gebruiken in functies. **Lichtseinen en
+  verkeerslichten zijn gewone lichtgroepen.**
+- **PNP:** per ingang of per groep van 8 kiesbaar NPN (de sensor trekt naar 0 V) of PNP (de sensor geeft +12 V): in de
+  firmware de polariteit per ingang, in de bedrading de gemeenschappelijke klem van de optocouplerprint (zie README).
+- **Geluidskastjes:** kleine, losse kastjes die Ian overal kan plaatsen: een ESP32-bordje + versterker MAX98357A +
+  luidsprekertje Ø28 tot 40 op 12 V (via een kleine regelaar naar 5 V), in een geprinte behuizing. Ze melden zich aan op
+  het wifi-netwerk "Treinbaan" van de doos; de doos zegt welk kastje welk geluid speelt; geluiden upload je via het
+  dashboard; elk kastje speelt zijn eigen geluid tegelijk met de andere.
+- **Tv-pagina:** een laptop met HDMI aan de tv toont `treinbaan.local/tv`: het plan met de rijdende bussen (plaats uit
+  de hallsensoren en IR-/FTR-ontvangers, tussen 2 punten geschat met de gemeten rijtijd), de lichtgroepen en de stand van
+  de wissels, slagbomen en verkeerslichten. Met een demomodus.
+- **Busbaan (Station Turnhout):** 4 haltestroken, 4 Car System-wissels, 4 stoppunten, IR-led 5, 6 en 7, hallsensor 1. De
+  verkeerslichtendecoder en de timer vallen weg: de doos doet de **bushalte**: bus komt aan -> stopt (IR) -> wacht ->
+  wacht tot het verkeer vrij is -> groen -> vertrekt.
+- **Plan:** het situatieplan zelf maakt een andere agent (`situatieplan/`: plan.svg, plan-3840x2160.png, plan.json in
+  pixels en meters); de tv-pagina en de planeditor in het dashboard lezen dat formaat (lijnen als polylijnen, punten met
+  hun koppeling aan ingang, groep, servo, IR of kastje). Tot het er is: een eenvoudig testplan in hetzelfde formaat.

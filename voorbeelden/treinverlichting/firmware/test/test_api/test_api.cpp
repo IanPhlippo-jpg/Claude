@@ -3,6 +3,7 @@
 #include <unity.h>
 
 #include <string>
+#include <vector>
 
 #include "api.h"
 
@@ -188,7 +189,7 @@ void test_ingangen() {
   TEST_ASSERT_EQUAL(0, c.functieA);
   TEST_ASSERT_EQUAL(-1, c.functieB);
   TEST_ASSERT_EQUAL(12, c.naloopS);
-  TEST_ASSERT_EQUAL(400, ingang(b, R"({"nr":17,"gedrag":"sensor"})").code);
+  TEST_ASSERT_EQUAL(400, ingang(b, R"({"nr":41,"gedrag":"sensor"})").code);
   TEST_ASSERT_EQUAL(400, ingang(b, R"({"nr":1,"gedrag":"lift"})").code);
   TEST_ASSERT_EQUAL(400, ingang(b, R"({"nr":1,"functieA":5})").code); // functie 5 bestaat niet
   TEST_ASSERT_EQUAL(SOORT_CONTACT, c.soort);
@@ -285,7 +286,7 @@ void test_staat_volledig_en_kort() {
   JsonDocument d;
   TEST_ASSERT_FALSE(deserializeJson(d, vol));
   TEST_ASSERT_EQUAL(N_GROEPEN, (int)d["groepen"].size());
-  TEST_ASSERT_EQUAL(16, (int)d["ingangen"].size());
+  TEST_ASSERT_EQUAL(N_INGANGEN, (int)d["ingangen"].size());
   TEST_ASSERT_EQUAL(12, (int)d["scenes"].size());
   TEST_ASSERT_EQUAL(16, (int)d["functies"].size());
   TEST_ASSERT_EQUAL(16, (int)d["lopend"].size());
@@ -422,6 +423,342 @@ void test_knop_alles_aan_uit_standaard() {
   TEST_ASSERT_FALSE(b.seq.loopt(1));
 }
 
+// ------------------------------------------------------------------------------- firmware 2.0.0: nieuwe eindpunten
+namespace {
+using Eind = Antwoord (*)(Baan &, const char *, size_t, uint32_t);
+Antwoord roep(Eind f, Baan &b, const std::string &j, uint32_t nu = 0) { return f(b, j.data(), j.size(), nu); }
+JsonDocument lees(const std::string &t) {
+  JsonDocument d;
+  deserializeJson(d, t);
+  return d;
+}
+/** een frame zoals de RMT het geeft (ns), van een code */
+std::vector<uint32_t> frame(const IrCode &c) {
+  std::vector<uint32_t> v(MAX_IR_PULSEN);
+  int n = irPulsen(c, v.data(), MAX_IR_PULSEN);
+  v.resize(n);
+  for (auto &x : v) x *= 1000;
+  return v;
+}
+} // namespace
+
+void test_ir_bewaren_zenden_wissen() {
+  Baan b;
+  Antwoord a = roep(apiIr, b, R"({"actie":"bewaren","code":{"naam":"Stop bus","soort":"nec","khz":38,"adres":0,"commando":18}})");
+  TEST_ASSERT_EQUAL_STRING("{\"ok\":true,\"nr\":1}", a.json.c_str());
+  TEST_ASSERT_EQUAL(18, b.cfg.ir[0].commando);
+  a = roep(apiIr, b, R"({"actie":"bewaren","nr":3,"code":{"soort":"raw","khz":40,"raw":[2400,600,1200,600,600]}})");
+  TEST_ASSERT_EQUAL(200, a.code);
+  TEST_ASSERT_EQUAL(5, b.cfg.ir[2].nRaw);
+  TEST_ASSERT_EQUAL_STRING("Code 3", b.cfg.ir[2].naam);
+  // fouten
+  const char *fouten[] = {
+      R"({"actie":"bewaren","code":{"soort":"sony"}})",
+      R"({"actie":"bewaren","code":{"soort":"nec","khz":60}})",
+      R"({"actie":"bewaren","code":{"soort":"rc5","adres":32}})",
+      R"({"actie":"bewaren","code":{"soort":"raw","raw":[100]}})",
+      R"({"actie":"bewaren","code":{"soort":"raw","raw":[100,0]}})",
+      R"({"actie":"bewaren","nr":33,"code":{"soort":"nec"}})",
+      R"({"actie":"bewaren"})",
+      R"({"actie":"zenden","nr":2})",
+      R"({"actie":"zenden","nr":1,"leds":[9]})",
+      R"({"actie":"leren","ontvanger":5})",
+      R"({"actie":"wissen","nr":2})",
+      R"({"actie":"hernoemen","nr":1,"naam":""})",
+      R"({"actie":"dansen"})"};
+  for (const char *f : fouten) TEST_ASSERT_EQUAL_MESSAGE(400, roep(apiIr, b, f).code, f);
+  // zenden: via led 5 en 6; zonder leds: alle
+  TEST_ASSERT_EQUAL(200, roep(apiIr, b, R"({"actie":"zenden","nr":1,"leds":[5,6]})").code);
+  TEST_ASSERT_EQUAL(200, roep(apiIr, b, R"({"actie":"zenden","nr":3})").code);
+  IrZend z;
+  TEST_ASSERT_TRUE(b.haalIrZend(z));
+  TEST_ASSERT_EQUAL(0, z.code);
+  TEST_ASSERT_EQUAL_HEX8(0x30, z.leds);
+  TEST_ASSERT_TRUE(b.haalIrZend(z));
+  TEST_ASSERT_EQUAL_HEX8(0xFF, z.leds);
+  // de rij is vol na 8
+  for (int i = 0; i < MAX_IR_RIJ; i++) roep(apiIr, b, R"({"actie":"zenden","nr":1})");
+  TEST_ASSERT_EQUAL(400, roep(apiIr, b, R"({"actie":"zenden","nr":1})").code);
+  // hernoemen, wissen (een halte die de code gebruikt, verliest ze)
+  TEST_ASSERT_EQUAL(200, roep(apiIr, b, R"({"actie":"hernoemen","nr":3,"naam":"Rijd"})").code);
+  TEST_ASSERT_EQUAL_STRING("Rijd", b.cfg.ir[2].naam);
+  TEST_ASSERT_EQUAL(200, roep(apiHalte, b, R"({"nr":1,"stopCode":3})").code);
+  TEST_ASSERT_EQUAL(2, b.cfg.halte[0].stopCode);
+  TEST_ASSERT_EQUAL(200, roep(apiIr, b, R"({"actie":"wissen","nr":3})").code);
+  TEST_ASSERT_FALSE(b.cfg.ir[2].gebruikt);
+  TEST_ASSERT_EQUAL(-1, b.cfg.halte[0].stopCode);
+  // staat: codes met hun tekst, zonder de tijden
+  JsonDocument d = lees(apiStaat(b, 0, false));
+  TEST_ASSERT_EQUAL(1, (int)d["ir"]["codes"].size());
+  TEST_ASSERT_EQUAL_STRING("nec:00FF12ED", d["ir"]["codes"][0]["tekst"]);
+  TEST_ASSERT_TRUE(d["ir"]["codes"][0]["raw"].isNull()); // NEC: geen tijden
+  TEST_ASSERT_EQUAL_STRING("nec", d["ir"]["codes"][0]["soort"]);
+  TEST_ASSERT_EQUAL(1, d["ir"]["codes"][0]["herhaal"].as<int>());
+  TEST_ASSERT_EQUAL(48, d["ir"]["ontvangers"][0]["pin"].as<int>());
+}
+
+void test_ir_leren() {
+  Baan b;
+  TEST_ASSERT_EQUAL(200, roep(apiIr, b, R"({"actie":"leren","naam":"Stop bus","ontvanger":1})", 1000).code);
+  JsonDocument d = lees(apiStaat(b, 4000, true));
+  TEST_ASSERT_TRUE(d["leren"]["loopt"].as<bool>());
+  TEST_ASSERT_EQUAL(1, d["leren"]["ontvanger"].as<int>());
+  TEST_ASSERT_EQUAL(7, d["leren"]["resterendS"].as<int>());
+  // een stoorpuls telt niet; een frame van een andere ontvanger ook niet
+  uint32_t kort[] = {500000};
+  b.irFrame(0, kort, 1, 4100);
+  IrCode c;
+  c.commando = 0x12;
+  std::vector<uint32_t> f = frame(c);
+  b.irFrame(2, f.data(), (int)f.size(), 4200);
+  TEST_ASSERT_TRUE(b.leren.loopt);
+  // de afstandsbediening: draaggolf 38 kHz zoals de TSMP58000 ze geeft
+  std::vector<uint32_t> ns;
+  std::vector<uint32_t> env = frame(c);
+  const uint32_t per = 26316, aan = 8700;
+  for (size_t i = 0; i < env.size(); i += 2) {
+    int k = (int)((env[i] + per / 2) / per);
+    for (int p = 0; p < k; p++) {
+      ns.push_back(aan);
+      if (p + 1 < k) ns.push_back(per - aan);
+    }
+    if (i + 1 < env.size()) ns.push_back(per - aan + env[i + 1]);
+  }
+  b.irFrame(0, ns.data(), (int)ns.size(), 5000);
+  TEST_ASSERT_FALSE(b.leren.loopt);
+  d = lees(apiStaat(b, 5100, true));
+  TEST_ASSERT_FALSE(d["leren"]["loopt"].as<bool>());
+  TEST_ASSERT_EQUAL(1, d["leren"]["nr"].as<int>());
+  TEST_ASSERT_EQUAL_STRING("Stop bus", b.cfg.ir[0].naam);
+  TEST_ASSERT_EQUAL(IR_NEC, b.cfg.ir[0].soort);
+  TEST_ASSERT_EQUAL(38, b.cfg.ir[0].khz);
+  // leren zonder code: na 10 s gestopt met een fout
+  roep(apiIr, b, R"({"actie":"leren"})", 6000);
+  b.tick(15999, 0);
+  TEST_ASSERT_TRUE(b.leren.loopt);
+  b.tick(16000, 0);
+  TEST_ASSERT_FALSE(b.leren.loopt);
+  d = lees(apiStaat(b, 16000, true));
+  TEST_ASSERT_TRUE(d["leren"]["nr"].isNull());
+  TEST_ASSERT_TRUE(strlen(d["leren"]["fout"] | "") > 0);
+}
+
+void test_bus_en_punt() {
+  Baan b;
+  TEST_ASSERT_EQUAL(200, roep(apiBus, b, R"({"nr":1,"naam":"Bus 1","kleur":"#d23","code":"nec:00FF12ED"})").code);
+  TEST_ASSERT_EQUAL(200, roep(apiBus, b, R"({"naam":"Bus 2","code":"nec:00FF13EC"})").code);
+  TEST_ASSERT_TRUE(b.cfg.bus[1].gebruikt);
+  const char *fouten[] = {R"({"nr":9})", R"({"nr":1,"kleur":"rood"})", R"({"nr":1,"code":"sony:12"})",
+                          R"({"actie":"gezien","bus":3,"punt":"P1"})", R"({"actie":"gezien","bus":1,"punt":"a b"})",
+                          R"({"actie":"wissen","nr":5})", R"({"actie":"rijden"})"};
+  for (const char *f : fouten) TEST_ASSERT_EQUAL_MESSAGE(400, roep(apiBus, b, f).code, f);
+  // punten
+  TEST_ASSERT_EQUAL(200, roep(apiPunt, b, R"({"id":"P3","ingang":5,"volgende":"P4"})").code);
+  TEST_ASSERT_EQUAL(200, roep(apiPunt, b, R"({"id":"P4","ontvanger":2,"volgende":"P3"})").code);
+  TEST_ASSERT_EQUAL(200, roep(apiPunt, b, R"({"id":"P4","soort":"ftr"})").code); // bijwerken: bron blijft
+  TEST_ASSERT_EQUAL(1, b.cfg.punt[1].ontvanger);
+  TEST_ASSERT_EQUAL(MELD_FTR, b.cfg.punt[1].soort);
+  // loskoppelen zoals het dashboard: ingang 0
+  TEST_ASSERT_EQUAL(200, roep(apiPunt, b, R"({"id":"P7","ingang":3})").code);
+  TEST_ASSERT_EQUAL(200, roep(apiPunt, b, R"({"id":"P7","ingang":0})").code);
+  TEST_ASSERT_EQUAL(-1, b.cfg.punt[b.volg.puntIndex(b.cfg.punt, "P7")].ingang);
+  TEST_ASSERT_EQUAL(200, roep(apiPunt, b, R"({"actie":"wissen","id":"P7"})").code);
+  const char *pfouten[] = {R"({"ingang":5})", R"({"id":"P9"})", R"({"id":"P9","ingang":41})",
+                           R"({"id":"P9","ontvanger":5})", R"({"id":"P9","ingang":1,"ontvanger":1})",
+                           R"({"id":"P9","ingang":1,"soort":"laser"})", R"({"actie":"wissen","id":"P9"})"};
+  for (const char *f : pfouten) TEST_ASSERT_EQUAL_MESSAGE(400, roep(apiPunt, b, f).code, f);
+  // met de hand gezien, dan de hallsensor op P3 (ingang 5): de verwachte bus
+  TEST_ASSERT_EQUAL(200, roep(apiBus, b, R"({"actie":"gezien","bus":2,"punt":"P4"})", 1000).code);
+  b.cfg.ingang[4].soort = SOORT_PULS;
+  for (uint32_t t = 1000; t < 1100; t += 5) b.tick(t, 0);
+  b.tick(1100, 0, ingangBit(4));
+  JsonDocument d = lees(apiMeldingen(b, 0, 1200));
+  TEST_ASSERT_EQUAL(2, d["volgnr"].as<int>());
+  TEST_ASSERT_EQUAL(1200, d["msNu"].as<int>());
+  TEST_ASSERT_EQUAL(2, (int)d["meldingen"].size());
+  TEST_ASSERT_EQUAL_STRING("P3", d["meldingen"][1]["punt"]);
+  TEST_ASSERT_EQUAL_STRING("hall", d["meldingen"][1]["soort"]);
+  TEST_ASSERT_EQUAL(5, d["meldingen"][1]["ingang"].as<int>());
+  TEST_ASSERT_EQUAL(2, d["meldingen"][1]["bus"].as<int>());
+  TEST_ASSERT_TRUE(d["meldingen"][1]["code"].isNull());
+  TEST_ASSERT_EQUAL(1100, d["meldingen"][1]["ms"].as<int>());
+  d = lees(apiMeldingen(b, 2, 1200));
+  TEST_ASSERT_EQUAL(0, (int)d["meldingen"].size());
+  // een IR-code op ontvanger 2 (P4, soort ftr: toch met code -> blijft ftr zoals ingesteld)
+  IrCode c;
+  c.commando = 0x12;
+  std::vector<uint32_t> f = frame(c);
+  b.irFrame(1, f.data(), (int)f.size(), 9000);
+  d = lees(apiMeldingen(b, 2, 9000));
+  TEST_ASSERT_EQUAL(1, d["meldingen"][0]["bus"].as<int>());
+  TEST_ASSERT_EQUAL_STRING("nec:00FF12ED", d["meldingen"][0]["code"]);
+  TEST_ASSERT_EQUAL(2, d["meldingen"][0]["ontvanger"].as<int>());
+  // staat kort: bussen met van/naar/fractie, irLaatst, msNu
+  d = lees(apiStaat(b, 9000 + 2000, true));
+  TEST_ASSERT_EQUAL(11000, d["msNu"].as<int>());
+  TEST_ASSERT_EQUAL(2, (int)d["bussen"].size());
+  TEST_ASSERT_EQUAL_STRING("P4", d["bussen"][0]["van"]);
+  TEST_ASSERT_EQUAL_STRING("P3", d["bussen"][0]["naar"]);
+  TEST_ASSERT_FLOAT_WITHIN(0.001, 0.2, d["bussen"][0]["fractie"].as<double>()); // 2 s van 10 s
+  TEST_ASSERT_EQUAL_STRING("rijdt", d["bussen"][0]["staat"]);
+  TEST_ASSERT_EQUAL(9000, d["bussen"][0]["gezienMs"].as<int>());
+  TEST_ASSERT_TRUE(d["bussen"][0]["naam"].isNull()); // kort: zonder namen
+  TEST_ASSERT_EQUAL_STRING("nec:00FF12ED", d["irLaatst"][0]["code"]);
+  TEST_ASSERT_EQUAL(2, d["irLaatst"][0]["ontvanger"].as<int>());
+  d = lees(apiStaat(b, 11000, false));
+  TEST_ASSERT_EQUAL_STRING("Bus 1", d["bussen"][0]["naam"]);
+  TEST_ASSERT_EQUAL_STRING("P3", d["punten"][0]["id"]);
+  TEST_ASSERT_EQUAL(5, d["punten"][0]["ingang"].as<int>());
+  // wissen
+  TEST_ASSERT_EQUAL(200, roep(apiPunt, b, R"({"actie":"wissen","id":"P3"})").code);
+  TEST_ASSERT_EQUAL(-1, b.volg.puntIndex(b.cfg.punt, "P3"));
+  TEST_ASSERT_EQUAL(200, roep(apiBus, b, R"({"actie":"wissen","nr":1})").code);
+  TEST_ASSERT_FALSE(b.volg.bus[0].gezien);
+}
+
+void test_servo_api() {
+  Baan b;
+  TEST_ASSERT_EQUAL(200, roep(apiServo, b, R"({"nr":1,"naam":"Wissel 1","kanaal":1,"a":1100,"b":1900,"snelheid":400,"soort":"wissel"})").code);
+  JsonDocument d = lees(apiStaat(b, 0, true));
+  TEST_ASSERT_EQUAL(1, (int)d["servos"].size());
+  TEST_ASSERT_EQUAL(0, d["servos"][0]["us"].as<int>()); // nog geen stand: geen puls
+  TEST_ASSERT_EQUAL(200, roep(apiServo, b, R"({"nr":1,"naar":"a"})").code);
+  TEST_ASSERT_EQUAL(1100, b.servos.us(0));
+  TEST_ASSERT_EQUAL(200, roep(apiServo, b, R"({"nr":1,"naar":"wissel"})", 0).code);
+  for (uint32_t t = 5; t <= 1000; t += 5) b.tick(t, 0);
+  TEST_ASSERT_EQUAL_STRING("onderweg", b.servos.standTekst(0)); // 800 µs aan 400 µs/s = 2 s
+  for (uint32_t t = 1005; t <= 2100; t += 5) b.tick(t, 0);
+  d = lees(apiStaat(b, 2100, true));
+  TEST_ASSERT_EQUAL(1900, d["servos"][0]["us"].as<int>());
+  TEST_ASSERT_EQUAL_STRING("b", d["servos"][0]["stand"]);
+  // proef: de eindstand zoeken
+  TEST_ASSERT_EQUAL(200, roep(apiServo, b, R"({"nr":1,"proef":1500})", 2100).code);
+  for (uint32_t t = 2105; t <= 3200; t += 5) b.tick(t, 0);
+  TEST_ASSERT_EQUAL(1500, b.servos.us(0));
+  // een andere eindstand B bewaren terwijl hij op B staat: hij gaat erheen
+  roep(apiServo, b, R"({"nr":1,"naar":"b"})", 3200);
+  for (uint32_t t = 3205; t <= 5000; t += 5) b.tick(t, 0);
+  TEST_ASSERT_EQUAL(200, roep(apiServo, b, R"({"nr":1,"b":2000,"snelheid":0})", 5000).code);
+  TEST_ASSERT_EQUAL(2000, b.servos.us(0));
+  // stand bewaard voor na een stroomonderbreking
+  Stand s = b.bewaarStand(5000);
+  TEST_ASSERT_EQUAL_HEX16(1, s.servosB);
+  // proef zoals het dashboard ze stuurt, ook voor een servo die nog niet bewaard is
+  TEST_ASSERT_EQUAL(200, roep(apiServo, b, R"({"nr":4,"kanaal":7,"proef":1200})", 6000).code);
+  TEST_ASSERT_TRUE(b.cfg.servo[3].gebruikt);
+  TEST_ASSERT_EQUAL(6, b.cfg.servo[3].kanaal);
+  TEST_ASSERT_EQUAL(1200, b.servos.us(3));
+  TEST_ASSERT_EQUAL(400, roep(apiServo, b, R"({"nr":4,"kanaal":17,"proef":1200})").code);
+  const char *fouten[] = {R"({"nr":17})", R"({"naam":"x"})", R"({"nr":1,"kanaal":17})", R"({"nr":1,"a":400})",
+                          R"({"nr":1,"snelheid":30000})", R"({"nr":1,"soort":"kraan"})", R"({"nr":1,"naar":"c"})",
+                          R"({"nr":1,"proef":3000})", R"({"nr":2,"naar":"a"})", R"({"actie":"wissen","nr":2})"};
+  for (const char *f : fouten) TEST_ASSERT_EQUAL_MESSAGE(400, roep(apiServo, b, f).code, f);
+  TEST_ASSERT_EQUAL(200, roep(apiServo, b, R"({"actie":"wissen","nr":1})").code);
+  TEST_ASSERT_EQUAL(0, b.servos.tellen(0));
+}
+
+void test_halte_api_fouten() {
+  Baan b;
+  roep(apiIr, b, R"({"actie":"bewaren","code":{"soort":"nec"}})");
+  TEST_ASSERT_EQUAL(200, roep(apiHalte, b, R"({"nr":1,"naam":"Halte Station 1","aankomstPunt":"P5","stopLeds":[5],
+    "stopCode":1,"rijdCode":0,"wachtS":12,"vrijIngangen":[7,40],"vrijMinS":3,"licht":{"rood":9,"oranje":10,"groen":11},
+    "groenS":5,"servo":0})").code);
+  TEST_ASSERT_EQUAL_HEX64(ingangBit(6) | ingangBit(39), b.cfg.halte[0].vrijIngangen);
+  const char *fouten[] = {R"({"nr":9})", R"({"nr":1,"aankomstPunt":"a b"})", R"({"nr":1,"stopLeds":[9]})",
+                          R"({"nr":1,"stopCode":2})", R"({"nr":1,"servo":1})", R"({"nr":1,"wachtS":-1})",
+                          R"({"nr":1,"licht":{"rood":99}})", R"({"nr":1,"licht":5})", R"({"nr":1,"vrijIngangen":[41]})",
+                          R"({"actie":"wissen","nr":2})"};
+  for (const char *f : fouten) TEST_ASSERT_EQUAL_MESSAGE(400, roep(apiHalte, b, f).code, f);
+  JsonDocument d = lees(apiStaat(b, 0, false));
+  TEST_ASSERT_EQUAL_STRING("vrij", d["haltes"][0]["fase"]);
+  TEST_ASSERT_EQUAL(0, d["haltes"][0]["bus"].as<int>());
+  TEST_ASSERT_EQUAL(9, d["haltes"][0]["licht"]["rood"].as<int>());
+  TEST_ASSERT_EQUAL(0, d["haltes"][0]["rijdCode"].as<int>());
+  TEST_ASSERT_EQUAL(200, roep(apiHalte, b, R"({"actie":"wissen","nr":1})").code);
+  TEST_ASSERT_FALSE(b.cfg.halte[0].gebruikt);
+}
+
+void test_kastjes() {
+  Baan b;
+  Antwoord a = roep(apiKastje, b, R"({"actie":"aanmelden","id":"a1b2c3","naam":"Kerk","ip":"192.168.4.23",
+    "geluiden":[{"naam":"klok.wav","s":4.2},{"naam":"../slecht.wav","s":1}],"versie":"1.0.0"})", 1000);
+  TEST_ASSERT_EQUAL(200, a.code);
+  TEST_ASSERT_EQUAL(1, b.kastjes.k[0].nGeluiden);
+  TEST_ASSERT_EQUAL(42, b.kastjes.k[0].geluid[0].ds);
+  TEST_ASSERT_EQUAL(200, roep(apiKastje, b, R"({"actie":"spelen","kastje":"kerk","geluid":"klok.wav","volume":80})", 2000).code);
+  HttpOpdracht o;
+  TEST_ASSERT_TRUE(b.kastjes.haal(o));
+  TEST_ASSERT_EQUAL_STRING("/speel", o.pad);
+  TEST_ASSERT_EQUAL_STRING("{\"geluid\":\"klok.wav\",\"volume\":80}", o.body);
+  TEST_ASSERT_EQUAL(200, roep(apiKastje, b, R"({"actie":"stop","kastje":"Kerk"})", 2000).code);
+  TEST_ASSERT_TRUE(b.kastjes.haal(o));
+  TEST_ASSERT_EQUAL_STRING("/stop", o.pad);
+  TEST_ASSERT_EQUAL(200, roep(apiKastje, b, R"({"actie":"hernoemen","id":"a1b2c3","naam":"Kapel"})", 2000).code);
+  TEST_ASSERT_TRUE(b.kastjes.haal(o));
+  TEST_ASSERT_EQUAL_STRING("/naam", o.pad);
+  TEST_ASSERT_EQUAL_STRING("{\"naam\":\"Kapel\"}", o.body);
+  TEST_ASSERT_EQUAL_STRING("Kapel", b.kastjes.k[0].naam);
+  // opnieuw aanmelden (elke 30 s) met dezelfde id: bijgewerkt, geen tweede kastje
+  roep(apiKastje, b, R"({"actie":"aanmelden","id":"a1b2c3","naam":"Kapel","ip":"192.168.4.24","geluiden":[]})", 30000);
+  TEST_ASSERT_FALSE(b.kastjes.k[1].gebruikt);
+  TEST_ASSERT_EQUAL_STRING("192.168.4.24", b.kastjes.k[0].ip);
+  const char *fouten[] = {R"({"actie":"aanmelden","id":"","ip":"192.168.4.2"})",
+                          R"({"actie":"aanmelden","id":"x1","ip":"192.168.4"})",
+                          R"({"actie":"aanmelden","id":"x/1","ip":"192.168.4.2"})",
+                          R"({"actie":"spelen","kastje":"Toren","geluid":"klok.wav"})",
+                          R"({"actie":"spelen","kastje":"Kapel","geluid":"a/b.wav"})",
+                          R"({"actie":"spelen","kastje":"Kapel","geluid":"klok.wav","volume":101})",
+                          R"({"actie":"hernoemen","id":"a1b2c3","naam":""})", R"({"actie":"zingen"})"};
+  for (const char *f : fouten) TEST_ASSERT_EQUAL_MESSAGE(400, roep(apiKastje, b, f, 31000).code, f);
+  JsonDocument d = lees(apiStaat(b, 31000, false));
+  TEST_ASSERT_EQUAL_STRING("Kapel", d["kastjes"][0]["naam"]);
+  TEST_ASSERT_TRUE(d["kastjes"][0]["online"].as<bool>());
+  // 90 s niets gehoord: offline, spelen gaat niet
+  TEST_ASSERT_EQUAL(400, roep(apiKastje, b, R"({"actie":"spelen","kastje":"Kapel","geluid":"klok.wav"})", 30000 + 90000).code);
+  d = lees(apiStaat(b, 30000 + 90000, false));
+  TEST_ASSERT_FALSE(d["kastjes"][0]["online"].as<bool>());
+}
+
+void test_ingang_polariteit_api() {
+  Baan b;
+  TEST_ASSERT_EQUAL(200, ingang(b, R"({"nr":5,"polariteit":"pnp"})").code);
+  TEST_ASSERT_EQUAL(POL_PNP, b.cfg.ingang[4].polariteit);
+  TEST_ASSERT_EQUAL(200, ingang(b, R"({"groep":3,"polariteit":"pnp"})").code);
+  for (int i = 16; i < 24; i++) TEST_ASSERT_EQUAL(POL_PNP, b.cfg.ingang[i].polariteit);
+  TEST_ASSERT_EQUAL(POL_NPN, b.cfg.ingang[24].polariteit);
+  TEST_ASSERT_EQUAL(200, ingang(b, R"({"groep":5,"polariteit":"pnp"})").code);
+  TEST_ASSERT_EQUAL(POL_PNP, b.cfg.ingang[39].polariteit);
+  TEST_ASSERT_EQUAL(200, ingang(b, R"({"nr":40,"naam":"Reflex 4","soort":"puls"})").code);
+  const char *fouten[] = {R"({"nr":5,"polariteit":"PNP"})", R"({"groep":6,"polariteit":"pnp"})",
+                          R"({"groep":1})", R"({"nr":5,"polariteit":1})"};
+  for (const char *f : fouten) TEST_ASSERT_EQUAL_MESSAGE(400, ingang(b, f).code, f);
+  JsonDocument d = lees(apiStaat(b, 0, false));
+  TEST_ASSERT_EQUAL_STRING("pnp", d["ingangen"][4]["polariteit"]);
+  TEST_ASSERT_EQUAL_STRING("npn", d["ingangen"][0]["polariteit"]);
+  TEST_ASSERT_TRUE(d["ingangen"][16]["aanwezig"].as<bool>());
+  TEST_ASSERT_FALSE(d["ingangen"][30]["aanwezig"].as<bool>()); // geen tweede MCP23017
+  TEST_ASSERT_EQUAL_STRING("Reflex 4", d["ingangen"][39]["naam"]);
+}
+
+void test_plan_en_hulp() {
+  TEST_ASSERT_EQUAL(200, planNakijken("{\"versie\":2,\"rijbanen\":[]}", 26).code);
+  TEST_ASSERT_EQUAL(400, planNakijken("[1,2]", 5).code);
+  TEST_ASSERT_EQUAL(400, planNakijken("{\"versie\":", 11).code);
+  TEST_ASSERT_EQUAL(400, planNakijken("", 0).code);
+  std::string groot = "{\"x\":\"" + std::string(MAX_PLAN, 'a') + "\"}";
+  TEST_ASSERT_EQUAL(400, planNakijken(groot.data(), groot.size()).code);
+  TEST_ASSERT_TRUE(tvNaamGeldig("achtergrond.jpg"));
+  TEST_ASSERT_TRUE(tvNaamGeldig("plan.json"));
+  TEST_ASSERT_FALSE(tvNaamGeldig("../x.jpg"));
+  TEST_ASSERT_FALSE(tvNaamGeldig("geenpunt"));
+  TEST_ASSERT_FALSE(tvNaamGeldig(".verborgen"));
+  TEST_ASSERT_EQUAL_STRING("image/jpeg", inhoudSoort("a.jpg"));
+  TEST_ASSERT_EQUAL_STRING("application/json", inhoudSoort("plan.json"));
+  TEST_ASSERT_EQUAL_UINT32(812, sindsVan("812"));
+  TEST_ASSERT_EQUAL_UINT32(0, sindsVan("x"));
+  TEST_ASSERT_EQUAL_UINT32(0, sindsVan(nullptr));
+}
+
 int main() {
   UNITY_BEGIN();
   RUN_TEST(test_groep_zetten);
@@ -439,5 +776,13 @@ int main() {
   RUN_TEST(test_testmodus_alles_uit_stopt_en_fouten);
   RUN_TEST(test_thuisnet_instellen);
   RUN_TEST(test_knop_alles_aan_uit_standaard);
+  RUN_TEST(test_ir_bewaren_zenden_wissen);
+  RUN_TEST(test_ir_leren);
+  RUN_TEST(test_bus_en_punt);
+  RUN_TEST(test_servo_api);
+  RUN_TEST(test_halte_api_fouten);
+  RUN_TEST(test_kastjes);
+  RUN_TEST(test_ingang_polariteit_api);
+  RUN_TEST(test_plan_en_hulp);
   return UNITY_END();
 }

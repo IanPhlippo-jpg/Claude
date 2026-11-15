@@ -37,7 +37,7 @@
 <text x="21" y="285.4" font-size="1.8" text-anchor="start" fill="#000">Wijz.</text>
 <text x="31" y="285.4" font-size="1.8" text-anchor="start" fill="#000">Datum</text>
 <text x="49" y="285.4" font-size="1.8" text-anchor="start" fill="#000">Naam</text>
-<text x="21" y="278.55" font-size="2.3" text-anchor="start" fill="#000">4</text>
+<text x="21" y="278.55" font-size="2.3" text-anchor="start" fill="#000">5</text>
 <text x="31" y="278.55" font-size="2" text-anchor="start" fill="#000">2026-11-15</text>
 <text x="49" y="278.55" font-size="2" text-anchor="start" fill="#000">PC</text>
 <polyline points="62,260 62,287" fill="none" stroke="#000" stroke-width="0.35"/>
@@ -81,7 +81,7 @@
 <text x="307" y="262.3" font-size="1.8" text-anchor="start" fill="#000">Tekeningnr.</text>
 <text x="308" y="270" font-size="2.8" text-anchor="start" fill="#000" font-weight="700">TRN-E01</text>
 <text x="307" y="275.8" font-size="1.8" text-anchor="start" fill="#000">Revisie / taal</text>
-<text x="308" y="283" font-size="2.6" text-anchor="start" fill="#000">4 / nl</text>
+<text x="308" y="283" font-size="2.6" text-anchor="start" fill="#000">5 / nl</text>
 <polyline points="350,260 350,287" fill="none" stroke="#000" stroke-width="0.35"/>
 <polyline points="350,273.5 384,273.5" fill="none" stroke="#000" stroke-width="0.25"/>
 <text x="351.5" y="266" font-size="2.6" text-anchor="start" fill="#000">=</text>
@@ -94,7 +94,7 @@
 <polyline points="384,280.25 410,280.25" fill="none" stroke="#000" stroke-width="0.25"/>
 <text x="385" y="262.3" font-size="1.8" text-anchor="start" fill="#000">Blad</text>
 <text x="397" y="275" font-size="8" text-anchor="middle" fill="#000" font-weight="700">5</text>
-<text x="408.5" y="285.2" font-size="2.3" text-anchor="end" fill="#000">16 Bl.</text>
+<text x="408.5" y="285.2" font-size="2.3" text-anchor="end" fill="#000">19 Bl.</text>
 <polygon points="23,30 25.2,28.9 25.2,31.1" fill="#000"/><text x="26" y="28.6" font-size="2.5" text-anchor="start" fill="#000">S12</text><text x="26" y="33.2" font-size="2.3" text-anchor="start" fill="#000">/3.8</text>
 <polyline points="23,30 385,30" fill="none" stroke="#000" stroke-width="0.35"/>
 <circle cx="365" cy="30" r="0.6" fill="#000"/>
@@ -445,5 +445,5 @@
 <circle cx="382" cy="236" r="0.6" fill="#000"/>
 <polyline points="212.6,134 390.2,134" fill="none" stroke="#000" stroke-width="0.25"/>
 <text x="25" y="244" font-size="2.3" text-anchor="start" fill="#000">-K3, -K4: optocouplerprint PC817, 8 kanalen; VCC (ingang) = S12 +12 V, IN n naar 0 V = actief; uitgang met jumper op pull-up: OUT n laag = actief (GPIO met pull-up). Een +12 V op IN n: niets aan de hand (0 V over de led).</text>
-<text x="25" y="249" font-size="2.3" text-anchor="start" fill="#000">Hallsensor (SS441A, A3144): + aan -X3, − aan -X2, uitgang aan IN; meerdere parallel mag; ingang op "Hallsensor (korte puls)" zetten (puls vanaf 1 ms). PNP werkt niet rechtstreeks. Ingangsweerstand 1 kΩ: AANNAME.</text>
+<text x="25" y="249" font-size="2.3" text-anchor="start" fill="#000">Hallsensor (SS441A, A3144): + aan -X3, − aan -X2, uitgang aan IN; meerdere parallel mag; ingang op "Hallsensor (korte puls)" zetten (puls vanaf 1 ms). PNP: blad 8. Ingangsweerstand 1 kΩ: AANNAME.</text>
 </svg>

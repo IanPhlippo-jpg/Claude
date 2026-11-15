@@ -362,6 +362,102 @@ void test_alle_groepen_masker() {
   TEST_ASSERT_EQUAL_HEX32(groepBit(N_GROEPEN - 1), b.deelnemers());
 }
 
+// ------------------------------------------------------------------- firmware 2.0.0: stappen servo, ir, geluid
+void test_stappen_servo_ir_geluid() {
+  Baan b;
+  ServoCfg &s = b.cfg.servo[0];
+  s.gebruikt = true;
+  s.a = 1000;
+  s.b = 2000;
+  s.snelheid = 0;
+  b.servosOpStand(0); // servo 1 op A
+  IrCode &c = b.cfg.ir[2];
+  c.gebruikt = true;
+  c.commando = 7;
+  Kastje k;
+  strcpy(k.id, "a1b2c3");
+  strcpy(k.naam, "Kerk");
+  strcpy(k.ip, "192.168.4.23");
+  b.kastjes.aanmelden(k, 0);
+  // een functie zoals het dashboard ze bewaart
+  const char *j = R"({"naam":"Slagboom","stappen":[
+    {"actie":"servo","servo":1,"stand":"b","wacht":2},
+    {"actie":"ir","code":3,"leds":[5,6],"wacht":0},
+    {"actie":"geluid","kastje":"kerk","geluid":"klok.wav","volume":70,"wacht":1},
+    {"actie":"servo","servo":1,"stand":"wissel","wacht":0}]})";
+  JsonDocument d;
+  deserializeJson(d, j);
+  Functie f;
+  Lezer l;
+  l.functie(d.as<JsonVariantConst>(), f, 4);
+  TEST_ASSERT_EQUAL(0, l.hersteld);
+  TEST_ASSERT_EQUAL(4, f.nStappen);
+  TEST_ASSERT_EQUAL(ACT_SERVO, f.stap[0].actie);
+  TEST_ASSERT_EQUAL(1, f.stap[0].stand);
+  TEST_ASSERT_EQUAL(0, (int)f.stap[0].groepen);
+  TEST_ASSERT_EQUAL_HEX8(0x30, f.stap[1].leds);
+  TEST_ASSERT_EQUAL_STRING("kerk", f.stap[2].kastje);
+  TEST_ASSERT_EQUAL(70, f.stap[2].volume);
+  TEST_ASSERT_EQUAL(2, f.stap[3].stand);
+  TEST_ASSERT_EQUAL(0, (int)f.groepenInStappen()); // geen lichtgroepen: stoppen zet niets uit
+  b.functieBewaren(4, f, 0);
+  b.functieStart(4, 0);
+  TEST_ASSERT_EQUAL(2000, b.servos.us(0)); // snelheid 0: meteen
+  TEST_ASSERT_EQUAL_STRING("onderweg", b.servos.standTekst(0));
+  for (uint32_t t = 5; t < 2000; t += 5) b.tick(t, 0);
+  TEST_ASSERT_EQUAL_STRING("b", b.servos.standTekst(0));
+  b.tick(2000, 0); // stap 2 en 3
+  IrZend z;
+  TEST_ASSERT_TRUE(b.haalIrZend(z));
+  TEST_ASSERT_EQUAL(2, z.code);
+  TEST_ASSERT_EQUAL_HEX8(0x30, z.leds);
+  HttpOpdracht o;
+  TEST_ASSERT_TRUE(b.kastjes.haal(o));
+  TEST_ASSERT_EQUAL_STRING("192.168.4.23", o.ip);
+  TEST_ASSERT_EQUAL_STRING("/speel", o.pad);
+  TEST_ASSERT_EQUAL_STRING("{\"geluid\":\"klok.wav\",\"volume\":70}", o.body);
+  for (uint32_t t = 2005; t < 3500; t += 5) b.tick(t, 0); // stap 4: wisselen -> A
+  TEST_ASSERT_EQUAL(1000, b.servos.us(0));
+  TEST_ASSERT_EQUAL_STRING("a", b.servos.standTekst(0));
+  // heen en terug door JSON
+  JsonDocument u;
+  schrijfFunctie(u.to<JsonObject>(), b.cfg.functie[4]);
+  Functie g;
+  Lezer l2;
+  l2.functie(u.as<JsonVariantConst>(), g, 4);
+  TEST_ASSERT_EQUAL(0, l2.hersteld);
+  TEST_ASSERT_EQUAL(0, memcmp(&g.stap[2].geluid, &f.stap[2].geluid, GELUID_LEN));
+  TEST_ASSERT_EQUAL(0, (int)u["stappen"][0]["groepen"].size()); // elke stap heeft groepen (leeg)
+  TEST_ASSERT_EQUAL(2.0, u["stappen"][0]["wacht"].as<double>());
+  TEST_ASSERT_EQUAL_STRING("wissel", u["stappen"][3]["stand"]);
+}
+
+void test_stappen_fout_worden_hersteld() {
+  const char *j = R"({"stappen":[
+    {"actie":"servo","servo":99,"stand":"half"},
+    {"actie":"ir","code":0,"leds":[9]},
+    {"actie":"geluid","kastje":"","geluid":"../x.wav","volume":500}]})";
+  JsonDocument d;
+  deserializeJson(d, j);
+  Functie f;
+  Lezer l;
+  l.functie(d.as<JsonVariantConst>(), f, 0);
+  TEST_ASSERT_EQUAL(3, f.nStappen);
+  TEST_ASSERT_EQUAL(7, l.hersteld); // servo 99, stand, code 0, led 9, kastje, geluid, volume 500
+  TEST_ASSERT_EQUAL(MAX_SERVOS, f.stap[0].waarde);
+  TEST_ASSERT_EQUAL(1, f.stap[1].waarde);
+  TEST_ASSERT_EQUAL(0, f.stap[1].leds);
+  TEST_ASSERT_EQUAL(100, f.stap[2].volume);
+  // in de Baan: een servo of code die niet bestaat, een kastje dat offline is: niets, geen crash
+  Baan b;
+  b.functieBewaren(0, f, 0);
+  b.functieStart(0, 0);
+  IrZend z;
+  TEST_ASSERT_FALSE(b.haalIrZend(z));
+  HttpOpdracht o;
+  TEST_ASSERT_FALSE(b.kastjes.haal(o));
+}
+
 int main() {
   UNITY_BEGIN();
   RUN_TEST(test_wachttijden_exact);
@@ -381,5 +477,7 @@ int main() {
   RUN_TEST(test_stand_na_stroomonderbreking);
   RUN_TEST(test_stap_wissel);
   RUN_TEST(test_alle_groepen_masker);
+  RUN_TEST(test_stappen_servo_ir_geluid);
+  RUN_TEST(test_stappen_fout_worden_hersteld);
   return UNITY_END();
 }

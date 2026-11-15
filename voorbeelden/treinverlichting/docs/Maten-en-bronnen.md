@@ -116,7 +116,8 @@ eilandjes (2,54 uit elkaar).
 | ESP32-S3-DevKitC-1 v1.1: USB | 2 x micro-USB ("USB-to-UART Port: A Micro-USB port") | Espressif user guide v1.1 |
 | afstandsbus PCA9685 | M2,5 x 10, rond Ø5 | AANNAME |
 | ATO-printhouder | 2 soldeerpennen 10,16 uit elkaar | AANNAME (na te meten, zo nodig opboren) |
-| klemlip bordje | tong 0,8 x 2,0, haak 0,75 (0,15 speling), 0,1 boven de print; de print van het bordje 1,6 dik | ontwerp (maten.mjs); 1,6 AANNAME (gangbare FR4): na te meten, de haak moet erover passen |
+| gaten bordje | 4 gaten in de hoeken, hart 2,0 van beide randen; Ø2,2; de print 1,6 dik | Ian (2026-11-15: "Gaten zitten op 2mm op 2mm van de hoeken van het bordje"); Ø2,2 en 1,6 AANNAME: na te meten |
+| schroefpaaltje bordje | Ø5 x 3 op de bodem, voorgat Ø1,6 (0,8 x d) tot 0,4 boven de onderkant; schroef 2,0 x 6 zelftappend voor kunststof, bolkop Ø4 x 1,4, PH1 | ontwerp (maten.mjs, M.schroefpaal); kop AANNAME (gangbare DIN 7981-achtige bolkop); TRN-07 |
 
 ## Versie 4 (Ian, 2026-11-13: kant-en-klare printjes): de modules
 
@@ -234,7 +235,7 @@ Bron: Bourns, datablad MF-R Series (mfr.pdf).
 | naad | naadvlak links x = 110, rechts 110,2: lijmspleet 0,2 overal | ontwerp |
 | klikhaak | 14 lang, 1,6 dik, top 26, onderkant 45°; nok 0,6 (schuin over 1,2, recht aan de achterkant) van 15 tot 25 hoog; kuiltje 0,8 diep | ontwerp; rek 0,62 %, 9,7 N per haak (rekenblad, hfst. 8) |
 | bodemlippen | 5 x (16 x 5) op z = -92, -52, -12, 28, 58 | ontwerp |
-| gaatjes leddraden (linkerhelft) | 512 x (2 x 2), per klem één, om en om op 0,3 en 2,5 van de rand van het bordje, op 19 eilandjes van 0,4 | ontwerp (Ian: "2mm op 2mm"); TRN-07 |
+| draadsleuven (linkerhelft) | per bordje 40 x 4 in de strook voor of achter de rij, links 20 x 6 per rij 2 tot 5 | ontwerp (versie 5b: terug van de 512 gaatjes 2 x 2) |
 | lip van het deksel | 12 x 1,4, 4 vingers (sleuven 1,5), nok 0,5 x 20 per vinger, groef 0,6 | ontwerp; rek 0,44 %, 44 N samen |
 | PETG | E = 2100 MPa, rek bij herhaald klikken ≤ 2 % | AANNAME (gangbaar) |
 | lijm | 2K-epoxy (bv. UHU Plus Schnellfest of Bison Epoxy Universal), spleet 0,2 | keuze; prijs AANNAME |

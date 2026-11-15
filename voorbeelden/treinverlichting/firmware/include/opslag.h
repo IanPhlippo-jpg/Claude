@@ -15,6 +15,11 @@
 // bestand meteen als versie 2): "helderheid", "max" en "faduur" vallen weg (een groep die aan stond, blijft aan),
 // een stap "helderheid" wordt "aan" (waarde > 0) of "uit" (0), de effecten vuur, tv en ademen worden "aan" zonder
 // effect.
+// Versie 2 (firmware 1.3.0) wordt gewoon geladen (OMGEZET, main.cpp bewaart het als versie 3): de nieuwe onderdelen
+// van firmware 2.0.0 krijgen hun standaard (geen IR-codes, servo's, bussen, punten of haltes; alle ingangen npn).
+// Versie 3 (firmware 2.0.0) heeft er bij: "ir" (32 IR-codes), "servos" (16), "bussen" (8), "punten" (48 meetpunten),
+// "haltes" (8), per ingang "polariteit" (40 ingangen) en de functiestappen servo, ir en geluid. Met geleerde raw-codes
+// kan het bestand groter worden: tot 160 kB.
 // Nooit crashen: elke waarde wordt begrensd voor ze gebruikt wordt; lijsten worden ingekort tot hun maximum.
 #pragma once
 #include <ArduinoJson.h>
@@ -23,14 +28,20 @@
 
 #include <string>
 
+#include "bussen.h"
 #include "functies.h"
+#include "halte.h"
 #include "ingangen.h"
+#include "ir.h"
+#include "kastjes.h"
+#include "servo.h"
 
 namespace trein {
 
-constexpr int CONFIG_VERSIE = 2;     // 2 = firmware 1.3.0 (alleen aan/uit, soort per ingang)
+constexpr int CONFIG_VERSIE = 3;     // 3 = firmware 2.0.0 (IR, servo's, bussen, punten, haltes, polariteit)
+constexpr int VERSIE_130 = 2;        // firmware 1.3.0: laadt gewoon, de nieuwe onderdelen krijgen hun standaard
 constexpr int OUDE_VERSIE = 1;       // firmware 1.0 tot 1.2 (met dimmen): wordt bij het laden omgezet
-constexpr size_t MAX_BESTAND = 48 * 1024;
+constexpr size_t MAX_BESTAND = 160 * 1024;
 constexpr const char *STD_WACHTWOORD = "treinbaan";
 constexpr const char *HOTSPOT_NAAM = "Treinbaan";
 constexpr uint16_t MIN_DAGNACHT_MIN = 2, MAX_DAGNACHT_MIN = 240;
@@ -55,6 +66,11 @@ struct Config {
   Scene scene[MAX_SCENES];
   Functie functie[MAX_FUNCTIES];
   IngangCfg ingang[N_INGANGEN];
+  IrCode ir[MAX_IR_CODES];
+  ServoCfg servo[MAX_SERVOS];
+  BusCfg bus[MAX_BUSSEN];
+  PuntCfg punt[MAX_PUNTEN];
+  HalteCfg halte[MAX_HALTES];
 };
 
 /** wat na een stroomonderbreking terugkomt */
@@ -63,9 +79,22 @@ struct Stand {
   bool dagnachtLoopt = false;
   uint32_t dagnachtPosMs = 0;
   uint16_t functies = 0; // lopende herhalende functies (bit f = functie f+1)
+  uint16_t servosB = 0;  // servo's in stand B (bit s = servo s+1); de andere in A
 };
 
 enum class Laad { OK, OMGEZET, HERSTELD, ONGELDIG };
+
+/** een codetekst zoals irTekst() ze maakt ("nec:...", "rc5:...", "raw:..."), of leeg */
+inline bool codeTekstGeldig(const char *c) {
+  if (!c) return false;
+  if (!c[0]) return true;
+  size_t n = strlen(c);
+  if (n >= (size_t)IR_TEKST_LEN || n < 5) return false;
+  if (strncmp(c, "nec:", 4) != 0 && strncmp(c, "rc5:", 4) != 0 && strncmp(c, "raw:", 4) != 0) return false;
+  for (size_t i = 4; i < n; i++)
+    if (!((c[i] >= '0' && c[i] <= '9') || (c[i] >= 'A' && c[i] <= 'F') || (c[i] >= 'a' && c[i] <= 'f'))) return false;
+  return true;
+}
 
 /** WPA2: 8 tot 63 gewone tekens (geen é, geen stuurtekens) */
 inline bool wachtwoordGeldig(const char *w) {
@@ -106,6 +135,11 @@ inline void standaard(Config &c) {
     c.ingang[i] = IngangCfg();
     standaardNaam(c.ingang[i].naam, "Ingang", i + 1);
   }
+  for (int i = 0; i < MAX_IR_CODES; i++) c.ir[i] = IrCode();
+  for (int i = 0; i < MAX_SERVOS; i++) c.servo[i] = ServoCfg();
+  for (int i = 0; i < MAX_BUSSEN; i++) c.bus[i] = BusCfg();
+  for (int i = 0; i < MAX_PUNTEN; i++) c.punt[i] = PuntCfg();
+  for (int i = 0; i < MAX_HALTES; i++) c.halte[i] = HalteCfg();
   // twee scènes en één voorbeeldfunctie om mee te beginnen
   Scene &aan = c.scene[0];
   aan.gebruikt = true;
@@ -255,10 +289,195 @@ struct Lezer {
         s.p2 = getal(v["p2"], i.p2Min, i.p2Max, i.p2Std);
         break;
       }
+      case ACT_SERVO: {
+        s.groepen = 0;
+        s.waarde = getal(v["servo"], 1, MAX_SERVOS, 1);
+        JsonVariantConst st = v["stand"];
+        const char *t = st.is<const char *>() ? st.as<const char *>() : "";
+        if (strcmp(t, "a") == 0) s.stand = 0;
+        else if (strcmp(t, "b") == 0) s.stand = 1;
+        else if (strcmp(t, "wissel") == 0) s.stand = 2;
+        else hersteld++;
+        break;
+      }
+      case ACT_IR:
+        s.groepen = 0;
+        s.waarde = getal(v["code"], 1, MAX_IR_CODES, 1);
+        s.leds = leds(v["leds"], 0);
+        break;
+      case ACT_GELUID: {
+        s.groepen = 0;
+        JsonVariantConst k = v["kastje"], g = v["geluid"];
+        if (k.is<const char *>() && k.as<const char *>()[0] && strlen(k.as<const char *>()) < (size_t)KASTJE_NAAM_LEN)
+          strcpy(s.kastje, k.as<const char *>());
+        else hersteld++;
+        if (g.is<const char *>() && geluidNaamGeldig(g.as<const char *>())) strcpy(s.geluid, g.as<const char *>());
+        else hersteld++;
+        s.volume = (uint8_t)getal(v["volume"], 0, 100, 80);
+        break;
+      }
       default: break;
     }
     s.wachtMs = seconden(v["wacht"], 0, MAX_WACHT_MS, 0);
     return true;
+  }
+
+  /** een lijst IR-leds (1..8) naar een masker; ontbreekt = huidig */
+  uint8_t leds(JsonVariantConst v, uint8_t huidig) {
+    if (v.isNull()) return huidig;
+    if (!v.is<JsonArrayConst>()) { hersteld++; return huidig; }
+    uint8_t m = 0;
+    for (JsonVariantConst x : v.as<JsonArrayConst>()) {
+      int8_t k = verwijzing(x, IR_LEDS, -1); // telt zelf wat niet klopt
+      if (k >= 0) m |= (uint8_t)(1u << k);
+    }
+    return m;
+  }
+
+  /** een lijst ingangen (1..40) naar een masker */
+  IngangMasker ingangLijst(JsonVariantConst v, IngangMasker huidig) {
+    if (v.isNull()) return huidig;
+    if (!v.is<JsonArrayConst>()) { hersteld++; return huidig; }
+    IngangMasker m = 0;
+    for (JsonVariantConst x : v.as<JsonArrayConst>()) {
+      int8_t k = verwijzing(x, N_INGANGEN, -1);
+      if (k >= 0) m |= ingangBit(k);
+    }
+    return m;
+  }
+
+  /** een korte tekst (id, kleur, code) met een eigen controle; fout = de huidige blijft */
+  void tekst(JsonVariantConst v, char *doel, size_t len, bool (*geldig)(const char *)) {
+    if (v.isNull()) return;
+    if (!v.is<const char *>() || strlen(v.as<const char *>()) >= len || !geldig(v.as<const char *>())) { hersteld++; return; }
+    strcpy(doel, v.as<const char *>());
+  }
+
+  void irCode(JsonVariantConst v, IrCode &c, int nr) {
+    if (!v.is<JsonObjectConst>()) { if (!v.isNull()) hersteld++; return; }
+    if (!c.gebruikt) {
+      c = IrCode();
+      c.gebruikt = true;
+      standaardNaam(c.naam, "Code", nr + 1);
+    }
+    naam(v["naam"], c.naam);
+    JsonVariantConst so = v["soort"];
+    if (!so.isNull()) {
+      int x = so.is<const char *>() ? irSoortVanId(so.as<const char *>()) : -1;
+      if (x < 0) hersteld++;
+      else c.soort = (uint8_t)x;
+    }
+    c.khz = (uint8_t)getal(v["khz"], IR_KHZ_MIN, IR_KHZ_MAX, c.khz);
+    bool rc5 = c.soort == IR_RC5;
+    c.adres = (uint16_t)getal(v["adres"], 0, rc5 ? 31 : 65535, rc5 ? (c.adres & 31) : c.adres);
+    c.commando = (uint16_t)getal(v["commando"], 0, rc5 ? 127 : 65535, rc5 ? (c.commando & 127) : c.commando);
+    c.herhaal = (uint8_t)getal(v["herhaal"], 1, IR_HERHAAL_MAX, c.herhaal);
+    JsonVariantConst r = v["raw"];
+    if (r.is<JsonArrayConst>()) {
+      c.nRaw = 0;
+      for (JsonVariantConst x : r.as<JsonArrayConst>()) {
+        if (c.nRaw >= MAX_RAW) { hersteld++; break; }
+        c.raw[c.nRaw++] = (uint16_t)getal(x, 1, 65535, 1);
+      }
+    } else if (!r.isNull()) {
+      hersteld++;
+    }
+  }
+
+  void servo(JsonVariantConst v, ServoCfg &c, int nr) {
+    if (!v.is<JsonObjectConst>()) { if (!v.isNull()) hersteld++; return; }
+    if (!c.gebruikt) {
+      c = ServoCfg();
+      c.gebruikt = true;
+      c.kanaal = (uint8_t)nr;
+      standaardNaam(c.naam, "Servo", nr + 1);
+    }
+    naam(v["naam"], c.naam);
+    c.kanaal = (uint8_t)(getal(v["kanaal"], 1, MAX_SERVOS, c.kanaal + 1) - 1);
+    c.a = (uint16_t)getal(v["a"], SERVO_MIN_US, SERVO_MAX_US, c.a);
+    c.b = (uint16_t)getal(v["b"], SERVO_MIN_US, SERVO_MAX_US, c.b);
+    c.snelheid = (uint16_t)getal(v["snelheid"], 0, SERVO_MAX_SNELHEID, c.snelheid);
+    JsonVariantConst so = v["soort"];
+    if (!so.isNull()) {
+      int x = so.is<const char *>() ? servoSoortVanId(so.as<const char *>()) : -1;
+      if (x < 0) hersteld++;
+      else c.soort = (uint8_t)x;
+    }
+  }
+
+  void bus(JsonVariantConst v, BusCfg &c, int nr) {
+    if (!v.is<JsonObjectConst>()) { if (!v.isNull()) hersteld++; return; }
+    if (!c.gebruikt) {
+      c = BusCfg();
+      c.gebruikt = true;
+      standaardNaam(c.naam, "Bus", nr + 1);
+      strcpy(c.kleur, "#d23");
+    }
+    naam(v["naam"], c.naam);
+    tekst(v["kleur"], c.kleur, sizeof c.kleur, kleurGeldig);
+    tekst(v["code"], c.code, sizeof c.code, codeTekstGeldig);
+  }
+
+  /** een meetpunt; false = geen geldige id (dan niet te gebruiken) */
+  bool punt(JsonVariantConst v, PuntCfg &c) {
+    if (!v.is<JsonObjectConst>()) { if (!v.isNull()) hersteld++; return false; }
+    tekst(v["id"], c.id, sizeof c.id, puntIdGeldig);
+    if (!puntIdGeldig(c.id)) return false;
+    c.gebruikt = true;
+    if (!v["ingang"].isNull()) {
+      c.ingang = verwijzing(v["ingang"], N_INGANGEN, c.ingang);
+      if (c.ingang >= 0) c.ontvanger = -1;
+    }
+    if (!v["ontvanger"].isNull()) {
+      c.ontvanger = verwijzing(v["ontvanger"], IR_ONTVANGERS, c.ontvanger);
+      if (c.ontvanger >= 0) c.ingang = -1;
+    }
+    JsonVariantConst so = v["soort"];
+    if (!so.isNull()) {
+      int x = so.is<const char *>() ? meldSoortVanId(so.as<const char *>()) : -1;
+      if (so.is<const char *>() && strcmp(so.as<const char *>(), "auto") == 0) c.soort = MELD_AUTO;
+      else if (x < 0) hersteld++;
+      else c.soort = (uint8_t)x;
+    }
+    JsonVariantConst vo = v["volgende"];
+    if (!vo.isNull()) {
+      if (vo.is<const char *>() && (!vo.as<const char *>()[0] || puntIdGeldig(vo.as<const char *>())))
+        strcpy(c.volgende, vo.as<const char *>());
+      else hersteld++;
+    }
+    return true;
+  }
+
+  void halte(JsonVariantConst v, HalteCfg &c, int nr) {
+    if (!v.is<JsonObjectConst>()) { if (!v.isNull()) hersteld++; return; }
+    if (!c.gebruikt) {
+      c = HalteCfg();
+      c.gebruikt = true;
+      standaardNaam(c.naam, "Halte", nr + 1);
+    }
+    naam(v["naam"], c.naam);
+    JsonVariantConst ap = v["aankomstPunt"];
+    if (!ap.isNull()) {
+      if (ap.is<const char *>() && (!ap.as<const char *>()[0] || puntIdGeldig(ap.as<const char *>())))
+        strcpy(c.aankomstPunt, ap.as<const char *>());
+      else hersteld++;
+    }
+    c.stopLeds = leds(v["stopLeds"], c.stopLeds);
+    c.stopCode = verwijzing(v["stopCode"], MAX_IR_CODES, c.stopCode);
+    c.rijdCode = verwijzing(v["rijdCode"], MAX_IR_CODES, c.rijdCode);
+    c.wachtS = (uint16_t)getal(v["wachtS"], 0, HALTE_MAX_S, c.wachtS);
+    c.vrijIngangen = ingangLijst(v["vrijIngangen"], c.vrijIngangen);
+    c.vrijMinS = (uint16_t)getal(v["vrijMinS"], 0, HALTE_MAX_S, c.vrijMinS);
+    JsonVariantConst l = v["licht"];
+    if (l.is<JsonObjectConst>()) {
+      c.rood = verwijzing(l["rood"], N_GROEPEN, c.rood);
+      c.oranje = verwijzing(l["oranje"], N_GROEPEN, c.oranje);
+      c.groen = verwijzing(l["groen"], N_GROEPEN, c.groen);
+    } else if (!l.isNull()) {
+      hersteld++;
+    }
+    c.groenS = (uint16_t)getal(v["groenS"], 0, HALTE_MAX_S, c.groenS);
+    c.servo = verwijzing(v["servo"], MAX_SERVOS, c.servo);
   }
 
   void functie(JsonVariantConst v, Functie &f, int nr) {
@@ -316,6 +535,12 @@ struct Lezer {
       else c.soort = (uint8_t)nr;
     }
     c.vasthoudMs = (uint16_t)seconden(v["vasthouden"], 0, MAX_VASTHOUD_MS, c.vasthoudMs);
+    JsonVariantConst p = v["polariteit"];
+    if (!p.isNull()) {
+      int nr = p.is<const char *>() ? polariteitVanId(p.as<const char *>()) : -1;
+      if (nr < 0) hersteld++;
+      else c.polariteit = (uint8_t)nr;
+    }
   }
 
   void groepCfg(JsonVariantConst v, GroepCfg &g) {
@@ -376,7 +601,89 @@ inline void schrijfStap(JsonObject o, const Stap &s) {
     o["p1"] = s.p1;
     o["p2"] = s.p2;
   }
+  if (s.actie == ACT_SERVO) {
+    o["servo"] = s.waarde;
+    o["stand"] = s.stand == 1 ? "b" : (s.stand == 2 ? "wissel" : "a");
+  }
+  if (s.actie == ACT_IR) {
+    o["code"] = s.waarde;
+    JsonArray l = o["leds"].to<JsonArray>();
+    for (int k = 0; k < IR_LEDS; k++)
+      if (s.leds >> k & 1) l.add(k + 1);
+  }
+  if (s.actie == ACT_GELUID) {
+    o["kastje"] = s.kastje;
+    o["geluid"] = s.geluid;
+    o["volume"] = s.volume;
+  }
   o["wacht"] = s.wachtMs / 1000.0;
+}
+
+inline void schrijfLeds(JsonArray l, uint8_t m) {
+  for (int k = 0; k < IR_LEDS; k++)
+    if (m >> k & 1) l.add(k + 1);
+}
+
+/** een IR-code met zijn tijden (raw); voorApi: ook de codetekst en het aantal tijden (/api/staat) */
+inline void schrijfIrCode(JsonObject o, const IrCode &c, bool metRaw) {
+  o["naam"] = c.naam;
+  o["soort"] = irSoortId(c.soort);
+  o["khz"] = c.khz;
+  o["adres"] = c.adres;
+  o["commando"] = c.commando;
+  o["herhaal"] = c.herhaal;
+  if (c.nRaw) {
+    JsonArray r = o["raw"].to<JsonArray>();
+    for (int i = 0; i < c.nRaw; i++) r.add(c.raw[i]);
+  }
+  if (!metRaw) {
+    char t[IR_TEKST_LEN];
+    irCodeTekst(c, t, sizeof t);
+    o["tekst"] = t;
+    o["tijden"] = c.nRaw;
+  }
+}
+
+inline void schrijfServo(JsonObject o, const ServoCfg &c) {
+  o["naam"] = c.naam;
+  o["kanaal"] = c.kanaal + 1;
+  o["a"] = c.a;
+  o["b"] = c.b;
+  o["snelheid"] = c.snelheid;
+  o["soort"] = servoSoortId(c.soort);
+}
+
+inline void schrijfBus(JsonObject o, const BusCfg &c) {
+  o["naam"] = c.naam;
+  o["kleur"] = c.kleur;
+  o["code"] = c.code;
+}
+
+inline void schrijfPunt(JsonObject o, const PuntCfg &c) {
+  o["id"] = c.id;
+  if (c.ingang >= 0) o["ingang"] = c.ingang + 1;
+  if (c.ontvanger >= 0) o["ontvanger"] = c.ontvanger + 1;
+  o["soort"] = c.soort == MELD_AUTO ? "auto" : meldSoortId(c.soort);
+  o["volgende"] = c.volgende;
+}
+
+inline void schrijfHalte(JsonObject o, const HalteCfg &c) {
+  o["naam"] = c.naam;
+  o["aankomstPunt"] = c.aankomstPunt;
+  schrijfLeds(o["stopLeds"].to<JsonArray>(), c.stopLeds);
+  o["stopCode"] = c.stopCode + 1;
+  o["rijdCode"] = c.rijdCode + 1;
+  o["wachtS"] = c.wachtS;
+  JsonArray vi = o["vrijIngangen"].to<JsonArray>();
+  for (int i = 0; i < N_INGANGEN; i++)
+    if (c.vrijIngangen >> i & 1) vi.add(i + 1);
+  o["vrijMinS"] = c.vrijMinS;
+  JsonObject l = o["licht"].to<JsonObject>();
+  l["rood"] = c.rood + 1;
+  l["oranje"] = c.oranje + 1;
+  l["groen"] = c.groen + 1;
+  o["groenS"] = c.groenS;
+  o["servo"] = c.servo + 1;
 }
 
 inline void schrijfFunctie(JsonObject o, const Functie &f) {
@@ -396,6 +703,7 @@ inline void schrijfIngang(JsonObject o, const IngangCfg &c) {
   o["nalopen"] = c.naloopS;
   o["soort"] = soortId(c.soort);
   o["vasthouden"] = c.vasthoudMs / 1000.0;
+  o["polariteit"] = polariteitId(c.polariteit);
 }
 
 inline void schrijfInstellingen(JsonObject o, const Instellingen &i, bool metWachtwoord) {
@@ -434,6 +742,30 @@ inline std::string configNaarJson(const Config &c) {
   }
   JsonArray in = o["ingangen"].to<JsonArray>();
   for (int i = 0; i < N_INGANGEN; i++) schrijfIngang(in.add<JsonObject>(), c.ingang[i]);
+  // de onderdelen van firmware 2.0.0: lijsten met vaste plaatsen (null = vrij); punten zonder vaste plaats
+  JsonArray ir = o["ir"].to<JsonArray>();
+  for (int i = 0; i < MAX_IR_CODES; i++) {
+    if (!c.ir[i].gebruikt) { ir.add<JsonVariant>(); continue; }
+    schrijfIrCode(ir.add<JsonObject>(), c.ir[i], true);
+  }
+  JsonArray sv = o["servos"].to<JsonArray>();
+  for (int i = 0; i < MAX_SERVOS; i++) {
+    if (!c.servo[i].gebruikt) { sv.add<JsonVariant>(); continue; }
+    schrijfServo(sv.add<JsonObject>(), c.servo[i]);
+  }
+  JsonArray bs = o["bussen"].to<JsonArray>();
+  for (int i = 0; i < MAX_BUSSEN; i++) {
+    if (!c.bus[i].gebruikt) { bs.add<JsonVariant>(); continue; }
+    schrijfBus(bs.add<JsonObject>(), c.bus[i]);
+  }
+  JsonArray pt = o["punten"].to<JsonArray>();
+  for (int i = 0; i < MAX_PUNTEN; i++)
+    if (c.punt[i].gebruikt) schrijfPunt(pt.add<JsonObject>(), c.punt[i]);
+  JsonArray hs = o["haltes"].to<JsonArray>();
+  for (int i = 0; i < MAX_HALTES; i++) {
+    if (!c.halte[i].gebruikt) { hs.add<JsonVariant>(); continue; }
+    schrijfHalte(hs.add<JsonObject>(), c.halte[i]);
+  }
   std::string s;
   serializeJson(d, s);
   return s;
@@ -447,12 +779,12 @@ inline std::string kijkNa(const char *tekst, size_t len, JsonDocument &d) {
   if (fout) return std::string("kapot bestand (") + fout.c_str() + ")";
   if (!d.is<JsonObject>()) return "kapot bestand (geen object)";
   JsonVariantConst v = d["versie"];
-  if (!v.is<int>() || (v.as<int>() != CONFIG_VERSIE && v.as<int>() != OUDE_VERSIE)) return "onbekende versie";
+  if (!v.is<int>() || v.as<int>() < OUDE_VERSIE || v.as<int>() > CONFIG_VERSIE) return "onbekende versie";
   return "";
 }
 
 /** de instellingen laden en volledig nakijken. ONGELDIG: c = de standaardinstellingen. OMGEZET: een bestand van
- *  versie 1 (met dimmen), zonder fouten omgezet; main.cpp bewaart het meteen als versie 2. */
+ *  versie 1 (met dimmen) of 2 (firmware 1.3.0), zonder fouten omgezet; main.cpp bewaart het meteen als versie 3. */
 inline Laad configVanJson(const char *tekst, size_t len, Config &c, std::string &melding) {
   melding.clear();
   standaard(c);
@@ -460,7 +792,7 @@ inline Laad configVanJson(const char *tekst, size_t len, Config &c, std::string 
   std::string reden = kijkNa(tekst, len, d);
   if (reden.empty()) {
     // elk onderdeel moet het juiste soort zijn (of ontbreken)
-    const char *lijsten[] = {"groepen", "scenes", "functies", "ingangen"};
+    const char *lijsten[] = {"groepen", "scenes", "functies", "ingangen", "ir", "servos", "bussen", "punten", "haltes"};
     for (const char *k : lijsten)
       if (!d[k].isNull() && !d[k].is<JsonArrayConst>()) reden = std::string("\"") + k + "\" is geen lijst";
     if (!d["instellingen"].isNull() && !d["instellingen"].is<JsonObjectConst>())
@@ -501,7 +833,41 @@ inline Laad configVanJson(const char *tekst, size_t len, Config &c, std::string 
     if (n >= N_INGANGEN) { l.hersteld++; break; }
     l.ingang(i, c.ingang[n++]);
   }
-  bool oud = d["versie"].as<int>() == OUDE_VERSIE;
+  n = 0;
+  for (JsonVariantConst x : d["ir"].as<JsonArrayConst>()) {
+    if (n >= MAX_IR_CODES) { l.hersteld++; break; }
+    if (!x.isNull()) l.irCode(x, c.ir[n], n);
+    n++;
+  }
+  n = 0;
+  for (JsonVariantConst x : d["servos"].as<JsonArrayConst>()) {
+    if (n >= MAX_SERVOS) { l.hersteld++; break; }
+    if (!x.isNull()) l.servo(x, c.servo[n], n);
+    n++;
+  }
+  n = 0;
+  for (JsonVariantConst x : d["bussen"].as<JsonArrayConst>()) {
+    if (n >= MAX_BUSSEN) { l.hersteld++; break; }
+    if (!x.isNull()) l.bus(x, c.bus[n], n);
+    n++;
+  }
+  n = 0;
+  for (JsonVariantConst x : d["punten"].as<JsonArrayConst>()) {
+    if (n >= MAX_PUNTEN) { l.hersteld++; break; }
+    PuntCfg p;
+    if (!l.punt(x, p)) { l.hersteld++; continue; }
+    bool dubbel = false;
+    for (int k = 0; k < n; k++) dubbel |= strcmp(c.punt[k].id, p.id) == 0;
+    if (dubbel) { l.hersteld++; continue; }
+    c.punt[n++] = p;
+  }
+  n = 0;
+  for (JsonVariantConst x : d["haltes"].as<JsonArrayConst>()) {
+    if (n >= MAX_HALTES) { l.hersteld++; break; }
+    if (!x.isNull()) l.halte(x, c.halte[n], n);
+    n++;
+  }
+  bool oud = d["versie"].as<int>() != CONFIG_VERSIE;
   if (l.hersteld > 0) {
     char t[160];
     snprintf(t, sizeof t, "%d waarde%s in de instellingen klopte%s niet en %s aangepast.", l.hersteld,
@@ -524,6 +890,9 @@ inline std::string standNaarJson(const Stand &s) {
   JsonArray fs = o["functies"].to<JsonArray>();
   for (int f = 0; f < MAX_FUNCTIES; f++)
     if (s.functies >> f & 1) fs.add(f + 1);
+  JsonArray sb = o["servosB"].to<JsonArray>();
+  for (int i = 0; i < MAX_SERVOS; i++)
+    if (s.servosB >> i & 1) sb.add(i + 1);
   std::string t;
   serializeJson(d, t);
   return t;
@@ -546,6 +915,10 @@ inline bool standVanJson(const char *tekst, size_t len, Stand &s) {
   for (JsonVariantConst f : d["functies"].as<JsonArrayConst>()) {
     int32_t nr = l.getal(f, 0, MAX_FUNCTIES, 0);
     if (nr >= 1) s.functies |= (uint16_t)(1u << (nr - 1));
+  }
+  for (JsonVariantConst x : d["servosB"].as<JsonArrayConst>()) {
+    int32_t nr = l.getal(x, 0, MAX_SERVOS, 0);
+    if (nr >= 1) s.servosB |= (uint16_t)(1u << (nr - 1));
   }
   return true;
 }

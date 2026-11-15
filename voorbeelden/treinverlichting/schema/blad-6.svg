@@ -37,7 +37,7 @@
 <text x="21" y="285.4" font-size="1.8" text-anchor="start" fill="#000">Wijz.</text>
 <text x="31" y="285.4" font-size="1.8" text-anchor="start" fill="#000">Datum</text>
 <text x="49" y="285.4" font-size="1.8" text-anchor="start" fill="#000">Naam</text>
-<text x="21" y="278.55" font-size="2.3" text-anchor="start" fill="#000">4</text>
+<text x="21" y="278.55" font-size="2.3" text-anchor="start" fill="#000">5</text>
 <text x="31" y="278.55" font-size="2" text-anchor="start" fill="#000">2026-11-15</text>
 <text x="49" y="278.55" font-size="2" text-anchor="start" fill="#000">PC</text>
 <polyline points="62,260 62,287" fill="none" stroke="#000" stroke-width="0.35"/>
@@ -81,7 +81,7 @@
 <text x="307" y="262.3" font-size="1.8" text-anchor="start" fill="#000">Tekeningnr.</text>
 <text x="308" y="270" font-size="2.8" text-anchor="start" fill="#000" font-weight="700">TRN-E01</text>
 <text x="307" y="275.8" font-size="1.8" text-anchor="start" fill="#000">Revisie / taal</text>
-<text x="308" y="283" font-size="2.6" text-anchor="start" fill="#000">4 / nl</text>
+<text x="308" y="283" font-size="2.6" text-anchor="start" fill="#000">5 / nl</text>
 <polyline points="350,260 350,287" fill="none" stroke="#000" stroke-width="0.35"/>
 <polyline points="350,273.5 384,273.5" fill="none" stroke="#000" stroke-width="0.25"/>
 <text x="351.5" y="266" font-size="2.6" text-anchor="start" fill="#000">=</text>
@@ -94,7 +94,7 @@
 <polyline points="384,280.25 410,280.25" fill="none" stroke="#000" stroke-width="0.25"/>
 <text x="385" y="262.3" font-size="1.8" text-anchor="start" fill="#000">Blad</text>
 <text x="397" y="275" font-size="8" text-anchor="middle" fill="#000" font-weight="700">6</text>
-<text x="408.5" y="285.2" font-size="2.3" text-anchor="end" fill="#000">16 Bl.</text>
+<text x="408.5" y="285.2" font-size="2.3" text-anchor="end" fill="#000">19 Bl.</text>
 <polyline points="23,30 405,30" fill="none" stroke="#000" stroke-width="0.35"/><polygon points="23,30 25.2,28.9 25.2,31.1" fill="#000"/><text x="26" y="28.6" font-size="2.5" text-anchor="start" fill="#000">L5</text><text x="26" y="33.2" font-size="2.3" text-anchor="start" fill="#000">/3.9</text>
 <polyline points="23,230 405,230" fill="none" stroke="#000" stroke-width="0.35"/><polygon points="23,230 25.2,228.9 25.2,231.1" fill="#000"/><text x="26" y="228.6" font-size="2.5" text-anchor="start" fill="#000">M</text><text x="26" y="233.2" font-size="2.3" text-anchor="start" fill="#000">/3.9</text>
 <rect x="60" y="45" width="100" height="160" fill="none" stroke="#000" stroke-width="0.3" stroke-dasharray="4 1 0.6 1"/><text x="60" y="43.4" font-size="2.8" text-anchor="start" fill="#000">-K1</text><text x="69" y="50" font-size="2.3" text-anchor="start" fill="#000"></text><text x="69" y="53.4" font-size="2.3" text-anchor="start" fill="#000"></text><text x="69" y="56.8" font-size="2.3" text-anchor="start" fill="#000"></text><text x="69" y="60.2" font-size="2.3" text-anchor="start" fill="#000">ESP32-S3-DevKitC-1 v1.1 (N16R8)</text><text x="69" y="63.6" font-size="2.3" text-anchor="start" fill="#000">in de schroefklemadapter -X6</text><text x="69" y="67" font-size="2.3" text-anchor="start" fill="#000">(44 schroefklemmen, ESP in 2 pinrijen)</text><text x="69" y="70.4" font-size="2.3" text-anchor="start" fill="#000">2 x micro-USB "UART" en "USB"</text><text x="69" y="73.8" font-size="2.3" text-anchor="start" fill="#000">in de voorwand (flashen)</text><text x="69" y="77.2" font-size="2.3" text-anchor="start" fill="#000"></text><text x="69" y="80.6" font-size="2.3" text-anchor="start" fill="#000">wifi-hotspot "Treinbaan"</text><text x="69" y="84" font-size="2.3" text-anchor="start" fill="#000">+ thuisnet (STA), treinbaan.local</text><text x="69" y="87.4" font-size="2.3" text-anchor="start" fill="#000">dashboard: 192.168.4.1</text><text x="69" y="90.8" font-size="2.3" text-anchor="start" fill="#000"></text><text x="69" y="94.2" font-size="2.3" text-anchor="start" fill="#000">statuslampje GPIO38:</text><text x="69" y="97.6" font-size="2.3" text-anchor="start" fill="#000">groen = wifi aan,</text><text x="69" y="101" font-size="2.3" text-anchor="start" fill="#000">rood = -K2 antwoordt niet</text><text x="69" y="104.4" font-size="2.3" text-anchor="start" fill="#000">BOOT 5 s: wachtwoord terug</text><circle cx="60" cy="60" r="0.5" fill="#000"/><text x="61.6" y="58.8" font-size="2.1" text-anchor="start" fill="#000">5V (J1:21)</text><circle cx="60" cy="195" r="0.5" fill="#000"/><text x="61.6" y="193.8" font-size="2.1" text-anchor="start" fill="#000">G (J1:22, J3:1, 21, 22)</text><circle cx="160" cy="60" r="0.5" fill="#000"/><text x="158.4" y="58.8" font-size="2.1" text-anchor="end" fill="#000">3V3 (J1:1, 2)</text><circle cx="160" cy="85" r="0.5" fill="#000"/><text x="158.4" y="83.8" font-size="2.1" text-anchor="end" fill="#000">GPIO8 SDA (J1:12)</text><circle cx="160" cy="95" r="0.5" fill="#000"/><text x="158.4" y="93.8" font-size="2.1" text-anchor="end" fill="#000">GPIO9 SCL (J1:15)</text><circle cx="160" cy="110" r="0.5" fill="#000"/><text x="158.4" y="108.8" font-size="2.1" text-anchor="end" fill="#000">GPIO10 OE (J1:16)</text><circle cx="160" cy="130" r="0.5" fill="#000"/><text x="158.4" y="128.8" font-size="2.1" text-anchor="end" fill="#000">GPIO 1..21, 40, 41 (ingangen)</text><circle cx="160" cy="150" r="0.5" fill="#000"/><text x="158.4" y="148.8" font-size="2.1" text-anchor="end" fill="#000">GPIO38 RGB-led</text><circle cx="160" cy="165" r="0.5" fill="#000"/><text x="158.4" y="163.8" font-size="2.1" text-anchor="end" fill="#000">GPIO0 BOOT</text>
@@ -124,7 +124,7 @@
 <polyline points="160,130 178,130" fill="none" stroke="#000" stroke-width="0.25"/>
 <polygon points="178,130 175.8,128.9 175.8,131.1" fill="#000"/><text x="175" y="128.6" font-size="2.5" text-anchor="end" fill="#000">IN01..IN16</text><text x="175" y="133.2" font-size="2.3" text-anchor="end" fill="#000">/5.0 .. /5.9</text>
 <text x="185" y="160" font-size="2.3" text-anchor="start" fill="#000">Uitbreiden tot 32 groepen: een tweede PCA9685 op 0x41 (A0 dicht) met 2 MOSFET-modules, SDA, SCL, OE, VCC en GND parallel;</text>
-<text x="185" y="165" font-size="2.3" text-anchor="start" fill="#000">firmware bouwen met -DTREIN_GROEPEN=32 (firmware/README.md). Vrije GPIO: 11, 39, 42, 47, 48.</text>
+<text x="185" y="165" font-size="2.3" text-anchor="start" fill="#000">firmware bouwen met -DTREIN_GROEPEN=32 (firmware/README.md). GPIO47 IR zenden, 48, 11, 39, 42 IR ontvangen (blad 7).</text>
 <text x="185" y="172" font-size="2.3" text-anchor="start" fill="#000">Firmware: uitgangen actief laag (MOSFET-modules met de led tussen VCC en IN) en ingangen actief laag; andersom: -DTREIN_UITGANG_ACTIEF_HOOG of</text>
 <text x="185" y="177" font-size="2.3" text-anchor="start" fill="#000">-DTREIN_INGANG_ACTIEF_HOOG (firmware/src/hw.h). Na te kijken bij de proefopstelling (meetblad TRN-20).</text>
 <text x="25" y="244" font-size="2.5" text-anchor="start" fill="#000">I2C van -K1 naar -K2 met de pull-ups op de PCA9685-print (10 kΩ). Dupont-kabels op de pinnen van -K2, -Q1, -Q2; schroefklemmen op -X6, -K3, -K4, -T2.</text>

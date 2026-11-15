@@ -12,8 +12,9 @@ import { MODULES, PLAATSING, naarDoos, moduleY, pcaX } from './opbouw.mjs';
 export function bordjePcb() {
   const B = M.bordje, o = deel('Modelbouwled PCB met weerstand (print)', PCB_ROOD);
   blokken(o, [[-B.x / 2, 0, -B.z / 2, B.x / 2, B.pcb, B.z / 2, 0.8]], 'Print');
-  // 4 gaten in de hoeken (Ø2,2) zoals op de foto
-  cirkels(o, B.pcb, B.pcb + 1, [[-B.x / 2 + 2.6, -B.z / 2 + 2.6, 1.1], [B.x / 2 - 2.6, -B.z / 2 + 2.6, 1.1], [-B.x / 2 + 2.6, B.z / 2 - 2.6, 1.1], [B.x / 2 - 2.6, B.z / 2 - 2.6, 1.1]], 'Gaten', 'cut');
+  // 4 gaten in de hoeken, hart 2,0 van beide randen (Ian, 2026-11-15); Ø2,2: AANNAME (na te meten)
+  const SP = M.schroefpaal, gx = B.x / 2 - SP.rand, gz = B.z / 2 - SP.rand, r = SP.gat / 2;
+  cirkels(o, B.pcb, B.pcb + 1, [[-gx, -gz, r], [gx, -gz, r], [-gx, gz, r], [gx, gz, r]], 'Gaten', 'cut');
   return met(o.doc(), bordjeArt(B));
 }
 /** een klemmenstrook (oorsprong: midden onderaan, draadingang naar -Z): n posities op steek p, diepte d, hoogte h */

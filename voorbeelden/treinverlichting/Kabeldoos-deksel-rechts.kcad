@@ -4,8 +4,8 @@
  "name": "Kabeldoos (deksel rechts)",
  "units": "mm",
  "planes": {
-  "y52": {
-   "id": "y52",
+  "y40": {
+   "id": "y40",
    "name": "Plane deksel",
    "origin": [
     0,
@@ -29,8 +29,8 @@
    ],
    "kind": "reference"
   },
-  "y53": {
-   "id": "y53",
+  "y41": {
+   "id": "y41",
    "name": "Plane lip",
    "origin": [
     0,
@@ -54,8 +54,8 @@
    ],
    "kind": "reference"
   },
-  "z54": {
-   "id": "z54",
+  "z42": {
+   "id": "z42",
    "name": "Plane nok lip",
    "origin": [
     0,
@@ -79,8 +79,8 @@
    ],
    "kind": "reference"
   },
-  "y55": {
-   "id": "y55",
+  "y43": {
+   "id": "y43",
    "name": "Plane Nokken lip",
    "origin": [
     0,
@@ -104,8 +104,8 @@
    ],
    "kind": "reference"
   },
-  "y56": {
-   "id": "y56",
+  "y44": {
+   "id": "y44",
    "name": "Plane Sleuven lip",
    "origin": [
     0,
@@ -129,8 +129,8 @@
    ],
    "kind": "reference"
   },
-  "y57": {
-   "id": "y57",
+  "y45": {
+   "id": "y45",
    "name": "Plane Gaten",
    "origin": [
     0,
@@ -154,8 +154,8 @@
    ],
    "kind": "reference"
   },
-  "y58": {
-   "id": "y58",
+  "y46": {
+   "id": "y46",
    "name": "Plane verzinking",
    "origin": [
     0,
@@ -186,7 +186,7 @@
   "s1": {
    "id": "s1",
    "name": "Sketch1",
-   "plane": "y52",
+   "plane": "y40",
    "points": {
     "origin_s1": {
      "x": 0,
@@ -294,7 +294,7 @@
   "s2": {
    "id": "s2",
    "name": "Sketch2",
-   "plane": "y53",
+   "plane": "y41",
    "points": {
     "origin_s2": {
      "x": 0,
@@ -361,7 +361,7 @@
   "s3": {
    "id": "s3",
    "name": "Sketch3",
-   "plane": "z54",
+   "plane": "z42",
    "points": {
     "origin_s3": {
      "x": 0,
@@ -440,7 +440,7 @@
   "s4": {
    "id": "s4",
    "name": "Sketch4",
-   "plane": "y55",
+   "plane": "y43",
    "points": {
     "origin_s4": {
      "x": 0,
@@ -699,7 +699,7 @@
   "s5": {
    "id": "s5",
    "name": "Sketch5",
-   "plane": "y56",
+   "plane": "y44",
    "points": {
     "origin_s5": {
      "x": 0,
@@ -958,7 +958,7 @@
   "s6": {
    "id": "s6",
    "name": "Sketch6",
-   "plane": "y57",
+   "plane": "y45",
    "points": {
     "origin_s6": {
      "x": 0,
@@ -1030,7 +1030,7 @@
   "s7": {
    "id": "s7",
    "name": "Sketch7",
-   "plane": "y58",
+   "plane": "y46",
    "points": {
     "origin_s7": {
      "x": 0,

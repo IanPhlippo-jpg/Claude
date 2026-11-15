@@ -4,7 +4,8 @@
 // -F zekeringen en polyfuses, -K besturing en signaalverwerking (ESP, PWM-print, optocouplerprints), -Q schakelen
 // (MOSFET-modules), -R weerstand en diode, -X klemmen (WAGO-klemmen, DC-bus, de schroefklemadapter van de ESP),
 // -E de Modelbouwled-bordjes, -W de kabel van de netadapter.
-// Revisie 4 (versie 5, Ian 2026-11-15): één laag in 2 helften (de modules in de rechterhelft), uitgangen alleen aan/uit,
+// Revisie 5 (versie 6 fase A, Ian 2026-11-15): IR zenden en ontvangen, servo's, extra ingangen met NPN of PNP
+// (uitbreiding.mjs). Revisie 4 (versie 5, Ian 2026-11-15): één laag in 2 helften (de modules in de rechterhelft), uitgangen alleen aan/uit,
 // hallsensoren op de ingangen. Revisie 3 (versie 4, Ian 2026-11-13: kant-en-klare printjes): geen gaatjesprints meer. De modules staan als
 // toestellen (streep-punt) met hun klemmen getekend; binnenin alleen wat nodig is om de werking te volgen. De bedrading
 // en de klemmen komen uit ../opbouw.mjs (dezelfde bron als het montageblad TRN-10 en de draadlijst TRN-14).
@@ -18,16 +19,17 @@ import {
   titelblad, inhoudsopgave, klemmenplan, stuklijst, project, schrijf, SOORT, NORMEN,
 } from '../../lib/eplan.mjs';
 import { INGANG_GPIO, MODULES, DRADEN, IN_KLEMMEN, J1, J3 } from '../opbouw.mjs';
+import { irBlad, servoBlad, STUKLIJST_V6 } from './uitbreiding.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 export const PROJECT = {
   naam: 'Treinbaan', omschrijving: 'kabeldoos verlichting, versie 5', eigenaar: 'Ian', tekeningnr: 'TRN-E01',
   installatie: '=TRN', installatieNaam: 'verlichting modelbaan', plaats: '+DOOS', plaatsNaam: 'onder de baan',
-  datum: '2026-11-08', getekend: 'Phlippo CAD', gecontroleerd: 'Ian', norm: 'IEC 81346', revisie: { index: '4', datum: '2026-11-15', naam: 'PC' },
+  datum: '2026-11-08', getekend: 'Phlippo CAD', gecontroleerd: 'Ian', norm: 'IEC 81346', revisie: { index: '5', datum: '2026-11-15', naam: 'PC' },
 };
 export { INGANG_GPIO };
 // de bladen (nummers voor de kruisverwijzingen)
-const B = { voeding: 3, uit: 4, in: 5, besturing: 6 };
+const B = { voeding: 3, uit: 4, in: 5, besturing: 6, ir: 7, servo: 8 };
 const xGroep = (g) => 34 + (g - 1) * 23.2; // blad 4 en 5: de kolom van groep / ingang g
 const RECHTS = X1 - 5;
 // een WAGO-klem (2 blokken van 5) als klem 1..10 van één strook
@@ -137,7 +139,7 @@ function ingangen() {
     i.push(L([[x0 + 2, y1 - 6], [x0 + 8 * 23.2 - 6, y1 - 6]]));
   }
   i.push(T(25, 244, '-K3, -K4: optocouplerprint PC817, 8 kanalen; VCC (ingang) = S12 +12 V, IN n naar 0 V = actief; uitgang met jumper op pull-up: OUT n laag = actief (GPIO met pull-up). Een +12 V op IN n: niets aan de hand (0 V over de led).', { size: 2.3 }));
-  i.push(T(25, 249, 'Hallsensor (SS441A, A3144): + aan -X3, − aan -X2, uitgang aan IN; meerdere parallel mag; ingang op "Hallsensor (korte puls)" zetten (puls vanaf 1 ms). PNP werkt niet rechtstreeks. Ingangsweerstand 1 kΩ: AANNAME.', { size: 2.3 }));
+  i.push(T(25, 249, 'Hallsensor (SS441A, A3144): + aan -X3, − aan -X2, uitgang aan IN; meerdere parallel mag; ingang op "Hallsensor (korte puls)" zetten (puls vanaf 1 ms). PNP: blad 8. Ingangsweerstand 1 kΩ: AANNAME.', { size: 2.3 }));
   return { titel: ['Ingangen', 'knoppen en sensoren'], inhoud: i };
 }
 
@@ -157,7 +159,7 @@ function besturing() {
   i.push(T(185, 130, '1 kΩ: de PCA9685-print trekt OE zelf laag (Adafruit: "pulled low by default"). Meetpunt: OE ≥ 2,5 V bij reset (TRN-20).', { size: 2.3 }));
   i.push(L([[160, 130], [178, 130]]), onderbreking(178, 130, 'IN01..IN16', `${ref(B.in, xGroep(1))} .. ${ref(B.in, xGroep(16))}`, 'rechts'));
   i.push(T(185, 160, 'Uitbreiden tot 32 groepen: een tweede PCA9685 op 0x41 (A0 dicht) met 2 MOSFET-modules, SDA, SCL, OE, VCC en GND parallel;', { size: 2.3 }));
-  i.push(T(185, 165, 'firmware bouwen met -DTREIN_GROEPEN=32 (firmware/README.md). Vrije GPIO: 11, 39, 42, 47, 48.', { size: 2.3 }));
+  i.push(T(185, 165, 'firmware bouwen met -DTREIN_GROEPEN=32 (firmware/README.md). GPIO47 IR zenden, 48, 11, 39, 42 IR ontvangen (blad 7).', { size: 2.3 }));
   i.push(T(185, 172, 'Firmware: uitgangen actief laag (MOSFET-modules met de led tussen VCC en IN) en ingangen actief laag; andersom: -DTREIN_UITGANG_ACTIEF_HOOG of', { size: 2.3 }));
   i.push(T(185, 177, '-DTREIN_INGANG_ACTIEF_HOOG (firmware/src/hw.h). Na te kijken bij de proefopstelling (meetblad TRN-20).', { size: 2.3 }));
   i.push(T(25, 244, 'I2C van -K1 naar -K2 met de pull-ups op de PCA9685-print (10 kΩ). Dupont-kabels op de pinnen van -K2, -Q1, -Q2; schroefklemmen op -X6, -K3, -K4, -T2.', { size: 2.5 }));
@@ -223,18 +225,19 @@ const KLEMMEN = {
 };
 export { KLEMMEN };
 
-const schema = [voeding(), uitgangen(), ingangen(), besturing()].map((b) => ({ ...b, soort: SOORT.schema[0], soortNaam: SOORT.schema[1] }));
+const schema = [voeding(), uitgangen(), ingangen(), besturing(), irBlad(B), servoBlad(B)].map((b) => ({ ...b, soort: SOORT.schema[0], soortNaam: SOORT.schema[1] }));
 const klemmen = Object.entries(KLEMMEN).map(([s, [oms, rijen]]) => ({ titel: ['Klemmenplan', s], soort: SOORT.klemmen[0], soortNaam: SOORT.klemmen[1], inhoud: klemmenplan(s, oms, rijen) }));
 const stuk = { titel: 'Stuklijst', soort: SOORT.stuk[0], soortNaam: SOORT.stuk[1], inhoud: stuklijst(STUKLIJST) };
+const stuk6 = { titel: ['Stuklijst', 'uitbreiding versie 6'], soort: SOORT.stuk[0], soortNaam: SOORT.stuk[1], inhoud: stuklijst(STUKLIJST_V6) };
 const voor = { titel: 'Titelblad', soort: SOORT.titel[0], soortNaam: SOORT.titel[1] };
 const inhoud = { titel: 'Inhoudsopgave', soort: SOORT.inhoud[0], soortNaam: SOORT.inhoud[1] };
-const alle = [voor, inhoud, ...schema, ...klemmen, stuk];
+const alle = [voor, inhoud, ...schema, ...klemmen, stuk, stuk6];
 alle.forEach((b, k) => { b.nr = k + 1; });
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   voor.inhoud = titelblad(PROJECT, [
     ['Klant', 'eigen gebruik (modelbaan)'], ['Tekeningnummer', PROJECT.tekeningnr], ['Fabrikant', 'zelfbouw met kant-en-klare modules'], ['Projectverantwoordelijke', 'Ian'],
-    ['Projectstart', '2026-11-08'], ['Projectnaam', 'Treinbaan, kabeldoos verlichting'], ['Revisie 3', '2026-11-13: kant-en-klare modules (versie 4)'], ['Revisie 4', '2026-11-15: één laag in 2 helften, aan/uit, hallsensoren (versie 5)'],
+    ['Projectstart', '2026-11-08'], ['Projectnaam', 'Treinbaan, kabeldoos verlichting'], ['Revisie 3', '2026-11-13: kant-en-klare modules (versie 4)'], ['Revisie 4', '2026-11-15: één laag in 2 helften, aan/uit, hallsensoren (versie 5)'], ['Revisie 5', "2026-11-15: IR, servo's, NPN/PNP (versie 6, fase A)"],
   ], [
     ['Installatie', '=TRN verlichting modelbaan'], ['Plaats', '+DOOS kabeldoos onder de baan'], ['Voedingsspanning', '230 V AC (in de netadapter) → 12 V DC'],
     ['Stuurspanning', '5 V DC en 3,3 V DC'], ['Beschermingsgraad', 'IP20 (binnen)'], ['Potentialen', 'J+, L+ en S12 12 V, L5 5 V, L3 3,3 V, M 0 V'], ['Bouwjaar', '2026'],

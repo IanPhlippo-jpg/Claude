@@ -43,7 +43,7 @@ const STAPPEN = [
       'Eerst de modules kopen en nameten (MOSFET-modules, schroefklemadapter, regelaar: AANNAME op TRN-10). Kloppen de gaten niet: de maten in opbouw.mjs aanpassen en de STL opnieuw maken, dan pas de rechterhelft printen (zij draagt de palen).',
       'print/Kabeldoos-bak-links.stl en -rechts.stl met de bodem op het bed; print/Kabeldoos-deksel-links.stl met de buitenkant op het bed, -rechts.stl met de binnenkant op het bed (de lip op het bed); de hulpstukken: geen support nodig, ook niet onder de klikhaken (45°).',
       'Elk deel is hoogstens 230 x 230: leg het in het midden van het bed, dan blijft de hoek voor het filamentmes (rechtsvoor 10 x 20) vrij, ook met een skirt. Geen brim aan het naadvlak.',
-      '0,2 mm lagen, 4 wanden, 30 % gyroid; buitenwanden op 40 mm/s (klemlippen 0,8, klikhaken 1,6).',
+      '0,2 mm lagen, 4 wanden, 30 % gyroid; buitenwanden op 40 mm/s (schroefpaaltjes Ø5, klikhaken 1,6).',
     ],
     delen: ['Bak links (TRN-01) en rechts (TRN-02)', 'Deksel links (TRN-04) en rechts (TRN-05)', 'Hulpstukken (TRN-03)'],
   },
@@ -103,15 +103,15 @@ const STAPPEN = [
     delen: ['2K-epoxy 24 ml'],
   },
   {
-    titel: 'De bordjes in hun klemlippen', tijd: '5 min', gereedschap: 'Spatel (hulpstukken)',
-    beelden: [beeld([...of('bakL', 'bakR', 'dcbus'), G.bordjes], [[G.bordjes, [0, 40, 0]]]), kopie('e2e-out/trein-lippen-detail.jpg')],
+    titel: 'De bordjes vastschroeven', tijd: '15 min', gereedschap: 'Kruiskopschroevendraaier PH1',
+    beelden: [beeld([...of('bakL', 'bakR', 'dcbus'), G.bordjes], [[G.bordjes, [0, 40, 0]]]), kopie('e2e-out/trein-v5/schroeven-iso-vp.jpg')],
     tekst: [
-      'Druk de 16 Modelbouwled-bordjes in hun ring: bordje 1 links achteraan, dan per rij van links naar rechts; bordje 16 in rij 6.',
-      'De print duwt de 4 klemlippen aan de korte kanten opzij (schuine kant) en klikt eronder: het bordje blijft zitten, ook met de doos ondersteboven.',
-      'Uitnemen: met het blad van de spatel de 2 lippen aan één kant naar buiten duwen en het bordje aan die kant optillen.',
+      'Leg elk Modelbouwled-bordje op zijn 4 paaltjes: bordje 1 links achteraan, dan per rij van links naar rechts; bordje 16 in rij 6. De gaten in de hoeken van de print vallen op de paaltjes.',
+      'Draai 4 schroeven 2,0 x 6 in (bolkop, PH1): met de hand tot de kop de print raakt, dan nog 1/8 slag. Niet doordraaien: dan breekt de draad in het paaltje uit (TRN-07).',
+      'Uitnemen: de 4 schroeven eruit en het bordje optillen.',
       'Schrijf het groepsnummer op elk bordje: G01 tot G16.',
     ],
-    delen: ['16 bordjes Modelbouwled'],
+    delen: ['16 bordjes Modelbouwled', '64 schroeven 2,0 x 6'],
   },
   {
     titel: 'Ophangen onder de baan', tijd: '15 min', gereedschap: 'Boormal TRN-00a en TRN-00b (2 x A3 op 100 %), tape, boor Ø2,5, schroevendraaier',
@@ -130,7 +130,7 @@ const STAPPEN = [
     tekst: [
       'Werkhoogte: schuif de doos 6 mm naar voren en neem ze af. Hang de 2 werkhaken met hun sleutelgat aan de 2 voorste schroeven en de doos met haar 2 voorste sleutelgaten aan de knoppen: ze hangt verticaal, 12 cm onder de baan, de open kant naar je toe.',
       'Elke bundel van de baan naar de doos krijgt een kabellus van 50 cm (kabelbinder aan de baan). Labels eerst: G01+ tot G16+, G01− tot G16−, IN01 tot IN16 aan beide uiteinden.',
-      'Leddraden: elke draad door zijn eigen gaatje van 2 x 2 in de bodem, recht voor zijn klem (TRN-07), of door een tule links of vooraan, rechtstreeks naar hun klem. De + en − van elk bordje van zijn eindklem door de vrije strook voor de rij naar de naad en recht in hun klem (+ in n+, − in de WAGO van de polyfuse). Knoppen en sensoren: door de 4 tules in de rechterwand naar IN n.',
+      'Leddraden: door de draadsleuf in de bodem naast hun bordje, of door een tule links of vooraan, rechtstreeks naar hun klem. De + en − van elk bordje van zijn eindklem door de vrije strook voor de rij naar de naad en recht in hun klem (+ in n+, − in de WAGO van de polyfuse). Knoppen en sensoren: door de 4 tules in de rechterwand naar IN n.',
       'Bundel de draden per rij met een kabelbinder in de vrije strook voor de rij; een draad tussen de bordjes uittrekken met het haakje van de spatel.',
     ],
     delen: ['Montagedraad 0,25 en 0,5 mm²', 'Kabelbinders, labels', '2 werkhaken'],
@@ -202,8 +202,8 @@ for (const [i, s] of STAPPEN.entries()) {
   for (const b of s.beelden) {
     if (b.bestand) { s.foto.push(b.bestand); continue; }
     if (b.kopie) {
-      // een beeld dat een ander script maakte (de doorsnede door de klemlippen: trein-fable-shots.mjs), als stapbeeld
-      if (!existsSync(b.kopie)) throw new Error(`${b.kopie} ontbreekt: eerst node e2e/tools/trein-fable-shots.mjs (SHOTS=lippen) en node e2e/tools/trein-v5-shots.mjs`);
+      // een beeld dat een ander script maakte (bordje 5 met zijn 4 schroeven: trein-v5-shots.mjs), als stapbeeld
+      if (!existsSync(b.kopie)) throw new Error(`${b.kopie} ontbreekt: eerst node e2e/tools/trein-v5-shots.mjs (SHOTS=schroeven)`);
       const f = `${BEELD}/stap-${String(i + 1).padStart(2, '0')}-${String(++n).padStart(2, '0')}${b.kopie.endsWith('.png') ? '.png' : '.jpg'}`;
       copyFileSync(b.kopie, f);
       s.foto.push(f);
@@ -227,7 +227,7 @@ for (const [i, s] of STAPPEN.entries()) {
       for (let k = 0; k < 2; k++) { await page.mouse.wheel(0, 240); await page.waitForTimeout(250); }
     }
     if (b.zoom) {
-      // van dichtbij (standaard: de bordjes links, een bordje in zijn klemlippen, een kabelinvoer)
+      // van dichtbij (standaard: de bordjes links, een bordje op zijn schroefpaaltjes, een kabelinvoer)
       const [zx, zy, zn] = b.zoom === true ? [0.35, 0.45, 5] : b.zoom;
       await page.mouse.move(v.x + v.width * zx, v.y + v.height * zy);
       for (let k = 0; k < zn; k++) { await page.mouse.wheel(0, 240); await page.waitForTimeout(250); }
@@ -253,7 +253,7 @@ const voorblad = `<section class="blad voor">${kop('')}
   <h1>Bouwschema<br><small>Kabeldoos met ESP32-S3: 16 lichtgroepen (aan/uit), 16 ingangen (ook hallsensoren), eigen wifi; één laag in 2 helften die in elkaar klikken, kant-en-klare modules, draden rechtstreeks van tule naar klem</small></h1>
   <div class="voorinhoud"><img src="${img(STAPPEN.flatMap((q) => q.beelden.map((b, k) => [b, q.foto[k]])).find(([b]) => b.voorblad)[1])}">
   <ol>${STAPPEN.map((s) => `<li>${esc(s.titel)} <em>${esc(s.tijd)}</em></li>`).join('')}</ol></div>
-  <p class="noot">Maten staan op de werktekeningen TRN-00a tot TRN-06 (TRN-06: de naad), de modules op het montageblad TRN-10, de draden tussen de modules in de draadlijst TRN-14, de bedrading in het aansluitschema, de metingen op het meetblad TRN-20, de onderdelen en prijzen in de README. Geen gaatjesprints: alleen de DC-bus wordt gesoldeerd.
+  <p class="noot">Maten staan op de werktekeningen TRN-00a tot TRN-07 (TRN-06: de naad, TRN-07: de bevestiging van de bordjes), de modules op het montageblad TRN-10, de draden tussen de modules in de draadlijst TRN-14, de bedrading in het aansluitschema, de metingen op het meetblad TRN-20, de onderdelen en prijzen in de README. Geen gaatjesprints: alleen de DC-bus wordt gesoldeerd.
   Print de doos in PETG op de Elegoo Centauri Carbon, zonder support.</p></section>`;
 const bladen = STAPPEN.map((s, i) => `<section class="blad">${kop(`stap ${i + 1} / ${N}`)}
   <div class="stap"><div class="beelden b${s.foto.length}">${s.foto.map((f) => `<img src="${img(f)}">`).join('')}</div>

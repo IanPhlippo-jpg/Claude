@@ -1,64 +1,15 @@
-// Klemlippen voor de bordjes en de geprinte hulpstukken (advies Fable 5.2, 2026-11-12).
-//
-// Klemlippen: de bordjes lagen los in hun ring en werden alleen door de ribben van het deksel vastgedrukt; de doos hangt
-// ondersteboven (het deksel onderaan), dus met het deksel eraf vielen ze eruit. Nu houdt elk bordje 4 PETG-lippen aan
-// zijn korte kanten (in de hoeken, 8 tot 10 mm van het midden, vrij van de eindklemmen en de palen): een tong van 0,8 x 2,0
-// die in een kuiltje in de bodem begint (veerlengte 6,5) met bovenaan een haak die 0,75 over de rand van de print grijpt
-// (0,15 speling, dus 0,6 grip) en een schuine kant van 45° waarop de print de lip opzij duwt bij het inleggen. Uitnemen:
-// de lip met de spatel (hieronder) naar buiten duwen.
+// De geprinte hulpstukken (advies Fable 5.2, 2026-11-12). Versie 5 (Ian, 2026-11-15): de bordjes zijn vastgeschroefd op 4
+// paaltjes (maak-kabeldoos.mjs, M.schroefpaal); de klemlippen van versie 3 en 4 zijn weg.
 //
 // Hulpstukken (één printplaat): 2 werkhaken om de doos voor het bedraden op werkhoogte te laten hangen en een spatel met
-// haakje voor de klemlippen en de draden tussen de bordjes (geen plaats voor een vinger).
+// haakje voor de draden tussen de bordjes (geen plaats voor een vinger).
 //  - Werkhaak: een strip van 140 met bovenaan een sleutelgat (zoals in de bodem van de doos: hangt aan een van de
 //    bolkopschroeven onder de baan) en onderaan een knop met de maat van een schroefkop (Ø8,5 op een hals Ø4,2): die gaat
 //    door het grote gat van een sleutelgat van de doos en schuift in de sleuf. Twee haken aan de voorste schroeven (rij 6):
 //    de doos hangt dan verticaal, de voorkant boven, 12 cm onder de baan, de open kant naar je toe.
-//  - Spatel: 100 lang, 10 breed, aan het ene eind een blad van 1,0 (klemlip openduwen), aan het andere eind een haakje
-//    (een draad tussen de bordjes uittrekken).
-import { M } from './maten.mjs';
+//  - Spatel: 100 lang, 10 breed, aan het ene eind een blad van 1,0 (een draad in een smalle plaats duwen), aan het andere
+//    eind een haakje (een draad tussen de bordjes uittrekken).
 import { yv, deel, snede, cirkels, PETG_GOOT } from './hulp.mjs';
-
-const r3 = (v) => Math.round(v * 1000) / 1000;
-
-/**
- * De klemlippen van alle bordjes: per lip het profiel [[x, y]] (in een vlak met normaal +Z), de z waar hij begint en het
- * kuiltje [x0, z0, x1, z1] in de bodem. rijen: de rijen uit indeling(); bordjes hebben { cx, cz }.
- */
-export function klemlippen(rijen) {
-  const B = M.bordje, P = M.lip, y0 = M.voet + B.pcb + P.boven, top = y0 + P.haak, uit = [];
-  for (const rij of rijen) for (const d of rij) {
-    if (d.soort !== 'bordje') continue;
-    for (const k of [-1, 1]) {
-      const f = d.cx + k * (B.x / 2 + P.speling), b = f + k * P.t;
-      // doorsnede in het xy-vlak (midden van de lip): tong, haak met de schuine kant naar de print
-      const prof = [[f, -P.kuil], [b, -P.kuil], [b, y0], [b - k * P.haak, top], [f, top], [f - k * P.haak, y0], [f, y0]].map(([x, y]) => [r3(x), r3(y)]);
-      for (const s of [-1, 1]) {
-        const z0 = s > 0 ? d.cz + P.z0 : d.cz - P.z0 - P.b;
-        const kx = [f - k * P.rondom, b + k * P.achter];
-        uit.push({ nr: d.nr, k, s, f, b, z0, z1: z0 + P.b, prof, kuil: [Math.min(...kx), z0 - P.rondom, Math.max(...kx), z0 + P.b + P.rondom] });
-      }
-    }
-  }
-  return uit;
-}
-
-/** de klemlippen op de bak in 3 features (weinig features: de bak blijft binnen het rebuildbudget): de kuiltjes, de
- *  tongen (tot de onderkant van de haak) en de haken (0,75 hoog met 45° naar binnen: de schuine kant boven de print) */
-export function lippenOpBak(o, rijen) {
-  const L = klemlippen(rijen), P = M.lip, y0 = M.voet + M.bordje.pcb + P.boven;
-  snede(o, 0.01, P.kuil + 0.01, L.map((l) => l.kuil), 'Kuiltjes klemlippen'); // rechte hoeken: minder driehoeken
-  o.schets(yv(-P.kuil, 'Plane tongen klemlippen'), (s) => L.forEach((l) => s.rrectW([Math.min(l.f, l.b), 0, l.z0], [Math.max(l.f, l.b), 0, l.z1])));
-  o.extrude('boss', P.kuil + y0, { naam: 'Tongen klemlippen' });
-  o.schets(yv(y0 - 0.001, 'Plane haken klemlippen'), (s) => L.forEach((l) => { const h = l.f - l.k * P.haak; s.rrectW([Math.min(h, l.b), 0, l.z0], [Math.max(h, l.b), 0, l.z1]); }));
-  o.extrude('boss', P.haak, { naam: 'Haken klemlippen (45°)', draft: 45 });
-  return L;
-}
-
-/** rek in de tong bij het inklikken: de print duwt de haak (0,75 - 0,15 speling) opzij; veerlengte van de bodem van het
- *  kuiltje tot de haak */
-export const lipRek = () => { const P = M.lip, L = P.kuil + M.voet + M.bordje.pcb + P.boven; return { rek: (1.5 * P.t * (P.haak - P.speling)) / L ** 2, L, d: P.haak - P.speling }; };
-/** de kracht om één lip helemaal open te duwen (balk: F = 3 E I d / L³, PETG E = 2100 MPa) */
-export const lipKracht = () => { const P = M.lip, { L, d } = lipRek(), I = (P.b * P.t ** 3) / 12; return (3 * 2100 * I * d) / L ** 3; };
 
 // ---------------------------------------------------------------- hulpstukken
 export const HAAK = { l: 140, b: 12, dik: 2.4, rib: 2.6, ribVrij: 24, gat: 9.2, sleuf: 4.6, slag: 6, knop: { hals: 4.2, halsL: 3.0, kop: 8.5, kopH: 2.15, kopRecht: 1.2 }, vanEind: 10 };

@@ -2,7 +2,8 @@
  * Werktekeningen van de kabeldoos, versie 5 (voorbeelden/treinverlichting/tekeningen): TREIN_TEKENINGEN=1 VOORBEELDEN=1
  * npx vitest run src/qa/tekeningenTrein.test.ts. A3 liggend, Europese projectie: de boormal op ware grootte over 2 bladen
  * met uitlijnkruisen (de 4 schroeven onder de baan, van onderen gezien), per helft de bak en het deksel,
- * de hulpstukken, het detail van de naad (klikhaken, bodemlippen, lijmvoeg, lip van het deksel), het montageblad van de
+ * de hulpstukken, het detail van de naad (klikhaken, bodemlippen, lijmvoeg, lip van het deksel), de bevestiging van de
+ * bordjes (4 schroeven op 4 paaltjes), het montageblad van de
  * rechterhelft, de draadlijst, het meetblad en het invulblad (zie werktekening.ts en opbouwTrein.ts).
  */
 import { describe, expect, it } from 'vitest';
@@ -24,7 +25,7 @@ const datum = /\((\d{4}-\d{2}-\d{2})\)/.exec(readFileSync(`${DIR}/README.md`, 'u
 const PROJECT = { naam: 'Kabeldoos treinverlichting', datum, revisie: '5' };
 const m = M as Record<string, any>;
 const L = indeling() as { X: number; Z: number; xr: number; xn: number; sleutelgaten: [number, number][]; tules: { wand: string }[] };
-const D = m.doos, G = m.raster, A = m.aanslag, BZ = 2 * (L.Z + D.wand), HOOG = D.bodem + D.h + D.deksel, PET = 1.27;
+const D = m.doos, G = m.raster, BZ = 2 * (L.Z + D.wand), HOOG = D.bodem + D.h + D.deksel, PET = 1.27;
 const g1 = (v: number) => getal(v, 1), g2 = (v: number) => getal(v, 2);
 const N = m.naad, R = m.rechts, P5 = rechts() as any, HK = haakKlik() as any, DK = dekselKlik() as any;
 const LANG = P5.XRB + L.X + D.wand, BXL = N.x + L.X + D.wand, BXR = P5.XRB - (P5.xs - N.haak.l), HBAK = D.bodem + D.h;
@@ -34,11 +35,10 @@ const DELEN: Deel[] = [
   { f: 'Kabeldoos-bak-links.kcad', nr: 'TRN-01', naam: 'Bak links (bordjes)', materiaal: 'PETG (zwart)', maken: '3D-print rechtop, de bodem op het bed, zonder support', snede: true, schaal: [1, 2.5], dichtheid: PET, maten: [
     `Buitenmaat ${g1(BXL)} x ${g1(BZ)} x ${g1(HBAK)}, wand ${g1(D.wand)}, bodem ${g1(D.bodem)}; aan de naad (x = ${g1(N.x)}) open`,
     `Geen kabelgoten: 6 rijen bordjes, ${g1(G.b + 2 * G.wand + 2 * G.speling)} vrij tussen de rijen (draden en schroevendraaier)`,
-    `Steunrail ${m.voet} hoog onder elk bordje; palen ${g1(m.kader.h)} hoog tussen de bordjes (X), ${g1(m.rij.paal)} speling`,
-    `Per bordje 4 aanslagen ${A.l} x ${g1(A.t)} x ${g1(m.kader.h)} langs de lange kanten (Z), ${g1(G.speling)} speling`,
-    `Per bordje 4 klemlippen ${g1(m.lip.t)} x ${g1(m.lip.b)}, haak ${g2(m.lip.haak)} met 45°, in een kuiltje ${g1(m.lip.kuil)} diep (rek 1,7 %)`,
+    `Steunrail ${m.voet} hoog onder elk bordje; per bordje 4 schroefpaaltjes Ø${g1(m.schroefpaal.d)} x ${m.voet}, voorgat Ø${g1(m.schroefpaal.voorgat)} (TRN-07)`,
+    `Paaltjes onder de gaten van de print: hart ${g1(m.schroefpaal.rand)} van beide randen; schroef ${m.schroefpaal.schroef.d.toFixed(1).replace(".", ",")} x ${m.schroefpaal.schroef.l} zelftappend`,
     `Naad: 5 uitsparingen ${g1(N.lip.l)} x ${g1(N.lip.b + 2 * N.spleet)} in de bodem, 2 kuiltjes ${g1(N.haak.kuil)} diep in de wand (TRN-06)`,
-    `${L.tules.length} kabelinvoeren Ø${g1(D.invoer.gat)} op ${g1(D.invoer.y)} (5 links, 4 vooraan); 512 gaatjes 2 x 2 voor de leddraden (TRN-07)`,
+    `${L.tules.length} kabelinvoeren Ø${g1(D.invoer.gat)} op ${g1(D.invoer.y)} (5 links, 4 vooraan); draadsleuven tussen de rijen`,
     `2 sleutelgaten links: kop Ø${g1(D.sleutelgat.kop)}, sleuf ${g1(D.sleutelgat.schacht)} x ${D.sleutelgat.slag} naar voren (TRN-00)`,
     '2 schroefbussen Ø7 in de linkerhoeken, gat Ø2,6 (deksel)',
   ] },
@@ -237,65 +237,117 @@ function naadBlad(blad: string): string {
 }
 
 
-/** TRN-07: de gaatjes van 2 x 2 voor de leddraden in de bodem van de linkerhelft: een detail (4:1) van een strook tussen
- *  2 rijen bordjes en de tabel met elke gatenrij (z vanaf de achterwand, x van het eerste gaatje vanaf de linkerwand) */
-function gaatjesBlad(blad: string): string {
-  type Gat = { nr: number; kant: string; klem: number; x: number; z: number; strook: number; cx: number; rect: number[] };
-  const Lg = indeling() as unknown as { gaatjes: Gat[]; eilandjes: number[][]; rijen: { soort: string; nr: number; cx: number; cz: number }[][]; X: number; Z: number };
-  const b = new Blad(), B = m.bordje, GT = m.gaatje, A = m.aanslag;
-  b.tekst([30, 280], 'Gaatjes 2 x 2 voor de leddraden in de bodem van de linkerhelft (per klem één)', 3.6, 'start', { vet: true });
-  // 1. detail 4:1: bordje 4 (rij 2, midden) voor en bordje 7 (rij 3, midden) achter, de strook ertussen
-  const d1 = Lg.rijen[1][1], d2 = Lg.rijen[2][1], s = 4, W = 54, x0 = d1.cx - W / 2, zA = d1.cz + B.z / 2 - 4, zB = d2.cz - B.z / 2 + 4;
-  const o: P = [32, 250];
-  const to = (x: number, z: number): P => [o[0] + (x - x0) * s, o[1] - (z - zA) * s];
-  const rh = (r: number[], w = 0.3, vul = 'none', extra = '') => { const p = to(r[0], r[1]), q = to(r[2], r[3]); b.el.push(`<rect x="${Math.min(p[0], q[0]).toFixed(2)}" y="${b.y(Math.max(p[1], q[1])).toFixed(2)}" width="${Math.abs(q[0] - p[0]).toFixed(2)}" height="${Math.abs(q[1] - p[1]).toFixed(2)}" fill="${vul}" stroke="#111" stroke-width="${w}" ${extra}/>`); };
-  b.tekst([o[0], 258], '1  Detail tussen rij 2 en rij 3 (bordje 5 en 8), van boven (4:1)', 2.8, 'start', { vet: true });
-  rh([x0, zA, x0 + W, d1.cz + B.z / 2], 0.4, '#c8202f', 'fill-opacity="0.15"');
-  rh([x0, d2.cz - B.z / 2, x0 + W, zB], 0.4, '#c8202f', 'fill-opacity="0.15"');
-  b.tekst(to(d1.cx, zA + 1.2), `bordje ${d1.nr}: klemstrook voor (16 klemmen, steek 2,54)`, 2.2, 'middle');
-  b.tekst(to(d2.cx, zB - 2.6), `bordje ${d2.nr}: klemstrook achter`, 2.2, 'middle');
-  for (const e of Lg.eilandjes.filter((e) => e[0] > x0 - 1 && e[2] < x0 + W + 1 && e[1] > zA && e[3] < zB)) rh(e, 0.25, 'none', 'stroke-dasharray="1.5 1"');
-  for (const g of Lg.gaatjes.filter((g) => g.x > x0 && g.x < x0 + W && g.z > zA && g.z < zB)) rh(g.rect, 0.3, '#111', 'fill-opacity="0.85"');
-  for (const d of [d1, d2]) for (const kx of [-1, 1]) {
-    const kz = d === d1 ? 1 : -1, xa = d.cx + kx * A.x - A.l / 2, za = kz > 0 ? d.cz + B.z / 2 + m.kader.speling : d.cz - B.z / 2 - m.kader.speling - A.t;
-    rh([xa, za, xa + A.l, za + A.t], 0.3, '#888', 'fill-opacity="0.5"');
+/** TRN-07: de bevestiging van de bordjes (Ian, 2026-11-15: "ik wil ze geschroefd hebben. Gaten zitten op 2mm op 2mm van
+ *  de hoeken van het bordje"): een bordje van boven (3:1) met de 4 schroefpaaltjes, een doorsnede door een paaltje (8:1)
+ *  met de schroef, en de tabel met de plaats van elk bordje */
+function bevestigingBlad(blad: string): string {
+  const Lg = indeling() as unknown as { paaltjes: { nr: number; x: number; z: number }[]; rijen: { soort: string; nr: number; cx: number; cz: number }[][]; X: number; Z: number };
+  const b = new Blad(), B = m.bordje, SP = m.schroefpaal, S = SP.schroef, sd = getal(SP.schroef.d, 1).includes(',') ? getal(SP.schroef.d, 1) : `${getal(SP.schroef.d, 1)},0`;
+  b.tekst([30, 280], 'Bevestiging van de bordjes: 4 schroeven per bordje op 4 paaltjes in de bodem (64 in totaal)', 3.6, 'start', { vet: true });
+  // 1. een bordje van boven, 3:1
+  const s = 3, o: P = [62, 180];
+  const to = (x: number, z: number): P => [o[0] + (x + B.x / 2) * s, o[1] + (B.z / 2 - z) * s];
+  b.tekst([32, 266], '1  Bordje van boven (3:1), z naar voren = omlaag', 2.8, 'start', { vet: true });
+  const rh = (x0: number, z0: number, x1: number, z1: number, w = 0.35, vul = 'none', extra = '') => {
+    const p = to(x0, z1), q = to(x1, z0); // z1 (achter) ligt lager op het blad dan z0
+    b.el.push(`<rect x="${p[0].toFixed(2)}" y="${b.y(q[1]).toFixed(2)}" width="${(q[0] - p[0]).toFixed(2)}" height="${(q[1] - p[1]).toFixed(2)}" fill="${vul}" stroke="#111" stroke-width="${w}" ${extra}/>`);
+  };
+  rh(-B.x / 2, -B.z / 2, B.x / 2, B.z / 2, 0.6);
+  const kl = (B.klem.n * B.klem.steek) / 2;
+  rh(-kl, B.z / 2 - 0.2 - B.klem.diep, kl, B.z / 2 - 0.2, 0.3, '#2f7d32', 'fill-opacity="0.25"');
+  rh(-kl, -B.z / 2 + 0.2, kl, -B.z / 2 + 0.2 + B.klem.diep, 0.3, '#2f7d32', 'fill-opacity="0.25"');
+  rh(-B.x / 2 + 0.2, -B.eind.steek, -B.x / 2 + 0.2 + B.eind.diep, B.eind.steek, 0.3, '#2f7d32', 'fill-opacity="0.25"');
+  rh(B.x / 2 - 0.2 - B.eind.diep, -B.eind.steek, B.x / 2 - 0.2, B.eind.steek, 0.3, '#2f7d32', 'fill-opacity="0.25"');
+  b.tekst(to(0, B.z / 2 - 4.4), 'klemstrook voor (16 klemmen)', 2.2, 'middle');
+  b.tekst(to(0, -B.z / 2 + 2.6), 'klemstrook achter (16 klemmen)', 2.2, 'middle');
+  b.tekst(to(-B.x / 2 + 4, -0.7), 'eindklem', 2, 'middle');
+  b.tekst(to(B.x / 2 - 4, -0.7), 'eindklem', 2, 'middle');
+  const hoeken: [number, number][] = [];
+  for (const kx of [-1, 1]) for (const kz of [-1, 1]) hoeken.push([kx * (B.x / 2 - SP.rand), kz * (B.z / 2 - SP.rand)]);
+  for (const [x, z] of hoeken) {
+    b.cirkel(to(x, z), (S.kop / 2) * s, 0.5); // de schroefkop
+    b.cirkel(to(x, z), (SP.d / 2) * s, 0.2); // het paaltje (onder de print)
+    b.el.push(`<circle cx="${to(x, z)[0].toFixed(2)}" cy="${b.y(to(x, z)[1]).toFixed(2)}" r="${(2.5 * s).toFixed(2)}" fill="none" stroke="#c8202f" stroke-width="0.2" stroke-dasharray="1.2 0.8"/>`);
+    b.lijn([to(x, z)[0] - 1.5, to(x, z)[1]], [to(x, z)[0] + 1.5, to(x, z)[1]], 0.2); b.lijn([to(x, z)[0], to(x, z)[1] - 1.5], [to(x, z)[0], to(x, z)[1] + 1.5], 0.2);
   }
-  b.tekst(to(d1.cx + A.x, d1.cz + B.z / 2 + 2.6), 'aanslag', 2, 'middle');
-  // maten: steek 2,54 (2 naburige klemmen), 5,08 in een rij, 2 x 2, afstand tot de rand 0,3 en 2,5, strook 9,2
-  const g0 = Lg.gaatjes.filter((g) => g.nr === d1.nr && g.kant === 'voor').sort((p, q) => p.x - q.x);
-  const rand1 = d1.cz + B.z / 2, rand2 = d2.cz - B.z / 2;
-  const gEven = g0[0], gOneven = g0[1], gEven2 = g0[2];
-  b.maatH(to(gEven.x, 0)[0], to(gOneven.x, 0)[0], to(0, rand1)[1], to(0, rand1)[1] + 7, '2,54');
-  b.maatH(to(gEven.x, 0)[0], to(gEven2.x, 0)[0], to(0, zB)[1], to(0, zB)[1] + 6, '5,08');
-  b.maatH(to(gEven.rect[0], 0)[0], to(gEven.rect[2], 0)[0], to(0, zA)[1], to(0, zA)[1] - 6, '2');
-  const xm = to(x0 + 1, 0)[0];
-  b.maatV(to(0, rand1)[1], to(0, rand2)[1], xm, xm - 9, getal(rand2 - rand1, 1));
-  b.maatV(to(0, rand1)[1], to(0, gEven.rect[1])[1], to(gEven.rect[0], 0)[0], to(gEven.rect[0], 0)[0] - 4, getal(GT.rij[0], 1));
-  b.maatV(to(0, rand1)[1], to(0, gOneven.rect[1])[1], to(gOneven.rect[2], 0)[0], to(gOneven.rect[2], 0)[0] + 4, getal(GT.rij[1], 1));
-  b.tekst([o[0], 150], 'Elke draad door zijn eigen gaatje, recht omhoog in zijn klem. Om en om in 2 rijen: de klemmen staan op 2,54 en een', 2.3);
-  b.tekst([o[0], 146], `gaatje van 2 liet in één rij maar 0,54 vlees. Rij 1 op ${getal(GT.rij[0], 1)}, rij 2 op ${getal(GT.rij[1], 1)} van de rand van het bordje; voor de even klemmen`, 2.3);
-  b.tekst([o[0], 142], 'vooraan en de oneven achteraan: in een strook van 9,2 liggen 4 rijen om en om. Vlees: 3,08 in een rij, 2,4 tussen 2', 2.3);
-  b.tekst([o[0], 138], `rijen, 0,58 schuin tussen 2 hoekpunten. Rond de gaatjes een eilandje van ${getal(GT.hoog, 1)} hoog (${getal(GT.rand, 0)} rand). Printen met de bodem op het`, 2.3);
-  b.tekst([o[0], 134], 'bed: de gaatjes zijn staande vierkante kokers door de bodem van 2,4 (+0,4): geen support nodig.', 2.3);
-  // 2. de tabel: elke gatenrij (band) met z vanaf de binnenkant van de achterwand en x van het eerste gaatje vanaf de
-  // binnenkant van de linkerwand, per bordje
-  const banden = new Map<string, Gat[]>();
-  for (const g of Lg.gaatjes) { const k = getal(g.z, 2); banden.set(k, [...(banden.get(k) ?? []), g]); }
-  const lijst = [...banden.values()].sort((p, q) => p[0].z - q[0].z);
-  let y = 124; // de tabel onder het detail (de onderste helft van het blad), vrij van het titelblok
+  // maten: 61,1 x 20,9, hart gat 2,0 van beide randen, 57,1 en 16,9 tussen de gaten
+  const [xa, xb] = [to(-B.x / 2, 0)[0], to(B.x / 2, 0)[0]], [ya, yb] = [to(0, B.z / 2)[1], to(0, -B.z / 2)[1]];
+  b.maatH(xa, xb, ya, ya - 10, g1(B.x));
+  b.maatH(to(hoeken[0][0], 0)[0], to(hoeken[2][0], 0)[0], yb, yb + 6, g1(B.x - 2 * SP.rand));
+  b.maatH(xa, to(hoeken[0][0], 0)[0], yb, yb + 12, g1(SP.rand));
+  b.maatV(ya, yb, xb, xb + 10, g1(B.z));
+  b.maatV(to(0, hoeken[1][1])[1], to(0, hoeken[0][1])[1], xa, xa - 8, g1(B.z - 2 * SP.rand));
+  b.maatV(ya, to(0, hoeken[1][1])[1], xa, xa - 15, g1(SP.rand));
+  b.tekst([o[0], ya - 18], `Ø${g1(S.kop)} schroefkop, Ø${g1(SP.d)} paaltje, rood gestreept: schacht van de schroevendraaier PH1 (Ø4,5 + 0,25 lucht)`, 2.1);
+  b.tekst([o[0], ya - 21.5], 'Vrij tot de eindklem 1,45 en tot de klemstrook 8,2: de schroevendraaier raakt geen klem en geen draad.', 2.1);
+  // 2. doorsnede door een paaltje, 8:1 (y omhoog: onderkant bodem -2,4, bovenkant bodem 0)
+  const k = 8, c: P = [345, 170];
+  const tp = (r: number, y: number): P => [c[0] + r * k, c[1] + y * k];
+  b.tekst([270, 266], '2  Doorsnede door een paaltje (8:1)', 2.8, 'start', { vet: true });
+  const bod = m.doos.bodem, voet = m.voet, pcb = B.pcb;
+  const vlak = (r0: number, y0: number, r1: number, y1: number, vul: string, w = 0.4) => {
+    const p = tp(r0, y1), q = tp(r1, y0);
+    b.el.push(`<rect x="${p[0].toFixed(2)}" y="${b.y(p[1]).toFixed(2)}" width="${(q[0] - p[0]).toFixed(2)}" height="${(p[1] - q[1]).toFixed(2)}" fill="${vul}" stroke="#111" stroke-width="${w}"/>`);
+  };
+  const ar = '#9a9a9a';
+  // de bodem (gearceerd grijs) met het paaltje, het voorgat open
+  vlak(-5, -bod, -SP.voorgat / 2, 0, ar); vlak(SP.voorgat / 2, -bod, 5, 0, ar);
+  vlak(-SP.voorgat / 2, -bod, SP.voorgat / 2, -bod + 0.4, ar);
+  vlak(-SP.d / 2, 0, -SP.voorgat / 2, voet, ar); vlak(SP.voorgat / 2, 0, SP.d / 2, voet, ar);
+  // de print (groen) met het gat
+  vlak(-4.5, voet, -SP.gat / 2, voet + pcb, '#2f7d32'); vlak(SP.gat / 2, voet, 4.5, voet + pcb, '#2f7d32');
+  // de schroef: kop, schacht (buitendiameter) tot de punt
+  const punt = voet + pcb - S.l;
+  vlak(-S.kop / 2, voet + pcb, S.kop / 2, voet + pcb + S.kopH, '#d9d9d9', 0.5);
+  vlak(-S.d / 2, punt + 0.5, S.d / 2, voet + pcb, 'none', 0.45);
+  b.el.push(`<polygon points="${[tp(-S.d / 2, punt + 0.5), tp(S.d / 2, punt + 0.5), tp(0, punt)].map((p) => `${p[0].toFixed(2)},${b.y(p[1]).toFixed(2)}`).join(' ')}" fill="none" stroke="#111" stroke-width="0.45"/>`);
+  for (let y = punt + 0.8; y < voet + pcb; y += 0.8) b.lijn(tp(-S.d / 2, y), tp(S.d / 2, y - 0.3), 0.15);
+  b.lijn(tp(0, -bod - 1), tp(0, voet + pcb + S.kopH + 1.5), 0.18, 'stroke-dasharray="3 1 0.6 1"');
+  b.tekst(tp(-4.8, -bod / 2 - 0.3), 'bodem', 2.2); b.tekst(tp(-4.9, voet / 2 - 0.3), 'paaltje', 2.2); b.tekst(tp(-4.5, voet + pcb + 0.4), 'print', 2.2);
+  b.tekst(tp(0, voet + pcb + S.kopH + 3.6), `schroef ${sd} x ${S.l}, bolkop`, 2.2, 'middle');
+  // maten
+  b.maatH(tp(-SP.d / 2, 0)[0], tp(SP.d / 2, 0)[0], tp(0, -bod)[1], tp(0, -bod)[1] - 10, `Ø${g1(SP.d)}`);
+  b.maatH(tp(-SP.voorgat / 2, 0)[0], tp(SP.voorgat / 2, 0)[0], tp(0, -bod)[1], tp(0, -bod)[1] - 18, `Ø${g1(SP.voorgat)}`);
+  b.maatH(tp(-S.kop / 2, 0)[0], tp(S.kop / 2, 0)[0], tp(0, voet + pcb + S.kopH)[1], tp(0, voet + pcb + S.kopH)[1] + 8, `Ø${g1(S.kop)}`);
+  const xl = tp(-5, 0)[0];
+  b.maatV(tp(0, 0)[1], tp(0, voet)[1], xl, xl - 8, g1(voet));
+  b.maatV(tp(0, -bod)[1], tp(0, 0)[1], xl, xl - 8, g1(bod));
+  b.maatV(tp(0, -bod)[1], tp(0, -bod + 0.4)[1], xl, xl - 16, '0,4');
+  const xr = tp(S.kop / 2, 0)[0];
+  b.maatV(tp(0, punt)[1], tp(0, voet + pcb)[1], xr, xr + 22, `${S.l}`);
+  b.maatV(tp(0, punt)[1], tp(0, voet)[1], xr, xr + 12, g1(S.l - pcb));
+  // 3. de schroef en het printen
+  let y = 116;
+  const r = (t: string, vet = false) => { b.tekst([262, y], t, 2.3, 'start', { vet }); y -= 3.8; };
+  r('Schroef', true);
+  r(`Plaatschroef voor kunststof ${sd} x ${S.l}, bolkop Ø${g1(S.kop)} x ${g1(S.kopH)}, kruiskop PH1,`);
+  r('verzinkt (64 stuks + 6 reserve, bestellijst). Zelftappend: geen draad');
+  r('tappen, geen insert.');
+  r('Gat in de print', true);
+  r(`Ø${g1(SP.gat)} (AANNAME, na te meten met een schuifmaat): de schroef van ${sd}`);
+  r(`gaat er vrij door. Een schroef van 2,2 past NIET.`);
+  r('Paaltje', true);
+  r(`Ø${g1(SP.d)}, ${g1(voet)} hoog op de bodem (draagt de print, zoals de steunrail),`);
+  r(`voorgat Ø${g1(SP.voorgat)} (0,8 x d) tot 0,4 boven de onderkant: wand ${g1((SP.d - SP.voorgat) / 2)} (4 lijnen),`);
+  r(`de schroef grijpt ${g1(S.l - pcb)} diep in PETG. Rechtop geprint: geen support.`);
+  r('Vastdraaien', true);
+  r('Met de hand tot de kop de print raakt, dan nog 1/8 slag. Niet');
+  r('doordraaien: dan breekt de draad in het paaltje uit.');
+  // 4. de tabel: plaats van elk bordje en zijn 4 gaten
+  const bordjes = Lg.rijen.flat().filter((d) => d.soort === 'bordje').sort((p, q) => p.nr - q.nr);
+  y = 116;
   const x1 = 32;
-  b.tekst([x1, y], `Gatenrijen (${Lg.gaatjes.length} gaatjes 2 x 2, ${lijst.length} rijen)`, 2.8, 'start', { vet: true });
+  b.tekst([x1, y], 'Plaats van de paaltjes (hart, vanaf de binnenkant van de linkerwand en de achterwand)', 2.8, 'start', { vet: true });
   y -= 4.5;
-  b.tekst([x1, y], 'z: hart vanaf de achterwand (binnen); x: hart van het eerste gaatje vanaf de linkerwand', 1.9);
+  const kol = [x1 + 8, x1 + 30, x1 + 52, x1 + 74, x1 + 96]; // rechts uitgelijnd
+  ['Bordje', 'x links', 'x rechts', 'z achter', 'z voor'].forEach((t, i) => b.tekst([kol[i], y], t, 2.1, 'end', { vet: true }));
   y -= 3.6;
-  b.tekst([x1, y], 'Nr   z        bordje: x eerste gaatje (8 per bordje, steek 5,08)', 2.0, 'start', { vet: true });
-  y -= 3.3;
-  lijst.forEach((g, i) => {
-    const per = [...new Set(g.map((q) => q.nr))].sort((p, q) => p - q).map((nr) => `${nr}: ${getal(Math.min(...g.filter((q) => q.nr === nr).map((q) => q.x)) + Lg.X, 2)}`);
-    b.tekst([x1, y], `${String(i + 1).padStart(2, ' ')}   ${getal(g[0].z + Lg.Z, 2)}   ${per.join('  ')}`, 2.0);
+  for (const d of bordjes) {
+    const ps = Lg.paaltjes.filter((p) => p.nr === d.nr), xs = [...new Set(ps.map((p) => p.x))].sort((p, q) => p - q), zs = [...new Set(ps.map((p) => p.z))].sort((p, q) => p - q);
+    [String(d.nr), getal(xs[0] + Lg.X, 2), getal(xs[1] + Lg.X, 2), getal(zs[0] + Lg.Z, 2), getal(zs[1] + Lg.Z, 2)].forEach((t, i) => b.tekst([kol[i], y], t, 2.1, 'end'));
     y -= 3.15;
-  });
-  kader(b, { nr: 'TRN-07', naam: 'Gaatjes voor de leddraden', materiaal: 'PETG (zwart), bak links', maken: 'mee geprint (bodem op het bed)', massa: '—', schaal: '4:1', blad }, PROJECT);
+  }
+  kader(b, { nr: 'TRN-07', naam: 'Bevestiging van de bordjes', materiaal: 'PETG (zwart), bak links', maken: 'mee geprint; schroeven 2,0 x 6', massa: '—', schaal: '3:1, 8:1', blad, soort: 'Detailtekening' }, PROJECT);
   return b.svg();
 }
 
@@ -343,7 +395,7 @@ describe('tekeningen kabeldoos', () => {
     const bestand = (d: Deel) => `${d.nr}-${d.naam.toLowerCase().replace(/ \(.*\)$/, '').replace(/ /g, '-')}.svg`;
     DELEN.forEach((d) => writeFileSync(`${UIT}/${bestand(d)}`, onderdeelBlad(d, blad(), DIR, PROJECT)));
     writeFileSync(`${UIT}/TRN-06-naad.svg`, naadBlad(blad()));
-    writeFileSync(`${UIT}/TRN-07-gaatjes.svg`, gaatjesBlad(blad()));
+    writeFileSync(`${UIT}/TRN-07-bevestiging-bordjes.svg`, bevestigingBlad(blad()));
     for (const o of OPBOUW) writeFileSync(`${UIT}/${o.nr}-${o.sleutel}.svg`, montageBlad(o.nr, blad(), PROJECT));
     writeFileSync(`${UIT}/TRN-14-draadlijst.svg`, draadlijstBlad('TRN-14', blad(), PROJECT));
     writeFileSync(`${UIT}/TRN-20-meetblad.svg`, meetBlad('TRN-20', blad(), PROJECT));

@@ -85,7 +85,7 @@ void test_heen_en_terug() {
   TEST_ASSERT_EQUAL(30000u, c.functie[0].stap[0].wachtMs);
   TEST_ASSERT_EQUAL(SOORT_PULS, c.ingang[6].soort);
   TEST_ASSERT_EQUAL(750, c.ingang[6].vasthoudMs);
-  TEST_ASSERT_TRUE(j.find("\"versie\":2") != std::string::npos);
+  TEST_ASSERT_TRUE(j.find("\"versie\":3") != std::string::npos);
   TEST_ASSERT_TRUE(j.find("helderheid") == std::string::npos);
 }
 
@@ -113,7 +113,7 @@ void test_te_groot_bestand() {
 }
 
 void test_onbekende_versie() {
-  const char *v[] = {"{\"versie\":3}", "{\"versie\":0}", "{\"versie\":\"1\"}", "{\"versie\":1.5}",
+  const char *v[] = {"{\"versie\":4}", "{\"versie\":0}", "{\"versie\":\"1\"}", "{\"versie\":1.5}",
                      "{\"groepen\":[]}"};
   for (const char *k : v) {
     std::string m;
@@ -136,7 +136,9 @@ void test_onderdeel_van_het_verkeerde_soort() {
 
 void test_alleen_versie_is_standaard() {
   std::string m;
-  TEST_ASSERT_EQUAL(Laad::OK, laad("{\"versie\":2}", m));
+  TEST_ASSERT_EQUAL(Laad::OK, laad("{\"versie\":3}", m));
+  TEST_ASSERT_TRUE(isStandaard(c));
+  TEST_ASSERT_EQUAL(Laad::OMGEZET, laad("{\"versie\":2}", m)); // firmware 1.3.0: wordt als versie 3 bewaard
   TEST_ASSERT_TRUE(isStandaard(c));
   TEST_ASSERT_EQUAL(Laad::OMGEZET, laad("{\"versie\":1}", m)); // oud, leeg: ook gewoon de standaard
   TEST_ASSERT_TRUE(isStandaard(c));
@@ -229,9 +231,9 @@ void test_oude_config_met_helderheid_wordt_omgezet() {
   TEST_ASSERT_EQUAL(GEDRAG_DRUKKNOP, c.ingang[0].gedrag);
   TEST_ASSERT_EQUAL(SOORT_CONTACT, c.ingang[0].soort);       // oude ingangen: contact (30 ms ontdenderd)
   TEST_ASSERT_EQUAL(STD_VASTHOUD_MS, c.ingang[0].vasthoudMs);
-  // opnieuw bewaard (zoals main.cpp doet): versie 2 zonder helderheid, en dat laadt gewoon OK
+  // opnieuw bewaard (zoals main.cpp doet): versie 3 zonder helderheid, en dat laadt gewoon OK
   std::string nieuw = configNaarJson(c);
-  TEST_ASSERT_TRUE(nieuw.find("\"versie\":2") != std::string::npos);
+  TEST_ASSERT_TRUE(nieuw.find("\"versie\":3") != std::string::npos);
   TEST_ASSERT_TRUE(nieuw.find("helderheid") == std::string::npos);
   TEST_ASSERT_TRUE(nieuw.find("faduur") == std::string::npos);
   TEST_ASSERT_TRUE(nieuw.find("\"max\"") == std::string::npos);
@@ -380,6 +382,142 @@ void test_standaard_knop_alles_aan_uit() {
   TEST_ASSERT_EQUAL(ACT_WISSEL, c.functie[1].stap[0].actie);
 }
 
+// ------------------------------------------------------------------------------- firmware 2.0.0: versie 3
+void test_versie3_heen_en_terug() {
+  Config x;
+  standaard(x);
+  IrCode &n = x.ir[2];
+  n.gebruikt = true;
+  strcpy(n.naam, "Stop bus");
+  n.adres = 0;
+  n.commando = 18;
+  n.herhaal = 2;
+  IrCode &r = x.ir[5];
+  r.gebruikt = true;
+  strcpy(r.naam, "Geleerd");
+  r.soort = IR_RAW;
+  r.khz = 40;
+  r.nRaw = MAX_RAW;
+  for (int i = 0; i < MAX_RAW; i++) r.raw[i] = (uint16_t)(300 + 7 * i);
+  ServoCfg &s = x.servo[3];
+  s.gebruikt = true;
+  strcpy(s.naam, "Slagboom");
+  s.kanaal = 9;
+  s.a = 900;
+  s.b = 2100;
+  s.snelheid = 0;
+  s.soort = SERVO_SLAGBOOM;
+  BusCfg &b = x.bus[1];
+  b.gebruikt = true;
+  strcpy(b.naam, "Lijnbus 2");
+  strcpy(b.kleur, "#dd2233");
+  strcpy(b.code, "nec:00FF12ED");
+  PuntCfg &p = x.punt[0];
+  p.gebruikt = true;
+  strcpy(p.id, "STOP_lijnbus3");
+  p.ontvanger = 2;
+  p.soort = MELD_FTR;
+  strcpy(p.volgende, "HALL1");
+  x.punt[1].gebruikt = true;
+  strcpy(x.punt[1].id, "HALL1");
+  x.punt[1].ingang = 33;
+  HalteCfg &h = x.halte[0];
+  h.gebruikt = true;
+  strcpy(h.naam, "Halte 1");
+  strcpy(h.aankomstPunt, "STOP_lijnbus3");
+  h.stopLeds = 0x70;
+  h.stopCode = 2;
+  h.rijdCode = 5;
+  h.vrijIngangen = ingangBit(6) | ingangBit(39);
+  h.rood = 8;
+  h.groen = 10;
+  h.servo = 3;
+  x.ingang[20].polariteit = POL_PNP;
+  x.ingang[39].polariteit = POL_PNP;
+  std::string j = configNaarJson(x), m;
+  TEST_ASSERT_TRUE(j.size() < MAX_BESTAND);
+  TEST_ASSERT_EQUAL(Laad::OK, laad(j, m));
+  TEST_ASSERT_EQUAL_STRING("", m.c_str());
+  TEST_ASSERT_EQUAL_STRING(j.c_str(), configNaarJson(c).c_str());
+  TEST_ASSERT_EQUAL(18, c.ir[2].commando);
+  TEST_ASSERT_EQUAL(MAX_RAW, c.ir[5].nRaw);
+  TEST_ASSERT_EQUAL(300 + 7 * 255, c.ir[5].raw[255]);
+  TEST_ASSERT_EQUAL(SERVO_SLAGBOOM, c.servo[3].soort);
+  TEST_ASSERT_EQUAL(9, c.servo[3].kanaal);
+  TEST_ASSERT_EQUAL_STRING("nec:00FF12ED", c.bus[1].code);
+  TEST_ASSERT_EQUAL(MELD_FTR, c.punt[0].soort);
+  TEST_ASSERT_EQUAL(33, c.punt[1].ingang);
+  TEST_ASSERT_EQUAL_HEX64(ingangBit(6) | ingangBit(39), c.halte[0].vrijIngangen);
+  TEST_ASSERT_EQUAL(-1, c.halte[0].oranje);
+  TEST_ASSERT_EQUAL(POL_PNP, c.ingang[39].polariteit);
+  TEST_ASSERT_EQUAL(POL_NPN, c.ingang[0].polariteit);
+  TEST_ASSERT_FALSE(c.ir[0].gebruikt);
+}
+
+void test_versie2_laadt_met_standaard_voor_het_nieuwe() {
+  // een bestand van firmware 1.3.0: 16 ingangen, geen IR, servo's, ...
+  std::string m;
+  TEST_ASSERT_EQUAL(Laad::OMGEZET, laad(R"({"versie":2,"ingangen":[{"naam":"Knop","gedrag":"drukknop","functieA":2},
+    {"naam":"Hall","soort":"puls","vasthouden":0.5}]})", m));
+  TEST_ASSERT_EQUAL_STRING("", m.c_str());
+  TEST_ASSERT_EQUAL_STRING("Hall", c.ingang[1].naam);
+  TEST_ASSERT_EQUAL(POL_NPN, c.ingang[1].polariteit);
+  TEST_ASSERT_EQUAL_STRING("Ingang 40", c.ingang[39].naam);
+  for (int i = 0; i < MAX_IR_CODES; i++) TEST_ASSERT_FALSE(c.ir[i].gebruikt);
+  for (int i = 0; i < MAX_HALTES; i++) TEST_ASSERT_FALSE(c.halte[i].gebruikt);
+  TEST_ASSERT_TRUE(configNaarJson(c).find("\"versie\":3") != std::string::npos);
+}
+
+void test_versie3_foute_waarden_worden_hersteld() {
+  std::string m;
+  Laad r = laad(R"({"versie":3,
+    "ir":[{"soort":"sony","khz":99,"raw":"x"},null,{"soort":"rc5","adres":40,"commando":200}],
+    "servos":[{"kanaal":0,"a":100,"b":9000,"snelheid":-5,"soort":"kraan"}],
+    "bussen":[{"kleur":"rood","code":"abc"}],
+    "punten":[{"id":"met spatie","ingang":1},{"id":"P1","ingang":99},{"id":"P1","ingang":2},{"id":"P2","ontvanger":2,"soort":"x"}],
+    "haltes":[{"stopLeds":[0,9],"stopCode":77,"licht":"rood","vrijIngangen":[41],"wachtS":-1}],
+    "ingangen":[{"polariteit":"pmp"}]})", m);
+  TEST_ASSERT_EQUAL(Laad::HERSTELD, r);
+  TEST_ASSERT_TRUE(c.ir[0].gebruikt);
+  TEST_ASSERT_EQUAL(IR_NEC, c.ir[0].soort);
+  TEST_ASSERT_EQUAL(IR_KHZ_MAX, c.ir[0].khz);
+  TEST_ASSERT_FALSE(c.ir[1].gebruikt);
+  TEST_ASSERT_EQUAL(31, c.ir[2].adres);
+  TEST_ASSERT_EQUAL(127, c.ir[2].commando);
+  TEST_ASSERT_EQUAL(0, c.servo[0].kanaal);
+  TEST_ASSERT_EQUAL(SERVO_MIN_US, c.servo[0].a);
+  TEST_ASSERT_EQUAL(SERVO_MAX_US, c.servo[0].b);
+  TEST_ASSERT_EQUAL(0, c.servo[0].snelheid);
+  TEST_ASSERT_EQUAL_STRING("#d23", c.bus[0].kleur);
+  TEST_ASSERT_EQUAL_STRING("", c.bus[0].code);
+  // punten: de ongeldige id valt weg, een dubbele id ook; P1 zonder geldige ingang blijft maar zonder bron
+  TEST_ASSERT_EQUAL_STRING("P1", c.punt[0].id);
+  TEST_ASSERT_EQUAL(-1, c.punt[0].ingang);
+  TEST_ASSERT_EQUAL_STRING("P2", c.punt[1].id);
+  TEST_ASSERT_FALSE(c.punt[2].gebruikt);
+  TEST_ASSERT_EQUAL(0, c.halte[0].stopLeds);
+  TEST_ASSERT_EQUAL(-1, c.halte[0].stopCode);
+  TEST_ASSERT_EQUAL(0, (int)c.halte[0].vrijIngangen);
+  TEST_ASSERT_EQUAL(0, c.halte[0].wachtS);
+  TEST_ASSERT_EQUAL(POL_NPN, c.ingang[0].polariteit);
+  // een onderdeel van het verkeerde soort: ongeldig
+  TEST_ASSERT_EQUAL(Laad::ONGELDIG, laad(R"({"versie":3,"servos":{}})", m));
+  TEST_ASSERT_EQUAL(Laad::ONGELDIG, laad(R"({"versie":3,"punten":"P1"})", m));
+}
+
+void test_stand_met_servos() {
+  Stand s;
+  s.servosB = (1u << 0) | (1u << 15);
+  std::string j = standNaarJson(s);
+  Stand t;
+  TEST_ASSERT_TRUE(standVanJson(j.data(), j.size(), t));
+  TEST_ASSERT_EQUAL_HEX16(s.servosB, t.servosB);
+  // een oude stand (versie 2) zonder servo's: allemaal A
+  const char *oud = R"({"versie":2,"groepen":[{"aan":true}]})";
+  TEST_ASSERT_TRUE(standVanJson(oud, strlen(oud), t));
+  TEST_ASSERT_EQUAL(0, t.servosB);
+}
+
 int main() {
   UNITY_BEGIN();
   RUN_TEST(test_heen_en_terug);
@@ -396,5 +534,9 @@ int main() {
   RUN_TEST(test_willekeurig_beschadigde_bestanden);
   RUN_TEST(test_thuisnet_heen_en_terug_en_oud_bestand);
   RUN_TEST(test_standaard_knop_alles_aan_uit);
+  RUN_TEST(test_versie3_heen_en_terug);
+  RUN_TEST(test_versie2_laadt_met_standaard_voor_het_nieuwe);
+  RUN_TEST(test_versie3_foute_waarden_worden_hersteld);
+  RUN_TEST(test_stand_met_servos);
   return UNITY_END();
 }

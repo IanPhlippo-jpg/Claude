@@ -1,6 +1,17 @@
-// De 16 ingangen (knoppen, schakelaars, sensoren, hallsensoren), zonder hardware. Testen: test/test_ingangen.
+// De ingangen (knoppen, schakelaars, sensoren, hallsensoren), zonder hardware. Testen: test/test_ingangen.
 //
-// main.cpp leest de 16 GPIO's elke 5 ms en geeft twee getallen met 16 bits door (bit i = ingang i+1):
+// Firmware 2.0.0: 40 ingangen in 5 groepen van 8:
+//   1..16   GPIO's van de ESP (2 optocouplerprints)
+//   17..24  GPB0..GPB7 van de MCP23017 op 0x20 (een derde optocouplerprint)
+//   25..40  GPA0..GPA7 en GPB0..GPB7 van een tweede MCP23017 op 0x21 (optioneel, 2 optocouplerprints PC817): wordt hij
+//           bij het opstarten niet gevonden, dan zijn 25..40 afwezig (altijd rust; /api/staat meldt "aanwezig":false)
+// Per ingang de polariteit npn (de sensor trekt naar 0 V, standaard) of pnp (de sensor geeft +12 V); ook per groep van 8.
+// De bedrading kiest de COM-klem van de optocouplerprint (NPN: COM aan +12 V, PNP: COM aan 0 V); de print trekt zijn
+// uitgang dan in BEIDE gevallen laag als de sensor actief is, dus de firmware hoeft niets om te keren. Alleen voor een
+// ingangsprint die bij PNP actief HOOG uitgeeft, keert de Baan de pnp-ingangen om (pnpOmkeren, -DTREIN_PNP_KEERT_OM;
+// zie README). Een ingang die van polariteit verandert, begint opnieuw: zijn huidige lezing is de rusttoestand.
+//
+// main.cpp leest de ingangen elke 5 ms en geeft twee maskers door (bit i = ingang i+1):
 //   ruw      de ingang is nu ACTIEF (de optocoupler trekt de pin laag; main.cpp keert dat al om)
 //   flanken  sinds de vorige lezing was er minstens één "actief"-flank (een GPIO-interrupt zet die vlag, hw.h): zo
 //            wordt ook een puls gezien die korter is dan 5 ms en tussen twee lezingen valt
@@ -30,7 +41,13 @@
 
 namespace trein {
 
-constexpr int N_INGANGEN = 16;
+constexpr int N_INGANGEN = 40;
+constexpr int INGANG_GROEP = 8;                          // polariteit per groep van 8
+constexpr int N_INGANG_GROEPEN = N_INGANGEN / INGANG_GROEP;
+constexpr int INGANGEN_GPIO = 16, INGANGEN_MCP1 = 24;    // 1..16 GPIO, 17..24 MCP23017 0x20, 25..40 MCP23017 0x21
+typedef uint64_t IngangMasker;                           // bit i = ingang i+1
+constexpr IngangMasker ALLE_INGANGEN = (IngangMasker)((1ull << N_INGANGEN) - 1);
+inline IngangMasker ingangBit(int i) { return (IngangMasker)1u << i; }
 constexpr uint32_t ONTDENDER_MS = 30;
 constexpr uint16_t MAX_NALOOP_S = 3600;
 constexpr uint16_t STD_VASTHOUD_MS = 300, MAX_VASTHOUD_MS = 10000; // puls: zo lang blijft de ingang actief
@@ -46,6 +63,16 @@ inline int soortVanId(const char *id) {
   if (!id) return -1;
   for (int s = 0; s < N_SOORTEN; s++)
     if (strcmp(soortId(s), id) == 0) return s;
+  return -1;
+}
+
+enum Polariteit : uint8_t { POL_NPN, POL_PNP, N_POL };
+
+inline const char *polariteitId(int p) { return p == POL_PNP ? "pnp" : "npn"; }
+inline int polariteitVanId(const char *id) {
+  if (!id) return -1;
+  if (strcmp(id, "npn") == 0) return POL_NPN;
+  if (strcmp(id, "pnp") == 0) return POL_PNP;
   return -1;
 }
 
@@ -71,6 +98,7 @@ struct IngangCfg {
   uint16_t naloopS = 10;               // sensor: zoveel seconden vrij voor functie B
   uint8_t soort = SOORT_CONTACT;       // contact (30 ms ontdenderd) of puls (hallsensor)
   uint16_t vasthoudMs = STD_VASTHOUD_MS; // puls: zo lang na de puls nog actief
+  uint8_t polariteit = POL_NPN;
 };
 
 enum OpdrachtSoort : uint8_t { OPDR_START, OPDR_STOP, OPDR_WISSEL };
@@ -96,13 +124,14 @@ class Ingangen {
 
   /** nieuwe lezing verwerken; schrijft de opdrachten voor de functies in uit[] en geeft hun aantal.
    *  flanken: bit i = sinds de vorige lezing was er een actief-flank op ingang i+1 (de interrupt in main.cpp) */
-  int stap(uint16_t ruw, uint32_t nu, const IngangCfg *cfg, Opdracht *uit, int max, uint16_t flanken = 0) {
+  int stap(IngangMasker ruw, uint32_t nu, const IngangCfg *cfg, Opdracht *uit, int max, IngangMasker flanken = 0) {
     int n = 0;
+    herbegonnen_ = gestart_ ? opnieuw_ : ALLE_INGANGEN;
     for (int i = 0; i < N_INGANGEN; i++) {
       bool r = (ruw >> i) & 1;
       Toestand &s = t[i];
       const IngangCfg &c = cfg[i];
-      if (!gestart_) {
+      if (!gestart_ || opnieuw_ >> i & 1) {
         s.ruw = s.actief = s.bezet = s.gezien = r;
         s.naloop = false;
         s.ruwSinds = s.gezienOm = nu;
@@ -157,7 +186,24 @@ class Ingangen {
       if (c.gedrag != GEDRAG_SENSOR) { s.bezet = s.actief; s.naloop = false; }
     }
     gestart_ = true;
+    opnieuw_ = 0;
     return n;
+  }
+
+  /** ingang i begint opnieuw: de volgende lezing is zijn rusttoestand (na een andere polariteit) */
+  void herbegin(int i) {
+    if (i >= 0 && i < N_INGANGEN) opnieuw_ |= ingangBit(i);
+  }
+
+  /** de ingangen die bij de laatste stap opnieuw begonnen (eerste lezing = rust): geen flank */
+  IngangMasker herbegonnen() const { return herbegonnen_; }
+
+  /** de ingangen die nu actief zijn */
+  IngangMasker actiefMasker() const {
+    IngangMasker m = 0;
+    for (int i = 0; i < N_INGANGEN; i++)
+      if (t[i].actief) m |= ingangBit(i);
+    return m;
   }
 
   /** de teller van ingang i op 0 (i < 0: alle ingangen) */
@@ -188,6 +234,7 @@ class Ingangen {
 
  private:
   bool gestart_ = false;
+  IngangMasker opnieuw_ = 0, herbegonnen_ = 0;
 };
 
 } // namespace trein

@@ -133,7 +133,8 @@ static void IRAM_ATTR ingangFlank(void *arg) {
   portEXIT_CRITICAL_ISR(&flankSlot);
 }
 
-/** bit i = sinds de vorige oproep was er minstens één actief-flank op ingang i+1; zet de vlaggen weer op 0 */
+/** bit i = sinds de vorige oproep was er minstens één actief-flank op ingang i+1; zet de vlaggen weer op 0
+ *  (met -DTREIN_PNP_KEERT_OM: elke flank, want een pnp-ingang is dan actief hoog) */
 inline uint16_t ingangenFlanken() {
   portENTER_CRITICAL(&flankSlot);
   uint16_t f = flankMasker;
@@ -146,8 +147,12 @@ inline void ingangenBegin() {
   for (int i = 0; i < 16; i++) {
     const uint8_t p = INGANG_PINNEN[i];
     pinMode(p, INGANG_ACTIEF_LAAG ? INPUT_PULLUP : INPUT_PULLDOWN);
+#ifdef TREIN_PNP_KEERT_OM
+    attachInterruptArg(digitalPinToInterrupt(p), ingangFlank, (void *)(uintptr_t)(1u << i), CHANGE);
+#else
     attachInterruptArg(digitalPinToInterrupt(p), ingangFlank, (void *)(uintptr_t)(1u << i),
                        INGANG_ACTIEF_LAAG ? FALLING : RISING);
+#endif
   }
 }
 
@@ -159,3 +164,175 @@ inline uint16_t ingangenLees() {
     if (digitalRead(INGANG_PINNEN[i]) == actiefNiveau) actief |= (uint16_t)(1u << i);
   return actief;
 }
+// =============================================================================================== firmware 2.0.0
+// MCP23017 (I2C, 16 GPIO's). Registers met BANK = 0 (standaard na het aanzetten), adres automatisch ophogen (SEQOP = 0).
+//   0x20  GPA0..GPA7 = UITGANG: schakelt IR-led 1..8 (via een 8-kanaals MOSFET-module; hoog = de led doet mee)
+//         GPB0..GPB7 = ingang 17..24 (een derde optocouplerprint; actief laag, interne pull-up)
+//   0x21  (optioneel) GPA0..GPA7 = ingang 25..32, GPB0..GPB7 = ingang 33..40 (2 optocouplerprints PC817)
+// Korte pulsen: interrupt-on-change op elke ingang (GPINTEN, vergelijken met de vorige waarde). De INT-pin is NIET
+// aangesloten (geen vrije GPIO): de lichttaak leest elke 5 ms INTF (welke pin veranderde sinds de vorige lezing) en
+// INTCAP (de waarde op dat moment) mee. INTF met INTCAP laag = er was een actief-flank, ook als de puls al voorbij is.
+class Mcp23017 {
+ public:
+  static constexpr uint8_t IODIRA = 0x00, IODIRB = 0x01, GPINTENA = 0x04, INTCONA = 0x08, IOCON = 0x0A, GPPUA = 0x0C,
+                           INTFA = 0x0E, GPIOA = 0x12, OLATA = 0x14;
+
+  /** uitgangenA: GPA zijn uitgangen (0x20, IR-leds), anders 16 ingangen (0x21). true = de chip antwoordt */
+  bool begin(TwoWire &w, uint8_t adres, bool uitgangenA) {
+    wire_ = &w;
+    adres_ = adres;
+    uitA_ = uitgangenA;
+    ok_ = false;
+    if (!schrijf(IOCON, 0x00)) return false;
+    if (uitgangenA) {
+      schrijf(OLATA, 0x00);                         // eerst laag, dan pas uitgang: geen led tijdens het opstarten
+      const uint8_t dir[2] = {0x00, 0xFF};
+      schrijf2(IODIRA, dir);
+    } else {
+      const uint8_t dir[2] = {0xFF, 0xFF};
+      schrijf2(IODIRA, dir);
+    }
+    const uint8_t pu[2] = {(uint8_t)(uitgangenA ? 0x00 : 0xFF), 0xFF};
+    schrijf2(GPPUA, pu);
+    const uint8_t con[2] = {0x00, 0x00};              // vergelijken met de vorige waarde (elke verandering)
+    schrijf2(INTCONA, con);
+    const uint8_t en[2] = {(uint8_t)(uitgangenA ? 0x00 : 0xFF), 0xFF};
+    schrijf2(GPINTENA, en);
+    laatsteA_ = 0;
+    ok_ = controleer();
+    return ok_;
+  }
+
+  /** staan de richtingen nog goed? (na een spanningsdip staat IODIR weer op 0xFF: dan opnieuw begin()) */
+  bool controleer() {
+    uint8_t d[2];
+    if (!lees(IODIRA, d, 2)) return false;
+    return d[0] == (uitA_ ? 0x00 : 0xFF) && d[1] == 0xFF;
+  }
+
+  /** de ingangen lezen: actief = bit k laag op de pin (16 bits, GPA = bit 0..7, GPB = bit 8..15), flanken = INTF
+   *  met INTCAP laag (een actief-flank sinds de vorige lezing). false = de chip antwoordt niet */
+  bool leesIngangen(uint16_t &laag, uint16_t &flanken) {
+    uint8_t r[6]; // INTFA, INTFB, INTCAPA, INTCAPB, GPIOA, GPIOB
+    if (!lees(INTFA, r, 6)) return false;
+    uint16_t intf = (uint16_t)(r[0] | r[1] << 8), cap = (uint16_t)(r[2] | r[3] << 8), gpio = (uint16_t)(r[4] | r[5] << 8);
+#ifdef TREIN_PNP_KEERT_OM
+    flanken = intf; // een pnp-ingang kan ook actief hoog zijn: elke verandering telt als flank
+#else
+    flanken = intf & (uint16_t)~cap;
+#endif
+    laag = (uint16_t)~gpio;
+    return true;
+  }
+
+  /** de uitgangen GPA (alleen als het verandert) */
+  bool zetA(uint8_t m) {
+    if (m == laatsteA_) return true;
+    if (!schrijf(OLATA, m)) return false;
+    laatsteA_ = m;
+    return true;
+  }
+
+  bool ok() const { return ok_; }
+  void zetOk(bool o) { ok_ = o; }
+
+ private:
+  TwoWire *wire_ = nullptr;
+  uint8_t adres_ = 0x20, laatsteA_ = 0;
+  bool uitA_ = true, ok_ = false;
+
+  bool schrijf(uint8_t reg, uint8_t v) {
+    wire_->beginTransmission(adres_);
+    wire_->write(reg);
+    wire_->write(v);
+    return wire_->endTransmission() == 0;
+  }
+  bool schrijf2(uint8_t reg, const uint8_t *v) {
+    wire_->beginTransmission(adres_);
+    wire_->write(reg);
+    wire_->write(v, 2);
+    return wire_->endTransmission() == 0;
+  }
+  bool lees(uint8_t reg, uint8_t *v, uint8_t n) {
+    wire_->beginTransmission(adres_);
+    wire_->write(reg);
+    if (wire_->endTransmission(false) != 0) return false;
+    if (wire_->requestFrom(adres_, n) != n) return false;
+    for (uint8_t i = 0; i < n; i++) v[i] = (uint8_t)wire_->read();
+    return true;
+  }
+};
+
+// Tweede PCA9685 op 0x42 voor de servo's: 50 Hz (prescale 121), niet omgekeerd, totem-pole. Per kanaal LEDn_ON = 0 en
+// LEDn_OFF = de pulsbreedte in tellen (servoTellen in include/servo.h); 0 tellen = geen puls (volledig uit).
+// Na het aanzetten staan alle kanalen volledig uit: een servo krijgt pas een puls als de doos hem een stand geeft.
+// OE van deze chip aan GND (de servo's horen niet uit te vallen als de lichtchip een fout heeft).
+class PcaServo {
+ public:
+  static constexpr uint8_t MODE1 = 0x00, MODE2 = 0x01, LED0_ON_L = 0x06, ALL_LED_ON_L = 0xFA, PRESCALE = 0xFE;
+  static constexpr uint8_t PRESCALE_50HZ = 121;
+
+  bool begin(TwoWire &w, uint8_t adres) {
+    wire_ = &w;
+    adres_ = adres;
+    for (int i = 0; i < 16; i++) laatst_[i] = 0xFFFF;
+    if (!schrijf(MODE1, 0x10)) return false;
+    const uint8_t allesUit[4] = {0x00, 0x00, 0x00, 0x10};
+    wire_->beginTransmission(adres_);
+    wire_->write(ALL_LED_ON_L);
+    wire_->write(allesUit, 4);
+    if (wire_->endTransmission() != 0) return false;
+    schrijf(PRESCALE, PRESCALE_50HZ);
+    schrijf(MODE2, 0x04);
+    schrijf(MODE1, 0x20);
+    delayMicroseconds(600);
+    return controleer();
+  }
+
+  bool controleer() {
+    uint8_t m, p;
+    return lees(MODE1, m) && lees(PRESCALE, p) && !(m & 0x10) && p == PRESCALE_50HZ;
+  }
+
+  /** de pulsen van de 16 kanalen (tellen, 0 = uit); alleen als er iets veranderde */
+  bool zet(const uint16_t *tellen) {
+    bool anders = false;
+    for (int i = 0; i < 16; i++) anders |= tellen[i] != laatst_[i];
+    if (!anders) return true;
+    wire_->beginTransmission(adres_);
+    wire_->write(LED0_ON_L);
+    for (int ch = 0; ch < 16; ch++) {
+      uint16_t t = tellen[ch] > 4095 ? 4095 : tellen[ch];
+      wire_->write((uint8_t)0);
+      wire_->write((uint8_t)0);
+      wire_->write((uint8_t)(t & 0xFF));
+      wire_->write((uint8_t)(t ? (t >> 8) : 0x10)); // 0 = volledig uit (bit 4 van LEDn_OFF_H)
+    }
+    if (wire_->endTransmission() != 0) {
+      for (int i = 0; i < 16; i++) laatst_[i] = 0xFFFF;
+      return false;
+    }
+    for (int i = 0; i < 16; i++) laatst_[i] = tellen[i];
+    return true;
+  }
+
+ private:
+  TwoWire *wire_ = nullptr;
+  uint8_t adres_ = 0x42;
+  uint16_t laatst_[16];
+
+  bool schrijf(uint8_t reg, uint8_t v) {
+    wire_->beginTransmission(adres_);
+    wire_->write(reg);
+    wire_->write(v);
+    return wire_->endTransmission() == 0;
+  }
+  bool lees(uint8_t reg, uint8_t &v) {
+    wire_->beginTransmission(adres_);
+    wire_->write(reg);
+    if (wire_->endTransmission(false) != 0) return false;
+    if (wire_->requestFrom(adres_, (uint8_t)1) != 1) return false;
+    v = (uint8_t)wire_->read();
+    return true;
+  }
+};

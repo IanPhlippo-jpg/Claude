@@ -249,6 +249,80 @@ input[type=file] { font: inherit; font-size: 16px; max-width: 100%; }
 .toast.toon { opacity: 1; transform: translate(-50%, 0); }
 .toast.fout { background: var(--rood); color: #fff; }
 @media (min-width: 700px) { .toast { bottom: 28px; } }
+
+/* versie 6: tabblad Baan (IR, servo's, bussen, haltes, kastjes, plan) */
+.tabs .kort { display: none; }
+@media (max-width: 699px) { .tabs button { font-size: 12.5px; } .tabs .lang { display: none; } .tabs .kort { display: inline; } }
+.subnav { display: flex; gap: 6px; overflow-x: auto; margin: 0 -16px 16px; padding: 2px 16px 6px; scrollbar-width: none; }
+.subnav button { flex: none; min-height: 44px; padding: 0 16px; border-radius: 22px; border: 1px solid var(--rand); background: var(--vlak); font-weight: 650; font-size: 16px; }
+.subnav button[aria-pressed="true"] { background: var(--inkt); color: var(--vlak); border-color: var(--inkt); }
+.lijn { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--vlak2); flex-wrap: wrap; }
+.lijn:last-child { border-bottom: 0; }
+.lijn .tekst { flex: 1 1 160px; min-width: 0; display: grid; }
+.lijn .tekst strong { overflow-wrap: anywhere; }
+.lijn .knop { min-height: 44px; padding: 0 14px; }
+.lijn.dubbel { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px 12px; }
+.lijn .acties { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.lijn.dubbel .acties { grid-column: 2; }
+.lijn .acties select { flex: 1 1 190px; }
+@media (min-width: 700px) { .lijn.dubbel { display: flex; flex-wrap: nowrap; } .lijn.dubbel .acties { flex: 0 1 auto; justify-content: flex-end; } .lijn .acties select { flex: 0 1 240px; } }
+.keuze.drie { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.ab { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 14px; }
+.ab .knop { padding: 0 8px; }
+.lijn select { width: auto; min-width: 0; flex: 1 1 180px; min-height: 44px; }
+.mono { font-family: ui-monospace, Consolas, "Cascadia Mono", monospace; font-size: 15px; overflow-wrap: anywhere; }
+.badge { display: inline-block; font-size: 13px; font-weight: 750; padding: 2px 9px; border-radius: 999px; background: var(--vlak2); color: var(--inkt); white-space: nowrap; }
+.badge.groen { background: var(--groen-zacht); color: var(--groen); }
+.badge.amber { background: var(--geel-zacht); color: var(--inkt); box-shadow: inset 3px 0 rgb(var(--amber)); }
+.badge.rood { background: var(--rood-zacht); color: var(--rood); }
+.kleurstip { flex: none; width: 24px; height: 24px; border-radius: 50%; box-shadow: 0 0 0 2px var(--vlak), 0 0 0 3px var(--rand); }
+.balkje { height: 8px; border-radius: 4px; background: var(--vlak2); overflow: hidden; margin-top: 6px; }
+.balkje i { display: block; height: 100%; background: var(--groen); border-radius: 4px; transition: width .4s linear; }
+.servo-balk { position: relative; height: 10px; border-radius: 5px; background: var(--vlak2); margin: 22px 8px 10px; }
+.servo-balk i { position: absolute; top: -16px; transform: translateX(-50%); font-size: 12px; font-weight: 800; font-style: normal; color: var(--zacht); }
+.servo-balk i::after { content: ""; position: absolute; left: 50%; top: 15px; width: 2px; height: 12px; margin-left: -1px; background: var(--zacht); }
+.servo-balk b { position: absolute; top: 50%; width: 18px; height: 18px; margin: -9px 0 0 -9px; border-radius: 50%; background: var(--groen); box-shadow: 0 0 0 3px var(--vlak); transition: left .5s linear; }
+.schuif { display: grid; grid-template-columns: 1fr auto auto; gap: 4px 10px; align-items: center; margin-top: 10px; }
+.schuif .klein { grid-column: 1 / -1; }
+.schuif input[type=range] { width: 100%; height: 40px; accent-color: var(--groen); margin: 0; }
+a.knop { text-decoration: none; color: inherit; }
+label.knop { cursor: pointer; }
+.schuif output { font-weight: 700; font-variant-numeric: tabular-nums; min-width: 72px; text-align: right; }
+.fasebalk { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; margin-top: 10px; }
+.fasebalk span { height: 8px; border-radius: 4px; background: var(--vlak2); }
+.fasebalk span.na { background: var(--groen-zacht); }
+.fasebalk span.nu { background: var(--groen); }
+.fasenamen { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; font-size: 11px; color: var(--zacht); text-align: center; margin-top: 2px; }
+.aftel { margin-top: 12px; padding: 12px 14px; border-radius: 12px; background: var(--groen-zacht); color: var(--groen); font-weight: 750; }
+.aftel progress { width: 100%; height: 10px; accent-color: var(--groen); display: block; margin-top: 8px; }
+.nr.licht { background: var(--vlak2); color: var(--inkt); }
+.ir-ontv { font-size: 13px; font-weight: 750; color: var(--zacht); width: 54px; line-height: 1.2; }
+.chips.acht { grid-template-columns: repeat(auto-fill, minmax(52px, 1fr)); }
+.chips.acht .chip { min-height: 46px; }
+.pol { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; flex: 1 1 200px; }
+.pol button { min-height: 44px; border-radius: 10px; border: 1px solid var(--rand); background: var(--vlak); font-weight: 700; }
+.pol button[aria-pressed="true"] { background: var(--groen); color: var(--groen-inkt); border-color: var(--groen); }
+input[type=color] { width: 64px; height: 48px; padding: 2px; border-radius: 10px; border: 1px solid var(--rand); background: var(--vlak); }
+input[type=number] { width: 100%; min-height: 50px; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--rand); background: var(--vlak); font-size: 17px; }
+.twee { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 0 12px; }
+/* planeditor */
+.blad.plan { padding: 0 12px 30px; }
+.blad.plan .blad-binnen { max-width: 1400px; }
+.gereedschap { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 10px; }
+.gereedschap .keuze { flex: 1 1 300px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.gereedschap .keuze button { min-height: 46px; }
+.gereedschap select { width: auto; flex: 1 1 180px; min-height: 46px; }
+.zoom { display: flex; gap: 6px; }
+.zoom button { width: 46px; height: 46px; border-radius: 10px; border: 1px solid var(--rand); background: var(--vlak); font-size: 22px; font-weight: 700; padding: 0; }
+.plan-vak { position: relative; height: min(58vh, 640px); min-height: 280px; border: 1px solid var(--rand); border-radius: var(--r); overflow: hidden; background: #cfcabd; touch-action: none; }
+.plan-vak svg { display: block; width: 100%; height: 100%; user-select: none; -webkit-user-select: none; }
+.planhint { margin: 6px 2px 0; font-size: 15px; color: var(--zacht); }
+.plan-onder { display: grid; gap: 14px; margin-top: 14px; }
+@media (min-width: 900px) { .plan-onder { grid-template-columns: 1.2fr 1fr; align-items: start; } }
+.puntchips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.puntchips button { min-height: 38px; padding: 0 10px; border-radius: 8px; border: 1px solid var(--rand); background: var(--vlak); font-size: 14px; font-weight: 650; display: inline-flex; align-items: center; gap: 6px; }
+.puntchips button i { width: 12px; height: 12px; border-radius: 50%; flex: none; }
+.puntchips button[aria-pressed="true"] { outline: 3px solid var(--groen); outline-offset: 1px; }
 </style>
 </head>
 <body>
@@ -266,7 +340,8 @@ input[type=file] { font: inherit; font-size: 16px; max-width: 100%; }
     <button type="button" role="tab" data-tab="scenes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 18h18M6 18a6 6 0 0 1 12 0M12 5v3M5.6 8.6l1.8 1.8M18.4 8.6l-1.8 1.8M8 21h8"/></svg>Scènes</button>
     <button type="button" role="tab" data-tab="functies"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M10 8.5v7l6-3.5z"/></svg>Functies</button>
     <button type="button" role="tab" data-tab="ingangen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="7" width="18" height="10" rx="5"/><circle cx="16" cy="12" r="2.5" fill="currentColor"/></svg>Ingangen</button>
-    <button type="button" role="tab" data-tab="instellingen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/></svg>Instellingen</button>
+    <button type="button" role="tab" data-tab="baan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="13" rx="3"/><path d="M4 11h16M8 21l1.5-4M16 21l-1.5-4"/><circle cx="8.5" cy="14" r=".6" fill="currentColor"/><circle cx="15.5" cy="14" r=".6" fill="currentColor"/></svg>Baan</button>
+    <button type="button" role="tab" data-tab="instellingen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/></svg><span class="lang">Instellingen</span><span class="kort">Instellen</span></button>
   </nav>
 </header>
 
@@ -322,6 +397,71 @@ input[type=file] { font: inherit; font-size: 16px; max-width: 100%; }
     <p class="uitleg">Knoppen, schakelaars, sensoren en hallsensoren op de baan. Het bolletje wordt groen zolang de ingang actief is (een hallsensor: even na elke magneet). Het getal telt hoe vaak, sinds de doos aanstaat.</p>
     <div id="ingangen-lijst" class="ingangen"></div>
     <div class="knoppen"><button class="knop" type="button" id="tellers-nul">Alle tellers op 0</button></div>
+    <div class="tegel" style="margin-top:22px">
+      <h3>NPN of PNP, per groep van 8</h3>
+      <p class="klein"><b>NPN</b> (standaard): een knop of sensor trekt de ingang naar 0 V. <b>PNP</b>: de sensor geeft zelf +12 V. Bij PNP komt de COM-klem van die optocouplerprint aan 0 V in plaats van +12 V (zie de README). Per ingang apart kan bij Instellen.</p>
+      <div id="ingang-groepen"></div>
+    </div>
+  </section>
+
+  <section id="tab-baan" hidden>
+    <nav class="subnav" id="baan-nav" aria-label="Onderdelen van de baan"></nav>
+    <div id="baan-ir" class="deel">
+      <h2>IR</h2>
+      <p class="uitleg">IR-codes leren met een afstandsbediening, bewaren en via de IR-leds op de baan uitsturen (bv. "stop" naar een bus).</p>
+      <div class="tegel blok">
+        <h3>Een code leren</h3>
+        <p class="klein">Tik op Leren, richt de afstandsbediening op de ontvanger en druk binnen 10 seconden op de knop.</p>
+        <div class="twee">
+          <div class="veld"><span class="klein">Naam</span><input type="text" id="ir-naam" maxlength="23" placeholder="bv. Stop bus"></div>
+          <div class="veld"><span class="klein">Ontvanger</span><select id="ir-ontv"></select></div>
+        </div>
+        <div class="knoppen"><button class="knop hoofd" type="button" id="ir-leer">Leren (10 s)</button></div>
+        <div id="ir-leren" class="aftel" hidden role="status"><span></span><progress max="10" value="0"></progress></div>
+      </div>
+      <div class="tegel blok">
+        <h3>Bewaarde codes</h3>
+        <p class="klein">Zenden via IR-led (niets gekozen = alle leds):</p>
+        <div class="chips acht" id="ir-leds"></div>
+        <div id="ir-codes" style="margin-top:8px"></div>
+      </div>
+      <div class="tegel blok">
+        <h3>Laatst ontvangen</h3>
+        <p class="klein">Wat de ontvangers op de baan nu lezen (de 8 laatste). Een code van een bus kan hier meteen aan die bus gekoppeld worden.</p>
+        <div id="ir-laatst"></div>
+      </div>
+    </div>
+    <div id="baan-servos" class="deel" hidden>
+      <h2>Servo's</h2>
+      <p class="uitleg">Wissels, slagbomen en armseinen. Stel per servo de twee eindstanden in met de schuif en Proef.</p>
+      <div id="servo-lijst" class="rooster"></div>
+      <div class="knoppen"><button class="knop hoofd" type="button" id="servo-nieuw">+ Nieuwe servo</button></div>
+    </div>
+    <div id="baan-bussen" class="deel" hidden>
+      <h2>Bussen</h2>
+      <p class="uitleg">Elke bus zendt zijn eigen IR-code; de ontvangers op de baan lezen die. Zo weet de doos welke bus waar rijdt.</p>
+      <div id="bus-lijst" class="rooster"></div>
+      <div class="knoppen"><button class="knop hoofd" type="button" id="bus-nieuw">+ Nieuwe bus</button></div>
+      <h2 style="margin-top:28px">Meetpunten</h2>
+      <p class="uitleg">Elk meetpunt uit het plan hangt aan een ingang (hallsensor) of aan een IR/FTR-ontvanger.</p>
+      <div class="tegel" id="punt-lijst"></div>
+    </div>
+    <div id="baan-haltes" class="deel" hidden>
+      <h2>Haltes</h2>
+      <p class="uitleg">Een bus komt aan, stopt (IR-code), wacht, wacht op vrije weg, krijgt groen en vertrekt.</p>
+      <div id="halte-lijst" class="rooster"></div>
+      <div class="knoppen"><button class="knop hoofd" type="button" id="halte-nieuw">+ Nieuwe halte</button></div>
+    </div>
+    <div id="baan-kastjes" class="deel" hidden>
+      <h2>Geluidskastjes</h2>
+      <p class="uitleg">Kleine kastjes met een luidspreker. Ze melden zich vanzelf aan zodra ze op de wifi "Treinbaan" zitten.</p>
+      <div id="kastje-lijst" class="rooster"></div>
+    </div>
+    <div id="baan-plan" class="deel" hidden>
+      <h2>Plan</h2>
+      <p class="uitleg">Het situatieplan van de baan: rijbanen, wissels, haltes, sensoren en lichten. De tv-pagina toont het met de rijdende bussen.</p>
+      <div class="tegel" id="plan-info"></div>
+    </div>
   </section>
 
   <section id="tab-instellingen" hidden>
@@ -404,9 +544,12 @@ const EFFECTEN = [
     { n: 'Aantal flikkers', min: 0, max: 20, std: 4 }, { n: 'Duur van het aanspringen', e: 's', ms: true, min: 200, max: 10000, std: 1500 }] },
 ];
 const FASEN = [['dag', 'Dag'], ['avond', 'Avond'], ['nacht', 'Nacht'], ['ochtend', 'Ochtend']];
-const ACTIES = [['aan', 'Aan'], ['uit', 'Uit'], ['effect', 'Effect'], ['scene', 'Scène oproepen'], ['dagnacht', 'Dag en nacht'], ['wissel', 'Aan/uit wisselen']];
+const ACTIES = [['aan', 'Aan'], ['uit', 'Uit'], ['effect', 'Effect'], ['scene', 'Scène oproepen'], ['dagnacht', 'Dag en nacht'], ['wissel', 'Aan/uit wisselen'],
+  ['servo', 'Servo (wissel, slagboom, sein)'], ['ir', 'IR-code zenden'], ['geluid', 'Geluid spelen']];
+const MET_GROEPEN = ['aan', 'uit', 'effect', 'wissel']; // de andere acties kiezen geen groepen
 const GEDRAG = [['geen', 'Niet gebruikt'], ['drukknop', 'Drukknop'], ['schakelaar', 'Schakelaar'], ['sensor', 'Sensor']];
 // hoe de doos de ingang leest (include/ingangen.h): contact = 30 ms ontdenderd, puls = hallsensor (korte puls, vasthouden)
+const POLARITEIT = [['npn', 'NPN · naar 0 V'], ['pnp', 'PNP · geeft +12 V']];
 const SOORTEN = [['contact', 'Knop, schakelaar of reed'], ['puls', 'Hallsensor (korte puls)']];
 const fxInfo = id => EFFECTEN.find(e => e.id === id) || EFFECTEN[0];
 
@@ -468,12 +611,13 @@ function stapper(o) {
 
 // ------------------------------------------------------------------------------------------- verbinding
 let S = null;              // de volledige staat van de doos
-let demo = !/^https?:$/.test(location.protocol); // file:// (of een voorbeeldweergave): geen doos
+let K = {};                // de laatste korte staat (live: servo's, bussen, haltes, IR)
+let demo = !/^https?:$/.test(location.protocol) || /[?&]demo=1/.test(location.search); // file:// of ?demo=1: geen doos
 let bezig = false;
 
-async function api(pad, body) {
-  if (demo) return Demo.vraag(pad, body);
-  const r = await fetch(pad, body ? { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) } : { cache: 'no-store' });
+async function api(pad, body, methode) {
+  if (demo) return Demo.vraag(pad, body, methode);
+  const r = await fetch(pad, body ? { method: methode || 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) } : { cache: 'no-store' });
   if (r.status === 404 && !S) { demo = true; return Demo.vraag(pad, body); } // geopend zonder doos
   let j;
   try { j = await r.json(); } catch (e) { if (!S) { demo = true; return Demo.vraag(pad, body); } throw e; }
@@ -506,8 +650,9 @@ async function peil() {
   bezig = true;
   try {
     const k = await api('/api/staat?kort=1');
-    if (!S || k.rev !== S.rev) { S = await api('/api/staat'); bouwAlles(); }
+    if (!S || k.rev !== S.rev) { S = await api('/api/staat'); K = k; bouwAlles(); }
     else samenvoegen(k);
+    K = k;
     werkLiveBij();
     verbinding(true);
   } catch (e) {
@@ -550,6 +695,7 @@ function bouwAlles() {
   bouwFuncties();
   bouwIngangen();
   bouwInstellingen();
+  bouwBaan();
   $('#inst-versie').textContent = S.versie || '–';
   $('#inst-aantal').textContent = S.aantalGroepen || S.groepen.length;
   $('#test-groep').replaceChildren(...S.groepen.map(g => h('option', { value: g.nr }, g.nr + ' · ' + g.naam)));
@@ -565,6 +711,7 @@ function werkLiveBij() {
   werkIngangenBij();
   werkDagnachtBij();
   werkTestBij();
+  werkBaanBij();
   const m = $('#melding');
   m.hidden = !S.melding || S.melding === weggeklikt;
   $('p', m).textContent = S.melding || '';
@@ -731,7 +878,9 @@ function werkFunctiesBij() {
 let concept = null;
 function openEditor(nr) {
   const f = nr ? JSON.parse(JSON.stringify(S.functies[nr - 1])) : { naam: '', herhalen: false, stopUit: true, stappen: [{ groepen: [], actie: 'aan', wacht: 0 }] };
+  f.stappen.forEach(x => { x.groepen = x.groepen || []; });
   concept = Object.assign(f, { nr: nr || 0 });
+  $('#blad').className = 'blad';
   tekenEditor();
   $('#blad').hidden = false;
   document.body.style.overflow = 'hidden';
@@ -759,7 +908,7 @@ function tekenEditor() {
     h('div', { class: 'knoppen' },
       h('button', { class: 'knop hoofd', type: 'button', disabled: c.stappen.length >= 12, onclick: () => {
         const v = c.stappen[c.stappen.length - 1];
-        c.stappen.push({ groepen: v ? v.groepen.slice() : [], actie: 'uit', wacht: 0 });
+        c.stappen.push({ groepen: ((v && v.groepen) || []).slice(), actie: 'uit', wacht: 0 });
         tekenEditor();
       } }, '+ Stap toevoegen'),
       c.nr ? h('button', { class: 'knop gevaar', type: 'button', onclick: () => {
@@ -780,11 +929,14 @@ function stapKaart(s, k) {
     if (s.actie === 'scene') s.waarde = (S.scenes.find(Boolean) || { nr: 1 }).nr;
     if (s.actie === 'dagnacht') s.waarde = 1;
     if (s.actie === 'effect' && !s.effect) { s.effect = 'knipperen'; s.p1 = 500; s.p2 = 500; }
+    if (s.actie === 'servo') { s.servo = s.servo || (servosLijst()[0] || { nr: 1 }).nr; s.stand = s.stand || 'b'; }
+    if (s.actie === 'ir') { s.code = s.code || (codesLijst()[0] || { nr: 1 }).nr; s.leds = s.leds || []; }
+    if (s.actie === 'geluid') { const k = kastjesLijst()[0]; s.kastje = s.kastje || (k ? k.naam : ''); s.geluid = s.geluid || (k && k.geluiden[0] ? k.geluiden[0].naam : ''); s.volume = s.volume != null ? s.volume : 80; }
     opnieuw();
   } }, ACTIES.map(([id, n]) => h('option', { value: id }, n)));
   actie.value = s.actie;
   const delen = [kop];
-  if (s.actie !== 'scene' && s.actie !== 'dagnacht') {
+  if (MET_GROEPEN.includes(s.actie)) {
     delen.push(h('span', { class: 'klein' }, 'Welke groepen?'), h('div', { class: 'chips' }, S.groepen.map(g => {
       const aan = s.groepen.includes(g.nr);
       return h('button', { class: 'chip', type: 'button', 'aria-pressed': String(aan), title: g.naam, onclick: e => {
@@ -796,6 +948,7 @@ function stapKaart(s, k) {
     })));
   }
   delen.push(h('div', { class: 'veld' }, h('span', { class: 'klein' }, 'Wat doen?'), actie));
+  if (!MET_GROEPEN.includes(s.actie)) delen.push(...stapExtra(s, opnieuw));
   if (s.actie === 'effect') {
     const fx = h('select', { 'aria-label': 'Welk effect', onchange: e => {
       const f = fxInfo(e.target.value);
@@ -837,7 +990,7 @@ function stapKaart(s, k) {
 async function bewaarFunctie() {
   const c = concept;
   if (!c.naam.trim()) { toast('Geef de functie een naam.', true); return; }
-  const leeg = c.stappen.findIndex(s => s.actie !== 'scene' && s.actie !== 'dagnacht' && !s.groepen.length);
+  const leeg = c.stappen.findIndex(s => MET_GROEPEN.includes(s.actie) && !s.groepen.length);
   if (leeg >= 0) { toast('Kies bij stap ' + (leeg + 1) + ' minstens één groep.', true); return; }
   const f = { naam: c.naam.trim(), herhalen: c.herhalen, stopUit: c.stopUit, stappen: c.stappen };
   const j = await stuur('/api/functie', c.nr ? { actie: 'bewaren', nr: c.nr, functie: f } : { actie: 'bewaren', functie: f }, 'Functie bewaard');
@@ -871,7 +1024,7 @@ function bouwIngangen() {
     iRijen[i] = { stip, toestand, teller };
     const open = openIngang === i;
     const rij = h('div', { class: 'tegel ingang' }, h('div', { class: 'ingang-kop' }, stip, h('span', { class: 'nr' }, g.nr),
-      h('div', { class: 'ingang-tekst' }, h('strong', null, g.naam, g.soort === 'puls' ? h('span', { class: 'soort' }, 'hallsensor') : null),
+      h('div', { class: 'ingang-tekst' }, h('strong', null, g.naam, g.soort === 'puls' ? h('span', { class: 'soort' }, 'hallsensor') : null, g.polariteit === 'pnp' ? h('span', { class: 'soort' }, 'PNP') : null),
         h('span', { class: 'klein' }, koppeling(g))), toestand, teller,
       h('button', { class: 'knop', type: 'button', 'aria-expanded': String(open), onclick: () => {
         openIngang = open ? -1 : i;
@@ -882,6 +1035,15 @@ function bouwIngangen() {
     return rij;
   }));
   werkIngangenBij();
+  // NPN/PNP per groep van 8 (ingang 17-24: de MCP23017)
+  $('#ingang-groepen').replaceChildren(...[0, 1, 2].filter(k => S.ingangen.length > k * 8).map(k => {
+    const deel = S.ingangen.slice(k * 8, k * 8 + 8), pol = id => deel.every(x => (x.polariteit || 'npn') === id);
+    return h('div', { class: 'lijn' }, h('div', { class: 'tekst' }, h('strong', null, 'Ingang ' + (k * 8 + 1) + ' tot ' + (k * 8 + 8)),
+      h('span', { class: 'klein' }, k === 2 ? 'extra ingangen (MCP23017)' : 'optocouplerprint ' + (k + 1) + (pol('npn') || pol('pnp') ? '' : ' · gemengd'))),
+      h('div', { class: 'pol' }, ['npn', 'pnp'].map(id => h('button', { type: 'button', 'aria-pressed': String(pol(id)), onclick: () => {
+        if (confirm('Ingang ' + (k * 8 + 1) + ' tot ' + (k * 8 + 8) + ' allemaal op ' + id.toUpperCase() + ' zetten?')) stuur('/api/ingang', { groep: k + 1, polariteit: id }, 'Ingang ' + (k * 8 + 1) + '-' + (k * 8 + 8) + ': ' + id.toUpperCase());
+      } }, id.toUpperCase()))));
+  }));
 }
 
 function ingangEditor(i) {
@@ -897,6 +1059,8 @@ function ingangEditor(i) {
       h('input', { type: 'text', maxlength: 31, value: c.naam, oninput: e => { c.naam = e.target.value; } })),
     h('div', { class: 'veld' }, h('span', { class: 'klein' }, 'Wat hangt eraan?'), h('div', { class: 'keuze' }, SOORTEN.map(([id, n]) =>
       h('button', { type: 'button', 'aria-pressed': String((c.soort || 'contact') === id), onclick: () => { c.soort = id; bouwIngangen(); } }, n)))),
+    h('div', { class: 'veld' }, h('span', { class: 'klein' }, 'Hoe schakelt het?'), h('div', { class: 'keuze' }, POLARITEIT.map(([id, n]) =>
+      h('button', { type: 'button', 'aria-pressed': String((c.polariteit || 'npn') === id), onclick: () => { c.polariteit = id; bouwIngangen(); } }, n)))),
     c.soort === 'puls'
       ? h('div', null, h('p', { class: 'klein', style: 'margin-top:8px' }, 'Een hallsensor onder het spoor geeft een korte puls als de magneet onder de loc voorbijkomt. De doos ziet elke puls (ook van 1 ms) en houdt de ingang daarna nog even actief, zodat de functies hem zeker zien.'),
           stapper({ n: 'Na een puls actief houden', min: 0, max: 10, waarde: c.vasthouden != null ? c.vasthouden : 0.3, toon: v => v ? getal(v) + ' s' : 'niet',
@@ -922,7 +1086,7 @@ function ingangEditor(i) {
     h('button', { class: 'knop hoofd', type: 'button', onclick: async () => {
       if (!c.naam.trim()) { toast('Geef de ingang een naam.', true); return; }
       const j = await stuur('/api/ingang', { nr: i + 1, naam: c.naam.trim(), soort: c.soort || 'contact', vasthouden: c.vasthouden != null ? c.vasthouden : 0.3,
-        gedrag: c.gedrag, functieA: c.functieA || 0, functieB: c.functieB || 0, wisselen: c.wisselen, nalopen: c.nalopen }, 'Ingang bewaard');
+        polariteit: c.polariteit || 'npn', gedrag: c.gedrag, functieA: c.functieA || 0, functieB: c.functieB || 0, wisselen: c.wisselen, nalopen: c.nalopen }, 'Ingang bewaard');
       if (j) { openIngang = -1; ingConcept = null; }
     } }, 'Bewaren'),
     h('button', { class: 'knop', type: 'button', onclick: () => { openIngang = -1; ingConcept = null; bouwIngangen(); } }, 'Annuleren'),
@@ -1059,6 +1223,932 @@ function bijwerken() {
   x.send(fd);
 }
 
+// --------------------------------------------------------------------------------------------------- baan
+// versie 6: IR, servo's, bussen en meetpunten, haltes, geluidskastjes en het plan (formaat van situatieplan/plan.json)
+const IRLEDS = 8, NSERVO = 16, NHALTE = 8;
+const ONTV = [[1, 'Leerontvanger (GPIO48)'], [2, 'Ontvanger 2 (GPIO11)'], [3, 'Ontvanger 3 (GPIO39)'], [4, 'Ontvanger 4 (GPIO42)']];
+const SERVOSOORT = [['wissel', 'Wissel', 'rechtdoor', 'afbuigen'], ['slagboom', 'Slagboom', 'open', 'dicht'], ['armsein', 'Armsein', 'stop', 'veilig']];
+const HFASEN = ['vrij', 'aankomst', 'stop', 'wachten', 'verkeer', 'groen', 'vertrek'];
+const FASETEKST = { vrij: ['Vrij', ''], aankomst: ['Bus komt aan', 'amber'], stop: ['Bus stopt', 'amber'], wachten: ['Bus wacht', 'amber'],
+  verkeer: ['Wacht op vrije weg', 'amber'], groen: ['Groen: vertrekt', 'groen'], vertrek: ['Oranje, dan rood', 'rood'] };
+const BUSSTAAT = { rijdt: ['rijdt', 'groen'], halte: ['aan de halte', 'amber'], wacht: ['wacht', 'amber'], onbekend: ['niet gezien', ''] };
+// soorten punten in plan.json: lijst, naam, kleur, koppeling, begin van een nieuwe id
+const PLANSOORT = [
+  ['wissels', 'Wissel', '#d62f2b', 'servo', 'W'], ['stoppunten', 'Stoppunt', '#9c2a22', 'halte', 'STOP'],
+  ['ir_leds', 'IR-led', '#8e3bc4', 'irled', 'IR'], ['hallsensoren', 'Hallsensor', '#e0b400', 'ingang', 'HALL'],
+  ['ir_sensoren', 'IR/FTR-ontvanger', '#0a7fbf', 'ontvanger', 'IRS'], ['verkeerslichten', 'Verkeerslicht', '#262626', 'halte', 'VL'],
+  ['seinen', 'Sein', '#16865f', 'servo', 'SEIN'], ['servos', 'Slagboom of servo', '#5b3fb3', 'servo', 'SRV'],
+  ['lichtgroepen', 'Lichtgroep', '#f08c00', 'groep', 'LG'], ['lantaarns', 'Lantaarn', '#b88400', 'groep', 'LAN'],
+  ['speakers', 'Geluidskastje', '#1f7f86', 'kastje', 'SPK']];
+const MEET = ['hallsensoren', 'ir_sensoren'];
+const KOPNAAM = { servo: 'servo', halte: 'halte', irled: 'IR-led', ingang: 'ingang', ontvanger: 'ontvanger', groep: 'lichtgroep', kastje: 'kastje' };
+
+const lijstVan = a => (Array.isArray(a) ? a : []).map((e, i) => e && Object.assign({ nr: i + 1 }, e)).filter(Boolean);
+const codesLijst = () => lijstVan(S && S.ir && S.ir.codes);
+const servosLijst = () => lijstVan(S && S.servos);
+const bussenLijst = () => lijstVan(S && S.bussen);
+const haltesLijst = () => lijstVan(S && S.haltes);
+const kInfo = {}; // id -> wat het kastje zelf op /info antwoordde
+const kastjesLijst = () => ((S && S.kastjes) || []).filter(Boolean).map(k => {
+  const i = kInfo[k.id] || {};
+  return Object.assign({ geluiden: [] }, k, { geluiden: i.geluiden || k.geluiden || [], vrij: i.vrij != null ? i.vrij : k.vrij, volume: i.volume != null ? i.volume : k.volume, versie: i.versie || k.versie });
+});
+const live = (soort, nr) => (K[soort] || []).find(x => x && x.nr === nr) || {};
+const vrijNr = (l, max) => { for (let i = 1; i <= max; i++) if (!l.some(x => x.nr === i)) return i; return 0; };
+const servoSoort = id => SERVOSOORT.find(x => x[0] === id) || SERVOSOORT[0];
+const ontvNaam = n => (ONTV.find(o => o[0] === n) || [0, 'Ontvanger ' + n])[1];
+const geleden = ms => { const s = Math.max(0, Math.round(((K.msNu || 0) - ms) / 1000)); return s < 90 ? s + ' s geleden' : Math.round(s / 60) + ' min geleden'; };
+const rond = v => Math.round(v * 10) / 10;
+const kb = b => b > 1e6 ? getal(b / 1e6) + ' MB' : Math.round(b / 1024) + ' kB';
+const codeTekst = c => (c.soort === 'raw' ? 'raw · ' + (c.raw ? c.raw.length : c.tijden || 0) + ' tijden' : String(c.soort || '').toUpperCase() + ' · adres ' + c.adres + ' · commando ' + c.commando) +
+  ' · ' + (c.khz || 38) + ' kHz' + (c.herhaal > 1 ? ' · ' + c.herhaal + ' keer' : '');
+function kiesLijst(opties, waarde, opWijzig, label) {
+  const s = h('select', { 'aria-label': label, onchange: e => opWijzig(e.target.value) }, opties.map(([v, n]) => h('option', { value: v }, n)));
+  s.value = String(waarde);
+  return s;
+}
+const veld = (label, ...el) => h('div', { class: 'veld' }, h('span', { class: 'klein' }, label), ...el);
+const knop = (tekst, onclick, soort) => h('button', { class: 'knop' + (soort ? ' ' + soort : ''), type: 'button', onclick }, tekst);
+/** chips 1..n die de lijst `gekozen` aanpassen */
+const chipsKies = (n, gekozen) => h('div', { class: 'chips acht' }, Array.from({ length: n }, (x, i) => i + 1).map(nr =>
+  h('button', { class: 'chip', type: 'button', 'aria-pressed': String(gekozen.includes(nr)), onclick: e => {
+    const i = gekozen.indexOf(nr);
+    if (i >= 0) gekozen.splice(i, 1); else gekozen.push(nr);
+    gekozen.sort((a, b) => a - b);
+    e.currentTarget.setAttribute('aria-pressed', String(i < 0));
+  } }, h('b', null, nr))));
+/** een tegel voor iets nieuws (nog geen nummer op de doos) */
+const nieuwTegel = (titel, editor) => h('div', { class: 'tegel' }, h('div', { class: 'tegel-kop' }, h('h3', null, titel)), editor);
+
+// het plan (punten) en de koppelingen punt -> ingang of ontvanger van de doos
+let P = null, planGeladen = false;
+async function laadPlan(opnieuw) {
+  if (planGeladen && !opnieuw) return;
+  planGeladen = true;
+  try { const j = await api('/api/plan'); P = j && Array.isArray(j.rijbanen) ? j : null; } catch (e) { P = null; }
+  bouwPunten();
+  bouwPlanInfo();
+  bouwHaltes();
+}
+const planPunten = (pl, soorten) => pl ? PLANSOORT.filter(c => !soorten || soorten.includes(c[0])).flatMap(c => (pl[c[0]] || []).map(p => ({ p, c }))) : [];
+const puntNaam = id => { const x = planPunten(P).find(q => q.p.id === id); return x ? x.p.naam || id : id; };
+const puntKop = id => ((S && (S.punten || (S.ir && S.ir.koppelingen))) || []).find(x => (x.id || x.punt) === id) || {};
+
+const DELEN = [['ir', 'IR'], ['servos', "Servo's"], ['bussen', 'Bussen'], ['haltes', 'Haltes'], ['kastjes', 'Kastjes'], ['plan', 'Plan']];
+let deel = 'ir';
+try { deel = localStorage.getItem('treinbaan-deel') || 'ir'; } catch (e) { /* niet erg */ }
+function kiesDeel(id) {
+  if (!DELEN.some(d => d[0] === id)) id = 'ir';
+  deel = id;
+  try { localStorage.setItem('treinbaan-deel', id); } catch (e) { /* niet erg */ }
+  $('#baan-nav').replaceChildren(...DELEN.map(([d, n]) => h('button', { type: 'button', 'aria-pressed': String(d === id), onclick: () => kiesDeel(d) }, n)));
+  document.querySelectorAll('#tab-baan .deel').forEach(s => { s.hidden = s.id !== 'baan-' + id; });
+  if (id === 'kastjes') kastjesKijken();
+}
+
+function bouwBaan() {
+  if (!$('#baan-nav').children.length) kiesDeel(deel);
+  laadPlan();
+  bouwIr(); bouwServos(); bouwBussen(); bouwHaltes(); bouwKastjes(); bouwPlanInfo();
+}
+function werkBaanBij() { werkIrBij(); werkServosBij(); werkBussenBij(); werkHaltesBij(); }
+
+// ----------------------------------------------------------------------------------------------------- IR
+const irKies = [];
+let lerenWas = false, irSig = '';
+function bouwIr() {
+  const o = $('#ir-ontv');
+  if (!o.children.length) o.append(...ONTV.map(([n, t]) => h('option', { value: n }, t)));
+  if (!$('#ir-leds').children.length) $('#ir-leds').append(...chipsKies(IRLEDS, irKies).children);
+  const codes = codesLijst(), el = $('#ir-codes');
+  el.replaceChildren(...codes.map(c => h('div', { class: 'lijn dubbel' }, h('span', { class: 'nr' }, c.nr),
+    h('div', { class: 'tekst' }, h('strong', null, c.naam || 'Code ' + c.nr), h('span', { class: 'klein' }, codeTekst(c))), h('div', { class: 'acties' },
+    knop('Zenden', () => stuur('/api/ir', { actie: 'zenden', nr: c.nr, leds: irKies.slice() }, '“' + c.naam + '” verzonden via ' + (irKies.length ? 'IR-led ' + irKies.join(', ') : 'alle IR-leds'), true), 'hoofd'),
+    knop('Naam', () => { const n = prompt('Nieuwe naam voor code ' + c.nr + ':', c.naam); if (n && n.trim()) stuur('/api/ir', { actie: 'hernoemen', nr: c.nr, naam: n.trim() }, 'Naam gewijzigd'); }),
+    h('button', { class: 'ikoonknop', type: 'button', 'aria-label': 'Code ' + c.nr + ' wissen', onclick: () => {
+      if (confirm('Code “' + c.naam + '” wissen? Haltes en functies die ze gebruiken, zenden dan niets meer.')) stuur('/api/ir', { actie: 'wissen', nr: c.nr }, 'Gewist');
+    } }, ikoon('weg'))))));
+  if (!codes.length) el.append(h('p', { class: 'leeg' }, 'Nog geen codes. Leer er een hierboven.'));
+  irSig = '';
+}
+/** "nec:00FF12ED" -> code om te bewaren (NEC: adres, ~adres, commando, ~commando; RC5: 5 bits adres, 6 bits commando) */
+function leesCode(t) {
+  const m = /^(nec|rc5):([0-9a-f]{1,8})$/i.exec(t || '');
+  if (!m) return null;
+  const v = parseInt(m[2], 16), soort = m[1].toLowerCase();
+  if (soort === 'rc5') return { soort, khz: 36, adres: (v >> 6) & 31, commando: v & 63, herhaal: 1 };
+  const a = v >>> 24, na = (v >>> 16) & 255;
+  return { soort, khz: 38, adres: na === (~a & 255) ? a : (a << 8) | na, commando: (v >>> 8) & 255, herhaal: 1 };
+}
+function werkIrBij() {
+  const lr = K.leren || {}, box = $('#ir-leren');
+  if (lr.loopt) {
+    box.hidden = false;
+    $('span', box).textContent = 'Druk nu op de knop van de afstandsbediening · ' + ontvNaam(lr.ontvanger) + ' · nog ' + lr.resterendS + ' s';
+    $('progress', box).value = 10 - (lr.resterendS || 0);
+  } else if (lerenWas) {
+    box.hidden = true;
+    if (lr.nr && !lr.fout) toast('Geleerd en bewaard als code ' + lr.nr); else toast(lr.fout || 'Niets ontvangen. Probeer opnieuw, dichter bij de ontvanger.', true);
+  }
+  $('#ir-leer').disabled = !!lr.loopt;
+  lerenWas = !!lr.loopt;
+  const l = (K.irLaatst || []).slice().sort((a, b) => b.ms - a.ms), el = $('#ir-laatst'), bussen = bussenLijst();
+  const sig = l.map(x => x.ms + x.code).join('|') + '/' + bussen.map(b => b.code).join();
+  if (sig !== irSig && !el.contains(document.activeElement)) {
+    irSig = sig;
+    el.replaceChildren(...l.map(x => {
+      const bus = bussen.find(b => b.code === x.code), c = leesCode(x.code);
+      return h('div', { class: 'lijn dubbel' }, h('span', { class: 'nr licht', title: ontvNaam(x.ontvanger) }, x.ontvanger),
+        h('div', { class: 'tekst' }, h('span', { class: 'mono' }, x.code), h('span', { class: 'klein' }, 'ontvanger ' + x.ontvanger + ' · ', h('span', { 'data-ms': x.ms }, geleden(x.ms)), bus ? ' · ' : '', bus ? h('b', null, bus.naam) : '')),
+        bus ? null : h('div', { class: 'acties' },
+        c ? knop('Bewaren', () => { const n = prompt('Naam voor deze code:', bus ? 'Herkenning ' + bus.naam : 'Code ' + x.code); if (n && n.trim()) stuur('/api/ir', { actie: 'bewaren', code: Object.assign({ naam: n.trim() }, c) }, 'Code bewaard'); }) : null,
+        bussen.length && !bus ? kiesLijst([['', 'Aan bus koppelen…']].concat(bussen.map(b => [b.nr, b.naam])), '', v => {
+          const b = bussen.find(y => y.nr === +v);
+          if (b) stuur('/api/bus', { nr: b.nr, naam: b.naam, kleur: b.kleur, code: x.code }, x.code + ' hoort nu bij ' + b.naam);
+        }, 'Code aan een bus koppelen') : null));
+    }));
+    if (!l.length) el.append(h('p', { class: 'leeg' }, 'Nog niets ontvangen.'));
+  }
+  el.querySelectorAll('[data-ms]').forEach(s => { s.textContent = geleden(+s.dataset.ms); });
+}
+
+// ------------------------------------------------------------------------------------------------ servo's
+let servoOpen = 0, servoC = null; // -1 = nieuwe servo
+const sRij = [];
+function bouwServos() {
+  sRij.length = 0;
+  const l = servosLijst(), t = l.map(servoTegel);
+  if (servoOpen === -1) t.push(nieuwTegel('Nieuwe servo ' + servoC.nr, servoEditor()));
+  $('#servo-lijst').replaceChildren(...t);
+  if (!t.length) $('#servo-lijst').append(h('p', { class: 'leeg' }, "Nog geen servo's."));
+  $('#servo-nieuw').disabled = l.length >= NSERVO || servoOpen === -1;
+  werkServosBij();
+}
+const servoPos = v => ((v - 500) / 20) + '%';
+function servoTegel(s) {
+  const so = servoSoort(s.soort), badge = h('span', { class: 'badge' }), us = h('span', { class: 'klein' }), bol = h('b'), open = servoOpen === s.nr;
+  sRij[s.nr] = { badge, us, bol };
+  return h('article', { class: 'tegel' },
+    h('div', { class: 'tegel-kop' }, h('span', { class: 'nr' }, s.nr), h('h3', null, s.naam || 'Servo ' + s.nr, h('span', { class: 'label' }, so[1])), badge),
+    h('div', { class: 'servo-balk', 'aria-hidden': 'true' }, h('i', { style: 'left:' + servoPos(s.a) }, 'A'), h('i', { style: 'left:' + servoPos(s.b) }, 'B'), bol),
+    h('div', { class: 'rij' }, h('span', { class: 'klein' }, 'Kanaal ' + s.kanaal + ' · ' + (s.snelheid ? s.snelheid + ' µs/s' : 'meteen')), us),
+    h('div', { class: 'ab' },
+      knop('A · ' + so[2], () => stuur('/api/servo', { nr: s.nr, naar: 'a' }, null, true)),
+      knop('B · ' + so[3], () => stuur('/api/servo', { nr: s.nr, naar: 'b' }, null, true))),
+    h('div', { class: 'knoppen' },
+      h('button', { class: 'knop', type: 'button', 'aria-expanded': String(open), onclick: () => {
+        servoOpen = open ? 0 : s.nr;
+        servoC = open ? null : JSON.parse(JSON.stringify(s));
+        bouwServos();
+      } }, open ? 'Sluiten' : 'Instellen')),
+    open ? servoEditor() : null);
+}
+function werkServosBij() {
+  servosLijst().forEach(s => {
+    const r = sRij[s.nr];
+    if (!r) return;
+    const l = Object.assign({}, s, live('servos', s.nr)), so = servoSoort(s.soort);
+    r.badge.textContent = l.stand === 'a' ? 'A · ' + so[2] : l.stand === 'b' ? 'B · ' + so[3] : l.stand === 'onderweg' ? 'onderweg' : '–';
+    r.badge.className = 'badge ' + (l.stand === 'onderweg' ? 'amber' : 'groen');
+    r.us.textContent = l.us ? l.us + ' µs' : '';
+    r.bol.style.left = servoPos(l.us || s.a);
+  });
+}
+function servoEditor() {
+  const c = servoC, so = servoSoort(c.soort);
+  const schuif = (k, label) => {
+    const out = h('output', null, c[k] + ' µs');
+    return h('div', { class: 'schuif' }, h('span', { class: 'klein' }, label),
+      h('input', { type: 'range', min: 500, max: 2500, step: 10, value: c[k], 'aria-label': label, oninput: e => { c[k] = +e.target.value; out.textContent = c[k] + ' µs'; } }), out,
+      knop('Proef', () => stuur('/api/servo', { nr: c.nr, kanaal: c.kanaal, proef: c[k] }, 'Proef: ' + c[k] + ' µs', true)));
+  };
+  return h('div', { class: 'editor' },
+    veld('Naam', h('input', { type: 'text', maxlength: 23, value: c.naam || '', placeholder: 'bv. Wissel 1', oninput: e => { c.naam = e.target.value; } })),
+    veld('Soort', h('div', { class: 'keuze drie' }, SERVOSOORT.map(([id, n]) => h('button', { type: 'button', 'aria-pressed': String(c.soort === id), onclick: () => { c.soort = id; bouwServos(); } }, n)))),
+    stapper({ n: 'Kanaal op de servoprint (PCA9685 0x42)', min: 1, max: 16, waarde: c.kanaal, opWijzig: v => { c.kanaal = v; } }),
+    schuif('a', 'Eindstand A · ' + so[2]), schuif('b', 'Eindstand B · ' + so[3]),
+    stapper({ n: 'Snelheid', min: 0, max: 2000, waarde: c.snelheid, toon: v => v ? v + ' µs/s' : 'meteen', stap: () => 50, opWijzig: v => { c.snelheid = v; } }),
+    h('p', { class: 'klein' }, "Proef zet de servo meteen op die stand (zonder te bewaren). Hoogstens 4 servo's bewegen tegelijk, de rest wacht even: zo blijft de voeding rustig."),
+    h('div', { class: 'knoppen' },
+      knop('Bewaren', async () => {
+        if (!(c.naam || '').trim()) { toast('Geef de servo een naam.', true); return; }
+        const j = await stuur('/api/servo', { nr: c.nr, naam: c.naam.trim(), kanaal: c.kanaal, a: c.a, b: c.b, snelheid: c.snelheid, soort: c.soort }, 'Servo bewaard');
+        if (j) { servoOpen = 0; servoC = null; bouwServos(); }
+      }, 'hoofd'),
+      knop('Annuleren', () => { servoOpen = 0; servoC = null; bouwServos(); }),
+      servoOpen > 0 ? knop('Wissen', () => {
+        if (confirm('Servo “' + c.naam + '” wissen?')) stuur('/api/servo', { actie: 'wissen', nr: c.nr }, 'Gewist').then(j => { if (j) { servoOpen = 0; servoC = null; } });
+      }, 'gevaar') : null));
+}
+
+// ------------------------------------------------------------------------------------------------- bussen
+let busOpen = 0, busC = null;
+const bRij = [];
+function bouwBussen() {
+  bRij.length = 0;
+  const l = bussenLijst(), t = l.map(busTegel);
+  if (busOpen === -1) t.push(nieuwTegel('Nieuwe bus', busEditor()));
+  $('#bus-lijst').replaceChildren(...t);
+  if (!t.length) $('#bus-lijst').append(h('p', { class: 'leeg' }, 'Nog geen bussen.'));
+  $('#bus-nieuw').disabled = busOpen === -1;
+  bouwPunten();
+  werkBussenBij();
+}
+function busTegel(b) {
+  const badge = h('span', { class: 'badge' }), waar = h('span', { class: 'klein' }), balk = h('i', { style: 'width:0' }), open = busOpen === b.nr;
+  bRij[b.nr] = { badge, waar, balk };
+  return h('article', { class: 'tegel' },
+    h('div', { class: 'tegel-kop' }, h('span', { class: 'kleurstip', style: 'background:' + (b.kleur || '#888') }), h('h3', null, b.naam || 'Bus ' + b.nr), badge),
+    h('div', { class: 'klein' }, 'IR-code ', h('span', { class: 'mono' }, b.code || 'nog geen')),
+    h('div', { style: 'margin-top:8px' }, waar, h('div', { class: 'balkje' }, balk)),
+    h('div', { class: 'knoppen' }, h('button', { class: 'knop', type: 'button', 'aria-expanded': String(open), onclick: () => {
+      busOpen = open ? 0 : b.nr;
+      busC = open ? null : Object.assign({}, b);
+      bouwBussen();
+    } }, open ? 'Sluiten' : 'Instellen')),
+    open ? busEditor() : null);
+}
+function werkBussenBij() {
+  bussenLijst().forEach(b => {
+    const r = bRij[b.nr];
+    if (!r) return;
+    const l = live('bussen', b.nr), st = BUSSTAAT[l.staat] || BUSSTAAT.onbekend;
+    r.badge.textContent = st[0];
+    r.badge.className = 'badge ' + st[1];
+    r.waar.textContent = l.van ? puntNaam(l.van) + (l.naar ? ' → ' + puntNaam(l.naar) : '') + (l.gezienMs ? ' · gezien ' + geleden(l.gezienMs) : '') : 'Nog niet gezien sinds de doos aanstaat';
+    r.balk.style.width = Math.round((l.fractie || 0) * 100) + '%';
+  });
+}
+function busEditor() {
+  const c = busC, codes = (K.irLaatst || []).map(x => x.code).filter((x, i, a) => a.indexOf(x) === i), meet = planPunten(P, MEET.concat(['stoppunten']));
+  if (!c.proef && meet.length) c.proef = meet[0].p.id;
+  return h('div', { class: 'editor' },
+    h('div', { class: 'twee' }, veld('Naam', h('input', { type: 'text', maxlength: 23, value: c.naam || '', placeholder: 'bv. Lijnbus 1', oninput: e => { c.naam = e.target.value; } })),
+      veld('Kleur op de tv', h('input', { type: 'color', value: c.kleur || '#d23b2b', oninput: e => { c.kleur = e.target.value; } }))),
+    veld('IR-code die de ontvangers van deze bus lezen', h('input', { type: 'text', class: 'mono', value: c.code || '', maxlength: 31, placeholder: 'nec:01FE01FE', list: 'bus-codes', oninput: e => { c.code = e.target.value.trim(); } }),
+      h('datalist', { id: 'bus-codes' }, codes.map(x => h('option', { value: x })))),
+    h('p', { class: 'klein' }, 'Tip: laat de bus langs een ontvanger rijden; zijn code staat dan bij IR, Laatst ontvangen, met een knop om ze aan deze bus te koppelen.'),
+    c.nr > 0 && meet.length ? veld('Proef: de bus is nu gezien bij', h('div', { class: 'knoppen', style: 'margin-top:0' },
+      kiesLijst(meet.map(x => [x.p.id, x.p.id + ' · ' + (x.p.naam || '')]), c.proef, v => { c.proef = v; }, 'Meetpunt'),
+      knop('Gezien', () => stuur('/api/bus', { actie: 'gezien', bus: c.nr, punt: c.proef }, c.naam + ' gezien bij ' + c.proef)))) : null,
+    h('div', { class: 'knoppen' },
+      knop('Bewaren', async () => {
+        if (!(c.naam || '').trim()) { toast('Geef de bus een naam.', true); return; }
+        const j = await stuur('/api/bus', { nr: c.nr || vrijNr(bussenLijst(), 16), naam: c.naam.trim(), kleur: c.kleur || '#d23b2b', code: c.code || '' }, 'Bus bewaard');
+        if (j) { busOpen = 0; busC = null; bouwBussen(); }
+      }, 'hoofd'),
+      knop('Annuleren', () => { busOpen = 0; busC = null; bouwBussen(); }),
+      busOpen > 0 ? knop('Wissen', () => {
+        if (confirm('Bus “' + c.naam + '” wissen?')) stuur('/api/bus', { actie: 'wissen', nr: c.nr }, 'Gewist').then(j => { if (j) { busOpen = 0; busC = null; } });
+      }, 'gevaar') : null));
+}
+function bouwPunten() {
+  const el = $('#punt-lijst');
+  if (!S) return;
+  const pp = planPunten(P, MEET);
+  const opties = [['', 'niet gekoppeld']].concat(S.ingangen.map(g => ['i' + g.nr, 'Ingang ' + g.nr + ' · ' + g.naam]), ONTV.slice(1).map(([n, t]) => ['o' + n, t]));
+  el.replaceChildren(...pp.map(({ p, c }) => {
+    const k = puntKop(p.id), w = k.ingang ? 'i' + k.ingang : k.ontvanger ? 'o' + k.ontvanger : '';
+    return h('div', { class: 'lijn dubbel' }, h('span', { class: 'kleurstip', style: 'background:' + c[2] }),
+      h('div', { class: 'tekst' }, h('strong', null, p.naam || p.id), h('span', { class: 'klein' }, p.id + ' · ' + c[1])), h('div', { class: 'acties' },
+      kiesLijst(opties, w, v => stuur('/api/punt', !v ? { id: p.id, ingang: 0 } : v[0] === 'i' ? { id: p.id, ingang: +v.slice(1) } : { id: p.id, ontvanger: +v.slice(1) },
+        p.id + (v ? ' gekoppeld' : ' niet meer gekoppeld')), 'Koppeling van ' + p.id)));
+  }));
+  if (!pp.length) el.append(h('p', { class: 'leeg' }, P ? 'Het plan heeft nog geen hallsensoren of IR/FTR-ontvangers. Zet ze erop bij Plan.' : 'Er staat nog geen plan op de doos. Laad het bij Plan.'));
+}
+
+// ------------------------------------------------------------------------------------------------- haltes
+let halteOpen = 0, halteC = null;
+const hRij = [];
+function bouwHaltes() {
+  if (!S) return;
+  hRij.length = 0;
+  const l = haltesLijst(), t = l.map(halteTegel);
+  if (halteOpen === -1) t.push(nieuwTegel('Nieuwe halte ' + halteC.nr, halteEditor()));
+  $('#halte-lijst').replaceChildren(...t);
+  if (!t.length) $('#halte-lijst').append(h('p', { class: 'leeg' }, 'Nog geen haltes.'));
+  $('#halte-nieuw').disabled = l.length >= NHALTE || halteOpen === -1;
+  werkHaltesBij();
+}
+function halteTegel(x) {
+  const badge = h('span', { class: 'badge' }), info = h('div', { class: 'klein', style: 'margin-top:6px' }), open = halteOpen === x.nr;
+  const balk = h('div', { class: 'fasebalk', 'aria-hidden': 'true' }, HFASEN.map(() => h('span')));
+  hRij[x.nr] = { badge, info, balk };
+  const lt = x.licht || {}, code = n => { const c = codesLijst().find(y => y.nr === n); return c ? c.naam : n ? 'code ' + n : '–'; };
+  return h('article', { class: 'tegel' },
+    h('div', { class: 'tegel-kop' }, h('span', { class: 'nr' }, x.nr), h('h3', null, x.naam || 'Halte ' + x.nr), badge), balk, info,
+    h('p', { class: 'klein' }, 'Aankomst bij ' + (x.aankomstPunt ? puntNaam(x.aankomstPunt) : '–') + ' · “' + code(x.stopCode) + '” via IR-led ' + ((x.stopLeds || []).join(', ') || 'alle') +
+      ' · wacht ' + (x.wachtS || 0) + ' s' + ((x.vrijIngangen || []).length ? ' · vrije weg: ingang ' + x.vrijIngangen.join(', ') : '') +
+      (lt.rood || lt.groen ? ' · licht: groep ' + [lt.rood, lt.oranje, lt.groen].map(n => n || '–').join('/') : '')),
+    h('div', { class: 'knoppen' }, h('button', { class: 'knop', type: 'button', 'aria-expanded': String(open), onclick: () => {
+      halteOpen = open ? 0 : x.nr;
+      halteC = open ? null : JSON.parse(JSON.stringify(x));
+      bouwHaltes();
+    } }, open ? 'Sluiten' : 'Instellen')),
+    open ? halteEditor() : null);
+}
+function werkHaltesBij() {
+  haltesLijst().forEach(x => {
+    const r = hRij[x.nr];
+    if (!r) return;
+    const l = live('haltes', x.nr), f = l.fase || 'vrij', i = HFASEN.indexOf(f), t = FASETEKST[f] || [f, ''];
+    r.badge.textContent = t[0] + (l.resterendS ? ' · ' + l.resterendS + ' s' : '');
+    r.badge.className = 'badge ' + t[1];
+    [...r.balk.children].forEach((s, k) => { s.className = k === i && f !== 'vrij' ? 'nu' : k < i ? 'na' : ''; });
+    const b = l.bus && bussenLijst().find(y => y.nr === l.bus);
+    r.info.textContent = b && f !== 'vrij' ? 'Aan de halte: ' + b.naam : '';
+    r.info.hidden = !r.info.textContent;
+  });
+}
+function halteEditor() {
+  const c = halteC;
+  c.licht = c.licht || { rood: 0, oranje: 0, groen: 0 };
+  c.stopLeds = c.stopLeds || [];
+  c.vrijIngangen = c.vrijIngangen || [];
+  const codes = [[0, 'geen']].concat(codesLijst().map(x => [x.nr, x.nr + ' · ' + x.naam]));
+  const groepen = [[0, 'geen']].concat(S.groepen.map(g => [g.nr, g.nr + ' · ' + g.naam]));
+  const punten = [['', 'kies een punt van het plan']].concat(planPunten(P).map(({ p, c: k }) => [p.id, p.id + ' · ' + (p.naam || k[1])]));
+  if (c.aankomstPunt && !punten.some(x => x[0] === c.aankomstPunt)) punten.push([c.aankomstPunt, c.aankomstPunt]);
+  const sec = (k, n, max) => stapper({ n, min: 0, max, waarde: c[k] || 0, toon: v => v + ' s', stap: (x, op) => ((op ? x : x - 1) < 30 ? 1 : 5), opWijzig: v => { c[k] = v; } });
+  return h('div', { class: 'editor' },
+    veld('Naam', h('input', { type: 'text', maxlength: 23, value: c.naam || '', placeholder: 'bv. Halte Station 1', oninput: e => { c.naam = e.target.value; } })),
+    veld('Aankomst: de bus is gezien bij', kiesLijst(punten, c.aankomstPunt || '', v => { c.aankomstPunt = v; }, 'Aankomstpunt')),
+    h('div', { class: 'twee' }, veld('Stopcode (de bus stopt)', kiesLijst(codes, c.stopCode || 0, v => { c.stopCode = +v; }, 'Stopcode')),
+      veld('Rijcode (de bus vertrekt)', kiesLijst(codes, c.rijdCode || 0, v => { c.rijdCode = +v; }, 'Rijcode'))),
+    veld('Stopcode zenden via IR-led (niets gekozen = alle)', chipsKies(IRLEDS, c.stopLeds)),
+    sec('wachtS', 'Wachten aan de halte', 600),
+    veld('Vrije weg: deze ingangen moeten vrij zijn (bv. hallsensor)', chipsKies(S.ingangen.length, c.vrijIngangen)),
+    sec('vrijMinS', 'Zo lang vrij', 60),
+    h('div', { class: 'twee' }, ['rood', 'oranje', 'groen'].map(k => veld('Verkeerslicht ' + k, kiesLijst(groepen, c.licht[k] || 0, v => { c.licht[k] = +v; }, 'Lichtgroep voor ' + k)))),
+    sec('groenS', 'Groen blijft', 60),
+    veld('Bij groen een servo naar B (niet verplicht)', kiesLijst([[0, 'geen']].concat(servosLijst().map(s => [s.nr, s.nr + ' · ' + s.naam])), c.servo || 0, v => { c.servo = +v; }, 'Servo')),
+    h('div', { class: 'knoppen' },
+      knop('Bewaren', async () => {
+        if (!(c.naam || '').trim()) { toast('Geef de halte een naam.', true); return; }
+        if (!c.aankomstPunt) { toast('Kies het aankomstpunt.', true); return; }
+        const j = await stuur('/api/halte', { nr: c.nr, naam: c.naam.trim(), aankomstPunt: c.aankomstPunt, stopLeds: c.stopLeds, stopCode: c.stopCode || 0, rijdCode: c.rijdCode || 0,
+          wachtS: c.wachtS || 0, vrijIngangen: c.vrijIngangen, vrijMinS: c.vrijMinS || 0, licht: c.licht, groenS: c.groenS || 0, servo: c.servo || 0 }, 'Halte bewaard');
+        if (j) { halteOpen = 0; halteC = null; bouwHaltes(); }
+      }, 'hoofd'),
+      knop('Annuleren', () => { halteOpen = 0; halteC = null; bouwHaltes(); }),
+      halteOpen > 0 ? knop('Wissen', () => {
+        if (confirm('Halte “' + c.naam + '” wissen?')) stuur('/api/halte', { actie: 'wissen', nr: c.nr }, 'Gewist').then(j => { if (j) { halteOpen = 0; halteC = null; } });
+      }, 'gevaar') : null));
+}
+
+// -------------------------------------------------------------------------------------- geluidskastjes
+// spelen, stoppen en hernoemen gaan via de doos; volume, uploaden en wissen rechtstreeks naar het kastje (CORS)
+function kastjeVraag(k, pad, opt) {
+  if (demo) return Demo.kastje(k, pad, opt);
+  return fetch('http://' + k.ip + pad, opt).then(r => r.json().catch(() => ({ ok: r.ok })));
+}
+let kastjesGekeken = 0;
+function kastjesKijken() {
+  if (Date.now() - kastjesGekeken < 20000) return;
+  kastjesGekeken = Date.now();
+  kastjesLijst().filter(k => k.online !== false && k.ip).forEach(vernieuwKastje);
+}
+async function vernieuwKastje(k) {
+  try { kInfo[k.id] = await kastjeVraag(k, '/info'); bouwKastjes(); } catch (e) { /* kastje antwoordt niet: de lijst van de doos blijft */ }
+}
+function bouwKastjes() {
+  const l = kastjesLijst(), el = $('#kastje-lijst');
+  if (el.contains(document.activeElement) && document.activeElement.type === 'file') return;
+  el.replaceChildren(...l.map(kastjeTegel));
+  if (!l.length) el.append(h('p', { class: 'leeg' }, 'Nog geen kastjes. Zet een kastje aan in de buurt van de doos: binnen 30 s staat het hier.'));
+}
+function kastjeTegel(k) {
+  const online = k.online !== false, out = h('output', null, (k.volume != null ? k.volume : 80) + ' %');
+  const bestand = h('input', { type: 'file', accept: 'audio/*,.wav,.mp3', 'aria-label': 'Geluid voor ' + k.naam }), status = h('div', { class: 'test-status', role: 'status' });
+  return h('article', { class: 'tegel' },
+    h('div', { class: 'tegel-kop' }, h('span', { class: 'stip' + (online ? ' aan' : ''), 'aria-hidden': 'true' }), h('h3', null, k.naam), h('span', { class: 'badge ' + (online ? 'groen' : 'rood') }, online ? 'online' : 'niet bereikbaar')),
+    h('p', { class: 'klein' }, (k.ip || '–') + ' · id ' + k.id + (k.versie ? ' · versie ' + k.versie : '') + (k.vrij != null ? ' · nog ' + kb(k.vrij) + ' vrij' : '')),
+    k.geluiden.map(g => h('div', { class: 'lijn' }, h('div', { class: 'tekst' }, h('strong', null, g.naam), h('span', { class: 'klein' }, g.s != null ? getal(g.s) + ' s' : '')),
+      online ? null : h('span', { class: 'klein' }, 'staat op het kastje'), !online ? null : knop('Spelen', () => stuur('/api/kastje', { actie: 'spelen', kastje: k.naam, geluid: g.naam, volume: 100 }, '“' + g.naam + '” speelt op ' + k.naam, true), 'hoofd'),
+      !online ? null : h('button', { class: 'ikoonknop', type: 'button', 'aria-label': g.naam + ' wissen', onclick: async () => {
+        if (!confirm('“' + g.naam + '” van kastje ' + k.naam + ' wissen?')) return;
+        try { await kastjeVraag(k, '/geluid?naam=' + encodeURIComponent(g.naam), { method: 'DELETE' }); toast('Gewist'); vernieuwKastje(k); } catch (e) { toast('Het kastje antwoordt niet.', true); }
+      } }, ikoon('weg')))),
+    k.geluiden.length ? null : h('p', { class: 'leeg' }, online ? 'Nog geen geluiden op dit kastje.' : 'Het kastje meldde zich al even niet meer. Staat het aan en is het binnen bereik van de wifi "Treinbaan"?'),
+    online ? null : h('div', { class: 'knoppen' }, knop('Andere naam', () => { const n = prompt('Nieuwe naam voor kastje ' + k.naam + ':', k.naam); if (n && n.trim()) stuur('/api/kastje', { actie: 'hernoemen', id: k.id, naam: n.trim() }, 'Naam gewijzigd'); })),
+    !online ? null : h('div', { class: 'schuif', style: 'grid-template-columns:1fr auto' }, h('span', { class: 'klein' }, 'Volume van dit kastje'),
+      h('input', { type: 'range', min: 0, max: 100, step: 5, value: k.volume != null ? k.volume : 80, 'aria-label': 'Volume van ' + k.naam,
+        oninput: e => { out.textContent = e.target.value + ' %'; },
+        onchange: e => kastjeVraag(k, '/volume', { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ volume: +e.target.value }) })
+          .then(() => { kInfo[k.id] = Object.assign(kInfo[k.id] || {}, { volume: +e.target.value }); toast('Volume ' + e.target.value + ' %'); })
+          .catch(() => toast('Het kastje antwoordt niet.', true)) }), out),
+    !online ? null : h('div', { class: 'knoppen' },
+      knop('Stoppen', () => stuur('/api/kastje', { actie: 'stop', kastje: k.naam }, 'Gestopt', true)),
+      knop('Andere naam', () => { const n = prompt('Nieuwe naam voor kastje ' + k.naam + ':', k.naam); if (n && n.trim()) stuur('/api/kastje', { actie: 'hernoemen', id: k.id, naam: n.trim() }, 'Naam gewijzigd'); })),
+    !online ? null : h('div', { class: 'editor' }, h('h3', null, 'Geluid toevoegen'),
+      h('p', { class: 'klein' }, 'Een mp3 of wav. Het dashboard zet het om naar WAV (22 kHz, mono) en stuurt het rechtstreeks naar het kastje.'),
+      bestand, status,
+      h('div', { class: 'knoppen' }, knop('Naar het kastje sturen', () => uploadGeluid(k, bestand.files[0], status), 'hoofd'))));
+}
+/** elk geluidsbestand dat de browser kan lezen -> WAV PCM 16 bit mono 22050 Hz */
+async function naarWav(f) {
+  const ac = new (window.AudioContext || window.webkitAudioContext)();
+  const buf = await ac.decodeAudioData(await f.arrayBuffer());
+  ac.close();
+  const sr = 22050, n = Math.ceil(buf.duration * sr), off = new OfflineAudioContext(1, n, sr), src = off.createBufferSource();
+  src.buffer = buf; src.connect(off.destination); src.start();
+  const d = (await off.startRendering()).getChannelData(0), v = new DataView(new ArrayBuffer(44 + n * 2));
+  const tekst = (o, t) => { for (let i = 0; i < t.length; i++) v.setUint8(o + i, t.charCodeAt(i)); };
+  tekst(0, 'RIFF'); v.setUint32(4, 36 + n * 2, true); tekst(8, 'WAVEfmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+  v.setUint32(24, sr, true); v.setUint32(28, sr * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true); tekst(36, 'data'); v.setUint32(40, n * 2, true);
+  for (let i = 0; i < n; i++) v.setInt16(44 + i * 2, Math.max(-1, Math.min(1, d[i])) * 32767, true);
+  return { blob: new Blob([v.buffer], { type: 'audio/wav' }), s: buf.duration };
+}
+async function uploadGeluid(k, f, st) {
+  if (!f) { toast('Kies eerst een geluidsbestand.', true); return; }
+  const naam = (f.name.replace(/\.[^.]*$/, '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9_-]+/g, '-').replace(/^-|-$/g, '').slice(0, 26) || 'geluid') + '.wav';
+  st.className = 'test-status';
+  st.textContent = 'Omzetten…';
+  let w;
+  try { w = await naarWav(f); } catch (e) { st.textContent = 'Dit bestand kan de browser niet lezen. Probeer een mp3 of wav.'; return; }
+  if (k.vrij != null && w.blob.size > k.vrij) { st.textContent = 'Te groot: ' + kb(w.blob.size) + ', het kastje heeft nog ' + kb(k.vrij) + ' vrij. Kort het geluid in of wis er een.'; return; }
+  st.textContent = 'Versturen naar ' + k.naam + ' (' + kb(w.blob.size) + ', ' + getal(w.s) + ' s)…';
+  try {
+    const fd = new FormData();
+    fd.append('bestand', w.blob, naam);
+    const j = await kastjeVraag(k, '/geluid?naam=' + encodeURIComponent(naam), { method: 'POST', body: fd });
+    if (j && j.ok === false) throw new Error(j.fout || 'geweigerd');
+    st.className = 'test-status aan';
+    st.textContent = '“' + naam + '” staat op ' + k.naam + '.';
+    vernieuwKastje(k);
+  } catch (e) {
+    st.textContent = 'Versturen mislukt' + (e.message && e.message !== 'Failed to fetch' ? ': ' + e.message : ': zit deze gsm op wifi "Treinbaan" en staat het kastje aan?');
+  }
+}
+
+// --------------------------------------------------------------------------------- functiestappen (nieuw)
+function stapExtra(s, opnieuw) {
+  if (s.actie === 'servo') {
+    const sv = servosLijst(), so = servoSoort((sv.find(x => x.nr === s.servo) || {}).soort);
+    return [veld('Welke servo?', sv.length ? kiesLijst(sv.map(x => [x.nr, x.nr + ' · ' + x.naam]), s.servo, v => { s.servo = +v; opnieuw(); }, 'Servo') : h('p', { class: 'leeg' }, "Nog geen servo's (tabblad Baan).")),
+      veld('Naar', h('div', { class: 'keuze drie' }, [['a', 'A · ' + so[2]], ['b', 'B · ' + so[3]], ['wissel', 'Omzetten']].map(([id, n]) =>
+        h('button', { type: 'button', 'aria-pressed': String(s.stand === id), onclick: () => { s.stand = id; opnieuw(); } }, n))))];
+  }
+  if (s.actie === 'ir') {
+    const c = codesLijst();
+    s.leds = s.leds || [];
+    return [veld('Welke code?', c.length ? kiesLijst(c.map(x => [x.nr, x.nr + ' · ' + x.naam]), s.code, v => { s.code = +v; }, 'IR-code') : h('p', { class: 'leeg' }, 'Nog geen IR-codes (tabblad Baan, IR).')),
+      veld('Via IR-led (niets gekozen = alle)', chipsKies(IRLEDS, s.leds))];
+  }
+  const k = kastjesLijst(), kk = k.find(x => x.naam === s.kastje);
+  return [veld('Welk kastje?', k.length ? kiesLijst(k.map(x => [x.naam, x.naam]), s.kastje, v => {
+    s.kastje = v;
+    const n = k.find(x => x.naam === v);
+    s.geluid = n && n.geluiden[0] ? n.geluiden[0].naam : '';
+    opnieuw();
+  }, 'Kastje') : h('p', { class: 'leeg' }, 'Nog geen geluidskastje aangemeld.')),
+  kk ? veld('Welk geluid?', kiesLijst(kk.geluiden.map(g => [g.naam, g.naam + (g.s != null ? ' (' + getal(g.s) + ' s)' : '')]), s.geluid, v => { s.geluid = v; }, 'Geluid')) : null,
+  stapper({ n: 'Volume', min: 0, max: 100, waarde: s.volume != null ? s.volume : 80, toon: v => v + ' %', stap: () => 5, opWijzig: v => { s.volume = v; } })];
+}
+
+// --------------------------------------------------------------------------------------------- plan (info)
+const leegPlan = () => Object.assign({ titel: 'Mijn baan', versie: 2, achtergrond: '', breedte: 1600, hoogte: 900, schaal: { px_per_m: 5 }, rijbanen: [] },
+  Object.fromEntries(PLANSOORT.map(c => [c[0], []])));
+function bouwPlanInfo() {
+  const el = $('#plan-info');
+  el.replaceChildren(
+    h('h3', null, P ? P.titel || 'Plan' : 'Nog geen plan op de doos'),
+    P ? h('p', { class: 'klein' }, P.rijbanen.length + ' rijbanen · ' + planPunten(P).length + ' punten · beeld ' + P.breedte + ' × ' + P.hoogte + ' px')
+      : h('p', { class: 'klein' }, 'Laad het plan.json van het situatieplan (map situatieplan) of begin met een leeg plan.'),
+    h('div', { class: 'knoppen' },
+      knop(P ? 'Plan bewerken' : 'Leeg plan beginnen', () => openPlan(P || leegPlan()), 'hoofd'),
+      h('label', { class: 'knop' }, 'Plan uit bestand (.json)', h('input', { type: 'file', accept: '.json,application/json', hidden: true, onchange: e => planUitBestand(e.target.files[0]) })),
+      P ? knop('Plan downloaden', () => {
+        const a = h('a', { href: URL.createObjectURL(new Blob([JSON.stringify(P)], { type: 'application/json' })), download: 'plan.json' });
+        a.click();
+      }) : null,
+      h('a', { class: 'knop', href: demo ? 'tv.html' : '/tv/', target: '_blank', rel: 'noopener' }, 'Tv-pagina openen')),
+    h('p', { class: 'klein', style: 'margin-top:12px' }, 'Op de tv: verbind de tv (of een stick of mini-pc met een browser) met wifi "Treinbaan" en open http://192.168.4.1/tv. Toets F = volledig scherm.'));
+}
+async function planUitBestand(f) {
+  if (!f) return;
+  try {
+    const j = JSON.parse(await f.text());
+    if (!Array.isArray(j.rijbanen) || !(j.breedte > 0) || !(j.hoogte > 0)) throw new Error();
+    openPlan(j);
+    toast('Plan geladen. Tik op Bewaren om het op de doos te zetten.');
+  } catch (e) { toast('Dit is geen plan.json van het situatieplan.', true); }
+}
+
+// ------------------------------------------------------------------------------------------- planeditor
+let PE = null;
+const pe = { modus: 'slepen', soort: 'hallsensoren', sel: null, vb: null, beeld: '', teken: false, px: 1 };
+const NS = 'http://www.w3.org/2000/svg';
+function sv(tag, a) { const e = document.createElementNS(NS, tag); for (const k in a) e.setAttribute(k, a[k]); return e; }
+function openPlan(pl) {
+  PE = JSON.parse(JSON.stringify(pl));
+  PLANSOORT.forEach(c => { PE[c[0]] = PE[c[0]] || []; });
+  Object.assign(pe, { modus: 'slepen', sel: null, teken: false, vul: true, vb: { x: 0, y: 0, w: PE.breedte, h: PE.hoogte },
+    beeld: PE.achtergrond ? (demo ? '../../situatieplan/' : '/tv/') + PE.achtergrond : '' });
+  const b = $('#blad');
+  b.className = 'blad plan';
+  b.hidden = false;
+  document.body.style.overflow = 'hidden';
+  tekenPlanBlad();
+}
+function sluitPlan() {
+  PE = null;
+  pe.svg = null;
+  $('#blad').hidden = true;
+  $('#blad').className = 'blad';
+  document.body.style.overflow = '';
+}
+function tekenPlanBlad() {
+  const svg = sv('svg', { role: 'img', 'aria-label': 'Plan van de baan' });
+  pe.svg = svg;
+  pe.hint = h('span');
+  pe.paneel = h('div', { class: 'tegel' });
+  pe.chips = h('div', { class: 'puntchips' });
+  const zoomKnop = (t, l, f) => h('button', { type: 'button', 'aria-label': l, onclick: f }, t);
+  $('#blad').replaceChildren(h('div', { class: 'blad-binnen' },
+    h('div', { class: 'blad-kop' }, h('h2', null, 'Plan bewerken'),
+      knop('Annuleren', () => { if (confirm('Het plan sluiten zonder te bewaren?')) sluitPlan(); }), knop('Bewaren', bewaarPlan, 'hoofd')),
+    h('div', { class: 'gereedschap' },
+      h('div', { class: 'keuze' }, [['slepen', 'Verslepen'], ['punt', '+ Punt'], ['baan', 'Rijbaan']].map(([id, n]) =>
+        h('button', { type: 'button', 'aria-pressed': String(pe.modus === id), onclick: () => { if (pe.teken) klaarTekenen(); pe.modus = id; tekenPlanBlad(); } }, n))),
+      pe.modus === 'punt' ? kiesLijst(PLANSOORT.map(c => [c[0], c[1]]), pe.soort, v => { pe.soort = v; zetHint(); }, 'Soort van het nieuwe punt') : null,
+      pe.modus === 'baan' ? (pe.teken ? knop('Klaar met tekenen', () => { klaarTekenen(); tekenPlanBlad(); }, 'hoofd') : knop('+ Nieuwe rijbaan', nieuweBaan)) : null,
+      h('div', { class: 'zoom' }, zoomKnop('−', 'Uitzoomen', () => zoom(null, 1.4)), zoomKnop('+', 'Inzoomen', () => zoom(null, 1 / 1.4)),
+        zoomKnop('⤢', 'Heel het plan', () => { pe.vb = { x: 0, y: 0, w: PE.breedte, h: PE.hoogte }; tekenSvg(); }))),
+    h('div', { class: 'plan-vak' }, svg), h('p', { class: 'planhint' }, pe.hint),
+    h('div', { class: 'plan-onder' }, pe.paneel,
+      h('div', { class: 'tegel' }, h('h3', null, 'Alle punten'), h('p', { class: 'klein' }, 'Tik om te kiezen.'), pe.chips, achtergrondDeel()))));
+  koppelSvg(svg);
+  const vak = svg.parentNode, ar = PE.breedte / PE.hoogte;
+  vak.style.height = Math.round(Math.min(innerHeight * 0.6, Math.max(300, vak.clientWidth / ar))) + 'px';
+  if (pe.vul) { // eerste keer: de hoogte vullen (op een gsm), zijwaarts schuiven met de vinger
+    pe.vul = false;
+    const w = PE.hoogte * vak.clientWidth / vak.clientHeight;
+    if (w < PE.breedte) pe.vb = { x: (PE.breedte - w) / 2, y: 0, w, h: PE.hoogte };
+  }
+  tekenSvg();
+  vulPaneel();
+  zetHint();
+}
+function zetHint() {
+  const c = PLANSOORT.find(x => x[0] === pe.soort);
+  pe.hint.textContent = pe.modus === 'punt' ? 'Tik op het plan: daar komt een ' + c[1].toLowerCase() + '.'
+    : pe.modus === 'baan' ? (pe.teken ? 'Tik punt na punt in de rijrichting. Klaar? Tik op Klaar met tekenen.' : 'Kies een rijbaan en tik op of naast de lijn: daar komt een hoekpunt bij.')
+    : 'Sleep een punt of een hoekpunt. Tik op een rijbaan om haar hoekpunten te zien. Sleep de achtergrond om te schuiven.';
+}
+const kleurBaan = b => b.soort === 'auto' ? '#d62f2b' : b.soort === 'bus' ? '#1f9e48' : '#4a4a4a';
+const lusPunten = b => b.gesloten && b.punten.length > 2 ? b.punten.concat([b.punten[0]]) : b.punten;
+function vereenvoudig(pts, eps) {
+  if (pts.length < 3) return pts.map(q => q.slice());
+  const a = pts[0], b = pts[pts.length - 1], dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy);
+  let m = -1, k = 0;
+  for (let i = 1; i < pts.length - 1; i++) {
+    const d = L < 1e-6 ? Math.hypot(pts[i][0] - a[0], pts[i][1] - a[1]) : Math.abs(dy * pts[i][0] - dx * pts[i][1] + b[0] * a[1] - b[1] * a[0]) / L;
+    if (d > m) { m = d; k = i; }
+  }
+  if (m <= eps) return [a.slice(), b.slice()];
+  return vereenvoudig(pts.slice(0, k + 1), eps).slice(0, -1).concat(vereenvoudig(pts.slice(k), eps));
+}
+/** de hoekpunten om te verslepen: een dichte lijn (om de 2 px) wordt pas bij de eerste wijziging vereenvoudigd */
+function hoeken(b) {
+  if (b._bewerkt) return b.punten;
+  if (!b._v) b._v = vereenvoudig(b.punten, 1.2);
+  return b._v;
+}
+function maakBewerkbaar(b) {
+  if (b._bewerkt) return;
+  b.punten = hoeken(b).map(q => q.slice());
+  b._bewerkt = true;
+  delete b._v;
+}
+function projectie(pts, q) {
+  let best = { d: Infinity }, s = 0;
+  for (let i = 1; i < pts.length; i++) {
+    const a = pts[i - 1], b = pts[i], dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy) || 1e-9;
+    const t = Math.max(0, Math.min(1, ((q[0] - a[0]) * dx + (q[1] - a[1]) * dy) / (L * L))), x = a[0] + dx * t, y = a[1] + dy * t, d = Math.hypot(q[0] - x, q[1] - y);
+    if (d < best.d) best = { d, x, y, s: s + L * t, i };
+    s += L;
+  }
+  return best;
+}
+const lengte = pts => pts.reduce((s, q, i) => i ? s + Math.hypot(q[0] - pts[i - 1][0], q[1] - pts[i - 1][1]) : 0, 0);
+const SNAP = ['wissels', 'stoppunten', 'hallsensoren', 'ir_sensoren'];
+/** punt -> de rijbaan eronder (of zijn eigen rijbaan): baan en afstand_px; meetpunten, wissels en stoppunten komen erop te liggen */
+function naarBaan(p, c) {
+  let best = null;
+  PE.rijbanen.forEach(b => {
+    if (b.punten.length < 2 || (p.baan && b.id !== p.baan)) return;
+    const r = projectie(lusPunten(b), [p.x, p.y]);
+    if (!best || r.d < best.r.d) best = { b, r };
+  });
+  if (!best || (best.r.d > 40 && !p.baan)) return;
+  p.baan = best.b.id;
+  p.afstand_px = rond(best.r.s);
+  if (SNAP.includes(c[0]) && best.r.d < 40) { p.x = rond(best.r.x); p.y = rond(best.r.y); }
+}
+function tekenSvg() {
+  const svg = pe.svg, vb = pe.vb;
+  if (!svg || !PE) return;
+  svg.setAttribute('viewBox', [vb.x, vb.y, vb.w, vb.h].join(' '));
+  const px = pe.px = Math.max(vb.w / (svg.clientWidth || 800), vb.h / (svg.clientHeight || 450)); // planpixels per schermpixel
+  const g = [sv('rect', { x: 0, y: 0, width: PE.breedte, height: PE.hoogte, fill: '#ece8de' })];
+  if (pe.beeld) g.push(sv('image', { href: pe.beeld, x: 0, y: 0, width: PE.breedte, height: PE.hoogte, preserveAspectRatio: 'none' }));
+  const s = pe.sel;
+  PE.rijbanen.forEach(b => {
+    if (b.punten.length < 2) return;
+    const pts = b.punten.map(q => q[0] + ',' + q[1]).join(' '), kl = kleurBaan(b), gek = s && s.b === b, tag = b.gesloten ? 'polygon' : 'polyline';
+    const e = sv(tag, { points: pts, fill: 'none', stroke: kl, 'stroke-opacity': gek ? 0.5 : 0.22, 'stroke-width': Math.max(b.breedte_px || 20, 14 * px), 'stroke-linejoin': 'round', 'stroke-linecap': 'round' });
+    e.dataset.baan = b.id;
+    g.push(e, sv(tag, { points: pts, fill: 'none', stroke: kl, 'stroke-width': (gek ? 3 : 1.6) * px, 'pointer-events': 'none' }));
+  });
+  if (s && s.t === 'baan') hoeken(s.b).forEach((q, i) => {
+    const e = sv('circle', { cx: q[0], cy: q[1], r: (i === s.v ? 10 : 7) * px, fill: i === s.v ? '#1f9e48' : '#fff', stroke: '#1d1d1d', 'stroke-width': 2 * px });
+    e.dataset.hoek = i;
+    g.push(e);
+  });
+  planPunten(PE).forEach(({ p, c }) => {
+    const gek = s && s.p === p, e = sv('circle', { cx: p.x, cy: p.y, r: (gek ? 11 : 8) * px, fill: c[2], stroke: gek ? '#1f9e48' : '#fff', 'stroke-width': (gek ? 4 : 2) * px });
+    e.dataset.punt = p.id;
+    g.push(e);
+    if (gek || px < 1.3) {
+      const t = sv('text', { x: p.x + 13 * px, y: p.y + 5 * px, 'font-size': 14 * px, 'font-weight': 700, fill: '#111', stroke: '#fff', 'stroke-width': 4 * px, 'paint-order': 'stroke', 'pointer-events': 'none' });
+      t.textContent = p.id;
+      g.push(t);
+    }
+  });
+  svg.replaceChildren(...g);
+  vulChips();
+}
+function zoom(q, f) {
+  const vb = pe.vb, m = Math.max(PE.breedte, PE.hoogte) * 1.5;
+  if (vb.w * f < 60 || Math.max(vb.w, vb.h) * f > m) return;
+  q = q || [vb.x + vb.w / 2, vb.y + vb.h / 2];
+  pe.vb = { x: q[0] - (q[0] - vb.x) * f, y: q[1] - (q[1] - vb.y) * f, w: vb.w * f, h: vb.h * f };
+  tekenSvg();
+}
+function svgPunt(e) {
+  const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(pe.svg.getScreenCTM().inverse());
+  return [q.x, q.y];
+}
+function koppelSvg(svg) {
+  let sl = null;
+  svg.addEventListener('pointerdown', e => {
+    const t = e.target, q = svgPunt(e);
+    svg.setPointerCapture(e.pointerId);
+    if (t.dataset.hoek != null) { pe.sel.v = +t.dataset.hoek; sl = { soort: 'hoek', i: +t.dataset.hoek }; vulPaneel(); tekenSvg(); }
+    else if (t.dataset.punt && pe.modus === 'slepen') { kiesPunt(t.dataset.punt); const p = pe.sel.p; sl = { soort: 'punt', p, dx: p.x - q[0], dy: p.y - q[1] }; }
+    else sl = { soort: 'schuif', start: [e.clientX, e.clientY], vb: Object.assign({}, pe.vb), q, doel: t };
+  });
+  svg.addEventListener('pointermove', e => {
+    if (!sl) return;
+    const q = svgPunt(e);
+    if (sl.soort === 'punt') { sl.p.x = rond(q[0] + sl.dx); sl.p.y = rond(q[1] + sl.dy); sl.bewogen = true; tekenSvg(); }
+    else if (sl.soort === 'hoek') { maakBewerkbaar(pe.sel.b); pe.sel.b.punten[sl.i] = [rond(q[0]), rond(q[1])]; sl.bewogen = true; tekenSvg(); }
+    else {
+      const dx = e.clientX - sl.start[0], dy = e.clientY - sl.start[1];
+      if (!sl.bewogen && Math.hypot(dx, dy) < 6) return;
+      sl.bewogen = true;
+      pe.vb = Object.assign({}, sl.vb, { x: sl.vb.x - dx * pe.px, y: sl.vb.y - dy * pe.px });
+      tekenSvg();
+    }
+  });
+  const los = () => {
+    const s = sl;
+    sl = null;
+    if (!s) return;
+    if (s.soort === 'punt' && s.bewogen) { naarBaan(s.p, pe.sel.c); tekenSvg(); }
+    if (s.soort !== 'schuif' && s.bewogen) vulPaneel();
+    if (s.soort === 'schuif' && !s.bewogen) tik(s.q, s.doel);
+  };
+  svg.addEventListener('pointerup', los);
+  svg.addEventListener('pointercancel', () => { sl = null; });
+  svg.addEventListener('wheel', e => { e.preventDefault(); zoom(svgPunt(e), e.deltaY > 0 ? 1.2 : 1 / 1.2); }, { passive: false });
+}
+function tik(q, doel) {
+  const s = pe.sel;
+  q = [rond(q[0]), rond(q[1])];
+  if (pe.modus === 'punt') { nieuwPunt(q); return; }
+  if (pe.modus === 'baan' && pe.teken && s && s.t === 'baan') { s.b.punten.push(q); s.v = s.b.punten.length - 1; }
+  else if (pe.modus === 'baan' && s && s.t === 'baan' && projectie(lusPunten(s.b), q).d < 24 * pe.px) {
+    maakBewerkbaar(s.b);
+    const r = projectie(lusPunten(s.b), q);
+    s.b.punten.splice(r.i, 0, [rond(r.x), rond(r.y)]);
+    s.v = r.i;
+  } else if (doel && doel.dataset.baan) pe.sel = { t: 'baan', b: PE.rijbanen.find(b => b.id === doel.dataset.baan), v: -1 };
+  else pe.sel = null;
+  tekenSvg();
+  vulPaneel();
+}
+function vrijeId(begin) { let n = 1; while (planPunten(PE).some(x => x.p.id === begin + n) || PE.rijbanen.some(b => b.id === begin + n)) n++; return begin + n; }
+function nieuwPunt(q) {
+  const c = PLANSOORT.find(x => x[0] === pe.soort), id = vrijeId(c[4]);
+  const p = { id, naam: c[1] + ' ' + id.slice(c[4].length), x: q[0], y: q[1] };
+  naarBaan(p, c);
+  PE[c[0]].push(p);
+  pe.sel = { t: 'punt', p, c };
+  pe.modus = 'slepen';
+  tekenPlanBlad();
+}
+function nieuweBaan() {
+  const b = { id: vrijeId('baan'), naam: 'Nieuwe rijbaan', soort: 'auto', gesloten: false, breedte_px: 24, punten: [], _bewerkt: true, begin: null, eind: null };
+  PE.rijbanen.push(b);
+  pe.sel = { t: 'baan', b, v: -1 };
+  pe.teken = true;
+  tekenPlanBlad();
+}
+function klaarTekenen() {
+  pe.teken = false;
+  const s = pe.sel;
+  if (s && s.t === 'baan' && s.b.punten.length < 2) {
+    PE.rijbanen.splice(PE.rijbanen.indexOf(s.b), 1);
+    pe.sel = null;
+    toast('Een rijbaan heeft minstens 2 punten nodig.', true);
+  }
+}
+function kiesPunt(id) {
+  const x = planPunten(PE).find(y => y.p.id === id);
+  if (!x) return;
+  pe.sel = { t: 'punt', p: x.p, c: x.c };
+  tekenSvg();
+  vulPaneel();
+}
+function vulChips() {
+  if (!pe.chips) return;
+  pe.chips.replaceChildren(...planPunten(PE).map(({ p, c }) => h('button', { type: 'button', 'aria-pressed': String(!!pe.sel && pe.sel.p === p), title: p.naam || '', onclick: () => {
+    kiesPunt(p.id);
+    const vb = pe.vb; // het punt in beeld brengen
+    if (p.x < vb.x || p.x > vb.x + vb.w || p.y < vb.y || p.y > vb.y + vb.h) { pe.vb = Object.assign({}, vb, { x: p.x - vb.w / 2, y: p.y - vb.h / 2 }); tekenSvg(); }
+    pe.svg.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  } }, h('i', { style: 'background:' + c[2] }), p.id)));
+}
+function koppelVeld(p, c) {
+  const k = p.koppeling = p.koppeling || {}, soort = c[3];
+  if (k[soort] == null && (soort === 'ingang' || soort === 'ontvanger')) { const d = puntKop(p.id); if (d[soort]) k[soort] = d[soort]; }
+  const opties = {
+    servo: () => servosLijst().map(s => [s.nr, s.nr + ' · ' + s.naam]), halte: () => haltesLijst().map(x => [x.nr, x.nr + ' · ' + x.naam]),
+    irled: () => Array.from({ length: IRLEDS }, (x, i) => [i + 1, 'IR-led ' + (i + 1)]), ingang: () => S.ingangen.map(g => [g.nr, g.nr + ' · ' + g.naam]),
+    ontvanger: () => ONTV.slice(1), groep: () => S.groepen.map(g => [g.nr, g.nr + ' · ' + g.naam]), kastje: () => kastjesLijst().map(x => [x.naam, x.naam]) }[soort]();
+  const nu = k[soort] != null ? k[soort] : '';
+  if (nu !== '' && !opties.some(o => String(o[0]) === String(nu))) opties.push([nu, String(nu)]);
+  return veld('Koppeling: ' + KOPNAAM[soort], kiesLijst([['', 'geen']].concat(opties), nu, v => {
+    for (const x in k) delete k[x];
+    if (v !== '') k[soort] = soort === 'kastje' ? v : +v;
+  }, 'Koppeling'));
+}
+function vulPaneel() {
+  const el = pe.paneel, s = pe.sel;
+  if (!el) return;
+  if (!s) {
+    el.replaceChildren(h('h3', null, 'Niets gekozen'), h('p', { class: 'klein' }, 'Tik op een punt of een rijbaan op het plan, of kies een punt in de lijst. Nieuwe punten: + Punt. Hoekpunten en nieuwe rijbanen: Rijbaan.'));
+    return;
+  }
+  if (s.t === 'punt') {
+    const p = s.p, c = s.c, titel = h('h3', null, p.naam || p.id);
+    el.replaceChildren(h('div', { class: 'tegel-kop' }, h('span', { class: 'kleurstip', style: 'background:' + c[2] }), titel),
+      h('div', { class: 'twee' },
+        veld('Soort', kiesLijst(PLANSOORT.map(x => [x[0], x[1]]), c[0], v => {
+          PE[c[0]].splice(PE[c[0]].indexOf(p), 1);
+          const n = PLANSOORT.find(x => x[0] === v);
+          PE[v].push(p);
+          p.koppeling = {};
+          pe.sel = { t: 'punt', p, c: n };
+          tekenSvg(); vulPaneel();
+        }, 'Soort')),
+        veld('Id (zoals in de meldingen)', h('input', { type: 'text', maxlength: 23, value: p.id, onchange: e => {
+          const n = e.target.value.trim();
+          if (!n || planPunten(PE).some(x => x.p !== p && x.p.id === n)) { toast('Die id is leeg of bestaat al.', true); e.target.value = p.id; return; }
+          p.id = n; tekenSvg();
+        } }))),
+      veld('Naam', h('input', { type: 'text', maxlength: 31, value: p.naam || '', oninput: e => { p.naam = e.target.value; titel.textContent = p.naam || p.id; } })),
+      h('div', { class: 'twee' },
+        veld('Rijbaan', kiesLijst([['', 'geen']].concat(PE.rijbanen.map(b => [b.id, b.id])), p.baan || '', v => {
+          if (v) { p.baan = v; naarBaan(p, c); } else { delete p.baan; delete p.afstand_px; }
+          tekenSvg(); vulPaneel();
+        }, 'Rijbaan')),
+        koppelVeld(p, c)),
+      c[0] === 'ir_sensoren' ? veld('Soort ontvanger', kiesLijst([['ir', 'IR: leest de code van een bus'], ['ftr', 'FTR: lichtsluis, ziet elk voertuig']], p.sensor || 'ir', v => { p.sensor = v; }, 'Soort ontvanger')) : null,
+      h('p', { class: 'klein' }, 'x ' + Math.round(p.x) + ' · y ' + Math.round(p.y) + ' px' + (p.afstand_px != null ? ' · ' + Math.round(p.afstand_px) + ' px langs ' + p.baan : '')),
+      h('div', { class: 'knoppen' }, knop('Punt wissen', () => { PE[c[0]].splice(PE[c[0]].indexOf(p), 1); pe.sel = null; tekenSvg(); vulPaneel(); }, 'gevaar')));
+    return;
+  }
+  const b = s.b, L = lengte(lusPunten(b)), pxm = PE.schaal && PE.schaal.px_per_m;
+  el.replaceChildren(h('div', { class: 'tegel-kop' }, h('span', { class: 'kleurstip', style: 'background:' + kleurBaan(b) }), h('h3', null, b.naam || b.id)),
+    h('div', { class: 'twee' },
+      veld('Id', h('input', { type: 'text', maxlength: 23, value: b.id, onchange: e => {
+        const n = e.target.value.trim();
+        if (!n || PE.rijbanen.some(x => x !== b && x.id === n)) { toast('Die id is leeg of bestaat al.', true); e.target.value = b.id; return; }
+        planPunten(PE).forEach(({ p }) => { if (p.baan === b.id) p.baan = n; });
+        b.id = n;
+      } })),
+      veld('Wie rijdt hier?', kiesLijst([['auto', "auto's en bussen"], ['bus', 'alleen bussen'], ['spoor', 'trein']], b.soort, v => { b.soort = v; tekenSvg(); vulPaneel(); }, 'Soort rijbaan'))),
+    veld('Naam', h('input', { type: 'text', maxlength: 60, value: b.naam || '', oninput: e => { b.naam = e.target.value; } })),
+    h('label', { class: 'vink' }, h('input', { type: 'checkbox', checked: !!b.gesloten, onchange: e => { b.gesloten = e.target.checked; b._herreken = true; tekenSvg(); } }), 'Gesloten lus (het einde sluit aan op het begin)'),
+    h('p', { class: 'klein' }, hoeken(b).length + ' hoekpunten · ' + Math.round(L) + ' px' + (pxm ? ' ≈ ' + Math.round(L / pxm) + ' m' : '') + ' · rijrichting = volgorde van de punten'),
+    h('div', { class: 'knoppen' },
+      pe.teken ? null : knop('Verlengen', () => { maakBewerkbaar(b); pe.modus = 'baan'; pe.teken = true; tekenPlanBlad(); }),
+      s.v >= 0 && !pe.teken ? knop('Hoekpunt ' + (s.v + 1) + ' wissen', () => { maakBewerkbaar(b); b.punten.splice(s.v, 1); s.v = -1; tekenSvg(); vulPaneel(); }) : null,
+      knop('Rijbaan wissen', () => {
+        if (!confirm('Rijbaan “' + (b.naam || b.id) + '” wissen? Punten erop blijven staan.')) return;
+        PE.rijbanen.splice(PE.rijbanen.indexOf(b), 1);
+        planPunten(PE).forEach(({ p }) => { if (p.baan === b.id) { delete p.baan; delete p.afstand_px; } });
+        pe.sel = null; pe.teken = false; tekenPlanBlad();
+      }, 'gevaar')));
+}
+function achtergrondDeel() {
+  const st = h('div', { class: 'test-status', role: 'status' });
+  return h('div', { class: 'editor' }, h('h3', null, 'Achtergrond'),
+    h('p', { class: 'klein' }, 'Een foto of tekening van de baan (jpg of png). Het dashboard verkleint ze tot hoogstens 1920 px breed. Punten en rijbanen schalen mee.'),
+    h('input', { type: 'file', accept: 'image/*', 'aria-label': 'Achtergrond kiezen', onchange: e => nieuweAchtergrond(e.target.files[0], st) }), st);
+}
+async function nieuweAchtergrond(f, st) {
+  if (!f) return;
+  st.className = 'test-status';
+  st.textContent = 'Verkleinen…';
+  try {
+    const img = await createImageBitmap(f), k = Math.min(1, 1920 / img.width), w = Math.round(img.width * k), hh = Math.round(img.height * k);
+    const cv = document.createElement('canvas');
+    cv.width = w; cv.height = hh;
+    cv.getContext('2d').drawImage(img, 0, 0, w, hh);
+    let q = 0.86, blob;
+    do { blob = await new Promise(r => cv.toBlob(r, 'image/jpeg', q)); q -= 0.12; } while (blob.size > 1.4e6 && q > 0.3);
+    if (!demo) {
+      st.textContent = 'Versturen naar de doos (' + kb(blob.size) + ')…';
+      const fd = new FormData();
+      fd.append('bestand', blob, 'achtergrond.jpg');
+      const r = await fetch('/api/tv/bestand?naam=achtergrond.jpg', { method: 'POST', body: fd });
+      if (!r.ok) throw new Error('doos');
+    }
+    const fx = w / PE.breedte, fy = hh / PE.hoogte;
+    if (Math.abs(fx - 1) > 1e-6 || Math.abs(fy - 1) > 1e-6) {
+      PE.rijbanen.forEach(b => { b.punten = b.punten.map(p => [rond(p[0] * fx), rond(p[1] * fy)]); b._herreken = true; delete b._v; });
+      planPunten(PE).forEach(({ p }) => { p.x = rond(p.x * fx); p.y = rond(p.y * fy); });
+      if (PE.schaal && PE.schaal.px_per_m) PE.schaal.px_per_m = rond(PE.schaal.px_per_m * (fx + fy) / 2);
+    }
+    Object.assign(PE, { breedte: w, hoogte: hh, achtergrond: 'achtergrond.jpg' });
+    pe.beeld = URL.createObjectURL(blob);
+    pe.vb = { x: 0, y: 0, w, h: hh };
+    st.className = 'test-status aan';
+    st.textContent = 'Achtergrond ' + w + ' × ' + hh + ' px, ' + kb(blob.size) + (demo ? ' (voorbeeld: niet verstuurd)' : ', staat op de doos') + '. Tik op Bewaren.';
+    tekenSvg();
+  } catch (e) {
+    st.textContent = e.message === 'doos' ? 'De doos weigerde het beeld (te groot?).' : 'Dat lukte niet. Is het een jpg of png?';
+  }
+}
+/** een gewijzigde lijn weer om de 2 px (zoals situatieplan/maak-plan.py) */
+function herbemonster(pts, d, gesloten) {
+  const p = gesloten ? pts.concat([pts[0]]) : pts, uit = [p[0].slice()];
+  let rest = 0;
+  for (let i = 1; i < p.length; i++) {
+    const a = p[i - 1], b = p[i], L = Math.hypot(b[0] - a[0], b[1] - a[1]);
+    let t = d - rest;
+    while (t <= L) { uit.push([rond(a[0] + (b[0] - a[0]) * t / L), rond(a[1] + (b[1] - a[1]) * t / L)]); t += d; }
+    rest = L - (t - d);
+  }
+  const z = p[p.length - 1];
+  if (gesloten) { if (Math.hypot(uit[uit.length - 1][0] - z[0], uit[uit.length - 1][1] - z[1]) < d * 0.5) uit.pop(); }
+  else if (Math.hypot(uit[uit.length - 1][0] - z[0], uit[uit.length - 1][1] - z[1]) > 0.05) uit.push(z.slice());
+  return uit;
+}
+async function bewaarPlan() {
+  if (pe.teken) klaarTekenen();
+  const uit = JSON.parse(JSON.stringify(PE, (k, v) => k[0] === '_' ? undefined : v));
+  const gewijzigd = new Set();
+  PE.rijbanen.forEach((b, i) => {
+    if (!b._bewerkt && !b._herreken) return;
+    const o = uit.rijbanen[i];
+    if (b._bewerkt) o.punten = herbemonster(b.punten, 2, b.gesloten);
+    o.lengte_px = rond(lengte(lusPunten(o)));
+    if (uit.schaal && uit.schaal.px_per_m) o.lengte_m = rond(o.lengte_px / uit.schaal.px_per_m);
+    gewijzigd.add(o.id);
+  });
+  if (gewijzigd.size) { // afstanden langs gewijzigde rijbanen opnieuw meten
+    const baan = id => uit.rijbanen.find(b => b.id === id);
+    planPunten(uit).forEach(({ p }) => { if (gewijzigd.has(p.baan) && baan(p.baan)) p.afstand_px = rond(projectie(lusPunten(baan(p.baan)), [p.x, p.y]).s); });
+    uit.rijbanen.forEach(r => {
+      if (r.begin && gewijzigd.has(r.begin.van) && baan(r.begin.van) && !r.begin.einde) r.begin.afstand_px = rond(projectie(lusPunten(baan(r.begin.van)), r.punten[0]).s);
+      if (r.eind && gewijzigd.has(r.eind.voegt_in_op) && baan(r.eind.voegt_in_op)) r.eind.afstand_px = rond(projectie(lusPunten(baan(r.eind.voegt_in_op)), r.punten[r.punten.length - 1]).s);
+    });
+  }
+  const tekst = JSON.stringify(uit);
+  if (tekst.length > 96000) { toast('Het plan is te groot: ' + kb(tekst.length) + ' (de doos bewaart hoogstens 96 kB).', true); return; }
+  try {
+    const j = await api('/api/plan', uit, 'PUT');
+    if (j.ok === false) { toast(j.fout || 'De doos weigerde het plan.', true); return; }
+    // meetpunten: de koppeling met een ingang of ontvanger ook aan de doos melden
+    for (const { p } of planPunten(uit, MEET)) {
+      const k = p.koppeling || {}, d = puntKop(p.id);
+      if ((k.ingang || 0) !== (d.ingang || 0) || (k.ontvanger || 0) !== (d.ontvanger || 0))
+        await api('/api/punt', k.ingang ? { id: p.id, ingang: k.ingang } : k.ontvanger ? { id: p.id, ontvanger: k.ontvanger } : { id: p.id, ingang: 0 });
+    }
+  } catch (e) { toast('Geen verbinding met de doos.', true); return; }
+  P = uit;
+  sluitPlan();
+  toast('Plan bewaard (' + kb(tekst.length) + ')');
+  bouwPlanInfo(); bouwPunten(); bouwHaltes();
+  peil();
+}
+addEventListener('resize', () => { if (PE) tekenSvg(); });
+
 // ----------------------------------------------------------------------------------------------- starten
 document.querySelectorAll('.tabs button').forEach(b => b.addEventListener('click', () => kiesTab(b.dataset.tab)));
 $('#allesUit').addEventListener('click', () => {
@@ -1087,6 +2177,10 @@ $('#test-stop-balk').addEventListener('click', () => stuur('/api/test', { actie:
 $('#thuis-bewaar').addEventListener('click', () => bewaarThuisnet(false));
 $('#thuis-uit').addEventListener('click', () => bewaarThuisnet(true));
 $('#fw-bewaar').addEventListener('click', bijwerken);
+$('#ir-leer').addEventListener('click', () => stuur('/api/ir', { actie: 'leren', naam: $('#ir-naam').value.trim() || 'Nieuwe code', ontvanger: +$('#ir-ontv').value }, 'Leren gestart: 10 s'));
+$('#servo-nieuw').addEventListener('click', () => { servoOpen = -1; servoC = { nr: vrijNr(servosLijst(), NSERVO), naam: '', kanaal: vrijNr(servosLijst().map(x => ({ nr: x.kanaal })), 16) || 1, a: 1000, b: 2000, snelheid: 400, soort: 'wissel' }; bouwServos(); });
+$('#bus-nieuw').addEventListener('click', () => { busOpen = -1; busC = { nr: 0, naam: '', kleur: '#1f6fd1', code: '' }; bouwBussen(); });
+$('#halte-nieuw').addEventListener('click', () => { halteOpen = -1; halteC = { nr: vrijNr(haltesLijst(), NHALTE), naam: '', aankomstPunt: '', stopLeds: [], stopCode: 0, rijdCode: 0, wachtS: 12, vrijIngangen: [], vrijMinS: 3, licht: { rood: 0, oranje: 0, groen: 0 }, groenS: 5, servo: 0 }; bouwHaltes(); });
 $('#ww-toon').addEventListener('change', e => { $('#ww1').type = $('#ww2').type = e.target.checked ? 'text' : 'password'; });
 $('#fabriek').addEventListener('click', () => {
   if (confirm('Alle namen, scènes, functies, ingangen en het wifi-wachtwoord gaan terug naar de beginwaarden. Doorgaan?'))
@@ -1094,6 +2188,7 @@ $('#fabriek').addEventListener('click', () => {
 });
 // ------------------------------------------------------------------------------------------------ demo
 // Zonder doos (bestand rechtstreeks geopend): nepgegevens die zich gedragen zoals de doos (zelfde API).
+const PLAN_DEMO = {"titel":"Situatieplan Station Turnhout - busbaan en autoparcours","versie":2,"achtergrond":"achtergrond.jpg","breedte":1718,"hoogte":724,"schaal":{"px_per_m":5},"rijbanen":[{"id":"autolus","naam":"Autoparcours Stationstraat (heen en terug, keerlus aan de rotonde en aan de rechterrand)","soort":"auto","gesloten":true,"breedte_px":25.5,"begin":null,"eind":null,"punten":[[597,588],[1687,588],[1697,585],[1701,578],[1699,568],[1692,562],[307,561],[288,558],[275,553],[264,542],[248,519],[235,506],[216,496],[196,492],[171,496],[160,501],[148,509],[139,519],[132,529],[124,554],[124,566],[126,580],[137,601],[144,610],[155,619],[177,629],[201,630],[222,625],[237,615],[248,604],[256,592],[263,589],[595,588]]},{"id":"busbaan","naam":"Busbaan rond het hotel (alleen bussen)","soort":"bus","gesloten":false,"breedte_px":30,"begin":{"van":"autolus","wissel":"W1","afstand_px":1173.1},"eind":{"gaat_over_in":"halte_lijnbus3"},"punten":[[1647,562],[1637,560],[1628,556],[1622,548],[1617,537],[1617,377],[1615,365],[1610,354],[1602,345],[1594,339],[1581,334],[665,334]]},{"id":"halte_lijnbus3","naam":"Haltestrook Lijnbus 3","soort":"bus","gesloten":false,"breedte_px":50,"begin":{"van":"busbaan","einde":true,"afstand_px":1178.5},"eind":{"voegt_in_op":"autolus","afstand_px":2315.2},"punten":[[665,334],[652,337],[643,346],[548,551],[543,557],[534,561],[504,562]]},{"id":"halte_lijnbus2","naam":"Haltestrook Lijnbus 2","soort":"bus","gesloten":false,"breedte_px":50,"begin":{"van":"busbaan","wissel":"W4","afstand_px":1052.4},"eind":{"voegt_in_op":"autolus","afstand_px":2200.2},"punten":[[791,334],[779,336],[769,346],[665,552],[659,557],[650,561],[620,562]]},{"id":"halte_lijnbus1","naam":"Haltestrook Lijnbus 1","soort":"bus","gesloten":false,"breedte_px":50,"begin":{"van":"busbaan","wissel":"W3","afstand_px":926.4},"eind":{"voegt_in_op":"autolus","afstand_px":2073.2},"punten":[[917,334],[905,336],[895,346],[791,552],[785,557],[776,561],[746,562]]},{"id":"halte_standmodel","naam":"Haltestrook Standmodel","soort":"bus","gesloten":false,"breedte_px":50,"begin":{"van":"busbaan","wissel":"W2","afstand_px":803.3},"eind":{"voegt_in_op":"autolus","afstand_px":1952.2},"punten":[[1040,334],[1029,336],[1019,346],[911,554],[905,559],[895,562],[867,562]]}],"wissels":[{"id":"W1","naam":"Wissel 1","x":1647,"y":562,"baan":"autolus","rechtdoor":"autolus","afbuigen":"busbaan","koppeling":{"servo":1}},{"id":"W2","naam":"Wissel 2","x":1040,"y":334,"baan":"busbaan","rechtdoor":"busbaan","afbuigen":"halte_standmodel","koppeling":{"servo":2}},{"id":"W3","naam":"Wissel 3","x":917,"y":334,"baan":"busbaan","rechtdoor":"busbaan","afbuigen":"halte_lijnbus1","koppeling":{"servo":3}},{"id":"W4","naam":"Wissel 4","x":791,"y":334,"baan":"busbaan","rechtdoor":"busbaan","afbuigen":"halte_lijnbus2","koppeling":{"servo":4}}],"stoppunten":[{"id":"STOP_lijnbus3","naam":"Stoppunt Lijnbus 3","x":587,"y":468,"baan":"halte_lijnbus3","koppeling":{"halte":3}},{"id":"STOP_lijnbus2","naam":"Stoppunt Lijnbus 2","x":707,"y":468,"baan":"halte_lijnbus2","koppeling":{"halte":2}},{"id":"STOP_lijnbus1","naam":"Stoppunt Lijnbus 1","x":834,"y":468,"baan":"halte_lijnbus1","koppeling":{"halte":1}},{"id":"STOP_standmodel","naam":"Stoppunt Standmodel","x":956,"y":468,"baan":"halte_standmodel","koppeling":{"halte":4}}],"ir_leds":[{"id":"IR5","naam":"IR LED 5","x":551,"y":468,"stoppunt":"STOP_lijnbus3","baan":"halte_lijnbus3","koppeling":{"irled":5}},{"id":"IR6","naam":"IR LED 6","x":671,"y":468,"stoppunt":"STOP_lijnbus2","baan":"halte_lijnbus2","koppeling":{"irled":6}},{"id":"IR7","naam":"IR LED 7","x":798,"y":468,"stoppunt":"STOP_lijnbus1","baan":"halte_lijnbus1","koppeling":{"irled":7}}],"hallsensoren":[{"id":"HALL1","naam":"Hall sensor 1","x":982,"y":562,"baan":"autolus","koppeling":{"ingang":17}}],"verkeerslichten":[{"id":"VL_lijnbus3","naam":"Verkeerslicht Lijnbus 3","x":596,"y":522,"baan":"halte_lijnbus3","koppeling":{"halte":3}},{"id":"VL_lijnbus2","naam":"Verkeerslicht Lijnbus 2","x":714,"y":522,"baan":"halte_lijnbus2","koppeling":{"halte":2}},{"id":"VL_lijnbus1","naam":"Verkeerslicht Lijnbus 1","x":840,"y":522,"baan":"halte_lijnbus1","koppeling":{"halte":1}},{"id":"VL_standmodel","naam":"Verkeerslicht Standmodel","x":962,"y":522,"baan":"halte_standmodel","koppeling":{"halte":4}}],"ir_sensoren":[{"id":"IRS1","naam":"IR-ontvanger busbaan","x":1617,"y":450,"baan":"busbaan","koppeling":{"ontvanger":2}},{"id":"IRS2","naam":"IR-ontvanger rotonde","x":420,"y":588,"baan":"autolus","koppeling":{"ontvanger":3}}],"lichtgroepen":[{"id":"LG1","naam":"Station","x":900,"y":150,"koppeling":{"groep":1}},{"id":"LG2","naam":"Straatlampen","x":1250,"y":650,"koppeling":{"groep":8}}],"lantaarns":[],"speakers":[{"id":"SPK1","naam":"Kastje station","x":700,"y":150,"koppeling":{"kastje":"Station"}}],"servos":[{"id":"SRV1","naam":"Slagboom overweg","x":1480,"y":640,"koppeling":{"servo":5}}],"seinen":[{"id":"SEIN1","naam":"Armsein spoor 1","x":120,"y":110,"koppeling":{"servo":6}}]};
 const Demo = (() => {
   const namen = ['Station', 'Perron', 'Overweg links', 'Overweg rechts', 'Kerk', 'Café De Zwaan', 'Huizen dorp', 'Straatlampen',
     'Werkplaats lasser', 'Kampvuur', 'Tv woonkamer', 'Seinhuis', 'Loods', 'Boerderij', 'Kasteel', 'Tunnel'];
@@ -1149,7 +2244,7 @@ const Demo = (() => {
   // functies echt afspelen (met de echte wachttijden)
   const klok = {};
   const voerUit = s => {
-    const gs = s.groepen.map(n => n - 1);
+    const gs = (s.groepen || []).map(n => n - 1);
     if (s.actie === 'aan' || s.actie === 'uit') gs.forEach(i => zet(i, { aan: s.actie === 'aan' }));
     if (s.actie === 'effect') gs.forEach((i, k) => {
       zet(i, { aan: true, effect: s.effect });
@@ -1157,6 +2252,7 @@ const Demo = (() => {
     });
     if (s.actie === 'scene') roepOp(s.waarde - 1);
     if (s.actie === 'dagnacht') { st.dagnacht.loopt = !!s.waarde; dnStart = Date.now(); }
+    if (s.actie === 'servo') servoNaar(s.servo, s.stand);
     if (s.actie === 'wissel') { const aan = gs.some(i => st.groepen[i].aan); gs.forEach(i => zet(i, { aan: !aan })); }
   };
   const roepOp = i => { const s = st.scenes[i]; if (s) s.groepen.forEach((g, j) => Object.assign(st.groepen[j], g, { start: 0 })); };
@@ -1165,7 +2261,7 @@ const Demo = (() => {
     if (!st.lopend[f]) return;
     st.lopend[f] = false;
     const fn = st.functies[f];
-    if (licht && fn && fn.stopUit) fn.stappen.forEach(s => { if (s.actie !== 'scene' && s.actie !== 'dagnacht' && s.actie !== 'wissel') s.groepen.forEach(n => zet(n - 1, { aan: false })); });
+    if (licht && fn && fn.stopUit) fn.stappen.forEach(s => { if (s.actie === 'aan' || s.actie === 'uit' || s.actie === 'effect') s.groepen.forEach(n => zet(n - 1, { aan: false })); });
   };
   const start = f => {
     stop(f, false);
@@ -1213,11 +2309,82 @@ const Demo = (() => {
       default: return true;
     }
   };
+  // ---- versie 6: 24 ingangen (17-24 op de MCP23017, hier PNP), IR, servo's, bussen, haltes, kastjes, plan
+  const t0 = Date.now();
+  st.versie = '2.0.0 (voorbeeld)';
+  for (let i = 16; i < 24; i++) st.ingangen.push({ nr: i + 1, naam: 'Ingang ' + (i + 1), soort: 'contact', vasthouden: 0.3, gedrag: 'geen', functieA: 0, functieB: 0, wisselen: false, nalopen: 10, actief: false, teller: 0, toestand: 'rust' });
+  st.ingangen.forEach((x, i) => { x.polariteit = i >= 16 ? 'pnp' : 'npn'; });
+  Object.assign(st.ingangen[16], { naam: 'Hall sensor 1', soort: 'puls', teller: 52 });
+  Object.assign(st.ingangen[17], { naam: 'Lichtsluis invoeging', gedrag: 'sensor', nalopen: 3, teller: 14 });
+  const code = (naam, soort, adres, commando, khz, extra) => Object.assign({ naam, soort, khz: khz || 38, adres, commando, herhaal: 1 }, extra);
+  st.ir = { codes: Array(32).fill(null) };
+  [code('Herkenning bus 1', 'nec', 1, 1), code('Herkenning bus 2', 'nec', 1, 2), code('Stop bus', 'nec', 0, 18), code('Rijden bus', 'nec', 0, 19),
+    code('Knipperlicht bus', 'rc5', 5, 12, 36), code('Toeter (opgenomen)', 'raw', 0, 0, 38, { raw: Array(67).fill(560) })].forEach((c, i) => { st.ir.codes[i] = Object.assign({ nr: i + 1 }, c); });
+  st.punten = [{ id: 'HALL1', ingang: 17 }, { id: 'IRS1', ontvanger: 2 }, { id: 'IRS2', ontvanger: 3 }];
+  st.leren = { loopt: false };
+  let leren = null;
+  const servo = (naam, soort, kanaal, a, b, snelheid) => ({ naam, soort, kanaal, a, b, snelheid, us: a, stand: 'a', doel: a });
+  st.servos = Array(16).fill(null);
+  [servo('Wissel 1', 'wissel', 1, 1100, 1900, 600), servo('Wissel 2', 'wissel', 2, 1150, 1850, 600), servo('Wissel 3', 'wissel', 3, 1120, 1880, 600),
+    servo('Wissel 4', 'wissel', 4, 1100, 1900, 600), servo('Slagboom overweg', 'slagboom', 5, 1000, 1950, 300), servo('Armsein spoor 1', 'armsein', 6, 1300, 1700, 200)]
+    .forEach((s, i) => { st.servos[i] = Object.assign({ nr: i + 1 }, s); });
+  st.servos[2].doel = st.servos[2].b;
+  const servoNaar = (nr, stand) => { const x = st.servos[nr - 1]; if (x) x.doel = stand === 'wissel' ? (x.doel === x.a ? x.b : x.a) : stand === 'b' ? x.b : x.a; };
+  st.bussen = [{ nr: 1, naam: 'Lijnbus 1', kleur: '#d23b2b', code: 'nec:01FE01FE' }, { nr: 2, naam: 'Lijnbus 2', kleur: '#1f6fd1', code: 'nec:01FE02FD' },
+    { nr: 3, naam: 'Lijnbus 3', kleur: '#e0a400', code: 'nec:01FE03FC' }];
+  const halte = (nr, naam, punt, led) => ({ nr, naam, aankomstPunt: punt, stopLeds: [led], stopCode: 3, rijdCode: 4, wachtS: 12, vrijIngangen: [17], vrijMinS: 3, licht: { rood: 0, oranje: 0, groen: 0 }, groenS: 5, servo: 0 });
+  st.haltes = [halte(1, 'Halte Lijnbus 1', 'STOP_lijnbus1', 7), halte(2, 'Halte Lijnbus 2', 'STOP_lijnbus2', 6), halte(3, 'Halte Lijnbus 3', 'STOP_lijnbus3', 5)];
+  Object.assign(st.haltes[0], { licht: { rood: 13, oranje: 14, groen: 15 }, servo: 5 });
+  st.kastjes = [{ id: 'a1b2c3', naam: 'Kerk', ip: '192.168.4.23', versie: '1.0.0', online: true, volume: 70, vrij: 1015000, geluiden: [{ naam: 'klok.wav', s: 4.2 }, { naam: 'orgel.wav', s: 12.5 }] },
+    { id: 'd4e5f6', naam: 'Station', ip: '192.168.4.24', versie: '1.0.0', online: true, volume: 85, vrij: 806000, geluiden: [{ naam: 'omroep.wav', s: 6.1 }, { naam: 'fluit.wav', s: 1.3 }, { naam: 'trein-komt.wav', s: 3.8 }] },
+    { id: '0c9a7e', naam: 'Café', ip: '192.168.4.25', versie: '1.0.0', online: false, geluiden: [] }];
+  let plan = PLAN_DEMO;
+  // live: servo's bewegen, bussen rijden langs de meetpunten, haltes doorlopen hun fasen, ontvangers lezen codes
+  let servoT = Date.now();
+  const HDUUR = [['vrij', 10], ['aankomst', 2], ['stop', 3], ['wachten', 12], ['verkeer', 3], ['groen', 5], ['vertrek', 2]];
+  const ROUTE = [['IRS2', 'HALL1', 9, 'rijdt'], ['HALL1', 'IRS1', 7, 'rijdt'], ['IRS1', 'STOP', 9, 'rijdt'], ['STOP', 'IRS2', 20, 'halte']];
+  const baanBijwerken = t => {
+    const ms = t - t0, dt = (t - servoT) / 1000;
+    servoT = t;
+    st.msNu = ms;
+    st.servos.forEach(x => {
+      if (!x) return;
+      const stap = x.snelheid ? x.snelheid * dt : 1e9;
+      x.us = Math.round(x.us + Math.max(-stap, Math.min(stap, x.doel - x.us)));
+      x.stand = x.us === x.a ? 'a' : x.us === x.b ? 'b' : 'onderweg';
+    });
+    if (leren) {
+      const s = (t - leren.start) / 1000;
+      if (s < 6) st.leren = { loopt: true, ontvanger: leren.ontvanger, resterendS: Math.ceil(10 - s) };
+      else {
+        const p = vrijePlaats(st.ir.codes);
+        if (p >= 0) st.ir.codes[p] = Object.assign({ nr: p + 1 }, code(leren.naam, 'nec', 0, 20 + p));
+        st.leren = { loopt: false, nr: p + 1 };
+        leren = null;
+        st.rev++;
+      }
+    }
+    st.bussen.forEach((b, k) => {
+      let s = (ms / 1000 + k * 15) % 45, i = 0;
+      while (s > ROUTE[i][2]) { s -= ROUTE[i][2]; i++; }
+      const r = ROUTE[i], stop = 'STOP_lijnbus' + ((k % 3) + 1);
+      Object.assign(b, { van: r[0] === 'STOP' ? stop : r[0], naar: r[1] === 'STOP' ? stop : r[1], fractie: r[3] === 'halte' ? 0 : Math.min(0.98, s / r[2]), gezienMs: ms - Math.round(s * 1000), staat: r[3] });
+    });
+    st.haltes.forEach(x => {
+      let s = (ms / 1000 + x.nr * 11) % 37, i = 0;
+      while (s > HDUUR[i][1]) { s -= HDUUR[i][1]; i++; }
+      x.fase = HDUUR[i][0];
+      x.resterendS = ['stop', 'wachten', 'groen', 'vertrek'].includes(x.fase) ? Math.ceil(HDUUR[i][1] - s) : 0;
+      x.bus = x.fase === 'vrij' ? 0 : x.nr;
+    });
+    const n = Math.floor(ms / 3500) + 7;
+    st.irLaatst = Array.from({ length: 8 }, (x, i) => n - i).map(i => ({ ontvanger: 2 + (i % 2), code: i % 5 === 4 ? 'nec:00FF12ED' : (st.bussen[i % 3] || st.bussen[0] || { code: 'nec:00FF12ED' }).code, ms: (i - 7) * 3500 - 400 }));
+  };
   const fout = t => ({ ok: false, fout: t });
   let testStart = 0;
   const vrijePlaats = lijst => lijst.findIndex(x => !x);
 
-  async function vraag(pad, b) {
+  async function vraag(pad, b, methode) {
     await new Promise(r => setTimeout(r, 40));
     const t = Date.now();
     if (pad.startsWith('/api/staat')) {
@@ -1231,6 +2398,7 @@ const Demo = (() => {
       st.dagnacht.pos = st.dagnacht.loopt ? pos : 0;
       st.dagnacht.fase = !st.dagnacht.loopt ? '' : pos < 0.40 ? 'dag' : pos < 0.55 ? 'avond' : pos < 0.85 ? 'nacht' : pos < 0.97 ? 'ochtend' : 'dag';
       ingangenBijwerken(t);
+      baanBijwerken(t);
       return JSON.parse(JSON.stringify(st));
     }
     b = b || {};
@@ -1283,6 +2451,7 @@ const Demo = (() => {
         break;
       }
       case '/api/ingang': {
+        if (b.groep) { st.ingangen.slice((b.groep - 1) * 8, b.groep * 8).forEach(x => { x.polariteit = b.polariteit; }); st.rev++; break; }
         if (b.tellersNul) { st.ingangen.forEach(x => { x.teller = 0; }); break; }
         const x = st.ingangen[b.nr - 1], w = Object.assign({}, b);
         if (w.tellerNul) x.teller = 0;
@@ -1314,11 +2483,78 @@ const Demo = (() => {
         st.dagnacht.loopt = true;
         break;
       }
+      case '/api/plan':
+        if (methode !== 'PUT') return JSON.parse(JSON.stringify(plan));
+        plan = b;
+        break;
+      case '/api/ir': {
+        const c = st.ir.codes, i = (b.nr || 0) - 1;
+        if (b.actie === 'leren') { leren = { start: t, naam: b.naam, ontvanger: b.ontvanger || 1 }; st.leren = { loopt: true, ontvanger: leren.ontvanger, resterendS: 10 }; break; }
+        if (b.actie === 'bewaren') {
+          const p = i >= 0 ? i : vrijePlaats(c);
+          if (p < 0) return fout('Alle 32 plaatsen voor IR-codes zijn bezet.');
+          c[p] = Object.assign({ nr: p + 1 }, b.code);
+          st.rev++;
+          return { ok: true, nr: p + 1 };
+        }
+        if (!c[i]) return fout('Deze code bestaat niet.');
+        if (b.actie === 'wissen') c[i] = null;
+        if (b.actie === 'hernoemen') c[i].naam = b.naam;
+        if (b.actie !== 'zenden') st.rev++;
+        break;
+      }
+      case '/api/bus': {
+        if (b.actie === 'gezien') break;
+        const i = st.bussen.findIndex(y => y.nr === b.nr);
+        if (b.actie === 'wissen') { if (i >= 0) st.bussen.splice(i, 1); }
+        else if (i >= 0) Object.assign(st.bussen[i], b); else st.bussen.push(Object.assign({}, b));
+        st.rev++;
+        break;
+      }
+      case '/api/punt':
+        st.punten = st.punten.filter(x => x.id !== b.id);
+        if (b.ingang || b.ontvanger) st.punten.push(Object.assign({}, b));
+        st.rev++;
+        break;
+      case '/api/servo': {
+        const i = (b.nr || 0) - 1;
+        if (b.actie === 'wissen') { st.servos[i] = null; st.rev++; break; }
+        if (b.naar) { if (!st.servos[i]) return fout('Deze servo bestaat niet.'); servoNaar(b.nr, b.naar); break; }
+        if (b.proef != null) { if (st.servos[i]) st.servos[i].doel = b.proef; break; }
+        st.servos[i] = Object.assign({ us: b.a, stand: 'a', doel: b.a }, st.servos[i], b);
+        st.rev++;
+        break;
+      }
+      case '/api/halte': {
+        const i = st.haltes.findIndex(y => y.nr === b.nr);
+        if (b.actie === 'wissen') { if (i >= 0) st.haltes.splice(i, 1); }
+        else if (i >= 0) Object.assign(st.haltes[i], b); else st.haltes.push(Object.assign({}, b));
+        st.rev++;
+        break;
+      }
+      case '/api/kastje':
+        if (b.actie === 'hernoemen') { const k = st.kastjes.find(x => x.id === b.id); if (k) { k.naam = b.naam; st.rev++; } }
+        break;
       default: return fout('Onbekende vraag.');
     }
     return { ok: true };
   }
-  return { vraag };
+  // een geluidskastje rechtstreeks (in het echt: fetch naar http://<ip>/...)
+  async function kastje(k, pad, opt) {
+    await new Promise(r => setTimeout(r, 60));
+    const x = st.kastjes.find(y => y.id === k.id), naam = decodeURIComponent(pad.split('naam=')[1] || '');
+    if (!x || x.online === false) throw new Error('weg');
+    if (pad === '/info') return { id: x.id, naam: x.naam, geluiden: x.geluiden, vrij: x.vrij, totaal: 1400000, versie: x.versie, volume: x.volume, speelt: '' };
+    if (pad === '/volume') x.volume = JSON.parse(opt.body).volume;
+    if (pad.startsWith('/geluid') && opt.method === 'DELETE') x.geluiden = x.geluiden.filter(g => g.naam !== naam);
+    if (pad.startsWith('/geluid') && opt.method === 'POST') {
+      const f = opt.body.get('bestand');
+      x.geluiden = x.geluiden.filter(g => g.naam !== naam).concat([{ naam, s: Math.round((f.size - 44) / 4410) / 10 }]);
+      x.vrij -= f.size;
+    }
+    return { ok: true };
+  }
+  return { vraag, kastje };
 })();
 
 kiesTab(tab);

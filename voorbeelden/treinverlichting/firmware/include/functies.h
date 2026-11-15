@@ -27,6 +27,8 @@ constexpr int MAX_FUNCTIES = 16;
 constexpr int MAX_STAPPEN = 12;
 constexpr uint32_t MAX_WACHT_MS = 3600000u; // 1 uur per stap
 constexpr uint32_t MIN_HERHAAL_MS = 100;    // een herhalende functie duurt minstens zo lang (anders geen herhalen)
+constexpr int KASTJE_NAAM_LEN = 24;         // naam van een geluidskastje (bytes met de 0)
+constexpr int GELUID_LEN = 32;              // bestandsnaam van een geluid op een kastje ("klok.wav")
 
 /** een naam kopiëren: hooguit NAAM_LEN-1 bytes, niet midden in een UTF-8-teken afknippen, geen stuurtekens.
  *  Geeft true als er iets aangepast moest worden. */
@@ -65,10 +67,12 @@ struct Scene {
 
 // wissel: staat een van de gekozen groepen aan, dan gaan ze allemaal uit, anders allemaal aan (knop "alles aan/uit")
 // (firmware 1.2 had ook "helderheid": een oude stap met helderheid wordt bij het laden "aan", opslag.h)
-enum Actie : uint8_t { ACT_AAN, ACT_UIT, ACT_EFFECT, ACT_SCENE, ACT_DAGNACHT, ACT_WISSEL, N_ACTIES };
+// Firmware 2.0.0: servo (een servo naar A, B of wisselen), ir (een IR-code zenden via gekozen IR-leds), geluid (een
+// geluidskastje een geluid laten spelen). Die stappen hebben geen groepen.
+enum Actie : uint8_t { ACT_AAN, ACT_UIT, ACT_EFFECT, ACT_SCENE, ACT_DAGNACHT, ACT_WISSEL, ACT_SERVO, ACT_IR, ACT_GELUID, N_ACTIES };
 
 inline const char *actieId(int a) {
-  static const char *T[N_ACTIES] = {"aan", "uit", "effect", "scene", "dagnacht", "wissel"};
+  static const char *T[N_ACTIES] = {"aan", "uit", "effect", "scene", "dagnacht", "wissel", "servo", "ir", "geluid"};
   return T[(a >= 0 && a < N_ACTIES) ? a : 0];
 }
 
@@ -82,7 +86,13 @@ inline int actieVanId(const char *id) {
 struct Stap {
   GroepMasker groepen = 0; // bit i = groep i+1
   uint8_t actie = ACT_AAN;
-  int32_t waarde = 0;     // scene: scènenummer 1..12; dagnacht: 1 = starten, 0 = stoppen
+  int32_t waarde = 0;     // scene: scènenummer 1..12; dagnacht: 1 = starten, 0 = stoppen; servo: servo 1..16;
+                          // ir: code 1..32
+  uint8_t stand = 0;      // servo: 0 = a, 1 = b, 2 = wisselen
+  uint8_t leds = 0;       // ir: bit k = IR-led k+1 (0 = alle)
+  uint8_t volume = 80;    // geluid: 0..100
+  char kastje[KASTJE_NAAM_LEN] = {0};
+  char geluid[GELUID_LEN] = {0};
   uint8_t effect = FX_GEEN;
   int32_t p1 = 0, p2 = 0; // de instellingen van het effect
   uint32_t wachtMs = 0;   // na deze stap zo lang wachten
@@ -100,7 +110,7 @@ struct Functie {
   GroepMasker groepenInStappen() const {
     GroepMasker m = 0;
     for (int i = 0; i < nStappen; i++)
-      if (stap[i].actie != ACT_SCENE && stap[i].actie != ACT_DAGNACHT) m |= stap[i].groepen;
+      if (stap[i].actie <= ACT_EFFECT || stap[i].actie == ACT_WISSEL) m |= stap[i].groepen;
     return m;
   }
   uint32_t totaleWacht() const {

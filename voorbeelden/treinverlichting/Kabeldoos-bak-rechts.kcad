@@ -4,8 +4,8 @@
  "name": "Kabeldoos (bak rechts)",
  "units": "mm",
  "planes": {
-  "y26": {
-   "id": "y26",
+  "y14": {
+   "id": "y14",
    "name": "Plane onderkant bodem",
    "origin": [
     0,
@@ -29,8 +29,8 @@
    ],
    "kind": "reference"
   },
-  "y27": {
-   "id": "y27",
+  "y15": {
+   "id": "y15",
    "name": "Plane bovenrand",
    "origin": [
     0,
@@ -54,8 +54,8 @@
    ],
    "kind": "reference"
   },
-  "z28": {
-   "id": "z28",
+  "z16": {
+   "id": "z16",
    "name": "Plane kabelinvoer voor",
    "origin": [
     0,
@@ -79,8 +79,8 @@
    ],
    "kind": "reference"
   },
-  "z29": {
-   "id": "z29",
+  "z17": {
+   "id": "z17",
    "name": "Plane kabelinvoer achter",
    "origin": [
     0,
@@ -104,8 +104,8 @@
    ],
    "kind": "reference"
   },
-  "x30": {
-   "id": "x30",
+  "x18": {
+   "id": "x18",
    "name": "Plane kabelinvoer rechts",
    "origin": [
     326,
@@ -129,8 +129,8 @@
    ],
    "kind": "reference"
   },
-  "z31": {
-   "id": "z31",
+  "z19": {
+   "id": "z19",
    "name": "Plane opening USB",
    "origin": [
     0,
@@ -154,8 +154,8 @@
    ],
    "kind": "reference"
   },
-  "z32": {
-   "id": "z32",
+  "z20": {
+   "id": "z20",
    "name": "Plane DC-bus",
    "origin": [
     0,
@@ -179,8 +179,8 @@
    ],
    "kind": "reference"
   },
-  "y33": {
-   "id": "y33",
+  "y21": {
+   "id": "y21",
    "name": "Plane sleutelgaten",
    "origin": [
     0,
@@ -204,8 +204,8 @@
    ],
    "kind": "reference"
   },
-  "y34": {
-   "id": "y34",
+  "y22": {
+   "id": "y22",
    "name": "Plane sleutelgaten sleuf",
    "origin": [
     0,
@@ -229,8 +229,8 @@
    ],
    "kind": "reference"
   },
-  "y35": {
-   "id": "y35",
+  "y23": {
+   "id": "y23",
    "name": "Plane bodemlippen",
    "origin": [
     0,
@@ -254,8 +254,8 @@
    ],
    "kind": "reference"
   },
-  "y36": {
-   "id": "y36",
+  "y24": {
+   "id": "y24",
    "name": "Plane pilaren",
    "origin": [
     0,
@@ -279,8 +279,8 @@
    ],
    "kind": "reference"
   },
-  "z37": {
-   "id": "z37",
+  "z25": {
+   "id": "z25",
    "name": "Plane klikhaak achter",
    "origin": [
     0,
@@ -304,8 +304,8 @@
    ],
    "kind": "reference"
   },
-  "z38": {
-   "id": "z38",
+  "z26": {
+   "id": "z26",
    "name": "Plane klikhaak voor",
    "origin": [
     0,
@@ -329,8 +329,8 @@
    ],
    "kind": "reference"
   },
-  "y39": {
-   "id": "y39",
+  "y27": {
+   "id": "y27",
    "name": "Plane nokken klikhaken",
    "origin": [
     0,
@@ -354,8 +354,8 @@
    ],
    "kind": "reference"
   },
-  "y40": {
-   "id": "y40",
+  "y28": {
+   "id": "y28",
    "name": "Plane Palen modules",
    "origin": [
     0,
@@ -379,8 +379,8 @@
    ],
    "kind": "reference"
   },
-  "y41": {
-   "id": "y41",
+  "y29": {
+   "id": "y29",
    "name": "Plane Schroefbussen",
    "origin": [
     0,
@@ -404,8 +404,8 @@
    ],
    "kind": "reference"
   },
-  "y42": {
-   "id": "y42",
+  "y30": {
+   "id": "y30",
    "name": "Plane Klikhouders WAGO",
    "origin": [
     0,
@@ -429,8 +429,8 @@
    ],
    "kind": "reference"
   },
-  "y43": {
-   "id": "y43",
+  "y31": {
+   "id": "y31",
    "name": "Plane Schroefgaten modules",
    "origin": [
     0,
@@ -454,8 +454,8 @@
    ],
    "kind": "reference"
   },
-  "y44": {
-   "id": "y44",
+  "y32": {
+   "id": "y32",
    "name": "Plane Schroefgaten bussen",
    "origin": [
     0,
@@ -486,7 +486,7 @@
   "s1": {
    "id": "s1",
    "name": "Sketch1",
-   "plane": "y26",
+   "plane": "y14",
    "points": {
     "origin_s1": {
      "x": 0,
@@ -594,7 +594,7 @@
   "s2": {
    "id": "s2",
    "name": "Sketch2",
-   "plane": "y27",
+   "plane": "y15",
    "points": {
     "origin_s2": {
      "x": 0,
@@ -702,7 +702,7 @@
   "s3": {
    "id": "s3",
    "name": "Sketch3",
-   "plane": "z28",
+   "plane": "z16",
    "points": {
     "origin_s3": {
      "x": 0,
@@ -761,7 +761,7 @@
   "s4": {
    "id": "s4",
    "name": "Sketch4",
-   "plane": "z29",
+   "plane": "z17",
    "points": {
     "origin_s4": {
      "x": 0,
@@ -807,7 +807,7 @@
   "s5": {
    "id": "s5",
    "name": "Sketch5",
-   "plane": "x30",
+   "plane": "x18",
    "points": {
     "origin_s5": {
      "x": 0,
@@ -879,7 +879,7 @@
   "s6": {
    "id": "s6",
    "name": "Sketch6",
-   "plane": "z31",
+   "plane": "z19",
    "points": {
     "origin_s6": {
      "x": 0,
@@ -1024,7 +1024,7 @@
   "s7": {
    "id": "s7",
    "name": "Sketch7",
-   "plane": "z32",
+   "plane": "z20",
    "points": {
     "origin_s7": {
      "x": 0,
@@ -1057,7 +1057,7 @@
   "s8": {
    "id": "s8",
    "name": "Sketch8",
-   "plane": "y33",
+   "plane": "y21",
    "points": {
     "origin_s8": {
      "x": 0,
@@ -1103,7 +1103,7 @@
   "s9": {
    "id": "s9",
    "name": "Sketch9",
-   "plane": "y34",
+   "plane": "y22",
    "points": {
     "origin_s9": {
      "x": 0,
@@ -1373,7 +1373,7 @@
   "s10": {
    "id": "s10",
    "name": "Sketch10",
-   "plane": "y35",
+   "plane": "y23",
    "points": {
     "origin_s10": {
      "x": 0,
@@ -1632,7 +1632,7 @@
   "s11": {
    "id": "s11",
    "name": "Sketch11",
-   "plane": "y36",
+   "plane": "y24",
    "points": {
     "origin_s11": {
      "x": 0,
@@ -1747,7 +1747,7 @@
   "s12": {
    "id": "s12",
    "name": "Sketch12",
-   "plane": "z37",
+   "plane": "z25",
    "points": {
     "origin_s12": {
      "x": 0,
@@ -1838,7 +1838,7 @@
   "s13": {
    "id": "s13",
    "name": "Sketch13",
-   "plane": "z38",
+   "plane": "z26",
    "points": {
     "origin_s13": {
      "x": 0,
@@ -1929,7 +1929,7 @@
   "s14": {
    "id": "s14",
    "name": "Sketch14",
-   "plane": "y39",
+   "plane": "y27",
    "points": {
     "origin_s14": {
      "x": 0,
@@ -2068,7 +2068,7 @@
   "s15": {
    "id": "s15",
    "name": "Sketch15",
-   "plane": "y40",
+   "plane": "y28",
    "points": {
     "origin_s15": {
      "x": 0,
@@ -2452,7 +2452,7 @@
   "s16": {
    "id": "s16",
    "name": "Sketch16",
-   "plane": "y41",
+   "plane": "y29",
    "points": {
     "origin_s16": {
      "x": 0,
@@ -2524,7 +2524,7 @@
   "s17": {
    "id": "s17",
    "name": "Sketch17",
-   "plane": "y42",
+   "plane": "y30",
    "points": {
     "origin_s17": {
      "x": 0,
@@ -2735,7 +2735,7 @@
   "s18": {
    "id": "s18",
    "name": "Sketch18",
-   "plane": "y43",
+   "plane": "y31",
    "points": {
     "origin_s18": {
      "x": 0,
@@ -5442,7 +5442,7 @@
   "s19": {
    "id": "s19",
    "name": "Sketch19",
-   "plane": "y44",
+   "plane": "y32",
    "points": {
     "origin_s19": {
      "x": 0,

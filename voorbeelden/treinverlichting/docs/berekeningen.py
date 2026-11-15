@@ -1,4 +1,4 @@
-"""Rekenblad van de kabeldoos (treinverlichting): stroom, zekeringen, MOSFET's, ingangen, warmte, klemlippen, draden en de naad.
+"""Rekenblad van de kabeldoos (treinverlichting): stroom, zekeringen, MOSFET's, ingangen, warmte, schroefpaaltjes, draden en de naad.
 
 Draai:  python voorbeelden/treinverlichting/docs/berekeningen.py  -> schrijft docs/Berekeningen.md opnieuw.
 Invoer met bron bovenaan (docs/Maten-en-bronnen.md); aannames heten AANNAME. Het script stopt (assert) als een grens niet
@@ -7,7 +7,8 @@ bodem tegen de baan hangt, klemlippen, de 0 V-retour. Versie 4 (2026-11-13, kant
 optocouplers, optocouplerprints PC817, radiale polyfuses MF-R050, Schottkydiode als ompoolbeveiliging, de regelaar
 SBC-Buck02, een hogere doos. Versie 5 (2026-11-15): één langwerpige doos op één laag in 2 helften die in elkaar klikken
 (de klik van de haken en van de lip van het deksel), groepen alleen aan/uit (firmware 1.3.0, geen dimmers), hallsensoren
-op de ingangen; geen kabelgoten meer (Ian: "Kabel goten mogen weg").
+op de ingangen; geen kabelgoten meer (Ian: "Kabel goten mogen weg"). Versie 5b (2026-11-15): de bordjes vastgeschroefd op
+4 paaltjes in plaats van klemlippen (Ian: "ik wil ze geschroefd hebben"). Versie 6 (2026-11-15): IR-leds, servo's, NPN/PNP.
 """
 import math
 from pathlib import Path
@@ -60,8 +61,12 @@ DOOS = dict(lx=0.4409, lz=0.2298, h=0.0526, alfa=5.0)  # m, W/m²K (AANNAME natu
 HAAK = dict(l=14.0, t=1.6, b0=11.8, d=0.6, ramp=1.2)
 DEKSELLIP = dict(t=1.4, l=12.0, d=0.3, b=[54.0, 54.0, 54.0, 54.0], h=0.5, ramp=1.2)
 MU = 0.3  # wrijving PETG op PETG (AANNAME)
-# klemlip (maten.mjs, M.lip): tong 0,8 x 2,0, haak 0,75 met 0,15 speling, veerlengte 1,8 + 3 + 1,6 + 0,1
-LIP = dict(t=0.8, b=2.0, d=0.75 - 0.15, l=1.8 + 3 + 1.6 + 0.1)
+# schroefpaaltje (maten.mjs, M.schroefpaal): Ø5, voorgat Ø1,6 tot 0,4 boven de onderkant van de bodem (2,4), 3 hoog;
+# plaatschroef voor kunststof 2,0 x 6 met bolkop Ø4 (AANNAME: gangbare maat), print 1,6 dik, gat in de print Ø2,2 (AANNAME)
+PAAL = dict(d=5.0, voorgat=1.6, schroef=2.0, l=6.0, pcb=1.6, gat=2.2, kop=4.0)
+IR = dict(naam='Vishay TSAL6200', vf=1.35, if_dc=0.100, if_piek=0.200, r=120.0, p_r=0.5, duty_draag=1 / 3, duty_code=0.5)  # datablad TSAL6200; duty AANNAME (NEC)
+SERVO = dict(naam='SG90 / MG90S', n=16, tegelijk=4, blok=0.70, rust=0.010, u=5.5, eta=0.88, buck_a=5.0, zekering=3.0)  # stromen AANNAME
+TAU_PETG = 15.0  # MPa: afschuifsterkte van geprint PETG over de laagnaden heen (AANNAME, voorzichtig: ~1/3 van de bulkwaarde)
 PETG = dict(e=2100.0, rek_max=0.02)  # MPa; toelaatbare rek bij herhaald klikken (AANNAME, gangbaar voor PETG)
 KOPER = 0.0175  # Ω mm²/m
 RETOUR = dict(mm2=0.75, l=0.25)  # 0 V-retour van VIN− van een MOSFET-module naar -X2 (lengte uit TRN-14, met lus)
@@ -219,18 +224,25 @@ def maak():
           f'{T_DOOS} °C: daarop zijn de polyfuses hierboven gerekend. Verluchtingsgaten zijn niet nodig; de netadapter (het warmste deel) '
           'hangt buiten de doos. De modules staan in de rechterhelft op de bodem (één laag): de regelaar ('
           f'{f((ESP_W + PCA_W) * (1 / BUCK_ETA - 1), 2)} W) wordt nauwelijks warm.', '']
-    # klemlippen
-    rek_lip = 1.5 * LIP['t'] * LIP['d'] / LIP['l'] ** 2
-    i_lip = LIP['b'] * LIP['t'] ** 3 / 12
-    f_lip = 3 * PETG['e'] * i_lip * LIP['d'] / LIP['l'] ** 3
-    assert rek_lip < PETG['rek_max']
-    L += ['## 6. Klemlippen van de bordjes (PETG)', '',
-          f'Elk bordje zit tussen 4 lippen aan zijn korte kanten. Een lip is een tong van {f(LIP["t"], 1)} x {f(LIP["b"], 1)} die in een '
-          f'kuiltje van 1,8 diep in de bodem begint: veerlengte {f(LIP["l"], 1)} tot de haak. Bij het inleggen duwt de print de '
-          f'schuine kant (45°) {f(LIP["d"], 2)} opzij. Rek = 1,5 t d / L² = **{f(100 * rek_lip)} %** (onder 2 %). Kracht om een lip open '
-          f'te duwen: 3 E I d / L³ = {f(f_lip, 2)} N; de haak grijpt {f(LIP["d"], 2)} mm over de print met een recht vlak eronder: '
-          'het bordje (10 g) en de draden eraan blijven zitten met het deksel eraf en de doos ondersteboven. Uitnemen: de twee lippen '
-          'aan één kant met de spatel naar buiten duwen en het bordje optillen.', '']
+    # schroefpaaltjes
+    wand = (PAAL['d'] - PAAL['voorgat']) / 2
+    greep = PAAL['l'] - PAAL['pcb']
+    f_uit = math.pi * PAAL['schroef'] * greep * TAU_PETG * 0.5  # 0,5: de gang vult maar de helft van de cilinder
+    gewicht = (0.010 + 0.020) * 9.81  # bordje 10 g en de draden die eraan hangen (AANNAME 20 g)
+    assert wand >= 1.2 and 0.75 <= PAAL['voorgat'] / PAAL['schroef'] <= 0.85 and greep >= 4 and PAAL['gat'] > PAAL['schroef']
+    assert PAAL['d'] / PAAL['schroef'] >= 2.0 and f_uit > 50 * gewicht
+    L += ['## 6. Schroefpaaltjes van de bordjes (PETG)', '',
+          'Ian (2026-11-15): "ik wil ze geschroefd hebben. Gaten zitten op 2mm op 2mm van de hoeken van het bordje." Elk bordje '
+          f'ligt op 4 paaltjes Ø{f(PAAL["d"], 1)} recht onder zijn gaten (hart 2,0 van beide randen) en de steunrail in het midden. '
+          f'Schroef: plaatschroef voor kunststof {f(PAAL["schroef"], 1)} x {f(PAAL["l"], 0)}, bolkop Ø{f(PAAL["kop"], 1)}, kruiskop PH1 '
+          f'(een schroef van 2,2 zou niet door het gat van Ø{f(PAAL["gat"], 1)} gaan: AANNAME, na te meten). Voorgat Ø{f(PAAL["voorgat"], 1)} = '
+          f'{f(PAAL["voorgat"] / PAAL["schroef"], 2)} x d (vuistregel voor zelftappers in PETG: 0,75 tot 0,85 x d). Wand rond het voorgat '
+          f'**{f(wand, 1)} mm** (4 lijnen van 0,4; buitendiameter {f(PAAL["d"] / PAAL["schroef"], 1)} x d, vuistregel minstens 2 x d). '
+          f'De schroef grijpt **{f(greep, 1)} mm** in het paaltje (minstens 2 x d) en de punt blijft 0,6 boven het einde van het '
+          f'voorgat: hij komt niet door de bodem. Uittrekkracht ≈ π d L τ / 2 = {f(f_uit, 0)} N per schroef met τ = {f(TAU_PETG, 0)} MPa '
+          f'(AANNAME); een bordje met zijn draden weegt {f(gewicht, 2)} N: meer dan {f(f_uit / gewicht, 0)} keer veilig, ook met de doos '
+          'ondersteboven. De kop (Ø4) blijft 1,45 van de eindklem en 8,2 van de klemstrook; de schacht van een schroevendraaier PH1 '
+          '(Ø4,5) raakt geen klem. Aandraaien met de hand tot de kop de print raakt, dan 1/8 slag: verder draaien trekt de gang uit.', '']
     # draden
     r_retour = KOPER * RETOUR['l'] / RETOUR['mm2']
     i_mod = 8 * groep_max
@@ -265,6 +277,44 @@ def maak():
           f'Het deksel: de rechterhelft schuift met een lip van {f(DEKSELLIP["l"], 0)} x {f(DEKSELLIP["t"], 1)} onder de linkerhelft; de lip is in '
           f'4 vingers gesneden met elk een nok van {f(DEKSELLIP["h"], 1)} die {f(DEKSELLIP["d"], 1)} opzij moet (de lijmspleet is 0,2). Rek = 1,5 t d / L² '
           f'= **{f(100 * rek_d)} %**; inklikken samen **{f(P_d, 0)} N**.', '']
+    # versie 6: IR, servo's, NPN/PNP
+    ir_piek = (U - IR['vf']) / IR['r']
+    ir_gem = ir_piek * IR['duty_draag'] * IR['duty_code']
+    p_r_piek, p_r_gem = ir_piek ** 2 * IR['r'], ir_piek ** 2 * IR['r'] * IR['duty_draag'] * IR['duty_code']
+    assert ir_piek <= IR['if_dc'] and p_r_gem < 0.5 * IR['p_r'] and 8 * ir_piek < 15
+    servo_piek = SERVO['tegelijk'] * SERVO['blok'] + (SERVO['n'] - SERVO['tegelijk']) * SERVO['rust']
+    servo_12 = servo_piek * SERVO['u'] / SERVO['eta'] / U
+    assert servo_piek < SERVO['buck_a'] * 0.8 and servo_12 < SERVO['zekering'] * 0.8
+    npn_i = (U - OPTO['u_led']) / OPTO['r']
+    bip_npn, bip_pnp = (5.0 - OPTO['u_led']) / OPTO['r'], (U - 5.0 - OPTO['u_led']) / OPTO['r']
+    uit_ma = OPTO['ctr_min'] * bip_npn * 1000
+    assert bip_npn * OPTO['ctr_min'] > 3.3 / 10000 * 1.5, 'bipolaire print: te weinig stroom voor de pull-up van 10 kOhm'
+    extra_12 = servo_12 + 8 * ir_gem + 3 * 0.0005 + 16 * npn_i
+    gewoon = GROEPEN * groep_1k + 0.07 + 4 * i_in + extra_12
+    assert gewoon <= ADAPTER['a'] * 0.8, 'adapter te klein met de uitbreiding (bordjes van 1K)'
+    L += ["## 9. Versie 6: IR, servo's, NPN en PNP", '',
+          f'**IR-led** ({IR["naam"]}, Vf {f(IR["vf"], 2)} V bij 100 mA, hoogstens {f(IR["if_dc"] * 1000, 0)} mA continu en '
+          f'{f(IR["if_piek"] * 1000, 0)} mA piek): op 12 V met **{f(IR["r"], 0)} Ω** in serie loopt er **{f(ir_piek * 1000, 0)} mA** zolang '
+          f'de draaggolf "aan" is. De draaggolf staat {f(IR["duty_draag"] * 100, 0)} % aan, een NEC-code zendt ± {f(IR["duty_code"] * 100, 0)} % van '
+          f'de tijd: gemiddeld {f(ir_gem * 1000, 1)} mA per led. De weerstand: {f(p_r_piek, 2)} W piek, {f(p_r_gem, 2)} W gemiddeld (neem '
+          f'{f(IR["p_r"], 1)} W). Alle 8 leds samen: {f(8 * ir_piek, 2)} A piek door -Q3 (AOD4184-module, geen koeling nodig). De MOSFET van '
+          '-Q4 en die van -Q3 staan in serie: elk ± 0,02 V, verwaarloosbaar. Bereik: enkele meters tot een TSOP-ontvanger (AANNAME, '
+          'praktijk); richt de led op de ontvanger van de bus.', '',
+          f"**Servo's** ({SERVO['naam']}): blokkeerstroom ± {f(SERVO['blok'], 2)} A, in rust ± {f(SERVO['rust'] * 1000, 0)} mA (AANNAME, gangbare "
+          f"waarden). De firmware laat er hoogstens {SERVO['tegelijk']} tegelijk bewegen: ongunstigst {SERVO['tegelijk']} x {f(SERVO['blok'], 2)} + "
+          f"{SERVO['n'] - SERVO['tegelijk']} x {f(SERVO['rust'], 2)} = **{f(servo_piek, 2)} A** op {f(SERVO['u'], 1)} V: de XL4015 (5 A) heeft ruim "
+          f"marge. Uit 12 V (rendement {f(SERVO['eta'] * 100, 0)} %): {f(servo_12, 2)} A, dus -F19 {f(SERVO['zekering'], 0)} A. De elco van 1000 µF "
+          'vangt de stroomstoot op als een servo vertrekt.', '',
+          f'**Ingangen NPN of PNP** (serieweerstand {f(OPTO["r"], 0)} Ω op de print, AANNAME): NPN met COM op +12 V: {f(npn_i * 1000, 1)} mA. '
+          f'Een PNP-print (led andersom, COM op 0 V): even veel. Een bipolaire print (PC814) met COM op 5 V: NPN {f(bip_npn * 1000, 1)} mA, '
+          f'PNP {f(bip_pnp * 1000, 1)} mA; uitgang ten minste {f(uit_ma, 1)} mA (CTR {f(OPTO["ctr_min"] * 100, 0)} %) tegen een pull-up van 10 kΩ '
+          f'(0,33 mA): ruim. **Nooit een gewone (NPN-)print met COM aan 0 V**: een PNP-sensor zet dan 12 V in sperrichting over de led '
+          f'(PC817: hoogstens {f(OPTO["vr"], 0)} V).', '',
+          f"**Voeding:** de uitbreiding vraagt uit 12 V hoogstens {f(extra_12, 2)} A (servo's, IR gemiddeld, ontvangers, 16 extra ingangen); "
+          f'met de bordjes van 1K (Modelbouwled voor 12 V) en 4 ingangen actief: **{f(gewoon, 2)} A** ({f(100 * gewoon / ADAPTER["a"], 0)} % van de '
+          f'{f(ADAPTER["a"], 2)} A). Het ongunstigste geval van hoofdstuk 2 (bordjes van 0 Ω, alles aan) plus 4 blokkerende servo’s geeft '
+          f'{f(totaal + extra_12, 2)} A: meer dan de adapter. Komen er ooit bordjes zonder weerstand, geef de servo’s dan een eigen netadapter '
+          '5 V (bv. Mean Well GST25A05, 4 A) in plaats van -T3.', '']
     (HIER / 'Berekeningen.md').write_text('\n'.join(L) + '\n', encoding='utf-8')
     print('\n'.join(L))
 

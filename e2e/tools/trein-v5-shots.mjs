@@ -2,7 +2,7 @@
 // de modules van dichtbij, de naad (detail en doorsneden), de 2 helften los op het printbed (230 x 230 binnen het bed van
 // 256 x 256 met de vrije hoek voor het filamentmes), de doos dicht. Nodig: de app met test-hooks op E2E_URL (de
 // dev-server of npm run build:e2e). Gebruik: node e2e/tools/trein-v5-shots.mjs <uitmap>
-// SHOTS=open,boven,modules,naad,bed,dicht kiest; ZOOM_<NAAM>="fx,fy,n;..." stuurt het inzoomen (fx, fy: plaats op het
+// SHOTS=open,boven,modules,naad,bed,schroeven,dicht kiest; ZOOM_<NAAM>="fx,fy,n;..." stuurt het inzoomen (fx, fy: plaats op het
 // venster als fractie, n: stappen).
 import { chromium } from 'playwright';
 import { readFileSync, mkdirSync } from 'node:fs';
@@ -152,13 +152,13 @@ if (wat.includes('bed')) {
   await shot('Control+5', 'helften-op-bed');
   await shot('Control+7', 'helften-op-bed-iso');
 }
-if (wat.includes('gaatjes')) {
-  // de gaatjes 2 x 2 voor de leddraden: de linkerhelft met de bordjes van rij 2 en 3, van boven, schuin en van onderen
-  await open(filter((id) => /^(d1|b[4-9](k\d|e\d|r)?)$/.test(id)));
-  await shot('Control+5', 'gaatjes-boven', process.env.ZOOM_GB ?? '0.505,0.31,9');
-  await shot('Control+7', 'gaatjes-iso', process.env.ZOOM_GI ?? '0.5,0.42,8');
-  await open(filter((id) => /^d1$/.test(id)));
-  await shot('Control+6', 'gaatjes-onder', process.env.ZOOM_GO ?? '0.505,0.69,9');
+if (wat.includes('schroeven')) {
+  // versie 5b (Ian, 2026-11-15: "ik wil ze geschroefd hebben"): bordje 5 met zijn 4 schroeven 2,0 x 6 van dichtbij, van
+  // boven en schuin; de schroeven van bordje n heten bs(4n-3) tot bs(4n)
+  const bij = (id) => /^(d1|b5(k\d|e\d|r)?)$/.test(id) || (/^bs\d+$/.test(id) && Math.ceil(Number(id.slice(2)) / 4) === 5);
+  await open(filter(bij));
+  await shot('Control+5', 'schroeven-boven', process.env.ZOOM_SB ?? '0.505,0.27,10');
+  await shot('Control+7', 'schroeven-iso', process.env.ZOOM_SI ?? '0.5,0.36,9');
 }
 if (wat.includes('dicht')) {
   await open(lees());

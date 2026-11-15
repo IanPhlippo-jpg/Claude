@@ -1,0 +1,52 @@
+{
+  "versie": 1, "naam": "Station Turnhout (testplan)", "breedteM": 2.4, "hoogteM": 1.2,
+  "lijnen": [
+    {"id": "L1", "soort": "weg", "naam": "Rondweg (Car System)", "punten": [[0.35,1.0],[2.05,1.0],[2.16,0.96],[2.2,0.85],[2.2,0.4],[2.16,0.29],[2.05,0.25],[0.35,0.25],[0.24,0.29],[0.2,0.4],[0.2,0.85],[0.24,0.96],[0.35,1.0]]},
+    {"id": "L2", "soort": "busbaan", "naam": "Haltestrook Standmodel", "punten": [[1.55,0.25],[1.5,0.3],[1.47,0.38],[1.47,0.8],[1.5,0.9],[1.6,0.98],[1.67,1.0]]},
+    {"id": "L3", "soort": "busbaan", "naam": "Haltestrook Lijnbus 1", "punten": [[1.35,0.25],[1.3,0.3],[1.27,0.38],[1.27,0.8],[1.3,0.9],[1.4,0.98],[1.47,1.0]]},
+    {"id": "L4", "soort": "busbaan", "naam": "Haltestrook Lijnbus 2", "punten": [[1.15,0.25],[1.1,0.3],[1.07,0.38],[1.07,0.8],[1.1,0.9],[1.2,0.98],[1.27,1.0]]},
+    {"id": "L5", "soort": "busbaan", "naam": "Haltestrook Lijnbus 3", "punten": [[0.95,0.25],[0.9,0.3],[0.87,0.38],[0.87,0.8],[0.9,0.9],[1.0,0.98],[1.07,1.0]]},
+    {"id": "L6", "soort": "spoor", "naam": "Spoorlijn Turnhout", "punten": [[0.0,0.11],[2.4,0.11]]},
+    {"id": "L7", "soort": "weg", "naam": "Zijstraat (overweg)", "punten": [[1.9,0.0],[1.9,0.25]]}
+  ],
+  "punten": [
+    {"id": "P1", "soort": "ir", "naam": "Inrit busstation", "x": 1.75, "y": 0.25, "lijn": "L1", "koppeling": {"ontvanger": 2}},
+    {"id": "P2", "soort": "wissel", "naam": "Wissel 1", "x": 1.55, "y": 0.25, "lijn": "L1", "koppeling": {"servo": 1}},
+    {"id": "P3", "soort": "wissel", "naam": "Wissel 2", "x": 1.35, "y": 0.25, "lijn": "L1", "koppeling": {"servo": 2}},
+    {"id": "P4", "soort": "wissel", "naam": "Wissel 3", "x": 1.15, "y": 0.25, "lijn": "L1", "koppeling": {"servo": 3}},
+    {"id": "P5", "soort": "wissel", "naam": "Wissel 4", "x": 0.95, "y": 0.25, "lijn": "L1", "koppeling": {"servo": 4}},
+    {"id": "P6", "soort": "stoppunt", "naam": "Stop Standmodel", "x": 1.47, "y": 0.66, "lijn": "L2", "koppeling": {"halte": 4}},
+    {"id": "P7", "soort": "stoppunt", "naam": "Stop Lijnbus 1", "x": 1.27, "y": 0.66, "lijn": "L3", "koppeling": {"halte": 1, "irled": 7}},
+    {"id": "P8", "soort": "stoppunt", "naam": "Stop Lijnbus 2", "x": 1.07, "y": 0.66, "lijn": "L4", "koppeling": {"halte": 2, "irled": 6}},
+    {"id": "P9", "soort": "stoppunt", "naam": "Stop Lijnbus 3", "x": 0.87, "y": 0.66, "lijn": "L5", "koppeling": {"halte": 3, "irled": 5}},
+    {"id": "P10", "soort": "halte", "naam": "Standmodel", "x": 1.53, "y": 0.52, "koppeling": {"halte": 4}},
+    {"id": "P11", "soort": "halte", "naam": "Lijnbus 1", "x": 1.33, "y": 0.52, "koppeling": {"halte": 1}},
+    {"id": "P12", "soort": "halte", "naam": "Lijnbus 2", "x": 1.13, "y": 0.52, "koppeling": {"halte": 2}},
+    {"id": "P13", "soort": "halte", "naam": "Lijnbus 3", "x": 0.93, "y": 0.52, "koppeling": {"halte": 3}},
+    {"id": "P14", "soort": "irled", "naam": "IR-led 7", "x": 1.225, "y": 0.66, "koppeling": {"irled": 7}},
+    {"id": "P15", "soort": "irled", "naam": "IR-led 6", "x": 1.025, "y": 0.66, "koppeling": {"irled": 6}},
+    {"id": "P16", "soort": "irled", "naam": "IR-led 5", "x": 0.825, "y": 0.66, "koppeling": {"irled": 5}},
+    {"id": "P17", "soort": "hall", "naam": "Hallsensor 1", "x": 1.85, "y": 1.0, "lijn": "L1", "koppeling": {"ingang": 7}},
+    {"id": "P18", "soort": "verkeerslicht", "naam": "Licht Standmodel", "x": 1.53, "y": 0.84, "koppeling": {"halte": 4}},
+    {"id": "P19", "soort": "verkeerslicht", "naam": "Licht Lijnbus 1", "x": 1.33, "y": 0.84, "koppeling": {"halte": 1}},
+    {"id": "P20", "soort": "verkeerslicht", "naam": "Licht Lijnbus 2", "x": 1.13, "y": 0.84, "koppeling": {"halte": 2}},
+    {"id": "P21", "soort": "verkeerslicht", "naam": "Licht Lijnbus 3", "x": 0.93, "y": 0.84, "koppeling": {"halte": 3}},
+    {"id": "P22", "soort": "slagboom", "naam": "Slagboom overweg", "x": 1.95, "y": 0.18, "lijn": "L7", "koppeling": {"servo": 5}},
+    {"id": "P23", "soort": "lichtgroep", "naam": "Overweg links", "x": 1.84, "y": 0.05, "koppeling": {"groep": 3}},
+    {"id": "P24", "soort": "lichtgroep", "naam": "Overweg rechts", "x": 1.96, "y": 0.05, "koppeling": {"groep": 4}},
+    {"id": "P25", "soort": "sein", "naam": "Armsein spoor 1", "x": 0.3, "y": 0.16, "lijn": "L6", "koppeling": {"servo": 6}},
+    {"id": "P26", "soort": "lichtgroep", "naam": "Station", "x": 0.47, "y": 0.5, "koppeling": {"groep": 1}},
+    {"id": "P27", "soort": "lichtgroep", "naam": "Perron", "x": 0.62, "y": 0.36, "koppeling": {"groep": 2}},
+    {"id": "P28", "soort": "lichtgroep", "naam": "Kerk", "x": 1.98, "y": 0.6, "koppeling": {"groep": 5}},
+    {"id": "P29", "soort": "lichtgroep", "naam": "Café De Zwaan", "x": 1.78, "y": 0.78, "koppeling": {"groep": 6}},
+    {"id": "P30", "soort": "lichtgroep", "naam": "Straatlampen", "x": 0.6, "y": 1.1, "koppeling": {"groep": 8}},
+    {"id": "P31", "soort": "kastje", "naam": "Kastje Kerk", "x": 2.04, "y": 0.45, "koppeling": {"kastje": "Kerk"}},
+    {"id": "P32", "soort": "kastje", "naam": "Kastje Station", "x": 0.4, "y": 0.68, "koppeling": {"kastje": "Station"}}
+  ],
+  "routes": [
+    {"id": "R1", "naam": "Lijnbus 1", "punten": ["P1", "P3", "P7", "P17", "P1"]},
+    {"id": "R2", "naam": "Lijnbus 2", "punten": ["P1", "P4", "P8", "P17", "P1"]},
+    {"id": "R3", "naam": "Lijnbus 3", "punten": ["P1", "P5", "P9", "P17", "P1"]},
+    {"id": "R4", "naam": "Standmodel", "punten": ["P1", "P2", "P6", "P17", "P1"]}
+  ]
+}

@@ -22,13 +22,8 @@ export const M = {
   doos: { binnen: 225, wand: 2.4, bodem: 2.4, h: 47.0, deksel: 3.2, r: 4, voor: 7.8, sleutelgat: { kop: 9.2, schacht: 4.6, slag: 6 },
     sleuf: { b: 4, l: 40, zij: { b: 6, l: 20 } }, bus: { r: 3.5, hart: 3.2 },
     invoer: { gat: 16.5, y: 13.5, tule: { d: 21, flens: 2, l: 11 } } },
-  // tussen de bordjes van een rij; eind: tussen het laatste bordje en de zijwand van de ring (plaats voor de klemlip en
-  // zijn veerweg)
+  // tussen de bordjes van een rij; eind: tussen het laatste bordje en de rand van het vak (de plaatsen van versie 4)
   rij: { paal: 0.3, tussen6: 4.0, rand7: 3, eind: 1.8 },
-  // klemlippen (Fable 5.2): per bordje 4 PETG-lippen aan de korte kanten, haak 0,75 over de rand van de print (0,15
-  // speling: 0,6 grip), 0,1 boven de print; de lip is 0,8 dik en 2,0 breed en staat in een kuiltje van 1,8 diep in de
-  // bodem (veerlengte 6,5). Rek bij het inklikken: 1,5 t d / L² = 1,70 % (docs/Berekeningen.md, hfst. 6)
-  lip: { t: 0.8, b: 2.0, z0: 8.0, speling: 0.15, haak: 0.75, boven: 0.1, kuil: 1.8, rondom: 0.4, achter: 0.6 },
   // de naad tussen de helften (Ian, 2026-11-15: "De doos moet in elkaar kunnen klikken en nog kunnen lijmen"): het naadvlak
   // van de linkerhelft op x = 110, de rechterhelft begint 0,2 verder (lijmspleet, overal 0,2). Alles print rechtop zonder
   // support: alleen staande vlakken en 45° (docs/Berekeningen.md, hoofdstuk "Naad").
@@ -65,13 +60,12 @@ export const M = {
   // dezelfde plaatsen als in versie 4 (de vrije stroken tussen de rijen zijn 9,2 breed: plaats voor de draden en een
   // schroevendraaier); achter 4,8 vrij, links 11 (de sleutelgaten en de tules), rechts 11 tot de naad
   raster: { b: 5.4, achter: 4.8, zij: 11.0, wand: 1.6, speling: 0.3 },
-  // de aanslagen langs de lange kanten van een bordje: 6 lang, 1,2 dik, 4,9 hoog (onder de draadingangen van de klemmen),
-  // 26 van het midden (voorbij de klemmen en de eilandjes met de gaatjes)
-  aanslag: { l: 6, t: 1.2, x: 26 },
-  // de gaatjes voor de leddraden in de bodem (Ian, 2026-11-15: "Gaatjes van de linkse box zijn 2mm op 2mm voor de
-  // printjes"): 2 x 2, per klem één, om en om op 0,3 en 2,5 van de rand van het bordje; per feature hoogstens 60
-  // de gaatjes van een bordje en een strook staan op een eilandje van 0,4 hoog (1 rand rond de gaatjes)
-  gaatje: { a: 2.0, rij: [0.3, 2.5], perFeature: 60, hoog: 0.4, rand: 1.0 },
+  // de bordjes zijn vastgeschroefd (Ian, 2026-11-15: "ik wil ze geschroefd hebben. Gaten zitten op 2mm op 2mm van de
+  // hoeken van het bordje"): per bordje 4 paaltjes Ø5 onder de gaten (hart 2,0 van beide randen; gat in de print Ø2,2:
+  // AANNAME, na te meten), schroef 2,0 x 6 zelftappend voor kunststof met bolkop Ø4 x 1,4 (AANNAME); voorgat Ø1,6 (0,8 x d)
+  // tot 0,4 boven de onderkant van de bodem: de schroef grijpt 6 - 1,6 = 4,4 diep, het paaltje heeft (5 - 1,6) / 2 = 1,7
+  // wand (4 lijnen van 0,4)
+  schroefpaal: { rand: 2.0, gat: 2.2, d: 5.0, voorgat: 1.6, schroef: { d: 2.0, l: 6, kern: 1.5, kop: 4.0, kopH: 1.4 } },
   // elk geprint deel hoogstens 230 x 230 (het bed is 256 x 256, rechtsvoor 10 x 20 vrij voor het filamentmes, plus skirt)
   bed: { max: 230, hoog: 80 },
 };

@@ -1,0 +1,296 @@
+{
+ "schaal_model": "1:87 (AANNAME)",
+ "stap_px": 217.5,
+ "sensoren": [
+  {
+   "id": "HALL1",
+   "soort": "hall",
+   "baan": "autolus",
+   "afstand_px": 1838.1,
+   "x": 981.4,
+   "y": 562.0,
+   "waarom": "bestaat al (hallsensor 1)",
+   "bestaat": true
+  },
+  {
+   "id": "IRRX1",
+   "soort": "ir",
+   "baan": "autolus",
+   "afstand_px": 1112.0,
+   "x": 1701.1,
+   "y": 573.9,
+   "waarom": "IR-ontvanger voor wissel 1: herkent de bus (zijn code)",
+   "bestaat": false
+  },
+  {
+   "id": "HW1",
+   "soort": "hall",
+   "baan": "busbaan",
+   "afstand_px": 40,
+   "x": 1617.9,
+   "y": 539.0,
+   "waarom": "net na W1 op de afbuigende tak: de bus nam deze kant",
+   "bestaat": false
+  },
+  {
+   "id": "HW2",
+   "soort": "hall",
+   "baan": "halte_standmodel",
+   "afstand_px": 40,
+   "x": 1012.2,
+   "y": 358.3,
+   "waarom": "net na W2 op de afbuigende tak: de bus nam deze kant",
+   "bestaat": false
+  },
+  {
+   "id": "HW3",
+   "soort": "hall",
+   "baan": "halte_lijnbus1",
+   "afstand_px": 40,
+   "x": 888.8,
+   "y": 358.4,
+   "waarom": "net na W3 op de afbuigende tak: de bus nam deze kant",
+   "bestaat": false
+  },
+  {
+   "id": "HW4",
+   "soort": "hall",
+   "baan": "halte_lijnbus2",
+   "afstand_px": 40,
+   "x": 762.6,
+   "y": 358.3,
+   "waarom": "net na W4 op de afbuigende tak: de bus nam deze kant",
+   "bestaat": false
+  },
+  {
+   "id": "FTR_lijnbus3",
+   "soort": "ftr",
+   "baan": "halte_lijnbus3",
+   "afstand_px": 148.1,
+   "x": 592.2,
+   "y": 456.8,
+   "waarom": "reflexsensor aan STOP_lijnbus3: de bus staat aan de halte",
+   "bestaat": false
+  },
+  {
+   "id": "FTR_lijnbus2",
+   "soort": "ftr",
+   "baan": "halte_lijnbus2",
+   "afstand_px": 150.5,
+   "x": 712.8,
+   "y": 456.9,
+   "waarom": "reflexsensor aan STOP_lijnbus2: de bus staat aan de halte",
+   "bestaat": false
+  },
+  {
+   "id": "FTR_lijnbus1",
+   "soort": "ftr",
+   "baan": "halte_lijnbus1",
+   "afstand_px": 150.4,
+   "x": 839.1,
+   "y": 456.9,
+   "waarom": "reflexsensor aan STOP_lijnbus1: de bus staat aan de halte",
+   "bestaat": false
+  },
+  {
+   "id": "FTR_standmodel",
+   "soort": "ftr",
+   "baan": "halte_standmodel",
+   "afstand_px": 152.0,
+   "x": 960.9,
+   "y": 457.8,
+   "waarom": "reflexsensor aan STOP_standmodel: de bus staat aan de halte",
+   "bestaat": false
+  },
+  {
+   "id": "HV_lijnbus3",
+   "soort": "hall",
+   "baan": "halte_lijnbus3",
+   "afstand_px": 275.4,
+   "x": 528.9,
+   "y": 562.0,
+   "waarom": "vlak voor de invoeging: de bus is vertrokken",
+   "bestaat": false
+  },
+  {
+   "id": "HV_lijnbus2",
+   "soort": "hall",
+   "baan": "halte_lijnbus2",
+   "afstand_px": 279.9,
+   "x": 644.8,
+   "y": 562.0,
+   "waarom": "vlak voor de invoeging: de bus is vertrokken",
+   "bestaat": false
+  },
+  {
+   "id": "HV_lijnbus1",
+   "soort": "hall",
+   "baan": "halte_lijnbus1",
+   "afstand_px": 279.8,
+   "x": 771.2,
+   "y": 562.0,
+   "waarom": "vlak voor de invoeging: de bus is vertrokken",
+   "bestaat": false
+  },
+  {
+   "id": "HV_standmodel",
+   "soort": "hall",
+   "baan": "halte_standmodel",
+   "afstand_px": 281.0,
+   "x": 892.4,
+   "y": 562.0,
+   "waarom": "vlak voor de invoeging: de bus is vertrokken",
+   "bestaat": false
+  },
+  {
+   "id": "HALL2",
+   "soort": "hall",
+   "baan": "autolus",
+   "afstand_px": 1338.5,
+   "x": 1481.0,
+   "y": 562.0,
+   "waarom": "om de ± 50 cm",
+   "bestaat": false
+  },
+  {
+   "id": "HALL3",
+   "soort": "hall",
+   "baan": "autolus",
+   "afstand_px": 1505.0,
+   "x": 1314.5,
+   "y": 562.0,
+   "waarom": "om de ± 50 cm",
+   "bestaat": false
+  },
+  {
+   "id": "HALL4",
+   "soort": "hall",
+   "baan": "autolus",
+   "afstand_px": 1671.6,
+   "x": 1147.9,
+   "y": 562.0,
+   "waarom": "om de ± 50 cm",
+   "bestaat": false
+  },
+  {
+   "id": "HALL5",
+   "soort": "hall",
+   "baan": "autolus",
+   "afstand_px": 2523.7,
+   "x": 295.9,
+   "y": 559.8,
+   "waarom": "om de ± 50 cm",
+   "bestaat": false
+  },
+  {
+   "id": "HALL6",
+   "soort": "hall",
+   "baan": "autolus",
+   "afstand_px": 2732.2,
+   "x": 130.3,
+   "y": 532.6,
+   "waarom": "om de ± 50 cm",
+   "bestaat": false
+  },
+  {
+   "id": "HALL7",
+   "soort": "hall",
+   "baan": "autolus",
+   "afstand_px": 2940.7,
+   "x": 252.0,
+   "y": 598.3,
+   "waarom": "om de ± 50 cm",
+   "bestaat": false
+  },
+  {
+   "id": "HALL8",
+   "soort": "hall",
+   "baan": "autolus",
+   "afstand_px": 3149.3,
+   "x": 456.1,
+   "y": 587.7,
+   "waarom": "om de ± 50 cm",
+   "bestaat": false
+  },
+  {
+   "id": "HALL9",
+   "soort": "hall",
+   "baan": "autolus",
+   "afstand_px": 69.4,
+   "x": 666.6,
+   "y": 587.5,
+   "waarom": "om de ± 50 cm",
+   "bestaat": false
+  },
+  {
+   "id": "HALL10",
+   "soort": "hall",
+   "baan": "autolus",
+   "afstand_px": 277.9,
+   "x": 875.1,
+   "y": 587.5,
+   "waarom": "om de ± 50 cm",
+   "bestaat": false
+  },
+  {
+   "id": "HALL11",
+   "soort": "hall",
+   "baan": "autolus",
+   "afstand_px": 486.5,
+   "x": 1083.7,
+   "y": 587.5,
+   "waarom": "om de ± 50 cm",
+   "bestaat": false
+  },
+  {
+   "id": "HALL12",
+   "soort": "hall",
+   "baan": "autolus",
+   "afstand_px": 695.0,
+   "x": 1292.2,
+   "y": 587.5,
+   "waarom": "om de ± 50 cm",
+   "bestaat": false
+  },
+  {
+   "id": "HALL13",
+   "soort": "hall",
+   "baan": "autolus",
+   "afstand_px": 903.5,
+   "x": 1500.7,
+   "y": 587.5,
+   "waarom": "om de ± 50 cm",
+   "bestaat": false
+  },
+  {
+   "id": "HALL14",
+   "soort": "hall",
+   "baan": "busbaan",
+   "afstand_px": 230.6,
+   "x": 1607.4,
+   "y": 350.7,
+   "waarom": "om de ± 50 cm",
+   "bestaat": false
+  },
+  {
+   "id": "HALL15",
+   "soort": "hall",
+   "baan": "busbaan",
+   "afstand_px": 421.1,
+   "x": 1422.2,
+   "y": 333.5,
+   "waarom": "om de ± 50 cm",
+   "bestaat": false
+  },
+  {
+   "id": "HALL16",
+   "soort": "hall",
+   "baan": "busbaan",
+   "afstand_px": 611.7,
+   "x": 1231.6,
+   "y": 333.5,
+   "waarom": "om de ± 50 cm",
+   "bestaat": false
+  }
+ ]
+}

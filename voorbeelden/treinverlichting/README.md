@@ -14,7 +14,8 @@ Alle maten en onderdelen komen uit `maak-kabeldoos.mjs` (maten in `maten.mjs`), 
 gelijmd kunnen worden** ("De doos moet in elkaar kunnen klikken en nog kunnen lijmen"), binnen geen tussenwand. Links de
 16 bordjes, rechts alle modules op palen in de bodem; alles is van bovenaf bereikbaar. De moduleplaat valt weg en de
 **kabelgoten ook** (Ian: "Kabel goten mogen weg"): de draden lopen rechtstreeks van de tule naar hun klem. Ook nieuw: **alleen aan/uit** (Ian: "Dimmers zijn niet nodig", firmware 1.3.0) en
-**hallsensoren** op de ingangen (Ian: "Zorg ook dat er hallsensoren binnen gelezen kunnen worden"). **Versie 4:**
+**hallsensoren** op de ingangen (Ian: "Zorg ook dat er hallsensoren binnen gelezen kunnen worden"). De bordjes zijn
+**vastgeschroefd** met 4 schroefjes op 4 paaltjes (Ian: "ik wil ze geschroefd hebben"). **Versie 4:**
 kant-en-klare modules, enkel de DC-bus solderen. **Versie 3 (advies Fable 5.2):** klemlippen, DC-bus, polyfuse per
 groep, waakhond, thuis-wifi, testmodus. **Versie 2:** kabelgoten van 28 hoog met klikdeksels.
 
@@ -23,7 +24,7 @@ groep, waakhond, thuis-wifi, testmodus. **Versie 2:** kabelgoten van 28 hoog met
 | Deel | Wat |
 |---|---|
 | Doos | PETG zwart, 440,9 x 229,8 x 52,6 mm (deksel inbegrepen), hangt met de bodem tegen de onderkant van de baan; het grijze deksel zit onderaan. Binnen 47 hoog: een MOSFET-module mag tot 39 mm hoog zijn (één verkoper noemt 39, getekend 15: AANNAME) |
-| Linkerhelft (bordjes) | 224,9 x 229,8: 16 bordjes in 6 rijen (de plaatsen van versie 4), elk bordje op een steunrail tussen 2 palen en 4 lage **aanslagen** (4,9 hoog, onder de draadingangen) en vast in **4 klemlippen**; tussen de rijen 9,2 vrij voor de draden en een schroevendraaier; per klem een **gaatje van 2 x 2** in de bodem voor de leddraad (op een eilandje van 0,4); geen kabelgoten |
+| Linkerhelft (bordjes) | 224,9 x 229,8: 16 bordjes in 6 rijen (de plaatsen van versie 4), elk bordje op een steunrail en **vastgeschroefd met 4 schroeven 2,0 x 6** op 4 paaltjes Ø5 onder de gaten in zijn hoeken (hart 2 van de randen, TRN-07); tussen de rijen 9,2 vrij voor de draden en een schroevendraaier; per bordje een **draadsleuf** 40 x 4 in de bodem voor de leddraden; geen kabelgoten |
 | Rechterhelft (modules) | 229,8 x 229,8 (met de klikhaken): elke module op palen Ø6 x 5 in de bodem, 2 klikhouders voor 6 WAGO-klemmen; aan de naad 11 vrij voor de draden van de bordjes |
 | Naad | **2 klikhaken** (achter en voor, 14 lang, 1,6 dik, onderkant 45°) van de rechterhelft klikken met een nok van 0,6 in een kuiltje in de wand van de linkerhelft; **5 bodemlippen** lijnen uit; **lijmspleet 0,2** overal (2K-epoxy). Het deksel klikt met een **lip van 12** in 4 vingers onder de linkerhelft; de naad van het deksel ligt 2 mm naast die van de bak (de lip overlapt ze). Detail: TRN-06 |
 | 16 bordjes | Modelbouwled "PCB met ingebouwde weerstand" (61,1 x 20,9, 14 hoog), in 5 rijen van 3 en één in rij 6 |
@@ -40,13 +41,12 @@ groep, waakhond, thuis-wifi, testmodus. **Versie 2:** kabelgoten van 28 hoog met
 
 - **Draden:** 18 kabelinvoeren Ø16,5 met een membraantule Wiska EMT 16: 5 in de linkerwand en 4 vooraan in de
   linkerhelft (leddraden), 3 vooraan en 2 achteraan in de rechterhelft, **4 in de rechterwand** (knoppen en sensoren,
-  vlak bij de ingangen). De leddraden komen van boven (de baan) door de bodem: **per klem één gaatje van 2 x 2**, recht
-  voor die klem (512 gaatjes, om en om in 2 rijen op 0,3 en 2,5 van de rand van het bordje, TRN-07): **elke draad door
-  zijn eigen gaatje**, recht omhoog in zijn klem. Geen kabelgoten: elke draad loopt rechtstreeks naar zijn klem; de + en − van elk
+  vlak bij de ingangen). De leddraden komen van boven (de baan) door de bodem: **per bordje een draadsleuf** van 40 x 4
+  in de vrije strook voor of achter het bordje, links per rij een sleuf van 20 x 6. Geen kabelgoten: elke draad loopt rechtstreeks naar zijn klem; de + en − van elk
   bordje van zijn eindklem door de vrije strook voor de rij naar de naad en recht in hun klem van de MOSFET-module (die
   staat met haar klemmen naar de bordjes): geen draad kruist over een klem.
 - **Kabels ordenen:** bundel de draden per rij met een kabelbinder in de vrije strook voor de rij; een draad tussen de
-  bordjes trek je eruit met het **haakje** van de spatel, een klemlip duw je open met haar **blad**.
+  bordjes trek je eruit met het **haakje** van de spatel en met haar **blad** duw je een draad in de sleuf.
 - **Monteren:** de doos hangt aan 4 sleutelgaten in de bodem (2 per helft). Plak de boormal (TRN-00a en TRN-00b, 2 x A3
   op 100 %, de kruisen A en B over elkaar) onder de baan, draai 4 bolkopschroeven 4 x 20 half in, hang de doos met de
   grote gaten over de koppen en schuif ze 6 mm naar achteren.
@@ -109,7 +109,8 @@ het **montageblad TRN-10**. Rij 1 = de 3 bordjes achteraan, rij 6 = bordje 16. G
    hallsensor op IN02. Firmware flashen (micro-USB "UART", `firmware/README.md`), meten met het **meetblad TRN-20**.
 7. **Helften verbinden:** inklikken, eventueel eerst 2K-epoxy in de voeg (stootvlakken, bodemlippen, buitenkant van de
    haken), 24 uur op de tafel laten uitharden (TRN-06).
-8. Bordjes in hun klemlippen, de doos onder de baan, op de werkhaken, de draden van de bordjes rechtstreeks naar hun
+8. **Bordjes:** elk bordje op zijn 4 paaltjes leggen, 4 schroeven 2,0 x 6 (PH1, met de hand tot de kop de print raakt,
+   dan 1/8 slag; TRN-07). Dan de doos onder de baan, op de werkhaken, de draden van de bordjes rechtstreeks naar hun
    klemmen (per rij gebundeld), labelen, aansluiten, het meetblad afwerken.
 9. **Deksel:** de rechterhelft met de lip onder de linkerhelft schuiven tot de 4 nokken klikken (eventueel lijm in de
    sponning), dan het deksel met 6 plaatschroeven 3 x 12 op de bak.
@@ -149,7 +150,91 @@ helderheid wordt aan, vuur, tv en ademen worden aan zonder effect). Meer: `firmw
 
 Tot 32 groepen: een tweede PCA9685 op adres 0x41 (de brug A0 op die print dicht), SDA, SCL, OE, VCC en GND parallel aan
 de eerste, met 2 MOSFET-modules en 16 polyfuses in een tweede doos ernaast; de firmware bouwen met `-DTREIN_GROEPEN=32`
-(env `native32` toont dat alle logica werkt). Vrij op de ESP voor andere uitbreidingen: GPIO 11, 39, 42, 47 en 48.
+(env `native32` toont dat alle logica werkt). GPIO 47, 48, 11, 39 en 42 gaan in versie 6 naar IR (zie hieronder).
+
+## Versie 6 (fase A): IR, servo's, NPN/PNP, geluidskastjes, tv
+
+Ian (2026-11-15): "Treindoos moet IR leds, IR sensors, FTR sensoren moeten kunnen binnenlezen, uitsturen." "Wissels,
+seinen of slagbomen moeten ook kunnen." "PNP moeten ook kunnen." "Geluiden: dit moeten kleine speakertjes zijn die ik
+ergens kan plaatsen." Schema: bladen 7 (IR) en 8 (servo's, NPN/PNP) en de stuklijst van de uitbreiding (laatste blad)
+in `schema/Aansluitschema-kabeldoos.pdf`; berekening: `docs/Berekeningen.md` §9. Waar deze modules in de doos komen,
+volgt in fase B (de doos wordt dan aangepast); tot dan kan alles los op tafel getest worden.
+
+**Pinnen:** GPIO47 = IR zenden, GPIO48 = leerontvanger, GPIO11, 39 en 42 = 3 IR- of FTR-ontvangers op de baan. Al het
+andere over de I2C-bus die er al is: MCP23017 op 0x20 (8 schakeluitgangen voor de IR-leds en ingangen 17-24), servoprint
+PCA9685 op **0x42** (0x40 = lichtgroepen 1-16, 0x41 blijft vrij voor 17-32), optioneel een tweede MCP23017 op 0x21
+(ingangen 25-40).
+
+**Bedraden:**
+- **IR-leds** (IR-led 5, 6 en 7 aan de stoppunten, tot 8): van L+ door een weerstand van 120 Ω (0,5 W, in de doos) naar
+  de anode van de led, de kathode terug naar het kanaal van de MOSFET-module -Q4 dat die led kiest. De VIN− van -Q4 gaat
+  naar de snelle MOSFET-module -Q3 (AOD4184) die GPIO47 schakelt met de draaggolf. Piek 89 mA per led, gemiddeld 15 mA.
+- **IR-/FTR-ontvangers** op de baan: 3 draden (3,3 V, 0 V, uitgang), met bij de ontvanger 100 Ω in de 3,3 V en 4,7 µF
+  tussen 3,3 V en 0 V; kabel hoogstens 3 m, liefst getwist.
+- **Servo's:** de servoprint krijgt een eigen voeding: XL4015-module achter een zekering van 3 A, **eerst zonder servo's
+  met een multimeter op 5,5 V zetten**, en een elco van 1000 µF op V+. De servo's op hun 3 pinnen (bruin = GND, rood =
+  V+, oranje = puls). OE parallel met die van de lichtprint: bij een herstart staan de servo's stil.
+- **NPN of PNP:** de optocouplerprints die er zijn (-K3, -K4) zijn **NPN**: COM (de klem VCC aan de ingangskant) aan
+  +12 V, de sensor trekt IN naar 0 V. Voor **PNP-sensoren** (geven +12 V als ze iets zien) per groep van 8 een
+  **PNP-versie** van de print (led andersom) met COM aan 0 V; voor een mengeling per ingang een print met **bipolaire
+  optocouplers** (PC814, 2 leds antiparallel) met COM aan 5 V. In het dashboard kies je per ingang of per groep "npn" of
+  "pnp". **Nooit een gewone NPN-print met COM aan 0 V:** dan staat er 12 V in sperrichting over de led (PC817: hoogstens
+  6 V). Welke printen precies PNP of bipolair zijn: AANNAME, bij het kopen nakijken op de printplaat (PC814 of "NPN/PNP").
+
+**Wat kopen (uitbreiding, richtprijzen, AANNAME; niet besteld):**
+
+| Onderdeel | Aantal | Type | Prijs per stuk | Totaal |
+|---|---|---|---|---|
+| I/O-uitbreiding MCP23017 (I2C) | 1 | CJMCU-2317 of gelijk | € 3,00 | € 3,00 |
+| MOSFET-module zonder optocoupler | 1 | AOD4184-module (D4184) | € 1,50 | € 1,50 |
+| MOSFET-module 8 kanalen met optocouplers | 1 | zoals -Q1 | € 9,00 | € 9,00 |
+| IR-led 940 nm, 5 mm | 3 (+2 reserve) | Vishay TSAL6200 | € 0,40 | € 2,00 |
+| Weerstand 120 Ω 0,5 W | 8 | metaalfilm | € 0,10 | € 0,80 |
+| IR-leerontvanger | 1 | Vishay TSMP58000 | € 2,50 | € 2,50 |
+| IR-ontvanger 38 kHz | 3 | Vishay TSOP38238 | € 1,20 | € 3,60 |
+| Weerstand 100 Ω en elco 4,7 µF (filter) | 4 + 4 | — | € 0,10 | € 0,80 |
+| Servoprint PCA9685 16 kanalen | 1 | PCA9685-module (A1 dichtsolderen = 0x42) | € 4,50 | € 4,50 |
+| Regelaar 5 A instelbaar | 1 | XL4015-module | € 3,00 | € 3,00 |
+| Zekeringhouder ATO + zekering 3 A | 1 | zoals -F1 | € 2,00 | € 2,00 |
+| Elco 1000 µF 10 V of meer | 1 | — | € 0,30 | € 0,30 |
+| Servo | per wissel, slagboom, armsein | SG90 of MG90S | € 2,50 tot € 4,50 | |
+| Optocouplerprint 8 kanalen (ingangen 17-24) | 1 | NPN zoals -K3, of PNP/bipolair | € 4,00 | € 4,00 |
+| **Totaal zonder servo's** | | | | **€ 37,00** |
+| *Optioneel (sensoradvies):* tweede MCP23017 + 2 optocouplerprints | 1 + 2 | ingangen 25-40 | | € 11,00 |
+| *Optioneel:* hallsensor + magneet | per meetpunt | SS441A of A3144 + Ø5 x 2 | ± € 2,70 | |
+| *Optioneel:* reflexsensor met fototransistor ("FTR") | per stoppunt | TCRT5000-module | € 1,00 | |
+| Geluidskastje (los, compleet) | per kastje | `geluidskastje/README.md` | ± € 25,25 | |
+
+**Geluidskastjes:** `geluidskastje/` (ESP32-S3-Zero, MAX98357A, luidspreker 40 mm 4 Ω 3 W, MP1584 12 → 5 V, DC-bus;
+kastje 97,4 x 51,0 x 26,4, 2 oogjes om vast te schroeven). Ze melden zich aan op het wifi "Treinbaan"; geluiden (WAV,
+16-bit mono, tot 22 kHz) upload je via het dashboard; elk kastje speelt zijn eigen geluid, tegelijk met de andere.
+
+**Tv:** een laptop met HDMI aan de tv opent `http://treinbaan.local/tv`: het getekende plan van Station Turnhout
+(`situatieplan/`) met de bussen en auto's live (bij een melding van een hall-, IR- of FTR-sensor staat het voertuig
+precies op dat punt; daartussen rijdt het met zijn gemeten snelheid verder), de lichtgroepen, wissels, servo's en
+verkeerslichten. Zonder doos draait de simulatie.
+
+**Sensoradvies** (Ian: "Ik moet hierop kunnen zien hoe de bussen of auto's aan het rijden zijn"), uitgewerkt op het plan
+in `docs/Sensoradvies.png` (lijst met plaatsen in pixels van het plan: `docs/sensoradvies.json`, opnieuw maken met
+`python docs/sensoradvies.py`):
+
+![Sensoradvies op het situatieplan](docs/Sensoradvies.png)
+
+| Waar | Sensor | Aantal | Waarom |
+|---|---|---|---|
+| vlak voor wissel 1 | IR-ontvanger (GPIO11) | 1 | herkent de bus aan zijn code: de doos weet welke bus de busbaan op rijdt |
+| net na elke wissel, op de afbuigende tak | hallsensor | 4 | bevestigt welke kant de bus nam |
+| aan elk stoppunt | reflexsensor (FTR) | 4 | ziet ook een bus die stilstaat (een hallsensor ziet alleen een doorrit) |
+| vlak voor elke invoeging | hallsensor | 4 | de bus is vertrokken; samen met hallsensor 1 het "verkeer vrij" |
+| op de autolus en de busbaan, om de ± 50 cm | hallsensor | 12 + 3 | daartussen schat de tv met de gemeten snelheid; meer dan 50 cm uit elkaar en de schatting loopt bij een file of een stilstaande auto te ver uit |
+| (er al) | hallsensor 1 | 1 | |
+
+Samen 28 nieuwe sensoren: 23 hallsensoren, 4 reflexsensoren en 1 IR-ontvanger. Ingangen: 16 (optocouplerprints) + 8 (MCP23017 0x20) = 24,
+waarvan ingang 1 de knop "alles aan/uit" is. **Begin met de 12 die het meest opleveren** (4 na de wissels, 4 aan de
+stoppunten, 4 aan de invoegingen): die passen nu. Voor de 15 op de lange stukken: de tweede MCP23017 (0x21) met 2
+optocouplerprints (ingangen 25-40). Elke auto en bus heeft dan een magneetje (Ø5 x 2) onder de bodem, recht boven de
+hallsensoren in het wegdek. AANNAMES: de schaal van het plan (1 m = 5 px, situatieplan/README.md) en H0 1:87 (50 cm op
+de baan = 217 px op het plan): na te meten op de baan en dan `SCHAAL_MODEL` in `docs/sensoradvies.py` aanpassen.
 
 ## Bestellijst
 
@@ -176,18 +261,19 @@ productpagina, anders AANNAME. Verzendkosten niet inbegrepen (4 tot 5 winkels).
 | Dupontkabels 20 cm, 40 female-female en 40 female-male | 1 set | | AZ-Delivery, Amazon.de | € 6,00 | € 6,00 |
 | Plaatschroef 3 x 8 bolkop (24) en 2,5 x 6 bolkop (4) | 28 | modules op de palen | | € 0,05 | € 1,40 |
 | Plaatschroef 3 x 12 verzonken | 6 | het deksel (2 links, 4 rechts) | | € 0,08 | € 0,48 |
+| Plaatschroef voor kunststof 2,0 x 6 bolkop, kruiskop PH1, verzinkt | 70 | de bordjes: 64 + 6 reserve (TRN-07) | bv. per 100 | € 0,05 | € 3,50 |
 | Membraantule Wiska EMT 16 LG (10062559) | 18 | M16, IP66, lichtgrijs | | € 0,40 | € 7,20 |
 | Bolkopschroef 4 x 20 (hout) | 4 | sleutelgaten (2 per helft) | | € 0,05 | € 0,20 |
 | 2-componentenlijm epoxy, 24 ml (de naad, eventueel) | 1 | bv. UHU Plus Schnellfest of Bison Epoxy Universal | bouwmarkt | € 8,00 | € 8,00 |
 | Montagedraad 0,14, 0,25, 0,5 en 0,75 mm² | 1 | | | € 6,00 | € 6,00 |
 | Kabelbinders 2,5 x 100 mm | 1 zakje | | | € 3,00 | € 3,00 |
 | Kabelmarkering (cijfers en letters) of vlaggetjes | 1 | de labels van [Draden labelen](#draden-labelen) | | € 4,00 | € 4,00 |
-| **Totaal kopen** | | | | | **€ 194,95** |
+| **Totaal kopen** | | | | | **€ 198,45** |
 | *Optioneel:* hallsensor unipolair, open collector, 3,8-30 V | per stuk | Honeywell SS441A (of een A3144-kloon, 4,5-24 V) | Farnell, Mouser (± € 2,50, AANNAME); A3144 per 10 ± € 6 | € 2,50 | |
 | *Optioneel:* neodymiummagneet Ø5 x 2 (onder de loc) | per stuk | N35 | | € 0,20 | |
 
 Versie 4 kostte € 186,95: de moduleplaat met haar 2 schroeven 3 x 10 valt weg, het deksel krijgt 6 schroeven in plaats
-van 4 (samen even duur) en de lijm komt erbij (€ 8,00). De naad heeft geen schroeven, inserts of paspennen nodig: de
+van 4 (samen even duur) en de lijm komt erbij (€ 8,00); versie 5b: 70 schroefjes 2,0 x 6 voor de bordjes (€ 3,50). De naad heeft geen schroeven, inserts of paspennen nodig: de
 klikhaken, de bodemlippen en de lip van het deksel zijn geprint. De 16 Modelbouwled-bordjes heb je al; een extra kost
 € 9,75 (Modelbouwled.nl). Filament: ongeveer 495 g PETG zwart (bak) en 420 g grijs (deksel, hulpstukken), samen
 ongeveer € 19.
@@ -204,7 +290,7 @@ ongeveer € 19.
 
 Elk deel is hoogstens 230 x 230 en past op het bed van 256 x 256 naast de vrije hoek voor het filamentmes (rechtsvoor
 10 x 20), met een skirt erbij: leg het deel in het midden van het bed. Instellingen zoals bij de afzuiging (0,2 mm,
-4 wanden, 30 % gyroid). De klemlippen zijn 0,8 dik en de klikhaken 1,6: print de bakhelften
+4 wanden, 30 % gyroid). De schroefpaaltjes zijn Ø5 (wand 1,7) en de klikhaken 1,6 dik: print de bakhelften
 wat trager (buitenwanden 40 mm/s) en zonder "ironing". De klikhaken steken 14 mm voorbij de naad met een onderkant van
 45°: geen support nodig (in de slicer "support" uit laten). Het naadvlak van beide helften moet recht zijn: geen "brim"
 aan de naad.
@@ -215,14 +301,15 @@ aan de naad.
 |---|---|
 | `Kabeldoos.kcad` | de hele doos met de 2 helften, het deksel, alle modules, bordjes en schroeven |
 | `Kabeldoos-bak-links.kcad`, `Kabeldoos-bak-rechts.kcad`, `Kabeldoos-deksel-links.kcad`, `Kabeldoos-deksel-rechts.kcad`, `Hulpstukken.kcad` | de geprinte delen apart |
-| `maak-kabeldoos.mjs` | de generator: indeling, de 2 bakhelften, de naad (klikhaken, lippen, klikberekening), het deksel in 2 helften, assemblage; maten in `maten.mjs`, klemlippen en hulpstukken in `hulpstukken.mjs`, de gekochte onderdelen in `onderdelen.mjs`, de modules en hun bedrading in `opbouw.mjs` |
+| `maak-kabeldoos.mjs` | de generator: indeling, de 2 bakhelften, de naad (klikhaken, lippen, klikberekening), het deksel in 2 helften, assemblage; maten in `maten.mjs`, hulpstukken in `hulpstukken.mjs`, de gekochte onderdelen in `onderdelen.mjs`, de modules en hun bedrading in `opbouw.mjs` |
 | `print/` | de STL's (uit de exacte vorm, dicht en manifold) |
-| `tekeningen/Werktekeningen-kabeldoos.pdf` | boormal op ware grootte over 2 A3-bladen met uitlijnkruisen (TRN-00a, TRN-00b), bak links (TRN-01) en rechts (TRN-02), hulpstukken (TRN-03), deksel links (TRN-04) en rechts (TRN-05), de naad met klikhaken en lijmvoeg (TRN-06), de gaatjes voor de leddraden (TRN-07), montageblad van de rechterhelft (TRN-10), interne draadlijst (TRN-14), meetblad (TRN-20, A4), invulblad (TRN-21, A4) |
+| `tekeningen/Werktekeningen-kabeldoos.pdf` | boormal op ware grootte over 2 A3-bladen met uitlijnkruisen (TRN-00a, TRN-00b), bak links (TRN-01) en rechts (TRN-02), hulpstukken (TRN-03), deksel links (TRN-04) en rechts (TRN-05), de naad met klikhaken en lijmvoeg (TRN-06), de bevestiging van de bordjes met de schroefpaaltjes (TRN-07), montageblad van de rechterhelft (TRN-10), interne draadlijst (TRN-14), meetblad (TRN-20, A4), invulblad (TRN-21, A4) |
 | `tekeningen/Bouwschema-kabeldoos.pdf` | de stappen met beelden, van printen tot aanzetten |
 | `Kabeldoos-alles-afdrukken.pdf` | alles samen om af te drukken (README, bouwschema, tekeningen, schema, dashboard, rekenblad) |
-| `schema/` | aansluitschema (`Aansluitschema-kabeldoos.pdf` en per blad een SVG) in 16 bladen, opgemaakt zoals EPLAN Electric P8 en volgens IEC/EN 61082-1, 60617, 81346 en ISO 7200 |
-| `firmware/` | PlatformIO-project met het dashboard (versie 1.3.0), 85 tests (ook met 32 groepen) |
-| `docs/` | rekenblad, maten met bronnen, de maattekening van de ESP |
+| `schema/` | aansluitschema (`Aansluitschema-kabeldoos.pdf` en per blad een SVG) in 19 bladen (versie 6: IR op blad 7, servo's en NPN/PNP op blad 8, `schema/uitbreiding.mjs`), opgemaakt zoals EPLAN Electric P8 en volgens IEC/EN 61082-1, 60617, 81346 en ISO 7200 |
+| `firmware/` | PlatformIO-project met het dashboard en de tv-pagina (versie 2.0.0: IR, servo's, bussen, haltes, geluidskastjes, NPN/PNP), 129 tests (ook met 32 groepen) |
+| `docs/` | rekenblad, maten met bronnen, de maattekening van de ESP, het sensoradvies op het plan (`sensoradvies.py`, `Sensoradvies.png`) |
+| `geluidskastje/` | het losse geluidskastje (versie 6): firmware, behuizing, tekening GLD-01, bestellijst |
 | `EISEN.md` | de eisen van Ian |
 
 ## Opnieuw maken (vanuit de map van de repo)
@@ -232,7 +319,7 @@ aan de naad.
 | de CAD-bestanden | `node voorbeelden/treinverlichting/maak-kabeldoos.mjs` |
 | aansluitschema (SVG en html) | `node voorbeelden/treinverlichting/schema/maak-schema.mjs` |
 | rekenblad | `python voorbeelden/treinverlichting/docs/berekeningen.py` |
-| tests (onderdelen, rebuild per bakhelft, naad, klemlippen, assemblage, B-rep, modules en bedrading) | `VOORBEELDEN=1 npx vitest run src/qa/qaTrein.test.ts src/qa/tekeningenTrein.test.ts src/qa/schemaNorm.test.ts` |
+| tests (onderdelen, rebuild per bakhelft, naad, schroefpaaltjes van de bordjes, assemblage, B-rep, modules en bedrading) | `VOORBEELDEN=1 npx vitest run src/qa/qaTrein.test.ts src/qa/tekeningenTrein.test.ts src/qa/schemaNorm.test.ts` |
 | STL's | `VOORBEELDEN=1 TREIN_STL=1 npx vitest run src/qa/qaTrein.test.ts -t "B-rep"` |
 | tekeningen (SVG) | `VOORBEELDEN=1 TREIN_TEKENINGEN=1 npx vitest run src/qa/tekeningenTrein.test.ts` |
 | PDF's van schema en tekeningen | `node e2e/tools/trein-pdf.mjs` |

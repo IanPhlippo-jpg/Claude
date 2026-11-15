@@ -124,10 +124,10 @@ Hulpstukken.stl             plat op het bed                2 werkhaken en de spa
 Elegoo Centauri Carbon (bed 256 x 256), PETG, zonder support (ook niet onder de klikhaken: 45 graden). Elk deel is
 hoogstens 230 x 230: leg het in het midden van het bed, dan blijft de hoek voor het filamentmes (rechtsvoor 10 x 20) vrij,
 ook met een skirt. Geen brim aan het naadvlak.
-0,2 mm lagen, 4 wanden, 30 % gyroid (zoals bij de afzuiging); de bakhelften met buitenwanden op 40 mm/s (klemlippen 0,8,
+0,2 mm lagen, 4 wanden, 30 % gyroid (zoals bij de afzuiging); de bakhelften met buitenwanden op 40 mm/s (schroefpaaltjes Ø5,
 klikhaken 1,6).
 Na het printen: de 2 bakhelften op een vlakke tafel in elkaar schuiven tot de 2 klikhaken klikken (eventueel eerst
-2K-epoxy in de voeg, TRN-06); een bordje klikt in zijn 4 klemlippen; de deksels klikken met de lip in elkaar. Meet eerst
+2K-epoxy in de voeg, TRN-06); elk bordje op zijn 4 paaltjes met 4 schroeven 2,0 x 6 (TRN-07); de deksels klikken met de lip in elkaar. Meet eerst
 de modules met een AANNAME na (TRN-10) en print pas dan de rechterhelft: zij draagt de palen van de modules.
 """
 STL_NAMEN = ['Kabeldoos-bak-links.stl', 'Kabeldoos-bak-rechts.stl', 'Kabeldoos-deksel-links.stl', 'Kabeldoos-deksel-rechts.stl', 'Hulpstukken.stl']
@@ -155,13 +155,13 @@ add_file('alles-zip', None, 'dl/Kabeldoos-treinverlichting-alles.zip', 'Kabeldoo
 DRAWINGS = [
     ('TRN-00a', 'TRN-00a-boormal.svg', 'Boormal blad 1', '1:1', 'De rechterhelft van de mal. Druk beide bladen af op A3 op ware grootte (100 %), meet de 100 mm na, leg blad 2 erover tot de kruisen A en B samenvallen en boor de 4 kruisjes voor.'),
     ('TRN-00b', 'TRN-00b-boormal.svg', 'Boormal blad 2', '1:1', 'De linkerhelft van de mal: langs "hier knippen" afknippen en over blad 1 leggen.'),
-    ('TRN-01', 'TRN-01-bak-links.svg', 'Bak links', '1:2,5', 'De helft met de 16 bordjes: steunrails, palen, aanslagen en klemlippen, de uitsparingen en kuiltjes van de naad, kabelinvoeren, sleutelgaten.'),
+    ('TRN-01', 'TRN-01-bak-links.svg', 'Bak links', '1:2,5', 'De helft met de 16 bordjes: steunrails en de schroefpaaltjes van de bordjes, de draadsleuven, de uitsparingen en kuiltjes van de naad, kabelinvoeren, sleutelgaten.'),
     ('TRN-02', 'TRN-02-bak-rechts.svg', 'Bak rechts', '1:2,5', 'De helft met de modules: palen op hun gaten, klikhouders voor de WAGO-klemmen, de klikhaken en bodemlippen van de naad, DC-bus, opening USB.'),
-    ('TRN-03', 'TRN-03-hulpstukken.svg', 'Hulpstukken', 'vrij', 'De 2 werkhaken (de doos op werkhoogte laten hangen) en de spatel met haakje voor de klemlippen en de draden tussen de bordjes.'),
+    ('TRN-03', 'TRN-03-hulpstukken.svg', 'Hulpstukken', 'vrij', 'De 2 werkhaken (de doos op werkhoogte laten hangen) en de spatel met haakje voor de draden tussen de bordjes.'),
     ('TRN-04', 'TRN-04-deksel-links.svg', 'Deksel links', '1:2,5', 'Met zijn centreerrand en de sponning met 4 groeven aan de naad.'),
     ('TRN-05', 'TRN-05-deksel-rechts.svg', 'Deksel rechts', '1:2,5', 'Met de lip van 12 in 4 klikvingers die onder de linkerhelft klikt.'),
     ('TRN-06', 'TRN-06-naad.svg', 'Naad', '5:1', 'De klikhaken, de bodemlippen, de lijmvoeg van 0,2 en de lip van het deksel, met de klikberekening en hoe je verbindt.'),
-    ('TRN-07', 'TRN-07-gaatjes.svg', 'Gaatjes voor de leddraden', '4:1', 'Per klem één gaatje van 2 x 2 in de bodem, om en om in 2 rijen; de maten van elke gatenrij.'),
+    ('TRN-07', 'TRN-07-bevestiging-bordjes.svg', 'Bevestiging van de bordjes', '3:1, 8:1', 'Elk bordje met 4 schroeven 2,0 x 6 op 4 paaltjes Ø5 (gaten 2 mm van de randen): doorsnede, schroef en de plaats van elk paaltje.'),
     ('TRN-10', 'TRN-10-modules.svg', 'Modules en bedrading', '1:1', 'De rechterhelft van boven met elke module, haar gaten en klemmen, alle draden (W-nummers) en per groep de klemmen en de polyfuse; enkel de DC-bus wordt gesoldeerd.'),
     ('TRN-14', 'TRN-14-draadlijst.svg', 'Interne draadlijst', '—', 'De 61 draden tussen de modules met doorsnede, kleur en lengte; dupontkabels voor de signalen.'),
     ('TRN-20', 'TRN-20-meetblad.svg', 'Meetblad', 'A4', 'Ingebruikname: spanningen, OE, de polariteit van de modules, de stroom en de spanning over de MOSFET per groep, elke ingang, de hallsensor.'),
@@ -222,7 +222,7 @@ RENDERS = [
     ('trein-v5/helften-op-bed', 'bed.webp', 'De 2 helften elk op het bed van 256 x 256: binnen het kader van 230 x 230'),
     ('trein-esp', 'esp.webp', 'De ESP32-S3 in haar schroefklemadapter met 44 klemmen'),
     ('trein-bordje', 'bordje.webp', 'Een Modelbouwled-bordje: 61,1 x 20,9, 14 hoog'),
-    ('trein-lippen-doorsnede', 'klemlippen.webp', 'Doorsnede door de klemlippen tussen twee bordjes: de haak grijpt 0,6 mm over de print'),
+    ('trein-v5/schroeven-iso', 'schroeven.webp', 'Een bordje vastgeschroefd: 4 schroeven 2,0 x 6 op 4 paaltjes Ø5, hart 2 mm van de randen'),
 ]
 render_html = {}
 for src, out, cap in RENDERS:
@@ -273,7 +273,7 @@ def read_stl(p: Path):
 nets = {}
 for name, f, kleur in (('bakl', 'Kabeldoos-bak-links.stl', '#2b2f2e'), ('bakr', 'Kabeldoos-bak-rechts.stl', '#2b2f2e'), ('dekl', 'Kabeldoos-deksel-links.stl', '#9ea4a6'), ('dekr', 'Kabeldoos-deksel-rechts.stl', '#9ea4a6'), ('hulpstukken', 'Hulpstukken.stl', '#8d939a')):
     v, idx, n = read_stl(BOX / 'print' / f)
-    groot = len(v) >= 65536  # dan 32-bit indices (een bakhelft met haar klemlippen kan er meer hebben)
+    groot = len(v) >= 65536  # dan 32-bit indices (een bakhelft met haar paaltjes kan er meer hebben)
     mn, mx = v.min(axis=0), v.max(axis=0)
     q = np.round((v - mn) / (mx - mn) * 65535).astype('<u2')
     nets[name] = {'kleur': kleur, 'min': mn.round(4).tolist(), 'max': mx.round(4).tolist(), 'driehoeken': int(n), 'i32': groot,
@@ -338,7 +338,7 @@ S.append(f'''<section class="sheet" id="printen" hidden>
     <template id="spec-hulpstukken"><h3>Hulpstukken</h3><dl><dt>Bestand</dt><dd><code>Hulpstukken.stl</code></dd><dt>Stand</dt><dd>plat op het bed</dd><dt>Wat</dt><dd>2 werkhaken, spatel met haakje</dd><dt>Filament</dt><dd>PETG grijs, ± 15 g</dd><dt>Tijd</dt><dd>± 1 uur</dd><dt>Driehoeken</dt><dd class="num">{dots(nets["hulpstukken"]["driehoeken"])}</dd></dl></template>
     <div class="actions">{btn("stl", "Printbestanden (STL in zip)", True)}</div>
     <div class="warn">PETG, zonder support. 0,2 mm lagen, 4 wanden, 30 % gyroid. Elk deel is hoogstens 230 x 230: in het midden van het bed blijft de hoek voor het filamentmes vrij, ook met een skirt.</div>
-    <p class="note">Na het printen: de 2 bakhelften klikken in elkaar (eventueel eerst lijm in de voeg), een bordje klikt in zijn 4 klemlippen, de 2 deksels klikken met hun lip in elkaar.</p>
+    <p class="note">Na het printen: de 2 bakhelften klikken in elkaar (eventueel eerst lijm in de voeg), elk bordje gaat met 4 schroefjes op zijn paaltjes, de 2 deksels klikken met hun lip in elkaar.</p>
   </div>
 </div>
 </section>''')

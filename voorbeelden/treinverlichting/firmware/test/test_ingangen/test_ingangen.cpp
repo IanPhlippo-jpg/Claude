@@ -21,8 +21,8 @@ struct Proef {
   std::vector<Opdracht> op;
   std::vector<uint32_t> wanneer;
   uint32_t t = 0;
-  uint16_t ruw = 0;
-  uint16_t draad = 0, vlag = 0; // fijne proef: het niveau per ms en de flankvlaggen (zoals de interrupt in hw.h)
+  IngangMasker ruw = 0;
+  IngangMasker draad = 0, vlag = 0; // fijne proef: het niveau per ms en de flankvlaggen (zoals de interrupt in hw.h)
 
   /** dt ms laten lopen met een lezing elke 10 ms (zoals main.cpp) */
   void loop(uint32_t dt, uint32_t elke = 10) {
@@ -31,7 +31,7 @@ struct Proef {
   /** dt ms laten lopen per ms: een actief-flank zet een vlag (de interrupt), elke 5 ms een lezing met de vlaggen */
   void fijn(uint32_t dt) {
     for (uint32_t e = t + dt; t < e; t++) {
-      vlag |= (uint16_t)(ruw & ~draad);
+      vlag |= ruw & ~draad;
       draad = ruw;
       if (t % 5 == 0) {
         stap(vlag);
@@ -45,7 +45,7 @@ struct Proef {
     fijn(duur);
     zet(i, false);
   }
-  void stap(uint16_t flanken = 0) {
+  void stap(IngangMasker flanken = 0) {
     Opdracht o[N_INGANGEN];
     int n = in.stap(ruw, t, cfg, o, N_INGANGEN, flanken);
     for (int i = 0; i < n; i++) {
@@ -54,8 +54,8 @@ struct Proef {
     }
   }
   void zet(int i, bool actief) {
-    if (actief) ruw |= (uint16_t)(1u << i);
-    else ruw &= (uint16_t)~(1u << i);
+    if (actief) ruw |= ingangBit(i);
+    else ruw &= ~ingangBit(i);
   }
 };
 
@@ -232,7 +232,7 @@ void test_opstarten_geeft_geen_opdrachten() {
     p.cfg[i].functieA = 0;
     p.cfg[i].functieB = 1;
   }
-  p.ruw = 0xFFFF; // alles al actief bij het opstarten
+  p.ruw = ALLE_INGANGEN; // alles al actief bij het opstarten
   p.loop(10000);
   TEST_ASSERT_EQUAL(0, (int)p.op.size());
   for (int i = 0; i < N_INGANGEN; i++) TEST_ASSERT_TRUE(p.in.t[i].actief);
@@ -244,7 +244,7 @@ void test_baan_drukknop_wisselt_functie() {
   b.cfg.ingang[0].functieA = 0; // "Overweg"
   b.cfg.ingang[0].wisselen = true;
   uint32_t t = 0;
-  auto loop = [&](uint16_t ruw, uint32_t dt) {
+  auto loop = [&](IngangMasker ruw, uint32_t dt) {
     for (uint32_t e = t + dt; t < e; t += 10) b.tick(t, ruw);
   };
   loop(0, 100);
@@ -301,13 +301,13 @@ void test_hallsensor_zonder_interrupt_en_als_contact_gemist() {
   TEST_ASSERT_EQUAL(0, (int)p.op.size());
   TEST_ASSERT_EQUAL_UINT32(0, p.in.t[4].teller);
   // een flank op een contact-ingang zonder dat het niveau actief is: niets (een stoorpiekje telt niet)
-  p.stap((uint16_t)(1u << 4));
+  p.stap(ingangBit(4));
   p.fijn(100);
   TEST_ASSERT_FALSE(p.in.t[4].actief);
   TEST_ASSERT_EQUAL_UINT32(0, p.in.t[4].teller);
   // als puls: alleen de flankvlag (puls van < 1 ms tussen twee lezingen) is genoeg
   p.cfg[4].soort = SOORT_PULS;
-  p.stap((uint16_t)(1u << 4));
+  p.stap(ingangBit(4));
   TEST_ASSERT_TRUE(p.in.t[4].actief);
   TEST_ASSERT_EQUAL_UINT32(1, p.in.t[4].teller);
   TEST_ASSERT_EQUAL(1, (int)p.op.size());
@@ -447,6 +447,101 @@ void test_baan_hallsensor_start_overweg() {
   TEST_ASSERT_EQUAL_UINT32(1, b.ingangen.t[1].teller);
 }
 
+// ---------------------------------------------------------------------------------- firmware 2.0.0: 40 ingangen
+void test_veertig_ingangen_en_mcp_afwezig() {
+  // ingang 17..24 (MCP23017 0x20) en 25..40 (tweede MCP23017 0x21) werken zoals 1..16
+  Proef p;
+  for (int i : {16, 23, 24, 39}) {
+    p.cfg[i].gedrag = GEDRAG_DRUKKNOP;
+    p.cfg[i].functieA = (int8_t)(i % 16);
+  }
+  p.loop(50);
+  for (int i : {16, 23, 24, 39}) {
+    p.zet(i, true);
+    p.loop(50);
+    p.zet(i, false);
+    p.loop(50);
+  }
+  TEST_ASSERT_EQUAL(4, (int)p.op.size());
+  TEST_ASSERT_EQUAL(39, p.op[3].ingang);
+  TEST_ASSERT_EQUAL_UINT32(1, p.in.t[39].teller);
+  // in de Baan: zonder tweede MCP23017 zijn 25..40 afwezig (altijd rust), 17..24 wel aanwezig
+  Baan b;
+  TEST_ASSERT_TRUE(b.ingangAanwezig >> 23 & 1);
+  TEST_ASSERT_FALSE(b.ingangAanwezig >> 24 & 1);
+  for (uint32_t t = 0; t < 100; t += 5) b.tick(t, ingangBit(24) | ingangBit(20));
+  TEST_ASSERT_FALSE(b.ingangen.t[24].actief);
+  TEST_ASSERT_TRUE(b.ingangen.t[20].actief);
+  b.ingangAanwezig = ALLE_INGANGEN; // de tweede MCP23017 is gevonden
+  for (uint32_t t = 100; t < 200; t += 5) b.tick(t, ingangBit(24));
+  TEST_ASSERT_TRUE(b.ingangen.t[24].actief);
+}
+
+void test_polariteit_npn_pnp() {
+  Baan b;
+  b.cfg.ingang[3].gedrag = GEDRAG_DRUKKNOP;
+  b.cfg.ingang[3].functieA = 0; // Overweg
+  uint32_t t = 0;
+  auto loop = [&](IngangMasker ruw, uint32_t dt) {
+    for (uint32_t e = t + dt; t < e; t += 5) b.tick(t, ruw);
+  };
+  loop(0, 50);
+  // pnp via de optocouplerprint (COM aan 0 V): de print trekt nog altijd laag bij actief -> niets omkeren
+  b.zetPolariteit(3, POL_PNP);
+  TEST_ASSERT_EQUAL(0, (int)b.omkeerMasker());
+  loop(ingangBit(3), 100);
+  TEST_ASSERT_TRUE(b.ingangen.t[3].actief);
+  TEST_ASSERT_TRUE(b.seq.loopt(0));
+  loop(0, 100);
+  b.functieStop(0, t);
+  // een print die bij PNP actief HOOG geeft (pnpOmkeren): de pnp-ingang wordt omgekeerd
+  b.pnpOmkeren = true;
+  TEST_ASSERT_EQUAL_HEX64(ingangBit(3), b.omkeerMasker());
+  b.ingangen.herbegin(3);
+  loop(ingangBit(3), 100); // pin laag = rust bij omkeren: de rusttoestand na herbeginnen, niets gestart
+  TEST_ASSERT_FALSE(b.ingangen.t[3].actief);
+  TEST_ASSERT_FALSE(b.seq.loopt(0));
+  loop(0, 100); // pin hoog = actief
+  TEST_ASSERT_TRUE(b.ingangen.t[3].actief);
+  TEST_ASSERT_TRUE(b.seq.loopt(0));
+  // terug naar npn: de ingang begint opnieuw (geen valse start)
+  b.functieStop(0, t);
+  b.zetPolariteit(3, POL_NPN);
+  loop(0, 100); // pin hoog: bij npn rust (de ingang begon opnieuw, geen stop- of startopdracht)
+  TEST_ASSERT_FALSE(b.ingangen.t[3].actief);
+  TEST_ASSERT_FALSE(b.seq.loopt(0));
+  loop(ingangBit(3), 100); // pin laag = actief bij npn
+  TEST_ASSERT_TRUE(b.seq.loopt(0));
+  TEST_ASSERT_EQUAL_STRING("pnp", polariteitId(POL_PNP));
+  TEST_ASSERT_EQUAL(-1, polariteitVanId("PNP"));
+}
+
+void test_hallsensor_geeft_melding_bij_punt() {
+  Baan b;
+  b.cfg.ingang[4].soort = SOORT_PULS;
+  PuntCfg &p = b.cfg.punt[0];
+  p.gebruikt = true;
+  strcpy(p.id, "HALL1");
+  p.ingang = 4;
+  uint32_t t = 0;
+  for (; t < 50; t += 5) b.tick(t, 0);
+  TEST_ASSERT_EQUAL_UINT32(0, b.volg.meldingen.volgnr);
+  b.tick(t, 0, ingangBit(4)); // puls van 1 ms tussen 2 lezingen: alleen de flank
+  t += 5;
+  for (; t < 1000; t += 5) b.tick(t, 0);
+  TEST_ASSERT_EQUAL_UINT32(1, b.volg.meldingen.volgnr);
+  const Melding *m[4];
+  TEST_ASSERT_EQUAL(1, b.volg.meldingen.sinds(0, m, 4));
+  TEST_ASSERT_EQUAL_STRING("HALL1", m[0]->punt);
+  TEST_ASSERT_EQUAL(MELD_HALL, m[0]->soort);
+  TEST_ASSERT_EQUAL_UINT32(50, m[0]->ms);
+  // een ingang die bij het opstarten al actief is, geeft geen melding
+  Baan c;
+  c.cfg.punt[0] = p;
+  for (uint32_t u = 0; u < 100; u += 5) c.tick(u, ingangBit(4));
+  TEST_ASSERT_EQUAL_UINT32(0, c.volg.meldingen.volgnr);
+}
+
 int main() {
   UNITY_BEGIN();
   RUN_TEST(test_stuiterende_knop_geeft_een_druk);
@@ -466,5 +561,8 @@ int main() {
   RUN_TEST(test_drukknop_blijft_ontdenderd_en_telt_een_keer);
   RUN_TEST(test_hallsensor_magneet_bij_opstarten);
   RUN_TEST(test_baan_hallsensor_start_overweg);
+  RUN_TEST(test_veertig_ingangen_en_mcp_afwezig);
+  RUN_TEST(test_polariteit_npn_pnp);
+  RUN_TEST(test_hallsensor_geeft_melding_bij_punt);
   return UNITY_END();
 }

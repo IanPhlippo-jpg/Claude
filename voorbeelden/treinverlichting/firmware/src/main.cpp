@@ -15,6 +15,13 @@
 //   GPIO38 RGB-led op het bord = statuslampje: groen = hotspot actief, rood = PCA9685 antwoordt niet (gaat voor),
 //          blauw = BOOT-knop wordt vastgehouden / knippert: het wifi-wachtwoord is teruggezet
 //   GPIO0  BOOT-knop op het bord: 5 s vasthouden = wifi-wachtwoord terug naar "treinbaan" (en thuisnet uit)
+// Firmware 2.0.0 erbij:
+//   GPIO47 IR zenden (RMT TX, draaggolf) naar de snelle MOSFET-module in de retour van de IR-leds
+//   GPIO48 leerontvanger TSMP58000 (ontvanger 1), GPIO11, 39, 42 IR-/FTR-ontvangers op de baan (ontvanger 2, 3, 4)
+//   I2C 0x20 MCP23017: GPA = IR-led 1..8 aan/uit, GPB = ingang 17..24
+//   I2C 0x21 MCP23017 (optioneel, bij het opstarten gezocht): ingang 25..40
+//   I2C 0x42 PCA9685 op 50 Hz: servo 1..16 (eigen voeding 5-6 V, OE aan GND)
+//   0x41 blijft vrij voor een tweede licht-PCA9685 (groep 17..32)
 //
 // Veilig opstarten: OE hoog (alles uit) -> PCA9685 instellen met alle kanalen 0 -> OE laag -> instellingen laden ->
 // pas dan de laatste stand terug (of alles uit, naar keuze). Antwoordt de PCA9685 niet meer, dan gaat OE hoog.
@@ -23,12 +30,17 @@
 //   licht  (prioriteit 5) elke 5 ms: de flankvlaggen ophalen, de ingangen lezen en de Baan laten rekenen; elke 10 ms
 //          de uitgangen (aan/uit) naar de PCA9685 (alleen als er iets veranderde). Zo blijven knipperen en de andere
 //          effecten op tijd, ook als de webserver bezig is.
+//          Ook de ingangen 17..40 (MCP23017), de servo's (elke 20 ms naar de PCA9685 op 0x42) en het IR-zenden
+//          (IR-leds kiezen via de MCP23017, dan de RMT) gebeuren hier: alles op de I2C-bus in één taak.
 //   loop() de hotspot (en het thuisnet), DNS (captive portal), de webserver, de updates, de BOOT-knop en het
 //          bewaren in LittleFS. Is de hotspot weg, dan start loop() hem opnieuw (HotspotWacht, onderhoud.h).
+//   ir     (prioriteit 4) haalt de frames van de 4 IR-ontvangers op en geeft ze aan de Baan (leren, meldingen)
+//   kastjes (prioriteit 1) stuurt de HTTP-opdrachten naar de geluidskastjes (POST http://<ip>/speel ...)
 // De Baan wordt door beide gebruikt: altijd met het slot (Slot s;).
 #include <Arduino.h>
 #include <DNSServer.h>
 #include <ESPmDNS.h>
+#include <HTTPClient.h>
 #include <LittleFS.h>
 #include <Update.h>
 #include <WebServer.h>
@@ -39,7 +51,9 @@
 #include "api.h"
 #include "dashboard.h"
 #include "hw.h"
+#include "irhw.h"
 #include "onderhoud.h"
+#include "tv.h"
 
 using namespace trein;
 
@@ -49,6 +63,13 @@ constexpr int PIN_SDA = 8, PIN_SCL = 9, PIN_OE = 10, PIN_BOOT = 0; // de ingange
 constexpr uint32_t I2C_HZ = 400000;
 constexpr uint8_t ADRES_PCA = 0x40, ADRES_PCA2 = 0x41; // de tweede alleen bij meer dan 16 groepen
 constexpr int N_PCA = (N_GROEPEN + 15) / 16;
+constexpr uint8_t ADRES_MCP1 = 0x20, ADRES_MCP2 = 0x21, ADRES_SERVO = 0x42;
+constexpr uint32_t SERVO_MS = 20;                 // servo's naar de PCA9685 (één periode van 50 Hz)
+constexpr const char *BESTAND_PLAN = "/plan.json"; // PUT /api/plan
+constexpr const char *BESTAND_BEELD = "/plan.jpg"; // POST /api/plan/beeld (jpg of png)
+constexpr const char *TV_MAP = "/tv/";             // bestanden van de tv-pagina (POST /api/tv/bestand?naam=)
+constexpr size_t MAX_BEELD = 1536 * 1024;          // 1,5 MB per beeld of tv-bestand
+constexpr uint32_t KASTJE_TIMEOUT_MS = 1500;
 const IPAddress IP_DOOS(192, 168, 4, 1), MASKER(255, 255, 255, 0);
 constexpr const char *MDNS_NAAM = "treinbaan"; // http://treinbaan.local
 constexpr const char *BESTAND_INST = "/instellingen.json";
@@ -66,9 +87,14 @@ Baan baan;
 WebServer web(80);
 DNSServer dns;
 Pca9685 pca[N_PCA];
+Mcp23017 mcp1, mcp2;
+PcaServo pcaServo;
+IrHw ir;
 SemaphoreHandle_t slot;
 
 volatile bool pcaOk = false;
+volatile bool mcp1Ok = false, mcp2Ok = false, servoOk = false;
+bool mcp2Gevonden = false; // alleen gezocht bij het opstarten
 bool hotspotOk = false;
 bool fsOk = false;
 std::string meldingLaden;
@@ -130,14 +156,17 @@ void laadInstellingen() {
   if (r == Laad::ONGELDIG) schrijfBestand(BESTAND_KAPOT, t); // niets weggooien
   if (r != Laad::OK) {
     schrijfBestand(BESTAND_INST, configNaarJson(baan.cfg)); // ook OMGEZET: versie 1 (met dimmen) wordt versie 2
-    Serial.printf("Instellingen: %s\n", r == Laad::OMGEZET ? "omgezet naar versie 2 (alleen aan/uit)." : meldingLaden.c_str());
+    Serial.printf("Instellingen: %s\n", r == Laad::OMGEZET ? "omgezet naar versie 3 (firmware 2.0.0)." : meldingLaden.c_str());
   }
 }
 
-void laadStand(uint32_t nu) {
+/** de laatste stand: de lampen alleen als "opstarten: laatste stand"; de servo's altijd (meteen, zonder beweging) */
+void laadStand(uint32_t nu, bool lampen) {
   std::string t;
   Stand s;
-  if (leesBestand(BESTAND_STAND, t) && standVanJson(t.data(), t.size(), s)) baan.herstelStand(s, nu);
+  bool ok = leesBestand(BESTAND_STAND, t) && standVanJson(t.data(), t.size(), s);
+  if (ok && lampen) baan.herstelStand(s, nu);
+  else baan.servosOpStand(ok ? s.servosB : 0);
 }
 
 // --------------------------------------------------------------------------------------------- de PWM-chips
@@ -161,22 +190,76 @@ bool pcaZet(GroepMasker uit) {
 }
 
 // --------------------------------------------------------------------------------------------- lichttaak
+/** de servo's: per kanaal de tellen (een kanaal met meer servo's: de laatste telt) */
+void servoTellen(uint16_t *tellen) {
+  for (int k = 0; k < 16; k++) tellen[k] = 0;
+  for (int i = 0; i < MAX_SERVOS; i++)
+    if (baan.cfg.servo[i].gebruikt) tellen[baan.cfg.servo[i].kanaal & 15] = baan.servos.tellen(i);
+}
+
+/** IR zenden als de vorige code klaar is: eerst de IR-leds kiezen (MCP23017 GPA), dan de RMT */
+void irZendStap() {
+  static trein::IrCode code; // 0,5 kB: niet op de stapel
+  static bool ledsAan = false;
+  if (!ir.klaar()) return;
+  if (ledsAan) { // vorige code verzonden: alle IR-leds weer uit
+    if (mcp1Ok) mcp1.zetA(0);
+    ledsAan = false;
+  }
+  IrZend z;
+  {
+    Slot s;
+    if (!baan.haalIrZend(z)) return;
+    code = baan.cfg.ir[z.code];
+  }
+  if (mcp1Ok && !mcp1.zetA(z.leds)) mcp1Ok = false;
+  ledsAan = ir.zend(code);
+}
+
 void lichtTaak(void *) {
   esp_task_wdt_add(nullptr); // deze taak wordt bewaakt
   TickType_t wakker = xTaskGetTickCount();
-  uint32_t controle = millis(), geschreven = millis();
+  uint32_t controle = millis(), geschreven = millis(), servoOm = millis();
   GroepMasker uit = 0;
   for (;;) {
     vTaskDelayUntil(&wakker, pdMS_TO_TICKS(TICK_MS));
     esp_task_wdt_reset();
     uint32_t nu = millis();
-    uint16_t flanken = ingangenFlanken(); // eerst de flankvlaggen (korte pulsen sinds de vorige keer) ...
-    uint16_t ingangen = ingangenLees();   // ... dan het niveau: bit i = ingang i+1 actief (de optocoupler trekt laag)
+    IngangMasker flanken = ingangenFlanken(); // eerst de flankvlaggen (korte pulsen sinds de vorige keer) ...
+    IngangMasker ingangen = ingangenLees();   // ... dan het niveau: bit i = ingang i+1 actief (de optocoupler trekt laag)
+    uint16_t laag, fl;
+    if (mcp1Ok) {
+      if (mcp1.leesIngangen(laag, fl)) {
+        ingangen |= (IngangMasker)(laag >> 8) << 16; // GPB = ingang 17..24
+        flanken |= (IngangMasker)(fl >> 8) << 16;
+      } else {
+        mcp1Ok = false;
+      }
+    }
+    if (mcp2Ok) {
+      if (mcp2.leesIngangen(laag, fl)) {
+        ingangen |= (IngangMasker)laag << 24; // ingang 25..40
+        flanken |= (IngangMasker)fl << 24;
+      } else {
+        mcp2Ok = false;
+      }
+    }
+    uint16_t tellen[16];
+    bool servoNu = nu - servoOm >= SERVO_MS;
     {
       Slot s;
+      IngangMasker aanwezig = (IngangMasker)0xFFFF | (mcp1Ok ? (IngangMasker)0xFF << 16 : 0) |
+                              (mcp2Ok ? (IngangMasker)0xFFFF << 24 : 0);
+      baan.ingangAanwezig = aanwezig;
       baan.tick(nu, ingangen, flanken);
       uit = baan.lampen.uitgang;
+      if (servoNu) servoTellen(tellen);
     }
+    if (servoNu) {
+      servoOm = nu;
+      if (servoOk && !pcaServo.zet(tellen)) servoOk = false;
+    }
+    irZendStap();
     if (nu - geschreven >= UITGANG_MS) {
       geschreven = nu;
       if (pcaOk && !pcaZet(uit)) pcaOk = false;
@@ -189,6 +272,53 @@ void lichtTaak(void *) {
         pcaOk = pcaBegin() && pcaZet(uit);
         if (pcaOk) digitalWrite(PIN_OE, LOW);
       }
+      // de chips van 2.0.0: na een spanningsdip opnieuw instellen (de tweede MCP23017 alleen als hij er was)
+      if (!mcp1Ok || !mcp1.controleer()) mcp1Ok = mcp1.begin(Wire, ADRES_MCP1, true);
+      if (mcp2Gevonden && (!mcp2Ok || !mcp2.controleer())) mcp2Ok = mcp2.begin(Wire, ADRES_MCP2, false);
+      if (!servoOk || !pcaServo.controleer()) servoOk = pcaServo.begin(Wire, ADRES_SERVO);
+    }
+  }
+}
+
+// ------------------------------------------------------------------------------------------------ IR-taak
+void irTaak(void *) {
+  for (;;) {
+    bool iets = false;
+    for (int o = 0; o < IR_ONTVANGERS; o++) {
+      const uint32_t *ns;
+      int n = ir.ontvang(o, ns);
+      if (n <= 0) continue;
+      iets = true;
+      Slot s;
+      baan.irFrame(o, ns, n, millis());
+    }
+    if (!iets) vTaskDelay(pdMS_TO_TICKS(5));
+  }
+}
+
+// ------------------------------------------------------------------------------------------- kastjes-taak
+void kastjesTaak(void *) {
+  for (;;) {
+    HttpOpdracht o;
+    bool er;
+    {
+      Slot s;
+      er = baan.kastjes.haal(o);
+    }
+    if (!er) {
+      vTaskDelay(pdMS_TO_TICKS(50));
+      continue;
+    }
+    WiFiClient client;
+    HTTPClient http;
+    String url = String("http://") + o.ip + o.pad;
+    if (http.begin(client, url)) {
+      http.setTimeout(KASTJE_TIMEOUT_MS);
+      http.setConnectTimeout(KASTJE_TIMEOUT_MS);
+      http.addHeader("Content-Type", "application/json");
+      int code = http.POST((uint8_t *)o.body, strlen(o.body));
+      if (code != 200) Serial.printf("Kastje %s%s: %d\n", o.ip, o.pad, code);
+      http.end();
     }
   }
 }
@@ -204,6 +334,18 @@ void meldingBijwerken() {
   if (!pcaOk)
     erbij(N_PCA > 1 ? "De uitgangen (PCA9685, adres 0x40 of 0x41) antwoorden niet: alle lampen blijven uit. Kijk de draden na."
                     : "De uitgangen (PCA9685, adres 0x40) antwoorden niet: alle lampen blijven uit. Kijk de draden na.");
+  bool irGebruikt = false, ingangHoog = false, servoGebruikt = false;
+  {
+    Slot s;
+    for (int i = 0; i < MAX_IR_CODES; i++) irGebruikt |= baan.cfg.ir[i].gebruikt;
+    for (int i = 16; i < 24; i++) ingangHoog |= baan.cfg.ingang[i].gedrag != GEDRAG_GEEN;
+    for (int i = 0; i < MAX_SERVOS; i++) servoGebruikt |= baan.cfg.servo[i].gebruikt;
+  }
+  if (!mcp1Ok && (irGebruikt || ingangHoog))
+    erbij("De MCP23017 (adres 0x20) antwoordt niet: de IR-leds en ingang 17-24 werken niet. Kijk de draden na.");
+  if (!servoOk && servoGebruikt)
+    erbij("De servo-PCA9685 (adres 0x42) antwoordt niet: de servo's bewegen niet. Kijk de draden en de 5-6 V na.");
+  if (mcp2Gevonden && !mcp2Ok) erbij("De tweede MCP23017 (adres 0x21) antwoordt niet meer: ingang 25-40 werken niet.");
   bool verbonden = WiFi.status() == WL_CONNECTED;
   std::string ip = verbonden ? std::string(WiFi.localIP().toString().c_str()) : std::string();
   Slot s;
@@ -291,6 +433,120 @@ void dashboard() {
   web.send_P(200, "text/html; charset=utf-8", (const char *)DASHBOARD_GZ, DASHBOARD_GZ_LEN);
 }
 
+/** een bestand uit LittleFS sturen; false = bestaat niet */
+bool stuurBestand(const String &pad, const char *soort = nullptr) {
+  if (!fsOk || !LittleFS.exists(pad)) return false;
+  File f = LittleFS.open(pad, "r");
+  if (!f) return false;
+  String s = soort ? String(soort) : String(inhoudSoort(pad.c_str()));
+  if (!soort && pad.endsWith(".jpg")) {
+    uint8_t b[2] = {0, 0};
+    f.read(b, 2);
+    f.seek(0);
+    if (b[0] == 0x89 && b[1] == 'P') s = "image/png"; // /plan.jpg mag ook een png zijn
+  }
+  web.sendHeader("Cache-Control", "no-cache");
+  web.streamFile(f, s);
+  f.close();
+  return true;
+}
+
+/** de tv-pagina (/tv en /tv/): uit de firmware (ui/tv.html), of anders uit LittleFS /tv/tv.html */
+void tvPagina() {
+  if (TV_GZ_LEN > 0) {
+    web.sendHeader("Content-Encoding", "gzip");
+    web.sendHeader("Cache-Control", "no-cache");
+    web.send_P(200, "text/html; charset=utf-8", (const char *)TV_GZ, TV_GZ_LEN);
+    return;
+  }
+  if (stuurBestand(String(TV_MAP) + "tv.html")) return;
+  web.send(404, "text/plain; charset=utf-8", "De tv-pagina ontbreekt: zet tv.html op de doos (POST /api/tv/bestand?naam=tv.html).");
+}
+
+// Bestanden ontvangen (plan, beeld, tv-bestanden): als multipart-formulier (upload) of als ruwe body (raw). Eerst naar
+// <doel>.tmp, op het einde hernoemen; te groot of afgebroken = weg.
+File ontvangBestand;
+String ontvangDoel;
+size_t ontvangGrootte = 0, ontvangMax = 0;
+const char *ontvangFout = nullptr;
+bool (*ontvangControle)(const String &tmp) = nullptr; // nakijken voor het hernoemen (het plan); false = ontvangFout
+
+void ontvangStart(const String &doel, size_t max) {
+  ontvangFout = nullptr;
+  ontvangDoel = doel;
+  ontvangGrootte = 0;
+  ontvangMax = max;
+  if (!fsOk) { ontvangFout = "Het geheugen van de doos werkt niet."; return; }
+  if (!doel.length()) { ontvangFout = "Naam: 1 tot 31 tekens (letters, cijfers, _ -) met een extensie, bv. achtergrond.jpg."; return; }
+  if (doel.startsWith(TV_MAP)) LittleFS.mkdir("/tv");
+  ontvangBestand = LittleFS.open(doel + ".tmp", "w");
+  if (!ontvangBestand) ontvangFout = "Het bestand kon niet aangemaakt worden.";
+}
+void ontvangStuk(const uint8_t *buf, size_t n) {
+  esp_task_wdt_reset();
+  if (ontvangFout || !n) return;
+  ontvangGrootte += n;
+  if (ontvangGrootte > ontvangMax) { ontvangFout = "Het bestand is te groot."; return; }
+  if (ontvangBestand.write(buf, n) != n) ontvangFout = "Het geheugen van de doos is vol.";
+}
+/** afsluiten: nakijken (ontvangControle), dan het oude bestand vervangen; bij een fout blijft het oude */
+void ontvangEinde(bool afgebroken) {
+  if (ontvangBestand) ontvangBestand.close();
+  String tmp = ontvangDoel + ".tmp";
+  if (afgebroken && !ontvangFout) ontvangFout = "De upload is afgebroken.";
+  if (!ontvangFout && ontvangGrootte == 0) ontvangFout = "Het bestand is leeg.";
+  if (!ontvangFout && ontvangControle) ontvangControle(tmp);
+  if (ontvangFout) { LittleFS.remove(tmp); return; }
+  LittleFS.remove(ontvangDoel);
+  if (!LittleFS.rename(tmp, ontvangDoel)) ontvangFout = "Het bestand kon niet bewaard worden.";
+}
+
+/** de upload-functie voor web.on(..., klaar, stuk): multipart (Content-Type multipart/...) of ruw */
+template <typename DoelFn>
+void ontvang(DoelFn doel, size_t max, bool (*controle)(const String &) = nullptr) {
+  bool multipart = web.header("Content-Type").startsWith("multipart/");
+  if (multipart) {
+    HTTPUpload &u = web.upload();
+    if (u.status == UPLOAD_FILE_START) ontvangControle = controle;
+    if (u.status == UPLOAD_FILE_START) ontvangStart(doel(), max);
+    else if (u.status == UPLOAD_FILE_WRITE) ontvangStuk(u.buf, u.currentSize);
+    else if (u.status == UPLOAD_FILE_END) ontvangEinde(false);
+    else if (u.status == UPLOAD_FILE_ABORTED) ontvangEinde(true);
+  } else {
+    HTTPRaw &r = web.raw();
+    if (r.status == RAW_START) ontvangControle = controle;
+    if (r.status == RAW_START) ontvangStart(doel(), max);
+    else if (r.status == RAW_WRITE) ontvangStuk(r.buf, r.currentSize);
+    else if (r.status == RAW_END) ontvangEinde(false);
+    else if (r.status == RAW_ABORTED) ontvangEinde(true);
+  }
+}
+
+void ontvangKlaar() {
+  if (ontvangFout) stuur(fout(ontvangFout));
+  else stuur(goed());
+  ontvangFout = nullptr;
+}
+
+/** PUT /api/plan: nakijken voor het oude plan vervangen wordt (JSON-object, hoogstens 256 kB) */
+bool planControle(const String &tmp) {
+  std::string t;
+  File f = LittleFS.open(tmp, "r");
+  if (f) {
+    t.resize(f.size());
+    if (t.size()) f.read((uint8_t *)&t[0], t.size());
+    f.close();
+  }
+  const char *e = planFout(t.data(), t.size());
+  if (e[0]) ontvangFout = e;
+  return !e[0];
+}
+
+String tvBestandNaam() {
+  String n = web.arg("naam");
+  return tvNaamGeldig(n.c_str()) ? String(TV_MAP) + n : String();
+}
+
 /** een kleine eigen pagina om bij te werken, ook als het dashboard zelf stuk zou zijn */
 const char UPDATE_PAGINA[] PROGMEM =
     "<!doctype html><html lang=nl><meta charset=utf-8><meta name=viewport content='width=device-width'>"
@@ -336,8 +592,21 @@ void updateKlaar() {
   herstartOm = millis() + 1500;
 }
 
-/** captive portal: elke onbekende vraag (ook de controle van Android, iPhone en Windows) gaat naar het dashboard */
+/** captive portal: elke onbekende vraag (ook de controle van Android, iPhone en Windows) gaat naar het dashboard.
+ *  Eerst: /tv/<bestand> (en een bestand naast de tv-pagina, zoals /achtergrond.jpg) uit LittleFS /tv/. */
 void nietGevonden() {
+  String pad = web.uri();
+  if (web.method() == HTTP_GET) {
+    String naam = pad.startsWith("/tv/") ? pad.substring(4) : pad.substring(1);
+    if (tvNaamGeldig(naam.c_str())) {
+      if (stuurBestand(String(TV_MAP) + naam)) return;
+      if (naam == "plan.json" && stuurBestand(BESTAND_PLAN)) return; // het plan uit PUT /api/plan
+      if (pad.startsWith("/tv/")) {
+        web.send(404, "text/plain; charset=utf-8", "Niet gevonden");
+        return;
+      }
+    }
+  }
   web.sendHeader("Location", String("http://") + IP_DOOS.toString() + "/");
   web.send(302, "text/plain", "");
 }
@@ -363,8 +632,44 @@ void startWeb() {
   post("/api/instellingen", apiInstellingen);
   post("/api/dagnacht", apiDagnacht);
   post("/api/test", apiTest);
+  post("/api/ir", apiIr);
+  post("/api/bus", apiBus);
+  post("/api/punt", apiPunt);
+  post("/api/servo", apiServo);
+  post("/api/halte", apiHalte);
+  post("/api/kastje", apiKastje);
+  web.on("/api/meldingen", HTTP_GET, []() {
+    uint32_t sinds = sindsVan(web.arg("sinds").c_str());
+    std::string t;
+    {
+      Slot s;
+      t = apiMeldingen(baan, sinds, millis());
+    }
+    web.sendHeader("Cache-Control", "no-store");
+    web.sendHeader("Access-Control-Allow-Origin", "*");
+    web.send(200, "application/json", t.c_str());
+  });
+  // het plan (situatieplan/plan.json) en het beeld
+  web.on("/api/plan", HTTP_GET, []() {
+    if (stuurBestand(BESTAND_PLAN, "application/json")) return;
+    if (stuurBestand(String(TV_MAP) + "plan.json", "application/json")) return;
+    stuur(fout("Er is nog geen plan op de doos."));
+  });
+  web.on("/api/plan", HTTP_PUT, ontvangKlaar, []() { ontvang([]() { return String(BESTAND_PLAN); }, MAX_PLAN, planControle); });
+  web.on("/api/plan/beeld", HTTP_POST, ontvangKlaar, []() { ontvang([]() { return String(BESTAND_BEELD); }, MAX_BEELD); });
+  web.on("/plan.jpg", HTTP_GET, []() {
+    if (!stuurBestand(BESTAND_BEELD)) web.send(404, "text/plain", "");
+  });
+  // de tv-pagina en haar bestanden
+  web.on("/tv", HTTP_GET, tvPagina);
+  web.on("/tv/", HTTP_GET, tvPagina);
+  web.on("/api/tv/bestand", HTTP_POST, ontvangKlaar, []() {
+    ontvang(tvBestandNaam, MAX_BEELD);
+  });
   web.on("/api/update", HTTP_POST, updateKlaar, updateStuk);
   web.onNotFound(nietGevonden);
+  const char *koppen[] = {"Content-Type"};
+  web.collectHeaders(koppen, 1);
   web.begin();
 }
 
@@ -423,8 +728,20 @@ void setup() {
   if (pcaOk) digitalWrite(PIN_OE, LOW);
   else Serial.println("PCA9685 antwoordt niet: uitgangen blijven uit.");
 
-  // 3. de ingangen (16 GPIO's met interne pull-up en een interrupt op de actief-flank)
+  // 3. de ingangen (16 GPIO's met interne pull-up en een interrupt op de actief-flank), de MCP23017's, de servo-PCA9685
+  //    en de IR (RMT)
   ingangenBegin();
+  mcp1Ok = mcp1.begin(Wire, ADRES_MCP1, true);
+  mcp2Gevonden = mcp2Ok = mcp2.begin(Wire, ADRES_MCP2, false);
+  servoOk = pcaServo.begin(Wire, ADRES_SERVO);
+  Serial.printf("MCP23017 0x20: %s, 0x21: %s, servo-PCA9685 0x42: %s\n", mcp1Ok ? "ja" : "nee",
+                mcp2Gevonden ? "ja (ingang 25-40)" : "nee", servoOk ? "ja" : "nee");
+  ir.begin();
+  Serial.printf("IR: zenden %s, ontvangers %d%d%d%d\n", ir.zendOk ? "ok" : "NIET", ir.ontvangOk[0], ir.ontvangOk[1],
+                ir.ontvangOk[2], ir.ontvangOk[3]);
+#ifdef TREIN_PNP_KEERT_OM
+  baan.pnpOmkeren = true;
+#endif
 
   // 4. instellingen laden, dan de laatste stand (of alles uit)
   fsOk = LittleFS.begin(true);
@@ -432,7 +749,8 @@ void setup() {
   laadInstellingen();
   uint32_t nu = millis();
   baan.toepassen(nu);
-  if (baan.cfg.inst.opstartLaatste) laadStand(nu);
+  laadStand(nu, baan.cfg.inst.opstartLaatste);
+  baan.haltesOpnieuw(nu); // alle haltes vrij, rood aan
   cfgGezien = cfgBewaard = baan.cfgRev;
   standGezien = standBewaard = baan.standRev;
   meldingBijwerken();
@@ -441,6 +759,8 @@ void setup() {
   esp_task_wdt_init(WATCHDOG_S, true);
   esp_task_wdt_add(nullptr); // de looptaak (setup en loop draaien erin)
   xTaskCreatePinnedToCore(lichtTaak, "licht", 6144, nullptr, 5, nullptr, 1);
+  xTaskCreatePinnedToCore(irTaak, "ir", 6144, nullptr, 4, nullptr, 1);
+  xTaskCreatePinnedToCore(kastjesTaak, "kastjes", 6144, nullptr, 1, nullptr, 0);
 
   // 6. wifi, captive portal, mDNS en het dashboard
   startWifi();
