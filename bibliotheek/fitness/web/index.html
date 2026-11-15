@@ -1,0 +1,459 @@
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Fitnesstoestellen</title>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..100,500..900&family=Inter+Tight:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+<style>
+/* Werkplaatsbon zoals de balustrades en de taatsdeuren: een catalogus van 50 toestellen, per toestel de 3D en de prijs
+   voor de klant, en een werkplaatspagina met alle bladen. Elke soort heeft zijn eigen accent (rek oranje, bank petrol,
+   kabel blauw, plate-loaded paars). */
+:root {
+  --bg: #eceeed; --vlak: #ffffff; --vlak2: #f5f6f5; --vlak3: #e4e7e6; --inkt: #15181b; --zacht: #59626a; --lijn: #d2d7d6; --lijn2: #e5e8e7;
+  --band: #1d2023; --band2: #2a2e33; --bandinkt: #f1ece6;
+  --goed: #2e7d46; --goed-vlak: #e3f2e7; --waarsch: #a8650b; --waarsch-vlak: #fbefd9; --fout: #b3261e; --fout-vlak: #fbe4e2;
+  --scene: #d9d6cf; --tekvlak: #f6f7f5; --schaduw: 0 1px 2px rgba(20, 24, 27, .06), 0 4px 14px rgba(20, 24, 27, .06);
+  --kop: "Archivo", "Arial Narrow", Arial, sans-serif; --tekst: "Inter Tight", "Segoe UI", Arial, sans-serif; --mono: "IBM Plex Mono", Consolas, monospace;
+  --acc: #c2410c; --acc-vlak: #fdeee4; --acc-inkt: #6b2207;
+  --s-rek: #c2410c; --s-bank: #0f766e; --s-kabel: #2563a8; --s-plate: #7c3aed;
+}
+body[data-soort="bank"] { --acc: #0f766e; --acc-vlak: #dcf1ee; --acc-inkt: #0b3f3b }
+body[data-soort="kabel"] { --acc: #2563a8; --acc-vlak: #e6eef8; --acc-inkt: #10325a }
+body[data-soort="plate"] { --acc: #7c3aed; --acc-vlak: #efe7fd; --acc-inkt: #3b1673 }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #111315; --vlak: #1a1d20; --vlak2: #202427; --vlak3: #2a2f33; --inkt: #e8ebeb; --zacht: #9aa3aa; --lijn: #353b40; --lijn2: #2a2f33;
+  --band: #0c0d0e; --band2: #1b1d20; --goed: #6fc58a; --goed-vlak: #173322; --waarsch: #e6a948; --waarsch-vlak: #3a2c13; --fout: #f08a80; --fout-vlak: #3a1b18;
+  --scene: #2b2a27; --tekvlak: #eef0ee; color-scheme: dark; --acc: #f08a4b; --acc-vlak: #3a2416; --acc-inkt: #fbd6bd; --s-rek: #f08a4b; --s-bank: #4fd1c5; --s-kabel: #7fb2ec; --s-plate: #b794f6 }
+  :root:not([data-theme="light"]) body[data-soort="bank"] { --acc: #4fd1c5; --acc-vlak: #0f2e2b; --acc-inkt: #c4f1ec }
+  :root:not([data-theme="light"]) body[data-soort="kabel"] { --acc: #7fb2ec; --acc-vlak: #172a40; --acc-inkt: #cfe3fb }
+  :root:not([data-theme="light"]) body[data-soort="plate"] { --acc: #b794f6; --acc-vlak: #2a1d45; --acc-inkt: #e6dafd } }
+:root[data-theme="dark"] {
+  --bg: #111315; --vlak: #1a1d20; --vlak2: #202427; --vlak3: #2a2f33; --inkt: #e8ebeb; --zacht: #9aa3aa; --lijn: #353b40; --lijn2: #2a2f33;
+  --band: #0c0d0e; --band2: #1b1d20; --goed: #6fc58a; --goed-vlak: #173322; --waarsch: #e6a948; --waarsch-vlak: #3a2c13; --fout: #f08a80; --fout-vlak: #3a1b18;
+  --scene: #2b2a27; --tekvlak: #eef0ee; color-scheme: dark; --acc: #f08a4b; --acc-vlak: #3a2416; --acc-inkt: #fbd6bd; --s-rek: #f08a4b; --s-bank: #4fd1c5; --s-kabel: #7fb2ec; --s-plate: #b794f6 }
+:root[data-theme="dark"] body[data-soort="bank"] { --acc: #4fd1c5; --acc-vlak: #0f2e2b; --acc-inkt: #c4f1ec }
+:root[data-theme="dark"] body[data-soort="kabel"] { --acc: #7fb2ec; --acc-vlak: #172a40; --acc-inkt: #cfe3fb }
+:root[data-theme="dark"] body[data-soort="plate"] { --acc: #b794f6; --acc-vlak: #2a1d45; --acc-inkt: #e6dafd }
+* { box-sizing: border-box } [hidden] { display: none !important }
+html, body { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; overflow-x: hidden } button, label, a, input, select { touch-action: manipulation }
+body { margin: 0; background: var(--bg); color: var(--inkt); font: 15px/1.5 var(--tekst) }
+.wrap { max-width: 1360px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)) }
+h1, h2, h3 { font-family: var(--kop); font-stretch: 75%; letter-spacing: .003em; line-height: 1.05; margin: 0; text-wrap: balance }
+h2 { font-size: 27px; font-weight: 750 } h3 { font-size: 18px; font-weight: 700 }
+a { color: inherit; text-decoration-color: var(--acc); text-underline-offset: 3px }
+:focus-visible { outline: 3px solid var(--acc); outline-offset: 2px }
+.eyebrow { font: 600 12px var(--mono); letter-spacing: .12em; text-transform: uppercase }
+.balk { position: sticky; top: 0; z-index: 9; background: var(--vlak); border-bottom: 1px solid var(--lijn) }
+.balk .wrap { display: flex; align-items: center; gap: 8px 18px; flex-wrap: wrap; padding-block: 8px }
+.merk { font: 800 19px var(--kop); font-stretch: 70%; letter-spacing: .01em; margin-right: auto; display: flex; align-items: center; gap: 8px; text-decoration: none }
+.sub { display: flex; gap: 2px; flex-wrap: wrap }
+.sub a { font: 700 14.5px var(--kop); font-stretch: 85%; text-transform: uppercase; letter-spacing: .05em; text-decoration: none; color: var(--zacht); padding: 8px 10px 6px; border-bottom: 3px solid transparent }
+.sub a[aria-current] { color: var(--inkt); border-bottom-color: var(--acc) } .sub a.uit { opacity: .45; pointer-events: none }
+.band { background: linear-gradient(115deg, var(--band) 0%, var(--band2) 100%); color: var(--bandinkt) }
+.band .wrap { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 14px 28px; align-items: end; padding-block: 22px 20px }
+.band .eyebrow { color: var(--acc) } .band h1 { font-size: clamp(32px, 5.2vw, 56px); font-weight: 850; margin-top: 4px }
+.band p { margin: 8px 0 0; max-width: 70ch; opacity: .86 }
+.markt { min-width: 220px; text-align: right } .markt span { display: block; font: 500 12px var(--mono); letter-spacing: .06em; text-transform: uppercase; opacity: .75 }
+.markt b { font: 800 30px var(--kop); font-stretch: 75%; font-variant-numeric: tabular-nums }
+/* catalogus */
+.filters { display: grid; grid-template-columns: minmax(0, 1.4fr) auto auto auto auto; gap: 10px; align-items: end; margin: 16px 0 12px }
+.filters .veld { display: grid; gap: 4px; min-width: 0 } .filters label { font: 600 11px var(--mono); text-transform: uppercase; letter-spacing: .1em; color: var(--zacht) }
+input[type="search"], input[type="number"], select { width: 100%; font: 500 15px var(--tekst); padding: 8px 10px; border: 1px solid var(--lijn); background: var(--vlak); color: var(--inkt); border-radius: 8px; min-width: 0 }
+input[type="number"] { font: 500 15px var(--mono) }
+.chips { display: flex; gap: 6px; flex-wrap: wrap }
+.chips button { font: 600 13px var(--tekst); padding: 7px 11px; border: 1px solid var(--lijn); background: var(--vlak); color: var(--inkt); border-radius: 999px; cursor: pointer; display: inline-flex; gap: 6px; align-items: center }
+.chips button i { width: 9px; height: 9px; border-radius: 50%; background: var(--k, var(--zacht)) } .chips button[aria-pressed="true"] { background: var(--inkt); color: var(--bg); border-color: var(--inkt) }
+.raster { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; padding-bottom: 20px }
+.kaart { display: grid; grid-template-rows: auto 1fr; text-decoration: none; background: var(--vlak); border: 1px solid var(--lijn); border-radius: 12px; overflow: hidden; box-shadow: var(--schaduw); min-width: 0 }
+.kaart:hover { border-color: var(--k) } .kaart .duim { background: var(--tekvlak); aspect-ratio: 4 / 3; display: grid; place-items: center } .kaart .duim img { width: 100%; height: 100%; object-fit: contain; display: block }
+.kaart .tekst { padding: 9px 11px 11px; display: grid; gap: 3px; border-top: 3px solid var(--k) }
+.kaart .nr { font: 600 11.5px var(--mono); color: var(--k); letter-spacing: .06em } .kaart b { font: 750 17px var(--kop); font-stretch: 80%; line-height: 1.1 }
+.kaart .pr { display: flex; justify-content: space-between; gap: 6px; font: 12.5px var(--mono); color: var(--zacht); margin-top: 3px } .kaart .pr span b { font: 600 13px var(--mono); color: var(--inkt) }
+.kaart .klein { font-size: 12px; color: var(--zacht) }
+.geen { padding: 30px; text-align: center; color: var(--zacht) }
+/* toestel */
+.hoofd { display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 16px; align-items: start; padding: 16px 0 10px } .hoofd > * { min-width: 0 }
+.bon { background: var(--vlak); border: 1px solid var(--lijn); border-radius: 12px; box-shadow: var(--schaduw); overflow: hidden }
+.bon > header { padding: 16px 16px 12px; border-bottom: 1px dashed var(--lijn) } .bon > header h2 { font-size: 25px } .bon .uitleg { color: var(--zacht); font-size: 14px; margin: 6px 0 0 }
+.groep { padding: 12px 16px; border-bottom: 1px solid var(--lijn2) }
+.lab { font: 600 11.5px var(--mono); text-transform: uppercase; letter-spacing: .1em; color: var(--zacht); margin-bottom: 6px; display: block }
+.keuze { display: flex; flex-wrap: wrap; gap: 6px }
+.keuze label { border: 1px solid var(--lijn); padding: 7px 11px; cursor: pointer; font-size: 13.5px; background: var(--vlak2); position: relative; border-radius: 7px }
+.keuze input, .stalen input { position: absolute; opacity: 0; pointer-events: none }
+.keuze label:has(input:checked) { border-color: var(--acc); background: var(--acc-vlak); color: var(--acc-inkt); font-weight: 600 }
+.keuze label:has(input:focus-visible), .stalen label:has(input:focus-visible) { outline: 3px solid var(--acc) }
+.stalen { display: grid; grid-template-columns: repeat(auto-fill, minmax(46px, 1fr)); gap: 8px 6px }
+.stalen label { display: grid; gap: 3px; cursor: pointer; position: relative; font: 600 10.5px var(--mono); text-align: center }
+.proef { display: block; width: 100%; aspect-ratio: 1; border-radius: 6px; border: 1px solid rgba(0, 0, 0, .18); background: var(--kleur) }
+.stalen label:has(input:checked) .proef { outline: 3px solid var(--acc); outline-offset: 2px }
+.feiten { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 3px 12px; font-size: 13.5px; margin: 0 } .feiten dt { color: var(--zacht) } .feiten dd { margin: 0; font: 13px var(--mono) }
+.veilig { margin: 12px 16px; padding: 10px 12px; border-radius: 8px; font-size: 13px; border: 1px solid var(--lijn) } .veilig b { display: flex; gap: 8px; align-items: center; font-size: 14px }
+.veilig.groen { background: var(--goed-vlak) } .veilig.oranje { background: var(--waarsch-vlak) } .veilig.rood { background: var(--fout-vlak) }
+.stip { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex: none } .stip.groen { background: var(--goed) } .stip.oranje { background: var(--waarsch) } .stip.rood { background: var(--fout) } .stip.info { background: var(--zacht) }
+.prijs { padding: 16px; background: var(--vlak2); border-top: 2px solid var(--inkt) }
+.prijs .lab { margin: 0 } .prijs .bedrag { display: block; font: 850 44px var(--kop); font-stretch: 72%; color: var(--acc); font-variant-numeric: tabular-nums; line-height: 1.02; margin-top: 2px } .prijs .sub2 { color: var(--zacht); font-size: 13px }
+.meter { margin-top: 12px } .meter .lat { position: relative; height: 10px; border-radius: 99px; background: var(--vlak3) }
+.meter .bandje { position: absolute; top: 0; bottom: 0; border-radius: 99px; background: color-mix(in srgb, var(--goed) 35%, transparent) }
+.meter .pin { position: absolute; top: -5px; width: 4px; height: 20px; margin-left: -2px; border-radius: 2px; background: var(--inkt) }
+.meter .schaal { display: flex; justify-content: space-between; font: 11px var(--mono); color: var(--zacht); margin-top: 4px }
+.chip { display: inline-flex; align-items: center; gap: 6px; font: 600 12.5px var(--tekst); padding: 3px 9px; border-radius: 999px; margin-top: 8px }
+.chip.in { background: var(--goed-vlak); color: var(--goed) } .chip.boven, .chip.onder { background: var(--waarsch-vlak); color: var(--waarsch) } .chip::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor }
+.tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--lijn) }
+.tabs button { font: 700 14.5px var(--kop); font-stretch: 85%; text-transform: uppercase; letter-spacing: .05em; color: var(--zacht); background: none; border: 0; border-bottom: 3px solid transparent; padding: 8px 12px 6px; cursor: pointer }
+.tabs button[aria-selected="true"] { color: var(--inkt); border-bottom-color: var(--acc) }
+.toon { background: var(--vlak); border: 1px solid var(--lijn); border-top: 0; border-radius: 0 0 12px 12px; overflow: hidden; box-shadow: var(--schaduw) }
+.drie3d { position: relative; aspect-ratio: 4 / 3; max-height: 72vh; width: 100%; background: var(--scene); touch-action: pan-y; overflow: hidden } .drie3d canvas { position: absolute; inset: 0; width: 100% !important; height: 100% !important; cursor: grab }
+.drie3d .laden { position: absolute; inset: auto 0 45% 0; text-align: center; color: #555; margin: 0 }
+.drie3d .hint { position: absolute; left: 10px; bottom: 8px; font-size: 12px; color: #333; background: rgba(255,255,255,.8); padding: 3px 8px; border-radius: 4px; pointer-events: none; max-width: calc(100% - 20px) }
+.tek { padding: 14px; background: var(--tekvlak) } .tek img { display: block; width: 100%; height: auto }
+.oef { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px } .oef span { font-size: 12.5px; padding: 3px 9px; border-radius: 999px; background: var(--vlak3) }
+/* werkplaats */
+.knoppen { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 12px }
+.knop { font: 600 13.5px var(--tekst); padding: 8px 12px; border: 1px solid var(--inkt); background: transparent; color: var(--inkt); cursor: pointer; border-radius: 7px; text-decoration: none; display: inline-block }
+.knop:hover { background: var(--inkt); color: var(--bg) } .knop:disabled { opacity: .45; cursor: not-allowed; background: transparent; color: var(--inkt) }
+.knop.vol { background: var(--acc); border-color: var(--acc); color: #fff }
+.status { font-size: 12.5px; color: var(--zacht); min-height: 1.3em; margin: 0 }
+.wkop { padding-block: 22px 8px; display: flex; gap: 12px 20px; align-items: end; justify-content: space-between; flex-wrap: wrap }
+.wkop h1 { font-size: clamp(28px, 4.2vw, 44px); font-weight: 850 } .wkop p { margin: 6px 0 0; color: var(--zacht); max-width: 72ch }
+.matlabel { display: inline-block; font: 800 13px var(--kop); font-stretch: 85%; letter-spacing: .08em; text-transform: uppercase; color: #fff; background: var(--acc); padding: 3px 9px; border-radius: 5px; margin-bottom: 8px }
+.blad { background: #fff; border: 1px solid var(--lijn); border-radius: 8px; overflow: auto } .blad img { display: block; width: 100%; min-width: 620px; height: auto }
+.bladen { display: grid; gap: 12px }
+.tegels { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; margin: 12px 0 }
+.tegel { background: var(--vlak); border: 1px solid var(--lijn); padding: 10px 12px; border-radius: 8px; min-width: 0 } .tegel span { display: block; font: 600 11px var(--mono); text-transform: uppercase; letter-spacing: .08em; color: var(--zacht) }
+.tegel b { font-family: var(--kop); font-stretch: 80%; font-size: 21px; font-variant-numeric: tabular-nums }
+section.deel { margin-top: 26px } section.deel > h2 { border-bottom: 2px solid var(--inkt); padding-bottom: 6px; margin-bottom: 10px; display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap } section.deel > h2 small { font: 500 13px var(--tekst); color: var(--zacht) }
+.tabelvak { overflow-x: auto; border: 1px solid var(--lijn); background: var(--vlak); border-radius: 8px }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px } th { text-align: left; font: 600 11px var(--mono); text-transform: uppercase; letter-spacing: .06em; color: var(--zacht); background: var(--vlak2); padding: 7px 9px; border-bottom: 1px solid var(--lijn); white-space: nowrap }
+td { padding: 6px 9px; border-bottom: 1px solid var(--lijn2); vertical-align: top } tr:last-child td { border-bottom: 0 }
+td.n { text-align: right; font: 13px var(--mono); white-space: nowrap; font-variant-numeric: tabular-nums } td.bron { font-size: 12px; color: var(--zacht); word-break: break-word } td.form { font: 12px var(--mono); color: var(--zacht); min-width: 260px }
+tr.tot td { font-weight: 700; border-top: 2px solid var(--inkt) }
+.stappen { margin: 0; padding-left: 22px; display: grid; gap: 8px; max-width: 86ch } .stappen b { font-weight: 600 } .stappen .uur { font: 12px var(--mono); color: var(--acc) }
+.stukknoppen { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 6px }
+.stukknop { display: flex; gap: 9px; align-items: center; text-align: left; padding: 7px 9px; border: 1px solid var(--lijn); background: var(--vlak); color: var(--inkt); font: 13.5px/1.3 var(--tekst); cursor: zoom-in; min-height: 44px; border-radius: 7px }
+.stukknop .nr { flex: none; display: inline-grid; place-items: center; width: 27px; height: 27px; border: 1.5px solid var(--inkt); border-radius: 50%; font: 600 12px var(--mono) } .stukknop small { display: block; color: var(--zacht); font-size: 12px }
+.mtabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px }
+.mtabs button { display: grid; text-align: left; gap: 1px; padding: 7px 12px; border: 1px solid var(--lijn); background: var(--vlak); color: var(--inkt); border-radius: 8px; cursor: pointer; font: 600 14px var(--tekst); max-width: 100% }
+.mtabs button small { font: 500 12px var(--tekst); color: var(--zacht) } .mtabs button[aria-pressed="true"] { border-color: var(--acc); background: var(--acc-vlak); color: var(--acc-inkt) }
+.montage { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 12px; align-items: start }
+.m3d { position: relative; aspect-ratio: 4 / 3; width: 100%; background: var(--vlak2); border: 1px solid var(--lijn); border-radius: 8px; overflow: hidden; touch-action: pan-y } .m3d canvas { position: absolute; inset: 0; width: 100% !important; height: 100% !important; cursor: grab }
+.m3d .laden { position: absolute; inset: auto 0 45% 0; text-align: center; color: var(--zacht); margin: 0 }
+.mbedien { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 8px; align-items: center; margin-top: 8px; font-size: 12.5px; color: var(--zacht) }
+input[type="range"] { width: 100%; accent-color: var(--acc) }
+.inst { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: start } .inst > div { min-width: 0 }
+.inst table input { width: 96px; padding: 5px 8px; font-size: 16px; text-align: right } .inst td.uitl { font-size: 12.5px; color: var(--zacht) }
+dialog { max-width: min(1100px, calc(100vw - 24px)); width: 100%; border: 1px solid var(--lijn); border-radius: 12px; padding: 0; background: var(--vlak); color: var(--inkt) }
+dialog header { display: flex; gap: 10px; align-items: center; justify-content: space-between; padding: 10px 14px; border-bottom: 1px solid var(--lijn); flex-wrap: wrap } dialog .blad { border: 0; border-radius: 0; max-height: 78vh }
+footer { color: var(--zacht); font-size: 13px; padding-block: 30px }
+@media (max-width: 1100px) { .inst, .montage { grid-template-columns: 1fr } .tegels { grid-template-columns: repeat(3, minmax(0, 1fr)) } .filters { grid-template-columns: 1fr 1fr } .filters .breed { grid-column: 1 / -1 } }
+@media (max-width: 880px) { .hoofd { grid-template-columns: 1fr } .band .wrap { grid-template-columns: 1fr } .markt { text-align: left } .drie3d { aspect-ratio: 4 / 4.2 } }
+@media (max-width: 560px) { .tegels { grid-template-columns: 1fr 1fr } .sub a { padding-inline: 7px; font-size: 13.5px } .merk { width: 100% } .raster { grid-template-columns: 1fr 1fr; gap: 8px } .kaart b { font-size: 15px } .kaart .pr { flex-direction: column; gap: 0 } .filters { grid-template-columns: 1fr 1fr } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important } }
+</style>
+
+<header class="balk"><div class="wrap">
+  <a class="merk" href="#catalogus"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M3 20V3M19 20V3M3 6h16M1 20h20" fill="none" stroke="currentColor" stroke-width="2"/><rect x="6" y="10" width="2.5" height="7" fill="currentColor"/><rect x="13.5" y="10" width="2.5" height="7" fill="currentColor"/><path d="M5 13.5h12" stroke="currentColor" stroke-width="1.5"/></svg>Fitnesstoestellen</a>
+  <nav class="sub" aria-label="Pagina"><a href="#catalogus" id="nav-cat">Catalogus</a><a href="#toestel" id="nav-toe">Toestel</a><a href="#werkplaats" id="nav-werk">Werkplaats</a><a href="#instellingen" id="nav-inst">Instellingen</a></nav>
+</div></header>
+
+<!-- ============ CATALOGUS ============ -->
+<div data-view="catalogus">
+  <div class="band"><div class="wrap">
+    <div><span class="eyebrow">Zelf gemaakt in staal · thuis en pro</span><h1 id="c-titel">Fitnesstoestellen</h1><p id="c-tekst"></p></div>
+    <div class="markt"><span>Prijzen incl. btw</span><b id="c-aantal"></b><span style="text-transform:none;letter-spacing:0">toestellen in de catalogus</span></div>
+  </div></div>
+  <div class="wrap">
+    <div class="filters">
+      <div class="veld breed"><label for="zoek">Zoeken</label><input type="search" id="zoek" placeholder="bv. squat, bank, rug, leg press" autocomplete="off"></div>
+      <div class="veld"><label for="f-versie">Prijs</label><select id="f-versie"><option value="thuis">Thuisversie</option><option value="pro">Proversie</option></select></div>
+      <div class="veld"><label for="f-vloer">Vloer</label><select id="f-vloer"><option value="0">alle</option><option value="1">tot 1 m²</option><option value="2">tot 2 m²</option><option value="3">tot 3 m²</option><option value="5">tot 5 m²</option></select></div>
+      <div class="veld"><label for="f-prijs">Max. prijs €</label><input type="number" id="f-prijs" min="0" step="100" placeholder="geen" inputmode="numeric"></div>
+      <div class="veld"><label for="f-sort">Volgorde</label><select id="f-sort"><option value="nr">nummer</option><option value="prijs">prijs</option><option value="vloer">vloer</option></select></div>
+    </div>
+    <div class="chips" id="soortchips" role="group" aria-label="Soort"></div>
+    <p class="status" id="c-status" style="margin:8px 0"></p>
+    <div class="raster" id="raster"></div>
+  </div>
+</div>
+
+<!-- ============ TOESTEL (klant) ============ -->
+<div data-view="toestel" hidden>
+  <div class="band"><div class="wrap">
+    <div><span class="eyebrow" id="t-eyebrow"></span><h1 id="t-titel"></h1><p id="t-tekst"></p></div>
+    <div class="markt"><span>Markt incl. btw</span><b id="t-markt"></b><span id="t-markt2" style="text-transform:none;letter-spacing:0"></span></div>
+  </div></div>
+  <div class="wrap">
+    <div class="hoofd">
+      <div>
+        <div class="tabs" role="tablist"><button role="tab" aria-selected="true" data-tab="3d">3D</button><button role="tab" aria-selected="false" data-tab="tek">Aanzichten</button></div>
+        <div class="toon">
+          <div class="drie3d" id="drie3d" data-paneel="3d"><p class="laden" id="laden3d">3D laden…</p><span class="hint">Slepen = draaien · scrollen of knijpen = zoomen · schijven en stang als voorbeeld</span></div>
+          <div class="tek" id="tek" data-paneel="tek" hidden></div>
+        </div>
+        <div class="oef" id="t-oef"></div>
+      </div>
+      <aside class="bon">
+        <header><span class="matlabel" id="t-soort"></span><h2 id="t-naam"></h2><p class="uitleg" id="t-uitleg"></p></header>
+        <div class="groep"><span class="lab">Versie</span><div class="keuze" id="k-versie"></div><p class="status" id="t-versieuitleg" style="margin-top:6px"></p></div>
+        <div class="groep"><span class="lab">Kleur van het frame (RAL)</span><div class="stalen" id="k-ral"></div><p class="status" id="t-ral" style="margin-top:6px"></p></div>
+        <div class="groep" id="g-leer"><span class="lab">Kleur van de bekleding</span><div class="stalen" id="k-leer"></div></div>
+        <div class="groep"><span class="lab">Maten en gegevens</span><dl class="feiten" id="t-feiten"></dl></div>
+        <div class="veilig" id="t-veilig"></div>
+        <div class="prijs"><span class="lab">Prijs incl. btw</span><span class="bedrag" id="t-prijs"></span><span class="sub2" id="t-prijs2"></span>
+          <div class="meter"><div class="lat"><div class="bandje" id="t-band"></div><div class="pin" id="t-pin"></div></div><div class="schaal"><span id="t-min"></span><span id="t-max"></span></div></div>
+          <span class="chip" id="t-chip"></span>
+          <div class="knoppen" style="margin-bottom:0"><a class="knop" id="t-werk" href="#werkplaats">Werkplaats: tekeningen en kostprijs</a></div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</div>
+
+<!-- ============ WERKPLAATS ============ -->
+<div data-view="werkplaats" hidden><div class="wrap">
+  <div class="wkop"><div><span class="matlabel" id="w-soort"></span><h1 id="w-titel"></h1><p id="w-tekst"></p></div>
+    <div><div class="keuze" id="w-versie"></div></div></div>
+  <div class="tegels" id="w-tegels"></div>
+  <div class="knoppen"><button class="knop vol" type="button" data-dl="dossier">Dossier (HTML, afdrukken als PDF)</button><button class="knop" type="button" data-dl="zip">Alle tekeningen (SVG, ZIP)</button><button class="knop" type="button" data-dl="csv">Lijsten (CSV)</button></div>
+  <p class="status" id="status"></p>
+  <section class="deel"><h2>Berekening <small id="w-oordeel"></small></h2><div class="tabelvak"><table><thead><tr><th></th><th>Controle</th><th>Berekening en bron</th><th class="n">Benut</th></tr></thead><tbody id="w-ber"></tbody></table></div></section>
+  <section class="deel"><h2>Bladen <small>A3 en A4, eerste hoekprojectie, ISO 7200</small></h2><div class="mtabs" id="w-bladtabs"></div><div class="blad" id="w-blad"></div></section>
+  <section class="deel"><h2>Montage per verbinding <small>schuif om uit elkaar te halen</small></h2><div class="mtabs" id="w-mtabs"></div>
+    <div class="montage"><div><div class="m3d" id="m3d"><p class="laden" id="m3dLaden">3D laden…</p></div><div class="mbedien"><span>Samen</span><input type="range" id="muit" min="0" max="100" value="100" aria-label="Uit elkaar"><span>Uit elkaar</span></div></div><div class="blad" id="w-mblad"></div></div></section>
+  <section class="deel"><h2>Stuk per stuk <small>A4 met lengte, zaagsnede en gaten: klik</small></h2><div class="stukknoppen" id="w-stukken"></div></section>
+  <section class="deel"><h2>Kostprijs <small id="w-kp"></small></h2><div class="tabelvak"><table><thead><tr><th>Wat</th><th class="n">Bedrag</th><th>Bron</th></tr></thead><tbody id="w-kost"></tbody></table></div>
+    <h3 style="margin:16px 0 8px">Werkwijze en uren</h3><ol class="stappen" id="w-stappen"></ol></section>
+  <section class="deel"><h2>Bestellijst <small>kooponderdelen met winkel (excl. btw)</small></h2><div class="tabelvak"><table><thead><tr><th>Onderdeel</th><th>Artikel</th><th class="n">Aantal</th><th>Winkel</th><th class="n">Prijs</th><th class="n">Bedrag</th></tr></thead><tbody id="w-koop"></tbody></table></div></section>
+</div></div>
+
+<!-- ============ INSTELLINGEN ============ -->
+<div data-view="instellingen" hidden><div class="wrap">
+  <div class="wkop"><div><h1>Instellingen</h1><p>Uurloon, marges, materiaalprijzen, uren en de prijzen van de kooponderdelen. Alles excl. btw. Ze gelden voor alle toestellen.</p></div><div><button class="knop" type="button" id="terug">Alles terug naar standaard</button></div></div>
+  <p class="status" id="i-status"></p>
+  <div class="inst">
+    <div><h3 style="margin:10px 0">Tarieven en marge</h3><div class="tabelvak"><table><tbody id="i-tarief"></tbody></table></div>
+      <h3 style="margin:18px 0 10px">Uren per werkstap</h3><div class="tabelvak"><table><tbody id="i-uren"></tbody></table></div></div>
+    <div><h3 style="margin:10px 0">Kooponderdelen</h3><div class="tabelvak"><table><thead><tr><th>Onderdeel</th><th>Winkel</th><th class="n">€ / eenheid</th></tr></thead><tbody id="i-koop"></tbody></table></div></div>
+  </div>
+</div></div>
+
+<footer><div class="wrap">Ian · laswerken · EN ISO 20957 (klasse H en S), S235JR, ISO 2553, ISO 7573. Prijzen opgezocht op 15 november 2026; zie de bronnen in de werkplaats.</div></footer>
+
+<dialog id="stukvenster" aria-labelledby="sv-titel"><header><b id="sv-titel"></b><span class="knoppen" style="margin:0"><button class="knop" type="button" id="sv-vorige">Vorige</button><button class="knop" type="button" id="sv-volgende">Volgende</button><button class="knop vol" type="button" id="sv-sluit">Sluiten</button></span></header><div class="blad" id="sv-blad"></div></dialog>
+
+<script type="module">
+import { TOESTELLEN, PER_ID, toestel } from './js/catalogus.mjs';
+import { SOORTEN, VERSIE, KOOP, RAL_FITNESS, BEKLEDING } from './js/onderdelen.mjs';
+import { berekening } from './js/bereken.mjs';
+import { kostprijs, STANDAARD, CAT } from './js/prijzen.mjs';
+import { UREN, UREN_NAAM } from './js/werkwijze.mjs';
+import { miniatuur, tekenBalken, alleGeo, PROJ, omhullende } from './js/aanzicht.mjs';
+import { alleBladen, stukBladen } from './js/tekeningen.mjs';
+import { montageBladen } from './js/montage.mjs';
+import { dossierHtml, lijstenCsv } from './js/dossier.mjs';
+
+const $ = (id) => document.getElementById(id), esc = (t) => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+const eur = (v) => `€ ${(Math.round(v * 100) / 100).toLocaleString('nl-BE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+const eur0 = (v) => `€ ${Math.round(v).toLocaleString('nl-BE')}`;
+const g = (v, d = 0) => (Math.round(v * 10 ** d) / 10 ** d).toLocaleString('nl-BE');
+const lees = (k, d) => { try { const v = JSON.parse(localStorage.getItem(k) || 'null'); return v ?? d; } catch { return d; } };
+const schrijf = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+const alsBeeld = (svg, w, h, alt = '') => `<img src="data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}" width="${w}" height="${h}" alt="${esc(alt)}" decoding="async" draggable="false">`;
+const beeld = (svg, alt) => { const m = svg.match(/viewBox="0 0 ([\d.]+) ([\d.]+)"/); return alsBeeld(svg, m ? +m[1] * 4 : 1188, m ? +m[2] * 4 : 840, alt); };
+const SKL = { rek: 'var(--s-rek)', bank: 'var(--s-bank)', kabel: 'var(--s-kabel)', plate: 'var(--s-plate)' };
+
+// ---------- keuzes en instellingen
+let st = { id: 'FR-01', versie: 'thuis', ral: '9005', leer: 'zwart', soort: 'alle', zoek: '', fVersie: 'thuis', vloer: 0, prijs: 0, sort: 'nr', ...lees('fitness-keuze', {}) };
+const STD_INST = { versie: 1, ...JSON.parse(JSON.stringify(STANDAARD)), uren: { ...UREN } };
+let inst = JSON.parse(JSON.stringify(STD_INST));
+const bewaarKeuze = () => schrijf('fitness-keuze', st);
+
+// ---------- catalogus: prijzen en miniaturen (één keer per instelling)
+let prijsCache = new Map();
+const prijs = (id, v) => { const k = `${id}|${v}`; if (!prijsCache.has(k)) prijsCache.set(k, kostprijs(toestel(id, v), inst)); return prijsCache.get(k); };
+const duimen = new Map();
+const duim = (id) => { if (!duimen.has(id)) { const o = toestel(id, 'thuis'); duimen.set(id, alsBeeld(miniatuur(o, { w: 320, h: 240, kleur: { frame: '#3a3f45', leer: '#1d1e20' } }), 320, 240, `${id} ${o.naam}`)); } return duimen.get(id); };
+$('c-aantal').textContent = TOESTELLEN.length;
+$('c-tekst').textContent = `${Object.values(SOORTEN).map((s) => `${TOESTELLEN.filter((t) => t.soort === s.id).length} ${s.naam.toLowerCase()}`).join(', ')}. Elk toestel in een thuisversie (klasse H) en een proversie (klasse S), met het volledige tekeningenpakket.`;
+$('soortchips').innerHTML = [['alle', 'Alle soorten', 'var(--zacht)'], ...Object.values(SOORTEN).map((s) => [s.id, s.naam, SKL[s.id]])].map(([v, t, k]) => `<button type="button" data-soort="${v}" style="--k:${k}" aria-pressed="false"><i></i>${esc(t)}</button>`).join('');
+$('soortchips').addEventListener('click', (e) => { const b = e.target.closest('[data-soort]'); if (!b) return; st.soort = b.dataset.soort; bewaarKeuze(); tekenCatalogus(); });
+for (const [id, k, num] of [['zoek', 'zoek'], ['f-versie', 'fVersie'], ['f-vloer', 'vloer', 1], ['f-prijs', 'prijs', 1], ['f-sort', 'sort']]) { $(id).value = id === 'f-prijs' ? (st[k] || '') : String(st[k] ?? ''); $(id).addEventListener('input', () => { st[k] = num ? +$(id).value || 0 : $(id).value; bewaarKeuze(); tekenCatalogus(); }); }
+function tekenCatalogus() {
+  document.querySelectorAll('#soortchips [data-soort]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.soort === st.soort));
+  const z = st.zoek.trim().toLowerCase(), v = st.fVersie;
+  let lijst = TOESTELLEN.filter((t) => (st.soort === 'alle' || t.soort === st.soort) && (!z || `${t.id} ${t.naam} ${t.kort} ${t.spieren} ${t.oefeningen.join(' ')} ${SOORTEN[t.soort].naam}`.toLowerCase().includes(z)));
+  lijst = lijst.filter((t) => (!st.vloer || toestel(t.id, v).vloer <= st.vloer) && (!st.prijs || prijs(t.id, v).incl <= st.prijs));
+  if (st.sort === 'prijs') lijst.sort((a, b) => prijs(a.id, v).incl - prijs(b.id, v).incl); else if (st.sort === 'vloer') lijst.sort((a, b) => toestel(a.id, v).vloer - toestel(b.id, v).vloer);
+  $('c-status').textContent = `${lijst.length} van ${TOESTELLEN.length} toestellen · prijzen van de ${v === 'pro' ? 'proversie' : 'thuisversie'}, incl. 21 % btw`;
+  $('raster').innerHTML = lijst.length ? lijst.map((t) => { const o = toestel(t.id, v), kt = prijs(t.id, 'thuis'), kp = prijs(t.id, 'pro'); return `<a class="kaart" href="#toestel/${t.id}" style="--k:${SKL[t.soort]}"><span class="duim">${duim(t.id)}</span><span class="tekst"><span class="nr">${t.id} · ${esc(SOORTEN[t.soort].kort)}</span><b>${esc(t.naam)}</b><span class="klein">${esc(t.kort)}</span><span class="pr"><span>thuis <b>${eur0(kt.incl)}</b></span><span>pro <b>${eur0(kp.incl)}</b></span></span><span class="klein">${g(o.maten.B)} x ${g(o.maten.D)} x ${g(o.maten.H)} mm · ${g(o.vloer, 1)} m²</span></span></a>`; }).join('') : '<p class="geen">Geen toestellen met deze filters.</p>';
+}
+
+// ---------- toestel (klant)
+let s3d = null, s3dBezig = null, tab = '3d';
+$('k-versie').innerHTML = Object.values(VERSIE).map((x) => `<label><input type="radio" name="versie" value="${x.id}">${esc(x.naam)} · klasse ${x.klasse}</label>`).join('');
+$('w-versie').innerHTML = Object.values(VERSIE).map((x) => `<label><input type="radio" name="wversie" value="${x.id}">${esc(x.naam)}</label>`).join('');
+$('k-ral').innerHTML = RAL_FITNESS.map((c) => `<label title="RAL ${esc(c.code)} ${esc(c.naam)}"><input type="radio" name="ral" value="${c.code}"><span class="proef" style="--kleur:${c.hex}"></span>${c.code}</label>`).join('');
+$('k-leer').innerHTML = BEKLEDING.map((c) => `<label title="${esc(c.naam)}"><input type="radio" name="leer" value="${c.code}"><span class="proef" style="--kleur:${c.hex}"></span>${esc(c.naam.slice(0, 6))}</label>`).join('');
+for (const n of ['versie', 'wversie', 'ral', 'leer']) document.querySelectorAll(`input[name="${n}"]`).forEach((r) => r.addEventListener('change', () => { st[n === 'wversie' ? 'versie' : n] = r.value; bewaarKeuze(); werkVuil = true; if (pagina === 'werkplaats') tekenWerk(); else tekenToestel(); }));
+document.querySelectorAll('[data-tab]').forEach((b) => b.addEventListener('click', () => { tab = b.dataset.tab; document.querySelectorAll('[data-tab]').forEach((x) => x.setAttribute('aria-selected', x === b)); document.querySelectorAll('[data-paneel]').forEach((p) => { p.hidden = p.dataset.paneel !== tab; }); tekenToestel(); }));
+function zetRadios() { for (const [n, v] of [['versie', st.versie], ['wversie', st.versie], ['ral', st.ral], ['leer', st.leer]]) { const r = document.querySelector(`input[name="${n}"][value="${v}"]`); if (r) r.checked = true; } }
+function tekenToestel() {
+  const t = PER_ID[st.id], o = toestel(st.id, st.versie), k = prijs(st.id, st.versie), B = berekening(o), S = SOORTEN[t.soort];
+  document.body.dataset.soort = t.soort; zetRadios();
+  $('t-eyebrow').textContent = `${t.id} · ${S.naam}`; $('t-titel').textContent = t.naam; $('t-tekst').textContent = t.kort;
+  $('t-soort').textContent = `${t.id} · ${S.kort}`; $('t-naam').textContent = t.naam; $('t-uitleg').textContent = t.uitleg;
+  $('t-versieuitleg').textContent = `${VERSIE[st.versie].uitleg}; maximaal ${o.V.gebruiker} kg gebruiker.`;
+  const ral = RAL_FITNESS.find((c) => c.code === st.ral) ?? RAL_FITNESS[0]; $('t-ral').textContent = `RAL ${ral.code} ${ral.naam}, poedercoat`;
+  $('g-leer').hidden = !o.kussens.length;
+  $('t-oef').innerHTML = `<span><b>Spieren:</b> ${esc(t.spieren)}</span>${t.oefeningen.map((x) => `<span>${esc(x)}</span>`).join('')}`;
+  const last = o.maxLast ? `${o.maxLast} kg` : o.stapels.length ? `gewichtstapel ${o.stapels.map((x) => x.n * x.kg).join(' + ')} kg` : '-';
+  $('t-feiten').innerHTML = [['Buitenmaten', `${o.maten.B} x ${o.maten.D} x ${o.maten.H} mm`], ['Vloeroppervlak', `${g(o.vloer, 2)} m²`], ['Gewicht', `± ${g(o.massa)} kg`], ['Max. gebruiker', `${o.V.gebruiker} kg`], ['Max. last', last], ['Staal', `${[...new Set(o.delen.filter((d) => d.soort === 'staaf' && d.P.vorm === 'koker').map((d) => d.P.naam))].slice(0, 2).join(', ')}`]].map(([a, b]) => `<dt>${esc(a)}</dt><dd>${esc(b)}</dd>`).join('');
+  const nr = B.controles.filter((c) => c.oordeel === 'oranje').length;
+  $('t-veilig').className = `veilig ${B.oordeel}`;
+  $('t-veilig').innerHTML = `<b><i class="stip ${B.oordeel}"></i>${B.oordeel === 'groen' ? 'Voldoet aan EN ISO 20957 volgens de berekening' : B.oordeel === 'oranje' ? `Voldoet, met ${nr} punt${nr > 1 ? 'en' : ''} om na te kijken` : 'Voldoet niet: zie de werkplaats'}</b>`;
+  const [lo, hi] = k.markt.band, max = Math.max(hi * 1.15, k.incl * 1.1), min = 0;
+  $('t-prijs').textContent = eur0(k.incl); $('t-prijs2').textContent = `${eur0(k.verkoop)} excl. btw · ${VERSIE[st.versie].naam.toLowerCase()}`;
+  $('t-markt').textContent = `${eur0(lo)} - ${eur0(hi)}`; $('t-markt2').textContent = k.markt.bron.length > 90 ? `${k.markt.bron.slice(0, 88)}…` : k.markt.bron;
+  $('t-band').style.left = `${((lo - min) / (max - min)) * 100}%`; $('t-band').style.width = `${((hi - lo) / (max - min)) * 100}%`; $('t-pin').style.left = `${Math.min(100, ((k.incl - min) / (max - min)) * 100)}%`;
+  $('t-min').textContent = eur0(min); $('t-max').textContent = eur0(max);
+  $('t-chip').className = `chip ${k.markt.status}`; $('t-chip').textContent = k.markt.status === 'in' ? 'In de marktband' : k.markt.status === 'onder' ? 'Onder de markt' : 'Boven de markt (maatwerk in staal)';
+  $('t-werk').href = `#werkplaats/${st.id}`; $('nav-werk').href = `#werkplaats/${st.id}`; $('nav-toe').href = `#toestel/${st.id}`;
+  if (tab === 'tek') {
+    const geo = alleGeo(o, false), vs = ['voor', 'links', 'boven'].map((n) => { const bb = omhullende(geo, PROJ[n]), s = Math.min(300 / (bb[2] - bb[0]), 300 / (bb[3] - bb[1])); return `<figure style="margin:0"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 330" style="width:100%;height:auto;background:#fff">${tekenBalken(geo, { proj: PROJ[n], schaal: s, ox: 10 - bb[0] * s, oy: 10 - bb[1] * s, lw: 0.7 }).svg}</svg><figcaption style="font-size:12px;color:#555">${{ voor: 'Vooraanzicht', links: 'Zijaanzicht', boven: 'Bovenaanzicht' }[n]}</figcaption></figure>`; });
+    $('tek').innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px">${vs.join('')}</div>`;
+  } else {
+    if (s3d) s3d.toon(o, { ral: st.ral, leer: st.leer });
+    else if (!s3dBezig) s3dBezig = import('./js/scene3d.mjs').then(({ scene3d }) => scene3d($('drie3d'))).then((api) => { s3d = api; $('laden3d').remove(); tekenToestel(); }).catch((e) => { $('laden3d').textContent = '3D lukt niet in deze browser: kijk bij Aanzichten.'; console.warn(e); });
+  }
+}
+
+// ---------- werkplaats
+let werkVuil = true, huidig = null, bladNr = 0, mNr = 0, m3d = null, m3dBezig = null;
+function tekenWerk() {
+  werkVuil = false;
+  const t = PER_ID[st.id], o = toestel(st.id, st.versie), k = kostprijs(o, inst), B = berekening(o), meta = { datum: new Date().toISOString().slice(0, 10) };
+  document.body.dataset.soort = t.soort; zetRadios();
+  $('w-soort').textContent = `${t.id} · ${SOORTEN[t.soort].kort}`; $('w-titel').textContent = `${t.naam}: werkplaats`; $('w-tekst').textContent = `${VERSIE[st.versie].uitleg}. ${o.maten.B} x ${o.maten.D} x ${o.maten.H} mm, ${g(o.massa)} kg.`;
+  const tot = k.totalen;
+  $('w-tegels').innerHTML = [['Verkoop incl. btw', eur0(k.incl)], ['Kostprijs', eur0(k.kostprijs)], ['Uren', `${g(k.uren, 1)} u`], ['Staal', `${g(tot.kg)} kg`], ['Lassen', `${tot.verbindingen} · ${g(tot.lasM, 1)} m`], ['Gaten', String(tot.gaten)]].map(([a, b]) => `<div class="tegel"><span>${a}</span><b>${b}</b></div>`).join('');
+  $('w-oordeel').innerHTML = `<i class="stip ${B.oordeel}"></i> ${B.oordeel}`;
+  $('w-ber').innerHTML = B.controles.map((c) => `<tr><td><i class="stip ${c.oordeel}"></i></td><td>${esc(`${c.groep}: ${c.wat}`)}</td><td class="form">${esc(c.formule)}<br><small>${esc(c.bron)}</small>${c.uitleg ? `<br><b>${esc(c.uitleg)}</b>` : ''}</td><td class="n">${c.oordeel === 'info' || !c.benut ? '' : `${Math.round(c.benut * 100)} %`}</td></tr>`).join('');
+  const bl = alleBladen(o, meta, inst), mb = montageBladen(o, meta), sb = stukBladen(o, meta);
+  huidig = { o, bladen: bl, montage: mb, stukken: sb };
+  bladNr = Math.min(bladNr, bl.length - 1);
+  $('w-bladtabs').innerHTML = bl.map((b, i) => `<button type="button" data-blad="${i}" aria-pressed="${i === bladNr}">${esc(b.titel)}</button>`).join('');
+  $('w-blad').innerHTML = beeld(bl[bladNr].svg, bl[bladNr].titel);
+  mNr = Math.min(mNr, Math.max(0, mb.length - 1));
+  $('w-mtabs').innerHTML = mb.map((m, i) => `<button type="button" data-m="${i}" aria-pressed="${i === mNr}">${esc(m.titel)}<small>${esc(m.sub)}</small></button>`).join('') || '<p class="status">Geen losse verbindingen: het toestel is uit één stuk gelast.</p>';
+  toonMontage();
+  $('w-stukken').innerHTML = sb.map((s, i) => `<button class="stukknop" type="button" data-stuk="${i}"><span class="nr">${s.pos}</span><span>${esc(s.naam)}<small>${s.n} stuk${s.n > 1 ? 's' : ''}</small></span></button>`).join('');
+  $('w-kp').textContent = `kostprijs ${eur(k.kostprijs)} · marge ${k.marge} % · verkoop ${eur(k.verkoop)} excl. btw`;
+  $('w-kost').innerHTML = [...k.regels.map((r) => `<tr><td>${esc(r.wat)}</td><td class="n">${eur(r.bedrag)}</td><td class="bron">${esc(r.bron)}</td></tr>`), `<tr><td>Arbeid ${g(k.uren, 2)} u x ${eur(k.instellingen.uurloon)}</td><td class="n">${eur(k.arbeid)}</td><td class="bron">uren uit de werkwijze (instelbaar)</td></tr>`, `<tr class="tot"><td>Kostprijs</td><td class="n">${eur(k.kostprijs)}</td><td></td></tr>`, `<tr class="tot"><td>Verkoop incl. btw (marge ${k.marge} %)</td><td class="n">${eur(k.incl)}</td><td class="bron">markt ${eur0(k.markt.band[0])} - ${eur0(k.markt.band[1])}${k.markt.melding ? `: ${esc(k.markt.melding)}` : ''}</td></tr>`].join('');
+  $('w-stappen').innerHTML = k.stappen.map((s) => `<li><b>${esc(s.titel)}</b> <span class="uur">${g(s.uren, 2)} u${s.proces ? ` · ${esc(s.proces)}` : ''}</span><br>${esc(s.tekst)}</li>`).join('');
+  $('w-koop').innerHTML = k.koop.map((x) => `<tr><td>${esc(x.naam)}${x.nagekeken ? '' : ' <small style="color:var(--waarsch)">AANNAME</small>'}</td><td class="bron">${esc(x.artikel)}</td><td class="n">${g(x.hoeveelheid, 2)} ${esc(x.eenheid)}</td><td class="bron">${/^https?:/.test(x.bron) ? `<a href="${esc(x.bron)}" target="_blank" rel="noopener">${esc(x.winkel)}</a>` : esc(x.winkel)}</td><td class="n">${eur(x.prijs)}</td><td class="n">${eur(x.bedrag)}</td></tr>`).join('');
+}
+$('w-bladtabs').addEventListener('click', (e) => { const b = e.target.closest('[data-blad]'); if (!b || !huidig) return; bladNr = +b.dataset.blad; document.querySelectorAll('#w-bladtabs [data-blad]').forEach((x) => x.setAttribute('aria-pressed', x === b)); $('w-blad').innerHTML = beeld(huidig.bladen[bladNr].svg, huidig.bladen[bladNr].titel); });
+$('w-mtabs').addEventListener('click', (e) => { const b = e.target.closest('[data-m]'); if (!b) return; mNr = +b.dataset.m; document.querySelectorAll('#w-mtabs [data-m]').forEach((x) => x.setAttribute('aria-pressed', x === b)); toonMontage(); });
+function toonMontage() {
+  const m = huidig?.montage[mNr]; if (!m) { $('w-mblad').innerHTML = ''; return; }
+  $('w-mblad').innerHTML = beeld(m.svg, m.titel);
+  if (m3d) { m3d.toon(m.scène); m3d.zet(+$('muit').value / 100); }
+  else if (!m3dBezig) m3dBezig = import('./js/taatsdeuren/verbinding3d.mjs').then(({ verbinding3d }) => verbinding3d($('m3d'))).then((api) => { m3d = api; $('m3dLaden')?.remove(); toonMontage(); }).catch((e) => { $('m3dLaden').textContent = '3D lukt niet in deze browser; het montageblad staat ernaast.'; console.warn(e); });
+}
+$('muit').addEventListener('input', () => m3d?.zet(+$('muit').value / 100));
+let svNr = 0;
+const toonStuk = () => { const s = huidig.stukken[svNr]; $('sv-titel').textContent = `Pos ${s.pos}: ${s.naam}`; $('sv-blad').innerHTML = beeld(s.svg, s.naam); };
+$('w-stukken').addEventListener('click', (e) => { const b = e.target.closest('[data-stuk]'); if (!b) return; svNr = +b.dataset.stuk; toonStuk(); $('stukvenster').showModal(); });
+$('sv-vorige').addEventListener('click', () => { svNr = (svNr + huidig.stukken.length - 1) % huidig.stukken.length; toonStuk(); });
+$('sv-volgende').addEventListener('click', () => { svNr = (svNr + 1) % huidig.stukken.length; toonStuk(); });
+$('sv-sluit').addEventListener('click', () => $('stukvenster').close());
+
+// ---------- instellingen
+const TARIEF = [
+  ['uurloon', 'Uurloon', '€/u', () => inst.uurloon, (v) => { inst.uurloon = v; }, 'zelfde als de balustrades'],
+  ...Object.values(SOORTEN).map((s) => [`marge-${s.id}`, `Marge ${s.naam.toLowerCase()}`, '%', () => inst.marge[s.id], (v) => { inst.marge[s.id] = v; }, '']),
+  ['margePro', 'Extra marge proversie', '%', () => inst.margePro, (v) => { inst.margePro = v; }, 'bovenop de marge van de soort'],
+  ['staalKg', 'Staal (kokers, buizen)', '€/kg', () => inst.staalKg, (v) => { inst.staalKg = v; }, 'groothandel, hele staven'],
+  ['laserKg', 'Laserdelen', '€/kg', () => inst.laserKg, (v) => { inst.laserKg = v; }, 'met materiaal'],
+  ['stapelKg', 'Gewichtstapel (20 mm)', '€/kg', () => inst.stapelKg, (v) => { inst.stapelKg = v; }, ''],
+  ['coatM2', 'Poedercoat', '€/m²', () => inst.coatM2, (v) => { inst.coatM2 = v; }, 'met stralen'],
+  ['afval', 'Zaagafval staal', '%', () => inst.afval, (v) => { inst.afval = v; }, ''],
+];
+$('i-tarief').innerHTML = TARIEF.map(([id, n, e, , , u]) => `<tr><td>${esc(n)}</td><td><input type="number" step="0.1" min="0" data-t="${id}" aria-label="${esc(n)}"></td><td class="uitl">${esc(e)}${u ? ` · ${esc(u)}` : ''}</td></tr>`).join('');
+$('i-uren').innerHTML = Object.keys(UREN).map((k) => `<tr><td>${esc(UREN_NAAM[k])}</td><td><input type="number" step="0.01" min="0" data-u="${k}" aria-label="${esc(UREN_NAAM[k])}"></td><td class="uitl">u</td></tr>`).join('');
+$('i-koop').innerHTML = Object.entries(KOOP).map(([k, x]) => `<tr><td>${esc(x.naam)}${x.nagekeken ? '' : ' <small style="color:var(--waarsch)">AANNAME</small>'}</td><td class="uitl">${esc(x.winkel)}</td><td class="n"><input type="number" step="0.01" min="0" data-k="${k}" aria-label="${esc(x.naam)}"></td></tr>`).join('');
+function vulInstellingen() {
+  document.querySelectorAll('[data-t]').forEach((el) => { el.value = TARIEF.find((x) => x[0] === el.dataset.t)[3](); });
+  document.querySelectorAll('[data-u]').forEach((el) => { el.value = inst.uren[el.dataset.u]; });
+  document.querySelectorAll('[data-k]').forEach((el) => { el.value = inst.koopPrijs[el.dataset.k] ?? KOOP[el.dataset.k].prijs; });
+}
+const gewijzigd = () => { prijsCache = new Map(); werkVuil = true; bewaar(); };
+document.querySelectorAll('[data-t]').forEach((el) => el.addEventListener('change', () => { TARIEF.find((x) => x[0] === el.dataset.t)[4](Math.max(0, +el.value)); gewijzigd(); }));
+document.querySelectorAll('[data-u]').forEach((el) => el.addEventListener('change', () => { inst.uren[el.dataset.u] = Math.max(0, +el.value); gewijzigd(); }));
+document.querySelectorAll('[data-k]').forEach((el) => el.addEventListener('change', () => { const v = Math.max(0, +el.value); if (Math.abs(v - KOOP[el.dataset.k].prijs) < 0.005) delete inst.koopPrijs[el.dataset.k]; else inst.koopPrijs[el.dataset.k] = v; gewijzigd(); }));
+$('terug').addEventListener('click', () => { inst = JSON.parse(JSON.stringify(STD_INST)); vulInstellingen(); gewijzigd(); $('i-status').textContent = 'Alles staat terug op de standaard.'; });
+let db = null, uid = null, wacht = null;
+function bewaar() {
+  clearTimeout(wacht);
+  wacht = setTimeout(async () => {
+    schrijf('fitness-instellingen', inst);
+    if (db && uid) { try { await db.doc(`data/users/${uid}/instellingen/fitness`).set(JSON.parse(JSON.stringify(inst))); $('i-status').textContent = 'Bewaard op je account.'; } catch { $('i-status').textContent = 'Bewaren op je account lukte niet; ze staan wel in deze browser.'; } }
+    else $('i-status').textContent = 'Bewaard in deze browser.';
+  }, 600);
+}
+const laad = (d) => { if (!d) return; inst = { ...JSON.parse(JSON.stringify(STD_INST)), ...d, marge: { ...STD_INST.marge, ...(d.marge ?? {}) }, uren: { ...STD_INST.uren, ...(d.uren ?? {}) }, koopPrijs: { ...(d.koopPrijs ?? {}) } }; vulInstellingen(); prijsCache = new Map(); werkVuil = true; toonPagina(); };
+
+// ---------- pagina's: #catalogus, #toestel/ID, #werkplaats/ID, #instellingen
+let pagina = 'catalogus';
+function toonPagina() {
+  const [p, id] = location.hash.slice(1).split('/');
+  if (id && PER_ID[id] && id !== st.id) { st.id = id; werkVuil = true; bewaarKeuze(); }
+  pagina = ['toestel', 'werkplaats', 'instellingen'].includes(p) ? p : 'catalogus';
+  document.querySelectorAll('[data-view]').forEach((v) => { v.hidden = v.dataset.view !== pagina; });
+  for (const [nid, pg] of [['nav-cat', 'catalogus'], ['nav-toe', 'toestel'], ['nav-werk', 'werkplaats'], ['nav-inst', 'instellingen']]) { if (pg === pagina) $(nid).setAttribute('aria-current', 'page'); else $(nid).removeAttribute('aria-current'); }
+  $('nav-toe').href = `#toestel/${st.id}`; $('nav-werk').href = `#werkplaats/${st.id}`;
+  if (pagina === 'catalogus') { document.body.dataset.soort = st.soort === 'alle' ? 'rek' : st.soort; tekenCatalogus(); }
+  else if (pagina === 'toestel') tekenToestel();
+  else if (pagina === 'werkplaats') { if (werkVuil || huidig?.o.id !== st.id || huidig?.o.versie !== st.versie) tekenWerk(); }
+  scrollTo(0, 0);
+}
+addEventListener('hashchange', toonPagina);
+vulInstellingen(); laad(lees('fitness-instellingen', null)); toonPagina();
+(async () => {
+  try {
+    const user = await window.claude?.use?.('user'); db = await window.claude?.use?.('db'); uid = user ? await user.id() : null;
+    if (db && uid) { const s = await db.doc(`data/users/${uid}/instellingen/fitness`).get(); if (s.exists) laad(s.data()); $('i-status').textContent = 'Je instellingen staan op je account (ook op je gsm).'; }
+    else $('i-status').textContent = 'Je instellingen worden in deze browser bewaard.';
+  } catch { $('i-status').textContent = 'Je instellingen worden in deze browser bewaard.'; }
+})();
+
+// ---------- downloads (zip zonder compressie)
+let dl = null;
+const klaar = (async () => { try { dl = await window.claude?.use?.('downloads'); } catch { dl = null; } if (!dl) { document.querySelectorAll('[data-dl]').forEach((b) => { b.disabled = true; }); $('status').textContent = 'Downloaden kan niet in deze weergave (wel in de gepubliceerde pagina).'; } })();
+const crcT = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let q = 0; q < 8; q++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+const crc32 = (u) => { let c = 0xffffffff; for (const x of u) c = crcT[(c ^ x) & 255] ^ (c >>> 8); return (c ^ 0xffffffff) >>> 0; };
+function zip(best) {
+  const enc = new TextEncoder(), delen = [], cen = []; let off = 0;
+  for (const [naam, tekst] of best) {
+    const n = enc.encode(naam), d = enc.encode(tekst), crc = crc32(d), h = new DataView(new ArrayBuffer(30));
+    h.setUint32(0, 0x04034b50, true); h.setUint16(4, 20, true); h.setUint32(14, crc, true); h.setUint32(18, d.length, true); h.setUint32(22, d.length, true); h.setUint16(26, n.length, true);
+    delen.push(new Uint8Array(h.buffer), n, d);
+    const c = new DataView(new ArrayBuffer(46));
+    c.setUint32(0, 0x02014b50, true); c.setUint16(4, 20, true); c.setUint16(6, 20, true); c.setUint32(16, crc, true); c.setUint32(20, d.length, true); c.setUint32(24, d.length, true); c.setUint16(28, n.length, true); c.setUint32(42, off, true);
+    cen.push(new Uint8Array(c.buffer), n); off += 30 + n.length + d.length;
+  }
+  const gr = cen.reduce((a, x) => a + x.length, 0), e = new DataView(new ArrayBuffer(22));
+  e.setUint32(0, 0x06054b50, true); e.setUint16(8, best.length, true); e.setUint16(10, best.length, true); e.setUint32(12, gr, true); e.setUint32(16, off, true);
+  return new Blob([...delen, ...cen, new Uint8Array(e.buffer)]);
+}
+document.querySelectorAll('[data-dl]').forEach((b) => b.addEventListener('click', async () => {
+  await klaar; if (!dl || !huidig) return;
+  if (werkVuil) tekenWerk();
+  const { o } = huidig, nm = `${o.id}-${o.versie}`, meta = { datum: new Date().toISOString().slice(0, 10) };
+  let filename, data;
+  if (b.dataset.dl === 'dossier') { filename = `${nm}-dossier.html`; data = dossierHtml(o, inst, meta); }
+  else if (b.dataset.dl === 'csv') { filename = `${nm}-lijsten.csv`; data = lijstenCsv(o, inst); }
+  else { filename = `${nm}-tekeningen.zip`; data = zip([...huidig.bladen.map((x, i) => [`${nm}-${i + 1}-${x.id}.svg`, x.svg]), ...huidig.montage.map((x, i) => [`${nm}-montage-${i + 1}.svg`, x.svg]), ...huidig.stukken.map((x) => [`${nm}-pos-${String(x.pos).padStart(2, '0')}.svg`, x.svg]), [`${nm}-lijsten.csv`, lijstenCsv(o, inst)]]); }
+  $('status').textContent = 'Bezig…';
+  try { await dl.save({ filename, data }); $('status').textContent = `${filename} opgeslagen.`; } catch (e) { $('status').textContent = e && e.code === 'declined' ? 'Niet opgeslagen.' : `Opslaan lukte niet (${e && e.code || 'fout'}).`; }
+}));
+</script>

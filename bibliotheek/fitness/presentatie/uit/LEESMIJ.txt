@@ -1,0 +1,19 @@
+Fitnesstoestellen
+=================
+
+Dubbelklik op Fitnesstoestellen.html: hij opent in je browser (Edge, Chrome, Firefox of Safari). Er is geen internet nodig.
+
+Links staan de 50 toestellen: 14 rekken en racks, 12 banken, 12 kabelmachines, 12 plate-loaded machines.
+Zoek op een naam of een oefening (squat, rug, leg press ...) of kies een soort.
+
+1. Kies een toestel: in het midden zie je het in 3D (slepen = draaien, scrollen = zoomen) of in drie aanzichten.
+2. Versie: thuis (EN ISO 20957 klasse H) of pro (klasse S, zwaardere profielen).
+3. Kleur van het frame (RAL) en van de bekleding.
+Rechts: de maten, het oordeel over de veiligheid en de prijs naast de prijs van vergelijkbare toestellen in de winkel.
+Instellingen: de naam van je zaak, je contact, welke prijs de klant ziet, je uurloon en je marge (op dit toestel bewaard).
+Afdrukken / PDF: een blad voor de klant.
+
+De werkplaatstekeningen, de berekening en de kostprijs staan niet in dit bestand: die vind je in de werkplaatsversie
+(de gepubliceerde catalogus, pagina Werkplaats).
+
+Prijzen opgezocht op 2026-11-15.
