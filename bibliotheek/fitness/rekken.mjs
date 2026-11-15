@@ -1,14 +1,14 @@
 // Rekken en racks (FR-01 .. FR-14): elk toestel bouwt zichzelf in de thuis- of de proversie met de bouwstenen.
 // Maten in mm: x = breedte, y = diepte (0 = voorkant), z = hoogte. Marktprijzen incl. btw (docs/Marktprijzen.md).
-import { staander, ligger, jhook, safety, hoorn, voetjes, gatZ, westside, doos, gat, X, Y, Z, balk } from './bouwstenen.mjs';
+import { staander, ligger, dwarsOp, jhook, safety, hoorn, voetjes, gatZ, westside, doos, gat, X, Y, Z, balk } from './bouwstenen.mjs';
 
 /** Westside-gaten op een staander die op z0 begint: van 300 tot H - 150, bankzone 400-1000 om de 25 mm */
 const ws = (b, z0, H) => ({ gaten: westside(300 - z0, 400 - z0, 1000 - z0, H - 150 - z0, b.V.gat), westside: { d: b.V.gat } });
 const pro = (b) => b.V.id === 'pro';
 /** ankers in een voetbalk (verticale gaten) en de keilbouten */
 function ankers(b, S, n = 2) {
-  for (const t of n === 2 ? [0.06, 0.94] : [0.5]) gat(S, [S.a[0] + (S.b[0] - S.a[0]) * t, S.a[1] + (S.b[1] - S.a[1]) * t, S.a[2]], 14, Math.abs(S.w[2]) > 0.5 ? 'w' : 'v');
-  b.bout('Vloeranker', 'vloer', S.groep, [S.a[0], S.a[1], 0], Z, { key: 'anker', punten: (n === 2 ? [0.06, 0.94] : [0.5]).map((t) => [S.a[0] + (S.b[0] - S.a[0]) * t, S.a[1] + (S.b[1] - S.a[1]) * t, S.a[2]]), lengte: 110, uit: [0, 0, 200] });
+  for (const t of n === 2 ? [0.05, 0.72] : [0.5]) gat(S, [S.a[0] + (S.b[0] - S.a[0]) * t, S.a[1] + (S.b[1] - S.a[1]) * t, S.a[2]], 14, Math.abs(S.w[2]) > 0.5 ? 'w' : 'v');
+  b.bout('Vloeranker', 'vloer', S.groep, [S.a[0], S.a[1], 0], Z, { key: 'anker', punten: (n === 2 ? [0.05, 0.72] : [0.5]).map((t) => [S.a[0] + (S.b[0] - S.a[0]) * t, S.a[1] + (S.b[1] - S.a[1]) * t, S.a[2]]), lengte: 110, uit: [0, 0, 200] });
 }
 
 export const REKKEN = [
@@ -29,9 +29,9 @@ export const REKKEN = [
         if (pro(b)) ankers(b, voet);
       }
       b.groep('frame');
-      ligger(b, 'Optrekstang', 'stang', st.L.f, st.R.f, { z: H - 30, y: yf - a / 2 - 20 }, { bout: true, groep: 'Optrekstang' });
-      ligger(b, 'Bovenligger achter', 'ligger', st.L.b, st.R.b, { z: H - a / 2 }, { bout: true, groep: 'Bovenligger achter' });
-      ligger(b, 'Onderligger achter', 'ligger', st.L.voet, st.R.voet, { y: yb, z: a / 2 }, { bout: true, groep: 'Onderligger achter', flens: a });
+      ligger(b, 'Optrekstang', 'stang', st.L.f, st.R.f, { z: H - 70 }, { bout: true, groep: 'Optrekstang' });
+      ligger(b, 'Bovenligger achter', 'ligger', st.L.b, st.R.b, { z: H - a / 2 - 45 }, { bout: true, groep: 'Bovenligger achter' });
+      dwarsOp(b, 'Onderligger achter', 'ligger', st.L.voet, st.R.voet, yb + a + 10);
       const zj = gatZ(st.L.f, 1350), zs = gatZ(st.L.f, 800);
       const zb = jhook(b, st.L.f, zj, 'J-hook L', 1); jhook(b, st.R.f, zj, 'J-hook R', 1);
       safety(b, st.L.f, st.L.b, zs, 'Safety L'); safety(b, st.R.f, st.R.b, zs, 'Safety R');
@@ -68,10 +68,10 @@ export const REKKEN = [
         if (pro(b)) ankers(b, voet);
       }
       b.groep('frame');
-      ligger(b, 'Optrekstang', 'stang', st.L.f, st.R.f, { z: H - 30 }, { bout: true, groep: 'Optrekstang' });
-      ligger(b, 'Bovenligger', 'ligger', st.L.f, st.R.f, { z: H - 160 }, { bout: true, groep: 'Bovenligger' });
-      ligger(b, 'Onderligger achter', 'ligger', st.L.voet, st.R.voet, { y: yb, z: a / 2 }, { bout: true, groep: 'Onderligger achter', flens: a });
-      ligger(b, 'Onderligger voor', 'ligger', st.L.voet, st.R.voet, { y: 150, z: a / 2 }, { bout: true, groep: 'Onderligger voor', flens: a });
+      ligger(b, 'Optrekstang', 'stang', st.L.f, st.R.f, { z: H - 70 }, { bout: true, groep: 'Optrekstang' });
+      ligger(b, 'Bovenligger', 'ligger', st.L.f, st.R.f, { z: H - 270 }, { bout: true, groep: 'Bovenligger' });
+      dwarsOp(b, 'Onderligger achter', 'ligger', st.L.voet, st.R.voet, yb + a + 10);
+      dwarsOp(b, 'Onderligger voor', 'ligger', st.L.voet, st.R.voet, 150);
       const zj = gatZ(st.L.f, 1350), zs = gatZ(st.L.f, 850), G = this.maxLast[V.id];
       const zb = jhook(b, st.L.f, zj, 'J-hook L', -1); jhook(b, st.R.f, zj, 'J-hook R', -1);
       for (const [k, S] of [['L', st.L.f], ['R', st.R.f]]) spotter(b, S, zs, `Spotterarm ${k}`, pro(b) ? 650 : 600);
@@ -101,7 +101,7 @@ export const REKKEN = [
         // de voetbalk ligt tussen de dwarsvoeten: korter maken
         lang.a = [x, 0 - a / 2, a / 2]; lang.b = [x, Dv + a / 2, a / 2]; lang.L = Dv + a; lang.geo = [balk(lang.a, lang.b, X, a, a)];
         const S = staander(b, 'Staander', 'staander', x, yc, a, H, ws(b, a, H));
-        hoorn(b, S, [x, yc, 500], [0, 1, 0], 230);
+        hoorn(b, S, [x, yc, 500], [Math.sign(x), 0, 0], 230);
         voetjes(b, dw1, 2); voetjes(b, dw2, 2);
         const zj = gatZ(S, 1350), zb = jhook(b, S, zj, `J-hook ${k}`, -1);
         if (k === 'L') { b.last('Stang op de J-hooks (de helft per staander)', this.maxLast[V.id] / 2, [x, yc - a / 2 - 45, zb + 14], { geval: 'stang' }); b.reken('Staander met de J-hook', S, 'staanderM', zj - a, 0, { g: this.maxLast[V.id] / 2, proef: 'vanghaak', e: a / 2 + 45, las: true }); }
@@ -118,7 +118,7 @@ export const REKKEN = [
     maxLast: { thuis: 250, pro: 400 },
     markt: { thuis: [475, 710], pro: [900, 1500], bronT: 'ATX Fold Back Rack 750 € 490-575, ATX FBR-500 € 475, Rogue R-3W € 600 / RML-3W € 710', bronP: 'Watson Wall Mounted Half Rack ± € 1040-1250 (niet opklapbaar): AANNAME € 900-1500' },
     bouw(b) {
-      const V = b.V, a = b.P('staander').b, H = 2150, wi = 1120, xs = wi / 2 + a / 2, Dm = 560, t = V.plaat, st = {}, la = b.P('licht');
+      const V = b.V, a = b.P('staander').b, H = 2150, wi = 1120, xs = wi / 2 + a / 2, Dm = 560, t = V.plaat, st = {}, la = b.P('ligger');
       b.muur(Dm);
       for (const [k, x] of [['L', -xs], ['R', xs]]) {
         b.groep(`Staander ${k}`);
@@ -127,17 +127,17 @@ export const REKKEN = [
         st[k] = S;
         for (const z of [300, H - 120]) {
           b.groep(`Staander ${k}`);
-          const arm = b.staaf('Scharnierarm', 'licht', [x, a, z], [x, Dm - t - 30 - 40, z]);
+          const arm = b.staaf('Scharnierarm', 'ligger', [x, a, z], [x, Dm - t - 25, z]);
           b.groep(`Muurbeugel ${k} ${z < 1000 ? 'onder' : 'boven'}`);
           const wp = b.plaat('Muurplaat', [x - 60, Dm - t, z - 150], [x + 60, Dm, z + 150], { gaten: [[-35, -110], [35, -110], [-35, 110], [35, 110]].map(([p, q]) => ({ p: [x + p, Dm, z + q], d: 14 })) });
-          for (const s of [-1, 1]) b.plaat('Scharnieroor', [x - la.b / 2 - 4, Dm - t - 110, z + s * (la.h / 2 + 1) + (s > 0 ? 0 : -t)], [x + la.b / 2 + 4, Dm - t, z + s * (la.h / 2 + 1) + (s > 0 ? t : 0)], { gaten: [{ p: [x, Dm - t - 70, z], d: V.pin + 1 }] });
+          for (const s of [-1, 1]) b.plaat('Scharnieroor', [x - la.b / 2 - 12, Dm - t - 110, z + s * (la.h / 2 + 1) + (s > 0 ? 0 : -t)], [x + la.b / 2 + 12, Dm - t, z + s * (la.h / 2 + 1) + (s > 0 ? t : 0)], { gaten: [{ p: [x, Dm - t - 70, z], d: V.pin + 1 }] });
           b.pen(`Scharnier ${k}`, [x, Dm - t - 70, z], Z, { d: V.pin, key: b.V.pin25, F: 0, snedes: 2, a: `Muurbeugel ${k}`, b: `Staander ${k}`, uit: [0, 0, 160], lengte: la.h + 2 * t + 40 });
           gat(arm, [x, Dm - t - 70, z], V.pin + 1, 'w');
           b.bout('Muuranker', 'muur', wp.groep, [x, Dm, z], Y, { key: 'anker', punten: wp.gaten.map((g) => g.p), lengte: 110, uit: [0, -200, 0] });
         }
       }
       b.groep('frame');
-      ligger(b, 'Optrekstang', 'stang', st.L, st.R, { z: H - 30 }, { bout: true, groep: 'Optrekstang' });
+      ligger(b, 'Optrekstang', 'stang', st.L, st.R, { z: H - 70 }, { bout: true, groep: 'Optrekstang' });
       const zj = gatZ(st.L, 1350), G = this.maxLast[V.id];
       const zb = jhook(b, st.L, zj, 'J-hook L', -1); jhook(b, st.R, zj, 'J-hook R', -1);
       for (const [k, S] of [['L', st.L], ['R', st.R]]) spotter(b, S, gatZ(S, 850), `Spotterarm ${k}`, 500);
@@ -160,13 +160,13 @@ export const REKKEN = [
         b.groep(`Zijframe ${k}`);
         const voet = b.staaf('Voetbalk', 'voet', [x, 0, a / 2], [x, 1300, a / 2]);
         const S = staander(b, 'Staander', 'staander', x, yc, a, H, ws(b, a, H));
-        hoorn(b, S, [x, yc, 450], [0, 1, 0], 250);
+        hoorn(b, S, [x, yc, 450], [Math.sign(x), 0, 0], 250);
         st[k] = { voet, S };
         if (pro(b)) ankers(b, voet); else voetjes(b, voet, 2);
       }
       b.groep('frame');
-      ligger(b, 'Optrekstang', 'stang', st.L.S, st.R.S, { z: H - 30 }, { bout: true, groep: 'Optrekstang' });
-      ligger(b, 'Onderligger achter', 'ligger', st.L.voet, st.R.voet, { y: 1300 - a / 2, z: a / 2 }, { bout: true, groep: 'Onderligger achter', flens: a });
+      ligger(b, 'Optrekstang', 'stang', st.L.S, st.R.S, { z: H - 70 }, { bout: true, groep: 'Optrekstang' });
+      dwarsOp(b, 'Onderligger achter', 'ligger', st.L.voet, st.R.voet, 1300 - a / 2 - 10);
       const zj = gatZ(st.L.S, 1350), G = this.maxLast[V.id];
       const zb = jhook(b, st.L.S, zj, 'J-hook L', -1); jhook(b, st.R.S, zj, 'J-hook R', -1);
       for (const [k, S] of [['L', st.L.S], ['R', st.R.S]]) spotter(b, S, gatZ(S, 850), `Spotterarm ${k}`, pro(b) ? 650 : 600);
@@ -191,7 +191,7 @@ export const REKKEN = [
       b.muur(Dm);
       const armen = [];
       for (const [k, x] of [['L', -xs], ['R', xs]]) {
-        const wp = b.plaat('Muurplaat', [x - 60, Dm - t, zt - 380], [x + 60, Dm, zt + 40], { gaten: [[-35, 0], [35, 0], [-35, -340], [35, -340]].map(([p, q]) => ({ p: [x + p, Dm, zt + q - 10], d: 14 })) });
+        const wp = b.plaat('Muurplaat', [x - 70, Dm - t, zt - 380], [x + 70, Dm, zt + 40], { gaten: [[-46, 0], [46, 0], [-46, -340], [46, -340]].map(([p, q]) => ({ p: [x + p, Dm, zt + q - 10], d: 14 })) });
         const arm = b.staaf('Arm', 'licht', [x, Dm - t, zt - a / 2], [x, 30, zt - a / 2]);
         b.staaf('Schoor', 'licht', [x, Dm - t, zt - 330], [x, Dm - 420, zt - a], { verstek: [45, 45], opm: 'beide uiteinden schuin (45° + 27°): passen op de plaat en onder de arm' });
         armen.push(arm);
@@ -277,7 +277,7 @@ export const REKKEN = [
       const wl = [];
       for (const x of [-Bt / 2 + 60, Bt / 2 - 60]) for (const y of [0, Dt]) wl.push(balk([x, y, 0], [x, y, z0], X, 50, 50, true, 'rubber'));
       b.koop(V.wiel, 4, wl, { naam: `${V.wiel === 'zwenkwiel50' ? 'Zwenkwiel 50 mm' : 'Zwenkwiel 75 mm met rem'} onder de liggers` });
-      b.schijven([-Bt / 3, Dt / 2 - 220, z0 + a + 225], [0, 1, 0], 1, 450, 60); b.schijven([0, Dt / 2 - 220, z0 + a + 225], [0, 1, 0], 1, 450, 60);
+      b.schijven([-Bt / 3 - 30, Dt / 2, z0 + a + 225], [1, 0, 0], 1, 450, 60); b.schijven([-30, Dt / 2, z0 + a + 225], [1, 0, 0], 1, 450, 60);
       b.reken('Ligger voor (schijven in 1 vak, 2 steunpunten)', r1, 'ligger', Bt / 3, 0, { g: this.maxLast[V.id] / 3, proef: 'opslagpen' });
       b.last('Volle bak', this.maxLast[V.id], [0, Dt / 2, z0 + 260], { geval: 'vol' });
     },
@@ -305,7 +305,7 @@ export const REKKEN = [
         b.koop('uhmw', 1, r.map((d) => balk([d.a[0], d.a[1], z + k + 5], [d.b[0], d.b[1], z + k + 5], X, k, 10, false, 'uhmw')), { naam: `UHMW-strip ${k} x ${Bt + 2 * a} x 10 op de legplank`, oppervlak: (2 * k * (Bt + 2 * a)) / 1e6 });
         for (const [i, A] of arms[laag].entries()) b.bout(`Legplank ${laag} ${i ? 'R' : 'L'}`, A.groep, `Legplank ${laag}`, [A.a[0], (y0 + y1) / 2, z], Z, { punten: [y0, y1].map((y) => [A.a[0], y, z]), lengte: a + k + 30, uit: [0, 0, 160], key: 'boutM12' });
         for (const A of arms[laag]) for (const y of [y0, y1]) gat(A, [A.a[0], y, z], 13, 'w');
-        for (const R of r) for (const A of arms[laag]) gat(R, [A.a[0], R.a[1], z], 13, 'v');
+        for (const R of r) for (const A of arms[laag]) gat(R, [A.a[0], R.a[1], z], 13, 'w');
       }
       b.groep('frame');
       b.last('Halters op de bovenste laag', this.maxLast[V.id] / 2, [0, 470, 800 + a + 120], { geval: 'boven vol' });
@@ -349,7 +349,7 @@ export const REKKEN = [
       b.muur(Dm);
       for (const x of [-500, 500]) {
         b.groep(`Muurstrip ${x < 0 ? 'L' : 'R'}`);
-        const wp = b.plaat('Muurstrip', [x - 40, Dm - t, 900], [x + 40, Dm, 1800], { gaten: [950, 1350, 1750].map((z) => ({ p: [x, Dm, z], d: 14 })) });
+        const wp = b.plaat('Muurstrip', [x - 40, Dm - t, 900], [x + 40, Dm, 1800], { gaten: [930, 1270, 1700].map((z) => ({ p: [x, Dm, z], d: 14 })) });
         for (const z of [1000, 1180, 1360, 1540]) {
           b.staaf('Haak', 'klein', [x, Dm - t, z], [x, Dm - t - 150, z]);
           b.plaat('Lip', [x - k.b / 2, Dm - t - 150 - 6, z + k.h / 2], [x + k.b / 2, Dm - t - 150, z + k.h / 2 + 30], { opm: 'lip 30 mm, randen r 2,5' });
@@ -396,11 +396,12 @@ export const REKKEN = [
       b.groep('Grondplaat');
       b.plaat('Grondplaat', [-gp / 2, -gp / 2, 12], [gp / 2, gp / 2, zs], { gaten: pro(b) ? [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([p, q]) => ({ p: [p * 250, q * 250, 12], d: 14 })) : [] });
       const as = b.staaf('Draaias', 'b60x3', [0, 0, zs], [0, 0, zs + 140], { kap: false });
-      b.staaf('Schoor draaias', 'klein', [-90, 0, zs], [-30, 0, zs + 90], { verstek: [35, 55] });
+      for (const s of [-1, 1]) b.plaat('Schoorschot draaias', [s > 0 ? 30.15 : -80.15, -4, zs], [s > 0 ? 80.15 : -30.15, 4, zs + 25], { vorm: 'driehoek', opm: 'driehoekig schot 50 x 25, tegen de draaias' });
+      b.plaat('Draagring draaias', [-45, -45, zs + 25], [45, 45, zs + 30], { rond: true, in: 'draaias', opm: 'ring Ø90 x 5 rond de draaias: de draaibus rust erop' });
       b.groep('Draaistuk');
-      const bus = b.staaf('Draaibus', 'b76x4', [0, 0, zs + 4], [0, 0, zs + 140], { in: as.id, kap: false, opm: 'schuift over de draaias; glijbus of vet' });
-      b.plaat('Jukplaat', [-55, -40, zs + 140], [-45, 40, zs + 230], { gaten: [{ p: [-50, 0, zs + 195], d: V.pin + 1 }] });
-      b.plaat('Jukplaat', [45, -40, zs + 140], [55, 40, zs + 230], { gaten: [{ p: [50, 0, zs + 195], d: V.pin + 1 }] });
+      const bus = b.staaf('Draaibus', 'b76x4', [0, 0, zs + 31], [0, 0, zs + 140], { in: as.id, kap: false, opm: 'schuift over de draaias; glijbus of vet' });
+      b.plaat('Jukplaat', [-55, -45, zs + 140], [-45, 45, zs + 240], { gaten: [{ p: [-50, 0, zs + 195], d: V.pin + 1 }] });
+      b.plaat('Jukplaat', [45, -45, zs + 140], [55, 45, zs + 240], { gaten: [{ p: [50, 0, zs + 195], d: V.pin + 1 }] });
       b.plaat('Bovenplaat draaistuk', [-45, -40, zs + 140], [45, 40, zs + 148], {});
       b.groep('Huls');
       const ang = (35 * Math.PI) / 180, p0 = [0, 0, zs + 195];
@@ -422,12 +423,13 @@ export const REKKEN = [
 function spotter(b, S, zGat, naam, L) {
   const oud = b.huidig, t = b.V.plaat, a = S.P.b, [mn] = doos(S), x = S.a[0], P = b.P('breed');
   b.groep(naam);
-  b.plaat('Rugplaat spotterarm', [x - a / 2, mn[1] - t, zGat - 40 - P.h], [x + a / 2, mn[1], zGat + 60]);
+  b.plaat('Rugplaat spotterarm', [x - a / 2, mn[1] - t, zGat - 40 - P.h], [x + a / 2, mn[1], zGat + 60], { gaten: [{ p: [x, mn[1], zGat], d: b.V.pin + 1 }] });
   b.staaf(naam, 'breed', [x, mn[1] - t, zGat - 40 - P.h / 2], [x, mn[1] - t - L, zGat - 40 - P.h / 2], { v: X });
   b.staaf('Pen spotterarm', `r${b.V.pin}`, [x, mn[1] - t, zGat], [x, mn[1] + S.P.t + 18, zGat], { in: S.id, kap: false });
   b.koop('uhmw', 1, [balk([x, mn[1] - t, zGat - 40 + 5], [x, mn[1] - t - L, zGat - 40 + 5], X, P.b - 4, 10, false, 'uhmw')], { naam: `UHMW-strip ${P.b - 4} x ${L} x 10 op de spotterarm`, oppervlak: ((P.b - 4) * L) / 1e6 });
   b.groep(oud);
-  b.pen(naam, [x, mn[1], zGat], Y, { d: b.V.pin, snedes: 1, factor: 'vanghaak', a: S.groep, b: naam, uit: [0, -180, 0] });
+  const pl = t + S.P.t + 18;
+  b.pen(naam, [x, mn[1] - t + pl / 2, zGat], Y, { d: b.V.pin, lengte: pl, snedes: 1, factor: 'vanghaak', a: S.groep, b: naam, uit: [0, -180, 0] });
 }
 const len3 = (p, q) => Math.hypot(q[0] - p[0], q[1] - p[1], q[2] - p[2]);
 export { spotter };

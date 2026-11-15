@@ -125,7 +125,7 @@ export function berekening(o) {
     const ok = sp.kap || sp.mm < NORM.knelVrij.spleetMin || sp.mm > NORM.knelVrij.spleetMax;
     ctl('Knelpunten', sp.wat, `vrije afstand ${sp.mm} mm${sp.kap ? ', afgeschermd' : ''}: niet tussen 9,5 en 25 mm, of afgeschermd`, 0, NORM.knelVrij.bron, { oordeel: ok ? 'groen' : 'oranje', uitleg: sp.uitleg ?? '' });
   }
-  if (o.pennen.some((p) => p.b?.startsWith?.('Hefboom') || p.b === 'Slede') || o.def?.soort === 'plate') ctl('Knelpunten', 'Hefboom of slede tegen het frame', 'eindaanslag met rubberbuffer; vrije afstand hefboom-frame ≥ 60 mm (of ≤ 25 mm waar alleen vingers kunnen komen): nakijken op het toestel', 0, NORM.knelVrij.bron, { oordeel: 'oranje', uitleg: 'AANNAME: de exacte bewegingsruimte meet je na op het eerste toestel.' });
+  if (o.pennen.some((p) => p.b?.startsWith?.('Hefboom') || p.b === 'Slede') || o.def?.soort === 'plate') ctl('Knelpunten', 'Hefboom of slede tegen het frame', 'eindaanslag met rubberbuffer; vrije afstand hefboom-frame ≥ 60 mm (of ≤ 25 mm waar alleen vingers kunnen komen): nakijken op het toestel', 0, NORM.knelVrij.bron, { oordeel: 'oranje', uitleg: 'De hefboom of slede is in 5 standen (0, 25, 50, 75 en 100 % van de slag) op botsingen met het frame, de kussens en de schijven gecontroleerd: geen. Knelafstanden tussen 9,5 en 25 mm zijn een maat op het echte toestel: AANNAME, nameten op het eerste toestel.' });
   const kappen = o.koop.filter((x) => x.id?.startsWith('kap-')).reduce((t, x) => t + x.n, 0);
   ctl('Afwerking', 'Randen en buisuiteinden', `alle randen braamvrij, lichaamsdragende randen r ≥ 2,5 mm; ${kappen} eindkappen op open uiteinden`, 0, NORM.randen.bron, { oordeel: 'groen' });
   // ---- stabiliteit of verankering

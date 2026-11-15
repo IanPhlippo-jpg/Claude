@@ -5,7 +5,31 @@ import { svg, A3, A4L, lijn, tk, maat, tabel, titelblok, schaal, rij, lasSymbool
 import { tekenBalken, omhullende, alleGeo, PROJ, iso } from './aanzicht.mjs';
 import { stuklijst, zaagplan, nesting, totalen } from './stuklijst.mjs';
 import { KOOP } from './onderdelen.mjs';
-import { lengteStuk } from './model.mjs';
+import { lengteStuk, dot, add, mul, sub } from './model.mjs';
+import { gatFouten, SPELING } from './controle.mjs';
+
+const afstLijn = (p, a, u) => { const q = sub(p, a), t = dot(q, u); return Math.hypot(...sub(q, mul(u, t))); };
+/** waarvoor dient een gat: bout, pen, lager, Westside of vrij (kabel, oog) */
+function gatDoel(o, d, p, as, dia) {
+  const par = (a) => Math.abs(dot(a, as)) > 0.98;
+  for (const bt of o.bouten) for (const q of bt.punten ?? [bt.p]) if (par(bt.as) && afstLijn(p, q, bt.as) < 1) return bt.key === 'anker' ? `anker M${bt.M}` : `bout M${bt.M}`;
+  for (const pn of o.pennen) if (par(pn.as) && afstLijn(p, pn.p, pn.as) < 1) return pn.lager && Math.abs(pn.lager - dia) < 3 ? `flensglijlager Ø${pn.lager}` : pn.key ? `pen Ø${pn.d} (${pn.naam.slice(0, 22)})` : `pen/as Ø${pn.d}`;
+  if (d.westside && dia === d.westside.d) return `Westside (pen Ø${o.V.pin})`;
+  return 'vrij gat (kabel, oog of as)';
+}
+/** de gaten van een stuk als rijen voor de boortabel: per (vlak, Ø, wanden, doel) de posities */
+export function boorRijen(o, d) {
+  const per = new Map();
+  for (const g of d.gaten) {
+    let p, as, vlak, pos, wanden;
+    if (d.soort === 'staaf') { p = add(d.a, mul(d.u, g.s)); as = g.as === 'v' ? d.v : d.w; vlak = g.as === 'w' ? 'A' : 'B'; pos = Math.round(g.s); wanden = g.door ?? 2; }
+    else { p = g.p; as = [0, 0, 0]; as[d.as.t] = 1; vlak = 'plaat'; pos = `${Math.round(g.x)}/${Math.round(g.y)}`; wanden = 1; }
+    const doel = gatDoel(o, d, p, as, g.d), k = `${vlak}|${g.d}|${wanden}|${doel}`;
+    if (!per.has(k)) per.set(k, { vlak, d: g.d, wanden, doel, pos: [] });
+    per.get(k).pos.push(pos);
+  }
+  return [...per.values()];
+}
 
 const r0 = (v) => Math.round(v);
 const gw = (v, d = 1) => (Math.round(v * 10 ** d) / 10 ** d).toLocaleString('nl-BE');
@@ -85,10 +109,13 @@ export function stukBlad(o, p, meta = {}) {
       const gaten = d.gaten.filter((g) => g.as === v.as || P.vorm !== 'koker');
       for (const g of gaten) el.push(`<circle cx="${f(x0 + g.s * k)}" cy="${f(v.y + hh / 2)}" r="${f(Math.max(0.35, (g.d / 2) * k))}" fill="#fff" stroke="#b42318" stroke-width="0.3"/>`);
       if (v === views[0]) el.push(maat([x0, v.y], [x0 + w, v.y], -7, `${r0(L)}`));
-      // gatmaten: weinig gaten = maatketen vanaf A; veel gaten = lijst
-      const pos = [...new Set(gaten.map((g) => g.s))].sort((a, b) => a - b);
-      if (pos.length && pos.length <= 8) pos.forEach((sp, i) => el.push(maat([x0, v.y + hh], [x0 + sp * k, v.y + hh], 5 + i * 4.2, `${r0(sp)}`, 2.1)));
-      else if (pos.length) el.push(tk(x0, v.y + hh + 6, `${pos.length} gaten Ø${gaten[0].d}: zie de gatenlijst`, 2.1, { kleur: '#b42318' }));
+      // gatmaten: ordinaatmaten vanaf uiteinde A (0) voor elk gat, hartlijn door het gat
+      const pos = [...new Set(gaten.map((g) => r0(g.s)))].sort((a, b) => a - b);
+      if (pos.length) {
+        const yb = v.y + hh + 2.5;
+        el.push(lijn(x0, v.y + hh, x0, yb + 3, 0.15), tk(x0, yb + 5.5, '0', 1.6, { anker: 'middle' }));
+        for (const sp of pos) { const xx = x0 + sp * k; el.push(lijn(xx, v.y - 1.5, xx, yb + 3, 0.1, '#b42318', '2 0.6 0.4 0.6'), tk(xx + 0.55, yb + 3.6, String(sp), 1.5, { draai: -90, anker: 'end' })); }
+      }
       el.push(tk(x0 - 6, v.y + hh / 2 + 1, 'A', 2.6, { vet: true }));
     }
     // doorsnede
@@ -97,11 +124,18 @@ export function stukBlad(o, p, meta = {}) {
     if (P.vorm === 'buis' || P.vorm === 'rond') el.push(`<circle cx="${dx + 14}" cy="${dy + 14}" r="${f((P.b / 2) * dk)}" fill="#ddd" stroke="#111" stroke-width="0.4"/>`, P.vorm === 'buis' ? `<circle cx="${dx + 14}" cy="${dy + 14}" r="${f((P.b / 2 - P.t) * dk)}" fill="#fff" stroke="#111" stroke-width="0.3"/>` : '');
     else el.push(`<rect x="${f(dx + 14 - (P.b / 2) * dk)}" y="${f(dy + 14 - (P.h / 2) * dk)}" width="${f(P.b * dk)}" height="${f(P.h * dk)}" fill="#ddd" stroke="#111" stroke-width="0.4"/>`, P.vorm === 'koker' ? `<rect x="${f(dx + 14 - (P.b / 2 - P.t) * dk)}" y="${f(dy + 14 - (P.h / 2 - P.t) * dk)}" width="${f((P.b - 2 * P.t) * dk)}" height="${f((P.h - 2 * P.t) * dk)}" fill="#fff" stroke="#111" stroke-width="0.3"/>` : '');
     el.push(tk(dx - 4, dy + 34, P.naam, 2.1), tk(dx - 4, dy + 37.5, P.norm, 1.8, { kleur: '#555' }));
-    // gatenlijst
-    let y = 150; const gl = d.gaten.length ? groepGaten(d.gaten) : [];
-    if (gl.length) { el.push(tk(25, y, 'Gatenlijst (vanaf uiteinde A, hart gat)', 2.5, { vet: true })); y += 4; for (const l of gl) for (const x of rij(l, 120)) { if (y > 168) break; el.push(tk(25, y, x, 2)); y += 2.8; } }
+    // boortabel: elk gat met Ø, aantal, vlak, wanden, doel en positie vanaf uiteinde A
+    let y = 138; const br = boorRijen(o, d);
+    if (br.length) {
+      el.push(tk(25, y, 'Boortabel (posities = hart gat vanaf uiteinde A, in mm)', 2.5, { vet: true })); y += 2;
+      const rows = br.map((b, i) => [String(i + 1), `Ø${gw(b.d)}`, String(b.pos.length), b.vlak, `${b.wanden}`, b.doel.slice(0, 30), b.pos.sort((p, q) => p - q).join(', ').slice(0, 150)]);
+      const [t, h] = tabel(25, y, [['', 5, true], ['Ø', 10], ['n', 7, true], ['Vlak', 9], ['Wanden', 12, true], ['Voor', 48], ['Posities vanaf A', 150]], rows.slice(0, 5), 3.4, 1.75); el.push(t); y += h + 3;
+      if (rows.length > 5) { el.push(tk(25, y, `+ ${rows.length - 5} rijen: zie het boorblad`, 1.9, { kleur: '#b42318' })); y += 2.6; }
+    }
+    const weg = (o.weggelaten ?? []).filter((w) => w.deel === d.naam);
+    if (weg.length) { for (const x of rij(`Weggelaten Westside-gaten (${weg.length}): ${[...new Set(weg.map((w) => `${r0(w.s)} (${w.reden})`))].slice(0, 8).join(', ')}`, 150)) { el.push(tk(25, y + 1, x, 1.9, { kleur: '#b42318' })); y += 2.6; } }
     const noot = [d.westside ? 'Westside: 50 mm hart op hart, in de bankzone (400-1000 mm boven de vloer) 25 mm; boren met de boormal.' : '', d.opm, 'Algemene toleranties ISO 2768-m; zaagsnede haaks ± 0,5°; ontbramen.'].filter(Boolean);
-    for (const n of noot) for (const x of rij(n, 92)) { if (y > 196) break; el.push(tk(25, y + 2, x, 2, { kleur: '#333' })); y += 2.8; }
+    for (const n of noot) for (const x of rij(n, 130)) { if (y > 168) break; el.push(tk(25, y + 2, x, 2, { kleur: '#333' })); y += 2.8; }
   } else {
     // plaat
     const l = d.l, b = d.bmaat, s = schaal(Math.min(150 / l, 95 / b)), k = s.k, x0 = 40, y0 = 45;
@@ -110,19 +144,23 @@ export function stukBlad(o, p, meta = {}) {
     else el.push(`<rect x="${x0}" y="${y0}" width="${f(l * k)}" height="${f(b * k)}" fill="#fff" stroke="#111" stroke-width="0.5" rx="${f(Math.min(2, 2.5 * k))}"/>`);
     for (const g of d.gaten) el.push(`<circle cx="${f(x0 + g.x * k)}" cy="${f(y0 + (b - g.y) * k)}" r="${f(Math.max(0.35, (g.d / 2) * k))}" fill="#fff" stroke="#b42318" stroke-width="0.3"/>`);
     el.push(maat([x0, y0], [x0 + l * k, y0], -7, `${r0(l)}`), maat([x0, y0], [x0, y0 + b * k], 7, `${r0(b)}`));
+    // ordinaatmaten: x vanaf de linkerrand (onder de plaat), y vanaf de onderrand (rechts van de plaat)
+    const gx = [...new Set(d.gaten.map((g) => r0(g.x)))], gy = [...new Set(d.gaten.map((g) => r0(g.y)))];
+    for (const v of gx) { const xx = x0 + v * k; el.push(lijn(xx, y0 - 1, xx, y0 + b * k + 3, 0.1, '#b42318', '2 0.6 0.4 0.6'), tk(xx + 0.55, y0 + b * k + 3.6, String(v), 1.5, { draai: -90, anker: 'end' })); }
+    for (const v of gy) { const yy = y0 + (b - v) * k; el.push(lijn(x0 - 1, yy, x0 + l * k + 3, yy, 0.1, '#b42318', '2 0.6 0.4 0.6'), tk(x0 + l * k + 3.6, yy + 0.55, String(v), 1.5)); }
+    if (d.gaten.length) el.push(tk(x0 + l * k + 3.6, y0 + b * k + 3.6, '0', 1.5), tk(x0, y0 + b * k + 3.6, '0', 1.5, { anker: 'middle' }));
     el.push(tk(x0, y0 - 10, `Plaat ${d.t} mm (schaal ${s.tekst})`, 2.4, { vet: true }));
     let y = y0 + b * k + 14;
-    if (d.gaten.length) { el.push(tk(25, y, 'Gaten (x vanaf links, y vanaf onder)', 2.5, { vet: true })); y += 4; for (const g of d.gaten.slice(0, 16)) { el.push(tk(25, y, `Ø${gw(g.d)}: x = ${r0(g.x)}, y = ${r0(g.y)}`, 2.1)); y += 2.8; } }
+    if (d.gaten.length) {
+      y += 6; el.push(tk(25, y, 'Boortabel (x vanaf de linkerrand, y vanaf de onderrand, hart gat; door de plaat)', 2.5, { vet: true })); y += 2;
+      const rows = d.gaten.slice(0, 14).map((g, i) => [String(i + 1), `Ø${gw(g.d)}${g.sleuf ? ` sleuf ${g.sleuf}` : ''}`, String(r0(g.x)), String(r0(g.y)), boorRijen(o, { ...d, gaten: [g] })[0].doel.slice(0, 34)]);
+      const [t, h] = tabel(25, y, [['', 5, true], ['Ø', 18], ['x', 12, true], ['y', 12, true], ['Voor', 60]], rows, 3.4, 1.75); el.push(t); y += h + 2;
+      if (d.gaten.length > 14) { el.push(tk(25, y + 1, `+ ${d.gaten.length - 14} gaten: zie de CSV`, 1.9, { kleur: '#b42318' })); y += 3; }
+    }
     for (const n of [d.opm, d.vorm ? `Vorm: ${d.vorm} (DXF uit de tekening)` : '', 'Lasersnijden S235JR, braamvrij, randen r ≥ 2,5 waar het lichaam komt; ISO 2768-m.'].filter(Boolean)) for (const x of rij(n, 92)) { if (y > 170) break; el.push(tk(25, y + 2, x, 2, { kleur: '#333' })); y += 2.8; }
   }
   el.push(titelblok(o, A4L, { titel: `Pos ${p.pos}: ${p.naam}`, nr: `${nr(o, 'S')}${String(p.pos).padStart(2, '0')}`, schaal: '-', datum: datum(meta), blad: meta.blad ?? '' }));
   return svg(A4L, el.join(''));
-}
-/** gaten samenvatten: per richting en diameter de posities */
-function groepGaten(gaten) {
-  const per = new Map();
-  for (const g of gaten) { const k = `${g.as}|${g.d}`; if (!per.has(k)) per.set(k, []); per.get(k).push(g.s); }
-  return [...per.entries()].map(([k, s]) => { const [as, d] = k.split('|'); s.sort((a, b) => a - b); return `${s.length} x Ø${d} ${as === 'w' ? '(aanzicht A)' : '(aanzicht B)'} op ${s.map((x) => r0(x)).join(', ')}`; });
 }
 export function stukBladen(o, meta = {}) {
   const sl = stuklijst(o);
@@ -158,6 +196,10 @@ export function lasBlad(o, meta = {}) {
   const [t, h] = tabel(25, 104, [['Pos', 18], ['Stukken', 120], ['Las (ISO 2553)', 44], ['Aantal', 14, true], ['mm/las', 16, true], ['m totaal', 18, true], ['Lasgroep', 48]], rijen.slice(0, max), 3.75, 1.95);
   el.push(tk(25, 100, `Lassen (${o.lassen.length} verbindingen, ${gw(o.lassen.reduce((s, l) => s + l.lengte, 0) / 1000, 1)} m)`, 2.8, { vet: true }), t);
   if (rijen.length > max) el.push(tk(25, 104 + h + 4, `+ ${rijen.length - max} rijen in de CSV`, 2.2, { kleur: '#a00' }));
+  // lasplan: isometrie met een merkteken op elke las (oranje), genummerd per paar posities
+  const Pi = iso(-38, 24), geoL = alleGeo(o, false), [ix0, iy0, ix1, iy1] = omhullende(geoL, Pi), ik = Math.min(150 / (ix1 - ix0), 62 / (iy1 - iy0)), iox = 258 + (150 - (ix1 - ix0) * ik) / 2 - ix0 * ik, ioy = 32 + (62 - (iy1 - iy0) * ik) / 2 - iy0 * ik;
+  el.push(`<rect x="254" y="28" width="158" height="70" fill="#fbfbfa" stroke="#bbb" stroke-width="0.2"/>`, tk(256, 26, `Lasplan: ${o.lassen.length} lassen (oranje = las, a = keelmaat)`, 2.4, { vet: true }), `<g opacity="0.6">${tekenBalken(geoL, { proj: Pi, schaal: ik, ox: iox, oy: ioy, lw: 0.12 }).svg}</g>`);
+  for (const l of o.lassen) { if (!l.p) continue; const q = Pi(l.p); el.push(`<circle cx="${f(iox + q[0] * ik)}" cy="${f(ioy + q[1] * ik)}" r="0.9" fill="#e8590c" fill-opacity="0.85" stroke="#7a2e05" stroke-width="0.12"/>`); }
   void sl;
   el.push(titelblok(o, A3, { titel: `${naamVan(o)}: lasdetails`, nr: nr(o, 3), schaal: '-', datum: datum(meta) }));
   return svg(A3, el.join(''));
@@ -170,13 +212,14 @@ export function boorBlad(o, meta = {}) {
   const rijen = [];
   for (const p of sl.posities) {
     if (!p.gaten.length) continue;
-    const per = new Map(); for (const g of p.gaten) { const k = `${g.d}|${g.as ?? 'plaat'}`; per.set(k, (per.get(k) ?? 0) + 1); }
-    for (const [k, n] of per) { const [d, as] = k.split('|'); rijen.push([String(p.pos), p.naam.slice(0, 40), String(p.n), `Ø${d}`, String(n), String(n * p.n), as === 'plaat' ? 'gelaserd' : p.voorbeeld.westside && +d === o.V.gat ? 'Westside, boormal' : as === 'w' ? 'aanzicht A, 2 wanden' : 'aanzicht B, 2 wanden']); }
+    for (const b of boorRijen(o, p.voorbeeld)) rijen.push([String(p.pos), p.naam.slice(0, 34), String(p.n), `Ø${gw(b.d)}`, String(b.pos.length), String(b.pos.length * p.n), b.vlak === 'plaat' ? 'gelaserd' : `vlak ${b.vlak}, ${b.wanden} wand${b.wanden > 1 ? 'en' : ''}`, b.doel.slice(0, 30)]);
   }
-  const [t, h] = tabel(25, 30, [['Pos', 12, true], ['Stuk', 80], ['Stuks', 14, true], ['Ø', 16], ['Per stuk', 18, true], ['Totaal', 16, true], ['Hoe', 50]], rijen.slice(0, 50), 3.9, 2);
+  const [t, h] = tabel(25, 30, [['Pos', 10, true], ['Stuk', 62], ['Stuks', 11, true], ['Ø', 13], ['Per stuk', 14, true], ['Totaal', 13, true], ['Hoe', 30], ['Voor', 52]], rijen.slice(0, 48), 3.9, 1.9);
   el.push(t);
-  const tot = rijen.reduce((s, r) => s + +r[5], 0);
-  el.push(tk(25, 30 + h + 5, `Totaal ${tot} gaten.`, 2.4, { vet: true }));
+  const tot = rijen.reduce((s, r) => s + +r[5], 0), fout = gatFouten(o);
+  el.push(tk(25, 30 + h + 5, `Totaal ${tot} gaten.${rijen.length > 48 ? ` (+ ${rijen.length - 48} rijen in de CSV)` : ''}`, 2.4, { vet: true }));
+  const regels = [`Gatcontrole: ${fout.length ? `${fout.length} fouten` : 'geen fouten'}. Getoetst: bout/pen en gat op dezelfde as (≤ 0,5 mm); speling bout +${SPELING.bout[0]}..+${SPELING.bout[1]} mm, pen +${SPELING.pen[0]}..+${SPELING.pen[1]} mm (ISO 273 fijn tot grof), lagerzitting ${SPELING.lager[0]}..+${SPELING.lager[1]} mm;`, 'randafstand ≥ 1,5 x Ø (EN 1993-1-8 tabel 3.3, e1/e2 ≥ 1,2 d0, hier strenger); niet in de hoekradius van de koker (2t, EN 10219-2); brug tussen twee gaten ≥ 6 mm; niet in de las (keel + 3 mm).', ...fout.slice(0, 4)];
+  regels.forEach((x, i) => el.push(tk(25, 30 + h + 10 + i * 3, x, 2, { kleur: fout.length && i > 1 ? '#b42318' : '#333' })));
   // Westside-boormal
   const ws = o.delen.find((d) => d.westside);
   if (ws) {
@@ -280,6 +323,25 @@ export function bestelBlad(o, meta = {}, inst = {}) {
   return svg(A3, el.join(''));
 }
 
+// ---------------------------------------------------------------- typeplaatje A4 (EN ISO 20957-1 §7)
+export function typeplaatBlad(o, meta = {}) {
+  const el = [], tp = o.typeplaat, w = 105, h = 74, x = 40, y = 40;
+  el.push(tk(25, 18, `Typeplaatje en markering (EN ISO 20957-1): ${naamVan(o)}`, 3.4, { vet: true }), tk(25, 23, 'Aluminium 0,8 mm geanodiseerd, zwart bedrukt (of gegraveerd), 4 blindklinknagels Ø3 of 3M VHB; schaal 1:1.', 2.2));
+  el.push(`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="3" fill="#e9ecef" stroke="#111" stroke-width="0.5"/>`, `<rect x="${x}" y="${y}" width="${w}" height="12" rx="3" fill="#16181b"/>`);
+  for (const [cx, cy] of [[x + 4, y + 16], [x + w - 4, y + 16], [x + 4, y + h - 4], [x + w - 4, y + h - 4]]) el.push(`<circle cx="${cx}" cy="${cy}" r="1.6" fill="#fff" stroke="#111" stroke-width="0.25"/>`);
+  el.push(tk(x + 4, y + 8.5, `${o.id} ${o.naam}`.slice(0, 40), 3.6, { vet: true, kleur: '#fff' }));
+  const regels = [['Fabrikant', '[naam en adres van de zaak invullen]'], ['Type / versie', `${o.id}-${o.versie === 'pro' ? 'P' : 'T'} · ${o.V.naam}`], ['Norm', `EN ISO 20957-1 en -2 · klasse ${o.V.klasse}`], ['Max. gebruiker', `${o.V.gebruiker} kg`], ['Max. trainingslast', o.maxLast ? `${o.maxLast} kg` : o.stapels.length ? `stapel ${o.stapels.map((s) => s.n * s.kg).join(' + ')} kg` : 'zie handleiding'], ['Serienummer / jaar', '__________ / 20__']];
+  regels.forEach(([a, b], i) => el.push(tk(x + 10, y + 20 + i * 6.4, a, 2.2, { kleur: '#555' }), tk(x + 42, y + 20 + i * 6.4, b, 2.6, { vet: i > 0 && i < 5 })));
+  // waarschuwing (ISO 7010 W001) en de vrije zone
+  el.push(`<polygon points="${x + 140},${y} ${x + 156},${y + 28} ${x + 124},${y + 28}" fill="#f5c400" stroke="#111" stroke-width="0.8"/>`, tk(x + 140, y + 24, '!', 14, { vet: true, anker: 'middle' }));
+  const wa = ['Lees de handleiding vóór gebruik.', 'Laat kinderen niet zonder toezicht bij het toestel.', 'Vrije zone van 0,6 m rondom het trainingsgebied.', 'Controleer voor elk gebruik pennen, kabels en bouten.', o.V.klasse === 'H' ? 'Klasse H: alleen voor thuisgebruik.' : 'Klasse S: professioneel gebruik, onderhoud volgens schema.'];
+  wa.forEach((t, i) => el.push(tk(x + 124, y + 38 + i * 4.4, t, 2.3)));
+  el.push(tk(25, y + h + 16, 'Plaats op het toestel', 2.6, { vet: true }), tk(25, y + h + 21, tp ? `Op ${tp.deel.naam.toLowerCase()}, buitenkant, hart op ${Math.round(tp.c[2])} mm boven de vloer (in de 3D zichtbaar). Formaat op het toestel ${Math.round(tp.w)} x ${Math.round(tp.h)} mm (verkleind ontwerp van dit blad).` : 'Op de grootste staander, buitenkant, op ooghoogte.', 2.2));
+  el.push(tk(25, y + h + 27, 'Bijkomende markering: waarschuwingssticker bij elke klempunt (kabel, katrol, hefboom) en een sticker met de pen-instructie bij elke J-hook en safety.', 2.2));
+  el.push(titelblok(o, A4L, { titel: `${naamVan(o)}: typeplaatje`, nr: nr(o, 8), schaal: '1:1', datum: datum(meta) }));
+  return svg(A4L, el.join(''));
+}
+
 /** alle bladen: [{ id, titel, svg }] */
 export function alleBladen(o, meta = {}, inst = {}) {
   const uit = [
@@ -290,6 +352,7 @@ export function alleBladen(o, meta = {}, inst = {}) {
     { id: 'kabel', titel: 'Kabelschema', svg: kabelBlad(o, meta) },
     { id: 'bekleding', titel: 'Bekleding', svg: bekledingBlad(o, meta) },
     { id: 'bestellijst', titel: 'Bestellijst en zaagplan', svg: bestelBlad(o, meta, inst) },
+    { id: 'typeplaat', titel: 'Typeplaatje', svg: typeplaatBlad(o, meta) },
   ].filter((b) => b.svg);
   return uit;
 }

@@ -35,31 +35,45 @@ export function ligger(b, naam, rol, A, B, at = {}, opt = {}) {
   const p = [at.x ?? ca[0], at.y ?? ca[1], at.z ?? ca[2]];
   const pa = [...p], pb = [...p]; pa[ax] = van; pb[ax] = tot;
   if (!opt.bout) return b.staaf(naam, rol, pa, pb, opt);
-  // gebout: flenzen (t = V.plaat) aan de uiteinden, de ligger ertussen in zijn eigen groep
-  const oud = b.huidig, g = opt.groep ?? naam, t = b.V.plaat, P = b.P(rol), hFl = Math.max(P.h, opt.flens ?? P.h * 2 + 20), bFl = Math.max(P.b, ...[A, B].map((q) => q.P?.b ?? P.b));
+  // gebout: kopplaten (t = V.plaat) aan de uiteinden; 2 bouten boven en onder het profiel (buiten de las), door het stuk A / B
+  const oud = b.huidig, g = opt.groep ?? naam, t = b.V.plaat, P = b.P(rol), bFl = Math.max(P.b, ...[A, B].map((q) => q.P?.b ?? P.b));
+  const d0 = b.V.bout === 'boutM16' ? 17 : 13, off = d0 / 2 + b.V.las + 4, ef = Math.ceil(1.5 * d0);
   b.groep(g);
   const qa = [...pa], qb = [...pb]; qa[ax] += s * t; qb[ax] -= s * t;
   const st = b.staaf(naam, rol, qa, qb, { ...opt, bout: undefined });
-  const dirs = [0, 1, 2].filter((i) => i !== ax), boven = 2; // de flens loopt naar onder door (ruimte voor 2 bouten)
+  const dirs = [0, 1, 2].filter((i) => i !== ax), vert = dirs.includes(2);
   const fl = [];
   for (const [e, kant] of [[pa, s], [pb, -s]]) {
     const q0 = [...e], q1 = [...e]; q1[ax] = e[ax] + kant * t;
-    for (const i of dirs) { const half = i === boven && dirs.includes(2) ? null : bFl / 2; if (half !== null) { q0[i] = e[i] - half; q1[i] = e[i] + half; } }
-    if (dirs.includes(2)) { if (opt.omhoog) { q0[2] = e[2] - P.h / 2; q1[2] = e[2] - P.h / 2 + hFl; } else { q0[2] = e[2] + P.h / 2 - hFl; q1[2] = e[2] + P.h / 2; } }
-    fl.push(b.plaat(`Flens ${naam}`, q0, q1, { gaten: [], opm: '2 gaten voor de bouten' }));
+    for (const i of dirs) { if (i === 2 && vert) continue; q0[i] = e[i] - bFl / 2; q1[i] = e[i] + bFl / 2; }
+    if (vert) { q0[2] = e[2] - P.h / 2 - off - ef; q1[2] = e[2] + P.h / 2 + off + ef; }
+    fl.push(b.plaat(`Kopplaat ${naam}`, q0, q1, { gaten: [], opm: `2 gaten Ø${d0} boven en onder het profiel` }));
   }
   b.groep(oud);
-  // bouten door de flens en het stuk A / B (langs de ligger)
   const asv = [0, 0, 0]; asv[ax] = 1;
   for (const [F, S, e] of [[fl[0], A, pa], [fl[1], B, pb]]) {
-    const zTop = opt.omhoog ? e[2] - P.h / 2 + hFl : e[2] + P.h / 2;
-    const zs = !dirs.includes(2) ? [e[2]] : hFl < 90 ? [zTop - hFl / 2] : [zTop - 22, zTop - hFl + 22];
-    const pts = zs.map((z) => { const q = [...e]; if (dirs.includes(2)) q[2] = z; return q; });
-    const bd = b.V.bout === 'boutM16' ? 17 : 13;
-    for (const q of pts) { F.gaten.push({ d: bd, p: q, x: q[F.as.l] - F.mn[F.as.l], y: q[F.as.b] - F.mn[F.as.b] }); if (S.soort === 'staaf') gat(S, q, bd, Math.abs(S.v[ax]) > 0.5 ? 'v' : 'w'); }
-    b.bout(naam, S.groep, g, e, asv, { punten: pts, lengte: (S.P?.b ?? 60) + 2 * t + 30, uit: mul(asv, -s * (S === A ? -1 : 1) * 120), F: opt.F ?? 0 });
+    const zs = vert ? [e[2] + P.h / 2 + off, e[2] - P.h / 2 - off] : [e[2]];
+    const Sb = S.P?.b ?? 60, dir = Math.sign(((S.a?.[ax] ?? e[ax]) + (S.b?.[ax] ?? e[ax])) / 2 - e[ax]) || -s;
+    const pts = zs.map((z) => { const q = [...e]; if (vert) q[2] = z; return q; });
+    for (const q of pts) { F.gaten.push({ d: d0, p: q, x: q[F.as.l] - F.mn[F.as.l], y: q[F.as.b] - F.mn[F.as.b] }); if (S.soort === 'staaf') gat(S, q, d0, Math.abs(S.v[ax]) > 0.5 ? 'v' : 'w'); }
+    const mid = pts.map((q) => { const m = [...q]; m[ax] += (dir * (Sb - t)) / 2; return m; });
+    b.bout(naam, S.groep, g, mid[0], asv, { punten: mid, lengte: Sb + t + 2 * (d0 - 1), uit: mul(asv, -dir * 120), F: opt.F ?? 0 });
   }
   st.flenzen = fl;
+  return st;
+}
+/** dwarsligger bovenop twee voetbalken (langs y), met 1 verticale bout per kant door de ligger en de voetbalk */
+export function dwarsOp(b, naam, rol, A, B, y) {
+  const P = b.P(rol), [a0, a1] = doos(A), [b0, b1] = doos(B), z = Math.max(a1[2], b1[2]), oud = b.huidig;
+  b.groep(naam);
+  const st = b.staaf(naam, rol, [Math.min(a0[0], b0[0]), y, z + P.h / 2], [Math.max(a1[0], b1[0]), y, z + P.h / 2], { v: Y, opm: 'ligt bovenop de voetbalken; 1 bout per kant' });
+  b.groep(oud);
+  const d0 = b.V.bout === 'boutM16' ? 17 : 13;
+  for (const S of [A, B]) {
+    const [s0, s1] = doos(S), q = [S.a[0], y, z], Sh = s1[2] - s0[2];
+    gat(st, q, d0, Math.abs(st.w[2]) > 0.5 ? 'w' : 'v'); gat(S, q, d0, Math.abs(S.w[2]) > 0.5 ? 'w' : 'v');
+    b.bout(naam, S.groep, naam, [q[0], y, z + (P.h - Sh) / 2], Z, { punten: [[q[0], y, z + (P.h - Sh) / 2]], lengte: P.h + Sh + 2 * (d0 - 1), uit: [0, 0, 150] });
+  }
   return st;
 }
 /**
@@ -80,14 +94,15 @@ export function jhook(b, S, zGat, naam = 'J-hook', kant = -1, gelast = false) {
   }
   b.groep(naam);
   const z0 = zGat - 50, zb = zGat - 10; // bodem van de haak
-  b.plaat('J-hook rugplaat', [x - a / 2, yf + kant * t, z0 - 30], [x + a / 2, yf, zb + 130], { opm: 'r 2,5 op alle randen' });
+  b.plaat('J-hook rugplaat', [x - a / 2, yf + kant * t, z0 - 30], [x + a / 2, yf, zb + 130], { gaten: [{ p: [x, yf, zGat], d: pin + 1 }], opm: `r 2,5 op alle randen; gat Ø${pin + 1} voor de pen (rondom gelast)` });
   b.plaat('J-hook schoor', [x - t / 2, yf + kant * (t + 70), zb - t - 60], [x + t / 2, yf + kant * t, zb - t], { vorm: 'driehoek', opm: 'driehoekig schoorschot onder de bodem' });
   b.plaat('J-hook bodem', [x - a / 2, yf + kant * (t + 75), zb - t], [x + a / 2, yf + kant * t, zb]);
   b.plaat('J-hook lip', [x - a / 2, yf + kant * (t + 75 + t), zb - t], [x + a / 2, yf + kant * (t + 75), zb + 32], { opm: 'lip 32 mm boven de bodem, 22 mm boven de UHMW' });
   b.staaf('J-hook pen', `r${pin}`, [x, yf + kant * t, zGat], [x, yf - kant * (S.P.t + 18), zGat], { in: S.id, kap: false, opm: 'gelast in de rugplaat' });
   b.koop('uhmw', 1, [balk([x, yf + kant * t, zb + 5], [x, yf + kant * (t + 75), zb + 5], X, a - 6, 10, false, 'uhmw')], { naam: `UHMW-strip ${a - 6} x 75 x 10 op de J-hook`, oppervlak: ((a - 6) * 75) / 1e6 });
   b.groep(oud);
-  b.pen(naam, [x, yf, zGat], [0, kant, 0], { d: pin, F: 0, snedes: 1, factor: 'vanghaak', a: S.groep, b: naam, uit: [0, kant * 140, 0] });
+  const pl = t + S.P.t + 18;
+  b.pen(naam, [x, yf + kant * t - kant * pl / 2, zGat], [0, kant, 0], { d: pin, lengte: pl, F: 0, snedes: 1, factor: 'vanghaak', a: S.groep, b: naam, uit: [0, kant * 140, 0] });
   return zb + 10;
 }
 /** safety tussen een voorste en een achterste staander (langs y), op de gatenhoogte zGat: koker + kopplaten + pennen */
@@ -95,13 +110,15 @@ export function safety(b, Sf, Sb, zGat, naam = 'Safety') {
   const oud = b.huidig, t = b.V.plaat, rol = 'ligger', P = b.P(rol), x = Sf.a[0], [, fmx] = doos(Sf), [bmn] = doos(Sb), pin = b.V.pin;
   b.groep(naam);
   const y0 = fmx[1] + 1, y1 = bmn[1] - 1, zc = zGat;
-  b.plaat('Kopplaat safety', [x - P.b / 2, y0, zc - P.h / 2 - 10], [x + P.b / 2, y0 + t, zc + P.h / 2]);
-  b.plaat('Kopplaat safety', [x - P.b / 2, y1 - t, zc - P.h / 2 - 10], [x + P.b / 2, y1, zc + P.h / 2]);
+  b.plaat('Kopplaat safety', [x - P.b / 2, y0, zc - P.h / 2 - 10], [x + P.b / 2, y0 + t, zc + P.h / 2], { gaten: [{ p: [x, y0, zc], d: pin + 1 }] });
+  b.plaat('Kopplaat safety', [x - P.b / 2, y1 - t, zc - P.h / 2 - 10], [x + P.b / 2, y1, zc + P.h / 2], { gaten: [{ p: [x, y1, zc], d: pin + 1 }] });
   const s = b.staaf(`${naam} (koker)`, rol, [x, y0 + t, zc - 5], [x, y1 - t, zc - 5]);
-  for (const [y, k] of [[y0, -1], [y1, 1]]) b.staaf('Pen safety', `r${pin}`, [x, y, zc], [x, y + k * ((k < 0 ? Sf : Sb).P.t + 20), zc], { in: (k < 0 ? Sf : Sb).id, kap: false });
+  for (const [y, k] of [[y0, -1], [y1, 1]]) b.staaf('Pen safety', `r${pin}`, [x, y - k * t, zc], [x, y + k * ((k < 0 ? Sf : Sb).P.t + 20), zc], { in: (k < 0 ? Sf : Sb).id, kap: false, opm: 'door de kopplaat gelast' });
   b.koop('uhmw', 1, [balk([x, y0 + t, zc + P.h / 2 - 5 + 5], [x, y1 - t, zc + P.h / 2 - 5 + 5], X, P.b - 4, 10, false, 'uhmw')], { naam: `UHMW-strip ${P.b - 4} x ${Math.round(y1 - y0 - 2 * t)} x 10 op de safety`, oppervlak: ((P.b - 4) * (y1 - y0)) / 1e6 });
   b.groep(oud);
-  b.pen(`${naam} voor`, [x, y0, zc], Y, { d: pin, snedes: 1, factor: 'vanghaak', a: Sf.groep, b: naam, uit: [0, 0, 180] });
+  const pl = t + Sf.P.t + 20;
+  b.pen(`${naam} voor`, [x, y0 + t - pl / 2, zc], Y, { d: pin, lengte: pl, snedes: 1, factor: 'vanghaak', a: Sf.groep, b: naam, uit: [0, 0, 180] });
+  b.pen(`${naam} achter`, [x, y1 - t + pl / 2, zc], Y, { d: pin, lengte: pl, snedes: 1, factor: 'vanghaak', a: Sb.groep, b: naam, uit: [0, 0, 180] });
   return s;
 }
 /** schijfhouder (sleeve Ø48,3) loodrecht op een staaf, vanaf zijn vlak in richting dir, lengte L; eindkap */
@@ -123,7 +140,7 @@ export function voetjes(b, S, n = 2) {
   const [mn, mx] = doos(S), uit = [];
   for (let i = 0; i < n; i++) {
     const t = n === 1 ? 0.5 : 0.08 + (0.84 * i) / (n - 1), p = add(S.a, mul(sub(S.b, S.a), t));
-    uit.push(balk([p[0], p[1], mn[2] - 12], [p[0], p[1], mn[2]], X, 50, 50, true, 'rubber'));
+    uit.push(balk([p[0], p[1], mn[2] - 12], [p[0], p[1], mn[2] - 5], X, 50, 50, true, 'rubber'), balk([p[0], p[1], mn[2] - 5], [p[0], p[1], mn[2]], X, 17, 17, false, 'zink', { zes: true }));
   }
   b.koop(b.V.voetje, n, uit, { naam: `${b.V.voetje === 'voetThuis' ? 'Stelvoet M10' : 'Rubbervoet M10'} onder ${S.naam.toLowerCase()}` });
   void mx;

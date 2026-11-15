@@ -133,7 +133,9 @@ De test bouwt elk toestel in de thuis- en de proversie en controleert:
 | `model.mjs` | de bouwtaal (staaf, plaat, koop, kussen, katrol, kabel met raakpunten, stapel, bout, pen), lassen, eindkappen, massa |
 | `bouwstenen.mjs` | staander, ligger (gelast of met flenzen gebout), J-hook, safety, schijfhouder, kussen, katrolbeugel |
 | `rekken.mjs`, `banken.mjs`, `kabel.mjs`, `plate.mjs` | de 50 toestellen |
-| `catalogus.mjs` | alle toestellen en `toestel(id, versie)` |
+| `catalogus.mjs` | alle toestellen en `toestel(id, versie, { stand })`; stand 0..1 = de stand van de beweging |
+| `controle.mjs` | de controles: botsingen (OBB), zwevende delen, kabelloop, ergonomie, schijven vrij, gatfouten, Westside snoeien |
+| `detail.mjs` | afwerkdetails voor 3D en bladen: gaten, eindkappen, grips, kartel, glijlagers, assen met borgring, naden, typeplaatje |
 | `bereken.mjs` | de berekening en de stabiliteit |
 | `stuklijst.mjs` | posities, kooponderdelen, bekleding, zaagplan, nesting, totalen |
 | `werkwijze.mjs`, `prijzen.mjs` | uren per stap, kostprijs, verkoop en marktband |
@@ -146,6 +148,26 @@ De test bouwt elk toestel in de thuis- en de proversie en controleert:
 | `presentatie/` | de klantversie (één bestand) |
 | `*.d.mts` | types voor de test |
 
+## Versie 2: controles op elk toestel (2026-11-15)
+
+Elk toestel wordt in de thuis- en de proversie en in 5 standen van de beweging (0, 25, 50, 75 en 100 %) gecontroleerd
+(`controle.mjs`, test `src/qa/qaFitness.test.ts`):
+
+- **Botsingen:** elk stalen deel en elk kussen als georiënteerde doos (scheidende-assenstelling); gelaste paren en delen
+  die in elkaar schuiven (as in een bus) tellen niet. De schijven (Ø450) mogen nergens door het staal.
+- **Samenhang:** alles hangt via lassen, bouten of contact aan de vloer, de muur of het rack, ook de bewegende delen.
+- **Kabelloop:** elke katrol in het vlak van de kabel (|n·as| ≤ 0,2), tussen twee beugelplaten, geen kabelstuk door een
+  profiel tenzij door een kabelgat Ø ≥ 15.
+- **Bereik (1,60 - 1,95 m):** zitting 380-600 mm, vlak bankkussen 400-480 mm, grepen en stangen 250-2450 mm,
+  schijfhouders ≤ 1800 mm.
+- **Gaten** (zie [docs/Normen-en-bronnen.md](docs/Normen-en-bronnen.md#gaten-en-boutverbindingen)): elke bout en pen
+  gaat door een gat op dezelfde as (≤ 0,5 mm) in elk stuk dat hij kruist, met de juiste speling; randafstand,
+  hoekradius, brug en lasband. Een negatieve proef in de test bewijst dat de controle echte fouten vindt.
+
+De bladen tonen elk gat met een ordinaatmaat en een boortabel per stuk (Ø, aantal, vlak, wanden, doel); het boorblad
+geeft per stuk het doel van elk gat (bout, pen, glijlager, Westside, vrij) en de uitkomst van de gatcontrole. Er is een
+blad voor het typeplaatje (EN ISO 20957-1) en het lasblad heeft een lasplan met een merkteken op elke las.
+
 ## Wat nog open is
 
 - **Normen:** drie punten konden niet in een publieke bron nagekeken worden. Ze staan als AANNAME in de berekening; koop
@@ -157,7 +179,8 @@ De test bouwt elk toestel in de thuis- en de proversie en controleert:
   [docs/Marktprijzen.md](docs/Marktprijzen.md) voor wat je eraan kunt doen.
 - **Kooponderdelen:** een deel van de prijzen is AANNAME (zie de lijst). Losse gewichtstapelplaten zijn niet te koop:
   laat ze lasersnijden.
-- **Geometrie:** de toestellen zijn vereenvoudigd.
+- **Geometrie:** de toestellen zijn vereenvoudigd (kokers met hoekradius alleen in de 3D; gaten in de 3D als donkere
+  schijf op het wandvlak, niet als echte boring). Knelafstanden (9,5-25 mm) nameten op het eerste toestel.
   - J-hooks en hefbomen zijn dozen, geen gebogen vormen.
   - Schuine stukken worden niet in de montage-3D getoond.
   - De verstelbare delen staan in één stand: bank op 30°, wagen op 1200 mm.

@@ -32,7 +32,8 @@ export function balk(a, b, v, bw, bh, rond = false, kleur = 'frame', extra = {})
 /** de hoekpunten van een balk (een ronde als 12-hoek) */
 export function hoeken(g) {
   const pts = [];
-  const doorsnede = g.rond ? Array.from({ length: 12 }, (_, i) => [Math.cos((i * Math.PI) / 6) * g.bw / 2, Math.sin((i * Math.PI) / 6) * g.bh / 2]) : [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([p, q]) => [(p * g.bw) / 2, (q * g.bh) / 2]);
+  const nz = g.zes ? 6 : 12;
+  const doorsnede = g.rond || g.zes ? Array.from({ length: nz }, (_, i) => [Math.cos((i * 2 * Math.PI) / nz) * g.bw / 2, Math.sin((i * 2 * Math.PI) / nz) * g.bh / 2]) : [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([p, q]) => [(p * g.bw) / 2, (q * g.bh) / 2]);
   for (const e of [g.a, g.b]) for (const [p, q] of doorsnede) pts.push(add(e, add(mul(g.v, p), mul(g.w, q))));
   return pts;
 }
@@ -60,26 +61,28 @@ export function contact(g1, g2, tol = 0.6) {
     if (asRecht(s) && !asRecht(o)) continue;
     const r = Math.max(s.bw, s.bh) / 2 + tol + 0.5;
     for (const e of [s.a, s.b]) if (inDoos(e, Bo, Math.max(s.bw, s.bh) / 2 + 1.5)) return { lengte: (s.rond ? Math.PI * s.bw : 2 * (s.bw + s.bh)) * 1.15, p: e };
-    if (!asRecht(o)) continue;
     const L = len(sub(s.b, s.a)), n = Math.max(2, Math.ceil(L / 15));
-    for (let i = 1; i < n; i++) { const p = add(s.a, mul(sub(s.b, s.a), i / n)); if (inDoos(p, Bo, r)) return { lengte: o.rond ? Math.PI * o.bw : 2 * (o.bw + o.bh), p }; }
+    // twee schuine balken: punten langs de hartlijn in het lokale assenstelsel van de andere balk
+    const inO = asRecht(o) ? (p) => inDoos(p, Bo, r) : (p) => { const c = mul(add(o.a, o.b), 0.5), q = sub(p, c), Lo = len(sub(o.b, o.a)); return Math.abs(dot(q, o.u)) <= Lo / 2 + tol && Math.abs(dot(q, o.v)) <= o.bw / 2 + r && Math.abs(dot(q, o.w)) <= o.bh / 2 + r; };
+    for (let i = 1; i < n; i++) { const p = add(s.a, mul(sub(s.b, s.a), i / n)); if (inO(p)) return { lengte: o.rond ? Math.PI * o.bw : 2 * (o.bw + o.bh), p }; }
   }
   return null;
 }
 
 // ---------------------------------------------------------------- de bouwer
-export function bouwer(V) {
-  const o = { V, delen: [], koop: [], kussens: [], katrollen: [], kabels: [], stapels: [], bouten: [], pennen: [], lasten: [], reken: [], spleten: [], toon: [], context: [], gebruiker: null, notities: [], muur: null };
+export function bouwer(V, stand = 0) {
+  const o = { stand, V, delen: [], koop: [], kussens: [], katrollen: [], kabels: [], stapels: [], bouten: [], pennen: [], lasten: [], reken: [], spleten: [], toon: [], context: [], gebruiker: null, notities: [], muur: null };
   let groep = 'frame', nr = 0;
   const P = (rol) => PROFIEL[V.P[rol] ?? rol] ?? (() => { throw new Error(`profiel ${rol}`); })();
   const b = {
-    V, o, P,
+    V, o, P, stand,
     groep(g) { groep = g; return b; },
     get huidig() { return groep; },
     /** staaf van a naar b (hartlijn); opt: { v, gaten: [{ s, d, as: 'v'|'w', n? }], verstek: [α, β], rol, kap: false } */
     staaf(naam, rol, a, bb, opt = {}) {
       const Pf = P(rol), g = balk(a, bb, opt.v ?? standaardV(norm(sub(bb, a))), Pf.b, Pf.h, Pf.vorm === 'buis' || Pf.vorm === 'rond');
-      const d = { id: `d${++nr}`, soort: 'staaf', naam, groep: opt.groep ?? groep, prof: Pf.id, P: Pf, a, b: bb, u: g.u, v: g.v, w: g.w, L: len(sub(bb, a)), verstek: opt.verstek ?? [0, 0], gaten: (opt.gaten ?? []).map((x) => ({ as: 'w', ...x })), geo: [g], kapNodig: opt.kap ?? true, opm: opt.opm ?? '', in: opt.in ?? null, rol: opt.rol ?? rol, westside: opt.westside ?? null };
+      if (Pf.vorm === 'koker') g.r = Math.min(2 * Pf.t, Math.min(Pf.b, Pf.h) / 4); // buitenhoekradius EN 10219-2 (2t)
+      const d = { id: `d${++nr}`, soort: 'staaf', naam, groep: opt.groep ?? groep, prof: Pf.id, P: Pf, a, b: bb, u: g.u, v: g.v, w: g.w, L: len(sub(bb, a)), verstek: opt.verstek ?? [0, 0], gaten: (opt.gaten ?? []).map((x) => ({ as: 'w', door: Pf.vorm === 'koker' || Pf.vorm === 'buis' ? 2 : 1, ...x })), geo: [g], kapNodig: opt.kap ?? true, opm: opt.opm ?? '', in: opt.in ?? null, rol: opt.rol ?? rol, westside: opt.westside ?? null };
       o.delen.push(d); return d;
     },
     /** plaat als doos van p0 tot p1 (een van de drie maten is de dikte); opt: { gaten: [{ p: [x,y,z], d }], rond, vorm, opm } */
@@ -105,14 +108,17 @@ export function bouwer(V) {
     /** kussen: onderkant langs a-b (hartlijn), n = de normaal naar de gebruiker; multiplex 18 + schuim + kunstleer */
     kussen(naam, a, bb, n, breedte, dikte = 68, opt = {}) {
       const u = norm(sub(bb, a)), nn = norm(n), v = cross(nn, u), off = mul(nn, dikte / 2);
-      const g = balk(add(a, off), add(bb, off), v, breedte, dikte, false, 'leer'), gm = balk(add(a, mul(nn, 9)), add(bb, mul(nn, 9)), v, breedte - 4, 18, false, 'hout');
+      const g = balk(add(a, off), add(bb, off), v, breedte, dikte, false, 'leer', { kussen: true }), gm = balk(add(a, mul(nn, 9)), add(bb, mul(nn, 9)), v, breedte - 4, 18, false, 'hout');
       const d = { id: `p${++nr}`, soort: 'kussen', naam, groep: opt.groep ?? groep, a, b: bb, n: nn, L: len(sub(bb, a)), breedte, dikte, mp: 18, schuim: dikte - 18, geo: [g], geoMp: gm, inslag: opt.inslag ?? 4, rol: opt.rol ?? false };
       o.kussens.push(d); return d;
     },
     /** katrol met middelpunt c, as langs 'as', diameter uit de versie; met vingerbescherming (kap) als gevraagd */
     katrol(naam, c, as, opt = {}) {
       const key = opt.key ?? V.katrol, D = KOOP[key].D, ax = norm(as), t = 26;
-      const geo = [balk(add(c, mul(ax, -t / 2)), add(c, mul(ax, t / 2)), standaardV(ax), D, D, true, 'katrol'), balk(add(c, mul(ax, -t / 2 - 8)), add(c, mul(ax, t / 2 + 8)), standaardV(ax), 10, 10, true, 'zink')];
+      // katrol: twee flenzen en een kern met de kabelgroef, as M10 door de beugel met sluitring en borgmoer
+      const sv = standaardV(ax), q = (s, e) => [add(c, mul(ax, s)), add(c, mul(ax, e))];
+      const geo = [balk(...q(-t / 2, -4), sv, D, D, true, 'katrol'), balk(...q(-4, 4), sv, D - 12, D - 12, true, 'katrol', { groef: true }), balk(...q(4, t / 2), sv, D, D, true, 'katrol'), balk(...q(-t / 2 - 8, t / 2 + 8), sv, 10, 10, true, 'zink'),
+        balk(...q(t / 2 + 6, t / 2 + 8), sv, 20, 20, true, 'ring'), balk(...q(t / 2 + 8, t / 2 + 16), sv, 17, 17, false, 'zink', { zes: true }), balk(...q(-t / 2 - 14, -t / 2 - 6), sv, 17, 17, false, 'zink', { zes: true })];
       const k = { id: `r${++nr}`, soort: 'koop', key, n: 1, naam: `${KOOP[key].naam}: ${naam}`, groep, geo, katrol: true, c, as: ax, D, label: naam, kap: opt.kap ?? true, opm: '' };
       o.koop.push(k); o.katrollen.push(k);
       b.koop('boutM10', 1, [], { naam: `As katrol ${naam}: bout M10 + borgmoer`, opm: 'as door de beugel' });
@@ -148,7 +154,7 @@ export function bouwer(V) {
     /** gewichtstapel tussen twee geleidestangen (x-afstand 'hoh'), onderkant op z0; geeft { top, stang } */
     stapel(naam, c, z0, opt = {}) {
       const n = opt.n ?? V.stapelN, kg = V.stapelKg, w = 300, dpl = 112, t = 20, hoh = opt.hoh ?? 220, slag = opt.slag ?? 600, H = opt.hoogte ?? 0;
-      const mn = [c[0] - w / 2, c[1] - dpl / 2, z0 + 60];
+      const dz = (b.stand ?? 0) * slag, mn = [c[0] - w / 2, c[1] - dpl / 2, z0 + 60 + dz];
       const plts = [];
       groep = `stapel ${naam}`;
       // rubberbuffers onder de stapel
@@ -160,14 +166,16 @@ export function bouwer(V) {
       const top = mn[2] - 15 + n * t;
       // bovenplaat met de stapelstang (Ø20, gat Ø11 om de 20 mm) en de kabelaanslag
       plts.push(b.plaat('Bovenplaat stapel', [mn[0], mn[1], top], [mn[0] + w, mn[1] + dpl, top + 25], { gaten: [{ p: [c[0] - hoh / 2, c[1], top], d: 27 }, { p: [c[0] + hoh / 2, c[1], top], d: 27 }, { p: [c[0], c[1], top], d: 21 }], kleur: 'stapel', stapel: true, opm: 'lineaire lagers in de gaten Ø27 (of glijbussen); stang erin gelast' }));
-      const stem = b.staaf('Stapelstang (selectie)', 'r20', [c[0], c[1], mn[2] - 15 + 10], [c[0], c[1], top + 25 + 60], { gaten: Array.from({ length: n }, (_, i) => ({ s: 10 + i * t, d: 11, as: 'v' })), kap: false, in: 'stapel', opm: `${n} gaten Ø11 om de ${t} mm` });
+      for (const ox of opt.ogen ?? [0]) plts.push(b.plaat('Kabeloog stapel', [c[0] + ox - 5, c[1] - 25, top + 25], [c[0] + ox + 5, c[1] + 25, top + 75], { gaten: [{ p: [c[0] + ox, c[1], top + 55], d: 13 }], stapel: true, kleur: 'stapel', opm: 'oog voor de karabijn van de kabel; op de bovenplaat gelast' }));
+      const stem = b.staaf('Stapelstang (selectie)', 'r20', [c[0], c[1], mn[2] - 15 + 10], [c[0], c[1], top + 25], { gaten: Array.from({ length: n }, (_, i) => ({ s: 10 + i * t, d: 11, as: 'v' })), kap: false, in: 'stapel', opm: `${n} gaten Ø11 om de ${t} mm` });
       b.koop(V.lineair, 2, [], { naam: `${KOOP[V.lineair].naam} in de bovenplaat` });
-      b.koop(V.selectiepen, 1, [balk([c[0], c[1] - dpl / 2 - 30, mn[2] + 5 + 6 * t], [c[0], c[1] + 20, mn[2] + 5 + 6 * t], X, 10, 10, true, 'rubber')]);
+      const zs = mn[2] - 15 + 6 * t + 10;
+      b.koop(V.selectiepen, 1, [balk([c[0], c[1] - dpl / 2 - 2, zs], [c[0], c[1] + 30, zs], X, 10, 10, true, 'chroom'), balk([c[0], c[1] - dpl / 2 - 30, zs], [c[0], c[1] - dpl / 2 - 2, zs], X, 28, 28, true, 'rubber')]);
       groep = opt.terug ?? 'frame';
       // geleidestangen tot tegen de bovenligger
       const zt = H || top + slag + 120;
       const stang = [-1, 1].map((s) => b.koop('stang25', 1, [balk([c[0] + (s * hoh) / 2, c[1], z0], [c[0] + (s * hoh) / 2, c[1], zt], X, 25, 25, true, 'chroom')], { naam: `Geleidestang Ø25 h6, ${Math.round(zt - z0)} mm`, meter: Math.round(zt - z0) / 1000 }));
-      const s = { naam, n, kg, last: n * kg + 4, c, z0, top: top + 25, slag, hoh, w, dpl, platen: plts, stem, stang, zt, zone: [[mn[0], mn[1], z0], [mn[0] + w, mn[1] + dpl, top + 25 + slag]] };
+      const s = { naam, n, kg, last: n * kg + 4, c, z0, top: top + 25, oog: (x = 0) => [c[0] + x, c[1], top + 55], slag, dz, hoh, w, dpl, platen: plts, stem, stang, zt, zone: [[mn[0], mn[1], z0], [mn[0] + w, mn[1] + dpl, top + 25 + slag]] };
       o.stapels.push(s); return s;
     },
     /** schijven op een houder, alleen voor de 3D (niet in de stuklijst): n schijven Ø450 x 50 vanaf p langs as */
@@ -180,17 +188,24 @@ export function bouwer(V) {
     /** bout(en) tussen twee groepen: p = plaats, as = boutrichting, uit = richting om uit elkaar te schuiven */
     bout(naam, ga, gb, p, as, opt = {}) {
       const key = opt.key ?? V.bout, M = KOOP[key].M, n = opt.n ?? 1, ax = norm(as), lang = opt.lengte ?? 100;
-      const geo = (opt.punten ?? [p]).map((q) => balk(add(q, mul(ax, -lang / 2)), add(q, mul(ax, lang / 2)), standaardV(ax), M, M, true, 'zink'));
-      const k = b.koop(key, n * (opt.punten?.length ?? 1), geo, { naam: `${KOOP[key].naam}: ${naam}` });
-      o.bouten.push({ naam, a: ga, b: gb, p, as: ax, n: n * (opt.punten?.length ?? 1), key, M, uit: opt.uit ?? mul(ax, 1), F: opt.F ?? 0, snedes: opt.snedes ?? 2, koop: k });
+      const punten = opt.punten ?? [p], geo = [];
+      for (const q of punten) {
+        const e0 = add(q, mul(ax, -lang / 2)), e1 = add(q, mul(ax, lang / 2));
+        geo.push(balk(e0, e1, standaardV(ax), M, M, true, 'zink'));
+        if (key !== 'anker') { geo.push(balk(add(e0, mul(ax, -0.65 * M)), e0, standaardV(ax), 1.8 * M, 1.8 * M, false, 'zink', { zes: true }), balk(add(e1, mul(ax, -0.85 * M - 2)), add(e1, mul(ax, -2)), standaardV(ax), 1.8 * M, 1.8 * M, false, 'zink', { zes: true })); }
+        else geo.push(balk(add(e1, mul(ax, -0.8 * M - 4)), add(e1, mul(ax, -4)), standaardV(ax), 1.8 * M, 1.8 * M, false, 'zink', { zes: true }));
+      }
+      const k = b.koop(key, n * punten.length, geo, { naam: `${KOOP[key].naam}: ${naam}` });
+      o.bouten.push({ naam, a: ga, b: gb, p, punten, as: ax, n: n * punten.length, key, M, lengte: lang, uit: opt.uit ?? mul(ax, 1), F: opt.F ?? 0, snedes: opt.snedes ?? 2, koop: k });
       return k;
     },
     /** pen (pull pin of gelaste pen) in een gat: voor de montage en de afschuiving; F in kg (proeflast komt in bereken) */
     pen(naam, p, as, opt = {}) {
       const d = opt.d ?? V.pin, ax = norm(as), lang = opt.lengte ?? 110;
       const geo = [balk(add(p, mul(ax, -lang / 2)), add(p, mul(ax, lang / 2)), standaardV(ax), d, d, true, 'zink')];
+      if (opt.key) { const e = add(p, mul(ax, -lang / 2)); geo.push(balk(add(e, mul(ax, -22)), e, standaardV(ax), d + 12, d + 12, true, 'rubber'), balk(add(e, mul(ax, -30)), add(e, mul(ax, -24)), standaardV(ax), d + 34, d + 34, true, 'ring')); }
       if (opt.key) b.koop(opt.key, opt.n ?? 1, geo, { naam: `${KOOP[opt.key].naam}: ${naam}` });
-      o.pennen.push({ naam, p, as: ax, d, F: opt.F ?? 0, snedes: opt.snedes ?? 2, key: opt.key ?? null, factor: opt.factor ?? 'extrinsiek', groep: opt.groep ?? groep, a: opt.a ?? null, b: opt.b ?? null, uit: opt.uit ?? null });
+      o.pennen.push({ naam, p, as: ax, d, lengte: lang, lager: opt.lager ?? 0, gelast: opt.gelast ?? null, F: opt.F ?? 0, snedes: opt.snedes ?? 2, key: opt.key ?? null, factor: opt.factor ?? 'extrinsiek', groep: opt.groep ?? groep, a: opt.a ?? null, b: opt.b ?? null, uit: opt.uit ?? null });
     },
     /** belastinggeval voor de stabiliteit: massa (kg) op p */
     last(wat, kg, p, opt = {}) { o.lasten.push({ wat, kg, p, ...opt }); },
@@ -270,7 +285,7 @@ export function gatenRij(s0, s1, stap, d, as = 'w') { const uit = []; for (let s
 export function westside(z0, bank0, bank1, z1, d, as = 'w') {
   const uit = [];
   for (let s = z0; s < bank0 - 0.1; s += 50) uit.push({ s, d, as });
-  for (let s = bank0; s < bank1 - 0.1; s += 25) uit.push({ s, d, as });
+  for (let s = bank0; s < bank1 - 0.1; s += d >= 20 ? 50 : 25) uit.push({ s, d, as }); // Ø26 (pro): 50 mm, anders raken de gaten elkaar
   for (let s = bank1; s <= z1 + 0.01; s += 50) uit.push({ s, d, as });
   return uit;
 }

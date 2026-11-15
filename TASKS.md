@@ -1415,3 +1415,31 @@ elease; README en docs/04 bijgewerkt
 - [x] Stuklijst, zaagsneden (verstekhoeken), tekening per stuk, glasmaat met schuine kant, prijs (toeslag per afschuining)
 - [x] 3D met het dak getekend, klantpagina en werkplaats; tests uitbreiden
 - [x] Web en presentatie opnieuw maken, artifact bijwerken, foto's, commit en push
+
+## Fitnesstoestellen: catalogus met ± 50 toestellen en volledig werkplaatspakket (2026-11-15)
+- [x] Vragenronde en EISEN.md (4 soorten, thuis + professioneel, vaste catalogus, ± 50 toestellen)
+- [x] Normen (EN ISO 20957) en marktonderzoek: welke toestellen, maten van bestaande toestellen, marktprijzen thuis/pro
+- [x] Kooponderdelen met winkel en prijs (katrollen, kabels, lagers, J-hooks, bekleding, pinnen, gewichtstapels)
+- [x] Model per toestel (thuis- en pro-versie): onderdelen, stuklijst, zaagplan, berekening
+- [x] Werkplaatsbladen per toestel (overzicht, stukbladen, lasdetails, boringen, montage, bestellijst, uren, kostprijs)
+- [x] Catalogus-pagina: zoeken/filteren, 3D, prijs, werkplaats per toestel; presentatie op het bureaublad
+- [x] Tests, artifact, foto's, commit en push
+
+## Treindoos versie 5: alles op één laag, langwerpige doos in 2 helften (2026-11-15)
+- [ ] Indeling: links de 16 bordjes met goten, rechts de modules op de bodem; doos ± 460 x 230, elke helft ≤ 230 x 230 (printer + uitsluitzone)
+- [ ] Naad: helften klikken in elkaar (klikhaken, berekend voor PETG) en hebben een lijmvoeg; deksel ook in 2 helften; goten lopen over de naad door
+- [ ] Moduleplaat weg: modules op palen in de bodem van de rechterhelft; kabelwegen van bordjes naar modules zonder kruisen
+- [ ] Hoogte zo laag als kan (geen tweede laag meer), tules en sleutelgaten herverdelen, rebuild per helft < 45 s
+- [ ] Dimmen weg (Ian 2026-11-15): groepen alleen aan/uit in firmware 1.3.0 en dashboard; PCA9685 blijft als 16 aan/uit-uitgangen
+- [ ] Hallsensoren lezen (Ian 2026-11-15): bestelbare hallsensor kiezen, aansluiting op de PC817-ingangen nagerekend, schema, voorbeeld en test in de firmware
+- [~] Kabelgoten en gootdeksels weg (Ian 2026-11-15): draden rechtstreeks van wartel naar klem, ruimte herschikken
+- [ ] Tekeningen, montageblad, bouwschema, draadlijst, bestellijst, STL's, app; tests, foto's, commit en push
+
+## Fitness: toestellen tot in detail afwerken en fouten in de machines oplossen (2026-11-15)
+- [x] Elk toestel nalopen naast echte referentietoestellen (foto's/maten): bewegingen, hefbomen, kabelloop, botsingen, ergonomie
+- [x] Fouten in de machines oplossen (geometrie, verbindingen, kabelloop, bereik van de gebruiker)
+- [x] Detail: J-hooks, safety's, pennen, katrolbeugels, schijfhouders met kraag, eindkappen, afgeronde kussens, lassen, bouten, stelvoeten
+- [x] Boutgaten (Ian): duidelijk zichtbaar in 3D, gemaatvoerd op elk stukblad, test op uitlijning, speling, randafstand en botsing
+- [x] Tekeningen en stuklijsten mee bijwerken; tests uitbreiden (botsingen, bewegingsbereik)
+- [~] Advies van Fable 5.2 op de afgewerkte catalogus, daarna alles uit het advies verwerken
+- [ ] Web, presentatie, artifact, foto's per soort, commit en push

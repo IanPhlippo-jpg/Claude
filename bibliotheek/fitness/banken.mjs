@@ -1,6 +1,6 @@
 // Banken (FB-01 .. FB-12): elk in de thuis- en de proversie. Maten in mm: x = breedte, y = diepte (0 = voeteneinde),
 // z = hoogte. Kussens: multiplex 18 + koudschuim RG40 50 + kunstleer; met inslagmoeren M8 op kussenplaten.
-import { staander, ligger, jhook, hoorn, voetjes, kussenOp, doos, gat, X, Y, Z, balk, add, mul, sub, norm } from './bouwstenen.mjs';
+import { staander, ligger, jhook, hoorn, voetjes, kussenOp, doos, gat, X, Y, Z, balk, add, mul, sub, norm, len } from './bouwstenen.mjs';
 
 const pro = (b) => b.V.id === 'pro';
 const rad = (g) => (g * Math.PI) / 180;
@@ -11,17 +11,17 @@ function voet(b, naam, y, breedte, rol = 'bank', x0 = 0) {
 }
 /** kussenplaat (t 5) bovenop een liggend stuk op positie t (0..1) */
 function kussenplaat(b, S, t, lang = 160) {
-  const [mn, mx] = doos(S), c = add(S.a, mul(sub(S.b, S.a), t)), alongY = Math.abs(S.u[1]) > 0.9, bw = (alongY ? mx[0] - mn[0] : mx[1] - mn[1]) + 20;
+  const [mn, mx] = doos(S), c = add(S.a, mul(sub(S.b, S.a), t)), alongY = Math.abs(S.u[1]) > 0.9, bh = (alongY ? mx[0] - mn[0] : mx[1] - mn[1]) / 2, bw = 2 * (bh + 25);
   const p0 = alongY ? [c[0] - bw / 2, c[1] - lang / 2, mx[2]] : [c[0] - lang / 2, c[1] - bw / 2, mx[2]], p1 = alongY ? [c[0] + bw / 2, c[1] + lang / 2, mx[2] + 5] : [c[0] + lang / 2, c[1] + bw / 2, mx[2] + 5];
-  const gx = alongY ? [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([p, q]) => [c[0] + p * (bw / 2 - 12), c[1] + q * (lang / 2 - 20), mx[2]]) : [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([p, q]) => [c[0] + p * (lang / 2 - 20), c[1] + q * (bw / 2 - 12), mx[2]]);
+  const gx = alongY ? [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([p, q]) => [c[0] + p * (bh + 11), c[1] + q * (lang / 2 - 15), mx[2]]) : [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([p, q]) => [c[0] + p * (lang / 2 - 15), c[1] + q * (bh + 11), mx[2]]);
   return b.plaat('Kussenplaat', p0, p1, { gaten: gx.map((p) => ({ p, d: 9 })), opm: '4 gaten Ø9 voor M8 in de inslagmoeren' });
 }
 /** schuine balk van p langs richting d (lengte L); kussen erop met normaal n */
 function schuin(b, naam, rol, p, d, L, opt = {}) { return b.staaf(naam, rol, p, add(p, mul(norm(d), L)), opt); }
 function kussenSchuin(b, naam, S, n, breedte, van = 0, tot = 1, dikte = 68) {
-  const off = mul(norm(n), S.P.h / 2 + 5), a = add(add(S.a, mul(sub(S.b, S.a), van)), off), e = add(add(S.a, mul(sub(S.b, S.a), tot)), off);
+  const off = mul(norm(n), S.P.h / 2 + 10), a = add(add(S.a, mul(sub(S.b, S.a), van)), off), e = add(add(S.a, mul(sub(S.b, S.a), tot)), off);
   // kussenstrip (t 5) tussen balk en kussen: als dunne schuine strip
-  b.staaf(`Kussenstrip ${naam.toLowerCase()}`, 's60x10', add(add(S.a, mul(sub(S.b, S.a), van + 0.04)), mul(norm(n), S.P.h / 2 + 2.5)), add(add(S.a, mul(sub(S.b, S.a), tot - 0.04)), mul(norm(n), S.P.h / 2 + 2.5)), { v: cross3(norm(n), S.u), kap: false, opm: 'platstaal 60x10 met 4 gaten Ø9 (M8 in de inslagmoeren)' });
+  b.staaf(`Kussenstrip ${naam.toLowerCase()}`, 's60x10', add(add(S.a, mul(sub(S.b, S.a), van + 0.04)), mul(norm(n), S.P.h / 2 + 5)), add(add(S.a, mul(sub(S.b, S.a), tot - 0.04)), mul(norm(n), S.P.h / 2 + 5)), { v: norm(n), kap: false, opm: 'platstaal 60x10 met 4 gaten Ø9 (M8 in de inslagmoeren)' });
   return b.kussen(naam, a, e, n, breedte, dikte);
 }
 const cross3 = (a, c) => [a[1] * c[2] - a[2] * c[1], a[2] * c[0] - a[0] * c[2], a[0] * c[1] - a[1] * c[0]];
@@ -54,31 +54,33 @@ export const BANKEN = [
   },
   {
     id: 'FB-02', soort: 'bank', naam: 'Verstelbare bank (FID)', kort: 'Rugleuning van -10° tot 85° met een ladder.',
-    uitleg: 'Vlakke basis met een scharnierende rugleuning op een steun die in een ladder met 7 standen valt (0°, 15°, 30°, 45°, 60°, 75°, 85°). Zitting in 3 standen. Getekend op 30°.',
+    uitleg: 'Vlakke basis met een scharnierende rugleuning op een steun (pen-pen 420 mm) die in een ladder met 7 inkepingen valt: van 25° tot 85°. Plat leggen kan met de steun uit de ladder. Getekend op 25°.',
     spieren: 'borst (bovenste deel), schouders, triceps', oefeningen: ['schuin bankdrukken met halters', 'schouderdrukken zittend', 'flyes', 'bicep curls zittend'],
     maxLast: { thuis: 80, pro: 120 },
     markt: { thuis: [300, 830], pro: [800, 1950], bronT: 'Gorilla verstelbare bank € 300, Bodycraft F320 € 349, Taurus B990 € 399, Rogue Adjustable 3.0 € 829', bronP: 'Matrix Multi-Adjustable € 799, Rogue Manta Ray € 1216, Hammer Strength Multi-Adjustable ± € 1950' },
     bouw(b) {
       const V = b.V, L = 1300, B = pro(b) ? 300 : 280, P = b.P('bank'), Pl = b.P('bankLicht'), top = 372, a = rad(30), yp = 470;
       const bb = bankBasis(b, L, top, 120, L - 120);
-      kussenplaat(b, bb.lig, 0.13);
-      kussenOp(b, 'Zitting', bb.lig, 380, B, { op: 5, t: 0.17 });
-      // scharnieroren en ladder op de ligger
-      for (const s of [-1, 1]) b.plaat('Scharnieroor', [s * (P.b / 2) + (s > 0 ? 0 : -V.plaat), yp - 40, top], [s * (P.b / 2) + (s > 0 ? V.plaat : 0), yp + 40, top + 60], { gaten: [{ p: [s * P.b / 2, yp, top + 35], d: V.pin + 1 }] });
-      const yl = yp + 330;
-      for (const s of [-1, 1]) b.plaat('Ladderplaat', [s * (P.b / 2) + (s > 0 ? 0 : -V.plaat), yl - 120, top], [s * (P.b / 2) + (s > 0 ? V.plaat : 0), yl + 200, top + 45], { vorm: 'ladder', opm: '7 inkepingen R13 voor de steunpen (laser)' });
+      kussenplaat(b, bb.lig, 0.1);
+      kussenOp(b, 'Zitting', bb.lig, 300, B, { op: 5, t: 0.11 });
+      // scharnieroren en ladder op de ligger; de rugleuning staat op 15° (stand 0) tot 85° (stand 1)
+      const zp = top + 40, piv = [0, yp, zp], a2 = rad(25 + 60 * b.stand), Lp = 420;
+      for (const s of [-1, 1]) b.plaat('Scharnieroor', [s * (P.b / 2) + (s > 0 ? 0 : -V.plaat), yp - 40, top], [s * (P.b / 2) + (s > 0 ? V.plaat : 0), yp + 40, top + 80], { gaten: [{ p: [s * P.b / 2, yp, zp], d: V.pin + 1 }] });
+      for (const s of [-1, 1]) b.plaat('Ladderplaat', [s * (P.b / 2) + (s > 0 ? 0 : -V.plaat), yp + 250, top], [s * (P.b / 2) + (s > 0 ? V.plaat : 0), yp + 830, top + 100], { vorm: 'ladder', opm: '7 inkepingen R11 voor de steunpen Ø20 (laser), van 25° tot 85°' });
       b.groep('Rugleuning');
-      const d = [0, Math.cos(a), Math.sin(a)], n = [0, -Math.sin(a), Math.cos(a)], piv = [0, yp, top + 35];
-      b.staaf('Scharnierbus', 'bus', [-P.b / 2, yp, top + 35], [P.b / 2, yp, top + 35], { kap: false });
+      const d = [0, Math.cos(a2), Math.sin(a2)], n = [0, -Math.sin(a2), Math.cos(a2)];
+      b.staaf('Scharnierbus', 'bus', [-P.b / 2, yp, zp], [P.b / 2, yp, zp], { kap: false });
       const rl = schuin(b, 'Rugleuningbalk', 'bankLicht', add(piv, mul(n, 21 + Pl.h / 2)), d, 760, { v: X });
       kussenSchuin(b, 'Rugleuning', rl, n, B, 0.02, 1);
+      const q = add(add(piv, mul(n, 21 - 95)), mul(d, 380));
+      for (const s of [-1, 1]) b.staaf('Steunoor', 's80x10', add(add(add(piv, mul(n, 21)), mul(d, 380)), [s * (P.b / 2 + V.plaat + 13), 0, 0]), add(add(q, mul(n, -40)), [s * (P.b / 2 + V.plaat + 13), 0, 0]), { v: X, kap: false, gaten: [{ s: 95, d: V.pin + 1, as: 'v' }], opm: 'onder de rugleuningbalk gelast, gat voor de pen; buiten de ladderplaten' });
       b.groep('Steun');
-      const q = add(add(piv, mul(n, 21)), mul(d, 420)), ql = [0, yl + 60, top + 30];
-      b.staaf('Steunbeugel', 'bankLicht', q, ql, { v: X, verstek: [30, 30], opm: 'onderaan een pen Ø20 die in de ladder valt' });
+      const dz = q[2] - (top + 70), ql = [0, q[1] + Math.sqrt(Math.max(0, Lp ** 2 - dz ** 2)), top + 70], es = norm(sub(q, ql));
+      b.staaf('Steunbeugel', 'bank', add(q, mul(es, 40)), add(ql, mul(es, -40)), { v: X, gaten: [{ s: 40, d: V.pin + 1, as: 'v' }, { s: Lp + 40, d: 21, as: 'v' }], opm: `pen-pen ${Lp} mm; onderaan de pen Ø20 die in de ladder valt, bovenaan de pen in de steunoren` });
       b.groep('frame');
       b.pen('Scharnier rugleuning', piv, X, { d: V.pin, snedes: 2, a: 'frame', b: 'Rugleuning', uit: [0, 0, 150], lengte: P.b + 2 * V.plaat + 30, key: b.V.pin25 });
-      b.pen('Steun in de ladder', ql, X, { d: 20, snedes: 2, a: 'frame', b: 'Steun', uit: [0, 80, 60], lengte: P.b + 60 });
-      b.pen('Steun aan de rugleuning', q, X, { d: V.pin, snedes: 2, a: 'Rugleuning', b: 'Steun', uit: [0, 0, 100], lengte: Pl.b + 40 });
+      b.pen('Steun in de ladder', ql, X, { d: 20, gelast: 'Ladderplaat', snedes: 2, a: 'frame', b: 'Steun', uit: [0, 80, 60], lengte: P.b + 2 * V.plaat + 20 });
+      b.pen('Steun aan de rugleuning', q, X, { d: V.pin, snedes: 2, a: 'Rugleuning', b: 'Steun', uit: [0, 0, 100], lengte: 2 * (P.b / 2 + V.plaat + 18) + 20, key: b.V.pin25 });
       b.last('Gebruiker op de rugleuning', 100, add(piv, mul(d, 350)), { geval: 'schuin' });
       b.last('Halters', this.maxLast[V.id], add(piv, mul(d, 600)), { geval: 'schuin' });
       b.reken('Rugleuningbalk (scharnier tot steun)', rl, 'ligger', 420, 0, { gk: V.gebruiker * 0.6, g: this.maxLast[V.id], proef: 'extrinsiek' });
@@ -149,7 +151,7 @@ export const BANKEN = [
       const z = b.staaf('Zitbalk', 'bankLicht', [0, 600, 560 - 73 - Pl.h / 2], [0, 860, 560 - 73 - Pl.h / 2]);
       kussenplaat(b, z, 0.5, 160); kussenOp(b, 'Zitting', z, 340, B, { op: 5 });
       const a45 = rad(45), u = [0, -Math.cos(a45), -Math.sin(a45)], n = [0, -Math.sin(a45), Math.cos(a45)];
-      const s = b.staaf('Armsteun', 'bankLicht', [0, 220 + 230, 760 + 230 - Pl.h * 0.7], [0, 220 - 160, 760 - 160 - Pl.h * 0.7], { v: X, opm: 'op de armpaal gelast (schuine las)' });
+      const s = b.staaf('Armsteun', 'bankLicht', [0, 220 + 230, 760 + 230 + Pl.h * 0.71], [0, 220 - 160, 760 - 160 + Pl.h * 0.71], { v: X, opm: 'op de armpaal gelast (schuine las)' });
       void u;
       kussenSchuin(b, 'Armkussen', s, n, pro(b) ? 520 : 480, 0.02, 0.98);
       const kl = b.P('klein').b;
@@ -175,7 +177,7 @@ export const BANKEN = [
       const pv = staander(b, 'Voorpaal', 'bank', 0, 250, lv.h, 900);
       const hb = b.staaf('Hoofdbalk 45°', 'bank', [0, 1100 - lv.b / 2, lv.h + 20], [0, 250 + P.h / 2, 900 - 20], { v: X, verstek: [45, 45] });
       const top = b.staaf('Kussendrager', 'bankLicht', [-160, 250, 900 + Pl.h / 2], [160, 250, 900 + Pl.h / 2], { v: Y });
-      b.kussen('Heupkussen', [-150, 250, 900 + Pl.h], [150, 250, 900 + Pl.h], [0, -0.5, 0.866], 260, 80);
+      b.kussen('Heupkussen', [-150, 250, 900 + Pl.h], [150, 250, 900 + Pl.h], Z, 260, 80);
       const vp = b.plaat('Voetplaat', [-150, 1030, 290], [150, 1195, 296], { opm: 'antislip: traanplaat of rubber erop' });
       b.staaf('Steun voetplaat', 'bankLicht', [0, 1170, lv.h], [0, 1170, 290], {});
       const rp = staander(b, 'Rolpaal', 'bankLicht', 0, 1050, 296, 540);
@@ -198,12 +200,12 @@ export const BANKEN = [
       voetjes(b, r1, 2); voetjes(b, r2, 2);
       const d1 = ligger(b, 'Dwarsligger', 'staander', r1, r2, { y: 400, z: a / 2 }), d2 = ligger(b, 'Dwarsligger', 'staander', r1, r2, { y: 1000, z: a / 2 });
       const pv = staander(b, 'Voorpaal', 'staander', 0, 400, a, 900);
-      const sb = b.staaf('Buitenkoker (schuifbalk)', 'staander', [0, 400 + a / 2, 900 - a / 2], [0, 1000, 900 - a / 2], { gaten: [700, 750, 800, 850, 900].map((s) => ({ s: s - 400 - a / 2, d: V.gat, as: 'v' })) });
+      const sb = b.staaf('Buitenkoker (schuifbalk)', 'staander', [0, 400 + a / 2, 900 - a / 2], [0, 1000, 900 - a / 2], { gaten: [715, 765, 815, 865, 915].map((s) => ({ s: s - 400 - a / 2, d: 17, as: 'v' })), opm: '5 standen om de 50 mm voor de veerpen Ø16' });
       b.staaf('Steun buitenkoker', 'licht', [0, 1000 - lv.b / 2, a], [0, 1000 - lv.b / 2, 900 - a], { opm: 'onder het einde van de buitenkoker' });
       b.plaat('Kussenplaat', [-200, 400 - 120, 900], [200, 400 + 120, 906], { gaten: [[-150, -90], [150, -90], [-150, 90], [150, 90]].map(([x, y]) => ({ p: [x, 400 + y, 900], d: 9 })) });
       for (const s of [-1, 1]) b.kussen('Heupkussen', [-200, 400 + s * 65, 906], [200, 400 + s * 65, 906], Z, 120, 110);
       b.groep('Voetdeel');
-      const ib = b.staaf('Binnenkoker', 'licht', [0, 820, 900 - a / 2], [0, 1400, 900 - a / 2], { in: sb.id, gaten: [{ s: 30, d: V.gat, as: 'v' }] });
+      const ib = b.staaf('Binnenkoker', 'licht', [0, 820, 900 - a / 2], [0, 1400, 900 - a / 2], { in: sb.id, gaten: [{ s: 45, d: 17, as: 'v' }] });
       const ap = staander(b, 'Achterpaal', 'licht', 0, 1400 + lv.b / 2 + 0, 900 - a / 2 - lv.h / 2, 1240);
       ap.a = [0, 1400 + lv.b / 2, 900 - a / 2 - lv.h / 2]; ap.b = [0, 1400 + lv.b / 2, 1240]; ap.L = ap.b[2] - ap.a[2]; ap.geo = [balk(ap.a, ap.b, X, lv.b, lv.h)];
       b.plaat('Voetplaat', [-160, 1400 + lv.b, 820], [160, 1406 + lv.b, 1150], { opm: 'antislip' });
@@ -212,7 +214,7 @@ export const BANKEN = [
       void ib;
       b.groep('frame');
       b.koop(V.schuimrol, 4, [1060, 1190].flatMap((z) => [-1, 1].map((s) => balk([s * 20, 1400 + lv.b / 2 - 65, z], [s * 220, 1400 + lv.b / 2 - 65, z], X, 100, 100, true, 'leer'))), { naam: 'Schuimrol Ø100 (enkelrollen)' });
-      b.pen('Veerpen schuifbalk', [0, 850, 900 - a / 2], X, { d: V.pin, key: b.V.pin25, snedes: 2, a: 'frame', b: 'Voetdeel', uit: [100, 0, 0], F: V.gebruiker * 0.5, factor: 'intrinsiekPen' });
+      b.pen('Veerpen schuifbalk', [0, 865, 900 - a / 2], X, { d: 16, key: 'pullpin16', lengte: a + 50, snedes: 2, a: 'frame', b: 'Voetdeel', uit: [100, 0, 0], F: V.gebruiker * 0.5, factor: 'intrinsiekPen' });
       void d1; void d2;
       b.last('Gebruiker op de heupkussens, bovenlijf naar voren', 100, [0, 200, 1100], { geval: 'ghr' });
       b.reken('Voorpaal', pv, 'staanderM', 900 - a, 0, { gk: V.gebruiker, g: this.maxLast[V.id], proef: 'extrinsiek', e: 200, las: true });
@@ -281,12 +283,12 @@ export const BANKEN = [
       const p1 = staander(b, 'Voorpaal', 'staander', 0, 250, a, top - a), p2 = staander(b, 'Achterpaal', 'staander', 0, 1100, a, top - a);
       const lig = b.staaf('Bovenligger', 'staander', [0, 100, top - a / 2], [0, 1100 + a / 2, top - a / 2]);
       kussenplaat(b, lig, 0.15); kussenplaat(b, lig, 0.55);
-      kussenOp(b, 'Kussen', lig, 800, 320, { op: 5, schuif: -100 });
+      kussenOp(b, 'Heupkussen', lig, 800, 320, { op: 5, schuif: -100 });
       for (const s of [-1, 1]) { b.staaf('Handgreep', 'greep', [s * (a / 2), 140, top - a / 2], [s * 300, 140, top - a / 2], {}); }
       // slingerarm
-      for (const s of [-1, 1]) b.plaat('Lageroor', [s * (a / 2) + (s > 0 ? 0 : -V.plaat), 1100 + a / 2, top - a - 20], [s * (a / 2) + (s > 0 ? V.plaat : 0), 1100 + a / 2 + 120, top], { gaten: [{ p: [s * a / 2, 1100 + a / 2 + 70, top - a / 2], d: 52 }], opm: 'gat Ø52 voor kogellager 6204 (ingeperst)' });
+      for (const s of [-1, 1]) b.plaat('Lageroor', [s * (a / 2) + (s > 0 ? 0 : -V.plaat), 1100 - a / 2, top - a / 2 - 75], [s * (a / 2) + (s > 0 ? V.plaat : 0), 1100 + a / 2 + 150, top - a / 2 + 75], { gaten: [{ p: [s * a / 2, 1100 + a / 2 + 75, top - a / 2], d: 47 }], opm: 'gat Ø47 H7 voor kogellager 6204 (ingeperst)' });
       b.groep('Slingerarm');
-      const zp = top - a / 2, yp = 1100 + a / 2 + 70;
+      const zp = top - a / 2, yp = 1100 + a / 2 + 75;
       b.staaf('As slingerarm', 'as', [-a / 2 + 0.5, yp, zp], [a / 2 - 0.5, yp, zp], { kap: false, in: 'lager' });
       const arm = b.staaf('Slingerarm', 'staander', [0, yp, zp - b.P('as').b / 2], [0, yp, 260], { v: Y });
       b.staaf('As enkelrol', 'as', [-180, yp, 330], [180, yp, 330], { kap: false, in: arm.id });
@@ -294,7 +296,7 @@ export const BANKEN = [
       const ho = b.staaf('Schijfhouder', 'sleeve', [0, yp + arm.P.b / 2, 290], [0, yp + arm.P.b / 2 + 250, 290], {});
       b.groep('frame');
       b.koop(V.id === 'pro' ? 'lager6204pro' : 'lager6204', 2, [], { naam: 'Kogellager 6204 in de lageroren' });
-      b.pen('As van de slingerarm', [0, yp, zp], X, { d: 20, snedes: 2, a: 'frame', b: 'Slingerarm', uit: [0, 120, 0], F: this.maxLast[V.id] * 2, factor: 'schijfhouderPen' });
+      b.pen('As van de slingerarm', [0, yp, zp], X, { d: 20, lager: 47, lengte: a + 2 * V.plaat + 10, snedes: 2, a: 'frame', b: 'Slingerarm', uit: [0, 120, 0], F: this.maxLast[V.id] * 2, factor: 'schijfhouderPen' });
       b.schijven([0, yp + arm.P.b / 2 + 20, 290], Y, 2);
       void d1; void d2; void p1; void p2; void arm; void ho;
       b.last('Gebruiker op het kussen', 100, [0, 600, 1100], { geval: 'hyper' }); b.last('Schijven op de arm (uitgezwaaid)', this.maxLast[V.id], [0, yp + 400, 500], { geval: 'hyper' });
@@ -339,7 +341,7 @@ function bankStation(b, def, { hoek, haken, zit }) {
     const zb = b.staaf('Zitbalk', 'bankLicht', [0, yz - 170, zz - Pl.h / 2], [0, yz + 170, zz - Pl.h / 2]);
     kussenplaat(b, zb, 0.5, 160); kussenOp(b, 'Zitting', zb, 340, B, { op: 5 });
     // rugleuning van achter de zitting tot de dwarsligger midden
-    const p0 = [0, yz + 200, zz + 40], dmTop = doos(dm);
+    const p0 = [0, yz + 180 + (P.h / 2 + 70) * Math.sin(al), zz + 40], dmTop = doos(dm);
     const L = Math.min(800, (dmTop[0][1] - P.h / 2 - p0[1]) / Math.max(0.15, Math.cos(al)));
     const rb = b.staaf('Rugleuningbalk', 'bank', p0, add(p0, mul(d, L)), { v: X, verstek: [hoek, 90 - hoek] });
     kussenSchuin(b, 'Rugleuning', rb, n, B, 0.05, 1.0);

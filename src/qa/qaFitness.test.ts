@@ -15,6 +15,11 @@ import { alleBladen, stukBladen } from '../../bibliotheek/fitness/tekeningen.mjs
 import { montageBladen } from '../../bibliotheek/fitness/montage.mjs';
 import { dossierHtml, lijstenCsv } from '../../bibliotheek/fitness/dossier.mjs';
 import { miniatuur } from '../../bibliotheek/fitness/aanzicht.mjs';
+import { botsingen, schijvenVrij, zwevend, kabelFouten, ergonomie, gaten, gatFouten, SPELING } from '../../bibliotheek/fitness/controle.mjs';
+import { typeplaatBlad } from '../../bibliotheek/fitness/tekeningen.mjs';
+import { leegCache } from '../../bibliotheek/fitness/catalogus.mjs';
+
+const STANDEN = [0, 0.25, 0.5, 0.75, 1];
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const VERSIES = ['thuis', 'pro'] as const;
@@ -136,6 +141,35 @@ for (const t of TOESTELLEN) for (const v of VERSIES) {
       }
       expect(fout).toEqual([]);
     });
+    it('geen botsingen over de hele beweging (stand 0 - 0,25 - 0,5 - 0,75 - 1): staal, kussens en schijven', () => {
+      const fout: string[] = [];
+      for (const s of STANDEN) {
+        const os = toestel(t.id, v, { stand: s });
+        for (const b of botsingen(os)) fout.push(`stand ${s}: ${b.a} x ${b.b}`);
+        for (const k of schijvenVrij(os)) fout.push(`stand ${s}: schijf door ${k}`);
+      }
+      expect(fout).toEqual([]);
+    });
+    it('alles hangt samen in elke stand (niets zweeft, ook de bewegende delen niet)', () => {
+      for (const s of [0, 1]) expect(zwevend(toestel(t.id, v, { stand: s }))).toEqual([]);
+    });
+    it('kabelloop: elke katrol in het vlak van de kabel, in een beugel, geen kabel door een profiel', () => {
+      for (const s of [0, 1]) expect(kabelFouten(toestel(t.id, v, { stand: s }))).toEqual([]);
+    });
+    it('bereikbaar voor 1,60 - 1,95 m: zitting 380-600, bankkussen 400-480, grepen 250-2450, schijfhouders ≤ 1800 mm', () => {
+      for (const s of [0, 1]) expect(ergonomie(toestel(t.id, v, { stand: s }))).toEqual([]);
+    });
+    it('gaten: bout/pen en gat op dezelfde as (≤ 0,5 mm), speling ISO 273, rand ≥ 1,5 Ø, niet in hoekradius of las, brug ≥ 6 mm', () => {
+      expect(gatFouten(o)).toEqual([]);
+      for (const bt of o.bouten) expect((bt.punten ?? [bt.p]).length).toBeGreaterThan(0);
+    });
+    it('elk gat is zichtbaar in de 3D (een donker gat op elk wandvlak) en er is een typeplaatje', () => {
+      const n = gaten(o).filter((g) => g.d >= 5).reduce((t2, g) => t2 + (g.deel.soort === 'plaat' || g.door !== 1 ? g.punten.length : 1), 0);
+      expect(o.detail.filter((g: any) => g.gat).length).toBe(n);
+      expect(o.typeplaat).toBeTruthy();
+      const tp = typeplaatBlad(o);
+      expect(tp).toContain('EN ISO 20957'); expect(tp).toContain(`klasse ${o.V.klasse}`); expect(tp).toContain(`${o.V.gebruiker} kg`);
+    });
     it('geen zwevende onderdelen: alles hangt samen met de vloer, de muur of het rack', () => {
       const items = [...o.delen.map((d: any) => d.geo), ...o.kussens.map((d: any) => d.geo), ...o.koop.filter((k: any) => k.geo.length).map((k: any) => k.geo)];
       const n = items.length, ouder = items.map((_: unknown, i: number) => i);
@@ -157,5 +191,24 @@ describe('dossier en CSV', () => {
       expect(d).toContain('<section class="a4">'); expect(geenNaN(d)).toBe(true);
       expect(c.split('\r\n').length).toBeGreaterThan(20); expect(geenNaN(c)).toBe(true);
     }
+  });
+});
+
+describe('de gatcontrole vindt echte fouten (negatieve proef)', () => {
+  it('een bout 2 mm naast zijn gat, een gat te dicht bij de rand en een te kleine speling worden gemeld', () => {
+    leegCache();
+    const o = toestel('FR-01', 'thuis');
+    expect(gatFouten(o)).toEqual([]);
+    const bt = o.bouten.find((b: any) => b.key !== 'anker');
+    bt.punten = bt.punten.map((p: number[]) => [p[0] + 2, p[1], p[2]]);
+    const st = o.delen.find((d: any) => d.soort === 'staaf' && d.gaten.some((g: any) => !d.westside || g.d !== d.westside.d));
+    const g = st.gaten.find((x: any) => !st.westside || x.d !== st.westside.d); g.s = 6;
+    const pen = o.pennen.find((p: any) => !p.lager); pen.d += 1.5;
+    const f = gatFouten(o).join(' | ');
+    expect(f).toMatch(/zonder gat|as|naast/i);
+    expect(f).toMatch(/randafstand|rand/i);
+    expect(f.length).toBeGreaterThan(0);
+    expect(SPELING.bout[0]).toBeGreaterThan(0);
+    leegCache();
   });
 });

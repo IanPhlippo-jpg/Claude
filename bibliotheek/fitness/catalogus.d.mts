@@ -3,5 +3,5 @@
 export interface ToestelDef { id: string; soort: 'rek' | 'bank' | 'kabel' | 'plate'; naam: string; kort: string; uitleg: string; spieren: string; oefeningen: string[]; maxLast?: Record<string, number>; markt: { thuis: [number, number]; pro: [number, number]; bronT: string; bronP: string }; bouw: (...a: any[]) => void }
 export declare const TOESTELLEN: ToestelDef[];
 export declare const PER_ID: Record<string, ToestelDef>;
-export declare function toestel(id: string, versie?: 'thuis' | 'pro'): any;
+export declare function toestel(id: string, versie?: 'thuis' | 'pro', opt?: { stand?: number }): any;
 export declare function leegCache(): void;

@@ -82,6 +82,20 @@ Koop de normen bij NBN om de aannames af te sluiten (zie onderaan).
 | Keilbout M12 in beton | NRd ≈ 7,6 kN | **AANNAME** (zie de balustrades; nakijken in fischer FIXPERIENCE) |
 | Zwaartepunt schijven op een houder | op 0,6 x de lengte van de houder | **AANNAME** |
 
+## Gaten en boutverbindingen
+
+| Regel | Waarde in de controle | Bron |
+|---|---|---|
+| Bout en gat op dezelfde as | ≤ 0,5 mm tussen de as van de bout of pen en het hart van het gat, in elk stuk dat hij kruist | eigen keuze (boren met mal) |
+| Speling bout | gat = M + 0,4 tot M + 2,6 mm (M12 → Ø13, M16 → Ø17) | ISO 273 (fijn 13 / middel 13,5 / grof 14,5 voor M12) |
+| Speling pen | gat = pen + 0,4 tot pen + 2,1 mm (pen Ø16 → Ø17, Ø25 → Ø26) | ISO 273 naar analogie; eigen keuze |
+| Lagerzitting | gat = buitenmaat glijlager - 0,1 tot + 0,5 mm (Ø28, Ø34, Ø47) | fabrikant flensglijlager (H7-zitting), AANNAME |
+| Randafstand | ≥ 1,5 x Ø van het gat, gemeten tot de rand of het uiteinde | EN 1993-1-8 tabel 3.3 vraagt e1, e2 ≥ 1,2 d0; hier strenger |
+| Hoekradius koker | het gat mag niet in de buitenhoekradius 2t vallen | EN 10219-2 (r = 2t voor t ≤ 6 mm) |
+| Brug tussen gaten | ≥ 6 mm staal tussen twee gaten | AANNAME (werkplaats: boor loopt niet uit) |
+| Niet in de las | geen gat binnen keel + 3 mm van een lasnaad; het gat dat zelf de zitting van het gelaste deel is telt niet | eigen keuze |
+| Westside | Ø17 (thuis, pen 16) op 25 mm in de bankzone en 50 mm elders; Ø26 (pro, pen 25) op 50 mm; gaten in een lasband, tegen een boutgat of te dicht bij het uiteinde vallen weg en staan op het stukblad | Westside-gatpatroon (Rogue, Titan) |
+
 ## Wat nog open is
 
 - **Stabiliteit:** de hellingshoek (10°) in EN ISO 20957-1:2013/2024.

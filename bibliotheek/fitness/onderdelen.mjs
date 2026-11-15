@@ -24,7 +24,7 @@ export const PROFIEL = {
   b25x2: buis(25, 2), b32x3: buis(32, 3.2, 'buis Ø32x3,2 (optrekstang)'), b42x3: buis(42.4, 3.2, 'buis Ø42,4x3,2', 'EN 10255 S195T / EN 10219'), b48x3: buis(48.3, 3.2, 'buis Ø48,3x3,2 (schijfhouder)', 'EN 10255 / EN 10219 S235JRH'), b48x4: buis(48.3, 4, 'buis Ø48,3x4 (schijfhouder)'), b48x8: buis(48.3, 8, 'buis Ø48,3x8 naadloos (schijfhouder)', 'EN 10216-1 / DIN 2448 P235'),
   b60x3: buis(60.3, 3.6, 'buis Ø60,3x3,6'), b60x5: buis(60.3, 5, 'buis Ø60,3x5'), b76x4: buis(76.1, 4, 'buis Ø76,1x4'),
   r16: rond(16), r20: rond(20), r25: rond(25), r30: rond(30), r35: rond(35), r38: rond(38),
-  s40x8: strip(40, 8), pl10x300: strip(300, 10), pl12x450: strip(450, 12), pl12x600: strip(600, 12), s50x8: strip(50, 8), s60x10: strip(60, 10), s80x10: strip(80, 10),
+  s40x8: strip(40, 8), pl10x300: strip(300, 10), pl12x450: strip(450, 12), pl12x600: strip(600, 12), s50x8: strip(50, 8), s60x10: strip(60, 10), s80x10: strip(80, 10), pl10x150: strip(150, 10),
 };
 for (const [k, P] of Object.entries(PROFIEL)) P.id = k;
 
