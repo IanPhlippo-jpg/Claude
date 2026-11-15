@@ -88,3 +88,10 @@
 - [x] Opties per soort (schijvenopslag, bandpinnen, wielen, zwaardere stapel, grepenset)
 - [x] Stuklijst, prijs, tekeningen en typeplaat met uitvoering/maat/opties; tests
 - [x] Web en presentatie: keuzes per toestel; foto's fitness-fotos-v5b
+
+## Versie 5 fase C: ± 100 nieuwe toestellen in blokken van ± 25 (2026-11-15)
+- [x] Blok 1: FS-01..FS-25 selectorized (nokstation met hefboom en nok, kabelstation met gebogen arm), varianten en opties; tests, raster
+- [ ] Blok 2: FM multigyms en rigs
+- [ ] Blok 3: FO opslag en accessoires
+- [ ] Blok 4: FX strongman en buiten (EN 16630)
+- [ ] Web lui laden per toestel (start niet trager met 150 toestellen), README/EISEN/docs, presentatie, graphify

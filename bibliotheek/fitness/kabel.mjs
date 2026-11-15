@@ -522,3 +522,4 @@ function beenMachine(b, soort) {
   b.last('Gebruiker', 100, [0, yk + 230, 800], { geval: 'been' }); b.last('Stapel hoog', G, [0, T.yt, 1000], { geval: 'been' });
   void as;
 }
+export { bovenKatrol, onderKatrol, vloer, zitting, gewicht, R as katrolStraal, pro as isPro };

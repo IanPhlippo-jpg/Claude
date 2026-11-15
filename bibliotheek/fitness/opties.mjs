@@ -22,6 +22,10 @@ export const OPTIES = {
     { id: 'grepenset', naam: 'Grepenset', uitleg: 'touw, 2 D-grepen, enkelband en 2 karabiners' },
     { id: 'fijnstapel', naam: 'Fijninstelling', uitleg: '2 x 2,5 kg magnetisch bijleggewicht op de stapel' },
   ],
+  selectorized: [
+    { id: 'grepenset', naam: 'Grepenset', uitleg: 'touw, 2 D-grepen, enkelband en 2 karabiners' },
+    { id: 'fijnstapel', naam: 'Fijninstelling', uitleg: '2 x 2,5 kg magnetisch bijleggewicht op de stapel' },
+  ],
   plate: [
     { id: 'opslag', naam: 'Schijvenopslag', uitleg: '2 schijfhouders Ø50 op het voetframe' },
     { id: 'klemmen', naam: 'Schijfklemmen', uitleg: '2 snelsluitklemmen Ø50 per schijfhouder' },
@@ -91,6 +95,8 @@ const BOUW = {
     return true;
   },
   'kabel:grepenset': (b) => { b.koop('grepenset', 1, [], { naam: 'Grepenset: touw, 2 D-grepen, enkelband, 2 karabiners (optie)', groep: 'afwerking' }); return true; },
+  'selectorized:grepenset': (b) => BOUW['kabel:grepenset'](b),
+  'selectorized:fijnstapel': (b) => BOUW['kabel:fijnstapel'](b),
   'kabel:fijnstapel': (b) => {
     const o = b.o, s = o.stapels[0];
     if (!s) return false;

@@ -52,7 +52,7 @@ describe('catalogus', () => {
     for (const t of TOESTELLEN) per[t.soort] = (per[t.soort] ?? 0) + 1;
     for (const s of ['rek', 'bank', 'kabel', 'plate']) expect(per[s], s).toBeGreaterThanOrEqual(10);
     expect(new Set(TOESTELLEN.map((t) => t.id)).size).toBe(TOESTELLEN.length);
-    for (const t of TOESTELLEN) expect(t.id).toMatch(/^F[RBKP]-\d\d$/);
+    for (const t of TOESTELLEN) expect(t.id).toMatch(/^F[RBKPSMOX]-\d\d$/);
   });
 });
 

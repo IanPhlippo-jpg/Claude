@@ -266,7 +266,7 @@ const lees = (k, d) => { try { const v = JSON.parse(localStorage.getItem(k) || '
 const schrijf = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
 const alsBeeld = (svg, w, h, alt = '') => `<img src="data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}" width="${w}" height="${h}" alt="${esc(alt)}" decoding="async" draggable="false">`;
 const beeld = (svg, alt) => { const m = svg.match(/viewBox="0 0 ([\d.]+) ([\d.]+)"/); return alsBeeld(svg, m ? +m[1] * 4 : 1188, m ? +m[2] * 4 : 840, alt); };
-const SKL = { rek: 'var(--s-rek)', bank: 'var(--s-bank)', kabel: 'var(--s-kabel)', plate: 'var(--s-plate)' };
+const SKL = new Proxy({ rek: 'var(--s-rek)', bank: 'var(--s-bank)', kabel: 'var(--s-kabel)', plate: 'var(--s-plate)' }, { get: (o, k) => o[k] ?? SOORTEN[k]?.accent ?? '#555' });
 
 // ---------- keuzes en instellingen
 let st = { id: 'FR-01', versie: 'thuis', ral: '9005', leer: 'zwart', soort: 'alle', zoek: '', fVersie: 'thuis', vloer: 0, prijs: 0, sort: 'nr', ...lees('fitness-keuze', {}) };

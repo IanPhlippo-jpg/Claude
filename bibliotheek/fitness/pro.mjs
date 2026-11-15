@@ -16,6 +16,10 @@ export const STIJL = {
   bank: { naam: 'bank: mat zwart, bies op de kussens', ral: '9005', accent: '#d9a400', kap: null },
   plate: { naam: 'plate-loaded: ovaalbuis, zwart met rood accent, chroom', ral: '9005', accent: '#c8102e', kap: null },
   kabel: { naam: 'kabel: antraciet, zilveren kappen met venster', ral: '7016', accent: '#e8590c', kap: '#9ea3a8' },
+  selectorized: { naam: 'selectorized: antraciet, zilveren kappen', ral: '7016', accent: '#0e7490', kap: '#9ea3a8' },
+  multigym: { naam: 'multigym: antraciet, zilveren kappen', ral: '7016', accent: '#e8590c', kap: '#9ea3a8' },
+  opslag: { naam: 'opslag: mat zwart, logoplaat', ral: '9005', accent: '#d9a400', kap: null },
+  buiten: { naam: 'buiten: thermisch verzinkt + poedercoat', ral: '7016', accent: '#b45309', kap: null },
 };
 /** profielkeuze per soort: plate-loaded krijgt vlakovaalbuis voor de hefboomarmen (berekening volgt het profiel) */
 export function stijlVersie(V, soort) {

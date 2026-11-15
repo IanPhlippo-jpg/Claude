@@ -181,6 +181,10 @@ export const SOORTEN = {
   bank: { id: 'bank', naam: 'Banken', kort: 'Bank', prefix: 'FB', accent: '#0f766e', uitleg: 'Vlakke en verstelbare banken, bankdrukstations en banken voor rug, buik en heupen.' },
   kabel: { id: 'kabel', naam: 'Kabelmachines', kort: 'Kabel', prefix: 'FK', accent: '#2563a8', uitleg: 'Toestellen met katrollen en een staalkabel, met een gewichtstapel of met schijven.' },
   plate: { id: 'plate', naam: 'Plate-loaded machines', kort: 'Plate-loaded', prefix: 'FP', accent: '#7c3aed', uitleg: 'Machines met een hefboom of een slede waar je zelf schijven op legt.' },
+  selectorized: { id: 'selectorized', naam: 'Selectorized', kort: 'Selectorized', prefix: 'FS', accent: '#0e7490', uitleg: 'Toestellen met een eigen gewichtstapel en selectiepen in een omkapte toren: hefboom met nok of kabelstation.' },
+  multigym: { id: 'multigym', naam: 'Multigyms en rigs', kort: 'Multigym', prefix: 'FM', accent: '#9a3412', uitleg: 'Combinaties van stations rond één of meer stapels, en rigs met staanders, liggers en opties.' },
+  opslag: { id: 'opslag', naam: 'Opslag en accessoires', kort: 'Opslag', prefix: 'FO', accent: '#4d7c0f', uitleg: 'Rekken voor halters, schijven, stangen, kettlebells, ballen en kleine accessoires, en losse hulpstukken.' },
+  buiten: { id: 'buiten', naam: 'Strongman en buiten', kort: 'Buiten', prefix: 'FX', accent: '#b45309', uitleg: 'Strongman-toestellen en buitentoestellen (calisthenics, EN 16630), thermisch verzinkt en gecoat.' },
 };
 export const BEKLEDING = [
   { code: 'zwart', naam: 'Zwart', hex: '#1b1c1e' }, { code: 'antraciet', naam: 'Antraciet', hex: '#3b3e42' }, { code: 'rood', naam: 'Rood', hex: '#9b1c1c' },
