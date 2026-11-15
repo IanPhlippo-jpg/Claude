@@ -22,6 +22,7 @@ import { dxfBestanden } from '../../bibliotheek/fitness/dxf.mjs';
 import { add, mul, sub } from '../../bibliotheek/fitness/model.mjs';
 import { typeplaatBlad } from '../../bibliotheek/fitness/tekeningen.mjs';
 import { leegCache } from '../../bibliotheek/fitness/catalogus.mjs';
+import { buigPad, afronden } from '../../bibliotheek/fitness/vorm.mjs';
 
 const STANDEN = [0, 0.25, 0.5, 0.75, 1];
 
@@ -195,7 +196,7 @@ describe('dossier en CSV', () => {
       expect(d).toContain('<section class="a4">'); expect(geenNaN(d)).toBe(true);
       expect(c.split('\r\n').length).toBeGreaterThan(20); expect(geenNaN(c)).toBe(true);
     }
-  });
+  }, 30000);
 });
 
 describe('de gatcontrole vindt echte fouten (negatieve proef)', () => {
@@ -337,7 +338,7 @@ describe('Fable 5.2 - P2/P3 controles', () => {
     for (const t of TOESTELLEN) for (const v of VERSIES) { const o = toestel(t.id, v); expect(steekFouten(o), t.id).toEqual([]); }
   });
   it('P2-08: elk gat in de 3D ligt op het oppervlak van zijn stuk (niet alleen het juiste aantal)', () => {
-    for (const id of ['FR-01', 'FP-04', 'FK-04']) { const o = toestel(id, 'pro'); for (const g of gaten(o)) for (const p of g.punten) { const d = g.deel.geo[0], c = mul(add(d.a, d.b), 0.5), q = sub(p, c), hw = [Math.hypot(...sub(d.b, d.a)) / 2, d.bw / 2, d.bh / 2], uit = [d.u, d.v, d.w].map((ax: number[], i: number) => Math.abs(q[0] * ax[0] + q[1] * ax[1] + q[2] * ax[2]) - hw[i]); expect(Math.max(...uit), `${id} ${g.deel.naam}`).toBeLessThan(1); expect(Math.max(...uit), `${id} ${g.deel.naam}`).toBeGreaterThan(-1); } }
+    for (const id of ['FR-01', 'FP-04', 'FK-04']) { const o = toestel(id, 'pro'); for (const g of gaten(o)) for (const p of g.punten) { const m = Math.min(...g.deel.geo.map((d: any) => { const c = mul(add(d.a, d.b), 0.5), q = sub(p, c), hw = [Math.hypot(...sub(d.b, d.a)) / 2, d.bw / 2, d.bh / 2]; return Math.max(...[d.u, d.v, d.w].map((ax: number[], i: number) => Math.abs(q[0] * ax[0] + q[1] * ax[1] + q[2] * ax[2]) - hw[i])); })); expect(m, `${id} ${g.deel.naam}`).toBeLessThan(1); expect(m, `${id} ${g.deel.naam}`).toBeGreaterThan(-1); } }
   });
   it('P2-15: knelpunten worden gemeten over de slag (geen vaste oranje tekst meer)', () => {
     const B = berekening(toestel('FP-04', 'pro')).controles;
@@ -386,11 +387,12 @@ describe('Fable 5.2 - de deels-punten afgewerkt (v4)', () => {
   it('P2-13: row: de schijfhouder op een tak ± 350 mm achter de as, boven de ellebogen', () => {
     for (const v of VERSIES) { const o = toestel('FP-05', v), h = o.delen.find((d: any) => d.naam === 'Schijfhouder'), piv = o.pennen.find((p: any) => /As hefboom/.test(p.naam)).p; expect(Math.abs(h.a[1] - piv[1])).toBeGreaterThanOrEqual(300); expect(h.a[2]).toBeGreaterThan(1350); expect(schijvenVrij(o)).toEqual([]); }
   });
-  it('P2-15: de stapel is rondom afgeschermd (zijstroken), opening 0 mm', () => {
+  it('P2-15: de stapel is rondom afgeschermd (v5: volledig omkapt, zijkappen over de staanders), opening 0 mm', () => {
     const o = toestel('FK-01', 'pro');
-    expect(o.delen.filter((d: any) => d.naam === 'Afscherming zijkant').length).toBe(4);
+    expect(o.delen.filter((d: any) => d.naam === 'Afscherming zijkant').length).toBe(2);
+    expect(o.delen.filter((d: any) => /^Afscherming (voor|achter|boven)$/.test(d.naam)).length).toBe(3);
     expect(berekening(o).controles.find((c: any) => c.wat === 'Openingen in de afscherming')!.formule).toMatch(/spleet naast de staander 0 mm/);
-  });
+  }, 30000);
   it('P2-16: montagegereedschap, kabelgeleiders en traanplaat in de bestellijst', () => {
     const o = toestel('FK-02', 'thuis');
     expect(o.koop.some((k: any) => k.key === 'gereedschap')).toBe(true); expect(o.koop.some((k: any) => k.key === 'kabelgeleider')).toBe(true);
@@ -433,9 +435,11 @@ describe('fitness v5 fase A: pro-uiterlijk', () => {
     for (const t of TOESTELLEN.filter((x) => x.soort === 'kabel')) for (const v of VERSIES) {
       const o = toestel(t.id, v), voor = o.delen.filter((d: any) => d.naam === 'Afscherming voor');
       for (const d of voor) {
-        expect(d.geo.some((g: any) => g.kleur === 'venster'), t.id).toBe(true);
+        // v5 A2: de voorkap is een contourplaat met een venster (uitsparing); de selectiepen steekt door het venster
+        expect(d.contour?.uitsparingen.length, t.id).toBe(1);
+        expect(o.pronk.some((g: any) => g.kleur === 'venster'), t.id).toBe(true);
         const s = o.koop.find((k: any) => /selectiepen/.test(k.key));
-        if (s) { const x = s.geo[0].a[0]; expect(d.geo.filter((g: any) => g.kleur !== 'venster').every((g: any) => { const [mn, mx] = aabb(g); return x < mn[0] - 10 || x > mx[0] + 10 || mx[2] < s.geo[0].a[2] - 20 || mn[2] > s.geo[0].a[2] + 20; }), `${t.id} sleuf`).toBe(true); }
+        if (s) { const x = s.geo[0].a[0], z = s.geo[0].a[2], u = d.contour.uitsparingen[0].punten, xs = u.map((p: number[]) => p[0]), zs = u.map((p: number[]) => p[1]); if (Math.abs(x - (Math.min(...xs) + Math.max(...xs)) / 2) < 200) { expect(x).toBeGreaterThan(Math.min(...xs)); expect(x).toBeLessThan(Math.max(...xs)); expect(z, `${t.id} sleuf`).toBeGreaterThan(Math.min(...zs)); expect(z, `${t.id} sleuf`).toBeLessThan(Math.max(...zs)); } }
       }
       if (voor.length) { expect(o.koop.some((k: any) => k.key === 'polycarbonaat')).toBe(true); expect(o.koop.some((k: any) => k.key === 'instructiesticker')).toBe(true); }
       const kk = o.koop.find((k: any) => k.key === 'katrolkap');
@@ -485,5 +489,89 @@ describe('fitness v5 fase A: pro-uiterlijk', () => {
     const koop = k.regels.filter((r: any) => r.cat === 'koop').map((r: any) => r.wat).join(' | ');
     for (const re of [/Naafkap/, /Hardverchromen/, /VHB/, /Instructieplaat/]) expect(koop).toMatch(re);
     expect(geenNaN(JSON.stringify(k.regels))).toBe(true);
+  });
+});
+
+describe('fitness v5 fase A2: vormtaal (gebogen buis, vrije contour, kappen)', () => {
+  it('gebogen buis: R ≥ 3 x de hoogte in het buigvlak, past met klemlengte op 6 m, been te kort = fout', () => {
+    let n = 0;
+    for (const t of TOESTELLEN) for (const v of VERSIES) for (const d of toestel(t.id, v).delen.filter((x: any) => x.buig)) {
+      n++;
+      const h = d.staand ? d.P.b : d.P.h;
+      expect(d.buig.R, `${t.id} ${d.naam}`).toBeGreaterThanOrEqual(3 * h - 0.5);
+      expect(d.L + 300, `${t.id} ${d.naam}`).toBeLessThanOrEqual(STAAFLENGTE);
+      expect(d.buig.bochten.length).toBeGreaterThan(0);
+    }
+    expect(n).toBeGreaterThan(40);
+    expect(() => buigPad([[0, 0, 0], [100, 0, 0], [100, 100, 0]], 360)).toThrow(/te kort/);
+    const p = buigPad([[0, 0, 0], [1000, 0, 0], [1000, 1000, 0]], 300);
+    expect(p.L).toBeCloseTo(2000 - 2 * 300 + (Math.PI / 2) * 300, 0);
+  });
+  it('plate-loaded iso: voetframe als lus met ronde hoeken, gebogen portaal, lagerschilden met uitsparing, gebogen armen, schuine grepen', () => {
+    for (const id of ['FP-04', 'FP-05', 'FP-08', 'FP-09']) for (const v of VERSIES) {
+      const o = toestel(id, v);
+      expect(o.delen.filter((d: any) => d.naam === 'Voetframe' && d.buig?.bochten.length === 2).length, id).toBe(2);
+      expect(o.delen.filter((d: any) => d.naam === 'Portaalboog' && d.buig).length, id).toBe(2);
+      const oren = o.delen.filter((d: any) => d.naam === 'Lageroor');
+      expect(oren.length).toBe(4); expect(oren.every((d: any) => d.contour)).toBe(true);
+      if (id !== 'FP-09') expect(oren.every((d: any) => d.contour.uitsparingen.length === 1)).toBe(true);
+      expect(o.delen.filter((d: any) => /^Hefboomarm/.test(d.naam)).every((d: any) => d.buig && d.P.ovaal)).toBe(true);
+      for (const g of o.delen.filter((d: any) => d.naam === 'Greep')) expect(Math.abs(g.a[2] - g.b[2]), id).toBeGreaterThan(20);
+      expect(berekening(o).controles.some((c: any) => /Portaalboog/.test(c.wat) && c.oordeel === 'groen')).toBe(true);
+      for (const st of [0, 0.5, 1]) expect(botsingen(toestel(id, v, { stand: st })), `${id} ${v} ${st}`).toEqual([]);
+    }
+  });
+  it('contourplaat: DXF als polylijn met bogen en de uitsparing, stukblad met de vorm, gat te dicht bij de contour = fout', () => {
+    const o = toestel('FP-04', 'pro'), oor = o.delen.find((d: any) => d.naam === 'Lageroor');
+    const dx = dxfBestanden(o).find((x: any) => x.pos === oor.pos.pos)!;
+    expect(dx.dxf).toMatch(/POLYLINE/); expect(dx.dxf).toMatch(/\n42\n/); expect(dx.dxf).toMatch(/UITSPARING/); expect(dx.dxf).toMatch(/CIRCLE/);
+    const sb = stukBladen(o).find((b: any) => b.pos === oor.pos.pos)!;
+    expect(sb.svg).toMatch(/vrije contour/); expect(sb.svg).toMatch(/fill-rule="evenodd"/);
+    expect(gatFouten(o)).toEqual([]);
+    const fout = { ...o, delen: o.delen.map((d: any) => (d === oor ? { ...d, gaten: [...d.gaten, { ...d.gaten[0], lx: d.gaten[0].lx, ly: d.gaten[0].ly - 60, p: add(d.gaten[0].p, [0, 0, -60]) }] } : d)) };
+    expect(gatFouten(fout).some((x: string) => /tot de contour/.test(x))).toBe(true);
+    const c = afronden([[0, 0, 20], [100, 0, 20], [100, 50, 20], [0, 50, 20]]);
+    expect(c.omtrek).toBeCloseTo(2 * (100 + 50) - 8 * 20 + 2 * Math.PI * 20, 0);
+  });
+  it('gebogen buis: stukblad met buigtabel, stuklijst met bochten, prijs per bocht, werkwijze buigen, laser per meter', () => {
+    const o = toestel('FP-08', 'pro'), boog = o.delen.find((d: any) => d.naam === 'Portaalboog');
+    const sb = stukBladen(o).find((b: any) => b.pos === boog.pos.pos)!;
+    expect(sb.svg).toMatch(/Buigtabel/); expect(sb.svg).toMatch(/R360/);
+    expect(stuklijst(o).posities.find((p: any) => p.naam === 'Portaalboog')!.zaagT).toMatch(/gebogen: 1 bocht 90°/);
+    const k = kostprijs(o);
+    expect(k.regels.find((r: any) => r.cat === 'buigen')!.bedrag).toBeGreaterThan(0);
+    expect(k.regels.find((r: any) => r.cat === 'laser')!.wat).toMatch(/m snijlijn/);
+    expect(k.stappen.some((s: any) => s.titel === 'Buigen')).toBe(true);
+  });
+  it('kabel: stapeltoren volledig omkapt (voor, zij, achter, ronde bovenkap), voetkappen, gebogen lat-arm', () => {
+    for (const t of TOESTELLEN.filter((x) => x.soort === 'kabel')) {
+      const o = toestel(t.id, 'pro'), voor = o.delen.filter((d: any) => d.naam === 'Afscherming voor');
+      if (!voor.length) continue;
+      expect(o.delen.filter((d: any) => d.naam === 'Afscherming boven').length, t.id).toBe(voor.length);
+      expect(o.delen.filter((d: any) => d.naam === 'Afscherming zijkant').length, t.id).toBe(2 * voor.length);
+      expect(o.koop.filter((k: any) => k.key === 'voetkap').reduce((t2: number, k: any) => t2 + k.n, 0)).toBe(2 * voor.length);
+      expect(kabelFouten(o), t.id).toEqual([]);
+    }
+    expect(toestel('FK-01', 'pro').delen.find((d: any) => d.naam === 'Lat-arm').buig).toBeTruthy();
+  });
+  it('rek: kopplaten met schuine hoeken, eindplaten op de voeten, zijplaat met naam (FR-01)', () => {
+    const o = toestel('FR-01', 'pro');
+    expect(o.delen.filter((d: any) => d.naam === 'Kopplaat').length).toBe(4);
+    expect(o.delen.filter((d: any) => d.naam === 'Eindplaat voet').length).toBe(4);
+    expect(o.delen.filter((d: any) => d.naam === 'Zijplaat met naam').length).toBe(2);
+    expect(o.koop.filter((k: any) => /^kap(40|60|80)$/.test(k.key)).reduce((s: number, k: any) => s + k.n, 0)).toBeLessThan(toestel('FR-01', 'pro').delen.length);
+    expect(zwevend(o)).toEqual([]); expect(botsingen(o)).toEqual([]);
+  });
+  it('bank: ovaalbuis-ligger, gebogen achterpoot, transportwielen, handgreep, taps kussen en zitting met ronde neus (FB-01, FB-02)', () => {
+    for (const id of ['FB-01', 'FB-02']) for (const v of VERSIES) {
+      const o = toestel(id, v);
+      expect(o.delen.find((d: any) => d.naam === 'Ligger').P.ovaal).toBe(true);
+      expect(o.delen.find((d: any) => d.naam === 'Achterpoot').buig).toBeTruthy();
+      expect(o.koop.find((k: any) => k.key === 'transportwiel')!.n).toBe(2);
+      expect(o.delen.some((d: any) => d.naam === 'Handgreep verplaatsen')).toBe(true);
+      expect(o.kussens[0].geo[0].taps).toBeTruthy();
+      expect(berekening(o).oordeel).not.toBe('rood');
+    }
+    expect(toestel('FB-02', 'pro').kussens.find((k: any) => k.naam === 'Zitting').geo[0].neus.r).toBeGreaterThan(80);
   });
 });

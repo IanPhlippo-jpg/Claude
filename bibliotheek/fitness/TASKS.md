@@ -63,3 +63,12 @@
 - [ ] FS selectorized (eigen stapel en pen), FM multigyms/rigs, FO opslag/accessoires, FX strongman/buiten (EN 16630)
 - [ ] Per toestel 3D, berekening, bladen, gat- en botsingscontrole, bestellijst, prijs en marktband
 - [ ] Web lui laden per toestel, EISEN/README/docs, presentatie en bureaubladkopie, foto's fitness-fotos-v5c, graphify
+
+## Versie 5 fase A2: vormtaal van pro-toestellen (2026-11-15)
+- [x] Model: gebogen buis (sweep langs bogen, buigradius ≥ 3 x buishoogte) en vrije laserplaat (contour met bogen, uitsparingen)
+- [x] Doorrekenen: lassen, eindkappen, botsing en gaten op gebogen buis en contour; stuklijst (gestrekte lengte, bochten), werkwijze (buigen), prijs (per bocht, laser per m contour), DXF met bogen, stukblad
+- [x] Plate-loaded: frame in gebogen ovaalbuis, zijschilden 10 mm rond de draaipunten, gebogen hefbomen, voetframe met ronde hoeken, schuine grepen (FP-04/05/08/09, FP-01)
+- [x] Kabel: stapeltoren volledig omkapt (voor/zij/achter met grote radii, ronde bovenkap), voetkappen, gebogen bovenarm met katrolkap (FK-01, FK-04 en de andere torens)
+- [x] Rekken: voetplaten met ronde hoeken en stelvoet, kopplaten met schuine rand, zijplaat met naam, J-cups met UHMW
+- [x] Banken: ovaalbuisframe met gebogen achterpoot, voorpoot met wieltjes en handgreep, taps kussen, zitting met ronde neus (FB-02, FB-01)
+- [x] Controles en tests groen, typecheck, foto's voor/na in fitness-fotos-v5a2 (FP-04, FP-08, FP-01, FK-01, FK-04, FR-01, FB-02), web, presentatie, graphify

@@ -30,7 +30,7 @@ const asAs = (v) => { const i = v.findIndex((x) => Math.abs(x) > 0.999); return 
 export function proUiterlijk(b, def) {
   const o = b.o, oud = b.huidig, stijl = STIJL[def.soort] ?? STIJL.rek;
   o.stijl = { ...stijl, soort: def.soort };
-  o.pronk = [];
+  o.pronk = o.pronk ?? [];
   // 1. touch points: de trekknop van elke veerpen/popper-pin en de kop van de selectiepen in de accentkleur, de kraag zwart
   for (const k of o.koop) if (/pullpin|veerpen|popper/i.test(k.key)) for (const g of k.geo) { if (g.kleur === 'ring') g.kleur = 'accent'; else if (g.kleur === 'rubber') g.kleur = 'eindkap'; }
   for (const k of o.koop) if (/selectiepen/i.test(k.key)) for (const g of k.geo) if (g.kleur === 'rubber') g.kleur = 'accent';
@@ -50,14 +50,16 @@ export function proUiterlijk(b, def) {
   katrolKappen(b);
   // 6. naafkappen in de accentkleur op de draaipunten van de hefbomen (plate-loaded: herkenbare 'touch points')
   naafKappen(b);
-  // 7. logoplaat (gelaserd 3 mm met logo-uitsparing, op VHB-tape)
+  // 7. rekken: kopplaten met schuine rand op de staanders, gelaste eindplaten met ronde hoeken op de voeten, zijplaat met naam
+  if (def.soort === 'rek') rekVorm(b);
+  // 8. logoplaat (gelaserd 3 mm met logo-uitsparing, op VHB-tape)
   logoPlaat(b, def);
   b.groep(oud);
 }
 
 /** kap van de stapel: de voorplaat wordt paneel + venster + sleuf + venster + paneel; achter en zijstroken als paneel */
 function stapelKap(b) {
-  const o = b.o, voor = o.delen.filter((d) => d.kleur === 'kap' && /^Afscherming voor/.test(d.naam));
+  const o = b.o, voor = o.delen.filter((d) => d.kleur === 'kap' && !d.contour && /^Afscherming voor/.test(d.naam));
   for (const d of o.delen) if (d.kleur === 'kap' && /^Afscherming (achter|zijkant)/.test(d.naam)) d.geo[0].kleur = 'kappaneel';
   let n = 0;
   for (const d of voor) {
@@ -115,11 +117,55 @@ function naafKappen(b) {
   }
   if (n) b.koop('naafkap', n, [], { naam: `Naafkap ABS Ø90 in de accentkleur op ${n} asuiteinde${n > 1 ? 'n' : ''}`, groep: 'afwerking' });
 }
+/** is het uiteinde e van staaf d vrij (geen ander stalen deel binnen 3 mm voorbij het uiteinde)? */
+function vrijEinde(o, d, e, r) {
+  const G = obb(balk(e, add(e, mul(r, 10)), d.v, d.P.b + 10, d.P.h + 10), 0);
+  return !o.delen.some((x) => x !== d && x.geo.some((g) => botsen(G, obb(g, 0.3))));
+}
+/** rek-vormtaal (Rogue/Eleiko): kopplaat 8 mm met afgeschuinde hoeken op elke vrije staandertop, eindplaat 8 mm met
+ *  ronde hoeken R15 op elk vrij uiteinde van een voetbalk, en een gelaserde zijplaat met naam op de zijligger */
+function rekVorm(b) {
+  const o = b.o, t = 8;
+  for (const d of [...o.delen]) {
+    if (d.soort !== 'staaf' || d.pad || d.P.vorm !== 'koker' || !VAST.test(d.groep) && !/^Zijframe/.test(d.groep)) continue;
+    const staat = Math.abs(d.u[2]) > 0.999, ligt = Math.abs(d.u[2]) < 1e-6 && Math.min(d.a[2], d.b[2]) - d.P.h / 2 < 5;
+    if (staat) {
+      const top = d.a[2] > d.b[2] ? d.a : d.b, k = 5, c = 6, hx = d.P.b / 2 + k, hy = d.P.h / 2 + k;
+      if (!vrijEinde(o, d, top, [0, 0, 1])) continue;
+      const pts = [[-hx + c, -hy], [hx - c, -hy], [hx, -hy + c], [hx, hy - c], [hx - c, hy], [-hx + c, hy], [-hx, hy - c], [-hx, -hy + c]];
+      b.groep(d.groep);
+      b.contour('Kopplaat', [top[0], top[1], top[2] + t / 2], d.v, cross(d.u[2] > 0 ? [0, 0, 1] : [0, 0, -1], d.v).map((x) => -x), t, pts, { opm: `kopplaat ${t} mm, gelaserd met afgeschuinde hoeken (${c} mm), ${k} mm overstek, rondom gelast en de rand gebroken`, banden: 4 });
+    } else if (ligt && /voet/i.test(d.naam)) {
+      for (const [e, r] of [[d.a, mul(d.u, -1)], [d.b, d.u]]) {
+        if (!vrijEinde(o, d, e, r)) continue;
+        const vz = Math.abs(d.v[2]) > 0.9, hx = (vz ? d.P.h : d.P.b) / 2 + 3, z0 = -(vz ? d.P.b : d.P.h) / 2, z1 = -z0 + 3, ex = norm(cross([0, 0, 1], r));
+        b.groep(d.groep);
+        b.contour('Eindplaat voet', add(e, mul(r, t / 2)), ex, [0, 0, 1], t, [[-hx, z0, 0], [hx, z0, 0], [hx, z1, 15], [-hx, z1, 15]], { opm: `eindplaat ${t} mm met ronde hoeken R15 boven, sluit de voetbalk (geen kunststof dop), rondom gelast`, banden: 4 });
+      }
+    }
+  }
+  // zijplaat met naam (gelaserd 3 mm, logo-uitsparing) op de buitenkant van een zijligger bovenaan
+  const zl = o.delen.filter((d) => d.soort === 'staaf' && !d.pad && d.P.vorm === 'koker' && Math.abs(d.u[1]) > 0.999 && /Bovenligger zijkant|zijligger/i.test(d.naam)).sort((p, q) => q.L - p.L);
+  const cx = o.delen.reduce((s2, d) => s2 + (d.geo[0].a[0] + d.geo[0].b[0]) / 2, 0) / Math.max(1, o.delen.length);
+  let n = 0;
+  for (const d of zl) {
+    const m = mul(add(d.a, d.b), 0.5), sx = Math.sign(m[0] - cx) || 1, Lp = Math.round(Math.min(700, d.L - 120)), Wp = Math.round(d.P.h - 4 * d.P.t - 4);
+    if (Lp < 300 || Wp < 34) continue;
+    const c = [m[0] + sx * (d.P.b / 2 + 1.5), m[1], m[2]], geo = balk(add(c, [0, -Lp / 2, 0]), add(c, [0, Lp / 2, 0]), [0, 0, 1], Wp, 3);
+    const G = obb(geo, -1);
+    if (o.delen.some((x) => x !== d && x.geo.some((g) => botsen(G, obb(g, 0.2))))) continue;
+    const [p0, p1] = [geo.a, geo.b].map((q, i) => q), mn = [Math.min(p0[0], p1[0]) - 1.5, Math.min(p0[1], p1[1]), m[2] - Wp / 2], mx = [Math.max(p0[0], p1[0]) + 1.5, Math.max(p0[1], p1[1]), m[2] + Wp / 2];
+    b.groep('Zijplaat');
+    b.plaat('Zijplaat met naam', mn, mx, { kleur: 'logo', in: d.id, laser: true, opm: `gelaserd 3 mm met de naam als uitsparing (placeholder), poedercoat in de accentkleur; met 3M VHB op ${d.naam.toLowerCase()} gekleefd` });
+    n++;
+  }
+  if (n) b.koop('vhb', 1, [], { naam: `VHB-kleefband voor ${n} zijplaat${n > 1 ? 'en' : ''} met naam`, groep: 'afwerking' });
+}
 /** gelaserde logoplaat 3 mm (logo-uitsparing, placeholder) op een vaste koker van het frame, op VHB-tape (geen gaten):
  *  rek = voorkant van de hoogste dwarsligger; anders de buitenkant van de langste staander boven 1,35 m (het typeplaatje
  *  zit lager) of de zijkant van de langste ligger. Vrij van gaten, lassen en andere delen. */
 function logoPlaat(b, def) {
-  const o = b.o, t = 3, kand = o.delen.filter((d) => d.soort === 'staaf' && d.P.vorm === 'koker' && !d.P.ovaal && d.L >= 300 && VAST.test(d.groep) && asAs(d.u) >= 0 && Math.min(d.P.b, d.P.h) >= 40);
+  const o = b.o, t = 3, kand = o.delen.filter((d) => d.soort === 'staaf' && !d.pad && d.P.vorm === 'koker' && !d.P.ovaal && d.L >= 300 && VAST.test(d.groep) && asAs(d.u) >= 0 && Math.min(d.P.b, d.P.h) >= 40);
   const [mn0, mx0] = o.delen.reduce(([a, z], d) => { const [p, q] = aabb(d.geo[0]); return [a.map((x, i) => Math.min(x, p[i])), z.map((x, i) => Math.max(x, q[i]))]; }, [[Infinity, Infinity, Infinity], [-Infinity, -Infinity, -Infinity]]);
   const cx = (mn0[0] + mx0[0]) / 2;
   const liggend = kand.filter((d) => asAs(d.u) === 0).sort((p, q) => Math.max(q.a[2], q.b[2]) - Math.max(p.a[2], p.b[2]) || q.L - p.L);

@@ -135,6 +135,7 @@ De test bouwt elk toestel in de thuis- en de proversie en controleert:
 | `rekken.mjs`, `banken.mjs`, `kabel.mjs`, `plate.mjs` | de 50 toestellen |
 | `catalogus.mjs` | alle toestellen en `toestel(id, versie, { stand })`; stand 0..1 = de stand van de beweging |
 | `controle.mjs` | de controles: botsingen (OBB), zwevende delen, kabelloop, ergonomie, schijven vrij, gatfouten, Westside snoeien |
+| `vorm.mjs` | gebogen buis (buigpad, gestrekte lengte) en vrije contour (afrondingen, bulge voor de DXF, randafstand) |
 | `pro.mjs` | pro-uiterlijk per soort: stijl, ovaalbuis, logoplaat, stapelkap met venster, katrol- en naafkappen, touch points |
 | `detail.mjs` | afwerkdetails voor 3D en bladen: gaten, eindkappen, grips, kartel, glijlagers, assen met borgring, naden, typeplaatje |
 | `bereken.mjs` | de berekening en de stabiliteit |
@@ -225,6 +226,40 @@ gebaseerd op de vormtaal van merktoestellen zonder hun logo's of ontwerpen na te
 - Alles staat in de stuklijst, de DXF, de bestellijst en de prijs: logoplaat (laserdeel, VHB-tape, geen gaten),
   vlakovaalbuis (prijs per kg x 1,5, AANNAME), eindkap ovaal, katrolkap, naafkap, polycarbonaat, verchromen,
   instructieplaat. De nieuwe kooponderdelen zijn AANNAME (prijs nog op te vragen).
+
+## Versie 5 fase A2: vormtaal van pro-toestellen (2026-11-15)
+
+Niet alleen de afwerking, ook de vormen: geen rechte kokers in rechthoekige kaders meer waar een merktoestel bogen heeft.
+
+- **Nieuwe bouwtaal** (`vorm.mjs`, `model.mjs`):
+  - `b.buis(naam, rol, hoekpunten, { R })`: een gebogen buis. Hoekpunten worden bogen met buigradius R ≥ 3 x de
+    buishoogte in het buigvlak. De gestrekte lengte telt in de stuklijst, plus 2 x 150 mm klemlengte op de staaf van 6 m.
+    Het stukblad toont de buigvorm met een buigtabel (hoekpunten, bochten, rechte benen).
+  - `b.contour(naam, o, ex, ey, t, hoekpunten, { gaten, uitsparingen })`: een laserplaat met een vrije contour (hoeken
+    met afrondingsstraal). De DXF is een polylijn met bogen (bulge) plus de uitsparingen. Het stukblad toont de vorm.
+  - Lassen, eindkappen, botsingen, knelpunten en de gatcontrole werken op alle stukken van de gebogen buis en de
+    contourplaat. De randafstand van een gat wordt tot de echte contour gemeten.
+  - De prijs rekent buigen per bocht (€ 9 per bocht + € 25 instellen per positie) en lasersnijden per meter snijlijn
+    (op dikte) + per insteek + de plaat per kg. Dat zijn AANNAMES. De werkwijze krijgt een stap 'Buigen'.
+- **Plate-loaded** (FP-04/05/08/09 iso, FP-01):
+  - voetframe als lus in vlakovaalbuis met ronde hoeken (twee helften, elk 2 bochten);
+  - portaal met twee gebogen ovaalbuizen die naar de ligger boven de as buigen;
+  - lagerschilden 8/10 mm met vrije contour en uitsparing;
+  - hefboomarmen als één gebogen ovaalbuis;
+  - schuine grepen.
+  - De portaalboog is nagerekend als uitkrager, met een factor 1,3 aan de binnenkant van de bocht (Winkler, R/h = 3).
+- **Kabel**:
+  - elke stapeltoren is volledig omkapt: voor-, zij- en achterkap 1,5 mm met hoeken R25, een afgeronde bovenkap,
+    een venster met sleuf voor de selectiepen en een instructieplaat;
+  - ABS-voetkappen over de torenvoeten;
+  - de lat-arm van FK-01 is een gebogen ovaalbuis.
+- **Rekken**: kopplaat 8 mm met afgeschuinde hoeken op elke vrije staandertop, eindplaat 8 mm met ronde hoeken op de
+  voetbalken, gelaserde zijplaat met naam (FR-01).
+- **Banken** (FB-01, FB-02):
+  - ligger in vlakovaalbuis;
+  - gebogen achterpoot die overgaat in de vloerloper;
+  - transportwielen aan de voorvoet en een handgreep aan het hoofdeinde;
+  - taps kussen en een zitting met ronde neus.
 
 ## Wat nog open is
 

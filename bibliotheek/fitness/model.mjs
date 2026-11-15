@@ -4,6 +4,7 @@
 // dezelfde lasgroep die elkaar raken), de open buisuiteinden (eindkap), de buitenmaten, de massa en het zwaartepunt.
 // Alle tekeningen, de stuklijst, de berekening en de 3D lezen hetzelfde model. Node en browser.
 import { PROFIEL, KOOP, VERSIE, kapVoor } from './onderdelen.mjs';
+import { buigPad, padVlak, afronden, banden } from './vorm.mjs';
 
 // ---------------------------------------------------------------- vectoren
 export const sub = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
@@ -85,6 +86,44 @@ export function bouwer(V, stand = 0) {
       const d = { id: `d${++nr}`, soort: 'staaf', naam, groep: opt.groep ?? groep, prof: Pf.id, P: Pf, a, b: bb, u: g.u, v: g.v, w: g.w, L: len(sub(bb, a)), verstek: opt.verstek ?? [0, 0], gaten: (opt.gaten ?? []).map((x) => ({ as: 'w', door: Pf.vorm === 'koker' || Pf.vorm === 'buis' ? 2 : 1, ...x })), geo: [g], kapNodig: opt.kap ?? true, opm: opt.opm ?? '', in: opt.in ?? null, rol: opt.rol ?? rol, westside: opt.westside ?? null };
       o.delen.push(d); return d;
     },
+    /**
+     * gebogen buis langs de hoekpunten pts (theoretische snijpunten), buigradius R op de hartlijn (standaard 3 x de
+     * buishoogte in het buigvlak). De breedte P.b ligt loodrecht op het buigvlak, de hoogte P.h in het vlak. De gaten
+     * staan op de gestrekte lengte s. opt: { R, v (bij een rechte lijn), gaten, kap, opm, in, groep, kleur }
+     */
+    buis(naam, rol, pts, opt = {}) {
+      const Pf = P(rol), d0 = norm(sub(pts[1], pts[0])), vlak = opt.vlak ?? padVlak(pts) ?? opt.v ?? standaardV(d0), st = !!opt.staand, bw = st ? Pf.h : Pf.b, bh = st ? Pf.b : Pf.h, R = opt.R ?? 3 * bh;
+      const pad = buigPad(pts, R), kleur = opt.kleur ?? 'frame', isRond = Pf.vorm === 'buis' || Pf.vorm === 'rond';
+      const rr = Pf.vorm === 'koker' ? (Pf.ovaal ? Math.min(Pf.b, Pf.h) / 2 : Math.min(2 * Pf.t, Math.min(Pf.b, Pf.h) / 4)) : 0, geo = [];
+      for (let i = 1; i < pad.stalen.length; i++) {
+        const A = pad.stalen[i - 1], B = pad.stalen[i], Lk = len(sub(B.p, A.p));
+        if (Lk < 0.5) continue;
+        const u = norm(sub(B.p, A.p)), e = B.boog ? Math.min(2, Lk * 0.1) : 0, g = balk(sub(A.p, mul(u, e)), add(B.p, mul(u, e)), vlak, bw, bh, isRond, kleur, { seg: true });
+        if (rr) g.r = rr; geo.push(g);
+      }
+      const ua = pad.dirs[0], ub = pad.dirs[pad.dirs.length - 1];
+      const d = { id: `d${++nr}`, soort: 'staaf', naam, groep: opt.groep ?? groep, prof: Pf.id, P: Pf, a: pts[0], b: pts[pts.length - 1], u: ua, v: vlak, w: cross(ua, vlak), L: pad.L, verstek: [0, 0], gaten: (opt.gaten ?? []).map((x) => ({ as: 'w', door: Pf.vorm === 'koker' || Pf.vorm === 'buis' ? 2 : 1, ...x })), geo, kapNodig: opt.kap ?? true, opm: opt.opm ?? '', in: opt.in ?? null, rol: opt.rol ?? rol, westside: null, pad: pad.stalen, vlak, ua, ub, staand: st, buig: { R: Math.round(R), bochten: pad.bochten.map((x) => Math.round(x * 10) / 10), benen: pad.benen.map(Math.round), hoekpunten: pts } };
+      o.delen.push(d); return d;
+    },
+    /**
+     * lasersnijplaat met een vrije contour in het vlak door o3 met assen ex, ey (de plaat ligt midden op het vlak, dikte t).
+     * hoekpunten [[x, y, r?], ...] in mm in dat vlak (r = afronding); opt: { gaten: [{ x, y, d }], uitsparingen:
+     * [[[x, y, r?], ...]], kleur, opm, in, groep, banden }
+     */
+    contour(naam, o3, ex, ey, t, hoekpunten, opt = {}) {
+      const nn = cross(ex, ey), cont = afronden(hoekpunten), uits = (opt.uitsparingen ?? []).map((h) => afronden(h)), kleur = opt.kleur ?? 'frame';
+      const P3 = (x, y, z = 0) => add(add(add(o3, mul(ex, x)), mul(ey, y)), mul(nn, z));
+      const xs = cont.punten.map((p) => p[0]), ys = cont.punten.map((p) => p[1]), minx = Math.min(...xs), maxx = Math.max(...xs), miny = Math.min(...ys), maxy = Math.max(...ys);
+      const geo = banden(cont.punten, opt.banden ?? 10).filter((x) => x.x1 - x.x0 > 1).map((x) => { const yc = (x.y0 + x.y1) / 2; return balk(P3(x.x0, yc), P3(x.x1, yc), ey, x.y1 - x.y0, t, false, kleur, { seg: true }); });
+      const mn = [Infinity, Infinity, Infinity], mx = [-Infinity, -Infinity, -Infinity];
+      for (const [x, y] of cont.punten) for (const z of [-t / 2, t / 2]) { const q = P3(x, y, z); for (let i = 0; i < 3; i++) { mn[i] = Math.min(mn[i], q[i]); mx[i] = Math.max(mx[i], q[i]); } }
+      const ax = (v) => [0, 1, 2].sort((i, j) => Math.abs(v[j]) - Math.abs(v[i]))[0];
+      const opp = (pts) => Math.abs(pts.reduce((tt, p, i) => tt + p[0] * pts[(i + 1) % pts.length][1] - pts[(i + 1) % pts.length][0] * p[1], 0)) / 2;
+      const gaten = (opt.gaten ?? []).map((g) => ({ d: g.d, p: P3(g.x, g.y), x: g.x - minx, y: g.y - miny, lx: g.x, ly: g.y, sleuf: 0 }));
+      const d = { id: `d${++nr}`, soort: 'plaat', naam, groep: opt.groep ?? groep, t: r1(t), l: r1(maxx - minx), bmaat: r1(maxy - miny), mn, mx, as: { t: ax(nn), b: ax(ey), l: ax(ex) }, gaten, rond: false, vorm: 'contour', geo, opm: opt.opm ?? '', in: opt.in ?? null, kleur, laser: true, stapel: false,
+        contour: { o: o3, ex, ey, n: nn, t, punten: cont.punten, segmenten: cont.segmenten, omtrek: cont.omtrek + uits.reduce((tt, u) => tt + u.omtrek, 0), uitsparingen: uits, minx, miny, opp: opp(cont.punten) - uits.reduce((tt, u) => tt + opp(u.punten), 0) } };
+      o.delen.push(d); return d;
+    },
     /** plaat als doos van p0 tot p1 (een van de drie maten is de dikte); opt: { gaten: [{ p: [x,y,z], d }], rond, vorm, opm } */
     plaat(naam, p0, p1, opt = {}) {
       const mn = [0, 1, 2].map((i) => Math.min(p0[i], p1[i])), mx = [0, 1, 2].map((i) => Math.max(p0[i], p1[i])), dim = [0, 1, 2].map((i) => mx[i] - mn[i]);
@@ -108,7 +147,7 @@ export function bouwer(V, stand = 0) {
     /** kussen: onderkant langs a-b (hartlijn), n = de normaal naar de gebruiker; multiplex 18 + schuim + kunstleer */
     kussen(naam, a, bb, n, breedte, dikte = 68, opt = {}) {
       const u = norm(sub(bb, a)), nn = norm(n), v = cross(nn, u), off = mul(nn, dikte / 2);
-      const g = balk(add(a, off), add(bb, off), v, breedte, dikte, false, 'leer', { kussen: true }), gm = balk(add(a, mul(nn, 9)), add(bb, mul(nn, 9)), v, breedte - 4, 18, false, 'hout');
+      const g = balk(add(a, off), add(bb, off), v, breedte, dikte, false, 'leer', { kussen: true, taps: opt.taps ?? null, neus: opt.neus ?? null }), gm = balk(add(a, mul(nn, 9)), add(bb, mul(nn, 9)), v, breedte - 4, 18, false, 'hout');
       const d = { id: `p${++nr}`, soort: 'kussen', naam, groep: opt.groep ?? groep, a, b: bb, n: nn, L: len(sub(bb, a)), breedte, dikte, mp: 18, schuim: dikte - 18, geo: [g], geoMp: gm, inslag: opt.inslag ?? 4, rol: opt.rol ?? false };
       o.kussens.push(d); return d;
     },
@@ -234,6 +273,22 @@ export function bouwer(V, stand = 0) {
 
 // ---------------------------------------------------------------- na het bouwen
 /** lassen, eindkappen, maten, massa en zwaartepunt */
+/** contact tussen twee delen: één balk elk, of de beste van alle balken (gebogen buis, contourplaat) */
+export function contactDeel(A, B, tol = 0.6) {
+  if (A.geo.length === 1 && B.geo.length === 1) return contact(A.geo[0], B.geo[0], tol);
+  if (!(A.pad || A.contour || B.pad || B.contour)) return contact(A.geo[0], B.geo[0], tol);
+  const ba = doosVan(A.geo), bb = doosVan(B.geo);
+  if (!doosRaakt(ba, bb, tol)) return null;
+  let best = null;
+  for (const g of A.geo) for (const h of B.geo) { const c = contact(g, h, tol); if (c && (!best || c.lengte > best.lengte)) best = c; }
+  return best;
+}
+/** de omhullende doos van een rij balken */
+export function doosVan(geo) {
+  const mn = [Infinity, Infinity, Infinity], mx = [-Infinity, -Infinity, -Infinity];
+  for (const g of geo) { const [a, b] = aabb(g); for (let i = 0; i < 3; i++) { mn[i] = Math.min(mn[i], a[i]); mx[i] = Math.max(mx[i], b[i]); } }
+  return [mn, mx];
+}
 export function afwerken(o) {
   const staal = o.delen;
   // lassen: stalen delen in dezelfde lasgroep die elkaar raken (de stapelstang zit in de bovenplaat)
@@ -243,7 +298,7 @@ export function afwerken(o) {
     if (A.groep !== B.groep || (A.stapel && B.stapel)) continue;
     if ((A.stapel || B.stapel) && !/Bovenplaat/.test((A.stapel ? A : B).naam)) continue;
     if (A.geenLas || B.geenLas) continue;
-    const c = contact(A.geo[0], B.geo[0]);
+    const c = contactDeel(A, B);
     if (!c || c.lengte < 5) continue;
     const plaatPlaat = A.soort === 'plaat' && B.soort === 'plaat';
     const tmin = Math.min(dikte(A), dikte(B)), a = Math.min(o.V.las, Math.max(3, Math.floor(0.7 * tmin)), tmin); // keel ≤ dunste wand (P3-01)
@@ -254,7 +309,7 @@ export function afwerken(o) {
   for (const d of staal) {
     if (d.soort !== 'staaf' || !kapVoor(d.P) || d.kapNodig === false) continue;
     d.kappen = [d.a, d.b].map((e, k) => {
-      const eg = balk(add(e, mul(d.u, k ? -2 : 2)), add(e, mul(d.u, k ? 1 : -1)), d.v, d.P.b * 0.6, d.P.h * 0.6);
+      const uu = k ? d.ub ?? d.u : d.ua ?? d.u, eg = balk(add(e, mul(uu, k ? -2 : 2)), add(e, mul(uu, k ? 1 : -1)), d.v, d.P.b * 0.6, d.P.h * 0.6);
       return !alleGeo.some((x) => x.d !== d && contact(eg, x.g, 1.2));
     });
   }
@@ -282,6 +337,7 @@ export const midden = (g) => mul(add(g.a, g.b), 0.5);
 /** massa van een stalen deel (kg) */
 export function massa(d) {
   if (d.soort === 'staaf') return (d.P.kgm * lengteStuk(d)) / 1000;
+  if (d.contour) return (d.contour.opp - d.gaten.reduce((t, g) => t + (Math.PI / 4) * g.d ** 2, 0)) * d.t * 7.85e-6;
   const A = d.rond ? (Math.PI / 4) * d.l * d.bmaat : d.l * d.bmaat, gat = d.gaten.reduce((t, g) => t + (Math.PI / 4) * g.d ** 2, 0);
   return ((A - gat) * d.t * 7.85e-6);
 }

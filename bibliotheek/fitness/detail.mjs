@@ -4,6 +4,7 @@
 // van de kussens, en het typeplaatje (EN ISO 20957-1) op de grootste staander. Node en browser.
 import { balk, add, mul, sub, norm, cross, dot, standaardV } from './model.mjs';
 import { gaten } from './controle.mjs';
+import { afronden } from './vorm.mjs';
 
 const X = [1, 0, 0], Y = [0, 1, 0], Z = [0, 0, 1];
 const neg = (v) => v.map((x) => -x);
@@ -30,7 +31,7 @@ export function details(o) {
     // 2. eindkappen op open uiteinden (zwart, 3 mm)
     (d.kappen ?? []).forEach((open, k) => {
       if (!open) return;
-      const e = k ? d.b : d.a, r = k ? d.u : neg(d.u);
+      const e = k ? d.b : d.a, r = k ? d.ub ?? d.u : neg(d.ua ?? d.u);
       uit.push(balk(e, add(e, mul(r, 3)), d.v, P.b + (rond ? 1 : 0.6), P.h + (rond ? 1 : 0.6), rond, 'eindkap', P.ovaal ? { r: P.b / 2 + 0.3 } : P.vorm === 'koker' ? { r: 2 * P.t + 0.3 } : {}));
     });
     // eindkap op de schijfhouder (rubber, met kraag)
@@ -40,8 +41,8 @@ export function details(o) {
       const L = d.L, ends = L > 450 ? [0, 1] : [1];
       // grip (rubber, of de accentkleur op een grendelhendel) met een eindkap op het vrije uiteinde
       const kl = /grendel/i.test(d.naam) ? 'accent' : 'rubber';
-      for (const k of ends) { const e = k ? d.b : d.a, r = k ? neg(d.u) : d.u, l = Math.min(130, L * 0.6); uit.push(balk(add(e, mul(r, 4)), add(e, mul(r, 4 + l)), d.v, P.b + 6, P.b + 6, true, kl, { grip: true })); }
-      for (const k of ends) { const e = k ? d.b : d.a, r = k ? d.u : neg(d.u); if ((d.kappen ?? [true, true])[k]) uit.push(balk(add(e, mul(r, -2)), add(e, mul(r, 6)), d.v, P.b + 9, P.b + 9, true, 'eindkap')); }
+      for (const k of ends) { const e = k ? d.b : d.a, r = k ? neg(d.ub ?? d.u) : d.ua ?? d.u, l = Math.min(130, L * 0.6); uit.push(balk(add(e, mul(r, 4)), add(e, mul(r, 4 + l)), d.v, P.b + 6, P.b + 6, true, kl, { grip: true })); }
+      for (const k of ends) { const e = k ? d.b : d.a, r = k ? d.ub ?? d.u : neg(d.ua ?? d.u); if ((d.kappen ?? [true, true])[k]) uit.push(balk(add(e, mul(r, -2)), add(e, mul(r, 6)), d.v, P.b + 9, P.b + 9, true, 'eindkap')); }
     }
     if (/^(Optrekstang|Dipstang|Halterstang)/.test(d.naam)) {
       const L = d.L, l = Math.min(160, L * 0.2);
@@ -53,6 +54,13 @@ export function details(o) {
   // 5. kussens: naad rondom 22 mm van de rand en het multiplex dat onderaan zichtbaar is
   for (const k of o.kussens) {
     const g = k.geo[0], u = g.u, v = norm(cross(k.n, u)), n = k.n, L = k.L, B = k.breedte, top = add(g.a, mul(n, k.dikte / 2 + 0.3));
+    if (g.taps || g.neus) {
+      // taps kussen of ronde neus: de bies volgt de vorm (afgeronde contour, 3 mm binnen de rand)
+      const b0 = (g.taps?.[0] ?? B) - 6, b1 = (g.taps?.[1] ?? B) - 6, rA = g.neus?.kant === 'a' ? g.neus.r : 30, rB = g.neus?.kant === 'b' ? g.neus.r : 30, c = add(add(g.a, mul(u, L / 2)), mul(n, k.dikte / 2 - 9));
+      const pts = afronden([[-L / 2 + 3, -b0 / 2, rA], [L / 2 - 3, -b1 / 2, rB], [L / 2 - 3, b1 / 2, rB], [-L / 2 + 3, b0 / 2, rA]], 4).punten.map(([x, y]) => add(add(c, mul(u, x)), mul(v, y)));
+      pts.forEach((p, i) => { const q = pts[(i + 1) % pts.length]; if (len(sub(q, p)) > 1) uit.push(balk(p, q, n, 9, 9, true, 'bies')); });
+      continue;
+    }
     const s0 = add(top, mul(u, 22)), s1 = add(top, mul(u, L - 22));
     for (const s of [-1, 1]) uit.push(balk(add(s0, mul(v, s * (B / 2 - 22))), add(s1, mul(v, s * (B / 2 - 22))), v, 2, 0.8, false, 'naad'));
     for (const t of [22, L - 22]) { const c = add(top, mul(u, t)); uit.push(balk(add(c, mul(v, -(B / 2 - 22))), add(c, mul(v, B / 2 - 22)), u, 2, 0.8, false, 'naad')); }
@@ -100,7 +108,7 @@ const len = (v) => Math.hypot(...v);
 /** de plek van het typeplaatje: de langste staande koker van het frame, aan de buitenkant, op 0,6-1,3 m */
 export function typeplaatPlek(o) {
   const [mn, mx] = o.box, cx = (mn[0] + mx[0]) / 2;
-  const kokers = o.delen.filter((d) => d.soort === 'staaf' && d.P.vorm === 'koker' && d.L > 250 && Math.min(d.P.b, d.P.h) >= 40);
+  const kokers = o.delen.filter((d) => d.soort === 'staaf' && !d.pad && d.P.vorm === 'koker' && d.L > 250 && Math.min(d.P.b, d.P.h) >= 40);
   const staand = kokers.filter((d) => Math.abs(d.u[2]) > 0.99).sort((a, b) => (b.groep === 'frame') - (a.groep === 'frame') || b.L - a.L);
   const d = staand[0] ?? kokers.filter((x) => Math.abs(x.u[2]) < 0.3).sort((a, b) => (b.groep === 'frame') - (a.groep === 'frame') || b.L - a.L)[0];
   if (!d) return plaatPlek(o);
@@ -120,7 +128,7 @@ export function typeplaatPlek(o) {
 }
 /** geen koker: op de grootste plaat, tegen de rand (muurplaat, voetplaat) */
 function plaatPlek(o) {
-  const p = o.delen.filter((d) => d.soort === 'plaat').sort((a, b) => b.l * b.bmaat - a.l * a.bmaat)[0];
+  const p = o.delen.filter((d) => d.soort === 'plaat' && !d.contour).sort((a, b) => b.l * b.bmaat - a.l * a.bmaat)[0];
   if (!p) return null;
   const n = [0, 0, 0]; n[p.as.t] = p.as.t === 1 ? -1 : 1;
   const op = [0, 0, 0]; op[p.as.l] = 1;

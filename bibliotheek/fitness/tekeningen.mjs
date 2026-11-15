@@ -3,7 +3,9 @@
 // bestellijst met zaagplan op 6 m en plaatnesting, en een A4 per stuk. Node en browser.
 import { svg, A3, A4L, lijn, tk, maat, tabel, titelblok, schaal, rij, lasSymbool, lasSymboolFlare, f, naamVan, versieTekst, esc } from './blad.mjs';
 import { tekenBalken, omhullende, alleGeo, PROJ, iso } from './aanzicht.mjs';
-import { stuklijst, zaagplan, nesting, totalen } from './stuklijst.mjs';
+import { stuklijst, zaagplan, nesting, totalen, KLEM } from './stuklijst.mjs';
+import { puntOp } from './vorm.mjs';
+const cross3 = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
 import { KOOP } from './onderdelen.mjs';
 import { lengteStuk, dot, add, mul, sub, aabb } from './model.mjs';
 import { gatFouten, SPELING } from './controle.mjs';
@@ -97,7 +99,24 @@ export function stuklijstBlad(o, meta = {}) {
 export function stukBlad(o, p, meta = {}) {
   const el = [], d = p.voorbeeld; let schaalTekst = '-';
   el.push(tk(25, 18, `Pos ${p.pos}: ${p.naam}`, 4, { vet: true }), tk(25, 24, `${p.n} stuk${p.n > 1 ? 's' : ''} · ${p.maat} · ${p.mat}${p.L ? ` · L = ${p.L} mm` : ''}${p.zaagT ? ` · ${p.zaagT}` : ''} · ${gw(p.kg, 2)} kg/st`, 2.6));
-  if (p.soort === 'staaf') {
+  if (p.soort === 'staaf' && d.buig) {
+    const P = d.P, pts = d.buig.hoekpunten, e1 = d.ua, e2 = cross3(d.vlak, e1), xy = (q) => { const r = [q[0] - pts[0][0], q[1] - pts[0][1], q[2] - pts[0][2]]; return [r[0] * e1[0] + r[1] * e1[1] + r[2] * e1[2], r[0] * e2[0] + r[1] * e2[1] + r[2] * e2[2]]; };
+    const H = pts.map(xy), C = d.pad.map((q) => xy(q.p)), xs = C.map((q) => q[0]).concat(H.map((q) => q[0])), ys = C.map((q) => q[1]).concat(H.map((q) => q[1]));
+    const bx = Math.max(...xs) - Math.min(...xs) + P.h, by = Math.max(...ys) - Math.min(...ys) + P.h, sc = schaal(Math.min(170 / bx, 85 / by)), k = sc.k; schaalTekst = sc.tekst;
+    const X0 = 40 - (Math.min(...xs) - P.h / 2) * k, Y0 = 50 + (Math.max(...ys) + P.h / 2) * k, T = ([x, y]) => [X0 + x * k, Y0 - y * k];
+    el.push(tk(35, 40, `Buigvorm in het buigvlak (${P.naam}, hoogte ${gw(P.h)} in het vlak): hartlijn, hoekpunten en buitenmaat`, 2.3, { vet: true }));
+    // buitenmaat: de hartlijn verschoven over ± h/2
+    for (const sg of [-1, 1]) { const off = d.pad.map((q) => { const tt = xy(add(q.p, q.t)), pp = xy(q.p), dx = tt[0] - pp[0], dy = tt[1] - pp[1], nl = Math.hypot(dx, dy) || 1; return T([pp[0] - (sg * dy * P.h) / 2 / nl, pp[1] + (sg * dx * P.h) / 2 / nl]); }); el.push(`<polyline points="${off.map(([x, y]) => `${f(x)},${f(y)}`).join(' ')}" fill="none" stroke="#111" stroke-width="0.5"/>`); }
+    el.push(`<polyline points="${C.map((q) => T(q).map(f).join(',')).join(' ')}" fill="none" stroke="#111" stroke-width="0.15" stroke-dasharray="4 1 0.5 1"/>`);
+    el.push(`<polyline points="${H.map((q) => T(q).map(f).join(',')).join(' ')}" fill="none" stroke="#2563a8" stroke-width="0.12" stroke-dasharray="1 1"/>`);
+    H.forEach((q, i) => { const [x, y] = T(q); el.push(`<circle cx="${f(x)}" cy="${f(y)}" r="0.6" fill="#2563a8"/>`, tk(x + 1, y - 1, `H${i}`, 1.8, { kleur: '#2563a8' })); });
+    for (const g of d.gaten) { const q = puntOp(d, g.s), [x, y] = T(xy(q.p)); el.push(`<circle cx="${f(x)}" cy="${f(y)}" r="${f(Math.max(0.35, (g.d / 2) * k))}" fill="#fff" stroke="#b42318" stroke-width="0.3"/>`); }
+    let y = 142;
+    el.push(tk(25, y, `Buigtabel (hoekpunten H = snijpunten van de benen; R = ${d.buig.R} op de hartlijn, ≥ 3 x ${gw(P.h)}; gestrekte lengte ${r0(d.L)} mm + 2 x ${KLEM} klem)`, 2.4, { vet: true })); y += 2;
+    const rows = H.map((q, i) => [`H${i}`, String(r0(q[0])), String(r0(q[1])), i && i < H.length - 1 ? `${gw(d.buig.bochten[i - 1] ?? 0, 1)}°` : '-', i < H.length - 1 ? String(r0(Math.hypot(H[i + 1][0] - q[0], H[i + 1][1] - q[1]))) : '-', i < d.buig.benen.length ? String(d.buig.benen[i]) : '-']);
+    const [tb, th] = tabel(25, y, [['', 8], ['x', 14, true], ['y', 14, true], ['Bocht', 14, true], ['Tot H+1', 16, true], ['Recht been', 18, true]], rows.slice(0, 7), 3.4, 1.75); el.push(tb); y += th + 2;
+    for (const n of [d.opm, `Buigen op een buizenbuiger met een matrijs voor ${P.naam} (buigvlak: hoogte ${gw(P.h)} in het vlak); eerst buigen, dan op lengte zagen en boren. Tolerantie hoek ± 1°, been ± 2 mm; nameten in de lasmal.`, 'Algemene toleranties ISO 2768-m.'].filter(Boolean)) for (const x of rij(n, 150)) { if (y > 170) break; el.push(tk(25, y + 2, x, 2, { kleur: '#333' })); y += 2.8; }
+  } else if (p.soort === 'staaf') {
     const P = d.P, L = lengteStuk(d), s = schaal(Math.min(200 / L, 40 / Math.max(P.b, P.h))), k = s.k, x0 = 35; schaalTekst = s.tekst;
     const views = [{ y: 50, b: P.b, as: 'w', titel: `Aanzicht A: gaten door de ${P.vorm === 'buis' || P.vorm === 'rond' ? 'buis' : `wanden van ${r0(P.h)}`}` }, { y: 45 + P.b * k + 34, b: P.h, as: 'v', titel: 'Aanzicht B (onder A, 90° gedraaid)' }];
     for (const v of views) {
@@ -146,7 +165,8 @@ export function stukBlad(o, p, meta = {}) {
   } else {
     // plaat
     const l = d.l, b = d.bmaat, s = schaal(Math.min(150 / l, 95 / b)), k = s.k, x0 = 40, y0 = 45; schaalTekst = s.tekst;
-    if (d.rond) el.push(`<circle cx="${f(x0 + (l * k) / 2)}" cy="${f(y0 + (b * k) / 2)}" r="${f((l * k) / 2)}" fill="#fff" stroke="#111" stroke-width="0.5"/>`);
+    if (d.contour) { const c = d.contour, pad = (pts) => pts.map(([x, y], i) => `${i ? 'L' : 'M'}${f(x0 + (x - c.minx) * k)},${f(y0 + (b - (y - c.miny)) * k)}`).join(' ') + ' Z'; el.push(`<path d="${pad(c.punten)} ${c.uitsparingen.map((u) => pad(u.punten)).join(' ')}" fill="#fff" fill-rule="evenodd" stroke="#111" stroke-width="0.5"/>`); }
+    else if (d.rond) el.push(`<circle cx="${f(x0 + (l * k) / 2)}" cy="${f(y0 + (b * k) / 2)}" r="${f((l * k) / 2)}" fill="#fff" stroke="#111" stroke-width="0.5"/>`);
     else if (d.vorm === 'driehoek') el.push(`<polygon points="${f(x0)},${f(y0)} ${f(x0 + l * k)},${f(y0)} ${f(x0)},${f(y0 + b * k)}" fill="#fff" stroke="#111" stroke-width="0.5"/>`);
     else el.push(`<rect x="${x0}" y="${y0}" width="${f(l * k)}" height="${f(b * k)}" fill="#fff" stroke="#111" stroke-width="0.5" rx="${f(Math.min(2, 2.5 * k))}"/>`);
     for (const g of d.gaten) el.push(`<circle cx="${f(x0 + g.x * k)}" cy="${f(y0 + (b - g.y) * k)}" r="${f(Math.max(0.35, (g.d / 2) * k))}" fill="#fff" stroke="#b42318" stroke-width="0.3"/>`);
@@ -165,7 +185,7 @@ export function stukBlad(o, p, meta = {}) {
       if (d.gaten.length > 14) { el.push(tk(25, y + 1, `+ ${d.gaten.length - 14} gaten: zie de CSV`, 1.9, { kleur: '#b42318' })); y += 3; }
     }
     const pasN = d.gaten.some((g) => /Lageroor|Lagerhuis/.test(d.naam) && g.d >= 28) ? `Passing: gat Ø${d.gaten[0].d} H7 (buitenmaat flensglijlager), boren en ruimen of laseren + nadraaien.` : '';
-    for (const n of [d.opm, pasN, d.vorm === 'driehoek' ? `Vorm: rechthoekige driehoek, benen ${r0(l)} x ${r0(b)} mm (de twee maten hierboven), schuine zijde ${r0(Math.hypot(l, b))} mm; hoeken r 2.` : d.vorm ? `Vorm: ${d.vorm}; contour volgens de maten hierboven (DXF: export uit het model, AANNAME)` : '', 'Lasersnijden S235JR, braamvrij, randen r ≥ 2,5 waar het lichaam komt; ISO 2768-m.'].filter(Boolean)) for (const x of rij(n, 92)) { if (y > 170) break; el.push(tk(25, y + 2, x, 2, { kleur: '#333' })); y += 2.8; }
+    for (const n of [d.opm, pasN, d.contour ? `Vorm: vrije contour met afrondingen (${gw(d.contour.omtrek / 1000, 2)} m snijlijn${d.contour.uitsparingen.length ? `, ${d.contour.uitsparingen.length} uitsparing${d.contour.uitsparingen.length > 1 ? 'en' : ''}` : ''}); exacte vorm in de DXF (polylijn met bogen); gaten x/y vanaf de omhullende rechthoek.` : d.vorm === 'driehoek' ? `Vorm: rechthoekige driehoek, benen ${r0(l)} x ${r0(b)} mm (de twee maten hierboven), schuine zijde ${r0(Math.hypot(l, b))} mm; hoeken r 2.` : d.vorm ? `Vorm: ${d.vorm}; contour volgens de maten hierboven (DXF: export uit het model, AANNAME)` : '', 'Lasersnijden S235JR, braamvrij, randen r ≥ 2,5 waar het lichaam komt; ISO 2768-m.'].filter(Boolean)) for (const x of rij(n, 92)) { if (y > 170) break; el.push(tk(25, y + 2, x, 2, { kleur: '#333' })); y += 2.8; }
   }
   el.push(titelblok(o, A4L, { titel: `Pos ${p.pos}: ${p.naam}`, nr: `${nr(o, 'S')}${String(p.pos).padStart(2, '0')}`, schaal: schaalTekst, datum: datum(meta), blad: meta.blad ?? '', materiaal: p.mat ? p.mat.slice(0, 14) : 'S235', soort: 'stukblad' }));
   return svg(A4L, el.join(''));

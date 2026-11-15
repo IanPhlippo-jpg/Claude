@@ -27,12 +27,35 @@ function kussenSchuin(b, naam, S, n, breedte, van = 0, tot = 1, dikte = 68) {
 }
 const cross3 = (a, c) => [a[1] * c[2] - a[2] * c[1], a[2] * c[0] - a[0] * c[2], a[0] * c[1] - a[1] * c[0]];
 /** vlakke bankbasis: voorvoet, achtervoet, twee poten, ligger; geeft { lig, poten, voeten, top } */
-function bankBasis(b, L = 1150, top = 372, yv = 120, ya = null) {
+function bankBasis(b, L = 1150, top = 372, yv = 120, ya = null, { vorm = false } = {}) {
+  if (vorm) return bankVorm(b, L, top, yv, ya ?? L - 120);
   const P = b.P('bank'), h = P.h, Pv = b.P('bank');
   ya = ya ?? L - 120;
   const v1 = voet(b, 'Voorvoet', yv, pro(b) ? 460 : 400), v2 = voet(b, 'Achtervoet', ya, pro(b) ? 460 : 400);
   const p1 = staander(b, 'Poot', 'bank', 0, yv, Pv.b, top - h), p2 = staander(b, 'Poot', 'bank', 0, ya, Pv.b, top - h);
   const lig = b.staaf('Ligger', 'bank', [0, 0, top - h / 2], [0, L, top - h / 2]);
+  return { lig, poten: [p1, p2], voeten: [v1, v2], top };
+}
+
+/**
+ * bankframe in de pro-vormtaal: ligger in vlakovaalbuis, een gebogen achterpoot (schuin naar achter, met een bocht in de
+ * vloerloper), een rechte voorpoot op een voorvoet met twee transportwielen, en een handgreep aan het hoofdeinde om
+ * de bank op de wielen te kantelen en te verrijden.
+ */
+function bankVorm(b, L, top, yv, ya) {
+  const P = b.P('bankO'), h = P.h, Pv = b.P('bank'), br = pro(b) ? 460 : 400;
+  const lig = b.staaf('Ligger', 'bankO', [0, 0, top - h / 2], [0, L, top - h / 2], { opm: 'vlakovaalbuis, hoogte verticaal' });
+  const v1 = voet(b, 'Voorvoet', yv, br);
+  const p1 = staander(b, 'Poot', 'bankO', 0, yv, Pv.b, top - h);
+  // achterpoot: van onder de ligger schuin naar achter tot op de vloer, dan in een bocht naar een korte vloerloper
+  const zv = Pv.b / 2, yA = ya - 230, yB = ya + 10, yC = ya + 170, R = 3 * P.h;
+  const p2 = b.buis('Achterpoot', 'bankO', [[0, yA, top - h], [0, yB, zv], [0, yC, zv]], { R, vlak: [1, 0, 0], opm: `vlakovaalbuis, 1 bocht R${R}: van de ligger schuin naar achter tot in de vloerloper` });
+  const v2 = voet(b, 'Achtervoet', yC + Pv.h / 2, br);
+  // transportwielen aan de uiteinden van de voorvoet (5 mm boven de vloer: de bank staat op de stelvoeten)
+  const wz = 30 + 5;
+  b.koop('transportwiel', 2, [-1, 1].map((sx) => balk([sx * (br / 2 + 2), yv, wz], [sx * (br / 2 + 28), yv, wz], [0, 1, 0], 60, 60, true, 'rubber')), { naam: 'Transportwiel PU Ø60 aan de voorvoet (as M10 in een lasmoer)' });
+  // handgreep aan het hoofdeinde (achteraan): buis Ø32 dwars tegen de kopse kant van de ligger
+  b.staaf('Handgreep verplaatsen', 'greep', [-170, L + 16, top - h / 2], [170, L + 16, top - h / 2], { opm: 'buis Ø32 tegen de kopse kant van de ligger gelast; rubber handvat aan beide uiteinden: optillen en op de wielen rijden' });
   return { lig, poten: [p1, p2], voeten: [v1, v2], top };
 }
 
@@ -44,9 +67,9 @@ export const BANKEN = [
     maxLast: { thuis: 80, pro: 120 },
     markt: { thuis: [160, 305], pro: [400, 850], bronT: 'ATX Flat Bench € 169-289, Bodycraft € 299, Rogue Bolt Together Utility € 304', bronP: 'Taurus Studio € 399, Rogue Monster Utility 2.0 € 496, Hammer Strength Flat Bench ± € 810' },
     bouw(b) {
-      const V = b.V, L = pro(b) ? 1200 : 1150, B = pro(b) ? 300 : 280, bb = bankBasis(b, L, 372, 70, L - 70);
+      const V = b.V, L = pro(b) ? 1200 : 1150, B = pro(b) ? 300 : 280, bb = bankBasis(b, L, 372, 70, L - 70, { vorm: true });
       kussenplaat(b, bb.lig, 0.2); kussenplaat(b, bb.lig, 0.8);
-      kussenOp(b, 'Kussen', bb.lig, L, B, { op: 5 });
+      kussenOp(b, 'Kussen', bb.lig, L, B, { op: 5, taps: [B - 50, B] });
       b.last('Gebruiker zit op het einde van de bank', 100, [0, L - 120, 600], { geval: 'liggen' });
       b.last('Eén halter naast de bank (rotatieproef: 10 kg H, 20 kg S)', V.klasse === 'H' ? 10 : 20, [380, L / 2, 700], { geval: 'liggen' });
       b.reken('Ligger tussen de poten', bb.lig, 'ligger', bb.poten[1].a[1] - bb.poten[0].a[1], 0, { gk: V.gebruiker, g: this.maxLast[V.id], proef: 'extrinsiek' });
@@ -61,9 +84,9 @@ export const BANKEN = [
     markt: { thuis: [300, 830], pro: [800, 1950], bronT: 'Gorilla verstelbare bank € 300, Bodycraft F320 € 349, Taurus B990 € 399, Rogue Adjustable 3.0 € 829', bronP: 'Matrix Multi-Adjustable € 799, Rogue Manta Ray € 1216, Hammer Strength Multi-Adjustable ± € 1950' },
     bouw(b) {
       const V = b.V, L = 1300, B = pro(b) ? 300 : 280, P = b.P('bank'), Pl = b.P('bankLicht'), top = 372, a = rad(30), yp = 470;
-      const bb = bankBasis(b, L, top, 120, L - 120);
+      const bb = bankBasis(b, L, top, 120, L - 120, { vorm: true });
       kussenplaat(b, bb.lig, 0.1);
-      kussenOp(b, 'Zitting', bb.lig, 300, B, { op: 5, t: 0.11 });
+      kussenOp(b, 'Zitting', bb.lig, 300, B, { op: 5, t: 0.11, taps: [B - 40, B], neus: { kant: 'a', r: 110 } });
       // scharnieroren en ladder op de ligger; de rugleuning staat op 25° (stand 0) tot 85° (stand 1)
       const zp = top + 40, piv = [0, yp, zp], a2 = rad(25 + 60 * b.stand), Lp = 420;
       for (const s of [-1, 1]) b.plaat('Scharnieroor', [s * (P.b / 2) + (s > 0 ? 0 : -V.plaat), yp - 40, top], [s * (P.b / 2) + (s > 0 ? V.plaat : 0), yp + 40, top + 80], { gaten: [{ p: [s * P.b / 2, yp, zp], d: V.pin + 1 }] });

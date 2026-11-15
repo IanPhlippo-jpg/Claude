@@ -10,7 +10,7 @@ import { werkwijze, UREN } from './werkwijze.mjs';
 export const STANDAARD = {
   uurloon: 45,
   marge: { rek: 35, bank: 35, kabel: 30, plate: 30 }, margePro: 25,
-  staalKg: 1.8, laserKg: 4.5, stapelKg: 2.2, coatM2: 25, afval: 15, btw: 21,
+  staalKg: 1.8, laserKg: 4.5, stapelKg: 2.2, plaatKg: 1.6, snijM: { 3: 0.9, 6: 1.4, 10: 2.2, 99: 3.2 }, insteek: 0.25, bocht: 9, buigInstel: 25, coatM2: 25, afval: 15, btw: 21,
   koopPrijs: {},
   // leercurve: factor op de uren voor het zoveelste stuk van een reeks (stuk 1 = prototype, stuk 20 = met lasmallen)
   reeks: 5, leercurve: { 1: 2.5, 5: 1.6, 20: 1.0 },
@@ -22,9 +22,11 @@ export const BRON = {
   staalKg: 'AANNAME: groothandel S235JRH ± € 1,50/kg (eHorst), winkelprijs koker 60x60x3 € 22,26/m ≈ € 4,30/kg (metallshopper.de): € 1,80/kg voor hele staven',
   laserKg: 'AANNAME: plaat 5 mm op maat ± € 5,30/kg incl. btw (metallshopper.de); lasersnijden met materiaal ± € 4,50/kg excl. btw',
   stapelKg: 'AANNAME: stapelplaat 300 x 112 x 20 gelaserd ± € 8-13 per plaat (geen losse platen te koop gevonden)',
+  laser: 'AANNAME: plaat S235 ± € 1,60/kg + lasersnijden per meter snijlijn (≤ 3 mm € 0,90, ≤ 6 mm € 1,40, ≤ 10 mm € 2,20, dikker € 3,20) + € 0,25 per insteek (BE-loonsnijders, op te vragen)',
+  buigen: 'AANNAME: buizenbuigerij € 9 per bocht + € 25 instellen per positie (ovaal- en kokerbuis, R ≥ 3 x de hoogte)',
   coatM2: 'AANNAME: poedercoat met stralen ± € 15-35/m² excl. btw (lakkerij BE)',
 };
-export const CAT = { staal: 'Staal (staven)', laser: 'Laserdelen', stapel: 'Gewichtstapel', coat: 'Poedercoat', koop: 'Kooponderdelen', bekleding: 'Bekleding', overhead: 'Overhead', arbeid: 'Arbeid' };
+export const CAT = { staal: 'Staal (staven)', buigen: 'Buigen (uitbesteed)', laser: 'Laserdelen', stapel: 'Gewichtstapel', coat: 'Poedercoat', koop: 'Kooponderdelen', bekleding: 'Bekleding', overhead: 'Overhead', arbeid: 'Arbeid' };
 const BEKLEDING = new Set(['multiplex', 'schuim', 'leerThuis', 'leerPro', 'inslagmoer', 'nietjes']);
 
 /** de kostprijs; inst = instellingen (STANDAARD + wijzigingen) */
@@ -35,7 +37,10 @@ export function kostprijs(o, inst = {}) {
   const kgStaaf = zp.profielen.reduce((s, p) => s + p.kg, 0) * (1 + I.afval / 100), kgPrijs = zp.profielen.reduce((s, p) => s + p.kg * (p.prijsFactor ?? 1), 0) * (1 + I.afval / 100);
   regels.push({ cat: 'staal', wat: `Staal: ${zp.profielen.map((p) => `${p.naam} ${p.nodig.toFixed(1).replace('.', ',')} m`).join(', ')} (${Math.round(kgStaaf)} kg met ${I.afval} % afval${kgPrijs > kgStaaf + 0.5 ? '; vlakovaalbuis x 1,5' : ''})`, bedrag: kgPrijs * I.staalKg, bron: kgPrijs > kgStaaf + 0.5 ? `${BRON.staalKg}; AANNAME: vlakovaalbuis ± 1,5 x de prijs per kg van een koker` : BRON.staalKg });
   const kgStapel = sl.posities.filter((p) => p.soort === 'plaat' && p.voorbeeld.stapel).reduce((s, p) => s + p.kg * p.n, 0), kgLaser = t.kgPlaat - kgStapel;
-  regels.push({ cat: 'laser', wat: `Laserdelen (${Math.round(kgLaser)} kg, ${sl.posities.filter((p) => p.soort === 'plaat' && !p.voorbeeld.stapel).reduce((s, p) => s + p.n, 0)} stuks)`, bedrag: kgLaser * I.laserKg, bron: BRON.laserKg });
+  if (t.bochten) regels.push({ cat: 'buigen', wat: `Buigen: ${t.bochten} bochten in ${t.buigPos} positie${t.buigPos > 1 ? 's' : ''}`, bedrag: t.bochten * I.bocht + t.buigPos * I.buigInstel, bron: BRON.buigen });
+  const snijPrijs = (tt) => { const k = Object.keys(I.snijM).map(Number).sort((a, b) => a - b).find((x) => tt <= x) ?? 99; return I.snijM[k]; };
+  const laserP = sl.posities.filter((p) => p.soort === 'plaat' && !p.voorbeeld.stapel), snijBedrag = laserP.reduce((s2, p) => s2 + p.n * (p.snij.m * snijPrijs(p.t) + p.snij.insteken * I.insteek), 0);
+  regels.push({ cat: 'laser', wat: `Laserdelen (${Math.round(kgLaser)} kg, ${laserP.reduce((s2, p) => s2 + p.n, 0)} stuks, ${(t.snijM).toFixed(1).replace('.', ',')} m snijlijn, ${t.insteken} insteken)`, bedrag: kgLaser * I.plaatKg + snijBedrag, bron: BRON.laser });
   if (kgStapel) regels.push({ cat: 'stapel', wat: `Gewichtstapel (${Math.round(kgStapel)} kg, platen 20 mm)`, bedrag: kgStapel * I.stapelKg, bron: BRON.stapelKg });
   regels.push({ cat: 'coat', wat: `Poedercoat ${t.opp.toFixed(1).replace('.', ',')} m²`, bedrag: t.opp * I.coatM2, bron: BRON.coatM2 });
   const koop = sl.koop.map((x) => { const prijs = I.koopPrijs[x.key] ?? x.prijs; return { ...x, prijs, bedrag: x.bedrag - x.hoeveelheid * x.prijs + x.hoeveelheid * prijs }; });

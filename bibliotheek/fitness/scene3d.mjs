@@ -5,6 +5,7 @@
 // textuur. Slepen = draaien, scrollen of knijpen = zoomen. 'three' en 'three/addons/' komen uit de importmap van de
 // pagina of worden gebundeld (presentatie).
 import { RAL_FITNESS, BEKLEDING } from './onderdelen.mjs';
+import { afronden, cirkelPunten } from './vorm.mjs';
 
 const v3 = (p) => [p[0], p[2], -p[1]]; // model (z omhoog) -> three (y omhoog)
 /** rechthoek b x h met afgeronde hoeken r, gecentreerd (three Shape) */
@@ -113,7 +114,9 @@ export async function scene3d(houder) {
     let geo;
     if (g.rond || g.zes) { geo = new THREE.CylinderGeometry(g.bw / 2, g.bh / 2, L, g.zes ? 6 : g.bw > 200 ? 48 : g.gat || g.kleur === 'gatrand' ? 24 : 28); geo.rotateZ(-Math.PI / 2); }
     else if (g.kussen && L > 60 && g.bw > 60) {
-      const e = 12, sh = rondRechthoek(THREE, L - 2 * e, g.bw - 2 * e, 30);
+      // kussen: rechthoekig of taps (breedte b0 aan a, b1 aan b), met een ronde neus (grote straal aan één uiteinde)
+      const e = 12, b0 = (g.taps?.[0] ?? g.bw) - 2 * e, b1 = (g.taps?.[1] ?? g.bw) - 2 * e, rA = g.neus?.kant === 'a' ? g.neus.r : 30, rB = g.neus?.kant === 'b' ? g.neus.r : 30;
+      const sh = g.taps || g.neus ? new THREE.Shape(afronden([[-(L - 2 * e) / 2, -b0 / 2, rA], [(L - 2 * e) / 2, -b1 / 2, rB], [(L - 2 * e) / 2, b1 / 2, rB], [-(L - 2 * e) / 2, b0 / 2, rA]], 10).punten.map(([px, py]) => new THREE.Vector2(px, py))) : rondRechthoek(THREE, L - 2 * e, g.bw - 2 * e, 30);
       geo = new THREE.ExtrudeGeometry(sh, { depth: Math.max(1, g.bh - 2 * e), bevelEnabled: true, bevelThickness: e, bevelSize: e, bevelSegments: 5, curveSegments: 8 }); geo.translate(0, 0, -(g.bh - 2 * e) / 2);
     } else if (g.r && L >= 1.5) {
       // koker met afgeronde hoeken (2t) of ovaalbuis (r = halve hoogte)
@@ -122,6 +125,31 @@ export async function scene3d(houder) {
     } else geo = new THREE.BoxGeometry(L, g.bw, g.bh);
     const m = new THREE.Mesh(geo, mat); m.castShadow = !mat.transparent; m.receiveShadow = true;
     m.matrix.makeBasis(x, y, z); m.matrix.setPosition(A.clone().add(B).multiplyScalar(0.5)); m.matrixAutoUpdate = false;
+    return m;
+  };
+  /** gebogen buis: de doorsnede (afgeronde rechthoek, ovaal of cirkel) langs de bemonsterde hartlijn (vlak = normaal) */
+  const sweep = (d, mat) => {
+    const P = d.P, rond = P.vorm === 'buis' || P.vorm === 'rond', r = P.ovaal ? Math.min(P.b, P.h) / 2 : P.vorm === 'koker' ? Math.min(2 * P.t, Math.min(P.b, P.h) / 4) : 0;
+    const prof = rond ? cirkelPunten(0, 0, P.b / 2, 32) : rondRechthoek(THREE, d.staand ? P.h : P.b, d.staand ? P.b : P.h, r).getPoints(r > 10 ? 10 : 3).map((q) => [q.x, q.y]);
+    if (!rond && prof.length > 1) { const a = prof[0], z = prof[prof.length - 1]; if (Math.hypot(a[0] - z[0], a[1] - z[1]) < 1e-6) prof.pop(); }
+    const m = prof.length, pos = [], idx = [], v = d.vlak;
+    for (const q of d.pad) { const w = [q.t[1] * v[2] - q.t[2] * v[1], q.t[2] * v[0] - q.t[0] * v[2], q.t[0] * v[1] - q.t[1] * v[0]]; for (const [px, py] of prof) pos.push(...v3([q.p[0] + v[0] * px + w[0] * py, q.p[1] + v[1] * px + w[1] * py, q.p[2] + v[2] * px + w[2] * py])); }
+    for (let i = 0; i < d.pad.length - 1; i++) for (let j = 0; j < m; j++) { const a = i * m + j, b = i * m + ((j + 1) % m), c = (i + 1) * m + j, e = (i + 1) * m + ((j + 1) % m); idx.push(a, c, b, b, c, e); }
+    // kopse kanten (eigen hoekpunten, zodat de normalen scherp blijven)
+    const tri = THREE.ShapeUtils.triangulateShape(prof.map(([px, py]) => new THREE.Vector2(px, py)), []);
+    for (const [k, i0] of [[0, 0], [1, d.pad.length - 1]]) { const base = pos.length / 3; for (let j = 0; j < m; j++) pos.push(pos[(i0 * m + j) * 3], pos[(i0 * m + j) * 3 + 1], pos[(i0 * m + j) * 3 + 2]); for (const [a, b, c] of tri) idx.push(...(k ? [base + a, base + b, base + c] : [base + a, base + c, base + b])); }
+    const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); geo.setIndex(idx); geo.computeVertexNormals();
+    const mm = new THREE.Mesh(geo, mat); mm.castShadow = true; mm.receiveShadow = true; return mm;
+  };
+  /** contourplaat: de vorm met uitsparingen en gaten, geëxtrudeerd over de dikte */
+  const plaatMesh = (c, gaten, mat) => {
+    const sh = new THREE.Shape(c.punten.map(([px, py]) => new THREE.Vector2(px, py)));
+    for (const u of c.uitsparingen ?? []) sh.holes.push(new THREE.Path(u.punten.map(([px, py]) => new THREE.Vector2(px, py))));
+    for (const g of gaten ?? []) if (g.lx != null) sh.holes.push(new THREE.Path(cirkelPunten(g.lx, g.ly, g.d / 2, 24).map(([px, py]) => new THREE.Vector2(px, py))));
+    const T = c.toon ?? null, dk = T ? T.t - 2 * T.bevel : c.t, bv = T ? T.bevel : Math.min(1, c.t / 6);
+    const geo = new THREE.ExtrudeGeometry(sh, { depth: Math.max(0.5, dk), bevelEnabled: T ? true : c.t > 3, bevelThickness: bv, bevelSize: T ? bv * 0.6 : bv, bevelSegments: T ? 5 : 1, curveSegments: 1 }); geo.translate(0, 0, -dk / 2 + (T?.dz ?? 0));
+    const m = new THREE.Mesh(geo, mat); m.castShadow = !mat.transparent; m.receiveShadow = true;
+    m.matrix.makeBasis(new THREE.Vector3(...v3(c.ex)), new THREE.Vector3(...v3(c.ey)), new THREE.Vector3(...v3(c.n))); m.matrix.setPosition(new THREE.Vector3(...v3(c.o))); m.matrixAutoUpdate = false;
     return m;
   };
   function toon(o, keuzes = {}) {
@@ -149,7 +177,13 @@ export async function scene3d(houder) {
       kap: std(ral.hex, 0.5, 0.2, { transparent: true, opacity: 0.28, depthWrite: false, side: THREE.DoubleSide }),
       context: std('#9a9a9a', 0.8, 0, { transparent: true, opacity: 0.35, depthWrite: false }),
     };
-    const geo = [...o.delen.flatMap((d) => d.geo), ...o.kussens.flatMap((d) => d.geo), ...o.koop.flatMap((d) => d.geo), ...(o.detail ?? []), ...o.toon, ...(o.context ?? [])];
+    // gebogen buizen en contourplaten als echte vorm; hun hulpbalken (seg) niet tonen
+    for (const d of o.delen) {
+      if (d.pad) groep.add(sweep(d, M[d.geo[0]?.kleur] ?? M.frame));
+      else if (d.contour) groep.add(plaatMesh(d.contour, d.gaten, M[d.kleur === 'kap' ? 'kappaneel' : d.kleur] ?? M.frame));
+    }
+    for (const x of o.vormen ?? []) { if (x.vorm === 'contour') groep.add(plaatMesh(x, x.gaten, M[x.kleur] ?? M.frame)); else if (x.vorm === 'sweep') groep.add(sweep(x, M[x.kleur] ?? M.frame)); }
+    const geo = [...o.delen.flatMap((d) => d.geo.filter((g) => !g.seg)), ...o.kussens.flatMap((d) => d.geo), ...o.koop.flatMap((d) => d.geo), ...(o.detail ?? []), ...o.toon, ...(o.context ?? [])];
     // gatnummers: één doorzichtige textuur per cijfer, wit op een donker frame en zwart op een licht frame
     const licht = parseInt(ral.hex.slice(1, 3), 16) + parseInt(ral.hex.slice(3, 5), 16) + parseInt(ral.hex.slice(5, 7), 16) > 380, nrMat = new Map();
     const nummer = (nr) => { if (!nrMat.has(nr)) { const t = nummerTextuur(THREE, nr, licht ? '#16181b' : '#eceef0'); nrMat.set(nr, new THREE.MeshBasicMaterial({ map: t, transparent: true, depthWrite: false })); } return nrMat.get(nr); };

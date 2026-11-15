@@ -45,14 +45,14 @@ export const VERSIE = {
   thuis: {
     id: 'thuis', naam: 'Thuis', klasse: 'H', uitleg: 'EN ISO 20957 klasse H: thuisgebruik',
     gebruiker: 120, // kg op het label (norm: minstens 100)
-    P: { staander: 'k60x60x3', ligger: 'k60x60x3', voet: 'k60x60x3', licht: 'k50x50x3', klein: 'k40x40x2', bank: 'k80x40x3', bankLicht: 'k50x30x2', arm: 'k50x50x3', hefboom: 'k80x40x3', optrek: 'r30s', sleeve: 'b48x3', stang: 'r35', greep: 'b32x3', as: 'r25', bus: 'b42x3', toren: 'k60x60x3', breed: 'k100x50x3', wagen: 'k80x80x4' },
+    P: { staander: 'k60x60x3', ligger: 'k60x60x3', voet: 'k60x60x3', licht: 'k50x50x3', klein: 'k40x40x2', bank: 'k80x40x3', bankLicht: 'k50x30x2', arm: 'k50x50x3', hefboom: 'k80x40x3', optrek: 'r30s', sleeve: 'b48x3', stang: 'r35', greep: 'b32x3', as: 'r25', bus: 'b42x3', toren: 'k60x60x3', breed: 'k100x50x3', wagen: 'k80x80x4', frameO: 'o100x50x3', bankO: 'o80x40x3' },
     gat: 17, pin: 16, plaat: 8, voetplaat: 8, las: 3,
     katrol: 'katrol115', kabel: 'kabel6', stapelN: 16, stapelKg: 5, lager: 'glij25', lineair: 'lm25', selectiepen: 'selectiepen', pin25: 'pullpin16', leer: 'leerThuis', voetje: 'voetThuis', bout: 'boutM12', wiel: 'zwenkwiel50', handgreep: 'handgreep', latbar: 'latbarThuis', schuimrol: 'schuimrol100', kabeleind: 'kabelstop', wartel: 'wartelThuis',
   },
   pro: {
     id: 'pro', naam: 'Pro', klasse: 'S', uitleg: 'EN ISO 20957 klasse S: studio en commercieel gebruik',
     gebruiker: 150,
-    P: { staander: 'k80x80x4', ligger: 'k80x80x4', voet: 'k80x80x4', licht: 'k60x60x3', klein: 'k50x50x3', bank: 'k100x50x3', bankLicht: 'k60x40x3', arm: 'k60x60x4', hefboom: 'k100x50x4', optrek: 'r35s', sleeve: 'b48x8', stang: 'r38', greep: 'b32x3', as: 'r30', bus: 'b48x4', toren: 'k80x80x4', breed: 'k120x60x4', wagen: 'k100x100x4' },
+    P: { staander: 'k80x80x4', ligger: 'k80x80x4', voet: 'k80x80x4', licht: 'k60x60x3', klein: 'k50x50x3', bank: 'k100x50x3', bankLicht: 'k60x40x3', arm: 'k60x60x4', hefboom: 'k100x50x4', optrek: 'r35s', sleeve: 'b48x8', stang: 'r38', greep: 'b32x3', as: 'r30', bus: 'b48x4', toren: 'k80x80x4', breed: 'k120x60x4', wagen: 'k100x100x4', frameO: 'o120x60x4', bankO: 'o100x50x3' },
     gat: 26, pin: 25, plaat: 10, voetplaat: 12, las: 4,
     katrol: 'katrol115pro', kabel: 'kabel6', stapelN: 20, stapelKg: 5, lager: 'glij30', lineair: 'lm25pro', selectiepen: 'selectiepenPro', pin25: 'pullpin25', leer: 'leerPro', voetje: 'voetPro', bout: 'boutM16', wiel: 'zwenkwiel75', handgreep: 'vgrip', latbar: 'latbar', schuimrol: 'schuimrol100', kabeleind: 'kabeleind', wartel: 'wartel',
   },
@@ -150,6 +150,8 @@ export const KOOP = {
   vhb: k('Dubbelzijdige kleefband 3M VHB 5952 (logoplaat)', '3M VHB 5952 19 mm x 3 m', 'AANNAME (vakhandel)', 9.5, 'rol', 'AANNAME', false),
   instructiesticker: k('Instructieplaat: alu 0,8 mm bedrukt (oefeningen, spieren, pen-instructie)', 'instructieplaat 80 x 175 / 150 x 210', 'graveerdienst', 9, 'st', 'AANNAME', false),
   katrolkap: k('Katrolkap ABS (2 schalen, voor katrol Ø90-115)', 'pulley cover ABS 145 mm', 'AANNAME (fitness-onderdelen)', 7.5, 'st', 'AANNAME', false),
+  transportwiel: k('Transportwiel PU Ø60 met as M10 (voor de bank, vrij van de vloer)', 'transportwiel 60 mm PU', 'AANNAME (bouwmarkt/fitness-onderdelen)', 4.2, 'st', 'AANNAME', false),
+  voetkap: k('Voetkap ABS over een torenvoet (afgerond, rubber onderrand)', 'foot cover ABS 80/100', 'AANNAME (fitness-onderdelen)', 12, 'st', 'AANNAME', false),
   naafkap: k('Naafkap ABS Ø90 met klemring (accentkleur, over de stelring)', 'pivot cap ABS 90 mm', 'AANNAME (spuitgietwerk/fitness-onderdelen)', 4.5, 'st', 'AANNAME', false),
   verchromen: k('Hardverchromen schijfhouder (of RVS-huls Ø50 erover)', 'hardchroom 20 µm, per stuk tot 400 mm', 'AANNAME (galvanobedrijf BE)', 22, 'st', 'AANNAME', false),
   polycarbonaat: k('Kijkvenster polycarbonaat 4 mm helder, op maat gezaagd', 'Makrolon 4 mm', 'AANNAME (kunststofplatenhandel)', 18, 'st', 'AANNAME', false),

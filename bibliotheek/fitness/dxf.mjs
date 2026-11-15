@@ -7,13 +7,46 @@ const n = (v) => (Math.round(v * 1000) / 1000).toString();
 const lijn = (x1, y1, x2, y2) => `0\nLINE\n8\nCONTOUR\n10\n${n(x1)}\n20\n${n(y1)}\n30\n0\n11\n${n(x2)}\n21\n${n(y2)}\n31\n0\n`;
 const cirkel = (x, y, r, laag = 'GATEN') => `0\nCIRCLE\n8\n${laag}\n10\n${n(x)}\n20\n${n(y)}\n30\n0\n40\n${n(r)}\n`;
 const tekst = (x, y, h, t) => `0\nTEXT\n8\nTEKST\n10\n${n(x)}\n20\n${n(y)}\n30\n0\n40\n${n(h)}\n1\n${String(t).replace(/\n/g, ' ')}\n`;
+/** gesloten polylijn met bogen (bulge = tan(θ/4)) */
+const polylijn = (pts, laag = 'CONTOUR') => `0
+POLYLINE
+8
+${laag}
+66
+1
+70
+1
+10
+0
+20
+0
+30
+0
+${pts.map((p) => `0
+VERTEX
+8
+${laag}
+10
+${n(p.x)}
+20
+${n(p.y)}
+30
+0
+${p.bulge ? `42
+${n(p.bulge)}
+` : ''}`).join('')}0
+SEQEND
+8
+${laag}
+`;
 const omhul = (ent) => `0\nSECTION\n2\nHEADER\n9\n$ACADVER\n1\nAC1009\n9\n$INSUNITS\n70\n4\n0\nENDSEC\n0\nSECTION\n2\nENTITIES\n${ent}0\nENDSEC\n0\nEOF\n`;
 
 /** DXF van één plaat (deel uit het model): l langs x, b langs y, gaten op (x, y) */
 export function plaatDxf(d, pos = '') {
   const l = d.l, b = d.bmaat;
   let e = '';
-  if (d.rond) e += cirkel(l / 2, l / 2, l / 2, 'CONTOUR');
+  if (d.contour) { const c = d.contour, sh = (p) => ({ x: p.x - c.minx, y: p.y - c.miny, bulge: p.bulge }); e += polylijn(c.segmenten.map(sh)); for (const u of c.uitsparingen) e += polylijn(u.segmenten.map(sh), 'UITSPARING'); }
+  else if (d.rond) e += cirkel(l / 2, l / 2, l / 2, 'CONTOUR');
   else if (d.vorm === 'driehoek') e += lijn(0, 0, l, 0) + lijn(l, 0, 0, b) + lijn(0, b, 0, 0);
   else e += lijn(0, 0, l, 0) + lijn(l, 0, l, b) + lijn(l, b, 0, b) + lijn(0, b, 0, 0);
   for (const g of d.gaten) e += cirkel(g.x, g.y, g.d / 2);

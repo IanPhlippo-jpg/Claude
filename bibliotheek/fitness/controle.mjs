@@ -1,7 +1,8 @@
 // Geometriecontroles op het model, gedeeld door de test en de werkplaats: botsingen tussen gedraaide balken (OBB,
 // scheidende-as-stelling), zwevende onderdelen, de kabelloop (in het vlak van elke katrol, niet door profielen) en
 // bereikbaarheid (zithoogtes, grepen, schijfhouders vrij). Node en browser.
-import { sub, dot, cross, len, norm, aabb, contact, add, mul } from './model.mjs';
+import { sub, dot, cross, len, norm, aabb, contact, add, mul, doosVan } from './model.mjs';
+import { puntOp, randAfstand, binnen } from './vorm.mjs';
 
 /** OBB van een balk: midden, assen, halve maten (een ronde balk iets kleiner: ingeschreven) */
 export function obb(g, krimp = 0) {
@@ -31,10 +32,10 @@ function vrijgesteld(o) {
 /** alle botsingen tussen stalen delen en kussens (krimp 1 mm): [{ a, b }] */
 export function botsingen(o, krimp = 1) {
   const items = [...o.delen.filter((d) => d.kleur !== 'kap'), ...o.kussens], vrij = vrijgesteld(o), uit = [];
-  const B = items.map((d) => d.geo.map((g) => obb(g, krimp)));
+  const B = items.map((d) => d.geo.map((g) => obb(g, krimp))), D = items.map((d) => (d.geo.length > 1 ? doosVan(d.geo) : aabb(d.geo[0])));
   for (let i = 0; i < items.length; i++) for (let j = i + 1; j < items.length; j++) {
     if (vrij(items[i], items[j])) continue;
-    const [a0, a1] = aabb(items[i].geo[0]), [b0, b1] = aabb(items[j].geo[0]);
+    const [a0, a1] = D[i], [b0, b1] = D[j];
     if ([0, 1, 2].some((x) => a0[x] > b1[x] + 1 || b0[x] > a1[x] + 1)) continue;
     if (B[i].some((p) => B[j].some((q) => botsen(p, q)))) uit.push({ a: items[i].naam, b: items[j].naam, ga: items[i].groep, gb: items[j].groep });
   }
@@ -106,7 +107,8 @@ export function gaten(o) {
   const uit = [];
   for (const d of o.delen) {
     if (d.soort === 'staaf') for (const g of d.gaten) {
-      const as = g.as === 'v' ? d.v : d.w, p = add(d.a, mul(d.u, g.s)), half = (g.as === 'v' ? d.P.b : d.P.h) / 2;
+      const fr = d.pad ? puntOp(d, g.s) : { p: add(d.a, mul(d.u, g.s)), v: d.v, w: d.w };
+      const as = g.as === 'v' ? fr.v : fr.w, p = fr.p, half = ((g.as === 'v') !== !!d.staand ? d.P.b : d.P.h) / 2;
       uit.push({ deel: d, p, as, d: g.d, door: g.door ?? 2, punten: [add(p, mul(as, half)), add(p, mul(as, -half))], g });
     } else for (const g of d.gaten) {
       const as = [0, 0, 0]; as[d.as.t] = 1; const p = [...g.p]; p[d.as.t] = (d.mn[d.as.t] + d.mx[d.as.t]) / 2;
@@ -173,6 +175,7 @@ export function gatFouten(o) {
     } else {
       const e = 1.5 * g.d, x = g.g.x, y = g.g.y;
       if (d.rond) { if (Math.hypot(x - d.l / 2, y - d.bmaat / 2) > d.l / 2 - e + 0.5 && Math.hypot(x - d.l / 2, y - d.bmaat / 2) > 1) uit.push(`${d.naam}: gat Ø${g.d} te dicht bij de rand`); }
+      else if (d.contour) { const q = [g.g.lx, g.g.ly], m = Math.min(binnen(q, d.contour.punten) ? randAfstand(q, d.contour.punten) : -1, ...d.contour.uitsparingen.map((u) => (binnen(q, u.punten) ? -1 : randAfstand(q, u.punten)))); if (m < e - 0.5) uit.push(`${d.naam}: gat Ø${g.d} randafstand ${Math.round(m)} < 1,5 x Ø (${Math.round(e)}) tot de contour`); }
       else if (Math.min(x, d.l - x, y, d.bmaat - y) < e - 0.5) uit.push(`${d.naam}: gat Ø${g.d} randafstand ${Math.round(Math.min(x, d.l - x, y, d.bmaat - y))} < 1,5 x Ø (${Math.round(e)})`);
     }
   }
@@ -247,14 +250,14 @@ function punten(B) {
 export function knelAfstanden(o) {
   const staal = o.delen.filter((d) => d.kleur !== 'kap'), los = staal.filter((d) => BEWEEGT.test(d.groep)), vast = staal.filter((d) => !BEWEEGT.test(d.groep)), vrij = vrijgesteld(o), uit = [];
   for (const a of los) {
-    const A = obb(a.geo[0]);
     let best = null;
-    for (const b of vast) {
+    for (const A of a.geo.map((g) => obb(g))) for (const b of vast) {
       if (vrij(a, b)) continue;
-      const B = obb(b.geo[0]);
-      if (len(sub(A.c, B.c)) > Math.hypot(...A.h) + Math.hypot(...B.h) + 30) continue;
-      const mm = Math.min(...punten(A).map((p) => puntObb(p, B)), ...punten(B).map((p) => puntObb(p, A)));
-      if (!best || mm < best.mm) best = { a: a.naam, b: b.naam, mm };
+      for (const B of b.geo.map((g) => obb(g))) {
+        if (len(sub(A.c, B.c)) > Math.hypot(...A.h) + Math.hypot(...B.h) + 30) continue;
+        const mm = Math.min(...punten(A).map((p) => puntObb(p, B)), ...punten(B).map((p) => puntObb(p, A)));
+        if (!best || mm < best.mm) best = { a: a.naam, b: b.naam, mm };
+      }
     }
     if (best && best.mm < 60) uit.push(best);
   }

@@ -25,11 +25,37 @@ export function toren(b, { x0 = 0, yt, H = 2100, naam = '', n, ogen = [0], voorV
   // afscherming voor en achter (plaat 1,5 mm, met M8 aan de staanders): tot 60 mm boven de stapel in de hoogste stand
   const zk = Math.min(H - a, s.top + s.slag + 60);
   b.groep(`Afscherming ${naam}`.trim());
-  for (const k of [-1, 1]) b.plaat(`Afscherming ${k < 0 ? 'voor' : 'achter'}`, [x0 - xs + a / 2, yt + k * (dpl / 2 + 20), a], [x0 + xs - a / 2, yt + k * (dpl / 2 + 21.5), zk], { opm: 'plaat 1,5 mm, 4 x M8 aan de staanders, kanten omgezet', kleur: 'kap', laser: true });
-  for (const sx of [-1, 1]) for (const k of [-1, 1]) { const xi = x0 + sx * (xs - a / 2); b.plaat('Afscherming zijkant', [Math.min(xi, xi - sx * 1.5), Math.min(yt + k * a / 2, yt + k * (dpl / 2 + 20)), a], [Math.max(xi, xi - sx * 1.5), Math.max(yt + k * a / 2, yt + k * (dpl / 2 + 20)), zk], { opm: 'zijstrook 1,5 mm: sluit de spleet tussen staander en afscherming (klasse S: gesloten aan de gebruikerszijde)', kleur: 'kap', laser: true }); }
-  b.koop('boutM8', 16, [], { naam: 'Bout M8 x 30 (afscherming voor, achter en zijstroken aan de staanders)' });
+  omkap(b, { x0, yt, xs, a, H, dpl, zk, L, Rv });
+  b.koop('boutM8', 16, [], { naam: 'Bout M8 x 30 met kunststof ring (kappen aan de staanders, verzonken)' });
   b.groep(oud);
   return { sL, sR, L: L, Rv, onder, boven, voor, achter, s, xs, a, r, zP: H - a - 15 - r, yt, x0, H, dpl, zk };
+}
+/**
+ * de stapeltoren volledig omkapt (pro-vormtaal, zoals de selectorized toestellen van de grote merken): voor-, zij- en
+ * achterkap uit plaat 1,5 mm, gezet met hoeken R25, een afgeronde bovenkap (gezet 2 mm) en ABS-voetkappen over de
+ * torenvoeten. In de voorkap een kijkvenster (polycarbonaat) met een sleuf voor de selectiepen en de instructieplaat.
+ * Het frame zit erachter; de kappen raken de staanders (M8 met kunststof ring).
+ */
+function omkap(b, { x0, yt, xs, a, H, dpl, zk, L, Rv }) {
+  const o = b.o, t = 1.5, kr = 25, Wx = xs + a / 2 + 1, yf = yt - dpl / 2 - 22, yb = yt + dpl / 2 + 22, zb = a + 2, zT = H + 25, sl = 25, vw = 55, vz0 = zb + 80, vz1 = Math.min(zk, zT - 320);
+  o.pronk = o.pronk ?? [];
+  const venster = [[x0 - sl - vw, vz0, 12], [x0 + sl + vw, vz0, 12], [x0 + sl + vw, vz1, 12], [x0 - sl - vw, vz1, 12]];
+  b.contour('Afscherming voor', [0, yf + t / 2, 0], [1, 0, 0], [0, 0, 1], t, [[x0 - Wx + kr, zb], [x0 + Wx - kr, zb], [x0 + Wx - kr, zT], [x0 - Wx + kr, zT]], { kleur: 'kap', uitsparingen: [venster], opm: `voorkap 1,5 mm DC01, gelaserd met een venster ${2 * (sl + vw)} x ${Math.round(vz1 - vz0)} (polycarbonaat erachter, sleuf ${2 * sl} mm voor de selectiepen); poedercoat RAL 9006` });
+  b.contour('Afscherming achter', [0, yb - t / 2, 0], [1, 0, 0], [0, 0, 1], t, [[x0 - Wx + kr, zb], [x0 + Wx - kr, zb], [x0 + Wx - kr, zT], [x0 - Wx + kr, zT]], { kleur: 'kap', opm: 'achterkap 1,5 mm DC01; poedercoat RAL 9006' });
+  for (const sx of [-1, 1]) b.contour('Afscherming zijkant', [x0 + sx * (Wx - t / 2), 0, 0], [0, 1, 0], [0, 0, 1], t, [[yf + kr, zb], [yb - kr, zb], [yb - kr, zT], [yf + kr, zT]], { kleur: 'kap', opm: 'zijkap 1,5 mm DC01, gezet: aan voor- en achterkant een plooi R25 naar binnen (sluit de hoeken); de stapel is rondom gesloten (klasse S)' });
+  const top = b.contour('Afscherming boven', [0, 0, zT + 1], [1, 0, 0], [0, 1, 0], 2, [[x0 - Wx, yf, 40], [x0 + Wx, yf, 40], [x0 + Wx, yb, 40], [x0 - Wx, yb, 40]], { kleur: 'kap', opm: 'bovenkap 2 mm, rondom 30 mm omgezet met R12 (afgerond deksel); kabeldoorvoer met borstel' });
+  top.contour.toon = { t: 34, bevel: 12, dz: 16 };
+  // ronde hoeken van de kap (de plooien R25) en het venster met de sleuf
+  for (const [xx, yy] of [[x0 - Wx + kr, yf + kr], [x0 + Wx - kr, yf + kr], [x0 - Wx + kr, yb - kr], [x0 + Wx - kr, yb - kr]]) o.pronk.push(balk([xx, yy, zb], [xx, yy, zT], [1, 0, 0], 2 * kr, 2 * kr, true, 'kappaneel'));
+  for (const sx of [-1, 1]) o.pronk.push(balk([x0 + sx * (sl + vw / 2), yf + 3, vz0 + 4], [x0 + sx * (sl + vw / 2), yf + 3, vz1 - 4], [1, 0, 0], vw, 4, false, 'venster'));
+  b.koop('polycarbonaat', 1, [], { naam: 'Kijkvenster polycarbonaat 4 mm achter de voorkap (2 delen naast de sleuf)', groep: 'afwerking' });
+  // instructieplaat op de voorkap, links van het venster
+  const pw = Math.min(150, Wx - sl - vw - kr - 20), ph = Math.round(pw * 1.4);
+  if (pw >= 60) { const zc = Math.min(1450, zT - ph / 2 - 60), xc = x0 - Wx + kr + 6 + pw / 2, op = [0, 0, 1], zij = [1, 0, 0]; o.pronk.push(balk([xc, yf - 0.6, zc - ph / 2], [xc, yf - 0.6, zc + ph / 2], zij, pw, 1, false, 'instructie')); o.instructieOpKap = true; void op; }
+  if (o.instructieOpKap) b.koop('instructiesticker', 1, [], { naam: 'Instructieplaat op de voorkap (oefeningen, spieren, pen-instructie)', groep: 'afwerking' });
+  // ABS-voetkappen over de torenvoeten
+  for (const V of [L, Rv]) { const g = balk(V.a, V.b, V.v, V.P.b + 14, V.P.h + 10, false, 'eindkap'); g.r = 18; g.a = [g.a[0], g.a[1], g.a[2] + 3]; g.b = [g.b[0], g.b[1], g.b[2] + 3]; o.pronk.push(g); }
+  b.koop('voetkap', 2, [], { naam: 'ABS-voetkap over de torenvoet (afgerond, met rubber onderrand)', groep: 'afwerking' });
 }
 /** katrol boven de stapel; de kabel komt recht omhoog uit de stapel en vertrekt naar richting 'naar' ('voor', 'achter', 'links', 'rechts') */
 function bovenKatrol(b, T, x, naar = 'voor', naam = 'boven') {
@@ -82,10 +108,11 @@ export const KABEL = [
     markt: { thuis: [600, 2400], pro: [3490, 5920], bronT: 'Gorilla lat pulley 80 kg € 600, Taurus Lat Pulley Station € 999, Tunturi Platinum Dual Lat/Low Row € 2399', bronP: 'Taurus IT95 € 3490, Primal 125 kg Dual Lat/Row ± € 4070, Hammer Strength Select Lat Pulldown € 5920' },
     bouw(b) {
       const V = b.V, T = toren(b, { yt: 1200, H: 2150, ogen: [] }), r = T.r, a = T.a, yb = 420, P = b.P('ligger');
-      const Pb = b.P('breed'), arm = b.staaf('Lat-arm', 'breed', [-60, T.yt + a / 2, T.H + Pb.h / 2], [-60, yb - 60, T.H + Pb.h / 2], { v: X, opm: 'ligt op de bovenligger van de toren (gelast + schot)' });
+      // lat-arm: vlakovaalbuis die vooraan licht opbuigt (pro-vormtaal); de katrolbeugel B loopt tot onder de arm
+      const Pb = b.P('frameO'), zArm = T.H + Pb.h / 2, opB = 120, arm = b.buis('Lat-arm', 'frameO', [[-60, T.yt + a / 2, zArm], [-60, T.yt - a / 2 - 220, zArm], [-60, yb - 60, zArm + opB]], { vlak: X, opm: `vlakovaalbuis, 1 bocht R${3 * Pb.h}; ligt op de bovenligger van de toren (gelast + schot), vooraan ${opB} mm hoger` });
       for (const s2 of [-1, 1]) b.staaf('Schetsplaat lat-arm', 's60x10', [-60 + s2 * (Pb.b / 2 + 5), T.yt + a / 2, T.H + 30], [-60 + s2 * (Pb.b / 2 + 5), T.yt - a / 2 - 150, T.H + 30], { v: X, kap: false, opm: 'schetsplaat 60 x 10 naast de arm, op de bovenligger en de arm gelast (vermoeiing)' });
       const pa = bovenKatrol(b, T, -60, 'voor', 'A (lat, boven de stapel)');
-      const pb = katrolBeugel(b, 'B (lat, vooraan de arm)', [-60, yb, T.H - 15 - r], X, { tot: { as: 2, w: T.H }, kap: false });
+      const pb = katrolBeugel(b, 'B (lat, vooraan de arm)', [-60, yb, T.H - 15 - r], X, { tot: { as: 2, w: T.H + opB * ((T.yt - a / 2 - 220 - yb) / (T.yt - a / 2 - 220 - yb + 60)) - 4 }, kap: false });
       const pc = bovenKatrol(b, T, 60, 'voor', 'C (low, boven de stapel)'), pd = onderKatrol(b, T, 60, 'D (low, onderaan)');
       // één kabel: lat - B - A - losse katrol op de stapel - C - D - low-row-greep; stopkogel aan beide uiteinden. Trek je
       // aan de lat, dan houdt de stopkogel van de low row tegen D en tilt de losse katrol de stapel (2:1, greepweg 2 x 600)
