@@ -25,7 +25,9 @@ while (rij.length) {
 const html = readFileSync(join(HERE, 'web/index.html'), 'utf8');
 writeFileSync(join(doel, 'index.html'), html); bytes += Buffer.byteLength(html);
 // klantversie (P2-26 v6): dezelfde pagina zonder werkplaats, instellingen, kostprijs en marktband
-const klant = `<script>document.documentElement.dataset.klant = '1';</script>\n${html}`;
+const klant = `<!doctype html><html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><script>document.documentElement.dataset.klant = '1';</script></head><body style="margin:0">
+${html}
+</body></html>`;
 writeFileSync(join(doel, 'klant.html'), klant); bytes += Buffer.byteLength(klant);
 const per = [...gezien].reduce((m, r) => { const k = r.split('/')[0]; m[k] = (m[k] ?? 0) + 1; return m; }, {});
 console.log(`index.html + ${Object.entries(per).map(([k, n]) => `${n} ${k}`).join(' + ')} modules, ${Math.round(bytes / 1024)} kB -> ${doel}`);
