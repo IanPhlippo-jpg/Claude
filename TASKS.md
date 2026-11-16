@@ -1473,4 +1473,4 @@ elease; README en docs/04 bijgewerkt
 - [x] Alle adviezen van fitness verwerken, met tests op de oude fouten (36 gedaan, 9 deels, 2 keuze Ian, 3 niet; commit 4597410, artifact v10)
 - [x] Alle adviezen van de treindoos verwerken, met tests op de oude fouten (57 gedaan, 5 deels; firmware 2.1.0, 159 tests, TRN-22 meetblad)
 - [x] Fitness: FS-nokken compact maken zoals bij de pro-merken (R ≤ 220 mm i.p.v. R 490, 2:1-takel op de stapel)
-- [ ] Web/app/artifacts bijwerken, foto's, commit en push
+- [x] Web/app/artifacts bijwerken, foto's, commit en push (fitness v11, trein-app v8)
