@@ -1466,3 +1466,10 @@ elease; README en docs/04 bijgewerkt
 - [x] Varianten per toestel (maat, uitvoering, afwerking, opties) in het model, de prijzen en de bestellijst
 - [x] Nieuwe toestellen erbij volgens de vragenronde, met berekening, tekeningen en controles
 - [x] Tests (controle, gaten, botsingen) groen, typecheck, web, presentatie, artifact, foto's, commit en push
+
+## Advies van Fable 5.2 op fitness v5 (150 toestellen) en treindoos v6, daarna verwerken (2026-11-16)
+- [~] Fable 5.2 leest de fitnesscatalogus v5 na (vormtaal, nieuwe reeksen FS/FM/FO/FX, varianten, EN 16630, prijzen)
+- [~] Fable 5.2 leest treindoos v6 na (firmware 2.0, IR, servo's, NPN/PNP, geluidskastje, doos fase B, tv)
+- [ ] Alle adviezen van fitness verwerken, met tests op de oude fouten
+- [ ] Alle adviezen van de treindoos verwerken, met tests op de oude fouten
+- [ ] Web/app/artifacts bijwerken, foto's, commit en push
